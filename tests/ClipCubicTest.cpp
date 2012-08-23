@@ -21,7 +21,7 @@ static void test_giantClip() {
     bm.allocPixels();
     SkCanvas canvas(bm);
     canvas.clear(0);
-    
+
     SkPath path;
     path.moveTo(0, 0); path.lineTo(1, 0); path.lineTo(33, 1);
     SkPaint paint;

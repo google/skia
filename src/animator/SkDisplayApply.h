@@ -27,7 +27,7 @@ public:
         kTransition_normal,
         kTransition_reverse
     };
-    
+
     enum Mode {
         kMode_create,
         kMode_immediate,
@@ -58,7 +58,7 @@ public:
     bool hasDelayedAnimator() const;
     virtual bool hasEnable() const;
     bool inactivate(SkAnimateMaker& maker);
-    virtual void initialize(); 
+    virtual void initialize();
     bool interpolate(SkAnimateMaker& , SkMSec time);
     virtual void onEndElement(SkAnimateMaker& );
     virtual const SkMemberInfo* preferredChild(SkDisplayTypes type);

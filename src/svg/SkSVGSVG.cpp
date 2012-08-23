@@ -48,8 +48,8 @@ void SkSVGSVG::translate(SkSVGParser& parser, bool defState) {
     box.fTop = SkScalarDiv(viewBox[1], height);
     box.fRight = SkScalarDiv(viewBox[2], width);
     box.fBottom = SkScalarDiv(viewBox[3], height);
-    if (box.fLeft == 0 && box.fTop == 0 && 
-        box.fRight == SK_Scalar1 && box.fBottom == SK_Scalar1) 
+    if (box.fLeft == 0 && box.fTop == 0 &&
+        box.fRight == SK_Scalar1 && box.fBottom == SK_Scalar1)
             return;
     parser._startElement("matrix");
     if (box.fLeft != 0) {
@@ -72,5 +72,5 @@ void SkSVGSVG::translate(SkSVGParser& parser, bool defState) {
         y.appendScalar(box.fBottom);
         parser._addAttributeLen("scaleY", y.c_str(), y.size());
     }
-    parser._endElement();   
+    parser._endElement();
 }

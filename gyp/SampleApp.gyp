@@ -104,7 +104,7 @@
         '../samplecode/SampleXfermodes.cpp',
         '../samplecode/SampleXfermodesBlur.cpp',
         '../samplecode/TransitionView.cpp',
-     
+
         # DrawingBoard
         #'../experimental/DrawingBoard/SkColorPalette.h',
         #'../experimental/DrawingBoard/SkColorPalette.cpp',
@@ -112,12 +112,12 @@
         #'../experimental/DrawingBoard/SkNetPipeController.cpp',
         #'../experimental/DrawingBoard/SampleDrawingClient.cpp',
         #'../experimental/DrawingBoard/SampleDrawingServer.cpp',
-    
+
         # Networking
         #'../experimental/Networking/SampleNetPipeReader.cpp',
         #'../experimental/Networking/SkSockets.cpp',
         #'../experimental/Networking/SkSockets.h',
-        
+
         # Debugger
         '../experimental/Debugger/DebuggerViews.h',
         '../experimental/Debugger/DebuggerContentView.cpp',
@@ -173,7 +173,7 @@
             '../src/views/mac/SampleAppDelegate.mm',
             '../src/views/mac/SkSampleNSView.h',
             '../src/views/mac/SkSampleNSView.mm',
-            
+
             # Mac files
             '../src/views/mac/SkEventNotifier.h',
             '../src/views/mac/SkEventNotifier.mm',

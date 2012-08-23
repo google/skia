@@ -33,7 +33,7 @@ bool SkTextOnPath::draw(SkAnimateMaker& maker) {
     SkASSERT(text);
     SkASSERT(path);
     SkBoundableAuto boundable(this, maker);
-    maker.fCanvas->drawTextOnPathHV(text->getText(), text->getSize(), 
+    maker.fCanvas->drawTextOnPathHV(text->getText(), text->getSize(),
                                     path->getPath(), offset, 0, *maker.fPaint);
     return false;
 }

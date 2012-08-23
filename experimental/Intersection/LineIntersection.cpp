@@ -15,7 +15,7 @@ int intersect(const _Line& a, const _Line& b, double aRange[2], double bRange[2]
     double ayLen = a[1].y - a[0].y;
     double bxLen = b[1].x - b[0].x;
     double byLen = b[1].y - b[0].y;
-    /* Slopes match when denom goes to zero: 
+    /* Slopes match when denom goes to zero:
                       axLen / ayLen ==                   bxLen / byLen
     (ayLen * byLen) * axLen / ayLen == (ayLen * byLen) * bxLen / byLen
              byLen  * axLen         ==  ayLen          * bxLen
@@ -309,11 +309,11 @@ int verticalIntersect(const _Line& line, double top, double bottom,
 // from http://www.bryceboe.com/wordpress/wp-content/uploads/2006/10/intersect.py
 // 4 subs, 2 muls, 1 cmp
 static bool ccw(const _Point& A, const _Point& B, const _Point& C) {
-	return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x);
+    return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x);
 }
 
 // 16 subs, 8 muls, 6 cmps
 bool testIntersect(const _Line& a, const _Line& b) {
-	return ccw(a[0], b[0], b[1]) != ccw(a[1], b[0], b[1])
+    return ccw(a[0], b[0], b[1]) != ccw(a[1], b[0], b[1])
             && ccw(a[0], a[1], b[0]) != ccw(a[0], a[1], b[1]);
 }

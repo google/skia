@@ -74,7 +74,7 @@ bool GrGpuGL::programUnitTest() {
     dummyDesc.fHeight = 22;
     SkAutoTUnref<GrTexture> dummyTexture2(this->createTexture(dummyDesc, NULL, 0));
 
-    // GrGLSLGeneration glslGeneration = 
+    // GrGLSLGeneration glslGeneration =
             GrGetGLSLGeneration(this->glBinding(), this->glInterface());
     static const int STAGE_OPTS[] = {
         0,
@@ -199,7 +199,7 @@ static void GLProgramsTest(skiatest::Reporter* reporter, GrContext* context) {
 #include "TestClassDef.h"
 DEFINE_GPUTESTCLASS("GLPrograms", GLProgramsTestClass, GLProgramsTest)
 
-// This is evil evil evil. The linker may throw away whole translation units as dead code if it 
+// This is evil evil evil. The linker may throw away whole translation units as dead code if it
 // thinks none of the functions are called. It will do this even if there are static initilializers
 // in the unit that could pass pointers to functions from the unit out to other translation units!
 // We force some of the effects that would otherwise be discarded to link here.

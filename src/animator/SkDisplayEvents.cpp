@@ -83,7 +83,7 @@ void SkEvents::dump(SkAnimateMaker& maker) {
     int count = drawArray.count();
     for (index = 0; index < count; index++) {
         SkDrawable* drawable = drawArray[index];
-        drawable->dumpEvents(); 
+        drawable->dumpEvents();
     }
     count = fEvents.count();
     for (index = 0; index < count; index++) {

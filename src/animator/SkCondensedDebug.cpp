@@ -14,7 +14,7 @@
 // To change it, edit the file with the matching debug info.
 // Then execute SkDisplayType::BuildCondensedInfo() to regenerate this file.
 
-static const char gMathStrings[] = 
+static const char gMathStrings[] =
     "E\0"
     "LN10\0"
     "LN2\0"
@@ -72,7 +72,7 @@ static const SkMemberInfo gMathInfo[] = {
     {123, -18, 66, 98}
 };
 
-static const char gAddStrings[] = 
+static const char gAddStrings[] =
     "inPlace\0"
     "offset\0"
     "use\0"
@@ -86,7 +86,7 @@ static const SkMemberInfo gAddInfo[] = {
     {19, 28, 37, 1}
 };
 
-static const char gAddCircleStrings[] = 
+static const char gAddCircleStrings[] =
     "\0"
     "radius\0"
     "x\0"
@@ -100,7 +100,7 @@ static const SkMemberInfo gAddCircleInfo[] = {
     {10, 32, 98, 1}
 };
 
-static const char gUnknown1Strings[] = 
+static const char gUnknown1Strings[] =
     "direction"
 ;
 
@@ -108,7 +108,7 @@ static const SkMemberInfo gUnknown1Info[] = {
     {0, 20, 75, 1}
 };
 
-static const char gAddOvalStrings[] = 
+static const char gAddOvalStrings[] =
     ""
 ;
 
@@ -116,7 +116,7 @@ static const SkMemberInfo gAddOvalInfo[] = {
     {0, 6, 18, 5}
 };
 
-static const char gAddPathStrings[] = 
+static const char gAddPathStrings[] =
     "matrix\0"
     "path"
 ;
@@ -126,7 +126,7 @@ static const SkMemberInfo gAddPathInfo[] = {
     {7, 24, 74, 1}
 };
 
-static const char gAddRectangleStrings[] = 
+static const char gAddRectangleStrings[] =
     "\0"
     "bottom\0"
     "left\0"
@@ -142,7 +142,7 @@ static const SkMemberInfo gAddRectangleInfo[] = {
     {19, 28, 98, 1}
 };
 
-static const char gAddRoundRectStrings[] = 
+static const char gAddRoundRectStrings[] =
     "\0"
     "rx\0"
     "ry"
@@ -154,7 +154,7 @@ static const SkMemberInfo gAddRoundRectInfo[] = {
     {4, 44, 98, 1}
 };
 
-static const char gUnknown2Strings[] = 
+static const char gUnknown2Strings[] =
     "begin\0"
     "blend\0"
     "dur\0"
@@ -186,7 +186,7 @@ static const SkMemberInfo gUnknown2Info[] = {
     {73, -4, 67, 40}
 };
 
-static const char gAnimateFieldStrings[] = 
+static const char gAnimateFieldStrings[] =
     ""
 ;
 
@@ -194,7 +194,7 @@ static const SkMemberInfo gAnimateFieldInfo[] = {
     {0, 8, 18, 13}
 };
 
-static const char gApplyStrings[] = 
+static const char gApplyStrings[] =
     "animator\0"
     "begin\0"
     "dontDraw\0"
@@ -226,7 +226,7 @@ static const SkMemberInfo gApplyInfo[] = {
     {88, 56, 14, 1}
 };
 
-static const char gUnknown3Strings[] = 
+static const char gUnknown3Strings[] =
     "x\0"
     "y"
 ;
@@ -236,7 +236,7 @@ static const SkMemberInfo gUnknown3Info[] = {
     {2, 52, 98, 1}
 };
 
-static const char gBitmapStrings[] = 
+static const char gBitmapStrings[] =
     "\0"
     "erase\0"
     "format\0"
@@ -254,7 +254,7 @@ static const SkMemberInfo gDrawBitmapInfo[] = {
     {30, 68, 96, 1}
 };
 
-static const char gBitmapShaderStrings[] = 
+static const char gBitmapShaderStrings[] =
     "\0"
     "filterType\0"
     "image"
@@ -266,7 +266,7 @@ static const SkMemberInfo gDrawBitmapShaderInfo[] = {
     {12, 32, 17, 1}
 };
 
-static const char gBlurStrings[] = 
+static const char gBlurStrings[] =
     "blurStyle\0"
     "radius"
 ;
@@ -276,7 +276,7 @@ static const SkMemberInfo gDrawBlurInfo[] = {
     {10, 20, 98, 1}
 };
 
-static const char gBoundsStrings[] = 
+static const char gBoundsStrings[] =
     "\0"
     "inval"
 ;
@@ -286,7 +286,7 @@ static const SkMemberInfo gDisplayBoundsInfo[] = {
     {1, 44, 26, 1}
 };
 
-static const char gClipStrings[] = 
+static const char gClipStrings[] =
     "path\0"
     "rectangle"
 ;
@@ -296,7 +296,7 @@ static const SkMemberInfo gDrawClipInfo[] = {
     {5, 16, 91, 1}
 };
 
-static const char gColorStrings[] = 
+static const char gColorStrings[] =
     "alpha\0"
     "blue\0"
     "color\0"
@@ -318,7 +318,7 @@ static const SkMemberInfo gDrawColorInfo[] = {
     {42, -7, 67, 98}
 };
 
-static const char gCubicToStrings[] = 
+static const char gCubicToStrings[] =
     "x1\0"
     "x2\0"
     "x3\0"
@@ -336,7 +336,7 @@ static const SkMemberInfo gCubicToInfo[] = {
     {15, 40, 98, 1}
 };
 
-static const char gDashStrings[] = 
+static const char gDashStrings[] =
     "intervals\0"
     "phase"
 ;
@@ -346,7 +346,7 @@ static const SkMemberInfo gDashInfo[] = {
     {10, 36, 98, 1}
 };
 
-static const char gDataStrings[] = 
+static const char gDataStrings[] =
     "\0"
     "name"
 ;
@@ -356,7 +356,7 @@ static const SkMemberInfo gDataInfo[] = {
     {1, 32, 108, 2}
 };
 
-static const char gDiscreteStrings[] = 
+static const char gDiscreteStrings[] =
     "deviation\0"
     "segLength"
 ;
@@ -366,7 +366,7 @@ static const SkMemberInfo gDiscreteInfo[] = {
     {10, 24, 98, 1}
 };
 
-static const char gDrawToStrings[] = 
+static const char gDrawToStrings[] =
     "drawOnce\0"
     "use"
 ;
@@ -376,7 +376,7 @@ static const SkMemberInfo gDrawToInfo[] = {
     {9, 76, 19, 1}
 };
 
-static const char gDumpStrings[] = 
+static const char gDumpStrings[] =
     "displayList\0"
     "eventList\0"
     "events\0"
@@ -394,7 +394,7 @@ static const SkMemberInfo gDumpInfo[] = {
     {41, 40, 26, 1}
 };
 
-static const char gEmbossStrings[] = 
+static const char gEmbossStrings[] =
     "ambient\0"
     "direction\0"
     "radius\0"
@@ -408,7 +408,7 @@ static const SkMemberInfo gDrawEmbossInfo[] = {
     {25, -2, 67, 98}
 };
 
-static const char gEventStrings[] = 
+static const char gEventStrings[] =
     "code\0"
     "disable\0"
     "key\0"
@@ -430,7 +430,7 @@ static const SkMemberInfo gDisplayEventInfo[] = {
     {36, 40, 98, 1}
 };
 
-static const char gFromPathStrings[] = 
+static const char gFromPathStrings[] =
     "mode\0"
     "offset\0"
     "path"
@@ -442,7 +442,7 @@ static const SkMemberInfo gFromPathInfo[] = {
     {12, 28, 74, 1}
 };
 
-static const char gUnknown4Strings[] = 
+static const char gUnknown4Strings[] =
     "\0"
     "offsets\0"
     "unitMapper"
@@ -454,7 +454,7 @@ static const SkMemberInfo gUnknown4Info[] = {
     {9, 44, 108, 2}
 };
 
-static const char gGStrings[] = 
+static const char gGStrings[] =
     "condition\0"
     "enableCondition"
 ;
@@ -464,7 +464,7 @@ static const SkMemberInfo gGInfo[] = {
     {10, 24, 40, 2}
 };
 
-static const char gHitClearStrings[] = 
+static const char gHitClearStrings[] =
     "targets"
 ;
 
@@ -472,7 +472,7 @@ static const SkMemberInfo gHitClearInfo[] = {
     {0, 16, 119, 36}
 };
 
-static const char gHitTestStrings[] = 
+static const char gHitTestStrings[] =
     "bullets\0"
     "hits\0"
     "targets\0"
@@ -486,7 +486,7 @@ static const SkMemberInfo gHitTestInfo[] = {
     {21, 64, 26, 1}
 };
 
-static const char gImageStrings[] = 
+static const char gImageStrings[] =
     "\0"
     "base64\0"
     "src"
@@ -498,7 +498,7 @@ static const SkMemberInfo gImageInfo[] = {
     {8, 64, 108, 2}
 };
 
-static const char gIncludeStrings[] = 
+static const char gIncludeStrings[] =
     "src"
 ;
 
@@ -506,7 +506,7 @@ static const SkMemberInfo gIncludeInfo[] = {
     {0, 16, 108, 2}
 };
 
-static const char gInputStrings[] = 
+static const char gInputStrings[] =
     "s32\0"
     "scalar\0"
     "string"
@@ -518,7 +518,7 @@ static const SkMemberInfo gInputInfo[] = {
     {11, 24, 108, 2}
 };
 
-static const char gLineStrings[] = 
+static const char gLineStrings[] =
     "x1\0"
     "x2\0"
     "y1\0"
@@ -532,7 +532,7 @@ static const SkMemberInfo gLineInfo[] = {
     {9, 36, 98, 1}
 };
 
-static const char gLineToStrings[] = 
+static const char gLineToStrings[] =
     "x\0"
     "y"
 ;
@@ -542,7 +542,7 @@ static const SkMemberInfo gLineToInfo[] = {
     {2, 24, 98, 1}
 };
 
-static const char gLinearGradientStrings[] = 
+static const char gLinearGradientStrings[] =
     "\0"
     "points"
 ;
@@ -552,7 +552,7 @@ static const SkMemberInfo gLinearGradientInfo[] = {
     {1, 88, 77, 4}
 };
 
-static const char gMatrixStrings[] = 
+static const char gMatrixStrings[] =
     "matrix\0"
     "perspectX\0"
     "perspectY\0"
@@ -582,7 +582,7 @@ static const SkMemberInfo gDrawMatrixInfo[] = {
     {87, -11, 67, 98}
 };
 
-static const char gMoveStrings[] = 
+static const char gMoveStrings[] =
     ""
 ;
 
@@ -590,7 +590,7 @@ static const SkMemberInfo gMoveInfo[] = {
     {0, 1, 18, 4}
 };
 
-static const char gMoveToStrings[] = 
+static const char gMoveToStrings[] =
     "x\0"
     "y"
 ;
@@ -600,7 +600,7 @@ static const SkMemberInfo gMoveToInfo[] = {
     {2, 24, 98, 1}
 };
 
-static const char gMovieStrings[] = 
+static const char gMovieStrings[] =
     "src"
 ;
 
@@ -608,7 +608,7 @@ static const SkMemberInfo gMovieInfo[] = {
     {0, 16, 108, 2}
 };
 
-static const char gOvalStrings[] = 
+static const char gOvalStrings[] =
     ""
 ;
 
@@ -616,7 +616,7 @@ static const SkMemberInfo gOvalInfo[] = {
     {0, 58, 18, 7}
 };
 
-static const char gPaintStrings[] = 
+static const char gPaintStrings[] =
     "antiAlias\0"
     "ascent\0"
     "color\0"
@@ -672,7 +672,7 @@ static const SkMemberInfo gDrawPaintInfo[] = {
     {235, 100, 121, 1}
 };
 
-static const char gPathStrings[] = 
+static const char gPathStrings[] =
     "d\0"
     "fillType\0"
     "length"
@@ -684,7 +684,7 @@ static const SkMemberInfo gDrawPathInfo[] = {
     {11, -2, 67, 98}
 };
 
-static const char gUnknown5Strings[] = 
+static const char gUnknown5Strings[] =
     "x\0"
     "y\0"
     "z"
@@ -696,7 +696,7 @@ static const SkMemberInfo gUnknown5Info[] = {
     {4, 8, 98, 1}
 };
 
-static const char gPointStrings[] = 
+static const char gPointStrings[] =
     "x\0"
     "y"
 ;
@@ -706,7 +706,7 @@ static const SkMemberInfo gDrawPointInfo[] = {
     {2, 20, 98, 1}
 };
 
-static const char gPolyToPolyStrings[] = 
+static const char gPolyToPolyStrings[] =
     "destination\0"
     "source"
 ;
@@ -716,7 +716,7 @@ static const SkMemberInfo gPolyToPolyInfo[] = {
     {12, 20, 80, 1}
 };
 
-static const char gPolygonStrings[] = 
+static const char gPolygonStrings[] =
     ""
 ;
 
@@ -724,7 +724,7 @@ static const SkMemberInfo gPolygonInfo[] = {
     {0, 48, 18, 1}
 };
 
-static const char gPolylineStrings[] = 
+static const char gPolylineStrings[] =
     "points"
 ;
 
@@ -732,7 +732,7 @@ static const SkMemberInfo gPolylineInfo[] = {
     {0, 88, 119, 98}
 };
 
-static const char gPostStrings[] = 
+static const char gPostStrings[] =
     "delay\0"
     "initialized\0"
     "mode\0"
@@ -750,7 +750,7 @@ static const SkMemberInfo gPostInfo[] = {
     {35, -3, 67, 108}
 };
 
-static const char gQuadToStrings[] = 
+static const char gQuadToStrings[] =
     "x1\0"
     "x2\0"
     "y1\0"
@@ -764,7 +764,7 @@ static const SkMemberInfo gQuadToInfo[] = {
     {9, 32, 98, 1}
 };
 
-static const char gRCubicToStrings[] = 
+static const char gRCubicToStrings[] =
     ""
 ;
 
@@ -772,7 +772,7 @@ static const SkMemberInfo gRCubicToInfo[] = {
     {0, 18, 18, 6}
 };
 
-static const char gRLineToStrings[] = 
+static const char gRLineToStrings[] =
     ""
 ;
 
@@ -780,7 +780,7 @@ static const SkMemberInfo gRLineToInfo[] = {
     {0, 35, 18, 2}
 };
 
-static const char gRMoveToStrings[] = 
+static const char gRMoveToStrings[] =
     ""
 ;
 
@@ -788,7 +788,7 @@ static const SkMemberInfo gRMoveToInfo[] = {
     {0, 39, 18, 2}
 };
 
-static const char gRQuadToStrings[] = 
+static const char gRQuadToStrings[] =
     ""
 ;
 
@@ -796,7 +796,7 @@ static const SkMemberInfo gRQuadToInfo[] = {
     {0, 50, 18, 4}
 };
 
-static const char gRadialGradientStrings[] = 
+static const char gRadialGradientStrings[] =
     "\0"
     "center\0"
     "radius"
@@ -808,7 +808,7 @@ static const SkMemberInfo gRadialGradientInfo[] = {
     {8, 96, 98, 1}
 };
 
-static const char gRandomStrings[] = 
+static const char gRandomStrings[] =
     "blend\0"
     "max\0"
     "min\0"
@@ -824,7 +824,7 @@ static const SkMemberInfo gDisplayRandomInfo[] = {
     {21, -2, 67, 96}
 };
 
-static const char gRectToRectStrings[] = 
+static const char gRectToRectStrings[] =
     "destination\0"
     "source"
 ;
@@ -834,7 +834,7 @@ static const SkMemberInfo gRectToRectInfo[] = {
     {12, 20, 91, 1}
 };
 
-static const char gRectangleStrings[] = 
+static const char gRectangleStrings[] =
     "bottom\0"
     "height\0"
     "left\0"
@@ -854,7 +854,7 @@ static const SkMemberInfo gRectangleInfo[] = {
     {41, -3, 67, 98}
 };
 
-static const char gRemoveStrings[] = 
+static const char gRemoveStrings[] =
     "offset\0"
     "where"
 ;
@@ -864,7 +864,7 @@ static const SkMemberInfo gRemoveInfo[] = {
     {7, 28, 37, 1}
 };
 
-static const char gReplaceStrings[] = 
+static const char gReplaceStrings[] =
     ""
 ;
 
@@ -872,7 +872,7 @@ static const SkMemberInfo gReplaceInfo[] = {
     {0, 1, 18, 4}
 };
 
-static const char gRotateStrings[] = 
+static const char gRotateStrings[] =
     "center\0"
     "degrees"
 ;
@@ -882,7 +882,7 @@ static const SkMemberInfo gRotateInfo[] = {
     {7, 20, 98, 1}
 };
 
-static const char gRoundRectStrings[] = 
+static const char gRoundRectStrings[] =
     "\0"
     "rx\0"
     "ry"
@@ -894,7 +894,7 @@ static const SkMemberInfo gRoundRectInfo[] = {
     {4, 48, 98, 1}
 };
 
-static const char gS32Strings[] = 
+static const char gS32Strings[] =
     "value"
 ;
 
@@ -902,7 +902,7 @@ static const SkMemberInfo gS32Info[] = {
     {0, 16, 96, 1}
 };
 
-static const char gScalarStrings[] = 
+static const char gScalarStrings[] =
     "value"
 ;
 
@@ -910,7 +910,7 @@ static const SkMemberInfo gScalarInfo[] = {
     {0, 16, 98, 1}
 };
 
-static const char gScaleStrings[] = 
+static const char gScaleStrings[] =
     "center\0"
     "x\0"
     "y"
@@ -922,7 +922,7 @@ static const SkMemberInfo gScaleInfo[] = {
     {9, 24, 98, 1}
 };
 
-static const char gSetStrings[] = 
+static const char gSetStrings[] =
     "begin\0"
     "dur\0"
     "dynamic\0"
@@ -944,7 +944,7 @@ static const SkMemberInfo gSetInfo[] = {
     {45, 76, 40, 2}
 };
 
-static const char gShaderStrings[] = 
+static const char gShaderStrings[] =
     "matrix\0"
     "tileMode"
 ;
@@ -954,7 +954,7 @@ static const SkMemberInfo gShaderInfo[] = {
     {7, 24, 116, 1}
 };
 
-static const char gSkewStrings[] = 
+static const char gSkewStrings[] =
     "center\0"
     "x\0"
     "y"
@@ -966,7 +966,7 @@ static const SkMemberInfo gSkewInfo[] = {
     {9, 24, 98, 1}
 };
 
-static const char g3D_CameraStrings[] = 
+static const char g3D_CameraStrings[] =
     "axis\0"
     "hackHeight\0"
     "hackWidth\0"
@@ -986,7 +986,7 @@ static const SkMemberInfo g3D_CameraInfo[] = {
     {50, 48, 106, 3}
 };
 
-static const char g3D_PatchStrings[] = 
+static const char g3D_PatchStrings[] =
     "origin\0"
     "rotateDegrees\0"
     "u\0"
@@ -1000,7 +1000,7 @@ static const SkMemberInfo g3D_PatchInfo[] = {
     {23, 28, 106, 3}
 };
 
-static const char gUnknown6Strings[] = 
+static const char gUnknown6Strings[] =
     "x\0"
     "y\0"
     "z"
@@ -1012,7 +1012,7 @@ static const SkMemberInfo gUnknown6Info[] = {
     {4, 8, 98, 1}
 };
 
-static const char gSnapshotStrings[] = 
+static const char gSnapshotStrings[] =
     "filename\0"
     "quality\0"
     "sequence\0"
@@ -1026,7 +1026,7 @@ static const SkMemberInfo gSnapshotInfo[] = {
     {26, 32, 20, 1}
 };
 
-static const char gStringStrings[] = 
+static const char gStringStrings[] =
     "length\0"
     "slice\0"
     "value"
@@ -1038,7 +1038,7 @@ static const SkMemberInfo gStringInfo[] = {
     {13, 16, 108, 2}
 };
 
-static const char gTextStrings[] = 
+static const char gTextStrings[] =
     "length\0"
     "text\0"
     "x\0"
@@ -1052,7 +1052,7 @@ static const SkMemberInfo gTextInfo[] = {
     {14, 36, 98, 1}
 };
 
-static const char gTextBoxStrings[] = 
+static const char gTextBoxStrings[] =
     "\0"
     "mode\0"
     "spacingAdd\0"
@@ -1070,7 +1070,7 @@ static const SkMemberInfo gTextBoxInfo[] = {
     {41, 44, 108, 2}
 };
 
-static const char gTextOnPathStrings[] = 
+static const char gTextOnPathStrings[] =
     "offset\0"
     "path\0"
     "text"
@@ -1082,7 +1082,7 @@ static const SkMemberInfo gTextOnPathInfo[] = {
     {12, 32, 110, 1}
 };
 
-static const char gTextToPathStrings[] = 
+static const char gTextToPathStrings[] =
     "path\0"
     "text"
 ;
@@ -1092,7 +1092,7 @@ static const SkMemberInfo gTextToPathInfo[] = {
     {5, 20, 110, 1}
 };
 
-static const char gTranslateStrings[] = 
+static const char gTranslateStrings[] =
     "x\0"
     "y"
 ;
@@ -1102,7 +1102,7 @@ static const SkMemberInfo gTranslateInfo[] = {
     {2, 24, 98, 1}
 };
 
-static const char gTypedArrayStrings[] = 
+static const char gTypedArrayStrings[] =
     "length\0"
     "values"
 ;
@@ -1112,7 +1112,7 @@ static const SkMemberInfo gTypedArrayInfo[] = {
     {7, 16, 119, 0}
 };
 
-static const char gTypefaceStrings[] = 
+static const char gTypefaceStrings[] =
     "fontName"
 ;
 
@@ -1294,7 +1294,7 @@ static const unsigned char gTypeIDs[] = {
     117, // Translate
     119, // TypedArray
     120, // Typeface
-    
+
 };
 
 static const int kTypeIDs = 81;

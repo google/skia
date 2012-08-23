@@ -16,7 +16,7 @@
 /* things to do
     ? re-enable support for struct literals (e.g., for initializing points or rects)
         {x:1, y:2}
-    ? use standard XML / script notation like document.getElementById("canvas");  
+    ? use standard XML / script notation like document.getElementById("canvas");
     finish support for typed arrays
         ? allow indexing arrays by string
             this could map to the 'name' attribute of a given child of an array
@@ -224,7 +224,7 @@ int SkScriptEngine::arithmeticOp(char ch, char nextChar, bool lastPush) {
             if (nextChar == '>') {
                 op = kShiftRight;
                 goto twoChar;
-            } 
+            }
             op = kGreaterEqual;
             if (nextChar == '=')
                 goto twoChar;
@@ -253,7 +253,7 @@ int SkScriptEngine::arithmeticOp(char ch, char nextChar, bool lastPush) {
 twoChar:
                 advance++;
                 break;
-            } 
+            }
             op = kLogicalNot;
             break;
         case '?':
@@ -298,7 +298,7 @@ twoChar:
             } while (true);
             signed char topPrecedence = gPrecedence[compare];
             SkASSERT(topPrecedence != -1);
-            if (topPrecedence > precedence || (topPrecedence == precedence && 
+            if (topPrecedence > precedence || (topPrecedence == precedence &&
                     gOpAttributes[op].fLeftType == kNoType)) {
                 break;
             }
@@ -327,7 +327,7 @@ void SkScriptEngine::commonCallBack(CallBackType type, UserCallBack& callBack, v
     *fUserCallBacks.prepend() = callBack;
 }
 
-bool SkScriptEngine::convertParams(SkTDArray<SkScriptValue>& params, 
+bool SkScriptEngine::convertParams(SkTDArray<SkScriptValue>& params,
         const SkFunctionParamType* paramTypes, int paramCount) {
     if (params.count() > paramCount) {
         fError = kTooManyParameters;
@@ -366,7 +366,7 @@ bool SkScriptEngine::convertTo(SkDisplayTypes toType, SkScriptValue* value ) {
     return ConvertTo(this, toType, value);
 }
 
-bool SkScriptEngine::evaluateDot(const char*& script, bool suppressed) { 
+bool SkScriptEngine::evaluateDot(const char*& script, bool suppressed) {
     size_t fieldLength = token_length(++script);        // skip dot
     if (fieldLength == 0) {
         fError = kExpectedFieldName;
@@ -382,8 +382,8 @@ bool SkScriptEngine::evaluateDot(const char*& script, bool suppressed) {
     return evaluateDotParam(script, suppressed, field, fieldLength);
 }
 
-bool SkScriptEngine::evaluateDotParam(const char*& script, bool suppressed, 
-        const char* field, size_t fieldLength) { 
+bool SkScriptEngine::evaluateDotParam(const char*& script, bool suppressed,
+        const char* field, size_t fieldLength) {
     void* object;
     if (suppressed)
         object = NULL;
@@ -397,7 +397,7 @@ bool SkScriptEngine::evaluateDotParam(const char*& script, bool suppressed,
         fOperandStack.pop();
     }
     char ch; // see if it is a simple member or a function
-    while (is_ws(ch = script[0])) 
+    while (is_ws(ch = script[0]))
         script++;
     bool success = true;
     if (ch != '(') {
@@ -410,10 +410,10 @@ bool SkScriptEngine::evaluateDotParam(const char*& script, bool suppressed,
         *fBraceStack.push() = kFunctionBrace;
         success = functionParams(&script, params);
         if (success && suppressed == false &&
-                (success = handleMemberFunction(field, fieldLength, object, params)) == false) 
-            fError = kHandleMemberFunctionFailed;       
+                (success = handleMemberFunction(field, fieldLength, object, params)) == false)
+            fError = kHandleMemberFunctionFailed;
     }
-    return success; 
+    return success;
 }
 
 bool SkScriptEngine::evaluateScript(const char** scriptPtr, SkScriptValue* value) {
@@ -559,15 +559,15 @@ bool SkScriptEngine::innerScript(const char** scriptPtr, SkScriptValue* value) {
                             if (convertTo(tokenInfo->getType(), &tokenValue) == false)
                                 return false;
                         }
-                        tokenInfo->writeValue(fDisplayable, NULL, 0, 0, 
+                        tokenInfo->writeValue(fDisplayable, NULL, 0, 0,
                             (void*) ((char*) fInfo->memberData(fDisplayable) + tokenInfo->fOffset + fArrayOffset),
                             tokenInfo->getType(), tokenValue);
                     }
                 }
                 lastPush = false;
                 continue;
-            } else 
-#endif              
+            } else
+#endif
             if (fBraceStack.top() == kArrayBrace) {
                 SkScriptValue tokenValue;
                 success = innerScript(&script, &tokenValue);    // terminate and return on comma, close brace
@@ -579,12 +579,12 @@ bool SkScriptEngine::innerScript(const char** scriptPtr, SkScriptValue* value) {
 #if 0 // no support for structures for now
                     if (tokenValue.fType == SkType_Structure) {
                         fArrayOffset += (int) fInfo->getSize(fDisplayable);
-                    } else 
+                    } else
 #endif
                     {
                         SkDisplayTypes type = ToDisplayType(fReturnType);
                         if (fReturnType == kNoType) {
-                            // !!! short sighted; in the future, allow each returned array component to carry 
+                            // !!! short sighted; in the future, allow each returned array component to carry
                             // its own type, and let caller do any needed conversions
                             if (value->fOperand.fArray->count() == 0)
                                 value->fOperand.fArray->setType(type = tokenValue.fType);
@@ -730,11 +730,11 @@ scalarCommon:
                 if (success == false)
                     return false;
                 lastPush = true;
-                continue; 
+                continue;
             }
             // get next token, and evaluate immediately
             success = evaluateDot(script, SkToBool(suppressed));
-            if (success == false)               
+            if (success == false)
                 return false;
             lastPush = true;
             continue;
@@ -772,7 +772,7 @@ scalarCommon:
         }
 #endif
         if (ch == ')' && fBraceStack.count() > 0) {
-            SkBraceStyle braceStyle = fBraceStack.top(); 
+            SkBraceStyle braceStyle = fBraceStack.top();
             if (braceStyle == kFunctionBrace) {
                 fBraceStack.pop();
                 break;
@@ -795,7 +795,7 @@ scalarCommon:
         int advance = logicalOp(ch, nextChar);
         if (advance < 0)     // error
             return false;
-        if (advance == 0) 
+        if (advance == 0)
             advance = arithmeticOp(ch, nextChar, lastPush);
         if (advance == 0) // unknown token
             return false;
@@ -814,7 +814,7 @@ scalarCommon:
             return false;
         if (processOp() == false)
             return false;
-    }   
+    }
     SkOpType topType = fTypeStack.count() > 0 ? fTypeStack.top() : kNoType;
     if (suppressed == false && topType != fReturnType &&
             topType == kString && fReturnType != kNoType) { // if result is a string, give handle property a chance to convert it to the property value
@@ -945,7 +945,7 @@ bool SkScriptEngine::handleFunction(const char** scriptPtr, bool suppressed) {
         for (UserCallBack* callBack = fUserCallBacks.begin(); callBack < fUserCallBacks.end(); callBack++) {
             if (callBack->fCallBackType != kFunction)
                 continue;
-            success = (*callBack->fFunctionCallBack)(functionName.c_str(), functionName.size(), params, 
+            success = (*callBack->fFunctionCallBack)(functionName.c_str(), functionName.size(), params,
                 callBack->fUserStorage, &callbackResult);
             if (success) {
                 fOperandStack.push(callbackResult.fOperand);
@@ -986,7 +986,7 @@ bool SkScriptEngine::handleMemberFunction(const char* field, size_t len, void* o
     for (UserCallBack* callBack = fUserCallBacks.begin(); callBack < fUserCallBacks.end(); callBack++) {
         if (callBack->fCallBackType != kMemberFunction)
             continue;
-        success = (*callBack->fMemberFunctionCallBack)(field, len, object, params, 
+        success = (*callBack->fMemberFunctionCallBack)(field, len, object, params,
             callBack->fUserStorage, &callbackResult);
         if (success) {
             if (callbackResult.fType == SkType_String)
@@ -1008,7 +1008,7 @@ bool SkScriptEngine::handleObjectToString(void* object) {
     for (UserCallBack* callBack = fUserCallBacks.begin(); callBack < fUserCallBacks.end(); callBack++) {
         if (callBack->fCallBackType != kObjectToString)
             continue;
-        success = (*callBack->fObjectToStringCallBack)(object, 
+        success = (*callBack->fObjectToStringCallBack)(object,
             callBack->fUserStorage, &callbackResult);
         if (success) {
             if (callbackResult.fType == SkType_String)
@@ -1027,14 +1027,14 @@ done:
 bool SkScriptEngine::handleProperty(bool suppressed) {
     SkScriptValue callbackResult;
     bool success = true;
-    if (suppressed) 
+    if (suppressed)
         goto done;
     success = false; // note that with standard animator-script plugins, callback never returns false
     {
         for (UserCallBack* callBack = fUserCallBacks.begin(); callBack < fUserCallBacks.end(); callBack++) {
             if (callBack->fCallBackType != kProperty)
                 continue;
-            success = (*callBack->fPropertyCallBack)(fToken, fTokenLength, 
+            success = (*callBack->fPropertyCallBack)(fToken, fTokenLength,
                 callBack->fUserStorage, &callbackResult);
             if (success) {
                 if (callbackResult.fType == SkType_String && callbackResult.fOperand.fString == NULL) {
@@ -1146,7 +1146,7 @@ noMatch:
                 fError = kMismatchedBrackets;
                 return -1;
             }
-            if (match == kParen) 
+            if (match == kParen)
                 fOpStack.pop();
             else {
                 SkOpType indexType;
@@ -1157,7 +1157,7 @@ noMatch:
                 }
                 SkOperand indexOperand;
                 fOperandStack.pop(&indexOperand);
-                int index = indexType == kScalar ? SkScalarFloor(indexOperand.fScalar) : 
+                int index = indexType == kScalar ? SkScalarFloor(indexOperand.fScalar) :
                     indexOperand.fS32;
                 SkOpType arrayType;
                 fTypeStack.pop(&arrayType);
@@ -1192,7 +1192,7 @@ noMatch:
             }
             suppress.fSuppress = ifValue.fOperand.fS32 == 0;
             suppress.fOperator = kIf;
-            suppress.fOpStackDepth = fOpStack.count(); 
+            suppress.fOpStackDepth = fOpStack.count();
             suppress.fElse = false;
             fSuppressStack.push(suppress);
             // if left is true, do only up to colon
@@ -1218,7 +1218,7 @@ flipSuppress:
             if (match == kLogicalOr ? topInt != 0 : topInt == 0) {
                 suppress.fSuppress = true;
                 suppress.fOperator = match;
-                suppress.fOpStackDepth = fOpStack.count(); 
+                suppress.fOpStackDepth = fOpStack.count();
                 suppress.fElse = false;
                 fSuppressStack.push(suppress);
             } else {
@@ -1467,16 +1467,16 @@ void SkScriptEngine::propertyCallBack(_propertyCallBack prop, void* userStorage)
     commonCallBack(kProperty, callBack, userStorage);
 }
 
-void SkScriptEngine::track(SkTypedArray* array) { 
-    SkASSERT(fTrackArray.find(array) < 0);  
-    *(fTrackArray.end() - 1) = array; 
-    fTrackArray.appendClear(); 
+void SkScriptEngine::track(SkTypedArray* array) {
+    SkASSERT(fTrackArray.find(array) < 0);
+    *(fTrackArray.end() - 1) = array;
+    fTrackArray.appendClear();
 }
 
-void SkScriptEngine::track(SkString* string) { 
-    SkASSERT(fTrackString.find(string) < 0);  
-    *(fTrackString.end() - 1) = string; 
-    fTrackString.appendClear(); 
+void SkScriptEngine::track(SkString* string) {
+    SkASSERT(fTrackString.find(string) < 0);
+    *(fTrackString.end() - 1) = string;
+    fTrackString.appendClear();
 }
 
 void SkScriptEngine::unboxCallBack(_unboxCallBack func, void* userStorage) {
@@ -1494,7 +1494,7 @@ bool SkScriptEngine::ConvertTo(SkScriptEngine* engine, SkDisplayTypes toType, Sk
     if (toType == SkType_Drawable)
         toType = SkType_Displayable;
     SkDisplayTypes type = value->fType;
-    if (type == toType) 
+    if (type == toType)
         return true;
     SkOperand& operand = value->fOperand;
     bool success = true;
@@ -1534,7 +1534,7 @@ bool SkScriptEngine::ConvertTo(SkScriptEngine* engine, SkDisplayTypes toType, Sk
             engine->track(strPtr);
             if (type == SkType_Int)
                 strPtr->appendS32(operand.fS32);
-            else if (type == SkType_Displayable) 
+            else if (type == SkType_Displayable)
                 SkASSERT(0); // must call through instance version instead of static version
             else {
                 if (type != SkType_Float) {
@@ -1665,17 +1665,17 @@ static const SkScriptNAnswer scriptTests[]  = {
     testInt((6+7)*8),
     testInt(0&&1?2:3),
     testInt(3*(4+5)),
-    testScalar(1.0+2.0), 
-    testScalar(1.0+5), 
-    testScalar(3.0-1.0), 
-    testScalar(6-1.0), 
-    testScalar(- -5.5- -1.5), 
-    testScalar(2.5*6.), 
-    testScalar(0.5*4), 
-    testScalar(4.5/.5), 
-    testScalar(9.5/19), 
-    testRemainder(9.5, 0.5), 
-    testRemainder(9.,2), 
+    testScalar(1.0+2.0),
+    testScalar(1.0+5),
+    testScalar(3.0-1.0),
+    testScalar(6-1.0),
+    testScalar(- -5.5- -1.5),
+    testScalar(2.5*6.),
+    testScalar(0.5*4),
+    testScalar(4.5/.5),
+    testScalar(9.5/19),
+    testRemainder(9.5, 0.5),
+    testRemainder(9.,2),
     testRemainder(9,2.5),
     testRemainder(-9,2.5),
     testTrue(-9==-9.0),
@@ -1854,7 +1854,7 @@ static const SkScriptNAnswer scriptTests[]  = {
     testInt(0?2?3:4:5),
     testInt(1?0?3:4:5),
     testInt(0?0?3:4:5),
-    
+
     testInt(1?2:(3?4:5)),
     testInt(0?2:(3?4:5)),
     testInt(1?0:(3?4:5)),

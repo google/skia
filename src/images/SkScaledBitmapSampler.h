@@ -16,10 +16,10 @@ class SkBitmap;
 class SkScaledBitmapSampler {
 public:
     SkScaledBitmapSampler(int origWidth, int origHeight, int cellSize);
-    
+
     int scaledWidth() const { return fScaledWidth; }
     int scaledHeight() const { return fScaledHeight; }
-    
+
     int srcY0() const { return fY0; }
     int srcDY() const { return fDY; }
 
@@ -59,7 +59,7 @@ private:
     char*   fDstRow; // points into bitmap's pixels
     int     fDstRowBytes;
     int     fCurrY; // used for dithering
-    int     fSrcPixelSize;  // 1, 3, 4    
+    int     fSrcPixelSize;  // 1, 3, 4
     RowProc fRowProc;
 
     // optional reference to the src colors if the src is a palette model

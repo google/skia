@@ -57,7 +57,7 @@ public:
 
     // The GrContext sets itself as the owner of this Gpu object
     void setContext(GrContext* context) {
-        GrAssert(NULL == fContext); 
+        GrAssert(NULL == fContext);
         fContext = context;
         fClipMaskManager.setContext(context);
     }
@@ -197,7 +197,7 @@ public:
      * However, the caller (GrContext) may have transformations to apply and can
      * simply fold in the y-flip for free. On the other hand, the subclass may
      * be able to do it for free itself. For example, the subclass may have to
-     * do memcpys to handle rowBytes that aren't tight. It could do the y-flip 
+     * do memcpys to handle rowBytes that aren't tight. It could do the y-flip
      * concurrently.
      *
      * This function returns true if a y-flip is required to put the pixels in
@@ -290,7 +290,7 @@ public:
     void removeResource(GrResource* resource);
 
     // GrDrawTarget overrides
-    virtual void clear(const GrIRect* rect, 
+    virtual void clear(const GrIRect* rect,
                        GrColor color,
                        GrRenderTarget* renderTarget = NULL) SK_OVERRIDE;
 
@@ -321,7 +321,7 @@ public:
      * Can the provided configuration act as a color render target?
      */
     bool isConfigRenderable(GrPixelConfig config) const {
-        GrAssert(kGrPixelConfigCount > config); 
+        GrAssert(kGrPixelConfigCount > config);
         return fConfigRenderSupport[config];
     }
 
@@ -406,12 +406,12 @@ protected:
     struct GeometryPoolState {
         const GrVertexBuffer* fPoolVertexBuffer;
         int                   fPoolStartVertex;
-        
+
         const GrIndexBuffer*  fPoolIndexBuffer;
         int                   fPoolStartIndex;
     };
-    const GeometryPoolState& getGeomPoolState() { 
-        return fGeomPoolStateStack.back(); 
+    const GeometryPoolState& getGeomPoolState() {
+        return fGeomPoolStateStack.back();
     }
 
     // The state of the scissor is controlled by the clip manager
@@ -453,7 +453,7 @@ protected:
     // assumed 3D context state and dirty any state cache.
     virtual void onResetContext() = 0;
 
-    
+
     // overridden by API-specific derived class to create objects.
     virtual GrTexture* onCreateTexture(const GrTextureDesc& desc,
                                        const void* srcData,
@@ -466,7 +466,7 @@ protected:
                                                bool dynamic) = 0;
     virtual GrPath* onCreatePath(const SkPath& path) = 0;
 
-    // overridden by API-specific derivated class to perform the clear and 
+    // overridden by API-specific derivated class to perform the clear and
     // clearRect. NULL rect means clear whole target.
     virtual void onClear(const GrIRect* rect, GrColor color) = 0;
 
@@ -522,7 +522,7 @@ protected:
     // Should attach the SB to the RT. Returns false if compatible sb could
     // not be created.
     virtual bool createStencilBufferForRenderTarget(GrRenderTarget* rt,
-                                                    int width, 
+                                                    int width,
                                                     int height) = 0;
 
     // attaches an existing SB to an existing RT.
@@ -540,23 +540,23 @@ protected:
 
 private:
     GrContext*                  fContext; // not reffed (context refs gpu)
-    
+
     ResetTimestamp              fResetTimestamp;
 
     GrVertexBufferAllocPool*    fVertexPool;
 
     GrIndexBufferAllocPool*     fIndexPool;
-    
+
     // counts number of uses of vertex/index pool in the geometry stack
     int                         fVertexPoolUseCnt;
     int                         fIndexPoolUseCnt;
-    
+
     enum {
         kPreallocGeomPoolStateStackCnt = 4,
     };
     SkSTArray<kPreallocGeomPoolStateStackCnt,
               GeometryPoolState, true>              fGeomPoolStateStack;
-    
+
     mutable GrIndexBuffer*      fQuadIndexBuffer; // mutable so it can be
                                                   // created on-demand
 

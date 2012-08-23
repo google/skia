@@ -53,7 +53,7 @@ static void test_isRectFinite(skiatest::Reporter* reporter) {
         { gI2, SK_ARRAY_COUNT(gI2), false },
         { gI3, SK_ARRAY_COUNT(gI3), false },
     };
-    
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(gSets); ++i) {
         SkRect r;
         r.set(gSets[i].fPts, gSets[i].fCount);
@@ -118,7 +118,7 @@ static void test_isfinite(skiatest::Reporter* reporter) {
         float   fValue;
         bool    fIsFinite;
     };
-    
+
     float max = 3.402823466e+38f;
     float inf = max * max;
     float nan = inf * 0;
@@ -170,7 +170,7 @@ static void test_isfinite(skiatest::Reporter* reporter) {
             const Rec& rec1 = data[j];
             for (size_t k = 0; k < SK_ARRAY_COUNT(gProc1); ++k) {
                 IsFiniteProc1 proc1 = gProc1[k];
-                
+
                 for (size_t m = 0; m < SK_ARRAY_COUNT(gProc2); ++m) {
                     bool finite = gProc2[m](rec0.fValue, rec1.fValue, proc1);
                     bool finite2 = rec0.fIsFinite && rec1.fIsFinite;
@@ -179,7 +179,7 @@ static void test_isfinite(skiatest::Reporter* reporter) {
             }
         }
     }
-    
+
     test_isRectFinite(reporter);
 }
 

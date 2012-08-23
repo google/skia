@@ -111,11 +111,11 @@
         '../samplecode/SampleVertices.cpp',
         '../samplecode/SampleXfermodes.cpp',
         '../samplecode/SampleXfermodesBlur.cpp',
-        
+
         # Dependencies for the pipe code in SampleApp
         '../src/pipe/SkGPipeRead.cpp',
         '../src/pipe/SkGPipeWrite.cpp',
-        
+
         # DrawingBoard
         '../experimental/DrawingBoard/SkColorPalette.h',
         '../experimental/DrawingBoard/SkColorPalette.cpp',
@@ -123,12 +123,12 @@
         '../experimental/DrawingBoard/SkNetPipeController.cpp',
         '../experimental/DrawingBoard/SampleDrawingClient.cpp',
         '../experimental/DrawingBoard/SampleDrawingServer.cpp',
-    
+
         # Networking
         '../experimental/Networking/SampleNetPipeReader.cpp',
         '../experimental/Networking/SkSockets.cpp',
         '../experimental/Networking/SkSockets.h',
-        
+
         # Transition
         '../src/utils/SkInterpolator.cpp',
         '../include/utils/SkInterpolator.h',
@@ -192,14 +192,14 @@
             '../experimental/iOSSampleApp/Shared/SkUIDetailViewController.h',
             '../experimental/iOSSampleApp/Shared/SkUIDetailViewController.mm',
             '../experimental/iOSSampleApp/Shared/main.m',
-            
+
             # iPad
             '../experimental/iOSSampleApp/iPad/AppDelegate_iPad.h',
             '../experimental/iOSSampleApp/iPad/AppDelegate_iPad.mm',
             '../experimental/iOSSampleApp/iPad/SkUISplitViewController.h',
             '../experimental/iOSSampleApp/iPad/SkUISplitViewController.mm',
             '../experimental/iOSSampleApp/iPad/MainWindow_iPad.xib',
-            
+
             # iPhone
             '../experimental/iOSSampleApp/iPhone/AppDelegate_iPhone.h',
             '../experimental/iOSSampleApp/iPhone/AppDelegate_iPhone.mm',

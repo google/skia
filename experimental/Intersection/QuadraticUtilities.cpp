@@ -11,7 +11,7 @@ and using the roots
 
       t1 = Q / A
       t2 = C / Q
-      
+
 */
 
 int quadraticRoots(double A, double B, double C, double t[2]) {

@@ -52,7 +52,7 @@ size_t SkMemberInfo::GetSize(SkDisplayTypes type) { // size of simple types only
         case SkType_Displayable:
         case SkType_Drawable:
         case SkType_Matrix:
-            byteSize = sizeof(void*); 
+            byteSize = sizeof(void*);
             break;
         case SkType_MSec:
             byteSize = sizeof(SkMSec);
@@ -137,7 +137,7 @@ void SkMemberInfo::getString(const SkDisplayable* displayable, SkString** string
 
 void SkMemberInfo::getValue(const SkDisplayable* displayable, SkOperand value[], int count) const {
     SkASSERT(fType != SkType_String && fType != SkType_MemberProperty);
-    SkASSERT(count == fCount);  
+    SkASSERT(count == fCount);
     void* valuePtr = memberData(displayable);
     size_t byteSize = getSize(displayable);
     SkASSERT(sizeof(value[0].fScalar) == sizeof(value[0])); // no support for 64 bit pointers, yet
@@ -150,7 +150,7 @@ void SkMemberInfo::setString(SkDisplayable* displayable, SkString* value) const 
     displayable->dirty();
 }
 
-void SkMemberInfo::setValue(SkDisplayable* displayable, const SkOperand values[], 
+void SkMemberInfo::setValue(SkDisplayable* displayable, const SkOperand values[],
                             int count) const {
     SkASSERT(sizeof(values[0].fScalar) == sizeof(values[0]));   // no support for 64 bit pointers, yet
     char* dst = (char*) memberData(displayable);
@@ -163,7 +163,7 @@ void SkMemberInfo::setValue(SkDisplayable* displayable, const SkOperand values[]
     displayable->dirty();
 }
 
-                            
+
 static inline bool is_between(int c, int min, int max)
 {
     return (unsigned)(c - min) <= (unsigned)(max - min);
@@ -180,9 +180,9 @@ static inline bool is_hex(int c)
 }
 
 
-bool SkMemberInfo::setValue(SkAnimateMaker& maker, SkTDOperandArray* arrayStorage, 
+bool SkMemberInfo::setValue(SkAnimateMaker& maker, SkTDOperandArray* arrayStorage,
     int storageOffset, int maxStorage, SkDisplayable* displayable, SkDisplayTypes outType,
-    const char rawValue[], size_t rawValueLen) const 
+    const char rawValue[], size_t rawValueLen) const
 {
     SkString valueStr(rawValue, rawValueLen);
     SkScriptValue scriptValue;
@@ -218,7 +218,7 @@ bool SkMemberInfo::setValue(SkAnimateMaker& maker, SkTDOperandArray* arrayStorag
             }
             *(char*) poundPos = '0'; // overwrite '#'
             valueStr.insert(offset + 1, "xFF");
-        } 
+        }
     }
     if (SkDisplayType::IsDisplayable(&maker, type) || SkDisplayType::IsEnum(&maker, type) || type == SkType_ARGB)
         goto scriptCommon;
@@ -226,22 +226,22 @@ bool SkMemberInfo::setValue(SkAnimateMaker& maker, SkTDOperandArray* arrayStorag
         case SkType_String:
 #if 0
             if (displayable && displayable->isAnimate()) {
-                
+
                 goto noScriptString;
-            } 
+            }
             if (strncmp(rawValue, "#string:", sizeof("#string:") - 1) == 0) {
                 SkASSERT(sizeof("string") == sizeof("script"));
                 char* stringHeader = valueStr.writable_str();
                 memcpy(&stringHeader[1], "script", sizeof("script") - 1);
                 rawValue = valueStr.c_str();
                 goto noScriptString;
-            } else 
+            } else
 #endif
             if (strncmp(rawValue, "#script:", sizeof("#script:") - 1) != 0)
                 goto noScriptString;
             valueStr.remove(0, 8);
         case SkType_Unknown:
-        case SkType_Int: 
+        case SkType_Int:
         case SkType_MSec:  // for the purposes of script, MSec is treated as a Scalar
         case SkType_Point:
         case SkType_3D_Point:
@@ -331,10 +331,10 @@ scriptCommon: {
             SkASSERT(0);
             break;
     }
-//  if (SkDisplayType::IsStruct(type) == false) 
+//  if (SkDisplayType::IsStruct(type) == false)
     {
 writeStruct:
-        if (writeValue(displayable, arrayStorage, storageOffset, maxStorage, 
+        if (writeValue(displayable, arrayStorage, storageOffset, maxStorage,
                 untypedStorage, outType, scriptValue)) {
                     maker.setErrorCode(SkDisplayXMLParserError::kUnexpectedType);
             return false;
@@ -346,18 +346,18 @@ dirty:
     return true;
 }
 
-bool SkMemberInfo::setValue(SkAnimateMaker& maker, SkTDOperandArray* arrayStorage, 
+bool SkMemberInfo::setValue(SkAnimateMaker& maker, SkTDOperandArray* arrayStorage,
         int storageOffset, int maxStorage, SkDisplayable* displayable, SkDisplayTypes outType,
         SkString& raw) const {
     return setValue(maker, arrayStorage, storageOffset, maxStorage, displayable, outType, raw.c_str(),
         raw.size());
 }
 
-bool SkMemberInfo::writeValue(SkDisplayable* displayable, SkTDOperandArray* arrayStorage, 
-    int storageOffset, int maxStorage, void* untypedStorage, SkDisplayTypes outType, 
+bool SkMemberInfo::writeValue(SkDisplayable* displayable, SkTDOperandArray* arrayStorage,
+    int storageOffset, int maxStorage, void* untypedStorage, SkDisplayTypes outType,
     SkScriptValue& scriptValue) const
 {
-    SkOperand* storage = untypedStorage ? (SkOperand*) untypedStorage : arrayStorage ? 
+    SkOperand* storage = untypedStorage ? (SkOperand*) untypedStorage : arrayStorage ?
         arrayStorage->begin() : NULL;
     if (storage)
         storage += storageOffset;
@@ -424,7 +424,7 @@ bool SkMemberInfo::writeValue(SkDisplayable* displayable, SkTDOperandArray* arra
         string->set(*scriptValue.fOperand.fString);
     } else if (type == SkType_ARGB && outType == SkType_Float) {
         SkTypedArray* array = scriptValue.fOperand.fArray;
-        SkASSERT(scriptValue.fType == SkType_Int || scriptValue.fType == SkType_ARGB || 
+        SkASSERT(scriptValue.fType == SkType_Int || scriptValue.fType == SkType_ARGB ||
             scriptValue.fType == SkType_Array);
         SkASSERT(scriptValue.fType != SkType_Array || (array != NULL &&
             array->getType() == SkType_Int));
@@ -434,7 +434,7 @@ bool SkMemberInfo::writeValue(SkDisplayable* displayable, SkTDOperandArray* arra
         if (maxStorage == 0)
             arrayStorage->setCount(numberOfComponents);
         for (int index = 0; index < numberOfColors; index++) {
-            SkColor color = scriptValue.fType == SkType_Array ? 
+            SkColor color = scriptValue.fType == SkType_Array ?
                 (SkColor) array->begin()[index].fS32 : (SkColor) scriptValue.fOperand.fS32;
             storage[0].fScalar = SkIntToScalar(SkColorGetA(color));
             storage[1].fScalar = SkIntToScalar(SkColorGetR(color));
@@ -528,11 +528,11 @@ const SkMemberInfo* SkMemberInfo::getInherited() const {
 #endif // SK_USE_CONDENSED_INFO == 0
 
 #if 0
-bool SkMemberInfo::SetValue(void* valuePtr, const char value[], SkDisplayTypes type, 
+bool SkMemberInfo::SetValue(void* valuePtr, const char value[], SkDisplayTypes type,
                             int count) {
     switch (type) {
         case SkType_Animate:
-        case SkType_BaseBitmap: 
+        case SkType_BaseBitmap:
         case SkType_Bitmap:
         case SkType_Dash:
         case SkType_Displayable:
@@ -548,7 +548,7 @@ bool SkMemberInfo::SetValue(void* valuePtr, const char value[], SkDisplayTypes t
         case SkType_3D_Point:
         case SkType_Point:
     //  case SkType_PointArray:
-        case SkType_ScalarArray: 
+        case SkType_ScalarArray:
             SkParse::FindScalars(value, (SkScalar*) valuePtr, count);
             break;
         default:

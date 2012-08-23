@@ -111,10 +111,10 @@ GrTextContext::GrTextContext(GrContext* context,
 
     /*
      We need to call preConcatMatrix with our viewmatrix's inverse, for each
-     texture and mask in the paint. However, computing the inverse can be 
+     texture and mask in the paint. However, computing the inverse can be
      expensive, and its possible we may not have any textures or masks, so these
      two loops are written such that we only compute the inverse (once) if we
-     need it. We do this on our copy of the paint rather than directly on the 
+     need it. We do this on our copy of the paint rather than directly on the
      draw target because we re-provide the paint to the context when we have
      to flush our glyphs or draw a glyph as a path midstream.
     */
@@ -142,7 +142,7 @@ GrTextContext::GrTextContext(GrContext* context,
     fVertices = NULL;
     fMaxVertices = 0;
 
-    fVertexLayout = 
+    fVertexLayout =
         GrDrawTarget::kTextFormat_VertexLayoutBit |
         GrDrawTarget::StageTexCoordVertexLayoutBit(kGlyphMaskStage, 0);
 }
@@ -272,7 +272,7 @@ HAS_ATLAS:
             fMaxVertices = maxQuadVertices;
         }
         bool success = fDrawTarget->reserveVertexAndIndexSpace(
-                                                   fVertexLayout, 
+                                                   fVertexLayout,
                                                    fMaxVertices,
                                                    0,
                                                    GrTCast<void**>(&fVertices),

@@ -15,7 +15,7 @@
 
 static void test_ptr(skiatest::Reporter* reporter) {
     SkSWriter32<32> writer(32);
-    
+
     void* p0 = reporter;
     void* p1 = &writer;
 
@@ -135,14 +135,14 @@ static void Tests(skiatest::Reporter* reporter) {
         SkWriter32 writer(256 * 4);
         REPORTER_ASSERT(reporter, NULL == writer.getSingleBlock());
         test1(reporter, &writer);
-        
+
         writer.reset();
         test2(reporter, &writer);
 
         writer.reset();
         testWritePad(reporter, &writer);
     }
-    
+
     // single-block
     {
         SkWriter32 writer(0);
@@ -154,33 +154,33 @@ static void Tests(skiatest::Reporter* reporter) {
 
         writer.reset(storage, sizeof(storage));
         test2(reporter, &writer);
-        
+
         writer.reset(storage, sizeof(storage));
         testWritePad(reporter, &writer);
     }
-    
+
     // small storage
     {
         SkSWriter32<8 * sizeof(intptr_t)> writer(100);
         test1(reporter, &writer);
         writer.reset(); // should just rewind our storage
         test2(reporter, &writer);
-        
+
         writer.reset();
         testWritePad(reporter, &writer);
     }
-    
+
     // large storage
     {
         SkSWriter32<1024 * sizeof(intptr_t)> writer(100);
         test1(reporter, &writer);
         writer.reset(); // should just rewind our storage
         test2(reporter, &writer);
-        
+
         writer.reset();
         testWritePad(reporter, &writer);
     }
-    
+
     test_ptr(reporter);
 }
 

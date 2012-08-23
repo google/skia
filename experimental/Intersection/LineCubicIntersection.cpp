@@ -19,12 +19,12 @@ Then using Mathematica, solve for the values of t where the cubic intersects the
 line:
 
   (in) Resultant[
-        a*(1 - t)^3 + 3*b*(1 - t)^2*t + 3*c*(1 - t)*t^2 + d*t^3 - x, 
+        a*(1 - t)^3 + 3*b*(1 - t)^2*t + 3*c*(1 - t)*t^2 + d*t^3 - x,
         e*(1 - t)^3 + 3*f*(1 - t)^2*t + 3*g*(1 - t)*t^2 + h*t^3 - i*x - j, x]
   (out) -e     +   j     +
        3 e t   - 3 f t   -
        3 e t^2 + 6 f t^2 - 3 g t^2 +
-         e t^3 - 3 f t^3 + 3 g t^3 - h t^3 + 
+         e t^3 - 3 f t^3 + 3 g t^3 - h t^3 +
      i ( a     -
        3 a t + 3 b t +
        3 a t^2 - 6 b t^2 + 3 c t^2 -
@@ -33,14 +33,14 @@ line:
 if i goes to infinity, we can rewrite the line in terms of x. Mathematica:
 
   (in) Resultant[
-        a*(1 - t)^3 + 3*b*(1 - t)^2*t + 3*c*(1 - t)*t^2 + d*t^3 - i*y - j, 
+        a*(1 - t)^3 + 3*b*(1 - t)^2*t + 3*c*(1 - t)*t^2 + d*t^3 - i*y - j,
         e*(1 - t)^3 + 3*f*(1 - t)^2*t + 3*g*(1 - t)*t^2 + h*t^3 - y,       y]
-  (out)  a     -   j     - 
-       3 a t   + 3 b t   + 
+  (out)  a     -   j     -
+       3 a t   + 3 b t   +
        3 a t^2 - 6 b t^2 + 3 c t^2 -
-         a t^3 + 3 b t^3 - 3 c t^3 + d t^3 - 
-     i ( e     - 
-       3 e t   + 3 f t   + 
+         a t^3 + 3 b t^3 - 3 c t^3 + d t^3 -
+     i ( e     -
+       3 e t   + 3 f t   +
        3 e t^2 - 6 f t^2 + 3 g t^2 -
          e t^3 + 3 f t^3 - 3 g t^3 + h t^3 )
 
@@ -58,13 +58,13 @@ The near-vertical case, in terms of:  Ax^3 + Bx^2 + Cx + D == 0
     B = 3*( ( a - 2*b +   c    ) - i*( e - 2*f +   g    )     )
     C = 3*( (-a +   b          ) - i*(-e +   f          )     )
     D =   ( ( a                ) - i*( e                ) - j )
-    
+
 For horizontal lines:
 (in) Resultant[
-      a*(1 - t)^3 + 3*b*(1 - t)^2*t + 3*c*(1 - t)*t^2 + d*t^3 - j, 
+      a*(1 - t)^3 + 3*b*(1 - t)^2*t + 3*c*(1 - t)*t^2 + d*t^3 - j,
       e*(1 - t)^3 + 3*f*(1 - t)^2*t + 3*g*(1 - t)*t^2 + h*t^3 - y, y]
 (out)  e     -   j     -
-     3 e t   + 3 f t   + 
+     3 e t   + 3 f t   +
      3 e t^2 - 6 f t^2 + 3 g t^2 -
        e t^3 + 3 f t^3 - 3 g t^3 + h t^3
 So the cubic coefficients are:

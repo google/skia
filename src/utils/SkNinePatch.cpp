@@ -15,11 +15,11 @@ static const uint16_t g3x3Indices[] = {
     0, 5, 1,    0, 4, 5,
     1, 6, 2,    1, 5, 6,
     2, 7, 3,    2, 6, 7,
-    
+
     4, 9, 5,    4, 8, 9,
     5, 10, 6,   5, 9, 10,
     6, 11, 7,   6, 10, 11,
-    
+
     8, 13, 9,   8, 12, 13,
     9, 14, 10,  9, 13, 14,
     10, 15, 11, 10, 14, 15
@@ -27,18 +27,18 @@ static const uint16_t g3x3Indices[] = {
 
 static int fillIndices(uint16_t indices[], int xCount, int yCount) {
     uint16_t* startIndices = indices;
-    
+
     int n = 0;
     for (int y = 0; y < yCount; y++) {
         for (int x = 0; x < xCount; x++) {
             *indices++ = n;
             *indices++ = n + xCount + 2;
             *indices++ = n + 1;
-            
+
             *indices++ = n;
             *indices++ = n + xCount + 1;
             *indices++ = n + xCount + 2;
-            
+
             n += 1;
         }
         n += 1;
@@ -108,14 +108,14 @@ void SkNinePatch::DrawMesh(SkCanvas* canvas, const SkRect& bounds,
     if (bounds.isEmpty() || bitmap.width() == 0 || bitmap.height() == 0) {
         return;
     }
-    
+
     // should try a quick-reject test before calling lockPixels
     SkAutoLockPixels alp(bitmap);
     // after the lock, it is valid to check
     if (!bitmap.readyToDraw()) {
         return;
     }
-    
+
     // check for degenerate divs (just an optimization, not required)
     {
         int i;
@@ -129,17 +129,17 @@ void SkNinePatch::DrawMesh(SkCanvas* canvas, const SkRect& bounds,
             numYDivs -= 1;
         }
     }
-    
+
     Mesh mesh;
-    
+
     const int numXStretch = (numXDivs + 1) >> 1;
     const int numYStretch = (numYDivs + 1) >> 1;
-    
+
     if (numXStretch < 1 && numYStretch < 1) {
         canvas->drawBitmapRect(bitmap, NULL, bounds, paint);
         return;
     }
-    
+
     if (false) {
         int i;
         for (i = 0; i < numXDivs; i++) {
@@ -149,9 +149,9 @@ void SkNinePatch::DrawMesh(SkCanvas* canvas, const SkRect& bounds,
             SkDebugf("--- ydivs[%d] %d\n", i, yDivs[i]);
         }
     }
-    
+
     SkScalar stretchX = 0, stretchY = 0;
-    
+
     if (numXStretch > 0) {
         int stretchSize = 0;
         for (int i = 1; i < numXDivs; i += 2) {
@@ -163,7 +163,7 @@ void SkNinePatch::DrawMesh(SkCanvas* canvas, const SkRect& bounds,
         else // reuse stretchX, but keep it negative as a signal
             stretchX = SkScalarDiv(-bounds.width(), fixed);
     }
-    
+
     if (numYStretch > 0) {
         int stretchSize = 0;
         for (int i = 1; i < numYDivs; i += 2) {
@@ -175,7 +175,7 @@ void SkNinePatch::DrawMesh(SkCanvas* canvas, const SkRect& bounds,
         else // reuse stretchX, but keep it negative as a signal
             stretchY = SkScalarDiv(-bounds.height(), fixed);
     }
-    
+
 #if 0
     SkDebugf("---- drawasamesh [%d %d] -> [%g %g] <%d %d> (%g %g)\n",
              bitmap.width(), bitmap.height(),
@@ -193,12 +193,12 @@ void SkNinePatch::DrawMesh(SkCanvas* canvas, const SkRect& bounds,
     SkPoint* verts = (SkPoint*)storage.get();
     SkPoint* texs = verts + vCount;
     uint16_t* indices = (uint16_t*)(texs + vCount);
-    
+
     mesh.fVerts = verts;
     mesh.fTexs = texs;
     mesh.fColors = NULL;
     mesh.fIndices = NULL;
-    
+
     // we use <= for YDivs, since the prebuild indices work for 3x2 and 3x1 too
     if (numXDivs == 2 && numYDivs <= 2) {
         mesh.fIndices = g3x3Indices;
@@ -207,7 +207,7 @@ void SkNinePatch::DrawMesh(SkCanvas* canvas, const SkRect& bounds,
         SkASSERT(n == indexCount);
         mesh.fIndices = indices;
     }
-    
+
     SkScalar vy = bounds.fTop;
     fillRow(verts, texs, vy, 0, bounds, xDivs, numXDivs,
             stretchX, bitmap.width());
@@ -235,7 +235,7 @@ void SkNinePatch::DrawMesh(SkCanvas* canvas, const SkRect& bounds,
     }
     fillRow(verts, texs, bounds.fBottom, SkIntToScalar(bitmap.height()),
             bounds, xDivs, numXDivs, stretchX, bitmap.width());
-    
+
     SkShader* shader = SkShader::CreateBitmapShader(bitmap,
                                                     SkShader::kClamp_TileMode,
                                                     SkShader::kClamp_TileMode);
@@ -310,7 +310,7 @@ void SkNinePatch::DrawNine(SkCanvas* canvas, const SkRect& bounds,
     if (false /* is our canvas backed by a gpu?*/) {
         int32_t xDivs[2];
         int32_t yDivs[2];
-        
+
         xDivs[0] = margins.fLeft;
         xDivs[1] = bitmap.width() - margins.fRight;
         yDivs[0] = margins.fTop;
@@ -326,7 +326,7 @@ void SkNinePatch::DrawNine(SkCanvas* canvas, const SkRect& bounds,
                 (margins.fTop + margins.fBottom);
             yDivs[1] = yDivs[0];
         }
-        
+
         SkNinePatch::DrawMesh(canvas, bounds, bitmap,
                               xDivs, 2, yDivs, 2, paint);
     } else {

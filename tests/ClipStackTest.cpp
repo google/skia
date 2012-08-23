@@ -269,7 +269,7 @@ static void test_bounds(skiatest::Reporter* reporter, bool useRects) {
                                         &isIntersectionOfRects);
 
             if (useRects) {
-                REPORTER_ASSERT(reporter, isIntersectionOfRects == 
+                REPORTER_ASSERT(reporter, isIntersectionOfRects ==
                         (gOps[op] == SkRegion::kIntersect_Op));
             } else {
                 REPORTER_ASSERT(reporter, !isIntersectionOfRects);

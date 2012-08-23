@@ -39,22 +39,22 @@ class GrDrawTarget;
  */
 class GrSWMaskHelper : public GrNoncopyable {
 public:
-    GrSWMaskHelper(GrContext* context) 
+    GrSWMaskHelper(GrContext* context)
     : fContext(context) {
     }
 
     // set up the internal state in preparation for draws. Since many masks
-    // may be accumulated in the helper during creation, "resultBounds" 
-    // allows the caller to specify the region of interest - to limit the 
+    // may be accumulated in the helper during creation, "resultBounds"
+    // allows the caller to specify the region of interest - to limit the
     // amount of work.
     bool init(const GrIRect& resultBounds, const GrMatrix* matrix);
 
     // Draw a single rect into the accumulation bitmap using the specified op
-    void draw(const GrRect& rect, SkRegion::Op op, 
+    void draw(const GrRect& rect, SkRegion::Op op,
               bool antiAlias, uint8_t alpha);
 
     // Draw a single path into the accumuation bitmap using the specified op
-    void draw(const SkPath& path, SkRegion::Op op, 
+    void draw(const SkPath& path, SkRegion::Op op,
               GrPathFill fill, bool antiAlias, uint8_t alpha);
 
     // Helper function to get a scratch texture suitable for capturing the
@@ -80,14 +80,14 @@ public:
                                             GrMatrix* matrix);
 
     // This utility routine is used to add a path's mask to some other draw.
-    // The ClipMaskManager uses it to accumulate clip masks while the 
+    // The ClipMaskManager uses it to accumulate clip masks while the
     // GrSoftwarePathRenderer uses it to fulfill a drawPath call.
-    // It draws with "texture" as a path mask into "target" using "rect" as 
+    // It draws with "texture" as a path mask into "target" using "rect" as
     // geometry and the current drawState. The current drawState is altered to
     // accommodate the mask.
-    // Note that this method assumes that the GrPaint::kTotalStages slot in 
+    // Note that this method assumes that the GrPaint::kTotalStages slot in
     // the draw state can be used to hold the mask texture stage.
-    // This method is really only intended to be used with the 
+    // This method is really only intended to be used with the
     // output of DrawPathMaskToTexture.
     static void DrawToTargetWithPathMask(GrTexture* texture,
                                          GrDrawTarget* target,

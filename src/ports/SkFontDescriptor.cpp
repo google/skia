@@ -13,7 +13,7 @@ enum {
     kFontFamilyName = 0x01,
     kFullName       = 0x04,
     kPostscriptName = 0x06,
-    
+
     // These count backwards from 0xFF, so as not to collide with the SFNT
     // defines for names in its 'name' table.
     kFontFileName   = 0xFE,

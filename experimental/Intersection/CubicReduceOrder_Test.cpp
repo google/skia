@@ -37,7 +37,7 @@ void CubicReduceOrder_Test() {
     int firstQuadraticLineTest = run == RunAll ? 0 : run == RunQuadraticLines ? firstTestIndex : INT_MAX;
     int firstQuadraticModLineTest = run == RunAll ? 0 : run == RunQuadraticModLines ? firstTestIndex : INT_MAX;
     int firstComputedLinesTest = run == RunAll ? 0 : run == RunComputedLines ? firstTestIndex : INT_MAX;
-    
+
     for (index = firstPointDegeneratesTest; index < pointDegenerates_count; ++index) {
         const Cubic& cubic = pointDegenerates[index];
         order = reduceOrder(cubic, reduce, kReduceOrder_QuadraticsAllowed);
@@ -105,11 +105,11 @@ void CubicReduceOrder_Test() {
             printf("[%d] line mod quad order=%d\n", (int) index, order);
         }
     }
-    
+
     // test if computed line end points are valid
     for (index = firstComputedLinesTest; index < lines_count; ++index) {
         const Cubic& cubic = lines[index];
-        bool controlsInside = controls_inside(cubic);        
+        bool controlsInside = controls_inside(cubic);
         order = reduceOrder(cubic, reduce, kReduceOrder_QuadraticsAllowed);
         if (reduce[0].x == reduce[1].x && reduce[0].y == reduce[1].y) {
             printf("[%d] line computed ends match order=%d\n", (int) index, order);
@@ -132,7 +132,7 @@ void CubicReduceOrder_Test() {
                     || !approximately_equal(reduce[1].y, bounds.top) && !approximately_equal(reduce[1].y, bounds.bottom)) {
                 printf("[%d] line computed tight bounds order=%d\n", (int) index, order);
             }
-            
+
         }
     }
 }

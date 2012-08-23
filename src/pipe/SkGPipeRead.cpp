@@ -85,7 +85,7 @@ public:
 
     const SkPaint& paint() const { return fPaint; }
     SkPaint* editPaint() { return &fPaint; }
-    
+
     SkFlattenable* getFlat(unsigned index) const {
         if (0 == index) {
             return NULL;
@@ -151,12 +151,12 @@ public:
         const void* data = fReader->skip(SkAlign4(size));
         SkMemoryStream stream(data, size, false);
         *fTypefaces.append() = SkTypeface::Deserialize(&stream);
-    }    
+    }
 
     void setTypeface(SkPaint* paint, unsigned id) {
         paint->setTypeface(id ? fTypefaces[id - 1] : NULL);
     }
-    
+
 private:
     void updateReader() {
         if (NULL == fReader) {
@@ -720,7 +720,7 @@ SkGPipeReader::Status SkGPipeReader::playback(const void* data, size_t length,
         uint32_t op32 = reader.readUInt();
         unsigned op = DrawOp_unpackOp(op32);
         // SkDEBUGCODE(DrawOps drawOp = (DrawOps)op;)
-        
+
         if (op >= SK_ARRAY_COUNT(gReadTable)) {
             SkDebugf("---- bad op during GPipeState::playback\n");
             status = kError_Status;
@@ -731,7 +731,7 @@ SkGPipeReader::Status SkGPipeReader::playback(const void* data, size_t length,
             break;
         }
         table[op](canvas, reader.getReader32(), op32, fState);
-        if (readAtom && 
+        if (readAtom &&
             (table[op] != paintOp_rp &&
              table[op] != def_Typeface_rp &&
              table[op] != def_PaintFlat_rp &&

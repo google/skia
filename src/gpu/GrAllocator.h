@@ -55,8 +55,8 @@ public:
             } else if (fOwnFirstBlock) {
                 fBlocks[0] = GrMalloc(fBlockSize);
             }
-        }        
-        void* ret = (char*)fBlocks[fCount/fItemsPerBlock] + 
+        }
+        void* ret = (char*)fBlocks[fCount/fItemsPerBlock] +
                     fItemSize * indexInBlock;
         ++fCount;
         return ret;
@@ -65,8 +65,8 @@ public:
     /**
      * removes all added items
      */
-    void reset() {        
-        int blockCount = GrMax((unsigned)1, 
+    void reset() {
+        int blockCount = GrMax((unsigned)1,
                                GrUIDivRoundUp(fCount, fItemsPerBlock));
         for (int i = 1; i < blockCount; ++i) {
             GrFree(fBlocks[i]);
@@ -85,12 +85,12 @@ public:
     int count() const {
         return fCount;
     }
-    
+
     /**
      * is the count 0
      */
     bool empty() const { return fCount == 0; }
-    
+
     /**
      * access last item, only call if count() != 0
      */
@@ -98,7 +98,7 @@ public:
         GrAssert(fCount);
         return (*this)[fCount-1];
     }
-    
+
     /**
      * access last item, only call if count() != 0
      */
@@ -106,28 +106,28 @@ public:
         GrAssert(fCount);
         return (*this)[fCount-1];
     }
-    
+
     /**
      * access item by index.
-     */    
+     */
     void* operator[] (int i) {
         GrAssert(i >= 0 && i < fCount);
-        return (char*)fBlocks[i / fItemsPerBlock] + 
+        return (char*)fBlocks[i / fItemsPerBlock] +
                fItemSize * (i % fItemsPerBlock);
     }
 
     /**
      * access item by index.
-     */  
+     */
     const void* operator[] (int i) const {
         GrAssert(i >= 0 && i < fCount);
-        return (const char*)fBlocks[i / fItemsPerBlock] + 
+        return (const char*)fBlocks[i / fItemsPerBlock] +
                fItemSize * (i % fItemsPerBlock);
     }
 
 private:
     static const int NUM_INIT_BLOCK_PTRS = 8;
-    
+
     SkSTArray<NUM_INIT_BLOCK_PTRS, void*>   fBlocks;
     size_t                                  fBlockSize;
     size_t                                  fItemSize;
@@ -184,19 +184,19 @@ public:
         }
         fAllocator.reset();
     }
-    
+
     /**
      * count of items
      */
     int count() const {
         return fAllocator.count();
     }
-    
+
     /**
      * is the count 0
      */
     bool empty() const { return fAllocator.empty(); }
-    
+
     /**
      * access last item, only call if count() != 0
      */
@@ -213,11 +213,11 @@ public:
 
     /**
      * access item by index.
-     */  
+     */
     T& operator[] (int i) {
         return *(T*)(fAllocator[i]);
     }
-    
+
     /**
      * access item by index.
      */

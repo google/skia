@@ -73,7 +73,7 @@ static void TestSort(skiatest::Reporter* reporter) {
     if (false) { // avoid bit rot, suppress warning
         compare_int(array, array);
     }
-    
+
     test_checksum(reporter);
 }
 

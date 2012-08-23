@@ -28,13 +28,13 @@
     // to subtract another 52 from it.
     exponent -= 1075;
 
-    if (mantissa == 0) 
+    if (mantissa == 0)
     {
         return "0";
     }
 
     /* Normalize */
-    while((mantissa & 1) == 0) 
+    while((mantissa & 1) == 0)
     {    /*  i.e., Mantissa is even */
         mantissa >>= 1;
         exponent++;

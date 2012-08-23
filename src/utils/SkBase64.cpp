@@ -12,7 +12,7 @@
 #define DecodePad -2
 #define EncodePad 64
 
-static const char default_encode[] = 
+static const char default_encode[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "abcdefghijklmnopqrstuvwxyz"
     "0123456789+/=";
@@ -55,7 +55,7 @@ SkBase64::Error SkBase64::decode(const void* srcPtr, size_t size, bool writeDest
             signed char decoded = decodeData[srcByte - '+'];
             bytes[byte] = decoded;
             if (decoded < 0) {
-                if (decoded == DecodePad) 
+                if (decoded == DecodePad)
                     goto handlePad;
                 return kBadCharError;
             } else
@@ -89,7 +89,7 @@ handlePad:
             *dst = (unsigned char) one;
         }
         dst++;
-        if (padTwo) 
+        if (padTwo)
             break;
         if (writeDestination)
             *dst = (unsigned char) two;
@@ -105,7 +105,7 @@ goHome:
     return kNoError;
 }
 
-#if defined _WIN32 && _MSC_VER >= 1300  
+#if defined _WIN32 && _MSC_VER >= 1300
 #pragma warning ( pop )
 #endif
 
@@ -126,7 +126,7 @@ size_t SkBase64::Encode(const void* srcPtr, size_t length, void* dstPtr, const c
             unsigned b = *src++;
             unsigned c = *src++;
             int      d = c & 0x3F;
-            c = (c >> 6 | b << 2) & 0x3F; 
+            c = (c >> 6 | b << 2) & 0x3F;
             b = (b >> 4 | a << 4) & 0x3F;
             a = a >> 2;
             *dst++ = encode[a];

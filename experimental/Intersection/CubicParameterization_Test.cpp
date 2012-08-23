@@ -91,7 +91,7 @@ void CubicParameterization_Test() {
     for (size_t index = firstCubicParameterizationTest; index < cubics_count; ++index) {
         for (size_t inner = 0; inner < 4; inner += 3) {
             if (!point_on_parameterized_curve(cubics[index], cubics[index][inner])) {
-                    printf("%s [%zu,%zu] 1 parameterization failed\n", 
+                    printf("%s [%zu,%zu] 1 parameterization failed\n",
                         __FUNCTION__, index, inner);
             }
             if (!point_on_parameterized_curve(cubics[index], cubics[index ^ 1][inner])) {

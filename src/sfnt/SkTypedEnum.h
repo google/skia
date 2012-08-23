@@ -40,7 +40,7 @@
         SK_PAIR_FIRST(elem) = SK_PAIR_SECOND(elem),
 
     #define SK_TYPED_ENUM_IDS(data, elem) \
-        elem, 
+        elem,
 
     #define SK_TYPED_ENUM_IDS_L(data, elem) \
         elem

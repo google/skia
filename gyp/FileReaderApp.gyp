@@ -4,7 +4,7 @@
       'target_name': 'FileReaderApp',
       'type': 'executable',
       'mac_bundle' : 1,
-      
+
       'include_dirs' : [
         '../include/pipe',
         '../experimental/FileReaderApp',

@@ -18,11 +18,11 @@
         '../src/views/mac/SkOSWindow_Mac.mm',
         '../src/views/mac/SkTextFieldCell.h',
         '../src/views/mac/SkTextFieldCell.m',
-        
+
         '../experimental/SimpleCocoaApp/SimpleApp-Info.plist',
         '../experimental/SimpleCocoaApp/SimpleApp.h',
         '../experimental/SimpleCocoaApp/SimpleApp.mm',
-        
+
       ],
       'dependencies': [
         'core.gyp:core',

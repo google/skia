@@ -19,31 +19,31 @@
 #include "SkBounder.h"
 class test_bounder : public SkBounder {
 public:
-	test_bounder(const SkBitmap& bm) : fCanvas(bm) {}
+    test_bounder(const SkBitmap& bm) : fCanvas(bm) {}
 protected:
-	virtual bool onIRect(const SkIRect& r)
-	{
-		SkRect	rr;
+    virtual bool onIRect(const SkIRect& r)
+    {
+        SkRect    rr;
 
-		rr.set(SkIntToScalar(r.fLeft), SkIntToScalar(r.fTop),
-				SkIntToScalar(r.fRight), SkIntToScalar(r.fBottom));
+        rr.set(SkIntToScalar(r.fLeft), SkIntToScalar(r.fTop),
+                SkIntToScalar(r.fRight), SkIntToScalar(r.fBottom));
 
-		SkPaint	p;
+        SkPaint    p;
 
-		p.setStyle(SkPaint::kStroke_Style);
-		p.setColor(SK_ColorYELLOW);
+        p.setStyle(SkPaint::kStroke_Style);
+        p.setColor(SK_ColorYELLOW);
 
 #if 0
-		rr.inset(SK_ScalarHalf, SK_ScalarHalf);
+        rr.inset(SK_ScalarHalf, SK_ScalarHalf);
 #else
-		rr.inset(-SK_ScalarHalf, -SK_ScalarHalf);
+        rr.inset(-SK_ScalarHalf, -SK_ScalarHalf);
 #endif
 
-		fCanvas.drawRect(rr, p);
-		return true;
-	}
+        fCanvas.drawRect(rr, p);
+        return true;
+    }
 private:
-	SkCanvas	fCanvas;
+    SkCanvas    fCanvas;
 };
 
 SkWindow::SkWindow() : fFocusView(NULL)
@@ -87,39 +87,39 @@ void SkWindow::postConcat(const SkMatrix& matrix) {
 
 void SkWindow::setConfig(SkBitmap::Config config)
 {
-	this->resize(fBitmap.width(), fBitmap.height(), config);
+    this->resize(fBitmap.width(), fBitmap.height(), config);
 }
 
 void SkWindow::resize(int width, int height, SkBitmap::Config config)
 {
-	if (config == SkBitmap::kNo_Config)
-		config = fConfig;
+    if (config == SkBitmap::kNo_Config)
+        config = fConfig;
 
-	if (width != fBitmap.width() || height != fBitmap.height() || config != fConfig)
-	{
-		fConfig = config;
-		fBitmap.setConfig(config, width, height);
-		fBitmap.allocPixels();
+    if (width != fBitmap.width() || height != fBitmap.height() || config != fConfig)
+    {
+        fConfig = config;
+        fBitmap.setConfig(config, width, height);
+        fBitmap.allocPixels();
         fBitmap.setIsOpaque(true);
 
-		this->setSize(SkIntToScalar(width), SkIntToScalar(height));
-		this->inval(NULL);
-	}
+        this->setSize(SkIntToScalar(width), SkIntToScalar(height));
+        this->inval(NULL);
+    }
 }
 
 void SkWindow::eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
 {
-	fBitmap.eraseARGB(a, r, g, b);
+    fBitmap.eraseARGB(a, r, g, b);
 }
 
 void SkWindow::eraseRGB(U8CPU r, U8CPU g, U8CPU b)
 {
-	fBitmap.eraseRGB(r, g, b);
+    fBitmap.eraseRGB(r, g, b);
 }
 
 bool SkWindow::handleInval(const SkRect* localR)
 {
-	SkIRect	ir;
+    SkIRect    ir;
 
     if (localR) {
         SkRect devR;
@@ -131,13 +131,13 @@ bool SkWindow::handleInval(const SkRect* localR)
         devR.round(&ir);
     } else {
         ir.set(0, 0,
-			   SkScalarRound(this->width()),
-			   SkScalarRound(this->height()));
+               SkScalarRound(this->width()),
+               SkScalarRound(this->height()));
     }
-	fDirtyRgn.op(ir, SkRegion::kUnion_Op);
+    fDirtyRgn.op(ir, SkRegion::kUnion_Op);
 
-	this->onHandleInval(ir);
-	return true;
+    this->onHandleInval(ir);
+    return true;
 }
 
 void SkWindow::forceInvalAll() {
@@ -147,9 +147,9 @@ void SkWindow::forceInvalAll() {
 }
 
 #if defined(SK_BUILD_FOR_WINCE) && defined(USE_GX_SCREEN)
-	#include <windows.h>
-	#include <gx.h>
-	extern GXDisplayProperties gDisplayProps;
+    #include <windows.h>
+    #include <gx.h>
+    extern GXDisplayProperties gDisplayProps;
 #endif
 
 #ifdef SK_SIMULATE_FAILED_MALLOC
@@ -158,128 +158,128 @@ extern bool gEnableControlledThrow;
 
 bool SkWindow::update(SkIRect* updateArea, SkCanvas* canvas)
 {
-	if (!fDirtyRgn.isEmpty())
-	{
-		SkBitmap bm = this->getBitmap();
+    if (!fDirtyRgn.isEmpty())
+    {
+        SkBitmap bm = this->getBitmap();
 
 #if defined(SK_BUILD_FOR_WINCE) && defined(USE_GX_SCREEN)
-		char* buffer = (char*)GXBeginDraw();
-		SkASSERT(buffer);
+        char* buffer = (char*)GXBeginDraw();
+        SkASSERT(buffer);
 
-		RECT	rect;
-		GetWindowRect((HWND)((SkOSWindow*)this)->getHWND(), &rect);
-		buffer += rect.top * gDisplayProps.cbyPitch + rect.left * gDisplayProps.cbxPitch;
+        RECT    rect;
+        GetWindowRect((HWND)((SkOSWindow*)this)->getHWND(), &rect);
+        buffer += rect.top * gDisplayProps.cbyPitch + rect.left * gDisplayProps.cbxPitch;
 
-		bm.setPixels(buffer);
+        bm.setPixels(buffer);
 #endif
 
-		SkCanvas	rasterCanvas;
+        SkCanvas    rasterCanvas;
 
         if (NULL == canvas) {
             canvas = &rasterCanvas;
         }
         canvas->setBitmapDevice(bm);
 
-		canvas->clipRegion(fDirtyRgn);
-		if (updateArea)
-			*updateArea = fDirtyRgn.getBounds();
+        canvas->clipRegion(fDirtyRgn);
+        if (updateArea)
+            *updateArea = fDirtyRgn.getBounds();
 
         SkAutoCanvasRestore acr(canvas, true);
         canvas->concat(fMatrix);
 
-		// empty this now, so we can correctly record any inval calls that
-		// might be made during the draw call.
-		fDirtyRgn.setEmpty();
+        // empty this now, so we can correctly record any inval calls that
+        // might be made during the draw call.
+        fDirtyRgn.setEmpty();
 
 #ifdef TEST_BOUNDER
-		test_bounder	b(bm);
-		canvas->setBounder(&b);
+        test_bounder    b(bm);
+        canvas->setBounder(&b);
 #endif
 #ifdef SK_SIMULATE_FAILED_MALLOC
-		gEnableControlledThrow = true;
+        gEnableControlledThrow = true;
 #endif
 #ifdef SK_BUILD_FOR_WIN32
-		//try {
-			this->draw(canvas);
-		//}
-		//catch (...) {
-		//}
+        //try {
+            this->draw(canvas);
+        //}
+        //catch (...) {
+        //}
 #else
-		this->draw(canvas);
+        this->draw(canvas);
 #endif
 #ifdef SK_SIMULATE_FAILED_MALLOC
-		gEnableControlledThrow = false;
+        gEnableControlledThrow = false;
 #endif
 #ifdef TEST_BOUNDER
-		canvas->setBounder(NULL);
+        canvas->setBounder(NULL);
 #endif
 
 #if defined(SK_BUILD_FOR_WINCE) && defined(USE_GX_SCREEN)
-		GXEndDraw();
+        GXEndDraw();
 #endif
 
-		return true;
-	}
-	return false;
+        return true;
+    }
+    return false;
 }
 
 bool SkWindow::handleChar(SkUnichar uni)
 {
-	if (this->onHandleChar(uni))
-		return true;
+    if (this->onHandleChar(uni))
+        return true;
 
-	SkView* focus = this->getFocusView();
-	if (focus == NULL)
-		focus = this;
+    SkView* focus = this->getFocusView();
+    if (focus == NULL)
+        focus = this;
 
-	SkEvent evt(SK_EventType_Unichar);
-	evt.setFast32(uni);
-	return focus->doEvent(evt);
+    SkEvent evt(SK_EventType_Unichar);
+    evt.setFast32(uni);
+    return focus->doEvent(evt);
 }
 
 bool SkWindow::handleKey(SkKey key)
 {
-	if (key == kNONE_SkKey)
-		return false;
+    if (key == kNONE_SkKey)
+        return false;
 
-	if (this->onHandleKey(key))
-		return true;
+    if (this->onHandleKey(key))
+        return true;
 
-	// send an event to the focus-view
-	{
-		SkView* focus = this->getFocusView();
-		if (focus == NULL)
-			focus = this;
+    // send an event to the focus-view
+    {
+        SkView* focus = this->getFocusView();
+        if (focus == NULL)
+            focus = this;
 
-		SkEvent evt(SK_EventType_Key);
-		evt.setFast32(key);
-		if (focus->doEvent(evt))
-			return true;
-	}
+        SkEvent evt(SK_EventType_Key);
+        evt.setFast32(key);
+        if (focus->doEvent(evt))
+            return true;
+    }
 
-	if (key == kUp_SkKey || key == kDown_SkKey)
-	{
-		if (this->moveFocus(key == kUp_SkKey ? kPrev_FocusDirection : kNext_FocusDirection) == NULL)
-			this->onSetFocusView(NULL);
-		return true;
-	}
-	return false;
+    if (key == kUp_SkKey || key == kDown_SkKey)
+    {
+        if (this->moveFocus(key == kUp_SkKey ? kPrev_FocusDirection : kNext_FocusDirection) == NULL)
+            this->onSetFocusView(NULL);
+        return true;
+    }
+    return false;
 }
 
 bool SkWindow::handleKeyUp(SkKey key)
 {
     if (key == kNONE_SkKey)
         return false;
-        
+
     if (this->onHandleKeyUp(key))
         return true;
-    
+
     //send an event to the focus-view
     {
         SkView* focus = this->getFocusView();
         if (focus == NULL)
             focus = this;
-            
+
         //should this one be the same?
         SkEvent evt(SK_EventType_KeyUp);
         evt.setFast32(key);
@@ -290,8 +290,8 @@ bool SkWindow::handleKeyUp(SkKey key)
 }
 
 void SkWindow::addMenu(SkOSMenu* menu) {
-	*fMenus.append() = menu;
-	this->onAddMenu(menu);
+    *fMenus.append() = menu;
+    this->onAddMenu(menu);
 }
 
 void SkWindow::setTitle(const char title[]) {
@@ -306,36 +306,36 @@ void SkWindow::setTitle(const char title[]) {
 
 bool SkWindow::onEvent(const SkEvent& evt)
 {
-	if (evt.isType(SK_EventDelayInval))
-	{
-		SkRegion::Iterator	iter(fDirtyRgn);
+    if (evt.isType(SK_EventDelayInval))
+    {
+        SkRegion::Iterator    iter(fDirtyRgn);
 
-		for (; !iter.done(); iter.next())
-			this->onHandleInval(iter.rect());
-		fWaitingOnInval = false;
-		return true;
-	}
-	return this->INHERITED::onEvent(evt);
+        for (; !iter.done(); iter.next())
+            this->onHandleInval(iter.rect());
+        fWaitingOnInval = false;
+        return true;
+    }
+    return this->INHERITED::onEvent(evt);
 }
 
 bool SkWindow::onGetFocusView(SkView** focus) const
 {
-	if (focus)
-		*focus = fFocusView;
-	return true;
+    if (focus)
+        *focus = fFocusView;
+    return true;
 }
 
 bool SkWindow::onSetFocusView(SkView* focus)
 {
-	if (fFocusView != focus)
-	{
-		if (fFocusView)
-			fFocusView->onFocusChange(false);
-		fFocusView = focus;
-		if (focus)
-			focus->onFocusChange(true);
-	}
-	return true;
+    if (fFocusView != focus)
+    {
+        if (fFocusView)
+            fFocusView->onFocusChange(false);
+        fFocusView = focus;
+        if (focus)
+            focus->onFocusChange(true);
+    }
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -346,12 +346,12 @@ void SkWindow::onHandleInval(const SkIRect&)
 
 bool SkWindow::onHandleChar(SkUnichar)
 {
-	return false;
+    return false;
 }
 
 bool SkWindow::onHandleKey(SkKey key)
 {
-	return false;
+    return false;
 }
 
 bool SkWindow::onHandleKeyUp(SkKey key)
@@ -365,7 +365,7 @@ bool SkWindow::handleClick(int x, int y, Click::State state, void *owner) {
 
 bool SkWindow::onDispatchClick(int x, int y, Click::State state,
         void* owner) {
-	bool handled = false;
+    bool handled = false;
 
     // First, attempt to find an existing click with this owner.
     int index = -1;
@@ -376,7 +376,7 @@ bool SkWindow::onDispatchClick(int x, int y, Click::State state,
         }
     }
 
-	switch (state) {
+    switch (state) {
         case Click::kDown_State: {
             if (index != -1) {
                 delete fClicks[index];
@@ -410,7 +410,7 @@ bool SkWindow::onDispatchClick(int x, int y, Click::State state,
         default:
             // Do nothing
             break;
-	}
-	return handled;
+    }
+    return handled;
 }
 

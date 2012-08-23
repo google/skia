@@ -16,12 +16,12 @@
 class SkAdd : public SkDrawable {
     DECLARE_MEMBER_INFO(Add);
     SkAdd();
-    
+
     enum Mode {
         kMode_indirect,
         kMode_immediate
     };
-    
+
     virtual SkDisplayable* deepCopy(SkAnimateMaker* );
     virtual bool draw(SkAnimateMaker& );
 #ifdef SK_DUMP_ENABLED

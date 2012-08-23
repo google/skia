@@ -73,7 +73,7 @@ static void test_tables(skiatest::Reporter* reporter, SkTypeface* face) {
                 REPORTER_ASSERT(reporter, gKnownTableSizes[j].fSize == size);
             }
         }
-        
+
         // do we get the same size from GetTableData and GetTableSize
         {
             SkAutoMalloc data(size);

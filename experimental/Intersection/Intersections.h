@@ -36,7 +36,7 @@ public:
     void swap() {
         fSwap ^= 1;
     }
-    
+
     bool swapped() {
         return fSwap;
     }

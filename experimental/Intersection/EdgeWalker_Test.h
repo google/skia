@@ -37,7 +37,7 @@ struct State4 {
     int d; // sometimes 1 if abc_is_a_triangle
     int testsRun;
     char filename[256];
-    
+
     SkCanvas* canvas;
     SkBitmap bitmap;
 };

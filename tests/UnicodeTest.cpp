@@ -72,7 +72,7 @@ static void test_textencodings(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, (int)len8 == count8);
     REPORTER_ASSERT(reporter, (int)len8 == count16);
     REPORTER_ASSERT(reporter, (int)len8 == count32);
-    
+
     REPORTER_ASSERT(reporter, !memcmp(glyphs8, glyphs16, count8 * sizeof(uint16_t)));
     REPORTER_ASSERT(reporter, !memcmp(glyphs8, glyphs32, count8 * sizeof(uint16_t)));
 }

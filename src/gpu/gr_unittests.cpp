@@ -101,7 +101,7 @@ static void test_binHashKey()
     GrTBinHashKey<BogusEntry, kDataLenUsedForKey> keyB;
     keyB.setKeyData(testStringB);
     GrAssert(keyA.compare(keyB) < 0);
-    GrAssert(keyA.getHash() != keyB.getHash());    
+    GrAssert(keyA.getHash() != keyB.getHash());
 }
 
 

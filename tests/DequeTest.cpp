@@ -80,10 +80,10 @@ public:
     }
 };
 
-static void assert_blocks(skiatest::Reporter* reporter, 
+static void assert_blocks(skiatest::Reporter* reporter,
                           const SkDeque& deq,
                           int allocCount) {
-    DequeUnitTestHelper helper(deq);                                
+    DequeUnitTestHelper helper(deq);
 
     if (0 == deq.count()) {
         REPORTER_ASSERT(reporter, 1 == helper.fNumBlocksAllocated);
@@ -91,8 +91,8 @@ static void assert_blocks(skiatest::Reporter* reporter,
         int expected = (deq.count() + allocCount - 1) / allocCount;
         // A block isn't freed in the deque when it first becomes empty so
         // sometimes an extra block lingers around
-        REPORTER_ASSERT(reporter, 
-            expected == helper.fNumBlocksAllocated || 
+        REPORTER_ASSERT(reporter,
+            expected == helper.fNumBlocksAllocated ||
             expected+1 == helper.fNumBlocksAllocated);
     }
 }

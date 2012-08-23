@@ -147,7 +147,7 @@ GrTexture* GrGpu::createTexture(const GrTextureDesc& desc,
                                 const void* srcData, size_t rowBytes) {
     this->handleDirtyContext();
     GrTexture* tex = this->onCreateTexture(desc, srcData, rowBytes);
-    if (NULL != tex && 
+    if (NULL != tex &&
         (kRenderTarget_GrTextureFlagBit & desc.fFlags) &&
         !(kNoStencil_GrTextureFlagBit & desc.fFlags)) {
         GrAssert(NULL != tex->asRenderTarget());
@@ -162,7 +162,7 @@ GrTexture* GrGpu::createTexture(const GrTextureDesc& desc,
 
 bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
     GrAssert(NULL == rt->getStencilBuffer());
-    GrStencilBuffer* sb = 
+    GrStencilBuffer* sb =
         this->getContext()->findStencilBuffer(rt->width(),
                                               rt->height(),
                                               rt->numSamples());
@@ -233,11 +233,11 @@ GrPath* GrGpu::createPath(const SkPath& path) {
     return this->onCreatePath(path);
 }
 
-void GrGpu::clear(const GrIRect* rect, 
-                  GrColor color, 
+void GrGpu::clear(const GrIRect* rect,
+                  GrColor color,
                   GrRenderTarget* renderTarget) {
     GrRenderTarget* oldRT = NULL;
-    if (NULL != renderTarget && 
+    if (NULL != renderTarget &&
         renderTarget != this->drawState()->getRenderTarget()) {
         oldRT = this->drawState()->getRenderTarget();
         this->drawState()->setRenderTarget(renderTarget);
@@ -489,12 +489,12 @@ bool GrGpu::onReserveVertexSpace(GrVertexLayout vertexLayout,
                                  int vertexCount,
                                  void** vertices) {
     GeometryPoolState& geomPoolState = fGeomPoolStateStack.back();
-    
+
     GrAssert(vertexCount > 0);
     GrAssert(NULL != vertices);
-    
+
     this->prepareVertexPool();
-    
+
     *vertices = fVertexPool->makeSpace(vertexLayout,
                                        vertexCount,
                                        &geomPoolState.fPoolVertexBuffer,
@@ -508,7 +508,7 @@ bool GrGpu::onReserveVertexSpace(GrVertexLayout vertexLayout,
 
 bool GrGpu::onReserveIndexSpace(int indexCount, void** indices) {
     GeometryPoolState& geomPoolState = fGeomPoolStateStack.back();
-    
+
     GrAssert(indexCount > 0);
     GrAssert(NULL != indices);
 

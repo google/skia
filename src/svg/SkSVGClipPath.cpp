@@ -32,7 +32,7 @@ void SkSVGClipPath::translate(SkSVGParser& parser, bool defState) {
     const char* refStr = &use->f_xlink_href.c_str()[1];
     SkASSERT(parser.getIDs().find(refStr, &ref));
     SkASSERT(ref);
-    if (ref->getType() == SkSVGType_Rect) 
+    if (ref->getType() == SkSVGType_Rect)
         parser._addAttribute("rectangle", refStr);
     else
         parser._addAttribute("path", refStr);

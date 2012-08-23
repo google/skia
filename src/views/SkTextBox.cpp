@@ -156,7 +156,7 @@ void SkTextBox::draw(SkCanvas* canvas, const char text[], size_t len, const SkPa
         y += scaledSpacing;
         if (y + metrics.fAscent >= height)
             break;
-    } 
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

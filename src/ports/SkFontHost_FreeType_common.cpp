@@ -89,7 +89,7 @@ static void copyFT2LCD16(const SkGlyph& glyph, const FT_Bitmap& bitmap,
                         SkTSwap(srcR, srcB);
                     }
                     for (int x = 0; x < width; x++) {
-                        dst[x] = packTriple(sk_apply_lut_if<APPLY_PREBLEND>(*srcR++, tableR), 
+                        dst[x] = packTriple(sk_apply_lut_if<APPLY_PREBLEND>(*srcR++, tableR),
                                             sk_apply_lut_if<APPLY_PREBLEND>(*srcG++, tableG),
                                             sk_apply_lut_if<APPLY_PREBLEND>(*srcB++, tableB));
                     }
@@ -98,14 +98,14 @@ static void copyFT2LCD16(const SkGlyph& glyph, const FT_Bitmap& bitmap,
                     const uint8_t* triple = src;
                     if (lcdIsBGR) {
                         for (int x = 0; x < width; x++) {
-                            dst[x] = packTriple(sk_apply_lut_if<APPLY_PREBLEND>(triple[2], tableR), 
+                            dst[x] = packTriple(sk_apply_lut_if<APPLY_PREBLEND>(triple[2], tableR),
                                                 sk_apply_lut_if<APPLY_PREBLEND>(triple[1], tableG),
                                                 sk_apply_lut_if<APPLY_PREBLEND>(triple[0], tableB));
                             triple += 3;
                         }
                     } else {
                         for (int x = 0; x < width; x++) {
-                            dst[x] = packTriple(sk_apply_lut_if<APPLY_PREBLEND>(triple[0], tableR), 
+                            dst[x] = packTriple(sk_apply_lut_if<APPLY_PREBLEND>(triple[0], tableR),
                                                 sk_apply_lut_if<APPLY_PREBLEND>(triple[1], tableG),
                                                 sk_apply_lut_if<APPLY_PREBLEND>(triple[2], tableB));
                             triple += 3;
@@ -302,7 +302,7 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(FT_Face face,
     if (SkMask::kA8_Format == glyph.fMaskFormat && maskPreBlend) {
         uint8_t* SK_RESTRICT dst = (uint8_t*)glyph.fImage;
         unsigned rowBytes = glyph.rowBytes();
-        
+
         for (int y = glyph.fHeight - 1; y >= 0; --y) {
             for (int x = glyph.fWidth - 1; x >= 0; --x) {
                 dst[x] = tableG[dst[x]];

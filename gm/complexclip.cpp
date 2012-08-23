@@ -21,7 +21,7 @@ class ComplexClipGM : public GM {
     bool fDoAAClip;
     bool fDoSaveLayer;
 public:
-    ComplexClipGM(bool aaclip, bool saveLayer) 
+    ComplexClipGM(bool aaclip, bool saveLayer)
     : fDoAAClip(aaclip)
     , fDoSaveLayer(saveLayer) {
         this->setBGColor(0xFFDDDDDD);
@@ -32,7 +32,7 @@ protected:
 
     SkString onShortName() {
         SkString str;
-        str.printf("complexclip_%s%s", 
+        str.printf("complexclip_%s%s",
                    fDoAAClip ? "aa" : "bw",
                    fDoSaveLayer ? "_layer" : "");
         return str;
@@ -168,7 +168,7 @@ private:
         // draw path in hairline
         paint.setColor(gPathColor); paint.setAlpha(fade);
         canvas->drawPath(path, paint);
-        
+
         // draw clips in hair line
         paint.setColor(gClipAColor); paint.setAlpha(fade);
         canvas->drawPath(clipA, paint);

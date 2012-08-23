@@ -64,13 +64,13 @@ static void test_crbug131181(skiatest::Reporter*) {
         0x419727af, 0x43011f0c, 0x41972663, 0x43011f27,
         0x419728fc, 0x43011ed4, 0x4194064b, 0x43012197
     };
-    
+
     SkPath path;
     moveToH(&path, &data[0]);
     cubicToH(&path, &data[2]);
-    
+
     SkAutoTUnref<SkCanvas> canvas(new_canvas(640, 480));
-    
+
     SkPaint paint;
     paint.setAntiAlias(true);
     canvas->drawPath(path, paint);
@@ -84,7 +84,7 @@ static void test_crbug_140803(skiatest::Reporter* reporter) {
     bm.setConfig(SkBitmap::kARGB_8888_Config, 2700, 30*1024);
     bm.allocPixels();
     SkCanvas canvas(bm);
-    
+
     SkPath path;
     path.moveTo(2762, 20);
     path.quadTo(11, 21702, 10, 21706);
@@ -100,7 +100,7 @@ static void test_crbug_140803(skiatest::Reporter* reporter) {
 //
 static void test_inversepathwithclip(skiatest::Reporter* reporter) {
     SkPath path;
-    
+
     path.moveTo(0, SkIntToScalar(20));
     path.quadTo(SkIntToScalar(10), SkIntToScalar(10),
                 SkIntToScalar(20), SkIntToScalar(20));
@@ -118,7 +118,7 @@ static void test_inversepathwithclip(skiatest::Reporter* reporter) {
     canvas.get()->drawPath(path, paint);
 
     canvas.get()->restore();
-    
+
     // Now do the test again, with the path flipped, so we only draw in the
     // top half of our bounds, and have the clip intersect our bounds at the
     // bottom.
@@ -145,7 +145,7 @@ static void test_bug533(skiatest::Reporter* reporter) {
     SkPath path;
     path.moveTo(64, 3);
     path.quadTo(-329936, -100000000, 1153, 330003);
-    
+
     SkPaint paint;
     paint.setAntiAlias(true);
 
@@ -194,10 +194,10 @@ static void test_bigcubic(skiatest::Reporter* reporter) {
     SkPath path;
     path.moveTo(64, 3);
     path.cubicTo(-329936, -100000000, -329936, 100000000, 1153, 330003);
-    
+
     SkPaint paint;
     paint.setAntiAlias(true);
-    
+
     SkAutoTUnref<SkCanvas> canvas(new_canvas(640, 480));
     canvas.get()->drawPath(path, paint);
 #endif
@@ -211,7 +211,7 @@ static void test_giantaa(skiatest::Reporter* reporter) {
     const int H = 400;
     SkAutoTUnref<SkCanvas> canvas(new_canvas(33000, 10));
     canvas.get()->clear(0);
-    
+
     SkPaint paint;
     paint.setAntiAlias(true);
     SkPath path;

@@ -58,7 +58,7 @@ int main (int argc, char * const argv[]) {
 
     SkCanvas canvas(bitmap);
     canvas.drawColor(SK_ColorWHITE);
-    
+
     paint.setTextAlign(SkPaint::kCenter_Align);
     canvas.drawText(text.c_str(), text.size(),
                     SkIntToScalar(w)/2, SkIntToScalar(h)*2/3,

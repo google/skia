@@ -38,7 +38,7 @@ static void paint_rgn(SkCanvas* canvas, const SkAAClip& clip,
 
 //////////////////////////////////////////////////////////////////////////////
 /*
- * This GM tests anti aliased single operation booleans with SkAAClips, 
+ * This GM tests anti aliased single operation booleans with SkAAClips,
  * SkRect and SkPaths.
  */
 class SimpleClipGM : public GM {
@@ -53,9 +53,9 @@ public:
     : fGeomType(geomType) {
 
         // offset the rects a bit so we get anti-aliasing in the rect case
-        fBase.set(SkFloatToScalar(100.65f), 
-                  SkFloatToScalar(100.65f), 
-                  SkFloatToScalar(150.65f), 
+        fBase.set(SkFloatToScalar(100.65f),
+                  SkFloatToScalar(100.65f),
+                  SkFloatToScalar(150.65f),
                   SkFloatToScalar(150.65f));
         fRect = fBase;
         fRect.inset(5, 5);
@@ -77,14 +77,14 @@ protected:
 
     void drawOrig(SkCanvas* canvas) {
         SkPaint     paint;
-        
+
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setColor(SK_ColorBLACK);
-        
+
         canvas->drawRect(fBase, paint);
         canvas->drawRect(fRect, paint);
     }
-    
+
     void drawRgnOped(SkCanvas* canvas, SkRegion::Op op, SkColor color) {
 
         SkAAClip clip;
@@ -128,9 +128,9 @@ protected:
 
     virtual SkString onShortName() {
         SkString str;
-        str.printf("simpleaaclip_%s", 
+        str.printf("simpleaaclip_%s",
                     kRect_GeomType == fGeomType ? "rect" :
-                    (kPath_GeomType == fGeomType ? "path" : 
+                    (kPath_GeomType == fGeomType ? "path" :
                     "aaclip"));
         return str;
     }
@@ -161,7 +161,7 @@ protected:
 
         for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); op++) {
             canvas->drawText(gOps[op].fName, strlen(gOps[op].fName),
-                             SkIntToScalar(75), SkIntToScalar(50), 
+                             SkIntToScalar(75), SkIntToScalar(50),
                              textPaint);
 
             if (kAAClip_GeomType == fGeomType) {

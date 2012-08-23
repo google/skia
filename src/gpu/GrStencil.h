@@ -274,7 +274,7 @@ public:
         fFlags |= writes ? kDoesWrite_StencilFlag : kDoesNotWrite_StencilFlag;
         return writes;
     }
-    
+
     void invalidate()  {
         // write an illegal value to the first member
         fPassOps[0] = (GrStencilOp)(uint8_t)-1;
@@ -284,18 +284,18 @@ public:
     bool operator == (const GrStencilSettings& s) const {
         static const size_t gCompareSize = sizeof(GrStencilSettings) -
                                            sizeof(fFlags);
-        GrAssert((const char*)&fFlags + sizeof(fFlags) == 
+        GrAssert((const char*)&fFlags + sizeof(fFlags) ==
                  (const char*)this + sizeof(GrStencilSettings));
         if (this->isDisabled() & s.isDisabled()) { // using & not &&
             return true;
         }
         return 0 == memcmp(this, &s, gCompareSize);
     }
-    
+
     bool operator != (const GrStencilSettings& s) const {
         return !(*this == s);
     }
-    
+
     GrStencilSettings& operator =(const GrStencilSettings& s) {
         memcpy(this, &s, sizeof(GrStencilSettings));
         return *this;
@@ -305,7 +305,7 @@ private:
     friend class GrClipMaskManager;
 
     enum {
-        kMaxStencilClipPasses = 2  // maximum number of passes to add a clip 
+        kMaxStencilClipPasses = 2  // maximum number of passes to add a clip
                                    // element to the stencil buffer.
     };
 
@@ -316,15 +316,15 @@ private:
      *      needs to be drawn to the client portion of the stencil first.
      *      2. How many passes are needed.
      *      3. What those passes are.
-     *      4. The fill rule that should actually be used to render (will 
+     *      4. The fill rule that should actually be used to render (will
      *         always be non-inverted).
      *
-     * @param op                the set op to combine this element with the 
+     * @param op                the set op to combine this element with the
      *                          existing clip
      * @param stencilClipMask   mask with just the stencil bit used for clipping
      *                          enabled.
      * @param invertedFill      is this path inverted
-     * @param numPasses         out: the number of passes needed to add the 
+     * @param numPasses         out: the number of passes needed to add the
      *                               element to the clip.
      * @param settings          out: the stencil settings to use for each pass
      *
@@ -332,7 +332,7 @@ private:
      *         stencil clip bit. Will only be true if canBeDirect is true.
      *         numPasses will be 1 if return value is true.
      */
-    static bool GetClipPasses(SkRegion::Op op, 
+    static bool GetClipPasses(SkRegion::Op op,
                               bool canBeDirect,
                               unsigned int stencilClipMask,
                               bool invertedFill,

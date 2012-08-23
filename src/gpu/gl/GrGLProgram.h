@@ -127,17 +127,17 @@ public:
 
                 /**
                  Smear alpha across all four channels. This is incompatible with
-                 kSwapRAndB, kMulRGBByAlpha* and kSmearRed. It is prefereable 
-                 to perform the smear outside the shader using 
-                 GL_ARB_texture_swizzle if possible rather than setting this 
+                 kSwapRAndB, kMulRGBByAlpha* and kSmearRed. It is prefereable
+                 to perform the smear outside the shader using
+                 GL_ARB_texture_swizzle if possible rather than setting this
                  flag.
                 */
                 kSmearAlpha_InConfigFlag                = 0x02,
 
                 /**
-                 Smear the red channel across all four channels. This flag is 
-                 incompatible with kSwapRAndB, kMulRGBByAlpha*and kSmearAlpha. 
-                 It is preferable to use GL_ARB_texture_swizzle instead of this 
+                 Smear the red channel across all four channels. This flag is
+                 incompatible with kSwapRAndB, kMulRGBByAlpha*and kSmearAlpha.
+                 It is preferable to use GL_ARB_texture_swizzle instead of this
                  flag.
                 */
                 kSmearRed_InConfigFlag                  = 0x04,

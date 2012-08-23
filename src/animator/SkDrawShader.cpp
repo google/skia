@@ -24,7 +24,7 @@ const SkMemberInfo SkDrawShader::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkDrawShader);
 
-SkDrawShader::SkDrawShader() : matrix(NULL), 
+SkDrawShader::SkDrawShader() : matrix(NULL),
     tileMode(SkShader::kClamp_TileMode) {
 }
 
@@ -66,14 +66,14 @@ bool SkDrawBitmapShader::add() {
 SkShader* SkDrawBitmapShader::getShader() {
     if (image == NULL)
         return NULL;
-    
+
     // note: bitmap shader now supports independent tile modes for X and Y
     // we pass the same to both, but later we should extend this flexibility
     // to the xml (e.g. tileModeX="repeat" tileModeY="clmap")
-    // 
+    //
     // oops, bitmapshader no longer takes filterBitmap, but deduces it at
-    // draw-time from the paint 
-    SkShader* shader  = SkShader::CreateBitmapShader(image->fBitmap, 
+    // draw-time from the paint
+    SkShader* shader  = SkShader::CreateBitmapShader(image->fBitmap,
                                                     (SkShader::TileMode) tileMode,
                                                     (SkShader::TileMode) tileMode);
     SkAutoTDelete<SkShader> autoDel(shader);

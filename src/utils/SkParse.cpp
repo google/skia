@@ -62,7 +62,7 @@ static const char* skip_sep(const char str[])
     return str;
 }
 
-int SkParse::Count(const char str[]) 
+int SkParse::Count(const char str[])
 {
     char c;
     int count = 0;
@@ -83,7 +83,7 @@ goHome:
     return count;
 }
 
-int SkParse::Count(const char str[], char separator) 
+int SkParse::Count(const char str[], char separator)
 {
     char c;
     int count = 0;
@@ -234,7 +234,7 @@ const char* SkParse::FindScalar(const char str[], SkScalar* value) {
 
     if (*str == '.')
     {
-        static const int gFractions[] = { (1 << 24)  / 10, (1 << 24)  / 100, (1 << 24)  / 1000, 
+        static const int gFractions[] = { (1 << 24)  / 10, (1 << 24)  / 100, (1 << 24)  / 1000,
             (1 << 24)  / 10000, (1 << 24)  / 100000 };
         str += 1;
         int d = 0;
@@ -330,7 +330,7 @@ int SkParse::FindList(const char target[], const char list[])
 }
 
 #ifdef SK_SUPPORT_UNITTEST
-void SkParse::UnitTest() 
+void SkParse::UnitTest()
 {
     // !!! additional parse tests go here
     SkParse::TestColor();

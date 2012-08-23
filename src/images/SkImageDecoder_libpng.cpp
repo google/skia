@@ -27,7 +27,7 @@ public:
     virtual Format getFormat() const {
         return kPNG_Format;
     }
-    
+
 protected:
     virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode);
 };
@@ -85,7 +85,7 @@ static bool pos_le(int value, int max) {
 
 static bool substituteTranspColor(SkBitmap* bm, SkPMColor match) {
     SkASSERT(bm->config() == SkBitmap::kARGB_8888_Config);
-    
+
     bool reallyHasAlpha = false;
 
     for (int y = bm->height() - 1; y >= 0; --y) {
@@ -195,18 +195,18 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
     if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8) {
         png_set_expand_gray_1_2_4_to_8(png_ptr);
     }
-    
+
     /* Make a grayscale image into RGB. */
     if (color_type == PNG_COLOR_TYPE_GRAY ||
         color_type == PNG_COLOR_TYPE_GRAY_ALPHA) {
         png_set_gray_to_rgb(png_ptr);
     }
-        
+
     SkBitmap::Config    config;
     bool                hasAlpha = false;
     bool                doDither = this->getDitherImage();
     SkPMColor           theTranspColor = 0; // 0 tells us not to try to match
-    
+
     // check for sBIT chunk data, in case we should disable dithering because
     // our data is not truely 8bits per component
     if (doDither) {
@@ -226,7 +226,7 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
             doDither = false;
         }
     }
-    
+
     if (color_type == PNG_COLOR_TYPE_PALETTE) {
         bool paletteHasAlpha = hasTransparencyInPalette(png_ptr, info_ptr);
         config = this->getPrefConfig(kIndex_SrcDepth, paletteHasAlpha);
@@ -237,11 +237,11 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
     } else {
         png_color_16p   transpColor = NULL;
         int             numTransp = 0;
-        
+
         png_get_tRNS(png_ptr, info_ptr, NULL, &numTransp, &transpColor);
-        
+
         bool valid = png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS);
-        
+
         if (valid && numTransp == 1 && transpColor != NULL) {
             /*  Compute our transparent color, which we'll match against later.
                 We don't really handle 16bit components properly here, since we
@@ -304,7 +304,7 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
     if (!this->chooseFromOneChoice(config, origWidth, origHeight)) {
         return false;
     }
-    
+
     const int sampleSize = this->getSampleSize();
     SkScaledBitmapSampler sampler(origWidth, origHeight, sampleSize);
 
@@ -313,7 +313,7 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
         return true;
     }
-    
+
     // from here down we are concerned with colortables and pixels
 
     // we track if we actually see a non-opaque pixels, since sometimes a PNG sets its colortype
@@ -329,9 +329,9 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
         int num_trans;
 
         png_get_PLTE(png_ptr, info_ptr, &palette, &num_palette);
-        
+
         /*  BUGGY IMAGE WORKAROUND
-            
+
             We hit some images (e.g. fruit_.png) who contain bytes that are == colortable_count
             which is a problem since we use the byte as an index. To work around this we grow
             the colortable by 1 (if its < 256) and duplicate the last color into that slot.
@@ -347,7 +347,7 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
         } else {
             num_trans = 0;
             colorTable->setFlags(colorTable->getFlags() | SkColorTable::kColorsAreOpaque_Flag);
-        }        
+        }
         // check for bad images that might make us crash
         if (num_trans > num_palette) {
             num_trans = num_palette;
@@ -374,7 +374,7 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
         }
         colorTable->unlockColors(true);
     }
-    
+
     SkAutoUnref aur(colorTable);
 
     if (!this->allocPixelRef(decodedBitmap,
@@ -382,7 +382,7 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
                                 colorTable : NULL)) {
         return false;
     }
-    
+
     SkAutoLockPixels alp(*decodedBitmap);
 
     /* swap the RGBA or GA data to ARGB or AG (or BGRA to ABGR) */
@@ -401,7 +401,7 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
     * png_read_image().  To see how to handle interlacing passes,
     * see the png_read_row() method below:
     */
-    const int number_passes = interlace_type != PNG_INTERLACE_NONE ? 
+    const int number_passes = interlace_type != PNG_INTERLACE_NONE ?
                         png_set_interlace_handling(png_ptr) : 1;
 
     /* Optional call to gamma correct and add the background to the palette
@@ -420,7 +420,7 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
     } else {
         SkScaledBitmapSampler::SrcConfig sc;
         int srcBytesPerPixel = 4;
-        
+
         if (colorTable != NULL) {
             sc = SkScaledBitmapSampler::kIndex;
             srcBytesPerPixel = 1;
@@ -508,7 +508,7 @@ typedef void (*transform_scanline_proc)(const char* SK_RESTRICT src,
 
 static void transform_scanline_565(const char* SK_RESTRICT src, int width,
                                    char* SK_RESTRICT dst) {
-    const uint16_t* SK_RESTRICT srcP = (const uint16_t*)src;    
+    const uint16_t* SK_RESTRICT srcP = (const uint16_t*)src;
     for (int i = 0; i < width; i++) {
         unsigned c = *srcP++;
         *dst++ = SkPacked16ToR32(c);
@@ -519,7 +519,7 @@ static void transform_scanline_565(const char* SK_RESTRICT src, int width,
 
 static void transform_scanline_888(const char* SK_RESTRICT src, int width,
                                    char* SK_RESTRICT dst) {
-    const SkPMColor* SK_RESTRICT srcP = (const SkPMColor*)src;    
+    const SkPMColor* SK_RESTRICT srcP = (const SkPMColor*)src;
     for (int i = 0; i < width; i++) {
         SkPMColor c = *srcP++;
         *dst++ = SkGetPackedR32(c);
@@ -530,7 +530,7 @@ static void transform_scanline_888(const char* SK_RESTRICT src, int width,
 
 static void transform_scanline_444(const char* SK_RESTRICT src, int width,
                                    char* SK_RESTRICT dst) {
-    const SkPMColor16* SK_RESTRICT srcP = (const SkPMColor16*)src;    
+    const SkPMColor16* SK_RESTRICT srcP = (const SkPMColor16*)src;
     for (int i = 0; i < width; i++) {
         SkPMColor16 c = *srcP++;
         *dst++ = SkPacked4444ToR32(c);
@@ -542,7 +542,7 @@ static void transform_scanline_444(const char* SK_RESTRICT src, int width,
 static void transform_scanline_8888(const char* SK_RESTRICT src, int width,
                                     char* SK_RESTRICT dst) {
     const SkPMColor* SK_RESTRICT srcP = (const SkPMColor*)src;
-    const SkUnPreMultiply::Scale* SK_RESTRICT table = 
+    const SkUnPreMultiply::Scale* SK_RESTRICT table =
                                               SkUnPreMultiply::GetScaleTable();
 
     for (int i = 0; i < width; i++) {
@@ -568,7 +568,7 @@ static void transform_scanline_8888(const char* SK_RESTRICT src, int width,
 static void transform_scanline_4444(const char* SK_RESTRICT src, int width,
                                     char* SK_RESTRICT dst) {
     const SkPMColor16* SK_RESTRICT srcP = (const SkPMColor16*)src;
-    const SkUnPreMultiply::Scale* SK_RESTRICT table = 
+    const SkUnPreMultiply::Scale* SK_RESTRICT table =
                                               SkUnPreMultiply::GetScaleTable();
 
     for (int i = 0; i < width; i++) {
@@ -603,7 +603,7 @@ static transform_scanline_proc choose_proc(SkBitmap::Config config,
     if (SkBitmap::kIndex8_Config == config) {
         hasAlpha = false;   // we store false in the table entries for kIndex8
     }
-    
+
     static const struct {
         SkBitmap::Config        fConfig;
         bool                    fHasAlpha;
@@ -644,7 +644,7 @@ static int computeBitDepth(int colorCount) {
 /*  Pack palette[] with the corresponding colors, and if hasAlpha is true, also
     pack trans[] and return the number of trans[] entries written. If hasAlpha
     is false, the return value will always be 0.
- 
+
     Note: this routine takes care of unpremultiplying the RGB values when we
     have alpha in the colortable, since png doesn't support premul colors
 */
@@ -672,7 +672,7 @@ static inline int pack_palette(SkColorTable* ctable,
             }
             num_trans -= 1;
         }
-        
+
         const SkUnPreMultiply::Scale* SK_RESTRICT table =
                                             SkUnPreMultiply::GetScaleTable();
 
@@ -684,11 +684,11 @@ static inline int pack_palette(SkColorTable* ctable,
             palette[i].red = SkUnPreMultiply::ApplyScale(s, SkGetPackedR32(c));
             palette[i].green = SkUnPreMultiply::ApplyScale(s,SkGetPackedG32(c));
             palette[i].blue = SkUnPreMultiply::ApplyScale(s, SkGetPackedB32(c));
-        }        
+        }
         // now fall out of this if-block to use common code for the trailing
         // opaque entries
     }
-    
+
     // these (remaining) entries are opaque
     for (i = num_trans; i < ctCount; i++) {
         SkPMColor c = *colors++;
@@ -743,7 +743,7 @@ bool SkPNGImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bitmap,
         default:
             return false;
     }
-    
+
     if (hasAlpha) {
         // don't specify alpha if we're a palette, even if our ctable has alpha
         if (!(colorType & PNG_COLOR_MASK_PALETTE)) {
@@ -752,7 +752,7 @@ bool SkPNGImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bitmap,
     } else {
         sig_bit.alpha = 0;
     }
-    
+
     SkAutoLockPixels alp(bitmap);
     // readyToDraw checks for pixels (and colortable if that is required)
     if (!bitmap.readyToDraw()) {

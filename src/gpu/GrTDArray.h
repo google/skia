@@ -72,7 +72,7 @@ public:
 
     T* begin() const { return fArray; }
     T* end() const { return fArray + fCount; }
-    T* back() const { GrAssert(fCount); return fArray + (fCount - 1); } 
+    T* back() const { GrAssert(fCount); return fArray + (fCount - 1); }
 
     T* prepend() {
         this->growAt(0);

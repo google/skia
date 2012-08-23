@@ -38,7 +38,7 @@ public:
     struct Row {
         GrIPoint16  fLoc;
         int         fRowHeight;
-        
+
         bool canAddWidth(int width, int containerWidth) const {
             return fLoc.fX + width <= containerWidth;
         }

@@ -99,7 +99,7 @@ static const struct OperName {
     OperandName(kString),
     OperandName(kArray),
     OperandName(kObject)
-};  
+};
 
 static size_t gOperandNamesSize = sizeof(gOperandNames) / sizeof(gOperandNames[0]);
 
@@ -135,7 +135,7 @@ void SkScriptEngine2::decompile(const unsigned char* start, size_t length) {
             opCode += sizeof(index);
             SkDebugf(" index: %d", index);
             } break;
-        case SkScriptEngine2::kFunctionCall: 
+        case SkScriptEngine2::kFunctionCall:
         case SkScriptEngine2::kMemberOp:
         case SkScriptEngine2::kPropertyOp: {
             size_t ref;

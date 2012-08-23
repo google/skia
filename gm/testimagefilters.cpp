@@ -52,13 +52,13 @@ static SkImageFilter* make6() {
     SkAutoUnref aur1(inner);
     SkImageFilter* compose = new SkComposeImageFilter(outer, inner);
     SkAutoUnref aur2(compose);
-    
+
     SkColorFilter* cf = SkColorFilter::CreateModeFilter(0x880000FF,
                                                         SkXfermode::kSrcIn_Mode);
     SkAutoUnref aur3(cf);
     SkImageFilter* blue = new SkColorFilterImageFilter(cf);
     SkAutoUnref aur4(blue);
-    
+
     return new SkMergeImageFilter(compose, blue);
 }
 
@@ -69,13 +69,13 @@ static SkImageFilter* make7() {
     SkAutoUnref aur1(inner);
     SkImageFilter* compose = new SkComposeImageFilter(outer, inner);
     SkAutoUnref aur2(compose);
-    
+
     SkColorFilter* cf = SkColorFilter::CreateModeFilter(0x880000FF,
                                                         SkXfermode::kSrcIn_Mode);
     SkAutoUnref aur3(cf);
     SkImageFilter* blue = new SkColorFilterImageFilter(cf);
     SkAutoUnref aur4(blue);
-    
+
     return new SkMergeImageFilter(compose, blue);
 }
 
@@ -106,9 +106,9 @@ protected:
         static SkImageFilter* (*gFilterProc[])() = {
             make0, make1, make2, make3, make4, make5, make6, make7
         };
-        
+
         const SkRect bounds = SkRect::MakeWH(FILTER_WIDTH, FILTER_HEIGHT);
-        
+
         const SkScalar dx = bounds.width() * 8 / 7;
         const SkScalar dy = bounds.height() * 8 / 7;
 
@@ -124,7 +124,7 @@ protected:
             SkPaint p;
             p.setStyle(SkPaint::kStroke_Style);
             canvas->drawRect(bounds, p);
-            
+
             SkPaint paint;
             paint.setImageFilter(gFilterProc[i]())->unref();
             canvas->saveLayer(&bounds, &paint);

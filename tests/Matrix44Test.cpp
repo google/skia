@@ -115,7 +115,7 @@ static void TestMatrix44(skiatest::Reporter* reporter) {
         mat.setTranslate(2, 3, 4);
         float dataf[16];
         double datad[16];
-        
+
         mat.asColMajorf(dataf);
         assert16<float>(reporter, dataf,
                  1, 0, 0, 0,

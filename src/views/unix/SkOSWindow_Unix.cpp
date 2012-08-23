@@ -231,7 +231,7 @@ bool SkOSWindow::attach(SkBackEndTypes /* attachType */, int msaaSampleCount) {
     this->initWindow(msaaSampleCount);
     if (NULL == fUnixWindow.fDisplay) {
         return false;
-    } 
+    }
     if (NULL == fUnixWindow.fGLContext) {
         SkASSERT(NULL != fVi);
 

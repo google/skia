@@ -8,7 +8,7 @@ bool implicit_matches(const _Line& one, const _Line& two) {
     _Point oneD, twoD;
     tangent(one, oneD);
     tangent(two, twoD);
-    /* See if the slopes match, i.e. 
+    /* See if the slopes match, i.e.
                         dx1 / dy1 ==               dx2 / dy2
           (dy1 * dy2) * dx1 / dy1 == (dy1 * dy2) * dx2 / dy2
                  dy2  * dx1       ==  dy1        * dx2
@@ -32,7 +32,7 @@ bool implicit_matches_ulps(const _Line& one, const _Line& two, int ulps) {
     _Point oneD, twoD;
     tangent(one, oneD);
     tangent(two, twoD);
-    /* See if the slopes match, i.e. 
+    /* See if the slopes match, i.e.
                         dx1 / dy1 ==               dx2 / dy2
           (dy1 * dy2) * dx1 / dy1 == (dy1 * dy2) * dx2 / dy2
                  dy2  * dx1       ==  dy1        * dx2

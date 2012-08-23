@@ -38,9 +38,9 @@ protected:
     int32_t* append() { return this->append(1, NULL); }
     int32_t* append(U16CPU count, const int32_t* src = NULL);
 
-    int32_t* appendClear() 
-    { 
-        int32_t* result = this->append(); 
+    int32_t* appendClear()
+    {
+        int32_t* result = this->append();
         *result = 0;
         return result;
     }
@@ -108,9 +108,9 @@ public:
     SkTDS32Array(const SkTDS32Array<T>& src) : SkDS32Array(src) {}
     ~SkTDS32Array() { sk_free(fArray); }
     T&  operator[](int index) const { SYNC(); SkASSERT((unsigned)index < fCount); return ((T*) fArray)[index]; }
-    SkTDS32Array<T>& operator=(const SkTDS32Array<T>& src) { 
+    SkTDS32Array<T>& operator=(const SkTDS32Array<T>& src) {
         return (SkTDS32Array<T>&) SkDS32Array::operator=(src); }
-    friend int operator==(const SkTDS32Array<T>& a, const SkTDS32Array<T>& b) { 
+    friend int operator==(const SkTDS32Array<T>& a, const SkTDS32Array<T>& b) {
         return operator==((const SkDS32Array&) a, (const SkDS32Array&) b); }
     T* append() { return (T*) SkDS32Array::append(); }
     T* appendClear() { return (T*) SkDS32Array::appendClear(); }

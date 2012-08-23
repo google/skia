@@ -75,7 +75,7 @@ class SkDisplayString : public SkDisplayDepend {
     DECLARE_DISPLAY_MEMBER_INFO(String);
     SkDisplayString();
     SkDisplayString(SkString& );
-    virtual void executeFunction(SkDisplayable* , int index, 
+    virtual void executeFunction(SkDisplayable* , int index,
         SkTDArray<SkScriptValue>& parameters, SkDisplayTypes type,
         SkScriptValue* );
     virtual const SkFunctionParamType* getFunctionsParameters();

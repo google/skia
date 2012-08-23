@@ -21,13 +21,13 @@ SkNetPipeController::~SkNetPipeController() {
 int SkNetPipeController::writeToSocket(SkSocket* sockfd, SkSocket::DataType type) {
     if (NULL != sockfd && fTotalWritten > 4)
         return sockfd->writePacket(fBlock, fBytesWritten, type);
-    else 
+    else
         return -1;
 }
 
 void* SkNetPipeController::requestBlock(size_t minRequest, size_t* actual) {
     sk_free(fBlock);
-    
+
     fBlockSize = minRequest * 4;
     fBlock = sk_malloc_throw(fBlockSize);
     fBytesWritten = 0;
@@ -37,15 +37,15 @@ void* SkNetPipeController::requestBlock(size_t minRequest, size_t* actual) {
 
 void SkNetPipeController::notifyWritten(size_t bytes) {
     SkASSERT(fBytesWritten + bytes <= fBlockSize);
-    
+
     if (fPlayback) {
         fStatus = fReader.playback((const char*)fBlock + fBytesWritten, bytes);
     }
-    
+
     SkASSERT(SkGPipeReader::kError_Status != fStatus);
     fBytesWritten += bytes;
     fTotalWritten += bytes;
-    
+
     fAtomsWritten += 1;
 }
 

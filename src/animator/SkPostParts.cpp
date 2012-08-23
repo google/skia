@@ -29,7 +29,7 @@ bool SkDataInput::add() {
         fParent->fEvent.setS32(dataName, fInt);
     else if (SkScalarIsNaN(fFloat) == false)
         fParent->fEvent.setScalar(dataName, fFloat);
-    else if (string.size() > 0) 
+    else if (string.size() > 0)
         fParent->fEvent.setString(dataName, string);
 //  else
 //      SkASSERT(0);

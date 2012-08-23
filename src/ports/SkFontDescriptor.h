@@ -28,7 +28,7 @@ public:
     const char* getFullName() { return fFullName.c_str(); }
     const char* getPostscriptName() { return fPostscriptName.c_str(); }
     const char* getFontFileName() { return fFontFileName.c_str(); }
-    
+
     void setFamilyName(const char* name) { fFamilyName.set(name); }
     void setFullName(const char* name) { fFullName.set(name); }
     void setPostscriptName(const char* name) { fPostscriptName.set(name); }

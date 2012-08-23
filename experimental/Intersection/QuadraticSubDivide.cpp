@@ -18,7 +18,7 @@ _12 = A/2 + B/2
 12_ = B/2 + C/2
 123 = A/4 + B/2 + C/4
     = D
-    
+
 Group the known values on one side:
 
 B   = D*2 - A/2 - C/2

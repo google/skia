@@ -6,11 +6,11 @@
 class CubicIntersections : public Intersections {
 public:
 
-CubicIntersections(const Cubic& c1, const Cubic& c2, Intersections& i) 
+CubicIntersections(const Cubic& c1, const Cubic& c2, Intersections& i)
     : cubic1(c1)
     , cubic2(c2)
     , intersections(i)
-    , depth(0) 
+    , depth(0)
     , splits(0) {
 }
 
@@ -37,10 +37,10 @@ bool intersect() {
 }
 
 protected:
-        
+
 bool intersect(double minT1, double maxT1, double minT2, double maxT2) {
     Cubic smaller, larger;
-    // FIXME: carry last subdivide and reduceOrder result with cubic 
+    // FIXME: carry last subdivide and reduceOrder result with cubic
     sub_divide(cubic1, minT1, maxT1, intersections.swapped() ? larger : smaller);
     sub_divide(cubic2, minT2, maxT2, intersections.swapped() ? smaller : larger);
     Cubic smallResult;
@@ -58,11 +58,11 @@ bool intersect(double minT1, double maxT1, double minT2, double maxT2) {
                 return false;
             }
             if (intersections.swapped()) {
-                smallT[0] = interp(minT2, maxT2, smallT[0]); 
-                largeT[0] = interp(minT1, maxT1, largeT[0]); 
+                smallT[0] = interp(minT2, maxT2, smallT[0]);
+                largeT[0] = interp(minT1, maxT1, largeT[0]);
             } else {
-                smallT[0] = interp(minT1, maxT1, smallT[0]); 
-                largeT[0] = interp(minT2, maxT2, largeT[0]); 
+                smallT[0] = interp(minT1, maxT1, smallT[0]);
+                largeT[0] = interp(minT2, maxT2, largeT[0]);
             }
             intersections.add(smallT[0], largeT[0]);
             return true;
@@ -83,7 +83,7 @@ bool intersect(double minT1, double maxT1, double minT2, double maxT2) {
         }
         return false;
     }
-    
+
     int split;
     if (intersections.swapped()) {
         double newMinT1 = interp(minT1, maxT1, minT);

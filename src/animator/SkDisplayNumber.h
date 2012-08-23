@@ -18,5 +18,5 @@ class SkDisplayNumber : public SkDisplayable {
     virtual bool getProperty(int index, SkScriptValue* value) const;
 private:
 };
-    
+
 #endif // SkDisplayNumber_DEFINED

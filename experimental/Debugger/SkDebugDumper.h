@@ -20,7 +20,7 @@ public:
     // the function pointer that was passed to the constructor
     virtual void dump(SkDumpCanvas*, SkDumpCanvas::Verb, const char str[],
                       const SkPaint*);
-    
+
     void load() { fInit = true; };
     void unload() { fInit = false; fCount = 0;};
     void disable() { fDisabled = true; };
@@ -32,7 +32,7 @@ private:
     SkEventSinkID   fContentID;
     SkEventSinkID   fCommandsID;
     SkEventSinkID   fStateID;
-    
+
     typedef SkDumpCanvas::Dumper INHERITED;
 };
 #endif

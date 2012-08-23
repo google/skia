@@ -10,7 +10,7 @@ bool bezier_clip(const Quadratic& q1, const Quadratic& q2, double& minT, double&
     maxT = 0;
     // determine normalized implicit line equation for pt[0] to pt[3]
     //   of the form ax + by + c = 0, where a*a + b*b == 1
-    
+
     // find the implicit line equation parameters
     LineParameters endLine;
     endLine.quadEndPoints(q1);
@@ -20,18 +20,18 @@ bool bezier_clip(const Quadratic& q1, const Quadratic& q2, double& minT, double&
     }
 
     double distance = endLine.controlPtDistance(q1);
-    
+
     // find fat line
     double top = 0;
     double bottom = distance / 2; // http://students.cs.byu.edu/~tom/557/text/cic.pdf (7.6)
     if (top > bottom) {
         std::swap(top, bottom);
     }
-    
+
     // compute intersecting candidate distance
     Quadratic distance2y; // points with X of (0, 1/2, 1)
     endLine.quadDistanceY(q2, distance2y);
-    
+
     int flags = 0;
     if (approximately_lesser(distance2y[0].y, top)) {
         flags |= kFindTopMin;
@@ -57,6 +57,6 @@ bool bezier_clip(const Quadratic& q1, const Quadratic& q2, double& minT, double&
         }
         x_at(distance2y[idx], distance2y[next], top, bottom, flags, minT, maxT);
         idx = next;
-    } while (idx);    
+    } while (idx);
     return minT < maxT; // returns false if distance shows no intersection
 }

@@ -20,7 +20,7 @@ const SkMemberInfo SkDrawBlur::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkDrawBlur);
 
-SkDrawBlur::SkDrawBlur() : radius(-1), 
+SkDrawBlur::SkDrawBlur() : radius(-1),
     blurStyle(SkBlurMaskFilter::kNormal_BlurStyle) {
 }
 

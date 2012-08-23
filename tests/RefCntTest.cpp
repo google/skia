@@ -42,7 +42,7 @@ static void test_refarray(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, N == InstCounterClass::gInstCounter);
     array->unref();
     REPORTER_ASSERT(reporter, 0 == InstCounterClass::gInstCounter);
-    
+
     // Now test the copy factory
 
     int i;

@@ -65,9 +65,9 @@ static SkScalar dot(SkScalar ax, SkScalar ay, SkScalar bx, SkScalar by) {
 bool SkSetPoly3To3_A(SkMatrix* matrix, const SkPoint src[3], const SkPoint dst[3]) {
     const SkPoint& srcAve = src[0];
     const SkPoint& dstAve = dst[0];
-    
+
     SkScalar srcOP[4], dstOP[4];
-    
+
     computeOuterProduct(srcOP, src, srcAve, src, srcAve);
     computeOuterProduct(dstOP, src, srcAve, dst, dstAve);
 
@@ -75,17 +75,17 @@ bool SkSetPoly3To3_A(SkMatrix* matrix, const SkPoint src[3], const SkPoint dst[3
                     SkDScalar_setMul(srcOP[1], srcOP[2]);
 
     SkDScalar M[4];
-    
+
     const SkScalar srcOP0 = srcOP[3];
     const SkScalar srcOP1 = -srcOP[1];
     const SkScalar srcOP2 = -srcOP[2];
     const SkScalar srcOP3 = srcOP[0];
-    
+
     M[0] = ddot(srcOP0, srcOP1, dstOP[0], dstOP[2]);
     M[1] = ddot(srcOP2, srcOP3, dstOP[0], dstOP[2]);
     M[2] = ddot(srcOP0, srcOP1, dstOP[1], dstOP[3]);
     M[3] = ddot(srcOP2, srcOP3, dstOP[1], dstOP[3]);
-    
+
     matrix->reset();
     matrix->setScaleX(divide(M[0], det));
     matrix->setSkewX( divide(M[1], det));

@@ -34,7 +34,7 @@
     #define _static static
 #endif
 
-_static const char gMathPrimerText[] = 
+_static const char gMathPrimerText[] =
 "<screenplay>"
     "<Math id=\"Math\"/>"
     "<Number id=\"Number\"/>"
@@ -108,9 +108,9 @@ bool SkAnimator::doClickEvent(int clickState, SkScalar x, SkScalar y) {
     state.fX = x;
     state.fY = y;
     fMaker->fEnableTime = fMaker->getAppTime();
-    bool result = fMaker->fEvents.doEvent(*fMaker, 
-        clickState == 0 ? SkDisplayEvent::kMouseDown : 
-        clickState == 1 ? SkDisplayEvent::kMouseDrag : 
+    bool result = fMaker->fEvents.doEvent(*fMaker,
+        clickState == 0 ? SkDisplayEvent::kMouseDown :
+        clickState == 1 ? SkDisplayEvent::kMouseDrag :
         SkDisplayEvent::kMouseUp, &state);
     fMaker->notifyInval();
     return result;
@@ -160,7 +160,7 @@ SkAnimator::DifferenceType SkAnimator::draw(SkCanvas* canvas, SkMSec time) {
     SkPaint paint;
     return draw(canvas, &paint, time);
 }
-    
+
 #ifdef SK_DEBUG
 void SkAnimator::eventDone(const SkEvent& ) {
 }
@@ -231,7 +231,7 @@ SkFieldType SkAnimator::getFieldType(const char* id, const char* fieldID) {
     return info->getArrayValue(element, index, operand);
 }
 
-int32_t SkAnimator::getArrayInt(const SkDisplayable* ae, 
+int32_t SkAnimator::getArrayInt(const SkDisplayable* ae,
         const SkMemberInfo* ai, int index) {
     SkOperand operand;
     bool result = getArrayCommon(ae, ai, index, &operand, SkType_Int);
@@ -248,7 +248,7 @@ int32_t SkAnimator::getArrayInt(const char* id, const char* fieldID, int index) 
     return getArrayInt(element, field, index);
 }
 
-SkScalar SkAnimator::getArrayScalar(const SkDisplayable* ae, 
+SkScalar SkAnimator::getArrayScalar(const SkDisplayable* ae,
         const SkMemberInfo* ai, int index) {
     SkOperand operand;
     bool result = getArrayCommon(ae, ai, index, &operand, SkType_Float);
@@ -265,7 +265,7 @@ SkScalar SkAnimator::getArrayScalar(const char* id, const char* fieldID, int ind
     return getArrayScalar(element, field, index);
 }
 
-const char* SkAnimator::getArrayString(const SkDisplayable* ae, 
+const char* SkAnimator::getArrayString(const SkDisplayable* ae,
         const SkMemberInfo* ai, int index) {
     SkOperand operand;
     bool result = getArrayCommon(ae, ai, index, &operand, SkType_String);
@@ -360,7 +360,7 @@ SkScalar SkAnimator::getScalar(const char* id, const char* fieldID) {
     return getScalar(element, field);
 }
 
-const char* SkAnimator::getString(const SkDisplayable* ae, 
+const char* SkAnimator::getString(const SkDisplayable* ae,
         const SkMemberInfo* ai) {
     const SkDisplayable* element = (const SkDisplayable*) ae;
     const SkMemberInfo* info = (const SkMemberInfo*) ai;
@@ -501,11 +501,11 @@ void SkAnimator::reset() {
 }
 
 SkEventSinkID SkAnimator::getHostEventSinkID() const {
-    return fMaker->fHostEventSinkID; 
+    return fMaker->fHostEventSinkID;
 }
 
 void SkAnimator::setHostEventSinkID(SkEventSinkID target) {
-    fMaker->fHostEventSinkID = target; 
+    fMaker->fHostEventSinkID = target;
 }
 
 void SkAnimator::onSetHostHandler(Handler ) {
@@ -530,7 +530,7 @@ bool SkAnimator::setArrayInt(const char* id, const char* fieldID, const int* arr
     SkTypedArray tArray(SkType_Int);
     tArray.setCount(num);
     for (int i = 0; i < num; i++) {
-        SkOperand op;   
+        SkOperand op;
         op.fS32 = array[i];
         tArray[i] = op;
     }
@@ -546,7 +546,7 @@ bool SkAnimator::setArray(SkDisplayable* element, const SkMemberInfo* info, SkTy
     SkDisplayTypes type = element->getType();
     if (type == SkType_Array) {
         SkDisplayArray* dispArray = (SkDisplayArray*) element;
-        dispArray->values = array;  
+        dispArray->values = array;
         return true;
     }
     else
@@ -614,9 +614,9 @@ bool SkAnimator::setScalar(const char* id, const char* fieldID, SkScalar scalar)
     return setScalar(element, field, scalar);
 }
 
-bool SkAnimator::setString(SkDisplayable* element, 
+bool SkAnimator::setString(SkDisplayable* element,
         const SkMemberInfo* info, const char* str) {
-    // !!! until this is fixed, can't call script with global references from here 
+    // !!! until this is fixed, can't call script with global references from here
     info->setValue(*fMaker, NULL, 0, info->fCount, element, info->getType(), str, strlen(str));
     return true;
 }

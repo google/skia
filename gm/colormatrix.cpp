@@ -22,7 +22,7 @@ public:
         fOnce = true;
         return true;
     }
-    
+
 private:
     mutable bool fOnce;
 };
@@ -49,7 +49,7 @@ public:
     ColorMatrixGM() {
         this->setBGColor(0xFF808080);
     }
-    
+
 protected:
     virtual SkString onShortName() {
         return SkString("colormatrix");
@@ -134,7 +134,7 @@ protected:
         setArray(&paint, data);
         canvas->drawBitmap(fBitmap, 160, 160, &paint);
     }
-    
+
 private:
     SkBitmap fBitmap;
     typedef GM INHERITED;

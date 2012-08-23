@@ -86,7 +86,7 @@ static void copyRect(const SkBitmap& dst, const SkIRect& rect,
     const char* srcP = static_cast<const char*>(srcAddr) + offset;
     const size_t rb = dst.rowBytes();
     const size_t bytes = rect.width() << shift;
-    
+
     int height = rect.height();
     while (--height >= 0) {
         memcpy(dstP, srcP, bytes);
@@ -116,10 +116,10 @@ void SkFlipPixelRef::CopyBitsFromAddr(const SkBitmap& dst, const SkRegion& clip,
     if (shift < 0) {
         return;
     }
-    
+
     const SkIRect bounds = {0, 0, dst.width(), dst.height()};
     SkRegion::Cliperator iter(clip, bounds);
-    
+
     while (!iter.done()) {
         copyRect(dst, iter.rect(), srcAddr, shift);
         iter.next();

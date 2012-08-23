@@ -19,9 +19,9 @@ protected:
     SkString onShortName() {
         return SkString("linepath");
     }
-        
+
     SkISize onISize() { return make_isize(1240, 390); }
-    
+
     void drawPath(SkPath& path,SkCanvas* canvas,SkColor color,
                   const SkRect& clip,SkPaint::Cap cap, SkPaint::Join join,
                   SkPaint::Style style, SkPath::FillType fill,
@@ -38,7 +38,7 @@ protected:
         canvas->drawPath(path, paint);
         canvas->restore();
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         struct FillAndName {
             SkPath::FillType fFill;
@@ -109,19 +109,19 @@ protected:
                     if (0 < style) {
                         canvas->translate(rect.width() + 40 * SK_Scalar1, 0);
                     }
-        
+
                     SkColor color = 0xff007000;
                     this->drawPath(path.fPath, canvas, color, rect,
                                     gCaps[cap].fCap, gCaps[cap].fJoin, gStyles[style].fStyle,
                                     gFills[fill].fFill, SK_Scalar1*10);
-        
+
                     SkPaint rectPaint;
                     rectPaint.setColor(SK_ColorBLACK);
                     rectPaint.setStyle(SkPaint::kStroke_Style);
                     rectPaint.setStrokeWidth(-1);
                     rectPaint.setAntiAlias(true);
                     canvas->drawRect(rect, rectPaint);
-        
+
                     SkPaint labelPaint;
                     labelPaint.setColor(color);
                     labelPaint.setAntiAlias(true);
@@ -147,7 +147,7 @@ protected:
         canvas->restore();
         canvas->restore();
     }
-    
+
 private:
     typedef GM INHERITED;
 };
@@ -160,9 +160,9 @@ protected:
     SkString onShortName() {
         return SkString("lineclosepath");
     }
-        
+
     SkISize onISize() { return make_isize(1240, 390); }
-    
+
     void drawPath(SkPath& path,SkCanvas* canvas,SkColor color,
                   const SkRect& clip,SkPaint::Cap cap, SkPaint::Join join,
                   SkPaint::Style style, SkPath::FillType fill,
@@ -179,7 +179,7 @@ protected:
         canvas->drawPath(path, paint);
         canvas->restore();
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         struct FillAndName {
             SkPath::FillType fFill;
@@ -251,19 +251,19 @@ protected:
                     if (0 < style) {
                         canvas->translate(rect.width() + 40 * SK_Scalar1, 0);
                     }
-        
+
                     SkColor color = 0xff007000;
                     this->drawPath(path.fPath, canvas, color, rect,
                                     gCaps[cap].fCap, gCaps[cap].fJoin, gStyles[style].fStyle,
                                     gFills[fill].fFill, SK_Scalar1*10);
-        
+
                     SkPaint rectPaint;
                     rectPaint.setColor(SK_ColorBLACK);
                     rectPaint.setStyle(SkPaint::kStroke_Style);
                     rectPaint.setStrokeWidth(-1);
                     rectPaint.setAntiAlias(true);
                     canvas->drawRect(rect, rectPaint);
-        
+
                     SkPaint labelPaint;
                     labelPaint.setColor(color);
                     labelPaint.setAntiAlias(true);
@@ -289,7 +289,7 @@ protected:
         canvas->restore();
         canvas->restore();
     }
-    
+
 private:
     typedef GM INHERITED;
 };

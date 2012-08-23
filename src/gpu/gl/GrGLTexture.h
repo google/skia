@@ -83,7 +83,7 @@ public:
 
     virtual void invalidateCachedState() SK_OVERRIDE { fTexParams.invalidate(); }
 
-    // these functions 
+    // these functions
     const TexParams& getCachedTexParams(GrGpu::ResetTimestamp* timestamp) const {
         *timestamp = fTexParamsTimestamp;
         return fTexParams;

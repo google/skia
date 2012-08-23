@@ -35,7 +35,7 @@ bool shouldDrawImmediately(const SkBitmap* bitmap, const SkPaint* paint) {
         // code may need to be revised if that assumption is ever broken.
         if (shader && !shader->asAGradient(NULL)) {
             SkBitmap bm;
-            if (shader->asABitmap(&bm, NULL, NULL) && 
+            if (shader->asABitmap(&bm, NULL, NULL) &&
                 NULL != bm.getTexture()) {
                 return true;
             }
@@ -47,7 +47,7 @@ bool shouldDrawImmediately(const SkBitmap* bitmap, const SkPaint* paint) {
 
 class AutoImmediateDrawIfNeeded {
 public:
-    AutoImmediateDrawIfNeeded(SkDeferredCanvas& canvas, const SkBitmap* bitmap, 
+    AutoImmediateDrawIfNeeded(SkDeferredCanvas& canvas, const SkBitmap* bitmap,
                               const SkPaint* paint) {
         this->init(canvas, bitmap, paint);
     }
@@ -77,7 +77,7 @@ private:
 
 namespace {
 
-bool isPaintOpaque(const SkPaint* paint, 
+bool isPaintOpaque(const SkPaint* paint,
                    const SkBitmap* bmpReplacesShader = NULL) {
     // TODO: SkXfermode should have a virtual isOpaque method, which would
     // make it possible to test modes that do not have a Coeff representation.
@@ -102,7 +102,7 @@ bool isPaintOpaque(const SkPaint* paint,
             } else if (paint->getShader() && !paint->getShader()->isOpaque()) {
                 break;
             }
-            if (paint->getColorFilter() && 
+            if (paint->getColorFilter() &&
                 ((paint->getColorFilter()->getFlags() &
                 SkColorFilter::kAlphaUnchanged_Flag) == 0)) {
                 break;
@@ -112,7 +112,7 @@ bool isPaintOpaque(const SkPaint* paint,
             if (paint->getAlpha() != 0) {
                 break;
             }
-            if (paint->getColorFilter() && 
+            if (paint->getColorFilter() &&
                 ((paint->getColorFilter()->getFlags() &
                 SkColorFilter::kAlphaUnchanged_Flag) == 0)) {
                 break;
@@ -203,7 +203,7 @@ void DeferredPipeController::notifyWritten(size_t bytes) {
 }
 
 void DeferredPipeController::playback() {
-    
+
     for (int currentBlock = 0; currentBlock < fBlockList.count(); currentBlock++ ) {
         fReader.playback(fBlockList[currentBlock].fBlock, fBlockList[currentBlock].fSize);
     }
@@ -376,10 +376,10 @@ void DeferredDevice::endRecording() {
 
 void DeferredDevice::beginRecording() {
     SkASSERT(NULL == fRecordingCanvas);
-    fRecordingCanvas = fPipeWriter.startRecording(&fPipeController, 0, 
+    fRecordingCanvas = fPipeWriter.startRecording(&fPipeController, 0,
         fImmediateDevice->width(), fImmediateDevice->height());
 }
-    
+
 void DeferredDevice::setNotificationClient(
     SkDeferredCanvas::NotificationClient* notificationClient) {
     fNotificationClient = notificationClient;
@@ -409,7 +409,7 @@ void DeferredDevice::contentsCleared() {
 
             // Restore pre-purge state
             if (!clipRegion.isEmpty()) {
-                fRecordingCanvas->clipRegion(clipRegion, 
+                fRecordingCanvas->clipRegion(clipRegion,
                     SkRegion::kReplace_Op);
             }
             if (!matrix.isIdentity()) {
@@ -475,7 +475,7 @@ void DeferredDevice::recordedDrawCommand() {
         storageAllocated = this->storageAllocatedForRecording();
     }
 
-    if (fNotificationClient && 
+    if (fNotificationClient &&
         storageAllocated != fPreviousStorageAllocated) {
         fPreviousStorageAllocated = storageAllocated;
         fNotificationClient->storageAllocatedForRecordingChanged(storageAllocated);
@@ -486,16 +486,16 @@ SkCanvas* DeferredDevice::recordingCanvas() {
     return fRecordingCanvas;
 }
 
-uint32_t DeferredDevice::getDeviceCapabilities() { 
+uint32_t DeferredDevice::getDeviceCapabilities() {
     return fImmediateDevice->getDeviceCapabilities();
 }
 
-int DeferredDevice::width() const { 
+int DeferredDevice::width() const {
     return fImmediateDevice->width();
 }
 
 int DeferredDevice::height() const {
-    return fImmediateDevice->height(); 
+    return fImmediateDevice->height();
 }
 
 SkGpuRenderTarget* DeferredDevice::accessRenderTarget() {
@@ -661,7 +661,7 @@ bool SkDeferredCanvas::isFullFrame(const SkRect* rect,
 
         if (paint) {
             SkPaint::Style paintStyle = paint->getStyle();
-            if (!(paintStyle == SkPaint::kFill_Style || 
+            if (!(paintStyle == SkPaint::kFill_Style ||
                 paintStyle == SkPaint::kStrokeAndFill_Style)) {
                 return false;
             }
@@ -673,8 +673,8 @@ bool SkDeferredCanvas::isFullFrame(const SkRect* rect,
 
         // The following test holds with AA enabled, and is conservative
         // by a 0.5 pixel margin with AA disabled
-        if (transformedRect.fLeft > SkIntToScalar(0) || 
-            transformedRect.fTop > SkIntToScalar(0) || 
+        if (transformedRect.fLeft > SkIntToScalar(0) ||
+            transformedRect.fTop > SkIntToScalar(0) ||
             transformedRect.fRight < SkIntToScalar(canvasSize.fWidth) ||
             transformedRect.fBottom < SkIntToScalar(canvasSize.fHeight)) {
             return false;
@@ -686,8 +686,8 @@ bool SkDeferredCanvas::isFullFrame(const SkRect* rect,
             {
                 SkIRect bounds;
                 canvas->getClipDeviceBounds(&bounds);
-                if (bounds.fLeft > 0 || bounds.fTop > 0 || 
-                    bounds.fRight < canvasSize.fWidth || 
+                if (bounds.fLeft > 0 || bounds.fTop > 0 ||
+                    bounds.fRight < canvasSize.fWidth ||
                     bounds.fBottom < canvasSize.fHeight)
                     return false;
             }
@@ -808,7 +808,7 @@ void SkDeferredCanvas::clear(SkColor color) {
 }
 
 void SkDeferredCanvas::drawPaint(const SkPaint& paint) {
-    if (fDeferredDrawing && this->isFullFrame(NULL, &paint) && 
+    if (fDeferredDrawing && this->isFullFrame(NULL, &paint) &&
         isPaintOpaque(&paint)) {
         this->getDeferredDevice()->contentsCleared();
     }
@@ -825,7 +825,7 @@ void SkDeferredCanvas::drawPoints(PointMode mode, size_t count,
 }
 
 void SkDeferredCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
-    if (fDeferredDrawing && this->isFullFrame(&rect, &paint) && 
+    if (fDeferredDrawing && this->isFullFrame(&rect, &paint) &&
         isPaintOpaque(&paint)) {
         this->getDeferredDevice()->contentsCleared();
     }
@@ -845,7 +845,7 @@ void SkDeferredCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar left,
                                   SkScalar top, const SkPaint* paint) {
     SkRect bitmapRect = SkRect::MakeXYWH(left, top,
         SkIntToScalar(bitmap.width()), SkIntToScalar(bitmap.height()));
-    if (fDeferredDrawing && 
+    if (fDeferredDrawing &&
         this->isFullFrame(&bitmapRect, paint) &&
         isPaintOpaque(paint, &bitmap)) {
         this->getDeferredDevice()->contentsCleared();
@@ -856,11 +856,11 @@ void SkDeferredCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar left,
     this->recordedDrawCommand();
 }
 
-void SkDeferredCanvas::drawBitmapRect(const SkBitmap& bitmap, 
+void SkDeferredCanvas::drawBitmapRect(const SkBitmap& bitmap,
                                       const SkIRect* src,
                                       const SkRect& dst,
                                       const SkPaint* paint) {
-    if (fDeferredDrawing && 
+    if (fDeferredDrawing &&
         this->isFullFrame(&dst, paint) &&
         isPaintOpaque(paint, &bitmap)) {
         this->getDeferredDevice()->contentsCleared();
@@ -896,10 +896,10 @@ void SkDeferredCanvas::drawSprite(const SkBitmap& bitmap, int left, int top,
                                   const SkPaint* paint) {
     SkRect bitmapRect = SkRect::MakeXYWH(
         SkIntToScalar(left),
-        SkIntToScalar(top), 
+        SkIntToScalar(top),
         SkIntToScalar(bitmap.width()),
         SkIntToScalar(bitmap.height()));
-    if (fDeferredDrawing && 
+    if (fDeferredDrawing &&
         this->isFullFrame(&bitmapRect, paint) &&
         isPaintOpaque(paint, &bitmap)) {
         this->getDeferredDevice()->contentsCleared();
@@ -966,10 +966,10 @@ SkBounder* SkDeferredCanvas::setBounder(SkBounder* bounder) {
 }
 
 SkDrawFilter* SkDeferredCanvas::setDrawFilter(SkDrawFilter* filter) {
-    this->drawingCanvas()->setDrawFilter(filter); 
+    this->drawingCanvas()->setDrawFilter(filter);
     this->INHERITED::setDrawFilter(filter);
     this->recordedDrawCommand();
-    return filter;    
+    return filter;
 }
 
 SkCanvas* SkDeferredCanvas::canvasForDrawIter() {

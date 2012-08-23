@@ -78,7 +78,7 @@
         }],
         [ 'skia_os == "mac"', {
           'sources': [
-            
+
             # Mac files
             '../src/views/mac/SkEventNotifier.h',
             '../src/views/mac/SkEventNotifier.mm',

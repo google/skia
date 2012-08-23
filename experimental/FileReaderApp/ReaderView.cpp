@@ -25,38 +25,38 @@ ReaderView::ReaderView() {
 
 void ReaderView::draw(SkCanvas* canvas) {
     canvas->drawColor(fBGColor);
-    
+
     SkAutoCanvasRestore acr(canvas, true);
-    
-    //Create a temporary canvas and reader object that draws into the back 
+
+    //Create a temporary canvas and reader object that draws into the back
     //bitmap so that the incremental changes or incomplete reads are not shown
     //on screen
     SkCanvas bufferCanvas(fBufferBitmaps[fBack]);
     SkGPipeReader reader(&bufferCanvas);
-    
+
     //The file specified by FILE_PATH MUST exist
     FILE* f = fopen(FILE_PATH, "rb");
     SkASSERT(f != NULL);
-    
+
     fseek(f, 0, SEEK_END);
     int size = ftell(f) * sizeof(char);
     if (size <= fFilePos) {
         fFilePos = 0;
     }
-    
+
     //Resume from the last read location
     fseek(f, fFilePos, SEEK_SET);
     int toBeRead = size - fFilePos;
     if (size > 0 && toBeRead > 0) {
         void* block = sk_malloc_throw(toBeRead);
         fread(block, 1, toBeRead, f);
-        
+
         size_t bytesRead;
         SkGPipeReader::Status fStatus = reader.playback(block, toBeRead, &bytesRead);
         SkASSERT(SkGPipeReader::kError_Status != fStatus);
         SkASSERT(toBeRead >= bytesRead);
-        
-        //if the reader reaches a done verb, a frame is complete. 
+
+        //if the reader reaches a done verb, a frame is complete.
         //Update the file location and swap the front and back bitmaps to show
         //the new frame
         if (SkGPipeReader::kDone_Status == fStatus) {
@@ -66,9 +66,9 @@ void ReaderView::draw(SkCanvas* canvas) {
         }
         sk_free(block);
     }
-    
+
     fclose(f);
-    
+
     //the front bitmap is always drawn
     canvas->drawBitmap(fBufferBitmaps[fFront], 0, 0, NULL);
     this->inval(NULL);

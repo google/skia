@@ -23,7 +23,7 @@ class SkDWriteFontFileStream : public SkStream {
 public:
     explicit SkDWriteFontFileStream(IDWriteFontFileStream* fontFileStream);
     virtual ~SkDWriteFontFileStream();
-    
+
     virtual bool rewind() SK_OVERRIDE;
     virtual size_t read(void* buffer, size_t size) SK_OVERRIDE;
     virtual const void* getMemoryBase() SK_OVERRIDE;

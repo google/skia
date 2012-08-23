@@ -54,12 +54,12 @@ bool SkPost::add(SkAnimateMaker& , SkDisplayable* child) {
     return true;
 }
 
-bool SkPost::childrenNeedDisposing() const { 
-    return false; 
+bool SkPost::childrenNeedDisposing() const {
+    return false;
 }
 
-void SkPost::dirty() { 
-    fDirty = true; 
+void SkPost::dirty() {
+    fDirty = true;
 }
 
 #ifdef SK_DUMP_ENABLED
@@ -74,7 +74,7 @@ void SkPost::dump(SkAnimateMaker* maker) {
     else
         SkDebugf("type=\"%s\" ", eventType->c_str());
     delete eventType;
-    
+
     if (delay > 0) {
         SkDebugf("delay=\"%g\" ", SkScalarToFloat(SkScalarDiv(delay, 1000)));
     }
@@ -99,7 +99,7 @@ void SkPost::dump(SkAnimateMaker* maker) {
     SkDisplayList::fIndent += 4;
     //this seems to work, but kinda hacky
     //for some reason the last part is id, which i don't want
-    //and the parts seem to be in the reverse order from the one in which we find the 
+    //and the parts seem to be in the reverse order from the one in which we find the
     //data itself
     //SkDataInput** ptr = fParts.end();
     //SkDataInput* data;
@@ -211,7 +211,7 @@ bool SkPost::enable(SkAnimateMaker& maker ) {
     SkAnimator* anim = maker.getAnimator();
     if (targetID == 0) {
         isAnimatorEvent = fEvent.findString("id") != NULL;
-        if (isAnimatorEvent) 
+        if (isAnimatorEvent)
             targetID = anim->getSinkID();
         else if (maker.fHostEventSinkID)
             targetID = maker.fHostEventSinkID;
@@ -260,7 +260,7 @@ void SkPost::findSinkID() {
     SkAnimator* anim = fTargetMaker->getAnimator();
     fSinkID = anim->getSinkID();
 }
- 
+
 bool SkPost::hasEnable() const {
     return true;
 }
@@ -274,8 +274,8 @@ void SkPost::onEndElement(SkAnimateMaker& maker) {
     }
 }
 
-void SkPost::setChildHasID() { 
-    fChildHasID = true; 
+void SkPost::setChildHasID() {
+    fChildHasID = true;
 }
 
 bool SkPost::setProperty(int index, SkScriptValue& value) {

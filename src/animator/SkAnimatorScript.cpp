@@ -64,8 +64,8 @@ SkAnimatorScript::SkAnimatorScript(SkAnimateMaker& maker, SkDisplayable* working
     if (SkDisplayType::IsEnum(&maker, type)) {
         // !!! for SpiderMonkey, iterate through the enum values, and map them to globals
         const SkDisplayEnumMap& map = GetEnumValues(type);
-        propertyCallBack(EvalEnum, (void*) map.fValues); 
-    } 
+        propertyCallBack(EvalEnum, (void*) map.fValues);
+    }
     for (SkExtras** extraPtr = maker.fExtras.begin(); extraPtr < maker.fExtras.end(); extraPtr++) {
         SkExtras* extra = *extraPtr;
         if (extra->fExtraCallBack)
@@ -116,7 +116,7 @@ bool SkAnimatorScript::Box(void* user, SkScriptValue* scriptValue) {
             SkDisplayString* boxedValue = new SkDisplayString(*scriptValue->fOperand.fString);
             displayable = boxedValue;
             } break;
-        case SkType_Displayable: 
+        case SkType_Displayable:
             scriptValue->fOperand.fObject = scriptValue->fOperand.fDisplayable;
             scriptValue->fType = SkType_Displayable;
             return true;
@@ -130,7 +130,7 @@ bool SkAnimatorScript::Box(void* user, SkScriptValue* scriptValue) {
     return true;
 }
 
-bool SkAnimatorScript::Eval(const char* function, size_t len, SkTDArray<SkScriptValue>& params, 
+bool SkAnimatorScript::Eval(const char* function, size_t len, SkTDArray<SkScriptValue>& params,
         void* eng, SkScriptValue* value) {
     if (SK_LITERAL_STR_EQUAL("eval", function, len) == false)
         return false;
@@ -152,7 +152,7 @@ bool SkAnimatorScript::EvalEnum(const char* token, size_t len, void* callBack, S
     const char* tokens = (const char*) callBack;
     value->fType = SkType_Int;
     if (MapEnums(tokens, token, len, (int*)&value->fOperand.fS32))
-        return true; 
+        return true;
     return false;
 }
 
@@ -160,7 +160,7 @@ bool SkAnimatorScript::EvalID(const char* token, size_t len, void* user, SkScrip
     SkAnimatorScript* engine = (SkAnimatorScript*) user;
     SkTDict<SkDisplayable*>* ids = &engine->fMaker.fIDs;
     SkDisplayable* displayable;
-    bool success = ids->find(token, len, &displayable); 
+    bool success = ids->find(token, len, &displayable);
     if (success == false) {
         displayable = engine->fWorking;
         if (SK_LITERAL_STR_EQUAL("parent", token, len)) {
@@ -176,7 +176,7 @@ bool SkAnimatorScript::EvalID(const char* token, size_t len, void* user, SkScrip
         if (displayable && EvalMember(token, len, displayable, engine, value))
             return true;
         value->fOperand.fString = NULL;
-        value->fType = SkType_String;   
+        value->fType = SkType_String;
     } else {
         SkDisplayable* working = engine->fWorking;
         value->fOperand.fDisplayable = displayable;
@@ -199,7 +199,7 @@ bool SkAnimatorScript::EvalNamedColor(const char* token, size_t len, void* callb
     return false;
 }
 
-bool SkAnimatorScript::EvalRGB(const char* function, size_t len, SkTDArray<SkScriptValue>& params, 
+bool SkAnimatorScript::EvalRGB(const char* function, size_t len, SkTDArray<SkScriptValue>& params,
         void* eng, SkScriptValue* value) {
     if (SK_LITERAL_STR_EQUAL("rgb", function, len) == false)
         return false;
@@ -218,7 +218,7 @@ bool SkAnimatorScript::EvalRGB(const char* function, size_t len, SkTDArray<SkScr
     return true;
 }
 
-bool SkAnimatorScript::EvalMemberCommon(SkScriptEngine* engine, const SkMemberInfo* info, 
+bool SkAnimatorScript::EvalMemberCommon(SkScriptEngine* engine, const SkMemberInfo* info,
         SkDisplayable* displayable, SkScriptValue* value) {
     SkDisplayTypes original;
     SkDisplayTypes type = original = (SkDisplayTypes) info->getType();
@@ -232,10 +232,10 @@ bool SkAnimatorScript::EvalMemberCommon(SkScriptEngine* engine, const SkMemberIn
         case SkType_MSec:
         case SkType_Float:
             SkASSERT(info->getCount() == 1);
-            if (info->fType != SkType_MemberProperty && info->fType != SkType_MemberFunction) 
+            if (info->fType != SkType_MemberProperty && info->fType != SkType_MemberFunction)
                 value->fOperand.fS32 = *(int32_t*) info->memberData(displayable);   // OK for SkScalar too
             if (type == SkType_MSec) {
-                value->fOperand.fScalar = SkScalarDiv((SkScalar) value->fOperand.fS32, 1000); // dividing two ints is the same as dividing two scalars 
+                value->fOperand.fScalar = SkScalarDiv((SkScalar) value->fOperand.fS32, 1000); // dividing two ints is the same as dividing two scalars
                 type = SkType_Float;
             }
             break;
@@ -269,7 +269,7 @@ bool SkAnimatorScript::EvalMemberCommon(SkScriptEngine* engine, const SkMemberIn
     return true;
 }
 
-bool SkAnimatorScript::EvalMember(const char* member, size_t len, void* object, void* eng, 
+bool SkAnimatorScript::EvalMember(const char* member, size_t len, void* object, void* eng,
         SkScriptValue* value) {
     SkScriptEngine* engine = (SkScriptEngine*) eng;
     SkDisplayable* displayable = (SkDisplayable*) object;
@@ -292,7 +292,7 @@ bool SkAnimatorScript::EvalMember(const char* member, size_t len, void* object, 
     return EvalMemberCommon(engine, info, displayable, value);
 }
 
-bool SkAnimatorScript::EvalMemberFunction(const char* member, size_t len, void* object, 
+bool SkAnimatorScript::EvalMemberFunction(const char* member, size_t len, void* object,
         SkTDArray<SkScriptValue>& params, void* eng, SkScriptValue* value) {
     SkScriptEngine* engine = (SkScriptEngine*) eng;
     SkDisplayable* displayable = (SkDisplayable*) object;
@@ -303,7 +303,7 @@ bool SkAnimatorScript::EvalMemberFunction(const char* member, size_t len, void* 
         SkASSERT(0);
         return false;
     }
-    displayable->executeFunction(displayable, info->functionIndex(), params, info->getType(), 
+    displayable->executeFunction(displayable, info->functionIndex(), params, info->getType(),
         value);
     return EvalMemberCommon(engine, info, displayable, value);
 }
@@ -355,7 +355,7 @@ bool SkAnimatorScript::EvaluateString(SkAnimateMaker& maker, SkDisplayable* disp
 }
 
 const SkDisplayEnumMap& SkAnimatorScript::GetEnumValues(SkDisplayTypes type) {
-    int index = SkTSearch<SkDisplayTypes>(&gEnumMaps[0].fType, gEnumMapCount, type, 
+    int index = SkTSearch<SkDisplayTypes>(&gEnumMaps[0].fType, gEnumMapCount, type,
         sizeof(SkDisplayEnumMap));
     SkASSERT(index >= 0);
     return gEnumMaps[index];
@@ -369,7 +369,7 @@ bool SkAnimatorScript::Infinity(const char* token, size_t len, void* user, SkScr
     return true;
 }
 
-bool SkAnimatorScript::IsFinite(const char* function, size_t len, SkTDArray<SkScriptValue>& params, 
+bool SkAnimatorScript::IsFinite(const char* function, size_t len, SkTDArray<SkScriptValue>& params,
         void* eng, SkScriptValue* value) {
     if (SK_LITERAL_STR_EQUAL(function, "isFinite", len) == false)
         return false;
@@ -379,12 +379,12 @@ bool SkAnimatorScript::IsFinite(const char* function, size_t len, SkTDArray<SkSc
     SkDisplayTypes type = scriptValue->fType;
     SkScalar scalar = scriptValue->fOperand.fScalar;
     value->fType = SkType_Int;
-    value->fOperand.fS32 = type == SkType_Float ? SkScalarIsNaN(scalar) == false && 
+    value->fOperand.fS32 = type == SkType_Float ? SkScalarIsNaN(scalar) == false &&
         SkScalarAbs(scalar) != SK_ScalarInfinity    : type == SkType_Int;
     return true;
 }
 
-bool SkAnimatorScript::IsNaN(const char* function, size_t len, SkTDArray<SkScriptValue>& params, 
+bool SkAnimatorScript::IsNaN(const char* function, size_t len, SkTDArray<SkScriptValue>& params,
         void* eng, SkScriptValue* value) {
     if (SK_LITERAL_STR_EQUAL("isNaN", function, len) == false)
         return false;
@@ -429,7 +429,7 @@ bool SkAnimatorScript::ObjectToString(void* object, void* user, SkScriptValue* v
     SkTDict<SkDisplayable*>* ids = (SkTDict<SkDisplayable*>*) user;
     SkDisplayable* displayable = (SkDisplayable*) object;
     const char* key;
-    bool success = ids->findKey(displayable, &key); 
+    bool success = ids->findKey(displayable, &key);
     if (success == false)
         return false;
     value->fOperand.fString =   new SkString(key);
@@ -480,7 +480,7 @@ bool SkAnimatorScript::Unbox(void* m, SkScriptValue* scriptValue) {
 
 #include "SkAnimator.h"
 
-static const char scriptTestSetup[]  = 
+static const char scriptTestSetup[]  =
 "<screenplay>\n"
     "<text id='label' text='defg'/>\n"
     "<add id='addLabel' use='label'/>\n"

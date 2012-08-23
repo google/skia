@@ -73,7 +73,7 @@
         #mac
         '../include/utils/mac/SkCGUtils.h',
         '../src/utils/mac/SkCreateCGImageRef.cpp',
-        
+
         #windows
         '../include/utils/win/SkAutoCoInitialize.h',
         '../include/utils/win/SkHRESULT.h',

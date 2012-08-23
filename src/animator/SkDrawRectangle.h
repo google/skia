@@ -44,7 +44,7 @@ class SkRoundRect : public SkDrawRect {
     virtual bool draw(SkAnimateMaker& );
 #ifdef SK_DUMP_ENABLED
     virtual void dump(SkAnimateMaker* );
-#endif    
+#endif
 protected:
     SkScalar rx;
     SkScalar ry;

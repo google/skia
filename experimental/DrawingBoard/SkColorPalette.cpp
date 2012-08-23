@@ -16,7 +16,7 @@ SkColorPalette::SkColorPalette() {
     fGradientRect = SkRect::MakeWH(SkIntToScalar(100), SkIntToScalar(100));
     fSelected = 0;
     fCurrColor = 0xFF000000;
-    
+
     fColors[0] = SK_ColorWHITE;
     fColors[1] = SK_ColorBLACK;
     fColors[2] = SK_ColorRED;
@@ -27,15 +27,15 @@ SkColorPalette::SkColorPalette() {
 bool SkColorPalette::onEvent(const SkEvent& evt) {
     return this->INHERITED::onEvent(evt);
 }
-    
+
 void SkColorPalette::onDraw(SkCanvas* canvas) {
     canvas->drawColor(SK_ColorWHITE);
-    
+
     SkPaint paint;
     paint.setAntiAlias(true);
-    
+
     canvas->translate(PalettePadding, PalettePadding);
-    
+
     for (int i = 0; i < PaletteSlots; ++i) {
         if (fSelected == i) {
             paint.setStrokeWidth(SkIntToScalar(3));
@@ -43,7 +43,7 @@ void SkColorPalette::onDraw(SkCanvas* canvas) {
         else {
             paint.setStrokeWidth(1);
         }
-        
+
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setColor(SK_ColorBLACK);
         canvas->drawRect(fSlotRect, paint);
@@ -57,16 +57,16 @@ void SkColorPalette::onDraw(SkCanvas* canvas) {
     SkPoint p = SkPoint::Make(0,0);
     SkPoint q = SkPoint::Make(this->width(), 0);
     SkPoint pts[] = {p, q};
-    
-    SkColor colors[] = { SK_ColorRED, SK_ColorYELLOW, SK_ColorGREEN, 
+
+    SkColor colors[] = { SK_ColorRED, SK_ColorYELLOW, SK_ColorGREEN,
         SK_ColorCYAN, SK_ColorBLUE, SK_ColorMAGENTA,SK_ColorRED};
     SkScalar colorPositions[] = { 0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0};
-    
-    
-    SkShader* shader1 = SkGradientShader::CreateLinear(pts, colors, colorPositions,7, 
+
+
+    SkShader* shader1 = SkGradientShader::CreateLinear(pts, colors, colorPositions,7,
                                                        SkShader::kMirror_TileMode);
     paint.setShader(shader1)->unref();
-    
+
     canvas->drawRect(fGradientRect, paint);
 
     //this->INHERITED::onDraw(canvas);
@@ -127,7 +127,7 @@ int SkColorPalette::selectSlot(SkPoint& cursorPosition) {
     //account for padding
     cursorPosition.fX -= PalettePadding;
     cursorPosition.fY -= PalettePadding;
-    
+
     if (cursorPosition.fX < 0 || cursorPosition.fX > fSlotRect.width() ||
         cursorPosition.fY < 0 || cursorPosition.fY > (fSlotRect.height() + PalettePadding) * PaletteSlots) {
         return -1;
@@ -143,8 +143,8 @@ int SkColorPalette::selectSlot(SkPoint& cursorPosition) {
 }
 
 SkColor SkColorPalette::selectColorFromGradient(SkPoint& cursorPosition) {
-    float h = cursorPosition.fX/fGradientRect.width(); 
-    float s = 1.0 - cursorPosition.fY/fGradientRect.height(); 
+    float h = cursorPosition.fX/fGradientRect.width();
+    float s = 1.0 - cursorPosition.fY/fGradientRect.height();
     float v = 1.0;
     float _h,r,g,b;
     float _1, _2, _3;
@@ -155,38 +155,38 @@ SkColor SkColorPalette::selectColorFromGradient(SkPoint& cursorPosition) {
     _1 = v * (1 - s);
     _2 = v * (1 - s * (_h - _i));
     _3 = v * (1 - s * (1 - (_h - _i)));
-    
+
     if (_i == 0) {
-        r = v; 
-        g = _3; 
+        r = v;
+        g = _3;
         b = _1;
     }
     else if (_i == 1) {
-        r = _2; 
-        g = v; 
+        r = _2;
+        g = v;
         b = _1;
     }
     else if (_i == 2) {
-        r = _1; 
-        g = v; 
+        r = _1;
+        g = v;
         b = _3;
     }
     else if (_i == 3) {
-        r = _1; 
-        g = _2; 
+        r = _1;
+        g = _2;
         b = v;
     }
     else if (_i == 4) {
-        r = _3; 
-        g = _1; 
+        r = _3;
+        g = _1;
         b = v;
     }
     else {
-        r = v; 
-        g = _1; 
+        r = v;
+        g = _1;
         b = _2;
     };
-    
+
     SkColor retval = 0xFF000000;
     retval += ((int)(r * 255) << 16);
     retval += ((int)(g * 255) << 8);

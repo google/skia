@@ -26,7 +26,7 @@ static int _searchByName(const unsigned char* lengths, int count, const char* st
         int mid = (hi + lo) >> 1;
         if (strcmp(&strings[lengths[mid << 2]], target) < 0)
             lo = mid + 1;
-        else 
+        else
             hi = mid;
     }
     if (strcmp(&strings[lengths[hi << 2]], target) != 0)

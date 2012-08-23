@@ -216,7 +216,7 @@ private:
         }
 
         void acquireMask(GrContext* context,
-                         const SkClipStack& clip, 
+                         const SkClipStack& clip,
                          const GrTextureDesc& desc,
                          const GrIRect& bound) {
 
@@ -237,11 +237,11 @@ private:
         }
 
         SkClipStack             fLastClip;
-        // The mask's width & height values are used in setupDrawStateAAClip to 
+        // The mask's width & height values are used in setupDrawStateAAClip to
         // correctly scale the uvs for geometry drawn with this mask
         GrAutoScratchTexture    fLastMask;
-        // fLastBound stores the bounding box of the clip mask in canvas 
-        // space. The left and top fields are used to offset the uvs for 
+        // fLastBound stores the bounding box of the clip mask in canvas
+        // space. The left and top fields are used to offset the uvs for
         // geometry drawn with this mask (in setupDrawStateAAClip)
         GrIRect                 fLastBound;
     };
@@ -253,9 +253,9 @@ private:
 };
 
 /**
- * The clip mask creator handles the generation of the clip mask. If anti 
- * aliasing is requested it will (in the future) generate a single channel 
- * (8bit) mask. If no anti aliasing is requested it will generate a 1-bit 
+ * The clip mask creator handles the generation of the clip mask. If anti
+ * aliasing is requested it will (in the future) generate a single channel
+ * (8bit) mask. If no anti aliasing is requested it will generate a 1-bit
  * mask in the stencil buffer. In the non anti-aliasing case, if the clip
  * mask can be represented as a rectangle then scissoring is used. In all
  * cases scissoring is used to bound the range of the clip mask.
@@ -299,7 +299,7 @@ public:
         return fAACache.getContext();
     }
 
-    void setGpu(GrGpu* gpu) { 
+    void setGpu(GrGpu* gpu) {
         fGpu = gpu;
     }
 
@@ -330,7 +330,7 @@ private:
         kStencil_ClipMaskType,
         kAlpha_ClipMaskType,
     } fCurrClipMaskType;
-    
+
     GrClipMaskCache fAACache;       // cache for the AA path
 
     bool createStencilClipMask(const GrClipData& clipDataIn,
@@ -356,7 +356,7 @@ private:
 
     void getTemp(const GrIRect& bounds, GrAutoScratchTexture* temp);
 
-    void setupCache(const SkClipStack& clip, 
+    void setupCache(const SkClipStack& clip,
                     const GrIRect& bounds);
 
     /**

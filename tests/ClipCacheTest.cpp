@@ -60,7 +60,7 @@ static void test_clip_bounds(skiatest::Reporter* reporter, GrContext* context) {
     GrAutoUnref au(texture);
 
     SkIRect intScreen = SkIRect::MakeWH(kXSize, kYSize);
-    SkRect screen = SkRect::MakeWH(SkIntToScalar(kXSize), 
+    SkRect screen = SkRect::MakeWH(SkIntToScalar(kXSize),
                                    SkIntToScalar(kYSize));
     SkRect clipRect(screen);
     clipRect.outset(10, 10);
@@ -73,8 +73,8 @@ static void test_clip_bounds(skiatest::Reporter* reporter, GrContext* context) {
     bool isIntersectionOfRects = true;
     SkRect devStackBounds;
 
-    stack.getConservativeBounds(0, 0, kXSize, kYSize, 
-                                &devStackBounds, 
+    stack.getConservativeBounds(0, 0, kXSize, kYSize,
+                                &devStackBounds,
                                 &isIntersectionOfRects);
 
     // make sure that the SkClipStack is behaving itself
@@ -119,7 +119,7 @@ static void check_state(skiatest::Reporter* reporter,
 static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 
     if (false) { // avoid bit rot, suppress warning
-        createTexture(context); 
+        createTexture(context);
     }
     GrClipMaskCache cache;
 

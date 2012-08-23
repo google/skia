@@ -36,8 +36,8 @@ const SkMemberInfo SkDrawRect::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkDrawRect);
 
-SkDrawRect::SkDrawRect() : fParent(NULL) { 
-    fRect.setEmpty(); 
+SkDrawRect::SkDrawRect() : fParent(NULL) {
+    fRect.setEmpty();
 }
 
 void SkDrawRect::dirty() {

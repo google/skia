@@ -36,7 +36,7 @@ static void test_ptrs(skiatest::Reporter* reporter) {
 
 static void TestMetaData(skiatest::Reporter* reporter) {
     SkMetaData  m1;
-    
+
     REPORTER_ASSERT(reporter, !m1.findS32("int"));
     REPORTER_ASSERT(reporter, !m1.findScalar("scalar"));
     REPORTER_ASSERT(reporter, !m1.findString("hello"));
@@ -45,28 +45,28 @@ static void TestMetaData(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !m1.removeString("hello"));
     REPORTER_ASSERT(reporter, !m1.removeString("true"));
     REPORTER_ASSERT(reporter, !m1.removeString("false"));
-    
+
     m1.setS32("int", 12345);
     m1.setScalar("scalar", SK_Scalar1 * 42);
     m1.setString("hello", "world");
     m1.setPtr("ptr", &m1);
     m1.setBool("true", true);
     m1.setBool("false", false);
-    
+
     int32_t     n;
     SkScalar    s;
-    
+
     m1.setScalar("scalar", SK_Scalar1/2);
-    
+
     REPORTER_ASSERT(reporter, m1.findS32("int", &n) && n == 12345);
     REPORTER_ASSERT(reporter, m1.findScalar("scalar", &s) && s == SK_Scalar1/2);
     REPORTER_ASSERT(reporter, !strcmp(m1.findString("hello"), "world"));
     REPORTER_ASSERT(reporter, m1.hasBool("true", true));
     REPORTER_ASSERT(reporter, m1.hasBool("false", false));
-    
+
     SkMetaData::Iter iter(m1);
     const char* name;
-    
+
     static const struct {
         const char*         fName;
         SkMetaData::Type    fType;
@@ -79,7 +79,7 @@ static void TestMetaData(skiatest::Reporter* reporter) {
         { "true",   SkMetaData::kBool_Type,     1 },
         { "false",  SkMetaData::kBool_Type,     1 }
     };
-    
+
     int                 loop = 0;
     int count;
     SkMetaData::Type    t;
@@ -99,13 +99,13 @@ static void TestMetaData(skiatest::Reporter* reporter) {
         loop += 1;
     }
     REPORTER_ASSERT(reporter, loop == SK_ARRAY_COUNT(gElems));
-    
+
     REPORTER_ASSERT(reporter, m1.removeS32("int"));
     REPORTER_ASSERT(reporter, m1.removeScalar("scalar"));
     REPORTER_ASSERT(reporter, m1.removeString("hello"));
     REPORTER_ASSERT(reporter, m1.removeBool("true"));
     REPORTER_ASSERT(reporter, m1.removeBool("false"));
-    
+
     REPORTER_ASSERT(reporter, !m1.findS32("int"));
     REPORTER_ASSERT(reporter, !m1.findScalar("scalar"));
     REPORTER_ASSERT(reporter, !m1.findString("hello"));

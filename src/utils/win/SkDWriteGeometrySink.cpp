@@ -28,7 +28,7 @@ HRESULT STDMETHODCALLTYPE SkDWriteGeometrySink::QueryInterface(REFIID iid, void 
         return S_OK;
     } else {
         *object = NULL;
-        return E_NOINTERFACE; 
+        return E_NOINTERFACE;
     }
 }
 

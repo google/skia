@@ -25,11 +25,11 @@ protected:
     SkString onShortName() {
         return SkString("degeneratesegments");
     }
-        
+
     SkISize onISize() { return make_isize(896, 930); }
 
     typedef SkPoint (*AddSegmentFunc)(SkPath&, SkPoint&);
-    
+
     // We need to use explicit commands here, instead of addPath, because we
     // do not want the moveTo that is added at the beginning of a path to
     // appear in the appended path.
@@ -205,7 +205,7 @@ protected:
         canvas->drawPath(path, paint);
         canvas->restore();
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
     static const AddSegmentFunc gSegmentFunctions[] = {
         AddMove,
@@ -315,7 +315,7 @@ protected:
                 if (0 < column) {
                     canvas->translate(rect.width() + 4*SK_Scalar1, 0);
                 }
-        
+
                 SkColor color = 0xff007000;
                 StyleAndName style = gStyles[(rand.nextU() >> 16) % numStyles];
                 CapAndName cap = gCaps[(rand.nextU() >> 16) % numCaps];
@@ -387,7 +387,7 @@ protected:
         canvas->restore();
         canvas->restore();
     }
-    
+
 private:
     typedef GM INHERITED;
 };

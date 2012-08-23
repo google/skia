@@ -59,11 +59,11 @@ namespace skiatest {
         void reportFailed(const SkString& desc) {
             this->report(desc.c_str(), kFailed);
         }
-        
+
         bool getCurrSuccess() const {
             return fCurrTestSuccess;
         }
-        
+
     protected:
         virtual void onStart(Test*) {}
         virtual void onReport(const char desc[], Result) {}

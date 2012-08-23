@@ -22,7 +22,7 @@ public:
         fStream->unref();
     }
 
-    SkStream* fStream;    
+    SkStream* fStream;
 };
 
 static FTMacTypeface* create_from_path(const char path[]) {
@@ -42,7 +42,7 @@ static SkTypeface* ref_default_typeface() {
     if (NULL == gDef) {
         gDef = create_from_path(FONT_PATH);
     }
-    
+
     gDef->ref();
     return gDef;
 }

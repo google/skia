@@ -108,18 +108,18 @@ static void TestPackedUInt(skiatest::Reporter* reporter) {
         0xFFFFFD, 0xFFFFFE, 0xFFFFFF, 0x1000000, 0x1000001,
         0x7FFFFFFE, 0x7FFFFFFF, 0x80000000, 0x80000001, 0xFFFFFFFE, 0xFFFFFFFF
     };
-    
-    
+
+
     size_t i;
     char buffer[sizeof(sizes) * 4];
-    
+
     SkMemoryWStream wstream(buffer, sizeof(buffer));
     for (i = 0; i < SK_ARRAY_COUNT(sizes); ++i) {
         bool success = wstream.writePackedUInt(sizes[i]);
         REPORTER_ASSERT(reporter, success);
     }
     wstream.flush();
-    
+
     SkMemoryStream rstream(buffer, sizeof(buffer));
     for (i = 0; i < SK_ARRAY_COUNT(sizes); ++i) {
         size_t n = rstream.readPackedUInt();

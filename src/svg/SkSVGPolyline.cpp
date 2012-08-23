@@ -24,7 +24,7 @@ const SkSVGAttribute SkSVGPolyline::gAttributes[] = {
 
 DEFINE_SVG_INFO(Polyline)
 
-void SkSVGPolyline::addAttribute(SkSVGParser& , int attrIndex, 
+void SkSVGPolyline::addAttribute(SkSVGParser& , int attrIndex,
         const char* attrValue, size_t attrLength) {
     if (attrIndex != kPoints)
         return;
@@ -37,7 +37,7 @@ void SkSVGPolyline::translate(SkSVGParser& parser, bool defState) {
     parser._startElement("polyline");
     INHERITED::translate(parser, defState);
     SVG_ADD_ATTRIBUTE(points);
-    if (f_fillRule.size() > 0) 
+    if (f_fillRule.size() > 0)
         parser._addAttribute("fillType", f_fillRule.equals("evenodd") ? "evenOdd" : "winding");
     parser._endElement();
 }

@@ -24,7 +24,7 @@
 class GrDrawState : public GrRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrDrawState)
-    
+
     /**
      * Number of texture stages. Each stage takes as input a color and
      * 2D texture coordinates. The color input to the first enabled stage is the
@@ -40,8 +40,8 @@ public:
      * or not.
      *
      * Stages 0 through GrPaint::kTotalStages-1 are reserved for setting up
-     * the draw (i.e., textures and filter masks). Stages GrPaint::kTotalStages 
-     * through kNumStages-1 are earmarked for use by GrTextContext and 
+     * the draw (i.e., textures and filter masks). Stages GrPaint::kTotalStages
+     * through kNumStages-1 are earmarked for use by GrTextContext and
      * GrPathRenderer-derived classes.
      */
     enum {
@@ -49,13 +49,13 @@ public:
         kMaxTexCoords = kNumStages
     };
 
-    GrDrawState() 
+    GrDrawState()
         : fRenderTarget(NULL) {
 
         this->reset();
     }
 
-    GrDrawState(const GrDrawState& state) 
+    GrDrawState(const GrDrawState& state)
         : fRenderTarget(NULL) {
 
         *this = state;
@@ -70,7 +70,7 @@ public:
      * Resets to the default state.
      * Sampler states *will* be modified: textures or CustomStage objects
      * will be released.
-     */ 
+     */
     void reset() {
 
         this->disableStages();
@@ -147,7 +147,7 @@ public:
     ////
 
     /**
-     * Sets a constant fractional coverage to be applied to the draw. The 
+     * Sets a constant fractional coverage to be applied to the draw. The
      * initial value (after construction or reset()) is 0xff. The constant
      * coverage is ignored when per-vertex coverage is provided.
      */
@@ -280,22 +280,22 @@ public:
     /**
      * A common pattern is to compute a color with the initial stages and then
      * modulate that color by a coverage value in later stage(s) (AA, mask-
-     * filters, glyph mask, etc). Color-filters, xfermodes, etc should be 
-     * computed based on the pre-coverage-modulated color. The division of 
-     * stages between color-computing and coverage-computing is specified by 
+     * filters, glyph mask, etc). Color-filters, xfermodes, etc should be
+     * computed based on the pre-coverage-modulated color. The division of
+     * stages between color-computing and coverage-computing is specified by
      * this method. Initially this is kNumStages (all stages
      * are color-computing).
      */
     void setFirstCoverageStage(int firstCoverageStage) {
         GrAssert((unsigned)firstCoverageStage <= kNumStages);
-        fFirstCoverageStage = firstCoverageStage; 
+        fFirstCoverageStage = firstCoverageStage;
     }
 
     /**
      * Gets the index of the first coverage-computing stage.
      */
     int getFirstCoverageStage() const {
-        return fFirstCoverageStage; 
+        return fFirstCoverageStage;
     }
 
     ///@}
@@ -495,7 +495,7 @@ public:
      *
      * @param target  The render target to set.
      */
-    void setRenderTarget(GrRenderTarget* target) { 
+    void setRenderTarget(GrRenderTarget* target) {
         GrSafeAssign(fRenderTarget, target);
     }
 
@@ -607,7 +607,7 @@ public:
         /* 1-pixel wide line
            2D implicit line eq (a*x + b*y +c = 0). 4th component unused */
         kHairLine_EdgeType,
-        /* Quadratic specified by u^2-v canonical coords (only 2 
+        /* Quadratic specified by u^2-v canonical coords (only 2
            components used). Coverage based on signed distance with negative
            being inside, positive outside. Edge specified in window space
            (y-down) */
@@ -623,7 +623,7 @@ public:
     };
 
     /**
-     * Determines the interpretation per-vertex edge data when the 
+     * Determines the interpretation per-vertex edge data when the
      * kEdge_VertexLayoutBit is set (see GrDrawTarget). When per-vertex edges
      * are not specified the value of this setting has no effect.
      */
@@ -753,7 +753,7 @@ public:
      * @return the current draw face(s).
      */
     DrawFace getDrawFace() const { return fDrawFace; }
-    
+
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////
@@ -795,7 +795,7 @@ public:
     }
     bool operator !=(const GrDrawState& s) const { return !(*this == s); }
 
-    // Most stages are usually not used, so conditionals here 
+    // Most stages are usually not used, so conditionals here
     // reduce the expected number of bytes touched by 50%.
     GrDrawState& operator =(const GrDrawState& s) {
         memcpy(this->podStart(), s.podStart(), this->podSize());
@@ -843,7 +843,7 @@ private:
         GrColor             fPodStartMarker;
     };
     GrColor             fColorFilterColor;
-    DrawFace            fDrawFace; 
+    DrawFace            fDrawFace;
     VertexEdgeType      fVertexEdgeType;
     GrStencilSettings   fStencilSettings;
     union {

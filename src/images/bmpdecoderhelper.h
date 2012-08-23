@@ -32,14 +32,14 @@ public:
   ~scoped_array() {
     delete[] ptr_;
   }
-  
+
   void reset(T* p = 0) {
     if (p != ptr_) {
       delete[] ptr_;
       ptr_ = p;
     }
   }
-  
+
   T& operator[](int i) const {
     return ptr_[i];
   }
@@ -53,7 +53,7 @@ class BmpDecoderCallback {
  public:
   BmpDecoderCallback() { }
   virtual ~BmpDecoderCallback() {}
-  
+
   /**
    * This is called once for an image. It is passed the width and height and
    * should return the address of a buffer that is large enough to store
@@ -62,7 +62,7 @@ class BmpDecoderCallback {
    * valid dimensions.
    */
   virtual uint8* SetSize(int width, int height) = 0;
-   
+
  private:
   DISALLOW_EVIL_CONSTRUCTORS(BmpDecoderCallback);
 };
@@ -110,7 +110,7 @@ class BmpDecoderHelper {
   uint8* output_;
   bool inverted_;
 };
-  
+
 } // namespace
 
 #endif

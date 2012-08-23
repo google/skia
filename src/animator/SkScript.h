@@ -63,9 +63,9 @@ public:
     typedef bool (*_boxCallBack)(void* userStorage, SkScriptValue* result);
     typedef bool (*_functionCallBack)(const char* func, size_t len, SkTDArray<SkScriptValue>& params,
         void* userStorage, SkScriptValue* result);
-    typedef bool (*_memberCallBack)(const char* member, size_t len, void* object, 
+    typedef bool (*_memberCallBack)(const char* member, size_t len, void* object,
         void* userStorage, SkScriptValue* result);
-    typedef bool (*_memberFunctionCallBack)(const char* member, size_t len, void* object, 
+    typedef bool (*_memberFunctionCallBack)(const char* member, size_t len, void* object,
         SkTDArray<SkScriptValue>& params, void* userStorage, SkScriptValue* result);
 //  typedef bool (*_objectToStringCallBack)(void* object, void* userStorage, SkScriptValue* result);
     typedef bool (*_propertyCallBack)(const char* prop, size_t len, void* userStorage, SkScriptValue* result);
@@ -169,7 +169,7 @@ public:
         kTowardsNumber = 0,
         kTowardsString
     };
-    
+
 protected:
 
     struct SkOperatorAttributes {

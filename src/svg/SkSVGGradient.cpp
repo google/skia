@@ -84,7 +84,7 @@ void SkSVGGradient::write(SkSVGParser& parser, SkString& baseColor) {
     parser.fSuppressPaint = true;
     SkString originalID(f_id);
     f_id.set("mask"); // write out gradient named given name + color (less initial #)
-    f_id.append(baseColor.c_str() + 1); 
+    f_id.append(baseColor.c_str() + 1);
     SkString originalColors;
     for (SkSVGElement** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
         SkSVGStop* colorElement = (SkSVGStop*) *ptr;

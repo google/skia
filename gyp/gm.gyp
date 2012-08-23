@@ -27,7 +27,7 @@
         'images.gyp:images',
         'pdf.gyp:pdf',
         'ports.gyp:ports',
-        'utils.gyp:utils',        
+        'utils.gyp:utils',
       ],
       'conditions': [
         ['skia_os == "mac"', {

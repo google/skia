@@ -14,7 +14,7 @@
 
 class SkSVGPolygon : public SkSVGPolyline {
     DECLARE_SVG_INFO(Polygon);
-    virtual void addAttribute(SkSVGParser& , int attrIndex, 
+    virtual void addAttribute(SkSVGParser& , int attrIndex,
         const char* attrValue, size_t attrLength);
 private:
     typedef SkSVGPolyline INHERITED;

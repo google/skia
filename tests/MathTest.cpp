@@ -39,7 +39,7 @@ static void test_floor(skiatest::Reporter* reporter) {
     static const float gVals[] = {
         0, 1, 1.1f, 1.01f, 1.001f, 1.0001f, 1.00001f, 1.000001f, 1.0000001f
     };
-    
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(gVals); ++i) {
         test_floor_value(reporter, gVals[i]);
 //        test_floor_value(reporter, -gVals[i]);
@@ -305,7 +305,7 @@ static void unittest_isfinite(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !SkScalarIsNaN(big));
     REPORTER_ASSERT(reporter, !SkScalarIsNaN(-big));
     REPORTER_ASSERT(reporter, !SkScalarIsNaN(0));
-    
+
     REPORTER_ASSERT(reporter, !SkScalarIsFinite(nan));
     REPORTER_ASSERT(reporter,  SkScalarIsFinite(big));
     REPORTER_ASSERT(reporter,  SkScalarIsFinite(-big));
@@ -457,11 +457,11 @@ static void TestMath(skiatest::Reporter* reporter) {
         // These random values are being treated as 32-bit-patterns, not as
         // ints; calling SkIntToScalar() here produces crashes.
         p.setLength((SkScalar) rand.nextS(),
-                    (SkScalar) rand.nextS(), 
+                    (SkScalar) rand.nextS(),
                     SK_Scalar1);
         check_length(reporter, p, SK_Scalar1);
         p.setLength((SkScalar) (rand.nextS() >> 13),
-                    (SkScalar) (rand.nextS() >> 13), 
+                    (SkScalar) (rand.nextS() >> 13),
                     SK_Scalar1);
         check_length(reporter, p, SK_Scalar1);
     }

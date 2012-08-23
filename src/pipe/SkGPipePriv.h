@@ -212,7 +212,7 @@ static inline bool shouldFlattenBitmaps(uint32_t flags) {
 
 enum PaintOps {
     kReset_PaintOp,     // no arg
-    
+
     kFlags_PaintOp,     // arg inline
     kColor_PaintOp,     // arg 32
     kStyle_PaintOp,     // arg inline
@@ -220,7 +220,7 @@ enum PaintOps {
     kCap_PaintOp,       // arg inline
     kWidth_PaintOp,     // arg scalar
     kMiter_PaintOp,// arg scalar
-    
+
     kEncoding_PaintOp,  // arg inline - text
     kHinting_PaintOp,   // arg inline - text
     kAlign_PaintOp,     // arg inline - text
@@ -254,14 +254,14 @@ static inline unsigned PaintOp_unpackData(uint32_t op32) {
 
 static inline uint32_t PaintOp_packOp(PaintOps op) {
     SkASSERT(0 == (op & ~PAINTOPS_OP_MASK));
-    
+
     return op << (PAINTOPS_FLAG_BITS + PAINTOPS_DATA_BITS);
 }
 
 static inline uint32_t PaintOp_packOpData(PaintOps op, unsigned data) {
     SkASSERT(0 == (op & ~PAINTOPS_OP_MASK));
     SkASSERT(0 == (data & ~PAINTOPS_DATA_MASK));
-    
+
     return (op << (PAINTOPS_FLAG_BITS + PAINTOPS_DATA_BITS)) | data;
 }
 
@@ -269,7 +269,7 @@ static inline uint32_t PaintOp_packOpFlagData(PaintOps op, unsigned flags, unsig
     SkASSERT(0 == (op & ~PAINTOPS_OP_MASK));
     SkASSERT(0 == (flags & ~PAINTOPS_FLAG_MASK));
     SkASSERT(0 == (data & ~PAINTOPS_DATA_MASK));
-    
+
     return (op << (PAINTOPS_FLAG_BITS + PAINTOPS_DATA_BITS)) |
     (flags << PAINTOPS_DATA_BITS) |
     data;

@@ -22,7 +22,7 @@ static void test_isfinite_after_transform(skiatest::Reporter* reporter) {
     SkPath path;
     path.quadTo(157, 366, 286, 208);
     path.arcTo(37, 442, 315, 163, 957494590897113.0f);
-    
+
     SkMatrix matrix;
     matrix.setScale(1000*1000, 1000*1000);
 
@@ -47,7 +47,7 @@ static void test_isfinite_after_transform(skiatest::Reporter* reporter) {
 static void test_rect_isfinite(skiatest::Reporter* reporter) {
     const SkScalar inf = SK_ScalarInfinity;
     const SkScalar nan = SK_ScalarNaN;
-    
+
     SkRect r;
     r.setEmpty();
     REPORTER_ASSERT(reporter, r.isFinite());
@@ -55,22 +55,22 @@ static void test_rect_isfinite(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !r.isFinite());
     r.set(0, 0, nan, 0);
     REPORTER_ASSERT(reporter, !r.isFinite());
-    
+
     SkPoint pts[] = {
         { 0, 0 },
         { SK_Scalar1, 0 },
         { 0, SK_Scalar1 },
     };
-    
+
     bool isFine = r.setBoundsCheck(pts, 3);
     REPORTER_ASSERT(reporter, isFine);
     REPORTER_ASSERT(reporter, !r.isEmpty());
-    
+
     pts[1].set(inf, 0);
     isFine = r.setBoundsCheck(pts, 3);
     REPORTER_ASSERT(reporter, !isFine);
     REPORTER_ASSERT(reporter, r.isEmpty());
-    
+
     pts[1].set(nan, 0);
     isFine = r.setBoundsCheck(pts, 3);
     REPORTER_ASSERT(reporter, !isFine);
@@ -80,7 +80,7 @@ static void test_rect_isfinite(skiatest::Reporter* reporter) {
 static void test_path_isfinite(skiatest::Reporter* reporter) {
     const SkScalar inf = SK_ScalarInfinity;
     const SkScalar nan = SK_ScalarNaN;
-    
+
     SkPath path;
     REPORTER_ASSERT(reporter, path.isFinite());
 
@@ -155,7 +155,7 @@ DONE:
 static void test_addPoly(skiatest::Reporter* reporter) {
     SkPoint pts[32];
     SkRandom rand;
-    
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(pts); ++i) {
         pts[i].fX = rand.nextSScalar1();
         pts[i].fY = rand.nextSScalar1();
@@ -173,19 +173,19 @@ static void test_addPoly(skiatest::Reporter* reporter) {
 static void test_strokerec(skiatest::Reporter* reporter) {
     SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
     REPORTER_ASSERT(reporter, rec.isFillStyle());
-    
+
     rec.setHairlineStyle();
     REPORTER_ASSERT(reporter, rec.isHairlineStyle());
-    
+
     rec.setStrokeStyle(SK_Scalar1, false);
     REPORTER_ASSERT(reporter, SkStrokeRec::kStroke_Style == rec.getStyle());
-    
+
     rec.setStrokeStyle(SK_Scalar1, true);
     REPORTER_ASSERT(reporter, SkStrokeRec::kStrokeAndFill_Style == rec.getStyle());
-    
+
     rec.setStrokeStyle(0, false);
     REPORTER_ASSERT(reporter, SkStrokeRec::kHairline_Style == rec.getStyle());
-    
+
     rec.setStrokeStyle(0, true);
     REPORTER_ASSERT(reporter, SkStrokeRec::kFill_Style == rec.getStyle());
 }
@@ -226,7 +226,7 @@ static void test_direction(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, valid);
         REPORTER_ASSERT(reporter, !path.cheapComputeDirection(NULL));
     }
-    
+
     static const char* gCW[] = {
         "M 10 10 L 10 10 Q 20 10 20 20",
         "M 10 10 C 20 10 20 20 20 20",
@@ -241,7 +241,7 @@ static void test_direction(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, valid);
         check_direction(&path, SkPath::kCW_Direction, reporter);
     }
-    
+
     static const char* gCCW[] = {
         "M 10 10 L 10 10 Q 20 10 20 -20",
         "M 10 10 C 20 10 20 -20 20 -20",
@@ -309,11 +309,11 @@ static void stroke_cubic(const SkPoint pts[4]) {
     SkPath path;
     path.moveTo(pts[0]);
     path.cubicTo(pts[1], pts[2], pts[3]);
-    
+
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(SK_Scalar1 * 2);
-    
+
     SkPath fill;
     paint.getFillPath(path, &fill);
 }
@@ -328,16 +328,16 @@ static void stroke_tiny_cubic() {
         { 372.0f,   92.0f },
         { 372.0f,   92.0f },
     };
-    
+
     stroke_cubic(p0);
-    
+
     SkPoint p1[] = {
         { 372.0f,       92.0f },
         { 372.0007f,    92.000755f },
         { 371.99927f,   92.003922f },
         { 371.99826f,   92.003899f },
     };
-    
+
     stroke_cubic(p1);
 }
 
@@ -398,7 +398,7 @@ static void test_close(skiatest::Reporter* reporter) {
     check_close(reporter, quad);
 
     SkPath cubic;
-    quad.cubicTo(SK_Scalar1, SK_Scalar1, 10 * SK_Scalar1, 
+    quad.cubicTo(SK_Scalar1, SK_Scalar1, 10 * SK_Scalar1,
                  10*SK_Scalar1, 20 * SK_Scalar1, 20*SK_Scalar1);
     check_close(reporter, cubic);
     cubic.close();
@@ -448,27 +448,27 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     pt.moveTo(0, 0);
     pt.close();
     check_convexity(reporter, pt, SkPath::kConvex_Convexity);
-    
+
     SkPath line;
     line.moveTo(12*SK_Scalar1, 20*SK_Scalar1);
     line.lineTo(-12*SK_Scalar1, -20*SK_Scalar1);
     line.close();
     check_convexity(reporter, pt, SkPath::kConvex_Convexity);
-    
+
     SkPath triLeft;
     triLeft.moveTo(0, 0);
     triLeft.lineTo(SK_Scalar1, 0);
     triLeft.lineTo(SK_Scalar1, SK_Scalar1);
     triLeft.close();
     check_convexity(reporter, triLeft, SkPath::kConvex_Convexity);
-    
+
     SkPath triRight;
     triRight.moveTo(0, 0);
     triRight.lineTo(-SK_Scalar1, 0);
     triRight.lineTo(SK_Scalar1, SK_Scalar1);
     triRight.close();
     check_convexity(reporter, triRight, SkPath::kConvex_Convexity);
-    
+
     SkPath square;
     square.moveTo(0, 0);
     square.lineTo(SK_Scalar1, 0);
@@ -476,7 +476,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     square.lineTo(0, SK_Scalar1);
     square.close();
     check_convexity(reporter, square, SkPath::kConvex_Convexity);
-    
+
     SkPath redundantSquare;
     redundantSquare.moveTo(0, 0);
     redundantSquare.lineTo(0, 0);
@@ -492,7 +492,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     redundantSquare.lineTo(0, SK_Scalar1);
     redundantSquare.close();
     check_convexity(reporter, redundantSquare, SkPath::kConvex_Convexity);
-    
+
     SkPath bowTie;
     bowTie.moveTo(0, 0);
     bowTie.lineTo(0, 0);
@@ -508,7 +508,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     bowTie.lineTo(0, SK_Scalar1);
     bowTie.close();
     check_convexity(reporter, bowTie, SkPath::kConcave_Convexity);
-    
+
     SkPath spiral;
     spiral.moveTo(0, 0);
     spiral.lineTo(100*SK_Scalar1, 0);
@@ -519,7 +519,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     spiral.lineTo(50*SK_Scalar1, 75*SK_Scalar1);
     spiral.close();
     check_convexity(reporter, spiral, SkPath::kConcave_Convexity);
-    
+
     SkPath dent;
     dent.moveTo(0, 0);
     dent.lineTo(100*SK_Scalar1, 100*SK_Scalar1);
@@ -583,7 +583,7 @@ static void test_convexity(skiatest::Reporter* reporter) {
     path.addRect(0, 0, SkIntToScalar(10), SkIntToScalar(10), SkPath::kCW_Direction);
     REPORTER_ASSERT(reporter, V == SkPath::ComputeConvexity(path));
     REPORTER_ASSERT(reporter, path.cheapIsDirection(SkPath::kCW_Direction));
-    
+
     static const struct {
         const char*         fPathStr;
         SkPath::Convexity   fExpectedConvexity;
@@ -612,7 +612,7 @@ static void test_isLine(skiatest::Reporter* reporter) {
     const SkScalar value = SkIntToScalar(5);
 
     REPORTER_ASSERT(reporter, !path.isLine(NULL));
-    
+
     // set some non-zero values
     pts[0].set(value, value);
     pts[1].set(value, value);
@@ -672,7 +672,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
     SkPoint rc[] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}, {0, 0}};
     SkPoint rd[] = {{0, 0}, {0, 1}, {1, 1}, {1, 0}, {0, 0}};
     SkPoint re[] = {{0, 0}, {1, 0}, {1, 0}, {1, 1}, {0, 1}};
-    
+
     // failing tests
     SkPoint f1[] = {{0, 0}, {1, 0}, {1, 1}}; // too few points
     SkPoint f2[] = {{0, 0}, {1, 1}, {0, 1}, {1, 0}}; // diagonal
@@ -682,7 +682,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
     SkPoint f6[] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}, {0, 2}}; // end overshoots
     SkPoint f7[] = {{0, 0}, {1, 0}, {1, 1}, {0, 2}}; // end overshoots
     SkPoint f8[] = {{0, 0}, {1, 0}, {1, 1}, {1, 0}}; // 'L'
-    
+
     // failing, no close
     SkPoint c1[] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}}; // close doesn't match
     SkPoint c2[] = {{0, 0}, {1, 0}, {1, 2}, {0, 2}, {0, 1}}; // ditto
@@ -693,12 +693,12 @@ static void test_isRect(skiatest::Reporter* reporter) {
         sizeof(rd), sizeof(re),
         sizeof(f1), sizeof(f2), sizeof(f3), sizeof(f4), sizeof(f5), sizeof(f6),
         sizeof(f7), sizeof(f8),
-        sizeof(c1), sizeof(c2) 
+        sizeof(c1), sizeof(c2)
     };
     SkPoint* tests[] = {
         r1, r2, r3, r4, r5, r6, r7, r8, r9, ra, rb, rc, rd, re,
         f1, f2, f3, f4, f5, f6, f7, f8,
-        c1, c2 
+        c1, c2
     };
     SkPoint* lastPass = re;
     SkPoint* lastClose = f8;
@@ -723,7 +723,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
             close = false;
         }
     }
-    
+
     // fail, close then line
     SkPath path1;
     path1.moveTo(r1[0].fX, r1[0].fY);
@@ -733,7 +733,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
     path1.close();
     path1.lineTo(1, 0);
     REPORTER_ASSERT(reporter, fail ^ path1.isRect(0));
-    
+
     // fail, move in the middle
     path1.reset();
     path1.moveTo(r1[0].fX, r1[0].fY);
@@ -754,7 +754,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
     }
     path1.close();
     REPORTER_ASSERT(reporter, fail ^ path1.isRect(0));
-    
+
     // fail, quad
     path1.reset();
     path1.moveTo(r1[0].fX, r1[0].fY);
@@ -766,7 +766,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
     }
     path1.close();
     REPORTER_ASSERT(reporter, fail ^ path1.isRect(0));
-    
+
     // fail, cubic
     path1.reset();
     path1.moveTo(r1[0].fX, r1[0].fY);
@@ -794,7 +794,7 @@ static void write_and_read_back(skiatest::Reporter* reporter,
     reader.readPath(&readBack);
     REPORTER_ASSERT(reporter, readBack == p);
 
-    REPORTER_ASSERT(reporter, readBack.getConvexityOrUnknown() == 
+    REPORTER_ASSERT(reporter, readBack.getConvexityOrUnknown() ==
                               p.getConvexityOrUnknown());
 
     REPORTER_ASSERT(reporter, readBack.isOval(NULL) == p.isOval(NULL));
@@ -850,7 +850,7 @@ static void test_flattening(skiatest::Reporter* reporter) {
 
 static void test_transform(skiatest::Reporter* reporter) {
     SkPath p, p1;
-    
+
     static const SkPoint pts[] = {
         { 0, 0 },
         { SkIntToScalar(10), SkIntToScalar(10) },
@@ -861,12 +861,12 @@ static void test_transform(skiatest::Reporter* reporter) {
     p.lineTo(pts[1]);
     p.quadTo(pts[2], pts[3]);
     p.cubicTo(pts[4], pts[5], pts[6]);
-    
+
     SkMatrix matrix;
     matrix.reset();
     p.transform(matrix, &p1);
     REPORTER_ASSERT(reporter, p == p1);
-    
+
     matrix.setScale(SK_Scalar1 * 2, SK_Scalar1 * 3);
     p.transform(matrix, &p1);
     SkPoint pts1[7];
@@ -977,7 +977,7 @@ static void test_segment_masks(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, SkPath::kCubic_SegmentMask == p.getSegmentMasks());
     p2 = p;
     REPORTER_ASSERT(reporter, p2.getSegmentMasks() == p.getSegmentMasks());
-    
+
     REPORTER_ASSERT(reporter, !p.isEmpty());
 }
 
@@ -1005,7 +1005,7 @@ static void test_iter(skiatest::Reporter* reporter) {
     iter.setPath(p, true);
     REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kDone_Verb);
 
-    
+
     struct iterTestData {
         const char* testPath;
         const bool forceClose;
@@ -1092,7 +1092,7 @@ static void test_raw_iter(skiatest::Reporter* reporter) {
     // Test that setting an empty path works
     noPathIter.setPath(p);
     REPORTER_ASSERT(reporter, noPathIter.next(pts) == SkPath::kDone_Verb);
-    
+
     // Test an iterator with an initial empty path
     SkPath::RawIter iter(p);
     REPORTER_ASSERT(reporter, iter.next(pts) == SkPath::kDone_Verb);
@@ -1242,7 +1242,7 @@ static void test_raw_iter(skiatest::Reporter* reporter) {
             }
             expectedVerbs[numIterVerbs++] = nextVerb;
         }
-        
+
         iter.setPath(p);
         numVerbs = numIterVerbs;
         numIterVerbs = 0;

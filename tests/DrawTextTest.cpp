@@ -67,7 +67,7 @@ static void test_drawText(skiatest::Reporter* reporter) {
     SkPaint paint;
     paint.setColor(SK_ColorGRAY);
     paint.setTextSize(SkIntToScalar(20));
-    
+
     SkIRect drawTextRect = SkIRect::MakeWH(64, 64);
     SkBitmap drawTextBitmap;
     create(&drawTextBitmap, drawTextRect, SkBitmap::kARGB_8888_Config);

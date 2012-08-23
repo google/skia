@@ -38,7 +38,7 @@ static void compare_canvas(const SkCanvas* a, const SkCanvas* b) {
         const SkPMColor* rowa = bma.getAddr32(0, y);
         const SkPMColor* rowb = bmb.getAddr32(0, y);
         SkASSERT(!memcmp(rowa, rowb, bma.width() << 2));
-        
+
         for (int x = 1; x < bma.width() - 1; ++x) {
             SkASSERT(0xFF000000 == rowa[x]);
             SkASSERT(0xFF000000 == rowb[x]);

@@ -114,6 +114,6 @@ protected:
     SkPolygon* destination;
 };
 
-// !!! add concat matrix ? 
+// !!! add concat matrix ?
 
 #endif // SkMatrixParts_DEFINED

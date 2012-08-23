@@ -14,7 +14,7 @@
  * received all the data transmitted and attempt to reproduce the drawing calls.
  * This reader will only keep the latest batch of data. In order to keep up with
  * the server, which may be producing data at a much higher rate than the reader
- * is consuming, the reader will attempt multiple reads and only render the 
+ * is consuming, the reader will attempt multiple reads and only render the
  * latest frame. this behavior can be adjusted by changing MAX_READS_PER_FRAME
  * or disabled by setting fSync to false
  */
@@ -23,11 +23,11 @@
 
 class NetPipeReaderView : public SampleView {
 public:
-	NetPipeReaderView() {
+    NetPipeReaderView() {
         fSocket = NULL;
         fSync = true;
     }
-    
+
     ~NetPipeReaderView() {
         if (fSocket) {
             delete fSocket;
@@ -36,23 +36,23 @@ public:
     }
     virtual void requestMenu(SkOSMenu* menu) {
         menu->setTitle("Net Pipe Reader");
-        menu->appendTextField("Server IP", "Server IP", this->getSinkID(), 
+        menu->appendTextField("Server IP", "Server IP", this->getSinkID(),
                               "IP address");
         menu->appendSwitch("Sync", "Sync", this->getSinkID(), fSync);
     }
-    
+
 protected:
     static void readData(int cid, const void* data, size_t size,
                          SkSocket::DataType type, void* context) {
         NetPipeReaderView* view = (NetPipeReaderView*)context;
         view->onRead(data, size);
     }
-    
+
     void onRead(const void* data, size_t size) {
         if (size > 0)
             fDataArray.append(size, (const char*)data);
     }
-    
+
     bool onQuery(SkEvent* evt) {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Net Pipe Reader");
@@ -76,7 +76,7 @@ protected:
             return true;
         return this->INHERITED::onEvent(evt);
     }
-    
+
     void onDrawContent(SkCanvas* canvas) {
         if (NULL == fSocket)
             return;
@@ -85,7 +85,7 @@ protected:
             int dataToRemove = fDataArray.count();
             if (fSync) {
                 int numreads = 0;
-                while (fSocket->readPacket(readData, this) > 0 && 
+                while (fSocket->readPacket(readData, this) > 0 &&
                        numreads < MAX_READS_PER_FRAME) {
                     // at this point, new data has been read and stored, discard
                     // old data since it's not needed anymore
@@ -95,18 +95,18 @@ protected:
                     ++numreads;
                 }
                 // clean up if max reads reached
-                if (numreads == MAX_READS_PER_FRAME && 
+                if (numreads == MAX_READS_PER_FRAME &&
                     fDataArray.count() > dataToRemove)
                     fDataArray.remove(0, dataToRemove);
             }
             else {
-                if (fSocket->readPacket(readData, this) > 0) 
+                if (fSocket->readPacket(readData, this) > 0)
                     fDataArray.remove(0, dataToRemove);
             }
         }
         else
             fSocket->connectToServer();
-        
+
         SkGPipeReader reader(canvas);
         size_t bytesRead;
         SkGPipeReader::Status fStatus = reader.playback(fDataArray.begin(),

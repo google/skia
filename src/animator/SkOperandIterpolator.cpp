@@ -15,7 +15,7 @@ SkOperandInterpolator::SkOperandInterpolator() {
     fType = SkType_Unknown;
 }
 
-SkOperandInterpolator::SkOperandInterpolator(int elemCount, int frameCount, 
+SkOperandInterpolator::SkOperandInterpolator(int elemCount, int frameCount,
                                              SkDisplayTypes type)
 {
     this->reset(elemCount, frameCount, type);

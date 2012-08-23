@@ -505,7 +505,7 @@ static void testLine18x() {
 static void testLine19() {
     SkPath path;
     path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(12, 16, 21, 21, (SkPath::Direction) 0);    
+    path.addRect(12, 16, 21, 21, (SkPath::Direction) 0);
     testSimplifyx(path);
 }
 

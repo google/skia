@@ -52,20 +52,20 @@ SkScalerContext_Ascender::SkScalerContext_Ascender(const SkDescriptor* desc)
 {
     int size = aca_Get_FontHandleRec_Size();
     fHandle = (aca_FontHandle)sk_malloc_throw(size);
-    
+
     // get the pointer to the font
-    
+
     fFontStream = new SkMMAPStream("/UcsGB2312-Hei-H.FDL");
     fHintStream = new SkMMAPStream("/genv6-23.bin");
-    
+
     void* hints = sk_malloc_throw(fHintStream->getLength());
     memcpy(hints, fHintStream->getMemoryBase(), fHintStream->getLength());
-    
+
     aca_Create_Font_Handle(fHandle,
                            (void*)fFontStream->getMemoryBase(), fFontStream->getLength(),
                            "fred",
                            hints, fHintStream->getLength());
-    
+
     // compute our factors from the record
 
     SkMatrix    m;
@@ -75,17 +75,17 @@ SkScalerContext_Ascender::SkScalerContext_Ascender(const SkDescriptor* desc)
     //  now compute our scale factors
     SkScalar    sx = m.getScaleX();
     SkScalar    sy = m.getScaleY();
-    
+
     int ppemX = SkScalarRound(sx);
     int ppemY = SkScalarRound(sy);
-    
+
     size = aca_Find_Font_Memory_Required(fHandle, ppemX, ppemY);
     size *= 8;  // Jeff suggests this :)
     fWorkspace = sk_malloc_throw(size);
     aca_Set_Font_Memory(fHandle, (uint8_t*)fWorkspace, size);
 
     aca_GlyphAttribsRec rec;
-    
+
     memset(&rec, 0, sizeof(rec));
     rec.xSize = ppemX;
     rec.ySize = ppemY;
@@ -95,7 +95,7 @@ SkScalerContext_Ascender::SkScalerContext_Ascender(const SkDescriptor* desc)
     rec.doInterpolate = true;
     rec.grayMode = 2;
     aca_Set_Font_Attributes(fHandle, &rec, &size);
-    
+
     fGlyphWorkspace = sk_malloc_throw(size);
     aca_Set_Glyph_Memory(fHandle, fGlyphWorkspace);
 }
@@ -123,10 +123,10 @@ void SkScalerContext_Ascender::generateMetrics(SkGlyph* glyph)
 {
     glyph->fRsbDelta = 0;
     glyph->fLsbDelta = 0;
-    
+
     aca_GlyphImageRec   rec;
     aca_Vector          topLeft;
-    
+
     int adv = aca_Get_Adv_Width(fHandle, glyph->getGlyphID());
     if (aca_GLYPH_NOT_PRESENT == adv)
         goto ERROR;
@@ -144,7 +144,7 @@ ERROR:
         glyph->fAdvanceY = 0;
         return;
     }
-    
+
     glyph->fWidth = rec.width;
     glyph->fHeight = rec.rows;
     glyph->fRowBytes = rec.width;
@@ -158,13 +158,13 @@ void SkScalerContext_Ascender::generateImage(const SkGlyph& glyph)
 {
     aca_GlyphImageRec   rec;
     aca_Vector          topLeft;
-    
+
     aca_Rasterize(glyph.getGlyphID(), fHandle, &rec, &topLeft);
-    
+
     const uint8_t* src = (const uint8_t*)rec.buffer;
     uint8_t* dst = (uint8_t*)glyph.fImage;
     int height = glyph.fHeight;
-    
+
     src += rec.y0 * rec.pitch + rec.x0;
     while (--height >= 0)
     {
@@ -179,7 +179,7 @@ void SkScalerContext_Ascender::generateImage(const SkGlyph& glyph)
 void SkScalerContext_Ascender::generatePath(const SkGlyph& glyph, SkPath* path)
 {
     SkRect r;
-    
+
     r.set(0, 0, SkIntToScalar(4), SkIntToScalar(4));
     path->reset();
     path->addRect(r);

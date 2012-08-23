@@ -31,7 +31,7 @@ static CGDataProviderRef SkStreamToDataProvider(SkStream* stream) {
     size_t len = stream->getLength();
     void* data = sk_malloc_throw(len);
     stream->read(data, len);
-    
+
     return CGDataProviderCreateWithData(data, data, len, malloc_release_proc);
 }
 
@@ -56,24 +56,24 @@ bool SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
         return false;
     }
     SkAutoTCallVProc<const void, CFRelease> arsrc(imageSrc);
-    
+
     CGImageRef image = CGImageSourceCreateImageAtIndex(imageSrc, 0, NULL);
     if (NULL == image) {
         return false;
     }
     SkAutoTCallVProc<CGImage, CGImageRelease> arimage(image);
-    
+
     const int width = CGImageGetWidth(image);
     const int height = CGImageGetHeight(image);
     bm->setConfig(SkBitmap::kARGB_8888_Config, width, height);
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
         return true;
     }
-    
+
     if (!this->allocPixelRef(bm, NULL)) {
         return false;
     }
-    
+
     bm->lockPixels();
     bm->eraseColor(0);
 
@@ -127,7 +127,7 @@ static CGImageDestinationRef SkStreamToImageDestination(SkWStream* stream,
         return NULL;
     }
     SkAutoTCallVProc<const void, CFRelease> arconsumer(consumer);
-    
+
     return CGImageDestinationCreateWithDataConsumer(consumer, type, 1, NULL);
 }
 
@@ -137,7 +137,7 @@ public:
 
 protected:
     virtual bool onEncode(SkWStream* stream, const SkBitmap& bm, int quality);
-    
+
 private:
     Type fType;
 };
@@ -159,7 +159,7 @@ bool SkImageEncoder_CG::onEncode(SkWStream* stream, const SkBitmap& bm,
         default:
             return false;
     }
-    
+
     CGImageDestinationRef dst = SkStreamToImageDestination(stream, type);
     if (NULL == dst) {
         return false;

@@ -84,7 +84,7 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
         this->destroyGLContext();
         return NULL;
     }
-    
+
     PIXELFORMATDESCRIPTOR pfd;
     ZeroMemory(&pfd, sizeof(pfd));
     pfd.nSize = sizeof(pfd);
@@ -95,20 +95,20 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
     pfd.cDepthBits = 0;
     pfd.cStencilBits = 0;
     pfd.iLayerType = PFD_MAIN_PLANE;
-    
+
     int pixelFormat = 0;
     if (!(pixelFormat = ChoosePixelFormat(fDeviceContext, &pfd))) {
         SkDebugf("No matching pixel format descriptor.\n");
         this->destroyGLContext();
         return NULL;
     }
-    
+
     if (!SetPixelFormat(fDeviceContext, pixelFormat, &pfd)) {
         SkDebugf("Could not set the pixel format %d.\n", pixelFormat);
         this->destroyGLContext();
         return NULL;
     }
-    
+
     if (!(fGlRenderContext = wglCreateContext(fDeviceContext))) {
         SkDebugf("Could not create rendering context.\n");
         this->destroyGLContext();

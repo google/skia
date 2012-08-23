@@ -18,5 +18,5 @@ DEFINE_SVG_INFO(Symbol)
 
 void SkSVGSymbol::translate(SkSVGParser& parser, bool defState) {
     INHERITED::translate(parser, defState);
-    // !!! children need to be written into document 
+    // !!! children need to be written into document
 }

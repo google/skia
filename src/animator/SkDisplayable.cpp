@@ -21,7 +21,7 @@ SkTDDisplayableArray SkDisplayable::fAllocations;
 #endif
 
 #ifdef SK_DEBUG
-SkDisplayable::SkDisplayable() { 
+SkDisplayable::SkDisplayable() {
     id = _id.c_str();
 #ifdef SK_FIND_LEAKS
     // fAllocationCount++;
@@ -40,20 +40,20 @@ SkDisplayable::~SkDisplayable() {
 }
 
 bool SkDisplayable::add(SkAnimateMaker& , SkDisplayable* child) {
-    return false; 
+    return false;
 }
 
-//void SkDisplayable::apply(SkAnimateMaker& , const SkMemberInfo* , 
-//      SkDisplayable* , SkScalar [], int count) { 
-//  SkASSERT(0); 
+//void SkDisplayable::apply(SkAnimateMaker& , const SkMemberInfo* ,
+//      SkDisplayable* , SkScalar [], int count) {
+//  SkASSERT(0);
 //}
 
 bool SkDisplayable::canContainDependents() const {
-    return false; 
+    return false;
 }
- 
-bool SkDisplayable::childrenNeedDisposing() const { 
-    return false; 
+
+bool SkDisplayable::childrenNeedDisposing() const {
+    return false;
 }
 
 void SkDisplayable::clearBounder() {
@@ -170,18 +170,18 @@ void SkDisplayable::dumpAttrs(SkAnimateMaker* maker) {
                 //last two are dummies
                 dumpValues(info, value.fType, value.fOperand, blankValue.fOperand, value.fOperand, blankValue.fOperand);
                 }
-            
+
             propIndex++;
             continue;
         }
         if (SkDisplayType::IsDisplayable(maker, info->fType)) {
             continue;
         }
-        
+
         if (info->fType == SkType_MemberFunction)
             continue;
-            
-            
+
+
         if (info->fType == SkType_Array) {
             SkTDOperandArray* array = (SkTDOperandArray*) info->memberData(this);
             int arrayCount;
@@ -201,14 +201,14 @@ void SkDisplayable::dumpAttrs(SkAnimateMaker* maker) {
                         case SkType_Displayable:
                             SkDebugf("%s", op->fDisplayable->id);
                             break;
-                        case SkType_Int:                            
+                        case SkType_Int:
                             SkDebugf("%d", op->fS32);
                             break;
                         case SkType_Float:
                             SkDebugf("%g", SkScalarToFloat(op->fScalar));
                             break;
                         case SkType_String:
-                        case SkType_DynamicString:    
+                        case SkType_DynamicString:
                             SkDebugf("%s", op->fString->c_str());
                             break;
                         default:
@@ -219,16 +219,16 @@ void SkDisplayable::dumpAttrs(SkAnimateMaker* maker) {
             SkDebugf("]\" ");
             continue;
         }
-        
+
         if (info->fType == SkType_String || info->fType == SkType_DynamicString) {
             SkString* string;
             info->getString(this, &string);
             if (string->isEmpty() == false)
-                SkDebugf("%s=\"%s\"\t", info->fName, string->c_str()); 
+                SkDebugf("%s=\"%s\"\t", info->fName, string->c_str());
             continue;
         }
-        
-        
+
+
         blankInfo = blankCopy->getMember(index);
         int i = info->fCount;
         info->getValue(this, values, i);
@@ -252,7 +252,7 @@ void SkDisplayable::dumpBase(SkAnimateMaker* maker) {
 }
 
 void SkDisplayable::dumpChildren(SkAnimateMaker* maker, bool closedAngle) {
-    
+
     int index = -1;
     const SkMemberInfo* info;
     index = -1;
@@ -354,7 +354,7 @@ void SkDisplayable::dumpValues(const SkMemberInfo* info, SkDisplayTypes type, Sk
         break;
     case SkType_TileMode:
         //correct to look at the S32?
-        if (op.fS32 != blankOp.fS32) 
+        if (op.fS32 != blankOp.fS32)
             SkDebugf("%s=\"%s\" ", info->fName, op.fS32 == 0 ? "clamp" : op.fS32 == 1 ? "repeat" : "mirror");
         break;
     case SkType_Boolean:
@@ -372,7 +372,7 @@ void SkDisplayable::dumpValues(const SkMemberInfo* info, SkDisplayTypes type, Sk
         break;
     case SkType_String:
     case SkType_DynamicString:
-        if (op.fString->size() > 0) 
+        if (op.fString->size() > 0)
             SkDebugf("%s=\"%s\" ", info->fName, op.fString->c_str());
         break;
     case SkType_MSec:
@@ -381,24 +381,24 @@ void SkDisplayable::dumpValues(const SkMemberInfo* info, SkDisplayTypes type, Sk
         }
     default:
         SkDebugf("");
-    }    
+    }
 }
 
 #endif
 
-bool SkDisplayable::enable( SkAnimateMaker& ) { 
+bool SkDisplayable::enable( SkAnimateMaker& ) {
     return false;
 }
 
 void SkDisplayable::enableBounder() {
 }
 
-void SkDisplayable::executeFunction(SkDisplayable* , int index, 
+void SkDisplayable::executeFunction(SkDisplayable* , int index,
         SkTDArray<SkScriptValue>& , SkDisplayTypes, SkScriptValue*  ) {
-    SkASSERT(0); 
+    SkASSERT(0);
 }
 
-void SkDisplayable::executeFunction(SkDisplayable* target, 
+void SkDisplayable::executeFunction(SkDisplayable* target,
         const SkMemberInfo* info, SkTypedArray* values, SkScriptValue* value) {
     SkTDArray<SkScriptValue> typedValues;
     for (SkOperand* op = values->begin(); op < values->end(); op++) {
@@ -410,9 +410,9 @@ void SkDisplayable::executeFunction(SkDisplayable* target,
     executeFunction(target, info->functionIndex(), typedValues, info->getType(), value);
 }
 
-void SkDisplayable::executeFunction2(SkDisplayable* , int index, 
+void SkDisplayable::executeFunction2(SkDisplayable* , int index,
         SkOpArray* params, SkDisplayTypes, SkOperand2*  ) {
-    SkASSERT(0); 
+    SkASSERT(0);
 }
 
 void SkDisplayable::getBounds(SkRect* rect) {
@@ -425,15 +425,15 @@ const SkFunctionParamType* SkDisplayable::getFunctionsParameters() {
     return NULL;
 }
 
-const SkMemberInfo* SkDisplayable::getMember(int index) { 
-    return NULL; 
+const SkMemberInfo* SkDisplayable::getMember(int index) {
+    return NULL;
 }
 
-const SkMemberInfo* SkDisplayable::getMember(const char name[]) { 
-    return NULL; 
+const SkMemberInfo* SkDisplayable::getMember(const char name[]) {
+    return NULL;
 }
 
-const SkFunctionParamType* SkDisplayable::getParameters(const SkMemberInfo* info, 
+const SkFunctionParamType* SkDisplayable::getParameters(const SkMemberInfo* info,
         int* paramCount) {
     const SkFunctionParamType* params = getFunctionsParameters();
     SkASSERT(params != NULL);
@@ -460,17 +460,17 @@ SkDisplayable* SkDisplayable::getParent() const {
 }
 
 bool SkDisplayable::getProperty(int index, SkScriptValue* ) const {
-//  SkASSERT(0); 
-    return false; 
+//  SkASSERT(0);
+    return false;
 }
 
 bool SkDisplayable::getProperty2(int index, SkOperand2* value) const {
-    SkASSERT(0); 
-    return false; 
+    SkASSERT(0);
+    return false;
 }
 
-SkDisplayTypes SkDisplayable::getType() const { 
-    return SkType_Unknown; 
+SkDisplayTypes SkDisplayable::getType() const {
+    return SkType_Unknown;
 }
 
 bool SkDisplayable::hasEnable() const {
@@ -478,7 +478,7 @@ bool SkDisplayable::hasEnable() const {
 }
 
 bool SkDisplayable::isDrawable() const {
-    return false; 
+    return false;
 }
 
 void SkDisplayable::onEndElement(SkAnimateMaker& ) {}
@@ -491,8 +491,8 @@ bool SkDisplayable::resolveIDs(SkAnimateMaker& maker, SkDisplayable* original, S
     return false;
 }
 
-//SkDisplayable* SkDisplayable::resolveTarget(SkAnimateMaker& ) { 
-//  return this; 
+//SkDisplayable* SkDisplayable::resolveTarget(SkAnimateMaker& ) {
+//  return this;
 //}
 
 void SkDisplayable::setChildHasID() {
@@ -503,8 +503,8 @@ bool SkDisplayable::setParent(SkDisplayable* ) {
 }
 
 bool SkDisplayable::setProperty(int index, SkScriptValue& ) {
-    //SkASSERT(0); 
-    return false; 
+    //SkASSERT(0);
+    return false;
 }
 
 void SkDisplayable::setReference(const SkMemberInfo* info, SkDisplayable* displayable) {

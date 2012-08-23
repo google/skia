@@ -19,10 +19,10 @@ bool SkXMLParser::parse(const SkDOM& dom, const SkDOMNode* node)
 
     if (this->startElement(elemName))
         return false;
-    
+
     SkDOM::AttrIter iter(dom, node);
     const char*     name, *value;
-    
+
     while ((name = iter.next(&value)) != NULL)
         if (this->addAttribute(name, value))
             return false;
@@ -32,7 +32,7 @@ bool SkXMLParser::parse(const SkDOM& dom, const SkDOMNode* node)
             if (!this->parse(dom, node))
                 return false;
         } while ((node = dom.getNextSibling(node)) != NULL);
-    
+
     return !this->endElement(elemName);
 }
 
@@ -312,7 +312,7 @@ static void walk_dom(const SkDOM& dom, const SkDOM::Node* node, SkXMLParser* par
     const char* elem = dom.getName(node);
 
     parser->startElement(elem);
-    
+
     SkDOM::AttrIter iter(dom, node);
     const char*     name;
     const char*     value;
@@ -467,7 +467,7 @@ void SkDOM::dump(const Node* node, int level) const
 void SkDOM::UnitTest()
 {
 #ifdef SK_SUPPORT_UNITTEST
-    static const char gDoc[] = 
+    static const char gDoc[] =
         "<root a='1' b='2'>"
             "<elem1 c='3' />"
             "<elem2 d='4' />"

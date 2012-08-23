@@ -10,7 +10,7 @@
 #include "SkTypes.h"
 #if defined SK_BUILD_CONDENSED
 #include "SkMemberInfo.h"
-#if SK_USE_CONDENSED_INFO == 1 
+#if SK_USE_CONDENSED_INFO == 1
 #error "SK_USE_CONDENSED_INFO must be zero to build condensed info"
 #endif
 #if !defined SK_BUILD_FOR_WIN32
@@ -115,7 +115,7 @@ void SkDisplayType::BuildCondensedInfo(SkAnimateMaker* maker) {
             continue;
         AddInfo(gTypeNames[index].fType, info, infoCount);
     }
-    const SkMemberInfo* extraInfo = 
+    const SkMemberInfo* extraInfo =
         SkDisplayType::GetMembers(maker, SkType_3D_Point, &infoCount);
     AddInfo(SkType_Point, extraInfo, infoCount);
     AddInfo(SkType_3D_Point, extraInfo, infoCount);
@@ -239,7 +239,7 @@ void SkDisplayType::BuildCondensedInfo(SkAnimateMaker* maker) {
             Get3DName(scratch, gTypeNames[typeNameIndex].fName);
         } else
             sprintf(scratch, "Unknown%d", unknown++);
-        fprintf(condensed, "%d%c // %s\n\t", index, 
+        fprintf(condensed, "%d%c // %s\n\t", index,
             index < gInfosCounts.count() ? ',' : ' ', scratch);
     }
     fprintf(condensed, "\n};\n\n");

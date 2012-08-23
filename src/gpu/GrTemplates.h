@@ -40,20 +40,20 @@ template <typename Dst, typename Src> Dst GrTCast(Src src) {
 template <typename T> class GrAutoTRestore : public GrNoncopyable {
 public:
     GrAutoTRestore() : fPtr(NULL), fVal() {}
-    
+
     GrAutoTRestore(T* ptr) {
         fPtr = ptr;
         if (NULL != ptr) {
             fVal = *ptr;
         }
     }
-    
+
     ~GrAutoTRestore() {
         if (NULL != fPtr) {
             *fPtr = fVal;
         }
     }
-    
+
     // restores previously saved value (if any) and saves value for passed T*
     void reset(T* ptr) {
         if (NULL != fPtr) {

@@ -113,7 +113,7 @@ public:
 
 private:
     SkRefPtr<SkPDFObject> fObj;
-    
+
     typedef SkPDFObject INHERITED;
 };
 
@@ -137,7 +137,7 @@ public:
 
 private:
     int32_t fValue;
-    
+
     typedef SkPDFObject INHERITED;
 };
 
@@ -162,7 +162,7 @@ public:
 
 private:
     bool fValue;
-    
+
     typedef SkPDFObject INHERITED;
 };
 
@@ -188,7 +188,7 @@ public:
 
 private:
     SkScalar fValue;
-    
+
     typedef SkPDFObject INHERITED;
 };
 
@@ -262,7 +262,7 @@ private:
     const SkString fValue;
 
     static SkString FormatName(const SkString& input);
-    
+
     typedef SkPDFObject INHERITED;
 };
 
@@ -329,7 +329,7 @@ public:
 private:
     static const int kMaxLen = 8191;
     SkTDArray<SkPDFObject*> fValue;
-    
+
     typedef SkPDFObject INHERITED;
 };
 
@@ -427,7 +427,7 @@ private:
     static const int kMaxLen = 4095;
 
     SkTDArray<struct Rec> fValue;
-    
+
     typedef SkPDFObject INHERITED;
 };
 

@@ -24,7 +24,7 @@ static void post_SkEvent_event() {
 
 static bool skia_setBitmapFromSurface(SkBitmap* dst, SDL_Surface* src) {
     SkBitmap::Config config;
-    
+
     switch (src->format->BytesPerPixel) {
         case 2:
             config = SkBitmap::kRGB_565_Config;
@@ -35,7 +35,7 @@ static bool skia_setBitmapFromSurface(SkBitmap* dst, SDL_Surface* src) {
         default:
             return false;
     }
-    
+
     dst->setConfig(config, src->w, src->h, src->pitch);
     dst->setPixels(src->pixels);
     return true;
@@ -44,7 +44,7 @@ static bool skia_setBitmapFromSurface(SkBitmap* dst, SDL_Surface* src) {
 SkOSWindow::SkOSWindow(void* screen) {
     fScreen = reinterpret_cast<SDL_Surface*>(screen);
     this->resize(fScreen->w, fScreen->h);
-    
+
     uint32_t rmask = SK_R32_MASK << SK_R32_SHIFT;
     uint32_t gmask = SK_G32_MASK << SK_G32_SHIFT;
     uint32_t bmask = SK_B32_MASK << SK_B32_SHIFT;
@@ -141,7 +141,7 @@ static SkKey find_skkey(SDLKey src) {
         SDLK_UNKNOWN,   // power
         SDLK_UNKNOWN,   // camera
     };
-    
+
     const SDLKey* array = gKeys;
     for (size_t i = 0; i < SK_ARRAY_COUNT(gKeys); i++) {
         if (array[i] == src) {
@@ -213,7 +213,7 @@ void SkEvent::SignalNonEmptyQueue() {
 
 static Uint32 timer_callback(Uint32 interval) {
 //    SkDebugf("-------- timercallback %d\n", interval);
-	SkEvent::ServiceQueueTimer();
+    SkEvent::ServiceQueueTimer();
     return 0;
 }
 

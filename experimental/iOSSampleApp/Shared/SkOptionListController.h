@@ -1,6 +1,6 @@
 #import <UIKit/UIKit.h>
 
-@interface SkOptionListController : UITableViewController {    
+@interface SkOptionListController : UITableViewController {
     NSMutableArray* fOptions;
     NSInteger fSelectedIndex;
     UITableViewCell* fSelectedCell;

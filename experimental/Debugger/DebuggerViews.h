@@ -37,7 +37,7 @@
 class DebuggerStateView : public SkView {
 public:
     DebuggerStateView();
-    
+
 protected:
     virtual bool onEvent(const SkEvent& evt);
     virtual void onDraw(SkCanvas* canvas);
@@ -65,7 +65,7 @@ public:
     void highlight(int index);
     int  selectHighlight(int ypos);
     void toggleCentered();
-    
+
 protected:
     virtual bool onEvent(const SkEvent& evt);
     virtual void onSizeChange();
@@ -87,7 +87,7 @@ private:
 
 static void* PaintProc(void* ptr, bool doRef) {
     SkPaint* p = (SkPaint*) ptr;
-    
+
     if (doRef) {
         return new SkPaint(*p);
     }
@@ -95,6 +95,6 @@ static void* PaintProc(void* ptr, bool doRef) {
         delete p;
         return NULL;
     }
-    
+
 }
 

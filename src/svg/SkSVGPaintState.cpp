@@ -49,7 +49,7 @@ SkString* SkSVGPaint::operator[](int index) {
     return result;
 }
 
-void SkSVGPaint::addAttribute(SkSVGParser& parser, int attrIndex, 
+void SkSVGPaint::addAttribute(SkSVGParser& parser, int attrIndex,
         const char* attrValue, size_t attrLength) {
     SkString* attr = (*this)[attrIndex];
     switch(attrIndex) {
@@ -221,7 +221,7 @@ void SkSVGPaint::setSave(SkSVGParser& parser) {
                 sum.setConcat(matrix, sum);
                 continue;
             }
-            if ( index == kClipPath) 
+            if ( index == kClipPath)
                 *clips.insert(0) = lastAttr;
         }
         walking = walking->fNext;
@@ -267,7 +267,7 @@ void SkSVGPaint::setSave(SkSVGParser& parser) {
 #endif
 }
 
-bool SkSVGPaint::writeChangedAttributes(SkSVGParser& parser, 
+bool SkSVGPaint::writeChangedAttributes(SkSVGParser& parser,
         SkSVGPaint& current, bool* changed) {
     SkSVGPaint& lastState = parser.fLastFlush;
     for (int index = kInitial + 1; index < kTerminal; index++) {
@@ -285,7 +285,7 @@ bool SkSVGPaint::writeChangedAttributes(SkSVGParser& parser,
             case kEnableBackground:
                 break;
             case kFill:
-                if (topAttr->equals("none") == false && lastAttr->equals("none") == true) 
+                if (topAttr->equals("none") == false && lastAttr->equals("none") == true)
                     parser._addAttribute("stroke", "false");
                 goto fillStrokeAttrCommon;
             case kFillRule:
@@ -307,7 +307,7 @@ bool SkSVGPaint::writeChangedAttributes(SkSVGParser& parser,
             case kStopOpacity:
                 break;
             case kStroke:
-                if (topAttr->equals("none") == false && lastAttr->equals("none") == true) 
+                if (topAttr->equals("none") == false && lastAttr->equals("none") == true)
                     parser._addAttribute("stroke", "true");
 fillStrokeAttrCommon:
                 if (strncmp(attrValue, "url(", 4) == 0) {
@@ -442,7 +442,7 @@ addColor:
     }
     return true;
 }
-                
+
 void SkSVGPaint::Push(SkSVGPaint** head, SkSVGPaint* newRecord) {
     newRecord->fNext = *head;
     *head = newRecord;

@@ -16,8 +16,8 @@
 SkMatrixPart::SkMatrixPart() : fMatrix(NULL) {
 }
 
-void SkMatrixPart::dirty() { 
-    fMatrix->dirty(); 
+void SkMatrixPart::dirty() {
+    fMatrix->dirty();
 }
 
 SkDisplayable* SkMatrixPart::getParent() const {
@@ -44,8 +44,8 @@ const SkMemberInfo SkRotate::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkRotate);
 
-SkRotate::SkRotate() : degrees(0) { 
-    center.fX = center.fY = 0; 
+SkRotate::SkRotate() : degrees(0) {
+    center.fX = center.fY = 0;
 }
 
 bool SkRotate::add() {
@@ -66,12 +66,12 @@ const SkMemberInfo SkScale::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkScale);
 
-SkScale::SkScale() : x(SK_Scalar1), y(SK_Scalar1) { 
-    center.fX = center.fY = 0; 
+SkScale::SkScale() : x(SK_Scalar1), y(SK_Scalar1) {
+    center.fX = center.fY = 0;
 }
 
 bool SkScale::add() {
-    fMatrix->scale(x, y, center);   
+    fMatrix->scale(x, y, center);
     return false;
 }
 
@@ -88,12 +88,12 @@ const SkMemberInfo SkSkew::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkSkew);
 
-SkSkew::SkSkew() : x(0), y(0) { 
-    center.fX = center.fY = 0; 
+SkSkew::SkSkew() : x(0), y(0) {
+    center.fX = center.fY = 0;
 }
 
 bool SkSkew::add() {
-    fMatrix->skew(x, y, center);    
+    fMatrix->skew(x, y, center);
     return false;
 }
 
@@ -113,7 +113,7 @@ SkTranslate::SkTranslate() : x(0), y(0) {
 }
 
 bool SkTranslate::add() {
-    fMatrix->translate(x, y);   
+    fMatrix->translate(x, y);
     return false;
 }
 
@@ -130,7 +130,7 @@ const SkMemberInfo SkFromPath::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkFromPath);
 
-SkFromPath::SkFromPath() : 
+SkFromPath::SkFromPath() :
     mode(0), offset(0), path(NULL) {
 }
 
@@ -166,7 +166,7 @@ const SkMemberInfo SkRectToRect::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkRectToRect);
 
-SkRectToRect::SkRectToRect() : 
+SkRectToRect::SkRectToRect() :
     source(NULL), destination(NULL) {
 }
 
@@ -200,7 +200,7 @@ void SkRectToRect::dump(SkAnimateMaker* maker) {
         SkDisplayList::fIndent += 4;
         destination->dump(maker);
         SkDisplayList::fIndent -= 4;
-        SkDebugf("%*s</destination>\n", SkDisplayList::fIndent, "");        
+        SkDebugf("%*s</destination>\n", SkDisplayList::fIndent, "");
     }
     SkDisplayList::fIndent -= 4;
     dumpEnd(maker);
@@ -268,7 +268,7 @@ void SkPolyToPoly::dump(SkAnimateMaker* maker) {
         SkDisplayList::fIndent += 4;
         destination->dump(maker);
         SkDisplayList::fIndent -= 4;
-        SkDebugf("%*s</destination>\n", SkDisplayList::fIndent, "");        
+        SkDebugf("%*s</destination>\n", SkDisplayList::fIndent, "");
     }
     SkDisplayList::fIndent -= 4;
     dumpEnd(maker);

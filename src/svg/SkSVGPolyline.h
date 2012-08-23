@@ -15,7 +15,7 @@
 
 class SkSVGPolyline : public SkSVGElement {
     DECLARE_SVG_INFO(Polyline);
-    virtual void addAttribute(SkSVGParser& , int attrIndex, 
+    virtual void addAttribute(SkSVGParser& , int attrIndex,
         const char* attrValue, size_t attrLength);
 protected:
     SkString f_clipRule;

@@ -13,7 +13,7 @@ static SkScalar make_frame(SkPath* path) {
     SkRect r = { SkIntToScalar(10), SkIntToScalar(10),
                  SkIntToScalar(630), SkIntToScalar(470) };
     path->addRoundRect(r, SkIntToScalar(15), SkIntToScalar(15));
-    
+
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(SkIntToScalar(5));
@@ -55,7 +55,7 @@ static SkScalar make_sawtooth(SkPath* path) {
     const SkScalar x0 = x;
     const SkScalar dx = SK_Scalar1 * 5;
     const SkScalar dy = SK_Scalar1 * 10;
-    
+
     path->moveTo(x, y);
     for (int i = 0; i < 32; i++) {
         x += dx;
@@ -72,10 +72,10 @@ static SkScalar make_sawtooth(SkPath* path) {
 static SkScalar make_star(SkPath* path, int n) {
     const SkScalar c = SkIntToScalar(45);
     const SkScalar r = SkIntToScalar(20);
-    
+
     SkScalar rad = -SK_ScalarPI / 2;
     const SkScalar drad = (n >> 1) * SK_ScalarPI * 2 / n;
-    
+
     path->moveTo(c, c - r);
     for (int i = 1; i < n; i++) {
         rad += drad;
@@ -123,26 +123,26 @@ public:
             fDY[i] = gProcs[i](&fPath[i]);
         }
     }
-    
+
 protected:
     virtual SkString onShortName() {
         return SkString("pathfill");
     }
-    
+
     virtual SkISize onISize() {
         return SkISize::Make(640, 480);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
         paint.setAntiAlias(true);
-        
+
         for (size_t i = 0; i < N; i++) {
             canvas->drawPath(fPath[i], paint);
             canvas->translate(SkIntToScalar(0), fDY[i]);
         }
     }
-    
+
 private:
     typedef skiagm::GM INHERITED;
 };
@@ -157,16 +157,16 @@ public:
             fDY[i] = gProcs[i](&fPath[i]);
         }
     }
-    
+
 protected:
     virtual SkString onShortName() {
         return SkString("pathinvfill");
     }
-    
+
     virtual SkISize onISize() {
         return SkISize::Make(450, 220);
     }
-    
+
     static void show(SkCanvas* canvas, const SkPath& path, const SkPaint& paint,
                      const SkRect* clip, SkScalar top, const SkScalar bottom) {
         canvas->save();
@@ -182,7 +182,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         SkPath path;
-        
+
         path.addCircle(SkIntToScalar(50), SkIntToScalar(50), SkIntToScalar(40));
         path.toggleInverseFillType();
 
@@ -197,18 +197,18 @@ protected:
 
                 canvas->save();
                 canvas->clipRect(clipR);
-                
+
                 const SkRect* clipPtr = doclip ? &clipR : NULL;
 
                 show(canvas, path, paint, clipPtr, clipR.fTop, clipR.centerY());
                 show(canvas, path, paint, clipPtr, clipR.centerY(), clipR.fBottom);
-                
+
                 canvas->restore();
                 canvas->translate(SkIntToScalar(110), 0);
             }
         }
     }
-    
+
 private:
     typedef skiagm::GM INHERITED;
 };

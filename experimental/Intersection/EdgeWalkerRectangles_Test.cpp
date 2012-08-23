@@ -64,7 +64,7 @@ static void testSimplifyMulti() {
     if (out != expected) {
         SkDebugf("%s expected equal\n", __FUNCTION__);
     }
-    
+
     path = out;
     path.addRect(30, 10, 40, 20);
     path.addRect(10, 30, 20, 40);
@@ -76,7 +76,7 @@ static void testSimplifyMulti() {
     if (rect != SkRect::MakeLTRB(10, 10, 40, 40)) {
         SkDebugf("%s expected union\n", __FUNCTION__);
     }
-    
+
     path = out;
     path.addRect(10, 10, 40, 40, SkPath::kCCW_Direction);
     simplify(path, true, out);
@@ -205,7 +205,7 @@ static void testSimplifyDiagonal() {
                         }
                     }
                     if (boundsPtr != bounds) {
-                        SkASSERT((bounds[0] == rect1 || bounds[1] == rect1) 
+                        SkASSERT((bounds[0] == rect1 || bounds[1] == rect1)
                                 && (bounds[0] == rect2 || bounds[1] == rect2));
                     } else {
                         SkASSERT(segments == 8);
@@ -228,7 +228,7 @@ static void assertOneContour(const SkPath& out, bool edge, bool extend) {
             case SkPath::kMove_Verb:
                 SkASSERT(count == 0);
                 break;
-            case SkPath::kLine_Verb: 
+            case SkPath::kLine_Verb:
                 SkASSERT(pts[0].fX == pts[1].fX || pts[0].fY == pts[1].fY);
                 ++count;
                 break;
@@ -264,21 +264,21 @@ static void testSimplifyCoincident() {
                     path.addRect(rect2, static_cast<SkPath::Direction>(inDir));
                     simplify(path, true, out);
                     assertOneContour(out, edge, extend);
-                    
+
                     path.reset();
                     rect1 = SkRect::MakeLTRB(start[startIndex], 40, stop[stopIndex], 50);
                     path.addRect(rect1, static_cast<SkPath::Direction>(outDir));
                     path.addRect(rect2, static_cast<SkPath::Direction>(inDir));
                     simplify(path, true, out);
                     assertOneContour(out, edge, extend);
-                    
+
                     path.reset();
                     rect1 = SkRect::MakeLTRB(0, start[startIndex], 10, stop[stopIndex]);
                     path.addRect(rect1, static_cast<SkPath::Direction>(outDir));
                     path.addRect(rect2, static_cast<SkPath::Direction>(inDir));
                     simplify(path, true, out);
                     assertOneContour(out, edge, extend);
-                    
+
                     path.reset();
                     rect1 = SkRect::MakeLTRB(40, start[startIndex], 50, stop[stopIndex]);
                     path.addRect(rect1, static_cast<SkPath::Direction>(outDir));
@@ -362,7 +362,7 @@ static void testSimplifyDegenerate() {
                     if (rect != rect2) {
                         SkDebugf("%s 1 expected union\n", __FUNCTION__);
                     }
-                    
+
                     path.reset();
                     rect1 = SkRect::MakeLTRB(start[startIndex], 40, stop[stopIndex], 40);
                     path.addRect(rect1, static_cast<SkPath::Direction>(outDir));
@@ -374,7 +374,7 @@ static void testSimplifyDegenerate() {
                     if (rect != rect2) {
                         SkDebugf("%s 2 expected union\n", __FUNCTION__);
                     }
-                    
+
                     path.reset();
                     rect1 = SkRect::MakeLTRB(0, start[startIndex], 0, stop[stopIndex]);
                     path.addRect(rect1, static_cast<SkPath::Direction>(outDir));
@@ -386,7 +386,7 @@ static void testSimplifyDegenerate() {
                     if (rect != rect2) {
                         SkDebugf("%s 3 expected union\n", __FUNCTION__);
                     }
-                    
+
                     path.reset();
                     rect1 = SkRect::MakeLTRB(40, start[startIndex], 40, stop[stopIndex]);
                     path.addRect(rect1, static_cast<SkPath::Direction>(outDir));
@@ -430,10 +430,10 @@ static void (*simplifyTests[])() = {
     testSimplifyCoincident,
     testSimplifyCoincidentCW,
     testSimplifyCoincidentCCW,
-    testSimplifyCoincidentVertical, 
+    testSimplifyCoincidentVertical,
     testSimplifyCoincidentHorizontal,
-    testSimplifyAddL,                
-    testSimplifyMulti,               
+    testSimplifyAddL,
+    testSimplifyMulti,
 };
 
 static size_t simplifyTestsCount = sizeof(simplifyTests) / sizeof(simplifyTests[0]);

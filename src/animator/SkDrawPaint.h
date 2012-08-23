@@ -32,7 +32,7 @@ class SkDrawPaint : public SkDrawable {
 #ifdef SK_DUMP_ENABLED
     virtual void dump(SkAnimateMaker* );
 #endif
-    virtual void executeFunction(SkDisplayable* target, int index, 
+    virtual void executeFunction(SkDisplayable* target, int index,
         SkTDArray<SkScriptValue>& parameters, SkDisplayTypes type,
         SkScriptValue* );
     virtual const SkFunctionParamType* getFunctionsParameters();

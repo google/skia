@@ -29,7 +29,7 @@ void SkSVGPath::translate(SkSVGParser& parser, bool defState) {
     }
     if (hasMultiplePaths) {
         SkString& fillRule = parser.getPaintLast(SkSVGPaint::kFillRule);
-        if (fillRule.size() > 0) 
+        if (fillRule.size() > 0)
             parser._addAttribute("fillType", fillRule.equals("evenodd") ? "evenOdd" : "winding");
     }
     SVG_ADD_ATTRIBUTE(d);

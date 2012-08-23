@@ -23,7 +23,7 @@ static const SkScalar SH = SkIntToScalar(H);
 class StrokeRectGM : public GM {
 public:
     StrokeRectGM() {}
-    
+
 protected:
     virtual SkString onShortName() {
         return SkString("strokerects");
@@ -40,7 +40,7 @@ protected:
         SkScalar h = rand.nextUScalar1() * (H >> 2);
         SkScalar hoffset = rand.nextSScalar1();
         SkScalar woffset = rand.nextSScalar1();
-        
+
         r->set(x, y, x + w, y + h);
         r->offset(-w/2 + woffset, -h/2 + hoffset);
     }
@@ -70,7 +70,7 @@ protected:
             }
         }
     }
-    
+
 private:
     typedef GM INHERITED;
 };

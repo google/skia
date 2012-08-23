@@ -27,8 +27,8 @@ public:
     SkAnimatorScript(SkAnimateMaker& , SkDisplayable* , SkDisplayTypes type);
     ~SkAnimatorScript();
     bool evaluate(const char* script, SkScriptValue* , SkDisplayTypes type);
-    void track(SkDisplayable* displayable) { 
-        SkASSERT(fTrackDisplayable.find(displayable) < 0);  
+    void track(SkDisplayable* displayable) {
+        SkASSERT(fTrackDisplayable.find(displayable) < 0);
         *fTrackDisplayable.append() = displayable; }
     static bool EvaluateDisplayable(SkAnimateMaker& , SkDisplayable* , const char* script, SkDisplayable** );
     static bool EvaluateFloat(SkAnimateMaker& , SkDisplayable* , const char* script, SkScalar* );
@@ -38,24 +38,24 @@ public:
     static bool MapEnums(const char* ptr, const char* match, size_t len, int* value);
 protected:
     static bool Box(void* user, SkScriptValue* );
-    static bool Eval(const char* function, size_t len, SkTDArray<SkScriptValue>& params, 
+    static bool Eval(const char* function, size_t len, SkTDArray<SkScriptValue>& params,
         void* callBack, SkScriptValue* );
     static bool EvalEnum(const char* token, size_t len, void* callBack, SkScriptValue* );
     static bool EvalID(const char* token, size_t len, void* callBack, SkScriptValue* );
-    static bool EvalMember(const char* member, size_t len, void* object, void* eng, 
+    static bool EvalMember(const char* member, size_t len, void* object, void* eng,
         SkScriptValue* value);
-    static bool EvalMemberCommon(SkScriptEngine* , const SkMemberInfo* info, 
+    static bool EvalMemberCommon(SkScriptEngine* , const SkMemberInfo* info,
         SkDisplayable* displayable, SkScriptValue* value);
-    static bool EvalMemberFunction(const char* member, size_t len, void* object, 
+    static bool EvalMemberFunction(const char* member, size_t len, void* object,
         SkTDArray<SkScriptValue>& params, void* user, SkScriptValue* value);
     static bool EvalNamedColor(const char* token, size_t len, void* callBack, SkScriptValue* );
-    static bool EvalRGB(const char* function, size_t len, SkTDArray<SkScriptValue>& params, 
+    static bool EvalRGB(const char* function, size_t len, SkTDArray<SkScriptValue>& params,
         void* callBack, SkScriptValue* );
-    static const SkDisplayEnumMap& GetEnumValues(SkDisplayTypes type); 
+    static const SkDisplayEnumMap& GetEnumValues(SkDisplayTypes type);
     static bool Infinity(const char* token, size_t len, void* callBack, SkScriptValue* );
-    static bool IsFinite(const char* function, size_t len, SkTDArray<SkScriptValue>& params, 
+    static bool IsFinite(const char* function, size_t len, SkTDArray<SkScriptValue>& params,
         void* callBack, SkScriptValue* );
-    static bool IsNaN(const char* function, size_t len, SkTDArray<SkScriptValue>& params, 
+    static bool IsNaN(const char* function, size_t len, SkTDArray<SkScriptValue>& params,
         void* callBack, SkScriptValue* );
     static bool NaN(const char* token, size_t len, void* callBack, SkScriptValue* );
     static bool Unbox(void* , SkScriptValue* scriptValue);

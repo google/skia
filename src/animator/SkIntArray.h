@@ -36,21 +36,21 @@ typedef SkIntArray(SkDisplayTypes) SkTDDisplayTypesArray;
 typedef SkIntArray(SkMSec) SkTDMSecArray;
 typedef SkIntArray(SkScalar) SkTDScalarArray;
 
-typedef SkLongArray(SkActive*) SkTDActiveArray; 
-typedef SkLongArray(SkAnimateBase*) SkTDAnimateArray; 
-typedef SkLongArray(SkDataInput*) SkTDDataArray; 
-typedef SkLongArray(SkDisplayable*) SkTDDisplayableArray; 
-typedef SkLongArray(SkDisplayEvent*) SkTDDisplayEventArray; 
-typedef SkLongArray(SkDrawable*) SkTDDrawableArray; 
-typedef SkLongArray(SkDrawColor*) SkTDDrawColorArray; 
-typedef SkLongArray(SkMatrixPart*) SkTDMatrixPartArray; 
+typedef SkLongArray(SkActive*) SkTDActiveArray;
+typedef SkLongArray(SkAnimateBase*) SkTDAnimateArray;
+typedef SkLongArray(SkDataInput*) SkTDDataArray;
+typedef SkLongArray(SkDisplayable*) SkTDDisplayableArray;
+typedef SkLongArray(SkDisplayEvent*) SkTDDisplayEventArray;
+typedef SkLongArray(SkDrawable*) SkTDDrawableArray;
+typedef SkLongArray(SkDrawColor*) SkTDDrawColorArray;
+typedef SkLongArray(SkMatrixPart*) SkTDMatrixPartArray;
 typedef SkLongArray(const SkMemberInfo*) SkTDMemberInfoArray;
-typedef SkLongArray(SkPaintPart*) SkTDPaintPartArray; 
-typedef SkLongArray(SkPathPart*) SkTDPathPartArray; 
-typedef SkLongArray(SkTypedArray*) SkTDTypedArrayArray; 
-typedef SkLongArray(SkString*) SkTDStringArray; 
-typedef SkLongArray(SkOperand) SkTDOperandArray; 
-typedef SkLongArray(SkOperand*) SkTDOperandPtrArray; 
+typedef SkLongArray(SkPaintPart*) SkTDPaintPartArray;
+typedef SkLongArray(SkPathPart*) SkTDPathPartArray;
+typedef SkLongArray(SkTypedArray*) SkTDTypedArrayArray;
+typedef SkLongArray(SkString*) SkTDStringArray;
+typedef SkLongArray(SkOperand) SkTDOperandArray;
+typedef SkLongArray(SkOperand*) SkTDOperandPtrArray;
 
 #endif // SkIntArray_DEFINED
 

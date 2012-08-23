@@ -15,7 +15,7 @@
 
 /**
  We prefer the GCC intrinsic implementation of the atomic operations over the
- SkMutex-based implementation. The SkMutex version suffers from static 
+ SkMutex-based implementation. The SkMutex version suffers from static
  destructor ordering problems.
  Note clang also defines the GCC version macros and implements the intrinsics.
  TODO: Verify that gcc-style __sync_* intrinsics work on ARM
@@ -82,7 +82,7 @@ int32_t sk_atomic_inc(int32_t* addr)
 int32_t sk_atomic_add(int32_t* addr, int32_t inc)
 {
     SkAutoMutexAcquire ac(gAtomicMutex);
-    
+
     int32_t value = *addr;
     *addr = value + inc;
     return value;
@@ -166,7 +166,7 @@ SkMutex::SkMutex() {
     status = pthread_mutexattr_init(&attr);
     print_pthread_error(status);
     SkASSERT(0 == status);
-    
+
     status = pthread_mutex_init((pthread_mutex_t*)fStorage, &attr);
     print_pthread_error(status);
     SkASSERT(0 == status);

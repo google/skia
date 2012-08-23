@@ -35,8 +35,8 @@ public:
     static int fIndent;
     static int fDumpIndex;
 #endif
-    int findGroup(SkDrawable* match, SkTDDrawableArray** list, 
-        SkGroup** parent, SkGroup** found, SkTDDrawableArray** grandList); 
+    int findGroup(SkDrawable* match, SkTDDrawableArray** list,
+        SkGroup** parent, SkGroup** found, SkTDDrawableArray** grandList);
     SkDrawable* get(int index) { return fDrawList[index]; }
     SkMSec getTime() { return fInTime; }
     SkTDDrawableArray* getDrawList() { return &fDrawList; }
@@ -51,8 +51,8 @@ public:
 #endif
     static int SearchForMatch(SkDrawable* match, SkTDDrawableArray** list,
         SkGroup** parent, SkGroup** found, SkTDDrawableArray**grandList);
-    static bool SearchGroupForMatch(SkDrawable* draw, SkDrawable* match, 
-        SkTDDrawableArray** list, SkGroup** parent, SkGroup** found, SkTDDrawableArray** grandList, 
+    static bool SearchGroupForMatch(SkDrawable* draw, SkDrawable* match,
+        SkTDDrawableArray** list, SkGroup** parent, SkGroup** found, SkTDDrawableArray** grandList,
         int &index);
 public:
     SkIRect fBounds;

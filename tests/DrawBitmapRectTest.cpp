@@ -37,41 +37,41 @@ static void test_wacky_bitmapshader(skiatest::Reporter* reporter,
     dev.setConfig(SkBitmap::kARGB_8888_Config, 0x56F, 0x4f6);
     dev.allocPixels();
     dev.eraseColor(0);  // necessary, so we know if we draw to it
-    
+
     SkMatrix matrix;
-    
+
     SkCanvas c(dev);
-    matrix.setAll(SkFloatToScalar(-119.34097f), 
-                  SkFloatToScalar(-43.436558f), 
+    matrix.setAll(SkFloatToScalar(-119.34097f),
+                  SkFloatToScalar(-43.436558f),
                   SkFloatToScalar(93489.945f),
-                  SkFloatToScalar(43.436558f), 
-                  SkFloatToScalar(-119.34097f), 
+                  SkFloatToScalar(43.436558f),
+                  SkFloatToScalar(-119.34097f),
                   SkFloatToScalar(123.98426f),
                   0, 0, SK_Scalar1);
     c.concat(matrix);
-    
+
     SkBitmap bm;
     bm.setConfig(SkBitmap::kARGB_8888_Config, width, height);
     bm.allocPixels();
     bm.eraseColor(SK_ColorRED);
-    
+
     SkShader* s = SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode,
                                                SkShader::kRepeat_TileMode);
-    matrix.setAll(SkFloatToScalar(0.0078740157f), 
-                  0, 
+    matrix.setAll(SkFloatToScalar(0.0078740157f),
+                  0,
                   SkIntToScalar(249),
-                  0, 
-                  SkFloatToScalar(0.0078740157f), 
+                  0,
+                  SkFloatToScalar(0.0078740157f),
                   SkIntToScalar(239),
                   0, 0, SK_Scalar1);
     s->setLocalMatrix(matrix);
-    
+
     SkPaint paint;
     paint.setShader(s)->unref();
-    
+
     SkRect r = SkRect::MakeXYWH(681, 239, 695, 253);
     c.drawRect(r, paint);
-    
+
     assert_ifDrawnTo(reporter, dev, shouldBeDrawn);
 }
 #endif
@@ -106,7 +106,7 @@ static void test_giantrepeat_crbug118018(skiatest::Reporter* reporter) {
         { 0x7f, 0xFFFF,    true },   // should draw, test max height
         { 0xFFFF, 0xFFFF, false },   // allocation fails (too much RAM)
     };
-    
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(gTests); ++i) {
         test_wacky_bitmapshader(reporter,
                                 gTests[i].fWidth, gTests[i].fHeight,
@@ -127,11 +127,11 @@ static void test_nan_antihair(skiatest::Reporter* reporter) {
     SkPath path;
     path.moveTo(0, 0);
     path.lineTo(10, SK_ScalarNaN);
-    
+
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);
-    
+
     // before our fix to SkScan_Antihair.cpp to check for integral NaN (0x800...)
     // this would trigger an assert/crash.
     //
