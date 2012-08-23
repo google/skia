@@ -11,7 +11,9 @@
 #include "SkDevice.h"
 #include "SkImageEncoder.h"
 #include "SkGPipe.h"
+#include "SkMatrix.h"
 #include "SkPicture.h"
+#include "SkScalar.h"
 #include "SkString.h"
 #include "SkTDArray.h"
 #include "SkTypes.h"
@@ -257,18 +259,17 @@ void TiledPictureRenderer::finishDraw() {
 }
 
 void TiledPictureRenderer::copyTilesToCanvas() {
-    int tile_index = 0;
-    for (int tile_y_start = 0; tile_y_start < fPicture->height();
-         tile_y_start += fTileHeight) {
-        for (int tile_x_start = 0; tile_x_start < fPicture->width();
-             tile_x_start += fTileWidth) {
-            SkASSERT(tile_index < fTiles.count());
-            SkBitmap source = fTiles[tile_index]->getDevice()->accessBitmap(false);
-            fCanvas->drawBitmap(source,
-                                SkIntToScalar(tile_x_start),
-                                SkIntToScalar(tile_y_start));
-            ++tile_index;
-        }
+    for (int i = 0; i < fTiles.count(); ++i) {
+        // Since SkPicture performs a save and restore when being drawn to a
+        // canvas, we can be confident that the transform matrix of the canvas
+        // is what we set when creating the tiles.
+        SkMatrix matrix = fTiles[i]->getTotalMatrix();
+        SkScalar tile_x_start = matrix.getTranslateX();
+        SkScalar tile_y_start = matrix.getTranslateY();
+
+        SkBitmap source = fTiles[i]->getDevice()->accessBitmap(false);
+
+        fCanvas->drawBitmap(source, -tile_x_start, -tile_y_start);
     }
 }
 
