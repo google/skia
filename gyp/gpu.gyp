@@ -133,6 +133,7 @@
         '<@(skgr_mesa_gl_sources)',
         '<@(skgr_debug_gl_sources)',
         '<@(skgr_null_gl_sources)',
+        'gpu.gypi',
       ],
       'conditions': [
         [ 'not skia_mesa', {
@@ -180,6 +181,7 @@
         '<@(gr_mesa_gl_sources)',
         '<@(gr_debug_gl_sources)',
         '<@(gr_null_gl_sources)',
+        'gpu.gypi',
       ],
       'defines': [
         'GR_IMPLEMENTATION=1',
