@@ -40,6 +40,7 @@
           'sources': [
             '../src/ports/SkThread_pthread.cpp',
             '../src/ports/SkFontHost_FreeType.cpp',
+            '../src/ports/SkFontHost_FreeType_common.cpp',
             '../src/ports/SkFontHost_linux.cpp',
           ],
         }],
@@ -52,6 +53,7 @@
             '../src/ports/SkFontHost_mac_coretext.cpp',
             '../src/utils/mac/SkStream_mac.cpp',
 #            '../src/ports/SkFontHost_FreeType.cpp',
+#            '../src/ports/SkFontHost_FreeType_common.cpp',
 #            '../src/ports/SkFontHost_freetype_mac.cpp',
             '../src/ports/SkThread_pthread.cpp',
           ],
@@ -106,6 +108,7 @@
             '../src/ports/SkThread_pthread.cpp',
             '../src/ports/SkFontHost_android.cpp',
             '../src/ports/SkFontHost_FreeType.cpp',
+            '../src/ports/SkFontHost_FreeType_common.cpp',
             '../src/ports/FontHostConfiguration_android.cpp',
             #TODO: include the ports/SkImageRef_ashmem.cpp for non-NDK builds
           ],
