@@ -67,7 +67,7 @@ public:
         entry->fPrev = NULL;
         entry->fNext = NULL;
 
-#if SK_DEBUG
+#ifdef SK_DEBUG
         entry->fList = NULL;
 #endif
     }
@@ -86,7 +86,7 @@ public:
             fTail = entry;
         }
 
-#if SK_DEBUG
+#ifdef SK_DEBUG
         entry->fList = this;
 #endif
     }
@@ -140,7 +140,7 @@ public:
         T* fCur;
     };
 
-#if SK_DEBUG
+#ifdef SK_DEBUG
     void validate() const {
         GrAssert(!fHead == !fTail);
     }
