@@ -23,10 +23,10 @@ public:
         bool      fPacked;
     };
 
-    GrGLStencilBuffer(GrGpu* gpu, GrGLint rbid, 
+    GrGLStencilBuffer(GrGpu* gpu, GrGLint rbid,
                       int width, int height,
                       int sampleCnt,
-                      const Format& format) 
+                      const Format& format)
         : GrStencilBuffer(gpu, width, height, format.fStencilBits, sampleCnt)
         , fFormat(format)
         , fRenderbufferID(rbid) {

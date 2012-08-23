@@ -27,11 +27,11 @@ public:
     void setMemory(const void* data, size_t size) {
         SkASSERT(ptr_align_4(data));
         SkASSERT(SkAlign4(size) == size);
-        
+
         fBase = fCurr = (const char*)data;
         fStop = (const char*)data + size;
     }
-    
+
     uint32_t size() const { return SkToU32(fStop - fBase); }
     uint32_t offset() const { return SkToU32(fCurr - fBase); }
     bool eof() const { return fCurr >= fStop; }
@@ -40,7 +40,7 @@ public:
 
     uint32_t available() const { return SkToU32(fStop - fCurr); }
     bool isAvailable(uint32_t size) const { return fCurr + size <= fStop; }
-    
+
     void rewind() { fCurr = fBase; }
 
     void setOffset(size_t offset) {
@@ -48,9 +48,9 @@ public:
         SkASSERT(offset <= this->size());
         fCurr = fBase + offset;
     }
-    
+
     bool readBool() { return this->readInt() != 0; }
-    
+
     int32_t readInt() {
         SkASSERT(ptr_align_4(fCurr));
         int32_t value = *(const int32_t*)fCurr;
@@ -78,7 +78,7 @@ public:
         SkASSERT(fCurr <= fStop);
         return value;
     }
-    
+
     const void* skip(size_t size) {
         SkASSERT(ptr_align_4(fCurr));
         const void* addr = fCurr;
@@ -86,7 +86,7 @@ public:
         SkASSERT(fCurr <= fStop);
         return addr;
     }
-    
+
     template <typename T> const T& skipT() {
         SkASSERT(SkAlign4(sizeof(T)) == sizeof(T));
         return *(const T*)this->skip(sizeof(T));
@@ -99,7 +99,7 @@ public:
         fCurr += SkAlign4(size);
         SkASSERT(fCurr <= fStop);
     }
-    
+
     uint8_t readU8() { return (uint8_t)this->readInt(); }
     uint16_t readU16() { return (uint16_t)this->readInt(); }
     int32_t readS32() { return this->readInt(); }
@@ -141,7 +141,7 @@ private:
     const char* fCurr;  // current position within buffer
     const char* fStop;  // end of buffer
     const char* fBase;  // beginning of buffer
-    
+
 #ifdef SK_DEBUG
     static bool ptr_align_4(const void* ptr) {
         return (((const char*)ptr - (const char*)NULL) & 3) == 0;

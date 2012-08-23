@@ -24,18 +24,18 @@ void SI8_D16_nofilter_DX_arm(const SkBitmapProcState& s,
     SkASSERT(count > 0 && colors != NULL);
     SkASSERT(s.fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
     SkASSERT(s.fDoFilter == false);
-    
+
     const uint16_t* SK_RESTRICT table = s.fBitmap->getColorTable()->lock16BitCache();
     const uint8_t* SK_RESTRICT srcAddr = (const uint8_t*)s.fBitmap->getPixels();
-    
+
     // buffer is y32, x16, x16, x16, x16, x16
     // bump srcAddr to the proper row, since we're told Y never changes
     SkASSERT((unsigned)xy[0] < (unsigned)s.fBitmap->height());
     srcAddr = (const uint8_t*)((const char*)srcAddr +
                                xy[0] * s.fBitmap->rowBytes());
-    
+
     uint8_t src;
-    
+
     if (1 == s.fBitmap->width()) {
         src = srcAddr[0];
         uint16_t dstValue = table[src];
@@ -44,7 +44,7 @@ void SI8_D16_nofilter_DX_arm(const SkBitmapProcState& s,
         int i;
         int count8 = count >> 3;
         const uint16_t* SK_RESTRICT xx = (const uint16_t*)(xy + 1);
-        
+
         asm volatile (
                       "cmp        %[count8], #0                   \n\t"   // compare loop counter with 0
                       "beq        2f                              \n\t"   // if loop counter == 0, exit
@@ -94,13 +94,13 @@ void SI8_D16_nofilter_DX_arm(const SkBitmapProcState& s,
                       : [table] "r" (table), [srcAddr] "r" (srcAddr)
                       : "memory", "cc", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11"
                       );
-        
+
         for (i = (count & 7); i > 0; --i) {
             src = srcAddr[*xx++]; *colors++ = table[src];
         }
     }
 
-    s.fBitmap->getColorTable()->unlock16BitCache(); 
+    s.fBitmap->getColorTable()->unlock16BitCache();
 }
 
 void SI8_opaque_D32_nofilter_DX_arm(

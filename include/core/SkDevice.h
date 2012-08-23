@@ -138,10 +138,10 @@ public:
      */
     const SkIPoint& getOrigin() const { return fOrigin; }
 
-    /** 
+    /**
      * onAttachToCanvas is invoked whenever a device is installed in a canvas
      * (i.e., setDevice, saveLayer (for the new device created by the save),
-     * and SkCanvas' SkDevice & SkBitmap -taking ctors). It allows the 
+     * and SkCanvas' SkDevice & SkBitmap -taking ctors). It allows the
      * devices to prepare for drawing (e.g., locking their pixels, etc.)
      */
     virtual void onAttachToCanvas(SkCanvas* canvas) {
@@ -154,7 +154,7 @@ public:
     /**
      * onDetachFromCanvas notifies a device that it will no longer be drawn to.
      * It gives the device a chance to clean up (e.g., unlock its pixels). It
-     * is invoked from setDevice (for the displaced device), restore and 
+     * is invoked from setDevice (for the displaced device), restore and
      * possibly from SkCanvas' dtor.
      */
     virtual void onDetachFromCanvas() {
@@ -312,7 +312,7 @@ protected:
         access the pixels directly. Note: only the pixels field should be
         altered. The config/width/height/rowbytes must remain unchanged.
         @param bitmap The device's bitmap
-        @return Echo the bitmap parameter, or an alternate (shadow) bitmap 
+        @return Echo the bitmap parameter, or an alternate (shadow) bitmap
             maintained by the subclass.
     */
     virtual const SkBitmap& onAccessBitmap(SkBitmap*);

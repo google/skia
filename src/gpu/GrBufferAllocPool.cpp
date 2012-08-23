@@ -134,11 +134,11 @@ void GrBufferAllocPool::validate(bool unusedBlockAllowed) const {
         GrAssert(!fBlocks[i].fBuffer->isLocked());
     }
     for (int i = 0; i < fBlocks.count(); ++i) {
-        size_t bytes = fBlocks[i].fBuffer->sizeInBytes() - fBlocks[i].fBytesFree; 
+        size_t bytes = fBlocks[i].fBuffer->sizeInBytes() - fBlocks[i].fBytesFree;
         bytesInUse += bytes;
         GrAssert(bytes || unusedBlockAllowed);
     }
-    
+
     GrAssert(bytesInUse == fBytesInUse);
     if (unusedBlockAllowed) {
         GrAssert((fBytesInUse && !fBlocks.empty()) ||
@@ -181,7 +181,7 @@ void* GrBufferAllocPool::makeSpace(size_t size,
     // may be cheating on the actual buffer size by shrinking the buffer on
     // updateData() if the amount of data passed is less than the full buffer
     // size.
-    
+
     if (!createBlock(size)) {
         return NULL;
     }

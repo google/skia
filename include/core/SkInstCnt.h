@@ -10,7 +10,7 @@
 #define SkInstCnt_DEFINED
 
 /*
- * The instance counting system consists of three macros that create the 
+ * The instance counting system consists of three macros that create the
  * instance counting machinery. A class is added to the system by adding:
  *   SK_DECLARE_INST_COUNT at the top of its declaration for derived classes
  *   SK_DECLARE_INST_COUNT_ROOT at the top of its declaration for a root class

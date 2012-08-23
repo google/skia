@@ -38,7 +38,7 @@ private:
 };
 
 /** Provides custom vertex shader, fragment shader, uniform data for a
-    particular stage of the Ganesh shading pipeline. 
+    particular stage of the Ganesh shading pipeline.
     Subclasses must have a function that produces a human-readable name:
         static const char* Name();
     GrCustomStage objects *must* be immutable: after being constructed,
@@ -71,7 +71,7 @@ public:
         Example:
         class MyCustomStage : public GrCustomStage {
         ...
-            virtual const GrProgramStageFactory& getFactory() const 
+            virtual const GrProgramStageFactory& getFactory() const
                                                             SK_OVERRIDE {
                 return GrTProgramStageFactory<MyCustomStage>::getInstance();
             }

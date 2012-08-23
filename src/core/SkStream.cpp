@@ -80,7 +80,7 @@ SkScalar SkStream::readScalar() {
 #define SK_BYTE_SENTINEL_FOR_U32    0xFF
 
 size_t SkStream::readPackedUInt() {
-    uint8_t byte;    
+    uint8_t byte;
     if (!this->read(&byte, 1)) {
         return 0;
     }
@@ -194,7 +194,7 @@ bool SkWStream::writePackedUInt(size_t value) {
 bool SkWStream::writeStream(SkStream* stream, size_t length) {
     char scratch[1024];
     const size_t MAX = sizeof(scratch);
-    
+
     while (length != 0) {
         size_t n = length;
         if (n > MAX) {
@@ -590,14 +590,14 @@ struct SkDynamicMemoryWStream::Block {
     char*   start() { return (char*)(this + 1); }
     size_t  avail() const { return fStop - fCurr; }
     size_t  written() const { return fCurr - this->start(); }
-    
+
     void init(size_t size)
     {
         fNext = NULL;
         fCurr = this->start();
         fStop = this->start() + size;
     }
-    
+
     const void* append(const void* data, size_t size)
     {
         SkASSERT((size_t)(fStop - fCurr) >= size);
@@ -620,9 +620,9 @@ SkDynamicMemoryWStream::~SkDynamicMemoryWStream()
 void SkDynamicMemoryWStream::reset()
 {
     this->invalidateCopy();
-    
+
     Block*  block = fHead;
-    
+
     while (block != NULL) {
         Block*  next = block->fNext;
         sk_free(block);
@@ -638,23 +638,23 @@ bool SkDynamicMemoryWStream::write(const void* buffer, size_t count)
         this->invalidateCopy();
 
         fBytesWritten += count;
-        
+
         size_t  size;
-        
+
         if (fTail != NULL && fTail->avail() > 0) {
             size = SkMin32(fTail->avail(), count);
             buffer = fTail->append(buffer, size);
             SkASSERT(count >= size);
-            count -= size;        
+            count -= size;
             if (count == 0)
                 return true;
         }
-            
+
         size = SkMax32(count, SkDynamicMemoryWStream_MinBlockSize);
         Block* block = (Block*)sk_malloc_throw(sizeof(Block) + size);
         block->init(size);
         block->append(buffer, count);
-        
+
         if (fTail != NULL)
             fTail->fNext = block;
         else
@@ -671,7 +671,7 @@ bool SkDynamicMemoryWStream::write(const void* buffer, size_t offset, size_t cou
     }
 
     this->invalidateCopy();
-    
+
     Block* block = fHead;
     while (block != NULL) {
         size_t size = block->written();
@@ -716,7 +716,7 @@ void SkDynamicMemoryWStream::copyTo(void* dst) const
         memcpy(dst, fCopy->data(), fBytesWritten);
     } else {
         Block* block = fHead;
-        
+
         while (block != NULL) {
             size_t size = block->written();
             memcpy(dst, block->start(), size);

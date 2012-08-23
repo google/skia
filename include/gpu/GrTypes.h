@@ -298,7 +298,7 @@ enum GrPixelConfig {
     kGrPixelConfigCount
 };
 
-// Aliases for pixel configs that match skia's byte order. 
+// Aliases for pixel configs that match skia's byte order.
 #ifndef SK_CPU_LENDIAN
     #error "Skia gpu currently assumes little endian"
 #endif
@@ -404,7 +404,7 @@ enum GrTextureFlags {
      * Creates a texture that can be rendered to as a GrRenderTarget. Use
      * GrTexture::asRenderTarget() to access.
      */
-    kRenderTarget_GrTextureFlagBit  = 0x1,  
+    kRenderTarget_GrTextureFlagBit  = 0x1,
     /**
      * By default all render targets have an associated stencil buffer that
      * may be required for path filling. This flag overrides stencil buffer
@@ -435,7 +435,7 @@ enum {
  * Describes a texture to be created.
  */
 struct GrTextureDesc {
-    GrTextureDesc() 
+    GrTextureDesc()
     : fFlags(kNone_GrTextureFlags)
     , fWidth(0)
     , fHeight(0)
@@ -464,7 +464,7 @@ struct GrTextureDesc {
 };
 
 /**
- * GrCacheData holds user-provided cache-specific data. It is used in 
+ * GrCacheData holds user-provided cache-specific data. It is used in
  * combination with the GrTextureDesc to construct a cache key for texture
  * resources.
  */
@@ -484,7 +484,7 @@ struct GrCacheData {
     // No default constructor is provided since, if you are creating one
     // of these, you should definitely have a key (or be using the scratch
     // key).
-    GrCacheData(uint64_t key) 
+    GrCacheData(uint64_t key)
     : fClientCacheID(key)
     , fResourceDomain(kScratch_ResourceDomain) {
     }
@@ -600,8 +600,8 @@ typedef intptr_t GrPlatform3DObject;
 /**
  * Gr can wrap an existing texture created by the client with a GrTexture
  * object. The client is responsible for ensuring that the texture lives at
- * least as long as the GrTexture object wrapping it. We require the client to 
- * explicitly provide information about the texture, such as width, height, 
+ * least as long as the GrTexture object wrapping it. We require the client to
+ * explicitly provide information about the texture, such as width, height,
  * and pixel config, rather than querying the 3D APIfor these values. We expect
  * these to be immutable even if the 3D API doesn't require this (OpenGL).
  *
@@ -658,7 +658,7 @@ struct GrPlatformTextureDesc {
  * Gr can wrap an existing render target created by the client in the 3D API
  * with a GrRenderTarget object. The client is responsible for ensuring that the
  * underlying 3D API object lives at least as long as the GrRenderTarget object
- * wrapping it. We require the client to explicitly provide information about 
+ * wrapping it. We require the client to explicitly provide information about
  * the target, such as width, height, and pixel config rather than querying the
  * 3D API for these values. We expect these properties to be immutable even if
  * the 3D API doesn't require this (OpenGL).

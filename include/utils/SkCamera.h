@@ -55,7 +55,7 @@ typedef SkPoint3D SkVector3D;
 
 struct SkMatrix3D {
     SkScalar    fMat[3][4];
-    
+
     void reset();
 
     void setRow(int row, SkScalar a, SkScalar b, SkScalar c, SkScalar d = 0)
@@ -71,7 +71,7 @@ struct SkMatrix3D {
     void setRotateY(SkScalar deg);
     void setRotateZ(SkScalar deg);
     void setTranslate(SkScalar x, SkScalar y, SkScalar z);
-    
+
     void preRotateX(SkScalar deg);
     void preRotateY(SkScalar deg);
     void preRotateZ(SkScalar deg);
@@ -113,7 +113,7 @@ private:
 public: // make public for SkDraw3D for now
     SkVector3D  fU, fV;
     SkPoint3D   fOrigin;
-    
+
     friend class SkCamera3D;
 };
 
@@ -161,7 +161,7 @@ public:
     void applyToCanvas(SkCanvas*) const;
 
     SkScalar dotWithNormal(SkScalar dx, SkScalar dy, SkScalar dz) const;
-    
+
 private:
     struct Rec {
         Rec*        fNext;

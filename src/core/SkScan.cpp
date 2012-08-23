@@ -21,7 +21,7 @@ void SkScan::FillIRect(const SkIRect& r, const SkRegion* clip,
         if (clip) {
             if (clip->isRect()) {
                 const SkIRect& clipBounds = clip->getBounds();
-                
+
                 if (clipBounds.contains(r)) {
                     blitrect(blitter, r);
                 } else {
@@ -33,7 +33,7 @@ void SkScan::FillIRect(const SkIRect& r, const SkRegion* clip,
             } else {
                 SkRegion::Cliperator    cliper(*clip, r);
                 const SkIRect&          rr = cliper.rect();
-                
+
                 while (!cliper.done()) {
                     blitrect(blitter, rr);
                     cliper.next();
@@ -48,7 +48,7 @@ void SkScan::FillIRect(const SkIRect& r, const SkRegion* clip,
 void SkScan::FillXRect(const SkXRect& xr, const SkRegion* clip,
                        SkBlitter* blitter) {
     SkIRect r;
-    
+
     XRect_round(xr, &r);
     SkScan::FillIRect(r, clip, blitter);
 }
@@ -58,7 +58,7 @@ void SkScan::FillXRect(const SkXRect& xr, const SkRegion* clip,
 void SkScan::FillRect(const SkRect& r, const SkRegion* clip,
                        SkBlitter* blitter) {
     SkIRect ir;
-    
+
     r.round(&ir);
     SkScan::FillIRect(ir, clip, blitter);
 }
@@ -72,7 +72,7 @@ void SkScan::FillIRect(const SkIRect& r, const SkRasterClip& clip,
     if (clip.isEmpty() || r.isEmpty()) {
         return;
     }
-    
+
     if (clip.isBW()) {
         FillIRect(r, &clip.bwRgn(), blitter);
         return;
@@ -87,7 +87,7 @@ void SkScan::FillXRect(const SkXRect& xr, const SkRasterClip& clip,
     if (clip.isEmpty() || xr.isEmpty()) {
         return;
     }
-    
+
     if (clip.isBW()) {
         FillXRect(xr, &clip.bwRgn(), blitter);
         return;
@@ -104,7 +104,7 @@ void SkScan::FillRect(const SkRect& r, const SkRasterClip& clip,
     if (clip.isEmpty() || r.isEmpty()) {
         return;
     }
-    
+
     if (clip.isBW()) {
         FillRect(r, &clip.bwRgn(), blitter);
         return;

@@ -29,7 +29,7 @@ public:
                                          NOFILTER_BITMAP_SHADER_TILEMODE)
     {
     }
-    
+
     virtual bool setContext(const SkBitmap& device, const SkPaint& paint, const SkMatrix& matrix)
     {
         if (!this->INHERITED::setContext(device, paint, matrix))
@@ -221,7 +221,7 @@ public:
             while ((count = iter.next()) != 0)
             {
                 const SkFixed* srcXY = iter.getXY();
-                
+
                 while (--count >= 0)
                 {
                     fx = *srcXY++;

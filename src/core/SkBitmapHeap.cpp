@@ -226,7 +226,7 @@ size_t SkBitmapHeap::freeMemoryIfPossible(size_t bytesToFree) {
             fLeastRecentlyUsed->fLessRecentlyUsed = NULL;
         }
     }
-    
+
     return origBytesAllocated - fBytesAllocated;
 }
 

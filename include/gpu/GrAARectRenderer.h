@@ -23,7 +23,7 @@ class GrAARectRenderer : public GrRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrAARectRenderer)
 
-    GrAARectRenderer() 
+    GrAARectRenderer()
     : fAAFillRectIndexBuffer(NULL)
     , fAAStrokeRectIndexBuffer(NULL) {
     }

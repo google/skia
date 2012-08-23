@@ -24,11 +24,11 @@ SkBlurDrawLooper::SkBlurDrawLooper(SkScalar radius, SkScalar dx, SkScalar dy,
             SkBlurMaskFilter::kNone_BlurFlag;
 
         blurFlags |= flags & kHighQuality_BlurFlag ?
-            SkBlurMaskFilter::kHighQuality_BlurFlag : 
+            SkBlurMaskFilter::kHighQuality_BlurFlag :
             SkBlurMaskFilter::kNone_BlurFlag;
 
         fBlur = SkBlurMaskFilter::Create(radius,
-                                         SkBlurMaskFilter::kNormal_BlurStyle,  
+                                         SkBlurMaskFilter::kNormal_BlurStyle,
                                          blurFlags);
     } else {
         fBlur = NULL;

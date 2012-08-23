@@ -25,7 +25,7 @@ static bool ComputeStep(const SkPoint& a, const SkPoint& b, SkScalar radius,
     SkScalar dist = SkPoint::Distance(a, b);
 
     step->set(b.fX - a.fX, b.fY - a.fY);
-    
+
     if (dist <= radius * 2) {
         step->scale(SK_ScalarHalf);
         return false;

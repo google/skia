@@ -22,7 +22,7 @@
 #include "SkTArray.h"
 
 /**
- * This is a simple class that is useful in test apps that use different 
+ * This is a simple class that is useful in test apps that use different
  * GrContexts backed by different types of GL contexts. It manages creating the
  * GL context and a GrContext that uses it. The GL/Gr contexts persist until the
  * factory is destroyed (though the caller can always grab a ref on the returned

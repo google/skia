@@ -213,7 +213,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLGetBufferParameteriv(GrGLenum target, GrGLenu
                     break;
                 case GR_GL_ELEMENT_ARRAY_BUFFER:
                     buf = gCurrElementArrayBuffer;
-                    break;  
+                    break;
             }
             if (buf) {
                 for (int i = 0; i < gMappedBuffers.count(); ++i) {
@@ -384,7 +384,7 @@ GrGLint GR_GL_FUNCTION_TYPE nullGLGetUniformLocation(GrGLuint program, const cha
 } // end anonymous namespace
 
 const GrGLInterface* GrGLCreateNullInterface() {
-    // The gl functions are not context-specific so we create one global 
+    // The gl functions are not context-specific so we create one global
     // interface
     static SkAutoTUnref<GrGLInterface> glInterface;
     if (!glInterface.get()) {

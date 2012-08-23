@@ -44,9 +44,9 @@ public:
         kPerspective_Mask   = 0x08   //!< set if the matrix is in perspective
     };
 
-    /** Returns a bitfield describing the transformations the matrix may 
+    /** Returns a bitfield describing the transformations the matrix may
         perform. The bitfield is computed conservatively, so it may include
-        false positives. For example, when kPerspective_Mask is true, all 
+        false positives. For example, when kPerspective_Mask is true, all
         other bits may be set to true even in the case of a pure perspective
         transform.
    */
@@ -96,7 +96,7 @@ public:
         kMPersp1,
         kMPersp2
     };
-    
+
     /** Affine arrays are in column major order
         because that's how PDF and XPS like it.
      */
@@ -113,12 +113,12 @@ public:
         SkASSERT((unsigned)index < 9);
         return fMat[index];
     }
-    
+
     SkScalar get(int index) const {
         SkASSERT((unsigned)index < 9);
         return fMat[index];
     }
-    
+
     SkScalar getScaleX() const { return fMat[kMScaleX]; }
     SkScalar getScaleY() const { return fMat[kMScaleY]; }
     SkScalar getSkewY() const { return fMat[kMSkewY]; }
@@ -163,7 +163,7 @@ public:
         fMat[kMPersp2] = persp2;
         this->setTypeMask(kUnknown_Mask);
     }
-        
+
     /** Set the matrix to identity
     */
     void reset();
@@ -323,7 +323,7 @@ public:
         @return true if the matrix can be represented by the rectangle mapping.
     */
     bool setRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf);
-    
+
     /** Set the matrix such that the specified src points would map to the
         specified dst points. count must be within [0..4].
         @param src  The array of src points
@@ -375,7 +375,7 @@ public:
     void mapPoints(SkPoint pts[], int count) const {
         this->mapPoints(pts, pts, count);
     }
-    
+
     /** Like mapPoints but with custom byte stride between the points. Stride
      *  should be a multiple of sizeof(SkScalar).
      */
@@ -461,7 +461,7 @@ public:
         SkASSERT((mask & ~kAllMasks) == 0);
         return gMapXYProcs[mask & kAllMasks];
     }
-    
+
     MapXYProc getMapXYProc() const {
         return GetMapXYProc(this->getType());
     }
@@ -473,7 +473,7 @@ public:
         SkASSERT((mask & ~kAllMasks) == 0);
         return gMapPtsProcs[mask & kAllMasks];
     }
-    
+
     MapPtsProc getMapPtsProc() const {
         return GetMapPtsProc(this->getType());
     }
@@ -515,7 +515,7 @@ public:
     uint32_t writeToMemory(void* buffer) const;
     // return the number of bytes read
     uint32_t readFromMemory(const void* buffer);
-    
+
     void dump() const;
     void toDumpString(SkString*) const;
 
@@ -551,7 +551,7 @@ private:
         /** Set if the matrix will map a rectangle to another rectangle. This
             can be true if the matrix is scale-only, or rotates a multiple of
             90 degrees.
-             
+
             This bit will be set on identity matrices
         */
         kRectStaysRect_Mask = 0x10,
@@ -617,7 +617,7 @@ private:
         }
         return ((fTypeMask & 0xF) == 0);
     }
-    
+
     static bool Poly2Proc(const SkPoint[], SkMatrix*, const SkPoint& scale);
     static bool Poly3Proc(const SkPoint[], SkMatrix*, const SkPoint& scale);
     static bool Poly4Proc(const SkPoint[], SkMatrix*, const SkPoint& scale);
@@ -629,9 +629,9 @@ private:
     static void Rot_xy(const SkMatrix&, SkScalar, SkScalar, SkPoint*);
     static void RotTrans_xy(const SkMatrix&, SkScalar, SkScalar, SkPoint*);
     static void Persp_xy(const SkMatrix&, SkScalar, SkScalar, SkPoint*);
-    
+
     static const MapXYProc gMapXYProcs[];
-    
+
     static void Identity_pts(const SkMatrix&, SkPoint[], const SkPoint[], int);
     static void Trans_pts(const SkMatrix&, SkPoint dst[], const SkPoint[], int);
     static void Scale_pts(const SkMatrix&, SkPoint dst[], const SkPoint[], int);
@@ -641,7 +641,7 @@ private:
     static void RotTrans_pts(const SkMatrix&, SkPoint dst[], const SkPoint[],
                              int count);
     static void Persp_pts(const SkMatrix&, SkPoint dst[], const SkPoint[], int);
-    
+
     static const MapPtsProc gMapPtsProcs[];
 
     friend class SkPerspIter;

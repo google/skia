@@ -77,7 +77,7 @@ void SkFilterShader::flatten(SkFlattenableWriteBuffer& buffer) const {
 uint32_t SkFilterShader::getFlags() {
     uint32_t shaderF = fShader->getFlags();
     uint32_t filterF = fFilter->getFlags();
-    
+
     // if the filter doesn't support 16bit, clear the matching bit in the shader
     if (!(filterF & SkColorFilter::kHasFilter16_Flag)) {
         shaderF &= ~SkShader::kHasSpan16_Flag;

@@ -42,7 +42,7 @@ void GrGLTexture::init(GrGpuGL* gpu,
 }
 
 GrGLTexture::GrGLTexture(GrGpuGL* gpu,
-                         const Desc& textureDesc) 
+                         const Desc& textureDesc)
     : INHERITED(gpu, textureDesc) {
     this->init(gpu, textureDesc, NULL);
 }

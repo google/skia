@@ -125,7 +125,7 @@ template <typename T> T* SafeRefReturn(T* obj) {
     }
     return obj;
 }
-    
+
 SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src) {
     this->init();
 
@@ -262,7 +262,7 @@ void SkPicturePlayback::flattenToBuffer(SkOrderedWriteBuffer& buffer) const {
             buffer.writeBitmap((*fBitmaps)[i]);
         }
     }
-    
+
     if ((n = SafeCount(fMatrices)) > 0) {
         writeTagSize(buffer, PICT_MATRIX_BUFFER_TAG, n);
         for (i = 0; i < n; i++) {
@@ -270,19 +270,19 @@ void SkPicturePlayback::flattenToBuffer(SkOrderedWriteBuffer& buffer) const {
         }
 
     }
-    
+
     if ((n = SafeCount(fPaints)) > 0) {
         writeTagSize(buffer, PICT_PAINT_BUFFER_TAG, n);
         for (i = 0; i < n; i++) {
             buffer.writePaint((*fPaints)[i]);
         }
     }
-    
+
     if ((n = SafeCount(fPathHeap)) > 0) {
         writeTagSize(buffer, PICT_PATH_BUFFER_TAG, n);
         fPathHeap->flatten(buffer);
     }
-    
+
     if ((n = SafeCount(fRegions)) > 0) {
         writeTagSize(buffer, PICT_REGION_BUFFER_TAG, n);
         for (i = 0; i < n; i++) {
@@ -344,7 +344,7 @@ static uint32_t pictInfoFlagsToReadBufferFlags(uint32_t pictInfoFlags) {
         { SkPictInfo::kScalarIsFloat_Flag,  SkFlattenableReadBuffer::kScalarIsFloat_Flag },
         { SkPictInfo::kPtrIs64Bit_Flag,     SkFlattenableReadBuffer::kPtrIs64Bit_Flag },
     };
-    
+
     uint32_t rbMask = 0;
     for (size_t i = 0; i < SK_ARRAY_COUNT(gSD); ++i) {
         if (pictInfoFlags & gSD[i].fSrc) {
@@ -402,13 +402,13 @@ bool SkPicturePlayback::parseStreamTag(SkStream* stream, const SkPictInfo& info,
         case PICT_BUFFER_SIZE_TAG: {
             SkAutoMalloc storage(size);
             stream->read(storage.get(), size);
-            
+
             SkOrderedReadBuffer buffer(storage.get(), size);
             buffer.setFlags(pictInfoFlagsToReadBufferFlags(info.fFlags));
 
             fFactoryPlayback->setupBuffer(buffer);
             fTFPlayback.setupBuffer(buffer);
-            
+
             while (!buffer.eof()) {
                 tag = buffer.readUInt();
                 size = buffer.readUInt();

@@ -24,10 +24,10 @@
     src values at their position, plus all values above and to the left.
     When we sample into this buffer, we need an initial row and column of 0s,
     so we have an index correspondence as follows:
- 
+
     src[i, j] == sum[i+1, j+1]
     sum[0, j] == sum[i, 0] == 0
- 
+
     We assume that the sum buffer's stride == its width
  */
 static void build_sum_buffer(uint32_t sum[], int srcW, int srcH,

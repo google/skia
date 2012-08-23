@@ -316,7 +316,7 @@ bool GrGLProgram::genEdgeCoverage(SkString* coverageVar,
             break;
         case GrDrawState::kQuad_EdgeType:
             segments->fFSCode.append("\tfloat edgeAlpha;\n");
-            // keep the derivative instructions outside the conditional 
+            // keep the derivative instructions outside the conditional
             segments->fFSCode.appendf("\tvec2 duvdx = dFdx(%s.xy);\n", fsName);
             segments->fFSCode.appendf("\tvec2 duvdy = dFdy(%s.xy);\n", fsName);
             segments->fFSCode.appendf("\tif (%s.z > 0.0 && %s.w > 0.0) {\n", fsName, fsName);
@@ -508,7 +508,7 @@ GrGLuint compile_shader(const GrGLContextInfo& gl,
             // retrieve length even though we don't need it to workaround bug in chrome cmd buffer
             // param validation.
             GrGLsizei length = GR_GL_INIT_ZERO;
-            GR_GL_CALL(gli, GetShaderInfoLog(shader, infoLen+1, 
+            GR_GL_CALL(gli, GetShaderInfoLog(shader, infoLen+1,
                                              &length, (char*)log.get()));
             print_shader(stringCnt, strings, stringLengths);
             GrPrintf("\n%s", log.get());
@@ -816,10 +816,10 @@ bool GrGLProgram::genProgram(const GrCustomStage** customStages) {
                         const GrProgramStageFactory& factory = customStages[s]->getFactory();
                         fProgramStage[s] = factory.createGLInstance(*customStages[s]);
                     }
-                    // stages don't know how to deal with a scalar input. (Maybe they should. We 
+                    // stages don't know how to deal with a scalar input. (Maybe they should. We
                     // could pass a GrGLShaderVar)
                     if (inCoverageIsScalar) {
-                        builder.fFSCode.appendf("\tvec4 %s4 = vec4(%s);\n", 
+                        builder.fFSCode.appendf("\tvec4 %s4 = vec4(%s);\n",
                                                 inCoverage.c_str(), inCoverage.c_str());
                         inCoverage.append("4");
                     }
@@ -1092,13 +1092,13 @@ void GrGLProgram::genStageCode(int stageNum,
         if (desc.fInConfigFlags & kMulByAlphaMask) {
             // only one of the mul by alpha flags should be set
             GrAssert(GrIsPow2(kMulByAlphaMask & desc.fInConfigFlags));
-            GrAssert(!(desc.fInConfigFlags & 
+            GrAssert(!(desc.fInConfigFlags &
                        StageDesc::kSmearAlpha_InConfigFlag));
-            GrAssert(!(desc.fInConfigFlags & 
+            GrAssert(!(desc.fInConfigFlags &
                        StageDesc::kSmearRed_InConfigFlag));
             builder->fFSCode.appendf("\t%s = %s(%s, %s)%s;\n",
                                      fsOutColor,
-                                     builder->fTexFunc.c_str(), 
+                                     builder->fTexFunc.c_str(),
                                      samplerName,
                                      builder->fSampleCoords.c_str(),
                                      builder->fSwizzle.c_str());

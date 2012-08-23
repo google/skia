@@ -328,7 +328,7 @@ public:
         } else {
             return this->doNext(drawType);
         }
-    }        
+    }
 
 private:
     SkLazyPaint     fLazyPaint;
@@ -959,7 +959,7 @@ public:
                              SkBitmap* result, SkIPoint* offset) SK_OVERRIDE {
         return fDevice->filterImage(filter, src, ctm, result, offset);
     }
-    
+
 private:
     SkDevice* fDevice;
 };
@@ -997,18 +997,18 @@ void SkCanvas::internalDrawDevice(SkDevice* srcDev, int x, int y,
 void SkCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
                           const SkPaint* paint) {
     SkDEBUGCODE(bitmap.validate();)
-    
+
     if (reject_bitmap(bitmap)) {
         return;
     }
-    
+
     SkPaint tmp;
     if (NULL == paint) {
         paint = &tmp;
     }
-    
+
     LOOPER_BEGIN_DRAWDEVICE(*paint, SkDrawFilter::kBitmap_Type)
-    
+
     while (iter.next()) {
         paint = &looper.paint();
         SkImageFilter* filter = paint->getImageFilter();
@@ -1165,11 +1165,11 @@ bool SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
         if (fMCRec->fRasterClip->isEmpty()) {
             return false;
         }
-        
+
         if (this->quickReject(path.getBounds())) {
             fDeviceCMDirty = true;
             fLocalBoundsCompareTypeDirty = true;
-            
+
             fClipStack.clipEmpty();
             return fMCRec->fRasterClip->setEmpty();
         }
@@ -1353,7 +1353,7 @@ bool SkCanvas::getClipBounds(SkRect* bounds) const {
         // that can be larger than 32K in width or height).
         r.iset(pinIntForScalar(ibounds.fLeft - inset),
                pinIntForScalar(ibounds.fTop - inset),
-               pinIntForScalar(ibounds.fRight + inset), 
+               pinIntForScalar(ibounds.fRight + inset),
                pinIntForScalar(ibounds.fBottom + inset));
         inverse.mapRect(bounds, r);
     }
@@ -1472,7 +1472,7 @@ void SkCanvas::drawPoints(PointMode mode, size_t count, const SkPoint pts[],
         if (this->quickReject(paint.computeFastStrokeBounds(r, &storage))) {
             return;
         }
-    }    
+    }
 
     SkASSERT(pts != NULL);
 

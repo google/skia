@@ -39,7 +39,7 @@ class VertBench : public SkBenchmark {
         idx[0] = n; idx[1] = n + 1; idx[2] = rb + n + 1;
         idx[3] = n; idx[4] = rb + n + 1; idx[5] = n + rb;
     }
-    
+
 public:
     VertBench(void* param) : INHERITED(param) {
         const SkScalar dx = SkIntToScalar(W) / COL;
@@ -55,7 +55,7 @@ public:
                 pts->set(xx, yy);
                 pts += 1;
                 xx += dx;
-                
+
                 if (x < COL && y < ROW) {
                     load_2_tris(idx, x, y, COL + 1);
                     for (int i = 0; i < 6; i++) {

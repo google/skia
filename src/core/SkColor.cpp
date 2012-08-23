@@ -51,7 +51,7 @@ void SkRGBToHSV(U8CPU r, U8CPU g, U8CPU b, SkScalar hsv[3]) {
     SkScalar s = ByteDivToScalar(delta, max);
     SkASSERT(s >= 0 && s <= SK_Scalar1);
 
-    SkScalar h;    
+    SkScalar h;
     if (r == max) {
         h = ByteDivToScalar(g - b, delta);
     } else if (g == max) {
@@ -92,12 +92,12 @@ SkColor SkHSVToColor(U8CPU a, const SkScalar hsv[3]) {
     }
     SkFixed hx = (hsv[0] < 0 || hsv[0] >= SkIntToScalar(360)) ? 0 : SkScalarToFixed(hsv[0]/60);
     SkFixed f = hx & 0xFFFF;
-    
+
     unsigned v_scale = SkAlpha255To256(v);
     unsigned p = SkAlphaMul(255 - s, v_scale);
     unsigned q = SkAlphaMul(255 - (s * f >> 16), v_scale);
     unsigned t = SkAlphaMul(255 - (s * (SK_Fixed1 - f) >> 16), v_scale);
-    
+
     unsigned r, g, b;
 
     SkASSERT((unsigned)(hx >> 16) < 6);

@@ -233,12 +233,12 @@ public:
         GrSLType effectiveType = this->getType();
         if (this->isArray()) {
             if (this->isUnsizedArray()) {
-                out->appendf("%s %s[]", 
-                             TypeString(effectiveType), 
+                out->appendf("%s %s[]",
+                             TypeString(effectiveType),
                              this->getName().c_str());
             } else {
                 GrAssert(this->getArrayCount() > 0);
-                out->appendf("%s %s[%d]", 
+                out->appendf("%s %s[%d]",
                              TypeString(effectiveType),
                              this->getName().c_str(),
                              this->getArrayCount());

@@ -32,7 +32,7 @@ void SkTypefacePlayback::reset(const SkRefCntSet* rec) {
         fArray[i]->unref();
     }
     SkDELETE_ARRAY(fArray);
-    
+
     if (rec!= NULL && rec->count() > 0) {
         fCount = rec->count();
         fArray = SkNEW_ARRAY(SkRefCnt*, fCount);
@@ -48,7 +48,7 @@ void SkTypefacePlayback::reset(const SkRefCntSet* rec) {
 
 void SkTypefacePlayback::setCount(int count) {
     this->reset(NULL);
-    
+
     fCount = count;
     fArray = SkNEW_ARRAY(SkRefCnt*, count);
     sk_bzero(fArray, count * sizeof(SkRefCnt*));
@@ -105,7 +105,7 @@ SkFlatData* SkFlatData::Create(SkFlatController* controller, const void* obj,
     buffer.setTypefaceRecorder(controller->getTypefaceSet());
     buffer.setNamedFactoryRecorder(controller->getNamedFactorySet());
     buffer.setFlags(controller->getWriteBufferFlags());
-    
+
     flattenProc(buffer, obj);
     uint32_t size = buffer.size();
     SkASSERT(SkIsAlign4(size));

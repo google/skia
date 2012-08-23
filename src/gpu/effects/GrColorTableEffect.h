@@ -16,7 +16,7 @@ class GrGLColorTableEffect;
 /**
  * LUT-based color transformation effect. This class implements the Gr
  * counterpart to the SkTable_ColorFilter effect. A 256 * 4 (single-channel)
- * LUT is used to transform the input colors of the image. 
+ * LUT is used to transform the input colors of the image.
  */
 class GrColorTableEffect : public GrSingleTextureEffect {
 

@@ -47,13 +47,13 @@ public:
             this->fPtr = NULL;
         }
     }
-    
+
     void swap(SkTScopedComPtr<T>& that) {
         T* temp = this->fPtr;
         this->fPtr = that.fPtr;
         that.fPtr = temp;
     }
-    
+
     T* release() {
         T* temp = this->fPtr;
         this->fPtr = NULL;

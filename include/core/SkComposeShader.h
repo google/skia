@@ -33,7 +33,7 @@ public:
     */
     SkComposeShader(SkShader* sA, SkShader* sB, SkXfermode* mode = NULL);
     virtual ~SkComposeShader();
-    
+
     // override
     virtual bool setContext(const SkBitmap& device, const SkPaint& paint, const SkMatrix& matrix);
     virtual void shadeSpan(int x, int y, SkPMColor result[], int count);

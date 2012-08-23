@@ -25,8 +25,8 @@ class SK_API SkBlurDrawLooper : public SkDrawLooper {
 public:
     enum BlurFlags {
         kNone_BlurFlag = 0x00,
-        /** 
-            The blur layer's dx/dy/radius aren't affected by the canvas 
+        /**
+            The blur layer's dx/dy/radius aren't affected by the canvas
             transform.
         */
         kIgnoreTransform_BlurFlag   = 0x01,
@@ -36,7 +36,7 @@ public:
         kAll_BlurFlag = 0x07
     };
 
-    SkBlurDrawLooper(SkScalar radius, SkScalar dx, SkScalar dy, SkColor color, 
+    SkBlurDrawLooper(SkScalar radius, SkScalar dx, SkScalar dy, SkColor color,
                      uint32_t flags = kNone_BlurFlag);
     virtual ~SkBlurDrawLooper();
 
@@ -55,7 +55,7 @@ private:
     SkColorFilter*  fColorFilter;
     SkScalar        fDx, fDy;
     SkColor         fBlurColor;
-    uint32_t        fBlurFlags;  
+    uint32_t        fBlurFlags;
 
     enum State {
         kBeforeEdge,
@@ -63,7 +63,7 @@ private:
         kDone
     };
     State   fState;
-    
+
     typedef SkDrawLooper INHERITED;
 };
 

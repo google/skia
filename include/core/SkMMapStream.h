@@ -21,9 +21,9 @@ public:
 private:
     void*   fAddr;
     size_t  fSize;
-    
+
     void closeMMap();
-    
+
     typedef SkMemoryStream INHERITED;
 };
 

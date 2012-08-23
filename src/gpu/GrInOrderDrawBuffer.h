@@ -104,16 +104,16 @@ public:
 
     /**
      * This function allows the draw buffer to automatically flush itself to
-     * another target. This means the buffer may internally call 
+     * another target. This means the buffer may internally call
      * this->flushTo(target) when it is safe to do so.
-     * 
+     *
      * When the auto flush target is set to NULL (as it initially is) the draw
      * buffer will never automatically flush itself.
      */
     void setAutoFlushTarget(GrDrawTarget* target);
 
     // overrides from GrDrawTarget
-    virtual void drawRect(const GrRect& rect, 
+    virtual void drawRect(const GrRect& rect,
                           const GrMatrix* matrix = NULL,
                           const GrRect* srcRects[] = NULL,
                           const GrMatrix* srcMatrices[] = NULL) SK_OVERRIDE;
@@ -128,7 +128,7 @@ public:
                                int* vertexCount,
                                int* indexCount) const SK_OVERRIDE;
 
-    virtual void clear(const GrIRect* rect, 
+    virtual void clear(const GrIRect* rect,
                        GrColor color,
                        GrRenderTarget* renderTarget = NULL) SK_OVERRIDE;
 
@@ -180,7 +180,7 @@ private:
                                   int startVertex,
                                   int vertexCount) SK_OVERRIDE;
     virtual void onStencilPath(const GrPath*, GrPathFill) SK_OVERRIDE;
-    virtual bool onReserveVertexSpace(GrVertexLayout layout, 
+    virtual bool onReserveVertexSpace(GrVertexLayout layout,
                                       int vertexCount,
                                       void** vertices) SK_OVERRIDE;
     virtual bool onReserveIndexSpace(int indexCount,
@@ -212,7 +212,7 @@ private:
     StencilPath*    recordStencilPath();
     Clear*          recordClear();
 
-    // call this to invalidate the tracking data that is used to concatenate 
+    // call this to invalidate the tracking data that is used to concatenate
     // multiple draws into a single draw.
     void resetDrawTracking();
 

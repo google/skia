@@ -121,7 +121,7 @@ public:
             SkASSERT(fReserve == 0 && fCount == 0);
         }
     }
-    
+
     void rewind() {
         // same as setCount(0)
         fCount = 0;
@@ -166,9 +166,9 @@ public:
         }
         return fArray + oldCount;
     }
-    
+
     T* appendClear() {
-        T* result = this->append(); 
+        T* result = this->append();
         *result = 0;
         return result;
     }

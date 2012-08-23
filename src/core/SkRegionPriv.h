@@ -39,7 +39,7 @@ private:
 public:
     int32_t fRefCnt;
     int32_t fRunCount;
-    
+
     /**
      *  Number of spans with different Y values. This does not count the initial
      *  Top value, nor does it count the final Y-Sentinel value. In the logical
@@ -62,9 +62,9 @@ public:
     static RunHead* Alloc(int count) {
         //SkDEBUGCODE(sk_atomic_inc(&gRgnAllocCounter);)
         //SkDEBUGF(("************** gRgnAllocCounter::alloc %d\n", gRgnAllocCounter));
-        
+
         SkASSERT(count >= SkRegion::kRectRegionRuns);
-        
+
         RunHead* head = (RunHead*)sk_malloc_throw(sizeof(RunHead) + count * sizeof(RunType));
         head->fRefCnt = 1;
         head->fRunCount = count;
@@ -73,7 +73,7 @@ public:
         head->fIntervalCount = 0;
         return head;
     }
-    
+
     static RunHead* Alloc(int count, int yspancount, int intervalCount) {
         SkASSERT(yspancount > 0);
         SkASSERT(intervalCount > 1);
@@ -83,7 +83,7 @@ public:
         head->fIntervalCount = intervalCount;
         return head;
     }
-    
+
     bool isComplex() const {
         return this != SkRegion_gEmptyRunHeadPtr && this != SkRegion_gRectRunHeadPtr;
     }
@@ -98,15 +98,15 @@ public:
         SkASSERT(this->isComplex());
         return (const SkRegion::RunType*)(this + 1);
     }
-    
+
     RunHead* ensureWritable() {
         SkASSERT(this->isComplex());
-        
+
         RunHead* writable = this;
         if (fRefCnt > 1) {
             // We need to alloc & copy the current region before we call
             // sk_atomic_dec because it could be freed in the meantime,
-            // otherwise.            
+            // otherwise.
             writable = Alloc(fRunCount, fYSpanCount, fIntervalCount);
             memcpy(writable->writable_runs(), this->readonly_runs(),
                    fRunCount * sizeof(RunType));
@@ -120,7 +120,7 @@ public:
         }
         return writable;
     }
-    
+
     /**
      *  Given a scanline (including its Bottom value at runs[0]), return the next
      *  scanline. Asserts that there is one (i.e. runs[0] < Sentinel)
@@ -128,7 +128,7 @@ public:
     static SkRegion::RunType* SkipEntireScanline(const SkRegion::RunType runs[]) {
         // we are not the Y Sentinel
         SkASSERT(runs[0] < SkRegion::kRunTypeSentinel);
-        
+
         const int intervals = runs[1];
         SkASSERT(runs[2 + intervals * 2] == SkRegion::kRunTypeSentinel);
 #ifdef SK_DEBUG
@@ -142,8 +142,8 @@ public:
         runs += 1 + 1 + intervals * 2 + 1;
         return const_cast<SkRegion::RunType*>(runs);
     }
-    
-    
+
+
     /**
      *  Return the scanline that contains the Y value. This requires that the Y
      *  value is already known to be contained within the bounds of the region,
@@ -156,7 +156,7 @@ public:
 
         // if the top-check fails, we didn't do a quick check on the bounds
         SkASSERT(y >= runs[0]);
-        
+
         runs += 1;  // skip top-Y
         for (;;) {
             int bottom = runs[0];
@@ -175,7 +175,7 @@ public:
     void computeRunBounds(SkIRect* bounds) {
         RunType* runs = this->writable_runs();
         bounds->fTop = *runs++;
-        
+
         int bot;
         int ySpanCount = 0;
         int intervalCount = 0;
@@ -186,7 +186,7 @@ public:
             bot = *runs++;
             SkASSERT(bot < SkRegion::kRunTypeSentinel);
             ySpanCount += 1;
-            
+
             const int intervals = *runs++;
             SkASSERT(intervals >= 0);
             SkASSERT(intervals < SkRegion::kRunTypeSentinel);
@@ -203,14 +203,14 @@ public:
                 if (left > L) {
                     left = L;
                 }
-                
+
                 runs += intervals * 2;
                 RunType R = runs[-1];
                 SkASSERT(R < SkRegion::kRunTypeSentinel);
                 if (rite < R) {
                     rite = R;
                 }
-                
+
                 intervalCount += intervals;
             }
             SkASSERT(SkRegion::kRunTypeSentinel == *runs);
@@ -218,13 +218,13 @@ public:
 
             // test Y-sentinel
         } while (SkRegion::kRunTypeSentinel > *runs);
-        
+
 #ifdef SK_DEBUG
         // +1 to skip the last Y-sentinel
         int runCount = runs - this->writable_runs() + 1;
         SkASSERT(runCount == fRunCount);
 #endif
-        
+
         fYSpanCount = ySpanCount;
         fIntervalCount = intervalCount;
 

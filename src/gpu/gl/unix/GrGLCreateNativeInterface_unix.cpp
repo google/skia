@@ -46,7 +46,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
             GrGLHasExtensionFromString("GL_ARB_imaging", extString) ||
             GrGLHasExtensionFromString("GL_EXT_blend_color", extString)) {
             GR_GL_GET_PROC(BlendColor);
-        } 
+        }
 
         GR_GL_GET_PROC(BufferData);
         GR_GL_GET_PROC(BufferSubData);

@@ -20,18 +20,18 @@ bool SkKernel33ProcMaskFilter::filterMask(SkMask* dst, const SkMask& src,
     dst->fBounds = src.fBounds;
     dst->fBounds.inset(-1, -1);
     dst->fFormat = SkMask::kA8_Format;
-    
+
     if (NULL == src.fImage) {
         return true;
     }
-    
+
     dst->fRowBytes = dst->fBounds.width();
     size_t size = dst->computeImageSize();
     if (0 == size) {
         return false;   // too big to allocate, abort
     }
     dst->fImage = SkMask::AllocImage(size);
-    
+
     const int h = src.fBounds.height();
     const int w = src.fBounds.width();
     const int srcRB = src.fRowBytes;
@@ -40,13 +40,13 @@ bool SkKernel33ProcMaskFilter::filterMask(SkMask* dst, const SkMask& src,
 
     uint8_t* srcRows[3];
     uint8_t storage[3][3];
-    
+
     srcRows[0] = storage[0];
     srcRows[1] = storage[1];
     srcRows[2] = storage[2];
 
     unsigned scale = fPercent256;
-    
+
     for (int y = -1; y <= h; y++) {
         uint8_t* dstRow = dstImage;
         for (int x = -1; x <= w; x++) {
@@ -61,9 +61,9 @@ bool SkKernel33ProcMaskFilter::filterMask(SkMask* dst, const SkMask& src,
                     }
                     storagePtr++;
                 }
-            }            
+            }
             int value = this->computeValue(srcRows);
-            
+
             if (scale < 256) {
                 value = SkAlphaBlend(value, srcRows[1][1], scale);
             }
@@ -94,7 +94,7 @@ uint8_t SkKernel33MaskFilter::computeValue(uint8_t* const* srcRows) {
             value += fKernel[i][j] * srcRows[i][j];
         }
     }
-    
+
     value >>= fShift;
 
     if (value < 0) {

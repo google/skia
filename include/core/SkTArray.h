@@ -60,13 +60,13 @@ public:
     }
 
     /**
-     * Creates an empty array that will preallocate space for reserveCount 
+     * Creates an empty array that will preallocate space for reserveCount
      * elements.
      */
     explicit SkTArray(int reserveCount) {
         this->init(NULL, 0, NULL, reserveCount);
     }
-  
+
     /**
      * Copies one array to another. The new array will be heap allocated.
      */
@@ -75,7 +75,7 @@ public:
     }
 
     /**
-     * Creates a SkTArray by copying contents of a standard C array. The new 
+     * Creates a SkTArray by copying contents of a standard C array. The new
      * array will be heap allocated. Be careful not to use this constructor
      * when you really want the (void*, int) version.
      */

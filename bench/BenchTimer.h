@@ -30,7 +30,7 @@ public:
     double fCpu;
     double fWall;
     double fGpu;
-    
+
 private:
     BenchSysTimer *fSysTimer;
 #if SK_SUPPORT_GPU

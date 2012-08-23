@@ -201,7 +201,7 @@ SkShader::GradientType SkShader::asAGradient(GradientInfo* info) const {
     return kNone_GradientType;
 }
 
-GrCustomStage* SkShader::asNewCustomStage(GrContext* context, 
+GrCustomStage* SkShader::asNewCustomStage(GrContext* context,
                                           GrSamplerState* sampler) const {
     return NULL;
 }

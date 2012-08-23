@@ -15,7 +15,7 @@
 class SkColorMatrix {
 public:
     SkScalar    fMat[20];
-    
+
     void setIdentity();
     void setScale(SkScalar rScale, SkScalar gScale, SkScalar bScale,
                   SkScalar aScale = SK_Scalar1);

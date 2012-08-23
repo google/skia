@@ -125,7 +125,7 @@ bool GrGLIndexBuffer::updateData(const void* src, size_t srcSizeInBytes) {
     // Note that we're cheating on the size here. Currently no methods
     // allow a partial update that preserves contents of non-updated
     // portions of the buffer (lock() does a glBufferData(..size, NULL..))
-    GL_CALL(BufferData(GR_GL_ELEMENT_ARRAY_BUFFER, 
+    GL_CALL(BufferData(GR_GL_ELEMENT_ARRAY_BUFFER,
                        srcSizeInBytes, src, usage));
 #endif
     return true;

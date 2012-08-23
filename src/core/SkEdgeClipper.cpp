@@ -54,7 +54,7 @@ static bool chopMonoQuadAt(SkScalar c0, SkScalar c1, SkScalar c2,
     SkScalar A = c0 - c1 - c1 + c2;
     SkScalar B = 2*(c1 - c0);
     SkScalar C = c0 - target;
-    
+
     SkScalar roots[2];  // we only expect one, but make room for 2 for safety
     int count = SkFindUnitQuadRoots(A, B, C, roots);
     if (count) {
@@ -98,7 +98,7 @@ static void chop_quad_in_Y(SkPoint pts[3], const SkRect& clip) {
             }
         }
     }
-    
+
     // are we partially below
     if (pts[2].fY > clip.fBottom) {
         if (chopMonoQuadAtY(pts, clip.fBottom, &t)) {
@@ -130,7 +130,7 @@ void SkEdgeClipper::clipMonoQuad(const SkPoint srcPts[3], const SkRect& clip) {
     if (pts[2].fY <= clip.fTop || pts[0].fY >= clip.fBottom) {
         return;
     }
-    
+
     // Now chop so that pts is contained within clip in Y
     chop_quad_in_Y(pts, clip);
 
@@ -173,7 +173,7 @@ void SkEdgeClipper::clipMonoQuad(const SkPoint srcPts[3], const SkRect& clip) {
             return;
         }
     }
-    
+
     // are we partially to the right
     if (pts[2].fX > clip.fRight) {
         if (chopMonoQuadAtX(pts, clip.fRight, &t)) {
@@ -200,7 +200,7 @@ bool SkEdgeClipper::clipQuad(const SkPoint srcPts[3], const SkRect& clip) {
 
     SkRect  bounds;
     bounds.set(srcPts, 3);
-    
+
     if (!quick_reject(bounds, clip)) {
         SkPoint monoY[5];
         int countY = SkChopQuadAtYExtrema(srcPts, monoY);
@@ -274,7 +274,7 @@ static bool chopMonoCubicAtX(SkPoint pts[4], SkScalar x, SkScalar* t) {
 
 // Modify pts[] in place so that it is clipped in Y to the clip rect
 static void chop_cubic_in_Y(SkPoint pts[4], const SkRect& clip) {
-    
+
     // are we partially above
     if (pts[0].fY < clip.fTop) {
         SkScalar t;
@@ -300,7 +300,7 @@ static void chop_cubic_in_Y(SkPoint pts[4], const SkRect& clip) {
             }
         }
     }
-    
+
     // are we partially below
     if (pts[3].fY > clip.fBottom) {
         SkScalar t;
@@ -328,7 +328,7 @@ static void chop_cubic_in_Y(SkPoint pts[4], const SkRect& clip) {
 void SkEdgeClipper::clipMonoCubic(const SkPoint src[4], const SkRect& clip) {
     SkPoint pts[4];
     bool reverse = sort_increasing_Y(pts, src, 4);
-    
+
     // are we completely above or below
     if (pts[3].fY <= clip.fTop || pts[0].fY >= clip.fBottom) {
         return;
@@ -342,9 +342,9 @@ void SkEdgeClipper::clipMonoCubic(const SkPoint src[4], const SkRect& clip) {
         SkTSwap<SkPoint>(pts[1], pts[2]);
         reverse = !reverse;
     }
-    
+
     // Now chop in X has needed, and record the segments
-    
+
     if (pts[3].fX <= clip.fLeft) {  // wholly to the left
         this->appendVLine(clip.fLeft, pts[0].fY, pts[3].fY, reverse);
         return;
@@ -379,7 +379,7 @@ void SkEdgeClipper::clipMonoCubic(const SkPoint src[4], const SkRect& clip) {
             return;
         }
     }
-    
+
     // are we partially to the right
     if (pts[3].fX > clip.fRight) {
         SkScalar t;
@@ -405,10 +405,10 @@ void SkEdgeClipper::clipMonoCubic(const SkPoint src[4], const SkRect& clip) {
 bool SkEdgeClipper::clipCubic(const SkPoint srcPts[4], const SkRect& clip) {
     fCurrPoint = fPoints;
     fCurrVerb = fVerbs;
-    
+
     SkRect  bounds;
     bounds.set(srcPts, 4);
-    
+
     if (!quick_reject(bounds, clip)) {
         SkPoint monoY[10];
         int countY = SkChopCubicAtYExtrema(srcPts, monoY);
@@ -425,7 +425,7 @@ bool SkEdgeClipper::clipCubic(const SkPoint srcPts[4], const SkRect& clip) {
             }
         }
     }
-    
+
     *fCurrVerb = SkPath::kDone_Verb;
     fCurrPoint = fPoints;
     fCurrVerb = fVerbs;
@@ -437,7 +437,7 @@ bool SkEdgeClipper::clipCubic(const SkPoint srcPts[4], const SkRect& clip) {
 void SkEdgeClipper::appendVLine(SkScalar x, SkScalar y0, SkScalar y1,
                                 bool reverse) {
     *fCurrVerb++ = SkPath::kLine_Verb;
-    
+
     if (reverse) {
         SkTSwap<SkScalar>(y0, y1);
     }
@@ -448,7 +448,7 @@ void SkEdgeClipper::appendVLine(SkScalar x, SkScalar y0, SkScalar y1,
 
 void SkEdgeClipper::appendQuad(const SkPoint pts[3], bool reverse) {
     *fCurrVerb++ = SkPath::kQuad_Verb;
-    
+
     if (reverse) {
         fCurrPoint[0] = pts[2];
         fCurrPoint[2] = pts[0];
@@ -462,7 +462,7 @@ void SkEdgeClipper::appendQuad(const SkPoint pts[3], bool reverse) {
 
 void SkEdgeClipper::appendCubic(const SkPoint pts[4], bool reverse) {
     *fCurrVerb++ = SkPath::kCubic_Verb;
-    
+
     if (reverse) {
         for (int i = 0; i < 4; i++) {
             fCurrPoint[i] = pts[3 - i];

@@ -498,7 +498,7 @@ void SkRgnClipBlitter::blitAntiRect(int x, int y, int width, int height,
             fBlitter->blitRect(r.fLeft, r.fTop, r.width(), r.height());
         } else if (1 == r.width()) {
             if (r.fLeft == x) {
-                fBlitter->blitV(r.fLeft, r.fTop, r.height(), 
+                fBlitter->blitV(r.fLeft, r.fTop, r.height(),
                                 effectiveLeftAlpha);
             } else {
                 SkASSERT(r.fLeft == x + width + 1);
@@ -851,7 +851,7 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
     // we promise not to mutate paint unless we know we've reassigned it from
     // lazyPaint
     SkPaint* paint = const_cast<SkPaint*>(&origPaint);
-    
+
     if (origPaint.getMaskFilter() != NULL &&
             origPaint.getMaskFilter()->getFormat() == SkMask::k3D_Format) {
         shader3D = SkNEW_ARGS(Sk3DShader, (shader));

@@ -16,7 +16,7 @@
 class SkRgnBuilder : public SkBlitter {
 public:
     virtual ~SkRgnBuilder();
-    
+
     // returns true if it could allocate the working storage needed
     bool init(int maxHeight, int maxTransitions);
 
@@ -79,7 +79,7 @@ private:
     //  points at next avialable x[] in fCurrScanline
     SkRegion::RunType*  fCurrXPtr;
     SkRegion::RunType   fTop;           // first Y value
-    
+
     int fStorageCount;
 
     bool collapsWithPrev() {
@@ -290,7 +290,7 @@ bool SkRegion::setPath(const SkPath& path, const SkRegion& clip) {
     int pathTransitions = count_path_runtype_values(path, &pathTop, &pathBot);
     int clipTop, clipBot;
     int clipTransitions;
-    
+
     clipTransitions = clip.count_runtype_values(&clipTop, &clipBot);
 
     int top = SkMax32(pathTop, clipTop);
@@ -300,7 +300,7 @@ bool SkRegion::setPath(const SkPath& path, const SkRegion& clip) {
         return this->setEmpty();
 
     SkRgnBuilder builder;
-    
+
     if (!builder.init(bot - top, SkMax32(pathTransitions, clipTransitions))) {
         // can't allocate working space, so return false
         return this->setEmpty();
@@ -334,7 +334,7 @@ struct Edge {
     enum {
         kY0Link = 0x01,
         kY1Link = 0x02,
-        
+
         kCompleteLink = (kY0Link | kY1Link)
     };
 
@@ -342,7 +342,7 @@ struct Edge {
     SkRegion::RunType fY0, fY1;
     uint8_t fFlags;
     Edge*   fNext;
-    
+
     void set(int x, int y0, int y1) {
         SkASSERT(y0 != y1);
 
@@ -352,7 +352,7 @@ struct Edge {
         fFlags = 0;
         SkDEBUGCODE(fNext = NULL;)
     }
-    
+
     int top() const {
         return SkFastMin32(fY0, fY1);
     }
@@ -383,7 +383,7 @@ static void find_link(Edge* base, Edge* stop) {
             }
         }
     }
-    
+
     e = base;
     if ((base->fFlags & Edge::kY1Link) == 0) {
         for (;;) {
@@ -396,7 +396,7 @@ static void find_link(Edge* base, Edge* stop) {
             }
         }
     }
-        
+
     base->fFlags = Edge::kCompleteLink;
 }
 
@@ -448,7 +448,7 @@ bool SkRegion::getBoundaryPath(SkPath* path) const {
     const SkIRect& bounds = this->getBounds();
 
     if (this->isRect()) {
-        SkRect  r;        
+        SkRect  r;
         r.set(bounds);      // this converts the ints to scalars
         path->addRect(r);
         return true;
@@ -456,14 +456,14 @@ bool SkRegion::getBoundaryPath(SkPath* path) const {
 
     SkRegion::Iterator  iter(*this);
     SkTDArray<Edge>     edges;
-    
+
     for (const SkIRect& r = iter.rect(); !iter.done(); iter.next()) {
         Edge* edge = edges.append(2);
         edge[0].set(r.fLeft, r.fBottom, r.fTop);
         edge[1].set(r.fRight, r.fTop, r.fBottom);
     }
     qsort(edges.begin(), edges.count(), sizeof(Edge), SkCastForQSort(EdgeProc));
-    
+
     int count = edges.count();
     Edge* start = edges.begin();
     Edge* stop = start + count;

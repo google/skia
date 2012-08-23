@@ -65,7 +65,7 @@ public:
      *  the latice.
      */
     SkPath2DPathEffect(const SkMatrix&, const SkPath&);
-    
+
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPath2DPathEffect)
 
 protected:

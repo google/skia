@@ -220,7 +220,7 @@ class SkAutoAsciiToLC {
 public:
     SkAutoAsciiToLC(const char str[], size_t len = (size_t)-1);
     ~SkAutoAsciiToLC();
-    
+
     const char* lc() const { return fLC; }
     size_t      length() const { return fLength; }
 

@@ -136,7 +136,7 @@ public:
     SkAutoMaskFreeImage(uint8_t* maskImage) {
         fImage = maskImage;
     }
-    
+
     ~SkAutoMaskFreeImage() {
         SkMask::FreeImage(fImage);
     }

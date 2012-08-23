@@ -16,7 +16,7 @@ public:
 
     virtual void onDraw(SkCanvas*, SkScalar, SkScalar, const SkPaint*) = 0;
 
-private:    
+private:
     typedef SkImage INHERITED;
 };
 

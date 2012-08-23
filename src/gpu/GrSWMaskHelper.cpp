@@ -52,7 +52,7 @@ SkPath::FillType gr_fill_to_sk_fill(GrPathFill fill) {
 /**
  * Draw a single rect element of the clip stack into the accumulation bitmap
  */
-void GrSWMaskHelper::draw(const GrRect& rect, SkRegion::Op op, 
+void GrSWMaskHelper::draw(const GrRect& rect, SkRegion::Op op,
                           bool antiAlias, uint8_t alpha) {
     SkPaint paint;
 
@@ -99,7 +99,7 @@ void GrSWMaskHelper::draw(const SkPath& path, SkRegion::Op op,
     SkSafeUnref(mode);
 }
 
-bool GrSWMaskHelper::init(const GrIRect& resultBounds, 
+bool GrSWMaskHelper::init(const GrIRect& resultBounds,
                           const GrMatrix* matrix) {
     if (NULL != matrix) {
         fMatrix = *matrix;
@@ -151,24 +151,24 @@ void GrSWMaskHelper::toTexture(GrTexture *texture, uint8_t alpha) {
     // The destination texture is almost always larger than "fBM". Clear
     // it appropriately so we don't get mask artifacts outside of the path's
     // bounding box
-    
+
     // "texture" needs to be installed as the render target for the clear
     // and the texture upload but cannot remain the render target upon
     // return. Callers typically use it as a texture and it would then
     // be both source and dest.
-    GrDrawState::AutoRenderTargetRestore artr(fContext->getGpu()->drawState(), 
+    GrDrawState::AutoRenderTargetRestore artr(fContext->getGpu()->drawState(),
                                               texture->asRenderTarget());
 
     fContext->getGpu()->clear(NULL, SkColorSetARGB(alpha, alpha, alpha, alpha));
 
-    texture->writePixels(0, 0, fBM.width(), fBM.height(), 
+    texture->writePixels(0, 0, fBM.width(), fBM.height(),
                          kAlpha_8_GrPixelConfig,
                          fBM.getPixels(), fBM.rowBytes());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 /**
- * Software rasterizes path to A8 mask (possibly using the context's matrix) 
+ * Software rasterizes path to A8 mask (possibly using the context's matrix)
  * and uploads the result to a scratch texture. Returns the resulting
  * texture on success; NULL on failure.
  */

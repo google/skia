@@ -23,7 +23,7 @@ public:
      */
     SkMallocPixelRef(void* addr, size_t size, SkColorTable* ctable, bool ownPixels = true);
     virtual ~SkMallocPixelRef();
-    
+
     //! Return the allocation size for the pixels
     size_t getSize() const { return fSize; }
     void* getAddr() const { return fStorage; }

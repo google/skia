@@ -156,14 +156,14 @@ static uint32_t bilerptr00(const uint32_t* a00, const uint32_t* a01, const uint3
 }
 static uint32_t bilerptr01(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
     uint32_t c00 = *a00;
-    uint32_t c01 = *a01;   
+    uint32_t c01 = *a01;
     uint32_t lo = (3 * LO_PAIR(c00) + LO_PAIR(c01)) >> 2;
     uint32_t hi = (3 * HI_PAIR(c00) + HI_PAIR(c01)) >> 2;
     return COMBINE(lo, hi);
 }
 static uint32_t bilerptr02(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
     uint32_t c00 = *a00;
-    uint32_t c01 = *a01;   
+    uint32_t c01 = *a01;
     uint32_t lo = (LO_PAIR(c00) + LO_PAIR(c01)) >> 1;
     uint32_t hi = (HI_PAIR(c00) + HI_PAIR(c01)) >> 1;
     return COMBINE(lo, hi);

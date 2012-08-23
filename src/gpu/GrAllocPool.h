@@ -29,7 +29,7 @@ public:
      *  address was allocated by malloc or new (because it hasn't).
      */
     void* alloc(size_t bytes);
-    
+
     /**
      * Releases the most recently allocated bytes back to allocpool.
      */

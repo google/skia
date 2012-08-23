@@ -16,13 +16,13 @@ SkMesaGLContext::AutoContextRestore::AutoContextRestore() {
     if (NULL != (OSMesaContext)fOldContext) {
         OSMesaGetColorBuffer((OSMesaContext)fOldContext,
                               &fOldWidth, &fOldHeight,
-                              &fOldFormat, &fOldImage); 
+                              &fOldFormat, &fOldImage);
     }
 }
 
 SkMesaGLContext::AutoContextRestore::~AutoContextRestore() {
     if (NULL != (OSMesaContext)fOldContext) {
-        OSMesaMakeCurrent((OSMesaContext)fOldContext, fOldImage, 
+        OSMesaMakeCurrent((OSMesaContext)fOldContext, fOldImage,
                           fOldFormat, fOldWidth, fOldHeight);
     }
 }
@@ -43,7 +43,7 @@ void SkMesaGLContext::destroyGLContext() {
     if (fImage) {
         sk_free(fImage);
     }
-    
+
     if (fContext) {
         OSMesaDestroyContext((OSMesaContext)fContext);
     }
@@ -72,18 +72,18 @@ const GrGLInterface* SkMesaGLContext::createGLContext() {
         this->destroyGLContext();
         return NULL;
     }
-    
+
     // Bind the buffer to the context and make it current
-    if (!OSMesaMakeCurrent((OSMesaContext)fContext, 
-                           fImage, 
-                           GR_GL_UNSIGNED_BYTE, 
-                           gBOGUS_SIZE, 
+    if (!OSMesaMakeCurrent((OSMesaContext)fContext,
+                           fImage,
+                           GR_GL_UNSIGNED_BYTE,
+                           gBOGUS_SIZE,
                            gBOGUS_SIZE)) {
         SkDebugf("OSMesaMakeCurrent failed!\n");
         this->destroyGLContext();
         return NULL;
     }
-    
+
     const GrGLInterface* interface = GrGLCreateMesaInterface();
     if (!interface) {
         SkDebugf("Could not create GL interface!\n");
@@ -91,12 +91,12 @@ const GrGLInterface* SkMesaGLContext::createGLContext() {
         return NULL;
     }
     return interface;
-    
+
 }
 
 void SkMesaGLContext::makeCurrent() const {
     if (fContext) {
-        if (!OSMesaMakeCurrent((OSMesaContext)fContext, fImage, 
+        if (!OSMesaMakeCurrent((OSMesaContext)fContext, fImage,
                                GR_GL_UNSIGNED_BYTE, gBOGUS_SIZE, gBOGUS_SIZE)) {
             SkDebugf("Could not make MESA context current.");
         }

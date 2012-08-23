@@ -68,7 +68,7 @@ static bool sk_cpu_arm_check_neon(void) {
     /*
     Processor       : ARMv7 Processor rev 2 (v7l)
     BogoMIPS        : 994.65
-    Features        : swp half thumb fastmult vfp edsp thumbee neon vfpv3 
+    Features        : swp half thumb fastmult vfp edsp thumbee neon vfpv3
     CPU implementer : 0x41
     CPU architecture: 7
     CPU variant     : 0x2

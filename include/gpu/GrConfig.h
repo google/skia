@@ -118,7 +118,7 @@ typedef unsigned __int64 uint64_t;
 #else
 /*
  *  Include stdint.h with defines that trigger declaration of C99 limit/const
- *  macros here before anyone else has a chance to include stdint.h without 
+ *  macros here before anyone else has a chance to include stdint.h without
  *  these.
  */
 #define __STDC_LIMIT_MACROS

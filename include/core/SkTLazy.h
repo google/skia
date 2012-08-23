@@ -76,13 +76,13 @@ public:
      *  false otherwise.
      */
     bool isValid() const { return NULL != fPtr; }
-    
+
     /**
      *  Returns either NULL, or a copy of the object that was passed to
      *  set() or the constructor.
      */
     T* get() const { SkASSERT(this->isValid()); return fPtr; }
-    
+
 private:
     T*   fPtr; // NULL or fStorage
     char fStorage[sizeof(T)];

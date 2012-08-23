@@ -25,7 +25,7 @@ class SkPageFlipper {
 public:
     SkPageFlipper();
     SkPageFlipper(int width, int height);
-    
+
     int width() const { return fWidth; }
     int height() const { return fHeight; }
 
@@ -44,7 +44,7 @@ public:
         region (provided by the caller) is the area that should be copied from
         the front page to the back page (will not intersect with the returned
         inval region.
-     
+
         Once this is called, the two internal regions are swapped, so the *new*
         back inval region is ready to receive new inval calls.
      */

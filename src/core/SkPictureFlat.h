@@ -89,9 +89,9 @@ class SkTypefacePlayback {
 public:
     SkTypefacePlayback();
     virtual ~SkTypefacePlayback();
-    
+
     int count() const { return fCount; }
-    
+
     void reset(const SkRefCntSet*);
 
     void setCount(int count);
@@ -100,7 +100,7 @@ public:
     void setupBuffer(SkOrderedReadBuffer& buffer) const {
         buffer.setTypefaceArray((SkTypeface**)fArray, fCount);
     }
-    
+
 protected:
     int fCount;
     SkRefCnt** fArray;
@@ -115,13 +115,13 @@ public:
     ~SkFactoryPlayback() {
         SkDELETE_ARRAY(fArray);
     }
-    
+
     SkFlattenable::Factory* base() const { return fArray; }
 
     void setupBuffer(SkOrderedReadBuffer& buffer) const {
         buffer.setFactoryPlayback(fArray, fCount);
     }
-    
+
 private:
     int fCount;
     SkFlattenable::Factory* fArray;
@@ -283,7 +283,7 @@ public:
         SkASSERT(b_ptr < b->dataStop());
         return (*a_ptr < *b_ptr) ? -1 : 1;
     }
-    
+
     int index() const { return fIndex; }
     const void* data() const { return (const char*)this + sizeof(*this); }
     void* data() { return (char*)this + sizeof(*this); }
@@ -491,21 +491,21 @@ private:
         }
     }
 
-    
+
     SkFlatController * const     fController;
     int                          fNextIndex;
     SkTDArray<const SkFlatData*> fData;
 
     const SkFlatData* findAndReturnFlat(const T& element) {
         SkFlatData* flat = SkFlatData::Create(fController, &element, fNextIndex, fFlattenProc);
-        
+
         int hashIndex = ChecksumToHashIndex(flat->checksum());
         const SkFlatData* candidate = fHash[hashIndex];
         if (candidate && !SkFlatData::Compare(flat, candidate)) {
             fController->unalloc(flat);
             return candidate;
         }
-        
+
         int index = SkTSearch<SkFlatData>((const SkFlatData**) fData.begin(),
                                           fData.count(), flat, sizeof(flat),
                                           &SkFlatData::Compare);
@@ -514,7 +514,7 @@ private:
             fHash[hashIndex] = fData[index];
             return fData[index];
         }
-        
+
         index = ~index;
         *fData.insert(index) = flat;
         SkASSERT(fData.count() == fNextIndex);
@@ -523,7 +523,7 @@ private:
         fHash[hashIndex] = flat;
         return flat;
     }
-    
+
 
     enum {
         // Determined by trying diff values on picture-recording benchmarks
@@ -535,7 +535,7 @@ private:
         HASH_COUNT  = 1 << HASH_BITS
     };
     const SkFlatData* fHash[HASH_COUNT];
-    
+
     static int ChecksumToHashIndex(uint32_t checksum) {
         int n = checksum;
         if (HASH_BITS < 32) {
@@ -548,7 +548,7 @@ private:
             n ^= n >> 4;
         }
         return n & HASH_MASK;
-    }        
+    }
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -180,7 +180,7 @@ static void MiterJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnit
         currIsLine = false;
         goto DO_BLUNT;
     }
-    
+
     ccw = !is_clockwise(before, after);
     if (ccw)
     {
@@ -188,7 +188,7 @@ static void MiterJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnit
         before.negate();
         after.negate();
     }
-    
+
     /*  Before we enter the world of square-roots and divides,
         check if we're trying to join an upright right angle
         (common case for stroking rectangles). If so, special case

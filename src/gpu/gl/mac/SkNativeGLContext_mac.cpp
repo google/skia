@@ -17,7 +17,7 @@ SkNativeGLContext::AutoContextRestore::~AutoContextRestore() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkNativeGLContext::SkNativeGLContext() 
+SkNativeGLContext::SkNativeGLContext()
     : fContext(NULL) {
 }
 
@@ -58,14 +58,14 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
     aglDestroyPixelFormat(format);
 
     aglSetCurrentContext(fContext);
-    
+
     const GrGLInterface* interface = GrGLCreateNativeInterface();
     if (NULL == interface) {
         SkDebugf("Context could not create GL interface.\n");
         this->destroyGLContext();
         return NULL;
     }
-    
+
     return interface;
 }
 

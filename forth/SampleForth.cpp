@@ -36,9 +36,9 @@ public:
 class SkForthCtx_FW : public ForthWord {
 public:
     SkForthCtx_FW() : fCtx(NULL) {}
-    
+
     void setCtx(SkForthCtx* ctx) { fCtx = ctx; }
-    
+
     SkCanvas* canvas() const { return &fCtx->fCanvas; }
     SkPaint* paint() const { return &fCtx->fPaint; }
 
@@ -51,7 +51,7 @@ public:
     virtual void exec(ForthEngine* fe) {
         paint()->setColor(fe->pop());
     }
-    
+
     static SkForthCtx_FW* New() { return new setColor_FW; }
 };
 
@@ -60,7 +60,7 @@ public:
     virtual void exec(ForthEngine* fe) {
         paint()->setStyle((SkPaint::Style)fe->pop());
     }
-    
+
     static SkForthCtx_FW* New() { return new setStyle_FW; }
 };
 
@@ -69,7 +69,7 @@ public:
     virtual void exec(ForthEngine* fe) {
         paint()->setStrokeWidth(fe->fpop());
     }
-    
+
     static SkForthCtx_FW* New() { return new setStrokeWidth_FW; }
 };
 
@@ -80,7 +80,7 @@ public:
         SkScalar dx = fe->fpop();
         canvas()->translate(dx, dy);
     }
-    
+
     static SkForthCtx_FW* New() { return new translate_FW; }
 };
 
@@ -89,7 +89,7 @@ public:
     virtual void exec(ForthEngine* fe) {
         canvas()->drawColor(fe->pop());
     }
-    
+
     static SkForthCtx_FW* New() { return new drawColor_FW; }
 };
 
@@ -103,7 +103,7 @@ public:
         r.fLeft = fe->fpop();
         canvas()->drawRect(r, *paint());
     }
-    
+
     static SkForthCtx_FW* New() { return new drawRect_FW; }
 };
 
@@ -115,7 +115,7 @@ public:
         SkScalar x = fe->fpop();
         canvas()->drawCircle(x, y, radius, *paint());
     }
-    
+
     static SkForthCtx_FW* New() { return new drawCircle_FW; }
 };
 
@@ -129,7 +129,7 @@ public:
         x0 = fe->fpop();
         canvas()->drawLine(x0, y0, x1, y1, *paint());
     }
-    
+
     static SkForthCtx_FW* New() { return new drawLine_FW; }
 };
 
@@ -166,7 +166,7 @@ class ForthView : public SkView {
     SkBitmap    fBM;
     SkForthCtx  fContext;
 public:
-	ForthView() {
+    ForthView() {
         Forth_test_stdwords(false);
 
         load_words(&fEnv, &fContext);
@@ -194,7 +194,7 @@ public:
                   );
 #endif
     }
-    
+
     virtual ~ForthView() {
     }
 
@@ -207,11 +207,11 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFFDDDDDD);
     }
-    
+
     void test_onClick(ForthEnv* env) {
         ForthWord* word = env->findWord("view.onClick");
         if (word) {
@@ -229,7 +229,7 @@ protected:
             SkDebugf("------ view.onClick not found\n");
         }
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         drawBG(canvas);
         canvas->drawBitmap(fBM, 0, 0, NULL);
@@ -238,7 +238,7 @@ protected:
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         return fOnClickWord ? new Click(this) : NULL;
     }
-    
+
     virtual bool onClick(Click* click) {
         intptr_t idata[2] = {
             f2i_bits(click->fCurr.fX), f2i_bits(click->fCurr.fY)

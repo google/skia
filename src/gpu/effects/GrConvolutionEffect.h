@@ -13,7 +13,7 @@
 class GrGLConvolutionEffect;
 
 /**
- * A convolution effect. The kernel is specified as an array of 2 * half-width 
+ * A convolution effect. The kernel is specified as an array of 2 * half-width
  * + 1 weights. Each texel is multiplied by it's weight and summed to determine
  * the output color. The output color is modulated by the input color.
  */

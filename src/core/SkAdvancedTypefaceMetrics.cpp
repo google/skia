@@ -46,12 +46,12 @@ template <>
 void stripUninterestingTrailingAdvancesFromRange<int16_t>(
                                                           SkAdvancedTypefaceMetrics::AdvanceMetric<int16_t>* range) {
     SkASSERT(range);
-    
+
     int expectedAdvanceCount = range->fEndId - range->fStartId + 1;
     if (range->fAdvance.count() < expectedAdvanceCount) {
         return;
     }
-    
+
     for (int i = expectedAdvanceCount - 1; i >= 0; --i) {
         if (range->fAdvance[i] != kDontCareAdvance &&
             range->fAdvance[i] != kInvalidAdvance &&
@@ -92,7 +92,7 @@ void zeroWildcardsInRange<int16_t>(
         return;
     }
     SkASSERT(range->fAdvance.count() == range->fEndId - range->fStartId + 1);
-    
+
     // Zero out wildcards.
     for (int i = 0; i < range->fAdvance.count(); ++i) {
         if (range->fAdvance[i] == kDontCareAdvance) {
@@ -100,7 +100,7 @@ void zeroWildcardsInRange<int16_t>(
         }
     }
 }
-    
+
 template <typename Data>
 void finishRange(
         SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* range,

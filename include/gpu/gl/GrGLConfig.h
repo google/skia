@@ -49,7 +49,7 @@
  * GR_GL_NO_CONSTANT_ATTRIBUTES: if this evaluates to true then the GL backend
  * will use uniforms instead of attributes in all cases when there is not
  * per-vertex data. This is important when the underlying GL implementation
- * doesn't actually support immediate style attribute values (e.g. when 
+ * doesn't actually support immediate style attribute values (e.g. when
  * the GL stream is converted to DX as in ANGLE on Chrome). Defaults to 0.
  *
  * GR_GL_USE_BUFFER_DATA_NULL_HINT: When specifing new data for a vertex/index

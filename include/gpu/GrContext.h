@@ -15,7 +15,7 @@
 #include "GrClipData.h"
 // not strictly needed but requires WK change in LayerTextureUpdaterCanvas to
 // remove.
-#include "GrRenderTarget.h" 
+#include "GrRenderTarget.h"
 #include "SkClipStack.h"
 
 class GrAutoScratchTexture;
@@ -164,12 +164,12 @@ public:
      * unlocked. Call must be balanced with an unlockTexture() call.
      *
      * Textures created by createAndLockTexture() hide the complications of
-     * tiling non-power-of-two textures on APIs that don't support this (e.g. 
+     * tiling non-power-of-two textures on APIs that don't support this (e.g.
      * unextended GLES2). Tiling a npot texture created by lockScratchTexture on
      * such an API will create gaps in the tiling pattern. This includes clamp
      * mode. (This may be addressed in a future update.)
      */
-    GrTexture* lockScratchTexture(const GrTextureDesc& desc, 
+    GrTexture* lockScratchTexture(const GrTextureDesc& desc,
                                   ScratchTexMatch match);
 
     /**
@@ -223,7 +223,7 @@ public:
     int getMaxTextureSize() const;
 
     /**
-     * Return the max width or height of a render target supported by the 
+     * Return the max width or height of a render target supported by the
      * current gpu
      */
     int getMaxRenderTargetSize() const;
@@ -326,7 +326,7 @@ public:
      * @param target if non-NULL, the render target to clear otherwise clear
      *               the current render target
      */
-    void clear(const GrIRect* rect, GrColor color, 
+    void clear(const GrIRect* rect, GrColor color,
                GrRenderTarget* target = NULL);
 
     /**
@@ -667,7 +667,7 @@ public:
 
     class AutoClip : GrNoncopyable {
     public:
-        AutoClip(GrContext* context, const GrRect& newClipRect) 
+        AutoClip(GrContext* context, const GrRect& newClipRect)
         : fContext(context)
         , fNewClipStack(newClipRect) {
             fNewClipData.fClipStack = &fNewClipStack;
@@ -794,7 +794,7 @@ public:
       , fTexture(NULL) {
       this->set(context, desc, match);
     }
-    
+
     ~GrAutoScratchTexture() {
         this->reset();
     }
@@ -808,11 +808,11 @@ public:
 
     /*
      * When detaching a texture we do not unlock it in the texture cache but
-     * we do set the returnToCache flag. In this way the texture remains 
-     * "locked" in the texture cache until it is freed and recycled in 
-     * GrTexture::internal_dispose. In reality, the texture has been removed 
-     * from the cache (because this is in AutoScratchTexture) and by not 
-     * calling unlockTexture we simply don't re-add it. It will be reattached 
+     * we do set the returnToCache flag. In this way the texture remains
+     * "locked" in the texture cache until it is freed and recycled in
+     * GrTexture::internal_dispose. In reality, the texture has been removed
+     * from the cache (because this is in AutoScratchTexture) and by not
+     * calling unlockTexture we simply don't re-add it. It will be reattached
      * in GrTexture::internal_dispose.
      *
      * Note that the caller is assumed to accept and manage the ref to the

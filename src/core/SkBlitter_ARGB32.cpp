@@ -15,24 +15,24 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 static void SkARGB32_Blit32(const SkBitmap& device, const SkMask& mask,
-							const SkIRect& clip, SkPMColor srcColor) {
-	U8CPU alpha = SkGetPackedA32(srcColor);
-	unsigned flags = SkBlitRow::kSrcPixelAlpha_Flag32;
-	if (alpha != 255) {
-		flags |= SkBlitRow::kGlobalAlpha_Flag32;
-	}
-	SkBlitRow::Proc32 proc = SkBlitRow::Factory32(flags);
+                            const SkIRect& clip, SkPMColor srcColor) {
+    U8CPU alpha = SkGetPackedA32(srcColor);
+    unsigned flags = SkBlitRow::kSrcPixelAlpha_Flag32;
+    if (alpha != 255) {
+        flags |= SkBlitRow::kGlobalAlpha_Flag32;
+    }
+    SkBlitRow::Proc32 proc = SkBlitRow::Factory32(flags);
 
     int x = clip.fLeft;
     int y = clip.fTop;
     int width = clip.width();
     int height = clip.height();
 
-    SkPMColor*		 dstRow = device.getAddr32(x, y);
+    SkPMColor*         dstRow = device.getAddr32(x, y);
     const SkPMColor* srcRow = reinterpret_cast<const SkPMColor*>(mask.getAddr8(x, y));
 
     do {
-		proc(dstRow, srcRow, width, alpha);
+        proc(dstRow, srcRow, width, alpha);
         dstRow = (SkPMColor*)((char*)dstRow + device.rowBytes());
         srcRow = (const SkPMColor*)((const char*)srcRow + mask.fRowBytes);
     } while (--height != 0);
@@ -162,7 +162,7 @@ void SkARGB32_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
     if (mask.fFormat == SkMask::kBW_Format) {
         SkARGB32_BlendBW(fDevice, mask, clip, fPMColor, SkAlpha255To256(255 - fSrcA));
     } else if (SkMask::kARGB32_Format == mask.fFormat) {
-		SkARGB32_Blit32(fDevice, mask, clip, fPMColor);
+        SkARGB32_Blit32(fDevice, mask, clip, fPMColor);
     }
 }
 
@@ -173,12 +173,12 @@ void SkARGB32_Opaque_Blitter::blitMask(const SkMask& mask,
     if (SkBlitMask::BlitColor(fDevice, mask, clip, fColor)) {
         return;
     }
-    
+
     if (mask.fFormat == SkMask::kBW_Format) {
         SkARGB32_BlitBW(fDevice, mask, clip, fPMColor);
     } else if (SkMask::kARGB32_Format == mask.fFormat) {
-		SkARGB32_Blit32(fDevice, mask, clip, fPMColor);
-	}
+        SkARGB32_Blit32(fDevice, mask, clip, fPMColor);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

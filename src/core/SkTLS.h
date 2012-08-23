@@ -1,6 +1,6 @@
 //
 //  SkTLS.h
-//  
+//
 //
 //  Created by Mike Reed on 4/21/12.
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
@@ -18,7 +18,7 @@ class SkTLS {
 public:
     typedef void* (*CreateProc)();
     typedef void  (*DeleteProc)(void*);
-    
+
     /**
      *  If Get() has previously been called with this CreateProc, then this
      *  returns its cached data, otherwise it returns NULL. The CreateProc is
@@ -26,7 +26,7 @@ public:
      *  cache.
      */
     static void* Find(CreateProc);
-    
+
     /**
      *  Return the cached data that was returned by the CreateProc. This proc
      *  is only called the first time Get is called, and there after it is

@@ -163,8 +163,8 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo) {
 }
 
 bool GrGLCaps::readPixelsSupported(const GrGLInterface* intf,
-                                   GrGLenum format, 
-                                   GrGLenum type) const { 
+                                   GrGLenum format,
+                                   GrGLenum type) const {
     if (GR_GL_RGBA == format && GR_GL_UNSIGNED_BYTE == type) {
         // ES 2 guarantees this format is supported
         return true;
@@ -180,11 +180,11 @@ bool GrGLCaps::readPixelsSupported(const GrGLInterface* intf,
 
     // The other supported format/type combo supported for ReadPixels
     // can change based on which render target is bound
-    GR_GL_GetIntegerv(intf, 
+    GR_GL_GetIntegerv(intf,
                       GR_GL_IMPLEMENTATION_COLOR_READ_FORMAT,
                       &otherFormat);
 
-    GR_GL_GetIntegerv(intf, 
+    GR_GL_GetIntegerv(intf,
                       GR_GL_IMPLEMENTATION_COLOR_READ_TYPE,
                       &otherType);
 
@@ -301,7 +301,7 @@ void GrGLCaps::initStencilFormats(const GrGLContextInfo& ctxInfo) {
 
     if (kDesktop_GrGLBinding == ctxInfo.binding()) {
         bool supportsPackedDS =
-            ctxInfo.version() >= GR_GL_VER(3,0) || 
+            ctxInfo.version() >= GR_GL_VER(3,0) ||
             ctxInfo.hasExtension("GL_EXT_packed_depth_stencil") ||
             ctxInfo.hasExtension("GL_ARB_framebuffer_object");
 

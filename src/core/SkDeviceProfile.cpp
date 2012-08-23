@@ -70,7 +70,7 @@ SkDeviceProfile* SkDeviceProfile::RefGlobal() {
     gGlobalProfile->ref();
     return gGlobalProfile;
 }
-    
+
 void SkDeviceProfile::SetGlobal(SkDeviceProfile* profile) {
     SkAutoMutexAcquire amc(gMutex);
 

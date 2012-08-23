@@ -95,7 +95,7 @@ protected:
         canvas.clear(0x0);
         canvas.setNotificationClient(NULL);
     }
-   
+
 private:
     typedef DeferredCanvasBench INHERITED;
     SimpleNotificationClient fNotificationClient;

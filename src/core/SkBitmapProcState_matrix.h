@@ -62,7 +62,7 @@ void SCALE_NOFILTER_NAME(const SkBitmapProcState& s,
         *xy++ = TILEY_PROCF(SkFractionalIntToFixed(fx), maxY);
         fx = SkScalarToFractionalInt(pt.fX);
     }
-    
+
     if (0 == maxX) {
         // all of the following X values must be 0
         memset(xy, 0, count * sizeof(uint16_t));
@@ -113,7 +113,7 @@ void AFFINE_NOFILTER_NAME(const SkBitmapProcState& s,
     SkASSERT((s.fInvType & ~(SkMatrix::kTranslate_Mask |
                              SkMatrix::kScale_Mask |
                              SkMatrix::kAffine_Mask)) == 0);
-    
+
     PREAMBLE(s);
     SkPoint srcPt;
     s.fInvProc(*s.fInvMatrix,
@@ -126,7 +126,7 @@ void AFFINE_NOFILTER_NAME(const SkBitmapProcState& s,
     SkFractionalInt dy = s.fInvKyFractionalInt;
     int maxX = s.fBitmap->width() - 1;
     int maxY = s.fBitmap->height() - 1;
-    
+
     for (int i = count; i > 0; --i) {
         *xy++ = (TILEY_PROCF(SkFractionalIntToFixed(fy), maxY) << 16) |
                  TILEX_PROCF(SkFractionalIntToFixed(fx), maxX);
@@ -138,15 +138,15 @@ void PERSP_NOFILTER_NAME(const SkBitmapProcState& s,
                                 uint32_t* SK_RESTRICT xy,
                                 int count, int x, int y) {
     SkASSERT(s.fInvType & SkMatrix::kPerspective_Mask);
-    
+
     PREAMBLE(s);
     int maxX = s.fBitmap->width() - 1;
     int maxY = s.fBitmap->height() - 1;
-    
+
     SkPerspIter   iter(*s.fInvMatrix,
                        SkIntToScalar(x) + SK_ScalarHalf,
                        SkIntToScalar(y) + SK_ScalarHalf, count);
-    
+
     while ((count = iter.next()) != 0) {
         const SkFixed* SK_RESTRICT srcXY = iter.getXY();
         while (--count >= 0) {
@@ -180,7 +180,7 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s,
     SkASSERT(s.fInvKy == 0);
 
     PREAMBLE(s);
-    
+
     const unsigned maxX = s.fBitmap->width() - 1;
     const SkFixed one = s.fFilterOneX;
     const SkFractionalInt dx = s.fInvSxFractionalInt;
@@ -219,13 +219,13 @@ void AFFINE_FILTER_NAME(const SkBitmapProcState& s,
     SkASSERT((s.fInvType & ~(SkMatrix::kTranslate_Mask |
                              SkMatrix::kScale_Mask |
                              SkMatrix::kAffine_Mask)) == 0);
-    
+
     PREAMBLE(s);
     SkPoint srcPt;
     s.fInvProc(*s.fInvMatrix,
                SkIntToScalar(x) + SK_ScalarHalf,
                SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
-    
+
     SkFixed oneX = s.fFilterOneX;
     SkFixed oneY = s.fFilterOneY;
     SkFixed fx = SkScalarToFixed(srcPt.fX) - (oneX >> 1);
@@ -234,7 +234,7 @@ void AFFINE_FILTER_NAME(const SkBitmapProcState& s,
     SkFixed dy = s.fInvKy;
     unsigned maxX = s.fBitmap->width() - 1;
     unsigned maxY = s.fBitmap->height() - 1;
-    
+
     do {
         *xy++ = PACK_FILTER_Y_NAME(fy, maxY, oneY PREAMBLE_ARG_Y);
         fy += dy;
@@ -247,17 +247,17 @@ void PERSP_FILTER_NAME(const SkBitmapProcState& s,
                               uint32_t* SK_RESTRICT xy, int count,
                               int x, int y) {
     SkASSERT(s.fInvType & SkMatrix::kPerspective_Mask);
-    
+
     PREAMBLE(s);
     unsigned maxX = s.fBitmap->width() - 1;
     unsigned maxY = s.fBitmap->height() - 1;
     SkFixed oneX = s.fFilterOneX;
     SkFixed oneY = s.fFilterOneY;
-    
+
     SkPerspIter   iter(*s.fInvMatrix,
                        SkIntToScalar(x) + SK_ScalarHalf,
                        SkIntToScalar(y) + SK_ScalarHalf, count);
-    
+
     while ((count = iter.next()) != 0) {
         const SkFixed* SK_RESTRICT srcXY = iter.getXY();
         do {

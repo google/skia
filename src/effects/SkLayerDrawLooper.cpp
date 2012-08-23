@@ -199,7 +199,7 @@ void SkLayerDrawLooper::flatten(SkFlattenableWriteBuffer& buffer) const {
 #endif
 
     buffer.writeInt(fCount);
-    
+
     Rec* rec = fRecs;
     for (int i = 0; i < fCount; i++) {
         buffer.writeInt(rec->fInfo.fFlagsMask);
@@ -232,7 +232,7 @@ SkLayerDrawLooper::SkLayerDrawLooper(SkFlattenableReadBuffer& buffer)
 
     // we're in reverse order, so fix it now
     fRecs = Rec::Reverse(fRecs);
-    
+
 #ifdef SK_DEBUG
     {
         Rec* rec = fRecs;

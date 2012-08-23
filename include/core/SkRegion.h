@@ -33,7 +33,7 @@ public:
     enum {
         kRunTypeSentinel = 0x7FFFFFFF
     };
-    
+
     SkRegion();
     SkRegion(const SkRegion&);
     explicit SkRegion(const SkIRect&);
@@ -53,7 +53,7 @@ public:
     bool operator!=(const SkRegion& other) const {
         return !(*this == other);
     }
-    
+
     /**
      *  Replace this region with the specified region, and return true if the
      *  resulting region is non-empty.
@@ -117,7 +117,7 @@ public:
      *  @return true if the resulting region is non-empty
      */
     bool setRects(const SkIRect rects[], int count);
-    
+
     /**
      *  Set this region to the specified region, and return true if it is
      *  non-empty.
@@ -131,13 +131,13 @@ public:
      *  drawn by the path (with no antialiasing) with the specified clip.
      */
     bool setPath(const SkPath&, const SkRegion& clip);
-    
+
     /**
      *  Returns true if the specified rectangle has a non-empty intersection
      *  with this region.
      */
     bool intersects(const SkIRect&) const;
-    
+
     /**
      *  Returns true if the specified region has a non-empty intersection
      *  with this region.
@@ -185,14 +185,14 @@ public:
     bool quickContains(int32_t left, int32_t top, int32_t right,
                        int32_t bottom) const {
         SkASSERT(this->isEmpty() == fBounds.isEmpty()); // valid region
-        
+
         return left < right && top < bottom &&
                fRunHead == SkRegion_gRectRunHeadPtr &&  // this->isRect()
                /* fBounds.contains(left, top, right, bottom); */
                fBounds.fLeft <= left && fBounds.fTop <= top &&
                fBounds.fRight >= right && fBounds.fBottom >= bottom;
     }
-    
+
     /**
      *  Return true if this region is empty, or if the specified rectangle does
      *  not intersect the region. Returning false is not a guarantee that they
@@ -236,14 +236,14 @@ public:
         kReverseDifference_Op,
         kReplace_Op     //!< replace the dst region with the op region
     };
-    
+
     /**
      *  Set this region to the result of applying the Op to this region and the
      *  specified rectangle: this = (this op rect).
      *  Return true if the resulting region is non-empty.
      */
     bool op(const SkIRect& rect, Op op) { return this->op(*this, rect, op); }
-    
+
     /**
      *  Set this region to the result of applying the Op to this region and the
      *  specified rectangle: this = (this op rect).
@@ -254,7 +254,7 @@ public:
         rect.set(left, top, right, bottom);
         return this->op(*this, rect, op);
     }
-    
+
     /**
      *  Set this region to the result of applying the Op to this region and the
      *  specified region: this = (this op rgn).
@@ -387,7 +387,7 @@ private:
     friend class android::Region;    // needed for marshalling efficiently
 
     struct RunHead;
-    
+
     // allocate space for count runs
     void allocateRuns(int count);
     void allocateRuns(int count, int ySpanCount, int intervalCount);
@@ -397,21 +397,21 @@ private:
     RunHead*    fRunHead;
 
     void freeRuns();
-    
+
     /**
      *  Return the runs from this region, consing up fake runs if the region
      *  is empty or a rect. In those 2 cases, we use tmpStorage to hold the
      *  run data.
      */
     const RunType*  getRuns(RunType tmpStorage[], int* intervals) const;
-    
+
     // This is called with runs[] that do not yet have their interval-count
     // field set on each scanline. That is computed as part of this call
     // (inside ComputeRunBounds).
     bool setRuns(RunType runs[], int count);
 
     int count_runtype_values(int* itop, int* ibot) const;
-    
+
     static void BuildRectRuns(const SkIRect& bounds,
                               RunType runs[kRectRegionRuns]);
 

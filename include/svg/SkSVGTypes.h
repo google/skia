@@ -33,7 +33,7 @@ enum SkSVGTypes {
     SkSVGType_Symbol,
     SkSVGType_Text,
     SkSVGType_Tspan,
-	SkSVGType_Unknown,
+    SkSVGType_Unknown,
     SkSVGType_Use
 };
 

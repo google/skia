@@ -51,7 +51,7 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s, int x, int y,
 #ifdef PREAMBLE
     PREAMBLE(s);
 #endif
-    
+
     do {
         unsigned subX = TILEX_LOW_BITS(fx, maxX);
         unsigned x0 = TILEX_PROCF(fx, maxX);

@@ -46,7 +46,7 @@ void SkColorMatrix::setSinCos(Axis axis, SkScalar sine, SkScalar cosine) {
         0, 1,  5,  6,
     };
     const uint8_t* index = gRotateIndex + axis * 4;
-    
+
     this->setIdentity();
     fMat[index[0]] = cosine;
     fMat[index[1]] = sine;
@@ -76,14 +76,14 @@ void SkColorMatrix::setConcat(const SkColorMatrix& matA,
     if (&matA == this || &matB == this) {
         result = tmp;
     }
-    
+
     const SkScalar* a = matA.fMat;
     const SkScalar* b = matB.fMat;
 
     int index = 0;
     for (int j = 0; j < 20; j += 5) {
         for (int i = 0; i < 4; i++) {
-            result[index++] =   SkScalarMul(a[j + 0], b[i + 0]) + 
+            result[index++] =   SkScalarMul(a[j + 0], b[i + 0]) +
                                 SkScalarMul(a[j + 1], b[i + 5]) +
                                 SkScalarMul(a[j + 2], b[i + 10]) +
                                 SkScalarMul(a[j + 3], b[i + 15]);
@@ -94,7 +94,7 @@ void SkColorMatrix::setConcat(const SkColorMatrix& matA,
                             SkScalarMul(a[j + 3], b[19]) +
                             a[j + 4];
     }
-    
+
     if (fMat != result) {
         memcpy(fMat, result, sizeof(fMat));
     }
@@ -139,7 +139,7 @@ static const SkScalar kB2V = SkFloatToScalar(-0.08131f);
 
 void SkColorMatrix::setRGB2YUV() {
     memset(fMat, 0, sizeof(fMat));
-    
+
     setrow(fMat +  0, kR2Y, kG2Y, kB2Y);
     setrow(fMat +  5, kR2U, kG2U, kB2U);
     setrow(fMat + 10, kR2V, kG2V, kB2V);
@@ -153,7 +153,7 @@ static const SkScalar kU2B = SkFloatToScalar(1.772f);
 
 void SkColorMatrix::setYUV2RGB() {
     memset(fMat, 0, sizeof(fMat));
-    
+
     setrow(fMat +  0, SK_Scalar1, 0, kV2R);
     setrow(fMat +  5, SK_Scalar1, kU2G, kV2G);
     setrow(fMat + 10, SK_Scalar1, kU2B, 0);

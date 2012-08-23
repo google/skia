@@ -146,7 +146,7 @@ void GrContext::resetContext() {
 
 void GrContext::freeGpuResources() {
     this->flush();
-    
+
     fGpu->purgeResources();
 
     fAARectRenderer->reset();
@@ -275,7 +275,7 @@ static void stretchImage(void* dst,
     }
 }
 
-// The desired texture is NPOT and tiled but that isn't supported by 
+// The desired texture is NPOT and tiled but that isn't supported by
 // the current hardware. Resize the texture to be a POT
 GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
                                            const GrCacheData& cacheData,
@@ -373,7 +373,7 @@ GrTexture* GrContext::createAndLockTexture(
     GrTexture* texture = NULL;
     if (GrTexture::NeedsResizing(resourceKey)) {
         texture = this->createResizedTexture(desc, cacheData,
-                                             srcData, rowBytes, 
+                                             srcData, rowBytes,
                                              GrTexture::NeedsFiltering(resourceKey));
     } else {
         texture = fGpu->createTexture(desc, srcData, rowBytes);
@@ -416,12 +416,12 @@ GrTexture* GrContext::lockScratchTexture(const GrTextureDesc& inDesc,
         if (NULL != resource || kExact_ScratchTexMatch == match) {
             break;
         }
-        // We no longer try to reuse textures that were previously used as render targets in 
+        // We no longer try to reuse textures that were previously used as render targets in
         // situations where no RT is needed; doing otherwise can confuse the video driver and
         // cause significant performance problems in some cases.
         if (desc.fFlags & kNoStencil_GrTextureFlagBit) {
             desc.fFlags = desc.fFlags & ~kNoStencil_GrTextureFlagBit;
-        } else if (!doubledW) { 
+        } else if (!doubledW) {
             desc.fFlags = inDesc.fFlags;
             desc.fWidth *= 2;
             doubledW = true;
@@ -433,7 +433,7 @@ GrTexture* GrContext::lockScratchTexture(const GrTextureDesc& inDesc,
         } else {
             break;
         }
-        
+
     } while (true);
 
     if (NULL == resource) {
@@ -554,7 +554,7 @@ bool GrContext::supportsIndex8PixelConfig(const GrTextureParams* params,
 ////////////////////////////////////////////////////////////////////////////////
 
 const GrClipData* GrContext::getClip() const {
-    return fGpu->getClip(); 
+    return fGpu->getClip();
 }
 
 void GrContext::setClip(const GrClipData* clipData) {
@@ -649,19 +649,19 @@ static void setStrokeRectStrip(GrPoint verts[10], GrRect rect,
  * Returns true if the rects edges are integer-aligned.
  */
 static bool isIRect(const GrRect& r) {
-    return GrScalarIsInt(r.fLeft) && GrScalarIsInt(r.fTop) && 
+    return GrScalarIsInt(r.fLeft) && GrScalarIsInt(r.fTop) &&
            GrScalarIsInt(r.fRight) && GrScalarIsInt(r.fBottom);
 }
 
 static bool apply_aa_to_rect(GrDrawTarget* target,
                              const GrRect& rect,
-                             GrScalar width, 
+                             GrScalar width,
                              const GrMatrix* matrix,
                              GrMatrix* combinedMatrix,
                              GrRect* devRect,
                              bool* useVertexCoverage) {
     // we use a simple coverage ramp to do aa on axis-aligned rects
-    // we check if the rect will be axis-aligned, and the rect won't land on 
+    // we check if the rect will be axis-aligned, and the rect won't land on
     // integer coords.
 
     // we are keeping around the "tweak the alpha" trick because
@@ -692,7 +692,7 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
         return false;
     }
 
-    if (NULL != matrix && 
+    if (NULL != matrix &&
         !matrix->preservesAxisAlignment()) {
         return false;
     }
@@ -702,7 +702,7 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
         combinedMatrix->preConcat(*matrix);
         GrAssert(combinedMatrix->preservesAxisAlignment());
     }
-    
+
     combinedMatrix->mapRect(devRect, rect);
     devRect->sort();
 
@@ -745,10 +745,10 @@ void GrContext::drawRect(const GrPaint& paint,
             } else {
                 strokeSize.set(GR_Scalar1, GR_Scalar1);
             }
-            fAARectRenderer->strokeAARect(this->getGpu(), target, devRect, 
+            fAARectRenderer->strokeAARect(this->getGpu(), target, devRect,
                                          strokeSize, useVertexCoverage);
         } else {
-            fAARectRenderer->fillAARect(this->getGpu(), target, 
+            fAARectRenderer->fillAARect(this->getGpu(), target,
                                        devRect, useVertexCoverage);
         }
         return;
@@ -815,7 +815,7 @@ void GrContext::drawRect(const GrPaint& paint,
             }
             drawState->preConcatViewMatrix(m);
             drawState->preConcatSamplerMatrices(m);
- 
+
             target->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
 #else
             target->drawSimpleRect(rect, matrix);
@@ -941,7 +941,7 @@ void GrContext::drawVertices(const GrPaint& paint,
         target->setVertexSourceToArray(layout, positions, vertexCount);
     }
 
-    // we don't currently apply offscreen AA to this path. Need improved 
+    // we don't currently apply offscreen AA to this path. Need improved
     // management of GrDrawTarget's geometry to avoid copying points per-tile.
 
     if (NULL != indices) {
@@ -1182,7 +1182,7 @@ void GrContext::writeTexturePixels(GrTexture* texture,
         this->flush();
     }
 
-    fGpu->writeTexturePixels(texture, left, top, width, height, 
+    fGpu->writeTexturePixels(texture, left, top, width, height,
                              config, buffer, rowBytes);
 }
 
@@ -1244,7 +1244,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
     SK_TRACE_EVENT0("GrContext::readRenderTargetPixels");
     ASSERT_OWNED_RESOURCE(target);
 
-    if (NULL == target) { 
+    if (NULL == target) {
         target = fDrawState->getRenderTarget();
         if (NULL == target) {
             return false;
@@ -1399,7 +1399,7 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst) {
     fGpu->drawSimpleRect(rect, NULL);
 }
 
-void GrContext::writeRenderTargetPixels(GrRenderTarget* target, 
+void GrContext::writeRenderTargetPixels(GrRenderTarget* target,
                                         int left, int top, int width, int height,
                                         GrPixelConfig config,
                                         const void* buffer,
@@ -1408,7 +1408,7 @@ void GrContext::writeRenderTargetPixels(GrRenderTarget* target,
     SK_TRACE_EVENT0("GrContext::writeRenderTargetPixels");
     ASSERT_OWNED_RESOURCE(target);
 
-    if (NULL == target) { 
+    if (NULL == target) {
         target = fDrawState->getRenderTarget();
         if (NULL == target) {
             return;
@@ -1421,7 +1421,7 @@ void GrContext::writeRenderTargetPixels(GrRenderTarget* target,
     // If the RT is also a texture and we don't have to premultiply then take the texture path.
     // We expect to be at least as fast or faster since it doesn't use an intermediate texture as
     // we do below.
-    
+
 #if !GR_MAC_BUILD
     // At least some drivers on the Mac get confused when glTexImage2D is called
     // on a texture attached to an FBO. The FBO still sees the old image. TODO:
@@ -1521,7 +1521,7 @@ void GrContext::setPaint(const GrPaint& paint) {
             *fDrawState->sampler(s) = paint.getMaskSampler(i);
         }
     }
-    
+
     // disable all stages not accessible via the paint
     for (int s = GrPaint::kTotalStages; s < GrDrawState::kNumStages; ++s) {
         fDrawState->disableStage(s);
@@ -1577,7 +1577,7 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint, BufferedDraw buffer
 /*
  * This method finds a path renderer that can draw the specified path on
  * the provided target.
- * Due to its expense, the software path renderer has split out so it can 
+ * Due to its expense, the software path renderer has split out so it can
  * can be individually allowed/disallowed via the "allowSW" boolean.
  */
 GrPathRenderer* GrContext::getPathRenderer(const SkPath& path,
@@ -1586,7 +1586,7 @@ GrPathRenderer* GrContext::getPathRenderer(const SkPath& path,
                                            bool antiAlias,
                                            bool allowSW) {
     if (NULL == fPathRendererChain) {
-        fPathRendererChain = 
+        fPathRendererChain =
             SkNEW_ARGS(GrPathRendererChain,
                        (this, GrPathRendererChain::kNone_UsageFlag));
     }
@@ -1726,7 +1726,7 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
     SkRect srcRect(rect);
     scale_rect(&srcRect, 1.0f / scaleFactorX, 1.0f / scaleFactorY);
     srcRect.roundOut();
-    scale_rect(&srcRect, static_cast<float>(scaleFactorX), 
+    scale_rect(&srcRect, static_cast<float>(scaleFactorX),
                          static_cast<float>(scaleFactorY));
 
     AutoClip acs(this, srcRect);
@@ -1771,7 +1771,7 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         if (scaleFactorX > 1) {
             // Clear out a radius to the right of the srcRect to prevent the
             // X convolution from reading garbage.
-            clearRect = SkIRect::MakeXYWH(srcIRect.fRight, srcIRect.fTop, 
+            clearRect = SkIRect::MakeXYWH(srcIRect.fRight, srcIRect.fTop,
                                           radiusX, srcIRect.height());
             this->clear(&clearRect, 0x0);
         }
@@ -1788,7 +1788,7 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         if (scaleFactorY > 1 || sigmaX > 0.0f) {
             // Clear out a radius below the srcRect to prevent the Y
             // convolution from reading garbage.
-            clearRect = SkIRect::MakeXYWH(srcIRect.fLeft, srcIRect.fBottom, 
+            clearRect = SkIRect::MakeXYWH(srcIRect.fLeft, srcIRect.fBottom,
                                           srcIRect.width(), radiusY);
             this->clear(&clearRect, 0x0);
         }
@@ -1804,10 +1804,10 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
     if (scaleFactorX > 1 || scaleFactorY > 1) {
         // Clear one pixel to the right and below, to accommodate bilinear
         // upsampling.
-        clearRect = SkIRect::MakeXYWH(srcIRect.fLeft, srcIRect.fBottom, 
+        clearRect = SkIRect::MakeXYWH(srcIRect.fLeft, srcIRect.fBottom,
                                       srcIRect.width() + 1, 1);
         this->clear(&clearRect, 0x0);
-        clearRect = SkIRect::MakeXYWH(srcIRect.fRight, srcIRect.fTop, 
+        clearRect = SkIRect::MakeXYWH(srcIRect.fRight, srcIRect.fTop,
                                       1, srcIRect.height());
         this->clear(&clearRect, 0x0);
         // FIXME:  This should be mitchell, not bilinear.

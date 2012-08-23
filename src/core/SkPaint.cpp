@@ -600,7 +600,7 @@ static const SkGlyph& sk_getMetrics_utf16_next(SkGlyphCache* cache,
                                                const char** text) {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     return cache->getUnicharMetrics(SkUTF16_NextUnichar((const uint16_t**)text));
 }
 
@@ -608,7 +608,7 @@ static const SkGlyph& sk_getMetrics_utf16_prev(SkGlyphCache* cache,
                                                const char** text) {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     return cache->getUnicharMetrics(SkUTF16_PrevUnichar((const uint16_t**)text));
 }
 
@@ -627,7 +627,7 @@ static const SkGlyph& sk_getMetrics_utf32_prev(SkGlyphCache* cache,
                                                const char** text) {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     const int32_t* ptr = *(const int32_t**)text;
     SkUnichar uni = *--ptr;
     *text = (const char*)ptr;
@@ -694,7 +694,7 @@ static const SkGlyph& sk_getAdvance_utf32_next(SkGlyphCache* cache,
                                                const char** text) {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     const int32_t* ptr = *(const int32_t**)text;
     SkUnichar uni = *ptr++;
     *text = (const char*)ptr;
@@ -705,7 +705,7 @@ static const SkGlyph& sk_getAdvance_utf32_prev(SkGlyphCache* cache,
                                                const char** text) {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     const int32_t* ptr = *(const int32_t**)text;
     SkUnichar uni = *--ptr;
     *text = (const char*)ptr;
@@ -812,7 +812,7 @@ static const SkGlyph& sk_getMetrics_utf32_00(SkGlyphCache* cache,
                                     const char** text, SkFixed, SkFixed) {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     const int32_t* ptr = *(const int32_t**)text;
     SkUnichar uni = *ptr++;
     *text = (const char*)ptr;
@@ -823,7 +823,7 @@ static const SkGlyph& sk_getMetrics_utf32_xy(SkGlyphCache* cache,
                                     const char** text, SkFixed x, SkFixed y) {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     const int32_t* ptr = *(const int32_t**)text;
     SkUnichar uni = *--ptr;
     *text = (const char*)ptr;
@@ -1603,7 +1603,7 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
 #endif
     rec->setContrast(SkFloatToScalar(SK_GAMMA_CONTRAST));
     rec->fReservedAlign = 0;
-    
+
     /*  Allow the fonthost to modify our rec before we use it as a key into the
         cache. This way if we're asking for something that they will ignore,
         they can modify our rec up front, so we don't create duplicate cache
@@ -1702,13 +1702,13 @@ void SkScalerContext::PostMakeRec(const SkPaint& paint, SkScalerContext::Rec* re
         case SkMask::kA8_Format: {
             // filter down the luminance to a single component, since A8 can't
             // use per-component information
-            
+
             SkColor color = rec->getLuminanceColor();
             SkAutoMutexAcquire ama(gMaskGammaCacheMutex);
             U8CPU lum = cachedPaintLuminance(rec->getPaintGamma())->computeLuminance(color);
             // HACK: Prevents green from being pre-blended as white.
             lum -= ((255 - lum) * lum) / 255;
-            
+
             // reduce to our finite number of bits
             SkMaskGamma* maskGamma = cachedMaskGamma(rec->getContrast(),
                                                      rec->getPaintGamma(),
@@ -1780,7 +1780,7 @@ void SkPaint::descriptorProc(const SkMatrix* deviceMatrix,
     ///////////////////////////////////////////////////////////////////////////
     // Now that we're done tweaking the rec, call the PostMakeRec cleanup
     SkScalerContext::PostMakeRec(*this, &rec);
-    
+
     descSize += SkDescriptor::ComputeOverhead(entryCount);
 
     SkAutoDescriptor    ad(descSize);
@@ -1814,15 +1814,15 @@ void SkPaint::descriptorProc(const SkMatrix* deviceMatrix,
         SkAutoDescriptor    ad2(descSize);
         SkDescriptor*       desc1 = ad1.getDesc();
         SkDescriptor*       desc2 = ad2.getDesc();
-        
+
         memset(desc1, 0x00, descSize);
         memset(desc2, 0xFF, descSize);
-        
+
         desc1->init();
         desc2->init();
         desc1->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
         desc2->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
-        
+
         if (pe) {
             add_flattenable(desc1, kPathEffect_SkDescriptorTag, &peBuffer);
             add_flattenable(desc2, kPathEffect_SkDescriptorTag, &peBuffer);
@@ -1835,7 +1835,7 @@ void SkPaint::descriptorProc(const SkMatrix* deviceMatrix,
             add_flattenable(desc1, kRasterizer_SkDescriptorTag, &raBuffer);
             add_flattenable(desc2, kRasterizer_SkDescriptorTag, &raBuffer);
         }
-        
+
         SkASSERT(descSize == desc1->getLength());
         SkASSERT(descSize == desc2->getLength());
         desc1->computeChecksum();
@@ -1844,7 +1844,7 @@ void SkPaint::descriptorProc(const SkMatrix* deviceMatrix,
         SkASSERT(!memcmp(desc, desc2, descSize));
     }
 #endif
-    
+
     proc(desc, context);
 }
 
@@ -2327,7 +2327,7 @@ bool SkDrawLooper::canComputeFastBounds(const SkPaint& paint) {
 void SkDrawLooper::computeFastBounds(const SkPaint& paint, const SkRect& src,
                                      SkRect* dst) {
     SkCanvas canvas;
-    
+
     this->init(&canvas);
     for (bool firstTime = true;; firstTime = false) {
         SkPaint p(paint);

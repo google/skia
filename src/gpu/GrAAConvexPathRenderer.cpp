@@ -226,7 +226,7 @@ bool get_segments(const SkPath& path,
     // This renderer overemphasises very thin path regions. We use the distance
     // to the path from the sample to compute coverage. Every pixel intersected
     // by the path will be hit and the maximum distance is sqrt(2)/2. We don't
-    // notice that the sample may be close to a very thin area of the path and 
+    // notice that the sample may be close to a very thin area of the path and
     // thus should be very light. This is particularly egregious for degenerate
     // line paths. We detect paths that are very close to a line (zero area) and
     // draw nothing.
@@ -299,7 +299,7 @@ struct QuadVertex {
     GrScalar fD0;
     GrScalar fD1;
 };
-    
+
 void create_vertices(const SegmentArray&  segments,
                      const SkPoint& fanPt,
                      QuadVertex*    verts,
@@ -312,7 +312,7 @@ void create_vertices(const SegmentArray&  segments,
         const Segment& sega = segments[a];
         int b = (a + 1) % count;
         const Segment& segb = segments[b];
-        
+
         // FIXME: These tris are inset in the 1 unit arc around the corner
         verts[v + 0].fPos = sega.endPt();
         verts[v + 1].fPos = verts[v + 0].fPos + sega.endNorm();
@@ -326,14 +326,14 @@ void create_vertices(const SegmentArray&  segments,
         verts[v + 1].fD0 = verts[v + 1].fD1 = -SK_Scalar1;
         verts[v + 2].fD0 = verts[v + 2].fD1 = -SK_Scalar1;
         verts[v + 3].fD0 = verts[v + 3].fD1 = -SK_Scalar1;
-        
+
         idxs[i + 0] = v + 0;
         idxs[i + 1] = v + 2;
         idxs[i + 2] = v + 1;
         idxs[i + 3] = v + 0;
         idxs[i + 4] = v + 3;
         idxs[i + 5] = v + 2;
-        
+
         v += 4;
         i += 6;
 

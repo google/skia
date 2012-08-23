@@ -216,14 +216,14 @@ void SkDeque::pop_back() {
     }
 }
 
-int SkDeque::numBlocksAllocated() const { 
+int SkDeque::numBlocksAllocated() const {
     int numBlocks = 0;
 
     for (const Block* temp = fFrontBlock; temp; temp = temp->fNext) {
         ++numBlocks;
     }
 
-    return numBlocks; 
+    return numBlocks;
 }
 
 SkDeque::Block* SkDeque::allocateBlock(int allocCount) {

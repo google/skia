@@ -119,7 +119,7 @@ static void SK_BLITBWMASK_NAME(const SkBitmap& bitmap, const SkMask& srcMask, co
             } while (--height != 0);
         }
     }
-}   
+}
 
 #undef SK_BLITBWMASK_NAME
 #undef SK_BLITBWMASK_ARGS

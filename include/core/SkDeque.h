@@ -14,8 +14,8 @@
 
 /*
  * The deque class works by blindly creating memory space of a specified element
- * size. It manages the memory as a doubly linked list of blocks each of which 
- * can contain multiple elements. Pushes and pops add/remove blocks from the 
+ * size. It manages the memory as a doubly linked list of blocks each of which
+ * can contain multiple elements. Pushes and pops add/remove blocks from the
  * beginning/end of the list as necessary while each block tracks the used
  * portion of its memory.
  * One behavior to be aware of is that the pops do not immediately remove an
@@ -85,22 +85,22 @@ public:
         char*           fPos;
         size_t          fElemSize;
     };
-    
+
     // Inherit privately from Iter to prevent access to reverse iteration
     class F2BIter : private Iter {
     public:
         F2BIter() {}
 
         /**
-         * Wrap Iter's 2 parameter ctor to force initialization to the 
+         * Wrap Iter's 2 parameter ctor to force initialization to the
          * beginning of the deque
          */
         F2BIter(const SkDeque& d) : INHERITED(d, kFront_IterStart) {}
 
         using Iter::next;
 
-        /** 
-         * Wrap Iter::reset to force initialization to the beginning of the 
+        /**
+         * Wrap Iter::reset to force initialization to the beginning of the
          * deque
          */
         void reset(const SkDeque& d) {
@@ -113,7 +113,7 @@ public:
 
 private:
     // allow unit test to call numBlocksAllocated
-    friend class DequeUnitTestHelper; 
+    friend class DequeUnitTestHelper;
 
     void*   fFront;
     void*   fBack;

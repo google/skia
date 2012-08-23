@@ -20,7 +20,7 @@ SkMallocPixelRef::SkMallocPixelRef(void* storage, size_t size,
     fCTable = ctable;
     SkSafeRef(ctable);
     fOwnPixels = ownPixels;
-    
+
     this->setPreLocked(fStorage, fCTable);
 }
 

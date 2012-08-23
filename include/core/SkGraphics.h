@@ -16,7 +16,7 @@ class SK_API SkGraphics {
 public:
     /**
      *  Call this at process initialization time if your environment does not
-     *  permit static global initializers that execute code. Note that 
+     *  permit static global initializers that execute code. Note that
      *  Init() is not thread-safe.
      */
     static void Init();
@@ -38,7 +38,7 @@ public:
      *  This max can be changed by calling SetFontCacheLimit().
      */
     static size_t GetFontCacheLimit();
-    
+
     /**
      *  Specify the max number of bytes that should be used by the font cache.
      *  If the cache needs to allocate more, it will purge previous entries.
@@ -59,7 +59,7 @@ public:
      *  draws to be recreated, since they will no longer be in the cache.
      */
     static void PurgeFontCache();
-    
+
     /**
      *  Applications with command line options may pass optional state, such
      *  as cache sizes, here, for instance:
@@ -69,7 +69,7 @@ public:
      *  This format is subject to change.
      */
     static void SetFlags(const char* flags);
-    
+
     /**
      *  Return the max number of bytes that should be used by the thread-local
      *  font cache.
@@ -82,14 +82,14 @@ public:
      *  GetFontCacheLimit.
      */
     static size_t GetTLSFontCacheLimit();
-    
+
     /**
      *  Specify the max number of bytes that should be used by the thread-local
      *  font cache. If this value is 0, then this thread will use the shared
      *  global font cache.
      */
     static void SetTLSFontCacheLimit(size_t bytes);
-    
+
 private:
     /** This is automatically called by SkGraphics::Init(), and must be
         implemented by the host OS. This allows the host OS to register a callback

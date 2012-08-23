@@ -15,7 +15,7 @@
 #include "SkTDArray.h"
 
 /**
- * Maintains a single large texture whose rows store many textures of a small fixed height, 
+ * Maintains a single large texture whose rows store many textures of a small fixed height,
  * stored in rows across the x-axis such that we can safely wrap/repeat them horizontally.
  */
 class GrTextureStripAtlas {
@@ -49,20 +49,20 @@ public:
     int lockRow(const SkBitmap& data);
     void unlockRow(int row);
 
-    /** 
-     * These functions help turn an integer row index in [0, 1, 2, ... numRows] into a scalar y 
+    /**
+     * These functions help turn an integer row index in [0, 1, 2, ... numRows] into a scalar y
      * texture coordinate in [0, 1] that we can use in a shader.
      *
-     * If a regular texture access without using the atlas looks like: 
+     * If a regular texture access without using the atlas looks like:
      *
      *      texture2D(sampler, vec2(x, y))
      *
-     * Then when using the atlas we'd replace it with: 
+     * Then when using the atlas we'd replace it with:
      *
-     *       texture2D(sampler, vec2(x, yOffset + y * scaleFactor)) 
+     *       texture2D(sampler, vec2(x, yOffset + y * scaleFactor))
      *
      * Where yOffset, returned by getYOffset(), is the offset to the start of the row within the
-     * atlas and scaleFactor, returned by getVerticalScaleFactor(), is the y-scale of the row, 
+     * atlas and scaleFactor, returned by getVerticalScaleFactor(), is the y-scale of the row,
      * relative to the height of the overall atlas texture.
      */
     GrScalar getYOffset(int row) const { return SkIntToScalar(row) / fNumRows; }
@@ -76,30 +76,30 @@ private:
     // Key to indicate an atlas row without any meaningful data stored in it
     const static uint32_t kEmptyAtlasRowKey = 0xffffffff;
 
-    /** 
+    /**
      * The state of a single row in our cache, next/prev pointers allow these to be chained
      * together to represent LRU status
      */
     struct AtlasRow : public GrNoncopyable {
         AtlasRow() : fKey(kEmptyAtlasRowKey), fLocks(0), fNext(NULL), fPrev(NULL) { }
         // GenerationID of the bitmap that is represented by this row, 0xffffffff means "empty"
-        uint32_t fKey;   
+        uint32_t fKey;
         // How many times this has been locked (0 == unlocked)
-        int32_t fLocks; 
+        int32_t fLocks;
         // We maintain an LRU linked list between unlocked nodes with these pointers
         AtlasRow* fNext;
         AtlasRow* fPrev;
     };
 
-    /** 
+    /**
      * We'll only allow construction via the static GrTextureStripAtlas::GetAtlas
      */
     GrTextureStripAtlas(Desc desc);
-    
+
     void lockTexture();
     void unlockTexture();
 
-    /** 
+    /**
      * Initialize our LRU list (if one already exists, clear it and start anew)
      */
     void initLRU();
@@ -112,8 +112,8 @@ private:
     void appendLRU(AtlasRow* row);
     void removeFromLRU(AtlasRow* row);
 
-    /** 
-     * Searches the key table for a key and returns the index if found; if not found, it returns 
+    /**
+     * Searches the key table for a key and returns the index if found; if not found, it returns
      * the bitwise not of the index at which we could insert the key to maintain a sorted list.
      **/
     int searchByKey(uint32_t key);
@@ -144,7 +144,7 @@ private:
     GrTexture* fTexture;
 
     // Array of AtlasRows which store the state of all our rows. Stored in a contiguous array, in
-    // order that they appear in our texture, this means we can subtract this pointer from a row 
+    // order that they appear in our texture, this means we can subtract this pointer from a row
     // pointer to get its index in the texture, and can save storing a row number in AtlasRow.
     AtlasRow* fRows;
 

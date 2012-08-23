@@ -22,7 +22,7 @@ public:
     static void DrawNine(SkCanvas* canvas, const SkRect& dst,
                      const SkBitmap& bitmap, const SkIRect& margins,
                      const SkPaint* paint = NULL);
-    
+
     static void DrawMesh(SkCanvas* canvas, const SkRect& dst,
                          const SkBitmap& bitmap,
                          const int32_t xDivs[], int numXDivs,

@@ -55,15 +55,15 @@ public:
     void setForceAlpha(int alpha) {
         fForceAlpha = alpha;
     }
-    
+
     void setForceAA(bool aa) {
         fForceAA = aa;
     }
-    
+
     void setForceFilter(bool filter) {
         fForceFilter = filter;
     }
-    
+
     void setDither(SkTriState::State state) {
         fDither = state;
     }

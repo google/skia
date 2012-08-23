@@ -72,7 +72,7 @@ void SkRect::toQuad(SkPoint quad[4]) const {
 
 bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
     SkASSERT((pts && count > 0) || count == 0);
-    
+
     bool isFinite = true;
 
     if (count <= 0) {
@@ -126,7 +126,7 @@ bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
         this->set(l, t, r, b);
 #endif
     }
-    
+
     return isFinite;
 }
 

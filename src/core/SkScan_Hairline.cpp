@@ -71,7 +71,7 @@ void SkScan::HairLineRgn(const SkPoint& pt0, const SkPoint& pt1,
     SkFDot6 y0 = SkScalarToFDot6(pts[0].fY);
     SkFDot6 x1 = SkScalarToFDot6(pts[1].fX);
     SkFDot6 y1 = SkScalarToFDot6(pts[1].fY);
-  
+
     SkASSERT(canConvertFDot6ToFixed(x0));
     SkASSERT(canConvertFDot6ToFixed(y0));
     SkASSERT(canConvertFDot6ToFixed(x1));
@@ -171,7 +171,7 @@ void SkScan::HairRect(const SkRect& rect, const SkRasterClip& clip,
 
     int width = r.width();
     int height = r.height();
-    
+
     if ((width | height) == 0) {
         return;
     }
@@ -415,7 +415,7 @@ void SkScan::AntiHairLine(const SkPoint& p0, const SkPoint& p1,
         r.sort();
         r.roundOut(&ir);
         ir.inset(-1, -1);
-        
+
         SkAAClipBlitterWrapper wrap;
         if (!clip.quickContains(ir)) {
             wrap.init(clip, blitter);

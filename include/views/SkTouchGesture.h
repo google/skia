@@ -13,13 +13,13 @@
 
 struct SkFlingState {
     SkFlingState() : fActive(false) {}
-    
+
     bool isActive() const { return fActive; }
     void stop() { fActive = false; }
-    
+
     void reset(float sx, float sy);
     bool evaluateMatrix(SkMatrix* matrix);
-    
+
 private:
     SkPoint     fDirection;
     SkScalar    fSpeed0;

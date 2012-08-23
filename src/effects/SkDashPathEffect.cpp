@@ -96,12 +96,12 @@ public:
         if (rec->isHairlineStyle() || !src.isLine(fPts)) {
             return false;
         }
-        
+
         // can relax this in the future, if we handle square and round caps
         if (SkPaint::kButt_Cap != rec->getCap()) {
             return false;
         }
-        
+
         fTangent = fPts[1] - fPts[0];
         if (fTangent.isZero()) {
             return false;
@@ -115,13 +115,13 @@ public:
         // now estimate how many quads will be added to the path
         //     resulting segments = pathLen * intervalCount / intervalLen
         //     resulting points = 4 * segments
-    
+
         SkScalar ptCount = SkScalarMulDiv(pathLength,
                                           SkIntToScalar(intervalCount),
                                           intervalLength);
         int n = SkScalarCeilToInt(ptCount) << 2;
         dst->incReserve(n);
-        
+
         // we will take care of the stroking
         rec->setFillStyle();
         return true;
@@ -175,7 +175,7 @@ bool SkDashPathEffect::filterPath(SkPath* dst, const SkPath& src,
         SkScalar    length = meas.getLength();
         int         index = fInitialDashIndex;
         SkScalar    scale = SK_Scalar1;
-        
+
         if (fScaleToFit) {
             if (fIntervalLength >= length) {
                 scale = SkScalarDiv(length, fIntervalLength);
@@ -194,7 +194,7 @@ bool SkDashPathEffect::filterPath(SkPath* dst, const SkPath& src,
             addedSegment = false;
             if (is_even(index) && dlen > 0 && !skipFirstSegment) {
                 addedSegment = true;
-                
+
                 if (specialLine) {
                     lineRec.addSegment(distance, distance + dlen, dst);
                 } else {
@@ -251,7 +251,7 @@ SkDashPathEffect::SkDashPathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(
     fInitialDashLength = buffer.readScalar();
     fIntervalLength = buffer.readScalar();
     fScaleToFit = buffer.readBool();
-    
+
     fCount = buffer.getArrayCount();
     fIntervals = (SkScalar*)sk_malloc_throw(sizeof(SkScalar) * fCount);
     buffer.readScalarArray(fIntervals);

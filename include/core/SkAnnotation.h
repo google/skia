@@ -48,7 +48,7 @@ protected:
 private:
     SkDataSet*  fDataSet;
     uint32_t    fFlags;
-    
+
     void writeToStream(SkWStream*) const;
     void readFromStream(SkStream*);
 

@@ -69,7 +69,7 @@ protected:
                 SkPath::RawIter iter(fPath);
                 SkPath::Verb verb;
                 SkPoint      pts[4];
-                
+
                 while ((verb = iter.next(pts)) != SkPath::kDone_Verb);
             }
         } else {
@@ -77,7 +77,7 @@ protected:
                 SkPath::Iter iter(fPath, false);
                 SkPath::Verb verb;
                 SkPoint      pts[4];
-                
+
                 while ((verb = iter.next(pts)) != SkPath::kDone_Verb);
             }
         }

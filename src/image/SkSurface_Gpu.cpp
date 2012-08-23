@@ -76,7 +76,7 @@ bool SkSurface_Gpu::Valid(const SkImage::Info& info, SkColorSpace* cs,
     if (size > kMaxTotalSize) {
         return false;
     }
-    
+
     return true;
 }
 
@@ -85,7 +85,7 @@ SkSurface_Gpu::SkSurface_Gpu(const SkImage::Info& info, SkColorSpace* cs,
         : INHERITED(info.fWidth, info.fHeight) {
     bool isOpaque;
     SkBitmap::Config config = SkImageInfoToBitmapConfig(info, &isOpaque);
-    
+
     fBitmap.setConfig(config, info.fWidth, info.fHeight, rb);
     fBitmap.setPixels(pixels);
     fBitmap.setIsOpaque(isOpaque);
@@ -136,7 +136,7 @@ SkSurface* SkSurface::NewRenderTargetDirect(GrContext* ctx,
     if (NULL == ctx || NULL == target) {
         return NULL;
     }
-    
+
     return SkNEW_ARGS(SkSurface_Gpu, (ctx, target));
 }
 
@@ -148,7 +148,7 @@ SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, const SkImage::Info& info,
     if (!SkSurface_Gpu::Valid(info, cs, sampleCount)) {
         return NULL;
     }
-    
+
 //    return SkNEW_ARGS(SkSurface_Gpu, (info, cs, pr, rowBytes));
 }
 

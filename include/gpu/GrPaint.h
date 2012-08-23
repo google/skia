@@ -151,7 +151,7 @@ public:
         if (fColorMatrixEnabled) {
             memcpy(fColorMatrix, paint.fColorMatrix, sizeof(fColorMatrix));
         }
-        
+
         for (int i = 0; i < kMaxTextures; ++i) {
             if (paint.isTextureStageEnabled(i)) {
                 fTextureSamplers[i] = paint.fTextureSamplers[i];

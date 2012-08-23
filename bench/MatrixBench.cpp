@@ -344,7 +344,7 @@ class ScaleTransDoubleMatrixBench : public MatrixBench {
 
 class InvertMapRectMatrixBench : public MatrixBench {
 public:
-    InvertMapRectMatrixBench(void* param, const char* name, int flags) 
+    InvertMapRectMatrixBench(void* param, const char* name, int flags)
         : INHERITED(param, name)
         , fFlags(flags) {
         fMatrix.reset();
@@ -381,7 +381,7 @@ protected:
             fMatrix.setPerspX(fMatrix.getPerspX());
         }
         SkMatrix inv;
-        bool invertible = 
+        bool invertible =
         fMatrix.invert(&inv);
         SkASSERT(invertible);
         SkRect transformedRect;
@@ -406,37 +406,37 @@ static SkBenchmark* M2(void* p) { return new FloatConcatMatrixBench(p); }
 static SkBenchmark* M3(void* p) { return new FloatDoubleConcatMatrixBench(p); }
 static SkBenchmark* M4(void* p) { return new DoubleConcatMatrixBench(p); }
 static SkBenchmark* M5(void* p) { return new GetTypeMatrixBench(p); }
-static SkBenchmark* M6(void* p) { 
-    return new InvertMapRectMatrixBench(p, 
+static SkBenchmark* M6(void* p) {
+    return new InvertMapRectMatrixBench(p,
         "invert_maprect_identity", 0);
 }
-static SkBenchmark* M7(void* p) { 
-    return new InvertMapRectMatrixBench(p, 
-        "invert_maprect_rectstaysrect", 
+static SkBenchmark* M7(void* p) {
+    return new InvertMapRectMatrixBench(p,
+        "invert_maprect_rectstaysrect",
         InvertMapRectMatrixBench::kScale_Flag |
         InvertMapRectMatrixBench::kTranslate_Flag);
 }
 static SkBenchmark* M8(void* p) {
-    return new InvertMapRectMatrixBench(p, 
-        "invert_maprect_nonpersp", 
+    return new InvertMapRectMatrixBench(p,
+        "invert_maprect_nonpersp",
         InvertMapRectMatrixBench::kScale_Flag |
         InvertMapRectMatrixBench::kRotate_Flag |
         InvertMapRectMatrixBench::kTranslate_Flag);
 }
-static SkBenchmark* M9(void* p) { 
-    return new InvertMapRectMatrixBench(p, 
-        "invert_maprect_persp", 
+static SkBenchmark* M9(void* p) {
+    return new InvertMapRectMatrixBench(p,
+        "invert_maprect_persp",
         InvertMapRectMatrixBench::kPerspective_Flag);
 }
 static SkBenchmark* M10(void* p) {
-    return new InvertMapRectMatrixBench(p, 
+    return new InvertMapRectMatrixBench(p,
         "invert_maprect_typemask_rectstaysrect",
         InvertMapRectMatrixBench::kUncachedTypeMask_Flag |
         InvertMapRectMatrixBench::kScale_Flag |
         InvertMapRectMatrixBench::kTranslate_Flag);
 }
 static SkBenchmark* M11(void* p) {
-    return new InvertMapRectMatrixBench(p, 
+    return new InvertMapRectMatrixBench(p,
         "invert_maprect_typemask_nonpersp",
         InvertMapRectMatrixBench::kUncachedTypeMask_Flag |
         InvertMapRectMatrixBench::kScale_Flag |

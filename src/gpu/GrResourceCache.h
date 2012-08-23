@@ -186,7 +186,7 @@ public:
     /**
      *  Return the current resource cache limits.
      *
-     *  @param maxResource If non-null, returns maximum number of resources 
+     *  @param maxResource If non-null, returns maximum number of resources
      *                     that can be held in the cache.
      *  @param maxBytes    If non-null, returns maximum number of bytes of
      *                         gpu memory that can be held in the cache.
@@ -224,10 +224,10 @@ public:
     GrResource* findAndLock(const GrResourceKey&, LockType style);
 
     /**
-     *  Create a new cache entry, based on the provided key and resource, and 
+     *  Create a new cache entry, based on the provided key and resource, and
      *  return it.
      *
-     *  Ownership of the resource is transferred to the resource cache, 
+     *  Ownership of the resource is transferred to the resource cache,
      *  which will unref() it when it is purged or deleted.
      */
     void createAndLock(const GrResourceKey&, GrResource*);
@@ -235,7 +235,7 @@ public:
     /**
      *  Create a new cache entry, based on the provided key and resource.
      *
-     *  Ownership of the resource is transferred to the resource cache, 
+     *  Ownership of the resource is transferred to the resource cache,
      *  which will unref() it when it is purged or deleted.
      *
      *  Currently this entry point is only intended for textures "detached"

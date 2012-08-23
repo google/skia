@@ -134,7 +134,7 @@ struct SK_API Sk64 {
         fHi = fHi + hi + (sum < fLo);
         fLo = sum;
     }
-    
+
     /** Add the specified Sk64 to the number */
     void add(int32_t hi, uint32_t lo) {
         uint32_t sum = fLo + lo;
@@ -142,18 +142,18 @@ struct SK_API Sk64 {
         fHi = fHi + hi + (sum < fLo);
         fLo = sum;
     }
-    
+
     /** Add the specified Sk64 to the number */
     void    add(const Sk64& other) { this->add(other.fHi, other.fLo); }
-    
+
     /** Subtract the specified Sk64 from the number. (*this) = (*this) - num
     */
     void    sub(const Sk64& num);
-    
+
     /** Subtract the number from the specified Sk64. (*this) = num - (*this)
     */
     void    rsub(const Sk64& num);
-    
+
     /** Multiply the number by the specified 32 bit integer
     */
     void    mul(int32_t);
@@ -162,7 +162,7 @@ struct SK_API Sk64 {
         kTrunc_DivOption,   //!< truncate the result when calling div()
         kRound_DivOption    //!< round the result when calling div()
     };
-    
+
     /** Divide the number by the specified 32 bit integer, using the specified
         divide option (either truncate or round).
     */
@@ -205,19 +205,19 @@ struct SK_API Sk64 {
     friend bool operator!=(const Sk64& a, const Sk64& b) {
         return a.fHi != b.fHi || a.fLo != b.fLo;
     }
-    
+
     friend bool operator<(const Sk64& a, const Sk64& b) {
         return a.fHi < b.fHi || (a.fHi == b.fHi && a.fLo < b.fLo);
     }
-    
+
     friend bool operator<=(const Sk64& a, const Sk64& b) {
         return a.fHi < b.fHi || (a.fHi == b.fHi && a.fLo <= b.fLo);
     }
-    
+
     friend bool operator>(const Sk64& a, const Sk64& b) {
         return a.fHi > b.fHi || (a.fHi == b.fHi && a.fLo > b.fLo);
     }
-    
+
     friend bool operator>=(const Sk64& a, const Sk64& b) {
         return a.fHi > b.fHi || (a.fHi == b.fHi && a.fLo >= b.fLo);
     }

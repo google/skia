@@ -36,7 +36,7 @@ static SkScalar sect_with_horizontal(const SkPoint src[2], SkScalar Y) {
         double X1 = src[1].fX;
         double Y1 = src[1].fY;
         double result = X0 + ((double)Y - Y0) * (X1 - X0) / (Y1 - Y0);
-        
+
         // The computed X value might still exceed [X0..X1] due to quantum flux
         // when the doubles were added and subtracted, so we have to pin the
         // answer :(
@@ -87,7 +87,7 @@ static inline bool containsNoEmptyCheck(const SkRect& outer,
 bool SkLineClipper::IntersectLine(const SkPoint src[2], const SkRect& clip,
                                   SkPoint dst[2]) {
     SkRect bounds;
-    
+
     bounds.set(src, 2);
     if (containsNoEmptyCheck(clip, bounds)) {
         if (src != dst) {
@@ -105,7 +105,7 @@ bool SkLineClipper::IntersectLine(const SkPoint src[2], const SkRect& clip,
     }
 
     int index0, index1;
-    
+
     if (src[0].fY < src[1].fY) {
         index0 = 0;
         index1 = 1;
@@ -124,7 +124,7 @@ bool SkLineClipper::IntersectLine(const SkPoint src[2], const SkRect& clip,
     if (tmp[index1].fY > clip.fBottom) {
         tmp[index1].set(sect_with_horizontal(src, clip.fBottom), clip.fBottom);
     }
-    
+
     if (tmp[0].fX < tmp[1].fX) {
         index0 = 0;
         index1 = 1;
@@ -174,7 +174,7 @@ static bool is_between_unsorted(SkScalar value,
 //
 static void sect_with_horizontal_test_for_pin_results() {
     const SkPoint pts[] = {
-        { -540000,	-720000 },
+        { -540000,    -720000 },
         { SkFloatToScalar(-9.10000017e-05f), SkFloatToScalar(9.99999996e-13f) }
     };
     float x = sect_with_horizontal(pts, 0);
@@ -214,7 +214,7 @@ int SkLineClipper::ClipLine(const SkPoint pts[], const SkRect& clip,
     if (pts[index0].fY >= clip.fBottom) {  // we're below the clip
         return 0;
     }
-    
+
     // Chop in Y to produce a single segment, stored in tmp[0..1]
 
     SkPoint tmp[2];
@@ -259,7 +259,7 @@ int SkLineClipper::ClipLine(const SkPoint pts[], const SkRect& clip,
     } else {
         result = resultStorage;
         SkPoint* r = result;
-        
+
         if (tmp[index0].fX < clip.fLeft) {
             r->set(clip.fLeft, tmp[index0].fY);
             r += 1;

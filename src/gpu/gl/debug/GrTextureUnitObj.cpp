@@ -9,7 +9,7 @@
 #include "GrTextureUnitObj.h"
 #include "GrTextureObj.h"
 
-void GrTextureUnitObj::setTexture(GrTextureObj *texture)  { 
+void GrTextureUnitObj::setTexture(GrTextureObj *texture)  {
 
     if (fTexture) {
         GrAlwaysAssert(fTexture->getBound(this));
@@ -19,7 +19,7 @@ void GrTextureUnitObj::setTexture(GrTextureObj *texture)  {
         fTexture->unref();
     }
 
-    fTexture = texture; 
+    fTexture = texture;
 
     if (fTexture) {
         GrAlwaysAssert(!fTexture->getDeleted());

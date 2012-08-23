@@ -47,12 +47,12 @@ public:
             fName.printf("morph_%d_%s", SkScalarRound(rad), name);
         }
     }
-    
+
 protected:
     virtual const char* onGetName() {
         return fName.c_str();
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
         this->setupPaint(&paint);
@@ -69,11 +69,11 @@ protected:
                 SkMorphologyImageFilter* mf = NULL;
                 switch (fStyle) {
                 case kDilate_MT:
-                    mf = new SkDilateImageFilter(SkScalarFloorToInt(fRadius), 
+                    mf = new SkDilateImageFilter(SkScalarFloorToInt(fRadius),
                                                  SkScalarFloorToInt(fRadius));
                     break;
                 case kErode_MT:
-                    mf = new SkErodeImageFilter(SkScalarFloorToInt(fRadius), 
+                    mf = new SkErodeImageFilter(SkScalarFloorToInt(fRadius),
                                                 SkScalarFloorToInt(fRadius));
                     break;
                 }
@@ -82,7 +82,7 @@ protected:
             canvas->drawOval(r, paint);
         }
     }
-    
+
 private:
     typedef SkBenchmark INHERITED;
 };

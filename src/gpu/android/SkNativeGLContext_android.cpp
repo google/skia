@@ -22,7 +22,7 @@ SkNativeGLContext::AutoContextRestore::~AutoContextRestore() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkNativeGLContext::SkNativeGLContext() 
+SkNativeGLContext::SkNativeGLContext()
     : fContext(EGL_NO_CONTEXT)
     , fDisplay(EGL_NO_DISPLAY)
     , fSurface(EGL_NO_SURFACE) {

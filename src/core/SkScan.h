@@ -85,7 +85,7 @@ private:
     static void AntiFillPath(const SkPath&, const SkRegion& clip, SkBlitter*,
                              bool forceRLE = false);
     static void FillTriangle(const SkPoint pts[], const SkRegion*, SkBlitter*);
-    
+
     static void AntiFrameRect(const SkRect&, const SkPoint& strokeSize,
                               const SkRegion*, SkBlitter*);
     static void HairLineRgn(const SkPoint&, const SkPoint&, const SkRegion*,

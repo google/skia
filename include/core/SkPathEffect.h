@@ -42,7 +42,7 @@ public:
     bool isHairlineStyle() const {
         return kHairline_Style == this->getStyle();
     }
-    
+
     bool isFillStyle() const {
         return kFill_Style == this->getStyle();
     }
@@ -157,7 +157,7 @@ protected:
 
     // these are visible to our subclasses
     SkPathEffect* fPE0, *fPE1;
-    
+
 private:
     typedef SkPathEffect INHERITED;
 };
@@ -188,7 +188,7 @@ private:
     // illegal
     SkComposePathEffect(const SkComposePathEffect&);
     SkComposePathEffect& operator=(const SkComposePathEffect&);
-    
+
     typedef SkPairPathEffect INHERITED;
 };
 

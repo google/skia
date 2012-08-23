@@ -66,7 +66,7 @@ public:
      *  The matrix is the current matrix on the canvas.
      *
      *  Offset is the amount to translate the resulting image relative to the
-     *  src when it is drawn. 
+     *  src when it is drawn.
      *
      *  If the result image cannot be created, return false, in which case both
      *  the result and offset parameters will be ignored by the caller.
@@ -84,7 +84,7 @@ public:
      *  Returns true if the filter can be expressed a single-pass
      *  GrCustomStage, used to process this filter on the GPU, or false if
      *  not.
-     * 
+     *
      *  If stage is non-NULL, a new GrCustomStage instance is stored
      *  in it.  The caller assumes ownership of the stage, and it is up to the
      *  caller to unref it.

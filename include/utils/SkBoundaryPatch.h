@@ -49,7 +49,7 @@ private:
 class SkLineBoundary : public SkBoundary {
 public:
     SkPoint fPts[4];
-    
+
     // override
     virtual SkPoint eval(Edge, SkScalar);
 };
@@ -58,7 +58,7 @@ class SkCubicBoundary : public SkBoundary {
 public:
     // the caller sets the first 12 entries. The 13th is used by the impl.
     SkPoint fPts[13];
-    
+
     // override
     virtual SkPoint eval(Edge, SkScalar);
 };

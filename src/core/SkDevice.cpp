@@ -20,19 +20,19 @@ SK_DEFINE_INST_COUNT(SkDevice)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkDevice::SkDevice(const SkBitmap& bitmap) 
+SkDevice::SkDevice(const SkBitmap& bitmap)
     : fBitmap(bitmap)
 #ifdef SK_DEBUG
-    , fAttachedToCanvas(false) 
+    , fAttachedToCanvas(false)
 #endif
 {
     fOrigin.setZero();
     fMetaData = NULL;
 }
 
-SkDevice::SkDevice(SkBitmap::Config config, int width, int height, bool isOpaque) 
+SkDevice::SkDevice(SkBitmap::Config config, int width, int height, bool isOpaque)
 #ifdef SK_DEBUG
-    : fAttachedToCanvas(false) 
+    : fAttachedToCanvas(false)
 #endif
 {
     fOrigin.setZero();

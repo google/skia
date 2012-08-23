@@ -51,7 +51,7 @@ GrTextureStripAtlas* GrTextureStripAtlas::GetAtlas(const GrTextureStripAtlas::De
     }
 }
 
-GrTextureStripAtlas::GrTextureStripAtlas(GrTextureStripAtlas::Desc desc) 
+GrTextureStripAtlas::GrTextureStripAtlas(GrTextureStripAtlas::Desc desc)
     : fCacheID(sk_atomic_inc(&gCacheCount))
     , fLockedRows(0)
     , fDesc(desc)
@@ -88,9 +88,9 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& data) {
         ++row->fLocks;
         ++fLockedRows;
 
-        // Since all the rows are always stored in a contiguous array, we can save the memory 
+        // Since all the rows are always stored in a contiguous array, we can save the memory
         // required for storing row numbers and just compute it with some pointer arithmetic
-        rowNumber = static_cast<int>(row - fRows); 
+        rowNumber = static_cast<int>(row - fRows);
     } else {
         // ~index is the index where we will insert the new key to keep things sorted
         index = ~index;
@@ -131,7 +131,7 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& data) {
         row->fKey = key;
         row->fLocks = 1;
         fKeyTable.insert(index, 1, &row);
-        rowNumber = static_cast<int>(row - fRows); 
+        rowNumber = static_cast<int>(row - fRows);
 
         SkAutoLockPixels lock(data);
 
@@ -139,7 +139,7 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& data) {
         // that is not currently in use
         fDesc.fContext->writeTexturePixels(fTexture,
                                            0,  rowNumber * fDesc.fRowHeight,
-                                           fDesc.fWidth, fDesc.fRowHeight, 
+                                           fDesc.fWidth, fDesc.fRowHeight,
                                            SkBitmapConfig2GrPixelConfig(data.config()),
                                            data.getPixels(),
                                            data.rowBytes(),
@@ -239,7 +239,7 @@ void GrTextureStripAtlas::removeFromLRU(AtlasRow* row) {
             if (fLRUFront) {
                 fLRUFront->fPrev = NULL;
             }
-        } 
+        }
     }
     row->fNext = NULL;
     row->fPrev = NULL;
@@ -249,8 +249,8 @@ int GrTextureStripAtlas::searchByKey(uint32_t key) {
     AtlasRow target;
     target.fKey = key;
     return SkTSearch<AtlasRow, GrTextureStripAtlas::compareKeys>((const AtlasRow**)fKeyTable.begin(),
-                                                                 fKeyTable.count(), 
-                                                                 &target, 
+                                                                 fKeyTable.count(),
+                                                                 &target,
                                                                  sizeof(AtlasRow*));
 }
 

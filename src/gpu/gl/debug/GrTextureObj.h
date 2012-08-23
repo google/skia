@@ -18,7 +18,7 @@ class GrTextureObj : public GrFBBindableObj {
     GR_DEFINE_CREATOR(GrTextureObj);
 
 public:
-    GrTextureObj() 
+    GrTextureObj()
         : GrFBBindableObj() {
     }
 
@@ -26,20 +26,20 @@ public:
         GrAlwaysAssert(0 == fTextureUnitReferees.count());
     }
 
-    void setBound(GrTextureUnitObj *referee) { 
+    void setBound(GrTextureUnitObj *referee) {
         fTextureUnitReferees.append(1, &referee);
     }
 
-    void resetBound(GrTextureUnitObj *referee) { 
+    void resetBound(GrTextureUnitObj *referee) {
         int index = fTextureUnitReferees.find(referee);
         GrAlwaysAssert(0 <= index);
         fTextureUnitReferees.removeShuffle(index);
     }
-    bool getBound(GrTextureUnitObj *referee) const { 
+    bool getBound(GrTextureUnitObj *referee) const {
         int index = fTextureUnitReferees.find(referee);
         return 0 <= index;
     }
-    bool getBound() const { 
+    bool getBound() const {
         return 0 != fTextureUnitReferees.count();
     }
 
@@ -49,7 +49,7 @@ protected:
 
 private:
     // texture units that bind this texture (via "glBindTexture")
-    SkTDArray<GrTextureUnitObj *> fTextureUnitReferees;   
+    SkTDArray<GrTextureUnitObj *> fTextureUnitReferees;
 
     typedef GrFBBindableObj INHERITED;
 };

@@ -54,7 +54,7 @@ public:
 
     void    addMenu(SkOSMenu*);
     const SkTDArray<SkOSMenu*>* getMenus() { return &fMenus; }
-    
+
     const char* getTitle() const { return fTitle.c_str(); }
     void    setTitle(const char title[]);
 
@@ -93,7 +93,7 @@ private:
 
     SkView* fFocusView;
     bool    fWaitingOnInval;
-    
+
     SkString    fTitle;
     SkMatrix    fMatrix;
 

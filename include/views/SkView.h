@@ -82,9 +82,9 @@ public:
     void        getLocalBounds(SkRect* bounds) const;
 
     /** Loc - the view's offset with respect to its parent in its view hiearchy.
-        NOTE: For more complex transforms, use Local Matrix. The tranformations 
+        NOTE: For more complex transforms, use Local Matrix. The tranformations
         are applied in the following order:
-             canvas->translate(fLoc.fX, fLoc.fY);		
+             canvas->translate(fLoc.fX, fLoc.fY);
              canvas->concat(fMatrix);
     */
     /** Return the view's left edge */
@@ -96,13 +96,13 @@ public:
     void        setLoc(const SkPoint& loc) { this->setLoc(loc.fX, loc.fY); }
     void        setLocX(SkScalar x) { this->setLoc(x, fLoc.fY); }
     void        setLocY(SkScalar y) { this->setLoc(fLoc.fX, y); }
-    
-    /** Local Matrix - matrix used to tranform the view with respect to its 
-        parent in its view hiearchy. Use setLocalMatrix to apply matrix 
+
+    /** Local Matrix - matrix used to tranform the view with respect to its
+        parent in its view hiearchy. Use setLocalMatrix to apply matrix
         transformations to the current view and in turn affect its children.
         NOTE: For simple offsets, use Loc. The transformations are applied in
         the following order:
-             canvas->translate(fLoc.fX, fLoc.fY);		
+             canvas->translate(fLoc.fX, fLoc.fY);
              canvas->concat(fMatrix);
     */
     const SkMatrix& getLocalMatrix() const { return fMatrix; }
@@ -205,7 +205,7 @@ public:
     /** Convert the specified point from global coordinates into view-local coordinates
      *  Return true on success; false on failure
      */
-    bool        globalToLocal(SkPoint* pt) const { 
+    bool        globalToLocal(SkPoint* pt) const {
         if (NULL != pt) {
             return this->globalToLocal(pt->fX, pt->fY, pt);
         }
@@ -217,7 +217,7 @@ public:
     bool        globalToLocal(SkScalar globalX, SkScalar globalY, SkPoint* local) const;
 
     /** \class F2BIter
-    
+
         Iterator that will return each of this view's children, in
         front-to-back order (the order used for clicking). The first
         call to next() returns the front-most child view. When
@@ -232,7 +232,7 @@ public:
     };
 
     /** \class B2FIter
-    
+
         Iterator that will return each of this view's children, in
         back-to-front order (the order they are drawn). The first
         call to next() returns the back-most child view. When
@@ -247,7 +247,7 @@ public:
     };
 
     /** \class Artist
-    
+
         Install a subclass of this in a view (calling setArtist()), and then the
         default implementation of that view's onDraw() will invoke this object
         automatically.
@@ -275,7 +275,7 @@ public:
     Artist* setArtist(Artist* artist);
 
     /** \class Layout
-    
+
         Install a subclass of this in a view (calling setLayout()), and then the
         default implementation of that view's onLayoutChildren() will invoke
         this object automatically.
@@ -382,7 +382,7 @@ private:
 
     friend class B2FIter;
     friend class F2BIter;
-    
+
     friend class SkLayerView;
 
     bool    setFocusView(SkView* fvOrNull);

@@ -14,41 +14,41 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // This object is used to track the OpenGL objects. We don't use real
-// reference counting (i.e., we don't free the objects when their ref count 
+// reference counting (i.e., we don't free the objects when their ref count
 // goes to 0) so that we can detect invalid memory accesses. The refs we
 // are tracking in this class are actually OpenGL's references to the objects
 // not "ours"
 // Each object also gets a unique globally identifying ID
 class GrFakeRefObj : public GrNoncopyable {
 public:
-    GrFakeRefObj() 
+    GrFakeRefObj()
         : fRef(0)
         , fHighRefCount(0)
         , fMarkedForDeletion(false)
         , fDeleted(false) {
 
         // source for globally unique IDs - 0 is reserved!
-        static int fNextID = 0;  
+        static int fNextID = 0;
 
         fID = ++fNextID;
     }
     virtual ~GrFakeRefObj() {};
 
-    void ref() { 
-        fRef++; 
+    void ref() {
+        fRef++;
         if (fHighRefCount < fRef) {
             fHighRefCount = fRef;
         }
     }
-    void unref() { 
-        fRef--; 
+    void unref() {
+        fRef--;
         GrAlwaysAssert(fRef >= 0);
 
-        // often in OpenGL a given object may still be in use when the 
+        // often in OpenGL a given object may still be in use when the
         // delete call is made. In these cases the object is marked
         // for deletion and then freed when it is no longer in use
         if (0 == fRef && fMarkedForDeletion) {
-            this->deleteAction(); 
+            this->deleteAction();
         }
     }
     int getRefCount() const             { return fRef; }

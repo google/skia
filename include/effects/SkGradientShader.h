@@ -34,7 +34,7 @@ public:
                         the the colors are distributed evenly between the start and end point.
                         If this is not null, the values must begin with 0, end with 1.0, and
                         intermediate values must be strictly increasing.
-        @param  count   Must be >=2. The number of colors (and pos if not NULL) entries. 
+        @param  count   Must be >=2. The number of colors (and pos if not NULL) entries.
         @param  mode    The tiling mode
         @param  mapper  May be NULL. Callback to modify the spread of the colors.
     */
@@ -108,7 +108,7 @@ public:
                                           const SkScalar pos[], int count,
                                           SkShader::TileMode mode,
                                           SkUnitMapper* mapper = NULL);
-    
+
     /** Returns a shader that generates a sweep gradient given a center.
         <p />
         CreateSweep returns a shader with a reference count of 1.

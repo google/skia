@@ -211,7 +211,7 @@ void SkPictureRecord::recordRestoreOffsetPlaceholder(SkRegion::Op op) {
     // The RestoreOffset field is initially filled with a placeholder
     // value that points to the offset of the previous RestoreOffset
     // in the current stack level, thus forming a linked list so that
-    // the restore offsets can be filled in when the corresponding 
+    // the restore offsets can be filled in when the corresponding
     // restore command is recorded.
     addInt(fRestoreOffsetStack.top());
     fRestoreOffsetStack.top() = offset;

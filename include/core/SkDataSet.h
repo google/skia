@@ -62,7 +62,7 @@ public:
             SkASSERT(!this->done());
             fPair += 1;
         }
-        
+
     private:
         const SkDataSet::Pair* fPair;
         const SkDataSet::Pair* fStop;

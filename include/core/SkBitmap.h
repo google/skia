@@ -169,7 +169,7 @@ public:
 
     /** Marks this bitmap as immutable, meaning that the contents of its
         pixels will not change for the lifetime of the bitmap and of the
-        underlying pixelref. This state can be set, but it cannot be 
+        underlying pixelref. This state can be set, but it cannot be
         cleared once it is set. This state propagates to all other bitmaps
         that share the same pixelref.
     */
@@ -188,11 +188,11 @@ public:
     */
     bool isVolatile() const;
 
-    /** Specify whether this bitmap is volatile. Bitmaps are not volatile by 
+    /** Specify whether this bitmap is volatile. Bitmaps are not volatile by
         default. Temporary bitmaps that are discarded after use should be
         marked as volatile. This provides a hint to the device that the bitmap
-        should not be cached. Providing this hint when appropriate can  
-        improve performance by avoiding unnecessary overhead and resource 
+        should not be cached. Providing this hint when appropriate can
+        improve performance by avoiding unnecessary overhead and resource
         consumption on the device.
     */
     void setIsVolatile(bool);
@@ -424,7 +424,7 @@ public:
      *  does not have any pixels (or has not be locked with lockPixels()).
      */
     SkColor getColor(int x, int y) const;
-    
+
     /** Returns the address of the specified pixel. This performs a runtime
         check to know the size of the pixels, and will return the same answer
         as the corresponding size-specific method (e.g. getAddr16). Since the

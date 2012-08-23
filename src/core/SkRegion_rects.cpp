@@ -15,12 +15,12 @@
 struct VEdge {
     VEdge*  fPrev;
     VEdge*  fNext;
-    
+
     SkRegion::RunType   fX;
     SkRegion::RunType   fTop;
     SkRegion::RunType   fBottom;
     int                 fWinding;
-    
+
     void removeFromList() {
         fPrev->fNext = fNext;
         fNext->fPrev = fPrev;
@@ -34,7 +34,7 @@ struct VEdge {
             // remove prev from the list
             prev->fPrev->fNext = next;
             next->fPrev = prev->fPrev;
-            
+
             // insert prev after next
             prev->fNext = next->fNext;
             next->fNext->fPrev = prev;
@@ -48,7 +48,7 @@ struct VEdge {
         edges[0].fTop = r.fTop;
         edges[0].fBottom = r.fBottom;
         edges[0].fWinding = -1;
-        
+
         edges[1].fX = r.fRight;
         edges[1].fTop = r.fTop;
         edges[1].fBottom = r.fBottom;
@@ -60,12 +60,12 @@ class Accumulator {
 public:
     Accumulator(SkRegion::RunType top, int numRects);
     ~Accumulator() {}
-    
+
     SkRegion::RunType append(SkRegion::RunType top, const VEdge* edge);
-    
+
     int count() const { return fTotalCount; }
     void copyTo(SkRegion::RunType dst[]);
-    
+
 private:
     struct Row {
         SkRegion::RunType*  fPtr;
@@ -94,7 +94,7 @@ SkRegion::RunType Accumulator::append(SkRegion::RunType currY, const VEdge* edge
     size_t size = fRectCount * 2 * sizeof(SkRegion::RunType);
     SkRegion::RunType* row = (SkRegion::RunType*)fAlloc.allocThrow(size);
     SkRegion::RunType* rowHead = row;
-    
+
     SkRegion::RunType nextY = SkRegion::kRunTypeSentinel;
     int winding = edge->fWinding;
 
@@ -123,7 +123,7 @@ SkRegion::RunType Accumulator::append(SkRegion::RunType currY, const VEdge* edge
                 *row++ = edge->fX;
                 TRACE_ROW(SkDebugf(" %d] [%d", currR, edge->fX);)
             }
-            
+
             nextY = SkMin32(nextY, edge->fBottom);
             edge = edge->fNext;
         }
@@ -132,7 +132,7 @@ SkRegion::RunType Accumulator::append(SkRegion::RunType currY, const VEdge* edge
         TRACE_ROW(SkDebugf(" %d]\n", currR);)
     }
     int rowCount = row - rowHead;
-    
+
     // now see if we have already seen this row, or if its unique
 
     Row* r = fRows.count() ? &fRows[fRows.count() - 1] : NULL;
@@ -148,15 +148,15 @@ SkRegion::RunType Accumulator::append(SkRegion::RunType currY, const VEdge* edge
             r->fCount = rowCount;
             fTotalCount += 1 + rowCount + 1;
         }
-    
+
     return nextY;
 }
 
 void Accumulator::copyTo(SkRegion::RunType dst[]) {
     SkDEBUGCODE(SkRegion::RunType* startDst = dst;)
-    
+
     *dst++ = fTop;
-    
+
     const Row* curr = fRows.begin();
     const Row* stop = fRows.end();
     while (curr < stop) {
@@ -207,7 +207,7 @@ static VEdge* sort_edges(VEdge** edgePtr, VEdge edge[], const SkIRect rects[],
             *ptr++ = edge++;
         }
     }
-    
+
     int edgeCount = ptr - edgePtr;
     if (0 == edgeCount) {
         // all the rects[] were empty
@@ -251,7 +251,7 @@ bool SkRegion::setRects(const SkIRect rects[], int rectCount) {
     headEdge.fTop = SK_MinS32;
     headEdge.fX = SK_MinS32;
     head->fPrev = &headEdge;
-    
+
     tailEdge.fPrev = tail;
     tailEdge.fNext = NULL;
     tailEdge.fTop = SK_MaxS32;
@@ -259,7 +259,7 @@ bool SkRegion::setRects(const SkIRect rects[], int rectCount) {
 
     int32_t currY = head->fTop;
     Accumulator accum(currY, rectCount);
-    
+
     while (head->fNext) {
         VEdge* edge = head;
         // accumulate the current

@@ -116,7 +116,7 @@ void SkClampRange::init(SkFixed fx0, SkFixed dx0, int count, int v0, int v1) {
         extraCount = originalCount - count;
         ex = fx + dx * count;
     }
-    
+
     bool doSwap = dx < 0;
 
     if (doSwap) {

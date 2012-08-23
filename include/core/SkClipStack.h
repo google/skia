@@ -45,21 +45,21 @@ public:
         // The bounding box contains all the pixels that cannot be written to.
         // The real bound extends out to infinity and all the pixels outside
         // of the bound can be written to. Note that some of the pixels inside
-        // the bound may also be writeable but all pixels that cannot be 
+        // the bound may also be writeable but all pixels that cannot be
         // written to are guaranteed to be inside.
         kInsideOut_BoundsType
     };
 
     /**
      * getBounds places the current finite bound in its first parameter. In its
-     * second, it indicates which kind of bound is being returned. If 
+     * second, it indicates which kind of bound is being returned. If
      * 'canvFiniteBound' is a normal bounding box then it encloses all writeable
-     * pixels. If 'canvFiniteBound' is an inside out bounding box then it 
+     * pixels. If 'canvFiniteBound' is an inside out bounding box then it
      * encloses all the un-writeable pixels and the true/normal bound is the
      * infinite plane. isIntersectionOfRects is an optional parameter
      * that is true if 'canvFiniteBound' resulted from an intersection of rects.
      */
-    void getBounds(SkRect* canvFiniteBound, 
+    void getBounds(SkRect* canvFiniteBound,
                    BoundsType* boundType,
                    bool* isIntersectionOfRects = NULL) const;
 
@@ -74,7 +74,7 @@ public:
     void clipEmpty();
 
     /**
-     * isWideOpen returns true if the clip state corresponds to the infinite 
+     * isWideOpen returns true if the clip state corresponds to the infinite
      * plane (i.e., draws are not limited at all)
      */
     bool isWideOpen() const;
@@ -82,7 +82,7 @@ public:
     /**
      * Add a callback function that will be called whenever a clip state
      * is no longer viable. This will occur whenever restore
-     * is called or when a clipDevRect or clipDevPath call updates the 
+     * is called or when a clipDevRect or clipDevPath call updates the
      * clip within an existing save/restore state. Each clip state is
      * represented by a unique generation ID.
      */
@@ -123,7 +123,7 @@ public:
         Iter(const SkClipStack& stack, IterStart startLoc);
 
         struct Clip {
-            Clip() : fRect(NULL), fPath(NULL), fOp(SkRegion::kIntersect_Op), 
+            Clip() : fRect(NULL), fPath(NULL), fOp(SkRegion::kIntersect_Op),
                      fDoAA(false) {}
             friend bool operator==(const Clip& a, const Clip& b);
             friend bool operator!=(const Clip& a, const Clip& b);
@@ -147,8 +147,8 @@ public:
         const Clip* prev();
 
         /**
-         * Moves the iterator to the topmost clip with the specified RegionOp 
-         * and returns that clip. If no clip with that op is found, 
+         * Moves the iterator to the topmost clip with the specified RegionOp
+         * and returns that clip. If no clip with that op is found,
          * returns NULL.
          */
         const Clip* skipToTopmost(SkRegion::Op op);
@@ -170,7 +170,7 @@ public:
         const Clip* updateClip(const SkClipStack::Rec* rec);
     };
 
-    /** 
+    /**
      * The B2TIter iterates from the bottom of the stack to the top.
      * It inherits privately from Iter to prevent access to reverse iteration.
      */
@@ -179,10 +179,10 @@ public:
         B2TIter() {}
 
         /**
-         * Wrap Iter's 2 parameter ctor to force initialization to the 
+         * Wrap Iter's 2 parameter ctor to force initialization to the
          * beginning of the deque/bottom of the stack
          */
-        B2TIter(const SkClipStack& stack) 
+        B2TIter(const SkClipStack& stack)
         : INHERITED(stack, kBottom_IterStart) {
         }
 
@@ -190,7 +190,7 @@ public:
         using Iter::next;
 
         /**
-         * Wrap Iter::reset to force initialization to the 
+         * Wrap Iter::reset to force initialization to the
          * beginning of the deque/bottom of the stack
          */
         void reset(const SkClipStack& stack) {
@@ -203,15 +203,15 @@ public:
     };
 
     /**
-     * GetConservativeBounds returns a conservative bound of the current clip. 
-     * Since this could be the infinite plane (if inverse fills were involved) the 
-     * maxWidth and maxHeight parameters can be used to limit the returned bound 
+     * GetConservativeBounds returns a conservative bound of the current clip.
+     * Since this could be the infinite plane (if inverse fills were involved) the
+     * maxWidth and maxHeight parameters can be used to limit the returned bound
      * to the expected drawing area. Similarly, the offsetX and offsetY parameters
-     * allow the caller to offset the returned bound to account for translated 
+     * allow the caller to offset the returned bound to account for translated
      * drawing areas (i.e., those resulting from a saveLayer). For finite bounds,
-     * the translation (+offsetX, +offsetY) is applied before the clamp to the 
+     * the translation (+offsetX, +offsetY) is applied before the clamp to the
      * maximum rectangle: [0,maxWidth) x [0,maxHeight).
-     * isIntersectionOfRects is an optional parameter that is true when 
+     * isIntersectionOfRects is an optional parameter that is true when
      * 'devBounds' is the result of an intersection of rects. In this case
      * 'devBounds' is the exact answer/clip.
      */

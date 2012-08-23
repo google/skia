@@ -17,7 +17,7 @@ class SkSVGParser;
 class SkSVGBase {
 public:
     virtual ~SkSVGBase();
-    virtual void addAttribute(SkSVGParser& parser, int attrIndex, 
+    virtual void addAttribute(SkSVGParser& parser, int attrIndex,
         const char* attrValue, size_t attrLength);
     virtual int getAttributes(const SkSVGAttribute** attrPtr) = 0;
 };

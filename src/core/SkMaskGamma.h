@@ -160,7 +160,7 @@ private:
 
 #define MacroComma ,
 SK_DEFINE_INST_COUNT_TEMPLATE(
-    template <int R_LUM_BITS MacroComma int G_LUM_BITS MacroComma int B_LUM_BITS>, 
+    template <int R_LUM_BITS MacroComma int G_LUM_BITS MacroComma int B_LUM_BITS>,
     SkTMaskGamma<R_LUM_BITS MacroComma G_LUM_BITS MacroComma B_LUM_BITS>);
 
 /**

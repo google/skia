@@ -15,7 +15,7 @@
 class ChunkAllocBench : public SkBenchmark {
     SkString    fName;
     size_t      fMinSize;
-    
+
     enum {
         N = SkBENCHLOOP(1000)
     };
@@ -24,12 +24,12 @@ public:
         fMinSize = minSize;
         fName.printf("chunkalloc_" SK_SIZE_T_SPECIFIER, minSize);
     }
-    
+
 protected:
     virtual const char* onGetName() SK_OVERRIDE {
         return fName.c_str();
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         size_t inc = fMinSize >> 4;
         SkASSERT(inc > 0);
@@ -48,7 +48,7 @@ protected:
             alloc.reset();
         }
     }
-    
+
 private:
     typedef SkBenchmark INHERITED;
 };

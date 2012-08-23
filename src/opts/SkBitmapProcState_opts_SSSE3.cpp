@@ -91,7 +91,7 @@ inline void PrepareConstantsTwoPixelPairsDXDY(const uint32_t* xy,
                                               __m128i* all_xy_result,
                                               __m128i* sixteen_minus_xy,
                                               int* xy0, int* xy1) {
-    const __m128i xy_wide = 
+    const __m128i xy_wide =
                         _mm_loadu_si128(reinterpret_cast<const __m128i *>(xy));
 
     // (x10, y10, x00, y00)
@@ -584,7 +584,7 @@ void S32_generic_D32_filter_DXDY_SSSE3(const SkBitmapProcState& s,
         SkASSERT(s.fAlphaScale == 256);
     }
 
-    const uint8_t* src_addr = 
+    const uint8_t* src_addr =
                         static_cast<const uint8_t*>(s.fBitmap->getPixels());
     const unsigned rb = s.fBitmap->rowBytes();
 
@@ -608,7 +608,7 @@ void S32_generic_D32_filter_DXDY_SSSE3(const SkBitmapProcState& s,
         int xy0[4];
         int xy1[4];
         __m128i all_xy, sixteen_minus_xy;
-        PrepareConstantsTwoPixelPairsDXDY(xy, mask_3FFF, mask_000F, 
+        PrepareConstantsTwoPixelPairsDXDY(xy, mask_3FFF, mask_000F,
                                           sixteen_8bit, mask_dist_select,
                                          &all_xy, &sixteen_minus_xy, xy0, xy1);
 
@@ -618,13 +618,13 @@ void S32_generic_D32_filter_DXDY_SSSE3(const SkBitmapProcState& s,
         __m128i all_y = _mm_unpackhi_epi8(all_xy, _mm_setzero_si128());
         __m128i neg_y = _mm_sub_epi16(_mm_set1_epi16(16), all_y);
 
-        const uint32_t* row00 = 
+        const uint32_t* row00 =
                     reinterpret_cast<const uint32_t*>(src_addr + xy0[2] * rb);
-        const uint32_t* row01 = 
-                    reinterpret_cast<const uint32_t*>(src_addr + xy1[2] * rb); 
-        const uint32_t* row10 = 
+        const uint32_t* row01 =
+                    reinterpret_cast<const uint32_t*>(src_addr + xy1[2] * rb);
+        const uint32_t* row10 =
                     reinterpret_cast<const uint32_t*>(src_addr + xy0[3] * rb);
-        const uint32_t* row11 = 
+        const uint32_t* row11 =
                     reinterpret_cast<const uint32_t*>(src_addr + xy1[3] * rb);
 
         __m128i sum0 = ProcessTwoPixelPairsDXDY<has_alpha>(
@@ -640,7 +640,7 @@ void S32_generic_D32_filter_DXDY_SSSE3(const SkBitmapProcState& s,
         xy += 4;
         colors += 2;
         count -= 2;
-    } 
+    }
 
     // Handle the remainder
     while (count-- > 0) {
@@ -649,17 +649,17 @@ void S32_generic_D32_filter_DXDY_SSSE3(const SkBitmapProcState& s,
         unsigned y1 = data & 0x3FFF;
         unsigned subY = y0 & 0xF;
         y0 >>= 4;
-        
+
         data = *xy++;
         unsigned x0 = data >> 14;
         unsigned x1 = data & 0x3FFF;
         unsigned subX = x0 & 0xF;
         x0 >>= 4;
-        
-        const uint32_t* row0 = 
+
+        const uint32_t* row0 =
                         reinterpret_cast<const uint32_t*>(src_addr + y0 * rb);
-        const uint32_t* row1 = 
-                        reinterpret_cast<const uint32_t*>(src_addr + y1 * rb); 
+        const uint32_t* row1 =
+                        reinterpret_cast<const uint32_t*>(src_addr + y1 * rb);
 
         // 16x(x)
         const __m128i all_x = _mm_set1_epi8(subX);

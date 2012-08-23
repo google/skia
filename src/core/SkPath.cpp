@@ -138,7 +138,7 @@ static bool compute_pt_bounds(SkRect* bounds, const SkTDArray<SkPoint>& pts) {
 // flag to require a moveTo if we begin with something else, like lineTo etc.
 #define INITIAL_LASTMOVETOINDEX_VALUE   ~0
 
-SkPath::SkPath() 
+SkPath::SkPath()
     : fFillType(kWinding_FillType)
     , fBoundsIsDirty(true) {
     fConvexity = kUnknown_Convexity;
@@ -265,7 +265,7 @@ bool SkPath::isEmpty() const {
 bool SkPath::isLine(SkPoint line[2]) const {
     int verbCount = fVerbs.count();
     int ptCount = fPts.count();
-    
+
     if (2 == verbCount && 2 == ptCount) {
         const uint8_t* verbs = fVerbs.begin();
         if (kMove_Verb == verbs[0] && kLine_Verb == verbs[1]) {
@@ -283,13 +283,13 @@ bool SkPath::isLine(SkPoint line[2]) const {
 /*
  Determines if path is a rect by keeping track of changes in direction
  and looking for a loop either clockwise or counterclockwise.
- 
+
  The direction is computed such that:
   0: vertical up
   1: horizontal right
   2: vertical down
   3: horizontal left
- 
+
 A rectangle cycles up/right/down/left or up/left/down/right.
 
 The test fails if:
@@ -303,11 +303,11 @@ The test fails if:
   The path contains a quadratic or cubic.
   The path contains fewer than four points.
   The final point isn't equal to the first point.
-  
+
 It's OK if the path has:
   Several colinear line segments composing a rectangle side.
   Single points on the rectangle side.
-  
+
 The direction takes advantage of the corners found since opposite sides
 must travel in opposite directions.
 
@@ -934,7 +934,7 @@ static int build_arc_points(const SkRect& oval, SkScalar startAngle,
                             SkScalar sweepAngle,
                             SkPoint pts[kSkBuildQuadArcStorage]) {
 
-    if (0 == sweepAngle && 
+    if (0 == sweepAngle &&
         (0 == startAngle || SkIntToScalar(360) == startAngle)) {
         // Chrome uses this path to move into and out of ovals. If not
         // treated as a special case the moves can distort the oval's
@@ -1926,14 +1926,14 @@ struct Convexicator {
                     SkASSERT(fPtCount > 2);
                     this->addVec(vec);
                 }
-                
+
                 int sx = sign(vec.fX);
                 int sy = sign(vec.fY);
                 fDx += (sx != fSx);
                 fDy += (sy != fSy);
                 fSx = sx;
                 fSy = sy;
-                
+
                 if (fDx > 3 || fDy > 3) {
                     fConvexity = SkPath::kConcave_Convexity;
                 }
@@ -2035,7 +2035,7 @@ private:
 ContourIter::ContourIter(const SkTDArray<uint8_t>& verbs,
                          const SkTDArray<SkPoint>& pts) {
     fStopVerbs = verbs.begin() + verbs.count();
-    
+
     fDone = false;
     fCurrPt = pts.begin();
     fCurrVerb = verbs.begin();
@@ -2291,7 +2291,7 @@ bool SkPath::cheapComputeDirection(Direction* dir) const {
                 // Its possible that we can't find two non-degenerate vectors, so
                 // we have to guard our search (e.g. all the pts could be in the
                 // same place).
-                
+
                 // we pass n - 1 instead of -1 so we don't foul up % operator by
                 // passing it a negative LH argument.
                 int prev = find_diff_pt(pts, index, n, n - 1);
@@ -2309,7 +2309,7 @@ bool SkPath::cheapComputeDirection(Direction* dir) const {
                     cross = pts[index].fX - pts[next].fX;
                 }
             }
-            
+
             if (cross) {
                 // record our best guess so far
                 ymax = pts[index].fY;
@@ -2344,12 +2344,12 @@ static bool chopMonoCubicAt(SkScalar c0, SkScalar c1, SkScalar c2, SkScalar c3,
                             SkScalar target, SkScalar* t) {
     //   SkASSERT(c0 <= c1 && c1 <= c2 && c2 <= c3);
     SkASSERT(c0 < target && target < c3);
-    
+
     SkScalar D = c0 - target;
     SkScalar A = c3 + 3*(c1 - c2) - c0;
     SkScalar B = 3*(c2 - c1 - c1 + c0);
     SkScalar C = 3*(c1 - c0);
-    
+
     const SkScalar TOLERANCE = SK_Scalar1 / 4096;
     SkScalar minT = 0;
     SkScalar maxT = SK_Scalar1;
@@ -2386,7 +2386,7 @@ template <size_t N> static void find_minmax(const SkPoint pts[],
 
 static int winding_mono_cubic(const SkPoint pts[], SkScalar x, SkScalar y) {
     SkPoint storage[4];
-    
+
     int dir = 1;
     if (pts[0].fY > pts[3].fY) {
         storage[0] = pts[3];
@@ -2399,7 +2399,7 @@ static int winding_mono_cubic(const SkPoint pts[], SkScalar x, SkScalar y) {
     if (y < pts[0].fY || y >= pts[3].fY) {
         return 0;
     }
-    
+
     // quickreject or quickaccept
     SkScalar min, max;
     find_minmax<4>(pts, &min, &max);
@@ -2409,7 +2409,7 @@ static int winding_mono_cubic(const SkPoint pts[], SkScalar x, SkScalar y) {
     if (x > max) {
         return dir;
     }
-    
+
     // compute the actual x(t) value
     SkScalar t, xt;
     if (chopMonoCubicAt(pts[0].fY, pts[1].fY, pts[2].fY, pts[3].fY, y, &t)) {
@@ -2434,7 +2434,7 @@ static int winding_cubic(const SkPoint pts[], SkScalar x, SkScalar y) {
 static int winding_mono_quad(const SkPoint pts[], SkScalar x, SkScalar y) {
     SkScalar y0 = pts[0].fY;
     SkScalar y2 = pts[2].fY;
-    
+
     int dir = 1;
     if (y0 > y2) {
         SkTSwap(y0, y2);
@@ -2443,14 +2443,14 @@ static int winding_mono_quad(const SkPoint pts[], SkScalar x, SkScalar y) {
     if (y < y0 || y >= y2) {
         return 0;
     }
-    
+
     // bounds check on X (not required. is it faster?)
 #if 0
     if (pts[0].fX > x && pts[1].fX > x && pts[2].fX > x) {
         return 0;
     }
 #endif
-    
+
     SkScalar roots[2];
     int n = SkFindUnitQuadRoots(pts[0].fY - 2 * pts[1].fY + pts[2].fY,
                                 2 * (pts[1].fY - pts[0].fY),
@@ -2488,7 +2488,7 @@ static bool is_mono_quad(SkScalar y0, SkScalar y1, SkScalar y2) {
 static int winding_quad(const SkPoint pts[], SkScalar x, SkScalar y) {
     SkPoint dst[5];
     int     n = 0;
-    
+
     if (!is_mono_quad(pts[0].fY, pts[1].fY, pts[2].fY)) {
         n = SkChopQuadAtYExtrema(pts, dst);
         pts = dst;
@@ -2505,9 +2505,9 @@ static int winding_line(const SkPoint pts[], SkScalar x, SkScalar y) {
     SkScalar y0 = pts[0].fY;
     SkScalar x1 = pts[1].fX;
     SkScalar y1 = pts[1].fY;
-    
+
     SkScalar dy = y1 - y0;
-    
+
     int dir = 1;
     if (y0 > y1) {
         SkTSwap(y0, y1);
@@ -2516,10 +2516,10 @@ static int winding_line(const SkPoint pts[], SkScalar x, SkScalar y) {
     if (y < y0 || y >= y1) {
         return 0;
     }
-    
+
     SkScalar cross = SkScalarMul(x1 - x0, y - pts[0].fY) -
     SkScalarMul(dy, x - pts[0].fX);
-    
+
     if (SkScalarSignAsInt(cross) == dir) {
         dir = 0;
     }
@@ -2531,12 +2531,12 @@ bool SkPath::contains(SkScalar x, SkScalar y) const {
     if (this->isEmpty()) {
         return isInverse;
     }
-    
+
     const SkRect& bounds = this->getBounds();
     if (!bounds.contains(x, y)) {
         return isInverse;
     }
-    
+
     SkPath::Iter iter(*this, true);
     bool done = false;
     int w = 0;
@@ -2560,7 +2560,7 @@ bool SkPath::contains(SkScalar x, SkScalar y) const {
                 break;
         }
     } while (!done);
-    
+
     switch (this->getFillType()) {
         case SkPath::kEvenOdd_FillType:
         case SkPath::kInverseEvenOdd_FillType:

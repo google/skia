@@ -11,14 +11,14 @@
 
 /*
     Filter_32_opaque
-    
+
     There is no hard-n-fast rule that the filtering must produce
     exact results for the color components, but if the 4 incoming colors are
     all opaque, then the output color must also be opaque. Subsequent parts of
     the drawing pipeline may rely on this (e.g. which blitrow proc to use).
  */
 
-static inline void Filter_32_opaque_neon(unsigned x, unsigned y, 
+static inline void Filter_32_opaque_neon(unsigned x, unsigned y,
                                          SkPMColor a00, SkPMColor a01,
                                          SkPMColor a10, SkPMColor a11,
                                          SkPMColor *dst) {
@@ -26,19 +26,19 @@ static inline void Filter_32_opaque_neon(unsigned x, unsigned y,
                  "vdup.8         d0, %[y]                \n\t"   // duplicate y into d0
                  "vmov.u8        d16, #16                \n\t"   // set up constant in d16
                  "vsub.u8        d1, d16, d0             \n\t"   // d1 = 16-y
-                 
+
                  "vdup.32        d4, %[a00]              \n\t"   // duplicate a00 into d4
                  "vdup.32        d5, %[a10]              \n\t"   // duplicate a10 into d5
                  "vmov.32        d4[1], %[a01]           \n\t"   // set top of d4 to a01
                  "vmov.32        d5[1], %[a11]           \n\t"   // set top of d5 to a11
-                 
+
                  "vmull.u8       q3, d4, d1              \n\t"   // q3 = [a01|a00] * (16-y)
                  "vmull.u8       q0, d5, d0              \n\t"   // q0 = [a11|a10] * y
-                 
+
                  "vdup.16        d5, %[x]                \n\t"   // duplicate x into d5
                  "vmov.u16       d16, #16                \n\t"   // set up constant in d16
                  "vsub.u16       d3, d16, d5             \n\t"   // d3 = 16-x
-                 
+
                  "vmul.i16       d4, d7, d5              \n\t"   // d4  = a01 * x
                  "vmla.i16       d4, d1, d5              \n\t"   // d4 += a11 * x
                  "vmla.i16       d4, d6, d3              \n\t"   // d4 += a00 * (16-x)
@@ -59,19 +59,19 @@ static inline void Filter_32_alpha_neon(unsigned x, unsigned y,
                  "vdup.8         d0, %[y]                \n\t"   // duplicate y into d0
                  "vmov.u8        d16, #16                \n\t"   // set up constant in d16
                  "vsub.u8        d1, d16, d0             \n\t"   // d1 = 16-y
-                 
+
                  "vdup.32        d4, %[a00]              \n\t"   // duplicate a00 into d4
                  "vdup.32        d5, %[a10]              \n\t"   // duplicate a10 into d5
                  "vmov.32        d4[1], %[a01]           \n\t"   // set top of d4 to a01
                  "vmov.32        d5[1], %[a11]           \n\t"   // set top of d5 to a11
-                 
+
                  "vmull.u8       q3, d4, d1              \n\t"   // q3 = [a01|a00] * (16-y)
                  "vmull.u8       q0, d5, d0              \n\t"   // q0 = [a11|a10] * y
-                 
+
                  "vdup.16        d5, %[x]                \n\t"   // duplicate x into d5
                  "vmov.u16       d16, #16                \n\t"   // set up constant in d16
                  "vsub.u16       d3, d16, d5             \n\t"   // d3 = 16-x
-                 
+
                  "vmul.i16       d4, d7, d5              \n\t"   // d4  = a01 * x
                  "vmla.i16       d4, d1, d5              \n\t"   // d4 += a11 * x
                  "vmla.i16       d4, d6, d3              \n\t"   // d4 += a00 * (16-x)

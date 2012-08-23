@@ -17,7 +17,7 @@ class GrShaderObj : public GrFakeRefObj {
     GR_DEFINE_CREATOR(GrShaderObj);
 
 public:
-    GrShaderObj() 
+    GrShaderObj()
         : GrFakeRefObj()
         , fType(GR_GL_VERTEX_SHADER)    {}
 

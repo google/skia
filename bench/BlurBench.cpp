@@ -40,12 +40,12 @@ public:
             fName.printf("blur_%d_%s", SkScalarRound(rad), name);
         }
     }
-    
+
 protected:
     virtual const char* onGetName() {
         return fName.c_str();
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
         this->setupPaint(&paint);
@@ -65,7 +65,7 @@ protected:
             canvas->drawOval(r, paint);
         }
     }
-    
+
 private:
     typedef SkBenchmark INHERITED;
 };

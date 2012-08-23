@@ -45,16 +45,16 @@ public:
         kRGBA_8888_ColorType,
         kBGRA_8888_ColorType,
         kPMColor_ColorType,
-        
+
         kLastEnum_ColorType = kPMColor_ColorType
     };
-    
+
     enum AlphaType {
         kIgnore_AlphaType,
         kOpaque_AlphaType,
         kPremul_AlphaType,
         kUnpremul_AlphaType,
-        
+
         kLastEnum_AlphaType = kUnpremul_AlphaType
     };
 
@@ -63,7 +63,7 @@ public:
         int         fHeight;
         ColorType   fColorType;
         AlphaType   fAlphaType;
-        
+
     };
 
     static SkImage* NewRasterCopy(const Info&, SkColorSpace*, const void* pixels, size_t rowBytes);

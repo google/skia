@@ -8,7 +8,7 @@
 #include "SkDither.h"
 
 /*  The base dither matrix we use to derive optimized ones for 565 and 4444
- 
+
     { 0,  32, 8,  40, 2,  34, 10, 42 },
     { 48, 16, 56, 24, 50, 18, 58, 26 },
     { 12, 44, 4,  36, 14, 46, 6,  38 },

@@ -45,7 +45,7 @@ static inline int unpack_matissa_dirty(uint32_t packed) {
 int32_t SkFloatBits_toIntCast(int32_t packed) {
     int exp = unpack_exp(packed) - EXP_BIAS;
     int value = unpack_matissa_dirty(packed) | MATISSA_MAGIC_BIG;
-    
+
     if (exp >= 0) {
         if (exp > 7) {    // overflow
             value = SK_MaxS32;
@@ -68,7 +68,7 @@ int32_t SkFloatBits_toIntFloor(int32_t packed) {
     if ((packed << 1) == 0) {
         return 0;
     }
-    
+
     int exp = unpack_exp(packed) - EXP_BIAS;
     int value = unpack_matissa_dirty(packed) | MATISSA_MAGIC_BIG;
 
@@ -98,10 +98,10 @@ int32_t SkFloatBits_toIntRound(int32_t packed) {
     if ((packed << 1) == 0) {
         return 0;
     }
-    
+
     int exp = unpack_exp(packed) - EXP_BIAS;
     int value = unpack_matissa_dirty(packed) | MATISSA_MAGIC_BIG;
-    
+
     if (exp >= 0) {
         if (exp > 7) {    // overflow
             value = SK_MaxS32;
@@ -128,10 +128,10 @@ int32_t SkFloatBits_toIntCeil(int32_t packed) {
     if ((packed << 1) == 0) {
         return 0;
     }
-    
+
     int exp = unpack_exp(packed) - EXP_BIAS;
     int value = unpack_matissa_dirty(packed) | MATISSA_MAGIC_BIG;
-    
+
     if (exp >= 0) {
         if (exp > 7) {    // overflow
             value = SK_MaxS32;
@@ -158,11 +158,11 @@ float SkIntToFloatCast(int32_t value) {
     }
 
     int shift = EXP_BIAS;
-    
+
     // record the sign and make value positive
     int sign = SkExtractSign(value);
     value = SkApplySign(value, sign);
-    
+
     if (value >> 24) {    // value is too big (has more than 24 bits set)
         int bias = 8 - SkCLZ(value);
         SkDebugf("value = %d, bias = %d\n", value, bias);
@@ -175,11 +175,11 @@ float SkIntToFloatCast(int32_t value) {
         value <<= zeros;
         shift -= zeros;
     }
-    
+
     // now value is left-aligned to 24 bits
     SkASSERT((value >> 23) == 1);
     SkASSERT(shift >= 0 && shift <= 255);
-    
+
     SkFloatIntUnion data;
     data.fSignBitInt = (sign << 31) | (shift << 23) | (value & ~MATISSA_MAGIC_BIG);
     return data.fFloat;
@@ -191,15 +191,15 @@ float SkIntToFloatCast_NoOverflowCheck(int32_t value) {
     }
 
     int shift = EXP_BIAS;
-    
+
     // record the sign and make value positive
     int sign = SkExtractSign(value);
     value = SkApplySign(value, sign);
-    
+
     int zeros = SkCLZ(value << 8);
     value <<= zeros;
     shift -= zeros;
-    
+
     SkFloatIntUnion data;
     data.fSignBitInt = (sign << 31) | (shift << 23) | (value & ~MATISSA_MAGIC_BIG);
     return data.fFloat;

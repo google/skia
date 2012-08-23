@@ -85,7 +85,7 @@ bool GrGLVertexBuffer::isLocked() const {
     if (this->isValid() && this->getGpu()->getCaps().fBufferLockSupport) {
         GrGLint mapped;
         this->bind();
-        GL_CALL(GetBufferParameteriv(GR_GL_ARRAY_BUFFER, 
+        GL_CALL(GetBufferParameteriv(GR_GL_ARRAY_BUFFER,
                                      GR_GL_BUFFER_MAPPED, &mapped));
         GrAssert(!!mapped == !!fLockPtr);
     }
@@ -112,7 +112,7 @@ bool GrGLVertexBuffer::updateData(const void* src, size_t srcSizeInBytes) {
         // draws that reference the old contents. With this hint it can
         // assign a different allocation for the new contents to avoid
         // flushing the gpu past draws consuming the old contents.
-        GL_CALL(BufferData(GR_GL_ARRAY_BUFFER, 
+        GL_CALL(BufferData(GR_GL_ARRAY_BUFFER,
                            this->sizeInBytes(), NULL, usage));
         GL_CALL(BufferSubData(GR_GL_ARRAY_BUFFER, 0, srcSizeInBytes, src));
     }

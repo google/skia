@@ -67,7 +67,7 @@
 
 /*  To assist debugging, Skia provides an instance counting utility in
     include/core/SkInstCount.h. This flag turns on and off that utility to
-    allow instance count tracking in either debug or release builds. By 
+    allow instance count tracking in either debug or release builds. By
     default it is enabled in debug but disabled in release.
  */
 //#define SK_ENABLE_INST_COUNT

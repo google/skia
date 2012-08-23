@@ -35,7 +35,7 @@ public:
         kShader_Bit     = 1 << 4,   //!< use this layer's shader
         kColorFilter_Bit = 1 << 5,  //!< use this layer's colorfilter
         kXfermode_Bit   = 1 << 6,   //!< use this layer's xfermode
-        
+
         /**
          *  Use the layer's paint entirely, with these exceptions:
          *  - We never override the draw's paint's text_encoding, since that is
@@ -44,7 +44,7 @@ public:
          *    fFlagsMask and fColorMode.
          */
         kEntirePaint_Bits = -1
-        
+
     };
     typedef int32_t BitFlags;
 
@@ -93,22 +93,22 @@ public:
      *  This layer will draw with the original paint, ad the specified offset
      */
     void addLayer(SkScalar dx, SkScalar dy);
-    
+
     /**
      *  This layer will with the original paint and no offset.
      */
     void addLayer() { this->addLayer(0, 0); }
-    
+
     // overrides from SkDrawLooper
     virtual void init(SkCanvas*);
     virtual bool next(SkCanvas*, SkPaint* paint);
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLayerDrawLooper)
-    
+
 protected:
     SkLayerDrawLooper(SkFlattenableReadBuffer&);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
-    
+
 private:
     struct Rec {
         Rec*    fNext;
@@ -129,7 +129,7 @@ private:
     public:
         MyRegistrar();
     };
-    
+
     typedef SkDrawLooper INHERITED;
 };
 

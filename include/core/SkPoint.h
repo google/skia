@@ -173,7 +173,7 @@ struct SK_API SkPoint {
         fX = SkScalarAbs(pt.fX);
         fY = SkScalarAbs(pt.fY);
     }
-    
+
     // counter-clockwise fan
     void setIRectFan(int l, int t, int r, int b) {
         SkPoint* v = this;
@@ -322,10 +322,10 @@ struct SK_API SkPoint {
         SkScalar accum = 0;
         accum *= fX;
         accum *= fY;
-        
+
         // accum is either NaN or it is finite (zero).
         SkASSERT(0 == accum || !(accum == accum));
-        
+
         // value==value will be true iff value is not NaN
         // TODO: is it faster to say !accum or accum==accum?
         return accum == accum;
@@ -431,11 +431,11 @@ struct SK_API SkPoint {
     SkScalar dot(const SkPoint& vec) const {
         return DotProduct(*this, vec);
     }
-    
+
     SkScalar lengthSqd() const {
         return DotProduct(*this, *this);
     }
-    
+
     SkScalar distanceToSqd(const SkPoint& pt) const {
         SkScalar dx = fX - pt.fX;
         SkScalar dy = fY - pt.fY;

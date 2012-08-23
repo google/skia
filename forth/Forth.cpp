@@ -101,12 +101,12 @@ void ForthWord::call(ForthCallBlock* block) {
 
 /*
     reading an initial 32bit value from the code stream:
- 
+
     xxxxxxxx xxxxxxxx xxxxxxxx xxxxxx00
- 
+
     Those last two bits are always 0 for a word, so we set those bits for other
     opcodes
- 
+
     00 -- execute this word
     01 -- push (value & ~3) on the data stack
     10 -- push value >> 2 on the data stack (sign extended)
@@ -143,7 +143,7 @@ public:
     static unsigned MakeCode(Code code) {
         return (code << kCodeShift) | kCodeShift2_Bits;
     }
-    
+
     void appendInt(int32_t);
     void appendWord(ForthWord*);
     void appendIF();
@@ -159,7 +159,7 @@ public:
         this->done();
         return fData.begin();
     }
-    
+
     static void Exec(const intptr_t*, ForthEngine*);
 
 private:

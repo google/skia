@@ -309,7 +309,7 @@ public:
      *  need to create textures. The sampler parameter is necessary to set
      *  up matrix/tile modes/etc, and will eventually be removed.
      */
-    virtual GrCustomStage* asNewCustomStage(GrContext* context, 
+    virtual GrCustomStage* asNewCustomStage(GrContext* context,
                                             GrSamplerState* sampler) const;
 
     //////////////////////////////////////////////////////////////////////////

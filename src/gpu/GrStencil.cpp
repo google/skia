@@ -233,7 +233,7 @@ GR_STATIC_CONST_SAME_STENCIL(gDiffClip,
 );
 
 bool GrStencilSettings::GetClipPasses(
-                            SkRegion::Op op, 
+                            SkRegion::Op op,
                             bool canBeDirect,
                             unsigned int stencilClipMask,
                             bool invertedFill,

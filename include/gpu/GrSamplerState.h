@@ -103,7 +103,7 @@ public:
     bool operator ==(const GrSamplerState& s) const {
         /* We must be bit-identical as far as the CustomStage;
            there may be multiple CustomStages that will produce
-           the same shader code and so are equivalent. 
+           the same shader code and so are equivalent.
            Can't take the address of fWrapX because it's :8 */
         int bitwiseRegion = (intptr_t) &fCustomStage - (intptr_t) this;
         GrAssert(sizeof(GrSamplerState) ==
@@ -157,7 +157,7 @@ public:
      *
      *  After this call M' = M*m where M is the old matrix, m is the parameter
      *  to this function, and M' is the new matrix. (We consider points to
-     *  be column vectors so tex cood vector t is transformed by matrix X as 
+     *  be column vectors so tex cood vector t is transformed by matrix X as
      *  t' = X*t.)
      *
      *  @param matrix   the matrix used to modify the matrix.

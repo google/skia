@@ -116,7 +116,7 @@ void SkPixelRef::lockPixels() {
 
 void SkPixelRef::unlockPixels() {
     SkASSERT(!fPreLocked || SKPIXELREF_PRELOCKED_LOCKCOUNT == fLockCount);
-    
+
     if (!fPreLocked) {
         SkAutoMutexAcquire  ac(*fMutex);
 

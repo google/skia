@@ -208,7 +208,7 @@ public:
     bool isVerticalText() const {
         return SkToBool(this->getFlags() & kVerticalText_Flag);
     }
-    
+
     /**
      *  Helper for setting or clearing the kVerticalText_Flag bit in
      *  setFlags(...).
@@ -583,7 +583,7 @@ public:
 
     SkImageFilter* getImageFilter() const { return fImageFilter; }
     SkImageFilter* setImageFilter(SkImageFilter*);
-    
+
     SkAnnotation* getAnnotation() const { return fAnnotation; }
     SkAnnotation* setAnnotation(SkAnnotation*);
 
@@ -787,7 +787,7 @@ public:
     /** Return the number of bytes of text that were measured. If
      *  isVerticalText() is true, then the vertical advances are used for
      *  the measurement.
-     *  
+     *
      *  @param text     The text to be measured
      *  @param length   Number of bytes of text to measure
      *  @param maxWidth Maximum width. Only the subset of text whose accumulated
@@ -826,7 +826,7 @@ public:
     void getTextPath(const void* text, size_t length, SkScalar x, SkScalar y,
                      SkPath* path) const;
 
-    void getPosTextPath(const void* text, size_t length, 
+    void getPosTextPath(const void* text, size_t length,
                         const SkPoint pos[], SkPath* path) const;
 
 #ifdef SK_BUILD_FOR_ANDROID
@@ -858,18 +858,18 @@ public:
         }
         return !this->getRasterizer();
     }
-    
+
     /** Only call this if canComputeFastBounds() returned true. This takes a
      raw rectangle (the raw bounds of a shape), and adjusts it for stylistic
      effects in the paint (e.g. stroking). If needed, it uses the storage
      rect parameter. It returns the adjusted bounds that can then be used
      for quickReject tests.
-     
+
      The returned rect will either be orig or storage, thus the caller
      should not rely on storage being set to the result, but should always
      use the retured value. It is legal for orig and storage to be the same
      rect.
-     
+
      e.g.
      if (paint.canComputeFastBounds()) {
      SkRect r, storage;
@@ -891,20 +891,20 @@ public:
                 return orig;
             }
         }
-        
+
         return this->doComputeFastBounds(orig, storage, style);
     }
-    
+
     const SkRect& computeFastStrokeBounds(const SkRect& orig,
                                           SkRect* storage) const {
         return this->doComputeFastBounds(orig, storage, kStroke_Style);
     }
-    
+
     // Take the style explicitly, so the caller can force us to be stroked
     // without having to make a copy of the paint just to change that field.
     const SkRect& doComputeFastBounds(const SkRect& orig, SkRect* storage,
                                       Style) const;
-    
+
 private:
     SkTypeface*     fTypeface;
     SkScalar        fTextSize;

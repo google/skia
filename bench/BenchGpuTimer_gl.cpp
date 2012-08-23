@@ -17,7 +17,7 @@ BenchGpuTimer::BenchGpuTimer(const SkGLContext* glctx) {
     fSupported = GrGLGetVersion(glctx->gl()) > GR_GL_VER(3,3) ||
                  GrGLHasExtension(glctx->gl(), "GL_ARB_timer_query") ||
                  GrGLHasExtension(glctx->gl(), "GL_EXT_timer_query");
-    
+
     if (fSupported) {
         SK_GL(*glctx, GenQueries(1, &fQuery));
     }
@@ -48,7 +48,7 @@ double BenchGpuTimer::endGpu() {
         fStarted = false;
         fContext->makeCurrent();
         SK_GL(*fContext, EndQuery(GR_GL_TIME_ELAPSED));
-        
+
         GrGLint available = 0;
         while (!available) {
             SK_GL(*fContext, GetQueryObjectiv(fQuery,
@@ -59,7 +59,7 @@ double BenchGpuTimer::endGpu() {
         SK_GL(*fContext, GetQueryObjectui64v(fQuery,
                                              GR_GL_QUERY_RESULT,
                                              &totalGPUTimeElapsed));
-        
+
         return totalGPUTimeElapsed / 1000000.0;
     } else {
         return 0;

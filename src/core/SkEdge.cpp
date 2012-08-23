@@ -225,7 +225,7 @@ int SkQuadraticEdge::setQuadratic(const SkPoint pts[3], int shift)
     } else if (shift > MAX_COEFF_SHIFT) {
         shift = MAX_COEFF_SHIFT;
     }
-    
+
     fWinding    = SkToS8(winding);
     //fCubicDShift only set for cubics
     fCurveCount = SkToS8(1 << shift);

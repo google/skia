@@ -29,7 +29,7 @@ public:
         Color information (e.g. color, xfermode, shader, etc.) are not required.
      */
     virtual void setupPaint(SkPaint*) const = 0;
-    
+
     /** Implementation of HB_GetFontTableFunc, using SkHarfBuzzFont* as
         the first parameter.
      */

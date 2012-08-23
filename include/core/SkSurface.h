@@ -79,13 +79,13 @@ public:
      *  0.
      */
     uint32_t generationID() const;
-    
+
     /**
      *  Call this if the contents have changed. This will (lazily) force a new
      *  value to be returned from generationID() when it is called next.
      */
     void notifyContentChanged();
-    
+
     /**
      *  Return a canvas that will draw into this surface. This will always
      *  return the same canvas for a given surface, and is manged/owned by the

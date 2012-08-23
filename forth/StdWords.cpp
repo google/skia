@@ -408,7 +408,7 @@ void ForthParser::addStdWords() {
     ADD_LITERAL_WORD("2DUP", dup2);
     ADD_LITERAL_WORD("2OVER", over2);
     ADD_LITERAL_WORD("2DROP", drop2);
-    
+
     ADD_LITERAL_WORD("+", add);
     ADD_LITERAL_WORD("-", sub);
     ADD_LITERAL_WORD("*", mul);
@@ -451,7 +451,7 @@ void ForthParser::addStdWords() {
     ADD_LITERAL_WORD("0>", gt0);
     ADD_LITERAL_WORD("0<=", le0);
     ADD_LITERAL_WORD("0>=", ge0);
-    
+
     this->add("f=", 2, new feq_ForthWord);
     this->add("f<>", 3, new fneq_ForthWord);
     this->add("f<", 2, new flt_ForthWord);

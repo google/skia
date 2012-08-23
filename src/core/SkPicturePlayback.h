@@ -35,7 +35,7 @@ struct SkPictInfo {
         kScalarIsFloat_Flag     = 1 << 1,
         kPtrIs64Bit_Flag        = 1 << 2,
     };
-    
+
     uint32_t    fVersion;
     uint32_t    fWidth;
     uint32_t    fHeight;
@@ -165,14 +165,14 @@ private:    // these help us with reading/writing
     bool parseStreamTag(SkStream*, const SkPictInfo&, uint32_t tag, size_t size);
     bool parseBufferTag(SkOrderedReadBuffer&, uint32_t tag, size_t size);
     void flattenToBuffer(SkOrderedWriteBuffer&) const;
-        
+
 private:
     SkPathHeap* fPathHeap;  // reference counted
     SkTRefArray<SkBitmap>* fBitmaps;
     SkTRefArray<SkMatrix>* fMatrices;
     SkTRefArray<SkPaint>* fPaints;
     SkTRefArray<SkRegion>* fRegions;
-    
+
     SkData* fOpData;    // opcodes and parameters
 
     SkPicture** fPictureRefs;

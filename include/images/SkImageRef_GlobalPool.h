@@ -17,7 +17,7 @@ public:
     // if pool is null, use the global pool
     SkImageRef_GlobalPool(SkStream*, SkBitmap::Config, int sampleSize = 1);
     virtual ~SkImageRef_GlobalPool();
-    
+
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkImageRef_GlobalPool)
 
     // API to control the global pool
@@ -25,15 +25,15 @@ public:
     /** Return the amount specified as the budget for the cache (in bytes).
      */
     static size_t GetRAMBudget();
-    
+
     /** Set a new budget value for the cache.
      */
     static void SetRAMBudget(size_t);
-    
+
     /** Return how much ram is currently in use by the global cache.
      */
     static size_t GetRAMUsed();
-    
+
     /** Free up (approximately) enough such that the amount used by the cache
      is <= the specified amount. Since some images may be "in use", the
      amount actually freed may not always result in a ram usage value <=
@@ -42,16 +42,16 @@ public:
      amount.
      */
     static void SetRAMUsed(size_t usageInBytes);
-    
+
     static void DumpPool();
 
 protected:
     virtual bool onDecode(SkImageDecoder* codec, SkStream* stream,
                           SkBitmap* bitmap, SkBitmap::Config config,
                           SkImageDecoder::Mode mode);
-    
+
     virtual void onUnlockPixels();
-    
+
     SkImageRef_GlobalPool(SkFlattenableReadBuffer&);
 
 private:

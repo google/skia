@@ -48,7 +48,7 @@
 
 /* Even if the user only defined the NDK variant we still need to build
  * the default Android code. Therefore, when attempting to include/exclude
- * something from the NDK variant check first that we are building for 
+ * something from the NDK variant check first that we are building for
  * Android then check the status of the NDK define.
  */
 #if defined(SK_BUILD_FOR_ANDROID_NDK) && !defined(SK_BUILD_FOR_ANDROID)

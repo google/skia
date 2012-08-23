@@ -26,14 +26,14 @@ struct TwoPtRadial {
 
     void init(const SkPoint& center0, SkScalar rad0,
               const SkPoint& center1, SkScalar rad1);
-    
+
     // used by setup and nextT
     float   fRelX, fRelY, fIncX, fIncY;
     float   fB, fDB;
-    
+
     void setup(SkScalar fx, SkScalar fy, SkScalar dfx, SkScalar dfy);
     SkFixed nextT();
-    
+
     static bool DontDrawT(SkFixed t) {
         return kDontDrawT == (uint32_t)t;
     }
@@ -50,7 +50,7 @@ public:
                               const SkColor colors[], const SkScalar pos[],
                               int colorCount, SkShader::TileMode mode,
                               SkUnitMapper* mapper);
-    
+
     virtual void shadeSpan(int x, int y, SkPMColor* dstCParam,
                            int count) SK_OVERRIDE;
     virtual bool setContext(const SkBitmap& device,
@@ -69,11 +69,11 @@ public:
     SkScalar getDiffRadius() const { return fRadius2 - fRadius1; }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTwoPointConicalGradient)
-    
+
 protected:
     SkTwoPointConicalGradient(SkFlattenableReadBuffer& buffer);
     virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE;
-    
+
 private:
     typedef SkGradientShaderBase INHERITED;
     const SkPoint fCenter1;

@@ -201,7 +201,7 @@ class GrProgramStageFactory;
  * The intepretation of the texture matrix depends on the sample mode. The
  * texture matrix is applied both when the texture coordinates are explicit
  * and  when vertex positions are used as texture  coordinates. In the latter
- * case the texture matrix is applied to the pre-view-matrix position 
+ * case the texture matrix is applied to the pre-view-matrix position
  * values.
  *
  * Normal SampleMode
@@ -212,8 +212,8 @@ class GrProgramStageFactory;
  *  (0,0) in the post-matrix space is center of the radial gradient.
  * Radial2Gradient
  *   Matrix transforms to space where first circle is centered at the
- *   origin. The second circle will be centered (x, 0) where x may be 
- *   0 and is provided by setRadial2Params. The post-matrix space is 
+ *   origin. The second circle will be centered (x, 0) where x may be
+ *   0 and is provided by setRadial2Params. The post-matrix space is
  *   normalized such that 1 is the second radius - first radius.
  * SweepGradient
  *  The angle from the origin of texture coordinates in post-matrix space
@@ -226,7 +226,7 @@ class GrProgramStageFactory;
 class GrGradientEffect : public GrCustomStage {
 public:
 
-    GrGradientEffect(GrContext* ctx, const SkGradientShaderBase& shader, 
+    GrGradientEffect(GrContext* ctx, const SkGradientShaderBase& shader,
                      GrSamplerState* sampler);
 
     virtual ~GrGradientEffect();
@@ -287,7 +287,7 @@ public:
 
     // emit code that gets a fragment's color from an expression for t; for now
     // this always uses the texture, but for simpler cases we'll be able to lerp
-    void emitColorLookup(GrGLShaderBuilder* builder, const char* t, 
+    void emitColorLookup(GrGLShaderBuilder* builder, const char* t,
                          const char* outputColor, const char* samplerName);
 
 private:

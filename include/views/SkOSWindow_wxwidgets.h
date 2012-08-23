@@ -17,19 +17,19 @@ public:
     SkOSWindow();
     SkOSWindow(const wxString& title, int x, int y, int width, int height);
     ~SkOSWindow();
-    
+
     wxFrame* getWXFrame() const { return fFrame; }
-    
+
     void updateSize();
-    
+
 protected:
     virtual void onHandleInval(const SkIRect&);
     virtual void onAddMenu(const SkOSMenu*);
-    
+
 private:
     wxFrame* fFrame;
     typedef SkWindow INHERITED;
-    
+
 };
 
 #endifpedef SkWindow INHERITED;

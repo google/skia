@@ -423,7 +423,7 @@ public:
 
         SkDELETE(fMutex);
     }
-    
+
     SkMutex*        fMutex;
     SkGlyphCache*   fHead;
     size_t          fTotalMemoryUsed;
@@ -445,7 +445,7 @@ public:
     static SkGlyphCache_Globals* FindTLS() {
         return (SkGlyphCache_Globals*)SkTLS::Find(CreateTLS);
     }
-    
+
     static SkGlyphCache_Globals& GetTLS() {
         return *(SkGlyphCache_Globals*)SkTLS::Get(CreateTLS, DeleteTLS);
     }
@@ -469,10 +469,10 @@ size_t SkGlyphCache_Globals::setFontCacheLimit(size_t newLimit) {
     if (newLimit < minLimit) {
         newLimit = minLimit;
     }
-    
+
     size_t prevLimit = fFontCacheLimit;
     fFontCacheLimit = newLimit;
-    
+
     size_t currUsed = fTotalMemoryUsed;
     if (currUsed > newLimit) {
         SkAutoMutexAcquire    ac(fMutex);
@@ -631,7 +631,7 @@ SkGlyphCache* SkGlyphCache::FindTail(SkGlyphCache* cache) {
 #ifdef SK_DEBUG
 void SkGlyphCache_Globals::validate() const {
     size_t computed = 0;
-    
+
     const SkGlyphCache* head = fHead;
     while (head != NULL) {
         computed += head->fMemoryUsed;

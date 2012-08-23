@@ -49,10 +49,10 @@ double BenchSysTimer::endWall() {
     if (0 == ::QueryPerformanceCounter(&end_wall)) {
         end_wall.QuadPart = 0;
     }
-    
+
     LARGE_INTEGER ticks_elapsed;
     ticks_elapsed.QuadPart = end_wall.QuadPart - this->fStartWall.QuadPart;
-    
+
     LARGE_INTEGER frequency;
     if (0 == ::QueryPerformanceFrequency(&frequency)) {
         return 0.0L;

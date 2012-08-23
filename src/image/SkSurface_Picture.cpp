@@ -18,17 +18,17 @@ class SkSurface_Picture : public SkSurface_Base {
 public:
     SkSurface_Picture(int width, int height);
     virtual ~SkSurface_Picture();
-    
+
     virtual SkCanvas* onNewCanvas() SK_OVERRIDE;
     virtual SkSurface* onNewSurface(const SkImage::Info&, SkColorSpace*) SK_OVERRIDE;
     virtual SkImage* onNewImageShapshot() SK_OVERRIDE;
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y,
                         const SkPaint*) SK_OVERRIDE;
-    
+
 private:
     SkPicture*  fPicture;
     SkPicture*  fRecordingPicture;
-    
+
     typedef SkSurface_Base INHERITED;
 };
 

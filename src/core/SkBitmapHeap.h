@@ -207,14 +207,14 @@ public:
      * equal to IGNORE_OWNERS.
      */
     void deferAddingOwners();
-    
+
     /**
      * Resume adding references when duplicate SkBitmaps are inserted.
      * @param add If true, add references to the SkBitmapHeapEntrys whose SkBitmaps were re-inserted
      *            while deferring.
      */
     void endAddingOwnersDeferral(bool add);
-    
+
 private:
     struct LookupEntry {
         LookupEntry(const SkBitmap& bm)

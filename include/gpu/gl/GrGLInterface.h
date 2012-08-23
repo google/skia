@@ -45,7 +45,7 @@ enum GrGLBinding {
  * whether the same GrGLInterface is returned or whether a new one is created
  * at each call. Some platforms may not be able to use a single GrGLInterface
  * because extension function ptrs vary across contexts. Note that GrGLInterface
- * is ref-counted. So if the same object is returned by multiple calls to 
+ * is ref-counted. So if the same object is returned by multiple calls to
  * GrGLDefaultInterface, each should bump the ref count.
  *
  * By defining GR_GL_PER_GL_CALL_IFACE_CALLBACK to 1 the client can specify a
@@ -60,7 +60,7 @@ const GrGLInterface* GrGLDefaultInterface();
 /**
  * Creates a GrGLInterface for a "native" GL context (e.g. WGL on windows,
  * GLX on linux, AGL on Mac). On platforms that have context-specific function
- * pointers for GL extensions (e.g. windows) the returned interface is only 
+ * pointers for GL extensions (e.g. windows) the returned interface is only
  * valid for the context that was current at creation.
  */
 const GrGLInterface* GrGLCreateNativeInterface();
@@ -86,7 +86,7 @@ const GrGLInterface* GrGLCreateANGLEInterface();
 const GrGLInterface* GrGLCreateNullInterface();
 
 /**
- * Creates a debugging GrGLInterface that doesn't draw anything. Used for 
+ * Creates a debugging GrGLInterface that doesn't draw anything. Used for
  * finding memory leaks and invalid memory accesses.
  */
 const GrGLInterface* GrGLCreateDebugInterface();
@@ -255,7 +255,7 @@ public:
     GLPtr<GrGLViewportProc> fViewport;
 
     // Experimental: Functions for GL_NV_path_rendering. These will be
-    // alphabetized with the above functions once this is fully supported 
+    // alphabetized with the above functions once this is fully supported
     // (and functions we are unlikely to use will possibly be omitted).
     GLPtr<GrGLMatrixModeProc> fMatrixMode;
     GLPtr<GrGLLoadIdentityProc> fLoadIdentity;

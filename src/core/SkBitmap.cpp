@@ -464,7 +464,7 @@ Sk64 SkBitmap::getSafeSize64() const {
     return ComputeSafeSize64(getConfig(), fWidth, fHeight, fRowBytes);
 }
 
-bool SkBitmap::copyPixelsTo(void* const dst, size_t dstSize, 
+bool SkBitmap::copyPixelsTo(void* const dst, size_t dstSize,
                             int dstRowBytes, bool preserveDstPad) const {
 
     if (dstRowBytes == -1)
@@ -512,9 +512,9 @@ bool SkBitmap::copyPixelsTo(void* const dst, size_t dstSize,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkBitmap::isImmutable() const { 
+bool SkBitmap::isImmutable() const {
     return fPixelRef ? fPixelRef->isImmutable() :
-        fFlags & kImageIsImmutable_Flag; 
+        fFlags & kImageIsImmutable_Flag;
 }
 
 void SkBitmap::setImmutable() {
@@ -907,10 +907,10 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
     if (!src->readyToDraw()) {
         return false;
     }
-    
+
     SkBitmap tmpDst;
     tmpDst.setConfig(dstConfig, src->width(), src->height());
-    
+
     // allocate colortable if srcConfig == kIndex8_Config
     SkColorTable* ctable = (dstConfig == kIndex8_Config) ?
     new SkColorTable(*src->getColorTable()) : NULL;
@@ -918,12 +918,12 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
     if (!tmpDst.allocPixels(alloc, ctable)) {
         return false;
     }
-    
+
     if (!tmpDst.readyToDraw()) {
         // allocator/lock failed
         return false;
     }
-    
+
     /* do memcpy for the same configs cases, else use drawing
     */
     if (src->config() == dstConfig) {

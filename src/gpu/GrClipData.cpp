@@ -23,7 +23,7 @@ void GrClipData::getConservativeBounds(const GrSurface* surface,
                                        bool* isIntersectionOfRects) const {
     GrRect devBounds;
 
-    fClipStack->getConservativeBounds(-fOrigin.fX, 
+    fClipStack->getConservativeBounds(-fOrigin.fX,
                                       -fOrigin.fY,
                                       surface->width(),
                                       surface->height(),
