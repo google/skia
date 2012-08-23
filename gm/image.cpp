@@ -42,11 +42,11 @@ static void drawContents(SkSurface* surface, SkColor fillC) {
     SkScalar radius = (size.fWidth - stroke) / 2;
 
     SkPaint paint;
-    
+
     paint.setAntiAlias(true);
     paint.setColor(fillC);
     canvas->drawCircle(size.fWidth/2, size.fHeight/2, radius, paint);
-    
+
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(stroke);
     paint.setColor(SK_ColorBLACK);
@@ -89,21 +89,21 @@ public:
         fBuffer = sk_malloc_throw(fBufferSize);
         fSize.set(SkIntToScalar(W), SkIntToScalar(H));
     }
-    
+
     virtual ~ImageGM() {
         sk_free(fBuffer);
     }
-        
-    
+
+
 protected:
     virtual SkString onShortName() {
         return SkString("image");
     }
-    
+
     virtual SkISize onISize() {
         return SkISize::Make(640, 480);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         drawJpeg(canvas, this->getISize());
 
@@ -129,13 +129,13 @@ protected:
         canvas->translate(80, 0);
         test_surface(canvas, surf2);
     }
-    
+
 private:
     typedef skiagm::GM INHERITED;
 };
-    
+
 //////////////////////////////////////////////////////////////////////////////
 
 static skiagm::GM* MyFactory(void*) { return new ImageGM; }
 static skiagm::GMRegistry reg(MyFactory);
-    
+

@@ -25,33 +25,33 @@ static void rnd_rect(SkRect* r, SkPaint* paint, SkRandom& rand) {
     SkScalar h = rand.nextUScalar1() * (H >> 2);
     SkScalar hoffset = rand.nextSScalar1();
     SkScalar woffset = rand.nextSScalar1();
-    
+
     r->set(x, y, x + w, y + h);
     r->offset(-w/2 + woffset, -h/2 + hoffset);
-    
+
     paint->setColor(rand.nextU());
     paint->setAlpha(0xFF);
 }
 
-    
+
 class StrokesGM : public skiagm::GM {
 public:
     StrokesGM() {}
-    
+
 protected:
     virtual SkString onShortName() {
         return SkString("strokes_round");
     }
-    
+
     virtual SkISize onISize() {
         return SkISize::Make(W, H*2);
     }
-    
-    virtual void onDraw(SkCanvas* canvas) {        
+
+    virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SkIntToScalar(9)/2);
-        
+
         for (int y = 0; y < 2; y++) {
             paint.setAntiAlias(!!y);
             SkAutoCanvasRestore acr(canvas, true);
@@ -60,7 +60,7 @@ protected:
                                               SkIntToScalar(2), SkIntToScalar(2)
                                               , SW - SkIntToScalar(2), SH - SkIntToScalar(2)
                                               ));
-            
+
             SkRandom rand;
             for (int i = 0; i < N; i++) {
                 SkRect r;
@@ -72,7 +72,7 @@ protected:
             }
         }
     }
-    
+
 private:
     typedef skiagm::GM INHERITED;
 };
@@ -89,16 +89,16 @@ public:
             fPath.lineTo(x, y);
         }
     }
-    
+
 protected:
     virtual SkString onShortName() {
         return SkString("strokes_poly");
     }
-    
+
     virtual SkISize onISize() {
         return SkISize::Make(W, H*2);
     }
-    
+
     static void rotate(SkScalar angle, SkScalar px, SkScalar py, SkCanvas* canvas) {
         SkMatrix matrix;
         matrix.setRotate(angle, px, py);
@@ -107,11 +107,11 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorWHITE);
-        
+
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SkIntToScalar(9)/2);
-        
+
         for (int y = 0; y < 2; y++) {
             paint.setAntiAlias(!!y);
             SkAutoCanvasRestore acr(canvas, true);
@@ -120,7 +120,7 @@ protected:
                                               SkIntToScalar(2),
                                               SW - SkIntToScalar(2),
                                               SH - SkIntToScalar(2)));
-            
+
             SkRandom rand;
             for (int i = 0; i < N/2; i++) {
                 SkRect r;
@@ -130,7 +130,7 @@ protected:
             }
         }
     }
-    
+
 private:
     typedef skiagm::GM INHERITED;
 };
@@ -149,25 +149,25 @@ class Strokes3GM : public skiagm::GM {
         path->addRect(inset(bounds), SkPath::kCW_Direction);
         title->set("CW CW");
     }
-    
+
     static void make1(SkPath* path, const SkRect& bounds, SkString* title) {
         path->addRect(bounds, SkPath::kCW_Direction);
         path->addRect(inset(bounds), SkPath::kCCW_Direction);
         title->set("CW CCW");
     }
-    
+
     static void make2(SkPath* path, const SkRect& bounds, SkString* title) {
         path->addOval(bounds, SkPath::kCW_Direction);
         path->addOval(inset(bounds), SkPath::kCW_Direction);
         title->set("CW CW");
     }
-    
+
     static void make3(SkPath* path, const SkRect& bounds, SkString* title) {
         path->addOval(bounds, SkPath::kCW_Direction);
         path->addOval(inset(bounds), SkPath::kCCW_Direction);
         title->set("CW CCW");
     }
-    
+
     static void make4(SkPath* path, const SkRect& bounds, SkString* title) {
         path->addRect(bounds, SkPath::kCW_Direction);
         SkRect r = bounds;
@@ -175,7 +175,7 @@ class Strokes3GM : public skiagm::GM {
         path->addOval(r, SkPath::kCW_Direction);
         title->set("CW CW");
     }
-    
+
     static void make5(SkPath* path, const SkRect& bounds, SkString* title) {
         path->addRect(bounds, SkPath::kCW_Direction);
         SkRect r = bounds;
@@ -186,16 +186,16 @@ class Strokes3GM : public skiagm::GM {
 
 public:
     Strokes3GM() {}
-    
+
 protected:
     virtual SkString onShortName() {
         return SkString("strokes3");
     }
-    
+
     virtual SkISize onISize() {
         return SkISize::Make(W, H*2);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint origPaint;
         origPaint.setAntiAlias(true);
@@ -219,7 +219,7 @@ protected:
             SkPath orig;
             SkString str;
             procs[i](&orig, bounds, &str);
-            
+
             canvas->save();
             for (int j = 0; j < 13; ++j) {
                 strokePaint.setStrokeWidth(SK_Scalar1 * j * j);
@@ -234,7 +234,7 @@ protected:
             canvas->translate(0, dy);
         }
     }
-    
+
 private:
     typedef skiagm::GM INHERITED;
 };

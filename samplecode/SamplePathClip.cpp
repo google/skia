@@ -26,15 +26,15 @@ public:
     SkRect fOval;
     SkPoint fCenter;
 
-	PathClipView() {
+    PathClipView() {
         fOval.set(0, 0, SkIntToScalar(200), SkIntToScalar(50));
         fCenter.set(SkIntToScalar(250), SkIntToScalar(250));
-        
+
 //        test_ats();
     }
-    
+
     virtual ~PathClipView() {}
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -44,14 +44,14 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         SkRect oval = fOval;
         oval.offset(fCenter.fX - oval.centerX(), fCenter.fY - oval.centerY());
-        
+
         SkPaint p;
         p.setAntiAlias(true);
-        
+
         p.setStyle(SkPaint::kStroke_Style);
         canvas->drawOval(oval, p);
 
@@ -59,11 +59,11 @@ protected:
         r.set(SkIntToScalar(200), SkIntToScalar(200),
               SkIntToScalar(300), SkIntToScalar(300));
         canvas->clipRect(r);
-        
+
         p.setStyle(SkPaint::kFill_Style);
         p.setColor(SK_ColorRED);
         canvas->drawRect(r, p);
-     
+
         p.setColor(0x800000FF);
         r.set(SkIntToScalar(150), SkIntToScalar(10),
               SkIntToScalar(250), SkIntToScalar(400));
@@ -73,13 +73,13 @@ protected:
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         return new Click(this);
     }
-        
+
     virtual bool onClick(Click* click) {
         fCenter.set(click->fCurr.fX, click->fCurr.fY);
         this->inval(NULL);
         return false;
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };

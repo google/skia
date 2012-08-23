@@ -31,7 +31,7 @@ static void make_paint(SkPaint* paint) {
     SkColor colors[] = { 0, SK_ColorWHITE };
     SkPoint pts[] = { { 0, 0 }, { 0, SK_Scalar1*20 } };
     SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode);
-    
+
     paint->setShader(s)->unref();
     paint->setXfermodeMode(SkXfermode::kDstIn_Mode);
 }
@@ -57,7 +57,7 @@ static void test_fade(SkCanvas* canvas) {
     SkAutoCanvasRestore ar(canvas, true);
 
     SkRect r;
-    
+
     SkPaint p;
     p.setAlpha(0x88);
 
@@ -67,15 +67,15 @@ static void test_fade(SkCanvas* canvas) {
 
     r.set(0, 0, SkIntToScalar(100), SkIntToScalar(100));
     canvas->clipRect(r);
-    
+
     r.fBottom = SkIntToScalar(20);
     canvas->saveLayer(&r, NULL, (SkCanvas::SaveFlags)(SkCanvas::kHasAlphaLayer_SaveFlag | SkCanvas::kFullColorLayer_SaveFlag));
 
     r.fTop = SkIntToScalar(80);
     r.fBottom = SkIntToScalar(100);
     canvas->saveLayer(&r, NULL, (SkCanvas::SaveFlags)(SkCanvas::kHasAlphaLayer_SaveFlag | SkCanvas::kFullColorLayer_SaveFlag));
-    
-    // now draw the "content" 
+
+    // now draw the "content"
 
     if (true) {
         r.set(0, 0, SkIntToScalar(100), SkIntToScalar(100));
@@ -86,19 +86,19 @@ static void test_fade(SkCanvas* canvas) {
         p.setColor(SK_ColorRED);
         p.setAntiAlias(true);
         canvas->drawOval(r, p);
-        
+
         dump_layers("inside layer alpha", canvas);
-        
+
         canvas->restore();
     } else {
         r.set(0, 0, SkIntToScalar(100), SkIntToScalar(100));
-        
+
         SkPaint p;
         p.setColor(SK_ColorRED);
         p.setAntiAlias(true);
         canvas->drawOval(r, p);
     }
-    
+
 //    return;
 
     dump_layers("outside layer alpha", canvas);
@@ -116,7 +116,7 @@ static void test_fade(SkCanvas* canvas) {
     m.setScale(SK_Scalar1, -SK_Scalar1);
     m.postTranslate(0, SkIntToScalar(100));
     s->setLocalMatrix(m);
-    
+
     r.fTop = SkIntToScalar(80);
     r.fBottom = SkIntToScalar(100);
 //    SkDebugf("--------- draw bot grad\n");
@@ -135,14 +135,14 @@ public:
     virtual void restore(SkCanvas*, SkPaint* p, SkDrawFilter::Type) {
         p->setColor(fColor);
     }
-    
+
 private:
     SkColor fColor;
 };
 
 class LayersView : public SkView {
 public:
-	LayersView() {}
+    LayersView() {}
 
 protected:
     // overrides from SkEventSink
@@ -153,18 +153,18 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorGRAY);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
-        
+
         if (true) {
             SkRect r;
-			r.set(SkIntToScalar(0), SkIntToScalar(0),
-				  SkIntToScalar(220), SkIntToScalar(120));
+            r.set(SkIntToScalar(0), SkIntToScalar(0),
+                  SkIntToScalar(220), SkIntToScalar(120));
             SkPaint p;
             canvas->saveLayer(&r, &p);
             canvas->drawColor(0xFFFF0000);
@@ -174,15 +174,15 @@ protected:
             canvas->restore();
             return;
         }
-        
+
         if (false) {
             SkRect r;
-			r.set(SkIntToScalar(0), SkIntToScalar(0),
-				  SkIntToScalar(220), SkIntToScalar(120));
+            r.set(SkIntToScalar(0), SkIntToScalar(0),
+                  SkIntToScalar(220), SkIntToScalar(120));
             SkPaint p;
             p.setAlpha(0x88);
             p.setAntiAlias(true);
-            
+
             if (true) {
                 canvas->saveLayer(&r, &p);
                 p.setColor(0xFFFF0000);
@@ -203,36 +203,36 @@ protected:
             canvas->translate(SkIntToScalar(300), 0);
 
             SkRect r;
-			r.set(SkIntToScalar(0), SkIntToScalar(0),
-				  SkIntToScalar(220), SkIntToScalar(60));
+            r.set(SkIntToScalar(0), SkIntToScalar(0),
+                  SkIntToScalar(220), SkIntToScalar(60));
 
             canvas->saveLayer(&r, &p, (SkCanvas::SaveFlags)(SkCanvas::kHasAlphaLayer_SaveFlag | SkCanvas::kFullColorLayer_SaveFlag));
 //            canvas->clipRect(r, SkRegion::kDifference_Op);
 //            canvas->clipRect(r, SkRegion::kIntersect_Op);
 
-			r.set(SkIntToScalar(0), SkIntToScalar(0),
-				  SkIntToScalar(220), SkIntToScalar(120));
+            r.set(SkIntToScalar(0), SkIntToScalar(0),
+                  SkIntToScalar(220), SkIntToScalar(120));
             p.setColor(SK_ColorBLUE);
             canvas->drawOval(r, p);
             canvas->restore();
             return;
         }
-        
+
         //canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
         test_fade(canvas);
         return;
 
     //    canvas->setDrawFilter(new RedFilter)->unref();
-        
+
         SkRect  r;
         SkPaint p;
-        
+
         canvas->translate(SkIntToScalar(220), SkIntToScalar(20));
-        
+
         p.setAntiAlias(true);
         r.set(SkIntToScalar(20), SkIntToScalar(20),
               SkIntToScalar(220), SkIntToScalar(120));
-        
+
         p.setColor(SK_ColorBLUE);
      //   p.setMaskFilter(SkBlurMaskFilter::Create(SkIntToScalar(8), SkBlurMaskFilter::kNormal_BlurStyle))->unref();
         canvas->drawRect(r, p);
@@ -244,25 +244,25 @@ protected:
 
         p.setColor(SK_ColorRED);
         canvas->drawOval(r, p);
-        
+
         p.setAlpha(0x80);
         p.setXfermodeMode(SkXfermode::kDstIn_Mode);
         canvas->drawRect(bounds, p);
 
         canvas->restore();
     }
-    
+
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         this->inval(NULL);
-        
+
         return this->INHERITED::onFindClickHandler(x, y);
     }
-    
+
     virtual bool onClick(Click* click) {
         return this->INHERITED::onClick(click);
     }
 
-	virtual bool handleKey(SkKey key) {
+    virtual bool handleKey(SkKey key) {
         this->inval(NULL);
         return true;
     }

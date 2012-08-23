@@ -12,14 +12,14 @@ namespace skiagm {
 
 class PointsGM : public GM {
 public:
-	PointsGM() {}
+    PointsGM() {}
 
 protected:
     virtual SkString onShortName() {
         return SkString("points");
     }
 
-	virtual SkISize onISize() {
+    virtual SkISize onISize() {
         return make_isize(640, 490);
     }
 

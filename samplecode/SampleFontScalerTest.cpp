@@ -40,7 +40,7 @@ class FontScalerTestView : public SampleView {
     SkTypeface* fFaces[gFaceCount];
 
 public:
-	FontScalerTestView() {
+    FontScalerTestView() {
         for (int i = 0; i < gFaceCount; i++) {
             fFaces[i] = SkTypeface::CreateFromName(gFaces[i].fName,
                                                    gFaces[i].fStyle);
@@ -77,11 +77,11 @@ protected:
         if (false) {
             SkPoint pts[4];
             pts[0].set(1.61061274e+09f, 6291456);
-            pts[1].set(SkFloatToScalar(-7.18397061e+15f), 
+            pts[1].set(SkFloatToScalar(-7.18397061e+15f),
                        SkFloatToScalar(-1.53091184e+13f));
-            pts[2].set(SkFloatToScalar(-1.30077315e+16f), 
+            pts[2].set(SkFloatToScalar(-1.30077315e+16f),
                        SkFloatToScalar(-2.77196141e+13f));
-            pts[3].set(SkFloatToScalar(-1.30077315e+16f), 
+            pts[3].set(SkFloatToScalar(-1.30077315e+16f),
                        SkFloatToScalar(-2.77196162e+13f));
 
             SkPath path;

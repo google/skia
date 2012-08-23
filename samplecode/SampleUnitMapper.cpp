@@ -69,7 +69,7 @@ public:
         }
         this->setViews();
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -79,14 +79,14 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setColor(0xFF8888FF);
 
         SkRect r = { 0, 0, SK_Scalar1, SK_Scalar1 };
-        
+
         canvas->concat(fMatrix);
         canvas->drawRect(r, paint);
 
@@ -94,7 +94,7 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(0);
         paint.setStrokeCap(SkPaint::kRound_Cap);
-        
+
         SkPath path;
         path.moveTo(fPts[0]);
         path.cubicTo(fPts[1], fPts[2], fPts[3]);
@@ -145,10 +145,10 @@ protected:
         fDragIndex = hittest(x, y);
         return fDragIndex >= 0 ? new Click(this) : NULL;
     }
-    
+
     virtual bool onClick(Click* click) {
         if (fDragIndex >= 0) {
-            if (!invertPt(click->fCurr.fX, click->fCurr.fY, 
+            if (!invertPt(click->fCurr.fX, click->fCurr.fY,
                           &fPts[fDragIndex])) {
                 return false;
             }
@@ -159,7 +159,7 @@ protected:
         }
         return false;
     }
-    
+
 private:
     int fDragIndex;
 

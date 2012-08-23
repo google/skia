@@ -39,7 +39,7 @@ static void make_bitmap(SkBitmap* bitmap, GrContext* ctx) {
         SkDevice* dev = new SkGpuDevice(ctx, SkBitmap::kARGB_8888_Config, 64, 64);
         canvas.setDevice(dev)->unref();
         *bitmap = dev->accessBitmap(false);
-    } else 
+    } else
 #endif
     {
         bitmap->setConfig(SkBitmap::kARGB_8888_Config, 64, 64);
@@ -59,10 +59,10 @@ static void make_bitmap(SkBitmap* bitmap, GrContext* ctx) {
 
 class BitmapRectView : public SampleView {
 public:
-	BitmapRectView() {
+    BitmapRectView() {
         this->setBGColor(SK_ColorGRAY);
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -72,7 +72,7 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         GrContext* ctx = SampleCode::GetGr();
 
@@ -102,11 +102,11 @@ protected:
 
             canvas->drawRect(dstR, paint);
             canvas->drawRect(srcR, paint);
-            
+
             canvas->translate(160, 0);
         }
     }
-    
+
 private:
     typedef SkView INHERITED;
 };

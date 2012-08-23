@@ -16,7 +16,7 @@ public:
     ImageBlendGM() : fInitialized(false) {
         this->setBGColor(0xFF000000);
     }
-    
+
 protected:
     virtual SkString onShortName() {
         return SkString("blend");
@@ -83,7 +83,7 @@ protected:
         paint.setImageFilter(SkNEW_ARGS(SkBlendImageFilter, (SkBlendImageFilter::kLighten_Mode, background)))->unref();
         canvas->drawSprite(fBitmap, 400, 0, &paint);
     }
-    
+
 private:
     typedef GM INHERITED;
     SkBitmap fBitmap, fCheckerboard;

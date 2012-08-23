@@ -29,7 +29,7 @@ static void create_bitmap(SkBitmap* bitmap) {
 class ExtractBitmapGM : public GM {
 public:
     ExtractBitmapGM() {}
-    
+
 protected:
     // overrides from SkEventSink
     virtual SkString onShortName() SK_OVERRIDE {
@@ -75,14 +75,14 @@ protected:
 
         // Now do the same but with a device bitmap as source image
         SkAutoTUnref<SkDevice> secondDevice(canvas->createCompatibleDevice(
-            SkBitmap::kARGB_8888_Config, bitmap.width(), 
+            SkBitmap::kARGB_8888_Config, bitmap.width(),
             bitmap.height(), true));
         SkCanvas secondCanvas(secondDevice.get());
         secondCanvas.writePixels(bitmap, 0, 0);
 
         SkBitmap deviceBitmap = secondDevice->accessBitmap(false);
         SkBitmap deviceSubset;
-        deviceBitmap.extractSubset(&deviceSubset, 
+        deviceBitmap.extractSubset(&deviceSubset,
              SkIRect::MakeXYWH(x, y, x, y));
 
         canvas->translate(SkIntToScalar(120), SkIntToScalar(0));
@@ -91,7 +91,7 @@ protected:
         canvas->drawBitmap(deviceSubset, 0, 0);
 
     }
-    
+
 private:
     typedef GM INHERITED;
 };

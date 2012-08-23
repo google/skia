@@ -51,19 +51,19 @@ static void textPathMatrix(SkCanvas* canvas) {
     SkPaint paint;
     SkPath  path;
     SkMatrix matrix;
-    
+
     path.moveTo(SkIntToScalar(050), SkIntToScalar(200));
     path.quadTo(SkIntToScalar(250), SkIntToScalar(000),
                 SkIntToScalar(450), SkIntToScalar(200));
 
     paint.setAntiAlias(true);
-    
+
     paint.setStyle(SkPaint::kStroke_Style);
     canvas->drawPath(path, paint);
     paint.setStyle(SkPaint::kFill_Style);
     paint.setTextSize(SkIntToScalar(48));
     paint.setTextAlign(SkPaint::kRight_Align);
-    
+
     const char* text = "Reflection";
     size_t      len = strlen(text);
 
@@ -71,16 +71,16 @@ static void textPathMatrix(SkCanvas* canvas) {
     SkScalar pathLen = meas.getLength();
 
     canvas->drawTextOnPath(text, len, path, NULL, paint);
-    
+
     paint.setColor(SK_ColorRED);
     matrix.setScale(-SK_Scalar1, SK_Scalar1);
     matrix.postTranslate(pathLen, 0);
     canvas->drawTextOnPath(text, len, path, &matrix, paint);
-    
+
     paint.setColor(SK_ColorBLUE);
     matrix.setScale(SK_Scalar1, -SK_Scalar1);
     canvas->drawTextOnPath(text, len, path, &matrix, paint);
-    
+
     paint.setColor(SK_ColorGREEN);
     matrix.setScale(-SK_Scalar1, -SK_Scalar1);
     matrix.postTranslate(pathLen, 0);
@@ -92,7 +92,7 @@ public:
     SkPath      fPath;
     SkScalar    fHOffset;
 
-	TextOnPathView() {
+    TextOnPathView() {
         SkRect r;
         r.set(SkIntToScalar(100), SkIntToScalar(100),
               SkIntToScalar(300), SkIntToScalar(300));
@@ -111,7 +111,7 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -139,27 +139,27 @@ protected:
         paint.setColor(SK_ColorGREEN);
         paint.setStyle(SkPaint::kStroke_Style);
         canvas->drawPath(fPath, paint);
-        
+
         canvas->translate(SkIntToScalar(275), 0);
         textStrokePath(canvas);
 
         canvas->translate(SkIntToScalar(-275), SkIntToScalar(250));
         textPathMatrix(canvas);
-        
+
         if (REPEAT_COUNT > 1)
             this->inval(NULL);
     }
-    
+
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         fHints += 1;
         this->inval(NULL);
         return this->INHERITED::onFindClickHandler(x, y);
     }
-    
+
     virtual bool onClick(Click* click) {
         return this->INHERITED::onClick(click);
     }
-    
+
 private:
     int fHints;
     typedef SampleView INHERITED;

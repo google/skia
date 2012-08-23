@@ -38,7 +38,7 @@ public:
         this->setBGColor(0xFFDDDDDD);
         fBM = make_bitmap();
     }
-    
+
 protected:
     SkString onShortName() {
         return SkString("tinybitmap");
@@ -47,7 +47,7 @@ protected:
     virtual SkISize onISize() { return make_isize(100, 100); }
 
     virtual void onDraw(SkCanvas* canvas) {
-        SkShader* s = 
+        SkShader* s =
             SkShader::CreateBitmapShader(fBM, SkShader::kRepeat_TileMode,
                                          SkShader::kMirror_TileMode);
         SkPaint paint;
@@ -55,7 +55,7 @@ protected:
         paint.setShader(s)->unref();
         canvas->drawPaint(paint);
     }
-    
+
 private:
     typedef GM INHERITED;
 };

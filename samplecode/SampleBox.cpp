@@ -11,10 +11,10 @@
 
 class SimpleView : public SampleView {
 public:
-	SimpleView() {
+    SimpleView() {
         this->setBGColor(0xFFDDDDDD);
-	}
-	
+    }
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt)  {
@@ -24,14 +24,14 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-	
+
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SkScalarHalf(SkIntToScalar(3)));
         paint.setStyle(SkPaint::kFill_Style);
-        
+
         SkRect  r;
         SkScalar x,y;
         x = 10;
@@ -44,7 +44,7 @@ protected:
             canvas->drawRect(r, paint);
         }
     }
-	
+
 private:
     typedef SampleView INHERITED;
 };

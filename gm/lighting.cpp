@@ -18,7 +18,7 @@ public:
     ImageLightingGM() : fInitialized(false) {
         this->setBGColor(0xFF000000);
     }
-    
+
 protected:
     virtual SkString onShortName() {
         return SkString("lighting");
@@ -76,7 +76,7 @@ protected:
         paint.setImageFilter(SkLightingImageFilter::CreateSpotLitSpecular(spotLocation, spotTarget, spotExponent, cutoffAngle, white, surfaceScale, ks, shininess))->unref();
         canvas->drawSprite(fBitmap, 220, 110, &paint);
     }
-    
+
 private:
     typedef GM INHERITED;
     SkBitmap fBitmap;

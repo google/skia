@@ -32,8 +32,8 @@ static void create_bitmap(SkBitmap* bitmap) {
 class WritePixelsView : public SampleView {
     SkPath fPath;
 public:
-	WritePixelsView() {}
-    
+    WritePixelsView() {}
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -43,13 +43,13 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         SkBitmap bitmap;
         create_bitmap(&bitmap);
         int x = bitmap.width() / 2;
         int y = bitmap.height() / 2;
-        
+
         SkBitmap subset;
         bitmap.extractSubset(&subset, SkIRect::MakeXYWH(x, y, x, y));
 
@@ -58,7 +58,7 @@ protected:
         canvas->writePixels(bitmap, 0, 0);
         canvas->writePixels(subset, 0, 0);
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };

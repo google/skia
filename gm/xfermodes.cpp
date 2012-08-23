@@ -62,7 +62,7 @@ class XfermodesGM : public GM {
             scratchBitmap.setPixels(localData);
             scratchBitmap.setIsOpaque(true);
             scratchBitmap.copyTo(&fBG, SkBitmap::kARGB_4444_Config);
-            
+
             make_bitmaps(W, H, &fSrcB, &fDstB);
             fOnce = true;
         }

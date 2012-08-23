@@ -87,9 +87,9 @@ protected:
     SkString onShortName() {
         return SkString("drawbitmaprect");
     }
-    
+
     SkISize onISize() { return make_isize(gSize, gSize); }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         static const int kBmpSize = 2048;
         if (fLargeBitmap.isNull()) {

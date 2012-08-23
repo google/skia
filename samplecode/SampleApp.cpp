@@ -1093,7 +1093,7 @@ void SampleWindow::draw(SkCanvas* canvas) {
     } else {
         const SkScalar cw = SkScalarDiv(this->width(), SkIntToScalar(fTileCount.width()));
         const SkScalar ch = SkScalarDiv(this->height(), SkIntToScalar(fTileCount.height()));
-        
+
         for (int y = 0; y < fTileCount.height(); ++y) {
             for (int x = 0; x < fTileCount.width(); ++x) {
                 SkAutoCanvasRestore acr(canvas, true);
@@ -1101,7 +1101,7 @@ void SampleWindow::draw(SkCanvas* canvas) {
                 this->INHERITED::draw(canvas);
             }
         }
-        
+
         if (!fTileCount.equals(1, 1)) {
             SkPaint paint;
             paint.setColor(0x60FF00FF);

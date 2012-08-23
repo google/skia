@@ -19,14 +19,14 @@
 class FillTypeView : public SampleView {
     SkPath fPath;
 public:
-	FillTypeView() {
+    FillTypeView() {
         const SkScalar radius = SkIntToScalar(45);
         fPath.addCircle(SkIntToScalar(50), SkIntToScalar(50), radius);
         fPath.addCircle(SkIntToScalar(100), SkIntToScalar(100), radius);
 
         this->setBGColor(0xFFDDDDDD);
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -36,7 +36,7 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void showPath(SkCanvas* canvas, int x, int y, SkPath::FillType ft,
                   SkScalar scale, const SkPaint& paint) {
 
@@ -53,7 +53,7 @@ protected:
         canvas->drawPath(fPath, paint);
         canvas->restore();
     }
-    
+
     void showFour(SkCanvas* canvas, SkScalar scale, const SkPaint& paint) {
         showPath(canvas,   0,   0, SkPath::kWinding_FillType,
                  scale, paint);
@@ -64,10 +64,10 @@ protected:
         showPath(canvas, 200, 200, SkPath::kInverseEvenOdd_FillType,
                  scale, paint);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
-        
+
         SkPaint paint;
         const SkScalar scale = SkIntToScalar(5)/4;
 
@@ -85,7 +85,7 @@ protected:
         canvas->translate(SkIntToScalar(450), 0);
         showFour(canvas, scale, paint);
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };

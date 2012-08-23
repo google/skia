@@ -25,7 +25,7 @@ public:
     static bool TitleQ(const SkEvent&);
     static void TitleR(SkEvent*, const char title[]);
     static bool RequestTitle(SkView* view, SkString* title);
-    
+
     static bool PrefSizeQ(const SkEvent&);
     static void PrefSizeR(SkEvent*, SkScalar width, SkScalar height);
 
@@ -47,7 +47,7 @@ public:
 
 // interface that constructs SkViews
 class SkViewFactory : public SkRefCnt {
-public:    
+public:
     virtual SkView* operator() () const = 0;
 };
 
@@ -58,7 +58,7 @@ class SkFuncViewFactory : public SkViewFactory {
 public:
     SkFuncViewFactory(SkViewCreateFunc func);
     virtual SkView* operator() () const SK_OVERRIDE;
-    
+
 private:
     SkViewCreateFunc fCreateFunc;
 };
@@ -70,7 +70,7 @@ class GM;
 // factory function that creates a skiagm::GM
 typedef skiagm::GM* (*GMFactoryFunc)(void*);
 
-// Takes a GM factory function and implements the SkViewFactory interface 
+// Takes a GM factory function and implements the SkViewFactory interface
 // by making the GM and wrapping it in a GMSampleView. GMSampleView bridges
 // the SampleView interface to skiagm::GM.
 class SkGMSampleViewFactory : public SkViewFactory {
@@ -90,16 +90,16 @@ public:
     ~SkViewRegister() {
         fFact->unref();
     }
-    
+
     static const SkViewRegister* Head() { return gHead; }
-    
+
     SkViewRegister* next() const { return fChain; }
     const SkViewFactory*   factory() const { return fFact; }
-    
+
 private:
     SkViewFactory*  fFact;
     SkViewRegister* fChain;
-    
+
     static SkViewRegister* gHead;
 };
 
@@ -107,7 +107,7 @@ private:
 
 class SampleView : public SkView {
 public:
-    SampleView() : fPipeState(SkOSMenu::kOffState), 
+    SampleView() : fPipeState(SkOSMenu::kOffState),
             fBGColor(SK_ColorWHITE), fRepeatCount(1) {
     }
 
@@ -116,20 +116,20 @@ public:
     static bool IsSampleView(SkView*);
     static bool SetRepeatDraw(SkView*, int count);
     static bool SetUsePipe(SkView*, SkOSMenu::TriState);
-    
+
     /**
      *  Call this to request menu items from a SampleView.
-     *  Subclassing notes: A subclass of SampleView can overwrite this method 
+     *  Subclassing notes: A subclass of SampleView can overwrite this method
      *  to add new items of various types to the menu and change its title.
      *  The events attached to any new menu items must be handled in its onEvent
-     *  method. See SkOSMenu.h for helper functions.   
+     *  method. See SkOSMenu.h for helper functions.
      */
     virtual void requestMenu(SkOSMenu* menu) {}
 
 protected:
     virtual void onDrawBackground(SkCanvas*);
     virtual void onDrawContent(SkCanvas*) = 0;
-    
+
     // overrides
     virtual bool onEvent(const SkEvent& evt);
     virtual bool onQuery(SkEvent* evt);
@@ -138,7 +138,7 @@ protected:
 
     SkOSMenu::TriState fPipeState;
     SkColor fBGColor;
-    
+
 private:
     int fRepeatCount;
 

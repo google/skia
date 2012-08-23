@@ -32,8 +32,8 @@
 
 class LinesView : public SampleView {
 public:
-	LinesView() {}
-    
+    LinesView() {}
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -49,12 +49,12 @@ protected:
      */
     void drawRings(SkCanvas* canvas) {
         canvas->scale(SkIntToScalar(1)/2, SkIntToScalar(1)/2);
-        
-        SkRect  r;        
+
+        SkRect  r;
         SkScalar x = SkIntToScalar(10);
         SkScalar y = SkIntToScalar(10);
         r.set(x, y, x + SkIntToScalar(100), y + SkIntToScalar(100));
-        
+
         SkPaint paint;
      //   paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
@@ -63,32 +63,32 @@ protected:
      //   paint.setColor(0xFFFFFFFF);
         canvas->drawRect(r, paint);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         SkBitmap bm;
         SkImageDecoder::DecodeFile("/kill.gif", &bm);
         canvas->drawBitmap(bm, 0, 0, NULL);
-        
+
         this->drawRings(canvas);
         return;
 
         SkPaint paint;
-        
+
       //  fAlpha = 0x80;
         paint.setColor(SK_ColorWHITE);
         paint.setAlpha(fAlpha & 0xFF);
         SkRect r;
-        
+
         SkScalar x = SkIntToScalar(10);
         SkScalar y = SkIntToScalar(10);
         r.set(x, y, x + SkIntToScalar(100), y + SkIntToScalar(100));
         canvas->drawRect(r, paint);
         return;
-        
+
         paint.setColor(0xffffff00);            // yellow
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SkIntToScalar(2));
-        
+
 //        y += SK_Scalar1/2;
 
         canvas->drawLine(x, y, x + SkIntToScalar(90), y + SkIntToScalar(90), paint);

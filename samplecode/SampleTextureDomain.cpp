@@ -78,7 +78,7 @@ protected:
         canvas->drawBitmapRect(deviceBitmap, &srcRect, dstRect, &paint);
 
         // Test that bitmap blurring using a subrect
-        // renders correctly 
+        // renders correctly
         srcRect.setXYWH(1, 1, 3, 3);
         dstRect.setXYWH(5.0f, 405.0f, 305.0f, 305.0f);
         SkMaskFilter* mf = SkBlurMaskFilter::Create(
@@ -94,7 +94,7 @@ protected:
         // but it will test a code path in SkGpuDevice::drawBitmap
         // that handles blurs with rects transformed to non-
         // orthogonal rects. It also tests the NULL src rect handling
-	mf = SkBlurMaskFilter::Create(
+    mf = SkBlurMaskFilter::Create(
             5,
             SkBlurMaskFilter::kNormal_BlurStyle,
             SkBlurMaskFilter::kHighQuality_BlurFlag);

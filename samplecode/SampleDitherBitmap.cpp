@@ -40,7 +40,7 @@ static void draw_gradient(SkCanvas* canvas) {
 static void test_pathregion() {
     SkPath path;
     SkRegion region;
-    path.moveTo(25071800.f, -141823808.f); 
+    path.moveTo(25071800.f, -141823808.f);
     path.lineTo(25075500.f, -141824000.f);
     path.lineTo(25075400.f, -141827712.f);
     path.lineTo(25071810.f, -141827600.f);
@@ -81,14 +81,14 @@ class DitherBitmapView : public SampleView {
     SkBitmap    fBM8;
     SkBitmap    fBM32;
 public:
-	DitherBitmapView() {
+    DitherBitmapView() {
         test_pathregion();
         fBM8 = make_bitmap();
         fBM8.copyTo(&fBM32, SkBitmap::kARGB_8888_Config);
-        
+
         this->setBGColor(0xFFDDDDDD);
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -98,7 +98,7 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     static void setBitmapOpaque(SkBitmap* bm, bool isOpaque) {
         SkAutoLockPixels alp(*bm);  // needed for ctable
         bm->setIsOpaque(isOpaque);
@@ -107,7 +107,7 @@ protected:
             ctable->setIsOpaque(isOpaque);
         }
     }
-    
+
     static void draw2(SkCanvas* canvas, const SkBitmap& bm) {
         SkPaint paint;
         SkBitmap bitmap(bm);
@@ -125,7 +125,7 @@ protected:
         paint.setDither(true);
         canvas->drawBitmap(bitmap, x, SkIntToScalar(bm.height() + 10), &paint);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
 
@@ -136,7 +136,7 @@ protected:
         canvas->translate(0, SkIntToScalar(fBM8.height() *3));
         draw_gradient(canvas);
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };

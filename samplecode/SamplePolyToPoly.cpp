@@ -17,7 +17,7 @@ extern bool SkSetPoly3To3(SkMatrix* matrix, const SkPoint src[3], const SkPoint 
 
 class PolyToPolyView : public SampleView {
 public:
-	PolyToPolyView() {
+    PolyToPolyView() {
         // tests
         {
             SkPoint src[] = { { 0, 0 },

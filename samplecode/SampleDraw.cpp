@@ -13,19 +13,19 @@
 
 static void test_clearonlayers(SkCanvas* canvas) {
     SkCanvas& c = *canvas;
-    
+
     SkPaint paint;
     paint.setColor(SK_ColorBLUE);
     paint.setStyle(SkPaint::kStrokeAndFill_Style);
     SkRect rect = SkRect::MakeXYWH(25, 25, 50, 50);
     c.drawRect(rect, paint);
-    
+
     c.clipRect(rect);
-    
+
     c.saveLayer(NULL, NULL);
     rect = SkRect::MakeXYWH(50, 10, 40, 80);
     c.clipRect(rect, SkRegion::kUnion_Op);
-    
+
     rect = SkRect::MakeXYWH(50, 0, 50, 100);
     // You might draw something here, but it's not necessary.
     // paint.setColor(SK_ColorRED);
@@ -37,11 +37,11 @@ static void test_clearonlayers(SkCanvas* canvas) {
 
 static void test_strokerect(SkCanvas* canvas, const SkRect& r) {
     SkPaint p;
-    
+
     p.setAntiAlias(true);
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(4);
-    
+
     canvas->drawRect(r, p);
 
     SkPath path;
@@ -61,27 +61,27 @@ static void test_strokerect(SkCanvas* canvas) {
     r.offset(0.25f, 0.3333f);
     test_strokerect(canvas, r);
     canvas->translate(0, 20);
-    
+
     r.set(10, 10, 14.5f, 14.5f);
     r.offset(0.25f, 0.3333f);
     test_strokerect(canvas, r);
     canvas->translate(0, 20);
-    
+
     r.set(10, 10, 14.5f, 20);
     r.offset(0.25f, 0.3333f);
     test_strokerect(canvas, r);
     canvas->translate(0, 20);
-    
+
     r.set(10, 10, 20, 14.5f);
     r.offset(0.25f, 0.3333f);
     test_strokerect(canvas, r);
     canvas->translate(0, 20);
-    
+
     r.set(10, 10, 20, 20);
     r.offset(0.25f, 0.3333f);
     test_strokerect(canvas, r);
     canvas->translate(0, 20);
-    
+
 }
 
 class Draw : public SkRefCnt {
@@ -236,7 +236,7 @@ public:
     }
 
     virtual Draw* create(const SkPoint&, const SkPoint&) = 0;
-    
+
 private:
     SkPaint fPaint;
 };
@@ -291,7 +291,7 @@ public:
         }
         return NULL;
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {

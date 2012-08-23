@@ -12,7 +12,7 @@
 
 class ComplexClipView : public SampleView {
 public:
-	ComplexClipView() {
+    ComplexClipView() {
         this->setBGColor(0xFFA0DDA0);
     }
 

@@ -19,7 +19,7 @@ public:
     SkPMColor   fOutsideColor;  // signals an exterior pixels that was set
     SkBitmap    fBitmap;
 
-	OvalTestView() {
+    OvalTestView() {
         fSize.set(SK_Scalar1, SK_Scalar1);
 
         fBitmap.setConfig(SkBitmap::kARGB_8888_Config, kILimit, kILimit);

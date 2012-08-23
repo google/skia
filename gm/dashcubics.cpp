@@ -41,7 +41,7 @@ protected:
         "C 283,231 344,195 338,98";
 
         SkParsePath::FromSVGString(d, &path);
-        
+
         SkScalar intervals[] = { 5, 10 };
         SkPathEffect* pe = new SkDashPathEffect(intervals, 2, 0);
 

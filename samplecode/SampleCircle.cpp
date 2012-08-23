@@ -35,7 +35,7 @@ public:
         fDX = fDY = fRAD = 0;
         fN = 3;
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -45,10 +45,10 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void circle(SkCanvas* canvas, int width, bool aa) {
         SkPaint paint;
-        
+
         paint.setAntiAlias(aa);
         if (width < 0) {
             paint.setStyle(SkPaint::kFill_Style);
@@ -61,7 +61,7 @@ protected:
             test_circlebounds(canvas);
         }
     }
-    
+
     void drawSix(SkCanvas* canvas, SkScalar dx, SkScalar dy) {
         for (int width = -1; width <= 1; width++) {
             canvas->save();
@@ -72,13 +72,13 @@ protected:
             canvas->translate(dx, 0);
         }
     }
-    
+
     static void blowup(SkCanvas* canvas, const SkIRect& src, const SkRect& dst) {
         SkDevice* device = canvas->getDevice();
         const SkBitmap& bm = device->accessBitmap(false);
         canvas->drawBitmapRect(bm, &src, dst, NULL);
     }
-    
+
     static void make_poly(SkPath* path, int n) {
         if (n <= 0) {
             return;
@@ -94,7 +94,7 @@ protected:
         }
         path->close();
     }
-    
+
     static void rotate(SkCanvas* canvas, SkScalar angle, SkScalar px, SkScalar py) {
         canvas->translate(-px, -py);
         canvas->rotate(angle);
@@ -119,7 +119,7 @@ protected:
             canvas->drawPath(path, paint);
         }
     }
-    
+
 private:
     int fN;
     typedef SampleView INHERITED;

@@ -44,12 +44,12 @@ class TriangleView : public SkView {
 public:
     SkPath fPaths[COUNT_PROCS];
 
-	TriangleView() {
+    TriangleView() {
         for (size_t i = 0; i < COUNT_PROCS; i++) {
             gProcs[i](&fPaths[i]);
         }
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -59,26 +59,26 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorGRAY);
     }
-    
+
     static void draw_path(SkCanvas* canvas, const SkPaint& pathPaint,
                           const SkPath& path, const SkPaint& triPaint) {
         canvas->drawPath(path, pathPaint);
-        
+
         int n = path.getPoints(NULL, 0);
         SkPoint* pts = new SkPoint[n];
         path.getPoints(pts, n);
-        
+
         SkTDArray<SkPoint> triangles;
         if (SkConcaveToTriangles(n, pts, &triangles)) {
             canvas->drawVertices(SkCanvas::kTriangles_VertexMode,
                                  triangles.count(), triangles.begin(), NULL,
                                  NULL, NULL, NULL, 0, triPaint);
         }
-        
+
         SkPaint paint;
         paint.setColor(SK_ColorGREEN);
         paint.setStrokeWidth(SkIntToScalar(4));
@@ -88,11 +88,11 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
-        
+
         canvas->translate(SIZE/2, SIZE/2);
 
         SkPaint pathPaint, triPaint;
-        
+
         pathPaint.setColor(SK_ColorBLUE);
         pathPaint.setStrokeWidth(SIZE / 12);
 
@@ -108,12 +108,12 @@ protected:
 
             pathPaint.setStyle(SkPaint::kStroke_Style);
             draw_path(canvas, pathPaint, fPaths[i], triPaint);
-            
+
             canvas->restore();
             canvas->translate(SIZE * 6 / 5, 0);
         }
     }
-    
+
 private:
     typedef SkView INHERITED;
 };

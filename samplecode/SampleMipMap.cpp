@@ -17,13 +17,13 @@ static SkBitmap createBitmap(int n) {
     bitmap.setConfig(SkBitmap::kARGB_8888_Config, n, n);
     bitmap.allocPixels();
     bitmap.eraseColor(0);
-    
+
     SkCanvas canvas(bitmap);
     SkRect r;
     r.set(0, 0, SkIntToScalar(n), SkIntToScalar(n));
     SkPaint paint;
     paint.setAntiAlias(true);
-    
+
     paint.setColor(SK_ColorRED);
     canvas.drawOval(r, paint);
     paint.setColor(SK_ColorBLUE);
@@ -31,7 +31,7 @@ static SkBitmap createBitmap(int n) {
     paint.setStyle(SkPaint::kStroke_Style);
     canvas.drawLine(0, 0, r.fRight, r.fBottom, paint);
     canvas.drawLine(0, r.fBottom, r.fRight, 0, paint);
-    
+
     return bitmap;
 }
 
@@ -45,7 +45,7 @@ public:
     MipMapView() {
         fOnce = false;
     }
-    
+
     void init() {
         if (fOnce) {
             return;
@@ -53,10 +53,10 @@ public:
         fOnce = true;
 
         fBitmap = createBitmap(N);
-        
+
         fWidth = N;
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -66,7 +66,7 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void drawN(SkCanvas* canvas, const SkBitmap& bitmap) {
         SkAutoCanvasRestore acr(canvas, true);
         for (int i = N; i > 1; i >>= 1) {
@@ -75,12 +75,12 @@ protected:
             canvas->scale(SK_ScalarHalf, SK_ScalarHalf);
         }
     }
-    
+
     void drawN2(SkCanvas* canvas, const SkBitmap& bitmap) {
         SkBitmap bg;
         bg.setConfig(SkBitmap::kARGB_8888_Config, N, N);
         bg.allocPixels();
-        
+
         SkAutoCanvasRestore acr(canvas, true);
         for (int i = 0; i < 6; i++) {
             bg.eraseColor(0);
@@ -95,11 +95,11 @@ protected:
             canvas->translate(SkIntToScalar(N + 8), 0);
         }
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         this->init();
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
-        
+
         canvas->scale(1.00000001f, 0.9999999f);
 
         drawN2(canvas, fBitmap);
@@ -131,7 +131,7 @@ protected:
         canvas->drawBitmapRect(bitmap, NULL, dst, NULL);
         canvas->translate(SkIntToScalar(N + 8), 0);
         canvas->drawBitmapRect(bitmap, NULL, dst, &paint);
-        
+
         SkShader* s = SkShader::CreateBitmapShader(bitmap,
                                                    SkShader::kRepeat_TileMode,
                                                    SkShader::kRepeat_TileMode);
@@ -144,10 +144,10 @@ protected:
         r.set(0, 0, SkIntToScalar(4*N), SkIntToScalar(5*N/2));
         r.offset(SkIntToScalar(N + 12), -SkIntToScalar(N + 4));
         canvas->drawRect(r, paint);
-        
+
         this->inval(NULL);
     }
-    
+
 private:
     int fWidth;
 

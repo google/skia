@@ -221,7 +221,7 @@ static void DrawTheText(SkCanvas* canvas, const char text[], size_t length,
 
 class TextSpeedView : public SampleView {
 public:
-	TextSpeedView() {
+    TextSpeedView() {
         fMF = makemf();
 
         fHints = 0;

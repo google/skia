@@ -31,7 +31,7 @@ static void check_for_nonwhite(const SkBitmap& bm, int alpha) {
     if (bm.config() != SkBitmap::kRGB_565_Config) {
         return;
     }
-    
+
     for (int y = 0; y < bm.height(); y++) {
         for (int x = 0; x < bm.width(); x++) {
             uint16_t c = *bm.getAddr16(x, y);
@@ -44,11 +44,11 @@ static void check_for_nonwhite(const SkBitmap& bm, int alpha) {
 }
 
 class TextAlphaView : public SampleView {
-public:    
-	TextAlphaView() {
+public:
+    TextAlphaView() {
         fByte = 0xFF;
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt)  {
@@ -59,23 +59,23 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         const char* str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         SkPaint paint;
         SkScalar    x = SkIntToScalar(10);
         SkScalar    y = SkIntToScalar(20);
-        
+
         paint.setFlags(0x105);
-        
+
         paint.setARGB(fByte, 0xFF, 0xFF, 0xFF);
-        
+
         paint.setMaskFilter(SkBlurMaskFilter::Create(SkIntToScalar(3),
                                         SkBlurMaskFilter::kNormal_BlurStyle));
         paint.getMaskFilter()->unref();
-        
+
         SkRandom rand;
-        
+
         for (int ps = 6; ps <= 35; ps++) {
             paint.setColor(rand.nextU() | (0xFF << 24));
             paint.setTextSize(SkIntToScalar(ps));
@@ -94,11 +94,11 @@ protected:
             this->inval(NULL);
         }
     }
-    
+
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         return new Click(this);
     }
-    
+
     virtual bool onClick(Click* click) {
         int y = click->fICurr.fY;
         if (y < 0) {
@@ -110,7 +110,7 @@ protected:
         this->inval(NULL);
         return true;
     }
-    
+
 private:
     int fByte;
 

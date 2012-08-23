@@ -23,20 +23,20 @@ public:
     void setURIBase(const char dir[]);
 
     SkAnimator* getAnimator() const { return fAnimator; }
-    
+
     bool    decodeFile(const char path[]);
     bool    decodeMemory(const void* buffer, size_t size);
     bool    decodeStream(SkStream* stream);
-    
+
 protected:
     // overrides
     virtual void onDraw(SkCanvas*);
     virtual bool onQuery(SkEvent* evt);
-    
+
 private:
     SkString fBaseURI;
     SkAnimator* fAnimator;
-    
+
     typedef SkView INHERITED;
 };
 
@@ -63,24 +63,24 @@ bool SkAnimatorView::decodeMemory(const void* buffer, size_t size) {
 }
 
 static const SkDOMNode* find_nodeID(const SkDOM& dom,
-						const SkDOMNode* node, const char name[]) {
-	if (NULL == node) {
-		node = dom.getRootNode();
-	}
-	do {
-		const char* idval = dom.findAttr(node, "id");
-		if (idval && !strcmp(idval, name)) {
-			return node;
-		}
-		const SkDOMNode* child = dom.getFirstChild(node);
-		if (child) {
-			const SkDOMNode* found = find_nodeID(dom, child, name);
-			if (found) {
-				return found;
-			}
-		}
-	} while ((node = dom.getNextSibling(node)) != NULL);
-	return NULL;
+                        const SkDOMNode* node, const char name[]) {
+    if (NULL == node) {
+        node = dom.getRootNode();
+    }
+    do {
+        const char* idval = dom.findAttr(node, "id");
+        if (idval && !strcmp(idval, name)) {
+            return node;
+        }
+        const SkDOMNode* child = dom.getFirstChild(node);
+        if (child) {
+            const SkDOMNode* found = find_nodeID(dom, child, name);
+            if (found) {
+                return found;
+            }
+        }
+    } while ((node = dom.getNextSibling(node)) != NULL);
+    return NULL;
 }
 
 bool SkAnimatorView::decodeStream(SkStream* stream) {
@@ -94,32 +94,32 @@ bool SkAnimatorView::decodeStream(SkStream* stream) {
         return false;
     }
 #else
-	size_t len = stream->getLength();
-	char* text = (char*)sk_malloc_throw(len);
-	stream->read(text, len);
-	SkDOM dom;
-	const SkDOM::Node* root = dom.build(text, len);
-	if (NULL == root) {
-		return false;
-	}
-	if (!fAnimator->decodeDOM(dom, root)) {
-		delete fAnimator;
-		fAnimator = NULL;
-		return false;
-	}
-	for (int i = 0; i <= 10; i++) {
-		SkString name("glyph");
-		name.appendS32(i);
-		const SkDOM::Node* node = find_nodeID(dom, NULL, name.c_str());
-		SkASSERT(node);
-		SkRect r;
-		dom.findScalar(node, "left", &r.fLeft);
-		dom.findScalar(node, "top", &r.fTop);
-		dom.findScalar(node, "width", &r.fRight); r.fRight += r.fLeft;
-		dom.findScalar(node, "height", &r.fBottom); r.fBottom += r.fTop;
-		SkDebugf("--- %s [%g %g %g %g]\n", name.c_str(),
-				 r.fLeft, r.fTop, r.fRight, r.fBottom);
-	}
+    size_t len = stream->getLength();
+    char* text = (char*)sk_malloc_throw(len);
+    stream->read(text, len);
+    SkDOM dom;
+    const SkDOM::Node* root = dom.build(text, len);
+    if (NULL == root) {
+        return false;
+    }
+    if (!fAnimator->decodeDOM(dom, root)) {
+        delete fAnimator;
+        fAnimator = NULL;
+        return false;
+    }
+    for (int i = 0; i <= 10; i++) {
+        SkString name("glyph");
+        name.appendS32(i);
+        const SkDOM::Node* node = find_nodeID(dom, NULL, name.c_str());
+        SkASSERT(node);
+        SkRect r;
+        dom.findScalar(node, "left", &r.fLeft);
+        dom.findScalar(node, "top", &r.fTop);
+        dom.findScalar(node, "width", &r.fRight); r.fRight += r.fLeft;
+        dom.findScalar(node, "height", &r.fBottom); r.fBottom += r.fTop;
+        SkDebugf("--- %s [%g %g %g %g]\n", name.c_str(),
+                 r.fLeft, r.fTop, r.fRight, r.fBottom);
+    }
 #endif
     return true;
 }
@@ -136,13 +136,13 @@ void SkAnimatorView::onDraw(SkCanvas* canvas) {
         canvas->scale(0.5, 0.5);
         fAnimator->draw(canvas, 0);
         canvas->restore();
-        
+
         canvas->save();
         canvas->translate(190, 40);
         canvas->scale(0.25, 0.25);
         fAnimator->draw(canvas, 0);
         canvas->restore();
-        
+
         this->inval(NULL);
 #endif
     }
@@ -165,8 +165,8 @@ static SkView* MyFactory() {
     av->setURIBase("/skia/trunk/animations/");
     av->decodeFile("/skia/trunk/animations/checkbox.xml");
 #else
-	av->setURIBase("/");
-	av->decodeFile("/testanim.txt");
+    av->setURIBase("/");
+    av->decodeFile("/testanim.txt");
 #endif
     return av;
 }

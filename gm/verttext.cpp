@@ -56,7 +56,7 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         SkScalar x = SkIntToScalar(100);
         SkScalar y = SkIntToScalar(50);
-        
+
         for (int i = 0; i < 4; ++i) {
             SkPaint     paint;
             paint.setAntiAlias(true);
@@ -70,7 +70,7 @@ protected:
             paint.setVerticalText(true);
             drawBaseline(canvas, paint, x, y);
             canvas->drawText(gText, gLen, x, y, paint);
-            
+
             x += SkIntToScalar(40);
             y += SkIntToScalar(120);
 

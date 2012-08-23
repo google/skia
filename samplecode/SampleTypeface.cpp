@@ -76,7 +76,7 @@ class TypefaceView : public SampleView {
     SkTypeface* fFaces[gFaceCount];
 
 public:
-	TypefaceView() {
+    TypefaceView() {
         test_4444_dither();
         for (int i = 0; i < gFaceCount; i++) {
             fFaces[i] = SkTypeface::CreateFromName(gFaces[i].fName,

@@ -20,7 +20,7 @@ protected:
     SkString onShortName() {
         return SkString("emptypath");
     }
-        
+
     SkISize onISize() { return make_isize(600, 280); }
 
     void drawEmpty(SkCanvas* canvas,
@@ -38,7 +38,7 @@ protected:
         canvas->drawPath(path, paint);
         canvas->restore();
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         struct FillAndName {
             SkPath::FillType fFill;
@@ -120,7 +120,7 @@ protected:
         canvas->restore();
         canvas->restore();
     }
-    
+
 private:
     typedef GM INHERITED;
 };

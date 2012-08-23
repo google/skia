@@ -35,27 +35,27 @@ extern SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT&);
 #endif
 
 static const char gText[] =
-	"When in the Course of human events it becomes necessary for one people "
-	"to dissolve the political bands which have connected them with another "
-	"and to assume among the powers of the earth, the separate and equal "
-	"station to which the Laws of Nature and of Nature's God entitle them, "
-	"a decent respect to the opinions of mankind requires that they should "
-	"declare the causes which impel them to the separation.";
+    "When in the Course of human events it becomes necessary for one people "
+    "to dissolve the political bands which have connected them with another "
+    "and to assume among the powers of the earth, the separate and equal "
+    "station to which the Laws of Nature and of Nature's God entitle them, "
+    "a decent respect to the opinions of mankind requires that they should "
+    "declare the causes which impel them to the separation.";
 
 class TextBoxView : public SampleView {
 public:
-	TextBoxView() {
+    TextBoxView() {
 #if defined(SK_BUILD_FOR_WIN) && defined(SK_FONTHOST_WIN_GDI)
-		LOGFONT lf;
-		sk_bzero(&lf, sizeof(lf));
-		lf.lfHeight = 9;
-		SkTypeface* tf0 = SkCreateTypefaceFromLOGFONT(lf);
-		lf.lfHeight = 12;
-		SkTypeface* tf1 = SkCreateTypefaceFromLOGFONT(lf);
-		// we assert that different sizes should not affect which face we get
-		SkASSERT(tf0 == tf1);
-		tf0->unref();
-		tf1->unref();
+        LOGFONT lf;
+        sk_bzero(&lf, sizeof(lf));
+        lf.lfHeight = 9;
+        SkTypeface* tf0 = SkCreateTypefaceFromLOGFONT(lf);
+        lf.lfHeight = 12;
+        SkTypeface* tf1 = SkCreateTypefaceFromLOGFONT(lf);
+        // we assert that different sizes should not affect which face we get
+        SkASSERT(tf0 == tf1);
+        tf0->unref();
+        tf1->unref();
 #endif
     }
 
@@ -75,24 +75,24 @@ protected:
 
         canvas->clipRect(SkRect::MakeWH(w, h));
         canvas->drawColor(bg);
-		SkScalar margin = 20;
+        SkScalar margin = 20;
         SkTextBox tbox;
-		tbox.setMode(SkTextBox::kLineBreak_Mode);
-		tbox.setBox(margin, margin,
-					w - margin, h - margin);
-		tbox.setSpacing(SkIntToScalar(3)/3, 0);
+        tbox.setMode(SkTextBox::kLineBreak_Mode);
+        tbox.setBox(margin, margin,
+                    w - margin, h - margin);
+        tbox.setSpacing(SkIntToScalar(3)/3, 0);
 
-		SkPaint paint;
-		paint.setAntiAlias(true);
+        SkPaint paint;
+        paint.setAntiAlias(true);
         paint.setLCDRenderText(true);
         paint.setColor(fg);
-		tbox.setText(gText, strlen(gText), paint);
+        tbox.setText(gText, strlen(gText), paint);
 
-		for (int i = 9; i < 24; i += 2) {
-			paint.setTextSize(SkIntToScalar(i));
-			tbox.draw(canvas);
-			canvas->translate(0, tbox.getTextHeight() + paint.getFontSpacing());
-		}
+        for (int i = 9; i < 24; i += 2) {
+            paint.setTextSize(SkIntToScalar(i));
+            tbox.draw(canvas);
+            canvas->translate(0, tbox.getTextHeight() + paint.getFontSpacing());
+        }
     }
 
     virtual void onDrawContent(SkCanvas* canvas) {

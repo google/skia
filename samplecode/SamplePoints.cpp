@@ -29,7 +29,7 @@
 
 class PointsView : public SampleView {
 public:
-	PointsView() {}
+    PointsView() {}
 
 protected:
     // overrides from SkEventSink

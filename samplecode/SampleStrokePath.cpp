@@ -17,14 +17,14 @@
 static void test_huge_stroke(SkCanvas* canvas) {
     SkRect srcR = { 0, 0, 72000, 54000 };
     SkRect dstR = { 0, 0, 640, 480 };
-    
+
     SkPath path;
     path.moveTo(17600, 8000);
     path.lineTo(52800, 8000);
     path.lineTo(52800, 41600);
     path.lineTo(17600, 41600);
     path.close();
-    
+
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setStrokeWidth(8000);
@@ -54,7 +54,7 @@ static void test_blur() {
         for (int x = 1; x <= 3; x++) {
             src.fBounds.set(0, 0, x, y);
             src.fRowBytes = src.fBounds.width();
-            
+
             SkScalar radius = 1.f;
 
             printf("src [%d %d %d %d] radius %g\n", src.fBounds.fLeft, src.fBounds.fTop,
@@ -99,7 +99,7 @@ class StrokePathView : public SampleView {
     SkScalar    fWidth;
     SkPath      fPath;
 public:
-	StrokePathView() {
+    StrokePathView() {
 //        test_blur();
         fWidth = SkIntToScalar(120);
 
@@ -114,14 +114,14 @@ public:
         fPath.addCircle(0, 0, SkIntToScalar(50), SkPath::kCW_Direction);
         fPath.addCircle(0, SkIntToScalar(-50), SkIntToScalar(30), SkPath::kCW_Direction);
 #endif
-        
+
         scale_to_width(&fPath, fWidth);
         const SkRect& bounds = fPath.getBounds();
         fPath.offset(-bounds.fLeft, -bounds.fTop);
 
         this->setBGColor(0xFFDDDDDD);
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -131,9 +131,9 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     SkRandom rand;
-    
+
     void drawSet(SkCanvas* canvas, SkPaint* paint) {
         SkAutoCanvasRestore acr(canvas, true);
 
@@ -152,7 +152,7 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        
+
         if (true) {
             canvas->drawColor(SK_ColorBLACK);
 
@@ -177,7 +177,7 @@ protected:
                     canvas->drawText("Title Bar", 9, x*SkIntToScalar(100), y*SkIntToScalar(30), paint);
                     radius *= 0.75f;
                 }
-                
+
             }
             return;
         }
@@ -200,10 +200,10 @@ protected:
         fPath = p;
         fPath.offset(100, 0);
 #endif
-        
+
         fPath.setFillType(SkPath::kWinding_FillType);
         drawSet(canvas, &paint);
-        
+
         canvas->translate(0, fPath.getBounds().height() * 5 / 4);
         fPath.setFillType(SkPath::kEvenOdd_FillType);
         drawSet(canvas, &paint);

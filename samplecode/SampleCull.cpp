@@ -19,7 +19,7 @@
 
 static void addbump(SkPath* path, const SkPoint pts[2], SkScalar bump) {
     SkVector    tang;
-    
+
     tang.setLength(pts[1].fX - pts[0].fX, pts[1].fY - pts[0].fY, bump);
 
     path->lineTo(SkScalarHalf(pts[0].fX + pts[1].fX) - tang.fY,
@@ -31,7 +31,7 @@ static void subdivide(SkPath* path, SkScalar bump) {
     SkPath::Iter    iter(*path, false);
     SkPoint         pts[4];
     SkPath          tmp;
-    
+
     for (;;)
         switch (iter.next(pts)) {
         case SkPath::kMove_Verb:
@@ -90,7 +90,7 @@ FINISHED:
                 break;
             }
     }
-    
+
 FINISHED2:
     *count = n;
     return array;
@@ -102,11 +102,11 @@ static SkScalar nextScalarRange(SkRandom& rand, SkScalar min, SkScalar max) {
 
 class CullView : public SampleView {
 public:
-	CullView() {
+    CullView() {
         fClip.set(0, 0, SkIntToScalar(160), SkIntToScalar(160));
-        
+
         SkRandom    rand;
-        
+
         for (int i = 0; i < 50; i++) {
             SkScalar x = nextScalarRange(rand, -fClip.width()*1, fClip.width()*2);
             SkScalar y = nextScalarRange(rand, -fClip.height()*1, fClip.height()*2);
@@ -115,16 +115,16 @@ public:
             else
                 fPath.lineTo(x, y);
         }
-        
+
         SkScalar bump = fClip.width()/8;
         subdivide(&fPath, bump);
         subdivide(&fPath, bump);
         subdivide(&fPath, bump);
         fPoints = getpts(fPath, &fPtCount);
-        
+
         this->setBGColor(0xFFDDDDDD);
     }
-    
+
     virtual ~CullView() {
         delete[] fPoints;
     }
@@ -138,7 +138,7 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         SkAutoCanvasRestore ar(canvas, true);
 
@@ -148,7 +148,7 @@ protected:
    //     canvas->scale(SK_Scalar1*3, SK_Scalar1*3, 0, 0);
 
         SkPaint paint;
-        
+
     //    paint.setAntiAliasOn(true);
         paint.setStyle(SkPaint::kStroke_Style);
 
@@ -165,21 +165,21 @@ protected:
         SkPath  tmp;
         SkIRect iclip;
         fClip.round(&iclip);
-        
+
         SkCullPointsPath    cpp(iclip, &tmp);
-        
+
         cpp.moveTo(fPoints[0].fX, fPoints[0].fY);
         for (int i = 0; i < fPtCount; i++)
             cpp.lineTo(fPoints[i].fX, fPoints[i].fY);
-        
+
         paint.setColor(SK_ColorRED);
         paint.setStrokeWidth(SkIntToScalar(3));
         paint.setStrokeJoin(SkPaint::kRound_Join);
         canvas->drawPath(tmp, paint);
-        
+
         this->inval(NULL);
     }
-    
+
 private:
     SkRect      fClip;
     SkIPoint*   fPoints;

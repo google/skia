@@ -19,7 +19,7 @@ static SkShader* make_grad(SkScalar w, SkScalar h) {
 
 class BigGradientView : public SampleView {
 public:
-	BigGradientView() {}
+    BigGradientView() {}
 
 protected:
     // overrides from SkEventSink

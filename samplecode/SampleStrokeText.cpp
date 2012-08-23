@@ -41,7 +41,7 @@ static void lettersToBitmap(SkBitmap* dst, const char chars[],
     bounds.inset(sw, sw);
     path.offset(-bounds.fLeft, -bounds.fTop);
     bounds.offset(-bounds.fLeft, -bounds.fTop);
-    
+
     int w = SkScalarRound(bounds.width());
     int h = SkScalarRound(bounds.height());
     SkPaint paint(original);
@@ -56,7 +56,7 @@ static void lettersToBitmap(SkBitmap* dst, const char chars[],
         paint.setStyle(SkPaint::kFill_Style);
         canvas.drawPath(path, paint);
     }
-    
+
     dst->setConfig(config, w, h);
     dst->allocPixels();
     dst->eraseColor(SK_ColorWHITE);
@@ -87,7 +87,7 @@ static void lettersToBitmap2(SkBitmap* dst, const char chars[],
     bounds.inset(sw, sw);
     path.offset(-bounds.fLeft, -bounds.fTop);
     bounds.offset(-bounds.fLeft, -bounds.fTop);
-    
+
     int w = SkScalarRound(bounds.width());
     int h = SkScalarRound(bounds.height());
     SkPaint paint(original);
@@ -96,7 +96,7 @@ static void lettersToBitmap2(SkBitmap* dst, const char chars[],
     paint.setXfermodeMode(SkXfermode::kDstATop_Mode);
     paint.setColor(original.getColor());
     paint.setStyle(SkPaint::kStroke_Style);
-    
+
     dst->setConfig(config, w, h);
     dst->allocPixels();
     dst->eraseColor(SK_ColorWHITE);
@@ -108,10 +108,10 @@ static void lettersToBitmap2(SkBitmap* dst, const char chars[],
 class StrokeTextView : public SampleView {
     bool fAA;
 public:
-	StrokeTextView() : fAA(false) {
+    StrokeTextView() : fAA(false) {
         this->setBGColor(0xFFCC8844);
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -121,24 +121,24 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         SkBitmap bm;
         SkPaint paint;
-        
+
         paint.setStrokeWidth(SkIntToScalar(6));
         paint.setTextSize(SkIntToScalar(80));
 //        paint.setTypeface(Typeface.DEFAULT_BOLD);
-        
+
         lettersToBitmap(&bm, "Test Case", paint, SkBitmap::kARGB_4444_Config);
         if (false) { // avoid bit rot, suppress warning
             lettersToBitmap2(&bm, "Test Case", paint, SkBitmap::kARGB_4444_Config);
         }
         canvas->drawBitmap(bm, 0, 0);
     }
-    
+
 private:
-    
+
     typedef SampleView INHERITED;
 };
 

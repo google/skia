@@ -38,13 +38,13 @@ static void make_paint(SkPaint* paint, SkShader::TileMode tm) {
     SkBitmap bm;
     make_bitmap(&bm);
 
-    SkShader* shader = SkShader::CreateBitmapShader(bm, tm, tm);    
+    SkShader* shader = SkShader::CreateBitmapShader(bm, tm, tm);
     paint->setShader(shader)->unref();
 }
 
 class RepeatTileView : public SampleView {
 public:
-	RepeatTileView() {
+    RepeatTileView() {
         this->setBGColor(SK_ColorGRAY);
     }
 
@@ -57,27 +57,27 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         make_paint(&paint, SkShader::kRepeat_TileMode);
-        
+
 //        canvas->scale(SK_Scalar1*2, SK_Scalar1);
         canvas->translate(SkIntToScalar(100), SkIntToScalar(100));
         canvas->drawPaint(paint);
     }
-    
+
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         this->inval(NULL);
-        
+
         return this->INHERITED::onFindClickHandler(x, y);
     }
-    
+
     virtual bool onClick(Click* click) {
         return this->INHERITED::onClick(click);
     }
 
-	virtual bool handleKey(SkKey key) {
+    virtual bool handleKey(SkKey key) {
         this->inval(NULL);
         return true;
     }

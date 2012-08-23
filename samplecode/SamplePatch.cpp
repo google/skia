@@ -225,7 +225,7 @@ class PatchView : public SampleView {
     SkPoint     fPts[12];
 
 public:
-	PatchView() {
+    PatchView() {
         fShader0 = make_shader0(&fSize0);
         fSize1 = fSize0;
         if (fSize0.fX == 0 || fSize0.fY == 0) {

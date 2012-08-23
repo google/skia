@@ -19,7 +19,7 @@ public:
     : fDoPaths(doPaths)
     , fAntiAlias(antiAlias) {
         this->setBGColor(SkColorSetRGB(0xDD,0xA0,0xDD));
-        
+
         // offset the rects a bit so we get antialiasing even in the rect case
         SkScalar xA = SkFloatToScalar(0.65f);
         SkScalar xB = SkFloatToScalar(10.65f);
@@ -93,7 +93,7 @@ protected:
         }
 
         SkString str;
-        str.printf("complexclip2_%s_%s", 
+        str.printf("complexclip2_%s_%s",
                     fDoPaths ? "path" : "rect",
                     fAntiAlias ? "aa" : "bw");
         return str;
@@ -119,7 +119,7 @@ protected:
                 canvas->translate(kPadX * SK_Scalar1 + (fWidth + kPadX * SK_Scalar1)*j,
                                   kPadY * SK_Scalar1 + (fHeight + kPadY * SK_Scalar1)*i);
 
-                // draw the original shapes first so we can see the 
+                // draw the original shapes first so we can see the
                 // antialiasing on the clipped draw
                 for (int k = 0; k < 5; ++k) {
                     rectPaint.setColor(fRectColors[k]);
@@ -132,12 +132,12 @@ protected:
 
                 for (int k = 0; k < 5; ++k) {
                     if (fDoPaths) {
-                        canvas->clipPath(fPaths[k], 
-                                         fOps[j*kRows+i][k], 
+                        canvas->clipPath(fPaths[k],
+                                         fOps[j*kRows+i][k],
                                          fAntiAlias);
                     } else {
-                        canvas->clipRect(fRects[k], 
-                                         fOps[j*kRows+i][k], 
+                        canvas->clipRect(fRects[k],
+                                         fOps[j*kRows+i][k],
                                          fAntiAlias);
                     }
                 }

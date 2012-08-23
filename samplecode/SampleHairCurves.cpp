@@ -15,7 +15,7 @@ class HairCurvesView : public SampleView {
 public:
     HairCurvesView() {
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {

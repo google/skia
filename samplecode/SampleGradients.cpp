@@ -23,16 +23,16 @@ static void test_alphagradients(SkCanvas* canvas) {
           SkIntToScalar(410), SkIntToScalar(30));
     SkPaint p, p2;
     p2.setStyle(SkPaint::kStroke_Style);
-    
+
     p.setShader(setgrad(r, 0xFF00FF00, 0x0000FF00))->unref();
     canvas->drawRect(r, p);
     canvas->drawRect(r, p2);
-    
+
     r.offset(0, r.height() + SkIntToScalar(4));
     p.setShader(setgrad(r, 0xFF00FF00, 0x00000000))->unref();
     canvas->drawRect(r, p);
     canvas->drawRect(r, p2);
-    
+
     r.offset(0, r.height() + SkIntToScalar(4));
     p.setShader(setgrad(r, 0xFF00FF00, 0x00FF0000))->unref();
     canvas->drawRect(r, p);
@@ -69,7 +69,7 @@ static SkShader* MakeLinear(const SkPoint pts[2], const GradData& data,
     return SkGradientShader::CreateLinear(pts, data.fColors, data.fPos,
                                           data.fCount, tm, mapper);
 }
-                                          
+
 static SkShader* MakeRadial(const SkPoint pts[2], const GradData& data,
                             SkShader::TileMode tm, SkUnitMapper* mapper) {
     SkPoint center;
@@ -122,10 +122,10 @@ static const GradMaker gGradMakers[] = {
 
 class GradientsView : public SampleView {
 public:
-	GradientsView() {
+    GradientsView() {
         this->setBGColor(0xFFDDDDDD);
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -166,14 +166,14 @@ protected:
             canvas->translate(SK_ARRAY_COUNT(gGradData)*SkIntToScalar(120), 0);
         }
         canvas->restore();
-        
+
         canvas->translate(0, SkIntToScalar(370));
         if (false) { // avoid bit rot, suppress warning
             test_alphagradients(canvas);
         }
         this->inval(NULL);
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };

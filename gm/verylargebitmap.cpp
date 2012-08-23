@@ -70,7 +70,7 @@ protected:
 
         show_bm(canvas, big, small, SK_ColorBLUE);
         canvas->translate(0, SkIntToScalar(150));
-        
+
         // as of this writing, the raster code will fail to draw the scaled version
         // since it has a 64K limit on x,y coordinates... (but gpu should succeed)
         show_bm(canvas, veryBig, small, SK_ColorGREEN);

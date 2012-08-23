@@ -30,19 +30,19 @@ static void drawGrad(SkCanvas* canvas, const SkScalar d0[], const SkScalar d1[])
     SkColor colors[] = { SK_ColorGREEN, SK_ColorRED };
     SkPaint paint;
     paint.setAntiAlias(true);
-    
+
     SkString str;
     str.printf("%g,%g,%g  %g,%g,%g",
                SkScalarToFloat(c0.fX), SkScalarToFloat(c0.fY), SkScalarToFloat(r0),
                SkScalarToFloat(c1.fX), SkScalarToFloat(c1.fY), SkScalarToFloat(r1));
     canvas->drawText(str.c_str(), str.size(),
                      bounds.fLeft, bounds.fTop - paint.getTextSize()/2, paint);
-    
+
     paint.setShader(SkGradientShader::CreateTwoPointConical(c0, r0, c1, r1,
                                                             colors, NULL, 2,
                                                             SkShader::kClamp_TileMode))->unref();
     canvas->drawRect(bounds, paint);
-    
+
     paint.setShader(NULL);
     paint.setColor(0x66000000);
     paint.setStyle(SkPaint::kStroke_Style);
@@ -67,14 +67,14 @@ protected:
             SkPaint paint;
             paint.setColor(SK_ColorBLUE);
             canvas->drawRect(
-                    SkRect::MakeWH(SkIntToScalar(this->getISize().fWidth), 
-                                   SkIntToScalar(this->getISize().fHeight)), 
+                    SkRect::MakeWH(SkIntToScalar(this->getISize().fWidth),
+                                   SkIntToScalar(this->getISize().fHeight)),
                     paint);
         }
         SkPaint paint;
         const int R0 = 20;
         const int R1 = 40;
-    
+
         const SkScalar DX = SkIntToScalar(250);
         const SkScalar DY = SkIntToScalar(130);
 
@@ -88,12 +88,12 @@ protected:
             0, 0, R0,       25, 0, R0,
             0, 0, R0,       100, 0, R0,
         };
-            
+
         int count = SK_ARRAY_COUNT(gData) / 6;
         for (int i = 0; i < count; ++i) {
             SkScalar data[6];
             intToScalars(data, &gData[i * 6], 6);
-            
+
             int n = canvas->save();
             drawGrad(canvas, &data[0], &data[3]);
             canvas->translate(DX, 0);

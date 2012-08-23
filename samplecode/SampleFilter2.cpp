@@ -30,10 +30,10 @@ public:
     int         fBitmapCount;
     int         fCurrIndex;
 
-	Filter2View() {
+    Filter2View() {
         fBitmapCount = SK_ARRAY_COUNT(gNames)*2;
         fBitmaps = new SkBitmap[fBitmapCount];
-        
+
         for (int i = 0; i < fBitmapCount/2; i++) {
             SkImageDecoder::DecodeFile(gNames[i], &fBitmaps[i],
                                        SkBitmap::kARGB_8888_Config,
@@ -45,14 +45,14 @@ public:
                                    SkImageDecoder::kDecodePixels_Mode, NULL);
         }
         fCurrIndex = 0;
-        
+
         this->setBGColor(SK_ColorGRAY);
     }
-    
+
     virtual ~Filter2View() {
         delete[] fBitmaps;
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -64,14 +64,14 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(50));
-        
+
         const SkScalar W = SkIntToScalar(fBitmaps[0].width() + 1);
         const SkScalar H = SkIntToScalar(fBitmaps[0].height() + 1);
         SkPaint paint;
-        
+
         const SkScalar scale = SkFloatToScalar(0.897917f);
         canvas->scale(SK_Scalar1, scale);
 
@@ -111,7 +111,7 @@ protected:
             }
         }
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };

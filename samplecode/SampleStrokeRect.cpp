@@ -14,7 +14,7 @@
 class StrokeRectSample : public SampleView {
 public:
     StrokeRectSample() {}
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -24,7 +24,7 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -64,7 +64,7 @@ protected:
             canvas->translate(SkIntToScalar(150), 0);
         }
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };

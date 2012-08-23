@@ -23,7 +23,7 @@ static int trunc5(int x) {
 
 #define SK_R16_BITS 5
 
-static int round5_slow(int x) {    
+static int round5_slow(int x) {
     int orig = x & 7;
     int fake = x >> 5;
     int trunc = x >> 3;
@@ -69,7 +69,7 @@ static void test_5bits() {
         int err2 = i - v2;
         SkDebugf("--- %3d : trunc=%3d (%2d) round:%3d (%2d) \n"/*new:%d (%2d)\n"*/, i,
                  v0, err0, v1, err1, v2, err2);
-        
+
 
         e0 += err0;
         e1 += err1;
@@ -102,7 +102,7 @@ static SkBitmap createBitmap(int n) {
     bitmap.setConfig(SkBitmap::kARGB_8888_Config, n, n);
     bitmap.allocPixels();
     bitmap.eraseColor(0);
-    
+
     SkCanvas canvas(bitmap);
     SkRect r;
     r.set(0, 0, SkIntToScalar(n), SkIntToScalar(n));
@@ -110,7 +110,7 @@ static SkBitmap createBitmap(int n) {
 
     SkPaint paint;
     paint.setAntiAlias(true);
-    
+
     paint.setColor(SK_ColorRED);
     canvas.drawOval(r, paint);
 
@@ -118,7 +118,7 @@ static SkBitmap createBitmap(int n) {
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
     paint.setColor(0x800000FF);
     canvas.drawOval(r, paint);
-    
+
     return bitmap;
 }
 
@@ -132,7 +132,7 @@ public:
     ColorFilterView() {
         fBitmap = createBitmap(N);
         fShader = createChecker();
-      
+
         if (false) { // avoid bit rot, suppress warning
             test_5bits();
         }
@@ -168,7 +168,7 @@ protected:
             canvas->drawRect(r, p);
             return;
         }
-        
+
         static const SkXfermode::Mode gModes[] = {
             SkXfermode::kClear_Mode,
             SkXfermode::kSrc_Mode,
@@ -185,7 +185,7 @@ protected:
             SkXfermode::kPlus_Mode,
             SkXfermode::kMultiply_Mode,
         };
-    
+
         static const SkColor gColors[] = {
             0xFF000000,
             0x80000000,
@@ -205,9 +205,9 @@ protected:
                 canvas->drawBitmap(fBitmap, x * N * 1.25f, y * N * scale, &paint);
             }
         }
-        
+
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };

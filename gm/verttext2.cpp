@@ -39,7 +39,7 @@ protected:
     SkISize onISize() { return make_isize(640, 480); }
 
     virtual void onDraw(SkCanvas* canvas) {
-        
+
         for (int i = 0; i < 3; ++i) {
             SkPaint paint;
             paint.setColor(SK_ColorRED);
@@ -77,7 +77,7 @@ protected:
         paint.setTypeface(family);
         paint.setTextSize(textHeight);
 
-        canvas->drawText(string.c_str(), string.size(), y, 
+        canvas->drawText(string.c_str(), string.size(), y,
                 SkIntToScalar(alignment == SkPaint::kLeft_Align ? 10 : 240),
                 paint);
         y += textHeight;

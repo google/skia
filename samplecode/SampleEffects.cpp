@@ -60,7 +60,7 @@ public:
     SkPath fPath;
     SkPaint fPaint[SK_ARRAY_COUNT(gPaintProcs)];
 
-	EffectsView() {
+    EffectsView() {
         size_t i;
         const float pts[] = {
             0, 0,
@@ -75,7 +75,7 @@ public:
         for (i = 2; i < SK_ARRAY_COUNT(pts); i += 2) {
             fPath.lineTo(pts[i], pts[i+1]);
         }
-        
+
         for (i = 0; i < SK_ARRAY_COUNT(gPaintProcs); i++) {
             fPaint[i].setAntiAlias(true);
             fPaint[i].setColor(COLOR);
@@ -85,10 +85,10 @@ public:
         SkColorMatrix cm;
         cm.setRotate(SkColorMatrix::kG_Axis, 180);
         cm.setIdentity();
-        
+
         this->setBGColor(0xFFDDDDDD);
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -98,7 +98,7 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         canvas->scale(3, 3);
         canvas->translate(10, 30);
@@ -107,7 +107,7 @@ protected:
             canvas->translate(32, 0);
         }
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };

@@ -41,7 +41,7 @@ static void test_chromium_9005() {
 
     SkPoint pt0 = { SkFloatToScalar(799.33374f), SkFloatToScalar(1.2360189f) };
     SkPoint pt1 = { SkFloatToScalar(808.49969f), SkFloatToScalar(-7.4338055f) };
-    
+
     SkPaint paint;
     paint.setAntiAlias(true);
     canvas.drawLine(pt0.fX, pt0.fY, pt1.fX, pt1.fY, paint);
@@ -112,7 +112,7 @@ static void poly_proc(SkCanvas* canvas, const SkPaint& paint,
     SkPoint pts[N];
     for (int i = 0; i < 50; i++) {
         generate_pts(pts, N, WIDTH, HEIGHT);
-        
+
         SkPath path;
         path.moveTo(pts[0]);
         for (int j = 1; j < N; j++) {
@@ -135,14 +135,14 @@ static void quad_proc(SkCanvas* canvas, const SkPaint& paint,
     SkPoint pts[N];
     for (int i = 0; i < 10; i++) {
         generate_pts(pts, N, WIDTH, HEIGHT);
-        
+
         SkPath path;
         path.moveTo(pts[0]);
         for (int j = 1; j < N - 2; j++) {
             path.quadTo(pts[j], ave(pts[j], pts[j+1]));
         }
         path.quadTo(pts[N - 2], pts[N - 1]);
-        
+
         canvas->drawPath(path, paint);
     }
 }
@@ -159,14 +159,14 @@ static void cube_proc(SkCanvas* canvas, const SkPaint& paint,
     SkPoint pts[N];
     for (int i = 0; i < 10; i++) {
         generate_pts(pts, N, WIDTH, HEIGHT);
-        
+
         SkPath path;
         path.moveTo(pts[0]);
         for (int j = 1; j < N - 2; j++) {
             add_cubic(&path, pts[j], ave(pts[j], pts[j+1]));
         }
         add_cubic(&path, pts[N - 2], pts[N - 1]);
-        
+
         canvas->drawPath(path, paint);
     }
 }
@@ -192,13 +192,13 @@ class HairlineView : public SampleView {
     int fProcIndex;
     bool fDoAA;
 public:
-	HairlineView() {
+    HairlineView() {
         fCounter = 0;
         fProcIndex = 0;
         fDoAA = true;
         fNow = 0;
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -210,7 +210,7 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void show_bitmaps(SkCanvas* canvas, const SkBitmap& b0, const SkBitmap& b1,
                       const SkIRect& inset) {
         canvas->drawBitmap(b0, 0, 0, NULL);
@@ -221,11 +221,11 @@ protected:
 
     virtual void onDrawContent(SkCanvas* canvas) {
         gRand.setSeed(fNow);
-        
+
         if (false) { // avoid bit rot, suppress warning
             test_chromium_9005();
         }
-        
+
         SkBitmap bm, bm2;
         bm.setConfig(SkBitmap::kARGB_8888_Config,
                      WIDTH + MARGIN*2,
@@ -237,7 +237,7 @@ protected:
         bm2.setConfig(SkBitmap::kARGB_8888_Config, WIDTH, HEIGHT,
                       bm.rowBytes());
         bm2.setPixels(bm.getAddr32(MARGIN, MARGIN));
-        
+
         SkCanvas c2(bm2);
         SkPaint paint;
         paint.setAntiAlias(fDoAA);
@@ -266,7 +266,7 @@ protected:
         this->inval(NULL);
         return this->INHERITED::onFindClickHandler(x, y);
     }
-    
+
 
 private:
     typedef SampleView INHERITED;

@@ -37,7 +37,7 @@ public:
                                                  SkShader::kMirror_TileMode);
 #endif
     }
-    
+
     virtual ~AvoidView() {
         fShader->unref();
     }
@@ -54,7 +54,7 @@ protected:
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         SkRect r = { 0, 0, SkIntToScalar(W), SkIntToScalar(H) };
-        
+
         canvas->translate(r.width() / 6, r.height() / 6);
 
         paint.setShader(fShader);
@@ -73,7 +73,7 @@ protected:
 
         paint.setShader(NULL);
         paint.setColor(SK_ColorMAGENTA);
-        
+
         SkPaint frameP;
         frameP.setStyle(SkPaint::kStroke_Style);
 
@@ -91,7 +91,7 @@ protected:
             canvas->drawRect(rr, frameP);
         }
     }
-    
+
 private:
     typedef SampleView INHERITED;
 };
