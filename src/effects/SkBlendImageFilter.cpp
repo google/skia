@@ -92,10 +92,6 @@ bool SkBlendImageFilter::onFilterImage(Proxy* proxy,
                                        SkBitmap* dst,
                                        SkIPoint* offset) {
     SkBitmap background, foreground = src;
-    // FIXME:  This shouldn't happen, but some reason it does on Android.
-    // (bad serialization?)
-    if (NULL == fBackground)
-        return false;
     SkASSERT(NULL != fBackground);
     if (!fBackground->filterImage(proxy, src, ctm, &background, offset)) {
         return false;
