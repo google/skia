@@ -391,6 +391,9 @@ GrTexture* GrContext::lockScratchTexture(const GrTextureDesc& inDesc,
     GrTextureDesc desc = inDesc;
     GrCacheData cacheData(GrCacheData::kScratch_CacheID);
 
+    GrAssert((desc.fFlags & kRenderTarget_GrTextureFlagBit) ||
+             !(desc.fFlags & kNoStencil_GrTextureFlagBit));
+
     if (kExact_ScratchTexMatch != match) {
         // bin by pow2 with a reasonable min
         static const int MIN_SIZE = 256;
@@ -413,11 +416,12 @@ GrTexture* GrContext::lockScratchTexture(const GrTextureDesc& inDesc,
         if (NULL != resource || kExact_ScratchTexMatch == match) {
             break;
         }
-        if (!(desc.fFlags & kRenderTarget_GrTextureFlagBit)) {
-            desc.fFlags = desc.fFlags | kRenderTarget_GrTextureFlagBit;
-        } else if (desc.fFlags & kNoStencil_GrTextureFlagBit) {
+        // We no longer try to reuse textures that were previously used as render targets in 
+        // situations where no RT is needed; doing otherwise can confuse the video driver and
+        // cause significant performance problems in some cases.
+        if (desc.fFlags & kNoStencil_GrTextureFlagBit) {
             desc.fFlags = desc.fFlags & ~kNoStencil_GrTextureFlagBit;
-        } else if (!doubledW) {
+        } else if (!doubledW) { 
             desc.fFlags = inDesc.fFlags;
             desc.fWidth *= 2;
             doubledW = true;
