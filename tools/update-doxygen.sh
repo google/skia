@@ -35,6 +35,12 @@ fi
 # Run Doxygen.
 cd trunk
 doxygen Doxyfile
+ret_code=$?
+if [ $ret_code != 0 ]; then
+  echo "Error while executing Doxygen command"
+  exit $ret_code
+fi
+
 cd ../docs
 
 # Add any newly created files to Subversion.
