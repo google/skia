@@ -108,8 +108,9 @@ struct SkScalerContextRec {
 //The following typedef hides from the rest of the implementation the number of
 //most significant bits to consider when creating mask gamma tables. Two bits
 //per channel was chosen as a balance between fidelity (more bits) and cache
-//sizes (fewer bits).
-typedef SkTMaskGamma<2, 2, 2> SkMaskGamma;
+//sizes (fewer bits). Three bits per channel was chosen when #303942; (used by
+//the Chrome UI) turned out too green.
+typedef SkTMaskGamma<3, 3, 3> SkMaskGamma;
 
 class SkScalerContext {
 public:
