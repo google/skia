@@ -27,7 +27,6 @@
           ],
           'link_settings': {
             'libraries': [
-              '-lfreetype',
               '-lpthread',
             ],
           },

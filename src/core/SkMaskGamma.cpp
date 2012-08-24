@@ -53,9 +53,12 @@ void SkTMaskGamma_build_correcting_lut(uint8_t table[256], U8CPU srcI, SkScalar 
                                 const SkColorSpaceLuminance& dstConvert) {
     const float src = (float)srcI / 255.0f;
     const float linSrc = srcConvert.toLuma(src);
-    //Guess at the dst.
-    const float linDst = 1.0f - linSrc;
-    const float dst = dstConvert.fromLuma(linDst);
+    //Guess at the dst. The perceptual inverse provides smaller visual
+    //discontinuities when slight changes to desaturated colors cause a channel
+    //to map to a different correcting lut with neighboring srcI.
+    //See https://code.google.com/p/chromium/issues/detail?id=141425#c59 .
+    const float dst = 1.0f - src;
+    const float linDst = dstConvert.toLuma(dst);
 
     //Contrast value tapers off to 0 as the src luminance becomes white
     const float adjustedContrast = SkScalarToFloat(contrast) * linDst;
