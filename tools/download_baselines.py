@@ -144,14 +144,14 @@ def Main(options, args):
         # svn ls http://skia-autogen.googlecode.com/svn/gm-actual | grep ^base | sort >/tmp/actual
         # comm -1 -2 /tmp/baselines /tmp/actual
         args = [
+            'gm/base-android-galaxy-nexus',
+            'gm/base-android-nexus-7',
             'gm/base-android-nexus-s',
             'gm/base-android-xoom',
-            'gm/base-linux',
             'gm/base-macmini',
             'gm/base-macmini-lion-float',
-            'gm/base-shuttle_ubuntu12_ati5770',
             'gm/base-shuttle-win7-intel-float',
-            'gm/base-win',
+            'gm/base-shuttle_ubuntu12_ati5770',
             ]
 
     # Trim all subdir names.
