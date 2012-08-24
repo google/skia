@@ -1227,11 +1227,88 @@ path.close();
     path.close();
 </div>
 
+<div id="testQuadratic15">
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 1, 0);
+    path.lineTo(1, 3);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(0, 1);
+    path.quadTo(1, 1, 0, 3);
+    path.close();
+</div>
+
+<div id="testQuadratic16a">
+path.moveTo(0, 0);
+path.quadTo(0, 0, 31, 0);
+path.lineTo(46.5, 31);
+path.lineTo(0, 0);
+path.close();
+path.moveTo(46.5, 15.5);
+path.lineTo(0, 31);
+path.quadTo(0, 31, 15.5, 31);
+path.lineTo(46.5, 15.5);
+path.close();
+</div>
+
+<div id="testQuadratic16b">
+path.moveTo(31, 20.6666679);
+path.lineTo(0, 0);
+path.lineTo(31, 0);
+path.lineTo(39.8571434, 17.7142868);
+path.lineTo(31, 20.6666679);
+path.close();
+path.moveTo(33.214283, 22.1428585);
+path.lineTo(15.5, 31);
+path.lineTo(0, 31);
+path.lineTo(31, 20.6666679);
+path.lineTo(33.214283, 22.1428585);
+path.close();
+path.moveTo(40.2999992, 18.6000004);
+path.lineTo(46.5, 31);
+path.lineTo(33.214283, 22.1428585);
+path.lineTo(40.2999992, 18.6000004);
+path.close();
+path.moveTo(39.8571434, 17.7142868);
+path.lineTo(46.5, 15.5);
+path.lineTo(40.2999992, 18.6000004);
+path.lineTo(39.8571434, 17.7142868);
+path.close();
+</div>
+
+<div id="testQuadratic17x">
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 3, 1);
+    path.lineTo(0, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.quadTo(3, 1, 0, 2);
+    path.close();
+</div>
+
+<div id="testQuadratic18">
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.lineTo(0, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(1, 0, 1, 1);
+    path.close();
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    testQuadratic18,
+    testQuadratic17x,
+    testQuadratic16b,
+    testQuadratic16a,
+    testQuadratic15,
     testQuadratic14,
     testQuadratic13b,
     testQuadratic13a,

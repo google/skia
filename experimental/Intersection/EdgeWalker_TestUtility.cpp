@@ -130,10 +130,10 @@ static int pathsDrawTheSame(const SkPath& one, const SkPath& two,
     if (!c) {
         delete canvasPtr;
     }
-    if (errors2 >= 2 || errors > 96) {
+    if (errors2 >= 3 || errors > 96) {
         SkDebugf("%s errors2=%d errors=%d\n", __FUNCTION__, errors2, errors);
     }
-    if (errors2 >= 3 || errors > 192) {
+    if (errors2 >= 4 || errors > 192) {
         drawAsciiPaths(scaledOne, scaledTwo, true);
     }
     error2x2 = errors2;
@@ -199,7 +199,7 @@ int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap,
     if (errors2x2 == 0) {
         return 0;
     }
-    const int MAX_ERRORS = 4;
+    const int MAX_ERRORS = 5;
     if (errors2x2 > MAX_ERRORS && gComparePathsAssert) {
         SkDebugf("%s errors=%d\n", __FUNCTION__, errors); 
         showPath(one);

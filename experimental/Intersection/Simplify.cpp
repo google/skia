@@ -25,9 +25,17 @@ int gDebugMaxWindSum = SK_MaxS32;
 int gDebugMaxWindValue = SK_MaxS32;
 #endif
 
+#define HIGH_DEF_ANGLES 1
+
+#if HIGH_DEF_ANGLES
+typedef double AngleValue;
+#else
+typedef SkScalar AngleValue;
+#endif
+
 #define DEBUG_UNUSED 0 // set to expose unused functions
 
-#if 0 // set to 1 for multiple thread -- no debugging
+#if 1 // set to 1 for multiple thread -- no debugging
 
 const bool gRunTestsInOneThread = false;
 
@@ -51,11 +59,11 @@ const bool gRunTestsInOneThread = true;
 #define DEBUG_ACTIVE_SPANS 1
 #define DEBUG_ADD_INTERSECTING_TS 0
 #define DEBUG_ADD_T_PAIR 0
-#define DEBUG_ANGLE 0
-#define DEBUG_CONCIDENT 0
+#define DEBUG_ANGLE 1
+#define DEBUG_CONCIDENT 1
 #define DEBUG_CROSS 0
 #define DEBUG_DUMP 1
-#define DEBUG_MARK_DONE 0
+#define DEBUG_MARK_DONE 1
 #define DEBUG_PATH_CONSTRUCTION 1
 #define DEBUG_SORT 1
 #define DEBUG_WIND_BUMP 0
@@ -90,8 +98,7 @@ static int QuadLineIntersect(const SkPoint a[3], const SkPoint b[2],
         Intersections& intersections) {
     const Quadratic aQuad = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY}};
     const _Line bLine = {{b[0].fX, b[0].fY}, {b[1].fX, b[1].fY}};
-    intersect(aQuad, bLine, intersections);
-    return intersections.fUsed;
+    return intersect(aQuad, bLine, intersections);
 }
 
 static int CubicLineIntersect(const SkPoint a[2], const SkPoint b[3],
@@ -331,6 +338,46 @@ static void (* const SegmentSubDivide[])(const SkPoint [], double , double ,
     CubicSubDivide
 };
 
+static void LineSubDivideHD(const SkPoint a[2], double startT, double endT,
+        _Point sub[]) {
+    const _Line aLine = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}};
+    _Line dst;
+    sub_divide(aLine, startT, endT, dst);
+    sub[0] = dst[0];
+    sub[1] = dst[1];
+}
+
+static void QuadSubDivideHD(const SkPoint a[3], double startT, double endT,
+        _Point sub[]) {
+    const Quadratic aQuad = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY},
+            {a[2].fX, a[2].fY}};
+    Quadratic dst;
+    sub_divide(aQuad, startT, endT, dst);
+    sub[0] = dst[0];
+    sub[1] = dst[1];
+    sub[2] = dst[2];
+}
+
+static void CubicSubDivideHD(const SkPoint a[4], double startT, double endT,
+        _Point sub[]) {
+    const Cubic aCubic = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY},
+            {a[2].fX, a[2].fY}, {a[3].fX, a[3].fY}};
+    Cubic dst;
+    sub_divide(aCubic, startT, endT, dst);
+    sub[0] = dst[0];
+    sub[1] = dst[1];
+    sub[2] = dst[2];
+    sub[3] = dst[3];
+}
+
+static void (* const SegmentSubDivideHD[])(const SkPoint [], double , double ,
+        _Point [] ) = {
+    NULL,
+    LineSubDivideHD,
+    QuadSubDivideHD,
+    CubicSubDivideHD
+};
+
 #if DEBUG_UNUSED
 static void QuadSubBounds(const SkPoint a[3], double startT, double endT,
         SkRect& bounds) {
@@ -456,17 +503,17 @@ public:
         if (fDy == 0 && rh.fDy == 0 && fDx * rh.fDx < 0) {
             return fDx < rh.fDx;
         }
-        SkScalar cmp = fDx * rh.fDy - rh.fDx * fDy;
+        AngleValue cmp = fDx * rh.fDy - rh.fDx * fDy;
         if (!approximately_zero(cmp)) {
             return cmp < 0;
         }
-        SkScalar dy = approximately_pin(fDy + fDDy);
-        SkScalar rdy = approximately_pin(rh.fDy + rh.fDDy);
+        AngleValue dy = approximately_pin(fDy + fDDy);
+        AngleValue rdy = approximately_pin(rh.fDy + rh.fDDy);
         if (dy * rdy < 0) {
             return dy < 0;
         }
-        SkScalar dx = approximately_pin(fDx + fDDx);
-        SkScalar rdx = approximately_pin(rh.fDx + rh.fDDx);
+        AngleValue dx = approximately_pin(fDx + fDDx);
+        AngleValue rdx = approximately_pin(rh.fDx + rh.fDDx);
         if (dy == 0 && rdy == 0 && dx * rdx < 0) {
             return dx < rdx;
         }
@@ -502,7 +549,33 @@ public:
     bool isHorizontal() const {
         return fDy == 0 && fDDy == 0 && fDDDy == 0;
     }
+    
+    // high precision version
+#if HIGH_DEF_ANGLES
+    void set(const SkPoint* orig, SkPath::Verb verb, const Segment* segment,
+            int start, int end, double startT, double endT) {
+        Cubic pts;
+        (*SegmentSubDivideHD[verb])(orig, startT, endT, pts);
+        fSegment = segment;
+        fStart = start;
+        fEnd = end;
+        fDx = approximately_pin(pts[1].x - pts[0].x); // b - a
+        fDy = approximately_pin(pts[1].y - pts[0].y);
+        if (verb == SkPath::kLine_Verb) {
+            fDDx = fDDy = fDDDx = fDDDy = 0;
+            return;
+        }
+        fDDx = approximately_pin(pts[2].x - pts[1].x - fDx); // a - 2b + c
+        fDDy = approximately_pin(pts[2].y - pts[1].y - fDy);
+        if (verb == SkPath::kQuad_Verb) {
+            fDDDx = fDDDy = 0;
+            return;
+        }
+        fDDDx = approximately_pin(pts[3].x + 3 * (pts[1].x - pts[2].x) - pts[0].x);
+        fDDDy = approximately_pin(pts[3].y + 3 * (pts[1].y - pts[2].y) - pts[0].y);
+    }
 
+#else 
     // since all angles share a point, this needs to know which point
     // is the common origin, i.e., whether the center is at pts[0] or pts[verb]
     // practically, this should only be called by addAngle
@@ -575,6 +648,7 @@ public:
         }
         SkASSERT(0); // FIXME: add cubic case
     }
+#endif
 
     Segment* segment() const {
         return const_cast<Segment*>(fSegment);
@@ -590,36 +664,42 @@ public:
 
 #if DEBUG_ANGLE
     void debugShow(const SkPoint& a) const {
-        SkDebugf("    d=(%1.9g,%1.9g) dd=(%1.9g,%1.9g) ddd=(%1.9g,%1.9g)",
+        SkDebugf("    d=(%1.9g,%1.9g) dd=(%1.9g,%1.9g) ddd=(%1.9g,%1.9g)\n",
                 fDx, fDy, fDDx, fDDy, fDDDx, fDDDy);
-        SkPoint b, c, d;
-        b.fX = a.fX + fDx; // add b - a
-        b.fY = a.fY + fDy;
-        c.fX = a.fX + 2 * fDx + fDDx; // add a + 2(b - a) to a - 2b + c
-        c.fY = a.fY + 2 * fDy + fDDy;
+        AngleValue ax = (AngleValue) a.fX;
+        AngleValue ay = (AngleValue) a.fY;
+        AngleValue bx, by, cx, cy, dx, dy;
+        bx = ax + fDx; // add b - a
+        by = ay + fDy;
+        cx = ax + 2 * fDx + fDDx; // add a + 2(b - a) to a - 2b + c
+        cy = ay + 2 * fDy + fDDy;
         if (fDDDx == 0 && fDDDy == 0) {
             if (fDDx == 0 && fDDy == 0) {
-                SkDebugf(" line=(%1.9g,%1.9g %1.9g,%1.9g)\n", a.fX, a.fY, b.fX, b.fY);
+                SkDebugf(
+"    {SkPath::kLine_Verb, {{%1.9g, %1.9g}, {%1.9g, %1.9g}        }},\n",
+                        ax, ay, bx, by);
             } else {
-                SkDebugf(" quad=(%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)\n",
-                        a.fX, a.fY, b.fX, b.fY, c.fX, c.fY);
+                SkDebugf(
+"    {SkPath::kQuad_Verb, {{%1.9g, %1.9g}, {%1.9g, %1.9g}, {%1.9g, %1.9g}}},\n",
+                        ax, ay, bx, by, cx, cy);
             }
         } else {
-            d.fX = fDDDx - a.fX - 3 * (c.fX - b.fX);
-            d.fY = fDDDy - a.fY - 3 * (c.fY - b.fY);
-            SkDebugf(" cubic=(%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)\n",
-                    a.fX, a.fY, b.fX, b.fY, c.fX, c.fY, d.fX, d.fY);
+            dx = fDDDx - ax - 3 * (cx - bx);
+            dy = fDDDy - ay - 3 * (cy - by);
+            SkDebugf(
+"    {SkPath::kCubic_Verb, {{%1.9g, %1.9g}, {%1.9g, %1.9g}, {%1.9g, %1.9g}, {%1.9g, %1.9g}}},\n",
+                    ax, ay, bx, by, cx, cy, dx, dy);
         }
     }
 #endif
 
 private:
-    SkScalar fDx;
-    SkScalar fDy;
-    SkScalar fDDx;
-    SkScalar fDDy;
-    SkScalar fDDDx;
-    SkScalar fDDDy;
+    AngleValue fDx;
+    AngleValue fDy;
+    AngleValue fDDx;
+    AngleValue fDDy;
+    AngleValue fDDDx;
+    AngleValue fDDDy;
     const Segment* fSegment;
     int fStart;
     int fEnd;
@@ -726,7 +806,7 @@ public:
         }
         double referenceT = fTs[index].fT;
         int lesser = index;
-        while (--lesser >= 0 && referenceT - fTs[lesser].fT < FLT_EPSILON) {
+        while (--lesser >= 0 && approximately_negative(referenceT - fTs[lesser].fT)) {
             if (activeAngleOther(lesser, done, angles)) {
                 return true;
             }
@@ -735,7 +815,7 @@ public:
             if (activeAngleOther(index, done, angles)) {
                 return true;
             }
-        } while (++index < fTs.count() && fTs[index].fT - referenceT < FLT_EPSILON);
+        } while (++index < fTs.count() && approximately_negative(fTs[index].fT - referenceT));
         return false;
     }
 
@@ -796,10 +876,14 @@ public:
 
     void addAngle(SkTDArray<Angle>& angles, int start, int end) const {
         SkASSERT(start != end);
+        Angle* angle = angles.append();
+#if HIGH_DEF_ANGLES==0 // old way
         SkPoint edge[4];
         (*SegmentSubDivide[fVerb])(fPts, fTs[start].fT, fTs[end].fT, edge);
-        Angle* angle = angles.append();
         angle->set(edge, fVerb, this, start, end);
+#else // new way : compute temp edge in higher precision
+        angle->set(fPts, fVerb, this, start, end, fTs[start].fT, fTs[end].fT);
+#endif
     }
 
     void addCancelOutsides(double tStart, double oStart, Segment& other,
@@ -810,20 +894,20 @@ public:
         int oCount = other.fTs.count();
         do {
             ++tIndex;
-        } while (tStart - fTs[tIndex].fT >= FLT_EPSILON && tIndex < tCount);
+        } while (!approximately_negative(tStart - fTs[tIndex].fT) && tIndex < tCount);
         int tIndexStart = tIndex;
         do {
             ++oIndex;
-        } while (oStart - other.fTs[oIndex].fT >= FLT_EPSILON && oIndex < oCount);
+        } while (!approximately_negative(oStart - other.fTs[oIndex].fT) && oIndex < oCount);
         int oIndexStart = oIndex;
         double nextT;
         do {
             nextT = fTs[++tIndex].fT;
-        } while (nextT < 1 && nextT - tStart < FLT_EPSILON);
+        } while (nextT < 1 && approximately_negative(nextT - tStart));
         double oNextT;
         do {
             oNextT = other.fTs[++oIndex].fT;
-        } while (oNextT < 1 && oNextT - oStart < FLT_EPSILON);
+        } while (oNextT < 1 && approximately_negative(oNextT - oStart));
         // at this point, spans before and after are at:
         //  fTs[tIndexStart - 1], fTs[tIndexStart], fTs[tIndex]
         // if tIndexStart == 0, no prior span
@@ -885,10 +969,10 @@ public:
         double oStart = outsideTs[1];
         do {
             ++tIndex;
-        } while (tStart - fTs[tIndex].fT >= FLT_EPSILON);
+        } while (!approximately_negative(tStart - fTs[tIndex].fT));
         do {
             ++oIndex;
-        } while (oStart - other.fTs[oIndex].fT >= FLT_EPSILON);
+        } while (!approximately_negative(oStart - other.fTs[oIndex].fT));
         if (tIndex > 0 || oIndex > 0) {
             addTPair(tStart, other, oStart, false);
         }
@@ -898,17 +982,17 @@ public:
             double nextT;
             do {
                 nextT = fTs[++tIndex].fT;
-            } while (nextT - tStart < FLT_EPSILON);
+            } while (approximately_negative(nextT - tStart));
             tStart = nextT;
             do {
                 nextT = other.fTs[++oIndex].fT;
-            } while (nextT - oStart < FLT_EPSILON);
+            } while (approximately_negative(nextT - oStart));
             oStart = nextT;
             if (tStart == 1 && oStart == 1) {
                 break;
             }
             addTPair(tStart, other, oStart, false);
-        } while (tStart < 1 && oStart < 1 && oEnd - oStart >= FLT_EPSILON);
+        } while (tStart < 1 && oStart < 1 && !approximately_negative(oEnd - oStart));
     }
 
     void addCubic(const SkPoint pts[4]) {
@@ -990,10 +1074,10 @@ public:
         int insertedAt = -1;
         size_t tCount = fTs.count();
         // FIXME: only do this pinning here (e.g. this is done also in quad/line intersect)
-        if (newT < FLT_EPSILON) {
+        if (approximately_less_than_zero(newT)) {
             newT = 0;
         }
-        if (newT > 1 - FLT_EPSILON) {
+        if (approximately_greater_than_one(newT)) {
             newT = 1;
         }
         for (size_t index = 0; index < tCount; ++index) {
@@ -1037,14 +1121,14 @@ public:
     // pointer since both coincident segments must contain the same spans.
     void addTCancel(double startT, double endT, Segment& other,
             double oStartT, double oEndT) {
-        SkASSERT(endT - startT >= FLT_EPSILON);
-        SkASSERT(oEndT - oStartT >= FLT_EPSILON);
+        SkASSERT(!approximately_negative(endT - startT));
+        SkASSERT(!approximately_negative(oEndT - oStartT));
         int index = 0;
-        while (startT - fTs[index].fT >= FLT_EPSILON) {
+        while (!approximately_negative(startT - fTs[index].fT)) {
             ++index;
         }
         int oIndex = other.fTs.count();
-        while (other.fTs[--oIndex].fT - oEndT > -FLT_EPSILON)
+        while (approximately_positive(other.fTs[--oIndex].fT - oEndT))
             ;
         double tRatio = (oEndT - oStartT) / (endT - startT);
         Span* test = &fTs[index];
@@ -1064,13 +1148,13 @@ public:
                     TrackOutside(outsideTs, span->fT, oTestT);
                 }
                 span = &fTs[++index];
-            } while (span->fT - testT < FLT_EPSILON);
+            } while (approximately_negative(span->fT - testT));
             Span* oSpan = oTest;
             double otherTMatchStart = oEndT - (span->fT - startT) * tRatio;
             double otherTMatchEnd = oEndT - (test->fT - startT) * tRatio;
             SkDEBUGCODE(int originalWindValue = oSpan->fWindValue);
-            while (oSpan->fT > otherTMatchStart - FLT_EPSILON
-                    && otherTMatchEnd - FLT_EPSILON > oSpan->fT) {
+            while (approximately_negative(otherTMatchStart - oSpan->fT)
+                    && !approximately_negative(otherTMatchEnd - oSpan->fT)) {
         #ifdef SK_DEBUG
                 SkASSERT(originalWindValue == oSpan->fWindValue);
         #endif
@@ -1086,8 +1170,8 @@ public:
             }
             test = span;
             oTest = oSpan;
-        } while (test->fT < endT - FLT_EPSILON);
-        SkASSERT(!oIndex || oTest->fT < oStartT + FLT_EPSILON);
+        } while (!approximately_negative(endT - test->fT));
+        SkASSERT(!oIndex || approximately_negative(oTest->fT - oStartT));
         // FIXME: determine if canceled edges need outside ts added
         if (!done() && outsideTs.count()) {
             double tStart = outsideTs[0];
@@ -1111,14 +1195,14 @@ public:
     // the lesser
     void addTCoincident(const int xorMask, double startT, double endT, Segment& other,
             double oStartT, double oEndT) {
-        SkASSERT(endT - startT >= FLT_EPSILON);
-        SkASSERT(oEndT - oStartT >= FLT_EPSILON);
+        SkASSERT(!approximately_negative(endT - startT));
+        SkASSERT(!approximately_negative(oEndT - oStartT));
         int index = 0;
-        while (startT - fTs[index].fT >= FLT_EPSILON) {
+        while (!approximately_negative(startT - fTs[index].fT)) {
             ++index;
         }
         int oIndex = 0;
-        while (oStartT - other.fTs[oIndex].fT >= FLT_EPSILON) {
+        while (!approximately_negative(oStartT - other.fTs[oIndex].fT)) {
             ++oIndex;
         }
         double tRatio = (oEndT - oStartT) / (endT - startT);
@@ -1155,14 +1239,14 @@ public:
                     }
                 }
                 end = &fTs[++index];
-            } while (end->fT - test->fT < FLT_EPSILON);
+            } while (approximately_negative(end->fT - test->fT));
         // because of the order in which coincidences are resolved, this and other
         // may not have the same intermediate points. Compute the corresponding
         // intermediate T values (using this as the master, other as the follower)
         // and walk other conditionally -- hoping that it catches up in the end
             double otherTMatch = (test->fT - startT) * tRatio + oStartT;
             Span* oEnd = oTest;
-            while (oEnd->fT < oEndT - FLT_EPSILON && oEnd->fT - otherTMatch < FLT_EPSILON) {
+            while (!approximately_negative(oEndT - oEnd->fT) && approximately_negative(oEnd->fT - otherTMatch)) {
                 if (transfer) {
                     if (decrementThis) {
                  #ifdef SK_DEBUG
@@ -1182,9 +1266,9 @@ public:
             }
             test = end;
             oTest = oEnd;
-        } while (test->fT < endT - FLT_EPSILON);
-        SkASSERT(oTest->fT < oEndT + FLT_EPSILON);
-        SkASSERT(oTest->fT > oEndT - FLT_EPSILON);
+        } while (!approximately_negative(endT - test->fT));
+        SkASSERT(approximately_negative(oTest->fT - oEndT));
+        SkASSERT(approximately_negative(oEndT - oTest->fT));
         if (!done()) {
             if (outsideTs.count()) {
                 addCoinOutsides(outsideTs, other, oEndT);
@@ -1204,10 +1288,10 @@ public:
         int tCount = fTs.count();
         for (int tIndex = 0; tIndex < tCount; ++tIndex) {
             const Span& span = fTs[tIndex];
-            if (span.fT - t >= FLT_EPSILON) {
+            if (!approximately_negative(span.fT - t)) {
                 break;
             }
-            if (span.fT - t < FLT_EPSILON && span.fOther == &other && span.fOtherT == otherT) {
+            if (approximately_negative(span.fT - t) && span.fOther == &other && span.fOtherT == otherT) {
 #if DEBUG_ADD_T_PAIR
                 SkDebugf("%s addTPair duplicate this=%d %1.9g other=%d %1.9g\n",
                         __FUNCTION__, fID, t, other.fID, otherT);
@@ -1247,12 +1331,12 @@ public:
     void buildAngles(int index, SkTDArray<Angle>& angles) const {
         double referenceT = fTs[index].fT;
         int lesser = index;
-        while (--lesser >= 0 && referenceT - fTs[lesser].fT < FLT_EPSILON) {
+        while (--lesser >= 0 && approximately_negative(referenceT - fTs[lesser].fT)) {
             buildAnglesInner(lesser, angles);
         }
         do {
             buildAnglesInner(index, angles);
-        } while (++index < fTs.count() && fTs[index].fT - referenceT < FLT_EPSILON);
+        } while (++index < fTs.count() && approximately_negative(fTs[index].fT - referenceT));
     }
 
     void buildAnglesInner(int index, SkTDArray<Angle>& angles) const {
@@ -1510,7 +1594,7 @@ public:
             nextEnd = nextStart;
             do {
                 nextEnd += step;
-            } while (fabs(startT - other->fTs[nextEnd].fT) < FLT_EPSILON);
+            } while (approximately_zero(startT - other->fTs[nextEnd].fT));
             SkASSERT(step < 0 ? nextEnd >= 0 : nextEnd < other->fTs.count());
             return other;
         }
@@ -1673,8 +1757,8 @@ public:
             nextStart = endSpan->fOtherIndex;
             double startT = other->fTs[nextStart].fT;
             SkDEBUGCODE(bool firstLoop = true;)
-            if ((startT < FLT_EPSILON && step < 0)
-                    || (startT > 1 - FLT_EPSILON && step > 0)) {
+            if ((approximately_less_than_zero(startT) && step < 0)
+                    || (approximately_greater_than_one(startT) && step > 0)) {
                 step = -step;
                 SkDEBUGCODE(firstLoop = false;)
             }
@@ -1682,7 +1766,7 @@ public:
                 nextEnd = nextStart;
                 do {
                     nextEnd += step;
-                } while (fabs(startT - other->fTs[nextEnd].fT) < FLT_EPSILON);
+                } while (approximately_zero(startT - other->fTs[nextEnd].fT));
                 if (other->fTs[SkMin32(nextStart, nextEnd)].fWindValue) {
                     break;
                 }
@@ -1825,7 +1909,7 @@ public:
                 continue;
             }
             // FIXME: if moStartT, moEndT are initialized to NaN, can skip this test
-            if (moStartT == moEndT) {
+            if (approximately_equal(moStartT, moEndT)) {
                 continue;
             }
             int toStart = -1;
@@ -1857,7 +1941,7 @@ public:
             if (toStart <= 0 || toEnd <= 0) {
                 continue;
             }
-            if (toStartT == toEndT) {
+            if (approximately_equal(toStartT, toEndT)) {
                 continue;
             }
             // test to see if the segment between there and here is linear
@@ -1866,14 +1950,10 @@ public:
                 continue;
             }
             bool flipped = (moStart - moEnd) * (toStart - toEnd) < 1;
-            double tStart = tOther->fTs[toStart].fT;
-            double tEnd = tOther->fTs[toEnd].fT;
-            double mStart = mOther->fTs[moStart].fT;
-            double mEnd = mOther->fTs[moEnd].fT;
             if (flipped) {
-                mOther->addTCancel(mStart, mEnd, *tOther, tEnd, tStart);
+                mOther->addTCancel(moStartT, moEndT, *tOther, toEndT, toStartT);
             } else {
-                mOther->addTCoincident(xorMask, mStart, mEnd, *tOther, tStart, tEnd);
+                mOther->addTCoincident(xorMask, moStartT, moEndT, *tOther, toStartT, toEndT);
             }
         }
     }
@@ -2032,7 +2112,7 @@ public:
     bool isMissing(double startT) const {
         size_t tCount = fTs.count();
         for (size_t index = 0; index < tCount; ++index) {
-            if (fabs(startT - fTs[index].fT) < FLT_EPSILON) {
+            if (approximately_zero(startT - fTs[index].fT)) {
                 return false;
             }
         }
@@ -2045,11 +2125,11 @@ public:
             return true;
         }
         double t = fTs[end].fT;
-        if (t < FLT_EPSILON) {
-            return fTs[1].fT >= FLT_EPSILON;
+        if (approximately_less_than_zero(t)) {
+            return !approximately_less_than_zero(fTs[1].fT);
         }
-        if (t > 1 - FLT_EPSILON) {
-            return fTs[count - 2].fT <= 1 - FLT_EPSILON;
+        if (approximately_greater_than_one(t)) {
+            return !approximately_greater_than_one(fTs[count - 2].fT);
         }
         return false;
     }
@@ -2098,12 +2178,12 @@ public:
         SkASSERT(winding);
         double referenceT = fTs[index].fT;
         int lesser = index;
-        while (--lesser >= 0 && referenceT - fTs[lesser].fT < FLT_EPSILON) {
+        while (--lesser >= 0 && approximately_negative(referenceT - fTs[lesser].fT)) {
             markOneDone(__FUNCTION__, lesser, winding);
         }
         do {
             markOneDone(__FUNCTION__, index, winding);
-        } while (++index < fTs.count() && fTs[index].fT - referenceT < FLT_EPSILON);
+        } while (++index < fTs.count() && approximately_negative(fTs[index].fT - referenceT));
     }
 
     void markOneDone(const char* funName, int tIndex, int winding) {
@@ -2136,25 +2216,25 @@ public:
         SkASSERT(winding);
         double referenceT = fTs[index].fT;
         int lesser = index;
-        while (--lesser >= 0 && referenceT - fTs[lesser].fT < FLT_EPSILON) {
+        while (--lesser >= 0 && approximately_negative(referenceT - fTs[lesser].fT)) {
             markOneWinding(__FUNCTION__, lesser, winding);
         }
         do {
             markOneWinding(__FUNCTION__, index, winding);
-       } while (++index < fTs.count() && fTs[index].fT - referenceT < FLT_EPSILON);
+       } while (++index < fTs.count() && approximately_negative(fTs[index].fT - referenceT));
     }
 
     void matchWindingValue(int tIndex, double t, bool borrowWind) {
         int nextDoorWind = SK_MaxS32;
         if (tIndex > 0) {
             const Span& below = fTs[tIndex - 1];
-            if (t - below.fT < FLT_EPSILON) {
+            if (approximately_negative(t - below.fT)) {
                 nextDoorWind = below.fWindValue;
             }
         }
         if (nextDoorWind == SK_MaxS32 && tIndex + 1 < fTs.count()) {
             const Span& above = fTs[tIndex + 1];
-            if (above.fT - t < FLT_EPSILON) {
+            if (approximately_negative(above.fT - t)) {
                 nextDoorWind = above.fWindValue;
             }
         }
@@ -2194,7 +2274,7 @@ public:
         int to = from;
         while (step > 0 ? ++to < count : --to >= 0) {
             const Span& span = fTs[to];
-            if ((step > 0 ? span.fT - fromSpan.fT : fromSpan.fT - span.fT) < FLT_EPSILON) {
+            if (approximately_zero(span.fT - fromSpan.fT)) {
                 continue;
             }
             return to;
@@ -2239,7 +2319,7 @@ public:
     static void TrackOutside(SkTDArray<double>& outsideTs, double end,
             double start) {
         int outCount = outsideTs.count();
-        if (outCount == 0 || end - outsideTs[outCount - 2] >= FLT_EPSILON) {
+        if (outCount == 0 || !approximately_negative(end - outsideTs[outCount - 2])) {
             *outsideTs.append() = end;
             *outsideTs.append() = start;
         }
@@ -2256,7 +2336,7 @@ public:
         SkASSERT(index < tCount - 1);
         start = index;
         double startT = fTs[index].fT;
-        while (fTs[++index].fT - startT < FLT_EPSILON)
+        while (approximately_negative(fTs[++index].fT - startT))
             SkASSERT(index < tCount);
         SkASSERT(index < tCount);
         end = index;
@@ -2680,13 +2760,13 @@ public:
             if (startT > endT) {
                 SkTSwap<double>(startT, endT);
             }
-            SkASSERT(endT - startT >= FLT_EPSILON);
+            SkASSERT(!approximately_negative(endT - startT));
             double oStartT = coincidence.fTs[1][0];
             double oEndT = coincidence.fTs[1][1];
             if (oStartT > oEndT) {
                 SkTSwap<double>(oStartT, oEndT);
             }
-            SkASSERT(oEndT - oStartT >= FLT_EPSILON);
+            SkASSERT(!approximately_negative(oEndT - oStartT));
             if (thisOne.cancels(other)) {
                         // make sure startT and endT have t entries
                 if (startT > 0 || oEndT < 1
@@ -3415,7 +3495,7 @@ static int innerContourCheck(SkTDArray<Contour*>& contourList,
     // angles to find the span closest to the ray -- even if there are just
     // two spokes on the wheel.
     const Angle* angle = NULL;
-    if (fabs(tHit - test->t(tIndex)) < FLT_EPSILON) {
+    if (approximately_zero(tHit - test->t(tIndex))) {
         SkTDArray<Angle> angles;
         int end = test->nextSpan(tIndex, 1);
         if (end < 0) {
