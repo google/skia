@@ -8,7 +8,7 @@ void cubecode_test(int test);
 
 void Intersection_Tests() {
     int testsRun = 0;
-//    SimplifyAngle_Test();
+ //   SimplifyAngle_Test();
     SimplifyNew_Test();
     Simplify4x4QuadraticsThreaded_Test(testsRun);
     QuadLineIntersectThreaded_Test(testsRun);

@@ -65,8 +65,16 @@ static const segment segmentTest1[] = {
     {SkPath::kMove_Verb                          }
 };
 
+static const segment segmentTest2[] = {
+    {SkPath::kLine_Verb, {{1, 0}, {0, 0}        }},
+    {SkPath::kQuad_Verb, {{1, 0}, {1.89897954f, 0.898979485f}, {2.39387703f, 1.59591794f}}},
+    {SkPath::kLine_Verb, {{1, 0}, {3, 2}        }},
+    {SkPath::kMove_Verb                          }
+};
+
 static const segment* segmentTests[] = {
-    segmentTest1
+    segmentTest2,
+    segmentTest1,
 };
 
 static const size_t segmentTestCount = sizeof(segmentTests) / sizeof(segmentTests[0]);
@@ -78,19 +86,27 @@ static void testSegments(bool testFlat) {
         int index = 0;
         do {
             int next = index + 1;
+    #if HIGH_DEF_ANGLES==0
             if (testFlat) {
                 lesser.setFlat(segPtr[index].pts, segPtr[index].verb, 0, index, next);
             } else {
                 lesser.set(segPtr[index].pts, segPtr[index].verb, 0, index, next);
             }
+    #else
+            lesser.set(segPtr[index].pts, segPtr[index].verb, 0, index, next, 0, 1);
+    #endif
             if (segPtr[next].verb == SkPath::kMove_Verb) {
                 break;
             }
+    #if HIGH_DEF_ANGLES==0
             if (testFlat) {
                 greater.setFlat(segPtr[next].pts, segPtr[next].verb, 0, index, next);
             } else {
                 greater.set(segPtr[next].pts, segPtr[next].verb, 0, index, next);
             }
+    #else
+            greater.set(segPtr[next].pts, segPtr[next].verb, 0, index, next, 0, 1);
+    #endif
             bool result = lesser < greater;
             SkASSERT(result);
             index = next;
@@ -106,11 +122,15 @@ static void testLines(bool testFlat) {
     size_t x;
     for (x = 0; x < lineCount; ++x) {
         SimplifyAngleTest::Angle* angle = angles.append();
+    #if HIGH_DEF_ANGLES==0
         if (testFlat) {
             angle->setFlat(lines[x], SkPath::kLine_Verb, 0, x, x + 1);
         } else {
             angle->set(lines[x], SkPath::kLine_Verb, 0, x, x + 1);
         }
+    #else
+        angle->set(lines[x], SkPath::kLine_Verb, 0, x, x + 1, 0, 1);
+    #endif
         double arcTan = atan2(lines[x][0].fX - lines[x][1].fX,
                 lines[x][0].fY - lines[x][1].fY);
         arcTans.push(arcTan);
@@ -157,12 +177,16 @@ static void testQuads(bool testFlat) {
     size_t x;
     for (x = 0; x < quadCount; ++x) {
         SimplifyAngleTest::Angle* angle = angles.append();
+    #if HIGH_DEF_ANGLES==0
         if (testFlat) {
             angle->setFlat(quads[x], SkPath::kQuad_Verb, 0, x, x + 1);
         } else {
             angle->set(quads[x], SkPath::kQuad_Verb, 0, x, x + 1);
         }
-    }
+     #else
+        angle->set(quads[x], SkPath::kQuad_Verb, 0, x, x + 1, 0, 1);
+    #endif
+   }
     for (x = 0; x < quadCount; ++x) {
         angleList.push(&angles[x]);
     }
@@ -183,11 +207,15 @@ static void testCubics(bool testFlat) {
     SkTDArray<SimplifyAngleTest::Angle* > angleList;
     for (size_t x = 0; x < cubicCount; ++x) {
         SimplifyAngleTest::Angle* angle = angles.append();
+    #if HIGH_DEF_ANGLES==0
         if (testFlat) {
             angle->setFlat(cubics[x], SkPath::kCubic_Verb, 0, x, x + 1);
         } else {
             angle->set(cubics[x], SkPath::kCubic_Verb, 0, x, x + 1);
         }
+     #else
+            angle->set(cubics[x], SkPath::kCubic_Verb, 0, x, x + 1, 0, 1);
+    #endif
         angleList.push(angle);
     }
     QSort<SimplifyAngleTest::Angle>(angleList.begin(), angleList.end() - 1);

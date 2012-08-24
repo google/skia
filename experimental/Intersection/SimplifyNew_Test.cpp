@@ -2472,12 +2472,55 @@ static void testQuadratic14() {
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = testQuadratic14;
+static void testQuadratic15() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 1, 0);
+    path.lineTo(1, 3);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(0, 1);
+    path.quadTo(1, 1, 0, 3);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic17x() {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 3, 1);
+    path.lineTo(0, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.quadTo(3, 1, 0, 2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic18() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.lineTo(0, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(1, 0, 1, 1);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void (*firstTest)() = testQuadratic18;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(testQuadratic18),
+    TEST(testQuadratic17x),
+    TEST(testQuadratic15),
     TEST(testQuadratic14),
     TEST(testQuadratic9),
     TEST(testQuadratic8),

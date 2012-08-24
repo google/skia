@@ -99,9 +99,30 @@ inline bool approximately_zero_squared(double x) {
     return approximately_zero(x);
 }
 
+inline bool approximately_greater_than_one(double x) {
+    return x > 1 - FLT_EPSILON;
+}
+
+inline bool approximately_less_than_zero(double x) {
+    return x < FLT_EPSILON;
+}
+
 inline bool approximately_negative(double x) {
     return x < FLT_EPSILON;
 }
+
+inline bool approximately_one_or_less(double x) {
+    return x < 1 + FLT_EPSILON;
+}
+
+inline bool approximately_positive(double x) {
+    return x > -FLT_EPSILON;
+}
+
+inline bool approximately_zero_or_more(double x) {
+    return x > -FLT_EPSILON;
+}
+
 
 #endif
 
