@@ -18,7 +18,9 @@ static void test_length(skiatest::Reporter* reporter, SkScalar x, SkScalar y,
     point.set(x, y);
     SkScalar s1 = point.length();
     SkScalar s2 = SkPoint::Length(x, y);
-    REPORTER_ASSERT(reporter, s1 == s2);
+    //The following should be exactly the same, but need not be.
+    //See http://code.google.com/p/skia/issues/detail?id=816
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(s1, s2));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(s1, expectedLength));
 }
 
@@ -30,7 +32,7 @@ static void test_Normalize(skiatest::Reporter* reporter,
     SkScalar oldLength = point.length();
     SkScalar returned = SkPoint::Normalize(&point);
     SkScalar newLength = point.length();
-    REPORTER_ASSERT(reporter, returned == oldLength);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(returned, oldLength));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(newLength, SK_Scalar1));
 }
 
