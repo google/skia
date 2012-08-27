@@ -90,19 +90,6 @@ public:
             return reinterpret_cast<const uint32_t*>(this);
         }
 
-        enum OutputConfig {
-            // PM-color OR color with no alpha channel
-            kPremultiplied_OutputConfig,
-            // nonPM-color with alpha channel. Round components up after
-            // dividing by alpha. Assumes output is 8 bits for r, g, and b
-            kUnpremultiplied_RoundUp_OutputConfig,
-            // nonPM-color with alpha channel. Round components down after
-            // dividing by alpha. Assumes output is 8 bits for r, g, and b
-            kUnpremultiplied_RoundDown_OutputConfig,
-
-            kOutputConfigCnt
-        };
-
         struct StageDesc {
             enum OptFlagBits {
                 kNoPerspective_OptFlagBit       = 1 << 0,
@@ -118,41 +105,19 @@ public:
                 kNone_InConfigFlag                      = 0x00,
 
                 /**
-                  Swap the R and B channels. This is incompatible with
-                  kSmearAlpha. It is prefereable to perform the swizzle outside
-                  the shader using GL_ARB_texture_swizzle if possible rather
-                  than setting this flag.
-                 */
-                kSwapRAndB_InConfigFlag                 = 0x01,
-
-                /**
                  Smear alpha across all four channels. This is incompatible with
-                 kSwapRAndB, kMulRGBByAlpha* and kSmearRed. It is prefereable
-                 to perform the smear outside the shader using
-                 GL_ARB_texture_swizzle if possible rather than setting this
-                 flag.
+                 kSmearRed. It is prefereable to perform the smear outside the
+                 shader using GL_ARB_texture_swizzle if possible rather than
+                 setting this flag.
                 */
                 kSmearAlpha_InConfigFlag                = 0x02,
 
                 /**
-                 Smear the red channel across all four channels. This flag is
-                 incompatible with kSwapRAndB, kMulRGBByAlpha*and kSmearAlpha.
-                 It is preferable to use GL_ARB_texture_swizzle instead of this
-                 flag.
+                 Smear the red channel across all four channels. This flag is 
+                 incompatible with kSmearAlpha. It is preferable to use
+                 GL_ARB_texture_swizzle instead of this  flag.
                 */
                 kSmearRed_InConfigFlag                  = 0x04,
-
-                /**
-                 Multiply r,g,b by a after texture reads. This flag incompatible
-                 with kSmearAlpha.
-
-                 It is assumed the src texture has 8bit color components. After
-                 reading the texture one version rounds up to the next multiple
-                 of 1/255.0 and the other rounds down. At most one of these
-                 flags may be set.
-                 */
-                kMulRGBByAlpha_RoundUp_InConfigFlag     =  0x08,
-                kMulRGBByAlpha_RoundDown_InConfigFlag   =  0x10,
 
                 kDummyInConfigFlag,
                 kInConfigBitMask = (kDummyInConfigFlag-1) |
@@ -218,14 +183,12 @@ public:
 
         uint8_t fColorInput;        // casts to enum ColorInput
         uint8_t fCoverageInput;     // casts to enum CoverageInput
-        uint8_t fOutputConfig;      // casts to enum OutputConfig
         uint8_t fDualSrcOutput;     // casts to enum DualSrcOutput
         int8_t fFirstCoverageStage;
         SkBool8 fEmitsPointSize;
         SkBool8 fColorMatrixEnabled;
 
         uint8_t fColorFilterXfermode;  // casts to enum SkXfermode::Mode
-        int8_t fPadding[1];
     };
     GR_STATIC_ASSERT(!(sizeof(Desc) % 4));
 

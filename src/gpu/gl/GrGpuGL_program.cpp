@@ -729,20 +729,6 @@ void GrGpuGL::buildProgram(bool isPoints,
                             // We can use A8 textures so use kSmearAlpha.
                             stage.fInConfigFlags |= StageDesc::kSmearAlpha_InConfigFlag;
                         }
-                    } else if (sampler.swapsRAndB()) {
-                        stage.fInConfigFlags |= StageDesc::kSwapRAndB_InConfigFlag;
-                    }
-                }
-                if (sampler.premultiply()) {
-                    // Assert that if we're doing a premul conversion that the texture is 1 byte
-                    // per color component. The rounding performed by the shader generator (in
-                    // normalized float color space) assumes this.
-                    GrAssert(4 == GrBytesPerPixel(texture->config()));
-                    if (kUpOnWrite_DownOnRead_UnpremulConversion ==
-                        fUnpremulConversion) {
-                        stage.fInConfigFlags |= StageDesc::kMulRGBByAlpha_RoundDown_InConfigFlag;
-                    } else {
-                        stage.fInConfigFlags |= StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag;
                     }
                 }
             }
@@ -756,19 +742,6 @@ void GrGpuGL::buildProgram(bool isPoints,
             stage.fCustomStageKey   = 0;
             customStages[s] = NULL;
         }
-    }
-
-    if (drawState.isStateFlagEnabled(GrDrawState::kUnpremultiply_StageBit)) {
-        // The shader generator assumes that color channels are bytes
-        // when rounding.
-        GrAssert(4 == GrBytesPerPixel(drawState.getRenderTarget()->config()));
-        if (kUpOnWrite_DownOnRead_UnpremulConversion == fUnpremulConversion) {
-            desc->fOutputConfig = ProgramDesc::kUnpremultiplied_RoundUp_OutputConfig;
-        } else {
-            desc->fOutputConfig = ProgramDesc::kUnpremultiplied_RoundDown_OutputConfig;
-        }
-    } else {
-        desc->fOutputConfig = ProgramDesc::kPremultiplied_OutputConfig;
     }
 
     desc->fDualSrcOutput = ProgramDesc::kNone_DualSrcOutput;

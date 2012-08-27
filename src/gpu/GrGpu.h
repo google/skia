@@ -164,18 +164,10 @@ public:
     void forceRenderTargetFlush();
 
     /**
-     * If this returns true then a sequence that reads unpremultiplied pixels
-     * from a surface, writes back the same values, and reads them again will
-     * give the same pixel values back in both reads.
-     */
-    virtual bool canPreserveReadWriteUnpremulPixels() = 0;
-
-    /**
      * readPixels with some configs may be slow. Given a desired config this
      * function returns a fast-path config. The returned config must have the
-     * same components, component sizes, and not require conversion between
-     * pre- and unpremultiplied alpha. The caller is free to ignore the result
-     * and call readPixels with the original config.
+     * same components and component sizes. The caller is free to ignore the
+     * result and call readPixels with the original config.
      */
     virtual GrPixelConfig preferredReadPixelsConfig(GrPixelConfig config)
                                                                         const {
@@ -220,10 +212,7 @@ public:
      virtual bool fullReadPixelsIsFasterThanPartial() const { return false; };
 
     /**
-     * Reads a rectangle of pixels from a render target. Fails if read requires
-     * conversion between premultiplied and unpremultiplied configs. The caller
-     * should do the conversion by rendering to a target with the desire config
-     * first.
+     * Reads a rectangle of pixels from a render target.
      *
      * @param renderTarget  the render target to read from. NULL means the
      *                      current render target.

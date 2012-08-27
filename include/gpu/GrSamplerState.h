@@ -121,7 +121,6 @@ public:
         // memcpy() breaks refcounting
         fTextureParams = s.fTextureParams;
         fMatrix = s.fMatrix;
-        fSwapRAndB = s.fSwapRAndB;
 
         GrSafeAssign(fCustomStage, s.fCustomStage);
 
@@ -129,8 +128,6 @@ public:
     }
 
     const GrMatrix& getMatrix() const { return fMatrix; }
-    bool swapsRAndB() const { return fSwapRAndB; }
-    bool premultiply() const { return fPremultiply; }
 
     GrTextureParams* textureParams() { return &fTextureParams; }
     const GrTextureParams& getTextureParams() const { return fTextureParams; }
@@ -139,18 +136,6 @@ public:
      * relationship between the matrix and sample mode.
      */
     GrMatrix* matrix() { return &fMatrix; }
-
-    /**
-     * Swaps the R and B components when reading from the texture. Has no effect
-     * if the texture is alpha only.
-     */
-    void setRAndBSwap(bool swap) { fSwapRAndB = swap; }
-
-    /**
-     * If the texture is RGBA/BGRA 8888 config then its rgb components will be
-     * multiplied by its a component after the texture read.
-     **/
-    void setPremultiply(bool premul) { fPremultiply = premul; }
 
     /**
      *  Multiplies the current sampler matrix  a matrix
@@ -169,8 +154,6 @@ public:
                const GrMatrix& matrix) {
         fTextureParams.reset(tileXAndY, filter);
         fMatrix = matrix;
-        fSwapRAndB = false;
-        fPremultiply = false;
         GrSafeSetNull(fCustomStage);
     }
     void reset(SkShader::TileMode wrapXAndY, bool filter) {
@@ -191,8 +174,6 @@ public:
 
 private:
     GrTextureParams     fTextureParams;
-    bool                fSwapRAndB;
-    bool                fPremultiply; // temporary, will be replaced soon by a custom stage.
     GrMatrix            fMatrix;
 
     GrCustomStage*      fCustomStage;

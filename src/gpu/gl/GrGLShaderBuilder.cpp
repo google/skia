@@ -87,24 +87,12 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctx, GrGLUniformMana
 }
 
 void GrGLShaderBuilder::computeSwizzle(uint32_t configFlags) {
-   static const uint32_t kMulByAlphaMask =
-        (GrGLProgram::StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag |
-         GrGLProgram::StageDesc::kMulRGBByAlpha_RoundDown_InConfigFlag);
-
     fSwizzle = "";
-    if (configFlags & GrGLProgram::StageDesc::kSwapRAndB_InConfigFlag) {
-        GrAssert(!(configFlags &
-                   GrGLProgram::StageDesc::kSmearAlpha_InConfigFlag));
-        GrAssert(!(configFlags &
-                   GrGLProgram::StageDesc::kSmearRed_InConfigFlag));
-        fSwizzle = ".bgra";
-    } else if (configFlags & GrGLProgram::StageDesc::kSmearAlpha_InConfigFlag) {
-        GrAssert(!(configFlags & kMulByAlphaMask));
+    if (configFlags & GrGLProgram::StageDesc::kSmearAlpha_InConfigFlag) {
         GrAssert(!(configFlags &
                    GrGLProgram::StageDesc::kSmearRed_InConfigFlag));
         fSwizzle = ".aaaa";
     } else if (configFlags & GrGLProgram::StageDesc::kSmearRed_InConfigFlag) {
-        GrAssert(!(configFlags & kMulByAlphaMask));
         GrAssert(!(configFlags &
                    GrGLProgram::StageDesc::kSmearAlpha_InConfigFlag));
         fSwizzle = ".rrrr";

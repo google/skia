@@ -609,12 +609,13 @@ public:
     class AutoRenderTarget : ::GrNoncopyable {
     public:
         AutoRenderTarget(GrContext* context, GrRenderTarget* target) {
-            fContext = NULL;
             fPrevTarget = context->getRenderTarget();
-            if (fPrevTarget != target) {
-                context->setRenderTarget(target);
-                fContext = context;
-            }
+            context->setRenderTarget(target);
+            fContext = context;
+        }
+        AutoRenderTarget(GrContext* context) {
+            fPrevTarget = context->getRenderTarget();
+            fContext = context;
         }
         ~AutoRenderTarget() {
             if (fContext) {
@@ -631,14 +632,31 @@ public:
      */
     class AutoMatrix : GrNoncopyable {
     public:
+        enum InitialMatrix {
+            kPreserve_InitialMatrix,
+            kIdentity_InitialMatrix,
+        };
+
         AutoMatrix() : fContext(NULL) {}
-        AutoMatrix(GrContext* ctx) : fContext(ctx) {
+
+        AutoMatrix(GrContext* ctx, InitialMatrix initialState) : fContext(ctx) {
             fMatrix = ctx->getMatrix();
+            switch (initialState) {
+                case kPreserve_InitialMatrix:
+                    break;
+                case kIdentity_InitialMatrix:
+                    ctx->setMatrix(GrMatrix::I());
+                    break;
+                default:
+                    GrCrash("Unexpected initial matrix state");
+            }
         }
+
         AutoMatrix(GrContext* ctx, const GrMatrix& matrix) : fContext(ctx) {
             fMatrix = ctx->getMatrix();
             ctx->setMatrix(matrix);
         }
+
         void set(GrContext* ctx) {
             if (NULL != fContext) {
                 fContext->setMatrix(fMatrix);
@@ -646,6 +664,7 @@ public:
             fMatrix = ctx->getMatrix();
             fContext = ctx;
         }
+
         void set(GrContext* ctx, const GrMatrix& matrix) {
             if (NULL != fContext) {
                 fContext->setMatrix(fMatrix);
@@ -654,6 +673,7 @@ public:
             ctx->setMatrix(matrix);
             fContext = ctx;
         }
+
         ~AutoMatrix() {
             if (NULL != fContext) {
                 fContext->setMatrix(fMatrix);
@@ -667,6 +687,21 @@ public:
 
     class AutoClip : GrNoncopyable {
     public:
+        // This enum exists to require a caller of the constructor to acknowledge that the clip will
+        // initially be wide open. It also could be extended if there are other desirable initial
+        // clip states.
+        enum InitialClip {
+            kWideOpen_InitialClip,
+        };
+
+        AutoClip(GrContext* context, InitialClip initialState) {
+            GrAssert(kWideOpen_InitialClip == initialState);
+            fOldClip = context->getClip();
+            fNewClipData.fClipStack = &fNewClipStack;
+            context->setClip(&fNewClipData);
+            fContext = context;
+        }
+
         AutoClip(GrContext* context, const GrRect& newClipRect)
         : fContext(context)
         , fNewClipStack(newClipRect) {
@@ -687,6 +722,19 @@ public:
 
         SkClipStack       fNewClipStack;
         GrClipData        fNewClipData;
+    };
+
+    class AutoWideOpenIdentityDraw {
+    public:
+        AutoWideOpenIdentityDraw(GrContext* ctx, GrRenderTarget* rt)
+            : fAutoClip(ctx, AutoClip::kWideOpen_InitialClip)
+            , fAutoRT(ctx, rt)
+            , fAutoMatrix(ctx, AutoMatrix::kIdentity_InitialMatrix) {
+        }
+    private:
+        AutoClip fAutoClip;
+        AutoRenderTarget fAutoRT;
+        AutoMatrix fAutoMatrix;
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -742,6 +790,10 @@ private:
 
     GrAARectRenderer*           fAARectRenderer;
 
+    bool                        fDidTestPMConversions;
+    int                         fPMToUPMConversion;
+    int                         fUPMToPMConversion;
+
     GrContext(GrGpu* gpu);
 
     void setupDrawBuffer();
@@ -770,6 +822,9 @@ private:
     // Add an existing texture to the texture cache. This is intended solely
     // for use with textures released from an GrAutoScratchTexture.
     void addExistingTextureToCache(GrTexture* texture);
+
+    GrCustomStage* createPMToUPMEffect(GrTexture* texture, bool swapRAndB);
+    GrCustomStage* createUPMToPMEffect(GrTexture* texture, bool swapRAndB);
 
     typedef GrRefCnt INHERITED;
 };

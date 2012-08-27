@@ -14,6 +14,7 @@
 
 #include "gl/GrGpuGL.h"
 #include "GrProgramStageFactory.h"
+#include "effects/GrConfigConversionEffect.h"
 
 #include "GrRandom.h"
 #include "Test.h"
@@ -43,12 +44,6 @@ const GrCustomStage* create_random_effect(StageDesc* stageDesc,
                                           GrRandom* random,
                                           GrContext* context,
                                           GrTexture* dummyTextures[]) {
-
-    // TODO: Remove this when generator doesn't apply this non-custom-stage
-    // notion to custom stages automatically.
-    static const uint32_t kMulByAlphaMask =
-        StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag |
-        StageDesc::kMulRGBByAlpha_RoundDown_InConfigFlag;
 
     // The new code uses SkRandom not GrRandom.
     // TODO: Remove GrRandom.
@@ -82,10 +77,6 @@ bool GrGpuGL::programUnitTest() {
     };
     static const int IN_CONFIG_FLAGS[] = {
         StageDesc::kNone_InConfigFlag,
-        StageDesc::kSwapRAndB_InConfigFlag,
-        StageDesc::kSwapRAndB_InConfigFlag |
-        StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag,
-        StageDesc::kMulRGBByAlpha_RoundDown_InConfigFlag,
         StageDesc::kSmearAlpha_InConfigFlag,
         StageDesc::kSmearRed_InConfigFlag,
     };
@@ -121,7 +112,6 @@ bool GrGpuGL::programUnitTest() {
         pdesc.fExperimentalGS = this->getCaps().fGeometryShaderSupport &&
                                 random_bool(&random);
 #endif
-        pdesc.fOutputConfig =  random_int(&random, ProgramDesc::kOutputConfigCnt);
 
         bool edgeAA = random_bool(&random);
         if (edgeAA) {
@@ -212,6 +202,7 @@ void forceLinking();
 void forceLinking() {
     SkLightingImageFilter::CreateDistantLitDiffuse(SkPoint3(0,0,0), 0, 0, 0);
     SkMagnifierImageFilter mag(SkRect::MakeWH(SK_Scalar1, SK_Scalar1), SK_Scalar1);
+    GrConfigConversionEffect::Create(NULL, false);
 }
 
 #endif

@@ -49,8 +49,6 @@ public:
                                     size_t rowBytes) const SK_OVERRIDE;
     virtual bool fullReadPixelsIsFasterThanPartial() const SK_OVERRIDE;
 
-    virtual bool canPreserveReadWriteUnpremulPixels() SK_OVERRIDE;
-
     virtual void abandonResources() SK_OVERRIDE;
 
     bool programUnitTest();
@@ -390,17 +388,6 @@ private:
     // we record what stencil format worked last time to hopefully exit early
     // from our loop that tries stencil formats and calls check fb status.
     int fLastSuccessfulStencilFmtIdx;
-
-    enum UnpremulConversion {
-        kUpOnWrite_DownOnRead_UnpremulConversion,
-        kDownOnWrite_UpOnRead_UnpremulConversion
-    } fUnpremulConversion;
-
-    enum CanPreserveUnpremulRoundtrip {
-        kUnknown_CanPreserveUnpremulRoundtrip,
-        kNo_CanPreserveUnpremulRoundtrip,
-        kYes_CanPreserveUnpremulRoundtrip,
-    } fCanPreserveUnpremulRoundtrip;
 
     bool fPrintedCaps;
 

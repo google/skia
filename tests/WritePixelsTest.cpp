@@ -402,7 +402,7 @@ void WritePixelsTest(skiatest::Reporter* reporter, GrContext* context) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(gCanvasConfigs); ++i) {
         REPORTER_ASSERT(reporter, setupCanvas(&canvas, gCanvasConfigs[i], context));
 
-        static const SkCanvas::Config8888 gReadConfigs[] = {
+        static const SkCanvas::Config8888 gSrcConfigs[] = {
             SkCanvas::kNative_Premul_Config8888,
             SkCanvas::kNative_Unpremul_Config8888,
             SkCanvas::kBGRA_Premul_Config8888,
@@ -413,9 +413,9 @@ void WritePixelsTest(skiatest::Reporter* reporter, GrContext* context) {
         for (size_t r = 0; r < SK_ARRAY_COUNT(testRects); ++r) {
             const SkIRect& rect = testRects[r];
             for (int tightBmp = 0; tightBmp < 2; ++tightBmp) {
-                for (size_t c = 0; c < SK_ARRAY_COUNT(gReadConfigs); ++c) {
+                for (size_t c = 0; c < SK_ARRAY_COUNT(gSrcConfigs); ++c) {
                     fillCanvas(&canvas);
-                    SkCanvas::Config8888 config8888 = gReadConfigs[c];
+                    SkCanvas::Config8888 config8888 = gSrcConfigs[c];
                     SkBitmap bmp;
                     REPORTER_ASSERT(reporter, setupBitmap(&bmp, config8888, rect.width(), rect.height(), SkToBool(tightBmp)));
                     canvas.writePixels(bmp, rect.fLeft, rect.fTop, config8888);

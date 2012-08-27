@@ -879,21 +879,6 @@ bool GrGLProgram::genProgram(const GrCustomStage** customStages) {
                             inCoverage.c_str(),
                             &builder.fFSCode);
         }
-        if (Desc::kUnpremultiplied_RoundDown_OutputConfig == fDesc.fOutputConfig) {
-            builder.fFSCode.appendf("\t%s = %s.a <= 0.0 ? vec4(0,0,0,0) : vec4(floor(%s.rgb / %s.a * 255.0)/255.0, %s.a);\n",
-                                    colorOutput.getName().c_str(),
-                                    colorOutput.getName().c_str(),
-                                    colorOutput.getName().c_str(),
-                                    colorOutput.getName().c_str(),
-                                    colorOutput.getName().c_str());
-        } else if (Desc::kUnpremultiplied_RoundUp_OutputConfig == fDesc.fOutputConfig) {
-            builder.fFSCode.appendf("\t%s = %s.a <= 0.0 ? vec4(0,0,0,0) : vec4(ceil(%s.rgb / %s.a * 255.0)/255.0, %s.a);\n",
-                                    colorOutput.getName().c_str(),
-                                    colorOutput.getName().c_str(),
-                                    colorOutput.getName().c_str(),
-                                    colorOutput.getName().c_str(),
-                                    colorOutput.getName().c_str());
-        }
     }
 
     builder.fVSCode.append("}\n");
@@ -1082,40 +1067,6 @@ void GrGLProgram::genStageCode(int stageNum,
 
     builder->computeSwizzle(desc.fInConfigFlags);
     builder->computeModulate(fsInColor);
-
-    static const uint32_t kMulByAlphaMask =
-        (StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag |
-         StageDesc::kMulRGBByAlpha_RoundDown_InConfigFlag);
-
-    // NOTE: GrGLProgramStages are now responsible for fetching
-    if (NULL == customStage) {
-        if (desc.fInConfigFlags & kMulByAlphaMask) {
-            // only one of the mul by alpha flags should be set
-            GrAssert(GrIsPow2(kMulByAlphaMask & desc.fInConfigFlags));
-            GrAssert(!(desc.fInConfigFlags &
-                       StageDesc::kSmearAlpha_InConfigFlag));
-            GrAssert(!(desc.fInConfigFlags &
-                       StageDesc::kSmearRed_InConfigFlag));
-            builder->fFSCode.appendf("\t%s = %s(%s, %s)%s;\n",
-                                     fsOutColor,
-                                     builder->fTexFunc.c_str(),
-                                     samplerName,
-                                     builder->fSampleCoords.c_str(),
-                                     builder->fSwizzle.c_str());
-            if (desc.fInConfigFlags &
-                StageDesc::kMulRGBByAlpha_RoundUp_InConfigFlag) {
-                builder->fFSCode.appendf("\t%s = vec4(ceil(%s.rgb*%s.a*255.0)/255.0,%s.a)%s;\n",
-                                         fsOutColor, fsOutColor, fsOutColor,
-                                         fsOutColor, builder->fModulate.c_str());
-            } else {
-                builder->fFSCode.appendf("\t%s = vec4(floor(%s.rgb*%s.a*255.0)/255.0,%s.a)%s;\n",
-                                         fsOutColor, fsOutColor, fsOutColor,
-                                         fsOutColor, builder->fModulate.c_str());
-            }
-        } else {
-            builder->emitDefaultFetch(fsOutColor, samplerName);
-        }
-    }
 
     if (NULL != customStage) {
         // Enclose custom code in a block to avoid namespace conflicts
