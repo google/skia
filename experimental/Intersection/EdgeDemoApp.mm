@@ -12,13 +12,13 @@ public:
     SkSampleView() {
         this->setVisibleP(true);
         this->setClipToBounds(false);
+        useOld = true;
     };
 protected:
     virtual void onDraw(SkCanvas* canvas) {
         static int step = 0; // useNew triggers error at 23275
                              // error is not easy to debug in its current state
         static double seconds;
-        static bool useOld = false;
         if (step == -1) {
             timeval t;
             gettimeofday(&t, NULL);
@@ -40,7 +40,14 @@ protected:
             inval(NULL);
         }
     }
+    
+    virtual Click* onFindClickHandler(SkScalar , SkScalar ) {
+        useOld ^= true;
+        return NULL;
+    }
+
 private:
+    bool useOld;
     typedef SkView INHERITED; 
 };
 
