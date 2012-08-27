@@ -19,7 +19,7 @@ static void test_length(skiatest::Reporter* reporter, SkScalar x, SkScalar y,
     SkScalar s1 = point.length();
     SkScalar s2 = SkPoint::Length(x, y);
     //The following should be exactly the same, but need not be.
-    //See http://code.google.com/p/skia/issues/detail?id=816
+    //See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=323
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(s1, s2));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(s1, expectedLength));
 }
