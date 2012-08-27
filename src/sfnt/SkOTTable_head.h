@@ -120,8 +120,8 @@ struct SkOTTableHead {
             ((FullyMixedDirectionalGlyphs, SkTEndian_SwapBE16(0)))
             ((OnlyStronglyLTR, SkTEndian_SwapBE16(1)))
             ((StronglyLTR, SkTEndian_SwapBE16(2)))
-            ((OnlyStronglyRTL, static_cast<SK_OT_SHORT>(SkTEndian_SwapBE16(-1))))
-            ((StronglyRTL, static_cast<SK_OT_SHORT>(SkTEndian_SwapBE16(-2))))
+            ((OnlyStronglyRTL, static_cast<SK_OT_SHORT>(SkTEndian_SwapBE16((uint16_t)-1))))
+            ((StronglyRTL, static_cast<SK_OT_SHORT>(SkTEndian_SwapBE16((uint16_t)-2))))
             SK_SEQ_END,
         (value)SK_SEQ_END)
     } fontDirectionHint;
