@@ -78,7 +78,7 @@ public:
         int maxTextureSize() const { return fInternals.fMaxTextureSize; }
     private:
         CapsInternals fInternals;
-        friend GrDrawTarget; // to set values of fInternals
+        friend class GrDrawTarget; // to set values of fInternals
     };
 
     ///////////////////////////////////////////////////////////////////////////
