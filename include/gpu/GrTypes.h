@@ -115,7 +115,7 @@ static inline size_t GrSizeAlignUpPad(size_t x, size_t alignment) {
 static inline uint32_t GrUIAlignDown(uint32_t x, uint32_t alignment) {
     return (x / alignment) * alignment;
 }
-static inline uint32_t GrSizeAlignDown(size_t x, uint32_t alignment) {
+static inline size_t GrSizeAlignDown(size_t x, uint32_t alignment) {
     return (x / alignment) * alignment;
 }
 
