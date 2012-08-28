@@ -9,7 +9,7 @@
 #include "SkImagePriv.h"
 #include "SkCanvas.h"
 
-//SK_DEFINE_INST_COUNT(SkSurface)
+SK_DEFINE_INST_COUNT(SkSurface)
 
 ///////////////////////////////////////////////////////////////////////////////
 

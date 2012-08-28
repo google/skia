@@ -26,7 +26,7 @@ class GrRenderTarget;
  */
 class SkSurface : public SkRefCnt {
 public:
-//    SK_DECLARE_INST_COUNT(SkSurface)
+    SK_DECLARE_INST_COUNT(SkSurface)
 
     /**
      *  Create a new surface, using the specified pixels/rowbytes as its
