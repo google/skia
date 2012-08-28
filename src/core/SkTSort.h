@@ -61,7 +61,33 @@ template <typename T> void SkTQSort(T** left, T** right) {
     if (left >= right) {
         return;
     }
-    T** pivot = left + (right - left >> 1);
+    T** pivot = left + ((right - left) >> 1);
+    pivot = SkTQSort_Partition(left, right, pivot);
+    SkTQSort(left, pivot - 1);
+    SkTQSort(pivot + 1, right);
+}
+
+template <typename T>
+static T* SkTQSort_Partition(T* left, T* right, T* pivot) {
+    T pivotValue = *pivot;
+    SkTSwap(*pivot, *right);
+    T* newPivot = left;
+    while (left < right) {
+        if (*left < pivotValue) {
+            SkTSwap(*left, *newPivot);
+            newPivot += 1;
+        }
+        left += 1;
+    }
+    SkTSwap(*newPivot, *right);
+    return newPivot;
+}
+
+template <typename T> void SkTQSort(T* left, T* right) {
+    if (left >= right) {
+        return;
+    }
+    T* pivot = left + ((right - left) >> 1);
     pivot = SkTQSort_Partition(left, right, pivot);
     SkTQSort(left, pivot - 1);
     SkTQSort(pivot + 1, right);
@@ -90,7 +116,7 @@ void SkQSort(S& context, T* left, T* right,
     if (left >= right) {
         return;
     }
-    T* pivot = left + (right - left >> 1);
+    T* pivot = left + ((right - left) >> 1);
     pivot = SkTQSort_Partition(context, left, right, pivot, lessThan);
     SkQSort(context, left, pivot - 1, lessThan);
     SkQSort(context, pivot + 1, right, lessThan);

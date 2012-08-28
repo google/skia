@@ -69,6 +69,10 @@ static void TestSort(skiatest::Reporter* reporter) {
         rand_array(rand, array, count);
         SkTHeapSort<int>(array, count);
         check_sort(reporter, "Heap", array, count);
+
+        rand_array(rand, array, count);
+        SkTQSort<int>(array, array + count - 1);
+        check_sort(reporter, "Quick", array, count);
     }
     if (false) { // avoid bit rot, suppress warning
         compare_int(array, array);
