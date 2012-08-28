@@ -22,6 +22,7 @@ bool bezier_clip(const Quadratic& q1, const Quadratic& q2, double& minT, double&
     endLine.quadEndPoints(q1);
     if (!endLine.normalize()) {
         printf("line cannot be normalized: need more code here\n");
+        assert(0);
         return false;
     }
 

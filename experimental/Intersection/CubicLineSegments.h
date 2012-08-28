@@ -7,6 +7,6 @@
 
 #include "DataTypes.h"
 
-void hodograph(const Quadratic& , _Line& hodo);
-void secondHodograph(const Quadratic& , _Point& hodo2);
-double subDivisions(const Quadratic& );
+void hodograph(const Cubic& , Quadratic& hodo);
+void secondHodograph(const Cubic& , _Line& hodo2);
+double subDivisions(const Cubic& );

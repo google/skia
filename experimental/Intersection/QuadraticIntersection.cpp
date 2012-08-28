@@ -8,6 +8,10 @@
 #include "Intersections.h"
 #include "IntersectionUtilities.h"
 #include "LineIntersection.h"
+#include "LineUtilities.h"
+#include "QuadraticLineSegments.h"
+#include "QuadraticUtilities.h"
+#include <algorithm> // for swap
 
 class QuadraticIntersections : public Intersections {
 public:
@@ -28,6 +32,8 @@ bool intersect() {
     if (!bezier_clip(quad1, quad2, minT2, maxT2)) {
         return false;
     }
+    quad1Divisions = 1 / subDivisions(quad1);
+    quad2Divisions = 1 / subDivisions(quad2);
     int split;
     if (maxT1 - minT1 < maxT2 - minT2) {
         intersections.swap();
@@ -45,48 +51,48 @@ bool intersect() {
 protected:
 
 bool intersect(double minT1, double maxT1, double minT2, double maxT2) {
+    bool t1IsLine = maxT1 - minT1 <= quad1Divisions;
+    bool t2IsLine = maxT2 - minT2 <= quad2Divisions;
+    if (t1IsLine | t2IsLine) {
+        return intersectAsLine(minT1, maxT1, minT2, maxT2, t1IsLine, t2IsLine);
+    }
     Quadratic smaller, larger;
     // FIXME: carry last subdivide and reduceOrder result with quad
     sub_divide(quad1, minT1, maxT1, intersections.swapped() ? larger : smaller);
     sub_divide(quad2, minT2, maxT2, intersections.swapped() ? smaller : larger);
-    Quadratic smallResult;
-    if (reduceOrder(smaller, smallResult) <= 2) {
-        Quadratic largeResult;
-        if (reduceOrder(larger, largeResult) <= 2) {
-            double smallT[2], largeT[2];
-            const _Line& smallLine = (const _Line&) smallResult;
-            const _Line& largeLine = (const _Line&) largeResult;
-            // FIXME: this doesn't detect or deal with coincident lines
-            if (!::intersect(smallLine, largeLine, smallT, largeT)) {
-                return false;
-            }
-            if (intersections.swapped()) {
-                smallT[0] = interp(minT2, maxT2, smallT[0]);
-                largeT[0] = interp(minT1, maxT1, largeT[0]);
-            } else {
-                smallT[0] = interp(minT1, maxT1, smallT[0]);
-                largeT[0] = interp(minT2, maxT2, largeT[0]);
-            }
-            intersections.add(smallT[0], largeT[0]);
-            return true;
-        }
-    }
     double minT, maxT;
     if (!bezier_clip(smaller, larger, minT, maxT)) {
-        if (minT == maxT) {
+        if (approximately_equal(minT, maxT)) {
+            double smallT, largeT;
+            _Point q2pt, q1pt;
             if (intersections.swapped()) {
-                minT1 = (minT1 + maxT1) / 2;
-                minT2 = interp(minT2, maxT2, minT);
+                largeT = interp(minT2, maxT2, minT);
+                xy_at_t(quad2, largeT, q2pt.x, q2pt.y);
+                xy_at_t(quad1, minT1, q1pt.x, q1pt.y);
+                if (approximately_equal(q2pt.x, q1pt.x) && approximately_equal(q2pt.y, q1pt.y)) {
+                    smallT = minT1;
+                } else {
+                    xy_at_t(quad1, maxT1, q1pt.x, q1pt.y); // FIXME: debug code
+                    assert(approximately_equal(q2pt.x, q1pt.x) && approximately_equal(q2pt.y, q1pt.y));
+                    smallT = maxT1;
+                }
             } else {
-                minT1 = interp(minT1, maxT1, minT);
-                minT2 = (minT2 + maxT2) / 2;
+                smallT = interp(minT1, maxT1, minT);
+                xy_at_t(quad1, smallT, q1pt.x, q1pt.y);
+                xy_at_t(quad2, minT2, q2pt.x, q2pt.y);
+                if (approximately_equal(q2pt.x, q1pt.x) && approximately_equal(q2pt.y, q1pt.y)) {
+                    largeT = minT2;
+                } else {
+                    xy_at_t(quad2, maxT2, q2pt.x, q2pt.y); // FIXME: debug code
+                    assert(approximately_equal(q2pt.x, q1pt.x) && approximately_equal(q2pt.y, q1pt.y));
+                    largeT = maxT2;
+                }
             }
-            intersections.add(minT1, minT2);
+            intersections.add(smallT, largeT);
             return true;
         }
         return false;
     }
-
     int split;
     if (intersections.swapped()) {
         double newMinT1 = interp(minT1, maxT1, minT);
@@ -111,6 +117,70 @@ bool intersect(double minT1, double maxT1, double minT2, double maxT2) {
         maxT2 = newMaxT2;
     }
     return chop(minT1, maxT1, minT2, maxT2, split);
+}
+
+bool intersectAsLine(double minT1, double maxT1, double minT2, double maxT2,
+       bool treat1AsLine, bool treat2AsLine)
+{
+    _Line line1, line2;
+    if (intersections.swapped()) {
+        std::swap(treat1AsLine, treat2AsLine);
+        std::swap(minT1, minT2);
+        std::swap(maxT1, maxT2);
+    }
+    // do line/quadratic or even line/line intersection instead
+    if (treat1AsLine) {
+        xy_at_t(quad1, minT1, line1[0].x, line1[0].y);
+        xy_at_t(quad1, maxT1, line1[1].x, line1[1].y);
+    }
+    if (treat2AsLine) {
+        xy_at_t(quad2, minT2, line2[0].x, line2[0].y);
+        xy_at_t(quad2, maxT2, line2[1].x, line2[1].y);
+    }
+    int pts;
+    double smallT, largeT;
+    if (treat1AsLine & treat2AsLine) {
+        double t1[2], t2[2];
+        pts = ::intersect(line1, line2, t1, t2);
+        for (int index = 0; index < pts; ++index) {
+            smallT = interp(minT1, maxT1, t1[index]);
+            largeT = interp(minT2, maxT2, t2[index]);
+            if (pts == 2) {
+                intersections.addCoincident(smallT, largeT);
+            } else {
+                intersections.add(smallT, largeT);
+            }
+        }
+    } else {
+        Intersections lq;
+        pts = ::intersect(treat1AsLine ? quad2 : quad1,
+                treat1AsLine ? line1 : line2, lq);
+        bool coincident = false;
+        if (pts == 2) { // if the line and edge are coincident treat differently
+            _Point midQuad, midLine;
+            double midQuadT = (lq.fT[0][0] + lq.fT[0][1]) / 2;
+            xy_at_t(treat1AsLine ? quad2 : quad1, midQuadT, midQuad.x, midQuad.y);
+            double lineT = t_at(treat1AsLine ? line1 : line2, midQuad);
+            xy_at_t(treat1AsLine ? line1 : line2, lineT, midLine.x, midLine.y);
+            coincident = approximately_equal(midQuad.x, midLine.x)
+                    && approximately_equal(midQuad.y, midLine.y);
+        }
+        for (int index = 0; index < pts; ++index) {
+            smallT = lq.fT[0][index];
+            largeT = lq.fT[1][index];
+            if (treat1AsLine) {
+                smallT = interp(minT1, maxT1, smallT);
+            } else {
+                largeT = interp(minT2, maxT2, largeT);
+            }
+            if (coincident) {
+                intersections.addCoincident(smallT, largeT);
+            } else {
+                intersections.add(smallT, largeT);
+            }
+        }
+    }
+    return pts > 0;
 }
 
 bool chop(double minT1, double maxT1, double minT2, double maxT2, int split) {
@@ -146,6 +216,8 @@ const Quadratic& quad2;
 Intersections& intersections;
 int depth;
 int splits;
+double quad1Divisions; // line segments to approximate original within error
+double quad2Divisions;
 };
 
 bool intersect(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
