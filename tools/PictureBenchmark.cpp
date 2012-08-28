@@ -88,10 +88,11 @@ void RecordPictureBenchmark::run(SkPicture* pict) {
 
     for (int i = 0; i < fRepeats + 1; ++i) {
         SkPicture replayer;
-        SkCanvas* recorder = replayer.beginRecording(pict->width(), pict->height());
 
         timer->start();
-        recorder->drawPicture(*pict);
+        SkCanvas* recorder = replayer.beginRecording(pict->width(), pict->height());
+        pict->draw(recorder);
+        replayer.endRecording();
         timer->end();
 
         // We want to ignore first time effects
