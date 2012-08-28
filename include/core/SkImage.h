@@ -96,6 +96,8 @@ private:
     const uint32_t  fUniqueID;
 
     static uint32_t NextUniqueID();
+    
+    typedef SkRefCnt INHERITED;
 };
 
 #endif
