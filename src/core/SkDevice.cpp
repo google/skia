@@ -50,6 +50,13 @@ SkDevice::~SkDevice() {
     delete fMetaData;
 }
 
+void SkDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
+    SkASSERT(bm.width() == fBitmap.width());
+    SkASSERT(bm.height() == fBitmap.height());
+    fBitmap = bm;   // intent is to use bm's pixelRef (and rowbytes/config)
+    fBitmap.lockPixels();
+}
+
 SkDevice* SkDevice::createCompatibleDevice(SkBitmap::Config config,
                                            int width, int height,
                                            bool isOpaque) {

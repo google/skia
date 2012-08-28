@@ -26,7 +26,7 @@ class GrRenderTarget;
  */
 class SkSurface : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkSurface)
+//    SK_DECLARE_INST_COUNT(SkSurface)
 
     /**
      *  Create a new surface, using the specified pixels/rowbytes as its
@@ -78,7 +78,7 @@ public:
      *  If this surface is empty (i.e. has a zero-dimention), this will return
      *  0.
      */
-    uint32_t generationID() const;
+    uint32_t generationID();
 
     /**
      *  Call this if the contents have changed. This will (lazily) force a new
@@ -128,10 +128,15 @@ public:
 protected:
     SkSurface(int width, int height);
 
+    // called by subclass if their contents have changed
+    void dirtyGenerationID() {
+        fGenerationID = 0;
+    }
+
 private:
-    const int           fWidth;
-    const int           fHeight;
-    mutable uint32_t    fGenerationID;
+    const int   fWidth;
+    const int   fHeight;
+    uint32_t    fGenerationID;
 };
 
 #endif

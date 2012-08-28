@@ -380,6 +380,12 @@ private:
     friend class SkDeviceFilteredPaint;
     friend class DeviceImageFilterProxy;
 
+    friend class SkSurface_Raster;
+    // used to change the backend's pixels (and possibly config/rowbytes)
+    // but cannot change the width/height, so there should be no change to
+    // any clip information.
+    void replaceBitmapBackendForRasterSurface(const SkBitmap&);
+
     // just called by SkCanvas when built as a layer
     void setOrigin(int x, int y) { fOrigin.set(x, y); }
     // just called by SkCanvas for saveLayer

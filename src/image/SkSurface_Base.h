@@ -45,18 +45,29 @@ public:
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*);
 
     /**
-     *  Returns a the result of onNewCanvas(), but caches it so that only one
-     *  canvas never ever be created.
+     *  If the surface is about to change, we call this so that our subclass
+     *  can optionally fork their backend (copy-on-write) in case it was
+     *  being shared with the cachedImage.
+     *
+     *  The default implementation does nothing.
      */
-    SkCanvas* getCachedCanvas() {
-        if (NULL == fCachedCanvas) {
-            fCachedCanvas = this->onNewCanvas();
-        }
-        return fCachedCanvas;
-    }
+    virtual void onCopyOnWrite(SkImage* cachedImage, SkCanvas*);
+
+    inline SkCanvas* getCachedCanvas();
+    inline SkImage* getCachedImage();
+
+    // called by SkSurface to compute a new genID
+    uint32_t newGenerationID();
 
 private:
     SkCanvas*   fCachedCanvas;
+    SkImage*    fCachedImage;
+
+    void aboutToDraw(SkCanvas*);
+    friend class SkCanvas;
+    friend class SkSurface;
+
+    inline void installIntoCanvasForDirtyNotification();
 
     typedef SkSurface INHERITED;
 };

@@ -96,14 +96,14 @@ bool SkBitmapToImageInfo(const SkBitmap& bm, SkImage::Info* info) {
     return true;
 }
 
-SkImage* SkNewImageFromBitmap(const SkBitmap& bm) {
+SkImage* SkNewImageFromBitmap(const SkBitmap& bm, bool canSharePixelRef) {
     SkImage::Info info;
     if (!SkBitmapToImageInfo(bm, &info)) {
         return NULL;
     }
 
     SkImage* image = NULL;
-    if (bm.isImmutable()) {
+    if (canSharePixelRef || bm.isImmutable()) {
         image = SkNewImageFromPixelRef(info, bm.pixelRef(), bm.rowBytes());
     } else {
         bm.lockPixels();

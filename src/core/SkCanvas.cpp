@@ -16,6 +16,7 @@
 #include "SkPicture.h"
 #include "SkRasterClip.h"
 #include "SkScalarCompare.h"
+#include "SkSurface_Base.h"
 #include "SkTemplates.h"
 #include "SkTextFormatParams.h"
 #include "SkTLazy.h"
@@ -52,6 +53,12 @@ SK_DEFINE_INST_COUNT(SkDrawFilter)
 #endif
 
 typedef SkTLazy<SkPaint> SkLazyPaint;
+
+void SkCanvas::predrawNotify() {
+    if (fSurfaceBase) {
+        fSurfaceBase->aboutToDraw(this);
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -425,6 +432,7 @@ private:
 
 #define LOOPER_BEGIN_DRAWDEVICE(paint, type)                        \
 /*    AutoValidator   validator(fMCRec->fTopLayer->fDevice); */     \
+    this->predrawNotify();                                          \
     AutoDrawLooper  looper(this, paint, true);                      \
     while (looper.next(type)) {                                     \
         SkAutoBounderCommit ac(fBounder);                           \
@@ -432,6 +440,7 @@ private:
 
 #define LOOPER_BEGIN(paint, type)                                   \
 /*    AutoValidator   validator(fMCRec->fTopLayer->fDevice); */     \
+    this->predrawNotify();                                          \
     AutoDrawLooper  looper(this, paint);                            \
     while (looper.next(type)) {                                     \
         SkAutoBounderCommit ac(fBounder);                           \
@@ -459,6 +468,8 @@ SkDevice* SkCanvas::init(SkDevice* device) {
     fExternalMatrix.reset();
     fExternalInverse.reset();
     fUseExternalMatrix = false;
+    
+    fSurfaceBase = NULL;
 
     return this->setDevice(device);
 }
@@ -2072,3 +2083,5 @@ int SkCanvas::LayerIter::y() const { return fImpl->getY(); }
 ///////////////////////////////////////////////////////////////////////////////
 
 SkCanvas::ClipVisitor::~ClipVisitor() { }
+
+

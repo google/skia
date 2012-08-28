@@ -11,6 +11,8 @@
 #include "SkStream.h"
 #include "SkData.h"
 
+extern GrContext* GetGr();
+
 static SkData* fileToData(const char path[]) {
     SkFILEStream stream(path);
     if (!stream.isValid()) {
@@ -57,8 +59,17 @@ static void test_surface(SkCanvas* canvas, SkSurface* surf) {
     drawContents(surf, SK_ColorRED);
     SkImage* imgR = surf->newImageShapshot();
 
+    if (true) {
+        SkImage* imgR2 = surf->newImageShapshot();
+        SkASSERT(imgR == imgR2);
+        imgR2->unref();
+    }
+
     drawContents(surf, SK_ColorGREEN);
     SkImage* imgG = surf->newImageShapshot();
+
+    // since we've drawn after we snapped imgR, imgG will be a different obj
+    SkASSERT(imgR != imgG);
 
     drawContents(surf, SK_ColorBLUE);
 
@@ -128,6 +139,10 @@ protected:
         test_surface(canvas, surf1);
         canvas->translate(80, 0);
         test_surface(canvas, surf2);
+    }
+
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return GM::kSkipPicture_Flag;
     }
 
 private:

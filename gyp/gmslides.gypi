@@ -39,6 +39,7 @@
     '../gm/imageblur.cpp',
     '../gm/imagemagnifier.cpp',
     '../gm/lighting.cpp',
+    '../gm/image.cpp',
     '../gm/imagefiltersbase.cpp',
     '../gm/imagefiltersgraph.cpp',
     '../gm/lcdtext.cpp',

@@ -96,6 +96,8 @@ private:
     };
 
     void addDraw(DrawType drawType) {
+        this->predrawNotify();
+
 #ifdef SK_DEBUG_TRACE
         SkDebugf("add %s\n", DrawTypeToString(drawType));
 #endif
