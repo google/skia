@@ -11,9 +11,12 @@ class Intersections {
 public:
     Intersections()
         : fUsed(0)
+        , fCoincidentUsed(0)
         , fSwap(0)
     {
+        // OPTIMIZE: don't need to be initialized in release
         bzero(fT, sizeof(fT));
+        bzero(fCoincidentT, sizeof(fCoincidentT));
     }
 
     void add(double one, double two) {
@@ -24,6 +27,19 @@ public:
         fT[fSwap][fUsed] = one;
         fT[fSwap ^ 1][fUsed] = two;
         ++fUsed;
+    }
+
+    // start if index == 0 : end if index == 1
+    void addCoincident(double one, double two) {
+        if (fCoincidentUsed > 0
+                && approximately_equal(fCoincidentT[fSwap][fCoincidentUsed - 1], one)
+                && approximately_equal(fCoincidentT[fSwap ^ 1][fCoincidentUsed - 1], two)) {
+            --fCoincidentUsed;
+            return;
+        }
+        fCoincidentT[fSwap][fCoincidentUsed] = one;
+        fCoincidentT[fSwap ^ 1][fCoincidentUsed] = two;
+        ++fCoincidentUsed;
     }
 
     void offset(int base, double start, double end) {
@@ -52,7 +68,9 @@ public:
     }
 
     double fT[2][9];
+    double fCoincidentT[2][9];
     int fUsed;
+    int fCoincidentUsed;
 private:
     int fSwap;
 };

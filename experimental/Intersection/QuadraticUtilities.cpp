@@ -20,6 +20,11 @@ and using the roots
 
 */
 
+// note: caller expects multiple results to be sorted smaller first
+// note: http://en.wikipedia.org/wiki/Loss_of_significance has an interesting
+//  analysis of the quadratic equation, suggesting why the following looks at
+//  the sign of B -- and further suggesting that the greatest loss of precision
+//  is in b squared less two a c
 int quadraticRoots(double A, double B, double C, double t[2]) {
     B *= 2;
     double square = B * B - 4 * A * C;
@@ -30,23 +35,27 @@ int quadraticRoots(double A, double B, double C, double t[2]) {
     double Q = (B + (B < 0 ? -squareRt : squareRt)) / -2;
     int foundRoots = 0;
     double ratio = Q / A;
-    if (ratio > -FLT_EPSILON && ratio < 1 + FLT_EPSILON) {
-        if (ratio < FLT_EPSILON) {
+    if (approximately_zero_or_more(ratio) && approximately_one_or_less(ratio)) {
+        if (approximately_less_than_zero(ratio)) {
             ratio = 0;
-        } else if (ratio > 1 - FLT_EPSILON) {
+        } else if (approximately_greater_than_one(ratio)) {
             ratio = 1;
         }
-        t[foundRoots++] = ratio;
+        t[0] = ratio;
+        ++foundRoots;
     }
     ratio = C / Q;
-    if (ratio > -FLT_EPSILON && ratio < 1 + FLT_EPSILON) {
-        if (ratio < FLT_EPSILON) {
+    if (approximately_zero_or_more(ratio) && approximately_one_or_less(ratio)) {
+        if (approximately_less_than_zero(ratio)) {
             ratio = 0;
-        } else if (ratio > 1 - FLT_EPSILON) {
+        } else if (approximately_greater_than_one(ratio)) {
             ratio = 1;
         }
-        if (foundRoots == 0 || fabs(t[0] - ratio) >= FLT_EPSILON) {
+        if (foundRoots == 0 || !approximately_negative(ratio - t[0])) {
             t[foundRoots++] = ratio;
+        } else if (!approximately_negative(t[0] - ratio)) {
+            t[foundRoots++] = t[0];
+            t[0] = ratio;
         }
     }
     return foundRoots;

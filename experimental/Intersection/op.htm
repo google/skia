@@ -1299,11 +1299,23 @@ path.close();
     path.close();
 </div>
 
+<div id="testQuadratic19">
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.lineTo(0, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(2, 0, 0, 1);
+    path.close();
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    testQuadratic19,
     testQuadratic18,
     testQuadratic17x,
     testQuadratic16b,

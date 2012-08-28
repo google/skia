@@ -35,7 +35,7 @@ typedef SkScalar AngleValue;
 
 #define DEBUG_UNUSED 0 // set to expose unused functions
 
-#if 1 // set to 1 for multiple thread -- no debugging
+#if 0 // set to 1 for multiple thread -- no debugging
 
 const bool gRunTestsInOneThread = false;
 
