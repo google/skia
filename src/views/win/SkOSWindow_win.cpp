@@ -24,6 +24,12 @@
 #include "gl/GrGLInterface.h"
 
 #include "GLES2/gl2.h"
+
+#define ANGLE_GL_CALL(IFACE, X)                                 \
+    do {                                                        \
+        (IFACE)->f##X;                                          \
+    } while (false)
+
 #endif
 
 #define INVALIDATE_DELAY_MS 200
@@ -528,17 +534,17 @@ bool SkOSWindow::attachANGLE(int msaaSampleCount) {
         const GrGLInterface* intf = GrGLCreateANGLEInterface();
 
         if (intf) {
-            GR_GL_CALL(intf, ClearStencil(0));
-            GR_GL_CALL(intf, ClearColor(0, 0, 0, 0));
-            GR_GL_CALL(intf, StencilMask(0xffffffff));
-            GR_GL_CALL(intf, Clear(GL_STENCIL_BUFFER_BIT |GL_COLOR_BUFFER_BIT));
+            ANGLE_GL_CALL(intf, ClearStencil(0));
+            ANGLE_GL_CALL(intf, ClearColor(0, 0, 0, 0));
+            ANGLE_GL_CALL(intf, StencilMask(0xffffffff));
+            ANGLE_GL_CALL(intf, Clear(GL_STENCIL_BUFFER_BIT |GL_COLOR_BUFFER_BIT));
         }
     }
     if (eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
         const GrGLInterface* intf = GrGLCreateANGLEInterface();
 
         if (intf ) {
-            GR_GL_CALL(intf, Viewport(0, 0, SkScalarRound(this->width()),
+            ANGLE_GL_CALL(intf, Viewport(0, 0, SkScalarRound(this->width()),
                                       SkScalarRound(this->height())));
         }
         return true;
@@ -563,7 +569,7 @@ void SkOSWindow::presentANGLE() {
     const GrGLInterface* intf = GrGLCreateANGLEInterface();
 
     if (intf) {
-        GR_GL_CALL(intf, Flush());
+        ANGLE_GL_CALL(intf, Flush());
     }
 
     eglSwapBuffers(fDisplay, fSurface);
