@@ -1797,6 +1797,7 @@ void test_pm_conversions(GrContext* ctx, int* pmToUPMValue, int* upmToPMValue) {
 GrCustomStage* GrContext::createPMToUPMEffect(GrTexture* texture, bool swapRAndB) {
     if (!fDidTestPMConversions) {
         test_pm_conversions(this, &fPMToUPMConversion, &fUPMToPMConversion);
+        fDidTestPMConversions = true;
     }
     GrConfigConversionEffect::PMConversion pmToUPM =
         static_cast<GrConfigConversionEffect::PMConversion>(fPMToUPMConversion);
@@ -1810,6 +1811,7 @@ GrCustomStage* GrContext::createPMToUPMEffect(GrTexture* texture, bool swapRAndB
 GrCustomStage* GrContext::createUPMToPMEffect(GrTexture* texture, bool swapRAndB) {
     if (!fDidTestPMConversions) {
         test_pm_conversions(this, &fPMToUPMConversion, &fUPMToPMConversion);
+        fDidTestPMConversions = true;
     }
     GrConfigConversionEffect::PMConversion upmToPM =
         static_cast<GrConfigConversionEffect::PMConversion>(fUPMToPMConversion);
