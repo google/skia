@@ -36,8 +36,12 @@ generated actual gm results for ALL platforms.
 ''' + compare_baselines.HOWTO_STRING
 
 # Base URL of SVN repository where buildbots store actual gm image results.
-SVN_BASE_URL = 'http://skia-autogen.googlecode.com/svn/gm-actual'
+GM_ACTUAL_URL = 'http://skia-autogen.googlecode.com/svn/gm-actual'
 
+# GM baseline image URL in regular Skia SVN repository
+GM_BASELINE_URL = 'https://skia.googlecode.com/svn/gm-expected'
+
+GM_EXPECTED_DIR = 'gm-expected'
 OPTION_IGNORE_LOCAL_MODS = '--ignore-local-mods'
 OPTION_ADD_NEW_FILES = '--add-new-files'
 
@@ -47,12 +51,15 @@ def GetLatestResultsSvnUrl(baseline_subdir):
 
     @param baseline_subdir indicates which platform we want images for
     """
-    # trim off 'gm/' prefix
-    gm_prefix = 'gm%s' % os.sep
-    if not baseline_subdir.startswith(gm_prefix):
-        raise Exception('baseline_subdir "%s" should start with "%s"' % (
-            baseline_subdir, gm_prefix))
-    return '%s/%s' % (SVN_BASE_URL, baseline_subdir[len(gm_prefix):])
+    return '%s/%s' % (GM_ACTUAL_URL, baseline_subdir)
+
+def GetBaselineSvnUrl(baseline_subdir):
+    """Return SVN URL from which we can check out the baseline images for this
+    baseline type.
+
+    @param baseline_subdir indicates which platform we want baselines for
+    """
+    return '%s/%s' % (GM_BASELINE_URL, baseline_subdir)
 
 def CopyMatchingFiles(source_dir, dest_dir, filename_pattern,
                       only_copy_updates=False):
@@ -82,7 +89,13 @@ def DownloadBaselinesForOnePlatform(baseline_subdir):
     @param baseline_subdir
     """
     # Create repo_to_modify to handle the SVN repository we will add files to.
-    repo_to_modify = svn.Svn(baseline_subdir)
+    gm_dir = os.path.join(os.pardir, GM_EXPECTED_DIR) # Shouldn't assume we're in trunk...
+    try:
+        os.makedirs(gm_dir)
+    except:
+        pass
+    repo_to_modify = svn.Svn(gm_dir)
+    repo_to_modify.Checkout(GetBaselineSvnUrl(baseline_subdir), baseline_subdir)
 
     # If there are any locally modified files in that directory, exit
     # (so that we don't risk overwriting the user's previous work).
@@ -95,17 +108,19 @@ def DownloadBaselinesForOnePlatform(baseline_subdir):
                                 baseline_subdir, OPTION_IGNORE_LOCAL_MODS))
 
     # Download actual gm images into a separate repo in a temporary directory.
-    tempdir = tempfile.mkdtemp()
-    download_repo = svn.Svn(tempdir)
-    download_repo.Checkout(GetLatestResultsSvnUrl(baseline_subdir), '.')
+    actual_dir = tempfile.mkdtemp()
+    actual_repo = svn.Svn(actual_dir)
+    print 'Using %s as a temp dir' % actual_dir
+    actual_repo.Checkout(GetLatestResultsSvnUrl(baseline_subdir), '.')
 
     # Copy any of those files we are interested in into repo_to_modify,
     # and then delete the temporary directory.
-    CopyMatchingFiles(source_dir=tempdir, dest_dir=baseline_subdir,
+    CopyMatchingFiles(source_dir=actual_dir,
+                      dest_dir=os.path.join(gm_dir, baseline_subdir),
                       filename_pattern='*.png',
                       only_copy_updates=(not options.add_new_files))
-    shutil.rmtree(tempdir)
-    download_repo = None
+    shutil.rmtree(actual_dir)
+    actual_repo = None
 
     # Add any new files to SVN control (if we are running with add_new_files).
     if options.add_new_files:
@@ -140,30 +155,24 @@ def Main(options, args):
         # See http://code.google.com/p/skia/issues/detail?id=678
         #
         # For now, I generate this list using these Unix commands:
-        # svn ls http://skia.googlecode.com/svn/trunk/gm | grep ^base | sort >/tmp/baselines
+        # svn ls http://skia.googlecode.com/svn/gm-expected | grep ^base | sort >/tmp/baselines
         # svn ls http://skia-autogen.googlecode.com/svn/gm-actual | grep ^base | sort >/tmp/actual
         # comm -1 -2 /tmp/baselines /tmp/actual
         args = [
-            'gm/base-android-galaxy-nexus',
-            'gm/base-android-nexus-7',
-            'gm/base-android-nexus-s',
-            'gm/base-android-xoom',
-            'gm/base-macmini',
-            'gm/base-macmini-lion-float',
-            'gm/base-shuttle-win7-intel-float',
-            'gm/base-shuttle_ubuntu12_ati5770',
+            'base-android-galaxy-nexus',
+            'base-android-nexus-7',
+            'base-android-nexus-s',
+            'base-android-xoom',
+            'base-macmini',
+            'base-macmini-lion-float',
+            'base-shuttle-win7-intel-float',
+            'base-shuttle_ubuntu12_ati5770',
             ]
 
     # Trim all subdir names.
     baseline_subdirs = []
     for arg in args:
         baseline_subdirs.append(arg.rstrip(os.sep))
-
-    # Make sure all those subdirectories exist.
-    for baseline_subdir in baseline_subdirs:
-        if not os.path.isdir(baseline_subdir):
-            raise Exception('could not find baseline_subdir "%s"' %
-                            baseline_subdir)
 
     # Process the subdirs, one at a time.
     for baseline_subdir in baseline_subdirs:
