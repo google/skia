@@ -49,6 +49,9 @@ public:
                     builder->fFSCode.appendf("\t%s = tempColor.a <= 0.0 ? vec4(0,0,0,0) : vec4(floor(tempColor.%s / tempColor.a * 255.0)/255.0, tempColor.a);\n",
                         outputColor, swiz);
                     break;
+                default:
+                    GrCrash("Unknown conversion op.");
+                    break;
             }
         }
     }
