@@ -264,12 +264,15 @@ public:
     void makeNonExclusive(GrResourceEntry* entry);
 
     /**
-     *  When done with an entry, call unlock(entry) on it, which returns it to
-     *  a purgable state.
+     * When done with an entry, call unlock(entry) on it, which returns it to
+     * a purgable state.
      */
     void unlock(GrResourceEntry*);
 
-    void removeAll();
+    /**
+     * Removes every resource in the cache that isn't locked.
+     */
+    void purgeAllUnlocked();
 
 #if GR_DEBUG
     void validate() const;
@@ -289,11 +292,12 @@ private:
     GrTHashTable<GrResourceEntry, Key, 8> fCache;
 
     // manage the dlink list
-    SkTDLinkedList<GrResourceEntry>    fList;
+    typedef SkTDLinkedList<GrResourceEntry> EntryList;
+    EntryList    fList;
 
 #if GR_DEBUG
     // These objects cannot be returned by a search
-    SkTDLinkedList<GrResourceEntry>    fExclusiveList;
+    EntryList    fExclusiveList;
 #endif
 
     // our budget, used in purgeAsNeeded()

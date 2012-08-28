@@ -95,6 +95,9 @@ public:
         return NULL == fHead && NULL == fTail;
     }
 
+    T* head() { return fHead; }
+    T* tail() { return fTail; }
+
     class Iter {
     public:
         enum IterStart {

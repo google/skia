@@ -136,7 +136,7 @@ void GrContext::contextDestroyed() {
 
     fAARectRenderer->reset();
 
-    fTextureCache->removeAll();
+    fTextureCache->purgeAllUnlocked();
     fFontCache->freeAll();
     fGpu->markContextDirty();
 }
@@ -152,7 +152,7 @@ void GrContext::freeGpuResources() {
 
     fAARectRenderer->reset();
 
-    fTextureCache->removeAll();
+    fTextureCache->purgeAllUnlocked();
     fFontCache->freeAll();
     // a path renderer may be holding onto resources
     GrSafeSetNull(fPathRendererChain);

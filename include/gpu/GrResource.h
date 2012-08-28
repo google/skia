@@ -76,6 +76,8 @@ protected:
     virtual void onRelease() = 0;
     virtual void onAbandon() = 0;
 
+    bool isInCache() const { return NULL != fCacheEntry; }
+
 private:
 
     friend class GrGpu; // GrGpu manages list of resources.
