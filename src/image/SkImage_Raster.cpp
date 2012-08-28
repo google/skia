@@ -59,6 +59,8 @@ public:
     // exposed for SkSurface_Raster via SkNewImageFromPixelRef
     SkImage_Raster(const SkImage::Info&, SkPixelRef*, size_t rowBytes);
 
+    SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
+
 private:
     SkImage_Raster() : INHERITED(0, 0) {}
 
@@ -93,8 +95,6 @@ SkImage_Raster::SkImage_Raster(const Info& info, SkColorSpace* cs,
 
 SkImage_Raster::SkImage_Raster(const Info& info, SkPixelRef* pr, size_t rowBytes)
 : INHERITED(info.fWidth, info.fHeight) {
-    SkASSERT(pr->isImmutable());
-
     bool isOpaque;
     SkBitmap::Config config = SkImageInfoToBitmapConfig(info, &isOpaque);
 
@@ -157,5 +157,9 @@ SkImage* SkImage::NewRasterData(const SkImage::Info& info, SkColorSpace* cs,
 SkImage* SkNewImageFromPixelRef(const SkImage::Info& info, SkPixelRef* pr,
                                 size_t rowBytes) {
     return SkNEW_ARGS(SkImage_Raster, (info, pr, rowBytes));
+}
+
+SkPixelRef* SkBitmapImageGetPixelRef(SkImage* image) {
+    return ((SkImage_Raster*)image)->getPixelRef();
 }
 

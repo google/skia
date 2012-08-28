@@ -160,6 +160,19 @@
         '<(skia_src_path)/core/SkUtils.cpp',
         '<(skia_src_path)/core/SkWriter32.cpp',
         '<(skia_src_path)/core/SkXfermode.cpp',
+
+        '<(skia_src_path)/image/SkDataPixelRef.cpp',
+        '<(skia_src_path)/image/SkImage.cpp',
+        '<(skia_src_path)/image/SkImagePriv.cpp',
+        '<(skia_src_path)/image/SkImage_Codec.cpp',
+#        '<(skia_src_path)/image/SkImage_Gpu.cpp',
+        '<(skia_src_path)/image/SkImage_Picture.cpp',
+        '<(skia_src_path)/image/SkImage_Raster.cpp',
+        '<(skia_src_path)/image/SkSurface.cpp',
+#        '<(skia_src_path)/image/SkSurface_Gpu.cpp',
+        '<(skia_src_path)/image/SkSurface_Picture.cpp',
+        '<(skia_src_path)/image/SkSurface_Raster.cpp',
+
         '<(skia_src_path)/pipe/SkGPipeRead.cpp',
         '<(skia_src_path)/pipe/SkGPipeWrite.cpp',
 

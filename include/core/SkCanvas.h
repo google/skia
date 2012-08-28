@@ -26,6 +26,7 @@ class SkDevice;
 class SkDraw;
 class SkDrawFilter;
 class SkPicture;
+class SkSurface_Base;
 
 /** \class SkCanvas
 
@@ -950,6 +951,10 @@ protected:
     bool clipRectBounds(const SkRect* bounds, SaveFlags flags,
                         SkIRect* intersection);
 
+    // notify our surface (if we have one) that we are about to draw, so it
+    // can perform copy-on-write or invalidate any cached images
+    void predrawNotify();
+
 private:
     class MCRec;
 
@@ -963,6 +968,13 @@ private:
     SkBounder*  fBounder;
     SkDevice*   fLastDeviceToGainFocus;
     int         fSaveLayerCount;    // number of successful saveLayer calls
+
+    SkSurface_Base*  fSurfaceBase;
+    SkSurface_Base* getSurfaceBase() const { return fSurfaceBase; }
+    void setSurfaceBase(SkSurface_Base* sb) {
+        fSurfaceBase = sb;
+    }
+    friend class SkSurface_Base;
 
     void prepareForDeviceDraw(SkDevice*, const SkMatrix&, const SkRegion&);
 

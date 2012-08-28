@@ -17,6 +17,7 @@
         '../include/ports',
         '../include/xml',
         '../src/core',
+        '../src/image',
       ],
       'msvs_disabled_warnings': [4244, 4267,4345, 4390, 4554, 4800],
       'conditions': [

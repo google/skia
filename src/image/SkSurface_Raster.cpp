@@ -8,6 +8,7 @@
 #include "SkSurface_Base.h"
 #include "SkImagePriv.h"
 #include "SkCanvas.h"
+#include "SkDevice.h"
 #include "SkMallocPixelRef.h"
 
 static const size_t kIgnoreRowBytesValue = (size_t)~0;
@@ -24,6 +25,7 @@ public:
     virtual SkImage* onNewImageShapshot() SK_OVERRIDE;
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y,
                         const SkPaint*) SK_OVERRIDE;
+    virtual void onCopyOnWrite(SkImage*, SkCanvas*) SK_OVERRIDE;
 
 private:
     SkBitmap    fBitmap;
@@ -89,7 +91,7 @@ SkSurface_Raster::SkSurface_Raster(const SkImage::Info& info, SkColorSpace* cs,
     fBitmap.setConfig(config, info.fWidth, info.fHeight, rb);
     fBitmap.setPixels(pixels);
     fBitmap.setIsOpaque(isOpaque);
-    fWeOwnThePixels = false;
+    fWeOwnThePixels = false;    // We are "Direct"
 }
 
 SkSurface_Raster::SkSurface_Raster(const SkImage::Info& info, SkColorSpace* cs,
@@ -117,16 +119,26 @@ SkSurface* SkSurface_Raster::onNewSurface(const SkImage::Info& info,
     return SkSurface::NewRaster(info, cs);
 }
 
-SkImage* SkSurface_Raster::onNewImageShapshot() {
-    // if we don't own the pixels, we need to make a deep-copy
-    // if we do, we need to perform a copy-on-write the next time
-    // we draw to this bitmap from our canvas...
-    return SkNewImageFromBitmap(fBitmap);
-}
-
 void SkSurface_Raster::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
                               const SkPaint* paint) {
     canvas->drawBitmap(fBitmap, x, y, paint);
+}
+
+SkImage* SkSurface_Raster::onNewImageShapshot() {
+    return SkNewImageFromBitmap(fBitmap, fWeOwnThePixels);
+}
+
+void SkSurface_Raster::onCopyOnWrite(SkImage* image, SkCanvas* canvas) {
+    // are we sharing pixelrefs with the image?
+    if (SkBitmapImageGetPixelRef(image) == fBitmap.pixelRef()) {
+        SkASSERT(fWeOwnThePixels);
+        SkBitmap prev(fBitmap);
+        prev.deepCopyTo(&fBitmap, prev.config());
+        // Now fBitmap is a deep copy of itself (and therefore different from
+        // what is being used by the image. Next we update the canvas to use
+        // this as its backend, so we can't modify the image's pixels anymore.
+        canvas->getDevice()->replaceBitmapBackendForRasterSurface(fBitmap);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
