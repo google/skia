@@ -35,6 +35,36 @@ void GrResourceEntry::validate() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class GrResourceCache::Key {
+    typedef GrResourceEntry T;
+
+    const GrResourceKey& fKey;
+public:
+    Key(const GrResourceKey& key) : fKey(key) {}
+
+    uint32_t getHash() const { return fKey.hashIndex(); }
+
+    static bool LT(const T& entry, const Key& key) {
+        return entry.key() < key.fKey;
+    }
+    static bool EQ(const T& entry, const Key& key) {
+        return entry.key() == key.fKey;
+    }
+#if GR_DEBUG
+    static uint32_t GetHash(const T& entry) {
+        return entry.key().hashIndex();
+    }
+    static bool LT(const T& a, const T& b) {
+        return a.key() < b.key();
+    }
+    static bool EQ(const T& a, const T& b) {
+        return a.key() == b.key();
+    }
+#endif
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 GrResourceCache::GrResourceCache(int maxCount, size_t maxBytes) :
         fMaxCount(maxCount),
         fMaxBytes(maxBytes) {
@@ -58,7 +88,20 @@ GrResourceCache::GrResourceCache(int maxCount, size_t maxBytes) :
 GrResourceCache::~GrResourceCache() {
     GrAutoResourceCacheValidate atcv(this);
 
-    this->removeAll();
+    EntryList::Iter iter;
+
+    // Unlike the removeAll, here we really remove everything, including locked resources.
+    while (GrResourceEntry* entry = fList.head()) {
+        GrAutoResourceCacheValidate atcv(this);
+
+        // remove from our cache
+        fCache.remove(entry->fKey, entry);
+
+        // remove from our llist
+        this->internalDetach(entry, false);
+
+        delete entry;
+    }
 }
 
 void GrResourceCache::getLimits(int* maxResources, size_t* maxResourceBytes) const{
@@ -140,34 +183,6 @@ void GrResourceCache::attachToHead(GrResourceEntry* entry,
 #endif
     }
 }
-
-class GrResourceCache::Key {
-    typedef GrResourceEntry T;
-
-    const GrResourceKey& fKey;
-public:
-    Key(const GrResourceKey& key) : fKey(key) {}
-
-    uint32_t getHash() const { return fKey.hashIndex(); }
-
-    static bool LT(const T& entry, const Key& key) {
-        return entry.key() < key.fKey;
-    }
-    static bool EQ(const T& entry, const Key& key) {
-        return entry.key() == key.fKey;
-    }
-#if GR_DEBUG
-    static uint32_t GetHash(const T& entry) {
-        return entry.key().hashIndex();
-    }
-    static bool LT(const T& a, const T& b) {
-        return a.key() < b.key();
-    }
-    static bool EQ(const T& a, const T& b) {
-        return a.key() == b.key();
-    }
-#endif
-};
 
 GrResource* GrResourceCache::findAndLock(const GrResourceKey& key,
                                          LockType type) {
@@ -310,14 +325,13 @@ void GrResourceCache::purgeAsNeeded() {
         fPurging = true;
         bool withinBudget = false;
         do {
-            SkTDLinkedList<GrResourceEntry>::Iter iter;
+            EntryList::Iter iter;
 
             // Note: the following code relies on the fact that the
             // doubly linked list doesn't invalidate its data/pointers
             // outside of the specific area where a deletion occurs (e.g.,
             // in internalDetach)
-            GrResourceEntry* entry = iter.init(fList,
-                    SkTDLinkedList<GrResourceEntry>::Iter::kTail_IterStart);
+            GrResourceEntry* entry = iter.init(fList, EntryList::Iter::kTail_IterStart);
 
             while (entry && fUnlockedEntryCount) {
                 GrAutoResourceCacheValidate atcv(this);
@@ -350,7 +364,7 @@ void GrResourceCache::purgeAsNeeded() {
     }
 }
 
-void GrResourceCache::removeAll() {
+void GrResourceCache::purgeAllUnlocked() {
     GrAutoResourceCacheValidate atcv(this);
 
     // we can have one GrResource holding a lock on another
@@ -384,14 +398,13 @@ void GrResourceCache::removeAll() {
 ///////////////////////////////////////////////////////////////////////////////
 
 #if GR_DEBUG
-size_t GrResourceCache::countBytes(const SkTDLinkedList<GrResourceEntry>& list) {
+size_t GrResourceCache::countBytes(const EntryList& list) {
     size_t bytes = 0;
 
-    SkTDLinkedList<GrResourceEntry>::Iter iter;
+    EntryList::Iter iter;
 
-    const GrResourceEntry* entry = iter.init(
-                  const_cast<SkTDLinkedList<GrResourceEntry>&>(list),
-                  SkTDLinkedList<GrResourceEntry>::Iter::kTail_IterStart);
+    const GrResourceEntry* entry = iter.init(const_cast<EntryList&>(list),
+                                             EntryList::Iter::kTail_IterStart);
 
     for ( ; NULL != entry; entry = iter.prev()) {
         bytes += entry->resource()->sizeInBytes();
@@ -417,11 +430,10 @@ void GrResourceCache::validate() const {
     int count = 0;
     int unlockCount = 0;
 
-    SkTDLinkedList<GrResourceEntry>::Iter iter;
+    EntryList::Iter iter;
 
-    const GrResourceEntry* entry = iter.init(
-                  const_cast<SkTDLinkedList<GrResourceEntry>&>(fList),
-                  SkTDLinkedList<GrResourceEntry>::Iter::kHead_IterStart);
+    const GrResourceEntry* entry = iter.init(const_cast<EntryList&>(fList),
+                                             EntryList::Iter::kHead_IterStart);
 
     for ( ; NULL != entry; entry = iter.next()) {
         entry->validate();

@@ -132,9 +132,8 @@ private:
     GrClipData      fClipData;
 
     // state for our offscreen render-target
-    // TODO: remove 'fCached' and let fTexture automatically return to the cache
-    bool                fCached;        // is fTexture in the cache
-    GrTexture*          fTexture;
+    // TODO: remove 'fCached' and automatically return to the cache
+    bool                fCached;        // is fRenderTarget->asTexture() in the cache
     GrRenderTarget*     fRenderTarget;
     bool                fNeedClear;
     bool                fNeedPrepareRenderTarget;

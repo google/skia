@@ -189,28 +189,23 @@ void SkGpuDevice::initFromRenderTarget(GrContext* context,
     fContext->ref();
 
     fCached = false;
-    fTexture = NULL;
     fRenderTarget = NULL;
     fNeedClear = false;
 
     GrAssert(NULL != renderTarget);
     fRenderTarget = renderTarget;
     fRenderTarget->ref();
-    // if this RT is also a texture, hold a ref on it
-    fTexture = fRenderTarget->asTexture();
-    SkSafeRef(fTexture);
 
-    // Create a pixel ref for the underlying SkBitmap. We prefer a texture pixel
-    // ref to a render target pixel reft. The pixel ref may get ref'ed outside
-    // the device via accessBitmap. This external ref may outlive the device.
-    // Since textures own their render targets (but not vice-versa) we
-    // are ensuring that both objects will live as long as the pixel ref.
-    SkPixelRef* pr;
-    if (fTexture) {
-        pr = SkNEW_ARGS(SkGrTexturePixelRef, (fTexture));
-    } else {
-        pr = SkNEW_ARGS(SkGrRenderTargetPixelRef, (fRenderTarget));
+    // Hold onto to the texture in the pixel ref (if there is one) because the texture holds a ref
+    // on the RT but not vice-versa.
+    // TODO: Remove this trickery once we figure out how to make SkGrPixelRef do this without
+    // busting chrome (for a currently unknown reason).
+    GrSurface* surface = fRenderTarget->asTexture();
+    if (NULL == surface) {
+        surface = fRenderTarget;
     }
+    SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (surface));
+
     this->setPixelRef(pr, 0)->unref();
 }
 
@@ -227,7 +222,6 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
     fContext->ref();
 
     fCached = false;
-    fTexture = NULL;
     fRenderTarget = NULL;
     fNeedClear = false;
 
@@ -243,16 +237,16 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
     desc.fHeight = height;
     desc.fConfig = SkBitmapConfig2GrPixelConfig(bm.config());
 
-    fTexture = fContext->createUncachedTexture(desc, NULL, 0);
+    SkAutoTUnref<GrTexture> texture(fContext->createUncachedTexture(desc, NULL, 0));
 
-    if (NULL != fTexture) {
-        fRenderTarget = fTexture->asRenderTarget();
+    if (NULL != texture) {
+        fRenderTarget = texture->asRenderTarget();
         fRenderTarget->ref();
 
         GrAssert(NULL != fRenderTarget);
 
         // wrap the bitmap with a pixelref to expose our texture
-        SkGrTexturePixelRef* pr = SkNEW_ARGS(SkGrTexturePixelRef, (fTexture));
+        SkGrPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (texture));
         this->setPixelRef(pr, 0)->unref();
     } else {
         GrPrintf("--- failed to create gpu-offscreen [%d %d]\n",
@@ -270,12 +264,11 @@ SkGpuDevice::~SkGpuDevice() {
     // This call gives the context a chance to relinquish it
     fContext->setRenderTarget(NULL);
 
-    SkSafeUnref(fTexture);
-    SkSafeUnref(fRenderTarget);
-    if (NULL != fTexture && fCached) {
-        GrAssert(fRenderTarget == fTexture->asRenderTarget());
-        fContext->unlockTexture(fTexture);
+    GrTexture* texture = fRenderTarget->asTexture();
+    if (NULL != texture && fCached) {
+        fContext->unlockTexture(texture);
     }
+    SkSafeUnref(fRenderTarget);
     fContext->unref();
 }
 
@@ -485,9 +478,10 @@ SkGpuRenderTarget* SkGpuDevice::accessRenderTarget() {
 }
 
 bool SkGpuDevice::bindDeviceAsTexture(GrPaint* paint) {
-    if (NULL != fTexture) {
+    GrTexture* texture = fRenderTarget->asTexture();
+    if (NULL != texture) {
         paint->textureSampler(kBitmapTextureIdx)->setCustomStage(
-            SkNEW_ARGS(GrSingleTextureEffect, (fTexture)))->unref();
+            SkNEW_ARGS(GrSingleTextureEffect, (texture)))->unref();
         return true;
     }
     return false;

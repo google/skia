@@ -41,7 +41,6 @@ void GrStencilBuffer::onRelease() {
         this->unlockInCache();
         // we shouldn't be deleted here because some RT still has a ref on us.
     }
-    fHoldingLock = false;
 }
 
 void GrStencilBuffer::onAbandon() {
@@ -50,12 +49,13 @@ void GrStencilBuffer::onAbandon() {
 }
 
 void GrStencilBuffer::unlockInCache() {
-    if (fHoldingLock) {
+    if (fHoldingLock && this->isInCache()) {
         GrGpu* gpu = this->getGpu();
         if (NULL != gpu) {
             GrAssert(NULL != gpu->getContext());
             gpu->getContext()->unlockStencilBuffer(this);
         }
+        fHoldingLock = false;
     }
 }
 
