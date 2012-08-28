@@ -396,7 +396,7 @@ static bool skip_name(const SkTDArray<const char*> array, const char name[]) {
 
 static void help() {
     SkDebugf("Usage: bench [-o outDir] [-repeat nr] [-logPerIter 1|0] "
-                          "[-timers [wcg]*] [-rotate]\n"
+                          "[-timers [wcgWC]*] [-rotate]\n"
              "    [-scale] [-clip] [-min] [-forceAA 1|0] [-forceFilter 1|0]\n"
              "    [-forceDither 1|0] [-forceBlend 1|0] [-strokeWidth width]\n"
              "    [-match name] [-mode normal|deferred|record|picturerecord]\n"
@@ -407,8 +407,8 @@ static void help() {
     SkDebugf("    -repeat nr : Each bench repeats for nr times.\n");
     SkDebugf("    -logPerIter 1|0 : "
              "Log each repeat timer instead of mean, default is disabled.\n");
-    SkDebugf("    -timers [wcg]* : "
-             "Display wall time, cpu time or gpu time for each bench.\n");
+    SkDebugf("    -timers [wcgWC]* : "
+             "Display wall, cpu, gpu, truncated wall or truncated cpu time for each bench.\n");
     SkDebugf("    -rotate : Rotate before each bench runs.\n");
     SkDebugf("    -scale : Scale before each bench runs.\n");
     SkDebugf("    -clip : Clip before each bench runs.\n");
@@ -455,7 +455,9 @@ int main (int argc, char * const argv[]) {
     bool forceFilter = false;
     SkTriState::State forceDither = SkTriState::kDefault;
     bool timerWall = false;
+    bool truncatedTimerWall = false;
     bool timerCpu = true;
+    bool truncatedTimerCpu = false;
     bool timerGpu = true;
     bool doScale = false;
     bool doRotate = false;
@@ -508,12 +510,16 @@ int main (int argc, char * const argv[]) {
             argv++;
             if (argv < stop) {
                 timerWall = false;
+                truncatedTimerWall = false;
                 timerCpu = false;
+                truncatedTimerCpu = false;
                 timerGpu = false;
                 for (char* t = *argv; *t; ++t) {
                     switch (*t) {
                     case 'w': timerWall = true; break;
                     case 'c': timerCpu = true; break;
+                    case 'W': truncatedTimerWall = true; break;
+                    case 'C': truncatedTimerCpu = true; break;
                     case 'g': timerGpu = true; break;
                     }
                 }
@@ -836,6 +842,12 @@ int main (int argc, char * const argv[]) {
 
             // warm up caches if needed
             if (repeatDraw > 1) {
+#if SK_SUPPORT_GPU
+                if (glHelper) {
+                    // purge the GPU resources to reduce variance
+                    glHelper->grContext()->freeGpuResources();
+                }
+#endif
                 SkAutoCanvasRestore acr(canvas, true);
                 if (benchMode == kPictureRecord_benchModes) {
                     pictureRecordFrom.draw(canvas);
@@ -853,10 +865,14 @@ int main (int argc, char * const argv[]) {
 
             // record timer values for each repeat, and their sum
             SkString fWallStr(" msecs = ");
+            SkString fTruncatedWallStr(" Wmsecs = ");
             SkString fCpuStr(" cmsecs = ");
+            SkString fTruncatedCpuStr(" Cmsecs = ");
             SkString fGpuStr(" gmsecs = ");
             double fWallSum = 0.0, fWallMin;
+            double fTruncatedWallSum = 0.0, fTruncatedWallMin;
             double fCpuSum = 0.0, fCpuMin;
+            double fTruncatedCpuSum = 0.0, fTruncatedCpuMin;
             double fGpuSum = 0.0, fGpuMin;
             for (int i = 0; i < repeatDraw; i++) {
                 if ((benchMode == kRecord_benchModes
@@ -874,23 +890,36 @@ int main (int argc, char * const argv[]) {
                     bench->draw(canvas);
                 }
                 canvas->flush();
+
+                // stop the truncated timer after the last canvas call but
+                // don't wait for all the GL calls to complete
+                timer.truncatedEnd();
 #if SK_SUPPORT_GPU
                 if (glHelper) {
                     glHelper->grContext()->flush();
+                    SK_GL(*glHelper->glContext(), Finish());
                 }
 #endif
+                // stop the inclusive and gpu timers once all the GL calls
+                // have completed
                 timer.end();
 
                 if (i == repeatDraw - 1) {
                     // no comma after the last value
                     fWallStr.appendf(perIterTimeformat.c_str(), timer.fWall);
                     fCpuStr.appendf(perIterTimeformat.c_str(), timer.fCpu);
+                    fTruncatedWallStr.appendf(perIterTimeformat.c_str(), timer.fTruncatedWall);
+                    fTruncatedCpuStr.appendf(perIterTimeformat.c_str(), timer.fTruncatedCpu);
                     fGpuStr.appendf(perIterTimeformat.c_str(), timer.fGpu);
                 } else {
                     fWallStr.appendf(perIterTimeformat.c_str(), timer.fWall);
                     fWallStr.appendf(",");
                     fCpuStr.appendf(perIterTimeformat.c_str(), timer.fCpu);
                     fCpuStr.appendf(",");
+                    fTruncatedWallStr.appendf(perIterTimeformat.c_str(), timer.fTruncatedWall);
+                    fTruncatedWallStr.appendf(",");
+                    fTruncatedCpuStr.appendf(perIterTimeformat.c_str(), timer.fTruncatedCpu);
+                    fTruncatedCpuStr.appendf(",");
                     fGpuStr.appendf(perIterTimeformat.c_str(), timer.fGpu);
                     fGpuStr.appendf(",");
                 }
@@ -898,22 +927,23 @@ int main (int argc, char * const argv[]) {
                 if (0 == i) {
                     fWallMin = timer.fWall;
                     fCpuMin  = timer.fCpu;
+                    fTruncatedWallMin = timer.fTruncatedWall;
+                    fTruncatedCpuMin  = timer.fTruncatedCpu;
                     fGpuMin  = timer.fGpu;
                 } else {
                     fWallMin = Min(fWallMin, timer.fWall);
                     fCpuMin  = Min(fCpuMin,  timer.fCpu);
+                    fTruncatedWallMin = Min(fTruncatedWallMin, timer.fTruncatedWall);
+                    fTruncatedCpuMin  = Min(fTruncatedCpuMin,  timer.fTruncatedCpu);
                     fGpuMin  = Min(fGpuMin,  timer.fGpu);
                 }
 
                 fWallSum += timer.fWall;
                 fCpuSum += timer.fCpu;
+                fTruncatedWallSum += timer.fTruncatedWall;
+                fTruncatedCpuSum += timer.fTruncatedCpu;
                 fGpuSum += timer.fGpu;
             }
-#if SK_SUPPORT_GPU
-           if (glHelper) {
-                SK_GL(*glHelper->glContext(), Finish());
-           }
-#endif
             if (repeatDraw > 1) {
                 // output each repeat (no average) if logPerIter is set,
                 // otherwise output only the average
@@ -924,6 +954,12 @@ int main (int argc, char * const argv[]) {
                     fCpuStr.set(" cmsecs = ");
                     fCpuStr.appendf(normalTimeFormat.c_str(), 
                         printMin ? fCpuMin : fCpuSum / repeatDraw);
+                    fTruncatedWallStr.set(" Wmsecs = ");
+                    fTruncatedWallStr.appendf(normalTimeFormat.c_str(), 
+                        printMin ? fTruncatedWallMin : fTruncatedWallSum / repeatDraw);
+                    fTruncatedCpuStr.set(" Cmsecs = ");
+                    fTruncatedCpuStr.appendf(normalTimeFormat.c_str(), 
+                        printMin ? fTruncatedCpuMin : fTruncatedCpuSum / repeatDraw);
                     fGpuStr.set(" gmsecs = ");
                     fGpuStr.appendf(normalTimeFormat.c_str(), 
                         printMin ? fGpuMin : fGpuSum / repeatDraw);
@@ -933,8 +969,14 @@ int main (int argc, char * const argv[]) {
                 if (timerWall) {
                     str += fWallStr;
                 }
+                if (truncatedTimerWall) {
+                    str += fTruncatedWallStr;
+                }
                 if (timerCpu) {
                     str += fCpuStr;
+                }
+                if (truncatedTimerCpu) {
+                    str += fTruncatedCpuStr;
                 }
                 if (timerGpu && glHelper && fGpuSum > 0) {
                     str += fGpuStr;

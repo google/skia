@@ -43,7 +43,7 @@ void PipePictureBenchmark::run(SkPicture* pict) {
     fRenderer.resetState();
 
     BenchTimer* timer = this->setupTimer();
-    double wall_time = 0;
+    double wall_time = 0, truncated_wall_time = 0;
 #if SK_SUPPORT_GPU
     double gpu_time = 0;
 #endif
@@ -55,6 +55,7 @@ void PipePictureBenchmark::run(SkPicture* pict) {
         fRenderer.resetState();
 
         wall_time += timer->fWall;
+        truncated_wall_time += timer->fTruncatedWall;
 #if SK_SUPPORT_GPU
         if (fRenderer.isUsingGpuDevice()) {
             gpu_time += timer->fGpu;
@@ -83,7 +84,7 @@ void RecordPictureBenchmark::run(SkPicture* pict) {
     }
 
     BenchTimer* timer = setupTimer();
-    double wall_time = 0;
+    double wall_time = 0, truncated_wall_time = 0;
 
     for (int i = 0; i < fRepeats + 1; ++i) {
         SkPicture replayer;
@@ -96,6 +97,7 @@ void RecordPictureBenchmark::run(SkPicture* pict) {
         // We want to ignore first time effects
         if (i > 0) {
             wall_time += timer->fWall;
+            truncated_wall_time += timer->fTruncatedWall;
         }
     }
 
@@ -121,7 +123,7 @@ void SimplePictureBenchmark::run(SkPicture* pict) {
 
 
     BenchTimer* timer = this->setupTimer();
-    double wall_time = 0;
+    double wall_time = 0, truncated_wall_time = 0;
 #if SK_SUPPORT_GPU
     double gpu_time = 0;
 #endif
@@ -133,6 +135,7 @@ void SimplePictureBenchmark::run(SkPicture* pict) {
         fRenderer.resetState();
 
         wall_time += timer->fWall;
+        truncated_wall_time += timer->fTruncatedWall;
 #if SK_SUPPORT_GPU
         if (fRenderer.isUsingGpuDevice()) {
             gpu_time += timer->fGpu;
@@ -169,7 +172,7 @@ void TiledPictureBenchmark::run(SkPicture* pict) {
     fRenderer.resetState();
 
     BenchTimer* timer = setupTimer();
-    double wall_time = 0;
+    double wall_time = 0, truncated_wall_time = 0;
 #if SK_SUPPORT_GPU
     double gpu_time = 0;
 #endif
@@ -181,6 +184,7 @@ void TiledPictureBenchmark::run(SkPicture* pict) {
         fRenderer.resetState();
 
         wall_time += timer->fWall;
+        truncated_wall_time += timer->fTruncatedWall;
 #if SK_SUPPORT_GPU
         if (fRenderer.isUsingGpuDevice()) {
             gpu_time += timer->fGpu;
@@ -216,7 +220,7 @@ void UnflattenPictureBenchmark::run(SkPicture* pict) {
     }
 
     BenchTimer* timer = setupTimer();
-    double wall_time = 0;
+    double wall_time = 0, truncated_wall_time = 0;
 
     for (int i = 0; i < fRepeats + 1; ++i) {
         SkPicture replayer;
@@ -231,6 +235,7 @@ void UnflattenPictureBenchmark::run(SkPicture* pict) {
         // We want to ignore first time effects
         if (i > 0) {
             wall_time += timer->fWall;
+            truncated_wall_time += timer->fTruncatedWall;
         }
     }
 

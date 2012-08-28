@@ -23,9 +23,12 @@
 BenchTimer::BenchTimer(SkGLContext* gl)
         : fCpu(-1.0)
         , fWall(-1.0)
+        , fTruncatedCpu(-1.0)
+        , fTruncatedWall(-1.0)
         , fGpu(-1.0)
 {
     fSysTimer = new BenchSysTimer();
+    fTruncatedSysTimer = new BenchSysTimer();
 #if SK_SUPPORT_GPU
     if (gl) {
         fGpuTimer = new BenchGpuTimer(gl);
@@ -37,6 +40,7 @@ BenchTimer::BenchTimer(SkGLContext* gl)
 
 BenchTimer::~BenchTimer() {
     delete fSysTimer;
+    delete fTruncatedSysTimer;
 #if SK_SUPPORT_GPU
     delete fGpuTimer;
 #endif
@@ -44,12 +48,14 @@ BenchTimer::~BenchTimer() {
 
 void BenchTimer::start() {
     fSysTimer->startWall();
+    fTruncatedSysTimer->startWall();
 #if SK_SUPPORT_GPU
     if (fGpuTimer) {
         fGpuTimer->startGpu();
     }
 #endif
     fSysTimer->startCpu();
+    fTruncatedSysTimer->startCpu();
 }
 
 void BenchTimer::end() {
@@ -62,4 +68,9 @@ void BenchTimer::end() {
     }
 #endif
     fWall = fSysTimer->endWall();
+}
+
+void BenchTimer::truncatedEnd() {
+    fTruncatedCpu = fTruncatedSysTimer->endCpu();
+    fTruncatedWall = fTruncatedSysTimer->endWall();
 }
