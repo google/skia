@@ -134,10 +134,10 @@ void GrGLMagnifierEffect::emitFS(GrGLShaderBuilder* state,
                                  const char* samplerName) {
     SkString* code = &state->fFSCode;
 
-    code->appendf("\t\tvec2 coord = %s;\n", state->fSampleCoords.c_str());
+    code->appendf("\t\tvec2 coord = %s;\n", state->defaultTexCoordsName());
     code->appendf("\t\tvec2 zoom_coord = %s + %s / %s;\n",
                   state->getUniformCStr(fOffsetVar),
-                  state->fSampleCoords.c_str(),
+                  state->defaultTexCoordsName(),
                   state->getUniformCStr(fZoomVar));
 
     code->appendf("\t\tvec2 delta = min(coord, vec2(1.0, 1.0) - coord);\n");

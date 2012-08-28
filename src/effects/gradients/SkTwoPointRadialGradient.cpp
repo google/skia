@@ -512,7 +512,7 @@ void GrGLRadial2Gradient::setupVariables(GrGLShaderBuilder* builder) {
 
     // For radial gradients without perspective we can pass the linear
     // part of the quadratic as a varying.
-    if (builder->fVaryingDims == builder->fCoordDims) {
+    if (!builder->defaultTextureMatrixIsPerspective()) {
         builder->addVarying(kFloat_GrSLType, "Radial2BCoeff",
                           &fVSVaryingName, &fFSVaryingName);
     }
@@ -528,7 +528,7 @@ void GrGLRadial2Gradient::emitVS(GrGLShaderBuilder* builder,
 
     // For radial gradients without perspective we can pass the linear
     // part of the quadratic as a varying.
-    if (builder->fVaryingDims == builder->fCoordDims) {
+    if (!builder->defaultTextureMatrixIsPerspective()) {
         // r2Var = 2 * (r2Parm[2] * varCoord.x - r2Param[3])
         code->appendf("\t%s = 2.0 *(%s * %s.x - %s);\n",
                       fVSVaryingName, p2.c_str(),
@@ -561,22 +561,21 @@ void GrGLRadial2Gradient::emitFS(GrGLShaderBuilder* builder,
     // If we we're able to interpolate the linear component,
     // bVar is the varying; otherwise compute it
     SkString bVar;
-    if (builder->fCoordDims == builder->fVaryingDims) {
+    if (!builder->defaultTextureMatrixIsPerspective()) {
         bVar = fFSVaryingName;
-        GrAssert(2 == builder->fVaryingDims);
     } else {
-        GrAssert(3 == builder->fVaryingDims);
         bVar = "b";
         //bVar.appendS32(stageNum);
         code->appendf("\tfloat %s = 2.0 * (%s * %s.x - %s);\n",
                       bVar.c_str(), p2.c_str(),
-                      builder->fSampleCoords.c_str(), p3.c_str());
+                      builder->defaultTexCoordsName(), p3.c_str());
     }
 
     // c = (x^2)+(y^2) - params[4]
     code->appendf("\tfloat %s = dot(%s, %s) - %s;\n",
-                  cName.c_str(), builder->fSampleCoords.c_str(),
-                  builder->fSampleCoords.c_str(),
+                  cName.c_str(),
+                  builder->defaultTexCoordsName(),
+                  builder->defaultTexCoordsName(),
                   p4.c_str());
 
     // If we aren't degenerate, emit some extra code, and accept a slightly

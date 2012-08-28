@@ -552,7 +552,7 @@ void GrGLLinearGradient::emitFS(GrGLShaderBuilder* builder,
                                 const char* inputColor,
                                 const char* samplerName) {
     SkString t;
-    t.printf("%s.x", builder->fSampleCoords.c_str());
+    t.printf("%s.x", builder->defaultTexCoordsName());
     this->emitColorLookup(builder, t.c_str(), outputColor, samplerName);
 }
 

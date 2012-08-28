@@ -69,26 +69,22 @@ void GrGLColorTableEffect::emitFS(GrGLShaderBuilder* builder,
 
     const GrTextureAccess& access = *fCustomStage.textureAccess(0);
     code->appendf("\t\t%s.a = ", outputColor);
-    builder->emitCustomTextureLookup(GrGLShaderBuilder::kDefault_SamplerMode,
-                                     access,
+    builder->emitCustomTextureLookup(access,
                                      samplerName,
                                      "vec2(coord.a, 0.125)");
 
     code->appendf("\t\t%s.r = ", outputColor);
-    builder->emitCustomTextureLookup(GrGLShaderBuilder::kDefault_SamplerMode,
-                                     access,
+    builder->emitCustomTextureLookup(access,
                                      samplerName,
                                      "vec2(coord.r, 0.375)");
 
     code->appendf("\t\t%s.g = ", outputColor);
-    builder->emitCustomTextureLookup(GrGLShaderBuilder::kDefault_SamplerMode,
-                                     access,
+    builder->emitCustomTextureLookup(access,
                                      samplerName,
                                      "vec2(coord.g, 0.625)");
 
     code->appendf("\t\t%s.b = ", outputColor);
-    builder->emitCustomTextureLookup(GrGLShaderBuilder::kDefault_SamplerMode,
-                                     access,
+    builder->emitCustomTextureLookup(access,
                                      samplerName,
                                      "vec2(coord.b, 0.875)");
 

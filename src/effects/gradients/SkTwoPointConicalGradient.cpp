@@ -479,7 +479,7 @@ void GrGLConical2Gradient::setupVariables(GrGLShaderBuilder* builder) {
 
     // For radial gradients without perspective we can pass the linear
     // part of the quadratic as a varying.
-    if (builder->fVaryingDims == builder->fCoordDims) {
+    if (!builder->defaultTextureMatrixIsPerspective()) {
         builder->addVarying(kFloat_GrSLType, "Conical2BCoeff",
                             &fVSVaryingName, &fFSVaryingName);
     }
@@ -497,7 +497,7 @@ void GrGLConical2Gradient::emitVS(GrGLShaderBuilder* builder,
 
     // For radial gradients without perspective we can pass the linear
     // part of the quadratic as a varying.
-    if (builder->fVaryingDims == builder->fCoordDims) {
+    if (!builder->defaultTextureMatrixIsPerspective()) {
         // r2Var = -2 * (r2Parm[2] * varCoord.x - r2Param[3] * r2Param[5])
         code->appendf("\t%s = -2.0 * (%s * %s.x + %s * %s);\n",
                       fVSVaryingName, p2.c_str(),
@@ -535,14 +535,12 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
     // If we we're able to interpolate the linear component,
     // bVar is the varying; otherwise compute it
     SkString bVar;
-    if (builder->fCoordDims == builder->fVaryingDims) {
+    if (!builder->defaultTextureMatrixIsPerspective()) {
         bVar = fFSVaryingName;
-        GrAssert(2 == builder->fVaryingDims);
     } else {
-        GrAssert(3 == builder->fVaryingDims);
         bVar = "b";
         code->appendf("\tfloat %s = -2.0 * (%s * %s.x + %s * %s);\n",
-                      bVar.c_str(), p2.c_str(), builder->fSampleCoords.c_str(),
+                      bVar.c_str(), p2.c_str(), builder->defaultTexCoordsName(),
                       p3.c_str(), p5.c_str());
     }
 
@@ -552,7 +550,7 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
 
     // c = (x^2)+(y^2) - params[4]
     code->appendf("\tfloat %s = dot(%s, %s) - %s;\n", cName.c_str(),
-                  builder->fSampleCoords.c_str(), builder->fSampleCoords.c_str(),
+                  builder->defaultTexCoordsName(), builder->defaultTexCoordsName(),
                   p4.c_str());
 
     // Non-degenerate case (quadratic)

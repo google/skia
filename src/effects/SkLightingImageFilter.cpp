@@ -1148,7 +1148,7 @@ void GrGLLightingEffect::emitFS(GrGLShaderBuilder* builder,
                           interiorNormalBody.c_str(),
                           &interiorNormalName);
 
-    code->appendf("\t\tvec2 coord = %s;\n", builder->fSampleCoords.c_str());
+    code->appendf("\t\tvec2 coord = %s;\n", builder->defaultTexCoordsName());
     code->appendf("\t\tfloat m[9];\n");
 
     const char* imgInc = builder->getUniformCStr(fImageIncrementUni);

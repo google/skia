@@ -22,29 +22,25 @@ static const GrGLShaderVar::Precision kDefaultFragmentPrecision = GrGLShaderVar:
 typedef GrGLUniformManager::UniformHandle UniformHandle;
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkString build_sampler_string(GrGLShaderBuilder::SamplerMode samplerMode) {
-    SkString sampler("texture2D");
-    switch (samplerMode) {
-      case GrGLShaderBuilder::kDefault_SamplerMode:
-          break;
-      case GrGLShaderBuilder::kProj_SamplerMode:
-          sampler.append("Proj");
-          break;
-      case GrGLShaderBuilder::kExplicitDivide_SamplerMode:
-          break;
-    }
+namespace {
 
-    return sampler;
+inline const char* sample_function_name(GrSLType type) {
+    if (kVec2f_GrSLType == type) {
+        return "texture2D";
+    } else {
+        GrAssert(kVec3f_GrSLType == type);
+        return "texture2DProj";
+    }
 }
 
-static bool texture_requires_alpha_to_red_swizzle(const GrGLCaps& caps,
+inline bool texture_requires_alpha_to_red_swizzle(const GrGLCaps& caps,
                                                   const GrTextureAccess& access) {
     return GrPixelConfigIsAlphaOnly(access.getTexture()->config()) && caps.textureRedSupport() &&
         access.referencesAlpha();
 }
 
-static SkString build_swizzle_string(const GrTextureAccess& textureAccess,
-                                     const GrGLCaps& caps) {
+SkString build_swizzle_string(const GrTextureAccess& textureAccess,
+                              const GrGLCaps& caps) {
     const GrTextureAccess::Swizzle& swizzle = textureAccess.getSwizzle();
     if (0 == swizzle[0]) {
         return SkString("");
@@ -63,6 +59,8 @@ static SkString build_swizzle_string(const GrTextureAccess& textureAccess,
     return swizzleOut;
 }
 
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 // Architectural assumption: always 2-d input coords.
@@ -79,8 +77,7 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctx, GrGLUniformMana
     , fFSInputs(kVarsPerBlock)
     , fFSOutputs(kMaxFSOutputs)
     , fUsesGS(false)
-    , fVaryingDims(0)
-    , fComplexCoord(false)
+    , fTexCoordVaryingType(kVoid_GrSLType)
     , fContext(ctx)
     , fUniformManager(uniformManager)
     , fCurrentStage(kNonStageIdx) {
@@ -107,65 +104,59 @@ void GrGLShaderBuilder::computeModulate(const char* fsInColor) {
     }
 }
 
-void GrGLShaderBuilder::setupTextureAccess(int stageNum) {
-    SkString retval;
-
-    SamplerMode mode = kDefault_SamplerMode;
-    // FIXME: we aren't currently using Proj.
-    if (fVaryingDims != fCoordDims) {
-        mode = kExplicitDivide_SamplerMode;
+void GrGLShaderBuilder::setupTextureAccess(const char* varyingFSName, GrSLType varyingType) {
+    // FIXME: We don't know how the custom stage will manipulate the coords. So we give up on using
+    // projective texturing and always give the stage 2D coords. This will be fixed when custom
+    // stages are repsonsible for setting up their own tex coords / tex matrices.
+    switch (varyingType) {
+        case kVec2f_GrSLType:
+            fDefaultTexCoordsName = varyingFSName;
+            fTexCoordVaryingType = kVec2f_GrSLType;
+            break;
+        case kVec3f_GrSLType: {
+            fDefaultTexCoordsName = "inCoord";
+            GrAssert(kNonStageIdx != fCurrentStage);
+            fDefaultTexCoordsName.appendS32(fCurrentStage);
+            fTexCoordVaryingType = kVec3f_GrSLType;
+            fFSCode.appendf("\t%s %s = %s.xy / %s.z;\n",
+                            GrGLShaderVar::TypeString(kVec2f_GrSLType),
+                            fDefaultTexCoordsName.c_str(),
+                            varyingFSName,
+                            varyingFSName);
+            break;
+        }
+        default:
+            GrCrash("Tex coords must either be Vec2f or Vec3f");
     }
-
-    switch (mode) {
-        case kDefault_SamplerMode:
-            GrAssert(fVaryingDims == fCoordDims);
-            // Do nothing
-            break;
-        case kProj_SamplerMode:
-            // Do nothing
-            break;
-        case kExplicitDivide_SamplerMode:
-            retval = "inCoord";
-            retval.appendS32(stageNum);
-            fFSCode.appendf("\t%s %s = %s%s / %s%s;\n",
-                GrGLShaderVar::TypeString
-                    (GrSLFloatVectorType(fCoordDims)),
-                retval.c_str(),
-                fSampleCoords.c_str(),
-                GrGLSLVectorNonhomogCoords(fVaryingDims),
-                fSampleCoords.c_str(),
-                GrGLSLVectorHomogCoord(fVaryingDims));
-            fSampleCoords = retval;
-            break;
-    }
-    fTexFunc = build_sampler_string(mode);
-    fComplexCoord = false;
 }
 
 void GrGLShaderBuilder::emitTextureLookup(const char* samplerName,
-                                          const char* coordName) {
+                                          const char* coordName,
+                                          GrSLType varyingType) {
     if (NULL == coordName) {
-        coordName = fSampleCoords.c_str();
+        coordName = fDefaultTexCoordsName.c_str();
+        varyingType = kVec2f_GrSLType;
     }
-    fFSCode.appendf("%s(%s, %s)", fTexFunc.c_str(), samplerName, coordName);
+    fFSCode.appendf("%s(%s, %s)", sample_function_name(varyingType), samplerName, coordName);
 }
 
-void GrGLShaderBuilder::emitDefaultFetch(const char* outColor,
-                                         const char* samplerName) {
+void GrGLShaderBuilder::emitTextureLookupAndModulate(const char* outColor,
+                                                     const char* samplerName,
+                                                     const char* coordName,
+                                                     GrSLType varyingType) {
     fFSCode.appendf("\t%s = ", outColor);
-    this->emitTextureLookup(samplerName);
+    this->emitTextureLookup(samplerName, coordName, varyingType);
     fFSCode.appendf("%s%s;\n", fSwizzle.c_str(), fModulate.c_str());
 }
 
-void GrGLShaderBuilder::emitCustomTextureLookup(SamplerMode samplerMode,
-                                                const GrTextureAccess& textureAccess,
+void GrGLShaderBuilder::emitCustomTextureLookup(const GrTextureAccess& textureAccess,
                                                 const char* samplerName,
-                                                const char* coordName) {
+                                                const char* coordName,
+                                                GrSLType varyingType) {
     GrAssert(samplerName && coordName);
-    SkString sampler = build_sampler_string(samplerMode);
     SkString swizzle = build_swizzle_string(textureAccess, fContext.caps());
 
-    fFSCode.appendf("%s( %s, %s)%s;\n", sampler.c_str(), samplerName,
+    fFSCode.appendf("%s( %s, %s)%s;\n", sample_function_name(varyingType), samplerName,
                     coordName, swizzle.c_str());
 }
 

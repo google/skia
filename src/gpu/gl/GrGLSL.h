@@ -45,6 +45,23 @@ enum GrSLType {
     kSampler2D_GrSLType
 };
 
+namespace {
+inline int GrSLTypeToVecLength(GrSLType type) {
+    static const int kVecLengths[] = {
+        0, // kVoid_GrSLType
+        1, // kFloat_GrSLType
+        2, // kVec2f_GrSLType
+        3, // kVec3f_GrSLType
+        4, // kVec4f_GrSLType
+        1, // kMat33f_GrSLType
+        1, // kMat44f_GrSLType
+        1, // kSampler2D_GrSLType
+    };
+    GrAssert((size_t) type < GR_ARRAY_COUNT(kVecLengths));
+    return kVecLengths[type];
+}
+}
+
 /**
  * Gets the most recent GLSL Generation compatible with the OpenGL context.
  */
@@ -82,11 +99,12 @@ bool GrGLSLSetupFSColorOuput(GrGLSLGeneration gen,
 GrSLType GrSLFloatVectorType(int count);
 
 /** Return the GLSL swizzle operator for a homogenous component of a vector
-    with the given number of coordnates, e.g. 2 -> ".y", 3 -> ".z" */
+    with the given number of coordinates, e.g. 2 -> ".y", 3 -> ".z" */
 const char* GrGLSLVectorHomogCoord(int count);
+const char* GrGLSLVectorHomogCoord(GrSLType type);
 
 /** Return the GLSL swizzle operator for a nonhomogenous components of a vector
-    with the given number of coordnates, e.g. 2 -> ".x", 3 -> ".xy" */
+    with the given number of coordinates, e.g. 2 -> ".x", 3 -> ".xy" */
 const char* GrGLSLVectorNonhomogCoords(int count);
-
+const char* GrGLSLVectorNonhomogCoords(GrSLType type);
 #endif

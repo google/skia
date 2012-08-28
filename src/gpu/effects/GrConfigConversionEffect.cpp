@@ -24,7 +24,7 @@ public:
                         const char* inputColor,
                         const char* samplerName) SK_OVERRIDE {
         builder->fFSCode.append("\tvec4 tempColor;\n");
-        builder->emitDefaultFetch("tempColor", samplerName);
+        builder->emitTextureLookupAndModulate("tempColor", samplerName);
         if (GrConfigConversionEffect::kNone_PMConversion == fPMConversion) {
             GrAssert(fSwapRedAndBlue);
             builder->fFSCode.appendf("\t%s = tempColor.bgra;\n", outputColor);

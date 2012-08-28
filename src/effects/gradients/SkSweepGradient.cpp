@@ -458,7 +458,7 @@ void GrGLSweepGradient::emitFS(GrGLShaderBuilder* builder,
                               const char* samplerName) {
     SkString t;
     t.printf("atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5",
-        builder->fSampleCoords.c_str(), builder->fSampleCoords.c_str());
+        builder->defaultTexCoordsName(), builder->defaultTexCoordsName());
     this->emitColorLookup(builder, t.c_str(), outputColor, samplerName);
 }
 
