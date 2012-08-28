@@ -25,10 +25,10 @@ class SkPathEffect;
 class SkRasterizer;
 
 //The following typedef hides from the rest of the implementation the number of
-//most significant bits to consider when creating mask gamma tables. Two bits
+//most significant bits to consider when creating mask gamma tables. Three bits
 //per channel was chosen as a balance between fidelity (more bits) and cache
 //sizes (fewer bits).
-typedef SkTMaskGamma<2, 2, 2> SkMaskGamma;
+typedef SkTMaskGamma<3, 3, 3> SkMaskGamma;
 
 class SkScalerContext {
 public:

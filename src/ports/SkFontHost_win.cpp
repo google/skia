@@ -960,7 +960,7 @@ static inline uint8_t rgb_to_a8(SkGdiRGB rgb, const uint8_t* table8) {
     U8CPU r = (rgb >> 16) & 0xFF;
     U8CPU g = (rgb >>  8) & 0xFF;
     U8CPU b = (rgb >>  0) & 0xFF;
-    return sk_apply_lut_if<APPLY_PREBLEND>((r + g + b) / 3, table8);
+    return sk_apply_lut_if<APPLY_PREBLEND>(SkComputeLuminance(r, g, b), table8);
 }
 
 template<bool APPLY_PREBLEND>
@@ -1134,9 +1134,13 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph, SkMaskGamma::P
     }
 
     if (!isBW) {
-        const uint8_t* table = getInverseGammaTableClearType();
-        if (isAA) {
-          table = getInverseGammaTableGDI();
+        const uint8_t* table;
+        //The offscreen contains a GDI blit if isAA and kGenA8FromLCD_Flag is not set.
+        //Otherwise the offscreen contains a ClearType blit.
+        if (isAA && !(fRec.fFlags & SkScalerContext::kGenA8FromLCD_Flag)) {
+            table = getInverseGammaTableGDI();
+        } else {
+            table = getInverseGammaTableClearType();
         }
         //Note that the following cannot really be integrated into the
         //pre-blend, since we may not be applying the pre-blend; when we aren't

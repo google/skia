@@ -1700,8 +1700,11 @@ void SkScalerContext::PostMakeRec(const SkPaint& paint, SkScalerContext::Rec* re
             SkColor color = rec->getLuminanceColor();
             SkAutoMutexAcquire ama(gMaskGammaCacheMutex);
             U8CPU lum = cachedPaintLuminance(rec->getPaintGamma())->computeLuminance(color);
-            // HACK: Prevents green from being pre-blended as white.
-            lum -= ((255 - lum) * lum) / 255;
+            //If we are asked to look like LCD, look like LCD.
+            if (!(rec->fFlags & SkScalerContext::kGenA8FromLCD_Flag)) {
+                // HACK: Prevents green from being pre-blended as white.
+                lum -= ((255 - lum) * lum) / 255;
+            }
             
             // reduce to our finite number of bits
             SkMaskGamma* maskGamma = cachedMaskGamma(rec->getContrast(),

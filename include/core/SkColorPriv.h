@@ -32,6 +32,16 @@
 #define SK_LUM_COEFF_B SK_ITU_BT709_LUM_COEFF_B
 ///@}
 
+/** Computes the luminance from the given r, g, and b in accordance with
+    SK_LUM_COEFF_X. For correct results, r, g, and b should be in linear space.
+*/
+static inline U8CPU SkComputeLuminance(U8CPU r, U8CPU g, U8CPU b) {
+    //The following is
+    //r * SK_LUM_COEFF_R + g * SK_LUM_COEFF_G + b * SK_LUM_COEFF_B
+    //with SK_LUM_COEFF_X in 1.8 fixed point (rounding adjusted to sum to 256).
+    return (r * 54 + g * 183 + b * 19) >> 8;
+}
+  
 /** Turn 0..255 into 0..256 by adding 1 at the half-way point. Used to turn a
     byte into a scale value, so that we can say scale * value >> 8 instead of
     alpha * value / 255.
