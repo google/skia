@@ -109,14 +109,14 @@ bool GrGpuGL::programUnitTest() {
                                     0;
 
 #if GR_GL_EXPERIMENTAL_GS
-        pdesc.fExperimentalGS = this->getCaps().fGeometryShaderSupport &&
+        pdesc.fExperimentalGS = this->getCaps().geometryShaderSupport() &&
                                 random_bool(&random);
 #endif
 
         bool edgeAA = random_bool(&random);
         if (edgeAA) {
             pdesc.fVertexLayout |= GrDrawTarget::kEdge_VertexLayoutBit;
-            if (this->getCaps().fShaderDerivativeSupport) {
+            if (this->getCaps().shaderDerivativeSupport()) {
                 pdesc.fVertexEdgeType = (GrDrawState::VertexEdgeType) random_int(&random, GrDrawState::kVertexEdgeTypeCnt);
             } else {
                 pdesc.fVertexEdgeType = GrDrawState::kHairLine_EdgeType;
@@ -126,7 +126,7 @@ bool GrGpuGL::programUnitTest() {
 
         pdesc.fColorMatrixEnabled = random_bool(&random);
 
-        if (this->getCaps().fDualSourceBlendingSupport) {
+        if (this->getCaps().dualSourceBlendingSupport()) {
             pdesc.fDualSrcOutput = random_int(&random, ProgramDesc::kDualSrcOutputCnt);
         } else {
             pdesc.fDualSrcOutput = ProgramDesc::kNone_DualSrcOutput;

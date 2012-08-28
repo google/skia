@@ -434,7 +434,7 @@ bool GrAAConvexPathRenderer::canDrawPath(const SkPath& path,
                                          GrPathFill fill,
                                          const GrDrawTarget* target,
                                          bool antiAlias) const {
-    if (!target->getCaps().fShaderDerivativeSupport || !antiAlias ||
+    if (!target->getCaps().shaderDerivativeSupport() || !antiAlias ||
         kHairLine_GrPathFill == fill || GrIsFillInverted(fill) ||
         !path.isConvex()) {
         return false;

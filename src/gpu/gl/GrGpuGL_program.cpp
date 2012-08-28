@@ -774,7 +774,7 @@ void GrGpuGL::buildProgram(bool isPoints,
             desc->fFirstCoverageStage = firstCoverageStage;
         }
 
-        if (this->getCaps().fDualSourceBlendingSupport &&
+        if (this->getCaps().dualSourceBlendingSupport() &&
             !(blendOpts & (kEmitCoverage_BlendOptFlag | kCoverageAsAlpha_BlendOptFlag))) {
             if (kZero_GrBlendCoeff == dstCoeff) {
                 // write the coverage value to second color

@@ -296,7 +296,7 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
 
     GrAssert(NULL == fBufferPtr);
 
-    if (fGpu->getCaps().fBufferLockSupport &&
+    if (fGpu->getCaps().bufferLockSupport() &&
         size > GR_GEOM_BUFFER_LOCK_THRESHOLD &&
         (!fFrequentResetHint || requestSize > GR_GEOM_BUFFER_LOCK_THRESHOLD)) {
         fBufferPtr = block.fBuffer->lock();
@@ -338,7 +338,7 @@ void GrBufferAllocPool::flushCpuData(GrGeometryBuffer* buffer,
     GrAssert(flushSize <= buffer->sizeInBytes());
     VALIDATE(true);
 
-    if (fGpu->getCaps().fBufferLockSupport &&
+    if (fGpu->getCaps().bufferLockSupport() &&
         flushSize > GR_GEOM_BUFFER_LOCK_THRESHOLD) {
         void* data = buffer->lock();
         if (NULL != data) {

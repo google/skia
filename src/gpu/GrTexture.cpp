@@ -157,13 +157,13 @@ void gen_texture_key_values(const GrGpu* gpu,
     // we assume we only need 16 bits of width and height
     // assert that texture creation will fail anyway if this assumption
     // would cause key collisions.
-    GrAssert(gpu->getCaps().fMaxTextureSize <= SK_MaxU16);
+    GrAssert(gpu->getCaps().maxTextureSize() <= SK_MaxU16);
     cacheID->fResourceSpecific32 = desc.fWidth | (desc.fHeight << 16);
 
     GrAssert(desc.fSampleCnt >= 0 && desc.fSampleCnt < 256);
     cacheID->fResourceSpecific16 = desc.fSampleCnt << 8;
 
-    if (!gpu->getCaps().fNPOTTextureTileSupport) {
+    if (!gpu->getCaps().npotTextureTileSupport()) {
         bool isPow2 = GrIsPow2(desc.fWidth) && GrIsPow2(desc.fHeight);
 
         bool tiled = NULL != params && params->isTiled();
