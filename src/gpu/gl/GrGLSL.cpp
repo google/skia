@@ -80,9 +80,16 @@ const char* GrGLSLVectorHomogCoord(int count) {
     return HOMOGS[count];
 }
 
+const char* GrGLSLVectorHomogCoord(GrSLType type) {
+    return GrGLSLVectorHomogCoord(GrSLTypeToVecLength(type));
+}
+
 const char* GrGLSLVectorNonhomogCoords(int count) {
     static const char* NONHOMOGS[] = {"ERROR", "", ".x", ".xy", ".xyz"};
     GrAssert(count >= 1 && count < (int)GR_ARRAY_COUNT(NONHOMOGS));
     return NONHOMOGS[count];
 }
 
+const char* GrGLSLVectorNonhomogCoord(GrSLType type) {
+    return GrGLSLVectorNonhomogCoords(GrSLTypeToVecLength(type));
+}

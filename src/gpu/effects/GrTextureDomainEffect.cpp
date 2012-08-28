@@ -50,16 +50,12 @@ void GrGLTextureDomainEffect::emitFS(GrGLShaderBuilder* builder,
                                      const char* outputColor,
                                      const char* inputColor,
                                      const char* samplerName) {
-    SkString coordVar("clampCoord");
-    builder->fFSCode.appendf("\t%s %s = clamp(%s, %s.xy, %s.zw);\n",
-                           GrGLShaderVar::TypeString(GrSLFloatVectorType(builder->fCoordDims)),
-                           coordVar.c_str(),
-                           builder->fSampleCoords.c_str(),
+    builder->fFSCode.appendf("\tvec2 clampCoord = clamp(%s, %s.xy, %s.zw);\n",
+                           builder->defaultTexCoordsName(),
                            builder->getUniformCStr(fNameUni),
                            builder->getUniformCStr(fNameUni));
-    builder->fSampleCoords = coordVar;
 
-    builder->emitDefaultFetch(outputColor, samplerName);
+    builder->emitTextureLookupAndModulate(outputColor, samplerName, "clampCoord");
 }
 
 void GrGLTextureDomainEffect::setData(const GrGLUniformManager& uman,

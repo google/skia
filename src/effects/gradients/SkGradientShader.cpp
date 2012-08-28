@@ -702,10 +702,11 @@ void GrGLGradientStage::emitColorLookup(GrGLShaderBuilder* builder,
                                         const char* tName,
                                         const char* outputColor,
                                         const char* samplerName) {
-    builder->fSampleCoords.printf("vec2(%s, %s)", tName,
-        builder->getUniformVariable(fFSYUni).c_str());
-    builder->fComplexCoord = true;
-    builder->emitDefaultFetch(outputColor, samplerName);
+
+    builder->fFSCode.appendf("\tvec2 coord = vec2(%s, %s);\n",
+                             tName,
+                             builder->getUniformVariable(fFSYUni).c_str());
+    builder->emitTextureLookupAndModulate(outputColor, samplerName, "coord");
 }
 
 /////////////////////////////////////////////////////////////////////

@@ -23,7 +23,6 @@ class GrGLContextInfo;
 class GrGLShaderBuilder {
 
 public:
-
     enum ShaderType {
         kVertex_ShaderType   = 0x1,
         kGeometry_ShaderType = 0x2,
@@ -35,36 +34,45 @@ public:
     void computeSwizzle(uint32_t configFlags);
     void computeModulate(const char* fsInColor);
 
-    // TODO: needs a better name
-    enum SamplerMode {
-        kDefault_SamplerMode,
-        kProj_SamplerMode,
-        kExplicitDivide_SamplerMode  // must do an explicit divide
-    };
-
     /** Determines whether we should use texture2D() or texture2Dproj(), and if an explicit divide
         is required for the sample coordinates, creates the new variable and emits the code to
-        initialize it. */
-    void setupTextureAccess(int stageNum);
+        initialize it. This should only be called by GrGLProgram.*/
+    void setupTextureAccess(const char* varyingFSName, GrSLType varyingType);
 
     /** texture2D(samplerName, coordName), with projection if necessary; if coordName is not
-        specified, uses fSampleCoords. */
+        specified, uses fSampleCoords. coordType must either be Vec2f or Vec3f. The latter is
+        interpreted as projective texture coords. */
     void emitTextureLookup(const char* samplerName,
-                           const char* coordName = NULL);
+                           const char* coordName = NULL,
+                           GrSLType coordType = kVec2f_GrSLType);
 
-    /** sets outColor to results of texture lookup, with swizzle, and/or modulate as necessary */
-    void emitDefaultFetch(const char* outColor,
-                          const char* samplerName);
+    /** sets outColor to results of texture lookup, with swizzle, and/or modulate as necessary. If
+    coordName is NULL then it as if defaultTexCoordsName() was passed. coordType must be either
+    kVec2f or kVec3f. */
+    void emitTextureLookupAndModulate(const char* outColor,
+                                      const char* samplerName,
+                                      const char* coordName = NULL,
+                                      GrSLType coordType = kVec2f_GrSLType);
+
+    /** Gets the name of the default texture coords which are always kVec2f */
+    const char* defaultTexCoordsName() const { return fDefaultTexCoordsName.c_str(); }
+
+    /* Returns true if the texture matrix from which the default texture coords are computed has
+       perspective. */
+    bool defaultTextureMatrixIsPerspective() const {
+        return fTexCoordVaryingType == kVec3f_GrSLType;
+    }
 
     /** Emits a texture lookup to the shader code with the form:
           texture2D{Proj}(samplerName, coordName).swizzle
         The routine selects the type of texturing based on samplerMode.
         The generated swizzle state is built based on the format of the texture and the requested
-        swizzle access pattern. */
-    void emitCustomTextureLookup(SamplerMode samplerMode,
-                                 const GrTextureAccess& textureAccess,
+        swizzle access pattern.  coordType must either be Vec2f or Vec3f. The latter is interpreted
+        as projective texture coords.*/
+    void emitCustomTextureLookup(const GrTextureAccess& textureAccess,
                                  const char* samplerName,
-                                 const char* coordName);
+                                 const char* coordName,
+                                 GrSLType coordType = kVec2f_GrSLType);
 
     /** Emits a helper function outside of main(). Currently ShaderType must be
         kFragment_ShaderType. */
@@ -162,18 +170,8 @@ public:
     /// Per-stage settings - only valid while we're inside GrGLProgram::genStageCode().
     //@{
 
-    int              fVaryingDims;
-    static const int fCoordDims = 2;
-
-    /// True if fSampleCoords is an expression; false if it's a bare
-    /// variable name
-    bool             fComplexCoord;
-    SkString         fSampleCoords;
-
     SkString         fSwizzle;
     SkString         fModulate;
-
-    SkString         fTexFunc;
 
     //@}
 
@@ -186,6 +184,14 @@ private:
     GrGLUniformManager&     fUniformManager;
     int                     fCurrentStage;
     SkString                fFSFunctions;
+
+    /// Per-stage settings - only valid while we're inside GrGLProgram::genStageCode().
+    //@{
+    GrSLType         fTexCoordVaryingType;  // the type, either Vec2f or Vec3f, of the coords passed
+                                            // as a varying from the VS to the FS.
+    SkString         fDefaultTexCoordsName; // the name of the default 2D coords value.
+    //@}
+
 };
 
 #endif

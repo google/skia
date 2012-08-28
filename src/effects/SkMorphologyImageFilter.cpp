@@ -334,7 +334,7 @@ void GrGLMorphologyEffect::emitFS(GrGLShaderBuilder* builder,
     const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
 
     code->appendf("\t\tvec2 coord = %s - %d.0 * %s;\n",
-                   builder->fSampleCoords.c_str(), fRadius, imgInc);
+                   builder->defaultTexCoordsName(), fRadius, imgInc);
     code->appendf("\t\tfor (int i = 0; i < %d; i++) {\n", this->width());
     code->appendf("\t\t\tvalue = %s(value, ", func);
     builder->emitTextureLookup(samplerName, "coord");

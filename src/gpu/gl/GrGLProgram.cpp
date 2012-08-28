@@ -1000,6 +1000,7 @@ void GrGLProgram::genStageCode(int stageNum,
     const GrGLProgram::StageDesc& desc = fDesc.fStages[stageNum];
     StageUniforms& uniforms = fUniforms.fStages[stageNum];
     GrGLProgramStage* customStage = fProgramStage[stageNum];
+    GrAssert(NULL != customStage);
 
     GrAssert((desc.fInConfigFlags & StageDesc::kInConfigBitMask) == desc.fInConfigFlags);
 
@@ -1010,25 +1011,29 @@ void GrGLProgram::genStageCode(int stageNum,
     // decide whether we need a matrix to transform texture coords and whether the varying needs a
     // perspective coord.
     const char* matName = NULL;
+    GrSLType texCoordVaryingType;
     if (desc.fOptFlags & StageDesc::kIdentityMatrix_OptFlagBit) {
-        builder->fVaryingDims = builder->fCoordDims;
+        texCoordVaryingType = kVec2f_GrSLType;
     } else {
         uniforms.fTextureMatrixUni = builder->addUniform(GrGLShaderBuilder::kVertex_ShaderType,
                                                          kMat33f_GrSLType, "TexM", &matName);
         const GrGLShaderVar& mat = builder->getUniformVariable(uniforms.fTextureMatrixUni);
 
         if (desc.fOptFlags & StageDesc::kNoPerspective_OptFlagBit) {
-            builder->fVaryingDims = builder->fCoordDims;
+            texCoordVaryingType = kVec2f_GrSLType;
         } else {
-            builder->fVaryingDims = builder->fCoordDims + 1;
+            texCoordVaryingType = kVec3f_GrSLType;
         }
     }
-    GrAssert(builder->fVaryingDims > 0);
+    const char *varyingVSName, *varyingFSName;
+    builder->addVarying(texCoordVaryingType,
+                        "Stage",
+                        &varyingVSName,
+                        &varyingFSName);
+    builder->setupTextureAccess(varyingFSName, texCoordVaryingType);
 
-    // Must setup variables after computing segments->fVaryingDims
-    if (NULL != customStage) {
-        customStage->setupVariables(builder);
-    }
+    // Must setup variables after calling setupTextureAccess
+    customStage->setupVariables(builder);
 
     const char* samplerName;
     uniforms.fSamplerUniforms.push_back(builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
@@ -1036,45 +1041,29 @@ void GrGLProgram::genStageCode(int stageNum,
                                                             "Sampler",
                                                             &samplerName));
 
-    const char *varyingVSName, *varyingFSName;
-    builder->addVarying(GrSLFloatVectorType(builder->fVaryingDims),
-                        "Stage",
-                        &varyingVSName,
-                        &varyingFSName);
-
     if (!matName) {
-        GrAssert(builder->fVaryingDims == builder->fCoordDims);
+        GrAssert(kVec2f_GrSLType == texCoordVaryingType);
         builder->fVSCode.appendf("\t%s = %s;\n", varyingVSName, vsInCoord);
     } else {
         // varying = texMatrix * texCoord
         builder->fVSCode.appendf("\t%s = (%s * vec3(%s, 1))%s;\n",
                                   varyingVSName, matName, vsInCoord,
-                                  vector_all_coords(builder->fVaryingDims));
+                                  vector_all_coords(GrSLTypeToVecLength(texCoordVaryingType)));
     }
 
-    if (NULL != customStage) {
-        builder->fVSCode.appendf("\t{ // stage %d %s\n",
-                                 stageNum, customStage->name());
-        customStage->emitVS(builder, varyingVSName);
-        builder->fVSCode.appendf("\t}\n");
-    }
-
-    /// Fragment Shader Stuff
-
-    builder->fSampleCoords = varyingFSName;
-
-    builder->setupTextureAccess(stageNum);
+    builder->fVSCode.appendf("\t{ // stage %d %s\n",
+                                stageNum, customStage->name());
+    customStage->emitVS(builder, varyingVSName);
+    builder->fVSCode.appendf("\t}\n");
 
     builder->computeSwizzle(desc.fInConfigFlags);
     builder->computeModulate(fsInColor);
 
-    if (NULL != customStage) {
-        // Enclose custom code in a block to avoid namespace conflicts
-        builder->fFSCode.appendf("\t{ // stage %d %s \n",
-                                 stageNum, customStage->name());
-        customStage->emitFS(builder, fsOutColor, fsInColor,
-                            samplerName);
-        builder->fFSCode.appendf("\t}\n");
-    }
+    // Enclose custom code in a block to avoid namespace conflicts
+    builder->fFSCode.appendf("\t{ // stage %d %s \n",
+                                stageNum, customStage->name());
+    customStage->emitFS(builder, fsOutColor, fsInColor,
+                        samplerName);
+    builder->fFSCode.appendf("\t}\n");
     builder->setNonStage();
 }

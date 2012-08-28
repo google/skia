@@ -23,7 +23,7 @@ public:
                         const char* outputColor,
                         const char* inputColor,
                         const char* samplerName) SK_OVERRIDE {
-        builder->emitDefaultFetch(outputColor, samplerName);
+        builder->emitTextureLookupAndModulate(outputColor, samplerName);
     }
 
     static inline StageKey GenKey(const GrCustomStage&, const GrGLCaps&) { return 0; }
