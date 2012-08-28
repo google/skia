@@ -132,14 +132,12 @@ private:
     GrClipData      fClipData;
 
     // state for our offscreen render-target
-    // TODO: remove 'fCached' and automatically return to the cache
-    bool                fCached;        // is fRenderTarget->asTexture() in the cache
     GrRenderTarget*     fRenderTarget;
     bool                fNeedClear;
     bool                fNeedPrepareRenderTarget;
 
     // called from rt and tex cons
-    void initFromRenderTarget(GrContext*, GrRenderTarget*);
+    void initFromRenderTarget(GrContext*, GrRenderTarget*, bool cached);
 
     // used by createCompatibleDevice
     SkGpuDevice(GrContext*, GrTexture* texture, bool needClear);
