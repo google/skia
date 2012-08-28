@@ -52,11 +52,11 @@ comparison.
 TRUNK_PATH = os.path.join(os.path.dirname(__file__), os.pardir)
 
 OPTION_GM_BASEDIR = '--gm-basedir'
-DEFAULT_GM_BASEDIR = os.path.join(TRUNK_PATH, 'gm')
+DEFAULT_GM_BASEDIR = os.path.join(TRUNK_PATH, os.pardir, 'gm-expected')
 OPTION_PATH_TO_SKDIFF = '--path-to-skdiff'
 # default PATH_TO_SKDIFF is determined at runtime
 OPTION_SVN_GM_URL = '--svn-gm-url'
-DEFAULT_SVN_GM_URL = 'http://skia.googlecode.com/svn/trunk/gm'
+DEFAULT_SVN_GM_URL = 'http://skia.googlecode.com/svn/gm-expected'
 
 def CopyAllFilesAddingPrefix(source_dir, dest_dir, prefix):
     """Copy all files from source_dir into dest_dir, adding prefix to the name
