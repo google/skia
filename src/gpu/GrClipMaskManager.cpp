@@ -1016,9 +1016,9 @@ void GrClipMaskManager::setGpuStencil() {
         stencilBits = stencilBuffer->bits();
     }
 
-    GrAssert(fGpu->getCaps().fStencilWrapOpsSupport ||
+    GrAssert(fGpu->getCaps().stencilWrapOpsSupport() ||
              !settings.usesWrapOp());
-    GrAssert(fGpu->getCaps().fTwoSidedStencilSupport || !settings.isTwoSided());
+    GrAssert(fGpu->getCaps().twoSidedStencilSupport() || !settings.isTwoSided());
     this->adjustStencilParams(&settings, clipMode, stencilBits);
     fGpu->setStencilSettings(settings);
 }
@@ -1038,7 +1038,7 @@ void GrClipMaskManager::adjustStencilParams(GrStencilSettings* settings,
     unsigned int userBits = clipBit - 1;
 
     GrStencilSettings::Face face = GrStencilSettings::kFront_Face;
-    bool twoSided = fGpu->getCaps().fTwoSidedStencilSupport;
+    bool twoSided = fGpu->getCaps().twoSidedStencilSupport();
 
     bool finished = false;
     while (!finished) {

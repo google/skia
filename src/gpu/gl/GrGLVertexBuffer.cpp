@@ -49,7 +49,7 @@ GrGLuint GrGLVertexBuffer::bufferID() const {
 void* GrGLVertexBuffer::lock() {
     GrAssert(fBufferID);
     GrAssert(!isLocked());
-    if (this->getGpu()->getCaps().fBufferLockSupport) {
+    if (this->getGpu()->getCaps().bufferLockSupport()) {
         this->bind();
         // Let driver know it can discard the old data
         GL_CALL(BufferData(GR_GL_ARRAY_BUFFER, this->sizeInBytes(), NULL,
@@ -71,7 +71,7 @@ void GrGLVertexBuffer::unlock() {
 
     GrAssert(fBufferID);
     GrAssert(isLocked());
-    GrAssert(this->getGpu()->getCaps().fBufferLockSupport);
+    GrAssert(this->getGpu()->getCaps().bufferLockSupport());
 
     this->bind();
     GL_CALL(UnmapBuffer(GR_GL_ARRAY_BUFFER));

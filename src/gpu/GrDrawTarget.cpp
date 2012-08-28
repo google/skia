@@ -786,7 +786,7 @@ void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
 void GrDrawTarget::stencilPath(const GrPath* path, GrPathFill fill) {
     // TODO: extract portions of checkDraw that are relevant to path stenciling.
     GrAssert(NULL != path);
-    GrAssert(fCaps.fPathStencilingSupport);
+    GrAssert(fCaps.pathStencilingSupport());
     GrAssert(kHairLine_GrPathFill != fill);
     GrAssert(!GrIsFillInverted(fill));
     this->onStencilPath(path, fill);
@@ -979,7 +979,7 @@ bool GrDrawTarget::willUseHWAALines() const {
     // premultiplied alpha. Smooth lines tweak the incoming alpha value
     // but not in a premul-alpha way. So we only use them when our alpha
     // is 0xff and tweaking the color for partial coverage is OK
-    if (!fCaps.fHWAALineSupport ||
+    if (!fCaps.hwAALineSupport() ||
         !this->getDrawState().isHWAntialiasState()) {
         return false;
     }
@@ -991,7 +991,7 @@ bool GrDrawTarget::willUseHWAALines() const {
 bool GrDrawTarget::canApplyCoverage() const {
     // we can correctly apply coverage if a) we have dual source blending
     // or b) one of our blend optimizations applies.
-    return this->getCaps().fDualSourceBlendingSupport ||
+    return this->getCaps().dualSourceBlendingSupport() ||
            kNone_BlendOpt != this->getBlendOpts(true);
 }
 
@@ -1237,18 +1237,17 @@ void GrDrawTarget::AutoReleaseGeometry::reset() {
 
 void GrDrawTarget::Caps::print() const {
     static const char* gNY[] = {"NO", "YES"};
-    GrPrintf("8 Bit Palette Support       : %s\n", gNY[f8BitPaletteSupport]);
-    GrPrintf("NPOT Texture Tile Support   : %s\n", gNY[fNPOTTextureTileSupport]);
-    GrPrintf("Two Sided Stencil Support   : %s\n", gNY[fTwoSidedStencilSupport]);
-    GrPrintf("Stencil Wrap Ops  Support   : %s\n", gNY[fStencilWrapOpsSupport]);
-    GrPrintf("HW AA Lines Support         : %s\n", gNY[fHWAALineSupport]);
-    GrPrintf("Shader Derivative Support   : %s\n", gNY[fShaderDerivativeSupport]);
-    GrPrintf("Geometry Shader Support     : %s\n", gNY[fGeometryShaderSupport]);
-    GrPrintf("FSAA Support                : %s\n", gNY[fFSAASupport]);
-    GrPrintf("Dual Source Blending Support: %s\n", gNY[fDualSourceBlendingSupport]);
-    GrPrintf("Buffer Lock Support         : %s\n", gNY[fBufferLockSupport]);
-    GrPrintf("Max Texture Size            : %d\n", fMaxTextureSize);
-    GrPrintf("Max Render Target Size      : %d\n", fMaxRenderTargetSize);
+    GrPrintf("8 Bit Palette Support       : %s\n", gNY[fInternals.f8BitPaletteSupport]);
+    GrPrintf("NPOT Texture Tile Support   : %s\n", gNY[fInternals.fNPOTTextureTileSupport]);
+    GrPrintf("Two Sided Stencil Support   : %s\n", gNY[fInternals.fTwoSidedStencilSupport]);
+    GrPrintf("Stencil Wrap Ops  Support   : %s\n", gNY[fInternals.fStencilWrapOpsSupport]);
+    GrPrintf("HW AA Lines Support         : %s\n", gNY[fInternals.fHWAALineSupport]);
+    GrPrintf("Shader Derivative Support   : %s\n", gNY[fInternals.fShaderDerivativeSupport]);
+    GrPrintf("Geometry Shader Support     : %s\n", gNY[fInternals.fGeometryShaderSupport]);
+    GrPrintf("FSAA Support                : %s\n", gNY[fInternals.fFSAASupport]);
+    GrPrintf("Dual Source Blending Support: %s\n", gNY[fInternals.fDualSourceBlendingSupport]);
+    GrPrintf("Buffer Lock Support         : %s\n", gNY[fInternals.fBufferLockSupport]);
+    GrPrintf("Path Stenciling Support     : %s\n", gNY[fInternals.fPathStencilingSupport]);
+    GrPrintf("Max Texture Size            : %d\n", fInternals.fMaxTextureSize);
+    GrPrintf("Max Render Target Size      : %d\n", fInternals.fMaxRenderTargetSize);
 }
-
-

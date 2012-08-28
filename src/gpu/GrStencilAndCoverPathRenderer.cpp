@@ -15,7 +15,7 @@
 GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrContext* context) {
     GrAssert(NULL != context);
     GrAssert(NULL != context->getGpu());
-    if (context->getGpu()->getCaps().fPathStencilingSupport) {
+    if (context->getGpu()->getCaps().pathStencilingSupport()) {
         return SkNEW_ARGS(GrStencilAndCoverPathRenderer, (context->getGpu()));
     } else {
         return NULL;
@@ -23,7 +23,7 @@ GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrContext* context) {
 }
 
 GrStencilAndCoverPathRenderer::GrStencilAndCoverPathRenderer(GrGpu* gpu) {
-    GrAssert(gpu->getCaps().fPathStencilingSupport);
+    GrAssert(gpu->getCaps().pathStencilingSupport());
     fGpu = gpu;
     gpu->ref();
 }

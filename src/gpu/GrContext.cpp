@@ -515,11 +515,11 @@ void GrContext::setTextureCacheLimits(int maxTextures, size_t maxTextureBytes) {
 }
 
 int GrContext::getMaxTextureSize() const {
-    return fGpu->getCaps().fMaxTextureSize;
+    return fGpu->getCaps().maxTextureSize();
 }
 
 int GrContext::getMaxRenderTargetSize() const {
-    return fGpu->getCaps().fMaxRenderTargetSize;
+    return fGpu->getCaps().maxRenderTargetSize();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -537,7 +537,7 @@ GrRenderTarget* GrContext::createPlatformRenderTarget(const GrPlatformRenderTarg
 bool GrContext::supportsIndex8PixelConfig(const GrTextureParams* params,
                                           int width, int height) const {
     const GrDrawTarget::Caps& caps = fGpu->getCaps();
-    if (!caps.f8BitPaletteSupport) {
+    if (!caps.eightBitPaletteSupport()) {
         return false;
     }
 
@@ -545,7 +545,7 @@ bool GrContext::supportsIndex8PixelConfig(const GrTextureParams* params,
 
     if (!isPow2) {
         bool tiled = NULL != params && params->isTiled();
-        if (tiled && !caps.fNPOTTextureTileSupport) {
+        if (tiled && !caps.npotTextureTileSupport()) {
             return false;
         }
     }

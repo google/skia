@@ -26,20 +26,11 @@ class GrPath;
 class GrVertexBuffer;
 
 class GrDrawTarget : public GrRefCnt {
-public:
-    SK_DECLARE_INST_COUNT(GrDrawTarget)
-
-    /**
-     * Represents the draw target capabilities.
-     */
-    struct Caps {
-        Caps() { memset(this, 0, sizeof(Caps)); }
-        Caps(const Caps& c) { *this = c; }
-        Caps& operator= (const Caps& c) {
-            memcpy(this, &c, sizeof(Caps));
-            return *this;
-        }
-        void print() const;
+protected:
+    /** This helper class allows GrDrawTarget subclasses to set the caps values without having to be
+        made a friend of GrDrawTarget::Caps. */
+    class CapsInternals {
+    public:
         bool f8BitPaletteSupport        : 1;
         bool fNPOTTextureTileSupport    : 1;
         bool fTwoSidedStencilSupport    : 1;
@@ -53,6 +44,41 @@ public:
         bool fPathStencilingSupport     : 1;
         int fMaxRenderTargetSize;
         int fMaxTextureSize;
+    };
+
+public:
+    SK_DECLARE_INST_COUNT(GrDrawTarget)
+
+    /**
+     * Represents the draw target capabilities.
+     */
+    class Caps {
+    public:
+        Caps() { memset(this, 0, sizeof(Caps)); }
+        Caps(const Caps& c) { *this = c; }
+        Caps& operator= (const Caps& c) {
+            memcpy(this, &c, sizeof(Caps));
+            return *this;
+        }
+        void print() const;
+
+        bool eightBitPaletteSupport() const { return fInternals.f8BitPaletteSupport; }
+        bool npotTextureTileSupport() const { return fInternals.fNPOTTextureTileSupport; }
+        bool twoSidedStencilSupport() const { return fInternals.fTwoSidedStencilSupport; }
+        bool stencilWrapOpsSupport() const { return  fInternals.fStencilWrapOpsSupport; }
+        bool hwAALineSupport() const { return fInternals.fHWAALineSupport; }
+        bool shaderDerivativeSupport() const { return fInternals.fShaderDerivativeSupport; }
+        bool geometryShaderSupport() const { return fInternals.fGeometryShaderSupport; }
+        bool fsaaSupport() const { return fInternals.fFSAASupport; }
+        bool dualSourceBlendingSupport() const { return fInternals.fDualSourceBlendingSupport; }
+        bool bufferLockSupport() const { return fInternals.fBufferLockSupport; }
+        bool pathStencilingSupport() const { return fInternals.fPathStencilingSupport; }
+
+        int maxRenderTargetSize() const { return fInternals.fMaxRenderTargetSize; }
+        int maxTextureSize() const { return fInternals.fMaxTextureSize; }
+    private:
+        CapsInternals fInternals;
+        friend GrDrawTarget; // to set values of fInternals
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -1012,6 +1038,9 @@ protected:
         GrAssert(this->getGeomSrc().fVertexSrc != kNone_GeometrySrcType);
         return this->getGeomSrc().fVertexLayout;
     }
+
+    // allows derived class to set the caps
+    CapsInternals* capsInternals() { return &fCaps.fInternals; }
 
     const GrClipData* fClip;
 
