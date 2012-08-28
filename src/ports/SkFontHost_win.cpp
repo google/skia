@@ -8,6 +8,7 @@
 
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkBase64.h"
+#include "SkColorPriv.h"
 #include "SkData.h"
 #include "SkDescriptor.h"
 #include "SkFontDescriptor.h"
@@ -961,7 +962,7 @@ static inline uint8_t rgb_to_a8(SkGdiRGB rgb, const uint8_t* table8) {
     U8CPU r = (rgb >> 16) & 0xFF;
     U8CPU g = (rgb >>  8) & 0xFF;
     U8CPU b = (rgb >>  0) & 0xFF;
-    return sk_apply_lut_if<APPLY_PREBLEND>((r + g + b) / 3, table8);
+    return sk_apply_lut_if<APPLY_PREBLEND>(SkComputeLuminance(r, g, b), table8);
 }
 
 template<bool APPLY_PREBLEND>
