@@ -172,23 +172,23 @@ static SkBitmap make_bitmap(GrContext* context, GrRenderTarget* renderTarget) {
 
 SkGpuDevice::SkGpuDevice(GrContext* context, GrTexture* texture)
 : SkDevice(make_bitmap(context, texture->asRenderTarget())) {
-    this->initFromRenderTarget(context, texture->asRenderTarget());
+    this->initFromRenderTarget(context, texture->asRenderTarget(), false);
 }
 
 SkGpuDevice::SkGpuDevice(GrContext* context, GrRenderTarget* renderTarget)
 : SkDevice(make_bitmap(context, renderTarget)) {
-    this->initFromRenderTarget(context, renderTarget);
+    this->initFromRenderTarget(context, renderTarget, false);
 }
 
 void SkGpuDevice::initFromRenderTarget(GrContext* context,
-                                       GrRenderTarget* renderTarget) {
+                                       GrRenderTarget* renderTarget,
+                                       bool cached) {
     fNeedPrepareRenderTarget = false;
     fDrawProcs = NULL;
 
     fContext = context;
     fContext->ref();
 
-    fCached = false;
     fRenderTarget = NULL;
     fNeedClear = false;
 
@@ -204,7 +204,7 @@ void SkGpuDevice::initFromRenderTarget(GrContext* context,
     if (NULL == surface) {
         surface = fRenderTarget;
     }
-    SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (surface));
+    SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (surface, cached));
 
     this->setPixelRef(pr, 0)->unref();
 }
@@ -221,7 +221,6 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
     fContext = context;
     fContext->ref();
 
-    fCached = false;
     fRenderTarget = NULL;
     fNeedClear = false;
 
@@ -264,10 +263,6 @@ SkGpuDevice::~SkGpuDevice() {
     // This call gives the context a chance to relinquish it
     fContext->setRenderTarget(NULL);
 
-    GrTexture* texture = fRenderTarget->asTexture();
-    if (NULL != texture && fCached) {
-        fContext->unlockTexture(texture);
-    }
     SkSafeUnref(fRenderTarget);
     fContext->unref();
 }
@@ -1964,7 +1959,8 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
     : SkDevice(make_bitmap(context, texture->asRenderTarget())) {
 
     GrAssert(texture && texture->asRenderTarget());
-    this->initFromRenderTarget(context, texture->asRenderTarget());
-    fCached = true;
+    // This constructor is called from onCreateCompatibleDevice. It has locked the RT in the texture
+    // cache. We pass true for the third argument so that it will get unlocked.
+    this->initFromRenderTarget(context, texture->asRenderTarget(), true);
     fNeedClear = needClear;
 }
