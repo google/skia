@@ -46,20 +46,6 @@ inline const char* vector_all_coords(int count) {
     return ALL[count];
 }
 
-inline const char* all_ones_vec(int count) {
-    static const char* ONESVEC[] = {"ERROR", "1.0", "vec2(1,1)",
-                                    "vec3(1,1,1)", "vec4(1,1,1,1)"};
-    GrAssert(count >= 1 && count < (int)GR_ARRAY_COUNT(ONESVEC));
-    return ONESVEC[count];
-}
-
-inline const char* all_zeros_vec(int count) {
-    static const char* ZEROSVEC[] = {"ERROR", "0.0", "vec2(0,0)",
-                                    "vec3(0,0,0)", "vec4(0,0,0,0)"};
-    GrAssert(count >= 1 && count < (int)GR_ARRAY_COUNT(ZEROSVEC));
-    return ZEROSVEC[count];
-}
-
 inline const char* declared_color_output_name() { return "fsColorOut"; }
 inline const char* dual_source_output_name() { return "dualSourceOut"; }
 
@@ -146,62 +132,6 @@ void GrGLProgram::overrideBlend(GrBlendCoeff* srcCoeff,
     }
 }
 
-// assigns modulation of two vars to an output var
-// vars can be vec4s or floats (or one of each)
-// result is always vec4
-// if either var is "" then assign to the other var
-// if both are "" then assign all ones
-static inline void modulate_helper(const char* outputVar,
-                                   const char* var0,
-                                   const char* var1,
-                                   SkString* code) {
-    GrAssert(NULL != outputVar);
-    GrAssert(NULL != var0);
-    GrAssert(NULL != var1);
-    GrAssert(NULL != code);
-
-    bool has0 = '\0' != *var0;
-    bool has1 = '\0' != *var1;
-
-    if (!has0 && !has1) {
-        code->appendf("\t%s = %s;\n", outputVar, all_ones_vec(4));
-    } else if (!has0) {
-        code->appendf("\t%s = vec4(%s);\n", outputVar, var1);
-    } else if (!has1) {
-        code->appendf("\t%s = vec4(%s);\n", outputVar, var0);
-    } else {
-        code->appendf("\t%s = vec4(%s * %s);\n", outputVar, var0, var1);
-    }
-}
-
-// assigns addition of two vars to an output var
-// vars can be vec4s or floats (or one of each)
-// result is always vec4
-// if either var is "" then assign to the other var
-// if both are "" then assign all zeros
-static inline void add_helper(const char* outputVar,
-                              const char* var0,
-                              const char* var1,
-                              SkString* code) {
-    GrAssert(NULL != outputVar);
-    GrAssert(NULL != var0);
-    GrAssert(NULL != var1);
-    GrAssert(NULL != code);
-
-    bool has0 = '\0' != *var0;
-    bool has1 = '\0' != *var1;
-
-    if (!has0 && !has1) {
-        code->appendf("\t%s = %s;\n", outputVar, all_zeros_vec(4));
-    } else if (!has0) {
-        code->appendf("\t%s = vec4(%s);\n", outputVar, var1);
-    } else if (!has1) {
-        code->appendf("\t%s = vec4(%s);\n", outputVar, var0);
-    } else {
-        code->appendf("\t%s = vec4(%s + %s);\n", outputVar, var0, var1);
-    }
-}
-
 // given two blend coeffecients determine whether the src
 // and/or dst computation can be omitted.
 static inline void needBlendInputs(SkXfermode::Coeff srcCoeff,
@@ -260,13 +190,13 @@ static void blendTermString(SkString* str, SkXfermode::Coeff coeff,
         str->printf("(%s * %s)", src, value);
         break;
     case SkXfermode::kISC_Coeff:
-        str->printf("((%s - %s) * %s)", all_ones_vec(4), src, value);
+        str->printf("((%s - %s) * %s)", GrGLSLOnesVecf(4), src, value);
         break;
     case SkXfermode::kDC_Coeff:
         str->printf("(%s * %s)", dst, value);
         break;
     case SkXfermode::kIDC_Coeff:
-        str->printf("((%s - %s) * %s)", all_ones_vec(4), dst, value);
+        str->printf("((%s - %s) * %s)", GrGLSLOnesVecf(4), dst, value);
         break;
     case SkXfermode::kSA_Coeff:      /** src alpha */
         str->printf("(%s.a * %s)", src, value);
@@ -298,7 +228,9 @@ static void addColorFilter(SkString* fsCode, const char * outputVar,
     blendTermString(&colorStr, colorCoeff, filterColor, inColor, inColor);
     blendTermString(&constStr, uniformCoeff, filterColor, inColor, filterColor);
 
-    add_helper(outputVar, colorStr.c_str(), constStr.c_str(), fsCode);
+    fsCode->appendf("\t%s = ", outputVar);
+    GrGLSLAdd4f(fsCode, colorStr.c_str(), constStr.c_str());
+    fsCode->append(";\n");
 }
 
 bool GrGLProgram::genEdgeCoverage(SkString* coverageVar,
@@ -458,9 +390,9 @@ const char* GrGLProgram::adjustInColor(const SkString& inColor) const {
           return inColor.c_str();
     } else {
         if (Desc::kSolidWhite_ColorInput == fDesc.fColorInput) {
-            return all_ones_vec(4);
+            return GrGLSLOnesVecf(4);
         } else {
-            return all_zeros_vec(4);
+            return GrGLSLZerosVecf(4);
         }
     }
 }
@@ -736,7 +668,7 @@ bool GrGLProgram::genProgram(const GrCustomStage** customStages) {
         !applyColorMatrix) {
         builder.fFSCode.appendf("\t%s = %s;\n",
                                 colorOutput.getName().c_str(),
-                                all_zeros_vec(4));
+                                GrGLSLZerosVecf(4));
         wroteFragColorZero = true;
     } else if (SkXfermode::kDst_Mode != fDesc.fColorFilterXfermode) {
         builder.fFSCode.append("\tvec4 filteredColor;\n");
@@ -854,12 +786,11 @@ bool GrGLProgram::genProgram(const GrCustomStage** customStages) {
             if (outputIsZero) {
                 builder.fFSCode.appendf("\t%s = %s;\n",
                                         dual_source_output_name(),
-                                         all_zeros_vec(4));
+                                        GrGLSLZerosVecf(4));
             } else {
-                modulate_helper(dual_source_output_name(),
-                                coeff.c_str(),
-                                inCoverage.c_str(),
-                                &builder.fFSCode);
+                builder.fFSCode.appendf("\t%s =", dual_source_output_name());
+                GrGLSLModulate4f(&builder.fFSCode, coeff.c_str(), inCoverage.c_str());
+                builder.fFSCode.append(";\n");
             }
             dualSourceOutputWritten = true;
         }
@@ -872,12 +803,11 @@ bool GrGLProgram::genProgram(const GrCustomStage** customStages) {
         if (coverageIsZero) {
             builder.fFSCode.appendf("\t%s = %s;\n",
                                     colorOutput.getName().c_str(),
-                                    all_zeros_vec(4));
+                                    GrGLSLZerosVecf(4));
         } else {
-            modulate_helper(colorOutput.getName().c_str(),
-                            inColor.c_str(),
-                            inCoverage.c_str(),
-                            &builder.fFSCode);
+            builder.fFSCode.appendf("\t%s = ", colorOutput.getName().c_str());
+            GrGLSLModulate4f(&builder.fFSCode, inColor.c_str(), inCoverage.c_str());
+            builder.fFSCode.append(";\n");
         }
     }
 

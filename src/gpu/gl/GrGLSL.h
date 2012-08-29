@@ -11,6 +11,7 @@
 #include "gl/GrGLInterface.h"
 
 class GrGLShaderVar;
+class SkString;
 
 // Limited set of GLSL versions we build shaders for. Caller should round
 // down the GLSL version to one of these enums.
@@ -45,6 +46,12 @@ enum GrSLType {
     kSampler2D_GrSLType
 };
 
+enum GrSLConstantVec {
+    kZeros_GrSLConstantVec,
+    kOnes_GrSLConstantVec,
+    kNone_GrSLConstantVec,
+};
+
 namespace {
 inline int GrSLTypeToVecLength(GrSLType type) {
     static const int kVecLengths[] = {
@@ -59,6 +66,20 @@ inline int GrSLTypeToVecLength(GrSLType type) {
     };
     GrAssert((size_t) type < GR_ARRAY_COUNT(kVecLengths));
     return kVecLengths[type];
+}
+
+const char* GrGLSLOnesVecf(int count) {
+    static const char* kONESVEC[] = {"ERROR", "1.0", "vec2(1,1)",
+                                     "vec3(1,1,1)", "vec4(1,1,1,1)"};
+    GrAssert(count >= 1 && count < (int)GR_ARRAY_COUNT(kONESVEC));
+    return kONESVEC[count];
+}
+
+const char* GrGLSLZerosVecf(int count) {
+    static const char* kZEROSVEC[] = {"ERROR", "0.0", "vec2(0,0)",
+                                      "vec3(0,0,0)", "vec4(0,0,0,0)"};
+    GrAssert(count >= 1 && count < (int)GR_ARRAY_COUNT(kZEROSVEC));
+    return kZEROSVEC[count];
 }
 }
 
@@ -107,4 +128,36 @@ const char* GrGLSLVectorHomogCoord(GrSLType type);
     with the given number of coordinates, e.g. 2 -> ".x", 3 -> ".xy" */
 const char* GrGLSLVectorNonhomogCoords(int count);
 const char* GrGLSLVectorNonhomogCoords(GrSLType type);
+
+/**
+  * Produces a string that is the result of modulating two inputs. The inputs must be vec4 or
+  * float. The result is always a vec4. The inputs may be expressions, not just identifier names.
+  * Either can be NULL or "" in which case the default params control whether vec4(1,1,1,1) or
+  * vec4(0,0,0,0) is assumed. It is an error to pass kNone for default<i> if in<i> is NULL or "".
+  * Note that when if function determines that the result is a zeros or ones vec then any expression
+  * represented by in0 or in1 will not be emitted. The return value indicates whether a zeros, ones
+  * or neither was appeneded.
+  */
+GrSLConstantVec GrGLSLModulate4f(SkString* outAppend,
+                                 const char* in0,
+                                 const char* in1,
+                                 GrSLConstantVec default0 = kOnes_GrSLConstantVec,
+                                 GrSLConstantVec default1 = kOnes_GrSLConstantVec);
+
+
+/**
+  * Produces a string that is the result of adding two inputs. The inputs must be vec4 or float.
+  * The result is always a vec4. The inputs may be expressions, not just identifier names. Either
+  * can be NULL or "" in which case if the default is kZeros then vec4(0,0,0,0) is assumed. It is an
+  * error to pass kOnes for either default or to pass kNone for default<i> if in<i> is NULL or "".
+  * Note that if the function determines that the result is a zeros vec any expression represented
+  * by in0 or in1 will not be emitted. The return value indicates whether a zeros vec was appended
+  * or not.
+  */
+GrSLConstantVec GrGLSLAdd4f(SkString* outAppend,
+                            const char* in0,
+                            const char* in1,
+                            GrSLConstantVec default0 = kZeros_GrSLConstantVec,
+                            GrSLConstantVec default1 = kZeros_GrSLConstantVec);
+
 #endif

@@ -7,6 +7,7 @@
 
 #include "GrGLSL.h"
 #include "GrGLShaderVar.h"
+#include "SkString.h"
 
 GrGLSLGeneration GrGetGLSLGeneration(GrGLBinding binding,
                                    const GrGLInterface* gl) {
@@ -92,4 +93,80 @@ const char* GrGLSLVectorNonhomogCoords(int count) {
 
 const char* GrGLSLVectorNonhomogCoord(GrSLType type) {
     return GrGLSLVectorNonhomogCoords(GrSLTypeToVecLength(type));
+}
+
+GrSLConstantVec GrGLSLModulate4f(SkString* outAppend,
+                                 const char* in0,
+                                 const char* in1,
+                                 GrSLConstantVec default0,
+                                 GrSLConstantVec default1) {
+    GrAssert(NULL != outAppend);
+
+    bool has0 = NULL != in0 && '\0' != *in0;
+    bool has1 = NULL != in1 && '\0' != *in1;
+
+    GrAssert(has0 || kNone_GrSLConstantVec != default0);
+    GrAssert(has1 || kNone_GrSLConstantVec != default1);
+
+    if (!has0 && !has1) {
+        GrAssert(kZeros_GrSLConstantVec == default0 || kOnes_GrSLConstantVec == default0);
+        GrAssert(kZeros_GrSLConstantVec == default1 || kOnes_GrSLConstantVec == default1);
+        if (kZeros_GrSLConstantVec == default0 || kZeros_GrSLConstantVec == default1) {
+            outAppend->append(GrGLSLZerosVecf(4));
+            return kZeros_GrSLConstantVec;
+        } else {
+            outAppend->appendf(GrGLSLOnesVecf(4));
+            return kOnes_GrSLConstantVec;
+        }
+    } else if (!has0) {
+        GrAssert(kZeros_GrSLConstantVec == default0 || kOnes_GrSLConstantVec == default0);
+        if (kZeros_GrSLConstantVec == default0) {
+            outAppend->append(GrGLSLZerosVecf(4));
+            return kZeros_GrSLConstantVec;
+        } else {
+            outAppend->appendf("vec4(%s)", in1);
+            return kNone_GrSLConstantVec;
+        }
+    } else if (!has1) {
+        GrAssert(kZeros_GrSLConstantVec == default1 || kOnes_GrSLConstantVec == default1);
+        if (kZeros_GrSLConstantVec == default1) {
+            outAppend->append(GrGLSLZerosVecf(4));
+            return kZeros_GrSLConstantVec;
+        } else {
+            outAppend->appendf("vec4(%s)", in0);
+            return kNone_GrSLConstantVec;
+        }
+    } else {
+        outAppend->appendf("vec4(%s * %s)", in0, in1);
+        return kNone_GrSLConstantVec;
+    }
+}
+
+GrSLConstantVec GrGLSLAdd4f(SkString* outAppend,
+                            const char* in0,
+                            const char* in1,
+                            GrSLConstantVec default0,
+                            GrSLConstantVec default1) {
+    GrAssert(NULL != outAppend);
+
+    bool has0 = NULL != in0 && '\0' != *in0;
+    bool has1 = NULL != in1 && '\0' != *in1;
+
+    if (!has0 && !has1) {
+        GrAssert(kZeros_GrSLConstantVec == default0);
+        GrAssert(kZeros_GrSLConstantVec == default1);
+        outAppend->append(GrGLSLZerosVecf(4));
+        return kZeros_GrSLConstantVec;
+    } else if (!has0) {
+        GrAssert(kZeros_GrSLConstantVec == default0);
+        outAppend->appendf("vec4(%s)", in1);
+        return kNone_GrSLConstantVec;
+    } else if (!has1) {
+        GrAssert(kZeros_GrSLConstantVec == default1);
+        outAppend->appendf("vec4(%s)", in0);
+        return kNone_GrSLConstantVec;
+    } else {
+        outAppend->appendf("(vec4(%s) + vec4(%s))", in0, in1);
+        return kNone_GrSLConstantVec;
+    }
 }
