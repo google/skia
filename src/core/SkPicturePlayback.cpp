@@ -25,7 +25,7 @@ SkPicturePlayback::SkPicturePlayback() {
     this->init();
 }
 
-SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record) {
+SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record, bool deepCopy) {
 #ifdef SK_DEBUG_SIZE
     size_t overallBytes, bitmapBytes, matricesBytes,
     paintBytes, pathBytes, pictureBytes, regionBytes;
@@ -80,20 +80,32 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record) {
     // copy over the refcnt dictionary to our reader
     record.fFlattenableHeap.setupPlaybacks();
 
-    fBitmaps = record.fBitmapHeap.extractBitmaps();
+    fBitmaps = record.fBitmapHeap->extractBitmaps();
     fMatrices = record.fMatrices.unflattenToArray();
     fPaints = record.fPaints.unflattenToArray();
     fRegions = record.fRegions.unflattenToArray();
 
-    SkRefCnt_SafeAssign(fPathHeap, record.fPathHeap);
+    fBitmapHeap.reset(SkSafeRef(record.fBitmapHeap));
+    fPathHeap.reset(SkSafeRef(record.fPathHeap));
+
+    // ensure that the paths bounds are pre-computed
+    if (fPathHeap.get()) {
+        for (int i = 0; i < fPathHeap->count(); i++) {
+            (*fPathHeap)[i].updateBoundsCache();
+        }
+    }
 
     const SkTDArray<SkPicture* >& pictures = record.getPictureRefs();
     fPictureCount = pictures.count();
     if (fPictureCount > 0) {
         fPictureRefs = SkNEW_ARRAY(SkPicture*, fPictureCount);
         for (int i = 0; i < fPictureCount; i++) {
-            fPictureRefs[i] = pictures[i];
-            fPictureRefs[i]->ref();
+            if (deepCopy) {
+                fPictureRefs[i] = pictures[i]->clone();
+            } else {
+                fPictureRefs[i] = pictures[i];
+                fPictureRefs[i]->ref();
+            }
         }
     }
 
@@ -119,28 +131,66 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record) {
 #endif
 }
 
-template <typename T> T* SafeRefReturn(T* obj) {
-    if (obj) {
-        obj->ref();
-    }
-    return obj;
-}
-
-SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src) {
+SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src, SkPictCopyInfo* deepCopyInfo) {
     this->init();
 
-    fPathHeap = SafeRefReturn(src.fPathHeap);
-    fBitmaps = SafeRefReturn(src.fBitmaps);
-    fMatrices = SafeRefReturn(src.fMatrices);
-    fPaints = SafeRefReturn(src.fPaints);
-    fRegions = SafeRefReturn(src.fRegions);
-    fOpData = SafeRefReturn(src.fOpData);
+    fBitmapHeap.reset(SkSafeRef(src.fBitmapHeap.get()));
+    fPathHeap.reset(SkSafeRef(src.fPathHeap.get()));
+
+    fMatrices = SkSafeRef(src.fMatrices);
+    fRegions = SkSafeRef(src.fRegions);
+    fOpData = SkSafeRef(src.fOpData);
+
+    if (deepCopyInfo) {
+
+        if (src.fBitmaps) {
+            fBitmaps = SkTRefArray<SkBitmap>::Create(src.fBitmaps->begin(), src.fBitmaps->count());
+        }
+
+        if (!deepCopyInfo->initialized) {
+            /* The alternative to doing this is to have a clone method on the paint and have it make
+             * the deep copy of its internal structures as needed. The holdup to doing that is at
+             * this point we would need to pass the SkBitmapHeap so that we don't unnecessarily
+             * flatten the pixels in a bitmap shader.
+             */
+            deepCopyInfo->paintData.setCount(src.fPaints->count());
+
+            SkDEBUGCODE(int heapSize = SafeCount(fBitmapHeap.get());)
+            for (int i = 0; i < src.fPaints->count(); i++) {
+                deepCopyInfo->paintData[i] = SkFlatData::Create(&deepCopyInfo->controller,
+                                                                &src.fPaints->at(i), 0,
+                                                                &SkFlattenObjectProc<SkPaint>);
+            }
+            SkASSERT(SafeCount(fBitmapHeap.get()) == heapSize);
+
+            // needed to create typeface playback
+            deepCopyInfo->controller.setupPlaybacks();
+            deepCopyInfo->initialized = true;
+        }
+
+        fPaints = SkTRefArray<SkPaint>::Create(src.fPaints->count());
+        SkASSERT(deepCopyInfo->paintData.count() == src.fPaints->count());
+        for (int i = 0; i < src.fPaints->count(); i++) {
+            deepCopyInfo->paintData[i]->unflatten(&fPaints->writableAt(i),
+                                                  &SkUnflattenObjectProc<SkPaint>,
+                                                  deepCopyInfo->controller.getBitmapHeap(),
+                                                  deepCopyInfo->controller.getTypefacePlayback());
+        }
+
+    } else {
+        fBitmaps = SkSafeRef(src.fBitmaps);
+        fPaints = SkSafeRef(src.fPaints);
+    }
 
     fPictureCount = src.fPictureCount;
     fPictureRefs = SkNEW_ARRAY(SkPicture*, fPictureCount);
     for (int i = 0; i < fPictureCount; i++) {
-        fPictureRefs[i] = src.fPictureRefs[i];
-        fPictureRefs[i]->ref();
+        if (deepCopyInfo) {
+            fPictureRefs[i] = src.fPictureRefs[i]->clone();
+        } else {
+            fPictureRefs[i] = src.fPictureRefs[i];
+            fPictureRefs[i]->ref();
+        }
     }
 }
 
@@ -148,7 +198,6 @@ void SkPicturePlayback::init() {
     fBitmaps = NULL;
     fMatrices = NULL;
     fPaints = NULL;
-    fPathHeap = NULL;
     fPictureRefs = NULL;
     fRegions = NULL;
     fPictureCount = 0;
@@ -163,7 +212,6 @@ SkPicturePlayback::~SkPicturePlayback() {
     SkSafeUnref(fMatrices);
     SkSafeUnref(fPaints);
     SkSafeUnref(fRegions);
-    SkSafeUnref(fPathHeap);
 
     for (int i = 0; i < fPictureCount; i++) {
         fPictureRefs[i]->unref();
@@ -179,7 +227,7 @@ void SkPicturePlayback::dumpSize() const {
              SafeCount(fBitmaps), SafeCount(fBitmaps) * sizeof(SkBitmap),
              SafeCount(fMatrices), SafeCount(fMatrices) * sizeof(SkMatrix),
              SafeCount(fPaints), SafeCount(fPaints) * sizeof(SkPaint),
-             SafeCount(fPathHeap),
+             SafeCount(fPathHeap.get()),
              SafeCount(fRegions));
 }
 
@@ -277,8 +325,8 @@ void SkPicturePlayback::flattenToBuffer(SkOrderedWriteBuffer& buffer) const {
             buffer.writePaint((*fPaints)[i]);
         }
     }
-
-    if ((n = SafeCount(fPathHeap)) > 0) {
+    
+    if ((n = SafeCount(fPathHeap.get())) > 0) {
         writeTagSize(buffer, PICT_PATH_BUFFER_TAG, n);
         fPathHeap->flatten(buffer);
     }
@@ -445,7 +493,7 @@ bool SkPicturePlayback::parseBufferTag(SkOrderedReadBuffer& buffer,
         } break;
         case PICT_PATH_BUFFER_TAG:
             if (size > 0) {
-                fPathHeap = SkNEW_ARGS(SkPathHeap, (buffer));
+                fPathHeap.reset(SkNEW_ARGS(SkPathHeap, (buffer)));
             }
             break;
         case PICT_REGION_BUFFER_TAG: {

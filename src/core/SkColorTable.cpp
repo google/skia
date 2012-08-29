@@ -81,7 +81,7 @@ void SkColorTable::setFlags(unsigned flags)
 void SkColorTable::unlockColors(bool changed)
 {
     SkASSERT(fColorLockCount != 0);
-    SkDEBUGCODE(fColorLockCount -= 1;)
+    SkDEBUGCODE(sk_atomic_dec(&fColorLockCount);)
     if (changed)
         this->inval16BitCache();
 }

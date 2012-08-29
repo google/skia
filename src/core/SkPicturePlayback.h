@@ -42,11 +42,23 @@ struct SkPictInfo {
     uint32_t    fFlags;
 };
 
+/**
+ * Container for data that is needed to deep copy a SkPicture. The container
+ * enables the data to be generated once and reused for subsequent copies.
+ */
+struct SkPictCopyInfo {
+    SkPictCopyInfo() : initialized(false), controller(1024) {}
+
+    bool initialized;
+    SkChunkFlatController controller;
+    SkTDArray<SkFlatData*> paintData;
+};
+
 class SkPicturePlayback {
 public:
     SkPicturePlayback();
-    SkPicturePlayback(const SkPicturePlayback& src);
-    explicit SkPicturePlayback(const SkPictureRecord& record);
+    SkPicturePlayback(const SkPicturePlayback& src, SkPictCopyInfo* deepCopyInfo = NULL);
+    explicit SkPicturePlayback(const SkPictureRecord& record, bool deepCopy = false);
     SkPicturePlayback(SkStream*, const SkPictInfo&, bool* isValid);
 
     virtual ~SkPicturePlayback();
@@ -167,7 +179,9 @@ private:    // these help us with reading/writing
     void flattenToBuffer(SkOrderedWriteBuffer&) const;
 
 private:
-    SkPathHeap* fPathHeap;  // reference counted
+    SkAutoTUnref<SkBitmapHeap> fBitmapHeap;
+    SkAutoTUnref<SkPathHeap> fPathHeap;
+
     SkTRefArray<SkBitmap>* fBitmaps;
     SkTRefArray<SkMatrix>* fMatrices;
     SkTRefArray<SkPaint>* fPaints;

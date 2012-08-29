@@ -31,12 +31,14 @@ SkPictureRecord::SkPictureRecord(uint32_t flags) :
     fRestoreOffsetStack.setReserve(32);
     fInitialSaveCount = kNoInitialSave;
 
-    fFlattenableHeap.setBitmapStorage(&fBitmapHeap);
+    fBitmapHeap = SkNEW(SkBitmapHeap);
+    fFlattenableHeap.setBitmapStorage(fBitmapHeap);
     fPathHeap = NULL;   // lazy allocate
     fFirstSavedLayerIndex = kNoSavedLayerIndex;
 }
 
 SkPictureRecord::~SkPictureRecord() {
+    SkSafeUnref(fBitmapHeap);
     SkSafeUnref(fPathHeap);
     fFlattenableHeap.setBitmapStorage(NULL);
     fPictureRefs.unrefAll();
@@ -521,7 +523,7 @@ void SkPictureRecord::drawData(const void* data, size_t length) {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkPictureRecord::addBitmap(const SkBitmap& bitmap) {
-    addInt(fBitmapHeap.insert(bitmap));
+    addInt(fBitmapHeap->insert(bitmap));
 }
 
 void SkPictureRecord::addMatrix(const SkMatrix& matrix) {

@@ -138,6 +138,37 @@ void SkPicture::swap(SkPicture& other) {
     SkTSwap(fHeight, other.fHeight);
 }
 
+SkPicture* SkPicture::clone() const {
+    SkPicture* clonedPicture = SkNEW(SkPicture);
+    clone(clonedPicture, 1);
+    return clonedPicture;
+}
+
+void SkPicture::clone(SkPicture* pictures, int count) const {
+    SkPictCopyInfo copyInfo;
+
+    for (int i = 0; i < count; i++) {
+        SkPicture* clone = &pictures[i];
+
+        clone->fWidth = fWidth;
+        clone->fHeight = fHeight;
+        clone->fRecord = NULL;
+
+        /*  We want to copy the src's playback. However, if that hasn't been built
+            yet, we need to fake a call to endRecording() without actually calling
+            it (since it is destructive, and we don't want to change src).
+         */
+        if (fPlayback) {
+            clone->fPlayback = SkNEW_ARGS(SkPicturePlayback, (*fPlayback, &copyInfo));
+        } else if (fRecord) {
+            // here we do a fake src.endRecording()
+            clone->fPlayback = SkNEW_ARGS(SkPicturePlayback, (*fRecord, true));
+        } else {
+            clone->fPlayback = NULL;
+        }
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkCanvas* SkPicture::beginRecording(int width, int height,
