@@ -9,6 +9,7 @@
 #include "SkDraw.h"
 #include "SkImageFilter.h"
 #include "SkMetaData.h"
+#include "SkRasterClip.h"
 #include "SkRect.h"
 
 SK_DEFINE_INST_COUNT(SkDevice)
@@ -299,8 +300,13 @@ void SkDevice::writePixels(const SkBitmap& bitmap,
 
     SkPaint paint;
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-    SkCanvas canvas(this);
-    canvas.drawSprite(*sprite, x, y, &paint);
+    SkRasterClip clip(SkIRect::MakeWH(fBitmap.width(), fBitmap.height()));
+    SkDraw  draw;
+    draw.fRC = &clip;
+    draw.fClip = &clip.bwRgn();
+    draw.fBitmap = &fBitmap; // canvas should have already called accessBitmap
+    draw.fMatrix = &SkMatrix::I();
+    this->drawSprite(draw, *sprite, x, y, paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
