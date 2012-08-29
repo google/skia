@@ -115,7 +115,7 @@ GrSLConstantVec GrGLSLModulate4f(SkString* outAppend,
             outAppend->append(GrGLSLZerosVecf(4));
             return kZeros_GrSLConstantVec;
         } else {
-            outAppend->appendf(GrGLSLOnesVecf(4));
+            outAppend->append(GrGLSLOnesVecf(4));
             return kOnes_GrSLConstantVec;
         }
     } else if (!has0) {
