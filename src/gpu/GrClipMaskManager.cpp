@@ -23,18 +23,6 @@ GR_DEFINE_RESOURCE_CACHE_DOMAIN(GrClipMaskManager, GetAlphaMaskDomain)
 //#define GR_AA_CLIP 1
 //#define GR_SW_CLIP 1
 
-GrClipMaskCache::GrClipMaskCache()
-    : fContext(NULL)
-    , fStack(sizeof(GrClipStackFrame)) {
-    // We need an initial frame to capture the clip state prior to
-    // any pushes
-    SkNEW_PLACEMENT(fStack.push_back(), GrClipStackFrame);
-}
-
-void GrClipMaskCache::push() {
-    SkNEW_PLACEMENT(fStack.push_back(), GrClipStackFrame);
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 namespace {
 // set up the draw state to enable the aa clipping mask. Besides setting up the

@@ -66,6 +66,8 @@
       '<(skia_src_path)/gpu/GrDrawTarget.cpp',
       '<(skia_src_path)/gpu/GrDrawTarget.h',
       '<(skia_src_path)/gpu/GrGeometryBuffer.h',
+      '<(skia_src_path)/gpu/GrClipMaskCache.h',
+      '<(skia_src_path)/gpu/GrClipMaskCache.cpp',
       '<(skia_src_path)/gpu/GrClipMaskManager.h',
       '<(skia_src_path)/gpu/GrClipMaskManager.cpp',
       '<(skia_src_path)/gpu/GrGpu.cpp',
