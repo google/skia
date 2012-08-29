@@ -1016,8 +1016,8 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     }
 
     glyph->zeroMetrics();
-    glyph->fAdvanceX =  SkFloatToFixed(theAdvance.width);
-    glyph->fAdvanceY = -SkFloatToFixed(theAdvance.height);
+    glyph->fAdvanceX =  SkFloatToFixed_Check(theAdvance.width);
+    glyph->fAdvanceY = -SkFloatToFixed_Check(theAdvance.height);
 
     if (CGRectIsEmpty_inline(theBounds)) {
         return;
@@ -1060,14 +1060,14 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
             theBounds.origin.y = SkScalarToFloat(adjust.fTop) - 1;
         }
         // Lion returns fractions in the bounds
-        glyph->fWidth = sk_float_ceil2int(theBounds.size.width);
-        glyph->fHeight = sk_float_ceil2int(theBounds.size.height);
+        glyph->fWidth = SkToU16(sk_float_ceil2int(theBounds.size.width));
+        glyph->fHeight = SkToU16(sk_float_ceil2int(theBounds.size.height));
     } else {
-        glyph->fWidth = sk_float_round2int(theBounds.size.width);
-        glyph->fHeight = sk_float_round2int(theBounds.size.height);
+        glyph->fWidth = SkToU16(sk_float_round2int(theBounds.size.width));
+        glyph->fHeight = SkToU16(sk_float_round2int(theBounds.size.height));
     }
-    glyph->fTop      = -sk_float_round2int(CGRectGetMaxY_inline(theBounds));
-    glyph->fLeft     =  sk_float_round2int(CGRectGetMinX_inline(theBounds));
+    glyph->fTop      = SkToS16(-sk_float_round2int(CGRectGetMaxY_inline(theBounds)));
+    glyph->fLeft     = SkToS16(sk_float_round2int(CGRectGetMinX_inline(theBounds)));
     SkIPoint offset;
     if (fVertical && (isSnowLeopard() || lionAdjustedMetrics)) {
     // SnowLeopard doesn't respect vertical metrics, so compute them manually.
