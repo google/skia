@@ -43,7 +43,7 @@ public:
         }
 
         int64_t size = (int64_t)info.fHeight * rowBytes;
-        if (size > kMaxPixelByteSize) {
+        if (size > (int64_t)kMaxPixelByteSize) {
             return false;
         }
         return true;

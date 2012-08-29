@@ -77,10 +77,10 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctx, GrGLUniformMana
     , fFSInputs(kVarsPerBlock)
     , fFSOutputs(kMaxFSOutputs)
     , fUsesGS(false)
-    , fTexCoordVaryingType(kVoid_GrSLType)
     , fContext(ctx)
     , fUniformManager(uniformManager)
-    , fCurrentStage(kNonStageIdx) {
+    , fCurrentStage(kNonStageIdx)
+    , fTexCoordVaryingType(kVoid_GrSLType) {
 }
 
 void GrGLShaderBuilder::computeSwizzle(uint32_t configFlags) {

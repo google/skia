@@ -110,7 +110,7 @@ GrMemoryPool::BlockHeader* GrMemoryPool::CreateBlock(size_t size) {
     block->fLiveCount = 0;
     block->fFreeSize = size;
     block->fCurrPtr = reinterpret_cast<intptr_t>(block) + kHeaderSize;
-    block->fPrevPtr = NULL;
+    block->fPrevPtr = 0; // gcc warns on assigning NULL to an intptr_t.
     return block;
 }
 
