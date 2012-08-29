@@ -875,6 +875,13 @@ void SkCanvas::internalRestore() {
 
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
+    // Dirty this pointer to handle the case of a new device created at the same address as the
+    // device we are restoring from. E.g.:
+    // saveLayer (creates a device)
+    // drawSomething
+    // restore (deletes the device)
+    // saveLayer (oops new device at the same address)
+    fLastDeviceToGainFocus = NULL;
 
     fClipStack.restore();
     // reserve our layer (if any)
