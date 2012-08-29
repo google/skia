@@ -145,6 +145,7 @@ public:
      * devices to prepare for drawing (e.g., locking their pixels, etc.)
      */
     virtual void onAttachToCanvas(SkCanvas* canvas) {
+        SkASSERT(!fAttachedToCanvas);
         this->lockPixels();
 #ifdef SK_DEBUG
         fAttachedToCanvas = true;
@@ -158,6 +159,7 @@ public:
      * possibly from SkCanvas' dtor.
      */
     virtual void onDetachFromCanvas() {
+        SkASSERT(fAttachedToCanvas);
         this->unlockPixels();
 #ifdef SK_DEBUG
         fAttachedToCanvas = false;

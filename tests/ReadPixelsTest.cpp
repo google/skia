@@ -352,16 +352,19 @@ void ReadPixelsTest(skiatest::Reporter* reporter, GrContext* context) {
                     if (startsWithPixels) {
                         fillBitmap(&bmp);
                     }
-
+                    uint32_t idBefore = canvas.getDevice()->accessBitmap(false).getGenerationID();
                     bool success =
                         canvas.readPixels(&bmp, srcRect.fLeft,
                                           srcRect.fTop, config8888);
+                    uint32_t idAfter = canvas.getDevice()->accessBitmap(false).getGenerationID();
 
                     // we expect to succeed when the read isn't fully clipped
                     // out.
                     bool expectSuccess = SkIRect::Intersects(srcRect, DEV_RECT);
                     // determine whether we expected the read to succeed.
                     REPORTER_ASSERT(reporter, success == expectSuccess);
+                    // read pixels should never change the gen id
+                    REPORTER_ASSERT(reporter, idBefore == idAfter);
 
                     if (success || startsWithPixels) {
                         checkRead(reporter, bmp, srcRect.fLeft, srcRect.fTop,

@@ -418,8 +418,17 @@ void WritePixelsTest(skiatest::Reporter* reporter, GrContext* context) {
                     SkCanvas::Config8888 config8888 = gSrcConfigs[c];
                     SkBitmap bmp;
                     REPORTER_ASSERT(reporter, setupBitmap(&bmp, config8888, rect.width(), rect.height(), SkToBool(tightBmp)));
+                    uint32_t idBefore = canvas.getDevice()->accessBitmap(false).getGenerationID();
                     canvas.writePixels(bmp, rect.fLeft, rect.fTop, config8888);
+                    uint32_t idAfter = canvas.getDevice()->accessBitmap(false).getGenerationID();
                     REPORTER_ASSERT(reporter, checkWrite(reporter, &canvas, bmp, rect.fLeft, rect.fTop, config8888));
+
+                    // we should change the genID iff pixels were actually written.
+                    SkIRect canvasRect = SkIRect::MakeSize(canvas.getDeviceSize());
+                    SkIRect writeRect = SkIRect::MakeXYWH(rect.fLeft, rect.fTop,
+                                                          bmp.width(), bmp.height());
+                    bool intersects = SkIRect::Intersects(canvasRect, writeRect) ;
+                    REPORTER_ASSERT(reporter, intersects == (idBefore != idAfter));
                 }
             }
         }

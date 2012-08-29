@@ -644,7 +644,11 @@ void SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y,
                            Config8888 config8888) {
     SkDevice* device = this->getDevice();
     if (device) {
-        device->writePixels(bitmap, x, y, config8888);
+        if (SkIRect::Intersects(SkIRect::MakeSize(this->getDeviceSize()),
+                                SkIRect::MakeXYWH(x, y, bitmap.width(), bitmap.height()))) {
+            device->accessBitmap(true);
+            device->writePixels(bitmap, x, y, config8888);
+        }
     }
 }
 
