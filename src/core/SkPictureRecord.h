@@ -163,7 +163,7 @@ public:
 #endif
 
 private:
-    SkBitmapHeap fBitmapHeap;
+    SkBitmapHeap* fBitmapHeap;
     SkChunkFlatController fFlattenableHeap;
 
     SkMatrixDictionary fMatrices;

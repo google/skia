@@ -70,7 +70,7 @@ public:
         the colors were changed during the lock.
     */
     SkPMColor* lockColors() {
-        SkDEBUGCODE(fColorLockCount += 1;)
+        SkDEBUGCODE(sk_atomic_inc(&fColorLockCount);)
         return fColors;
     }
     /** Balancing call to lockColors(). If the colors have been changed, pass true.

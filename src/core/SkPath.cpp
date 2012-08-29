@@ -457,8 +457,8 @@ void SkPath::computeBounds() const {
     SkDEBUGCODE(this->validate();)
     SkASSERT(fBoundsIsDirty);
 
-    fBoundsIsDirty = false;
     fIsFinite = compute_pt_bounds(&fBounds, fPts);
+    fBoundsIsDirty = false;
 }
 
 void SkPath::setConvexity(Convexity c) {

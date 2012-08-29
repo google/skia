@@ -48,6 +48,18 @@ public:
      *  Swap the contents of the two pictures. Guaranteed to succeed.
      */
     void swap(SkPicture& other);
+    
+    /**
+     *  Creates a thread-safe clone of the picture that is ready for playback.
+     */
+    SkPicture* clone() const;
+
+    /**
+     * Creates multiple thread-safe clones of this picture that are ready for
+     * playback. The resulting clones are stored in the provided array of
+     * SkPictures.
+     */
+    void clone(SkPicture* pictures, int count) const;
 
     enum RecordingFlags {
         /*  This flag specifies that when clipPath() is called, the path will

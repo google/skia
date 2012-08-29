@@ -21,6 +21,7 @@
 #ifdef SK_ENABLE_INST_COUNT
 #include <stdlib.h>
 #include "SkTArray.h"
+#include "SkThread_platform.h"
 
 extern bool gPrintInstCount;
 
@@ -50,15 +51,15 @@ extern bool gPrintInstCount;
                 gChildren = new SkTArray<PFCheckInstCnt>;                   \
                 gInited = true;                                             \
             }                                                               \
-            gInstanceCount++;                                               \
+            sk_atomic_inc(&gInstanceCount);                                 \
         }                                                                   \
                                                                             \
         SkInstanceCountHelper(const SkInstanceCountHelper& other) {         \
-            gInstanceCount++;                                               \
+            sk_atomic_inc(&gInstanceCount);                                 \
         }                                                                   \
                                                                             \
         ~SkInstanceCountHelper() {                                          \
-            gInstanceCount--;                                               \
+            sk_atomic_dec(&gInstanceCount);                                 \
         }                                                                   \
                                                                             \
         static int32_t gInstanceCount;                                      \
