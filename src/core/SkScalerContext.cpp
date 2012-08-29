@@ -448,7 +448,6 @@ static void generateMask(const SkMask& mask, const SkPath& path, SkMaskGamma::Pr
     sk_bzero(bm.getPixels(), bm.getSafeSize());
 
     SkDraw  draw;
-    sk_bzero(&draw, sizeof(draw));
     draw.fRC    = &clip;
     draw.fClip  = &clip.bwRgn();
     draw.fMatrix = &matrix;
