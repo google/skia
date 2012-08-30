@@ -96,6 +96,14 @@ void GrGLShaderBuilder::computeSwizzle(uint32_t configFlags) {
     }
 }
 
+void GrGLShaderBuilder::computeModulate(const char* fsInColor) {
+    if (NULL != fsInColor) {
+        fModulate.printf(" * %s", fsInColor);
+    } else {
+        fModulate.reset();
+    }
+}
+
 void GrGLShaderBuilder::setupTextureAccess(const char* varyingFSName, GrSLType varyingType) {
     // FIXME: We don't know how the custom stage will manipulate the coords. So we give up on using
     // projective texturing and always give the stage 2D coords. This will be fixed when custom
@@ -122,27 +130,23 @@ void GrGLShaderBuilder::setupTextureAccess(const char* varyingFSName, GrSLType v
     }
 }
 
-void GrGLShaderBuilder::appendTextureLookup(SkString* out,
-                                            const char* samplerName,
-                                            const char* coordName,
-                                            GrSLType varyingType) const {
+void GrGLShaderBuilder::emitTextureLookup(const char* samplerName,
+                                          const char* coordName,
+                                          GrSLType varyingType) {
     if (NULL == coordName) {
         coordName = fDefaultTexCoordsName.c_str();
         varyingType = kVec2f_GrSLType;
     }
-    out->appendf("%s(%s, %s)", sample_function_name(varyingType), samplerName, coordName);
+    fFSCode.appendf("%s(%s, %s)", sample_function_name(varyingType), samplerName, coordName);
 }
 
-void GrGLShaderBuilder::appendTextureLookupAndModulate(SkString* out,
-                                                       const char* modulation,
-                                                       const char* samplerName,
-                                                       const char* coordName,
-                                                       GrSLType varyingType) const {
-    GrAssert(NULL != out);
-    SkString lookup;
-    this->appendTextureLookup(&lookup, samplerName, coordName, varyingType);
-    GrGLSLModulate4f(out, modulation, lookup.c_str());
-    out->append(fSwizzle.c_str());
+void GrGLShaderBuilder::emitTextureLookupAndModulate(const char* outColor,
+                                                     const char* samplerName,
+                                                     const char* coordName,
+                                                     GrSLType varyingType) {
+    fFSCode.appendf("\t%s = ", outColor);
+    this->emitTextureLookup(samplerName, coordName, varyingType);
+    fFSCode.appendf("%s%s;\n", fSwizzle.c_str(), fModulate.c_str());
 }
 
 void GrGLShaderBuilder::emitCustomTextureLookup(const GrTextureAccess& textureAccess,

@@ -32,6 +32,7 @@ public:
     GrGLShaderBuilder(const GrGLContextInfo&, GrGLUniformManager&);
 
     void computeSwizzle(uint32_t configFlags);
+    void computeModulate(const char* fsInColor);
 
     /** Determines whether we should use texture2D() or texture2Dproj(), and if an explicit divide
         is required for the sample coordinates, creates the new variable and emits the code to
@@ -41,20 +42,17 @@ public:
     /** texture2D(samplerName, coordName), with projection if necessary; if coordName is not
         specified, uses fSampleCoords. coordType must either be Vec2f or Vec3f. The latter is
         interpreted as projective texture coords. */
-    void appendTextureLookup(SkString* out,
-                             const char* samplerName,
-                             const char* coordName = NULL,
-                             GrSLType coordType = kVec2f_GrSLType) const;
+    void emitTextureLookup(const char* samplerName,
+                           const char* coordName = NULL,
+                           GrSLType coordType = kVec2f_GrSLType);
 
-    /** appends a texture lookup, with swizzle as necessary. If coordName is NULL then it as if
-        defaultTexCoordsName() was passed. coordType must be either kVec2f or kVec3f. If modulateVar
-        is not NULL or "" then the texture lookup will be modulated by it. modulation must refer to
-        be expression that evaluates to a float or vec4. */
-    void appendTextureLookupAndModulate(SkString* out,
-                                        const char* modulation,
-                                        const char* samplerName,
-                                        const char* coordName = NULL,
-                                        GrSLType varyingType = kVec2f_GrSLType) const;
+    /** sets outColor to results of texture lookup, with swizzle, and/or modulate as necessary. If
+    coordName is NULL then it as if defaultTexCoordsName() was passed. coordType must be either
+    kVec2f or kVec3f. */
+    void emitTextureLookupAndModulate(const char* outColor,
+                                      const char* samplerName,
+                                      const char* coordName = NULL,
+                                      GrSLType coordType = kVec2f_GrSLType);
 
     /** Gets the name of the default texture coords which are always kVec2f */
     const char* defaultTexCoordsName() const { return fDefaultTexCoordsName.c_str(); }
@@ -173,6 +171,7 @@ public:
     //@{
 
     SkString         fSwizzle;
+    SkString         fModulate;
 
     //@}
 

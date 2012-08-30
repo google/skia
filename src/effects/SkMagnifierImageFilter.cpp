@@ -159,11 +159,10 @@ void GrGLMagnifierEffect::emitFS(GrGLShaderBuilder* state,
 
     code->appendf("\t\tvec2 mix_coord = mix(coord, zoom_coord, weight);\n");
     code->appendf("\t\tvec4 output_color = ");
-    state->appendTextureLookup(code, samplerName, "mix_coord");
-    code->append(";\n");
+    state->emitTextureLookup(samplerName, "mix_coord");
+    code->appendf(";\n");
 
     code->appendf("\t\t%s = output_color;", outputColor);
-    GrGLSLMulVarBy4f(code, 2, outputColor, inputColor);
 }
 
 void GrGLMagnifierEffect::setData(const GrGLUniformManager& uman,

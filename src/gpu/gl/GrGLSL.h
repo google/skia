@@ -144,19 +144,6 @@ GrSLConstantVec GrGLSLModulate4f(SkString* outAppend,
                                  GrSLConstantVec default0 = kOnes_GrSLConstantVec,
                                  GrSLConstantVec default1 = kOnes_GrSLConstantVec);
 
-/**
- * Does an inplace mul, *=, of vec4VarName by mulFactor. If mulFactorDefault is not kNone then
- * mulFactor may be either "" or NULL. In this case either nothing will be appened (kOnes) or an
- * assignment of vec(0,0,0,0) will be appended (kZeros). The assignment is prepended by tabCnt tabs.
- * A semicolon and newline are added after the assignment. (TODO: Remove tabCnt when we auto-insert
- * tabs to custom stage-generated lines.) If a zeros vec is assigned then the return value is
- * kZeros, otherwise kNone.
- */
-GrSLConstantVec GrGLSLMulVarBy4f(SkString* outAppend,
-                                 int tabCnt,
-                                 const char* vec4VarName,
-                                 const char* mulFactor,
-                                 GrSLConstantVec mulFactorDefault = kOnes_GrSLConstantVec);
 
 /**
   * Produces a string that is the result of adding two inputs. The inputs must be vec4 or float.

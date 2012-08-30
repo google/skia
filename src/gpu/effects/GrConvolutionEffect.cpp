@@ -84,11 +84,15 @@ void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* builder,
         index.appendS32(i);
         kernel.appendArrayAccess(index.c_str(), &kernelIndex);
         code->appendf("\t\t%s += ", outputColor);
-        builder->appendTextureLookup(&builder->fFSCode, samplerName, "coord");
+        builder->emitTextureLookup(samplerName, "coord");
         code->appendf(" * %s;\n", kernelIndex.c_str());
         code->appendf("\t\tcoord += %s;\n", imgInc);
     }
-    GrGLSLMulVarBy4f(&builder->fFSCode, 2, outputColor, inputColor);
+
+    if (builder->fModulate.size()) {
+        code->appendf("\t\t%s = %s%s;\n", outputColor, outputColor,
+                      builder->fModulate.c_str());
+    }
 }
 
 void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman,

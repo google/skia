@@ -287,11 +287,8 @@ public:
 
     // emit code that gets a fragment's color from an expression for t; for now
     // this always uses the texture, but for simpler cases we'll be able to lerp
-    void emitColorLookup(GrGLShaderBuilder* builder,
-                         const char* gradientTValue,
-                         const char* outputColor,
-                         const char* inputColor,
-                         const char* samplerName);
+    void emitColorLookup(GrGLShaderBuilder* builder, const char* t,
+                         const char* outputColor, const char* samplerName);
 
 private:
 
