@@ -89,7 +89,7 @@ public:
     /**
      *  Call this with an initially empty array, so the reader can cache each
      *  factory it sees by name. Used by the pipe code in conjunction with
-     *  the writer's kInlineFactoryNames_Flag.
+     *  SkOrderedWriteBuffer::setNamedFactoryRecorder.
      */
     void setFactoryArray(SkTDArray<SkFlattenable::Factory>* array) {
         fFactoryTDArray = array;

@@ -154,11 +154,7 @@ public:
 
     enum Flags {
         kCrossProcess_Flag               = 0x01,
-        /**
-         *  Instructs the writer to inline Factory names as there are seen the
-         *  first time (after that we store an index). The pipe code uses this.
-         */
-        kInlineFactoryNames_Flag         = 0x02,
+
         /**
          *  Instructs the writer to always serialize bitmap pixel data.
          */
@@ -170,9 +166,6 @@ public:
 
     bool isCrossProcess() const {
         return SkToBool(fFlags & kCrossProcess_Flag);
-    }
-    bool inlineFactoryNames() const {
-        return SkToBool(fFlags & kInlineFactoryNames_Flag);
     }
 
     bool persistBitmapPixels() const {
