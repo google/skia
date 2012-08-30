@@ -260,17 +260,6 @@ public:
     void createAndLock(const GrResourceKey&, GrResource*);
 
     /**
-     *  Create a new cache entry, based on the provided key and resource.
-     *
-     *  Ownership of the resource is transferred to the resource cache,
-     *  which will unref() it when it is purged or deleted.
-     *
-     *  Currently this entry point is only intended for textures "detached"
-     *  from an AutoScratchTexture object.
-     */
-    void attach(const GrResourceKey& key, GrResource* resource);
-
-    /**
      * Determines if the cache contains an entry matching a key. If a matching
      * entry exists but was detached then it will not be found.
      */
@@ -354,10 +343,7 @@ private:
     // prevents recursive purging
     bool fPurging;
 
-    GrResourceEntry* create(const GrResourceKey& key,
-                            GrResource* resource,
-                            bool lock,
-                            bool clientReattach);
+    void create(const GrResourceKey& key, GrResource* resource);
 
 #if GR_DEBUG
     static size_t countBytes(const SkTDLinkedList<GrResourceEntry>& list);

@@ -153,7 +153,7 @@ void GrResourceCache::internalDetach(GrResourceEntry* entry,
 }
 
 void GrResourceCache::attachToHead(GrResourceEntry* entry,
-                                  bool clientReattach) {
+                                   bool clientReattach) {
     fList.addToHead(entry);
 
     if (!entry->isLocked()) {
@@ -195,8 +195,7 @@ GrResource* GrResourceCache::find(const GrResourceKey& key) {
     return entry->fResource;
 }
 
-GrResource* GrResourceCache::findAndLock(const GrResourceKey& key,
-                                         LockType type) {
+GrResource* GrResourceCache::findAndLock(const GrResourceKey& key, LockType type) {
     GrAutoResourceCacheValidate atcv(this);
 
     GrResourceEntry* entry = fCache.find(key);
@@ -205,12 +204,11 @@ GrResource* GrResourceCache::findAndLock(const GrResourceKey& key,
     }
 
     this->internalDetach(entry, false);
-    // mark the entry as "busy" so it doesn't get purged
-    // do this between detach and attach for locked count tracking
-    if (kNested_LockType == type || !entry->isLocked()) {
-        entry->lock();
-    }
     this->attachToHead(entry, false);
+
+    if (kNested_LockType == type || !entry->isLocked()) {
+        this->lock(entry);
+    }
 
     return entry->fResource;
 }
@@ -219,10 +217,8 @@ bool GrResourceCache::hasKey(const GrResourceKey& key) const {
     return NULL != fCache.find(key);
 }
 
-GrResourceEntry* GrResourceCache::create(const GrResourceKey& key,
-                                         GrResource* resource,
-                                         bool lock,
-                                         bool clientReattach) {
+void GrResourceCache::create(const GrResourceKey& key, GrResource* resource) {
+    GrAssert(NULL == resource->getCacheEntry());
     // we don't expect to create new resources during a purge. In theory
     // this could cause purgeAsNeeded() into an infinite loop (e.g.
     // each resource destroyed creates and locks 2 resources and
@@ -233,34 +229,21 @@ GrResourceEntry* GrResourceCache::create(const GrResourceKey& key,
     GrResourceEntry* entry = SkNEW_ARGS(GrResourceEntry, (key, resource));
     resource->setCacheEntry(entry);
 
-    if (lock) {
-        // mark the entry as "busy" so it doesn't get purged
-        // do this before attach for locked count tracking
-        entry->lock();
-    }
-
-    this->attachToHead(entry, clientReattach);
+    this->attachToHead(entry, false);
     fCache.insert(key, entry);
 
 #if GR_DUMP_TEXTURE_UPLOAD
     GrPrintf("--- add resource to cache %p, count=%d bytes= %d %d\n",
              entry, fEntryCount, resource->sizeInBytes(), fEntryBytes);
 #endif
-
-    this->purgeAsNeeded();
-    return entry;
 }
 
 void GrResourceCache::createAndLock(const GrResourceKey& key,
                                     GrResource* resource) {
-    GrAssert(NULL == resource->getCacheEntry());
-    this->create(key, resource, true, false);
-}
+    this->create(key, resource);
 
-void GrResourceCache::attach(const GrResourceKey& key,
-                             GrResource* resource) {
-    GrAssert(NULL == resource->getCacheEntry());
-    this->create(key, resource, false, true);
+    GrAssert(NULL != resource->getCacheEntry());
+    this->lock(resource->getCacheEntry());
 }
 
 void GrResourceCache::makeExclusive(GrResourceEntry* entry) {
@@ -331,6 +314,7 @@ void GrResourceCache::unlock(GrResourceEntry* entry) {
         }
 #endif
     }
+
     this->purgeAsNeeded();
 }
 
@@ -451,14 +435,21 @@ void GrResourceCache::validate() const {
 
     fCache.validate();
 
-    int count = 0;
-    int unlockCount = 0;
 
     EntryList::Iter iter;
 
-    const GrResourceEntry* entry = iter.init(const_cast<EntryList&>(fList),
+    const GrResourceEntry* entry = iter.init(const_cast<EntryList&>(fExclusiveList),
                                              EntryList::Iter::kHead_IterStart);
 
+    for ( ; NULL != entry; entry = iter.next()) {
+        entry->validate();
+        GrAssert(entry->isLocked());
+    }
+
+    entry = iter.init(const_cast<EntryList&>(fList), EntryList::Iter::kHead_IterStart);
+
+    int count = 0;
+    int unlockCount = 0;
     for ( ; NULL != entry; entry = iter.next()) {
         entry->validate();
         GrAssert(fCache.find(entry->key()));
