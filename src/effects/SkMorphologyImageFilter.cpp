@@ -319,11 +319,11 @@ void GrGLMorphologyEffect::emitFS(GrGLShaderBuilder* builder,
     const char* func;
     switch (fType) {
         case GrMorphologyEffect::kErode_MorphologyType:
-            code->appendf("\t\tvec4 value = vec4(1, 1, 1, 1);\n");
+            code->appendf("\t\t%s = vec4(1, 1, 1, 1);\n", outputColor);
             func = "min";
             break;
         case GrMorphologyEffect::kDilate_MorphologyType:
-            code->appendf("\t\tvec4 value = vec4(0, 0, 0, 0);\n");
+            code->appendf("\t\t%s = vec4(0, 0, 0, 0);\n", outputColor);
             func = "max";
             break;
         default:
@@ -336,12 +336,12 @@ void GrGLMorphologyEffect::emitFS(GrGLShaderBuilder* builder,
     code->appendf("\t\tvec2 coord = %s - %d.0 * %s;\n",
                    builder->defaultTexCoordsName(), fRadius, imgInc);
     code->appendf("\t\tfor (int i = 0; i < %d; i++) {\n", this->width());
-    code->appendf("\t\t\tvalue = %s(value, ", func);
-    builder->emitTextureLookup(samplerName, "coord");
+    code->appendf("\t\t\t%s = %s(%s, ", outputColor, func, outputColor);
+    builder->appendTextureLookup(&builder->fFSCode, samplerName, "coord");
     code->appendf(");\n");
     code->appendf("\t\t\tcoord += %s;\n", imgInc);
     code->appendf("\t\t}\n");
-    code->appendf("\t\t%s = value%s;\n", outputColor, builder->fModulate.c_str());
+    GrGLSLMulVarBy4f(code, 2, outputColor, inputColor);
 }
 
 GrGLProgramStage::StageKey GrGLMorphologyEffect::GenKey(const GrCustomStage& s,

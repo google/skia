@@ -263,8 +263,8 @@ void GrGLBlendEffect::emitFS(GrGLShaderBuilder* builder,
     const char* bgColor = inputColor;
     const char* fgColor = "fgColor";
     code->appendf("\t\tvec4 %s = ", fgColor);
-    builder->emitTextureLookup(samplerName);
-    code->appendf(";\n");
+    builder->appendTextureLookup(code, samplerName);
+    code->append(";\n");
     code->appendf("\t\t%s.a = 1.0 - (1.0 - %s.a) * (1.0 - %s.b);\n", outputColor, bgColor, fgColor);
     switch (fMode) {
       case SkBlendImageFilter::kNormal_Mode:
