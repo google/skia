@@ -13,6 +13,32 @@
 #include "SkWriter32.h"
 #include "Test.h"
 
+static void check_contents(skiatest::Reporter* reporter, const SkWriter32& writer,
+                           const void* expected, size_t size) {
+    SkAutoSMalloc<256> storage(size);
+    REPORTER_ASSERT(reporter, writer.bytesWritten() == size);
+    writer.flatten(storage.get());
+    REPORTER_ASSERT(reporter, !memcmp(storage.get(), expected, size));
+}
+
+static void test_rewind(skiatest::Reporter* reporter) {
+    SkSWriter32<32> writer(32);
+    int32_t array[3] = { 1, 2, 4 };
+    
+    REPORTER_ASSERT(reporter, 0 == writer.bytesWritten());
+    for (size_t i = 0; i < SK_ARRAY_COUNT(array); ++i) {
+        writer.writeInt(array[i]);
+    }
+    check_contents(reporter, writer, array, sizeof(array));
+
+    writer.rewindToOffset(2*sizeof(int32_t));
+    REPORTER_ASSERT(reporter, sizeof(array) - 4 == writer.bytesWritten());
+    writer.writeInt(3);
+    REPORTER_ASSERT(reporter, sizeof(array) == writer.bytesWritten());
+    array[2] = 3;
+    check_contents(reporter, writer, array, sizeof(array));
+}
+
 static void test_ptr(skiatest::Reporter* reporter) {
     SkSWriter32<32> writer(32);
 
@@ -182,6 +208,7 @@ static void Tests(skiatest::Reporter* reporter) {
     }
 
     test_ptr(reporter);
+    test_rewind(reporter);
 }
 
 #include "TestClassDef.h"
