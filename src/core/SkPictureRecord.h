@@ -89,7 +89,7 @@ private:
     void fillRestoreOffsetPlaceholdersForCurrentStackLevel(
         uint32_t restoreOffset);
 
-    SkTDArray<uint32_t> fRestoreOffsetStack;
+    SkTDArray<int32_t> fRestoreOffsetStack;
     int fFirstSavedLayerIndex;
     enum {
         kNoSavedLayerIndex = -1
