@@ -557,26 +557,23 @@ bool GrClipMaskManager::clipMaskPreamble(const GrClipData& clipDataIn,
     // unlike the stencil path the alpha path is not bound to the size of the
     // render target - determine the minimum size required for the mask
     // Note: intBounds is in device (as opposed to canvas) coordinates
-    GrIRect devClipBounds;
-    clipDataIn.getConservativeBounds(rt, &devClipBounds);
+    clipDataIn.getConservativeBounds(rt, devResultBounds);
 
     // need to outset a pixel since the standard bounding box computation
     // path doesn't leave any room for antialiasing (esp. w.r.t. rects)
-    devClipBounds.outset(1, 1);
+    devResultBounds->outset(1, 1);
 
     // TODO: make sure we don't outset if bounds are still 0,0 @ min
 
     if (fAACache.canReuse(*clipDataIn.fClipStack,
-                          devClipBounds.width(),
-                          devClipBounds.height())) {
+                          devResultBounds->width(),
+                          devResultBounds->height())) {
         *result = fAACache.getLastMask();
         fAACache.getLastBound(devResultBounds);
         return true;
     }
 
-    this->setupCache(*clipDataIn.fClipStack, devClipBounds);
-
-    *devResultBounds = devClipBounds;
+    this->setupCache(*clipDataIn.fClipStack, *devResultBounds);
     return false;
 }
 
