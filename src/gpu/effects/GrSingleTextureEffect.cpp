@@ -23,7 +23,9 @@ public:
                         const char* outputColor,
                         const char* inputColor,
                         const char* samplerName) SK_OVERRIDE {
-        builder->emitTextureLookupAndModulate(outputColor, samplerName);
+        builder->fFSCode.appendf("\t%s = ", outputColor);
+        builder->appendTextureLookupAndModulate(&builder->fFSCode, inputColor, samplerName);
+        builder->fFSCode.append(";\n");
     }
 
     static inline StageKey GenKey(const GrCustomStage&, const GrGLCaps&) { return 0; }
