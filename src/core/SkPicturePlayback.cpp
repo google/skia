@@ -325,7 +325,7 @@ void SkPicturePlayback::flattenToBuffer(SkOrderedWriteBuffer& buffer) const {
             buffer.writePaint((*fPaints)[i]);
         }
     }
-    
+
     if ((n = SafeCount(fPathHeap.get())) > 0) {
         writeTagSize(buffer, PICT_PATH_BUFFER_TAG, n);
         fPathHeap->flatten(buffer);

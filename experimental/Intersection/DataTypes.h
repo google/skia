@@ -70,7 +70,7 @@ inline bool approximately_zero(double x) {
 }
 
 inline bool approximately_zero(float x) {
-    
+
     return fabs(x) < FLT_EPSILON;
 }
 

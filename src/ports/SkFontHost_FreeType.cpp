@@ -641,7 +641,7 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     if (rec->fTextSize > SkIntToScalar(1 << 14)) {
       rec->fTextSize = SkIntToScalar(1 << 14);
     }
-    
+
     if (!gLCDSupportValid) {
         InitFreetype();
         FT_Done_FreeType(gFTLibrary);

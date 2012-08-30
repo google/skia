@@ -207,7 +207,7 @@ int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap,
     }
     const int MAX_ERRORS = 5;
     if (errors2x2 > MAX_ERRORS && gComparePathsAssert) {
-        SkDebugf("%s errors=%d\n", __FUNCTION__, errors); 
+        SkDebugf("%s errors=%d\n", __FUNCTION__, errors);
         showPath(one);
         showPath(two, "simplified:");
         SkASSERT(0);
@@ -396,7 +396,7 @@ void initializeTests(const char* test, size_t testNameSize) {
         size_t inLen = inData.count();
         inFile.read(inData.begin(), inLen);
         inFile.setPath(NULL);
-        char* insert = strstr(inData.begin(), marker);   
+        char* insert = strstr(inData.begin(), marker);
         if (insert) {
             insert += sizeof(marker) - 1;
             const char* numLoc = insert + 4 /* indent spaces */ + testNameSize - 1;
@@ -454,12 +454,12 @@ void outputToStream(const State4& state, const char* pathStr, SkPath::FillType p
     }
     outFile.writeText(pathStr);
     outFile.writeText("</div>\n\n");
-    
+
     outFile.writeText(marker);
     outFile.writeText("    ");
     writeTestName(pathFillType, outFile);
     outFile.writeText(",\n\n\n");
-    
+
     outFile.writeText("static void ");
     writeTestName(pathFillType, outFile);
     outFile.writeText("() {\n    SkPath path;\n");

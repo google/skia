@@ -468,7 +468,7 @@ SkDevice* SkCanvas::init(SkDevice* device) {
     fExternalMatrix.reset();
     fExternalInverse.reset();
     fUseExternalMatrix = false;
-    
+
     fSurfaceBase = NULL;
 
     return this->setDevice(device);

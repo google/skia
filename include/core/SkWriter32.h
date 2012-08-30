@@ -56,7 +56,7 @@ public:
 
     void      reset();
     uint32_t* reserve(size_t size); // size MUST be multiple of 4
-    
+
     /**
      *  Specify the single block to back the writer, rathern than dynamically
      *  allocating the memory. If block == NULL, then the writer reverts to
