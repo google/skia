@@ -55,7 +55,9 @@ void GrGLTextureDomainEffect::emitFS(GrGLShaderBuilder* builder,
                            builder->getUniformCStr(fNameUni),
                            builder->getUniformCStr(fNameUni));
 
-    builder->emitTextureLookupAndModulate(outputColor, samplerName, "clampCoord");
+    builder->fFSCode.appendf("\t%s = ", outputColor);
+    builder->appendTextureLookupAndModulate(&builder->fFSCode, inputColor, samplerName, "clampCoord");
+    builder->fFSCode.append(";\n");
 }
 
 void GrGLTextureDomainEffect::setData(const GrGLUniformManager& uman,
