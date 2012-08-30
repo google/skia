@@ -931,6 +931,7 @@ static void print_table_header (SkFILEWStream* stream,
                                 bool doOutputDate=false) {
     stream->writeText("<table>\n");
     stream->writeText("<tr><th>");
+    stream->writeText("select image</th>\n<th>");
     if (doOutputDate) {
         SkTime::DateTime dt;
         SkTime::GetDateTime(&dt);
@@ -985,6 +986,13 @@ static void print_pixel_count (SkFILEWStream* stream,
                            diff.fBaseHeight);
     stream->writeText(" weighted pixels)");
 */
+}
+
+static void print_checkbox_cell (SkFILEWStream* stream,
+                                 const DiffRecord& diff) {
+    stream->writeText("<td><input type=\"checkbox\" name=\"");
+    stream->writeText(diff.fFilename.c_str());
+    stream->writeText("\" checked=\"yes\"></td>");
 }
 
 static void print_label_cell (SkFILEWStream* stream,
@@ -1067,6 +1075,7 @@ static void print_diff_with_missing_file(SkFILEWStream* stream,
                                          DiffRecord& diff,
                                          const SkString& relativePath) {
     stream->writeText("<tr>\n");
+    print_checkbox_cell(stream, diff);
     print_label_cell(stream, diff);
     stream->writeText("<td>N/A</td>");
     stream->writeText("<td>N/A</td>");
@@ -1144,7 +1153,23 @@ static void print_diff_page (const int matchCount,
         }
     }
 
-    outputStream.writeText("<html>\n<body>\n");
+    outputStream.writeText(
+        "<html>\n<head>\n"
+        "<script src=\"https://ajax.googleapis.com/ajax/"
+        "libs/jquery/1.7.2/jquery.min.js\"></script>\n"
+        "<script type=\"text/javascript\">\n"
+        "function generateCheckedList() {\n"
+        "var boxes = $(\":checkbox:checked\");\n"
+        "var fileCmdLineString = '';\n"
+        "var fileMultiLineString = '';\n"
+        "for (var i = 0; i < boxes.length; i++) {\n"
+        "fileMultiLineString += boxes[i].name + '<br>';\n"
+        "fileCmdLineString += boxes[i].name + '&nbsp;';\n"  
+        "}\n"
+        "$(\"#checkedList\").html(fileCmdLineString + "
+        "'<br><br>' + fileMultiLineString);\n"
+        "}\n"
+        "</script>\n</head>\n<body>\n");
     print_table_header(&outputStream, matchCount, colorThreshold, differences,
                        baseDir, comparisonDir);
     int i;
@@ -1180,6 +1205,7 @@ static void print_diff_page (const int matchCount,
 
         int height = compute_image_height(diff->fBaseHeight, diff->fBaseWidth);
         outputStream.writeText("<tr>\n");
+        print_checkbox_cell(&outputStream, *diff);
         print_label_cell(&outputStream, *diff);
         print_image_cell(&outputStream,
                          filename_to_white_filename(diff->fFilename), height);
@@ -1190,8 +1216,13 @@ static void print_diff_page (const int matchCount,
         outputStream.writeText("</tr>\n");
         outputStream.flush();
     }
-    outputStream.writeText("</table>\n");
-    outputStream.writeText("</body>\n</html>\n");
+    outputStream.writeText(
+        "</table>\n"
+        "<input type=\"button\" "
+        "onclick=\"generateCheckedList()\" "
+        "value=\"Create Rebaseline List\">\n"
+        "<div id=\"checkedList\"></div>\n"
+        "</body>\n</html>\n");
     outputStream.flush();
 }
 
