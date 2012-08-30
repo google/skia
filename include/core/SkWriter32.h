@@ -49,6 +49,14 @@ public:
      */
     void* getSingleBlock() const { return fSingleBlock; }
 
+    // return the current offset (will always be a multiple of 4)
+    uint32_t bytesWritten() const { return fSize; }
+    // DEPRECATED: use byetsWritten instead
+    uint32_t  size() const { return this->bytesWritten(); }
+
+    void      reset();
+    uint32_t* reserve(size_t size); // size MUST be multiple of 4
+    
     /**
      *  Specify the single block to back the writer, rathern than dynamically
      *  allocating the memory. If block == NULL, then the writer reverts to
@@ -152,15 +160,17 @@ public:
      */
     static size_t WriteStringSize(const char* str, size_t len = (size_t)-1);
 
-    // return the current offset (will always be a multiple of 4)
-    uint32_t  size() const { return fSize; }
-    void      reset();
-    uint32_t* reserve(size_t size); // size MUST be multiple of 4
-
     // return the address of the 4byte int at the specified offset (which must
     // be a multiple of 4. This does not allocate any new space, so the returned
     // address is only valid for 1 int.
     uint32_t* peek32(size_t offset);
+
+    /**
+     *  Move the cursor back to offset bytes from the beginning.
+     *  This has the same restrictions as peek32: offset must be <= size() and
+     *  offset must be a multiple of 4.
+     */
+    void rewindToOffset(size_t offset);
 
     // copy into a single buffer (allocated by caller). Must be at least size()
     void flatten(void* dst) const;
@@ -185,6 +195,8 @@ private:
     bool fHeadIsExternalStorage;
 
     Block* newBlock(size_t bytes);
+
+    SkDEBUGCODE(void validate() const;)
 };
 
 /**
