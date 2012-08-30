@@ -57,7 +57,9 @@ enum DrawType {
     SCALE,
     SET_MATRIX,
     SKEW,
-    TRANSLATE
+    TRANSLATE,
+
+    LAST_DRAWTYPE_ENUM = TRANSLATE
 };
 
 enum DrawVertexFlags {
