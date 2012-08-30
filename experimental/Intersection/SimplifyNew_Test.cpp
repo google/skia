@@ -513,7 +513,7 @@ static void testLine19x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(12, 16, 21, 21, (SkPath::Direction) 0);    
+    path.addRect(12, 16, 21, 21, (SkPath::Direction) 0);
     testSimplifyx(path);
 }
 

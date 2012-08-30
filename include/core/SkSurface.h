@@ -137,7 +137,7 @@ private:
     const int   fWidth;
     const int   fHeight;
     uint32_t    fGenerationID;
-    
+
     typedef SkRefCnt INHERITED;
 };
 

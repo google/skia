@@ -949,19 +949,19 @@ int main (int argc, char * const argv[]) {
                 // otherwise output only the average
                 if (!logPerIter) {
                     fWallStr.set(" msecs = ");
-                    fWallStr.appendf(normalTimeFormat.c_str(), 
+                    fWallStr.appendf(normalTimeFormat.c_str(),
                         printMin ? fWallMin : fWallSum / repeatDraw);
                     fCpuStr.set(" cmsecs = ");
-                    fCpuStr.appendf(normalTimeFormat.c_str(), 
+                    fCpuStr.appendf(normalTimeFormat.c_str(),
                         printMin ? fCpuMin : fCpuSum / repeatDraw);
                     fTruncatedWallStr.set(" Wmsecs = ");
-                    fTruncatedWallStr.appendf(normalTimeFormat.c_str(), 
+                    fTruncatedWallStr.appendf(normalTimeFormat.c_str(),
                         printMin ? fTruncatedWallMin : fTruncatedWallSum / repeatDraw);
                     fTruncatedCpuStr.set(" Cmsecs = ");
-                    fTruncatedCpuStr.appendf(normalTimeFormat.c_str(), 
+                    fTruncatedCpuStr.appendf(normalTimeFormat.c_str(),
                         printMin ? fTruncatedCpuMin : fTruncatedCpuSum / repeatDraw);
                     fGpuStr.set(" gmsecs = ");
-                    fGpuStr.appendf(normalTimeFormat.c_str(), 
+                    fGpuStr.appendf(normalTimeFormat.c_str(),
                         printMin ? fGpuMin : fGpuSum / repeatDraw);
                 }
                 SkString str;

@@ -549,7 +549,7 @@ public:
     bool isHorizontal() const {
         return fDy == 0 && fDDy == 0 && fDDDy == 0;
     }
-    
+
     // high precision version
 #if HIGH_DEF_ANGLES
     void set(const SkPoint* orig, SkPath::Verb verb, const Segment* segment,
@@ -575,7 +575,7 @@ public:
         fDDDy = approximately_pin(pts[3].y + 3 * (pts[1].y - pts[2].y) - pts[0].y);
     }
 
-#else 
+#else
     // since all angles share a point, this needs to know which point
     // is the common origin, i.e., whether the center is at pts[0] or pts[verb]
     // practically, this should only be called by addAngle

@@ -48,7 +48,7 @@ public:
      *  Swap the contents of the two pictures. Guaranteed to succeed.
      */
     void swap(SkPicture& other);
-    
+
     /**
      *  Creates a thread-safe clone of the picture that is ready for playback.
      */

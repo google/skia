@@ -24,7 +24,7 @@ static void check_contents(skiatest::Reporter* reporter, const SkWriter32& write
 static void test_rewind(skiatest::Reporter* reporter) {
     SkSWriter32<32> writer(32);
     int32_t array[3] = { 1, 2, 4 };
-    
+
     REPORTER_ASSERT(reporter, 0 == writer.bytesWritten());
     for (size_t i = 0; i < SK_ARRAY_COUNT(array); ++i) {
         writer.writeInt(array[i]);

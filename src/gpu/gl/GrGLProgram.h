@@ -113,7 +113,7 @@ public:
                 kSmearAlpha_InConfigFlag                = 0x02,
 
                 /**
-                 Smear the red channel across all four channels. This flag is 
+                 Smear the red channel across all four channels. This flag is
                  incompatible with kSmearAlpha. It is preferable to use
                  GL_ARB_texture_swizzle instead of this  flag.
                 */
