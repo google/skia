@@ -184,6 +184,17 @@ void GrResourceCache::attachToHead(GrResourceEntry* entry,
     }
 }
 
+GrResource* GrResourceCache::find(const GrResourceKey& key) {
+    GrAutoResourceCacheValidate atcv(this);
+
+    GrResourceEntry* entry = fCache.find(key);
+    if (NULL == entry) {
+        return NULL;
+    }
+
+    return entry->fResource;
+}
+
 GrResource* GrResourceCache::findAndLock(const GrResourceKey& key,
                                          LockType type) {
     GrAutoResourceCacheValidate atcv(this);
@@ -256,7 +267,7 @@ void GrResourceCache::makeExclusive(GrResourceEntry* entry) {
     GrAutoResourceCacheValidate atcv(this);
 
     this->internalDetach(entry, true);
-    fCache.remove(entry->fKey, entry);
+    fCache.remove(entry->key(), entry);
 
 #if GR_DEBUG
     fExclusiveList.addToHead(entry);
@@ -289,6 +300,19 @@ void GrResourceCache::makeNonExclusive(GrResourceEntry* entry) {
     } else {
         this->removeInvalidResource(entry);
     }
+}
+
+void GrResourceCache::lock(GrResourceEntry* entry) {
+    GrAutoResourceCacheValidate atcv(this);
+
+    GrAssert(entry);
+    GrAssert(fCache.find(entry->key()));
+
+    if (!entry->isLocked()) {
+        --fUnlockedEntryCount;
+    }
+
+    entry->lock();
 }
 
 void GrResourceCache::unlock(GrResourceEntry* entry) {
@@ -343,7 +367,7 @@ void GrResourceCache::purgeAsNeeded() {
                 GrResourceEntry* prev = iter.prev();
                 if (!entry->isLocked()) {
                     // remove from our cache
-                    fCache.remove(entry->fKey, entry);
+                    fCache.remove(entry->key(), entry);
 
                     // remove from our llist
                     this->internalDetach(entry, false);

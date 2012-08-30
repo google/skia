@@ -19,6 +19,7 @@
 #include "SkClipStack.h"
 
 class GrAutoScratchTexture;
+class GrCacheKey;
 class GrDrawState;
 class GrDrawTarget;
 class GrFontCache;
@@ -114,6 +115,12 @@ public:
                                     void* srcData, size_t rowBytes);
 
     /**
+     * Look for a texture that matches 'key' in the cache. If not found,
+     * return NULL.
+     */
+    GrTexture* findTexture(const GrCacheKey& key);
+
+    /**
      *  Search for an entry based on key and dimensions. If found, "lock" it and
      *  return it. The return value will be NULL if not found.
      *  Must be balanced with an unlockTexture() call.
@@ -171,6 +178,11 @@ public:
      */
     GrTexture* lockScratchTexture(const GrTextureDesc& desc,
                                   ScratchTexMatch match);
+
+    /**
+     * Make a texture un-purgeable in the cache
+     */
+    void lockTexture(GrTexture* texture);
 
     /**
      *  When done with an entry, call unlockTexture(entry) on it, which returns

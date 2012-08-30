@@ -207,6 +207,11 @@ void convolve_gaussian(GrDrawTarget* target,
 
 }
 
+
+GrTexture* GrContext::findTexture(const GrCacheKey& key) {
+    return static_cast<GrTexture*>(fTextureCache->find(key.key()));
+}
+
 GrTexture* GrContext::findAndLockTexture(const GrTextureDesc& desc,
                                          const GrCacheData& cacheData,
                                          const GrTextureParams* params) {
@@ -482,6 +487,17 @@ void GrContext::addExistingTextureToCache(GrTexture* texture) {
 
     // and it should still be locked
     fTextureCache->unlock(texture->getCacheEntry());
+}
+
+void GrContext::lockTexture(GrTexture* texture) {
+
+    if (NULL == texture->getCacheEntry()) {
+        // not in the cache
+        GrAssert(0);
+        return;
+    }
+
+    fTextureCache->lock(texture->getCacheEntry());
 }
 
 void GrContext::unlockTexture(GrTexture* texture) {
