@@ -987,6 +987,7 @@ void GrGLProgram::genStageCode(int stageNum,
     builder->fVSCode.appendf("\t}\n");
 
     builder->computeSwizzle(desc.fInConfigFlags);
+    builder->computeModulate(fsInColor);
 
     // Enclose custom code in a block to avoid namespace conflicts
     builder->fFSCode.appendf("\t{ // stage %d %s \n",

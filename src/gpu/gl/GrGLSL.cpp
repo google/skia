@@ -115,7 +115,6 @@ GrSLConstantVec GrGLSLModulate4f(SkString* outAppend,
             outAppend->append(GrGLSLZerosVecf(4));
             return kZeros_GrSLConstantVec;
         } else {
-            // both inputs are ones vectors
             outAppend->append(GrGLSLOnesVecf(4));
             return kOnes_GrSLConstantVec;
         }
@@ -141,43 +140,6 @@ GrSLConstantVec GrGLSLModulate4f(SkString* outAppend,
         outAppend->appendf("vec4(%s * %s)", in0, in1);
         return kNone_GrSLConstantVec;
     }
-}
-
-namespace {
-void append_tabs(SkString* outAppend, int tabCnt) {
-    static const char kTabs[] = "\t\t\t\t\t\t\t\t";
-    while (tabCnt) {
-        int cnt = GrMin((int)GR_ARRAY_COUNT(kTabs), tabCnt);
-        outAppend->append(kTabs, cnt);
-        tabCnt -= cnt;
-    }
-}
-}
-
-GrSLConstantVec GrGLSLMulVarBy4f(SkString* outAppend,
-                                 int tabCnt,
-                                 const char* vec4VarName,
-                                 const char* mulFactor,
-                                 GrSLConstantVec mulFactorDefault) {
-    bool haveFactor = NULL != mulFactor && '\0' != *mulFactor;
-
-    GrAssert(NULL != outAppend);
-    GrAssert(NULL != vec4VarName);
-    GrAssert(kNone_GrSLConstantVec != mulFactorDefault || haveFactor);
-
-    if (!haveFactor) {
-        if (kOnes_GrSLConstantVec == mulFactorDefault) {
-            return kNone_GrSLConstantVec;
-        } else {
-            GrAssert(kZeros_GrSLConstantVec == mulFactorDefault);
-            append_tabs(outAppend, tabCnt);
-            outAppend->appendf("%s = vec4(0, 0, 0, 0);\n", vec4VarName);
-            return kZeros_GrSLConstantVec;
-        }
-    }
-    append_tabs(outAppend, tabCnt);
-    outAppend->appendf("%s *= %s;\n", vec4VarName, mulFactor);
-    return kNone_GrSLConstantVec;
 }
 
 GrSLConstantVec GrGLSLAdd4f(SkString* outAppend,

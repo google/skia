@@ -593,7 +593,7 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
                       p5.c_str(), p3.c_str());
 
         code->appendf("\t\t");
-        this->emitColorLookup(builder, tName.c_str(), outputColor, inputColor, samplerName);
+        this->emitColorLookup(builder, tName.c_str(), outputColor, samplerName);
 
         // otherwise, if r(t) for the larger root was <= 0, try the other root
         code->appendf("\t\t} else {\n");
@@ -605,7 +605,7 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
                       tName.c_str(), p5.c_str(), p3.c_str());
 
         code->appendf("\t\t\t");
-        this->emitColorLookup(builder, tName.c_str(), outputColor, inputColor, samplerName);
+        this->emitColorLookup(builder, tName.c_str(), outputColor, samplerName);
 
         // end if (r(t) > 0) for smaller root
         code->appendf("\t\t\t}\n");
@@ -623,7 +623,7 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
         code->appendf("\tif (%s * %s + %s > 0.0) {\n", tName.c_str(),
                       p5.c_str(), p3.c_str());
         code->appendf("\t");
-        this->emitColorLookup(builder, tName.c_str(), outputColor, inputColor, samplerName);
+        this->emitColorLookup(builder, tName.c_str(), outputColor, samplerName);
         code->appendf("\t}\n");
     }
 }

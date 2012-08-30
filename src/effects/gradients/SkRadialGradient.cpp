@@ -553,7 +553,7 @@ void GrGLRadialGradient::emitFS(GrGLShaderBuilder* builder,
                                 const char* samplerName) {
     SkString t;
     t.printf("length(%s.xy)", builder->defaultTexCoordsName());
-    this->emitColorLookup(builder, t.c_str(), outputColor, inputColor, samplerName);
+    this->emitColorLookup(builder, t.c_str(), outputColor, samplerName);
 }
 
 /////////////////////////////////////////////////////////////////////
