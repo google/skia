@@ -699,14 +699,19 @@ void GrGLGradientStage::setData(const GrGLUniformManager& uman,
 }
 
 void GrGLGradientStage::emitColorLookup(GrGLShaderBuilder* builder,
-                                        const char* tName,
+                                        const char* gradientTValue,
                                         const char* outputColor,
+                                        const char* inputColor,
                                         const char* samplerName) {
 
-    builder->fFSCode.appendf("\tvec2 coord = vec2(%s, %s);\n",
-                             tName,
-                             builder->getUniformVariable(fFSYUni).c_str());
-    builder->emitTextureLookupAndModulate(outputColor, samplerName, "coord");
+    SkString* code = &builder->fFSCode;
+    code->appendf("\tvec2 coord = vec2(%s, %s);\n",
+                  gradientTValue,
+                  builder->getUniformVariable(fFSYUni).c_str());
+    GrGLSLMulVarBy4f(code, 1, outputColor, inputColor);
+    code->appendf("\t%s = ", outputColor);
+    builder->appendTextureLookupAndModulate(code, inputColor, samplerName, "coord");
+    code->append(";\n");
 }
 
 /////////////////////////////////////////////////////////////////////

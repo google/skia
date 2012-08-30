@@ -1160,7 +1160,7 @@ void GrGLLightingEffect::emitFS(GrGLShaderBuilder* builder,
             SkString texCoords;
             texCoords.appendf("coord + vec2(%d, %d) * %s", dx, dy, imgInc);
             code->appendf("\t\tm[%d] = ", index++);
-            builder->emitTextureLookup(samplerName, texCoords.c_str());
+            builder->appendTextureLookup(code, samplerName, texCoords.c_str());
             code->appendf(".a;\n");
         }
     }
@@ -1168,11 +1168,12 @@ void GrGLLightingEffect::emitFS(GrGLShaderBuilder* builder,
     SkString arg;
     arg.appendf("%s * m[4]", surfScale);
     fLight->emitSurfaceToLight(builder, code, arg.c_str());
-    code->appendf(";\n");
+    code->append(";\n");
     code->appendf("\t\t%s = %s(%s(m, %s), surfaceToLight, ",
                   outputColor, lightFunc.c_str(), interiorNormalName.c_str(), surfScale);
     fLight->emitLightColor(builder, "surfaceToLight");
-    code->appendf(")%s;\n", builder->fModulate.c_str());
+    code->append(");\n");
+    GrGLSLMulVarBy4f(code, 2, outputColor, inputColor);
 }
 
 GrGLProgramStage::StageKey GrGLLightingEffect::GenKey(const GrCustomStage& s,

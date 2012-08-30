@@ -601,7 +601,7 @@ void GrGLRadial2Gradient::emitFS(GrGLShaderBuilder* builder,
         t.printf("-%s / %s", cName.c_str(), bVar.c_str());
     }
 
-    this->emitColorLookup(builder, t.c_str(), outputColor, samplerName);
+    this->emitColorLookup(builder, t.c_str(), outputColor, inputColor, samplerName);
 }
 
 void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman,

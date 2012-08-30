@@ -23,37 +23,39 @@ public:
                         const char* outputColor,
                         const char* inputColor,
                         const char* samplerName) SK_OVERRIDE {
-        builder->fFSCode.append("\tvec4 tempColor;\n");
-        builder->emitTextureLookupAndModulate("tempColor", samplerName);
+        builder->fFSCode.appendf("\t\t%s = ", outputColor);
+        builder->appendTextureLookup(&builder->fFSCode, samplerName);
+        builder->fFSCode.appendf("%s;\n", builder->fSwizzle.c_str());
         if (GrConfigConversionEffect::kNone_PMConversion == fPMConversion) {
             GrAssert(fSwapRedAndBlue);
-            builder->fFSCode.appendf("\t%s = tempColor.bgra;\n", outputColor);
+            builder->fFSCode.appendf("\t%s = %s.bgra;\n", outputColor, outputColor);
         } else {
             const char* swiz = fSwapRedAndBlue ? "bgr" : "rgb";
             switch (fPMConversion) {
                 case GrConfigConversionEffect::kMulByAlpha_RoundUp_PMConversion:
                     builder->fFSCode.appendf(
-                        "\t%s = vec4(ceil(tempColor.%s*tempColor.a*255.0)/255.0, tempColor.a);\n",
-                         outputColor, swiz);
+                        "\t\t%s = vec4(ceil(%s.%s * %s.a * 255.0) / 255.0, %s.a);\n",
+                        outputColor, outputColor, swiz, outputColor, outputColor);
                     break;
                 case GrConfigConversionEffect::kMulByAlpha_RoundDown_PMConversion:
                     builder->fFSCode.appendf(
-                        "\t%s = vec4(floor(tempColor.%s*tempColor.a*255.0)/255.0, tempColor.a);\n",
-                         outputColor, swiz);
+                        "\t\t%s = vec4(floor(%s.%s * %s.a * 255.0) / 255.0, %s.a);\n",
+                        outputColor, outputColor, swiz, outputColor, outputColor);
                     break;
                 case GrConfigConversionEffect::kDivByAlpha_RoundUp_PMConversion:
-                    builder->fFSCode.appendf("\t%s = tempColor.a <= 0.0 ? vec4(0,0,0,0) : vec4(ceil(tempColor.%s / tempColor.a * 255.0)/255.0, tempColor.a);\n",
-                        outputColor, swiz);
+                    builder->fFSCode.appendf("\t\t%s = %s.a <= 0.0 ? vec4(0,0,0,0) : vec4(ceil(%s.%s / %s.a * 255.0) / 255.0, %s.a);\n",
+                        outputColor, outputColor, outputColor, swiz, outputColor, outputColor);
                     break;
                 case GrConfigConversionEffect::kDivByAlpha_RoundDown_PMConversion:
-                    builder->fFSCode.appendf("\t%s = tempColor.a <= 0.0 ? vec4(0,0,0,0) : vec4(floor(tempColor.%s / tempColor.a * 255.0)/255.0, tempColor.a);\n",
-                        outputColor, swiz);
+                    builder->fFSCode.appendf("\t\t%s = %s.a <= 0.0 ? vec4(0,0,0,0) : vec4(floor(%s.%s / %s.a * 255.0) / 255.0, %s.a);\n",
+                        outputColor, outputColor, outputColor, swiz, outputColor, outputColor);
                     break;
                 default:
                     GrCrash("Unknown conversion op.");
                     break;
             }
         }
+        GrGLSLMulVarBy4f(&builder->fFSCode, 2, outputColor, inputColor);
     }
 
     static inline StageKey GenKey(const GrCustomStage& s, const GrGLCaps&) {
