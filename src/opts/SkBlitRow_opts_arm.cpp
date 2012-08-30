@@ -45,7 +45,12 @@ static void S32A_D565_Opaque(uint16_t* SK_RESTRICT dst,
                   "ldrh    r4, [%[dst]]                 \n\t"
                   "rsb     r7, r7, #255                 \n\t"
                   "and     r6, r4, #0x001f              \n\t"
+#if SK_ARM_ARCH == 6
+                  "lsl     r5, r4, #21                  \n\t"
+                  "lsr     r5, r5, #26                  \n\t"
+#else
                   "ubfx    r5, r4, #5, #6               \n\t"
+#endif
                   "pld     [r0, #16]                    \n\t"
                   "lsr     r4, r4, #11                  \n\t"
 #ifdef SK_ARM_HAS_EDSP
@@ -57,8 +62,8 @@ static void S32A_D565_Opaque(uint16_t* SK_RESTRICT dst,
                   "mul     r5, r5, r7                   \n\t"
                   "mul     r4, r4, r7                   \n\t"
 #endif
-                  "ubfx    r7, r3, #16, #8              \n\t"
-                  "ubfx    ip, r3, #8, #8               \n\t"
+                  "uxtb    r7, r3, ROR #16              \n\t"
+                  "uxtb    ip, r3, ROR #8               \n\t"
                   "and     r3, r3, #0xff                \n\t"
                   "add     r6, r6, #16                  \n\t"
                   "add     r5, r5, #32                  \n\t"
