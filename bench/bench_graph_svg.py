@@ -688,6 +688,8 @@ def output_svg(lines, regressions, requested_width, requested_height):
         """Converts a time to a vertical display position."""
         return pic_height + ch(y - global_min_y)
     
+    print '<!--Picture height %.2f corresponds to bench value %.2f.-->' % (
+        pic_height, h)
     print '<svg',
     print 'width=%s' % qa(str(pic_width)+'px')
     print 'height=%s' % qa(str(pic_height)+'px')
