@@ -108,7 +108,7 @@ SkGrPixelRef::SkGrPixelRef(GrSurface* surface, bool transferCacheLock) {
 SkGrPixelRef::~SkGrPixelRef() {
     if (fUnlock) {
         GrContext* context = fSurface->getContext();
-        GrTexture* texture= fSurface->asTexture();
+        GrTexture* texture = fSurface->asTexture();
         if (NULL != context && NULL != texture) {
             context->unlockTexture(texture);
         }
