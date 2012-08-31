@@ -335,7 +335,8 @@ void TiledPictureRenderer::drawTiles() {
             writer.endRecording();
 
             // Create and start the threads.
-            TileData* tileData[fTiles.count()];
+            TileData** tileData = SkNEW_ARRAY(TileData*, fTiles.count());
+            SkAutoTDeleteArray<TileData*> deleteTileData(tileData);
             for (int i = 0; i < fTiles.count(); i++) {
                 tileData[i] = SkNEW_ARGS(TileData, (fTiles[i], &controller));
                 if (!tileData[i]->fThread.start()) {
@@ -350,7 +351,8 @@ void TiledPictureRenderer::drawTiles() {
             SkPicture* clones = SkNEW_ARRAY(SkPicture, fTiles.count());
             SkAutoTDeleteArray<SkPicture> autodelete(clones);
             fPicture->clone(clones, fTiles.count());
-            CloneData* cloneData[fTiles.count()];
+            CloneData** cloneData = SkNEW_ARRAY(CloneData*, fTiles.count());
+            SkAutoTDeleteArray<CloneData*> deleteCloneData(cloneData);
             for (int i = 0; i < fTiles.count(); i++) {
                 cloneData[i] = SkNEW_ARGS(CloneData, (fTiles[i], &clones[i]));
                 if (!cloneData[i]->fThread.start()) {
