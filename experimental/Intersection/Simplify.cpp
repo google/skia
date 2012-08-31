@@ -35,7 +35,7 @@ typedef SkScalar AngleValue;
 
 #define DEBUG_UNUSED 0 // set to expose unused functions
 
-#if 0 // set to 1 for multiple thread -- no debugging
+#if 1 // set to 1 for multiple thread -- no debugging
 
 const bool gRunTestsInOneThread = false;
 
@@ -87,81 +87,85 @@ static int gSegmentID;
 #define DEBUG_TEST 0
 #endif
 
+#define MAKE_CONST_LINE(line, pts) \
+    const _Line line = {{pts[0].fX, pts[0].fY}, {pts[1].fX, pts[1].fY}}
+#define MAKE_CONST_QUAD(quad, pts) \
+    const Quadratic quad = {{pts[0].fX, pts[0].fY}, {pts[1].fX, pts[1].fY}, \
+            {pts[2].fX, pts[2].fY}}
+#define MAKE_CONST_CUBIC(cubic, pts) \
+    const Cubic cubic = {{pts[0].fX, pts[0].fY}, {pts[1].fX, pts[1].fY}, \
+            {pts[2].fX, pts[2].fY}, {pts[3].fX, pts[3].fY}}
+
 static int LineIntersect(const SkPoint a[2], const SkPoint b[2],
         Intersections& intersections) {
-    const _Line aLine = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}};
-    const _Line bLine = {{b[0].fX, b[0].fY}, {b[1].fX, b[1].fY}};
+    MAKE_CONST_LINE(aLine, a);
+    MAKE_CONST_LINE(bLine, b);
     return intersect(aLine, bLine, intersections.fT[0], intersections.fT[1]);
 }
 
 static int QuadLineIntersect(const SkPoint a[3], const SkPoint b[2],
         Intersections& intersections) {
-    const Quadratic aQuad = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY}};
-    const _Line bLine = {{b[0].fX, b[0].fY}, {b[1].fX, b[1].fY}};
+    MAKE_CONST_QUAD(aQuad, a);
+    MAKE_CONST_LINE(bLine, b);
     return intersect(aQuad, bLine, intersections);
 }
 
-static int CubicLineIntersect(const SkPoint a[2], const SkPoint b[3],
+static int CubicLineIntersect(const SkPoint a[4], const SkPoint b[2],
         Intersections& intersections) {
-    const Cubic aCubic = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY},
-            {a[3].fX, a[3].fY}};
-    const _Line bLine = {{b[0].fX, b[0].fY}, {b[1].fX, b[1].fY}};
+    MAKE_CONST_CUBIC(aCubic, a);
+    MAKE_CONST_LINE(bLine, b);
     return intersect(aCubic, bLine, intersections.fT[0], intersections.fT[1]);
 }
 
 static int QuadIntersect(const SkPoint a[3], const SkPoint b[3],
         Intersections& intersections) {
-    const Quadratic aQuad = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY}};
-    const Quadratic bQuad = {{b[0].fX, b[0].fY}, {b[1].fX, b[1].fY}, {b[2].fX, b[2].fY}};
+    MAKE_CONST_QUAD(aQuad, a);
+    MAKE_CONST_QUAD(bQuad, b);
     intersect(aQuad, bQuad, intersections);
-    return intersections.fUsed;
+    return intersections.fUsed ? intersections.fUsed : intersections.fCoincidentUsed;
 }
 
 static int CubicIntersect(const SkPoint a[4], const SkPoint b[4],
         Intersections& intersections) {
-    const Cubic aCubic = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY},
-            {a[3].fX, a[3].fY}};
-    const Cubic bCubic = {{b[0].fX, b[0].fY}, {b[1].fX, b[1].fY}, {b[2].fX, b[2].fY},
-            {b[3].fX, b[3].fY}};
+    MAKE_CONST_CUBIC(aCubic, a);
+    MAKE_CONST_CUBIC(bCubic, b);
     intersect(aCubic, bCubic, intersections);
     return intersections.fUsed;
 }
 
 static int HLineIntersect(const SkPoint a[2], SkScalar left, SkScalar right,
         SkScalar y, bool flipped, Intersections& intersections) {
-    const _Line aLine = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}};
+    MAKE_CONST_LINE(aLine, a);
     return horizontalIntersect(aLine, left, right, y, flipped, intersections);
 }
 
 static int HQuadIntersect(const SkPoint a[3], SkScalar left, SkScalar right,
         SkScalar y, bool flipped, Intersections& intersections) {
-    const Quadratic aQuad = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY}};
+    MAKE_CONST_QUAD(aQuad, a);
     return horizontalIntersect(aQuad, left, right, y, flipped, intersections);
 }
 
 static int HCubicIntersect(const SkPoint a[4], SkScalar left, SkScalar right,
         SkScalar y, bool flipped, Intersections& intersections) {
-    const Cubic aCubic = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY},
-            {a[3].fX, a[3].fY}};
+    MAKE_CONST_CUBIC(aCubic, a);
     return horizontalIntersect(aCubic, left, right, y, flipped, intersections);
 }
 
 static int VLineIntersect(const SkPoint a[2], SkScalar top, SkScalar bottom,
         SkScalar x, bool flipped, Intersections& intersections) {
-    const _Line aLine = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}};
+    MAKE_CONST_LINE(aLine, a);
     return verticalIntersect(aLine, top, bottom, x, flipped, intersections);
 }
 
 static int VQuadIntersect(const SkPoint a[3], SkScalar top, SkScalar bottom,
         SkScalar x, bool flipped, Intersections& intersections) {
-    const Quadratic aQuad = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY}};
+    MAKE_CONST_QUAD(aQuad, a);
     return verticalIntersect(aQuad, top, bottom, x, flipped, intersections);
 }
 
 static int VCubicIntersect(const SkPoint a[4], SkScalar top, SkScalar bottom,
         SkScalar x, bool flipped, Intersections& intersections) {
-    const Cubic aCubic = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY},
-            {a[3].fX, a[3].fY}};
+    MAKE_CONST_CUBIC(aCubic, a);
     return verticalIntersect(aCubic, top, bottom, x, flipped, intersections);
 }
 
@@ -174,7 +178,7 @@ static int (* const VSegmentIntersect[])(const SkPoint [], SkScalar ,
 };
 
 static void LineXYAtT(const SkPoint a[2], double t, SkPoint* out) {
-    const _Line line = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}};
+    MAKE_CONST_LINE(line, a);
     double x, y;
     xy_at_t(line, t, x, y);
     out->fX = SkDoubleToScalar(x);
@@ -182,7 +186,7 @@ static void LineXYAtT(const SkPoint a[2], double t, SkPoint* out) {
 }
 
 static void QuadXYAtT(const SkPoint a[3], double t, SkPoint* out) {
-    const Quadratic quad = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY}};
+    MAKE_CONST_QUAD(quad, a);
     double x, y;
     xy_at_t(quad, t, x, y);
     out->fX = SkDoubleToScalar(x);
@@ -190,8 +194,7 @@ static void QuadXYAtT(const SkPoint a[3], double t, SkPoint* out) {
 }
 
 static void CubicXYAtT(const SkPoint a[4], double t, SkPoint* out) {
-    const Cubic cubic = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY},
-            {a[3].fX, a[3].fY}};
+    MAKE_CONST_CUBIC(cubic, a);
     double x, y;
     xy_at_t(cubic, t, x, y);
     out->fX = SkDoubleToScalar(x);
@@ -206,22 +209,21 @@ static void (* const SegmentXYAtT[])(const SkPoint [], double , SkPoint* ) = {
 };
 
 static SkScalar LineXAtT(const SkPoint a[2], double t) {
-    const _Line aLine = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}};
+    MAKE_CONST_LINE(aLine, a);
     double x;
     xy_at_t(aLine, t, x, *(double*) 0);
     return SkDoubleToScalar(x);
 }
 
 static SkScalar QuadXAtT(const SkPoint a[3], double t) {
-    const Quadratic quad = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY}};
+    MAKE_CONST_QUAD(quad, a);
     double x;
     xy_at_t(quad, t, x, *(double*) 0);
     return SkDoubleToScalar(x);
 }
 
 static SkScalar CubicXAtT(const SkPoint a[4], double t) {
-    const Cubic cubic = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY},
-            {a[3].fX, a[3].fY}};
+    MAKE_CONST_CUBIC(cubic, a);
     double x;
     xy_at_t(cubic, t, x, *(double*) 0);
     return SkDoubleToScalar(x);
@@ -235,22 +237,21 @@ static SkScalar (* const SegmentXAtT[])(const SkPoint [], double ) = {
 };
 
 static SkScalar LineYAtT(const SkPoint a[2], double t) {
-    const _Line aLine = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}};
+    MAKE_CONST_LINE(aLine, a);
     double y;
     xy_at_t(aLine, t, *(double*) 0, y);
     return SkDoubleToScalar(y);
 }
 
 static SkScalar QuadYAtT(const SkPoint a[3], double t) {
-    const Quadratic quad = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY}};
+    MAKE_CONST_QUAD(quad, a);
     double y;
     xy_at_t(quad, t, *(double*) 0, y);
     return SkDoubleToScalar(y);
 }
 
 static SkScalar CubicYAtT(const SkPoint a[4], double t) {
-    const Cubic cubic = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY},
-            {a[3].fX, a[3].fY}};
+    MAKE_CONST_CUBIC(cubic, a);
     double y;
     xy_at_t(cubic, t, *(double*) 0, y);
     return SkDoubleToScalar(y);
@@ -268,15 +269,14 @@ static SkScalar LineDXAtT(const SkPoint a[2], double ) {
 }
 
 static SkScalar QuadDXAtT(const SkPoint a[3], double t) {
-    const Quadratic quad = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY}};
+    MAKE_CONST_QUAD(quad, a);
     double x;
     dxdy_at_t(quad, t, x, *(double*) 0);
     return SkDoubleToScalar(x);
 }
 
 static SkScalar CubicDXAtT(const SkPoint a[4], double t) {
-    const Cubic cubic = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY},
-            {a[3].fX, a[3].fY}};
+    MAKE_CONST_CUBIC(cubic, a);
     double x;
     dxdy_at_t(cubic, t, x, *(double*) 0);
     return SkDoubleToScalar(x);
@@ -291,7 +291,7 @@ static SkScalar (* const SegmentDXAtT[])(const SkPoint [], double ) = {
 
 static void LineSubDivide(const SkPoint a[2], double startT, double endT,
         SkPoint sub[2]) {
-    const _Line aLine = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}};
+    MAKE_CONST_LINE(aLine, a);
     _Line dst;
     sub_divide(aLine, startT, endT, dst);
     sub[0].fX = SkDoubleToScalar(dst[0].x);
@@ -302,8 +302,7 @@ static void LineSubDivide(const SkPoint a[2], double startT, double endT,
 
 static void QuadSubDivide(const SkPoint a[3], double startT, double endT,
         SkPoint sub[3]) {
-    const Quadratic aQuad = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY},
-            {a[2].fX, a[2].fY}};
+    MAKE_CONST_QUAD(aQuad, a);
     Quadratic dst;
     sub_divide(aQuad, startT, endT, dst);
     sub[0].fX = SkDoubleToScalar(dst[0].x);
@@ -316,8 +315,7 @@ static void QuadSubDivide(const SkPoint a[3], double startT, double endT,
 
 static void CubicSubDivide(const SkPoint a[4], double startT, double endT,
         SkPoint sub[4]) {
-    const Cubic aCubic = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY},
-            {a[2].fX, a[2].fY}, {a[3].fX, a[3].fY}};
+    MAKE_CONST_CUBIC(aCubic, a);
     Cubic dst;
     sub_divide(aCubic, startT, endT, dst);
     sub[0].fX = SkDoubleToScalar(dst[0].x);
@@ -339,8 +337,8 @@ static void (* const SegmentSubDivide[])(const SkPoint [], double , double ,
 };
 
 static void LineSubDivideHD(const SkPoint a[2], double startT, double endT,
-        _Point sub[]) {
-    const _Line aLine = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}};
+        _Line sub) {
+    MAKE_CONST_LINE(aLine, a);
     _Line dst;
     sub_divide(aLine, startT, endT, dst);
     sub[0] = dst[0];
@@ -348,9 +346,8 @@ static void LineSubDivideHD(const SkPoint a[2], double startT, double endT,
 }
 
 static void QuadSubDivideHD(const SkPoint a[3], double startT, double endT,
-        _Point sub[]) {
-    const Quadratic aQuad = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY},
-            {a[2].fX, a[2].fY}};
+        Quadratic sub) {
+    MAKE_CONST_QUAD(aQuad, a);
     Quadratic dst;
     sub_divide(aQuad, startT, endT, dst);
     sub[0] = dst[0];
@@ -359,9 +356,8 @@ static void QuadSubDivideHD(const SkPoint a[3], double startT, double endT,
 }
 
 static void CubicSubDivideHD(const SkPoint a[4], double startT, double endT,
-        _Point sub[]) {
-    const Cubic aCubic = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY},
-            {a[2].fX, a[2].fY}, {a[3].fX, a[3].fY}};
+        Cubic sub) {
+    MAKE_CONST_CUBIC(aCubic, a);
     Cubic dst;
     sub_divide(aCubic, startT, endT, dst);
     sub[0] = dst[0];
@@ -369,14 +365,6 @@ static void CubicSubDivideHD(const SkPoint a[4], double startT, double endT,
     sub[2] = dst[2];
     sub[3] = dst[3];
 }
-
-static void (* const SegmentSubDivideHD[])(const SkPoint [], double , double ,
-        _Point [] ) = {
-    NULL,
-    LineSubDivideHD,
-    QuadSubDivideHD,
-    CubicSubDivideHD
-};
 
 #if DEBUG_UNUSED
 static void QuadSubBounds(const SkPoint a[3], double startT, double endT,
@@ -404,8 +392,7 @@ static void CubicSubBounds(const SkPoint a[4], double startT, double endT,
 
 static SkPath::Verb QuadReduceOrder(const SkPoint a[3],
         SkTDArray<SkPoint>& reducePts) {
-    const Quadratic aQuad = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY},
-            {a[2].fX, a[2].fY}};
+    MAKE_CONST_QUAD(aQuad, a);
     Quadratic dst;
     int order = reduceOrder(aQuad, dst);
     if (order == 2) { // quad became line
@@ -420,8 +407,7 @@ static SkPath::Verb QuadReduceOrder(const SkPoint a[3],
 
 static SkPath::Verb CubicReduceOrder(const SkPoint a[4],
         SkTDArray<SkPoint>& reducePts) {
-    const Cubic aCubic = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY},
-            {a[2].fX, a[2].fY}, {a[3].fX, a[3].fY}};
+    MAKE_CONST_CUBIC(aCubic, a);
     Cubic dst;
     int order = reduceOrder(aCubic, dst, kReduceOrder_QuadraticsAllowed);
     if (order == 2 || order == 3) { // cubic became line or quad
@@ -435,19 +421,17 @@ static SkPath::Verb CubicReduceOrder(const SkPoint a[4],
 }
 
 static bool QuadIsLinear(const SkPoint a[3]) {
-    const Quadratic aQuad = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY},
-            {a[2].fX, a[2].fY}};
+    MAKE_CONST_QUAD(aQuad, a);
     return isLinear(aQuad, 0, 2);
 }
 
 static bool CubicIsLinear(const SkPoint a[4]) {
-    const Cubic aCubic = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY},
-            {a[2].fX, a[2].fY}, {a[3].fX, a[3].fY}};
+    MAKE_CONST_CUBIC(aCubic, a);
     return isLinear(aCubic, 0, 3);
 }
 
 static SkScalar LineLeftMost(const SkPoint a[2], double startT, double endT) {
-    const _Line aLine = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}};
+    MAKE_CONST_LINE(aLine, a);
     double x[2];
     xy_at_t(aLine, startT, x[0], *(double*) 0);
     xy_at_t(aLine, endT, x[1], *(double*) 0);
@@ -455,14 +439,12 @@ static SkScalar LineLeftMost(const SkPoint a[2], double startT, double endT) {
 }
 
 static SkScalar QuadLeftMost(const SkPoint a[3], double startT, double endT) {
-    const Quadratic aQuad = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY},
-            {a[2].fX, a[2].fY}};
+    MAKE_CONST_QUAD(aQuad, a);
     return (float) leftMostT(aQuad, startT, endT);
 }
 
 static SkScalar CubicLeftMost(const SkPoint a[4], double startT, double endT) {
-    const Cubic aCubic = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY},
-            {a[2].fX, a[2].fY}, {a[3].fX, a[3].fY}};
+    MAKE_CONST_CUBIC(aCubic, a);
     return (float) leftMostT(aCubic, startT, endT);
 }
 
@@ -472,15 +454,6 @@ static SkScalar (* const SegmentLeftMost[])(const SkPoint [], double , double) =
     QuadLeftMost,
     CubicLeftMost
 };
-
-#if DEBUG_UNUSED
-static bool IsCoincident(const SkPoint a[2], const SkPoint& above,
-        const SkPoint& below) {
-    const _Line aLine = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}};
-    const _Line bLine = {{above.fX, above.fY}, {below.fX, below.fY}};
-    return implicit_matches_ulps(aLine, bLine, 32);
-}
-#endif
 
 class Segment;
 
@@ -496,8 +469,19 @@ public:
     // longer curve on either side of the shorter one.
     // Using Bezier curve focus http://cagd.cs.byu.edu/~tom/papers/bezclip.pdf
     // may provide some help, but nothing has been figured out yet.
+    
+ //   start here
+    /*(
+    for quads and cubics, set up a parameterized line (e.g. LineParameters )
+    for points [0] to [1]. See if point [2] is on that line, or on one side
+    or the other. If it both quads' end points are on the same side, choose
+    the shorter tangent. If the tangents are equal, choose the better second
+    tangent angle
+    
+    maybe I set up LineParameters lazily
+    */
     bool operator<(const Angle& rh) const {
-        if ((fDy < 0) ^ (rh.fDy < 0)) {
+        if ((fDy < 0) ^ (rh.fDy < 0)) { // OPTIMIZATION: better to use fDy * rh.fDy < 0 ?
             return fDy < 0;
         }
         if (fDy == 0 && rh.fDy == 0 && fDx * rh.fDx < 0) {
@@ -507,6 +491,8 @@ public:
         if (!approximately_zero(cmp)) {
             return cmp < 0;
         }
+        // at this point, the initial tangent line is coincident
+    #if !HIGH_DEF_ANGLES // old way
         AngleValue dy = approximately_pin(fDy + fDDy);
         AngleValue rdy = approximately_pin(rh.fDy + rh.fDDy);
         if (dy * rdy < 0) {
@@ -532,6 +518,22 @@ public:
             return dx < rdx;
         }
         return dx * rdy < rdx * dy;
+    #else // new way
+        if (fSide * rh.fSide <= 0) {
+            SkASSERT(fSide != rh.fSide);
+            return fSide < rh.fSide;
+        }
+        if (fDy != rh.fDy) {
+            return fabs(fDy) < fabs(rh.fDy);
+        }
+        if (fDx != rh.fDx) {
+            return fabs(fDx) < fabs(rh.fDx);
+        }
+        if (fSide != rh.fSide) {
+            return fSide < rh.fSide;
+        }
+        SkASSERT(0); // add code for cubic case
+    #endif
     }
 
     double dx() const {
@@ -554,25 +556,41 @@ public:
 #if HIGH_DEF_ANGLES
     void set(const SkPoint* orig, SkPath::Verb verb, const Segment* segment,
             int start, int end, double startT, double endT) {
-        Cubic pts;
-        (*SegmentSubDivideHD[verb])(orig, startT, endT, pts);
         fSegment = segment;
         fStart = start;
         fEnd = end;
-        fDx = approximately_pin(pts[1].x - pts[0].x); // b - a
-        fDy = approximately_pin(pts[1].y - pts[0].y);
-        if (verb == SkPath::kLine_Verb) {
+        switch (verb) {
+        case SkPath::kLine_Verb:
+            _Line l;
+            LineSubDivideHD(orig, startT, endT, l);
             fDDx = fDDy = fDDDx = fDDDy = 0;
-            return;
-        }
-        fDDx = approximately_pin(pts[2].x - pts[1].x - fDx); // a - 2b + c
-        fDDy = approximately_pin(pts[2].y - pts[1].y - fDy);
-        if (verb == SkPath::kQuad_Verb) {
+            fSide = 0;
+            // OPTIMIZATION: for pure line compares, we never need fTangent1.c
+            fTangent1.lineEndPoints(l);
+            break;
+        case SkPath::kQuad_Verb:
+            Quadratic q;
+            QuadSubDivideHD(orig, startT, endT, q);
+            fDDx = approximately_pin(q[2].x - 2 * q[1].x + q[0].x);
+            fDDy = approximately_pin(q[2].y - 2 * q[1].y + q[0].y);
             fDDDx = fDDDy = 0;
-            return;
+            fTangent1.quadEndPoints(q, 0, 1);
+            fSide = -fTangent1.pointDistance(q[2]);
+            break;
+        case SkPath::kCubic_Verb:
+            Cubic c;
+            CubicSubDivideHD(orig, startT, endT, c);
+            fDDx = approximately_pin(c[2].x - 2 * c[1].x + c[0].x);
+            fDDy = approximately_pin(c[2].y - 2 * c[1].y + c[0].y);
+            fDDDx = approximately_pin(c[3].x + 3 * (c[1].x - c[2].x) - c[0].x);
+            fDDDy = approximately_pin(c[3].y + 3 * (c[1].y - c[2].y) - c[0].y);
+            fTangent1.cubicEndPoints(c, 0, 1);
+            fSide = -fTangent1.pointDistance(c[2]);
+            break;
         }
-        fDDDx = approximately_pin(pts[3].x + 3 * (pts[1].x - pts[2].x) - pts[0].x);
-        fDDDy = approximately_pin(pts[3].y + 3 * (pts[1].y - pts[2].y) - pts[0].y);
+        // OPTIMIZATION: don't need these, access fTangent1 directly
+        fDx = fTangent1.dx();
+        fDy = fTangent1.dy();
     }
 
 #else
@@ -623,7 +641,7 @@ public:
             double flatT;
             SkPoint ddPt; // FIXME: get rid of copy (change fDD_ to point)
             LineParameters implicitLine;
-            _Line tangent = {{pts[0].fX, pts[0].fY}, {pts[1].fX, pts[1].fY}};
+            MAKE_CONST_LINE(tangent, pts);
             implicitLine.lineEndPoints(tangent);
             implicitLine.normalize();
             while (larger > UlpsEpsilon * 1024) {
@@ -700,6 +718,8 @@ private:
     AngleValue fDDy;
     AngleValue fDDDx;
     AngleValue fDDDy;
+    double fSide;
+    LineParameters fTangent1; // FIXME: replaces fDx, fDy
     const Segment* fSegment;
     int fStart;
     int fEnd;
@@ -750,16 +770,14 @@ struct Bounds : public SkRect {
 
     void setCubicBounds(const SkPoint a[4]) {
         _Rect dRect;
-        Cubic cubic  = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY},
-            {a[2].fX, a[2].fY}, {a[3].fX, a[3].fY}};
+        MAKE_CONST_CUBIC(cubic, a);
         dRect.setBounds(cubic);
         set((float) dRect.left, (float) dRect.top, (float) dRect.right,
                 (float) dRect.bottom);
     }
 
     void setQuadBounds(const SkPoint a[3]) {
-        const Quadratic quad = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY},
-                {a[2].fX, a[2].fY}};
+        MAKE_CONST_QUAD(quad, a);
         _Rect dRect;
         dRect.setBounds(quad);
         set((float) dRect.left, (float) dRect.top, (float) dRect.right,
@@ -1356,14 +1374,6 @@ public:
         }
         // add candidate into and away from junction
         other->addTwoAngles(next, oIndex, angles);
-    }
-
-    bool cancels(const Segment& other) const {
-        SkASSERT(fVerb == SkPath::kLine_Verb);
-        SkASSERT(other.fVerb == SkPath::kLine_Verb);
-        SkPoint dxy = fPts[0] - fPts[1];
-        SkPoint odxy = other.fPts[0] - other.fPts[1];
-        return dxy.fX * odxy.fX < 0 || dxy.fY * odxy.fY < 0;
     }
 
     // figure out if the segment's ascending T goes clockwise or not
@@ -2618,10 +2628,20 @@ public:
         coincidence.fContours[1] = other;
         coincidence.fSegments[0] = index;
         coincidence.fSegments[1] = otherIndex;
-        coincidence.fTs[swap][0] = ts.fT[0][0];
-        coincidence.fTs[swap][1] = ts.fT[0][1];
-        coincidence.fTs[!swap][0] = ts.fT[1][0];
-        coincidence.fTs[!swap][1] = ts.fT[1][1];
+        if (fSegments[index].verb() == SkPath::kLine_Verb &&
+                other->fSegments[otherIndex].verb() == SkPath::kLine_Verb) {
+            // FIXME: coincident lines use legacy Ts instead of coincident Ts
+            coincidence.fTs[swap][0] = ts.fT[0][0];
+            coincidence.fTs[swap][1] = ts.fT[0][1];
+            coincidence.fTs[!swap][0] = ts.fT[1][0];
+            coincidence.fTs[!swap][1] = ts.fT[1][1];
+        } else if (fSegments[index].verb() == SkPath::kQuad_Verb &&
+                other->fSegments[otherIndex].verb() == SkPath::kQuad_Verb) {
+            coincidence.fTs[swap][0] = ts.fCoincidentT[0][0];
+            coincidence.fTs[swap][1] = ts.fCoincidentT[0][1];
+            coincidence.fTs[!swap][0] = ts.fCoincidentT[1][0];
+            coincidence.fTs[!swap][1] = ts.fCoincidentT[1][1];
+        }
     }
 
     void addCross(const Contour* crosser) {
@@ -2757,18 +2777,22 @@ public:
         #endif
             double startT = coincidence.fTs[0][0];
             double endT = coincidence.fTs[0][1];
+            bool opposite = false;
             if (startT > endT) {
                 SkTSwap<double>(startT, endT);
+                opposite ^= true;
             }
             SkASSERT(!approximately_negative(endT - startT));
             double oStartT = coincidence.fTs[1][0];
             double oEndT = coincidence.fTs[1][1];
             if (oStartT > oEndT) {
                 SkTSwap<double>(oStartT, oEndT);
+                opposite ^= true;
             }
             SkASSERT(!approximately_negative(oEndT - oStartT));
-            if (thisOne.cancels(other)) {
+            if (opposite) {
                         // make sure startT and endT have t entries
+                SkASSERT(opposite);
                 if (startT > 0 || oEndT < 1
                         || thisOne.isMissing(startT) || other.isMissing(oEndT)) {
                     thisOne.addTPair(startT, other, oEndT, true);
@@ -3413,10 +3437,19 @@ static bool addIntersectTs(Contour* test, Contour* next) {
                 foundCommonContour = true;
             }
             // in addition to recording T values, record matching segment
-            if (pts == 2 && wn.segmentType() <= Work::kLine_Segment
-                    && wt.segmentType() <= Work::kLine_Segment) {
-                wt.addCoincident(wn, ts, swap);
-                continue;
+            if (pts == 2) {
+                if (wn.segmentType() <= Work::kLine_Segment
+                        && wt.segmentType() <= Work::kLine_Segment) {
+                    wt.addCoincident(wn, ts, swap);
+                    continue;
+                }
+                if (wn.segmentType() == Work::kQuad_Segment
+                        && wt.segmentType() == Work::kQuad_Segment
+                        && ts.coincidentUsed() == 2) {
+                    wt.addCoincident(wn, ts, swap);
+                    continue;
+                }
+
             }
             for (int pt = 0; pt < pts; ++pt) {
                 SkASSERT(ts.fT[0][pt] >= 0 && ts.fT[0][pt] <= 1);
@@ -3593,8 +3626,6 @@ static int innerContourCheck(SkTDArray<Contour*>& contourList,
         SkDebugf("%s final winding=%d\n", __FUNCTION__, winding);
 #endif
     }
- //   start here;
-    // we're broken because we find a vertical span
     return winding;
 }
 

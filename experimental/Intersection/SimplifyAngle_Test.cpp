@@ -72,7 +72,14 @@ static const segment segmentTest2[] = {
     {SkPath::kMove_Verb                          }
 };
 
+static const segment segmentTest3[] = {
+    {SkPath::kQuad_Verb, {{0, 0}, {2, 0}, {0, 1}}},
+    {SkPath::kQuad_Verb, {{0, 0}, {1, 0}, {0, 1}}},
+    {SkPath::kMove_Verb                          }
+};
+
 static const segment* segmentTests[] = {
+    segmentTest3,
     segmentTest2,
     segmentTest1,
 };

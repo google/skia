@@ -20,9 +20,11 @@ public:
     }
 
     void add(double one, double two) {
-        if (fUsed > 0 && approximately_equal(fT[fSwap][fUsed - 1], one)
-                && approximately_equal(fT[fSwap ^ 1][fUsed - 1], two)) {
-            return;
+        for (int index = 0; index < fUsed; ++index) {
+            if (approximately_equal(fT[fSwap][index], one)
+                    && approximately_equal(fT[fSwap ^ 1][index], two)) {
+                return;
+            }
         }
         fT[fSwap][fUsed] = one;
         fT[fSwap ^ 1][fUsed] = two;
@@ -30,16 +32,23 @@ public:
     }
 
     // start if index == 0 : end if index == 1
-    void addCoincident(double one, double two) {
-        if (fCoincidentUsed > 0
-                && approximately_equal(fCoincidentT[fSwap][fCoincidentUsed - 1], one)
-                && approximately_equal(fCoincidentT[fSwap ^ 1][fCoincidentUsed - 1], two)) {
-            --fCoincidentUsed;
-            return;
+    void addCoincident(double one, double two, bool cancel) {
+        for (int index = 0; index < fCoincidentUsed; ++index) {
+            if (approximately_equal(fCoincidentT[fSwap][index], one)
+                    && approximately_equal(fCoincidentT[fSwap ^ 1][index], two)) {
+                if (cancel) {
+                    --fCoincidentUsed;
+                }
+                return;
+            }
         }
         fCoincidentT[fSwap][fCoincidentUsed] = one;
         fCoincidentT[fSwap ^ 1][fCoincidentUsed] = two;
         ++fCoincidentUsed;
+    }
+
+    int coincidentUsed() {
+        return fCoincidentUsed;
     }
 
     void offset(int base, double start, double end) {

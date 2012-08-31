@@ -94,7 +94,35 @@ static void oneOffTest() {
     }
 }
 
+static const Quadratic coincidentTestSet[] = {
+    {{8, 8}, {10, 10}, {8, -10}},
+    {{8, -10}, {10, 10}, {8, 8}},
+};
+
+const size_t coincidentTestSetCount = sizeof(coincidentTestSet) / sizeof(coincidentTestSet[0]);
+
+static void coincidentTest() {
+    for (size_t testIndex = 0; testIndex < coincidentTestSetCount - 1; testIndex += 2) {
+        const Quadratic& quad1 = coincidentTestSet[testIndex];
+        const Quadratic& quad2 = coincidentTestSet[testIndex + 1];
+        Intersections intersections;
+        intersect(quad1, quad2, intersections);
+        SkASSERT(intersections.coincidentUsed() == 2);
+        for (int pt = 0; pt < intersections.coincidentUsed(); ++pt) {
+            double tt1 = intersections.fT[0][pt];
+            double tx1, ty1;
+            xy_at_t(quad1, tt1, tx1, ty1);
+            double tt2 = intersections.fT[1][pt];
+            double tx2, ty2;
+            xy_at_t(quad2, tt2, tx2, ty2);
+            SkDebugf("%s [%d,%d] t1=%g (%g,%g) t2=%g (%g,%g)\n",
+                __FUNCTION__, (int)testIndex, pt, tt1, tx1, ty1, tt2, tx2, ty2);
+        }
+    }
+}
+
 void QuadraticIntersection_Test() {
+    coincidentTest();
     oneOffTest();
     standardTestCases();
 }

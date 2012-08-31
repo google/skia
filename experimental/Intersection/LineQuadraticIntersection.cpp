@@ -226,15 +226,14 @@ bool moreHorizontal;
 static double horizontalIntersect(const Quadratic& quad, const _Point& pt) {
     Intersections intersections;
     LineQuadraticIntersections q(quad, *((_Line*) 0), intersections);
-    int result = q.horizontalIntersect(pt.y);
-    if (result == 0) {
-        return -1;
-    }
-    assert(result == 1);
-    double x, y;
-    xy_at_t(quad, intersections.fT[0][0], x, y);
-    if (approximately_equal(x, pt.x)) {
-        return intersections.fT[0][0];
+    int roots = q.horizontalIntersect(pt.y);
+    for (int index = 0; index < roots; ++index) {
+        double x;
+        double t = intersections.fT[0][index];
+        xy_at_t(quad, t, x, *(double*) 0);
+        if (approximately_equal(x, pt.x)) {
+            return t;
+        }
     }
     return -1;
 }
@@ -242,15 +241,14 @@ static double horizontalIntersect(const Quadratic& quad, const _Point& pt) {
 static double verticalIntersect(const Quadratic& quad, const _Point& pt) {
     Intersections intersections;
     LineQuadraticIntersections q(quad, *((_Line*) 0), intersections);
-    int result = q.horizontalIntersect(pt.x);
-    if (result == 0) {
-        return -1;
-    }
-    assert(result == 1);
-    double x, y;
-    xy_at_t(quad, intersections.fT[0][0], x, y);
-    if (approximately_equal(y, pt.y)) {
-        return intersections.fT[0][0];
+    int roots = q.verticalIntersect(pt.x);
+    for (int index = 0; index < roots; ++index) {
+        double y;
+        double t = intersections.fT[0][index];
+        xy_at_t(quad, t, *(double*) 0, y);
+        if (approximately_equal(y, pt.y)) {
+            return t;
+        }
     }
     return -1;
 }
