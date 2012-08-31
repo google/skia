@@ -22,13 +22,13 @@
 SK_DEFINE_INST_COUNT(SkDumpCanvas::Dumper)
 
 static void toString(const SkRect& r, SkString* str) {
-    str->printf("[%g,%g %g:%g]",
-                SkScalarToFloat(r.fLeft), SkScalarToFloat(r.fTop),
-                SkScalarToFloat(r.width()), SkScalarToFloat(r.height()));
+    str->appendf("[%g,%g %g:%g]",
+                 SkScalarToFloat(r.fLeft), SkScalarToFloat(r.fTop),
+                 SkScalarToFloat(r.width()), SkScalarToFloat(r.height()));
 }
 
 static void toString(const SkIRect& r, SkString* str) {
-    str->printf("[%d,%d %d:%d]", r.fLeft, r.fTop, r.width(), r.height());
+    str->appendf("[%d,%d %d:%d]", r.fLeft, r.fTop, r.width(), r.height());
 }
 
 static void dumpVerbs(const SkPath& path, SkString* str) {
@@ -61,7 +61,7 @@ static void dumpVerbs(const SkPath& path, SkString* str) {
 
 static void toString(const SkPath& path, SkString* str) {
     if (path.isEmpty()) {
-        str->set("path:empty");
+        str->append("path:empty");
     } else {
         toString(path.getBounds(), str);
 #if 1
@@ -82,8 +82,8 @@ static const char* toString(SkRegion::Op op) {
 }
 
 static void toString(const SkRegion& rgn, SkString* str) {
+    str->append("Region:[");
     toString(rgn.getBounds(), str);
-    str->prepend("Region:[");
     str->append("]");
     if (rgn.isComplex()) {
         str->append(".complex");
@@ -112,7 +112,7 @@ static const char* toString(SkBitmap::Config config) {
 }
 
 static void toString(const SkBitmap& bm, SkString* str) {
-    str->printf("bitmap:[%d %d] %s", bm.width(), bm.height(),
+    str->appendf("bitmap:[%d %d] %s", bm.width(), bm.height(),
                 toString(bm.config()));
 
     SkPixelRef* pr = bm.pixelRef();
@@ -134,19 +134,19 @@ static void toString(const void* text, size_t byteLen, SkPaint::TextEncoding enc
     // FIXME: this code appears to be untested - and probably unused - and probably wrong
     switch (enc) {
         case SkPaint::kUTF8_TextEncoding:
-            str->printf("\"%.*s\"%s", SkMax32(byteLen, 32), (const char*) text,
+            str->appendf("\"%.*s\"%s", SkMax32(byteLen, 32), (const char*) text,
                         byteLen > 32 ? "..." : "");
             break;
         case SkPaint::kUTF16_TextEncoding:
-            str->printf("\"%.*S\"%s", SkMax32(byteLen, 32), (const wchar_t*) text,
+            str->appendf("\"%.*S\"%s", SkMax32(byteLen, 32), (const wchar_t*) text,
                         byteLen > 64 ? "..." : "");
             break;
         case SkPaint::kUTF32_TextEncoding:
-            str->printf("\"%.*S\"%s", SkMax32(byteLen, 32), (const wchar_t*) text,
+            str->appendf("\"%.*S\"%s", SkMax32(byteLen, 32), (const wchar_t*) text,
                         byteLen > 128 ? "..." : "");
             break;
         case SkPaint::kGlyphID_TextEncoding:
-            str->set("<glyphs>");
+            str->append("<glyphs>");
             break;
 
         default:
@@ -196,7 +196,21 @@ int SkDumpCanvas::save(SaveFlags flags) {
 
 int SkDumpCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
                              SaveFlags flags) {
-    this->dump(kSave_Verb, paint, "saveLayer(0x%X)", flags);
+    SkString str;
+    str.printf("saveLayer(0x%X)", flags);
+    if (bounds) {
+        str.append(" bounds");
+        toString(*bounds, &str);
+    }
+    if (paint) {
+        if (paint->getAlpha() != 0xFF) {
+            str.appendf(" alpha:0x%02X", paint->getAlpha());
+        }
+        if (paint->getXfermode()) {
+            str.appendf(" xfermode:%p", paint->getXfermode());
+        }
+    }
+    this->dump(kSave_Verb, paint, str.c_str());
     return this->INHERITED::saveLayer(bounds, paint, flags);
 }
 
@@ -428,7 +442,11 @@ void SkFormatDumper::dump(SkDumpCanvas* canvas, SkDumpCanvas::Verb verb,
     const int level = canvas->getNestLevel() + canvas->getSaveCount() - 1;
     SkASSERT(level >= 0);
     for (int i = 0; i < level; i++) {
+#if 0
         tab.append("\t");
+#else
+        tab.append("    ");   // tabs are often too wide to be useful
+#endif
     }
     msg.printf("%s%s", tab.c_str(), str);
 
