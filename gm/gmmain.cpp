@@ -1151,7 +1151,7 @@ int main(int argc, char * const argv[]) {
 
 #if SK_SUPPORT_GPU
 
-#if SK_DEBUG
+#if GR_CACHE_STATS
     for (int i = 0; i < configs.count(); i++) {
         ConfigData config = gRec[configs[i]];
 

@@ -10,6 +10,7 @@
 #ifndef GrContext_DEFINED
 #define GrContext_DEFINED
 
+#include "GrConfig.h"
 #include "GrPaint.h"
 #include "GrAARectRenderer.h"
 #include "GrClipData.h"
@@ -775,7 +776,7 @@ public:
                                     bool antiAlias,
                                     bool allowSW);
 
-#ifdef GR_DEBUG
+#if GR_CACHE_STATS
     void printCacheStats() const;
 #endif
 

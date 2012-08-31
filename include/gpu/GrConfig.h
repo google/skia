@@ -11,6 +11,8 @@
 #ifndef GrConfig_DEFINED
 #define GrConfig_DEFINED
 
+#include "SkTypes.h"
+
 ///////////////////////////////////////////////////////////////////////////////
 // preconfig section:
 //
@@ -47,6 +49,9 @@
 #endif
 #if !defined(GR_QNX_BUILD)
     #define GR_QNX_BUILD        0
+#endif
+#if !defined(GR_CACHE_STATS)
+    #define GR_CACHE_STATS      0
 #endif
 
 /**

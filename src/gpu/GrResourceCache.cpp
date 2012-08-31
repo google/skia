@@ -68,7 +68,7 @@ public:
 GrResourceCache::GrResourceCache(int maxCount, size_t maxBytes) :
         fMaxCount(maxCount),
         fMaxBytes(maxBytes) {
-#if GR_DEBUG
+#if GR_CACHE_STATS
     fHighWaterEntryCount          = 0;
     fHighWaterUnlockedEntryCount  = 0;
     fHighWaterEntryBytes          = 0;
@@ -137,7 +137,7 @@ void GrResourceCache::internalDetach(GrResourceEntry* entry,
         fClientDetachedCount += 1;
         fClientDetachedBytes += entry->resource()->sizeInBytes();
 
-#if GR_DEBUG
+#if GR_CACHE_STATS
         if (fHighWaterClientDetachedCount < fClientDetachedCount) {
             fHighWaterClientDetachedCount = fClientDetachedCount;
         }
@@ -158,7 +158,7 @@ void GrResourceCache::attachToHead(GrResourceEntry* entry,
 
     if (!entry->isLocked()) {
         ++fUnlockedEntryCount;
-#if GR_DEBUG
+#if GR_CACHE_STATS
         if (fHighWaterUnlockedEntryCount < fUnlockedEntryCount) {
             fHighWaterUnlockedEntryCount = fUnlockedEntryCount;
         }
@@ -173,7 +173,7 @@ void GrResourceCache::attachToHead(GrResourceEntry* entry,
         fEntryCount += 1;
         fEntryBytes += entry->resource()->sizeInBytes();
 
-#if GR_DEBUG
+#if GR_CACHE_STATS
         if (fHighWaterEntryCount < fEntryCount) {
             fHighWaterEntryCount = fEntryCount;
         }
@@ -308,7 +308,7 @@ void GrResourceCache::unlock(GrResourceEntry* entry) {
     entry->unlock();
     if (!entry->isLocked()) {
         ++fUnlockedEntryCount;
-#if GR_DEBUG
+#if GR_CACHE_STATS
         if (fHighWaterUnlockedEntryCount < fUnlockedEntryCount) {
             fHighWaterUnlockedEntryCount = fUnlockedEntryCount;
         }
@@ -472,6 +472,9 @@ void GrResourceCache::validate() const {
 
     GrAssert(fExclusiveList.countEntries() == fClientDetachedCount);
 }
+#endif // GR_DEBUG
+
+#if GR_CACHE_STATS
 
 void GrResourceCache::printStats() const {
     SkDebugf("Budget: %d items %d bytes\n", fMaxCount, fMaxBytes);
