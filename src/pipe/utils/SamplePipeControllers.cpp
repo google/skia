@@ -79,14 +79,14 @@ void TiledPipeController::notifyWritten(size_t bytes) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-DeferredPipeController::DeferredPipeController(int numberOfReaders)
+ThreadSafePipeController::ThreadSafePipeController(int numberOfReaders)
 : fAllocator(kMinBlockSize)
 , fNumberOfReaders(numberOfReaders) {
     fBlock = NULL;
     fBytesWritten = 0;
 }
 
-void* DeferredPipeController::requestBlock(size_t minRequest, size_t *actual) {
+void* ThreadSafePipeController::requestBlock(size_t minRequest, size_t *actual) {
     if (fBlock) {
         // Save the previous block for later
         PipeBlock previousBloc(fBlock, fBytesWritten);
@@ -99,11 +99,11 @@ void* DeferredPipeController::requestBlock(size_t minRequest, size_t *actual) {
     return fBlock;
 }
 
-void DeferredPipeController::notifyWritten(size_t bytes) {
+void ThreadSafePipeController::notifyWritten(size_t bytes) {
     fBytesWritten += bytes;
 }
 
-void DeferredPipeController::playback(SkCanvas* target) {
+void ThreadSafePipeController::playback(SkCanvas* target) {
     SkGPipeReader reader(target);
     for (int currentBlock = 0; currentBlock < fBlockList.count(); currentBlock++ ) {
         reader.playback(fBlockList[currentBlock].fBlock, fBlockList[currentBlock].fBytes);
