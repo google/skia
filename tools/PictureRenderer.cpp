@@ -283,9 +283,9 @@ void TiledPictureRenderer::deleteTiles() {
 // Draw using Pipe
 
 struct TileData {
-    TileData(SkCanvas* canvas, DeferredPipeController* controller);
+    TileData(SkCanvas* canvas, ThreadSafePipeController* controller);
     SkCanvas* fCanvas;
-    DeferredPipeController* fController;
+    ThreadSafePipeController* fController;
     SkThread fThread;
 };
 
@@ -295,7 +295,7 @@ static void DrawTile(void* data) {
     tileData->fController->playback(tileData->fCanvas);
 }
 
-TileData::TileData(SkCanvas* canvas, DeferredPipeController* controller)
+TileData::TileData(SkCanvas* canvas, ThreadSafePipeController* controller)
 : fCanvas(canvas)
 , fController(controller)
 , fThread(&DrawTile, static_cast<void*>(this)) {}
@@ -328,7 +328,7 @@ void TiledPictureRenderer::drawTiles() {
         if (fUsePipe) {
             // First, draw into a pipe controller
             SkGPipeWriter writer;
-            DeferredPipeController controller(fTiles.count());
+            ThreadSafePipeController controller(fTiles.count());
             SkCanvas* pipeCanvas = writer.startRecording(&controller,
                                                          SkGPipeWriter::kSimultaneousReaders_Flag);
             pipeCanvas->drawPicture(*(fPicture));

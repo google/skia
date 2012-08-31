@@ -50,11 +50,11 @@ private:
 
 /**
  * Borrowed (and modified) from SkDeferredCanvas.cpp::DeferredPipeController.
- * Allows playing back from multiple threads.
+ * Allows playing back from multiple threads, but does not do the threading itself.
  */
-class DeferredPipeController : public SkGPipeController {
+class ThreadSafePipeController : public SkGPipeController {
 public:
-    DeferredPipeController(int numberOfReaders);
+    ThreadSafePipeController(int numberOfReaders);
     virtual void* requestBlock(size_t minRequest, size_t* actual) SK_OVERRIDE;
     virtual void notifyWritten(size_t bytes) SK_OVERRIDE;
     virtual int numberOfReaders() const SK_OVERRIDE { return fNumberOfReaders; }
