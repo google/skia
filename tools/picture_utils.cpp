@@ -80,7 +80,7 @@ namespace sk_tools {
         basename->set(path.c_str(), end + 1);
     }
 
-    bool is_percentage(char* const string) {
+    bool is_percentage(const char* const string) {
         SkString skString(string);
         return skString.endsWith("%");
     }

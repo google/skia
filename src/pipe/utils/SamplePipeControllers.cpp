@@ -76,3 +76,40 @@ void TiledPipeController::notifyWritten(size_t bytes) {
     }
     this->INHERITED::notifyWritten(bytes);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+DeferredPipeController::DeferredPipeController(int numberOfReaders)
+: fAllocator(kMinBlockSize)
+, fNumberOfReaders(numberOfReaders) {
+    fBlock = NULL;
+    fBytesWritten = 0;
+}
+
+void* DeferredPipeController::requestBlock(size_t minRequest, size_t *actual) {
+    if (fBlock) {
+        // Save the previous block for later
+        PipeBlock previousBloc(fBlock, fBytesWritten);
+        fBlockList.push(previousBloc);
+    }
+    int32_t blockSize = SkMax32(minRequest, kMinBlockSize);
+    fBlock = fAllocator.allocThrow(blockSize);
+    fBytesWritten = 0;
+    *actual = blockSize;
+    return fBlock;
+}
+
+void DeferredPipeController::notifyWritten(size_t bytes) {
+    fBytesWritten += bytes;
+}
+
+void DeferredPipeController::playback(SkCanvas* target) {
+    SkGPipeReader reader(target);
+    for (int currentBlock = 0; currentBlock < fBlockList.count(); currentBlock++ ) {
+        reader.playback(fBlockList[currentBlock].fBlock, fBlockList[currentBlock].fBytes);
+    }
+
+    if (fBlock) {
+        reader.playback(fBlock, fBytesWritten);
+    }
+}

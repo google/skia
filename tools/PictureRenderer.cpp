@@ -6,22 +6,24 @@
  */
 
 #include "PictureRenderer.h"
+#include "picture_utils.h"
 #include "SamplePipeControllers.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
-#include "SkImageEncoder.h"
 #include "SkGPipe.h"
+#if SK_SUPPORT_GPU
+#include "SkGpuDevice.h"
+#endif
+#include "SkGraphics.h"
+#include "SkImageEncoder.h"
 #include "SkMatrix.h"
 #include "SkPicture.h"
 #include "SkScalar.h"
 #include "SkString.h"
+#include "SkTemplates.h"
 #include "SkTDArray.h"
+#include "SkThreadUtils.h"
 #include "SkTypes.h"
-#include "picture_utils.h"
-
-#if SK_SUPPORT_GPU
-#include "SkGpuDevice.h"
-#endif
 
 namespace sk_tools {
 
@@ -156,7 +158,9 @@ void SimplePictureRenderer::render() {
 }
 
 TiledPictureRenderer::TiledPictureRenderer()
-    : fTileWidth(kDefaultTileWidth)
+    : fMultiThreaded(false)
+    , fUsePipe(false)
+    , fTileWidth(kDefaultTileWidth)
     , fTileHeight(kDefaultTileHeight)
     , fTileMinPowerOf2Width(0)
     , fTileHeightPercentage(0.0)
@@ -236,7 +240,7 @@ void TiledPictureRenderer::setupTiles() {
 // constraints are that every tile must have a pixel width that is a power of
 // two and also be of some minimal width (that is also a power of two).
 //
-// This is sovled by first taking our picture size and rounding it up to the
+// This is solved by first taking our picture size and rounding it up to the
 // multiple of the minimal width. The binary representation of this rounded
 // value gives us the tiles we need: a bit of value one means we need a tile of
 // that size.
@@ -275,9 +279,93 @@ void TiledPictureRenderer::deleteTiles() {
     fTiles.reset();
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////
+// Draw using Pipe
+
+struct TileData {
+    TileData(SkCanvas* canvas, DeferredPipeController* controller);
+    SkCanvas* fCanvas;
+    DeferredPipeController* fController;
+    SkThread fThread;
+};
+
+static void DrawTile(void* data) {
+    SkGraphics::SetTLSFontCacheLimit(1 * 1024 * 1024);
+    TileData* tileData = static_cast<TileData*>(data);
+    tileData->fController->playback(tileData->fCanvas);
+}
+
+TileData::TileData(SkCanvas* canvas, DeferredPipeController* controller)
+: fCanvas(canvas)
+, fController(controller)
+, fThread(&DrawTile, static_cast<void*>(this)) {}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+// Draw using Picture
+
+struct CloneData {
+    CloneData(SkCanvas* target, SkPicture* original);
+    SkCanvas* fCanvas;
+    SkPicture* fClone;
+    SkThread fThread;
+};
+
+static void DrawClonedTile(void* data) {
+    SkGraphics::SetTLSFontCacheLimit(1 * 1024 * 1024);
+    CloneData* cloneData = static_cast<CloneData*>(data);
+    cloneData->fCanvas->drawPicture(*cloneData->fClone);
+}
+
+CloneData::CloneData(SkCanvas* target, SkPicture* clone)
+: fCanvas(target)
+, fClone(clone)
+, fThread(&DrawClonedTile, static_cast<void*>(this)) {}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+
 void TiledPictureRenderer::drawTiles() {
-    for (int i = 0; i < fTiles.count(); ++i) {
-        fTiles[i]->drawPicture(*(fPicture));
+    if (fMultiThreaded) {
+        if (fUsePipe) {
+            // First, draw into a pipe controller
+            SkGPipeWriter writer;
+            DeferredPipeController controller(fTiles.count());
+            SkCanvas* pipeCanvas = writer.startRecording(&controller,
+                                                         SkGPipeWriter::kSimultaneousReaders_Flag);
+            pipeCanvas->drawPicture(*(fPicture));
+            writer.endRecording();
+
+            // Create and start the threads.
+            TileData* tileData[fTiles.count()];
+            for (int i = 0; i < fTiles.count(); i++) {
+                tileData[i] = SkNEW_ARGS(TileData, (fTiles[i], &controller));
+                if (!tileData[i]->fThread.start()) {
+                    SkDebugf("could not start thread %i\n", i);
+                }
+            }
+            for (int i = 0; i < fTiles.count(); i++) {
+                tileData[i]->fThread.join();
+                SkDELETE(tileData[i]);
+            }
+        } else {
+            SkPicture* clones = SkNEW_ARRAY(SkPicture, fTiles.count());
+            SkAutoTDeleteArray<SkPicture> autodelete(clones);
+            fPicture->clone(clones, fTiles.count());
+            CloneData* cloneData[fTiles.count()];
+            for (int i = 0; i < fTiles.count(); i++) {
+                cloneData[i] = SkNEW_ARGS(CloneData, (fTiles[i], &clones[i]));
+                if (!cloneData[i]->fThread.start()) {
+                    SkDebugf("Could not start picture thread %i\n", i);
+                }
+            }
+            for (int i = 0; i < fTiles.count(); i++) {
+                cloneData[i]->fThread.join();
+                SkDELETE(cloneData[i]);
+            }
+        }
+    } else {
+        for (int i = 0; i < fTiles.count(); ++i) {
+            fTiles[i]->drawPicture(*(fPicture));
+        }
     }
 }
 
