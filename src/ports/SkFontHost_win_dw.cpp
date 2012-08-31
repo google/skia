@@ -14,6 +14,7 @@
 #include "SkDWriteGeometrySink.h"
 #include "SkDescriptor.h"
 #include "SkEndian.h"
+#include "SkFontDescriptor.h"
 #include "SkFontHost.h"
 #include "SkGlyph.h"
 #include "SkHRESULT.h"
@@ -180,6 +181,236 @@ const void* DWriteOffscreen::draw(const SkGlyph& glyph, bool isBW) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class StreamFontFileLoader : public IDWriteFontFileLoader {
+public:
+    // IUnknown methods
+    virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void** ppvObject);
+    virtual ULONG STDMETHODCALLTYPE AddRef();
+    virtual ULONG STDMETHODCALLTYPE Release();
+
+    // IDWriteFontFileLoader methods
+    virtual HRESULT STDMETHODCALLTYPE CreateStreamFromKey(
+        void const* fontFileReferenceKey,
+        UINT32 fontFileReferenceKeySize,
+        IDWriteFontFileStream** fontFileStream);
+
+    static HRESULT Create(SkStream* stream, StreamFontFileLoader** streamFontFileLoader) {
+        *streamFontFileLoader = new StreamFontFileLoader(stream);
+        if (NULL == streamFontFileLoader) {
+            return E_OUTOFMEMORY;
+        }
+        return S_OK;
+    }
+
+    SkAutoTUnref<SkStream> fStream;
+
+private:
+    StreamFontFileLoader(SkStream* stream) : fRefCount(1), fStream(stream) {
+        stream->ref();
+    }
+
+    ULONG fRefCount;
+};
+
+HRESULT StreamFontFileLoader::QueryInterface(REFIID iid, void** ppvObject) {
+    if (iid == IID_IUnknown || iid == __uuidof(IDWriteFontFileLoader)) {
+        *ppvObject = this;
+        AddRef();
+        return S_OK;
+    } else {
+        *ppvObject = NULL;
+        return E_NOINTERFACE;
+    }
+}
+
+ULONG StreamFontFileLoader::AddRef() {
+    return InterlockedIncrement(&fRefCount);
+}
+
+ULONG StreamFontFileLoader::Release() {
+    ULONG newCount = InterlockedDecrement(&fRefCount);
+    if (0 == newCount) {
+        delete this;
+    }
+    return newCount;
+}
+
+HRESULT StreamFontFileLoader::CreateStreamFromKey(
+    void const* fontFileReferenceKey,
+    UINT32 fontFileReferenceKeySize,
+    IDWriteFontFileStream** fontFileStream)
+{
+    SkTScopedComPtr<SkDWriteFontFileStreamWrapper> stream;
+    HR(SkDWriteFontFileStreamWrapper::Create(fStream, &stream));
+    *fontFileStream = stream.release();
+    return S_OK;
+}
+
+class StreamFontFileEnumerator : public IDWriteFontFileEnumerator {
+public:
+    // IUnknown methods
+    virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void** ppvObject);
+    virtual ULONG STDMETHODCALLTYPE AddRef();
+    virtual ULONG STDMETHODCALLTYPE Release();
+
+    // IDWriteFontFileEnumerator methods
+    virtual HRESULT STDMETHODCALLTYPE MoveNext(BOOL* hasCurrentFile);
+    virtual HRESULT STDMETHODCALLTYPE GetCurrentFontFile(IDWriteFontFile** fontFile);
+
+    static HRESULT Create(IDWriteFactory* factory, IDWriteFontFileLoader* fontFileLoader,
+                          StreamFontFileEnumerator** streamFontFileEnumerator) {
+        *streamFontFileEnumerator = new StreamFontFileEnumerator(factory, fontFileLoader);
+        if (NULL == streamFontFileEnumerator) {
+            return E_OUTOFMEMORY;
+        }
+        return S_OK;
+    }
+private:
+    StreamFontFileEnumerator(IDWriteFactory* factory, IDWriteFontFileLoader* fontFileLoader);
+    ULONG fRefCount;
+
+    SkTScopedComPtr<IDWriteFactory> fFactory;
+    SkTScopedComPtr<IDWriteFontFile> fCurrentFile;
+    SkTScopedComPtr<IDWriteFontFileLoader> fFontFileLoader;
+    bool fHasNext;
+};
+
+StreamFontFileEnumerator::StreamFontFileEnumerator(IDWriteFactory* factory,
+                                                   IDWriteFontFileLoader* fontFileLoader)
+    : fRefCount(1)
+    , fFactory(factory)
+    , fCurrentFile()
+    , fFontFileLoader(fontFileLoader)
+    , fHasNext(true)
+{
+    factory->AddRef();
+    fontFileLoader->AddRef();
+}
+
+HRESULT StreamFontFileEnumerator::QueryInterface(REFIID iid, void** ppvObject) {
+    if (iid == IID_IUnknown || iid == __uuidof(IDWriteFontFileEnumerator)) {
+        *ppvObject = this;
+        AddRef();
+        return S_OK;
+    } else {
+        *ppvObject = NULL;
+        return E_NOINTERFACE;
+    }
+}
+
+ULONG StreamFontFileEnumerator::AddRef() {
+    return InterlockedIncrement(&fRefCount);
+}
+
+ULONG StreamFontFileEnumerator::Release() {
+    ULONG newCount = InterlockedDecrement(&fRefCount);
+    if (0 == newCount) {
+        delete this;
+    }
+    return newCount;
+}
+
+HRESULT StreamFontFileEnumerator::MoveNext(BOOL* hasCurrentFile) {
+    *hasCurrentFile = FALSE;
+
+    if (!fHasNext) {
+        return S_OK;
+    }
+    fHasNext = false;
+
+    UINT32 dummy = 0;
+    HR(fFactory->CreateCustomFontFileReference(
+            &dummy, //cannot be NULL
+            sizeof(dummy), //even if this is 0
+            fFontFileLoader.get(),
+            &fCurrentFile));
+
+    *hasCurrentFile = TRUE;
+    return S_OK;
+}
+
+HRESULT StreamFontFileEnumerator::GetCurrentFontFile(IDWriteFontFile** fontFile) {
+    if (fCurrentFile.get() == NULL) {
+        *fontFile = NULL;
+        return E_FAIL;
+    }
+
+    fCurrentFile.get()->AddRef();
+    *fontFile = fCurrentFile.get();
+    return  S_OK;
+}
+
+class StreamFontCollectionLoader : public IDWriteFontCollectionLoader {
+public:
+    // IUnknown methods
+    virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void** ppvObject);
+    virtual ULONG STDMETHODCALLTYPE AddRef();
+    virtual ULONG STDMETHODCALLTYPE Release();
+
+    // IDWriteFontCollectionLoader methods
+    virtual HRESULT STDMETHODCALLTYPE CreateEnumeratorFromKey(
+        IDWriteFactory* factory,
+        void const* collectionKey,
+        UINT32 collectionKeySize,
+        IDWriteFontFileEnumerator** fontFileEnumerator);
+
+    static HRESULT Create(IDWriteFontFileLoader* fontFileLoader,
+                          StreamFontCollectionLoader** streamFontCollectionLoader) {
+        *streamFontCollectionLoader = new StreamFontCollectionLoader(fontFileLoader);
+        if (NULL == streamFontCollectionLoader) {
+            return E_OUTOFMEMORY;
+        }
+        return S_OK;
+    }
+private:
+    StreamFontCollectionLoader(IDWriteFontFileLoader* fontFileLoader)
+        : fRefCount(1)
+        , fFontFileLoader(fontFileLoader)
+    {
+        fontFileLoader->AddRef();
+    }
+
+    ULONG fRefCount;
+    SkTScopedComPtr<IDWriteFontFileLoader> fFontFileLoader;
+};
+
+HRESULT StreamFontCollectionLoader::QueryInterface(REFIID iid, void** ppvObject) {
+    if (iid == IID_IUnknown || iid == __uuidof(IDWriteFontCollectionLoader)) {
+        *ppvObject = this;
+        AddRef();
+        return S_OK;
+    } else {
+        *ppvObject = NULL;
+        return E_NOINTERFACE;
+    }
+}
+
+ULONG StreamFontCollectionLoader::AddRef() {
+    return InterlockedIncrement(&fRefCount);
+}
+
+ULONG StreamFontCollectionLoader::Release() {
+    ULONG newCount = InterlockedDecrement(&fRefCount);
+    if (0 == newCount) {
+        delete this;
+    }
+    return newCount;
+}
+
+HRESULT StreamFontCollectionLoader::CreateEnumeratorFromKey(
+    IDWriteFactory* factory,
+    void const* collectionKey,
+    UINT32 collectionKeySize,
+    IDWriteFontFileEnumerator** fontFileEnumerator)
+{
+    SkTScopedComPtr<StreamFontFileEnumerator> enumerator;
+    HR(StreamFontFileEnumerator::Create(factory, fFontFileLoader.get(), &enumerator));
+    *fontFileEnumerator = enumerator.release();
+    return S_OK;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 static SkTypeface::Style get_style(IDWriteFont* font) {
     int style = SkTypeface::kNormal;
     DWRITE_FONT_WEIGHT weight = font->GetWeight();
@@ -199,7 +430,7 @@ private:
                        IDWriteFontFace* fontFace,
                        IDWriteFont* font,
                        IDWriteFontFamily* fontFamily,
-                       IDWriteFontFileLoader* fontFileLoader = NULL,
+                       StreamFontFileLoader* fontFileLoader = NULL,
                        IDWriteFontCollectionLoader* fontCollectionLoader = NULL)
         : SkTypeface(style, fontID, false)
         , fDWriteFontCollectionLoader(fontCollectionLoader)
@@ -221,7 +452,7 @@ private:
 
 public:
     SkTScopedComPtr<IDWriteFontCollectionLoader> fDWriteFontCollectionLoader;
-    SkTScopedComPtr<IDWriteFontFileLoader> fDWriteFontFileLoader;
+    SkTScopedComPtr<StreamFontFileLoader> fDWriteFontFileLoader;
     SkTScopedComPtr<IDWriteFontFamily> fDWriteFontFamily;
     SkTScopedComPtr<IDWriteFont> fDWriteFont;
     SkTScopedComPtr<IDWriteFontFace> fDWriteFontFace;
@@ -229,11 +460,12 @@ public:
     static DWriteFontTypeface* Create(IDWriteFontFace* fontFace,
                                       IDWriteFont* font,
                                       IDWriteFontFamily* fontFamily,
-                                      IDWriteFontFileLoader* fontFileLoader = NULL,
+                                      StreamFontFileLoader* fontFileLoader = NULL,
                                       IDWriteFontCollectionLoader* fontCollectionLoader = NULL) {
         SkTypeface::Style style = get_style(font);
         SkFontID fontID = SkTypefaceCache::NewFontID();
-        return SkNEW_ARGS(DWriteFontTypeface, (style, fontID, fontFace, font, fontFamily,
+        return SkNEW_ARGS(DWriteFontTypeface, (style, fontID,
+                                               fontFace, font, fontFamily,
                                                fontFileLoader, fontCollectionLoader));
     }
 
@@ -453,7 +685,7 @@ static bool FindByDWriteFont(SkTypeface* face, SkTypeface::Style requestedStyle,
 SkTypeface* SkCreateTypefaceFromDWriteFont(IDWriteFontFace* fontFace,
                                            IDWriteFont* font,
                                            IDWriteFontFamily* fontFamily,
-                                           IDWriteFontFileLoader* fontFileLoader = NULL,
+                                           StreamFontFileLoader* fontFileLoader = NULL,
                                            IDWriteFontCollectionLoader* fontCollectionLoader = NULL) {
     SkTypeface* face = SkTypefaceCache::FindByProcAndRef(FindByDWriteFont, font);
     if (face) {
@@ -821,239 +1053,60 @@ void SkScalerContext_Windows::generatePath(const SkGlyph& glyph, SkPath* path) {
          "Could not create glyph outline.");
 }
 
-void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
-    SkASSERT(!"SkFontHost::Serialize unimplemented");
+void SkFontHost::Serialize(const SkTypeface* rawFace, SkWStream* stream) {
+    const DWriteFontTypeface* face = static_cast<const DWriteFontTypeface*>(rawFace);
+    SkFontDescriptor descriptor(face->style());
+
+    // Get the family name.
+    SkTScopedComPtr<IDWriteLocalizedStrings> dwFamilyNames;
+    HRV(face->fDWriteFontFamily->GetFamilyNames(&dwFamilyNames));
+
+    UINT32 dwFamilyNamesLength;
+    HRV(dwFamilyNames->GetStringLength(0, &dwFamilyNamesLength));
+
+    SkTDArray<wchar_t> dwFamilyNameChar(new wchar_t[dwFamilyNamesLength+1], dwFamilyNamesLength+1);
+    HRV(dwFamilyNames->GetString(0, dwFamilyNameChar.begin(), dwFamilyNameChar.count()));
+
+    // Convert the family name to utf8.
+    // Get the buffer size needed first.
+    int str_len = WideCharToMultiByte(CP_UTF8, 0, dwFamilyNameChar.begin(), -1,
+                                      NULL, 0, NULL, NULL);
+    // Allocate a buffer (str_len already has terminating null accounted for).
+    SkTDArray<char> utf8FamilyName(new char[str_len], str_len);
+    // Now actually convert the string.
+    str_len = WideCharToMultiByte(CP_UTF8, 0, dwFamilyNameChar.begin(), -1,
+                                  utf8FamilyName.begin(), str_len, NULL, NULL);
+
+    descriptor.setFamilyName(utf8FamilyName.begin());
+    //TODO: FileName and PostScriptName currently unsupported.
+
+    descriptor.serialize(stream);
+
+    if (NULL != face->fDWriteFontFileLoader.get()) {
+        // store the entire font in the fontData
+        SkStream* fontStream = face->fDWriteFontFileLoader->fStream.get();
+        const uint32_t length = fontStream->getLength();
+
+        stream->writePackedUInt(length);
+        stream->writeStream(fontStream, length);
+    } else {
+        stream->writePackedUInt(0);
+    }
 }
 
 SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
-    SkASSERT(!"SkFontHost::Deserialize unimplemented");
-    return NULL;
-}
+    SkFontDescriptor descriptor(stream);
 
-class StreamFontFileLoader : public IDWriteFontFileLoader {
-public:
-    // IUnknown methods
-    virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void** ppvObject);
-    virtual ULONG STDMETHODCALLTYPE AddRef();
-    virtual ULONG STDMETHODCALLTYPE Release();
+    const uint32_t customFontDataLength = stream->readPackedUInt();
+    if (customFontDataLength > 0) {
+        // generate a new stream to store the custom typeface
+        SkAutoTUnref<SkMemoryStream> fontStream(SkNEW_ARGS(SkMemoryStream, (customFontDataLength - 1)));
+        stream->read((void*)fontStream->getMemoryBase(), customFontDataLength - 1);
 
-    // IDWriteFontFileLoader methods
-    virtual HRESULT STDMETHODCALLTYPE CreateStreamFromKey(
-        void const* fontFileReferenceKey,
-        UINT32 fontFileReferenceKeySize,
-        IDWriteFontFileStream** fontFileStream);
-
-    static HRESULT Create(SkStream* stream, StreamFontFileLoader** streamFontFileLoader) {
-        *streamFontFileLoader = new StreamFontFileLoader(stream);
-        if (NULL == streamFontFileLoader) {
-            return E_OUTOFMEMORY;
-        }
-        return S_OK;
-    }
-private:
-    StreamFontFileLoader(SkStream* stream) : fRefCount(1), fStream(stream) {
-        stream->ref();
+        return CreateTypefaceFromStream(fontStream.get());
     }
 
-    ULONG fRefCount;
-    SkAutoTUnref<SkStream> fStream;
-};
-
-HRESULT StreamFontFileLoader::QueryInterface(REFIID iid, void** ppvObject) {
-    if (iid == IID_IUnknown || iid == __uuidof(IDWriteFontFileLoader)) {
-        *ppvObject = this;
-        AddRef();
-        return S_OK;
-    } else {
-        *ppvObject = NULL;
-        return E_NOINTERFACE;
-    }
-}
-
-ULONG StreamFontFileLoader::AddRef() {
-    return InterlockedIncrement(&fRefCount);
-}
-
-ULONG StreamFontFileLoader::Release() {
-    ULONG newCount = InterlockedDecrement(&fRefCount);
-    if (0 == newCount) {
-        delete this;
-    }
-    return newCount;
-}
-
-HRESULT StreamFontFileLoader::CreateStreamFromKey(
-    void const* fontFileReferenceKey,
-    UINT32 fontFileReferenceKeySize,
-    IDWriteFontFileStream** fontFileStream)
-{
-    SkTScopedComPtr<SkDWriteFontFileStreamWrapper> stream;
-    HR(SkDWriteFontFileStreamWrapper::Create(fStream, &stream));
-    *fontFileStream = stream.release();
-    return S_OK;
-}
-
-class StreamFontFileEnumerator : public IDWriteFontFileEnumerator {
-public:
-    // IUnknown methods
-    virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void** ppvObject);
-    virtual ULONG STDMETHODCALLTYPE AddRef();
-    virtual ULONG STDMETHODCALLTYPE Release();
-
-    // IDWriteFontFileEnumerator methods
-    virtual HRESULT STDMETHODCALLTYPE MoveNext(BOOL* hasCurrentFile);
-    virtual HRESULT STDMETHODCALLTYPE GetCurrentFontFile(IDWriteFontFile** fontFile);
-
-    static HRESULT Create(IDWriteFactory* factory, IDWriteFontFileLoader* fontFileLoader,
-                          StreamFontFileEnumerator** streamFontFileEnumerator) {
-        *streamFontFileEnumerator = new StreamFontFileEnumerator(factory, fontFileLoader);
-        if (NULL == streamFontFileEnumerator) {
-            return E_OUTOFMEMORY;
-        }
-        return S_OK;
-    }
-private:
-    StreamFontFileEnumerator(IDWriteFactory* factory, IDWriteFontFileLoader* fontFileLoader);
-    ULONG fRefCount;
-
-    SkTScopedComPtr<IDWriteFactory> fFactory;
-    SkTScopedComPtr<IDWriteFontFile> fCurrentFile;
-    SkTScopedComPtr<IDWriteFontFileLoader> fFontFileLoader;
-    bool fHasNext;
-};
-
-StreamFontFileEnumerator::StreamFontFileEnumerator(IDWriteFactory* factory,
-                                                   IDWriteFontFileLoader* fontFileLoader)
-    : fRefCount(1)
-    , fFactory(factory)
-    , fCurrentFile()
-    , fFontFileLoader(fontFileLoader)
-    , fHasNext(true)
-{
-    factory->AddRef();
-    fontFileLoader->AddRef();
-}
-
-HRESULT StreamFontFileEnumerator::QueryInterface(REFIID iid, void** ppvObject) {
-    if (iid == IID_IUnknown || iid == __uuidof(IDWriteFontFileEnumerator)) {
-        *ppvObject = this;
-        AddRef();
-        return S_OK;
-    } else {
-        *ppvObject = NULL;
-        return E_NOINTERFACE;
-    }
-}
-
-ULONG StreamFontFileEnumerator::AddRef() {
-    return InterlockedIncrement(&fRefCount);
-}
-
-ULONG StreamFontFileEnumerator::Release() {
-    ULONG newCount = InterlockedDecrement(&fRefCount);
-    if (0 == newCount) {
-        delete this;
-    }
-    return newCount;
-}
-
-HRESULT StreamFontFileEnumerator::MoveNext(BOOL* hasCurrentFile) {
-    *hasCurrentFile = FALSE;
-
-    if (!fHasNext) {
-        return S_OK;
-    }
-    fHasNext = false;
-
-    UINT32 dummy = 0;
-    HR(fFactory->CreateCustomFontFileReference(
-            &dummy, //cannot be NULL
-            sizeof(dummy), //even if this is 0
-            fFontFileLoader.get(),
-            &fCurrentFile));
-
-    *hasCurrentFile = TRUE;
-    return S_OK;
-}
-
-HRESULT StreamFontFileEnumerator::GetCurrentFontFile(IDWriteFontFile** fontFile) {
-    if (fCurrentFile.get() == NULL) {
-        *fontFile = NULL;
-        return E_FAIL;
-    }
-
-    fCurrentFile.get()->AddRef();
-    *fontFile = fCurrentFile.get();
-    return  S_OK;
-}
-
-class StreamFontCollectionLoader : public IDWriteFontCollectionLoader {
-public:
-    // IUnknown methods
-    virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void** ppvObject);
-    virtual ULONG STDMETHODCALLTYPE AddRef();
-    virtual ULONG STDMETHODCALLTYPE Release();
-
-    // IDWriteFontCollectionLoader methods
-    virtual HRESULT STDMETHODCALLTYPE CreateEnumeratorFromKey(
-        IDWriteFactory* factory,
-        void const* collectionKey,
-        UINT32 collectionKeySize,
-        IDWriteFontFileEnumerator** fontFileEnumerator);
-
-    static HRESULT Create(IDWriteFontFileLoader* fontFileLoader,
-                          StreamFontCollectionLoader** streamFontCollectionLoader) {
-        *streamFontCollectionLoader = new StreamFontCollectionLoader(fontFileLoader);
-        if (NULL == streamFontCollectionLoader) {
-            return E_OUTOFMEMORY;
-        }
-        return S_OK;
-    }
-private:
-    StreamFontCollectionLoader(IDWriteFontFileLoader* fontFileLoader)
-        : fRefCount(1)
-        , fFontFileLoader(fontFileLoader)
-    {
-        fontFileLoader->AddRef();
-    }
-
-    ULONG fRefCount;
-    SkTScopedComPtr<IDWriteFontFileLoader> fFontFileLoader;
-};
-
-HRESULT StreamFontCollectionLoader::QueryInterface(REFIID iid, void** ppvObject) {
-    if (iid == IID_IUnknown || iid == __uuidof(IDWriteFontCollectionLoader)) {
-        *ppvObject = this;
-        AddRef();
-        return S_OK;
-    } else {
-        *ppvObject = NULL;
-        return E_NOINTERFACE;
-    }
-}
-
-ULONG StreamFontCollectionLoader::AddRef() {
-    return InterlockedIncrement(&fRefCount);
-}
-
-ULONG StreamFontCollectionLoader::Release() {
-    ULONG newCount = InterlockedDecrement(&fRefCount);
-    if (0 == newCount) {
-        delete this;
-    }
-    return newCount;
-}
-
-HRESULT StreamFontCollectionLoader::CreateEnumeratorFromKey(
-    IDWriteFactory* factory,
-    void const* collectionKey,
-    UINT32 collectionKeySize,
-    IDWriteFontFileEnumerator** fontFileEnumerator)
-{
-    SkTScopedComPtr<StreamFontFileEnumerator> enumerator;
-    HR(StreamFontFileEnumerator::Create(factory, fFontFileLoader.get(), &enumerator));
-    *fontFileEnumerator = enumerator.release();
-    return S_OK;
+    return SkFontHost::CreateTypeface(NULL, descriptor.getFamilyName(), descriptor.getStyle());
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
@@ -1205,8 +1258,7 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
     SkTScopedComPtr<IDWriteFontFace> fontFace;
     hr = font->CreateFontFace(&fontFace);
 
-    return SkCreateTypefaceFromDWriteFont(fontFace.get(), font.get(), fontFamily.get(),
-                                          fontFileLoader.get(), fontCollectionLoader.get());
+    return SkCreateTypefaceFromDWriteFont(fontFace.get(), font.get(), fontFamily.get());
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
