@@ -47,12 +47,12 @@ class PictFileView : public SampleView {
             if (stream.isValid()) {
                 pic = SkNEW_ARGS(SkPicture, (&stream));
             }
-            
+
             if (false) { // re-record
                 SkPicture p2;
                 pic->draw(p2.beginRecording(pic->width(), pic->height()));
                 p2.endRecording();
-                
+
                 SkString path2(path);
                 path2.append(".new.skp");
                 SkFILEWStream writer(path2.c_str());

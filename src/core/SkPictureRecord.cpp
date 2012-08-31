@@ -60,7 +60,7 @@ int SkPictureRecord::save(SaveFlags flags) {
     // record the offset to us, making it non-positive to distinguish a save
     // from a clip entry.
     fRestoreOffsetStack.push(-(int32_t)fWriter.size());
-    
+
     addDraw(SAVE);
     addInt(flags);
 
@@ -73,7 +73,7 @@ int SkPictureRecord::saveLayer(const SkRect* bounds, const SkPaint* paint,
     // record the offset to us, making it non-positive to distinguish a save
     // from a clip entry.
     fRestoreOffsetStack.push(-(int32_t)fWriter.size());
-    
+
     addDraw(SAVE_LAYER);
     addRectPtr(bounds);
     addPaintPtr(paint);
@@ -190,7 +190,7 @@ static bool collapseSaveClipRestore(SkWriter32* writer, int32_t offset) {
         }
         offset += opSize;
     }
-    
+
 #ifdef TRACK_COLLAPSE_STATS
     gCollapseCount += 1;
     SkDebugf("Collapse [%d out of %d] %g%spn", gCollapseCount, gCollapseCalls,
@@ -300,7 +300,7 @@ void SkPictureRecord::fillRestoreOffsetPlaceholdersForCurrentStackLevel(
         offset = *peek;
         *peek = restoreOffset;
     }
-    
+
 #ifdef SK_DEBUG
     // assert that the final offset value points to a save verb
     uint32_t drawOp = *fWriter.peek32(-offset);
