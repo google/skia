@@ -22,36 +22,32 @@
 class LineParameters {
 public:
     void cubicEndPoints(const Cubic& pts) {
-        a = pts[0].y - pts[3].y;
-        b = pts[3].x - pts[0].x;
-        c = pts[0].x * pts[3].y - pts[3].x * pts[0].y;
+        cubicEndPoints(pts, 0, 3);
     }
 
     void cubicEndPoints(const Cubic& pts, int s, int e) {
-        a = pts[s].y - pts[e].y;
-        b = pts[e].x - pts[s].x;
+        a = approximately_pin(pts[s].y - pts[e].y);
+        b = approximately_pin(pts[e].x - pts[s].x);
         c = pts[s].x * pts[e].y - pts[e].x * pts[s].y;
     }
 
     void lineEndPoints(const _Line& pts) {
-        a = pts[0].y - pts[1].y;
-        b = pts[1].x - pts[0].x;
+        a = approximately_pin(pts[0].y - pts[1].y);
+        b = approximately_pin(pts[1].x - pts[0].x);
         c = pts[0].x * pts[1].y - pts[1].x * pts[0].y;
     }
 
     void quadEndPoints(const Quadratic& pts) {
-        a = pts[0].y - pts[2].y;
-        b = pts[2].x - pts[0].x;
-        c = pts[0].x * pts[2].y - pts[2].x * pts[0].y;
+        quadEndPoints(pts, 0, 2);
     }
 
     void quadEndPoints(const Quadratic& pts, int s, int e) {
-        a = pts[s].y - pts[e].y;
-        b = pts[e].x - pts[s].x;
+        a = approximately_pin(pts[s].y - pts[e].y);
+        b = approximately_pin(pts[e].x - pts[s].x);
         c = pts[s].x * pts[e].y - pts[e].x * pts[s].y;
     }
 
-    double normalSquared() {
+    double normalSquared() const {
         return a * a + b * b;
     }
 
@@ -68,7 +64,7 @@ public:
         return true;
     }
 
-    void cubicDistanceY(const Cubic& pts, Cubic& distance) {
+    void cubicDistanceY(const Cubic& pts, Cubic& distance) const {
         double oneThird = 1 / 3.0;
         for (int index = 0; index < 4; ++index) {
             distance[index].x = index * oneThird;
@@ -76,7 +72,7 @@ public:
         }
     }
 
-    void quadDistanceY(const Quadratic& pts, Quadratic& distance) {
+    void quadDistanceY(const Quadratic& pts, Quadratic& distance) const {
         double oneHalf = 1 / 2.0;
         for (int index = 0; index < 3; ++index) {
             distance[index].x = index * oneHalf;
@@ -84,23 +80,31 @@ public:
         }
     }
 
-    void controlPtDistance(const Cubic& pts, double distance[2]) {
+    void controlPtDistance(const Cubic& pts, double distance[2]) const {
         for (int index = 0; index < 2; ++index) {
             distance[index] = a * pts[index + 1].x + b * pts[index + 1].y + c;
         }
     }
 
-    void controlPtDistance(const Cubic& pts, int i, int j, double distance[2]) {
+    void controlPtDistance(const Cubic& pts, int i, int j, double distance[2]) const {
         distance[0] = a * pts[i].x + b * pts[i].y + c;
         distance[1] = a * pts[j].x + b * pts[j].y + c;
     }
 
-    double controlPtDistance(const Quadratic& pts) {
+    double controlPtDistance(const Quadratic& pts) const {
         return a * pts[1].x + b * pts[1].y + c;
     }
 
-    double pointDistance(const _Point& pt) {
+    double pointDistance(const _Point& pt) const {
         return a * pt.x + b * pt.y + c;
+    }
+
+    double dx() const {
+        return b;
+    }
+
+    double dy() const {
+        return -a;
     }
 
 private:

@@ -146,7 +146,7 @@ bool intersectAsLine(double minT1, double maxT1, double minT2, double maxT2,
             smallT = interp(minT1, maxT1, t1[index]);
             largeT = interp(minT2, maxT2, t2[index]);
             if (pts == 2) {
-                intersections.addCoincident(smallT, largeT);
+                intersections.addCoincident(smallT, largeT, true);
             } else {
                 intersections.add(smallT, largeT);
             }
@@ -174,7 +174,7 @@ bool intersectAsLine(double minT1, double maxT1, double minT2, double maxT2,
                 largeT = interp(minT2, maxT2, largeT);
             }
             if (coincident) {
-                intersections.addCoincident(smallT, largeT);
+                intersections.addCoincident(smallT, largeT, true);
             } else {
                 intersections.add(smallT, largeT);
             }
@@ -227,28 +227,20 @@ bool intersect(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
         bool useVertical = fabs(q1[0].x - q1[2].x) < fabs(q1[0].y - q1[2].y);
         double t;
         if ((t = axialIntersect(q1, q2[0], useVertical)) >= 0) {
-            i.fT[0][0] = t;
-            i.fT[1][0] = 0;
-            i.fUsed++;
+            i.addCoincident(t, 0, false);
         }
         if ((t = axialIntersect(q1, q2[2], useVertical)) >= 0) {
-            i.fT[0][i.fUsed] = t;
-            i.fT[1][i.fUsed] = 1;
-            i.fUsed++;
+            i.addCoincident(t, 1, false);
         }
         useVertical = fabs(q2[0].x - q2[2].x) < fabs(q2[0].y - q2[2].y);
         if ((t = axialIntersect(q2, q1[0], useVertical)) >= 0) {
-            i.fT[0][i.fUsed] = 0;
-            i.fT[1][i.fUsed] = t;
-            i.fUsed++;
+            i.addCoincident(0, t, false);
         }
         if ((t = axialIntersect(q2, q1[2], useVertical)) >= 0) {
-            i.fT[0][i.fUsed] = 1;
-            i.fT[1][i.fUsed] = t;
-            i.fUsed++;
+            i.addCoincident(1, t, false);
         }
-        assert(i.fUsed <= 2);
-        return i.fUsed > 0;
+        assert(i.fCoincidentUsed <= 2);
+        return i.fCoincidentUsed > 0;
     }
     QuadraticIntersections q(q1, q2, i);
     return q.intersect();

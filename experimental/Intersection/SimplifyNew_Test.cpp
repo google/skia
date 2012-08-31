@@ -2525,12 +2525,26 @@ static void testQuadratic19() {
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = testQuadratic19;
+static void testQuadratic20() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.lineTo(0, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void (*firstTest)() = 0; // testQuadratic20;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(testQuadratic20),
     TEST(testQuadratic19),
     TEST(testQuadratic18),
     TEST(testQuadratic17x),
