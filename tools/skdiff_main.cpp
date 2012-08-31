@@ -1164,7 +1164,7 @@ static void print_diff_page (const int matchCount,
         "var fileMultiLineString = '';\n"
         "for (var i = 0; i < boxes.length; i++) {\n"
         "fileMultiLineString += boxes[i].name + '<br>';\n"
-        "fileCmdLineString += boxes[i].name + '&nbsp;';\n"  
+        "fileCmdLineString += boxes[i].name + '&nbsp;';\n"
         "}\n"
         "$(\"#checkedList\").html(fileCmdLineString + "
         "'<br><br>' + fileMultiLineString);\n"
