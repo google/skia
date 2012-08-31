@@ -161,6 +161,9 @@ uint32_t* SkWriter32::peek32(size_t offset) {
 }
 
 void SkWriter32::rewindToOffset(size_t offset) {
+    if (offset >= fSize) {
+        return;
+    }
     if (0 == offset) {
         this->reset(NULL, 0);
         return;
@@ -179,19 +182,20 @@ void SkWriter32::rewindToOffset(size_t offset) {
     // Similar to peek32, except that we free up any following blocks
     Block* block = fHead;
     SkASSERT(NULL != block);
-
     while (offset >= block->fAllocatedSoFar) {
         offset -= block->fAllocatedSoFar;
         block = block->fNext;
         SkASSERT(NULL != block);
     }
 
-    fTail = block;
+    // update the size on the "last" block
     block->fAllocatedSoFar = offset;
-
-    // free up any following blocks
-    SkASSERT(block);
-    block = block->fNext;
+    // end our list
+    fTail = block;
+    Block* next = block->fNext;
+    block->fNext = NULL;
+    // free up any trailing blocks
+    block = next;
     while (block) {
         Block* next = block->fNext;
         sk_free(block);

@@ -37,6 +37,20 @@ static void test_rewind(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, sizeof(array) == writer.bytesWritten());
     array[2] = 3;
     check_contents(reporter, writer, array, sizeof(array));
+
+    // test rewinding past allocated chunks. This used to crash because we
+    // didn't truncate our link-list after freeing trailing blocks
+    {
+        SkWriter32 writer(64);
+        for (int i = 0; i < 100; ++i) {
+            writer.writeInt(i);
+        }
+        REPORTER_ASSERT(reporter, 100*4 == writer.bytesWritten());
+        for (int j = 100*4; j >= 0; j -= 16) {
+            writer.rewindToOffset(j);
+        }
+        REPORTER_ASSERT(reporter, writer.bytesWritten() < 16);
+    }
 }
 
 static void test_ptr(skiatest::Reporter* reporter) {
