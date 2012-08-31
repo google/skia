@@ -125,6 +125,14 @@ public:
         return fRenderer.getTileMinPowerOf2Width();
     }
 
+    void setThreading(bool multi) {
+        fRenderer.setMultiThreaded(multi);
+    }
+
+    void setUsePipe(bool usePipe) {
+        fRenderer.setUsePipe(usePipe);
+    }
+
 private:
     TiledPictureRenderer fRenderer;
     typedef PictureBenchmark INHERITED;

@@ -125,12 +125,14 @@
         '../src/pipe/utils/SamplePipeControllers.cpp',
      ],
      'include_dirs': [
-       '../src/pipe/utils',
+       '../src/pipe/utils/',
+       '../src/utils/',
      ],
      'dependencies': [
         'core.gyp:core',
         'images.gyp:images',
         'tools.gyp:picture_utils',
+        'utils.gyp:utils',
      ],
      'export_dependent_settings': [
        'images.gyp:images',

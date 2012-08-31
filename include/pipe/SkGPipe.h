@@ -95,12 +95,19 @@ public:
          *  (for example) we cannot put function pointers in the stream.
          */
         kCrossProcess_Flag              = 1 << 0,
+
         /**
          *  Only meaningful if kCrossProcess_Flag is set. Tells the writer that
          *  in spite of being cross process, it will have shared address space
-         *  with the reader, so the two can share large objects (like SkBitmaps)
+         *  with the reader, so the two can share large objects (like SkBitmaps).
          */
-        kSharedAddressSpace_Flag        = 1 << 1
+        kSharedAddressSpace_Flag        = 1 << 1,
+
+        /**
+         *  Tells the writer that there will be multiple threads reading the stream
+         *  simultaneously.
+         */
+        kSimultaneousReaders_Flag       = 1 << 2,
     };
 
     SkCanvas* startRecording(SkGPipeController*, uint32_t flags = 0,

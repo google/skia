@@ -6,7 +6,9 @@
  */
 
 #include "SkBitmap.h"
+#include "SkChunkAlloc.h"
 #include "SkGPipe.h"
+#include "SkTDArray.h"
 
 class SkCanvas;
 class SkMatrix;
@@ -42,4 +44,42 @@ private:
     SkGPipeReader fReaders[NumberOfTiles - 1];
     SkBitmap fBitmaps[NumberOfTiles];
     typedef PipeController INHERITED;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Borrowed (and modified) from SkDeferredCanvas.cpp::DeferredPipeController.
+ * Allows playing back from multiple threads.
+ */
+class DeferredPipeController : public SkGPipeController {
+public:
+    DeferredPipeController(int numberOfReaders);
+    virtual void* requestBlock(size_t minRequest, size_t* actual) SK_OVERRIDE;
+    virtual void notifyWritten(size_t bytes) SK_OVERRIDE;
+    virtual int numberOfReaders() const SK_OVERRIDE { return fNumberOfReaders; }
+
+    /**
+     * Play the stored drawing commands to the specified canvas. If SkGPipeWriter::startRecording
+     * used the flag SkGPipeWriter::kSimultaneousReaders_Flag, this can be called from different
+     * threads simultaneously.
+     */
+    void playback(SkCanvas*);
+private:
+    enum {
+        kMinBlockSize = 4096
+    };
+    struct PipeBlock {
+        PipeBlock(void* block, size_t bytes) { fBlock = block, fBytes = bytes; }
+        // Stream of draw commands written by the SkGPipeWriter. Allocated by fAllocator, which will
+        // handle freeing it.
+        void* fBlock;
+        // Number of bytes that were written to fBlock.
+        size_t fBytes;
+    };
+    void* fBlock;
+    size_t fBytesWritten;
+    SkChunkAlloc fAllocator;
+    SkTDArray<PipeBlock> fBlockList;
+    int fNumberOfReaders;
 };

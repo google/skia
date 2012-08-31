@@ -93,10 +93,10 @@ private:
 template <typename T> class SkAutoTDeleteArray : SkNoncopyable {
 public:
     SkAutoTDeleteArray(T array[]) : fArray(array) {}
-    ~SkAutoTDeleteArray() { delete[] fArray; }
+    ~SkAutoTDeleteArray() { SkDELETE_ARRAY(fArray); }
 
     T*      get() const { return fArray; }
-    void    free() { delete[] fArray; fArray = NULL; }
+    void    free() { SkDELETE_ARRAY(fArray); fArray = NULL; }
     T*      detach() { T* array = fArray; fArray = NULL; return array; }
 
 private:

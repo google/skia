@@ -426,17 +426,32 @@ public:
 private:
     SkBitmapHeapEntry* fHeapEntry;
     const SkBitmap*    fBitmap;
+    SkBitmap           fBitmapStorage;
 };
 
 BitmapHolder::BitmapHolder(SkReader32* reader, uint32_t op32,
                            SkGPipeState* state) {
-    unsigned index = DrawOp_unpackData(op32);
-    if (shouldFlattenBitmaps(state->getFlags())) {
+    const unsigned flags = state->getFlags();
+    const unsigned index = DrawOp_unpackData(op32);
+    if (shouldFlattenBitmaps(flags)) {
         fHeapEntry = NULL;
         fBitmap = state->getBitmap(index);
     } else {
-        fHeapEntry = state->getSharedHeap()->getEntry(index);
-        fBitmap = fHeapEntry->getBitmap();
+        SkBitmapHeapEntry* entry = state->getSharedHeap()->getEntry(index);
+        if (SkToBool(flags & SkGPipeWriter::kSimultaneousReaders_Flag)) {
+            // Make a shallow copy for thread safety. Each thread will point to the same SkPixelRef,
+            // which is thread safe.
+            fBitmapStorage = *entry->getBitmap();
+            fBitmap = &fBitmapStorage;
+            // Release the ref on the bitmap now, since we made our own copy.
+            entry->releaseRef();
+            fHeapEntry = NULL;
+        } else {
+            SkASSERT(!shouldFlattenBitmaps(flags));
+            SkASSERT(!SkToBool(flags & SkGPipeWriter::kSimultaneousReaders_Flag));
+            fHeapEntry = entry;
+            fBitmap = fHeapEntry->getBitmap();
+        }
     }
 }
 

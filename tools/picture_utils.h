@@ -34,7 +34,7 @@ namespace sk_tools {
     void get_basename(SkString* basename, const SkString& path);
 
     // Returns true if the string ends with %
-    bool is_percentage(char* const string);
+    bool is_percentage(const char* const string);
 
     // Prints to STDOUT so that test results can be easily seperated from the
     // error stream. Note, that this still prints to the same stream as SkDebugf

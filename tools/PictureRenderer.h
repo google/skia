@@ -163,12 +163,30 @@ public:
         return fTiles.count();
     }
 
+    void setMultiThreaded(bool multi) {
+        fMultiThreaded = multi;
+    }
+
+    bool isMultiThreaded() const {
+        return fMultiThreaded;
+    }
+
+    void setUsePipe(bool usePipe) {
+        fUsePipe = usePipe;
+    }
+
+    bool isUsePipe() const {
+        return fUsePipe;
+    }
+
     ~TiledPictureRenderer();
 
 protected:
     virtual void finishDraw();
 
 private:
+    bool fMultiThreaded;
+    bool fUsePipe;
     int fTileWidth;
     int fTileHeight;
     double fTileWidthPercentage;
