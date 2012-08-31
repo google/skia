@@ -11,6 +11,7 @@
 #ifndef GrResourceCache_DEFINED
 #define GrResourceCache_DEFINED
 
+#include "GrConfig.h"
 #include "GrTypes.h"
 #include "GrTHashCache.h"
 #include "SkTDLinkedList.h"
@@ -297,9 +298,12 @@ public:
 
 #if GR_DEBUG
     void validate() const;
-    void printStats() const;
 #else
     void validate() const {}
+#endif
+
+#if GR_CACHE_STATS
+    void printStats() const;
 #endif
 
 private:
@@ -326,7 +330,7 @@ private:
     size_t fMaxBytes;
 
     // our current stats, related to our budget
-#if GR_DEBUG
+#if GR_CACHE_STATS
     int fHighWaterEntryCount;
     int fHighWaterUnlockedEntryCount;
     size_t fHighWaterEntryBytes;

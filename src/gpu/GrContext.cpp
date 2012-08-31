@@ -1964,7 +1964,7 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-#if GR_DEBUG
+#if GR_CACHE_STATS
 void GrContext::printCacheStats() const {
     fTextureCache->printStats();
 }
