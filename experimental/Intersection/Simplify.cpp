@@ -469,7 +469,7 @@ public:
     // longer curve on either side of the shorter one.
     // Using Bezier curve focus http://cagd.cs.byu.edu/~tom/papers/bezclip.pdf
     // may provide some help, but nothing has been figured out yet.
-    
+
  //   start here
     /*(
     for quads and cubics, set up a parameterized line (e.g. LineParameters )
@@ -477,7 +477,7 @@ public:
     or the other. If it both quads' end points are on the same side, choose
     the shorter tangent. If the tangents are equal, choose the better second
     tangent angle
-    
+
     maybe I set up LineParameters lazily
     */
     bool operator<(const Angle& rh) const {
