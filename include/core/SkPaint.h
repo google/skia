@@ -950,12 +950,15 @@ private:
                         void (*proc)(const SkDescriptor*, void*),
                         void* context, bool ignoreGamma = false) const;
 
+    static void Term();
+
     enum {
         kCanonicalTextSizeForPaths = 64
     };
     friend class SkAutoGlyphCache;
     friend class SkCanvas;
     friend class SkDraw;
+    friend class SkGraphics; // So Term() can be called.
     friend class SkPDFDevice;
     friend class SkTextToPathIter;
 
