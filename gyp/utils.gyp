@@ -164,6 +164,14 @@
             '../src/utils/win/SkIStream.cpp',
           ],
         }],
+        [ 'skia_nacl == 1', {
+          'sources': [
+            '../src/utils/SkThreadUtils_pthread_other.cpp',
+          ],
+          'sources!': [
+            '../src/utils/SkThreadUtils_pthread_linux.cpp',
+          ],
+        }],
       ],
       'direct_dependent_settings': {
         'include_dirs': [
