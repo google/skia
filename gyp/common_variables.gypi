@@ -67,7 +67,6 @@
       'skia_scalar%': 'float',
       'skia_mesa%': 0,
       'skia_nv_path_rendering%': 0,
-      # Do not turn on 'skia_angle' - it is currently experimental
       'skia_angle%': 0,
       'skia_arch_type%': 'x86',
       'skia_directwrite%': 0,
