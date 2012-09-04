@@ -332,8 +332,14 @@ void GrResourceCache::purgeAsNeeded() {
     if (!fPurging) {
         fPurging = true;
         bool withinBudget = false;
+        int priorUnlockedEntryCount = 0;
+
+        // The purging process is repeated several times since one pass
+        // may free up other resources
         do {
             EntryList::Iter iter;
+
+            priorUnlockedEntryCount = fUnlockedEntryCount;
 
             // Note: the following code relies on the fact that the
             // doubly linked list doesn't invalidate its data/pointers
@@ -349,7 +355,7 @@ void GrResourceCache::purgeAsNeeded() {
                 }
 
                 GrResourceEntry* prev = iter.prev();
-                if (!entry->isLocked()) {
+                if (!entry->isLocked() && entry->fResource->getRefCnt() == 1) {
                     // remove from our cache
                     fCache.remove(entry->key(), entry);
 
@@ -367,7 +373,7 @@ void GrResourceCache::purgeAsNeeded() {
                 }
                 entry = prev;
             }
-        } while (!withinBudget && fUnlockedEntryCount);
+        } while (!withinBudget && (fUnlockedEntryCount != priorUnlockedEntryCount));
         fPurging = false;
     }
 }
