@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2009 The Android Open Source Project
  *
@@ -9,6 +8,7 @@
 
 #include "SkBitmapProcState.h"
 #include "SkColorPriv.h"
+#include "SkTypes.h"
 #include "SkUtils.h"
 
 #if SK_ARM_ARCH >= 6 && !defined(SK_CPU_BENDIAN)
