@@ -27,6 +27,7 @@
     '../bench/PathIterBench.cpp',
     '../bench/PicturePlaybackBench.cpp',
     '../bench/PictureRecordBench.cpp',
+    '../bench/ReadPixBench.cpp',
     '../bench/RectBench.cpp',
     '../bench/RefCntBench.cpp',
     '../bench/RegionBench.cpp',
