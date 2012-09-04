@@ -922,6 +922,9 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
 
     if (find_name_and_attributes(stream, NULL, &style, &isFixedWidth)) {
         SkAutoMutexAcquire  ac(gFamilyHeadAndNameListMutex);
+        // Make sure system fonts are loaded to comply with the assumption of
+        // unique id offset by one in find_uniqueID.
+        load_system_fonts();
         return SkNEW_ARGS(StreamTypeface, (style, false, NULL, stream, isFixedWidth));
     } else {
         return NULL;
