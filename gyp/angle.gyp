@@ -1,25 +1,35 @@
 # ANGLE is the Windows-specific translator from OGL ES 2.0 to D3D 9
 
 {
+  'conditions': [
+    [ 'skia_angle', {
+      'target_defaults': {
+        'defines': [
+          'NOMINMAX',
+        ],
+      },
+      'variables': {
+        'component': 'static_library',
+      },
+      'includes': [
+        '../third_party/externals/angle/src/build_angle.gypi',
+      ],
+    }],
+  ],
   'targets': [
     {
       'target_name': 'angle',
       'type': 'none',
-
       'conditions': [
         [ 'skia_angle', {
           'direct_dependent_settings': {
-             'libraries': [
-               '../../third_party/externals/angle/lib/Debug/libEGL.lib',
-               '../../third_party/externals/angle/lib/Debug/libGLESv2.lib',
-             ],
-             'include_dirs': [
-               '../third_party/externals/angle/include'
-             ],
+            'include_dirs': [
+              '../third_party/externals/angle/include',
+            ],
           },
         }],
-      ]
-    }
+      ],
+    },
   ],
 }
 
