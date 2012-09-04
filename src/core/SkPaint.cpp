@@ -1621,51 +1621,53 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
  */
 SK_DECLARE_STATIC_MUTEX(gMaskGammaCacheMutex);
 
+static SkColorSpaceLuminance* gDeviceLuminance = NULL;
+static SkScalar gDeviceGammaExponent = SK_ScalarMin;
 /**
  * The caller must hold the gMaskGammaCacheMutex and continue to hold it until
- * the returned SkColorSpaceLuminance pointer is refed or forgotten.
+ * the returned SkColorSpaceLuminance pointer is forgotten.
  */
 static SkColorSpaceLuminance* cachedDeviceLuminance(SkScalar gammaExponent) {
-    static SkColorSpaceLuminance* gDeviceLuminance = NULL;
-    static SkScalar gGammaExponent = SK_ScalarMin;
-    if (gGammaExponent != gammaExponent) {
+    if (gDeviceGammaExponent != gammaExponent) {
+        SkDELETE(gDeviceLuminance);
         if (0 == gammaExponent) {
             gDeviceLuminance = SkNEW(SkSRGBLuminance);
         } else {
             gDeviceLuminance = SkNEW_ARGS(SkGammaLuminance, (gammaExponent));
         }
-        gGammaExponent = gammaExponent;
+        gDeviceGammaExponent = gammaExponent;
     }
     return gDeviceLuminance;
 }
 
+static SkColorSpaceLuminance* gPaintLuminance = NULL;
+static SkScalar gPaintGammaExponent = SK_ScalarMin;
 /**
  * The caller must hold the gMaskGammaCacheMutex and continue to hold it until
- * the returned SkColorSpaceLuminance pointer is refed or forgotten.
+ * the returned SkColorSpaceLuminance pointer is forgotten.
  */
 static SkColorSpaceLuminance* cachedPaintLuminance(SkScalar gammaExponent) {
-    static SkColorSpaceLuminance* gPaintLuminance = NULL;
-    static SkScalar gGammaExponent = SK_ScalarMin;
-    if (gGammaExponent != gammaExponent) {
+    if (gPaintGammaExponent != gammaExponent) {
+        SkDELETE(gPaintLuminance);
         if (0 == gammaExponent) {
             gPaintLuminance = SkNEW(SkSRGBLuminance);
         } else {
             gPaintLuminance = SkNEW_ARGS(SkGammaLuminance, (gammaExponent));
         }
-        gGammaExponent = gammaExponent;
+        gPaintGammaExponent = gammaExponent;
     }
     return gPaintLuminance;
 }
 
+static SkMaskGamma* gMaskGamma = NULL;
+static SkScalar gContrast = SK_ScalarMin;
+static SkScalar gPaintGamma = SK_ScalarMin;
+static SkScalar gDeviceGamma = SK_ScalarMin;
 /**
  * The caller must hold the gMaskGammaCacheMutex and continue to hold it until
  * the returned SkMaskGamma pointer is refed or forgotten.
  */
 static SkMaskGamma* cachedMaskGamma(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma) {
-    static SkMaskGamma* gMaskGamma = NULL;
-    static SkScalar gContrast = SK_ScalarMin;
-    static SkScalar gPaintGamma = SK_ScalarMin;
-    static SkScalar gDeviceGamma = SK_ScalarMin;
     if (gContrast != contrast || gPaintGamma != paintGamma || gDeviceGamma != deviceGamma) {
         SkSafeUnref(gMaskGamma);
         SkColorSpaceLuminance* paintLuminance = cachedPaintLuminance(paintGamma);
@@ -1676,6 +1678,23 @@ static SkMaskGamma* cachedMaskGamma(SkScalar contrast, SkScalar paintGamma, SkSc
         gDeviceGamma = deviceGamma;
     }
     return gMaskGamma;
+}
+
+/*static*/ void SkPaint::Term() {
+    SkAutoMutexAcquire ama(gMaskGammaCacheMutex);
+
+    SkSafeUnref(gMaskGamma);
+    SkDEBUGCODE(gContrast = SK_ScalarMin;)
+    SkDEBUGCODE(gPaintGamma = SK_ScalarMin;)
+    SkDEBUGCODE(gDeviceGamma = SK_ScalarMin;)
+
+    SkDELETE(gPaintLuminance);
+    SkDEBUGCODE(gPaintLuminance = NULL;)
+    SkDEBUGCODE(gPaintGammaExponent = SK_ScalarMin;)
+
+    SkDELETE(gDeviceLuminance);
+    SkDEBUGCODE(gDeviceLuminance = NULL;)
+    SkDEBUGCODE(gDeviceGammaExponent = SK_ScalarMin;)
 }
 
 /**
