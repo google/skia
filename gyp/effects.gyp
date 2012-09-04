@@ -18,6 +18,9 @@
       'dependencies': [
         'core.gyp:core',
       ],
+      'sources': [
+        'effects.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
+      ],
       'conditions': [
         ['skia_gpu == 1', {
           'include_dirs': [

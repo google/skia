@@ -133,7 +133,7 @@
         '<@(skgr_mesa_gl_sources)',
         '<@(skgr_debug_gl_sources)',
         '<@(skgr_null_gl_sources)',
-        'gpu.gypi',
+        'gpu.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
       ],
       'conditions': [
         [ 'not skia_mesa', {
@@ -181,7 +181,7 @@
         '<@(gr_mesa_gl_sources)',
         '<@(gr_debug_gl_sources)',
         '<@(gr_null_gl_sources)',
-        'gpu.gypi',
+        'gpu.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
       ],
       'defines': [
         'GR_IMPLEMENTATION=1',

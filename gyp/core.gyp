@@ -19,6 +19,9 @@
         '../src/core',
         '../src/image',
       ],
+      'sources': [
+        'core.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
+      ],
       'msvs_disabled_warnings': [4244, 4267,4345, 4390, 4554, 4800],
       'conditions': [
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
