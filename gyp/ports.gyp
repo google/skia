@@ -37,23 +37,36 @@
       ],
       'conditions': [
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
-          'defines': [
-            #The font host requires at least FreeType 2.3.0 at runtime.
-            'SK_FONTHOST_FREETYPE_RUNTIME_VERSION=0x020300',
-            'SK_CAN_USE_DLOPEN=1',
+          'conditions': [
+            [ 'skia_nacl', {
+              'defines': [
+                'SK_CAN_USE_DLOPEN=0',
+              ],
+              'sources': [
+                '../src/ports/SkFontHost_none.cpp',
+              ],
+            }, {
+              'defines': [
+                #The font host requires at least FreeType 2.3.0 at runtime.
+                'SK_FONTHOST_FREETYPE_RUNTIME_VERSION=0x020300',
+                'SK_CAN_USE_DLOPEN=1',
+              ],
+              'sources': [
+                '../src/ports/SkFontHost_FreeType.cpp',
+                '../src/ports/SkFontHost_FreeType_common.cpp',
+                '../src/ports/SkFontHost_linux.cpp',
+              ],
+              'link_settings': {
+                'libraries': [
+                  '-lfreetype',
+                  '-ldl',
+                ],
+              },
+            }],
           ],
           'sources': [
             '../src/ports/SkThread_pthread.cpp',
-            '../src/ports/SkFontHost_FreeType.cpp',
-            '../src/ports/SkFontHost_FreeType_common.cpp',
-            '../src/ports/SkFontHost_linux.cpp',
           ],
-          'link_settings': {
-            'libraries': [
-              '-lfreetype',
-              '-ldl',
-            ],
-          },
         }],
         [ 'skia_os == "mac"', {
           'include_dirs': [
