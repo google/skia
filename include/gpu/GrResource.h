@@ -12,6 +12,8 @@
 
 #include "GrRefCnt.h"
 
+#include "SkTDLinkedList.h"
+
 class GrGpu;
 class GrContext;
 class GrResourceEntry;
@@ -80,14 +82,17 @@ protected:
 
 private:
 
-    friend class GrGpu; // GrGpu manages list of resources.
+#if GR_DEBUG
+    friend class GrGpu; // for assert in GrGpu to access getGpu
+#endif
 
     GrGpu*      fGpu;       // not reffed. The GrGpu can be deleted while there
                             // are still live GrResources. It will call
                             // release() on all such resources in its
                             // destructor.
-    GrResource* fNext;      // dl-list of resources per-GrGpu
-    GrResource* fPrevious;
+
+    // we're a dlinklist
+    SK_DEFINE_DLINKEDLIST_INTERFACE(GrResource);
 
     GrResourceEntry* fCacheEntry;  // NULL if not in cache
 

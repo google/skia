@@ -48,6 +48,7 @@ public:
     }
 
     void remove(T* entry) {
+        SkASSERT(NULL != fHead && NULL != fTail);
         SkASSERT(this->isInList(entry));
 
         T* prev = entry->fPrev;

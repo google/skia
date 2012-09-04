@@ -554,7 +554,8 @@ private:
 
     bool                        fContextIsDirty;
 
-    GrResource*                 fResourceHead;
+    typedef SkTDLinkedList<GrResource> ResourceList;
+    ResourceList                fResourceList;
 
     // Given a rt, find or create a stencil buffer and attach it
     bool attachStencilBufferToRenderTarget(GrRenderTarget* target);
