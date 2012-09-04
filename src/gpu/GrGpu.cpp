@@ -37,8 +37,7 @@ GrGpu::GrGpu()
     , fIndexPoolUseCnt(0)
     , fQuadIndexBuffer(NULL)
     , fUnitSquareVertexBuffer(NULL)
-    , fContextIsDirty(true)
-    , fResourceHead(NULL) {
+    , fContextIsDirty(true) {
 
     fClipMaskManager.setGpu(this);
 
@@ -68,8 +67,8 @@ void GrGpu::abandonResources() {
 
     fClipMaskManager.releaseResources();
 
-    while (NULL != fResourceHead) {
-        fResourceHead->abandon();
+    while (NULL != fResourceList.head()) {
+        fResourceList.head()->abandon();
     }
 
     GrAssert(NULL == fQuadIndexBuffer || !fQuadIndexBuffer->isValid());
@@ -87,8 +86,8 @@ void GrGpu::releaseResources() {
 
     fClipMaskManager.releaseResources();
 
-    while (NULL != fResourceHead) {
-        fResourceHead->release();
+    while (NULL != fResourceList.head()) {
+        fResourceList.head()->release();
     }
 
     GrAssert(NULL == fQuadIndexBuffer || !fQuadIndexBuffer->isValid());
@@ -105,33 +104,15 @@ void GrGpu::releaseResources() {
 void GrGpu::insertResource(GrResource* resource) {
     GrAssert(NULL != resource);
     GrAssert(this == resource->getGpu());
-    GrAssert(NULL == resource->fNext);
-    GrAssert(NULL == resource->fPrevious);
 
-    resource->fNext = fResourceHead;
-    if (NULL != fResourceHead) {
-        GrAssert(NULL == fResourceHead->fPrevious);
-        fResourceHead->fPrevious = resource;
-    }
-    fResourceHead = resource;
+    fResourceList.addToHead(resource);
 }
 
 void GrGpu::removeResource(GrResource* resource) {
     GrAssert(NULL != resource);
-    GrAssert(NULL != fResourceHead);
+    GrAssert(this == resource->getGpu());
 
-    if (fResourceHead == resource) {
-        GrAssert(NULL == resource->fPrevious);
-        fResourceHead = resource->fNext;
-    } else {
-        GrAssert(NULL != fResourceHead);
-        resource->fPrevious->fNext = resource->fNext;
-    }
-    if (NULL != resource->fNext) {
-        resource->fNext->fPrevious = resource->fPrevious;
-    }
-    resource->fNext = NULL;
-    resource->fPrevious = NULL;
+    fResourceList.remove(resource);
 }
 
 
