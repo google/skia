@@ -182,35 +182,71 @@ class MakeDashBench : public SkBenchmark {
     SkString fName;
     SkPath   fPath;
     SkAutoTUnref<SkPathEffect> fPE;
-
+    
     enum {
         N = SkBENCHLOOP(400)
     };
-
+    
 public:
     MakeDashBench(void* param, void (*proc)(SkPath*), const char name[]) : INHERITED(param) {
         fName.printf("makedash_%s", name);
         proc(&fPath);
-
+        
         SkScalar vals[] = { SkIntToScalar(4), SkIntToScalar(4) };
         fPE.reset(new SkDashPathEffect(vals, 2, 0));
     }
-
+    
 protected:
     virtual const char* onGetName() SK_OVERRIDE {
         return fName.c_str();
     }
-
+    
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPath dst;
         for (int i = 0; i < N; ++i) {
             SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
-
+            
             fPE->filterPath(&dst, fPath, &rec);
             dst.rewind();
         }
     }
+    
+private:
+    typedef SkBenchmark INHERITED;
+};
 
+class DashLineBench : public SkBenchmark {
+    SkString fName;
+    SkPath   fPath;
+    SkAutoTUnref<SkPathEffect> fPE;
+    
+    enum {
+        N = SkBENCHLOOP(200)
+    };
+    
+public:
+    DashLineBench(void* param) : INHERITED(param) {
+        fName.printf("dashline");
+        
+        SkScalar vals[] = { SkIntToScalar(1), SkIntToScalar(1) };
+        fPE.reset(new SkDashPathEffect(vals, 2, 0));
+    }
+    
+protected:
+    virtual const char* onGetName() SK_OVERRIDE {
+        return fName.c_str();
+    }
+    
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        SkPaint paint;
+        this->setupPaint(&paint);
+        paint.setStrokeWidth(1);
+        paint.setPathEffect(fPE);
+        for (int i = 0; i < N; ++i) {
+            canvas->drawLine(10, 10, 640, 10, paint);
+        }
+    }
+    
 private:
     typedef SkBenchmark INHERITED;
 };
@@ -228,6 +264,7 @@ static SkBenchmark* gF3(void* p) { return new DashBench(p, PARAM(gDots), 4); }
 static SkBenchmark* gF4(void* p) { return new MakeDashBench(p, make_poly, "poly"); }
 static SkBenchmark* gF5(void* p) { return new MakeDashBench(p, make_quad, "quad"); }
 static SkBenchmark* gF6(void* p) { return new MakeDashBench(p, make_cubic, "cubic"); }
+static SkBenchmark* gF7(void* p) { return new DashLineBench(p); }
 
 static BenchRegistry gR0(gF0);
 static BenchRegistry gR1(gF1);
@@ -236,3 +273,4 @@ static BenchRegistry gR3(gF3);
 static BenchRegistry gR4(gF4);
 static BenchRegistry gR5(gF5);
 static BenchRegistry gR6(gF6);
+static BenchRegistry gR7(gF7);
