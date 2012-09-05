@@ -762,13 +762,12 @@ public:
      * Stencil buffers add themselves to the cache using
      * addAndLockStencilBuffer. When a SB's RT-attachment count
      * reaches zero the SB unlocks itself using unlockStencilBuffer and is
-     * eligible for purging. findStencilBuffer is called to check the cache for
-     * a SB that matching an RT's criteria. If a match is found that has been
-     * unlocked (its attachment count has reached 0) then it will be relocked.
+     * eligible for purging. findAndLockStencilBuffer is called to check the
+     * cache for a SB that matches an RT's criteria. 
      */
     void addAndLockStencilBuffer(GrStencilBuffer* sb);
     void unlockStencilBuffer(GrStencilBuffer* sb);
-    GrStencilBuffer* findStencilBuffer(int width, int height, int sampleCnt);
+    GrStencilBuffer* findAndLockStencilBuffer(int width, int height, int sampleCnt);
 
     GrPathRenderer* getPathRenderer(const SkPath& path,
                                     GrPathFill fill,

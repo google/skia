@@ -80,8 +80,8 @@ public:
 
 protected:
     // override of GrResource
-    virtual void onAbandon();
-    virtual void onRelease();
+    virtual void onAbandon() SK_OVERRIDE;
+    virtual void onRelease() SK_OVERRIDE;
 
 private:
     GrGLuint      fRTFBOID;

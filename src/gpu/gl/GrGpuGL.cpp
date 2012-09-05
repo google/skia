@@ -1110,8 +1110,10 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
                              samples, format));
             if (this->attachStencilBufferToRenderTarget(sb, rt)) {
                 fLastSuccessfulStencilFmtIdx = sIdx;
+                // This code transfers the creation ref to the
+                // cache and then adds a ref for the render target
+                sb->transferToCacheAndLock();
                 rt->setStencilBuffer(sb);
-                sb->unref();
                 return true;
            }
            sb->abandon(); // otherwise we lose sbID

@@ -216,8 +216,7 @@ GrTexture* GrContext::findAndLockTexture(const GrTextureDesc& desc,
                                          const GrCacheData& cacheData,
                                          const GrTextureParams* params) {
     GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, cacheData, false);
-    GrResource* resource = fTextureCache->findAndLock(resourceKey,
-                                                      GrResourceCache::kNested_LockType);
+    GrResource* resource = fTextureCache->findAndLock(resourceKey);
     return static_cast<GrTexture*>(resource);
 }
 
@@ -237,19 +236,25 @@ void GrContext::addAndLockStencilBuffer(GrStencilBuffer* sb) {
     fTextureCache->createAndLock(resourceKey, sb);
 }
 
-GrStencilBuffer* GrContext::findStencilBuffer(int width, int height,
+GrStencilBuffer* GrContext::findAndLockStencilBuffer(int width, int height,
                                               int sampleCnt) {
     GrResourceKey resourceKey = GrStencilBuffer::ComputeKey(width,
                                                             height,
                                                             sampleCnt);
-    GrResource* resource = fTextureCache->findAndLock(resourceKey,
-                                            GrResourceCache::kSingle_LockType);
+    GrResource* resource = fTextureCache->findAndLock(resourceKey);
     return static_cast<GrStencilBuffer*>(resource);
 }
 
 void GrContext::unlockStencilBuffer(GrStencilBuffer* sb) {
     ASSERT_OWNED_RESOURCE(sb);
-    GrAssert(NULL != sb->getCacheEntry());
+
+    if (NULL == sb->getCacheEntry()) {
+        // This can happen when the GrResourceCache is being deleted. If
+        // a stencil buffer was evicted before its reffing render targets,
+        // the render targets will attempt to unlock the stencil buffer
+        // when they are deleted.
+        return;
+    }
 
     fTextureCache->unlock(sb->getCacheEntry());
 }
@@ -415,8 +420,7 @@ GrTexture* GrContext::lockScratchTexture(const GrTextureDesc& inDesc,
 
     do {
         GrResourceKey key = GrTexture::ComputeKey(fGpu, NULL, desc, cacheData, true);
-        resource = fTextureCache->findAndLock(key,
-                                              GrResourceCache::kNested_LockType);
+        resource = fTextureCache->findAndLock(key);
         // if we miss, relax the fit of the flags...
         // then try doubling width... then height.
         if (NULL != resource || kExact_ScratchTexMatch == match) {

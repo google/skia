@@ -168,6 +168,10 @@ protected:
         fTexture = NULL;
     }
 
+    // override of GrResource
+    virtual void onAbandon() SK_OVERRIDE;
+    virtual void onRelease() SK_OVERRIDE;
+
 private:
     GrStencilBuffer*  fStencilBuffer;
     GrTexture*        fTexture; // not ref'ed

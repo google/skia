@@ -232,14 +232,6 @@ public:
     size_t getCachedResourceBytes() const { return fEntryBytes; }
 
     /**
-     * Controls whether locks should be nestable or not.
-     */
-    enum LockType {
-        kNested_LockType,
-        kSingle_LockType,
-    };
-
-    /**
      *  Search for an entry with the same Key. If found, return it.
      *  If not found, return null.
      */
@@ -249,7 +241,7 @@ public:
      *  Search for an entry with the same Key. If found, "lock" it and return it.
      *  If not found, return null.
      */
-    GrResource* findAndLock(const GrResourceKey&, LockType style);
+    GrResource* findAndLock(const GrResourceKey&);
 
     /**
      *  Create a new cache entry, based on the provided key and resource, and
