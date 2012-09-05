@@ -36,8 +36,8 @@ protected:
 
         paint.setColor(SK_ColorBLUE);
 
-        canvas->drawCircle(SkIntToScalar(size.width()/2), 
-                           SkIntToScalar(size.height()/2), 
+        canvas->drawCircle(SkIntToScalar(size.width()/2),
+                           SkIntToScalar(size.height()/2),
                            SkIntToScalar(size.width()/2),
                            paint);
 
