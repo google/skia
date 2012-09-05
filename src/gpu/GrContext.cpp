@@ -381,13 +381,13 @@ GrTexture* GrContext::createAndLockTexture(
 
     GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, cacheData, false);
 
-    GrTexture* texture = NULL;
+    SkAutoTUnref<GrTexture> texture;
     if (GrTexture::NeedsResizing(resourceKey)) {
-        texture = this->createResizedTexture(desc, cacheData,
+        texture.reset(this->createResizedTexture(desc, cacheData,
                                              srcData, rowBytes,
-                                             GrTexture::NeedsFiltering(resourceKey));
+                                             GrTexture::NeedsFiltering(resourceKey)));
     } else {
-        texture = fGpu->createTexture(desc, srcData, rowBytes);
+        texture.reset(fGpu->createTexture(desc, srcData, rowBytes));
     }
 
     if (NULL != texture) {
@@ -450,7 +450,7 @@ GrTexture* GrContext::lockScratchTexture(const GrTextureDesc& inDesc,
         desc.fFlags = inDesc.fFlags;
         desc.fWidth = origWidth;
         desc.fHeight = origHeight;
-        GrTexture* texture = fGpu->createTexture(desc, NULL, 0);
+        SkAutoTUnref<GrTexture> texture(fGpu->createTexture(desc, NULL, 0));
         if (NULL != texture) {
             GrResourceKey key = GrTexture::ComputeKey(fGpu, NULL,
                                                       texture->desc(),
