@@ -1105,19 +1105,16 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
             // whatever sizes GL gives us. In that case we query for the size.
             GrGLStencilBuffer::Format format = sFmt;
             get_stencil_rb_sizes(this->glInterface(), sbID, &format);
-            sb = SkNEW_ARGS(GrGLStencilBuffer,
-                            (this, sbID, width, height,
-                             samples, format));
+            SkAutoTUnref<GrStencilBuffer> sb(SkNEW_ARGS(GrGLStencilBuffer,
+                                                  (this, sbID, width, height,
+                                                  samples, format)));
             if (this->attachStencilBufferToRenderTarget(sb, rt)) {
                 fLastSuccessfulStencilFmtIdx = sIdx;
-                // This code transfers the creation ref to the
-                // cache and then adds a ref for the render target
                 sb->transferToCacheAndLock();
                 rt->setStencilBuffer(sb);
                 return true;
            }
            sb->abandon(); // otherwise we lose sbID
-           sb->unref();
         }
     }
     GL_CALL(DeleteRenderbuffers(1, &sbID));
