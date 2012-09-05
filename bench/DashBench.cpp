@@ -182,35 +182,35 @@ class MakeDashBench : public SkBenchmark {
     SkString fName;
     SkPath   fPath;
     SkAutoTUnref<SkPathEffect> fPE;
-    
+
     enum {
         N = SkBENCHLOOP(400)
     };
-    
+
 public:
     MakeDashBench(void* param, void (*proc)(SkPath*), const char name[]) : INHERITED(param) {
         fName.printf("makedash_%s", name);
         proc(&fPath);
-        
+
         SkScalar vals[] = { SkIntToScalar(4), SkIntToScalar(4) };
         fPE.reset(new SkDashPathEffect(vals, 2, 0));
     }
-    
+
 protected:
     virtual const char* onGetName() SK_OVERRIDE {
         return fName.c_str();
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPath dst;
         for (int i = 0; i < N; ++i) {
             SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
-            
+
             fPE->filterPath(&dst, fPath, &rec);
             dst.rewind();
         }
     }
-    
+
 private:
     typedef SkBenchmark INHERITED;
 };
@@ -224,26 +224,26 @@ class DashLineBench : public SkBenchmark {
     SkScalar fStrokeWidth;
     bool     fIsRound;
     SkAutoTUnref<SkPathEffect> fPE;
-    
+
     enum {
         N = SkBENCHLOOP(200)
     };
-    
+
 public:
     DashLineBench(void* param, SkScalar width, bool isRound) : INHERITED(param) {
         fName.printf("dashline_%g_%s", SkScalarToFloat(width), isRound ? "circle" : "square");
         fStrokeWidth = width;
         fIsRound = isRound;
-        
+
         SkScalar vals[] = { SK_Scalar1, SK_Scalar1 };
         fPE.reset(new SkDashPathEffect(vals, 2, 0));
     }
-    
+
 protected:
     virtual const char* onGetName() SK_OVERRIDE {
         return fName.c_str();
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         this->setupPaint(&paint);
@@ -255,7 +255,7 @@ protected:
                              640 * SK_Scalar1, 10 * SK_Scalar1, paint);
         }
     }
-    
+
 private:
     typedef SkBenchmark INHERITED;
 };
