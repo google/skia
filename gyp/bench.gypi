@@ -32,6 +32,7 @@
     '../bench/RefCntBench.cpp',
     '../bench/RegionBench.cpp',
     '../bench/RepeatTileBench.cpp',
+    '../bench/RTreeBench.cpp',
     '../bench/ScalarBench.cpp',
     '../bench/ShaderMaskBench.cpp',
     '../bench/TextBench.cpp',
