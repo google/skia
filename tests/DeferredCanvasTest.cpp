@@ -260,7 +260,7 @@ static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, canvas.storageAllocatedForRecording() > bitmapSize);
 
     // verify that nothing can be freed at this point
-    REPORTER_ASSERT(reporter, 0 == canvas.freeMemoryIfPossible(~0));
+    REPORTER_ASSERT(reporter, 0 == canvas.freeMemoryIfPossible(~0U));
 
     // verify that flush leaves image in cache
     REPORTER_ASSERT(reporter, 0 == notificationCounter.fFlushedDrawCommandsCount);
@@ -271,7 +271,7 @@ static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, canvas.storageAllocatedForRecording() >= bitmapSize);
 
     // verify that after a flush, cached image can be freed
-    REPORTER_ASSERT(reporter, canvas.freeMemoryIfPossible(~0) >= bitmapSize);
+    REPORTER_ASSERT(reporter, canvas.freeMemoryIfPossible(~0U) >= bitmapSize);
 
     // Verify that caching works for avoiding multiple copies of the same bitmap
     canvas.drawBitmap(sourceImages[0], 0, 0, NULL);
@@ -294,18 +294,18 @@ static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
 
     // Verifiy that partial purge works, image zero is in cache but not reffed by
     // a pending draw, while image 1 is locked-in.
-    canvas.freeMemoryIfPossible(~0);
+    canvas.freeMemoryIfPossible(~0U);
     REPORTER_ASSERT(reporter, 2 == notificationCounter.fFlushedDrawCommandsCount);
     canvas.drawBitmap(sourceImages[0], 0, 0, NULL);
     canvas.flush();
     canvas.drawBitmap(sourceImages[1], 0, 0, NULL);
-    bytesFreed = canvas.freeMemoryIfPossible(~0);
+    bytesFreed = canvas.freeMemoryIfPossible(~0U);
     // only one bitmap should have been freed.
     REPORTER_ASSERT(reporter,  bytesFreed >= bitmapSize);
     REPORTER_ASSERT(reporter,  bytesFreed < 2*bitmapSize);
     // Clear for next test
     canvas.flush();
-    canvas.freeMemoryIfPossible(~0);
+    canvas.freeMemoryIfPossible(~0U);
     REPORTER_ASSERT(reporter, canvas.storageAllocatedForRecording() < bitmapSize);
 
     // Verify the image cache is sensitive to genID bumps

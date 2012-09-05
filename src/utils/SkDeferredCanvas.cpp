@@ -470,7 +470,7 @@ void DeferredDevice::recordedDrawCommand() {
             this->flushPending();
             // Free as much as possible to avoid oscillating around fMaxRecordingStorageBytes
             // which could cause a high flushing frequency.
-            this->freeMemoryIfPossible(~0);
+            this->freeMemoryIfPossible(~0U);
         }
         storageAllocated = this->storageAllocatedForRecording();
     }

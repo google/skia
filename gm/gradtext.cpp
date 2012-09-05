@@ -47,7 +47,6 @@ protected:
     virtual SkISize onISize() { return make_isize(500, 480); }
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
-        const SkISize& size = this->getISize();
         SkRect r = SkRect::MakeWH(SkIntToScalar(100), SkIntToScalar(100));
 
         canvas->clipRect(r);
@@ -76,7 +75,6 @@ protected:
     virtual SkISize onISize() { return make_isize(500, 480); }
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
-        const SkISize& size = this->getISize();
         SkRect r = SkRect::MakeWH(SkIntToScalar(100), SkIntToScalar(100));
 
 

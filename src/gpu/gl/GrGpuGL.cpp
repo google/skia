@@ -1655,12 +1655,14 @@ void GrGpuGL::onGpuDrawNonIndexed(GrPrimitiveType type,
 }
 
 namespace {
+
+static const uint16_t kOnes16 = static_cast<uint16_t>(~0);
 const GrStencilSettings& winding_nv_path_stencil_settings() {
     GR_STATIC_CONST_SAME_STENCIL_STRUCT(gSettings,
         kIncClamp_StencilOp,
         kIncClamp_StencilOp,
         kAlwaysIfInClip_StencilFunc,
-        ~0, ~0, ~0);
+        kOnes16, kOnes16, kOnes16);
     return *GR_CONST_STENCIL_SETTINGS_PTR_FROM_STRUCT_PTR(&gSettings);
 }
 const GrStencilSettings& even_odd_nv_path_stencil_settings() {
@@ -1668,7 +1670,7 @@ const GrStencilSettings& even_odd_nv_path_stencil_settings() {
         kInvert_StencilOp,
         kInvert_StencilOp,
         kAlwaysIfInClip_StencilFunc,
-        ~0, ~0, ~0);
+        kOnes16, kOnes16, kOnes16);
     return *GR_CONST_STENCIL_SETTINGS_PTR_FROM_STRUCT_PTR(&gSettings);
 }
 }

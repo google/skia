@@ -354,7 +354,7 @@ static void test_isWideOpen(skiatest::Reporter* reporter) {
     }
 }
 
-int count(const SkClipStack& stack) {
+static int count(const SkClipStack& stack) {
 
     SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
 

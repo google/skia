@@ -947,7 +947,7 @@ void GrGLProgram::genStageCode(int stageNum,
     } else {
         uniforms.fTextureMatrixUni = builder->addUniform(GrGLShaderBuilder::kVertex_ShaderType,
                                                          kMat33f_GrSLType, "TexM", &matName);
-        const GrGLShaderVar& mat = builder->getUniformVariable(uniforms.fTextureMatrixUni);
+        builder->getUniformVariable(uniforms.fTextureMatrixUni);
 
         if (desc.fOptFlags & StageDesc::kNoPerspective_OptFlagBit) {
             texCoordVaryingType = kVec2f_GrSLType;

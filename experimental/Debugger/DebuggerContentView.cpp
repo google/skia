@@ -258,9 +258,13 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+SkView* create_debugger(const char* data, size_t size);
+
 SkView* create_debugger(const char* data, size_t size) {
     return SkNEW_ARGS(DebuggerView, (data, size));
 };
+
+bool is_debugger(SkView* view);
 
 bool is_debugger(SkView* view) {
     SkEvent isDebugger(gIsDebuggerQuery);
