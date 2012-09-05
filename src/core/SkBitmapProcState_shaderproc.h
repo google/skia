@@ -13,6 +13,9 @@
 // Can't be static in the general case because some of these implementations
 // will be defined and referenced in different object files.
 void SCALE_FILTER_NAME(const SkBitmapProcState& s, int x, int y,
+                       DSTTYPE* SK_RESTRICT colors, int count);
+
+void SCALE_FILTER_NAME(const SkBitmapProcState& s, int x, int y,
                        DSTTYPE* SK_RESTRICT colors, int count) {
     SkASSERT((s.fInvType & ~(SkMatrix::kTranslate_Mask |
                              SkMatrix::kScale_Mask)) == 0);

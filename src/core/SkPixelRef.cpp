@@ -34,6 +34,8 @@ static SkBaseMutex* get_default_mutex() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+int32_t SkNextPixelRefGenerationID();
+
 int32_t SkNextPixelRefGenerationID() {
     static int32_t  gPixelRefGenerationID;
     // do a loop in case our global wraps around, as we never want to

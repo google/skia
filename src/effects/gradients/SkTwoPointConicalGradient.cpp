@@ -188,7 +188,7 @@ void SkTwoPointConicalGradient::shadeSpan(int x, int y, SkPMColor* dstCParam,
     SkPMColor* SK_RESTRICT dstC = dstCParam;
 
     SkMatrix::MapXYProc dstProc = fDstToIndexProc;
-    TileProc            proc = fTileProc;
+
     const SkPMColor* SK_RESTRICT cache = this->getCache32();
 
     TwoPointRadialProc shadeProc = twopoint_repeat;
@@ -254,8 +254,6 @@ bool SkTwoPointConicalGradient::setContext(const SkBitmap& device,
 SkShader::BitmapType SkTwoPointConicalGradient::asABitmap(
     SkBitmap* bitmap, SkMatrix* matrix, SkShader::TileMode* xy) const {
     SkPoint diff = fCenter2 - fCenter1;
-    SkScalar diffRadius = fRadius2 - fRadius1;
-    SkScalar startRadius = fRadius1;
     SkScalar diffLen = 0;
 
     if (bitmap) {

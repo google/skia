@@ -159,9 +159,9 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn) {
         return false;
     }
 
+#if GR_SW_CLIP
     bool requiresAA = requires_AA(*clipDataIn->fClipStack);
 
-#if GR_SW_CLIP
     // If MSAA is enabled we can do everything in the stencil buffer.
     // Otherwise check if we should just create the entire clip mask
     // in software (this will only happen if the clip mask is anti-aliased

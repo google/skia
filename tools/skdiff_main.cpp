@@ -57,7 +57,7 @@ enum Result {
 // Returns the Result with this name.
 // If there is no Result with this name, returns kNumResultTypes.
 // TODO: Is there a better return value for the fall-through case?
-Result getResultByName(const char *name) {
+static Result getResultByName(const char *name) {
     if (0 == strcmp("EqualBits", name)) {
         return kEqualBits;
     }
@@ -86,7 +86,7 @@ Result getResultByName(const char *name) {
 }
 
 // Returns a text description of the given Result type.
-const char *getResultDescription(Result result) {
+static const char *getResultDescription(Result result) {
     switch (result) {
       case kEqualBits:
         return "contain exactly the same bits";
