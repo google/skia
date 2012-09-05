@@ -85,12 +85,16 @@ void GrTexture::releaseRenderTarget() {
 void GrTexture::onRelease() {
     GrAssert(!this->isSetFlag((GrTextureFlags) kReturnToCache_FlagBit));
     this->releaseRenderTarget();
+
+    INHERITED::onRelease();
 }
 
 void GrTexture::onAbandon() {
     if (NULL != fRenderTarget) {
         fRenderTarget->abandon();
     }
+
+    INHERITED::onAbandon();
 }
 
 void GrTexture::validateDesc() const {

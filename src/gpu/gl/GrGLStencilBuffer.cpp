@@ -28,10 +28,14 @@ void GrGLStencilBuffer::onRelease() {
         GR_GL_CALL(gl, DeleteRenderbuffers(1, &fRenderbufferID));
         fRenderbufferID = 0;
     }
+
+    INHERITED::onRelease();
 }
 
 void GrGLStencilBuffer::onAbandon() {
     fRenderbufferID = 0;
+
+    INHERITED::onAbandon();
 }
 
 

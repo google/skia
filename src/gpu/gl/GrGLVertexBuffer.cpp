@@ -30,11 +30,15 @@ void GrGLVertexBuffer::onRelease() {
         GL_CALL(DeleteBuffers(1, &fBufferID));
         fBufferID = 0;
     }
+
+    INHERITED::onRelease();
 }
 
 void GrGLVertexBuffer::onAbandon() {
     fBufferID = 0;
     fLockPtr = NULL;
+
+    INHERITED::onAbandon();
 }
 
 void GrGLVertexBuffer::bind() const {

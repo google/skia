@@ -112,8 +112,12 @@ void GrRenderTarget::setStencilBuffer(GrStencilBuffer* stencilBuffer) {
 
 void GrRenderTarget::onRelease() {
     this->setStencilBuffer(NULL);
+
+    INHERITED::onRelease();
 }
 
 void GrRenderTarget::onAbandon() {
     this->setStencilBuffer(NULL);
+
+    INHERITED::onAbandon();
 }
