@@ -55,19 +55,21 @@ GrGLTexture::GrGLTexture(GrGpuGL* gpu,
 }
 
 void GrGLTexture::onRelease() {
-    INHERITED::onRelease();
     GPUGL->notifyTextureDelete(this);
     if (NULL != fTexIDObj) {
         fTexIDObj->unref();
         fTexIDObj = NULL;
     }
+
+    INHERITED::onRelease();
 }
 
 void GrGLTexture::onAbandon() {
-    INHERITED::onAbandon();
     if (NULL != fTexIDObj) {
         fTexIDObj->abandon();
     }
+
+    INHERITED::onAbandon();
 }
 
 intptr_t GrGLTexture::getTextureHandle() const {

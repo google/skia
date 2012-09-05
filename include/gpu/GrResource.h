@@ -75,8 +75,10 @@ protected:
 
     GrGpu* getGpu() const { return fGpu; }
 
-    virtual void onRelease() = 0;
-    virtual void onAbandon() = 0;
+    // Derived classes should always call their parent class' onRelease
+    // and onAbandon methods in their overrides.
+    virtual void onRelease() {};
+    virtual void onAbandon() {};
 
     bool isInCache() const { return NULL != fCacheEntry; }
 

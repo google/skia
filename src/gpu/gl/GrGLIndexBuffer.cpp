@@ -31,11 +31,15 @@ void GrGLIndexBuffer::onRelease() {
         GL_CALL(DeleteBuffers(1, &fBufferID));
         fBufferID = 0;
     }
+
+    INHERITED::onRelease();
 }
 
 void GrGLIndexBuffer::onAbandon() {
     fBufferID = 0;
     fLockPtr = NULL;
+
+    INHERITED::onAbandon();
 }
 
 void GrGLIndexBuffer::bind() const {

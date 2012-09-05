@@ -94,9 +94,13 @@ void GrGLPath::onRelease() {
         GL_CALL(DeletePaths(fPathID, 1));
         fPathID = 0;
     }
+
+    INHERITED::onRelease();
 }
 
 void GrGLPath::onAbandon() {
     fPathID = 0;
+
+    INHERITED::onAbandon();
 }
 
