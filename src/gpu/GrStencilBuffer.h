@@ -23,9 +23,7 @@ public:
     GR_DECLARE_RESOURCE_CACHE_TYPE()
 
     virtual ~GrStencilBuffer() {
-        // currently each rt that has attached this sb keeps a ref
         // TODO: allow SB to be purged and detach itself from rts
-        GrAssert(0 == fRTAttachmentCnt);
     }
 
     int width() const { return fWidth; }
@@ -65,12 +63,6 @@ public:
     // a ref to the the cache which will unref when purged.
     void transferToCacheAndLock();
 
-    void wasAttachedToRenderTarget(const GrRenderTarget* rt) {
-        ++fRTAttachmentCnt;
-    }
-
-    void wasDetachedFromRenderTarget(const GrRenderTarget* rt);
-
     static GrResourceKey ComputeKey(int width, int height, int sampleCnt);
 
 protected:
@@ -83,21 +75,10 @@ protected:
         , fLastClipStack()
         , fLastClipData()
         , fLastClipWidth(-1)
-        , fLastClipHeight(-1)
-        , fHoldingLock(false)
-        , fRTAttachmentCnt(0) {
+        , fLastClipHeight(-1) {
     }
 
-    // GrResource overrides
-
-    // subclass override must call INHERITED::onRelease
-    virtual void onRelease();
-    // subclass override must call INHERITED::onAbandon
-    virtual void onAbandon();
-
 private:
-
-    void unlockInCache();
 
     int fWidth;
     int fHeight;
@@ -108,9 +89,6 @@ private:
     GrClipData  fLastClipData;
     int         fLastClipWidth;
     int         fLastClipHeight;
-
-    bool             fHoldingLock;
-    int              fRTAttachmentCnt;
 
     typedef GrResource INHERITED;
 };

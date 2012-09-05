@@ -92,7 +92,7 @@ void GrGLRenderTarget::onRelease() {
     fMSColorRenderbufferID  = 0;
     GrSafeUnref(fTexIDObj);
     fTexIDObj = NULL;
-    this->setStencilBuffer(NULL);
+    INHERITED::onRelease();
 }
 
 void GrGLRenderTarget::onAbandon() {
@@ -103,6 +103,6 @@ void GrGLRenderTarget::onAbandon() {
         fTexIDObj->abandon();
         fTexIDObj = NULL;
     }
-    this->setStencilBuffer(NULL);
+    INHERITED::onAbandon();
 }
 

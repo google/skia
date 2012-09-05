@@ -96,12 +96,24 @@ void GrRenderTarget::overrideResolveRect(const GrIRect rect) {
 
 void GrRenderTarget::setStencilBuffer(GrStencilBuffer* stencilBuffer) {
     if (NULL != fStencilBuffer) {
-        fStencilBuffer->wasDetachedFromRenderTarget(this);
+        GrContext* context = this->getContext();
+        if (NULL != context) {
+            context->unlockStencilBuffer(fStencilBuffer);
+        }
         fStencilBuffer->unref();
     }
+
     fStencilBuffer = stencilBuffer;
+
     if (NULL != fStencilBuffer) {
-        fStencilBuffer->wasAttachedToRenderTarget(this);
         fStencilBuffer->ref();
     }
+}
+
+void GrRenderTarget::onRelease() {
+    this->setStencilBuffer(NULL);
+}
+
+void GrRenderTarget::onAbandon() {
+    this->setStencilBuffer(NULL);
 }

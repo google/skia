@@ -195,7 +195,7 @@ GrResource* GrResourceCache::find(const GrResourceKey& key) {
     return entry->fResource;
 }
 
-GrResource* GrResourceCache::findAndLock(const GrResourceKey& key, LockType type) {
+GrResource* GrResourceCache::findAndLock(const GrResourceKey& key) {
     GrAutoResourceCacheValidate atcv(this);
 
     GrResourceEntry* entry = fCache.find(key);
@@ -206,9 +206,7 @@ GrResource* GrResourceCache::findAndLock(const GrResourceKey& key, LockType type
     this->internalDetach(entry, false);
     this->attachToHead(entry, false);
 
-    if (kNested_LockType == type || !entry->isLocked()) {
-        this->lock(entry);
-    }
+    this->lock(entry);
 
     return entry->fResource;
 }
