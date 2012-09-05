@@ -92,6 +92,7 @@
       ],
       'dependencies': [
         'core.gyp:core',
+        'effects.gyp:effects',
         'ports.gyp:ports',
         'tools.gyp:picture_utils',
         'tools.gyp:picture_benchmark',
