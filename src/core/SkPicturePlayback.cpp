@@ -561,6 +561,9 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
     SkReader32 reader(fOpData->bytes(), fOpData->size());
     TextContainer text;
 
+    // Record this, so we can concat w/ it if we encounter a setMatrix()
+    SkMatrix initialMatrix = canvas.getTotalMatrix();
+
     while (!reader.eof()) {
         switch (reader.readInt()) {
             case CLIP_PATH: {
@@ -786,9 +789,11 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 SkScalar sy = reader.readScalar();
                 canvas.scale(sx, sy);
             } break;
-            case SET_MATRIX:
-                canvas.setMatrix(*getMatrix(reader));
-                break;
+            case SET_MATRIX: {
+                SkMatrix matrix;
+                matrix.setConcat(initialMatrix, *getMatrix(reader));
+                canvas.setMatrix(matrix);
+            } break;
             case SKEW: {
                 SkScalar sx = reader.readScalar();
                 SkScalar sy = reader.readScalar();
