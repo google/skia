@@ -246,7 +246,6 @@ GrStencilBuffer* GrContext::findAndLockStencilBuffer(int width, int height,
 }
 
 void GrContext::unlockStencilBuffer(GrStencilBuffer* sb) {
-    ASSERT_OWNED_RESOURCE(sb);
 
     if (NULL == sb->getCacheEntry()) {
         // This can happen when the GrResourceCache is being deleted. If
@@ -255,6 +254,10 @@ void GrContext::unlockStencilBuffer(GrStencilBuffer* sb) {
         // when they are deleted.
         return;
     }
+
+    // If the texture cache still exists we know the GrGpu & GrContext still
+    // exist so we can verify ownership.
+    ASSERT_OWNED_RESOURCE(sb);
 
     fTextureCache->unlock(sb->getCacheEntry());
 }
