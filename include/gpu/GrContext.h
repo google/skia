@@ -763,7 +763,7 @@ public:
      * addAndLockStencilBuffer. When a SB's RT-attachment count
      * reaches zero the SB unlocks itself using unlockStencilBuffer and is
      * eligible for purging. findAndLockStencilBuffer is called to check the
-     * cache for a SB that matches an RT's criteria. 
+     * cache for a SB that matches an RT's criteria.
      */
     void addAndLockStencilBuffer(GrStencilBuffer* sb);
     void unlockStencilBuffer(GrStencilBuffer* sb);

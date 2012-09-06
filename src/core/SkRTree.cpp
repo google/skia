@@ -12,7 +12,7 @@
 static inline uint32_t get_area(const SkIRect& rect);
 static inline uint32_t get_overlap(const SkIRect& rect1, const SkIRect& rect2);
 static inline uint32_t get_margin(const SkIRect& rect);
-static inline uint32_t get_overlap_increase(const SkIRect& rect1, const SkIRect& rect2, 
+static inline uint32_t get_overlap_increase(const SkIRect& rect1, const SkIRect& rect2,
                                             SkIRect expandBy);
 static inline uint32_t get_area_increase(const SkIRect& rect1, SkIRect rect2);
 static inline void join_no_empty_check(const SkIRect& joinWith, SkIRect* out);
@@ -33,7 +33,7 @@ SkRTree::SkRTree(int minChildren, int maxChildren)
     , fNodeSize(sizeof(Node) + sizeof(Branch) * maxChildren)
     , fCount(0)
     , fNodes(fNodeSize * 256) {
-    SkASSERT(minChildren < maxChildren && minChildren > 0 && maxChildren < 
+    SkASSERT(minChildren < maxChildren && minChildren > 0 && maxChildren <
              static_cast<int>(SK_MaxU16));
     SkASSERT((maxChildren + 1) / 2 >= minChildren);
     this->validate();
@@ -45,7 +45,7 @@ SkRTree::~SkRTree() {
 
 void SkRTree::insert(void* data, const SkIRect& bounds, bool defer) {
     this->validate();
-    if (bounds.isEmpty()) { 
+    if (bounds.isEmpty()) {
         SkASSERT(false);
         return;
     }
@@ -211,7 +211,7 @@ int SkRTree::chooseSubtree(Node* root, Branch* branch) {
             }
             // break ties with lowest area increase
             if (overlap < minOverlapIncrease || (overlap == minOverlapIncrease &&
-                static_cast<int32_t>(get_area_increase(branch->fBounds, subtreeBounds)) < 
+                static_cast<int32_t>(get_area_increase(branch->fBounds, subtreeBounds)) <
                 minAreaIncrease)) {
                 minOverlapIncrease = overlap;
                 minAreaIncrease = get_area_increase(branch->fBounds, subtreeBounds);
@@ -267,7 +267,7 @@ int SkRTree::distributeChildren(Branch* children) {
                 SkIRect r2 = children[fMinChildren + k - 1].fBounds;
                 for (int32_t l = 1; l < fMinChildren - 1 + k; ++l) {
                     join_no_empty_check(children[l].fBounds, &r1);
-                } 
+                }
                 for (int32_t l = fMinChildren + k; l < fMaxChildren + 1; ++l) {
                     join_no_empty_check(children[l].fBounds, &r2);
                 }
@@ -298,7 +298,7 @@ int SkRTree::distributeChildren(Branch* children) {
     if (!(axis == 1 && sortSide == 1)) {
         SkQSort(sorts[axis][sortSide], children, children + fMaxChildren, &RectLessThan);
     }
-    
+
     return fMinChildren - 1 + k;
 }
 
@@ -323,7 +323,7 @@ SkRTree::Branch SkRTree::bulkLoad(SkTDArray<Branch>* branches, int level) {
     } else {
         // First we sort the whole list by y coordinates
         SkQSort<int, Branch>(level, branches->begin(), branches->end() - 1, &RectLessY);
-        
+
         int numBranches = branches->count() / fMaxChildren;
         int remainder = branches->count() % fMaxChildren;
         int newBranches = 0;
@@ -344,14 +344,14 @@ SkRTree::Branch SkRTree::bulkLoad(SkTDArray<Branch>* branches, int level) {
 
         for (int i = 0; i < numStrips; ++i) {
             int begin = currentBranch;
-            int end = currentBranch + numStrips * fMaxChildren - SkMin32(remainder, 
+            int end = currentBranch + numStrips * fMaxChildren - SkMin32(remainder,
                       (fMaxChildren - fMinChildren) * numStrips);
             if (end > branches->count()) {
                 end = branches->count();
             }
 
             // Now we sort horizontal strips of rectangles by their x coords
-            SkQSort<int, Branch>(level, branches->begin() + begin, branches->begin() + end - 1, 
+            SkQSort<int, Branch>(level, branches->begin() + begin, branches->begin() + end - 1,
                                  &RectLessX);
 
             for (int j = 0; j < numStrips && currentBranch < branches->count(); ++j) {
@@ -447,7 +447,7 @@ static inline uint32_t get_margin(const SkIRect& rect) {
     return 2 * (rect.width() + rect.height());
 }
 
-static inline uint32_t get_overlap_increase(const SkIRect& rect1, const SkIRect& rect2, 
+static inline uint32_t get_overlap_increase(const SkIRect& rect1, const SkIRect& rect2,
                                           SkIRect expandBy) {
     join_no_empty_check(rect1, &expandBy);
     return get_overlap(expandBy, rect2) - get_overlap(rect1, rect2);

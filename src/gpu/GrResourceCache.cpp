@@ -17,7 +17,7 @@ GrResourceEntry::GrResourceEntry(const GrResourceKey& key, GrResource* resource)
 
     // we assume ownership of the resource, and will unref it when we die
     GrAssert(resource);
-    resource->ref();    
+    resource->ref();
 }
 
 GrResourceEntry::~GrResourceEntry() {
