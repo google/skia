@@ -251,7 +251,7 @@ void TiledPictureRenderer::setupPowerOf2Tiles() {
             + fTileMinPowerOf2Width;
     }
 
-    int num_bits = SkScalarCeilToInt(SkScalarLog2(fPicture->width()));
+    int num_bits = SkScalarCeilToInt(SkScalarLog2(SkIntToScalar(fPicture->width())));
     int largest_possible_tile_size = 1 << num_bits;
 
     // The tile height is constant for a particular picture.

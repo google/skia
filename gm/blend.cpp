@@ -49,7 +49,7 @@ protected:
         for (int y = 0; y < 80; y += 16) {
           for (int x = 0; x < 80; x += 16) {
             canvas.save();
-            canvas.translate(x, y);
+            canvas.translate(SkIntToScalar(x), SkIntToScalar(y));
             canvas.drawRect(SkRect::MakeXYWH(0, 0, 8, 8), darkPaint);
             canvas.drawRect(SkRect::MakeXYWH(8, 0, 8, 8), lightPaint);
             canvas.drawRect(SkRect::MakeXYWH(0, 8, 8, 8), lightPaint);

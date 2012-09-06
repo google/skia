@@ -37,7 +37,8 @@ static void drawJpeg(SkCanvas* canvas, const SkISize& size) {
 }
 
 static void drawContents(SkSurface* surface, SkColor fillC) {
-    SkSize size = SkSize::Make(surface->width(), surface->height());
+    SkSize size = SkSize::Make(SkIntToScalar(surface->width()), 
+                               SkIntToScalar(surface->height()));
     SkCanvas* canvas = surface->getCanvas();
 
     SkScalar stroke = size.fWidth / 10;
