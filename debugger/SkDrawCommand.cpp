@@ -252,7 +252,8 @@ DrawPoints::DrawPoints(SkCanvas::PointMode mode, size_t count,
     this->fDrawType = DRAW_POINTS;
 
     this->fInfo.push(SkObjectParser::PointsToString(pts, count));
-    this->fInfo.push(SkObjectParser::ScalarToString(count, "Points: "));
+    this->fInfo.push(SkObjectParser::ScalarToString(SkIntToScalar(count), 
+                                                    "Points: "));
     this->fInfo.push(SkObjectParser::PointModeToString(mode));
 }
 

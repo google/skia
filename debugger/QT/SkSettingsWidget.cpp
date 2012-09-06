@@ -157,6 +157,6 @@ void SkSettingsWidget::setZoomText(int scaleFactor) {
     } else if (scaleFactor > 1) {
         fZoomBox.setText(QString::number(scaleFactor*100).append("%"));
     } else if (scaleFactor < -1) {
-        fZoomBox.setText(QString::number(100 / pow(2, (-scaleFactor - 1))).append("%"));
+        fZoomBox.setText(QString::number(100 / pow(2.0f, (-scaleFactor - 1))).append("%"));
     }
 }

@@ -40,13 +40,13 @@ SkString* SkObjectParser::IntToString(int x, const char* text) {
 SkString* SkObjectParser::IRectToString(const SkIRect& rect) {
     SkString* mRect = new SkString("SkIRect: ");
     mRect->append("L: ");
-    mRect->appendScalar(rect.left());
+    mRect->appendScalar(SkIntToScalar(rect.left()));
     mRect->append(", T: ");
-    mRect->appendScalar(rect.top());
+    mRect->appendScalar(SkIntToScalar(rect.top()));
     mRect->append(", R: ");
-    mRect->appendScalar(rect.right());
+    mRect->appendScalar(SkIntToScalar(rect.right()));
     mRect->append(", B: ");
-    mRect->appendScalar(rect.bottom());
+    mRect->appendScalar(SkIntToScalar(rect.bottom()));
     return mRect;
 }
 
@@ -175,9 +175,8 @@ SkString* SkObjectParser::ScalarToString(SkScalar x, const char* text) {
 }
 
 SkString* SkObjectParser::TextToString(const void* text, size_t byteLength) {
-    char result[6+byteLength];
-    strcpy(result,"Text: ");
-    strcat(result, (char*)text);
-    SkString* mText = new SkString(result);
+    SkString* mText = new SkString(6+byteLength+1);
+    mText->append("Text: ");
+    mText->append((char*) text, byteLength);
     return mText;
 }
