@@ -367,7 +367,7 @@ public:
     virtual void emitFS(GrGLShaderBuilder* builder,
                         const char* outputColor,
                         const char* inputColor,
-                        const char* samplerName) SK_OVERRIDE;
+                        const TextureSamplerArray&) SK_OVERRIDE;
     virtual void setData(const GrGLUniformManager&,
                          const GrCustomStage&,
                          const GrRenderTarget*,
@@ -539,7 +539,7 @@ void GrGLRadial2Gradient::emitVS(GrGLShaderBuilder* builder,
 void GrGLRadial2Gradient::emitFS(GrGLShaderBuilder* builder,
                                  const char* outputColor,
                                  const char* inputColor,
-                                 const char* samplerName) {
+                                 const TextureSamplerArray& samplers) {
     SkString* code = &builder->fFSCode;
     SkString cName("c");
     SkString ac4Name("ac4");
@@ -601,7 +601,7 @@ void GrGLRadial2Gradient::emitFS(GrGLShaderBuilder* builder,
         t.printf("-%s / %s", cName.c_str(), bVar.c_str());
     }
 
-    this->emitColorLookup(builder, t.c_str(), outputColor, inputColor, samplerName);
+    this->emitColorLookup(builder, t.c_str(), outputColor, inputColor, samplers[0]);
 }
 
 void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman,

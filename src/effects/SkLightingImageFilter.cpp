@@ -950,7 +950,7 @@ public:
     virtual void emitFS(GrGLShaderBuilder* builder,
                         const char* outputColor,
                         const char* inputColor,
-                        const char* samplerName) SK_OVERRIDE;
+                        const TextureSamplerArray&) SK_OVERRIDE;
 
     virtual void emitLightFunc(GrGLShaderBuilder*, SkString* funcName) = 0;
 
@@ -1092,7 +1092,7 @@ void GrGLLightingEffect::emitVS(GrGLShaderBuilder* builder,
 void GrGLLightingEffect::emitFS(GrGLShaderBuilder* builder,
                                 const char* outputColor,
                                 const char* inputColor,
-                                const char* samplerName) {
+                                const TextureSamplerArray& samplers) {
     SkString* code = &builder->fFSCode;
     fLight->emitFuncs(builder);
     SkString lightFunc;
@@ -1160,7 +1160,7 @@ void GrGLLightingEffect::emitFS(GrGLShaderBuilder* builder,
             SkString texCoords;
             texCoords.appendf("coord + vec2(%d, %d) * %s", dx, dy, imgInc);
             code->appendf("\t\tm[%d] = ", index++);
-            builder->appendTextureLookup(code, samplerName, texCoords.c_str());
+            builder->appendTextureLookup(code, samplers[0], texCoords.c_str());
             code->appendf(".a;\n");
         }
     }

@@ -196,6 +196,8 @@ public:
     typedef Desc::StageDesc StageDesc;
 
 private:
+    struct StageUniforms;
+
     GrGLProgram(const GrGLContextInfo& gl,
                 const Desc& desc,
                 const GrCustomStage** customStages);
@@ -209,12 +211,13 @@ private:
 
     void genInputColor(GrGLShaderBuilder* builder, SkString* inColor);
 
-    // Determines which uniforms will need to be bound.
-    void genStageCode(int stageNum,
-                      const char* fsInColor, // NULL means no incoming color
-                      const char* fsOutColor,
-                      const char* vsInCoord,
-                      GrGLShaderBuilder* builder);
+    static GrGLProgramStage* GenStageCode(const GrCustomStage* stage,
+                                          const StageDesc& desc, // TODO: Eliminate this
+                                          StageUniforms* stageUniforms, // TODO: Eliminate this
+                                          const char* fsInColor, // NULL means no incoming color
+                                          const char* fsOutColor,
+                                          const char* vsInCoord,
+                                          GrGLShaderBuilder* builder);
 
     void genGeometryShader(GrGLShaderBuilder* segments) const;
 

@@ -332,7 +332,7 @@ public:
     virtual void emitFS(GrGLShaderBuilder* builder,
                         const char* outputColor,
                         const char* inputColor,
-                        const char* samplerName) SK_OVERRIDE;
+                        const TextureSamplerArray&) SK_OVERRIDE;
     virtual void setData(const GrGLUniformManager&,
                          const GrCustomStage&,
                          const GrRenderTarget*,
@@ -506,7 +506,7 @@ void GrGLConical2Gradient::emitVS(GrGLShaderBuilder* builder,
 void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
                                   const char* outputColor,
                                   const char* inputColor,
-                                  const char* samplerName) {
+                                  const TextureSamplerArray& samplers) {
     SkString* code = &builder->fFSCode;
 
     SkString cName("c");
@@ -591,7 +591,7 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
                       p5.c_str(), p3.c_str());
 
         code->appendf("\t\t");
-        this->emitColorLookup(builder, tName.c_str(), outputColor, inputColor, samplerName);
+        this->emitColorLookup(builder, tName.c_str(), outputColor, inputColor, samplers[0]);
 
         // otherwise, if r(t) for the larger root was <= 0, try the other root
         code->appendf("\t\t} else {\n");
@@ -603,7 +603,7 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
                       tName.c_str(), p5.c_str(), p3.c_str());
 
         code->appendf("\t\t\t");
-        this->emitColorLookup(builder, tName.c_str(), outputColor, inputColor, samplerName);
+        this->emitColorLookup(builder, tName.c_str(), outputColor, inputColor, samplers[0]);
 
         // end if (r(t) > 0) for smaller root
         code->appendf("\t\t\t}\n");
@@ -621,7 +621,7 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
         code->appendf("\tif (%s * %s + %s > 0.0) {\n", tName.c_str(),
                       p5.c_str(), p3.c_str());
         code->appendf("\t");
-        this->emitColorLookup(builder, tName.c_str(), outputColor, inputColor, samplerName);
+        this->emitColorLookup(builder, tName.c_str(), outputColor, inputColor, samplers[0]);
         code->appendf("\t}\n");
     }
 }

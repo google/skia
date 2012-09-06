@@ -133,7 +133,7 @@ public:
     virtual void emitFS(GrGLShaderBuilder* builder,
                         const char* outputColor,
                         const char* inputColor,
-                        const char* samplerName) SK_OVERRIDE;
+                        const TextureSamplerArray&) SK_OVERRIDE;
 
     virtual void emitVS(GrGLShaderBuilder* builder,
                         const char* vertexCoords) SK_OVERRIDE {}
@@ -258,12 +258,12 @@ GrGLBlendEffect::~GrGLBlendEffect() {
 void GrGLBlendEffect::emitFS(GrGLShaderBuilder* builder,
                              const char* outputColor,
                              const char* inputColor,
-                             const char* samplerName) {
+                             const TextureSamplerArray& samplers) {
     SkString* code = &builder->fFSCode;
     const char* bgColor = inputColor;
     const char* fgColor = "fgColor";
     code->appendf("\t\tvec4 %s = ", fgColor);
-    builder->appendTextureLookup(code, samplerName);
+    builder->appendTextureLookup(code, samplers[0]);
     code->append(";\n");
     code->appendf("\t\t%s.a = 1.0 - (1.0 - %s.a) * (1.0 - %s.b);\n", outputColor, bgColor, fgColor);
     switch (fMode) {

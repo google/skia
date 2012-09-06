@@ -702,7 +702,7 @@ void GrGLGradientStage::emitColorLookup(GrGLShaderBuilder* builder,
                                         const char* gradientTValue,
                                         const char* outputColor,
                                         const char* inputColor,
-                                        const char* samplerName) {
+                                        const GrGLShaderBuilder::TextureSampler& sampler) {
 
     SkString* code = &builder->fFSCode;
     code->appendf("\tvec2 coord = vec2(%s, %s);\n",
@@ -710,7 +710,7 @@ void GrGLGradientStage::emitColorLookup(GrGLShaderBuilder* builder,
                   builder->getUniformVariable(fFSYUni).c_str());
     GrGLSLMulVarBy4f(code, 1, outputColor, inputColor);
     code->appendf("\t%s = ", outputColor);
-    builder->appendTextureLookupAndModulate(code, inputColor, samplerName, "coord");
+    builder->appendTextureLookupAndModulate(code, inputColor, sampler, "coord");
     code->append(";\n");
 }
 

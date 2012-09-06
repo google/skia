@@ -26,7 +26,7 @@ public:
     virtual void emitFS(GrGLShaderBuilder* builder,
                         const char* outputColor,
                         const char* inputColor,
-                        const char* samplerName) SK_OVERRIDE;
+                        const TextureSamplerArray&) SK_OVERRIDE;
 
     virtual void setData(const GrGLUniformManager& uman,
                          const GrCustomStage&,
@@ -65,7 +65,7 @@ void GrGLConvolutionEffect::setupVariables(GrGLShaderBuilder* builder) {
 void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* builder,
                                    const char* outputColor,
                                    const char* inputColor,
-                                   const char* samplerName) {
+                                   const TextureSamplerArray& samplers) {
     SkString* code = &builder->fFSCode;
 
     code->appendf("\t\t%s = vec4(0, 0, 0, 0);\n", outputColor);
@@ -84,7 +84,7 @@ void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* builder,
         index.appendS32(i);
         kernel.appendArrayAccess(index.c_str(), &kernelIndex);
         code->appendf("\t\t%s += ", outputColor);
-        builder->appendTextureLookup(&builder->fFSCode, samplerName, "coord");
+        builder->appendTextureLookup(&builder->fFSCode, samplers[0], "coord");
         code->appendf(" * %s;\n", kernelIndex.c_str());
         code->appendf("\t\tcoord += %s;\n", imgInc);
     }
