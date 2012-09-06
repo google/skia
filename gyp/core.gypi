@@ -15,6 +15,8 @@
         '<(skia_src_path)/core/SkAlphaRuns.cpp',
         '<(skia_src_path)/core/SkAntiRun.h',
         '<(skia_src_path)/core/SkBBoxHierarchy.h',
+        '<(skia_src_path)/core/SkBBoxRecord.cpp',
+        '<(skia_src_path)/core/SkBBoxRecord.h',
         '<(skia_src_path)/core/SkBitmap.cpp',
         '<(skia_src_path)/core/SkBitmapHeap.cpp',
         '<(skia_src_path)/core/SkBitmapHeap.h',
