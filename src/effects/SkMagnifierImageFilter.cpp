@@ -83,7 +83,7 @@ public:
     virtual void emitFS(GrGLShaderBuilder* state,
                         const char* outputColor,
                         const char* inputColor,
-                        const char* samplerName) SK_OVERRIDE;
+                        const TextureSamplerArray&) SK_OVERRIDE;
 
     virtual void setData(const GrGLUniformManager& uman,
                          const GrCustomStage& data,
@@ -131,7 +131,7 @@ void GrGLMagnifierEffect::emitVS(GrGLShaderBuilder* state,
 void GrGLMagnifierEffect::emitFS(GrGLShaderBuilder* state,
                                  const char* outputColor,
                                  const char* inputColor,
-                                 const char* samplerName) {
+                                 const TextureSamplerArray& samplers) {
     SkString* code = &state->fFSCode;
 
     code->appendf("\t\tvec2 coord = %s;\n", state->defaultTexCoordsName());
@@ -159,7 +159,7 @@ void GrGLMagnifierEffect::emitFS(GrGLShaderBuilder* state,
 
     code->appendf("\t\tvec2 mix_coord = mix(coord, zoom_coord, weight);\n");
     code->appendf("\t\tvec4 output_color = ");
-    state->appendTextureLookup(code, samplerName, "mix_coord");
+    state->appendTextureLookup(code, samplers[0], "mix_coord");
     code->append(";\n");
 
     code->appendf("\t\t%s = output_color;", outputColor);

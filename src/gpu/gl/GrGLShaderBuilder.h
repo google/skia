@@ -21,8 +21,74 @@ class GrGLContextInfo;
   manipulate that state.
 */
 class GrGLShaderBuilder {
-
 public:
+    /**
+     * Used by GrGLProgramStages to add texture reads to their shader code.
+     */
+    class TextureSampler {
+    public:
+        TextureSampler()
+            : fTextureAccess(NULL)
+            , fTexture(NULL)
+            , fSamplerUniform(GrGLUniformManager::kInvalidUniformHandle) {}
+
+        TextureSampler(const TextureSampler& other) { *this = other; }
+
+        TextureSampler& operator= (const TextureSampler& other) {
+            GrAssert(NULL == fTextureAccess);
+            GrAssert(GrGLUniformManager::kInvalidUniformHandle == fSamplerUniform);
+
+            fTexture = other.fTexture;
+            fTextureAccess = other.fTextureAccess;
+            fSamplerUniform = other.fSamplerUniform;
+            return *this;
+        }
+
+        const GrTextureAccess* textureAccess() const { return fTextureAccess; }
+
+    private:
+        void init(GrGLShaderBuilder* builder, const GrTextureAccess* access) {
+            GrAssert(NULL == fTextureAccess);
+            GrAssert(NULL == fTexture);
+            GrAssert(GrGLUniformManager::kInvalidUniformHandle == fSamplerUniform);
+
+            GrAssert(NULL != builder);
+            GrAssert(NULL != access);
+            fSamplerUniform = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                                  kSampler2D_GrSLType,
+                                                  "Sampler");
+            GrAssert(GrGLUniformManager::kInvalidUniformHandle != fSamplerUniform);
+
+            fTextureAccess = access;
+            fTexture = access->getTexture();
+        }
+
+        // TODO: Remove once GrTextureAccess is required.
+        void init(GrGLShaderBuilder* builder, const GrTexture* texture) {
+            GrAssert(NULL == fTextureAccess);
+            GrAssert(NULL == fTexture);
+            GrAssert(GrGLUniformManager::kInvalidUniformHandle == fSamplerUniform);
+
+            GrAssert(NULL != builder);
+            GrAssert(NULL != texture);
+            fSamplerUniform = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                                  kSampler2D_GrSLType,
+                                                  "Sampler");
+            GrAssert(GrGLUniformManager::kInvalidUniformHandle != fSamplerUniform);
+
+            fTexture = texture;
+        }
+
+        const GrTextureAccess*            fTextureAccess;
+        const GrTexture*                  fTexture; // TODO: remove once tex access cannot be NULL
+        GrGLUniformManager::UniformHandle fSamplerUniform;
+
+        friend class GrGLShaderBuilder; // to access fSamplerUniform
+        friend class GrGLProgram;       // to construct these and access fSamplerUniform.
+    };
+
+    typedef SkTArray<TextureSampler> TextureSamplerArray;
+
     enum ShaderType {
         kVertex_ShaderType   = 0x1,
         kGeometry_ShaderType = 0x2,
@@ -38,11 +104,11 @@ public:
         initialize it. This should only be called by GrGLProgram.*/
     void setupTextureAccess(const char* varyingFSName, GrSLType varyingType);
 
-    /** texture2D(samplerName, coordName), with projection if necessary; if coordName is not
+    /** appends a texture sample with projection if necessary; if coordName is not
         specified, uses fSampleCoords. coordType must either be Vec2f or Vec3f. The latter is
         interpreted as projective texture coords. */
     void appendTextureLookup(SkString* out,
-                             const char* samplerName,
+                             const TextureSampler&,
                              const char* coordName = NULL,
                              GrSLType coordType = kVec2f_GrSLType) const;
 
@@ -52,7 +118,7 @@ public:
         be expression that evaluates to a float or vec4. */
     void appendTextureLookupAndModulate(SkString* out,
                                         const char* modulation,
-                                        const char* samplerName,
+                                        const TextureSampler&,
                                         const char* coordName = NULL,
                                         GrSLType varyingType = kVec2f_GrSLType) const;
 
@@ -71,8 +137,7 @@ public:
         The generated swizzle state is built based on the format of the texture and the requested
         swizzle access pattern.  coordType must either be Vec2f or Vec3f. The latter is interpreted
         as projective texture coords.*/
-    void emitCustomTextureLookup(const GrTextureAccess& textureAccess,
-                                 const char* samplerName,
+    void emitCustomTextureLookup(const TextureSampler&,
                                  const char* coordName,
                                  GrSLType coordType = kVec2f_GrSLType);
 

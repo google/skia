@@ -629,15 +629,15 @@ bool GrGLProgram::genProgram(const GrCustomStage** customStages) {
                     inCoords = texCoordAttrs[tcIdx].c_str();
                 }
 
-                if (NULL != customStages[s]) {
-                    const GrProgramStageFactory& factory = customStages[s]->getFactory();
-                    fProgramStage[s] = factory.createGLInstance(*customStages[s]);
-                }
-                this->genStageCode(s,
-                                   inColor.size() ? inColor.c_str() : NULL,
-                                   outColor.c_str(),
-                                   inCoords,
-                                   &builder);
+                builder.setCurrentStage(s);
+                fProgramStage[s] = GenStageCode(customStages[s],
+                                                fDesc.fStages[s],
+                                                &fUniforms.fStages[s],
+                                                inColor.size() ? inColor.c_str() : NULL,
+                                                outColor.c_str(),
+                                                inCoords,
+                                                &builder);
+                builder.setNonStage();
                 inColor = outColor;
             }
         }
@@ -744,10 +744,6 @@ bool GrGLProgram::genProgram(const GrCustomStage** customStages) {
                         inCoords = texCoordAttrs[tcIdx].c_str();
                     }
 
-                    if (NULL != customStages[s]) {
-                        const GrProgramStageFactory& factory = customStages[s]->getFactory();
-                        fProgramStage[s] = factory.createGLInstance(*customStages[s]);
-                    }
                     // stages don't know how to deal with a scalar input. (Maybe they should. We
                     // could pass a GrGLShaderVar)
                     if (inCoverageIsScalar) {
@@ -755,11 +751,15 @@ bool GrGLProgram::genProgram(const GrCustomStage** customStages) {
                                                 inCoverage.c_str(), inCoverage.c_str());
                         inCoverage.append("4");
                     }
-                    this->genStageCode(s,
-                                       inCoverage.size() ? inCoverage.c_str() : NULL,
-                                       outCoverage.c_str(),
-                                       inCoords,
-                                       &builder);
+                    builder.setCurrentStage(s);
+                    fProgramStage[s] = GenStageCode(customStages[s],
+                                                    fDesc.fStages[s],
+                                                    &fUniforms.fStages[s],
+                                                    inCoverage.size() ? inCoverage.c_str() : NULL,
+                                                    outCoverage.c_str(),
+                                                    inCoords,
+                                                    &builder);
+                    builder.setNonStage();
                     inCoverage = outCoverage;
                 }
             }
@@ -920,21 +920,18 @@ void GrGLProgram::initSamplerUniforms() {
 ///////////////////////////////////////////////////////////////////////////////
 // Stage code generation
 
-void GrGLProgram::genStageCode(int stageNum,
-                               const char* fsInColor, // NULL means no incoming color
-                               const char* fsOutColor,
-                               const char* vsInCoord,
-                               GrGLShaderBuilder* builder) {
-    GrAssert(stageNum >= 0 && stageNum <= GrDrawState::kNumStages);
+// TODO: Move this function to GrGLShaderBuilder
+GrGLProgramStage* GrGLProgram::GenStageCode(const GrCustomStage* stage,
+                                            const StageDesc& desc,
+                                            StageUniforms* uniforms,
+                                            const char* fsInColor, // NULL means no incoming color
+                                            const char* fsOutColor,
+                                            const char* vsInCoord,
+                                            GrGLShaderBuilder* builder) {
 
-    const GrGLProgram::StageDesc& desc = fDesc.fStages[stageNum];
-    StageUniforms& uniforms = fUniforms.fStages[stageNum];
-    GrGLProgramStage* customStage = fProgramStage[stageNum];
-    GrAssert(NULL != customStage);
+    GrGLProgramStage* glStage = stage->getFactory().createGLInstance(*stage);
 
     GrAssert((desc.fInConfigFlags & StageDesc::kInConfigBitMask) == desc.fInConfigFlags);
-
-    builder->setCurrentStage(stageNum);
 
     /// Vertex Shader Stuff
 
@@ -945,9 +942,9 @@ void GrGLProgram::genStageCode(int stageNum,
     if (desc.fOptFlags & StageDesc::kIdentityMatrix_OptFlagBit) {
         texCoordVaryingType = kVec2f_GrSLType;
     } else {
-        uniforms.fTextureMatrixUni = builder->addUniform(GrGLShaderBuilder::kVertex_ShaderType,
+        uniforms->fTextureMatrixUni = builder->addUniform(GrGLShaderBuilder::kVertex_ShaderType,
                                                          kMat33f_GrSLType, "TexM", &matName);
-        builder->getUniformVariable(uniforms.fTextureMatrixUni);
+        builder->getUniformVariable(uniforms->fTextureMatrixUni);
 
         if (desc.fOptFlags & StageDesc::kNoPerspective_OptFlagBit) {
             texCoordVaryingType = kVec2f_GrSLType;
@@ -963,13 +960,22 @@ void GrGLProgram::genStageCode(int stageNum,
     builder->setupTextureAccess(varyingFSName, texCoordVaryingType);
 
     // Must setup variables after calling setupTextureAccess
-    customStage->setupVariables(builder);
+    glStage->setupVariables(builder);
 
-    const char* samplerName;
-    uniforms.fSamplerUniforms.push_back(builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                                            kSampler2D_GrSLType,
-                                                            "Sampler",
-                                                            &samplerName));
+    int numTextures = stage->numTextures();
+    SkSTArray<8, GrGLShaderBuilder::TextureSampler> textureSamplers;
+    textureSamplers.push_back_n(numTextures);
+    for (int i = 0; i < numTextures; ++i) {
+        // Right now we don't require a texture access for every texture. This will change soon.
+        const GrTextureAccess* access = stage->textureAccess(i);
+        if (NULL != access) {
+            GrAssert(access->getTexture() == stage->texture(i));
+            textureSamplers[i].init(builder, access);
+        } else {
+            textureSamplers[i].init(builder, stage->texture(i));
+        }
+        uniforms->fSamplerUniforms.push_back(textureSamplers[i].fSamplerUniform);
+    }
 
     if (!matName) {
         GrAssert(kVec2f_GrSLType == texCoordVaryingType);
@@ -981,18 +987,16 @@ void GrGLProgram::genStageCode(int stageNum,
                                   vector_all_coords(GrSLTypeToVecLength(texCoordVaryingType)));
     }
 
-    builder->fVSCode.appendf("\t{ // stage %d %s\n",
-                                stageNum, customStage->name());
-    customStage->emitVS(builder, varyingVSName);
+    builder->fVSCode.appendf("\t{ // %s\n", glStage->name());
+    glStage->emitVS(builder, varyingVSName);
     builder->fVSCode.appendf("\t}\n");
 
     builder->computeSwizzle(desc.fInConfigFlags);
 
     // Enclose custom code in a block to avoid namespace conflicts
-    builder->fFSCode.appendf("\t{ // stage %d %s \n",
-                                stageNum, customStage->name());
-    customStage->emitFS(builder, fsOutColor, fsInColor,
-                        samplerName);
+    builder->fFSCode.appendf("\t{ // %s \n", glStage->name());
+    glStage->emitFS(builder, fsOutColor, fsInColor, textureSamplers);
     builder->fFSCode.appendf("\t}\n");
-    builder->setNonStage();
+
+    return glStage;
 }

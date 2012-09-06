@@ -25,7 +25,6 @@ class GrGLTexture;
 
     These objects are created by a factory function on the
     GrCustomStage.
-    TODO: lifetime management.
 */
 
 class GrGLProgramStage {
@@ -36,6 +35,8 @@ public:
         // the number of bits in StageKey available to GenKey
         kProgramStageKeyBits = GrProgramStageFactory::kProgramStageKeyBits,
     };
+
+    typedef GrGLShaderBuilder::TextureSamplerArray TextureSamplerArray;
 
     GrGLProgramStage(const GrProgramStageFactory&);
 
@@ -63,14 +64,10 @@ public:
         trans black, known to be opaque, etc.) that allows the custom stage
         to communicate back similar known info about its output.
         */
-    /* TODO: don't give them the samplerName, just a handle; then give
-       a function here for them to call into that'll apply any texture
-       domain - but do we force them to be honest about texture domain
-       parameters? */
     virtual void emitFS(GrGLShaderBuilder* builder,
                         const char* outputColor,
                         const char* inputColor,
-                        const char* samplerName) = 0;
+                        const TextureSamplerArray&) = 0;
 
     /** A GrGLCustomStage instance can be reused with any GrCustomStage
         that produces the same stage key; this function reads data from

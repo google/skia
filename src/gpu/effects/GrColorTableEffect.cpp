@@ -23,7 +23,7 @@ public:
     virtual void emitFS(GrGLShaderBuilder* state,
                         const char* outputColor,
                         const char* inputColor,
-                        const char* samplerName) SK_OVERRIDE;
+                        const TextureSamplerArray&) SK_OVERRIDE;
 
     virtual void setData(const GrGLUniformManager&,
                          const GrCustomStage&,
@@ -34,21 +34,18 @@ public:
 
 private:
 
-    const GrCustomStage& fCustomStage;
-
     typedef GrGLProgramStage INHERITED;
 };
 
 GrGLColorTableEffect::GrGLColorTableEffect(
     const GrProgramStageFactory& factory, const GrCustomStage& stage)
-    : INHERITED(factory)
-    , fCustomStage(stage) {
+    : INHERITED(factory) {
  }
 
 void GrGLColorTableEffect::emitFS(GrGLShaderBuilder* builder,
                                   const char* outputColor,
                                   const char* inputColor,
-                                  const char* samplerName) {
+                                  const TextureSamplerArray& samplers) {
     static const float kColorScaleFactor = 255.0f / 256.0f;
     static const float kColorOffsetFactor = 1.0f / 512.0f;
     SkString* code = &builder->fFSCode;
@@ -67,25 +64,20 @@ void GrGLColorTableEffect::emitFS(GrGLShaderBuilder* builder,
                       kColorOffsetFactor, kColorOffsetFactor);
     }
 
-    const GrTextureAccess& access = *fCustomStage.textureAccess(0);
     code->appendf("\t\t%s.a = ", outputColor);
-    builder->emitCustomTextureLookup(access,
-                                     samplerName,
+    builder->emitCustomTextureLookup(samplers[0],
                                      "vec2(coord.a, 0.125)");
 
     code->appendf("\t\t%s.r = ", outputColor);
-    builder->emitCustomTextureLookup(access,
-                                     samplerName,
+    builder->emitCustomTextureLookup(samplers[0],
                                      "vec2(coord.r, 0.375)");
 
     code->appendf("\t\t%s.g = ", outputColor);
-    builder->emitCustomTextureLookup(access,
-                                     samplerName,
+    builder->emitCustomTextureLookup(samplers[0],
                                      "vec2(coord.g, 0.625)");
 
     code->appendf("\t\t%s.b = ", outputColor);
-    builder->emitCustomTextureLookup(access,
-                                     samplerName,
+    builder->emitCustomTextureLookup(samplers[0],
                                      "vec2(coord.b, 0.875)");
 
     code->appendf("\t\t%s.rgb *= %s.a;\n", outputColor, outputColor);

@@ -291,7 +291,7 @@ public:
                          const char* gradientTValue,
                          const char* outputColor,
                          const char* inputColor,
-                         const char* samplerName);
+                         const GrGLShaderBuilder::TextureSampler&);
 
 private:
 

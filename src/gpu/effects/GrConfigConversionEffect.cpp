@@ -22,9 +22,9 @@ public:
     virtual void emitFS(GrGLShaderBuilder* builder,
                         const char* outputColor,
                         const char* inputColor,
-                        const char* samplerName) SK_OVERRIDE {
+                        const TextureSamplerArray& samplers) SK_OVERRIDE {
         builder->fFSCode.appendf("\t\t%s = ", outputColor);
-        builder->appendTextureLookup(&builder->fFSCode, samplerName);
+        builder->appendTextureLookup(&builder->fFSCode, samplers[0]);
         builder->fFSCode.appendf("%s;\n", builder->fSwizzle.c_str());
         if (GrConfigConversionEffect::kNone_PMConversion == fPMConversion) {
             GrAssert(fSwapRedAndBlue);

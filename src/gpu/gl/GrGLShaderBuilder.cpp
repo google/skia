@@ -123,36 +123,41 @@ void GrGLShaderBuilder::setupTextureAccess(const char* varyingFSName, GrSLType v
 }
 
 void GrGLShaderBuilder::appendTextureLookup(SkString* out,
-                                            const char* samplerName,
+                                            const GrGLShaderBuilder::TextureSampler& sampler,
                                             const char* coordName,
                                             GrSLType varyingType) const {
     if (NULL == coordName) {
         coordName = fDefaultTexCoordsName.c_str();
         varyingType = kVec2f_GrSLType;
     }
-    out->appendf("%s(%s, %s)", sample_function_name(varyingType), samplerName, coordName);
+    out->appendf("%s(%s, %s)",
+                 sample_function_name(varyingType),
+                 this->getUniformCStr(sampler.fSamplerUniform),
+                 coordName);
 }
 
-void GrGLShaderBuilder::appendTextureLookupAndModulate(SkString* out,
-                                                       const char* modulation,
-                                                       const char* samplerName,
-                                                       const char* coordName,
-                                                       GrSLType varyingType) const {
+void GrGLShaderBuilder::appendTextureLookupAndModulate(
+                                            SkString* out,
+                                            const char* modulation,
+                                            const GrGLShaderBuilder::TextureSampler& sampler,
+                                            const char* coordName,
+                                            GrSLType varyingType) const {
     GrAssert(NULL != out);
     SkString lookup;
-    this->appendTextureLookup(&lookup, samplerName, coordName, varyingType);
+    this->appendTextureLookup(&lookup, sampler, coordName, varyingType);
     lookup.append(fSwizzle.c_str());
     GrGLSLModulate4f(out, modulation, lookup.c_str());
 }
 
-void GrGLShaderBuilder::emitCustomTextureLookup(const GrTextureAccess& textureAccess,
-                                                const char* samplerName,
+void GrGLShaderBuilder::emitCustomTextureLookup(const GrGLShaderBuilder::TextureSampler& sampler,
                                                 const char* coordName,
                                                 GrSLType varyingType) {
-    GrAssert(samplerName && coordName);
-    SkString swizzle = build_swizzle_string(textureAccess, fContext.caps());
+    GrAssert(NULL != sampler.textureAccess());
+    SkString swizzle = build_swizzle_string(*sampler.textureAccess(), fContext.caps());
 
-    fFSCode.appendf("%s( %s, %s)%s;\n", sample_function_name(varyingType), samplerName,
+    fFSCode.appendf("%s( %s, %s)%s;\n",
+                    sample_function_name(varyingType),
+                    this->getUniformCStr(sampler.fSamplerUniform),
                     coordName, swizzle.c_str());
 }
 

@@ -20,7 +20,7 @@ public:
     virtual void emitFS(GrGLShaderBuilder* builder,
                         const char* outputColor,
                         const char* inputColor,
-                        const char* samplerName) SK_OVERRIDE;
+                        const TextureSamplerArray&) SK_OVERRIDE;
 
     virtual void setData(const GrGLUniformManager&,
                          const GrCustomStage&,
@@ -49,14 +49,17 @@ void GrGLTextureDomainEffect::setupVariables(GrGLShaderBuilder* builder) {
 void GrGLTextureDomainEffect::emitFS(GrGLShaderBuilder* builder,
                                      const char* outputColor,
                                      const char* inputColor,
-                                     const char* samplerName) {
+                                     const TextureSamplerArray& samplers) {
     builder->fFSCode.appendf("\tvec2 clampCoord = clamp(%s, %s.xy, %s.zw);\n",
                            builder->defaultTexCoordsName(),
                            builder->getUniformCStr(fNameUni),
                            builder->getUniformCStr(fNameUni));
 
     builder->fFSCode.appendf("\t%s = ", outputColor);
-    builder->appendTextureLookupAndModulate(&builder->fFSCode, inputColor, samplerName, "clampCoord");
+    builder->appendTextureLookupAndModulate(&builder->fFSCode,
+                                            inputColor,
+                                            samplers[0],
+                                            "clampCoord");
     builder->fFSCode.append(";\n");
 }
 

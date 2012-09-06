@@ -22,9 +22,9 @@ public:
     virtual void emitFS(GrGLShaderBuilder* builder,
                         const char* outputColor,
                         const char* inputColor,
-                        const char* samplerName) SK_OVERRIDE {
+                        const TextureSamplerArray& samplers) SK_OVERRIDE {
         builder->fFSCode.appendf("\t%s = ", outputColor);
-        builder->appendTextureLookupAndModulate(&builder->fFSCode, inputColor, samplerName);
+        builder->appendTextureLookupAndModulate(&builder->fFSCode, inputColor, samplers[0]);
         builder->fFSCode.append(";\n");
     }
 

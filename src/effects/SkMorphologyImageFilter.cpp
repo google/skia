@@ -277,7 +277,7 @@ public:
     virtual void emitFS(GrGLShaderBuilder* state,
                         const char* outputColor,
                         const char* inputColor,
-                        const char* samplerName) SK_OVERRIDE;
+                        const TextureSamplerArray&) SK_OVERRIDE;
 
     static inline StageKey GenKey(const GrCustomStage& s, const GrGLCaps& caps);
 
@@ -313,7 +313,7 @@ void GrGLMorphologyEffect::setupVariables(GrGLShaderBuilder* builder) {
 void GrGLMorphologyEffect::emitFS(GrGLShaderBuilder* builder,
                                   const char* outputColor,
                                   const char* inputColor,
-                                  const char* samplerName) {
+                                  const TextureSamplerArray& samplers) {
     SkString* code = &builder->fFSCode;
 
     const char* func;
@@ -337,7 +337,7 @@ void GrGLMorphologyEffect::emitFS(GrGLShaderBuilder* builder,
                    builder->defaultTexCoordsName(), fRadius, imgInc);
     code->appendf("\t\tfor (int i = 0; i < %d; i++) {\n", this->width());
     code->appendf("\t\t\t%s = %s(%s, ", outputColor, func, outputColor);
-    builder->appendTextureLookup(&builder->fFSCode, samplerName, "coord");
+    builder->appendTextureLookup(&builder->fFSCode, samplers[0], "coord");
     code->appendf(");\n");
     code->appendf("\t\t\tcoord += %s;\n", imgInc);
     code->appendf("\t\t}\n");

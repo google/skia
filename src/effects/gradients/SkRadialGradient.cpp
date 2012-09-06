@@ -485,7 +485,7 @@ public:
     virtual void emitFS(GrGLShaderBuilder* builder,
                         const char* outputColor,
                         const char* inputColor,
-                        const char* samplerName) SK_OVERRIDE;
+                        const TextureSamplerArray&) SK_OVERRIDE;
 
     static StageKey GenKey(const GrCustomStage& s, const GrGLCaps& caps) { return 0; }
 
@@ -550,10 +550,10 @@ GrCustomStage* GrRadialGradient::TestCreate(SkRandom* random,
 void GrGLRadialGradient::emitFS(GrGLShaderBuilder* builder,
                                 const char* outputColor,
                                 const char* inputColor,
-                                const char* samplerName) {
+                                const TextureSamplerArray& samplers) {
     SkString t;
     t.printf("length(%s.xy)", builder->defaultTexCoordsName());
-    this->emitColorLookup(builder, t.c_str(), outputColor, inputColor, samplerName);
+    this->emitColorLookup(builder, t.c_str(), outputColor, inputColor, samplers[0]);
 }
 
 /////////////////////////////////////////////////////////////////////
