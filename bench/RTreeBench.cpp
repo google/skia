@@ -28,18 +28,17 @@ public:
         : INHERITED(param)
         , fTree(tree)
         , fProc(proc)
-        , fName(name)
-        , fBulkLoad(bulkLoad) { }
+        , fBulkLoad(bulkLoad) {
+        fName.append("rtree_");
+        fName.append(name);
+        fName.append("_build");
+        if (fBulkLoad) {
+            fName.append("_bulk");
+        }
+    }
 protected:
     virtual const char* onGetName() {
-        SkString str;
-        str.append("rtree_");
-        str.append(fName);
-        str.append("_build");
-        if (fBulkLoad) {
-            str.append("_bulk");
-        }
-        return str.c_str();
+        return fName.c_str();
     }
     virtual void onDraw(SkCanvas* canvas) {
         SkRandom rand;
@@ -55,7 +54,7 @@ protected:
 private:
     SkBBoxHierarchy* fTree;
     MakeRectProc fProc;
-    const char* fName;
+    SkString fName;
     bool fBulkLoad;
     typedef SkBenchmark INHERITED;
 };
@@ -75,9 +74,14 @@ public:
         : INHERITED(param)
         , fTree(tree)
         , fProc(proc)
-        , fName(name)
         , fBulkLoad(bulkLoad)
         , fQuery(q) {
+        fName.append("rtree_");
+        fName.append(name);
+        fName.append("_query");
+        if (fBulkLoad) {
+            fName.append("_bulk");
+        }
         SkRandom rand;
         for (int j = 0; j < SkBENCHLOOP(NUM_QUERY_RECTS); ++j) {
             fTree->insert(reinterpret_cast<void*>(j), fProc(rand, j,
@@ -87,14 +91,7 @@ public:
     }
 protected:
     virtual const char* onGetName() {
-        SkString str;
-        str.append("rtree_");
-        str.append(fName);
-        str.append("_query");
-        if (fBulkLoad) {
-            str.append("_bulk");
-        }
-        return str.c_str();
+        return fName.c_str();
     }
     virtual void onDraw(SkCanvas* canvas) {
         SkRandom rand;
@@ -134,7 +131,7 @@ protected:
 private:
     SkBBoxHierarchy* fTree;
     MakeRectProc fProc;
-    const char* fName;
+    SkString fName;
     bool fBulkLoad;
     QueryType fQuery;
     typedef SkBenchmark INHERITED;
