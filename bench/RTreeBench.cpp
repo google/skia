@@ -25,10 +25,10 @@ class BBoxBuildBench : public SkBenchmark {
 public:
     BBoxBuildBench(void* param, const char* name, MakeRectProc proc, bool bulkLoad,
                     SkBBoxHierarchy* tree)
-        : INHERITED(param) 
+        : INHERITED(param)
         , fTree(tree)
         , fProc(proc)
-        , fName(name) 
+        , fName(name)
         , fBulkLoad(bulkLoad) { }
 protected:
     virtual const char* onGetName() {
@@ -70,9 +70,9 @@ public:
         kFull_QueryType   // queries that cover everything
     };
 
-    BBoxQueryBench(void* param, const char* name, MakeRectProc proc, bool bulkLoad, 
+    BBoxQueryBench(void* param, const char* name, MakeRectProc proc, bool bulkLoad,
                     QueryType q, SkBBoxHierarchy* tree)
-        : INHERITED(param) 
+        : INHERITED(param)
         , fTree(tree)
         , fProc(proc)
         , fName(name)

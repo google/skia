@@ -42,7 +42,7 @@ static void random_data_rects(SkRandom& rand, DataRect out[], int n) {
     }
 }
 
-static bool verify_query(SkIRect query, DataRect rects[], 
+static bool verify_query(SkIRect query, DataRect rects[],
                          SkTDArray<void*>& found) {
     SkTDArray<void*> expected;
     // manually intersect with every rectangle
@@ -52,23 +52,23 @@ static bool verify_query(SkIRect query, DataRect rects[],
         }
     }
 
-    if (expected.count() != found.count()) { 
-        return false; 
-    } 
-    
+    if (expected.count() != found.count()) {
+        return false;
+    }
+
     if (0 == expected.count()) {
         return true;
     }
 
     // Just cast to long since sorting by the value of the void*'s was being problematic...
-    SkTQSort(reinterpret_cast<long*>(expected.begin()), 
+    SkTQSort(reinterpret_cast<long*>(expected.begin()),
              reinterpret_cast<long*>(expected.end() - 1));
-    SkTQSort(reinterpret_cast<long*>(found.begin()), 
+    SkTQSort(reinterpret_cast<long*>(found.begin()),
              reinterpret_cast<long*>(found.end() - 1));
     return found == expected;
 }
 
-static void runQueries(skiatest::Reporter* reporter, SkRandom& rand, DataRect rects[], 
+static void runQueries(skiatest::Reporter* reporter, SkRandom& rand, DataRect rects[],
                        SkRTree& tree) {
     for (int i = 0; i < NUM_QUERIES; ++i) {
         SkTDArray<void*> hits;
@@ -89,7 +89,7 @@ static void TestRTree(skiatest::Reporter* reporter) {
 
     int tmp = NUM_RECTS;
     while (tmp > 0) {
-        tmp -= static_cast<int>(pow(static_cast<double>(MAX_CHILDREN), 
+        tmp -= static_cast<int>(pow(static_cast<double>(MAX_CHILDREN),
                                 static_cast<double>(expectedDepthMin + 1)));
         ++expectedDepthMin;
     }

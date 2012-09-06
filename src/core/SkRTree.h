@@ -16,13 +16,13 @@
 
 /**
  * An R-Tree implementation. In short, it is a balanced n-ary tree containing a hierarchy of
- * bounding rectangles. 
- * 
- * Much like a B-Tree it maintains balance by enforcing minimum and maximum child counts, and 
+ * bounding rectangles.
+ *
+ * Much like a B-Tree it maintains balance by enforcing minimum and maximum child counts, and
  * splitting nodes when they become overfull. Unlike B-trees, however, we're using spatial data; so
- * there isn't a canonical ordering to use when choosing insertion locations and splitting 
+ * there isn't a canonical ordering to use when choosing insertion locations and splitting
  * distributions. A variety of heuristics have been proposed for these problems; here, we're using
- * something resembling an R*-tree, which attempts to minimize area and overlap during insertion, 
+ * something resembling an R*-tree, which attempts to minimize area and overlap during insertion,
  * and aims to minimize a combination of margin, overlap, and area when splitting.
  *
  * One detail that is thus far unimplemented that may improve tree quality is attempting to remove
@@ -33,7 +33,7 @@
  *
  * For more details see:
  *
- *  Beckmann, N.; Kriegel, H. P.; Schneider, R.; Seeger, B. (1990). "The R*-tree: 
+ *  Beckmann, N.; Kriegel, H. P.; Schneider, R.; Seeger, B. (1990). "The R*-tree:
  *      an efficient and robust access method for points and rectangles"
  *
  * It also supports bulk-loading from a batch of bounds and values; if you don't require the tree
@@ -97,7 +97,7 @@ private:
         } fChild;
         SkIRect fBounds;
     };
-    
+
     /**
      * A node in the tree, has between fMinChildren and fMaxChildren (the root is a special case)
      */
@@ -143,8 +143,8 @@ private:
     void search(Node* root, const SkIRect query, SkTDArray<void*>* results) const;
 
     /**
-     * This performs a bottom-up bulk load using the STR (sort-tile-recursive) algorithm, this 
-     * seems to generally produce better, more consistent trees at significantly lower cost than 
+     * This performs a bottom-up bulk load using the STR (sort-tile-recursive) algorithm, this
+     * seems to generally produce better, more consistent trees at significantly lower cost than
      * repeated insertions.
      *
      * This consumes the input array.
