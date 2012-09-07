@@ -964,30 +964,16 @@ GrGLProgramStage* GrGLProgram::GenStageCode(const GrCustomStage* stage,
 
     int numTextures = stage->numTextures();
     SkSTArray<8, GrGLShaderBuilder::TextureSampler> textureSamplers;
-    // temporary until we force custom stages to provide their own texture access
-    SkSTArray<8, bool, true> deleteTextureAccess;
-
     textureSamplers.push_back_n(numTextures);
-    deleteTextureAccess.push_back_n(numTextures);
-
     for (int i = 0; i < numTextures; ++i) {
         // Right now we don't require a texture access for every texture. This will change soon.
         const GrTextureAccess* access = stage->textureAccess(i);
-        GrAssert(NULL != stage->texture(i));
-        if (NULL == access) {
-            SkString swizzle;
-            if (desc.fInConfigFlags & StageDesc::kSmearAlpha_InConfigFlag) {
-                swizzle.printf("aaaa");
-            } else {
-                swizzle.printf("rgba");
-            }
-            access = SkNEW_ARGS(GrTextureAccess, (stage->texture(i), swizzle));
-            deleteTextureAccess[i] = true;
-        } else {
+        if (NULL != access) {
             GrAssert(access->getTexture() == stage->texture(i));
-            deleteTextureAccess[i] = false;
+            textureSamplers[i].init(builder, access);
+        } else {
+            textureSamplers[i].init(builder, stage->texture(i));
         }
-        textureSamplers[i].init(builder, access);
         uniforms->fSamplerUniforms.push_back(textureSamplers[i].fSamplerUniform);
     }
 
@@ -1005,15 +991,12 @@ GrGLProgramStage* GrGLProgram::GenStageCode(const GrCustomStage* stage,
     glStage->emitVS(builder, varyingVSName);
     builder->fVSCode.appendf("\t}\n");
 
+    builder->computeSwizzle(desc.fInConfigFlags);
+
     // Enclose custom code in a block to avoid namespace conflicts
     builder->fFSCode.appendf("\t{ // %s \n", glStage->name());
     glStage->emitFS(builder, fsOutColor, fsInColor, textureSamplers);
     builder->fFSCode.appendf("\t}\n");
 
-    for (int i = 0; i < numTextures; ++i) {
-        if (deleteTextureAccess[i]) {
-            SkDELETE(textureSamplers[i].textureAccess());
-        }
-    }
     return glStage;
 }
