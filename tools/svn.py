@@ -52,6 +52,19 @@ class Svn:
         """
         return self._RunCommand(['svn', 'checkout', url, path])
 
+    def ListSubdirs(self, url):
+        """Returns a list of all subdirectories (not files) within a given SVN
+        url.
+
+        @param url remote directory to list subdirectories of
+        """
+        subdirs = []
+        filenames = self._RunCommand(['svn', 'ls', url]).split('\n')
+        for filename in filenames:
+            if filename.endswith('/'):
+                subdirs.append(filename.strip('/'))
+        return subdirs
+
     def GetNewFiles(self):
         """Return a list of files which are in this directory but NOT under
         SVN control.
