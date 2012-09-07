@@ -192,6 +192,13 @@ public:
     void unlockTexture(GrTexture* texture);
 
     /**
+     * This method should be called whenever a GrTexture is unreffed or
+     * switched from exclusive to non-exclusive. This
+     * gives the resource cache a chance to discard unneeded textures.
+     */
+    void purgeCache();
+
+    /**
      * Creates a texture that is outside the cache. Does not count against
      * cache's budget.
      */

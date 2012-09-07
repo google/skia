@@ -187,12 +187,15 @@ void GrTextureStripAtlas::lockTexture() {
         fKeyTable.rewind();
     }
     GrAssert(NULL != fTexture);
+    fTexture->ref();
 }
 
 void GrTextureStripAtlas::unlockTexture() {
     GrAssert(NULL != fTexture && 0 == fLockedRows);
     fDesc.fContext->unlockTexture(fTexture);
+    fTexture->unref();
     fTexture = NULL;
+    fDesc.fContext->purgeCache();
 }
 
 void GrTextureStripAtlas::initLRU() {
