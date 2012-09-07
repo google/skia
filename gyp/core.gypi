@@ -109,6 +109,7 @@
         '<(skia_src_path)/core/SkPathHeap.cpp',
         '<(skia_src_path)/core/SkPathHeap.h',
         '<(skia_src_path)/core/SkPathMeasure.cpp',
+        '<(skia_src_path)/core/SkPathRef.h',
         '<(skia_src_path)/core/SkPicture.cpp',
         '<(skia_src_path)/core/SkPictureFlat.cpp',
         '<(skia_src_path)/core/SkPictureFlat.h',

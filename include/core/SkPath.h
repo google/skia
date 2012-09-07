@@ -13,6 +13,7 @@
 #include "SkInstCnt.h"
 #include "SkMatrix.h"
 #include "SkTDArray.h"
+#include "SkRefCnt.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
 #define GEN_ID_INC              fGenerationID++
@@ -26,6 +27,7 @@ class SkReader32;
 class SkWriter32;
 class SkAutoPathBoundsUpdate;
 class SkString;
+class SkPathRef;
 
 /** \class SkPath
 
@@ -255,9 +257,7 @@ public:
 
     /** Return the number of points in the path
      */
-    int countPoints() const {
-        return this->getPoints(NULL, 0);
-    }
+    int countPoints() const;
 
     /** Return the point at the specified index. If the index is out of range
          (i.e. is not 0 <= index < countPoints()) then the returned coordinates
@@ -275,9 +275,7 @@ public:
 
     /** Return the number of verbs in the path
      */
-    int countVerbs() const {
-        return this->getVerbs(NULL, 0);
-    }
+    int countVerbs() const;
 
     /** Returns the number of verbs in the path. Up to max verbs are copied. The
         verbs are copied as one byte per verb.
@@ -832,8 +830,7 @@ private:
         kSegmentMask_SerializationShift = 0
     };
 
-    SkTDArray<SkPoint>  fPts;
-    SkTDArray<uint8_t>  fVerbs;
+    SkAutoTUnref<SkPathRef>   fPathRef;
     mutable SkRect      fBounds;
     int                 fLastMoveToIndex;
     uint8_t             fFillType;
