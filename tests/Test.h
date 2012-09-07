@@ -103,10 +103,10 @@ namespace skiatest {
         GpuTest() : Test() {
             fContext = GetContext();
         }
+        static GrContext* GetContext();
     protected:
         GrContext* fContext;
     private:
-        static GrContext* GetContext();
     };
 
     typedef SkTRegistry<Test*, void*> TestRegistry;

@@ -8,6 +8,10 @@
 #include "SkGraphics.h"
 #include "Test.h"
 
+#if SK_SUPPORT_GPU
+#include "GrContext.h"
+#endif
+
 using namespace skiatest;
 
 // need to explicitly declare this, or we get some weird infinite loop llist
@@ -169,6 +173,16 @@ int main (int argc, char * const argv[]) {
         SkDebugf("Finished %d tests, %d failures, %d skipped.\n",
                  count, failCount, skipCount);
     }
+
+#if SK_SUPPORT_GPU
+
+#if GR_CACHE_STATS
+    GrContext *gr = GpuTest::GetContext();
+
+    gr->printCacheStats();
+#endif
+
+#endif
 
     SkGraphics::Term();
 
