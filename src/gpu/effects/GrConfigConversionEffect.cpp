@@ -25,6 +25,7 @@ public:
                         const TextureSamplerArray& samplers) SK_OVERRIDE {
         builder->fFSCode.appendf("\t\t%s = ", outputColor);
         builder->appendTextureLookup(&builder->fFSCode, samplers[0]);
+        builder->fFSCode.appendf("%s;\n", builder->fSwizzle.c_str());
         if (GrConfigConversionEffect::kNone_PMConversion == fPMConversion) {
             GrAssert(fSwapRedAndBlue);
             builder->fFSCode.appendf("\t%s = %s.bgra;\n", outputColor, outputColor);
