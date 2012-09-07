@@ -2028,7 +2028,7 @@ void set_tex_swizzle(GrGLenum swizzle[4], const GrGLInterface* gl) {
                                   reinterpret_cast<const GrGLint*>(swizzle)));
 }
 
-const GrGLenum tile_to_gl_wrap(SkShader::TileMode tm) {
+inline GrGLenum tile_to_gl_wrap(SkShader::TileMode tm) {
     static const GrGLenum gWrapModes[] = {
         GR_GL_CLAMP_TO_EDGE,
         GR_GL_REPEAT,
