@@ -42,16 +42,47 @@ GM_ACTUAL_URL = 'http://skia-autogen.googlecode.com/svn/gm-actual'
 GM_BASELINE_URL = 'https://skia.googlecode.com/svn/gm-expected'
 
 GM_EXPECTED_DIR = 'gm-expected'
-OPTION_IGNORE_LOCAL_MODS = '--ignore-local-mods'
+
 OPTION_ADD_NEW_FILES = '--add-new-files'
+OPTION_BUILDER_SUFFIX = '--builder-suffix'
+DEFAULT_BUILDER_SUFFIX = '32'
+OPTION_IGNORE_LOCAL_MODS = '--ignore-local-mods'
 
-def GetLatestResultsSvnUrl(baseline_subdir):
-    """Return SVN URL from which we can check out the MOST RECENTLY generated
-    images for this baseline type.
+def GetLatestResultsSvnUrl(svn, baseline_subdir, builder_suffix):
+    """Return SVN URL from which we can check out the MOST RECENTLY generated images for this
+    baseline type.
 
+    @param svn an Svn object we can use to call ListSubdirs()
     @param baseline_subdir indicates which platform we want images for
+    @param builder_suffix if multiple builders uploaded actual GM images for this baseline type,
+           choose the one whose builder_name matches this suffix
     """
-    return '%s/%s' % (GM_ACTUAL_URL, baseline_subdir)
+    root_url = '%s/%s' % (GM_ACTUAL_URL, baseline_subdir)
+    subdirs = sorted(svn.ListSubdirs(root_url))
+    num_subdirs = len(subdirs)
+    print('Within actual-results root URL %s, found these %d subdirs (presumably builder_names): %s'
+          % (root_url, num_subdirs, subdirs))
+
+    selected_subdir = None
+    if num_subdirs == 0:
+        print 'Found no builder_name subdirs, so reading actual images from the root_url itself.'
+        return root_url
+    elif num_subdirs == 1:
+        selected_subdir = subdirs[0]
+        print 'Found exactly one subdir in actual-results root_url: %s' % selected_subdir
+    else:
+        for possible_subdir in subdirs:
+            if possible_subdir.endswith(builder_suffix):
+                selected_subdir = possible_subdir
+                print 'Selected the first subdir ending in "%s": %s' % (
+                    builder_suffix, selected_subdir)
+                break
+
+    if selected_subdir:
+        return '%s/%s/%s' % (root_url, selected_subdir, baseline_subdir)
+    else:
+        raise Exception('none of these subdirs of %s ended in "%s": %s' % (
+            root_url, builder_suffix, subdirs))
 
 def GetBaselineSvnUrl(baseline_subdir):
     """Return SVN URL from which we can check out the baseline images for this
@@ -61,17 +92,15 @@ def GetBaselineSvnUrl(baseline_subdir):
     """
     return '%s/%s' % (GM_BASELINE_URL, baseline_subdir)
 
-def CopyMatchingFiles(source_dir, dest_dir, filename_pattern,
-                      only_copy_updates=False):
-    """Copy all files from source_dir that match filename_pattern, and
-    save them (with their original filenames) in dest_dir.
+def CopyMatchingFiles(source_dir, dest_dir, filename_pattern, only_copy_updates=False):
+    """Copy all files from source_dir that match filename_pattern, and save them (with their
+    original filenames) in dest_dir.
 
     @param source_dir
     @param dest_dir where to save the copied files
     @param filename_pattern only copy files that match this Unix-style filename
            pattern (e.g., '*.jpg')
-    @param only_copy_updates if True, only copy files that are already
-           present in dest_dir
+    @param only_copy_updates if True, only copy files that are already present in dest_dir
     """
     all_filenames = os.listdir(source_dir)
     matching_filenames = fnmatch.filter(all_filenames, filename_pattern)
@@ -111,7 +140,10 @@ def DownloadBaselinesForOnePlatform(baseline_subdir):
     actual_dir = tempfile.mkdtemp()
     actual_repo = svn.Svn(actual_dir)
     print 'Using %s as a temp dir' % actual_dir
-    actual_repo.Checkout(GetLatestResultsSvnUrl(baseline_subdir), '.')
+    actual_url = GetLatestResultsSvnUrl(svn=actual_repo, baseline_subdir=baseline_subdir,
+                                        builder_suffix=options.builder_suffix)
+    print 'Reading actual buildbot GM results from %s' % actual_url
+    actual_repo.Checkout(actual_url, '.')
 
     # Copy any of those files we are interested in into repo_to_modify,
     # and then delete the temporary directory.
@@ -153,6 +185,8 @@ def Main(options, args):
         # that the user gets all of the platforms that the bots are running,
         # not just whatever subdirectories he happens to have checked out...
         # See http://code.google.com/p/skia/issues/detail?id=678
+        # Now that we have added Svn.ListSubdirs(), we should be able to do this
+        # pretty easily...
         #
         # For now, I generate this list using these Unix commands:
         # svn ls http://skia.googlecode.com/svn/gm-expected | grep ^base | sort >/tmp/baselines
@@ -180,15 +214,20 @@ def Main(options, args):
 
 if __name__ == '__main__':
     parser = optparse.OptionParser(USAGE_STRING % '%prog' + HELP_STRING)
-    parser.add_option(OPTION_IGNORE_LOCAL_MODS,
-                      action='store_true', default=False,
-                      help='allow tool to run even if there are already '
-                      'local modifications in the baseline_subdir')
     parser.add_option(OPTION_ADD_NEW_FILES,
                       action='store_true', default=False,
                       help='in addition to downloading new versions of '
                       'existing baselines, also download baselines that are '
                       'not under SVN control yet')
+    parser.add_option(OPTION_BUILDER_SUFFIX,
+                      action='store', type='string', default=DEFAULT_BUILDER_SUFFIX,
+                      help='if multiple builders have uploaded actual GM images '
+                      'for this platform, download the images uploaded by the '
+                      'builder whose name ends in this suffix; defaults to '
+                      '"%s".' % DEFAULT_BUILDER_SUFFIX)
+    parser.add_option(OPTION_IGNORE_LOCAL_MODS,
+                      action='store_true', default=False,
+                      help='allow tool to run even if there are already '
+                      'local modifications in the baseline_subdir')
     (options, args) = parser.parse_args()
     Main(options, args)
-
