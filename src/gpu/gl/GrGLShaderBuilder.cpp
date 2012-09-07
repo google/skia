@@ -120,7 +120,7 @@ void GrGLShaderBuilder::appendTextureLookup(SkString* out,
         coordName = fDefaultTexCoordsName.c_str();
         varyingType = kVec2f_GrSLType;
     }
-    out->appendf("%s(%s, %s)%s",
+    out->appendf("%s(%s, %s)%s;\n",
                  sample_function_name(varyingType),
                  this->getUniformCStr(sampler.fSamplerUniform),
                  coordName, swizzle.c_str());
