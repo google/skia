@@ -20,15 +20,16 @@ TimerData::TimerData(const SkString& perIterTimeFormat, const SkString& normalTi
 , fTruncatedCpuStr(" Cmsecs = ")
 , fGpuStr(" gmsecs = ")
 , fWallSum(0.0)
-, fWallMin(numeric_limits<double>::max())
+, fWallMin((numeric_limits<double>::max)()) // Extra parens to make the windows build work, due to
+                                            // 'max' macro
 , fTruncatedWallSum(0.0)
-, fTruncatedWallMin(numeric_limits<double>::max())
+, fTruncatedWallMin((numeric_limits<double>::max)())
 , fCpuSum(0.0)
-, fCpuMin(numeric_limits<double>::max())
+, fCpuMin((numeric_limits<double>::max)())
 , fTruncatedCpuSum(0.0)
-, fTruncatedCpuMin(numeric_limits<double>::max())
+, fTruncatedCpuMin((numeric_limits<double>::max)())
 , fGpuSum(0.0)
-, fGpuMin(numeric_limits<double>::max())
+, fGpuMin((numeric_limits<double>::max)())
 , fPerIterTimeFormat(perIterTimeFormat)
 , fNormalTimeFormat(normalTimeFormat)
 {}
