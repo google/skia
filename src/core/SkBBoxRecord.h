@@ -12,7 +12,7 @@
 #include "SkPictureRecord.h"
 
 /**
-  * This is an abstract SkPictureRecord subclass that intercepts draw calls and computes an 
+  * This is an abstract SkPictureRecord subclass that intercepts draw calls and computes an
   * axis-aligned bounding box for each draw that it sees, subclasses implement handleBBox()
   * which will be called every time we get a new bounding box.
   */
@@ -34,7 +34,7 @@ public:
                             const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPaint(const SkPaint& paint) SK_OVERRIDE;
     virtual void clear(SkColor) SK_OVERRIDE;
-    virtual void drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y, 
+    virtual void drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                           const SkPaint& paint) SK_OVERRIDE;
     virtual void drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
                             const SkPaint* paint = NULL) SK_OVERRIDE;
@@ -47,7 +47,7 @@ public:
     virtual void drawPosText(const void* text, size_t byteLength,
                              const SkPoint pos[], const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPosTextH(const void* text, size_t byteLength,
-                              const SkScalar xpos[], SkScalar constY, 
+                              const SkScalar xpos[], SkScalar constY,
                               const SkPaint& paint) SK_OVERRIDE;
     virtual void drawSprite(const SkBitmap& bitmap, int left, int top,
                             const SkPaint* paint) SK_OVERRIDE;
@@ -62,7 +62,7 @@ public:
     virtual void drawPicture(SkPicture& picture) SK_OVERRIDE;
 
 private:
-    /** 
+    /**
      * Takes a bounding box in current canvas view space, accounts for stroking and effects, and
      * computes an axis-aligned bounding box in device coordinates, then passes it to handleBBox()
      * returns false if the draw is completely clipped out, and may safely be ignored.
