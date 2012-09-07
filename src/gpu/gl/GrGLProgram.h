@@ -105,19 +105,11 @@ public:
                 kNone_InConfigFlag                      = 0x00,
 
                 /**
-                 Smear alpha across all four channels. This is incompatible with
-                 kSmearRed. It is prefereable to perform the smear outside the
-                 shader using GL_ARB_texture_swizzle if possible rather than
-                 setting this flag.
+                 Smear alpha across all four channels. It is prefereable to perform the smear
+                 outside the shader using GL_ARB_texture_swizzle if possible rather than setting
+                 this flag.
                 */
-                kSmearAlpha_InConfigFlag                = 0x02,
-
-                /**
-                 Smear the red channel across all four channels. This flag is
-                 incompatible with kSmearAlpha. It is preferable to use
-                 GL_ARB_texture_swizzle instead of this  flag.
-                */
-                kSmearRed_InConfigFlag                  = 0x04,
+                kSmearAlpha_InConfigFlag                = 0x01,
 
                 kDummyInConfigFlag,
                 kInConfigBitMask = (kDummyInConfigFlag-1) |

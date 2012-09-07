@@ -65,20 +65,20 @@ void GrGLColorTableEffect::emitFS(GrGLShaderBuilder* builder,
     }
 
     code->appendf("\t\t%s.a = ", outputColor);
-    builder->emitCustomTextureLookup(samplers[0],
-                                     "vec2(coord.a, 0.125)");
+    builder->appendTextureLookup(code, samplers[0], "vec2(coord.a, 0.125)");
+    code->append(";\n");
 
     code->appendf("\t\t%s.r = ", outputColor);
-    builder->emitCustomTextureLookup(samplers[0],
-                                     "vec2(coord.r, 0.375)");
+    builder->appendTextureLookup(code, samplers[0], "vec2(coord.r, 0.375)");
+    code->append(";\n");
 
     code->appendf("\t\t%s.g = ", outputColor);
-    builder->emitCustomTextureLookup(samplers[0],
-                                     "vec2(coord.g, 0.625)");
+    builder->appendTextureLookup(code, samplers[0], "vec2(coord.g, 0.625)");
+    code->append(";\n");
 
     code->appendf("\t\t%s.b = ", outputColor);
-    builder->emitCustomTextureLookup(samplers[0],
-                                     "vec2(coord.b, 0.875)");
+    builder->appendTextureLookup(code, samplers[0], "vec2(coord.b, 0.875)");
+    code->append(";\n");
 
     code->appendf("\t\t%s.rgb *= %s.a;\n", outputColor, outputColor);
 }

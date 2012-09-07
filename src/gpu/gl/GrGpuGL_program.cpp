@@ -722,13 +722,7 @@ void GrGpuGL::buildProgram(bool isPoints,
                     if (GrPixelConfigIsAlphaOnly(texture->config())) {
                         // If we don't have texture swizzle support then the shader must smear the
                         // single channel after reading the texture.
-                        if (this->glCaps().textureRedSupport()) {
-                            // We can use R8 textures so use kSmearRed.
-                            stage.fInConfigFlags |= StageDesc::kSmearRed_InConfigFlag;
-                        } else {
-                            // We can use A8 textures so use kSmearAlpha.
-                            stage.fInConfigFlags |= StageDesc::kSmearAlpha_InConfigFlag;
-                        }
+                        stage.fInConfigFlags |= StageDesc::kSmearAlpha_InConfigFlag;
                     }
                 }
             }
