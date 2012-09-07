@@ -85,7 +85,12 @@
       'target_name': 'bench_pictures',
       'type': 'executable',
       'sources': [
+        '../bench/SkBenchLogger.h',
+        '../bench/SkBenchLogger.cpp',
+        '../bench/TimerData.h',
+        '../bench/TimerData.cpp',
         '../tools/bench_pictures_main.cpp',
+        '../tools/PictureBenchmark.cpp',
       ],
       'include_dirs': [
         '../bench',
@@ -95,27 +100,9 @@
         'effects.gyp:effects',
         'ports.gyp:ports',
         'tools.gyp:picture_utils',
-        'tools.gyp:picture_benchmark',
-      ],
-    },
-    {
-     'target_name': 'picture_benchmark',
-     'type': 'static_library',
-     'sources': [
-        '../tools/PictureBenchmark.cpp',
-     ],
-     'include_dirs': [
-        '../bench',
-     ],
-     'dependencies': [
-        'core.gyp:core',
-        'tools.gyp:picture_utils',
         'tools.gyp:picture_renderer',
         'bench.gyp:bench_timer',
-     ],
-     'export_dependent_settings': [
-       'tools.gyp:picture_renderer',
-     ]
+      ],
     },
     {
      'target_name': 'picture_renderer',

@@ -12,6 +12,7 @@
 #include "PictureRenderer.h"
 
 class BenchTimer;
+class SkBenchLogger;
 class SkPicture;
 class SkString;
 
@@ -19,14 +20,14 @@ namespace sk_tools {
 
 class PictureBenchmark : public SkRefCnt {
 public:
-    virtual void run(SkPicture* pict) = 0;
+    PictureBenchmark()
+    : fRepeats(1)
+    , fLogger(NULL) {}
+
+    void run(SkPicture* pict);
 
     void setRepeats(int repeats) {
         fRepeats = repeats;
-    }
-
-    int getRepeats() const {
-        return fRepeats;
     }
 
     void setDeviceType(PictureRenderer::SkDeviceTypes deviceType) {
@@ -37,54 +38,58 @@ public:
         }
     }
 
+    void setLogger(SkBenchLogger* logger) { fLogger = logger; }
+
+private:
+    int            fRepeats;
+    SkBenchLogger* fLogger;
+
+    void logProgress(const char msg[]);
+
+    virtual sk_tools::PictureRenderer* getRenderer() = 0;
+
     BenchTimer* setupTimer();
 
-protected:
-    int fRepeats;
-
-private:
     typedef SkRefCnt INHERITED;
-
-    virtual sk_tools::PictureRenderer* getRenderer() {
-        return NULL;
-    }
 };
 
+// TODO: Use just one PictureBenchmark with different renderers.
+
 class PipePictureBenchmark : public PictureBenchmark {
-public:
-    virtual void run(SkPicture* pict) SK_OVERRIDE;
 private:
     PipePictureRenderer fRenderer;
-    typedef PictureBenchmark INHERITED;
 
     virtual sk_tools::PictureRenderer* getRenderer() SK_OVERRIDE {
         return &fRenderer;
     }
+
+    typedef PictureBenchmark INHERITED;
 };
 
 class RecordPictureBenchmark : public PictureBenchmark {
-public:
-    virtual void run(SkPicture* pict) SK_OVERRIDE;
 private:
+    RecordPictureRenderer fRenderer;
+
+    virtual sk_tools::PictureRenderer* getRenderer() SK_OVERRIDE {
+        return &fRenderer;
+    }
+
     typedef PictureBenchmark INHERITED;
 };
 
 class SimplePictureBenchmark : public PictureBenchmark {
-public:
-    virtual void run(SkPicture* pict) SK_OVERRIDE;
 private:
     SimplePictureRenderer fRenderer;
-    typedef PictureBenchmark INHERITED;
 
     virtual sk_tools::PictureRenderer* getRenderer() SK_OVERRIDE {
         return &fRenderer;
     }
+
+    typedef PictureBenchmark INHERITED;
 };
 
 class TiledPictureBenchmark : public PictureBenchmark {
 public:
-    virtual void run(SkPicture* pict) SK_OVERRIDE;
-
     void setTileWidth(int width) {
         fRenderer.setTileWidth(width);
     }
@@ -135,17 +140,22 @@ public:
 
 private:
     TiledPictureRenderer fRenderer;
-    typedef PictureBenchmark INHERITED;
 
     virtual sk_tools::PictureRenderer* getRenderer() SK_OVERRIDE{
         return &fRenderer;
     }
+
+    typedef PictureBenchmark INHERITED;
 };
 
-class UnflattenPictureBenchmark : public PictureBenchmark {
-public:
-    virtual void run(SkPicture* pict) SK_OVERRIDE;
+class PlaybackCreationBenchmark : public PictureBenchmark {
 private:
+    PlaybackCreationRenderer fRenderer;
+
+    virtual sk_tools::PictureRenderer* getRenderer() SK_OVERRIDE{
+        return &fRenderer;
+    }
+
     typedef PictureBenchmark INHERITED;
 };
 

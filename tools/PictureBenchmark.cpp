@@ -6,12 +6,14 @@
  */
 
 #include "SkTypes.h"
+#include "SkBenchLogger.h"
 #include "BenchTimer.h"
 #include "PictureBenchmark.h"
 #include "SkCanvas.h"
 #include "SkPicture.h"
 #include "SkString.h"
 #include "picture_utils.h"
+#include "TimerData.h"
 
 namespace sk_tools {
 
@@ -29,224 +31,67 @@ BenchTimer* PictureBenchmark::setupTimer() {
 #endif
 }
 
-void PipePictureBenchmark::run(SkPicture* pict) {
+void PictureBenchmark::logProgress(const char msg[]) {
+    if (fLogger != NULL) {
+        fLogger->logProgress(msg);
+    }
+}
+
+void PictureBenchmark::run(SkPicture* pict) {
     SkASSERT(pict);
     if (NULL == pict) {
         return;
     }
 
-    fRenderer.init(pict);
+    PictureRenderer* renderer = this->getRenderer();
+    SkASSERT(renderer != NULL);
+    if (NULL == renderer) {
+        return;
+    }
+    renderer->init(pict);
 
     // We throw this away to remove first time effects (such as paging in this
     // program)
-    fRenderer.render();
-    fRenderer.resetState();
+    renderer->setup();
+    renderer->render(false);
+    renderer->resetState();
 
     BenchTimer* timer = this->setupTimer();
-    double wall_time = 0, truncated_wall_time = 0;
+    bool usingGpu = false;
 #if SK_SUPPORT_GPU
-    double gpu_time = 0;
+    usingGpu = renderer->isUsingGpuDevice();
 #endif
 
+    TimerData timerData(renderer->getPerIterTimeFormat(), renderer->getNormalTimeFormat());
     for (int i = 0; i < fRepeats; ++i) {
-        timer->start();
-        fRenderer.render();
-        timer->end();
-        fRenderer.resetState();
-
-        wall_time += timer->fWall;
-        truncated_wall_time += timer->fTruncatedWall;
-#if SK_SUPPORT_GPU
-        if (fRenderer.isUsingGpuDevice()) {
-            gpu_time += timer->fGpu;
-        }
-#endif
-    }
-
-    SkString result;
-    result.printf("pipe: msecs = %6.2f", wall_time / fRepeats);
-#if SK_SUPPORT_GPU
-    if (fRenderer.isUsingGpuDevice()) {
-        result.appendf(" gmsecs = %6.2f", gpu_time / fRepeats);
-    }
-#endif
-    result.appendf("\n");
-    sk_tools::print_msg(result.c_str());
-
-    fRenderer.end();
-    SkDELETE(timer);
-}
-
-void RecordPictureBenchmark::run(SkPicture* pict) {
-    SkASSERT(pict);
-    if (NULL == pict) {
-        return;
-    }
-
-    BenchTimer* timer = setupTimer();
-    double wall_time = 0, truncated_wall_time = 0;
-
-    for (int i = 0; i < fRepeats + 1; ++i) {
-        SkPicture replayer;
+        renderer->setup();
 
         timer->start();
-        SkCanvas* recorder = replayer.beginRecording(pict->width(), pict->height());
-        pict->draw(recorder);
-        replayer.endRecording();
+        renderer->render(false);
+        timer->truncatedEnd();
+
+        // Finishes gl context
+        renderer->resetState();
         timer->end();
 
-        // We want to ignore first time effects
-        if (i > 0) {
-            wall_time += timer->fWall;
-            truncated_wall_time += timer->fTruncatedWall;
-        }
+        timerData.appendTimes(timer, fRepeats - 1 == i);
     }
 
-    SkString result;
-    result.printf("record: msecs = %6.5f\n", wall_time / fRepeats);
-    sk_tools::print_msg(result.c_str());
+    // FIXME: Pass these options on the command line.
+    bool logPerIter = false;
+    bool printMin = false;
+    const char* configName = usingGpu ? "gpu" : "raster";
+    bool showWallTime = true;
+    bool showTruncatedWallTime = false;
+    bool showCpuTime = false;
+    bool showTruncatedCpuTime = false;
+    SkString result = timerData.getResult(logPerIter, printMin, fRepeats,
+                                          configName, showWallTime, showTruncatedWallTime,
+                                          showCpuTime, showTruncatedCpuTime, usingGpu);
+    result.append("\n");
+    this->logProgress(result.c_str());
 
-    SkDELETE(timer);
-}
-
-void SimplePictureBenchmark::run(SkPicture* pict) {
-    SkASSERT(pict);
-    if (NULL == pict) {
-        return;
-    }
-
-    fRenderer.init(pict);
-
-    // We throw this away to remove first time effects (such as paging in this
-    // program)
-    fRenderer.render();
-    fRenderer.resetState();
-
-
-    BenchTimer* timer = this->setupTimer();
-    double wall_time = 0, truncated_wall_time = 0;
-#if SK_SUPPORT_GPU
-    double gpu_time = 0;
-#endif
-
-    for (int i = 0; i < fRepeats; ++i) {
-        timer->start();
-        fRenderer.render();
-        timer->end();
-        fRenderer.resetState();
-
-        wall_time += timer->fWall;
-        truncated_wall_time += timer->fTruncatedWall;
-#if SK_SUPPORT_GPU
-        if (fRenderer.isUsingGpuDevice()) {
-            gpu_time += timer->fGpu;
-        }
-#endif
-    }
-
-
-    SkString result;
-    result.printf("simple: msecs = %6.2f", wall_time / fRepeats);
-#if SK_SUPPORT_GPU
-    if (fRenderer.isUsingGpuDevice()) {
-        result.appendf(" gmsecs = %6.2f", gpu_time / fRepeats);
-    }
-#endif
-    result.appendf("\n");
-    sk_tools::print_msg(result.c_str());
-
-    fRenderer.end();
-    SkDELETE(timer);
-}
-
-void TiledPictureBenchmark::run(SkPicture* pict) {
-    SkASSERT(pict);
-    if (NULL == pict) {
-        return;
-    }
-
-    fRenderer.init(pict);
-
-    // We throw this away to remove first time effects (such as paging in this
-    // program)
-    fRenderer.drawTiles();
-    fRenderer.resetState();
-
-    BenchTimer* timer = setupTimer();
-    double wall_time = 0, truncated_wall_time = 0;
-#if SK_SUPPORT_GPU
-    double gpu_time = 0;
-#endif
-
-    for (int i = 0; i < fRepeats; ++i) {
-        timer->start();
-        fRenderer.drawTiles();
-        timer->end();
-        fRenderer.resetState();
-
-        wall_time += timer->fWall;
-        truncated_wall_time += timer->fTruncatedWall;
-#if SK_SUPPORT_GPU
-        if (fRenderer.isUsingGpuDevice()) {
-            gpu_time += timer->fGpu;
-        }
-#endif
-    }
-
-    SkString result;
-    if (fRenderer.isMultiThreaded()) {
-        result.printf("multithreaded using %s ", (fRenderer.isUsePipe() ? "pipe" : "picture"));
-    }
-    if (fRenderer.getTileMinPowerOf2Width() > 0) {
-        result.appendf("%i_pow2tiles_%iminx%i: msecs = %6.2f", fRenderer.numTiles(),
-                       fRenderer.getTileMinPowerOf2Width(), fRenderer.getTileHeight(),
-                       wall_time / fRepeats);
-    } else {
-        result.appendf("%i_tiles_%ix%i: msecs = %6.2f", fRenderer.numTiles(),
-                       fRenderer.getTileWidth(), fRenderer.getTileHeight(), wall_time / fRepeats);
-    }
-#if SK_SUPPORT_GPU
-    if (fRenderer.isUsingGpuDevice()) {
-        result.appendf(" gmsecs = %6.2f", gpu_time / fRepeats);
-    }
-#endif
-    result.appendf("\n");
-    sk_tools::print_msg(result.c_str());
-
-    fRenderer.end();
-    SkDELETE(timer);
-}
-
-void UnflattenPictureBenchmark::run(SkPicture* pict) {
-    SkASSERT(pict);
-    if (NULL == pict) {
-        return;
-    }
-
-    BenchTimer* timer = setupTimer();
-    double wall_time = 0, truncated_wall_time = 0;
-
-    for (int i = 0; i < fRepeats + 1; ++i) {
-        SkPicture replayer;
-        SkCanvas* recorder = replayer.beginRecording(pict->width(), pict->height());
-
-        recorder->drawPicture(*pict);
-
-        timer->start();
-        replayer.endRecording();
-        timer->end();
-
-        // We want to ignore first time effects
-        if (i > 0) {
-            wall_time += timer->fWall;
-            truncated_wall_time += timer->fTruncatedWall;
-        }
-    }
-
-    SkString result;
-    result.printf("unflatten: msecs = %6.4f\n", wall_time / fRepeats);
-    sk_tools::print_msg(result.c_str());
-
+    renderer->end();
     SkDELETE(timer);
 }
 

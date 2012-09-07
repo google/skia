@@ -21,6 +21,7 @@
 #include "SkGpuDevice.h"
 #endif // SK_SUPPORT_GPU
 
+#include "SkBenchLogger.h"
 #include "SkBenchmark.h"
 #include "SkCanvas.h"
 #include "SkDeferredCanvas.h"
@@ -30,56 +31,8 @@
 #include "SkImageEncoder.h"
 #include "SkNWayCanvas.h"
 #include "SkPicture.h"
-#include "SkStream.h"
 #include "SkString.h"
-
-template <typename T> const T& Min(const T& a, const T& b) {
-    return (a < b) ? a : b;
-}
-
-class SkBenchLogger {
-public:
-    SkBenchLogger() : fFileStream(NULL) {}
-    ~SkBenchLogger() {
-        if (fFileStream)
-            SkDELETE(fFileStream);
-    }
-
-    bool SetLogFile(const char file[]) {
-        fFileStream = SkNEW_ARGS(SkFILEWStream, (file));
-        return fFileStream->isValid();
-    }
-
-    void logError(const char msg[]) { nativeLogError(msg); }
-    void logError(const SkString& str) { nativeLogError(str.c_str()); }
-
-    void logProgress(const char msg[]) {
-        nativeLogProgress(msg);
-        fileWrite(msg, strlen(msg));
-    }
-    void logProgress(const SkString& str) {
-        nativeLogProgress(str.c_str());
-        fileWrite(str.c_str(), str.size());
-    }
-
-private:
-#ifdef SK_BUILD_FOR_ANDROID
-    void nativeLogError(const char msg[]) { SkDebugf("%s", msg); }
-    void nativeLogProgress(const char msg[]) { SkDebugf("%s", msg); }
-#else
-    void nativeLogError(const char msg[]) { fprintf(stderr, "%s", msg); }
-    void nativeLogProgress(const char msg[]) { printf("%s", msg); }
-#endif
-
-    void fileWrite(const char msg[], size_t size) {
-        if (fFileStream && fFileStream->isValid())
-            fFileStream->write(msg, size);
-    }
-    SkFILEWStream* fFileStream;
-
-} logger;
-
-///////////////////////////////////////////////////////////////////////////////
+#include "TimerData.h"
 
 enum benchModes {
     kNormal_benchModes,
@@ -400,7 +353,7 @@ static void help() {
              "    [-scale] [-clip] [-min] [-forceAA 1|0] [-forceFilter 1|0]\n"
              "    [-forceDither 1|0] [-forceBlend 1|0] [-strokeWidth width]\n"
              "    [-match name] [-mode normal|deferred|record|picturerecord]\n"
-             "    [-config 8888|565|GPU|ANGLE|NULLGPU] [-Dfoo bar]\n"
+             "    [-config 8888|565|GPU|ANGLE|NULLGPU] [-Dfoo bar] [-logFile filename]\n"
              "    [-h|--help]");
     SkDebugf("\n\n");
     SkDebugf("    -o outDir : Image of each bench will be put in outDir.\n");
@@ -429,7 +382,7 @@ static void help() {
              "                 record, Benchmark the time to record to an SkPicture;\n"
              "                 picturerecord, Benchmark the time to do record from a \n"
              "                                SkPicture to a SkPicture.\n");
-    SkDebugf("    -logFile : destination for writing log output, in addition to stdout.\n");
+    SkDebugf("    -logFile filename : destination for writing log output, in addition to stdout.\n");
 #if SK_SUPPORT_GPU
     SkDebugf("    -config 8888|565|GPU|ANGLE|NULLGPU : "
              "Run bench in corresponding config mode.\n");
@@ -477,6 +430,8 @@ int main (int argc, char * const argv[]) {
     Backend backend = kRaster_Backend;  // for warning
     SkTDArray<int> configs;
     bool userConfig = false;
+
+    SkBenchLogger logger;
 
     char* const* stop = argv + argc;
     for (++argv; argv < stop; ++argv) {
@@ -634,6 +589,7 @@ int main (int argc, char * const argv[]) {
                 if (!logger.SetLogFile(*argv)) {
                     SkString str;
                     str.printf("Could not open %s for writing.", *argv);
+                    logger.logError(str);
                     return -1;
                 }
             } else {
@@ -864,16 +820,7 @@ int main (int argc, char * const argv[]) {
             }
 
             // record timer values for each repeat, and their sum
-            SkString fWallStr(" msecs = ");
-            SkString fTruncatedWallStr(" Wmsecs = ");
-            SkString fCpuStr(" cmsecs = ");
-            SkString fTruncatedCpuStr(" Cmsecs = ");
-            SkString fGpuStr(" gmsecs = ");
-            double fWallSum = 0.0, fWallMin;
-            double fTruncatedWallSum = 0.0, fTruncatedWallMin;
-            double fCpuSum = 0.0, fCpuMin;
-            double fTruncatedCpuSum = 0.0, fTruncatedCpuMin;
-            double fGpuSum = 0.0, fGpuMin;
+            TimerData timerData(perIterTimeformat, normalTimeFormat);
             for (int i = 0; i < repeatDraw; i++) {
                 if ((benchMode == kRecord_benchModes
                      || benchMode == kPictureRecord_benchModes)) {
@@ -904,84 +851,14 @@ int main (int argc, char * const argv[]) {
                 // have completed
                 timer.end();
 
-                if (i == repeatDraw - 1) {
-                    // no comma after the last value
-                    fWallStr.appendf(perIterTimeformat.c_str(), timer.fWall);
-                    fCpuStr.appendf(perIterTimeformat.c_str(), timer.fCpu);
-                    fTruncatedWallStr.appendf(perIterTimeformat.c_str(), timer.fTruncatedWall);
-                    fTruncatedCpuStr.appendf(perIterTimeformat.c_str(), timer.fTruncatedCpu);
-                    fGpuStr.appendf(perIterTimeformat.c_str(), timer.fGpu);
-                } else {
-                    fWallStr.appendf(perIterTimeformat.c_str(), timer.fWall);
-                    fWallStr.appendf(",");
-                    fCpuStr.appendf(perIterTimeformat.c_str(), timer.fCpu);
-                    fCpuStr.appendf(",");
-                    fTruncatedWallStr.appendf(perIterTimeformat.c_str(), timer.fTruncatedWall);
-                    fTruncatedWallStr.appendf(",");
-                    fTruncatedCpuStr.appendf(perIterTimeformat.c_str(), timer.fTruncatedCpu);
-                    fTruncatedCpuStr.appendf(",");
-                    fGpuStr.appendf(perIterTimeformat.c_str(), timer.fGpu);
-                    fGpuStr.appendf(",");
-                }
+                timerData.appendTimes(&timer, repeatDraw - 1 == i);
 
-                if (0 == i) {
-                    fWallMin = timer.fWall;
-                    fCpuMin  = timer.fCpu;
-                    fTruncatedWallMin = timer.fTruncatedWall;
-                    fTruncatedCpuMin  = timer.fTruncatedCpu;
-                    fGpuMin  = timer.fGpu;
-                } else {
-                    fWallMin = Min(fWallMin, timer.fWall);
-                    fCpuMin  = Min(fCpuMin,  timer.fCpu);
-                    fTruncatedWallMin = Min(fTruncatedWallMin, timer.fTruncatedWall);
-                    fTruncatedCpuMin  = Min(fTruncatedCpuMin,  timer.fTruncatedCpu);
-                    fGpuMin  = Min(fGpuMin,  timer.fGpu);
-                }
-
-                fWallSum += timer.fWall;
-                fCpuSum += timer.fCpu;
-                fTruncatedWallSum += timer.fTruncatedWall;
-                fTruncatedCpuSum += timer.fTruncatedCpu;
-                fGpuSum += timer.fGpu;
             }
             if (repeatDraw > 1) {
-                // output each repeat (no average) if logPerIter is set,
-                // otherwise output only the average
-                if (!logPerIter) {
-                    fWallStr.set(" msecs = ");
-                    fWallStr.appendf(normalTimeFormat.c_str(),
-                        printMin ? fWallMin : fWallSum / repeatDraw);
-                    fCpuStr.set(" cmsecs = ");
-                    fCpuStr.appendf(normalTimeFormat.c_str(),
-                        printMin ? fCpuMin : fCpuSum / repeatDraw);
-                    fTruncatedWallStr.set(" Wmsecs = ");
-                    fTruncatedWallStr.appendf(normalTimeFormat.c_str(),
-                        printMin ? fTruncatedWallMin : fTruncatedWallSum / repeatDraw);
-                    fTruncatedCpuStr.set(" Cmsecs = ");
-                    fTruncatedCpuStr.appendf(normalTimeFormat.c_str(),
-                        printMin ? fTruncatedCpuMin : fTruncatedCpuSum / repeatDraw);
-                    fGpuStr.set(" gmsecs = ");
-                    fGpuStr.appendf(normalTimeFormat.c_str(),
-                        printMin ? fGpuMin : fGpuSum / repeatDraw);
-                }
-                SkString str;
-                str.printf("  %4s:", configName);
-                if (timerWall) {
-                    str += fWallStr;
-                }
-                if (truncatedTimerWall) {
-                    str += fTruncatedWallStr;
-                }
-                if (timerCpu) {
-                    str += fCpuStr;
-                }
-                if (truncatedTimerCpu) {
-                    str += fTruncatedCpuStr;
-                }
-                if (timerGpu && glHelper && fGpuSum > 0) {
-                    str += fGpuStr;
-                }
-                logger.logProgress(str);
+                SkString result = timerData.getResult(logPerIter, printMin, repeatDraw, configName,
+                                                      timerWall, truncatedTimerWall, timerCpu,
+                                                      truncatedTimerCpu, timerGpu && glHelper);
+                logger.logProgress(result);
             }
             if (outDir.size() > 0) {
                 saveFile(bench->getName(), configName, outDir.c_str(),

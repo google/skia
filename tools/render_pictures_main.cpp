@@ -104,7 +104,9 @@ static void render_picture(const SkString& inputPath, const SkString& outputDir,
 
     renderer.init(&picture);
 
-    renderer.render();
+    renderer.render(true);
+
+    renderer.resetState();
 
     write_output(outputDir, inputFilename, renderer);
 

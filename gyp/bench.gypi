@@ -38,6 +38,11 @@
     '../bench/TextBench.cpp',
     '../bench/VertBench.cpp',
     '../bench/WriterBench.cpp',
+
+    '../bench/SkBenchLogger.h',
+    '../bench/SkBenchLogger.cpp',
+    '../bench/TimerData.h',
+    '../bench/TimerData.cpp',
   ],
 }
 

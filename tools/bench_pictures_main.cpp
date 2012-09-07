@@ -7,6 +7,7 @@
 
 #include "BenchTimer.h"
 #include "PictureBenchmark.h"
+#include "SkBenchLogger.h"
 #include "SkCanvas.h"
 #include "SkMath.h"
 #include "SkOSFile.h"
@@ -22,9 +23,10 @@ static void usage(const char* argv0) {
     SkDebugf("\n"
 "Usage: \n"
 "     %s <inputDir>...\n"
+"     [--logFile filename]\n"
 "     [--repeat] \n"
 "     [--mode pow2tile minWidth height[] (multi) | record | simple\n"
-"             | tile width[] height[] (multi) | unflatten]\n"
+"             | tile width[] height[] (multi) | playbackCreation]\n"
 "     [--pipe]\n"
 "     [--device bitmap"
 #if SK_SUPPORT_GPU
@@ -35,10 +37,11 @@ static void usage(const char* argv0) {
     SkDebugf("\n\n");
     SkDebugf(
 "     inputDir:  A list of directories and files to use as input. Files are\n"
-"                expected to have the .skp extension.\n\n");
+"                expected to have the .skp extension.\n\n"
+"     --logFile filename : destination for writing log output, in addition to stdout.\n");
     SkDebugf(
 "     --mode pow2tile minWidht height[] (multi) | record | simple\n"
-"            | tile width[] height[] (multi) | unflatten:\n"
+"            | tile width[] height[] (multi) | playbackCreation:\n"
 "            Run in the corresponding mode.\n"
 "            Default is simple.\n");
     SkDebugf(
@@ -63,7 +66,7 @@ static void usage(const char* argv0) {
 "                                            Append \"multi\" for multithreaded\n"
 "                                            drawing.\n");
     SkDebugf(
-"                     unflatten, Benchmark picture unflattening.\n");
+"                     playbackCreation, Benchmark creation of the SkPicturePlayback.\n");
     SkDebugf("\n");
     SkDebugf(
 "     --pipe: Benchmark SkGPipe rendering. Compatible with tiled, multithreaded rendering.\n");
@@ -86,13 +89,17 @@ static void usage(const char* argv0) {
 " Default is %i.\n", DEFAULT_REPEATS);
 }
 
+SkBenchLogger gLogger;
+
 static void run_single_benchmark(const SkString& inputPath,
                                  sk_tools::PictureBenchmark& benchmark) {
     SkFILEStream inputStream;
 
     inputStream.setPath(inputPath.c_str());
     if (!inputStream.isValid()) {
-        SkDebugf("Could not open file %s\n", inputPath.c_str());
+        SkString err;
+        err.printf("Could not open file %s\n", inputPath.c_str());
+        gLogger.logError(err);
         return;
     }
 
@@ -104,7 +111,7 @@ static void run_single_benchmark(const SkString& inputPath,
     SkString result;
     result.printf("running bench [%i %i] %s ", picture.width(), picture.height(),
                   filename.c_str());
-    sk_tools::print_msg(result.c_str());
+    gLogger.logProgress(result);
 
     benchmark.run(&picture);
 }
@@ -117,6 +124,14 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     int repeats = DEFAULT_REPEATS;
     sk_tools::PictureRenderer::SkDeviceTypes deviceType =
         sk_tools::PictureRenderer::kBitmap_DeviceType;
+
+    // Create a string to show our current settings.
+    // TODO: Make it prettier. Currently it just repeats the command line.
+    SkString commandLine("bench_pictures:");
+    for (int i = 1; i < argc; i++) {
+        commandLine.appendf(" %s", *(argv+i));
+    }
+    commandLine.append("\n");
 
     bool usePipe = false;
     bool multiThreaded = false;
@@ -132,23 +147,38 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 repeats = atoi(*argv);
                 if (repeats < 1) {
                     SkDELETE(benchmark);
-                    SkDebugf("--repeat must be given a value > 0\n");
+                    gLogger.logError("--repeat must be given a value > 0\n");
                     exit(-1);
                 }
             } else {
                 SkDELETE(benchmark);
-                SkDebugf("Missing arg for --repeat\n");
+                gLogger.logError("Missing arg for --repeat\n");
                 usage(argv0);
                 exit(-1);
             }
         } else if (0 == strcmp(*argv, "--pipe")) {
             usePipe = true;
+        } else if (0 == strcmp(*argv, "--logFile")) {
+            argv++;
+            if (argv < stop) {
+                if (!gLogger.SetLogFile(*argv)) {
+                    SkString str;
+                    str.printf("Could not open %s for writing.", *argv);
+                    gLogger.logError(str);
+                    usage(argv0);
+                    exit(-1);
+                }
+            } else {
+                gLogger.logError("Missing arg for --logFile\n");
+                usage(argv0);
+                exit(-1);
+            }
         } else if (0 == strcmp(*argv, "--mode")) {
             SkDELETE(benchmark);
 
             ++argv;
             if (argv >= stop) {
-                SkDebugf("Missing mode for --mode\n");
+                gLogger.logError("Missing mode for --mode\n");
                 usage(argv0);
                 exit(-1);
             }
@@ -167,7 +197,9 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
 
                 ++argv;
                 if (argv >= stop) {
-                    SkDebugf("Missing width for --mode %s\n", mode);
+                    SkString err;
+                    err.printf("Missing width for --mode %s\n", mode);
+                    gLogger.logError(err);
                     usage(argv0);
                     exit(-1);
                 }
@@ -175,7 +207,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 widthString = *argv;
                 ++argv;
                 if (argv >= stop) {
-                    SkDebugf("Missing height for --mode tile\n");
+                    gLogger.logError("Missing height for --mode tile\n");
                     usage(argv0);
                     exit(-1);
                 }
@@ -187,17 +219,19 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 } else {
                     --argv;
                 }
-            } else if (0 == strcmp(*argv, "unflatten")) {
-                benchmark = SkNEW(sk_tools::UnflattenPictureBenchmark);
+            } else if (0 == strcmp(*argv, "playbackCreation")) {
+                benchmark = SkNEW(sk_tools::PlaybackCreationBenchmark);
             } else {
-                SkDebugf("%s is not a valid mode for --mode\n", *argv);
+                SkString err;
+                err.printf("%s is not a valid mode for --mode\n", *argv);
+                gLogger.logError(err);
                 usage(argv0);
                 exit(-1);
             }
         }  else if (0 == strcmp(*argv, "--device")) {
             ++argv;
             if (argv >= stop) {
-                SkDebugf("Missing mode for --deivce\n");
+                gLogger.logError("Missing mode for --deivce\n");
                 usage(argv0);
                 exit(-1);
             }
@@ -211,7 +245,9 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
             }
 #endif
             else {
-                SkDebugf("%s is not a valid mode for --device\n", *argv);
+                SkString err;
+                err.printf("%s is not a valid mode for --device\n", *argv);
+                gLogger.logError(err);
                 usage(argv0);
                 exit(-1);
             }
@@ -231,8 +267,10 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
             int minWidth = atoi(widthString);
             if (!SkIsPow2(minWidth) || minWidth < 0) {
                 SkDELETE(tileBenchmark);
-                SkDebugf("--mode %s must be given a width"
+                SkString err;
+                err.printf("--mode %s must be given a width"
                          " value that is a power of two\n", mode);
+                gLogger.logError(err);
                 exit(-1);
             }
             tileBenchmark->setTileMinPowerOf2Width(minWidth);
@@ -240,14 +278,14 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
             tileBenchmark->setTileWidthPercentage(atof(widthString));
             if (!(tileBenchmark->getTileWidthPercentage() > 0)) {
                 SkDELETE(tileBenchmark);
-                SkDebugf("--mode tile must be given a width percentage > 0\n");
+                gLogger.logError("--mode tile must be given a width percentage > 0\n");
                 exit(-1);
             }
         } else {
             tileBenchmark->setTileWidth(atoi(widthString));
             if (!(tileBenchmark->getTileWidth() > 0)) {
                 SkDELETE(tileBenchmark);
-                SkDebugf("--mode tile must be given a width > 0\n");
+                gLogger.logError("--mode tile must be given a width > 0\n");
                 exit(-1);
             }
         }
@@ -256,14 +294,14 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
             tileBenchmark->setTileHeightPercentage(atof(heightString));
             if (!(tileBenchmark->getTileHeightPercentage() > 0)) {
                 SkDELETE(tileBenchmark);
-                SkDebugf("--mode tile must be given a height percentage > 0\n");
+                gLogger.logError("--mode tile must be given a height percentage > 0\n");
                 exit(-1);
             }
         } else {
             tileBenchmark->setTileHeight(atoi(heightString));
             if (!(tileBenchmark->getTileHeight() > 0)) {
                 SkDELETE(tileBenchmark);
-                SkDebugf("--mode tile must be given a height > 0\n");
+                gLogger.logError("--mode tile must be given a height > 0\n");
                 exit(-1);
             }
         }
@@ -286,6 +324,9 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
 
     benchmark->setRepeats(repeats);
     benchmark->setDeviceType(deviceType);
+    benchmark->setLogger(&gLogger);
+    // Report current settings:
+    gLogger.logProgress(commandLine);
 }
 
 static void process_input(const SkString& input, sk_tools::PictureBenchmark& benchmark) {
