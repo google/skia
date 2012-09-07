@@ -43,7 +43,7 @@ void SkDebugCanvas::draw(SkCanvas* canvas) {
 }
 
 void SkDebugCanvas::applyUserTransform(SkCanvas* canvas) {
-    canvas->translate(SkIntToScalar(fUserOffset.fX), 
+    canvas->translate(SkIntToScalar(fUserOffset.fX),
                       SkIntToScalar(fUserOffset.fY));
     if (fUserScale < 0) {
         canvas->scale((1.0f / -fUserScale), (1.0f / -fUserScale));
@@ -90,7 +90,7 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
         i = 0;
         canvas->clear(0);
         canvas->resetMatrix();
-        SkRect rect = SkRect::MakeWH(SkIntToScalar(fWidth), 
+        SkRect rect = SkRect::MakeWH(SkIntToScalar(fWidth),
                                      SkIntToScalar(fHeight));
         canvas->clipRect(rect, SkRegion::kReplace_Op );
         applyUserTransform(canvas);

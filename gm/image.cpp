@@ -37,7 +37,7 @@ static void drawJpeg(SkCanvas* canvas, const SkISize& size) {
 }
 
 static void drawContents(SkSurface* surface, SkColor fillC) {
-    SkSize size = SkSize::Make(SkIntToScalar(surface->width()), 
+    SkSize size = SkSize::Make(SkIntToScalar(surface->width()),
                                SkIntToScalar(surface->height()));
     SkCanvas* canvas = surface->getCanvas();
 

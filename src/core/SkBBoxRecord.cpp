@@ -27,7 +27,7 @@ void SkBBoxRecord::drawPoints(PointMode mode, size_t count, const SkPoint pts[],
     if (this->transformBounds(bbox, &paint)) {
         INHERITED::drawPoints(mode, count, pts, paint);
     }
-} 
+}
 
 void SkBBoxRecord::drawPaint(const SkPaint& paint) {
     SkRect bbox;
@@ -45,7 +45,7 @@ void SkBBoxRecord::clear(SkColor color) {
     INHERITED::clear(color);
 }
 
-void SkBBoxRecord::drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y, 
+void SkBBoxRecord::drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                             const SkPaint& paint) {
     SkRect bbox;
     paint.measureText(text, byteLength, &bbox);
@@ -76,7 +76,7 @@ void SkBBoxRecord::drawText(const void* text, size_t byteLength, SkScalar x, SkS
         bbox.fBottom = metrics.fBottom;
     }
 
-    // Pad horizontal bounds on each side by half of max vertical extents (this is sort of 
+    // Pad horizontal bounds on each side by half of max vertical extents (this is sort of
     // arbitrary, but seems to produce reasonable results, if there were a way of getting max
     // glyph X-extents to pad by, that may be better here, but FontMetrics fXMin and fXMax seem
     // incorrect on most platforms (too small in Linux, never even set in Windows).
