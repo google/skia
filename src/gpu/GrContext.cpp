@@ -494,6 +494,7 @@ void GrContext::addExistingTextureToCache(GrTexture* texture) {
 
     // and it should still be locked
     fTextureCache->unlock(texture->getCacheEntry());
+    this->purgeCache();
 }
 
 void GrContext::lockTexture(GrTexture* texture) {
@@ -519,6 +520,11 @@ void GrContext::unlockTexture(GrTexture* texture) {
     }
 
     fTextureCache->unlock(texture->getCacheEntry());
+    this->purgeCache();
+}
+
+void GrContext::purgeCache() {
+    fTextureCache->purgeAsNeeded();
 }
 
 GrTexture* GrContext::createUncachedTexture(const GrTextureDesc& descIn,

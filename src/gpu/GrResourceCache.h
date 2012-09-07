@@ -288,6 +288,11 @@ public:
      */
     void purgeAllUnlocked();
 
+    /**
+     * Allow cache to purge unused resources to obey resource limitations
+     */
+    void purgeAsNeeded();
+
 #if GR_DEBUG
     void validate() const;
 #else
@@ -301,7 +306,6 @@ public:
 private:
     void internalDetach(GrResourceEntry*, bool);
     void attachToHead(GrResourceEntry*, bool);
-    void purgeAsNeeded();
 
     void removeInvalidResource(GrResourceEntry* entry);
 

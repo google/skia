@@ -101,6 +101,10 @@ void GrRenderTarget::setStencilBuffer(GrStencilBuffer* stencilBuffer) {
             context->unlockStencilBuffer(fStencilBuffer);
         }
         fStencilBuffer->unref();
+
+        if (NULL != context) {
+            context->purgeCache();
+        }
     }
 
     fStencilBuffer = stencilBuffer;
