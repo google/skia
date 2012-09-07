@@ -78,7 +78,6 @@ bool GrGpuGL::programUnitTest() {
     static const int IN_CONFIG_FLAGS[] = {
         StageDesc::kNone_InConfigFlag,
         StageDesc::kSmearAlpha_InConfigFlag,
-        StageDesc::kSmearRed_InConfigFlag,
     };
 
     static const int NUM_TESTS = 512;
