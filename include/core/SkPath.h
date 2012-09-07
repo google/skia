@@ -42,7 +42,7 @@ public:
 
     SkPath& operator=(const SkPath&);
 
-    friend bool operator==(const SkPath&, const SkPath&);
+    friend  SK_API bool operator==(const SkPath&, const SkPath&);
     friend bool operator!=(const SkPath& a, const SkPath& b) {
         return !(a == b);
     }
