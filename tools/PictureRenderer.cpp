@@ -87,29 +87,13 @@ void PictureRenderer::resetState() {
     if (this->isUsingGpuDevice()) {
         SkGLContext* glContext = fGrContextFactory.getGLContext(
             GrContextFactory::kNative_GLContextType);
-        SK_GL(*glContext, Finish());
-    }
-#endif
-}
-
-void PictureRenderer::finishDraw() {
-    SkASSERT(fCanvas.get() != NULL);
-    if (NULL == fCanvas.get()) {
-        return;
-    }
-
-    fCanvas->flush();
-
-#if SK_SUPPORT_GPU
-    if (this->isUsingGpuDevice()) {
-        SkGLContext* glContext = fGrContextFactory.getGLContext(
-            GrContextFactory::kNative_GLContextType);
 
         SkASSERT(glContext != NULL);
         if (NULL == glContext) {
             return;
         }
 
+        fGrContext->flush();
         SK_GL(*glContext, Finish());
     }
 #endif
@@ -131,7 +115,14 @@ bool PictureRenderer::write(const SkString& path) const {
     return SkImageEncoder::EncodeFile(path.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100);
 }
 
-void PipePictureRenderer::render() {
+void RecordPictureRenderer::render(bool doExtraWorkToDrawToBaseCanvas) {
+    SkPicture replayer;
+    SkCanvas* recorder = replayer.beginRecording(fPicture->width(), fPicture->height());
+    fPicture->draw(recorder);
+    replayer.endRecording();
+}
+
+void PipePictureRenderer::render(bool doExtraWorkToDrawToBaseCanvas) {
     SkASSERT(fCanvas.get() != NULL);
     SkASSERT(fPicture != NULL);
     if (NULL == fCanvas.get() || NULL == fPicture) {
@@ -143,10 +134,10 @@ void PipePictureRenderer::render() {
     SkCanvas* pipeCanvas = writer.startRecording(&pipeController);
     pipeCanvas->drawPicture(*fPicture);
     writer.endRecording();
-    this->finishDraw();
+    fCanvas->flush();
 }
 
-void SimplePictureRenderer::render() {
+void SimplePictureRenderer::render(bool doExtraWorkToDrawToBaseCanvas) {
     SkASSERT(fCanvas.get() != NULL);
     SkASSERT(fPicture != NULL);
     if (NULL == fCanvas.get() || NULL == fPicture) {
@@ -154,7 +145,7 @@ void SimplePictureRenderer::render() {
     }
 
     fCanvas->drawPicture(*fPicture);
-    this->finishDraw();
+    fCanvas->flush();
 }
 
 TiledPictureRenderer::TiledPictureRenderer()
@@ -189,7 +180,7 @@ void TiledPictureRenderer::init(SkPicture* pict) {
     }
 }
 
-void TiledPictureRenderer::render() {
+void TiledPictureRenderer::render(bool doExtraWorkToDrawToBaseCanvas) {
     SkASSERT(fCanvas.get() != NULL);
     SkASSERT(fPicture != NULL);
     if (NULL == fCanvas.get() || NULL == fPicture) {
@@ -197,8 +188,9 @@ void TiledPictureRenderer::render() {
     }
 
     this->drawTiles();
-    this->copyTilesToCanvas();
-    this->finishDraw();
+    if (doExtraWorkToDrawToBaseCanvas) {
+        this->copyTilesToCanvas();
+    }
 }
 
 void TiledPictureRenderer::end() {
@@ -293,6 +285,7 @@ static void DrawTile(void* data) {
     SkGraphics::SetTLSFontCacheLimit(1 * 1024 * 1024);
     TileData* tileData = static_cast<TileData*>(data);
     tileData->fController->playback(tileData->fCanvas);
+    tileData->fCanvas->flush();
 }
 
 TileData::TileData(SkCanvas* canvas, ThreadSafePipeController* controller)
@@ -314,6 +307,7 @@ static void DrawClonedTile(void* data) {
     SkGraphics::SetTLSFontCacheLimit(1 * 1024 * 1024);
     CloneData* cloneData = static_cast<CloneData*>(data);
     cloneData->fCanvas->drawPicture(*cloneData->fClone);
+    cloneData->fCanvas->flush();
 }
 
 CloneData::CloneData(SkCanvas* target, SkPicture* clone)
@@ -367,28 +361,9 @@ void TiledPictureRenderer::drawTiles() {
     } else {
         for (int i = 0; i < fTiles.count(); ++i) {
             fTiles[i]->drawPicture(*(fPicture));
+            fTiles[i]->flush();
         }
     }
-}
-
-void TiledPictureRenderer::finishDraw() {
-    for (int i = 0; i < fTiles.count(); ++i) {
-        fTiles[i]->flush();
-    }
-
-#if SK_SUPPORT_GPU
-    if (this->isUsingGpuDevice()) {
-        SkGLContext* glContext = fGrContextFactory.getGLContext(
-            GrContextFactory::kNative_GLContextType);
-
-        SkASSERT(glContext != NULL);
-        if (NULL == glContext) {
-            return;
-        }
-
-        SK_GL(*glContext, Finish());
-    }
-#endif
 }
 
 void TiledPictureRenderer::copyTilesToCanvas() {
@@ -404,6 +379,16 @@ void TiledPictureRenderer::copyTilesToCanvas() {
 
         fCanvas->drawBitmap(source, -tile_x_start, -tile_y_start);
     }
+    fCanvas->flush();
+}
+
+void PlaybackCreationRenderer::setup() {
+    SkCanvas* recorder = fReplayer.beginRecording(fPicture->width(), fPicture->height());
+    fPicture->draw(recorder);
+}
+
+void PlaybackCreationRenderer::render(bool doExtraWorkToDrawToBaseCanvas) {
+    fReplayer.endRecording();
 }
 
 }

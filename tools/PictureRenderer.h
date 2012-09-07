@@ -8,9 +8,11 @@
 #ifndef PictureRenderer_DEFINED
 #define PictureRenderer_DEFINED
 #include "SkMath.h"
+#include "SkPicture.h"
 #include "SkTypes.h"
 #include "SkTDArray.h"
 #include "SkRefCnt.h"
+#include "SkString.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
@@ -20,8 +22,6 @@
 class SkBitmap;
 class SkCanvas;
 class SkGLContext;
-class SkPicture;
-class SkString;
 
 namespace sk_tools {
 
@@ -35,7 +35,23 @@ public:
     };
 
     virtual void init(SkPicture* pict);
-    virtual void render() = 0;
+
+    /**
+     * Perform any setup that should done prior to each iteration of render() which should not be
+     * timed.
+     */
+    virtual void setup() {}
+
+    /**
+     * Perform work that is to be timed. Typically this is rendering, but is also used for recording
+     * and preparing picture for playback by the subclasses which do those.
+     * @param doExtraWorkToDrawToBaseCanvas Perform extra work to draw to fCanvas. Some subclasses
+     *                                      will automatically draw to fCanvas, but in the tiled
+     *                                      case, for example, true needs to be passed so that
+     *                                      the tiles will be stitched together on fCanvas.
+     */
+    virtual void render(bool doExtraWorkToDrawToBaseCanvas) = 0;
+
     virtual void end();
     void resetState();
 
@@ -46,6 +62,10 @@ public:
     bool isUsingBitmapDevice() {
         return kBitmap_DeviceType == fDeviceType;
     }
+
+    virtual SkString getPerIterTimeFormat() { return SkString("%.2f"); }
+
+    virtual SkString getNormalTimeFormat() { return SkString("%6.2f"); }
 
 #if SK_SUPPORT_GPU
     bool isUsingGpuDevice() {
@@ -72,7 +92,6 @@ public:
     bool write(const SkString& path) const;
 
 protected:
-    virtual void finishDraw();
     SkCanvas* setupCanvas();
     SkCanvas* setupCanvas(int width, int height);
 
@@ -89,9 +108,21 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
+/**
+ * This class does not do any rendering, but its render function executes recording, which we want
+ * to time.
+ */
+class RecordPictureRenderer : public PictureRenderer {
+    virtual void render(bool doExtraWorkToDrawToBaseCanvas) SK_OVERRIDE;
+
+    virtual SkString getPerIterTimeFormat() SK_OVERRIDE { return SkString("%.4f"); }
+
+    virtual SkString getNormalTimeFormat() SK_OVERRIDE { return SkString("%6.4f"); }
+};
+
 class PipePictureRenderer : public PictureRenderer {
 public:
-    virtual void render() SK_OVERRIDE;
+    virtual void render(bool doExtraWorkToDrawToBaseCanvas) SK_OVERRIDE;
 
 private:
     typedef PictureRenderer INHERITED;
@@ -99,7 +130,7 @@ private:
 
 class SimplePictureRenderer : public PictureRenderer {
 public:
-    virtual void render () SK_OVERRIDE;
+    virtual void render(bool doExtraWorkToDrawToBaseCanvas) SK_OVERRIDE;
 
 private:
     typedef PictureRenderer INHERITED;
@@ -110,7 +141,7 @@ public:
     TiledPictureRenderer();
 
     virtual void init(SkPicture* pict) SK_OVERRIDE;
-    virtual void render() SK_OVERRIDE;
+    virtual void render(bool doExtraWorkToDrawToBaseCanvas) SK_OVERRIDE;
     virtual void end() SK_OVERRIDE;
     void drawTiles();
 
@@ -181,9 +212,6 @@ public:
 
     ~TiledPictureRenderer();
 
-protected:
-    virtual void finishDraw();
-
 private:
     bool fMultiThreaded;
     bool fUsePipe;
@@ -206,6 +234,25 @@ private:
     void deleteTiles();
     void copyTilesToCanvas();
 
+    typedef PictureRenderer INHERITED;
+};
+
+/**
+ * This class does not do any rendering, but its render function executes turning an SkPictureRecord
+ * into an SkPicturePlayback, which we want to time.
+ */
+class PlaybackCreationRenderer : public PictureRenderer {
+public:
+    virtual void setup() SK_OVERRIDE;
+
+    virtual void render(bool doExtraWorkToDrawToBaseCanvas) SK_OVERRIDE;
+
+    virtual SkString getPerIterTimeFormat() SK_OVERRIDE { return SkString("%.4f"); }
+
+    virtual SkString getNormalTimeFormat() SK_OVERRIDE { return SkString("%6.4f"); }
+
+private:
+    SkPicture fReplayer;
     typedef PictureRenderer INHERITED;
 };
 
