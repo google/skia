@@ -20,7 +20,7 @@
 
 /**
  * Holds the path verbs and points. It is versioned by a generation ID. None of its public methods
- * modify the contents. To modify or append to the verbs/points wrap the SkPathRef in an 
+ * modify the contents. To modify or append to the verbs/points wrap the SkPathRef in an
  * SkPathRef::Editor object. Installing the editor resets the generation ID. It also performs
  * copy-on-write if the SkPathRef is shared by multipls SkPaths. The caller passes the Editor's
  * constructor a SkAutoTUnref, which may be updated to point to a new SkPathRef after the editor's
@@ -511,7 +511,7 @@ private:
     enum {
         kMinSize = 256,
     };
-    
+
     SkPoint*            fPoints; // points to begining of the allocation
     uint8_t*            fVerbs; // points just past the end of the allocation (verbs grow backwards)
     int                 fVerbCnt;
