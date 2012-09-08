@@ -21,6 +21,10 @@ static bool is_transition(SkView* view) {
 }
 
 class TransitionView : public SampleView {
+    enum {
+//        kDurationMS = 500
+        kDurationMS = 1
+    };
 public:
     TransitionView(SkView* prev, SkView* next, int direction) : fInterp(4, 2){
         fAnimationDirection = (Direction)(1 << (direction % 8));
@@ -149,7 +153,7 @@ protected:
         SkScalar blend[] = { SkFloatToScalar(0.8f), SkFloatToScalar(0.0f),
                              SkFloatToScalar(0.0f), SK_Scalar1 };
         fInterp.setKeyFrame(0, SkTime::GetMSecs(), fBegin, blend);
-        fInterp.setKeyFrame(1, SkTime::GetMSecs()+500, fEnd, blend);
+        fInterp.setKeyFrame(1, SkTime::GetMSecs()+kDurationMS, fEnd, blend);
     }
 
 private:
