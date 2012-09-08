@@ -1375,7 +1375,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
         if (device->accessBitmap(false).copyTo(&bmp, SkBitmap::kARGB_8888_Config)) {
             static int gSampleGrabCounter;
             SkString name;
-            name.printf("sample_grab_%d", gSampleGrabCounter++);
+            name.printf("sample_grab_%d.png", gSampleGrabCounter++);
             SkImageEncoder::EncodeFile(name.c_str(), bmp,
                                        SkImageEncoder::kPNG_Type, 100);
         }
