@@ -141,7 +141,7 @@ static void draw_rect(SkCanvas* canvas, bool showGL, int flags) {
     SkPaint paint;
     paint.setAntiAlias(true);
 
-    SkRect r = SkRect::MakeLTRB(50, 50, 250, 350);
+    SkRect r = SkRect::MakeLTRB(50, 70, 250, 370);
 
     setFade(&paint, showGL);
     canvas->drawRect(r, paint);
@@ -173,7 +173,7 @@ static void draw_oval(SkCanvas* canvas, bool showGL, int flags) {
     SkPaint paint;
     paint.setAntiAlias(true);
     
-    SkRect r = SkRect::MakeLTRB(50, 50, 250, 350);
+    SkRect r = SkRect::MakeLTRB(50, 70, 250, 370);
     
     setFade(&paint, showGL);
     canvas->drawOval(r, paint);
@@ -184,7 +184,8 @@ static void draw_oval(SkCanvas* canvas, bool showGL, int flags) {
                 path.addOval(r);
                 show_glframe(canvas, path);
             } break;
-            case 1: {
+            case 1:
+            case 2: {
                 SkPath src, dst;
                 src.addOval(r);
                 tesselate(src, &dst);
@@ -218,26 +219,70 @@ static void draw_oval(SkCanvas* canvas, bool showGL, int flags) {
                 path1.addOval(r);
                 show_mesh_between(canvas, path0, path1);
             } break;
+            case 2: {
+                SkScalar rad = paint.getStrokeWidth() / 2;
+                r.outset(rad, rad);
+                SkPaint paint;
+                paint.setAlpha(0x33);
+                canvas->drawRect(r, paint);
+                show_mesh(canvas, r);
+            } break;
         }
     }
 }
 
+#include "SkImageDecoder.h"
 static void draw_image(SkCanvas* canvas, bool showGL, int flags) {
     SkPaint paint;
     paint.setAntiAlias(true);
-    
-    canvas->drawLine(10, 10, 400, 30, paint);
-    paint.setStrokeWidth(10);
-    canvas->drawLine(50, 50, 400, 400, paint);
+    paint.setFilterBitmap(true);
+    setFade(&paint, showGL);
+
+    SkBitmap bm;
+    SkImageDecoder::DecodeFile("/skimages/startrek.png", &bm);
+    SkRect r = SkRect::MakeWH(bm.width(), bm.height());
+
+    canvas->save();
+    canvas->translate(30, 30);
+    canvas->scale(0.8f, 0.8f);
+    canvas->drawBitmap(bm, 0, 0, &paint);
+    if (showGL) {
+        show_mesh(canvas, r);
+    }
+    canvas->restore();
+
+    canvas->translate(210, 290);
+    canvas->rotate(-35);
+    canvas->drawBitmap(bm, 0, 0, &paint);
+    if (showGL) {
+        show_mesh(canvas, r);
+    }
 }
 
 static void draw_text(SkCanvas* canvas, bool showGL, int flags) {
     SkPaint paint;
     paint.setAntiAlias(true);
-    
-    canvas->drawLine(10, 10, 400, 30, paint);
-    paint.setStrokeWidth(10);
-    canvas->drawLine(50, 50, 400, 400, paint);
+    const char text[] = "Graphics at Google";
+    size_t len = strlen(text);
+    setFade(&paint, showGL);
+
+    canvas->translate(40, 50);
+    for (int i = 0; i < 10; ++i) {
+        paint.setTextSize(12 + i * 3);
+        canvas->drawText(text, len, 0, 0, paint);
+        if (showGL) {
+            SkRect bounds[256];
+            SkScalar widths[256];
+            int count = paint.getTextWidths(text, len, widths, bounds);
+            SkScalar adv = 0;
+            for (int j = 0; j < count; ++j) {
+                bounds[j].offset(adv, 0);
+                show_mesh(canvas, bounds[j]);
+                adv += widths[j];
+            }
+        }
+        canvas->translate(0, paint.getTextSize() * 3 / 2);
+    }
 }
 
 static const struct {
@@ -310,6 +355,7 @@ ADD_GM(TalkGM, (1, true))
 ADD_GM(TalkGM, (2, false))
 ADD_GM(TalkGM, (2, true))
 ADD_GM(TalkGM, (2, true, 1))
+ADD_GM(TalkGM, (2, true, 2))
 ADD_GM(TalkGM, (3, false))
 ADD_GM(TalkGM, (3, true))
 ADD_GM(TalkGM, (4, false))
