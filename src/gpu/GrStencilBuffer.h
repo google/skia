@@ -59,9 +59,8 @@ public:
         return fLastClipData;
     }
 
-    // Places the sb in the cache and locks it. The cache takes a ref
-    // of the stencil buffer.
-    void transferToCacheAndLock();
+    // Places the sb in the cache. The cache takes a ref of the stencil buffer.
+    void transferToCache();
 
     static GrResourceKey ComputeKey(int width, int height, int sampleCnt);
 

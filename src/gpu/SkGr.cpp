@@ -92,9 +92,9 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
             // "rowBytes", since they are the same now.
 
             if (GrCacheData::kScratch_CacheID != key) {
-                return ctx->createAndLockTexture(params, desc, cacheData,
-                                                 storage.get(),
-                                                 bitmap->width());
+                return ctx->createTexture(params, desc, cacheData,
+                                          storage.get(),
+                                          bitmap->width());
             } else {
                 GrTexture* result = ctx->lockScratchTexture(desc,
                                           GrContext::kExact_ScratchTexMatch);
@@ -115,9 +115,9 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
     if (GrCacheData::kScratch_CacheID != key) {
         // This texture is likely to be used again so leave it in the cache
         // but locked.
-        return ctx->createAndLockTexture(params, desc, cacheData,
-                                         bitmap->getPixels(),
-                                         bitmap->rowBytes());
+        return ctx->createTexture(params, desc, cacheData,
+                                  bitmap->getPixels(),
+                                  bitmap->rowBytes());
     } else {
         // This texture is unlikely to be used again (in its present form) so
         // just use a scratch texture. This will remove the texture from the
@@ -154,8 +154,9 @@ GrTexture* GrLockCachedBitmapTexture(GrContext* ctx,
 
         GrCacheData cacheData(key);
 
-        result = ctx->findAndLockTexture(desc, cacheData, params);
+        result = ctx->findTexture(desc, cacheData, params);
         if (NULL == result) {
+            // didn't find a cached copy so create one
             result = sk_gr_create_bitmap_texture(ctx, key, params, bitmap);
         }
     } else {
@@ -171,7 +172,7 @@ GrTexture* GrLockCachedBitmapTexture(GrContext* ctx,
 void GrUnlockCachedBitmapTexture(GrTexture* texture) {
     GrAssert(NULL != texture->getContext());
 
-    texture->getContext()->unlockTexture(texture);
+    texture->getContext()->unlockScratchTexture(texture);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

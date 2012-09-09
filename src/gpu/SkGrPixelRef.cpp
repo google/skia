@@ -110,7 +110,7 @@ SkGrPixelRef::~SkGrPixelRef() {
         GrContext* context = fSurface->getContext();
         GrTexture* texture = fSurface->asTexture();
         if (NULL != context && NULL != texture) {
-            context->unlockTexture(texture);
+            context->unlockScratchTexture(texture);
         }
     }
     GrSafeUnref(fSurface);

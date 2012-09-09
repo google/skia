@@ -212,11 +212,11 @@ GrTexture* GrContext::findTexture(const GrCacheKey& key) {
     return static_cast<GrTexture*>(fTextureCache->find(key.key()));
 }
 
-GrTexture* GrContext::findAndLockTexture(const GrTextureDesc& desc,
-                                         const GrCacheData& cacheData,
-                                         const GrTextureParams* params) {
+GrTexture* GrContext::findTexture(const GrTextureDesc& desc,
+                                  const GrCacheData& cacheData,
+                                  const GrTextureParams* params) {
     GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, cacheData, false);
-    GrResource* resource = fTextureCache->findAndLock(resourceKey);
+    GrResource* resource = fTextureCache->find(resourceKey);
     return static_cast<GrTexture*>(resource);
 }
 
@@ -227,39 +227,22 @@ bool GrContext::isTextureInCache(const GrTextureDesc& desc,
     return fTextureCache->hasKey(resourceKey);
 }
 
-void GrContext::addAndLockStencilBuffer(GrStencilBuffer* sb) {
+void GrContext::addStencilBuffer(GrStencilBuffer* sb) {
     ASSERT_OWNED_RESOURCE(sb);
 
     GrResourceKey resourceKey = GrStencilBuffer::ComputeKey(sb->width(),
                                                             sb->height(),
                                                             sb->numSamples());
-    fTextureCache->createAndLock(resourceKey, sb);
+    fTextureCache->create(resourceKey, sb);
 }
 
-GrStencilBuffer* GrContext::findAndLockStencilBuffer(int width, int height,
+GrStencilBuffer* GrContext::findStencilBuffer(int width, int height,
                                               int sampleCnt) {
     GrResourceKey resourceKey = GrStencilBuffer::ComputeKey(width,
                                                             height,
                                                             sampleCnt);
-    GrResource* resource = fTextureCache->findAndLock(resourceKey);
+    GrResource* resource = fTextureCache->find(resourceKey);
     return static_cast<GrStencilBuffer*>(resource);
-}
-
-void GrContext::unlockStencilBuffer(GrStencilBuffer* sb) {
-
-    if (NULL == sb->getCacheEntry()) {
-        // This can happen when the GrResourceCache is being deleted. If
-        // a stencil buffer was evicted before its reffing render targets,
-        // the render targets will attempt to unlock the stencil buffer
-        // when they are deleted.
-        return;
-    }
-
-    // If the texture cache still exists we know the GrGpu & GrContext still
-    // exist so we can verify ownership.
-    ASSERT_OWNED_RESOURCE(sb);
-
-    fTextureCache->unlock(sb->getCacheEntry());
 }
 
 static void stretchImage(void* dst,
@@ -296,10 +279,12 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
                                            void* srcData,
                                            size_t rowBytes,
                                            bool needsFiltering) {
-    GrTexture* clampedTexture = this->findAndLockTexture(desc, cacheData, NULL);
+    SkAutoTUnref<GrTexture> clampedTexture(this->findTexture(desc, cacheData, NULL));
 
     if (NULL == clampedTexture) {
-        clampedTexture = this->createAndLockTexture(NULL, desc, cacheData, srcData, rowBytes);
+        clampedTexture.reset(
+            this->createTexture(NULL, desc, cacheData, srcData, rowBytes));
+
         GrAssert(NULL != clampedTexture);
         if (NULL == clampedTexture) {
             return NULL;
@@ -365,12 +350,11 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
                                                     stretchedRowBytes);
         GrAssert(NULL != texture);
     }
-    this->unlockTexture(clampedTexture);
 
     return texture;
 }
 
-GrTexture* GrContext::createAndLockTexture(
+GrTexture* GrContext::createTexture(
         const GrTextureParams* params,
         const GrTextureDesc& desc,
         const GrCacheData& cacheData,
@@ -394,7 +378,7 @@ GrTexture* GrContext::createAndLockTexture(
     }
 
     if (NULL != texture) {
-        fTextureCache->createAndLock(resourceKey, texture);
+        fTextureCache->create(resourceKey, texture);
     }
 
     return texture;
@@ -423,7 +407,7 @@ GrTexture* GrContext::lockScratchTexture(const GrTextureDesc& inDesc,
 
     do {
         GrResourceKey key = GrTexture::ComputeKey(fGpu, NULL, desc, cacheData, true);
-        resource = fTextureCache->findAndLock(key);
+        resource = fTextureCache->find(key);
         // if we miss, relax the fit of the flags...
         // then try doubling width... then height.
         if (NULL != resource || kExact_ScratchTexMatch == match) {
@@ -459,7 +443,7 @@ GrTexture* GrContext::lockScratchTexture(const GrTextureDesc& inDesc,
                                                       texture->desc(),
                                                       cacheData,
                                                       true);
-            fTextureCache->createAndLock(key, texture);
+            fTextureCache->create(key, texture);
             resource = texture;
         }
     }
@@ -492,23 +476,11 @@ void GrContext::addExistingTextureToCache(GrTexture* texture) {
     // still be in the exclusive pile
     fTextureCache->makeNonExclusive(texture->getCacheEntry());
 
-    // and it should still be locked
-    fTextureCache->unlock(texture->getCacheEntry());
     this->purgeCache();
 }
 
-void GrContext::lockTexture(GrTexture* texture) {
 
-    if (NULL == texture->getCacheEntry()) {
-        // not in the cache
-        GrAssert(0);
-        return;
-    }
-
-    fTextureCache->lock(texture->getCacheEntry());
-}
-
-void GrContext::unlockTexture(GrTexture* texture) {
+void GrContext::unlockScratchTexture(GrTexture* texture) {
     ASSERT_OWNED_RESOURCE(texture);
     GrAssert(NULL != texture->getCacheEntry());
 
@@ -519,7 +491,6 @@ void GrContext::unlockTexture(GrTexture* texture) {
         fTextureCache->makeNonExclusive(texture->getCacheEntry());
     }
 
-    fTextureCache->unlock(texture->getCacheEntry());
     this->purgeCache();
 }
 

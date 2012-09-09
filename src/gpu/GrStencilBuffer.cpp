@@ -14,10 +14,10 @@
 
 GR_DEFINE_RESOURCE_CACHE_TYPE(GrStencilBuffer)
 
-void GrStencilBuffer::transferToCacheAndLock() {
+void GrStencilBuffer::transferToCache() {
     GrAssert(NULL == this->getCacheEntry());
 
-    this->getGpu()->getContext()->addAndLockStencilBuffer(this);
+    this->getGpu()->getContext()->addStencilBuffer(this);
 }
 
 namespace {

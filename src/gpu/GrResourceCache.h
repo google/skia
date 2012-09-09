@@ -156,19 +156,8 @@ private:
     GrResourceEntry(const GrResourceKey& key, GrResource* resource);
     ~GrResourceEntry();
 
-    bool isLocked() const { return fLockCount != 0; }
-    void lock() { ++fLockCount; }
-    void unlock() {
-        GrAssert(fLockCount > 0);
-        --fLockCount;
-    }
-
     GrResourceKey    fKey;
     GrResource*      fResource;
-
-    // track if we're in use, used when we need to purge
-    // we only purge unlocked entries
-    int fLockCount;
 
     // we're a dlinklist
     SK_DEFINE_DLINKEDLIST_INTERFACE(GrResourceEntry);
@@ -238,19 +227,13 @@ public:
     GrResource* find(const GrResourceKey& key);
 
     /**
-     *  Search for an entry with the same Key. If found, "lock" it and return it.
-     *  If not found, return null.
-     */
-    GrResource* findAndLock(const GrResourceKey&);
-
-    /**
      *  Create a new cache entry, based on the provided key and resource, and
      *  return it.
      *
      *  Ownership of the resource is transferred to the resource cache,
      *  which will unref() it when it is purged or deleted.
      */
-    void createAndLock(const GrResourceKey&, GrResource*);
+    void create(const GrResourceKey&, GrResource*);
 
     /**
      * Determines if the cache contains an entry matching a key. If a matching
@@ -273,23 +256,14 @@ public:
     void makeNonExclusive(GrResourceEntry* entry);
 
     /**
-     * When done with an entry, call unlock(entry) on it, which returns it to
-     * a purgable state.
-     */
-    void unlock(GrResourceEntry*);
-
-    /**
-     * Make a resource un-purgeable.
-     */
-    void lock(GrResourceEntry* entry);
-
-    /**
      * Removes every resource in the cache that isn't locked.
      */
     void purgeAllUnlocked();
 
     /**
      * Allow cache to purge unused resources to obey resource limitations
+     * Note: this entry point will be hidden (again) once totally ref-driven
+     * cache maintenance is implemented
      */
     void purgeAsNeeded();
 
@@ -300,7 +274,7 @@ public:
 #endif
 
 #if GR_CACHE_STATS
-    void printStats() const;
+    void printStats();
 #endif
 
 private:
@@ -328,22 +302,18 @@ private:
     // our current stats, related to our budget
 #if GR_CACHE_STATS
     int fHighWaterEntryCount;
-    int fHighWaterUnlockedEntryCount;
     size_t fHighWaterEntryBytes;
     int fHighWaterClientDetachedCount;
     size_t fHighWaterClientDetachedBytes;
 #endif
 
     int fEntryCount;
-    int fUnlockedEntryCount;
     size_t fEntryBytes;
     int fClientDetachedCount;
     size_t fClientDetachedBytes;
 
     // prevents recursive purging
     bool fPurging;
-
-    void create(const GrResourceKey& key, GrResource* resource);
 
 #if GR_DEBUG
     static size_t countBytes(const SkTDLinkedList<GrResourceEntry>& list);
