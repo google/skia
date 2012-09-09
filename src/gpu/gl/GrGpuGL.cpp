@@ -1110,7 +1110,7 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
                                                   samples, format)));
             if (this->attachStencilBufferToRenderTarget(sb, rt)) {
                 fLastSuccessfulStencilFmtIdx = sIdx;
-                sb->transferToCacheAndLock();
+                sb->transferToCache();
                 rt->setStencilBuffer(sb);
                 return true;
            }

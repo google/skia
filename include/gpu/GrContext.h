@@ -110,10 +110,10 @@ public:
      * @param rowBytes  The number of bytes between rows of the texture. Zero
      *                  implies tightly packed rows.
      */
-    GrTexture* createAndLockTexture(const GrTextureParams* params,
-                                    const GrTextureDesc& desc,
-                                    const GrCacheData& cacheData,
-                                    void* srcData, size_t rowBytes);
+    GrTexture* createTexture(const GrTextureParams* params,
+                             const GrTextureDesc& desc,
+                             const GrCacheData& cacheData,
+                             void* srcData, size_t rowBytes);
 
     /**
      * Look for a texture that matches 'key' in the cache. If not found,
@@ -122,9 +122,8 @@ public:
     GrTexture* findTexture(const GrCacheKey& key);
 
     /**
-     *  Search for an entry based on key and dimensions. If found, "lock" it and
+     *  Search for an entry based on key and dimensions. If found, 
      *  return it. The return value will be NULL if not found.
-     *  Must be balanced with an unlockTexture() call.
      *
      *  @param desc     Description of the texture properties.
      *  @param cacheData Cache-specific properties (e.g., texture gen ID)
@@ -133,9 +132,9 @@ public:
      *                  for different wrap modes on GPUs with limited NPOT
      *                  texture support). NULL implies clamp wrap modes.
      */
-    GrTexture* findAndLockTexture(const GrTextureDesc& desc,
-                                  const GrCacheData& cacheData,
-                                  const GrTextureParams* params);
+    GrTexture* findTexture(const GrTextureDesc& desc,
+                           const GrCacheData& cacheData,
+                           const GrTextureParams* params);
     /**
      * Determines whether a texture is in the cache. If the texture is found it
      * will not be locked or returned. This call does not affect the priority of
@@ -181,20 +180,17 @@ public:
                                   ScratchTexMatch match);
 
     /**
-     * Make a texture un-purgeable in the cache
-     */
-    void lockTexture(GrTexture* texture);
-
-    /**
      *  When done with an entry, call unlockTexture(entry) on it, which returns
      *  it to the cache, where it may be purged.
      */
-    void unlockTexture(GrTexture* texture);
+    void unlockScratchTexture(GrTexture* texture);
 
     /**
      * This method should be called whenever a GrTexture is unreffed or
      * switched from exclusive to non-exclusive. This
      * gives the resource cache a chance to discard unneeded textures.
+     * Note: this entry point will be removed once totally ref-driven
+     * cache maintenance is implemented
      */
     void purgeCache();
 
@@ -767,14 +763,11 @@ public:
 
     /**
      * Stencil buffers add themselves to the cache using
-     * addAndLockStencilBuffer. When a SB's RT-attachment count
-     * reaches zero the SB unlocks itself using unlockStencilBuffer and is
-     * eligible for purging. findAndLockStencilBuffer is called to check the
+     * addStencilBuffer. findStencilBuffer is called to check the
      * cache for a SB that matches an RT's criteria.
      */
-    void addAndLockStencilBuffer(GrStencilBuffer* sb);
-    void unlockStencilBuffer(GrStencilBuffer* sb);
-    GrStencilBuffer* findAndLockStencilBuffer(int width, int height, int sampleCnt);
+    void addStencilBuffer(GrStencilBuffer* sb);
+    GrStencilBuffer* findStencilBuffer(int width, int height, int sampleCnt);
 
     GrPathRenderer* getPathRenderer(const SkPath& path,
                                     GrPathFill fill,
@@ -875,7 +868,7 @@ public:
 
     void reset() {
         if (NULL != fContext && NULL != fTexture) {
-            fContext->unlockTexture(fTexture);
+            fContext->unlockScratchTexture(fTexture);
             fTexture = NULL;
         }
     }

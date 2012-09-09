@@ -179,9 +179,9 @@ void GrTextureStripAtlas::lockTexture() {
     texDesc.fConfig = fDesc.fConfig;
     GrCacheData cacheData(fCacheID);
     cacheData.fResourceDomain = GetTextureStripAtlasDomain();
-    fTexture = fDesc.fContext->findAndLockTexture(texDesc, cacheData, &params);
+    fTexture = fDesc.fContext->findTexture(texDesc, cacheData, &params);
     if (NULL == fTexture) {
-        fTexture = fDesc.fContext->createAndLockTexture(&params, texDesc, cacheData, NULL, 0);
+        fTexture = fDesc.fContext->createTexture(&params, texDesc, cacheData, NULL, 0);
         // This is a new texture, so all of our cache info is now invalid
         this->initLRU();
         fKeyTable.rewind();
@@ -192,7 +192,6 @@ void GrTextureStripAtlas::lockTexture() {
 
 void GrTextureStripAtlas::unlockTexture() {
     GrAssert(NULL != fTexture && 0 == fLockedRows);
-    fDesc.fContext->unlockTexture(fTexture);
     fTexture->unref();
     fTexture = NULL;
     fDesc.fContext->purgeCache();
