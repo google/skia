@@ -55,7 +55,7 @@ static void setGLFrame(SkPaint* paint) {
 static void show_mesh(SkCanvas* canvas, const SkRect& r) {
     SkPaint paint;
     setGLFrame(&paint);
-    
+
     canvas->drawRect(r, paint);
     canvas->drawLine(r.fLeft, r.fTop, r.fRight, r.fBottom, paint);
 }
@@ -87,13 +87,13 @@ static void show_mesh_between(SkCanvas* canvas, const SkPath& p0, const SkPath& 
     SkPath d0, d1;
     tesselate(p0, &d0);
     tesselate(p1, &d1);
-    
+
     SkPoint pts0[256*2], pts1[256];
     int count = d0.getPoints(pts0, SK_ARRAY_COUNT(pts0));
     int count1 = d1.getPoints(pts1, SK_ARRAY_COUNT(pts1));
     SkASSERT(count == count1);
     memcpy(&pts0[count], pts1, count * sizeof(SkPoint));
-    
+
     uint16_t indices[256*6];
     uint16_t* ndx = indices;
     for (int i = 0; i < count; ++i) {
@@ -125,9 +125,9 @@ typedef void (*DrawProc)(SkCanvas* canvas, bool showGL, int flags);
 static void draw_line(SkCanvas* canvas, bool showGL, int flags) {
     SkPaint paint;
     paint.setAntiAlias(true);
-    
+
     canvas->drawLine(50, 50, 400, 100, paint);
-    
+
     canvas->rotate(40);
     setFade(&paint, showGL);
     paint.setStrokeWidth(40);
@@ -161,7 +161,7 @@ static void draw_rect(SkCanvas* canvas, bool showGL, int flags) {
         r.toQuad(&pts[0]);
         r.inset(rad*2, rad*2);
         r.toQuad(&pts[4]);
-        
+
         const uint16_t indices[] = {
             0, 4, 1, 5, 2, 6, 3, 7, 0, 4
         };
@@ -172,9 +172,9 @@ static void draw_rect(SkCanvas* canvas, bool showGL, int flags) {
 static void draw_oval(SkCanvas* canvas, bool showGL, int flags) {
     SkPaint paint;
     paint.setAntiAlias(true);
-    
+
     SkRect r = SkRect::MakeLTRB(50, 70, 250, 370);
-    
+
     setFade(&paint, showGL);
     canvas->drawOval(r, paint);
     if (showGL) {
@@ -193,9 +193,9 @@ static void draw_oval(SkCanvas* canvas, bool showGL, int flags) {
             } break;
         }
     }
-    
+
     canvas->translate(320, 0);
-    
+
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(25);
     canvas->drawOval(r, paint);
@@ -327,7 +327,7 @@ protected:
         SkRect src = SkRect::MakeWH(640, 480);
         SkMatrix matrix;
         matrix.setRectToRect(src, dst, SkMatrix::kCenter_ScaleToFit);
-        
+
         canvas->concat(matrix);
         fProc(canvas, fShowGL, fFlags);
     }
@@ -360,7 +360,7 @@ ADD_GM(TalkGM, (3, false))
 ADD_GM(TalkGM, (3, true))
 ADD_GM(TalkGM, (4, false))
 ADD_GM(TalkGM, (4, true))
-       
+
 //static GM* MyFactory(void*) { return new TalkGM(0, false); }
 //static GMRegistry reg(MyFactory);
 
