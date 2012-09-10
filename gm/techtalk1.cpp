@@ -11,6 +11,8 @@
 #include "SkGeometry.h"
 #include "SkShader.h"
 
+#define WIRE_FRAME_WIDTH    1.1f
+
 static void tesselate(const SkPath& src, SkPath* dst) {
     SkPath::Iter iter(src, true);
     SkPoint pts[4];
@@ -49,7 +51,7 @@ static void setGLFrame(SkPaint* paint) {
     paint->setColor(0xFFFF0000);
     paint->setStyle(SkPaint::kStroke_Style);
     paint->setAntiAlias(true);
-    paint->setStrokeWidth(1.1f);
+    paint->setStrokeWidth(WIRE_FRAME_WIDTH);
 }
 
 static void show_mesh(SkCanvas* canvas, const SkRect& r) {
@@ -126,7 +128,11 @@ static void draw_line(SkCanvas* canvas, bool showGL, int flags) {
     SkPaint paint;
     paint.setAntiAlias(true);
 
+    if (showGL) {
+        setGLFrame(&paint);
+    }
     canvas->drawLine(50, 50, 400, 100, paint);
+    paint.setColor(SK_ColorBLACK);
 
     canvas->rotate(40);
     setFade(&paint, showGL);
@@ -185,11 +191,18 @@ static void draw_oval(SkCanvas* canvas, bool showGL, int flags) {
                 show_glframe(canvas, path);
             } break;
             case 1:
-            case 2: {
+            case 3: {
                 SkPath src, dst;
                 src.addOval(r);
                 tesselate(src, &dst);
                 show_fan(canvas, dst, r.centerX(), r.centerY());
+            } break;
+            case 2: {
+                SkPaint p(paint);
+                show_mesh(canvas, r);
+                setGLFrame(&p);
+                paint.setStyle(SkPaint::kFill_Style);
+                canvas->drawCircle(r.centerX(), r.centerY(), 3, p);
             } break;
         }
     }
@@ -220,6 +233,14 @@ static void draw_oval(SkCanvas* canvas, bool showGL, int flags) {
                 show_mesh_between(canvas, path0, path1);
             } break;
             case 2: {
+                SkPath path;
+                path.addOval(r);
+                show_glframe(canvas, path);
+                SkScalar rad = paint.getStrokeWidth() / 2;
+                r.outset(rad, rad);
+                show_mesh(canvas, r);
+            } break;
+            case 3: {
                 SkScalar rad = paint.getStrokeWidth() / 2;
                 r.outset(rad, rad);
                 SkPaint paint;
@@ -356,6 +377,7 @@ ADD_GM(TalkGM, (2, false))
 ADD_GM(TalkGM, (2, true))
 ADD_GM(TalkGM, (2, true, 1))
 ADD_GM(TalkGM, (2, true, 2))
+ADD_GM(TalkGM, (2, true, 3))
 ADD_GM(TalkGM, (3, false))
 ADD_GM(TalkGM, (3, true))
 ADD_GM(TalkGM, (4, false))
