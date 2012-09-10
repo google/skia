@@ -153,9 +153,9 @@ TiledPictureRenderer::TiledPictureRenderer()
     , fUsePipe(false)
     , fTileWidth(kDefaultTileWidth)
     , fTileHeight(kDefaultTileHeight)
-    , fTileMinPowerOf2Width(0)
+    , fTileWidthPercentage(0.0)
     , fTileHeightPercentage(0.0)
-    , fTileWidthPercentage(0.0) {}
+    , fTileMinPowerOf2Width(0) { }
 
 void TiledPictureRenderer::init(SkPicture* pict) {
     SkASSERT(pict != NULL);
