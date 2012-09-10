@@ -103,6 +103,8 @@ static void render_picture(const SkString& inputPath, const SkString& outputDir,
 
     SkPicture picture(&inputStream);
 
+    SkDebugf("drawing... [%i %i] %s\n", picture.width(), picture.height(),
+             inputPath.c_str());
     renderer.init(&picture);
 
     renderer.render(true);
