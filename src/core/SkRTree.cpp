@@ -342,8 +342,8 @@ SkRTree::Branch SkRTree::bulkLoad(SkTDArray<Branch>* branches, int level) {
 
         int numStrips = SkScalarCeil(SkScalarSqrt(SkIntToScalar(numBranches) *
                                      SkScalarInvert(fAspectRatio)));
-        int numTiles = SkScalarCeil(SkScalarSqrt(SkIntToScalar(numBranches) /
-                                    SkIntToScalar(numStrips)));
+        int numTiles = SkScalarCeil(SkIntToScalar(numBranches) /
+                                    SkIntToScalar(numStrips));
         int currentBranch = 0;
 
         for (int i = 0; i < numStrips; ++i) {
