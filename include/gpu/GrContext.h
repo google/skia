@@ -122,7 +122,7 @@ public:
     GrTexture* findTexture(const GrCacheKey& key);
 
     /**
-     *  Search for an entry based on key and dimensions. If found, 
+     *  Search for an entry based on key and dimensions. If found,
      *  return it. The return value will be NULL if not found.
      *
      *  @param desc     Description of the texture properties.
