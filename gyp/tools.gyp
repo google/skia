@@ -118,6 +118,7 @@
      ],
      'dependencies': [
         'core.gyp:core',
+        'effects.gyp:effects',
         'images.gyp:images',
         'tools.gyp:picture_utils',
         'utils.gyp:utils',
