@@ -2119,7 +2119,7 @@ void SampleWindow::updateTitle() {
     }
 
     if (fMeasureFPS) {
-        title.appendf(" %6.1f ms", fMeasureFPS_Time / (float)FPS_REPEAT_MULTIPLIER);
+        title.appendf(" %8.3f ms", fMeasureFPS_Time / (float)FPS_REPEAT_COUNT);
     }
     if (SampleView::IsSampleView(view)) {
         switch (fPipeState) {
