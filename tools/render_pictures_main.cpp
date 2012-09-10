@@ -8,6 +8,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
+#include "SkGraphics.h"
 #include "SkMath.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
@@ -274,6 +275,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
 }
 
 int main(int argc, char* const argv[]) {
+    SkGraphics::Init();
     SkTArray<SkString> inputs;
     sk_tools::PictureRenderer* renderer = NULL;
 
@@ -286,4 +288,5 @@ int main(int argc, char* const argv[]) {
     }
 
     SkDELETE(renderer);
+    SkGraphics::Term();
 }
