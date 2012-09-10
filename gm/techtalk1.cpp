@@ -283,6 +283,7 @@ static void draw_image(SkCanvas* canvas, bool showGL, int flags) {
 static void draw_text(SkCanvas* canvas, bool showGL, int flags) {
     SkPaint paint;
     paint.setAntiAlias(true);
+    paint.setLCDRenderText(true);
     const char text[] = "Graphics at Google";
     size_t len = strlen(text);
     setFade(&paint, showGL);
