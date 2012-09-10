@@ -172,6 +172,8 @@ bool SkGrFontScaler::getPackedGlyphImage(GrGlyph::PackedID packed,
                 expand_bits(rgba8888, bits, width, height, dstRB, srcRB);
                 break;
             }
+   	    default:
+ 	        GrCrash("Unknown GrMaskFormat");
         }
     } else if (srcRB == dstRB) {
         memcpy(dst, src, dstRB * height);
