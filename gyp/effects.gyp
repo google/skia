@@ -28,6 +28,7 @@
           ],
           'dependencies': [
             'gpu.gyp:gr',
+            'gpu.gyp:skgr',
           ],
         }],
       ],
