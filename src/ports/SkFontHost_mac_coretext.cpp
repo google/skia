@@ -362,12 +362,17 @@ private:
 };
 
 static SkFontID CTFontRef_to_SkFontID(CTFontRef fontRef) {
+    SkFontID id = 0;
+// CTFontGetPlatformFont and ATSFontRef are not supported on iOS, so we have to
+// bracket this to be Mac only.
+#if SK_BUILD_FOR_MAC
     ATSFontRef ats = CTFontGetPlatformFont(fontRef, NULL);
-    SkFontID id = (SkFontID)ats;
+    id = (SkFontID)ats;
     if (id != 0) {
         id &= 0x3FFFFFFF; // make top two bits 00
         return id;
     }
+#endif
     // CTFontGetPlatformFont returns NULL if the font is local
     // (e.g., was created by a CSS3 @font-face rule).
     CGFontRef cgFont = CTFontCopyGraphicsFont(fontRef, NULL);
