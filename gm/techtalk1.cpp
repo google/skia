@@ -253,20 +253,24 @@ static void draw_oval(SkCanvas* canvas, bool showGL, int flags) {
 }
 
 #include "SkImageDecoder.h"
+
 static void draw_image(SkCanvas* canvas, bool showGL, int flags) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setFilterBitmap(true);
     setFade(&paint, showGL);
 
-    SkBitmap bm;
-    SkImageDecoder::DecodeFile("/skimages/startrek.png", &bm);
-    SkRect r = SkRect::MakeWH(bm.width(), bm.height());
+    static SkBitmap* gBM;
+    if (NULL == gBM) {
+        gBM = new SkBitmap;
+        SkImageDecoder::DecodeFile("/skimages/startrek.png", gBM);
+    }
+    SkRect r = SkRect::MakeWH(gBM->width(), gBM->height());
 
     canvas->save();
     canvas->translate(30, 30);
     canvas->scale(0.8f, 0.8f);
-    canvas->drawBitmap(bm, 0, 0, &paint);
+    canvas->drawBitmap(*gBM, 0, 0, &paint);
     if (showGL) {
         show_mesh(canvas, r);
     }
@@ -274,7 +278,7 @@ static void draw_image(SkCanvas* canvas, bool showGL, int flags) {
 
     canvas->translate(210, 290);
     canvas->rotate(-35);
-    canvas->drawBitmap(bm, 0, 0, &paint);
+    canvas->drawBitmap(*gBM, 0, 0, &paint);
     if (showGL) {
         show_mesh(canvas, r);
     }
