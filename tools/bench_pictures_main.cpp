@@ -9,6 +9,7 @@
 #include "PictureBenchmark.h"
 #include "SkBenchLogger.h"
 #include "SkCanvas.h"
+#include "SkGraphics.h"
 #include "SkMath.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
@@ -345,6 +346,7 @@ static void process_input(const SkString& input, sk_tools::PictureBenchmark& ben
 }
 
 int main(int argc, char* const argv[]) {
+    SkAutoGraphics ag;
     SkTArray<SkString> inputs;
     sk_tools::PictureBenchmark* benchmark = NULL;
 
