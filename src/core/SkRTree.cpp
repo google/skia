@@ -19,20 +19,21 @@ static inline void join_no_empty_check(const SkIRect& joinWith, SkIRect* out);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkRTree* SkRTree::Create(int minChildren, int maxChildren) {
+SkRTree* SkRTree::Create(int minChildren, int maxChildren, SkScalar aspectRatio) {
     if (minChildren < maxChildren && (maxChildren + 1) / 2 >= minChildren &&
         minChildren > 0 && maxChildren < static_cast<int>(SK_MaxU16)) {
-        return new SkRTree(minChildren, maxChildren);
+        return new SkRTree(minChildren, maxChildren, aspectRatio);
     }
     return NULL;
 }
 
-SkRTree::SkRTree(int minChildren, int maxChildren)
+SkRTree::SkRTree(int minChildren, int maxChildren, SkScalar aspectRatio)
     : fMinChildren(minChildren)
     , fMaxChildren(maxChildren)
     , fNodeSize(sizeof(Node) + sizeof(Branch) * maxChildren)
     , fCount(0)
-    , fNodes(fNodeSize * 256) {
+    , fNodes(fNodeSize * 256)
+    , fAspectRatio(aspectRatio) {
     SkASSERT(minChildren < maxChildren && minChildren > 0 && maxChildren <
              static_cast<int>(SK_MaxU16));
     SkASSERT((maxChildren + 1) / 2 >= minChildren);
@@ -339,13 +340,16 @@ SkRTree::Branch SkRTree::bulkLoad(SkTDArray<Branch>* branches, int level) {
             }
         }
 
-        int numStrips = SkScalarCeil(SkScalarSqrt(SkIntToScalar(numBranches)));
+        int numStrips = SkScalarCeil(SkScalarSqrt(SkIntToScalar(numBranches) *
+                                     SkScalarInvert(fAspectRatio)));
+        int numTiles = SkScalarCeil(SkScalarSqrt(SkIntToScalar(numBranches) /
+                                    SkIntToScalar(numStrips)));
         int currentBranch = 0;
 
         for (int i = 0; i < numStrips; ++i) {
             int begin = currentBranch;
-            int end = currentBranch + numStrips * fMaxChildren - SkMin32(remainder,
-                      (fMaxChildren - fMinChildren) * numStrips);
+            int end = currentBranch + numTiles * fMaxChildren - SkMin32(remainder,
+                      (fMaxChildren - fMinChildren) * numTiles);
             if (end > branches->count()) {
                 end = branches->count();
             }
@@ -354,7 +358,7 @@ SkRTree::Branch SkRTree::bulkLoad(SkTDArray<Branch>* branches, int level) {
             SkQSort<int, Branch>(level, branches->begin() + begin, branches->begin() + end - 1,
                                  &RectLessX);
 
-            for (int j = 0; j < numStrips && currentBranch < branches->count(); ++j) {
+            for (int j = 0; j < numTiles && currentBranch < branches->count(); ++j) {
                 int incrementBy = fMaxChildren;
                 if (remainder != 0) {
                     // if need be, omit some nodes to make up for remainder

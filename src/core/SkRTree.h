@@ -50,8 +50,11 @@ public:
      * - min < max
      * - min > 0
      * - max < SK_MaxU16
+     * If you have some prior information about the distribution of bounds you're expecting, you
+     * can provide an optional aspect ratio parameter. This allows the bulk-load algorithm to create
+     * better proportioned tiles of rectangles.
      */
-    static SkRTree* Create(int minChildren, int maxChildren);
+    static SkRTree* Create(int minChildren, int maxChildren, SkScalar aspectRatio = 1);
     virtual ~SkRTree();
 
     /**
@@ -129,7 +132,7 @@ private:
                ((rhs.fBounds.fBottom - lhs.fBounds.fTop) >> 1);
     }
 
-    SkRTree(int minChildren, int maxChildren);
+    SkRTree(int minChildren, int maxChildren, SkScalar aspectRatio);
 
     /**
      * Recursively descend the tree to find an insertion position for 'branch', updates
@@ -168,6 +171,7 @@ private:
     Branch fRoot;
     SkChunkAlloc fNodes;
     SkTDArray<Branch> fDeferredInserts;
+    SkScalar fAspectRatio;
 
     Node* allocateNode(uint16_t level);
 
