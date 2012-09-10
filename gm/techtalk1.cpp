@@ -349,13 +349,18 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        SkRect dst = SkRect::MakeWH(canvas->getDevice()->width(), canvas->getDevice()->height());
+        SkISize size = canvas->getDeviceSize();
+        SkRect dst = SkRect::MakeWH(size.width(), size.height());
         SkRect src = SkRect::MakeWH(640, 480);
         SkMatrix matrix;
         matrix.setRectToRect(src, dst, SkMatrix::kCenter_ScaleToFit);
 
         canvas->concat(matrix);
         fProc(canvas, fShowGL, fFlags);
+    }
+
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return  kSkipPDF_Flag | kSkipPicture_Flag | kSkipPipe_Flag | kSkipTiled_Flag;
     }
 
 private:
