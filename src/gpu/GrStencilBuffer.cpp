@@ -12,6 +12,7 @@
 #include "GrGpu.h"
 #include "GrResourceCache.h"
 
+SK_DEFINE_INST_COUNT(GrStencilBuffer)
 GR_DEFINE_RESOURCE_CACHE_TYPE(GrStencilBuffer)
 
 void GrStencilBuffer::transferToCache() {
