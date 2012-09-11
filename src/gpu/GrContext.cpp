@@ -95,6 +95,7 @@ GrContext::~GrContext() {
     fGpu->purgeResources();
 
     delete fTextureCache;
+    fTextureCache = NULL;
     delete fFontCache;
     delete fDrawBuffer;
     delete fDrawBufferVBAllocPool;
@@ -495,7 +496,9 @@ void GrContext::unlockScratchTexture(GrTexture* texture) {
 }
 
 void GrContext::purgeCache() {
-    fTextureCache->purgeAsNeeded();
+    if (NULL != fTextureCache) {
+        fTextureCache->purgeAsNeeded();
+    }
 }
 
 GrTexture* GrContext::createUncachedTexture(const GrTextureDesc& descIn,
