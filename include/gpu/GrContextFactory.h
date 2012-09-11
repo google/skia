@@ -90,15 +90,18 @@ public:
         }
         static const int kBogusSize = 1;
         if (!glCtx.get()) {
+            printf("GrContextFactory.h: no context\n");
             return NULL;
         }
         if (!glCtx.get()->init(kBogusSize, kBogusSize)) {
+            printf("GrContextFactory.h: no init\n");
             return NULL;
         }
         GrPlatform3DContext p3dctx =
             reinterpret_cast<GrPlatform3DContext>(glCtx.get()->gl());
         grCtx.reset(GrContext::Create(kOpenGL_Shaders_GrEngine, p3dctx));
         if (!grCtx.get()) {
+            printf("GrContextFactory.h: no gr context\n");
             return NULL;
         }
         GPUContext& ctx = fContexts.push_back();
