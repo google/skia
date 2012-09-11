@@ -36,6 +36,9 @@ public:
             fName.append("_bulk");
         }
     }
+    virtual ~BBoxBuildBench() {
+        delete fTree;
+    }
 protected:
     virtual const char* onGetName() {
         return fName.c_str();
@@ -88,6 +91,9 @@ public:
                            SkBENCHLOOP(NUM_QUERY_RECTS)), fBulkLoad);
         }
         fTree->flushDeferredInserts();
+    }
+    virtual ~BBoxQueryBench() {
+        delete fTree;
     }
 protected:
     virtual const char* onGetName() {
