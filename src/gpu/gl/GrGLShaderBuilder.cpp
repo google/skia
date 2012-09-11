@@ -33,30 +33,40 @@ inline const char* sample_function_name(GrSLType type) {
     }
 }
 
-inline bool texture_requires_alpha_to_red_swizzle(const GrGLCaps& caps,
-                                                  const GrTextureAccess& access) {
-    return GrPixelConfigIsAlphaOnly(access.getTexture()->config()) && caps.textureRedSupport() &&
-        access.referencesAlpha();
-}
-
-SkString build_swizzle_string(const GrTextureAccess& textureAccess,
-                              const GrGLCaps& caps) {
-    const GrTextureAccess::Swizzle& swizzle = textureAccess.getSwizzle();
-    if (0 == swizzle[0]) {
-        return SkString("");
-    }
-
-    SkString swizzleOut(".");
-    bool alphaIsRed = texture_requires_alpha_to_red_swizzle(caps, textureAccess);
-    for (int offset = 0; offset < 4 && swizzle[offset]; ++offset) {
-        if (alphaIsRed && 'a' == swizzle[offset]) {
-            swizzleOut.appendf("r");
-        } else {
-            swizzleOut.appendf("%c", swizzle[offset]);
+/**
+ * Do we need to either map r,g,b->a or a->r.
+ */
+inline bool swizzle_requires_alpha_remapping(const GrGLCaps& caps,
+                                             const GrTextureAccess& access) {
+    if (GrPixelConfigIsAlphaOnly(access.getTexture()->config())) {
+        if (caps.textureRedSupport() && (GrTextureAccess::kA_SwizzleFlag & access.swizzleMask())) {
+            return true;
+        }
+        if (GrTextureAccess::kRGB_SwizzleMask & access.swizzleMask()) {
+            return true;
         }
     }
+    return false;
+}
 
-    return swizzleOut;
+void append_swizzle(SkString* outAppend,
+                    const GrTextureAccess& access,
+                    const GrGLCaps& caps) {
+    const char* swizzle = access.getSwizzle();
+    char mangledSwizzle[5];
+
+    // The swizzling occurs using texture params instead of shader-mangling if ARB_texture_swizzle
+    // is available.
+    if (!caps.textureSwizzleSupport() && GrPixelConfigIsAlphaOnly(access.getTexture()->config())) {
+        char alphaChar = caps.textureRedSupport() ? 'r' : 'a';
+        int i;
+        for (i = 0; '\0' != swizzle[i]; ++i) {
+            mangledSwizzle[i] = alphaChar;
+        }
+        mangledSwizzle[i] ='\0';
+        swizzle = mangledSwizzle;
+    }
+    outAppend->appendf(".%s", swizzle);
 }
 
 }
@@ -114,16 +124,16 @@ void GrGLShaderBuilder::appendTextureLookup(SkString* out,
                                             const char* coordName,
                                             GrSLType varyingType) const {
     GrAssert(NULL != sampler.textureAccess());
-    SkString swizzle = build_swizzle_string(*sampler.textureAccess(), fContext.caps());
 
     if (NULL == coordName) {
         coordName = fDefaultTexCoordsName.c_str();
         varyingType = kVec2f_GrSLType;
     }
-    out->appendf("%s(%s, %s)%s",
+    out->appendf("%s(%s, %s)",
                  sample_function_name(varyingType),
                  this->getUniformCStr(sampler.fSamplerUniform),
-                 coordName, swizzle.c_str());
+                 coordName);
+    append_swizzle(out, *sampler.textureAccess(), fContext.caps());
 }
 
 void GrGLShaderBuilder::appendTextureLookupAndModulate(
@@ -144,15 +154,34 @@ GrCustomStage::StageKey GrGLShaderBuilder::KeyForTextureAccess(const GrTextureAc
 
     // Assume that swizzle support implies that we never have to modify a shader to adjust
     // for texture format/swizzle settings.
-    if (caps.textureSwizzleSupport()) {
-        return key;
-    }
-
-    if (texture_requires_alpha_to_red_swizzle(caps, access)) {
+    if (!caps.textureSwizzleSupport() && swizzle_requires_alpha_remapping(caps, access)) {
         key = 1;
     }
-
+    #if GR_DEBUG
+        // Assert that key is set iff the swizzle will be modified.
+        SkString origString(access.getSwizzle());
+        origString.prepend(".");
+        SkString modifiedString;
+        append_swizzle(&modifiedString, access, caps);
+        GrAssert(SkToBool(key) == (modifiedString != origString));
+    #endif
     return key;
+}
+
+const GrGLenum* GrGLShaderBuilder::GetTexParamSwizzle(GrPixelConfig config, const GrGLCaps& caps) {
+    if (caps.textureSwizzleSupport() && GrPixelConfigIsAlphaOnly(config)) {
+        if (caps.textureRedSupport()) {
+            static const GrGLenum gRedSmear[] = { GR_GL_RED, GR_GL_RED, GR_GL_RED, GR_GL_RED };
+            return gRedSmear;
+        } else {
+            static const GrGLenum gAlphaSmear[] = { GR_GL_ALPHA, GR_GL_ALPHA,
+                                                    GR_GL_ALPHA, GR_GL_ALPHA };
+            return gAlphaSmear;
+        }
+    } else {
+        static const GrGLenum gStraight[] = { GR_GL_RED, GR_GL_GREEN, GR_GL_BLUE, GR_GL_ALPHA };
+        return gStraight;
+    }
 }
 
 GrGLUniformManager::UniformHandle GrGLShaderBuilder::addUniformArray(uint32_t visibility,

@@ -75,10 +75,6 @@ bool GrGpuGL::programUnitTest() {
         0,
         StageDesc::kNoPerspective_OptFlagBit,
     };
-    static const int IN_CONFIG_FLAGS[] = {
-        StageDesc::kNone_InConfigFlag,
-        StageDesc::kSmearAlpha_InConfigFlag,
-    };
 
     static const int NUM_TESTS = 512;
 
@@ -152,7 +148,6 @@ bool GrGpuGL::programUnitTest() {
             stage.fCustomStageKey = 0;
 
             stage.fOptFlags |= STAGE_OPTS[random_int(&random, GR_ARRAY_COUNT(STAGE_OPTS))];
-            stage.fInConfigFlags = IN_CONFIG_FLAGS[random_int(&random, GR_ARRAY_COUNT(IN_CONFIG_FLAGS))];
 
             if (stage.isEnabled()) {
                 GrTexture* dummyTextures[] = {dummyTexture1.get(), dummyTexture2.get()};

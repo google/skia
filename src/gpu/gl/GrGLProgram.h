@@ -97,34 +97,11 @@ public:
                 kIsEnabled_OptFlagBit           = 1 << 7
             };
 
-            /**
-              Flags set based on a src texture's pixel config. The operations
-              described are performed after reading a texel.
-             */
-            enum InConfigFlags {
-                kNone_InConfigFlag                      = 0x00,
-
-                /**
-                 Smear alpha across all four channels. It is prefereable to perform the smear
-                 outside the shader using GL_ARB_texture_swizzle if possible rather than setting
-                 this flag.
-                */
-                kSmearAlpha_InConfigFlag                = 0x01,
-
-                kDummyInConfigFlag,
-                kInConfigBitMask = (kDummyInConfigFlag-1) |
-                                   (kDummyInConfigFlag-2)
-            };
-
             uint8_t fOptFlags;
-            uint8_t fInConfigFlags; // bitfield of InConfigFlags values
 
             /** Non-zero if user-supplied code will write the stage's
                 contribution to the fragment shader. */
             GrProgramStageFactory::StageKey fCustomStageKey;
-
-            GR_STATIC_ASSERT((InConfigFlags)(uint8_t)kInConfigBitMask ==
-                             kInConfigBitMask);
 
             inline bool isEnabled() const {
                 return SkToBool(fOptFlags & kIsEnabled_OptFlagBit);

@@ -81,12 +81,14 @@ public:
         in generated shader code. */
     const char* name() const { return this->getFactory().name(); }
 
-    virtual unsigned int numTextures() const;
-    virtual GrTexture* texture(unsigned int index) const;
+    virtual int numTextures() const;
 
-    /** Returns the access pattern for the texture at index.  Returns NULL if index is
-        unused. */
-    virtual const GrTextureAccess* textureAccess(unsigned int index) const;
+    /** Returns the access pattern for the texture at index. index must be valid according to
+        numTextures(). */
+    virtual const GrTextureAccess& textureAccess(int index) const;
+
+    /** Shortcut for textureAccess(index).texture(); */
+    GrTexture* texture(int index) const { return this->textureAccess(index).getTexture(); }
 
     void* operator new(size_t size);
     void operator delete(void* target);

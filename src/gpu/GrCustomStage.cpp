@@ -54,7 +54,7 @@ bool GrCustomStage::isEqual(const GrCustomStage& s) const {
     if (this->numTextures() != s.numTextures()) {
         return false;
     }
-    for (unsigned int i = 0; i < this->numTextures(); ++i) {
+    for (int i = 0; i < this->numTextures(); ++i) {
         if (this->texture(i) != s.texture(i)) {
             return false;
         }
@@ -62,16 +62,14 @@ bool GrCustomStage::isEqual(const GrCustomStage& s) const {
     return true;
 }
 
-unsigned int GrCustomStage::numTextures() const {
+int GrCustomStage::numTextures() const {
     return 0;
 }
 
-GrTexture* GrCustomStage::texture(unsigned int index) const {
-    return NULL;
-}
-
-const GrTextureAccess* GrCustomStage::textureAccess(unsigned int index) const {
-    return NULL;
+const GrTextureAccess& GrCustomStage::textureAccess(int index) const {
+    GrCrash("We shouldn't be calling this function on the base class.");
+    static GrTextureAccess kDummy;
+    return kDummy;
 }
 
 void * GrCustomStage::operator new(size_t size) {

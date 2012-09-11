@@ -125,6 +125,10 @@ public:
     static GrCustomStage::StageKey KeyForTextureAccess(const GrTextureAccess& access,
                                                        const GrGLCaps& caps);
 
+    /** If texture swizzling is available using tex parameters then it is preferred over mangling
+        the generated shader code. This potentially allows greater reuse of cached shaders. */
+    static const GrGLenum* GetTexParamSwizzle(GrPixelConfig config, const GrGLCaps& caps);
+
     /** Add a uniform variable to the current program, that has visibilty in one or more shaders.
         visibility is a bitfield of ShaderType values indicating from which shaders the uniform
         should be accessible. At least one bit must be set. Geometry shader uniforms are not

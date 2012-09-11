@@ -8,29 +8,62 @@
 #ifndef GrTextureAccess_DEFINED
 #define GrTextureAccess_DEFINED
 
-#include "GrTypes.h"
+#include "GrNoncopyable.h"
+#include "SkRefCnt.h"
 
 class GrTexture;
-class SkString;
 
-/** A class representing the swizzle access pattern for a texture.
+/** A class representing the swizzle access pattern for a texture. Note that if the texture is
+ *  an alpha-only texture then the alpha channel is substituted for other components. Any mangling
+ *  to handle the r,g,b->a conversions for alpha textures is automatically included in the stage
+ *  key. However, if a GrCustomStage uses different swizzles based on its input then it must
+ *  consider that variation in its key-generation.
  */
-class GrTextureAccess {
+class GrTextureAccess : GrNoncopyable {
 public:
-    typedef char Swizzle[4];
+    /**
+     * A default GrTextureAccess must have reset() called on it in a GrCustomStage subclass's
+     * constructor if it will be accessible via GrCustomStage::textureAccess().
+     */
+    GrTextureAccess();
 
-    GrTextureAccess(const GrTexture* texture, const SkString& swizzle);
+    /**
+     * swizzle must be a string between one and four (inclusive) characters containing only 'r',
+     * 'g', 'b',  and/or 'a'.
+     */
+    GrTextureAccess(GrTexture*, const char* swizzle);
 
-    const GrTexture* getTexture() const { return fTexture; }
-    const Swizzle& getSwizzle() const { return fSwizzle; }
+    /**
+     * Uses the default swizzle, "rgba".
+     */
+    GrTextureAccess(GrTexture*);
 
-    bool referencesAlpha() const {
-        return fSwizzle[0] == 'a' || fSwizzle[1] == 'a' || fSwizzle[2] == 'a' || fSwizzle[3] == 'a';
-    }
+    void reset(GrTexture*, const char* swizzle);
+    void reset(GrTexture*);
+
+    GrTexture* getTexture() const { return fTexture.get(); }
+
+    /**
+     * Returns a string representing the swizzle. The string is is null-terminated.
+     */
+    const char* getSwizzle() const { return fSwizzle; }
+
+    enum {
+        kR_SwizzleFlag = 0x1,
+        kG_SwizzleFlag = 0x2,
+        kB_SwizzleFlag = 0x4,
+        kA_SwizzleFlag = 0x8,
+
+        kRGB_SwizzleMask = (kR_SwizzleFlag |  kG_SwizzleFlag | kB_SwizzleFlag),
+    };
+
+    /** Returns a mask indicating which components are referenced in the swizzle. */
+    uint32_t swizzleMask() const { return fSwizzleMask; }
 
 private:
-    const GrTexture* fTexture;
-    Swizzle fSwizzle;
+    SkAutoTUnref<GrTexture> fTexture;
+    uint32_t                fSwizzleMask;
+    char                    fSwizzle[5];
 };
 
 #endif
