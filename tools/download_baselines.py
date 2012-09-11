@@ -201,6 +201,8 @@ def Main(options, args):
             'base-macmini-lion-float',
             'base-shuttle-win7-intel-float',
             'base-shuttle_ubuntu12_ati5770',
+            'base-shuttle-win7-intel-angle',
+            'base-shuttle-win7-intel-directwrite',
             ]
 
     # Trim all subdir names.
