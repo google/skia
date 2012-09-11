@@ -35,6 +35,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
     GR_STATIC_ASSERT(kNone_GrGLBinding == 0);
 
     if (0 == (binding & fBindingsExported)) {
+        SkDebugf("%d: %i\n", __LINE__, (binding & fBindingsExported));
         return false;
     }
 
