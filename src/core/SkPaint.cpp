@@ -1621,6 +1621,8 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
  */
 SK_DECLARE_STATIC_MUTEX(gMaskGammaCacheMutex);
 
+static SkColorSpaceLuminance* gLinearLuminance = NULL;
+
 static SkColorSpaceLuminance* gDeviceLuminance = NULL;
 static SkScalar gDeviceGammaExponent = SK_ScalarMin;
 /**
@@ -1628,6 +1630,12 @@ static SkScalar gDeviceGammaExponent = SK_ScalarMin;
  * the returned SkColorSpaceLuminance pointer is forgotten.
  */
 static SkColorSpaceLuminance* cachedDeviceLuminance(SkScalar gammaExponent) {
+    if (SK_Scalar1 == gammaExponent) {
+        if (NULL == gLinearLuminance) {
+            gLinearLuminance = SkNEW(SkLinearLuminance);
+        }
+        return gLinearLuminance;
+    }
     if (gDeviceGammaExponent != gammaExponent) {
         SkDELETE(gDeviceLuminance);
         if (0 == gammaExponent) {
@@ -1647,6 +1655,12 @@ static SkScalar gPaintGammaExponent = SK_ScalarMin;
  * the returned SkColorSpaceLuminance pointer is forgotten.
  */
 static SkColorSpaceLuminance* cachedPaintLuminance(SkScalar gammaExponent) {
+    if (SK_Scalar1 == gammaExponent) {
+        if (NULL == gLinearLuminance) {
+            gLinearLuminance = SkNEW(SkLinearLuminance);
+        }
+        return gLinearLuminance;
+    }
     if (gPaintGammaExponent != gammaExponent) {
         SkDELETE(gPaintLuminance);
         if (0 == gammaExponent) {
@@ -1659,6 +1673,7 @@ static SkColorSpaceLuminance* cachedPaintLuminance(SkScalar gammaExponent) {
     return gPaintLuminance;
 }
 
+static SkMaskGamma* gLinearMaskGamma = NULL;
 static SkMaskGamma* gMaskGamma = NULL;
 static SkScalar gContrast = SK_ScalarMin;
 static SkScalar gPaintGamma = SK_ScalarMin;
@@ -1668,6 +1683,12 @@ static SkScalar gDeviceGamma = SK_ScalarMin;
  * the returned SkMaskGamma pointer is refed or forgotten.
  */
 static SkMaskGamma* cachedMaskGamma(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma) {
+    if (0 == contrast && SK_Scalar1 == paintGamma && SK_Scalar1 == deviceGamma) {
+        if (NULL == gLinearMaskGamma) {
+            gLinearMaskGamma = SkNEW(SkMaskGamma);
+        }
+        return gLinearMaskGamma;
+    }
     if (gContrast != contrast || gPaintGamma != paintGamma || gDeviceGamma != deviceGamma) {
         SkSafeUnref(gMaskGamma);
         SkColorSpaceLuminance* paintLuminance = cachedPaintLuminance(paintGamma);
@@ -1683,10 +1704,14 @@ static SkMaskGamma* cachedMaskGamma(SkScalar contrast, SkScalar paintGamma, SkSc
 /*static*/ void SkPaint::Term() {
     SkAutoMutexAcquire ama(gMaskGammaCacheMutex);
 
+    SkSafeUnref(gLinearMaskGamma);
+
     SkSafeUnref(gMaskGamma);
     SkDEBUGCODE(gContrast = SK_ScalarMin;)
     SkDEBUGCODE(gPaintGamma = SK_ScalarMin;)
     SkDEBUGCODE(gDeviceGamma = SK_ScalarMin;)
+
+    SkDELETE(gLinearLuminance);
 
     SkDELETE(gPaintLuminance);
     SkDEBUGCODE(gPaintLuminance = NULL;)
@@ -1711,11 +1736,7 @@ void SkScalerContext::PostMakeRec(const SkPaint& paint, SkScalerContext::Rec* re
         case SkMask::kLCD32_Format: {
             // filter down the luminance color to a finite number of bits
             SkColor color = rec->getLuminanceColor();
-            SkAutoMutexAcquire ama(gMaskGammaCacheMutex);
-            SkMaskGamma* maskGamma = cachedMaskGamma(rec->getContrast(),
-                                                     rec->getPaintGamma(),
-                                                     rec->getDeviceGamma());
-            rec->setLuminanceColor(maskGamma->cannonicalColor(color));
+            rec->setLuminanceColor(SkMaskGamma::cannonicalColor(color));
             break;
         }
         case SkMask::kA8_Format: {
@@ -1732,11 +1753,8 @@ void SkScalerContext::PostMakeRec(const SkPaint& paint, SkScalerContext::Rec* re
             }
 
             // reduce to our finite number of bits
-            SkMaskGamma* maskGamma = cachedMaskGamma(rec->getContrast(),
-                                                     rec->getPaintGamma(),
-                                                     rec->getDeviceGamma());
             color = SkColorSetRGB(lum, lum, lum);
-            rec->setLuminanceColor(maskGamma->cannonicalColor(color));
+            rec->setLuminanceColor(SkMaskGamma::cannonicalColor(color));
             break;
         }
         case SkMask::kBW_Format:

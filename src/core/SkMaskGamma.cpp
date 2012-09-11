@@ -36,12 +36,20 @@ SkGammaLuminance::SkGammaLuminance(SkScalar gamma)
     , fGammaInverse(SkScalarInvert(gamma)) {
 }
 
-float SkGammaLuminance::toLuma(SkScalar luminance) const {
+SkScalar SkGammaLuminance::toLuma(SkScalar luminance) const {
     return SkScalarPow(luminance, fGamma);
 }
 
-float SkGammaLuminance::fromLuma(SkScalar luma) const {
+SkScalar SkGammaLuminance::fromLuma(SkScalar luma) const {
     return SkScalarPow(luma, fGammaInverse);
+}
+
+SkScalar SkLinearLuminance::toLuma(SkScalar luminance) const {
+    return luminance;
+}
+
+SkScalar SkLinearLuminance::fromLuma(SkScalar luma) const {
+    return luma;
 }
 
 static float apply_contrast(float srca, float contrast) {
