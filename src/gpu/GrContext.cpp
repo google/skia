@@ -280,17 +280,18 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
                                            void* srcData,
                                            size_t rowBytes,
                                            bool needsFiltering) {
-    SkAutoTUnref<GrTexture> clampedTexture(this->findTexture(desc, cacheData, NULL));
-
+    GrTexture* clampedTexture = this->findTexture(desc, cacheData, NULL);
     if (NULL == clampedTexture) {
-        clampedTexture.reset(
-            this->createTexture(NULL, desc, cacheData, srcData, rowBytes));
+        clampedTexture = this->createTexture(NULL, desc, cacheData, srcData, rowBytes);
 
         GrAssert(NULL != clampedTexture);
         if (NULL == clampedTexture) {
             return NULL;
         }
     }
+
+    clampedTexture->ref();
+
     GrTextureDesc rtDesc = desc;
     rtDesc.fFlags =  rtDesc.fFlags |
                      kRenderTarget_GrTextureFlagBit |
@@ -352,6 +353,7 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
         GrAssert(NULL != texture);
     }
 
+    clampedTexture->unref();
     return texture;
 }
 
