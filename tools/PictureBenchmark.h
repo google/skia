@@ -7,8 +7,8 @@
 
 #ifndef PictureBenchmark_DEFINED
 #define PictureBenchmark_DEFINED
+
 #include "SkTypes.h"
-#include "SkRefCnt.h"
 #include "PictureRenderer.h"
 
 class BenchTimer;
@@ -18,11 +18,11 @@ class SkString;
 
 namespace sk_tools {
 
-class PictureBenchmark : public SkRefCnt {
+class PictureBenchmark {
 public:
-    PictureBenchmark()
-    : fRepeats(1)
-    , fLogger(NULL) {}
+    PictureBenchmark();
+
+    ~PictureBenchmark();
 
     void run(SkPicture* pict);
 
@@ -30,133 +30,43 @@ public:
         fRepeats = repeats;
     }
 
-    void setDeviceType(PictureRenderer::SkDeviceTypes deviceType) {
-        sk_tools::PictureRenderer* renderer = getRenderer();
+    PictureRenderer* setRenderer(PictureRenderer*);
 
-        if (renderer != NULL) {
-            renderer->setDeviceType(deviceType);
+    void setDeviceType(PictureRenderer::SkDeviceTypes deviceType) {
+        if (fRenderer != NULL) {
+            fRenderer->setDeviceType(deviceType);
         }
+    }
+
+    void setLogPerIter(bool log) { fLogPerIter = log; }
+
+    void setPrintMin(bool min) { fPrintMin = min; }
+
+    void setTimersToShow(bool wall, bool truncatedWall, bool cpu, bool truncatedCpu, bool gpu) {
+        fShowWallTime = wall;
+        fShowTruncatedWallTime = truncatedWall;
+        fShowCpuTime = cpu;
+        fShowTruncatedCpuTime = truncatedCpu;
+        fShowGpuTime = gpu;
     }
 
     void setLogger(SkBenchLogger* logger) { fLogger = logger; }
 
 private:
-    int            fRepeats;
-    SkBenchLogger* fLogger;
+    int              fRepeats;
+    SkBenchLogger*   fLogger;
+    PictureRenderer* fRenderer;
+    bool             fLogPerIter;
+    bool             fPrintMin;
+    bool             fShowWallTime;
+    bool             fShowTruncatedWallTime;
+    bool             fShowCpuTime;
+    bool             fShowTruncatedCpuTime;
+    bool             fShowGpuTime;
 
     void logProgress(const char msg[]);
 
-    virtual sk_tools::PictureRenderer* getRenderer() = 0;
-
     BenchTimer* setupTimer();
-
-    typedef SkRefCnt INHERITED;
-};
-
-// TODO: Use just one PictureBenchmark with different renderers.
-
-class PipePictureBenchmark : public PictureBenchmark {
-private:
-    PipePictureRenderer fRenderer;
-
-    virtual sk_tools::PictureRenderer* getRenderer() SK_OVERRIDE {
-        return &fRenderer;
-    }
-
-    typedef PictureBenchmark INHERITED;
-};
-
-class RecordPictureBenchmark : public PictureBenchmark {
-private:
-    RecordPictureRenderer fRenderer;
-
-    virtual sk_tools::PictureRenderer* getRenderer() SK_OVERRIDE {
-        return &fRenderer;
-    }
-
-    typedef PictureBenchmark INHERITED;
-};
-
-class SimplePictureBenchmark : public PictureBenchmark {
-private:
-    SimplePictureRenderer fRenderer;
-
-    virtual sk_tools::PictureRenderer* getRenderer() SK_OVERRIDE {
-        return &fRenderer;
-    }
-
-    typedef PictureBenchmark INHERITED;
-};
-
-class TiledPictureBenchmark : public PictureBenchmark {
-public:
-    void setTileWidth(int width) {
-        fRenderer.setTileWidth(width);
-    }
-
-    int getTileWidth() const {
-        return fRenderer.getTileWidth();
-    }
-
-    void setTileHeight(int height) {
-        fRenderer.setTileHeight(height);
-    }
-
-    int getTileHeight() const {
-        return fRenderer.getTileHeight();
-    }
-
-    void setTileWidthPercentage(double percentage) {
-        fRenderer.setTileWidthPercentage(percentage);
-    }
-
-    double getTileWidthPercentage() const {
-        return fRenderer.getTileWidthPercentage();
-    }
-
-    void setTileHeightPercentage(double percentage) {
-        fRenderer.setTileHeightPercentage(percentage);
-    }
-
-    double getTileHeightPercentage() const {
-        return fRenderer.getTileHeightPercentage();
-    }
-
-    void setTileMinPowerOf2Width(int width) {
-        fRenderer.setTileMinPowerOf2Width(width);
-    }
-
-    int getTileMinPowerOf2Width() {
-        return fRenderer.getTileMinPowerOf2Width();
-    }
-
-    void setThreading(bool multi) {
-        fRenderer.setMultiThreaded(multi);
-    }
-
-    void setUsePipe(bool usePipe) {
-        fRenderer.setUsePipe(usePipe);
-    }
-
-private:
-    TiledPictureRenderer fRenderer;
-
-    virtual sk_tools::PictureRenderer* getRenderer() SK_OVERRIDE{
-        return &fRenderer;
-    }
-
-    typedef PictureBenchmark INHERITED;
-};
-
-class PlaybackCreationBenchmark : public PictureBenchmark {
-private:
-    PlaybackCreationRenderer fRenderer;
-
-    virtual sk_tools::PictureRenderer* getRenderer() SK_OVERRIDE{
-        return &fRenderer;
-    }
-
-    typedef PictureBenchmark INHERITED;
 };
 
 }
