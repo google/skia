@@ -20,6 +20,7 @@ class GrResourceKey;
 
 class GrStencilBuffer : public GrResource {
 public:
+    SK_DECLARE_INST_COUNT(GrStencilBuffer);
     GR_DECLARE_RESOURCE_CACHE_TYPE()
 
     virtual ~GrStencilBuffer() {

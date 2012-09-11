@@ -19,6 +19,7 @@ class GrGpu;
  */
 class GrGeometryBuffer : public GrResource {
 public:
+    SK_DECLARE_INST_COUNT(GrGeometryBuffer);
 
     /**
      *Retrieves whether the buffer was created with the dynamic flag
