@@ -229,7 +229,6 @@
         'defines': [
           'SK_BUILD_FOR_ANDROID',
           'SK_BUILD_FOR_ANDROID_NDK',
-          'SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0',
         ],
         'configurations': {
           'Debug': {
