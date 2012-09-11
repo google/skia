@@ -62,6 +62,11 @@
         }, {
           'skia_arch_width%': 32,
         }],
+        ['skia_os == "android"', {
+          'skia_static_initializers%': 0,
+        }, {
+          'skia_static_initializers%': 1,
+        }],
       ],
 
       'skia_scalar%': 'float',
@@ -73,7 +78,6 @@
       'android_make_apk%': 1,
       'skia_nacl%': 0,
       'skia_gpu%': 1,
-      'skia_static_initializers%': 1,
     },
 
     # Re-define all variables defined within the level-2 'variables' dict,
