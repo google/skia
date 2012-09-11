@@ -91,8 +91,7 @@ GrGLProgramStage::StageKey GrGLColorTableEffect::GenKey(const GrCustomStage& s,
 ///////////////////////////////////////////////////////////////////////////////
 
 GrColorTableEffect::GrColorTableEffect(GrTexture* texture)
-    : INHERITED(texture)
-    , fTextureAccess(texture, SkString("a")) {
+    : fTextureAccess(texture, "a") {
 }
 
 GrColorTableEffect::~GrColorTableEffect() {
@@ -106,11 +105,9 @@ bool GrColorTableEffect::isEqual(const GrCustomStage& sBase) const {
     return INHERITED::isEqual(sBase);
 }
 
-const GrTextureAccess* GrColorTableEffect::textureAccess(unsigned int index) const {
-    if (0 == index)
-        return &fTextureAccess;
-
-    return NULL;
+const GrTextureAccess& GrColorTableEffect::textureAccess(int index) const {
+    GrAssert(0 == index);
+    return fTextureAccess;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

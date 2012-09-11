@@ -719,8 +719,7 @@ void GrGLGradientStage::emitColorLookup(GrGLShaderBuilder* builder,
 GrGradientEffect::GrGradientEffect(GrContext* ctx,
                                    const SkGradientShaderBase& shader,
                                    GrSamplerState* sampler)
-    : fTexture (NULL)
-    , fUseTexture (true) {
+    : fUseTexture (true) {
     // TODO: check for simple cases where we don't need a texture:
     //GradientInfo info;
     //shader.asAGradient(&info);
@@ -742,35 +741,32 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
     if (-1 != fRow) {
         fYCoord = fAtlas->getYOffset(fRow) + GR_ScalarHalf *
                   fAtlas->getVerticalScaleFactor();
-        fTexture = fAtlas->getTexture();
+        fTextureAccess.reset(fAtlas->getTexture());
     } else {
-        fTexture = GrLockCachedBitmapTexture(ctx, bitmap, sampler->textureParams());
-        SkSafeRef(fTexture);
+        GrTexture* texture = GrLockCachedBitmapTexture(ctx, bitmap, sampler->textureParams());
+        fTextureAccess.reset(texture);
         fYCoord = GR_ScalarHalf;
 
         // Unlock immediately, this is not great, but we don't have a way of
         // knowing when else to unlock it currently, so it may get purged from
         // the cache, but it'll still be ref'd until it's no longer being used.
-        GrUnlockCachedBitmapTexture(fTexture);
+        GrUnlockCachedBitmapTexture(texture);
     }
 }
 
 GrGradientEffect::~GrGradientEffect() {
     if (this->useAtlas()) {
         fAtlas->unlockRow(fRow);
-    } else {
-        SkSafeUnref(fTexture);
     }
 }
 
-unsigned int GrGradientEffect::numTextures() const {
+int GrGradientEffect::numTextures() const {
     return fUseTexture ? 1 : 0;
 }
 
-GrTexture* GrGradientEffect::texture(unsigned int index)
-                             const {
+const GrTextureAccess& GrGradientEffect::textureAccess(int index) const {
     GrAssert(fUseTexture && 0 == index);
-    return fTexture;
+    return fTextureAccess;
 }
 
 int GrGradientEffect::RandomGradientParams(SkRandom* random,

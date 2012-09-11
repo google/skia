@@ -38,21 +38,19 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture)
-    : fTexture (texture) {
-    SkSafeRef(fTexture);
+    : fTextureAccess(texture) {
 }
 
 GrSingleTextureEffect::~GrSingleTextureEffect() {
-    SkSafeUnref(fTexture);
 }
 
-unsigned int GrSingleTextureEffect::numTextures() const {
+int GrSingleTextureEffect::numTextures() const {
     return 1;
 }
 
-GrTexture* GrSingleTextureEffect::texture(unsigned int index) const {
+const GrTextureAccess& GrSingleTextureEffect::textureAccess(int index) const {
     GrAssert(0 == index);
-    return fTexture;
+    return fTextureAccess;
 }
 
 const GrProgramStageFactory& GrSingleTextureEffect::getFactory() const {

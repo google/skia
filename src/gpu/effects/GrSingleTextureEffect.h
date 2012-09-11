@@ -21,8 +21,8 @@ public:
     GrSingleTextureEffect(GrTexture* texture);
     virtual ~GrSingleTextureEffect();
 
-    virtual unsigned int numTextures() const SK_OVERRIDE;
-    virtual GrTexture* texture(unsigned int index) const SK_OVERRIDE;
+    virtual int numTextures() const SK_OVERRIDE;
+    virtual const GrTextureAccess& textureAccess(int index) const SK_OVERRIDE;
 
     static const char* Name() { return "Single Texture"; }
 
@@ -33,7 +33,7 @@ public:
 private:
     GR_DECLARE_CUSTOM_STAGE_TEST;
 
-    GrTexture* fTexture;
+    GrTextureAccess fTextureAccess;
 
     typedef GrCustomStage INHERITED;
 };

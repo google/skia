@@ -708,7 +708,6 @@ void GrGpuGL::buildProgram(bool isPoints,
             // FIXME: Still assuming one texture per custom stage
             const GrCustomStage* customStage = drawState.getSampler(s).getCustomStage();
             const GrGLTexture* texture = static_cast<const GrGLTexture*>(customStage->texture(0));
-            stage.fInConfigFlags = 0;
             if (NULL != texture) {
                 // We call this helper function rather then simply checking the client-specified
                 // texture matrix. This is because we may have to concat a y-inversion to account
@@ -718,13 +717,6 @@ void GrGpuGL::buildProgram(bool isPoints,
                 } else if (!sampler.getMatrix().hasPerspective()) {
                     stage.fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
                 }
-                if (!this->glCaps().textureSwizzleSupport()) {
-                    if (GrPixelConfigIsAlphaOnly(texture->config())) {
-                        // If we don't have texture swizzle support then the shader must smear the
-                        // single channel after reading the texture.
-                        stage.fInConfigFlags |= StageDesc::kSmearAlpha_InConfigFlag;
-                    }
-                }
             }
 
             setup_custom_stage(&stage, sampler, this->glCaps(), customStages,
@@ -732,7 +724,6 @@ void GrGpuGL::buildProgram(bool isPoints,
 
         } else {
             stage.fOptFlags         = 0;
-            stage.fInConfigFlags    = 0;
             stage.fCustomStageKey   = 0;
             customStages[s] = NULL;
         }

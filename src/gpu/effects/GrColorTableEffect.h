@@ -18,8 +18,7 @@ class GrGLColorTableEffect;
  * counterpart to the SkTable_ColorFilter effect. A 256 * 4 (single-channel)
  * LUT is used to transform the input colors of the image.
  */
-class GrColorTableEffect : public GrSingleTextureEffect {
-
+class GrColorTableEffect : public GrCustomStage {
 public:
 
     GrColorTableEffect(GrTexture* texture);
@@ -29,7 +28,8 @@ public:
     virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
     virtual bool isEqual(const GrCustomStage&) const SK_OVERRIDE;
 
-    virtual const GrTextureAccess* textureAccess(unsigned int index) const SK_OVERRIDE;
+    virtual int numTextures() const SK_OVERRIDE { return 1; }
+    virtual const GrTextureAccess& textureAccess(int index) const SK_OVERRIDE;
 
     typedef GrGLColorTableEffect GLProgramStage;
 
@@ -38,6 +38,6 @@ private:
 
     GrTextureAccess fTextureAccess;
 
-    typedef GrSingleTextureEffect INHERITED;
+    typedef GrCustomStage INHERITED;
 };
 #endif

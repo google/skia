@@ -9,6 +9,7 @@
 #include "GrGpuGL.h"
 #include "GrGLStencilBuffer.h"
 #include "GrGLPath.h"
+#include "GrGLShaderBuilder.h"
 #include "GrTemplates.h"
 #include "GrTypes.h"
 #include "SkTemplates.h"
@@ -2001,28 +2002,7 @@ void GrGpuGL::flushBlend(bool isLines,
 }
 namespace {
 
-// get_swizzle is only called from this .cpp so it is OK to inline it here
-inline const GrGLenum* get_swizzle(GrPixelConfig config,
-                                   const GrSamplerState& sampler,
-                                   const GrGLCaps& glCaps) {
-    if (GrPixelConfigIsAlphaOnly(config)) {
-        if (glCaps.textureRedSupport()) {
-            static const GrGLenum gRedSmear[] = { GR_GL_RED, GR_GL_RED,
-                                                  GR_GL_RED, GR_GL_RED };
-            return gRedSmear;
-        } else {
-            static const GrGLenum gAlphaSmear[] = { GR_GL_ALPHA, GR_GL_ALPHA,
-                                                    GR_GL_ALPHA, GR_GL_ALPHA };
-            return gAlphaSmear;
-        }
-    } else {
-        static const GrGLenum gStraight[] = { GR_GL_RED, GR_GL_GREEN,
-                                              GR_GL_BLUE,  GR_GL_ALPHA };
-        return gStraight;
-    }
-}
-
-void set_tex_swizzle(GrGLenum swizzle[4], const GrGLInterface* gl) {
+inline void set_tex_swizzle(GrGLenum swizzle[4], const GrGLInterface* gl) {
     GR_GL_CALL(gl, TexParameteriv(GR_GL_TEXTURE_2D,
                                   GR_GL_TEXTURE_SWIZZLE_RGBA,
                                   reinterpret_cast<const GrGLint*>(swizzle)));
@@ -2089,7 +2069,7 @@ void GrGpuGL::flushBoundTextureAndParams(int stage,
     newTexParams.fWrapS = tile_to_gl_wrap(params.getTileModeX());
     newTexParams.fWrapT = tile_to_gl_wrap(params.getTileModeY());
     memcpy(newTexParams.fSwizzleRGBA,
-           get_swizzle(nextTexture->config(), drawState->getSampler(stage), this->glCaps()),
+           GrGLShaderBuilder::GetTexParamSwizzle(nextTexture->config(), this->glCaps()),
            sizeof(newTexParams.fSwizzleRGBA));
     if (setAll || newTexParams.fFilter != oldTexParams.fFilter) {
         this->setTextureUnit(stage);
