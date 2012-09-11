@@ -491,7 +491,7 @@ static void applyLUTToA8Glyph(const SkGlyph& glyph, const uint8_t* lut) {
 void SkScalerContext::getImage(const SkGlyph& origGlyph) {
     const SkGlyph*  glyph = &origGlyph;
     SkGlyph         tmpGlyph;
-    SkMaskGamma::PreBlend* maskPreBlend = &fMaskPreBlend;
+    SkMaskGamma::PreBlend* maskPreBlend = fMaskPreBlend.fParent ? &fMaskPreBlend : NULL;
 
     if (fMaskFilter) {   // restore the prefilter bounds
         tmpGlyph.init(origGlyph.fID);
