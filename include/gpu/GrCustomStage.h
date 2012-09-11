@@ -12,30 +12,11 @@
 #include "GrNoncopyable.h"
 #include "GrProgramStageFactory.h"
 #include "GrCustomStageUnitTest.h"
+#include "GrTextureAccess.h"
 
 class GrContext;
 class GrTexture;
 class SkString;
-
-/** A class representing the swizzle access pattern for a texture.
- */
-class GrTextureAccess {
-public:
-    typedef char Swizzle[4];
-
-    GrTextureAccess(const GrTexture* texture, const SkString& swizzle);
-
-    const GrTexture* getTexture() const { return fTexture; }
-    const Swizzle& getSwizzle() const { return fSwizzle; }
-
-    bool referencesAlpha() const {
-        return fSwizzle[0] == 'a' || fSwizzle[1] == 'a' || fSwizzle[2] == 'a' || fSwizzle[3] == 'a';
-    }
-
-private:
-    const GrTexture* fTexture;
-    Swizzle fSwizzle;
-};
 
 /** Provides custom vertex shader, fragment shader, uniform data for a
     particular stage of the Ganesh shading pipeline.

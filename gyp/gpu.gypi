@@ -35,6 +35,7 @@
       '<(skia_include_path)/gpu/GrSurface.h',
       '<(skia_include_path)/gpu/GrTextContext.h',
       '<(skia_include_path)/gpu/GrTexture.h',
+      '<(skia_include_path)/gpu/GrTextureAccess.h',
       '<(skia_include_path)/gpu/GrTypes.h',
       '<(skia_include_path)/gpu/GrUserConfig.h',
 
@@ -118,6 +119,7 @@
       '<(skia_src_path)/gpu/GrTextStrike.h',
       '<(skia_src_path)/gpu/GrTextStrike_impl.h',
       '<(skia_src_path)/gpu/GrTexture.cpp',
+      '<(skia_src_path)/gpu/GrTextureAccess.cpp',
       '<(skia_src_path)/gpu/GrTHashCache.h',
       '<(skia_src_path)/gpu/GrTLList.h',
       '<(skia_src_path)/gpu/GrVertexBuffer.h',
