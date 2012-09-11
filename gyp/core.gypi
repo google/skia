@@ -117,6 +117,8 @@
         '<(skia_src_path)/core/SkPicturePlayback.h',
         '<(skia_src_path)/core/SkPictureRecord.cpp',
         '<(skia_src_path)/core/SkPictureRecord.h',
+        '<(skia_src_path)/core/SkPictureStateTree.cpp',
+        '<(skia_src_path)/core/SkPictureStateTree.h',
         '<(skia_src_path)/core/SkPixelRef.cpp',
         '<(skia_src_path)/core/SkPoint.cpp',
         '<(skia_src_path)/core/SkProcSpriteBlitter.cpp',
