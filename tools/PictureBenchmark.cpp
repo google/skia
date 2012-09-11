@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkTypes.h"
 #include "SkBenchLogger.h"
 #include "BenchTimer.h"
 #include "PictureBenchmark.h"
@@ -17,12 +16,27 @@
 
 namespace sk_tools {
 
+PictureBenchmark::PictureBenchmark()
+: fRepeats(1)
+, fLogger(NULL)
+, fRenderer(NULL)
+, fLogPerIter(false)
+, fPrintMin(false)
+, fShowWallTime(false)
+, fShowTruncatedWallTime(false)
+, fShowCpuTime(true)
+, fShowTruncatedCpuTime(false)
+, fShowGpuTime(false)
+{}
+
+PictureBenchmark::~PictureBenchmark() {
+    SkSafeUnref(fRenderer);
+}
+
 BenchTimer* PictureBenchmark::setupTimer() {
 #if SK_SUPPORT_GPU
-    PictureRenderer* renderer = getRenderer();
-
-    if (renderer != NULL && renderer->isUsingGpuDevice()) {
-        return SkNEW_ARGS(BenchTimer, (renderer->getGLContext()));
+    if (fRenderer != NULL && fRenderer->isUsingGpuDevice()) {
+        return SkNEW_ARGS(BenchTimer, (fRenderer->getGLContext()));
     } else {
         return SkNEW_ARGS(BenchTimer, (NULL));
     }
@@ -37,61 +51,59 @@ void PictureBenchmark::logProgress(const char msg[]) {
     }
 }
 
+PictureRenderer* PictureBenchmark::setRenderer(sk_tools::PictureRenderer* renderer) {
+    SkRefCnt_SafeAssign(fRenderer, renderer);
+    return renderer;
+}
+
 void PictureBenchmark::run(SkPicture* pict) {
     SkASSERT(pict);
     if (NULL == pict) {
         return;
     }
 
-    PictureRenderer* renderer = this->getRenderer();
-    SkASSERT(renderer != NULL);
-    if (NULL == renderer) {
+    SkASSERT(fRenderer != NULL);
+    if (NULL == fRenderer) {
         return;
     }
-    renderer->init(pict);
 
-    // We throw this away to remove first time effects (such as paging in this
-    // program)
-    renderer->setup();
-    renderer->render(false);
-    renderer->resetState();
+    fRenderer->init(pict);
+
+    // We throw this away to remove first time effects (such as paging in this program)
+    fRenderer->setup();
+    fRenderer->render(false);
+    fRenderer->resetState();
 
     BenchTimer* timer = this->setupTimer();
     bool usingGpu = false;
 #if SK_SUPPORT_GPU
-    usingGpu = renderer->isUsingGpuDevice();
+    usingGpu = fRenderer->isUsingGpuDevice();
 #endif
 
-    TimerData timerData(renderer->getPerIterTimeFormat(), renderer->getNormalTimeFormat());
+    TimerData timerData(fRenderer->getPerIterTimeFormat(), fRenderer->getNormalTimeFormat());
     for (int i = 0; i < fRepeats; ++i) {
-        renderer->setup();
+        fRenderer->setup();
 
         timer->start();
-        renderer->render(false);
+        fRenderer->render(false);
         timer->truncatedEnd();
 
         // Finishes gl context
-        renderer->resetState();
+        fRenderer->resetState();
         timer->end();
 
         timerData.appendTimes(timer, fRepeats - 1 == i);
     }
 
-    // FIXME: Pass these options on the command line.
-    bool logPerIter = false;
-    bool printMin = false;
     const char* configName = usingGpu ? "gpu" : "raster";
-    bool showWallTime = true;
-    bool showTruncatedWallTime = false;
-    bool showCpuTime = false;
-    bool showTruncatedCpuTime = false;
-    SkString result = timerData.getResult(logPerIter, printMin, fRepeats,
-                                          configName, showWallTime, showTruncatedWallTime,
-                                          showCpuTime, showTruncatedCpuTime, usingGpu);
+    SkString result = timerData.getResult(fLogPerIter, fPrintMin, fRepeats,
+                                          configName, fShowWallTime, fShowTruncatedWallTime,
+                                          fShowCpuTime, fShowTruncatedCpuTime,
+                                          usingGpu && fShowGpuTime);
     result.append("\n");
     this->logProgress(result.c_str());
 
-    renderer->end();
+    fRenderer->end();
     SkDELETE(timer);
 }
 
