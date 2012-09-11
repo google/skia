@@ -57,7 +57,7 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
     EGLint majorVersion;
     EGLint minorVersion;
     eglInitialize(fDisplay, &majorVersion, &minorVersion);
-
+    printf ("SkNativeGLContext::createGLContext(): EGL v%i.%i\n", majorVersion, minorVersion);
     EGLint numConfigs;
     static const EGLint configAttribs[] = {
         EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
@@ -71,6 +71,8 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
 
     EGLConfig surfaceConfig;
     eglChooseConfig(fDisplay, configAttribs, &surfaceConfig, 1, &numConfigs);
+
+    printf("SkNativeGLContext::createGLContext(): numConfigs=%i", numConfigs);
 
     static const EGLint contextAttribs[] = {
         EGL_CONTEXT_CLIENT_VERSION, 2,
@@ -90,7 +92,7 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
 
     const GrGLInterface* interface = GrGLCreateNativeInterface();
     if (!interface) {
-        SkDebugf("Failed to create gl interface");
+        printf("Failed to create gl interface\n");
         this->destroyGLContext();
         return NULL;
     }
