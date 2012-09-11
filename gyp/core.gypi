@@ -14,6 +14,7 @@
         '<(skia_src_path)/core/SkAdvancedTypefaceMetrics.cpp',
         '<(skia_src_path)/core/SkAlphaRuns.cpp',
         '<(skia_src_path)/core/SkAntiRun.h',
+        '<(skia_src_path)/core/SkBBoxHierarchy.cpp',
         '<(skia_src_path)/core/SkBBoxHierarchy.h',
         '<(skia_src_path)/core/SkBBoxRecord.cpp',
         '<(skia_src_path)/core/SkBBoxRecord.h',

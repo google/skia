@@ -82,6 +82,7 @@ static void TestRTree(skiatest::Reporter* reporter) {
     DataRect rects[NUM_RECTS];
     SkRandom rand;
     SkRTree* rtree = SkRTree::Create(MIN_CHILDREN, MAX_CHILDREN);
+    SkAutoUnref au(rtree);
     REPORTER_ASSERT(reporter, NULL != rtree);
 
     int expectedDepthMin = -1;

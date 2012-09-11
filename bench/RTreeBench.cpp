@@ -37,7 +37,7 @@ public:
         }
     }
     virtual ~BBoxBuildBench() {
-        delete fTree;
+        fTree->unref();
     }
 protected:
     virtual const char* onGetName() {
@@ -93,7 +93,7 @@ public:
         fTree->flushDeferredInserts();
     }
     virtual ~BBoxQueryBench() {
-        delete fTree;
+        fTree->unref();
     }
 protected:
     virtual const char* onGetName() {

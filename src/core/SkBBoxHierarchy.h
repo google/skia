@@ -11,14 +11,15 @@
 
 #include "SkRect.h"
 #include "SkTDArray.h"
+#include "SkRefCnt.h"
 
 /**
  * Interface for a spatial data structure that associates user data pointers with axis-aligned
  * bounding boxes, and allows efficient retrieval of intersections with query rectangles.
  */
-class SkBBoxHierarchy {
+class SkBBoxHierarchy : public SkRefCnt {
 public:
-    virtual ~SkBBoxHierarchy() { }
+    SK_DECLARE_INST_COUNT(SkBBoxHierarchy)
 
     /**
      * Insert a data pointer and corresponding bounding box
@@ -47,6 +48,9 @@ public:
      * Gets the number of insertions
      */
     virtual int getCount() const = 0;
+
+private:
+    typedef SkRefCnt INHERITED;
 };
 
 #endif
