@@ -8,6 +8,8 @@
 #include "SkPictureRecord.h"
 #include "SkTSearch.h"
 #include "SkPixelRef.h"
+#include "SkBBoxHierarchy.h"
+#include "SkPictureStateTree.h"
 
 #define MIN_WRITER_SIZE 16384
 #define HEAP_BLOCK_SIZE 4096
@@ -22,6 +24,8 @@ SkPictureRecord::SkPictureRecord(uint32_t flags) :
         fPaints(&fFlattenableHeap),
         fRegions(&fFlattenableHeap),
         fWriter(MIN_WRITER_SIZE),
+        fBoundingHierarchy(NULL),
+        fStateTree(NULL),
         fRecordFlags(flags) {
 #ifdef SK_DEBUG_SIZE
     fPointBytes = fRectBytes = fTextBytes = 0;
@@ -40,6 +44,8 @@ SkPictureRecord::SkPictureRecord(uint32_t flags) :
 SkPictureRecord::~SkPictureRecord() {
     SkSafeUnref(fBitmapHeap);
     SkSafeUnref(fPathHeap);
+    SkSafeUnref(fBoundingHierarchy);
+    SkSafeUnref(fStateTree);
     fFlattenableHeap.setBitmapStorage(NULL);
     fPictureRefs.unrefAll();
 }

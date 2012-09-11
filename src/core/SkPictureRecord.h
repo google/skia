@@ -16,6 +16,9 @@
 #include "SkTemplates.h"
 #include "SkWriter32.h"
 
+class SkPictureStateTree;
+class SkBBoxHierarchy;
+
 class SkPictureRecord : public SkCanvas {
 public:
     SkPictureRecord(uint32_t recordFlags);
@@ -161,6 +164,13 @@ private:
 public:
     void validate() const {}
 #endif
+
+protected:
+
+    // These are set to NULL in our constructor, but may be changed by
+    // subclasses, in which case they will be SkSafeUnref'd in our destructor.
+    SkBBoxHierarchy* fBoundingHierarchy;
+    SkPictureStateTree* fStateTree;
 
 private:
     SkBitmapHeap* fBitmapHeap;
