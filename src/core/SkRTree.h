@@ -42,6 +42,7 @@
  */
 class SkRTree : public SkBBoxHierarchy {
 public:
+    SK_DECLARE_INST_COUNT(SkRTree)
 
     /**
      * Create a new R-Tree with specified min/max child counts.
@@ -175,6 +176,7 @@ private:
 
     Node* allocateNode(uint16_t level);
 
+    typedef SkBBoxHierarchy INHERITED;
 };
 
 #endif
