@@ -13,6 +13,8 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
+#include <EGL/egl.h>
+
 const GrGLInterface* GrGLCreateNativeInterface() {
     static SkAutoTUnref<GrGLInterface> glInterface;
     if (!glInterface.get()) {
@@ -82,6 +84,8 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fTexStorage2D = glTexStorage2D;
 #elif GL_EXT_texture_storage
         interface->fTexStorage2D = glTexStorage2DEXT;
+#else
+        interface->fTexStorage2D = (GrGLTexStorage2DProc) eglGetProcAddress("glTexStorage2DEXT");
 #endif
         interface->fUniform1f = glUniform1f;
         interface->fUniform1i = glUniform1i;
@@ -118,10 +122,13 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fGetFramebufferAttachmentParameteriv = glGetFramebufferAttachmentParameteriv;
         interface->fGetRenderbufferParameteriv = glGetRenderbufferParameteriv;
         interface->fRenderbufferStorage = glRenderbufferStorage;
-    #if GL_OES_mapbuffer
+#if GL_OES_mapbuffer
         interface->fMapBuffer = glMapBufferOES;
         interface->fUnmapBuffer = glUnmapBufferOES;
-    #endif
+#else
+        interface->fMapBuffer = (GrGLMapBufferProc) eglGetProcAddress("glMapBufferOES");
+        interface->fUnmapBuffer = (GrGLUnmapBufferProc) eglGetProcAddress("glUnmapBufferOES");
+#endif
     }
     glInterface.get()->ref();
     return glInterface.get();
