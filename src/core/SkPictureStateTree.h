@@ -44,7 +44,7 @@ public:
     SkPictureStateTree();
     ~SkPictureStateTree();
 
-    /** 
+    /**
      * Creates and returns a struct representing a draw at the given offset.
      */
     Draw* appendDraw(uint32_t offset);
@@ -108,7 +108,7 @@ private:
     // A stack of states for tracking save/restores
     SkDeque fStateStack;
 
-    // Represents a notable piece of state that requires an offset into the command buffer, 
+    // Represents a notable piece of state that requires an offset into the command buffer,
     // corresponding to a clip/saveLayer/etc call, to apply.
     struct Node {
         Node* fParent;
