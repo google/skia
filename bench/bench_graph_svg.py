@@ -556,26 +556,6 @@ def output_xhtml(lines, oldest_revision, newest_revision, ignored_revision_data_
     }
 //]]></script>"""
 
-    print '<table border="0" width="%s">' % requested_width
-    print """
-<tr valign="top"><td width="50%">
-<table border="0" width="100%">
-<tr><td align="center"><table border="0">
-<form>
-<tr valign="bottom" align="center">
-<td width="1">Bench&nbsp;Type</td>
-<td width="1">Bitmap Config</td>
-<td width="1">Timer&nbsp;Type (Cpu/Gpu/wall)</td>
-<td width="1"><!--buttons--></td>
-</tr><tr valign="top" align="center">
-"""
-    print '<td width="1">'
-    create_select(lambda l: l.bench, lines, 'benchSelect')
-    print '</td><td width="1">'
-    create_select(lambda l: l.config, lines)
-    print '</td><td width="1">'
-    create_select(lambda l: l.time_type, lines)
-
     all_settings = {}
     variant_settings = set()
     for label in lines.keys():
@@ -585,8 +565,36 @@ def output_xhtml(lines, oldest_revision, newest_revision, ignored_revision_data_
             elif all_settings[key] != value:
                 variant_settings.add(key)
 
+    print '<table border="0" width="%s">' % requested_width
+    #output column headers
+    print """
+<tr valign="top"><td width="50%">
+<table border="0" width="100%">
+<tr><td align="center"><table border="0">
+<form>
+<tr valign="bottom" align="center">
+<td width="1">Bench&nbsp;Type</td>
+<td width="1">Bitmap Config</td>
+<td width="1">Timer&nbsp;Type (Cpu/Gpu/wall)</td>
+"""
+
     for k in variant_settings:
-        create_select(lambda l: l.settings.get(k, "<missing>"), lines)
+        print '<td width="1">%s</td>' % qe(k)
+
+    print '<td width="1"><!--buttons--></td></tr>'
+
+    #output column contents
+    print '<tr valign="top" align="center">'
+    print '<td width="1">'
+    create_select(lambda l: l.bench, lines, 'benchSelect')
+    print '</td><td width="1">'
+    create_select(lambda l: l.config, lines)
+    print '</td><td width="1">'
+    create_select(lambda l: l.time_type, lines)
+
+    for k in variant_settings:
+        print '</td><td width="1">'
+        create_select(lambda l: l.settings.get(k, " "), lines)
 
     print '</td><td width="1"><button type="button"',
     print 'onclick=%s' % qa("mark('url(#circleMark)'); return false;"),
