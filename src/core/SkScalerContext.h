@@ -34,6 +34,9 @@ struct SkScalerContextRec {
     SkScalar    fTextSize, fPreScaleX, fPreSkewX;
     SkScalar    fPost2x2[2][2];
     SkScalar    fFrameWidth, fMiterLimit;
+#ifdef SK_SUPPORT_HINTING_SCALE_FACTOR
+    SkScalar    fHintingScaleFactor;
+#endif
 
     //These describe the parameters to create (uniquely identify) the pre-blend.
     uint32_t    fLumBits;

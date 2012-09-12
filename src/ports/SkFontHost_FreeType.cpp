@@ -752,8 +752,20 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
         fMatrix22.xy = fMatrix22.yx = 0;
     }
 
+#ifdef SK_SUPPORT_HINTING_SCALE_FACTOR
+    SkScalar hintingScaleFactor = fRec.fHintingScaleFactor;
+
+    fScaleX = SkScalarToFixed(sx / hintingScaleFactor);
+    fScaleY = SkScalarToFixed(sy / hintingScaleFactor);
+
+    fMatrix22.xx *= hintingScaleFactor;
+    fMatrix22.xy *= hintingScaleFactor;
+    fMatrix22.yx *= hintingScaleFactor;
+    fMatrix22.yy *= hintingScaleFactor;
+#else
     fScaleX = SkScalarToFixed(sx);
     fScaleY = SkScalarToFixed(sy);
+#endif
 
     fLCDIsVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
 
