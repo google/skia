@@ -76,6 +76,23 @@ static void test_crbug131181(skiatest::Reporter*) {
     canvas->drawPath(path, paint);
 }
 
+// This used to assert in debug builds (and crash writing bad memory in release)
+// because we overflowed an intermediate value (B coefficient) setting up our
+// stepper for the quadratic. Now we bias that value by 1/2 so we don't overflow
+static void test_crbug_140803(skiatest::Reporter* reporter) {
+    SkBitmap bm;
+    bm.setConfig(SkBitmap::kARGB_8888_Config, 2700, 30*1024);
+    bm.allocPixels();
+    SkCanvas canvas(bm);
+    
+    SkPath path;
+    path.moveTo(2762, 20);
+    path.quadTo(11, 21702, 10, 21706);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    canvas.drawPath(path, paint);
+}
+
 // Need to exercise drawing an inverse-path whose bounds intersect the clip,
 // but whose edges do not (since its a quad which draws only in the bottom half
 // of its bounds).
@@ -208,6 +225,7 @@ static void TestDrawPath(skiatest::Reporter* reporter) {
     test_bigcubic(reporter);
     test_crbug_124652(reporter);
     test_crbug_140642(reporter);
+    test_crbug_140803(reporter);
     test_inversepathwithclip(reporter);
 //    test_crbug131181(reporter);
 }

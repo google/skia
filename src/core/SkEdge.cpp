@@ -23,6 +23,12 @@
     or pt >> 8 for antialiasing. This is implemented as pt >> (10 - shift).
 */
 
+static inline SkFixed SkFDot6ToFixedDiv2(SkFDot6 value) {
+    // we want to return SkFDot6ToFixed(value >> 1), but we don't want to throw
+    // away data in value, so just perform a modify up-shift
+    return value << (16 - 6 - 1);
+}
+
 /////////////////////////////////////////////////////////////////////////
 
 int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip,
@@ -221,19 +227,38 @@ int SkQuadraticEdge::setQuadratic(const SkPoint pts[3], int shift)
     }
     
     fWinding    = SkToS8(winding);
-    fCurveShift = SkToU8(shift);
     //fCubicDShift only set for cubics
     fCurveCount = SkToS8(1 << shift);
 
-    SkFixed A = SkFDot6ToFixed(x0 - x1 - x1 + x2);
-    SkFixed B = SkFDot6ToFixed(x1 - x0 + x1 - x0);
+    /*
+     *  We want to reformulate into polynomial form, to make it clear how we
+     *  should forward-difference.
+     *
+     *  p0 (1 - t)^2 + p1 t(1 - t) + p2 t^2 ==> At^2 + Bt + C
+     *
+     *  A = p0 - 2p1 + p2
+     *  B = 2(p1 - p0)
+     *  C = p0
+     *
+     *  Our caller must have constrained our inputs (p0..p2) to all fit into
+     *  16.16. However, as seen above, we sometimes compute values that can be
+     *  larger (e.g. B = 2*(p1 - p0)). To guard against overflow, we will store
+     *  A and B at 1/2 of their actual value, and just apply a 2x scale during
+     *  application in updateQuadratic(). Hence we store (shift - 1) in
+     *  fCurveShift.
+     */
+
+    fCurveShift = SkToU8(shift - 1);
+
+    SkFixed A = SkFDot6ToFixedDiv2(x0 - x1 - x1 + x2);  // 1/2 the real value
+    SkFixed B = SkFDot6ToFixed(x1 - x0);                // 1/2 the real value
 
     fQx     = SkFDot6ToFixed(x0);
     fQDx    = B + (A >> shift);     // biased by shift
     fQDDx   = A >> (shift - 1);     // biased by shift
 
-    A = SkFDot6ToFixed(y0 - y1 - y1 + y2);
-    B = SkFDot6ToFixed(y1 - y0 + y1 - y0);
+    A = SkFDot6ToFixedDiv2(y0 - y1 - y1 + y2);  // 1/2 the real value
+    B = SkFDot6ToFixed(y1 - y0);                // 1/2 the real value
 
     fQy     = SkFDot6ToFixed(y0);
     fQDy    = B + (A >> shift);     // biased by shift
