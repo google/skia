@@ -348,46 +348,46 @@ static bool skip_name(const SkTDArray<const char*> array, const char name[]) {
 }
 
 static void help() {
-    SkDebugf("Usage: bench [-o outDir] [-repeat nr] [-logPerIter 1|0] "
-                          "[-timers [wcgWC]*] [-rotate]\n"
-             "    [-scale] [-clip] [-min] [-forceAA 1|0] [-forceFilter 1|0]\n"
-             "    [-forceDither 1|0] [-forceBlend 1|0] [-strokeWidth width]\n"
-             "    [-match name] [-mode normal|deferred|record|picturerecord]\n"
-             "    [-config 8888|565|GPU|ANGLE|NULLGPU] [-Dfoo bar] [-logFile filename]\n"
+    SkDebugf("Usage: bench [-o outDir] [--repeat nr] [--logPerIter 1|0] "
+                          "[--timers [wcgWC]*] [--rotate]\n"
+             "    [--scale] [--clip] [--min] [--forceAA 1|0] [--forceFilter 1|0]\n"
+             "    [--forceDither 1|0] [--forceBlend 1|0] [--strokeWidth width]\n"
+             "    [--match name] [--mode normal|deferred|record|picturerecord]\n"
+             "    [--config 8888|565|GPU|ANGLE|NULLGPU] [-Dfoo bar] [--logFile filename]\n"
              "    [-h|--help]");
     SkDebugf("\n\n");
     SkDebugf("    -o outDir : Image of each bench will be put in outDir.\n");
-    SkDebugf("    -repeat nr : Each bench repeats for nr times.\n");
-    SkDebugf("    -logPerIter 1|0 : "
+    SkDebugf("    --repeat nr : Each bench repeats for nr times.\n");
+    SkDebugf("    --logPerIter 1|0 : "
              "Log each repeat timer instead of mean, default is disabled.\n");
-    SkDebugf("    -timers [wcgWC]* : "
+    SkDebugf("    --timers [wcgWC]* : "
              "Display wall, cpu, gpu, truncated wall or truncated cpu time for each bench.\n");
-    SkDebugf("    -rotate : Rotate before each bench runs.\n");
-    SkDebugf("    -scale : Scale before each bench runs.\n");
-    SkDebugf("    -clip : Clip before each bench runs.\n");
-    SkDebugf("    -min : Print the minimum times (instead of average).\n");
-    SkDebugf("    -forceAA 1|0 : "
+    SkDebugf("    --rotate : Rotate before each bench runs.\n");
+    SkDebugf("    --scale : Scale before each bench runs.\n");
+    SkDebugf("    --clip : Clip before each bench runs.\n");
+    SkDebugf("    --min : Print the minimum times (instead of average).\n");
+    SkDebugf("    --forceAA 1|0 : "
              "Enable/disable anti-aliased, default is enabled.\n");
-    SkDebugf("    -forceFilter 1|0 : "
+    SkDebugf("    --forceFilter 1|0 : "
              "Enable/disable bitmap filtering, default is disabled.\n");
-    SkDebugf("    -forceDither 1|0 : "
+    SkDebugf("    --forceDither 1|0 : "
              "Enable/disable dithering, default is disabled.\n");
-    SkDebugf("    -forceBlend 1|0 : "
+    SkDebugf("    --forceBlend 1|0 : "
              "Enable/disable dithering, default is disabled.\n");
-    SkDebugf("    -strokeWidth width : The width for path stroke.\n");
-    SkDebugf("    -match name : Only run bench whose name is matched.\n");
-    SkDebugf("    -mode normal|deferred|record|picturerecord : Run in the corresponding mode\n"
+    SkDebugf("    --strokeWidth width : The width for path stroke.\n");
+    SkDebugf("    --match name : Only run bench whose name is matched.\n");
+    SkDebugf("    --mode normal|deferred|record|picturerecord : Run in the corresponding mode\n"
              "                 normal, Use a normal canvas to draw to;\n"
              "                 deferred, Use a deferrred canvas when drawing;\n"
              "                 record, Benchmark the time to record to an SkPicture;\n"
              "                 picturerecord, Benchmark the time to do record from a \n"
              "                                SkPicture to a SkPicture.\n");
-    SkDebugf("    -logFile filename : destination for writing log output, in addition to stdout.\n");
+    SkDebugf("    --logFile filename : destination for writing log output, in addition to stdout.\n");
 #if SK_SUPPORT_GPU
-    SkDebugf("    -config 8888|565|GPU|ANGLE|NULLGPU : "
+    SkDebugf("    --config 8888|565|GPU|ANGLE|NULLGPU : "
              "Run bench in corresponding config mode.\n");
 #else
-    SkDebugf("    -config 8888|565: "
+    SkDebugf("    --config 8888|565: "
              "Run bench in corresponding config mode.\n");
 #endif
     SkDebugf("    -Dfoo bar : Add extra definition to bench.\n");
@@ -443,7 +443,7 @@ int main (int argc, char * const argv[]) {
                     outDir.append("/");
                 }
             }
-        } else if (strcmp(*argv, "-repeat") == 0) {
+        } else if (strcmp(*argv, "--repeat") == 0) {
             argv++;
             if (argv < stop) {
                 repeatDraw = atoi(*argv);
@@ -451,17 +451,17 @@ int main (int argc, char * const argv[]) {
                     repeatDraw = 1;
                 }
             } else {
-                logger.logError("missing arg for -repeat\n");
+                logger.logError("missing arg for --repeat\n");
                 help();
                 return -1;
             }
-        } else if (strcmp(*argv, "-logPerIter") == 0) {
+        } else if (strcmp(*argv, "--logPerIter") == 0) {
             if (!parse_bool_arg(++argv, stop, &logPerIter)) {
-                logger.logError("missing arg for -logPerIter\n");
+                logger.logError("missing arg for --logPerIter\n");
                 help();
                 return -1;
             }
-        } else if (strcmp(*argv, "-timers") == 0) {
+        } else if (strcmp(*argv, "--timers") == 0) {
             argv++;
             if (argv < stop) {
                 timerWall = false;
@@ -479,47 +479,47 @@ int main (int argc, char * const argv[]) {
                     }
                 }
             } else {
-                logger.logError("missing arg for -timers\n");
+                logger.logError("missing arg for --timers\n");
                 help();
                 return -1;
             }
-        } else if (!strcmp(*argv, "-rotate")) {
+        } else if (!strcmp(*argv, "--rotate")) {
             doRotate = true;
-        } else if (!strcmp(*argv, "-scale")) {
+        } else if (!strcmp(*argv, "--scale")) {
             doScale = true;
-        } else if (!strcmp(*argv, "-clip")) {
+        } else if (!strcmp(*argv, "--clip")) {
             doClip = true;
-        } else if (!strcmp(*argv, "-min")) {
+        } else if (!strcmp(*argv, "--min")) {
             printMin = true;
-        } else if (strcmp(*argv, "-forceAA") == 0) {
+        } else if (strcmp(*argv, "--forceAA") == 0) {
             if (!parse_bool_arg(++argv, stop, &forceAA)) {
-                logger.logError("missing arg for -forceAA\n");
+                logger.logError("missing arg for --forceAA\n");
                 help();
                 return -1;
             }
-        } else if (strcmp(*argv, "-forceFilter") == 0) {
+        } else if (strcmp(*argv, "--forceFilter") == 0) {
             if (!parse_bool_arg(++argv, stop, &forceFilter)) {
-                logger.logError("missing arg for -forceFilter\n");
+                logger.logError("missing arg for --forceFilter\n");
                 help();
                 return -1;
             }
-        } else if (strcmp(*argv, "-forceDither") == 0) {
+        } else if (strcmp(*argv, "--forceDither") == 0) {
             bool tmp;
             if (!parse_bool_arg(++argv, stop, &tmp)) {
-                logger.logError("missing arg for -forceDither\n");
+                logger.logError("missing arg for --forceDither\n");
                 help();
                 return -1;
             }
             forceDither = tmp ? SkTriState::kTrue : SkTriState::kFalse;
-        } else if (strcmp(*argv, "-forceBlend") == 0) {
+        } else if (strcmp(*argv, "--forceBlend") == 0) {
             bool wantAlpha = false;
             if (!parse_bool_arg(++argv, stop, &wantAlpha)) {
-                logger.logError("missing arg for -forceBlend\n");
+                logger.logError("missing arg for --forceBlend\n");
                 help();
                 return -1;
             }
             forceAlpha = wantAlpha ? 0x80 : 0xFF;
-        } else if (strcmp(*argv, "-mode") == 0) {
+        } else if (strcmp(*argv, "--mode") == 0) {
             argv++;
             if (argv < stop) {
                 if (strcmp(*argv, "normal") == 0) {
@@ -531,40 +531,40 @@ int main (int argc, char * const argv[]) {
                 } else if (strcmp(*argv, "picturerecord") == 0) {
                     benchMode = kPictureRecord_benchModes;
                 } else {
-                    logger.logError("bad arg for -mode\n");
+                    logger.logError("bad arg for --mode\n");
                     help();
                     return -1;
                 }
             } else {
-                logger.logError("missing arg for -mode\n");
+                logger.logError("missing arg for --mode\n");
                 help();
                 return -1;
             }
-        } else if (strcmp(*argv, "-strokeWidth") == 0) {
+        } else if (strcmp(*argv, "--strokeWidth") == 0) {
             argv++;
             if (argv < stop) {
                 const char *strokeWidthStr = *argv;
                 if (sscanf(strokeWidthStr, "%f", &strokeWidth) != 1) {
-                  logger.logError("bad arg for -strokeWidth\n");
+                  logger.logError("bad arg for --strokeWidth\n");
                   help();
                   return -1;
                 }
                 hasStrokeWidth = true;
             } else {
-                logger.logError("missing arg for -strokeWidth\n");
+                logger.logError("missing arg for --strokeWidth\n");
                 help();
                 return -1;
             }
-        } else if (strcmp(*argv, "-match") == 0) {
+        } else if (strcmp(*argv, "--match") == 0) {
             argv++;
             if (argv < stop) {
                 *fMatches.append() = *argv;
             } else {
-                logger.logError("missing arg for -match\n");
+                logger.logError("missing arg for --match\n");
                 help();
                 return -1;
             }
-        } else if (strcmp(*argv, "-config") == 0) {
+        } else if (strcmp(*argv, "--config") == 0) {
             argv++;
             if (argv < stop) {
                 int index = findConfig(*argv);
@@ -579,11 +579,11 @@ int main (int argc, char * const argv[]) {
                     return -1;
                 }
             } else {
-                logger.logError("missing arg for -config\n");
+                logger.logError("missing arg for --config\n");
                 help();
                 return -1;
             }
-        } else if (strcmp(*argv, "-logFile") == 0) {
+        } else if (strcmp(*argv, "--logFile") == 0) {
             argv++;
             if (argv < stop) {
                 if (!logger.SetLogFile(*argv)) {
@@ -593,7 +593,7 @@ int main (int argc, char * const argv[]) {
                     return -1;
                 }
             } else {
-                logger.logError("missing arg for -logFile\n");
+                logger.logError("missing arg for --logFile\n");
                 help();
                 return -1;
             }
@@ -619,7 +619,7 @@ int main (int argc, char * const argv[]) {
     }
     if ((benchMode == kRecord_benchModes || benchMode == kPictureRecord_benchModes)
             && !outDir.isEmpty()) {
-        logger.logError("'-mode record' and '-mode picturerecord' are not"
+        logger.logError("'--mode record' and '--mode picturerecord' are not"
                   " compatible with -o.\n");
         return -1;
     }
