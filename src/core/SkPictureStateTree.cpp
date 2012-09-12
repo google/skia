@@ -64,7 +64,7 @@ void SkPictureStateTree::appendClip(uint32_t offset) {
     this->appendNode(offset);
 }
 
-SkPictureStateTree::Iterator SkPictureStateTree::getIterator(const SkTDArray<void*>& draws, 
+SkPictureStateTree::Iterator SkPictureStateTree::getIterator(const SkTDArray<void*>& draws,
                                                              SkCanvas* canvas) {
     return Iterator(draws, canvas, fRoot);
 }

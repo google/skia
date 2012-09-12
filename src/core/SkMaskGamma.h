@@ -177,7 +177,7 @@ SK_DEFINE_INST_COUNT_TEMPLATE(
  * SkTMaskPreBlend is a tear-off of SkTMaskGamma. It provides the tables to
  * convert a linear alpha value for a given channel to a gamma correcting alpha
  * value for that channel. This class is immutable.
- * 
+ *
  * If fR, fG, or fB is NULL, all of them will be. This indicates that no mask
  * pre blend should be applied.
  */
