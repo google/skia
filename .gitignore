@@ -1,2 +1,6 @@
 /out/
 /third_party/externals/
+/gyp/build/
+/xcodebuild/
+.DS_Store
+.gclient*
