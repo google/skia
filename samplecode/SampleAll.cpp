@@ -206,60 +206,13 @@ static void r8(SkLayerRasterizer* rast, SkPaint& p) {
     rast->addLayer(p);
 }
 
-class Line2DPathEffect : public Sk2DPathEffect {
-public:
-    Line2DPathEffect(SkScalar width, const SkMatrix& matrix)
-        : Sk2DPathEffect(matrix), fWidth(width) {}
-
-    virtual bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec) SK_OVERRIDE {
-        if (this->INHERITED::filterPath(dst, src, rec)) {
-            rec->setStrokeStyle(fWidth);
-            return true;
-        }
-        return false;
-    }
-
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Line2DPathEffect)
-
-protected:
-    virtual void nextSpan(int u, int v, int ucount, SkPath* dst) {
-        if (ucount > 1) {
-            SkPoint    src[2], dstP[2];
-
-            src[0].set(SkIntToScalar(u) + SK_ScalarHalf,
-                       SkIntToScalar(v) + SK_ScalarHalf);
-            src[1].set(SkIntToScalar(u+ucount) + SK_ScalarHalf,
-                       SkIntToScalar(v) + SK_ScalarHalf);
-            this->getMatrix().mapPoints(dstP, src, 2);
-
-            dst->moveTo(dstP[0]);
-            dst->lineTo(dstP[1]);
-        }
-    }
-
-    Line2DPathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
-        fWidth = buffer.readScalar();
-    }
-    virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
-        this->INHERITED::flatten(buffer);
-        buffer.writeScalar(fWidth);
-    }
-
-private:
-    SkScalar fWidth;
-
-    typedef Sk2DPathEffect INHERITED;
-};
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(Line2DPathEffect)
-
 static void r9(SkLayerRasterizer* rast, SkPaint& p) {
     rast->addLayer(p);
 
     SkMatrix    lattice;
     lattice.setScale(SK_Scalar1, SK_Scalar1*6, 0, 0);
     lattice.postRotate(SkIntToScalar(30), 0, 0);
-    p.setPathEffect(new Line2DPathEffect(SK_Scalar1*2, lattice))->unref();
+    p.setPathEffect(new SkLine2DPathEffect(SK_Scalar1*2, lattice))->unref();
     p.setXfermodeMode(SkXfermode::kClear_Mode);
     rast->addLayer(p);
 

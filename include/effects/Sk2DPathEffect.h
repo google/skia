@@ -58,6 +58,28 @@ private:
     typedef SkPathEffect INHERITED;
 };
 
+class SkLine2DPathEffect : public Sk2DPathEffect {
+public:
+    SkLine2DPathEffect(SkScalar width, const SkMatrix& matrix)
+    : Sk2DPathEffect(matrix), fWidth(width) {}
+
+    virtual bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec) SK_OVERRIDE;
+
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLine2DPathEffect)
+
+protected:
+    virtual void nextSpan(int u, int v, int ucount, SkPath* dst) SK_OVERRIDE;
+
+    SkLine2DPathEffect(SkFlattenableReadBuffer&);
+
+    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+
+private:
+    SkScalar fWidth;
+
+    typedef Sk2DPathEffect INHERITED;
+};
+
 class SkPath2DPathEffect : public Sk2DPathEffect {
 public:
     /**

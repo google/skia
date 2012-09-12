@@ -76,7 +76,42 @@ Sk2DPathEffect::Sk2DPathEffect(SkFlattenableReadBuffer& buffer) {
     fMatrixIsInvertible = fMatrix.invert(&fInverse);
 }
 
+SK_DEFINE_FLATTENABLE_REGISTRAR(Sk2DPathEffect)
+
 ///////////////////////////////////////////////////////////////////////////////
+
+bool SkLine2DPathEffect::filterPath(SkPath *dst, const SkPath &src, SkStrokeRec *rec) {
+    if (this->INHERITED::filterPath(dst, src, rec)) {
+        rec->setStrokeStyle(fWidth);
+        return true;
+    }
+    return false;
+}
+
+void SkLine2DPathEffect::nextSpan(int u, int v, int ucount, SkPath *dst) {
+    if (ucount > 1) {
+        SkPoint    src[2], dstP[2];
+
+        src[0].set(SkIntToScalar(u) + SK_ScalarHalf, SkIntToScalar(v) + SK_ScalarHalf);
+        src[1].set(SkIntToScalar(u+ucount) + SK_ScalarHalf, SkIntToScalar(v) + SK_ScalarHalf);
+        this->getMatrix().mapPoints(dstP, src, 2);
+
+        dst->moveTo(dstP[0]);
+        dst->lineTo(dstP[1]);
+    }
+}
+
+SkLine2DPathEffect::SkLine2DPathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+    fWidth = buffer.readScalar();
+}
+
+void SkLine2DPathEffect::flatten(SkFlattenableWriteBuffer &buffer) const {
+    this->INHERITED::flatten(buffer);
+    buffer.writeScalar(fWidth);
+}
+
+SK_DEFINE_FLATTENABLE_REGISTRAR(SkLine2DPathEffect)
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkPath2DPathEffect::SkPath2DPathEffect(const SkMatrix& m, const SkPath& p)

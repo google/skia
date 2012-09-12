@@ -221,7 +221,7 @@ void SkOrderedWriteBuffer::writeFlattenable(SkFlattenable* flattenable) {
         this->writeFunctionPtr((void*)factory);
     }
 
-    // make room for the size of the flatttened object
+    // make room for the size of the flattened object
     (void)fWriter.reserve(sizeof(uint32_t));
     // record the current size, so we can subtract after the object writes.
     uint32_t offset = fWriter.size();
