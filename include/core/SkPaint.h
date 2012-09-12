@@ -668,6 +668,20 @@ public:
     */
     void setTextSkewX(SkScalar skewX);
 
+#ifdef SK_SUPPORT_HINTING_SCALE_FACTOR
+    /** Return the paint's scale factor used for correctly rendering
+        glyphs in high DPI mode without text subpixel positioning.
+        @return the scale factor used for rendering glyphs in high DPI mode.
+    */
+    SkScalar getHintingScaleFactor() const { return fHintingScaleFactor; }
+
+    /** Set the paint's scale factor used for correctly rendering
+        glyphs in high DPI mode without text subpixel positioning.
+        @param the scale factor used for rendering glyphs in high DPI mode.
+    */
+    void setHintingScaleFactor(SkScalar hintingScaleFactor);
+#endif
+
     /** Describes how to interpret the text parameters that are passed to paint
         methods like measureText() and getTextWidths().
     */
@@ -910,6 +924,9 @@ private:
     SkScalar        fTextSize;
     SkScalar        fTextScaleX;
     SkScalar        fTextSkewX;
+#ifdef SK_SUPPORT_HINTING_SCALE_FACTOR
+    SkScalar        fHintingScaleFactor;
+#endif
 
     SkPathEffect*   fPathEffect;
     SkShader*       fShader;

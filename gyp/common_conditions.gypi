@@ -3,6 +3,7 @@
 {
   'defines': [
     'SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=<(skia_static_initializers)',
+    'SK_SUPPORT_HINTING_SCALE_FACTOR',
   ],
   'conditions' : [
     ['skia_gpu == 1',
