@@ -15,12 +15,19 @@ import xml.sax.saxutils
 MIN_REASONABLE_TIME = 0
 MAX_REASONABLE_TIME = 99999
 
+# Constants for prefixes in output title used in buildbot.
+TITLE_PREAMBLE = 'Bench_Performance_for_Skia_'
+TITLE_PREAMBLE_LENGTH = len(TITLE_PREAMBLE)
+
 def usage():
     """Prints simple usage information."""
     
     print '-b <bench> the bench to show.'
     print '-c <config> the config to show (GPU, 8888, 565, etc).'
     print '-d <dir> a directory containing bench_r<revision>_<scalar> files.'
+    print '-e <file> file containing expected bench values/ranges.'
+    print '   Will raise exception if actual bench values are out of range.'
+    print '   See bench_expectations.txt for data format and examples.'
     print '-f <revision>[:<revision>] the revisions to use for fitting.'
     print '   Negative <revision> is taken as offset from most recent revision.'
     print '-i <time> the time to ignore (w, c, g, etc).'
@@ -277,7 +284,7 @@ def main():
     
     try:
         opts, _ = getopt.getopt(sys.argv[1:]
-                                 , "b:c:d:f:i:l:m:o:r:s:t:x:y:"
+                                 , "b:c:d:e:f:i:l:m:o:r:s:t:x:y:"
                                  , "default-setting=")
     except getopt.GetoptError, err:
         print str(err) 
@@ -289,6 +296,7 @@ def main():
     bench_of_interest = None
     time_of_interest = None
     time_to_ignore = None
+    bench_expectations = {}
     rep = None  # bench representation algorithm
     revision_range = '0:'
     regression_range = '0:'
@@ -322,7 +330,44 @@ def main():
             settings[name] = True
         else:
             settings[name] = value
-        
+
+    def read_expectations(expectations, filename):
+        """Reads expectations data from file and put in expectations dict."""
+        for expectation in open(filename).readlines():
+            elements = expectation.strip().split(',')
+            if not elements[0] or elements[0].startswith('#'):
+                continue
+            if len(elements) != 5:
+                raise Exception("Invalid expectation line format: %s" %
+                                expectation)
+            bench_entry = elements[0] + ',' + elements[1]
+            if bench_entry in expectations:
+                raise Exception("Dup entries for bench expectation %s" %
+                                bench_entry)
+            # [<Bench_BmpConfig_TimeType>,<Platform-Alg>] -> (LB, UB)
+            expectations[bench_entry] = (float(elements[-2]),
+                                         float(elements[-1]))
+
+    def check_expectations(lines, expectations, newest_revision, key_suffix):
+        """Check if there are benches in latest rev outside expected range."""
+        exceptions = []
+        for line in lines:
+            line_str = str(line)
+            bench_platform_key = (line_str[ : line_str.find('_{')] + ',' +
+                key_suffix)
+            this_revision, this_bench_value = lines[line][-1]
+            if (this_revision != newest_revision or
+                bench_platform_key not in expectations):
+                # Skip benches without value for latest revision.
+                continue
+            this_min, this_max = expectations[bench_platform_key]
+            if this_bench_value < this_min or this_bench_value > this_max:
+                exceptions.append('Bench %s value %s out of range [%s, %s].' %
+                    (bench_platform_key, this_bench_value, this_min, this_max))
+        if exceptions:
+            raise Exception('Bench values out of range:\n' +
+                            '\n'.join(exceptions))
+
     try:
         for option, value in opts:
             if option == "-b":
@@ -331,6 +376,8 @@ def main():
                 config_of_interest = value
             elif option == "-d":
                 directory = value
+            elif option == "-e":
+                read_expectations(bench_expectations, value)
             elif option == "-f":
                 regression_range = value
             elif option == "-i":
@@ -367,6 +414,15 @@ def main():
     if time_of_interest:
         time_to_ignore = None
 
+    # The title flag (-l) provided in buildbot slave is in the format
+    # Bench_Performance_for_Skia_<platform>, and we want to extract <platform>
+    # for use in platform_and_alg to track matching benches later. If title flag
+    # is not in this format, there may be no matching benches in the file
+    # provided by the expectation_file flag (-e).
+    platform_and_alg = title
+    if platform_and_alg.startswith(TITLE_PREAMBLE):
+        platform_and_alg = (
+            platform_and_alg[TITLE_PREAMBLE_LENGTH:] + '-' + rep)
     title += ' [representation: %s]' % rep
 
     latest_revision = get_latest_revision(directory)
@@ -402,6 +458,9 @@ def main():
 
     output_xhtml(lines, oldest_revision, newest_revision, ignored_revision_data_points,
                  regressions, requested_width, requested_height, title)
+
+    check_expectations(lines, bench_expectations, newest_revision,
+                       platform_and_alg)
 
 def qa(out):
     """Stringify input and quote as an xml attribute."""
