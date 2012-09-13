@@ -89,6 +89,27 @@ static void write_output(const SkString& outputDir, const SkString& inputFilenam
     }
 }
 
+static bool area_too_big(int w, int h, SkISize* newSize) {
+    // just a guess, based on what seems to fail on smaller android devices
+    static const int64_t kMaxAreaForMemory = 16 * 1024 * 1024;
+
+    if ((int64_t)w * h > kMaxAreaForMemory) {
+        do {
+            w >>= 1;
+            h >>= 1;
+        } while ((int64_t)w * h > kMaxAreaForMemory);
+        if (0 == w) {
+            w = 1;
+        }
+        if (0 == h) {
+            h = 1;
+        }
+        newSize->set(w, h);
+        return true;
+    }
+    return false;
+}
+
 static void render_picture(const SkString& inputPath, const SkString& outputDir,
                            sk_tools::PictureRenderer& renderer) {
     SkString inputFilename;
@@ -105,7 +126,28 @@ static void render_picture(const SkString& inputPath, const SkString& outputDir,
 
     SkDebugf("drawing... [%i %i] %s\n", picture.width(), picture.height(),
              inputPath.c_str());
-    renderer.init(&picture);
+    
+
+    // rescale to avoid memory issues allcoating a very large offscreen
+    SkPicture* pic = &picture;
+    SkISize newSize;
+    SkAutoUnref aur(NULL);
+
+    if (area_too_big(picture.width(), picture.height(), &newSize)) {
+        pic = new SkPicture;
+        aur.reset(pic);
+        
+        SkCanvas* canvas = pic->beginRecording(newSize.width(), newSize.height());
+        SkScalar scale = SkIntToScalar(newSize.width()) / picture.width();
+        canvas->scale(scale, scale);
+        canvas->drawPicture(picture);
+        pic->endRecording();
+        
+        SkDebugf("... rescaling to [%d %d] to avoid overly large allocations\n",
+                 newSize.width(), newSize.height());
+    }
+
+    renderer.init(pic);
 
     renderer.render(true);
 
