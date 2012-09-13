@@ -172,7 +172,10 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                     str.printf("Could not open %s for writing.", *argv);
                     gLogger.logError(str);
                     usage(argv0);
-                    exit(-1);
+                    // TODO(borenet): We're disabling this for now, due to
+                    // write-protected Android devices.  The very short-term
+                    // solution is to ignore the fact that we have no log file.
+                    //exit(-1);
                 }
             } else {
                 gLogger.logError("Missing arg for --logFile\n");
@@ -236,7 +239,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
         }  else if (0 == strcmp(*argv, "--device")) {
             ++argv;
             if (argv >= stop) {
-                gLogger.logError("Missing mode for --deivce\n");
+                gLogger.logError("Missing mode for --device\n");
                 usage(argv0);
                 exit(-1);
             }
