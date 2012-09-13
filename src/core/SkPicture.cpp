@@ -22,6 +22,8 @@
 
 #include "SkReader32.h"
 #include "SkWriter32.h"
+#include "SkRTree.h"
+#include "SkBBoxHierarchyRecord.h"
 
 SK_DEFINE_INST_COUNT(SkPicture)
 
@@ -183,7 +185,16 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
         fRecord = NULL;
     }
 
-    fRecord = SkNEW_ARGS(SkPictureRecord, (recordingFlags));
+    if (recordingFlags & kOptimizeForClippedPlayback_RecordingFlag) {
+        SkScalar aspectRatio = SkScalarDiv(SkIntToScalar(width), 
+                                           SkIntToScalar(height));
+        SkRTree* tree = SkRTree::Create(6, 11, aspectRatio);
+        SkASSERT(NULL != tree);
+        fRecord = SkNEW_ARGS(SkBBoxHierarchyRecord, (recordingFlags, tree));
+        tree->unref();
+    } else {
+        fRecord = SkNEW_ARGS(SkPictureRecord, (recordingFlags));
+    }
 
     fWidth = width;
     fHeight = height;

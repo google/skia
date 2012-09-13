@@ -28,6 +28,8 @@
 class SkPictureRecord;
 class SkStream;
 class SkWStream;
+class SkBBoxHierarchy;
+class SkPictureStateTree;
 
 struct SkPictInfo {
     enum Flags {
@@ -191,6 +193,9 @@ private:
 
     SkPicture** fPictureRefs;
     int fPictureCount;
+
+    SkBBoxHierarchy* fBoundingHierarchy;
+    SkPictureStateTree* fStateTree;
 
     SkTypefacePlayback fTFPlayback;
     SkFactoryPlayback* fFactoryPlayback;
