@@ -223,6 +223,7 @@ private:
 class RandomPathBench : public SkBenchmark {
 public:
     RandomPathBench(void* param) : INHERITED(param) {
+        fIsRendering = false;
     }
 
 protected:
