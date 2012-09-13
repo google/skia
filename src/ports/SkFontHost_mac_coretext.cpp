@@ -365,7 +365,7 @@ static SkFontID CTFontRef_to_SkFontID(CTFontRef fontRef) {
     SkFontID id = 0;
 // CTFontGetPlatformFont and ATSFontRef are not supported on iOS, so we have to
 // bracket this to be Mac only.
-#if SK_BUILD_FOR_MAC
+#ifdef SK_BUILD_FOR_MAC
     ATSFontRef ats = CTFontGetPlatformFont(fontRef, NULL);
     id = (SkFontID)ats;
     if (id != 0) {
