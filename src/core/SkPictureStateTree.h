@@ -70,7 +70,7 @@ public:
         /** Returns the next offset into the picture stream, or kDrawComplete if complete. */
         uint32_t draw();
         static const uint32_t kDrawComplete = SK_MaxU32;
-        Iterator() : fValid(false) { }
+        Iterator() : fPlaybackMatrix(), fValid(false) { }
         bool isValid() { return fValid; }
     private:
         Iterator(const SkTDArray<void*>& draws, SkCanvas* canvas, Node* root);
