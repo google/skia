@@ -125,15 +125,11 @@ static void test_fade(SkCanvas* canvas) {
 
 class RedFilter : public SkDrawFilter {
 public:
-    virtual bool filter(SkCanvas*, SkPaint* p, SkDrawFilter::Type) {
+    virtual void filter(SkPaint* p, SkDrawFilter::Type) SK_OVERRIDE {
         fColor = p->getColor();
         if (fColor == SK_ColorRED) {
             p->setColor(SK_ColorGREEN);
         }
-        return true;
-    }
-    virtual void restore(SkCanvas*, SkPaint* p, SkDrawFilter::Type) {
-        p->setColor(fColor);
     }
 
 private:
