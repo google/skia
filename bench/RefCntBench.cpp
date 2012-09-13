@@ -11,7 +11,7 @@
 #include <memory>
 
 enum {
-    N = SkBENCHLOOP(1000000),
+    N = SkBENCHLOOP(100000),
     M = SkBENCHLOOP(2)
 };
 
