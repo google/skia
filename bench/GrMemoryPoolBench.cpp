@@ -39,6 +39,7 @@ class GrMemoryPoolBenchStack : public SkBenchmark {
     };
 public:
     GrMemoryPoolBenchStack(void* param) : INHERITED(param) {
+        fIsRendering = false;
     }
 protected:
     virtual const char* onGetName() {
@@ -94,6 +95,7 @@ class GrMemoryPoolBenchRandom : public SkBenchmark {
     };
 public:
     GrMemoryPoolBenchRandom(void* param) : INHERITED(param) {
+        fIsRendering = false;
     }
 protected:
     virtual const char* onGetName() {
@@ -131,6 +133,7 @@ class GrMemoryPoolBenchQueue : public SkBenchmark {
     };
 public:
     GrMemoryPoolBenchQueue(void* param) : INHERITED(param) {
+        fIsRendering = false;
     }
 protected:
     virtual const char* onGetName() {

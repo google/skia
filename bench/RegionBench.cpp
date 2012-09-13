@@ -100,6 +100,7 @@ public:
             fA.op(randrect(rand), SkRegion::kXOR_Op);
             fB.op(randrect(rand), SkRegion::kXOR_Op);
         }
+        fIsRendering = false;
     }
 
 protected:

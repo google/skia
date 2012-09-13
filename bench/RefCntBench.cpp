@@ -18,6 +18,7 @@ enum {
 class RefCntBench_Stack : public SkBenchmark {
 public:
     RefCntBench_Stack(void* param) : INHERITED(param) {
+        fIsRendering = false;
     }
 protected:
     virtual const char* onGetName() {
@@ -54,6 +55,7 @@ SK_DEFINE_INST_COUNT(PlacedRefCnt)
 class RefCntBench_Heap : public SkBenchmark {
 public:
     RefCntBench_Heap(void* param) : INHERITED(param) {
+        fIsRendering = false;
     }
 protected:
     virtual const char* onGetName() {
@@ -79,6 +81,7 @@ private:
 class RefCntBench_New : public SkBenchmark {
 public:
     RefCntBench_New(void* param) : INHERITED(param) {
+        fIsRendering = false;
     }
 protected:
     virtual const char* onGetName() {
@@ -105,6 +108,7 @@ private:
 class WeakRefCntBench_Stack : public SkBenchmark {
 public:
     WeakRefCntBench_Stack(void* param) : INHERITED(param) {
+        fIsRendering = false;
     }
 protected:
     virtual const char* onGetName() {
@@ -134,6 +138,7 @@ public:
 class WeakRefCntBench_Heap : public SkBenchmark {
 public:
     WeakRefCntBench_Heap(void* param) : INHERITED(param) {
+        fIsRendering = false;
     }
 protected:
     virtual const char* onGetName() {
@@ -159,6 +164,7 @@ private:
 class WeakRefCntBench_New : public SkBenchmark {
 public:
     WeakRefCntBench_New(void* param) : INHERITED(param) {
+        fIsRendering = false;
     }
 protected:
     virtual const char* onGetName() {

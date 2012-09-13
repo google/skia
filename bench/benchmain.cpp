@@ -738,7 +738,13 @@ int main (int argc, char * const argv[]) {
 
         AutoPrePostDraw appd(bench);
 
+        bool runOnce = false;
         for (int x = 0; x < configs.count(); ++x) {
+            if (!bench->isRendering() && runOnce) {
+                continue;
+            }
+            runOnce = true;
+
             int configIndex = configs[x];
 
             outConfig = gConfigs[configIndex].fConfig;

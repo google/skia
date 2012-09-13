@@ -81,6 +81,13 @@ public:
       return fHasStrokeWidth;
     }
 
+    /** If true; the benchmark does rendering; if false, the benchmark
+        doesn't, and so need not be re-run in every different rendering
+        mode. */
+    bool isRendering() {
+        return fIsRendering;
+    }
+
     const char* findDefine(const char* key) const;
     bool findDefine32(const char* key, int32_t* value) const;
     bool findDefineScalar(const char* key, SkScalar* value) const;
@@ -94,6 +101,8 @@ protected:
     virtual void onPostDraw() {}
 
     virtual SkIPoint onGetSize();
+    /// Defaults to true.
+    bool    fIsRendering;
 
 private:
     const SkTDict<const char*>* fDict;

@@ -16,6 +16,7 @@ class MatrixBench : public SkBenchmark {
 public:
     MatrixBench(void* param, const char name[]) : INHERITED(param) {
         fName.printf("matrix_%s", name);
+        fIsRendering = false;
     }
 
     virtual void performTest() = 0;
