@@ -79,6 +79,10 @@ public:
             return NULL;
         }
     }
+
+    GrContext* getGrContext() {
+        return fGrContext;
+    }
 #endif
 
     PictureRenderer()

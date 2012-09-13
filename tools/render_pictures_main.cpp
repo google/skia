@@ -289,6 +289,16 @@ int main(int argc, char* const argv[]) {
         process_input(inputs[i], outputDir, *renderer);
     }
 
+#if SK_SUPPORT_GPU
+#if GR_CACHE_STATS
+    if (renderer->isUsingGpuDevice()) {
+        GrContext* ctx = renderer->getGrContext();
+
+        ctx->printCacheStats();
+    }
+#endif
+#endif
+
     SkDELETE(renderer);
     SkGraphics::Term();
 }
