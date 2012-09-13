@@ -35,7 +35,7 @@ GrMemoryPool A::gPool(10 * (1 << 10), 10 * (1 << 10));
  */
 class GrMemoryPoolBenchStack : public SkBenchmark {
     enum {
-        N = SkBENCHLOOP(5 * (1 << 20)),
+        N = SkBENCHLOOP(1 * (1 << 20)),
     };
 public:
     GrMemoryPoolBenchStack(void* param) : INHERITED(param) {
@@ -90,7 +90,7 @@ private:
  */
 class GrMemoryPoolBenchRandom : public SkBenchmark {
     enum {
-        N = SkBENCHLOOP(5 * (1 << 20)),
+        N = SkBENCHLOOP(1 * (1 << 20)),
     };
 public:
     GrMemoryPoolBenchRandom(void* param) : INHERITED(param) {
@@ -126,7 +126,7 @@ private:
  */
 class GrMemoryPoolBenchQueue : public SkBenchmark {
     enum {
-        N = SkBENCHLOOP((1 << 10)),
+        N = SkBENCHLOOP((1 << 8)),
         M = SkBENCHLOOP(4 * (1 << 10)),
     };
 public:
