@@ -868,8 +868,18 @@ int main (int argc, char * const argv[]) {
         logger.logProgress(SkString("\n"));
     }
 #if SK_SUPPORT_GPU
-    // need to clean up here rather than post-main to allow leak detection to work
-    gDebugGLHelper.cleanup();
+#if GR_CACHE_STATS
+    gRealGLHelper.grContext()->printCacheStats();
 #endif
+
+    // need to clean up here rather than post-main to allow leak detection to work
+    gRealGLHelper.cleanup();
+    gDebugGLHelper.cleanup();
+    gNullGLHelper.cleanup();
+#if SK_ANGLE
+    gANGLEGLHelper.cleanup();
+#endif // SK_ANGLE
+#endif
+
     return 0;
 }
