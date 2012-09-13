@@ -30,6 +30,8 @@ public:
         for (int i = 0; i < kBuffer; ++i) {
             fSrc[i] = rand.nextSScalar1();
         }
+
+        fIsRendering = false;
     }
 
     virtual void performTest(float* SK_RESTRICT dst,
@@ -265,6 +267,7 @@ public:
             fProc = gRec[index].fProc;
             fName = gRec[index].fName;
         }
+        fIsRendering = false;
     }
 
 protected:
@@ -330,6 +333,7 @@ public:
         } else {
             fName = "floor_std";
         }
+        fIsRendering = false;
     }
 
     virtual void process(float) {}

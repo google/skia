@@ -35,6 +35,7 @@ public:
         if (fBulkLoad) {
             fName.append("_bulk");
         }
+        fIsRendering = false;
     }
     virtual ~BBoxBuildBench() {
         fTree->unref();
@@ -91,6 +92,7 @@ public:
                            SkBENCHLOOP(NUM_QUERY_RECTS)), fBulkLoad);
         }
         fTree->flushDeferredInserts();
+        fIsRendering = false;
     }
     virtual ~BBoxQueryBench() {
         fTree->unref();

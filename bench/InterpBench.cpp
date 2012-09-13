@@ -20,6 +20,7 @@ public:
         fName.printf("interp_%s", name);
         fFx = 3.3f;
         fDx = 0.1257f;
+        fIsRendering = false;
     }
 
     virtual void performTest(int16_t dst[], float x, float dx, int count) = 0;
