@@ -27,7 +27,7 @@ class SkPost : public SkDisplayable {
     };
     SkPost();
     virtual ~SkPost();
-    virtual bool add(SkAnimateMaker& , SkDisplayable* child);
+    virtual bool add(SkAnimateMaker& , SkDisplayable* child) SK_OVERRIDE;
     virtual bool childrenNeedDisposing() const;
     virtual void dirty();
 #ifdef SK_DUMP_ENABLED

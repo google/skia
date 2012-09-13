@@ -399,7 +399,7 @@ void SkRTree::validate() {
     if (this->isEmpty()) {
         return;
     }
-    SkASSERT(fCount == this->validateSubtree(fRoot.fChild.subtree, fRoot.fBounds, true));
+    SkASSERT(fCount == (size_t)this->validateSubtree(fRoot.fChild.subtree, fRoot.fBounds, true));
 #endif
 }
 

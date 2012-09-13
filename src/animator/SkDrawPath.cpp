@@ -188,7 +188,7 @@ const SkMemberInfo SkPolyline::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkPolyline);
 
-bool SkPolyline::add(SkAnimateMaker& , SkDisplayable*) const {
+bool SkPolyline::add(SkAnimateMaker& , SkDisplayable*) {
     return false;
 }
 

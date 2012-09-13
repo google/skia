@@ -21,7 +21,7 @@ class SkDrawMatrix : public SkDrawable {
     DECLARE_DRAW_MEMBER_INFO(Matrix);
     SkDrawMatrix();
     virtual ~SkDrawMatrix();
-    virtual bool add(SkAnimateMaker& , SkDisplayable* child);
+    virtual bool add(SkAnimateMaker& , SkDisplayable* child) SK_OVERRIDE;
     virtual bool childrenNeedDisposing() const;
     virtual void dirty();
     virtual bool draw(SkAnimateMaker& );

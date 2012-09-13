@@ -19,7 +19,7 @@ public:
     DECLARE_MEMBER_INFO(Group);
     SkGroup();
     virtual ~SkGroup();
-    virtual bool add(SkAnimateMaker& , SkDisplayable* child);
+    virtual bool add(SkAnimateMaker& , SkDisplayable* child) SK_OVERRIDE;
     virtual bool contains(SkDisplayable* );
     SkGroup* copy();
     SkBool copySet(int index);

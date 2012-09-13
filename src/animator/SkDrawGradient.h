@@ -20,7 +20,7 @@ class SkDrawGradient : public SkDrawShader {
     DECLARE_PRIVATE_MEMBER_INFO(DrawGradient);
     SkDrawGradient();
     virtual ~SkDrawGradient();
-    virtual bool add(SkAnimateMaker& , SkDisplayable* child);
+    virtual bool add(SkAnimateMaker& , SkDisplayable* child) SK_OVERRIDE;
 #ifdef SK_DUMP_ENABLED
     virtual void dumpRest(SkAnimateMaker*);
 #endif

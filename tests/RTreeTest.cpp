@@ -46,7 +46,7 @@ static bool verify_query(SkIRect query, DataRect rects[],
                          SkTDArray<void*>& found) {
     SkTDArray<void*> expected;
     // manually intersect with every rectangle
-    for (int i = 0; i < NUM_RECTS; ++i) {
+    for (size_t i = 0; i < NUM_RECTS; ++i) {
         if (SkIRect::IntersectsNoEmptyCheck(query, rects[i].rect)) {
             expected.push(rects[i].data);
         }
@@ -70,7 +70,7 @@ static bool verify_query(SkIRect query, DataRect rects[],
 
 static void runQueries(skiatest::Reporter* reporter, SkRandom& rand, DataRect rects[],
                        SkRTree& tree) {
-    for (int i = 0; i < NUM_QUERIES; ++i) {
+    for (size_t i = 0; i < NUM_QUERIES; ++i) {
         SkTDArray<void*> hits;
         SkIRect query = random_rect(rand);
         tree.search(query, &hits);
@@ -102,11 +102,11 @@ static void TestRTree(skiatest::Reporter* reporter) {
         ++expectedDepthMax;
     }
 
-    for (int i = 0; i < NUM_ITERATIONS; ++i) {
+    for (size_t i = 0; i < NUM_ITERATIONS; ++i) {
         random_data_rects(rand, rects, NUM_RECTS);
 
         // First try bulk-loaded inserts
-        for (int i = 0; i < NUM_RECTS; ++i) {
+        for (size_t i = 0; i < NUM_RECTS; ++i) {
             rtree->insert(rects[i].data, rects[i].rect, true);
         }
         rtree->flushDeferredInserts();
@@ -118,7 +118,7 @@ static void TestRTree(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, 0 == rtree->getCount());
 
         // Then try immediate inserts
-        for (int i = 0; i < NUM_RECTS; ++i) {
+        for (size_t i = 0; i < NUM_RECTS; ++i) {
             rtree->insert(rects[i].data, rects[i].rect);
         }
         runQueries(reporter, rand, rects, *rtree);

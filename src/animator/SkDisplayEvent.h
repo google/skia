@@ -34,7 +34,7 @@ class SkDisplayEvent : public SkDisplayable {
     };
     SkDisplayEvent();
     virtual ~SkDisplayEvent();
-    virtual bool add(SkAnimateMaker& , SkDisplayable* child);
+    virtual bool add(SkAnimateMaker& , SkDisplayable* child) SK_OVERRIDE;
     virtual bool contains(SkDisplayable*);
     virtual SkDisplayable* contains(const SkString& );
 #ifdef SK_DEBUG

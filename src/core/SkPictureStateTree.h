@@ -74,19 +74,21 @@ public:
         Iterator(const SkTDArray<void*>& draws, SkCanvas* canvas, Node* root);
         // The draws this iterator is associated with
         const SkTDArray<void*>& fDraws;
-        // The matrix of the canvas we're playing back into
-        const SkMatrix fPlaybackMatrix;
+
+        // canvas this is playing into (so we can insert saves/restores as necessary)
+        SkCanvas* fCanvas;
 
         // current state node
         Node* fCurrentNode;
 
         // List of nodes whose state we need to apply to reach TargetNode
         SkTDArray<Node*> fNodes;
+
+        // The matrix of the canvas we're playing back into
+        const SkMatrix fPlaybackMatrix;
+
         // Cache of current matrix, so we can avoid redundantly setting it
         SkMatrix* fCurrentMatrix;
-
-        // canvas this is playing into (so we can insert saves/restores as necessary)
-        SkCanvas* fCanvas;
 
         // current position in the array of draws
         int fPlaybackIndex;

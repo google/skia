@@ -83,9 +83,9 @@ SkPictureStateTree::Iterator::Iterator(const SkTDArray<void*>& draws, SkCanvas* 
     : fDraws(draws)
     , fCanvas(canvas)
     , fCurrentNode(root)
+    , fPlaybackMatrix(canvas->getTotalMatrix())
     , fCurrentMatrix(NULL)
     , fPlaybackIndex(0)
-    , fPlaybackMatrix(canvas->getTotalMatrix())
     , fSave(false) {
 }
 

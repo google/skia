@@ -19,13 +19,13 @@ enum {
 };
 
 SkPictureRecord::SkPictureRecord(uint32_t flags) :
+        fBoundingHierarchy(NULL),
+        fStateTree(NULL),
         fFlattenableHeap(HEAP_BLOCK_SIZE),
         fMatrices(&fFlattenableHeap),
         fPaints(&fFlattenableHeap),
         fRegions(&fFlattenableHeap),
         fWriter(MIN_WRITER_SIZE),
-        fBoundingHierarchy(NULL),
-        fStateTree(NULL),
         fRecordFlags(flags) {
 #ifdef SK_DEBUG_SIZE
     fPointBytes = fRectBytes = fTextBytes = 0;
