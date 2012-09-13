@@ -70,7 +70,25 @@ public:
             clip-query calls will reflect the path's bounds, not the actual
             path.
          */
-        kUsePathBoundsForClip_RecordingFlag = 0x01
+        kUsePathBoundsForClip_RecordingFlag = 0x01,
+        /*  This flag causes the picture to compute bounding boxes and build
+            up a spatial hierarchy (currently an R-Tree), plus a tree of Canvas'
+            usually stack-based clip/etc state. This requires an increase in
+            recording time (often ~2x; likely more for very complex pictures),
+            but allows us to perform much faster culling at playback time, and
+            completely avoid some unnecessary clips and other operations. This
+            is ideal for tiled rendering, or any other situation where you're
+            drawing a fraction of a large scene into a smaller viewport. 
+
+            In most cases the record cost is offset by the playback improvement
+            after a frame or two of tiled rendering (and complex pictures that
+            induce the worst record times will generally get the largest
+            speedups at playback time).
+
+            Note: Currently this is not serializable, the bounding data will be
+            discarded if you serialize into a stream and then deserialize.
+        */
+        kOptimizeForClippedPlayback_RecordingFlag = 0x02
     };
 
     /** Returns the canvas that records the drawing commands.

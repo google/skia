@@ -163,8 +163,8 @@ void SkBBoxRecord::drawPosTextH(const void* text, size_t byteLength, const SkSca
         SkPaint::FontMetrics metrics;
         paint.getFontMetrics(&metrics);
 
-        // pad horizontally by half max glyph height
-        SkScalar pad = (metrics.fTop - metrics.fBottom) / 2;
+        // pad horizontally by max glyph height
+        SkScalar pad = (metrics.fTop - metrics.fBottom);
         bbox.fLeft  += pad;
         bbox.fRight -= pad;
 
@@ -217,8 +217,8 @@ void SkBBoxRecord::drawVertices(VertexMode mode, int vertexCount,
 }
 
 void SkBBoxRecord::drawPicture(SkPicture& picture) {
-    SkRect bbox = {0, 0, picture.width(), picture.height()};
-    if (this->transformBounds(bbox, NULL)) {
+    if (picture.width() > 0 && picture.height() > 0 && 
+        this->transformBounds(SkRect::MakeWH(picture.width(), picture.height()), NULL)) {
         INHERITED::drawPicture(picture);
     }
 }

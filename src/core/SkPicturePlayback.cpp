@@ -11,6 +11,9 @@
 #include "SkOrderedReadBuffer.h"
 #include "SkOrderedWriteBuffer.h"
 #include <new>
+#include "SkBBoxHierarchy.h"
+#include "SkPictureStateTree.h"
+#include "SkTSort.h"
 
 template <typename T> int SafeCount(const T* obj) {
     return obj ? obj->count() : 0;
@@ -68,6 +71,16 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record, bool deepCop
     init();
     if (writer.size() == 0)
         return;
+
+    fBoundingHierarchy = record.fBoundingHierarchy;
+    fStateTree = record.fStateTree;
+
+    SkSafeRef(fBoundingHierarchy);
+    SkSafeRef(fStateTree);
+
+    if (NULL != fBoundingHierarchy) {
+        fBoundingHierarchy->flushDeferredInserts();
+    }
 
     {
         size_t size = writer.size();
@@ -140,6 +153,12 @@ SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src, SkPictCopyInf
     fMatrices = SkSafeRef(src.fMatrices);
     fRegions = SkSafeRef(src.fRegions);
     fOpData = SkSafeRef(src.fOpData);
+    
+    fBoundingHierarchy = src.fBoundingHierarchy;
+    fStateTree = src.fStateTree;
+
+    SkSafeRef(fBoundingHierarchy);
+    SkSafeRef(fStateTree);
 
     if (deepCopyInfo) {
 
@@ -203,6 +222,8 @@ void SkPicturePlayback::init() {
     fPictureCount = 0;
     fOpData = NULL;
     fFactoryPlayback = NULL;
+    fBoundingHierarchy = NULL;
+    fStateTree = NULL;
 }
 
 SkPicturePlayback::~SkPicturePlayback() {
@@ -212,6 +233,8 @@ SkPicturePlayback::~SkPicturePlayback() {
     SkSafeUnref(fMatrices);
     SkSafeUnref(fPaints);
     SkSafeUnref(fRegions);
+    SkSafeUnref(fBoundingHierarchy);
+    SkSafeUnref(fStateTree);
 
     for (int i = 0; i < fPictureCount; i++) {
         fPictureRefs[i]->unref();
@@ -560,6 +583,30 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
 
     SkReader32 reader(fOpData->bytes(), fOpData->size());
     TextContainer text;
+    SkTDArray<void*> results;
+
+    if (fStateTree && fBoundingHierarchy) {
+        SkRect clipBounds;
+        if (canvas.getClipBounds(&clipBounds)) {
+            SkIRect query;
+            clipBounds.roundOut(&query);
+            fBoundingHierarchy->search(query, &results);
+            if (results.count() == 0) { return; }
+            SkTQSort<SkPictureStateTree::Draw>(
+                reinterpret_cast<SkPictureStateTree::Draw**>(results.begin()), 
+                reinterpret_cast<SkPictureStateTree::Draw**>(results.end()-1));
+        }
+    }
+
+    SkPictureStateTree::Iterator it = (NULL == fStateTree) ?
+        SkPictureStateTree::Iterator() :
+        fStateTree->getIterator(results, &canvas);
+
+    if (it.isValid()) {
+        uint32_t off = it.draw();
+        if (off == SK_MaxU32) { return; }
+        reader.setOffset(off);
+    }
 
     // Record this, so we can concat w/ it if we encounter a setMatrix()
     SkMatrix initialMatrix = canvas.getTotalMatrix();
@@ -806,6 +853,12 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
             } break;
             default:
                 SkASSERT(0);
+        }
+
+        if (it.isValid()) {
+            uint32_t off = it.draw();
+            if (off == SK_MaxU32) { break; }
+            reader.setOffset(off);
         }
     }
 

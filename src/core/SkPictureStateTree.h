@@ -70,10 +70,12 @@ public:
         /** Returns the next offset into the picture stream, or kDrawComplete if complete. */
         uint32_t draw();
         static const uint32_t kDrawComplete = SK_MaxU32;
+        Iterator() : fValid(false) { }
+        bool isValid() { return fValid; }
     private:
         Iterator(const SkTDArray<void*>& draws, SkCanvas* canvas, Node* root);
         // The draws this iterator is associated with
-        const SkTDArray<void*>& fDraws;
+        const SkTDArray<void*>* fDraws;
 
         // canvas this is playing into (so we can insert saves/restores as necessary)
         SkCanvas* fCanvas;
@@ -94,6 +96,9 @@ public:
         int fPlaybackIndex;
         // Whether or not we need to do a save next iteration
         bool fSave;
+
+        // Whether or not this is a valid iterator (the default public constructor sets this false)
+        bool fValid;
 
         friend class SkPictureStateTree;
     };
