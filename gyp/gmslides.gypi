@@ -22,6 +22,7 @@
     '../gm/degeneratesegments.cpp',
     '../gm/dashcubics.cpp',
     '../gm/dashing.cpp',
+    '../gm/distantclip.cpp',
     '../gm/drawbitmaprect.cpp',
     '../gm/drawlooper.cpp',
     '../gm/extractbitmap.cpp',
