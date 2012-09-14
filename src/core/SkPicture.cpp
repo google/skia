@@ -186,7 +186,7 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
     }
 
     if (recordingFlags & kOptimizeForClippedPlayback_RecordingFlag) {
-        SkScalar aspectRatio = SkScalarDiv(SkIntToScalar(width), 
+        SkScalar aspectRatio = SkScalarDiv(SkIntToScalar(width),
                                            SkIntToScalar(height));
         SkRTree* tree = SkRTree::Create(6, 11, aspectRatio);
         SkASSERT(NULL != tree);

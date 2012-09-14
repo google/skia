@@ -78,7 +78,7 @@ public:
             but allows us to perform much faster culling at playback time, and
             completely avoid some unnecessary clips and other operations. This
             is ideal for tiled rendering, or any other situation where you're
-            drawing a fraction of a large scene into a smaller viewport. 
+            drawing a fraction of a large scene into a smaller viewport.
 
             In most cases the record cost is offset by the playback improvement
             after a frame or two of tiled rendering (and complex pictures that
