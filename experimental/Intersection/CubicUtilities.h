@@ -4,6 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#if !defined CUBIC_UTILITIES_H
+#define CUBIC_UTILITIES_H
+
 #include "DataTypes.h"
 
 double cube_root(double x);
@@ -16,3 +19,5 @@ void dxdy_at_t(const Cubic& , double t, double& x, double& y);
 bool rotate(const Cubic& cubic, int zero, int index, Cubic& rotPath);
 double secondDerivativeAtT(const double* cubic, double t);
 void xy_at_t(const Cubic& , double t, double& x, double& y);
+
+#endif

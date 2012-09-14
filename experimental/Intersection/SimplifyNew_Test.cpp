@@ -2538,12 +2538,180 @@ static void testQuadratic20() {
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = 0; // testQuadratic20;
+static void testQuadratic21() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.lineTo(0, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(1, 0, 0, 2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testIntersect1() {
+    SkPath one, two, result;
+    one.addRect(0, 0, 6, 6, (SkPath::Direction) 0);
+    two.addRect(3, 3, 9, 9, (SkPath::Direction) 0);
+    operate(one, two, kIntersect_Op, result);
+    SkASSERT(result.countPoints() == 4);
+    SkASSERT(result.countVerbs() == 6); // move, 4 lines, close
+    SkRect bounds = result.getBounds();
+    SkASSERT(bounds.fLeft == 3);
+    SkASSERT(bounds.fTop == 3);
+    SkASSERT(bounds.fRight == 6);
+    SkASSERT(bounds.fBottom == 6);
+}
+
+static void testUnion1() {
+    SkPath one, two, result;
+    one.addRect(0, 0, 6, 6, (SkPath::Direction) 0);
+    two.addRect(3, 3, 9, 9, (SkPath::Direction) 0);
+    operate(one, two, kIntersect_Op, result);
+    SkASSERT(result.countPoints() == 8);
+    SkASSERT(result.countVerbs() == 10); // move, 8 lines, close
+    SkRect bounds = result.getBounds();
+    SkASSERT(bounds.fLeft == 0);
+    SkASSERT(bounds.fTop == 0);
+    SkASSERT(bounds.fRight == 9);
+    SkASSERT(bounds.fBottom == 9);
+}
+
+static void testDiff1() {
+    SkPath one, two, result;
+    one.addRect(0, 0, 6, 6, (SkPath::Direction) 0);
+    two.addRect(3, 3, 9, 9, (SkPath::Direction) 0);
+    operate(one, two, kIntersect_Op, result);
+    SkASSERT(result.countPoints() == 6);
+    SkASSERT(result.countVerbs() == 8); // move, 8 lines, close
+    SkRect bounds = result.getBounds();
+    SkASSERT(bounds.fLeft == 0);
+    SkASSERT(bounds.fTop == 0);
+    SkASSERT(bounds.fRight == 6);
+    SkASSERT(bounds.fBottom == 6);
+}
+
+static void testXor1() {
+    SkPath one, two, result;
+    one.addRect(0, 0, 6, 6, (SkPath::Direction) 0);
+    two.addRect(3, 3, 9, 9, (SkPath::Direction) 0);
+    operate(one, two, kIntersect_Op, result);
+    SkASSERT(result.countPoints() == 10);
+    SkASSERT(result.countVerbs() == 12); // move, 8 lines, close
+    SkRect bounds = result.getBounds();
+    SkASSERT(bounds.fLeft == 0);
+    SkASSERT(bounds.fTop == 0);
+    SkASSERT(bounds.fRight == 12);
+    SkASSERT(bounds.fBottom == 12);
+}
+
+static void testQuadratic22() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.lineTo(0, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(0, 1, 2, 1);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic23() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.lineTo(0, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(0, 2, 1, 2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic24() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.lineTo(0, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.quadTo(2, 0, 0, 1);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic25() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 1, 1);
+    path.lineTo(1, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(2, 1, 0, 2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic26() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 1, 1);
+    path.lineTo(0, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic27() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 1, 1);
+    path.lineTo(2, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(2, 1, 0, 2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic28() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.lineTo(0, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 2);
+    path.quadTo(1, 2, 0, 3);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void (*firstTest)() = testQuadratic28;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(testQuadratic28),
+    TEST(testQuadratic27),
+    TEST(testQuadratic26),
+    TEST(testQuadratic25),
+    TEST(testQuadratic24),
+    TEST(testQuadratic23),
+    TEST(testQuadratic22),
+    TEST(testQuadratic21),
     TEST(testQuadratic20),
     TEST(testQuadratic19),
     TEST(testQuadratic18),
@@ -2795,19 +2963,17 @@ static struct {
     void (*fun)();
     const char* str;
 } subTests[] = {
-    TEST(testQuadralateral6),
-    TEST(testQuadralateral6a),
-    TEST(testFauxQuadralateral6d),
-    TEST(testFauxQuadralateral6c),
-    TEST(testFauxQuadralateral6b),
-    TEST(testFauxQuadralateral6a),
-    TEST(testFauxQuadralateral6),
+    TEST(testXor1),
+    TEST(testDiff1),
+    TEST(testUnion1),
+    TEST(testIntersect1),
 };
 
 static const size_t subTestCount = sizeof(subTests) / sizeof(subTests[0]);
 
 static bool skipAll = false;
 static bool runSubTests = false;
+static bool runReverse = false;
 
 void SimplifyNew_Test() {
     if (skipAll) {
@@ -2833,13 +2999,18 @@ void SimplifyNew_Test() {
         SkDebugf("  %s [%s]\n", __FUNCTION__, tests[index].str);
         (*tests[index].fun)();
     }
-    index = testCount - 1;
+    index = runReverse ? testCount - 1 : 0;
+    size_t last = runReverse ? 0 : testCount - 1;
     bool firstTestComplete = false;
     do {
         SkDebugf("  %s [%s]\n", __FUNCTION__, tests[index].str);
         (*tests[index].fun)();
         firstTestComplete = true;
-    } while (index--);
+        if (index == last) {
+            break;
+        }
+        index += runReverse ? -1 : 1;
+    } while (true);
 #ifdef SK_DEBUG
     gDebugMaxWindSum = SK_MaxS32;
     gDebugMaxWindValue = SK_MaxS32;

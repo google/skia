@@ -374,7 +374,14 @@ static int _tmain()
 #endif
 
 double cube_root(double x) {
-    return halley_cbrt3d(x);
+    if (approximately_zero(x)) {
+        return 0;
+    }
+    double result = halley_cbrt3d(fabs(x));
+    if (x < 0) {
+        result = -result;
+    }
+    return result;
 }
 
 #if TEST_ALTERNATIVES

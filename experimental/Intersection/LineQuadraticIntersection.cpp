@@ -97,7 +97,7 @@ LineQuadraticIntersections(const Quadratic& q, const _Line& l, Intersections& i)
     , intersections(i) {
 }
 
-int intersect() {
+int intersectRay() {
 /*
     solve by rotating line+quad so line is horizontal, then finding the roots
     set up matrix to rotate quad to x-axis
@@ -124,7 +124,11 @@ int intersect() {
     double C = r[0];
     A += C - 2 * B; // A = a - 2*b + c
     B -= C; // B = -(b - c)
-    int roots = quadraticRoots(A, B, C, intersections.fT[0]);
+    return quadraticRoots(A, B, C, intersections.fT[0]);
+}
+
+int intersect() {
+    int roots = intersectRay();
     for (int index = 0; index < roots; ) {
         double lineT = findLineT(intersections.fT[0][index]);
         if (lineIntersects(lineT, index, roots)) {
@@ -183,18 +187,20 @@ int verticalIntersect(double axisIntercept, double top, double bottom) {
 protected:
 
 double findLineT(double t) {
-    const double* qPtr;
-    const double* lPtr;
-    if (moreHorizontal) {
-        qPtr = &quad[0].x;
-        lPtr = &line[0].x;
-    } else {
-        qPtr = &quad[0].y;
-        lPtr = &line[0].y;
+    double x, y;
+    xy_at_t(quad, t, x, y);
+    if (approximately_equal(x, line[0].x) && approximately_equal(y, line[0].y)) {
+        return 0;
     }
-    double s = 1 - t;
-    double quadVal = qPtr[0] * s * s + 2 * qPtr[2] * s * t + qPtr[4] * t * t;
-    return (quadVal - lPtr[0]) / (lPtr[2] - lPtr[0]);
+    if (approximately_equal(x, line[1].x) && approximately_equal(y, line[1].y)) {
+        return 1;
+    }
+    double dx = line[1].x - line[0].x;
+    double dy = line[1].y - line[0].y;
+    if (fabs(dx) > fabs(dy)) {
+        return (x - line[0].x) / dx;
+    }
+    return (y - line[0].y) / dy;
 }
 
 bool lineIntersects(double lineT, const int x, int& roots) {
@@ -218,8 +224,6 @@ private:
 const Quadratic& quad;
 const _Line& line;
 Intersections& intersections;
-bool moreHorizontal;
-
 };
 
 // utility for pairs of coincident quads
@@ -306,4 +310,9 @@ int verticalIntersect(const Quadratic& quad, double top, double bottom, double x
 int intersect(const Quadratic& quad, const _Line& line, Intersections& i) {
     LineQuadraticIntersections q(quad, line, i);
     return q.intersect();
+}
+
+int intersectRay(const Quadratic& quad, const _Line& line, Intersections& i) {
+    LineQuadraticIntersections q(quad, line, i);
+    return q.intersectRay();
 }

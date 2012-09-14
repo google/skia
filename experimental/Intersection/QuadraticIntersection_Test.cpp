@@ -28,8 +28,10 @@ static void standardTestCases() {
             printf("[%d] quad2 order=%d\n", (int) index, order2);
         }
         if (order1 == 3 && order2 == 3) {
-            Intersections intersections;
+            Intersections intersections, intersections2;
             intersect(reduce1, reduce2, intersections);
+            intersect2(reduce1, reduce2, intersections2);
+            SkASSERT(intersections.used() == intersections2.used());
             if (intersections.intersected()) {
                 for (int pt = 0; pt < intersections.used(); ++pt) {
                     double tt1 = intersections.fT[0][pt];
@@ -46,6 +48,10 @@ static void standardTestCases() {
                         printf("%s [%d,%d] y!= t1=%g (%g,%g) t2=%g (%g,%g)\n",
                             __FUNCTION__, (int)index, pt, tt1, tx1, ty1, tt2, tx2, ty2);
                     }
+                    tt1 = intersections2.fT[0][pt];
+                    SkASSERT(approximately_equal(intersections.fT[0][pt], tt1));
+                    tt2 = intersections2.fT[1][pt];
+                    SkASSERT(approximately_equal(intersections.fT[1][pt], tt2));
                 }
             }
         }
@@ -70,11 +76,12 @@ static void oneOffTest() {
             if (!intersections.intersected()) {
                 SkDebugf("%s no intersection!\n", __FUNCTION__);
             }
+            double tt1, tt2;
             for (int pt = 0; pt < intersections.used(); ++pt) {
-                double tt1 = intersections.fT[0][pt];
+                tt1 = intersections.fT[0][pt];
                 double tx1, ty1;
                 xy_at_t(quad1, tt1, tx1, ty1);
-                double tt2 = intersections.fT[1][pt];
+                tt2 = intersections.fT[1][pt];
                 double tx2, ty2;
                 xy_at_t(quad2, tt2, tx2, ty2);
                 if (!approximately_equal(tx1, tx2)) {
@@ -89,6 +96,15 @@ static void oneOffTest() {
                 }
                 SkDebugf("%s [%d][%d] t1=%1.9g (%1.9g, %1.9g) t2=%1.9g\n", __FUNCTION__,
                     outer, inner, tt1, tx1, tx2, tt2);
+            }
+            Intersections intersections2;
+            intersect2(quad1, quad2, intersections2);
+            SkASSERT(intersections.used() == intersections2.used());
+            for (int pt = 0; pt < intersections2.used(); ++pt) {
+                tt1 = intersections2.fT[0][pt];
+                SkASSERT(approximately_equal(intersections.fT[0][pt], tt1));
+                tt2 = intersections2.fT[1][pt];
+                SkASSERT(approximately_equal(intersections.fT[1][pt], tt2));
             }
         }
     }
@@ -105,18 +121,28 @@ static void coincidentTest() {
     for (size_t testIndex = 0; testIndex < coincidentTestSetCount - 1; testIndex += 2) {
         const Quadratic& quad1 = coincidentTestSet[testIndex];
         const Quadratic& quad2 = coincidentTestSet[testIndex + 1];
-        Intersections intersections;
+        Intersections intersections, intersections2;
         intersect(quad1, quad2, intersections);
         SkASSERT(intersections.coincidentUsed() == 2);
-        for (int pt = 0; pt < intersections.coincidentUsed(); ++pt) {
-            double tt1 = intersections.fT[0][pt];
+        int pt;
+        double tt1, tt2;
+        for (pt = 0; pt < intersections.coincidentUsed(); ++pt) {
+            tt1 = intersections.fT[0][pt];
             double tx1, ty1;
             xy_at_t(quad1, tt1, tx1, ty1);
-            double tt2 = intersections.fT[1][pt];
+            tt2 = intersections.fT[1][pt];
             double tx2, ty2;
             xy_at_t(quad2, tt2, tx2, ty2);
             SkDebugf("%s [%d,%d] t1=%g (%g,%g) t2=%g (%g,%g)\n",
                 __FUNCTION__, (int)testIndex, pt, tt1, tx1, ty1, tt2, tx2, ty2);
+        }
+        intersect2(quad1, quad2, intersections2);
+        SkASSERT(intersections2.coincidentUsed() == 2);
+        for (pt = 0; pt < intersections2.coincidentUsed(); ++pt) {
+            tt1 = intersections2.fT[0][pt];
+            SkASSERT(approximately_equal(intersections.fT[0][pt], tt1));
+            tt2 = intersections2.fT[1][pt];
+            SkASSERT(approximately_equal(intersections.fT[1][pt], tt2));
         }
     }
 }

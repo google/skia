@@ -39,11 +39,62 @@ $1 = {{
   }}
 </div>
 
+<div id="quad21a">
+bezier_clip q1=(0,0 1,0 0,2) q2=(0.5,0.25 0.5,0.5 0,1) minT=0 maxT=1
+</div>
+<div id="quad21b">
+bezier_clip q1=(0.5,0.25 0.5,0.375 0.375,0.5625) q2=(0,0 1,0 0,2) minT=0.3 maxT=0.78125
+</div>
+<div id="quad21c">
+bezier_clip q1=(0.42,0.18 0.6125,0.46875 0.341796875,1.22070312) q2=(0.5,0.25 0.5,0.375 0.375,0.5625) minT=0 maxT=0.926710098
+</div>
+<div id="quad21d">
+bezier_clip q1=(0.5,0.25 0.5,0.307919381 0.473162762,0.379257381) q2=(0.42,0.18 0.6125,0.46875 0.341796875,1.22070312) minT=0.187231244 maxT=0.729263299
+</div>
+<div id="quad21e">
+bezier_clip q1=(0.475846194,0.304363878 0.53317904,0.507883959 0.454423387,0.847492538) q2=(0.5,0.25 0.5,0.307919381 0.473162762,0.379257381) minT=0 maxT=1
+</div>
+<div id="quad21f">
+bezier_clip q1=(0.493290691,0.311274036 0.486581381,0.343588381 0.473162762,0.379257381) q2=(0.475846194,0.304363878 0.53317904,0.507883959 0.454423387,0.847492538) minT=0.0828748517 maxT=0.150086861
+</div>
+
+<div id="quad21g">
+(gdb) p smaller
+$1 = {{
+    x = 0.48441440743366754, 
+    y = 0.33903196011243797
+  }, {
+    x = 0.48750982503868118, 
+    y = 0.35346899178071778
+  }, {
+    x = 0.48999046908865357, 
+    y = 0.368520797004039
+  }}
+(gdb) p larger
+$2 = {{
+    x = 0.49329069058425024, 
+    y = 0.31127403581536672
+  }, {
+    x = 0.48658138116850047, 
+    y = 0.34358838107698753
+  }, {
+    x = 0.47316276233700094, 
+    y = 0.37925738104648321
+  }}
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    quad21g,
+    quad21a,
+    quad21b,
+    quad21c,
+    quad21d,
+    quad21e,
+    quad21f,
     clip1,
 ];
 
@@ -63,7 +114,9 @@ var fat2 = false;
 
 function parse(test, title) {
     var curveStrs = test.split("{{");
-    var pattern = /\$?-?\d+\.*\d*/g;
+    if (curveStrs.length == 1)
+        curveStrs = test.split("=(");
+    var pattern = /[a-z$=]?-?\d+\.*\d*/g;
     var curves = [];
     for (var c in curveStrs) {
         var curveStr = curveStrs[c];
@@ -77,7 +130,7 @@ function parse(test, title) {
         if (pts.length > 0)
             curves.push(pts);
     }
-    if (curves.length == 2) {
+    if (curves.length >= 2) {
         tests.push(curves);
         testTitles.push(title);
     }
@@ -104,8 +157,13 @@ function init(test) {
         }
     }
     var subscale = 1;
-    while ((xmax - xmin) * subscale < 0.1 && (ymax - ymin) * subscale < 0.1) {
-        subscale *= 10;
+    if (xmax != xmin && ymax != ymin) {
+        while ((xmax - xmin) * subscale < 0.1 && (ymax - ymin) * subscale < 0.1) {
+            subscale *= 10;
+            if (subscale > 100000) {
+                break;
+            }
+        }
     }
     columns = Math.ceil(xmax) - Math.floor(xmin) + 1;
     rows = Math.ceil(ymax) - Math.floor(ymin) + 1;
@@ -196,7 +254,7 @@ function draw(test, title, _at_x, _at_y, scale) {
             ctx.lineTo(xoffset + curve[6] * unit, yoffset + curve[7] * unit);
         ctx.stroke();
     }
-    // optionally draw fat lines for cruve 
+    // optionally draw fat lines for curve 
     if (fat1)
         drawFat(test[0], xoffset, yoffset, unit);
     if (fat2)

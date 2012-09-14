@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "CurveIntersection.h"
+#include "QuadraticParameterization.h"
 #include "QuadraticUtilities.h"
 
 /* from http://tom.cs.byu.edu/~tom/papers/cvgip84.pdf 4.1
@@ -49,19 +50,10 @@
  *
  */
 
-enum {
-    xx_coeff,
-    xy_coeff,
-    yy_coeff,
-    x_coeff,
-    y_coeff,
-    c_coeff,
-    coeff_count
-};
 
 static bool straight_forward = true;
 
-static void implicit_coefficients(const Quadratic& q, double p[coeff_count]) {
+QuadImplicitForm::QuadImplicitForm(const Quadratic& q) {
     double a, b, c;
     set_abc(&q[0].x, a, b, c);
     double d, e, f;
@@ -103,26 +95,28 @@ static void implicit_coefficients(const Quadratic& q, double p[coeff_count]) {
   * lazily compute the coefficients, comparing the easiest to compute first.
   * xx and yy first; then xy; and so on.
   */
-bool implicit_matches(const Quadratic& one, const Quadratic& two) {
-    double p1[coeff_count]; // a'xx , b'xy , c'yy , d'x , e'y , f
-    double p2[coeff_count];
-    implicit_coefficients(one, p1);
-    implicit_coefficients(two, p2);
+bool QuadImplicitForm::implicit_match(const QuadImplicitForm& p2) const {
     int first = 0;
     for (int index = 0; index < coeff_count; ++index) {
-        if (approximately_zero(p1[index]) || approximately_zero(p2[index])) {
+        if (approximately_zero(p[index]) && approximately_zero(p2.p[index])) {
             first += first == index;
             continue;
         }
         if (first == index) {
             continue;
         }
-        if (!approximately_equal(p1[index] * p2[first],
-                p1[first] * p2[index])) {
+        if (!approximately_equal(p[index] * p2.p[first],
+                p[first] * p2.p[index])) {
             return false;
         }
     }
     return true;
+}
+
+bool implicit_matches(const Quadratic& quad1, const Quadratic& quad2) {
+    QuadImplicitForm i1(quad1);  // a'xx , b'xy , c'yy , d'x , e'y , f
+    QuadImplicitForm i2(quad2);
+    return i1.implicit_match(i2);
 }
 
 static double tangent(const double* quadratic, double t) {
@@ -135,6 +129,8 @@ void tangent(const Quadratic& quadratic, double t, _Point& result) {
     result.x = tangent(&quadratic[0].x, t);
     result.y = tangent(&quadratic[0].y, t);
 }
+
+
 
 // unit test to return and validate parametric coefficients
 #include "QuadraticParameterization_TestUtility.cpp"

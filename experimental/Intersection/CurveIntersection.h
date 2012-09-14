@@ -53,6 +53,11 @@ bool intersect(const Cubic& cubic1, const Cubic& cubic2, Intersections& );
 int intersect(const Cubic& cubic, const _Line& line, double cRange[3], double lRange[3]);
 bool intersect(const Quadratic& q1, const Quadratic& q2, Intersections& );
 int intersect(const Quadratic& quad, const _Line& line, Intersections& );
+// the following flavor uses the implicit form instead of convex hulls
+bool intersect2(const Quadratic& q1, const Quadratic& q2, Intersections& i);
+int intersectRay(const Quadratic& quad, const _Line& line, Intersections& i);
+
+
 bool isLinear(const Quadratic& quad, int startIndex, int endIndex);
 bool isLinear(const Cubic& cubic, int startIndex, int endIndex);
 double leftMostT(const Cubic& , double startT, double endT);
