@@ -52,7 +52,7 @@ protected:
         // Finally we play the part of that second picture that should be green into the canvas.
         canvas->save();
         canvas->translate(extents / 2, -(offset - extents / 2));
-        canvas->drawPicture(pict2);
+        pict2.draw(canvas);
         canvas->restore();
 
         // If the image is red, we erroneously decided the clipPath was empty and didn't record
