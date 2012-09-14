@@ -37,6 +37,7 @@ class GrContext;
 
 #include "SkGPipe.h"
 #include "SamplePipeControllers.h"
+#include "TransitionView.h"
 
 SK_DEFINE_INST_COUNT(SampleWindow::DeviceManager)
 
@@ -80,7 +81,6 @@ SkTDArray<char> gTempDataStore;
 
 extern SkView* create_overview(int, const SkViewFactory*[]);
 extern bool is_overview(SkView* view);
-extern SkView* create_transition(SkView*, SkView*, int);
 extern bool is_transition(SkView* view);
 
 
