@@ -1322,11 +1322,107 @@ path.close();
     path.close();
 </div>
 
+<div id="testQuadratic21">
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.lineTo(0, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(1, 0, 0, 2);
+    path.close();
+</div>
+
+<div id="testQuadratic22">
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.lineTo(0, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(0, 1, 2, 1);
+    path.close();
+</div>
+
+<div id="testQuadratic23">
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.lineTo(0, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(0, 2, 1, 2);
+    path.close();
+</div>
+
+<div id="testQuadratic24">
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.lineTo(0, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.quadTo(2, 0, 0, 1);
+    path.close();
+</div>
+
+<div id="testQuadratic25">
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 1, 1);
+    path.lineTo(1, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(2, 1, 0, 2);
+    path.close();
+</div>
+
+<div id="testQuadratic26">
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 1, 1);
+    path.lineTo(0, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.close();
+</div>
+
+<div id="testQuadratic27">
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 1, 1);
+    path.lineTo(2, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(2, 1, 0, 2);
+    path.close();
+</div>
+
+<div id="testQuadratic28">
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.lineTo(0, 1);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 2);
+    path.quadTo(1, 2, 0, 3);
+    path.close();
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    testQuadratic28,
+    testQuadratic27,
+    testQuadratic26,
+    testQuadratic25,
+    testQuadratic24,
+    testQuadratic23,
+    testQuadratic22,
+    testQuadratic21,
     testQuadratic20,
     testQuadratic19,
     testQuadratic18,

@@ -42,3 +42,4 @@ void QuadraticCoincidence_Test();
 void QuadraticIntersection_Test();
 void QuadraticParameterization_Test();
 void QuadraticReduceOrder_Test();
+void QuarticRoot_Test();

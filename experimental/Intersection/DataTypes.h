@@ -129,6 +129,17 @@ inline bool approximately_zero_or_more(double x) {
     return x > -FLT_EPSILON;
 }
 
+inline bool approximately_between(double a, double b, double c) {
+    assert(a <= c);
+    return a <= c ? approximately_negative(a - b) && approximately_negative(b - c)
+            : approximately_negative(b - a) && approximately_negative(c - b);
+}
+
+// returns true if (a <= b <= c) || (a >= b >= c)
+inline bool between(double a, double b, double c) {
+    assert(((a <= b && b <= c) || (a >= b && b >= c)) == ((a - b) * (c - b) <= 0));
+    return (a - b) * (c - b) <= 0;
+}
 
 #endif
 
@@ -178,6 +189,12 @@ struct _Rect {
         if (bottom < pt.y) {
             bottom = pt.y;
         }
+    }
+    
+    // FIXME: used by debugging only ?
+    bool contains(const _Point& pt) {
+        return approximately_between(left, pt.x, right)
+                && approximately_between(top, pt.y, bottom);
     }
 
     void set(const _Point& pt) {

@@ -14,6 +14,7 @@ void cubecode_test(int test);
 
 void Intersection_Tests() {
     int testsRun = 0;
+    QuarticRoot_Test();
  //   QuadraticIntersection_Test();
     SimplifyNew_Test();
     Simplify4x4QuadraticsThreaded_Test(testsRun);

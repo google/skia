@@ -13,7 +13,9 @@
 #include "QuadraticUtilities.h"
 #include <algorithm> // for swap
 
-class QuadraticIntersections : public Intersections {
+static const double tClipLimit = 0.8; // http://cagd.cs.byu.edu/~tom/papers/bezclip.pdf see Multiple intersections
+
+class QuadraticIntersections {
 public:
 
 QuadraticIntersections(const Quadratic& q1, const Quadratic& q2, Intersections& i)
@@ -21,7 +23,8 @@ QuadraticIntersections(const Quadratic& q1, const Quadratic& q2, Intersections& 
     , quad2(q2)
     , intersections(i)
     , depth(0)
-    , splits(0) {
+    , splits(0)
+    , coinMinT1(-1) {
 }
 
 bool intersect() {
@@ -128,6 +131,20 @@ bool intersectAsLine(double minT1, double maxT1, double minT2, double maxT2,
         std::swap(minT1, minT2);
         std::swap(maxT1, maxT2);
     }
+    if (coinMinT1 >= 0) {
+        bool earlyExit;
+        if ((earlyExit = coinMaxT1 == minT1)) {
+            coinMaxT1 = maxT1;
+        }
+        if (coinMaxT2 == minT2) {
+            coinMaxT2 = maxT2;
+            return true;
+        }
+        if (earlyExit) {
+            return true;
+        }
+        coinMinT1 = -1;
+    }
     // do line/quadratic or even line/line intersection instead
     if (treat1AsLine) {
         xy_at_t(quad1, minT1, line1[0].x, line1[0].y);
@@ -138,47 +155,65 @@ bool intersectAsLine(double minT1, double maxT1, double minT2, double maxT2,
         xy_at_t(quad2, maxT2, line2[1].x, line2[1].y);
     }
     int pts;
-    double smallT, largeT;
+    double smallT1, largeT1, smallT2, largeT2;
     if (treat1AsLine & treat2AsLine) {
         double t1[2], t2[2];
         pts = ::intersect(line1, line2, t1, t2);
-        for (int index = 0; index < pts; ++index) {
-            smallT = interp(minT1, maxT1, t1[index]);
-            largeT = interp(minT2, maxT2, t2[index]);
-            if (pts == 2) {
-                intersections.addCoincident(smallT, largeT, true);
-            } else {
-                intersections.add(smallT, largeT);
-            }
+        if (pts == 2) {
+            smallT1 = interp(minT1, maxT1, t1[0]);
+            largeT1 = interp(minT2, maxT2, t2[0]);
+            smallT2 = interp(minT1, maxT1, t1[1]);
+            largeT2 = interp(minT2, maxT2, t2[1]);
+            intersections.addCoincident(smallT1, smallT2, largeT1, largeT2);
+        } else {
+            smallT1 = interp(minT1, maxT1, t1[0]);
+            largeT1 = interp(minT2, maxT2, t2[0]);
+            intersections.add(smallT1, largeT1);
         }
     } else {
         Intersections lq;
         pts = ::intersect(treat1AsLine ? quad2 : quad1,
                 treat1AsLine ? line1 : line2, lq);
-        bool coincident = false;
         if (pts == 2) { // if the line and edge are coincident treat differently
             _Point midQuad, midLine;
             double midQuadT = (lq.fT[0][0] + lq.fT[0][1]) / 2;
             xy_at_t(treat1AsLine ? quad2 : quad1, midQuadT, midQuad.x, midQuad.y);
             double lineT = t_at(treat1AsLine ? line1 : line2, midQuad);
             xy_at_t(treat1AsLine ? line1 : line2, lineT, midLine.x, midLine.y);
-            coincident = approximately_equal(midQuad.x, midLine.x)
-                    && approximately_equal(midQuad.y, midLine.y);
+            if (approximately_equal(midQuad.x, midLine.x)
+                    && approximately_equal(midQuad.y, midLine.y)) {
+                smallT1 = lq.fT[0][0];
+                largeT1 = lq.fT[1][0];
+                smallT2 = lq.fT[0][1];
+                largeT2 = lq.fT[1][1];
+                if (treat2AsLine) {
+                    smallT1 = interp(minT1, maxT1, smallT1);
+                    smallT2 = interp(minT1, maxT1, smallT2);
+                } else {
+                    largeT1 = interp(minT2, maxT2, largeT1);
+                    largeT2 = interp(minT2, maxT2, largeT2);
+                }
+                intersections.addCoincident(smallT1, smallT2, largeT1, largeT2);
+                goto setCoinMinMax;
+            }
         }
         for (int index = 0; index < pts; ++index) {
-            smallT = lq.fT[0][index];
-            largeT = lq.fT[1][index];
-            if (treat1AsLine) {
-                smallT = interp(minT1, maxT1, smallT);
+            smallT1 = lq.fT[0][index];
+            largeT1 = lq.fT[1][index];
+            if (treat2AsLine) {
+                smallT1 = interp(minT1, maxT1, smallT1);
             } else {
-                largeT = interp(minT2, maxT2, largeT);
+                largeT1 = interp(minT2, maxT2, largeT1);
             }
-            if (coincident) {
-                intersections.addCoincident(smallT, largeT, true);
-            } else {
-                intersections.add(smallT, largeT);
-            }
+            intersections.add(smallT1, largeT1);
         }
+    }
+    if (pts > 0) {
+setCoinMinMax:
+        coinMinT1 = minT1;
+        coinMaxT1 = maxT1;
+        coinMinT2 = minT2;
+        coinMaxT2 = maxT2;
     }
     return pts > 0;
 }
@@ -210,7 +245,6 @@ bool chop(double minT1, double maxT1, double minT2, double maxT2, int split) {
 
 private:
 
-static const double tClipLimit = 0.8; // http://cagd.cs.byu.edu/~tom/papers/bezclip.pdf see Multiple intersections
 const Quadratic& quad1;
 const Quadratic& quad2;
 Intersections& intersections;
@@ -218,7 +252,122 @@ int depth;
 int splits;
 double quad1Divisions; // line segments to approximate original within error
 double quad2Divisions;
+double coinMinT1; // range of Ts where approximate line intersected curve
+double coinMaxT1;
+double coinMinT2;
+double coinMaxT2;
 };
+
+#include "LineParameters.h"
+
+static void hackToFixPartialCoincidence(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
+    // look to see if non-coincident data basically has unsortable tangents
+    
+    // look to see if a point between non-coincident data is on the curve
+    int cIndex;
+    for (int uIndex = 0; uIndex < i.fUsed; ) {
+        double bestDist1 = 1;
+        double bestDist2 = 1;
+        int closest1 = -1;
+        int closest2 = -1;
+        for (cIndex = 0; cIndex < i.fCoincidentUsed; ++cIndex) {
+            double dist = fabs(i.fT[0][uIndex] - i.fCoincidentT[0][cIndex]);
+            if (bestDist1 > dist) {
+                bestDist1 = dist;
+                closest1 = cIndex;
+            }
+            dist = fabs(i.fT[1][uIndex] - i.fCoincidentT[1][cIndex]);
+            if (bestDist2 > dist) {
+                bestDist2 = dist;
+                closest2 = cIndex;
+            }
+        }
+        _Line ends;
+        _Point mid;
+        double t1 = i.fT[0][uIndex];
+        xy_at_t(q1, t1, ends[0].x, ends[0].y);
+        xy_at_t(q1, i.fCoincidentT[0][closest1], ends[1].x, ends[1].y);
+        double midT = (t1 + i.fCoincidentT[0][closest1]) / 2;
+        xy_at_t(q1, midT, mid.x, mid.y);
+        LineParameters params;
+        params.lineEndPoints(ends);
+        double midDist = params.pointDistance(mid);
+        // Note that we prefer to always measure t error, which does not scale,
+        // instead of point error, which is scale dependent. FIXME
+        if (!approximately_zero(midDist)) {
+            ++uIndex;
+            continue;
+        }
+        double t2 = i.fT[1][uIndex];
+        xy_at_t(q2, t2, ends[0].x, ends[0].y);
+        xy_at_t(q2, i.fCoincidentT[1][closest2], ends[1].x, ends[1].y);
+        midT = (t2 + i.fCoincidentT[1][closest2]) / 2;
+        xy_at_t(q2, midT, mid.x, mid.y);
+        params.lineEndPoints(ends);
+        midDist = params.pointDistance(mid);
+        if (!approximately_zero(midDist)) {
+            ++uIndex;
+            continue;
+        }
+        // if both midpoints are close to the line, lengthen coincident span
+        int cEnd = closest1 ^ 1; // assume coincidence always travels in pairs
+        if (!between(i.fCoincidentT[0][cEnd], t1, i.fCoincidentT[0][closest1])) {
+            i.fCoincidentT[0][closest1] = t1;
+        }
+        cEnd = closest2 ^ 1;
+        if (!between(i.fCoincidentT[0][cEnd], t2, i.fCoincidentT[0][closest2])) {
+            i.fCoincidentT[0][closest2] = t2;
+        }
+        int remaining = --i.fUsed - uIndex;
+        if (remaining > 0) {
+            memmove(&i.fT[0][uIndex], &i.fT[0][uIndex + 1], sizeof(i.fT[0][0]) * remaining);
+            memmove(&i.fT[1][uIndex], &i.fT[1][uIndex + 1], sizeof(i.fT[1][0]) * remaining);
+        }
+    }
+    // if coincident data is subjectively a tiny span, replace it with a single point
+    for (cIndex = 0; cIndex < i.fCoincidentUsed; ) {
+        double start1 = i.fCoincidentT[0][cIndex];
+        double end1 = i.fCoincidentT[0][cIndex + 1];
+        _Line ends1;
+        xy_at_t(q1, start1, ends1[0].x, ends1[0].y);
+        xy_at_t(q1, end1, ends1[1].x, ends1[1].y);
+        if (!approximately_equal(ends1[0].x, ends1[1].x) || approximately_equal(ends1[0].y, ends1[1].y)) {
+            cIndex += 2;
+            continue;
+        }
+        double start2 = i.fCoincidentT[1][cIndex];
+        double end2 = i.fCoincidentT[1][cIndex + 1];
+        _Line ends2;
+        xy_at_t(q2, start2, ends2[0].x, ends2[0].y);
+        xy_at_t(q2, end2, ends2[1].x, ends2[1].y);
+        // again, approximately should be used with T values, not points FIXME
+        if (!approximately_equal(ends2[0].x, ends2[1].x) || approximately_equal(ends2[0].y, ends2[1].y)) {
+            cIndex += 2;
+            continue;
+        }
+        if (approximately_less_than_zero(start1) || approximately_less_than_zero(end1)) {
+            start1 = 0;
+        } else if (approximately_greater_than_one(start1) || approximately_greater_than_one(end1)) {
+            start1 = 1;
+        } else {
+            start1 = (start1 + end1) / 2;
+        }
+        if (approximately_less_than_zero(start2) || approximately_less_than_zero(end2)) {
+            start2 = 0;
+        } else if (approximately_greater_than_one(start2) || approximately_greater_than_one(end2)) {
+            start2 = 1;
+        } else {
+            start2 = (start2 + end2) / 2;
+        }
+        i.insert(start1, start2);
+        i.fCoincidentUsed -= 2;
+        int remaining = i.fCoincidentUsed - cIndex;
+        if (remaining > 0) {
+            memmove(&i.fCoincidentT[0][cIndex], &i.fCoincidentT[0][cIndex + 2], sizeof(i.fCoincidentT[0][0]) * remaining);
+            memmove(&i.fCoincidentT[1][cIndex], &i.fCoincidentT[1][cIndex + 2], sizeof(i.fCoincidentT[1][0]) * remaining);
+        }
+    }
+}
 
 bool intersect(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
     if (implicit_matches(q1, q2)) {
@@ -227,64 +376,28 @@ bool intersect(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
         bool useVertical = fabs(q1[0].x - q1[2].x) < fabs(q1[0].y - q1[2].y);
         double t;
         if ((t = axialIntersect(q1, q2[0], useVertical)) >= 0) {
-            i.addCoincident(t, 0, false);
+            i.addCoincident(t, 0);
         }
         if ((t = axialIntersect(q1, q2[2], useVertical)) >= 0) {
-            i.addCoincident(t, 1, false);
+            i.addCoincident(t, 1);
         }
         useVertical = fabs(q2[0].x - q2[2].x) < fabs(q2[0].y - q2[2].y);
         if ((t = axialIntersect(q2, q1[0], useVertical)) >= 0) {
-            i.addCoincident(0, t, false);
+            i.addCoincident(0, t);
         }
         if ((t = axialIntersect(q2, q1[2], useVertical)) >= 0) {
-            i.addCoincident(1, t, false);
+            i.addCoincident(1, t);
         }
         assert(i.fCoincidentUsed <= 2);
         return i.fCoincidentUsed > 0;
     }
     QuadraticIntersections q(q1, q2, i);
-    return q.intersect();
+    bool result = q.intersect();
+    // FIXME: partial coincidence detection is currently poor. For now, try
+    // to fix up the data after the fact. In the future, revisit the error
+    // term to try to avoid this kind of result in the first place.
+    if (i.fUsed && i.fCoincidentUsed) {
+        hackToFixPartialCoincidence(q1, q2, i);
+    }
+    return result;
 }
-
-
-// Another approach is to start with the implicit form of one curve and solve
-// by substituting in the parametric form of the other.
-// The downside of this approach is that early rejects are difficult to come by.
-// http://planetmath.org/encyclopedia/GaloisTheoreticDerivationOfTheQuarticFormula.html#step
-/*
-given x^4 + ax^3 + bx^2 + cx + d
-the resolvent cubic is x^3 - 2bx^2 + (b^2 + ac - 4d)x + (c^2 + a^2d - abc)
-use the cubic formula (CubicRoots.cpp) to find the radical expressions t1, t2, and t3.
-
-(x - r1 r2) (x - r3 r4) = x^2 - (t2 + t3 - t1) / 2 x + d
-s = r1*r2 = ((t2 + t3 - t1) + sqrt((t2 + t3 - t1)^2 - 16*d)) / 4
-t = r3*r4 = ((t2 + t3 - t1) - sqrt((t2 + t3 - t1)^2 - 16*d)) / 4
-
-u = r1+r2 = (-a + sqrt(a^2 - 4*t1)) / 2
-v = r3+r4 = (-a - sqrt(a^2 - 4*t1)) / 2
-
-r1 = (u + sqrt(u^2 - 4*s)) / 2
-r2 = (u - sqrt(u^2 - 4*s)) / 2
-r3 = (v + sqrt(v^2 - 4*t)) / 2
-r4 = (v - sqrt(v^2 - 4*t)) / 2
-*/
-
-
-/* square root of complex number
-http://en.wikipedia.org/wiki/Square_root#Square_roots_of_negative_and_complex_numbers
-Algebraic formula
-When the number is expressed using Cartesian coordinates the following formula
- can be used for the principal square root:[5][6]
-
-sqrt(x + iy) = sqrt((r + x) / 2) +/- i*sqrt((r - x) / 2)
-
-where the sign of the imaginary part of the root is taken to be same as the sign
- of the imaginary part of the original number, and
-
-r = abs(x + iy) = sqrt(x^2 + y^2)
-
-is the absolute value or modulus of the original number. The real part of the
-principal value is always non-negative.
-The other square root is simply –1 times the principal square root; in other
-words, the two square roots of a number sum to 0.
- */
