@@ -126,7 +126,7 @@ static void render_picture(const SkString& inputPath, const SkString& outputDir,
 
     SkDebugf("drawing... [%i %i] %s\n", picture.width(), picture.height(),
              inputPath.c_str());
-    
+
 
     // rescale to avoid memory issues allcoating a very large offscreen
     SkPicture* pic = &picture;
@@ -136,13 +136,13 @@ static void render_picture(const SkString& inputPath, const SkString& outputDir,
     if (area_too_big(picture.width(), picture.height(), &newSize)) {
         pic = new SkPicture;
         aur.reset(pic);
-        
+
         SkCanvas* canvas = pic->beginRecording(newSize.width(), newSize.height());
         SkScalar scale = SkIntToScalar(newSize.width()) / picture.width();
         canvas->scale(scale, scale);
         canvas->drawPicture(picture);
         pic->endRecording();
-        
+
         SkDebugf("... rescaling to [%d %d] to avoid overly large allocations\n",
                  newSize.width(), newSize.height());
     }

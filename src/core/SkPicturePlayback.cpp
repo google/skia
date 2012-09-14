@@ -153,7 +153,7 @@ SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src, SkPictCopyInf
     fMatrices = SkSafeRef(src.fMatrices);
     fRegions = SkSafeRef(src.fRegions);
     fOpData = SkSafeRef(src.fOpData);
-    
+
     fBoundingHierarchy = src.fBoundingHierarchy;
     fStateTree = src.fStateTree;
 
@@ -593,7 +593,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
             fBoundingHierarchy->search(query, &results);
             if (results.count() == 0) { return; }
             SkTQSort<SkPictureStateTree::Draw>(
-                reinterpret_cast<SkPictureStateTree::Draw**>(results.begin()), 
+                reinterpret_cast<SkPictureStateTree::Draw**>(results.begin()),
                 reinterpret_cast<SkPictureStateTree::Draw**>(results.end()-1));
         }
     }
