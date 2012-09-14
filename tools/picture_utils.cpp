@@ -95,7 +95,7 @@ namespace sk_tools {
 
     bool area_too_big(int w, int h, SkISize* newSize) {
         // just a guess, based on what seems to fail on smaller android devices
-        static const int64_t kMaxAreaForMemory = 16 * 1024 * 1024;
+        static const int64_t kMaxAreaForMemory = 4 * 1024 * 1024;
 
         if ((int64_t)w * h > kMaxAreaForMemory) {
             do {
