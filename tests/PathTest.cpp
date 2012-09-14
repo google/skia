@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 #include "Test.h"
+#include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkParse.h"
@@ -15,6 +16,38 @@
 #include "SkReader32.h"
 #include "SkSize.h"
 #include "SkWriter32.h"
+#include "SkSurface.h"
+
+static SkSurface* new_surface(int w, int h) {
+    SkImage::Info info = {
+        w, h, SkImage::kPMColor_ColorType, SkImage::kPremul_AlphaType
+    };
+    return SkSurface::NewRaster(info, NULL);
+}
+
+// Inspired by http://ie.microsoft.com/testdrive/Performance/Chalkboard/
+// which triggered an assert, from a tricky cubic. This test replicates that
+// example, so we can ensure that we handle it (in SkEdge.cpp), and don't
+// assert in the SK_DEBUG build.
+static void test_tricky_cubic(skiatest::Reporter* reporter) {
+    const SkPoint pts[] = {
+        { SkDoubleToScalar(18.8943768),	SkDoubleToScalar(129.121277) },
+        { SkDoubleToScalar(18.8937435),	SkDoubleToScalar(129.121689) },
+        { SkDoubleToScalar(18.8950119),	SkDoubleToScalar(129.120422) },
+        { SkDoubleToScalar(18.5030727),	SkDoubleToScalar(129.13121)  },
+    };
+
+    SkPath path;
+    path.moveTo(pts[0]);
+    path.cubicTo(pts[1], pts[2], pts[3]);
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+
+    SkSurface* surface = new_surface(19, 130);
+    surface->getCanvas()->drawPath(path, paint);
+    surface->unref();
+}
 
 // Inspired by http://code.google.com/p/chromium/issues/detail?id=141651
 //
@@ -1590,6 +1623,7 @@ static void TestPath(skiatest::Reporter* reporter) {
     test_addPoly(reporter);
     test_isfinite(reporter);
     test_isfinite_after_transform(reporter);
+    test_tricky_cubic(reporter);
 }
 
 #include "TestClassDef.h"
