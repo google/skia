@@ -7,12 +7,15 @@
 
 #ifndef picture_utils_DEFINED
 #define picture_utils_DEFINED
-#include "SkTypes.h"
 
+#include "SkTypes.h"
+#include "SkSize.h"
+
+template <typename T> class SkAutoTUnref;
 class SkBitmap;
 class SkFILEStream;
-class SkString;
 class SkPicture;
+class SkString;
 
 namespace sk_tools {
     // since PNG insists on unpremultiplying our alpha, we take no precision
@@ -41,6 +44,14 @@ namespace sk_tools {
     // Specifically, it configures the bitmap, allocates pixels and then
     // erases the pixels to transparent black.
     void setup_bitmap(SkBitmap* bitmap, int width, int height);
+
+    // Determines whether the given dimensions are too large and suggests a new
+    // size.
+    bool area_too_big(int w, int h, SkISize* newSize);
+
+    // Determines whether the given SkPicture is too large and, if so, replaces
+    // it with a new, scaled-down SkPicture.
+    void resize_if_needed(SkAutoTUnref<SkPicture>* aur);
 }
 
 #endif  // picture_utils_DEFINED

@@ -109,17 +109,21 @@ static void run_single_benchmark(const SkString& inputPath,
         return;
     }
 
-    SkPicture picture(&inputStream);
+    SkPicture* picture = SkNEW_ARGS(SkPicture, (&inputStream));
+    SkAutoTUnref<SkPicture> aur(picture);
 
     SkString filename;
     sk_tools::get_basename(&filename, inputPath);
 
     SkString result;
-    result.printf("running bench [%i %i] %s ", picture.width(), picture.height(),
-                  filename.c_str());
+    result.printf("running bench [%i %i] %s ", picture->width(),
+                  picture->height(), filename.c_str());
     gLogger.logProgress(result);
 
-    benchmark.run(&picture);
+    // rescale to avoid memory issues allocating a very large offscreen
+    sk_tools::resize_if_needed(&aur);
+
+    benchmark.run(aur);
 }
 
 static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* inputs,

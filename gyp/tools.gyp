@@ -143,6 +143,7 @@
       'type': 'static_library',
       'sources': [
         '../tools/picture_utils.cpp',
+        '../tools/picture_utils.h',
       ],
       'dependencies': [
         'core.gyp:core',
