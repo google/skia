@@ -69,8 +69,10 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record, bool deepCop
     record.validate();
     const SkWriter32& writer = record.writeStream();
     init();
-    if (writer.size() == 0)
+    if (writer.size() == 0) {
+        fOpData = SkData::NewEmpty();
         return;
+    }
 
     fBoundingHierarchy = record.fBoundingHierarchy;
     fStateTree = record.fStateTree;
