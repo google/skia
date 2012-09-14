@@ -15,7 +15,7 @@
 #include <stdio.h>
 
 // number of bytes (on the stack) to receive the printf result
-static const size_t kBufferSize = 256;
+static const size_t kBufferSize = 512;
 
 #ifdef SK_BUILD_FOR_WIN
     #define VSNPRINTF(buffer, size, format, args) \
