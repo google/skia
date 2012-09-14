@@ -71,7 +71,7 @@ public:
         uint32_t draw();
         static const uint32_t kDrawComplete = SK_MaxU32;
         Iterator() : fPlaybackMatrix(), fValid(false) { }
-        bool isValid() { return fValid; }
+        bool isValid() const { return fValid; }
     private:
         Iterator(const SkTDArray<void*>& draws, SkCanvas* canvas, Node* root);
         // The draws this iterator is associated with

@@ -585,13 +585,15 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
     TextContainer text;
     SkTDArray<void*> results;
 
-    if (fStateTree && fBoundingHierarchy) {
+    if (NULL != fStateTree && NULL != fBoundingHierarchy) {
         SkRect clipBounds;
         if (canvas.getClipBounds(&clipBounds)) {
             SkIRect query;
             clipBounds.roundOut(&query);
             fBoundingHierarchy->search(query, &results);
-            if (results.count() == 0) { return; }
+            if (results.count() == 0) {
+                return;
+            }
             SkTQSort<SkPictureStateTree::Draw>(
                 reinterpret_cast<SkPictureStateTree::Draw**>(results.begin()),
                 reinterpret_cast<SkPictureStateTree::Draw**>(results.end()-1));
@@ -604,7 +606,9 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
 
     if (it.isValid()) {
         uint32_t off = it.draw();
-        if (off == SK_MaxU32) { return; }
+        if (off == SK_MaxU32) {
+            return;
+        }
         reader.setOffset(off);
     }
 
@@ -857,7 +861,9 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
 
         if (it.isValid()) {
             uint32_t off = it.draw();
-            if (off == SK_MaxU32) { break; }
+            if (off == SK_MaxU32) {
+                break;
+            }
             reader.setOffset(off);
         }
     }
