@@ -133,6 +133,7 @@
         '../src/utils/SkInterpolator.cpp',
         '../include/utils/SkInterpolator.h',
         '../samplecode/TransitionView.cpp',
+        '../samplecode/TransitionView.h',
       ],
       'sources!': [
         '../samplecode/SampleSkLayer.cpp', #relies on SkMatrix44 which doesn't compile

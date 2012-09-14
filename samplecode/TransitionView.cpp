@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "TransitionView.h"
+
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
@@ -186,9 +188,6 @@ private:
     typedef SampleView INHERITED;
 };
 
-// FIXME: this should go in a header
-SkView* create_transition(SkView* prev, SkView* next, int direction);
-
 SkView* create_transition(SkView* prev, SkView* next, int direction) {
     return SkNEW_ARGS(TransitionView, (prev, next, direction));
-};
+}
