@@ -150,6 +150,13 @@ private:
     SkPictureRecord* fRecord;
     SkPicturePlayback* fPlayback;
 
+    /** Used by the R-Tree when kOptimizeForClippedPlayback_RecordingFlag is
+        set, these were empirically determined to produce reasonable performance
+        in most cases.
+    */
+    static const int kRTreeMinChildren = 6;
+    static const int kRTreeMaxChildren = 11;
+
     friend class SkFlatPicture;
     friend class SkPicturePlayback;
 
