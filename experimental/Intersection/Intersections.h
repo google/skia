@@ -118,7 +118,7 @@ public:
             fT[fSwap][index] = val;
         }
     }
-    
+
     void insert(double one, double two) {
         assert(fUsed <= 1 || fT[0][0] < fT[0][1]);
         int index;
@@ -141,7 +141,7 @@ public:
         fT[1][index] = two;
         ++fUsed;
     }
-    
+
     void insertOne(double t, int side) {
         int used = side ? fUsed2 : fUsed;
         assert(used <= 1 || fT[side][0] < fT[side][1]);
@@ -166,7 +166,7 @@ public:
     bool intersected() const {
         return fUsed > 0;
     }
-    
+
     bool insertBalanced() const {
         return fUsed == fUsed2;
     }

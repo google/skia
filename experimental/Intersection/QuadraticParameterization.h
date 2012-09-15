@@ -4,7 +4,7 @@ class QuadImplicitForm {
 public:
     QuadImplicitForm(const Quadratic& q);
     bool implicit_match(const QuadImplicitForm& two) const;
-    
+
     double x2() const { return p[xx_coeff]; }
     double xy() const { return p[xy_coeff]; }
     double y2() const { return p[yy_coeff]; }

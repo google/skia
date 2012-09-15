@@ -31,10 +31,10 @@ static SkSurface* new_surface(int w, int h) {
 // assert in the SK_DEBUG build.
 static void test_tricky_cubic(skiatest::Reporter* reporter) {
     const SkPoint pts[] = {
-        { SkDoubleToScalar(18.8943768),	SkDoubleToScalar(129.121277) },
-        { SkDoubleToScalar(18.8937435),	SkDoubleToScalar(129.121689) },
-        { SkDoubleToScalar(18.8950119),	SkDoubleToScalar(129.120422) },
-        { SkDoubleToScalar(18.5030727),	SkDoubleToScalar(129.13121)  },
+        { SkDoubleToScalar(18.8943768),    SkDoubleToScalar(129.121277) },
+        { SkDoubleToScalar(18.8937435),    SkDoubleToScalar(129.121689) },
+        { SkDoubleToScalar(18.8950119),    SkDoubleToScalar(129.120422) },
+        { SkDoubleToScalar(18.5030727),    SkDoubleToScalar(129.13121)  },
     };
 
     SkPath path;

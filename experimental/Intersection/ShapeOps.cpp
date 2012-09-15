@@ -16,7 +16,7 @@ static bool windingIsActive(int winding, int spanWinding, int oppWinding,
             && (!winding || !spanWinding || winding == -spanWinding);
 }
 
-static void bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op, 
+static void bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
         const int aXorMask, const int bXorMask, SkPath& simple) {
     bool firstContour = true;
     do {

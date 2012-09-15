@@ -539,7 +539,7 @@ public:
             SkASSERT(fSide != rh.fSide);
             return fSide < rh.fSide;
         }
-    #if 0 // the following code is a bust. In particular, tangent length doesn't provide a sort 
+    #if 0 // the following code is a bust. In particular, tangent length doesn't provide a sort
         if (y != ry) {
             return (fabs(y) < fabs(ry)) ^ (fSide > 0);
         }
@@ -555,7 +555,7 @@ public:
     #else
         SkASSERT(fVerb == SkPath::kQuad_Verb); // worry about cubics later
         SkASSERT(rh.fVerb == SkPath::kQuad_Verb);
-        // FIXME: until I can think of something better, project a ray perpendicular from the 
+        // FIXME: until I can think of something better, project a ray perpendicular from the
         // end of the shorter tangent through both curves and use the resulting angle to sort
         // FIXME: some of this setup can be moved to set() if it works, or cached if it's expensive
         double len = fTangent1.normalSquared();
@@ -1653,7 +1653,7 @@ public:
         const Span& mSpan = fTs[SkMin32(start, end)];
         return mSpan.fDone;
     }
-    
+
     Segment* findNextOp(SkTDArray<Span*>& chase, bool active,
             int& nextStart, int& nextEnd, int& winding, int& spanWinding, ShapeOp op,
             const int aXorMask, const int bXorMask) {
@@ -1765,7 +1765,7 @@ public:
             SkDebugf("%s [%d] maxWinding=%d sumWinding=%d sign=%d altFlipped=%d\n", __FUNCTION__,
                     nextIndex, maxWinding, sumWinding, nextAngle->sign(), altFlipped);
     #endif
-            
+
             if (!(sumWinding & xorMask) && activeOp(angleIsOp, otherNonZero, op)) {
                 if (!active) {
                     markDone(SkMin32(startIndex, endIndex), outerWinding);
@@ -2603,7 +2603,7 @@ public:
         }
         return -1;
     }
-    
+
     bool operand() const {
         return fOperand;
     }
@@ -2710,7 +2710,7 @@ public:
     SkScalar xAtT(const Span* span) const {
         return xyAtT(span).fX;
     }
-    
+
     const SkPoint& xyAtT(int index) const {
         return xyAtT(&fTs[index]);
     }
@@ -3157,7 +3157,7 @@ public:
     void setOperand(bool isOp) {
         fOperand = isOp;
     }
-    
+
     void setXor(bool isXor) {
         fXor = isXor;
     }
@@ -3441,7 +3441,7 @@ void walk() {
         SkASSERT(fCurrentContour);
         if (verbPtr == endOfFirstHalf) {
             fOperand = true;
-        } 
+        }
     }
 }
 

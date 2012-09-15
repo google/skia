@@ -476,7 +476,7 @@ int SkCubicEdge::updateCubic()
             newx    = fCLastX;
             newy    = fCLastY;
         }
-        
+
         // we want to say SkASSERT(oldy <= newy), but our finite fixedpoint
         // doesn't always achieve that, so we have to explicitly pin it here.
         if (newy < oldy) {

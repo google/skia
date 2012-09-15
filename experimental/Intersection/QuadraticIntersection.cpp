@@ -262,7 +262,7 @@ double coinMaxT2;
 
 static void hackToFixPartialCoincidence(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
     // look to see if non-coincident data basically has unsortable tangents
-    
+
     // look to see if a point between non-coincident data is on the curve
     int cIndex;
     for (int uIndex = 0; uIndex < i.fUsed; ) {
