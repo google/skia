@@ -14,9 +14,9 @@
  *
  *  Jan 26, 1990    Version for Graphics Gems
  *  Oct 11, 1990    Fixed sign problem for negative q's in SolveQuartic
- *  	    	    (reported by Mark Podlipec),
- *  	    	    Old-style function definitions,
- *  	    	    IsZero() as a macro
+ *                  (reported by Mark Podlipec),
+ *                  Old-style function definitions,
+ *                  IsZero() as a macro
  *  Nov 23, 1990    Some systems do not declare acos() and cbrt() in
  *                  <math.h>, though the functions exist in the library.
  *                  If large coefficients are used, EQN_EPS should be
@@ -72,7 +72,7 @@ static int cubicRootsX(const double A, const double B, const double C,
     const double b = C * invA;
     const double c = D * invA;
     /*  substitute x = y - a/3 to eliminate quadric term:
-	x^3 +px + q = 0 */
+    x^3 +px + q = 0 */
     const double a2 = a * a;
     const double Q = (-a2 + b * 3) / 9;
     const double R = (2 * a2 * a - 9 * a * b + 27 * c) / 54;
@@ -84,7 +84,7 @@ static int cubicRootsX(const double A, const double B, const double C,
             s[0] = 0;
             num = 1;
         } else { /* one single and one double solution */
-            
+
             double u = cube_root(-R);
             s[0] = 2 * u;
             s[1] = -u;
@@ -130,13 +130,13 @@ int quarticRoots(const double A, const double B, const double C, const double D,
     const double c = D * invA;
     const double d = E * invA;
     /*  substitute x = y - a/4 to eliminate cubic term:
-	x^4 + px^2 + qx + r = 0 */
+    x^4 + px^2 + qx + r = 0 */
     const double a2 = a * a;
     const double p = -3 * a2 / 8 + b;
     const double q = a2 * a / 8 - a * b / 2 + c;
     const double r = -3 * a2 * a2 / 256 + a2 * b / 16 - a * c / 4 + d;
     if (approximately_zero(r)) {
-	/* no absolute term: y(y^3 + py + q) = 0 */
+    /* no absolute term: y(y^3 + py + q) = 0 */
         num = cubicRootsX(1, 0, p, q, s);
         s[num++] = 0;
     } else {

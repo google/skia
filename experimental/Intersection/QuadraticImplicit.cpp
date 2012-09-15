@@ -14,7 +14,7 @@
 /* given the implicit form 0 = Ax^2 + Bxy + Cy^2 + Dx + Ey + F
  * and given x = at^2 + bt + c  (the parameterized form)
  *           y = dt^2 + et + f
- * then 
+ * then
  * 0 = A(at^2+bt+c)(at^2+bt+c)+B(at^2+bt+c)(dt^2+et+f)+C(dt^2+et+f)(dt^2+et+f)+D(at^2+bt+c)+E(dt^2+et+f)+F
  */
 

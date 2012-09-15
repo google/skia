@@ -190,7 +190,7 @@ struct _Rect {
             bottom = pt.y;
         }
     }
-    
+
     // FIXME: used by debugging only ?
     bool contains(const _Point& pt) {
         return approximately_between(left, pt.x, right)
