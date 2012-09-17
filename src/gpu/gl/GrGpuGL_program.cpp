@@ -259,15 +259,6 @@ void GrGpuGL::flushColorMatrix() {
     }
 }
 
-static const float ONE_OVER_255 = 1.f / 255.f;
-
-#define GR_COLOR_TO_VEC4(color) {\
-    GrColorUnpackR(color) * ONE_OVER_255,\
-    GrColorUnpackG(color) * ONE_OVER_255,\
-    GrColorUnpackB(color) * ONE_OVER_255,\
-    GrColorUnpackA(color) * ONE_OVER_255 \
-}
-
 void GrGpuGL::flushColor(GrColor color) {
     const ProgramDesc& desc = fCurrentProgram->getDesc();
     const GrDrawState& drawState = this->getDrawState();
@@ -280,19 +271,18 @@ void GrGpuGL::flushColor(GrColor color) {
         switch (desc.fColorInput) {
             case ProgramDesc::kAttribute_ColorInput:
                 if (fHWConstAttribColor != color) {
-                    // OpenGL ES only supports the float varieties of
-                    // glVertexAttrib
-                    float c[] = GR_COLOR_TO_VEC4(color);
-                    GL_CALL(VertexAttrib4fv(GrGLProgram::ColorAttributeIdx(),
-                                            c));
+                    // OpenGL ES only supports the float varieties of glVertexAttrib
+                    GrGLfloat c[4];
+                    GrColorToRGBAFloat(color, c);
+                    GL_CALL(VertexAttrib4fv(GrGLProgram::ColorAttributeIdx(), c));
                     fHWConstAttribColor = color;
                 }
                 break;
             case ProgramDesc::kUniform_ColorInput:
                 if (fCurrentProgram->fColor != color) {
-                    // OpenGL ES doesn't support unsigned byte varieties of
-                    // glUniform
-                    float c[] = GR_COLOR_TO_VEC4(color);
+                    // OpenGL ES doesn't support unsigned byte varieties of glUniform
+                    GrGLfloat c[4];
+                    GrColorToRGBAFloat(color, c);
                     GrAssert(kInvalidUniformHandle !=  fCurrentProgram->fUniforms.fColorUni);
                     fCurrentProgram->fUniformManager.set4fv(fCurrentProgram->fUniforms.fColorUni,
                                                             0, 1, c);
@@ -309,7 +299,8 @@ void GrGpuGL::flushColor(GrColor color) {
     UniformHandle filterColorUni = fCurrentProgram->fUniforms.fColorFilterUni;
     if (kInvalidUniformHandle != filterColorUni &&
         fCurrentProgram->fColorFilterColor != drawState.getColorFilterColor()) {
-        float c[] = GR_COLOR_TO_VEC4(drawState.getColorFilterColor());
+        GrGLfloat c[4];
+        GrColorToRGBAFloat(drawState.getColorFilterColor(), c);
         fCurrentProgram->fUniformManager.set4fv(filterColorUni, 0, 1, c);
         fCurrentProgram->fColorFilterColor = drawState.getColorFilterColor();
     }
@@ -330,7 +321,8 @@ void GrGpuGL::flushCoverage(GrColor coverage) {
                 if (fHWConstAttribCoverage != coverage) {
                     // OpenGL ES only supports the float varieties of
                     // glVertexAttrib
-                    float c[] = GR_COLOR_TO_VEC4(coverage);
+                    GrGLfloat c[4];
+                    GrColorToRGBAFloat(coverage, c);
                     GL_CALL(VertexAttrib4fv(GrGLProgram::CoverageAttributeIdx(),
                                             c));
                     fHWConstAttribCoverage = coverage;
@@ -340,7 +332,8 @@ void GrGpuGL::flushCoverage(GrColor coverage) {
                 if (fCurrentProgram->fCoverage != coverage) {
                     // OpenGL ES doesn't support unsigned byte varieties of
                     // glUniform
-                    float c[] = GR_COLOR_TO_VEC4(coverage);
+                    GrGLfloat c[4];
+                    GrColorToRGBAFloat(coverage, c);
                     GrAssert(kInvalidUniformHandle !=  fCurrentProgram->fUniforms.fCoverageUni);
                     fCurrentProgram->fUniformManager.set4fv(fCurrentProgram->fUniforms.fCoverageUni,
                                                             0, 1, c);
