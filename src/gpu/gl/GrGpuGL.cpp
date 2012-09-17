@@ -1986,13 +1986,8 @@ void GrGpuGL::flushBlend(bool isLines,
                  BlendCoeffReferencesConstant(dstCoeff)) &&
                 (!fHWBlendState.fConstColorValid ||
                  fHWBlendState.fConstColor != blendConst)) {
-
-                float c[] = {
-                    GrColorUnpackR(blendConst) / 255.f,
-                    GrColorUnpackG(blendConst) / 255.f,
-                    GrColorUnpackB(blendConst) / 255.f,
-                    GrColorUnpackA(blendConst) / 255.f
-                };
+                GrGLfloat c[4];
+                GrColorToRGBAFloat(blendConst, c);
                 GL_CALL(BlendColor(c[0], c[1], c[2], c[3]));
                 fHWBlendState.fConstColor = blendConst;
                 fHWBlendState.fConstColorValid = true;

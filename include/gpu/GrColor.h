@@ -58,5 +58,14 @@ static inline GrColor GrColorPackRGBA(unsigned r, unsigned g,
  */
 #define GrColor_ILLEGAL     (~(0xFF << GrColor_SHIFT_A))
 
+/** Converts a GrColor to an rgba array of GrGLfloat */
+static inline void GrColorToRGBAFloat(GrColor color, float rgba[4]) {
+    static const float ONE_OVER_255 = 1.f / 255.f;
+    rgba[0] = GrColorUnpackR(color) * ONE_OVER_255;
+    rgba[1] = GrColorUnpackG(color) * ONE_OVER_255;
+    rgba[2] = GrColorUnpackB(color) * ONE_OVER_255;
+    rgba[3] = GrColorUnpackA(color) * ONE_OVER_255;
+}
+
 #endif
 
