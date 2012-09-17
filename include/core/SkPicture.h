@@ -38,10 +38,10 @@ public:
     */
     SkPicture(const SkPicture& src);
     /**
-     *  Recreate a picture that was serialized into a stream. If an error occurs
-     *  the picture will be "empty" : width and height == 0
+     *  Recreate a picture that was serialized into a stream. *success is set to
+     *  true if the picture was deserialized successfully and false otherwise.
      */
-    explicit SkPicture(SkStream*);
+    explicit SkPicture(SkStream*, bool* success = NULL);
     virtual ~SkPicture();
 
     /**
@@ -111,11 +111,6 @@ public:
         is drawn.
     */
     void endRecording();
-
-    /** Returns true if any draw commands have been recorded since the last
-        call to beginRecording.
-    */
-    bool hasRecorded() const;
 
     /** Replays the drawing commands on the specified canvas. This internally
         calls endRecording() if that has not already been called.

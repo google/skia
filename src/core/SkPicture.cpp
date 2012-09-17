@@ -207,10 +207,6 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
     return fRecord;
 }
 
-bool SkPicture::hasRecorded() const {
-    return NULL != fRecord && fRecord->writeStream().size() > 0;
-}
-
 SkCanvas* SkPicture::getRecordingCanvas() const {
     // will be null if we are not recording
     return fRecord;
@@ -246,7 +242,10 @@ void SkPicture::draw(SkCanvas* surface) {
 // V6 : added serialization of SkPath's bounds (and packed its flags tighter)
 #define PICTURE_VERSION     6
 
-SkPicture::SkPicture(SkStream* stream) : SkRefCnt() {
+SkPicture::SkPicture(SkStream* stream, bool* success) : SkRefCnt() {
+    if (success) {
+        *success = false;
+    }
     fRecord = NULL;
     fPlayback = NULL;
     fWidth = fHeight = 0;
@@ -273,6 +272,9 @@ SkPicture::SkPicture(SkStream* stream) : SkRefCnt() {
     // do this at the end, so that they will be zero if we hit an error.
     fWidth = info.fWidth;
     fHeight = info.fHeight;
+    if (success) {
+        *success = true;
+    }
 }
 
 void SkPicture::serialize(SkWStream* stream) const {
