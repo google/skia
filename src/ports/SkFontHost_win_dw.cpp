@@ -688,9 +688,7 @@ SkTypeface* SkCreateTypefaceFromDWriteFont(IDWriteFontFace* fontFace,
                                            StreamFontFileLoader* fontFileLoader = NULL,
                                            IDWriteFontCollectionLoader* fontCollectionLoader = NULL) {
     SkTypeface* face = SkTypefaceCache::FindByProcAndRef(FindByDWriteFont, font);
-    if (face) {
-        face->ref();
-    } else {
+    if (NULL == face) {
         face = DWriteFontTypeface::Create(fontFace, font, fontFamily,
                                           fontFileLoader, fontCollectionLoader);
         SkTypefaceCache::Add(face, get_style(font), fontCollectionLoader != NULL);
