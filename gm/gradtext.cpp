@@ -75,8 +75,6 @@ protected:
     virtual SkISize onISize() { return make_isize(500, 480); }
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
-        SkRect r = SkRect::MakeWH(SkIntToScalar(100), SkIntToScalar(100));
-
 
         paint.setStyle(SkPaint::kFill_Style);
         canvas->drawText("Normal Fill Text", 16, 0, 50, paint);

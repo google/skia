@@ -1521,14 +1521,6 @@ static void test_oval(skiatest::Reporter* reporter) {
 }
 
 static void TestPath(skiatest::Reporter* reporter) {
-    {
-        SkSize size;
-        size.fWidth = 3.4f;
-        size.width();
-        size = SkSize::Make(3,4);
-        SkISize isize = SkISize::Make(3,4);
-    }
-
     SkTSize<SkScalar>::Make(3,4);
 
     SkPath  p, p2;
