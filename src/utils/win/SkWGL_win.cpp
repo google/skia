@@ -118,14 +118,17 @@ int SkWGLExtensions::selectFormat(const int formats[],
     for (int i = 0; i < formatCount; ++i) {
         static const int queryAttrs[] = {
             SK_WGL_COVERAGE_SAMPLES,
+            // Keep COLOR_SAMPLES at the end so it can be skipped
             SK_WGL_COLOR_SAMPLES,
         };
         int answers[2];
-        int queryAttrCnt = supportsCoverage ? 2 : 1;
+        int queryAttrCnt = supportsCoverage ? 
+                                    SK_ARRAY_COUNT(queryAttrs) : 
+                                    SK_ARRAY_COUNT(queryAttrs) - 1;
         this->getPixelFormatAttribiv(dc,
                                      formats[i],
                                      0,
-                                     SK_ARRAY_COUNT(queryAttrs),
+                                     queryAttrCnt,
                                      queryAttrs,
                                      answers);
         rankedFormats[i].fFormat =  formats[i];
