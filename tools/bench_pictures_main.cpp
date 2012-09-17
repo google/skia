@@ -17,7 +17,7 @@
 #include "SkTArray.h"
 #include "picture_utils.h"
 
-const int DEFAULT_REPEATS = 100;
+const int DEFAULT_REPEATS = 1;
 
 static void usage(const char* argv0) {
     SkDebugf("SkPicture benchmarking tool\n");
