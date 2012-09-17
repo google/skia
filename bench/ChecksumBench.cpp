@@ -23,6 +23,7 @@ public:
         for (int i = 0; i < U32COUNT; ++i) {
             fData[i] = rand.nextU();
         }
+        fIsRendering = false;
     }
 
 protected:

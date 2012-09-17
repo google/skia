@@ -17,6 +17,7 @@ class ScalarBench : public SkBenchmark {
 public:
     ScalarBench(void* param, const char name[]) : INHERITED(param) {
         fName.printf("scalar_%s", name);
+        fIsRendering = false;
     }
 
     virtual void performTest() = 0;
@@ -145,6 +146,7 @@ public:
             fPts[i].fX = rand.nextSScalar1();
             fPts[i].fY = rand.nextSScalar1();
         }
+        fIsRendering = false;
     }
 
 protected:

@@ -14,7 +14,7 @@ class MutexBench : public SkBenchmark {
     };
 public:
     MutexBench(void* param) : INHERITED(param) {
-
+        fIsRendering = false;
     }
 protected:
     virtual const char* onGetName() {

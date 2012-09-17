@@ -32,6 +32,7 @@ public:
             }
         }
         fName.printf("decode_%s_%s", gConfigName[c], fname);
+        fIsRendering = false;
     }
 
 protected:
