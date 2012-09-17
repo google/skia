@@ -382,17 +382,17 @@ protected:
             fMatrix.setPerspX(fMatrix.getPerspX());
         }
         SkMatrix inv;
-        bool invertible =
-        fMatrix.invert(&inv);
+        bool invertible = fMatrix.invert(&inv);
         SkASSERT(invertible);
         SkRect transformedRect;
+        // an arbitrary, small, non-zero rect to transform
+        SkRect srcRect = SkRect::MakeWH(SkIntToScalar(10), SkIntToScalar(10));
         if (invertible) {
-            inv.mapRect(&transformedRect, fRect);
+            inv.mapRect(&transformedRect, srcRect);
         }
     }
 private:
     SkMatrix fMatrix;
-    SkRect fRect;
     int fFlags;
     unsigned fIteration;
     typedef MatrixBench INHERITED;
