@@ -56,6 +56,8 @@ public:
                     break;
             }
         }
+
+        fIsRendering = false;
     }
 
 protected:

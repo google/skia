@@ -12,7 +12,9 @@
 
 class WriterBench : public SkBenchmark {
 public:
-    WriterBench(void* param) : INHERITED(param) {}
+    WriterBench(void* param) : INHERITED(param) {
+        fIsRendering = false;
+    }
 
 protected:
     virtual const char* onGetName() SK_OVERRIDE {
