@@ -79,7 +79,7 @@ static void make_output_filepath(SkString* path, const SkString& dir,
     path->append("png");
 }
 
-static void write_output(const SkString& outputDir, const SkString& inputFilename,
+static bool write_output(const SkString& outputDir, const SkString& inputFilename,
                          const sk_tools::PictureRenderer& renderer) {
     SkString outputPath;
     make_output_filepath(&outputPath, outputDir, inputFilename);
@@ -87,9 +87,10 @@ static void write_output(const SkString& outputDir, const SkString& inputFilenam
     if (!isWritten) {
         SkDebugf("Could not write to file %s\n", outputPath.c_str());
     }
+    return isWritten;
 }
 
-static void render_picture(const SkString& inputPath, const SkString& outputDir,
+static bool render_picture(const SkString& inputPath, const SkString& outputDir,
                            sk_tools::PictureRenderer& renderer) {
     SkString inputFilename;
     sk_tools::get_basename(&inputFilename, inputPath);
@@ -98,11 +99,16 @@ static void render_picture(const SkString& inputPath, const SkString& outputDir,
     inputStream.setPath(inputPath.c_str());
     if (!inputStream.isValid()) {
         SkDebugf("Could not open file %s\n", inputPath.c_str());
-        return;
+        return false;
     }
 
-    SkPicture* picture = SkNEW_ARGS(SkPicture, (&inputStream));
+    bool success = false;
+    SkPicture* picture = SkNEW_ARGS(SkPicture, (&inputStream, &success));
     SkAutoTUnref<SkPicture> aur(picture);
+    if (!success) {
+        SkDebugf("Could not read an SkPicture from %s\n", inputPath.c_str());
+        return false;
+    }
 
     SkDebugf("drawing... [%i %i] %s\n", picture->width(), picture->height(),
              inputPath.c_str());
@@ -116,26 +122,30 @@ static void render_picture(const SkString& inputPath, const SkString& outputDir,
 
     renderer.resetState();
 
-    write_output(outputDir, inputFilename, renderer);
+    success = write_output(outputDir, inputFilename, renderer);
 
     renderer.end();
+    return success;
 }
 
-static void process_input(const SkString& input, const SkString& outputDir,
+static int process_input(const SkString& input, const SkString& outputDir,
                           sk_tools::PictureRenderer& renderer) {
     SkOSFile::Iter iter(input.c_str(), "skp");
     SkString inputFilename;
-
+    int failures = 0;
     if (iter.next(&inputFilename)) {
         do {
             SkString inputPath;
             sk_tools::make_filepath(&inputPath, input, inputFilename);
-            render_picture(inputPath, outputDir, renderer);
+            if (!render_picture(inputPath, outputDir, renderer))
+              ++failures;
         } while(iter.next(&inputFilename));
     } else {
         SkString inputPath(input);
-        render_picture(inputPath, outputDir, renderer);
+        if (!render_picture(inputPath, outputDir, renderer))
+          ++failures;
     }
+    return failures;
 }
 
 static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* inputs,
@@ -282,7 +292,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
 }
 
 int main(int argc, char* const argv[]) {
-    SkGraphics::Init();
+    SkAutoGraphics ag;
     SkTArray<SkString> inputs;
     sk_tools::PictureRenderer* renderer = NULL;
 
@@ -290,10 +300,14 @@ int main(int argc, char* const argv[]) {
     SkString outputDir = inputs[inputs.count() - 1];
     SkASSERT(renderer);
 
+    int failures = 0;
     for (int i = 0; i < inputs.count() - 1; i ++) {
-        process_input(inputs[i], outputDir, *renderer);
+        failures += process_input(inputs[i], outputDir, *renderer);
     }
-
+    if (failures != 0) {
+        SkDebugf("Failed to render %i pictures.\n", failures);
+        return 1;
+    }
 #if SK_SUPPORT_GPU
 #if GR_CACHE_STATS
     if (renderer->isUsingGpuDevice()) {
@@ -305,5 +319,4 @@ int main(int argc, char* const argv[]) {
 #endif
 
     SkDELETE(renderer);
-    SkGraphics::Term();
 }

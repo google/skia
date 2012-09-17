@@ -97,7 +97,7 @@ static void usage(const char* argv0) {
 
 SkBenchLogger gLogger;
 
-static void run_single_benchmark(const SkString& inputPath,
+static bool run_single_benchmark(const SkString& inputPath,
                                  sk_tools::PictureBenchmark& benchmark) {
     SkFILEStream inputStream;
 
@@ -106,11 +106,18 @@ static void run_single_benchmark(const SkString& inputPath,
         SkString err;
         err.printf("Could not open file %s\n", inputPath.c_str());
         gLogger.logError(err);
-        return;
+        return false;
     }
 
-    SkPicture* picture = SkNEW_ARGS(SkPicture, (&inputStream));
+    bool success = false;
+    SkPicture* picture = SkNEW_ARGS(SkPicture, (&inputStream, &success));
     SkAutoTUnref<SkPicture> aur(picture);
+    if (!success) {
+        SkString err;
+        err.printf("Could not read an SkPicture from %s\n", inputPath.c_str());
+        gLogger.logError(err);
+        return false;
+    }
 
     SkString filename;
     sk_tools::get_basename(&filename, inputPath);
@@ -124,6 +131,7 @@ static void run_single_benchmark(const SkString& inputPath,
     sk_tools::resize_if_needed(&aur);
 
     benchmark.run(aur);
+    return true;
 }
 
 static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* inputs,
@@ -388,19 +396,23 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     gLogger.logProgress(commandLine);
 }
 
-static void process_input(const SkString& input, sk_tools::PictureBenchmark& benchmark) {
+static int process_input(const SkString& input,
+                         sk_tools::PictureBenchmark& benchmark) {
     SkOSFile::Iter iter(input.c_str(), "skp");
     SkString inputFilename;
-
+    int failures = 0;
     if (iter.next(&inputFilename)) {
         do {
             SkString inputPath;
             sk_tools::make_filepath(&inputPath, input, inputFilename);
-            run_single_benchmark(inputPath, benchmark);
+            if (!run_single_benchmark(inputPath, benchmark))
+                ++failures;
         } while(iter.next(&inputFilename));
     } else {
-          run_single_benchmark(input, benchmark);
+        if (!run_single_benchmark(input, benchmark))
+            ++failures;
     }
+    return failures;
 }
 
 int main(int argc, char* const argv[]) {
@@ -414,7 +426,15 @@ int main(int argc, char* const argv[]) {
 
     parse_commandline(argc, argv, &inputs, &benchmark);
 
+    int failures = 0;
     for (int i = 0; i < inputs.count(); ++i) {
-        process_input(inputs[i], benchmark);
+        failures += process_input(inputs[i], benchmark);
+    }
+
+    if (failures != 0) {
+        SkString err;
+        err.printf("Failed to run %i benchmarks.\n", failures);
+        gLogger.logError(err);
+        return 1;
     }
 }
