@@ -13,6 +13,15 @@
 
 #include "GrTDArray.h"
 
+// GrTDefaultFindFunctor implements the default find behavior for 
+// GrTHashTable (i.e., return the first resource that matches the 
+// provided key)
+template <typename T> class GrTDefaultFindFunctor {
+public:
+    // always accept the first element examined
+    bool operator()(const T* elem) const { return true; }
+};
+
 /**
  *  Key needs
  *      static bool EQ(const Entry&, const HashKey&);
@@ -29,6 +38,7 @@ public:
 
     int count() const { return fSorted.count(); }
     T*  find(const Key&) const;
+    template <typename FindFuncType> T*  find(const Key&, const FindFuncType&) const;
     // return true if key was unique when inserted.
     bool insert(const Key&, T*);
     void remove(const Key&, const T*);
@@ -109,20 +119,43 @@ int GrTHashTable<T, Key, kHashBits>::searchArray(const Key& key) const {
 
 template <typename T, typename Key, size_t kHashBits>
 T* GrTHashTable<T, Key, kHashBits>::find(const Key& key) const {
+    GrTDefaultFindFunctor<T> find;
+
+    return this->find(key, find);
+}
+
+template <typename T, typename Key, size_t kHashBits>
+template <typename FindFuncType>
+T* GrTHashTable<T, Key, kHashBits>::find(const Key& key, const FindFuncType& findFunc) const {
+
     int hashIndex = hash2Index(key.getHash());
     T* elem = fHash[hashIndex];
 
-    if (NULL == elem || !Key::EQ(*elem, key)) {
-        // bsearch for the key in our sorted array
-        int index = this->searchArray(key);
-        if (index < 0) {
-            return NULL;
-        }
-        elem = fSorted[index];
-        // update the hash
-        fHash[hashIndex] = elem;
+    if (NULL != elem && Key::EQ(*elem, key) && findFunc(elem)) {
+        return elem;
+    }                                             
+
+    // bsearch for the key in our sorted array
+    int index = this->searchArray(key);
+    if (index < 0) {
+        return NULL;
     }
-    return elem;
+
+    const T* const* array = fSorted.begin();
+
+    // above search should have found the first occurrence if there
+    // are multiple.
+    GrAssert(0 == index || Key::LT(*array[index - 1], key));
+
+    for ( ; index < count() && Key::EQ(*array[index], key); ++index) {
+        if (findFunc(fSorted[index])) {
+            // update the hash
+            fHash[hashIndex] = fSorted[index];
+            return fSorted[index];
+        }
+    }
+
+    return NULL;
 }
 
 template <typename T, typename Key, size_t kHashBits>
