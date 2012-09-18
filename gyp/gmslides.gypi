@@ -46,6 +46,7 @@
     '../gm/imagefiltersgraph.cpp',
     '../gm/lcdtext.cpp',
     '../gm/linepaths.cpp',
+    '../gm/matrixconvolution.cpp',
     '../gm/morphology.cpp',
     '../gm/ninepatchstretch.cpp',
     '../gm/nocolorbleed.cpp',

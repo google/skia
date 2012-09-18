@@ -33,6 +33,7 @@
     '<(skia_src_path)/effects/SkLayerDrawLooper.cpp',
     '<(skia_src_path)/effects/SkLayerRasterizer.cpp',
     '<(skia_src_path)/effects/SkLightingImageFilter.cpp',
+    '<(skia_src_path)/effects/SkMatrixConvolutionImageFilter.cpp',
     '<(skia_src_path)/effects/SkMorphologyImageFilter.cpp',
     '<(skia_src_path)/effects/SkPaintFlagsDrawFilter.cpp',
     '<(skia_src_path)/effects/SkPixelXorXfermode.cpp',
