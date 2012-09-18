@@ -6,27 +6,27 @@
  */
 #include "TransitionView.h"
 
+#include "OverView.h"
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkTime.h"
 #include "SkInterpolator.h"
 
-extern bool is_overview(SkView* view);
-
 static const char gIsTransitionQuery[] = "is-transition";
 static const char gReplaceTransitionEvt[] = "replace-transition-view";
 
-static bool is_transition(SkView* view) {
+bool is_transition(SkView* view) {
     SkEvent isTransition(gIsTransitionQuery);
     return view->doQuery(&isTransition);
 }
 
 class TransitionView : public SampleView {
     enum {
-//        kDurationMS = 500
+        // kDurationMS = 500
         kDurationMS = 1
     };
+
 public:
     TransitionView(SkView* prev, SkView* next, int direction) : fInterp(4, 2){
         fAnimationDirection = (Direction)(1 << (direction % 8));

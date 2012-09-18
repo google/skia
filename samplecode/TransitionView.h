@@ -12,4 +12,6 @@ class SkView;
 
 SkView* create_transition(SkView* prev, SkView* next, int direction);
 
+bool is_transition(SkView* view);
+
 #endif  // SAMPLECODE_TRANSITIONVIEW_H_

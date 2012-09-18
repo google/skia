@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "OverView.h"
+
 #include "SampleCode.h"
 
 #include "SkCanvas.h"
@@ -69,14 +71,10 @@ private:
     typedef SkView INHERITED;
 };
 
-// FIXME: this should be in a header
-SkView* create_overview(int count, const SkViewFactory* factories[]);
 SkView* create_overview(int count, const SkViewFactory* factories[]) {
     return SkNEW_ARGS(OverView, (count, factories));
 }
 
-// FIXME: this should be in a header
-bool is_overview(SkView* view);
 bool is_overview(SkView* view) {
     SkEvent isOverview(gIsOverview);
     return view->doQuery(&isOverview);

@@ -30,6 +30,7 @@
 
         '../samplecode/ClockFaceView.cpp',
         '../samplecode/OverView.cpp',
+        '../samplecode/OverView.h',
         '../samplecode/Sample2PtRadial.cpp',
         '../samplecode/SampleAll.cpp',
         '../samplecode/SampleAnimator.cpp',

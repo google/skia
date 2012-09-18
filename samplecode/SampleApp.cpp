@@ -37,6 +37,7 @@ class GrContext;
 
 #include "SkGPipe.h"
 #include "SamplePipeControllers.h"
+#include "OverView.h"
 #include "TransitionView.h"
 
 SK_DEFINE_INST_COUNT(SampleWindow::DeviceManager)
@@ -78,11 +79,6 @@ SkTDArray<char> gTempDataStore;
 #else
 //#define DEFAULT_TO_GPU 1
 #endif
-
-extern SkView* create_overview(int, const SkViewFactory*[]);
-extern bool is_overview(SkView* view);
-extern bool is_transition(SkView* view);
-
 
 #define ANIMATING_EVENTTYPE "nextSample"
 #define ANIMATING_DELAY     750
