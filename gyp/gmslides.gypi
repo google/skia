@@ -8,7 +8,6 @@
     '../gm/bitmapcopy.cpp',
     '../gm/bitmapmatrix.cpp',
     '../gm/bitmapfilters.cpp',
-    '../gm/bitmaprect.cpp',
     '../gm/bitmapscroll.cpp',
     '../gm/blend.cpp',
     '../gm/blurs.cpp',

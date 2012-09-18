@@ -134,11 +134,11 @@ private:
 
 class DrawBitmapRect : public SkDrawCommand {
 public:
-    DrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
+    DrawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
             const SkRect& dst, const SkPaint* paint);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
 private:
-    const SkRect* fSrc;
+    const SkIRect* fSrc;
     const SkPaint* fPaint;
     const SkBitmap* fBitmap;
     const SkRect* fDst;
