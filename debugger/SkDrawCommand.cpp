@@ -180,7 +180,7 @@ void DrawBitmapNine::execute(SkCanvas* canvas) {
     canvas->drawBitmapNine(*this->fBitmap, *this->fCenter, *this->fDst, this->fPaint);
 }
 
-DrawBitmapRect::DrawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
+DrawBitmapRect::DrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
         const SkRect& dst, const SkPaint* paint) {
     this->fBitmap = &bitmap;
     this->fSrc = src;
@@ -189,7 +189,7 @@ DrawBitmapRect::DrawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
     this->fDrawType = DRAW_BITMAP_RECT;
 
     this->fInfo.push(SkObjectParser::BitmapToString(bitmap));
-    if (src) this->fInfo.push(SkObjectParser::IRectToString(*src));
+    if (src) this->fInfo.push(SkObjectParser::RectToString(*src));
     this->fInfo.push(SkObjectParser::RectToString(dst));
     if (paint) this->fInfo.push(SkObjectParser::PaintToString(*paint));
 }
