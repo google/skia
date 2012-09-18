@@ -490,14 +490,14 @@ static void drawBitmapRect_rp(SkCanvas* canvas, SkReader32* reader,
     unsigned flags = DrawOp_unpackFlags(op32);
     bool hasPaint = SkToBool(flags & kDrawBitmap_HasPaint_DrawOpFlag);
     bool hasSrc = SkToBool(flags & kDrawBitmap_HasSrcRect_DrawOpFlag);
-    const SkIRect* src;
+    const SkRect* src;
     if (hasSrc) {
-        src = skip<SkIRect>(reader);
+        src = skip<SkRect>(reader);
     } else {
         src = NULL;
     }
     const SkRect* dst = skip<SkRect>(reader);
-    canvas->drawBitmapRect(*holder.getBitmap(), src, *dst, hasPaint ? &state->paint() : NULL);
+    canvas->drawBitmapRectToRect(*holder.getBitmap(), src, *dst, hasPaint ? &state->paint() : NULL);
 }
 
 static void drawSprite_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,

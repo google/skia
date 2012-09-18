@@ -240,7 +240,8 @@ void SkPicture::draw(SkCanvas* surface) {
 // V4 : move SkPictInfo to be the header
 // V5 : don't read/write FunctionPtr on cross-process (we can detect that)
 // V6 : added serialization of SkPath's bounds (and packed its flags tighter)
-#define PICTURE_VERSION     6
+// V7 : changed drawBitmapRect(IRect) to drawBitmapRectToRect(Rect)
+#define PICTURE_VERSION     7
 
 SkPicture::SkPicture(SkStream* stream, bool* success) : SkRefCnt() {
     if (success) {
