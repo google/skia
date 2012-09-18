@@ -18,7 +18,14 @@ class GrGLSingleTextureEffect;
 class GrSingleTextureEffect : public GrCustomStage {
 
 public:
+    /** Uses default texture params (unfiltered, clamp) */
     GrSingleTextureEffect(GrTexture* texture);
+
+    /** Uses default tile mode (clamp) */
+    GrSingleTextureEffect(GrTexture* texture, bool bilerp);
+
+    GrSingleTextureEffect(GrTexture* texture, const GrTextureParams&);
+
     virtual ~GrSingleTextureEffect();
 
     virtual int numTextures() const SK_OVERRIDE;

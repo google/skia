@@ -309,9 +309,9 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
         // if filtering is not desired then we want to ensure all
         // texels in the resampled image are copies of texels from
         // the original.
-        drawState->sampler(0)->reset(SkShader::kClamp_TileMode,
-                                     needsFiltering);
-        drawState->createTextureEffect(0, clampedTexture);
+        drawState->sampler(0)->reset();
+        GrTextureParams params(SkShader::kClamp_TileMode, needsFiltering);
+        drawState->createTextureEffect(0, clampedTexture, params);
 
         static const GrVertexLayout layout =
                             GrDrawTarget::StageTexCoordVertexLayoutBit(0,0);
@@ -1864,7 +1864,6 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
 
     GrPaint paint;
     paint.reset();
-    paint.textureSampler(0)->textureParams()->setBilerp(true);
 
     for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
         paint.textureSampler(0)->matrix()->setIDiv(srcTexture->width(),
@@ -1874,7 +1873,7 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         scale_rect(&dstRect, i < scaleFactorX ? 0.5f : 1.0f,
                             i < scaleFactorY ? 0.5f : 1.0f);
         paint.textureSampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect,
-                                                           (srcTexture)))->unref();
+                                                           (srcTexture, true)))->unref();
         this->drawRectToRect(paint, dstRect, srcRect);
         srcRect = dstRect;
         srcTexture = dstTexture;
@@ -1928,12 +1927,11 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
                                       1, srcIRect.height());
         this->clear(&clearRect, 0x0);
         // FIXME:  This should be mitchell, not bilinear.
-        paint.textureSampler(0)->textureParams()->setBilerp(true);
         paint.textureSampler(0)->matrix()->setIDiv(srcTexture->width(),
                                                    srcTexture->height());
         this->setRenderTarget(dstTexture->asRenderTarget());
         paint.textureSampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect,
-                                                           (srcTexture)))->unref();
+                                                           (srcTexture, true)))->unref();
         SkRect dstRect(srcRect);
         scale_rect(&dstRect, (float) scaleFactorX, (float) scaleFactorY);
         this->drawRectToRect(paint, dstRect, srcRect);

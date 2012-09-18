@@ -19,6 +19,7 @@
 #include "SkPath.h"
 
 enum {
+
     kGlyphMaskStage = GrPaint::kTotalStages,
 };
 
@@ -29,12 +30,12 @@ void GrTextContext::flushGlyphs() {
     GrDrawState* drawState = fDrawTarget->drawState();
     if (fCurrVertex > 0) {
         // setup our sampler state for our text texture/atlas
-        drawState->sampler(kGlyphMaskStage)->reset(SkShader::kRepeat_TileMode,
-                                                   !fExtMatrix.isIdentity());
+        drawState->sampler(kGlyphMaskStage)->reset();
 
         GrAssert(GrIsALIGN4(fCurrVertex));
         GrAssert(fCurrTexture);
-        drawState->createTextureEffect(kGlyphMaskStage, fCurrTexture);
+        GrTextureParams params(SkShader::kRepeat_TileMode, !fExtMatrix.isIdentity());
+        drawState->createTextureEffect(kGlyphMaskStage, fCurrTexture, params);
 
         if (!GrPixelConfigIsAlphaOnly(fCurrTexture->config())) {
             if (kOne_GrBlendCoeff != fPaint.fSrcBlendCoeff ||

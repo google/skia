@@ -503,9 +503,8 @@ private:
 class GrLinearGradient : public GrGradientEffect {
 public:
 
-    GrLinearGradient(GrContext* ctx, const SkLinearGradient& shader,
-                     GrSamplerState* sampler)
-        : INHERITED(ctx, shader, sampler) { }
+    GrLinearGradient(GrContext* ctx, const SkLinearGradient& shader, SkShader::TileMode tm)
+        : INHERITED(ctx, shader, tm) { }
     virtual ~GrLinearGradient() { }
 
     static const char* Name() { return "Linear Gradient"; }
@@ -562,10 +561,7 @@ GrCustomStage* SkLinearGradient::asNewCustomStage(GrContext* context,
                                                   GrSamplerState* sampler) const {
     SkASSERT(NULL != context && NULL != sampler);
     sampler->matrix()->preConcat(fPtsToUnit);
-    sampler->textureParams()->setTileModeX(fTileMode);
-    sampler->textureParams()->setTileModeY(kClamp_TileMode);
-    sampler->textureParams()->setBilerp(true);
-    return SkNEW_ARGS(GrLinearGradient, (context, *this, sampler));
+    return SkNEW_ARGS(GrLinearGradient, (context, *this, fTileMode));
 }
 
 #else

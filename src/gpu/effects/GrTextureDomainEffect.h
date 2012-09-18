@@ -20,8 +20,11 @@ class GrGLTextureDomainEffect;
 class GrTextureDomainEffect : public GrSingleTextureEffect {
 
 public:
+    /** Uses default texture params (no filter, clamp) */
+    GrTextureDomainEffect(GrTexture*, const GrRect& domain);
 
-    GrTextureDomainEffect(GrTexture*, GrRect domain);
+    GrTextureDomainEffect(GrTexture*, const GrRect& domain, const GrTextureParams& params);
+
     virtual ~GrTextureDomainEffect();
 
     static const char* Name() { return "TextureDomain"; }

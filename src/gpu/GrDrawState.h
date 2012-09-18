@@ -181,6 +181,12 @@ public:
         this->sampler(stage)->setCustomStage(
             SkNEW_ARGS(GrSingleTextureEffect, (texture)))->unref();
     }
+    void createTextureEffect(int stage, GrTexture* texture, const GrTextureParams& params) {
+        GrAssert(!this->getSampler(stage).getCustomStage());
+        this->sampler(stage)->setCustomStage(
+            SkNEW_ARGS(GrSingleTextureEffect, (texture, params)))->unref();
+    }
+
 
     bool stagesDisabled() {
         for (int i = 0; i < kNumStages; ++i) {

@@ -500,10 +500,8 @@ private:
 class GrRadialGradient : public GrGradientEffect {
 public:
 
-    GrRadialGradient(GrContext* ctx,
-                     const SkRadialGradient& shader,
-                     GrSamplerState* sampler)
-        : INHERITED(ctx, shader, sampler) {
+    GrRadialGradient(GrContext* ctx, const SkRadialGradient& shader, SkShader::TileMode tm)
+        : INHERITED(ctx, shader, tm) {
     }
 
     virtual ~GrRadialGradient() { }
@@ -562,10 +560,7 @@ GrCustomStage* SkRadialGradient::asNewCustomStage(GrContext* context,
     GrSamplerState* sampler) const {
     SkASSERT(NULL != context && NULL != sampler);
     sampler->matrix()->preConcat(fPtsToUnit);
-    sampler->textureParams()->setTileModeX(fTileMode);
-    sampler->textureParams()->setTileModeY(kClamp_TileMode);
-    sampler->textureParams()->setBilerp(true);
-    return SkNEW_ARGS(GrRadialGradient, (context, *this, sampler));
+    return SkNEW_ARGS(GrRadialGradient, (context, *this, fTileMode));
 }
 
 #else

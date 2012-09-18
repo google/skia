@@ -2024,9 +2024,7 @@ void GrGpuGL::flushBoundTextureAndParams(int stage) {
     const GrCustomStage* customStage = drawState->sampler(stage)->getCustomStage();
     GrGLTexture* nextTexture =  static_cast<GrGLTexture*>(customStage->texture(0));
     if (NULL != nextTexture) {
-        // Currently we always use the texture params from the GrSamplerState. Soon custom stages
-        // will provide their own params.
-        const GrTextureParams& texParams = drawState->getSampler(stage).getTextureParams();
+        const GrTextureParams& texParams = customStage->textureAccess(0).getParams();
         this->flushBoundTextureAndParams(stage, texParams, nextTexture);
     }
 }

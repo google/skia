@@ -718,7 +718,7 @@ void GrGLGradientStage::emitColorLookup(GrGLShaderBuilder* builder,
 
 GrGradientEffect::GrGradientEffect(GrContext* ctx,
                                    const SkGradientShaderBase& shader,
-                                   GrSamplerState* sampler)
+                                   SkShader::TileMode tileMode)
     : fUseTexture (true) {
     // TODO: check for simple cases where we don't need a texture:
     //GradientInfo info;
@@ -737,14 +737,19 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
     fAtlas = GrTextureStripAtlas::GetAtlas(desc);
     GrAssert(NULL != fAtlas);
 
+    // We always filter the gradient table. Each table is one row of a texture, so always y-clamp.
+    GrTextureParams params;
+    params.setBilerp(true);
+    params.setTileModeX(tileMode);
+
     fRow = fAtlas->lockRow(bitmap);
     if (-1 != fRow) {
         fYCoord = fAtlas->getYOffset(fRow) + GR_ScalarHalf *
                   fAtlas->getVerticalScaleFactor();
-        fTextureAccess.reset(fAtlas->getTexture());
+        fTextureAccess.reset(fAtlas->getTexture(), params);
     } else {
-        GrTexture* texture = GrLockCachedBitmapTexture(ctx, bitmap, sampler->textureParams());
-        fTextureAccess.reset(texture);
+        GrTexture* texture = GrLockCachedBitmapTexture(ctx, bitmap, &params);
+        fTextureAccess.reset(texture, params);
         fYCoord = GR_ScalarHalf;
 
         // Unlock immediately, this is not great, but we don't have a way of

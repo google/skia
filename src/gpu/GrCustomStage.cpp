@@ -55,7 +55,7 @@ bool GrCustomStage::isEqual(const GrCustomStage& s) const {
         return false;
     }
     for (int i = 0; i < this->numTextures(); ++i) {
-        if (this->texture(i) != s.texture(i)) {
+        if (this->textureAccess(i) != s.textureAccess(i)) {
             return false;
         }
     }

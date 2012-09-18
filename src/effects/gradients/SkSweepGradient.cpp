@@ -410,9 +410,8 @@ class GrSweepGradient : public GrGradientEffect {
 public:
 
     GrSweepGradient(GrContext* ctx,
-                    const SkSweepGradient& shader,
-                    GrSamplerState* sampler)
-    : INHERITED(ctx, shader, sampler) { }
+                    const SkSweepGradient& shader)
+    : INHERITED(ctx, shader, SkShader::kClamp_TileMode) { }
     virtual ~GrSweepGradient() { }
 
     static const char* Name() { return "Sweep Gradient"; }
@@ -467,10 +466,7 @@ void GrGLSweepGradient::emitFS(GrGLShaderBuilder* builder,
 GrCustomStage* SkSweepGradient::asNewCustomStage(GrContext* context,
     GrSamplerState* sampler) const {
     sampler->matrix()->preConcat(fPtsToUnit);
-    sampler->textureParams()->setTileModeX(fTileMode);
-    sampler->textureParams()->setTileModeY(kClamp_TileMode);
-    sampler->textureParams()->setBilerp(true);
-    return SkNEW_ARGS(GrSweepGradient, (context, *this, sampler));
+    return SkNEW_ARGS(GrSweepGradient, (context, *this));
 }
 
 #else

@@ -370,9 +370,10 @@ private:
 class GrConical2Gradient : public GrGradientEffect {
 public:
 
-    GrConical2Gradient(GrContext* ctx, const SkTwoPointConicalGradient& shader,
-                       GrSamplerState* sampler)
-        : INHERITED(ctx, shader, sampler)
+    GrConical2Gradient(GrContext* ctx,
+                       const SkTwoPointConicalGradient& shader,
+                       SkShader::TileMode tm)
+        : INHERITED(ctx, shader, tm)
         , fCenterX1(shader.getCenterX1())
         , fRadius0(shader.getStartRadius())
         , fDiffRadius(shader.getDiffRadius()) { }
@@ -685,10 +686,7 @@ GrCustomStage* SkTwoPointConicalGradient::asNewCustomStage(
         sampler->matrix()->reset();
     }
     sampler->matrix()->preTranslate(-fCenter1.fX, -fCenter1.fY);
-    sampler->textureParams()->setTileModeX(fTileMode);
-    sampler->textureParams()->setTileModeY(kClamp_TileMode);
-    sampler->textureParams()->setBilerp(true);
-    return SkNEW_ARGS(GrConical2Gradient, (context, *this, sampler));
+    return SkNEW_ARGS(GrConical2Gradient, (context, *this, fTileMode));
 }
 
 #else

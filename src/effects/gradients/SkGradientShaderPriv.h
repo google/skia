@@ -226,8 +226,9 @@ class GrProgramStageFactory;
 class GrGradientEffect : public GrCustomStage {
 public:
 
-    GrGradientEffect(GrContext* ctx, const SkGradientShaderBase& shader,
-                     GrSamplerState* sampler);
+    GrGradientEffect(GrContext* ctx,
+                     const SkGradientShaderBase& shader,
+                     SkShader::TileMode tileMode);
 
     virtual ~GrGradientEffect();
 
