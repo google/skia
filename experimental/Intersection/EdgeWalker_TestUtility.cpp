@@ -136,10 +136,10 @@ static int pathsDrawTheSame(const SkPath& one, const SkPath& two,
     if (!c) {
         delete canvasPtr;
     }
-    if (errors2 >= 3 || errors > 96) {
+    if (errors2 >= 6 || errors > 160) {
         SkDebugf("%s errors2=%d errors=%d\n", __FUNCTION__, errors2, errors);
     }
-    if (errors2 >= 4 || errors > 192) {
+    if (errors2 >= 7) {
         drawAsciiPaths(scaledOne, scaledTwo, true);
     }
     error2x2 = errors2;
@@ -205,7 +205,7 @@ int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap,
     if (errors2x2 == 0) {
         return 0;
     }
-    const int MAX_ERRORS = 5;
+    const int MAX_ERRORS = 8;
     if (errors2x2 > MAX_ERRORS && gComparePathsAssert) {
         SkDebugf("%s errors=%d\n", __FUNCTION__, errors);
         showPath(one);
@@ -271,6 +271,7 @@ bool testSimplifyx(SkPath& path, bool useXor, SkPath& out, State4& state,
     }
     int result = comparePaths(path, out, state.bitmap, state.canvas);
     if (result && gPathStrAssert) {
+        SkDebugf("addTest %s\n", state.filename);
         char temp[8192];
         bzero(temp, sizeof(temp));
         SkMemoryWStream stream(temp, sizeof(temp));
@@ -298,7 +299,7 @@ static int threadIndex;
 State4 threadState[maxThreadsAllocated];
 static int testNumber;
 static const char* testName;
-static bool debugThreads = false;
+static bool debugThreads = true;
 
 State4* State4::queue = NULL;
 pthread_mutex_t State4::addQueue = PTHREAD_MUTEX_INITIALIZER;

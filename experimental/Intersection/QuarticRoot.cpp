@@ -61,6 +61,8 @@ static int quadraticRootsX(const double A, const double B, const double C,
     }
 }
 
+#define USE_GEMS 0
+#if USE_GEMS
 // unlike cubicRoots in CubicUtilities.cpp, this does not discard
 // real roots <= 0 or >= 1
 static int cubicRootsX(const double A, const double B, const double C,
@@ -92,7 +94,7 @@ static int cubicRootsX(const double A, const double B, const double C,
         }
     }
     else if (R2plusQ3 < 0) { /* Casus irreducibilis: three real solutions */
-        const double theta = 1.0/3 * acos(-R / sqrt(-Q3));
+        const double theta = acos(-R / sqrt(-Q3)) / 3;
         const double _2RootQ = 2 * sqrt(-Q);
         s[0] = _2RootQ * cos(theta);
         s[1] = -_2RootQ * cos(theta + PI / 3);
@@ -106,12 +108,84 @@ static int cubicRootsX(const double A, const double B, const double C,
         num = 1;
     }
     /* resubstitute */
-    const double sub = 1.0/3 * a;
+    const double sub = a / 3;
     for (int i = 0; i < num; ++i) {
         s[i] -= sub;
     }
     return num;
 }
+#else
+
+static int cubicRootsX(double A, double B, double C, double D, double s[3]) {
+    if (approximately_zero(A)) {  // we're just a quadratic
+        return quadraticRootsX(B, C, D, s);
+    }
+    if (approximately_zero(D)) {
+        int num = quadraticRootsX(A, B, C, s);
+        for (int i = 0; i < num; ++i) {
+            if (approximately_zero(s[i])) {
+                return num;
+            }
+        }
+        s[num++] = 0;
+        return num;
+    }
+    double a, b, c;
+    {
+        double invA = 1 / A;
+        a = B * invA;
+        b = C * invA;
+        c = D * invA;
+    }
+    double a2 = a * a;
+    double Q = (a2 - b * 3) / 9;
+    double R = (2 * a2 * a - 9 * a * b + 27 * c) / 54;
+    double Q3 = Q * Q * Q;
+    double R2MinusQ3 = R * R - Q3;
+    double adiv3 = a / 3;
+    double r;
+    double* roots = s;
+
+    if (R2MinusQ3 > -FLT_EPSILON / 10 && R2MinusQ3 < FLT_EPSILON / 10 ) {
+        if (approximately_zero(R)) {/* one triple solution */
+            *roots++ = -adiv3;
+        } else { /* one single and one double solution */
+            
+            double u = cube_root(-R);
+            *roots++ = 2 * u - adiv3;
+            *roots++ = -u - adiv3;
+        }
+    }
+    else if (R2MinusQ3 < 0)   // we have 3 real roots
+    {
+        double theta = acos(R / sqrt(Q3));
+        double neg2RootQ = -2 * sqrt(Q);
+
+        r = neg2RootQ * cos(theta / 3) - adiv3;
+        *roots++ = r;
+
+        r = neg2RootQ * cos((theta + 2 * PI) / 3) - adiv3;
+        *roots++ = r;
+
+        r = neg2RootQ * cos((theta - 2 * PI) / 3) - adiv3;
+        *roots++ = r;
+    }
+    else                // we have 1 real root
+    {
+        double A = fabs(R) + sqrt(R2MinusQ3);
+        A = cube_root(A);
+        if (R > 0) {
+            A = -A;
+        }
+        if (A != 0) {
+            A += Q / A;
+        }
+        r = A - adiv3;
+        *roots++ = r;
+    }
+    return (int)(roots - s);
+}
+#endif
 
 int quarticRoots(const double A, const double B, const double C, const double D,
         const double E, double s[4]) {
@@ -121,8 +195,19 @@ int quarticRoots(const double A, const double B, const double C, const double D,
         }
         return cubicRootsX(B, C, D, E, s);
     }
-    double  u, v;
     int num;
+    int i;
+    if (approximately_zero(E)) {
+        num = cubicRootsX(A, B, C, D, s);
+        for (i = 0; i < num; ++i) {
+            if (approximately_zero(s[i])) {
+                return num;
+            }
+        }
+        s[num++] = 0;
+        return num;
+    }
+    double  u, v;
     /* normal form: x^4 + Ax^3 + Bx^2 + Cx + D = 0 */
     const double invA = 1 / A;
     const double a = B * invA;
@@ -165,7 +250,6 @@ int quarticRoots(const double A, const double B, const double C, const double D,
         num += quadraticRootsX(1, q < 0 ? v : -v, z + u, s + num);
     }
     // eliminate duplicates
-    int i;
     for (i = 0; i < num - 1; ++i) {
         for (int j = i + 1; j < num; ) {
             if (approximately_equal(s[i], s[j])) {

@@ -503,8 +503,14 @@ public:
         if (y == 0 && ry == 0 && x * rx < 0) {
             return x < rx;
         }
-        AngleValue cmp = x * ry - rx * y;
+        AngleValue x_ry = x * ry;
+        AngleValue rx_y = rx * y;
+        AngleValue cmp = x_ry - rx_y;
         if (!approximately_zero(cmp)) {
+            return cmp < 0;
+        }
+        if (approximately_zero(x_ry) && approximately_zero(rx_y)
+                && !approximately_zero_squared(cmp)) {
             return cmp < 0;
         }
         // at this point, the initial tangent line is coincident
@@ -536,6 +542,9 @@ public:
         return dx * rdy < rdx * dy;
     #else // new way
         if (fSide * rh.fSide <= 0) {
+            // FIXME: running demo will trigger this assertion
+            // (don't know if commenting out will trigger further assertion or not)
+            // commenting it out allows demo to run in release, though
             SkASSERT(fSide != rh.fSide);
             return fSide < rh.fSide;
         }
@@ -555,21 +564,35 @@ public:
     #else
         SkASSERT(fVerb == SkPath::kQuad_Verb); // worry about cubics later
         SkASSERT(rh.fVerb == SkPath::kQuad_Verb);
-        // FIXME: until I can think of something better, project a ray perpendicular from the
-        // end of the shorter tangent through both curves and use the resulting angle to sort
+        // FIXME: until I can think of something better, project a ray from the 
+        // end of the shorter tangent to midway between the end points
+        // through both curves and use the resulting angle to sort
         // FIXME: some of this setup can be moved to set() if it works, or cached if it's expensive
         double len = fTangent1.normalSquared();
         double rlen = rh.fTangent1.normalSquared();
         SkPoint ray[2];
-        const Quadratic& q = len < rlen ? fQ : rh.fQ;
-        ray[0].fX = SkDoubleToScalar(q[1].x);
-        ray[0].fY = SkDoubleToScalar(q[1].y);
-        ray[1].fX = SkDoubleToScalar((q[0].x + q[2].x) / 2);
-        ray[1].fY = SkDoubleToScalar((q[0].y + q[2].y) / 2);
         Intersections i, ri;
-        int roots = QuadRayIntersect(fPts, ray, i);
+        int roots, rroots;
+        bool flip = false;
+        do {
+            const Quadratic& q = (len < rlen) ^ flip ? fQ : rh.fQ;
+            double midX = (q[0].x + q[2].x) / 2;
+            double midY = (q[0].y + q[2].y) / 2;
+            // FIXME: Ugh! this feels like a huge hack, not sure what else to do
+            while (approximately_equal(q[1].x, midX) && approximately_equal(q[1].y, midY)) {
+                SkASSERT(midX - q[1].x || midY - q[1].y);
+                midX += midX - q[1].x;
+                midY += midY - q[1].y;
+            }
+            ray[0].fX = SkDoubleToScalar(q[1].x);
+            ray[0].fY = SkDoubleToScalar(q[1].y);
+            ray[1].fX = SkDoubleToScalar(midX);
+            ray[1].fY = SkDoubleToScalar(midY);
+            SkASSERT(ray[0] != ray[1]);
+            roots = QuadRayIntersect(fPts, ray, i);
+            rroots = QuadRayIntersect(rh.fPts, ray, ri);
+        } while ((roots == 0 || rroots == 0) && (flip ^= true));
         SkASSERT(roots > 0);
-        int rroots = QuadRayIntersect(rh.fPts, ray, ri);
         SkASSERT(rroots > 0);
         SkPoint loc;
         SkScalar best = SK_ScalarInfinity;
@@ -1499,6 +1522,8 @@ public:
         SkTDArray<Angle> angles;
         addTwoAngles(startIndex, endIndex, angles);
         buildAngles(endIndex, angles);
+        // OPTIMIZATION: check all angles to see if any have computed wind sum
+        // before sorting (early exit if none)
         SkTDArray<Angle*> sorted;
         sortAngles(angles, sorted);
 #if DEBUG_SORT
@@ -1567,13 +1592,15 @@ public:
                 continue;
             }
             SkPoint edge[4];
-            // OPTIMIZE: wrap this so that if start==0 end==fTCount-1 we can
-            // work with the original data directly
             double startT = fTs[start].fT;
             double endT = fTs[end].fT;
             (*SegmentSubDivide[fVerb])(fPts, startT, endT, edge);
             // intersect ray starting at basePt with edge
             Intersections intersections;
+            // FIXME: always use original and limit results to T values within
+            // start t and end t.
+            // OPTIMIZE: use specialty function that intersects ray with curve,
+            // returning t values only for curve (we don't care about t on ray)
             int pts = (*VSegmentIntersect[fVerb])(edge, top, bottom, basePt.fX,
                     false, intersections);
             if (pts == 0) {
@@ -1589,6 +1616,14 @@ public:
                 double testT = startT + (endT - startT) * foundT;
                 (*SegmentXYAtT[fVerb])(fPts, testT, &pt);
                 if (bestY < pt.fY && pt.fY < basePt.fY) {
+                    if (fVerb > SkPath::kLine_Verb
+                            && !approximately_less_than_zero(foundT)
+                            && !approximately_greater_than_one(foundT)) {
+                        SkScalar dx = (*SegmentDXAtT[fVerb])(fPts, testT);
+                        if (approximately_zero(dx)) {
+                            continue;
+                        }
+                    }
                     bestY = pt.fY;
                     bestT = foundT < 1 ? start : end;
                     hitT = testT;
@@ -1760,7 +1795,7 @@ public:
                 otherNonZero = bSumWinding & bXorMask;
             }
             altFlipped ^= lastNonZeroSum * sumWinding < 0; // flip if different signs
-    #if DEBUG_WINDING
+    #if 0 &&  DEBUG_WINDING
             SkASSERT(abs(sumWinding) <= gDebugMaxWindSum);
             SkDebugf("%s [%d] maxWinding=%d sumWinding=%d sign=%d altFlipped=%d\n", __FUNCTION__,
                     nextIndex, maxWinding, sumWinding, nextAngle->sign(), altFlipped);
@@ -1963,7 +1998,7 @@ public:
             nextSegment = nextAngle->segment();
             sumWinding -= nextSegment->spanSign(nextAngle);
             altFlipped ^= lastNonZeroSum * sumWinding < 0; // flip if different signs
-    #if DEBUG_WINDING
+    #if 0 && DEBUG_WINDING
             SkASSERT(abs(sumWinding) <= gDebugMaxWindSum);
             SkDebugf("%s [%d] maxWinding=%d sumWinding=%d sign=%d altFlipped=%d\n", __FUNCTION__,
                     nextIndex, maxWinding, sumWinding, nextAngle->sign(), altFlipped);
@@ -3934,6 +3969,11 @@ static int innerContourCheck(SkTDArray<Contour*>& contourList,
                 continue;
             }
             double indexDx = angle->dx();
+            test = angle->segment();
+            if (test->verb() > SkPath::kLine_Verb && approximately_zero(indexDx)) {
+                const SkPoint* pts = test->pts();
+                indexDx = pts[2].fX - pts[1].fX - indexDx;
+            }
             if (indexDx < 0) {
                 left = index;
             } else if (indexDx > 0) {
@@ -3984,6 +4024,10 @@ static int innerContourCheck(SkTDArray<Contour*>& contourList,
     }
     // see if a + change in T results in a +/- change in X (compute x'(T))
     SkScalar dx = (*SegmentDXAtT[test->verb()])(test->pts(), tHit);
+    if (test->verb() > SkPath::kLine_Verb && approximately_zero(dx)) {
+        const SkPoint* pts = test->pts();
+        dx = pts[2].fX - pts[1].fX - dx;
+    }
 #if DEBUG_WINDING
     SkDebugf("%s dx=%1.9g\n", __FUNCTION__, dx);
 #endif

@@ -28,7 +28,7 @@ int intersect(const _Line& a, const _Line& b, double aRange[2], double bRange[2]
              byLen  * axLen         -   ayLen          * bxLen == 0 ( == denom )
      */
     double denom  = byLen * axLen - ayLen * bxLen;
-    if (approximately_zero_squared(denom)) {
+    if (approximately_zero(denom)) {
        /* See if the axis intercepts match:
                   ay - ax * ayLen / axLen  ==          by - bx * ayLen / axLen
          axLen * (ay - ax * ayLen / axLen) == axLen * (by - bx * ayLen / axLen)

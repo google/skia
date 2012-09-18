@@ -74,6 +74,10 @@ inline bool approximately_zero(float x) {
     return fabs(x) < FLT_EPSILON;
 }
 
+inline bool approximately_zero_squared(double x) {
+    return fabs(x) < FLT_EPSILON * FLT_EPSILON;
+}
+
 inline bool approximately_equal(double x, double y) {
     if (approximately_zero(x - y)) {
         return true;
@@ -99,10 +103,6 @@ inline double approximately_pin(double x) {
 
 inline float approximately_pin(float x) {
     return approximately_zero(x) ? 0 : x;
-}
-
-inline bool approximately_zero_squared(double x) {
-    return approximately_zero(x);
 }
 
 inline bool approximately_greater_than_one(double x) {
