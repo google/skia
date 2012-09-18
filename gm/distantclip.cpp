@@ -37,10 +37,10 @@ protected:
         rec->drawColor(0xffff0000);
         rec->save();
         SkRect r = {
-            SkIntToScalar(-extents), 
-            SkIntToScalar(offset - extents), 
-            SkIntToScalar(extents), 
-            SkIntToScalar(offset + extents) 
+            SkIntToScalar(-extents),
+            SkIntToScalar(offset - extents),
+            SkIntToScalar(extents),
+            SkIntToScalar(offset + extents)
         };
         SkPath p;
         p.addRoundRect(r, 5, 5);
@@ -56,7 +56,7 @@ protected:
 
         // Finally we play the part of that second picture that should be green into the canvas.
         canvas->save();
-        canvas->translate(SkIntToScalar(extents / 2), 
+        canvas->translate(SkIntToScalar(extents / 2),
                           SkIntToScalar(-(offset - extents / 2)));
         pict2.draw(canvas);
         canvas->restore();
