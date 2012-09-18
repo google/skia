@@ -88,6 +88,7 @@
         [ 'skia_os == "ios"', {
           'include_dirs': [
             '../include/utils/ios',
+            '../include/utils/mac',
           ],
           'sources': [
             '../src/ports/SkFontHost_mac_coretext.cpp',

@@ -73,7 +73,7 @@
             '../src/ports/SkImageDecoder_WIC.cpp',
           ],
         }],
-        [ 'skia_os == "mac"', {
+        [ 'skia_os in ["mac", "ios"]', {
           'sources!': [
             '../src/images/SkImageDecoder_Factory.cpp',
             '../src/images/SkImageDecoder_libpng.cpp',
@@ -115,6 +115,11 @@
           'defines': [
             'SK_ENABLE_LIBPNG',
           ],
+        }],
+        [ 'skia_os == "ios"', {
+           'include_dirs': [
+             '../include/utils/mac',
+           ],
         }],
       ],
       'direct_dependent_settings': {
