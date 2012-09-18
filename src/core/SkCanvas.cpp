@@ -1576,13 +1576,12 @@ void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
 }
 
 // this one is non-virtual, so it can be called safely by other canvas apis
-void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
+void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
                                       const SkRect& dst, const SkPaint* paint) {
     if (bitmap.width() == 0 || bitmap.height() == 0 || dst.isEmpty()) {
         return;
     }
 
-    // do this now, to avoid the cost of calling extract for RLE bitmaps
     if (NULL == paint || paint->canComputeFastBounds()) {
         SkRect storage;
         const SkRect* bounds = &dst;
@@ -1594,43 +1593,45 @@ void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkIRect* src
         }
     }
 
-    const SkBitmap* bitmapPtr = &bitmap;
-
     SkMatrix matrix;
-    SkRect tmpSrc;
-    if (src) {
-        tmpSrc.set(*src);
-        // if the extract process clipped off the top or left of the
-        // original, we adjust for that here to get the position right.
-        if (tmpSrc.fLeft > 0) {
-            tmpSrc.fRight -= tmpSrc.fLeft;
-            tmpSrc.fLeft = 0;
+    // Compute matrix from the two rectangles
+    {
+        SkRect tmpSrc;
+        if (src) {
+            tmpSrc = *src;
+            // if the extract process clipped off the top or left of the
+            // original, we adjust for that here to get the position right.
+            if (tmpSrc.fLeft > 0) {
+                tmpSrc.fRight -= tmpSrc.fLeft;
+                tmpSrc.fLeft = 0;
+            }
+            if (tmpSrc.fTop > 0) {
+                tmpSrc.fBottom -= tmpSrc.fTop;
+                tmpSrc.fTop = 0;
+            }
+        } else {
+            tmpSrc.set(0, 0, SkIntToScalar(bitmap.width()),
+                       SkIntToScalar(bitmap.height()));
         }
-        if (tmpSrc.fTop > 0) {
-            tmpSrc.fBottom -= tmpSrc.fTop;
-            tmpSrc.fTop = 0;
-        }
-    } else {
-        tmpSrc.set(0, 0, SkIntToScalar(bitmap.width()),
-                   SkIntToScalar(bitmap.height()));
+        matrix.setRectToRect(tmpSrc, dst, SkMatrix::kFill_ScaleToFit);
     }
-    matrix.setRectToRect(tmpSrc, dst, SkMatrix::kFill_ScaleToFit);
 
     // ensure that src is "valid" before we pass it to our internal routines
     // and to SkDevice. i.e. sure it is contained inside the original bitmap.
-    SkIRect tmpISrc;
+    SkIRect isrcStorage;
+    SkIRect* isrcPtr = NULL;
     if (src) {
-        tmpISrc.set(0, 0, bitmap.width(), bitmap.height());
-        if (!tmpISrc.intersect(*src)) {
+        src->roundOut(&isrcStorage);
+        if (!isrcStorage.intersect(0, 0, bitmap.width(), bitmap.height())) {
             return;
         }
-        src = &tmpISrc;
+        isrcPtr = &isrcStorage;
     }
-    this->internalDrawBitmap(*bitmapPtr, src, matrix, paint);
+    this->internalDrawBitmap(bitmap, isrcPtr, matrix, paint);
 }
 
-void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
-                              const SkRect& dst, const SkPaint* paint) {
+void SkCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
+                                    const SkRect& dst, const SkPaint* paint) {
     SkDEBUGCODE(bitmap.validate();)
     this->internalDrawBitmapRect(bitmap, src, dst, paint);
 }
@@ -1678,8 +1679,12 @@ void SkCanvas::internalDrawBitmapNine(const SkBitmap& bitmap,
     c.fRight = SkPin32(center.fRight, c.fLeft, w);
     c.fBottom = SkPin32(center.fBottom, c.fTop, h);
 
-    const int32_t srcX[4] = { 0, c.fLeft, c.fRight, w };
-    const int32_t srcY[4] = { 0, c.fTop, c.fBottom, h };
+    const SkScalar srcX[4] = {
+        0, SkIntToScalar(c.fLeft), SkIntToScalar(c.fRight), w
+    };
+    const SkScalar srcY[4] = {
+        0, SkIntToScalar(c.fTop), SkIntToScalar(c.fBottom), h
+    };
     SkScalar dstX[4] = {
         dst.fLeft, dst.fLeft + SkIntToScalar(c.fLeft),
         dst.fRight - SkIntToScalar(w - c.fRight), dst.fRight
@@ -1699,9 +1704,9 @@ void SkCanvas::internalDrawBitmapNine(const SkBitmap& bitmap,
         dstY[2] = dstY[1];
     }
 
-    SkIRect s;
-    SkRect  d;
     for (int y = 0; y < 3; y++) {
+        SkRect s, d;
+
         s.fTop = srcY[y];
         s.fBottom = srcY[y+1];
         d.fTop = dstY[y];
