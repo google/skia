@@ -8,6 +8,7 @@
 #include "gm.h"
 
 #include "SkColorPriv.h"
+#include "SkGradientShader.h"
 #include "SkGeometry.h"
 #include "SkShader.h"
 
@@ -311,6 +312,25 @@ static void draw_text(SkCanvas* canvas, bool showGL, int flags) {
     }
 }
 
+static void draw_grad(SkCanvas* canvas, bool showGL, int) {
+    SkPoint gradient_bounds[2];
+    gradient_bounds[0].iset(0, 0);
+    gradient_bounds[1].iset(0, 480);
+
+    SkColor colors[2];
+    colors[0] = 0xFFAB3300; // top
+    colors[1] = 0xFF4F0000; // bottom
+
+    SkShader* shader = SkGradientShader::CreateLinear(gradient_bounds,
+                                                         colors, NULL, 2, SkShader::kClamp_TileMode, NULL);
+
+    SkPaint paint;
+    paint.setShader(shader)->unref();
+    paint.setDither(showGL);
+
+    canvas->drawPaint(paint);
+}
+
 static const struct {
     DrawProc    fProc;
     const char* fName;
@@ -320,6 +340,7 @@ static const struct {
     {   draw_oval,  "Ovals" },
     {   draw_image, "Images" },
     {   draw_text,  "Text" },
+    {   draw_grad,  "Gradient" },
 };
 
 class TalkGM : public skiagm::GM {
@@ -392,6 +413,9 @@ ADD_GM(TalkGM, (3, false))
 ADD_GM(TalkGM, (3, true))
 ADD_GM(TalkGM, (4, false))
 ADD_GM(TalkGM, (4, true))
+
+ADD_GM(TalkGM, (5, false))
+ADD_GM(TalkGM, (5, true))
 
 //static GM* MyFactory(void*) { return new TalkGM(0, false); }
 //static GMRegistry reg(MyFactory);

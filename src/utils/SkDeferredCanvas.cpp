@@ -856,10 +856,10 @@ void SkDeferredCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar left,
     this->recordedDrawCommand();
 }
 
-void SkDeferredCanvas::drawBitmapRectToRect(const SkBitmap& bitmap,
-                                            const SkRect* src,
-                                            const SkRect& dst,
-                                            const SkPaint* paint) {
+void SkDeferredCanvas::drawBitmapRect(const SkBitmap& bitmap,
+                                      const SkIRect* src,
+                                      const SkRect& dst,
+                                      const SkPaint* paint) {
     if (fDeferredDrawing &&
         this->isFullFrame(&dst, paint) &&
         isPaintOpaque(paint, &bitmap)) {
@@ -867,7 +867,7 @@ void SkDeferredCanvas::drawBitmapRectToRect(const SkBitmap& bitmap,
     }
 
     AutoImmediateDrawIfNeeded autoDraw(*this, &bitmap, paint);
-    this->drawingCanvas()->drawBitmapRectToRect(bitmap, src, dst, paint);
+    this->drawingCanvas()->drawBitmapRect(bitmap, src, dst, paint);
     this->recordedDrawCommand();
 }
 

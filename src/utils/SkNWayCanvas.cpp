@@ -194,11 +194,11 @@ void SkNWayCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
     }
 }
 
-void SkNWayCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
+void SkNWayCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
                                   const SkRect& dst, const SkPaint* paint) {
     Iter iter(fList);
     while (iter.next()) {
-        iter->drawBitmapRectToRect(bitmap, src, dst, paint);
+        iter->drawBitmapRect(bitmap, src, dst, paint);
     }
 }
 
