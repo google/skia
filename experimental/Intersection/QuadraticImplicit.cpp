@@ -91,23 +91,26 @@ bool intersect2(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
     double roots1[4], roots2[4];
     int rootCount = findRoots(i2, q1, roots1);
     // OPTIMIZATION: could short circuit here if all roots are < 0 or > 1
-    int rootCount2 = findRoots(i1, q2, roots2);
+#ifndef NDEBUG
+    int rootCount2 = 
+#endif
+        findRoots(i1, q2, roots2);
     assert(rootCount == rootCount2);
     addValidRoots(roots1, rootCount, 0, i);
     addValidRoots(roots2, rootCount, 1, i);
     _Point pts[4];
     bool matches[4];
-    int index;
-    for (index = 0; index < i.fUsed2; ++index) {
-        xy_at_t(q2, i.fT[1][index], pts[index].x, pts[index].y);
-        matches[index] = false;
+    int index, ndex2;
+    for (ndex2 = 0; ndex2 < i.fUsed2; ++ndex2) {
+        xy_at_t(q2, i.fT[1][ndex2], pts[ndex2].x, pts[ndex2].y);
+        matches[ndex2] = false;
     }
     for (index = 0; index < i.fUsed; ) {
         _Point xy;
         xy_at_t(q1, i.fT[0][index], xy.x, xy.y);
-        for (int inner = 0; inner < i.fUsed2; ++inner) {
-             if (approximately_equal(pts[inner].x, xy.x) && approximately_equal(pts[inner].y, xy.y)) {
-                matches[index] = true;
+        for (ndex2 = 0; ndex2 < i.fUsed2; ++ndex2) {
+             if (approximately_equal(pts[ndex2].x, xy.x) && approximately_equal(pts[ndex2].y, xy.y)) {
+                matches[ndex2] = true;
                 goto next;
              }
         }
@@ -118,14 +121,15 @@ bool intersect2(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
     next:
         ++index;
     }
-    for (index = 0; index < i.fUsed2; ) {
-        if (!matches[index]) {
-             if (--i.fUsed2 > index) {
-                memmove(&i.fT[1][index], &i.fT[1][index + 1], (i.fUsed2 - index) * sizeof(i.fT[1][0]));
+    for (ndex2 = 0; ndex2 < i.fUsed2; ) {
+        if (!matches[ndex2]) {
+             if (--i.fUsed2 > ndex2) {
+                memmove(&i.fT[1][ndex2], &i.fT[1][ndex2 + 1], (i.fUsed2 - ndex2) * sizeof(i.fT[1][0]));
+                memmove(&matches[ndex2], &matches[ndex2 + 1], (i.fUsed2 - ndex2) * sizeof(matches[0]));
                 continue;
              }
         }
-        ++index;
+        ++ndex2;
     }
     assert(i.insertBalanced());
     return i.intersected();

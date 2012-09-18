@@ -53,7 +53,7 @@ public:
 
     bool normalize() {
         double normal = sqrt(normalSquared());
-        if (approximately_zero_squared(normal)) {
+        if (approximately_zero(normal)) {
             a = b = c = 0;
             return false;
         }

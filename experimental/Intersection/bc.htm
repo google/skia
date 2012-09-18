@@ -83,11 +83,38 @@ $2 = {{
   }}
 </div>
 
+<div id="quad36">
+(gdb) p fQ
+$2 = {{
+    x = 1.8883839294261275, 
+    y = 2.1108590606904345
+  }, {
+    x = 1.888463903363252, 
+    y = 2.1111576060205435
+  }, {
+    x = 1.8885438199983176, 
+    y = 2.1114561800016824
+  }}
+(gdb) p rh.fQ
+$3 = {{
+    x = 1.8883839294260976, 
+    y = 2.1108590606903377
+  }, {
+    x = 1.8886366953645748, 
+    y = 2.1109850143489544
+  }, {
+    x = 1.8888888888888888, 
+    y = 2.1111111111111112
+  }}
+(gdb) 
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    quad36,
     quad21g,
     quad21a,
     quad21b,
@@ -100,17 +127,23 @@ var testDivs = [
 
 var scale, columns, rows, xStart, yStart;
 
-var ticks = 0.1;
+var ticks = 10;
 var at_x = 13 + 0.5;
 var at_y = 13 + 0.5;
-var decimal_places = 0; // make this 3 to show more precision
-
+var init_decimal_places = 1; // make this 3 to show more precision
+var decimal_places;
 var tests = [];
 var testTitles = [];
 var testIndex = 0;
 var ctx;
 var fat1 = true;
 var fat2 = false;
+var ctl1 = true;
+var ctl2 = false;
+var ctlPts1 = true;
+var ctlPts2 = false;
+var minScale = 1;
+var subscale = 1;
 
 function parse(test, title) {
     var curveStrs = test.split("{{");
@@ -156,22 +189,30 @@ function init(test) {
             ymax = Math.max(ymax, curve[idx + 1]);
         }
     }
-    var subscale = 1;
+    subscale = 1;
+    decimal_places = init_decimal_places;
     if (xmax != xmin && ymax != ymin) {
         while ((xmax - xmin) * subscale < 0.1 && (ymax - ymin) * subscale < 0.1) {
             subscale *= 10;
-            if (subscale > 100000) {
-                break;
-            }
+            decimal_places += 1;
+     //       if (subscale > 100000) {
+     //           break;
+     //       }
         }
     }
-    columns = Math.ceil(xmax) - Math.floor(xmin) + 1;
-    rows = Math.ceil(ymax) - Math.floor(ymin) + 1;
-    xStart = Math.floor(xmin);
-    yStart = Math.floor(ymin);
+    columns = Math.ceil(xmax * subscale) - Math.floor(xmin * subscale) + 1;
+    rows = Math.ceil(ymax * subscale) - Math.floor(ymin * subscale) + 1;
+    
+    xStart = Math.floor(xmin * subscale) / subscale;
+    yStart = Math.floor(ymin * subscale) / subscale;
     var hscale = ctx.canvas.width / columns / ticks;
     var vscale = ctx.canvas.height / rows / ticks;
-    scale = Math.floor(Math.min(hscale, vscale)) * subscale;
+    minScale = Math.floor(Math.min(hscale, vscale));
+    scale = minScale * subscale;
+ //   while (columns < 1000 && rows < 1000) {
+  //      columns *= 2;
+ //       rows *= 2;
+ //   }
 }
 
 function drawPoint(px, py, xoffset, yoffset, unit) {
@@ -197,15 +238,15 @@ function draw(test, title, _at_x, _at_y, scale) {
     for (i = 0; i <= rows * ticks; ++i) {
         ctx.strokeStyle = (i % ticks) != 0 ? "rgb(160,160,160)" : "black";
         ctx.beginPath();
-        ctx.moveTo(_at_x + 0, _at_y + i * scale);
-        ctx.lineTo(_at_x + unit * columns, _at_y + i * scale);
+        ctx.moveTo(_at_x + 0, _at_y + i * minScale);
+        ctx.lineTo(_at_x + unit * columns, _at_y + i * minScale);
         ctx.stroke();
     }
     for (i = 0; i <= columns * ticks; ++i) {
         ctx.strokeStyle = (i % ticks) != 0 ? "rgb(160,160,160)" : "black";
         ctx.beginPath();
-        ctx.moveTo(_at_x + i * scale, _at_y + 0);
-        ctx.lineTo(_at_x + i * scale, _at_y + unit * rows);
+        ctx.moveTo(_at_x + i * minScale, _at_y + 0);
+        ctx.lineTo(_at_x + i * minScale, _at_y + unit * rows);
         ctx.stroke();
     }
  
@@ -215,13 +256,13 @@ function draw(test, title, _at_x, _at_y, scale) {
     ctx.fillStyle = "rgb(40,80,60)"
     for (i = 0; i <= columns; i += (1 / ticks))
     {
-        num = (xoffset - _at_x) / -unit + i; 
-        ctx.fillText(num.toFixed(0), i * unit + _at_y - 5, 10);
+        num = xStart + i / subscale; 
+        ctx.fillText(num.toFixed(decimal_places), xoffset + num * unit - 5, 10);
     }
     for (i = 0; i <= rows; i += (1 / ticks))
     {
-        num = (yoffset - _at_x) / -unit + i; 
-        ctx.fillText(num.toFixed(0), 0, i * unit + _at_y + 0);
+        num = yStart + i / subscale; 
+        ctx.fillText(num.toFixed(decimal_places), 0, yoffset + num * unit + 0);
     }
 
     // draw curve 1 and 2
@@ -259,6 +300,30 @@ function draw(test, title, _at_x, _at_y, scale) {
         drawFat(test[0], xoffset, yoffset, unit);
     if (fat2)
         drawFat(test[1], xoffset, yoffset, unit);
+    if (ctl1)
+        drawCtl(test[0], xoffset, yoffset, unit);
+    if (ctl2)
+        drawCtl(test[1], xoffset, yoffset, unit);
+    if (ctlPts1)
+        drawCtlPts(test[0], xoffset, yoffset, unit);
+    if (ctlPts2)
+        drawCtlPts(test[1], xoffset, yoffset, unit);
+}
+
+function drawCtl(curve, xoffset, yoffset, unit) {
+    var last = curve.length - 2;
+    ctx.strokeStyle = "rgba(0,0,0, 0.5)";
+    ctx.beginPath();
+    ctx.moveTo(xoffset + curve[0] * unit, yoffset + curve[1] * unit);
+    ctx.lineTo(xoffset + curve[2] * unit, yoffset + curve[3] * unit);
+    ctx.lineTo(xoffset + curve[4] * unit, yoffset + curve[5] * unit);
+    ctx.stroke();
+}
+
+function drawCtlPts(curve, xoffset, yoffset, unit) {
+    drawPoint(curve[0], curve[1], xoffset, yoffset, unit);
+    drawPoint(curve[2], curve[3], xoffset, yoffset, unit);
+    drawPoint(curve[4], curve[5], xoffset, yoffset, unit);
 }
 
 function drawFat(curve, xoffset, yoffset, unit) {
@@ -303,6 +368,18 @@ function redraw() {
 function doKeyPress(evt) {
     var char = String.fromCharCode(evt.charCode);
     switch (char) {
+    case 'c':
+        ctl2 ^= true;
+        if (ctl2 == false)
+            ctl1 ^= true;
+        drawTop();
+        break;
+    case 'd':
+        ctlPts2 ^= true;
+        if (ctlPts2 == false)
+            ctlPts1 ^= true;
+        drawTop();
+        break;
     case 'f':
         fat2 ^= true;
         if (fat2 == false)
