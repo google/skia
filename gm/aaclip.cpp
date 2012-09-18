@@ -9,6 +9,43 @@
 #include "SkCanvas.h"
 #include "SkPath.h"
 
+#if 0
+def unpremul(x,alpha):
+assert x <= alpha
+if alpha == 0:
+return 0
+else:
+return math.floor(x*MAXVAL/alpha)
+
+def premul(X,alpha):
+return math.ceil(X*alpha/MAXVAL)
+#endif
+
+static int premul(int r, int a) {
+    SkASSERT(a >= 0 && a <= 255);
+    SkASSERT(r >= 0 && r <= 255);
+    return (int)ceil(r * a / 255.0);
+}
+
+static int unpremul(int r, int a) {
+    SkASSERT(a >= 0 && a <= 255);
+    SkASSERT(r >= 0 && r <= a);
+    if (0 == a) {
+        return 0;
+    }
+    return (int)floor(r * 255.0 / a);
+}
+
+static void test_premul() {
+    for (int a = 0; a <= 255; ++a) {
+        for (int r = 0; r <= a; ++r) {
+            int tmpr = unpremul(r, a);
+            int newr = premul(tmpr, a);
+            SkASSERT(newr == r);
+        }
+    }
+}
+
 static SkCanvas* MakeCanvas(const SkIRect& bounds) {
     SkBitmap bm;
     bm.setConfig(SkBitmap::kARGB_8888_Config, bounds.width(), bounds.height());
@@ -145,7 +182,7 @@ static void draw_rect_tests (SkCanvas* canvas) {
 class AAClipGM : public GM {
 public:
     AAClipGM() {
-
+        test_premul();
     }
 
 protected:

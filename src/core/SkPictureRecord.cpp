@@ -426,12 +426,12 @@ void SkPictureRecord::drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar
     validate();
 }
 
-void SkPictureRecord::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
+void SkPictureRecord::drawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
                             const SkRect& dst, const SkPaint* paint) {
-    addDraw(DRAW_BITMAP_RECT_TO_RECT);
+    addDraw(DRAW_BITMAP_RECT);
     addPaintPtr(paint);
     addBitmap(bitmap);
-    addRectPtr(src);  // may be null
+    addIRectPtr(src);  // may be null
     addRect(dst);
     validate();
 }

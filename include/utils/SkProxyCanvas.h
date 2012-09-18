@@ -50,7 +50,7 @@ public:
     virtual void drawPath(const SkPath& path, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
                             const SkPaint* paint = NULL) SK_OVERRIDE;
-    virtual void drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
+    virtual void drawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
                                 const SkRect& dst, const SkPaint* paint = NULL) SK_OVERRIDE;
     virtual void drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& m,
                                   const SkPaint* paint = NULL) SK_OVERRIDE;

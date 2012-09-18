@@ -221,7 +221,7 @@ public:
     virtual void drawPath(const SkPath& path, const SkPaint&) SK_OVERRIDE;
     virtual void drawBitmap(const SkBitmap&, SkScalar left, SkScalar top,
                             const SkPaint*) SK_OVERRIDE;
-    virtual void drawBitmapRectToRect(const SkBitmap&, const SkRect* src,
+    virtual void drawBitmapRect(const SkBitmap&, const SkIRect* src,
                                 const SkRect& dst, const SkPaint*) SK_OVERRIDE;
     virtual void drawBitmapMatrix(const SkBitmap&, const SkMatrix&,
                                   const SkPaint*) SK_OVERRIDE;
@@ -732,7 +732,7 @@ void SkGPipeCanvas::drawBitmap(const SkBitmap& bm, SkScalar left, SkScalar top,
     }
 }
 
-void SkGPipeCanvas::drawBitmapRectToRect(const SkBitmap& bm, const SkRect* src,
+void SkGPipeCanvas::drawBitmapRect(const SkBitmap& bm, const SkIRect* src,
                                    const SkRect& dst, const SkPaint* paint) {
     NOTIFY_SETUP(this);
     size_t opBytesNeeded = sizeof(SkRect);
@@ -745,9 +745,12 @@ void SkGPipeCanvas::drawBitmapRectToRect(const SkBitmap& bm, const SkRect* src,
         flags = 0;
     }
 
-    if (this->commonDrawBitmap(bm, kDrawBitmapRectToRect_DrawOp, flags, opBytesNeeded, paint)) {
+    if (this->commonDrawBitmap(bm, kDrawBitmapRect_DrawOp, flags, opBytesNeeded, paint)) {
         if (hasSrc) {
-            fWriter.writeRect(*src);
+            fWriter.write32(src->fLeft);
+            fWriter.write32(src->fTop);
+            fWriter.write32(src->fRight);
+            fWriter.write32(src->fBottom);
         }
         fWriter.writeRect(dst);
     }
