@@ -122,8 +122,8 @@ int SkWGLExtensions::selectFormat(const int formats[],
             SK_WGL_COLOR_SAMPLES,
         };
         int answers[2];
-        int queryAttrCnt = supportsCoverage ? 
-                                    SK_ARRAY_COUNT(queryAttrs) : 
+        int queryAttrCnt = supportsCoverage ?
+                                    SK_ARRAY_COUNT(queryAttrs) :
                                     SK_ARRAY_COUNT(queryAttrs) - 1;
         this->getPixelFormatAttribiv(dc,
                                      formats[i],
