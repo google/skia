@@ -11,6 +11,7 @@
 #include "SkPicture.h"
 #include "SkTypes.h"
 #include "SkTDArray.h"
+#include "SkRect.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
 
@@ -147,7 +148,6 @@ public:
     virtual void init(SkPicture* pict) SK_OVERRIDE;
     virtual void render(bool doExtraWorkToDrawToBaseCanvas) SK_OVERRIDE;
     virtual void end() SK_OVERRIDE;
-    void drawTiles();
 
     void setTileWidth(int width) {
         fTileWidth = width;
@@ -194,24 +194,12 @@ public:
         return fTileMinPowerOf2Width;
     }
 
-    int numTiles() const {
-        return fTiles.count();
-    }
-
     void setMultiThreaded(bool multi) {
         fMultiThreaded = multi;
     }
 
-    bool isMultiThreaded() const {
-        return fMultiThreaded;
-    }
-
     void setUsePipe(bool usePipe) {
         fUsePipe = usePipe;
-    }
-
-    bool isUsePipe() const {
-        return fUsePipe;
     }
 
     ~TiledPictureRenderer();
@@ -225,18 +213,11 @@ private:
     double fTileHeightPercentage;
     int fTileMinPowerOf2Width;
 
-    SkTDArray<SkCanvas*> fTiles;
+    SkTDArray<SkRect> fTileRects;
 
-    // Clips the tile to an area that is completely in what the SkPicture says is the
-    // drawn-to area. This is mostly important for tiles on the right and bottom edges
-    // as they may go over this area and the picture may have some commands that
-    // draw outside of this area and so should not actually be written.
-    void clipTile(SkCanvas* tile);
-    void addTile(int tile_x_start, int tile_y_start, int width, int height);
     void setupTiles();
     void setupPowerOf2Tiles();
     void deleteTiles();
-    void copyTilesToCanvas();
 
     typedef PictureRenderer INHERITED;
 };
