@@ -644,9 +644,26 @@ public:
                         image will be drawn
         @param paint    The paint used to draw the bitmap, or NULL
     */
-    virtual void drawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
-                                const SkRect& dst, const SkPaint* paint = NULL);
+    virtual void drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
+                                      const SkRect& dst,
+                                      const SkPaint* paint);
 
+    void drawBitmapRect(const SkBitmap& bitmap, const SkRect& dst,
+                        const SkPaint* paint) {
+        this->drawBitmapRectToRect(bitmap, NULL, dst, paint);
+    }
+
+    void drawBitmapRect(const SkBitmap& bitmap, const SkIRect* isrc,
+                        const SkRect& dst, const SkPaint* paint = NULL) {
+        SkRect realSrcStorage;
+        SkRect* realSrcPtr = NULL;
+        if (isrc) {
+            realSrcStorage.set(*isrc);
+            realSrcPtr = &realSrcStorage;
+        }
+        this->drawBitmapRectToRect(bitmap, realSrcPtr, dst, paint);
+    }
+    
     virtual void drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& m,
                                   const SkPaint* paint = NULL);
 
@@ -993,7 +1010,7 @@ private:
     // canvas apis, without confusing subclasses (like SkPictureRecording)
     void internalDrawBitmap(const SkBitmap&, const SkIRect*, const SkMatrix& m,
                                   const SkPaint* paint);
-    void internalDrawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
+    void internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
                                 const SkRect& dst, const SkPaint* paint);
     void internalDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
                                 const SkRect& dst, const SkPaint* paint);
