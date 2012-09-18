@@ -318,21 +318,21 @@ void SkDumpCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
                SkScalarToFloat(x), SkScalarToFloat(y));
 }
 
-void SkDumpCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
-                                   const SkRect& dst, const SkPaint* paint) {
+void SkDumpCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
+                                        const SkRect& dst, const SkPaint* paint) {
     SkString bs, rs;
     toString(bitmap, &bs);
     toString(dst, &rs);
     // show the src-rect only if its not everything
     if (src && (src->fLeft > 0 || src->fTop > 0 ||
-                src->fRight < bitmap.width() ||
-                src->fBottom < bitmap.height())) {
+                src->fRight < SkIntToScalar(bitmap.width()) ||
+                src->fBottom < SkIntToScalar(bitmap.height()))) {
         SkString ss;
         toString(*src, &ss);
         rs.prependf("%s ", ss.c_str());
     }
 
-    this->dump(kDrawBitmap_Verb, paint, "drawBitmapRect(%s %s)",
+    this->dump(kDrawBitmap_Verb, paint, "drawBitmapRectToRect(%s %s)",
                bs.c_str(), rs.c_str());
 }
 

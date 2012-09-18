@@ -672,12 +672,12 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 const SkPoint& loc = reader.skipT<SkPoint>();
                 canvas.drawBitmap(bitmap, loc.fX, loc.fY, paint);
             } break;
-            case DRAW_BITMAP_RECT: {
+            case DRAW_BITMAP_RECT_TO_RECT: {
                 const SkPaint* paint = getPaint(reader);
                 const SkBitmap& bitmap = getBitmap(reader);
-                const SkIRect* src = this->getIRectPtr(reader);   // may be null
+                const SkRect* src = this->getRectPtr(reader);   // may be null
                 const SkRect& dst = reader.skipT<SkRect>();     // required
-                canvas.drawBitmapRect(bitmap, src, dst, paint);
+                canvas.drawBitmapRectToRect(bitmap, src, dst, paint);
             } break;
             case DRAW_BITMAP_MATRIX: {
                 const SkPaint* paint = getPaint(reader);

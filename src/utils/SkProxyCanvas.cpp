@@ -92,9 +92,9 @@ void SkProxyCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
     fProxy->drawBitmap(bitmap, x, y, paint);
 }
 
-void SkProxyCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
+void SkProxyCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
                                    const SkRect& dst, const SkPaint* paint) {
-    fProxy->drawBitmapRect(bitmap, src, dst, paint);
+    fProxy->drawBitmapRectToRect(bitmap, src, dst, paint);
 }
 
 void SkProxyCanvas::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& m,
