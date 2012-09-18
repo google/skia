@@ -1,4 +1,3 @@
-
 {
   'targets': [
     {
@@ -21,6 +20,7 @@
         '../samplecode/GMSampleView.h',
         '../samplecode/ClockFaceView.cpp',
         '../samplecode/OverView.cpp',
+        '../samplecode/OverView.h',
         '../samplecode/Sample2PtRadial.cpp',
         '../samplecode/SampleAAClip.cpp',
         '../samplecode/SampleAARects.cpp',
