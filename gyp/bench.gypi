@@ -20,6 +20,7 @@
     '../bench/InterpBench.cpp',
     '../bench/MathBench.cpp',
     '../bench/MatrixBench.cpp',
+    '../bench/MatrixConvolutionBench.cpp',
     '../bench/MemoryBench.cpp',
     '../bench/MorphologyBench.cpp',
     '../bench/MutexBench.cpp',
