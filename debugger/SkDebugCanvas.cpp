@@ -183,8 +183,8 @@ void SkDebugCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar left,
     addDrawCommand(new DrawBitmap(bitmap, left, top, paint));
 }
 
-void SkDebugCanvas::drawBitmapRect(const SkBitmap& bitmap,
-        const SkIRect* src, const SkRect& dst, const SkPaint* paint) {
+void SkDebugCanvas::drawBitmapRectToRect(const SkBitmap& bitmap,
+        const SkRect* src, const SkRect& dst, const SkPaint* paint) {
     addDrawCommand(new DrawBitmapRect(bitmap, src, dst, paint));
 }
 

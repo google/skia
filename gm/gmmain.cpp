@@ -1106,6 +1106,7 @@ int main(int argc, char * const argv[]) {
 
             if ((ERROR_NONE == testErrors) && doPipe &&
                 !(gmFlags & GM::kSkipPipe_Flag)) {
+                SkDebugf("test_pipe\n");
                 testErrors |= test_pipe_playback(gm, config,
                                                  forwardRenderedBitmap,
                                                  readPath, diffPath);
