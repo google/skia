@@ -41,6 +41,14 @@ GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture)
     : fTextureAccess(texture) {
 }
 
+GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture, bool bilerp)
+    : fTextureAccess(texture, bilerp) {
+}
+
+GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture, const GrTextureParams& params)
+    : fTextureAccess(texture, params) {
+}
+
 GrSingleTextureEffect::~GrSingleTextureEffect() {
 }
 

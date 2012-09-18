@@ -156,8 +156,12 @@ private:
                           const GrTextureParams& sampler,
                           const SkIRect* srcRectPtr,
                           int* tileSize) const;
-    void internalDrawBitmap(const SkDraw&, const SkBitmap&,
-                            const SkIRect&, const SkMatrix&, GrPaint* grPaint);
+    void internalDrawBitmap(const SkDraw&,
+                            const SkBitmap&,
+                            const SkIRect&,
+                            const SkMatrix&,
+                            const GrTextureParams& params,
+                            GrPaint* grPaint);
 
     /**
      * Returns non-initialized instance.

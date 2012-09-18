@@ -405,9 +405,8 @@ private:
 class GrRadial2Gradient : public GrGradientEffect {
 public:
 
-    GrRadial2Gradient(GrContext* ctx, const SkTwoPointRadialGradient& shader,
-                      GrSamplerState* sampler)
-        : INHERITED(ctx, shader, sampler)
+    GrRadial2Gradient(GrContext* ctx, const SkTwoPointRadialGradient& shader, SkShader::TileMode tm)
+        : INHERITED(ctx, shader, tm)
         , fCenterX1(shader.getCenterX1())
         , fRadius0(shader.getStartRadius())
         , fPosRoot(shader.getDiffRadius() < 0) { }
@@ -660,10 +659,7 @@ GrCustomStage* SkTwoPointRadialGradient::asNewCustomStage(
         sampler->matrix()->reset();
     }
     sampler->matrix()->preConcat(fPtsToUnit);
-    sampler->textureParams()->setTileModeX(fTileMode);
-    sampler->textureParams()->setTileModeY(kClamp_TileMode);
-    sampler->textureParams()->setBilerp(true);
-    return SkNEW_ARGS(GrRadial2Gradient, (context, *this, sampler));
+    return SkNEW_ARGS(GrRadial2Gradient, (context, *this, fTileMode));
 }
 
 #else

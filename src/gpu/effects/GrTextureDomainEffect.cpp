@@ -91,8 +91,15 @@ void GrGLTextureDomainEffect::setData(const GrGLUniformManager& uman,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrTextureDomainEffect::GrTextureDomainEffect(GrTexture* texture, GrRect domain)
+GrTextureDomainEffect::GrTextureDomainEffect(GrTexture* texture, const GrRect& domain)
     : GrSingleTextureEffect(texture)
+    , fTextureDomain(domain) {
+}
+
+GrTextureDomainEffect::GrTextureDomainEffect(GrTexture* texture,
+                                             const GrRect& domain,
+                                             const GrTextureParams& params)
+    : GrSingleTextureEffect(texture, params)
     , fTextureDomain(domain) {
 }
 
