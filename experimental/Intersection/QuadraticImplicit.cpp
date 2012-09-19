@@ -92,7 +92,7 @@ bool intersect2(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
     int rootCount = findRoots(i2, q1, roots1);
     // OPTIMIZATION: could short circuit here if all roots are < 0 or > 1
 #ifndef NDEBUG
-    int rootCount2 = 
+    int rootCount2 =
 #endif
         findRoots(i1, q2, roots2);
     assert(rootCount == rootCount2);

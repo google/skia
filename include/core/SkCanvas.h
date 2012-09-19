@@ -663,7 +663,7 @@ public:
         }
         this->drawBitmapRectToRect(bitmap, realSrcPtr, dst, paint);
     }
-    
+
     virtual void drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& m,
                                   const SkPaint* paint = NULL);
 

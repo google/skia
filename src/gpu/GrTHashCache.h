@@ -13,8 +13,8 @@
 
 #include "GrTDArray.h"
 
-// GrTDefaultFindFunctor implements the default find behavior for 
-// GrTHashTable (i.e., return the first resource that matches the 
+// GrTDefaultFindFunctor implements the default find behavior for
+// GrTHashTable (i.e., return the first resource that matches the
 // provided key)
 template <typename T> class GrTDefaultFindFunctor {
 public:
@@ -133,7 +133,7 @@ T* GrTHashTable<T, Key, kHashBits>::find(const Key& key, const FindFuncType& fin
 
     if (NULL != elem && Key::EQ(*elem, key) && findFunc(elem)) {
         return elem;
-    }                                             
+    }
 
     // bsearch for the key in our sorted array
     int index = this->searchArray(key);

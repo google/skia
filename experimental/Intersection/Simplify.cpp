@@ -564,7 +564,7 @@ public:
     #else
         SkASSERT(fVerb == SkPath::kQuad_Verb); // worry about cubics later
         SkASSERT(rh.fVerb == SkPath::kQuad_Verb);
-        // FIXME: until I can think of something better, project a ray from the 
+        // FIXME: until I can think of something better, project a ray from the
         // end of the shorter tangent to midway between the end points
         // through both curves and use the resulting angle to sort
         // FIXME: some of this setup can be moved to set() if it works, or cached if it's expensive

@@ -30,7 +30,7 @@ public:
 
     /** Construct a matrix convolution image filter.
         @param kernelSize  The kernel size in pixels, in each dimension (N by M).
-        @param kernel      The image processing kernel.  Must contain N * M 
+        @param kernel      The image processing kernel.  Must contain N * M
                            elements, in row order.
         @param gain        A scale factor applied to each pixel after
                            convolution.  This can be used to normalize the

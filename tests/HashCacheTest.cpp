@@ -20,7 +20,7 @@ struct HashElement {
 class GrFindPositivesFunctor {
 public:
     // only return elements with positive values
-    bool operator()(const HashElement* elem) const { 
+    bool operator()(const HashElement* elem) const {
         return elem->fValue > 0;
     }
 };
@@ -28,7 +28,7 @@ public:
 class GrFindNegativesFunctor {
 public:
     // only return elements with negative values
-    bool operator()(const HashElement* elem) const { 
+    bool operator()(const HashElement* elem) const {
         return elem->fValue < 0;
     }
 };
@@ -67,28 +67,28 @@ static void TestHashCache(skiatest::Reporter* reporter, GrContext* context) {
 
     GrTHashTable<HashElement, HashKey, 4> cache;
 
-    HashElement negHashElements[10] = { 
-        { 0,  0 }, 
+    HashElement negHashElements[10] = {
+        { 0,  0 },
         { 1, -1 },
-        { 2, -2 }, 
-        { 3, -3 }, 
-        { 4, -4 }, 
-        { 5, -5 }, 
-        { 6, -6 }, 
-        { 7, -7 }, 
-        { 8, -8 }, 
+        { 2, -2 },
+        { 3, -3 },
+        { 4, -4 },
+        { 5, -5 },
+        { 6, -6 },
+        { 7, -7 },
+        { 8, -8 },
         { 9, -9 }
     };
-    HashElement posHashElements[10] = { 
-        { 0, 0 }, 
+    HashElement posHashElements[10] = {
+        { 0, 0 },
         { 1, 1 },
-        { 2, 2 }, 
-        { 3, 3 }, 
-        { 4, 4 }, 
-        { 5, 5 }, 
-        { 6, 6 }, 
-        { 7, 7 }, 
-        { 8, 8 }, 
+        { 2, 2 },
+        { 3, 3 },
+        { 4, 4 },
+        { 5, 5 },
+        { 6, 6 },
+        { 7, 7 },
+        { 8, 8 },
         { 9, 9 }
     };
 
@@ -117,7 +117,7 @@ static void TestHashCache(skiatest::Reporter* reporter, GrContext* context) {
     }
 
     REPORTER_ASSERT(reporter, 20 == cache.count());
-    
+
     // test out the find functor to find all the positive values
     {
         GrFindPositivesFunctor findPos;
