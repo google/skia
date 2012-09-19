@@ -241,8 +241,8 @@ public:
     bool isFreshFrame();
     size_t storageAllocatedForRecording() const;
     size_t freeMemoryIfPossible(size_t bytesToFree);
-    void flushPending();
-    void contentsCleared();
+    void flushPendingCommands();
+    void skipPendingCommands();
     void setMaxRecordingStorage(size_t);
     void recordedDrawCommand();
 
@@ -359,7 +359,7 @@ DeferredDevice::DeferredDevice(
 }
 
 DeferredDevice::~DeferredDevice() {
-    this->flushPending();
+    this->flushPendingCommands();
     SkSafeUnref(fImmediateCanvas);
 }
 
@@ -385,7 +385,7 @@ void DeferredDevice::setNotificationClient(
     fNotificationClient = notificationClient;
 }
 
-void DeferredDevice::contentsCleared() {
+void DeferredDevice::skipPendingCommands() {
     if (!fRecordingCanvas->isDrawingToLayer()) {
         fFreshFrame = true;
 
@@ -428,7 +428,7 @@ bool DeferredDevice::isFreshFrame() {
     return ret;
 }
 
-void DeferredDevice::flushPending() {
+void DeferredDevice::flushPendingCommands() {
     if (!fPipeController.hasRecorded()) {
         return;
     }
@@ -444,7 +444,7 @@ void DeferredDevice::flushPending() {
 }
 
 void DeferredDevice::flush() {
-    this->flushPending();
+    this->flushPendingCommands();
     fImmediateCanvas->flush();
 }
 
@@ -467,7 +467,7 @@ void DeferredDevice::recordedDrawCommand() {
         size_t tryFree = storageAllocated - fMaxRecordingStorageBytes;
         if (this->freeMemoryIfPossible(tryFree) < tryFree) {
             // Flush is necessary to free more space.
-            this->flushPending();
+            this->flushPendingCommands();
             // Free as much as possible to avoid oscillating around fMaxRecordingStorageBytes
             // which could cause a high flushing frequency.
             this->freeMemoryIfPossible(~0U);
@@ -499,7 +499,7 @@ int DeferredDevice::height() const {
 }
 
 SkGpuRenderTarget* DeferredDevice::accessRenderTarget() {
-    this->flushPending();
+    this->flushPendingCommands();
     return fImmediateDevice->accessRenderTarget();
 }
 
@@ -508,14 +508,14 @@ void DeferredDevice::writePixels(const SkBitmap& bitmap,
 
     if (x <= 0 && y <= 0 && (x + bitmap.width()) >= width() &&
         (y + bitmap.height()) >= height()) {
-        this->contentsCleared();
+        this->skipPendingCommands();
     }
 
     if (SkBitmap::kARGB_8888_Config == bitmap.config() &&
         SkCanvas::kNative_Premul_Config8888 != config8888 &&
         kPMColorAlias != config8888) {
         //Special case config: no deferral
-        this->flushPending();
+        this->flushPendingCommands();
         fImmediateDevice->writePixels(bitmap, x, y, config8888);
         return;
     }
@@ -523,7 +523,7 @@ void DeferredDevice::writePixels(const SkBitmap& bitmap,
     SkPaint paint;
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
     if (shouldDrawImmediately(&bitmap, NULL)) {
-        this->flushPending();
+        this->flushPendingCommands();
         fImmediateCanvas->drawSprite(bitmap, x, y, &paint);
     } else {
         this->recordingCanvas()->drawSprite(bitmap, x, y, &paint);
@@ -533,7 +533,7 @@ void DeferredDevice::writePixels(const SkBitmap& bitmap,
 }
 
 const SkBitmap& DeferredDevice::onAccessBitmap(SkBitmap*) {
-    this->flushPending();
+    this->flushPendingCommands();
     return fImmediateDevice->accessBitmap(false);
 }
 
@@ -552,7 +552,7 @@ SkDevice* DeferredDevice::onCreateCompatibleDevice(
 
 bool DeferredDevice::onReadPixels(
     const SkBitmap& bitmap, int x, int y, SkCanvas::Config8888 config8888) {
-    this->flushPending();
+    this->flushPendingCommands();
     return fImmediateCanvas->readPixels(const_cast<SkBitmap*>(&bitmap),
                                                    x, y, config8888);
 }
@@ -614,7 +614,7 @@ void SkDeferredCanvas::setDeferredDrawing(bool val) {
     if (val != fDeferredDrawing) {
         if (fDeferredDrawing) {
             // Going live.
-            this->getDeferredDevice()->flushPending();
+            this->getDeferredDevice()->flushPendingCommands();
         }
         fDeferredDrawing = val;
     }
@@ -800,7 +800,7 @@ bool SkDeferredCanvas::clipRegion(const SkRegion& deviceRgn,
 void SkDeferredCanvas::clear(SkColor color) {
     // purge pending commands
     if (fDeferredDrawing) {
-        this->getDeferredDevice()->contentsCleared();
+        this->getDeferredDevice()->skipPendingCommands();
     }
 
     this->drawingCanvas()->clear(color);
@@ -810,7 +810,7 @@ void SkDeferredCanvas::clear(SkColor color) {
 void SkDeferredCanvas::drawPaint(const SkPaint& paint) {
     if (fDeferredDrawing && this->isFullFrame(NULL, &paint) &&
         isPaintOpaque(&paint)) {
-        this->getDeferredDevice()->contentsCleared();
+        this->getDeferredDevice()->skipPendingCommands();
     }
     AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     this->drawingCanvas()->drawPaint(paint);
@@ -827,7 +827,7 @@ void SkDeferredCanvas::drawPoints(PointMode mode, size_t count,
 void SkDeferredCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
     if (fDeferredDrawing && this->isFullFrame(&rect, &paint) &&
         isPaintOpaque(&paint)) {
-        this->getDeferredDevice()->contentsCleared();
+        this->getDeferredDevice()->skipPendingCommands();
     }
 
     AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
@@ -848,7 +848,7 @@ void SkDeferredCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar left,
     if (fDeferredDrawing &&
         this->isFullFrame(&bitmapRect, paint) &&
         isPaintOpaque(paint, &bitmap)) {
-        this->getDeferredDevice()->contentsCleared();
+        this->getDeferredDevice()->skipPendingCommands();
     }
 
     AutoImmediateDrawIfNeeded autoDraw(*this, &bitmap, paint);
@@ -863,7 +863,7 @@ void SkDeferredCanvas::drawBitmapRectToRect(const SkBitmap& bitmap,
     if (fDeferredDrawing &&
         this->isFullFrame(&dst, paint) &&
         isPaintOpaque(paint, &bitmap)) {
-        this->getDeferredDevice()->contentsCleared();
+        this->getDeferredDevice()->skipPendingCommands();
     }
 
     AutoImmediateDrawIfNeeded autoDraw(*this, &bitmap, paint);
@@ -902,7 +902,7 @@ void SkDeferredCanvas::drawSprite(const SkBitmap& bitmap, int left, int top,
     if (fDeferredDrawing &&
         this->isFullFrame(&bitmapRect, paint) &&
         isPaintOpaque(paint, &bitmap)) {
-        this->getDeferredDevice()->contentsCleared();
+        this->getDeferredDevice()->skipPendingCommands();
     }
 
     AutoImmediateDrawIfNeeded autoDraw(*this, &bitmap, paint);
