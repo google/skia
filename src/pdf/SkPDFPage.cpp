@@ -23,12 +23,12 @@ void SkPDFPage::finalizePage(SkPDFCatalog* catalog, bool firstPage,
                              SkTDArray<SkPDFObject*>* resourceObjects) {
     if (fContentStream.get() == NULL) {
         insert("Resources", fDevice->getResourceDict());
-        insert("MediaBox", fDevice->getMediaBox().get());
+        SkSafeUnref(this->insert("MediaBox", fDevice->copyMediaBox()));
         if (!SkToBool(catalog->getDocumentFlags() &
                       SkPDFDocument::kNoLinks_Flags)) {
-            SkRefPtr<SkPDFArray> annots = fDevice->getAnnotations();
-            if (annots.get() && annots->size() > 0) {
-                insert("Annots", annots.get());
+            SkPDFArray* annots = fDevice->getAnnotations();
+            if (annots && annots->size() > 0) {
+                insert("Annots", annots);
             }
         }
 

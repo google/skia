@@ -546,6 +546,7 @@ SkPDFDevice::~SkPDFDevice() {
 }
 
 void SkPDFDevice::init() {
+    fAnnotations = NULL;
     fResourceDict = NULL;
     fContentEntries.reset();
     fLastContentEntry = NULL;
@@ -562,6 +563,8 @@ void SkPDFDevice::cleanUp(bool clearFontUsage) {
     fXObjectResources.unrefAll();
     fFontResources.unrefAll();
     fShaderResources.unrefAll();
+    SkSafeUnref(fAnnotations);
+
     if (clearFontUsage) {
         fFontGlyphUsage->reset();
     }
@@ -1103,22 +1106,17 @@ const SkTDArray<SkPDFFont*>& SkPDFDevice::getFontResources() const {
     return fFontResources;
 }
 
-SkRefPtr<SkPDFArray> SkPDFDevice::getMediaBox() const {
-    SkRefPtr<SkPDFInt> zero = new SkPDFInt(0);
-    zero->unref();  // SkRefPtr and new both took a reference.
+SkPDFArray* SkPDFDevice::copyMediaBox() const {
+    // should this be a singleton?
+    SkAutoTUnref<SkPDFInt> zero(SkNEW_ARGS(SkPDFInt, (0)));
 
-    SkRefPtr<SkPDFArray> mediaBox = new SkPDFArray();
-    mediaBox->unref();  // SkRefPtr and new both took a reference.
+    SkPDFArray* mediaBox = SkNEW(SkPDFArray);
     mediaBox->reserve(4);
     mediaBox->append(zero.get());
     mediaBox->append(zero.get());
     mediaBox->appendInt(fPageSize.fWidth);
     mediaBox->appendInt(fPageSize.fHeight);
     return mediaBox;
-}
-
-SkRefPtr<SkPDFArray> SkPDFDevice::getAnnotations() const {
-    return SkRefPtr<SkPDFArray>(fAnnotations);
 }
 
 SkStream* SkPDFDevice::content() const {
@@ -1196,9 +1194,8 @@ bool SkPDFDevice::handleAnnotations(const SkRect& r, const SkMatrix& matrix,
     SkRect translatedRect;
     transform.mapRect(&translatedRect, r);
 
-    if (fAnnotations.get() == NULL) {
-        fAnnotations = new SkPDFArray;
-        fAnnotations->unref();  // Both new and SkRefPtr took a reference.
+    if (NULL == fAnnotations) {
+        fAnnotations = SkNEW(SkPDFArray);
     }
     SkAutoTUnref<SkPDFDict> annotation(new SkPDFDict("Annot"));
     annotation->insertName("Subtype", "Link");

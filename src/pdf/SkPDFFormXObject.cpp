@@ -28,7 +28,7 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
 
     insertName("Type", "XObject");
     insertName("Subtype", "Form");
-    insert("BBox", device->getMediaBox().get());
+    SkSafeUnref(this->insert("BBox", device->copyMediaBox()));
     insert("Resources", device->getResourceDict());
 
     // We invert the initial transform and apply that to the xobject so that
