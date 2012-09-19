@@ -150,7 +150,7 @@ static int cubicRootsX(double A, double B, double C, double D, double s[3]) {
         if (approximately_zero(R)) {/* one triple solution */
             *roots++ = -adiv3;
         } else { /* one single and one double solution */
-            
+
             double u = cube_root(-R);
             *roots++ = 2 * u - adiv3;
             *roots++ = -u - adiv3;
