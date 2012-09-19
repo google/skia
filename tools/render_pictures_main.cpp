@@ -137,13 +137,19 @@ static int process_input(const SkString& input, const SkString& outputDir,
         do {
             SkString inputPath;
             sk_tools::make_filepath(&inputPath, input, inputFilename);
-            if (!render_picture(inputPath, outputDir, renderer))
-              ++failures;
+            if (!render_picture(inputPath, outputDir, renderer)) {
+                ++failures;
+            }
         } while(iter.next(&inputFilename));
-    } else {
+    } else if (SkStrEndsWith(input.c_str(), ".skp")) {
         SkString inputPath(input);
-        if (!render_picture(inputPath, outputDir, renderer))
-          ++failures;
+        if (!render_picture(inputPath, outputDir, renderer)) {
+            ++failures;
+        }
+    } else {
+        SkString warning;
+        warning.printf("Warning: skipping %s\n", input.c_str());
+        SkDebugf(warning.c_str());
     }
     return failures;
 }

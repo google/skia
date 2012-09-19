@@ -405,12 +405,18 @@ static int process_input(const SkString& input,
         do {
             SkString inputPath;
             sk_tools::make_filepath(&inputPath, input, inputFilename);
-            if (!run_single_benchmark(inputPath, benchmark))
+            if (!run_single_benchmark(inputPath, benchmark)) {
                 ++failures;
+            }
         } while(iter.next(&inputFilename));
-    } else {
-        if (!run_single_benchmark(input, benchmark))
+    } else if (SkStrEndsWith(input.c_str(), ".skp")) {
+        if (!run_single_benchmark(input, benchmark)) {
             ++failures;
+        }
+    } else {
+        SkString warning;
+        warning.printf("Warning: skipping %s\n", input.c_str());
+        gLogger.logError(warning);
     }
     return failures;
 }
