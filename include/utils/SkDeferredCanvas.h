@@ -87,6 +87,12 @@ public:
     bool isFreshFrame() const;
 
     /**
+     *  Returns true if the canvas has recorded draw commands that have
+     *  not yet been played back.
+     */
+    bool hasPendingCommands() const;
+
+    /**
      *  Specify the maximum number of bytes to be allocated for the purpose
      *  of recording draw commands to this canvas.  The default limit, is
      *  64MB.
