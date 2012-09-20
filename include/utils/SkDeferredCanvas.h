@@ -109,6 +109,11 @@ public:
      */
     size_t freeMemoryIfPossible(size_t bytesToFree);
 
+    /**
+     * Executes all pending commands without drawing
+     */
+    void silentFlush();
+
     // Overrides of the SkCanvas interface
     virtual int save(SaveFlags flags) SK_OVERRIDE;
     virtual int saveLayer(const SkRect* bounds, const SkPaint* paint,

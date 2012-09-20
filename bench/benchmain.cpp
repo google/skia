@@ -37,6 +37,7 @@
 enum benchModes {
     kNormal_benchModes,
     kDeferred_benchModes,
+    kDeferredSilent_benchModes,
     kRecord_benchModes,
     kPictureRecord_benchModes
 };
@@ -352,7 +353,7 @@ static void help() {
                           "[--timers [wcgWC]*] [--rotate]\n"
              "    [--scale] [--clip] [--min] [--forceAA 1|0] [--forceFilter 1|0]\n"
              "    [--forceDither 1|0] [--forceBlend 1|0] [--strokeWidth width]\n"
-             "    [--match name] [--mode normal|deferred|record|picturerecord]\n"
+             "    [--match name] [--mode normal|deferred|deferredSilent|record|picturerecord]\n"
              "    [--config 8888|565|GPU|ANGLE|NULLGPU] [-Dfoo bar] [--logFile filename]\n"
              "    [-h|--help]");
     SkDebugf("\n\n");
@@ -376,9 +377,11 @@ static void help() {
              "Enable/disable dithering, default is disabled.\n");
     SkDebugf("    --strokeWidth width : The width for path stroke.\n");
     SkDebugf("    --match name : Only run bench whose name is matched.\n");
-    SkDebugf("    --mode normal|deferred|record|picturerecord : Run in the corresponding mode\n"
+    SkDebugf("    --mode normal|deferred|deferredSilent|record|picturerecord :\n"
+             "             Run in the corresponding mode\n"
              "                 normal, Use a normal canvas to draw to;\n"
              "                 deferred, Use a deferrred canvas when drawing;\n"
+             "                 deferredSilent, deferred with silent playback;\n"
              "                 record, Benchmark the time to record to an SkPicture;\n"
              "                 picturerecord, Benchmark the time to do record from a \n"
              "                                SkPicture to a SkPicture.\n");
@@ -526,6 +529,8 @@ int main (int argc, char * const argv[]) {
                     benchMode = kNormal_benchModes;
                 } else if (strcmp(*argv, "deferred") == 0) {
                     benchMode = kDeferred_benchModes;
+                } else if (strcmp(*argv, "deferredSilent") == 0) {
+                    benchMode = kDeferredSilent_benchModes;
                 } else if (strcmp(*argv, "record") == 0) {
                     benchMode = kRecord_benchModes;
                 } else if (strcmp(*argv, "picturerecord") == 0) {
@@ -637,9 +642,11 @@ int main (int argc, char * const argv[]) {
     // report our current settings
     {
         SkString str;
+        const char* deferredMode = benchMode == kDeferred_benchModes ? "yes" :
+            (benchMode == kDeferredSilent_benchModes ? "silent" : "no");
         str.printf("skia bench: alpha=0x%02X antialias=%d filter=%d "
-                   "deferred=%d logperiter=%d",
-                   forceAlpha, forceAA, forceFilter, benchMode == kDeferred_benchModes,
+                   "deferred=%s logperiter=%d",
+                   forceAlpha, forceAA, forceFilter, deferredMode,
                    logPerIter);
         str.appendf(" rotate=%d scale=%d clip=%d min=%d",
                    doRotate, doScale, doClip, printMin);
@@ -763,6 +770,7 @@ int main (int argc, char * const argv[]) {
             SkPicture pictureRecordFrom;
             SkPicture pictureRecordTo;
             switch(benchMode) {
+                case kDeferredSilent_benchModes: 
                 case kDeferred_benchModes:
                     canvas = new SkDeferredCanvas(device);
                     break;
@@ -816,7 +824,12 @@ int main (int argc, char * const argv[]) {
                 } else {
                     bench->draw(canvas);
                 }
-                canvas->flush();
+
+                if (kDeferredSilent_benchModes == benchMode) {
+                    static_cast<SkDeferredCanvas*>(canvas)->silentFlush();
+                } else {
+                    canvas->flush();
+                }
 #if SK_SUPPORT_GPU
                 if (glHelper) {
                     glHelper->grContext()->flush();
@@ -842,7 +855,12 @@ int main (int argc, char * const argv[]) {
                 } else {
                     bench->draw(canvas);
                 }
-                canvas->flush();
+
+                if (kDeferredSilent_benchModes == benchMode) {
+                    static_cast<SkDeferredCanvas*>(canvas)->silentFlush();
+                } else {
+                    canvas->flush();
+                }
 
                 // stop the truncated timer after the last canvas call but
                 // don't wait for all the GL calls to complete

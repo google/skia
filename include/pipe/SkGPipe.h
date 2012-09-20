@@ -34,11 +34,16 @@ public:
         kReadAtom_Status//!< finished reading an atom
     };
 
+    enum PlaybackFlags {
+        kReadAtom_PlaybackFlag = 0x1, //!< playback a single command from the stream
+        kSilent_PlaybackFlag   = 0x2, //!< playback without drawing
+    };
+
     void setCanvas(SkCanvas*);
     // data must be 4-byte aligned
     // length must be a multiple of 4
-    Status playback(const void* data, size_t length, size_t* bytesRead = NULL,
-                    bool readAtom = false);
+    Status playback(const void* data, size_t length, uint32_t playbackFlags = 0,
+                    size_t* bytesRead = NULL);
 private:
     SkCanvas*           fCanvas;
     class SkGPipeState* fState;
