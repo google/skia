@@ -9,4 +9,4 @@
 # Note: unrecognized data lines (not exactly 4 commas, unparsable bench values)
 # will likely raise exceptions.
 
-picture_playback_drawText_GPU_c,Mac_Float_NoDebug_64-25th,167,157,177
+picture_playback_drawText_GPU_c,Mac_Float_NoDebug_64-25th,160,150,170
