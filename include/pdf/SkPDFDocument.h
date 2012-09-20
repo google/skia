@@ -75,12 +75,12 @@ private:
 
     SkTDArray<SkPDFPage*> fPages;
     SkTDArray<SkPDFDict*> fPageTree;
-    SkRefPtr<SkPDFDict> fDocCatalog;
+    SkPDFDict* fDocCatalog;
     SkTDArray<SkPDFObject*> fPageResources;
     SkTDArray<SkPDFObject*> fSubstitutes;
     int fSecondPageFirstResourceIndex;
 
-    SkRefPtr<SkPDFDict> fTrailerDict;
+    SkPDFDict* fTrailerDict;
 
     /** Output the PDF header to the passed stream.
      *  @param stream    The writable output stream to send the header to.

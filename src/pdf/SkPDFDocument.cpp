@@ -57,11 +57,11 @@ static void perform_font_subsetting(SkPDFCatalog* catalog,
 
 SkPDFDocument::SkPDFDocument(Flags flags)
         : fXRefFileOffset(0),
-          fSecondPageFirstResourceIndex(0) {
+          fSecondPageFirstResourceIndex(0),
+          fTrailerDict(NULL) {
     fCatalog.reset(new SkPDFCatalog(flags));
-    fDocCatalog = new SkPDFDict("Catalog");
-    fDocCatalog->unref();  // SkRefPtr and new both took a reference.
-    fCatalog->addObject(fDocCatalog.get(), true);
+    fDocCatalog = SkNEW_ARGS(SkPDFDict, ("Catalog"));
+    fCatalog->addObject(fDocCatalog, true);
 }
 
 SkPDFDocument::~SkPDFDocument() {
@@ -75,6 +75,9 @@ SkPDFDocument::~SkPDFDocument() {
     fPageTree.safeUnrefAll();
     fPageResources.safeUnrefAll();
     fSubstitutes.safeUnrefAll();
+    
+    fDocCatalog->unref();
+    SkSafeUnref(fTrailerDict);
 }
 
 bool SkPDFDocument::emitPDF(SkWStream* stream) {
@@ -123,7 +126,7 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
 
         // Figure out the size of things and inform the catalog of file offsets.
         off_t fileOffset = headerSize();
-        fileOffset += fCatalog->setFileOffset(fDocCatalog.get(), fileOffset);
+        fileOffset += fCatalog->setFileOffset(fDocCatalog, fileOffset);
         fileOffset += fCatalog->setFileOffset(fPages[0], fileOffset);
         fileOffset += fPages[0]->getPageSize(fCatalog.get(),
                 (size_t) fileOffset);
@@ -258,15 +261,13 @@ size_t SkPDFDocument::headerSize() {
 }
 
 void SkPDFDocument::emitFooter(SkWStream* stream, int64_t objCount) {
-    if (fTrailerDict.get() == NULL) {
-        fTrailerDict = new SkPDFDict();
-        fTrailerDict->unref();  // SkRefPtr and new both took a reference.
+    if (NULL == fTrailerDict) {
+        fTrailerDict = SkNEW(SkPDFDict);
 
         // TODO(vandebo): Linearized format will take a Prev entry too.
         // TODO(vandebo): PDF/A requires an ID entry.
         fTrailerDict->insertInt("Size", int(objCount));
-        fTrailerDict->insert("Root",
-                             new SkPDFObjRef(fDocCatalog.get()))->unref();
+        fTrailerDict->insert("Root", new SkPDFObjRef(fDocCatalog))->unref();
     }
 
     stream->writeText("trailer\n");
