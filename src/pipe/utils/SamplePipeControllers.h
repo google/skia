@@ -64,7 +64,7 @@ public:
      * used the flag SkGPipeWriter::kSimultaneousReaders_Flag, this can be called from different
      * threads simultaneously.
      */
-    void playback(SkCanvas*);
+    void draw(SkCanvas*);
 private:
     enum {
         kMinBlockSize = 4096
