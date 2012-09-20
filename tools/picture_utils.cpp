@@ -6,11 +6,9 @@
  */
 
 #include "picture_utils.h"
-#include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkBitmap.h"
 #include "SkPicture.h"
-#include "SkRefCnt.h"
 #include "SkString.h"
 #include "SkStream.h"
 
@@ -91,48 +89,5 @@ namespace sk_tools {
         bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
         bitmap->allocPixels();
         bitmap->eraseColor(0);
-    }
-
-    bool area_too_big(int w, int h, SkISize* newSize) {
-        // just a guess, based on what seems to fail on smaller android devices
-        static const int64_t kMaxAreaForMemory = 4 * 1024 * 1024;
-
-        if ((int64_t)w * h > kMaxAreaForMemory) {
-            do {
-                w >>= 1;
-                h >>= 1;
-            } while ((int64_t)w * h > kMaxAreaForMemory);
-            if (0 == w) {
-                w = 1;
-            }
-            if (0 == h) {
-                h = 1;
-            }
-            newSize->set(w, h);
-            return true;
-        }
-        return false;
-    }
-
-    void resize_if_needed(SkAutoTUnref<SkPicture>* aur) {
-        SkISize newSize;
-        SkPicture* picture = aur->get();
-        if (area_too_big(picture->width(), picture->height(), &newSize)) {
-            SkPicture* pic = SkNEW(SkPicture);
-            picture->ref();
-            aur->reset(pic);
-
-            SkCanvas* canvas = pic->beginRecording(newSize.width(),
-                                                   newSize.height());
-            SkScalar scale = SkIntToScalar(newSize.width()) / picture->width();
-            canvas->scale(scale, scale);
-            canvas->drawPicture(*picture);
-            pic->endRecording();
-
-            SkDebugf(
-                "... rescaling to [%d %d] to avoid overly large allocations\n",
-                newSize.width(), newSize.height());
-            picture->unref();
-        }
     }
 }

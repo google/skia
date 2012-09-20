@@ -92,20 +92,16 @@ static bool render_picture(const SkString& inputPath, const SkString& outputDir,
     }
 
     bool success = false;
-    SkPicture* picture = SkNEW_ARGS(SkPicture, (&inputStream, &success));
-    SkAutoTUnref<SkPicture> aur(picture);
+    SkPicture picture(&inputStream, &success);
     if (!success) {
         SkDebugf("Could not read an SkPicture from %s\n", inputPath.c_str());
         return false;
     }
 
-    SkDebugf("drawing... [%i %i] %s\n", picture->width(), picture->height(),
+    SkDebugf("drawing... [%i %i] %s\n", picture.width(), picture.height(),
              inputPath.c_str());
 
-    // rescale to avoid memory issues allocating a very large offscreen
-    sk_tools::resize_if_needed(&aur);
-
-    renderer.init(aur);
+    renderer.init(&picture);
 
     SkString outputPath;
     make_output_filepath(&outputPath, outputDir, inputFilename);

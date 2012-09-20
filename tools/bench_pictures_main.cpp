@@ -109,8 +109,7 @@ static bool run_single_benchmark(const SkString& inputPath,
     }
 
     bool success = false;
-    SkPicture* picture = SkNEW_ARGS(SkPicture, (&inputStream, &success));
-    SkAutoTUnref<SkPicture> aur(picture);
+    SkPicture picture(&inputStream, &success);
     if (!success) {
         SkString err;
         err.printf("Could not read an SkPicture from %s\n", inputPath.c_str());
@@ -122,14 +121,11 @@ static bool run_single_benchmark(const SkString& inputPath,
     sk_tools::get_basename(&filename, inputPath);
 
     SkString result;
-    result.printf("running bench [%i %i] %s ", picture->width(),
-                  picture->height(), filename.c_str());
+    result.printf("running bench [%i %i] %s ", picture.width(),
+                  picture.height(), filename.c_str());
     gLogger.logProgress(result);
 
-    // rescale to avoid memory issues allocating a very large offscreen
-    sk_tools::resize_if_needed(&aur);
-
-    benchmark.run(aur);
+    benchmark.run(&picture);
     return true;
 }
 
