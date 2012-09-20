@@ -103,7 +103,7 @@ void ThreadSafePipeController::notifyWritten(size_t bytes) {
     fBytesWritten += bytes;
 }
 
-void ThreadSafePipeController::playback(SkCanvas* target) {
+void ThreadSafePipeController::draw(SkCanvas* target) {
     SkGPipeReader reader(target);
     for (int currentBlock = 0; currentBlock < fBlockList.count(); currentBlock++ ) {
         reader.playback(fBlockList[currentBlock].fBlock, fBlockList[currentBlock].fBytes);

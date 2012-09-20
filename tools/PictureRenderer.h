@@ -23,6 +23,7 @@
 class SkBitmap;
 class SkCanvas;
 class SkGLContext;
+class ThreadSafePipeController;
 
 namespace sk_tools {
 
@@ -98,7 +99,7 @@ public:
 
 protected:
     SkCanvas* setupCanvas();
-    SkCanvas* setupCanvas(int width, int height);
+    virtual SkCanvas* setupCanvas(int width, int height);
 
     SkAutoTUnref<SkCanvas> fCanvas;
     SkPicture* fPicture;
@@ -146,6 +147,7 @@ public:
     TiledPictureRenderer();
 
     virtual void init(SkPicture* pict) SK_OVERRIDE;
+    virtual void setup() SK_OVERRIDE;
     virtual void render(bool doExtraWorkToDrawToBaseCanvas) SK_OVERRIDE;
     virtual void end() SK_OVERRIDE;
 
@@ -194,8 +196,11 @@ public:
         return fTileMinPowerOf2Width;
     }
 
-    void setMultiThreaded(bool multi) {
-        fMultiThreaded = multi;
+    /**
+     * Set the number of threads to use for drawing. Non-positive numbers will set it to 1.
+     */
+    void setNumberOfThreads(int num) {
+        fNumThreads = SkMax32(num, 1);
     }
 
     void setUsePipe(bool usePipe) {
@@ -205,19 +210,25 @@ public:
     ~TiledPictureRenderer();
 
 private:
-    bool fMultiThreaded;
-    bool fUsePipe;
-    int fTileWidth;
-    int fTileHeight;
-    double fTileWidthPercentage;
-    double fTileHeightPercentage;
-    int fTileMinPowerOf2Width;
-
+    bool              fUsePipe;
+    int               fTileWidth;
+    int               fTileHeight;
+    double            fTileWidthPercentage;
+    double            fTileHeightPercentage;
+    int               fTileMinPowerOf2Width;
     SkTDArray<SkRect> fTileRects;
+
+    // These are only used for multithreaded rendering
+    int32_t                   fTileCounter;
+    int                       fNumThreads;
+    SkTDArray<SkCanvas*>      fCanvasPool;
+    SkPicture*                fPictureClones;
+    ThreadSafePipeController* fPipeController;
 
     void setupTiles();
     void setupPowerOf2Tiles();
-    void deleteTiles();
+    virtual SkCanvas* setupCanvas(int width, int height) SK_OVERRIDE;
+    bool multiThreaded() { return fNumThreads > 1; }
 
     typedef PictureRenderer INHERITED;
 };

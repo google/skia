@@ -26,9 +26,10 @@ static void usage(const char* argv0) {
 "     %s <inputDir>...\n"
 "     [--logFile filename][--timers [wcgWC]*][--logPerIter 1|0][--min]\n"
 "     [--repeat] \n"
-"     [--mode pow2tile minWidth height[] (multi) | record | simple\n"
-"             | tile width[] height[] (multi) | playbackCreation]\n"
+"     [--mode pow2tile minWidth height[] | record | simple\n"
+"             | tile width[] height[] | playbackCreation]\n"
 "     [--pipe]\n"
+"     [--multi numThreads]\n"
 "     [--device bitmap"
 #if SK_SUPPORT_GPU
 " | gpu"
@@ -46,8 +47,8 @@ static void usage(const char* argv0) {
     SkDebugf("     --timers [wcgWC]* : "
              "Display wall, cpu, gpu, truncated wall or truncated cpu time for each picture.\n");
     SkDebugf(
-"     --mode pow2tile minWidht height[] (multi) | record | simple\n"
-"            | tile width[] height[] (multi) | playbackCreation:\n"
+"     --mode pow2tile minWidht height[] | record | simple\n"
+"            | tile width[] height[] | playbackCreation:\n"
 "            Run in the corresponding mode.\n"
 "            Default is simple.\n");
     SkDebugf(
@@ -59,22 +60,20 @@ static void usage(const char* argv0) {
 "                                                 of these tiles and must be a\n"
 "                                                 power of two. Simple\n"
 "                                                 rendering using these tiles\n"
-"                                                 is benchmarked.\n"
-"                                                 Append \"multi\" for multithreaded\n"
-"                                                 drawing.\n");
+"                                                 is benchmarked.\n");
     SkDebugf(
 "                     record, Benchmark picture to picture recording.\n");
     SkDebugf(
 "                     simple, Benchmark a simple rendering.\n");
     SkDebugf(
 "                     tile width[] height[], Benchmark simple rendering using\n"
-"                                            tiles with the given dimensions.\n"
-"                                            Append \"multi\" for multithreaded\n"
-"                                            drawing.\n");
+"                                            tiles with the given dimensions.\n");
     SkDebugf(
 "                     playbackCreation, Benchmark creation of the SkPicturePlayback.\n");
     SkDebugf("\n");
     SkDebugf(
+"     --multi numThreads : Set the number of threads for multi threaded drawing. Must be greater\n"
+"                          than 1. Only works with tiled rendering.\n"
 "     --pipe: Benchmark SkGPipe rendering. Compatible with tiled, multithreaded rendering.\n");
     SkDebugf(
 "     --device bitmap"
@@ -154,7 +153,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     commandLine.append("\n");
 
     bool usePipe = false;
-    bool multiThreaded = false;
+    int numThreads = 1;
     bool useTiles = false;
     const char* widthString = NULL;
     const char* heightString = NULL;
@@ -191,6 +190,19 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 }
             } else {
                 gLogger.logError("Missing arg for --logFile\n");
+                usage(argv0);
+                exit(-1);
+            }
+        } else if (0 == strcmp(*argv, "--multi")) {
+            ++argv;
+            if (argv >= stop) {
+                gLogger.logError("Missing arg for --multi\n");
+                usage(argv0);
+                exit(-1);
+            }
+            numThreads = atoi(*argv);
+            if (numThreads < 2) {
+                gLogger.logError("Number of threads must be at least 2.\n");
                 usage(argv0);
                 exit(-1);
             }
@@ -232,13 +244,6 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                     exit(-1);
                 }
                 heightString = *argv;
-
-                ++argv;
-                if (argv < stop && 0 == strcmp(*argv, "multi")) {
-                    multiThreaded = true;
-                } else {
-                    --argv;
-                }
             } else if (0 == strcmp(*argv, "playbackCreation")) {
                 renderer = SkNEW(sk_tools::PlaybackCreationRenderer);
             } else {
@@ -328,6 +333,12 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
         }
     }
 
+    if (numThreads > 1 && !useTiles) {
+        gLogger.logError("Multithreaded drawing requires tiled rendering.\n");
+        usage(argv0);
+        exit(-1);
+    }
+
     if (useTiles) {
         SkASSERT(NULL == renderer);
         sk_tools::TiledPictureRenderer* tiledRenderer = SkNEW(sk_tools::TiledPictureRenderer);
@@ -339,6 +350,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 err.printf("-mode %s must be given a width"
                          " value that is a power of two\n", mode);
                 gLogger.logError(err);
+                usage(argv0);
                 exit(-1);
             }
             tiledRenderer->setTileMinPowerOf2Width(minWidth);
@@ -347,6 +359,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
             if (!(tiledRenderer->getTileWidthPercentage() > 0)) {
                 tiledRenderer->unref();
                 gLogger.logError("--mode tile must be given a width percentage > 0\n");
+                usage(argv0);
                 exit(-1);
             }
         } else {
@@ -354,6 +367,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
             if (!(tiledRenderer->getTileWidth() > 0)) {
                 tiledRenderer->unref();
                 gLogger.logError("--mode tile must be given a width > 0\n");
+                usage(argv0);
                 exit(-1);
             }
         }
@@ -363,6 +377,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
             if (!(tiledRenderer->getTileHeightPercentage() > 0)) {
                 tiledRenderer->unref();
                 gLogger.logError("--mode tile must be given a height percentage > 0\n");
+                usage(argv0);
                 exit(-1);
             }
         } else {
@@ -370,10 +385,21 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
             if (!(tiledRenderer->getTileHeight() > 0)) {
                 tiledRenderer->unref();
                 gLogger.logError("--mode tile must be given a height > 0\n");
+                usage(argv0);
                 exit(-1);
             }
         }
-        tiledRenderer->setMultiThreaded(multiThreaded);
+        if (numThreads > 1) {
+#if SK_SUPPORT_GPU
+            if (sk_tools::PictureRenderer::kGPU_DeviceType == deviceType) {
+                tiledRenderer->unref();
+                gLogger.logError("GPU not compatible with multithreaded tiling.\n");
+                usage(argv0);
+                exit(-1);
+            }
+#endif
+            tiledRenderer->setNumberOfThreads(numThreads);
+        }
         tiledRenderer->setUsePipe(usePipe);
         renderer = tiledRenderer;
     } else if (usePipe) {

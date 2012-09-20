@@ -157,13 +157,16 @@ void SimplePictureRenderer::render(bool doExtraWorkToDrawToBaseCanvas) {
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 TiledPictureRenderer::TiledPictureRenderer()
-    : fMultiThreaded(false)
-    , fUsePipe(false)
+    : fUsePipe(false)
     , fTileWidth(kDefaultTileWidth)
     , fTileHeight(kDefaultTileHeight)
     , fTileWidthPercentage(0.0)
     , fTileHeightPercentage(0.0)
-    , fTileMinPowerOf2Width(0) { }
+    , fTileMinPowerOf2Width(0)
+    , fTileCounter(0)
+    , fNumThreads(1)
+    , fPictureClones(NULL)
+    , fPipeController(NULL) { }
 
 void TiledPictureRenderer::init(SkPicture* pict) {
     SkASSERT(pict != NULL);
@@ -188,15 +191,40 @@ void TiledPictureRenderer::init(SkPicture* pict) {
     } else {
         this->setupTiles();
     }
+
+    if (this->multiThreaded()) {
+        for (int i = 0; i < fNumThreads; ++i) {
+            *fCanvasPool.append() = this->setupCanvas(fTileWidth, fTileHeight);
+        }
+        if (!fUsePipe) {
+            SkASSERT(NULL == fPictureClones);
+            // Only need to create fNumThreads - 1 clones, since one thread will use the base
+            // picture.
+            int numberOfClones = fNumThreads - 1;
+            // This will be deleted in end().
+            fPictureClones = SkNEW_ARRAY(SkPicture, numberOfClones);
+            fPictureClones->clone(fPictureClones, numberOfClones);
+        }
+    }
 }
 
 void TiledPictureRenderer::end() {
-    this->deleteTiles();
+    fTileRects.reset();
+    SkDELETE_ARRAY(fPictureClones);
+    fPictureClones = NULL;
+    fCanvasPool.unrefAll();
+    if (fPipeController != NULL) {
+        SkASSERT(fUsePipe);
+        SkDELETE(fPipeController);
+        fPipeController = NULL;
+    }
     this->INHERITED::end();
 }
 
 TiledPictureRenderer::~TiledPictureRenderer() {
-    this->deleteTiles();
+    // end() must be called to delete fPictureClones and fPipeController
+    SkASSERT(NULL == fPictureClones);
+    SkASSERT(NULL == fPipeController);
 }
 
 void TiledPictureRenderer::setupTiles() {
@@ -252,55 +280,123 @@ void TiledPictureRenderer::setupPowerOf2Tiles() {
     }
 }
 
-void TiledPictureRenderer::deleteTiles() {
-    fTileRects.reset();
+/**
+ * Draw the specified playback to the canvas translated to rectangle provided, so that this mini
+ * canvas represents the rectangle's portion of the overall picture.
+ * Saves and restores so that the initial clip and matrix return to their state before this function
+ * is called.
+ */
+template<class T>
+static void DrawTileToCanvas(SkCanvas* canvas, const SkRect& tileRect, T* playback) {
+    int saveCount = canvas->save();
+    // Translate so that we draw the correct portion of the picture
+    canvas->translate(-tileRect.fLeft, -tileRect.fTop);
+    playback->draw(canvas);
+    canvas->restoreToCount(saveCount);
+    canvas->flush();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+// Base class for data used both by pipe and clone picture multi threaded drawing.
+
+struct ThreadData {
+    ThreadData(SkCanvas* target, int* tileCounter, SkTDArray<SkRect>* tileRects)
+    : fCanvas(target)
+    , fTileCounter(tileCounter)
+    , fTileRects(tileRects) {
+        SkASSERT(target != NULL && tileCounter != NULL && tileRects != NULL);
+    }
+
+    const SkRect* nextTile() {
+        if (int32_t i = sk_atomic_inc(fTileCounter) < fTileRects->count()) {
+            return &fTileRects->operator[](i);
+        }
+        return NULL;
+    }
+
+    // All of these are pointers to objects owned elsewhere
+    SkCanvas*                fCanvas;
+private:
+    // Shared by all threads, this states which is the next tile to be drawn.
+    int32_t*                 fTileCounter;
+    // Points to the array of rectangles. The array is already created before any threads are
+    // started and then it is unmodified, so there is no danger of race conditions.
+    const SkTDArray<SkRect>* fTileRects;
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 // Draw using Pipe
 
-struct TileData {
-    TileData(SkCanvas* canvas, ThreadSafePipeController* controller);
-    SkCanvas* fCanvas;
+struct TileData : public ThreadData {
+    TileData(ThreadSafePipeController* controller, SkCanvas* canvas, int* tileCounter,
+             SkTDArray<SkRect>* tileRects)
+    : INHERITED(canvas, tileCounter, tileRects)
+    , fController(controller) {}
+
     ThreadSafePipeController* fController;
-    SkThread fThread;
+
+    typedef ThreadData INHERITED;
 };
 
 static void DrawTile(void* data) {
     SkGraphics::SetTLSFontCacheLimit(1 * 1024 * 1024);
     TileData* tileData = static_cast<TileData*>(data);
-    tileData->fController->playback(tileData->fCanvas);
-    tileData->fCanvas->flush();
-}
 
-TileData::TileData(SkCanvas* canvas, ThreadSafePipeController* controller)
-: fCanvas(canvas)
-, fController(controller)
-, fThread(&DrawTile, static_cast<void*>(this)) {}
+    const SkRect* tileRect;
+    while ((tileRect = tileData->nextTile()) != NULL) {
+        DrawTileToCanvas(tileData->fCanvas, *tileRect, tileData->fController);
+    }
+    SkDELETE(tileData);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 // Draw using Picture
 
-struct CloneData {
-    CloneData(SkCanvas* target, SkPicture* original);
-    SkCanvas* fCanvas;
+struct CloneData : public ThreadData {
+    CloneData(SkPicture* clone, SkCanvas* target, int* tileCounter, SkTDArray<SkRect>* tileRects)
+    : INHERITED(target, tileCounter, tileRects)
+    , fClone(clone) {}
+
     SkPicture* fClone;
-    SkThread fThread;
+
+    typedef ThreadData INHERITED;
 };
 
-static void DrawClonedTile(void* data) {
+static void DrawClonedTiles(void* data) {
     SkGraphics::SetTLSFontCacheLimit(1 * 1024 * 1024);
     CloneData* cloneData = static_cast<CloneData*>(data);
-    cloneData->fCanvas->drawPicture(*cloneData->fClone);
-    cloneData->fCanvas->flush();
+
+    const SkRect* tileRect;
+    while ((tileRect = cloneData->nextTile()) != NULL) {
+        DrawTileToCanvas(cloneData->fCanvas, *tileRect, cloneData->fClone);
+    }
+    SkDELETE(cloneData);
 }
 
-CloneData::CloneData(SkCanvas* target, SkPicture* clone)
-: fCanvas(target)
-, fClone(clone)
-, fThread(&DrawClonedTile, static_cast<void*>(this)) {}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////
+
+void TiledPictureRenderer::setup() {
+    if (this->multiThreaded()) {
+        // Reset to zero so we start with the first tile.
+        fTileCounter = 0;
+        if (fUsePipe) {
+            // Record the picture into the pipe controller. It is done here because unlike
+            // SkPicture, the pipe is modified (bitmaps can be removed) by drawing.
+            // fPipeController is deleted here after each call to render() except the last one and
+            // in end() for the last one.
+            if (fPipeController != NULL) {
+                SkDELETE(fPipeController);
+            }
+            fPipeController = SkNEW_ARGS(ThreadSafePipeController, (fTileRects.count()));
+            SkGPipeWriter writer;
+            SkCanvas* pipeCanvas = writer.startRecording(fPipeController,
+                                                         SkGPipeWriter::kSimultaneousReaders_Flag);
+            SkASSERT(fPicture != NULL);
+            fPicture->draw(pipeCanvas);
+            writer.endRecording();
+        }
+    }
+}
 
 void TiledPictureRenderer::render(bool doExtraWorkToDrawToBaseCanvas) {
     SkASSERT(fPicture != NULL);
@@ -310,71 +406,44 @@ void TiledPictureRenderer::render(bool doExtraWorkToDrawToBaseCanvas) {
 
     if (doExtraWorkToDrawToBaseCanvas) {
         if (NULL == fCanvas.get()) {
-            fCanvas.reset(this->setupCanvas());
+            fCanvas.reset(this->INHERITED::setupCanvas());
         }
     }
 
-    if (fMultiThreaded) {
-        // FIXME: Turning off multi threading while we transition to using a pool of tiles
-/*
-        if (fUsePipe) {
-            // First, draw into a pipe controller
-            SkGPipeWriter writer;
-            ThreadSafePipeController controller(fTiles.count());
-            SkCanvas* pipeCanvas = writer.startRecording(&controller,
-                                                         SkGPipeWriter::kSimultaneousReaders_Flag);
-            pipeCanvas->drawPicture(*(fPicture));
-            writer.endRecording();
-
-            // Create and start the threads.
-            TileData** tileData = SkNEW_ARRAY(TileData*, fTiles.count());
-            SkAutoTDeleteArray<TileData*> deleteTileData(tileData);
-            for (int i = 0; i < fTiles.count(); i++) {
-                tileData[i] = SkNEW_ARGS(TileData, (fTiles[i], &controller));
-                if (!tileData[i]->fThread.start()) {
-                    SkDebugf("could not start thread %i\n", i);
-                }
+    if (this->multiThreaded()) {
+        SkASSERT(fCanvasPool.count() == fNumThreads);
+        SkTDArray<SkThread*> threads;
+        SkThread::entryPointProc proc = fUsePipe ? DrawTile : DrawClonedTiles;
+        for (int i = 0; i < fNumThreads; ++i) {
+            // data will be deleted by the entryPointProc.
+            ThreadData* data;
+            if (fUsePipe) {
+                data = SkNEW_ARGS(TileData,
+                                  (fPipeController, fCanvasPool[i], &fTileCounter, &fTileRects));
+            } else {
+                SkPicture* pic = (0 == i) ? fPicture : &fPictureClones[i-1];
+                data = SkNEW_ARGS(CloneData, (pic, fCanvasPool[i], &fTileCounter, &fTileRects));
             }
-            for (int i = 0; i < fTiles.count(); i++) {
-                tileData[i]->fThread.join();
-                SkDELETE(tileData[i]);
+            SkThread* thread = SkNEW_ARGS(SkThread, (proc, data));
+            if (!thread->start()) {
+                SkDebugf("Could not start %s thread %i.\n", (fUsePipe ? "pipe" : "picture"), i);
             }
-        } else {
-            SkPicture* clones = SkNEW_ARRAY(SkPicture, fTiles.count());
-            SkAutoTDeleteArray<SkPicture> autodelete(clones);
-            fPicture->clone(clones, fTiles.count());
-            CloneData** cloneData = SkNEW_ARRAY(CloneData*, fTiles.count());
-            SkAutoTDeleteArray<CloneData*> deleteCloneData(cloneData);
-            for (int i = 0; i < fTiles.count(); i++) {
-                cloneData[i] = SkNEW_ARGS(CloneData, (fTiles[i], &clones[i]));
-                if (!cloneData[i]->fThread.start()) {
-                    SkDebugf("Could not start picture thread %i\n", i);
-                }
-            }
-            for (int i = 0; i < fTiles.count(); i++) {
-                cloneData[i]->fThread.join();
-                SkDELETE(cloneData[i]);
-            }
+            *threads.append() = thread;
         }
- */
+        SkASSERT(threads.count() == fNumThreads);
+        for (int i = 0; i < fNumThreads; ++i) {
+            SkThread* thread = threads[i];
+            thread->join();
+            SkDELETE(thread);
+        }
+        threads.reset();
     } else {
-        // For single thread, we really only need one canvas total
+        // For single thread, we really only need one canvas total.
         SkCanvas* canvas = this->setupCanvas(fTileWidth, fTileHeight);
         SkAutoUnref aur(canvas);
 
-        // Clip the tile to an area that is completely in what the SkPicture says is the
-        // drawn-to area. This is mostly important for tiles on the right and bottom edges
-        // as they may go over this area and the picture may have some commands that
-        // draw outside of this area and so should not actually be written.
-        SkRect clip = SkRect::MakeWH(SkIntToScalar(fPicture->width()),
-                                     SkIntToScalar(fPicture->height()));
         for (int i = 0; i < fTileRects.count(); ++i) {
-            canvas->resetMatrix();
-            canvas->clipRect(clip);
-            // Translate so that we draw the correct portion of the picture
-            canvas->translate(-fTileRects[i].fLeft, -fTileRects[i].fTop);
-            canvas->drawPicture(*(fPicture));
-            canvas->flush();
+            DrawTileToCanvas(canvas, fTileRects[i], fPicture);
             if (doExtraWorkToDrawToBaseCanvas) {
                 SkASSERT(fCanvas.get() != NULL);
                 SkBitmap source = canvas->getDevice()->accessBitmap(false);
@@ -383,6 +452,19 @@ void TiledPictureRenderer::render(bool doExtraWorkToDrawToBaseCanvas) {
             }
         }
     }
+}
+
+SkCanvas* TiledPictureRenderer::setupCanvas(int width, int height) {
+    SkCanvas* canvas = this->INHERITED::setupCanvas(width, height);
+    SkASSERT(fPicture != NULL);
+    // Clip the tile to an area that is completely in what the SkPicture says is the
+    // drawn-to area. This is mostly important for tiles on the right and bottom edges
+    // as they may go over this area and the picture may have some commands that
+    // draw outside of this area and so should not actually be written.
+    SkRect clip = SkRect::MakeWH(SkIntToScalar(fPicture->width()),
+                                 SkIntToScalar(fPicture->height()));
+    canvas->clipRect(clip);
+    return canvas;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
