@@ -113,14 +113,11 @@ void SkMatrixConvolutionImageFilter::filterPixels(const SkBitmap& src, SkBitmap*
                     sumB += SkScalarMul(SkIntToScalar(SkGetPackedB32(s)), k);
                 }
             }
-            int a = SkScalarFloorToInt(SkScalarMul(sumA, fGain) + fBias);
-            int r = SkScalarFloorToInt(SkScalarMul(sumR, fGain) + fBias);
-            int g = SkScalarFloorToInt(SkScalarMul(sumG, fGain) + fBias);
-            int b = SkScalarFloorToInt(SkScalarMul(sumB, fGain) + fBias);
-            *dptr++ = SkPackARGB32(SkClampMax(a, 255),
-                                   SkClampMax(r, 255),
-                                   SkClampMax(g, 255),
-                                   SkClampMax(b, 255));
+            int a = SkClampMax(SkScalarFloorToInt(SkScalarMul(sumA, fGain) + fBias), 255);
+            int r = SkClampMax(SkScalarFloorToInt(SkScalarMul(sumR, fGain) + fBias), a);
+            int g = SkClampMax(SkScalarFloorToInt(SkScalarMul(sumG, fGain) + fBias), a);
+            int b = SkClampMax(SkScalarFloorToInt(SkScalarMul(sumB, fGain) + fBias), a);
+            *dptr++ = SkPackARGB32(a, r, g, b);
         }
     }
 }
