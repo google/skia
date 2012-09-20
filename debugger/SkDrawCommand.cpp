@@ -31,7 +31,7 @@ const char* SkDrawCommand::GetCommandString(DrawType type) {
         case DRAW_BITMAP: return "Draw Bitmap";
         case DRAW_BITMAP_MATRIX: return "Draw Bitmap Matrix";
         case DRAW_BITMAP_NINE: return "Draw Bitmap Nine";
-        case DRAW_BITMAP_RECT: return "Draw Bitmap Rect";
+        case DRAW_BITMAP_RECT_TO_RECT: return "Draw Bitmap Rect";
         case DRAW_DATA: return "Draw Data";
         case DRAW_PAINT: return "Draw Paint";
         case DRAW_PATH: return "Draw Path";
@@ -186,7 +186,7 @@ DrawBitmapRect::DrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
     this->fSrc = src;
     this->fDst = &dst;
     this->fPaint = paint;
-    this->fDrawType = DRAW_BITMAP_RECT;
+    this->fDrawType = DRAW_BITMAP_RECT_TO_RECT;
 
     this->fInfo.push(SkObjectParser::BitmapToString(bitmap));
     if (src) this->fInfo.push(SkObjectParser::RectToString(*src));
@@ -195,7 +195,7 @@ DrawBitmapRect::DrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
 }
 
 void DrawBitmapRect::execute(SkCanvas* canvas) {
-    canvas->drawBitmapRect(*this->fBitmap, this->fSrc, *this->fDst, this->fPaint);
+    canvas->drawBitmapRectToRect(*this->fBitmap, this->fSrc, *this->fDst, this->fPaint);
 }
 
 DrawData::DrawData(const void* data, size_t length) {
