@@ -187,7 +187,7 @@ private:
     SkClipStack fExistingClipStack;
     SkRegion fExistingClipRegion;
     SkPDFArray* fAnnotations;
-    SkRefPtr<SkPDFDict> fResourceDict;
+    SkPDFDict* fResourceDict;
 
     SkTDArray<SkPDFGraphicState*> fGraphicStateResources;
     SkTDArray<SkPDFObject*> fXObjectResources;
@@ -221,7 +221,7 @@ private:
 
     void init();
     void cleanUp(bool clearFontUsage);
-    void createFormXObjectFromDevice(SkRefPtr<SkPDFFormXObject>* xobject);
+    SkPDFFormXObject* createFormXObjectFromDevice();
 
     // Clear the passed clip from all existing content entries.
     void clearClipFromContent(const SkClipStack* clipStack,
@@ -240,7 +240,7 @@ private:
                                     const SkMatrix& matrix,
                                     const SkPaint& paint,
                                     bool hasText,
-                                    SkRefPtr<SkPDFFormXObject>* dst);
+                                    SkPDFFormXObject** dst);
     void finishContentEntry(SkXfermode::Mode xfermode,
                             SkPDFFormXObject* dst);
     bool isContentEmpty();
