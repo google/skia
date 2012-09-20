@@ -20,8 +20,7 @@
     '../bench/InterpBench.cpp',
     '../bench/MathBench.cpp',
     '../bench/MatrixBench.cpp',
-    #Disable this benchmark until non-premul alpha problems are figured out
-    #'../bench/MatrixConvolutionBench.cpp',
+    '../bench/MatrixConvolutionBench.cpp',
     '../bench/MemoryBench.cpp',
     '../bench/MorphologyBench.cpp',
     '../bench/MutexBench.cpp',
