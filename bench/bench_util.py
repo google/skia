@@ -151,15 +151,19 @@ class LinearRegression:
             Sxy += x*y
             Syy += y*y
         
-        B = (n*Sxy - Sx*Sy) / (n*Sxx - Sx*Sx)
+        denom = n*Sxx - Sx*Sx
+        if (denom != 0.0):
+            B = (n*Sxy - Sx*Sy) / denom
+        else:
+            B = 0.0
         a = (1.0/n)*(Sy - B*Sx)
         
         se2 = 0
         sB2 = 0
         sa2 = 0
-        if (n >= 3):
-            se2 = (1.0/(n*(n-2)) * (n*Syy - Sy*Sy - B*B*(n*Sxx - Sx*Sx)))
-            sB2 = (n*se2) / (n*Sxx - Sx*Sx)
+        if (n >= 3 and denom != 0.0):
+            se2 = (1.0/(n*(n-2)) * (n*Syy - Sy*Sy - B*B*denom))
+            sB2 = (n*se2) / denom
             sa2 = sB2 * (1.0/n) * Sxx
         
         
@@ -208,3 +212,10 @@ def CreateRevisionLink(revision_number):
     """
     return '<a href="http://code.google.com/p/skia/source/detail?r=%s">%s</a>'%(
         revision_number, revision_number)
+
+def main():
+    foo = [[0.0, 0.0], [0.0, 1.0], [0.0, 2.0], [0.0, 3.0]]
+    LinearRegression(foo)
+
+if __name__ == "__main__":
+    main()
