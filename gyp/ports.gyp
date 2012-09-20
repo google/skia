@@ -92,7 +92,11 @@
           ],
           'sources': [
             '../src/ports/SkFontHost_mac_coretext.cpp',
+            '../src/utils/mac/SkStream_mac.cpp',
             '../src/ports/SkThread_pthread.cpp',
+          ],
+          'sources!': [
+            '../src/ports/SkFontHost_tables.cpp',
           ],
         }],
         [ 'skia_os == "win"', {

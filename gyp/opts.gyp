@@ -28,7 +28,7 @@
         '../src/opts',
       ],
       'conditions': [
-        [ 'skia_arch_type == "x86"', {
+        [ 'skia_arch_type == "x86" and skia_os != "ios"', {
           'conditions': [
             [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
               'cflags': [
@@ -71,10 +71,16 @@
               'dependencies': [
                 'opts_neon',
               ]
-            }]
+            }],
+            [ 'skia_os == "ios"', {
+              'sources!': [
+                # this needs to be rewritten to be xcode-friendly
+                '../src/opts/memset.arm.S',
+              ],
+            }],
           ],
         }],
-        [ 'skia_arch_type == "arm" and armv7 != 1', {
+        [ '(skia_arch_type == "arm" and armv7 == 0) or (skia_arch_type == "x86" and skia_os == "ios")', {
           'sources': [
             '../src/opts/SkBitmapProcState_opts_none.cpp',
             '../src/opts/SkBlitRow_opts_none.cpp',

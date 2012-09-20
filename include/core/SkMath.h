@@ -40,7 +40,7 @@ int32_t SkSqrtBits(int32_t value, int bitBias);
 //! Returns the number of leading zero bits (0...32)
 int SkCLZ_portable(uint32_t);
 
-#if defined(__arm__)
+#if defined(SK_CPU_ARM)
     #define SkCLZ(x)    __builtin_clz(x)
 #endif
 

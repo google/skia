@@ -1,5 +1,6 @@
 #import "SkOptionsTableViewController.h"
 #include "SkEvent.h"
+#include "SkTArray.h"
 
 @implementation SkOptionItem
 @synthesize fCell, fItem;
@@ -31,7 +32,7 @@
 
 //SkUIViewOptionsDelegate
 - (void) view:(SkUIView*)view didAddMenu:(const SkOSMenu*)menu {}
-- (void) view:(SkUIView*)view didUpdateMenu:(const SkOSMenu*)menu {
+- (void) view:(SkUIView*)view didUpdateMenu:(SkOSMenu*)menu {
     [self updateMenu:menu];
 }
 
@@ -65,7 +66,7 @@
     [self.tableView reloadData];
 }
 
-- (void)loadMenu:(const SkOSMenu*)menu {
+- (void)loadMenu:(SkOSMenu*)menu {
     const SkOSMenu::Item* menuitems[menu->getCount()];
     menu->getItems(menuitems);
     for (int i = 0; i < menu->getCount(); ++i) {
@@ -81,8 +82,9 @@
             
             int count = 0;
             SkOSMenu::FindListItemCount(*item->getEvent(), &count);
-            SkString options[count];
-            SkOSMenu::FindListItems(*item->getEvent(), options);
+            SkTArray<SkString> options;
+            options.resize_back(count);
+            SkOSMenu::FindListItems(*item->getEvent(), &options.front());
             for (int i = 0; i < count; ++i)
                 [List.fOptions addOption:[NSString stringWithUTF8String:options[i].c_str()]];
             SkOSMenu::FindListIndex(*item->getEvent(), item->getSlotName(), &value);
