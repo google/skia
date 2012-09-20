@@ -47,12 +47,12 @@ public:
     /**
      * Perform work that is to be timed. Typically this is rendering, but is also used for recording
      * and preparing picture for playback by the subclasses which do those.
-     * @param doExtraWorkToDrawToBaseCanvas Perform extra work to draw to fCanvas. Some subclasses
-     *                                      will automatically draw to fCanvas, but in the tiled
-     *                                      case, for example, true needs to be passed so that
-     *                                      the tiles will be stitched together on fCanvas.
+     * If path is non-null, subclass implementations should call write().
+     * @param path If non-null, also write the output to the file specified by path. path should
+     *             have no extension; it will be added by write().
+     * @return bool True if path is non-null and the output is successfully written to a file.
      */
-    virtual void render(bool doExtraWorkToDrawToBaseCanvas) = 0;
+    virtual bool render(const SkString* path) = 0;
 
     virtual void end();
     void resetState();
@@ -95,9 +95,14 @@ public:
 #endif
         {}
 
-    bool write(const SkString& path) const;
-
 protected:
+    /**
+     * Write the canvas to the specified path.
+     * @param canvas Must be non-null. Canvas to be written to a file.
+     * @param path Path for the file to be written. Should have no extension; write() will append
+     *             an appropriate one.
+     */
+    bool write(SkCanvas* canvas, SkString path) const;
     SkCanvas* setupCanvas();
     virtual SkCanvas* setupCanvas(int width, int height);
 
@@ -119,7 +124,7 @@ private:
  * to time.
  */
 class RecordPictureRenderer : public PictureRenderer {
-    virtual void render(bool doExtraWorkToDrawToBaseCanvas) SK_OVERRIDE;
+    virtual bool render(const SkString*) SK_OVERRIDE;
 
     virtual SkString getPerIterTimeFormat() SK_OVERRIDE { return SkString("%.4f"); }
 
@@ -128,7 +133,7 @@ class RecordPictureRenderer : public PictureRenderer {
 
 class PipePictureRenderer : public PictureRenderer {
 public:
-    virtual void render(bool doExtraWorkToDrawToBaseCanvas) SK_OVERRIDE;
+    virtual bool render(const SkString*) SK_OVERRIDE;
 
 private:
     typedef PictureRenderer INHERITED;
@@ -136,7 +141,7 @@ private:
 
 class SimplePictureRenderer : public PictureRenderer {
 public:
-    virtual void render(bool doExtraWorkToDrawToBaseCanvas) SK_OVERRIDE;
+    virtual bool render(const SkString*) SK_OVERRIDE;
 
 private:
     typedef PictureRenderer INHERITED;
@@ -147,8 +152,16 @@ public:
     TiledPictureRenderer();
 
     virtual void init(SkPicture* pict) SK_OVERRIDE;
+
     virtual void setup() SK_OVERRIDE;
-    virtual void render(bool doExtraWorkToDrawToBaseCanvas) SK_OVERRIDE;
+
+    /**
+     * Renders to tiles, rather than a single canvas. If a path is provided, a separate file is
+     * created for each tile, named "path0.png", "path1.png", etc.
+     * Multithreaded mode currently does not support writing to a file.
+     */
+    virtual bool render(const SkString* path) SK_OVERRIDE;
+
     virtual void end() SK_OVERRIDE;
 
     void setTileWidth(int width) {
@@ -241,7 +254,7 @@ class PlaybackCreationRenderer : public PictureRenderer {
 public:
     virtual void setup() SK_OVERRIDE;
 
-    virtual void render(bool doExtraWorkToDrawToBaseCanvas) SK_OVERRIDE;
+    virtual bool render(const SkString*) SK_OVERRIDE;
 
     virtual SkString getPerIterTimeFormat() SK_OVERRIDE { return SkString("%.4f"); }
 
