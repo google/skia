@@ -157,7 +157,7 @@ public:
     virtual void* requestBlock(size_t minRequest, size_t* actual) SK_OVERRIDE;
     virtual void notifyWritten(size_t bytes) SK_OVERRIDE;
     void playback(bool silent);
-    bool hasRecorded() const { return fAllocator.blockCount() != 0; }
+    bool hasPendingCommands() const { return fAllocator.blockCount() != 0; }
     size_t storageAllocatedForRecording() const { return fAllocator.totalCapacity(); }
 private:
     enum {
@@ -237,6 +237,7 @@ public:
     SkCanvas* immediateCanvas() const {return fImmediateCanvas;}
     SkDevice* immediateDevice() const {return fImmediateDevice;}
     bool isFreshFrame();
+    bool hasPendingCommands();
     size_t storageAllocatedForRecording() const;
     size_t freeMemoryIfPossible(size_t bytesToFree);
     void flushPendingCommands(PlaybackMode);
@@ -377,7 +378,7 @@ void DeferredDevice::setNotificationClient(
 }
 
 void DeferredDevice::skipPendingCommands() {
-    if (!fRecordingCanvas->isDrawingToLayer() && fPipeController.hasRecorded()) {
+    if (!fRecordingCanvas->isDrawingToLayer() && fPipeController.hasPendingCommands()) {
         fFreshFrame = true;
         flushPendingCommands(kSilent_PlaybackMode);
     }
@@ -389,8 +390,12 @@ bool DeferredDevice::isFreshFrame() {
     return ret;
 }
 
+bool DeferredDevice::hasPendingCommands() {
+    return fPipeController.hasPendingCommands();
+}
+
 void DeferredDevice::flushPendingCommands(PlaybackMode playbackMode) {
-    if (!fPipeController.hasRecorded()) {
+    if (!fPipeController.hasPendingCommands()) {
         return;
     }
     if (playbackMode == kNormal_PlaybackMode && fNotificationClient) {
@@ -587,6 +592,10 @@ bool SkDeferredCanvas::isDeferredDrawing() const {
 
 bool SkDeferredCanvas::isFreshFrame() const {
     return this->getDeferredDevice()->isFreshFrame();
+}
+
+bool SkDeferredCanvas::hasPendingCommands() const {
+    return this->getDeferredDevice()->hasPendingCommands();
 }
 
 void SkDeferredCanvas::silentFlush() {
