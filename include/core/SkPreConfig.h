@@ -144,6 +144,40 @@
 #endif
 
 //////////////////////////////////////////////////////////////////////
+// ARM defines
+
+#if defined(__arm__) && (!defined(__APPLE__) || !TARGET_IPHONE_SIMULATOR)
+    #define SK_CPU_ARM
+
+    #if defined(__GNUC__)
+        #if defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) \
+                || defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) \
+                || defined(__ARM_ARCH_7EM__) || defined(_ARM_ARCH_7)
+            #define SK_ARM_ARCH 7
+        #elif defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_6J__) \
+                || defined(__ARM_ARCH_6K__) || defined(__ARM_ARCH_6Z__) \
+                || defined(__ARM_ARCH_6ZK__) || defined(__ARM_ARCH_6T2__) \
+                || defined(__ARM_ARCH_6M__) || defined(_ARM_ARCH_6)
+            #define SK_ARM_ARCH 6
+        #elif defined(__ARM_ARCH_5__) || defined(__ARM_ARCH_5T__) \
+                || defined(__ARM_ARCH_5E__) || defined(__ARM_ARCH_5TE__) \
+                || defined(__ARM_ARCH_5TEJ__) || defined(_ARM_ARCH_5)
+            #define SK_ARM_ARCH 5
+        #elif defined(__ARM_ARCH_4__) || defined(__ARM_ARCH_4T__) || defined(_ARM_ARCH_4)
+            #define SK_ARM_ARCH 4
+        #else
+            #define SK_ARM_ARCH 3
+        #endif
+
+        #if defined(__thumb2__) && (SK_ARM_ARCH >= 6) \
+                || !defined(__thumb__) && ((SK_ARM_ARCH > 5) || defined(__ARM_ARCH_5E__) \
+                || defined(__ARM_ARCH_5TE__) || defined(__ARM_ARCH_5TEJ__))
+            #define SK_ARM_HAS_EDSP
+        #endif
+    #endif
+#endif
+
+//////////////////////////////////////////////////////////////////////
 
 /**
  *  THUMB is the only known config where we avoid small branches in

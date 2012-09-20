@@ -35,7 +35,7 @@ protected:
     virtual void onHandleInval(const SkIRect&);
     // overrides from SkView
     virtual void onAddMenu(const SkOSMenu*);
-    virtual void onUpdateMenu(const SkOSMenu*);
+    virtual void onUpdateMenu(SkOSMenu*);
     virtual void onSetTitle(const char[]);
 
 private:

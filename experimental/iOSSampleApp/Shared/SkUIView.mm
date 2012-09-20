@@ -97,7 +97,7 @@
 - (void)onAddMenu:(const SkOSMenu*)menu {
     [self.fOptionsDelegate view:self didAddMenu:menu];
 }
-- (void)onUpdateMenu:(const SkOSMenu*)menu {
+- (void)onUpdateMenu:(SkOSMenu*)menu {
     [self.fOptionsDelegate view:self didUpdateMenu:menu];
 }
 

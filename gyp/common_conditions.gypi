@@ -221,7 +221,12 @@
           },
         },
         'xcode_settings': {
+          'ARCHS': 'armv7',
+          'CODE_SIGNING_REQUIRED': 'NO',
+          'CODE_SIGN_IDENTITY[sdk=iphoneos*]': '',
           'SYMROOT': '<(DEPTH)/xcodebuild',
+          'SDKROOT': 'iphoneos',
+          'OTHER_CPLUSPLUSFLAGS': '-fvisibility=hidden -fvisibility-inlines-hidden',
         },
       },
     ],

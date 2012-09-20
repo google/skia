@@ -29,8 +29,8 @@
 @property (nonatomic, retain) SkOptionListItem* fCurrentList;
 
 - (void)registerMenus:(const SkTDArray<SkOSMenu*>*)menus;
-- (void)updateMenu:(const SkOSMenu*)menu;
-- (void)loadMenu:(const SkOSMenu*)menu;
+- (void)updateMenu:(SkOSMenu*)menu;
+- (void)loadMenu:(SkOSMenu*)menu;
 
 - (UITableViewCell*)createAction:(NSString*)title;
 - (UITableViewCell*)createSlider:(NSString*)title min:(float)min max:(float)max default:(float)value;

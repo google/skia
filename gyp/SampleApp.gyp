@@ -204,28 +204,75 @@
             '../samplecode/SampleDecode.cpp',
           ],
           'sources': [
-            '../experimental/iOSSampleApp/SkIOSNotifier.mm',
-            '../experimental/iOSSampleApp/SkTime_iOS.mm',
-            '../experimental/iOSSampleApp/SkUIDetailViewController.mm',
-            '../experimental/iOSSampleApp/SkUIRootViewController.mm',
-            '../experimental/iOSSampleApp/SkUIView_shell.mm',
-
+            '../src/views/mac/SkEventNotifier.h',
+            '../src/views/mac/SkEventNotifier.mm',
+            '../experimental/iOSSampleApp/SkiOSSampleApp-Base.xcconfig',
+            '../experimental/iOSSampleApp/SkiOSSampleApp-Debug.xcconfig',
+            '../experimental/iOSSampleApp/SkiOSSampleApp-Release.xcconfig',
+            '../experimental/iOSSampleApp/iOSSampleApp-Info.plist',
             '../experimental/iOSSampleApp/iOSSampleApp_Prefix.pch',
-            '../experimental/iOSSampleApp/Shared/main.m',
+            '../experimental/iOSSampleApp/Shared/SkOptionListController.h',
+            '../experimental/iOSSampleApp/Shared/SkOptionListController.mm',
+            '../experimental/iOSSampleApp/Shared/SkUIRootViewController.h',
+            '../experimental/iOSSampleApp/Shared/SkUIRootViewController.mm',
+            '../experimental/iOSSampleApp/Shared/SkOptionsTableViewController.h',
+            '../experimental/iOSSampleApp/Shared/SkOptionsTableViewController.mm',
+            '../experimental/iOSSampleApp/Shared/SkUIView.h',
+            '../experimental/iOSSampleApp/Shared/SkUIView.mm',
+            '../experimental/iOSSampleApp/Shared/SkUIDetailViewController.h',
+            '../experimental/iOSSampleApp/Shared/SkUIDetailViewController.mm',
+            '../experimental/iOSSampleApp/Shared/skia_ios.mm',
+
+            # iPad
+            '../experimental/iOSSampleApp/iPad/AppDelegate_iPad.h',
             '../experimental/iOSSampleApp/iPad/AppDelegate_iPad.mm',
+            '../experimental/iOSSampleApp/iPad/SkUISplitViewController.h',
             '../experimental/iOSSampleApp/iPad/SkUISplitViewController.mm',
+            '../experimental/iOSSampleApp/iPad/MainWindow_iPad.xib',
+
+            # iPhone
+            '../experimental/iOSSampleApp/iPhone/AppDelegate_iPhone.h',
             '../experimental/iOSSampleApp/iPhone/AppDelegate_iPhone.mm',
+            '../experimental/iOSSampleApp/iPhone/SkUINavigationController.h',
             '../experimental/iOSSampleApp/iPhone/SkUINavigationController.mm',
+            '../experimental/iOSSampleApp/iPhone/MainWindow_iPhone.xib',
 
             '../src/views/ios/SkOSWindow_iOS.mm',
             '../src/utils/ios/SkImageDecoder_iOS.mm',
             '../src/utils/ios/SkStream_NSData.mm',
             '../src/utils/ios/SkOSFile_iOS.mm',
 
+            '../include/utils/mac/SkCGUtils.h',
             '../src/utils/mac/SkCreateCGImageRef.cpp',
             '../experimental/iOSSampleApp/SkiOSSampleApp-Debug.xcconfig',
             '../experimental/iOSSampleApp/SkiOSSampleApp-Release.xcconfig',
           ],
+          'link_settings': {
+            'variables': {
+              'ios_sdk_version%': '5.1',
+            },
+            'conditions' : [
+              [ 'skia_arch_type == "x86"', {
+                'variables': {
+                  'ios_sdk_dir%': '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator',
+                },
+              }],
+              [ 'skia_arch_type == "arm"', {
+                'variables': {
+                  'ios_sdk_dir%': '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS',
+                },
+              }],
+            ],
+            'libraries': [
+              '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/CoreFoundation.framework',
+              '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/CoreGraphics.framework',
+              '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/CoreText.framework',
+              '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/UIKit.framework',
+              '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/Foundation.framework',
+              '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/QuartzCore.framework',
+              '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/OpenGLES.framework',
+            ],
+          },
           'include_dirs' : [
             '../experimental/iOSSampleApp',
             '../experimental/iOSSampleApp/iPad',

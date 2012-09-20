@@ -138,11 +138,11 @@ static void toString(const void* text, size_t byteLen, SkPaint::TextEncoding enc
                         byteLen > 32 ? "..." : "");
             break;
         case SkPaint::kUTF16_TextEncoding:
-            str->appendf("\"%.*S\"%s", SkMax32(byteLen, 32), (const wchar_t*) text,
+            str->appendf("\"%.*ls\"%s", SkMax32(byteLen, 32), (const wchar_t*) text,
                         byteLen > 64 ? "..." : "");
             break;
         case SkPaint::kUTF32_TextEncoding:
-            str->appendf("\"%.*S\"%s", SkMax32(byteLen, 32), (const wchar_t*) text,
+            str->appendf("\"%.*ls\"%s", SkMax32(byteLen, 32), (const wchar_t*) text,
                         byteLen > 128 ? "..." : "");
             break;
         case SkPaint::kGlyphID_TextEncoding:
