@@ -181,7 +181,7 @@
         'xcode_settings': {
           'GCC_SYMBOLS_PRIVATE_EXTERN': 'NO',
           'SYMROOT': '<(DEPTH)/xcodebuild',
-          'SDKROOT': 'macosx10.6',
+          'SDKROOT': '<(skia_osx_sdkroot)',
 # trying to get this to work, but it needs clang I think...
 #          'WARNING_CFLAGS': '-Wexit-time-destructors',
           'CLANG_WARN_CXX0X_EXTENSIONS': 'NO',

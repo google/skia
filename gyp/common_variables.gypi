@@ -78,6 +78,7 @@
       'android_make_apk%': 1,
       'skia_nacl%': 0,
       'skia_gpu%': 1,
+      'skia_osx_sdkroot%': 'macosx10.6',
     },
 
     # Re-define all variables defined within the level-2 'variables' dict,
@@ -94,6 +95,7 @@
     'android_make_apk%': '<(android_make_apk)',
     'skia_nacl%': '<(skia_nacl)',
     'skia_gpu%': '<(skia_gpu)',
+    'skia_osx_sdkroot%': '<(skia_osx_sdkroot)',
     'skia_static_initializers%': '<(skia_static_initializers)',
 
     # These are referenced by our .gypi files that list files (e.g. core.gypi)
