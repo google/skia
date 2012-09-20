@@ -145,11 +145,12 @@ public:
     bool operator== (const GrTextureAccess& other) const {
 #if GR_DEBUG
         // below assumes all chars in fSwizzle are initialized even if string is < 4 chars long.
-        GrAssert(memcmp(fSwizzle, other.fSwizzle, sizeof(fSwizzle)) ==
+        GrAssert(memcmp(fSwizzle, other.fSwizzle, sizeof(fSwizzle)-1) ==
                  strcmp(fSwizzle, other.fSwizzle));
 #endif
         return fParams == other.fParams &&
-               memcmp(fSwizzle, other.fSwizzle, sizeof(fSwizzle));
+               (fTexture.get() == other.fTexture.get()) &&
+               (0 == memcmp(fSwizzle, other.fSwizzle, sizeof(fSwizzle)-1));
     }
 
     bool operator!= (const GrTextureAccess& other) const { return !(*this == other); }
