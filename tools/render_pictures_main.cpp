@@ -75,19 +75,8 @@ static void usage(const char* argv0) {
 static void make_output_filepath(SkString* path, const SkString& dir,
                                  const SkString& name) {
     sk_tools::make_filepath(path, dir, name);
-    path->remove(path->size() - 3, 3);
-    path->append("png");
-}
-
-static bool write_output(const SkString& outputDir, const SkString& inputFilename,
-                         const sk_tools::PictureRenderer& renderer) {
-    SkString outputPath;
-    make_output_filepath(&outputPath, outputDir, inputFilename);
-    bool isWritten = renderer.write(outputPath);
-    if (!isWritten) {
-        SkDebugf("Could not write to file %s\n", outputPath.c_str());
-    }
-    return isWritten;
+    // Remove ".skp"
+    path->remove(path->size() - 4, 4);
 }
 
 static bool render_picture(const SkString& inputPath, const SkString& outputDir,
@@ -118,11 +107,15 @@ static bool render_picture(const SkString& inputPath, const SkString& outputDir,
 
     renderer.init(aur);
 
-    renderer.render(true);
+    SkString outputPath;
+    make_output_filepath(&outputPath, outputDir, inputFilename);
+
+    success = renderer.render(&outputPath);
+    if (!success) {
+        SkDebugf("Could not write to file %s\n", outputPath.c_str());
+    }
 
     renderer.resetState();
-
-    success = write_output(outputDir, inputFilename, renderer);
 
     renderer.end();
     return success;

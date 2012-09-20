@@ -99,38 +99,43 @@ void PictureRenderer::resetState() {
 #endif
 }
 
-bool PictureRenderer::write(const SkString& path) const {
-    SkASSERT(fCanvas.get() != NULL);
+bool PictureRenderer::write(SkCanvas* canvas, SkString path) const {
+    SkASSERT(canvas != NULL);
     SkASSERT(fPicture != NULL);
-    if (NULL == fCanvas.get() || NULL == fPicture) {
+    if (NULL == canvas || NULL == fPicture) {
         return false;
     }
 
     SkBitmap bitmap;
-    sk_tools::setup_bitmap(&bitmap, fPicture->width(), fPicture->height());
+    SkISize size = canvas->getDeviceSize();
+    sk_tools::setup_bitmap(&bitmap, size.width(), size.height());
 
-    fCanvas->readPixels(&bitmap, 0, 0);
+    canvas->readPixels(&bitmap, 0, 0);
     sk_tools::force_all_opaque(bitmap);
 
+    // Since path is passed in by value, it is okay to modify it.
+    path.append(".png");
     return SkImageEncoder::EncodeFile(path.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-void RecordPictureRenderer::render(bool doExtraWorkToDrawToBaseCanvas) {
+bool RecordPictureRenderer::render(const SkString*) {
     SkPicture replayer;
     SkCanvas* recorder = replayer.beginRecording(fPicture->width(), fPicture->height());
     fPicture->draw(recorder);
     replayer.endRecording();
+    // Since this class does not actually render, return false.
+    return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-void PipePictureRenderer::render(bool doExtraWorkToDrawToBaseCanvas) {
+bool PipePictureRenderer::render(const SkString* path) {
     SkASSERT(fCanvas.get() != NULL);
     SkASSERT(fPicture != NULL);
     if (NULL == fCanvas.get() || NULL == fPicture) {
-        return;
+        return false;
     }
 
     PipeController pipeController(fCanvas.get());
@@ -139,19 +144,21 @@ void PipePictureRenderer::render(bool doExtraWorkToDrawToBaseCanvas) {
     pipeCanvas->drawPicture(*fPicture);
     writer.endRecording();
     fCanvas->flush();
+    return path != NULL && this->write(fCanvas, *path);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-void SimplePictureRenderer::render(bool doExtraWorkToDrawToBaseCanvas) {
+bool SimplePictureRenderer::render(const SkString* path) {
     SkASSERT(fCanvas.get() != NULL);
     SkASSERT(fPicture != NULL);
     if (NULL == fCanvas.get() || NULL == fPicture) {
-        return;
+        return false;
     }
 
     fCanvas->drawPicture(*fPicture);
     fCanvas->flush();
+    return path != NULL && this->write(fCanvas, *path);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -398,16 +405,10 @@ void TiledPictureRenderer::setup() {
     }
 }
 
-void TiledPictureRenderer::render(bool doExtraWorkToDrawToBaseCanvas) {
+bool TiledPictureRenderer::render(const SkString* path) {
     SkASSERT(fPicture != NULL);
     if (NULL == fPicture) {
-        return;
-    }
-
-    if (doExtraWorkToDrawToBaseCanvas) {
-        if (NULL == fCanvas.get()) {
-            fCanvas.reset(this->INHERITED::setupCanvas());
-        }
+        return false;
     }
 
     if (this->multiThreaded()) {
@@ -437,6 +438,8 @@ void TiledPictureRenderer::render(bool doExtraWorkToDrawToBaseCanvas) {
             SkDELETE(thread);
         }
         threads.reset();
+        // Currently multithreaded is not an option for render_pictures
+        return false;
     } else {
         // For single thread, we really only need one canvas total.
         SkCanvas* canvas = this->setupCanvas(fTileWidth, fTileHeight);
@@ -444,13 +447,15 @@ void TiledPictureRenderer::render(bool doExtraWorkToDrawToBaseCanvas) {
 
         for (int i = 0; i < fTileRects.count(); ++i) {
             DrawTileToCanvas(canvas, fTileRects[i], fPicture);
-            if (doExtraWorkToDrawToBaseCanvas) {
-                SkASSERT(fCanvas.get() != NULL);
-                SkBitmap source = canvas->getDevice()->accessBitmap(false);
-                fCanvas->drawBitmap(source, fTileRects[i].fLeft, fTileRects[i].fTop);
-                fCanvas->flush();
+            if (path != NULL) {
+                SkString tilePath(*path);
+                tilePath.appendf("%i", i);
+                if (!this->write(canvas, tilePath)) {
+                    return false;
+                }
             }
         }
+        return path != NULL;
     }
 }
 
@@ -474,8 +479,10 @@ void PlaybackCreationRenderer::setup() {
     fPicture->draw(recorder);
 }
 
-void PlaybackCreationRenderer::render(bool doExtraWorkToDrawToBaseCanvas) {
+bool PlaybackCreationRenderer::render(const SkString*) {
     fReplayer.endRecording();
+    // Since this class does not actually render, return false.
+    return false;
 }
 
 }

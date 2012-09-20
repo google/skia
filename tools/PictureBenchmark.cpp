@@ -71,7 +71,7 @@ void PictureBenchmark::run(SkPicture* pict) {
 
     // We throw this away to remove first time effects (such as paging in this program)
     fRenderer->setup();
-    fRenderer->render(false);
+    fRenderer->render(NULL);
     fRenderer->resetState();
 
     BenchTimer* timer = this->setupTimer();
