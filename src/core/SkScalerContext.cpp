@@ -314,6 +314,9 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
 
         src.fImage = NULL;  // only want the bounds from the filter
         if (fMaskFilter->filterMask(&dst, src, matrix, NULL)) {
+            if (dst.fBounds.isEmpty() || !dst.fBounds.is16Bit()) {
+                goto SK_ERROR;
+            }
             SkASSERT(dst.fImage == NULL);
             glyph->fLeft    = dst.fBounds.fLeft;
             glyph->fTop     = dst.fBounds.fTop;
