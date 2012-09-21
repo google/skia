@@ -52,9 +52,7 @@ void SkGraphics::GetVersion(int32_t* major, int32_t* minor, int32_t* patch) {
 #endif
 
 void SkGraphics::Init() {
-#if !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
     SkFlattenable::InitializeFlattenables();
-#endif
 #ifdef BUILD_EMBOSS_TABLE
     SkEmbossMask_BuildTable();
 #endif

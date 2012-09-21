@@ -299,8 +299,6 @@ SkShader* SkShader::CreateBitmapShader(const SkBitmap& src,
     return shader;
 }
 
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkBitmapProcShader)
-
 ///////////////////////////////////////////////////////////////////////////////
 
 static const char* gTileModeName[] = {

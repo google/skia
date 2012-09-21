@@ -37,5 +37,3 @@ SkDataPixelRef::SkDataPixelRef(SkFlattenableReadBuffer& buffer)
     fData = (SkData*)buffer.readFlattenable();
     this->setPreLocked(const_cast<void*>(fData->data()), NULL);
 }
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkDataPixelRef)

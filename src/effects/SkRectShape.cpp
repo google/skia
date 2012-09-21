@@ -85,6 +85,3 @@ void SkPaintShape::flatten(SkFlattenableWriteBuffer& buffer) const {
 SkPaintShape::SkPaintShape(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
     buffer.readPaint(&fPaint);
 }
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkRectShape)
-

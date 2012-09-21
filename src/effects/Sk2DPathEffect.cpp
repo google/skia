@@ -76,8 +76,6 @@ Sk2DPathEffect::Sk2DPathEffect(SkFlattenableReadBuffer& buffer) {
     fMatrixIsInvertible = fMatrix.invert(&fInverse);
 }
 
-SK_DEFINE_FLATTENABLE_REGISTRAR(Sk2DPathEffect)
-
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkLine2DPathEffect::filterPath(SkPath *dst, const SkPath &src, SkStrokeRec *rec) {
@@ -110,8 +108,6 @@ void SkLine2DPathEffect::flatten(SkFlattenableWriteBuffer &buffer) const {
     buffer.writeScalar(fWidth);
 }
 
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkLine2DPathEffect)
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkPath2DPathEffect::SkPath2DPathEffect(const SkMatrix& m, const SkPath& p)
@@ -131,7 +127,3 @@ void SkPath2DPathEffect::flatten(SkFlattenableWriteBuffer& buffer) const {
 void SkPath2DPathEffect::next(const SkPoint& loc, int u, int v, SkPath* dst) {
     dst->addPath(fPath, loc.fX, loc.fY);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkPath2DPathEffect)

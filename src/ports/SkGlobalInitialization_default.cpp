@@ -7,8 +7,6 @@
 
 #include "SkTypes.h"
 
-#if !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
-
 #include "SkBitmapProcShader.h"
 #include "SkFlipPixelRef.h"
 #include "SkImageRef_ashmem.h"
@@ -99,5 +97,3 @@ void SkFlattenable::InitializeFlattenables() {
     SkTableColorFilter::InitializeFlattenables();
     SkXfermode::InitializeFlattenables();
 }
-
-#endif

@@ -231,5 +231,3 @@ SkImageRef_ashmem::SkImageRef_ashmem(SkFlattenableReadBuffer& buffer)
     }
     this->useDefaultMutex();   // we don't need/want the shared imageref mutex
 }
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkImageRef_ashmem)

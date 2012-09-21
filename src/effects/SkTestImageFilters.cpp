@@ -343,8 +343,3 @@ void SkDownSampleImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
 SkDownSampleImageFilter::SkDownSampleImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
     fScale = buffer.readScalar();
 }
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkOffsetImageFilter)
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkComposeImageFilter)
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkMergeImageFilter)
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkDownSampleImageFilter)

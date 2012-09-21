@@ -131,5 +131,3 @@ void SkEmbossMaskFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     buffer.writeByteArray(&tmpLight, sizeof(tmpLight));
     buffer.writeScalar(fBlurRadius);
 }
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkEmbossMaskFilter)

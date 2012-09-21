@@ -332,8 +332,6 @@ SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
     return kColor_GradientType;
 }
 
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkColorShader)
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkEmptyShader.h"
@@ -355,5 +353,3 @@ void SkEmptyShader::shadeSpan16(int x, int y, uint16_t span[], int count) {
 void SkEmptyShader::shadeSpanAlpha(int x, int y, uint8_t alpha[], int count) {
     SkDEBUGFAIL("should never get called, since setContext() returned false");
 }
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkEmptyShader)

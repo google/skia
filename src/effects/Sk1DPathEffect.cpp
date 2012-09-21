@@ -197,8 +197,3 @@ SkScalar SkPath1DPathEffect::next(SkPath* dst, SkScalar distance,
     }
     return fAdvance;
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkPath1DPathEffect)
-

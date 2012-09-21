@@ -28,5 +28,3 @@ SkPixelXorXfermode::SkPixelXorXfermode(SkFlattenableReadBuffer& rb)
         : INHERITED(rb) {
     fOpColor = rb.readColor();
 }
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkPixelXorXfermode)

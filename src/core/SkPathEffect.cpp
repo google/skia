@@ -171,9 +171,3 @@ bool SkSumPathEffect::filterPath(SkPath* dst, const SkPath& src,
     // use bit-or so that we always call both, even if the first one succeeds
     return fPE0->filterPath(dst, src, rec) | fPE1->filterPath(dst, src, rec);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkComposePathEffect)
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkSumPathEffect)
-

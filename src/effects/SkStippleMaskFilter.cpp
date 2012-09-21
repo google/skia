@@ -44,5 +44,3 @@ bool SkStippleMaskFilter::filterMask(SkMask* dst,
 
     return true;
 }
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkStippleMaskFilter)

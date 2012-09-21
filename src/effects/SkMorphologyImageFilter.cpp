@@ -489,6 +489,3 @@ GrTexture* SkErodeImageFilter::onFilterImageGPU(GrTexture* src, const SkRect& re
 }
 
 #endif
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkDilateImageFilter)
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkErodeImageFilter)

@@ -52,6 +52,3 @@ bool SkColorFilterImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& sourc
     *result = device.get()->accessBitmap(false);
     return true;
 }
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkColorFilterImageFilter)
-

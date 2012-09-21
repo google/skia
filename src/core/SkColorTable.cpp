@@ -155,5 +155,3 @@ void SkColorTable::flatten(SkFlattenableWriteBuffer& buffer) const {
     buffer.writeUInt(fFlags);
     buffer.writeColorArray(fColors, fCount);
 }
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkColorTable)

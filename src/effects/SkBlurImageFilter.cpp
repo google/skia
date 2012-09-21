@@ -197,5 +197,3 @@ GrTexture* SkBlurImageFilter::onFilterImageGPU(GrTexture* src, const SkRect& rec
     return NULL;
 #endif
 }
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkBlurImageFilter)
