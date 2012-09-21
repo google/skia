@@ -273,6 +273,12 @@ static void TestPDFPrimitives(skiatest::Reporter* reporter) {
     CheckObjectOutput(reporter, name.get(), expectedResult,
                       strlen(expectedResult), false, false);
 
+    SkRefPtr<SkPDFName> escapedName = new SkPDFName("A#/%()<>[]{}B");
+    escapedName->unref();  // SkRefPtr and new both took a reference.
+    const char escapedNameExpected[] = "/A#23#2F#25#28#29#3C#3E#5B#5D#7B#7DB";
+    CheckObjectOutput(reporter, escapedName.get(), escapedNameExpected,
+                      strlen(escapedNameExpected), false, false);
+
     // Test that we correctly handle characters with the high-bit set.
     const unsigned char highBitCString[] = {0xDE, 0xAD, 'b', 'e', 0xEF, 0};
     SkRefPtr<SkPDFName> highBitName = new SkPDFName((const char*)highBitCString);
