@@ -758,7 +758,7 @@ public:
             deferredCanvas.flush();
         }
 
-        testStep->setAssertMessageFormat( 
+        testStep->setAssertMessageFormat(
             silent ? kDeferredPostSilentFlushPlaybackAssertMessageFormat :
             kDeferredPostFlushPlaybackAssertMessageFormat);
         AssertCanvasStatesEqual(reporter,
