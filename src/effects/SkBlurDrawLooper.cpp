@@ -115,8 +115,3 @@ bool SkBlurDrawLooper::next(SkCanvas* canvas, SkPaint* paint) {
             return false;
     }
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkBlurDrawLooper)
-

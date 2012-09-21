@@ -90,7 +90,7 @@ void SkFlattenable::Register(const char name[], Factory factory) {
     gCount += 1;
 }
 
-#if !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS && defined(SK_DEBUG)
+#ifdef SK_DEBUG
 static void report_no_entries(const char* functionName) {
     if (!gCount) {
         SkDebugf("%s has no registered name/factory pairs."
@@ -101,7 +101,7 @@ static void report_no_entries(const char* functionName) {
 #endif
 
 SkFlattenable::Factory SkFlattenable::NameToFactory(const char name[]) {
-#if !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS && defined(SK_DEBUG)
+#ifdef SK_DEBUG
     report_no_entries(__FUNCTION__);
 #endif
     const Pair* pairs = gPairs;
@@ -114,7 +114,7 @@ SkFlattenable::Factory SkFlattenable::NameToFactory(const char name[]) {
 }
 
 const char* SkFlattenable::FactoryToName(Factory fact) {
-#if !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS && defined(SK_DEBUG)
+#ifdef SK_DEBUG
     report_no_entries(__FUNCTION__);
 #endif
     const Pair* pairs = gPairs;

@@ -256,7 +256,3 @@ SkDashPathEffect::SkDashPathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(
     fIntervals = (SkScalar*)sk_malloc_throw(sizeof(SkScalar) * fCount);
     buffer.readScalarArray(fIntervals);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkDashPathEffect)

@@ -25,5 +25,3 @@ bool SkBitmapSource::onFilterImage(Proxy*, const SkBitmap&, const SkMatrix&,
     *result = fBitmap;
     return true;
 }
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkBitmapSource)

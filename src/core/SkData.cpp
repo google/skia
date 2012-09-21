@@ -141,8 +141,6 @@ SkData::SkData(SkFlattenableReadBuffer& buffer) {
     buffer.readByteArray(const_cast<void*>(fPtr));
 }
 
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkData)
-
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -302,5 +300,3 @@ SkDataSet* SkDataSet::NewEmpty() {
     gEmptySet->ref();
     return gEmptySet;
 }
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkDataSet)

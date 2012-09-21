@@ -175,5 +175,3 @@ bool SkMatrixConvolutionImageFilter::onFilterImage(Proxy* proxy,
     filterBorderPixels(src, result, bottom);
     return true;
 }
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkMatrixConvolutionImageFilter)

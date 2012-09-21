@@ -317,5 +317,3 @@ bool SkColorMatrixFilter::asColorMatrix(SkScalar matrix[20]) {
     }
     return true;
 }
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkColorMatrixFilter)

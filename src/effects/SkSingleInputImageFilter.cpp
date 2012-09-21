@@ -81,5 +81,3 @@ GrTexture* SkSingleInputImageFilter::getInputResultAsTexture(GrTexture* src,
     return resultTex;
 }
 #endif
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkSingleInputImageFilter)

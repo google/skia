@@ -339,5 +339,3 @@ bool SkMagnifierImageFilter::onFilterImage(Proxy*, const SkBitmap& src,
     }
     return true;
 }
-
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkMagnifierImageFilter)

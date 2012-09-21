@@ -38,8 +38,6 @@ void SkAnnotation::flatten(SkFlattenableWriteBuffer& buffer) const {
     buffer.writeFlattenable(fDataSet);
 }
 
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkAnnotation)
-
 const char* SkAnnotationKeys::URL_Key() {
     return "SkAnnotationKey_URL";
 };

@@ -27,11 +27,6 @@ int random_int(GrRandom* r, int count) {
     return (int)(r->nextF() * count);
 }
 
-// min is inclusive, max is exclusive
-int random_int(GrRandom* r, int min, int max) {
-    return (int)(r->nextF() * (max-min)) + min;
-}
-
 bool random_bool(GrRandom* r) {
     return r->nextF() > .5f;
 }

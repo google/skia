@@ -75,8 +75,6 @@ SkFlipPixelRef::SkFlipPixelRef(SkFlattenableReadBuffer& buffer)
     buffer.readByteArray(fPage0);
 }
 
-SK_DEFINE_FLATTENABLE_REGISTRAR(SkFlipPixelRef)
-
 ///////////////////////////////////////////////////////////////////////////////
 
 static void copyRect(const SkBitmap& dst, const SkIRect& rect,
