@@ -75,7 +75,7 @@ SkPDFDocument::~SkPDFDocument() {
     fPageTree.safeUnrefAll();
     fPageResources.safeUnrefAll();
     fSubstitutes.safeUnrefAll();
-    
+
     fDocCatalog->unref();
     SkSafeUnref(fTrailerDict);
 }

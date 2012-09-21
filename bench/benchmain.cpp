@@ -770,7 +770,7 @@ int main (int argc, char * const argv[]) {
             SkPicture pictureRecordFrom;
             SkPicture pictureRecordTo;
             switch(benchMode) {
-                case kDeferredSilent_benchModes: 
+                case kDeferredSilent_benchModes:
                 case kDeferred_benchModes:
                     canvas = new SkDeferredCanvas(device);
                     break;
