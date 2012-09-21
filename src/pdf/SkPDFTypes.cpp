@@ -301,10 +301,12 @@ size_t SkPDFName::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
 // static
 SkString SkPDFName::FormatName(const SkString& input) {
     SkASSERT(input.size() <= kMaxLen);
+    // TODO(vandebo) If more escaping is needed, improve the linear scan.
+    static const char escaped[] = "#/%()<>[]{}";
 
     SkString result("/");
     for (size_t i = 0; i < input.size(); i++) {
-        if (input[i] & 0x80 || input[i] < '!' || input[i] == '#') {
+        if (input[i] & 0x80 || input[i] < '!' || strchr(escaped, input[i])) {
             result.append("#");
             // Mask with 0xFF to avoid sign extension. i.e. #FFFFFF81
             result.appendHex(input[i] & 0xFF, 2);
