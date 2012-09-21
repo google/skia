@@ -508,7 +508,8 @@ static ErrorBitfield handle_test_results(GM* gm,
 static SkPicture* generate_new_picture(GM* gm) {
     // Pictures are refcounted so must be on heap
     SkPicture* pict = new SkPicture;
-    SkCanvas* cv = pict->beginRecording(1000, 1000);
+    SkISize size = gm->getISize();
+    SkCanvas* cv = pict->beginRecording(size.width(), size.height());
     invokeGM(gm, cv);
     pict->endRecording();
 
