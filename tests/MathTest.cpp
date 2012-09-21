@@ -591,7 +591,7 @@ static void TestMath(skiatest::Reporter* reporter) {
     test_blend(reporter);
 #endif
 
-    test_floor(reporter);
+//    test_floor(reporter);
 
     // disable for now
     if (false) test_blend31();  // avoid bit rot, suppress warning
