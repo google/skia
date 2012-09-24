@@ -84,7 +84,7 @@
             ],
           },
         }],
-        [ 'skia_os in ["android", "ios"]', {
+        [ 'skia_os in ["ios"]', {
           'error': '<!(debugger unsupported with skia_os=<(skia_os))'
         }],
         [ 'skia_os == "win"', {
