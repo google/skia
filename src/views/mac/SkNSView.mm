@@ -57,7 +57,9 @@ SK_COMPILE_ASSERT(SK_SUPPORT_GPU, not_implemented_for_non_gpu_build);
 - (void)resizeSkView:(NSSize)newSize {
     if (NULL != fWind && (fWind->width() != newSize.width || fWind->height() != newSize.height)) {
         fWind->resize((int) newSize.width, (int) newSize.height);
-        glClear(GL_STENCIL_BUFFER_BIT);
+        if (NULL != fGLContext) {
+            glClear(GL_STENCIL_BUFFER_BIT);
+        }
         [fGLContext update];
     }
 }

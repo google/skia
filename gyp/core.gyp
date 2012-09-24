@@ -57,21 +57,6 @@
             '../include/utils/mac/SkCGUtils.h',
           ],
           'link_settings': {
-            'variables': {
-              'ios_sdk_version%': '5.1',
-            },
-            'conditions' : [
-              [ 'skia_arch_type == "x86"', {
-                'variables': {
-                  'ios_sdk_dir%': '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator',
-                },
-              }],
-              [ 'skia_arch_type == "arm"', {
-                'variables': {
-                  'ios_sdk_dir%': '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS',
-                },
-              }],
-            ],
             'libraries': [
               '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/CoreFoundation.framework',
               '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/CoreGraphics.framework',
@@ -80,6 +65,8 @@
               '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/Foundation.framework',
               '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/QuartzCore.framework',
               '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/OpenGLES.framework',
+              '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/ImageIO.framework',
+              '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/MobileCoreServices.framework',
             ],
           },
         }],

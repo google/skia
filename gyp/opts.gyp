@@ -74,13 +74,15 @@
             }],
             [ 'skia_os == "ios"', {
               'sources!': [
-                # this needs to be rewritten to be xcode-friendly
+                # these fail to compile under xcode for ios
                 '../src/opts/memset.arm.S',
+                '../src/opts/SkBitmapProcState_opts_arm.cpp',
+                '../src/opts/SkBlitRow_opts_arm.cpp',
               ],
             }],
           ],
         }],
-        [ '(skia_arch_type == "arm" and armv7 == 0) or (skia_arch_type == "x86" and skia_os == "ios")', {
+        [ '(skia_arch_type == "arm" and armv7 == 0) or (skia_os == "ios")', {
           'sources': [
             '../src/opts/SkBitmapProcState_opts_none.cpp',
             '../src/opts/SkBlitRow_opts_none.cpp',
