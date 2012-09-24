@@ -91,7 +91,7 @@ const char* GrGLSLVectorNonhomogCoords(int count) {
     return NONHOMOGS[count];
 }
 
-const char* GrGLSLVectorNonhomogCoord(GrSLType type) {
+const char* GrGLSLVectorNonhomogCoords(GrSLType type) {
     return GrGLSLVectorNonhomogCoords(GrSLTypeToVecLength(type));
 }
 

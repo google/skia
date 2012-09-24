@@ -84,7 +84,6 @@ void GrTextureAccess::reset(GrTexture* texture,
 void GrTextureAccess::setSwizzle(const char* swizzle) {
     fSwizzleMask = 0;
     memset(fSwizzle, '\0', 5);
-    int i = 0;
     for (int i = 0; i < 4 && '\0' != swizzle[i]; ++i) {
         fSwizzle[i] = swizzle[i];
         switch (swizzle[i]) {
