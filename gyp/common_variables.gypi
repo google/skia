@@ -51,6 +51,8 @@
       # so that siblings of the level-2 'variables' dict can see them.
       'skia_os%': '<(skia_os)',
 
+      'skia_arch_type%': 'x86',
+
       'conditions': [
         ['skia_os == "win"', {
           'os_posix%': 0,
@@ -78,7 +80,6 @@
       'skia_mesa%': 0,
       'skia_nv_path_rendering%': 0,
       'skia_angle%': 0,
-      'skia_arch_type%': 'x86',
       'skia_directwrite%': 0,
       'android_make_apk%': 1,
       'skia_nacl%': 0,
