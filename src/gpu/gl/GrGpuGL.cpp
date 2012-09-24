@@ -1073,8 +1073,6 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
         return false;
     }
 
-    GrGLStencilBuffer* sb = NULL;
-
     int stencilFmtCnt = this->glCaps().stencilFormats().count();
     for (int i = 0; i < stencilFmtCnt; ++i) {
         GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, sbID));
@@ -2032,7 +2030,6 @@ void GrGpuGL::flushBoundTextureAndParams(int stage) {
 void GrGpuGL::flushBoundTextureAndParams(int stage,
                                          const GrTextureParams& params,
                                          GrGLTexture* nextTexture) {
-    GrDrawState* drawState = this->drawState();
 
     // true for now, but maybe not with GrEffect.
     GrAssert(NULL != nextTexture);

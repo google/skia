@@ -1162,7 +1162,7 @@ void SkBitmap::buildMipMap(bool forceRebuild) {
     uint8_t*    addr = (uint8_t*)mm->pixels();
     int         width = this->width();
     int         height = this->height();
-    unsigned    rowBytes = this->rowBytes();
+    unsigned    rowBytes;
     SkBitmap    dstBM;
 
     for (int i = 0; i < maxLevels; i++) {

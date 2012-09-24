@@ -1662,8 +1662,6 @@ bool SkGpuDevice::filterImage(SkImageFilter* filter, const SkBitmap& src,
     GrPaint paint;
     paint.reset();
 
-    GrSamplerState* sampler = paint.textureSampler(kBitmapTextureIdx);
-
     GrTexture* texture;
     // We assume here that the filter will not attempt to tile the src. Otherwise, this cache lookup
     // must be pushed upstack.

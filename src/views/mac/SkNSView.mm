@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#import "SkNSView.h"s
+#import "SkNSView.h"
 #include "SkCanvas.h"
 #include "SkCGUtils.h"
 #include "SkEvent.h"
