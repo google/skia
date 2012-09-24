@@ -9,7 +9,6 @@
 #include "GrTextureStripAtlas.h"
 #include "SkPixelRef.h"
 #include "SkTSearch.h"
-#include "GrBinHashKey.h"
 #include "GrTexture.h"
 
 #ifdef SK_DEBUG
@@ -20,35 +19,57 @@
 
 GR_DEFINE_RESOURCE_CACHE_DOMAIN(GrTextureStripAtlas, GetTextureStripAtlasDomain)
 
+
 int32_t GrTextureStripAtlas::gCacheCount = 0;
 
-// Hash table entry for atlases
-class AtlasEntry;
-typedef GrTBinHashKey<AtlasEntry, sizeof(GrTextureStripAtlas::Desc)> AtlasHashKey;
-class AtlasEntry : public ::GrNoncopyable {
-public:
-    AtlasEntry() : fAtlas(NULL) {}
-    ~AtlasEntry() { SkDELETE(fAtlas); }
-    int compare(const AtlasHashKey& key) const { return fKey.compare(key); }
-    AtlasHashKey fKey;
-    GrTextureStripAtlas* fAtlas;
-};
+GrTHashTable<GrTextureStripAtlas::AtlasEntry, 
+                GrTextureStripAtlas::AtlasHashKey, 8>* 
+                            GrTextureStripAtlas::gAtlasCache = NULL;
+
+GrTHashTable<GrTextureStripAtlas::AtlasEntry, GrTextureStripAtlas::AtlasHashKey, 8>*
+GrTextureStripAtlas::GetCache() {
+
+    if (NULL == gAtlasCache) {
+        gAtlasCache = SkNEW((GrTHashTable<AtlasEntry, AtlasHashKey, 8>));
+    }
+
+    return gAtlasCache;
+}
+
+// Remove the specified atlas from the cache
+void GrTextureStripAtlas::CleanUp(const GrContext* context, void* info) {
+    GrAssert(NULL != info);
+
+    AtlasEntry* entry = static_cast<AtlasEntry*>(info);
+
+    // remove the cache entry
+    GetCache()->remove(entry->fKey, entry);
+
+    // remove the actual entry
+    SkDELETE(entry);
+
+    if (0 == GetCache()->count()) {
+        SkDELETE(gAtlasCache);
+        gAtlasCache = NULL;
+    }
+}
 
 GrTextureStripAtlas* GrTextureStripAtlas::GetAtlas(const GrTextureStripAtlas::Desc& desc) {
-    static SkTDArray<AtlasEntry> gAtlasEntries;
-    static GrTHashTable<AtlasEntry, AtlasHashKey, 8> gAtlasCache;
     AtlasHashKey key;
     key.setKeyData(desc.asKey());
-    AtlasEntry* entry = gAtlasCache.find(key);
-    if (NULL != entry) {
-        return entry->fAtlas;
-    } else {
-        entry = gAtlasEntries.push();
+    AtlasEntry* entry = GetCache()->find(key);
+    if (NULL == entry) {
+        entry = SkNEW(AtlasEntry);
+
         entry->fAtlas = SkNEW_ARGS(GrTextureStripAtlas, (desc));
         entry->fKey = key;
-        gAtlasCache.insert(key, entry);
-        return entry->fAtlas;
+
+        desc.fContext->addCleanUp(CleanUp, entry);
+
+        GetCache()->insert(key, entry);
     }
+
+    return entry->fAtlas;
 }
 
 GrTextureStripAtlas::GrTextureStripAtlas(GrTextureStripAtlas::Desc desc)

@@ -88,6 +88,10 @@ int GrContext::GetThreadInstanceCount() {
 }
 
 GrContext::~GrContext() {
+    for (int i = 0; i < fCleanUpData.count(); ++i) {
+        (*fCleanUpData[i].fFunc)(this, fCleanUpData[i].fInfo);
+    }
+
     this->flush();
 
     // Since the gpu can hold scratch textures, give it a chance to let go
