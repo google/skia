@@ -21,9 +21,7 @@
 #ifdef SK_BUILD_FOR_IOS
 #include <CoreGraphics/CoreGraphics.h>
 #include <ImageIO/ImageIO.h>
-//#include <UTCoreTypes.h> // FIXME: hack -- can't figure out how to include this
-extern const CFStringRef kUTTypeJPEG                                 __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_3_0);
-extern const CFStringRef kUTTypePNG                                  __OSX_AVAILABLE_STARTING(__MAC_10_4,__IPHONE_3_0);
+#include <MobileCoreServices/MobileCoreServices.h>
 #endif
 
 static void malloc_release_proc(void* info, const void* data, size_t size) {

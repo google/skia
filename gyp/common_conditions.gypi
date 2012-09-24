@@ -219,13 +219,21 @@
               'GCC_OPTIMIZATION_LEVEL': '0',
             },
           },
+          'Release': {
+            'xcode_settings': {
+              'GCC_OPTIMIZATION_LEVEL': '3',
+            },
+            'defines': [ 'NDEBUG' ],
+          },
         },
         'xcode_settings': {
-          'ARCHS': 'armv7',
+          'ARCHS': 'armv6 armv7',
           'CODE_SIGNING_REQUIRED': 'NO',
           'CODE_SIGN_IDENTITY[sdk=iphoneos*]': '',
+          'IPHONEOS_DEPLOYMENT_TARGET': '<(ios_sdk_version)',
           'SYMROOT': '<(DEPTH)/xcodebuild',
           'SDKROOT': 'iphoneos',
+          'TARGETED_DEVICE_FAMILY': '1,2',
           'OTHER_CPLUSPLUSFLAGS': '-fvisibility=hidden -fvisibility-inlines-hidden',
         },
       },

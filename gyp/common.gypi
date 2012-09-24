@@ -75,7 +75,6 @@
       'Debug': {
         'defines': [
           'SK_DEBUG',
-          'SK_ENABLE_INST_COUNT',
           'GR_DEBUG=1',
         ],
       },

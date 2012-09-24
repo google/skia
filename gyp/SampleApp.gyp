@@ -210,7 +210,6 @@
             '../experimental/iOSSampleApp/SkiOSSampleApp-Debug.xcconfig',
             '../experimental/iOSSampleApp/SkiOSSampleApp-Release.xcconfig',
             '../experimental/iOSSampleApp/iOSSampleApp-Info.plist',
-            '../experimental/iOSSampleApp/iOSSampleApp_Prefix.pch',
             '../experimental/iOSSampleApp/Shared/SkOptionListController.h',
             '../experimental/iOSSampleApp/Shared/SkOptionListController.mm',
             '../experimental/iOSSampleApp/Shared/SkUIRootViewController.h',
@@ -248,21 +247,6 @@
             '../experimental/iOSSampleApp/SkiOSSampleApp-Release.xcconfig',
           ],
           'link_settings': {
-            'variables': {
-              'ios_sdk_version%': '5.1',
-            },
-            'conditions' : [
-              [ 'skia_arch_type == "x86"', {
-                'variables': {
-                  'ios_sdk_dir%': '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator',
-                },
-              }],
-              [ 'skia_arch_type == "arm"', {
-                'variables': {
-                  'ios_sdk_dir%': '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS',
-                },
-              }],
-            ],
             'libraries': [
               '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/CoreFoundation.framework',
               '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/CoreGraphics.framework',
@@ -271,6 +255,8 @@
               '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/Foundation.framework',
               '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/QuartzCore.framework',
               '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/OpenGLES.framework',
+              '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/ImageIO.framework',
+              '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/MobileCoreServices.framework',
             ],
           },
           'include_dirs' : [
@@ -279,7 +265,6 @@
             '../experimental/iOSSampleApp/iPhone',
             '../include/utils/ios',
           ],
-          'xcode_config_file': '../experimental/iOSSampleApp/SkiOSSampleApp-Base.xcconfig',
           'mac_bundle_resources' : [
             '../experimental/iOSSampleApp/iPad/MainWindow_iPad.xib',
             '../experimental/iOSSampleApp/iPhone/MainWindow_iPhone.xib',

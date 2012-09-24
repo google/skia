@@ -57,7 +57,7 @@
         'core.gyp:core',
       ],
       'conditions': [
-        [ 'skia_os != "mac"', {
+        [ 'skia_os not in ["mac", "ios"]', {
           'sources!': [
             '../bench/BenchSysTimer_mach.h',
             '../bench/BenchSysTimer_mach.cpp',

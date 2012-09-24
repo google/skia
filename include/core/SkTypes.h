@@ -185,7 +185,7 @@ typedef uint8_t SkBool8;
 #define SK_MaxU16   0xFFFF
 #define SK_MinU16   0
 #define SK_MaxS32   0x7FFFFFFF
-#define SK_MinS32   0x80000001
+#define SK_MinS32   -SK_MaxS32
 #define SK_MaxU32   0xFFFFFFFF
 #define SK_MinU32   0
 #define SK_NaN32    0x80000000
