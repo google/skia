@@ -63,6 +63,24 @@ public:
     void resetContext();
 
     /**
+     * Callback function to allow classes to cleanup on GrContext destruction.
+     * The 'info' field is filled in with the 'info' passed to addCleanUp.
+     */
+    typedef void (*PFCleanUpFunc)(const GrContext* context, void* info);
+
+    /**
+     * Add a function to be called from within GrContext's destructor.
+     * This gives classes a chance to free resources held on a per context basis.
+     * The 'info' parameter will be stored and passed to the callback function.
+     */
+    void addCleanUp(PFCleanUpFunc cleanUp, void* info) {
+        CleanUpData* entry = fCleanUpData.push();
+
+        entry->fFunc = cleanUp;
+        entry->fInfo = info;
+    }
+
+    /**
      * Abandons all gpu resources, assumes 3D API state is unknown. Call this
      * if you have lost the associated GPU context, and thus internal texture,
      * buffer, etc. references/IDs are now invalid. Should be called even when
@@ -805,6 +823,13 @@ private:
     bool                        fDidTestPMConversions;
     int                         fPMToUPMConversion;
     int                         fUPMToPMConversion;
+
+    struct CleanUpData {
+        PFCleanUpFunc fFunc;
+        void*         fInfo;
+    };
+
+    SkTDArray<CleanUpData>      fCleanUpData;
 
     GrContext(GrGpu* gpu);
 

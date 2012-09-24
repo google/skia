@@ -13,6 +13,7 @@
 #include "GrTHashCache.h"
 #include "SkGr.h"
 #include "SkTDArray.h"
+#include "GrBinHashKey.h"
 
 /**
  * Maintains a single large texture whose rows store many textures of a small fixed height,
@@ -128,6 +129,28 @@ private:
 #ifdef SK_DEBUG
     void validate();
 #endif
+
+    /**
+     * Clean up callback registered with GrContext. Allows this class to
+     * free up any allocated AtlasEntry and GrTextureStripAtlas objects
+     */
+    static void CleanUp(const GrContext* context, void* info);
+
+    // Hash table entry for atlases
+    class AtlasEntry;
+    typedef GrTBinHashKey<AtlasEntry, sizeof(GrTextureStripAtlas::Desc)> AtlasHashKey;
+    class AtlasEntry : public ::GrNoncopyable {
+    public:
+        AtlasEntry() : fAtlas(NULL) {}
+        ~AtlasEntry() { SkDELETE(fAtlas); }
+        int compare(const AtlasHashKey& key) const { return fKey.compare(key); }
+        AtlasHashKey fKey;
+        GrTextureStripAtlas* fAtlas;
+    };
+
+    static GrTHashTable<AtlasEntry, AtlasHashKey, 8>* gAtlasCache;
+
+    static GrTHashTable<AtlasEntry, AtlasHashKey, 8>* GetCache();
 
     // We increment gCacheCount for each atlas
     static int32_t gCacheCount;
