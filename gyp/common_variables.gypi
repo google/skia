@@ -45,13 +45,13 @@
         # We set it automatically based on 'OS' (the host OS), but allow the
         # user to override it via GYP_DEFINES if they like.
         'skia_os%': '<(OS)',
+        'skia_arch_type%': 'x86',
       },
 
       # Re-define all variables defined within the level-3 'variables' dict,
       # so that siblings of the level-2 'variables' dict can see them.
       'skia_os%': '<(skia_os)',
-
-      'skia_arch_type%': 'x86',
+      'skia_arch_type%': '<(skia_arch_type)',
 
       'conditions': [
         ['skia_os == "win"', {
