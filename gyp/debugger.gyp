@@ -67,7 +67,8 @@
           },
         }],
         [ 'skia_os == "mac" and skia_arch_width != 64', {
-          'error': '<!(skia_arch_width must be 64 bits when building the debugger on mac)'
+# this is now mysteriously triggered for all mac builds
+#          'error': '<!(skia_arch_width must be 64 bits when building the debugger on mac)'
         }],
         [ 'skia_os == "mac"', {
           'mac_bundle' : 1,
