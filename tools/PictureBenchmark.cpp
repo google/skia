@@ -85,7 +85,7 @@ void PictureBenchmark::run(SkPicture* pict) {
         fRenderer->setup();
 
         timer->start();
-        fRenderer->render(false);
+        fRenderer->render(NULL);
         timer->truncatedEnd();
 
         // Finishes gl context
