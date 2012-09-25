@@ -26,7 +26,6 @@
 
         '../src/views/animated/SkBorderView.cpp',
         '../src/views/animated/SkImageView.cpp',
-        '../src/views/animated/SkListView.cpp',
         '../src/views/animated/SkListWidget.cpp',
         '../src/views/animated/SkProgressBarView.cpp',
         '../src/views/animated/SkScrollBarView.cpp',
@@ -34,7 +33,6 @@
         '../src/views/animated/SkWidgetViews.cpp',
       ],
       'sources!' : [
-        '../src/views/animated/SkListView.cpp',   #depends on missing SkListSource implementation
         '../src/views/animated/SkListWidget.cpp', #depends on missing SkListSource implementation
       ],
       'conditions': [
