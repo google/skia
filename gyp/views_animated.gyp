@@ -26,14 +26,10 @@
 
         '../src/views/animated/SkBorderView.cpp',
         '../src/views/animated/SkImageView.cpp',
-        '../src/views/animated/SkListWidget.cpp',
         '../src/views/animated/SkProgressBarView.cpp',
         '../src/views/animated/SkScrollBarView.cpp',
         '../src/views/animated/SkStaticTextView.cpp',
         '../src/views/animated/SkWidgetViews.cpp',
-      ],
-      'sources!' : [
-        '../src/views/animated/SkListWidget.cpp', #depends on missing SkListSource implementation
       ],
       'conditions': [
         [ 'skia_os == "mac"', {
@@ -53,7 +49,6 @@
           'sources!': [
             '../src/views/animated/SkBorderView.cpp',
             '../src/views/animated/SkImageView.cpp',
-            '../src/views/animated/SkListWidget.cpp',
             '../src/views/animated/SkProgressBarView.cpp',
             '../src/views/animated/SkScrollBarView.cpp',
             '../src/views/animated/SkStaticTextView.cpp',
