@@ -80,7 +80,12 @@
             ],
           },
           'conditions': [
-            ['OS!="win"', {'product_name': 'jpeg'}],
+            ['OS!="win"', {
+              'product_name': 'jpeg',
+              'cflags': [
+               '-Wno-main', # supresses warnings about naming things "main"
+              ],
+            }],
             ['OS=="android"', {
               'cflags!': [
                '-fno-rtti', # supresses warnings about invalid option of non-C++ code
