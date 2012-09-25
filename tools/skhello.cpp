@@ -1,23 +1,20 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SkCanvas.h"
 #include "SkGraphics.h"
-//#include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
-//#include "SkStream.h"
 #include "SkString.h"
-#include "SkTemplates.h"
 
 static void show_help() {
     SkDebugf("usage: skhello [-o out-dir] [-t 'hello']\n  default output: skhello.png\n");
 }
 
-int main (int argc, char * const argv[]) {
+int main(int argc, char* const argv[]) {
     SkAutoGraphics ag;
     SkString path("skhello.png");
     SkString text("Hello");
@@ -71,4 +68,3 @@ int main (int argc, char * const argv[]) {
     }
     return !success;
 }
-
