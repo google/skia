@@ -15,7 +15,7 @@ class MatrixConvolutionBench : public SkBenchmark {
     SkMatrixConvolutionImageFilter::TileMode  fTileMode;
 
 public:
-    MatrixConvolutionBench(void* param, SkMatrixConvolutionImageFilter::TileMode tileMode)
+    MatrixConvolutionBench(void* param, SkMatrixConvolutionImageFilter::TileMode tileMode, bool convolveAlpha)
         : INHERITED(param), fName("matrixconvolution") {
         SkISize kernelSize = SkISize::Make(3, 3);
         SkScalar kernel[9] = {
@@ -25,7 +25,7 @@ public:
         };
         SkScalar gain = SkFloatToScalar(0.3f), bias = SkIntToScalar(100);
         SkIPoint target = SkIPoint::Make(1, 1);
-        fFilter = new SkMatrixConvolutionImageFilter(kernelSize, kernel, gain, bias, target, tileMode);
+        fFilter = new SkMatrixConvolutionImageFilter(kernelSize, kernel, gain, bias, target, tileMode, convolveAlpha);
     }
 
     ~MatrixConvolutionBench() {
@@ -56,10 +56,12 @@ private:
     SkString fName;
 };
 
-static SkBenchmark* Fact00(void* p) { return new MatrixConvolutionBench(p, SkMatrixConvolutionImageFilter::kClamp_TileMode); }
-static SkBenchmark* Fact01(void* p) { return new MatrixConvolutionBench(p, SkMatrixConvolutionImageFilter::kRepeat_TileMode); }
-static SkBenchmark* Fact02(void* p) { return new MatrixConvolutionBench(p, SkMatrixConvolutionImageFilter::kClampToBlack_TileMode); }
+static SkBenchmark* Fact00(void* p) { return new MatrixConvolutionBench(p, SkMatrixConvolutionImageFilter::kClamp_TileMode, true); }
+static SkBenchmark* Fact01(void* p) { return new MatrixConvolutionBench(p, SkMatrixConvolutionImageFilter::kRepeat_TileMode, true); }
+static SkBenchmark* Fact02(void* p) { return new MatrixConvolutionBench(p, SkMatrixConvolutionImageFilter::kClampToBlack_TileMode, true); }
+static SkBenchmark* Fact03(void* p) { return new MatrixConvolutionBench(p, SkMatrixConvolutionImageFilter::kClampToBlack_TileMode, false); }
 
 static BenchRegistry gReg00(Fact00);
 static BenchRegistry gReg01(Fact01);
 static BenchRegistry gReg02(Fact02);
+static BenchRegistry gReg03(Fact03);

@@ -36,10 +36,10 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(300, 300);
+        return make_isize(400, 300);
     }
 
-    void draw(SkCanvas* canvas, int x, int y, const SkIPoint& target, SkMatrixConvolutionImageFilter::TileMode tileMode) {
+    void draw(SkCanvas* canvas, int x, int y, const SkIPoint& target, SkMatrixConvolutionImageFilter::TileMode tileMode, bool convolveAlpha) {
         SkScalar kernel[9] = {
             SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
             SkIntToScalar( 1), SkIntToScalar(-7), SkIntToScalar( 1),
@@ -48,7 +48,7 @@ protected:
         SkISize kernelSize = SkISize::Make(3, 3);
         SkScalar gain = SkFloatToScalar(0.3f), bias = SkIntToScalar(100);
         SkPaint paint;
-        SkAutoTUnref<SkImageFilter> filter(SkNEW_ARGS(SkMatrixConvolutionImageFilter, (kernelSize, kernel, gain, bias, target, tileMode)));
+        SkAutoTUnref<SkImageFilter> filter(SkNEW_ARGS(SkMatrixConvolutionImageFilter, (kernelSize, kernel, gain, bias, target, tileMode, convolveAlpha)));
         paint.setImageFilter(filter);
         canvas->drawSprite(fBitmap, x, y, &paint);
     }
@@ -62,10 +62,12 @@ protected:
         SkIPoint target = SkIPoint::Make(1, 1);
         for (target.fY = 0; target.fY < 3; ++target.fY) {
             int y = target.fY * 100 + 10;
-            draw(canvas, 10, y, target, SkMatrixConvolutionImageFilter::kClamp_TileMode);
-            draw(canvas, 110, y, target, SkMatrixConvolutionImageFilter::kClampToBlack_TileMode);
-            draw(canvas, 210, y, target, SkMatrixConvolutionImageFilter::kRepeat_TileMode);
+            draw(canvas, 10, y, target, SkMatrixConvolutionImageFilter::kClamp_TileMode, true);
+            draw(canvas, 110, y, target, SkMatrixConvolutionImageFilter::kClampToBlack_TileMode, true);
+            draw(canvas, 210, y, target, SkMatrixConvolutionImageFilter::kRepeat_TileMode, true);
         }
+        target.fY = 1;
+        draw(canvas, 310, 10, target, SkMatrixConvolutionImageFilter::kClamp_TileMode, false);
     }
 
 private:
