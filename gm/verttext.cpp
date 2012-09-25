@@ -8,16 +8,32 @@
 
 #include "gm.h"
 #include "SkCanvas.h"
+#include "SkTypeface.h"
 
 namespace skiagm {
 
 #define TEXT_SIZE   48
 static const char gText[] = "Hello";
+
+//Before shaping
+//static const char gText[] = "「テスト。」";
+//static const char gText[] = {0xE3,0x80,0x8C, 0xE3,0x83,0x86, 0xE3,0x82,0xB9, 0xE3,0x83,0x88, 0xE3,0x80,0x82, 0xE3,0x80,0x8D, 0x0};
+
+//After shaping
+//static const char gText[] = "﹁テスト︒﹂";
+//static const char gText[] = {0xEF,0xB9,0x81, 0xE3,0x83,0x86, 0xE3,0x82,0xB9, 0xE3,0x83,0x88, 0xEF,0xB8,0x92, 0xEF,0xB9,0x82, 0x0};
+
 static const size_t gLen = sizeof(gText) - 1;
 
 class VertTextGM : public GM {
 public:
-    VertTextGM() {}
+    VertTextGM()
+        // : fFace(SkTypeface::CreateFromName("unifont", SkTypeface::kNormal))
+        // : fFace(SkTypeface::CreateFromFile("MotoyaL04Mincho_3.ttf"))
+    {
+    }
+
+    //SkAutoTUnref<SkTypeface> fFace;
 
 protected:
 
@@ -58,10 +74,11 @@ protected:
         SkScalar y = SkIntToScalar(50);
 
         for (int i = 0; i < 4; ++i) {
-            SkPaint     paint;
+            SkPaint paint;
             paint.setAntiAlias(true);
             paint.setTextSize(SkIntToScalar(TEXT_SIZE));
-
+            //paint.setTypeface(fFace);
+            //paint.setFakeBoldText(true);
 
             paint.setVerticalText(false);
             drawBaseline(canvas, paint, x, y);

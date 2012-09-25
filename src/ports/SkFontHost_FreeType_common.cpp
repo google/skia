@@ -119,46 +119,6 @@ static void copyFT2LCD16(const SkGlyph& glyph, const FT_Bitmap& bitmap,
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-#define ft2sk(x)    SkFixedToScalar(SkFDot6ToFixed(x))
-
-#if FREETYPE_MAJOR >= 2 && FREETYPE_MINOR >= 2
-    #define CONST_PARAM const
-#else   // older freetype doesn't use const here
-    #define CONST_PARAM
-#endif
-
-static int move_proc(CONST_PARAM FT_Vector* pt, void* ctx) {
-    SkPath* path = (SkPath*)ctx;
-    path->close();  // to close the previous contour (if any)
-    path->moveTo(ft2sk(pt->x), -ft2sk(pt->y));
-    return 0;
-}
-
-static int line_proc(CONST_PARAM FT_Vector* pt, void* ctx) {
-    SkPath* path = (SkPath*)ctx;
-    path->lineTo(ft2sk(pt->x), -ft2sk(pt->y));
-    return 0;
-}
-
-static int quad_proc(CONST_PARAM FT_Vector* pt0, CONST_PARAM FT_Vector* pt1,
-                     void* ctx) {
-    SkPath* path = (SkPath*)ctx;
-    path->quadTo(ft2sk(pt0->x), -ft2sk(pt0->y), ft2sk(pt1->x), -ft2sk(pt1->y));
-    return 0;
-}
-
-static int cubic_proc(CONST_PARAM FT_Vector* pt0, CONST_PARAM FT_Vector* pt1,
-                      CONST_PARAM FT_Vector* pt2, void* ctx) {
-    SkPath* path = (SkPath*)ctx;
-    path->cubicTo(ft2sk(pt0->x), -ft2sk(pt0->y), ft2sk(pt1->x),
-                  -ft2sk(pt1->y), ft2sk(pt2->x), -ft2sk(pt2->y));
-    return 0;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 void SkScalerContext_FreeType_Base::generateGlyphImage(FT_Face face,
                                                        const SkGlyph& glyph,
                                                        SkMaskGamma::PreBlend* maskPreBlend)
@@ -311,6 +271,38 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(FT_Face face,
         }
     }
 #endif
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+static int move_proc(const FT_Vector* pt, void* ctx) {
+    SkPath* path = (SkPath*)ctx;
+    path->close();  // to close the previous contour (if any)
+    path->moveTo(SkFDot6ToScalar(pt->x), -SkFDot6ToScalar(pt->y));
+    return 0;
+}
+
+static int line_proc(const FT_Vector* pt, void* ctx) {
+    SkPath* path = (SkPath*)ctx;
+    path->lineTo(SkFDot6ToScalar(pt->x), -SkFDot6ToScalar(pt->y));
+    return 0;
+}
+
+static int quad_proc(const FT_Vector* pt0, const FT_Vector* pt1,
+                     void* ctx) {
+    SkPath* path = (SkPath*)ctx;
+    path->quadTo(SkFDot6ToScalar(pt0->x), -SkFDot6ToScalar(pt0->y),
+                 SkFDot6ToScalar(pt1->x), -SkFDot6ToScalar(pt1->y));
+    return 0;
+}
+
+static int cubic_proc(const FT_Vector* pt0, const FT_Vector* pt1,
+                      const FT_Vector* pt2, void* ctx) {
+    SkPath* path = (SkPath*)ctx;
+    path->cubicTo(SkFDot6ToScalar(pt0->x), -SkFDot6ToScalar(pt0->y),
+                  SkFDot6ToScalar(pt1->x), -SkFDot6ToScalar(pt1->y),
+                  SkFDot6ToScalar(pt2->x), -SkFDot6ToScalar(pt2->y));
+    return 0;
 }
 
 void SkScalerContext_FreeType_Base::generateGlyphPath(FT_Face face,
