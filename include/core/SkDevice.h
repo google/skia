@@ -249,6 +249,15 @@ protected:
                             const SkMatrix& matrix, const SkPaint& paint);
     virtual void drawSprite(const SkDraw&, const SkBitmap& bitmap,
                             int x, int y, const SkPaint& paint);
+
+    /**
+     *  The default impl. will create a bitmap-shader from the bitmap,
+     *  and call drawRect with it.
+     */
+    virtual void drawBitmapRect(const SkDraw&, const SkBitmap&,
+                                const SkRect* srcOrNull, const SkRect& dst,
+                                const SkPaint& paint);
+
     /**
      *  Does not handle text decoration.
      *  Decorations (underline and stike-thru) will be handled by SkCanvas.

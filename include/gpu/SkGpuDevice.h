@@ -79,6 +79,9 @@ public:
     virtual void drawBitmap(const SkDraw&, const SkBitmap& bitmap,
                             const SkIRect* srcRectOrNull,
                             const SkMatrix&, const SkPaint&) SK_OVERRIDE;
+    virtual void drawBitmapRect(const SkDraw&, const SkBitmap&,
+                                const SkRect* srcOrNull, const SkRect& dst,
+                                const SkPaint& paint) SK_OVERRIDE;
     virtual void drawSprite(const SkDraw&, const SkBitmap& bitmap,
                             int x, int y, const SkPaint& paint);
     virtual void drawText(const SkDraw&, const void* text, size_t len,

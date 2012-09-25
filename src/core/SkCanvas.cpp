@@ -1593,41 +1593,18 @@ void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
         }
     }
 
-    SkMatrix matrix;
-    // Compute matrix from the two rectangles
-    {
-        SkRect tmpSrc;
-        if (src) {
-            tmpSrc = *src;
-            // if the extract process clipped off the top or left of the
-            // original, we adjust for that here to get the position right.
-            if (tmpSrc.fLeft > 0) {
-                tmpSrc.fRight -= tmpSrc.fLeft;
-                tmpSrc.fLeft = 0;
-            }
-            if (tmpSrc.fTop > 0) {
-                tmpSrc.fBottom -= tmpSrc.fTop;
-                tmpSrc.fTop = 0;
-            }
-        } else {
-            tmpSrc.set(0, 0, SkIntToScalar(bitmap.width()),
-                       SkIntToScalar(bitmap.height()));
-        }
-        matrix.setRectToRect(tmpSrc, dst, SkMatrix::kFill_ScaleToFit);
+    SkLazyPaint lazy;
+    if (NULL == paint) {
+        paint = lazy.init();
     }
-
-    // ensure that src is "valid" before we pass it to our internal routines
-    // and to SkDevice. i.e. sure it is contained inside the original bitmap.
-    SkIRect isrcStorage;
-    SkIRect* isrcPtr = NULL;
-    if (src) {
-        src->roundOut(&isrcStorage);
-        if (!isrcStorage.intersect(0, 0, bitmap.width(), bitmap.height())) {
-            return;
-        }
-        isrcPtr = &isrcStorage;
+    
+    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type)
+    
+    while (iter.next()) {
+        iter.fDevice->drawBitmapRect(iter, bitmap, src, dst, looper.paint());
     }
-    this->internalDrawBitmap(bitmap, isrcPtr, matrix, paint);
+    
+    LOOPER_END
 }
 
 void SkCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,

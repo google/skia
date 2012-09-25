@@ -1585,6 +1585,47 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
                                         GR_Scalar1 * h / texture->height()));
 }
 
+void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
+                                 const SkRect* src, const SkRect& dst,
+                                 const SkPaint& paint) {
+    SkMatrix matrix;
+    // Compute matrix from the two rectangles
+    {
+        SkRect tmpSrc;
+        if (src) {
+            tmpSrc = *src;
+            // if the extract process clipped off the top or left of the
+            // original, we adjust for that here to get the position right.
+            if (tmpSrc.fLeft > 0) {
+                tmpSrc.fRight -= tmpSrc.fLeft;
+                tmpSrc.fLeft = 0;
+            }
+            if (tmpSrc.fTop > 0) {
+                tmpSrc.fBottom -= tmpSrc.fTop;
+                tmpSrc.fTop = 0;
+            }
+        } else {
+            tmpSrc.set(0, 0, SkIntToScalar(bitmap.width()),
+                       SkIntToScalar(bitmap.height()));
+        }
+        matrix.setRectToRect(tmpSrc, dst, SkMatrix::kFill_ScaleToFit);
+    }
+    
+    // ensure that src is "valid" before we pass it to our internal routines
+    // and to SkDevice. i.e. sure it is contained inside the original bitmap.
+    SkIRect isrcStorage;
+    SkIRect* isrcPtr = NULL;
+    if (src) {
+        src->roundOut(&isrcStorage);
+        if (!isrcStorage.intersect(0, 0, bitmap.width(), bitmap.height())) {
+            return;
+        }
+        isrcPtr = &isrcStorage;
+    }
+
+    this->drawBitmap(draw, bitmap, isrcPtr, matrix, paint);
+}
+
 void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
                             int x, int y, const SkPaint& paint) {
     // clear of the source device must occur before CHECK_SHOULD_DRAW
