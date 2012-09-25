@@ -42,11 +42,14 @@ public:
                            target of {1, 1}).
         @param tileMode    How accesses outside the image are treated.  (@see
                            TileMode).
+        @param convolveAlpha  If true, all channels are convolved.  If false,
+                           only the RGB channels are convolved, and
+                           alpha is copied from the source image.
         @param input       The input image filter.  If NULL, the src bitmap
                            passed to filterImage() is used instead.
     */
 
-    SkMatrixConvolutionImageFilter(const SkISize& kernelSize, const SkScalar* kernel, SkScalar gain, SkScalar bias, const SkIPoint& target, TileMode tileMode, SkImageFilter* input = NULL);
+    SkMatrixConvolutionImageFilter(const SkISize& kernelSize, const SkScalar* kernel, SkScalar gain, SkScalar bias, const SkIPoint& target, TileMode tileMode, bool convolveAlpha, SkImageFilter* input = NULL);
     virtual ~SkMatrixConvolutionImageFilter();
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMatrixConvolutionImageFilter)
@@ -65,8 +68,11 @@ private:
     SkScalar  fBias;
     SkIPoint  fTarget;
     TileMode  fTileMode;
+    bool      fConvolveAlpha;
     typedef SkSingleInputImageFilter INHERITED;
 
+    template <class PixelFetcher, bool convolveAlpha>
+    void filterPixels(const SkBitmap& src, SkBitmap* result, const SkIRect& rect);
     template <class PixelFetcher>
     void filterPixels(const SkBitmap& src, SkBitmap* result, const SkIRect& rect);
     void filterInteriorPixels(const SkBitmap& src, SkBitmap* result, const SkIRect& rect);

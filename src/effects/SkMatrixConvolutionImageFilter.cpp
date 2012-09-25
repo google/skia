@@ -10,14 +10,16 @@
 #include "SkColorPriv.h"
 #include "SkFlattenableBuffers.h"
 #include "SkRect.h"
+#include "SkUnPreMultiply.h"
 
-SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(const SkISize& kernelSize, const SkScalar* kernel, SkScalar gain, SkScalar bias, const SkIPoint& target, TileMode tileMode, SkImageFilter* input)
+SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(const SkISize& kernelSize, const SkScalar* kernel, SkScalar gain, SkScalar bias, const SkIPoint& target, TileMode tileMode, bool convolveAlpha, SkImageFilter* input)
   : INHERITED(input),
     fKernelSize(kernelSize),
     fGain(gain),
     fBias(bias),
     fTarget(target),
-    fTileMode(tileMode) {
+    fTileMode(tileMode),
+    fConvolveAlpha(convolveAlpha) {
     uint32_t size = fKernelSize.fWidth * fKernelSize.fHeight;
     fKernel = SkNEW_ARRAY(SkScalar, size);
     memcpy(fKernel, kernel, size * sizeof(SkScalar));
@@ -37,6 +39,7 @@ SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(SkFlattenableRead
     fTarget.fX = buffer.readScalar();
     fTarget.fY = buffer.readScalar();
     fTileMode = (TileMode) buffer.readInt();
+    fConvolveAlpha = buffer.readBool();
 }
 
 void SkMatrixConvolutionImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
@@ -49,6 +52,7 @@ void SkMatrixConvolutionImageFilter::flatten(SkFlattenableWriteBuffer& buffer) c
     buffer.writeScalar(fTarget.fX);
     buffer.writeScalar(fTarget.fY);
     buffer.writeInt((int) fTileMode);
+    buffer.writeBool(fConvolveAlpha);
 }
 
 SkMatrixConvolutionImageFilter::~SkMatrixConvolutionImageFilter() {
@@ -97,7 +101,7 @@ public:
     }
 };
 
-template<class PixelFetcher>
+template<class PixelFetcher, bool convolveAlpha>
 void SkMatrixConvolutionImageFilter::filterPixels(const SkBitmap& src, SkBitmap* result, const SkIRect& rect) {
     for (int y = rect.fTop; y < rect.fBottom; ++y) {
         SkPMColor* dptr = result->getAddr32(rect.fLeft, y);
@@ -107,18 +111,35 @@ void SkMatrixConvolutionImageFilter::filterPixels(const SkBitmap& src, SkBitmap*
                 for (int cx = 0; cx < fKernelSize.fWidth; cx++) {
                     SkPMColor s = PixelFetcher::fetch(src, x + cx - fTarget.fX, y + cy - fTarget.fY);
                     SkScalar k = fKernel[cy * fKernelSize.fWidth + cx];
-                    sumA += SkScalarMul(SkIntToScalar(SkGetPackedA32(s)), k);
+                    if (convolveAlpha) {
+                        sumA += SkScalarMul(SkIntToScalar(SkGetPackedA32(s)), k);
+                    }
                     sumR += SkScalarMul(SkIntToScalar(SkGetPackedR32(s)), k);
                     sumG += SkScalarMul(SkIntToScalar(SkGetPackedG32(s)), k);
                     sumB += SkScalarMul(SkIntToScalar(SkGetPackedB32(s)), k);
                 }
             }
-            int a = SkClampMax(SkScalarFloorToInt(SkScalarMul(sumA, fGain) + fBias), 255);
+            int a = convolveAlpha
+                  ? SkClampMax(SkScalarFloorToInt(SkScalarMul(sumA, fGain) + fBias), 255)
+                  : SkGetPackedA32(PixelFetcher::fetch(src, x, y));
             int r = SkClampMax(SkScalarFloorToInt(SkScalarMul(sumR, fGain) + fBias), a);
             int g = SkClampMax(SkScalarFloorToInt(SkScalarMul(sumG, fGain) + fBias), a);
             int b = SkClampMax(SkScalarFloorToInt(SkScalarMul(sumB, fGain) + fBias), a);
-            *dptr++ = SkPackARGB32(a, r, g, b);
+            if (!convolveAlpha) {
+                *dptr++ = SkPreMultiplyARGB(a, r, g, b);
+            } else {
+                *dptr++ = SkPackARGB32(a, r, g, b);
+            }
         }
+    }
+}
+
+template<class PixelFetcher>
+void SkMatrixConvolutionImageFilter::filterPixels(const SkBitmap& src, SkBitmap* result, const SkIRect& rect) {
+    if (fConvolveAlpha) {
+        filterPixels<PixelFetcher, true>(src, result, rect);
+    } else {
+        filterPixels<PixelFetcher, false>(src, result, rect);
     }
 }
 
@@ -140,6 +161,31 @@ void SkMatrixConvolutionImageFilter::filterBorderPixels(const SkBitmap& src, SkB
     }
 }
 
+// FIXME:  This should be refactored to SkSingleInputImageFilter for
+// use by other filters.  For now, we assume the input is always
+// premultiplied and unpremultiply it
+static SkBitmap unpremultiplyBitmap(const SkBitmap& src)
+{
+    SkAutoLockPixels alp(src);
+    if (!src.getPixels()) {
+        return SkBitmap();
+    }
+    SkBitmap result;
+    result.setConfig(src.config(), src.width(), src.height());
+    result.allocPixels();
+    if (!result.getPixels()) {
+        return SkBitmap();
+    }
+    for (int y = 0; y < src.height(); ++y) {
+        const uint32_t* srcRow = src.getAddr32(0, y);
+        uint32_t* dstRow = result.getAddr32(0, y);
+        for (int x = 0; x < src.width(); ++x) {
+            dstRow[x] = SkUnPreMultiply::PMColorToColor(srcRow[x]);
+        }
+    }
+    return result;
+}
+
 bool SkMatrixConvolutionImageFilter::onFilterImage(Proxy* proxy,
                                                    const SkBitmap& source,
                                                    const SkMatrix& matrix,
@@ -148,6 +194,10 @@ bool SkMatrixConvolutionImageFilter::onFilterImage(Proxy* proxy,
     SkBitmap src = this->getInputResult(proxy, source, matrix, loc);
     if (src.config() != SkBitmap::kARGB_8888_Config) {
         return false;
+    }
+
+    if (!fConvolveAlpha && !src.isOpaque()) {
+        src = unpremultiplyBitmap(src);
     }
 
     SkAutoLockPixels alp(src);
