@@ -22,8 +22,8 @@ GR_DEFINE_RESOURCE_CACHE_DOMAIN(GrTextureStripAtlas, GetTextureStripAtlasDomain)
 
 int32_t GrTextureStripAtlas::gCacheCount = 0;
 
-GrTHashTable<GrTextureStripAtlas::AtlasEntry, 
-                GrTextureStripAtlas::AtlasHashKey, 8>* 
+GrTHashTable<GrTextureStripAtlas::AtlasEntry,
+                GrTextureStripAtlas::AtlasHashKey, 8>*
                             GrTextureStripAtlas::gAtlasCache = NULL;
 
 GrTHashTable<GrTextureStripAtlas::AtlasEntry, GrTextureStripAtlas::AtlasHashKey, 8>*
