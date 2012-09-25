@@ -190,7 +190,7 @@ SkPMColor convertConfig8888ToPMColor(SkCanvas::Config8888 config8888,
             break;
         default:
             SkDEBUGFAIL("Unexpected Config8888");
-            break;
+            return 0;
     }
     if (*premul) {
         r = SkMulDiv255Ceiling(r, a);

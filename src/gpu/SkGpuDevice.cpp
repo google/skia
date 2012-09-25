@@ -300,6 +300,7 @@ GrPixelConfig config8888_to_grconfig_and_flags(SkCanvas::Config8888 config8888, 
             return kRGBA_8888_GrPixelConfig;
         default:
             GrCrash("Unexpected Config8888.");
+            *flags = 0; // suppress warning
             return kSkia8888_PM_GrPixelConfig;
     }
 }

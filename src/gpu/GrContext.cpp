@@ -1388,10 +1388,13 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
     }
     // Perform any conversions we weren't able to perfom using a scratch texture.
     if (unpremul || swapRAndB || flipY) {
-        SkCanvas::Config8888 srcC8888;
-        SkCanvas::Config8888 dstC8888;
+        // These are initialized to suppress a warning
+        SkCanvas::Config8888 srcC8888 = SkCanvas::kNative_Premul_Config8888;
+        SkCanvas::Config8888 dstC8888 = SkCanvas::kNative_Premul_Config8888;
+
         bool c8888IsValid = grconfig_to_config8888(config, false, &srcC8888);
         grconfig_to_config8888(config, unpremul, &dstC8888);
+
         if (swapRAndB) {
             GrAssert(c8888IsValid); // we should only do r/b swap on 8888 configs
             srcC8888 = swap_config8888_red_and_blue(srcC8888);
