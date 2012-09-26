@@ -98,6 +98,8 @@
               '$(SDKROOT)/System/Library/Frameworks/AGL.framework',
             ],
           },
+        }],
+        [ 'skia_os in ["mac", "ios"]', {
           'direct_dependent_settings': {
             'include_dirs': [
               '../include/utils/mac',
