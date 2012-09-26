@@ -31,8 +31,7 @@ if [ -d "docs" ]; then
 else
   svn checkout https://skia-autogen.googlecode.com/svn/docs  # writeable
 if [ ! -f "docs/static_footer.txt" ]; then
-  TOOLS_DIR="$(cd "$(dirname "$0" )" && pwd )"
-  cp ${TOOLS_DIR}/doxygen_footer.txt docs/static_footer.txt
+  cp trunk/tools/doxygen_footer.txt docs/static_footer.txt
 fi
 fi
 
