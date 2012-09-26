@@ -13,6 +13,7 @@
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
 #include "SkDrawLooper.h"
+#include "SkMetaData.h"
 #include "SkPicture.h"
 #include "SkRasterClip.h"
 #include "SkScalarCompare.h"
@@ -457,6 +458,7 @@ SkDevice* SkCanvas::init(SkDevice* device) {
     fLastDeviceToGainFocus = NULL;
     fDeviceCMDirty = false;
     fSaveLayerCount = 0;
+    fMetaData = NULL;
 
     fMCRec = (MCRec*)fMCStack.push_back();
     new (fMCRec) MCRec(NULL, 0);
@@ -503,6 +505,7 @@ SkCanvas::~SkCanvas() {
     this->internalRestore();    // restore the last, since we're going away
 
     SkSafeUnref(fBounder);
+    SkDELETE(fMetaData);
 
     dec_canvas();
 }
@@ -519,6 +522,15 @@ SkDrawFilter* SkCanvas::getDrawFilter() const {
 SkDrawFilter* SkCanvas::setDrawFilter(SkDrawFilter* filter) {
     SkRefCnt_SafeAssign(fMCRec->fFilter, filter);
     return filter;
+}
+
+SkMetaData& SkCanvas::getMetaData() {
+    // metadata users are rare, so we lazily allocate it. If that changes we
+    // can decide to just make it a field in the device (rather than a ptr)
+    if (NULL == fMetaData) {
+        fMetaData = new SkMetaData;
+    }
+    return *fMetaData;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
