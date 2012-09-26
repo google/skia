@@ -11,12 +11,19 @@
 #include "SkDebugCanvas.h"
 #include "SkDrawCommand.h"
 
-SkDebugCanvas::SkDebugCanvas(int width, int height) {
+static SkBitmap make_noconfig_bm(int width, int height) {
+    SkBitmap bm;
+    bm.setConfig(SkBitmap::kNo_Config, width, height);
+    return bm;
+}
+
+SkDebugCanvas::SkDebugCanvas(int width, int height)
+        : INHERITED(make_noconfig_bm(width, height)) {
     // TODO(chudy): Free up memory from all draw commands in destructor.
     fWidth = width;
     fHeight = height;
+    // do we need fBm anywhere?
     fBm.setConfig(SkBitmap::kNo_Config, fWidth, fHeight);
-    this->setBitmapDevice(fBm);
     fFilter = false;
     fIndex = 0;
     fUserOffset.set(0,0);
