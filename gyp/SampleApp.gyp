@@ -101,6 +101,7 @@
         '../samplecode/SampleTypeface.cpp',
         '../samplecode/SampleUnitMapper.cpp',
         '../samplecode/SampleVertices.cpp',
+        '../samplecode/SampleXfermodes.cpp',
         '../samplecode/SampleXfermodesBlur.cpp',
         '../samplecode/TransitionView.cpp',
         '../samplecode/TransitionView.h',
