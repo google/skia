@@ -74,36 +74,22 @@ public:
     void reset() {
 
         this->disableStages();
-        GrSafeSetNull(fRenderTarget);
 
-        // make sure any pad is zero for memcmp
-        // all GrDrawState members should default to something valid by the
-        // the memset except those initialized individually below. There should
-        // be no padding between the individually initialized members.
-        memset(this->podStart(), 0, this->memsetSize());
-
-        // pedantic assertion that our ptrs will
-        // be NULL (0 ptr is mem addr 0)
-        GrAssert((intptr_t)(void*)NULL == 0LL);
-        GR_STATIC_ASSERT(0 == kBoth_DrawFace);
-        GrAssert(fStencilSettings.isDisabled());
-
-        // memset exceptions
         fColor = 0xffffffff;
-        fCoverage = 0xffffffff;
-        fFirstCoverageStage = kNumStages;
-        fColorFilterMode = SkXfermode::kDst_Mode;
+        fViewMatrix.reset();
+        GrSafeSetNull(fRenderTarget);
         fSrcBlend = kOne_GrBlendCoeff;
         fDstBlend = kZero_GrBlendCoeff;
-        fViewMatrix.reset();
-
-        // ensure values that will be memcmp'ed in == but not memset in reset()
-        // are tightly packed
-        GrAssert(this->memsetSize() +  sizeof(fColor) + sizeof(fCoverage) +
-                 sizeof(fFirstCoverageStage) + sizeof(fColorFilterMode) +
-                 sizeof(fSrcBlend) + sizeof(fDstBlend) + sizeof(fRenderTarget) ==
-                 this->podSize());
-    }
+        fBlendConstant = 0x0;
+        fFlagBits = 0x0;
+        fVertexEdgeType = kHairLine_EdgeType;
+        fStencilSettings.setDisabled();
+        fFirstCoverageStage = kNumStages;
+        fCoverage = 0xffffffff;
+        fColorFilterMode = SkXfermode::kDst_Mode;
+        fColorFilterColor = 0x0;
+        fDrawFace = kBoth_DrawFace;
+     }
 
     ///////////////////////////////////////////////////////////////////////////
     /// @name Color
@@ -765,11 +751,20 @@ public:
     // Most stages are usually not used, so conditionals here
     // reduce the expected number of bytes touched by 50%.
     bool operator ==(const GrDrawState& s) const {
-        if (memcmp(this->podStart(), s.podStart(), this->podSize())) {
-            return false;
-        }
-
-        if (!s.fViewMatrix.cheapEqualTo(fViewMatrix)) {
+        if (fColor != s.fColor ||
+            !s.fViewMatrix.cheapEqualTo(fViewMatrix) ||
+            fRenderTarget != s.fRenderTarget ||
+            fSrcBlend != s.fSrcBlend ||
+            fDstBlend != s.fDstBlend ||
+            fBlendConstant != s.fBlendConstant ||
+            fFlagBits != s.fFlagBits ||
+            fVertexEdgeType != s.fVertexEdgeType ||
+            fStencilSettings != s.fStencilSettings ||
+            fFirstCoverageStage != s.fFirstCoverageStage ||
+            fCoverage != s.fCoverage ||
+            fColorFilterMode != s.fColorFilterMode ||
+            fColorFilterColor != s.fColorFilterColor ||
+            fDrawFace != s.fDrawFace) {
             return false;
         }
 
@@ -797,17 +792,26 @@ public:
     // Most stages are usually not used, so conditionals here
     // reduce the expected number of bytes touched by 50%.
     GrDrawState& operator =(const GrDrawState& s) {
-        memcpy(this->podStart(), s.podStart(), this->podSize());
-
+        fColor = s.fColor;
         fViewMatrix = s.fViewMatrix;
+        SkRefCnt_SafeAssign(fRenderTarget, s.fRenderTarget);
+        fSrcBlend = s.fSrcBlend;
+        fDstBlend = s.fDstBlend;
+        fBlendConstant = s.fBlendConstant;
+        fFlagBits = s.fFlagBits;
+        fVertexEdgeType = s.fVertexEdgeType;
+        fStencilSettings = s.fStencilSettings;
+        fFirstCoverageStage = s.fFirstCoverageStage;
+        fCoverage = s.fCoverage;
+        fColorFilterMode = s.fColorFilterMode;
+        fColorFilterColor = s.fColorFilterColor;
+        fDrawFace = s.fDrawFace;
 
         for (int i = 0; i < kNumStages; i++) {
             if (s.isStageEnabled(i)) {
                 this->fSamplerStates[i] = s.fSamplerStates[i];
             }
         }
-
-        SkSafeRef(fRenderTarget);               // already copied by memcpy
 
         if (kColorMatrix_StateBit & s.fFlagBits) {
             memcpy(this->fColorMatrix, s.fColorMatrix, sizeof(fColorMatrix));
@@ -818,56 +822,21 @@ public:
 
 private:
 
-    const void* podStart() const {
-        return reinterpret_cast<const void*>(&fPodStartMarker);
-    }
-    void* podStart() {
-        return reinterpret_cast<void*>(&fPodStartMarker);
-    }
-    size_t memsetSize() const {
-        return reinterpret_cast<size_t>(&fMemsetEndMarker) -
-               reinterpret_cast<size_t>(&fPodStartMarker) +
-               sizeof(fMemsetEndMarker);
-    }
-    size_t podSize() const {
-        // Can't use offsetof() with non-POD types, so stuck with pointer math.
-        return reinterpret_cast<size_t>(&fPodEndMarker) -
-               reinterpret_cast<size_t>(&fPodStartMarker) +
-               sizeof(fPodEndMarker);
-    }
-
-    // @{ these fields can be initialized with memset to 0
-    union {
-        GrColor             fBlendConstant;
-        GrColor             fPodStartMarker;
-    };
-    GrColor             fColorFilterColor;
-    DrawFace            fDrawFace;
+    // These fields are roughly sorted by decreasing liklihood of being different in op==
+    GrColor             fColor;
+    GrMatrix            fViewMatrix;
+    GrRenderTarget*     fRenderTarget;
+    GrBlendCoeff        fSrcBlend;
+    GrBlendCoeff        fDstBlend;
+    GrColor             fBlendConstant;
+    uint32_t            fFlagBits;
     VertexEdgeType      fVertexEdgeType;
     GrStencilSettings   fStencilSettings;
-    union {
-        uint32_t        fFlagBits;
-        uint32_t        fMemsetEndMarker;
-    };
-    // @}
-
-    // @{ Initialized to values other than zero, but memcmp'ed in operator==
-    // and memcpy'ed in operator=.
-    GrRenderTarget*     fRenderTarget;
-
     int                 fFirstCoverageStage;
-
-    GrColor             fColor;
     GrColor             fCoverage;
     SkXfermode::Mode    fColorFilterMode;
-    GrBlendCoeff        fSrcBlend;
-    union {
-        GrBlendCoeff    fDstBlend;
-        GrBlendCoeff    fPodEndMarker;
-    };
-    // @}
-
-    GrMatrix            fViewMatrix;
+    GrColor             fColorFilterColor;
+    DrawFace            fDrawFace;
 
     // This field must be last; it will not be copied or compared
     // if the corresponding fTexture[] is NULL.
