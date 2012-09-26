@@ -180,7 +180,6 @@
         },
         'xcode_settings': {
           'GCC_SYMBOLS_PRIVATE_EXTERN': 'NO',
-          'SYMROOT': '<(DEPTH)/xcodebuild',
           'SDKROOT': '<(skia_osx_sdkroot)',
 # trying to get this to work, but it needs clang I think...
 #          'WARNING_CFLAGS': '-Wexit-time-destructors',
@@ -231,7 +230,6 @@
           'CODE_SIGNING_REQUIRED': 'NO',
           'CODE_SIGN_IDENTITY[sdk=iphoneos*]': '',
           'IPHONEOS_DEPLOYMENT_TARGET': '<(ios_sdk_version)',
-          'SYMROOT': '<(DEPTH)/xcodebuild',
           'SDKROOT': 'iphoneos',
           'TARGETED_DEVICE_FAMILY': '1,2',
           'OTHER_CPLUSPLUSFLAGS': '-fvisibility=hidden -fvisibility-inlines-hidden',
@@ -323,6 +321,10 @@
     }],
 
   ], # end 'conditions'
+  # The Xcode SYMROOT must be at the root. See build/common.gypi in chromium for more details
+  'xcode_settings': {
+    'SYMROOT': '<(DEPTH)/xcodebuild',
+  },
 }
 
 # Local Variables:
