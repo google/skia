@@ -25,6 +25,7 @@ class SkBounder;
 class SkDevice;
 class SkDraw;
 class SkDrawFilter;
+class SkMetaData;
 class SkPicture;
 class SkSurface_Base;
 
@@ -61,6 +62,8 @@ public:
     */
     explicit SkCanvas(const SkBitmap& bitmap);
     virtual ~SkCanvas();
+
+    SkMetaData& getMetaData();
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -985,6 +988,8 @@ private:
     SkBounder*  fBounder;
     SkDevice*   fLastDeviceToGainFocus;
     int         fSaveLayerCount;    // number of successful saveLayer calls
+
+    SkMetaData* fMetaData;
 
     SkSurface_Base*  fSurfaceBase;
     SkSurface_Base* getSurfaceBase() const { return fSurfaceBase; }
