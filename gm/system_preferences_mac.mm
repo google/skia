@@ -5,10 +5,9 @@
  * found in the LICENSE file.
  */
 
-#import <Cocoa/Cocoa.h>
+#include "system_preferences.h"
 
-// FIXME: should be in a header
-void setSystemPreferences();
+#import <Cocoa/Cocoa.h>
 
 void setSystemPreferences() {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
