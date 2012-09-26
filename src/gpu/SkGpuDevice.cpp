@@ -1611,7 +1611,7 @@ void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
         }
         matrix.setRectToRect(tmpSrc, dst, SkMatrix::kFill_ScaleToFit);
     }
-    
+
     // ensure that src is "valid" before we pass it to our internal routines
     // and to SkDevice. i.e. sure it is contained inside the original bitmap.
     SkIRect isrcStorage;

@@ -180,13 +180,13 @@ class BitmapRectView2 : public SampleView {
     SkRect  fLimitR;
     SkScalar fDX;
     SkRect  fDstR[2];
-    
+
     void bounceMe() {
         SkScalar width = fSrcR.width();
         bounce(&fSrcR.fLeft, &fDX, fLimitR.fLeft, fLimitR.fRight - width);
         fSrcR.fRight = fSrcR.fLeft + width;
     }
-    
+
 public:
     BitmapRectView2() {
         make_big_bitmap(&fBitmap);
@@ -209,7 +209,7 @@ public:
         fDstR[1] = fDstR[0];
         fDstR[1].offset(0, fDstR[0].height() * 5/4);
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -219,8 +219,8 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
-    virtual void onDrawContent(SkCanvas* canvas) { 
+
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setColor(SK_ColorYELLOW);
@@ -230,11 +230,11 @@ protected:
             canvas->drawBitmapRectToRect(fBitmap, &fSrcR, fDstR[i], &paint);
             canvas->drawRect(fDstR[i], paint);
         }
-        
+
         this->bounceMe();
         this->inval(NULL);
     }
-    
+
 private:
     typedef SkView INHERITED;
 };

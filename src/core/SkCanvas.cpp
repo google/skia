@@ -1597,13 +1597,13 @@ void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
     if (NULL == paint) {
         paint = lazy.init();
     }
-    
+
     LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type)
-    
+
     while (iter.next()) {
         iter.fDevice->drawBitmapRect(iter, bitmap, src, dst, looper.paint());
     }
-    
+
     LOOPER_END
 }
 
