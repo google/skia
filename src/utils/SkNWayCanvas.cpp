@@ -7,11 +7,14 @@
  */
 #include "SkNWayCanvas.h"
 
-SkNWayCanvas::SkNWayCanvas(int width, int height) {
+static SkBitmap make_noconfig_bm(int width, int height) {
     SkBitmap bm;
     bm.setConfig(SkBitmap::kNo_Config, width, height);
-    this->setBitmapDevice(bm);
+    return bm;
 }
+
+SkNWayCanvas::SkNWayCanvas(int width, int height)
+        : INHERITED(make_noconfig_bm(width, height)) {}
 
 SkNWayCanvas::~SkNWayCanvas() {
     this->removeAll();

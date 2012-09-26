@@ -157,15 +157,18 @@ static void toString(const void* text, size_t byteLen, SkPaint::TextEncoding enc
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkDumpCanvas::SkDumpCanvas(Dumper* dumper) : fNestLevel(0) {
+static SkBitmap make_wideopen_bm() {
+    static const int WIDE_OPEN = 16384;
+    
+    SkBitmap bm;
+    bm.setConfig(SkBitmap::kNo_Config, WIDE_OPEN, WIDE_OPEN);
+    return bm;
+}
+
+SkDumpCanvas::SkDumpCanvas(Dumper* dumper) : INHERITED(make_wideopen_bm()) {
+    fNestLevel = 0;
     SkSafeRef(dumper);
     fDumper = dumper;
-
-    static const int WIDE_OPEN = 16384;
-    SkBitmap emptyBitmap;
-
-    emptyBitmap.setConfig(SkBitmap::kNo_Config, WIDE_OPEN, WIDE_OPEN);
-    this->setBitmapDevice(emptyBitmap);
 }
 
 SkDumpCanvas::~SkDumpCanvas() {
