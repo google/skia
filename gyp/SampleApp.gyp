@@ -205,6 +205,8 @@
           'sources': [
             '../src/views/mac/SkEventNotifier.h',
             '../src/views/mac/SkEventNotifier.mm',
+            '../experimental/iOSSampleApp/SkSampleUIView.h',
+            '../experimental/iOSSampleApp/SkSampleUIView.mm',
             '../experimental/iOSSampleApp/SkiOSSampleApp-Base.xcconfig',
             '../experimental/iOSSampleApp/SkiOSSampleApp-Debug.xcconfig',
             '../experimental/iOSSampleApp/SkiOSSampleApp-Release.xcconfig',
@@ -264,6 +266,10 @@
             '../experimental/iOSSampleApp/iPhone',
             '../include/utils/ios',
           ],
+          'xcode_settings' : {
+            'INFOPLIST_FILE' : '../experimental/iOSSampleApp/iOSSampleApp-Info.plist',
+          },
+          'xcode_config_file': '../experimental/iOSSampleApp/SkiOSSampleApp-Base.xcconfig',
           'mac_bundle_resources' : [
             '../experimental/iOSSampleApp/iPad/MainWindow_iPad.xib',
             '../experimental/iOSSampleApp/iPhone/MainWindow_iPhone.xib',
