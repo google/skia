@@ -7,8 +7,6 @@
 //  Use of this source code is governed by a BSD-style license that can be
 //  found in the LICENSE file.
 //
-GCC_PREFIX_HEADER=iOSSampleApp_Prefix.pch
-
 ARCHS=armv6 armv7
 IPHONEOS_DEPLOYMENT_TARGET=4.2
 SDKROOT=iphoneos
