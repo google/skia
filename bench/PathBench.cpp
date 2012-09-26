@@ -272,13 +272,15 @@ protected:
                     path->lineTo(fPoints[(fCurrPoint++) & (kNumPoints - 1)]);
                     break;
                 case SkPath::kQuad_Verb:
-                    path->quadTo(fPoints[(fCurrPoint++) & (kNumPoints - 1)],
-                                 fPoints[(fCurrPoint++) & (kNumPoints - 1)]);
+                    path->quadTo(fPoints[(fCurrPoint + 0) & (kNumPoints - 1)],
+                                 fPoints[(fCurrPoint + 1) & (kNumPoints - 1)]);
+                    fCurrPoint += 2;
                     break;
                 case SkPath::kCubic_Verb:
-                    path->cubicTo(fPoints[(fCurrPoint++) & (kNumPoints - 1)],
-                                  fPoints[(fCurrPoint++) & (kNumPoints - 1)],
-                                  fPoints[(fCurrPoint++) & (kNumPoints - 1)]);
+                    path->cubicTo(fPoints[(fCurrPoint + 0) & (kNumPoints - 1)],
+                                  fPoints[(fCurrPoint + 1) & (kNumPoints - 1)],
+                                  fPoints[(fCurrPoint + 2) & (kNumPoints - 1)]);
+                    fCurrPoint += 3;
                     break;
                 case SkPath::kClose_Verb:
                     path->close();

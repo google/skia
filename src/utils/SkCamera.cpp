@@ -269,13 +269,13 @@ void SkCamera3D::doUpdate() const {
     fAxis.normalize(&axis);
 
     {
-        SkScalar dot = SkUnit3D::Dot(*(const SkUnit3D*)(const void*)&fZenith, axis);
+        SkScalar dot = SkUnit3D::Dot(*SkTCast<const SkUnit3D*>(&fZenith), axis);
 
         zenith.fX = fZenith.fX - SkUnitScalarMul(dot, axis.fX);
         zenith.fY = fZenith.fY - SkUnitScalarMul(dot, axis.fY);
         zenith.fZ = fZenith.fZ - SkUnitScalarMul(dot, axis.fZ);
 
-        (void)((SkPoint3D*)(void*)&zenith)->normalize(&zenith);
+        SkTCast<SkPoint3D*>(&zenith)->normalize(&zenith);
     }
 
     SkUnit3D::Cross(axis, zenith, &cross);
@@ -313,8 +313,8 @@ void SkCamera3D::patchToMatrix(const SkPatch3D& quilt, SkMatrix* matrix) const {
     diff.fY = quilt.fOrigin.fY - fLocation.fY;
     diff.fZ = quilt.fOrigin.fZ - fLocation.fZ;
 
-    dot = SkUnit3D::Dot(*(const SkUnit3D*)(const void*)&diff,
-                        *(const SkUnit3D*)(((const SkScalar*)(const void*)&fOrientation) + 6));
+    dot = SkUnit3D::Dot(*SkTCast<const SkUnit3D*>(&diff),
+                        *SkTCast<const SkUnit3D*>(SkTCast<const SkScalar*>(&fOrientation) + 6));
 
     patchPtr = (const SkScalar*)&quilt;
     matrix->set(SkMatrix::kMScaleX, SkScalarDotDiv(3, patchPtr, 1, mapPtr, 1, dot));

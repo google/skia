@@ -44,8 +44,8 @@ static bool are_equal(skiatest::Reporter* reporter,
             for (int i = 0; i < 9; ++i) {
                 float aVal = a.get(i);
                 float bVal = b.get(i);
-                int aValI = *reinterpret_cast<int*>(&aVal);
-                int bValI = *reinterpret_cast<int*>(&bVal);
+                int aValI = *SkTCast<int*>(&aVal);
+                int bValI = *SkTCast<int*>(&bVal);
                 if (0 == aVal && 0 == bVal && aValI != bValI) {
                     foundZeroSignDiff = true;
                 } else {
@@ -58,8 +58,8 @@ static bool are_equal(skiatest::Reporter* reporter,
             for (int i = 0; i < 9; ++i) {
                 float aVal = a.get(i);
                 float bVal = b.get(i);
-                int aValI = *reinterpret_cast<int*>(&aVal);
-                int bValI = *reinterpret_cast<int*>(&bVal);
+                int aValI = *SkTCast<int*>(&aVal);
+                int bValI = *SkTCast<int*>(&bVal);
                 if (sk_float_isnan(aVal) && aValI == bValI) {
                     foundNaN = true;
                 } else {

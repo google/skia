@@ -184,14 +184,14 @@ static float nextFloat(SkRandom& rand) {
  */
 static bool equal_float_native_skia(float x, uint32_t ni, uint32_t si) {
     if (!(x == x)) {    // NAN
-        return si == SK_MaxS32 || si == SK_MinS32;
+        return ((int32_t)si) == SK_MaxS32 || ((int32_t)si) == SK_MinS32;
     }
     // for out of range, C is undefined, but skia always should return NaN32
     if (x > SK_MaxS32) {
-        return si == SK_MaxS32;
+        return ((int32_t)si) == SK_MaxS32;
     }
     if (x < -SK_MaxS32) {
-        return si == SK_MinS32;
+        return ((int32_t)si) == SK_MinS32;
     }
     return si == ni;
 }

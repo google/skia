@@ -14,7 +14,7 @@
 static const size_t MIN_CHILDREN = 6;
 static const size_t MAX_CHILDREN = 11;
 
-static const size_t NUM_RECTS = 200;
+static const int NUM_RECTS = 200;
 static const size_t NUM_ITERATIONS = 100;
 static const size_t NUM_QUERIES = 50;
 
@@ -46,7 +46,7 @@ static bool verify_query(SkIRect query, DataRect rects[],
                          SkTDArray<void*>& found) {
     SkTDArray<void*> expected;
     // manually intersect with every rectangle
-    for (size_t i = 0; i < NUM_RECTS; ++i) {
+    for (int i = 0; i < NUM_RECTS; ++i) {
         if (SkIRect::IntersectsNoEmptyCheck(query, rects[i].rect)) {
             expected.push(rects[i].data);
         }
@@ -106,7 +106,7 @@ static void TestRTree(skiatest::Reporter* reporter) {
         random_data_rects(rand, rects, NUM_RECTS);
 
         // First try bulk-loaded inserts
-        for (size_t i = 0; i < NUM_RECTS; ++i) {
+        for (int i = 0; i < NUM_RECTS; ++i) {
             rtree->insert(rects[i].data, rects[i].rect, true);
         }
         rtree->flushDeferredInserts();
@@ -118,7 +118,7 @@ static void TestRTree(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, 0 == rtree->getCount());
 
         // Then try immediate inserts
-        for (size_t i = 0; i < NUM_RECTS; ++i) {
+        for (int i = 0; i < NUM_RECTS; ++i) {
             rtree->insert(rects[i].data, rects[i].rect);
         }
         runQueries(reporter, rand, rects, *rtree);
