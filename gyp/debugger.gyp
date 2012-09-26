@@ -72,6 +72,9 @@
         }],
         [ 'skia_os == "mac"', {
           'mac_bundle' : 1,
+          'mac_framework_dirs': [
+            '/Library/Frameworks',
+          ],
           'include_dirs': [
             '/Library/Frameworks/QtCore.framework/Headers/',
             '/Library/Frameworks/QtGui.framework/Headers/',
