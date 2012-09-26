@@ -110,9 +110,9 @@ private:
 
 static inline float SkFastInvSqrt(float x) {
     float xhalf = 0.5f*x;
-    int i = *(int*)&x;
+    int i = *SkTCast<int*>(&x);
     i = 0x5f3759df - (i>>1);
-    x = *(float*)&i;
+    x = *SkTCast<float*>(&i);
     x = x*(1.5f-xhalf*x*x);
 //    x = x*(1.5f-xhalf*x*x); // this line takes err from 10^-3 to 10^-6
     return x;

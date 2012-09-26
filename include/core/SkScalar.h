@@ -40,7 +40,7 @@
     #define SK_ScalarHalf           (0.5f)
     /** SK_ScalarInfinity is defined to be infinity as an SkScalar
     */
-    #define SK_ScalarInfinity           (*(const float*)&gIEEEInfinity)
+    #define SK_ScalarInfinity           (*SkTCast<const float*>(&gIEEEInfinity))
     /** SK_ScalarMax is defined to be the largest value representable as an SkScalar
     */
     #define SK_ScalarMax            (3.402823466e+38f)
@@ -49,7 +49,7 @@
     #define SK_ScalarMin            (-SK_ScalarMax)
     /** SK_ScalarNaN is defined to be 'Not a Number' as an SkScalar
     */
-    #define SK_ScalarNaN      (*(const float*)(const void*)&gIEEENotANumber)
+    #define SK_ScalarNaN      (*SkTCast<const float*>(&gIEEENotANumber))
     /** SkScalarIsNaN(n) returns true if argument is not a number
     */
     static inline bool SkScalarIsNaN(float x) { return x != x; }

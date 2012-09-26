@@ -154,25 +154,29 @@ if (false) { // avoid bit rot, suppress warning
     this->INHERITED::onInflate(dom, node);
 
     int    index;
-    if ((index = dom.findList(node, "mode", "fixed,auto-width,auto-height")) >= 0)
+    if ((index = dom.findList(node, "mode", "fixed,auto-width,auto-height")) >= 0) {
         this->setMode((Mode)index);
-    else
+    } else {
         assert_no_attr(dom, node, "mode");
+    }
 
-    if ((index = dom.findList(node, "spacing-align", "start,center,end")) >= 0)
+    if ((index = dom.findList(node, "spacing-align", "start,center,end")) >= 0) {
         this->setSpacingAlign((SkTextBox::SpacingAlign)index);
-    else
+    } else {
         assert_no_attr(dom, node, "spacing-align");
+    }
 
     SkScalar s[2];
-    if (dom.findScalars(node, "margin", s, 2))
+    if (dom.findScalars(node, "margin", s, 2)) {
         this->setMargin(s[0], s[1]);
-    else
+    } else {
         assert_no_attr(dom, node, "margin");
+    }
 
     const char* text = dom.findAttr(node, "text");
-    if (text)
+    if (text) {
         this->setText(text);
+    }
 
     if ((node = dom.getFirstChild(node, "paint")) != NULL &&
         (node = dom.getFirstChild(node, "screenplay")) != NULL)
