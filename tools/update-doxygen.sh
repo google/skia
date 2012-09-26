@@ -30,6 +30,10 @@ if [ -d "docs" ]; then
   svn update --accept theirs-full docs
 else
   svn checkout https://skia-autogen.googlecode.com/svn/docs  # writeable
+if [ ! -f "docs/static_footer.txt" ]; then
+  TOOLS_DIR="$(cd "$(dirname "$0" )" && pwd )"
+  cp ${TOOLS_DIR}/doxygen_footer.txt docs/static_footer.txt
+fi
 fi
 
 # Run Doxygen.
