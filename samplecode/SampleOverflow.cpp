@@ -16,13 +16,13 @@ static void DrawRoundRect() {
     bool ret = false;
     SkPaint  paint;
     SkBitmap bitmap;
-    SkCanvas canvas;
     SkMatrix matrix;
     matrix.reset();
 
     bitmap.setConfig(SkBitmap::kARGB_8888_Config, 1370, 812);
     bitmap.allocPixels();
-    canvas.setBitmapDevice(bitmap);
+
+    SkCanvas canvas(bitmap);
 
     // set up clipper
     SkRect skclip;

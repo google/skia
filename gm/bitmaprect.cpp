@@ -14,13 +14,10 @@
 #include "SkShader.h"
 
 static void make_bitmap(SkBitmap* bitmap) {
-    SkCanvas canvas;
+    bitmap->setConfig(SkBitmap::kARGB_8888_Config, 64, 64);
+    bitmap->allocPixels();
 
-    {
-        bitmap->setConfig(SkBitmap::kARGB_8888_Config, 64, 64);
-        bitmap->allocPixels();
-        canvas.setBitmapDevice(*bitmap);
-    }
+    SkCanvas canvas(*bitmap);
 
     canvas.drawColor(SK_ColorRED);
     SkPaint paint;
