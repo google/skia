@@ -17,25 +17,30 @@ static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst) {
     src->allocPixels();
     src->eraseColor(0);
 
-    SkCanvas c(*src);
     SkPaint p;
+    p.setAntiAlias(true);
+
     SkRect r;
     SkScalar ww = SkIntToScalar(w);
     SkScalar hh = SkIntToScalar(h);
 
-    p.setAntiAlias(true);
-    p.setColor(0xFFFFCC44);
-    r.set(0, 0, ww*3/4, hh*3/4);
-    c.drawOval(r, p);
+    {
+        SkCanvas c(*src);
+        p.setColor(0xFFFFCC44);
+        r.set(0, 0, ww*3/4, hh*3/4);
+        c.drawOval(r, p);
+    }
 
     dst->setConfig(SkBitmap::kARGB_8888_Config, w, h);
     dst->allocPixels();
     dst->eraseColor(0);
-    c.setBitmapDevice(*dst);
 
-    p.setColor(0xFF66AAFF);
-    r.set(ww/3, hh/3, ww*19/20, hh*19/20);
-    c.drawRect(r, p);
+    {
+        SkCanvas c(*dst);
+        p.setColor(0xFF66AAFF);
+        r.set(ww/3, hh/3, ww*19/20, hh*19/20);
+        c.drawRect(r, p);
+    }
 }
 
 class XfermodesGM : public GM {

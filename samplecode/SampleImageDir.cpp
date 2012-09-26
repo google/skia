@@ -65,10 +65,6 @@ static void DrawRoundRect(SkCanvas& canvas) {
 
    bitmap.setConfig(SkBitmap::kARGB_8888_Config, 1370, 812);
    bitmap.allocPixels();
-#if 0
-    SkCanvas canvas;
-    canvas.setBitmapDevice(bitmap);
-#endif
 
    // set up clipper
    SkRect skclip;
