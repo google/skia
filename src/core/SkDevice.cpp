@@ -355,11 +355,11 @@ void SkDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
     SkMatrix    matrix;
     SkRect      bitmapBounds, tmpSrc, tmpDst;
     SkBitmap    tmpBitmap;
-    
+
     bitmapBounds.set(0, 0,
                      SkIntToScalar(bitmap.width()),
                      SkIntToScalar(bitmap.height()));
-    
+
     // Compute matrix from the two rectangles
     if (src) {
         tmpSrc = *src;
@@ -367,10 +367,10 @@ void SkDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
         tmpSrc = bitmapBounds;
     }
     matrix.setRectToRect(tmpSrc, dst, SkMatrix::kFill_ScaleToFit);
-    
+
     const SkRect* dstPtr = &dst;
     const SkBitmap* bitmapPtr = &bitmap;
-    
+
     // clip the tmpSrc to the bounds of the bitmap, and recompute dstRect if
     // needed (if the src was clipped). No check needed if src==null.
     if (src) {
@@ -382,7 +382,7 @@ void SkDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
             matrix.mapRect(&tmpDst, tmpSrc);
             dstPtr = &tmpDst;
         }
-        
+
         // since we may need to clamp to the borders of the src rect within
         // the bitmap, we extract a subset.
         SkIRect srcIR;
@@ -391,7 +391,7 @@ void SkDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
             return;
         }
         bitmapPtr = &tmpBitmap;
-        
+
         // Since we did an extract, we need to adjust the matrix accordingly
         SkScalar dx = 0, dy = 0;
         if (srcIR.fLeft > 0) {
@@ -404,7 +404,7 @@ void SkDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
             matrix.preTranslate(dx, dy);
         }
     }
-    
+
     // construct a shader, so we can call drawRect with the dst
     SkShader* s = SkShader::CreateBitmapShader(*bitmapPtr,
                                                SkShader::kClamp_TileMode,
