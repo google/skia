@@ -1,0 +1,9 @@
+<!--
+  This is the static footer that Doxygen appends to every page.
+  It is not properly formed html; it must end with unbalanced /body
+  and /html tags.
+-->
+<hr class="footer"/>
+<iframe src="../iframe_footer.html" width="100%" frameborder=0></iframe>
+</body>
+</html>
