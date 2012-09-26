@@ -85,7 +85,7 @@
       'skia_nacl%': 0,
       'skia_gpu%': 1,
       'ios_sdk_version%': '5.1',
-      'skia_osx_sdkroot%': 'macosx10.6',
+      'skia_osx_sdkroot%': 'macosx10.8',
     },
 
     # Re-define all variables defined within the level-2 'variables' dict,
