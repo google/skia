@@ -19,17 +19,14 @@
 #include "SkTSearch.h"
 
 #ifndef SK_FONT_FILE_PREFIX
-    #define SK_FONT_FILE_PREFIX      "/usr/share/fonts/truetype/msttcorefonts/"
+    #define SK_FONT_FILE_PREFIX "/usr/share/fonts/truetype/"
+#endif
+#ifndef SK_FONT_FILE_DIR_SEPERATOR
+    #define SK_FONT_FILE_DIR_SEPERATOR "/"
 #endif
 
 bool find_name_and_attributes(SkStream* stream, SkString* name,
                               SkTypeface::Style* style, bool* isFixedWidth);
-
-static void GetFullPathForSysFonts(SkString* full, const char name[])
-{
-    full->append(SK_FONT_FILE_PREFIX);
-    full->append(name);
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -382,20 +379,13 @@ static SkTypeface* gFallBackTypeface;
 static FamilyRec* gDefaultFamily;
 static SkTypeface* gDefaultNormal;
 
-static void load_system_fonts() {
-    // check if we've already be called
-    if (NULL != gDefaultNormal) {
-//        printf("---- default font %p\n", gDefaultNormal);
-        return;
-    }
-
-    SkOSFile::Iter  iter(SK_FONT_FILE_PREFIX, ".ttf");
+static void load_directory_fonts(const SkString& directory, unsigned int* count) {
+    SkOSFile::Iter  iter(directory.c_str(), ".ttf");
     SkString        name;
-    int             count = 0;
 
     while (iter.next(&name, false)) {
-        SkString filename;
-        GetFullPathForSysFonts(&filename, name.c_str());
+        SkString filename(directory);
+        filename.append(name);
 
         bool isFixedWidth;
         SkString realname;
@@ -406,12 +396,8 @@ static void load_system_fonts() {
             continue;
         }
 
-//        SkDebugf("font: <%s> %d <%s>\n", realname.c_str(), style, filename.c_str());
-
         FamilyRec* family = find_familyrec(realname.c_str());
         if (family && family->fFaces[style]) {
-//            SkDebugf("---- skipping duplicate typeface %s style %d\n",
-//                     realname.c_str(), style);
             continue;
         }
 
@@ -427,8 +413,30 @@ static void load_system_fonts() {
         if (NULL == family) {
             add_name(realname.c_str(), tf->getFamily());
         }
-        count += 1;
+        *count += 1;
     }
+
+    SkOSFile::Iter  dirIter(directory.c_str());
+    while (dirIter.next(&name, true)) {
+        if (name.startsWith(".")) {
+            continue;
+        }
+        SkString dirname(directory);
+        dirname.append(name);
+        dirname.append(SK_FONT_FILE_DIR_SEPERATOR);
+        load_directory_fonts(dirname, count);
+    }
+}
+
+static void load_system_fonts() {
+    // check if we've already be called
+    if (NULL != gDefaultNormal) {
+        return;
+    }
+
+    SkString baseDirectory(SK_FONT_FILE_PREFIX);
+    unsigned int count = 0;
+    load_directory_fonts(baseDirectory, &count);
 
     if (0 == count) {
         SkNEW(EmptyTypeface);
@@ -463,8 +471,6 @@ static void load_system_fonts() {
     }
     gFallBackTypeface = gDefaultNormal;
     gDefaultFamily = find_family(gDefaultNormal);
-
-//    SkDebugf("---- default %p head %p family %p\n", gDefaultNormal, gFamilyHead, gDefaultFamily);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
