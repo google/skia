@@ -402,7 +402,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
         renderer = SkNEW(sk_tools::PipePictureRenderer);
     }
     if (inputs->count() < 1) {
-        SkDELETE(benchmark);
+        SkSafeUnref(renderer);
         usage(argv0);
         exit(-1);
     }

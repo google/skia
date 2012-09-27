@@ -46,7 +46,8 @@ static void dumpOps(SkPicture* pic) {
 
 int main(int argc, char* const argv[]) {
     if (argc < 2) {
-        printf("Usage: pinspect [--dump_ops] filename [filename ...]\n");
+        printf("Usage: pinspect [--dump-ops] filename [filename ...]\n");
+        return 1;
     }
 
     bool doDumpOps = false;
