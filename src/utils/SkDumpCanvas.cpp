@@ -159,7 +159,7 @@ static void toString(const void* text, size_t byteLen, SkPaint::TextEncoding enc
 
 static SkBitmap make_wideopen_bm() {
     static const int WIDE_OPEN = 16384;
-    
+
     SkBitmap bm;
     bm.setConfig(SkBitmap::kNo_Config, WIDE_OPEN, WIDE_OPEN);
     return bm;

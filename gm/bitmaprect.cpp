@@ -94,8 +94,8 @@ static void make_3x3_bitmap(SkBitmap* bitmap) {
     static const int gYSize = 3;
 
     SkColor textureData[gXSize][gYSize] = {
-        SK_ColorRED,    SK_ColorWHITE, SK_ColorBLUE, 
-        SK_ColorGREEN,  SK_ColorBLACK, SK_ColorCYAN, 
+        SK_ColorRED,    SK_ColorWHITE, SK_ColorBLUE,
+        SK_ColorGREEN,  SK_ColorBLACK, SK_ColorCYAN,
         SK_ColorYELLOW, SK_ColorGRAY,  SK_ColorMAGENTA
     };
 
@@ -163,7 +163,7 @@ static void make_big_bitmap(SkBitmap* bitmap) {
     SkAutoLockPixels lock(*bitmap);
     for (int y = 0; y < gYSize; ++y) {
         for (int x = 0; x < gXSize; ++x) {
-            if (x <= gBorderWidth || x >= gXSize-gBorderWidth || 
+            if (x <= gBorderWidth || x >= gXSize-gBorderWidth ||
                 y <= gBorderWidth || y >= gYSize-gBorderWidth) {
                 *bitmap->getAddr32(x, y) = 0x88FFFFFF;
             } else {

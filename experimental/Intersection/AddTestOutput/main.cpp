@@ -74,7 +74,7 @@ int main (int argc, char * const argv[]) {
     const char opMarker[] =
             "</div>" "\n"
             "\n"
-            "<script type=\"text/javascript\">" "\n" 
+            "<script type=\"text/javascript\">" "\n"
             "\n"
             "var testDivs = ["  "\n"
             ;
@@ -85,7 +85,7 @@ int main (int argc, char * const argv[]) {
     const char newMarker[] =
             "static void (*firstTest)() = "
             ;
-    const char newMarker2[] = 
+    const char newMarker2[] =
             ";"  "\n"
             "\n"
             "static struct {"  "\n"
