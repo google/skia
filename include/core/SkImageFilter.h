@@ -106,7 +106,7 @@ public:
      *  size, and return it to the caller.  The default implementation returns
      *  NULL.
      */
-    virtual GrTexture* onFilterImageGPU(GrTexture* texture, const SkRect& rect);
+    virtual GrTexture* onFilterImageGPU(Proxy*, GrTexture* texture, const SkRect& rect);
 
 protected:
     SkImageFilter() {}

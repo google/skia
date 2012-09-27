@@ -187,9 +187,9 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
     return true;
 }
 
-GrTexture* SkBlurImageFilter::onFilterImageGPU(GrTexture* src, const SkRect& rect) {
+GrTexture* SkBlurImageFilter::onFilterImageGPU(Proxy* proxy, GrTexture* src, const SkRect& rect) {
 #if SK_SUPPORT_GPU
-    SkAutoTUnref<GrTexture> input(this->getInputResultAsTexture(src, rect));
+    SkAutoTUnref<GrTexture> input(this->getInputResultAsTexture(proxy, src, rect));
     return src->getContext()->gaussianBlur(input.get(), false, rect,
                                            fSigma.width(), fSigma.height());
 #else

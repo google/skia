@@ -165,7 +165,8 @@ private:
 };
 
 // FIXME:  This should be refactored with SkSingleInputImageFilter's version.
-static GrTexture* getInputResultAsTexture(SkImageFilter* input,
+static GrTexture* getInputResultAsTexture(SkImageFilter::Proxy* proxy,
+                                          SkImageFilter* input,
                                           GrTexture* src,
                                           const SkRect& rect) {
     GrTexture* resultTex;
@@ -173,13 +174,13 @@ static GrTexture* getInputResultAsTexture(SkImageFilter* input,
         resultTex = src;
     } else if (input->canFilterImageGPU()) {
         // onFilterImageGPU() already refs the result, so just return it here.
-        return input->onFilterImageGPU(src, rect);
+        return input->onFilterImageGPU(proxy, src, rect);
     } else {
         SkBitmap srcBitmap, result;
         srcBitmap.setConfig(SkBitmap::kARGB_8888_Config, src->width(), src->height());
         srcBitmap.setPixelRef(new SkGrPixelRef(src))->unref();
         SkIPoint offset;
-        if (input->filterImage(NULL, srcBitmap, SkMatrix(), &result, &offset)) {
+        if (input->filterImage(proxy, srcBitmap, SkMatrix(), &result, &offset)) {
             if (result.getTexture()) {
                 resultTex = (GrTexture*) result.getTexture();
             } else {
@@ -196,9 +197,9 @@ static GrTexture* getInputResultAsTexture(SkImageFilter* input,
     return resultTex;
 }
 
-GrTexture* SkBlendImageFilter::onFilterImageGPU(GrTexture* src, const SkRect& rect) {
-    SkAutoTUnref<GrTexture> background(getInputResultAsTexture(fBackground, src, rect));
-    SkAutoTUnref<GrTexture> foreground(getInputResultAsTexture(fForeground, src, rect));
+GrTexture* SkBlendImageFilter::onFilterImageGPU(Proxy* proxy, GrTexture* src, const SkRect& rect) {
+    SkAutoTUnref<GrTexture> background(getInputResultAsTexture(proxy, fBackground, src, rect));
+    SkAutoTUnref<GrTexture> foreground(getInputResultAsTexture(proxy, fForeground, src, rect));
     GrContext* context = src->getContext();
 
     GrTextureDesc desc;

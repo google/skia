@@ -32,7 +32,7 @@ protected:
 #if SK_SUPPORT_GPU
     // Recurses on input (if non-NULL), and returns the processed result as
     // a texture, otherwise returns src.
-    GrTexture* getInputResultAsTexture(GrTexture* src, const SkRect& rect);
+    GrTexture* getInputResultAsTexture(Proxy* proxy, GrTexture* src, const SkRect& rect);
 #endif
 
     SkImageFilter* input() const { return fInput; }
