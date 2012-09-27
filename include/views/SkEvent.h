@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkEvent_DEFINED
 #define SkEvent_DEFINED
@@ -258,16 +256,11 @@ public:
     */
     static void SignalQueueTimer(SkMSec delay);
 
-#ifndef SK_USE_WXWIDGETS
 #ifdef SK_BUILD_FOR_WIN
     static bool WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 #elif defined(SK_BUILD_FOR_UNIXx)
   static uint32_t HandleTimer(uint32_t, void*);
   static bool WndProc(Display*, Window, XEvent&);
-#endif
-#else
-    // Don't know yet what this will be
-    //static bool CustomEvent();
 #endif
 
 private:
@@ -292,4 +285,3 @@ private:
 };
 
 #endif
-

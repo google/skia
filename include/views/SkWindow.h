@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkWindow_DEFINED
 #define SkWindow_DEFINED
@@ -100,11 +98,9 @@ private:
     typedef SkView INHERITED;
 };
 
-///////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_USE_WXWIDGETS
-    #include "SkOSWindow_wxwidgets.h"
-#elif defined(SK_BUILD_FOR_MAC)
+#if defined(SK_BUILD_FOR_MAC)
     #include "SkOSWindow_Mac.h"
 #elif defined(SK_BUILD_FOR_WIN)
     #include "SkOSWindow_Win.h"
@@ -119,4 +115,3 @@ private:
 #endif
 
 #endif
-

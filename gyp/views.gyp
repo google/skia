@@ -1,8 +1,8 @@
-#Views is the Skia windowing toolkit.
-#It provides
-#  * a portable means of creating native windows
-#  * events
-#  * basic widgets and controls
+# Views is the Skia windowing toolkit.
+# It provides:
+#  * A portable means of creating native windows.
+#  * Events.
+#  * Basic widgets and controls.
 
 {
   'targets': [
@@ -33,7 +33,6 @@
         '../include/views/SkOSWindow_SDL.h',
         '../include/views/SkOSWindow_Unix.h',
         '../include/views/SkOSWindow_Win.h',
-        #'../include/views/SkOSWindow_wxwidgets.h',
         '../include/views/SkStackViewLayout.h',
         '../include/views/SkSystemEventTypes.h',
         '../include/views/SkTextBox.h',
@@ -62,19 +61,19 @@
         '../src/views/SkWidgets.cpp',
         '../src/views/SkWindow.cpp',
 
-        #mac
+        # Mac
         '../src/views/mac/SkOSWindow_Mac.mm',
         '../src/views/mac/skia_mac.mm',
 
-        #sdl
+        # SDL
         '../src/views/SDL/SkOSWindow_SDL.cpp',
 
-        #*nix
+        # *nix
         '../src/views/unix/SkOSWindow_Unix.cpp',
         '../src/views/unix/keysym2ucs.c',
         '../src/views/unix/skia_unix.cpp',
 
-        #windows
+        # Windows
         '../src/views/win/SkOSWindow_win.cpp',
         '../src/views/win/skia_win.cpp',
 
