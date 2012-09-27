@@ -194,7 +194,7 @@ bool SkWindow::update(SkIRect* updateArea)
 #endif
 #ifdef SK_BUILD_FOR_WIN32
         //try {
-            this->draw(canvas);
+            this->draw(&rasterCanvas);
         //}
         //catch (...) {
         //}
