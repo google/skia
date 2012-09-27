@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -8,7 +7,7 @@
 
 #include "SkTypes.h"
 
-#if defined(SK_BUILD_FOR_MAC) && !defined(SK_USE_WXWIDGETS)
+#if defined(SK_BUILD_FOR_MAC)
 
 #include <AGL/agl.h>
 
@@ -541,4 +540,3 @@ void SkOSWindow::present() {
 }
 
 #endif
-

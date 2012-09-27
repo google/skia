@@ -1,15 +1,15 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
 #include "SkMath.h"
 
-#if defined(SK_BUILD_FOR_MAC) && !defined(SK_USE_WXWIDGETS)
+#if defined(SK_BUILD_FOR_MAC)
 
 #include <ApplicationServices/ApplicationServices.h>
 
