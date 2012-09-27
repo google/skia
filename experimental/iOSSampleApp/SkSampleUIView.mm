@@ -15,107 +15,192 @@
 #include "gl/GrGLInterface.h"
 #include "SkGpuDevice.h"
 #include "SkCGUtils.h"
+#include "SampleApp.h"
+
 class SkiOSDeviceManager : public SampleWindow::DeviceManager {
 public:
     SkiOSDeviceManager() {
-        fGrContext = NULL;
-        fGrRenderTarget = NULL;
-        usingGL = false;
-    }
-    virtual ~SkiOSDeviceManager() {
-        SkSafeUnref(fGrContext);
-        SkSafeUnref(fGrRenderTarget);
+#if SK_SUPPORT_GPU
+        fCurContext = NULL;
+        fCurIntf = NULL;
+        fCurRenderTarget = NULL;
+        fMSAASampleCount = 0;
+#endif
+        fBackend = SkOSWindow::kNone_BackEndType;
     }
     
-    virtual void init(SampleWindow* win) {
-        win->attach(kNativeGL_BackEndType);
-        if (NULL == fGrContext) {
-#ifdef USE_GL_1
-            fGrContext = GrContext::Create(kOpenGL_Fixed_GrEngine, NULL);
-#else
-            fGrContext = GrContext::Create(kOpenGL_Shaders_GrEngine, NULL);
+    virtual ~SkiOSDeviceManager() {
+#if SK_SUPPORT_GPU
+        SkSafeUnref(fCurContext);
+        SkSafeUnref(fCurIntf);
+        SkSafeUnref(fCurRenderTarget);
 #endif
+    }
+    
+    virtual void setUpBackend(SampleWindow* win, int msaaSampleCount) SK_OVERRIDE {
+        SkASSERT(SkOSWindow::kNone_BackEndType == fBackend);
+        
+        fBackend = SkOSWindow::kNone_BackEndType;
+        
+#if SK_SUPPORT_GPU
+        switch (win->getDeviceType()) {
+            // these two don't use GL
+            case SampleWindow::kRaster_DeviceType:
+            case SampleWindow::kPicture_DeviceType:
+                break;
+            // these guys use the native backend
+            case SampleWindow::kGPU_DeviceType:
+            case SampleWindow::kNullGPU_DeviceType:
+                fBackend = SkOSWindow::kNativeGL_BackEndType;
+                break;
+            default:
+                SkASSERT(false);
+                break;
         }
         
-        if (NULL == fGrContext) {
-            SkDebugf("Failed to setup 3D");
-            win->detachGL();
+        bool result = win->attach(fBackend, msaaSampleCount);
+        if (!result) {
+            SkDebugf("Failed to initialize GL");
+            return;
         }
-    }        
-    
-    virtual bool supportsDeviceType(SampleWindow::DeviceType dType) {
-        switch (dType) {
+        fMSAASampleCount = msaaSampleCount;
+        
+        SkASSERT(NULL == fCurIntf);
+        switch (win->getDeviceType()) {
+            // these two don't use GL
             case SampleWindow::kRaster_DeviceType:
-            case SampleWindow::kPicture_DeviceType: // fallthru
-                return true;
+            case SampleWindow::kPicture_DeviceType:
+                fCurIntf = NULL;
+                break;
             case SampleWindow::kGPU_DeviceType:
-                return NULL != fGrContext;
+                fCurIntf = GrGLCreateNativeInterface();
+                break;
+            case SampleWindow::kNullGPU_DeviceType:
+                fCurIntf = GrGLCreateNullInterface();
+                break;
             default:
-                return false;
+                SkASSERT(false);
+                break;
         }
+        
+        SkASSERT(NULL == fCurContext);
+        if (SkOSWindow::kNone_BackEndType != fBackend) {
+            fCurContext = GrContext::Create(kOpenGL_Shaders_GrEngine,
+                                            (GrPlatform3DContext) fCurIntf);
+        }
+        
+        if ((NULL == fCurContext || NULL == fCurIntf) &&
+            SkOSWindow::kNone_BackEndType != fBackend) {
+            // We need some context and interface to see results if we're using a GL backend
+            SkSafeUnref(fCurContext);
+            SkSafeUnref(fCurIntf);
+            SkDebugf("Failed to setup 3D");
+            win->detach();
+        }
+#endif // SK_SUPPORT_GPU
+        // call windowSizeChanged to create the render target
+        this->windowSizeChanged(win);
     }
+    
+    virtual void tearDownBackend(SampleWindow *win) SK_OVERRIDE {
+#if SK_SUPPORT_GPU
+        SkSafeUnref(fCurContext);
+        fCurContext = NULL;
+        
+        SkSafeUnref(fCurIntf);
+        fCurIntf = NULL;
+        
+        SkSafeUnref(fCurRenderTarget);
+        fCurRenderTarget = NULL;
+#endif
+        win->detach();
+        fBackend = SampleWindow::kNone_BackEndType;
+    }
+    
     virtual bool prepareCanvas(SampleWindow::DeviceType dType,
                                SkCanvas* canvas,
-                               SampleWindow* win) {
-        if (SampleWindow::kGPU_DeviceType == dType) {
-            canvas->setDevice(new SkGpuDevice(fGrContext, fGrRenderTarget))->unref();
-            usingGL = true;
-        }
-        else {
-            //The clip needs to be applied with a device attached to the canvas
-            canvas->setBitmapDevice(win->getBitmap());
-            usingGL = false;
+                               SampleWindow* win) SK_OVERRIDE {
+        switch (dType) {
+            // use the window's bmp for these two
+            case SampleWindow::kRaster_DeviceType:
+            case SampleWindow::kPicture_DeviceType:
+                canvas->setBitmapDevice(win->getBitmap());
+                break;
+#if SK_SUPPORT_GPU
+            // create a GPU device for these two
+            case SampleWindow::kGPU_DeviceType:
+            case SampleWindow::kNullGPU_DeviceType:
+                if (fCurContext) {
+                    canvas->setDevice(new SkGpuDevice(fCurContext, fCurRenderTarget))->unref();
+                } else {
+                    return false;
+                }
+                break;
+#endif
+            default:
+                SkASSERT(false);
+                return false;
         }
         return true;
     }
+    
     virtual void publishCanvas(SampleWindow::DeviceType dType,
                                SkCanvas* canvas,
-                               SampleWindow* win) {
-        if (SampleWindow::kGPU_DeviceType == dType) {
-            fGrContext->flush();
-        }
-        else {
-            //CGContextRef cg = UIGraphicsGetCurrentContext();
-            //SkCGDrawBitmap(cg, win->getBitmap(), 0, 0);
-        }
-        win->presentGL();
+                               SampleWindow* win) SK_OVERRIDE {
+        win->present();
     }
     
-    virtual void windowSizeChanged(SampleWindow* win) {
-        if (fGrContext) {
-            win->attach(kNativeGL_BackEndType);
+    virtual void windowSizeChanged(SampleWindow* win) SK_OVERRIDE {
+#if SK_SUPPORT_GPU
+        if (fCurContext) {
+            win->attach(fBackend, fMSAASampleCount);
             
-            GrPlatformSurfaceDesc desc;
-            desc.reset();
-            desc.fSurfaceType = kRenderTarget_GrPlatformSurfaceType;
+            GrPlatformRenderTargetDesc desc;
             desc.fWidth = SkScalarRound(win->width());
             desc.fHeight = SkScalarRound(win->height());
             desc.fConfig = kSkia8888_PM_GrPixelConfig;
-            const GrGLInterface* gl = GrGLGetDefaultGLInterface();
-            GrAssert(NULL != gl);
-            GR_GL_GetIntegerv(gl, GR_GL_STENCIL_BITS, &desc.fStencilBits);
-            GR_GL_GetIntegerv(gl, GR_GL_SAMPLES, &desc.fSampleCnt);
+            glGetIntegerv(GL_SAMPLES, &desc.fSampleCnt);
+            glGetIntegerv(GL_STENCIL_BITS, &desc.fStencilBits);
             GrGLint buffer;
-            GR_GL_GetIntegerv(gl, GR_GL_FRAMEBUFFER_BINDING, &buffer);
-            desc.fPlatformRenderTarget = buffer;
+            glGetIntegerv(GL_FRAMEBUFFER_BINDING, &buffer);
+            desc.fRenderTargetHandle = buffer;
             
-            SkSafeUnref(fGrRenderTarget);
-            fGrRenderTarget = static_cast<GrRenderTarget*>(
-                                                           fGrContext->createPlatformSurface(desc));
+            SkSafeUnref(fCurRenderTarget);
+            fCurRenderTarget = fCurContext->createPlatformRenderTarget(desc);
         }
+#endif
     }
     
-    bool isUsingGL() { return usingGL; }
+    virtual GrContext* getGrContext() SK_OVERRIDE {
+#if SK_SUPPORT_GPU
+        return fCurContext;
+#else
+        return NULL;
+#endif
+    }
     
-    virtual GrContext* getGrContext() { return fGrContext; }
-
     virtual GrRenderTarget* getGrRenderTarget() SK_OVERRIDE {
-        return fGrRenderTarget;
+#if SK_SUPPORT_GPU
+        return fCurRenderTarget;
+#else
+        return NULL;
+#endif
     }
+    
+    bool isUsingGL() const { return SkOSWindow::kNone_BackEndType != fBackend; }
+    
 private:
-    bool usingGL;
-    GrContext* fGrContext;
-    GrRenderTarget* fGrRenderTarget;
+    
+#if SK_SUPPORT_GPU
+    GrContext*              fCurContext;
+    const GrGLInterface*    fCurIntf;
+    GrRenderTarget*         fCurRenderTarget;
+    int fMSAASampleCount;
+#endif
+    
+    SkOSWindow::SkBackEndTypes fBackend;
+    
+    typedef SampleWindow::DeviceManager INHERITED;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -254,7 +339,8 @@ static FPSState gFPS;
         [newActions release];
         
         fDevManager = new SkiOSDeviceManager;
-        fWind = new SampleWindow(self, NULL, NULL, fDevManager);
+        static char* kDummyArgv = "dummyExecutableName";
+        fWind = new SampleWindow(self, 1, &kDummyArgv, fDevManager);
         fWind->resize(self.frame.size.width, self.frame.size.height, SKWIND_CONFIG);
     }
     return self;

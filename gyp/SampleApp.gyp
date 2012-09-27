@@ -61,8 +61,6 @@
         '../samplecode/SampleHairCurves.cpp',
         '../samplecode/SampleHairline.cpp',
         '../samplecode/SampleHairModes.cpp',
-        '../samplecode/SampleImage.cpp',
-        '../samplecode/SampleImageDir.cpp',
         '../samplecode/SampleLayerMask.cpp',
         '../samplecode/SampleLayers.cpp',
         '../samplecode/SampleLCD.cpp',
