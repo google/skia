@@ -156,7 +156,7 @@ void SkWindow::forceInvalAll() {
 extern bool gEnableControlledThrow;
 #endif
 
-bool SkWindow::updatex(SkIRect* updateArea)
+bool SkWindow::update(SkIRect* updateArea)
 {
     if (!fDirtyRgn.isEmpty())
     {
