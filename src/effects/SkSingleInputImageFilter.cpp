@@ -51,20 +51,21 @@ SkBitmap SkSingleInputImageFilter::getInputResult(Proxy* proxy,
 }
 
 #if SK_SUPPORT_GPU
-GrTexture* SkSingleInputImageFilter::getInputResultAsTexture(GrTexture* src,
+GrTexture* SkSingleInputImageFilter::getInputResultAsTexture(Proxy* proxy,
+                                                             GrTexture* src,
                                                              const SkRect& rect) {
-    GrTexture* resultTex;
+    GrTexture* resultTex = NULL;
     if (!fInput) {
         resultTex = src;
     } else if (fInput->canFilterImageGPU()) {
         // onFilterImageGPU() already refs the result, so just return it here.
-        return fInput->onFilterImageGPU(src, rect);
+        return fInput->onFilterImageGPU(proxy, src, rect);
     } else {
         SkBitmap srcBitmap, result;
         srcBitmap.setConfig(SkBitmap::kARGB_8888_Config, src->width(), src->height());
         srcBitmap.setPixelRef(new SkGrPixelRef(src))->unref();
         SkIPoint offset;
-        if (fInput->filterImage(NULL, srcBitmap, SkMatrix(), &result, &offset)) {
+        if (fInput->filterImage(proxy, srcBitmap, SkMatrix(), &result, &offset)) {
             if (result.getTexture()) {
                 resultTex = (GrTexture*) result.getTexture();
             } else {

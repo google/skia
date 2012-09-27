@@ -389,7 +389,7 @@ private:
     friend class SkDraw;
     friend class SkDrawIter;
     friend class SkDeviceFilteredPaint;
-    friend class DeviceImageFilterProxy;
+    friend class SkDeviceImageFilterProxy;
 
     friend class SkSurface_Raster;
     // used to change the backend's pixels (and possibly config/rowbytes)

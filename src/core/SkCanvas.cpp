@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkBounder.h"
 #include "SkDevice.h"
+#include "SkDeviceImageFilterProxy.h"
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
 #include "SkDrawLooper.h"
@@ -975,29 +976,6 @@ void SkCanvas::internalDrawBitmap(const SkBitmap& bitmap, const SkIRect* srcRect
     this->commonDrawBitmap(bitmap, srcRect, matrix, *paint);
 }
 
-#include "SkImageFilter.h"
-
-class DeviceImageFilterProxy : public SkImageFilter::Proxy {
-public:
-    DeviceImageFilterProxy(SkDevice* device) : fDevice(device) {}
-
-    virtual SkDevice* createDevice(int w, int h) SK_OVERRIDE {
-        return fDevice->createCompatibleDevice(SkBitmap::kARGB_8888_Config,
-                                               w, h, false);
-    }
-    virtual bool canHandleImageFilter(SkImageFilter* filter) SK_OVERRIDE {
-        return fDevice->canHandleImageFilter(filter);
-    }
-    virtual bool filterImage(SkImageFilter* filter, const SkBitmap& src,
-                             const SkMatrix& ctm,
-                             SkBitmap* result, SkIPoint* offset) SK_OVERRIDE {
-        return fDevice->filterImage(filter, src, ctm, result, offset);
-    }
-
-private:
-    SkDevice* fDevice;
-};
-
 void SkCanvas::internalDrawDevice(SkDevice* srcDev, int x, int y,
                                   const SkPaint* paint) {
     SkPaint tmp;
@@ -1013,7 +991,7 @@ void SkCanvas::internalDrawDevice(SkDevice* srcDev, int x, int y,
         SkImageFilter* filter = paint->getImageFilter();
         SkIPoint pos = { x - iter.getX(), y - iter.getY() };
         if (filter && !dstDev->canHandleImageFilter(filter)) {
-            DeviceImageFilterProxy proxy(dstDev);
+            SkDeviceImageFilterProxy proxy(dstDev);
             SkBitmap dst;
             const SkBitmap& src = srcDev->accessBitmap(false);
             if (filter->filterImage(&proxy, src, *iter.fMatrix, &dst, &pos)) {
@@ -1048,7 +1026,7 @@ void SkCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
         SkImageFilter* filter = paint->getImageFilter();
         SkIPoint pos = { x - iter.getX(), y - iter.getY() };
         if (filter && !iter.fDevice->canHandleImageFilter(filter)) {
-            DeviceImageFilterProxy proxy(iter.fDevice);
+            SkDeviceImageFilterProxy proxy(iter.fDevice);
             SkBitmap dst;
             if (filter->filterImage(&proxy, bitmap, *iter.fMatrix,
                                     &dst, &pos)) {

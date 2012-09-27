@@ -16,6 +16,7 @@
 #include "SkGrTexturePixelRef.h"
 
 #include "SkColorFilter.h"
+#include "SkDeviceImageFilterProxy.h"
 #include "SkDrawProcs.h"
 #include "SkGlyphCache.h"
 #include "SkImageFilter.h"
@@ -1514,9 +1515,11 @@ void apply_custom_stage(GrContext* context,
 
 };
 
-static GrTexture* filter_texture(GrContext* context, GrTexture* texture,
-                                 SkImageFilter* filter, const GrRect& rect) {
+static GrTexture* filter_texture(SkDevice* device, GrContext* context,
+                                 GrTexture* texture, SkImageFilter* filter,
+                                 const GrRect& rect) {
     GrAssert(filter);
+    SkDeviceImageFilterProxy proxy(device);
 
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit,
@@ -1526,7 +1529,7 @@ static GrTexture* filter_texture(GrContext* context, GrTexture* texture,
     GrCustomStage* stage;
 
     if (filter->canFilterImageGPU()) {
-        texture = filter->onFilterImageGPU(texture, rect);
+        texture = filter->onFilterImageGPU(&proxy, texture, rect);
     } else if (filter->asNewCustomStage(&stage, texture)) {
         GrAutoScratchTexture dst(context, desc);
         apply_custom_stage(context, texture, dst.texture(), rect, stage);
@@ -1567,7 +1570,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 
     SkImageFilter* filter = paint.getImageFilter();
     if (NULL != filter) {
-        GrTexture* filteredTexture = filter_texture(fContext, texture, filter,
+        GrTexture* filteredTexture = filter_texture(this, fContext, texture, filter,
                  GrRect::MakeWH(SkIntToScalar(w), SkIntToScalar(h)));
         if (filteredTexture) {
             grPaint.textureSampler(kBitmapTextureIdx)->setCustomStage(SkNEW_ARGS
@@ -1653,7 +1656,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
     if (NULL != filter) {
         GrRect rect = GrRect::MakeWH(SkIntToScalar(devTex->width()),
                                      SkIntToScalar(devTex->height()));
-        GrTexture* filteredTexture = filter_texture(fContext, devTex, filter, rect);
+        GrTexture* filteredTexture = filter_texture(this, fContext, devTex, filter, rect);
         if (filteredTexture) {
             grPaint.textureSampler(kBitmapTextureIdx)->setCustomStage(SkNEW_ARGS
                 (GrSingleTextureEffect, (filteredTexture)))->unref();
@@ -1712,7 +1715,7 @@ bool SkGpuDevice::filterImage(SkImageFilter* filter, const SkBitmap& src,
     result->setConfig(src.config(), src.width(), src.height());
     GrRect rect = GrRect::MakeWH(SkIntToScalar(src.width()),
                                  SkIntToScalar(src.height()));
-    GrTexture* resultTexture = filter_texture(fContext, texture, filter, rect);
+    GrTexture* resultTexture = filter_texture(this, fContext, texture, filter, rect);
     if (resultTexture) {
         result->setPixelRef(SkNEW_ARGS(SkGrTexturePixelRef,
                                        (resultTexture)))->unref();

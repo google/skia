@@ -478,13 +478,13 @@ GrTexture* apply_morphology(GrTexture* srcTexture,
 
 };
 
-GrTexture* SkDilateImageFilter::onFilterImageGPU(GrTexture* src, const SkRect& rect) {
-    SkAutoTUnref<GrTexture> input(this->getInputResultAsTexture(src, rect));
+GrTexture* SkDilateImageFilter::onFilterImageGPU(Proxy* proxy, GrTexture* src, const SkRect& rect) {
+    SkAutoTUnref<GrTexture> input(this->getInputResultAsTexture(proxy, src, rect));
     return apply_morphology(src, rect, GrMorphologyEffect::kDilate_MorphologyType, radius());
 }
 
-GrTexture* SkErodeImageFilter::onFilterImageGPU(GrTexture* src, const SkRect& rect) {
-    SkAutoTUnref<GrTexture> input(this->getInputResultAsTexture(src, rect));
+GrTexture* SkErodeImageFilter::onFilterImageGPU(Proxy* proxy, GrTexture* src, const SkRect& rect) {
+    SkAutoTUnref<GrTexture> input(this->getInputResultAsTexture(proxy, src, rect));
     return apply_morphology(src, rect, GrMorphologyEffect::kErode_MorphologyType, radius());
 }
 
