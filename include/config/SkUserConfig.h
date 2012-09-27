@@ -140,6 +140,12 @@
  */
 #define SK_ALLOW_OVER_32K_BITMAPS
 
+/**
+ *  To revert to int-only srcrect behavior in drawBitmapRect(ToRect),
+ *  define this symbol.
+ */
+//#define SK_SUPPORT_INT_SRCRECT_DRAWBITMAPRECT
+
 /*  Define this to set the upper limit for text to support LCD. Values that
     are very large increase the cost in the font cache and draw slower, without
     improving readability. If this is undefined, Skia will use its default
