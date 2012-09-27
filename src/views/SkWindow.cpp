@@ -156,7 +156,7 @@ void SkWindow::forceInvalAll() {
 extern bool gEnableControlledThrow;
 #endif
 
-bool SkWindow::update(SkIRect* updateArea, SkCanvas* canvas)
+bool SkWindow::updatex(SkIRect* updateArea)
 {
     if (!fDirtyRgn.isEmpty())
     {
@@ -172,20 +172,14 @@ bool SkWindow::update(SkIRect* updateArea, SkCanvas* canvas)
 
         bm.setPixels(buffer);
 #endif
+        SkCanvas    rasterCanvas(bm);
 
-        SkCanvas    rasterCanvas;
-
-        if (NULL == canvas) {
-            canvas = &rasterCanvas;
-        }
-        canvas->setBitmapDevice(bm);
-
-        canvas->clipRegion(fDirtyRgn);
+        rasterCanvas.clipRegion(fDirtyRgn);
         if (updateArea)
             *updateArea = fDirtyRgn.getBounds();
 
-        SkAutoCanvasRestore acr(canvas, true);
-        canvas->concat(fMatrix);
+        SkAutoCanvasRestore acr(&rasterCanvas, true);
+        rasterCanvas.concat(fMatrix);
 
         // empty this now, so we can correctly record any inval calls that
         // might be made during the draw call.
@@ -193,7 +187,7 @@ bool SkWindow::update(SkIRect* updateArea, SkCanvas* canvas)
 
 #ifdef TEST_BOUNDER
         test_bounder    b(bm);
-        canvas->setBounder(&b);
+        rasterCanvas.setBounder(&b);
 #endif
 #ifdef SK_SIMULATE_FAILED_MALLOC
         gEnableControlledThrow = true;
@@ -205,13 +199,13 @@ bool SkWindow::update(SkIRect* updateArea, SkCanvas* canvas)
         //catch (...) {
         //}
 #else
-        this->draw(canvas);
+        this->draw(&rasterCanvas);
 #endif
 #ifdef SK_SIMULATE_FAILED_MALLOC
         gEnableControlledThrow = false;
 #endif
 #ifdef TEST_BOUNDER
-        canvas->setBounder(NULL);
+        rasterCanvas.setBounder(NULL);
 #endif
 
 #if defined(SK_BUILD_FOR_WINCE) && defined(USE_GX_SCREEN)
