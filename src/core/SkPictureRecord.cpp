@@ -15,10 +15,12 @@
 #define HEAP_BLOCK_SIZE 4096
 
 enum {
+    // just need a value that save or getSaveCount would never return
     kNoInitialSave = -1,
 };
 
-SkPictureRecord::SkPictureRecord(uint32_t flags) :
+SkPictureRecord::SkPictureRecord(uint32_t flags, SkDevice* device) :
+        INHERITED(device),
         fBoundingHierarchy(NULL),
         fStateTree(NULL),
         fFlattenableHeap(HEAP_BLOCK_SIZE),
@@ -33,12 +35,13 @@ SkPictureRecord::SkPictureRecord(uint32_t flags) :
 #endif
 
     fRestoreOffsetStack.setReserve(32);
-    fInitialSaveCount = kNoInitialSave;
 
     fBitmapHeap = SkNEW(SkBitmapHeap);
     fFlattenableHeap.setBitmapStorage(fBitmapHeap);
     fPathHeap = NULL;   // lazy allocate
     fFirstSavedLayerIndex = kNoSavedLayerIndex;
+
+    fInitialSaveCount = kNoInitialSave;
 }
 
 SkPictureRecord::~SkPictureRecord() {
@@ -53,13 +56,8 @@ SkPictureRecord::~SkPictureRecord() {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkDevice* SkPictureRecord::setDevice(SkDevice* device) {
-    SkASSERT(kNoInitialSave == fInitialSaveCount);
-    this->INHERITED::setDevice(device);
-
-    // The bracketting save() call needs to be recorded after setting the
-    // device otherwise the clip stack will get messed-up
-    fInitialSaveCount = this->save(SkCanvas::kMatrixClip_SaveFlag);
-    return device;
+    SkASSERT(!"eeek, don't try to change the device on a recording canvas");
+    return this->INHERITED::setDevice(device);
 }
 
 int SkPictureRecord::save(SaveFlags flags) {
@@ -319,6 +317,13 @@ void SkPictureRecord::fillRestoreOffsetPlaceholdersForCurrentStackLevel(
     uint32_t drawOp = *fWriter.peek32(-offset);
     SkASSERT(SAVE == drawOp || SAVE_LAYER == drawOp);
 #endif
+}
+
+void SkPictureRecord::beginRecording() {
+    // we have to call this *after* our constructor, to ensure that it gets
+    // recorded. This is balanced by restoreToCount() call from endRecording,
+    // which in-turn calls our overridden restore(), so those get recorded too.
+    fInitialSaveCount = this->save(kMatrixClip_SaveFlag);
 }
 
 void SkPictureRecord::endRecording() {

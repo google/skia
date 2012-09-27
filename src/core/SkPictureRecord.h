@@ -21,7 +21,7 @@ class SkBBoxHierarchy;
 
 class SkPictureRecord : public SkCanvas {
 public:
-    SkPictureRecord(uint32_t recordFlags);
+    SkPictureRecord(uint32_t recordFlags, SkDevice*);
     virtual ~SkPictureRecord();
 
     virtual SkDevice* setDevice(SkDevice* device) SK_OVERRIDE;
@@ -86,7 +86,9 @@ public:
         return fWriter;
     }
 
+    void beginRecording();
     void endRecording();
+
 private:
     void recordRestoreOffsetPlaceholder(SkRegion::Op);
     void fillRestoreOffsetPlaceholdersForCurrentStackLevel(

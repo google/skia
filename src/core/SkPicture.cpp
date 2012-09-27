@@ -13,6 +13,7 @@
 
 #include "SkCanvas.h"
 #include "SkChunkAlloc.h"
+#include "SkDevice.h"
 #include "SkPicture.h"
 #include "SkRegion.h"
 #include "SkStream.h"
@@ -185,24 +186,25 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
         fRecord = NULL;
     }
 
+    SkBitmap bm;
+    bm.setConfig(SkBitmap::kNo_Config, width, height);
+    SkAutoTUnref<SkDevice> dev(SkNEW_ARGS(SkDevice, (bm)));
+
     if (recordingFlags & kOptimizeForClippedPlayback_RecordingFlag) {
         SkScalar aspectRatio = SkScalarDiv(SkIntToScalar(width),
                                            SkIntToScalar(height));
         SkRTree* tree = SkRTree::Create(kRTreeMinChildren, kRTreeMaxChildren,
                                         aspectRatio);
         SkASSERT(NULL != tree);
-        fRecord = SkNEW_ARGS(SkBBoxHierarchyRecord, (recordingFlags, tree));
+        fRecord = SkNEW_ARGS(SkBBoxHierarchyRecord, (recordingFlags, tree, dev));
         tree->unref();
     } else {
-        fRecord = SkNEW_ARGS(SkPictureRecord, (recordingFlags));
+        fRecord = SkNEW_ARGS(SkPictureRecord, (recordingFlags, dev));
     }
+    fRecord->beginRecording();
 
     fWidth = width;
     fHeight = height;
-
-    SkBitmap bm;
-    bm.setConfig(SkBitmap::kNo_Config, width, height);
-    fRecord->setBitmapDevice(bm);
 
     return fRecord;
 }
