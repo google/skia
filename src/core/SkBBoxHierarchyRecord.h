@@ -18,7 +18,8 @@
 class SkBBoxHierarchyRecord : public SkBBoxRecord {
 public:
     /** This will take a ref of h */
-    SkBBoxHierarchyRecord(uint32_t recordFlags, SkBBoxHierarchy* h);
+    SkBBoxHierarchyRecord(uint32_t recordFlags, SkBBoxHierarchy* h,
+                          SkDevice*);
 
     virtual void handleBBox(const SkRect& bounds) SK_OVERRIDE;
 
