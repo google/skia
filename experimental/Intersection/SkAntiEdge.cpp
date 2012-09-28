@@ -1045,13 +1045,14 @@ void CreateAngle(SkBitmap* sweep, SkScalar angle) {
 #include "SkCanvas.h"
 
 static void testPng() {
-    SkCanvas canvas;
     SkBitmap device;
     device.setConfig(SkBitmap::kARGB_8888_Config, 4, 4);
     device.allocPixels();
     device.eraseColor(0xFFFFFFFF);
-    canvas.setBitmapDevice(device);
+
+    SkCanvas canvas(device);
     canvas.drawARGB(167, 0, 0, 0);
+
     device.lockPixels();
     unsigned char* pixels = (unsigned char*) device.getPixels();
     SkDebugf("%02x%02x%02x%02x", pixels[3], pixels[2], pixels[1], pixels[0]);
