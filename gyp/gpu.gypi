@@ -182,6 +182,7 @@
       '<(skia_src_path)/gpu/gl/mac/GrGLCreateNativeInterface_mac.cpp',
       '<(skia_src_path)/gpu/gl/win/GrGLCreateNativeInterface_win.cpp',
       '<(skia_src_path)/gpu/gl/unix/GrGLCreateNativeInterface_unix.cpp',
+      '<(skia_src_path)/gpu/gl/iOS/GrGLCreateNativeInterface_iOS.cpp',
       '<(skia_src_path)/gpu/android/GrGLCreateNativeInterface_android.cpp',
     ],
     'gr_mesa_gl_sources': [

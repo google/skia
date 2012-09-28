@@ -237,7 +237,7 @@
             '../src/gpu/gl/mesa/GrGLCreateMesaInterface.cpp',
           ],
         }],
-        [ 'skia_os == "win"', {
+        [ 'skia_os in ["win", "ios"]', {
           'sources!': [
             '../src/gpu/gl/GrGLDefaultInterface_none.cpp',
             '../src/gpu/gl/GrGLCreateNativeInterface_none.cpp',

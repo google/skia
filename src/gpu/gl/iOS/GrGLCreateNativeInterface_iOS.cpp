@@ -12,10 +12,10 @@
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
 
-const GrGLInterface* GrGLDefaultInterface() {
+const GrGLInterface* GrGLCreateNativeInterface() {
     static SkAutoTUnref<GrGLInterface> glInterface;
     if (!glInterface.get()) {
-        GrGLInteface* interface = new GrGLInterface;
+        GrGLInterface* interface = SkNEW(GrGLInterface);
         glInterface.reset(interface);
 
         interface->fActiveTexture = glActiveTexture;
@@ -24,7 +24,6 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fBindBuffer = glBindBuffer;
         interface->fBindTexture = glBindTexture;
         interface->fBlendColor = glBlendColor;
-        interface->fBlendEquation = glBlendEquation;
         interface->fBlendFunc = glBlendFunc;
         interface->fBufferData = (GrGLBufferDataProc)glBufferData;
         interface->fBufferSubData = (GrGLBufferSubDataProc)glBufferSubData;
@@ -32,7 +31,6 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fClearColor = glClearColor;
         interface->fClearStencil = glClearStencil;
         interface->fColorMask = glColorMask;
-        interface->fColorPointer = glColorPointer;
         interface->fCompileShader = glCompileShader;
         interface->fCompressedTexImage2D = glCompressedTexImage2D;
         interface->fCreateProgram = glCreateProgram;
@@ -51,6 +49,8 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fDrawElements = glDrawElements;
         interface->fEnable = glEnable;
         interface->fEnableVertexAttribArray = glEnableVertexAttribArray;
+        interface->fFinish = glFinish;
+        interface->fFlush = glFlush;
         interface->fFrontFace = glFrontFace;
         interface->fGenBuffers = glGenBuffers;
         interface->fGetBufferParameteriv = glGetBufferParameteriv;
