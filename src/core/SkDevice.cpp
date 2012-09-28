@@ -375,7 +375,7 @@ void SkDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
         }
         matrix.setRectToRect(tmpSrc, dst, SkMatrix::kFill_ScaleToFit);
     }
-    
+
     // ensure that src is "valid" before we pass it to our internal routines
     // and to SkDevice. i.e. sure it is contained inside the original bitmap.
     SkIRect isrcStorage;
@@ -387,9 +387,9 @@ void SkDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
         }
         isrcPtr = &isrcStorage;
     }
-    
+
     this->drawBitmap(draw, bitmap, isrcPtr, matrix, paint);
-#else    
+#else
     SkMatrix    matrix;
     SkRect      bitmapBounds, tmpSrc, tmpDst;
     SkBitmap    tmpBitmap;
