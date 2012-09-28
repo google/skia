@@ -74,18 +74,14 @@ void showPath(const SkPath& path, const char* str) {
 }
 
 static int pathsDrawTheSame(const SkPath& one, const SkPath& two,
-        SkBitmap& bits, SkCanvas* c, int& error2x2) {
-    SkCanvas* canvasPtr = c;
-    if (!c) {
-        canvasPtr = new SkCanvas(bits);
-    }
+        SkBitmap& bits, int& error2x2) {
     const int bitWidth = 64;
     const int bitHeight = 64;
     if (bits.width() == 0) {
         bits.setConfig(SkBitmap::kARGB_8888_Config, bitWidth * 2, bitHeight);
         bits.allocPixels();
-        canvasPtr->setBitmapDevice(bits);
     }
+    
     SkRect larger = one.getBounds();
     larger.join(two.getBounds());
     SkScalar largerWidth = larger.width();
@@ -105,7 +101,8 @@ static int pathsDrawTheSame(const SkPath& one, const SkPath& two,
     one.transform(scale, &scaledOne);
     two.transform(scale, &scaledTwo);
     const SkRect& bounds1 = scaledOne.getBounds();
-    SkCanvas& canvas = *canvasPtr;
+
+    SkCanvas canvas(bits);
     canvas.drawColor(SK_ColorWHITE);
     SkPaint paint;
     canvas.save();
@@ -132,9 +129,6 @@ static int pathsDrawTheSame(const SkPath& one, const SkPath& two,
                 errors++;
             }
         }
-    }
-    if (!c) {
-        delete canvasPtr;
     }
     if (errors2 >= 6 || errors > 160) {
         SkDebugf("%s errors2=%d errors=%d\n", __FUNCTION__, errors2, errors);
@@ -198,10 +192,9 @@ bool drawAsciiPaths(const SkPath& one, const SkPath& two, bool drawPaths) {
     return true;
 }
 
-int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap,
-        SkCanvas* canvas) {
+int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap) {
     int errors2x2;
-    int errors = pathsDrawTheSame(one, two, bitmap, canvas, errors2x2);
+    int errors = pathsDrawTheSame(one, two, bitmap, errors2x2);
     if (errors2x2 == 0) {
         return 0;
     }
@@ -246,8 +239,7 @@ void comparePathsTiny(const SkPath& one, const SkPath& two) {
     }
 }
 
-bool testSimplify(const SkPath& path, bool fill, SkPath& out, SkBitmap& bitmap,
-        SkCanvas* canvas) {
+bool testSimplify(const SkPath& path, bool fill, SkPath& out, SkBitmap& bitmap) {
     if (gShowPath) {
         showPath(path);
     }
@@ -255,7 +247,7 @@ bool testSimplify(const SkPath& path, bool fill, SkPath& out, SkBitmap& bitmap,
     if (!gComparePaths) {
         return true;
     }
-    return comparePaths(path, out, bitmap, canvas) == 0;
+    return comparePaths(path, out, bitmap) == 0;
 }
 
 bool testSimplifyx(SkPath& path, bool useXor, SkPath& out, State4& state,
@@ -269,7 +261,7 @@ bool testSimplifyx(SkPath& path, bool useXor, SkPath& out, State4& state,
     if (!gComparePaths) {
         return true;
     }
-    int result = comparePaths(path, out, state.bitmap, state.canvas);
+    int result = comparePaths(path, out, state.bitmap);
     if (result && gPathStrAssert) {
         SkDebugf("addTest %s\n", state.filename);
         char temp[8192];
@@ -286,7 +278,7 @@ bool testSimplifyx(const SkPath& path) {
     SkPath out;
     simplifyx(path, out);
     SkBitmap bitmap;
-    int result = comparePaths(path, out, bitmap, 0);
+    int result = comparePaths(path, out, bitmap);
     if (result && gPathStrAssert) {
         SkASSERT(0);
     }
@@ -308,7 +300,6 @@ pthread_cond_t State4::checkQueue = PTHREAD_COND_INITIALIZER;
 State4::State4() {
     bitmap.setConfig(SkBitmap::kARGB_8888_Config, 150 * 2, 100);
     bitmap.allocPixels();
-    canvas = new SkCanvas(bitmap);
 }
 
 void createThread(State4* statePtr, void* (*testFun)(void* )) {
