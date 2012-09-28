@@ -7,6 +7,7 @@
  */
 #include "gm.h"
 #include "SkBitmap.h"
+#include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkMatrix.h"
@@ -73,6 +74,33 @@ protected:
         matrix.reset();
         matrix.setSinCos(SK_ScalarHalf, SkIntToScalar(2));
         canvas->drawBitmapMatrix(bm, matrix, &paint);
+
+        {
+            // test the following code path:
+            // SkGpuDevice::drawPath() -> SkGpuDevice::drawWithMaskFilter()
+            SkPaint paint;
+
+            paint.setFilterBitmap(true);
+
+            SkMaskFilter* mf = SkBlurMaskFilter::Create(
+                5,
+                SkBlurMaskFilter::kNormal_BlurStyle,
+                SkBlurMaskFilter::kHighQuality_BlurFlag |
+                SkBlurMaskFilter::kIgnoreTransform_BlurFlag);
+            paint.setMaskFilter(mf)->unref();
+
+            canvas->translate(SkIntToScalar(bm.width()*2 + 20), 0);
+
+            matrix.reset();
+            matrix.setRotate(SkIntToScalar(45), SkIntToScalar(bm.width() / 2),
+                             SkIntToScalar(bm.height() / 2));
+
+            canvas->save();
+            canvas->translate(0, SkIntToScalar(20));
+            canvas->drawBitmapMatrix(bm, matrix, &paint);
+            canvas->restore();
+        }
+
     }
 private:
     void setupBitmap(SkBitmap* bm) {
