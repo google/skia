@@ -19,12 +19,13 @@
 
 class SkiOSDeviceManager : public SampleWindow::DeviceManager {
 public:
-    SkiOSDeviceManager() {
+    SkiOSDeviceManager(GLint layerFBO) {
 #if SK_SUPPORT_GPU
         fCurContext = NULL;
         fCurIntf = NULL;
         fCurRenderTarget = NULL;
         fMSAASampleCount = 0;
+        fLayerFBO = layerFBO;
 #endif
         fBackend = SkOSWindow::kNone_BackEndType;
     }
@@ -130,7 +131,7 @@ public:
             // create a GPU device for these two
             case SampleWindow::kGPU_DeviceType:
             case SampleWindow::kNullGPU_DeviceType:
-                if (fCurContext) {
+                if (NULL != fCurContext) {
                     canvas->setDevice(new SkGpuDevice(fCurContext, fCurRenderTarget))->unref();
                 } else {
                     return false;
@@ -147,23 +148,25 @@ public:
     virtual void publishCanvas(SampleWindow::DeviceType dType,
                                SkCanvas* canvas,
                                SampleWindow* win) SK_OVERRIDE {
+        if (NULL != fCurContext) {
+            fCurContext->flush();
+        }
         win->present();
     }
     
     virtual void windowSizeChanged(SampleWindow* win) SK_OVERRIDE {
 #if SK_SUPPORT_GPU
-        if (fCurContext) {
+        if (NULL != fCurContext) {
             win->attach(fBackend, fMSAASampleCount);
             
+            glBindFramebuffer(GL_FRAMEBUFFER, fLayerFBO);
             GrPlatformRenderTargetDesc desc;
             desc.fWidth = SkScalarRound(win->width());
             desc.fHeight = SkScalarRound(win->height());
             desc.fConfig = kSkia8888_PM_GrPixelConfig;
+            desc.fRenderTargetHandle = fLayerFBO;
             glGetIntegerv(GL_SAMPLES, &desc.fSampleCnt);
             glGetIntegerv(GL_STENCIL_BITS, &desc.fStencilBits);
-            GrGLint buffer;
-            glGetIntegerv(GL_FRAMEBUFFER_BINDING, &buffer);
-            desc.fRenderTargetHandle = buffer;
             
             SkSafeUnref(fCurRenderTarget);
             fCurRenderTarget = fCurContext->createPlatformRenderTarget(desc);
@@ -190,12 +193,13 @@ public:
     bool isUsingGL() const { return SkOSWindow::kNone_BackEndType != fBackend; }
     
 private:
-    
+   
 #if SK_SUPPORT_GPU
     GrContext*              fCurContext;
     const GrGLInterface*    fCurIntf;
     GrRenderTarget*         fCurRenderTarget;
-    int fMSAASampleCount;
+    int                     fMSAASampleCount;
+    GLint                   fLayerFBO;
 #endif
     
     SkOSWindow::SkBackEndTypes fBackend;
@@ -338,9 +342,10 @@ static FPSState gFPS;
         fRasterLayer.actions = newActions;
         [newActions release];
         
-        fDevManager = new SkiOSDeviceManager;
+        fDevManager = new SkiOSDeviceManager(fGL.fFramebuffer);
         static char* kDummyArgv = "dummyExecutableName";
         fWind = new SampleWindow(self, 1, &kDummyArgv, fDevManager);
+
         fWind->resize(self.frame.size.width, self.frame.size.height, SKWIND_CONFIG);
     }
     return self;
@@ -422,17 +427,13 @@ static FPSState gFPS;
     }
     glViewport(0, 0, fGL.fWidth, fGL.fHeight);
     
-    
-    GrContext* ctx = fDevManager->getGrContext();
-    SkASSERT(NULL != ctx);
-    
+   
     SkCanvas canvas;
-    
     // if we're not "retained", then we have to always redraw everything.
     // This call forces us to ignore the fDirtyRgn, and draw everywhere.
     // If we are "retained", we can skip this call (as the raster case does)
     fWind->forceInvalAll();
-    
+
     [self drawWithCanvas:&canvas];
     
     // This application only creates a single color renderbuffer which is already bound at this point.
