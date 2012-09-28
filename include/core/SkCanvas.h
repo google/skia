@@ -107,12 +107,6 @@ public:
     SkDevice* getTopDevice(bool updateMatrixClip = false) const;
 
     /**
-     *  Create a new raster device and make it current. This also returns
-     *  the new device.
-     */
-    SkDevice* setBitmapDevice(const SkBitmap& bitmap);
-
-    /**
      *  Shortcut for getDevice()->createCompatibleDevice(...).
      *  If getDevice() == NULL, this method does nothing, and returns NULL.
      */
