@@ -157,14 +157,24 @@ private:
     void prepareRenderTarget(const SkDraw&);
     bool shouldTileBitmap(const SkBitmap& bitmap,
                           const GrTextureParams& sampler,
-                          const SkIRect* srcRectPtr,
-                          int* tileSize) const;
+                          const SkRect* srcRectPtr) const;
     void internalDrawBitmap(const SkDraw&,
                             const SkBitmap&,
-                            const SkIRect&,
+                            const SkRect&,
                             const SkMatrix&,
                             const GrTextureParams& params,
                             GrPaint* grPaint);
+    void drawTiledBitmap(const SkDraw& draw,
+                         const SkBitmap& bitmap,
+                         const SkRect& srcRect,
+                         const SkMatrix& m,
+                         const GrTextureParams& params,
+                         GrPaint* grPaint);
+    void drawBitmapCommon(const SkDraw&, 
+                          const SkBitmap& bitmap,
+                          const SkRect* srcRectPtr,
+                          const SkMatrix&, 
+                          const SkPaint&);
 
     /**
      * Returns non-initialized instance.

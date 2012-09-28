@@ -1154,7 +1154,7 @@ inline int get_tile_count(int l, int t, int r, int b, int tileSize)  {
 }
 
 inline int determine_tile_size(const SkBitmap& bitmap,
-                               const SkIRect* srcRectPtr,
+                               const SkRect& src,
                                int maxTextureSize) {
     static const int kSmallTileSize = 1 << 10;
     if (maxTextureSize <= kSmallTileSize) {
@@ -1164,23 +1164,20 @@ inline int determine_tile_size(const SkBitmap& bitmap,
     size_t maxTexTotalTileSize;
     size_t smallTotalTileSize;
 
-    if (NULL == srcRectPtr) {
-        int w = bitmap.width();
-        int h = bitmap.height();
-        maxTexTotalTileSize = get_tile_count(0, 0, w, h, maxTextureSize);
-        smallTotalTileSize = get_tile_count(0, 0, w, h, kSmallTileSize);
-    } else {
-        maxTexTotalTileSize = get_tile_count(srcRectPtr->fLeft,
-                                             srcRectPtr->fTop,
-                                             srcRectPtr->fRight,
-                                             srcRectPtr->fBottom,
-                                             maxTextureSize);
-        smallTotalTileSize = get_tile_count(srcRectPtr->fLeft,
-                                            srcRectPtr->fTop,
-                                            srcRectPtr->fRight,
-                                            srcRectPtr->fBottom,
-                                            kSmallTileSize);
-    }
+    SkIRect iSrc;
+    src.roundOut(&iSrc);
+
+    maxTexTotalTileSize = get_tile_count(iSrc.fLeft,
+                                         iSrc.fTop,
+                                         iSrc.fRight,
+                                         iSrc.fBottom,
+                                         maxTextureSize);
+    smallTotalTileSize = get_tile_count(iSrc.fLeft,
+                                        iSrc.fTop,
+                                        iSrc.fRight,
+                                        iSrc.fBottom,
+                                        kSmallTileSize);
+
     maxTexTotalTileSize *= maxTextureSize * maxTextureSize;
     smallTotalTileSize *= kSmallTileSize * kSmallTileSize;
 
@@ -1194,10 +1191,7 @@ inline int determine_tile_size(const SkBitmap& bitmap,
 
 bool SkGpuDevice::shouldTileBitmap(const SkBitmap& bitmap,
                                    const GrTextureParams& params,
-                                   const SkIRect* srcRectPtr,
-                                   int* tileSize) const {
-    SkASSERT(NULL != tileSize);
-
+                                   const SkRect* srcRectPtr) const {
     // if bitmap is explictly texture backed then just use the texture
     if (NULL != bitmap.getTexture()) {
         return false;
@@ -1207,7 +1201,6 @@ bool SkGpuDevice::shouldTileBitmap(const SkBitmap& bitmap,
     const int maxTextureSize = fContext->getMaxTextureSize();
     if (bitmap.width() > maxTextureSize ||
         bitmap.height() > maxTextureSize) {
-        *tileSize = determine_tile_size(bitmap, srcRectPtr, maxTextureSize);
         return true;
     }
     // if we are going to have to draw the whole thing, then don't tile
@@ -1233,11 +1226,9 @@ bool SkGpuDevice::shouldTileBitmap(const SkBitmap& bitmap,
         return false;
     }
 
-    SkFixed fracUsed =
-        SkFixedMul((srcRectPtr->width() << 16) / bitmap.width(),
-                   (srcRectPtr->height() << 16) / bitmap.height());
-    if (fracUsed <= SK_FixedHalf) {
-        *tileSize = determine_tile_size(bitmap, srcRectPtr, maxTextureSize);
+    SkScalar fracUsed = SkScalarMul(srcRectPtr->width() / bitmap.width(),
+                                    srcRectPtr->height() / bitmap.height());
+    if (fracUsed <= SK_ScalarHalf) {
         return true;
     } else {
         return false;
@@ -1249,11 +1240,30 @@ void SkGpuDevice::drawBitmap(const SkDraw& draw,
                              const SkIRect* srcRectPtr,
                              const SkMatrix& m,
                              const SkPaint& paint) {
+
+    SkRect  tmp;
+    SkRect* tmpPtr = NULL;
+
+    // convert from SkIRect to SkRect
+    if (NULL != srcRectPtr) {
+        tmp.set(*srcRectPtr);
+        tmpPtr = &tmp;
+    }
+
+    // We cannot call drawBitmapRect here since 'm' could be anything
+    this->drawBitmapCommon(draw, bitmap, tmpPtr, m, paint);
+}
+
+void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
+                                   const SkBitmap& bitmap,
+                                   const SkRect* srcRectPtr,
+                                   const SkMatrix& m,
+                                   const SkPaint& paint) {
     CHECK_SHOULD_DRAW(draw);
 
-    SkIRect srcRect;
+    SkRect srcRect;
     if (NULL == srcRectPtr) {
-        srcRect.set(0, 0, bitmap.width(), bitmap.height());
+        srcRect.set(0, 0, SkIntToScalar(bitmap.width()), SkIntToScalar(bitmap.height()));
     } else {
         srcRect = *srcRectPtr;
     }
@@ -1261,30 +1271,34 @@ void SkGpuDevice::drawBitmap(const SkDraw& draw,
     if (paint.getMaskFilter()){
         // Convert the bitmap to a shader so that the rect can be drawn
         // through drawRect, which supports mask filters.
+        SkMatrix        newM(m);
         SkBitmap        tmp;    // subset of bitmap, if necessary
         const SkBitmap* bitmapPtr = &bitmap;
-        if (srcRectPtr) {
-            if (!bitmap.extractSubset(&tmp, srcRect)) {
+        if (NULL != srcRectPtr) {
+            SkIRect iSrc;
+            srcRect.roundOut(&iSrc);
+            if (!bitmap.extractSubset(&tmp, iSrc)) {
                 return;     // extraction failed
             }
             bitmapPtr = &tmp;
-            srcRect.set(0,0, srcRect.width(), srcRect.height());
+            srcRect.offset(SkIntToScalar(-iSrc.fLeft), SkIntToScalar(-iSrc.fTop));
+            // The source rect has changed so update the matrix
+            newM.preTranslate(SkIntToScalar(iSrc.fLeft), SkIntToScalar(iSrc.fTop));
         }
+
         SkPaint paintWithTexture(paint);
         paintWithTexture.setShader(SkShader::CreateBitmapShader(*bitmapPtr,
             SkShader::kClamp_TileMode, SkShader::kClamp_TileMode))->unref();
-        SkRect ScalarRect;
-        ScalarRect.set(srcRect);
 
-        // Transform 'm' needs to be concatenated to the draw matrix,
-        // rather than transforming the primitive directly, so that 'm' will
+        // Transform 'newM' needs to be concatenated to the draw matrix,
+        // rather than transforming the primitive directly, so that 'newM' will
         // also affect the behavior of the mask filter.
         SkMatrix drawMatrix;
-        drawMatrix.setConcat(*draw.fMatrix, m);
+        drawMatrix.setConcat(*draw.fMatrix, newM);
         SkDraw transformedDraw(draw);
         transformedDraw.fMatrix = &drawMatrix;
 
-        this->drawRect(transformedDraw, ScalarRect, paintWithTexture);
+        this->drawRect(transformedDraw, srcRect, paintWithTexture);
 
         return;
     }
@@ -1297,28 +1311,39 @@ void SkGpuDevice::drawBitmap(const SkDraw& draw,
     GrTextureParams params;
     params.setBilerp(paint.isFilterBitmap());
 
-    int tileSize;
-    if (!this->shouldTileBitmap(bitmap, params, srcRectPtr, &tileSize)) {
+    if (!this->shouldTileBitmap(bitmap, params, srcRectPtr)) {
         // take the simple case
         this->internalDrawBitmap(draw, bitmap, srcRect, m, params, &grPaint);
-        return;
+    } else {
+        this->drawTiledBitmap(draw, bitmap, srcRect, m, params, &grPaint);
     }
+}
+
+// Break 'bitmap' into several tiles to draw it since it has already
+// been determined to be too large to fit in VRAM
+void SkGpuDevice::drawTiledBitmap(const SkDraw& draw,
+                                  const SkBitmap& bitmap,
+                                  const SkRect& srcRect,
+                                  const SkMatrix& m,
+                                  const GrTextureParams& params,
+                                  GrPaint* grPaint) {
+    const int maxTextureSize = fContext->getMaxTextureSize();
+
+    int tileSize = determine_tile_size(bitmap, srcRect, maxTextureSize);
 
     // undo the translate done by SkCanvas
-    int DX = SkMax32(0, srcRect.fLeft);
-    int DY = SkMax32(0, srcRect.fTop);
+    SkScalar DX = SkMaxScalar(0, srcRect.fLeft);
+    SkScalar DY = SkMaxScalar(0, srcRect.fTop);
     // compute clip bounds in local coordinates
-    SkIRect clipRect;
+    SkRect clipRect;
     {
-        SkRect r;
-        r.set(draw.fClip->getBounds());
+        clipRect.set(draw.fClip->getBounds());
         SkMatrix matrix, inverse;
         matrix.setConcat(*draw.fMatrix, m);
         if (!matrix.invert(&inverse)) {
             return;
         }
-        inverse.mapRect(&r);
-        r.roundOut(&clipRect);
+        inverse.mapRect(&clipRect);
         // apply the canvas' translate to our local clip
         clipRect.offset(DX, DY);
     }
@@ -1327,30 +1352,34 @@ void SkGpuDevice::drawBitmap(const SkDraw& draw,
     int ny = bitmap.height() / tileSize;
     for (int x = 0; x <= nx; x++) {
         for (int y = 0; y <= ny; y++) {
-            SkIRect tileR;
-            tileR.set(x * tileSize, y * tileSize,
-                      (x + 1) * tileSize, (y + 1) * tileSize);
-            if (!SkIRect::Intersects(tileR, clipRect)) {
+            SkRect tileR;
+            tileR.set(SkIntToScalar(x * tileSize), 
+                      SkIntToScalar(y * tileSize),
+                      SkIntToScalar((x + 1) * tileSize), 
+                      SkIntToScalar((y + 1) * tileSize));
+
+            if (!SkRect::Intersects(tileR, clipRect)) {
                 continue;
             }
 
-            SkIRect srcR = tileR;
-            if (!srcR.intersect(srcRect)) {
+            if (!tileR.intersect(srcRect)) {
                 continue;
             }
 
             SkBitmap tmpB;
-            if (bitmap.extractSubset(&tmpB, tileR)) {
+            SkIRect iTileR;     
+            tileR.roundOut(&iTileR);
+            if (bitmap.extractSubset(&tmpB, iTileR)) {
                 // now offset it to make it "local" to our tmp bitmap
-                srcR.offset(-tileR.fLeft, -tileR.fTop);
+                tileR.offset(SkIntToScalar(-iTileR.fLeft), SkIntToScalar(-iTileR.fTop));
 
                 SkMatrix tmpM(m);
                 {
-                    int dx = tileR.fLeft - DX + SkMax32(0, srcR.fLeft);
-                    int dy = tileR.fTop -  DY + SkMax32(0, srcR.fTop);
-                    tmpM.preTranslate(SkIntToScalar(dx), SkIntToScalar(dy));
+                    SkScalar dx = iTileR.fLeft - DX + SkMaxScalar(0, tileR.fLeft);
+                    SkScalar dy = iTileR.fTop  - DY + SkMaxScalar(0, tileR.fTop);
+                    tmpM.preTranslate(dx, dy);
                 }
-                this->internalDrawBitmap(draw, tmpB, srcR, tmpM, params, &grPaint);
+                this->internalDrawBitmap(draw, tmpB, tileR, tmpM, params, grPaint);
             }
         }
     }
@@ -1408,7 +1437,7 @@ bool mayColorBleed(const SkRect& srcRect, const SkRect& transformedRect,
  */
 void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
                                      const SkBitmap& bitmap,
-                                     const SkIRect& srcRect,
+                                     const SkRect& srcRect,
                                      const SkMatrix& m,
                                      const GrTextureParams& params,
                                      GrPaint* grPaint) {
@@ -1431,35 +1460,34 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
         return;
     }
 
-    GrRect dstRect = SkRect::MakeWH(GrIntToScalar(srcRect.width()),
-                                    GrIntToScalar(srcRect.height()));
+    GrRect dstRect(srcRect);
     GrRect paintRect;
-    float wInv = 1.f / bitmap.width();
-    float hInv = 1.f / bitmap.height();
-    paintRect.setLTRB(SkFloatToScalar(srcRect.fLeft * wInv),
-                      SkFloatToScalar(srcRect.fTop * hInv),
-                      SkFloatToScalar(srcRect.fRight * wInv),
-                      SkFloatToScalar(srcRect.fBottom * hInv));
+    SkScalar wInv = SkScalarInvert(SkIntToScalar(bitmap.width()));
+    SkScalar hInv = SkScalarInvert(SkIntToScalar(bitmap.height()));
+    paintRect.setLTRB(SkScalarMul(srcRect.fLeft,   wInv),
+                      SkScalarMul(srcRect.fTop,    hInv),
+                      SkScalarMul(srcRect.fRight,  wInv),
+                      SkScalarMul(srcRect.fBottom, hInv));
 
     bool needsTextureDomain = false;
     if (params.isBilerp()) {
         // Need texture domain if drawing a sub rect.
-        needsTextureDomain = srcRect.width() < bitmap.width() || srcRect.height() < bitmap.height();
+        needsTextureDomain = srcRect.width() < bitmap.width() || 
+                             srcRect.height() < bitmap.height();
         if (m.rectStaysRect() && draw.fMatrix->rectStaysRect()) {
             // sampling is axis-aligned
-            GrRect floatSrcRect, transformedRect;
-            floatSrcRect.set(srcRect);
+            GrRect transformedRect;
             SkMatrix srcToDeviceMatrix(m);
             srcToDeviceMatrix.postConcat(*draw.fMatrix);
-            srcToDeviceMatrix.mapRect(&transformedRect, floatSrcRect);
+            srcToDeviceMatrix.mapRect(&transformedRect, srcRect);
 
-            if (hasAlignedSamples(floatSrcRect, transformedRect)) {
+            if (hasAlignedSamples(srcRect, transformedRect)) {
                 // We could also turn off filtering here (but we already did a cache lookup with
                 // params).
                 needsTextureDomain = false;
             } else {
                 needsTextureDomain = needsTextureDomain &&
-                    mayColorBleed(floatSrcRect, transformedRect, m);
+                    mayColorBleed(srcRect, transformedRect, m);
             }
         }
     }
@@ -1469,14 +1497,14 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
     if (needsTextureDomain) {
         // Use a constrained texture domain to avoid color bleeding
         GrScalar left, top, right, bottom;
-        if (srcRect.width() > 1) {
+        if (srcRect.width() > GR_Scalar1) {
             GrScalar border = GR_ScalarHalf / bitmap.width();
             left = paintRect.left() + border;
             right = paintRect.right() - border;
         } else {
             left = right = GrScalarHalf(paintRect.left() + paintRect.right());
         }
-        if (srcRect.height() > 1) {
+        if (srcRect.height() > GR_Scalar1) {
             GrScalar border = GR_ScalarHalf / bitmap.height();
             top = paintRect.top() + border;
             bottom = paintRect.bottom() - border;
@@ -1592,42 +1620,31 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
                                  const SkRect* src, const SkRect& dst,
                                  const SkPaint& paint) {
-    SkMatrix matrix;
+    SkMatrix    matrix;
+    SkRect      bitmapBounds, tmpSrc;
+
+    bitmapBounds.set(0, 0,
+                     SkIntToScalar(bitmap.width()),
+                     SkIntToScalar(bitmap.height()));
+
     // Compute matrix from the two rectangles
-    {
-        SkRect tmpSrc;
-        if (src) {
-            tmpSrc = *src;
-            // if the extract process clipped off the top or left of the
-            // original, we adjust for that here to get the position right.
-            if (tmpSrc.fLeft > 0) {
-                tmpSrc.fRight -= tmpSrc.fLeft;
-                tmpSrc.fLeft = 0;
+    if (NULL != src) {
+        tmpSrc = *src;
+    } else {
+        tmpSrc = bitmapBounds;
+    }
+    matrix.setRectToRect(tmpSrc, dst, SkMatrix::kFill_ScaleToFit);
+
+    // clip the tmpSrc to the bounds of the bitmap. No check needed if src==null.
+    if (NULL != src) {
+        if (!bitmapBounds.contains(tmpSrc)) {
+            if (!tmpSrc.intersect(bitmapBounds)) {
+                return; // nothing to draw
             }
-            if (tmpSrc.fTop > 0) {
-                tmpSrc.fBottom -= tmpSrc.fTop;
-                tmpSrc.fTop = 0;
-            }
-        } else {
-            tmpSrc.set(0, 0, SkIntToScalar(bitmap.width()),
-                       SkIntToScalar(bitmap.height()));
         }
-        matrix.setRectToRect(tmpSrc, dst, SkMatrix::kFill_ScaleToFit);
     }
 
-    // ensure that src is "valid" before we pass it to our internal routines
-    // and to SkDevice. i.e. sure it is contained inside the original bitmap.
-    SkIRect isrcStorage;
-    SkIRect* isrcPtr = NULL;
-    if (src) {
-        src->roundOut(&isrcStorage);
-        if (!isrcStorage.intersect(0, 0, bitmap.width(), bitmap.height())) {
-            return;
-        }
-        isrcPtr = &isrcStorage;
-    }
-
-    this->drawBitmap(draw, bitmap, isrcPtr, matrix, paint);
+    this->drawBitmapCommon(draw, bitmap, &tmpSrc, matrix, paint);
 }
 
 void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
