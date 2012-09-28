@@ -303,7 +303,8 @@ public:
     ~Offscreen();
 
     CGRGBPixel* getCG(const SkScalerContext_Mac& context, const SkGlyph& glyph,
-                      CGGlyph glyphID, size_t* rowBytesPtr);
+                      CGGlyph glyphID, size_t* rowBytesPtr,
+                      bool generateA8FromLCD);
 
 private:
     enum {
@@ -729,7 +730,8 @@ SkScalerContext_Mac::~SkScalerContext_Mac() {
 }
 
 CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& glyph,
-                             CGGlyph glyphID, size_t* rowBytesPtr) {
+                             CGGlyph glyphID, size_t* rowBytesPtr,
+                             bool generateA8FromLCD) {
     if (!fRGBSpace) {
         //It doesn't appear to matter what color space is specified.
         //Regular blends and antialiased text are always (s*a + d*(1-a))
@@ -741,19 +743,16 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
     bool doAA = false;
     bool doLCD = false;
 
-    switch (glyph.fMaskFormat) {
-        case SkMask::kLCD16_Format:
-        case SkMask::kLCD32_Format:
-        case SkMask::kA8_Format: //Draw A8 as LCD, then downsample
-            doLCD = true;
-            doAA = true;
-            break;
-        //case SkMask::kA8_Format:
-        //    doLCD = false;
-        //    doAA = true;
-        //    break;
-        default:
-            break;
+    if (SkMask::kBW_Format != glyph.fMaskFormat) {
+        doLCD = true;
+        doAA = true;
+    }
+    
+    //FIXME: lcd smoothed un-hinted rasterization unsupported. Tracked by
+    //http://code.google.com/p/skia/issues/detail?id=915
+    if (!generateA8FromLCD && SkMask::kA8_Format == glyph.fMaskFormat) {
+        doLCD = false;
+        doAA = true;
     }
 
     size_t rowBytes = fSize.fWidth * sizeof(CGRGBPixel);
@@ -1203,9 +1202,13 @@ template <typename T> T* SkTAddByteOffset(T* ptr, size_t byteOffset) {
 void SkScalerContext_Mac::generateImage(const SkGlyph& glyph, SkMaskGamma::PreBlend* maskPreBlend) {
     CGGlyph cgGlyph = (CGGlyph) glyph.getGlyphID(fBaseGlyphCount);
 
+    //FIXME: lcd smoothed un-hinted rasterization unsupported. Tracked by
+    //http://code.google.com/p/skia/issues/detail?id=915
+    bool generateA8FromLCD = fRec.getHinting() != SkPaint::kNo_Hinting;
+    
     // Draw the glyph
     size_t cgRowBytes;
-    CGRGBPixel* cgPixels = fOffscreen.getCG(*this, glyph, cgGlyph, &cgRowBytes);
+    CGRGBPixel* cgPixels = fOffscreen.getCG(*this, glyph, cgGlyph, &cgRowBytes, generateA8FromLCD);
     if (cgPixels == NULL) {
         return;
     }
@@ -1216,7 +1219,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph, SkMaskGamma::PreBl
 
     // Fix the glyph
     const bool isLCD = isLCDFormat(glyph.fMaskFormat);
-    if (isLCD || (glyph.fMaskFormat == SkMask::kA8_Format && supports_LCD())) {
+    if (isLCD || (glyph.fMaskFormat == SkMask::kA8_Format && supports_LCD() && generateA8FromLCD)) {
         const uint8_t* table = getInverseGammaTableCoreGraphicSmoothing();
 
         //Note that the following cannot really be integrated into the
@@ -1825,7 +1828,9 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     }
     rec->setHinting(h);
 
-    bool lcdSupport = supports_LCD();
+    //FIXME: lcd smoothed un-hinted rasterization unsupported. Tracked by
+    //http://code.google.com/p/skia/issues/detail?id=915
+    bool lcdSupport = supports_LCD() && rec->getHinting() != SkPaint::kNo_Hinting;
     if (isLCDFormat(rec->fMaskFormat)) {
         if (lcdSupport) {
             //CoreGraphics creates 555 masks for smoothed text anyway.
