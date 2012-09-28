@@ -9,18 +9,16 @@
 #include "SkStream.h"
 #include <pthread.h>
 
-class SkCanvas;
 struct State4;
 
 //extern int comparePaths(const SkPath& one, const SkPath& two);
-extern int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap,
-        SkCanvas* canvas);
+extern int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap);
 extern void comparePathsTiny(const SkPath& one, const SkPath& two);
 extern bool drawAsciiPaths(const SkPath& one, const SkPath& two,
         bool drawPaths);
 extern void showPath(const SkPath& path, const char* str = NULL);
 extern bool testSimplify(const SkPath& path, bool fill, SkPath& out,
-        SkBitmap& bitmap, SkCanvas* canvas = 0);
+        SkBitmap& bitmap);
 extern bool testSimplifyx(SkPath& path, bool useXor, SkPath& out,
         State4& state, const char* pathStr);
 extern bool testSimplifyx(const SkPath& path);
@@ -42,7 +40,6 @@ struct State4 {
     int testsRun;
     char filename[256];
 
-    SkCanvas* canvas;
     SkBitmap bitmap;
 };
 
