@@ -233,6 +233,7 @@
           'SDKROOT': 'iphoneos',
           'TARGETED_DEVICE_FAMILY': '1,2',
           'OTHER_CPLUSPLUSFLAGS': '-fvisibility=hidden -fvisibility-inlines-hidden',
+          'GCC_THUMB_SUPPORT': 'NO',
         },
       },
     ],
