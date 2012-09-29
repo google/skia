@@ -1,1 +1,0 @@
-out/Debug/skdiff --nodiffs --match identical-bits tools/tests/skdiff/baseDir tools/tests/skdiff/comparisonDir tools/tests/skdiff/identical-bits/output-actual
