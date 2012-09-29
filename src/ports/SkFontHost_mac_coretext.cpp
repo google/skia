@@ -747,7 +747,7 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
         doLCD = true;
         doAA = true;
     }
-    
+
     //FIXME: lcd smoothed un-hinted rasterization unsupported. Tracked by
     //http://code.google.com/p/skia/issues/detail?id=915
     if (!generateA8FromLCD && SkMask::kA8_Format == glyph.fMaskFormat) {
@@ -1205,7 +1205,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph, SkMaskGamma::PreBl
     //FIXME: lcd smoothed un-hinted rasterization unsupported. Tracked by
     //http://code.google.com/p/skia/issues/detail?id=915
     bool generateA8FromLCD = fRec.getHinting() != SkPaint::kNo_Hinting;
-    
+
     // Draw the glyph
     size_t cgRowBytes;
     CGRGBPixel* cgPixels = fOffscreen.getCG(*this, glyph, cgGlyph, &cgRowBytes, generateA8FromLCD);
