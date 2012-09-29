@@ -1353,9 +1353,9 @@ void SkGpuDevice::drawTiledBitmap(const SkDraw& draw,
     for (int x = 0; x <= nx; x++) {
         for (int y = 0; y <= ny; y++) {
             SkRect tileR;
-            tileR.set(SkIntToScalar(x * tileSize), 
+            tileR.set(SkIntToScalar(x * tileSize),
                       SkIntToScalar(y * tileSize),
-                      SkIntToScalar((x + 1) * tileSize), 
+                      SkIntToScalar((x + 1) * tileSize),
                       SkIntToScalar((y + 1) * tileSize));
 
             if (!SkRect::Intersects(tileR, clipRect)) {
@@ -1367,7 +1367,7 @@ void SkGpuDevice::drawTiledBitmap(const SkDraw& draw,
             }
 
             SkBitmap tmpB;
-            SkIRect iTileR;     
+            SkIRect iTileR;
             tileR.roundOut(&iTileR);
             if (bitmap.extractSubset(&tmpB, iTileR)) {
                 // now offset it to make it "local" to our tmp bitmap
@@ -1472,7 +1472,7 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
     bool needsTextureDomain = false;
     if (params.isBilerp()) {
         // Need texture domain if drawing a sub rect.
-        needsTextureDomain = srcRect.width() < bitmap.width() || 
+        needsTextureDomain = srcRect.width() < bitmap.width() ||
                              srcRect.height() < bitmap.height();
         if (m.rectStaysRect() && draw.fMatrix->rectStaysRect()) {
             // sampling is axis-aligned

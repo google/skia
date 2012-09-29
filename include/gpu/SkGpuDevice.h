@@ -170,10 +170,10 @@ private:
                          const SkMatrix& m,
                          const GrTextureParams& params,
                          GrPaint* grPaint);
-    void drawBitmapCommon(const SkDraw&, 
+    void drawBitmapCommon(const SkDraw&,
                           const SkBitmap& bitmap,
                           const SkRect* srcRectPtr,
-                          const SkMatrix&, 
+                          const SkMatrix&,
                           const SkPaint&);
 
     /**

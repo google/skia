@@ -81,7 +81,7 @@ static int pathsDrawTheSame(const SkPath& one, const SkPath& two,
         bits.setConfig(SkBitmap::kARGB_8888_Config, bitWidth * 2, bitHeight);
         bits.allocPixels();
     }
-    
+
     SkRect larger = one.getBounds();
     larger.join(two.getBounds());
     SkScalar largerWidth = larger.width();
