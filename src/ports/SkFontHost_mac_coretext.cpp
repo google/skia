@@ -737,14 +737,13 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
     switch (glyph.fMaskFormat) {
         case SkMask::kLCD16_Format:
         case SkMask::kLCD32_Format:
-        case SkMask::kA8_Format: //Draw A8 as LCD, then downsample
             doLCD = true;
             doAA = true;
             break;
-        //case SkMask::kA8_Format:
-        //    doLCD = false;
-        //    doAA = true;
-        //    break;
+        case SkMask::kA8_Format:
+            doLCD = false;
+            doAA = true;
+            break;
         default:
             break;
     }
@@ -1209,7 +1208,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph, SkMaskGamma::PreBl
 
     // Fix the glyph
     const bool isLCD = isLCDFormat(glyph.fMaskFormat);
-    if (isLCD || (glyph.fMaskFormat == SkMask::kA8_Format && supports_LCD())) {
+    if (isLCD) {
         const uint8_t* table = getInverseGammaTableCoreGraphicSmoothing();
 
         //Note that the following cannot really be integrated into the
@@ -1815,19 +1814,19 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     }
     rec->setHinting(h);
     
-    bool lcdSupport = supports_LCD();
+    bool lcdSupport = supports_LCD() && rec->getHinting() != SkPaint::kNo_Hinting;
     if (isLCDFormat(rec->fMaskFormat)) {
         if (lcdSupport) {
             //CoreGraphics creates 555 masks for smoothed text anyway.
             rec->fMaskFormat = SkMask::kLCD16_Format;
+            //CoreGraphics dialates smoothed text as needed.
+            rec->setContrast(0);
         } else {
             rec->fMaskFormat = SkMask::kA8_Format;
+#ifndef SK_GAMMA_APPLY_TO_A8
+            rec->ignorePreBlend();
+#endif
         }
-    }
-    
-    if (lcdSupport) {
-        //CoreGraphics dialates smoothed text as needed.
-        rec->setContrast(0);
     } else {
 #ifndef SK_GAMMA_APPLY_TO_A8
         rec->ignorePreBlend();
