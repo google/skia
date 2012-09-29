@@ -1,0 +1,12 @@
+# File for specifying expected Skia benchmark values and ranges.
+# Currently the file is manually created/edited for adapting to bench changes.
+#
+# The format of each data line (non-empty, not started with "#") is:
+# <BenchType_BitmapConfig_TimerType>,<Platform-Alg>,<Expected>,<LB>,<UB>
+# Where Alg is the bench value representation algorithm: min, avg, 25th, etc.
+# LB and UB are lower and upper bounds for the range of the bench value.
+#
+# Note: unrecognized data lines (not exactly 4 commas, unparsable bench values)
+# will likely raise exceptions.
+
+picture_playback_drawText_GPU_c,Mac_Float_NoDebug_64-25th,167,157,177

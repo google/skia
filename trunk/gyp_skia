@@ -1,0 +1,102 @@
+#!/usr/bin/python
+
+# Copyright 2011 The Android Open Source Project
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This script is a wrapper which invokes gyp with the correct --depth argument,
+# and supports the automatic regeneration of build files if all.gyp is
+# changed (Linux-only).
+
+import glob
+import os
+import shlex
+import sys
+
+script_dir = os.path.dirname(__file__)
+
+# Directory within which we can find the gyp source.
+gyp_source_dir = os.path.join(script_dir, 'third_party', 'externals', 'gyp')
+
+# Directory within which we can find most of Skia's gyp configuration files.
+gyp_config_dir = os.path.join(script_dir, 'gyp')
+
+# Directory within which we want all generated files (including Makefiles)
+# to be written.
+output_dir = os.path.join(os.path.abspath(script_dir), 'out')
+
+# Ensure we import our current gyp source's module, not any version
+# pre-installed in your PYTHONPATH.
+sys.path.insert(0, os.path.join(gyp_source_dir, 'pylib'))
+import gyp
+
+def additional_include_files(args=[]):
+  # Determine the include files specified on the command line.
+  # This doesn't cover all the different option formats you can use,
+  # but it's mainly intended to avoid duplicating flags on the automatic
+  # makefile regeneration which only uses this format.
+  specified_includes = set()
+  for arg in args:
+    if arg.startswith('-I') and len(arg) > 2:
+      specified_includes.add(os.path.realpath(arg[2:]))
+
+  result = []
+  def AddInclude(path):
+    if os.path.realpath(path) not in specified_includes:
+      result.append(path)
+
+  # Always include common.gypi.
+  # We do this, rather than including common.gypi explicitly in all our gyp
+  # files, so that gyp files we use but do not maintain (e.g.,
+  # third_party/externals/libjpeg/libjpeg.gyp) will include common.gypi too.
+  AddInclude(os.path.join(gyp_config_dir, 'common.gypi'))
+
+  return result
+
+if __name__ == '__main__':
+  args = sys.argv[1:]
+
+  # Set CWD to the directory containing this script.
+  # This allows us to launch it from other directories, in spite of gyp's
+  # finickyness about the current working directory.
+  # See http://b.corp.google.com/issue?id=5019517 ('Linux make build
+  # (from out dir) no longer runs skia_gyp correctly')
+  os.chdir(os.path.abspath(script_dir))
+
+  # This could give false positives since it doesn't actually do real option
+  # parsing.  Oh well.
+  gyp_file_specified = False
+  for arg in args:
+    if arg.endswith('.gyp'):
+      gyp_file_specified = True
+      break
+
+  # If we didn't get a file, then fall back to assuming 'skia.gyp' from the
+  # same directory as the script.
+  # The gypfile must be passed as a relative path, not an absolute path,
+  # or else the gyp code doesn't write into the proper output dir.
+  if not gyp_file_specified:
+    args.append('skia.gyp')
+
+  args.extend(['-I' + i for i in additional_include_files(args)])
+  args.extend(['--depth', '.'])
+
+  # Tell gyp to write the Makefiles into output_dir
+  args.extend(['--generator-output', os.path.abspath(output_dir)])
+
+  # Tell make to write its output into the same dir
+  args.extend(['-Goutput_dir=.'])
+
+  # Special arguments for generating Visual Studio projects:
+  # - msvs_version forces generation of Visual Studio 2010 project so that we
+  #   can use msbuild.exe
+  # - msvs_abspath_output is a workaround for
+  #   http://code.google.com/p/gyp/issues/detail?id=201
+  args.extend(['-Gmsvs_version=2010'])
+
+  print 'Updating projects from gyp files...'
+  sys.stdout.flush()
+
+  # Off we go...
+  sys.exit(gyp.main(args))

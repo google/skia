@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+<screenplay xmlns="urn:screenplay">
+	<line id="line" x1="0" y1="0" x2="100" y2="0" />
+	<random id="rRed" min="0" max="255" seed="1900"  />
+	<random id="rBlue" min="0" max="255" seed="50000"  />
+	<random id="rGreen" min="0" max="255" seed="99"  />
+	
+	<event kind="onLoad" >
+		<matrix id="initialMatrix" translate="[120,100]" />
+		<paint id="basePaint" strokeWidth="2" antiAlias="true" textAlign="center" 
+				textSize="24" linearText="false" >
+			<color color="lightblue" />
+		</paint>
+		<apply mode="immediate" steps="17" >
+			<post target="addLine" />
+			<animate field="delay" from="0.1" to="0.95" />
+		</apply>
+		<post id="postAddCaptionFade" target="addCaptionFade" delay="1" />
+		<post id="postAddLineCaption"  target="addLineCaption" delay="1" />
+		<post target="scaleInitial" delay="2" />
+		<apply scope="basePaint"  begin="3">
+			<set begin="0" field="linearText" to="false" />
+		</apply>
+	</event>
+
+	<event kind="user" id="addLine" >
+		<matrix rotate="20" />
+		<apply restore="true" >
+			<paint >
+				<color id="ramp" />
+			</paint>
+			<set target="ramp" field="color" to="rgb(rRed.random,rBlue.random,rGreen.random)" />
+		</apply>
+		<add use="line" />
+	</event>
+	
+	<event kind="user" id="addCaptionFade" >
+		<apply>
+			<paint>
+				<color id="captionFade" alpha="0" />
+			</paint>
+			<animate target="captionFade" field="alpha" from="0" to="1" dur="1" />
+		</apply>
+	</event>
+	
+	<event kind="user" id="addLineCaption" >
+		<text id="linescaption" text="Lines" x="0" y="120" />
+	</event>
+	
+	<event kind="user" id="scaleInitial" >
+		<apply scope="basePaint" >
+			<set field="linearText" to="true" dur="1" reset="true" />
+		</apply>
+		<apply scope="initialMatrix" >
+			<animate field="scale" from="1" to=".5" dur="1"/>
+			<animate field="translateX" from="120" to="60" dur="1"/>
+			<animate field="translateY" from="100" to="60" dur="1"/>
+		</apply>
+	</event>
+		
+<!--
+	<event kind="keyChar" key="d" >
+		<dump />
+	</event>
+-->
+</screenplay>

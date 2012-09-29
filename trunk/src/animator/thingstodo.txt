@@ -1,0 +1,21 @@
+things to do:
+	figure out where endless or very deep recursion is possible
+	at these points, generate an error if actual physical stack gets too large
+	candidates are scripts
+		eval(eval(eval...	user callouts
+		(((((	operator precedence or similar making stack deep
+		groups within groups
+		very large apply create or apply immediate steps
+
+	write tests for math functions
+		looks like random takes a parameter when it should take zero parameters
+		
+	add Math, Number files to perforce for docs
+	alphabetize attributes in docs
+	
+	manually modified tools/screenplayDocs/xmlToJPEG.cpp
+	
+	fix docs where lines are stitched together (insert space)
+	
+	naked <data> outside of <post> asserts on name
+	handle errors for all element not contained by correct parents

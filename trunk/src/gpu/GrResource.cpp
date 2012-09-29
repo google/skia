@@ -1,0 +1,57 @@
+
+/*
+ * Copyright 2011 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+
+#include "GrResource.h"
+#include "GrGpu.h"
+
+SK_DEFINE_INST_COUNT(GrResource)
+
+GrResource::GrResource(GrGpu* gpu) {
+    fGpu        = gpu;
+    fCacheEntry = NULL;
+    fGpu->insertResource(this);
+}
+
+GrResource::~GrResource() {
+    // subclass should have released this.
+    GrAssert(!this->isValid());
+}
+
+void GrResource::release() {
+    if (NULL != fGpu) {
+        this->onRelease();
+        fGpu->removeResource(this);
+        fGpu = NULL;
+    }
+}
+
+void GrResource::abandon() {
+    if (NULL != fGpu) {
+        this->onAbandon();
+        fGpu->removeResource(this);
+        fGpu = NULL;
+    }
+}
+
+const GrContext* GrResource::getContext() const {
+    if (NULL != fGpu) {
+        return fGpu->getContext();
+    } else {
+        return NULL;
+    }
+}
+
+GrContext* GrResource::getContext() {
+    if (NULL != fGpu) {
+        return fGpu->getContext();
+    } else {
+        return NULL;
+    }
+}
+

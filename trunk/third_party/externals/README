@@ -1,0 +1,16 @@
+Subversion uses this directory to map in "external" repositories upon which
+we depend.
+
+To see the mappings, cd into this directory and then run:
+svn propget svn:externals .
+
+To modify the mappings, cd into this directory and run:
+svn propedit svn:externals .
+
+See http://svnbook.red-bean.com/en/1.5/svn.advanced.externals.html for
+more info.
+
+
+NOTE: This set of dependencies must be manually kept in sync with the gclient
+DEPS; the output of "svn propget svn:externals ." should always be equivalent
+to the content of the "DEPS" file within trunk.

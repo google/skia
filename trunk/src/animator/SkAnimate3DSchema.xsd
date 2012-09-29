@@ -1,0 +1,39 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:Sk="http://www.skia.com/schema/SkAnimateSchema.xsd"
+	targetNamespace="urn:skia3D" xmlns:Sk3D="urn:skia3D">
+
+	<xs:simpleType name="Patch" >
+		<xs:restriction base="xs:string" >
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="Point" >
+		<xs:restriction base="xs:string" >
+			<xs:pattern value="[+-]?([0-9]*\.[0-9]+|[0-9]+\.?)( *[ ,] *[+-]?([0-9]*\.[0-9]+|[0-9]+\.?)){2}" /> 
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:element name="camera">
+		<xs:complexType >
+			<xs:attribute name="axis" type="Sk3D:Point" />
+			<xs:attribute name="hackHeight" type="Sk:Float" />
+			<xs:attribute name="hackWidth" type="Sk:Float" />
+			<xs:attribute name="location" type="Sk3D:Point" />
+			<xs:attribute name="observer" type="Sk3D:Point" />
+			<xs:attribute name="patch" type="Sk3D:Patch" />
+			<xs:attribute name="zenith" type="Sk3D:Point" />
+			<xs:attribute name="id" type="xs:ID" />
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="patch">
+		<xs:complexType >
+			<xs:attribute name="origin" type="Sk3D:Point" />
+			<xs:attribute name="rotateDegrees" type="Sk:MemberFunction" />
+			<xs:attribute name="u" type="Sk3D:Point" />
+			<xs:attribute name="v" type="Sk3D:Point" />
+			<xs:attribute name="id" type="xs:ID" />
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>

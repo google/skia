@@ -1,0 +1,1 @@
+out/Debug/skdiff --failonresult DifferentPixels --failonresult DifferentSizes --failonresult DifferentOther --failonresult Unknown --listfilenames --nodiffs tools/tests/skdiff/baseDir tools/tests/skdiff/comparisonDir tools/tests/skdiff/test2/output-actual
