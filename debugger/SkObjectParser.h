@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -6,17 +5,16 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SKOBJECTPARSER_H_
 #define SKOBJECTPARSER_H_
 
 #include "SkCanvas.h"
 #include "SkString.h"
+
 /** \class SkObjectParser
 
     The ObjectParser is used to return string information about parameters
     in each draw command.
-    TODO(chudy): Change std::string to SkString
  */
 class SkObjectParser {
 public:
