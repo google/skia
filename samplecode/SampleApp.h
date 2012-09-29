@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Skia
  *
@@ -6,28 +5,25 @@
  * found in the LICENSE file.
  */
 
+#ifndef SampleApp_DEFINED
+#define SampleApp_DEFINED
 
-#ifndef SampleWindow_DEFINED
-#define SampleWindow_DEFINED
-
-#include "SkWindow.h"
-
-#include "SampleCode.h"
+#include "SkOSMenu.h"
 #include "SkPath.h"
 #include "SkScalar.h"
 #include "SkTDArray.h"
 #include "SkTouchGesture.h"
 #include "SkWindow.h"
-#include "SkOSMenu.h"
 
 class GrContext;
 class GrRenderTarget;
 
-class SkEvent;
 class SkCanvas;
+class SkData;
+class SkEvent;
 class SkPicture;
 class SkTypeface;
-class SkData;
+class SkViewFactory;
 
 class SampleWindow : public SkOSWindow {
     SkTDArray<const SkViewFactory*> fSamples;
