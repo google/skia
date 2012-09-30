@@ -79,10 +79,8 @@ public:
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt)  {
-        if (SampleCode::TitleQ(*evt))
-        {
-            SkString str("Vertices");
-            SampleCode::TitleR(evt, str.c_str());
+        if (SampleCode::TitleQ(*evt)) {
+            SampleCode::TitleR(evt, "Vertices");
             return true;
         }
         return this->INHERITED::onQuery(evt);
