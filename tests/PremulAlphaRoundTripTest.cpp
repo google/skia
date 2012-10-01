@@ -48,24 +48,25 @@ static const SkCanvas::Config8888 gUnpremulConfigs[] = {
 
 void PremulAlphaRoundTripTest(skiatest::Reporter* reporter,
                               GrContext* context) {
-    SkCanvas canvas;
+    SkAutoTUnref<SkDevice> device;
     for (int dtype = 0; dtype < 2; ++dtype) {
         if (0 == dtype) {
-            canvas.setDevice(new SkDevice(SkBitmap::kARGB_8888_Config,
+            device.reset(new SkDevice(SkBitmap::kARGB_8888_Config,
                                           256,
                                           256,
-                                          false))->unref();
+                                          false));
         } else {
 #if !SK_SUPPORT_GPU || defined(SK_SCALAR_IS_FIXED)
             // GPU device known not to work in the fixed pt build.
             continue;
 #else
-            canvas.setDevice(new SkGpuDevice(context,
+            device.reset(new SkGpuDevice(context,
                                              SkBitmap::kARGB_8888_Config,
                                              256,
-                                             256))->unref();
+                                             256));
 #endif
         }
+        SkCanvas canvas(device);
 
         SkBitmap readBmp1;
         readBmp1.setConfig(SkBitmap::kARGB_8888_Config, 256, 256);

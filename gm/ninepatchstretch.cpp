@@ -15,7 +15,6 @@ class GrContext;
 
 static void make_bitmap(SkBitmap* bitmap, GrContext* ctx, SkIRect* center) {
     SkDevice* dev;
-    SkCanvas canvas;
 
     const int kFixed = 28;
     const int kStretchy = 8;
@@ -33,7 +32,8 @@ static void make_bitmap(SkBitmap* bitmap, GrContext* ctx, SkIRect* center) {
         dev = new SkDevice(*bitmap);
     }
 
-    canvas.setDevice(dev)->unref();
+    SkCanvas canvas(dev);
+    dev->unref();
     canvas.clear(0);
 
     SkRect r = SkRect::MakeWH(SkIntToScalar(kSize), SkIntToScalar(kSize));

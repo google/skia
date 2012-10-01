@@ -301,32 +301,29 @@ static const CanvasConfig gCanvasConfigs[] = {
 #endif
 };
 
-bool setupCanvas(SkCanvas* canvas, const CanvasConfig& c, GrContext* grCtx) {
+SkDevice* createDevice(const CanvasConfig& c, GrContext* grCtx) {
     switch (c.fDevType) {
         case kRaster_DevType: {
             SkBitmap bmp;
             size_t rowBytes = c.fTightRowBytes ? 0 : 4 * DEV_W + 100;
             bmp.setConfig(SkBitmap::kARGB_8888_Config, DEV_W, DEV_H, rowBytes);
             if (!bmp.allocPixels()) {
-                return false;
+                sk_throw();
+                return NULL;
             }
             // if rowBytes isn't tight then set the padding to a known value
             if (rowBytes) {
                 SkAutoLockPixels alp(bmp);
                 memset(bmp.getPixels(), DEV_PAD, bmp.getSafeSize());
             }
-            canvas->setDevice(new SkDevice(bmp))->unref();
-            break;
+            return new SkDevice(bmp);
         }
 #if SK_SUPPORT_GPU
         case kGpu_DevType:
-            canvas->setDevice(new SkGpuDevice(grCtx,
-                                              SkBitmap::kARGB_8888_Config,
-                                              DEV_W, DEV_H))->unref();
-            break;
+            return new SkGpuDevice(grCtx, SkBitmap::kARGB_8888_Config, DEV_W, DEV_H);
 #endif
     }
-    return true;
+    return NULL;
 }
 
 bool setupBitmap(SkBitmap* bitmap,
@@ -400,7 +397,8 @@ void WritePixelsTest(skiatest::Reporter* reporter, GrContext* context) {
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gCanvasConfigs); ++i) {
-        REPORTER_ASSERT(reporter, setupCanvas(&canvas, gCanvasConfigs[i], context));
+        SkAutoTUnref<SkDevice> device(createDevice(gCanvasConfigs[i], context));
+        SkCanvas canvas(device);
 
         static const SkCanvas::Config8888 gSrcConfigs[] = {
             SkCanvas::kNative_Premul_Config8888,
