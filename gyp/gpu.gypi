@@ -216,7 +216,6 @@
     ],
 
     'skgr_sources': [
-      '<(skia_include_path)/gpu/SkGpuCanvas.h',
       '<(skia_include_path)/gpu/SkGpuDevice.h',
       '<(skia_include_path)/gpu/SkGr.h',
       '<(skia_include_path)/gpu/SkGrPixelRef.h',
@@ -224,7 +223,6 @@
 
       '<(skia_include_path)/gpu/gl/SkGLContext.h',
 
-      '<(skia_src_path)/gpu/SkGpuCanvas.cpp',
       '<(skia_src_path)/gpu/SkGpuDevice.cpp',
       '<(skia_src_path)/gpu/SkGr.cpp',
       '<(skia_src_path)/gpu/SkGrFontScaler.cpp',
