@@ -217,7 +217,8 @@ static void TestDeferredCanvasMemoryLimit(skiatest::Reporter* reporter) {
 class NotificationCounter : public SkDeferredCanvas::NotificationClient {
 public:
     NotificationCounter() {
-        fPrepareForDrawCount = fStorageAllocatedChangedCount = fFlushedDrawCommandsCount = 0;
+        fPrepareForDrawCount = fStorageAllocatedChangedCount =
+            fFlushedDrawCommandsCount = fSkippedPendingDrawCommandsCount = 0;
     }
 
     virtual void prepareForDraw() SK_OVERRIDE {
@@ -229,10 +230,14 @@ public:
     virtual void flushedDrawCommands() SK_OVERRIDE {
         fFlushedDrawCommandsCount++;
     }
+    virtual void skippedPendingDrawCommands() SK_OVERRIDE {
+        fSkippedPendingDrawCommandsCount++;
+    }
 
     int fPrepareForDrawCount;
     int fStorageAllocatedChangedCount;
     int fFlushedDrawCommandsCount;
+    int fSkippedPendingDrawCommandsCount;
 };
 
 static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
@@ -313,6 +318,26 @@ static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
     sourceImages[1].notifyPixelsChanged();
     canvas.drawBitmap(sourceImages[1], 0, 0, NULL);
     REPORTER_ASSERT(reporter, canvas.storageAllocatedForRecording() > 2*bitmapSize);
+
+    // Verify that nothing in this test caused commands to be skipped
+    REPORTER_ASSERT(reporter, 0 == notificationCounter.fSkippedPendingDrawCommandsCount);
+}
+
+static void TestDeferredCanvasSkip(skiatest::Reporter* reporter) {
+    SkBitmap store;
+    store.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
+    store.allocPixels();
+    SkDevice device(store);
+    NotificationCounter notificationCounter;
+    SkDeferredCanvas canvas(&device);
+    canvas.setNotificationClient(&notificationCounter);
+    canvas.clear(0x0);
+    REPORTER_ASSERT(reporter, 1 == notificationCounter.fSkippedPendingDrawCommandsCount);
+    REPORTER_ASSERT(reporter, 0 == notificationCounter.fFlushedDrawCommandsCount);
+    canvas.flush();
+    REPORTER_ASSERT(reporter, 1 == notificationCounter.fSkippedPendingDrawCommandsCount);
+    REPORTER_ASSERT(reporter, 1 == notificationCounter.fFlushedDrawCommandsCount);
+
 }
 
 static void TestDeferredCanvas(skiatest::Reporter* reporter) {
@@ -321,6 +346,7 @@ static void TestDeferredCanvas(skiatest::Reporter* reporter) {
     TestDeferredCanvasFreshFrame(reporter);
     TestDeferredCanvasMemoryLimit(reporter);
     TestDeferredCanvasBitmapCaching(reporter);
+    TestDeferredCanvasSkip(reporter);
 }
 
 #include "TestClassDef.h"

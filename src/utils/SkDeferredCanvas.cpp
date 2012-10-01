@@ -381,6 +381,9 @@ void DeferredDevice::skipPendingCommands() {
     if (!fRecordingCanvas->isDrawingToLayer() && fPipeController.hasPendingCommands()) {
         fFreshFrame = true;
         flushPendingCommands(kSilent_PlaybackMode);
+        if (fNotificationClient) {
+            fNotificationClient->skippedPendingDrawCommands();
+        }
     }
 }
 

@@ -203,6 +203,13 @@ public:
          */
         virtual void flushedDrawCommands() {}
 
+        /**
+         *  Called after pending draw commands have been skipped, meaning
+         *  that they were optimized-out because the canvas is cleared
+         *  or completely overwritten by the command currently being recorded.
+         */
+        virtual void skippedPendingDrawCommands() {}
+
     private:
         typedef SkRefCnt INHERITED;
     };
