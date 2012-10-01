@@ -210,7 +210,7 @@ void TiledPictureRenderer::init(SkPicture* pict) {
             int numberOfClones = fNumThreads - 1;
             // This will be deleted in end().
             fPictureClones = SkNEW_ARRAY(SkPicture, numberOfClones);
-            fPictureClones->clone(fPictureClones, numberOfClones);
+            fPicture->clone(fPictureClones, numberOfClones);
         }
     }
 }
@@ -315,7 +315,8 @@ struct ThreadData {
     }
 
     const SkRect* nextTile() {
-        if (int32_t i = sk_atomic_inc(fTileCounter) < fTileRects->count()) {
+        int32_t i = sk_atomic_inc(fTileCounter);
+        if (i < fTileRects->count()) {
             return &fTileRects->operator[](i);
         }
         return NULL;

@@ -102,6 +102,7 @@ static bool render_picture(const SkString& inputPath, const SkString& outputDir,
              inputPath.c_str());
 
     renderer.init(&picture);
+    renderer.setup();
 
     SkString outputPath;
     make_output_filepath(&outputPath, outputDir, inputFilename);
