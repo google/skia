@@ -25,7 +25,6 @@
 #include "GrContextFactory.h"
 #include "GrRenderTarget.h"
 #include "SkGpuDevice.h"
-#include "SkGpuCanvas.h"
 typedef GrContextFactory::GLContextType GLContextType;
 #else
 class GrContext;
