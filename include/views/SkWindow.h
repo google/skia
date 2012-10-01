@@ -61,6 +61,8 @@ public:
     void    preConcat(const SkMatrix&);
     void    postConcat(const SkMatrix&);
 
+    virtual SkCanvas* createCanvas();
+
     virtual void onPDFSaved(const char title[], const char desc[],
         const char path[]) {}
 protected:

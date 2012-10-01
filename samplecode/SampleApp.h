@@ -58,9 +58,7 @@ public:
 
         // called before drawing. should install correct device
         // type on the canvas. Will skip drawing if returns false.
-        virtual bool prepareCanvas(DeviceType dType,
-                                   SkCanvas* canvas,
-                                   SampleWindow* win) = 0;
+        virtual SkCanvas* createCanvas(DeviceType dType, SampleWindow* win) = 0;
 
         // called after drawing, should get the results onto the
         // screen.
@@ -83,6 +81,17 @@ public:
 
     SampleWindow(void* hwnd, int argc, char** argv, DeviceManager*);
     virtual ~SampleWindow();
+
+    virtual SkCanvas* createCanvas() SK_OVERRIDE {
+        SkCanvas* canvas = NULL;
+        if (fDevManager) {
+            canvas = fDevManager->createCanvas(fDeviceType, this);
+        }
+        if (NULL == canvas) {
+            canvas = this->INHERITED::createCanvas();
+        }
+        return canvas;
+    }
 
     virtual void draw(SkCanvas* canvas);
 
