@@ -256,11 +256,8 @@ public:
     */
     static void SignalQueueTimer(SkMSec delay);
 
-#ifdef SK_BUILD_FOR_WIN
+#if defined(SK_BUILD_FOR_WIN)
     static bool WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-#elif defined(SK_BUILD_FOR_UNIXx)
-  static uint32_t HandleTimer(uint32_t, void*);
-  static bool WndProc(Display*, Window, XEvent&);
 #endif
 
 private:
