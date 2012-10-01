@@ -1331,9 +1331,6 @@ void SkGpuDevice::drawTiledBitmap(const SkDraw& draw,
 
     int tileSize = determine_tile_size(bitmap, srcRect, maxTextureSize);
 
-    // undo the translate done by SkCanvas
-    SkScalar DX = SkMaxScalar(0, srcRect.fLeft);
-    SkScalar DY = SkMaxScalar(0, srcRect.fTop);
     // compute clip bounds in local coordinates
     SkRect clipRect;
     {
@@ -1344,8 +1341,6 @@ void SkGpuDevice::drawTiledBitmap(const SkDraw& draw,
             return;
         }
         inverse.mapRect(&clipRect);
-        // apply the canvas' translate to our local clip
-        clipRect.offset(DX, DY);
     }
 
     int nx = bitmap.width() / tileSize;
@@ -1372,13 +1367,10 @@ void SkGpuDevice::drawTiledBitmap(const SkDraw& draw,
             if (bitmap.extractSubset(&tmpB, iTileR)) {
                 // now offset it to make it "local" to our tmp bitmap
                 tileR.offset(SkIntToScalar(-iTileR.fLeft), SkIntToScalar(-iTileR.fTop));
-
                 SkMatrix tmpM(m);
-                {
-                    SkScalar dx = iTileR.fLeft - DX + SkMaxScalar(0, tileR.fLeft);
-                    SkScalar dy = iTileR.fTop  - DY + SkMaxScalar(0, tileR.fTop);
-                    tmpM.preTranslate(dx, dy);
-                }
+                tmpM.preTranslate(SkIntToScalar(iTileR.fLeft), 
+                                  SkIntToScalar(iTileR.fTop));
+
                 this->internalDrawBitmap(draw, tmpB, tileR, tmpM, params, grPaint);
             }
         }
