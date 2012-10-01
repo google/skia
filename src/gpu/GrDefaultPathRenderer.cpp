@@ -465,7 +465,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
                 // draw over the whole world.
                 bounds.setLTRB(0, 0,
                                GrIntToScalar(drawState->getRenderTarget()->width()),
-                               GrIntToScalar(drawState->8getRenderTarget()->height()));
+                               GrIntToScalar(drawState->getRenderTarget()->height()));
                 GrMatrix vmi;
                 // mapRect through persp matrix may not be correct
                 if (!drawState->getViewMatrix().hasPerspective() &&
