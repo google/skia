@@ -183,7 +183,7 @@
       '<(skia_src_path)/gpu/gl/win/GrGLCreateNativeInterface_win.cpp',
       '<(skia_src_path)/gpu/gl/unix/GrGLCreateNativeInterface_unix.cpp',
       '<(skia_src_path)/gpu/gl/iOS/GrGLCreateNativeInterface_iOS.cpp',
-      '<(skia_src_path)/gpu/android/GrGLCreateNativeInterface_android.cpp',
+      '<(skia_src_path)/gpu/gl/android/GrGLCreateNativeInterface_android.cpp',
     ],
     'gr_mesa_gl_sources': [
       '<(skia_src_path)/gpu/gl/mesa/GrGLCreateMesaInterface.cpp',
@@ -236,7 +236,7 @@
       '<(skia_src_path)/gpu/gl/mac/SkNativeGLContext_mac.cpp',
       '<(skia_src_path)/gpu/gl/win/SkNativeGLContext_win.cpp',
       '<(skia_src_path)/gpu/gl/unix/SkNativeGLContext_unix.cpp',
-      '<(skia_src_path)/gpu/android/SkNativeGLContext_android.cpp',
+      '<(skia_src_path)/gpu/gl/android/SkNativeGLContext_android.cpp',
     ],
     'skgr_angle_gl_sources': [
       '<(skia_include_path)/gpu/gl/SkANGLEGLContext.h',
