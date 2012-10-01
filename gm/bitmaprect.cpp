@@ -206,13 +206,23 @@ protected:
         SkBitmap bitmap;
         make_big_bitmap(&bitmap);
 
-        SkRect srcR = { 0.0f, 0.0f, 4096.0f, 2040.0f };
-        SkRect dstR = { 10.1f, 10.1f, 629.9f, 469.9f };
+        SkRect srcR1 = { 0.0f, 0.0f, 4096.0f, 2040.0f };
+        SkRect dstR1 = { 10.1f, 10.1f, 629.9f, 400.9f };
+
+        SkRect srcR2 = { 4085.0f, 10.0f, 4087.0f, 12.0f };
+        SkRect dstR2 = { 10, 410, 30, 430 };
 
         if (!fUseIRect) {
-            canvas->drawBitmapRectToRect(bitmap, &srcR, dstR, &paint);
+            canvas->drawBitmapRectToRect(bitmap, &srcR1, dstR1, &paint);
+            canvas->drawBitmapRectToRect(bitmap, &srcR2, dstR2, &paint);
         } else {
-            canvas->drawBitmapRect(bitmap, NULL, dstR, &paint);
+            SkIRect iSrcR1, iSrcR2;
+
+            srcR1.roundOut(&iSrcR1);
+            srcR2.roundOut(&iSrcR2);
+
+            canvas->drawBitmapRect(bitmap, &iSrcR1, dstR1, &paint);
+            canvas->drawBitmapRect(bitmap, &iSrcR2, dstR2, &paint);
         }
     }
 
