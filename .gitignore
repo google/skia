@@ -1,5 +1,6 @@
 .DS_Store
 .gclient*
+/debugger/QT/moc_*
 /gyp/build/
 /out/
 /third_party/externals/
