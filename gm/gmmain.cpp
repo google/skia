@@ -306,15 +306,15 @@ static ErrorBitfield generate_image(GM* gm, const ConfigData& gRec,
     SkISize size (gm->getISize());
     setup_bitmap(gRec, size, bitmap);
 
+    SkAutoTUnref<SkCanvas> canvas;
+
     if (gRec.fBackend == kRaster_Backend) {
-        SkCanvas* canvas;
+        SkAutoTUnref<SkDevice> device(new SkDevice(*bitmap));
         if (deferred) {
-            canvas = new SkDeferredCanvas;
-            canvas->setDevice(new SkDevice(*bitmap))->unref();
+            canvas.reset(new SkDeferredCanvas(device));
         } else {
-            canvas = new SkCanvas(*bitmap);
+            canvas.reset(new SkCanvas(device));
         }
-        SkAutoUnref canvasUnref(canvas);
         invokeGM(gm, canvas);
         canvas->flush();
     }
@@ -323,21 +323,19 @@ static ErrorBitfield generate_image(GM* gm, const ConfigData& gRec,
         if (NULL == context) {
             return ERROR_NO_GPU_CONTEXT;
         }
-        SkCanvas* gc;
+        SkAutoTUnref<SkDevice> device(new SkGpuDevice(context, rt));
         if (deferred) {
-            gc = new SkDeferredCanvas;
+            canvas.reset(new SkDeferredCanvas(device));
         } else {
-            gc = new SkGpuCanvas(context, rt);
+            canvas.reset(new SkCanvas(device));
         }
-        SkAutoUnref gcUnref(gc);
-        gc->setDevice(new SkGpuDevice(context, rt))->unref();
-        invokeGM(gm, gc);
+        invokeGM(gm, canvas);
         // the device is as large as the current rendertarget, so we explicitly
         // only readback the amount we expect (in size)
         // overwrite our previous allocation
         bitmap->setConfig(SkBitmap::kARGB_8888_Config, size.fWidth,
                                                        size.fHeight);
-        gc->readPixels(bitmap, 0, 0);
+        canvas->readPixels(bitmap, 0, 0);
     }
 #endif
     return ERROR_NONE;

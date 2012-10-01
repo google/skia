@@ -109,7 +109,7 @@ void fillCanvas(SkCanvas* canvas) {
     static SkBitmap bmp;
     if (bmp.isNull()) {
         bmp.setConfig(SkBitmap::kARGB_8888_Config, DEV_W, DEV_H);
-        bool alloc = bmp.allocPixels();
+        SkDEBUGCODE(bool alloc =) bmp.allocPixels();
         SkASSERT(alloc);
         SkAutoLockPixels alp(bmp);
         intptr_t pixels = reinterpret_cast<intptr_t>(bmp.getPixels());
@@ -255,8 +255,6 @@ void init_bitmap(SkBitmap* bitmap, const SkIRect& rect, BitmapInit init) {
 }
 
 void ReadPixelsTest(skiatest::Reporter* reporter, GrContext* context) {
-    SkCanvas canvas;
-
     const SkIRect testRects[] = {
         // entire thing
         DEV_RECT,
@@ -305,23 +303,24 @@ void ReadPixelsTest(skiatest::Reporter* reporter, GrContext* context) {
     };
 
     for (int dtype = 0; dtype < 2; ++dtype) {
-
+        SkAutoTUnref<SkDevice> device;
         if (0 == dtype) {
-            canvas.setDevice(new SkDevice(SkBitmap::kARGB_8888_Config,
+            device.reset(new SkDevice(SkBitmap::kARGB_8888_Config,
                                           DEV_W,
                                           DEV_H,
-                                          false))->unref();
+                                          false));
         } else {
 // GPU device known not to work in the fixed pt build.
 #if defined(SK_SCALAR_IS_FIXED) || !SK_SUPPORT_GPU
             continue;
 #else
-            canvas.setDevice(new SkGpuDevice(context,
+            device.reset(new SkGpuDevice(context,
                                              SkBitmap::kARGB_8888_Config,
                                              DEV_W,
-                                             DEV_H))->unref();
+                                             DEV_H));
 #endif
         }
+        SkCanvas canvas(device);
         fillCanvas(&canvas);
 
         static const SkCanvas::Config8888 gReadConfigs[] = {
