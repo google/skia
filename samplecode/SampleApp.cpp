@@ -257,9 +257,8 @@ public:
         fBackend = kNone_BackEndType;
     }
 
-    virtual bool prepareCanvas(SampleWindow::DeviceType dType,
-                               SkCanvas* canvas,
-                               SampleWindow* win) {
+    virtual SkCanvas* createCanvas(SampleWindow::DeviceType dType,
+                                   SampleWindow* win) {
         switch (dType) {
             case kRaster_DeviceType:
                 // fallthrough
@@ -273,18 +272,19 @@ public:
             case kGPU_DeviceType:
             case kNullGPU_DeviceType:
                 if (fCurContext) {
-                    canvas->setDevice(new SkGpuDevice(fCurContext,
-                                                    fCurRenderTarget))->unref();
+                    SkAutoTUnref<SkDevice> device(new SkGpuDevice(fCurContext,
+                                                                  fCurRenderTarget));
+                    return new SkCanvas(device);
                 } else {
-                    return false;
+                    return NULL;
                 }
                 break;
 #endif
             default:
                 SkASSERT(false);
-                return false;
+                return NULL;
         }
-        return true;
+        return NULL;
     }
 
     virtual void publishCanvas(SampleWindow::DeviceType dType,
@@ -1035,9 +1035,6 @@ static void drawText(SkCanvas* canvas, SkString string, SkScalar left, SkScalar 
 #define YCLIP_N  8
 
 void SampleWindow::draw(SkCanvas* canvas) {
-    if (!fDevManager->prepareCanvas(fDeviceType, canvas, this)) {
-        return;
-    }
     // update the animation time
     if (!gAnimTimePrev && !gAnimTime) {
         // first time make delta be 0

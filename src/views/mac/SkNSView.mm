@@ -81,8 +81,8 @@ SK_COMPILE_ASSERT(SK_SUPPORT_GPU, not_implemented_for_non_gpu_build);
 - (void)drawSkia {
     fRedrawRequestPending = false;
     if (NULL != fWind) {
-        SkCanvas canvas(fWind->getBitmap());
-        fWind->draw(&canvas);
+        SkAutoTUnref<SkCanvas> canvas(fWind->createCanvas());
+        fWind->draw(canvas);
 #ifdef FORCE_REDRAW
         fWind->inval(NULL);
 #endif

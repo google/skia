@@ -66,6 +66,10 @@ SkWindow::~SkWindow()
     fMenus.deleteAll();
 }
 
+SkCanvas* SkWindow::createCanvas() {
+    return new SkCanvas(this->getBitmap());
+}
+
 void SkWindow::setMatrix(const SkMatrix& matrix) {
     if (fMatrix != matrix) {
         fMatrix = matrix;
