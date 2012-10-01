@@ -47,8 +47,6 @@ public:
 
     //static bool PostEvent(SkEvent* evt, SkEventSinkID, SkMSec delay);
 
-    //static bool WndProc(SkUnixWindow* w,  XEvent &e);
-
 protected:
     // Overridden from from SkWindow:
     virtual bool onEvent(const SkEvent&) SK_OVERRIDE;
