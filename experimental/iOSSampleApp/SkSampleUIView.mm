@@ -125,7 +125,7 @@ public:
             // use the window's bmp for these two
             case SampleWindow::kRaster_DeviceType:
             case SampleWindow::kPicture_DeviceType:
-                canvas->setBitmapDevice(win->getBitmap());
+                canvas->setDevice(SkNEW_ARGS(SkDevice, (win->getBitmap())))->unref();
                 break;
 #if SK_SUPPORT_GPU
             // create a GPU device for these two
