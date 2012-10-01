@@ -886,71 +886,66 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     if (NULL == pathTexture) {
         return false;
     }
-    GrRenderTarget* oldRenderTarget = context->getRenderTarget();
-    // Once this code moves into GrContext, this should be changed to use
-    // an AutoClipRestore.
-    const GrClipData* oldClipData = context->getClip();
 
-    context->setRenderTarget(pathTexture->asRenderTarget());
-
-    SkClipStack newClipStack(srcRect);
-    GrClipData newClipData;
-    newClipData.fClipStack = &newClipStack;
-    context->setClip(&newClipData);
-
-    context->clear(NULL, 0);
-    GrPaint tempPaint;
-    tempPaint.reset();
+    SkAutoTUnref<GrTexture> blurTexture;
 
     GrContext::AutoMatrix avm(context, GrMatrix::I());
-    tempPaint.fAntiAlias = grp->fAntiAlias;
-    if (tempPaint.fAntiAlias) {
-        // AA uses the "coverage" stages on GrDrawTarget. Coverage with a dst
-        // blend coeff of zero requires dual source blending support in order
-        // to properly blend partially covered pixels. This means the AA
-        // code path may not be taken. So we use a dst blend coeff of ISA. We
-        // could special case AA draws to a dst surface with known alpha=0 to
-        // use a zero dst coeff when dual source blending isn't available.
-        tempPaint.fSrcBlendCoeff = kOne_GrBlendCoeff;
-        tempPaint.fDstBlendCoeff = kISC_GrBlendCoeff;
-    }
-    // Draw hard shadow to pathTexture with path topleft at origin 0,0.
-    context->drawPath(tempPaint, path, pathFillType, &offset);
 
-    // If we're doing a normal blur, we can clobber the pathTexture in the
-    // gaussianBlur.  Otherwise, we need to save it for later compositing.
-    bool isNormalBlur = blurType == SkMaskFilter::kNormal_BlurType;
-    SkAutoTUnref<GrTexture> blurTexture(context->gaussianBlur(
-        pathTexture, isNormalBlur, srcRect, sigma, sigma));
+    {
+        GrContext::AutoRenderTarget art(context, pathTexture->asRenderTarget());
+        GrContext::AutoClip ac(context, srcRect);
 
-    if (!isNormalBlur) {
-        GrPaint paint;
-        paint.reset();
-        paint.textureSampler(0)->matrix()->setIDiv(pathTexture->width(),
-                                                   pathTexture->height());
-        // Blend pathTexture over blurTexture.
-        context->setRenderTarget(blurTexture->asRenderTarget());
-        paint.textureSampler(0)->setCustomStage(SkNEW_ARGS
-            (GrSingleTextureEffect, (pathTexture)))->unref();
-        if (SkMaskFilter::kInner_BlurType == blurType) {
-            // inner:  dst = dst * src
-            paint.fSrcBlendCoeff = kDC_GrBlendCoeff;
-            paint.fDstBlendCoeff = kZero_GrBlendCoeff;
-        } else if (SkMaskFilter::kSolid_BlurType == blurType) {
-            // solid:  dst = src + dst - src * dst
-            //             = (1 - dst) * src + 1 * dst
-            paint.fSrcBlendCoeff = kIDC_GrBlendCoeff;
-            paint.fDstBlendCoeff = kOne_GrBlendCoeff;
-        } else if (SkMaskFilter::kOuter_BlurType == blurType) {
-            // outer:  dst = dst * (1 - src)
-            //             = 0 * src + (1 - src) * dst
-            paint.fSrcBlendCoeff = kZero_GrBlendCoeff;
-            paint.fDstBlendCoeff = kISC_GrBlendCoeff;
+        context->clear(NULL, 0);
+        GrPaint tempPaint;
+        tempPaint.reset();
+
+        tempPaint.fAntiAlias = grp->fAntiAlias;
+        if (tempPaint.fAntiAlias) {
+            // AA uses the "coverage" stages on GrDrawTarget. Coverage with a dst
+            // blend coeff of zero requires dual source blending support in order
+            // to properly blend partially covered pixels. This means the AA
+            // code path may not be taken. So we use a dst blend coeff of ISA. We
+            // could special case AA draws to a dst surface with known alpha=0 to
+            // use a zero dst coeff when dual source blending isn't available.
+            tempPaint.fSrcBlendCoeff = kOne_GrBlendCoeff;
+            tempPaint.fDstBlendCoeff = kISC_GrBlendCoeff;
         }
-        context->drawRect(paint, srcRect);
+        // Draw hard shadow to pathTexture with path topleft at origin 0,0.
+        context->drawPath(tempPaint, path, pathFillType, &offset);
+
+        // If we're doing a normal blur, we can clobber the pathTexture in the
+        // gaussianBlur.  Otherwise, we need to save it for later compositing.
+        bool isNormalBlur = blurType == SkMaskFilter::kNormal_BlurType;
+        blurTexture.reset(context->gaussianBlur(pathTexture, isNormalBlur, 
+                                                srcRect, sigma, sigma));
+
+        if (!isNormalBlur) {
+            GrPaint paint;
+            paint.reset();
+            paint.textureSampler(0)->matrix()->setIDiv(pathTexture->width(),
+                                                       pathTexture->height());
+            // Blend pathTexture over blurTexture.
+            context->setRenderTarget(blurTexture->asRenderTarget());
+            paint.textureSampler(0)->setCustomStage(SkNEW_ARGS
+                (GrSingleTextureEffect, (pathTexture)))->unref();
+            if (SkMaskFilter::kInner_BlurType == blurType) {
+                // inner:  dst = dst * src
+                paint.fSrcBlendCoeff = kDC_GrBlendCoeff;
+                paint.fDstBlendCoeff = kZero_GrBlendCoeff;
+            } else if (SkMaskFilter::kSolid_BlurType == blurType) {
+                // solid:  dst = src + dst - src * dst
+                //             = (1 - dst) * src + 1 * dst
+                paint.fSrcBlendCoeff = kIDC_GrBlendCoeff;
+                paint.fDstBlendCoeff = kOne_GrBlendCoeff;
+            } else if (SkMaskFilter::kOuter_BlurType == blurType) {
+                // outer:  dst = dst * (1 - src)
+                //             = 0 * src + (1 - src) * dst
+                paint.fSrcBlendCoeff = kZero_GrBlendCoeff;
+                paint.fDstBlendCoeff = kISC_GrBlendCoeff;
+            }
+            context->drawRect(paint, srcRect);
+        }
     }
-    context->setRenderTarget(oldRenderTarget);
-    context->setClip(oldClipData);
 
     if (!grp->preConcatSamplerMatricesWithInverse(matrix)) {
         return false;
