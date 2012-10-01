@@ -1839,7 +1839,9 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
                                    const SkRect& rect,
                                    float sigmaX, float sigmaY) {
     ASSERT_OWNED_RESOURCE(srcTexture);
-    GrRenderTarget* oldRenderTarget = this->getRenderTarget();
+
+    AutoRenderTarget art(this);
+
     AutoMatrix avm(this, GrMatrix::I());
     SkIRect clearRect;
     int scaleFactorX, radiusX;
@@ -1946,7 +1948,6 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         srcTexture = dstTexture;
         SkTSwap(dstTexture, tempTexture);
     }
-    this->setRenderTarget(oldRenderTarget);
     if (srcTexture == temp1.texture()) {
         return temp1.detach();
     } else if (srcTexture == temp2.texture()) {

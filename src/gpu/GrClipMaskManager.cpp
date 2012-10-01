@@ -1211,15 +1211,7 @@ bool GrClipMaskManager::createSoftwareClipMask(const GrClipData& clipDataIn,
     // Because we are using the scratch texture cache, "accum" may be
     // larger than expected and have some cruft in the areas we aren't using.
     // Clear it out.
-
-    // TODO: need a simpler way to clear the texture - can we combine
-    // the clear and the writePixels (inside toTexture)
-    GrDrawState* drawState = fGpu->drawState();
-    GrAssert(NULL != drawState);
-    GrRenderTarget* temp = drawState->getRenderTarget();
     fGpu->clear(NULL, 0x00000000, accum->asRenderTarget());
-    // can't leave the accum bound as a rendertarget
-    drawState->setRenderTarget(temp);
 
     helper.toTexture(accum, clearToInside ? 0xFF : 0x00);
 
