@@ -731,7 +731,7 @@ public:
             kWideOpen_InitialClip,
         };
 
-        AutoClip(GrContext* context, InitialClip initialState) 
+        AutoClip(GrContext* context, InitialClip initialState)
         : fContext(context) {
             GrAssert(kWideOpen_InitialClip == initialState);
             fNewClipData.fClipStack = &fNewClipStack;

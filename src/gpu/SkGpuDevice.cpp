@@ -916,7 +916,7 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         // If we're doing a normal blur, we can clobber the pathTexture in the
         // gaussianBlur.  Otherwise, we need to save it for later compositing.
         bool isNormalBlur = blurType == SkMaskFilter::kNormal_BlurType;
-        blurTexture.reset(context->gaussianBlur(pathTexture, isNormalBlur, 
+        blurTexture.reset(context->gaussianBlur(pathTexture, isNormalBlur,
                                                 srcRect, sigma, sigma));
 
         if (!isNormalBlur) {
@@ -1363,7 +1363,7 @@ void SkGpuDevice::drawTiledBitmap(const SkDraw& draw,
                 // now offset it to make it "local" to our tmp bitmap
                 tileR.offset(SkIntToScalar(-iTileR.fLeft), SkIntToScalar(-iTileR.fTop));
                 SkMatrix tmpM(m);
-                tmpM.preTranslate(SkIntToScalar(iTileR.fLeft), 
+                tmpM.preTranslate(SkIntToScalar(iTileR.fLeft),
                                   SkIntToScalar(iTileR.fTop));
 
                 this->internalDrawBitmap(draw, tmpB, tileR, tmpM, params, grPaint);
