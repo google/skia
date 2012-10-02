@@ -237,6 +237,7 @@
       '<(skia_src_path)/gpu/gl/win/SkNativeGLContext_win.cpp',
       '<(skia_src_path)/gpu/gl/unix/SkNativeGLContext_unix.cpp',
       '<(skia_src_path)/gpu/gl/android/SkNativeGLContext_android.cpp',
+      '<(skia_src_path)/gpu/gl/iOS/SkNativeGLContext_iOS.mm',
     ],
     'skgr_angle_gl_sources': [
       '<(skia_include_path)/gpu/gl/SkANGLEGLContext.h',
