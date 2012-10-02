@@ -1718,8 +1718,9 @@ static SkMaskGamma* cachedMaskGamma(SkScalar contrast, SkScalar paintGamma, SkSc
     SkAutoMutexAcquire ama(gMaskGammaCacheMutex);
 
     SkSafeUnref(gLinearMaskGamma);
-
+    gLinearMaskGamma = NULL;
     SkSafeUnref(gMaskGamma);
+    gMaskGamma = NULL;
     SkDEBUGCODE(gContrast = SK_ScalarMin;)
     SkDEBUGCODE(gPaintGamma = SK_ScalarMin;)
     SkDEBUGCODE(gDeviceGamma = SK_ScalarMin;)

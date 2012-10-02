@@ -2456,6 +2456,11 @@ void get_preferred_size(int* x, int* y, int* width, int* height) {
     *height = 480;
 }
 
+#ifdef SK_BUILD_FOR_IOS
+void save_args(int argc, char *argv[]) {
+}
+#endif
+
 // FIXME: this should be in a header
 void application_init();
 void application_init() {

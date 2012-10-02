@@ -397,7 +397,8 @@ static void help() {
     SkDebugf("    -h|--help : Show this help message.\n");
 }
 
-int main (int argc, char * const argv[]) {
+int tool_main(int argc, char** argv);
+int tool_main(int argc, char** argv) {
 #ifdef SK_ENABLE_INST_COUNT
     gPrintInstCount = true;
 #endif
@@ -907,3 +908,10 @@ int main (int argc, char * const argv[]) {
 
     return 0;
 }
+
+#if !defined SK_BUILD_FOR_IOS
+int main(int argc, char * const argv[]) {
+    return tool_main(argc, (char**) argv);
+}
+#endif
+

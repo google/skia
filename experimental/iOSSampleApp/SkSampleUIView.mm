@@ -7,15 +7,18 @@
 
 #define FORCE_REDRAW
 
+#include "SkCanvas.h"
+#include "SkCGUtils.h"
+#include "SampleApp.h"
+
+#if SK_SUPPORT_GPU
 //#define USE_GL_1
 #define USE_GL_2
 
-#include "SkCanvas.h"
-#include "GrContext.h"
 #include "gl/GrGLInterface.h"
+#include "GrContext.h"
 #include "SkGpuDevice.h"
-#include "SkCGUtils.h"
-#include "SampleApp.h"
+#endif
 
 class SkiOSDeviceManager : public SampleWindow::DeviceManager {
 public:
@@ -151,9 +154,11 @@ public:
     virtual void publishCanvas(SampleWindow::DeviceType dType,
                                SkCanvas* canvas,
                                SampleWindow* win) SK_OVERRIDE {
+#if SK_SUPPORT_GPU
         if (NULL != fCurContext) {
             fCurContext->flush();
         }
+#endif
         win->present();
     }
     
@@ -219,18 +224,12 @@ private:
 #include "SkEvent.h"
 #include "SkWindow.h"
 
-#define kREDRAW_UIVIEW_GL "sk_redraw_uiview_gl_iOS"
-
-extern bool gDoTraceDraw;
-#define DO_TRACE_DRAW_MAX   100
-
 struct FPSState {
     static const int FRAME_COUNT = 60;
     
     CFTimeInterval fNow0, fNow1;
     CFTimeInterval fTime0, fTime1, fTotalTime;
     int fFrameCounter;
-    int fDrawCounter;
     SkString str;
     FPSState() {
         fTime0 = fTime1 = fTotalTime = 0;
@@ -239,22 +238,10 @@ struct FPSState {
     
     void startDraw() {
         fNow0 = CACurrentMediaTime();
-        
-        if (0 == fDrawCounter && false) {
-            gDoTraceDraw = true;
-            SkDebugf("\n");
-        }
     }
     
     void endDraw() {
         fNow1 = CACurrentMediaTime();
-        
-        if (0 == fDrawCounter) {
-            gDoTraceDraw = true;
-        }
-        if (DO_TRACE_DRAW_MAX == ++fDrawCounter) {
-            fDrawCounter = 0;
-        }
     }
     
     void flush(SkOSWindow* hwnd) {
@@ -335,7 +322,7 @@ static FPSState gFPS;
         fRasterLayer.opaque = TRUE;
         [self.layer addSublayer:fRasterLayer];
         
-        NSMutableDictionary *newActions = [[NSDictionary alloc] initWithObjectsAndKeys:[NSNull null], @"onOrderIn",
+        NSMutableDictionary *newActions = [[NSMutableDictionary alloc] initWithObjectsAndKeys:[NSNull null], @"onOrderIn",
                                            [NSNull null], @"onOrderOut",
                                            [NSNull null], @"sublayers",
                                            [NSNull null], @"contents",
@@ -346,7 +333,7 @@ static FPSState gFPS;
         [newActions release];
         
         fDevManager = new SkiOSDeviceManager(fGL.fFramebuffer);
-        static char* kDummyArgv = "dummyExecutableName";
+        static char* kDummyArgv = const_cast<char*>("dummyExecutableName");
         fWind = new SampleWindow(self, 1, &kDummyArgv, fDevManager);
 
         fWind->resize(self.frame.size.width, self.frame.size.height, SKWIND_CONFIG);

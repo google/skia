@@ -69,11 +69,6 @@
         }, {
           'skia_static_initializers%': 1,
         }],
-        [ 'skia_arch_type == "x86"', {
-            'ios_sdk_dir%': '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator',
-        }, {
-            'ios_sdk_dir%': '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS',
-        }],
       ],
 
       'skia_scalar%': 'float',
@@ -84,7 +79,8 @@
       'android_make_apk%': 1,
       'skia_nacl%': 0,
       'skia_gpu%': 1,
-      'ios_sdk_version%': '5.1',
+      'ios_sdk_dir%': '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS',
+      'ios_sdk_version%': '6.0',
       'skia_osx_sdkroot%': 'macosx10.6',
     },
 
