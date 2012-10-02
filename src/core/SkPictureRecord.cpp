@@ -163,7 +163,7 @@ static bool collapseSaveClipRestore(SkWriter32* writer, int32_t offset) {
     // Some unexplained crashes in Chrome may be caused by this. Disabling
     // for now to see if it helps.
     // crbug.com/147406
-#if 1
+#ifdef SK_DISABLE_PICTURE_PEEPHOLE_OPTIMIZATION
     return false;
 #endif
 
