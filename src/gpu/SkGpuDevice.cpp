@@ -127,8 +127,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool gDoTraceDraw;
-
 struct GrSkDrawProcs : public SkDrawProcs {
 public:
     GrContext* fContext;
