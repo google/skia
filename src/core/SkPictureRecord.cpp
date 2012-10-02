@@ -332,6 +332,10 @@ void SkPictureRecord::endRecording() {
 }
 
 void SkPictureRecord::recordRestoreOffsetPlaceholder(SkRegion::Op op) {
+    if (fRestoreOffsetStack.isEmpty()) {
+        return;
+    }
+
     if (regionOpExpands(op)) {
         // Run back through any previous clip ops, and mark their offset to
         // be 0, disabling their ability to trigger a jump-to-restore, otherwise
