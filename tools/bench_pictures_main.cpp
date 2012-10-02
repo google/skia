@@ -466,6 +466,7 @@ int tool_main(int argc, char** argv) {
         gLogger.logError(err);
         return 1;
     }
+    return 0;
 }
 
 #if !defined SK_BUILD_FOR_IOS
