@@ -54,7 +54,8 @@ static void make_outname(SkString* dst, const char outDir[], const char src[]) {
     dst->append(".png");
 }
 
-int main (int argc, char * const argv[]) {
+int tool_main(int argc, char** argv);
+int tool_main(int argc, char** argv) {
     SkAutoGraphics ag;
     int i, outDirIndex = 0;
     SkString outDir;
@@ -101,4 +102,10 @@ int main (int argc, char * const argv[]) {
 
     return 0;
 }
+
+#if !defined SK_BUILD_FOR_IOS
+int main(int argc, char * const argv[]) {
+    return tool_main(argc, (char**) argv);
+}
+#endif
 

@@ -14,7 +14,8 @@ static void show_help() {
     SkDebugf("usage: skhello [-o out-dir] [-t 'hello']\n  default output: skhello.png\n");
 }
 
-int main(int argc, char* const argv[]) {
+int tool_main(int argc, char** argv);
+int tool_main(int argc, char** argv) {
     SkAutoGraphics ag;
     SkString path("skhello.png");
     SkString text("Hello");
@@ -68,3 +69,9 @@ int main(int argc, char* const argv[]) {
     }
     return !success;
 }
+
+#if !defined SK_BUILD_FOR_IOS
+int main(int argc, char * const argv[]) {
+    return tool_main(argc, (char**) argv);
+}
+#endif

@@ -287,7 +287,8 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     renderer->setDeviceType(deviceType);
 }
 
-int main(int argc, char* const argv[]) {
+int tool_main(int argc, char** argv);
+int tool_main(int argc, char** argv) {
     SkAutoGraphics ag;
     SkTArray<SkString> inputs;
     sk_tools::PictureRenderer* renderer = NULL;
@@ -316,3 +317,9 @@ int main(int argc, char* const argv[]) {
 
     SkDELETE(renderer);
 }
+
+#if !defined SK_BUILD_FOR_IOS
+int main(int argc, char * const argv[]) {
+    return tool_main(argc, (char**) argv);
+}
+#endif

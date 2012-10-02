@@ -44,7 +44,8 @@ static void dumpOps(SkPicture* pic) {
     canvas.drawPicture(*pic);
 }
 
-int main(int argc, char* const argv[]) {
+int tool_main(int argc, char** argv);
+int tool_main(int argc, char** argv) {
     if (argc < 2) {
         printf("Usage: pinspect [--dump-ops] filename [filename ...]\n");
         return 1;
@@ -69,3 +70,9 @@ int main(int argc, char* const argv[]) {
     }
     return 0;
 }
+
+#if !defined SK_BUILD_FOR_IOS
+int main(int argc, char * const argv[]) {
+    return tool_main(argc, (char**) argv);
+}
+#endif
