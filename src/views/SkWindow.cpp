@@ -176,14 +176,15 @@ bool SkWindow::update(SkIRect* updateArea)
 
         bm.setPixels(buffer);
 #endif
-        SkCanvas    rasterCanvas(bm);
 
-        rasterCanvas.clipRegion(fDirtyRgn);
+        SkAutoTUnref<SkCanvas> canvas(this->createCanvas());
+
+        canvas->clipRegion(fDirtyRgn);
         if (updateArea)
             *updateArea = fDirtyRgn.getBounds();
 
-        SkAutoCanvasRestore acr(&rasterCanvas, true);
-        rasterCanvas.concat(fMatrix);
+        SkAutoCanvasRestore acr(canvas, true);
+        canvas->concat(fMatrix);
 
         // empty this now, so we can correctly record any inval calls that
         // might be made during the draw call.
@@ -191,25 +192,25 @@ bool SkWindow::update(SkIRect* updateArea)
 
 #ifdef TEST_BOUNDER
         test_bounder    b(bm);
-        rasterCanvas.setBounder(&b);
+        canvas->setBounder(&b);
 #endif
 #ifdef SK_SIMULATE_FAILED_MALLOC
         gEnableControlledThrow = true;
 #endif
 #ifdef SK_BUILD_FOR_WIN32
         //try {
-            this->draw(&rasterCanvas);
+            this->draw(canvas);
         //}
         //catch (...) {
         //}
 #else
-        this->draw(&rasterCanvas);
+        this->draw(canvas);
 #endif
 #ifdef SK_SIMULATE_FAILED_MALLOC
         gEnableControlledThrow = false;
 #endif
 #ifdef TEST_BOUNDER
-        rasterCanvas.setBounder(NULL);
+        canvas->setBounder(NULL);
 #endif
 
 #if defined(SK_BUILD_FOR_WINCE) && defined(USE_GX_SCREEN)
