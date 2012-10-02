@@ -316,6 +316,7 @@ int tool_main(int argc, char** argv) {
 #endif
 
     SkDELETE(renderer);
+    return 0;
 }
 
 #if !defined SK_BUILD_FOR_IOS
