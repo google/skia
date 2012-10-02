@@ -103,6 +103,12 @@ public:
         a->set(this->nextS(), this->nextU());
     }
 
+    /**
+     *  Return the current seed. This allows the caller to later reset to the
+     *  same seed (using setSeed) so it can generate the same sequence.
+     */
+    int32_t getSeed() const { return fSeed; }
+
     /** Set the seed of the random object. The seed is initialized to 0 when the
         object is first created, and is updated each time the next pseudo random
         number is requested.
