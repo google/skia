@@ -6,7 +6,7 @@
         ],
       }],
       ['skia_os != "mac"', {
-        'sources/': [ ['exclude', '_mac.(h|cpp)$'],
+        'sources/': [ ['exclude', '_mac.(h|cpp|m|mm)$'],
         ],
       }],
       ['skia_os != "linux"', {
@@ -14,7 +14,7 @@
         ],
       }],
       ['skia_os != "ios"', {
-        'sources/': [ ['exclude', '_iOS.(h|cpp)$'],
+        'sources/': [ ['exclude', '_iOS.(h|cpp|m|mm)$'],
         ],
       }],
       ['skia_os != "android"', {
