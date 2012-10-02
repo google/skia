@@ -202,7 +202,11 @@
           'GCC_WARN_UNUSED_LABEL': 'YES',
           'GCC_WARN_UNUSED_VALUE': 'YES',
           'GCC_WARN_UNUSED_VARIABLE': 'YES',
-          'OTHER_CPLUSPLUSFLAGS': '-mssse3 -fvisibility=hidden -fvisibility-inlines-hidden',
+          'OTHER_CPLUSPLUSFLAGS': [
+            '-mssse3',
+            '-fvisibility=hidden',
+            '-fvisibility-inlines-hidden',
+          ],
         },
       },
     ],
