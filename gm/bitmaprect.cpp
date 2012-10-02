@@ -201,7 +201,7 @@ protected:
 
         SkPaint paint;
         paint.setAlpha(128);
-        paint.setXfermode(mode);
+        paint.setXfermode(mode)->unref();
 
         SkBitmap bitmap;
         make_big_bitmap(&bitmap);
