@@ -45,13 +45,11 @@
         # We set it automatically based on 'OS' (the host OS), but allow the
         # user to override it via GYP_DEFINES if they like.
         'skia_os%': '<(OS)',
-        'skia_arch_type%': 'x86',
       },
 
       # Re-define all variables defined within the level-3 'variables' dict,
       # so that siblings of the level-2 'variables' dict can see them.
       'skia_os%': '<(skia_os)',
-      'skia_arch_type%': '<(skia_arch_type)',
 
       'conditions': [
         ['skia_os == "win"', {
@@ -92,7 +90,6 @@
     'skia_mesa%': '<(skia_mesa)',
     'skia_nv_path_rendering%': '<(skia_nv_path_rendering)',
     'skia_angle%': '<(skia_angle)',
-    'skia_arch_type%': '<(skia_arch_type)',
     'skia_arch_width%': '<(skia_arch_width)',
     'skia_directwrite%': '<(skia_directwrite)',
     'android_make_apk%': '<(android_make_apk)',
@@ -103,6 +100,15 @@
     'ios_sdk_version%': '<(ios_sdk_version)',
     'ios_sdk_dir%': '<(ios_sdk_dir)',
 
+    'conditions': [
+      ['skia_os == "ios"', {
+        'skia_arch_type%': 'arm',
+        'armv7%': 1,
+        'arm_neon%': 0, # neon asm files known not to work with the ios build
+      },{ # skia_os is not ios
+        'skia_arch_type%': 'x86',
+      }],
+    ],
     # These are referenced by our .gypi files that list files (e.g. core.gypi)
     #
     'skia_src_path%': '../src',
