@@ -36,6 +36,7 @@
     '../bench/RTreeBench.cpp',
     '../bench/ScalarBench.cpp',
     '../bench/ShaderMaskBench.cpp',
+    '../bench/TableBench.cpp',
     '../bench/TextBench.cpp',
     '../bench/VertBench.cpp',
     '../bench/WriterBench.cpp',
