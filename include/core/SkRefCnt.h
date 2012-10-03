@@ -159,6 +159,12 @@ public:
         fObj = obj;
     }
 
+    void swap(SkAutoTUnref* other) {
+        T* tmp = fObj;
+        fObj = other->fObj;
+        other->fObj = tmp;
+    }
+
     /**
      *  Return the hosted object (which may be null), transferring ownership.
      *  The reference count is not modified, and the internal ptr is set to NULL
