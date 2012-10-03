@@ -96,13 +96,6 @@ public:
         {}
 
 protected:
-    /**
-     * Write the canvas to the specified path.
-     * @param canvas Must be non-null. Canvas to be written to a file.
-     * @param path Path for the file to be written. Should have no extension; write() will append
-     *             an appropriate one.
-     */
-    bool write(SkCanvas* canvas, SkString path) const;
     SkCanvas* setupCanvas();
     virtual SkCanvas* setupCanvas(int width, int height);
 
