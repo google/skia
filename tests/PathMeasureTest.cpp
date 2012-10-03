@@ -18,7 +18,7 @@ static void test_small_segment3(skiatest::Reporter* reporter) {
     };
 
     path.moveTo(pts[0]);
-    for (size_t i = 1; i < SK_ARRAY_COUNT(pts); i += 2) {
+    for (size_t i = 1; i < SK_ARRAY_COUNT(pts); i += 3) {
         path.cubicTo(pts[i], pts[i + 1], pts[i + 2]);
     }
 
