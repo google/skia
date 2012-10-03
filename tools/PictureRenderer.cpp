@@ -99,10 +99,16 @@ void PictureRenderer::resetState() {
 #endif
 }
 
-bool PictureRenderer::write(SkCanvas* canvas, SkString path) const {
+/**
+ * Write the canvas to the specified path.
+ * @param canvas Must be non-null. Canvas to be written to a file.
+ * @param path Path for the file to be written. Should have no extension; write() will append
+ *             an appropriate one. Passed in by value so it can be modified.
+ * @return bool True if the Canvas is written to a file.
+ */
+static bool write(SkCanvas* canvas, SkString path) {
     SkASSERT(canvas != NULL);
-    SkASSERT(fPicture != NULL);
-    if (NULL == canvas || NULL == fPicture) {
+    if (NULL == canvas) {
         return false;
     }
 
@@ -116,6 +122,19 @@ bool PictureRenderer::write(SkCanvas* canvas, SkString path) const {
     // Since path is passed in by value, it is okay to modify it.
     path.append(".png");
     return SkImageEncoder::EncodeFile(path.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100);
+}
+
+/**
+ * If path is non NULL, append number to it, and call write(SkCanvas*, SkString) to write the
+ * provided canvas to a file. Returns true if path is NULL or if write() succeeds.
+ */
+static bool writeAppendNumber(SkCanvas* canvas, const SkString* path, int number) {
+    if (NULL == path) {
+        return true;
+    }
+    SkString pathWithNumber(*path);
+    pathWithNumber.appendf("%i", number);
+    return write(canvas, pathWithNumber);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -144,7 +163,7 @@ bool PipePictureRenderer::render(const SkString* path) {
     pipeCanvas->drawPicture(*fPicture);
     writer.endRecording();
     fCanvas->flush();
-    return path != NULL && this->write(fCanvas, *path);
+    return path != NULL && write(fCanvas, *path);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -158,7 +177,7 @@ bool SimplePictureRenderer::render(const SkString* path) {
 
     fCanvas->drawPicture(*fPicture);
     fCanvas->flush();
-    return path != NULL && this->write(fCanvas, *path);
+    return path != NULL && write(fCanvas, *path);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -307,23 +326,32 @@ static void DrawTileToCanvas(SkCanvas* canvas, const SkRect& tileRect, T* playba
 // Base class for data used both by pipe and clone picture multi threaded drawing.
 
 struct ThreadData {
-    ThreadData(SkCanvas* target, int* tileCounter, SkTDArray<SkRect>* tileRects)
+    ThreadData(SkCanvas* target, int* tileCounter, SkTDArray<SkRect>* tileRects,
+               const SkString* path, bool* success)
     : fCanvas(target)
     , fTileCounter(tileCounter)
-    , fTileRects(tileRects) {
+    , fTileRects(tileRects)
+    , fPath(path)
+    , fSuccess(success) {
         SkASSERT(target != NULL && tileCounter != NULL && tileRects != NULL);
+        // Success must start off true, and it will be set to false upon failure.
+        SkASSERT(success != NULL && *success);
     }
 
-    const SkRect* nextTile() {
+    int32_t nextTile(SkRect* rect) {
         int32_t i = sk_atomic_inc(fTileCounter);
         if (i < fTileRects->count()) {
-            return &fTileRects->operator[](i);
+            SkASSERT(rect != NULL);
+            *rect = fTileRects->operator[](i);
+            return i;
         }
-        return NULL;
+        return -1;
     }
 
     // All of these are pointers to objects owned elsewhere
     SkCanvas*                fCanvas;
+    const SkString*          fPath;
+    bool*                    fSuccess;
 private:
     // Shared by all threads, this states which is the next tile to be drawn.
     int32_t*                 fTileCounter;
@@ -337,8 +365,8 @@ private:
 
 struct TileData : public ThreadData {
     TileData(ThreadSafePipeController* controller, SkCanvas* canvas, int* tileCounter,
-             SkTDArray<SkRect>* tileRects)
-    : INHERITED(canvas, tileCounter, tileRects)
+             SkTDArray<SkRect>* tileRects, const SkString* path, bool* success)
+    : INHERITED(canvas, tileCounter, tileRects, path, success)
     , fController(controller) {}
 
     ThreadSafePipeController* fController;
@@ -350,9 +378,14 @@ static void DrawTile(void* data) {
     SkGraphics::SetTLSFontCacheLimit(1 * 1024 * 1024);
     TileData* tileData = static_cast<TileData*>(data);
 
-    const SkRect* tileRect;
-    while ((tileRect = tileData->nextTile()) != NULL) {
-        DrawTileToCanvas(tileData->fCanvas, *tileRect, tileData->fController);
+    SkRect tileRect;
+    int32_t i;
+    while ((i = tileData->nextTile(&tileRect)) != -1) {
+        DrawTileToCanvas(tileData->fCanvas, tileRect, tileData->fController);
+        if (!writeAppendNumber(tileData->fCanvas, tileData->fPath, i)) {
+            *tileData->fSuccess = false;
+            break;
+        }
     }
     SkDELETE(tileData);
 }
@@ -361,8 +394,9 @@ static void DrawTile(void* data) {
 // Draw using Picture
 
 struct CloneData : public ThreadData {
-    CloneData(SkPicture* clone, SkCanvas* target, int* tileCounter, SkTDArray<SkRect>* tileRects)
-    : INHERITED(target, tileCounter, tileRects)
+    CloneData(SkPicture* clone, SkCanvas* target, int* tileCounter, SkTDArray<SkRect>* tileRects,
+              const SkString* path, bool* success)
+    : INHERITED(target, tileCounter, tileRects, path, success)
     , fClone(clone) {}
 
     SkPicture* fClone;
@@ -374,9 +408,14 @@ static void DrawClonedTiles(void* data) {
     SkGraphics::SetTLSFontCacheLimit(1 * 1024 * 1024);
     CloneData* cloneData = static_cast<CloneData*>(data);
 
-    const SkRect* tileRect;
-    while ((tileRect = cloneData->nextTile()) != NULL) {
-        DrawTileToCanvas(cloneData->fCanvas, *tileRect, cloneData->fClone);
+    SkRect tileRect;
+    int32_t i;
+    while ((i = cloneData->nextTile(&tileRect)) != -1) {
+        DrawTileToCanvas(cloneData->fCanvas, tileRect, cloneData->fClone);
+        if (!writeAppendNumber(cloneData->fCanvas, cloneData->fPath, i)) {
+            *cloneData->fSuccess = false;
+            break;
+        }
     }
     SkDELETE(cloneData);
 }
@@ -416,15 +455,17 @@ bool TiledPictureRenderer::render(const SkString* path) {
         SkASSERT(fCanvasPool.count() == fNumThreads);
         SkTDArray<SkThread*> threads;
         SkThread::entryPointProc proc = fUsePipe ? DrawTile : DrawClonedTiles;
+        bool success = true;
         for (int i = 0; i < fNumThreads; ++i) {
             // data will be deleted by the entryPointProc.
             ThreadData* data;
             if (fUsePipe) {
-                data = SkNEW_ARGS(TileData,
-                                  (fPipeController, fCanvasPool[i], &fTileCounter, &fTileRects));
+                data = SkNEW_ARGS(TileData, (fPipeController, fCanvasPool[i], &fTileCounter,
+                                             &fTileRects, path, &success));
             } else {
                 SkPicture* pic = (0 == i) ? fPicture : &fPictureClones[i-1];
-                data = SkNEW_ARGS(CloneData, (pic, fCanvasPool[i], &fTileCounter, &fTileRects));
+                data = SkNEW_ARGS(CloneData, (pic, fCanvasPool[i], &fTileCounter, &fTileRects, path,
+                                              &success));
             }
             SkThread* thread = SkNEW_ARGS(SkThread, (proc, data));
             if (!thread->start()) {
@@ -439,8 +480,7 @@ bool TiledPictureRenderer::render(const SkString* path) {
             SkDELETE(thread);
         }
         threads.reset();
-        // Currently multithreaded is not an option for render_pictures
-        return false;
+        return success;
     } else {
         // For single thread, we really only need one canvas total.
         SkCanvas* canvas = this->setupCanvas(fTileWidth, fTileHeight);
@@ -448,12 +488,8 @@ bool TiledPictureRenderer::render(const SkString* path) {
 
         for (int i = 0; i < fTileRects.count(); ++i) {
             DrawTileToCanvas(canvas, fTileRects[i], fPicture);
-            if (path != NULL) {
-                SkString tilePath(*path);
-                tilePath.appendf("%i", i);
-                if (!this->write(canvas, tilePath)) {
-                    return false;
-                }
+            if (!writeAppendNumber(canvas, path, i)) {
+                return false;
             }
         }
         return path != NULL;

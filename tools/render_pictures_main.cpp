@@ -23,8 +23,10 @@ static void usage(const char* argv0) {
     SkDebugf("\n"
 "Usage: \n"
 "     %s <input>... <outputDir> \n"
-"     [--mode pipe | pow2tile minWidth height[%] | simple\n"
+"     [--mode pow2tile minWidth height[%] | simple\n"
 "         | tile width[%] height[%]]\n"
+"     [--pipe]\n"
+"     [--multi count]\n"
 "     [--device bitmap"
 #if SK_SUPPORT_GPU
 " | gpu"
@@ -38,11 +40,9 @@ static void usage(const char* argv0) {
     SkDebugf(
 "     outputDir: directory to write the rendered images.\n\n");
     SkDebugf(
-"     --mode pipe | pow2tile minWidth height[%] | simple\n"
+"     --mode pow2tile minWidth height[%] | simple\n"
 "          | tile width[%] height[%]: Run in the corresponding mode.\n"
 "                                     Default is simple.\n");
-    SkDebugf(
-"                     pipe, Render using a SkGPipe.\n");
     SkDebugf(
 "                     pow2tile minWidth height[%], Creates tiles with widths\n"
 "                                                  that are all a power of two\n"
@@ -58,6 +58,10 @@ static void usage(const char* argv0) {
 "                     tile width[%] height[%], Do a simple render using tiles\n"
 "                                              with the given dimensions.\n");
     SkDebugf("\n");
+    SkDebugf(
+"     --multi count : Set the number of threads for multi threaded drawing. Must be greater\n"
+"                     than 1. Only works with tiled rendering.\n"
+"     --pipe: Benchmark SkGPipe rendering. Compatible with tiled, multithreaded rendering.\n");
     SkDebugf(
 "     --device bitmap"
 #if SK_SUPPORT_GPU
@@ -152,6 +156,14 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     sk_tools::PictureRenderer::SkDeviceTypes deviceType =
         sk_tools::PictureRenderer::kBitmap_DeviceType;
 
+    bool usePipe = false;
+    int numThreads = 1;
+    bool useTiles = false;
+    const char* widthString = NULL;
+    const char* heightString = NULL;
+    bool isPowerOf2Mode = false;
+    const char* mode = NULL;
+
     for (++argv; argv < stop; ++argv) {
         if (0 == strcmp(*argv, "--mode")) {
             SkDELETE(renderer);
@@ -163,90 +175,55 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 exit(-1);
             }
 
-            if (0 == strcmp(*argv, "pipe")) {
-                renderer = SkNEW(sk_tools::PipePictureRenderer);
-            } else if (0 == strcmp(*argv, "simple")) {
+            if (0 == strcmp(*argv, "simple")) {
                 renderer = SkNEW(sk_tools::SimplePictureRenderer);
             } else if ((0 == strcmp(*argv, "tile")) || (0 == strcmp(*argv, "pow2tile"))) {
-                char* mode = *argv;
-                bool isPowerOf2Mode = false;
+                useTiles = true;
+                mode = *argv;
 
                 if (0 == strcmp(*argv, "pow2tile")) {
                     isPowerOf2Mode = true;
                 }
 
-                sk_tools::TiledPictureRenderer* tileRenderer =
-                    SkNEW(sk_tools::TiledPictureRenderer);
                 ++argv;
                 if (argv >= stop) {
-                    SkDELETE(tileRenderer);
                     SkDebugf("Missing width for --mode %s\n", mode);
                     usage(argv0);
                     exit(-1);
                 }
 
-                if (isPowerOf2Mode) {
-                    int minWidth = atoi(*argv);
-
-                    if (!SkIsPow2(minWidth) || minWidth <= 0) {
-                        SkDELETE(tileRenderer);
-                        SkDebugf("--mode %s must be given a width"
-                                 " value that is a power of two\n", mode);
-                        exit(-1);
-                    }
-
-                    tileRenderer->setTileMinPowerOf2Width(minWidth);
-                } else if (sk_tools::is_percentage(*argv)) {
-                    tileRenderer->setTileWidthPercentage(atof(*argv));
-                    if (!(tileRenderer->getTileWidthPercentage() > 0)) {
-                        SkDELETE(tileRenderer);
-                        SkDebugf("--mode %s must be given a width percentage > 0\n", mode);
-                        exit(-1);
-                    }
-                } else {
-                    tileRenderer->setTileWidth(atoi(*argv));
-                    if (!(tileRenderer->getTileWidth() > 0)) {
-                        SkDELETE(tileRenderer);
-                        SkDebugf("--mode %s must be given a width > 0\n", mode);
-                        exit(-1);
-                    }
-                }
-
+                widthString = *argv;
                 ++argv;
                 if (argv >= stop) {
-                    SkDELETE(tileRenderer);
-                    SkDebugf("Missing height for --mode %s\n", mode);
+                    SkDebugf("Missing height for --mode tile\n");
                     usage(argv0);
                     exit(-1);
                 }
-
-                if (sk_tools::is_percentage(*argv)) {
-                    tileRenderer->setTileHeightPercentage(atof(*argv));
-                    if (!(tileRenderer->getTileHeightPercentage() > 0)) {
-                        SkDELETE(tileRenderer);
-                        SkDebugf(
-                            "--mode %s must be given a height percentage > 0\n", mode);
-                        exit(-1);
-                    }
-                } else {
-                    tileRenderer->setTileHeight(atoi(*argv));
-                    if (!(tileRenderer->getTileHeight() > 0)) {
-                        SkDELETE(tileRenderer);
-                        SkDebugf("--mode %s must be given a height > 0\n", mode);
-                        exit(-1);
-                    }
-                }
-
-                renderer = tileRenderer;
+                heightString = *argv;
             } else {
                 SkDebugf("%s is not a valid mode for --mode\n", *argv);
+                usage(argv0);
+                exit(-1);
+            }
+        } else if (0 == strcmp(*argv, "--pipe")) {
+            usePipe = true;
+        } else if (0 == strcmp(*argv, "--multi")) {
+            ++argv;
+            if (argv >= stop) {
+                SkDebugf("Missing arg for --multi\n");
+                usage(argv0);
+                exit(-1);
+            }
+            numThreads = atoi(*argv);
+            if (numThreads < 2) {
+                SkDebugf("Number of threads must be at least 2.\n");
                 usage(argv0);
                 exit(-1);
             }
         } else if (0 == strcmp(*argv, "--device")) {
             ++argv;
             if (argv >= stop) {
-                SkDebugf("Missing mode for --deivce\n");
+                SkDebugf("Missing mode for --device\n");
                 usage(argv0);
                 exit(-1);
             }
@@ -272,6 +249,79 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
         } else {
             inputs->push_back(SkString(*argv));
         }
+    }
+
+    if (numThreads > 1 && !useTiles) {
+        SkDebugf("Multithreaded drawing requires tiled rendering.\n");
+        usage(argv0);
+        exit(-1);
+    }
+
+    if (useTiles) {
+        SkASSERT(NULL == renderer);
+        sk_tools::TiledPictureRenderer* tiledRenderer = SkNEW(sk_tools::TiledPictureRenderer);
+        if (isPowerOf2Mode) {
+            int minWidth = atoi(widthString);
+            if (!SkIsPow2(minWidth) || minWidth < 0) {
+                tiledRenderer->unref();
+                SkString err;
+                err.printf("-mode %s must be given a width"
+                           " value that is a power of two\n", mode);
+                SkDebugf(err.c_str());
+                usage(argv0);
+                exit(-1);
+            }
+            tiledRenderer->setTileMinPowerOf2Width(minWidth);
+        } else if (sk_tools::is_percentage(widthString)) {
+            tiledRenderer->setTileWidthPercentage(atof(widthString));
+            if (!(tiledRenderer->getTileWidthPercentage() > 0)) {
+                tiledRenderer->unref();
+                SkDebugf("--mode tile must be given a width percentage > 0\n");
+                usage(argv0);
+                exit(-1);
+            }
+        } else {
+            tiledRenderer->setTileWidth(atoi(widthString));
+            if (!(tiledRenderer->getTileWidth() > 0)) {
+                tiledRenderer->unref();
+                SkDebugf("--mode tile must be given a width > 0\n");
+                usage(argv0);
+                exit(-1);
+            }
+        }
+
+        if (sk_tools::is_percentage(heightString)) {
+            tiledRenderer->setTileHeightPercentage(atof(heightString));
+            if (!(tiledRenderer->getTileHeightPercentage() > 0)) {
+                tiledRenderer->unref();
+                SkDebugf("--mode tile must be given a height percentage > 0\n");
+                usage(argv0);
+                exit(-1);
+            }
+        } else {
+            tiledRenderer->setTileHeight(atoi(heightString));
+            if (!(tiledRenderer->getTileHeight() > 0)) {
+                tiledRenderer->unref();
+                SkDebugf("--mode tile must be given a height > 0\n");
+                usage(argv0);
+                exit(-1);
+            }
+        }
+        if (numThreads > 1) {
+#if SK_SUPPORT_GPU
+            if (sk_tools::PictureRenderer::kGPU_DeviceType == deviceType) {
+                tiledRenderer->unref();
+                SkDebugf("GPU not compatible with multithreaded tiling.\n");
+                usage(argv0);
+                exit(-1);
+            }
+#endif
+            tiledRenderer->setNumberOfThreads(numThreads);
+        }
+        tiledRenderer->setUsePipe(usePipe);
+        renderer = tiledRenderer;
+    } else if (usePipe) {
+        renderer = SkNEW(sk_tools::PipePictureRenderer);
     }
 
     if (inputs->count() < 2) {
