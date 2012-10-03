@@ -29,6 +29,14 @@ class SkAutoPathBoundsUpdate;
 class SkString;
 class SkPathRef;
 
+#ifndef SK_DEBUG_PATH_REF
+    #ifdef SK_DEBUG
+        #define SK_DEBUG_PATH_REF 1
+    #else
+        #define SK_DEBUG_PATH_REF 0
+    #endif
+#endif
+
 /** \class SkPath
 
     The SkPath class encapsulates compound (multiple contour) geometric paths
@@ -830,7 +838,31 @@ private:
         kSegmentMask_SerializationShift = 0
     };
 
-    SkAutoTUnref<SkPathRef>   fPathRef;
+#if SK_DEBUG_PATH_REF
+public:
+    /** Debugging wrapper for SkAutoTUnref<SkPathRef> used to track owners (SkPaths)
+        of SkPathRefs */
+    class PathRefDebugRef {
+    public:
+        PathRefDebugRef(SkPath* owner);
+        PathRefDebugRef(SkPathRef* pr, SkPath* owner);
+        ~PathRefDebugRef();
+        void reset(SkPathRef* ref); 
+        void swap(PathRefDebugRef* other);
+        SkPathRef* get() const;
+        SkAutoTUnref<SkPathRef>::BlockRefType *operator->() const;
+        operator SkPathRef*();
+    private:
+        SkAutoTUnref<SkPathRef>   fPathRef;
+        SkPath*                   fOwner;
+    };
+
+private:
+    PathRefDebugRef     fPathRef;
+#else
+    SkAutoTUnref<SkPathRef> fPathRef;
+#endif
+
     mutable SkRect      fBounds;
     int                 fLastMoveToIndex;
     uint8_t             fFillType;

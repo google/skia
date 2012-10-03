@@ -13,6 +13,61 @@
 #include "SkPathRef.h"
 #include "SkThread.h"
 
+
+////////////////////////////////////////////////////////////////////////////
+
+#if SK_DEBUG_PATH_REF
+
+SkPath::PathRefDebugRef::PathRefDebugRef(SkPath* owner) : fOwner(owner) {}
+
+SkPath::PathRefDebugRef::PathRefDebugRef(SkPathRef* pr, SkPath* owner)
+: fPathRef(pr)
+, fOwner(owner) {
+    pr->addOwner(owner);
+}
+
+SkPath::PathRefDebugRef::~PathRefDebugRef() {
+    fPathRef->removeOwner(fOwner);
+}
+
+void SkPath::PathRefDebugRef::reset(SkPathRef* ref) {
+    bool diff = (ref != fPathRef.get());
+    if (diff && NULL != fPathRef.get()) {
+        fPathRef.get()->removeOwner(fOwner);
+    }
+    fPathRef.reset(ref);
+    if (diff && NULL != fPathRef.get()) {
+        fPathRef.get()->addOwner(fOwner);
+    }
+}
+
+void SkPath::PathRefDebugRef::swap(SkPath::PathRefDebugRef* other) {
+    if (other->fPathRef.get() != fPathRef.get()) {
+        other->fPathRef->removeOwner(other->fOwner);
+        other->fPathRef->addOwner(fOwner);
+
+        fPathRef->removeOwner(fOwner);
+        fPathRef->addOwner(other->fOwner);
+    }
+
+    fPathRef.swap(&other->fPathRef);
+}
+
+SkPathRef* SkPath::PathRefDebugRef::get() const { return fPathRef.get(); }
+
+SkAutoTUnref<SkPathRef>::BlockRefType *SkPath::PathRefDebugRef::operator->() const {
+    return fPathRef.operator->();
+}
+
+SkPath::PathRefDebugRef::operator SkPathRef*() {
+    return fPathRef.operator SkPathRef *();
+}
+
+#endif
+    
+////////////////////////////////////////////////////////////////////////////
+
+
 SK_DEFINE_INST_COUNT(SkPath);
 
 // This value is just made-up for now. When count is 4, calling memset was much
@@ -141,7 +196,11 @@ static bool compute_pt_bounds(SkRect* bounds, const SkPathRef& ref) {
 #define INITIAL_LASTMOVETOINDEX_VALUE   ~0
 
 SkPath::SkPath()
+#if SK_DEBUG_PATH_REF
+    : fPathRef(SkPathRef::CreateEmpty(), this)
+#else
     : fPathRef(SkPathRef::CreateEmpty())
+#endif
     , fFillType(kWinding_FillType)
     , fBoundsIsDirty(true) {
     fConvexity = kUnknown_Convexity;
@@ -155,7 +214,11 @@ SkPath::SkPath()
 #endif
 }
 
-SkPath::SkPath(const SkPath& src) {
+SkPath::SkPath(const SkPath& src)
+#if SK_DEBUG_PATH_REF
+    : fPathRef(this)
+#endif
+{
     SkDEBUGCODE(src.validate();)
     src.fPathRef.get()->ref();
     fPathRef.reset(src.fPathRef.get());
