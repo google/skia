@@ -125,6 +125,8 @@ static const char* const kDeferredPreFlushAssertMessageFormat =
     "test step %s, SkDeferredCanvas state consistency before flush";
 static const char* const kDeferredPostFlushPlaybackAssertMessageFormat =
     "test step %s, SkDeferredCanvas playback canvas state consistency after flush";
+static const char* const kDeferredPostSilentFlushPlaybackAssertMessageFormat =
+    "test step %s, SkDeferredCanvas playback canvas state consistency after silent flush";
 static const char* const kDeferredPostFlushAssertMessageFormat =
     "test step %s, SkDeferredCanvas state consistency after flush";
 static const char* const kPictureResourceReuseMessageFormat =
@@ -738,7 +740,7 @@ public:
     static void TestDeferredCanvasStateConsistency(
         skiatest::Reporter* reporter,
         CanvasTestStep* testStep,
-        const SkCanvas& referenceCanvas) {
+        const SkCanvas& referenceCanvas, bool silent) {
 
         SkBitmap deferredStore;
         createBitmap(&deferredStore, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
@@ -750,8 +752,14 @@ public:
         AssertCanvasStatesEqual(reporter, &deferredCanvas, &referenceCanvas,
             testStep);
 
-        deferredCanvas.flush();
-        testStep->setAssertMessageFormat(
+        if (silent) {
+            deferredCanvas.silentFlush();
+        } else {
+            deferredCanvas.flush();
+        }
+
+        testStep->setAssertMessageFormat( 
+            silent ? kDeferredPostSilentFlushPlaybackAssertMessageFormat :
             kDeferredPostFlushPlaybackAssertMessageFormat);
         AssertCanvasStatesEqual(reporter,
             deferredCanvas.immediateCanvas(),
@@ -844,7 +852,9 @@ static void TestOverrideStateConsistency(skiatest::Reporter* reporter,
     testStep->setAssertMessageFormat(kCanvasDrawAssertMessageFormat);
     testStep->draw(&referenceCanvas, reporter);
 
-    SkDeferredCanvasTester::TestDeferredCanvasStateConsistency(reporter, testStep, referenceCanvas);
+    SkDeferredCanvasTester::TestDeferredCanvasStateConsistency(reporter, testStep, referenceCanvas, false);
+
+    SkDeferredCanvasTester::TestDeferredCanvasStateConsistency(reporter, testStep, referenceCanvas, true);
 
     // The following test code is disabled because SkProxyCanvas is
     // missing a lot of virtual overrides on get* methods, which are used

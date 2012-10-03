@@ -67,6 +67,14 @@ public:
     SkGPipeState();
     ~SkGPipeState();
 
+    void setSilent(bool silent) {
+        fSilent = silent;
+    }
+
+    bool shouldDraw() {
+        return !fSilent;
+    }
+
     void setFlags(unsigned flags) {
         if (fFlags != flags) {
             fFlags = flags;
@@ -183,6 +191,7 @@ private:
     SkTDArray<SkTypeface*>    fTypefaces;
     SkTDArray<SkFlattenable::Factory> fFactoryArray;
     SkTDArray<SkBitmap*>      fBitmaps;
+    bool                      fSilent;
     // Only used when sharing bitmaps with the writer.
     SkBitmapHeap*             fSharedHeap;
     unsigned                  fFlags;
@@ -308,7 +317,9 @@ static void drawClear_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
 
 static void drawPaint_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                          SkGPipeState* state) {
-    canvas->drawPaint(state->paint());
+    if (state->shouldDraw()) {
+        canvas->drawPaint(state->paint());
+    }
 }
 
 static void drawPoints_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
@@ -316,19 +327,26 @@ static void drawPoints_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
     SkCanvas::PointMode mode = (SkCanvas::PointMode)DrawOp_unpackFlags(op32);
     size_t count = reader->readU32();
     const SkPoint* pts = skip<SkPoint>(reader, count);
-    canvas->drawPoints(mode, count, pts, state->paint());
+    if (state->shouldDraw()) {
+        canvas->drawPoints(mode, count, pts, state->paint());
+    }
 }
 
 static void drawRect_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                         SkGPipeState* state) {
-    canvas->drawRect(*skip<SkRect>(reader), state->paint());
+    const SkRect* rect = skip<SkRect>(reader);
+    if (state->shouldDraw()) {
+        canvas->drawRect(*rect, state->paint());
+    }
 }
 
 static void drawPath_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                         SkGPipeState* state) {
     SkPath path;
     reader->readPath(&path);
-    canvas->drawPath(path, state->paint());
+    if (state->shouldDraw()) {
+        canvas->drawPath(path, state->paint());
+    }
 }
 
 static void drawVertices_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
@@ -358,9 +376,10 @@ static void drawVertices_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
         indexCount = reader->readU32();
         indices = skipAlign<uint16_t>(reader, indexCount);
     }
-
-    canvas->drawVertices(mode, vertexCount, verts, texs, colors, xfer,
-                         indices, indexCount, state->paint());
+    if (state->shouldDraw()) {
+        canvas->drawVertices(mode, vertexCount, verts, texs, colors, xfer,
+                             indices, indexCount, state->paint());
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -370,7 +389,9 @@ static void drawText_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
     size_t len = reader->readU32();
     const void* text = reader->skip(SkAlign4(len));
     const SkScalar* xy = skip<SkScalar>(reader, 2);
-    canvas->drawText(text, len, xy[0], xy[1], state->paint());
+    if (state->shouldDraw()) {
+        canvas->drawText(text, len, xy[0], xy[1], state->paint());
+    }
 }
 
 static void drawPosText_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
@@ -379,7 +400,9 @@ static void drawPosText_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
     const void* text = reader->skip(SkAlign4(len));
     size_t posCount = reader->readU32();    // compute by our writer
     const SkPoint* pos = skip<SkPoint>(reader, posCount);
-    canvas->drawPosText(text, len, pos, state->paint());
+    if (state->shouldDraw()) {
+        canvas->drawPosText(text, len, pos, state->paint());
+    }
 }
 
 static void drawPosTextH_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
@@ -389,7 +412,9 @@ static void drawPosTextH_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
     size_t posCount = reader->readU32();    // compute by our writer
     const SkScalar* xpos = skip<SkScalar>(reader, posCount);
     SkScalar constY = reader->readScalar();
-    canvas->drawPosTextH(text, len, xpos, constY, state->paint());
+    if (state->shouldDraw()) {
+        canvas->drawPosTextH(text, len, xpos, constY, state->paint());
+    }
 }
 
 static void drawTextOnPath_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
@@ -406,8 +431,9 @@ static void drawTextOnPath_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op3
         reader->readMatrix(&matrixStorage);
         matrix = &matrixStorage;
     }
-
-    canvas->drawTextOnPath(text, len, path, matrix, state->paint());
+    if (state->shouldDraw()) {
+        canvas->drawTextOnPath(text, len, path, matrix, state->paint());
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -461,7 +487,10 @@ static void drawBitmap_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
     bool hasPaint = SkToBool(DrawOp_unpackFlags(op32) & kDrawBitmap_HasPaint_DrawOpFlag);
     SkScalar left = reader->readScalar();
     SkScalar top = reader->readScalar();
-    canvas->drawBitmap(*holder.getBitmap(), left, top, hasPaint ? &state->paint() : NULL);
+    const SkBitmap* bitmap = holder.getBitmap();
+    if (state->shouldDraw()) {
+        canvas->drawBitmap(*bitmap, left, top, hasPaint ? &state->paint() : NULL);
+    }
 }
 
 static void drawBitmapMatrix_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
@@ -470,8 +499,11 @@ static void drawBitmapMatrix_rp(SkCanvas* canvas, SkReader32* reader, uint32_t o
     bool hasPaint = SkToBool(DrawOp_unpackFlags(op32) & kDrawBitmap_HasPaint_DrawOpFlag);
     SkMatrix matrix;
     reader->readMatrix(&matrix);
-    canvas->drawBitmapMatrix(*holder.getBitmap(), matrix,
-                             hasPaint ? &state->paint() : NULL);
+    const SkBitmap* bitmap = holder.getBitmap();
+    if (state->shouldDraw()) {
+        canvas->drawBitmapMatrix(*bitmap, matrix,
+                                 hasPaint ? &state->paint() : NULL);
+    }
 }
 
 static void drawBitmapNine_rp(SkCanvas* canvas, SkReader32* reader,
@@ -480,8 +512,11 @@ static void drawBitmapNine_rp(SkCanvas* canvas, SkReader32* reader,
     bool hasPaint = SkToBool(DrawOp_unpackFlags(op32) & kDrawBitmap_HasPaint_DrawOpFlag);
     const SkIRect* center = skip<SkIRect>(reader);
     const SkRect* dst = skip<SkRect>(reader);
-    canvas->drawBitmapNine(*holder.getBitmap(), *center, *dst,
-                           hasPaint ? &state->paint() : NULL);
+    const SkBitmap* bitmap = holder.getBitmap();
+    if (state->shouldDraw()) {
+        canvas->drawBitmapNine(*bitmap, *center, *dst,
+                               hasPaint ? &state->paint() : NULL);
+    }
 }
 
 static void drawBitmapRect_rp(SkCanvas* canvas, SkReader32* reader,
@@ -497,7 +532,10 @@ static void drawBitmapRect_rp(SkCanvas* canvas, SkReader32* reader,
         src = NULL;
     }
     const SkRect* dst = skip<SkRect>(reader);
-    canvas->drawBitmapRect(*holder.getBitmap(), src, *dst, hasPaint ? &state->paint() : NULL);
+    const SkBitmap* bitmap = holder.getBitmap();
+    if (state->shouldDraw()) {
+        canvas->drawBitmapRect(*bitmap, src, *dst, hasPaint ? &state->paint() : NULL);
+    }
 }
 
 static void drawSprite_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
@@ -505,7 +543,10 @@ static void drawSprite_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
     BitmapHolder holder(reader, op32, state);
     bool hasPaint = SkToBool(DrawOp_unpackFlags(op32) & kDrawBitmap_HasPaint_DrawOpFlag);
     const SkIPoint* point = skip<SkIPoint>(reader);
-    canvas->drawSprite(*holder.getBitmap(), point->fX, point->fY, hasPaint ? &state->paint() : NULL);
+    const SkBitmap* bitmap = holder.getBitmap();
+    if (state->shouldDraw()) {
+        canvas->drawSprite(*bitmap, point->fX, point->fY, hasPaint ? &state->paint() : NULL);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -518,7 +559,9 @@ static void drawData_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
         size = reader->readU32();
     }
     const void* data = reader->skip(SkAlign4(size));
-    canvas->drawData(data, size);
+    if (state->shouldDraw()) {
+        canvas->drawData(data, size);
+    }
 }
 
 static void drawPicture_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
@@ -677,6 +720,7 @@ static const ReadProc gReadTable[] = {
 
 SkGPipeState::SkGPipeState()
     : fReader(0)
+    , fSilent(false)
     , fSharedHeap(NULL)
     , fFlags(0) {
 
@@ -714,7 +758,7 @@ SkGPipeReader::~SkGPipeReader() {
 }
 
 SkGPipeReader::Status SkGPipeReader::playback(const void* data, size_t length,
-                                              size_t* bytesRead, bool readAtom) {
+                                              uint32_t playbackFlags, size_t* bytesRead) {
     if (NULL == fCanvas) {
         return kError_Status;
     }
@@ -722,6 +766,8 @@ SkGPipeReader::Status SkGPipeReader::playback(const void* data, size_t length,
     if (NULL == fState) {
         fState = new SkGPipeState;
     }
+
+    fState->setSilent(playbackFlags & kSilent_PlaybackFlag);
 
     SkASSERT(SK_ARRAY_COUNT(gReadTable) == (kDone_DrawOp + 1));
 
@@ -746,7 +792,7 @@ SkGPipeReader::Status SkGPipeReader::playback(const void* data, size_t length,
             break;
         }
         table[op](canvas, reader.getReader32(), op32, fState);
-        if (readAtom &&
+        if ((playbackFlags & kReadAtom_PlaybackFlag) &&
             (table[op] != paintOp_rp &&
              table[op] != def_Typeface_rp &&
              table[op] != def_PaintFlat_rp &&

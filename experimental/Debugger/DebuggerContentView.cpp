@@ -40,10 +40,9 @@ public:
             int frameBound = 0;
             size_t bytesRead;
             while (static_cast<unsigned>(offset) < size) {
-                SkGPipeReader::Status s = dumpReader->playback(data + offset,
-                                                               size - offset,
-                                                               &bytesRead,
-                                                               true);
+                SkGPipeReader::Status s =
+                    dumpReader->playback(data + offset, size - offset,
+                                         SkGPipeReader::kReadAtom_PlaybackFlag, &bytesRead);
                 SkASSERT(SkGPipeReader::kError_Status != s);
                 offset += bytesRead;
 
@@ -138,9 +137,9 @@ protected:
             SkGPipeReader::Status s;
             //Read the first chunk
             if (offset < firstChunk && firstChunk < toBeRead) {
-                s = dumpReader->playback(fData.begin() + offset, firstChunk - offset, NULL, false);
+                s = dumpReader->playback(fData.begin() + offset, firstChunk - offset);
                 SkASSERT(SkGPipeReader::kError_Status != s);
-                s = reader->playback(fData.begin() + offset, firstChunk - offset, &bytesRead, false);
+                s = reader->playback(fData.begin() + offset, firstChunk - offset, 0, &bytesRead);
                 SkASSERT(SkGPipeReader::kError_Status != s);
                 if (SkGPipeReader::kDone_Status == s){
                     delete dumpReader;
@@ -155,9 +154,11 @@ protected:
             SkASSERT(offset == firstChunk);
             //Then read the current atom
             fDumper->enable();
-            s = dumpReader->playback(fData.begin() + offset, toBeRead - offset, NULL, true);
+            s = dumpReader->playback(fData.begin() + offset, toBeRead - offset,
+                                     SkGPipeReader::kReadAtom_PlaybackFlag);
             SkASSERT(SkGPipeReader::kError_Status != s);
-            s = reader->playback(fData.begin() + offset, toBeRead - offset, &bytesRead, true);
+            s = reader->playback(fData.begin() + offset, toBeRead - offset,
+                                 SkGPipeReader::kReadAtom_PlaybackFlag, &bytesRead);
             SkASSERT(SkGPipeReader::kError_Status != s);
 
             delete reader;
