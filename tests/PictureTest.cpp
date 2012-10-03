@@ -73,7 +73,7 @@ static void test_peephole(skiatest::Reporter* reporter) {
         SkPicture picture;
         SkCanvas* canvas = picture.beginRecording(100, 100);
         SkRect rect = SkRect::MakeWH(50, 50);
-    
+
         for (int i = 0; i < 100; ++i) {
             canvas->save();
         }
