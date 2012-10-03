@@ -622,21 +622,24 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     // Helpers
 
-    class AutoRenderTarget : ::GrNoncopyable {
+    class AutoRenderTarget : public ::GrNoncopyable {
     public:
         AutoRenderTarget(GrContext* context, GrRenderTarget* target) {
             fPrevTarget = context->getRenderTarget();
+            GrSafeRef(fPrevTarget);
             context->setRenderTarget(target);
             fContext = context;
         }
         AutoRenderTarget(GrContext* context) {
             fPrevTarget = context->getRenderTarget();
+            GrSafeRef(fPrevTarget);
             fContext = context;
         }
         ~AutoRenderTarget() {
-            if (fContext) {
+            if (NULL != fContext) {
                 fContext->setRenderTarget(fPrevTarget);
             }
+            GrSafeUnref(fPrevTarget);
         }
     private:
         GrContext*      fContext;
@@ -710,12 +713,13 @@ public:
             kWideOpen_InitialClip,
         };
 
-        AutoClip(GrContext* context, InitialClip initialState) {
+        AutoClip(GrContext* context, InitialClip initialState) 
+        : fContext(context) {
             GrAssert(kWideOpen_InitialClip == initialState);
-            fOldClip = context->getClip();
             fNewClipData.fClipStack = &fNewClipStack;
+
+            fOldClip = context->getClip();
             context->setClip(&fNewClipData);
-            fContext = context;
         }
 
         AutoClip(GrContext* context, const GrRect& newClipRect)
