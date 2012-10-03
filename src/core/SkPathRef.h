@@ -34,14 +34,30 @@
  */
 
 class SkPathRef;
-SkPathRef* gEmptyPathRef; // This path ref should never be deleted once it is created.
+
+// This path ref should never be deleted once it is created. It should not be global but was made
+// so for checks when SK_DEBUG_PATH_REF is enabled. It we be re-hidden when the debugging code is
+// reverted.
+SkPathRef* gEmptyPathRef; 
 
 // Temporary hackery to try to nail down http://code.google.com/p/chromium/issues/detail?id=148637
 #if SK_DEBUG_PATH_REF
     #define PR_CONTAINER SkPath::PathRefDebugRef
     #define SkDEBUGCODE_X(code) code
     #define SkASSERT_X(cond) SK_DEBUGBREAK(cond)
-    SK_DECLARE_STATIC_MUTEX(gOwnersMutex);
+    // We put the mutex in a factory function to protect against static-initializion order
+    // fiasco when SkPaths are created before main().
+    static SkMutex* owners_mutex() {
+        static SkMutex* gOwnersMutex;
+        if (!gOwnersMutex) {
+            gOwnersMutex = new SkMutex(); // leak!
+        }
+        return gOwnersMutex;
+    }
+    // We have a static initializer that calls owners_mutex before main() so that
+    // hopefully that we only wind up with one mutex (assuming no threads created
+    // before static initialization is finished.)
+    static const SkMutex* gOwnersMutexForce = owners_mutex();
 #else
     #define PR_CONTAINER SkAutoTUnref<SkPathRef>
     #define SkDEBUGCODE_X(code) SkDEBUGCODE(code)
@@ -130,18 +146,17 @@ public:
 public:
 #if SK_DEBUG_PATH_REF
     void addOwner(SkPath* owner) {
-        gOwnersMutex.acquire();
+        SkAutoMutexAcquire ac(owners_mutex());
         for (int i = 0; i < fOwners.count(); ++i) {
             SkASSERT_X(fOwners[i] != owner);
         }
         *fOwners.append() = owner;
         SkASSERT_X((this->getRefCnt() == fOwners.count()) ||
                    (this == gEmptyPathRef && this->getRefCnt() == fOwners.count() + 1));
-        gOwnersMutex.release();
     }
 
     void removeOwner(SkPath* owner) {
-        gOwnersMutex.acquire();
+        SkAutoMutexAcquire ac(owners_mutex());
         SkASSERT_X((this->getRefCnt() == fOwners.count()) ||
                    (this == gEmptyPathRef && this->getRefCnt() == fOwners.count() + 1));
         bool found = false;
@@ -152,7 +167,6 @@ public:
             }
         }
         SkASSERT_X(found);
-        gOwnersMutex.release();
     }
 #endif
 
