@@ -49,12 +49,12 @@
         ],
         'link_settings': {
           'libraries': [
-            '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/CoreGraphics.framework',
-            '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/CoreText.framework',
-            '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/Foundation.framework',
-            '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/ImageIO.framework',
-            '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/MobileCoreServices.framework',
-            '<(ios_sdk_dir)<(ios_sdk_version).sdk/System/Library/Frameworks/UIKit.framework',
+            '$(SDKROOT)/System/Library/Frameworks/CoreGraphics.framework',
+            '$(SDKROOT)/System/Library/Frameworks/CoreText.framework',
+            '$(SDKROOT)/System/Library/Frameworks/Foundation.framework',
+            '$(SDKROOT)/System/Library/Frameworks/ImageIO.framework',
+            '$(SDKROOT)/System/Library/Frameworks/MobileCoreServices.framework',
+            '$(SDKROOT)/System/Library/Frameworks/UIKit.framework',
           ],
         },
         'xcode_config_file': '../experimental/iOSSampleApp/SkiOSSampleApp-Base.xcconfig',
