@@ -395,9 +395,10 @@ void GrGLMatrixConvolutionEffect::emitFS(GrGLShaderBuilder* builder,
         code->appendf("\t\t%s = sum * %s + %s;\n", outputColor, gain, bias);
         code->appendf("\t\t%s.rgb = clamp(%s.rgb, 0.0, %s.a);\n", outputColor, outputColor, outputColor);
     } else {
-        code->appendf("\t\t%s.a = (", outputColor);
+        code->appendf("\t\tvec4 c = ");
         appendTextureLookup(builder, samplers[0], builder->defaultTexCoordsName(), fTileMode);
-        code->appendf(").a;\n");
+        code->appendf(";\n");
+        code->appendf("\t\t%s.a = c.a;\n", outputColor);
         code->appendf("\t\t%s.rgb = sum.rgb * %s + %s;\n", outputColor, gain, bias);
         code->appendf("\t\t%s.rgb *= %s.a;\n", outputColor, outputColor);
     }
