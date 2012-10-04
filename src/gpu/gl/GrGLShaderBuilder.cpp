@@ -66,7 +66,10 @@ void append_swizzle(SkString* outAppend,
         mangledSwizzle[i] ='\0';
         swizzle = mangledSwizzle;
     }
-    outAppend->appendf(".%s", swizzle);
+    // For shader prettiness we omit the swizzle rather than appending ".rgba".
+    if (memcmp(swizzle, "rgba", 4)) {
+        outAppend->appendf(".%s", swizzle);
+    }
 }
 
 }
@@ -157,14 +160,17 @@ GrCustomStage::StageKey GrGLShaderBuilder::KeyForTextureAccess(const GrTextureAc
     if (!caps.textureSwizzleSupport() && swizzle_requires_alpha_remapping(caps, access)) {
         key = 1;
     }
-    #if GR_DEBUG
-        // Assert that key is set iff the swizzle will be modified.
-        SkString origString(access.getSwizzle());
-        origString.prepend(".");
-        SkString modifiedString;
-        append_swizzle(&modifiedString, access, caps);
-        GrAssert(SkToBool(key) == (modifiedString != origString));
-    #endif
+#if GR_DEBUG
+    // Assert that key is set iff the swizzle will be modified.
+    SkString origString(access.getSwizzle());
+    origString.prepend(".");
+    SkString modifiedString;
+    append_swizzle(&modifiedString, access, caps);
+    if (!modifiedString.size()) {
+        modifiedString = ".rgba";
+    }
+    GrAssert(SkToBool(key) == (modifiedString != origString));
+#endif
     return key;
 }
 
