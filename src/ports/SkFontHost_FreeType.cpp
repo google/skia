@@ -24,9 +24,6 @@
 #include "SkTemplates.h"
 #include "SkThread.h"
 
-#if defined(SK_CAN_USE_DLOPEN)
-#include <dlfcn.h>
-#endif
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_OUTLINE_H
@@ -86,51 +83,23 @@ static bool         gLCDSupportValid;  // true iff |gLCDSupport| has been set.
 static bool         gLCDSupport;  // true iff LCD is supported by the runtime.
 static int          gLCDExtra;  // number of extra pixels for filtering.
 
-// FT_Library_SetLcdFilterWeights was introduced in FreeType 2.4.0.
-// The following platforms provide FreeType of at least 2.4.0.
-// Ubuntu >= 11.04 (previous deprecated April 2013)
-// Debian >= 6.0 (good)
-// OpenSuse >= 11.4 (previous deprecated January 2012 / Nov 2013 for Evergreen 11.2)
-// Fedora >= 14 (good)
-// Android >= Gingerbread (good)
-typedef FT_Error (*FT_Library_SetLcdFilterWeightsProc)(FT_Library, unsigned char*);
-
 /////////////////////////////////////////////////////////////////////////
 
-static bool InitFreetype() {
+static bool
+InitFreetype() {
     FT_Error err = FT_Init_FreeType(&gFTLibrary);
     if (err) {
         return false;
     }
 
-    // Setup LCD filtering. This reduces color fringes for LCD smoothed glyphs.
+    // Setup LCD filtering. This reduces colour fringes for LCD rendered
+    // glyphs.
 #ifdef FT_LCD_FILTER_H
-    //Use light as default, as FT_LCD_FILTER_DEFAULT adds up to 0x110.
-    err = FT_Library_SetLcdFilter(gFTLibrary, FT_LCD_FILTER_LIGHT);
-    if (0 == err) {
-        gLCDSupport = true;
-        gLCDExtra = 2; //Using a filter adds one full pixel to each side.
-
-        static unsigned char gaussianLikeWeights[] = { 0x17, 0x40, 0x52, 0x40, 0x17 };
-        //static unsigned char triangleLikeWeights[] = { 0x1C, 0x39, 0x56, 0x39, 0x1C };
-
-#if defined(SK_FONTHOST_FREETYPE_RUNTIME_VERSION) && \
-            SK_FONTHOST_FREETYPE_RUNTIME_VERSION > 0x020400
-        err = FT_Library_SetLcdFilterWeights(gFTLibrary, gaussianLikeWeights);
-#elif defined(SK_CAN_USE_DLOPEN) && SK_CAN_USE_DLOPEN == 1
-        //The FreeType library is already loaded, so symbols are available in process.
-        void* self = dlopen(NULL, RTLD_LAZY);
-        if (NULL != self) {
-            FT_Library_SetLcdFilterWeightsProc setLcdFilterWeights;
-            //The following cast is non-standard, but safe for POSIX.
-            *reinterpret_cast<void**>(&setLcdFilterWeights) = dlsym(self, "FT_Library_SetLcdFilterWeights");
-            dlclose(self);
-
-            if (NULL != setLcdFilterWeights) {
-                err = setLcdFilterWeights(gFTLibrary, gaussianLikeWeights);
-            }
-        }
-#endif
+    err = FT_Library_SetLcdFilter(gFTLibrary, FT_LCD_FILTER_DEFAULT);
+//    err = FT_Library_SetLcdFilter(gFTLibrary, FT_LCD_FILTER_LIGHT);
+    gLCDSupport = err == 0;
+    if (gLCDSupport) {
+        gLCDExtra = 2; //DEFAULT and LIGHT add one pixel to each side.
     }
 #else
     gLCDSupport = false;
