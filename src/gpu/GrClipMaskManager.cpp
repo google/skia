@@ -785,11 +785,7 @@ bool GrClipMaskManager::createStencilClipMask(const GrClipData& clipDataIn,
             drawState->disableState(GrGpu::kModifyStencilClip_StateBit);
             // if the target is MSAA then we want MSAA enabled when the clip is soft
             if (rt->isMultisampled()) {
-                if (clip->fDoAA) {
-                    drawState->enableState(GrDrawState::kHWAntialias_StateBit);
-                } else {
-                    drawState->disableState(GrDrawState::kHWAntialias_StateBit);
-                }
+                drawState->setState(GrDrawState::kHWAntialias_StateBit, clip->fDoAA);
             }
 
             // Can the clip element be drawn directly to the stencil buffer

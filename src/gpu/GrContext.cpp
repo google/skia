@@ -570,11 +570,7 @@ const GrClipData* GrContext::getClip() const {
 void GrContext::setClip(const GrClipData* clipData) {
     fGpu->setClip(clipData);
 
-    if (clipData->fClipStack->isWideOpen()) {
-        fDrawState->disableState(GrDrawState::kClip_StateBit);
-    } else {
-        fDrawState->enableState(GrDrawState::kClip_StateBit);
-    }
+    fDrawState->setState(GrDrawState::kClip_StateBit, !clipData->fClipStack->isWideOpen());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1618,16 +1614,9 @@ void GrContext::setPaint(const GrPaint& paint) {
 
     fDrawState->setColor(paint.fColor);
 
-    if (paint.fDither) {
-        fDrawState->enableState(GrDrawState::kDither_StateBit);
-    } else {
-        fDrawState->disableState(GrDrawState::kDither_StateBit);
-    }
-    if (paint.fAntiAlias) {
-        fDrawState->enableState(GrDrawState::kHWAntialias_StateBit);
-    } else {
-        fDrawState->disableState(GrDrawState::kHWAntialias_StateBit);
-    }
+    fDrawState->setState(GrDrawState::kDither_StateBit, paint.fDither);
+    fDrawState->setState(GrDrawState::kHWAntialias_StateBit, paint.fAntiAlias);
+
     if (paint.fColorMatrixEnabled) {
         fDrawState->enableState(GrDrawState::kColorMatrix_StateBit);
         fDrawState->setColorMatrix(paint.fColorMatrix);
