@@ -171,7 +171,7 @@ static void compute_diff(const SkBitmap& target, const SkBitmap& base,
 static ErrorBitfield compare(const SkBitmap& target, const SkBitmap& base,
                              const SkString& name,
                              const char* renderModeDescriptor,
-                             SkBitmap* diff, uint32_t tolerance) {
+                             SkBitmap* diff) {
     SkBitmap copy;
     const SkBitmap* bm = &target;
     if (target.config() != SkBitmap::kARGB_8888_Config) {
@@ -206,20 +206,16 @@ static ErrorBitfield compare(const SkBitmap& target, const SkBitmap& base,
             SkPMColor c0 = *bp->getAddr32(x, y);
             SkPMColor c1 = *bm->getAddr32(x, y);
             if (c0 != c1) {
-                SkPMColor trueDiff = compute_diff_pmcolor(c0, c1);
-                if (SkGetPackedR32(trueDiff) > tolerance || SkGetPackedG32(trueDiff) > tolerance
-                    || SkGetPackedB32(trueDiff) > tolerance) {
-                    SkDebugf(
+                SkDebugf(
 "----- %s pixel mismatch for %s at [%d %d] base 0x%08X current 0x%08X\n",
                          renderModeDescriptor, name.c_str(), x, y, c0, c1);
 
-                    if (diff) {
-                        diff->setConfig(SkBitmap::kARGB_8888_Config, w, h);
-                        diff->allocPixels();
-                        compute_diff(*bm, *bp, diff);
-                    }
-                    return ERROR_PIXEL_MISMATCH;
+                if (diff) {
+                    diff->setConfig(SkBitmap::kARGB_8888_Config, w, h);
+                    diff->allocPixels();
+                    compute_diff(*bm, *bp, diff);
                 }
+                return ERROR_PIXEL_MISMATCH;
             }
         }
     }
@@ -442,12 +438,11 @@ static ErrorBitfield compare_to_reference_image(const SkString& name,
                                                 SkBitmap &bitmap,
                                                 const SkBitmap& comparisonBitmap,
                                                 const char diffPath [],
-                                                const char renderModeDescriptor [],
-                                                uint32_t tolerance = 0) {
+                                                const char renderModeDescriptor []) {
     ErrorBitfield errors;
     SkBitmap diffBitmap;
     errors = compare(bitmap, comparisonBitmap, name, renderModeDescriptor,
-                     diffPath ? &diffBitmap : NULL, tolerance);
+                     diffPath ? &diffBitmap : NULL);
     if ((ERROR_NONE != errors) && diffPath) {
         // write out the generated image
         SkString genName = make_filename(diffPath, "", name, "png");
@@ -487,8 +482,7 @@ static ErrorBitfield handle_test_results(GM* gm,
                                          const char renderModeDescriptor [],
                                          SkBitmap& bitmap,
                                          SkDynamicMemoryWStream* pdf,
-                                         const SkBitmap* comparisonBitmap,
-                                         uint32_t tolerance = 0) {
+                                         const SkBitmap* comparisonBitmap) {
     SkString name = make_name(gm->shortName(), gRec.fName);
     ErrorBitfield retval = ERROR_NONE;
 
@@ -503,7 +497,7 @@ static ErrorBitfield handle_test_results(GM* gm,
     if (comparisonBitmap) {
         retval |= compare_to_reference_image(name, bitmap,
                                              *comparisonBitmap, diffPath,
-                                             renderModeDescriptor, tolerance);
+                                             renderModeDescriptor);
     }
     return retval;
 }
@@ -519,10 +513,6 @@ static SkPicture* generate_new_picture(GM* gm) {
     return pict;
 }
 
-static bool EncodeBitmap(SkWStream* wStream, const SkBitmap& bitmap) {
-    return SkImageEncoder::EncodeStream(wStream, bitmap, SkImageEncoder::kPNG_Type, 100);
-}
-
 static SkPicture* stream_to_new_picture(const SkPicture& src) {
 
     // To do in-memory commiunications with a stream, we need to:
@@ -532,7 +522,7 @@ static SkPicture* stream_to_new_picture(const SkPicture& src) {
     // ?!?!
 
     SkDynamicMemoryWStream storage;
-    src.serialize(&storage, &EncodeBitmap);
+    src.serialize(&storage);
 
     int streamSize = storage.getOffset();
     SkAutoMalloc dstStorage(streamSize);
@@ -541,7 +531,7 @@ static SkPicture* stream_to_new_picture(const SkPicture& src) {
     //@todo thudson 22 April 2011 when can we safely delete [] dst?
     storage.copyTo(dst);
     SkMemoryStream pictReadback(dst, streamSize);
-    SkPicture* retval = SkNEW_ARGS(SkPicture, (&pictReadback, NULL, &SkImageDecoder::DecodeStream));
+    SkPicture* retval = new SkPicture (&pictReadback);
     return retval;
 }
 
@@ -633,11 +623,8 @@ static ErrorBitfield test_picture_serialization(GM* gm,
     if (kRaster_Backend == gRec.fBackend) {
         SkBitmap bitmap;
         generate_image_from_picture(gm, gRec, repict, &bitmap);
-        // Allow for slight differences in color due to PNG encoding bitmaps, which does not restore
-        // our premultiplied alpha properly.
-        static const uint32_t tolerance = 50;
         return handle_test_results(gm, gRec, NULL, NULL, diffPath,
-                            "-serialize", bitmap, NULL, &comparisonBitmap, tolerance);
+                            "-serialize", bitmap, NULL, &comparisonBitmap);
     } else {
         return ERROR_NONE;
     }
