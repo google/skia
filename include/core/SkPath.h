@@ -30,11 +30,7 @@ class SkString;
 class SkPathRef;
 
 #ifndef SK_DEBUG_PATH_REF
-    #ifdef SK_DEBUG
-        #define SK_DEBUG_PATH_REF 1
-    #else
-        #define SK_DEBUG_PATH_REF 0
-    #endif
+    #define SK_DEBUG_PATH_REF 0
 #endif
 
 /** \class SkPath
