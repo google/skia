@@ -25,7 +25,7 @@ class SkWStream;
     platform-specific implementation that provides access to font files.
 
     One basic task is for each create (subclass of) SkTypeface, the FontHost is
-    resonsible for assigning a uniqueID. The ID should be unique for the
+    responsible for assigning a uniqueID. The ID should be unique for the
     underlying font file/data, not unique per typeface instance. Thus it is
     possible/common to request a typeface for the same font more than once
     (e.g. asking for the same font by name several times). The FontHost may
