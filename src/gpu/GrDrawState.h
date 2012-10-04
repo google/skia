@@ -674,7 +674,7 @@ public:
     /**
      * Enable render state settings.
      *
-     * @param flags   bitfield of StateBits specifing the states to enable
+     * @param stateBits bitfield of StateBits specifing the states to enable
      */
     void enableState(uint32_t stateBits) {
         fFlagBits |= stateBits;
@@ -683,10 +683,24 @@ public:
     /**
      * Disable render state settings.
      *
-     * @param flags   bitfield of StateBits specifing the states to disable
+     * @param stateBits bitfield of StateBits specifing the states to disable
      */
     void disableState(uint32_t stateBits) {
         fFlagBits &= ~(stateBits);
+    }
+
+    /**
+     * Enable or disable stateBits based on a boolean.
+     *
+     * @param stateBits bitfield of StateBits to enable or disablt
+     * @param enable    if true enable stateBits, otherwise disable
+     */
+    void setState(uint32_t stateBits, bool enable) {
+        if (enable) {
+            this->enableState(stateBits);
+        } else {
+            this->disableState(stateBits);
+        }
     }
 
     bool isDitherState() const {
