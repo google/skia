@@ -21,6 +21,7 @@
         'render_pictures',
         'bench_pictures',
         'pinspect',
+        'filter',
       ],
     },
     {
@@ -154,6 +155,23 @@
       'type': 'executable',
       'sources': [
         '../tools/pinspect.cpp',
+      ],
+      'dependencies': [
+        'core.gyp:core',
+        'effects.gyp:effects',
+        'images.gyp:images',
+        'ports.gyp:ports',
+        'utils.gyp:utils',
+      ],
+    },
+    {
+      'target_name': 'filter',
+      'type': 'executable',
+      'include_dirs' : [
+        '../src/core',
+      ],
+      'sources': [
+        '../tools/filtermain.cpp',
       ],
       'dependencies': [
         'core.gyp:core',
