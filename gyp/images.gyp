@@ -43,6 +43,7 @@
         '../src/images/SkImageRefPool.cpp',
         '../src/images/SkImageRefPool.h',
         '../src/images/SkImageRef_GlobalPool.cpp',
+        '../src/images/SkImages.cpp',
         '../src/images/SkJpegUtility.cpp',
         '../src/images/SkMovie.cpp',
         '../src/images/SkMovie_gif.cpp',

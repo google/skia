@@ -11,6 +11,7 @@
 #define SkPicture_DEFINED
 
 #include "SkRefCnt.h"
+#include "SkSerializationHelpers.h"
 
 class SkBitmap;
 class SkCanvas;
@@ -40,8 +41,10 @@ public:
     /**
      *  Recreate a picture that was serialized into a stream. *success is set to
      *  true if the picture was deserialized successfully and false otherwise.
+     *  decoder is used to decode any SkBitmaps that were encoded into the stream.
      */
-    explicit SkPicture(SkStream*, bool* success = NULL);
+    explicit SkPicture(SkStream*, bool* success = NULL,
+                       SkSerializationHelpers::DecodeBitmap decoder = NULL);
     virtual ~SkPicture();
 
     /**
@@ -132,7 +135,11 @@ public:
     */
     int height() const { return fHeight; }
 
-    void serialize(SkWStream*) const;
+    /**
+     *  Serialize to a stream. If non NULL, encoder will be used to encode
+     *  any bitmaps in the picture.
+     */
+    void serialize(SkWStream*, SkSerializationHelpers::EncodeBitmap encoder = NULL) const;
 
     /** Signals that the caller is prematurely done replaying the drawing
         commands. This can be called from a canvas virtual while the picture

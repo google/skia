@@ -20,6 +20,7 @@
 #include "SkPathHeap.h"
 #include "SkRegion.h"
 #include "SkPictureFlat.h"
+#include "SkSerializationHelpers.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
 #include "SkThread.h"
@@ -61,13 +62,14 @@ public:
     SkPicturePlayback();
     SkPicturePlayback(const SkPicturePlayback& src, SkPictCopyInfo* deepCopyInfo = NULL);
     explicit SkPicturePlayback(const SkPictureRecord& record, bool deepCopy = false);
-    SkPicturePlayback(SkStream*, const SkPictInfo&, bool* isValid);
+    SkPicturePlayback(SkStream*, const SkPictInfo&, bool* isValid,
+                      SkSerializationHelpers::DecodeBitmap decoder);
 
     virtual ~SkPicturePlayback();
 
     void draw(SkCanvas& canvas);
 
-    void serialize(SkWStream*) const;
+    void serialize(SkWStream*, SkSerializationHelpers::EncodeBitmap) const;
 
     void dumpSize() const;
 
@@ -176,7 +178,8 @@ public:
 #endif
 
 private:    // these help us with reading/writing
-    bool parseStreamTag(SkStream*, const SkPictInfo&, uint32_t tag, size_t size);
+    bool parseStreamTag(SkStream*, const SkPictInfo&, uint32_t tag, size_t size,
+                        SkSerializationHelpers::DecodeBitmap decoder);
     bool parseBufferTag(SkOrderedReadBuffer&, uint32_t tag, size_t size);
     void flattenToBuffer(SkOrderedWriteBuffer&) const;
 

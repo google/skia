@@ -226,14 +226,21 @@ void SkWriter32::flatten(void* dst) const {
     SkASSERT(total == fSize);
 }
 
-void SkWriter32::writePad(const void* src, size_t size) {
+uint32_t* SkWriter32::reservePad(size_t size) {
     if (size > 0) {
         size_t alignedSize = SkAlign4(size);
         char* dst = (char*)this->reserve(alignedSize);
-        // Pad the last four bytes with zeroes in one step. Some (or all) will
-        // be overwritten by the memcpy.
+        // Pad the last four bytes with zeroes in one step.
         uint32_t* padding = (uint32_t*)(dst + (alignedSize - 4));
         *padding = 0;
+        return (uint32_t*) dst;
+    }
+    return this->reserve(0);
+}
+
+void SkWriter32::writePad(const void* src, size_t size) {
+    if (size > 0) {
+        char* dst = (char*)this->reservePad(size);
         // Copy the actual data.
         memcpy(dst, src, size);
     }

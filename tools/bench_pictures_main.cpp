@@ -10,6 +10,7 @@
 #include "SkBenchLogger.h"
 #include "SkCanvas.h"
 #include "SkGraphics.h"
+#include "SkImageDecoder.h"
 #include "SkMath.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
@@ -109,7 +110,7 @@ static bool run_single_benchmark(const SkString& inputPath,
     }
 
     bool success = false;
-    SkPicture picture(&inputStream, &success);
+    SkPicture picture(&inputStream, &success, &SkImageDecoder::DecodeStream);
     if (!success) {
         SkString err;
         err.printf("Could not read an SkPicture from %s\n", inputPath.c_str());

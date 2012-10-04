@@ -15,6 +15,7 @@
 #include "SkBitmap.h"
 #include "SkBitmapHeap.h"
 #include "SkPath.h"
+#include "SkSerializationHelpers.h"
 #include "SkWriter32.h"
 
 class SkFlattenable;
@@ -78,6 +79,16 @@ public:
         SkRefCnt_SafeAssign(fBitmapHeap, bitmapHeap);
     }
 
+    /**
+     * Provide a function to encode an SkBitmap to an SkStream. writeBitmap will attempt to use
+     * bitmapEncoder to store the SkBitmap. Takes priority over the SkBitmapHeap. If the reader does
+     * not provide a function to decode, it will not be able to restore SkBitmaps, but will still be
+     * able to read the rest of the stream.
+     */
+    void setBitmapEncoder(SkSerializationHelpers::EncodeBitmap bitmapEncoder) {
+        fBitmapEncoder = bitmapEncoder;
+    }
+
 private:
     SkFactorySet* fFactorySet;
     SkNamedFactorySet* fNamedFactorySet;
@@ -85,6 +96,8 @@ private:
 
     SkBitmapHeap* fBitmapHeap;
     SkRefCntSet* fTFSet;
+
+    SkSerializationHelpers::EncodeBitmap fBitmapEncoder;
 
     typedef SkFlattenableWriteBuffer INHERITED;
 };

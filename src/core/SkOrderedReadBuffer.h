@@ -13,8 +13,9 @@
 #include "SkBitmap.h"
 #include "SkBitmapHeap.h"
 #include "SkFlattenableBuffers.h"
-#include "SkReader32.h"
 #include "SkPath.h"
+#include "SkReader32.h"
+#include "SkSerializationHelpers.h"
 
 class SkOrderedReadBuffer : public SkFlattenableReadBuffer {
 public:
@@ -97,6 +98,15 @@ public:
         fFactoryCount = 0;
     }
 
+    /**
+     *  Provide a function to decode an SkBitmap from an SkStream. Only used if the writer encoded
+     *  the SkBitmap. If the proper decoder cannot be used, a red bitmap with the appropriate size
+     *  will be used.
+     */
+    void setBitmapDecoder(SkSerializationHelpers::DecodeBitmap bitmapDecoder) {
+        fBitmapDecoder = bitmapDecoder;
+    }
+
 private:
     SkReader32 fReader;
     void* fMemoryPtr;
@@ -108,6 +118,8 @@ private:
     SkTDArray<SkFlattenable::Factory>* fFactoryTDArray;
     SkFlattenable::Factory* fFactoryArray;
     int                     fFactoryCount;
+
+    SkSerializationHelpers::DecodeBitmap fBitmapDecoder;
 
     typedef SkFlattenableReadBuffer INHERITED;
 };

@@ -243,9 +243,10 @@ void SkPicture::draw(SkCanvas* surface) {
 // V5 : don't read/write FunctionPtr on cross-process (we can detect that)
 // V6 : added serialization of SkPath's bounds (and packed its flags tighter)
 // V7 : changed drawBitmapRect(IRect) to drawBitmapRectToRect(Rect)
-#define PICTURE_VERSION     7
+// V8 : PNG encode bitmaps
+#define PICTURE_VERSION     8
 
-SkPicture::SkPicture(SkStream* stream, bool* success) : SkRefCnt() {
+SkPicture::SkPicture(SkStream* stream, bool* success, SkSerializationHelpers::DecodeBitmap decoder) : SkRefCnt() {
     if (success) {
         *success = false;
     }
@@ -264,7 +265,7 @@ SkPicture::SkPicture(SkStream* stream, bool* success) : SkRefCnt() {
 
     if (stream->readBool()) {
         bool isValid = false;
-        fPlayback = SkNEW_ARGS(SkPicturePlayback, (stream, info, &isValid));
+        fPlayback = SkNEW_ARGS(SkPicturePlayback, (stream, info, &isValid, decoder));
         if (!isValid) {
             SkDELETE(fPlayback);
             fPlayback = NULL;
@@ -280,7 +281,7 @@ SkPicture::SkPicture(SkStream* stream, bool* success) : SkRefCnt() {
     }
 }
 
-void SkPicture::serialize(SkWStream* stream) const {
+void SkPicture::serialize(SkWStream* stream, SkSerializationHelpers::EncodeBitmap encoder) const {
     SkPicturePlayback* playback = fPlayback;
 
     if (NULL == playback && fRecord) {
@@ -303,7 +304,7 @@ void SkPicture::serialize(SkWStream* stream) const {
     stream->write(&info, sizeof(info));
     if (playback) {
         stream->writeBool(true);
-        playback->serialize(stream);
+        playback->serialize(stream, encoder);
         // delete playback if it is a local version (i.e. cons'd up just now)
         if (playback != fPlayback) {
             SkDELETE(playback);
