@@ -190,7 +190,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
             GeometryPoolState& poolState = fGeoPoolStateStack.back();
 
             appendToPreviousDraw =
-                kDraw_Cmd != fCmds.back() &&
+                kDraw_Cmd == fCmds.back() &&
                 lastDraw.fVertexBuffer == poolState.fPoolVertexBuffer &&
                 (fCurrQuad * 4 + lastDraw.fStartVertex) == poolState.fPoolStartVertex;
 
