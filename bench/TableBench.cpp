@@ -30,13 +30,13 @@ public:
     static const int kNumRows = 48;
     static const int kNumCols = 32;
 
-    TableBench(void* param) 
-        : INHERITED(param) { 
+    TableBench(void* param)
+        : INHERITED(param) {
     }
 
 protected:
-    virtual const char* onGetName() { 
-        return "tablebench"; 
+    virtual const char* onGetName() {
+        return "tablebench";
     }
 
     virtual void onDraw(SkCanvas* canvas) {
@@ -50,21 +50,21 @@ protected:
         for (int i = 0; i < kNumIterations; ++i) {
             for (int row = 0; row < kNumRows; ++row) {
                 for (int col = 0; col < kNumCols; ++col) {
-                    SkRect cell = SkRect::MakeLTRB(col * kCellWidth, 
-                                                   row * kCellHeight, 
-                                                   (col+1) * kCellWidth, 
+                    SkRect cell = SkRect::MakeLTRB(col * kCellWidth,
+                                                   row * kCellHeight,
+                                                   (col+1) * kCellWidth,
                                                    (row+1) * kCellHeight);
                     canvas->drawRect(cell, cellPaint);
 
-                    SkRect bottom = SkRect::MakeLTRB(col * kCellWidth, 
-                                                     row * kCellHeight + (kCellHeight-SK_Scalar1), 
-                                                     (col+1) * kCellWidth, 
+                    SkRect bottom = SkRect::MakeLTRB(col * kCellWidth,
+                                                     row * kCellHeight + (kCellHeight-SK_Scalar1),
+                                                     (col+1) * kCellWidth,
                                                      (row+1) * kCellHeight);
                     canvas->drawRect(bottom, borderPaint);
 
-                    SkRect right = SkRect::MakeLTRB(col * kCellWidth + (kCellWidth-SK_Scalar1), 
-                                                    row * kCellHeight, 
-                                                    (col+1) * kCellWidth, 
+                    SkRect right = SkRect::MakeLTRB(col * kCellWidth + (kCellWidth-SK_Scalar1),
+                                                    row * kCellHeight,
+                                                    (col+1) * kCellWidth,
                                                     (row+1) * kCellHeight);
                     canvas->drawRect(right, borderPaint);
                 }

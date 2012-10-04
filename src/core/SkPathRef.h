@@ -38,7 +38,7 @@ class SkPathRef;
 // This path ref should never be deleted once it is created. It should not be global but was made
 // so for checks when SK_DEBUG_PATH_REF is enabled. It we be re-hidden when the debugging code is
 // reverted.
-SkPathRef* gEmptyPathRef; 
+SkPathRef* gEmptyPathRef;
 
 // Temporary hackery to try to nail down http://code.google.com/p/chromium/issues/detail?id=148637
 #if SK_DEBUG_PATH_REF

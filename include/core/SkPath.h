@@ -847,7 +847,7 @@ public:
         PathRefDebugRef(SkPath* owner);
         PathRefDebugRef(SkPathRef* pr, SkPath* owner);
         ~PathRefDebugRef();
-        void reset(SkPathRef* ref); 
+        void reset(SkPathRef* ref);
         void swap(PathRefDebugRef* other);
         SkPathRef* get() const;
         SkAutoTUnref<SkPathRef>::BlockRefType *operator->() const;
