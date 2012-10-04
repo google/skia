@@ -91,7 +91,8 @@ GrGLProgramStage::StageKey GrGLColorTableEffect::GenKey(const GrCustomStage& s,
 ///////////////////////////////////////////////////////////////////////////////
 
 GrColorTableEffect::GrColorTableEffect(GrTexture* texture)
-    : fTextureAccess(texture, "a") {
+    : INHERITED(1)
+    , fTextureAccess(texture, "a") {
 }
 
 GrColorTableEffect::~GrColorTableEffect() {

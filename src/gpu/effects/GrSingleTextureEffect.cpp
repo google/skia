@@ -38,22 +38,21 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture)
-    : fTextureAccess(texture) {
+    : INHERITED(1)
+    , fTextureAccess(texture) {
 }
 
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture, bool bilerp)
-    : fTextureAccess(texture, bilerp) {
+    : INHERITED(1)
+    , fTextureAccess(texture, bilerp) {
 }
 
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture, const GrTextureParams& params)
-    : fTextureAccess(texture, params) {
+    : INHERITED(1)
+    , fTextureAccess(texture, params) {
 }
 
 GrSingleTextureEffect::~GrSingleTextureEffect() {
-}
-
-int GrSingleTextureEffect::numTextures() const {
-    return 1;
 }
 
 const GrTextureAccess& GrSingleTextureEffect::textureAccess(int index) const {

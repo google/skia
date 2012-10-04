@@ -35,7 +35,7 @@ public:
 
     typedef GrProgramStageFactory::StageKey StageKey;
 
-    GrCustomStage();
+    explicit GrCustomStage(int numTextures);
     virtual ~GrCustomStage();
 
     /** If given an input texture that is/is not opaque, is this
@@ -81,7 +81,7 @@ public:
         in generated shader code. */
     const char* name() const { return this->getFactory().name(); }
 
-    virtual int numTextures() const;
+    int numTextures() const { return fNumTextures; }
 
     /** Returns the access pattern for the texture at index. index must be valid according to
         numTextures(). */
@@ -94,6 +94,7 @@ public:
     void operator delete(void* target);
 
 private:
+    int fNumTextures;
     typedef GrRefCnt INHERITED;
 };
 

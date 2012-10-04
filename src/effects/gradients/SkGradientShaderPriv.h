@@ -232,12 +232,10 @@ public:
 
     virtual ~GrGradientEffect();
 
-    virtual int numTextures() const SK_OVERRIDE;
     virtual const GrTextureAccess& textureAccess(int index) const SK_OVERRIDE;
 
-    bool useTexture() const { return fUseTexture; }
     bool useAtlas() const { return SkToBool(-1 != fRow); }
-    GrScalar getYCoord() const { GrAssert(fUseTexture); return fYCoord; };
+    GrScalar getYCoord() const { return fYCoord; };
 
     virtual bool isEqual(const GrCustomStage& stage) const SK_OVERRIDE {
         const GrGradientEffect& s = static_cast<const GrGradientEffect&>(stage);
@@ -262,7 +260,6 @@ protected:
 
 private:
     GrTextureAccess fTextureAccess;
-    bool fUseTexture;
     GrScalar fYCoord;
     GrTextureStripAtlas* fAtlas;
     int fRow;
