@@ -1634,58 +1634,6 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
  */
 SK_DECLARE_STATIC_MUTEX(gMaskGammaCacheMutex);
 
-static SkColorSpaceLuminance* gLinearLuminance = NULL;
-
-static SkColorSpaceLuminance* gDeviceLuminance = NULL;
-static SkScalar gDeviceGammaExponent = SK_ScalarMin;
-/**
- * The caller must hold the gMaskGammaCacheMutex and continue to hold it until
- * the returned SkColorSpaceLuminance pointer is forgotten.
- */
-static SkColorSpaceLuminance* cachedDeviceLuminance(SkScalar gammaExponent) {
-    if (SK_Scalar1 == gammaExponent) {
-        if (NULL == gLinearLuminance) {
-            gLinearLuminance = SkNEW(SkLinearLuminance);
-        }
-        return gLinearLuminance;
-    }
-    if (gDeviceGammaExponent != gammaExponent) {
-        SkDELETE(gDeviceLuminance);
-        if (0 == gammaExponent) {
-            gDeviceLuminance = SkNEW(SkSRGBLuminance);
-        } else {
-            gDeviceLuminance = SkNEW_ARGS(SkGammaLuminance, (gammaExponent));
-        }
-        gDeviceGammaExponent = gammaExponent;
-    }
-    return gDeviceLuminance;
-}
-
-static SkColorSpaceLuminance* gPaintLuminance = NULL;
-static SkScalar gPaintGammaExponent = SK_ScalarMin;
-/**
- * The caller must hold the gMaskGammaCacheMutex and continue to hold it until
- * the returned SkColorSpaceLuminance pointer is forgotten.
- */
-static SkColorSpaceLuminance* cachedPaintLuminance(SkScalar gammaExponent) {
-    if (SK_Scalar1 == gammaExponent) {
-        if (NULL == gLinearLuminance) {
-            gLinearLuminance = SkNEW(SkLinearLuminance);
-        }
-        return gLinearLuminance;
-    }
-    if (gPaintGammaExponent != gammaExponent) {
-        SkDELETE(gPaintLuminance);
-        if (0 == gammaExponent) {
-            gPaintLuminance = SkNEW(SkSRGBLuminance);
-        } else {
-            gPaintLuminance = SkNEW_ARGS(SkGammaLuminance, (gammaExponent));
-        }
-        gPaintGammaExponent = gammaExponent;
-    }
-    return gPaintLuminance;
-}
-
 static SkMaskGamma* gLinearMaskGamma = NULL;
 static SkMaskGamma* gMaskGamma = NULL;
 static SkScalar gContrast = SK_ScalarMin;
@@ -1704,9 +1652,7 @@ static SkMaskGamma* cachedMaskGamma(SkScalar contrast, SkScalar paintGamma, SkSc
     }
     if (gContrast != contrast || gPaintGamma != paintGamma || gDeviceGamma != deviceGamma) {
         SkSafeUnref(gMaskGamma);
-        SkColorSpaceLuminance* paintLuminance = cachedPaintLuminance(paintGamma);
-        SkColorSpaceLuminance* deviceLuminance = cachedDeviceLuminance(deviceGamma);
-        gMaskGamma = SkNEW_ARGS(SkMaskGamma, (contrast, *paintLuminance, *deviceLuminance));
+        gMaskGamma = SkNEW_ARGS(SkMaskGamma, (contrast, paintGamma, deviceGamma));
         gContrast = contrast;
         gPaintGamma = paintGamma;
         gDeviceGamma = deviceGamma;
@@ -1724,16 +1670,6 @@ static SkMaskGamma* cachedMaskGamma(SkScalar contrast, SkScalar paintGamma, SkSc
     SkDEBUGCODE(gContrast = SK_ScalarMin;)
     SkDEBUGCODE(gPaintGamma = SK_ScalarMin;)
     SkDEBUGCODE(gDeviceGamma = SK_ScalarMin;)
-
-    SkDELETE(gLinearLuminance);
-
-    SkDELETE(gPaintLuminance);
-    SkDEBUGCODE(gPaintLuminance = NULL;)
-    SkDEBUGCODE(gPaintGammaExponent = SK_ScalarMin;)
-
-    SkDELETE(gDeviceLuminance);
-    SkDEBUGCODE(gDeviceLuminance = NULL;)
-    SkDEBUGCODE(gDeviceGammaExponent = SK_ScalarMin;)
 }
 
 /**
@@ -1758,8 +1694,7 @@ void SkScalerContext::PostMakeRec(const SkPaint& paint, SkScalerContext::Rec* re
             // use per-component information
 
             SkColor color = rec->getLuminanceColor();
-            SkAutoMutexAcquire ama(gMaskGammaCacheMutex);
-            U8CPU lum = cachedPaintLuminance(rec->getPaintGamma())->computeLuminance(color);
+            U8CPU lum = SkColorSpaceLuminance::computeLuminance(rec->getPaintGamma(), color);
             //If we are asked to look like LCD, look like LCD.
             if (!(rec->fFlags & SkScalerContext::kGenA8FromLCD_Flag)) {
                 // HACK: Prevents green from being pre-blended as white.
