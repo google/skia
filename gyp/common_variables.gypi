@@ -77,8 +77,6 @@
       'android_make_apk%': 1,
       'skia_nacl%': 0,
       'skia_gpu%': 1,
-      'ios_sdk_dir%': '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS',
-      'ios_sdk_version%': '6.0',
       'skia_osx_sdkroot%': 'macosx10.6',
     },
 
@@ -97,8 +95,7 @@
     'skia_gpu%': '<(skia_gpu)',
     'skia_osx_sdkroot%': '<(skia_osx_sdkroot)',
     'skia_static_initializers%': '<(skia_static_initializers)',
-    'ios_sdk_version%': '<(ios_sdk_version)',
-    'ios_sdk_dir%': '<(ios_sdk_dir)',
+    'ios_sdk_version%': '6.0',
 
     'conditions': [
       ['skia_os == "ios"', {

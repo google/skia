@@ -24,7 +24,7 @@
         [ 'skia_os == "ios"', {
           'link_settings': {
             'libraries': [
-              '<(ios_sdk_dir)<(ios_sdk_version).sdk/usr/lib/libz.dylib',
+              '$(SDKROOT)/usr/lib/libz.dylib',
             ],
           },
           'defines': [ 'SK_ZLIB_INCLUDE=<zlib.h>', ],
