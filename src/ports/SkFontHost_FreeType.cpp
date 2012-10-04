@@ -97,6 +97,7 @@ typedef FT_Error (*FT_Library_SetLcdFilterWeightsProc)(FT_Library, unsigned char
 
 /////////////////////////////////////////////////////////////////////////
 
+// Caller must lock gFTMutex before calling this function.
 static bool InitFreetype() {
     FT_Error err = FT_Init_FreeType(&gFTLibrary);
     if (err) {
@@ -175,8 +176,8 @@ private:
     FT_Error setupSize();
     void getBBoxForCurrentGlyph(SkGlyph* glyph, FT_BBox* bbox,
                                 bool snapToPixelBoundary = false);
+    // Caller must lock gFTMutex before calling this function.
     void updateGlyphIfLCD(SkGlyph* glyph);
-    void updateGlyphPosIfLCD(SkGlyph* glyph);
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -242,6 +243,7 @@ SkFaceRec::SkFaceRec(SkStream* strm, uint32_t fontID)
 }
 
 // Will return 0 on failure
+// Caller must lock gFTMutex before calling this function.
 static SkFaceRec* ref_ft_face(uint32_t fontID) {
     SkFaceRec* rec = gFaceRecHead;
     while (rec) {
@@ -295,6 +297,7 @@ static SkFaceRec* ref_ft_face(uint32_t fontID) {
     }
 }
 
+// Caller must lock gFTMutex before calling this function.
 static void unref_ft_face(FT_Face face) {
     SkFaceRec*  rec = gFaceRecHead;
     SkFaceRec*  prev = NULL;
@@ -639,8 +642,10 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     //Cap the requested size as larger sizes give bogus values.
     //Remove when http://code.google.com/p/skia/issues/detail?id=554 is fixed.
     if (rec->fTextSize > SkIntToScalar(1 << 14)) {
-      rec->fTextSize = SkIntToScalar(1 << 14);
+        rec->fTextSize = SkIntToScalar(1 << 14);
     }
+
+    SkAutoMutexAcquire  ac(gFTMutex);
 
     if (!gLCDSupportValid) {
         InitFreetype();
@@ -874,11 +879,11 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
 }
 
 SkScalerContext_FreeType::~SkScalerContext_FreeType() {
+    SkAutoMutexAcquire  ac(gFTMutex);
+
     if (fFTSize != NULL) {
         FT_Done_Size(fFTSize);
     }
-
-    SkAutoMutexAcquire  ac(gFTMutex);
 
     if (fFace != NULL) {
         unref_ft_face(fFace);
@@ -1010,15 +1015,6 @@ void SkScalerContext_FreeType::updateGlyphIfLCD(SkGlyph* glyph) {
             glyph->fTop -= gLCDExtra >> 1;
         } else {
             glyph->fWidth += gLCDExtra;
-            glyph->fLeft -= gLCDExtra >> 1;
-        }
-    }
-}
-void SkScalerContext_FreeType::updateGlyphPosIfLCD(SkGlyph* glyph) {
-    if (isLCD(fRec)) {
-        if (fLCDIsVert) {
-            glyph->fTop -= gLCDExtra >> 1;
-        } else {
             glyph->fLeft -= gLCDExtra >> 1;
         }
     }
@@ -1361,3 +1357,4 @@ bool find_name_and_attributes(SkStream* stream, SkString* name,
     FT_Done_FreeType(library);
     return true;
 }
+
