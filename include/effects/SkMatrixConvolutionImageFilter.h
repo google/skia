@@ -61,6 +61,10 @@ protected:
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
 
+#if SK_SUPPORT_GPU
+    virtual bool asNewCustomStage(GrCustomStage** stage, GrTexture*) const SK_OVERRIDE;
+#endif
+
 private:
     SkISize   fKernelSize;
     SkScalar* fKernel;

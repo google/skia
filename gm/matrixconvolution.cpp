@@ -6,7 +6,9 @@
  */
 
 #include "gm.h"
+#include "SkColor.h"
 #include "SkMatrixConvolutionImageFilter.h"
+#include "SkGradientShader.h"
 
 namespace skiagm {
 
@@ -31,6 +33,12 @@ protected:
         paint.setAntiAlias(true);
         paint.setColor(0xFFFFFFFF);
         paint.setTextSize(SkIntToScalar(180));
+        SkPoint pts[2] = { SkPoint::Make(0, 0),
+                           SkPoint::Make(0, SkIntToScalar(80)) };
+        SkColor colors[2] = { 0xFFFFFFFF, 0x40404040 };
+        SkScalar pos[2] = { 0, SkIntToScalar(80) };
+        paint.setShader(SkGradientShader::CreateLinear(
+            pts, colors, pos, 2, SkShader::kClamp_TileMode))->unref();
         const char* str = "e";
         canvas.drawText(str, strlen(str), SkIntToScalar(-10), SkIntToScalar(80), paint);
     }
@@ -59,15 +67,17 @@ protected:
             fInitialized = true;
         }
         canvas->clear(0x00000000);
-        SkIPoint target = SkIPoint::Make(1, 1);
-        for (target.fY = 0; target.fY < 3; ++target.fY) {
-            int y = target.fY * 100 + 10;
-            draw(canvas, 10, y, target, SkMatrixConvolutionImageFilter::kClamp_TileMode, true);
-            draw(canvas, 110, y, target, SkMatrixConvolutionImageFilter::kClampToBlack_TileMode, true);
-            draw(canvas, 210, y, target, SkMatrixConvolutionImageFilter::kRepeat_TileMode, true);
+        SkIPoint target = SkIPoint::Make(1, 0);
+        for (int x = 10; x < 310; x += 100) {
+            draw(canvas, x, 10, target, SkMatrixConvolutionImageFilter::kClamp_TileMode, true);
+            draw(canvas, x, 110, target, SkMatrixConvolutionImageFilter::kClampToBlack_TileMode, true);
+            draw(canvas, x, 210, target, SkMatrixConvolutionImageFilter::kRepeat_TileMode, true);
+            target.fY++;
         }
         target.fY = 1;
         draw(canvas, 310, 10, target, SkMatrixConvolutionImageFilter::kClamp_TileMode, false);
+        draw(canvas, 310, 110, target, SkMatrixConvolutionImageFilter::kClampToBlack_TileMode, false);
+        draw(canvas, 310, 210, target, SkMatrixConvolutionImageFilter::kRepeat_TileMode, false);
     }
 
 private:
