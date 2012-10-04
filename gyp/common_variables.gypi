@@ -77,7 +77,7 @@
       'android_make_apk%': 1,
       'skia_nacl%': 0,
       'skia_gpu%': 1,
-      'skia_osx_sdkroot%': 'macosx10.6',
+      'skia_osx_sdkroot%': 'macosx',
     },
 
     # Re-define all variables defined within the level-2 'variables' dict,
