@@ -719,7 +719,7 @@ void GrGLGradientStage::emitColorLookup(GrGLShaderBuilder* builder,
 GrGradientEffect::GrGradientEffect(GrContext* ctx,
                                    const SkGradientShaderBase& shader,
                                    SkShader::TileMode tileMode)
-    : fUseTexture (true) {
+    : INHERITED(1) {
     // TODO: check for simple cases where we don't need a texture:
     //GradientInfo info;
     //shader.asAGradient(&info);
@@ -765,12 +765,8 @@ GrGradientEffect::~GrGradientEffect() {
     }
 }
 
-int GrGradientEffect::numTextures() const {
-    return fUseTexture ? 1 : 0;
-}
-
 const GrTextureAccess& GrGradientEffect::textureAccess(int index) const {
-    GrAssert(fUseTexture && 0 == index);
+    GrAssert(0 == index);
     return fTextureAccess;
 }
 

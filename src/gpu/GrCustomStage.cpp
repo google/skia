@@ -38,8 +38,8 @@ private:
 int32_t GrProgramStageFactory::fCurrStageClassID =
                                     GrProgramStageFactory::kIllegalStageClassID;
 
-GrCustomStage::GrCustomStage() {
-
+GrCustomStage::GrCustomStage(int numTextures)
+    : fNumTextures(numTextures) {
 }
 
 GrCustomStage::~GrCustomStage() {
@@ -60,10 +60,6 @@ bool GrCustomStage::isEqual(const GrCustomStage& s) const {
         }
     }
     return true;
-}
-
-int GrCustomStage::numTextures() const {
-    return 0;
 }
 
 const GrTextureAccess& GrCustomStage::textureAccess(int index) const {
