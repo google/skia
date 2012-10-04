@@ -8,6 +8,7 @@
 
 #include "SkOrderedWriteBuffer.h"
 #include "SkPtrRecorder.h"
+#include "SkStream.h"
 #include "SkTypeface.h"
 
 SkOrderedWriteBuffer::SkOrderedWriteBuffer(size_t minSize)
@@ -16,7 +17,8 @@ SkOrderedWriteBuffer::SkOrderedWriteBuffer(size_t minSize)
     , fNamedFactorySet(NULL)
     , fWriter(minSize)
     , fBitmapHeap(NULL)
-    , fTFSet(NULL) {
+    , fTFSet(NULL)
+    , fBitmapEncoder(NULL) {
 }
 
 SkOrderedWriteBuffer::SkOrderedWriteBuffer(size_t minSize, void* storage, size_t storageSize)
@@ -25,7 +27,8 @@ SkOrderedWriteBuffer::SkOrderedWriteBuffer(size_t minSize, void* storage, size_t
     , fNamedFactorySet(NULL)
     , fWriter(minSize, storage, storageSize)
     , fBitmapHeap(NULL)
-    , fTFSet(NULL) {
+    , fTFSet(NULL)
+    , fBitmapEncoder(NULL) {
 }
 
 SkOrderedWriteBuffer::~SkOrderedWriteBuffer() {
@@ -134,10 +137,37 @@ bool SkOrderedWriteBuffer::writeToStream(SkWStream* stream) {
 }
 
 void SkOrderedWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
-    if (fBitmapHeap) {
-        fWriter.write32(fBitmapHeap->insert(bitmap));
-    } else {
-        bitmap.flatten(*this);
+    bool encoded = false;
+    if (fBitmapEncoder != NULL) {
+        SkDynamicMemoryWStream pngStream;
+        if (fBitmapEncoder(&pngStream, bitmap)) {
+            encoded = true;
+            if (encoded) {
+                uint32_t offset = fWriter.bytesWritten();
+                // Write the length to indicate that the bitmap was encoded successfully.
+                size_t length = pngStream.getOffset();
+                this->writeUInt(length);
+                // Now write the stream.
+                if (pngStream.read(fWriter.reservePad(length), 0, length)) {
+                    // Write the width and height in case the reader does not have a decoder.
+                    this->writeInt(bitmap.width());
+                    this->writeInt(bitmap.height());
+                } else {
+                    // Writing the stream failed, so go back to original state to store another way.
+                    fWriter.rewindToOffset(offset);
+                    encoded = false;
+                }
+            }
+        }
+    }
+    if (!encoded) {
+        // Bitmap was not encoded. Record a zero, implying that the reader need not decode.
+        this->writeUInt(0);
+        if (fBitmapHeap) {
+            fWriter.write32(fBitmapHeap->insert(bitmap));
+        } else {
+            bitmap.flatten(*this);
+        }
     }
 }
 

@@ -364,7 +364,8 @@ void SkPicturePlayback::flattenToBuffer(SkOrderedWriteBuffer& buffer) const {
     }
 }
 
-void SkPicturePlayback::serialize(SkWStream* stream) const {
+void SkPicturePlayback::serialize(SkWStream* stream,
+                                  SkSerializationHelpers::EncodeBitmap encoder) const {
     writeTagSize(stream, PICT_READER_TAG, fOpData->size());
     stream->write(fOpData->bytes(), fOpData->size());
 
@@ -386,6 +387,7 @@ void SkPicturePlayback::serialize(SkWStream* stream) const {
         buffer.setFlags(SkFlattenableWriteBuffer::kCrossProcess_Flag);
         buffer.setTypefaceRecorder(&typefaceSet);
         buffer.setFactoryRecorder(&factSet);
+        buffer.setBitmapEncoder(encoder);
 
         this->flattenToBuffer(buffer);
 
@@ -428,7 +430,8 @@ static uint32_t pictInfoFlagsToReadBufferFlags(uint32_t pictInfoFlags) {
 }
 
 bool SkPicturePlayback::parseStreamTag(SkStream* stream, const SkPictInfo& info,
-                                       uint32_t tag, size_t size) {
+                                       uint32_t tag, size_t size,
+                                       SkSerializationHelpers::DecodeBitmap decoder) {
     /*
      *  By the time we encounter BUFFER_SIZE_TAG, we need to have already seen
      *  its dependents: FACTORY_TAG and TYPEFACE_TAG. These two are not required
@@ -481,6 +484,7 @@ bool SkPicturePlayback::parseStreamTag(SkStream* stream, const SkPictInfo& info,
 
             fFactoryPlayback->setupBuffer(buffer);
             fTFPlayback.setupBuffer(buffer);
+            buffer.setBitmapDecoder(decoder);
 
             while (!buffer.eof()) {
                 tag = buffer.readUInt();
@@ -532,7 +536,7 @@ bool SkPicturePlayback::parseBufferTag(SkOrderedReadBuffer& buffer,
 }
 
 SkPicturePlayback::SkPicturePlayback(SkStream* stream, const SkPictInfo& info,
-                                     bool* isValid) {
+                                     bool* isValid, SkSerializationHelpers::DecodeBitmap decoder) {
     this->init();
 
     *isValid = false;   // wait until we're done parsing to mark as true
@@ -543,7 +547,7 @@ SkPicturePlayback::SkPicturePlayback(SkStream* stream, const SkPictInfo& info,
         }
 
         uint32_t size = stream->readU32();
-        if (!this->parseStreamTag(stream, info, tag, size)) {
+        if (!this->parseStreamTag(stream, info, tag, size, decoder)) {
             return; // we're invalid
         }
     }

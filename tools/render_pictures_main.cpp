@@ -9,6 +9,7 @@
 #include "SkCanvas.h"
 #include "SkDevice.h"
 #include "SkGraphics.h"
+#include "SkImageDecoder.h"
 #include "SkMath.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
@@ -96,7 +97,7 @@ static bool render_picture(const SkString& inputPath, const SkString& outputDir,
     }
 
     bool success = false;
-    SkPicture picture(&inputStream, &success);
+    SkPicture picture(&inputStream, &success, &SkImageDecoder::DecodeStream);
     if (!success) {
         SkDebugf("Could not read an SkPicture from %s\n", inputPath.c_str());
         return false;

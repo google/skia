@@ -143,6 +143,15 @@ public:
         memcpy(this->reserve(size), values, size);
     }
 
+    /**
+     *  Reserve size bytes. Does not need to be 4 byte aligned. The remaining space (if any) will be
+     *  filled in with zeroes.
+     */
+    uint32_t* reservePad(size_t size);
+
+    /**
+     *  Write size bytes from src, and pad to 4 byte alignment with zeroes.
+     */
     void writePad(const void* src, size_t size);
 
     /**

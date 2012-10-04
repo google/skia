@@ -150,12 +150,25 @@ private:
  */
 bool SkImageEncoder_CG::onEncode(SkWStream* stream, const SkBitmap& bm,
                                  int quality) {
+    // Used for converting a bitmap to 8888.
+    const SkBitmap* bmPtr = &bm;
+    SkBitmap bitmap8888;
+
     CFStringRef type;
     switch (fType) {
         case kJPEG_Type:
             type = kUTTypeJPEG;
             break;
         case kPNG_Type:
+            // PNG encoding an ARGB_4444 bitmap gives the following errors in GM:
+            // <Error>: CGImageDestinationAddImage image could not be converted to destination
+            // format.
+            // <Error>: CGImageDestinationFinalize image destination does not have enough images
+            // So instead we copy to 8888.
+            if (bm.getConfig() == SkBitmap::kARGB_4444_Config) {
+                bm.copyTo(&bitmap8888, SkBitmap::kARGB_8888_Config);
+                bmPtr = &bitmap8888;
+            }
             type = kUTTypePNG;
             break;
         default:
@@ -168,7 +181,7 @@ bool SkImageEncoder_CG::onEncode(SkWStream* stream, const SkBitmap& bm,
     }
     SkAutoTCallVProc<const void, CFRelease> ardst(dst);
 
-    CGImageRef image = SkCreateCGImageRef(bm);
+    CGImageRef image = SkCreateCGImageRef(*bmPtr);
     if (NULL == image) {
         return false;
     }
