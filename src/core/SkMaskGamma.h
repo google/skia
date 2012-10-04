@@ -22,46 +22,28 @@
  */
 class SkColorSpaceLuminance : SkNoncopyable {
 public:
-    virtual ~SkColorSpaceLuminance() {};
+    virtual ~SkColorSpaceLuminance() { }
 
     /** Converts a color component luminance in the color space to a linear luma. */
-    virtual SkScalar toLuma(SkScalar luminance) const = 0;
+    virtual SkScalar toLuma(SkScalar gamma, SkScalar luminance) const = 0;
     /** Converts a linear luma to a color component luminance in the color space. */
-    virtual SkScalar fromLuma(SkScalar luma) const = 0;
+    virtual SkScalar fromLuma(SkScalar gamma, SkScalar luma) const = 0;
 
     /** Converts a color to a luminance value. */
-    U8CPU computeLuminance(SkColor c) const {
-        SkScalar r = toLuma(SkIntToScalar(SkColorGetR(c)) / 255);
-        SkScalar g = toLuma(SkIntToScalar(SkColorGetG(c)) / 255);
-        SkScalar b = toLuma(SkIntToScalar(SkColorGetB(c)) / 255);
+    static U8CPU computeLuminance(SkScalar gamma, SkColor c) {
+        const SkColorSpaceLuminance& luminance = Fetch(gamma);
+        SkScalar r = luminance.toLuma(gamma, SkIntToScalar(SkColorGetR(c)) / 255);
+        SkScalar g = luminance.toLuma(gamma, SkIntToScalar(SkColorGetG(c)) / 255);
+        SkScalar b = luminance.toLuma(gamma, SkIntToScalar(SkColorGetB(c)) / 255);
         SkScalar luma = r * SkFloatToScalar(SK_LUM_COEFF_R) +
                         g * SkFloatToScalar(SK_LUM_COEFF_G) +
                         b * SkFloatToScalar(SK_LUM_COEFF_B);
         SkASSERT(luma <= SK_Scalar1);
-        return SkScalarRoundToInt(fromLuma(luma) * 255);
+        return SkScalarRoundToInt(luminance.fromLuma(gamma, luma) * 255);
     }
-};
 
-class SkSRGBLuminance : public SkColorSpaceLuminance {
-public:
-    SkScalar toLuma(SkScalar luminance) const SK_OVERRIDE;
-    SkScalar fromLuma(SkScalar luma) const SK_OVERRIDE;
-};
-
-class SkGammaLuminance : public SkColorSpaceLuminance {
-public:
-    SkGammaLuminance(SkScalar gamma);
-    SkScalar toLuma(SkScalar luminance) const SK_OVERRIDE;
-    SkScalar fromLuma(SkScalar luma) const SK_OVERRIDE;
-private:
-    SkScalar fGamma;
-    SkScalar fGammaInverse;
-};
-
-class SkLinearLuminance : public SkColorSpaceLuminance {
-public:
-    SkScalar toLuma(SkScalar luminance) const SK_OVERRIDE;
-    SkScalar fromLuma(SkScalar luma) const SK_OVERRIDE;
+    /** Retrieves the SkColorSpaceLuminance for the given gamma. */
+    static const SkColorSpaceLuminance& Fetch(SkScalar gamma);
 };
 
 ///@{
@@ -95,8 +77,8 @@ template<> /*static*/ inline U8CPU sk_t_scale255<8>(U8CPU base) {
 template <int R_LUM_BITS, int G_LUM_BITS, int B_LUM_BITS> class SkTMaskPreBlend;
 
 void SkTMaskGamma_build_correcting_lut(uint8_t table[256], U8CPU srcI, SkScalar contrast,
-                                       const SkColorSpaceLuminance& srcConvert,
-                                       const SkColorSpaceLuminance& dstConvert);
+                                       const SkColorSpaceLuminance& srcConvert, SkScalar srcGamma,
+                                       const SkColorSpaceLuminance& dstConvert, SkScalar dstGamma);
 
 /**
  * A regular mask contains linear alpha values. A gamma correcting mask
@@ -125,12 +107,14 @@ public:
      * @param paint The color space in which the paint color was chosen.
      * @param device The color space of the target device.
      */
-    SkTMaskGamma(SkScalar contrast,
-                 const SkColorSpaceLuminance& paint,
-                 const SkColorSpaceLuminance& device) : fIsLinear(false) {
+    SkTMaskGamma(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma) : fIsLinear(false) {
+        const SkColorSpaceLuminance& paintConvert = SkColorSpaceLuminance::Fetch(paintGamma);
+        const SkColorSpaceLuminance& deviceConvert = SkColorSpaceLuminance::Fetch(deviceGamma);
         for (U8CPU i = 0; i < (1 << kLuminanceBits_Max); ++i) {
             U8CPU lum = sk_t_scale255<kLuminanceBits_Max>(i);
-            SkTMaskGamma_build_correcting_lut(fGammaTables[i], lum, contrast, paint, device);
+            SkTMaskGamma_build_correcting_lut(fGammaTables[i], lum, contrast,
+                                              paintConvert, paintGamma,
+                                              deviceConvert, deviceGamma);
         }
     }
 
