@@ -33,6 +33,10 @@
     #define SK_FONT_FILE_PREFIX          "/fonts/"
 #endif
 
+#ifndef SK_DEBUG_FONTS
+	#define SK_DEBUG_FONTS 0
+#endif
+
 // For test only.
 static const char* gTestMainConfigFile = NULL;
 static const char* gTestFallbackConfigFile = NULL;
@@ -568,11 +572,16 @@ static void load_font_info() {
         SkDEBUGFAIL("No system fonts were found");
         gNumSystemFonts = 0;
     }
-    SkDEBUGF(("---- We have %d system fonts", gNumSystemFonts));
+
+#if SK_DEBUG_FONTS
+    SkDebugf("---- We have %d system fonts", gNumSystemFonts);
+#endif
     for (size_t i = 0; i < gNumSystemFonts; ++i) {
         gSystemFonts[i].fFileName = fontInfo[i].fFileName;
         gSystemFonts[i].fNames = fontInfo[i].fNames;
-        SkDEBUGF(("---- gSystemFonts[%d] fileName=%s", i, fontInfo[i].fFileName));
+#if SK_DEBUG_FONTS
+        SkDebugf(("---- gSystemFonts[%d] fileName=%s", i, fontInfo[i].fFileName));
+#endif
     }
     fontFamilies.deleteAll();
 }
@@ -625,15 +634,18 @@ static void init_system_fonts() {
                                      rec[i].fFileName,
                                      isFixedWidth) // filename
                                     );
-
-        SkDEBUGF(("---- SkTypeface[%d] %s fontID %d",
-                  i, rec[i].fFileName, tf->uniqueID()));
+#if SK_DEBUG_FONTS
+        SkDebugf("---- SkTypeface[%d] %s fontID %d",
+                  i, rec[i].fFileName, tf->uniqueID());
+#endif
 
         if (rec[i].fNames != NULL) {
             // see if this is one of our fallback fonts
             if (rec[i].fNames == gFBNames) {
-                SkDEBUGF(("---- adding %s as fallback[%d] fontID %d",
-                          rec[i].fFileName, fallbackCount, tf->uniqueID()));
+#if SK_DEBUG_FONTS
+                SkDebugf("---- adding %s as fallback[%d] fontID %d",
+                          rec[i].fFileName, fallbackCount, tf->uniqueID());
+#endif
                 gFallbackFonts[fallbackCount++] = tf->uniqueID();
             }
 
@@ -704,10 +716,11 @@ static void reload_fallback_fonts() {
 
                 size_t uniqueID = find_uniqueID(family->fFileNames[j]);
                 SkASSERT(uniqueID != 0);
-                SkDEBUGF(("---- reload %s as fallback[%d] fontID %d oldFontID %d",
+#if SK_DEBUG_FONTS
+                SkDebugf("---- reload %s as fallback[%d] fontID %d oldFontID %d",
                           family->fFileNames[j], fallbackCount, uniqueID,
-                          gFallbackFonts[fallbackCount]));
-
+                          gFallbackFonts[fallbackCount]);
+#endif
                 gFallbackFonts[fallbackCount++] = uniqueID;
                 break;  // The fallback set contains only the first font of each family
             }
@@ -1018,7 +1031,9 @@ static void initFBScriptInfo() {
         // bold is requested and no bold font exists for the typeface containing
         // the character the next best style is chosen (e.g. normal).
         scriptInfo.fFontID = findFontIDForChar(scriptInfo.fChar, scriptInfo.fStyle);
-        SkDEBUGF(("gFBScriptInfo[%s] --> %d", scriptInfo.fScriptID, scriptInfo.fFontID));
+#if SK_DEBUG_FONTS
+        SkDebugf("gFBScriptInfo[%s] --> %d", scriptInfo.fScriptID, scriptInfo.fFontID);
+#endif
     }
     // mark the value as initialized so we don't repeat our work unnecessarily
     gFBScriptInitialized = true;
