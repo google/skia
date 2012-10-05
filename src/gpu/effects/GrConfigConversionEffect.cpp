@@ -186,16 +186,16 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
                                                              (tempTex, false, *pmToUPMRule)));
 
         context->setRenderTarget(readTex->asRenderTarget());
-        paint.textureSampler(0)->setCustomStage(pmToUPMStage1);
+        paint.colorSampler(0)->setCustomStage(pmToUPMStage1);
         context->drawRectToRect(paint, kDstRect, kSrcRect);
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, firstRead);
 
         context->setRenderTarget(tempTex->asRenderTarget());
-        paint.textureSampler(0)->setCustomStage(upmToPMStage);
+        paint.colorSampler(0)->setCustomStage(upmToPMStage);
         context->drawRectToRect(paint, kDstRect, kSrcRect);
         context->setRenderTarget(readTex->asRenderTarget());
-        paint.textureSampler(0)->setCustomStage(pmToUPMStage2);
+        paint.colorSampler(0)->setCustomStage(pmToUPMStage2);
         context->drawRectToRect(paint, kDstRect, kSrcRect);
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, secondRead);

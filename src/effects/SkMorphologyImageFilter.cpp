@@ -432,8 +432,8 @@ void apply_morphology_pass(GrContext* context,
     sampleM.setIDiv(texture->width(), texture->height());
     GrPaint paint;
     paint.reset();
-    paint.textureSampler(0)->reset(sampleM);
-    paint.textureSampler(0)->setCustomStage(SkNEW_ARGS(GrMorphologyEffect, (texture, direction, radius, morphType)))->unref();
+    paint.colorSampler(0)->reset(sampleM);
+    paint.colorSampler(0)->setCustomStage(SkNEW_ARGS(GrMorphologyEffect, (texture, direction, radius, morphType)))->unref();
     context->drawRect(paint, rect);
 }
 

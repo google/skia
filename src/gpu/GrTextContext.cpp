@@ -40,7 +40,7 @@ void GrTextContext::flushGlyphs() {
         if (!GrPixelConfigIsAlphaOnly(fCurrTexture->config())) {
             if (kOne_GrBlendCoeff != fPaint.fSrcBlendCoeff ||
                 kISA_GrBlendCoeff != fPaint.fDstBlendCoeff ||
-                fPaint.hasTexture()) {
+                fPaint.hasColorStage()) {
                 GrPrintf("LCD Text will not draw correctly.\n");
             }
             // setup blend so that we get mask * paintColor + (1-mask)*dstColor
@@ -121,19 +121,19 @@ GrTextContext::GrTextContext(GrContext* context,
     */
     bool invVMComputed = false;
     GrMatrix invVM;
-    for (int t = 0; t < GrPaint::kMaxTextures; ++t) {
-        if (fPaint.isTextureStageEnabled(t)) {
+    for (int t = 0; t < GrPaint::kMaxColorStages; ++t) {
+        if (fPaint.isColorStageEnabled(t)) {
             if (invVMComputed || fOrigViewMatrix.invert(&invVM)) {
                 invVMComputed = true;
-                fPaint.textureSampler(t)->preConcatMatrix(invVM);
+                fPaint.colorSampler(t)->preConcatMatrix(invVM);
             }
         }
     }
-    for (int m = 0; m < GrPaint::kMaxMasks; ++m) {
-        if (fPaint.isMaskStageEnabled(m)) {
+    for (int m = 0; m < GrPaint::kMaxCoverageStages; ++m) {
+        if (fPaint.isCoverageStageEnabled(m)) {
             if (invVMComputed || fOrigViewMatrix.invert(&invVM)) {
                 invVMComputed = true;
-                fPaint.maskSampler(m)->preConcatMatrix(invVM);
+                fPaint.coverageSampler(m)->preConcatMatrix(invVM);
             }
         }
     }

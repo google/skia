@@ -10,19 +10,19 @@
 #include "GrPaint.h"
 
 void GrDrawState::setFromPaint(const GrPaint& paint) {
-    for (int i = 0; i < GrPaint::kMaxTextures; ++i) {
-        int s = i + GrPaint::kFirstTextureStage;
-        if (paint.isTextureStageEnabled(i)) {
-            *this->sampler(s) = paint.getTextureSampler(i);
+    for (int i = 0; i < GrPaint::kMaxColorStages; ++i) {
+        int s = i + GrPaint::kFirstColorStage;
+        if (paint.isColorStageEnabled(i)) {
+            *this->sampler(s) = paint.getColorSampler(i);
         }
     }
 
-    this->setFirstCoverageStage(GrPaint::kFirstMaskStage);
+    this->setFirstCoverageStage(GrPaint::kFirstCoverageStage);
 
-    for (int i = 0; i < GrPaint::kMaxMasks; ++i) {
-        int s = i + GrPaint::kFirstMaskStage;
-        if (paint.isMaskStageEnabled(i)) {
-            *this->sampler(s) = paint.getMaskSampler(i);
+    for (int i = 0; i < GrPaint::kMaxCoverageStages; ++i) {
+        int s = i + GrPaint::kFirstCoverageStage;
+        if (paint.isCoverageStageEnabled(i)) {
+            *this->sampler(s) = paint.getCoverageSampler(i);
         }
     }
 
