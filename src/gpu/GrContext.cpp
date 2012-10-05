@@ -603,7 +603,7 @@ void GrContext::drawPaint(const GrPaint& paint) {
         }
         inverse.mapRect(&r);
     } else {
-        if (paint.hasTextureOrMask()) {
+        if (paint.hasStage()) {
             tmpPaint.set(paint);
             p = tmpPaint.get();
             if (!tmpPaint.get()->preConcatSamplerMatricesWithInverse(fDrawState->getViewMatrix())) {
@@ -841,8 +841,8 @@ void GrContext::drawRectToRect(const GrPaint& paint,
                                const GrMatrix* srcMatrix) {
     SK_TRACE_EVENT0("GrContext::drawRectToRect");
 
-    // srcRect refers to paint's first texture
-    if (!paint.isTextureStageEnabled(0)) {
+    // srcRect refers to paint's first color stage
+    if (!paint.isColorStageEnabled(0)) {
         drawRect(paint, dstRect, -1, dstMatrix);
         return;
     }
@@ -1830,13 +1830,13 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
     paint.reset();
 
     for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
-        paint.textureSampler(0)->matrix()->setIDiv(srcTexture->width(),
+        paint.colorSampler(0)->matrix()->setIDiv(srcTexture->width(),
                                                    srcTexture->height());
         this->setRenderTarget(dstTexture->asRenderTarget());
         SkRect dstRect(srcRect);
         scale_rect(&dstRect, i < scaleFactorX ? 0.5f : 1.0f,
                             i < scaleFactorY ? 0.5f : 1.0f);
-        paint.textureSampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect,
+        paint.colorSampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect,
                                                            (srcTexture, true)))->unref();
         this->drawRectToRect(paint, dstRect, srcRect);
         srcRect = dstRect;
@@ -1891,10 +1891,10 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
                                       1, srcIRect.height());
         this->clear(&clearRect, 0x0);
         // FIXME:  This should be mitchell, not bilinear.
-        paint.textureSampler(0)->matrix()->setIDiv(srcTexture->width(),
+        paint.colorSampler(0)->matrix()->setIDiv(srcTexture->width(),
                                                    srcTexture->height());
         this->setRenderTarget(dstTexture->asRenderTarget());
-        paint.textureSampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect,
+        paint.colorSampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect,
                                                            (srcTexture, true)))->unref();
         SkRect dstRect(srcRect);
         scale_rect(&dstRect, (float) scaleFactorX, (float) scaleFactorY);

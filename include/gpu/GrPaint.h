@@ -24,8 +24,8 @@
 class GrPaint {
 public:
     enum {
-        kMaxTextures = 2,
-        kMaxMasks    = 1,
+        kMaxColorStages     = 2,
+        kMaxCoverageStages  = 1,
     };
 
     // All the paint fields are public except textures/samplers
@@ -42,58 +42,57 @@ public:
     SkXfermode::Mode            fColorFilterXfermode;
     float                       fColorMatrix[20];
 
-    GrSamplerState* textureSampler(int i) {
-        GrAssert((unsigned)i < kMaxTextures);
-        return fTextureSamplers + i;
+    GrSamplerState* colorSampler(int i) {
+        GrAssert((unsigned)i < kMaxColorStages);
+        return fColorSamplers + i;
     }
 
-    const GrSamplerState& getTextureSampler(int i) const {
-        GrAssert((unsigned)i < kMaxTextures);
-        return fTextureSamplers[i];
+    const GrSamplerState& getColorSampler(int i) const {
+        GrAssert((unsigned)i < kMaxColorStages);
+        return fColorSamplers[i];
     }
 
-    bool isTextureStageEnabled(int i) const {
-        GrAssert((unsigned)i < kMaxTextures);
-        return (NULL != fTextureSamplers[i].getCustomStage());
+    bool isColorStageEnabled(int i) const {
+        GrAssert((unsigned)i < kMaxColorStages);
+        return (NULL != fColorSamplers[i].getCustomStage());
     }
 
-
-    // mask's sampler matrix is always applied to the positions
+    // The coverage stage's sampler matrix is always applied to the positions
     // (i.e. no explicit texture coordinates)
-    GrSamplerState* maskSampler(int i) {
-        GrAssert((unsigned)i < kMaxMasks);
-        return fMaskSamplers + i;
+    GrSamplerState* coverageSampler(int i) {
+        GrAssert((unsigned)i < kMaxCoverageStages);
+        return fCoverageSamplers + i;
     }
 
-    const GrSamplerState& getMaskSampler(int i) const {
-        GrAssert((unsigned)i < kMaxMasks);
-        return fMaskSamplers[i];
+    const GrSamplerState& getCoverageSampler(int i) const {
+        GrAssert((unsigned)i < kMaxCoverageStages);
+        return fCoverageSamplers[i];
     }
 
-    bool isMaskStageEnabled(int i) const {
-        GrAssert((unsigned)i < kMaxTextures);
-        return (NULL != fMaskSamplers[i].getCustomStage());
+    bool isCoverageStageEnabled(int i) const {
+        GrAssert((unsigned)i < kMaxCoverageStages);
+        return (NULL != fCoverageSamplers[i].getCustomStage());
     }
 
-    bool hasMask() const {
-        for (int i = 0; i < kMaxMasks; ++i) {
-            if (this->isMaskStageEnabled(i)) {
+    bool hasCoverageStage() const {
+        for (int i = 0; i < kMaxCoverageStages; ++i) {
+            if (this->isCoverageStageEnabled(i)) {
                 return true;
             }
         }
         return false;
     }
 
-    bool hasTexture() const {
-        for (int i = 0; i < kMaxTextures; ++i) {
-            if (this->isTextureStageEnabled(i)) {
+    bool hasColorStage() const {
+        for (int i = 0; i < kMaxColorStages; ++i) {
+            if (this->isColorStageEnabled(i)) {
                 return true;
             }
         }
         return false;
     }
 
-    bool hasTextureOrMask() const { return this->hasTexture() || this->hasMask(); }
+    bool hasStage() const { return this->hasColorStage() || this->hasCoverageStage(); }
 
     /**
      * Preconcats the matrix of all samplers in the mask with the inverse of a
@@ -103,24 +102,24 @@ public:
     bool preConcatSamplerMatricesWithInverse(const GrMatrix& matrix) {
         GrMatrix inv;
         bool computed = false;
-        for (int i = 0; i < kMaxTextures; ++i) {
-            if (this->isTextureStageEnabled(i)) {
+        for (int i = 0; i < kMaxColorStages; ++i) {
+            if (this->isColorStageEnabled(i)) {
                 if (!computed && !matrix.invert(&inv)) {
                     return false;
                 } else {
                     computed = true;
                 }
-                fTextureSamplers[i].preConcatMatrix(inv);
+                fColorSamplers[i].preConcatMatrix(inv);
             }
         }
-        for (int i = 0; i < kMaxMasks; ++i) {
-            if (this->isMaskStageEnabled(i)) {
+        for (int i = 0; i < kMaxCoverageStages; ++i) {
+            if (this->isCoverageStageEnabled(i)) {
                 if (!computed && !matrix.invert(&inv)) {
                     return false;
                 } else {
                     computed = true;
                 }
-                fMaskSamplers[i].preConcatMatrix(inv);
+                fCoverageSamplers[i].preConcatMatrix(inv);
             }
         }
         return true;
@@ -152,14 +151,14 @@ public:
             memcpy(fColorMatrix, paint.fColorMatrix, sizeof(fColorMatrix));
         }
 
-        for (int i = 0; i < kMaxTextures; ++i) {
-            if (paint.isTextureStageEnabled(i)) {
-                fTextureSamplers[i] = paint.fTextureSamplers[i];
+        for (int i = 0; i < kMaxColorStages; ++i) {
+            if (paint.isColorStageEnabled(i)) {
+                fColorSamplers[i] = paint.fColorSamplers[i];
             }
         }
-        for (int i = 0; i < kMaxMasks; ++i) {
-            if (paint.isMaskStageEnabled(i)) {
-                fMaskSamplers[i] = paint.fMaskSamplers[i];
+        for (int i = 0; i < kMaxCoverageStages; ++i) {
+            if (paint.isCoverageStageEnabled(i)) {
+                fCoverageSamplers[i] = paint.fCoverageSamplers[i];
             }
         }
         return *this;
@@ -186,15 +185,15 @@ public:
     // GrPaint's textures and masks map to the first N stages
     // of GrDrawTarget in that order (textures followed by masks)
     enum {
-        kFirstTextureStage = 0,
-        kFirstMaskStage = kMaxTextures,
-        kTotalStages = kMaxTextures + kMaxMasks,
+        kFirstColorStage = 0,
+        kFirstCoverageStage = kMaxColorStages,
+        kTotalStages = kFirstColorStage + kMaxColorStages + kMaxCoverageStages,
     };
 
 private:
 
-    GrSamplerState              fTextureSamplers[kMaxTextures];
-    GrSamplerState              fMaskSamplers[kMaxMasks];
+    GrSamplerState              fColorSamplers[kMaxColorStages];
+    GrSamplerState              fCoverageSamplers[kMaxCoverageStages];
 
     void resetBlend() {
         fSrcBlendCoeff = kOne_GrBlendCoeff;
@@ -215,14 +214,14 @@ private:
     }
 
     void resetTextures() {
-        for (int i = 0; i < kMaxTextures; ++i) {
-            fTextureSamplers[i].reset();
+        for (int i = 0; i < kMaxColorStages; ++i) {
+            fColorSamplers[i].reset();
         }
     }
 
     void resetMasks() {
-        for (int i = 0; i < kMaxMasks; ++i) {
-            fMaskSamplers[i].reset();
+        for (int i = 0; i < kMaxCoverageStages; ++i) {
+            fCoverageSamplers[i].reset();
         }
     }
 };

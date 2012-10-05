@@ -218,10 +218,10 @@ GrTexture* SkBlendImageFilter::onFilterImageGPU(Proxy* proxy, GrTexture* src, co
     sampleM.setIDiv(background->width(), background->height());
     GrPaint paint;
     paint.reset();
-    paint.textureSampler(0)->reset(sampleM);
-    paint.textureSampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect, (background.get())))->unref();
-    paint.textureSampler(1)->reset(sampleM);
-    paint.textureSampler(1)->setCustomStage(SkNEW_ARGS(GrBlendEffect, (fMode, foreground.get())))->unref();
+    paint.colorSampler(0)->reset(sampleM);
+    paint.colorSampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect, (background.get())))->unref();
+    paint.colorSampler(1)->reset(sampleM);
+    paint.colorSampler(1)->setCustomStage(SkNEW_ARGS(GrBlendEffect, (fMode, foreground.get())))->unref();
     context->drawRect(paint, rect);
     return dst;
 }

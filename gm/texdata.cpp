@@ -115,10 +115,10 @@ protected:
                 ctx->setMatrix(vm);
                 GrMatrix tm;
                 tm = vm;
-                GrMatrix* sampleMat = paint.textureSampler(0)->matrix();
+                GrMatrix* sampleMat = paint.colorSampler(0)->matrix();
                 *sampleMat = vm;
                 sampleMat->postIDiv(2*S, 2*S);
-                paint.textureSampler(0)->setCustomStage(
+                paint.colorSampler(0)->setCustomStage(
                     SkNEW_ARGS(GrSingleTextureEffect, (texture)))->unref();
 
 
