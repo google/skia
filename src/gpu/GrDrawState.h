@@ -20,6 +20,7 @@
 
 #include "SkXfermode.h"
 
+class GrPaint;
 
 class GrDrawState : public GrRefCnt {
 public:
@@ -89,7 +90,15 @@ public:
         fColorFilterMode = SkXfermode::kDst_Mode;
         fColorFilterColor = 0x0;
         fDrawFace = kBoth_DrawFace;
-     }
+    }
+
+    /**
+     * Initializes the GrDrawState based on a GrPaint. Note that GrDrawState
+     * encompases more than GrPaint. Aspects of GrDrawState that have no
+     * GrPaint equivalents are not modified. GrPaint has fewer stages than
+     * GrDrawState. The extra GrDrawState stages are disabled.
+     */
+    void setFromPaint(const GrPaint& paint);
 
     ///////////////////////////////////////////////////////////////////////////
     /// @name Color

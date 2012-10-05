@@ -63,6 +63,7 @@
       '<(skia_src_path)/gpu/GrCustomStage.cpp',
       '<(skia_src_path)/gpu/GrDefaultPathRenderer.cpp',
       '<(skia_src_path)/gpu/GrDefaultPathRenderer.h',
+      '<(skia_src_path)/gpu/GrDrawState.cpp',
       '<(skia_src_path)/gpu/GrDrawState.h',
       '<(skia_src_path)/gpu/GrDrawTarget.cpp',
       '<(skia_src_path)/gpu/GrDrawTarget.h',
