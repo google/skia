@@ -1039,8 +1039,8 @@ void GrDrawTarget::drawRect(const GrRect& rect,
     }
 
     SetRectVertices(rect, matrix, srcRects,
-                    srcMatrices, layout, geo.vertices());
-
+                    srcMatrices, SK_ColorBLACK, layout, geo.vertices());
+    
     drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
 }
 
@@ -1060,10 +1060,20 @@ GrVertexLayout GrDrawTarget::GetRectVertexLayout(const GrRect* srcRects[]) {
     return layout;
 }
 
+// This method fills int the four vertices for drawing 'rect'. 
+//      matrix - is applied to each vertex
+//      srcRects - provide the uvs for each vertex
+//      srcMatrices - are applied to the corresponding 'srcRect'
+//      color - vertex color (replicated in each vertex)
+//      layout - specifies which uvs and/or color are present
+//      vertices - storage for the resulting vertices
+// Note: the color parameter will only be used when kColor_VertexLayoutBit
+// is present in 'layout'
 void GrDrawTarget::SetRectVertices(const GrRect& rect,
                                    const GrMatrix* matrix,
                                    const GrRect* srcRects[],
                                    const GrMatrix* srcMatrices[],
+                                   GrColor color,
                                    GrVertexLayout layout,
                                    void* vertices) {
 #if GR_DEBUG
@@ -1077,9 +1087,9 @@ void GrDrawTarget::SetRectVertices(const GrRect& rect,
     }
 #endif
 
-    int stageOffsets[GrDrawState::kNumStages];
+    int stageOffsets[GrDrawState::kNumStages], colorOffset;
     int vsize = VertexSizeAndOffsetsByStage(layout, stageOffsets,
-                                            NULL, NULL, NULL);
+                                            &colorOffset, NULL, NULL);
 
     GrTCast<GrPoint*>(vertices)->setRectFan(rect.fLeft, rect.fTop,
                                             rect.fRight, rect.fBottom,
@@ -1098,6 +1108,16 @@ void GrDrawTarget::SetRectVertices(const GrRect& rect,
             if (NULL != srcMatrices && NULL != srcMatrices[i]) {
                 srcMatrices[i]->mapPointsWithStride(coords, vsize, 4);
             }
+        }
+    }
+
+    if (layout & kColor_VertexLayoutBit) {
+
+        GrColor* vertCol = GrTCast<GrColor*>(GrTCast<intptr_t>(vertices) + colorOffset);
+
+        for (int i = 0; i < 4; ++i) {
+            *vertCol = color;
+            vertCol = (GrColor*) ((intptr_t) vertCol + vsize);
         }
     }
 }
