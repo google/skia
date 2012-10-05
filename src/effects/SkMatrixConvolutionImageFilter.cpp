@@ -410,7 +410,7 @@ int encodeXY(int x, int y) {
     SkASSERT(x >= 1 && y >= 1 && x * y <= 32);
     if (y < x)
         return 0x40 | encodeXY(y, x);
-    else 
+    else
         return (0x40 >> x) | (y - x);
 }
 
@@ -491,7 +491,7 @@ bool GrMatrixConvolutionEffect::isEqual(const GrCustomStage& sBase) const {
 
 GR_DEFINE_CUSTOM_STAGE_TEST(GrMatrixConvolutionEffect);
 
-// A little bit less than the minimum # uniforms required by DX9SM2 (32). 
+// A little bit less than the minimum # uniforms required by DX9SM2 (32).
 // Allows for a 5x5 kernel (or 25x1, for that matter).
 #define MAX_KERNEL_SIZE 25
 
