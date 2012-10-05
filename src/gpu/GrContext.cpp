@@ -743,7 +743,7 @@ void GrContext::drawRect(const GrPaint& paint,
                                            &useVertexCoverage);
 
     if (doAA) {
-        GrDrawTarget::AutoDeviceCoordDraw adcd(target);
+        GrDrawState::AutoDeviceCoordDraw adcd(target->drawState());
         if (!adcd.succeeded()) {
             return;
         }
@@ -1034,7 +1034,7 @@ void GrContext::drawOval(const GrPaint& paint,
         return;
     }
 
-    GrDrawTarget::AutoDeviceCoordDraw adcd(target);
+    GrDrawState::AutoDeviceCoordDraw adcd(drawState);
     if (!adcd.succeeded()) {
         return;
     }

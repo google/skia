@@ -75,7 +75,7 @@ bool get_path_and_clip_bounds(const GrDrawTarget* target,
 void draw_around_inv_path(GrDrawTarget* target,
                           const GrIRect& devClipBounds,
                           const GrIRect& devPathBounds) {
-    GrDrawTarget::AutoDeviceCoordDraw adcd(target);
+    GrDrawState::AutoDeviceCoordDraw adcd(target->drawState());
     if (!adcd.succeeded()) {
         return;
     }

@@ -115,7 +115,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
                 }
             }
         }
-        GrDrawTarget::AutoDeviceCoordDraw adcd(this, explicitCoordMask);
+        GrDrawState::AutoDeviceCoordDraw adcd(this->drawState(), explicitCoordMask);
         if (!adcd.succeeded()) {
             return;
         }
@@ -129,7 +129,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         // Now that the paint's color is stored in the vertices set it to
         // white so that the following code can batch all the rects regardless
         // of paint color
-        AutoColorRestore acr(this, SK_ColorWHITE);
+        GrDrawState::AutoColorRestore acr(this->drawState(), SK_ColorWHITE);
 
         // we don't want to miss an opportunity to batch rects together
         // simply because the clip has changed if the clip doesn't affect

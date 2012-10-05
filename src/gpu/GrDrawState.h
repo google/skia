@@ -135,6 +135,24 @@ public:
     GrColor getColorFilterColor() const { return fColorFilterColor; }
     SkXfermode::Mode getColorFilterMode() const { return fColorFilterMode; }
 
+    /**
+     * Constructor sets the color to be 'color' which is undone by the destructor.
+     */
+    class AutoColorRestore : public ::GrNoncopyable {
+    public:
+        AutoColorRestore(GrDrawState* drawState, GrColor color) {
+            fDrawState = drawState;
+            fOldColor = fDrawState->getColor();
+            fDrawState->setColor(color);
+        }
+        ~AutoColorRestore() {
+            fDrawState->setColor(fOldColor);
+        }
+    private:
+        GrDrawState*    fDrawState;
+        GrColor         fOldColor;
+    };
+
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////
@@ -446,6 +464,11 @@ public:
         return false;
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * TODO: Automatically handle stage matrices.
+     */
     class AutoViewMatrixRestore : public ::GrNoncopyable {
     public:
         AutoViewMatrixRestore() : fDrawState(NULL) {}
@@ -483,6 +506,31 @@ public:
     private:
         GrDrawState* fDrawState;
         GrMatrix fSavedMatrix;
+    };
+
+    ////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * This sets the view matrix to identity and adjusts stage matrices to
+     * compensate. The destructor undoes the changes, restoring the view matrix
+     * that was set before the constructor.
+     */
+    class AutoDeviceCoordDraw : ::GrNoncopyable {
+    public:
+        /**
+         * If a stage's texture matrix is applied to explicit per-vertex coords,
+         * rather than to positions, then we don't want to modify its matrix.
+         * The explicitCoordStageMask is used to specify such stages.
+         */
+        AutoDeviceCoordDraw(GrDrawState* drawState,
+                            uint32_t explicitCoordStageMask = 0);
+        bool succeeded() const { return NULL != fDrawState; }
+        ~AutoDeviceCoordDraw();
+    private:
+        GrDrawState*       fDrawState;
+        GrMatrix           fViewMatrix;
+        GrMatrix           fSamplerMatrices[GrDrawState::kNumStages];
+        int                fRestoreMask;
     };
 
     /// @}

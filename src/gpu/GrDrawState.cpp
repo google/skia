@@ -46,3 +46,44 @@ void GrDrawState::setFromPaint(const GrPaint& paint) {
     this->setColorFilter(paint.getColorFilterColor(), paint.getColorFilterMode());
     this->setCoverage(paint.getCoverage());
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+GrDrawState::AutoDeviceCoordDraw::AutoDeviceCoordDraw(GrDrawState* drawState,
+                                                      uint32_t explicitCoordStageMask) {
+    GrAssert(NULL != drawState);
+
+    fDrawState = drawState;
+    fViewMatrix = drawState->getViewMatrix();
+    fRestoreMask = 0;
+    GrMatrix invVM;
+    bool inverted = false;
+
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+        if (!(explicitCoordStageMask & (1 << s)) && drawState->isStageEnabled(s)) {
+            if (!inverted && !fViewMatrix.invert(&invVM)) {
+                // sad trombone sound
+                fDrawState = NULL;
+                return;
+            } else {
+                inverted = true;
+            }
+            fRestoreMask |= (1 << s);
+            GrSamplerState* sampler = drawState->sampler(s);
+            fSamplerMatrices[s] = sampler->getMatrix();
+            sampler->preConcatMatrix(invVM);
+        }
+    }
+    drawState->viewMatrix()->reset();
+}
+
+GrDrawState::AutoDeviceCoordDraw::~AutoDeviceCoordDraw() {
+    if (NULL != fDrawState) {
+        fDrawState->setViewMatrix(fViewMatrix);
+        for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+            if (fRestoreMask & (1 << s)) {
+                *fDrawState->sampler(s)->matrix() = fSamplerMatrices[s];
+            }
+        }
+    }
+}
