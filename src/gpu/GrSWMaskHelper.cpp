@@ -202,7 +202,7 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
                                               const GrIRect& rect) {
     GrDrawState* drawState = target->drawState();
 
-    GrDrawTarget::AutoDeviceCoordDraw adcd(target);
+    GrDrawState::AutoDeviceCoordDraw adcd(drawState);
     if (!adcd.succeeded()) {
         return;
     }

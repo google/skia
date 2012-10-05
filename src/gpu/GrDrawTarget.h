@@ -599,54 +599,6 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////
 
-    /**
-     * Sets the view matrix to I and preconcats all stage matrices enabled in
-     * mask by the view inverse. Destructor undoes these changes.
-     */
-    class AutoDeviceCoordDraw : ::GrNoncopyable {
-    public:
-        /**
-         * If a stage's texture matrix is applied to explicit per-vertex coords,
-         * rather than to positions, then we don't want to modify its matrix.
-         * The explicitCoordStageMask is used to specify such stages.
-         *
-         * TODO: Remove this when custom stage's control their own texture
-         * matrix and there is a "view matrix has changed" notification to the
-         * custom stages.
-         */
-        AutoDeviceCoordDraw(GrDrawTarget* target,
-                            uint32_t explicitCoordStageMask = 0);
-        bool succeeded() const { return NULL != fDrawTarget; }
-        ~AutoDeviceCoordDraw();
-    private:
-        GrDrawTarget*       fDrawTarget;
-        GrMatrix            fViewMatrix;
-        GrMatrix            fSamplerMatrices[GrDrawState::kNumStages];
-        int                 fRestoreMask;
-    };
-
-    ////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Constructor sets the color to be 'color' which is undone by the destructor.
-     */
-    class AutoColorRestore : public ::GrNoncopyable {
-    public:
-        AutoColorRestore(GrDrawTarget* target, GrColor color) {
-            fDrawTarget = target;
-            fOldColor = target->drawState()->getColor();
-            target->drawState()->setColor(color);
-        }
-        ~AutoColorRestore() {
-            fDrawTarget->drawState()->setColor(fOldColor);
-        }
-    private:
-        GrDrawTarget*   fDrawTarget;
-        GrColor         fOldColor;
-    };
-
-    ////////////////////////////////////////////////////////////////////////////
-
     class AutoReleaseGeometry : ::GrNoncopyable {
     public:
         AutoReleaseGeometry(GrDrawTarget*  target,

@@ -1160,47 +1160,6 @@ void GrDrawTarget::AutoStateRestore::set(GrDrawTarget* target, ASRInit init) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrDrawTarget::AutoDeviceCoordDraw::AutoDeviceCoordDraw(GrDrawTarget* target,
-                                                       uint32_t explicitCoordStageMask) {
-    GrAssert(NULL != target);
-    GrDrawState* drawState = target->drawState();
-
-    fDrawTarget = target;
-    fViewMatrix = drawState->getViewMatrix();
-    fRestoreMask = 0;
-    GrMatrix invVM;
-    bool inverted = false;
-
-    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        if (!(explicitCoordStageMask & (1 << s)) && drawState->isStageEnabled(s)) {
-            if (!inverted && !fViewMatrix.invert(&invVM)) {
-                // sad trombone sound
-                fDrawTarget = NULL;
-                return;
-            } else {
-                inverted = true;
-            }
-            fRestoreMask |= (1 << s);
-            GrSamplerState* sampler = drawState->sampler(s);
-            fSamplerMatrices[s] = sampler->getMatrix();
-            sampler->preConcatMatrix(invVM);
-        }
-    }
-    drawState->viewMatrix()->reset();
-}
-
-GrDrawTarget::AutoDeviceCoordDraw::~AutoDeviceCoordDraw() {
-    GrDrawState* drawState = fDrawTarget->drawState();
-    drawState->setViewMatrix(fViewMatrix);
-    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        if (fRestoreMask & (1 << s)) {
-            *drawState->sampler(s)->matrix() = fSamplerMatrices[s];
-        }
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 GrDrawTarget::AutoReleaseGeometry::AutoReleaseGeometry(
                                          GrDrawTarget*  target,
                                          GrVertexLayout vertexLayout,
