@@ -91,6 +91,11 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
 
         bool appendToPreviousDraw = false;
         GrVertexLayout layout = GetRectVertexLayout(srcRects);
+
+        // When we batch rects we store the color at each vertex in order
+        // to allow batching when only the draw color is changing (the usual case)
+        layout |= kColor_VertexLayoutBit;
+
         AutoReleaseGeometry geo(this, layout, 4, 0);
         if (!geo.succeeded()) {
             GrPrintf("Failed to get space for vertices!\n");
@@ -99,7 +104,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         GrMatrix combinedMatrix = drawState->getViewMatrix();
         // We go to device space so that matrix changes allow us to concat
         // rect draws. When the caller has provided explicit source rects
-        // then we don't want to modify the sampler matrices. Otherwise we do
+        // then we don't want to modify the sampler matrices. Otherwise
         // we have to account for the view matrix change in the sampler
         // matrices.
         uint32_t explicitCoordMask = 0;
@@ -118,7 +123,13 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
             combinedMatrix.preConcat(*matrix);
         }
 
-        SetRectVertices(rect, &combinedMatrix, srcRects, srcMatrices, layout, geo.vertices());
+        SetRectVertices(rect, &combinedMatrix, srcRects, srcMatrices, 
+                        this->getDrawState().getColor(), layout, geo.vertices());
+
+        // Now that the paint's color is stored in the vertices set it to
+        // white so that the following code can batch all the rects regardless
+        // of paint color
+        AutoColorRestore acr(this, SK_ColorWHITE);
 
         // we don't want to miss an opportunity to batch rects together
         // simply because the clip has changed if the clip doesn't affect

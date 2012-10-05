@@ -627,6 +627,26 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * Constructor sets the color to be 'color' which is undone by the destructor.
+     */
+    class AutoColorRestore : public ::GrNoncopyable {
+    public:
+        AutoColorRestore(GrDrawTarget* target, GrColor color) {
+            fDrawTarget = target;
+            fOldColor = target->drawState()->getColor();
+            target->drawState()->setColor(color);
+        }
+        ~AutoColorRestore() {
+            fDrawTarget->drawState()->setColor(fOldColor);
+        }
+    private:
+        GrDrawTarget*   fDrawTarget;
+        GrColor         fOldColor;
+    };
+
+    ////////////////////////////////////////////////////////////////////////////
+
     class AutoReleaseGeometry : ::GrNoncopyable {
     public:
         AutoReleaseGeometry(GrDrawTarget*  target,
@@ -1023,6 +1043,7 @@ protected:
                                 const GrMatrix* matrix,
                                 const GrRect* srcRects[],
                                 const GrMatrix* srcMatrices[],
+                                GrColor color,
                                 GrVertexLayout layout,
                                 void* vertices);
 
