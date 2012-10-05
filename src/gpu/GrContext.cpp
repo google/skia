@@ -1588,59 +1588,20 @@ void GrContext::writeRenderTargetPixels(GrRenderTarget* target,
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrContext::setPaint(const GrPaint& paint) {
-    GrAssert(fDrawState->stagesDisabled());
-
-    for (int i = 0; i < GrPaint::kMaxTextures; ++i) {
-        int s = i + GrPaint::kFirstTextureStage;
-        if (paint.isTextureStageEnabled(i)) {
-            *fDrawState->sampler(s) = paint.getTextureSampler(i);
-        }
-    }
-
-    fDrawState->setFirstCoverageStage(GrPaint::kFirstMaskStage);
-
-    for (int i = 0; i < GrPaint::kMaxMasks; ++i) {
-        int s = i + GrPaint::kFirstMaskStage;
-        if (paint.isMaskStageEnabled(i)) {
-            *fDrawState->sampler(s) = paint.getMaskSampler(i);
-        }
-    }
-
-    // disable all stages not accessible via the paint
-    for (int s = GrPaint::kTotalStages; s < GrDrawState::kNumStages; ++s) {
-        fDrawState->disableStage(s);
-    }
-
-    fDrawState->setColor(paint.fColor);
-
-    fDrawState->setState(GrDrawState::kDither_StateBit, paint.fDither);
-    fDrawState->setState(GrDrawState::kHWAntialias_StateBit, paint.fAntiAlias);
-
-    if (paint.fColorMatrixEnabled) {
-        fDrawState->enableState(GrDrawState::kColorMatrix_StateBit);
-        fDrawState->setColorMatrix(paint.fColorMatrix);
-    } else {
-        fDrawState->disableState(GrDrawState::kColorMatrix_StateBit);
-    }
-    fDrawState->setBlendFunc(paint.fSrcBlendCoeff, paint.fDstBlendCoeff);
-    fDrawState->setColorFilter(paint.fColorFilterColor, paint.fColorFilterXfermode);
-    fDrawState->setCoverage(paint.fCoverage);
-#if GR_DEBUG_PARTIAL_COVERAGE_CHECK
-    if ((paint.hasMask() || 0xff != paint.fCoverage) &&
-        !fGpu->canApplyCoverage()) {
-        GrPrintf("Partial pixel coverage will be incorrectly blended.\n");
-    }
-#endif
-}
-
 GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint, BufferedDraw buffered) {
     if (kNo_BufferedDraw == buffered && kYes_BufferedDraw == fLastDrawWasBuffered) {
         this->flushDrawBuffer();
         fLastDrawWasBuffered = kNo_BufferedDraw;
     }
     if (NULL != paint) {
-        this->setPaint(*paint);
+        GrAssert(fDrawState->stagesDisabled());
+        fDrawState->setFromPaint(*paint);
+#if GR_DEBUG_PARTIAL_COVERAGE_CHECK
+        if ((paint->hasMask() || 0xff != paint->fCoverage) &&
+            !fGpu->canApplyCoverage()) {
+            GrPrintf("Partial pixel coverage will be incorrectly blended.\n");
+        }
+#endif
     }
     if (kYes_BufferedDraw == buffered) {
         fDrawBuffer->setClip(fGpu->getClip());

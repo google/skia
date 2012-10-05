@@ -841,8 +841,6 @@ private:
 
     void flushDrawBuffer();
 
-    void setPaint(const GrPaint& paint);
-
     /// Sets the paint and returns the target to draw into. The paint can be NULL in which case the
     /// draw state is left unmodified.
     GrDrawTarget* prepareToDraw(const GrPaint*, BufferedDraw);
