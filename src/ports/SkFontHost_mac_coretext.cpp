@@ -748,8 +748,7 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
         doAA = true;
     }
 
-    //FIXME: lcd smoothed un-hinted rasterization unsupported. Tracked by
-    //http://code.google.com/p/skia/issues/detail?id=915
+    // FIXME: lcd smoothed un-hinted rasterization unsupported.
     if (!generateA8FromLCD && SkMask::kA8_Format == glyph.fMaskFormat) {
         doLCD = false;
         doAA = true;
@@ -1202,8 +1201,7 @@ template <typename T> T* SkTAddByteOffset(T* ptr, size_t byteOffset) {
 void SkScalerContext_Mac::generateImage(const SkGlyph& glyph, SkMaskGamma::PreBlend* maskPreBlend) {
     CGGlyph cgGlyph = (CGGlyph) glyph.getGlyphID(fBaseGlyphCount);
 
-    //FIXME: lcd smoothed un-hinted rasterization unsupported. Tracked by
-    //http://code.google.com/p/skia/issues/detail?id=915
+    // FIXME: lcd smoothed un-hinted rasterization unsupported.
     bool generateA8FromLCD = fRec.getHinting() != SkPaint::kNo_Hinting;
 
     // Draw the glyph
@@ -1819,7 +1817,9 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
 
     rec->fFlags &= ~flagsWeDontSupport;
 
-    // we only support 2 levels of hinting
+    // Only two levels of hinting are supported.
+    // kNo_Hinting means avoid CoreGraphics outline dilation.
+    // kNormal_Hinting means CoreGraphics outline dilation is allowed.
     SkPaint::Hinting h = rec->getHinting();
     if (SkPaint::kSlight_Hinting == h) {
         h = SkPaint::kNo_Hinting;
@@ -1828,13 +1828,31 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     }
     rec->setHinting(h);
 
-    //FIXME: lcd smoothed un-hinted rasterization unsupported. Tracked by
-    //http://code.google.com/p/skia/issues/detail?id=915
-    bool lcdSupport = supports_LCD() && rec->getHinting() != SkPaint::kNo_Hinting;
+    // FIXME: lcd smoothed un-hinted rasterization unsupported.
+    // Tracked by http://code.google.com/p/skia/issues/detail?id=915 .
+    // There is no current means to honor a request for unhinted lcd,
+    // so arbitrarilly ignore the hinting request and honor lcd.
+   
+    // Hinting and smoothing should be orthogonal, but currently they are not.
+    // CoreGraphics has no API to influence hinting. However, its lcd smoothed
+    // output is drawn from auto-dilated outlines (the amount of which is
+    // determined by AppleFontSmoothing). Its regular anti-aliased output is
+    // drawn from un-dilated outlines.
+    
+    // The behavior of Skia is as follows:
+    // [AA][no-hint]: generate AA using CoreGraphic's AA output.
+    // [AA][yes-hint]: use CoreGraphic's LCD output and reduce it to a single
+    // channel. This matches [LCD][yes-hint] in weight.
+    // [LCD][no-hint]: curently unable to honor, and must pick which to respect.
+    // Currenly side with LCD, effectively ignoring the hinting setting.
+    // [LCD][yes-hint]: generate LCD using CoreGraphic's LCD output.
+    
+    bool lcdSupport = supports_LCD();
     if (isLCDFormat(rec->fMaskFormat)) {
         if (lcdSupport) {
             //CoreGraphics creates 555 masks for smoothed text anyway.
             rec->fMaskFormat = SkMask::kLCD16_Format;
+            rec->setHinting(SkPaint::kNormal_Hinting);
         } else {
             rec->fMaskFormat = SkMask::kA8_Format;
         }
