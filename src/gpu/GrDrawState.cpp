@@ -31,18 +31,18 @@ void GrDrawState::setFromPaint(const GrPaint& paint) {
         this->disableStage(s);
     }
 
-    this->setColor(paint.fColor);
+    this->setColor(paint.getColor());
 
-    this->setState(GrDrawState::kDither_StateBit, paint.fDither);
-    this->setState(GrDrawState::kHWAntialias_StateBit, paint.fAntiAlias);
+    this->setState(GrDrawState::kDither_StateBit, paint.isDither());
+    this->setState(GrDrawState::kHWAntialias_StateBit, paint.isAntiAlias());
 
-    if (paint.fColorMatrixEnabled) {
+    if (paint.isColorMatrixEnabled()) {
         this->enableState(GrDrawState::kColorMatrix_StateBit);
-        this->setColorMatrix(paint.fColorMatrix);
+        this->setColorMatrix(paint.getColorMatrix());
     } else {
         this->disableState(GrDrawState::kColorMatrix_StateBit);
     }
-    this->setBlendFunc(paint.fSrcBlendCoeff, paint.fDstBlendCoeff);
-    this->setColorFilter(paint.fColorFilterColor, paint.fColorFilterXfermode);
-    this->setCoverage(paint.fCoverage);
+    this->setBlendFunc(paint.getSrcBlendCoeff(), paint.getDstBlendCoeff());
+    this->setColorFilter(paint.getColorFilterColor(), paint.getColorFilterMode());
+    this->setCoverage(paint.getCoverage());
 }

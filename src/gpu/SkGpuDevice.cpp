@@ -510,9 +510,8 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
                                     SkGpuDevice::SkAutoCachedTexture* act,
                                     GrPaint* grPaint) {
 
-    grPaint->fDither    = skPaint.isDither();
-    grPaint->fAntiAlias = skPaint.isAntiAlias();
-    grPaint->fCoverage = 0xFF;
+    grPaint->setDither(skPaint.isDither());
+    grPaint->setAntiAlias(skPaint.isAntiAlias());
 
     SkXfermode::Coeff sm = SkXfermode::kOne_Coeff;
     SkXfermode::Coeff dm = SkXfermode::kISA_Coeff;
@@ -526,17 +525,16 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
 #endif
         }
     }
-    grPaint->fSrcBlendCoeff = sk_blend_to_grblend(sm);
-    grPaint->fDstBlendCoeff = sk_blend_to_grblend(dm);
+    grPaint->setBlendFunc(sk_blend_to_grblend(sm), sk_blend_to_grblend(dm));
 
     if (justAlpha) {
         uint8_t alpha = skPaint.getAlpha();
-        grPaint->fColor = GrColorPackRGBA(alpha, alpha, alpha, alpha);
+        grPaint->setColor(GrColorPackRGBA(alpha, alpha, alpha, alpha));
         // justAlpha is currently set to true only if there is a texture,
         // so constantColor should not also be true.
         GrAssert(!constantColor);
     } else {
-        grPaint->fColor = SkColor2GrColor(skPaint.getColor());
+        grPaint->setColor(SkColor2GrColor(skPaint.getColor()));
         GrAssert(!grPaint->isColorStageEnabled(kShaderTextureIdx));
     }
     SkColorFilter* colorFilter = skPaint.getColorFilter();
@@ -544,24 +542,17 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
     SkXfermode::Mode filterMode;
     SkScalar matrix[20];
     SkBitmap colorTransformTable;
-    grPaint->resetColorFilter();
     // TODO: SkColorFilter::asCustomStage()
     if (colorFilter != NULL && colorFilter->asColorMode(&color, &filterMode)) {
-        grPaint->fColorMatrixEnabled = false;
         if (!constantColor) {
-            grPaint->fColorFilterColor = SkColor2GrColor(color);
-            grPaint->fColorFilterXfermode = filterMode;
+            grPaint->setXfermodeColorFilter(filterMode, SkColor2GrColor(color));
         } else {
             SkColor filtered = colorFilter->filterColor(skPaint.getColor());
-            grPaint->fColor = SkColor2GrColor(filtered);
+            grPaint->setColor(SkColor2GrColor(filtered));
         }
     } else if (colorFilter != NULL && colorFilter->asColorMatrix(matrix)) {
-        grPaint->fColorMatrixEnabled = true;
-        memcpy(grPaint->fColorMatrix, matrix, sizeof(matrix));
-        grPaint->fColorFilterXfermode = SkXfermode::kDst_Mode;
+        grPaint->setColorMatrix(matrix);
     } else if (colorFilter != NULL && colorFilter->asComponentTable(&colorTransformTable)) {
-        grPaint->resetColorFilter();
-
         // pass NULL because the color table effect doesn't use tiling or filtering.
         GrTexture* texture = act->set(dev, colorTransformTable, NULL);
         GrSamplerState* colorSampler = grPaint->colorSampler(kColorFilterTextureIdx);
@@ -895,18 +886,16 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
 
         context->clear(NULL, 0);
         GrPaint tempPaint;
-        tempPaint.reset();
 
-        tempPaint.fAntiAlias = grp->fAntiAlias;
-        if (tempPaint.fAntiAlias) {
+        if (grp->isAntiAlias()) {
+            tempPaint.setAntiAlias(true);
             // AA uses the "coverage" stages on GrDrawTarget. Coverage with a dst
             // blend coeff of zero requires dual source blending support in order
             // to properly blend partially covered pixels. This means the AA
             // code path may not be taken. So we use a dst blend coeff of ISA. We
             // could special case AA draws to a dst surface with known alpha=0 to
             // use a zero dst coeff when dual source blending isn't available.
-            tempPaint.fSrcBlendCoeff = kOne_GrBlendCoeff;
-            tempPaint.fDstBlendCoeff = kISC_GrBlendCoeff;
+            tempPaint.setBlendFunc(kOne_GrBlendCoeff, kISC_GrBlendCoeff);
         }
         // Draw hard shadow to pathTexture with path topleft at origin 0,0.
         context->drawPath(tempPaint, path, pathFillType, &offset);
@@ -928,18 +917,15 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
                 (GrSingleTextureEffect, (pathTexture)))->unref();
             if (SkMaskFilter::kInner_BlurType == blurType) {
                 // inner:  dst = dst * src
-                paint.fSrcBlendCoeff = kDC_GrBlendCoeff;
-                paint.fDstBlendCoeff = kZero_GrBlendCoeff;
+                paint.setBlendFunc(kDC_GrBlendCoeff, kZero_GrBlendCoeff);
             } else if (SkMaskFilter::kSolid_BlurType == blurType) {
                 // solid:  dst = src + dst - src * dst
                 //             = (1 - dst) * src + 1 * dst
-                paint.fSrcBlendCoeff = kIDC_GrBlendCoeff;
-                paint.fDstBlendCoeff = kOne_GrBlendCoeff;
+                paint.setBlendFunc(kIDC_GrBlendCoeff, kOne_GrBlendCoeff);
             } else if (SkMaskFilter::kOuter_BlurType == blurType) {
                 // outer:  dst = dst * (1 - src)
                 //             = 0 * src + (1 - src) * dst
-                paint.fSrcBlendCoeff = kZero_GrBlendCoeff;
-                paint.fDstBlendCoeff = kISC_GrBlendCoeff;
+                paint.setBlendFunc(kZero_GrBlendCoeff, kISC_GrBlendCoeff);
             }
             context->drawRect(paint, srcRect);
         }
@@ -1059,8 +1045,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     SkScalar hairlineCoverage;
     if (SkDrawTreatAsHairline(paint, *draw.fMatrix, &hairlineCoverage)) {
         doFill = false;
-        grPaint.fCoverage = SkScalarRoundToInt(hairlineCoverage *
-                                               grPaint.fCoverage);
+        grPaint.setCoverage(SkScalarRoundToInt(hairlineCoverage * grPaint.getCoverage()));
     }
 
     // If we have a prematrix, apply it to the path, optimizing for the case
@@ -1520,7 +1505,6 @@ void apply_custom_stage(GrContext* context,
     GrMatrix sampleM;
     sampleM.setIDiv(srcTexture->width(), srcTexture->height());
     GrPaint paint;
-    paint.reset();
     paint.colorSampler(0)->reset(sampleM);
     paint.colorSampler(0)->setCustomStage(stage);
     context->drawRect(paint, rect);
@@ -1707,7 +1691,6 @@ bool SkGpuDevice::filterImage(SkImageFilter* filter, const SkBitmap& src,
     }
 
     GrPaint paint;
-    paint.reset();
 
     GrTexture* texture;
     // We assume here that the filter will not attempt to tile the src. Otherwise, this cache lookup
