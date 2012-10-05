@@ -9,7 +9,7 @@
 #ifndef SkLightingImageFilter_DEFINED
 #define SkLightingImageFilter_DEFINED
 
-#include "SkImageFilter.h"
+#include "SkSingleInputImageFilter.h"
 #include "SkColor.h"
 
 class SK_API SkPoint3 {
@@ -47,38 +47,41 @@ public:
 
 class SkLight;
 
-class SK_API SkLightingImageFilter : public SkImageFilter {
+class SK_API SkLightingImageFilter : public SkSingleInputImageFilter {
 public:
     static SkImageFilter* CreateDistantLitDiffuse(const SkPoint3& direction,
-        SkColor lightColor, SkScalar surfaceScale, SkScalar kd);
+        SkColor lightColor, SkScalar surfaceScale, SkScalar kd,
+        SkImageFilter* input = NULL);
     static SkImageFilter* CreatePointLitDiffuse(const SkPoint3& location,
-        SkColor lightColor, SkScalar surfaceScale, SkScalar kd);
+        SkColor lightColor, SkScalar surfaceScale, SkScalar kd,
+        SkImageFilter* input = NULL);
     static SkImageFilter* CreateSpotLitDiffuse(const SkPoint3& location,
         const SkPoint3& target, SkScalar specularExponent, SkScalar cutoffAngle,
-        SkColor lightColor, SkScalar surfaceScale, SkScalar kd);
+        SkColor lightColor, SkScalar surfaceScale, SkScalar kd,
+        SkImageFilter* input = NULL);
     static SkImageFilter* CreateDistantLitSpecular(const SkPoint3& direction,
         SkColor lightColor, SkScalar surfaceScale, SkScalar ks,
-        SkScalar shininess);
+        SkScalar shininess, SkImageFilter* input = NULL);
     static SkImageFilter* CreatePointLitSpecular(const SkPoint3& location,
         SkColor lightColor, SkScalar surfaceScale, SkScalar ks,
-        SkScalar shininess);
+        SkScalar shininess, SkImageFilter* input = NULL);
     static SkImageFilter* CreateSpotLitSpecular(const SkPoint3& location,
         const SkPoint3& target, SkScalar specularExponent, SkScalar cutoffAngle,
         SkColor lightColor, SkScalar surfaceScale, SkScalar ks,
-        SkScalar shininess);
+        SkScalar shininess, SkImageFilter* input = NULL);
     ~SkLightingImageFilter();
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
 protected:
-    SkLightingImageFilter(SkLight* light, SkScalar surfaceScale);
+    SkLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkImageFilter* input);
     explicit SkLightingImageFilter(SkFlattenableReadBuffer& buffer);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
     const SkLight* light() const { return fLight; }
     SkScalar surfaceScale() const { return fSurfaceScale; }
 
 private:
-    typedef SkImageFilter INHERITED;
+    typedef SkSingleInputImageFilter INHERITED;
     SkLight* fLight;
     SkScalar fSurfaceScale;
 };
