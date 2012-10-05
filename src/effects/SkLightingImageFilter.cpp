@@ -267,7 +267,8 @@ void writePoint3(const SkPoint3& point, SkFlattenableWriteBuffer& buffer) {
 
 class SkDiffuseLightingImageFilter : public SkLightingImageFilter {
 public:
-    SkDiffuseLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar kd);
+    SkDiffuseLightingImageFilter(SkLight* light, SkScalar surfaceScale,
+                                 SkScalar kd, SkImageFilter* input);
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDiffuseLightingImageFilter)
 
     virtual bool asNewCustomStage(GrCustomStage** stage, GrTexture*) const SK_OVERRIDE;
@@ -287,7 +288,7 @@ private:
 
 class SkSpecularLightingImageFilter : public SkLightingImageFilter {
 public:
-    SkSpecularLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar ks, SkScalar shininess);
+    SkSpecularLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar ks, SkScalar shininess, SkImageFilter* input);
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSpecularLightingImageFilter)
 
     virtual bool asNewCustomStage(GrCustomStage** stage, GrTexture*) const SK_OVERRIDE;
@@ -695,8 +696,9 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkLightingImageFilter::SkLightingImageFilter(SkLight* light, SkScalar surfaceScale)
-  : fLight(light),
+SkLightingImageFilter::SkLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkImageFilter* input)
+  : INHERITED(input),
+    fLight(light),
     fSurfaceScale(SkScalarDiv(surfaceScale, SkIntToScalar(255)))
 {
     SkASSERT(fLight);
@@ -706,49 +708,55 @@ SkLightingImageFilter::SkLightingImageFilter(SkLight* light, SkScalar surfaceSca
 
 SkImageFilter* SkLightingImageFilter::CreateDistantLitDiffuse(
     const SkPoint3& direction, SkColor lightColor, SkScalar surfaceScale,
-    SkScalar kd) {
+    SkScalar kd, SkImageFilter* input) {
     return SkNEW_ARGS(SkDiffuseLightingImageFilter,
-        (SkNEW_ARGS(SkDistantLight, (direction, lightColor)), surfaceScale, kd));
+        (SkNEW_ARGS(SkDistantLight, (direction, lightColor)), surfaceScale, kd,
+        input));
 }
 
 SkImageFilter* SkLightingImageFilter::CreatePointLitDiffuse(
     const SkPoint3& location, SkColor lightColor, SkScalar surfaceScale,
-    SkScalar kd) {
+    SkScalar kd, SkImageFilter* input) {
     return SkNEW_ARGS(SkDiffuseLightingImageFilter,
-        (SkNEW_ARGS(SkPointLight, (location, lightColor)), surfaceScale, kd));
+        (SkNEW_ARGS(SkPointLight, (location, lightColor)), surfaceScale, kd,
+        input));
 }
 
 SkImageFilter* SkLightingImageFilter::CreateSpotLitDiffuse(
     const SkPoint3& location, const SkPoint3& target,
     SkScalar specularExponent, SkScalar cutoffAngle,
-    SkColor lightColor, SkScalar surfaceScale, SkScalar kd) {
+    SkColor lightColor, SkScalar surfaceScale, SkScalar kd,
+    SkImageFilter* input) {
     return SkNEW_ARGS(SkDiffuseLightingImageFilter,
-        (SkNEW_ARGS(SkSpotLight, (location, target, specularExponent, cutoffAngle, lightColor)),
-                    surfaceScale, kd));
+        (SkNEW_ARGS(SkSpotLight, (location, target, specularExponent,
+                                  cutoffAngle, lightColor)),
+                    surfaceScale, kd, input));
 }
 
 SkImageFilter* SkLightingImageFilter::CreateDistantLitSpecular(
     const SkPoint3& direction, SkColor lightColor, SkScalar surfaceScale,
-    SkScalar ks, SkScalar shininess) {
+    SkScalar ks, SkScalar shininess, SkImageFilter* input) {
     return SkNEW_ARGS(SkSpecularLightingImageFilter,
-        (SkNEW_ARGS(SkDistantLight, (direction, lightColor)), surfaceScale, ks, shininess));
+        (SkNEW_ARGS(SkDistantLight, (direction, lightColor)),
+        surfaceScale, ks, shininess, input));
 }
 
 SkImageFilter* SkLightingImageFilter::CreatePointLitSpecular(
     const SkPoint3& location, SkColor lightColor, SkScalar surfaceScale,
-    SkScalar ks, SkScalar shininess) {
+    SkScalar ks, SkScalar shininess, SkImageFilter* input) {
     return SkNEW_ARGS(SkSpecularLightingImageFilter,
-        (SkNEW_ARGS(SkPointLight, (location, lightColor)), surfaceScale, ks, shininess));
+        (SkNEW_ARGS(SkPointLight, (location, lightColor)),
+        surfaceScale, ks, shininess, input));
 }
 
 SkImageFilter* SkLightingImageFilter::CreateSpotLitSpecular(
     const SkPoint3& location, const SkPoint3& target,
     SkScalar specularExponent, SkScalar cutoffAngle,
     SkColor lightColor, SkScalar surfaceScale,
-    SkScalar ks, SkScalar shininess) {
+    SkScalar ks, SkScalar shininess, SkImageFilter* input) {
     return SkNEW_ARGS(SkSpecularLightingImageFilter,
         (SkNEW_ARGS(SkSpotLight, (location, target, specularExponent, cutoffAngle, lightColor)),
-                    surfaceScale, ks, shininess));
+        surfaceScale, ks, shininess, input));
 }
 
 SkLightingImageFilter::~SkLightingImageFilter() {
@@ -770,8 +778,8 @@ void SkLightingImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkDiffuseLightingImageFilter::SkDiffuseLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar kd)
-  : SkLightingImageFilter(light, surfaceScale),
+SkDiffuseLightingImageFilter::SkDiffuseLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar kd, SkImageFilter* input)
+  : SkLightingImageFilter(light, surfaceScale, input),
     fKD(kd)
 {
 }
@@ -836,8 +844,8 @@ bool SkDiffuseLightingImageFilter::asNewCustomStage(GrCustomStage** stage,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkSpecularLightingImageFilter::SkSpecularLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar ks, SkScalar shininess)
-  : SkLightingImageFilter(light, surfaceScale),
+SkSpecularLightingImageFilter::SkSpecularLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar ks, SkScalar shininess, SkImageFilter* input)
+  : SkLightingImageFilter(light, surfaceScale, input),
     fKS(ks),
     fShininess(shininess)
 {
