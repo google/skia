@@ -613,13 +613,13 @@ void GrContext::drawPaint(const GrPaint& paint) {
         am.set(this, GrMatrix::I());
     }
     // by definition this fills the entire clip, no need for AA
-    if (paint.fAntiAlias) {
+    if (paint.isAntiAlias()) {
         if (!tmpPaint.isValid()) {
             tmpPaint.set(paint);
             p = tmpPaint.get();
         }
         GrAssert(p == tmpPaint.get());
-        tmpPaint.get()->fAntiAlias = false;
+        tmpPaint.get()->setAntiAlias(false);
     }
     this->drawRect(*p, r);
 }
@@ -736,7 +736,7 @@ void GrContext::drawRect(const GrPaint& paint,
     GrRect devRect = rect;
     GrMatrix combinedMatrix;
     bool useVertexCoverage;
-    bool needAA = paint.fAntiAlias &&
+    bool needAA = paint.isAntiAlias() &&
                   !this->getRenderTarget()->isMultisampled();
     bool doAA = needAA && apply_aa_to_rect(target, rect, width, matrix,
                                            &combinedMatrix, &devRect,
@@ -1013,7 +1013,7 @@ void GrContext::drawOval(const GrPaint& paint,
                          SkScalar strokeWidth) {
     GrAssert(strokeWidth <= 0);
     if (!isSimilarityTransformation(this->getMatrix()) ||
-        !paint.fAntiAlias ||
+        !paint.isAntiAlias() ||
         rect.height() != rect.width()) {
         SkPath path;
         path.addOval(rect);
@@ -1125,7 +1125,7 @@ void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path,
     GrDrawTarget* target = this->prepareToDraw(&paint, DEFAULT_BUFFERING);
     GrDrawState::AutoStageDisable atr(fDrawState);
 
-    bool prAA = paint.fAntiAlias && !this->getRenderTarget()->isMultisampled();
+    bool prAA = paint.isAntiAlias() && !this->getRenderTarget()->isMultisampled();
 
     // An Assumption here is that path renderer would use some form of tweaking
     // the src color (either the input alpha or in the frag shader) to implement

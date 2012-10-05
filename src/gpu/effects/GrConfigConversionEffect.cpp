@@ -176,7 +176,6 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         // We then verify that two reads produced the same values.
 
         GrPaint paint;
-        paint.reset();
 
         SkAutoTUnref<GrCustomStage> pmToUPMStage1(SkNEW_ARGS(GrConfigConversionEffect,
                                                              (dataTex, false, *pmToUPMRule)));

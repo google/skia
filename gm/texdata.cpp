@@ -100,10 +100,7 @@ protected:
                 ctx->setRenderTarget(target);
 
                 GrPaint paint;
-                paint.reset();
-                paint.fColor = 0xffffffff;
-                paint.fSrcBlendCoeff = kOne_GrBlendCoeff;
-                paint.fDstBlendCoeff = kISA_GrBlendCoeff;
+                paint.setBlendFunc(kOne_GrBlendCoeff, kISA_GrBlendCoeff);
                 GrMatrix vm;
                 if (i) {
                     vm.setRotate(90 * SK_Scalar1,

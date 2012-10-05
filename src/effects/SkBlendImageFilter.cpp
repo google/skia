@@ -217,7 +217,6 @@ GrTexture* SkBlendImageFilter::onFilterImageGPU(Proxy* proxy, GrTexture* src, co
     GrMatrix sampleM;
     sampleM.setIDiv(background->width(), background->height());
     GrPaint paint;
-    paint.reset();
     paint.colorSampler(0)->reset(sampleM);
     paint.colorSampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect, (background.get())))->unref();
     paint.colorSampler(1)->reset(sampleM);
