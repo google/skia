@@ -34,7 +34,7 @@
 #endif
 
 #ifndef SK_DEBUG_FONTS
-	#define SK_DEBUG_FONTS 0
+    #define SK_DEBUG_FONTS 0
 #endif
 
 // For test only.
@@ -580,7 +580,7 @@ static void load_font_info() {
         gSystemFonts[i].fFileName = fontInfo[i].fFileName;
         gSystemFonts[i].fNames = fontInfo[i].fNames;
 #if SK_DEBUG_FONTS
-        SkDebugf(("---- gSystemFonts[%d] fileName=%s", i, fontInfo[i].fFileName));
+        SkDebugf("---- gSystemFonts[%d] fileName=%s", i, fontInfo[i].fFileName);
 #endif
     }
     fontFamilies.deleteAll();
