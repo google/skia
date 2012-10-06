@@ -1040,7 +1040,7 @@ void GrDrawTarget::drawRect(const GrRect& rect,
 
     SetRectVertices(rect, matrix, srcRects,
                     srcMatrices, SK_ColorBLACK, layout, geo.vertices());
-    
+
     drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
 }
 
@@ -1060,7 +1060,7 @@ GrVertexLayout GrDrawTarget::GetRectVertexLayout(const GrRect* srcRects[]) {
     return layout;
 }
 
-// This method fills int the four vertices for drawing 'rect'. 
+// This method fills int the four vertices for drawing 'rect'.
 //      matrix - is applied to each vertex
 //      srcRects - provide the uvs for each vertex
 //      srcMatrices - are applied to the corresponding 'srcRect'

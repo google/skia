@@ -123,7 +123,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
             combinedMatrix.preConcat(*matrix);
         }
 
-        SetRectVertices(rect, &combinedMatrix, srcRects, srcMatrices, 
+        SetRectVertices(rect, &combinedMatrix, srcRects, srcMatrices,
                         this->getDrawState().getColor(), layout, geo.vertices());
 
         // Now that the paint's color is stored in the vertices set it to

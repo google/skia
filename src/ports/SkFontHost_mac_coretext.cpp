@@ -1832,13 +1832,13 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     // Tracked by http://code.google.com/p/skia/issues/detail?id=915 .
     // There is no current means to honor a request for unhinted lcd,
     // so arbitrarilly ignore the hinting request and honor lcd.
-   
+
     // Hinting and smoothing should be orthogonal, but currently they are not.
     // CoreGraphics has no API to influence hinting. However, its lcd smoothed
     // output is drawn from auto-dilated outlines (the amount of which is
     // determined by AppleFontSmoothing). Its regular anti-aliased output is
     // drawn from un-dilated outlines.
-    
+
     // The behavior of Skia is as follows:
     // [AA][no-hint]: generate AA using CoreGraphic's AA output.
     // [AA][yes-hint]: use CoreGraphic's LCD output and reduce it to a single
@@ -1846,7 +1846,7 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     // [LCD][no-hint]: curently unable to honor, and must pick which to respect.
     // Currenly side with LCD, effectively ignoring the hinting setting.
     // [LCD][yes-hint]: generate LCD using CoreGraphic's LCD output.
-    
+
     bool lcdSupport = supports_LCD();
     if (isLCDFormat(rec->fMaskFormat)) {
         if (lcdSupport) {
