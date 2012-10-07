@@ -1022,7 +1022,7 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph,
         if (maskPreBlend) {
             rgb_to_lcd32<true>(src, glyph, tableR, tableG, tableB);
         } else {
-            rgb_to_lcd32<true>(src, glyph, tableR, tableG, tableB);
+            rgb_to_lcd32<false>(src, glyph, tableR, tableG, tableB);
         }
     }
 }
