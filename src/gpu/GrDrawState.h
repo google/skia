@@ -467,70 +467,72 @@ public:
     ////////////////////////////////////////////////////////////////////////////
 
     /**
-     * TODO: Automatically handle stage matrices.
+     * Preconcats the current view matrix and restores the previous view matrix in the destructor.
+     * Stage matrices are automatically adjusted to compensate.
      */
     class AutoViewMatrixRestore : public ::GrNoncopyable {
     public:
         AutoViewMatrixRestore() : fDrawState(NULL) {}
-        AutoViewMatrixRestore(GrDrawState* ds, const GrMatrix& newMatrix) {
+
+        AutoViewMatrixRestore(GrDrawState* ds,
+                              const GrMatrix& preconcatMatrix,
+                              uint32_t explicitCoordStageMask = 0) {
             fDrawState = NULL;
-            this->set(ds, newMatrix);
+            this->set(ds, preconcatMatrix, explicitCoordStageMask);
         }
-        AutoViewMatrixRestore(GrDrawState* ds) {
-            fDrawState = NULL;
-            this->set(ds);
-        }
-        ~AutoViewMatrixRestore() {
-            this->set(NULL, GrMatrix::I());
-        }
-        void set(GrDrawState* ds, const GrMatrix& newMatrix) {
-            if (NULL != fDrawState) {
-                fDrawState->setViewMatrix(fSavedMatrix);
-            }
-            if (NULL != ds) {
-                fSavedMatrix = ds->getViewMatrix();
-                ds->setViewMatrix(newMatrix);
-            }
-            fDrawState = ds;
-        }
-        void set(GrDrawState* ds) {
-            if (NULL != fDrawState) {
-                fDrawState->setViewMatrix(fSavedMatrix);
-            }
-            if (NULL != ds) {
-                fSavedMatrix = ds->getViewMatrix();
-            }
-            fDrawState = ds;
-        }
+
+        ~AutoViewMatrixRestore() { this->restore(); }
+
+        void restore();
+        
+        void set(GrDrawState* drawState,
+                 const GrMatrix& preconcatMatrix,
+                 uint32_t explicitCoordStageMask = 0);
+
         bool isSet() const { return NULL != fDrawState; }
+
     private:
-        GrDrawState* fDrawState;
-        GrMatrix fSavedMatrix;
+        GrDrawState*       fDrawState;
+        GrMatrix           fViewMatrix;
+        GrMatrix           fSamplerMatrices[GrDrawState::kNumStages];
+        uint32_t           fRestoreMask;
     };
 
     ////////////////////////////////////////////////////////////////////////////
 
     /**
-     * This sets the view matrix to identity and adjusts stage matrices to
-     * compensate. The destructor undoes the changes, restoring the view matrix
-     * that was set before the constructor.
+     * This sets the view matrix to identity and adjusts stage matrices to compensate. The
+     * destructor undoes the changes, restoring the view matrix that was set before the
+     * constructor. It is similar to passing the inverse of the current view matrix to
+     * AutoViewMatrixRestore, but lazily computes the inverse only if necessary.
      */
     class AutoDeviceCoordDraw : ::GrNoncopyable {
     public:
+        AutoDeviceCoordDraw() : fDrawState(NULL) {}
         /**
-         * If a stage's texture matrix is applied to explicit per-vertex coords,
-         * rather than to positions, then we don't want to modify its matrix.
-         * The explicitCoordStageMask is used to specify such stages.
+         * If a stage's texture matrix is applied to explicit per-vertex coords, rather than to
+         * positions, then we don't want to modify its matrix. The explicitCoordStageMask is used
+         * to specify such stages.
          */
         AutoDeviceCoordDraw(GrDrawState* drawState,
-                            uint32_t explicitCoordStageMask = 0);
+                            uint32_t explicitCoordStageMask = 0) {
+            fDrawState = NULL;
+            this->set(drawState, explicitCoordStageMask);
+        }
+
+        bool set(GrDrawState* drawState, uint32_t explicitCoordStageMask = 0);
+
         bool succeeded() const { return NULL != fDrawState; }
-        ~AutoDeviceCoordDraw();
+
+        void restore();
+
+        ~AutoDeviceCoordDraw() { this->restore(); }
+
     private:
         GrDrawState*       fDrawState;
         GrMatrix           fViewMatrix;
         GrMatrix           fSamplerMatrices[GrDrawState::kNumStages];
-        int                fRestoreMask;
+        uint32_t           fRestoreMask;
     };
 
     /// @}

@@ -49,11 +49,64 @@ void GrDrawState::setFromPaint(const GrPaint& paint) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrDrawState::AutoDeviceCoordDraw::AutoDeviceCoordDraw(GrDrawState* drawState,
-                                                      uint32_t explicitCoordStageMask) {
-    GrAssert(NULL != drawState);
+void GrDrawState::AutoViewMatrixRestore::restore() {
+    if (NULL != fDrawState) {
+        fDrawState->setViewMatrix(fViewMatrix);
+        for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+            if (fRestoreMask & (1 << s)) {
+                *fDrawState->sampler(s)->matrix() = fSamplerMatrices[s];
+            }
+        }
+    }
+    fDrawState = NULL;
+}
+
+void GrDrawState::AutoViewMatrixRestore::set(GrDrawState* drawState,
+                                             const GrMatrix& preconcatMatrix,
+                                             uint32_t explicitCoordStageMask) {
+    this->restore();
 
     fDrawState = drawState;
+    if (NULL == drawState) {
+        return;
+    }
+
+    fRestoreMask = 0;
+    fViewMatrix = drawState->getViewMatrix();
+    drawState->preConcatViewMatrix(preconcatMatrix);
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+        if (!(explicitCoordStageMask & (1 << s)) && drawState->isStageEnabled(s)) {
+            fRestoreMask |= (1 << s);
+            drawState->sampler(s)->preConcatMatrix(preconcatMatrix);
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void GrDrawState::AutoDeviceCoordDraw::restore() {
+    if (NULL != fDrawState) {
+        fDrawState->setViewMatrix(fViewMatrix);
+        for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+            if (fRestoreMask & (1 << s)) {
+                *fDrawState->sampler(s)->matrix() = fSamplerMatrices[s];
+            }
+        }
+    }
+    fDrawState = NULL;
+}
+
+bool GrDrawState::AutoDeviceCoordDraw::set(GrDrawState* drawState,
+                                           uint32_t explicitCoordStageMask) {
+    GrAssert(NULL != drawState);
+
+    this->restore();
+
+    fDrawState = drawState;
+    if (NULL == fDrawState) {
+        return false;
+    } 
+
     fViewMatrix = drawState->getViewMatrix();
     fRestoreMask = 0;
     GrMatrix invVM;
@@ -64,7 +117,7 @@ GrDrawState::AutoDeviceCoordDraw::AutoDeviceCoordDraw(GrDrawState* drawState,
             if (!inverted && !fViewMatrix.invert(&invVM)) {
                 // sad trombone sound
                 fDrawState = NULL;
-                return;
+                return false;
             } else {
                 inverted = true;
             }
@@ -75,15 +128,5 @@ GrDrawState::AutoDeviceCoordDraw::AutoDeviceCoordDraw(GrDrawState* drawState,
         }
     }
     drawState->viewMatrix()->reset();
-}
-
-GrDrawState::AutoDeviceCoordDraw::~AutoDeviceCoordDraw() {
-    if (NULL != fDrawState) {
-        fDrawState->setViewMatrix(fViewMatrix);
-        for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-            if (fRestoreMask & (1 << s)) {
-                *fDrawState->sampler(s)->matrix() = fSamplerMatrices[s];
-            }
-        }
-    }
+    return true;
 }
