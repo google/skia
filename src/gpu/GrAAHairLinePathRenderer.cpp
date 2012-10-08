@@ -587,29 +587,28 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
         return false;
     }
 
-    GrDrawTarget::AutoStateRestore asr;
+    GrDrawState::AutoDeviceCoordDraw adcd;
     GrDrawState* drawState = target->drawState();
+    // createGeom transforms the geometry to device space when the matrix does not have
+    // perspective.
     if (!drawState->getViewMatrix().hasPerspective()) {
-        // we are going to whack the view matrix to identity to remove
-        // perspective.
-        asr.set(target,
-                GrDrawTarget::kPreserve_ASRInit);
-        drawState = target->drawState();
-        if (!drawState->preConcatSamplerMatricesWithInverse(drawState->getViewMatrix())) {
+        adcd.set(drawState);
+        if (!adcd.succeeded()) {
             return false;
         }
-        drawState->viewMatrix()->reset();
     }
-
 
     // TODO: See whether rendering lines as degenerate quads improves perf
     // when we have a mix
+
+    GrDrawState::VertexEdgeType oldEdgeType = drawState->getVertexEdgeType();
+
     target->setIndexSourceToBuffer(fLinesIndexBuffer);
     int lines = 0;
     int nBufLines = fLinesIndexBuffer->maxQuads();
+    drawState->setVertexEdgeType(GrDrawState::kHairLine_EdgeType);
     while (lines < lineCnt) {
         int n = GrMin(lineCnt - lines, nBufLines);
-        drawState->setVertexEdgeType(GrDrawState::kHairLine_EdgeType);
         target->drawIndexed(kTriangles_GrPrimitiveType,
                             kVertsPerLineSeg*lines,    // startV
                             0,                         // startI
@@ -620,9 +619,9 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
 
     target->setIndexSourceToBuffer(fQuadsIndexBuffer);
     int quads = 0;
+    drawState->setVertexEdgeType(GrDrawState::kHairQuad_EdgeType);
     while (quads < quadCnt) {
         int n = GrMin(quadCnt - quads, kNumQuadsInIdxBuffer);
-        drawState->setVertexEdgeType(GrDrawState::kHairQuad_EdgeType);
         target->drawIndexed(kTriangles_GrPrimitiveType,
                             4 * lineCnt + kVertsPerQuad*quads, // startV
                             0,                                 // startI
@@ -630,6 +629,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
                             kIdxsPerQuad*n);                   // iCount
         quads += n;
     }
+    drawState->setVertexEdgeType(oldEdgeType);
     return true;
 }
 

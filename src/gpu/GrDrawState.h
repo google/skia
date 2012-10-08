@@ -483,6 +483,9 @@ public:
 
         ~AutoViewMatrixRestore() { this->restore(); }
 
+        /**
+         * Can be called prior to destructor to restore the original matrix.
+         */
         void restore();
         
         void set(GrDrawState* drawState,
@@ -520,13 +523,30 @@ public:
             this->set(drawState, explicitCoordStageMask);
         }
 
+        ~AutoDeviceCoordDraw() { this->restore(); }
+
         bool set(GrDrawState* drawState, uint32_t explicitCoordStageMask = 0);
 
+        /**
+         * Returns true if this object was successfully initialized on to a GrDrawState. It may
+         * return false because a non-default constructor or set() were never called or because
+         * the view matrix was not invertible.
+         */
         bool succeeded() const { return NULL != fDrawState; }
 
-        void restore();
+        /**
+         * Returns the matrix that was set previously set on the drawState. This is only valid
+         * if succeeded returns true.
+         */
+        const GrMatrix& getOriginalMatrix() const {
+            GrAssert(this->succeeded());
+            return fViewMatrix;
+        }
 
-        ~AutoDeviceCoordDraw() { this->restore(); }
+        /**
+         * Can be called prior to destructor to restore the original matrix.
+         */
+        void restore();
 
     private:
         GrDrawState*       fDrawState;
