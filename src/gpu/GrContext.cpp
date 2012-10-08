@@ -800,9 +800,7 @@ void GrContext::drawRect(const GrPaint& paint,
         GrDrawState::AutoViewMatrixRestore avmr;
         if (NULL != matrix) {
             GrDrawState* drawState = target->drawState();
-            avmr.set(drawState);
-            drawState->preConcatViewMatrix(*matrix);
-            drawState->preConcatSamplerMatrices(*matrix);
+            avmr.set(drawState, *matrix);
         }
 
         target->drawNonIndexed(primType, 0, vertCount);
@@ -815,7 +813,6 @@ void GrContext::drawRect(const GrPaint& paint,
             }
             target->setVertexSourceToBuffer(0, sqVB);
             GrDrawState* drawState = target->drawState();
-            GrDrawState::AutoViewMatrixRestore avmr(drawState);
             GrMatrix m;
             m.setAll(rect.width(),    0,             rect.fLeft,
                         0,            rect.height(), rect.fTop,
@@ -824,8 +821,7 @@ void GrContext::drawRect(const GrPaint& paint,
             if (NULL != matrix) {
                 m.postConcat(*matrix);
             }
-            drawState->preConcatViewMatrix(m);
-            drawState->preConcatSamplerMatrices(m);
+            GrDrawState::AutoViewMatrixRestore avmr(drawState, m);
 
             target->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
 #else
@@ -852,7 +848,6 @@ void GrContext::drawRectToRect(const GrPaint& paint,
 #if GR_STATIC_RECT_VB
     GrDrawState::AutoStageDisable atr(fDrawState);
     GrDrawState* drawState = target->drawState();
-    GrDrawState::AutoViewMatrixRestore avmr(drawState);
 
     GrMatrix m;
 
@@ -862,15 +857,11 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     if (NULL != dstMatrix) {
         m.postConcat(*dstMatrix);
     }
-    drawState->preConcatViewMatrix(m);
 
-    // we explicitly setup the correct coords for the first stage. The others
-    // must know about the view matrix change.
-    for (int s = 1; s < GrPaint::kTotalStages; ++s) {
-        if (drawState->isStageEnabled(s)) {
-            drawState->sampler(s)->preConcatMatrix(m);
-        }
-    }
+    // The first color stage's coords come from srcRect rather than applying a matrix to dstRect.
+    // We explicitly compute a matrix for that stage below, no need to adjust here.
+    static const uint32_t kExplicitCoordMask = 1 << GrPaint::kFirstColorStage;
+    GrDrawState::AutoViewMatrixRestore avmr(drawState, m, kExplicitCoordMask);
 
     m.setAll(srcRect.width(), 0,                srcRect.fLeft,
              0,               srcRect.height(), srcRect.fTop,
