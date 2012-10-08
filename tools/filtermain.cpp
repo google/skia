@@ -9,7 +9,6 @@
 #include "SkPicture.h"
 #include "SkStream.h"
 
-///////////////////////////////////////////////////////////////////////////////
 static void usage() {
     SkDebugf("Usage: filter -i inFile -o outFile [-h|--help]");
     SkDebugf("\n\n");
@@ -18,9 +17,9 @@ static void usage() {
     SkDebugf("    -h|--help  : Show this help message.\n");
 }
 
-int filter_main(int argc, char** argv);
+// This function is not marked as 'static' so it can be referenced externally
+// in the iOS build.
 int filter_main(int argc, char** argv) {
-
     SkGraphics::Init();
 
     SkString inFile, outFile;
@@ -89,4 +88,3 @@ int main(int argc, char * const argv[]) {
     return filter_main(argc, (char**) argv);
 }
 #endif
-
