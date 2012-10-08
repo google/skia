@@ -1045,10 +1045,6 @@ void SampleWindow::draw(SkCanvas* canvas) {
         gAnimTime = SkTime::GetMSecs();
     }
 
-    const SkMatrix& localM = fGesture.localM();
-    if (localM.getType() & SkMatrix::kScale_Mask) {
-        canvas->setExternalMatrix(&localM);
-    }
     if (fGesture.isActive()) {
         this->updateMatrix();
     }

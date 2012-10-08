@@ -77,9 +77,6 @@ struct DeviceCM {
     SkRasterClip        fClip;
     const SkMatrix*     fMatrix;
     SkPaint*            fPaint; // may be null (in the future)
-    // optional, related to canvas' external matrix
-    const SkMatrix*     fMVMatrix;
-    const SkMatrix*     fExtMatrix;
 
     DeviceCM(SkDevice* device, int x, int y, const SkPaint* paint, SkCanvas* canvas)
             : fNext(NULL) {
@@ -136,20 +133,10 @@ struct DeviceCM {
             SkASSERT(deviceR.contains(fClip.getBounds()));
         }
 #endif
-        // default is to assume no external matrix
-        fMVMatrix = NULL;
-        fExtMatrix = NULL;
-    }
-
-    // can only be called after calling updateMC()
-    void updateExternalMatrix(const SkMatrix& extM, const SkMatrix& extI) {
-        fMVMatrixStorage.setConcat(extI, *fMatrix);
-        fMVMatrix = &fMVMatrixStorage;
-        fExtMatrix = &extM; // assumes extM has long life-time (owned by canvas)
     }
 
 private:
-    SkMatrix    fMatrixStorage, fMVMatrixStorage;
+    SkMatrix    fMatrixStorage;
 };
 
 /*  This is the record we keep for each save/restore level in the stack.
@@ -249,8 +236,6 @@ public:
             fDevice = rec->fDevice;
             fBitmap = &fDevice->accessBitmap(true);
             fPaint  = rec->fPaint;
-            fMVMatrix = rec->fMVMatrix;
-            fExtMatrix = rec->fExtMatrix;
             SkDEBUGCODE(this->validate();)
 
             fCurrLayer = rec->fNext;
@@ -468,10 +453,6 @@ SkDevice* SkCanvas::init(SkDevice* device) {
     fMCRec->fTopLayer = fMCRec->fLayer;
     fMCRec->fNext = NULL;
 
-    fExternalMatrix.reset();
-    fExternalInverse.reset();
-    fUseExternalMatrix = false;
-
     fSurfaceBase = NULL;
 
     return this->setDevice(device);
@@ -673,18 +654,10 @@ void SkCanvas::updateDeviceCMCache() {
 
         if (NULL == layer->fNext) {   // only one layer
             layer->updateMC(totalMatrix, totalClip, fClipStack, NULL);
-            if (fUseExternalMatrix) {
-                layer->updateExternalMatrix(fExternalMatrix,
-                                            fExternalInverse);
-            }
         } else {
             SkRasterClip clip(totalClip);
             do {
                 layer->updateMC(totalMatrix, clip, fClipStack, &clip);
-                if (fUseExternalMatrix) {
-                    layer->updateExternalMatrix(fExternalMatrix,
-                                                fExternalInverse);
-                }
             } while ((layer = layer->fNext) != NULL);
         }
         fDeviceCMDirty = false;
@@ -1393,21 +1366,6 @@ SkCanvas::ClipType SkCanvas::getClipType() const {
 
 const SkRegion& SkCanvas::getTotalClip() const {
     return fMCRec->fRasterClip->forceGetBW();
-}
-
-void SkCanvas::setExternalMatrix(const SkMatrix* matrix) {
-    if (NULL == matrix || matrix->isIdentity()) {
-        if (fUseExternalMatrix) {
-            fDeviceCMDirty = true;
-        }
-        fUseExternalMatrix = false;
-    } else {
-        if (matrix->invert(&fExternalInverse)) {
-            fExternalMatrix = *matrix;
-            fUseExternalMatrix = true;
-            fDeviceCMDirty = true;  // |= (fExternalMatrix != *matrix)
-        }
-    }
 }
 
 SkDevice* SkCanvas::createLayerDevice(SkBitmap::Config config,

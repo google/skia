@@ -2249,8 +2249,6 @@ static void text_draw_init(const SkPaint& paint,
     procs.centemPerUnit = 100.0f / SkScalarToFLOAT(paint.getTextSize());
 
     myDraw.fProcs = &procs;
-    myDraw.fMVMatrix = &SkMatrix::I();
-    myDraw.fExtMatrix = &SkMatrix::I();
 }
 
 static bool text_must_be_pathed(const SkPaint& paint, const SkMatrix& matrix) {
