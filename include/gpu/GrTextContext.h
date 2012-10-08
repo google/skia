@@ -23,9 +23,7 @@ class GrDrawTarget;
 
 class GrTextContext {
 public:
-    GrTextContext(GrContext*,
-                  const GrPaint& paint,
-                  const GrMatrix* extMatrix = NULL);
+    GrTextContext(GrContext*, const GrPaint&);
     ~GrTextContext();
 
     void drawPackedGlyph(GrGlyph::PackedID, GrFixed left, GrFixed top,
@@ -39,7 +37,6 @@ private:
     GrContext*      fContext;
     GrDrawTarget*   fDrawTarget;
 
-    GrMatrix        fExtMatrix;
     GrFontScaler*   fScaler;
     GrTextStrike*   fStrike;
 

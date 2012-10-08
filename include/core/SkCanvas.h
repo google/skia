@@ -893,8 +893,6 @@ public:
         return &fClipStack;
     }
 
-    void setExternalMatrix(const SkMatrix* = NULL);
-
     class ClipVisitor {
     public:
         virtual ~ClipVisitor();
@@ -1041,9 +1039,6 @@ private:
         return fLocalBoundsCompareType;
     }
     void computeLocalClipBoundsCompareType() const;
-
-    SkMatrix    fExternalMatrix, fExternalInverse;
-    bool        fUseExternalMatrix;
 
     class AutoValidateClip : ::SkNoncopyable {
     public:

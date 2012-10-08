@@ -115,9 +115,6 @@ public:
     SkBounder*      fBounder;       // optional
     SkDrawProcs*    fProcs;         // optional
 
-    const SkMatrix* fMVMatrix;      // optional
-    const SkMatrix* fExtMatrix;     // optional
-
 #ifdef SK_DEBUG
     void validate() const;
 #else

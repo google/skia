@@ -1857,7 +1857,7 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
                                    &grPaint)) {
             return;
         }
-        GrTextContext context(fContext, grPaint, draw.fExtMatrix);
+        GrTextContext context(fContext, grPaint);
         myDraw.fProcs = this->initDrawForText(&context);
         this->INHERITED::drawText(myDraw, text, byteLength, x, y, paint);
     }
@@ -1885,7 +1885,7 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
                                    &grPaint)) {
             return;
         }
-        GrTextContext context(fContext, grPaint, draw.fExtMatrix);
+        GrTextContext context(fContext, grPaint);
         myDraw.fProcs = this->initDrawForText(&context);
         this->INHERITED::drawPosText(myDraw, text, byteLength, pos, constY,
                                      scalarsPerPos, paint);

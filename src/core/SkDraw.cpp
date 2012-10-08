@@ -1547,13 +1547,6 @@ void SkDraw::drawText(const char text[], size_t byteLength,
     SkDrawCacheProc glyphCacheProc = paint.getDrawCacheProc();
 
     const SkMatrix* matrix = fMatrix;
-    if (hasCustomD1GProc(*this)) {
-        // only support the fMVMatrix (for now) for the GPU case, which also
-        // sets the fD1GProc
-        if (fMVMatrix) {
-            matrix = fMVMatrix;
-        }
-    }
 
     SkAutoGlyphCache    autoCache(paint, matrix);
     SkGlyphCache*       cache = autoCache.getCache();
@@ -1747,13 +1740,6 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
     }
 
     const SkMatrix* matrix = fMatrix;
-    if (hasCustomD1GProc(*this)) {
-        // only support the fMVMatrix (for now) for the GPU case, which also
-        // sets the fD1GProc
-        if (fMVMatrix) {
-            matrix = fMVMatrix;
-        }
-    }
 
     SkDrawCacheProc     glyphCacheProc = paint.getDrawCacheProc();
     SkAutoGlyphCache    autoCache(paint, matrix);
@@ -2459,9 +2445,6 @@ void SkDraw::validate() const {
 
     br.set(0, 0, fBitmap->width(), fBitmap->height());
     SkASSERT(cr.isEmpty() || br.contains(cr));
-
-    // assert that both are null, or both are not-null
-    SkASSERT(!fMVMatrix == !fExtMatrix);
 }
 
 #endif

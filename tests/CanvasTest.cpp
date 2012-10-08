@@ -319,7 +319,6 @@ SIMPLE_TEST_STEP(DrawTextOnPath, drawTextOnPath(kTestText.c_str(),
     kTestText.size(), kTestPath, NULL, kTestPaint));
 SIMPLE_TEST_STEP(DrawTextOnPathMatrix, drawTextOnPath(kTestText.c_str(),
     kTestText.size(), kTestPath, &kTestMatrix, kTestPaint));
-SIMPLE_TEST_STEP(SetExternalMatrix, setExternalMatrix(&kTestMatrix));
 SIMPLE_TEST_STEP(DrawData, drawData(kTestText.c_str(), kTestText.size()));
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -34,7 +34,7 @@ void GrTextContext::flushGlyphs() {
 
         GrAssert(GrIsALIGN4(fCurrVertex));
         GrAssert(fCurrTexture);
-        GrTextureParams params(SkShader::kRepeat_TileMode, !fExtMatrix.isIdentity());
+        GrTextureParams params(SkShader::kRepeat_TileMode, false);
         drawState->createTextureEffect(kGlyphMaskStage, fCurrTexture, params);
 
         if (!GrPixelConfigIsAlphaOnly(fCurrTexture->config())) {
@@ -70,20 +70,12 @@ void GrTextContext::flushGlyphs() {
     fDrawTarget = NULL;
 }
 
-GrTextContext::GrTextContext(GrContext* context,
-                             const GrPaint& paint,
-                             const GrMatrix* extMatrix) : fPaint(paint) {
+GrTextContext::GrTextContext(GrContext* context, const GrPaint& paint) : fPaint(paint) {
     fContext = context;
     fStrike = NULL;
 
     fCurrTexture = NULL;
     fCurrVertex = 0;
-
-    if (NULL != extMatrix) {
-        fExtMatrix = *extMatrix;
-    } else {
-        fExtMatrix.reset();
-    }
 
     const GrClipData* clipData = context->getClip();
 
@@ -95,19 +87,12 @@ GrTextContext::GrTextContext(GrContext* context,
                                      context->getRenderTarget()->height(),
                                      &devConservativeBound);
 
-    if (!fExtMatrix.isIdentity()) {
-        GrMatrix inverse;
-        if (fExtMatrix.invert(&inverse)) {
-            inverse.mapRect(&devConservativeBound);
-        }
-    }
-
     devConservativeBound.roundOut(&fClipRect);
 
     // save the context's original matrix off and restore in destructor
     // this must be done before getTextTarget.
     fOrigViewMatrix = fContext->getMatrix();
-    fContext->setMatrix(fExtMatrix);
+    fContext->setIdentityMatrix();
 
     /*
      We need to call preConcatMatrix with our viewmatrix's inverse, for each
