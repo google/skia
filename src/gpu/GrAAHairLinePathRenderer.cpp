@@ -197,7 +197,6 @@ int num_quad_subdivs(const SkPoint p[3]) {
  */
 int generate_lines_and_quads(const SkPath& path,
                              const SkMatrix& m,
-                             const SkVector& translate,
                              const GrIRect& devClipBounds,
                              PtArray* lines,
                              PtArray* quads,
@@ -218,7 +217,6 @@ int generate_lines_and_quads(const SkPath& path,
             case kMove_PathCmd:
                 break;
             case kLine_PathCmd:
-                SkPoint::Offset(pts, 2, translate);
                 m.mapPoints(devPts, pts, 2);
                 bounds.setBounds(devPts, 2);
                 bounds.outset(SK_Scalar1, SK_Scalar1);
@@ -230,7 +228,6 @@ int generate_lines_and_quads(const SkPath& path,
                 }
                 break;
             case kQuadratic_PathCmd:
-                SkPoint::Offset(pts, 3, translate);
                 m.mapPoints(devPts, pts, 3);
                 bounds.setBounds(devPts, 3);
                 bounds.outset(SK_Scalar1, SK_Scalar1);
@@ -257,7 +254,6 @@ int generate_lines_and_quads(const SkPath& path,
                 }
                 break;
             case kCubic_PathCmd:
-                SkPoint::Offset(pts, 4, translate);
                 m.mapPoints(devPts, pts, 4);
                 bounds.setBounds(devPts, 4);
                 bounds.outset(SK_Scalar1, SK_Scalar1);
@@ -503,7 +499,6 @@ void add_line(const SkPoint p[2],
 
 bool GrAAHairLinePathRenderer::createGeom(
             const SkPath& path,
-            const GrVec* translate,
             GrDrawTarget* target,
             int* lineCnt,
             int* quadCnt,
@@ -521,11 +516,7 @@ bool GrAAHairLinePathRenderer::createGeom(
     PREALLOC_PTARRAY(128) lines;
     PREALLOC_PTARRAY(128) quads;
     IntArray qSubdivs;
-    static const GrVec gZeroVec = {0, 0};
-    if (NULL == translate) {
-        translate = &gZeroVec;
-    }
-    *quadCnt = generate_lines_and_quads(path, viewM, *translate, devClipBounds,
+    *quadCnt = generate_lines_and_quads(path, viewM, devClipBounds,
                                         &lines, &quads, &qSubdivs);
 
     *lineCnt = lines.count() / 2;
@@ -582,7 +573,6 @@ bool GrAAHairLinePathRenderer::canDrawPath(const SkPath& path,
 
 bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
                                           GrPathFill fill,
-                                          const GrVec* translate,
                                           GrDrawTarget* target,
                                           bool antiAlias) {
 
@@ -590,7 +580,6 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
     int quadCnt;
     GrDrawTarget::AutoReleaseGeometry arg;
     if (!this->createGeom(path,
-                          translate,
                           target,
                           &lineCnt,
                           &quadCnt,

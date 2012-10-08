@@ -1019,7 +1019,7 @@ void GrContext::drawOval(const GrPaint& paint,
         path.addOval(rect);
         GrPathFill fill = (strokeWidth == 0) ?
                            kHairLine_GrPathFill : kWinding_GrPathFill;
-        this->internalDrawPath(paint, path, fill, NULL);
+        this->internalDrawPath(paint, path, fill);
         return;
     }
 
@@ -1091,8 +1091,7 @@ void GrContext::drawOval(const GrPaint& paint,
     target->drawNonIndexed(kTriangleStrip_GrPrimitiveType, 0, 4);
 }
 
-void GrContext::drawPath(const GrPaint& paint, const SkPath& path,
-                         GrPathFill fill, const GrPoint* translate) {
+void GrContext::drawPath(const GrPaint& paint, const SkPath& path, GrPathFill fill) {
 
     if (path.isEmpty()) {
        if (GrIsFillInverted(fill)) {
@@ -1103,19 +1102,15 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path,
 
     SkRect ovalRect;
     if (!GrIsFillInverted(fill) && path.isOval(&ovalRect)) {
-        if (translate) {
-            ovalRect.offset(*translate);
-        }
         SkScalar width = (fill == kHairLine_GrPathFill) ? 0 : -SK_Scalar1;
         this->drawOval(paint, ovalRect, width);
         return;
     }
 
-    internalDrawPath(paint, path, fill, translate);
+    this->internalDrawPath(paint, path, fill);
 }
 
-void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path,
-                                 GrPathFill fill, const GrPoint* translate) {
+void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path, GrPathFill fill) {
 
     // Note that below we may sw-rasterize the path into a scratch texture.
     // Scratch textures can be recycled after they are returned to the texture
@@ -1146,7 +1141,7 @@ void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path,
         return;
     }
 
-    pr->drawPath(path, fill, translate, target, prAA);
+    pr->drawPath(path, fill, target, prAA);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1670,6 +1665,10 @@ const GrMatrix& GrContext::getMatrix() const {
 
 void GrContext::setMatrix(const GrMatrix& m) {
     fDrawState->setViewMatrix(m);
+}
+
+void GrContext::setIdentityMatrix() {
+    fDrawState->viewMatrix()->reset();
 }
 
 void GrContext::concatMatrix(const GrMatrix& m) const {

@@ -183,7 +183,6 @@ static inline void append_countour_edge_indices(GrPathFill fillType,
 
 bool GrDefaultPathRenderer::createGeom(const SkPath& path,
                                        GrPathFill fill,
-                                       const GrVec* translate,
                                        GrScalar srcSpaceTol,
                                        GrDrawTarget* target,
                                        GrPrimitiveType* primType,
@@ -312,20 +311,12 @@ FINISHED:
     *vertexCnt = vert - base;
     *indexCnt = idx - idxBase;
 
-    if (NULL != translate &&
-        (translate->fX || translate->fY)) {
-        int count = vert - base;
-        for (int i = 0; i < count; i++) {
-            base[i].offset(translate->fX, translate->fY);
-        }
-    }
     }
     return true;
 }
 
 bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
                                              GrPathFill fill,
-                                             const GrVec* translate,
                                              GrDrawTarget* target,
                                              bool stencilOnly) {
 
@@ -339,7 +330,6 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
     GrDrawTarget::AutoReleaseGeometry arg;
     if (!this->createGeom(path,
                           fill,
-                          translate,
                           tol,
                           target,
                           &primType,
@@ -481,9 +471,6 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
                 }
             } else {
                 bounds = path.getBounds();
-                if (NULL != translate) {
-                    bounds.offset(*translate);
-                }
             }
             GrDrawTarget::AutoGeometryPush agp(target);
             target->drawSimpleRect(bounds, NULL);
@@ -514,12 +501,10 @@ bool GrDefaultPathRenderer::canDrawPath(const SkPath& path,
 
 bool GrDefaultPathRenderer::onDrawPath(const SkPath& path,
                                        GrPathFill fill,
-                                       const GrVec* translate,
                                        GrDrawTarget* target,
                                        bool antiAlias) {
     return this->internalDrawPath(path,
                                   fill,
-                                  translate,
                                   target,
                                   false);
 }
@@ -529,5 +514,5 @@ void GrDefaultPathRenderer::drawPathToStencil(const SkPath& path,
                                               GrDrawTarget* target) {
     GrAssert(kInverseEvenOdd_GrPathFill != fill);
     GrAssert(kInverseWinding_GrPathFill != fill);
-    this->internalDrawPath(path, fill, NULL, target, true);
+    this->internalDrawPath(path, fill, target, true);
 }

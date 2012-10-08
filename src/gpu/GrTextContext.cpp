@@ -221,11 +221,12 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
             glyph->fPath = path;
         }
 
-        GrPoint translate;
-        translate.set(GrFixedToScalar(vx - GrIntToFixed(glyph->fBounds.fLeft)),
-                      GrFixedToScalar(vy - GrIntToFixed(glyph->fBounds.fTop)));
-        fContext->drawPath(fPaint, *glyph->fPath, kWinding_GrPathFill,
-                           &translate);
+        GrContext::AutoMatrix am(fContext, GrContext::AutoMatrix::kPreserve_InitialMatrix);
+        GrMatrix translate;
+        translate.setTranslate(GrFixedToScalar(vx - GrIntToFixed(glyph->fBounds.fLeft)),
+                               GrFixedToScalar(vy - GrIntToFixed(glyph->fBounds.fTop)));
+        fContext->concatMatrix(translate);
+        fContext->drawPath(fPaint, *glyph->fPath, kWinding_GrPathFill);
         return;
     }
 

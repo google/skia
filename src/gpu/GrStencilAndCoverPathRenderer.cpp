@@ -57,9 +57,8 @@ void GrStencilAndCoverPathRenderer::drawPathToStencil(const SkPath& path,
 
 bool GrStencilAndCoverPathRenderer::onDrawPath(const SkPath& path,
                                                GrPathFill fill,
-                                               const GrVec* translate,
                                                GrDrawTarget* target,
-                                               bool antiAlias){
+                                               bool antiAlias) {
     GrAssert(!antiAlias);
     GrAssert(kHairLine_GrPathFill != fill);
 
@@ -68,10 +67,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const SkPath& path,
 
     SkAutoTUnref<GrPath> p(fGpu->createPath(path));
     GrDrawState::AutoViewMatrixRestore avmr;
-    if (translate) {
-        avmr.set(drawState);
-        drawState->viewMatrix()->postTranslate(translate->fX, translate->fY);
-    }
+
     GrPathFill nonInvertedFill = GrNonInvertedFill(fill);
     target->stencilPath(p, nonInvertedFill);
 
@@ -111,12 +107,10 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const SkPath& path,
             // theoretically could set bloat = 0, instead leave it because of matrix inversion
             // precision.
         } else {
+            avmr.set(drawState);
             if (!drawState->preConcatSamplerMatricesWithInverse(drawState->getViewMatrix())) {
                 GrPrintf("Could not invert matrix.\n");
                 return false;
-            }
-            if (avmr.isSet()) {
-                avmr.set(drawState);
             }
             drawState->viewMatrix()->reset();
             bloat = 0;

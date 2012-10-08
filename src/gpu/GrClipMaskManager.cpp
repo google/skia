@@ -441,7 +441,7 @@ bool draw_path(GrContext* context,
         return draw_path_in_software(context, gpu, path, fill, doAA, resultBounds);
     }
 
-    pr->drawPath(path, fill, NULL, gpu, doAA);
+    pr->drawPath(path, fill, gpu, doAA);
     return true;
 }
 
@@ -857,7 +857,7 @@ bool GrClipMaskManager::createStencilClipMask(const GrClipData& clipDataIn,
                 } else {
                     if (canRenderDirectToStencil) {
                         *drawState->stencil() = gDrawToStencil;
-                        pr->drawPath(*clipPath, fill, NULL, fGpu, false);
+                        pr->drawPath(*clipPath, fill, fGpu, false);
                     } else {
                         pr->drawPathToStencil(*clipPath, fill, fGpu);
                     }
@@ -875,7 +875,7 @@ bool GrClipMaskManager::createStencilClipMask(const GrClipData& clipDataIn,
                         fGpu->drawSimpleRect(*clip->fRect, NULL);
                     } else {
                         SET_RANDOM_COLOR
-                        pr->drawPath(*clipPath, fill, NULL, fGpu, false);
+                        pr->drawPath(*clipPath, fill, fGpu, false);
                     }
                 } else {
                     SET_RANDOM_COLOR
