@@ -329,6 +329,11 @@ public:
     void setMatrix(const GrMatrix& m);
 
     /**
+     * Sets the current transformation matrix to identity.
+     */
+    void setIdentityMatrix();
+
+    /**
      * Concats the current matrix. The passed matrix is applied before the
      * current matrix.
      * @param m the matrix to concat.
@@ -414,8 +419,7 @@ public:
      * @param translate     optional additional translation applied to the
      *                      path.
      */
-    void drawPath(const GrPaint& paint, const SkPath& path, GrPathFill fill,
-                  const GrPoint* translate = NULL);
+    void drawPath(const GrPaint& paint, const SkPath& path, GrPathFill fill);
 
     /**
      * Draws vertices with a paint.
@@ -845,8 +849,7 @@ private:
     /// draw state is left unmodified.
     GrDrawTarget* prepareToDraw(const GrPaint*, BufferedDraw);
 
-    void internalDrawPath(const GrPaint& paint, const SkPath& path,
-                          GrPathFill fill, const GrPoint* translate);
+    void internalDrawPath(const GrPaint& paint, const SkPath& path, GrPathFill fill);
 
     GrTexture* createResizedTexture(const GrTextureDesc& desc,
                                     const GrCacheData& cacheData,

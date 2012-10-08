@@ -31,7 +31,6 @@ public:
 protected:
     virtual bool onDrawPath(const SkPath& path,
                             GrPathFill fill,
-                            const GrVec* translate,
                             GrDrawTarget* target,
                             bool antiAlias) SK_OVERRIDE;
 

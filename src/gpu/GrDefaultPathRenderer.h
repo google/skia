@@ -38,19 +38,16 @@ private:
 
     virtual bool onDrawPath(const SkPath& path,
                             GrPathFill fill,
-                            const GrVec* translate,
                             GrDrawTarget* target,
                             bool antiAlias) SK_OVERRIDE;
 
     bool internalDrawPath(const SkPath& path,
                           GrPathFill fill,
-                          const GrVec* translate,
                           GrDrawTarget* target,
                           bool stencilOnly);
 
     bool createGeom(const SkPath& path,
                     GrPathFill fill,
-                    const GrVec* translate,
                     GrScalar srcSpaceTol,
                     GrDrawTarget* target,
                     GrPrimitiveType* primType,

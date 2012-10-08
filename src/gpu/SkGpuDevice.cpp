@@ -878,7 +878,8 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
 
     SkAutoTUnref<GrTexture> blurTexture;
 
-    GrContext::AutoMatrix avm(context, GrMatrix::I());
+    // We pass kPreserve here. We will replace the current matrix below.
+    GrContext::AutoMatrix avm(context, GrContext::AutoMatrix::kPreserve_InitialMatrix);
 
     {
         GrContext::AutoRenderTarget art(context, pathTexture->asRenderTarget());
@@ -897,8 +898,14 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
             // use a zero dst coeff when dual source blending isn't available.
             tempPaint.setBlendFunc(kOne_GrBlendCoeff, kISC_GrBlendCoeff);
         }
-        // Draw hard shadow to pathTexture with path topleft at origin 0,0.
-        context->drawPath(tempPaint, path, pathFillType, &offset);
+        // Draw hard shadow to pathTexture with path top-left at origin 0,0.
+        GrMatrix translate;
+        translate.setTranslate(offset.fX, offset.fY);
+        context->setMatrix(translate);
+        context->drawPath(tempPaint, path, pathFillType);
+
+        // switch to device coord drawing when going back to the main RT.
+        context->setIdentityMatrix();
 
         // If we're doing a normal blur, we can clobber the pathTexture in the
         // gaussianBlur.  Otherwise, we need to save it for later compositing.
@@ -910,7 +917,7 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
             GrPaint paint;
             paint.reset();
             paint.colorSampler(0)->matrix()->setIDiv(pathTexture->width(),
-                                                       pathTexture->height());
+                                                     pathTexture->height());
             // Blend pathTexture over blurTexture.
             context->setRenderTarget(blurTexture->asRenderTarget());
             paint.colorSampler(0)->setCustomStage(SkNEW_ARGS

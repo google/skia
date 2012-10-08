@@ -97,18 +97,15 @@ public:
      *
      * @param path                  the path to draw.
      * @param fill                  the path filling rule to use.
-     * @param translate             optional additional translation applied to
-     *                              the path (can be NULL)
      * @param target                target that the path will be rendered to
      * @param antiAlias             true if anti-aliasing is required.
      */
     virtual bool drawPath(const SkPath& path,
                           GrPathFill fill,
-                          const GrVec* translate,
                           GrDrawTarget* target,
                           bool antiAlias) {
         GrAssert(this->canDrawPath(path, fill, target, antiAlias));
-        return this->onDrawPath(path, fill, translate, target, antiAlias);
+        return this->onDrawPath(path, fill, target, antiAlias);
     }
 
     /**
@@ -135,14 +132,11 @@ protected:
      *
      * @param path                  the path to draw.
      * @param fill                  the path filling rule to use.
-     * @param translate             optional additional translation applied to
-     *                              the path
      * @param target                target that the path will be rendered to
      * @param antiAlias             whether antialiasing is enabled or not.
      */
     virtual bool onDrawPath(const SkPath& path,
                             GrPathFill fill,
-                            const GrVec* translate,
                             GrDrawTarget* target,
                             bool antiAlias) = 0;
 

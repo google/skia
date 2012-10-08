@@ -25,7 +25,6 @@ public:
 protected:
     virtual bool onDrawPath(const SkPath& path,
                             GrPathFill fill,
-                            const GrVec* translate,
                             GrDrawTarget* target,
                             bool antiAlias) SK_OVERRIDE;
 
@@ -36,7 +35,6 @@ private:
                              const GrIndexBuffer* fQuadsIndexBuffer);
 
     bool createGeom(const SkPath& path,
-                    const GrVec* translate,
                     GrDrawTarget* target,
                     int* lineCnt,
                     int* quadCnt,

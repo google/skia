@@ -108,7 +108,6 @@ void draw_around_inv_path(GrDrawTarget* target,
 // return true on success; false on failure
 bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
                                         GrPathFill fill,
-                                        const GrVec* translate,
                                         GrDrawTarget* target,
                                         bool antiAlias) {
 
@@ -119,9 +118,6 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
     GrDrawState* drawState = target->drawState();
 
     GrMatrix vm = drawState->getViewMatrix();
-    if (NULL != translate) {
-        vm.postTranslate(translate->fX, translate->fY);
-    }
 
     GrIRect devPathBounds, devClipBounds;
     if (!get_path_and_clip_bounds(target, path, vm,

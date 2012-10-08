@@ -445,7 +445,6 @@ bool GrAAConvexPathRenderer::canDrawPath(const SkPath& path,
 
 bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
                                         GrPathFill fill,
-                                        const GrVec* translate,
                                         GrDrawTarget* target,
                                         bool antiAlias) {
 
@@ -458,9 +457,6 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     GrDrawState* drawState = target->drawState();
 
     GrMatrix vm = drawState->getViewMatrix();
-    if (NULL != translate) {
-        vm.postTranslate(translate->fX, translate->fY);
-    }
     if (!drawState->preConcatSamplerMatricesWithInverse(vm)) {
         return false;
     }
