@@ -487,7 +487,7 @@ public:
          * Can be called prior to destructor to restore the original matrix.
          */
         void restore();
-        
+
         void set(GrDrawState* drawState,
                  const GrMatrix& preconcatMatrix,
                  uint32_t explicitCoordStageMask = 0);
