@@ -19,7 +19,7 @@ static void usage() {
 
 // This function is not marked as 'static' so it can be referenced externally
 // in the iOS build.
-int filter_main(int argc, char** argv) {
+int tool_main(int argc, char** argv) {
     SkGraphics::Init();
 
     SkString inFile, outFile;
@@ -85,6 +85,6 @@ int filter_main(int argc, char** argv) {
 
 #if !defined SK_BUILD_FOR_IOS
 int main(int argc, char * const argv[]) {
-    return filter_main(argc, (char**) argv);
+    return tool_main(argc, (char**) argv);
 }
 #endif
