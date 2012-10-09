@@ -92,9 +92,34 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         bool appendToPreviousDraw = false;
         GrVertexLayout layout = GetRectVertexLayout(srcRects);
 
-        // When we batch rects we store the color at each vertex in order
-        // to allow batching when only the draw color is changing (the usual case)
-        layout |= kColor_VertexLayoutBit;
+        // Batching across colors means we move the draw color into the
+        // rect's vertex colors to allow greater batching (a lot of rects
+        // in a row differing only in color is a common occurence in tables).
+        bool batchAcrossColors = true;
+        if (!this->getCaps().dualSourceBlendingSupport()) {
+            for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+                if (this->getDrawState().isStageEnabled(s)) {
+                    // We disable batching across colors when there is a texture 
+                    // present because (by pushing the the color to the vertices)
+                    // Ganesh loses track of the rect's opacity. This, in turn, can
+                    // cause some of the blending optimizations to be disabled. This
+                    // becomes a huge problem on some of the smaller devices where
+                    // shader derivatives and dual source blending aren't supported.
+                    // In those cases paths are often drawn to a texture and then
+                    // drawn as a texture (using this method). Because dual source
+                    // blending is disabled (and the blend optimizations are short
+                    // circuited) some of the more esoteric blend modes can no longer
+                    // be supported.
+                    // TODO: add tracking of batchAcrossColors's opacity
+                    batchAcrossColors = false;
+                    break;
+                }
+            }
+        }
+
+        if (batchAcrossColors) {
+            layout |= kColor_VertexLayoutBit;
+        }
 
         AutoReleaseGeometry geo(this, layout, 4, 0);
         if (!geo.succeeded()) {
@@ -129,7 +154,9 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         // Now that the paint's color is stored in the vertices set it to
         // white so that the following code can batch all the rects regardless
         // of paint color
-        GrDrawState::AutoColorRestore acr(this->drawState(), SK_ColorWHITE);
+        GrDrawState::AutoColorRestore acr(this->drawState(), 
+                                          batchAcrossColors ? SK_ColorWHITE
+                                                            : this->getDrawState().getColor());
 
         // we don't want to miss an opportunity to batch rects together
         // simply because the clip has changed if the clip doesn't affect
