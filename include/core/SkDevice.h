@@ -187,28 +187,6 @@ protected:
      */
     virtual bool filterTextFlags(const SkPaint& paint, TextFlags*);
 
-    /**
-     *  Called with the correct matrix and clip before this device is drawn
-     *  to using those settings. If your subclass overrides this, be sure to
-     *  call through to the base class as well.
-     *
-     *  The clipstack is another view of the clip. It records the actual
-     *  geometry that went into building the region. It is present for devices
-     *  that want to parse it, but is not required: the region is a complete
-     *  picture of the current clip. (i.e. if you regionize all of the geometry
-     *  in the clipstack, you will arrive at an equivalent region to the one
-     *  passed in).
-    */
-    virtual void setMatrixClip(const SkMatrix&, const SkRegion&,
-                               const SkClipStack&);
-
-    /** Called when this device gains focus (i.e becomes the current device
-        for drawing).
-    */
-    virtual void gainFocus(const SkMatrix&, const SkRegion&) {
-        SkASSERT(fAttachedToCanvas);
-    }
-
     /** Clears the entire device to the specified color (including alpha).
      *  Ignores the clip.
      */
@@ -385,7 +363,6 @@ protected:
 
 private:
     friend class SkCanvas;
-    friend struct DeviceCM; //for setMatrixClip
     friend class SkDraw;
     friend class SkDrawIter;
     friend class SkDeviceFilteredPaint;
