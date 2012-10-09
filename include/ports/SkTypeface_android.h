@@ -59,6 +59,19 @@ SK_API const char* SkGetFallbackScriptID(FallbackScripts script);
 SK_API FallbackScripts SkGetFallbackScriptFromID(const char* id);
 
 /**
+ *  Return a new typeface of the font in the fallback font list containing
+ *  the specified chararacter. If no typeface is found, returns null.
+ */
+SK_API SkTypeface* SkCreateFallbackTypefaceForChar(SkUnichar uni,
+                                                   SkTypeface::Style style);
+
+/**
+ *  Get the family name of the font in the fallback font list containing
+ *  the specified chararacter. if no font is found, returns false.
+ */
+SK_API bool SkGetFallbackFamilyNameForChar(SkUnichar uni, SkString* name);
+
+/**
  *  For test only.
  *  Load font config from given xml files, instead of those from Android system.
  */
