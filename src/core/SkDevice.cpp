@@ -122,10 +122,6 @@ void SkDevice::clear(SkColor color) {
 
 const SkBitmap& SkDevice::onAccessBitmap(SkBitmap* bitmap) {return *bitmap;}
 
-void SkDevice::setMatrixClip(const SkMatrix& matrix, const SkRegion& region,
-                             const SkClipStack& clipStack) {
-}
-
 bool SkDevice::canHandleImageFilter(SkImageFilter*) {
     return false;
 }
