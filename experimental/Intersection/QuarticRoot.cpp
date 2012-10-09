@@ -120,7 +120,7 @@ static int cubicRootsX(double A, double B, double C, double D, double s[3]) {
     if (approximately_zero(A)) {  // we're just a quadratic
         return quadraticRootsX(B, C, D, s);
     }
-    if (approximately_zero(D)) {
+    if (approximately_zero(D)) { // 0 is one root
         int num = quadraticRootsX(A, B, C, s);
         for (int i = 0; i < num; ++i) {
             if (approximately_zero(s[i])) {
@@ -128,6 +128,16 @@ static int cubicRootsX(double A, double B, double C, double D, double s[3]) {
             }
         }
         s[num++] = 0;
+        return num;
+    }
+    if (approximately_zero(A + B + C + D)) { // 1 is one root
+        int num = quadraticRootsX(A, A + B, -D, s);
+        for (int i = 0; i < num; ++i) {
+            if (approximately_equal(s[i], 1)) {
+                return num;
+            }
+        }
+        s[num++] = 1;
         return num;
     }
     double a, b, c;
@@ -197,7 +207,7 @@ int quarticRoots(const double A, const double B, const double C, const double D,
     }
     int num;
     int i;
-    if (approximately_zero(E)) {
+    if (approximately_zero(E)) { // 0 is one root
         num = cubicRootsX(A, B, C, D, s);
         for (i = 0; i < num; ++i) {
             if (approximately_zero(s[i])) {
@@ -205,6 +215,16 @@ int quarticRoots(const double A, const double B, const double C, const double D,
             }
         }
         s[num++] = 0;
+        return num;
+    }
+    if (approximately_zero(A + B + C + D + E)) { // 1 is one root
+        num = cubicRootsX(A, A + B, -(D + E), -E, s); // note that -C==A+B+D+E
+        for (i = 0; i < num; ++i) {
+            if (approximately_equal(s[i], 1)) {
+                return num;
+            }
+        }
+        s[num++] = 1;
         return num;
     }
     double  u, v;

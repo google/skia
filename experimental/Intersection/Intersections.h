@@ -16,6 +16,7 @@ public:
         , fUsed2(0)
         , fCoincidentUsed(0)
         , fSwap(0)
+        , fFlip(0)
     {
         // OPTIMIZE: don't need to be initialized in release
         bzero(fT, sizeof(fT));
@@ -188,6 +189,7 @@ public:
     int fUsed;
     int fUsed2;
     int fCoincidentUsed;
+    int fFlip;
 private:
     int fSwap;
 };

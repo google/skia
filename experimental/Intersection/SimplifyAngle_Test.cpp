@@ -93,27 +93,12 @@ static void testSegments(bool testFlat) {
         int index = 0;
         do {
             int next = index + 1;
-    #if HIGH_DEF_ANGLES==0
-            if (testFlat) {
-                lesser.setFlat(segPtr[index].pts, segPtr[index].verb, 0, index, next);
-            } else {
-                lesser.set(segPtr[index].pts, segPtr[index].verb, 0, index, next);
-            }
-    #else
-            lesser.set(segPtr[index].pts, segPtr[index].verb, 0, index, next, 0, 1);
-    #endif
+            SkTDArray<SimplifyAngleTest::Span> dummy;
+            lesser.set(segPtr[index].pts, segPtr[index].verb, NULL, index, next, dummy);
             if (segPtr[next].verb == SkPath::kMove_Verb) {
                 break;
             }
-    #if HIGH_DEF_ANGLES==0
-            if (testFlat) {
-                greater.setFlat(segPtr[next].pts, segPtr[next].verb, 0, index, next);
-            } else {
-                greater.set(segPtr[next].pts, segPtr[next].verb, 0, index, next);
-            }
-    #else
-            greater.set(segPtr[next].pts, segPtr[next].verb, 0, index, next, 0, 1);
-    #endif
+            greater.set(segPtr[next].pts, segPtr[next].verb, NULL, index, next, dummy);
             bool result = lesser < greater;
             SkASSERT(result);
             index = next;
@@ -129,15 +114,8 @@ static void testLines(bool testFlat) {
     size_t x;
     for (x = 0; x < lineCount; ++x) {
         SimplifyAngleTest::Angle* angle = angles.append();
-    #if HIGH_DEF_ANGLES==0
-        if (testFlat) {
-            angle->setFlat(lines[x], SkPath::kLine_Verb, 0, x, x + 1);
-        } else {
-            angle->set(lines[x], SkPath::kLine_Verb, 0, x, x + 1);
-        }
-    #else
-        angle->set(lines[x], SkPath::kLine_Verb, 0, x, x + 1, 0, 1);
-    #endif
+        SkTDArray<SimplifyAngleTest::Span> dummy;
+        angle->set(lines[x], SkPath::kLine_Verb, 0, x, x + 1, dummy);
         double arcTan = atan2(lines[x][0].fX - lines[x][1].fX,
                 lines[x][0].fY - lines[x][1].fY);
         arcTans.push(arcTan);
@@ -184,15 +162,8 @@ static void testQuads(bool testFlat) {
     size_t x;
     for (x = 0; x < quadCount; ++x) {
         SimplifyAngleTest::Angle* angle = angles.append();
-    #if HIGH_DEF_ANGLES==0
-        if (testFlat) {
-            angle->setFlat(quads[x], SkPath::kQuad_Verb, 0, x, x + 1);
-        } else {
-            angle->set(quads[x], SkPath::kQuad_Verb, 0, x, x + 1);
-        }
-     #else
-        angle->set(quads[x], SkPath::kQuad_Verb, 0, x, x + 1, 0, 1);
-    #endif
+        SkTDArray<SimplifyAngleTest::Span> dummy;
+        angle->set(quads[x], SkPath::kQuad_Verb, 0, x, x + 1, dummy);
    }
     for (x = 0; x < quadCount; ++x) {
         angleList.push(&angles[x]);
@@ -214,15 +185,8 @@ static void testCubics(bool testFlat) {
     SkTDArray<SimplifyAngleTest::Angle* > angleList;
     for (size_t x = 0; x < cubicCount; ++x) {
         SimplifyAngleTest::Angle* angle = angles.append();
-    #if HIGH_DEF_ANGLES==0
-        if (testFlat) {
-            angle->setFlat(cubics[x], SkPath::kCubic_Verb, 0, x, x + 1);
-        } else {
-            angle->set(cubics[x], SkPath::kCubic_Verb, 0, x, x + 1);
-        }
-     #else
-            angle->set(cubics[x], SkPath::kCubic_Verb, 0, x, x + 1, 0, 1);
-    #endif
+            SkTDArray<SimplifyAngleTest::Span> dummy;
+        angle->set(cubics[x], SkPath::kCubic_Verb, 0, x, x + 1, dummy);
         angleList.push(angle);
     }
     QSort<SimplifyAngleTest::Angle>(angleList.begin(), angleList.end() - 1);
@@ -235,7 +199,68 @@ static void testCubics(bool testFlat) {
     }
 }
 
+struct segmentWithT {
+    SkPath::Verb verb;
+    SkPoint pts[4];
+    double ts[2];
+};
+
+
+static const segmentWithT oneOffTest1[] = {
+    {SkPath::kQuad_Verb, {{391.653534f, 183.286819f}, {391.653534f, 157.724487f}, {405.469604f, 141.372879f}},
+        {0.62346946335026932, 0.62344389027237135}},
+    {SkPath::kQuad_Verb, {{399.365234f, 171.695801f}, {399.365234f, 140.337967f}, {375.976227f, 140.337967f}},
+        {0.31638302676995866, 0.31637992418411398}},
+    {SkPath::kMove_Verb }
+};
+
+static const segmentWithT oneOffTest2[] = {
+    {SkPath::kQuad_Verb, {{399.070374f, 151.722f}, {391.101532f, 163.002533f}, {391.101532f, 182.665863f}},
+        {0.13793711854916513, 0.13790171160614006}},
+    {SkPath::kQuad_Verb, {{391.653534f, 183.286819f}, {391.653534f, 157.724487f}, {405.469604f, 141.372879f}},
+        {0.62344389027237135, 0.62346946335026932}},
+    {SkPath::kMove_Verb }
+};
+
+static const segmentWithT oneOffTest3[] = {
+    {SkPath::kQuad_Verb, {{399.365234f, 171.695801f}, {399.365234f, 140.337967f}, {375.976227f, 140.337967f}},
+        {0.31637992418411398, 0.31638302676995866, }},
+    {SkPath::kQuad_Verb, {{399.070374f, 151.722f}, {391.101532f, 163.002533f}, {391.101532f, 182.665863f}},
+        {0.13790171160614006, 0.13793711854916513}},
+    {SkPath::kMove_Verb }
+};
+
+static const segmentWithT* oneOffTests[] = {
+    oneOffTest1,
+    oneOffTest2,
+    oneOffTest3,
+};
+
+static const size_t oneOffTestCount = sizeof(oneOffTests) / sizeof(oneOffTests[0]);
+
+static void oneOffTest(bool testFlat) {
+    for (size_t testIndex = 0; testIndex < oneOffTestCount; ++testIndex) {
+        const segmentWithT* segPtr = oneOffTests[testIndex];
+        SimplifyAngleTest::Angle lesser, greater;
+        int index = 0;
+        do {
+            int next = index + 1;
+            SkTDArray<SimplifyAngleTest::Span> dummy; // FIXME
+            lesser.set(segPtr[index].pts, segPtr[index].verb, 0, index, next, dummy); // FIXME: segPtr[index].ts[0], segPtr[index].ts[1]);
+            if (segPtr[next].verb == SkPath::kMove_Verb) {
+                break;
+            }
+            greater.set(segPtr[next].pts, segPtr[next].verb, 0, index, next, dummy); // FIXME: segPtr[next].ts[0], segPtr[next].ts[1]);
+            bool result = lesser < greater;
+            SkASSERT(result);
+            index = next;
+        } while (true);
+    }
+    SkDebugf("%s finished\n", __FUNCTION__);
+}
+
 static void (*tests[])(bool) = {
+    oneOffTest,
     testSegments,
     testLines,
     testQuads,

@@ -40,6 +40,7 @@ static bool gShowOutputProgress = false;
 static bool gShowAsciiPaths = true;
 static bool gComparePathsAssert = false;
 static bool gPathStrAssert = true;
+static bool gUsePhysicalFiles = false;
 
 void showPath(const SkPath& path, const char* str) {
     SkDebugf("%s\n", !str ? "original:" : str);
@@ -291,7 +292,7 @@ static int threadIndex;
 State4 threadState[maxThreadsAllocated];
 static int testNumber;
 static const char* testName;
-static bool debugThreads = true;
+static bool debugThreads = false;
 
 State4* State4::queue = NULL;
 pthread_mutex_t State4::addQueue = PTHREAD_MUTEX_INITIALIZER;
@@ -421,12 +422,17 @@ void outputProgress(const State4& state, const char* pathStr, SkPath::FillType p
         }
         SkDebugf("%s\n", pathStr);
     }
-    SkFILEWStream outFile(state.filename);
-    if (!outFile.isValid()) {
-        SkASSERT(0);
+    if (gUsePhysicalFiles) {
+        SkFILEWStream outFile(state.filename);
+        if (!outFile.isValid()) {
+            SkASSERT(0);
+            return;
+        }
+        outputToStream(state, pathStr, pathFillType, outFile);
         return;
     }
-    outputToStream(state, pathStr, pathFillType, outFile);
+    SkFILEWStream outRam(state.filename);
+    outputToStream(state, pathStr, pathFillType, outRam);
 }
 
 static void writeTestName(SkPath::FillType pathFillType, SkWStream& outFile) {

@@ -4,6 +4,35 @@
 #import "SkCanvas.h"
 #import "SkPaint.h"
 
+extern void showPath(const SkPath& path, const char* str);
+
+static bool drawPaths(SkCanvas* canvas, const SkPath& path, bool useOld)
+{
+    SkPath out;
+#define SHOW_PATH 0
+#if SHOW_PATH
+    showPath(path, "original:");
+#endif
+    if (useOld) {
+        simplify(path, true, out);
+    } else {
+        simplifyx(path, out);
+    }
+#if SHOW_PATH
+    showPath(out, "simplified:");
+#endif
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kStroke_Style);
+  //  paint.setStrokeWidth(6);
+  //  paint.setColor(0x1F003f7f);
+ //   canvas->drawPath(path, paint);
+    paint.setColor(0xFF305F00);
+    paint.setStrokeWidth(1);
+    canvas->drawPath(out, paint);
+    return true;
+}
+
 // Three circles bounce inside a rectangle. The circles describe three, four
 // or five points which in turn describe a polygon. The polygon points
 // bounce inside the circles. The circles rotate and scale over time. The
@@ -26,7 +55,7 @@ static bool drawCircles(SkCanvas* canvas, int step, bool useOld)
             pts[c * 8 + p * 2 + 1] = abs(110 - ((step + c * 223 + p * 17) % 230));
         }
     }
-    SkPath path, out;
+    SkPath path;
     for (c = 0; c < circles; ++c) {
         for (p = 0; p < 4; ++p) {
             SkScalar x = pts[c * 8 + p * 2];
@@ -49,23 +78,7 @@ static bool drawCircles(SkCanvas* canvas, int step, bool useOld)
         }
         path.close();
     }
-    showPath(path, "original:");
-    if (useOld) {
-        simplify(path, true, out);
-    } else {
-        simplifyx(path, out);
-    }
-    showPath(out, "simplified:");
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    paint.setStyle(SkPaint::kStroke_Style);
-    paint.setStrokeWidth(3);
-    paint.setColor(0x3F007fbF);
-    canvas->drawPath(path, paint);
-    paint.setColor(0xFF60FF00);
-    paint.setStrokeWidth(1);
-    canvas->drawPath(out, paint);
-    return true;
+    return drawPaths(canvas, path, useOld);
 }
 
 static void createStar(SkPath& path, SkScalar innerRadius, SkScalar outerRadius,
@@ -89,7 +102,7 @@ static void createStar(SkPath& path, SkScalar innerRadius, SkScalar outerRadius,
 
 static bool drawStars(SkCanvas* canvas, int step, bool useOld)
 {
-    SkPath path, out;
+    SkPath path;
     const int stars = 25;
     int pts[stars];
  //   static bool initialize = true;
@@ -134,43 +147,171 @@ static bool drawStars(SkCanvas* canvas, int step, bool useOld)
         createStar(path, innerRadius[s] / 4.0f, outerRadius[s] / 4.0f,
                 angles[s], pts[s], locs[s]);
     }
-#define SHOW_PATH 0
-#if SHOW_PATH
-    showPath(path, "original:");
-#endif
-#define TEST_SIMPLIFY 01
-#if TEST_SIMPLIFY
-    if (useOld) {
-        simplify(path, true, out);
+    return drawPaths(canvas, path, useOld);
+}
+
+static void tryRoncoOnce(const SkPath& path, const SkRect& target, bool show) {
+    // capture everything in a desired rectangle
+    SkPath tiny;
+    bool closed = true;
+    SkPath::Iter iter(path, false);
+    SkPoint pts[4];
+    SkPath::Verb verb;
+    int count = 0;
+    SkPoint lastPt;
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+        switch (verb) {
+            case SkPath::kMove_Verb:
+                count = 0;
+                break;
+            case SkPath::kLine_Verb:
+                count = 1;
+                break;
+            case SkPath::kQuad_Verb:
+                count = 2;
+                break;
+            case SkPath::kCubic_Verb:
+                count = 3;
+                break;
+            case SkPath::kClose_Verb:
+                if (!closed) {
+                    tiny.close();
+                    closed = true;
+                }
+                count = 0;
+                break;
+            default:
+                SkDEBUGFAIL("bad verb");
+        }
+        if (!count) {
+            continue;
+        }
+        SkRect bounds;
+        bounds.set(pts[0].fX, pts[0].fY, pts[0].fX, pts[0].fY);
+        for (int i = 1; i <= count; ++i) {
+            bounds.growToInclude(pts[i].fX + 0.1f, pts[i].fY + 0.1f);
+        }
+        if (!SkRect::Intersects(target, bounds)) {
+            continue;
+        }
+        if (closed) {
+            tiny.moveTo(pts[0].fX, pts[0].fY);
+            closed = false;
+        } else if (pts[0] != lastPt) {
+            tiny.lineTo(pts[0].fX, pts[0].fY);
+        }
+        switch (verb) {
+            case SkPath::kLine_Verb:
+                tiny.lineTo(pts[1].fX, pts[1].fY);
+                lastPt = pts[1];
+                break;
+            case SkPath::kQuad_Verb:
+                tiny.quadTo(pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
+                lastPt = pts[2];
+                break;
+            case SkPath::kCubic_Verb:
+                tiny.cubicTo(pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY, pts[3].fX, pts[3].fY);
+                lastPt = pts[3];
+                break;
+            default:
+                SkDEBUGFAIL("bad verb");
+        }
+    }
+    if (!closed) {
+        tiny.close();
+    }
+    if (show) {
+        showPath(tiny, NULL);
+        SkDebugf("simplified:\n");
+    }
+    SkPath out;
+    simplifyx(tiny, out);
+}
+
+static void tryRonco(const SkPath& path) {
+    const SkRect& overall = path.getBounds();
+    const int divs = 50;
+    SkScalar cellWidth = overall.width() / divs * 2;
+    SkScalar cellHeight = overall.height() / divs * 2; 
+    SkRect target;
+    if (true) {
+        int xDiv = 21;
+        int yDiv = 9;
+        target.setXYWH(overall.fLeft + (overall.width() - cellWidth) * xDiv / divs,
+                overall.fTop + (overall.height() - cellHeight) * yDiv / divs,
+                 cellWidth, cellHeight);
+        tryRoncoOnce(path, target, true);
     } else {
+        for (int xDiv = 0; xDiv < divs; ++xDiv) {
+            for (int yDiv = 0; yDiv < divs; ++yDiv) {
+                target.setXYWH(overall.fLeft + (overall.width() - cellWidth) * xDiv / divs,
+                        overall.fTop + (overall.height() - cellHeight) * yDiv / divs,
+                         cellWidth, cellHeight);
+                tryRoncoOnce(path, target, false);
+            }
+        }
+    }
+}
+    
+static bool drawLetters(SkCanvas* canvas, int step, bool useOld)
+{
+    SkPath path;
+    const int width = 640;
+    const int height = 480;
+    const char testStr[] = "Merge";
+    const int testStrLen = sizeof(testStr) - 1;
+    SkPoint textPos[testStrLen];
+    SkScalar widths[testStrLen];
+    SkPaint paint;
+    paint.setTextSize(40);
+    paint.setAntiAlias(true);
+    paint.getTextWidths(testStr, testStrLen, widths, NULL);
+    SkScalar running = 0;
+    for (int x = 0; x < testStrLen; ++x) {
+        SkScalar width = widths[x];
+        widths[x] = running;
+        running += width;
+    }
+    SkScalar bias = (width - widths[testStrLen - 1]) / 2;
+    for (int x = 0; x < testStrLen; ++x) {
+        textPos[x].fX = bias + widths[x];
+        textPos[x].fY = height / 2;
+    }
+    paint.setTextSize(40 + step / 100.0f);
+#if 0
+    for (int mask = 0; mask < 1 << testStrLen; ++mask) {
+        char maskStr[testStrLen];
+    //    mask = 26;
+        for (int letter = 0; letter < testStrLen; ++letter) {
+            maskStr[letter] = mask & (1 << letter) ? testStr[letter] : ' ';
+        }
+        paint.getPosTextPath(maskStr, testStrLen, textPos, &path);
+        showPath(path, NULL);
+        SkDebugf("%d simplified:\n", mask);
+        SkPath out;
         simplifyx(path, out);
     }
 #endif
-#if SHOW_PATH
-    showPath(out, "simplified:");
+    paint.getPosTextPath(testStr, testStrLen, textPos, &path);
+#if 1
+    tryRonco(path);
 #endif
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    paint.setStyle(SkPaint::kStroke_Style);
-    paint.setStrokeWidth(6);
-    paint.setColor(0x1F003f7f);
-    canvas->drawPath(path, paint);
-    paint.setColor(0xFF305F00);
-    paint.setStrokeWidth(1);
-#if TEST_SIMPLIFY
-    canvas->drawPath(out, paint);
+#if 1
+    showPath(path, NULL);
+    SkDebugf("simplified:\n");
 #endif
-    return true;
+    return drawPaths(canvas, path, false);
 }
 
 static bool (*drawDemos[])(SkCanvas* , int , bool ) = {
     drawStars,
-    drawCircles
+    drawCircles,
+    drawLetters,
 };
 
 static size_t drawDemosCount = sizeof(drawDemos) / sizeof(drawDemos[0]);
 
-static bool (*firstTest)(SkCanvas* , int , bool) = 0;
+static bool (*firstTest)(SkCanvas* , int , bool) = drawLetters;
 
 
 bool DrawEdgeDemo(SkCanvas* canvas, int step, bool useOld) {

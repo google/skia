@@ -82,6 +82,7 @@ inline bool approximately_equal(double x, double y) {
     if (approximately_zero(x - y)) {
         return true;
     }
+    //  FIXME: since no other function uses ULPS, this one shouldn't either
     return AlmostEqualUlps((float) x, (float) y, UlpsEpsilon);
 }
 
