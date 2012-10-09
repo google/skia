@@ -1897,18 +1897,14 @@ enum FlatFlags {
 };
 
 // The size of a flat paint's POD fields
+// Include an SkScalar for hinting scale factor whether it is
+// supported or not so that an SKP is valid whether it was
+// created with support or not.
 
-#ifdef SK_SUPPORT_HINTING_SCALE_FACTOR
 static const uint32_t kPODPaintSize =   6 * sizeof(SkScalar) +
                                         1 * sizeof(SkColor) +
                                         1 * sizeof(uint16_t) +
                                         6 * sizeof(uint8_t);
-#else
-static const uint32_t kPODPaintSize =   5 * sizeof(SkScalar) +
-                                        1 * sizeof(SkColor) +
-                                        1 * sizeof(uint16_t) +
-                                        6 * sizeof(uint8_t);
-#endif
 
 /*  To save space/time, we analyze the paint, and write a truncated version of
     it if there are not tricky elements like shaders, etc.
@@ -1940,6 +1936,9 @@ void SkPaint::flatten(SkFlattenableWriteBuffer& buffer) const {
         ptr = write_scalar(ptr, this->getTextSkewX());
 #ifdef SK_SUPPORT_HINTING_SCALE_FACTOR
         ptr = write_scalar(ptr, this->getHintingScaleFactor());
+#else
+        // Dummy value.
+        ptr = write_scalar(ptr, SK_Scalar1);
 #endif
         ptr = write_scalar(ptr, this->getStrokeWidth());
         ptr = write_scalar(ptr, this->getStrokeMiter());
@@ -1959,6 +1958,9 @@ void SkPaint::flatten(SkFlattenableWriteBuffer& buffer) const {
         buffer.writeScalar(fTextSkewX);
 #ifdef SK_SUPPORT_HINTING_SCALE_FACTOR
         buffer.writeScalar(fHintingScaleFactor);
+#else
+        // Dummy value.
+        buffer.writeScalar(SK_Scalar1);
 #endif
         buffer.writeScalar(fWidth);
         buffer.writeScalar(fMiterLimit);
@@ -2007,6 +2009,9 @@ void SkPaint::unflatten(SkFlattenableReadBuffer& buffer) {
         this->setTextSkewX(read_scalar(pod));
 #ifdef SK_SUPPORT_HINTING_SCALE_FACTOR
         this->setHintingScaleFactor(read_scalar(pod));
+#else
+        // Skip the hinting scalar factor, which is not supported.
+        read_scalar(pod);
 #endif
         this->setStrokeWidth(read_scalar(pod));
         this->setStrokeMiter(read_scalar(pod));
@@ -2036,6 +2041,9 @@ void SkPaint::unflatten(SkFlattenableReadBuffer& buffer) {
         this->setTextSkewX(buffer.readScalar());
 #ifdef SK_SUPPORT_HINTING_SCALE_FACTOR
         this->setHintingScaleFactor(buffer.readScalar());
+#else
+        // Skip the hinting scalar factor, which is not supported.
+        buffer.readScalar();
 #endif
         this->setStrokeWidth(buffer.readScalar());
         this->setStrokeMiter(buffer.readScalar());
