@@ -2828,7 +2828,7 @@ static void testQuadratic38() {
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = testQuadratic38;
+static void (*firstTest)() = testLine73x;
 
 static struct {
     void (*fun)();

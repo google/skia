@@ -64,7 +64,55 @@ static void addValidRoots(const double roots[4], const int count, const int side
     }
 }
 
+static bool onlyEndPtsInCommon(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
+// the idea here is to see at minimum do a quick reject by rotating all points
+// to either side of the line formed by connecting the endpoints
+// if the opposite curves points are on the line or on the other side, the
+// curves at most intersect at the endpoints
+    for (int oddMan = 0; oddMan < 3; ++oddMan) {
+        const _Point* endPt[2];
+        for (int opp = 1; opp < 3; ++opp) {
+            int end = oddMan ^ opp;
+            if (end == 3) {
+                end = opp;
+            }
+            endPt[opp - 1] = &q1[end];
+        }
+        double origX = endPt[0]->x;
+        double origY = endPt[0]->y;
+        double adj = endPt[1]->x - origX;
+        double opp = endPt[1]->y - origY;
+        double sign = (q1[oddMan].y - origY) * adj - (q1[oddMan].x - origX) * opp;
+        assert(!approximately_zero(sign));
+        for (int n = 0; n < 3; ++n) {
+            double test = (q2[n].y - origY) * adj - (q2[n].x - origX) * opp;
+            if (test * sign > 0) {
+                goto tryNextHalfPlane;
+            }
+        }
+        for (int i1 = 0; i1 < 3; i1 += 2) {
+            for (int i2 = 0; i2 < 3; i2 += 2) {
+                if (q1[i1] == q2[i2]) {
+                    i.insertOne(i1 >> 1, 0);
+                    i.insertOne(i2 >> 1, 1);
+                }
+            }
+        }
+        assert(i.fUsed < 3);
+        return true;
+tryNextHalfPlane:
+        ;
+    }
+    return false;
+}
+
 bool intersect2(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
+    // if the quads share an end point, check to see if they overlap
+
+    if (onlyEndPtsInCommon(q1, q2, i)) {
+        assert(i.insertBalanced());
+        return i.intersected();
+    }
     QuadImplicitForm i1(q1);
     QuadImplicitForm i2(q2);
     if (i1.implicit_match(i2)) {
@@ -100,7 +148,9 @@ bool intersect2(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
     addValidRoots(roots2, rootCount, 1, i);
     _Point pts[4];
     bool matches[4];
+    int flipCheck[4];
     int index, ndex2;
+    int flipIndex = 0;
     for (ndex2 = 0; ndex2 < i.fUsed2; ++ndex2) {
         xy_at_t(q2, i.fT[1][ndex2], pts[ndex2].x, pts[ndex2].y);
         matches[ndex2] = false;
@@ -110,6 +160,8 @@ bool intersect2(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
         xy_at_t(q1, i.fT[0][index], xy.x, xy.y);
         for (ndex2 = 0; ndex2 < i.fUsed2; ++ndex2) {
              if (approximately_equal(pts[ndex2].x, xy.x) && approximately_equal(pts[ndex2].y, xy.y)) {
+                assert(flipIndex < 4);
+                flipCheck[flipIndex++] = ndex2;
                 matches[ndex2] = true;
                 goto next;
              }
@@ -131,6 +183,7 @@ bool intersect2(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
         }
         ++ndex2;
     }
+    i.fFlip = i.fUsed >= 2 && flipCheck[0] > flipCheck[1];
     assert(i.insertBalanced());
     return i.intersected();
 }
