@@ -124,6 +124,8 @@ struct DeviceCM {
                            SkRegion::kDifference_Op);
         }
 
+        fDevice->setMatrixClip(*fMatrix, fClip.forceGetBW(), clipStack);
+
 #ifdef SK_DEBUG
         if (!fClip.isEmpty()) {
             SkIRect deviceR;
@@ -242,6 +244,7 @@ public:
             }
             // fCurrLayer may be NULL now
 
+            fCanvas->prepareForDeviceDraw(fDevice, *fMatrix, *fClip);
             return true;
         }
         return false;
@@ -438,6 +441,7 @@ SkDevice* SkCanvas::init(SkDevice* device) {
     fBounder = NULL;
     fLocalBoundsCompareType.setEmpty();
     fLocalBoundsCompareTypeDirty = true;
+    fLastDeviceToGainFocus = NULL;
     fDeviceCMDirty = false;
     fSaveLayerCount = 0;
     fMetaData = NULL;
@@ -660,6 +664,15 @@ void SkCanvas::updateDeviceCMCache() {
     }
 }
 
+void SkCanvas::prepareForDeviceDraw(SkDevice* device, const SkMatrix& matrix,
+                                    const SkRegion& clip) {
+    SkASSERT(device);
+    if (fLastDeviceToGainFocus != device) {
+        device->gainFocus(matrix, clip);
+        fLastDeviceToGainFocus = device;
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 int SkCanvas::internalSave(SaveFlags flags) {
@@ -846,6 +859,13 @@ void SkCanvas::internalRestore() {
 
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
+    // Dirty this pointer to handle the case of a new device created at the same address as the
+    // device we are restoring from. E.g.:
+    // saveLayer (creates a device)
+    // drawSomething
+    // restore (deletes the device)
+    // saveLayer (oops new device at the same address)
+    fLastDeviceToGainFocus = NULL;
 
     fClipStack.restore();
     // reserve our layer (if any)
