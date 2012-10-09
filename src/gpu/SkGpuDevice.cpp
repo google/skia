@@ -30,10 +30,12 @@
     #define CHECK_SHOULD_DRAW(draw)                             \
         do {                                                    \
             if (gShouldDrawProc && !gShouldDrawProc()) return;  \
-            this->prepareDraw(draw);                            \
+            this->prepareRenderTarget(draw);                    \
+            GrAssert(!fNeedClear)                               \
         } while (0)
 #else
-    #define CHECK_SHOULD_DRAW(draw) this->prepareDraw(draw)
+    #define CHECK_SHOULD_DRAW(draw) this->prepareRenderTarget(draw); \
+                                    GrAssert(!fNeedClear)
 #endif
 
 // we use the same texture slot on GrPaint for bitmaps and shaders
@@ -43,6 +45,7 @@ enum {
     kShaderTextureIdx = 0,
     kColorFilterTextureIdx = 1
 };
+
 
 #define MAX_BLUR_SIGMA 4.0f
 // FIXME:  This value comes from from SkBlurMaskFilter.cpp.
@@ -61,10 +64,11 @@ enum {
 // a sub region of a larger source image.
 #define COLOR_BLEED_TOLERANCE SkFloatToScalar(0.001f)
 
-#define DO_DEFERRED_CLEAR()     \
+#define DO_DEFERRED_CLEAR       \
     do {                        \
         if (fNeedClear) {       \
             this->clear(0x0);   \
+            fNeedClear = false; \
         }                       \
     } while (false)             \
 
@@ -178,6 +182,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context, GrRenderTarget* renderTarget)
 void SkGpuDevice::initFromRenderTarget(GrContext* context,
                                        GrRenderTarget* renderTarget,
                                        bool cached) {
+    fNeedPrepareRenderTarget = false;
     fDrawProcs = NULL;
 
     fContext = context;
@@ -209,6 +214,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
                          int height)
     : SkDevice(config, width, height, false /*isOpaque*/) {
 
+    fNeedPrepareRenderTarget = false;
     fDrawProcs = NULL;
 
     fContext = context;
@@ -252,11 +258,9 @@ SkGpuDevice::~SkGpuDevice() {
         delete fDrawProcs;
     }
 
-    // The GrContext takes a ref on the target. We don't want to cause the render
-    // target to be unnecessarily kept alive.
-    if (fContext->getRenderTarget() == fRenderTarget) {
-        fContext->setRenderTarget(NULL);
-    }
+    // The SkGpuDevice gives the context the render target (e.g., in gainFocus)
+    // This call gives the context a chance to relinquish it
+    fContext->setRenderTarget(NULL);
 
     SkSafeUnref(fRenderTarget);
     fContext->unref();
@@ -265,8 +269,9 @@ SkGpuDevice::~SkGpuDevice() {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkGpuDevice::makeRenderTargetCurrent() {
-    DO_DEFERRED_CLEAR();
+    DO_DEFERRED_CLEAR;
     fContext->setRenderTarget(fRenderTarget);
+    fNeedPrepareRenderTarget = true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -303,7 +308,7 @@ GrPixelConfig config8888_to_grconfig_and_flags(SkCanvas::Config8888 config8888, 
 bool SkGpuDevice::onReadPixels(const SkBitmap& bitmap,
                                int x, int y,
                                SkCanvas::Config8888 config8888) {
-    DO_DEFERRED_CLEAR();
+    DO_DEFERRED_CLEAR;
     SkASSERT(SkBitmap::kARGB_8888_Config == bitmap.config());
     SkASSERT(!bitmap.isNull());
     SkASSERT(SkIRect::MakeWH(this->width(), this->height()).contains(SkIRect::MakeXYWH(x, y, bitmap.width(), bitmap.height())));
@@ -406,29 +411,64 @@ static void check_bounds(const GrClipData& clipData,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static void set_matrix_and_clip(GrContext* context, const SkMatrix& matrix,
+                                GrClipData& clipData,
+                                const SkRegion& clipRegion,
+                                const SkIPoint& origin,
+                                int renderTargetWidth, int renderTargetHeight) {
+    context->setMatrix(matrix);
+
+    clipData.fOrigin = origin;
+
+#ifdef SK_DEBUG
+    check_bounds(clipData, clipRegion,
+                 renderTargetWidth, renderTargetHeight);
+#endif
+
+    context->setClip(&clipData);
+}
+
 // call this every draw call, to ensure that the context reflects our state,
 // and not the state from some other canvas/device
-void SkGpuDevice::prepareDraw(const SkDraw& draw) {
+void SkGpuDevice::prepareRenderTarget(const SkDraw& draw) {
+    GrAssert(NULL != fClipData.fClipStack);
+
+    if (fNeedPrepareRenderTarget ||
+        fContext->getRenderTarget() != fRenderTarget) {
+
+        fContext->setRenderTarget(fRenderTarget);
+        SkASSERT(draw.fClipStack && draw.fClipStack == fClipData.fClipStack);
+
+        set_matrix_and_clip(fContext, *draw.fMatrix,
+                            fClipData, *draw.fClip, this->getOrigin(),
+                            fRenderTarget->width(), fRenderTarget->height());
+        fNeedPrepareRenderTarget = false;
+    }
+}
+
+void SkGpuDevice::setMatrixClip(const SkMatrix& matrix, const SkRegion& clip,
+                                const SkClipStack& clipStack) {
+    this->INHERITED::setMatrixClip(matrix, clip, clipStack);
+    // We don't need to set them now because the context may not reflect this device.
+    fNeedPrepareRenderTarget = true;
+}
+
+void SkGpuDevice::gainFocus(const SkMatrix& matrix, const SkRegion& clip) {
+
     GrAssert(NULL != fClipData.fClipStack);
 
     fContext->setRenderTarget(fRenderTarget);
 
-    SkASSERT(draw.fClipStack && draw.fClipStack == fClipData.fClipStack);
+    this->INHERITED::gainFocus(matrix, clip);
 
-    fContext->setMatrix(*draw.fMatrix);
-    fClipData.fOrigin = this->getOrigin();
+    set_matrix_and_clip(fContext, matrix, fClipData, clip, this->getOrigin(),
+                        fRenderTarget->width(), fRenderTarget->height());
 
-#ifdef SK_DEBUG
-    check_bounds(fClipData, *draw.fClip, fRenderTarget->width(), fRenderTarget->height());
-#endif
-
-    fContext->setClip(&fClipData);
-
-    DO_DEFERRED_CLEAR();
+    DO_DEFERRED_CLEAR;
 }
 
 SkGpuRenderTarget* SkGpuDevice::accessRenderTarget() {
-    DO_DEFERRED_CLEAR();
+    DO_DEFERRED_CLEAR;
     return (SkGpuRenderTarget*)fRenderTarget;
 }
 
@@ -622,7 +662,6 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
 ///////////////////////////////////////////////////////////////////////////////
 void SkGpuDevice::clear(SkColor color) {
     fContext->clear(NULL, color, fRenderTarget);
-    fNeedClear = false;
 }
 
 void SkGpuDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
@@ -1888,7 +1927,7 @@ bool SkGpuDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
 }
 
 void SkGpuDevice::flush() {
-    DO_DEFERRED_CLEAR();
+    DO_DEFERRED_CLEAR;
     fContext->resolveRenderTarget(fRenderTarget);
 }
 

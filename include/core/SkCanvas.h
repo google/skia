@@ -978,6 +978,7 @@ private:
     uint32_t    fMCRecStorage[32];
 
     SkBounder*  fBounder;
+    SkDevice*   fLastDeviceToGainFocus;
     int         fSaveLayerCount;    // number of successful saveLayer calls
 
     SkMetaData* fMetaData;
@@ -988,7 +989,9 @@ private:
         fSurfaceBase = sb;
     }
     friend class SkSurface_Base;
-    
+
+    void prepareForDeviceDraw(SkDevice*, const SkMatrix&, const SkRegion&);
+
     bool fDeviceCMDirty;            // cleared by updateDeviceCMCache()
     void updateDeviceCMCache();
 
