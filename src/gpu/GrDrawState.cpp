@@ -105,7 +105,7 @@ bool GrDrawState::AutoDeviceCoordDraw::set(GrDrawState* drawState,
     fDrawState = drawState;
     if (NULL == fDrawState) {
         return false;
-    } 
+    }
 
     fViewMatrix = drawState->getViewMatrix();
     fRestoreMask = 0;
