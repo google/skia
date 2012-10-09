@@ -113,17 +113,21 @@ extern const SkBitmapProcState::MatrixProc RepeatX_RepeatY_Procs_neon[];
 static inline U16CPU fixed_clamp(SkFixed x)
 {
 #ifdef SK_CPU_HAS_CONDITIONAL_INSTR
-    if (x >> 16)
-        x = 0xFFFF;
     if (x < 0)
         x = 0;
+    if (x >> 16)
+        x = 0xFFFF;
 #else
     if (x >> 16)
     {
+#if 0   // is this faster?
+        x = (~x >> 31) & 0xFFFF;
+#else
         if (x < 0)
             x = 0;
         else
             x = 0xFFFF;
+#endif
     }
 #endif
     return x;
