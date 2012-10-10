@@ -35,10 +35,9 @@ protected:
     GrTexture* getInputResultAsTexture(Proxy* proxy, GrTexture* src, const SkRect& rect);
 #endif
 
-    SkImageFilter* input() const { return fInput; }
+    SkImageFilter* input() const { return getInput(0); }
 private:
     typedef SkImageFilter INHERITED;
-    SkImageFilter* fInput;
 };
 
 #endif

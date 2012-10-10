@@ -17,7 +17,7 @@
 
 class FailImageFilter : public SkImageFilter {
 public:
-    FailImageFilter() {}
+    FailImageFilter() : INHERITED(0) {}
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(FailImageFilter)
 protected:
@@ -38,7 +38,7 @@ static SkFlattenable::Registrar gFailImageFilterReg("FailImageFilter",
 
 class IdentityImageFilter : public SkImageFilter {
 public:
-    IdentityImageFilter() {}
+    IdentityImageFilter() : INHERITED(0) {}
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(IdentityImageFilter)
 protected:

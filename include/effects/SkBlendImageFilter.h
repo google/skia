@@ -43,9 +43,9 @@ protected:
 
 private:
     Mode fMode;
-    SkImageFilter* fBackground;
-    SkImageFilter* fForeground;
     typedef SkImageFilter INHERITED;
+    SkImageFilter* getBackgroundInput() { return getInput(0); }
+    SkImageFilter* getForegroundInput() { return getInput(1); }
 };
 
 #endif
