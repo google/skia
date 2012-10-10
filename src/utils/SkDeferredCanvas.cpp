@@ -268,9 +268,6 @@ protected:
     virtual bool filterTextFlags(const SkPaint& paint, TextFlags*)
         SK_OVERRIDE
         {return false;}
-    virtual void setMatrixClip(const SkMatrix&, const SkRegion&,
-                                const SkClipStack&) SK_OVERRIDE
-        {}
 
     // None of the following drawing methods should ever get called on the
     // deferred device
