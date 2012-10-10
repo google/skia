@@ -8,7 +8,9 @@
   'targets': [
     {
       'target_name': 'views',
+      'product_name': 'skia_views',
       'type': 'static_library',
+      'standalone_static_library': 1,
       'include_dirs': [
         '../include/config',
         '../include/core',
@@ -108,11 +110,6 @@
           'sources!': [
             '../src/views/win/SkOSWindow_win.cpp',
             '../src/views/win/skia_win.cpp',
-          ],
-        }],
-        [ 'skia_gpu == 1', {
-          'include_dirs': [
-            '../include/gpu',
           ],
         }],
       ],

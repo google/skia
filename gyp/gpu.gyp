@@ -109,7 +109,9 @@
   'targets': [
     {
       'target_name': 'skgr',
+      'product_name': 'skia_skgr',
       'type': 'static_library',
+      'standalone_static_library': 1,
       'includes': [
         'gpu.gypi',
       ],
@@ -157,7 +159,9 @@
     },
     {
       'target_name': 'gr',
+      'product_name': 'skia_gr',
       'type': 'static_library',
+      'standalone_static_library': 1,
       'includes': [
         'gpu.gypi',
       ],

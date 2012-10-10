@@ -52,20 +52,29 @@
       'skia_os%': '<(skia_os)',
 
       'conditions': [
-        ['skia_os == "win"', {
+        [ 'skia_os == "win"', {
           'os_posix%': 0,
         }, {
           'os_posix%': 1,
         }],
-        ['skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
           'skia_arch_width%': 64,
         }, {
           'skia_arch_width%': 32,
         }],
-        ['skia_os == "android"', {
+        [ 'skia_os == "android"', {
           'skia_static_initializers%': 0,
         }, {
           'skia_static_initializers%': 1,
+        }],
+        [ 'skia_os == "ios"', {
+          'skia_arch_type%': 'arm',
+          'armv7%': 1,
+          'arm_neon%': 0, # neon asm files known not to work with the ios build
+        },{ # skia_os is not ios
+          'skia_arch_type%': 'x86',
+          'armv7%': 0,
+          'arm_neon%': 0,
         }],
       ],
 
@@ -82,6 +91,8 @@
 
     # Re-define all variables defined within the level-2 'variables' dict,
     # so that siblings of the level-1 'variables' dict can see them.
+    'armv7%': '<(armv7)',
+    'arm_neon%': '<(arm_neon)',
     'skia_os%': '<(skia_os)',
     'os_posix%': '<(os_posix)',
     'skia_scalar%': '<(skia_scalar)',
@@ -89,6 +100,7 @@
     'skia_nv_path_rendering%': '<(skia_nv_path_rendering)',
     'skia_angle%': '<(skia_angle)',
     'skia_arch_width%': '<(skia_arch_width)',
+    'skia_arch_type%': '<(skia_arch_type)',
     'skia_directwrite%': '<(skia_directwrite)',
     'android_make_apk%': '<(android_make_apk)',
     'skia_nacl%': '<(skia_nacl)',
@@ -97,15 +109,6 @@
     'skia_static_initializers%': '<(skia_static_initializers)',
     'ios_sdk_version%': '6.0',
 
-    'conditions': [
-      ['skia_os == "ios"', {
-        'skia_arch_type%': 'arm',
-        'armv7%': 1,
-        'arm_neon%': 0, # neon asm files known not to work with the ios build
-      },{ # skia_os is not ios
-        'skia_arch_type%': 'x86',
-      }],
-    ],
     # These are referenced by our .gypi files that list files (e.g. core.gypi)
     #
     'skia_src_path%': '../src',

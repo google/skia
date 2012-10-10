@@ -103,23 +103,17 @@
         '../src/pipe/utils/SamplePipeControllers.cpp',
       ],
       'dependencies': [
-        'core.gyp:core',
+        'skia_base_libs.gyp:skia_base_libs',
         'effects.gyp:effects',
         'experimental.gyp:experimental',
         'images.gyp:images',
-        'ports.gyp:ports',
         'pdf.gyp:pdf',
         'tools.gyp:picture_utils',
-        'utils.gyp:utils',
       ],
       'conditions': [
         [ 'skia_gpu == 1', {
           'include_dirs': [
             '../src/gpu',
-          ],
-          'dependencies': [
-            'gpu.gyp:gr',
-            'gpu.gyp:skgr',
           ],
         }],
       ],

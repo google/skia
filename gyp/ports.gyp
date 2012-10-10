@@ -3,7 +3,9 @@
   'targets': [
     {
       'target_name': 'ports',
+      'product_name': 'skia_ports',
       'type': 'static_library',
+      'standalone_static_library': 1,
       'dependencies': [
         'core.gyp:core',
         'sfnt.gyp:sfnt',

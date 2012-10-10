@@ -25,10 +25,7 @@
 
       ],
       'dependencies': [
-        'core.gyp:core',
-        'opts.gyp:opts',
-        'ports.gyp:ports',
-        'utils.gyp:utils',
+        'skia_base_libs.gyp:skia_base_libs',
         'views.gyp:views',
         'xml.gyp:xml',
       ],

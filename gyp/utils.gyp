@@ -2,11 +2,12 @@
   'targets': [
     {
       'target_name': 'utils',
-      'dependencies': [
-        'core.gyp:core',
-      ],
+      'product_name': 'skia_utils',
       'type': 'static_library',
+      'standalone_static_library': 1,
       'include_dirs': [
+        '../include/config',
+        '../include/core',
         '../include/effects',
         '../include/pipe',
         '../include/utils',

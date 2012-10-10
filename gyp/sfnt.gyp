@@ -2,7 +2,9 @@
   'targets': [
     {
       'target_name': 'sfnt',
+      'product_name': 'skia_sfnt',
       'type': 'static_library',
+      'standalone_static_library': 1,
       'dependencies': [
         'core.gyp:core',
       ],
