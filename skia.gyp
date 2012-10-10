@@ -15,6 +15,9 @@
       'target_name': 'all',
       'type': 'none',
       'dependencies': [
+        # The minimal set of static libraries for basic Skia functionality.
+        'gyp/skia_base_libs.gyp:skia_base_libs',
+
         'gyp/bench.gyp:bench',
         'gyp/gm.gyp:gm',
         'gyp/SampleApp.gyp:SampleApp',

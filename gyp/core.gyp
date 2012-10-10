@@ -3,7 +3,9 @@
   'targets': [
     {
       'target_name': 'core',
+      'product_name': 'skia_core',
       'type': 'static_library',
+      'standalone_static_library': 1,
       'msvs_guid': 'B7760B5E-BFA8-486B-ACFD-49E3A6DE8E76',
 
       'includes': [
@@ -99,6 +101,24 @@
           '../include/core',
           '../include/pipe',
           'ext',
+        ],
+        'conditions': [
+          [ 'skia_os == "mac"', {
+            'include_dirs': [
+              '../include/utils/mac',
+              '../third_party/freetype/include/**',
+            ],
+          }],
+          [ 'skia_os == "ios"', {
+            'include_dirs': [
+              '../include/utils/ios',
+            ],
+          }],
+          [ 'skia_os == "win"', {
+            'include_dirs': [
+              'config/win',
+            ],
+          }],
         ],
       },
       'dependencies': [

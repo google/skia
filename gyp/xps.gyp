@@ -2,11 +2,12 @@
   'targets': [
     {
       'target_name': 'xps',
+      'product_name': 'skia_xps',
       'type': 'static_library',
+      'standalone_static_library': 1,
       'dependencies': [
-        'core.gyp:core',
+        'skia_base_libs.gyp:skia_base_libs',
         'images.gyp:images',
-        'utils.gyp:utils',
       ],
       'include_dirs': [
         '../include/device/xps',

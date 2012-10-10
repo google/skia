@@ -31,11 +31,9 @@
         '../tools/skdiff_main.cpp',
       ],
       'dependencies': [
-        'core.gyp:core',
+        'skia_base_libs.gyp:skia_base_libs',
         'effects.gyp:effects',
         'images.gyp:images',
-        'ports.gyp:ports',
-        'utils.gyp:utils',
       ],
     },
     {
@@ -45,11 +43,9 @@
         '../tools/skhello.cpp',
       ],
       'dependencies': [
-        'core.gyp:core',
+        'skia_base_libs.gyp:skia_base_libs',
         'effects.gyp:effects',
         'images.gyp:images',
-        'ports.gyp:ports',
-        'utils.gyp:utils',
       ],
     },
     {
@@ -59,11 +55,9 @@
         '../tools/skimage_main.cpp',
       ],
       'dependencies': [
-        'core.gyp:core',
+        'skia_base_libs.gyp:skia_base_libs',
         'effects.gyp:effects',
         'images.gyp:images',
-        'ports.gyp:ports',
-        'utils.gyp:utils',
       ],
     },
     {
@@ -76,8 +70,7 @@
         '../src/pipe/utils/',
       ],
       'dependencies': [
-        'core.gyp:core',
-        'ports.gyp:ports',
+        'skia_base_libs.gyp:skia_base_libs',
         'tools.gyp:picture_renderer',
         'tools.gyp:picture_utils',
       ],
@@ -97,47 +90,34 @@
         '../bench',
       ],
       'dependencies': [
-        'core.gyp:core',
+        'skia_base_libs.gyp:skia_base_libs',
         'effects.gyp:effects',
-        'ports.gyp:ports',
         'tools.gyp:picture_utils',
         'tools.gyp:picture_renderer',
         'bench.gyp:bench_timer',
       ],
     },
     {
-     'target_name': 'picture_renderer',
-     'type': 'static_library',
-     'sources': [
+      'target_name': 'picture_renderer',
+      'type': 'static_library',
+      'sources': [
         '../tools/PictureRenderer.cpp',
         '../src/pipe/utils/SamplePipeControllers.h',
         '../src/pipe/utils/SamplePipeControllers.cpp',
-     ],
-     'include_dirs': [
-       '../src/pipe/utils/',
-       '../src/utils/',
-     ],
-     'dependencies': [
-        'core.gyp:core',
+      ],
+      'include_dirs': [
+        '../src/pipe/utils/',
+        '../src/utils/',
+      ],
+      'dependencies': [
+        'skia_base_libs.gyp:skia_base_libs',
         'effects.gyp:effects',
         'images.gyp:images',
         'tools.gyp:picture_utils',
-        'utils.gyp:utils',
-     ],
-     'export_dependent_settings': [
-       'images.gyp:images',
-     ],
-     'conditions': [
-       ['skia_gpu == 1', {
-         'dependencies': [
-           'gpu.gyp:gr',
-           'gpu.gyp:skgr',
-         ],
-         'export_dependent_settings': [
-            'gpu.gyp:gr',
-         ],
-       }],
-    ],
+      ],
+      'export_dependent_settings': [
+        'images.gyp:images',
+      ],
     },
     {
       'target_name': 'picture_utils',
@@ -147,7 +127,7 @@
         '../tools/picture_utils.h',
       ],
       'dependencies': [
-        'core.gyp:core',
+        'skia_base_libs.gyp:skia_base_libs',
       ],
     },
     {
@@ -157,11 +137,9 @@
         '../tools/pinspect.cpp',
       ],
       'dependencies': [
-        'core.gyp:core',
+        'skia_base_libs.gyp:skia_base_libs',
         'effects.gyp:effects',
         'images.gyp:images',
-        'ports.gyp:ports',
-        'utils.gyp:utils',
       ],
     },
     {
@@ -174,11 +152,9 @@
         '../tools/filtermain.cpp',
       ],
       'dependencies': [
-        'core.gyp:core',
+        'skia_base_libs.gyp:skia_base_libs',
         'effects.gyp:effects',
         'images.gyp:images',
-        'ports.gyp:ports',
-        'utils.gyp:utils',
       ],
     },
   ],

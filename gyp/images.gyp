@@ -2,7 +2,9 @@
   'targets': [
     {
       'target_name': 'images',
+      'product_name': 'skia_images',
       'type': 'static_library',
+      'standalone_static_library': 1,
       'dependencies': [
         'libjpeg.gyp:*',
         'utils.gyp:utils',

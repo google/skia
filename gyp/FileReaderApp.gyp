@@ -18,11 +18,8 @@
         '../src/utils/mac/SkOSWindow_Mac.cpp',
       ],
       'dependencies': [
-        'core.gyp:core',
+        'skia_base_libs.gyp:skia_base_libs',
         'effects.gyp:effects',
-        'opts.gyp:opts',
-        'ports.gyp:ports',
-        'utils.gyp:utils',
         'views.gyp:views',
         'xml.gyp:xml',
       ],

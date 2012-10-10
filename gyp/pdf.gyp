@@ -2,11 +2,11 @@
   'targets': [
     {
       'target_name': 'pdf',
+      'product_name': 'skia_pdf',
       'type': 'static_library',
+      'standalone_static_library': 1,
       'dependencies': [
-        'core.gyp:core',
-        'ports.gyp:ports',
-        'utils.gyp:utils',
+        'skia_base_libs.gyp:skia_base_libs',
         'zlib.gyp:zlib',
       ],
       'include_dirs': [

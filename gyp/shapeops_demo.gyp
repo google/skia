@@ -65,12 +65,10 @@
         '../experimental/Intersection/TSearch.h',
       ],
       'dependencies': [
-        'core.gyp:core',
+        'skia_base_libs.gyp:skia_base_libs',
         'effects.gyp:effects',
         'images.gyp:images',
-        'ports.gyp:ports',
         'views.gyp:views',
-        'utils.gyp:utils',
         'animator.gyp:animator',
         'xml.gyp:xml',
         'svg.gyp:svg',
@@ -106,12 +104,6 @@
           },
           'mac_bundle_resources' : [
             '../experimental/Intersection/EdgeDemoApp.xib',
-          ],
-        }],
-        [ 'skia_gpu == 1', {
-          'dependencies': [
-            'gpu.gyp:gr',
-            'gpu.gyp:skgr',
           ],
         }],
       ],

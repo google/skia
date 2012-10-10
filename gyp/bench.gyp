@@ -15,11 +15,9 @@
         'bench.gypi'
       ],
       'dependencies': [
-        'core.gyp:core',
+        'skia_base_libs.gyp:skia_base_libs',
         'effects.gyp:effects',
         'images.gyp:images',
-        'ports.gyp:ports',
-        'utils.gyp:utils',
         'bench_timer',
       ],
       'conditions': [
@@ -27,10 +25,6 @@
           {
             'include_dirs' : [
               '../src/gpu',
-            ],
-            'dependencies': [
-              'gpu.gyp:gr',
-              'gpu.gyp:skgr',
             ],
           },
         ],
@@ -54,7 +48,7 @@
         '../src/gpu',
       ],
       'dependencies': [
-        'core.gyp:core',
+        'skia_base_libs.gyp:skia_base_libs',
       ],
       'conditions': [
         [ 'skia_os not in ["mac", "ios"]', {
@@ -83,9 +77,6 @@
           ],
         }],
         ['skia_gpu == 1', {
-          'dependencies': [
-            'gpu.gyp:gr',
-          ],
           'sources': [
             '../bench/BenchGpuTimer_gl.h',
             '../bench/BenchGpuTimer_gl.cpp',

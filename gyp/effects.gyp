@@ -2,7 +2,9 @@
   'targets': [
     {
       'target_name': 'effects',
+      'product_name': 'skia_effects',
       'type': 'static_library',
+      'standalone_static_library': 1,
       'includes': [
         'effects.gypi',
       ],
@@ -16,7 +18,7 @@
         ],
       },
       'dependencies': [
-        'core.gyp:core',
+        'skia_base_libs.gyp:skia_base_libs',
       ],
       'sources': [
         'effects.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
@@ -25,10 +27,6 @@
         ['skia_gpu == 1', {
           'include_dirs': [
             '../src/gpu',
-          ],
-          'dependencies': [
-            'gpu.gyp:gr',
-            'gpu.gyp:skgr',
           ],
         }],
       ],

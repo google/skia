@@ -135,12 +135,10 @@
         '../samplecode/SampleFontCache.cpp',
       ],
       'dependencies': [
-        'core.gyp:core',
+        'skia_base_libs.gyp:skia_base_libs',
         'effects.gyp:effects',
         'images.gyp:images',
-        'ports.gyp:ports',
         'views.gyp:views',
-        'utils.gyp:utils',
         'animator.gyp:animator',
         'xml.gyp:xml',
         'experimental.gyp:experimental',
@@ -289,10 +287,6 @@
         [ 'skia_gpu == 1', {
           'include_dirs': [
             '../src/gpu', # To pull gl/GrGLUtil.h
-          ],
-          'dependencies': [
-            'gpu.gyp:gr',
-            'gpu.gyp:skgr',
           ],
         }],
       ],

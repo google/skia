@@ -20,7 +20,9 @@
     # separately as well.
     {
       'target_name': 'opts',
+      'product_name': 'skia_opts',
       'type': 'static_library',
+      'standalone_static_library': 1,
       'include_dirs': [
         '../include/config',
         '../include/core',
@@ -97,7 +99,9 @@
     # gcc to generate SSSE3 code.
     {
       'target_name': 'opts_ssse3',
+      'product_name': 'skia_opts_ssse3',
       'type': 'static_library',
+      'standalone_static_library': 1,
       'include_dirs': [
         '../include/config',
         '../include/core',
@@ -130,7 +134,9 @@
     # is very similar to the SSSE3 one.
     {
       'target_name': 'opts_neon',
+      'product_name': 'skia_opts_neon',
       'type': 'static_library',
+      'standalone_static_library': 1,
       'include_dirs': [
         '../include/config',
         '../include/core',

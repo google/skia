@@ -118,12 +118,9 @@
         '<(moc_src_dir)/moc_SkGLWidget.cpp',
       ],
       'dependencies': [
-        'core.gyp:core',
+        'skia_base_libs.gyp:skia_base_libs',
         'images.gyp:images',
-        'ports.gyp:ports',
         'effects.gyp:effects',
-        'gpu.gyp:gr',
-        'gpu.gyp:skgr',
         'debugger_mocs',
       ],
       'link_settings': {

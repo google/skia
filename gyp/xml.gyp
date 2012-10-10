@@ -2,7 +2,9 @@
   'targets': [
     {
       'target_name': 'xml',
+      'product_name': 'skia_xml',
       'type': 'static_library',
+      'standalone_static_library': 1,
       'include_dirs': [
         '../include/config',
         '../include/core',

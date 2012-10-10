@@ -22,12 +22,10 @@
         '../src/pipe/utils/SamplePipeControllers.cpp',
       ],
       'dependencies': [
-        'core.gyp:core',
+        'skia_base_libs.gyp:skia_base_libs',
         'effects.gyp:effects',
         'images.gyp:images',
         'pdf.gyp:pdf',
-        'ports.gyp:ports',
-        'utils.gyp:utils',
       ],
       'conditions': [
         ['skia_os == "mac"', {
@@ -52,10 +50,6 @@
         ['skia_gpu == 1', {
           'include_dirs': [
             '../src/gpu',
-          ],
-          'dependencies': [
-            'gpu.gyp:gr',
-            'gpu.gyp:skgr',
           ],
         }],
       ],
