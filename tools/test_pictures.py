@@ -16,96 +16,19 @@ import sys
 import shutil
 import tempfile
 
+# modules declared within this same directory
+import test_rendering
+
 USAGE_STRING = 'Usage: %s input... expectedDir'
 HELP_STRING = '''
 
-Compares the renderings of serialized SkPicture files and directories specified
-by input with the images in expectedDir. Note, files in directoriers are
-expected to end with .skp.
+Takes input SkPicture files and renders them as PNG files, and then compares
+those resulting PNG files against PNG files found in expectedDir.
+
+Each instance of "input" can be either a file (name must end in .skp), or a
+directory (in which case this script will process all .skp files within the
+directory).
 '''
-
-def RunCommand(command):
-    """Run a command.
-
-    @param command the command as a single string
-    """
-    print 'running command [%s]...' % command
-    os.system(command)
-
-
-def FindPathToProgram(program):
-    """Return path to an existing program binary, or raise an exception if we
-    cannot find one.
-
-    @param program the name of the program that is being looked for
-    """
-    trunk_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                              os.pardir))
-    possible_paths = [os.path.join(trunk_path, 'out', 'Release', program),
-                      os.path.join(trunk_path, 'out', 'Debug', program),
-                      os.path.join(trunk_path, 'out', 'Release',
-                                   program + ".exe"),
-                      os.path.join(trunk_path, 'out', 'Debug',
-                                   program + ".exe")]
-    for try_path in possible_paths:
-        if os.path.isfile(try_path):
-            return try_path
-    raise Exception('cannot find %s in paths %s; maybe you need to '
-                    'build %s?' % (program, possible_paths, program))
-
-
-def RenderImages(inputs, render_dir, options):
-    """Renders the serialized SkPictures.
-
-    Uses the render_pictures program to do the rendering.
-
-    @param inputs the location(s) to read the serlialized SkPictures
-    @param render_dir the location to write out the rendered images
-    """
-    renderer_path = FindPathToProgram('render_pictures')
-    inputs_as_string = " ".join(inputs)
-    command = '%s %s %s' % (renderer_path, inputs_as_string, render_dir)
-
-    if (options.mode is not None):
-        command += ' --mode %s' % ' '.join(options.mode)
-
-    if (options.device is not None):
-        command += ' --device %s' % options.device
-
-    RunCommand(command)
-
-
-def DiffImages(expected_dir, comparison_dir, diff_dir):
-    """Diffs the rendered SkPicture images with the baseline images.
-
-    Uses the skdiff program to do the diffing.
-
-    @param expected_dir the location of the baseline images.
-    @param comparison_dir the location of the images to comapre with the
-           baseline
-    @param diff_dir the location to write out the diff results
-    """
-    skdiff_path = FindPathToProgram('skdiff')
-    RunCommand('%s %s %s %s %s' %
-               (skdiff_path, expected_dir, comparison_dir, diff_dir,
-                '--noprintdirs'))
-
-
-def Cleanup(options, render_dir, diff_dir):
-    """Deletes any temporary folders and files created.
-
-    @param options The OptionParser object that parsed if render_dir or diff_dir
-           was set
-    @param render_dir the directory where the rendered images were written
-    @param diff_dir the directory where the diff results were written
-    """
-    if (not options.render_dir):
-        if (os.path.isdir(render_dir)):
-            shutil.rmtree(render_dir)
-    if (not options.diff_dir):
-        if (os.path.isdir(diff_dir)):
-            shutil.rmtree(diff_dir)
-
 
 def ModeParse(option, opt_str, value, parser):
     """Parses the --mode option of the commandline.
@@ -158,21 +81,17 @@ def Main(args):
     inputs = arguments[1:-1]
     expected_dir = arguments[-1]
 
-    if (options.render_dir):
-        render_dir = options.render_dir
-    else:
-        render_dir = tempfile.mkdtemp()
+    extra_args = ''
 
-    if (options.diff_dir):
-        diff_dir = options.diff_dir
-    else:
-        diff_dir = tempfile.mkdtemp()
+    if (options.mode is not None):
+        extra_args += ' --mode %s' % ' '.join(options.mode)
 
-    try:
-        RenderImages(inputs, render_dir, options)
-        DiffImages(expected_dir, render_dir, diff_dir)
-    finally:
-        Cleanup(options, render_dir, diff_dir)
+    if (options.device is not None):
+        extra_args += ' --device %s' % options.device
+
+    test_rendering.TestRenderSkps(inputs, expected_dir, options.render_dir,
+                                  options.diff_dir, 'render_pictures',
+                                  extra_args)
 
 if __name__ == '__main__':
     Main(sys.argv)
