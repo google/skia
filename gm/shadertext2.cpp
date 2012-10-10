@@ -204,6 +204,11 @@ protected:
         }
     }
 
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        // disable 565 for now, til mike fixes the debug assert
+        return this->INHERITED::onGetFlags() | kSkip565_Flag;
+    }
+
 private:
     typedef GM INHERITED;
 };
