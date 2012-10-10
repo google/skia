@@ -1045,6 +1045,11 @@ int tool_main(int argc, char** argv) {
             {
                 continue;
             }
+            if ((gmFlags & GM::kSkip565_Flag) &&
+                (kRaster_Backend == config.fBackend) &&
+                (SkBitmap::kRGB_565_Config == config.fConfig)) {
+                continue;
+            }
 
             // Now we know that we want to run this test and record its
             // success or failure.
