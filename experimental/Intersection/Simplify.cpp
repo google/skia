@@ -628,7 +628,7 @@ public:
         fSpans = &spans;
         setSpans();
     }
-    
+
     void setSpans() {
         double startT = (*fSpans)[fStart].fT;
         double endT = (*fSpans)[fEnd].fT;
@@ -680,7 +680,7 @@ public:
     SkPath::Verb verb() const {
         return fVerb;
     }
-    
+
     void debugShow(const SkPoint& a) const {
         SkDebugf("    d=(%1.9g,%1.9g) side=%1.9g\n", dx(), dy(), fSide);
     }
@@ -2558,7 +2558,7 @@ public:
         }
         return -1;
     }
-    
+
     // FIXME
     // this returns at any difference in T, vs. a preset minimum. It may be
     // that all callers to nextSpan should use this instead.

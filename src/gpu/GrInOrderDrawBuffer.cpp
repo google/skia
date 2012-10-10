@@ -99,7 +99,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         if (!this->getCaps().dualSourceBlendingSupport()) {
             for (int s = 0; s < GrDrawState::kNumStages; ++s) {
                 if (this->getDrawState().isStageEnabled(s)) {
-                    // We disable batching across colors when there is a texture 
+                    // We disable batching across colors when there is a texture
                     // present because (by pushing the the color to the vertices)
                     // Ganesh loses track of the rect's opacity. This, in turn, can
                     // cause some of the blending optimizations to be disabled. This
@@ -154,7 +154,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         // Now that the paint's color is stored in the vertices set it to
         // white so that the following code can batch all the rects regardless
         // of paint color
-        GrDrawState::AutoColorRestore acr(this->drawState(), 
+        GrDrawState::AutoColorRestore acr(this->drawState(),
                                           batchAcrossColors ? SK_ColorWHITE
                                                             : this->getDrawState().getColor());
 

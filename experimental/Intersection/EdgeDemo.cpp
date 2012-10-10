@@ -232,7 +232,7 @@ static void tryRonco(const SkPath& path) {
     const SkRect& overall = path.getBounds();
     const int divs = 50;
     SkScalar cellWidth = overall.width() / divs * 2;
-    SkScalar cellHeight = overall.height() / divs * 2; 
+    SkScalar cellHeight = overall.height() / divs * 2;
     SkRect target;
     if (true) {
         int xDiv = 21;
@@ -252,7 +252,7 @@ static void tryRonco(const SkPath& path) {
         }
     }
 }
-    
+
 static bool drawLetters(SkCanvas* canvas, int step, bool useOld)
 {
     SkPath path;
