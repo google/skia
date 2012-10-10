@@ -109,8 +109,18 @@ public:
     virtual GrTexture* onFilterImageGPU(Proxy*, GrTexture* texture, const SkRect& rect);
 
 protected:
-    SkImageFilter() {}
-    explicit SkImageFilter(SkFlattenableReadBuffer& rb) : INHERITED(rb) {}
+    SkImageFilter(int numInputs, SkImageFilter** inputs);
+
+    // The ... represents numInputs SkImageFilter pointers, upon which this
+    // constructor will call SkSafeRef().  This is the same behaviour as
+    // the SkImageFilter(int, SkImageFilter**) constructor above.
+    explicit SkImageFilter(int numInputs, ...);
+
+    virtual ~SkImageFilter();
+
+    explicit SkImageFilter(SkFlattenableReadBuffer& rb);
+
+    virtual void flatten(SkFlattenableWriteBuffer& wb) const SK_OVERRIDE;
 
     // Default impl returns false
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
@@ -118,8 +128,17 @@ protected:
     // Default impl copies src into dst and returns true
     virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*);
 
+    int numInputs() const { return fNumInputs; }
+    SkImageFilter* getInput(int i) const { SkASSERT(i < fNumInputs); return fInputs[i]; }
+    // Return the result of processing the given input, or the source bitmap
+    // if we have no connected input at that index.
+    SkBitmap getInputResult(int index, Proxy*, const SkBitmap& src, const SkMatrix&,
+                            SkIPoint*);
+
 private:
     typedef SkFlattenable INHERITED;
+    int fNumInputs;
+    SkImageFilter** fInputs;
 };
 
 #endif

@@ -6,9 +6,75 @@
  */
 
 #include "SkImageFilter.h"
+
+#include "SkBitmap.h"
+#include "SkFlattenableBuffers.h"
 #include "SkRect.h"
+#include "stdarg.h"
 
 SK_DEFINE_INST_COUNT(SkImageFilter)
+
+SkImageFilter::SkImageFilter(int numInputs, SkImageFilter** inputs)
+  : fNumInputs(numInputs), fInputs(new SkImageFilter*[numInputs]) {
+    for (int i = 0; i < numInputs; ++i) {
+        fInputs[i] = inputs[i];
+        SkSafeRef(fInputs[i]);
+    }
+}
+
+SkImageFilter::SkImageFilter(int numInputs, ...)
+  : fNumInputs(numInputs), fInputs(new SkImageFilter*[numInputs]) {
+    va_list ap;
+    va_start(ap, numInputs);
+    for (int i = 0; i < numInputs; ++i) {
+        fInputs[i] = va_arg(ap, SkImageFilter*);
+        SkSafeRef(fInputs[i]);
+    }
+    va_end(ap);
+}
+
+SkImageFilter::~SkImageFilter() {
+    for (int i = 0; i < fNumInputs; i++) {
+        SkSafeUnref(fInputs[i]);
+    }
+    delete[] fInputs;
+}
+
+SkImageFilter::SkImageFilter(SkFlattenableReadBuffer& buffer) 
+    : fNumInputs(buffer.readInt()), fInputs(new SkImageFilter*[fNumInputs]) {
+    for (int i = 0; i < fNumInputs; i++) {
+        if (buffer.readBool()) {
+            fInputs[i] = static_cast<SkImageFilter*>(buffer.readFlattenable());
+        } else {
+            fInputs[i] = NULL;
+        }
+    }
+}
+
+void SkImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
+    buffer.writeInt(fNumInputs);
+    for (int i = 0; i < fNumInputs; i++) {
+        SkImageFilter* input = getInput(i);
+        buffer.writeBool(input != NULL);
+        if (input != NULL) {
+            buffer.writeFlattenable(input);
+        }
+    }
+}
+
+SkBitmap SkImageFilter::getInputResult(int index, Proxy* proxy,
+                                       const SkBitmap& src, const SkMatrix& ctm,
+                                       SkIPoint* loc) {
+    SkASSERT(index < fNumInputs);
+    SkImageFilter* input = getInput(index);
+    SkBitmap result;
+    if (input && input->filterImage(proxy, src, ctm, &result, loc)) {
+        return result;
+    } else {
+        return src;
+    }
+}
+
 
 bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
                                 const SkMatrix& ctm,

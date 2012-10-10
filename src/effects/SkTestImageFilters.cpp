@@ -53,8 +53,6 @@ SkOffsetImageFilter::SkOffsetImageFilter(SkFlattenableReadBuffer& buffer) : INHE
 ///////////////////////////////////////////////////////////////////////////////
 
 SkComposeImageFilter::~SkComposeImageFilter() {
-    SkSafeUnref(fInner);
-    SkSafeUnref(fOuter);
 }
 
 bool SkComposeImageFilter::onFilterImage(Proxy* proxy,
@@ -62,117 +60,102 @@ bool SkComposeImageFilter::onFilterImage(Proxy* proxy,
                                          const SkMatrix& ctm,
                                          SkBitmap* result,
                                          SkIPoint* loc) {
-    if (!fOuter && !fInner) {
+    SkImageFilter* outer = getInput(0);
+    SkImageFilter* inner = getInput(1);
+
+    if (!outer && !inner) {
         return false;
     }
 
-    if (!fOuter || !fInner) {
-        return (fOuter ? fOuter : fInner)->filterImage(proxy, src, ctm, result, loc);
+    if (!outer || !inner) {
+        return (outer ? outer : inner)->filterImage(proxy, src, ctm, result, loc);
     }
 
     SkBitmap tmp;
-    return fInner->filterImage(proxy, src, ctm, &tmp, loc) &&
-           fOuter->filterImage(proxy, tmp, ctm, result, loc);
+    return inner->filterImage(proxy, src, ctm, &tmp, loc) &&
+           outer->filterImage(proxy, tmp, ctm, result, loc);
 }
 
 bool SkComposeImageFilter::onFilterBounds(const SkIRect& src,
                                           const SkMatrix& ctm,
                                           SkIRect* dst) {
-    if (!fOuter && !fInner) {
+    SkImageFilter* outer = getInput(0);
+    SkImageFilter* inner = getInput(1);
+
+    if (!outer && !inner) {
         return false;
     }
 
-    if (!fOuter || !fInner) {
-        return (fOuter ? fOuter : fInner)->filterBounds(src, ctm, dst);
+    if (!outer || !inner) {
+        return (outer ? outer : inner)->filterBounds(src, ctm, dst);
     }
 
     SkIRect tmp;
-    return fInner->filterBounds(src, ctm, &tmp) &&
-           fOuter->filterBounds(tmp, ctm, dst);
-}
-
-void SkComposeImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
-
-    buffer.writeFlattenable(fOuter);
-    buffer.writeFlattenable(fInner);
+    return inner->filterBounds(src, ctm, &tmp) &&
+           outer->filterBounds(tmp, ctm, dst);
 }
 
 SkComposeImageFilter::SkComposeImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
-    fOuter = buffer.readFlattenableT<SkImageFilter>();
-    fInner = buffer.readFlattenableT<SkImageFilter>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-template <typename T> T* SkSafeRefReturn(T* obj) {
-    SkSafeRef(obj);
-    return obj;
-}
-
-void SkMergeImageFilter::initAlloc(int count, bool hasModes) {
-    if (count < 1) {
-        fFilters = NULL;
-        fModes = NULL;
-        fCount = 0;
-    } else {
-        int modeCount = hasModes ? count : 0;
-        size_t size = sizeof(SkImageFilter*) * count + sizeof(uint8_t) * modeCount;
+void SkMergeImageFilter::initAllocModes() {
+    if (numInputs()) {
+        size_t size = sizeof(uint8_t) * numInputs();
         if (size <= sizeof(fStorage)) {
-            fFilters = SkTCast<SkImageFilter**>(fStorage);
+            fModes = SkTCast<uint8_t*>(fStorage);
         } else {
-            fFilters = SkTCast<SkImageFilter**>(sk_malloc_throw(size));
+            fModes = SkTCast<uint8_t*>(sk_malloc_throw(size));
         }
-        fModes = hasModes ? SkTCast<uint8_t*>(fFilters + count) : NULL;
-        fCount = count;
+    } else {
+        fModes = NULL;
     }
 }
 
-void SkMergeImageFilter::init(SkImageFilter* const filters[], int count,
-                              const SkXfermode::Mode modes[]) {
-    this->initAlloc(count, !!modes);
-    for (int i = 0; i < count; ++i) {
-        fFilters[i] = SkSafeRefReturn(filters[i]);
-        if (modes) {
+void SkMergeImageFilter::initModes(const SkXfermode::Mode modes[]) {
+    if (modes) {
+        this->initAllocModes();
+        for (int i = 0; i < numInputs(); ++i) {
             fModes[i] = SkToU8(modes[i]);
         }
+    } else {
+        fModes = NULL;
     }
 }
 
 SkMergeImageFilter::SkMergeImageFilter(SkImageFilter* first, SkImageFilter* second,
-                                       SkXfermode::Mode mode) {
-    SkImageFilter* filters[] = { first, second };
-    SkXfermode::Mode modes[] = { mode, mode };
-    this->init(filters, 2, SkXfermode::kSrcOver_Mode == mode ? NULL : modes);
+                                       SkXfermode::Mode mode) : INHERITED(2, first, second) {
+    if (SkXfermode::kSrcOver_Mode != mode) {
+        SkXfermode::Mode modes[] = { mode, mode };
+        this->initModes(modes);
+    } else {
+        fModes = NULL;
+    }
 }
 
 SkMergeImageFilter::SkMergeImageFilter(SkImageFilter* const filters[], int count,
-                                       const SkXfermode::Mode modes[]) {
-    this->init(filters, count, modes);
+                                       const SkXfermode::Mode modes[]) : INHERITED(count, filters) {
+    this->initModes(modes);
 }
 
 SkMergeImageFilter::~SkMergeImageFilter() {
-    for (int i = 0; i < fCount; ++i) {
-        SkSafeUnref(fFilters[i]);
-    }
 
-    if (fFilters != SkTCast<SkImageFilter**>(fStorage)) {
-        sk_free(fFilters);
-        // fModes is allocated in the same block as fFilters, so no need to
-        // separately free it.
+    if (fModes != SkTCast<uint8_t*>(fStorage)) {
+        sk_free(fModes);
     }
 }
 
 bool SkMergeImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
                                         SkIRect* dst) {
-    if (fCount < 1) {
+    if (numInputs() < 1) {
         return false;
     }
 
     SkIRect totalBounds;
 
-    for (int i = 0; i < fCount; ++i) {
-        SkImageFilter* filter = fFilters[i];
+    for (int i = 0; i < numInputs(); ++i) {
+        SkImageFilter* filter = getInput(i);
         SkIRect r;
         if (filter) {
             if (!filter->filterBounds(src, ctm, &r)) {
@@ -197,7 +180,7 @@ bool SkMergeImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
 bool SkMergeImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
                                        const SkMatrix& ctm,
                                        SkBitmap* result, SkIPoint* loc) {
-    if (fCount < 1) {
+    if (numInputs() < 1) {
         return false;
     }
 
@@ -218,11 +201,11 @@ bool SkMergeImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
     OwnDeviceCanvas canvas(dst);
     SkPaint paint;
 
-    for (int i = 0; i < fCount; ++i) {
+    for (int i = 0; i < numInputs(); ++i) {
         SkBitmap tmp;
         const SkBitmap* srcPtr;
         SkIPoint pos = *loc;
-        SkImageFilter* filter = fFilters[i];
+        SkImageFilter* filter = getInput(i);
         if (filter) {
             if (!filter->filterImage(proxy, src, ctm, &tmp, &pos)) {
                 return false;
@@ -248,37 +231,20 @@ bool SkMergeImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
 void SkMergeImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
-    int storedCount = fCount;
+    buffer.writeBool(fModes != NULL);
     if (fModes) {
-        // negative count signals we have modes
-        storedCount = -storedCount;
-    }
-    buffer.writeInt(storedCount);
-
-    if (fCount) {
-        for (int i = 0; i < fCount; ++i) {
-            buffer.writeFlattenable(fFilters[i]);
-        }
-        if (fModes) {
-            buffer.writeByteArray(fModes, fCount * sizeof(fModes[0]));
-        }
+        buffer.writeByteArray(fModes, numInputs() * sizeof(fModes[0]));
     }
 }
 
 SkMergeImageFilter::SkMergeImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
-    int storedCount = buffer.readInt();
-    this->initAlloc(SkAbs32(storedCount), storedCount < 0);
-
-    for (int i = 0; i < fCount; ++i) {
-        fFilters[i] = buffer.readFlattenableT<SkImageFilter>();
-    }
-
-    if (fModes) {
-        SkASSERT(storedCount < 0);
-        SkASSERT(buffer.getArrayCount() == fCount * sizeof(fModes[0]));
+    bool hasModes = buffer.readBool();
+    if (hasModes) {
+        this->initAllocModes();
+        SkASSERT(buffer.getArrayCount() == numInputs() * sizeof(fModes[0]));
         buffer.readByteArray(fModes);
     } else {
-        SkASSERT(storedCount >= 0);
+        fModes = 0;
     }
 }
 

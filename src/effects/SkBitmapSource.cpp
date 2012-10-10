@@ -7,7 +7,9 @@
 
 #include "SkBitmapSource.h"
 
-SkBitmapSource::SkBitmapSource(const SkBitmap& bitmap) : fBitmap(bitmap) {
+SkBitmapSource::SkBitmapSource(const SkBitmap& bitmap)
+  : INHERITED(0),
+    fBitmap(bitmap) {
 }
 
 SkBitmapSource::SkBitmapSource(SkFlattenableReadBuffer& buffer)

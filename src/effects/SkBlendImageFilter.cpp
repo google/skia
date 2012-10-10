@@ -52,38 +52,22 @@ SkPMColor multiply_proc(SkPMColor src, SkPMColor dst) {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkBlendImageFilter::SkBlendImageFilter(SkBlendImageFilter::Mode mode, SkImageFilter* background, SkImageFilter* foreground)
-  : fMode(mode), fBackground(background), fForeground(foreground)
+  : INHERITED(2, background, foreground), fMode(mode)
 {
-    SkASSERT(NULL != background);
-    SkSafeRef(fBackground);
-    SkSafeRef(fForeground);
 }
 
 SkBlendImageFilter::~SkBlendImageFilter() {
-    SkSafeUnref(fBackground);
-    SkSafeUnref(fForeground);
 }
 
 SkBlendImageFilter::SkBlendImageFilter(SkFlattenableReadBuffer& buffer)
   : INHERITED(buffer)
 {
     fMode = (SkBlendImageFilter::Mode) buffer.readInt();
-    fBackground = buffer.readFlattenableT<SkImageFilter>();
-    if (buffer.readBool()) {
-        fForeground = buffer.readFlattenableT<SkImageFilter>();
-    } else {
-        fForeground = NULL;
-    }
 }
 
 void SkBlendImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeInt((int) fMode);
-    buffer.writeFlattenable(fBackground);
-    buffer.writeBool(NULL != fForeground);
-    if (NULL != fForeground) {
-        buffer.writeFlattenable(fForeground);
-    }
 }
 
 bool SkBlendImageFilter::onFilterImage(Proxy* proxy,
@@ -92,11 +76,13 @@ bool SkBlendImageFilter::onFilterImage(Proxy* proxy,
                                        SkBitmap* dst,
                                        SkIPoint* offset) {
     SkBitmap background, foreground = src;
-    SkASSERT(NULL != fBackground);
-    if (!fBackground->filterImage(proxy, src, ctm, &background, offset)) {
+    SkImageFilter* backgroundInput = getBackgroundInput();
+    SkImageFilter* foregroundInput = getForegroundInput();
+    SkASSERT(NULL != backgroundInput);
+    if (!backgroundInput->filterImage(proxy, src, ctm, &background, offset)) {
         return false;
     }
-    if (fForeground && !fForeground->filterImage(proxy, src, ctm, &foreground, offset)) {
+    if (foregroundInput && !foregroundInput->filterImage(proxy, src, ctm, &foreground, offset)) {
         return false;
     }
     SkAutoLockPixels alp_foreground(foreground), alp_background(background);
@@ -198,8 +184,8 @@ static GrTexture* getInputResultAsTexture(SkImageFilter::Proxy* proxy,
 }
 
 GrTexture* SkBlendImageFilter::onFilterImageGPU(Proxy* proxy, GrTexture* src, const SkRect& rect) {
-    SkAutoTUnref<GrTexture> background(getInputResultAsTexture(proxy, fBackground, src, rect));
-    SkAutoTUnref<GrTexture> foreground(getInputResultAsTexture(proxy, fForeground, src, rect));
+    SkAutoTUnref<GrTexture> background(getInputResultAsTexture(proxy, getBackgroundInput(), src, rect));
+    SkAutoTUnref<GrTexture> foreground(getInputResultAsTexture(proxy, getForegroundInput(), src, rect));
     GrContext* context = src->getContext();
 
     GrTextureDesc desc;

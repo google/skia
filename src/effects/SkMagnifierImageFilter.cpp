@@ -241,8 +241,9 @@ SkMagnifierImageFilter::SkMagnifierImageFilter(SkFlattenableReadBuffer& buffer)
     fInset = buffer.readScalar();
 }
 
+// FIXME:  implement single-input semantics
 SkMagnifierImageFilter::SkMagnifierImageFilter(SkRect srcRect, SkScalar inset)
-    : fSrcRect(srcRect), fInset(inset) {
+    : INHERITED(0), fSrcRect(srcRect), fInset(inset) {
     SkASSERT(srcRect.x() >= 0 && srcRect.y() >= 0 && inset >= 0);
 }
 
