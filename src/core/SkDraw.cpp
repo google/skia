@@ -1538,8 +1538,11 @@ void SkDraw::drawText(const char text[], size_t byteLength,
         return;
     }
 
+    // SkScalarRec doesn't currently have a way of representing hairline stroke and
+    // will fill if its frame-width is 0.
     if (/*paint.isLinearText() ||*/
-        (fMatrix->hasPerspective())) {
+        (fMatrix->hasPerspective()) || 
+        (0 == paint.getStrokeWidth() && SkPaint::kStroke_Style == paint.getStyle())) {
         this->drawText_asPaths(text, byteLength, x, y, paint);
         return;
     }
