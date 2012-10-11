@@ -163,7 +163,7 @@ SkScalerContext* SkScalerContext::getGlyphContext(const SkGlyph& glyph) {
         glyphID -= count;
         ctx = ctx->getNextContext();
         if (NULL == ctx) {
-            SkDebugf("--- no context for glyph %x\n", glyph.getGlyphID());
+//            SkDebugf("--- no context for glyph %x\n", glyph.getGlyphID());
             // just return the original context (this)
             return this;
         }
