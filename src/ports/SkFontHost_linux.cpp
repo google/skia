@@ -565,7 +565,7 @@ SkStream* SkFontHost::OpenStream(uint32_t fontID) {
 
 size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
                                int32_t* index) {
-    SkDebugf("SkFontHost::GetFileName unimplemented\n");
+//    SkDebugf("SkFontHost::GetFileName unimplemented\n");
     return 0;
 }
 
