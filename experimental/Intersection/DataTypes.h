@@ -69,6 +69,11 @@ inline bool approximately_zero(double x) {
     return fabs(x) < FLT_EPSILON;
 }
 
+inline bool precisely_zero(double x) {
+
+    return fabs(x) < DBL_EPSILON;
+}
+
 inline bool approximately_zero(float x) {
 
     return fabs(x) < FLT_EPSILON;
@@ -116,6 +121,10 @@ inline bool approximately_less_than_zero(double x) {
 
 inline bool approximately_negative(double x) {
     return x < FLT_EPSILON;
+}
+
+inline bool precisely_negative(double x) {
+    return x < DBL_EPSILON;
 }
 
 inline bool approximately_one_or_less(double x) {

@@ -25,9 +25,11 @@ int gDebugMaxWindSum = SK_MaxS32;
 int gDebugMaxWindValue = SK_MaxS32;
 #endif
 
+#define PRECISE_T_SORT 1
+
 #define DEBUG_UNUSED 0 // set to expose unused functions
 
-#if 0 // set to 1 for multiple thread -- no debugging
+#if 1 // set to 1 for multiple thread -- no debugging
 
 const bool gRunTestsInOneThread = false;
 
@@ -38,7 +40,7 @@ const bool gRunTestsInOneThread = false;
 #define DEBUG_CONCIDENT 0
 #define DEBUG_CROSS 0
 #define DEBUG_MARK_DONE 0
-#define DEBUG_PATH_CONSTRUCTION 1
+#define DEBUG_PATH_CONSTRUCTION 0
 #define DEBUG_SORT 0
 #define DEBUG_WIND_BUMP 0
 #define DEBUG_WINDING 0
@@ -47,7 +49,7 @@ const bool gRunTestsInOneThread = false;
 
 const bool gRunTestsInOneThread = true;
 
-#define DEBUG_ACTIVE_SPANS 1
+#define DEBUG_ACTIVE_SPANS 0
 #define DEBUG_ADD_INTERSECTING_TS 1
 #define DEBUG_ADD_T_PAIR 1
 #define DEBUG_ANGLE 1
@@ -533,6 +535,12 @@ public:
             if (longer.lengthen() | rhLonger.lengthen()) {
                 return longer < rhLonger;
             }
+            // what if we extend in the other direction?
+            longer = *this;
+            rhLonger = rh;
+            if (longer.reverseLengthen() | rhLonger.reverseLengthen()) {
+                return longer < rhLonger;
+            }
         }
         // at this point, the initial tangent line is coincident
         if (fSide * rh.fSide <= 0) {
@@ -618,6 +626,20 @@ public:
         return false;
     }
 
+    bool reverseLengthen() {
+        if (fReversed) {
+            return false;
+        }
+        int newEnd = fStart;
+        if (fStart > fEnd ? ++newEnd < fSpans->count() : --newEnd >= 0) {
+            fEnd = newEnd;
+            fReversed = true;
+            setSpans();
+            return true;
+        }
+        return false;
+    }
+
     void set(const SkPoint* orig, SkPath::Verb verb, const Segment* segment,
             int start, int end, const SkTDArray<Span>& spans) {
         fSegment = segment;
@@ -626,6 +648,7 @@ public:
         fPts = orig;
         fVerb = verb;
         fSpans = &spans;
+        fReversed = false;
         setSpans();
     }
 
@@ -696,6 +719,7 @@ private:
     const Segment* fSegment;
     int fStart;
     int fEnd;
+    bool fReversed;
 };
 
 static void sortAngles(SkTDArray<Angle>& angles, SkTDArray<Angle*>& angleList) {
@@ -1332,7 +1356,7 @@ public:
         }
         // add edge leading away from junction
         int step = SkSign32(end - start);
-        int tIndex = nextSpan(end, step);
+        int tIndex = nextExactSpan(end, step);
         if (tIndex >= 0 && fTs[SkMin32(end, tIndex)].fWindValue > 0) {
             addAngle(angles, end, tIndex);
         }
@@ -1345,12 +1369,21 @@ public:
     void buildAngles(int index, SkTDArray<Angle>& angles) const {
         double referenceT = fTs[index].fT;
         int lesser = index;
+    #if PRECISE_T_SORT
+        while (--lesser >= 0 && precisely_negative(referenceT - fTs[lesser].fT)) {
+            buildAnglesInner(lesser, angles);
+        }
+        do {
+            buildAnglesInner(index, angles);
+        } while (++index < fTs.count() && precisely_negative(fTs[index].fT - referenceT));
+    #else
         while (--lesser >= 0 && approximately_negative(referenceT - fTs[lesser].fT)) {
             buildAnglesInner(lesser, angles);
         }
         do {
             buildAnglesInner(index, angles);
         } while (++index < fTs.count() && approximately_negative(fTs[index].fT - referenceT));
+    #endif
     }
 
     void buildAnglesInner(int index, SkTDArray<Angle>& angles) const {
@@ -1363,10 +1396,18 @@ public:
         int oIndex = span->fOtherIndex;
         // if done == -1, prior span has already been processed
         int step = 1;
+    #if PRECISE_T_SORT
+        int next = other->nextExactSpan(oIndex, step);
+    #else
         int next = other->nextSpan(oIndex, step);
-        if (next < 0) {
+    #endif
+       if (next < 0) {
             step = -step;
+    #if PRECISE_T_SORT
+            next = other->nextExactSpan(oIndex, step);
+    #else
             next = other->nextSpan(oIndex, step);
+    #endif
         }
         // add candidate into and away from junction
         other->addTwoAngles(next, oIndex, angles);
@@ -1628,7 +1669,11 @@ public:
         SkASSERT(startIndex < endIndex ? startIndex < count - 1
                 : startIndex > 0);
         int step = SkSign32(endIndex - startIndex);
+    #if PRECISE_T_SORT
+        int end = nextExactSpan(startIndex, step);
+    #else
         int end = nextSpan(startIndex, step);
+    #endif
         SkASSERT(end >= 0);
         Span* endSpan = &fTs[end];
         Segment* other;
@@ -1645,7 +1690,12 @@ public:
             nextEnd = nextStart;
             do {
                 nextEnd += step;
-            } while (approximately_zero(startT - other->fTs[nextEnd].fT));
+            }
+    #if PRECISE_T_SORT
+            while (precisely_zero(startT - other->fTs[nextEnd].fT));
+    #else
+            while (approximately_zero(startT - other->fTs[nextEnd].fT));
+    #endif
             SkASSERT(step < 0 ? nextEnd >= 0 : nextEnd < other->fTs.count());
             return other;
         }
@@ -1850,7 +1900,11 @@ public:
         SkASSERT(startIndex < endIndex ? startIndex < count - 1
                 : startIndex > 0);
         int step = SkSign32(endIndex - startIndex);
+    #if PRECISE_T_SORT
+        int end = nextExactSpan(startIndex, step);
+    #else
         int end = nextSpan(startIndex, step);
+    #endif
         SkASSERT(end >= 0);
         Span* endSpan = &fTs[end];
         Segment* other;
@@ -1867,7 +1921,12 @@ public:
             nextEnd = nextStart;
             do {
                 nextEnd += step;
-            } while (approximately_zero(startT - other->fTs[nextEnd].fT));
+            }
+    #if PRECISE_T_SORT
+             while (precisely_zero(startT - other->fTs[nextEnd].fT));
+    #else
+             while (approximately_zero(startT - other->fTs[nextEnd].fT));
+    #endif
             SkASSERT(step < 0 ? nextEnd >= 0 : nextEnd < other->fTs.count());
             return other;
         }
@@ -2017,7 +2076,11 @@ public:
         SkASSERT(startIndex < endIndex ? startIndex < count - 1
                 : startIndex > 0);
         int step = SkSign32(endIndex - startIndex);
+    #if PRECISE_T_SORT
+        int end = nextExactSpan(startIndex, step);
+    #else
         int end = nextSpan(startIndex, step);
+    #endif
         SkASSERT(end >= 0);
         Span* endSpan = &fTs[end];
         Segment* other;
@@ -2039,7 +2102,12 @@ public:
                 nextEnd = nextStart;
                 do {
                     nextEnd += step;
-                } while (approximately_zero(startT - other->fTs[nextEnd].fT));
+                }
+    #if PRECISE_T_SORT
+                 while (precisely_zero(startT - other->fTs[nextEnd].fT));
+    #else
+                 while (approximately_zero(startT - other->fTs[nextEnd].fT));
+    #endif
                 if (other->fTs[SkMin32(nextStart, nextEnd)].fWindValue) {
                     break;
                 }
@@ -2455,12 +2523,21 @@ public:
         SkASSERT(winding);
         double referenceT = fTs[index].fT;
         int lesser = index;
+    #if PRECISE_T_SORT
+        while (--lesser >= 0 && precisely_negative(referenceT - fTs[lesser].fT)) {
+            markOneDone(__FUNCTION__, lesser, winding);
+        }
+        do {
+            markOneDone(__FUNCTION__, index, winding);
+        } while (++index < fTs.count() && precisely_negative(fTs[index].fT - referenceT));
+    #else
         while (--lesser >= 0 && approximately_negative(referenceT - fTs[lesser].fT)) {
             markOneDone(__FUNCTION__, lesser, winding);
         }
         do {
             markOneDone(__FUNCTION__, index, winding);
         } while (++index < fTs.count() && approximately_negative(fTs[index].fT - referenceT));
+    #endif
     }
 
     void markOneDone(const char* funName, int tIndex, int winding) {
@@ -2493,12 +2570,21 @@ public:
         SkASSERT(winding);
         double referenceT = fTs[index].fT;
         int lesser = index;
+    #if PRECISE_T_SORT
+        while (--lesser >= 0 && precisely_negative(referenceT - fTs[lesser].fT)) {
+            markOneWinding(__FUNCTION__, lesser, winding);
+        }
+        do {
+            markOneWinding(__FUNCTION__, index, winding);
+       } while (++index < fTs.count() && precisely_negative(fTs[index].fT - referenceT));
+    #else
         while (--lesser >= 0 && approximately_negative(referenceT - fTs[lesser].fT)) {
             markOneWinding(__FUNCTION__, lesser, winding);
         }
         do {
             markOneWinding(__FUNCTION__, index, winding);
        } while (++index < fTs.count() && approximately_negative(fTs[index].fT - referenceT));
+    #endif
     }
 
     void matchWindingValue(int tIndex, double t, bool borrowWind) {
@@ -2559,6 +2645,7 @@ public:
         return -1;
     }
 
+#if PRECISE_T_SORT
     // FIXME
     // this returns at any difference in T, vs. a preset minimum. It may be
     // that all callers to nextSpan should use this instead.
@@ -2568,13 +2655,14 @@ public:
         int to = from;
         while (step > 0 ? ++to < count : --to >= 0) {
             const Span& span = fTs[to];
-            if (span.fT == fromSpan.fT) {
+            if (precisely_zero(span.fT - fromSpan.fT)) {
                 continue;
             }
             return to;
         }
         return -1;
     }
+#endif
 
     bool operand() const {
         return fOperand;
@@ -3627,23 +3715,59 @@ static void debugShowLineIntersection(int pts, const Work& wt,
     SkPoint wtOutPt, wnOutPt;
     LineXYAtT(wt.pts(), wtTs[0], &wtOutPt);
     LineXYAtT(wn.pts(), wnTs[0], &wnOutPt);
-    SkDebugf("%s wtTs[0]=%g (%g,%g, %g,%g) (%g,%g)",
+    SkDebugf("%s wtTs[0]=%1.9g (%1.9g,%1.9g %1.9g,%1.9g) (%1.9g,%1.9g)",
             __FUNCTION__,
             wtTs[0], wt.pts()[0].fX, wt.pts()[0].fY,
             wt.pts()[1].fX, wt.pts()[1].fY, wtOutPt.fX, wtOutPt.fY);
     if (pts == 2) {
-        SkDebugf(" wtTs[1]=%g", wtTs[1]);
+        SkDebugf(" wtTs[1]=%1.9g", wtTs[1]);
     }
-    SkDebugf(" wnTs[0]=%g (%g,%g, %g,%g) (%g,%g)",
+    SkDebugf(" wnTs[0]=%g (%1.9g,%1.9g %1.9g,%1.9g) (%1.9g,%1.9g)",
             wnTs[0], wn.pts()[0].fX, wn.pts()[0].fY,
             wn.pts()[1].fX, wn.pts()[1].fY, wnOutPt.fX, wnOutPt.fY);
     if (pts == 2) {
-        SkDebugf(" wnTs[1]=%g", wnTs[1]);
+        SkDebugf(" wnTs[1]=%1.9g", wnTs[1]);
+    }
+    SkDebugf("\n");
+}
+
+static void debugShowQuadIntersection(int pts, const Work& wt,
+        const Work& wn, const double wtTs[2], const double wnTs[2]) {
+    if (!pts) {
+        SkDebugf("%s no intersect (%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)"
+                " (%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)\n",
+                __FUNCTION__, wt.pts()[0].fX, wt.pts()[0].fY,
+                wt.pts()[1].fX, wt.pts()[1].fY, wt.pts()[2].fX, wt.pts()[2].fY, 
+                wn.pts()[0].fX, wn.pts()[0].fY, wn.pts()[1].fX, wn.pts()[1].fY,
+                wt.pts()[2].fX, wt.pts()[2].fY );
+        return;
+    }
+    SkPoint wtOutPt, wnOutPt;
+    QuadXYAtT(wt.pts(), wtTs[0], &wtOutPt);
+    QuadXYAtT(wn.pts(), wnTs[0], &wnOutPt);
+    SkDebugf("%s wtTs[0]=%1.9g (%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g) (%1.9g,%1.9g)",
+            __FUNCTION__,
+            wtTs[0], wt.pts()[0].fX, wt.pts()[0].fY,
+            wt.pts()[1].fX, wt.pts()[1].fY, wt.pts()[2].fX, wt.pts()[2].fY,
+            wtOutPt.fX, wtOutPt.fY);
+    if (pts == 2) {
+        SkDebugf(" wtTs[1]=%1.9g", wtTs[1]);
+    }
+    SkDebugf(" wnTs[0]=%g (%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g) (%1.9g,%1.9g)",
+            wnTs[0], wn.pts()[0].fX, wn.pts()[0].fY,
+            wn.pts()[1].fX, wn.pts()[1].fY, wn.pts()[2].fX, wn.pts()[2].fY,
+            wnOutPt.fX, wnOutPt.fY);
+    if (pts == 2) {
+        SkDebugf(" wnTs[1]=%1.9g", wnTs[1]);
     }
     SkDebugf("\n");
 }
 #else
 static void debugShowLineIntersection(int , const Work& ,
+        const Work& , const double [2], const double [2]) {
+}
+
+static void debugShowQuadIntersection(int , const Work& ,
         const Work& , const double [2], const double [2]) {
 }
 #endif
@@ -3777,6 +3901,8 @@ static bool addIntersectTs(Contour* test, Contour* next) {
                         }
                         case Work::kQuad_Segment: {
                             pts = QuadIntersect(wt.pts(), wn.pts(), ts);
+                            debugShowQuadIntersection(pts, wt, wn,
+                                    ts.fT[1], ts.fT[0]);
                             break;
                         }
                         case Work::kCubic_Segment: {

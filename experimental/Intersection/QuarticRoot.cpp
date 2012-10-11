@@ -47,18 +47,17 @@ static int quadraticRootsX(const double A, const double B, const double C,
     const double p = B / (2 * A);
     const double q = C / A;
     const double D = p * p - q;
-    if (approximately_zero(D)) {
+    if (D < 0) {
+        return 0;
+    }
+    double sqrt_D = sqrt(D);
+    if (approximately_less_than_zero(sqrt_D)) {
         s[0] = -p;
         return 1;
-    } else if (D < 0) {
-        return 0;
-    } else {
-        assert(D > 0);
-        double sqrt_D = sqrt(D);
-        s[0] = sqrt_D - p;
-        s[1] = -sqrt_D - p;
-        return 2;
     }
+    s[0] = sqrt_D - p;
+    s[1] = -sqrt_D - p;
+    return 2;
 }
 
 #define USE_GEMS 0
