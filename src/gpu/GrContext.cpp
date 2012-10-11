@@ -582,7 +582,7 @@ void GrContext::clear(const GrIRect* rect,
     this->prepareToDraw(NULL, DEFAULT_BUFFERING)->clear(rect, color, target);
 }
 
-void GrContext::drawPaint(const GrPaint& paint) {
+void GrContext::drawPaint(const GrPaint& origPaint) {
     // set rect to be big enough to fill the space, but not super-huge, so we
     // don't overflow fixed-point implementations
     GrRect r;
@@ -590,8 +590,7 @@ void GrContext::drawPaint(const GrPaint& paint) {
               GrIntToScalar(getRenderTarget()->width()),
               GrIntToScalar(getRenderTarget()->height()));
     GrMatrix inverse;
-    SkTLazy<GrPaint> tmpPaint;
-    const GrPaint* p = &paint;
+    SkTCopyOnFirstWrite<GrPaint> paint(origPaint);
     AutoMatrix am;
 
     // We attempt to map r by the inverse matrix and draw that. mapRect will
@@ -604,25 +603,18 @@ void GrContext::drawPaint(const GrPaint& paint) {
         }
         inverse.mapRect(&r);
     } else {
-        if (paint.hasStage()) {
-            tmpPaint.set(paint);
-            p = tmpPaint.get();
-            if (!tmpPaint.get()->preConcatSamplerMatricesWithInverse(fDrawState->getViewMatrix())) {
+        if (paint->hasStage()) {
+            if (!paint.writable()->preConcatSamplerMatricesWithInverse(fDrawState->getViewMatrix())) {
                 GrPrintf("Could not invert matrix\n");
             }
         }
         am.set(this, GrMatrix::I());
     }
     // by definition this fills the entire clip, no need for AA
-    if (paint.isAntiAlias()) {
-        if (!tmpPaint.isValid()) {
-            tmpPaint.set(paint);
-            p = tmpPaint.get();
-        }
-        GrAssert(p == tmpPaint.get());
-        tmpPaint.get()->setAntiAlias(false);
+    if (paint->isAntiAlias()) {
+        paint.writable()->setAntiAlias(false);
     }
-    this->drawRect(*p, r);
+    this->drawRect(*paint, r);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
