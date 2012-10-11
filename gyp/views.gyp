@@ -112,6 +112,11 @@
             '../src/views/win/skia_win.cpp',
           ],
         }],
+        [ 'skia_gpu == 1', {
+          'include_dirs': [
+            '../include/gpu',
+          ],
+        }],
       ],
       'direct_dependent_settings': {
         'include_dirs': [
