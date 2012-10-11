@@ -220,23 +220,22 @@ static void tryRoncoOnce(const SkPath& path, const SkRect& target, bool show) {
     if (!closed) {
         tiny.close();
     }
-    if (show) {
+    if (false && show) {
         showPath(tiny, NULL);
         SkDebugf("simplified:\n");
     }
-    SkPath out;
-    simplifyx(tiny, out);
+    testSimplifyx(tiny);
 }
 
 static void tryRonco(const SkPath& path) {
     const SkRect& overall = path.getBounds();
-    const int divs = 50;
+    const int divs = 4;
     SkScalar cellWidth = overall.width() / divs * 2;
     SkScalar cellHeight = overall.height() / divs * 2;
     SkRect target;
     if (true) {
-        int xDiv = 21;
-        int yDiv = 9;
+        int xDiv = 1;
+        int yDiv = 2;
         target.setXYWH(overall.fLeft + (overall.width() - cellWidth) * xDiv / divs,
                 overall.fTop + (overall.height() - cellHeight) * yDiv / divs,
                  cellWidth, cellHeight);
@@ -247,7 +246,7 @@ static void tryRonco(const SkPath& path) {
                 target.setXYWH(overall.fLeft + (overall.width() - cellWidth) * xDiv / divs,
                         overall.fTop + (overall.height() - cellHeight) * yDiv / divs,
                          cellWidth, cellHeight);
-                tryRoncoOnce(path, target, false);
+                tryRoncoOnce(path, target, true);
             }
         }
     }
@@ -281,22 +280,21 @@ static bool drawLetters(SkCanvas* canvas, int step, bool useOld)
 #if 0
     for (int mask = 0; mask < 1 << testStrLen; ++mask) {
         char maskStr[testStrLen];
-    //    mask = 26;
+        mask = 12;
         for (int letter = 0; letter < testStrLen; ++letter) {
             maskStr[letter] = mask & (1 << letter) ? testStr[letter] : ' ';
         }
         paint.getPosTextPath(maskStr, testStrLen, textPos, &path);
-        showPath(path, NULL);
-        SkDebugf("%d simplified:\n", mask);
-        SkPath out;
-        simplifyx(path, out);
+   //     showPath(path, NULL);
+   //     SkDebugf("%d simplified:\n", mask);
+        testSimplifyx(path);
     }
 #endif
     paint.getPosTextPath(testStr, testStrLen, textPos, &path);
-#if 1
+#if 0
     tryRonco(path);
 #endif
-#if 1
+#if 0
     showPath(path, NULL);
     SkDebugf("simplified:\n");
 #endif

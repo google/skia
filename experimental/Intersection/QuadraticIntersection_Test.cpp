@@ -59,6 +59,13 @@ static void standardTestCases() {
 }
 
 static const Quadratic testSet[] = {
+
+{{369.8543701171875, 145.66734313964844}, {382.36788940429688, 121.28203582763672}, {406.21844482421875, 121.28203582763672}},
+{{369.96469116210938, 137.96672058105469}, {383.97555541992188, 121.28203582763672}, {406.2218017578125, 121.28203582763672}},
+
+    {{369.850525, 145.675964}, {382.362915, 121.29287}, {406.211273, 121.29287}},
+    {{369.962311, 137.976044}, {383.971893, 121.29287}, {406.216125, 121.29287}},
+
     {{400.121704, 149.468719}, {391.949493, 161.037186}, {391.949493, 181.202423}},
     {{391.946747, 181.839218}, {391.946747, 155.62442}, {406.115479, 138.855438}},
     {{360.048828125, 229.2578125}, {360.048828125, 224.4140625}, {362.607421875, 221.3671875}},
@@ -76,44 +83,8 @@ static void oneOffTest() {
             const Quadratic& quad1 = testSet[outer];
             const Quadratic& quad2 = testSet[inner];
             double tt1, tt2;
-        #if 0 // enable to test bezier clip style intersection
-            Intersections intersections;
-            intersect(quad1, quad2, intersections);
-            if (!intersections.intersected()) {
-                SkDebugf("%s no intersection!\n", __FUNCTION__);
-            }
-            for (int pt = 0; pt < intersections.used(); ++pt) {
-                tt1 = intersections.fT[0][pt];
-                double tx1, ty1;
-                xy_at_t(quad1, tt1, tx1, ty1);
-                tt2 = intersections.fT[1][pt];
-                double tx2, ty2;
-                xy_at_t(quad2, tt2, tx2, ty2);
-                if (!approximately_equal(tx1, tx2)) {
-                    SkDebugf("%s [%d,%d] x!= t1=%g (%g,%g) t2=%g (%g,%g)\n",
-                        __FUNCTION__, (int)index, pt, tt1, tx1, ty1, tt2, tx2, ty2);
-                    SkASSERT(0);
-                }
-                if (!approximately_equal(ty1, ty2)) {
-                    SkDebugf("%s [%d,%d] y!= t1=%g (%g,%g) t2=%g (%g,%g)\n",
-                        __FUNCTION__, (int)index, pt, tt1, tx1, ty1, tt2, tx2, ty2);
-                    SkASSERT(0);
-                }
-                SkDebugf("%s [%d][%d] t1=%1.9g (%1.9g, %1.9g) t2=%1.9g\n", __FUNCTION__,
-                    outer, inner, tt1, tx1, tx2, tt2);
-            }
-        #endif
             Intersections intersections2;
             intersect2(quad1, quad2, intersections2);
-        #if 0
-            SkASSERT(intersections.used() == intersections2.used());
-            for (int pt = 0; pt < intersections2.used(); ++pt) {
-                tt1 = intersections2.fT[0][pt];
-                SkASSERT(approximately_equal(intersections.fT[0][pt], tt1));
-                tt2 = intersections2.fT[1][pt];
-                SkASSERT(approximately_equal(intersections.fT[1][pt], tt2));
-            }
-        #endif
             for (int pt = 0; pt < intersections2.used(); ++pt) {
                 tt1 = intersections2.fT[0][pt];
                 double tx1, ty1;
@@ -140,6 +111,8 @@ static void oneOffTest() {
 }
 
 static const Quadratic coincidentTestSet[] = {
+    {{369.850525, 145.675964}, {382.362915, 121.29287}, {406.211273, 121.29287}},
+    {{369.850525, 145.675964}, {382.362915, 121.29287}, {406.211273, 121.29287}},
     {{8, 8}, {10, 10}, {8, -10}},
     {{8, -10}, {10, 10}, {8, 8}},
 };
@@ -150,28 +123,14 @@ static void coincidentTest() {
     for (size_t testIndex = 0; testIndex < coincidentTestSetCount - 1; testIndex += 2) {
         const Quadratic& quad1 = coincidentTestSet[testIndex];
         const Quadratic& quad2 = coincidentTestSet[testIndex + 1];
-        Intersections intersections, intersections2;
-        intersect(quad1, quad2, intersections);
-        SkASSERT(intersections.coincidentUsed() == 2);
-        int pt;
-        double tt1, tt2;
-        for (pt = 0; pt < intersections.coincidentUsed(); ++pt) {
-            tt1 = intersections.fT[0][pt];
-            double tx1, ty1;
-            xy_at_t(quad1, tt1, tx1, ty1);
-            tt2 = intersections.fT[1][pt];
-            double tx2, ty2;
-            xy_at_t(quad2, tt2, tx2, ty2);
-            SkDebugf("%s [%d,%d] t1=%g (%g,%g) t2=%g (%g,%g)\n",
-                __FUNCTION__, (int)testIndex, pt, tt1, tx1, ty1, tt2, tx2, ty2);
-        }
+        Intersections intersections2;
         intersect2(quad1, quad2, intersections2);
         SkASSERT(intersections2.coincidentUsed() == 2);
-        for (pt = 0; pt < intersections2.coincidentUsed(); ++pt) {
-            tt1 = intersections2.fT[0][pt];
-            SkASSERT(approximately_equal(intersections.fT[0][pt], tt1));
-            tt2 = intersections2.fT[1][pt];
-            SkASSERT(approximately_equal(intersections.fT[1][pt], tt2));
+        for (int pt = 0; pt < intersections2.coincidentUsed(); ++pt) {
+            double tt1 = intersections2.fT[0][pt];
+            double tt2 = intersections2.fT[1][pt];
+        //    SkASSERT(approximately_equal(intersections.fT[0][pt], tt1));
+        //    SkASSERT(approximately_equal(intersections.fT[1][pt], tt2));
         }
     }
 }
