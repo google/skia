@@ -1664,8 +1664,13 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
-    printf("SkFontHost::CreateTypefaceFromFile unimplemented");
-    return NULL;
+    SkTypeface* face = NULL;
+    SkAutoTUnref<SkFILEStream> stream(SkNEW_ARGS(SkFILEStream, (path)));
+
+    if (stream->isValid()) {
+        face = CreateTypefaceFromStream(stream);
+    }
+    return face;
 }
 
 void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
