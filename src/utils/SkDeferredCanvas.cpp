@@ -93,6 +93,10 @@ bool isPaintOpaque(const SkPaint* paint,
 
     SkXfermode::Coeff srcCoeff, dstCoeff;
     if (SkXfermode::AsCoeff(paint->getXfermode(), &srcCoeff, &dstCoeff)){
+        if (SkXfermode::kDA_Coeff == srcCoeff || SkXfermode::kDC_Coeff == srcCoeff ||
+            SkXfermode::kIDA_Coeff == srcCoeff || SkXfermode::kIDC_Coeff == srcCoeff) {
+            return false;
+        }
         switch (dstCoeff) {
         case SkXfermode::kZero_Coeff:
             return true;
