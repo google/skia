@@ -40,7 +40,7 @@ SkImageFilter::~SkImageFilter() {
     delete[] fInputs;
 }
 
-SkImageFilter::SkImageFilter(SkFlattenableReadBuffer& buffer) 
+SkImageFilter::SkImageFilter(SkFlattenableReadBuffer& buffer)
     : fNumInputs(buffer.readInt()), fInputs(new SkImageFilter*[fNumInputs]) {
     for (int i = 0; i < fNumInputs; i++) {
         if (buffer.readBool()) {

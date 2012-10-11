@@ -204,7 +204,7 @@ protected:
      *  passed in).
      */
      virtual void setMatrixClip(const SkMatrix&, const SkRegion&,
-	                            const SkClipStack&);
+                                const SkClipStack&);
 
     /** Clears the entire device to the specified color (including alpha).
      *  Ignores the clip.

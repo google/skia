@@ -23,7 +23,7 @@ static void makebm(SkBitmap* bm, SkBitmap::Config config, int w, int h) {
     static const SkScalar    kPos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
     static const SkColor kColors0[] = {0x40FF00FF, 0xF0FFFF00, 0x4000FFFF };
     static const SkColor kColors1[] = {0xF0FF00FF, 0x80FFFF00, 0xF000FFFF };
-   
+
 
     SkPaint     paint;
 
@@ -95,7 +95,7 @@ protected:
         if (bmp.isNull()) {
             makebm(&bmp, SkBitmap::kARGB_8888_Config, kPointSize / 2, kPointSize / 2);
         }
-        
+
         SkAutoTUnref<SkShader> shader(SkShader::CreateBitmapShader(bmp,
                                                                    SkShader::kMirror_TileMode,
                                                                    SkShader::kRepeat_TileMode));
