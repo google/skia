@@ -567,6 +567,25 @@ void SkClipStack::getBounds(SkRect* canvFiniteBound,
     }
 }
 
+bool SkClipStack::intersectRectWithClip(SkRect* rect) const {
+    SkASSERT(NULL != rect);
+
+    SkRect bounds;
+    SkClipStack::BoundsType bt;
+    this->getBounds(&bounds, &bt);
+    if (bt == SkClipStack::kInsideOut_BoundsType) {
+        if (bounds.contains(*rect)) {
+            return false;
+        } else {
+            // If rect's x values are both within bound's x range we
+            // could clip here. Same for y. But we don't bother to check.
+            return true;
+        }
+    } else {    
+        return rect->intersect(bounds);
+    }
+}
+
 void SkClipStack::clipDevRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
 
     int32_t genID = GetNextGenID();
