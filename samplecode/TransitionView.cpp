@@ -190,8 +190,8 @@ private:
 
 SkView* create_transition(SkView* prev, SkView* next, int direction) {
 #ifdef SK_BUILD_FOR_ANDROID
-	// Disable transitions for Android
-	return next;
+    // Disable transitions for Android
+    return next;
 #else
     return SkNEW_ARGS(TransitionView, (prev, next, direction));
 #endif

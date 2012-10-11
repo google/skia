@@ -988,7 +988,7 @@ private:
         fSurfaceBase = sb;
     }
     friend class SkSurface_Base;
-    
+
     bool fDeviceCMDirty;            // cleared by updateDeviceCMCache()
     void updateDeviceCMCache();
 
