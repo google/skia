@@ -481,6 +481,13 @@ struct SK_API SkRect {
         fBottom = y + height;
     }
 
+    void setWH(SkScalar width, SkScalar height) {
+        fLeft = 0;
+        fTop = 0;
+        fRight = width;
+        fBottom = height;
+    }
+
     /**
      *  Make the largest representable rectangle
      */

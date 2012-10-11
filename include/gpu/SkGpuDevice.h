@@ -145,26 +145,33 @@ private:
     bool bindDeviceAsTexture(GrPaint* paint);
 
     void prepareDraw(const SkDraw&); // sets the render target, clip, and matrix on GrContext.
-    bool shouldTileBitmap(const SkBitmap& bitmap,
-                          const GrTextureParams& sampler,
-                          const SkRect* srcRectPtr) const;
-    void internalDrawBitmap(const SkDraw&,
-                            const SkBitmap&,
-                            const SkRect&,
-                            const SkMatrix&,
-                            const GrTextureParams& params,
-                            GrPaint* grPaint);
-    void drawTiledBitmap(const SkDraw& draw,
-                         const SkBitmap& bitmap,
-                         const SkRect& srcRect,
-                         const SkMatrix& m,
-                         const GrTextureParams& params,
-                         GrPaint* grPaint);
+
+    /**
+     * Implementation for both drawBitmap and drawBitmapRect.
+     */
     void drawBitmapCommon(const SkDraw&,
                           const SkBitmap& bitmap,
                           const SkRect* srcRectPtr,
                           const SkMatrix&,
                           const SkPaint&);
+
+    /**
+     * Helper functions called by drawBitmapCommon. By the time these are called the SkDraw's
+     * matrix has already been set on GrContext
+     */
+    bool shouldTileBitmap(const SkBitmap& bitmap,
+                          const GrTextureParams& sampler,
+                          const SkRect* srcRectPtr) const;
+    void internalDrawBitmap(const SkBitmap&,
+                            const SkRect&,
+                            const SkMatrix&,
+                            const GrTextureParams& params,
+                            GrPaint* grPaint);
+    void drawTiledBitmap(const SkBitmap& bitmap,
+                         const SkRect& srcRect,
+                         const SkMatrix& m,
+                         const GrTextureParams& params,
+                         GrPaint* grPaint);
 
     /**
      * Returns non-initialized instance.

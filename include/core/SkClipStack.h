@@ -63,6 +63,13 @@ public:
                    BoundsType* boundType,
                    bool* isIntersectionOfRects = NULL) const;
 
+    /**
+     * Takes an input rect in device space and conservatively clips it to the
+     * clip-stack. If false is returned then the rect does not intersect the
+     * clip and is unmodified.
+     */
+    bool intersectRectWithClip(SkRect* devRect) const;
+
     void clipDevRect(const SkIRect& ir, SkRegion::Op op) {
         SkRect r;
         r.set(ir);
