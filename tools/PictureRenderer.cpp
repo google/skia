@@ -329,10 +329,10 @@ struct ThreadData {
     ThreadData(SkCanvas* target, int* tileCounter, SkTDArray<SkRect>* tileRects,
                const SkString* path, bool* success)
     : fCanvas(target)
-    , fTileCounter(tileCounter)
-    , fTileRects(tileRects)
     , fPath(path)
-    , fSuccess(success) {
+    , fSuccess(success)
+    , fTileCounter(tileCounter)
+    , fTileRects(tileRects) {
         SkASSERT(target != NULL && tileCounter != NULL && tileRects != NULL);
         // Success must start off true, and it will be set to false upon failure.
         SkASSERT(success != NULL && *success);
