@@ -931,16 +931,13 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
     // at this point we're done with prePathMatrix
     SkDEBUGCODE(prePathMatrix = (const SkMatrix*)0x50FF8001;)
 
-    const SkPaint* paint = &origPaint;
-    SkTLazy<SkPaint> lazyPaint;
+    SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
 
     {
         SkScalar coverage;
         if (SkDrawTreatAsHairline(origPaint, *matrix, &coverage)) {
             if (SK_Scalar1 == coverage) {
-                lazyPaint.set(origPaint);
-                lazyPaint.get()->setStrokeWidth(0);
-                paint = lazyPaint.get();
+                paint.writable()->setStrokeWidth(0);
             } else if (xfermodeSupportsCoverageAsAlpha(origPaint.getXfermode())) {
                 U8CPU newAlpha;
 #if 0
@@ -953,10 +950,9 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
                 int scale = (int)SkScalarMul(coverage, 256);
                 newAlpha = origPaint.getAlpha() * scale >> 8;
 #endif
-                lazyPaint.set(origPaint);
-                lazyPaint.get()->setStrokeWidth(0);
-                lazyPaint.get()->setAlpha(newAlpha);
-                paint = lazyPaint.get();
+                SkPaint* writablePaint = paint.writable();
+                writablePaint->setStrokeWidth(0);
+                writablePaint->setAlpha(newAlpha);
             }
         }
     }

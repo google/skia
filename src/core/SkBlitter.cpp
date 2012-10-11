@@ -847,17 +847,13 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
     SkXfermode* mode = origPaint.getXfermode();
     Sk3DShader* shader3D = NULL;
 
-    SkTLazy<SkPaint> lazyPaint;
-    // we promise not to mutate paint unless we know we've reassigned it from
-    // lazyPaint
-    SkPaint* paint = const_cast<SkPaint*>(&origPaint);
+    SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
 
     if (origPaint.getMaskFilter() != NULL &&
             origPaint.getMaskFilter()->getFormat() == SkMask::k3D_Format) {
         shader3D = SkNEW_ARGS(Sk3DShader, (shader));
         // we know we haven't initialized lazyPaint yet, so just do it
-        paint = lazyPaint.set(origPaint);
-        paint->setShader(shader3D)->unref();
+        paint.writable()->setShader(shader3D)->unref();
         shader = shader3D;
     }
 
@@ -865,10 +861,7 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
         switch (interpret_xfermode(*paint, mode, device.config())) {
             case kSrcOver_XferInterp:
                 mode = NULL;
-                if (!lazyPaint.isValid()) {
-                    paint = lazyPaint.set(origPaint);
-                }
-                paint->setXfermode(NULL);
+                paint.writable()->setXfermode(NULL);
                 break;
             case kSkipDrawing_XferInterp:
                 SK_PLACEMENT_NEW(blitter, SkNullBlitter, storage, storageSize);
@@ -886,18 +879,13 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
 #endif
             // xfermodes (and filters) require shaders for our current blitters
             shader = SkNEW(SkColorShader);
-            if (!lazyPaint.isValid()) {
-                paint = lazyPaint.set(origPaint);
-            }
-            paint->setShader(shader)->unref();
+            paint.writable()->setShader(shader)->unref();
         } else if (cf) {
             // if no shader && no xfermode, we just apply the colorfilter to
             // our color and move on.
-            if (!lazyPaint.isValid()) {
-                paint = lazyPaint.set(origPaint);
-            }
-            paint->setColor(cf->filterColor(paint->getColor()));
-            paint->setColorFilter(NULL);
+            SkPaint* writablePaint = paint.writable();
+            writablePaint->setColor(cf->filterColor(paint->getColor()));
+            writablePaint->setColorFilter(NULL);
             cf = NULL;
         }
     }
@@ -905,10 +893,7 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
     if (cf) {
         SkASSERT(shader);
         shader = SkNEW_ARGS(SkFilterShader, (shader, cf));
-        if (!lazyPaint.isValid()) {
-            paint = lazyPaint.set(origPaint);
-        }
-        paint->setShader(shader)->unref();
+        paint.writable()->setShader(shader)->unref();
         // blitters should ignore the presence/absence of a filter, since
         // if there is one, the shader will take care of it.
     }

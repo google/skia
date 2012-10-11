@@ -1143,15 +1143,14 @@ void SkXPSDevice::drawVertices(const SkDraw&, SkCanvas::VertexMode,
     SkDEBUGF(("XPS drawVertices not yet implemented."));
 }
 
-void SkXPSDevice::drawPaint(const SkDraw& d, const SkPaint& paint) {
+void SkXPSDevice::drawPaint(const SkDraw& d, const SkPaint& origPaint) {
     const SkRect r = SkRect::MakeSize(this->fCurrentCanvasSize);
 
     //If trying to paint with a stroke, ignore that and fill.
-    SkPaint* fillPaint = const_cast<SkPaint*>(&paint);
-    SkTLazy<SkPaint> modifiedPaint;
-    if (paint.getStyle() != SkPaint::kFill_Style) {
-        fillPaint = modifiedPaint.set(paint);
-        fillPaint->setStyle(SkPaint::kFill_Style);
+    SkPaint* fillPaint = const_cast<SkPaint*>(&origPaint);
+    SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
+    if (paint->getStyle() != SkPaint::kFill_Style) {
+        paint.writable()->setStyle(SkPaint::kFill_Style);
     }
 
     this->internalDrawRect(d, r, false, *fillPaint);
@@ -1640,24 +1639,26 @@ HRESULT SkXPSDevice::shadePath(IXpsOMPath* shadedPath,
 
 void SkXPSDevice::drawPath(const SkDraw& d,
                            const SkPath& platonicPath,
-                           const SkPaint& paint,
+                           const SkPaint& origPaint,
                            const SkMatrix* prePathMatrix,
                            bool pathIsMutable) {
+    SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
+
     // nothing to draw
     if (d.fClip->isEmpty() ||
-        (paint.getAlpha() == 0 && paint.getXfermode() == NULL)) {
+        (paint->getAlpha() == 0 && paint->getXfermode() == NULL)) {
         return;
     }
 
     SkPath modifiedPath;
-    const bool paintHasPathEffect = paint.getPathEffect()
-                                 || paint.getStyle() != SkPaint::kFill_Style;
+    const bool paintHasPathEffect = paint->getPathEffect()
+                                 || paint->getStyle() != SkPaint::kFill_Style;
 
     //Apply pre-path matrix [Platonic-path -> Skeletal-path].
     SkMatrix matrix = *d.fMatrix;
     SkPath* skeletalPath = const_cast<SkPath*>(&platonicPath);
     if (prePathMatrix) {
-        if (paintHasPathEffect || paint.getRasterizer()) {
+        if (paintHasPathEffect || paint->getRasterizer()) {
             if (!pathIsMutable) {
                 skeletalPath = &modifiedPath;
                 pathIsMutable = true;
@@ -1670,9 +1671,6 @@ void SkXPSDevice::drawPath(const SkDraw& d,
         }
     }
 
-    SkTLazy<SkPaint> lazyShaderPaint;
-    SkPaint* shaderPaint = const_cast<SkPaint*>(&paint);
-
     //Apply path effect [Skeletal-path -> Fillable-path].
     SkPath* fillablePath = skeletalPath;
     if (paintHasPathEffect) {
@@ -1680,15 +1678,15 @@ void SkXPSDevice::drawPath(const SkDraw& d,
             fillablePath = &modifiedPath;
             pathIsMutable = true;
         }
-        bool fill = paint.getFillPath(*skeletalPath, fillablePath);
+        bool fill = paint->getFillPath(*skeletalPath, fillablePath);
 
-        shaderPaint = lazyShaderPaint.set(*shaderPaint);
-        shaderPaint->setPathEffect(NULL);
+        SkPaint* writablePaint = paint.writable();
+        writablePaint->setPathEffect(NULL);
         if (fill) {
-            shaderPaint->setStyle(SkPaint::kFill_Style);
+            writablePaint->setStyle(SkPaint::kFill_Style);
         } else {
-            shaderPaint->setStyle(SkPaint::kStroke_Style);
-            shaderPaint->setStrokeWidth(0);
+            writablePaint->setStyle(SkPaint::kStroke_Style);
+            writablePaint->setStrokeWidth(0);
         }
     }
 
@@ -1706,22 +1704,13 @@ void SkXPSDevice::drawPath(const SkDraw& d,
     HRVM(shadedPath->SetGeometryLocal(shadedGeometry.get()),
          "Could not add the shaded geometry to shaded path.");
 
-    SkRasterizer* rasterizer = paint.getRasterizer();
-    SkMaskFilter* filter = paint.getMaskFilter();
-
-    SkTLazy<SkPaint> lazyRasterizePaint;
-    const SkPaint* rasterizePaint = shaderPaint;
+    SkRasterizer* rasterizer = paint->getRasterizer();
+    SkMaskFilter* filter = paint->getMaskFilter();
 
     //Determine if we will draw or shade and mask.
     if (rasterizer || filter) {
-        if (shaderPaint->getStyle() != SkPaint::kFill_Style) {
-            if (lazyShaderPaint.isValid()) {
-                rasterizePaint = lazyRasterizePaint.set(*shaderPaint);
-            } else {
-                rasterizePaint = shaderPaint;
-                shaderPaint = lazyShaderPaint.set(*shaderPaint);
-            }
-            shaderPaint->setStyle(SkPaint::kFill_Style);
+        if (paint->getStyle() != SkPaint::kFill_Style) {
+            paint.writable()->setStyle(SkPaint::kFill_Style);
         }
     }
 
@@ -1729,7 +1718,7 @@ void SkXPSDevice::drawPath(const SkDraw& d,
     BOOL fill;
     BOOL stroke;
     HRV(this->shadePath(shadedPath.get(),
-                        *shaderPaint,
+                        *paint,
                         *d.fMatrix,
                         &fill,
                         &stroke));
@@ -1801,7 +1790,7 @@ void SkXPSDevice::drawPath(const SkDraw& d,
                         &matrix,
                         &rasteredMask,
                         SkMask::kComputeBoundsAndRenderImage_CreateMode,
-                        rasterizePaint->getStyle())) {
+                        paint->getStyle())) {
 
             SkAutoMaskFreeImage rasteredAmi(rasteredMask.fImage);
             mask = &rasteredMask;
