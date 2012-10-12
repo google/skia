@@ -581,7 +581,7 @@ bool SkClipStack::intersectRectWithClip(SkRect* rect) const {
             // could clip here. Same for y. But we don't bother to check.
             return true;
         }
-    } else {    
+    } else {
         return rect->intersect(bounds);
     }
 }
