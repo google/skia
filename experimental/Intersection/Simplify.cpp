@@ -3737,7 +3737,7 @@ static void debugShowQuadIntersection(int pts, const Work& wt,
         SkDebugf("%s no intersect (%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)"
                 " (%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)\n",
                 __FUNCTION__, wt.pts()[0].fX, wt.pts()[0].fY,
-                wt.pts()[1].fX, wt.pts()[1].fY, wt.pts()[2].fX, wt.pts()[2].fY, 
+                wt.pts()[1].fX, wt.pts()[1].fY, wt.pts()[2].fX, wt.pts()[2].fY,
                 wn.pts()[0].fX, wn.pts()[0].fY, wn.pts()[1].fX, wn.pts()[1].fY,
                 wt.pts()[2].fX, wt.pts()[2].fY );
         return;
