@@ -12,7 +12,7 @@
       },
     },
     'conditions': [
-      [ 'skia_os == "android" and android_make_apk == 1', {
+      [ 'skia_os == "android"', {
         'dependencies': [
           'android_deps.gyp:Android_EntryPoint',
         ],

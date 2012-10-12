@@ -25,7 +25,7 @@
         'gyp/tools.gyp:tools',
       ],
       'conditions': [
-        ['skia_os == "android" and android_make_apk == 1', {
+        ['skia_os == "android"', {
           'dependencies': [
             'gyp/android_system.gyp:SkiaAndroidApp',
           ],
