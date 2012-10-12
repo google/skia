@@ -189,9 +189,8 @@ public:
     bool hasStage() const { return this->hasColorStage() || this->hasCoverageStage(); }
 
     /**
-     * Preconcats the matrix of all samplers in the mask with the inverse of a matrix. If the
-     * matrix inverse cannot be computed (and there is at least one enabled stage) then false is
-     * returned.
+     * Preconcats the matrix of all enabled stages with the inverse of a matrix. If the matrix
+     * inverse cannot be computed (and there is at least one enabled stage) then false is returned.
      */
     bool preConcatSamplerMatricesWithInverse(const GrMatrix& matrix) {
         GrMatrix inv;
@@ -217,6 +216,22 @@ public:
             }
         }
         return true;
+    }
+
+    /**
+     * Preconcats the matrix of all stages with a matrix.
+     */
+    void preConcatSamplerMatrices(const GrMatrix& matrix) {
+        for (int i = 0; i < kMaxColorStages; ++i) {
+            if (this->isColorStageEnabled(i)) {
+                fColorSamplers[i].preConcatMatrix(matrix);
+            }
+        }
+        for (int i = 0; i < kMaxCoverageStages; ++i) {
+            if (this->isCoverageStageEnabled(i)) {
+                fCoverageSamplers[i].preConcatMatrix(matrix);
+            }
+        }
     }
 
     GrPaint& operator=(const GrPaint& paint) {

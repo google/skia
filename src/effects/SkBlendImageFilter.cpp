@@ -196,7 +196,10 @@ GrTexture* SkBlendImageFilter::onFilterImageGPU(Proxy* proxy, GrTexture* src, co
 
     GrAutoScratchTexture ast(context, desc);
     GrTexture* dst = ast.detach();
-    GrContext::AutoMatrix avm(context, GrMatrix::I());
+
+    GrContext::AutoMatrix am;
+    am.setIdentity(context);
+
     GrContext::AutoRenderTarget art(context, dst->asRenderTarget());
     GrContext::AutoClip ac(context, rect);
 
