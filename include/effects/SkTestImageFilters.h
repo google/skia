@@ -1,11 +1,10 @@
-
 #ifndef _SkTestImageFilters_h
 #define _SkTestImageFilters_h
 
 #include "SkImageFilter.h"
 #include "SkPoint.h"
 
-class SkOffsetImageFilter : public SkImageFilter {
+class SK_API SkOffsetImageFilter : public SkImageFilter {
 public:
     SkOffsetImageFilter(SkScalar dx, SkScalar dy) : INHERITED(0) {
         fOffset.set(dx, dy);
@@ -27,7 +26,7 @@ private:
     typedef SkImageFilter INHERITED;
 };
 
-class SkComposeImageFilter : public SkImageFilter {
+class SK_API SkComposeImageFilter : public SkImageFilter {
 public:
     SkComposeImageFilter(SkImageFilter* outer, SkImageFilter* inner) : INHERITED(2, outer, inner) {}
     virtual ~SkComposeImageFilter();
@@ -47,7 +46,7 @@ private:
 
 #include "SkXfermode.h"
 
-class SkMergeImageFilter : public SkImageFilter {
+class SK_API SkMergeImageFilter : public SkImageFilter {
 public:
     SkMergeImageFilter(SkImageFilter* first, SkImageFilter* second,
                        SkXfermode::Mode = SkXfermode::kSrcOver_Mode);
@@ -82,7 +81,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 // Fun mode that scales down (only) and then scales back up to look pixelated
-class SkDownSampleImageFilter : public SkImageFilter {
+class SK_API SkDownSampleImageFilter : public SkImageFilter {
 public:
     SkDownSampleImageFilter(SkScalar scale) : INHERITED(0), fScale(scale) {}
 

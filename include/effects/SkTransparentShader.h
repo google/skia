@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,20 +5,19 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkTransparentShader_DEFINED
 #define SkTransparentShader_DEFINED
 
 #include "SkShader.h"
 
-class SkTransparentShader : public SkShader {
+class SK_API SkTransparentShader : public SkShader {
 public:
     SkTransparentShader() {}
 
     virtual uint32_t getFlags() SK_OVERRIDE;
-    virtual bool    setContext( const SkBitmap& device,
-                                const SkPaint& paint,
-                                const SkMatrix& matrix) SK_OVERRIDE;
+    virtual bool    setContext(const SkBitmap& device,
+                               const SkPaint& paint,
+                               const SkMatrix& matrix) SK_OVERRIDE;
     virtual void    shadeSpan(int x, int y, SkPMColor[], int count) SK_OVERRIDE;
     virtual void    shadeSpan16(int x, int y, uint16_t span[], int count) SK_OVERRIDE;
 
@@ -36,4 +34,3 @@ private:
 };
 
 #endif
-

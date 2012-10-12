@@ -11,9 +11,9 @@
 #include "SkMaskFilter.h"
 
 /**
- * Simple MaskFilter that creates a screen door stipple pattern
+ * Simple MaskFilter that creates a screen door stipple pattern.
  */
-class SkStippleMaskFilter : public SkMaskFilter {
+class SK_API SkStippleMaskFilter : public SkMaskFilter {
 public:
     SkStippleMaskFilter() : INHERITED() {
     }

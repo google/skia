@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef Sk1DPathEffect_DEFINED
 #define Sk1DPathEffect_DEFINED
@@ -15,8 +13,8 @@
 
 class SkPathMeasure;
 
-//  This class is not exported to java.
-class Sk1DPathEffect : public SkPathEffect {
+// This class is not exported to java.
+class SK_API Sk1DPathEffect : public SkPathEffect {
 public:
     virtual bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*) SK_OVERRIDE;
 
@@ -36,7 +34,7 @@ private:
     typedef SkPathEffect INHERITED;
 };
 
-class SkPath1DPathEffect : public Sk1DPathEffect {
+class SK_API SkPath1DPathEffect : public Sk1DPathEffect {
 public:
     enum Style {
         kTranslate_Style,   // translate the shape to each position
@@ -75,6 +73,5 @@ private:
 
     typedef Sk1DPathEffect INHERITED;
 };
-
 
 #endif

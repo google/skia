@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkPorterDuff_DEFINED
 #define SkPorterDuff_DEFINED
@@ -17,7 +15,7 @@ class SkXfermode;
 
 /** DEPRECATED - use SkXfermode::Mode instead
  */
-class SkPorterDuff {
+class SK_API SkPorterDuff {
 public:
     /** List of predefined xfermodes. In general, the algebra for the modes
         uses the following symbols:
@@ -81,4 +79,3 @@ public:
 };
 
 #endif
-

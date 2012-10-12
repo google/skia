@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkEmbossMaskFilter_DEFINED
 #define SkEmbossMaskFilter_DEFINED
@@ -16,7 +14,7 @@
 
     This mask filter creates a 3D emboss look, by specifying a light and blur amount.
 */
-class SkEmbossMaskFilter : public SkMaskFilter {
+class SK_API SkEmbossMaskFilter : public SkMaskFilter {
 public:
     struct Light {
         SkScalar    fDirection[3];  // x,y,z
@@ -48,4 +46,3 @@ private:
 };
 
 #endif
-

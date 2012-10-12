@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkBlendImageFilter_DEFINED
 #define SkBlendImageFilter_DEFINED
 
@@ -49,4 +48,3 @@ private:
 };
 
 #endif
-

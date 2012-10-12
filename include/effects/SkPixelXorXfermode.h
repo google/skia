@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2007 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkPixelXorXfermode_DEFINED
 #define SkPixelXorXfermode_DEFINED
@@ -17,7 +15,7 @@
     this proc *always* returns an opaque color (alpha == 255). Thus it is
     not really usefull for operating on blended colors.
 */
-class SkPixelXorXfermode : public SkXfermode {
+class SK_API SkPixelXorXfermode : public SkXfermode {
 public:
     SkPixelXorXfermode(SkColor opColor) : fOpColor(opColor) {}
 

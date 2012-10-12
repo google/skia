@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2008 The Android Open Source Project
  *
@@ -6,13 +5,12 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkPaintFlagsDrawFilter_DEFINED
 #define SkPaintFlagsDrawFilter_DEFINED
 
 #include "SkDrawFilter.h"
 
-class SkPaintFlagsDrawFilter : public SkDrawFilter {
+class SK_API SkPaintFlagsDrawFilter : public SkDrawFilter {
 public:
     SkPaintFlagsDrawFilter(uint32_t clearFlags, uint32_t setFlags);
 
@@ -25,4 +23,3 @@ private:
 };
 
 #endif
-
