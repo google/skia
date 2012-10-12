@@ -637,7 +637,7 @@ static bool isAxisAligned(const SkScalerContext::Rec& rec) {
             bothZero(rec.fPost2x2[0][0], rec.fPost2x2[1][1]));
 }
 
-void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
+void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface*) {
     //BOGUS: http://code.google.com/p/chromium/issues/detail?id=121119
     //Cap the requested size as larger sizes give bogus values.
     //Remove when http://code.google.com/p/skia/issues/detail?id=554 is fixed.

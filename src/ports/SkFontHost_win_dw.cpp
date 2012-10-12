@@ -1264,7 +1264,7 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
     return NULL;
 }
 
-void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
+void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface*) {
     unsigned flagsWeDontSupport = SkScalerContext::kDevKernText_Flag |
                                   SkScalerContext::kAutohinting_Flag |
                                   SkScalerContext::kEmbeddedBitmapText_Flag |

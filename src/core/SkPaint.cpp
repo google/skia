@@ -1505,7 +1505,11 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
                               const SkMatrix* deviceMatrix, Rec* rec) {
     SkASSERT(deviceMatrix == NULL || !deviceMatrix->hasPerspective());
 
-    rec->fOrigFontID = SkTypeface::UniqueID(paint.getTypeface());
+    SkTypeface* typeface = paint.getTypeface();
+    if (NULL == typeface) {
+        typeface = SkTypeface::GetDefaultTypeface();
+    }
+    rec->fOrigFontID = typeface->uniqueID();
     rec->fFontID = rec->fOrigFontID;
     rec->fTextSize = paint.getTextSize();
     rec->fPreScaleX = paint.getTextScaleX();
@@ -1622,7 +1626,7 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
         they can modify our rec up front, so we don't create duplicate cache
         entries.
      */
-    SkFontHost::FilterRec(rec);
+    SkFontHost::FilterRec(rec, typeface);
 
     // be sure to call PostMakeRec(rec) before you actually use it!
 }

@@ -36,7 +36,7 @@ SkTypeface::~SkTypeface() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkTypeface* get_default_typeface() {
+SkTypeface* SkTypeface::GetDefaultTypeface() {
     // we keep a reference to this guy for all time, since if we return its
     // fontID, the font cache may later on ask to resolve that back into a
     // typeface object.
@@ -51,7 +51,7 @@ static SkTypeface* get_default_typeface() {
 
 uint32_t SkTypeface::UniqueID(const SkTypeface* face) {
     if (NULL == face) {
-        face = get_default_typeface();
+        face = GetDefaultTypeface();
     }
     return face->uniqueID();
 }

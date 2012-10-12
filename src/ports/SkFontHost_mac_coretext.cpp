@@ -1811,7 +1811,7 @@ SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
     return nextFontID;
 }
 
-void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
+void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface*) {
     unsigned flagsWeDontSupport = SkScalerContext::kDevKernText_Flag |
                                   SkScalerContext::kAutohinting_Flag;
 

@@ -167,8 +167,10 @@ public:
         the same output.
 
         A lazy (but valid) fonthost can do nothing in its FilterRec routine.
+
+        The provided typeface corresponds to the fFontID field.
      */
-    static void FilterRec(SkScalerContextRec* rec);
+    static void FilterRec(SkScalerContextRec* rec, SkTypeface* typeface);
 
     ///////////////////////////////////////////////////////////////////////////
 
