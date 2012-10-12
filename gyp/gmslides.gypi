@@ -61,6 +61,7 @@
     '../gm/shaderbounds.cpp',
     '../gm/shadertext.cpp',
     '../gm/shadertext2.cpp',
+    '../gm/shadertext3.cpp',
     '../gm/shadows.cpp',
     '../gm/simpleaaclip.cpp',
     '../gm/strokefill.cpp',
