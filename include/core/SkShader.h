@@ -148,6 +148,9 @@ public:
      */
     virtual void shadeSpan(int x, int y, SkPMColor[], int count) = 0;
 
+    typedef void (*ShadeProc)(void* ctx, int x, int y, SkPMColor[], int count);
+    virtual ShadeProc asAShadeProc(void** ctx);
+
     /**
      *  Called only for 16bit devices when getFlags() returns
      *  kOpaqueAlphaFlag | kHasSpan16_Flag

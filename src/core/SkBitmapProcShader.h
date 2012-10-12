@@ -22,6 +22,7 @@ public:
     virtual bool setContext(const SkBitmap&, const SkPaint&, const SkMatrix&);
     virtual uint32_t getFlags() { return fFlags; }
     virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count);
+    virtual ShadeProc asAShadeProc(void** ctx) SK_OVERRIDE;
     virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count);
     virtual void beginSession();
     virtual void endSession();
