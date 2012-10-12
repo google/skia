@@ -206,12 +206,13 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
             glyph->fPath = path;
         }
 
-        GrContext::AutoMatrix am(fContext, GrContext::AutoMatrix::kPreserve_InitialMatrix);
+        GrContext::AutoMatrix am;
         GrMatrix translate;
         translate.setTranslate(GrFixedToScalar(vx - GrIntToFixed(glyph->fBounds.fLeft)),
                                GrFixedToScalar(vy - GrIntToFixed(glyph->fBounds.fTop)));
-        fContext->concatMatrix(translate);
-        fContext->drawPath(fPaint, *glyph->fPath, kWinding_GrPathFill);
+        GrPaint tmpPaint(fPaint);
+        am.setPreConcat(fContext, translate, &tmpPaint);
+        fContext->drawPath(tmpPaint, *glyph->fPath, kWinding_GrPathFill);
         return;
     }
 

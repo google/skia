@@ -603,12 +603,10 @@ void GrContext::drawPaint(const GrPaint& origPaint) {
         }
         inverse.mapRect(&r);
     } else {
-        if (paint->hasStage()) {
-            if (!paint.writable()->preConcatSamplerMatricesWithInverse(fDrawState->getViewMatrix())) {
-                GrPrintf("Could not invert matrix\n");
-            }
+        if (!am.setIdentity(this, paint.writable())) {
+            GrPrintf("Could not invert matrix\n");
+            return;
         }
-        am.set(this, GrMatrix::I());
     }
     // by definition this fills the entire clip, no need for AA
     if (paint->isAntiAlias()) {
@@ -1780,7 +1778,9 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
 
     AutoRenderTarget art(this);
 
-    AutoMatrix avm(this, GrMatrix::I());
+    AutoMatrix am;
+    am.setIdentity(this);
+
     SkIRect clearRect;
     int scaleFactorX, radiusX;
     int scaleFactorY, radiusY;

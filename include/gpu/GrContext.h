@@ -537,7 +537,7 @@ public:
      * @param height        height of rectangle to write in pixels.
      * @param config        the pixel config of the source buffer
      * @param buffer        memory to read the rectangle from.
-     * @param rowBytes      number of bytes bewtween consecutive rows. Zero means rows are tightly
+     * @param rowBytes      number of bytes between consecutive rows. Zero means rows are tightly
      *                      packed.
      * @param pixelOpsFlags see PixelOpsFlags enum above.
      */
@@ -556,7 +556,7 @@ public:
      * @param height        height of rectangle to read in pixels.
      * @param config        the pixel config of the destination buffer
      * @param buffer        memory to read the rectangle into.
-     * @param rowBytes      number of bytes bewtween consecutive rows. Zero means rows are tightly
+     * @param rowBytes      number of bytes between consecutive rows. Zero means rows are tightly
      *                      packed.
      * @param pixelOpsFlags see PixelOpsFlags enum above.
      *
@@ -578,7 +578,7 @@ public:
      * @param height        height of rectangle to write in pixels.
      * @param config        the pixel config of the source buffer
      * @param buffer        memory to read pixels from
-     * @param rowBytes      number of bytes bewtween consecutive rows. Zero
+     * @param rowBytes      number of bytes between consecutive rows. Zero
      *                      means rows are tightly packed.
      * @param pixelOpsFlags see PixelOpsFlags enum above.
      */
@@ -669,55 +669,104 @@ public:
     };
 
     /**
-     *  Save/restore the view-matrix in the context.
+     * Save/restore the view-matrix in the context. It can optionally adjust a paint to account
+     * for a coordinate system change. Here is an example of how the paint param can be used:
+     *
+     * A GrPaint is setup with custom stages. The stages will have access to the pre-matrix source
+     * geometry positions when the draw is executed. Later on a decision is made to transform the
+     * geometry to device space on the CPU. The custom stages now need to know that the space in
+     * which the geometry will be specified has changed.
+     *
+     * Note that when restore is called (or in the destructor) the context's matrix will be
+     * restored. However, the paint will not be restored. The caller must make a copy of the
+     * paint if necessary. Hint: use SkTCopyOnFirstWrite if the AutoMatrix is conditionally
+     * initialized.
      */
     class AutoMatrix : GrNoncopyable {
     public:
-        enum InitialMatrix {
-            kPreserve_InitialMatrix,
-            kIdentity_InitialMatrix,
-        };
-
         AutoMatrix() : fContext(NULL) {}
 
-        AutoMatrix(GrContext* ctx, InitialMatrix initialState) : fContext(ctx) {
-            fMatrix = ctx->getMatrix();
-            switch (initialState) {
-                case kPreserve_InitialMatrix:
-                    break;
-                case kIdentity_InitialMatrix:
-                    ctx->setMatrix(GrMatrix::I());
-                    break;
-                default:
-                    GrCrash("Unexpected initial matrix state");
+        ~AutoMatrix() { this->restore(); }
+
+        /**
+         * Initializes by pre-concat'ing the context's current matrix with the preConcat param.
+         */
+        void setPreConcat(GrContext* context, const GrMatrix& preConcat, GrPaint* paint = NULL) {
+            GrAssert(NULL != context);
+
+            this->restore();
+            
+            fContext = context;
+            fMatrix = context->getMatrix();
+            this->preConcat(preConcat, paint);
+        }
+
+        /**
+         * Sets the context's matrix to identity. Returns false if the inverse matrix is required to
+         * update a paint but the matrix cannot be inverted.
+         */
+        bool setIdentity(GrContext* context, GrPaint* paint = NULL) {
+            GrAssert(NULL != context);
+
+            this->restore();
+            
+            if (NULL != paint) {
+                if (!paint->preConcatSamplerMatricesWithInverse(context->getMatrix())) {
+                    return false;
+                }
             }
+            fMatrix = context->getMatrix();
+            fContext = context;
+            context->setIdentityMatrix();
+            return true;
         }
 
-        AutoMatrix(GrContext* ctx, const GrMatrix& matrix) : fContext(ctx) {
-            fMatrix = ctx->getMatrix();
-            ctx->setMatrix(matrix);
+        /**
+         * Replaces the context's matrix with a new matrix. Returns false if the inverse matrix is
+         * required to update a paint but the matrix cannot be inverted.
+         */
+        bool set(GrContext* context, const GrMatrix& newMatrix, GrPaint* paint = NULL) {
+            if (NULL != paint) {
+                if (!this->setIdentity(context, paint)) {
+                    return false;
+                }
+                this->preConcat(newMatrix, paint);
+            } else {
+                this->restore();
+                fContext = context;
+                fMatrix = context->getMatrix();
+                context->setMatrix(newMatrix);
+            }
+            return true;
         }
 
-        void set(GrContext* ctx) {
+        /**
+         * If this has been initialized then the context's matrix will be further updated by
+         * pre-concat'ing the preConcat param. The matrix that will be restored remains unchanged.
+         * The paint is assumed to be relative to the context's matrix at the time this call is
+         * made, not the matrix at the time AutoMatrix was first initialized. In other words, this
+         * performs an incremental update of the paint.
+         */
+        void preConcat(const GrMatrix& preConcat, GrPaint* paint = NULL) {
+            if (NULL != paint) {
+                paint->preConcatSamplerMatrices(preConcat);
+            }
+            fContext->concatMatrix(preConcat);
+        }
+
+        /**
+         * Returns false if never initialized or the inverse matrix was required to update a paint
+         * but the matrix could not be inverted.
+         */
+        bool succeeded() const { return NULL != fContext; }
+
+        /**
+         * If this has been initialized then the context's original matrix is restored.
+         */
+        void restore() {
             if (NULL != fContext) {
                 fContext->setMatrix(fMatrix);
-            }
-            fMatrix = ctx->getMatrix();
-            fContext = ctx;
-        }
-
-        void set(GrContext* ctx, const GrMatrix& matrix) {
-            if (NULL != fContext) {
-                fContext->setMatrix(fMatrix);
-            }
-            fMatrix = ctx->getMatrix();
-            ctx->setMatrix(matrix);
-            fContext = ctx;
-        }
-
-        ~AutoMatrix() {
-            if (NULL != fContext) {
-                fContext->setMatrix(fMatrix);
+                fContext = NULL;
             }
         }
 
@@ -770,9 +819,12 @@ public:
     public:
         AutoWideOpenIdentityDraw(GrContext* ctx, GrRenderTarget* rt)
             : fAutoClip(ctx, AutoClip::kWideOpen_InitialClip)
-            , fAutoRT(ctx, rt)
-            , fAutoMatrix(ctx, AutoMatrix::kIdentity_InitialMatrix) {
+            , fAutoRT(ctx, rt) {
+            fAutoMatrix.setIdentity(ctx);
+            // should never fail with no paint param.
+            GrAssert(fAutoMatrix.succeeded());
         }
+
     private:
         AutoClip fAutoClip;
         AutoRenderTarget fAutoRT;
