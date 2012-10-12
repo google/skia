@@ -189,6 +189,9 @@ protected:
     SkTypeface(Style style, SkFontID uniqueID, bool isFixedWidth = false);
     virtual ~SkTypeface();
 
+    friend class SkScalerContext;
+    static SkTypeface* GetDefaultTypeface();
+
 private:
     SkFontID    fUniqueID;
     Style       fStyle;

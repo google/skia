@@ -210,11 +210,39 @@ static unsigned calculateOutlineGlyphCount(HDC hdc) {
 
 class LogFontTypeface : public SkTypeface {
 public:
-    LogFontTypeface(SkTypeface::Style style, SkFontID fontID, const LOGFONT& lf) :
-      SkTypeface(style, fontID, false), fLogFont(lf), fSerializeAsStream(false) {}
+    LogFontTypeface(SkTypeface::Style style, SkFontID fontID, const LOGFONT& lf, bool serializeAsStream = false) :
+        SkTypeface(style, fontID, false), fLogFont(lf), fSerializeAsStream(serializeAsStream) {
+
+        // If the font has cubic outlines, it will not be rendered with ClearType.
+        HFONT font = CreateFontIndirect(&lf);
+
+        HDC deviceContext = ::CreateCompatibleDC(NULL);
+        HFONT savefont = (HFONT)SelectObject(deviceContext, font);
+
+        TEXTMETRIC textMetric;
+        if (0 == GetTextMetrics(deviceContext, &textMetric)) {
+            SkFontHost::EnsureTypefaceAccessible(*this);
+            if (0 == GetTextMetrics(deviceContext, &textMetric)) {
+                textMetric.tmPitchAndFamily = TMPF_TRUETYPE;
+            }
+        }
+        if (deviceContext) {
+            ::SelectObject(deviceContext, savefont);
+            ::DeleteDC(deviceContext);
+        }
+        if (font) {
+            ::DeleteObject(font);
+        }
+
+        // Used a logfont on a memory context, should never get a device font.
+        // Therefore all TMPF_DEVICE will be PostScript (cubic) fonts.
+        fCanBeLCD = !((textMetric.tmPitchAndFamily & TMPF_VECTOR) &&
+                      (textMetric.tmPitchAndFamily & TMPF_DEVICE));
+    }
 
     LOGFONT fLogFont;
     bool fSerializeAsStream;
+    bool fCanBeLCD;
 
     static LogFontTypeface* Create(const LOGFONT& lf) {
         SkTypeface::Style style = get_style(lf);
@@ -229,8 +257,7 @@ public:
      *  Takes ownership of fontMemResource.
      */
     FontMemResourceTypeface(SkTypeface::Style style, SkFontID fontID, const LOGFONT& lf, HANDLE fontMemResource) :
-      LogFontTypeface(style, fontID, lf), fFontMemResource(fontMemResource) {
-      fSerializeAsStream = true;
+        LogFontTypeface(style, fontID, lf, true), fFontMemResource(fontMemResource) {
     }
 
     HANDLE fFontMemResource;
@@ -1673,7 +1700,7 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
     return face;
 }
 
-void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
+void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface* typeface) {
     unsigned flagsWeDontSupport = SkScalerContext::kDevKernText_Flag |
                                   SkScalerContext::kAutohinting_Flag |
                                   SkScalerContext::kEmbeddedBitmapText_Flag |
@@ -1713,9 +1740,9 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     }
 #endif
 
-#if 0
-    if (SkMask::kLCD16_Format == rec->fMaskFormat) {
-        rec->fMaskFormat = SkMask::kLCD32_Format;
+    LogFontTypeface* logfontTypeface = static_cast<LogFontTypeface*>(typeface);
+    if (!logfontTypeface->fCanBeLCD && isLCD(*rec)) {
+        rec->fMaskFormat = SkMask::kA8_Format;
+        rec->fFlags &= ~SkScalerContext::kGenA8FromLCD_Flag;
     }
-#endif
 }
