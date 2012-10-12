@@ -101,8 +101,9 @@ SkComposeImageFilter::SkComposeImageFilter(SkFlattenableReadBuffer& buffer) : IN
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMergeImageFilter::initAllocModes() {
-    if (numInputs()) {
-        size_t size = sizeof(uint8_t) * numInputs();
+    int inputCount = countInputs();
+    if (inputCount) {
+        size_t size = sizeof(uint8_t) * inputCount;
         if (size <= sizeof(fStorage)) {
             fModes = SkTCast<uint8_t*>(fStorage);
         } else {
@@ -116,7 +117,8 @@ void SkMergeImageFilter::initAllocModes() {
 void SkMergeImageFilter::initModes(const SkXfermode::Mode modes[]) {
     if (modes) {
         this->initAllocModes();
-        for (int i = 0; i < numInputs(); ++i) {
+        int inputCount = countInputs();
+        for (int i = 0; i < inputCount; ++i) {
             fModes[i] = SkToU8(modes[i]);
         }
     } else {
@@ -148,13 +150,14 @@ SkMergeImageFilter::~SkMergeImageFilter() {
 
 bool SkMergeImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
                                         SkIRect* dst) {
-    if (numInputs() < 1) {
+    if (countInputs() < 1) {
         return false;
     }
 
     SkIRect totalBounds;
 
-    for (int i = 0; i < numInputs(); ++i) {
+    int inputCount = countInputs();
+    for (int i = 0; i < inputCount; ++i) {
         SkImageFilter* filter = getInput(i);
         SkIRect r;
         if (filter) {
@@ -180,7 +183,7 @@ bool SkMergeImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
 bool SkMergeImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
                                        const SkMatrix& ctm,
                                        SkBitmap* result, SkIPoint* loc) {
-    if (numInputs() < 1) {
+    if (countInputs() < 1) {
         return false;
     }
 
@@ -201,7 +204,8 @@ bool SkMergeImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
     OwnDeviceCanvas canvas(dst);
     SkPaint paint;
 
-    for (int i = 0; i < numInputs(); ++i) {
+    int inputCount = countInputs();
+    for (int i = 0; i < inputCount; ++i) {
         SkBitmap tmp;
         const SkBitmap* srcPtr;
         SkIPoint pos = *loc;
@@ -233,7 +237,7 @@ void SkMergeImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
 
     buffer.writeBool(fModes != NULL);
     if (fModes) {
-        buffer.writeByteArray(fModes, numInputs() * sizeof(fModes[0]));
+        buffer.writeByteArray(fModes, countInputs() * sizeof(fModes[0]));
     }
 }
 
@@ -241,7 +245,7 @@ SkMergeImageFilter::SkMergeImageFilter(SkFlattenableReadBuffer& buffer) : INHERI
     bool hasModes = buffer.readBool();
     if (hasModes) {
         this->initAllocModes();
-        SkASSERT(buffer.getArrayCount() == numInputs() * sizeof(fModes[0]));
+        SkASSERT(buffer.getArrayCount() == countInputs() * sizeof(fModes[0]));
         buffer.readByteArray(fModes);
     } else {
         fModes = 0;

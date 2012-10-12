@@ -26,6 +26,8 @@ protected:
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
 
+    virtual SkColorFilter* asColorFilter() const SK_OVERRIDE;
+
 private:
     SkColorFilter*  fColorFilter;
 

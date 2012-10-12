@@ -13,6 +13,7 @@
     '../gm/blend.cpp',
     '../gm/blurs.cpp',
     '../gm/circles.cpp',
+    '../gm/colorfilterimagefilter.cpp',
     '../gm/colormatrix.cpp',
     '../gm/complexclip.cpp',
     '../gm/complexclip2.cpp',
