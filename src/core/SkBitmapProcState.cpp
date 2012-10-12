@@ -246,18 +246,22 @@ static void Clamp_S32_D32_nofilter_trans_shaderproc(const SkBitmapProcState& s,
     SkASSERT(!s.fDoFilter);
     
     const int maxX = s.fBitmap->width() - 1;
-    SkPMColor* row;
-    int ix;
-
+    const int maxY = s.fBitmap->height() - 1;
+    int ix = s.fFilterOneX + x;
+    int iy = SkClampMax(s.fFilterOneY + y, maxY);
+#ifdef SK_DEBUG
     {
         SkPoint pt;
         s.fInvProc(*s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
                    SkIntToScalar(y) + SK_ScalarHalf, &pt);
-        const unsigned maxY = s.fBitmap->height() - 1;
-        int y = SkClampMax(SkScalarFloorToInt(pt.fY), maxY);
-        row = s.fBitmap->getAddr32(0, y);
-        ix = SkScalarFloorToInt(pt.fX);
+        int iy2 = SkClampMax(SkScalarFloorToInt(pt.fY), maxY);
+        int ix2 = SkScalarFloorToInt(pt.fX);
+        
+        SkASSERT(iy == iy2);
+        SkASSERT(ix == ix2);
     }
+#endif
+    const SkPMColor* row = s.fBitmap->getAddr32(0, iy);
 
     // clamp to the left
     if (ix < 0) {
@@ -301,6 +305,13 @@ SkBitmapProcState::ShaderProc32 SkBitmapProcState::chooseShaderProc32() {
     }
 
     if (SkShader::kClamp_TileMode == fTileModeX && SkShader::kClamp_TileMode == fTileModeY) {
+        SkPoint pt;
+        fInvProc(*fInvMatrix, SK_ScalarHalf, SK_ScalarHalf, &pt);
+        // Since we know we're not filtered, we re-purpose these fields allow
+        // us to go from device -> src coordinates w/ just an integer add,
+        // rather than running through the inverse-matrix
+        fFilterOneX = SkScalarFloorToInt(pt.fX);
+        fFilterOneY = SkScalarFloorToInt(pt.fY);
         return Clamp_S32_D32_nofilter_trans_shaderproc;
     }
     return NULL;
