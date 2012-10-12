@@ -11,6 +11,7 @@
 #include "SkFlattenable.h"
 
 class SkBitmap;
+class SkColorFilter;
 class SkDevice;
 class SkMatrix;
 struct SkIPoint;
@@ -108,13 +109,34 @@ public:
      */
     virtual GrTexture* onFilterImageGPU(Proxy*, GrTexture* texture, const SkRect& rect);
 
-protected:
-    SkImageFilter(int numInputs, SkImageFilter** inputs);
+    /**
+     *  Returns this image filter as a color filter if possible,
+     *  NULL otherwise.
+     */
+    virtual SkColorFilter* asColorFilter() const;
 
-    // The ... represents numInputs SkImageFilter pointers, upon which this
+    /**
+     *  Returns the number of inputs this filter will accept (some inputs can
+     *  be NULL).
+     */
+    int countInputs() const { return fInputCount; }
+
+    /**
+     *  Returns the input filter at a given index, or NULL if no input is
+     *  connected.  The indices used are filter-specific.
+     */
+    SkImageFilter* getInput(int i) const {
+        SkASSERT(i < fInputCount);
+        return fInputs[i];
+    }
+
+protected:
+    SkImageFilter(int inputCount, SkImageFilter** inputs);
+
+    // The ... represents inputCount SkImageFilter pointers, upon which this
     // constructor will call SkSafeRef().  This is the same behaviour as
     // the SkImageFilter(int, SkImageFilter**) constructor above.
-    explicit SkImageFilter(int numInputs, ...);
+    explicit SkImageFilter(int inputCount, ...);
 
     virtual ~SkImageFilter();
 
@@ -128,8 +150,6 @@ protected:
     // Default impl copies src into dst and returns true
     virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*);
 
-    int numInputs() const { return fNumInputs; }
-    SkImageFilter* getInput(int i) const { SkASSERT(i < fNumInputs); return fInputs[i]; }
     // Return the result of processing the given input, or the source bitmap
     // if we have no connected input at that index.
     SkBitmap getInputResult(int index, Proxy*, const SkBitmap& src, const SkMatrix&,
@@ -137,7 +157,7 @@ protected:
 
 private:
     typedef SkFlattenable INHERITED;
-    int fNumInputs;
+    int fInputCount;
     SkImageFilter** fInputs;
 };
 
