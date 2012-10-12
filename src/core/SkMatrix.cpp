@@ -544,7 +544,14 @@ bool SkMatrix::setRectToRect(const SkRect& src, const SkRect& dst,
         fMat[kMSkewX]  = fMat[kMSkewY] =
         fMat[kMPersp0] = fMat[kMPersp1] = 0;
 
-        this->setTypeMask(kScale_Mask | kTranslate_Mask | kRectStaysRect_Mask);
+        unsigned mask = kRectStaysRect_Mask;
+        if (sx != SK_Scalar1 || sy != SK_Scalar1) {
+            mask |= kScale_Mask;
+        }
+        if (tx || ty) {
+            mask |= kTranslate_Mask;
+        }
+        this->setTypeMask(mask);
     }
     // shared cleanup
     fMat[kMPersp2] = kMatrix22Elem;

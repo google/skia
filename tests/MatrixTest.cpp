@@ -81,6 +81,33 @@ static bool is_identity(const SkMatrix& m) {
     return nearly_equal(m, identity);
 }
 
+static void test_matrix_recttorect(skiatest::Reporter* reporter) {
+    SkRect src, dst;
+    SkMatrix matrix;
+    
+    src.set(0, 0, SK_Scalar1*10, SK_Scalar1*10);
+    dst = src;
+    matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
+    REPORTER_ASSERT(reporter, SkMatrix::kIdentity_Mask == matrix.getType());
+    REPORTER_ASSERT(reporter, matrix.rectStaysRect());
+    
+    dst.offset(SK_Scalar1, SK_Scalar1);
+    matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
+    REPORTER_ASSERT(reporter, SkMatrix::kTranslate_Mask == matrix.getType());
+    REPORTER_ASSERT(reporter, matrix.rectStaysRect());
+    
+    dst.fRight += SK_Scalar1;
+    matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
+    REPORTER_ASSERT(reporter, SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask == matrix.getType());
+    REPORTER_ASSERT(reporter, matrix.rectStaysRect());
+
+    dst = src;
+    dst.fRight = src.fRight * 2;
+    matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
+    REPORTER_ASSERT(reporter, SkMatrix::kScale_Mask == matrix.getType());
+    REPORTER_ASSERT(reporter, matrix.rectStaysRect());
+}
+
 static void test_flatten(skiatest::Reporter* reporter, const SkMatrix& m) {
     // add 100 in case we have a bug, I don't want to kill my stack in the test
     char buffer[SkMatrix::kMaxFlattenSize + 100];
@@ -459,6 +486,7 @@ static void TestMatrix(skiatest::Reporter* reporter) {
 
     test_matrix_max_stretch(reporter);
     test_matrix_is_similarity_transform(reporter);
+    test_matrix_recttorect(reporter);
 }
 
 #include "TestClassDef.h"
