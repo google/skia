@@ -31,7 +31,7 @@ public:
         }
     }
 
-    bool canReuse(const SkClipStack& clip, int width, int height) {
+    bool canReuse(const SkClipStack& clip, const GrIRect& devBounds) {
 
         if (fStack.empty()) {
             GrAssert(false);
@@ -41,8 +41,7 @@ public:
         GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
 
         if (back->fLastMask.texture() &&
-            back->fLastMask.texture()->width() >= width &&
-            back->fLastMask.texture()->height() >= height &&
+            back->fLastBound == devBounds &&
             clip == back->fLastClip) {
             return true;
         }

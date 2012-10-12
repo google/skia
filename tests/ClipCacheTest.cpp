@@ -185,8 +185,8 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
     REPORTER_ASSERT(reporter, 1 == texture2->getRefCnt());
 
     // check to make sure canReuse works
-    REPORTER_ASSERT(reporter, cache.canReuse(clip2, 10, 10));
-    REPORTER_ASSERT(reporter, !cache.canReuse(clip1, 10, 10));
+    REPORTER_ASSERT(reporter, cache.canReuse(clip2, bound2));
+    REPORTER_ASSERT(reporter, !cache.canReuse(clip1, bound1));
 
     // pop the state
     cache.pop();
