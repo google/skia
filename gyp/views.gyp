@@ -59,7 +59,6 @@
         '../src/views/SkViewInflate.cpp',
         '../src/views/SkViewPriv.cpp',
         '../src/views/SkViewPriv.h',
-        '../src/views/SkWidget.cpp',
         '../src/views/SkWidgets.cpp',
         '../src/views/SkWindow.cpp',
 
