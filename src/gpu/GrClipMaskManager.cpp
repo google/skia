@@ -20,8 +20,8 @@
 
 GR_DEFINE_RESOURCE_CACHE_DOMAIN(GrClipMaskManager, GetAlphaMaskDomain)
 
-//#define GR_AA_CLIP 1
-//#define GR_SW_CLIP 1
+#define GR_AA_CLIP 1
+#define GR_SW_CLIP 1
 
 ////////////////////////////////////////////////////////////////////////////////
 namespace {
@@ -565,9 +565,7 @@ bool GrClipMaskManager::clipMaskPreamble(const GrClipData& clipDataIn,
 
     // TODO: make sure we don't outset if bounds are still 0,0 @ min
 
-    if (fAACache.canReuse(*clipDataIn.fClipStack,
-                          devResultBounds->width(),
-                          devResultBounds->height())) {
+    if (fAACache.canReuse(*clipDataIn.fClipStack, *devResultBounds)) {
         *result = fAACache.getLastMask();
         fAACache.getLastBound(devResultBounds);
         return true;
@@ -1163,6 +1161,8 @@ bool GrClipMaskManager::createSoftwareClipMask(const GrClipData& clipDataIn,
             if (SkRegion::kReverseDifference_Op == op) {
                 SkRect temp;
                 temp.set(*devResultBounds);
+                temp.offset(SkIntToScalar(clipDataIn.fOrigin.fX),
+                            SkIntToScalar(clipDataIn.fOrigin.fX));
 
                 // invert the entire scene
                 helper.draw(temp, SkRegion::kXOR_Op, false, 0xFF);
