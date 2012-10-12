@@ -227,9 +227,82 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         fShaderProc32 = SK_ARM_NEON_WRAP(Clamp_SI8_opaque_D32_filter_DX_shaderproc);
     }
 
+    if (NULL == fShaderProc32) {
+        fShaderProc32 = this->chooseShaderProc32();
+    }
+
     // see if our platform has any accelerated overrides
     this->platformProcs();
     return true;
+}
+
+static void Clamp_S32_D32_nofilter_trans_shaderproc(const SkBitmapProcState& s,
+                                                    int x, int y,
+                                                    SkPMColor* SK_RESTRICT colors,
+                                                    int count) {
+    SkASSERT(((s.fInvType & ~SkMatrix::kTranslate_Mask)) == 0);
+    SkASSERT(s.fInvKy == 0);
+    SkASSERT(count > 0 && colors != NULL);
+    SkASSERT(!s.fDoFilter);
+    
+    const int maxX = s.fBitmap->width() - 1;
+    SkPMColor* row;
+    int ix;
+
+    {
+        SkPoint pt;
+        s.fInvProc(*s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
+                   SkIntToScalar(y) + SK_ScalarHalf, &pt);
+        const unsigned maxY = s.fBitmap->height() - 1;
+        int y = SkClampMax(SkScalarFloorToInt(pt.fY), maxY);
+        row = s.fBitmap->getAddr32(0, y);
+        ix = SkScalarFloorToInt(pt.fX);
+    }
+
+    // clamp to the left
+    if (ix < 0) {
+        int n = SkMin32(-ix, count);
+        sk_memset32(colors, row[0], n);
+        count -= n;
+        if (0 == count) {
+            return;
+        }
+        colors += n;
+        SkASSERT(-ix == n);
+        ix = 0;
+    }
+    // copy the middle
+    if (ix <= maxX) {
+        int n = maxX - ix + 1;
+        memcpy(colors, row + ix, count * sizeof(SkPMColor));
+        count -= n;
+        if (0 == count) {
+            return;
+        }
+        colors += n;
+    }
+    // clamp to the right
+    sk_memset32(colors, row[maxX], count);
+}
+
+SkBitmapProcState::ShaderProc32 SkBitmapProcState::chooseShaderProc32() {
+    if (fAlphaScale < 256) {
+        return NULL;
+    }
+    if (fInvType > SkMatrix::kTranslate_Mask) {
+        return NULL;
+    }
+    if (fDoFilter) {
+        return NULL;
+    }
+    if (SkBitmap::kARGB_8888_Config != fBitmap->config()) {
+        return NULL;
+    }
+
+    if (SkShader::kClamp_TileMode == fTileModeX && SkShader::kClamp_TileMode == fTileModeY) {
+        return Clamp_S32_D32_nofilter_trans_shaderproc;
+    }
+    return NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
