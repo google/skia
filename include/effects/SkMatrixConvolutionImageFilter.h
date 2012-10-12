@@ -19,7 +19,7 @@
     effects such as sharpening, blurring, edge detection, etc.
  */
 
-class SkMatrixConvolutionImageFilter : public SkSingleInputImageFilter {
+class SK_API SkMatrixConvolutionImageFilter : public SkSingleInputImageFilter {
 public:
     /*! \enum TileMode */
     enum TileMode {

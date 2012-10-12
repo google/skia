@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2008 The Android Open Source Project
  *
@@ -6,13 +5,12 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkKernel33MaskFilter_DEFINED
 #define SkKernel33MaskFilter_DEFINED
 
 #include "SkMaskFilter.h"
 
-class SkKernel33ProcMaskFilter : public SkMaskFilter {
+class SK_API SkKernel33ProcMaskFilter : public SkMaskFilter {
 public:
     SkKernel33ProcMaskFilter(unsigned percent256 = 256)
         : fPercent256(percent256) {}
@@ -35,7 +33,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class SkKernel33MaskFilter : public SkKernel33ProcMaskFilter {
+class SK_API SkKernel33MaskFilter : public SkKernel33ProcMaskFilter {
 public:
     SkKernel33MaskFilter(const int coeff[3][3], int shift, int percent256 = 256)
             : SkKernel33ProcMaskFilter(percent256) {

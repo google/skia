@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkAvoidXfermode_DEFINED
 #define SkAvoidXfermode_DEFINED
@@ -17,7 +15,7 @@
     This xfermode will draw the src everywhere except on top of the specified
     color.
 */
-class SkAvoidXfermode : public SkXfermode {
+class SK_API SkAvoidXfermode : public SkXfermode {
 public:
     enum Mode {
         kAvoidColor_Mode,   //!< draw everywhere except on the opColor

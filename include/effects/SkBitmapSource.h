@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkBitmapSource_DEFINED
 #define SkBitmapSource_DEFINED
 
@@ -30,4 +29,3 @@ private:
 };
 
 #endif
-

@@ -12,7 +12,7 @@
 
 class SkColorFilter;
 
-class SkColorFilterImageFilter : public SkSingleInputImageFilter {
+class SK_API SkColorFilterImageFilter : public SkSingleInputImageFilter {
 public:
     SkColorFilterImageFilter(SkColorFilter* cf, SkImageFilter* input = NULL);
     virtual ~SkColorFilterImageFilter();

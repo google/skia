@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef Sk2DPathEffect_DEFINED
 #define Sk2DPathEffect_DEFINED
@@ -14,7 +12,7 @@
 #include "SkPathEffect.h"
 #include "SkMatrix.h"
 
-class Sk2DPathEffect : public SkPathEffect {
+class SK_API Sk2DPathEffect : public SkPathEffect {
 public:
     Sk2DPathEffect(const SkMatrix& mat);
 
@@ -58,7 +56,7 @@ private:
     typedef SkPathEffect INHERITED;
 };
 
-class SkLine2DPathEffect : public Sk2DPathEffect {
+class SK_API SkLine2DPathEffect : public Sk2DPathEffect {
 public:
     SkLine2DPathEffect(SkScalar width, const SkMatrix& matrix)
     : Sk2DPathEffect(matrix), fWidth(width) {}
@@ -80,7 +78,7 @@ private:
     typedef Sk2DPathEffect INHERITED;
 };
 
-class SkPath2DPathEffect : public Sk2DPathEffect {
+class SK_API SkPath2DPathEffect : public Sk2DPathEffect {
 public:
     /**
      *  Stamp the specified path to fill the shape, using the matrix to define
@@ -101,6 +99,5 @@ private:
 
     typedef Sk2DPathEffect INHERITED;
 };
-
 
 #endif
