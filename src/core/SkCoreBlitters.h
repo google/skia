@@ -133,16 +133,16 @@ public:
     virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
     virtual void blitMask(const SkMask&, const SkIRect&);
-    
+
 private:
     SkXfermode*         fXfermode;
     SkPMColor*          fBuffer;
     SkBlitRow::Proc32   fProc32;
     SkBlitRow::Proc32   fProc32Blend;
-    
+
     // illegal
     SkARGB32_Shader_Blitter& operator=(const SkARGB32_Shader_Blitter&);
-    
+
     typedef SkShaderBlitter INHERITED;
 };
 

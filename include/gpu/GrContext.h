@@ -695,7 +695,7 @@ public:
             GrAssert(NULL != context);
 
             this->restore();
-            
+
             fContext = context;
             fMatrix = context->getMatrix();
             this->preConcat(preConcat, paint);
@@ -709,7 +709,7 @@ public:
             GrAssert(NULL != context);
 
             this->restore();
-            
+
             if (NULL != paint) {
                 if (!paint->preConcatSamplerMatricesWithInverse(context->getMatrix())) {
                     return false;

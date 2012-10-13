@@ -54,7 +54,7 @@ public:
         fBitmap.setIsOpaque(true);
         fBitmap.eraseColor(SK_ColorBLACK);
         drawIntoBitmap(fBitmap);
-            
+
         fSrcR.set(0, 0, w, h);
         fDstR.set(0, 0, w, h);
     }

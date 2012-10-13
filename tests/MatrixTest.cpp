@@ -84,18 +84,18 @@ static bool is_identity(const SkMatrix& m) {
 static void test_matrix_recttorect(skiatest::Reporter* reporter) {
     SkRect src, dst;
     SkMatrix matrix;
-    
+
     src.set(0, 0, SK_Scalar1*10, SK_Scalar1*10);
     dst = src;
     matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
     REPORTER_ASSERT(reporter, SkMatrix::kIdentity_Mask == matrix.getType());
     REPORTER_ASSERT(reporter, matrix.rectStaysRect());
-    
+
     dst.offset(SK_Scalar1, SK_Scalar1);
     matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
     REPORTER_ASSERT(reporter, SkMatrix::kTranslate_Mask == matrix.getType());
     REPORTER_ASSERT(reporter, matrix.rectStaysRect());
-    
+
     dst.fRight += SK_Scalar1;
     matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
     REPORTER_ASSERT(reporter, SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask == matrix.getType());

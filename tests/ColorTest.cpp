@@ -20,10 +20,10 @@ static bool S32A_D565_Blend_0(SkPMColor sc, uint16_t dc, U8CPU alpha) {
     unsigned dst_scale = 255 - SkMulDiv255Round(SkGetPackedA32(sc), alpha);
     unsigned dr = SkMulS16(SkPacked32ToR16(sc), alpha) + SkMulS16(SkGetPackedR16(dc), dst_scale);
     unsigned dg = SkMulS16(SkPacked32ToG16(sc), alpha) + SkMulS16(SkGetPackedG16(dc), dst_scale);
-    
+
     unsigned rr = SkDiv255Round(dr);
     unsigned rg = SkDiv255Round(dg);
-    
+
     if (rr <= 31 && rg <= 63) {
         return true;
     }
@@ -34,10 +34,10 @@ static bool S32A_D565_Blend_01(SkPMColor sc, uint16_t dc, U8CPU alpha) {
     unsigned dst_scale = 255 - SkMulDiv255Round(SkGetPackedA32(sc), alpha);
     unsigned dr = SkMulS16(SkGetPackedR32(sc), alpha) + SkMulS16(SkGetPackedR16(dc) << 3, dst_scale);
     unsigned dg = SkMulS16(SkGetPackedG32(sc), alpha) + SkMulS16(SkGetPackedG16(dc) << 2, dst_scale);
-    
+
     unsigned rr = SkDiv255Round(dr) >> 3;
     unsigned rg = SkDiv255Round(dg) >> 2;
-    
+
     if (rr <= 31 && rg <= 63) {
         return true;
     }
@@ -52,10 +52,10 @@ static bool S32A_D565_Blend_02(SkPMColor sc, uint16_t dc, U8CPU alpha) {
     int rc = SkPack888ToRGB16(SkDiv255Round(dr),
                               SkDiv255Round(dg),
                               SkDiv255Round(db));
-    
+
     unsigned rr = SkGetPackedR16(rc);
     unsigned rg = SkGetPackedG16(rc);
-    
+
     if (rr <= 31 && rg <= 63) {
         return true;
     }
@@ -66,10 +66,10 @@ static bool S32A_D565_Blend_1(SkPMColor sc, uint16_t dc, U8CPU alpha) {
     unsigned dst_scale = 255 - SkMulDiv255Round(SkGetPackedA32(sc), alpha);
     unsigned dr = (SkMulS16(SkGetPackedR32(sc), alpha) >> 3) + SkMulS16(SkGetPackedR16(dc), dst_scale);
     unsigned dg = (SkMulS16(SkGetPackedG32(sc), alpha) >> 2) + SkMulS16(SkGetPackedG16(dc), dst_scale);
-    
+
     unsigned rr = SkDiv255Round(dr);
     unsigned rg = SkDiv255Round(dg);
-    
+
     if (rr <= 31 && rg <= 63) {
         return true;
     }
@@ -85,10 +85,10 @@ static bool S32A_D565_Blend_2(SkPMColor sc, uint16_t dc, U8CPU alpha) {
     alpha *= 255;
     unsigned dr = (SkGetPackedR32(sc) >> 3) * alpha + SkGetPackedR16(dc) * dst_scale;
     unsigned dg = (SkGetPackedG32(sc) >> 2) * alpha + SkGetPackedG16(dc) * dst_scale;
-    
+
     unsigned rr = SkDiv65025Round(dr);
     unsigned rg = SkDiv65025Round(dg);
-    
+
     if (rr <= 31 && rg <= 63) {
         return true;
     }

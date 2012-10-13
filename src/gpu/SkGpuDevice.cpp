@@ -903,7 +903,7 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& devPath,
     if (!am.setIdentity(context, grp)) {
         return false;
     }
-   
+
     static const int MASK_IDX = GrPaint::kMaxCoverageStages - 1;
     // we assume the last mask index is available for use
     GrAssert(!grp->isCoverageStageEnabled(MASK_IDX));
