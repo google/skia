@@ -306,7 +306,7 @@ void SkARGB32_Shader_Blitter::blitH(int x, int y, int width) {
 void SkARGB32_Shader_Blitter::blitRect(int x, int y, int width, int height) {
     SkASSERT(x >= 0 && y >= 0 &&
              x + width <= fDevice.width() && y + height <= fDevice.height());
-    
+
     uint32_t*   device = fDevice.getAddr32(x, y);
     size_t      deviceRB = fDevice.rowBytes();
     SkShader*   shader = fShader;

@@ -23,7 +23,7 @@ static void makebm(SkBitmap* bm, SkBitmap::Config config, int w, int h) {
     static const SkScalar    kPos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
     static const SkColor kColors0[] = {0x80F00080, 0xF0F08000, 0x800080F0 };
     static const SkColor kColors1[] = {0xF08000F0, 0x8080F000, 0xF000F080 };
-   
+
 
     SkPaint     paint;
 
@@ -71,7 +71,7 @@ protected:
         if (bmp.isNull()) {
             makebm(&bmp, SkBitmap::kARGB_8888_Config, kPointSize / 4, kPointSize / 4);
         }
-        
+
         SkPaint bmpPaint;
         bmpPaint.setAntiAlias(true);
         bmpPaint.setFilterBitmap(true);
@@ -83,9 +83,9 @@ protected:
         outlinePaint.setTextSize(SkIntToScalar(kPointSize));
         outlinePaint.setStyle(SkPaint::kStroke_Style);
         outlinePaint.setStrokeWidth(0.f);
-        
+
         canvas->translate(15.f, 15.f);
-       
+
         // draw glyphs scaled up
         canvas->scale(2.f, 2.f);
 
@@ -93,13 +93,13 @@ protected:
             SkShader::kRepeat_TileMode,
             SkShader::kMirror_TileMode,
         };
-        
+
         // position the baseline of the first run
         canvas->translate(0.f, 0.75f * kPointSize);
-        
+
         canvas->save();
         int i = 0;
-        for (size_t tm0 = 0; tm0 < SK_ARRAY_COUNT(kTileModes); ++tm0) {        
+        for (size_t tm0 = 0; tm0 < SK_ARRAY_COUNT(kTileModes); ++tm0) {
             for (size_t tm1 = 0; tm1 < SK_ARRAY_COUNT(kTileModes); ++tm1) {
                 SkAutoTUnref<SkShader> shader(SkShader::CreateBitmapShader(bmp,
                                                                            kTileModes[tm0],

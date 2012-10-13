@@ -87,7 +87,7 @@ bool SkColorFilterImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& sourc
         SkColorFilter* parentColorFilter;
         SkScalar parentMatrix[20];
         while (parent && (parentColorFilter = parent->asColorFilter())
-                      && parentColorFilter->asColorMatrix(parentMatrix) 
+                      && parentColorFilter->asColorMatrix(parentMatrix)
                       && !matrix_needs_clamping(parentMatrix)) {
             SkScalar combinedMatrix[20];
             mult_color_matrix(parentMatrix, colorMatrix, combinedMatrix);

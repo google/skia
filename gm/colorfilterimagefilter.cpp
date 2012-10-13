@@ -71,7 +71,7 @@ protected:
     virtual SkISize onISize() { return SkISize::Make(400, 100); }
 
     virtual void onDraw(SkCanvas* canvas) {
-        
+
         SkRect r = SkRect::MakeWH(FILTER_WIDTH, FILTER_HEIGHT);
         SkPaint paint;
         paint.setColor(SK_ColorRED);

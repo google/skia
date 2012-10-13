@@ -244,7 +244,7 @@ static void Clamp_S32_D32_nofilter_trans_shaderproc(const SkBitmapProcState& s,
     SkASSERT(s.fInvKy == 0);
     SkASSERT(count > 0 && colors != NULL);
     SkASSERT(!s.fDoFilter);
-    
+
     const int maxX = s.fBitmap->width() - 1;
     const int maxY = s.fBitmap->height() - 1;
     int ix = s.fFilterOneX + x;
@@ -256,7 +256,7 @@ static void Clamp_S32_D32_nofilter_trans_shaderproc(const SkBitmapProcState& s,
                    SkIntToScalar(y) + SK_ScalarHalf, &pt);
         int iy2 = SkClampMax(SkScalarFloorToInt(pt.fY), maxY);
         int ix2 = SkScalarFloorToInt(pt.fX);
-        
+
         SkASSERT(iy == iy2);
         SkASSERT(ix == ix2);
     }
