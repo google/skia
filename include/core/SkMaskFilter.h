@@ -31,7 +31,7 @@ class SkRasterClip;
 
     Blur and emboss are implemented as subclasses of SkMaskFilter.
 */
-class SkMaskFilter : public SkFlattenable {
+class SK_API SkMaskFilter : public SkFlattenable {
 public:
     SK_DECLARE_INST_COUNT(SkMaskFilter)
 
