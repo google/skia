@@ -18,7 +18,7 @@ class SkMatrix;
 class SkPath;
 struct SkIRect;
 
-class SkRasterizer : public SkFlattenable {
+class SK_API SkRasterizer : public SkFlattenable {
 public:
     SK_DECLARE_INST_COUNT(SkRasterizer)
 
