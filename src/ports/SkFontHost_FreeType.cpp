@@ -86,6 +86,8 @@ static bool         gLCDSupportValid;  // true iff |gLCDSupport| has been set.
 static bool         gLCDSupport;  // true iff LCD is supported by the runtime.
 static int          gLCDExtra;  // number of extra pixels for filtering.
 
+/////////////////////////////////////////////////////////////////////////
+
 // FT_Library_SetLcdFilterWeights was introduced in FreeType 2.4.0.
 // The following platforms provide FreeType of at least 2.4.0.
 // Ubuntu >= 11.04 (previous deprecated April 2013)
@@ -94,8 +96,6 @@ static int          gLCDExtra;  // number of extra pixels for filtering.
 // Fedora >= 14 (good)
 // Android >= Gingerbread (good)
 typedef FT_Error (*FT_Library_SetLcdFilterWeightsProc)(FT_Library, unsigned char*);
-
-/////////////////////////////////////////////////////////////////////////
 
 // Caller must lock gFTMutex before calling this function.
 static bool InitFreetype() {
@@ -106,18 +106,20 @@ static bool InitFreetype() {
 
     // Setup LCD filtering. This reduces color fringes for LCD smoothed glyphs.
 #ifdef FT_LCD_FILTER_H
-    //Use light as default, as FT_LCD_FILTER_DEFAULT adds up to 0x110.
-    err = FT_Library_SetLcdFilter(gFTLibrary, FT_LCD_FILTER_LIGHT);
+    // Use default { 0x10, 0x40, 0x70, 0x40, 0x10 }, as it adds up to 0x110, simulating ink spread.
+    // SetLcdFilter must be called before SetLcdFilterWeights.
+    err = FT_Library_SetLcdFilter(gFTLibrary, FT_LCD_FILTER_DEFAULT);
     if (0 == err) {
         gLCDSupport = true;
         gLCDExtra = 2; //Using a filter adds one full pixel to each side.
 
-        static unsigned char gaussianLikeWeights[] = { 0x17, 0x40, 0x52, 0x40, 0x17 };
-        //static unsigned char triangleLikeWeights[] = { 0x1C, 0x39, 0x56, 0x39, 0x1C };
+#ifdef SK_FONTHOST_FREETYPE_USE_NORMAL_LCD_FILTER
+        // This also adds to 0x110 simulating ink spread, but provides better results than default.
+        static unsigned char gGaussianLikeHeavyWeights[] = { 0x1A, 0x43, 0x56, 0x43, 0x1A, };
 
 #if defined(SK_FONTHOST_FREETYPE_RUNTIME_VERSION) && \
             SK_FONTHOST_FREETYPE_RUNTIME_VERSION > 0x020400
-        err = FT_Library_SetLcdFilterWeights(gFTLibrary, gaussianLikeWeights);
+        err = FT_Library_SetLcdFilterWeights(gFTLibrary, gGaussianLikeHeavyWeights);
 #elif defined(SK_CAN_USE_DLOPEN) && SK_CAN_USE_DLOPEN == 1
         //The FreeType library is already loaded, so symbols are available in process.
         void* self = dlopen(NULL, RTLD_LAZY);
@@ -128,9 +130,10 @@ static bool InitFreetype() {
             dlclose(self);
 
             if (NULL != setLcdFilterWeights) {
-                err = setLcdFilterWeights(gFTLibrary, gaussianLikeWeights);
+                err = setLcdFilterWeights(gFTLibrary, gGaussianLikeHeavyWeights);
             }
         }
+#endif
 #endif
     }
 #else
