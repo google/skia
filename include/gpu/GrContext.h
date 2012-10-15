@@ -81,7 +81,7 @@ public:
     }
 
     /**
-     * Abandons all gpu resources, assumes 3D API state is unknown. Call this
+     * Abandons all GPU resources, assumes 3D API state is unknown. Call this
      * if you have lost the associated GPU context, and thus internal texture,
      * buffer, etc. references/IDs are now invalid. Should be called even when
      * GrContext is no longer going to be used for two reasons:
@@ -101,7 +101,7 @@ public:
     void contextDestroyed();
 
     /**
-     * Frees gpu created by the context. Can be called to reduce GPU memory
+     * Frees GPU created by the context. Can be called to reduce GPU memory
      * pressure.
      */
     void freeGpuResources();
@@ -118,7 +118,7 @@ public:
      *  Create a new entry, based on the specified key and texture, and return
      *  a "locked" texture. Must call be balanced with an unlockTexture() call.
      *
-     * @param params    The tex params used to draw a texture may help determine
+     * @param params    The texture params used to draw a texture may help determine
      *                  the cache entry used. (e.g. different versions may exist
      *                  for different wrap modes on GPUs with limited NPOT
      *                  texture support). NULL implies clamp wrap modes.
@@ -145,7 +145,7 @@ public:
      *
      *  @param desc     Description of the texture properties.
      *  @param cacheData Cache-specific properties (e.g., texture gen ID)
-     *  @param params   The tex params used to draw a texture may help determine
+     *  @param params   The texture params used to draw a texture may help determine
      *                  the cache entry used. (e.g. different versions may exist
      *                  for different wrap modes on GPUs with limited NPOT
      *                  texture support). NULL implies clamp wrap modes.
@@ -190,7 +190,7 @@ public:
      *
      * Textures created by createAndLockTexture() hide the complications of
      * tiling non-power-of-two textures on APIs that don't support this (e.g.
-     * unextended GLES2). Tiling a npot texture created by lockScratchTexture on
+     * unextended GLES2). Tiling a NPOT texture created by lockScratchTexture on
      * such an API will create gaps in the tiling pattern. This includes clamp
      * mode. (This may be addressed in a future update.)
      */
@@ -252,13 +252,13 @@ public:
     void setTextureCacheLimits(int maxTextures, size_t maxTextureBytes);
 
     /**
-     *  Return the max width or height of a texture supported by the current gpu
+     *  Return the max width or height of a texture supported by the current GPU.
      */
     int getMaxTextureSize() const;
 
     /**
      * Return the max width or height of a render target supported by the
-     * current gpu
+     * current GPU.
      */
     int getMaxRenderTargetSize() const;
 
@@ -528,7 +528,7 @@ public:
                                 uint32_t pixelOpsFlags = 0);
 
     /**
-     * Copy the src pixels [buffer, rowbytes, pixelconfig] into a render target at the specified
+     * Copy the src pixels [buffer, row bytes, pixel config] into a render target at the specified
      * rectangle.
      * @param target        the render target to write into. NULL means the current render target.
      * @param left          left edge of the rectangle to write (inclusive)
@@ -598,7 +598,7 @@ public:
 
     /**
      * Resolves a render target that has MSAA. The intermediate MSAA buffer is
-     * downsampled to the associated GrTexture (accessible via
+     * down-sampled to the associated GrTexture (accessible via
      * GrRenderTarget::asTexture()). Any pending draws to the render target will
      * be executed before the resolve.
      *
@@ -617,7 +617,7 @@ public:
      * @param rect            The destination rectangle.
      * @param sigmaX          The blur's standard deviation in X.
      * @param sigmaY          The blur's standard deviation in Y.
-     * @return the blurred texture, which may be srcTexture ref'ed, or a
+     * @return the blurred texture, which may be srcTexture reffed, or a
      * new texture.  It is the caller's responsibility to unref this texture.
      */
      GrTexture* gaussianBlur(GrTexture* srcTexture,
@@ -840,9 +840,8 @@ public:
     const GrIndexBuffer* getQuadIndexBuffer() const;
 
     /**
-     * Stencil buffers add themselves to the cache using
-     * addStencilBuffer. findStencilBuffer is called to check the
-     * cache for a SB that matches an RT's criteria.
+     * Stencil buffers add themselves to the cache using addStencilBuffer. findStencilBuffer is
+     * called to check the cache for a SB that matches an RT's criteria.
      */
     void addStencilBuffer(GrStencilBuffer* sb);
     GrStencilBuffer* findStencilBuffer(int width, int height, int sampleCnt);
@@ -924,9 +923,8 @@ private:
 };
 
 /**
- * Gets and locks a scratch texture from a descriptor using
- * either exact or approximate criteria. Unlocks texture in
- * the destructor.
+ * Gets and locks a scratch texture from a descriptor using either exact or approximate criteria.
+ * Unlocks texture in the destructor.
  */
 class GrAutoScratchTexture : ::GrNoncopyable {
 public:
