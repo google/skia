@@ -66,6 +66,7 @@
       }],
     ],
     'moc_src_dir': '../debugger/QT',
+    'moc_gen_dir': '<(SHARED_INTERMEDIATE_DIR)/debugger/QT',
   },
   'targets': [
     {
@@ -110,12 +111,12 @@
         '../debugger/QT/qrc_SkIcons.cpp',
 
         # Generated MOC files
-        '<(moc_src_dir)/moc_SkCanvasWidget.cpp',
-        '<(moc_src_dir)/moc_SkDebuggerGUI.cpp',
-        '<(moc_src_dir)/moc_SkInspectorWidget.cpp',
-        '<(moc_src_dir)/moc_SkSettingsWidget.cpp',
-        '<(moc_src_dir)/moc_SkRasterWidget.cpp',
-        '<(moc_src_dir)/moc_SkGLWidget.cpp',
+        '<(moc_gen_dir)/moc_SkCanvasWidget.cpp',
+        '<(moc_gen_dir)/moc_SkDebuggerGUI.cpp',
+        '<(moc_gen_dir)/moc_SkInspectorWidget.cpp',
+        '<(moc_gen_dir)/moc_SkSettingsWidget.cpp',
+        '<(moc_gen_dir)/moc_SkRasterWidget.cpp',
+        '<(moc_gen_dir)/moc_SkGLWidget.cpp',
       ],
       'dependencies': [
         'skia_base_libs.gyp:skia_base_libs',
@@ -144,8 +145,8 @@
         {
           'rule_name': 'generate_moc',
           'extension': 'h',
-          'outputs': [ '<(RULE_INPUT_DIRNAME)/moc_<(RULE_INPUT_ROOT).cpp' ],
-          'action': [ '<(qt_moc)', '<(RULE_INPUT_PATH)', '-o', '<(moc_src_dir)/moc_<(RULE_INPUT_ROOT).cpp' ],
+          'outputs': [ '<(moc_gen_dir)/moc_<(RULE_INPUT_ROOT).cpp' ],
+          'action': [ '<(qt_moc)', '<(RULE_INPUT_PATH)', '-o', '<(moc_gen_dir)/moc_<(RULE_INPUT_ROOT).cpp' ],
           'message': 'Generating <(RULE_INPUT_ROOT).cpp.',
         },
       ],
