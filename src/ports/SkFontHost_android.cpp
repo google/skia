@@ -1005,6 +1005,7 @@ static const int gFBScriptInfoCount = sizeof(gFBScriptInfo) / sizeof(FBScriptInf
 // ensure that if any value is added to the public enum it is also added here
 SK_COMPILE_ASSERT(gFBScriptInfoCount == kFallbackScriptNumber, FBScript_count_mismatch);
 
+// this function can't be called if the gFamilyHeadAndNameListMutex is already locked
 static bool typefaceContainsChar(SkTypeface* face, SkUnichar uni) {
     SkPaint paint;
     paint.setTypeface(face);
@@ -1015,11 +1016,16 @@ static bool typefaceContainsChar(SkTypeface* face, SkUnichar uni) {
     return glyphID != 0;
 }
 
+// this function can't be called if the gFamilyHeadAndNameListMutex is already locked
 static SkTypeface* findFallbackTypefaceForChar(SkUnichar uni) {
     SkASSERT(gFallbackFonts);
     const uint32_t* list = gFallbackFonts;
     for (int i = 0; list[i] != 0; i++) {
-        SkTypeface* face = find_from_uniqueID(list[i]);
+        SkTypeface* face;
+        {
+            SkAutoMutexAcquire  ac(gFamilyHeadAndNameListMutex);
+            face = find_from_uniqueID(list[i]);
+        }
         if (typefaceContainsChar(face, uni)) {
             return face;
         }
@@ -1027,6 +1033,7 @@ static SkTypeface* findFallbackTypefaceForChar(SkUnichar uni) {
     return 0;
 }
 
+// this function can't be called if the gFamilyHeadAndNameListMutex is already locked
 static SkFontID findFallbackFontIDForChar(SkUnichar uni, SkTypeface::Style style) {
     const SkTypeface* tf = findFallbackTypefaceForChar(uni);
     if (!tf) {
@@ -1107,13 +1114,16 @@ FallbackScripts SkGetFallbackScriptFromID(const char* id) {
 
 SkTypeface* SkCreateFallbackTypefaceForChar(SkUnichar uni,
                                             SkTypeface::Style style) {
-    SkAutoMutexAcquire  ac(gFamilyHeadAndNameListMutex);
-    load_system_fonts();
+    {
+        SkAutoMutexAcquire  ac(gFamilyHeadAndNameListMutex);
+        load_system_fonts();
+    }
 
     SkTypeface* tf = findFallbackTypefaceForChar(uni);
     if (!tf) {
         return NULL;
     }
+    SkAutoMutexAcquire  ac(gFamilyHeadAndNameListMutex);
     tf = find_typeface(tf, style);
     // we ref(), since the semantic is to return a new instance
     tf->ref();
@@ -1122,13 +1132,16 @@ SkTypeface* SkCreateFallbackTypefaceForChar(SkUnichar uni,
 
 bool SkGetFallbackFamilyNameForChar(SkUnichar uni, SkString* name) {
     SkASSERT(name);
-    SkAutoMutexAcquire  ac(gFamilyHeadAndNameListMutex);
-    load_system_fonts();
+    {
+        SkAutoMutexAcquire  ac(gFamilyHeadAndNameListMutex);
+        load_system_fonts();
+    }
 
     const SkTypeface* tf = findFallbackTypefaceForChar(uni);
     if (!tf) {
         return false;
     }
+    SkAutoMutexAcquire  ac(gFamilyHeadAndNameListMutex);
     name->set(find_family_name(tf));
     return true;
 }
