@@ -11,9 +11,9 @@
 #ifndef GrTextContext_DEFINED
 #define GrTextContext_DEFINED
 
+#include "GrContext.h"
 #include "GrGlyph.h"
 #include "GrPaint.h"
-#include "GrMatrix.h"
 
 struct GrGpuTextVertex;
 class GrContext;
@@ -50,14 +50,14 @@ private:
         kDefaultRequestedVerts   = kDefaultRequestedGlyphs * 4,
     };
 
-    GrGpuTextVertex* fVertices;
+    GrGpuTextVertex*        fVertices;
 
-    int32_t     fMaxVertices;
-    GrTexture*  fCurrTexture;
-    int         fCurrVertex;
+    int32_t                 fMaxVertices;
+    GrTexture*              fCurrTexture;
+    int                     fCurrVertex;
 
-    GrIRect     fClipRect;
-    GrMatrix    fOrigViewMatrix;    // restore previous viewmatrix
+    GrIRect                 fClipRect;
+    GrContext::AutoMatrix   fAutoMatrix;
 };
 
 #endif

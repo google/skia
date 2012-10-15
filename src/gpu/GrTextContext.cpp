@@ -89,38 +89,7 @@ GrTextContext::GrTextContext(GrContext* context, const GrPaint& paint) : fPaint(
 
     devConservativeBound.roundOut(&fClipRect);
 
-    // save the context's original matrix off and restore in destructor
-    // this must be done before getTextTarget.
-    fOrigViewMatrix = fContext->getMatrix();
-    fContext->setIdentityMatrix();
-
-    /*
-     We need to call preConcatMatrix with our viewmatrix's inverse, for each
-     texture and mask in the paint. However, computing the inverse can be
-     expensive, and its possible we may not have any textures or masks, so these
-     two loops are written such that we only compute the inverse (once) if we
-     need it. We do this on our copy of the paint rather than directly on the
-     draw target because we re-provide the paint to the context when we have
-     to flush our glyphs or draw a glyph as a path midstream.
-    */
-    bool invVMComputed = false;
-    GrMatrix invVM;
-    for (int t = 0; t < GrPaint::kMaxColorStages; ++t) {
-        if (fPaint.isColorStageEnabled(t)) {
-            if (invVMComputed || fOrigViewMatrix.invert(&invVM)) {
-                invVMComputed = true;
-                fPaint.colorSampler(t)->preConcatMatrix(invVM);
-            }
-        }
-    }
-    for (int m = 0; m < GrPaint::kMaxCoverageStages; ++m) {
-        if (fPaint.isCoverageStageEnabled(m)) {
-            if (invVMComputed || fOrigViewMatrix.invert(&invVM)) {
-                invVMComputed = true;
-                fPaint.coverageSampler(m)->preConcatMatrix(invVM);
-            }
-        }
-    }
+    fAutoMatrix.setIdentity(fContext, &fPaint);
 
     fDrawTarget = NULL;
 
@@ -137,7 +106,6 @@ GrTextContext::~GrTextContext() {
     if (fDrawTarget) {
         fDrawTarget->drawState()->disableStages();
     }
-    fContext->setMatrix(fOrigViewMatrix);
 }
 
 void GrTextContext::flush() {
