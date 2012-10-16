@@ -41,11 +41,15 @@ static void drawIntoBitmap(const SkBitmap& bm) {
 class BitmapRectBench : public SkBenchmark {
     SkBitmap    fBitmap;
     bool        fDoFilter;
+    uint8_t     fAlpha;
     SkString    fName;
     SkRect      fSrcR, fDstR;
     enum { N = SkBENCHLOOP(300) };
 public:
-    BitmapRectBench(void* param, bool doFilter) : INHERITED(param), fDoFilter(doFilter) {
+    BitmapRectBench(void* param, U8CPU alpha, bool doFilter) : INHERITED(param) {
+        fAlpha = SkToU8(alpha);
+        fDoFilter = doFilter;
+
         const int w = 128;
         const int h = 128;
 
@@ -61,7 +65,7 @@ public:
 
 protected:
     virtual const char* onGetName() {
-        fName.printf("bitmaprect_%sfilter", fDoFilter ? "" : "no");
+        fName.printf("bitmaprect_%02X_%sfilter", fAlpha, fDoFilter ? "" : "no");
         return fName.c_str();
     }
 
@@ -72,6 +76,7 @@ protected:
         SkPaint paint;
         this->setupPaint(&paint);
         paint.setFilterBitmap(fDoFilter);
+        paint.setAlpha(fAlpha);
 
         for (int i = 0; i < N; i++) {
             canvas->drawBitmapRectToRect(fBitmap, &fSrcR, fDstR, &paint);
@@ -82,8 +87,8 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-static SkBenchmark* Fact0(void* p) { return new BitmapRectBench(p, false); }
-static SkBenchmark* Fact1(void* p) { return new BitmapRectBench(p, true); }
+DEF_BENCH(return new BitmapRectBench(p, 0xFF, false))
+DEF_BENCH(return new BitmapRectBench(p, 0x80, false))
+DEF_BENCH(return new BitmapRectBench(p, 0xFF, true))
+DEF_BENCH(return new BitmapRectBench(p, 0x80, true))
 
-static BenchRegistry gReg0(Fact0);
-static BenchRegistry gReg1(Fact1);
