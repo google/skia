@@ -441,9 +441,11 @@ GrCustomStage* GrConical2Gradient::TestCreate(SkRandom* random,
                                                                           colors, stops, colorCount,
                                                                           tm));
     GrSamplerState sampler;
-    GrCustomStage* stage = shader->asNewCustomStage(context, &sampler);
-    GrAssert(NULL != stage);
-    return stage;
+    shader->asNewCustomStage(context, &sampler);
+    GrAssert(NULL != sampler.getCustomStage());
+    // const_cast and ref is a hack! Will remove when asNewCustomStage returns GrCustomStage*
+    sampler.getCustomStage()->ref();
+    return const_cast<GrCustomStage*>(sampler.getCustomStage());
 }
 
 
@@ -673,28 +675,40 @@ GrCustomStage::StageKey GrGLConical2Gradient::GenKey(const GrCustomStage& s, con
 
 /////////////////////////////////////////////////////////////////////
 
-GrCustomStage* SkTwoPointConicalGradient::asNewCustomStage(
-    GrContext* context, GrSamplerState* sampler) const {
+bool SkTwoPointConicalGradient::asNewCustomStage(GrContext* context,
+                                                 GrSamplerState* sampler) const {
     SkASSERT(NULL != context && NULL != sampler);
+
+    SkMatrix matrix;
     SkPoint diff = fCenter2 - fCenter1;
     SkScalar diffLen = diff.length();
     if (0 != diffLen) {
         SkScalar invDiffLen = SkScalarInvert(diffLen);
-        sampler->matrix()->setSinCos(-SkScalarMul(invDiffLen, diff.fY),
-                          SkScalarMul(invDiffLen, diff.fX));
+        matrix.setSinCos(-SkScalarMul(invDiffLen, diff.fY),
+                         SkScalarMul(invDiffLen, diff.fX));
     } else {
-        sampler->matrix()->reset();
+        matrix.reset();
     }
-    sampler->matrix()->preTranslate(-fCenter1.fX, -fCenter1.fY);
-    return SkNEW_ARGS(GrConical2Gradient, (context, *this, fTileMode));
+    matrix.preTranslate(-fCenter1.fX, -fCenter1.fY);
+
+    SkMatrix localM;
+    if (this->getLocalMatrix(&localM)) {
+        if (!localM.invert(&localM)) {
+            return false;
+        }
+        matrix.preConcat(localM);
+    }
+
+    sampler->setCustomStage(SkNEW_ARGS(GrConical2Gradient, (context, *this, fTileMode)), matrix)->unref();
+
+    return true;
 }
 
 #else
 
-GrCustomStage* SkTwoPointConicalGradient::asNewCustomStage(
-    GrContext* context, GrSamplerState* sampler) const {
+bool SkTwoPointConicalGradient::asNewCustomStage(GrContext*, GrSamplerState*) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
-    return NULL;
+    return false;
 }
 
 #endif

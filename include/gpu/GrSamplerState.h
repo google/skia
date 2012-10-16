@@ -19,14 +19,7 @@
 
 class GrSamplerState {
 public:
-    static const bool kBilerpDefault = false;
 
-    static const SkShader::TileMode kTileModeDefault = SkShader::kClamp_TileMode;
-
-    /**
-     * Default sampler state is set to clamp, use normal sampling mode, be
-     * unfiltered, and use identity matrix.
-     */
     GrSamplerState()
     : fCustomStage (NULL) {
         memset(this, 0, sizeof(GrSamplerState));
@@ -63,12 +56,6 @@ public:
     const GrMatrix& getMatrix() const { return fMatrix; }
 
     /**
-     * Access the sampler's matrix. See SampleMode for explanation of
-     * relationship between the matrix and sample mode.
-     */
-    GrMatrix* matrix() { return &fMatrix; }
-
-    /**
      *  Multiplies the current sampler matrix  a matrix
      *
      *  After this call M' = M*m where M is the old matrix, m is the parameter
@@ -80,10 +67,10 @@ public:
      */
     void preConcatMatrix(const GrMatrix& matrix) { fMatrix.preConcat(matrix); }
 
-    void reset(const GrMatrix& matrix) {
-        fMatrix = matrix;
-        GrSafeSetNull(fCustomStage);
-    }
+    /**
+     * Do not call this function. It will be removed soon.
+     */
+    void setMatrixDeprecated(const GrMatrix& matrix) { fMatrix = matrix; }
 
     void reset() {
         fMatrix.reset();
@@ -92,8 +79,16 @@ public:
 
     GrCustomStage* setCustomStage(GrCustomStage* stage) {
         GrSafeAssign(fCustomStage, stage);
+        fMatrix.reset();
         return stage;
     }
+
+    GrCustomStage* setCustomStage(GrCustomStage* stage, const GrMatrix& matrix) {
+        GrSafeAssign(fCustomStage, stage);
+        fMatrix = matrix;
+        return stage;
+    }
+
     const GrCustomStage* getCustomStage() const { return fCustomStage; }
 
 private:
