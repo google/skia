@@ -244,7 +244,7 @@ static void Clamp_S32_D32_nofilter_trans_shaderproc(const SkBitmapProcState& s,
     SkASSERT(s.fInvKy == 0);
     SkASSERT(count > 0 && colors != NULL);
     SkASSERT(!s.fDoFilter);
-
+    
     const int maxX = s.fBitmap->width() - 1;
     const int maxY = s.fBitmap->height() - 1;
     int ix = s.fFilterOneX + x;
@@ -256,13 +256,13 @@ static void Clamp_S32_D32_nofilter_trans_shaderproc(const SkBitmapProcState& s,
                    SkIntToScalar(y) + SK_ScalarHalf, &pt);
         int iy2 = SkClampMax(SkScalarFloorToInt(pt.fY), maxY);
         int ix2 = SkScalarFloorToInt(pt.fX);
-
+        
         SkASSERT(iy == iy2);
         SkASSERT(ix == ix2);
     }
 #endif
     const SkPMColor* row = s.fBitmap->getAddr32(0, iy);
-
+    
     // clamp to the left
     if (ix < 0) {
         int n = SkMin32(-ix, count);
@@ -290,6 +290,68 @@ static void Clamp_S32_D32_nofilter_trans_shaderproc(const SkBitmapProcState& s,
     sk_memset32(colors, row[maxX], count);
 }
 
+static inline int sk_int_mod(int x, int n) {
+    SkASSERT(n > 0);
+    if ((unsigned)x >= (unsigned)n) {
+        if (x < 0) {
+            x = n + ~(~x % n);
+        } else {
+            x = x % n;
+        }
+    }
+    return x;
+}
+
+static void Repeat_S32_D32_nofilter_trans_shaderproc(const SkBitmapProcState& s,
+                                                     int x, int y,
+                                                     SkPMColor* SK_RESTRICT colors,
+                                                     int count) {
+    SkASSERT(((s.fInvType & ~SkMatrix::kTranslate_Mask)) == 0);
+    SkASSERT(s.fInvKy == 0);
+    SkASSERT(count > 0 && colors != NULL);
+    SkASSERT(!s.fDoFilter);
+    
+    const int stopX = s.fBitmap->width();
+    const int stopY = s.fBitmap->height();
+    int ix = s.fFilterOneX + x;
+    int iy = sk_int_mod(s.fFilterOneY + y, stopY);
+#ifdef SK_DEBUG
+    {
+        SkPoint pt;
+        s.fInvProc(*s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
+                   SkIntToScalar(y) + SK_ScalarHalf, &pt);
+        int iy2 = sk_int_mod(SkScalarFloorToInt(pt.fY), stopY);
+        int ix2 = SkScalarFloorToInt(pt.fX);
+        
+        SkASSERT(iy == iy2);
+        SkASSERT(ix == ix2);
+    }
+#endif
+    const SkPMColor* row = s.fBitmap->getAddr32(0, iy);
+
+    ix = sk_int_mod(ix, stopX);
+    for (;;) {
+        int n = SkMin32(stopX - ix, count);
+        memcpy(colors, row + ix, n * sizeof(SkPMColor));
+        count -= n;
+        if (0 == count) {
+            return;
+        }
+        colors += n;
+        ix = 0;
+    }
+}
+
+void SkBitmapProcState::setupForTranslate() {
+    SkPoint pt;
+    fInvProc(*fInvMatrix, SK_ScalarHalf, SK_ScalarHalf, &pt);
+    // Since we know we're not filtered, we re-purpose these fields allow
+    // us to go from device -> src coordinates w/ just an integer add,
+    // rather than running through the inverse-matrix
+    fFilterOneX = SkScalarFloorToInt(pt.fX);
+    fFilterOneY = SkScalarFloorToInt(pt.fY);
+}
+
 SkBitmapProcState::ShaderProc32 SkBitmapProcState::chooseShaderProc32() {
     if (fAlphaScale < 256) {
         return NULL;
@@ -304,15 +366,16 @@ SkBitmapProcState::ShaderProc32 SkBitmapProcState::chooseShaderProc32() {
         return NULL;
     }
 
-    if (SkShader::kClamp_TileMode == fTileModeX && SkShader::kClamp_TileMode == fTileModeY) {
-        SkPoint pt;
-        fInvProc(*fInvMatrix, SK_ScalarHalf, SK_ScalarHalf, &pt);
-        // Since we know we're not filtered, we re-purpose these fields allow
-        // us to go from device -> src coordinates w/ just an integer add,
-        // rather than running through the inverse-matrix
-        fFilterOneX = SkScalarFloorToInt(pt.fX);
-        fFilterOneY = SkScalarFloorToInt(pt.fY);
+    SkShader::TileMode tx = (SkShader::TileMode)fTileModeX;
+    SkShader::TileMode ty = (SkShader::TileMode)fTileModeY;
+
+    if (SkShader::kClamp_TileMode == tx && SkShader::kClamp_TileMode == ty) {
+        this->setupForTranslate();
         return Clamp_S32_D32_nofilter_trans_shaderproc;
+    }
+    if (SkShader::kRepeat_TileMode == tx && SkShader::kRepeat_TileMode == ty) {
+        this->setupForTranslate();
+        return Repeat_S32_D32_nofilter_trans_shaderproc;
     }
     return NULL;
 }
