@@ -13,6 +13,26 @@
 #include "SkTDict.h"
 #include "SkTRegistry.h"
 
+
+#define SK_MACRO_CONCAT(X, Y)       SK_MACRO_CONCAT_IMPL(X, Y)
+#define SK_MACRO_CONCAT_IMPL(X, Y)  X ## Y
+
+#define SK_MACRO_APPEND_LINE(name)  SK_MACRO_CONCAT(name, __LINE__)
+
+#define DEF_BENCH(code) \
+static SkBenchmark* SK_MACRO_APPEND_LINE(F_)(void* p) { code; } \
+static BenchRegistry SK_MACRO_APPEND_LINE(R_)(SK_MACRO_APPEND_LINE(F_));
+
+/*
+ *  With the above macros, you can register benches as follows (at the bottom
+ *  of your .cpp)
+ *
+ *  DEF_BENCH(new MyBenchmark(p, ...))
+ *  DEF_BENCH(new MyBenchmark(p, ...))
+ *  DEF_BENCH(new MyBenchmark(p, ...))
+ */
+
+
 #ifdef SK_DEBUG
     #define SkBENCHLOOP(n) 1
 #else
