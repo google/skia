@@ -88,7 +88,7 @@ class RepeatTileBench : public SkBenchmark {
     SkString    fName;
     enum { N = SkBENCHLOOP(20) };
 public:
-    RepeatTileBench(void* param, SkBitmap::Config c) : INHERITED(param) {
+    RepeatTileBench(void* param, SkBitmap::Config c, bool isOpaque = false) : INHERITED(param) {
         const int w = 50;
         const int h = 50;
         SkBitmap bm;
@@ -99,7 +99,8 @@ public:
             bm.setConfig(c, w, h);
         }
         bm.allocPixels();
-        bm.eraseColor(0);
+        bm.eraseColor(isOpaque ? SK_ColorWHITE : 0);
+        bm.setIsOpaque(isOpaque);
 
         drawIntoBitmap(bm);
 
@@ -113,7 +114,7 @@ public:
                                                    SkShader::kRepeat_TileMode,
                                                    SkShader::kRepeat_TileMode);
         fPaint.setShader(s)->unref();
-        fName.printf("repeatTile_%s", gConfigName[bm.config()]);
+        fName.printf("repeatTile_%s_%c", gConfigName[bm.config()], isOpaque ? 'X' : 'A');
     }
 
 protected:
@@ -134,12 +135,9 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-static SkBenchmark* Fact0(void* p) { return new RepeatTileBench(p, SkBitmap::kARGB_8888_Config); }
-static SkBenchmark* Fact1(void* p) { return new RepeatTileBench(p, SkBitmap::kRGB_565_Config); }
-static SkBenchmark* Fact2(void* p) { return new RepeatTileBench(p, SkBitmap::kARGB_4444_Config); }
-static SkBenchmark* Fact3(void* p) { return new RepeatTileBench(p, SkBitmap::kIndex8_Config); }
+DEF_BENCH(return new RepeatTileBench(p, SkBitmap::kARGB_8888_Config, true))
+DEF_BENCH(return new RepeatTileBench(p, SkBitmap::kARGB_8888_Config, false))
+DEF_BENCH(return new RepeatTileBench(p, SkBitmap::kRGB_565_Config))
+DEF_BENCH(return new RepeatTileBench(p, SkBitmap::kARGB_4444_Config))
+DEF_BENCH(return new RepeatTileBench(p, SkBitmap::kIndex8_Config))
 
-static BenchRegistry gReg0(Fact0);
-static BenchRegistry gReg1(Fact1);
-static BenchRegistry gReg2(Fact2);
-static BenchRegistry gReg3(Fact3);
