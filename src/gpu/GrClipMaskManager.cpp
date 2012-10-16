@@ -41,7 +41,9 @@ void setup_drawstate_aaclip(GrGpu* gpu,
                      SkIntToScalar(-devBound.fTop));
     mat.preConcat(drawState->getViewMatrix());
 
-    drawState->createTextureEffect(maskStage, result, mat);
+    drawState->sampler(maskStage)->reset(mat);
+
+    drawState->createTextureEffect(maskStage, result);
 }
 
 bool path_needs_SW_renderer(GrContext* context,
@@ -493,7 +495,8 @@ void GrClipMaskManager::drawTexture(GrTexture* target,
     GrMatrix sampleM;
     sampleM.setIDiv(texture->width(), texture->height());
 
-    drawState->createTextureEffect(0, texture, sampleM);
+    drawState->sampler(0)->reset(sampleM);
+    drawState->createTextureEffect(0, texture);
 
     GrRect rect = GrRect::MakeWH(SkIntToScalar(target->width()),
                                  SkIntToScalar(target->height()));

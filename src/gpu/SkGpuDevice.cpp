@@ -548,14 +548,25 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
     }
 
     GrSamplerState* sampler = grPaint->colorSampler(kShaderTextureIdx);
-    if (shader->asNewCustomStage(dev->context(), sampler)) {
+    GrCustomStage* stage = shader->asNewCustomStage(dev->context(), sampler);
+
+    if (NULL != stage) {
+        sampler->setCustomStage(stage)->unref();
+        SkMatrix localM;
+        if (shader->getLocalMatrix(&localM)) {
+            SkMatrix inverse;
+            if (localM.invert(&inverse)) {
+                sampler->matrix()->preConcat(inverse);
+            }
+        }
         return true;
     }
 
     SkBitmap bitmap;
-    SkMatrix matrix;
+    SkMatrix* matrix = sampler->matrix();
     SkShader::TileMode tileModes[2];
-    SkShader::BitmapType bmptype = shader->asABitmap(&bitmap, &matrix, tileModes);
+    SkShader::BitmapType bmptype = shader->asABitmap(&bitmap, matrix,
+                                                     tileModes);
 
     if (SkShader::kNone_BitmapType == bmptype) {
         SkShader::GradientInfo info;
@@ -589,21 +600,23 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
         return false;
     }
 
-    // since our texture coords will be in local space, we whack the texture
+    sampler->reset();
+    sampler->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect, (texture, params)))->unref();
+
+    // since our texture coords will be in local space, we wack the texture
     // matrix to map them back into 0...1 before we load it
     SkMatrix localM;
     if (shader->getLocalMatrix(&localM)) {
         SkMatrix inverse;
         if (localM.invert(&inverse)) {
-            matrix.preConcat(inverse);
+            matrix->preConcat(inverse);
         }
     }
     if (SkShader::kDefault_BitmapType == bmptype) {
         GrScalar sx = SkFloatToScalar(1.f / bitmap.width());
         GrScalar sy = SkFloatToScalar(1.f / bitmap.height());
-        matrix.postScale(sx, sy);
+        matrix->postScale(sx, sy);
     }
-    sampler->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect, (texture, params)), matrix)->unref();
 
     return true;
 }
@@ -863,11 +876,13 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& devPath,
         if (!isNormalBlur) {
             context->setIdentityMatrix();
             GrPaint paint;
-            GrMatrix matrix;
-            matrix.setIDiv(pathTexture->width(), pathTexture->height());
+            paint.reset();
+            paint.colorSampler(0)->matrix()->setIDiv(pathTexture->width(),
+                                                     pathTexture->height());
             // Blend pathTexture over blurTexture.
             context->setRenderTarget(blurTexture->asRenderTarget());
-            paint.colorSampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect, (pathTexture)), matrix)->unref();
+            paint.colorSampler(0)->setCustomStage(SkNEW_ARGS
+                (GrSingleTextureEffect, (pathTexture)))->unref();
             if (SkMaskFilter::kInner_BlurType == blurType) {
                 // inner:  dst = dst * src
                 paint.setBlendFunc(kDC_GrBlendCoeff, kZero_GrBlendCoeff);
@@ -892,13 +907,13 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& devPath,
     static const int MASK_IDX = GrPaint::kMaxCoverageStages - 1;
     // we assume the last mask index is available for use
     GrAssert(!grp->isCoverageStageEnabled(MASK_IDX));
-
-    GrMatrix matrix;
-    matrix.setTranslate(-finalRect.fLeft, -finalRect.fTop);
-    matrix.postIDiv(blurTexture->width(), blurTexture->height());
-
     grp->coverageSampler(MASK_IDX)->reset();
-    grp->coverageSampler(MASK_IDX)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect, (blurTexture)), matrix)->unref();
+    grp->coverageSampler(MASK_IDX)->setCustomStage(
+        SkNEW_ARGS(GrSingleTextureEffect, (blurTexture)))->unref();
+    grp->coverageSampler(MASK_IDX)->matrix()->setTranslate(-finalRect.fLeft,
+                                                       -finalRect.fTop);
+    grp->coverageSampler(MASK_IDX)->matrix()->postIDiv(blurTexture->width(),
+                                                   blurTexture->height());
     context->drawRect(*grp, finalRect);
     return true;
 }
@@ -949,18 +964,19 @@ bool drawWithMaskFilter(GrContext* context, const SkPath& devPath,
     static const int MASK_IDX = GrPaint::kMaxCoverageStages - 1;
     // we assume the last mask index is available for use
     GrAssert(!grp->isCoverageStageEnabled(MASK_IDX));
-
-    GrMatrix m;
-    m.setTranslate(-dstM.fBounds.fLeft*SK_Scalar1, -dstM.fBounds.fTop*SK_Scalar1);
-    m.postIDiv(texture->width(), texture->height());
-
-    grp->coverageSampler(MASK_IDX)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect, (texture)), m)->unref();
+    grp->coverageSampler(MASK_IDX)->reset();
+    grp->coverageSampler(MASK_IDX)->setCustomStage(
+        SkNEW_ARGS(GrSingleTextureEffect, (texture)))->unref();
     GrRect d;
     d.setLTRB(GrIntToScalar(dstM.fBounds.fLeft),
               GrIntToScalar(dstM.fBounds.fTop),
               GrIntToScalar(dstM.fBounds.fRight),
               GrIntToScalar(dstM.fBounds.fBottom));
 
+    GrMatrix* m = grp->coverageSampler(MASK_IDX)->matrix();
+    m->setTranslate(-dstM.fBounds.fLeft*SK_Scalar1,
+                         -dstM.fBounds.fTop*SK_Scalar1);
+    m->postIDiv(texture->width(), texture->height());
     context->drawRect(*grp, d);
     return true;
 }
@@ -1369,6 +1385,8 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
 
     GrSamplerState* sampler = grPaint->colorSampler(kBitmapTextureIdx);
 
+    sampler->matrix()->reset();
+
     GrTexture* texture;
     SkAutoCachedTexture act(this, bitmap, &params, &texture);
     if (NULL == texture) {
@@ -1451,7 +1469,8 @@ void apply_custom_stage(GrContext* context,
     GrMatrix sampleM;
     sampleM.setIDiv(srcTexture->width(), srcTexture->height());
     GrPaint paint;
-    paint.colorSampler(0)->setCustomStage(stage, sampleM);
+    paint.colorSampler(0)->reset(sampleM);
+    paint.colorSampler(0)->setCustomStage(stage);
     context->drawRect(paint, rect);
 }
 

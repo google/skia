@@ -23,7 +23,8 @@ public:
                                  SkMatrix* matrix,
                                  TileMode* xy) const SK_OVERRIDE;
     virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE;
-    virtual bool asNewCustomStage(GrContext* context, GrSamplerState* sampler) const SK_OVERRIDE;
+    virtual GrCustomStage* asNewCustomStage(GrContext* context,
+        GrSamplerState* sampler) const SK_OVERRIDE;
 
     virtual void shadeSpan(int x, int y, SkPMColor* dstCParam,
                            int count) SK_OVERRIDE;
