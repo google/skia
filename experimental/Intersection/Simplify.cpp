@@ -49,7 +49,7 @@ const bool gRunTestsInOneThread = false;
 
 const bool gRunTestsInOneThread = true;
 
-#define DEBUG_ACTIVE_SPANS 0
+#define DEBUG_ACTIVE_SPANS 1
 #define DEBUG_ADD_INTERSECTING_TS 1
 #define DEBUG_ADD_T_PAIR 1
 #define DEBUG_ANGLE 1
@@ -481,6 +481,8 @@ struct Span {
     int fWindValue; // 0 == canceled; 1 == normal; >1 == coincident
     int fWindValueOpp; // opposite value, if any (for binary ops with coincidence)
     bool fDone; // if set, this span to next higher T has been processed
+    bool fUnsortableStart; // set when start is part of an unsortable pair
+    bool fUnsortableEnd; // set when end is part of an unsortable pair
 };
 
 // sorting angles
@@ -527,6 +529,14 @@ public:
                 && !approximately_zero_squared(cmp)) {
             return cmp < 0;
         }
+        // at this point, the initial tangent line is coincident
+        if (fSide * rh.fSide <= 0 && (!approximately_zero(fSide) || !approximately_zero(rh.fSide))) {
+            // FIXME: running demo will trigger this assertion
+            // (don't know if commenting out will trigger further assertion or not)
+            // commenting it out allows demo to run in release, though
+     //       SkASSERT(fSide != rh.fSide);
+            return fSide < rh.fSide;
+        }
         // see if either curve can be lengthened and try the tangent compare again
         if (cmp && (*fSpans)[fEnd].fOther != rh.fSegment // tangents not absolutely identical
                 && (*rh.fSpans)[rh.fEnd].fOther != fSegment) { // and not intersecting
@@ -541,14 +551,6 @@ public:
             if (longer.reverseLengthen() | rhLonger.reverseLengthen()) {
                 return longer < rhLonger;
             }
-        }
-        // at this point, the initial tangent line is coincident
-        if (fSide * rh.fSide <= 0) {
-            // FIXME: running demo will trigger this assertion
-            // (don't know if commenting out will trigger further assertion or not)
-            // commenting it out allows demo to run in release, though
-     //       SkASSERT(fSide != rh.fSide);
-            return fSide < rh.fSide;
         }
         SkASSERT(fVerb == SkPath::kQuad_Verb); // worry about cubics later
         SkASSERT(rh.fVerb == SkPath::kQuad_Verb);
@@ -573,8 +575,14 @@ public:
             roots = QuadRayIntersect(fPts, ray, i);
             rroots = QuadRayIntersect(rh.fPts, ray, ri);
         } while ((roots == 0 || rroots == 0) && (flip ^= true));
-        SkASSERT(roots > 0);
-        SkASSERT(rroots > 0);
+        if (roots == 0 || rroots == 0) {
+            // FIXME: we don't have a solution in this case. The interim solution
+            // is to mark the edges as unsortable, exclude them from this and
+            // future computations, and allow the returned path to be fragmented
+            fUnsortable = true;
+            rh.fUnsortable = true;
+            return this < &rh; // even with no solution, return a stable sort
+        }
         _Point loc;
         double best = SK_ScalarInfinity;
         double dx, dy, dist;
@@ -649,6 +657,7 @@ public:
         fVerb = verb;
         fSpans = &spans;
         fReversed = false;
+        fUnsortable = false;
         setSpans();
     }
 
@@ -687,17 +696,21 @@ public:
         return SkSign32(fStart - fEnd);
     }
 
+    const SkTDArray<Span>* spans() const {
+        return fSpans;
+    }
+
     int start() const {
         return fStart;
+    }
+    
+    bool unsortable() const {
+        return fUnsortable;
     }
 
 #if DEBUG_ANGLE
     const SkPoint* pts() const {
         return fPts;
-    }
-
-    const SkTDArray<Span>* spans() const {
-        return fSpans;
     }
 
     SkPath::Verb verb() const {
@@ -720,17 +733,8 @@ private:
     int fStart;
     int fEnd;
     bool fReversed;
+    mutable bool fUnsortable; // this alone is editable by the less than operator
 };
-
-static void sortAngles(SkTDArray<Angle>& angles, SkTDArray<Angle*>& angleList) {
-    int angleCount = angles.count();
-    int angleIndex;
-    angleList.setReserve(angleCount);
-    for (angleIndex = 0; angleIndex < angleCount; ++angleIndex) {
-        *angleList.append() = &angles[angleIndex];
-    }
-    QSort<Angle>(angleList.begin(), angleList.end() - 1);
-}
 
 // Bounds, unlike Rect, does not consider a line to be empty.
 struct Bounds : public SkRect {
@@ -1131,6 +1135,8 @@ public:
         if ((span->fDone = newT == 1)) {
             ++fDoneSpans;
         }
+        span->fUnsortableStart = false;
+        span->fUnsortableEnd = false;
         return insertedAt;
     }
 
@@ -1486,10 +1492,13 @@ public:
         // OPTIMIZATION: check all angles to see if any have computed wind sum
         // before sorting (early exit if none)
         SkTDArray<Angle*> sorted;
-        sortAngles(angles, sorted);
+        bool sortable = SortAngles(angles, sorted);
 #if DEBUG_SORT
         sorted[0]->segment()->debugShowSort(__FUNCTION__, sorted, 0, 0);
 #endif
+        if (!sortable) {
+            return SK_MinS32;
+        }
         int angleCount = angles.count();
         const Angle* angle;
         const Segment* base;
@@ -1651,7 +1660,8 @@ public:
     }
 
     Segment* findNextOp(SkTDArray<Span*>& chase, bool active,
-            int& nextStart, int& nextEnd, int& winding, int& spanWinding, ShapeOp op,
+            int& nextStart, int& nextEnd, int& winding, int& spanWinding, 
+            bool& unsortable, ShapeOp op,
             const int aXorMask, const int bXorMask) {
         const int startIndex = nextStart;
         const int endIndex = nextEnd;
@@ -1706,13 +1716,17 @@ public:
         addTwoAngles(startIndex, end, angles);
         buildAngles(end, angles);
         SkTDArray<Angle*> sorted;
-        sortAngles(angles, sorted);
+        bool sortable = SortAngles(angles, sorted);
         int angleCount = angles.count();
         int firstIndex = findStartingEdge(sorted, startIndex, end);
         SkASSERT(firstIndex >= 0);
     #if DEBUG_SORT
         debugShowSort(__FUNCTION__, sorted, firstIndex, winding);
     #endif
+        if (!sortable) {
+            unsortable = true;
+            return NULL;
+        }
         SkASSERT(sorted[firstIndex]->segment() == this);
     #if DEBUG_WINDING
         SkDebugf("%s [%d] sign=%d\n", __FUNCTION__, firstIndex, sorted[firstIndex]->sign());
@@ -1883,7 +1897,8 @@ public:
     // it is guaranteed to have an end which describes a non-zero length (?)
     // winding -1 means ccw, 1 means cw
     Segment* findNextWinding(SkTDArray<Span*>& chase, bool active,
-            int& nextStart, int& nextEnd, int& winding, int& spanWinding) {
+            int& nextStart, int& nextEnd, int& winding, int& spanWinding,
+            bool& unsortable) {
         const int startIndex = nextStart;
         const int endIndex = nextEnd;
         int outerWinding = winding;
@@ -1937,13 +1952,17 @@ public:
         addTwoAngles(startIndex, end, angles);
         buildAngles(end, angles);
         SkTDArray<Angle*> sorted;
-        sortAngles(angles, sorted);
+        bool sortable = SortAngles(angles, sorted);
         int angleCount = angles.count();
         int firstIndex = findStartingEdge(sorted, startIndex, end);
         SkASSERT(firstIndex >= 0);
     #if DEBUG_SORT
         debugShowSort(__FUNCTION__, sorted, firstIndex, winding);
     #endif
+        if (!sortable) {
+            unsortable = true;
+            return NULL;
+        }
         SkASSERT(sorted[firstIndex]->segment() == this);
     #if DEBUG_WINDING
         SkDebugf("%s [%d] sign=%d\n", __FUNCTION__, firstIndex, sorted[firstIndex]->sign());
@@ -2068,7 +2087,7 @@ public:
         return nextSegment;
     }
 
-    Segment* findNextXor(int& nextStart, int& nextEnd) {
+    Segment* findNextXor(int& nextStart, int& nextEnd, bool& unsortable) {
         const int startIndex = nextStart;
         const int endIndex = nextEnd;
         SkASSERT(startIndex != endIndex);
@@ -2126,13 +2145,17 @@ public:
         addTwoAngles(startIndex, end, angles);
         buildAngles(end, angles);
         SkTDArray<Angle*> sorted;
-        sortAngles(angles, sorted);
+        bool sortable = SortAngles(angles, sorted);
         int angleCount = angles.count();
         int firstIndex = findStartingEdge(sorted, startIndex, end);
         SkASSERT(firstIndex >= 0);
     #if DEBUG_SORT
         debugShowSort(__FUNCTION__, sorted, firstIndex, 0);
     #endif
+        if (!sortable) {
+            unsortable = true;
+            return NULL;
+        }
         SkASSERT(sorted[firstIndex]->segment() == this);
         int nextIndex = firstIndex + 1;
         int lastIndex = firstIndex != 0 ? firstIndex : angleCount;
@@ -2302,6 +2325,12 @@ public:
         }
     }
 
+ //   start here;
+    // either: 
+    // a) mark spans with either end unsortable as done, or
+    // b) rewrite findTop / findTopSegment / findTopContour to iterate further
+    //    when encountering an unsortable span
+
     // OPTIMIZATION : for a pair of lines, can we compute points at T (cached)
     // and use more concise logic like the old edge walker code?
     // FIXME: this needs to deal with coincident edges
@@ -2316,9 +2345,10 @@ public:
         int count = fTs.count();
         // see if either end is not done since we want smaller Y of the pair
         bool lastDone = true;
+        bool lastUnsortableEnd;
         for (int index = 0; index < count; ++index) {
             const Span& span = fTs[index];
-            if (!span.fDone || !lastDone) {
+            if ((!span.fDone && !span.fUnsortableStart) || (!lastDone && !lastUnsortableEnd)) {
                 const SkPoint& intercept = xyAtT(&span);
                 if (topPt.fY > intercept.fY || (topPt.fY == intercept.fY
                         && topPt.fX > intercept.fX)) {
@@ -2329,6 +2359,7 @@ public:
                 }
             }
             lastDone = span.fDone;
+            lastUnsortableEnd = span.fUnsortableEnd;
         }
         // sort the edges to find the leftmost
         int step = 1;
@@ -2345,7 +2376,7 @@ public:
         addTwoAngles(end, firstT, angles);
         buildAngles(firstT, angles);
         SkTDArray<Angle*> sorted;
-        sortAngles(angles, sorted);
+        (void) SortAngles(angles, sorted);
     #if DEBUG_SORT
         sorted[0]->segment()->debugShowSort(__FUNCTION__, sorted, 0, 0);
     #endif
@@ -2354,6 +2385,11 @@ public:
         Segment* leftSegment;
         do {
             const Angle* angle = sorted[++firstT];
+            if (angle->unsortable()) {
+                // FIXME: if all angles are unsortable, find next topmost
+                SkASSERT(firstT < angles.count() - 1);
+                continue;
+            }
             leftSegment = angle->segment();
             tIndex = angle->end();
             endIndex = angle->start();
@@ -2687,6 +2723,33 @@ public:
         fTs.reset();
     }
 
+    static bool SortAngles(SkTDArray<Angle>& angles, SkTDArray<Angle*>& angleList) {
+        int angleCount = angles.count();
+        int angleIndex;
+        angleList.setReserve(angleCount);
+        for (angleIndex = 0; angleIndex < angleCount; ++angleIndex) {
+            *angleList.append() = &angles[angleIndex];
+        }
+        QSort<Angle>(angleList.begin(), angleList.end() - 1);
+        bool result = true;
+        for (angleIndex = 0; angleIndex < angleCount; ++angleIndex) {
+            Angle& angle = angles[angleIndex];
+            if (angle.unsortable()) {
+                // so that it is available for early exclusion in findTop and others
+                const SkTDArray<Span>* spans = angle.spans();
+                Span* span = const_cast<Span*>(&(*spans)[angle.start()]);
+                if (angle.start() < angle.end()) {
+                    span->fUnsortableStart = true;
+                } else {
+                    --span;
+                    span->fUnsortableEnd = true;
+                }
+                result = false;
+            }
+        }
+        return result;
+    }
+
     // OPTIMIZATION: mark as debugging only if used solely by tests
     const Span& span(int tIndex) const {
         return fTs[tIndex];
@@ -2968,9 +3031,10 @@ public:
                 lastSum = windSum;
                 windSum -= segment.spanSign(&angle);
             }
-            SkDebugf("%s [%d] id=%d %s start=%d (%1.9g,%,1.9g) end=%d (%1.9g,%,1.9g)"
+            SkDebugf("%s [%d] %s id=%d %s start=%d (%1.9g,%,1.9g) end=%d (%1.9g,%,1.9g)"
                     " sign=%d windValue=%d winding: %d->%d (max=%d) done=%d\n",
-                    __FUNCTION__, index, segment.fID, kLVerbStr[segment.fVerb],
+                    __FUNCTION__, index, angle.unsortable() ? "*** UNSORTABLE ***" : "",
+                    segment.fID, kLVerbStr[segment.fVerb],
                     start, segment.xAtT(&sSpan),
                     segment.yAtT(&sSpan), end, segment.xAtT(&eSpan),
                     segment.yAtT(&eSpan), angle.sign(), mSpan.fWindValue,
@@ -4075,7 +4139,7 @@ static int innerContourCheck(SkTDArray<Contour*>& contourList,
         // returns the first counterclockwise hour before 6 o'clock,
         // or if the base point is rightmost, returns the first clockwise
         // hour after 6 o'clock
-        sortAngles(angles, sorted);
+        (void) Segment::SortAngles(angles, sorted);
 #if DEBUG_SORT
         sorted[0]->segment()->debugShowSort(__FUNCTION__, sorted, 0, 0);
 #endif
@@ -4089,6 +4153,9 @@ static int innerContourCheck(SkTDArray<Contour*>& contourList,
         bool baseMatches = test->yAtT(tIndex) == basePt.fY;
         for (int index = 0; index < count; ++index) {
             angle = sorted[index];
+            if (angle->unsortable()) {
+                continue;
+            }
             if (baseMatches && angle->isHorizontal()) {
                 continue;
             }
@@ -4235,10 +4302,14 @@ static Segment* findChase(SkTDArray<Span*>& chase, int& tIndex, int& endIndex,
             continue;
         }
         SkTDArray<Angle*> sorted;
-        sortAngles(angles, sorted);
+        bool sortable = Segment::SortAngles(angles, sorted);
 #if DEBUG_SORT
         sorted[0]->segment()->debugShowSort(__FUNCTION__, sorted, 0, 0);
 #endif
+        if (!sortable) {
+            chase.pop(&span);
+            continue;
+        }
         // find first angle, initialize winding to computed fWindSum
         int firstIndex = -1;
         const Angle* angle;
@@ -4331,8 +4402,10 @@ static bool windingIsActive(int winding, int spanWinding) {
 // is an option, choose first edge that continues the inside.
     // since we start with leftmost top edge, we'll traverse through a
     // smaller angle counterclockwise to get to the next edge.
-static void bridgeWinding(SkTDArray<Contour*>& contourList, SkPath& simple) {
+// returns true if all edges were processed
+static bool bridgeWinding(SkTDArray<Contour*>& contourList, SkPath& simple) {
     bool firstContour = true;
+    bool unsortable = false;
     do {
         Segment* topStart = findTopContour(contourList);
         if (!topStart) {
@@ -4392,11 +4465,11 @@ static void bridgeWinding(SkTDArray<Contour*>& contourList, SkPath& simple) {
         #endif
             const SkPoint* firstPt = NULL;
             do {
-                SkASSERT(!current->done());
+                SkASSERT(unsortable || !current->done());
                 int nextStart = index;
                 int nextEnd = endIndex;
                 Segment* next = current->findNextWinding(chaseArray, active,
-                        nextStart, nextEnd, winding, spanWinding);
+                        nextStart, nextEnd, winding, spanWinding, unsortable);
                 if (!next) {
                     if (active && firstPt && current->verb() != SkPath::kLine_Verb && *firstPt != lastPt) {
                         lastPt = current->addCurveTo(index, endIndex, simple, true);
@@ -4443,19 +4516,22 @@ static void bridgeWinding(SkTDArray<Contour*>& contourList, SkPath& simple) {
             active = windingIsActive(winding, spanWinding);
         } while (true);
     } while (true);
+    return !unsortable;
 }
 
-static void bridgeXor(SkTDArray<Contour*>& contourList, SkPath& simple) {
+// returns true if all edges were processed
+static bool bridgeXor(SkTDArray<Contour*>& contourList, SkPath& simple) {
     Segment* current;
     int start, end;
+    bool unsortable = false;
     while ((current = findUndone(contourList, start, end))) {
         const SkPoint* firstPt = NULL;
         SkPoint lastPt;
         do {
-            SkASSERT(!current->done());
+            SkASSERT(unsortable || !current->done());
             int nextStart = start;
             int nextEnd = end;
-            Segment* next = current->findNextXor(nextStart, nextEnd);
+            Segment* next = current->findNextXor(nextStart, nextEnd, unsortable);
             if (!next) {
                 if (firstPt && current->verb() != SkPath::kLine_Verb && *firstPt != lastPt) {
                     lastPt = current->addCurveTo(start, end, simple, true);
@@ -4481,6 +4557,7 @@ static void bridgeXor(SkTDArray<Contour*>& contourList, SkPath& simple) {
         debugShowActiveSpans(contourList);
     #endif
     }
+    return !unsortable;
 }
 
 static void fixOtherTIndex(SkTDArray<Contour*>& contourList) {
@@ -4501,6 +4578,11 @@ static void makeContourList(SkTArray<Contour>& contours,
         *list.append() = &contours[index];
     }
     QSort<Contour>(list.begin(), list.end() - 1);
+}
+
+static void assemble(SkPath& simple) {
+    // TODO: find the non-closed paths and connect them together
+    SkASSERT(0);
 }
 
 void simplifyx(const SkPath& path, SkPath& simple) {
@@ -4533,10 +4615,11 @@ void simplifyx(const SkPath& path, SkPath& simple) {
     coincidenceCheck(contourList);
     fixOtherTIndex(contourList);
     // construct closed contours
-    if (builder.xorMask() == kWinding_Mask) {
-        bridgeWinding(contourList, simple);
-    } else {
-        bridgeXor(contourList, simple);
+    if (builder.xorMask() == kWinding_Mask
+                ? !bridgeWinding(contourList, simple)
+                : !bridgeXor(contourList, simple)) 
+    { // if some edges could not be resolved, assemble remaining fragments
+        assemble(simple);
     }
 }
 

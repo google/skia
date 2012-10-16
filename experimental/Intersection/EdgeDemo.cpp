@@ -220,7 +220,7 @@ static void tryRoncoOnce(const SkPath& path, const SkRect& target, bool show) {
     if (!closed) {
         tiny.close();
     }
-    if (false && show) {
+    if (show) {
         showPath(tiny, NULL);
         SkDebugf("simplified:\n");
     }
@@ -229,13 +229,13 @@ static void tryRoncoOnce(const SkPath& path, const SkRect& target, bool show) {
 
 static void tryRonco(const SkPath& path) {
     const SkRect& overall = path.getBounds();
-    const int divs = 4;
+    const int divs = 64;
     SkScalar cellWidth = overall.width() / divs * 2;
     SkScalar cellHeight = overall.height() / divs * 2;
     SkRect target;
     if (true) {
-        int xDiv = 1;
-        int yDiv = 2;
+        int xDiv = 28;
+        int yDiv = 17;
         target.setXYWH(overall.fLeft + (overall.width() - cellWidth) * xDiv / divs,
                 overall.fTop + (overall.height() - cellHeight) * yDiv / divs,
                  cellWidth, cellHeight);
@@ -280,13 +280,14 @@ static bool drawLetters(SkCanvas* canvas, int step, bool useOld)
 #if 0
     for (int mask = 0; mask < 1 << testStrLen; ++mask) {
         char maskStr[testStrLen];
-        mask = 12;
+        mask = 15;
         for (int letter = 0; letter < testStrLen; ++letter) {
             maskStr[letter] = mask & (1 << letter) ? testStr[letter] : ' ';
         }
         paint.getPosTextPath(maskStr, testStrLen, textPos, &path);
    //     showPath(path, NULL);
    //     SkDebugf("%d simplified:\n", mask);
+        tryRonco(path);
         testSimplifyx(path);
     }
 #endif

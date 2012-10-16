@@ -35,8 +35,10 @@ static const SimplifyFindNextTest::Segment* testCommon(
     int nextStart = startIndex;
     int nextEnd = endIndex;
     SkTDArray<SimplifyFindNextTest::Span*> chaseArray;
+    bool unsortable = false;
     SimplifyFindNextTest::Segment* next = segment.findNextWinding(chaseArray,
-            true, nextStart, nextEnd, contourWinding, spanWinding);
+            true, nextStart, nextEnd, contourWinding, spanWinding,
+            unsortable);
     pts[1] = next->xyAtT(&next->span(nextStart));
     SkASSERT(pts[0] == pts[1]);
     return next;

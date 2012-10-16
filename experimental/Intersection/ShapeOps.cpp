@@ -65,6 +65,7 @@ static void bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
         int oppWinding = current->oppSign(index, endIndex);
         bool active = windingIsActive(winding, spanWinding, oppWinding, op);
         SkTDArray<Span*> chaseArray;
+        bool unsortable = false;
         do {
         #if DEBUG_WINDING
             SkDebugf("%s active=%s winding=%d spanWinding=%d\n",
@@ -77,9 +78,12 @@ static void bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
                 int nextStart = index;
                 int nextEnd = endIndex;
                 Segment* next = current->findNextOp(chaseArray, active,
-                        nextStart, nextEnd, winding, spanWinding, op,
+                        nextStart, nextEnd, winding, spanWinding, unsortable, op,
                         aXorMask, bXorMask);
                 if (!next) {
+                    // FIXME: if unsortable, allow partial paths to be later
+                    // assembled
+                    SkASSERT(!unsortable);
                     if (active && firstPt && current->verb() != SkPath::kLine_Verb && *firstPt != lastPt) {
                         lastPt = current->addCurveTo(index, endIndex, simple, true);
                         SkASSERT(*firstPt == lastPt);
