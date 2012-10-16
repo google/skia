@@ -42,8 +42,9 @@ public:
      *
      * Stages 0 through GrPaint::kTotalStages-1 are reserved for setting up
      * the draw (i.e., textures and filter masks). Stages GrPaint::kTotalStages
-     * through kNumStages-1 are earmarked for use by GrTextContext and
-     * GrPathRenderer-derived classes.
+     * through kNumStages-2 are earmarked for use by GrTextContext and
+     * GrPathRenderer-derived classes. kNumStages-1 is earmarked for clipping
+     * by GrClipMaskManager.
      */
     enum {
         kNumStages = 5,
@@ -194,10 +195,17 @@ public:
         this->sampler(stage)->setCustomStage(
             SkNEW_ARGS(GrSingleTextureEffect, (texture)))->unref();
     }
-    void createTextureEffect(int stage, GrTexture* texture, const GrTextureParams& params) {
+    void createTextureEffect(int stage, GrTexture* texture, const GrMatrix& matrix) {
         GrAssert(!this->getSampler(stage).getCustomStage());
-        this->sampler(stage)->setCustomStage(
-            SkNEW_ARGS(GrSingleTextureEffect, (texture, params)))->unref();
+        GrCustomStage* customStage = SkNEW_ARGS(GrSingleTextureEffect, (texture));
+        this->sampler(stage)->setCustomStage(customStage, matrix)->unref();
+    }
+    void createTextureEffect(int stage, GrTexture* texture,
+                             const GrMatrix& matrix,
+                             const GrTextureParams& params) {
+        GrAssert(!this->getSampler(stage).getCustomStage());
+        GrCustomStage* customStage = SkNEW_ARGS(GrSingleTextureEffect, (texture, params));
+        this->sampler(stage)->setCustomStage(customStage, matrix)->unref();
     }
 
 
