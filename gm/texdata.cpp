@@ -112,12 +112,9 @@ protected:
                 ctx->setMatrix(vm);
                 GrMatrix tm;
                 tm = vm;
-                GrMatrix* sampleMat = paint.colorSampler(0)->matrix();
-                *sampleMat = vm;
-                sampleMat->postIDiv(2*S, 2*S);
-                paint.colorSampler(0)->setCustomStage(
-                    SkNEW_ARGS(GrSingleTextureEffect, (texture)))->unref();
-
+                tm.postIDiv(2*S, 2*S);
+                paint.colorSampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect,
+                                                                 (texture)), tm)->unref();
 
                 ctx->drawRect(paint, GrRect::MakeWH(2*S, 2*S));
 

@@ -538,9 +538,11 @@ GrCustomStage* GrRadialGradient::TestCreate(SkRandom* random,
                                                                  colors, stops, colorCount,
                                                                  tm));
     GrSamplerState sampler;
-    GrCustomStage* stage = shader->asNewCustomStage(context, &sampler);
-    GrAssert(NULL != stage);
-    return stage;
+    shader->asNewCustomStage(context, &sampler);
+    GrAssert(NULL != sampler.getCustomStage());
+    // const_cast and ref is a hack! Will remove when asNewCustomStage returns GrCustomStage*
+    sampler.getCustomStage()->ref();
+    return const_cast<GrCustomStage*>(sampler.getCustomStage());
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -556,19 +558,29 @@ void GrGLRadialGradient::emitFS(GrGLShaderBuilder* builder,
 
 /////////////////////////////////////////////////////////////////////
 
-GrCustomStage* SkRadialGradient::asNewCustomStage(GrContext* context,
-    GrSamplerState* sampler) const {
+bool SkRadialGradient::asNewCustomStage(GrContext* context, GrSamplerState* sampler) const {
     SkASSERT(NULL != context && NULL != sampler);
-    sampler->matrix()->preConcat(fPtsToUnit);
-    return SkNEW_ARGS(GrRadialGradient, (context, *this, fTileMode));
+    SkAutoTUnref<GrCustomStage> stage(SkNEW_ARGS(GrRadialGradient, (context, *this, fTileMode)));
+
+    SkMatrix matrix;
+    if (this->getLocalMatrix(&matrix)) {
+        if (!matrix.invert(&matrix)) {
+            return false;
+        }
+        matrix.postConcat(fPtsToUnit);
+        sampler->setCustomStage(stage, matrix);
+    } else {
+        sampler->setCustomStage(stage, fPtsToUnit);
+    }
+
+    return true;
 }
 
 #else
 
-GrCustomStage* SkRadialGradient::asNewCustomStage(GrContext* context,
-    GrSamplerState* sampler) const {
+bool SkRadialGradient::asNewCustomStage(GrContext*, GrSamplerState*) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
-    return NULL;
+    return false;
 }
 
 #endif
