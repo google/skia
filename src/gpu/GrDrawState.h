@@ -194,17 +194,10 @@ public:
         this->sampler(stage)->setCustomStage(
             SkNEW_ARGS(GrSingleTextureEffect, (texture)))->unref();
     }
-    void createTextureEffect(int stage, GrTexture* texture, const GrMatrix& matrix) {
+    void createTextureEffect(int stage, GrTexture* texture, const GrTextureParams& params) {
         GrAssert(!this->getSampler(stage).getCustomStage());
-        GrCustomStage* customStage = SkNEW_ARGS(GrSingleTextureEffect, (texture));
-        this->sampler(stage)->setCustomStage(customStage, matrix)->unref();
-    }
-    void createTextureEffect(int stage, GrTexture* texture,
-                             const GrMatrix& matrix,
-                             const GrTextureParams& params) {
-        GrAssert(!this->getSampler(stage).getCustomStage());
-        GrCustomStage* customStage = SkNEW_ARGS(GrSingleTextureEffect, (texture, params));
-        this->sampler(stage)->setCustomStage(customStage, matrix)->unref();
+        this->sampler(stage)->setCustomStage(
+            SkNEW_ARGS(GrSingleTextureEffect, (texture, params)))->unref();
     }
 
 

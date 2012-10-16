@@ -24,7 +24,8 @@ public:
 
     virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE;
 
-    virtual bool asNewCustomStage(GrContext* context, GrSamplerState* sampler) const SK_OVERRIDE;
+    virtual GrCustomStage* asNewCustomStage(GrContext* context,
+        GrSamplerState* sampler) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSweepGradient)
 

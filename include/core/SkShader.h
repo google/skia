@@ -306,13 +306,14 @@ public:
     virtual GradientType asAGradient(GradientInfo* info) const;
 
     /**
-     *  If the shader subclass has a GrCustomStage implementation, this installs
-     *  a custom stage on the sampler. A GrContext pointer is required since custom
-     *  stages may need to create textures. The sampler parameter is necessary to set a
-     *  texture matrix. It will eventually be removed and this function will operate as a
-     *  GrCustomStage factory.
+     *  If the shader subclass has a GrCustomStage implementation, this returns
+     *  a new custom stage (the caller assumes ownership, and will need to
+     *  unref it). A GrContext pointer is required since custom stages may
+     *  need to create textures. The sampler parameter is necessary to set
+     *  up matrix/tile modes/etc, and will eventually be removed.
      */
-    virtual bool asNewCustomStage(GrContext* context, GrSamplerState* sampler) const;
+    virtual GrCustomStage* asNewCustomStage(GrContext* context,
+                                            GrSamplerState* sampler) const;
 
     //////////////////////////////////////////////////////////////////////////
     //  Factory methods for stock shaders

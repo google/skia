@@ -475,11 +475,9 @@ GrCustomStage* GrRadial2Gradient::TestCreate(SkRandom* random,
                                                                          colors, stops, colorCount,
                                                                          tm));
     GrSamplerState sampler;
-    shader->asNewCustomStage(context, &sampler);
-    GrAssert(NULL != sampler.getCustomStage());
-    // const_cast and ref is a hack! Will remove when asNewCustomStage returns GrCustomStage*
-    sampler.getCustomStage()->ref();
-    return const_cast<GrCustomStage*>(sampler.getCustomStage());
+    GrCustomStage* stage = shader->asNewCustomStage(context, &sampler);
+    GrAssert(NULL != stage);
+    return stage;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -649,38 +647,27 @@ GrCustomStage::StageKey GrGLRadial2Gradient::GenKey(const GrCustomStage& s, cons
 
 /////////////////////////////////////////////////////////////////////
 
-bool SkTwoPointRadialGradient::asNewCustomStage(GrContext* context,
-                                                GrSamplerState* sampler) const {
+GrCustomStage* SkTwoPointRadialGradient::asNewCustomStage(
+    GrContext* context, GrSamplerState* sampler) const {
     SkASSERT(NULL != context && NULL != sampler);
     SkScalar diffLen = fDiff.length();
-    SkMatrix matrix;
     if (0 != diffLen) {
         SkScalar invDiffLen = SkScalarInvert(diffLen);
-        matrix.setSinCos(-SkScalarMul(invDiffLen, fDiff.fY),
-                         SkScalarMul(invDiffLen, fDiff.fX));
+        sampler->matrix()->setSinCos(-SkScalarMul(invDiffLen, fDiff.fY),
+                                     SkScalarMul(invDiffLen, fDiff.fX));
     } else {
-        matrix.reset();
+        sampler->matrix()->reset();
     }
-    
-    matrix.preConcat(fPtsToUnit);
-
-    SkMatrix localM;
-    if (this->getLocalMatrix(&localM)) {
-        if (!localM.invert(&localM)) {
-            return false;
-        }
-        matrix.preConcat(localM);
-    }
-
-    sampler->setCustomStage(SkNEW_ARGS(GrRadial2Gradient, (context, *this, fTileMode)), matrix)->unref();
-    return true;
+    sampler->matrix()->preConcat(fPtsToUnit);
+    return SkNEW_ARGS(GrRadial2Gradient, (context, *this, fTileMode));
 }
 
 #else
 
-bool SkTwoPointRadialGradient::asNewCustomStage(GrContext*, GrSamplerState*) const {
+GrCustomStage* SkTwoPointRadialGradient::asNewCustomStage(
+    GrContext* context, GrSamplerState* sampler) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
-    return false;
+    return NULL;
 }
 
 #endif
