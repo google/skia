@@ -138,6 +138,7 @@ private:
     MatrixProc chooseMatrixProc(bool trivial_matrix);
     bool chooseProcs(const SkMatrix& inv, const SkPaint&);
     ShaderProc32 chooseShaderProc32();
+    void setupForTranslate();
 
 #ifdef SK_DEBUG
     static void DebugMatrixProc(const SkBitmapProcState&,
