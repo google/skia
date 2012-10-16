@@ -35,7 +35,7 @@ void GrTextContext::flushGlyphs() {
         GrAssert(GrIsALIGN4(fCurrVertex));
         GrAssert(fCurrTexture);
         GrTextureParams params(SkShader::kRepeat_TileMode, false);
-        drawState->createTextureEffect(kGlyphMaskStage, fCurrTexture, params);
+        drawState->createTextureEffect(kGlyphMaskStage, fCurrTexture, GrMatrix::I(), params);
 
         if (!GrPixelConfigIsAlphaOnly(fCurrTexture->config())) {
             if (kOne_GrBlendCoeff != fPaint.getSrcBlendCoeff() ||

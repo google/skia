@@ -202,11 +202,10 @@ void convolve_gaussian(GrDrawTarget* target,
     drawState->setRenderTarget(rt);
     GrMatrix sampleM;
     sampleM.setIDiv(texture->width(), texture->height());
-    drawState->sampler(0)->reset(sampleM);
     SkAutoTUnref<GrConvolutionEffect> conv(SkNEW_ARGS(GrConvolutionEffect,
                                                       (texture, direction, radius,
                                                        sigma)));
-    drawState->sampler(0)->setCustomStage(conv);
+    drawState->sampler(0)->setCustomStage(conv, sampleM);
     target->drawSimpleRect(rect, NULL);
 }
 
@@ -313,9 +312,8 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
         // if filtering is not desired then we want to ensure all
         // texels in the resampled image are copies of texels from
         // the original.
-        drawState->sampler(0)->reset();
         GrTextureParams params(SkShader::kClamp_TileMode, needsFiltering);
-        drawState->createTextureEffect(0, clampedTexture, params);
+        drawState->createTextureEffect(0, clampedTexture, GrMatrix::I(), params);
 
         static const GrVertexLayout layout =
                             GrDrawTarget::StageTexCoordVertexLayoutBit(0,0);
@@ -1348,8 +1346,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
                     matrix.setTranslate(SK_Scalar1 *left, SK_Scalar1 *top);
                 }
                 matrix.postIDiv(src->width(), src->height());
-                drawState->sampler(0)->reset(matrix);
-                drawState->sampler(0)->setCustomStage(stage);
+                drawState->sampler(0)->setCustomStage(stage, matrix);
                 GrRect rect = GrRect::MakeWH(GrIntToScalar(width), GrIntToScalar(height));
                 fGpu->drawSimpleRect(rect, NULL);
                 // we want to read back from the scratch's origin
@@ -1449,8 +1446,7 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst) {
     drawState->setRenderTarget(dst);
     GrMatrix sampleM;
     sampleM.setIDiv(src->width(), src->height());
-    drawState->sampler(0)->reset(sampleM);
-    drawState->createTextureEffect(0, src);
+    drawState->createTextureEffect(0, src, sampleM);
     SkRect rect = SkRect::MakeXYWH(0, 0,
                                    SK_Scalar1 * src->width(),
                                    SK_Scalar1 * src->height());
@@ -1558,8 +1554,7 @@ void GrContext::writeRenderTargetPixels(GrRenderTarget* target,
     drawState->setRenderTarget(target);
 
     matrix.setIDiv(texture->width(), texture->height());
-    drawState->sampler(0)->reset(matrix);
-    drawState->sampler(0)->setCustomStage(stage);
+    drawState->sampler(0)->setCustomStage(stage, matrix);
 
     fGpu->drawSimpleRect(GrRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height)), NULL);
 }
@@ -1813,14 +1808,15 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
     paint.reset();
 
     for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
-        paint.colorSampler(0)->matrix()->setIDiv(srcTexture->width(),
-                                                   srcTexture->height());
+        GrMatrix matrix;
+        matrix.setIDiv(srcTexture->width(), srcTexture->height());
         this->setRenderTarget(dstTexture->asRenderTarget());
         SkRect dstRect(srcRect);
         scale_rect(&dstRect, i < scaleFactorX ? 0.5f : 1.0f,
-                            i < scaleFactorY ? 0.5f : 1.0f);
+                             i < scaleFactorY ? 0.5f : 1.0f);
+
         paint.colorSampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect,
-                                                           (srcTexture, true)))->unref();
+                                                         (srcTexture, true)), matrix)->unref();
         this->drawRectToRect(paint, dstRect, srcRect);
         srcRect = dstRect;
         srcTexture = dstTexture;
@@ -1873,12 +1869,13 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         clearRect = SkIRect::MakeXYWH(srcIRect.fRight, srcIRect.fTop,
                                       1, srcIRect.height());
         this->clear(&clearRect, 0x0);
+        GrMatrix matrix;
         // FIXME:  This should be mitchell, not bilinear.
-        paint.colorSampler(0)->matrix()->setIDiv(srcTexture->width(),
-                                                   srcTexture->height());
+        matrix.setIDiv(srcTexture->width(), srcTexture->height());
         this->setRenderTarget(dstTexture->asRenderTarget());
         paint.colorSampler(0)->setCustomStage(SkNEW_ARGS(GrSingleTextureEffect,
-                                                           (srcTexture, true)))->unref();
+                                                         (srcTexture, true)),
+                                              matrix)->unref();
         SkRect dstRect(srcRect);
         scale_rect(&dstRect, (float) scaleFactorX, (float) scaleFactorY);
         this->drawRectToRect(paint, dstRect, srcRect);
