@@ -55,6 +55,7 @@
         '../experimental/Intersection/LineQuadraticIntersection.cpp',
         '../experimental/Intersection/LineQuadraticIntersection_Test.cpp',
         '../experimental/Intersection/LineUtilities.cpp',
+        '../experimental/Intersection/MiniSimplify_Test.cpp',
         '../experimental/Intersection/QuadraticBezierClip.cpp',
         '../experimental/Intersection/QuadraticBezierClip_Test.cpp',
         '../experimental/Intersection/QuadraticBounds.cpp',

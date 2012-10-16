@@ -76,7 +76,7 @@
         'pdf.gyp:pdf',
       ],
       'conditions' : [
-       [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
         }],
         [ 'skia_os == "win"', {
         }],
