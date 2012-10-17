@@ -479,7 +479,7 @@ bool SkSweepGradient::asNewCustomStage(GrContext* context, GrSamplerState* sampl
     } else {
         sampler->setCustomStage(stage, fPtsToUnit);
     }
-    
+
     return true;
 }
 

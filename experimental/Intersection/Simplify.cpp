@@ -703,7 +703,7 @@ public:
     int start() const {
         return fStart;
     }
-    
+
     bool unsortable() const {
         return fUnsortable;
     }
@@ -1660,7 +1660,7 @@ public:
     }
 
     Segment* findNextOp(SkTDArray<Span*>& chase, bool active,
-            int& nextStart, int& nextEnd, int& winding, int& spanWinding, 
+            int& nextStart, int& nextEnd, int& winding, int& spanWinding,
             bool& unsortable, ShapeOp op,
             const int aXorMask, const int bXorMask) {
         const int startIndex = nextStart;
@@ -2326,7 +2326,7 @@ public:
     }
 
  //   start here;
-    // either: 
+    // either:
     // a) mark spans with either end unsortable as done, or
     // b) rewrite findTop / findTopSegment / findTopContour to iterate further
     //    when encountering an unsortable span
@@ -4617,7 +4617,7 @@ void simplifyx(const SkPath& path, SkPath& simple) {
     // construct closed contours
     if (builder.xorMask() == kWinding_Mask
                 ? !bridgeWinding(contourList, simple)
-                : !bridgeXor(contourList, simple)) 
+                : !bridgeXor(contourList, simple))
     { // if some edges could not be resolved, assemble remaining fragments
         assemble(simple);
     }
