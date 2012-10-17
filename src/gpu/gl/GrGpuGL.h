@@ -229,14 +229,6 @@ private:
     // sets the MVP matrix uniform for currently bound program
     void flushViewMatrix(DrawType type);
 
-    // flushes the parameters to two point radial gradient
-    void flushRadial2(int stage);
-
-    // flushes the parameters for convolution
-    void flushConvolution(int stage);
-
-    // flushes the color matrix
-    void flushColorMatrix();
 
     // flushes dithering, color-mask, and face culling stat
     void flushMiscFixedFunctionState();
@@ -251,7 +243,7 @@ private:
                       const GrCustomStage** customStages,
                       ProgramDesc* desc);
 
-    // Inits GrDrawTarget::Caps, sublcass may enable additional caps.
+    // Inits GrDrawTarget::Caps, subclass may enable additional caps.
     void initCaps();
 
     void initFSAASupport();

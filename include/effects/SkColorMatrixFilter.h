@@ -21,6 +21,9 @@ public:
     virtual void filterSpan16(const uint16_t src[], int count, uint16_t[]) SK_OVERRIDE;
     virtual uint32_t getFlags() SK_OVERRIDE;
     virtual bool asColorMatrix(SkScalar matrix[20]) SK_OVERRIDE;
+#if SK_SUPPORT_GPU
+    virtual GrCustomStage* asNewCustomStage(GrContext*) const SK_OVERRIDE;
+#endif
 
     struct State {
         int32_t fArray[20];

@@ -25,8 +25,7 @@
  * The primitive color computation starts with the color specified by setColor(). This color is the
  * input to the first color stage. Each color stage feeds its output to the next color stage. The
  * final color stage's output color is input to the color filter specified by
- * setXfermodeColorFilter which it turn feeds into the color matrix. The output of the color matrix
- * is the final source color, S.
+ * setXfermodeColorFilter which produces the final source color, S.
  *
  * Fractional pixel coverage follows a similar flow. The coverage is initially the value specified
  * by setCoverage(). This is input to the first coverage stage. Coverage stages are chained
@@ -40,7 +39,7 @@
  * Note that the coverage is applied after the blend. This is why they are computed as distinct
  * values.
  *
- * TODO: Encapsulate setXfermodeColorFilter and color matrix in stages and remove from GrPaint.
+ * TODO: Encapsulate setXfermodeColorFilter in a GrCustomStage and remove from GrPaint.
  */
 class GrPaint {
 public:
@@ -104,28 +103,11 @@ public:
     GrColor getColorFilterColor() const { return fColorFilterColor; }
 
     /**
-     * Turns off application of a color matrix. By default the color matrix is disabled.
-     */
-    void disableColorMatrix() { fColorMatrixEnabled = false; }
-
-    /**
-     * Specifies and enables a 4 x 5 color matrix.
-     */
-    void setColorMatrix(const float matrix[20]) {
-        fColorMatrixEnabled = true;
-        memcpy(fColorMatrix, matrix, sizeof(fColorMatrix));
-    }
-
-    bool isColorMatrixEnabled() const { return fColorMatrixEnabled; }
-    const float* getColorMatrix() const { return fColorMatrix; }
-
-    /**
-     * Disables both the matrix and SkXfermode::Mode color filters.
+     * Disables the SkXfermode::Mode color filter.
      */
     void resetColorFilter() {
         fColorFilterXfermode = SkXfermode::kDst_Mode;
         fColorFilterColor = GrColorPackRGBA(0xff, 0xff, 0xff, 0xff);
-        fColorMatrixEnabled = false;
     }
 
     /**
@@ -246,10 +228,6 @@ public:
 
         fColorFilterColor = paint.fColorFilterColor;
         fColorFilterXfermode = paint.fColorFilterXfermode;
-        fColorMatrixEnabled = paint.fColorMatrixEnabled;
-        if (fColorMatrixEnabled) {
-            memcpy(fColorMatrix, paint.fColorMatrix, sizeof(fColorMatrix));
-        }
 
         for (int i = 0; i < kMaxColorStages; ++i) {
             if (paint.isColorStageEnabled(i)) {
@@ -295,14 +273,12 @@ private:
     GrBlendCoeff                fDstBlendCoeff;
     bool                        fAntiAlias;
     bool                        fDither;
-    bool                        fColorMatrixEnabled;
 
     GrColor                     fColor;
     uint8_t                     fCoverage;
 
     GrColor                     fColorFilterColor;
     SkXfermode::Mode            fColorFilterXfermode;
-    float                       fColorMatrix[20];
 
     void resetBlend() {
         fSrcBlendCoeff = kOne_GrBlendCoeff;

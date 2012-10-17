@@ -58,7 +58,7 @@ private:
 
 /** GrCustomStage subclasses should insert this macro in their implemenation file. They must then
  *  also implement this static function:
- *      GrCustomStage* CreateStage(SkRandom*, GrContext*, GrTexture* dummyTextures[2]);
+ *      GrCustomStage* TestCreate(SkRandom*, GrContext*, GrTexture* dummyTextures[2]);
  *  dummyTextures[] are valied textures that they can optionally use for their texture accesses. The
   * first texture has config kSkia8888_PM_GrPixelConfig and the second has kAlpha_8_GrPixelConfig.
   * TestCreate functions are also free to create additional textures using the GrContext.

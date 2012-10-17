@@ -200,6 +200,9 @@ void GrGpuGL::flushTextureMatrix(int s) {
 
     // FIXME: Still assuming only a single texture per custom stage
     const GrCustomStage* stage = drawState.getSampler(s).getCustomStage();
+    if (0 == stage->numTextures()) {
+        return;
+    }
     const GrGLTexture* texture = static_cast<const GrGLTexture*>(stage->texture(0));
     if (NULL != texture) {
 
@@ -237,26 +240,6 @@ void GrGpuGL::flushTextureMatrix(int s) {
         }
 
         fCurrentProgram->fTextureOrientation[s] = texture->orientation();
-    }
-}
-
-void GrGpuGL::flushColorMatrix() {
-    UniformHandle matrixUni = fCurrentProgram->fUniforms.fColorMatrixUni;
-    UniformHandle vecUni = fCurrentProgram->fUniforms.fColorMatrixVecUni;
-    if (kInvalidUniformHandle != matrixUni && kInvalidUniformHandle != vecUni) {
-        const float* m = this->getDrawState().getColorMatrix();
-        GrGLfloat mt[]  = {
-            m[0], m[5], m[10], m[15],
-            m[1], m[6], m[11], m[16],
-            m[2], m[7], m[12], m[17],
-            m[3], m[8], m[13], m[18],
-        };
-        static float scale = 1.0f / 255.0f;
-        GrGLfloat vec[] = {
-            m[4] * scale, m[9] * scale, m[14] * scale, m[19] * scale,
-        };
-        fCurrentProgram->fUniformManager.setMatrix4f(matrixUni, mt);
-        fCurrentProgram->fUniformManager.set4fv(vecUni, 0, 1, vec);
     }
 }
 
@@ -414,7 +397,6 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
                 }
             }
         }
-        this->flushColorMatrix();
     }
     this->flushStencil(type);
     this->flushViewMatrix(type);
@@ -645,8 +627,6 @@ void GrGpuGL::buildProgram(bool isPoints,
                                 SkXfermode::kDst_Mode :
                                 drawState.getColorFilterMode();
 
-    desc->fColorMatrixEnabled = drawState.isStateFlagEnabled(GrDrawState::kColorMatrix_StateBit);
-
     // no reason to do edge aa or look at per-vertex coverage if coverage is
     // ignored
     if (skipCoverage) {
@@ -701,16 +681,23 @@ void GrGpuGL::buildProgram(bool isPoints,
             const GrSamplerState& sampler = drawState.getSampler(s);
             // FIXME: Still assuming one texture per custom stage
             const GrCustomStage* customStage = drawState.getSampler(s).getCustomStage();
-            const GrGLTexture* texture = static_cast<const GrGLTexture*>(customStage->texture(0));
-            GrMatrix samplerMatrix;
-            sampler.getTotalMatrix(&samplerMatrix);
-            if (NULL != texture) {
-                // We call this helper function rather then simply checking the client-specified
-                // texture matrix. This is because we may have to concat a y-inversion to account
-                // for texture orientation.
-                stage.fOptFlags |= TextureMatrixOptFlags(texture, sampler);
-            }
 
+            if (customStage->numTextures() > 0) {
+                const GrGLTexture* texture =
+                    static_cast<const GrGLTexture*>(customStage->texture(0));
+                GrMatrix samplerMatrix;
+                sampler.getTotalMatrix(&samplerMatrix);
+                if (NULL != texture) {
+                    // We call this helper function rather then simply checking the client-specified
+                    // texture matrix. This is because we may have to concat a y-inversion to account
+                    // for texture orientation.
+                    stage.fOptFlags |= TextureMatrixOptFlags(texture, sampler);
+                }
+            } else {
+                // Set identity to do the minimal amount of extra work for the no texture case.
+                // This will go away when custom stages manage their own texture matrix.
+                stage.fOptFlags |= StageDesc::kIdentityMatrix_OptFlagBit;
+            }
             setup_custom_stage(&stage, sampler, this->glCaps(), customStages,
                                fCurrentProgram.get(), s);
 
@@ -724,7 +711,7 @@ void GrGpuGL::buildProgram(bool isPoints,
     desc->fDualSrcOutput = ProgramDesc::kNone_DualSrcOutput;
 
     // Currently the experimental GS will only work with triangle prims (and it doesn't do anything
-    // other than pass through values fromthe VS to the FS anyway).
+    // other than pass through values from the VS to the FS anyway).
 #if 0 && GR_GL_EXPERIMENTAL_GS
     desc->fExperimentalGS = this->getCaps().fGeometryShaderSupport;
 #endif

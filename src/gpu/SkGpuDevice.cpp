@@ -500,28 +500,37 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
         grPaint->setColor(SkColor2GrColor(skPaint.getColor()));
         GrAssert(!grPaint->isColorStageEnabled(kShaderTextureIdx));
     }
+
     SkColorFilter* colorFilter = skPaint.getColorFilter();
-    SkColor color;
-    SkXfermode::Mode filterMode;
-    SkScalar matrix[20];
-    SkBitmap colorTransformTable;
-    // TODO: SkColorFilter::asCustomStage()
-    if (colorFilter != NULL && colorFilter->asColorMode(&color, &filterMode)) {
-        if (!constantColor) {
-            grPaint->setXfermodeColorFilter(filterMode, SkColor2GrColor(color));
-        } else {
+    if (NULL != colorFilter) {
+        // if the source color is a constant then apply the filter here once rather than per pixel
+        // in a shader.
+        if (constantColor) {
             SkColor filtered = colorFilter->filterColor(skPaint.getColor());
             grPaint->setColor(SkColor2GrColor(filtered));
+        } else {
+            SkAutoTUnref<GrCustomStage> stage(colorFilter->asNewCustomStage(dev->context()));
+            if (NULL != stage.get()) {
+                grPaint->colorSampler(kColorFilterTextureIdx)->setCustomStage(stage);
+            } else {
+                // TODO: rewrite these using asNewCustomStage()
+                SkColor color;
+                SkXfermode::Mode filterMode;
+                SkBitmap colorTransformTable;
+                if (colorFilter->asColorMode(&color, &filterMode)) {
+                    grPaint->setXfermodeColorFilter(filterMode, SkColor2GrColor(color));
+                } else if (colorFilter != NULL &&
+                           colorFilter->asComponentTable(&colorTransformTable)) {
+                    // pass NULL because the color table effect doesn't use tiling or filtering.
+                    GrTexture* texture = act->set(dev, colorTransformTable, NULL);
+                    GrSamplerState* colorSampler = grPaint->colorSampler(kColorFilterTextureIdx);
+                    colorSampler->reset();
+                    colorSampler->setCustomStage(SkNEW_ARGS(GrColorTableEffect, (texture)))->unref();
+                }
+            }
         }
-    } else if (colorFilter != NULL && colorFilter->asColorMatrix(matrix)) {
-        grPaint->setColorMatrix(matrix);
-    } else if (colorFilter != NULL && colorFilter->asComponentTable(&colorTransformTable)) {
-        // pass NULL because the color table effect doesn't use tiling or filtering.
-        GrTexture* texture = act->set(dev, colorTransformTable, NULL);
-        GrSamplerState* colorSampler = grPaint->colorSampler(kColorFilterTextureIdx);
-        colorSampler->reset();
-        colorSampler->setCustomStage(SkNEW_ARGS(GrColorTableEffect, (texture)))->unref();
     }
+
     return true;
 }
 

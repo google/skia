@@ -2020,10 +2020,12 @@ void GrGpuGL::flushBoundTextureAndParams(int stage) {
     GrDrawState* drawState = this->drawState();
     // FIXME: Assuming at most one texture per custom stage
     const GrCustomStage* customStage = drawState->sampler(stage)->getCustomStage();
-    GrGLTexture* nextTexture =  static_cast<GrGLTexture*>(customStage->texture(0));
-    if (NULL != nextTexture) {
-        const GrTextureParams& texParams = customStage->textureAccess(0).getParams();
-        this->flushBoundTextureAndParams(stage, texParams, nextTexture);
+    if (customStage->numTextures() > 0) {
+        GrGLTexture* nextTexture =  static_cast<GrGLTexture*>(customStage->texture(0));
+        if (NULL != nextTexture) {
+            const GrTextureParams& texParams = customStage->textureAccess(0).getParams();
+            this->flushBoundTextureAndParams(stage, texParams, nextTexture);
+        }
     }
 }
 
