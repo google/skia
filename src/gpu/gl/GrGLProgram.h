@@ -155,7 +155,6 @@ public:
         uint8_t fDualSrcOutput;     // casts to enum DualSrcOutput
         int8_t fFirstCoverageStage;
         SkBool8 fEmitsPointSize;
-        SkBool8 fColorMatrixEnabled;
 
         uint8_t fColorFilterXfermode;  // casts to enum SkXfermode::Mode
     };
@@ -224,16 +223,12 @@ private:
         UniformHandle fColorUni;
         UniformHandle fCoverageUni;
         UniformHandle fColorFilterUni;
-        UniformHandle fColorMatrixUni;
-        UniformHandle fColorMatrixVecUni;
         StageUniforms fStages[GrDrawState::kNumStages];
         Uniforms() {
             fViewMatrixUni = GrGLUniformManager::kInvalidUniformHandle;
             fColorUni = GrGLUniformManager::kInvalidUniformHandle;
             fCoverageUni = GrGLUniformManager::kInvalidUniformHandle;
             fColorFilterUni = GrGLUniformManager::kInvalidUniformHandle;
-            fColorMatrixUni = GrGLUniformManager::kInvalidUniformHandle;
-            fColorMatrixVecUni = GrGLUniformManager::kInvalidUniformHandle;
         }
     };
 

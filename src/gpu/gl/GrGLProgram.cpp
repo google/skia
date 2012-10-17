@@ -511,7 +511,6 @@ bool GrGLProgram::genProgram(const GrCustomStage** customStages) {
 #endif
 
     SkXfermode::Coeff colorCoeff, uniformCoeff;
-    bool applyColorMatrix = SkToBool(fDesc.fColorMatrixEnabled);
     // The rest of transfer mode color filters have not been implemented
     if (fDesc.fColorFilterXfermode < SkXfermode::kCoeffModesCnt) {
         GR_DEBUGCODE(bool success =)
@@ -524,17 +523,15 @@ bool GrGLProgram::genProgram(const GrCustomStage** customStages) {
         uniformCoeff = SkXfermode::kZero_Coeff;
     }
 
-    // no need to do the color filter / matrix at all if coverage is 0. The
-    // output color is scaled by the coverage. All the dual source outputs are
-    // scaled by the coverage as well.
+    // no need to do the color filter if coverage is 0. The output color is scaled by the coverage.
+    // All the dual source outputs are scaled by the coverage as well.
     if (Desc::kTransBlack_ColorInput == fDesc.fCoverageInput) {
         colorCoeff = SkXfermode::kZero_Coeff;
         uniformCoeff = SkXfermode::kZero_Coeff;
-        applyColorMatrix = false;
     }
 
     // If we know the final color is going to be all zeros then we can
-    // simplify the color filter coeffecients. needComputedColor will then
+    // simplify the color filter coefficients. needComputedColor will then
     // come out false below.
     if (Desc::kTransBlack_ColorInput == fDesc.fColorInput) {
         colorCoeff = SkXfermode::kZero_Coeff;
@@ -664,8 +661,7 @@ bool GrGLProgram::genProgram(const GrCustomStage** customStages) {
     }
     bool wroteFragColorZero = false;
     if (SkXfermode::kZero_Coeff == uniformCoeff &&
-        SkXfermode::kZero_Coeff == colorCoeff &&
-        !applyColorMatrix) {
+        SkXfermode::kZero_Coeff == colorCoeff) {
         builder.fFSCode.appendf("\t%s = %s;\n",
                                 colorOutput.getName().c_str(),
                                 GrGLSLZerosVecf(4));
@@ -676,22 +672,6 @@ bool GrGLProgram::genProgram(const GrCustomStage** customStages) {
         addColorFilter(&builder.fFSCode, "filteredColor", uniformCoeff,
                        colorCoeff, colorFilterColorUniName, color);
         inColor = "filteredColor";
-    }
-    if (applyColorMatrix) {
-        const char* colMatrixName;
-        const char* colMatrixVecName;
-        fUniforms.fColorMatrixUni = builder.addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                                       kMat44f_GrSLType, "ColorMatrix",
-                                                       &colMatrixName);
-        fUniforms.fColorMatrixVecUni = builder.addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                                          kVec4f_GrSLType, "ColorMatrixVec",
-                                                          &colMatrixVecName);
-        const char* color = adjustInColor(inColor);
-        builder.fFSCode.appendf("\tvec4 matrixedColor = %s * vec4(%s.rgb / %s.a, %s.a) + %s;\n",
-                                colMatrixName, color, color, color, colMatrixVecName);
-        builder.fFSCode.append("\tmatrixedColor.rgb *= matrixedColor.a;\n");
-
-        inColor = "matrixedColor";
     }
 
     ///////////////////////////////////////////////////////////////////////////

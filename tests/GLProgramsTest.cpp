@@ -114,8 +114,6 @@ bool GrGpuGL::programUnitTest() {
         } else {
         }
 
-        pdesc.fColorMatrixEnabled = random_bool(&random);
-
         if (this->getCaps().dualSourceBlendingSupport()) {
             pdesc.fDualSrcOutput = random_int(&random, ProgramDesc::kDualSrcOutputCnt);
         } else {
@@ -174,17 +172,17 @@ static void GLProgramsTest(skiatest::Reporter* reporter, GrContext* context) {
     REPORTER_ASSERT(reporter, shadersGpu->programUnitTest());
 }
 
-
 #include "TestClassDef.h"
 DEFINE_GPUTESTCLASS("GLPrograms", GLProgramsTestClass, GLProgramsTest)
 
 // This is evil evil evil. The linker may throw away whole translation units as dead code if it
-// thinks none of the functions are called. It will do this even if there are static initilializers
+// thinks none of the functions are called. It will do this even if there are static initializers
 // in the unit that could pass pointers to functions from the unit out to other translation units!
 // We force some of the effects that would otherwise be discarded to link here.
 
 #include "SkLightingImageFilter.h"
 #include "SkMagnifierImageFilter.h"
+#include "SkColorMatrixFilter.h"
 
 void forceLinking();
 
@@ -192,6 +190,8 @@ void forceLinking() {
     SkLightingImageFilter::CreateDistantLitDiffuse(SkPoint3(0,0,0), 0, 0, 0);
     SkMagnifierImageFilter mag(SkRect::MakeWH(SK_Scalar1, SK_Scalar1), SK_Scalar1);
     GrConfigConversionEffect::Create(NULL, false);
+    SkScalar matrix[20];
+    SkColorMatrixFilter cmf(matrix);
 }
 
 #endif
