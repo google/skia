@@ -22,79 +22,125 @@ public:
 
     GrSamplerState()
     : fCustomStage (NULL) {
-        memset(this, 0, sizeof(GrSamplerState));
-        this->reset();
+        GR_DEBUGCODE(fSavedCoordChangeCnt = 0;)
     }
 
     ~GrSamplerState() {
         GrSafeUnref(fCustomStage);
+        GrAssert(0 == fSavedCoordChangeCnt);
     }
 
-    bool operator ==(const GrSamplerState& s) const {
-        /* We must be bit-identical as far as the CustomStage;
-           there may be multiple CustomStages that will produce
-           the same shader code and so are equivalent.
-           Can't take the address of fWrapX because it's :8 */
-        int bitwiseRegion = (intptr_t) &fCustomStage - (intptr_t) this;
-        GrAssert(sizeof(GrSamplerState) ==
-                 bitwiseRegion + sizeof(fCustomStage));
-        return !memcmp(this, &s, bitwiseRegion) &&
-               ((fCustomStage == s.fCustomStage) ||
-                (fCustomStage && s.fCustomStage &&
-                 (fCustomStage->getFactory() ==
-                     s.fCustomStage->getFactory()) &&
-                 fCustomStage->isEqual(*s.fCustomStage)));
+    bool operator ==(const GrSamplerState& other) const {
+        // first handle cases where one or the other has no custom stage
+        if (NULL == fCustomStage) {
+            return NULL == other.fCustomStage;
+        } else if (NULL == other.fCustomStage) {
+            return false;
+        }
+
+        if (fCustomStage->getFactory() != other.fCustomStage->getFactory()) {
+            return false;
+        }
+
+        if (!fCustomStage->isEqual(*other.fCustomStage)) {
+            return false;
+        }
+
+        return fMatrix == other.fMatrix && fCoordChangeMatrix == other.fCoordChangeMatrix;
     }
+
     bool operator !=(const GrSamplerState& s) const { return !(*this == s); }
 
-    GrSamplerState& operator =(const GrSamplerState& s) {
-        fMatrix = s.fMatrix;
-        GrSafeAssign(fCustomStage, s.fCustomStage);
+    GrSamplerState& operator =(const GrSamplerState& other) {
+        GrSafeAssign(fCustomStage, other.fCustomStage);
+        if (NULL != fCustomStage) {
+            fMatrix = other.fMatrix;
+            fCoordChangeMatrix = other.fCoordChangeMatrix;
+        }
         return *this;
     }
 
+    /**
+     * This is called when the coordinate system in which the geometry is specified will change.
+     *
+     * @param matrix    The transformation from the old coord system to the new one. 
+     */
+    void preConcatCoordChange(const GrMatrix& matrix) { fCoordChangeMatrix.preConcat(matrix); }
+
+    class SavedCoordChange {
+    private:
+        GrMatrix fCoordChangeMatrix;
+        GR_DEBUGCODE(mutable SkAutoTUnref<GrCustomStage> fCustomStage;)
+
+        friend class GrSamplerState;
+    };
+
+    /**
+     * This gets the current coordinate system change. It is the accumulation of
+     * preConcatCoordChange calls since the custom stage was installed. It is used when then caller
+     * wants to temporarily change the source geometry coord system, draw something, and then
+     * restore the previous coord system (e.g. temporarily draw in device coords).s
+     */
+    void saveCoordChange(SavedCoordChange* savedCoordChange) const {
+        savedCoordChange->fCoordChangeMatrix = fCoordChangeMatrix;
+        GrAssert(NULL == savedCoordChange->fCustomStage.get());
+        GR_DEBUGCODE(GrSafeRef(fCustomStage);)
+        GR_DEBUGCODE(savedCoordChange->fCustomStage.reset(fCustomStage);)
+        GR_DEBUGCODE(++fSavedCoordChangeCnt);
+    }
+
+    /**
+     * This balances the saveCoordChange call.
+     */
+    void restoreCoordChange(const SavedCoordChange& savedCoordChange) {
+        fCoordChangeMatrix = savedCoordChange.fCoordChangeMatrix;
+        GrAssert(savedCoordChange.fCustomStage.get() == fCustomStage);
+        GR_DEBUGCODE(--fSavedCoordChangeCnt);
+        GR_DEBUGCODE(savedCoordChange.fCustomStage.reset(NULL);)
+    }
+
+    /**
+     * Gets the texture matrix. This is will be removed soon and be managed by GrCustomStage.
+     */
     const GrMatrix& getMatrix() const { return fMatrix; }
 
     /**
-     *  Multiplies the current sampler matrix  a matrix
-     *
-     *  After this call M' = M*m where M is the old matrix, m is the parameter
-     *  to this function, and M' is the new matrix. (We consider points to
-     *  be column vectors so tex cood vector t is transformed by matrix X as
-     *  t' = X*t.)
-     *
-     *  @param matrix   the matrix used to modify the matrix.
+     * Gets the matrix to apply at draw time. This is the original texture matrix combined with
+     * any coord system changes.
      */
-    void preConcatMatrix(const GrMatrix& matrix) { fMatrix.preConcat(matrix); }
-
-    /**
-     * Do not call this function. It will be removed soon.
-     */
-    void setMatrixDeprecated(const GrMatrix& matrix) { fMatrix = matrix; }
+    void getTotalMatrix(GrMatrix* matrix) const {
+        *matrix = fMatrix;
+        matrix->preConcat(fCoordChangeMatrix);
+    }
 
     void reset() {
-        fMatrix.reset();
         GrSafeSetNull(fCustomStage);
     }
 
     GrCustomStage* setCustomStage(GrCustomStage* stage) {
+        GrAssert(0 == fSavedCoordChangeCnt);
         GrSafeAssign(fCustomStage, stage);
         fMatrix.reset();
+        fCoordChangeMatrix.reset();
         return stage;
     }
 
     GrCustomStage* setCustomStage(GrCustomStage* stage, const GrMatrix& matrix) {
+        GrAssert(0 == fSavedCoordChangeCnt);
         GrSafeAssign(fCustomStage, stage);
         fMatrix = matrix;
+        fCoordChangeMatrix.reset();
         return stage;
     }
 
     const GrCustomStage* getCustomStage() const { return fCustomStage; }
 
 private:
-    GrMatrix            fMatrix;
-
+    GrMatrix            fCoordChangeMatrix;
+    GrMatrix            fMatrix; // TODO: remove this, store in GrCustomStage
     GrCustomStage*      fCustomStage;
+
+    GR_DEBUGCODE(mutable int fSavedCoordChangeCnt;)
 };
 
 #endif

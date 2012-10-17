@@ -151,11 +151,9 @@ private:
     static void AdjustTextureMatrix(const GrGLTexture* texture,
                                     GrMatrix* matrix);
 
-    // subclass may try to take advantage of identity tex matrices.
-    // This helper determines if matrix will be identity after all
-    // adjustments are applied.
-    static bool TextureMatrixIsIdentity(const GrGLTexture* texture,
-                                        const GrSamplerState& sampler);
+    // This helper determines if what optimizations can be applied to the matrix after any coord
+    // adjustments are applied. The return is a bitfield of GrGLProgram::StageDesc::OptFlags.
+    static int TextureMatrixOptFlags(const GrGLTexture* texture, const GrSamplerState& sampler);
 
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 

@@ -10,7 +10,6 @@
 #ifndef GrPaint_DEFINED
 #define GrPaint_DEFINED
 
-#include "GrTexture.h"
 #include "GrColor.h"
 #include "GrSamplerState.h"
 
@@ -189,47 +188,49 @@ public:
     bool hasStage() const { return this->hasColorStage() || this->hasCoverageStage(); }
 
     /**
-     * Preconcats the matrix of all enabled stages with the inverse of a matrix. If the matrix
-     * inverse cannot be computed (and there is at least one enabled stage) then false is returned.
+     * Called when the source coord system is changing. preConcatInverse is the inverse of the
+     * transformation from the old coord system to the new coord system. Returns false if the matrix
+     * cannot be inverted.
      */
-    bool preConcatSamplerMatricesWithInverse(const GrMatrix& matrix) {
+    bool sourceCoordChangeByInverse(const GrMatrix& preConcatInverse) {
         GrMatrix inv;
         bool computed = false;
         for (int i = 0; i < kMaxColorStages; ++i) {
             if (this->isColorStageEnabled(i)) {
-                if (!computed && !matrix.invert(&inv)) {
+                if (!computed && !preConcatInverse.invert(&inv)) {
                     return false;
                 } else {
                     computed = true;
                 }
-                fColorSamplers[i].preConcatMatrix(inv);
+                fColorSamplers[i].preConcatCoordChange(inv);
             }
         }
         for (int i = 0; i < kMaxCoverageStages; ++i) {
             if (this->isCoverageStageEnabled(i)) {
-                if (!computed && !matrix.invert(&inv)) {
+                if (!computed && !preConcatInverse.invert(&inv)) {
                     return false;
                 } else {
                     computed = true;
                 }
-                fCoverageSamplers[i].preConcatMatrix(inv);
+                fCoverageSamplers[i].preConcatCoordChange(inv);
             }
         }
         return true;
     }
 
     /**
-     * Preconcats the matrix of all stages with a matrix.
+     * Called when the source coord system is changing. preConcat gives the transformation from the
+     * old coord system to the new coord system.
      */
-    void preConcatSamplerMatrices(const GrMatrix& matrix) {
+    void sourceCoordChange(const GrMatrix& preConcat) {
         for (int i = 0; i < kMaxColorStages; ++i) {
             if (this->isColorStageEnabled(i)) {
-                fColorSamplers[i].preConcatMatrix(matrix);
+                fColorSamplers[i].preConcatCoordChange(preConcat);
             }
         }
         for (int i = 0; i < kMaxCoverageStages; ++i) {
             if (this->isCoverageStageEnabled(i)) {
-                fCoverageSamplers[i].preConcatMatrix(matrix);
+                fCoverageSamplers[i].preConcatCoordChange(preConcat);
             }
         }
     }

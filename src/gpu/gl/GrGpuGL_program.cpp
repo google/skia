@@ -177,19 +177,20 @@ void GrGpuGL::AdjustTextureMatrix(const GrGLTexture* texture,
     }
 }
 
-bool GrGpuGL::TextureMatrixIsIdentity(const GrGLTexture* texture,
-                                      const GrSamplerState& sampler) {
+int GrGpuGL::TextureMatrixOptFlags(const GrGLTexture* texture,
+                                   const GrSamplerState& sampler) {
     GrAssert(NULL != texture);
-    if (!sampler.getMatrix().isIdentity()) {
-        return false;
+    GrMatrix matrix;
+    sampler.getTotalMatrix(&matrix);
+
+    bool canBeIndentity = GrGLTexture::kTopDown_Orientation == texture->orientation();
+
+    if (canBeIndentity && matrix.isIdentity()) {
+        return GrGLProgram::StageDesc::kIdentityMatrix_OptFlagBit;
+    } else if (!matrix.hasPerspective()) {
+        return GrGLProgram::StageDesc::kNoPerspective_OptFlagBit;
     }
-    GrGLTexture::Orientation orientation = texture->orientation();
-    if (GrGLTexture::kBottomUp_Orientation == orientation) {
-        return false;
-    } else {
-        GrAssert(GrGLTexture::kTopDown_Orientation == orientation);
-    }
-    return true;
+    return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -208,7 +209,8 @@ void GrGpuGL::flushTextureMatrix(int s) {
         UniformHandle matrixUni = fCurrentProgram->fUniforms.fStages[s].fTextureMatrixUni;
 
         const GrMatrix& hwMatrix = fCurrentProgram->fTextureMatrices[s];
-        const GrMatrix& samplerMatrix = drawState.getSampler(s).getMatrix();
+        GrMatrix samplerMatrix;
+        drawState.getSampler(s).getTotalMatrix(&samplerMatrix);
 
         if (kInvalidUniformHandle != matrixUni &&
             (orientationChange || !hwMatrix.cheapEqualTo(samplerMatrix))) {
@@ -237,7 +239,6 @@ void GrGpuGL::flushTextureMatrix(int s) {
         fCurrentProgram->fTextureOrientation[s] = texture->orientation();
     }
 }
-
 
 void GrGpuGL::flushColorMatrix() {
     UniformHandle matrixUni = fCurrentProgram->fUniforms.fColorMatrixUni;
@@ -701,15 +702,13 @@ void GrGpuGL::buildProgram(bool isPoints,
             // FIXME: Still assuming one texture per custom stage
             const GrCustomStage* customStage = drawState.getSampler(s).getCustomStage();
             const GrGLTexture* texture = static_cast<const GrGLTexture*>(customStage->texture(0));
+            GrMatrix samplerMatrix;
+            sampler.getTotalMatrix(&samplerMatrix);
             if (NULL != texture) {
                 // We call this helper function rather then simply checking the client-specified
                 // texture matrix. This is because we may have to concat a y-inversion to account
                 // for texture orientation.
-                if (TextureMatrixIsIdentity(texture, sampler)) {
-                    stage.fOptFlags |= StageDesc::kIdentityMatrix_OptFlagBit;
-                } else if (!sampler.getMatrix().hasPerspective()) {
-                    stage.fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
-                }
+                stage.fOptFlags |= TextureMatrixOptFlags(texture, sampler);
             }
 
             setup_custom_stage(&stage, sampler, this->glCaps(), customStages,

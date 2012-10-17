@@ -10,17 +10,20 @@
 #ifndef GrContext_DEFINED
 #define GrContext_DEFINED
 
-#include "GrConfig.h"
-#include "GrPaint.h"
+#include "GrColor.h"
 #include "GrAARectRenderer.h"
 #include "GrClipData.h"
+#include "GrMatrix.h"
+#include "GrPaint.h"
 // not strictly needed but requires WK change in LayerTextureUpdaterCanvas to
 // remove.
 #include "GrRenderTarget.h"
-#include "SkClipStack.h"
+#include "GrRefCnt.h"
+#include "GrTexture.h"
 
 class GrAutoScratchTexture;
 class GrCacheKey;
+class GrCustomStage;
 class GrDrawState;
 class GrDrawTarget;
 class GrFontCache;
@@ -33,6 +36,7 @@ class GrPathRendererChain;
 class GrResourceEntry;
 class GrResourceCache;
 class GrStencilBuffer;
+class GrTextureParams;
 class GrVertexBuffer;
 class GrVertexBufferAllocPool;
 class GrSoftwarePathRenderer;
@@ -711,7 +715,7 @@ public:
             this->restore();
 
             if (NULL != paint) {
-                if (!paint->preConcatSamplerMatricesWithInverse(context->getMatrix())) {
+                if (!paint->sourceCoordChangeByInverse(context->getMatrix())) {
                     return false;
                 }
             }
@@ -749,7 +753,7 @@ public:
          */
         void preConcat(const GrMatrix& preConcat, GrPaint* paint = NULL) {
             if (NULL != paint) {
-                paint->preConcatSamplerMatrices(preConcat);
+                paint->sourceCoordChange(preConcat);
             }
             fContext->concatMatrix(preConcat);
         }

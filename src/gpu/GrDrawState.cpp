@@ -54,7 +54,7 @@ void GrDrawState::AutoViewMatrixRestore::restore() {
         fDrawState->setViewMatrix(fViewMatrix);
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
             if (fRestoreMask & (1 << s)) {
-                fDrawState->sampler(s)->setMatrixDeprecated(fSamplerMatrices[s]);
+                fDrawState->sampler(s)->restoreCoordChange(fSavedCoordChanges[s]);
             }
         }
     }
@@ -77,8 +77,8 @@ void GrDrawState::AutoViewMatrixRestore::set(GrDrawState* drawState,
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (!(explicitCoordStageMask & (1 << s)) && drawState->isStageEnabled(s)) {
             fRestoreMask |= (1 << s);
-            fSamplerMatrices[s] = drawState->sampler(s)->getMatrix();
-            drawState->sampler(s)->preConcatMatrix(preconcatMatrix);
+            fDrawState->sampler(s)->saveCoordChange(&fSavedCoordChanges[s]);
+            drawState->sampler(s)->preConcatCoordChange(preconcatMatrix);
         }
     }
 }
@@ -90,7 +90,7 @@ void GrDrawState::AutoDeviceCoordDraw::restore() {
         fDrawState->setViewMatrix(fViewMatrix);
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
             if (fRestoreMask & (1 << s)) {
-                fDrawState->sampler(s)->setMatrixDeprecated(fSamplerMatrices[s]);
+                fDrawState->sampler(s)->restoreCoordChange(fSavedCoordChanges[s]);
             }
         }
     }
@@ -124,8 +124,8 @@ bool GrDrawState::AutoDeviceCoordDraw::set(GrDrawState* drawState,
             }
             fRestoreMask |= (1 << s);
             GrSamplerState* sampler = drawState->sampler(s);
-            fSamplerMatrices[s] = sampler->getMatrix();
-            sampler->preConcatMatrix(invVM);
+            sampler->saveCoordChange(&fSavedCoordChanges[s]);
+            sampler->preConcatCoordChange(invVM);
         }
     }
     drawState->viewMatrix()->reset();
