@@ -7,7 +7,6 @@
 
 #include "SkGpuDevice.h"
 
-#include "effects/GrColorTableEffect.h"
 #include "effects/GrTextureDomainEffect.h"
 
 #include "GrContext.h"
@@ -513,19 +512,11 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
             if (NULL != stage.get()) {
                 grPaint->colorSampler(kColorFilterTextureIdx)->setCustomStage(stage);
             } else {
-                // TODO: rewrite these using asNewCustomStage()
+                // TODO: rewrite this using asNewCustomStage()
                 SkColor color;
                 SkXfermode::Mode filterMode;
-                SkBitmap colorTransformTable;
                 if (colorFilter->asColorMode(&color, &filterMode)) {
                     grPaint->setXfermodeColorFilter(filterMode, SkColor2GrColor(color));
-                } else if (colorFilter != NULL &&
-                           colorFilter->asComponentTable(&colorTransformTable)) {
-                    // pass NULL because the color table effect doesn't use tiling or filtering.
-                    GrTexture* texture = act->set(dev, colorTransformTable, NULL);
-                    GrSamplerState* colorSampler = grPaint->colorSampler(kColorFilterTextureIdx);
-                    colorSampler->reset();
-                    colorSampler->setCustomStage(SkNEW_ARGS(GrColorTableEffect, (texture)))->unref();
                 }
             }
         }

@@ -52,7 +52,7 @@ public:
      *  The original component value is the horizontal index for a given row,
      *  and the stored value at that index is the new value for that component.
      */
-    virtual bool asComponentTable(SkBitmap* table);
+    virtual bool asComponentTable(SkBitmap* table) const;
 
     /** Called with a scanline of colors, as if there was a shader installed.
         The implementation writes out its filtered version into result[].

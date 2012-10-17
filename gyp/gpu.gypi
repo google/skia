@@ -128,8 +128,6 @@
       '<(skia_src_path)/gpu/effects/Gr1DKernelEffect.h',
       '<(skia_src_path)/gpu/effects/GrTextureStripAtlas.h',
       '<(skia_src_path)/gpu/effects/GrTextureStripAtlas.cpp',
-      '<(skia_src_path)/gpu/effects/GrColorTableEffect.cpp',
-      '<(skia_src_path)/gpu/effects/GrColorTableEffect.h',
       '<(skia_src_path)/gpu/effects/GrConfigConversionEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrConfigConversionEffect.h',
       '<(skia_src_path)/gpu/effects/GrConvolutionEffect.cpp',
