@@ -32,6 +32,51 @@ extern void  Clamp_SI8_opaque_D32_filter_DX_shaderproc_neon(const SkBitmapProcSt
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/**
+ *  For the purposes of drawing bitmaps, if a matrix is "almost" translate
+ *  go ahead and treat it as if it were, so that subsequent code can go fast.
+ */
+static bool just_trans_clamp(const SkMatrix& matrix, const SkBitmap& bitmap) {
+    SkMatrix::TypeMask mask = matrix.getType();
+
+    if (mask & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask)) {
+        return false;
+    }
+    if (mask & SkMatrix::kScale_Mask) {
+        SkScalar sx = matrix[SkMatrix::kMScaleX];
+        SkScalar sy = matrix[SkMatrix::kMScaleY];
+        int w = bitmap.width();
+        int h = bitmap.height();
+        int sw = SkScalarRound(SkScalarMul(sx, SkIntToScalar(w)));
+        int sh = SkScalarRound(SkScalarMul(sy, SkIntToScalar(h)));
+        return sw == w && sh == h;
+    }
+    // if we got here, we're either kTranslate_Mask or identity
+    return true;
+}
+
+static bool just_trans_general(const SkMatrix& matrix) {
+    SkMatrix::TypeMask mask = matrix.getType();
+
+    if (mask & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask)) {
+        return false;
+    }
+    if (mask & SkMatrix::kScale_Mask) {
+        const SkScalar tol = SK_Scalar1 / 32768;
+        
+        if (!SkScalarNearlyZero(matrix[SkMatrix::kMScaleX] - SK_Scalar1, tol)) {
+            return false;
+        }
+        if (!SkScalarNearlyZero(matrix[SkMatrix::kMScaleY] - SK_Scalar1, tol)) {
+            return false;
+        }
+    }
+    // if we got here, treat us as either kTranslate_Mask or identity
+    return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 static bool valid_for_filtering(unsigned dimension) {
     // for filtering, width and height must fit in 14bits, since we use steal
     // 2 bits from each to store our 4bit subpixel data
@@ -46,7 +91,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     const SkMatrix* m;
     bool trivial_matrix = (inv.getType() & ~SkMatrix::kTranslate_Mask) == 0;
     bool clamp_clamp = SkShader::kClamp_TileMode == fTileModeX &&
-                       SkShader::kClamp_TileMode == fTileModeY;
+    SkShader::kClamp_TileMode == fTileModeY;
 
     if (clamp_clamp || trivial_matrix) {
         m = &inv;
@@ -61,7 +106,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         int shift = fOrigBitmap.extractMipLevel(&fMipBitmap,
                                                 SkScalarToFixed(m->getScaleX()),
                                                 SkScalarToFixed(m->getSkewY()));
-
+        
         if (shift > 0) {
             if (m != &fUnitInvMatrix) {
                 fUnitInvMatrix = *m;
@@ -76,6 +121,23 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         }
     }
 
+    // wack our matrix to exactly no-scale, if we're really close to begin with
+    {
+        bool fixupMatrix = clamp_clamp ?
+        just_trans_clamp(*m, *fBitmap) : just_trans_general(*m);
+        if (fixupMatrix) {
+            if (m != &fUnitInvMatrix) {    // can't mutate the original
+                fUnitInvMatrix = inv;
+                m = &fUnitInvMatrix;
+            }
+            fUnitInvMatrix.set(SkMatrix::kMScaleX, SK_Scalar1);
+            fUnitInvMatrix.set(SkMatrix::kMScaleY, SK_Scalar1);
+        }
+    }
+
+    // Below this point, we should never refer to the inv parameter, since we
+    // may be using a munged version for "our" inverse.
+    
     fInvMatrix      = m;
     fInvProc        = m->getMapXYProc();
     fInvType        = m->getType();
@@ -92,7 +154,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     // note: we explicitly check inv, since m might be scaled due to unitinv
     //       trickery, but we don't want to see that for this test
     fDoFilter = paint.isFilterBitmap() &&
-                (inv.getType() > SkMatrix::kTranslate_Mask &&
+                (fInvType > SkMatrix::kTranslate_Mask &&
                  valid_for_filtering(fBitmap->width() | fBitmap->height()));
 
     fShaderProc32 = NULL;
