@@ -10,7 +10,6 @@
 
 #include "GrColor.h"
 #include "GrMatrix.h"
-#include "GrNoncopyable.h"
 #include "GrRefCnt.h"
 #include "GrSamplerState.h"
 #include "GrStencil.h"
@@ -267,32 +266,33 @@ public:
     }
 
     /**
-     * Preconcats the matrix of all samplers of enabled stages with a matrix.
+     * Called when the source coord system is changing. preConcat gives the transformation from the
+     * old coord system to the new coord system.
      */
-    void preConcatSamplerMatrices(const GrMatrix& matrix) {
+    void preConcatSamplerMatrices(const GrMatrix& preConcat) {
         for (int i = 0; i < kNumStages; ++i) {
             if (this->isStageEnabled(i)) {
-                fSamplerStates[i].preConcatMatrix(matrix);
+                fSamplerStates[i].preConcatCoordChange(preConcat);
             }
         }
     }
 
     /**
-     * Preconcats the matrix of all samplers in the mask with the inverse of a
-     * matrix. If the matrix inverse cannot be computed (and there is at least
-     * one enabled stage) then false is returned.
+     * Called when the source coord system is changing. preConcatInverse is the inverse of the
+     * transformation from the old coord system to the new coord system. Returns false if the matrix
+     * cannot be inverted.
      */
-    bool preConcatSamplerMatricesWithInverse(const GrMatrix& matrix) {
+    bool preConcatSamplerMatricesWithInverse(const GrMatrix& preConcatInverse) {
         GrMatrix inv;
         bool computed = false;
         for (int i = 0; i < kNumStages; ++i) {
             if (this->isStageEnabled(i)) {
-                if (!computed && !matrix.invert(&inv)) {
+                if (!computed && !preConcatInverse.invert(&inv)) {
                     return false;
                 } else {
                     computed = true;
                 }
-                fSamplerStates[i].preConcatMatrix(inv);
+                fSamplerStates[i].preConcatCoordChange(preConcatInverse);
             }
         }
         return true;
@@ -503,10 +503,10 @@ public:
         bool isSet() const { return NULL != fDrawState; }
 
     private:
-        GrDrawState*       fDrawState;
-        GrMatrix           fViewMatrix;
-        GrMatrix           fSamplerMatrices[GrDrawState::kNumStages];
-        uint32_t           fRestoreMask;
+        GrDrawState*                        fDrawState;
+        GrMatrix                            fViewMatrix;
+        GrSamplerState::SavedCoordChange    fSavedCoordChanges[GrDrawState::kNumStages];
+        uint32_t                            fRestoreMask;
     };
 
     ////////////////////////////////////////////////////////////////////////////
@@ -557,10 +557,10 @@ public:
         void restore();
 
     private:
-        GrDrawState*       fDrawState;
-        GrMatrix           fViewMatrix;
-        GrMatrix           fSamplerMatrices[GrDrawState::kNumStages];
-        uint32_t           fRestoreMask;
+        GrDrawState*                        fDrawState;
+        GrMatrix                            fViewMatrix;
+        GrSamplerState::SavedCoordChange    fSavedCoordChanges[GrDrawState::kNumStages];
+        uint32_t                            fRestoreMask;
     };
 
     /// @}

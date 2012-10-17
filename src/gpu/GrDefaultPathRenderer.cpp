@@ -450,6 +450,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
                 drawState->disableState(GrDrawState::kNoColorWrites_StateBit);
             }
             GrRect bounds;
+            GrDrawState::AutoDeviceCoordDraw adcd;
             if (reverse) {
                 GrAssert(NULL != drawState->getRenderTarget());
                 // draw over the whole world.
@@ -462,12 +463,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
                     drawState->getViewInverse(&vmi)) {
                     vmi.mapRect(&bounds);
                 } else {
-                    const GrMatrix& vm = drawState->getViewMatrix();
-                    if (!drawState->preConcatSamplerMatricesWithInverse(vm)) {
-                        GrPrintf("Could not invert matrix.\n");
-                        return false;
-                    }
-                    drawState->viewMatrix()->reset();
+                    adcd.set(drawState);
                 }
             } else {
                 bounds = path.getBounds();
