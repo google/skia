@@ -7,6 +7,7 @@
  */
 #include "Test.h"
 #include "SkBitmap.h"
+#include "SkBitmapProcShader.h"
 #include "SkDeferredCanvas.h"
 #include "SkDevice.h"
 #include "SkShader.h"
@@ -348,6 +349,48 @@ static void TestDeferredCanvasSkip(skiatest::Reporter* reporter) {
 
 }
 
+static void TestDeferredCanvasBitmapShaderNoLeak(skiatest::Reporter* reporter) {
+    // This is a regression test for crbug.com/155875
+    // This test covers a code path that inserts bitmaps into the bitmap heap through the
+    // flattening of SkBitmapProcShaders. The refcount in the bitmap heap is maintained through
+    // the flattening and unflattening of the shader.
+    SkBitmap store;
+    store.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
+    store.allocPixels();
+    SkDevice device(store);
+    SkDeferredCanvas canvas(&device);
+    // test will fail if nbIterations is not in sync with
+    // BITMAPS_TO_KEEP in SkGPipeWrite.cpp
+    const int nbIterations = 5;
+    size_t bytesAllocated = 0;
+    for(int pass = 0; pass < 2; ++pass) {
+        for(int i = 0; i < nbIterations; ++i) {
+            SkPaint paint;
+            SkBitmap paintPattern;
+            paintPattern.setConfig(SkBitmap::kARGB_8888_Config, 10, 10);
+            paintPattern.allocPixels();
+            paint.setShader(SkNEW_ARGS(SkBitmapProcShader, 
+                (paintPattern, SkShader::kClamp_TileMode, SkShader::kClamp_TileMode)))->unref();
+            canvas.drawPaint(paint);
+            canvas.flush();
+
+            // In the first pass, memory allocation should be monotonically increasing as
+            // the bitmap heap slots fill up.  In the second pass memory allocation should be
+            // stable as bitmap heap slots get recycled.
+            size_t newBytesAllocated = canvas.storageAllocatedForRecording();
+            if (pass == 0) {
+                REPORTER_ASSERT(reporter, newBytesAllocated > bytesAllocated);
+                bytesAllocated = newBytesAllocated;
+            } else {
+                REPORTER_ASSERT(reporter, newBytesAllocated == bytesAllocated);        
+            }
+        }
+    }
+    // All cached resources should be evictable since last canvas call was flush() 
+    canvas.freeMemoryIfPossible(~0);
+    REPORTER_ASSERT(reporter, 0 == canvas.storageAllocatedForRecording()); 
+}
+
 static void TestDeferredCanvas(skiatest::Reporter* reporter) {
     TestDeferredCanvasBitmapAccess(reporter);
     TestDeferredCanvasFlush(reporter);
@@ -355,6 +398,7 @@ static void TestDeferredCanvas(skiatest::Reporter* reporter) {
     TestDeferredCanvasMemoryLimit(reporter);
     TestDeferredCanvasBitmapCaching(reporter);
     TestDeferredCanvasSkip(reporter);
+    TestDeferredCanvasBitmapShaderNoLeak(reporter);
 }
 
 #include "TestClassDef.h"

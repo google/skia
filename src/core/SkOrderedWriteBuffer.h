@@ -12,12 +12,12 @@
 #include "SkFlattenableBuffers.h"
 
 #include "SkRefCnt.h"
-#include "SkBitmap.h"
 #include "SkBitmapHeap.h"
 #include "SkPath.h"
 #include "SkSerializationHelpers.h"
 #include "SkWriter32.h"
 
+class SkBitmap;
 class SkFlattenable;
 class SkFactorySet;
 class SkNamedFactorySet;
