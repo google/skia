@@ -187,6 +187,7 @@ void SkOrderedReadBuffer::readBitmap(SkBitmap* bitmap) {
     } else {
         if (fBitmapStorage) {
             const uint32_t index = fReader.readU32();
+            fReader.readU32(); // bitmap generation ID (see SkOrderedWriteBuffer::writeBitmap)
             *bitmap = *fBitmapStorage->getBitmap(index);
             fBitmapStorage->releaseRef(index);
         } else {
