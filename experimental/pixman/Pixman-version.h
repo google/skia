@@ -37,14 +37,14 @@
 
 #define PIXMAN_VERSION_STRING "@PIXMAN_VERSION_MAJOR@.@PIXMAN_VERSION_MINOR@.@PIXMAN_VERSION_MICRO@"
 
-#define PIXMAN_VERSION_ENCODE(major, minor, micro) (	\
-	  ((major) * 10000)				\
-	+ ((minor) *   100)				\
-	+ ((micro) *     1))
+#define PIXMAN_VERSION_ENCODE(major, minor, micro) (    \
+      ((major) * 10000)                \
+    + ((minor) *   100)                \
+    + ((micro) *     1))
 
-#define PIXMAN_VERSION PIXMAN_VERSION_ENCODE(	\
-	PIXMAN_VERSION_MAJOR,			\
-	PIXMAN_VERSION_MINOR,			\
-	PIXMAN_VERSION_MICRO)
+#define PIXMAN_VERSION PIXMAN_VERSION_ENCODE(    \
+    PIXMAN_VERSION_MAJOR,            \
+    PIXMAN_VERSION_MINOR,            \
+    PIXMAN_VERSION_MICRO)
 
 #endif /* PIXMAN_VERSION_H__ */

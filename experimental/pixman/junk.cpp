@@ -22,9 +22,9 @@ extern "C" {
 
 void*
 pixbuf_from_argb32 (uint32_t *bits,
-		    int width,
-		    int height,
-		    int stride)
+            int width,
+            int height,
+            int stride)
 {
     SkBitmap* bitmap = new SkBitmap;
     bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
@@ -36,10 +36,10 @@ pixbuf_from_argb32 (uint32_t *bits,
 
     for (i = 0; i < height; ++i)
     {
-	uint32_t *src_row = &bits[i * (stride / 4)];
-	uint32_t *dst_row = p_bits + i * (p_stride / 4);
+    uint32_t *src_row = &bits[i * (stride / 4)];
+    uint32_t *dst_row = p_bits + i * (p_stride / 4);
 
-	a8r8g8b8_to_rgba_np (dst_row, src_row, width);
+    a8r8g8b8_to_rgba_np (dst_row, src_row, width);
     }
     return (void*) bitmap;
 }
@@ -49,7 +49,7 @@ void show_image (pixman_image_t *image) {
     int width, height;
     pixman_format_code_t format;
     pixman_image_t *copy;
-    
+
     width = pixman_image_get_width (image);
     height = pixman_image_get_height (image);
 
@@ -72,22 +72,22 @@ void show_image (pixman_image_t *image) {
     {
     case PIXMAN_a8r8g8b8_sRGB:
     case PIXMAN_a8r8g8b8:
-	copy = pixman_image_ref (image);
-	break;
+    copy = pixman_image_ref (image);
+    break;
 
     default:
-	copy = pixman_image_create_bits (PIXMAN_a8r8g8b8,
-					 width, height, NULL, -1);
-	pixman_image_composite32 (PIXMAN_OP_SRC,
-				  image, NULL, copy,
-				  0, 0, 0, 0, 0, 0,
-				  width, height);
-	break;
+    copy = pixman_image_create_bits (PIXMAN_a8r8g8b8,
+                     width, height, NULL, -1);
+    pixman_image_composite32 (PIXMAN_OP_SRC,
+                  image, NULL, copy,
+                  0, 0, 0, 0, 0, 0,
+                  width, height);
+    break;
     }
 
     SkBitmap* bitmap = (SkBitmap*) pixbuf_from_argb32 (pixman_image_get_data (copy),
-				 width, height,
-				 pixman_image_get_stride (copy));
+                 width, height,
+                 pixman_image_get_stride (copy));
     canvas->drawBitmap(*bitmap, 0, 0);
     delete bitmap;
 }

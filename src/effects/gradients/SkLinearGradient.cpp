@@ -574,7 +574,7 @@ bool SkLinearGradient::asNewCustomStage(GrContext* context, GrSamplerState* samp
     } else {
         sampler->setCustomStage(stage, fPtsToUnit);
     }
-    
+
     return true;
 }
 

@@ -661,7 +661,7 @@ bool SkTwoPointRadialGradient::asNewCustomStage(GrContext* context,
     } else {
         matrix.reset();
     }
-    
+
     matrix.preConcat(fPtsToUnit);
 
     SkMatrix localM;
