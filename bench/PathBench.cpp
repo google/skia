@@ -671,6 +671,93 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
+// Chrome creates its own round rects with each corner possibly being different 
+class ArbRoundRectBench : public SkBenchmark {
+protected:
+    SkString            fName;
+
+    enum {
+        N = SkBENCHLOOP(100)
+    };
+public:
+    ArbRoundRectBench(void* param) : INHERITED(param) {
+        fName.printf("arbroundrect");
+    }
+
+protected:
+    virtual const char* onGetName() SK_OVERRIDE {
+        return fName.c_str();
+    }
+
+    static void add_corner_arc(SkPath* path, const SkRect& rect, 
+                               SkScalar xIn, SkScalar yIn, 
+                               int startAngle)
+    {
+
+        SkScalar rx = SkMinScalar(rect.width(), xIn);
+        SkScalar ry = SkMinScalar(rect.height(), yIn);
+
+        SkRect arcRect;
+        arcRect.set(-rx, -ry, rx, ry);
+        switch (startAngle) {
+        case 0:
+            arcRect.offset(rect.fRight - arcRect.fRight, rect.fBottom - arcRect.fBottom);
+            break;
+        case 90:
+            arcRect.offset(rect.fLeft - arcRect.fLeft, rect.fBottom - arcRect.fBottom);
+            break;
+        case 180:
+            arcRect.offset(rect.fLeft - arcRect.fLeft, rect.fTop - arcRect.fTop);
+            break;
+        case 270:
+            arcRect.offset(rect.fRight - arcRect.fRight, rect.fTop - arcRect.fTop);
+            break;
+        default:
+            break;
+        }
+
+        path->arcTo(arcRect, SkIntToScalar(startAngle), SkIntToScalar(90), false);
+    }
+
+    static void make_arb_round_rect(SkPath* path, const SkRect& r, 
+                                    SkScalar xCorner, SkScalar yCorner) {
+        // we are lazy here and use the same x & y for each corner
+        add_corner_arc(path, r, xCorner, yCorner, 270);
+        add_corner_arc(path, r, xCorner, yCorner, 0);
+        add_corner_arc(path, r, xCorner, yCorner, 90);
+        add_corner_arc(path, r, xCorner, yCorner, 180);
+
+        // TODO: re-enable once arcTo convexity issue is resolved
+        //SkASSERT(path->isConvex());
+    }
+
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        SkRandom rand;
+        SkRect r;
+
+        for (int i = 0; i < 5000; ++i) {
+            SkPaint paint;
+            paint.setColor(0xff000000 | rand.nextU());
+            paint.setAntiAlias(true);
+
+            SkScalar radius = rand.nextUScalar1() * 30;
+            r.fLeft = rand.nextUScalar1() * 300;
+            r.fTop =  rand.nextUScalar1() * 300;
+            r.fRight =  r.fLeft + 2 * radius;
+            r.fBottom = r.fTop + 2 * radius;
+
+            SkPath temp;
+
+            make_arb_round_rect(&temp, r, r.width() / 10, r.height() / 15);
+
+            canvas->drawPath(temp, paint);
+        }
+    }
+
+private:
+    typedef SkBenchmark INHERITED;
+};
+
 static SkBenchmark* FactT00(void* p) { return new TrianglePathBench(p, FLAGS00); }
 static SkBenchmark* FactT01(void* p) { return new TrianglePathBench(p, FLAGS01); }
 static SkBenchmark* FactT10(void* p) { return new TrianglePathBench(p, FLAGS10); }
@@ -770,3 +857,5 @@ static BenchRegistry gRegReverseTo(FactReverseTo);
 static SkBenchmark* CirclesTest(void* p) { return new CirclesBench(p); }
 static BenchRegistry gRegCirclesTest(CirclesTest);
 
+static SkBenchmark* ArbRoundRectTest(void* p) { return new ArbRoundRectBench(p); }
+static BenchRegistry gRegArbRoundRectTest(ArbRoundRectTest);
