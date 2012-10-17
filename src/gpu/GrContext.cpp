@@ -48,8 +48,8 @@ SK_DEFINE_INST_COUNT(GrDrawState)
     #define GR_DEBUG_PARTIAL_COVERAGE_CHECK 0
 #endif
 
-static const size_t MAX_TEXTURE_CACHE_COUNT = 256;
-static const size_t MAX_TEXTURE_CACHE_BYTES = 16 * 1024 * 1024;
+static const size_t MAX_TEXTURE_CACHE_COUNT = 2048;
+static const size_t MAX_TEXTURE_CACHE_BYTES = 96 * 1024 * 1024;
 
 static const size_t DRAW_BUFFER_VBPOOL_BUFFER_SIZE = 1 << 15;
 static const int DRAW_BUFFER_VBPOOL_PREALLOC_BUFFERS = 4;
