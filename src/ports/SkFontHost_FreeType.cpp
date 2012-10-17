@@ -144,6 +144,19 @@ static bool InitFreetype() {
     return true;
 }
 
+// Lazy, once, wrapper to ask the FreeType Library if it can support LCD text
+static bool is_lcd_supported() {
+    if (!gLCDSupportValid) {
+        SkAutoMutexAcquire  ac(gFTMutex);
+
+        if (!gLCDSupportValid) {
+            InitFreetype();
+            FT_Done_FreeType(gFTLibrary);
+        }
+    }
+    return gLCDSupport;
+}
+
 class SkScalerContext_FreeType : public SkScalerContext_FreeType_Base {
 public:
     SkScalerContext_FreeType(const SkDescriptor* desc);
@@ -648,14 +661,7 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface*) {
         rec->fTextSize = SkIntToScalar(1 << 14);
     }
 
-    SkAutoMutexAcquire  ac(gFTMutex);
-
-    if (!gLCDSupportValid) {
-        InitFreetype();
-        FT_Done_FreeType(gFTLibrary);
-    }
-
-    if (!gLCDSupport && isLCD(*rec)) {
+    if (!is_lcd_supported() && isLCD(*rec)) {
         // If the runtime Freetype library doesn't support LCD mode, we disable
         // it here.
         rec->fMaskFormat = SkMask::kA8_Format;
