@@ -69,14 +69,48 @@ SkString* SkObjectParser::PaintToString(const SkPaint& paint) {
 }
 
 SkString* SkObjectParser::PathToString(const SkPath& path) {
-    SkString* mPath = new SkString("SkPath: ");
-    for (int i = 0; i < path.countPoints(); i++) {
-        mPath->append("(");
-        mPath->appendScalar(path.getPoint(i).fX);
-        mPath->append(", ");
-        mPath->appendScalar(path.getPoint(i).fY);
-        mPath->append(") ");
+    SkString* mPath = new SkString("Path (");
+
+    static const char* gConvexityStrings[] = {
+        "Unknown", "Convex", "Concave" 
+    };
+    SkASSERT(SkPath::kConcave_Convexity == 2);
+
+    mPath->append(gConvexityStrings[path.getConvexity()]);
+    mPath->append(", ");
+
+    mPath->appendS32(path.countVerbs());
+    mPath->append("V, ");
+    mPath->appendS32(path.countPoints());
+    mPath->append("P): ");
+
+    static const char* gVerbStrings[] = {
+        "Move", "Line", "Quad", "Cubic", "Close", "Done"
+    };
+    static const int gPtsPerVerb[] = { 1, 1, 2, 3, 0, 0 };
+    static const int gPtOffsetPerVerb[] = { 0, 1, 1, 1, 0, 0 };
+    SkASSERT(SkPath::kDone_Verb == 5);
+
+    SkPath::Iter iter(const_cast<SkPath&>(path), false);
+    SkPath::Verb verb;
+    SkPoint points[4];
+
+    for(verb = iter.next(points, false); 
+        verb != SkPath::kDone_Verb; 
+        verb = iter.next(points, false)) {
+
+        mPath->append(gVerbStrings[verb]);
+        mPath->append(" ");
+
+        for (int i = 0; i < gPtsPerVerb[verb]; ++i) {
+            mPath->append("(");
+            mPath->appendScalar(points[gPtOffsetPerVerb[verb]+i].fX);
+            mPath->append(", ");
+            mPath->appendScalar(points[gPtOffsetPerVerb[verb]+i].fY);
+            mPath->append(") ");
+        }
     }
+
     return mPath;
 }
 
