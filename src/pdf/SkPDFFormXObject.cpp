@@ -22,6 +22,15 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
     // resources).
     device->getResources(&fResources, false);
 
+    // Fail fast if in the tree of resources a child references a parent.
+    // If there is an issue, getResources will end up consuming all memory.
+    // TODO: A better approach might be for all SkPDFObject to keep track
+    // of possible cycles.
+#ifdef SK_DEBUG
+    SkTDArray<SkPDFObject*> dummy_resourceList;
+    getResources(&dummy_resourceList);
+#endif
+
     SkRefPtr<SkStream> content = device->content();
     content->unref();  // SkRefPtr and content() both took a reference.
     setData(content.get());
