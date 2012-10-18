@@ -32,6 +32,7 @@ CWD := $(shell pwd)
 ALL_TARGETS := skia_base_libs \
                bench \
                gm \
+               most \
                SampleApp \
                tests \
                tools
@@ -42,7 +43,7 @@ endif
 
 # Default target.  This must be listed before all other targets.
 .PHONY: default
-default: $(ALL_TARGETS)
+default: most
 
 # As noted in http://code.google.com/p/skia/issues/detail?id=330 , building
 # multiple targets in parallel was failing.  The special .NOTPARALLEL target
