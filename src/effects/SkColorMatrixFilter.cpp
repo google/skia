@@ -371,7 +371,7 @@ public:
                 // could optimize this case, but we aren't for now.
                 inputColor = GrGLSLOnesVecf(4);
             }
-            // The max() is to guard against 0 / 0 during unpremul when the incoming color is 
+            // The max() is to guard against 0 / 0 during unpremul when the incoming color is
             // transparent black.
             builder->fFSCode.appendf("\tfloat nonZeroAlpha = max(%s.a, 0.00001);\n", inputColor);
             builder->fFSCode.appendf("\t%s = %s * vec4(%s.rgb / nonZeroAlpha, nonZeroAlpha) + %s;\n",

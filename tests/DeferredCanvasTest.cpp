@@ -369,7 +369,7 @@ static void TestDeferredCanvasBitmapShaderNoLeak(skiatest::Reporter* reporter) {
             SkBitmap paintPattern;
             paintPattern.setConfig(SkBitmap::kARGB_8888_Config, 10, 10);
             paintPattern.allocPixels();
-            paint.setShader(SkNEW_ARGS(SkBitmapProcShader, 
+            paint.setShader(SkNEW_ARGS(SkBitmapProcShader,
                 (paintPattern, SkShader::kClamp_TileMode, SkShader::kClamp_TileMode)))->unref();
             canvas.drawPaint(paint);
             canvas.flush();
@@ -382,13 +382,13 @@ static void TestDeferredCanvasBitmapShaderNoLeak(skiatest::Reporter* reporter) {
                 REPORTER_ASSERT(reporter, newBytesAllocated > bytesAllocated);
                 bytesAllocated = newBytesAllocated;
             } else {
-                REPORTER_ASSERT(reporter, newBytesAllocated == bytesAllocated);        
+                REPORTER_ASSERT(reporter, newBytesAllocated == bytesAllocated);
             }
         }
     }
-    // All cached resources should be evictable since last canvas call was flush() 
+    // All cached resources should be evictable since last canvas call was flush()
     canvas.freeMemoryIfPossible(~0);
-    REPORTER_ASSERT(reporter, 0 == canvas.storageAllocatedForRecording()); 
+    REPORTER_ASSERT(reporter, 0 == canvas.storageAllocatedForRecording());
 }
 
 static void TestDeferredCanvas(skiatest::Reporter* reporter) {

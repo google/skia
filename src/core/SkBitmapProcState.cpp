@@ -63,7 +63,7 @@ static bool just_trans_general(const SkMatrix& matrix) {
     }
     if (mask & SkMatrix::kScale_Mask) {
         const SkScalar tol = SK_Scalar1 / 32768;
-        
+
         if (!SkScalarNearlyZero(matrix[SkMatrix::kMScaleX] - SK_Scalar1, tol)) {
             return false;
         }
@@ -106,7 +106,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         int shift = fOrigBitmap.extractMipLevel(&fMipBitmap,
                                                 SkScalarToFixed(m->getScaleX()),
                                                 SkScalarToFixed(m->getSkewY()));
-        
+
         if (shift > 0) {
             if (m != &fUnitInvMatrix) {
                 fUnitInvMatrix = *m;
@@ -137,7 +137,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
 
     // Below this point, we should never refer to the inv parameter, since we
     // may be using a munged version for "our" inverse.
-    
+
     fInvMatrix      = m;
     fInvProc        = m->getMapXYProc();
     fInvType        = m->getType();
