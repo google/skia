@@ -20,6 +20,7 @@
 
         'gyp/bench.gyp:bench',
         'gyp/gm.gyp:gm',
+        'gyp/most.gyp:most',
         'gyp/SampleApp.gyp:SampleApp',
         'gyp/tests.gyp:tests',
         'gyp/tools.gyp:tools',
