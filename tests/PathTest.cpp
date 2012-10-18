@@ -77,6 +77,72 @@ static void test_isfinite_after_transform(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, path.getBounds().isEmpty());
 }
 
+static void add_corner_arc(SkPath* path, const SkRect& rect, 
+                           SkScalar xIn, SkScalar yIn, 
+                           int startAngle)
+{
+
+    SkScalar rx = SkMinScalar(rect.width(), xIn);
+    SkScalar ry = SkMinScalar(rect.height(), yIn);
+
+    SkRect arcRect;
+    arcRect.set(-rx, -ry, rx, ry);
+    switch (startAngle) {
+    case 0:
+        arcRect.offset(rect.fRight - arcRect.fRight, rect.fBottom - arcRect.fBottom);
+        break;
+    case 90:
+        arcRect.offset(rect.fLeft - arcRect.fLeft, rect.fBottom - arcRect.fBottom);
+        break;
+    case 180:
+        arcRect.offset(rect.fLeft - arcRect.fLeft, rect.fTop - arcRect.fTop);
+        break;
+    case 270:
+        arcRect.offset(rect.fRight - arcRect.fRight, rect.fTop - arcRect.fTop);
+        break;
+    default:
+        break;
+    }
+
+    path->arcTo(arcRect, SkIntToScalar(startAngle), SkIntToScalar(90), false);
+}
+
+static void make_arb_round_rect(SkPath* path, const SkRect& r, 
+                                SkScalar xCorner, SkScalar yCorner) {
+    // we are lazy here and use the same x & y for each corner
+    add_corner_arc(path, r, xCorner, yCorner, 270);
+    add_corner_arc(path, r, xCorner, yCorner, 0);
+    add_corner_arc(path, r, xCorner, yCorner, 90);
+    add_corner_arc(path, r, xCorner, yCorner, 180);
+}
+
+// Chrome creates its own round rects with each corner possibly being different.
+// Performance will suffer if they are not convex.
+// Note: PathBench::ArbRoundRectBench performs almost exactly
+// the same test (but with drawing)
+static void test_arb_round_rect_is_convex(skiatest::Reporter* reporter) {
+    SkRandom rand;
+    SkRect r;
+
+    for (int i = 0; i < 5000; ++i) {
+
+        SkScalar radius = rand.nextUScalar1() * 30;
+        if (radius < SK_Scalar1) {
+            continue;
+        }
+        r.fLeft = rand.nextUScalar1() * 300;
+        r.fTop =  rand.nextUScalar1() * 300;
+        r.fRight =  r.fLeft + 2 * radius;
+        r.fBottom = r.fTop + 2 * radius;
+
+        SkPath temp;
+
+        make_arb_round_rect(&temp, r, r.width() / 10, r.height() / 15);
+
+        REPORTER_ASSERT(reporter, temp.isConvex());
+    }
+}
+
 static void test_rect_isfinite(skiatest::Reporter* reporter) {
     const SkScalar inf = SK_ScalarInfinity;
     const SkScalar nan = SK_ScalarNaN;
@@ -1616,6 +1682,7 @@ static void TestPath(skiatest::Reporter* reporter) {
     test_isfinite(reporter);
     test_isfinite_after_transform(reporter);
     test_tricky_cubic(reporter);
+    test_arb_round_rect_is_convex(reporter);
 }
 
 #include "TestClassDef.h"
