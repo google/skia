@@ -50,6 +50,8 @@
 #include "SkDevice.h"
 #include "SkMatrix.h"
 #include "SkNWayCanvas.h"
+#include "SkPDFDevice.h"
+#include "SkPDFDocument.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPicture.h"
@@ -141,6 +143,8 @@ static const char* const kNWayIndirect1StateAssertMessageFormat =
     "test step %s, SkNWayCanvas indirect canvas 1 state consistency";
 static const char* const kNWayIndirect2StateAssertMessageFormat =
     "test step %s, SkNWayCanvas indirect canvas 2 state consistency";
+static const char* const kPdfAssertMessageFormat =
+    "PDF sanity check failed %s";
 
 static void createBitmap(SkBitmap* bm, SkBitmap::Config config, SkColor color) {
     bm->setConfig(config, kWidth, kHeight);
@@ -156,9 +160,10 @@ static SkTDArray<CanvasTestStep*>& testStepArray() {
 
 class CanvasTestStep {
 public:
-    CanvasTestStep() {
+    CanvasTestStep(bool fEnablePdfTesting = true) {
         *testStepArray().append() = this;
         fAssertMessageFormat = kDefaultAssertMessageFormat;
+        this->fEnablePdfTesting = fEnablePdfTesting;
     }
     virtual ~CanvasTestStep() { }
 
@@ -174,9 +179,12 @@ public:
         fAssertMessageFormat = format;
     }
 
+    bool enablePdfTesting() { return fEnablePdfTesting; }
+
 private:
     SkString fAssertMessage;
     const char* fAssertMessageFormat;
+    bool fEnablePdfTesting;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -243,6 +251,17 @@ SkPoint kTestPoints2[] = {
 #define TEST_STEP(NAME, FUNCTION)                                       \
 class NAME##_TestStep : public CanvasTestStep{                          \
 public:                                                                 \
+    virtual void draw(SkCanvas* canvas, skiatest::Reporter* reporter) { \
+        FUNCTION (canvas, reporter, this);                              \
+    }                                                                   \
+    virtual const char* name() const {return #NAME ;}                   \
+};                                                                      \
+static NAME##_TestStep NAME##_TestStepInstance;
+
+#define TEST_STEP_NO_PDF(NAME, FUNCTION)                                       \
+class NAME##_TestStep : public CanvasTestStep{                          \
+public:                                                                 \
+    NAME##_TestStep() : CanvasTestStep(false) {}                        \
     virtual void draw(SkCanvas* canvas, skiatest::Reporter* reporter) { \
         FUNCTION (canvas, reporter, this);                              \
     }                                                                   \
@@ -460,7 +479,8 @@ static void DrawVerticesShaderTestStep(SkCanvas* canvas,
     canvas->drawVertices(SkCanvas::kTriangleFan_VertexMode, 4, pts, pts,
                          NULL, NULL, NULL, 0, paint);
 }
-TEST_STEP(DrawVerticesShader, DrawVerticesShaderTestStep);
+// NYI: issue 240.
+TEST_STEP_NO_PDF(DrawVerticesShader, DrawVerticesShaderTestStep);
 
 static void DrawPictureTestStep(SkCanvas* canvas,
                                 skiatest::Reporter* reporter,
@@ -732,6 +752,19 @@ public:
     }
 };
 
+static void TestPdfDevice(skiatest::Reporter* reporter,
+                          CanvasTestStep* testStep) {
+    SkISize pageSize = SkISize::Make(kWidth, kHeight);
+    SkPDFDevice device(pageSize, pageSize, SkMatrix::I());
+    SkCanvas canvas(&device);
+    testStep->setAssertMessageFormat(kPdfAssertMessageFormat);
+    testStep->draw(&canvas, reporter);
+    SkPDFDocument doc;
+    doc.appendPage(&device);
+    SkDynamicMemoryWStream stream;
+    doc.emitPDF(&stream);
+}
+
 // The following class groups static functions that need to access
 // the privates members of SkDeferredCanvas
 class SkDeferredCanvasTester {
@@ -886,6 +919,9 @@ static void TestCanvas(skiatest::Reporter* reporter) {
         TestOverrideStateConsistency(reporter, testStepArray()[testStep]);
         SkPictureTester::TestPictureFlattenedObjectReuse(reporter,
             testStepArray()[testStep], 0);
+        if (testStepArray()[testStep]->enablePdfTesting()) {
+            TestPdfDevice(reporter, testStepArray()[testStep]);
+        }
     }
 
     // Explicitly call reset(), so we don't leak the pixels (since kTestBitmap is a global)
