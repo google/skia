@@ -7,6 +7,7 @@
  */
 
 #include "SkOrderedWriteBuffer.h"
+#include "SkBitmap.h"
 #include "SkPtrRecorder.h"
 #include "SkTypeface.h"
 
@@ -135,7 +136,15 @@ bool SkOrderedWriteBuffer::writeToStream(SkWStream* stream) {
 
 void SkOrderedWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
     if (fBitmapHeap) {
-        fWriter.write32(fBitmapHeap->insert(bitmap));
+        int32_t slot = fBitmapHeap->insert(bitmap);
+        fWriter.write32(slot);
+        // crbug.com/155875
+        // The generation ID is not required information. We write it to prevent collisions
+        // in SkFlatDictionary.  It is possible to get a collision when a previously
+        // unflattened (i.e. stale) instance of a similar flattenable is in the dictionary
+        // and the instance currently being written is re-using the same slot from the
+        // bitmap heap.
+        fWriter.write32(bitmap.getGenerationID());
     } else {
         bitmap.flatten(*this);
     }
