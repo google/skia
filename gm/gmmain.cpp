@@ -893,6 +893,9 @@ int tool_main(int argc, char** argv) {
     SkTDArray<size_t> configs;
     bool userConfig = false;
 
+    int moduloIndex = -1;
+    int moduloCount = -1;
+
     gNotifyMissingReadReference = true;
 
     const char* const commandName = argv[0];
@@ -935,6 +938,18 @@ int tool_main(int argc, char** argv) {
             doPDF = false;
         } else if (strcmp(*argv, "--nodeferred") == 0) {
             doDeferred = false;
+        } else if (strcmp(*argv, "--modulo") == 0) {
+            ++argv;
+            if (argv >= stop) {
+                continue;
+            }
+            moduloIndex = atoi(*argv);
+            
+            ++argv;
+            if (argv >= stop) {
+                continue;
+            }
+            moduloCount = atoi(*argv);
         } else if (strcmp(*argv, "--disable-missing-warning") == 0) {
             gNotifyMissingReadReference = false;
         } else if (strcmp(*argv, "--enable-missing-warning") == 0) {
@@ -1007,6 +1022,13 @@ int tool_main(int argc, char** argv) {
         fprintf(stderr, "reading resources from %s\n", resourcePath);
     }
 
+    if (moduloCount <= 0) {
+        moduloIndex = -1;
+    }
+    if (moduloIndex < 0 || moduloIndex >= moduloCount) {
+        moduloIndex = -1;
+    }
+
     // Accumulate success of all tests.
     int testsRun = 0;
     int testsPassed = 0;
@@ -1022,9 +1044,21 @@ int tool_main(int argc, char** argv) {
 
     SkTArray<SkString> failedTests;
 
+    int gmIndex = -1;
+    SkString moduloStr;
+
     Iter iter;
     GM* gm;
     while ((gm = iter.next()) != NULL) {
+        
+        ++gmIndex;
+        if (moduloIndex >= 0) {
+            if ((gmIndex % moduloCount) != moduloIndex) {
+                continue;
+            }
+            moduloStr.printf("[%d % %d] ", gmIndex, moduloCount);
+        }
+
         const char* shortName = gm->shortName();
         if (skip_name(fMatches, shortName)) {
             SkDELETE(gm);
@@ -1032,7 +1066,7 @@ int tool_main(int argc, char** argv) {
         }
 
         SkISize size = gm->getISize();
-        SkDebugf("drawing... %s [%d %d]\n", shortName,
+        SkDebugf("%sdrawing... %s [%d %d]\n", moduloStr.c_str(), shortName,
                  size.width(), size.height());
         SkBitmap forwardRenderedBitmap;
 
