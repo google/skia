@@ -63,7 +63,7 @@ public:
     /**
      * This is called when the coordinate system in which the geometry is specified will change.
      *
-     * @param matrix    The transformation from the old coord system to the new one. 
+     * @param matrix    The transformation from the old coord system to the new one.
      */
     void preConcatCoordChange(const GrMatrix& matrix) { fCoordChangeMatrix.preConcat(matrix); }
 

@@ -671,7 +671,7 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-// Chrome creates its own round rects with each corner possibly being different 
+// Chrome creates its own round rects with each corner possibly being different
 class ArbRoundRectBench : public SkBenchmark {
 protected:
     SkString            fName;
@@ -689,8 +689,8 @@ protected:
         return fName.c_str();
     }
 
-    static void add_corner_arc(SkPath* path, const SkRect& rect, 
-                               SkScalar xIn, SkScalar yIn, 
+    static void add_corner_arc(SkPath* path, const SkRect& rect,
+                               SkScalar xIn, SkScalar yIn,
                                int startAngle)
     {
 
@@ -719,7 +719,7 @@ protected:
         path->arcTo(arcRect, SkIntToScalar(startAngle), SkIntToScalar(90), false);
     }
 
-    static void make_arb_round_rect(SkPath* path, const SkRect& r, 
+    static void make_arb_round_rect(SkPath* path, const SkRect& r,
                                     SkScalar xCorner, SkScalar yCorner) {
         // we are lazy here and use the same x & y for each corner
         add_corner_arc(path, r, xCorner, yCorner, 270);
