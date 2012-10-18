@@ -64,7 +64,7 @@ char* SkStrAppendFixed(char buffer[], SkFixed);
     counting to make string assignments and copies very fast
     with no extra RAM cost. Assumes UTF8 encoding.
 */
-class SkString {
+class SK_API SkString {
 public:
                 SkString();
     explicit    SkString(size_t len);
