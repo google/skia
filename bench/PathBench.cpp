@@ -672,6 +672,8 @@ private:
 };
 
 // Chrome creates its own round rects with each corner possibly being different
+// Note: PathTest::test_arb_round_rect_is_convex performs almost exactly
+// the same test (but with no drawing)
 class ArbRoundRectBench : public SkBenchmark {
 protected:
     SkString            fName;
@@ -727,8 +729,7 @@ protected:
         add_corner_arc(path, r, xCorner, yCorner, 90);
         add_corner_arc(path, r, xCorner, yCorner, 180);
 
-        // TODO: re-enable once arcTo convexity issue is resolved
-        //SkASSERT(path->isConvex());
+        SkASSERT(path->isConvex());
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
@@ -741,6 +742,9 @@ protected:
             paint.setAntiAlias(true);
 
             SkScalar radius = rand.nextUScalar1() * 30;
+            if (radius < SK_Scalar1) {
+                continue;
+            }
             r.fLeft = rand.nextUScalar1() * 300;
             r.fTop =  rand.nextUScalar1() * 300;
             r.fRight =  r.fLeft + 2 * radius;
