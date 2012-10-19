@@ -729,7 +729,9 @@ protected:
         add_corner_arc(path, r, xCorner, yCorner, 90);
         add_corner_arc(path, r, xCorner, yCorner, 180);
 
+#ifdef SK_REDEFINE_ROOT2OVER2_TO_MAKE_ARCTOS_CONVEX
         SkASSERT(path->isConvex());
+#endif
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
