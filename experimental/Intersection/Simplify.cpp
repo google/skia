@@ -29,7 +29,7 @@ int gDebugMaxWindValue = SK_MaxS32;
 #define SORTABLE_CONTOURS 0 // set to 1 for old code that works most of the time
 
 #define DEBUG_UNUSED 0 // set to expose unused functions
-#define FORCE_RELEASE 0
+#define FORCE_RELEASE 1
 
 #if FORCE_RELEASE || defined SK_RELEASE // set force release to 1 for multiple thread -- no debugging
 
@@ -42,7 +42,7 @@ const bool gRunTestsInOneThread = false;
 #define DEBUG_CONCIDENT 0
 #define DEBUG_CROSS 0
 #define DEBUG_MARK_DONE 0
-#define DEBUG_PATH_CONSTRUCTION 0
+#define DEBUG_PATH_CONSTRUCTION 1
 #define DEBUG_SORT 0
 #define DEBUG_WIND_BUMP 0
 #define DEBUG_WINDING 0
@@ -552,6 +552,14 @@ public:
             if (longer.reverseLengthen() | rhLonger.reverseLengthen()) {
                 return longer < rhLonger;
             }
+        }
+        if ((fVerb == SkPath::kLine_Verb && approximately_zero(x) && approximately_zero(y))
+                || (rh.fVerb == SkPath::kLine_Verb && approximately_zero(rx) && approximately_zero(ry))) {
+            // See general unsortable comment below. This case can happen when
+            // one line has a non-zero change in t but no change in x and y.
+            fUnsortable = true;
+            rh.fUnsortable = true;
+            return this < &rh; // even with no solution, return a stable sort
         }
         SkASSERT(fVerb == SkPath::kQuad_Verb); // worry about cubics later
         SkASSERT(rh.fVerb == SkPath::kQuad_Verb);
@@ -1084,6 +1092,11 @@ public:
     // add 2 to edge or out of range values to get T extremes
     void addOtherT(int index, double otherT, int otherIndex) {
         Span& span = fTs[index];
+        if (precisely_less_than_zero(otherT)) {
+            otherT = 0;
+        } else if (precisely_greater_than_one(otherT)) {
+            otherT = 1;
+        }
         span.fOtherT = otherT;
         span.fOtherIndex = otherIndex;
     }
@@ -1106,10 +1119,9 @@ public:
         int insertedAt = -1;
         size_t tCount = fTs.count();
         // FIXME: only do this pinning here (e.g. this is done also in quad/line intersect)
-        if (approximately_less_than_zero(newT)) {
+        if (precisely_less_than_zero(newT)) {
             newT = 0;
-        }
-        if (approximately_greater_than_one(newT)) {
+        } else if (precisely_greater_than_one(newT)) {
             newT = 1;
         }
         for (size_t index = 0; index < tCount; ++index) {

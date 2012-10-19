@@ -292,7 +292,7 @@ static bool drawLetters(SkCanvas* canvas, int step, bool useOld)
     }
 #endif
     paint.getPosTextPath(testStr, testStrLen, textPos, &path);
-#if 0
+#if 1
     tryRonco(path);
 #endif
 #if 0

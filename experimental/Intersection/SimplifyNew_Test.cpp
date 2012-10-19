@@ -2841,7 +2841,7 @@ static void testQuadratic51() {
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = testQuadratic51;
+static void (*firstTest)() = 0;
 
 static struct {
     void (*fun)();
@@ -3127,7 +3127,7 @@ static const size_t subTestCount = sizeof(subTests) / sizeof(subTests[0]);
 
 static bool skipAll = false;
 static bool runSubTests = false;
-static bool runReverse = true;
+static bool runReverse = false;
 
 void SimplifyNew_Test() {
     if (skipAll) {
