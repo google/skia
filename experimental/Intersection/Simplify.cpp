@@ -26,10 +26,12 @@ int gDebugMaxWindValue = SK_MaxS32;
 #endif
 
 #define PRECISE_T_SORT 1
+#define SORTABLE_CONTOURS 0 // set to 1 for old code that works most of the time
 
 #define DEBUG_UNUSED 0 // set to expose unused functions
+#define FORCE_RELEASE 0
 
-#if 1 // set to 1 for multiple thread -- no debugging
+#if FORCE_RELEASE || defined SK_RELEASE // set force release to 1 for multiple thread -- no debugging
 
 const bool gRunTestsInOneThread = false;
 
@@ -498,7 +500,6 @@ public:
     // Using Bezier curve focus http://cagd.cs.byu.edu/~tom/papers/bezclip.pdf
     // may provide some help, but nothing has been figured out yet.
 
- //   start here
     /*(
     for quads and cubics, set up a parameterized line (e.g. LineParameters )
     for points [0] to [1]. See if point [2] is on that line, or on one side
@@ -820,6 +821,10 @@ public:
         fID = ++gSegmentID;
 #endif
     }
+    
+    bool operator<(const Segment& rh) const {
+        return fBounds.fTop < rh.fBounds.fTop;
+    }
 
     bool activeAngle(int index, int& done, SkTDArray<Angle>& angles) const {
         if (activeAngleInner(index, done, angles)) {
@@ -848,7 +853,7 @@ public:
     }
 
     bool activeAngleInner(int index, int& done, SkTDArray<Angle>& angles) const {
-        int next = nextSpan(index, 1);
+        int next = nextExactSpan(index, 1);
         if (next > 0) {
             const Span& upSpan = fTs[index];
             if (upSpan.fWindValue) {
@@ -860,7 +865,7 @@ public:
                 }
             }
         }
-        int prev = nextSpan(index, -1);
+        int prev = nextExactSpan(index, -1);
         // edge leading into junction
         if (prev >= 0) {
             const Span& downSpan = fTs[prev];
@@ -1658,7 +1663,7 @@ public:
         const Span& mSpan = fTs[SkMin32(start, end)];
         return mSpan.fDone;
     }
-
+    
     Segment* findNextOp(SkTDArray<Span*>& chase, bool active,
             int& nextStart, int& nextEnd, int& winding, int& spanWinding,
             bool& unsortable, ShapeOp op,
@@ -2345,10 +2350,9 @@ public:
         int count = fTs.count();
         // see if either end is not done since we want smaller Y of the pair
         bool lastDone = true;
-        bool lastUnsortableEnd;
         for (int index = 0; index < count; ++index) {
             const Span& span = fTs[index];
-            if ((!span.fDone && !span.fUnsortableStart) || (!lastDone && !lastUnsortableEnd)) {
+            if (!span.fDone || !lastDone) {
                 const SkPoint& intercept = xyAtT(&span);
                 if (topPt.fY > intercept.fY || (topPt.fY == intercept.fY
                         && topPt.fX > intercept.fX)) {
@@ -2359,7 +2363,6 @@ public:
                 }
             }
             lastDone = span.fDone;
-            lastUnsortableEnd = span.fUnsortableEnd;
         }
         // sort the edges to find the leftmost
         int step = 1;
@@ -2387,8 +2390,12 @@ public:
             const Angle* angle = sorted[++firstT];
             if (angle->unsortable()) {
                 // FIXME: if all angles are unsortable, find next topmost
-                SkASSERT(firstT < angles.count() - 1);
-                continue;
+                if (firstT >= angles.count() - 1) {
+    #if SORTABLE_CONTOURS
+                    SkASSERT(0);
+    #endif
+                    return NULL;
+                }
             }
             leftSegment = angle->segment();
             tIndex = angle->end();
@@ -2422,7 +2429,7 @@ public:
 
     // OPTIMIZATION: uses tail recursion. Unwise?
     Span* innerChaseDone(int index, int step, int winding) {
-        int end = nextSpan(index, step);
+        int end = nextExactSpan(index, step);
         SkASSERT(end >= 0);
         if (multipleSpans(end)) {
             return &fTs[end];
@@ -2430,14 +2437,14 @@ public:
         const Span& endSpan = fTs[end];
         Segment* other = endSpan.fOther;
         index = endSpan.fOtherIndex;
-        int otherEnd = other->nextSpan(index, step);
+        int otherEnd = other->nextExactSpan(index, step);
         Span* last = other->innerChaseDone(index, step, winding);
         other->markDone(SkMin32(index, otherEnd), winding);
         return last;
     }
 
     Span* innerChaseWinding(int index, int step, int winding) {
-        int end = nextSpan(index, step);
+        int end = nextExactSpan(index, step);
         SkASSERT(end >= 0);
         if (multipleSpans(end)) {
             return &fTs[end];
@@ -2445,7 +2452,7 @@ public:
         const Span& endSpan = fTs[end];
         Segment* other = endSpan.fOther;
         index = endSpan.fOtherIndex;
-        int otherEnd = other->nextSpan(index, step);
+        int otherEnd = other->nextExactSpan(index, step);
         int min = SkMin32(index, otherEnd);
         if (other->fTs[min].fWindSum != SK_MinS32) {
             SkASSERT(other->fTs[min].fWindSum == winding);
@@ -2600,6 +2607,21 @@ public:
         span.fWindSum = winding;
         return &span;
     }
+    
+    void markUnsortable(int start, int end) {
+        Span* span = &fTs[start];
+        if (start < end) {
+            span->fUnsortableStart = true;
+        } else {
+            --span;
+            span->fUnsortableEnd = true;
+        }
+        if (span->fDone) {
+            return;
+        }
+        span->fDone = true;
+        fDoneSpans++;
+    }
 
     void markWinding(int index, int winding) {
     //    SkASSERT(!done());
@@ -2685,6 +2707,8 @@ public:
     // FIXME
     // this returns at any difference in T, vs. a preset minimum. It may be
     // that all callers to nextSpan should use this instead.
+    // OPTIMIZATION splitting this into separate loops for up/down steps
+    // would allow using precisely_negative instead of precisely_zero
     int nextExactSpan(int from, int step) const {
         const Span& fromSpan = fTs[from];
         int count = fTs.count();
@@ -2736,14 +2760,7 @@ public:
             Angle& angle = angles[angleIndex];
             if (angle.unsortable()) {
                 // so that it is available for early exclusion in findTop and others
-                const SkTDArray<Span>* spans = angle.spans();
-                Span* span = const_cast<Span*>(&(*spans)[angle.start()]);
-                if (angle.start() < angle.end()) {
-                    span->fUnsortableStart = true;
-                } else {
-                    --span;
-                    span->fUnsortableEnd = true;
-                }
+                angle.segment()->markUnsortable(angle.start(), angle.end());
                 result = false;
             }
         }
@@ -2798,6 +2815,10 @@ public:
             SkASSERT(index < tCount);
         SkASSERT(index < tCount);
         end = index;
+    }
+
+    bool unsortable(int index) const {
+        return fTs[index].fUnsortableStart || fTs[index].fUnsortableEnd;
     }
 
     void updatePts(const SkPoint pts[]) {
@@ -2997,8 +3018,10 @@ public:
         for (int vIndex = 1; vIndex <= fVerb; ++vIndex) {
             SkDebugf(" %1.9g,%1.9g", fPts[vIndex].fX, fPts[vIndex].fY);
         }
-        SkDebugf(") t=%1.9g (%1.9g,%1.9g) newWindSum=%d windSum=",
-                span.fT, pt.fX, pt.fY, winding);
+        SkASSERT(&span == &span.fOther->fTs[span.fOtherIndex].fOther->
+                fTs[span.fOther->fTs[span.fOtherIndex].fOtherIndex]);
+        SkDebugf(") t=%1.9g [%d] (%1.9g,%1.9g) newWindSum=%d windSum=",
+                span.fT, span.fOther->fTs[span.fOtherIndex].fOtherIndex, pt.fX, pt.fY, winding);
         if (span.fWindSum == SK_MinS32) {
             SkDebugf("?");
         } else {
@@ -3031,15 +3054,21 @@ public:
                 lastSum = windSum;
                 windSum -= segment.spanSign(&angle);
             }
-            SkDebugf("%s [%d] %s id=%d %s start=%d (%1.9g,%,1.9g) end=%d (%1.9g,%,1.9g)"
-                    " sign=%d windValue=%d winding: %d->%d (max=%d) done=%d\n",
-                    __FUNCTION__, index, angle.unsortable() ? "*** UNSORTABLE ***" : "",
+            SkDebugf("%s [%d] %sid=%d %s start=%d (%1.9g,%,1.9g) end=%d (%1.9g,%,1.9g)"
+                    " sign=%d windValue=%d windSum=", 
+                    __FUNCTION__, index, angle.unsortable() ? "*** UNSORTABLE *** " : "",
                     segment.fID, kLVerbStr[segment.fVerb],
-                    start, segment.xAtT(&sSpan),
-                    segment.yAtT(&sSpan), end, segment.xAtT(&eSpan),
-                    segment.yAtT(&eSpan), angle.sign(), mSpan.fWindValue,
-                    lastSum, windSum, useInnerWinding(lastSum, windSum)
-                    ? windSum : lastSum, mSpan.fDone);
+                    start, segment.xAtT(&sSpan), segment.yAtT(&sSpan), end,
+                    segment.xAtT(&eSpan), segment.yAtT(&eSpan), angle.sign(),
+                    mSpan.fWindValue);
+            if (mSpan.fWindSum == SK_MinS32) {
+                SkDebugf("?");
+            } else {
+                SkDebugf("%d", mSpan.fWindSum);
+            }
+            SkDebugf(" winding: %d->%d (max=%d) done=%d\n", lastSum, windSum,
+                    useInnerWinding(lastSum, windSum) ? windSum : lastSum,
+                    mSpan.fDone);
 #if false && DEBUG_ANGLE
             angle.debugShow(segment.xyAtT(&sSpan));
 #endif
@@ -3327,6 +3356,18 @@ public:
         fXor = isXor;
     }
 
+#if !SORTABLE_CONTOURS
+    void sortSegments() {
+        int segmentCount = fSegments.count();
+        fSortedSegments.setReserve(segmentCount);
+        for (int test = 0; test < segmentCount; ++test) {
+            *fSortedSegments.append() = &fSegments[test];
+        }
+        QSort<Segment>(fSortedSegments.begin(), fSortedSegments.end() - 1);
+        fFirstSorted = 0;
+    }
+#endif
+
     // OPTIMIZATION: feel pretty uneasy about this. It seems like once again
     // we need to sort and walk edges in y, but that on the surface opens the
     // same can of worms as before. But then, this is a rough sort based on
@@ -3366,6 +3407,28 @@ public:
         bestY = bestTop;
         return bestSegment;
     }
+
+#if !SORTABLE_CONTOURS
+    Segment* topSortableSegment(SkScalar& bestY) {
+        int segmentCount = fSortedSegments.count();
+        SkASSERT(segmentCount > 0);
+        Segment* bestSegment = NULL;
+        while (fFirstSorted < segmentCount) {
+            Segment* testSegment = fSortedSegments[fFirstSorted];
+            if (testSegment->done()) {
+                fFirstSorted++;
+                continue;
+            }
+            bestSegment = testSegment;
+            break;
+        }
+        if (!bestSegment) {
+            return NULL;
+        }
+        bestY = bestSegment->activeTop();
+        return bestSegment;
+    }
+#endif
 
     Segment* undoneSegment(int& start, int& end) {
         int segmentCount = fSegments.count();
@@ -3445,6 +3508,10 @@ protected:
 
 private:
     SkTArray<Segment> fSegments;
+#if !SORTABLE_CONTOURS
+    SkTDArray<Segment*> fSortedSegments;
+    int fFirstSorted;
+#endif
     SkTDArray<Coincidence> fCoincidences;
     SkTDArray<const Contour*> fCrosses;
     Bounds fBounds;
@@ -3769,6 +3836,7 @@ protected:
 #if DEBUG_ADD_INTERSECTING_TS
 static void debugShowLineIntersection(int pts, const Work& wt,
         const Work& wn, const double wtTs[2], const double wnTs[2]) {
+    return;
     if (!pts) {
         SkDebugf("%s no intersect (%1.9g,%1.9g %1.9g,%1.9g) (%1.9g,%1.9g %1.9g,%1.9g)\n",
                 __FUNCTION__, wt.pts()[0].fX, wt.pts()[0].fY,
@@ -3783,6 +3851,37 @@ static void debugShowLineIntersection(int pts, const Work& wt,
             __FUNCTION__,
             wtTs[0], wt.pts()[0].fX, wt.pts()[0].fY,
             wt.pts()[1].fX, wt.pts()[1].fY, wtOutPt.fX, wtOutPt.fY);
+    if (pts == 2) {
+        SkDebugf(" wtTs[1]=%1.9g", wtTs[1]);
+    }
+    SkDebugf(" wnTs[0]=%g (%1.9g,%1.9g %1.9g,%1.9g) (%1.9g,%1.9g)",
+            wnTs[0], wn.pts()[0].fX, wn.pts()[0].fY,
+            wn.pts()[1].fX, wn.pts()[1].fY, wnOutPt.fX, wnOutPt.fY);
+    if (pts == 2) {
+        SkDebugf(" wnTs[1]=%1.9g", wnTs[1]);
+    }
+    SkDebugf("\n");
+}
+
+static void debugShowQuadLineIntersection(int pts, const Work& wt,
+        const Work& wn, const double wtTs[2], const double wnTs[2]) {
+    if (!pts) {
+        SkDebugf("%s no intersect (%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)"
+                " (%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)\n",
+                __FUNCTION__, wt.pts()[0].fX, wt.pts()[0].fY,
+                wt.pts()[1].fX, wt.pts()[1].fY, wt.pts()[2].fX, wt.pts()[2].fY,
+                wn.pts()[0].fX, wn.pts()[0].fY, wn.pts()[1].fX, wn.pts()[1].fY,
+                wt.pts()[2].fX, wt.pts()[2].fY );
+        return;
+    }
+    SkPoint wtOutPt, wnOutPt;
+    QuadXYAtT(wt.pts(), wtTs[0], &wtOutPt);
+    LineXYAtT(wn.pts(), wnTs[0], &wnOutPt);
+    SkDebugf("%s wtTs[0]=%1.9g (%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g) (%1.9g,%1.9g)",
+            __FUNCTION__,
+            wtTs[0], wt.pts()[0].fX, wt.pts()[0].fY,
+            wt.pts()[1].fX, wt.pts()[1].fY, wt.pts()[2].fX, wt.pts()[2].fY,
+            wtOutPt.fX, wtOutPt.fY);
     if (pts == 2) {
         SkDebugf(" wtTs[1]=%1.9g", wtTs[1]);
     }
@@ -3828,6 +3927,10 @@ static void debugShowQuadIntersection(int pts, const Work& wt,
 }
 #else
 static void debugShowLineIntersection(int , const Work& ,
+        const Work& , const double [2], const double [2]) {
+}
+
+static void debugShowQuadLineIntersection(int , const Work& ,
         const Work& , const double [2], const double [2]) {
 }
 
@@ -3938,6 +4041,8 @@ static bool addIntersectTs(Contour* test, Contour* next) {
                         case Work::kQuad_Segment: {
                             swap = true;
                             pts = QuadLineIntersect(wn.pts(), wt.pts(), ts);
+                            debugShowQuadLineIntersection(pts, wt, wn,
+                                    ts.fT[1], ts.fT[0]);
                             break;
                         }
                         case Work::kCubic_Segment: {
@@ -3961,6 +4066,8 @@ static bool addIntersectTs(Contour* test, Contour* next) {
                             break;
                         case Work::kLine_Segment: {
                             pts = QuadLineIntersect(wt.pts(), wn.pts(), ts);
+                            debugShowQuadLineIntersection(pts, wt, wn,
+                                    ts.fT[1], ts.fT[0]);
                             break;
                         }
                         case Work::kQuad_Segment: {
@@ -4028,12 +4135,6 @@ static bool addIntersectTs(Contour* test, Contour* next) {
                 }
 
             }
-            int pt2 = 0;
-            int pt2inc = 1;
-            if (ts.fFlip) {
-                pt2 = pts - 1;
-                pt2inc = -1;
-            }
             for (int pt = 0; pt < pts; ++pt) {
                 SkASSERT(ts.fT[0][pt] >= 0 && ts.fT[0][pt] <= 1);
                 SkASSERT(ts.fT[1][pt] >= 0 && ts.fT[1][pt] <= 1);
@@ -4041,7 +4142,6 @@ static bool addIntersectTs(Contour* test, Contour* next) {
                 int nextTAt = wn.addT(ts.fT[!swap][pt], wt);
                 wt.addOtherT(testTAt, ts.fT[!swap][pt ^ ts.fFlip], nextTAt);
                 wn.addOtherT(nextTAt, ts.fT[swap][pt ^ ts.fFlip], testTAt);
-                pt2 += pt2inc;
             }
         } while (wn.advance());
     } while (wt.advance());
@@ -4232,6 +4332,7 @@ static int innerContourCheck(SkTDArray<Contour*>& contourList,
     return winding;
 }
 
+#if SORTABLE_CONTOURS
 // OPTIMIZATION: not crazy about linear search here to find top active y.
 // seems like we should break down and do the sort, or maybe sort each
 // contours' segments?
@@ -4266,6 +4367,7 @@ static Segment* findTopContour(SkTDArray<Contour*>& contourList) {
     }
     return topStart;
 }
+#endif
 
 static Segment* findUndone(SkTDArray<Contour*>& contourList, int& start, int& end) {
     int contourCount = contourList.count();
@@ -4393,6 +4495,42 @@ static bool windingIsActive(int winding, int spanWinding) {
             && (!winding || !spanWinding || winding == -spanWinding);
 }
 
+#if !SORTABLE_CONTOURS
+static Segment* findSortableTop(SkTDArray<Contour*>& contourList, int& index,
+        int& endIndex) {
+    Segment* result;
+    do {
+        int contourCount = contourList.count();
+        int cIndex = 0;
+        Segment* topStart;
+        SkScalar bestY = SK_ScalarMax;
+        Contour* contour;
+        do {
+            contour = contourList[cIndex];
+            topStart = contour->topSortableSegment(bestY);
+        } while (!topStart && ++cIndex < contourCount);
+        if (!topStart) {
+            return NULL;
+        }
+        while (++cIndex < contourCount) {
+            contour = contourList[cIndex];
+            if (bestY < contour->bounds().fTop) {
+                continue;
+            }
+            SkScalar testY = SK_ScalarMax;
+            Segment* test = contour->topSortableSegment(testY);
+            if (!test || bestY <= testY) {
+                continue;
+            }
+            topStart = test;
+            bestY = testY;
+        }
+        result = topStart->findTop(index, endIndex);
+    } while (!result);
+    return result;
+}
+#endif
+
 // Each segment may have an inside or an outside. Segments contained within
 // winding may have insides on either side, and form a contour that should be
 // ignored. Segments that are coincident with opposing direction segments may
@@ -4407,6 +4545,7 @@ static bool bridgeWinding(SkTDArray<Contour*>& contourList, SkPath& simple) {
     bool firstContour = true;
     bool unsortable = false;
     do {
+#if SORTABLE_CONTOURS // old way
         Segment* topStart = findTopContour(contourList);
         if (!topStart) {
             break;
@@ -4415,6 +4554,13 @@ static bool bridgeWinding(SkTDArray<Contour*>& contourList, SkPath& simple) {
         // follow edges to intersection by changing the index by direction.
         int index, endIndex;
         Segment* current = topStart->findTop(index, endIndex);
+#else // new way: iterate while top is unsortable
+        int index, endIndex;
+        Segment* current = findSortableTop(contourList, index, endIndex);
+        if (!current) {
+            break;
+        }
+#endif
         int contourWinding;
         if (firstContour) {
             contourWinding = 0;
@@ -4568,6 +4714,16 @@ static void fixOtherTIndex(SkTDArray<Contour*>& contourList) {
     }
 }
 
+#if !SORTABLE_CONTOURS
+static void sortSegments(SkTDArray<Contour*>& contourList) {
+    int contourCount = contourList.count();
+    for (int cTest = 0; cTest < contourCount; ++cTest) {
+        Contour* contour = contourList[cTest];
+        contour->sortSegments();
+    }
+}
+#endif
+
 static void makeContourList(SkTArray<Contour>& contours,
         SkTDArray<Contour*>& list) {
     int count = contours.count();
@@ -4614,6 +4770,9 @@ void simplifyx(const SkPath& path, SkPath& simple) {
     // eat through coincident edges
     coincidenceCheck(contourList);
     fixOtherTIndex(contourList);
+#if !SORTABLE_CONTOURS
+    sortSegments(contourList);
+#endif
     // construct closed contours
     if (builder.xorMask() == kWinding_Mask
                 ? !bridgeWinding(contourList, simple)

@@ -143,6 +143,8 @@ public:
         ++fUsed;
     }
 
+    // FIXME: all callers should be moved to regular insert. Failures are likely
+    // if two separate callers differ on whether ts are equal or not
     void insertOne(double t, int side) {
         int used = side ? fUsed2 : fUsed;
         assert(used <= 1 || fT[side][0] < fT[side][1]);

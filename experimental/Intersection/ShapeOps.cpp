@@ -20,6 +20,8 @@ static void bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
         const int aXorMask, const int bXorMask, SkPath& simple) {
     bool firstContour = true;
     do {
+
+#if SORTABLE_CONTOURS // old way
         Segment* topStart = findTopContour(contourList);
         if (!topStart) {
             break;
@@ -28,6 +30,13 @@ static void bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
         // follow edges to intersection by changing the index by direction.
         int index, endIndex;
         Segment* current = topStart->findTop(index, endIndex);
+#else // new way: iterate while top is unsortable
+        int index, endIndex;
+        Segment* current = findSortableTop(contourList, index, endIndex);
+        if (!current) {
+            break;
+        }
+#endif
         int contourWinding;
         if (firstContour) {
             contourWinding = 0;

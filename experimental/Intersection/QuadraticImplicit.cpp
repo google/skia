@@ -93,8 +93,7 @@ static bool onlyEndPtsInCommon(const Quadratic& q1, const Quadratic& q2, Interse
         for (int i1 = 0; i1 < 3; i1 += 2) {
             for (int i2 = 0; i2 < 3; i2 += 2) {
                 if (q1[i1] == q2[i2]) {
-                    i.insertOne(i1 >> 1, 0);
-                    i.insertOne(i2 >> 1, 1);
+                    i.insert(i1 >> 1, i2 >> 1);
                 }
             }
         }
@@ -110,7 +109,6 @@ bool intersect2(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
     // if the quads share an end point, check to see if they overlap
 
     if (onlyEndPtsInCommon(q1, q2, i)) {
-        assert(i.insertBalanced());
         return i.intersected();
     }
     QuadImplicitForm i1(q1);

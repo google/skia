@@ -27,9 +27,13 @@ static const SimplifyFindTopTest::Segment* testCommon(
         addIntersectTs(contourList[1], contourList[1]);
     }
     fixOtherTIndex(contourList);
+#if SORTABLE_CONTOURS // old way
     SimplifyFindTopTest::Segment* topStart = findTopContour(contourList);
     const SimplifyFindTopTest::Segment* topSegment = topStart->findTop(index,
             end);
+#else
+    const SimplifyFindTopTest::Segment* topSegment = findSortableTop(contourList, index, end);
+#endif
     return topSegment;
 }
 

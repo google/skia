@@ -233,9 +233,9 @@ static void tryRonco(const SkPath& path) {
     SkScalar cellWidth = overall.width() / divs * 2;
     SkScalar cellHeight = overall.height() / divs * 2;
     SkRect target;
-    if (true) {
-        int xDiv = 28;
-        int yDiv = 17;
+    if (1) {
+        int xDiv = 27;
+        int yDiv = 11;
         target.setXYWH(overall.fLeft + (overall.width() - cellWidth) * xDiv / divs,
                 overall.fTop + (overall.height() - cellHeight) * yDiv / divs,
                  cellWidth, cellHeight);
