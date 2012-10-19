@@ -569,7 +569,7 @@ void GrContext::setClip(const GrClipData* clipData) {
     fGpu->setClip(clipData);
 
     fDrawState->setState(GrDrawState::kClip_StateBit,
-                         clipData->fClipStack && !clipData->fClipStack->isWideOpen());
+                         clipData && clipData->fClipStack && !clipData->fClipStack->isWideOpen());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
