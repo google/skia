@@ -174,8 +174,10 @@ protected:
     SkBBoxHierarchy* fBoundingHierarchy;
     SkPictureStateTree* fStateTree;
 
-private:
+    // Allocated in the constructor and managed by this class.
     SkBitmapHeap* fBitmapHeap;
+
+private:
     SkChunkFlatController fFlattenableHeap;
 
     SkMatrixDictionary fMatrices;
