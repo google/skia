@@ -1804,6 +1804,9 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
     GrAutoScratchTexture temp1, temp2;
     GrTexture* dstTexture = temp1.set(this, desc);
     GrTexture* tempTexture = canClobberSrc ? srcTexture : temp2.set(this, desc);
+    if (NULL == dstTexture || NULL == tempTexture) {
+        return NULL;
+    }
 
     GrPaint paint;
     paint.reset();

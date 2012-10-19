@@ -859,6 +859,9 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& devPath,
         bool isNormalBlur = blurType == SkMaskFilter::kNormal_BlurType;
         blurTexture.reset(context->gaussianBlur(pathTexture, isNormalBlur,
                                                 srcRect, sigma, sigma));
+        if (NULL == blurTexture) {
+            return false;
+        }
 
         if (!isNormalBlur) {
             context->setIdentityMatrix();
