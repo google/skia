@@ -1256,8 +1256,8 @@ static bool quad_pt2OffCurve(const SkPoint quad[3], SkScalar x, SkScalar y, SkPo
 
 #ifdef SK_SCALAR_IS_FLOAT
 // Due to floating point issues (i.e., 1.0f - SK_ScalarRoot2Over2 !=
-// SK_ScalarRoot2Over2 - SK_ScalarTanPIOver8) a cruder root2over2 
-// approximation is required to make the quad circle points convex. The 
+// SK_ScalarRoot2Over2 - SK_ScalarTanPIOver8) a cruder root2over2
+// approximation is required to make the quad circle points convex. The
 // root of the problem is that with the root2over2 value in SkScalar.h
 // the arcs really are ever so slightly concave. Some alternative fixes
 // to this problem (besides just arbitrarily pushing out the mid-point as

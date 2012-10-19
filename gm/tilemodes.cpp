@@ -173,7 +173,7 @@ static SkShader* make_radial(SkShader::TileMode tx, SkShader::TileMode ty) {
     SkPoint center = { SkIntToScalar(gWidth)/2, SkIntToScalar(gHeight)/2 };
     SkScalar rad = SkIntToScalar(gWidth)/2;
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
-    
+
     return SkGradientShader::CreateRadial(center, rad, colors, NULL, SK_ARRAY_COUNT(colors), tx);
 }
 
@@ -186,14 +186,14 @@ public:
     Tiling2GM(ShaderProc proc, const char name[]) : fProc(proc) {
         fName.printf("tilemode_%s", name);
     }
-    
+
 protected:
     SkString onShortName() {
         return fName;
     }
-    
+
     SkISize onISize() { return SkISize::Make(880, 560); }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         canvas->scale(SkIntToScalar(3)/2, SkIntToScalar(3)/2);
 
@@ -207,10 +207,10 @@ protected:
         static const char* gModeNames[] = {
             "Clamp", "Repeat", "Mirror"
         };
-        
+
         SkScalar y = SkIntToScalar(24);
         SkScalar x = SkIntToScalar(66);
-        
+
         SkPaint p;
         p.setAntiAlias(true);
         p.setTextAlign(SkPaint::kCenter_Align);
@@ -220,7 +220,7 @@ protected:
             canvas->drawText(str.c_str(), str.size(), x + r.width()/2, y, p);
             x += r.width() * 4 / 3;
         }
-        
+
         y += SkIntToScalar(16) + h;
         p.setTextAlign(SkPaint::kRight_Align);
 
@@ -234,18 +234,18 @@ protected:
             for (size_t kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {
                 SkPaint paint;
                 paint.setShader(fProc(gModes[kx], gModes[ky]))->unref();
-                
+
                 canvas->save();
                 canvas->translate(x, y);
                 canvas->drawRect(r, paint);
                 canvas->restore();
-                
+
                 x += r.width() * 4 / 3;
             }
             y += r.height() * 4 / 3;
         }
     }
-    
+
 private:
     typedef skiagm::GM INHERITED;
 };

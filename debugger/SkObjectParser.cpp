@@ -72,7 +72,7 @@ SkString* SkObjectParser::PathToString(const SkPath& path) {
     SkString* mPath = new SkString("Path (");
 
     static const char* gConvexityStrings[] = {
-        "Unknown", "Convex", "Concave" 
+        "Unknown", "Convex", "Concave"
     };
     SkASSERT(SkPath::kConcave_Convexity == 2);
 
@@ -95,8 +95,8 @@ SkString* SkObjectParser::PathToString(const SkPath& path) {
     SkPath::Verb verb;
     SkPoint points[4];
 
-    for(verb = iter.next(points, false); 
-        verb != SkPath::kDone_Verb; 
+    for(verb = iter.next(points, false);
+        verb != SkPath::kDone_Verb;
         verb = iter.next(points, false)) {
 
         mPath->append(gVerbStrings[verb]);
