@@ -944,7 +944,7 @@ int tool_main(int argc, char** argv) {
                 continue;
             }
             moduloIndex = atoi(*argv);
-            
+
             ++argv;
             if (argv >= stop) {
                 continue;
@@ -1050,7 +1050,7 @@ int tool_main(int argc, char** argv) {
     Iter iter;
     GM* gm;
     while ((gm = iter.next()) != NULL) {
-        
+
         ++gmIndex;
         if (moduloIndex >= 0) {
             if ((gmIndex % moduloCount) != moduloIndex) {

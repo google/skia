@@ -77,8 +77,8 @@ static void test_isfinite_after_transform(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, path.getBounds().isEmpty());
 }
 
-static void add_corner_arc(SkPath* path, const SkRect& rect, 
-                           SkScalar xIn, SkScalar yIn, 
+static void add_corner_arc(SkPath* path, const SkRect& rect,
+                           SkScalar xIn, SkScalar yIn,
                            int startAngle)
 {
 
@@ -107,7 +107,7 @@ static void add_corner_arc(SkPath* path, const SkRect& rect,
     path->arcTo(arcRect, SkIntToScalar(startAngle), SkIntToScalar(90), false);
 }
 
-static void make_arb_round_rect(SkPath* path, const SkRect& r, 
+static void make_arb_round_rect(SkPath* path, const SkRect& r,
                                 SkScalar xCorner, SkScalar yCorner) {
     // we are lazy here and use the same x & y for each corner
     add_corner_arc(path, r, xCorner, yCorner, 270);
