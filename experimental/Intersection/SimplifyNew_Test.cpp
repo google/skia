@@ -2828,12 +2828,26 @@ static void testQuadratic38() {
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = testQuadratic7;
+static void testQuadratic51() {
+    SkPath path;
+    path.moveTo(369.863983f, 145.645813f);
+    path.quadTo(382.380371f, 121.254936f, 406.236359f, 121.254936f);
+    path.lineTo(369.863983f, 145.645813f);
+    path.close();
+    path.moveTo(369.970581f, 137.94342f);
+    path.quadTo(383.98465f, 121.254936f, 406.235992f, 121.254936f);
+    path.lineTo(369.970581f, 137.94342f);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void (*firstTest)() = testQuadratic51;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(testQuadratic51),
     TEST(testQuadratic38),
     TEST(testQuadratic37),
     TEST(testQuadratic36),
@@ -3113,7 +3127,7 @@ static const size_t subTestCount = sizeof(subTests) / sizeof(subTests[0]);
 
 static bool skipAll = false;
 static bool runSubTests = false;
-static bool runReverse = false;
+static bool runReverse = true;
 
 void SimplifyNew_Test() {
     if (skipAll) {
