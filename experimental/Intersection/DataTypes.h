@@ -115,8 +115,16 @@ inline bool approximately_greater_than_one(double x) {
     return x > 1 - FLT_EPSILON;
 }
 
+inline bool precisely_greater_than_one(double x) {
+    return x > 1 - DBL_EPSILON;
+}
+
 inline bool approximately_less_than_zero(double x) {
     return x < FLT_EPSILON;
+}
+
+inline bool precisely_less_than_zero(double x) {
+    return x < DBL_EPSILON;
 }
 
 inline bool approximately_negative(double x) {
