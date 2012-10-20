@@ -829,7 +829,7 @@ public:
         fID = ++gSegmentID;
 #endif
     }
-    
+
     bool operator<(const Segment& rh) const {
         return fBounds.fTop < rh.fBounds.fTop;
     }
@@ -1675,7 +1675,7 @@ public:
         const Span& mSpan = fTs[SkMin32(start, end)];
         return mSpan.fDone;
     }
-    
+
     Segment* findNextOp(SkTDArray<Span*>& chase, bool active,
             int& nextStart, int& nextEnd, int& winding, int& spanWinding,
             bool& unsortable, ShapeOp op,
@@ -2619,7 +2619,7 @@ public:
         span.fWindSum = winding;
         return &span;
     }
-    
+
     void markUnsortable(int start, int end) {
         Span* span = &fTs[start];
         if (start < end) {
@@ -3067,7 +3067,7 @@ public:
                 windSum -= segment.spanSign(&angle);
             }
             SkDebugf("%s [%d] %sid=%d %s start=%d (%1.9g,%,1.9g) end=%d (%1.9g,%,1.9g)"
-                    " sign=%d windValue=%d windSum=", 
+                    " sign=%d windValue=%d windSum=",
                     __FUNCTION__, index, angle.unsortable() ? "*** UNSORTABLE *** " : "",
                     segment.fID, kLVerbStr[segment.fVerb],
                     start, segment.xAtT(&sSpan), segment.yAtT(&sSpan), end,
