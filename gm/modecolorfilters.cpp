@@ -72,7 +72,7 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         // size of rect for each test case
         static const int kRectWidth  = 20;
-        static const int kRectHeight = 20;        
+        static const int kRectHeight = 20;
 
         static const int kCheckSize  = 10;
 
@@ -101,7 +101,7 @@ protected:
 
         // used with shaders
         SkColor alphas[] = {0xFFFFFFFF, 0x80808080};
-        
+
         SkXfermode::Mode modes[]  = { // currently just doing the Modes expressible as Coeffs
             SkXfermode::kClear_Mode,
             SkXfermode::kSrc_Mode,
