@@ -15,6 +15,11 @@
 #include "SkImage.h"
 #include "SkSurface.h"
 
+#define FAT_PIXEL_COLOR     SK_ColorBLACK
+#define PIXEL_CENTER_SIZE   3
+#define WIRE_FRAME_COLOR    0xFFFF0000  /*0xFF00FFFF*/
+#define WIRE_FRAME_SIZE     1.5f
+
 static void erase(SkSurface* surface) {
     surface->getCanvas()->clear(0);
 }
@@ -41,17 +46,27 @@ public:
         fAA = false;
         fStyle = kHair_Style;
         fGrid = true;
+        fShowSkeleton = true;
+        fUseGPU = false;
     }
+
+    int getZoom() const { return fZ; }
 
     bool getAA() const { return fAA; }
     void setAA(bool aa) { fAA = aa; }
 
     bool getGrid() const { return fGrid; }
     void setGrid(bool g) { fGrid = g; }
+    
+    bool getShowSkeleton() const { return fShowSkeleton; }
+    void setShowSkeleton(bool ss) { fShowSkeleton = ss; }
+    
+    bool getUseGPU() const { return fUseGPU; }
+    void setUseGPU(bool ug) { fUseGPU = ug; }
 
     enum Style {
         kHair_Style,
-        kStroke_Style
+        kStroke_Style,
     };
     Style getStyle() const { return fStyle; }
     void setStyle(Style s) { fStyle = s; }
@@ -80,7 +95,7 @@ public:
     void drawRect(SkCanvas* canvas, SkPoint pts[2]);
 
 private:
-    bool fAA, fGrid;
+    bool fAA, fGrid, fShowSkeleton, fUseGPU;
     Style fStyle;
     int fW, fH, fZ;
     SkMatrix fMatrix, fInverse;
@@ -102,13 +117,36 @@ private:
         paint->setAntiAlias(aa);
     }
 
+    void setupSkeletonPaint(SkPaint* paint) {
+        paint->setStyle(SkPaint::kStroke_Style);
+        paint->setStrokeWidth(WIRE_FRAME_SIZE);
+        paint->setColor(fShowSkeleton ? WIRE_FRAME_COLOR : 0);
+        paint->setAntiAlias(true);
+    }
+
     void drawLineSkeleton(SkCanvas* max, const SkPoint pts[]);
     void drawRectSkeleton(SkCanvas* max, const SkRect& r) {
         SkPaint paint;
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setColor(SK_ColorRED);
-        paint.setAntiAlias(true);
-        max->drawRect(r, paint);
+        this->setupSkeletonPaint(&paint);
+        SkPath path;
+
+        if (fUseGPU && fAA) {
+            SkRect rr = r;
+            rr.inset(fZ/2, fZ/2);
+            path.addRect(rr);
+            path.moveTo(rr.fLeft, rr.fTop);
+            path.lineTo(rr.fRight, rr.fBottom);
+            rr = r;
+            rr.inset(-fZ/2, -fZ/2);
+            path.addRect(rr);
+        } else {
+            path.addRect(r);
+            if (fUseGPU) {
+                path.moveTo(r.fLeft, r.fTop);
+                path.lineTo(r.fRight, r.fBottom);
+            }
+        }
+        max->drawPath(path, paint);
     }
     
     void copyMinToMax() {
@@ -141,10 +179,15 @@ void FatBits::drawBG(SkCanvas* canvas) {
 }
 
 void FatBits::drawFG(SkCanvas* canvas) {
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    paint.setColor(0xFFFFAA66);
-    paint.setStrokeWidth(SK_Scalar1 * 2);
+    SkPaint inner, outer;
+
+    inner.setAntiAlias(true);
+    inner.setColor(SK_ColorBLACK);
+    inner.setStrokeWidth(PIXEL_CENTER_SIZE);
+
+    outer.setAntiAlias(true);
+    outer.setColor(SK_ColorWHITE);
+    outer.setStrokeWidth(PIXEL_CENTER_SIZE + 2);
 
     SkScalar half = SkIntToScalar(fZ) / 2;
     for (int iy = 0; iy < fH; ++iy) {
@@ -152,16 +195,15 @@ void FatBits::drawFG(SkCanvas* canvas) {
         for (int ix = 0; ix < fW; ++ix) {
             SkScalar x = SkIntToScalar(ix * fZ) + half;
             
-            canvas->drawPoint(x, y, paint);
+            canvas->drawPoint(x, y, outer);
+            canvas->drawPoint(x, y, inner);
         }
     }
 }
 
 void FatBits::drawLineSkeleton(SkCanvas* max, const SkPoint pts[]) {
     SkPaint paint;
-    paint.setStyle(SkPaint::kStroke_Style);
-    paint.setColor(SK_ColorRED);
-    paint.setAntiAlias(true);
+    this->setupSkeletonPaint(&paint);
     
     SkPath path;
     path.moveTo(pts[0]);
@@ -169,6 +211,14 @@ void FatBits::drawLineSkeleton(SkCanvas* max, const SkPoint pts[]) {
     
     switch (fStyle) {
         case kHair_Style:
+            if (fUseGPU) {
+                SkPaint p;
+                p.setStyle(SkPaint::kStroke_Style);
+                p.setStrokeWidth(SK_Scalar1 * fZ);
+                SkPath dst;
+                p.getFillPath(path, &dst);
+                path.addPath(dst);
+            }
             break;
         case kStroke_Style: {
             SkPaint p;
@@ -177,6 +227,11 @@ void FatBits::drawLineSkeleton(SkCanvas* max, const SkPoint pts[]) {
             SkPath dst;
             p.getFillPath(path, &dst);
             path = dst;
+            
+            if (fUseGPU) {
+                path.moveTo(dst.getPoint(0));
+                path.lineTo(dst.getPoint(2));
+            }
         } break;
     }
     max->drawPath(path, paint);
@@ -194,7 +249,7 @@ void FatBits::drawLine(SkCanvas* canvas, SkPoint pts[]) {
     
     erase(fMinSurface);
     this->setupPaint(&paint);
-    paint.setColor(SK_ColorBLUE);
+    paint.setColor(FAT_PIXEL_COLOR);
     fMinSurface->getCanvas()->drawLine(pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY, paint);
     this->copyMinToMax();
     
@@ -221,7 +276,7 @@ void FatBits::drawRect(SkCanvas* canvas, SkPoint pts[2]) {
 
     erase(fMinSurface);
     this->setupPaint(&paint);
-    paint.setColor(SK_ColorBLUE);
+    paint.setColor(FAT_PIXEL_COLOR);
     fMinSurface->getCanvas()->drawRect(r, paint);
     this->copyMinToMax();
     
@@ -276,7 +331,7 @@ protected:
                     fIsRect = !fIsRect;
                     this->inval(NULL);
                     return true;
-                case 'g':
+                case 'x':
                     fFB.setGrid(!fFB.getGrid());
                     this->inval(NULL);
                     return true;
@@ -289,6 +344,14 @@ protected:
                     return true;
                 case 'a':
                     fFB.setAA(!fFB.getAA());
+                    this->inval(NULL);
+                    return true;
+                case 'w':
+                    fFB.setShowSkeleton(!fFB.getShowSkeleton());
+                    this->inval(NULL);
+                    return true;
+                case 'g':
+                    fFB.setUseGPU(!fFB.getUseGPU());
                     this->inval(NULL);
                     return true;
             }
