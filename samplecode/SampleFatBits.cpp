@@ -111,7 +111,8 @@ private:
                 paint->setStrokeWidth(0);
                 break;
             case kStroke_Style:
-                paint->setStrokeWidth(SK_Scalar1 + SK_Scalar1/500);
+                paint->setStrokeWidth(SK_Scalar1);
+//                paint->setStrokeWidth(SK_Scalar1 + SK_Scalar1/500);
                 break;
         }
         paint->setAntiAlias(aa);
@@ -243,8 +244,11 @@ void FatBits::drawLine(SkCanvas* canvas, SkPoint pts[]) {
     fInverse.mapPoints(pts, 2);
     
     if (fGrid) {
-        pts[0].set(SkScalarRoundToScalar(pts[0].fX), SkScalarRoundToScalar(pts[0].fY));
-        pts[1].set(SkScalarRoundToScalar(pts[1].fX), SkScalarRoundToScalar(pts[1].fY));
+        SkScalar dd = 0;//SK_Scalar1 / 50;
+        pts[0].set(SkScalarRoundToScalar(pts[0].fX) + dd,
+                   SkScalarRoundToScalar(pts[0].fY) + dd);
+        pts[1].set(SkScalarRoundToScalar(pts[1].fX) + dd,
+                   SkScalarRoundToScalar(pts[1].fY) + dd);
     }
     
     erase(fMinSurface);
@@ -308,9 +312,9 @@ class DrawLineView : public SampleView {
 public:
     DrawLineView() {
         fFB.setWHZ(24, 16, 48);
-        fPts[0].set(32, 32);
-        fPts[1].set(32 * 5, 32 * 4);
-        fIsRect = true;
+        fPts[0].set(48, 48);
+        fPts[1].set(48 * 5, 48 * 4);
+        fIsRect = false;
     }
     
     void setStyle(FatBits::Style s) {
@@ -372,7 +376,7 @@ protected:
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         SkPoint pt = { x, y };
         int index = -1;
-        SkScalar tol = 8;
+        SkScalar tol = 12;
         if (fPts[0].equalsWithinTolerance(pt, tol)) {
             index = 0;
         } else if (fPts[1].equalsWithinTolerance(pt, tol)) {
