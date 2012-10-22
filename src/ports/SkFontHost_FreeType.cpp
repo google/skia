@@ -588,7 +588,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
                 getAdvances(face, gID, advanceCount, FT_LOAD_NO_SCALE,
                             advances);
                 for (int i = 0; i < advanceCount; i++) {
-                    int16_t advance = advances[gID + i];
+                    int16_t advance = advances[i];
                     info->fGlyphWidths->fAdvance.append(1, &advance);
                 }
             }
