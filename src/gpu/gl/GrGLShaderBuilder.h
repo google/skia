@@ -129,7 +129,7 @@ public:
         the generated shader code. This potentially allows greater reuse of cached shaders. */
     static const GrGLenum* GetTexParamSwizzle(GrPixelConfig config, const GrGLCaps& caps);
 
-    /** Add a uniform variable to the current program, that has visibility in one or more shaders.
+    /** Add a uniform variable to the current program, that has visibilty in one or more shaders.
         visibility is a bitfield of ShaderType values indicating from which shaders the uniform
         should be accessible. At least one bit must be set. Geometry shader uniforms are not
         supported at this time. The actual uniform name will be mangled. If outName is not NULL then
@@ -151,7 +151,7 @@ public:
     const GrGLShaderVar& getUniformVariable(GrGLUniformManager::UniformHandle) const;
 
     /**
-     * Shortcut for getUniformVariable(u).c_str()
+     * Shorcut for getUniformVariable(u).c_str()
      */
     const char* getUniformCStr(GrGLUniformManager::UniformHandle u) const {
         return this->getUniformVariable(u).c_str();
@@ -164,10 +164,6 @@ public:
                     const char* name,
                     const char** vsOutName = NULL,
                     const char** fsInName = NULL);
-
-    /** Returns a variable name that represents the position of the fragment in the FS. The position
-        is in device space (e.g. 0,0 is the top left and pixel centers are at half-integers). */
-    const char* fragmentPosition();
 
     /** Called after building is complete to get the final shader string. */
     void getShader(ShaderType, SkString*) const;
@@ -183,8 +179,6 @@ public:
      */
     void setCurrentStage(int stage) { fCurrentStage = stage; }
     void setNonStage() { fCurrentStage = kNonStageIdx; }
-
-    GrGLUniformManager::UniformHandle getRTHeightUniform() const { return fRTHeightUniform; }
 
 private:
 
@@ -217,14 +211,10 @@ private:
         kNonStageIdx = -1,
     };
 
-    const GrGLContextInfo&              fContext;
-    GrGLUniformManager&                 fUniformManager;
-    int                                 fCurrentStage;
-    SkString                            fFSFunctions;
-    SkString                            fFSHeader;
-
-    bool                                fSetupFragPosition;
-    GrGLUniformManager::UniformHandle   fRTHeightUniform;
+    const GrGLContextInfo&  fContext;
+    GrGLUniformManager&     fUniformManager;
+    int                     fCurrentStage;
+    SkString                fFSFunctions;
 
     /// Per-stage settings - only valid while we're inside GrGLProgram::genStageCode().
     //@{

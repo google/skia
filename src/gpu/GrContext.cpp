@@ -1061,7 +1061,9 @@ void GrContext::drawOval(const GrPaint& paint,
     verts[3].fPos = SkPoint::Make(R, B);
 
     for (int i = 0; i < 4; ++i) {
-        verts[i].fCenter = center;
+        // this goes to fragment shader, it should be in y-points-up space.
+        verts[i].fCenter = SkPoint::Make(center.fX, rt->height() - center.fY);
+
         verts[i].fOuterRadius = outerRadius;
         verts[i].fInnerRadius = innerRadius;
     }

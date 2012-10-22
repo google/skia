@@ -73,7 +73,10 @@ public:
         that produces the same stage key; this function reads data from
         a stage and uploads any uniform variables required by the shaders
         created in emit*(). */
-    virtual void setData(const GrGLUniformManager&, const GrCustomStage& stage);
+    virtual void setData(const GrGLUniformManager&,
+                         const GrCustomStage& stage,
+                         const GrRenderTarget* renderTarget,
+                         int stageNum);
 
     const char* name() const { return fFactory.name(); }
 
