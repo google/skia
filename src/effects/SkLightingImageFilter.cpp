@@ -42,14 +42,7 @@ void setUniformPoint3(const GrGLUniformManager& uman, UniformHandle uni, const S
 }
 
 void setUniformNormal3(const GrGLUniformManager& uman, UniformHandle uni, const SkPoint3& point) {
-    setUniformPoint3(uman, uni, SkPoint3(point.fX, -point.fY, point.fZ));
-}
-
-void setUniformPoint3FlipY(const GrGLUniformManager& uman,
-                           UniformHandle uni,
-                           const SkPoint3& point,
-                           int height) {
-    setUniformPoint3(uman, uni, SkPoint3(point.fX, height-point.fY, point.fZ));
+    setUniformPoint3(uman, uni, SkPoint3(point.fX, point.fY, point.fZ));
 }
 #endif
 
@@ -376,7 +369,7 @@ public:
     virtual void setupVariables(GrGLShaderBuilder* builder);
     virtual void emitVS(SkString* out) const {}
     virtual void emitFuncs(GrGLShaderBuilder* builder) {}
-    virtual void emitSurfaceToLight(const GrGLShaderBuilder*,
+    virtual void emitSurfaceToLight(GrGLShaderBuilder*,
                                     SkString* out,
                                     const char* z) const = 0;
     virtual void emitLightColor(GrGLShaderBuilder*,
@@ -397,7 +390,7 @@ public:
     virtual ~GrGLDistantLight() {}
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void setData(const GrGLUniformManager&, const GrRenderTarget* rt, const SkLight* light) const SK_OVERRIDE;
-    virtual void emitSurfaceToLight(const GrGLShaderBuilder*,
+    virtual void emitSurfaceToLight(GrGLShaderBuilder*,
                                     SkString* out,
                                     const char* z) const SK_OVERRIDE;
 private:
@@ -413,7 +406,7 @@ public:
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void setData(const GrGLUniformManager&, const GrRenderTarget* rt, const SkLight* light) const SK_OVERRIDE;
     virtual void emitVS(SkString* out) const SK_OVERRIDE;
-    virtual void emitSurfaceToLight(const GrGLShaderBuilder*,
+    virtual void emitSurfaceToLight(GrGLShaderBuilder*,
                                     SkString* out,
                                     const char* z) const SK_OVERRIDE;
 private:
@@ -431,7 +424,7 @@ public:
     virtual void setData(const GrGLUniformManager&, const GrRenderTarget* rt, const SkLight* light) const SK_OVERRIDE;
     virtual void emitVS(SkString* out) const SK_OVERRIDE;
     virtual void emitFuncs(GrGLShaderBuilder* builder);
-    virtual void emitSurfaceToLight(const GrGLShaderBuilder* builder,
+    virtual void emitSurfaceToLight(GrGLShaderBuilder* builder,
                                     SkString* out,
                                     const char* z) const SK_OVERRIDE;
     virtual void emitLightColor(GrGLShaderBuilder*,
@@ -1133,7 +1126,7 @@ void GrGLLightingEffect::emitFS(GrGLShaderBuilder* builder,
                           "pointToNormal",
                           SK_ARRAY_COUNT(gPointToNormalArgs),
                           gPointToNormalArgs,
-                          "\treturn normalize(vec3(-x * scale, -y * scale, 1));\n",
+                          "\treturn normalize(vec3(-x * scale, y * scale, 1));\n",
                           &pointToNormalName);
 
     static const GrGLShaderVar gInteriorNormalArgs[] =  {
@@ -1364,7 +1357,7 @@ void GrGLDistantLight::setData(const GrGLUniformManager& uman,
     setUniformNormal3(uman, fDirectionUni, distantLight->direction());
 }
 
-void GrGLDistantLight::emitSurfaceToLight(const GrGLShaderBuilder* builder,
+void GrGLDistantLight::emitSurfaceToLight(GrGLShaderBuilder* builder,
                                           SkString* out,
                                           const char* z) const {
     const char* dir = builder->getUniformCStr(fDirectionUni);
@@ -1385,17 +1378,17 @@ void GrGLPointLight::setData(const GrGLUniformManager& uman,
     INHERITED::setData(uman, rt, light);
     SkASSERT(light->type() == SkLight::kPoint_LightType);
     const SkPointLight* pointLight = static_cast<const SkPointLight*>(light);
-    setUniformPoint3FlipY(uman, fLocationUni, pointLight->location(), rt->height());
+    setUniformPoint3(uman, fLocationUni, pointLight->location());
 }
 
 void GrGLPointLight::emitVS(SkString* out) const {
 }
 
-void GrGLPointLight::emitSurfaceToLight(const GrGLShaderBuilder* builder,
+void GrGLPointLight::emitSurfaceToLight(GrGLShaderBuilder* builder,
                                         SkString* out,
                                         const char* z) const {
     const char* loc = builder->getUniformCStr(fLocationUni);
-    out->appendf("normalize(%s - vec3(gl_FragCoord.xy, %s))", loc, z);
+    out->appendf("normalize(%s - vec3(%s.xy, %s))", loc, builder->fragmentPosition(), z);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1422,7 +1415,7 @@ void GrGLSpotLight::setData(const GrGLUniformManager& uman,
     INHERITED::setData(uman, rt, light);
     SkASSERT(light->type() == SkLight::kSpot_LightType);
     const SkSpotLight* spotLight = static_cast<const SkSpotLight *>(light);
-    setUniformPoint3FlipY(uman, fLocationUni, spotLight->location(), rt->height());
+    setUniformPoint3(uman, fLocationUni, spotLight->location());
     uman.set1f(fExponentUni, spotLight->specularExponent());
     uman.set1f(fCosInnerConeAngleUni, spotLight->cosInnerConeAngle());
     uman.set1f(fCosOuterConeAngleUni, spotLight->cosOuterConeAngle());
@@ -1463,11 +1456,11 @@ void GrGLSpotLight::emitFuncs(GrGLShaderBuilder* builder) {
                           &fLightColorFunc);
 }
 
-void GrGLSpotLight::emitSurfaceToLight(const GrGLShaderBuilder* builder,
+void GrGLSpotLight::emitSurfaceToLight(GrGLShaderBuilder* builder,
                                        SkString* out,
                                        const char* z) const {
     const char* location= builder->getUniformCStr(fLocationUni);
-    out->appendf("normalize(%s - vec3(gl_FragCoord.xy, %s))", location, z);
+    out->appendf("normalize(%s - vec3(%s.xy, %s))", location, builder->fragmentPosition(), z);
 }
 
 void GrGLSpotLight::emitLightColor(GrGLShaderBuilder* builder,

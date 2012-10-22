@@ -93,13 +93,15 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctx, GrGLUniformMana
     , fContext(ctx)
     , fUniformManager(uniformManager)
     , fCurrentStage(kNonStageIdx)
+    , fSetupFragPosition(false)
+    , fRTHeightUniform(GrGLUniformManager::kInvalidUniformHandle)
     , fTexCoordVaryingType(kVoid_GrSLType) {
 }
 
 void GrGLShaderBuilder::setupTextureAccess(const char* varyingFSName, GrSLType varyingType) {
     // FIXME: We don't know how the custom stage will manipulate the coords. So we give up on using
     // projective texturing and always give the stage 2D coords. This will be fixed when custom
-    // stages are repsonsible for setting up their own tex coords / tex matrices.
+    // stages are responsible for setting up their own tex coords / tex matrices.
     switch (varyingType) {
         case kVec2f_GrSLType:
             fDefaultTexCoordsName = varyingFSName;
@@ -283,6 +285,39 @@ void GrGLShaderBuilder::addVarying(GrSLType type,
     }
 }
 
+const char* GrGLShaderBuilder::fragmentPosition() {
+    if (fContext.caps().fragCoordConventionsSupport()) {
+        if (!fSetupFragPosition) {
+            this->fFSHeader.append("layout(origin_upper_left) in vec4 gl_FragCoord;\n");
+            fSetupFragPosition = true;
+        }
+        return "gl_FragCoord";        
+    } else {
+        static const char* kCoordName = "fragCoordYDown";
+        if (!fSetupFragPosition) {
+            GrAssert(GrGLUniformManager::kInvalidUniformHandle == fRTHeightUniform);
+            const char* rtHeightName;
+        
+            // temporarily change the stage index because we're inserting a uniform whose name
+            // shouldn't be mangled to be stage-specific.
+            int oldStageIdx = fCurrentStage;
+            fCurrentStage = kNonStageIdx;
+            fRTHeightUniform = this->addUniform(kFragment_ShaderType,
+                                                kFloat_GrSLType,
+                                                "RTHeight",
+                                                &rtHeightName);
+            fCurrentStage = oldStageIdx;
+        
+            this->fFSCode.prependf("\tvec4 %s = vec4(gl_FragCoord.x, %s - gl_FragCoord.y, gl_FragCoord.zw);\n",
+                                   kCoordName, rtHeightName);
+            fSetupFragPosition = true;
+        }
+        GrAssert(GrGLUniformManager::kInvalidUniformHandle != fRTHeightUniform);
+        return kCoordName;
+    }
+}
+
+
 void GrGLShaderBuilder::emitFunction(ShaderType shader,
                                      GrSLType returnType,
                                      const char* name,
@@ -381,6 +416,7 @@ void GrGLShaderBuilder::getShader(ShaderType type, SkString* shaderStr) const {
             append_default_precision_qualifier(kDefaultFragmentPrecision,
                                                fContext.binding(),
                                                shaderStr);
+            shaderStr->append(fFSHeader);
             this->appendUniformDecls(kFragment_ShaderType, shaderStr);
             this->appendDecls(fFSInputs, shaderStr);
             // We shouldn't have declared outputs on 1.10
