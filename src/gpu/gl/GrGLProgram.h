@@ -72,7 +72,7 @@ public:
      * This function uploads uniforms and calls each GrCustomStage's setData. It is called before a
      * draw occurs using the program after the program has already been bound.
      */
-    void setData(const GrDrawState& drawState) const;
+    void setData(const GrDrawState& drawState);
 
     // Parameters that affect code generation
     // These structs should be kept compact; they are the input to an
@@ -221,12 +221,16 @@ private:
         UniformHandle fColorUni;
         UniformHandle fCoverageUni;
         UniformHandle fColorFilterUni;
+        // We use the render target height to provide a y-down frag coord when specifying
+        // origin_upper_left is not supported.
+        UniformHandle fRTHeight;
         StageUniforms fStages[GrDrawState::kNumStages];
         Uniforms() {
             fViewMatrixUni = GrGLUniformManager::kInvalidUniformHandle;
             fColorUni = GrGLUniformManager::kInvalidUniformHandle;
             fCoverageUni = GrGLUniformManager::kInvalidUniformHandle;
             fColorFilterUni = GrGLUniformManager::kInvalidUniformHandle;
+            fRTHeight = GrGLUniformManager::kInvalidUniformHandle;
         }
     };
 
@@ -246,6 +250,7 @@ private:
     GrColor                     fColor;
     GrColor                     fCoverage;
     GrColor                     fColorFilterColor;
+    int                         fRTHeight;
     /// When it is sent to GL, the texture matrix will be flipped if the texture orientation
     /// (below) requires.
     GrMatrix                    fTextureMatrices[GrDrawState::kNumStages];
