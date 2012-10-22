@@ -359,7 +359,9 @@ void GrGLShaderBuilder::getShader(ShaderType type, SkString* shaderStr) const {
             this->appendUniformDecls(kVertex_ShaderType, shaderStr);
             this->appendDecls(fVSAttrs, shaderStr);
             this->appendDecls(fVSOutputs, shaderStr);
+            shaderStr->append("void main() {\n");
             shaderStr->append(fVSCode);
+            shaderStr->append("}\n");
             break;
         case kGeometry_ShaderType:
             if (fUsesGS) {
@@ -367,7 +369,9 @@ void GrGLShaderBuilder::getShader(ShaderType type, SkString* shaderStr) const {
                 shaderStr->append(fGSHeader);
                 this->appendDecls(fGSInputs, shaderStr);
                 this->appendDecls(fGSOutputs, shaderStr);
+                shaderStr->append("void main() {\n");
                 shaderStr->append(fGSCode);
+                shaderStr->append("}\n");
             } else {
                 shaderStr->reset();
             }
@@ -383,7 +387,9 @@ void GrGLShaderBuilder::getShader(ShaderType type, SkString* shaderStr) const {
             GrAssert(k110_GrGLSLGeneration != fContext.glslGeneration() || fFSOutputs.empty());
             this->appendDecls(fFSOutputs, shaderStr);
             shaderStr->append(fFSFunctions);
+            shaderStr->append("void main() {\n");
             shaderStr->append(fFSCode);
+            shaderStr->append("}\n");
             break;
     }
  }

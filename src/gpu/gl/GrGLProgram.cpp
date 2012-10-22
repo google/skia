@@ -364,9 +364,8 @@ void GrGLProgram::genGeometryShader(GrGLShaderBuilder* segments) const {
         GrAssert(fContextInfo.glslGeneration() >= k150_GrGLSLGeneration);
         segments->fGSHeader.append("layout(triangles) in;\n"
                                    "layout(triangle_strip, max_vertices = 6) out;\n");
-        segments->fGSCode.append("void main() {\n"
-                                 "\tfor (int i = 0; i < 3; ++i) {\n"
-                                  "\t\tgl_Position = gl_in[i].gl_Position;\n");
+        segments->fGSCode.append("\tfor (int i = 0; i < 3; ++i) {\n"
+                                 "\t\tgl_Position = gl_in[i].gl_Position;\n");
         if (fDesc.fEmitsPointSize) {
             segments->fGSCode.append("\t\tgl_PointSize = 1.0;\n");
         }
@@ -379,8 +378,7 @@ void GrGLProgram::genGeometryShader(GrGLShaderBuilder* segments) const {
         }
         segments->fGSCode.append("\t\tEmitVertex();\n"
                                  "\t}\n"
-                                 "\tEndPrimitive();\n"
-                                 "}\n");
+                                 "\tEndPrimitive();\n");
     }
 #endif
 }
@@ -571,9 +569,8 @@ bool GrGLProgram::genProgram(const GrCustomStage** customStages) {
                                      GrGLShaderVar::kAttribute_TypeModifier,
                                      POS_ATTR_NAME);
 
-    builder.fVSCode.appendf("void main() {\n"
-                              "\tvec3 pos3 = %s * vec3("POS_ATTR_NAME", 1);\n"
-                              "\tgl_Position = vec4(pos3.xy, 0, pos3.z);\n",
+    builder.fVSCode.appendf("\tvec3 pos3 = %s * vec3("POS_ATTR_NAME", 1);\n"
+                            "\tgl_Position = vec4(pos3.xy, 0, pos3.z);\n",
                             viewMName);
 
     // incoming color to current stage being processed.
@@ -587,8 +584,6 @@ bool GrGLProgram::genProgram(const GrCustomStage** customStages) {
     if (fDesc.fEmitsPointSize && !builder.fUsesGS){
         builder.fVSCode.append("\tgl_PointSize = 1.0;\n");
     }
-
-    builder.fFSCode.append("void main() {\n");
 
     // add texture coordinates that are used to the list of vertex attr decls
     SkString texCoordAttrs[GrDrawState::kMaxTexCoords];
@@ -790,9 +785,6 @@ bool GrGLProgram::genProgram(const GrCustomStage** customStages) {
             builder.fFSCode.append(";\n");
         }
     }
-
-    builder.fVSCode.append("}\n");
-    builder.fFSCode.append("}\n");
 
     ///////////////////////////////////////////////////////////////////////////
     // insert GS
