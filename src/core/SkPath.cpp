@@ -1942,6 +1942,7 @@ void SkPath::validate() const {
     SkASSERT(this != NULL);
     SkASSERT((fFillType & ~3) == 0);
 
+#ifdef SK_DEBUG_PATH
     if (!fBoundsIsDirty) {
         SkRect bounds;
 
@@ -1990,8 +1991,9 @@ void SkPath::validate() const {
         }
     }
     SkASSERT(mask == fSegmentMask);
+#endif // SK_DEBUG_PATH
 }
-#endif
+#endif // SK_DEBUG
 
 ///////////////////////////////////////////////////////////////////////////////
 
