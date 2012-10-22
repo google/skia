@@ -51,7 +51,7 @@ public:
     void abandon();
 
     /**
-     * The shader may modify the blend coeffecients. Params are in/out
+     * The shader may modify the blend coefficients. Params are in/out
      */
     void overrideBlend(GrBlendCoeff* srcCoeff, GrBlendCoeff* dstCoeff) const;
 
@@ -68,19 +68,18 @@ public:
     }
     static int EdgeAttributeIdx() { return 3 + GrDrawState::kMaxTexCoords; }
 
-    static int ViewMatrixAttributeIdx() {
-        return 4 + GrDrawState::kMaxTexCoords;
-    }
-    static int TextureMatrixAttributeIdx(int stage) {
-        return 7 + GrDrawState::kMaxTexCoords + 3 * stage;
-    }
+    /**
+     * This function uploads uniforms and calls each GrCustomStage's setData. It is called before a
+     * draw occurs using the program after the program has already been bound.
+     */
+    void setData(const GrDrawState& drawState) const;
 
     // Parameters that affect code generation
     // These structs should be kept compact; they are the input to an
     // expensive hash key generator.
     struct Desc {
         Desc() {
-            // since we use this as part of a key we can't have any unitialized
+            // since we use this as part of a key we can't have any uninitialized
             // padding
             memset(this, 0, sizeof(Desc));
         }
@@ -115,8 +114,7 @@ public:
             }
         };
 
-        // Specifies where the intitial color comes from before the stages are
-        // applied.
+        // Specifies where the initial color comes from before the stages are applied.
         enum ColorInput {
             kSolidWhite_ColorInput,
             kTransBlack_ColorInput,
@@ -126,7 +124,7 @@ public:
             kColorInputCnt
         };
         // Dual-src blending makes use of a secondary output color that can be
-        // used as a per-pixel blend coeffecient. This controls whether a
+        // used as a per-pixel blend coefficient. This controls whether a
         // secondary source is output and what value it holds.
         enum DualSrcOutput {
             kNone_DualSrcOutput,
@@ -139,7 +137,7 @@ public:
 
         GrDrawState::VertexEdgeType fVertexEdgeType;
 
-        // stripped of bits that don't affect prog generation
+        // stripped of bits that don't affect program generation
         GrVertexLayout fVertexLayout;
 
         StageDesc fStages[GrDrawState::kNumStages];
@@ -173,7 +171,7 @@ private:
     bool succeeded() const { return 0 != fProgramID; }
 
     /**
-     *  This is the heavy initilization routine for building a GLProgram.
+     *  This is the heavy initialization routine for building a GLProgram.
      */
     bool genProgram(const GrCustomStage** customStages);
 

@@ -383,18 +383,13 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
         this->flushColor(color);
         this->flushCoverage(coverage);
 
+        fCurrentProgram->setData(drawState);
+
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
             if (this->isStageEnabled(s)) {
                 this->flushBoundTextureAndParams(s);
 
                 this->flushTextureMatrix(s);
-
-                if (NULL != fCurrentProgram->fProgramStage[s]) {
-                    const GrSamplerState& sampler = this->getDrawState().getSampler(s);
-                    fCurrentProgram->fProgramStage[s]->setData(fCurrentProgram->fUniformManager,
-                                                               *sampler.getCustomStage(),
-                                                               drawState.getRenderTarget(), s);
-                }
             }
         }
     }

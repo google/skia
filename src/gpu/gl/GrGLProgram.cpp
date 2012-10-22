@@ -971,3 +971,16 @@ GrGLProgramStage* GrGLProgram::GenStageCode(const GrCustomStage* stage,
 
     return glStage;
 }
+
+void GrGLProgram::setData(const GrDrawState& drawState) const {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+        if (NULL != fProgramStage[s]) {
+            const GrSamplerState& sampler = drawState.getSampler(s);
+            GrAssert(NULL != sampler.getCustomStage());
+            fProgramStage[s]->setData(fUniformManager,
+                                      *sampler.getCustomStage(),
+                                      drawState.getRenderTarget(),
+                                      s);
+        }
+    }
+}
