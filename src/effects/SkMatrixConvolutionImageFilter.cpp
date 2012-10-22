@@ -293,7 +293,10 @@ public:
 
     static inline StageKey GenKey(const GrCustomStage& s, const GrGLCaps& caps);
 
-    virtual void setData(const GrGLUniformManager&, const GrCustomStage&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&,
+                         const GrCustomStage&,
+                         const GrRenderTarget*,
+                         int stageNum) SK_OVERRIDE;
 
 private:
     typedef GrGLUniformManager::UniformHandle        UniformHandle;
@@ -423,7 +426,9 @@ GrGLProgramStage::StageKey GrGLMatrixConvolutionEffect::GenKey(const GrCustomSta
 }
 
 void GrGLMatrixConvolutionEffect::setData(const GrGLUniformManager& uman,
-                                          const GrCustomStage& data) {
+                                   const GrCustomStage& data,
+                                   const GrRenderTarget*,
+                                   int stageNum) {
     const GrMatrixConvolutionEffect& effect =
         static_cast<const GrMatrixConvolutionEffect&>(data);
     GrGLTexture& texture =

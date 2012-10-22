@@ -257,7 +257,10 @@ public:
                         const char* inputColor,
                         const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager&, const GrCustomStage&) SK_OVERRIDE {}
+    virtual void setData(const GrGLUniformManager&,
+                         const GrCustomStage&,
+                         const GrRenderTarget*,
+                         int stageNum) SK_OVERRIDE {}
 
     static StageKey GenKey(const GrCustomStage&, const GrGLCaps&);
 

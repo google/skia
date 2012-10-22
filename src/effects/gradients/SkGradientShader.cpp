@@ -687,7 +687,10 @@ void GrGLGradientStage::setupVariables(GrGLShaderBuilder* builder) {
                                   kFloat_GrSLType, "GradientYCoordFS");
 }
 
-void GrGLGradientStage::setData(const GrGLUniformManager& uman, const GrCustomStage& stage) {
+void GrGLGradientStage::setData(const GrGLUniformManager& uman,
+                                const GrCustomStage& stage,
+                                const GrRenderTarget*,
+                                int stageNum) {
     GrScalar yCoord = static_cast<const GrGradientEffect&>(stage).getYCoord();
     if (yCoord != fCachedYCoord) {
         uman.set1f(fFSYUni, yCoord);

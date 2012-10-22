@@ -21,7 +21,10 @@ void GrGLProgramStage::setupVariables(GrGLShaderBuilder*) {
 
 }
 
-void GrGLProgramStage::setData(const GrGLUniformManager&, const GrCustomStage&) {
+void GrGLProgramStage::setData(const GrGLUniformManager&,
+                               const GrCustomStage&,
+                               const GrRenderTarget*,
+                               int stageNum) {
 }
 
 GrGLProgramStage::StageKey GrGLProgramStage::GenTextureKey(const GrCustomStage& stage,

@@ -28,7 +28,10 @@ public:
                         const char* inputColor,
                         const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager& uman, const GrCustomStage&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager& uman,
+                         const GrCustomStage&,
+                         const GrRenderTarget*,
+                         int stageNum) SK_OVERRIDE;
 
     static inline StageKey GenKey(const GrCustomStage&, const GrGLCaps&);
 
@@ -88,7 +91,10 @@ void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* builder,
     GrGLSLMulVarBy4f(&builder->fFSCode, 2, outputColor, inputColor);
 }
 
-void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman, const GrCustomStage& data) {
+void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman,
+                                    const GrCustomStage& data,
+                                    const GrRenderTarget*,
+                                    int stageNum) {
     const GrConvolutionEffect& conv =
         static_cast<const GrConvolutionEffect&>(data);
     GrTexture& texture = *data.texture(0);

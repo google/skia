@@ -86,7 +86,9 @@ public:
                         const TextureSamplerArray&) SK_OVERRIDE;
 
     virtual void setData(const GrGLUniformManager& uman,
-                         const GrCustomStage& data) SK_OVERRIDE;
+                         const GrCustomStage& data,
+                         const GrRenderTarget*,
+                         int stageNum) SK_OVERRIDE;
 
     static inline StageKey GenKey(const GrCustomStage&, const GrGLCaps&);
 
@@ -165,7 +167,9 @@ void GrGLMagnifierEffect::emitFS(GrGLShaderBuilder* state,
 }
 
 void GrGLMagnifierEffect::setData(const GrGLUniformManager& uman,
-                                  const GrCustomStage& data) {
+                                  const GrCustomStage& data,
+                                  const GrRenderTarget*,
+                                  int stageNum) {
     const GrMagnifierEffect& zoom =
         static_cast<const GrMagnifierEffect&>(data);
 
