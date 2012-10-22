@@ -65,6 +65,14 @@
 //#define SK_DEBUG
 //#define SK_RELEASE
 
+/*  Skia has certain debug-only code that is extremely intensive even for debug
+    builds.  This code is useful for diagnosing specific issues, but is not
+    generally applicable, therefore it must be explicitly enabled to avoid
+    the performance impact. By default these flags are undefined, but can be
+    enabled by uncommenting them below.
+ */
+//#define SK_DEBUG_PATH
+
 /*  To assist debugging, Skia provides an instance counting utility in
     include/core/SkInstCount.h. This flag turns on and off that utility to
     allow instance count tracking in either debug or release builds. By
