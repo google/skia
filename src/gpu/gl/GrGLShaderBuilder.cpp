@@ -288,7 +288,8 @@ void GrGLShaderBuilder::addVarying(GrSLType type,
 const char* GrGLShaderBuilder::fragmentPosition() {
     if (fContext.caps().fragCoordConventionsSupport()) {
         if (!fSetupFragPosition) {
-            this->fFSHeader.append("layout(origin_upper_left) in vec4 gl_FragCoord;\n");
+            fFSHeader.printf("#extension GL_ARB_fragment_coord_convention: enable\n");
+            fFSHeader.append("layout(origin_upper_left) in vec4 gl_FragCoord;\n");
             fSetupFragPosition = true;
         }
         return "gl_FragCoord";        
