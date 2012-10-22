@@ -51,6 +51,7 @@
         '../samplecode/SampleEmboss.cpp',
         '../samplecode/SampleEmptyPath.cpp',
         '../samplecode/SampleEncode.cpp',
+        '../samplecode/SampleFatBits.cpp',
         '../samplecode/SampleFillType.cpp',
         '../samplecode/SampleFilter.cpp',
         '../samplecode/SampleFilter2.cpp',
