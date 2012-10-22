@@ -127,7 +127,7 @@ void SkMergeImageFilter::initModes(const SkXfermode::Mode modes[]) {
 }
 
 SkMergeImageFilter::SkMergeImageFilter(SkImageFilter* first, SkImageFilter* second,
-                                       SkXfermode::Mode mode) : INHERITED(2, first, second) {
+                                       SkXfermode::Mode mode) : INHERITED(first, second) {
     if (SkXfermode::kSrcOver_Mode != mode) {
         SkXfermode::Mode modes[] = { mode, mode };
         this->initModes(modes);
@@ -136,7 +136,7 @@ SkMergeImageFilter::SkMergeImageFilter(SkImageFilter* first, SkImageFilter* seco
     }
 }
 
-SkMergeImageFilter::SkMergeImageFilter(SkImageFilter* const filters[], int count,
+SkMergeImageFilter::SkMergeImageFilter(SkImageFilter* filters[], int count,
                                        const SkXfermode::Mode modes[]) : INHERITED(count, filters) {
     this->initModes(modes);
 }
