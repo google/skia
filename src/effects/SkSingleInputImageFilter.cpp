@@ -15,7 +15,7 @@
 #include "SkGrPixelRef.h"
 #endif
 
-SkSingleInputImageFilter::SkSingleInputImageFilter(SkImageFilter* input) : INHERITED(1, input) {
+SkSingleInputImageFilter::SkSingleInputImageFilter(SkImageFilter* input) : INHERITED(input) {
 }
 
 SkSingleInputImageFilter::~SkSingleInputImageFilter() {

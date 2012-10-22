@@ -28,7 +28,7 @@ private:
 
 class SK_API SkComposeImageFilter : public SkImageFilter {
 public:
-    SkComposeImageFilter(SkImageFilter* outer, SkImageFilter* inner) : INHERITED(2, outer, inner) {}
+    SkComposeImageFilter(SkImageFilter* outer, SkImageFilter* inner) : INHERITED(outer, inner) {}
     virtual ~SkComposeImageFilter();
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposeImageFilter)
@@ -50,7 +50,7 @@ class SK_API SkMergeImageFilter : public SkImageFilter {
 public:
     SkMergeImageFilter(SkImageFilter* first, SkImageFilter* second,
                        SkXfermode::Mode = SkXfermode::kSrcOver_Mode);
-    SkMergeImageFilter(SkImageFilter* const filters[], int count,
+    SkMergeImageFilter(SkImageFilter* filters[], int count,
                        const SkXfermode::Mode modes[] = NULL);
     virtual ~SkMergeImageFilter();
 

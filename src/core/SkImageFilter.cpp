@@ -10,7 +10,6 @@
 #include "SkBitmap.h"
 #include "SkFlattenableBuffers.h"
 #include "SkRect.h"
-#include "stdarg.h"
 
 SK_DEFINE_INST_COUNT(SkImageFilter)
 
@@ -22,15 +21,18 @@ SkImageFilter::SkImageFilter(int inputCount, SkImageFilter** inputs)
     }
 }
 
-SkImageFilter::SkImageFilter(int inputCount, ...)
-  : fInputCount(inputCount), fInputs(new SkImageFilter*[inputCount]) {
-    va_list ap;
-    va_start(ap, inputCount);
-    for (int i = 0; i < inputCount; ++i) {
-        fInputs[i] = va_arg(ap, SkImageFilter*);
-        SkSafeRef(fInputs[i]);
-    }
-    va_end(ap);
+SkImageFilter::SkImageFilter(SkImageFilter* input)
+  : fInputCount(1), fInputs(new SkImageFilter*[1]) {
+    fInputs[0] = input;
+    SkSafeRef(fInputs[0]);
+}
+
+SkImageFilter::SkImageFilter(SkImageFilter* input1, SkImageFilter* input2)
+  : fInputCount(2), fInputs(new SkImageFilter*[2]) {
+    fInputs[0] = input1;
+    fInputs[1] = input2;
+    SkSafeRef(fInputs[0]);
+    SkSafeRef(fInputs[1]);
 }
 
 SkImageFilter::~SkImageFilter() {

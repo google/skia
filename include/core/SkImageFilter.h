@@ -133,10 +133,11 @@ public:
 protected:
     SkImageFilter(int inputCount, SkImageFilter** inputs);
 
-    // The ... represents inputCount SkImageFilter pointers, upon which this
-    // constructor will call SkSafeRef().  This is the same behaviour as
-    // the SkImageFilter(int, SkImageFilter**) constructor above.
-    explicit SkImageFilter(int inputCount, ...);
+    // Convenience constructor for 1-input filters.
+    explicit SkImageFilter(SkImageFilter* input);
+
+    // Convenience constructor for 2-input filters.
+    SkImageFilter(SkImageFilter* input1, SkImageFilter* input2);
 
     virtual ~SkImageFilter();
 

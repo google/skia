@@ -52,7 +52,7 @@ SkPMColor multiply_proc(SkPMColor src, SkPMColor dst) {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkBlendImageFilter::SkBlendImageFilter(SkBlendImageFilter::Mode mode, SkImageFilter* background, SkImageFilter* foreground)
-  : INHERITED(2, background, foreground), fMode(mode)
+  : INHERITED(background, foreground), fMode(mode)
 {
 }
 
