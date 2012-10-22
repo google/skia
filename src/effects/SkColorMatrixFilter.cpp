@@ -383,9 +383,7 @@ public:
         }
 
         virtual void setData(const GrGLUniformManager& uniManager,
-                                const GrCustomStage& stage,
-                                const GrRenderTarget*,
-                                int /* stageNum */) SK_OVERRIDE {
+                             const GrCustomStage& stage) SK_OVERRIDE {
             const ColorMatrixEffect& cme = static_cast<const ColorMatrixEffect&>(stage);
             const float* m = cme.fMatrix.fMat;
             // The GL matrix is transposed from SkColorMatrix.

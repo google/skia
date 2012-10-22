@@ -969,8 +969,7 @@ GrGLProgramStage* GrGLProgram::GenStageCode(const GrCustomStage* stage,
 
 void GrGLProgram::setData(const GrDrawState& drawState) {
     int rtHeight = drawState.getRenderTarget()->height();
-    if (GrGLUniformManager::kInvalidUniformHandle != fUniforms.fRTHeight &&
-        rtHeight != fRTHeight) {
+    if (GrGLUniformManager::kInvalidUniformHandle != fUniforms.fRTHeight && fRTHeight != rtHeight) {
         fUniformManager.set1f(fUniforms.fRTHeight, GrIntToScalar(rtHeight));
         fRTHeight = rtHeight;
     }
@@ -978,10 +977,7 @@ void GrGLProgram::setData(const GrDrawState& drawState) {
         if (NULL != fProgramStage[s]) {
             const GrSamplerState& sampler = drawState.getSampler(s);
             GrAssert(NULL != sampler.getCustomStage());
-            fProgramStage[s]->setData(fUniformManager,
-                                      *sampler.getCustomStage(),
-                                      drawState.getRenderTarget(),
-                                      s);
+            fProgramStage[s]->setData(fUniformManager, *sampler.getCustomStage());
         }
     }
 }

@@ -368,10 +368,7 @@ public:
                         const char* outputColor,
                         const char* inputColor,
                         const TextureSamplerArray&) SK_OVERRIDE;
-    virtual void setData(const GrGLUniformManager&,
-                         const GrCustomStage&,
-                         const GrRenderTarget*,
-                         int stageNum) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrCustomStage&) SK_OVERRIDE;
 
     static StageKey GenKey(const GrCustomStage& s, const GrGLCaps& caps);
 
@@ -566,7 +563,6 @@ void GrGLRadial2Gradient::emitFS(GrGLShaderBuilder* builder,
         bVar = fFSVaryingName;
     } else {
         bVar = "b";
-        //bVar.appendS32(stageNum);
         code->appendf("\tfloat %s = 2.0 * (%s * %s.x - %s);\n",
                       bVar.c_str(), p2.c_str(),
                       builder->defaultTexCoordsName(), p3.c_str());
@@ -605,11 +601,8 @@ void GrGLRadial2Gradient::emitFS(GrGLShaderBuilder* builder,
     this->emitColorLookup(builder, t.c_str(), outputColor, inputColor, samplers[0]);
 }
 
-void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman,
-                                  const GrCustomStage& baseData,
-                                  const GrRenderTarget* target,
-                                  int stageNum) {
-    INHERITED::setData(uman, baseData, target, stageNum);
+void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman, const GrCustomStage& baseData) {
+    INHERITED::setData(uman, baseData);
     const GrRadial2Gradient& data =
         static_cast<const GrRadial2Gradient&>(baseData);
     GrAssert(data.isDegenerate() == fIsDegenerate);

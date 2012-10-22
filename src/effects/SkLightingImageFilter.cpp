@@ -374,7 +374,7 @@ public:
                                     const char* z) const = 0;
     virtual void emitLightColor(GrGLShaderBuilder*,
                                 const char *surfaceToLight) const;
-    virtual void setData(const GrGLUniformManager&, const GrRenderTarget* rt, const SkLight* light) const;
+    virtual void setData(const GrGLUniformManager&, const SkLight* light) const;
 
 private:
     typedef SkRefCnt INHERITED;
@@ -389,7 +389,7 @@ class GrGLDistantLight : public GrGLLight {
 public:
     virtual ~GrGLDistantLight() {}
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
-    virtual void setData(const GrGLUniformManager&, const GrRenderTarget* rt, const SkLight* light) const SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const SkLight* light) const SK_OVERRIDE;
     virtual void emitSurfaceToLight(GrGLShaderBuilder*,
                                     SkString* out,
                                     const char* z) const SK_OVERRIDE;
@@ -404,7 +404,7 @@ class GrGLPointLight : public GrGLLight {
 public:
     virtual ~GrGLPointLight() {}
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
-    virtual void setData(const GrGLUniformManager&, const GrRenderTarget* rt, const SkLight* light) const SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const SkLight* light) const SK_OVERRIDE;
     virtual void emitVS(SkString* out) const SK_OVERRIDE;
     virtual void emitSurfaceToLight(GrGLShaderBuilder*,
                                     SkString* out,
@@ -421,7 +421,7 @@ class GrGLSpotLight : public GrGLLight {
 public:
     virtual ~GrGLSpotLight() {}
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
-    virtual void setData(const GrGLUniformManager&, const GrRenderTarget* rt, const SkLight* light) const SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const SkLight* light) const SK_OVERRIDE;
     virtual void emitVS(SkString* out) const SK_OVERRIDE;
     virtual void emitFuncs(GrGLShaderBuilder* builder);
     virtual void emitSurfaceToLight(GrGLShaderBuilder* builder,
@@ -957,10 +957,7 @@ public:
 
     static inline StageKey GenKey(const GrCustomStage& s, const GrGLCaps& caps);
 
-    virtual void setData(const GrGLUniformManager&,
-                         const GrCustomStage&,
-                         const GrRenderTarget*,
-                         int stageNum) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrCustomStage&) SK_OVERRIDE;
 
 private:
     typedef GrGLProgramStage INHERITED;
@@ -978,10 +975,7 @@ public:
                               const GrCustomStage& stage);
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitLightFunc(GrGLShaderBuilder*, SkString* funcName) SK_OVERRIDE;
-    virtual void setData(const GrGLUniformManager&,
-                         const GrCustomStage&,
-                         const GrRenderTarget*,
-                         int stageNum) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrCustomStage&) SK_OVERRIDE;
 
 private:
     typedef GrGLLightingEffect INHERITED;
@@ -997,10 +991,7 @@ public:
                                const GrCustomStage& stage);
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitLightFunc(GrGLShaderBuilder*, SkString* funcName) SK_OVERRIDE;
-    virtual void setData(const GrGLUniformManager&,
-                         const GrCustomStage&,
-                         const GrRenderTarget*,
-                         int stageNum) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrCustomStage&) SK_OVERRIDE;
 
 private:
     typedef GrGLLightingEffect INHERITED;
@@ -1182,17 +1173,14 @@ GrGLProgramStage::StageKey GrGLLightingEffect::GenKey(const GrCustomStage& s,
     return static_cast<const GrLightingEffect&>(s).light()->type();
 }
 
-void GrGLLightingEffect::setData(const GrGLUniformManager& uman,
-                                 const GrCustomStage& data,
-                                 const GrRenderTarget* rt,
-                                 int stageNum) {
+void GrGLLightingEffect::setData(const GrGLUniformManager& uman, const GrCustomStage& data) {
     const GrLightingEffect& effect =
         static_cast<const GrLightingEffect&>(data);
     GrGLTexture* texture = static_cast<GrGLTexture*>(data.texture(0));
     float ySign = texture->orientation() == GrGLTexture::kTopDown_Orientation ? -1.0f : 1.0f;
     uman.set2f(fImageIncrementUni, 1.0f / texture->width(), ySign / texture->height());
     uman.set1f(fSurfaceScaleUni, effect.surfaceScale());
-    fLight->setData(uman, rt, effect.light());
+    fLight->setData(uman, effect.light());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1229,11 +1217,8 @@ void GrGLDiffuseLightingEffect::emitLightFunc(GrGLShaderBuilder* builder, SkStri
                           funcName);
 }
 
-void GrGLDiffuseLightingEffect::setData(const GrGLUniformManager& uman,
-                                        const GrCustomStage& data,
-                                        const GrRenderTarget* rt,
-                                        int stageNum) {
-    INHERITED::setData(uman, data, rt, stageNum);
+void GrGLDiffuseLightingEffect::setData(const GrGLUniformManager& uman, const GrCustomStage& data) {
+    INHERITED::setData(uman, data);
     const GrDiffuseLightingEffect& effect =
         static_cast<const GrDiffuseLightingEffect&>(data);
     uman.set1f(fKDUni, effect.kd());
@@ -1312,10 +1297,8 @@ void GrGLSpecularLightingEffect::emitLightFunc(GrGLShaderBuilder* builder, SkStr
 }
 
 void GrGLSpecularLightingEffect::setData(const GrGLUniformManager& uman,
-                                         const GrCustomStage& data,
-                                         const GrRenderTarget* rt,
-                                         int stageNum) {
-    INHERITED::setData(uman, data, rt, stageNum);
+                                         const GrCustomStage& data) {
+    INHERITED::setData(uman, data);
     const GrSpecularLightingEffect& effect = static_cast<const GrSpecularLightingEffect&>(data);
     uman.set1f(fKSUni, effect.ks());
     uman.set1f(fShininessUni, effect.shininess());
@@ -1335,7 +1318,6 @@ void GrGLLight::setupVariables(GrGLShaderBuilder* builder) {
 }
 
 void GrGLLight::setData(const GrGLUniformManager& uman,
-                        const GrRenderTarget* rt,
                         const SkLight* light) const {
     setUniformPoint3(uman, fColorUni, light->color() * SkScalarInvert(SkIntToScalar(255)));
 }
@@ -1348,10 +1330,8 @@ void GrGLDistantLight::setupVariables(GrGLShaderBuilder* builder) {
                                         "LightDirection");
 }
 
-void GrGLDistantLight::setData(const GrGLUniformManager& uman,
-                               const GrRenderTarget* rt,
-                               const SkLight* light) const {
-    INHERITED::setData(uman, rt, light);
+void GrGLDistantLight::setData(const GrGLUniformManager& uman, const SkLight* light) const {
+    INHERITED::setData(uman, light);
     SkASSERT(light->type() == SkLight::kDistant_LightType);
     const SkDistantLight* distantLight = static_cast<const SkDistantLight*>(light);
     setUniformNormal3(uman, fDirectionUni, distantLight->direction());
@@ -1373,9 +1353,8 @@ void GrGLPointLight::setupVariables(GrGLShaderBuilder* builder) {
 }
 
 void GrGLPointLight::setData(const GrGLUniformManager& uman,
-                             const GrRenderTarget* rt,
                              const SkLight* light) const {
-    INHERITED::setData(uman, rt, light);
+    INHERITED::setData(uman, light);
     SkASSERT(light->type() == SkLight::kPoint_LightType);
     const SkPointLight* pointLight = static_cast<const SkPointLight*>(light);
     setUniformPoint3(uman, fLocationUni, pointLight->location());
@@ -1410,9 +1389,8 @@ void GrGLSpotLight::setupVariables(GrGLShaderBuilder* builder) {
 }
 
 void GrGLSpotLight::setData(const GrGLUniformManager& uman,
-                            const GrRenderTarget* rt,
                             const SkLight* light) const {
-    INHERITED::setData(uman, rt, light);
+    INHERITED::setData(uman, light);
     SkASSERT(light->type() == SkLight::kSpot_LightType);
     const SkSpotLight* spotLight = static_cast<const SkSpotLight *>(light);
     setUniformPoint3(uman, fLocationUni, spotLight->location());
