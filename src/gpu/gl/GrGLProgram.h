@@ -58,15 +58,13 @@ public:
     const Desc& getDesc() { return fDesc; }
 
     /**
-     * Attribute indices. These should not overlap. Matrices consume 3 slots.
+     * Attribute indices. These should not overlap.
      */
     static int PositionAttributeIdx() { return 0; }
-    static int TexCoordAttributeIdx(int tcIdx) { return 1 + tcIdx; }
-    static int ColorAttributeIdx() { return 1 + GrDrawState::kMaxTexCoords; }
-    static int CoverageAttributeIdx() {
-        return 2 + GrDrawState::kMaxTexCoords;
-    }
-    static int EdgeAttributeIdx() { return 3 + GrDrawState::kMaxTexCoords; }
+    static int ColorAttributeIdx() { return 1; }
+    static int CoverageAttributeIdx() { return 2; }
+    static int EdgeAttributeIdx() { return 3; }
+    static int TexCoordAttributeIdx(int tcIdx) { return 4 + tcIdx; }
 
     /**
      * This function uploads uniforms and calls each GrCustomStage's setData. It is called before a
