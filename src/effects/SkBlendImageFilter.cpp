@@ -110,7 +110,7 @@ bool SkBlendImageFilter::onFilterImage(Proxy* proxy,
 ///////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
-class GrGLBlendEffect  : public GrGLProgramStage {
+class GrGLBlendEffect  : public GrGLLegacyProgramStage {
 public:
     GrGLBlendEffect(const GrProgramStageFactory& factory,
                     const GrCustomStage& stage);
@@ -127,7 +127,7 @@ public:
     static inline StageKey GenKey(const GrCustomStage& s, const GrGLCaps&);
 
 private:
-    typedef GrGLProgramStage INHERITED;
+    typedef GrGLLegacyProgramStage INHERITED;
     SkBlendImageFilter::Mode fMode;
 };
 
@@ -235,7 +235,7 @@ const GrProgramStageFactory& GrBlendEffect::getFactory() const {
 
 GrGLBlendEffect::GrGLBlendEffect(const GrProgramStageFactory& factory,
                                  const GrCustomStage& stage)
-    : GrGLProgramStage(factory),
+    : INHERITED(factory),
       fMode(static_cast<const GrBlendEffect&>(stage).mode()) {
 }
 

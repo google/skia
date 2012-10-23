@@ -271,7 +271,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 // Base class for GL gradient custom stages
-class GrGLGradientStage : public GrGLProgramStage {
+class GrGLGradientStage : public GrGLLegacyProgramStage {
 public:
 
     GrGLGradientStage(const GrProgramStageFactory& factory);
@@ -293,7 +293,7 @@ private:
     GrScalar fCachedYCoord;
     GrGLUniformManager::UniformHandle fFSYUni;
 
-    typedef GrGLProgramStage INHERITED;
+    typedef GrGLLegacyProgramStage INHERITED;
 };
 
 #endif

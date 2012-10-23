@@ -939,7 +939,7 @@ SkLight* create_random_light(SkRandom* random) {
 
 }
 
-class GrGLLightingEffect  : public GrGLProgramStage {
+class GrGLLightingEffect  : public GrGLLegacyProgramStage {
 public:
     GrGLLightingEffect(const GrProgramStageFactory& factory,
                        const GrCustomStage& stage);
@@ -960,7 +960,7 @@ public:
     virtual void setData(const GrGLUniformManager&, const GrCustomStage&) SK_OVERRIDE;
 
 private:
-    typedef GrGLProgramStage INHERITED;
+    typedef GrGLLegacyProgramStage INHERITED;
 
     UniformHandle   fImageIncrementUni;
     UniformHandle   fSurfaceScaleUni;
@@ -1055,7 +1055,7 @@ GrCustomStage* GrDiffuseLightingEffect::TestCreate(SkRandom* random,
 
 GrGLLightingEffect::GrGLLightingEffect(const GrProgramStageFactory& factory,
                                        const GrCustomStage& stage)
-    : GrGLProgramStage(factory)
+    : INHERITED(factory)
     , fImageIncrementUni(kInvalidUniformHandle)
     , fSurfaceScaleUni(kInvalidUniformHandle) {
     const GrLightingEffect& m = static_cast<const GrLightingEffect&>(stage);

@@ -339,14 +339,14 @@ public:
 
     GR_DECLARE_CUSTOM_STAGE_TEST;
 
-    class GLProgramStage : public GrGLProgramStage {
+    class GLProgramStage : public GrGLLegacyProgramStage {
     public:
         // this class always generates the same code.
         static StageKey GenKey(const GrCustomStage& s, const GrGLCaps&) { return 0; }
 
         GLProgramStage(const GrProgramStageFactory& factory,
                        const GrCustomStage& stage)
-        : GrGLProgramStage(factory)
+        : INHERITED(factory)
         , fMatrixHandle(GrGLUniformManager::kInvalidUniformHandle)
         , fVectorHandle(GrGLUniformManager::kInvalidUniformHandle) {
         }
@@ -408,6 +408,8 @@ public:
 
 private:
     SkColorMatrix fMatrix;
+
+    typedef GrGLLegacyProgramStage INHERITED;
 };
 
 GR_DEFINE_CUSTOM_STAGE_TEST(ColorMatrixEffect);

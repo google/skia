@@ -12,7 +12,7 @@
 #include "GrProgramStageFactory.h"
 #include "GrTexture.h"
 
-class GrGLSingleTextureEffect : public GrGLProgramStage {
+class GrGLSingleTextureEffect : public GrGLLegacyProgramStage {
 public:
     GrGLSingleTextureEffect(const GrProgramStageFactory& factory,
                             const GrCustomStage& stage) : INHERITED (factory) { }
@@ -32,7 +32,7 @@ public:
 
 private:
 
-    typedef GrGLProgramStage INHERITED;
+    typedef GrGLLegacyProgramStage INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

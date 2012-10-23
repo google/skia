@@ -72,7 +72,7 @@ private:
 // For brevity
 typedef GrGLUniformManager::UniformHandle UniformHandle;
 
-class GrGLMagnifierEffect : public GrGLProgramStage {
+class GrGLMagnifierEffect : public GrGLLegacyProgramStage {
 public:
     GrGLMagnifierEffect(const GrProgramStageFactory& factory,
                         const GrCustomStage& stage);
@@ -96,12 +96,12 @@ private:
     UniformHandle  fZoomVar;
     UniformHandle  fInsetVar;
 
-    typedef GrGLProgramStage INHERITED;
+    typedef GrGLLegacyProgramStage INHERITED;
 };
 
 GrGLMagnifierEffect::GrGLMagnifierEffect(const GrProgramStageFactory& factory,
                                          const GrCustomStage& stage)
-    : GrGLProgramStage(factory)
+    : INHERITED(factory)
     , fOffsetVar(GrGLUniformManager::kInvalidUniformHandle)
     , fZoomVar(GrGLUniformManager::kInvalidUniformHandle)
     , fInsetVar(GrGLUniformManager::kInvalidUniformHandle) {

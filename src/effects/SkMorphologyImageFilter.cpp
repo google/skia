@@ -266,7 +266,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GrGLMorphologyEffect  : public GrGLProgramStage {
+class GrGLMorphologyEffect  : public GrGLLegacyProgramStage {
 public:
     GrGLMorphologyEffect (const GrProgramStageFactory& factory,
                           const GrCustomStage& stage);
@@ -290,12 +290,12 @@ private:
     GrMorphologyEffect::MorphologyType  fType;
     GrGLUniformManager::UniformHandle   fImageIncrementUni;
 
-    typedef GrGLProgramStage INHERITED;
+    typedef GrGLLegacyProgramStage INHERITED;
 };
 
 GrGLMorphologyEffect::GrGLMorphologyEffect(const GrProgramStageFactory& factory,
                                            const GrCustomStage& stage)
-    : GrGLProgramStage(factory)
+    : INHERITED(factory)
     , fImageIncrementUni(GrGLUniformManager::kInvalidUniformHandle) {
     const GrMorphologyEffect& m = static_cast<const GrMorphologyEffect&>(stage);
     fRadius = m.radius();
