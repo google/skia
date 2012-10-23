@@ -382,13 +382,19 @@ protected:
         } else if (fPts[1].equalsWithinTolerance(pt, tol)) {
             index = 1;
         }
-        return index >= 0 ? new IndexClick(this, index) : NULL;
+        return new IndexClick(this, index);
     }
 
     virtual bool onClick(Click* click) {
         int index = IndexClick::GetIndex(click);
-        SkASSERT(index >= 0 && index <= 1);
-        fPts[index] = click->fCurr;
+        if (index >= 0 && index <= 1) {
+            fPts[index] = click->fCurr;
+        } else {
+            SkScalar dx = click->fCurr.fX - click->fPrev.fX;
+            SkScalar dy = click->fCurr.fY - click->fPrev.fY;
+            fPts[0].offset(dx, dy);
+            fPts[1].offset(dx, dy);
+        }
         this->inval(NULL);
         return true;
     }
