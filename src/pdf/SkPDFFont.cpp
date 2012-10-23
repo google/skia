@@ -701,9 +701,20 @@ SkPDFGlyphSet* SkPDFGlyphSetMap::getGlyphSetForFont(SkPDFFont* font) {
 
 SkPDFFont::~SkPDFFont() {
     SkAutoMutexAcquire lock(CanonicalFontsMutex());
-    int index;
-    if (Find(SkTypeface::UniqueID(fTypeface.get()), fFirstGlyphID, &index) &&
-            CanonicalFonts()[index].fFont == this) {
+    int index = -1;
+    for (int i = 0 ; i < CanonicalFonts().count() ; i++) {
+        if (CanonicalFonts()[i].fFont == this) {
+            index = i;
+        }
+    }
+    
+    SkDEBUGCODE(int indexFound;)
+    SkASSERT(index == -1 ||
+             (Find(SkTypeface::UniqueID(fTypeface.get()),
+                   fFirstGlyphID,
+                   &indexFound) &&
+             index == indexFound));
+    if (index >= 0) {
         CanonicalFonts().removeShuffle(index);
     }
     fResources.unrefAll();
@@ -761,6 +772,19 @@ SkPDFFont* SkPDFFont::GetFontResource(SkTypeface* typeface, uint16_t glyphID) {
         SkPDFFont* relatedFont = CanonicalFonts()[relatedFontIndex].fFont;
         fontMetrics = relatedFont->fontInfo();
         relatedFontDescriptor = relatedFont->getFontDescriptor();
+
+        // This only is to catch callers who pass invalid glyph ids.
+        // If glyph id is invalid, then we will create duplicate entries
+        // for True Type fonts.
+        SkAdvancedTypefaceMetrics::FontType fontType = 
+            fontMetrics.get() ? fontMetrics.get()->fType :
+                                SkAdvancedTypefaceMetrics::kOther_Font;
+
+        if (fontType == SkAdvancedTypefaceMetrics::kType1CID_Font ||
+            fontType == SkAdvancedTypefaceMetrics::kTrueType_Font) {
+            CanonicalFonts()[relatedFontIndex].fFont->ref();
+            return CanonicalFonts()[relatedFontIndex].fFont;
+        }    
     } else {
         SkAdvancedTypefaceMetrics::PerGlyphInfo info;
         info = SkAdvancedTypefaceMetrics::kGlyphNames_PerGlyphInfo;
