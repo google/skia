@@ -244,7 +244,7 @@ private:
     typedef GrCustomStage INHERITED;
 };
 
-class GLColorTableEffect : public GrGLProgramStage {
+class GLColorTableEffect : public GrGLLegacyProgramStage {
 public:
     GLColorTableEffect(const GrProgramStageFactory& factory,
                          const GrCustomStage& stage);
@@ -263,7 +263,7 @@ public:
 
 private:
 
-    typedef GrGLProgramStage INHERITED;
+    typedef GrGLLegacyProgramStage INHERITED;
 };
 
 GLColorTableEffect::GLColorTableEffect(

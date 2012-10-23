@@ -279,7 +279,7 @@ private:
     typedef GrSingleTextureEffect INHERITED;
 };
 
-class GrGLMatrixConvolutionEffect : public GrGLProgramStage {
+class GrGLMatrixConvolutionEffect : public GrGLLegacyProgramStage {
 public:
     GrGLMatrixConvolutionEffect(const GrProgramStageFactory& factory,
                                 const GrCustomStage& stage);
@@ -307,11 +307,13 @@ private:
     UniformHandle  fTargetUni;
     UniformHandle  fGainUni;
     UniformHandle  fBiasUni;
+
+    typedef GrGLLegacyProgramStage INHERITED;
 };
 
 GrGLMatrixConvolutionEffect::GrGLMatrixConvolutionEffect(const GrProgramStageFactory& factory,
                                            const GrCustomStage& stage)
-    : GrGLProgramStage(factory)
+    : INHERITED(factory)
     , fKernelUni(GrGLUniformManager::kInvalidUniformHandle)
     , fImageIncrementUni(GrGLUniformManager::kInvalidUniformHandle)
     , fTargetUni(GrGLUniformManager::kInvalidUniformHandle)

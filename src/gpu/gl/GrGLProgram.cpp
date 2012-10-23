@@ -932,9 +932,6 @@ GrGLProgramStage* GrGLProgram::GenStageCode(const GrCustomStage* stage,
                         &varyingFSName);
     builder->setupTextureAccess(varyingFSName, texCoordVaryingType);
 
-    // Must setup variables after calling setupTextureAccess
-    glStage->setupVariables(builder);
-
     int numTextures = stage->numTextures();
     SkSTArray<8, GrGLShaderBuilder::TextureSampler> textureSamplers;
 
@@ -955,13 +952,11 @@ GrGLProgramStage* GrGLProgram::GenStageCode(const GrCustomStage* stage,
                                   vector_all_coords(GrSLTypeToVecLength(texCoordVaryingType)));
     }
 
-    builder->fVSCode.appendf("\t{ // %s\n", glStage->name());
-    glStage->emitVS(builder, varyingVSName);
-    builder->fVSCode.appendf("\t}\n");
-
     // Enclose custom code in a block to avoid namespace conflicts
+    builder->fVSCode.appendf("\t{ // %s\n", glStage->name());
     builder->fFSCode.appendf("\t{ // %s \n", glStage->name());
-    glStage->emitFS(builder, fsOutColor, fsInColor, textureSamplers);
+    glStage->emitCode(builder, varyingVSName, fsOutColor, fsInColor, textureSamplers);
+    builder->fVSCode.appendf("\t}\n");
     builder->fFSCode.appendf("\t}\n");
 
     return glStage;

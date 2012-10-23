@@ -19,12 +19,15 @@ struct GrGLInterface;
 class GrGLTexture;
 
 /** @file
-    This file contains specializations for OpenGL of the shader stages
-    declared in src/gpu/GrCustomStage.h. All the functions emit
-    GLSL shader code and OpenGL calls.
+    This file contains specializations for OpenGL of the shader stages declared in
+    include/gpu/GrCustomStage.h. Objects of type GrGLProgramStage are responsible for emitting the
+    GLSL code that implements a GrCustomStage and for uploading uniforms at draw time. They also
+    must have a function:
+        static inline StageKey GenKey(const GrCustomStage&, const GrGLCaps&)
+    that is used to implement a program cache. When two GrCustomStages produce the same key this
+    means that their GrGLProgramStages would emit the same GLSL code.
 
-    These objects are created by a factory function on the
-    GrCustomStage.
+    These objects are created by the factory object returned by the GrCustomStage::getFactory().
 */
 
 class GrGLProgramStage {
@@ -42,37 +45,35 @@ public:
 
     virtual ~GrGLProgramStage();
 
-    /** Create any uniforms or varyings the vertex shader requires. */
-    virtual void setupVariables(GrGLShaderBuilder* builder);
+    /** Called when the program stage should insert its code into the shaders. The code in each
+        shader will be in its own block ({}) and so locally scoped names will not collide across
+        stages.
 
-    /** Appends vertex code to the appropriate SkString
-        on the state.
-        The code will be inside an otherwise-empty block.
-        Vertex shader input is a vec2 of coordinates, which may
-        be altered.
-        The code will be inside an otherwise-empty block. */
-    virtual void emitVS(GrGLShaderBuilder* builder,
-                        const char* vertexCoords) = 0;
-
-    /** Appends fragment code to the appropriate SkString
-        on the state.
-        The code will be inside an otherwise-empty block.
-        Fragment shader inputs are a vec2 of coordinates, one texture,
-        and a color; output is a color. The input color may be NULL which
-        indicates that the input color is solid white. TODO: Better system
-        for communicating optimization info (e.g. input color is solid white,
-        trans black, known to be opaque, etc.) that allows the custom stage
-        to communicate back similar known info about its output.
+        @param builder      Interface used to emit code in the shaders.
+        @param vertexCoords A vec2 of texture coordinates in the VS, which may be altered. This will
+                            be removed soon and stages will be responsible for computing their own
+                            coords.
+        @param outputColor  A predefined vec4 in the FS in which the stage should place its output
+                            color (or coverage).
+        @param inputColor   A vec4 that holds the input color to the stage in the FS. This may be
+                            NULL in which case the implied input is solid white (all ones).
+                            TODO: Better system for communicating optimization info (e.g. input
+                            color is solid white, trans black, known to be opaque, etc.) that allows
+                            the custom stage to communicate back similar known info about its
+                            output.
+        @param samplers     One entry for each GrTextureAccess of the GrCustomStage that generated
+                            the GrGLProgramStage. These can be passed to the builder to emit texture
+                            reads in the generated code.
         */
-    virtual void emitFS(GrGLShaderBuilder* builder,
-                        const char* outputColor,
-                        const char* inputColor,
-                        const TextureSamplerArray&) = 0;
+    virtual void emitCode(GrGLShaderBuilder* builder,
+                          const char* vertexCoords,
+                          const char* outputColor,
+                          const char* inputColor,
+                          const TextureSamplerArray& samplers) = 0;
 
-    /** A GrGLCustomStage instance can be reused with any GrCustomStage
-        that produces the same stage key; this function reads data from
-        a stage and uploads any uniform variables required by the shaders
-        created in emit*(). */
+    /** A GrGLProgramStage instance can be reused with any GrCustomStage that produces the same
+        stage key; this function reads data from a stage and uploads any uniform variables required
+        by the shaders created in emitCode(). */
     virtual void setData(const GrGLUniformManager&, const GrCustomStage& stage);
 
     const char* name() const { return fFactory.name(); }
@@ -82,6 +83,34 @@ public:
 protected:
 
     const GrProgramStageFactory& fFactory;
+};
+
+/**
+ * This allows program stages that implemented an older set of virtual functions on GrGLProgramStage
+ * to continue to work by change their parent class to this class. New program stages should not use
+ * this interface. It will be removed once older stages are modified to implement emitCode().
+ */
+class GrGLLegacyProgramStage : public GrGLProgramStage {
+public:
+    GrGLLegacyProgramStage(const GrProgramStageFactory& factory) : GrGLProgramStage(factory) {}
+
+    virtual void setupVariables(GrGLShaderBuilder* builder) {};
+    virtual void emitVS(GrGLShaderBuilder* builder,
+                        const char* vertexCoords) = 0;
+    virtual void emitFS(GrGLShaderBuilder* builder,
+                        const char* outputColor,
+                        const char* inputColor,
+                        const TextureSamplerArray&) = 0;
+
+    virtual void emitCode(GrGLShaderBuilder* builder,
+                          const char* vertexCoords,
+                          const char* outputColor,
+                          const char* inputColor,
+                          const TextureSamplerArray& samplers) {
+        this->setupVariables(builder);
+        this->emitVS(builder, vertexCoords);
+        this->emitFS(builder, outputColor, inputColor, samplers);
+    }
 };
 
 #endif
