@@ -33,7 +33,7 @@ static SkShader* createChecker() {
     *bm.getAddr32(0, 1) = *bm.getAddr32(1, 0) = SkPreMultiplyColor(0xFFF4F4F4);
     SkShader* s = SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode,
                                                SkShader::kRepeat_TileMode);
-    
+
     SkMatrix m;
     m.setScale(12, 12);
     s->setLocalMatrix(m);
@@ -57,10 +57,10 @@ public:
 
     bool getGrid() const { return fGrid; }
     void setGrid(bool g) { fGrid = g; }
-    
+
     bool getShowSkeleton() const { return fShowSkeleton; }
     void setShowSkeleton(bool ss) { fShowSkeleton = ss; }
-    
+
     bool getUseGPU() const { return fUseGPU; }
     void setUseGPU(bool ug) { fUseGPU = ug; }
 
@@ -79,7 +79,7 @@ public:
         fMatrix.setScale(SkIntToScalar(zoom), SkIntToScalar(zoom));
         fInverse.setScale(SK_Scalar1 / zoom, SK_Scalar1 / zoom);
         fShader->setLocalMatrix(fMatrix);
-        
+
         SkImage::Info info = {
             width, height, SkImage::kPMColor_ColorType, SkImage::kPremul_AlphaType
         };
@@ -149,7 +149,7 @@ private:
         }
         max->drawPath(path, paint);
     }
-    
+
     void copyMinToMax() {
         erase(fMaxSurface);
         SkCanvas* canvas = fMaxSurface->getCanvas();
@@ -195,7 +195,7 @@ void FatBits::drawFG(SkCanvas* canvas) {
         SkScalar y = SkIntToScalar(iy * fZ) + half;
         for (int ix = 0; ix < fW; ++ix) {
             SkScalar x = SkIntToScalar(ix * fZ) + half;
-            
+
             canvas->drawPoint(x, y, outer);
             canvas->drawPoint(x, y, inner);
         }
@@ -205,11 +205,11 @@ void FatBits::drawFG(SkCanvas* canvas) {
 void FatBits::drawLineSkeleton(SkCanvas* max, const SkPoint pts[]) {
     SkPaint paint;
     this->setupSkeletonPaint(&paint);
-    
+
     SkPath path;
     path.moveTo(pts[0]);
     path.lineTo(pts[1]);
-    
+
     switch (fStyle) {
         case kHair_Style:
             if (fUseGPU) {
@@ -228,7 +228,7 @@ void FatBits::drawLineSkeleton(SkCanvas* max, const SkPoint pts[]) {
             SkPath dst;
             p.getFillPath(path, &dst);
             path = dst;
-            
+
             if (fUseGPU) {
                 path.moveTo(dst.getPoint(0));
                 path.lineTo(dst.getPoint(2));
@@ -240,9 +240,9 @@ void FatBits::drawLineSkeleton(SkCanvas* max, const SkPoint pts[]) {
 
 void FatBits::drawLine(SkCanvas* canvas, SkPoint pts[]) {
     SkPaint paint;
-    
+
     fInverse.mapPoints(pts, 2);
-    
+
     if (fGrid) {
         SkScalar dd = 0;//SK_Scalar1 / 50;
         pts[0].set(SkScalarRoundToScalar(pts[0].fX) + dd,
@@ -250,31 +250,31 @@ void FatBits::drawLine(SkCanvas* canvas, SkPoint pts[]) {
         pts[1].set(SkScalarRoundToScalar(pts[1].fX) + dd,
                    SkScalarRoundToScalar(pts[1].fY) + dd);
     }
-    
+
     erase(fMinSurface);
     this->setupPaint(&paint);
     paint.setColor(FAT_PIXEL_COLOR);
     fMinSurface->getCanvas()->drawLine(pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY, paint);
     this->copyMinToMax();
-    
+
     SkCanvas* max = fMaxSurface->getCanvas();
-    
+
     fMatrix.mapPoints(pts, 2);
     this->drawLineSkeleton(max, pts);
-    
+
     fMaxSurface->draw(canvas, 0, 0, NULL);
 }
 
 void FatBits::drawRect(SkCanvas* canvas, SkPoint pts[2]) {
     SkPaint paint;
-    
+
     fInverse.mapPoints(pts, 2);
-    
+
     if (fGrid) {
         pts[0].set(SkScalarRoundToScalar(pts[0].fX), SkScalarRoundToScalar(pts[0].fY));
         pts[1].set(SkScalarRoundToScalar(pts[1].fX), SkScalarRoundToScalar(pts[1].fY));
     }
-    
+
     SkRect r;
     r.set(pts, 2);
 
@@ -283,13 +283,13 @@ void FatBits::drawRect(SkCanvas* canvas, SkPoint pts[2]) {
     paint.setColor(FAT_PIXEL_COLOR);
     fMinSurface->getCanvas()->drawRect(r, paint);
     this->copyMinToMax();
-    
+
     SkCanvas* max = fMaxSurface->getCanvas();
-    
+
     fMatrix.mapPoints(pts, 2);
     r.set(pts, 2);
     this->drawRectSkeleton(max, r);
-    
+
     fMaxSurface->draw(canvas, 0, 0, NULL);
 }
 
@@ -299,7 +299,7 @@ class IndexClick : public SkView::Click {
     int fIndex;
 public:
     IndexClick(SkView* v, int index) : SkView::Click(v), fIndex(index) {}
-    
+
     static int GetIndex(SkView::Click* click) {
         return ((IndexClick*)click)->fIndex;
     }
@@ -316,7 +316,7 @@ public:
         fPts[1].set(48 * 5, 48 * 4);
         fIsRect = false;
     }
-    
+
     void setStyle(FatBits::Style s) {
         fFB.setStyle(s);
         this->inval(NULL);
@@ -362,7 +362,7 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual void onDrawContent(SkCanvas* canvas) {
         fFB.drawBG(canvas);
         if (fIsRect) {
@@ -384,7 +384,7 @@ protected:
         }
         return index >= 0 ? new IndexClick(this, index) : NULL;
     }
-    
+
     virtual bool onClick(Click* click) {
         int index = IndexClick::GetIndex(click);
         SkASSERT(index >= 0 && index <= 1);
@@ -392,9 +392,9 @@ protected:
         this->inval(NULL);
         return true;
     }
-    
+
 private:
-    
+
     typedef SampleView INHERITED;
 };
 
