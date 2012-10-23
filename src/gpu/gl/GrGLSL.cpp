@@ -17,6 +17,8 @@ GrGLSLGeneration GrGetGLSLGeneration(GrGLBinding binding,
             GrAssert(ver >= GR_GLSL_VER(1,10));
             if (ver >= GR_GLSL_VER(1,50)) {
                 return k150_GrGLSLGeneration;
+            } else if (ver >= GR_GLSL_VER(1,40)) {
+                return k140_GrGLSLGeneration;
             } else if (ver >= GR_GLSL_VER(1,30)) {
                 return k130_GrGLSLGeneration;
             } else {
@@ -47,6 +49,9 @@ const char* GrGetGLSLVersionDecl(GrGLBinding binding,
         case k130_GrGLSLGeneration:
             GrAssert(kDesktop_GrGLBinding == binding);
             return "#version 130\n";
+        case k140_GrGLSLGeneration:
+            GrAssert(kDesktop_GrGLBinding == binding);
+            return "#version 140\n";
         case k150_GrGLSLGeneration:
             GrAssert(kDesktop_GrGLBinding == binding);
             return "#version 150\n";
