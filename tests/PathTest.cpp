@@ -114,6 +114,7 @@ static void make_arb_round_rect(SkPath* path, const SkRect& r,
     add_corner_arc(path, r, xCorner, yCorner, 0);
     add_corner_arc(path, r, xCorner, yCorner, 90);
     add_corner_arc(path, r, xCorner, yCorner, 180);
+    path->close();
 }
 
 // Chrome creates its own round rects with each corner possibly being different.
@@ -126,14 +127,14 @@ static void test_arb_round_rect_is_convex(skiatest::Reporter* reporter) {
 
     for (int i = 0; i < 5000; ++i) {
 
-        SkScalar radius = rand.nextUScalar1() * 30;
-        if (radius < SK_Scalar1) {
+        SkScalar size = rand.nextUScalar1() * 30;
+        if (size < SK_Scalar1) {
             continue;
         }
         r.fLeft = rand.nextUScalar1() * 300;
         r.fTop =  rand.nextUScalar1() * 300;
-        r.fRight =  r.fLeft + 2 * radius;
-        r.fBottom = r.fTop + 2 * radius;
+        r.fRight =  r.fLeft + 2 * size;
+        r.fBottom = r.fTop + 2 * size;
 
         SkPath temp;
 
@@ -141,6 +142,37 @@ static void test_arb_round_rect_is_convex(skiatest::Reporter* reporter) {
 
 #ifdef SK_REDEFINE_ROOT2OVER2_TO_MAKE_ARCTOS_CONVEX
         REPORTER_ASSERT(reporter, temp.isConvex());
+#endif
+    }
+}
+
+// Chrome will sometimes create a 0 radius round rect. The degenerate
+// quads prevent the path from being converted to a rect
+// Note: PathBench::ArbRoundRectBench performs almost exactly
+// the same test (but with drawing)
+static void test_arb_zero_rad_round_rect_is_rect(skiatest::Reporter* reporter) {
+    SkRandom rand;
+    SkRect r;
+
+    for (int i = 0; i < 5000; ++i) {
+
+        SkScalar size = rand.nextUScalar1() * 30;
+        if (size < SK_Scalar1) {
+            continue;
+        }
+        r.fLeft = rand.nextUScalar1() * 300;
+        r.fTop =  rand.nextUScalar1() * 300;
+        r.fRight =  r.fLeft + 2 * size;
+        r.fBottom = r.fTop + 2 * size;
+
+        SkPath temp;
+
+        make_arb_round_rect(&temp, r, 0, 0);
+
+#ifdef SK_REDEFINE_ROOT2OVER2_TO_MAKE_ARCTOS_CONVEX
+        SkRect result;
+        REPORTER_ASSERT(reporter, temp.isRect(&result));
+        REPORTER_ASSERT(reporter, r == result);
 #endif
     }
 }
@@ -1685,6 +1717,7 @@ static void TestPath(skiatest::Reporter* reporter) {
     test_isfinite_after_transform(reporter);
     test_tricky_cubic(reporter);
     test_arb_round_rect_is_convex(reporter);
+    test_arb_zero_rad_round_rect_is_rect(reporter);
 }
 
 #include "TestClassDef.h"

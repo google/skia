@@ -671,8 +671,10 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-// Chrome creates its own round rects with each corner possibly being different
-// Note: PathTest::test_arb_round_rect_is_convex performs almost exactly
+// Chrome creates its own round rects with each corner possibly being different.
+// In its "zero radius" incarnation it creates degenerate round rects.
+// Note: PathTest::test_arb_round_rect_is_convex and 
+// test_arb_zero_rad_round_rect_is_rect perform almost exactly
 // the same test (but with no drawing)
 class ArbRoundRectBench : public SkBenchmark {
 protected:
@@ -682,8 +684,12 @@ protected:
         N = SkBENCHLOOP(100)
     };
 public:
-    ArbRoundRectBench(void* param) : INHERITED(param) {
-        fName.printf("arbroundrect");
+    ArbRoundRectBench(void* param, bool zeroRad) : INHERITED(param), fZeroRad(zeroRad) {
+        if (zeroRad) {
+            fName.printf("zeroradroundrect");
+        } else {
+            fName.printf("arbroundrect");
+        }
     }
 
 protected:
@@ -728,6 +734,7 @@ protected:
         add_corner_arc(path, r, xCorner, yCorner, 0);
         add_corner_arc(path, r, xCorner, yCorner, 90);
         add_corner_arc(path, r, xCorner, yCorner, 180);
+        path->close();
 
 #ifdef SK_REDEFINE_ROOT2OVER2_TO_MAKE_ARCTOS_CONVEX
         SkASSERT(path->isConvex());
@@ -743,24 +750,32 @@ protected:
             paint.setColor(0xff000000 | rand.nextU());
             paint.setAntiAlias(true);
 
-            SkScalar radius = rand.nextUScalar1() * 30;
-            if (radius < SK_Scalar1) {
+            SkScalar size = rand.nextUScalar1() * 30;
+            if (size < SK_Scalar1) {
                 continue;
             }
             r.fLeft = rand.nextUScalar1() * 300;
             r.fTop =  rand.nextUScalar1() * 300;
-            r.fRight =  r.fLeft + 2 * radius;
-            r.fBottom = r.fTop + 2 * radius;
+            r.fRight =  r.fLeft + 2 * size;
+            r.fBottom = r.fTop + 2 * size;
 
             SkPath temp;
 
-            make_arb_round_rect(&temp, r, r.width() / 10, r.height() / 15);
+            if (fZeroRad) {
+                make_arb_round_rect(&temp, r, 0, 0);
+
+                SkASSERT(temp.isRect(NULL));
+            } else {
+                make_arb_round_rect(&temp, r, r.width() / 10, r.height() / 15);
+            }
 
             canvas->drawPath(temp, paint);
         }
     }
 
 private:
+    bool fZeroRad;      // should 0 radius rounds rects be tested?
+
     typedef SkBenchmark INHERITED;
 };
 
@@ -863,5 +878,8 @@ static BenchRegistry gRegReverseTo(FactReverseTo);
 static SkBenchmark* CirclesTest(void* p) { return new CirclesBench(p); }
 static BenchRegistry gRegCirclesTest(CirclesTest);
 
-static SkBenchmark* ArbRoundRectTest(void* p) { return new ArbRoundRectBench(p); }
+static SkBenchmark* ArbRoundRectTest(void* p) { return new ArbRoundRectBench(p, false); }
 static BenchRegistry gRegArbRoundRectTest(ArbRoundRectTest);
+
+static SkBenchmark* ZeroRadRoundRectTest(void* p) { return new ArbRoundRectBench(p, true); }
+static BenchRegistry gRegZeroRadRoundRectTest(ZeroRadRoundRectTest);
