@@ -371,6 +371,19 @@ protected:
             fFB.drawLine(canvas, fPts);
         }
         fFB.drawFG(canvas);
+        
+        {
+            SkString str;
+            str.printf("%s %s %s",
+                       fFB.getAA() ? "AA" : "BW",
+                       FatBits::kHair_Style == fFB.getStyle() ? "Hair" : "Stroke",
+                       fFB.getUseGPU() ? "GPU" : "CPU");
+            SkPaint paint;
+            paint.setAntiAlias(true);
+            paint.setTextSize(16);
+            paint.setColor(SK_ColorBLUE);
+            canvas->drawText(str.c_str(), str.size(), 10, 16, paint);
+        }
     }
 
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
