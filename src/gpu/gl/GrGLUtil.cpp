@@ -166,6 +166,16 @@ bool GrGLHasExtensionFromString(const char* ext, const char* extensionString) {
     return false;
 }
 
+GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
+    if (NULL != vendorString) {
+        if (0 == strcmp(vendorString, "Intel")) {
+            return kIntel_GrGLVendor;
+        }
+    }
+
+    return kOther_GrGLVendor;
+}
+
 bool GrGLHasExtension(const GrGLInterface* gl, const char* ext) {
     const GrGLubyte* glstr;
     GR_GL_CALL_RET(gl, glstr, GetString(GR_GL_EXTENSIONS));
@@ -189,3 +199,10 @@ GrGLSLVersion GrGLGetGLSLVersion(const GrGLInterface* gl) {
     GR_GL_CALL_RET(gl, v, GetString(GR_GL_SHADING_LANGUAGE_VERSION));
     return GrGLGetGLSLVersionFromString((const char*) v);
 }
+
+GrGLVendor GrGLGetVendor(const GrGLInterface* gl) {
+    const GrGLubyte* v;
+    GR_GL_CALL_RET(gl, v, GetString(GR_GL_VENDOR));
+    return GrGLGetVendorFromString((const char*) v);
+}
+
