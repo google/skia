@@ -11,7 +11,41 @@
 /* TODO(chudy): Replace all std::strings with char */
 
 SkString* SkObjectParser::BitmapToString(const SkBitmap& bitmap) {
-    SkString* mBitmap = new SkString("SkBitmap: Data unavailable");
+    SkString* mBitmap = new SkString("SkBitmap: ");
+    mBitmap->append("W: ");
+    mBitmap->appendS32(bitmap.width());
+    mBitmap->append(" H: ");
+    mBitmap->appendS32(bitmap.height());
+
+    const char* gConfigStrings[] = {
+        "None", "A1", "A8", "Index8", "RGB565", "ARGB4444", "ARGB8888", "RLE8" 
+    };
+    SkASSERT(SkBitmap::kConfigCount == 8);
+
+    mBitmap->append(" Config: ");
+    mBitmap->append(gConfigStrings[bitmap.getConfig()]);
+
+    if (bitmap.isOpaque()) {
+        mBitmap->append(" opaque");
+    } else {
+        mBitmap->append(" not-opaque");
+    }
+
+    if (bitmap.isImmutable()) {
+        mBitmap->append(" immutable");
+    } else {
+        mBitmap->append(" not-immutable");
+    }
+
+    if (bitmap.isVolatile()) {
+        mBitmap->append(" volatile");
+    } else {
+        mBitmap->append(" not-volatile");
+    }
+
+    mBitmap->append(" genID: ");
+    mBitmap->appendS32(bitmap.getGenerationID());
+
     return mBitmap;
 }
 
@@ -40,13 +74,13 @@ SkString* SkObjectParser::IntToString(int x, const char* text) {
 SkString* SkObjectParser::IRectToString(const SkIRect& rect) {
     SkString* mRect = new SkString("SkIRect: ");
     mRect->append("L: ");
-    mRect->appendScalar(SkIntToScalar(rect.left()));
+    mRect->appendS32(rect.left());
     mRect->append(", T: ");
-    mRect->appendScalar(SkIntToScalar(rect.top()));
+    mRect->appendS32(rect.top());
     mRect->append(", R: ");
-    mRect->appendScalar(SkIntToScalar(rect.right()));
+    mRect->appendS32(rect.right());
     mRect->append(", B: ");
-    mRect->appendScalar(SkIntToScalar(rect.bottom()));
+    mRect->appendS32(rect.bottom());
     return mRect;
 }
 
@@ -63,8 +97,9 @@ SkString* SkObjectParser::MatrixToString(const SkMatrix& matrix) {
 
 SkString* SkObjectParser::PaintToString(const SkPaint& paint) {
     SkColor color = paint.getColor();
-    SkString* mPaint = new SkString("SkPaint: 0x");
+    SkString* mPaint = new SkString("SkPaint: Color: 0x");
     mPaint->appendHex(color);
+
     return mPaint;
 }
 
@@ -78,6 +113,12 @@ SkString* SkObjectParser::PathToString(const SkPath& path) {
 
     mPath->append(gConvexityStrings[path.getConvexity()]);
     mPath->append(", ");
+
+    if (path.isRect(NULL)) {
+        mPath->append("isRect, ");
+    } else {
+        mPath->append("isNotRect, ");
+    }
 
     mPath->appendS32(path.countVerbs());
     mPath->append("V, ");
