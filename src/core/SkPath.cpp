@@ -1030,6 +1030,15 @@ static int build_arc_points(const SkRect& oval, SkScalar startAngle,
         // bounding box (and break the circle special case).
         pts[0].set(oval.fRight, oval.centerY());
         return 1;
+    } else if (0 == oval.width() && 0 == oval.height()) {
+        // Chrome will sometimes create 0 radius round rects. Having degenerate
+        // quad segments in the path prevents the path from being recognized as 
+        // a rect.
+        // TODO: optimizing the case where only one of width or height is zero
+        // should also be considered. This case, however, doesn't seem to be
+        // as common as the single point case.
+        pts[0].set(oval.fRight, oval.fTop);
+        return 1;
     }
 
     SkVector start, stop;
