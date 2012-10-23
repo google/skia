@@ -216,6 +216,9 @@ public:
     /// Is GL_ARB_IMAGING supported
     bool imagingSupport() const { return fImagingSupport; }
 
+    /// Is GL_ARB_fragment_coord_conventions supported?
+    bool fragCoordConventionsSupport() const { return fFragCoordsConventionSupport; }
+
     // Does ReadPixels support the provided format/type combo?
     bool readPixelsSupported(const GrGLInterface* intf,
                              GrGLenum format,
@@ -293,6 +296,7 @@ private:
     bool fTextureRedSupport : 1;
     bool fImagingSupport  : 1;
     bool fTwoFormatLimit : 1;
+    bool fFragCoordsConventionSupport : 1;
 };
 
 #endif

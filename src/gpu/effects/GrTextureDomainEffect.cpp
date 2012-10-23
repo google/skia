@@ -22,10 +22,7 @@ public:
                         const char* inputColor,
                         const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager&,
-                         const GrCustomStage&,
-                         const GrRenderTarget*,
-                         int stageNum) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrCustomStage&) SK_OVERRIDE;
 
     static inline StageKey GenKey(const GrCustomStage&, const GrGLCaps&) { return 0; }
 
@@ -63,10 +60,7 @@ void GrGLTextureDomainEffect::emitFS(GrGLShaderBuilder* builder,
     builder->fFSCode.append(";\n");
 }
 
-void GrGLTextureDomainEffect::setData(const GrGLUniformManager& uman,
-                                      const GrCustomStage& data,
-                                      const GrRenderTarget*,
-                                      int stageNum) {
+void GrGLTextureDomainEffect::setData(const GrGLUniformManager& uman, const GrCustomStage& data) {
     const GrTextureDomainEffect& effect = static_cast<const GrTextureDomainEffect&>(data);
     const GrRect& domain = effect.domain();
 
