@@ -458,16 +458,7 @@ void add_line(const SkPoint p[2],
     if (orthVec.setLength(SK_Scalar1)) {
         orthVec.setOrthog(orthVec);
 
-        // the values we pass down to the frag shader
-        // have to be in y-points-up space;
-        SkVector normal;
-        normal.fX = orthVec.fX;
-        normal.fY = -orthVec.fY;
-        SkPoint aYDown;
-        aYDown.fX = a.fX;
-        aYDown.fY = rtHeight - a.fY;
-
-        SkScalar lineC = -(aYDown.dot(normal));
+        SkScalar lineC = -(a.dot(orthVec));
         for (int i = 0; i < kVertsPerLineSeg; ++i) {
             (*vert)[i].fPos = (i < 2) ? a : b;
             if (0 == i || 3 == i) {
@@ -475,8 +466,8 @@ void add_line(const SkPoint p[2],
             } else {
                 (*vert)[i].fPos += orthVec;
             }
-            (*vert)[i].fLine.fA = normal.fX;
-            (*vert)[i].fLine.fB = normal.fY;
+            (*vert)[i].fLine.fA = orthVec.fX;
+            (*vert)[i].fLine.fB = orthVec.fY;
             (*vert)[i].fLine.fC = lineC;
         }
         if (NULL != toSrc) {

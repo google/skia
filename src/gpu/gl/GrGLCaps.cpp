@@ -36,6 +36,7 @@ void GrGLCaps::reset() {
     fTextureRedSupport = false;
     fImagingSupport = false;
     fTwoFormatLimit = false;
+    fFragCoordsConventionSupport = false;
 }
 
 GrGLCaps::GrGLCaps(const GrGLCaps& caps) {
@@ -65,6 +66,7 @@ GrGLCaps& GrGLCaps::operator = (const GrGLCaps& caps) {
     fTextureRedSupport = caps.fTextureRedSupport;
     fImagingSupport = caps.fImagingSupport;
     fTwoFormatLimit = caps.fTwoFormatLimit;
+    fFragCoordsConventionSupport = caps.fFragCoordsConventionSupport;
 
     return *this;
 }
@@ -157,6 +159,13 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo) {
     // ReadPixels. The other format has to checked at run-time since it
     // can change based on which render target is bound
     fTwoFormatLimit = kES2_GrGLBinding == binding;
+
+    // Known issue on at least some Intel platforms:
+    // http://code.google.com/p/skia/issues/detail?id=946
+    if (kIntel_GrGLVendor != ctxInfo.vendor()) {
+        fFragCoordsConventionSupport = ctxInfo.glslGeneration() >= k150_GrGLSLGeneration ||
+                                       ctxInfo.hasExtension("GL_ARB_fragment_coord_conventions");
+    }
 
     this->initFSAASupport(ctxInfo);
     this->initStencilFormats(ctxInfo);
@@ -415,5 +424,6 @@ void GrGLCaps::print() const {
     GrPrintf("Pack Flip Y support: %s\n",
              (fPackFlipYSupport ? "YES": "NO"));
     GrPrintf("Two Format Limit: %s\n", (fTwoFormatLimit ? "YES": "NO"));
+    GrPrintf("Fragment coord conventions support: %s\n", (fFragCoordsConventionSupport ? "YES": "NO"));
 }
 
