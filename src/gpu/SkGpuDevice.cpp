@@ -256,6 +256,10 @@ SkGpuDevice::~SkGpuDevice() {
         fContext->setRenderTarget(NULL);
     }
 
+    if (fContext->getClip() == &fClipData) {
+        fContext->setClip(NULL);
+    }
+
     SkSafeUnref(fRenderTarget);
     fContext->unref();
 }
