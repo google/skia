@@ -444,9 +444,9 @@ GrEffect* GrSweepGradient::TestCreate(SkRandom* random,
     SkAutoTUnref<SkShader> shader(SkGradientShader::CreateSweep(center.fX, center.fY,
                                                                 colors, stops, colorCount));
     GrSamplerState sampler;
-    shader->asNewCustomStage(context, &sampler);
+    shader->asNewEffect(context, &sampler);
     GrAssert(NULL != sampler.getEffect());
-    // const_cast and ref is a hack! Will remove when asNewCustomStage returns GrEffect*
+    // const_cast and ref is a hack! Will remove when asNewEffect returns GrEffect*
     sampler.getEffect()->ref();
     return const_cast<GrEffect*>(sampler.getEffect());
 }
@@ -465,7 +465,7 @@ void GrGLSweepGradient::emitFS(GrGLShaderBuilder* builder,
 
 /////////////////////////////////////////////////////////////////////
 
-bool SkSweepGradient::asNewCustomStage(GrContext* context, GrSamplerState* sampler) const {
+bool SkSweepGradient::asNewEffect(GrContext* context, GrSamplerState* sampler) const {
     SkAutoTUnref<GrEffect> stage(SkNEW_ARGS(GrSweepGradient, (context, *this)));
 
 
@@ -485,7 +485,7 @@ bool SkSweepGradient::asNewCustomStage(GrContext* context, GrSamplerState* sampl
 
 #else
 
-bool SkSweepGradient::asNewCustomStage(GrContext*, GrSamplerState*) const {
+bool SkSweepGradient::asNewEffect(GrContext*, GrSamplerState*) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;
 }

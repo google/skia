@@ -90,12 +90,12 @@ public:
      *  in it.  The caller assumes ownership of the stage, and it is up to the
      *  caller to unref it.
      */
-    virtual bool asNewCustomStage(GrEffect** stage, GrTexture*) const;
+    virtual bool asNewEffect(GrEffect** stage, GrTexture*) const;
 
     /**
      *  Returns true if the filter can be processed on the GPU.  This is most
      *  often used for multi-pass effects, where intermediate results must be
-     *  rendered to textures.  For single-pass effects, use asNewCustomStage().
+     *  rendered to textures.  For single-pass effects, use asNewEffect().
      *  The default implementation returns false.
      */
     virtual bool canFilterImageGPU() const;

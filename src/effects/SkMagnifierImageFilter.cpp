@@ -202,7 +202,7 @@ GrEffect* GrMagnifierEffect::TestCreate(SkRandom* random,
                 inset));
     GrSamplerState sampler;
     GrEffect* stage;
-    filter->asNewCustomStage(&stage, textures[0]);
+    filter->asNewEffect(&stage, textures[0]);
     GrAssert(NULL != stage);
     return stage;
 }
@@ -243,8 +243,8 @@ SkMagnifierImageFilter::SkMagnifierImageFilter(SkRect srcRect, SkScalar inset)
     SkASSERT(srcRect.x() >= 0 && srcRect.y() >= 0 && inset >= 0);
 }
 
-bool SkMagnifierImageFilter::asNewCustomStage(GrEffect** stage,
-                                              GrTexture* texture) const {
+bool SkMagnifierImageFilter::asNewEffect(GrEffect** stage,
+                                         GrTexture* texture) const {
 #if SK_SUPPORT_GPU
     if (stage) {
       *stage =

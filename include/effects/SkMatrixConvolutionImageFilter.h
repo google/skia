@@ -62,7 +62,7 @@ protected:
                                SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
 
 #if SK_SUPPORT_GPU
-    virtual bool asNewCustomStage(GrEffect** stage, GrTexture*) const SK_OVERRIDE;
+    virtual bool asNewEffect(GrEffect** stage, GrTexture*) const SK_OVERRIDE;
 #endif
 
 private:

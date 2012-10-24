@@ -16,8 +16,8 @@ class SK_API SkMagnifierImageFilter : public SkImageFilter {
 public:
     SkMagnifierImageFilter(SkRect srcRect, SkScalar inset);
 
-    virtual bool asNewCustomStage(GrEffect** stage,
-                                  GrTexture* texture) const SK_OVERRIDE;
+    virtual bool asNewEffect(GrEffect** stage,
+                             GrTexture* texture) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMagnifierImageFilter)
 

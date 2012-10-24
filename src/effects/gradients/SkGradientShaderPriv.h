@@ -270,7 +270,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// Base class for GL gradient custom stages
+// Base class for GL gradient effects
 class GrGLGradientStage : public GrGLLegacyProgramStage {
 public:
 

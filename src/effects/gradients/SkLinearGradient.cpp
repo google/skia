@@ -539,9 +539,9 @@ GrEffect* GrLinearGradient::TestCreate(SkRandom* random,
                                                                  colors, stops, colorCount,
                                                                  tm));
     GrSamplerState sampler;
-    shader->asNewCustomStage(context, &sampler);
+    shader->asNewEffect(context, &sampler);
     GrAssert(NULL != sampler.getEffect());
-    // const_cast and ref is a hack! Will remove when asNewCustomStage returns GrEffect*
+    // const_cast and ref is a hack! Will remove when asNewEffect returns GrEffect*
     sampler.getEffect()->ref();
     return const_cast<GrEffect*>(sampler.getEffect());
 }
@@ -559,7 +559,7 @@ void GrGLLinearGradient::emitFS(GrGLShaderBuilder* builder,
 
 /////////////////////////////////////////////////////////////////////
 
-bool SkLinearGradient::asNewCustomStage(GrContext* context, GrSamplerState* sampler) const {
+bool SkLinearGradient::asNewEffect(GrContext* context, GrSamplerState* sampler) const {
     SkASSERT(NULL != context && NULL != sampler);
 
     SkAutoTUnref<GrEffect> stage(SkNEW_ARGS(GrLinearGradient, (context, *this, fTileMode)));
@@ -580,7 +580,7 @@ bool SkLinearGradient::asNewCustomStage(GrContext* context, GrSamplerState* samp
 
 #else
 
-bool SkLinearGradient::asNewCustomStage(GrContext*, GrSamplerState*) const {
+bool SkLinearGradient::asNewEffect(GrContext*, GrSamplerState*) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;
 }

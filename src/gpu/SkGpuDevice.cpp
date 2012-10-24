@@ -512,11 +512,11 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
             SkColor filtered = colorFilter->filterColor(skPaint.getColor());
             grPaint->setColor(SkColor2GrColor(filtered));
         } else {
-            SkAutoTUnref<GrEffect> stage(colorFilter->asNewCustomStage(dev->context()));
+            SkAutoTUnref<GrEffect> stage(colorFilter->asNewEffect(dev->context()));
             if (NULL != stage.get()) {
                 grPaint->colorSampler(kColorFilterTextureIdx)->setEffect(stage);
             } else {
-                // TODO: rewrite this using asNewCustomStage()
+                // TODO: rewrite this using asNewEffect()
                 SkColor color;
                 SkXfermode::Mode filterMode;
                 if (colorFilter->asColorMode(&color, &filterMode)) {
@@ -552,7 +552,7 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
     }
 
     GrSamplerState* sampler = grPaint->colorSampler(kShaderTextureIdx);
-    if (shader->asNewCustomStage(dev->context(), sampler)) {
+    if (shader->asNewEffect(dev->context(), sampler)) {
         return true;
     }
 
@@ -1482,7 +1482,7 @@ static GrTexture* filter_texture(SkDevice* device, GrContext* context,
         // filter.  Also set the clip wide open and the matrix to identity.
         GrContext::AutoWideOpenIdentityDraw awo(context, NULL);
         texture = filter->onFilterImageGPU(&proxy, texture, rect);
-    } else if (filter->asNewCustomStage(&stage, texture)) {
+    } else if (filter->asNewEffect(&stage, texture)) {
         GrAutoScratchTexture dst(context, desc);
         apply_effect(context, texture, dst.texture(), rect, stage);
         texture = dst.detach();
@@ -1624,7 +1624,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
 }
 
 bool SkGpuDevice::canHandleImageFilter(SkImageFilter* filter) {
-    if (!filter->asNewCustomStage(NULL, NULL) &&
+    if (!filter->asNewEffect(NULL, NULL) &&
         !filter->canFilterImageGPU()) {
         return false;
     }

@@ -438,9 +438,9 @@ GrEffect* GrConical2Gradient::TestCreate(SkRandom* random,
                                                                           colors, stops, colorCount,
                                                                           tm));
     GrSamplerState sampler;
-    shader->asNewCustomStage(context, &sampler);
+    shader->asNewEffect(context, &sampler);
     GrAssert(NULL != sampler.getEffect());
-    // const_cast and ref is a hack! Will remove when asNewCustomStage returns GrEffect*
+    // const_cast and ref is a hack! Will remove when asNewEffect returns GrEffect*
     sampler.getEffect()->ref();
     return const_cast<GrEffect*>(sampler.getEffect());
 }
@@ -669,8 +669,8 @@ GrEffect::StageKey GrGLConical2Gradient::GenKey(const GrEffect& s, const GrGLCap
 
 /////////////////////////////////////////////////////////////////////
 
-bool SkTwoPointConicalGradient::asNewCustomStage(GrContext* context,
-                                                 GrSamplerState* sampler) const {
+bool SkTwoPointConicalGradient::asNewEffect(GrContext* context,
+                                            GrSamplerState* sampler) const {
     SkASSERT(NULL != context && NULL != sampler);
 
     SkMatrix matrix;
@@ -700,7 +700,7 @@ bool SkTwoPointConicalGradient::asNewCustomStage(GrContext* context,
 
 #else
 
-bool SkTwoPointConicalGradient::asNewCustomStage(GrContext*, GrSamplerState*) const {
+bool SkTwoPointConicalGradient::asNewEffect(GrContext*, GrSamplerState*) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;
 }

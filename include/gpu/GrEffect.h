@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrCustomStage_DEFINED
-#define GrCustomStage_DEFINED
+#ifndef GrEffect_DEFINED
+#define GrEffect_DEFINED
 
 #include "GrRefCnt.h"
 #include "GrNoncopyable.h"
@@ -50,11 +50,11 @@ public:
         GrGLProgramStage created by the factory.
 
         Example:
-        class MyCustomStage : public GrEffect {
+        class MyCustomEffect : public GrEffect {
         ...
             virtual const GrProgramStageFactory& getFactory() const
                                                             SK_OVERRIDE {
-                return GrTProgramStageFactory<MyCustomStage>::getInstance();
+                return GrTProgramStageFactory<MyCustomEffect>::getInstance();
             }
         ...
         };
