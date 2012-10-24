@@ -707,7 +707,7 @@ SkPDFFont::~SkPDFFont() {
             index = i;
         }
     }
-    
+
     SkDEBUGCODE(int indexFound;)
     SkASSERT(index == -1 ||
              (Find(SkTypeface::UniqueID(fTypeface.get()),
@@ -776,7 +776,7 @@ SkPDFFont* SkPDFFont::GetFontResource(SkTypeface* typeface, uint16_t glyphID) {
         // This only is to catch callers who pass invalid glyph ids.
         // If glyph id is invalid, then we will create duplicate entries
         // for True Type fonts.
-        SkAdvancedTypefaceMetrics::FontType fontType = 
+        SkAdvancedTypefaceMetrics::FontType fontType =
             fontMetrics.get() ? fontMetrics.get()->fType :
                                 SkAdvancedTypefaceMetrics::kOther_Font;
 
@@ -784,7 +784,7 @@ SkPDFFont* SkPDFFont::GetFontResource(SkTypeface* typeface, uint16_t glyphID) {
             fontType == SkAdvancedTypefaceMetrics::kTrueType_Font) {
             CanonicalFonts()[relatedFontIndex].fFont->ref();
             return CanonicalFonts()[relatedFontIndex].fFont;
-        }    
+        }
     } else {
         SkAdvancedTypefaceMetrics::PerGlyphInfo info;
         info = SkAdvancedTypefaceMetrics::kGlyphNames_PerGlyphInfo;

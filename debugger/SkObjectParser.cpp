@@ -18,7 +18,7 @@ SkString* SkObjectParser::BitmapToString(const SkBitmap& bitmap) {
     mBitmap->appendS32(bitmap.height());
 
     const char* gConfigStrings[] = {
-        "None", "A1", "A8", "Index8", "RGB565", "ARGB4444", "ARGB8888", "RLE8" 
+        "None", "A1", "A8", "Index8", "RGB565", "ARGB4444", "ARGB8888", "RLE8"
     };
     SkASSERT(SkBitmap::kConfigCount == 8);
 
