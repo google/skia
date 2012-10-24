@@ -147,9 +147,13 @@ public:
     */
     void abortPlayback();
 
+protected:
+    // fRecord is protected to allow derived classes to install their own
+    // SkPictureRecord-derived recorders.
+    SkPictureRecord* fRecord;
+
 private:
     int fWidth, fHeight;
-    SkPictureRecord* fRecord;
     SkPicturePlayback* fPlayback;
 
     /** Used by the R-Tree when kOptimizeForClippedPlayback_RecordingFlag is

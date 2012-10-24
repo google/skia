@@ -26,7 +26,33 @@ static void usage() {
 class SkFilterRecord : public SkPictureRecord {
 public:
     SkFilterRecord(uint32_t recordFlags, SkDevice* device)
-        : INHERITED(recordFlags, device) {
+        : INHERITED(recordFlags, device)
+        , fTransSkipped(0)
+        , fTransTot(0)
+        , fScalesSkipped(0)
+        , fScalesTot(0) {
+    }
+
+    virtual bool translate(SkScalar dx, SkScalar dy) SK_OVERRIDE {
+        ++fTransTot;
+
+        if (0 == dx && 0 == dy) {
+            ++fTransSkipped;
+            return true;
+        }
+
+        return INHERITED::translate(dx, dy);
+    }
+
+    virtual bool scale(SkScalar sx, SkScalar sy) SK_OVERRIDE {
+        ++fScalesTot;
+
+        if (SK_Scalar1 == sx && SK_Scalar1 == sy) {
+            ++fScalesSkipped;
+            return true;
+        }
+
+        return INHERITED::scale(sx, sy);
     }
 
     void saveImages(const SkString& path) {
@@ -50,9 +76,34 @@ public:
         bitmaps->unref();
     }
 
+    void report() {
+        SkDebugf("%d Trans skipped (out of %d)\n", fTransSkipped, fTransTot);
+        SkDebugf("%d Scales skipped (out of %d)\n", fScalesSkipped, fScalesTot);
+    }
+
+protected:
+    int fTransSkipped;
+    int fTransTot;
+
+    int fScalesSkipped;
+    int fScalesTot;
+
 private:
     typedef SkPictureRecord INHERITED;
 };
+
+// Wrap SkPicture to allow installation of a SkFilterRecord object
+class SkFilterPicture : public SkPicture {
+public:
+    SkFilterPicture(SkPictureRecord* record) {
+        fRecord = record;
+        SkSafeRef(fRecord);
+    }
+
+private:
+    typedef SkPicture INHERITED;
+};
+
 
 // This function is not marked as 'static' so it can be referenced externally
 // in the iOS build.
@@ -122,29 +173,28 @@ int tool_main(int argc, char** argv) {
         return -1;
     }
 
-    if (!outFile.isEmpty()) {
-        // Playback the read in picture to another picture to allow whatever
-        // translation occurs inside Skia to occur
-        SkPicture outPicture;
-        inPicture->draw(outPicture.beginRecording(inPicture->width(), inPicture->height()));
-        outPicture.endRecording();
+    SkBitmap bm;
+    bm.setConfig(SkBitmap::kNo_Config, inPicture->width(), inPicture->height());
+    SkAutoTUnref<SkDevice> dev(SkNEW_ARGS(SkDevice, (bm)));
 
+    SkAutoTUnref<SkFilterRecord> filterRecord(SkNEW_ARGS(SkFilterRecord, (0, dev)));
+
+    // Playback the read in picture to the SkFilterRecorder to allow filtering
+    filterRecord->beginRecording();
+    inPicture->draw(filterRecord);
+    filterRecord->endRecording();
+
+    filterRecord->report();
+
+    if (!outFile.isEmpty()) {
+        SkFilterPicture outPicture(filterRecord);
         SkFILEWStream outStream(outFile.c_str());
+
         outPicture.serialize(&outStream);
     }
 
     if (!textureDir.isEmpty()) {
-        SkBitmap bm;
-        bm.setConfig(SkBitmap::kNo_Config, inPicture->width(), inPicture->height());
-        SkAutoTUnref<SkDevice> dev(SkNEW_ARGS(SkDevice, (bm)));
-
-        SkFilterRecord filterRecord(0, dev);
-
-        filterRecord.beginRecording();
-        inPicture->draw(&filterRecord);
-        filterRecord.endRecording();
-
-        filterRecord.saveImages(textureDir);
+        filterRecord->saveImages(textureDir);
     }
 
     SkGraphics::Term();
