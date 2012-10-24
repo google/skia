@@ -21,28 +21,28 @@ class GrSamplerState {
 public:
 
     GrSamplerState()
-    : fCustomStage (NULL) {
+    : fEffect (NULL) {
         GR_DEBUGCODE(fSavedCoordChangeCnt = 0;)
     }
 
     ~GrSamplerState() {
-        GrSafeUnref(fCustomStage);
+        GrSafeUnref(fEffect);
         GrAssert(0 == fSavedCoordChangeCnt);
     }
 
     bool operator ==(const GrSamplerState& other) const {
-        // first handle cases where one or the other has no custom stage
-        if (NULL == fCustomStage) {
-            return NULL == other.fCustomStage;
-        } else if (NULL == other.fCustomStage) {
+        // first handle cases where one or the other has no effect
+        if (NULL == fEffect) {
+            return NULL == other.fEffect;
+        } else if (NULL == other.fEffect) {
             return false;
         }
 
-        if (fCustomStage->getFactory() != other.fCustomStage->getFactory()) {
+        if (fEffect->getFactory() != other.fEffect->getFactory()) {
             return false;
         }
 
-        if (!fCustomStage->isEqual(*other.fCustomStage)) {
+        if (!fEffect->isEqual(*other.fEffect)) {
             return false;
         }
 
@@ -52,8 +52,8 @@ public:
     bool operator !=(const GrSamplerState& s) const { return !(*this == s); }
 
     GrSamplerState& operator =(const GrSamplerState& other) {
-        GrSafeAssign(fCustomStage, other.fCustomStage);
-        if (NULL != fCustomStage) {
+        GrSafeAssign(fEffect, other.fEffect);
+        if (NULL != fEffect) {
             fMatrix = other.fMatrix;
             fCoordChangeMatrix = other.fCoordChangeMatrix;
         }
@@ -70,22 +70,22 @@ public:
     class SavedCoordChange {
     private:
         GrMatrix fCoordChangeMatrix;
-        GR_DEBUGCODE(mutable SkAutoTUnref<GrEffect> fCustomStage;)
+        GR_DEBUGCODE(mutable SkAutoTUnref<GrEffect> fEffect;)
 
         friend class GrSamplerState;
     };
 
     /**
      * This gets the current coordinate system change. It is the accumulation of
-     * preConcatCoordChange calls since the custom stage was installed. It is used when then caller
+     * preConcatCoordChange calls since the effect was installed. It is used when then caller
      * wants to temporarily change the source geometry coord system, draw something, and then
      * restore the previous coord system (e.g. temporarily draw in device coords).s
      */
     void saveCoordChange(SavedCoordChange* savedCoordChange) const {
         savedCoordChange->fCoordChangeMatrix = fCoordChangeMatrix;
-        GrAssert(NULL == savedCoordChange->fCustomStage.get());
-        GR_DEBUGCODE(GrSafeRef(fCustomStage);)
-        GR_DEBUGCODE(savedCoordChange->fCustomStage.reset(fCustomStage);)
+        GrAssert(NULL == savedCoordChange->fEffect.get());
+        GR_DEBUGCODE(GrSafeRef(fEffect);)
+        GR_DEBUGCODE(savedCoordChange->fEffect.reset(fEffect);)
         GR_DEBUGCODE(++fSavedCoordChangeCnt);
     }
 
@@ -94,9 +94,9 @@ public:
      */
     void restoreCoordChange(const SavedCoordChange& savedCoordChange) {
         fCoordChangeMatrix = savedCoordChange.fCoordChangeMatrix;
-        GrAssert(savedCoordChange.fCustomStage.get() == fCustomStage);
+        GrAssert(savedCoordChange.fEffect.get() == fEffect);
         GR_DEBUGCODE(--fSavedCoordChangeCnt);
-        GR_DEBUGCODE(savedCoordChange.fCustomStage.reset(NULL);)
+        GR_DEBUGCODE(savedCoordChange.fEffect.reset(NULL);)
     }
 
     /**
@@ -114,31 +114,31 @@ public:
     }
 
     void reset() {
-        GrSafeSetNull(fCustomStage);
+        GrSafeSetNull(fEffect);
     }
 
-    GrEffect* setCustomStage(GrEffect* stage) {
+    GrEffect* setEffect(GrEffect* effect) {
         GrAssert(0 == fSavedCoordChangeCnt);
-        GrSafeAssign(fCustomStage, stage);
+        GrSafeAssign(fEffect, effect);
         fMatrix.reset();
         fCoordChangeMatrix.reset();
-        return stage;
+        return effect;
     }
 
-    GrEffect* setCustomStage(GrEffect* stage, const GrMatrix& matrix) {
+    GrEffect* setEffect(GrEffect* effect, const GrMatrix& matrix) {
         GrAssert(0 == fSavedCoordChangeCnt);
-        GrSafeAssign(fCustomStage, stage);
+        GrSafeAssign(fEffect, effect);
         fMatrix = matrix;
         fCoordChangeMatrix.reset();
-        return stage;
+        return effect;
     }
 
-    const GrEffect* getCustomStage() const { return fCustomStage; }
+    const GrEffect* getEffect() const { return fEffect; }
 
 private:
     GrMatrix            fCoordChangeMatrix;
     GrMatrix            fMatrix; // TODO: remove this, store in GrEffect
-    GrEffect*           fCustomStage;
+    GrEffect*           fEffect;
 
     GR_DEBUGCODE(mutable int fSavedCoordChangeCnt;)
 };

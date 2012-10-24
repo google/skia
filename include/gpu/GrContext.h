@@ -676,10 +676,10 @@ public:
      * Save/restore the view-matrix in the context. It can optionally adjust a paint to account
      * for a coordinate system change. Here is an example of how the paint param can be used:
      *
-     * A GrPaint is setup with custom stages. The stages will have access to the pre-matrix source
+     * A GrPaint is setup with GrEffects. The stages will have access to the pre-matrix source
      * geometry positions when the draw is executed. Later on a decision is made to transform the
-     * geometry to device space on the CPU. The custom stages now need to know that the space in
-     * which the geometry will be specified has changed.
+     * geometry to device space on the CPU. The effects now need to know that the space in which
+     * the geometry will be specified has changed.
      *
      * Note that when restore is called (or in the destructor) the context's matrix will be
      * restored. However, the paint will not be restored. The caller must make a copy of the

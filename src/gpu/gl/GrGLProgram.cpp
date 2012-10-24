@@ -977,8 +977,8 @@ void GrGLProgram::setData(const GrDrawState& drawState) {
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (NULL != fProgramStage[s]) {
             const GrSamplerState& sampler = drawState.getSampler(s);
-            GrAssert(NULL != sampler.getCustomStage());
-            fProgramStage[s]->setData(fUniformManager, *sampler.getCustomStage());
+            GrAssert(NULL != sampler.getEffect());
+            fProgramStage[s]->setData(fUniformManager, *sampler.getEffect());
         }
     }
 }

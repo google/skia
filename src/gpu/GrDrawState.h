@@ -69,8 +69,7 @@ public:
 
     /**
      * Resets to the default state.
-     * Sampler states *will* be modified: textures or CustomStage objects
-     * will be released.
+     * Sampler states *will* be modified: textures or GrEffect objects will be released.
      */
     void reset() {
 
@@ -190,27 +189,27 @@ public:
      * Creates a GrSingleTextureEffect.
      */
     void createTextureEffect(int stage, GrTexture* texture) {
-        GrAssert(!this->getSampler(stage).getCustomStage());
-        this->sampler(stage)->setCustomStage(
+        GrAssert(!this->getSampler(stage).getEffect());
+        this->sampler(stage)->setEffect(
             SkNEW_ARGS(GrSingleTextureEffect, (texture)))->unref();
     }
     void createTextureEffect(int stage, GrTexture* texture, const GrMatrix& matrix) {
-        GrAssert(!this->getSampler(stage).getCustomStage());
+        GrAssert(!this->getSampler(stage).getEffect());
         GrEffect* customStage = SkNEW_ARGS(GrSingleTextureEffect, (texture));
-        this->sampler(stage)->setCustomStage(customStage, matrix)->unref();
+        this->sampler(stage)->setEffect(customStage, matrix)->unref();
     }
     void createTextureEffect(int stage, GrTexture* texture,
                              const GrMatrix& matrix,
                              const GrTextureParams& params) {
-        GrAssert(!this->getSampler(stage).getCustomStage());
+        GrAssert(!this->getSampler(stage).getEffect());
         GrEffect* customStage = SkNEW_ARGS(GrSingleTextureEffect, (texture, params));
-        this->sampler(stage)->setCustomStage(customStage, matrix)->unref();
+        this->sampler(stage)->setEffect(customStage, matrix)->unref();
     }
 
 
     bool stagesDisabled() {
         for (int i = 0; i < kNumStages; ++i) {
-            if (NULL != fSamplerStates[i].getCustomStage()) {
+            if (NULL != fSamplerStates[i].getEffect()) {
                 return false;
             }
         }
@@ -218,7 +217,7 @@ public:
     }
 
     void disableStage(int index) {
-        fSamplerStates[index].setCustomStage(NULL);
+        fSamplerStates[index].setEffect(NULL);
     }
 
     /**
@@ -825,7 +824,7 @@ public:
 
     bool isStageEnabled(int s) const {
         GrAssert((unsigned)s < kNumStages);
-        return (NULL != fSamplerStates[s].getCustomStage());
+        return (NULL != fSamplerStates[s].getEffect());
     }
 
     // Most stages are usually not used, so conditionals here

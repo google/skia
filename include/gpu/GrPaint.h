@@ -127,7 +127,7 @@ public:
 
     bool isColorStageEnabled(int i) const {
         GrAssert((unsigned)i < kMaxColorStages);
-        return (NULL != fColorSamplers[i].getCustomStage());
+        return (NULL != fColorSamplers[i].getEffect());
     }
 
     /**
@@ -146,7 +146,7 @@ public:
 
     bool isCoverageStageEnabled(int i) const {
         GrAssert((unsigned)i < kMaxCoverageStages);
-        return (NULL != fCoverageSamplers[i].getCustomStage());
+        return (NULL != fCoverageSamplers[i].getEffect());
     }
 
     bool hasCoverageStage() const {

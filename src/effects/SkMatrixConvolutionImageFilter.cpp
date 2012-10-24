@@ -495,8 +495,8 @@ GR_DEFINE_CUSTOM_STAGE_TEST(GrMatrixConvolutionEffect);
 GrEffect* GrMatrixConvolutionEffect::TestCreate(SkRandom* random,
                                                 GrContext* context,
                                                 GrTexture* textures[]) {
-    int texIdx = random->nextBool() ? GrCustomStageUnitTest::kSkiaPMTextureIdx :
-                                      GrCustomStageUnitTest::kAlphaTextureIdx;
+    int texIdx = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :
+                                      GrEffectUnitTest::kAlphaTextureIdx;
     int width = random->nextRangeU(1, MAX_KERNEL_SIZE);
     int height = random->nextRangeU(1, MAX_KERNEL_SIZE / width);
     SkISize kernelSize = SkISize::Make(width, height);

@@ -11,7 +11,7 @@
 #include "GrRefCnt.h"
 #include "GrNoncopyable.h"
 #include "GrProgramStageFactory.h"
-#include "GrCustomStageUnitTest.h"
+#include "GrEffectUnitTest.h"
 #include "GrTextureAccess.h"
 
 class GrContext;
@@ -61,7 +61,7 @@ public:
      */
     virtual const GrProgramStageFactory& getFactory() const = 0;
 
-    /** Returns true if the other custom stage will generate identical output.
+    /** Returns true if the other effect will generate identical output.
         Must only be called if the two are already known to be of the
         same type (i.e.  they return the same value from getFactory()).
 

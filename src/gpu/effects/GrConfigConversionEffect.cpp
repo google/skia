@@ -109,7 +109,7 @@ GrEffect* GrConfigConversionEffect::TestCreate(SkRandom* random,
         swapRB = random->nextBool();
     }
     return SkNEW_ARGS(GrConfigConversionEffect,
-            (textures[GrCustomStageUnitTest::kSkiaPMTextureIdx], swapRB, pmConv));
+            (textures[GrEffectUnitTest::kSkiaPMTextureIdx], swapRB, pmConv));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -185,16 +185,16 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
                                                         (tempTex, false, *pmToUPMRule)));
 
         context->setRenderTarget(readTex->asRenderTarget());
-        paint.colorSampler(0)->setCustomStage(pmToUPMStage1);
+        paint.colorSampler(0)->setEffect(pmToUPMStage1);
         context->drawRectToRect(paint, kDstRect, kSrcRect);
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, firstRead);
 
         context->setRenderTarget(tempTex->asRenderTarget());
-        paint.colorSampler(0)->setCustomStage(upmToPMStage);
+        paint.colorSampler(0)->setEffect(upmToPMStage);
         context->drawRectToRect(paint, kDstRect, kSrcRect);
         context->setRenderTarget(readTex->asRenderTarget());
-        paint.colorSampler(0)->setCustomStage(pmToUPMStage2);
+        paint.colorSampler(0)->setEffect(pmToUPMStage2);
         context->drawRectToRect(paint, kDstRect, kSrcRect);
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, secondRead);

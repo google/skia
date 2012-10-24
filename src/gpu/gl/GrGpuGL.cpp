@@ -2019,7 +2019,7 @@ inline GrGLenum tile_to_gl_wrap(SkShader::TileMode tm) {
 void GrGpuGL::flushBoundTextureAndParams(int stage) {
     GrDrawState* drawState = this->drawState();
     // FIXME: Assuming at most one texture per custom stage
-    const GrEffect* customStage = drawState->sampler(stage)->getCustomStage();
+    const GrEffect* customStage = drawState->sampler(stage)->getEffect();
     if (customStage->numTextures() > 0) {
         GrGLTexture* nextTexture =  static_cast<GrGLTexture*>(customStage->texture(0));
         if (NULL != nextTexture) {
