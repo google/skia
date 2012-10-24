@@ -50,6 +50,9 @@ public:
         stages.
 
         @param builder      Interface used to emit code in the shaders.
+        @param stage        The custom stage that generated this program stage.
+        @param key          The key that was computed by StageKey() from the generating
+                            GrCustomStage.
         @param vertexCoords A vec2 of texture coordinates in the VS, which may be altered. This will
                             be removed soon and stages will be responsible for computing their own
                             coords.
@@ -66,6 +69,8 @@ public:
                             reads in the generated code.
         */
     virtual void emitCode(GrGLShaderBuilder* builder,
+                          const GrCustomStage& stage,
+                          StageKey key,
                           const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,
@@ -103,6 +108,8 @@ public:
                         const TextureSamplerArray&) = 0;
 
     virtual void emitCode(GrGLShaderBuilder* builder,
+                          const GrCustomStage&,
+                          StageKey,
                           const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,

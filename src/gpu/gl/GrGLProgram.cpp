@@ -955,7 +955,13 @@ GrGLProgramStage* GrGLProgram::GenStageCode(const GrCustomStage* stage,
     // Enclose custom code in a block to avoid namespace conflicts
     builder->fVSCode.appendf("\t{ // %s\n", glStage->name());
     builder->fFSCode.appendf("\t{ // %s \n", glStage->name());
-    glStage->emitCode(builder, varyingVSName, fsOutColor, fsInColor, textureSamplers);
+    glStage->emitCode(builder,
+                      *stage,
+                      desc.fCustomStageKey,
+                      varyingVSName,
+                      fsOutColor,
+                      fsInColor,
+                      textureSamplers);
     builder->fVSCode.appendf("\t}\n");
     builder->fFSCode.appendf("\t}\n");
 
