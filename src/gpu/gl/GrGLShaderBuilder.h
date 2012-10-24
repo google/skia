@@ -173,13 +173,13 @@ public:
     void getShader(ShaderType, SkString*) const;
 
     /**
-     * TODO: Make this do all the compiling, linking, etc. Hide from the custom stages
+     * TODO: Make this do all the compiling, linking, etc. Hide from the GrEffects
      */
     void finished(GrGLuint programID);
 
     /**
      * Sets the current stage (used to make variable names unique).
-     * TODO: Hide from the custom stages
+     * TODO: Hide from the GrEffects
      */
     void setCurrentStage(int stage) { fCurrentStage = stage; }
     void setNonStage() { fCurrentStage = kNonStageIdx; }

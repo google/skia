@@ -332,7 +332,7 @@ public:
     virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
     SkScalar kd() const { return fKD; }
 private:
-    GR_DECLARE_CUSTOM_STAGE_TEST;
+    GR_DECLARE_EFFECT_TEST;
     typedef GrLightingEffect INHERITED;
     SkScalar fKD;
 };
@@ -355,7 +355,7 @@ public:
     SkScalar shininess() const { return fShininess; }
 
 private:
-    GR_DECLARE_CUSTOM_STAGE_TEST;
+    GR_DECLARE_EFFECT_TEST;
     typedef GrLightingEffect INHERITED;
     SkScalar fKS;
     SkScalar fShininess;
@@ -1038,7 +1038,7 @@ bool GrDiffuseLightingEffect::isEqual(const GrEffect& sBase) const {
             this->kd() == s.kd();
 }
 
-GR_DEFINE_CUSTOM_STAGE_TEST(GrDiffuseLightingEffect);
+GR_DEFINE_EFFECT_TEST(GrDiffuseLightingEffect);
 
 GrEffect* GrDiffuseLightingEffect::TestCreate(SkRandom* random,
                                               GrContext* context,
@@ -1244,7 +1244,7 @@ bool GrSpecularLightingEffect::isEqual(const GrEffect& sBase) const {
            this->shininess() == s.shininess();
 }
 
-GR_DEFINE_CUSTOM_STAGE_TEST(GrSpecularLightingEffect);
+GR_DEFINE_EFFECT_TEST(GrSpecularLightingEffect);
 
 GrEffect* GrSpecularLightingEffect::TestCreate(SkRandom* random,
                                                GrContext* context,

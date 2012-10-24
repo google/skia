@@ -422,14 +422,14 @@ public:
     typedef GrGLSweepGradient GLProgramStage;
 
 private:
-    GR_DECLARE_CUSTOM_STAGE_TEST;
+    GR_DECLARE_EFFECT_TEST;
 
     typedef GrGradientEffect INHERITED;
 };
 
 /////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_CUSTOM_STAGE_TEST(GrSweepGradient);
+GR_DEFINE_EFFECT_TEST(GrSweepGradient);
 
 GrEffect* GrSweepGradient::TestCreate(SkRandom* random,
                                       GrContext* context,

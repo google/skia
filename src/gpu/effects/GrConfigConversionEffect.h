@@ -64,7 +64,7 @@ private:
     bool            fSwapRedAndBlue;
     PMConversion    fPMConversion;
 
-    GR_DECLARE_CUSTOM_STAGE_TEST;
+    GR_DECLARE_EFFECT_TEST;
 
     typedef GrSingleTextureEffect INHERITED;
 };

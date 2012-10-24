@@ -50,7 +50,7 @@ public:
         stages.
 
         @param builder      Interface used to emit code in the shaders.
-        @param stage        The custom stage that generated this program stage.
+        @param effect       The effect that generated this program stage.
         @param key          The key that was computed by StageKey() from the generating GrEffect.
         @param vertexCoords A vec2 of texture coordinates in the VS, which may be altered. This will
                             be removed soon and stages will be responsible for computing their own
@@ -61,14 +61,13 @@ public:
                             NULL in which case the implied input is solid white (all ones).
                             TODO: Better system for communicating optimization info (e.g. input
                             color is solid white, trans black, known to be opaque, etc.) that allows
-                            the custom stage to communicate back similar known info about its
-                            output.
+                            the effect to communicate back similar known info about its output.
         @param samplers     One entry for each GrTextureAccess of the GrEffect that generated the
                             GrGLProgramStage. These can be passed to the builder to emit texture
                             reads in the generated code.
         */
     virtual void emitCode(GrGLShaderBuilder* builder,
-                          const GrEffect& stage,
+                          const GrEffect& effect,
                           StageKey key,
                           const char* vertexCoords,
                           const char* outputColor,

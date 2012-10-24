@@ -43,7 +43,7 @@ public:
 
     static GrGLProgram* Create(const GrGLContextInfo& gl,
                                const Desc& desc,
-                               const GrEffect** customStages);
+                               const GrEffect** effects);
 
     virtual ~GrGLProgram();
 
@@ -164,14 +164,14 @@ private:
 
     GrGLProgram(const GrGLContextInfo& gl,
                 const Desc& desc,
-                const GrEffect** customStages);
+                const GrEffect** effects);
 
     bool succeeded() const { return 0 != fProgramID; }
 
     /**
      *  This is the heavy initialization routine for building a GLProgram.
      */
-    bool genProgram(const GrEffect** customStages);
+    bool genProgram(const GrEffect** effects);
 
     void genInputColor(GrGLShaderBuilder* builder, SkString* inColor);
 

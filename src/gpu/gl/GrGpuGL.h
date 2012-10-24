@@ -240,7 +240,7 @@ private:
     void buildProgram(bool isPoints,
                       BlendOptFlags blendOpts,
                       GrBlendCoeff dstCoeff,
-                      const GrEffect** customStages,
+                      const GrEffect** effects,
                       ProgramDesc* desc);
 
     // Inits GrDrawTarget::Caps, subclass may enable additional caps.

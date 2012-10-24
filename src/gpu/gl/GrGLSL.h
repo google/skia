@@ -153,7 +153,7 @@ GrSLConstantVec GrGLSLModulate4f(SkString* outAppend,
  * mulFactor may be either "" or NULL. In this case either nothing will be appended (kOnes) or an
  * assignment of vec(0,0,0,0) will be appended (kZeros). The assignment is prepended by tabCnt tabs.
  * A semicolon and newline are added after the assignment. (TODO: Remove tabCnt when we auto-insert
- * tabs to custom stage-generated lines.) If a zeros vec is assigned then the return value is
+ * tabs to GrGLProgramStage-generated lines.) If a zeros vec is assigned then the return value is
  * kZeros, otherwise kNone.
  */
 GrSLConstantVec GrGLSLMulVarBy4f(SkString* outAppend,

@@ -52,8 +52,8 @@ private:
 /** GrEffect subclasses should insert this macro in their declaration to be included in the
  *  program generation unit test.
  */
-#define GR_DECLARE_CUSTOM_STAGE_TEST                                           \
-    static GrEffectTestFactory gTestFactory;                              \
+#define GR_DECLARE_EFFECT_TEST                                                      \
+    static GrEffectTestFactory gTestFactory;                                        \
     static GrEffect* TestCreate(SkRandom*, GrContext*, GrTexture* dummyTextures[2])
 
 /** GrEffect subclasses should insert this macro in their implemenation file. They must then
@@ -63,16 +63,16 @@ private:
   * first texture has config kSkia8888_PM_GrPixelConfig and the second has kAlpha_8_GrPixelConfig.
   * TestCreate functions are also free to create additional textures using the GrContext.
  */
-#define GR_DEFINE_CUSTOM_STAGE_TEST(CustomStage)                               \
-    GrEffectTestFactory CustomStage :: gTestFactory(CustomStage :: TestCreate)
+#define GR_DEFINE_EFFECT_TEST(Effect)                                               \
+    GrEffectTestFactory Effect :: gTestFactory(Effect :: TestCreate)
 
 #else // !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
 // The unit test relies on static initializers. Just declare the TestCreate function so that
 // its definitions will compile.
-#define GR_DECLARE_CUSTOM_STAGE_TEST \
+#define GR_DECLARE_EFFECT_TEST \
     static GrEffect* TestCreate(SkRandom*, GrContext*, GrTexture* dummyTextures[2])
-#define GR_DEFINE_CUSTOM_STAGE_TEST(X)
+#define GR_DEFINE_EFFECT_TEST(X)
 
 #endif // !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 #endif

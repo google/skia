@@ -515,14 +515,14 @@ public:
     typedef GrGLLinearGradient GLProgramStage;
 
 private:
-    GR_DECLARE_CUSTOM_STAGE_TEST;
+    GR_DECLARE_EFFECT_TEST;
 
     typedef GrGradientEffect INHERITED;
 };
 
 /////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_CUSTOM_STAGE_TEST(GrLinearGradient);
+GR_DEFINE_EFFECT_TEST(GrLinearGradient);
 
 GrEffect* GrLinearGradient::TestCreate(SkRandom* random,
                                        GrContext* context,

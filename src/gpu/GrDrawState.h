@@ -195,15 +195,15 @@ public:
     }
     void createTextureEffect(int stage, GrTexture* texture, const GrMatrix& matrix) {
         GrAssert(!this->getSampler(stage).getEffect());
-        GrEffect* customStage = SkNEW_ARGS(GrSingleTextureEffect, (texture));
-        this->sampler(stage)->setEffect(customStage, matrix)->unref();
+        GrEffect* effect = SkNEW_ARGS(GrSingleTextureEffect, (texture));
+        this->sampler(stage)->setEffect(effect, matrix)->unref();
     }
     void createTextureEffect(int stage, GrTexture* texture,
                              const GrMatrix& matrix,
                              const GrTextureParams& params) {
         GrAssert(!this->getSampler(stage).getEffect());
-        GrEffect* customStage = SkNEW_ARGS(GrSingleTextureEffect, (texture, params));
-        this->sampler(stage)->setEffect(customStage, matrix)->unref();
+        GrEffect* effect = SkNEW_ARGS(GrSingleTextureEffect, (texture, params));
+        this->sampler(stage)->setEffect(effect, matrix)->unref();
     }
 
 
@@ -221,8 +221,7 @@ public:
     }
 
     /**
-     * Release all the textures and custom stages referred to by this
-     * draw state.
+     * Release all the GrEffects referred to by this draw state.
      */
     void disableStages() {
         for (int i = 0; i < kNumStages; ++i) {

@@ -112,7 +112,7 @@ bool GrTextureDomainEffect::isEqual(const GrEffect& sBase) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_CUSTOM_STAGE_TEST(GrTextureDomainEffect);
+GR_DEFINE_EFFECT_TEST(GrTextureDomainEffect);
 
 GrEffect* GrTextureDomainEffect::TestCreate(SkRandom* random,
                                             GrContext* context,

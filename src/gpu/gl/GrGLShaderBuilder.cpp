@@ -99,7 +99,7 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctx, GrGLUniformMana
 }
 
 void GrGLShaderBuilder::setupTextureAccess(const char* varyingFSName, GrSLType varyingType) {
-    // FIXME: We don't know how the custom stage will manipulate the coords. So we give up on using
+    // FIXME: We don't know how the effect will manipulate the coords. So we give up on using
     // projective texturing and always give the stage 2D coords. This will be fixed when custom
     // stages are responsible for setting up their own tex coords / tex matrices.
     switch (varyingType) {

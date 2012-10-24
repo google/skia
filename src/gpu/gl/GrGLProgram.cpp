@@ -53,8 +53,8 @@ inline const char* dual_source_output_name() { return "dualSourceOut"; }
 
 GrGLProgram* GrGLProgram::Create(const GrGLContextInfo& gl,
                                  const Desc& desc,
-                                 const GrEffect** customStages) {
-    GrGLProgram* program = SkNEW_ARGS(GrGLProgram, (gl, desc, customStages));
+                                 const GrEffect** effects) {
+    GrGLProgram* program = SkNEW_ARGS(GrGLProgram, (gl, desc, effects));
     if (!program->succeeded()) {
         delete program;
         program = NULL;
@@ -64,7 +64,7 @@ GrGLProgram* GrGLProgram::Create(const GrGLContextInfo& gl,
 
 GrGLProgram::GrGLProgram(const GrGLContextInfo& gl,
                          const Desc& desc,
-                         const GrEffect** customStages)
+                         const GrEffect** effects)
 : fContextInfo(gl)
 , fUniformManager(gl) {
     fDesc = desc;
@@ -86,7 +86,7 @@ GrGLProgram::GrGLProgram(const GrGLContextInfo& gl,
         fTextureOrientation[s] = GrGLTexture::kBottomUp_Orientation;
     }
 
-    this->genProgram(customStages);
+    this->genProgram(effects);
 }
 
 GrGLProgram::~GrGLProgram() {
@@ -500,7 +500,7 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
     return true;
 }
 
-bool GrGLProgram::genProgram(const GrEffect** customStages) {
+bool GrGLProgram::genProgram(const GrEffect** effects) {
     GrAssert(0 == fProgramID);
 
     GrGLShaderBuilder builder(fContextInfo, fUniformManager);
@@ -624,7 +624,7 @@ bool GrGLProgram::genProgram(const GrEffect** customStages) {
                 }
 
                 builder.setCurrentStage(s);
-                fProgramStage[s] = GenStageCode(customStages[s],
+                fProgramStage[s] = GenStageCode(effects[s],
                                                 fDesc.fStages[s],
                                                 &fUniforms.fStages[s],
                                                 inColor.size() ? inColor.c_str() : NULL,
@@ -729,7 +729,7 @@ bool GrGLProgram::genProgram(const GrEffect** customStages) {
                         inCoverage.append("4");
                     }
                     builder.setCurrentStage(s);
-                    fProgramStage[s] = GenStageCode(customStages[s],
+                    fProgramStage[s] = GenStageCode(effects[s],
                                                     fDesc.fStages[s],
                                                     &fUniforms.fStages[s],
                                                     inCoverage.size() ? inCoverage.c_str() : NULL,
@@ -880,7 +880,7 @@ void GrGLProgram::initSamplerUniforms() {
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         int count = fUniforms.fStages[s].fSamplerUniforms.count();
         // FIXME: We're still always reserving one texture per stage. After GrTextureParams are
-        // expressed by the custom stage rather than the GrSamplerState we can move texture binding
+        // expressed by the effect rather than the GrSamplerState we can move texture binding
         // into GrGLProgram and it should be easier to fix this.
         GrAssert(count <= 1);
         for (int t = 0; t < count; ++t) {

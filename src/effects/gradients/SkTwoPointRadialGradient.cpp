@@ -430,7 +430,7 @@ public:
     typedef GrGLRadial2Gradient GLProgramStage;
 
 private:
-    GR_DECLARE_CUSTOM_STAGE_TEST;
+    GR_DECLARE_EFFECT_TEST;
 
     // @{
     // Cache of values - these can change arbitrarily, EXCEPT
@@ -447,7 +447,7 @@ private:
 
 /////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_CUSTOM_STAGE_TEST(GrRadial2Gradient);
+GR_DEFINE_EFFECT_TEST(GrRadial2Gradient);
 
 GrEffect* GrRadial2Gradient::TestCreate(SkRandom* random,
                                         GrContext* context,

@@ -2018,12 +2018,12 @@ inline GrGLenum tile_to_gl_wrap(SkShader::TileMode tm) {
 
 void GrGpuGL::flushBoundTextureAndParams(int stage) {
     GrDrawState* drawState = this->drawState();
-    // FIXME: Assuming at most one texture per custom stage
-    const GrEffect* customStage = drawState->sampler(stage)->getEffect();
-    if (customStage->numTextures() > 0) {
-        GrGLTexture* nextTexture =  static_cast<GrGLTexture*>(customStage->texture(0));
+    // FIXME: Assuming at most one texture per effect
+    const GrEffect* effect = drawState->sampler(stage)->getEffect();
+    if (effect->numTextures() > 0) {
+        GrGLTexture* nextTexture =  static_cast<GrGLTexture*>(effect->texture(0));
         if (NULL != nextTexture) {
-            const GrTextureParams& texParams = customStage->textureAccess(0).getParams();
+            const GrTextureParams& texParams = effect->textureAccess(0).getParams();
             this->flushBoundTextureAndParams(stage, texParams, nextTexture);
         }
     }

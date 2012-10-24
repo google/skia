@@ -66,7 +66,7 @@ const GrProgramStageFactory& GrSingleTextureEffect::getFactory() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_CUSTOM_STAGE_TEST(GrSingleTextureEffect);
+GR_DEFINE_EFFECT_TEST(GrSingleTextureEffect);
 
 GrEffect* GrSingleTextureEffect::TestCreate(SkRandom* random,
                                             GrContext* context,
