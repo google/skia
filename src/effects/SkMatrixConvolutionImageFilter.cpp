@@ -263,7 +263,7 @@ public:
     typedef GrGLMatrixConvolutionEffect GLProgramStage;
 
     virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
-    virtual bool isEqual(const GrCustomStage&) const SK_OVERRIDE;
+    virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
 
 private:
     SkISize  fKernelSize;
@@ -282,7 +282,7 @@ private:
 class GrGLMatrixConvolutionEffect : public GrGLLegacyProgramStage {
 public:
     GrGLMatrixConvolutionEffect(const GrProgramStageFactory& factory,
-                                const GrCustomStage& stage);
+                                const GrEffect& stage);
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitVS(GrGLShaderBuilder* state,
                         const char* vertexCoords) SK_OVERRIDE {}
@@ -291,9 +291,9 @@ public:
                         const char* inputColor,
                         const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline StageKey GenKey(const GrCustomStage& s, const GrGLCaps& caps);
+    static inline StageKey GenKey(const GrEffect& s, const GrGLCaps& caps);
 
-    virtual void setData(const GrGLUniformManager&, const GrCustomStage&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE;
 
 private:
     typedef GrGLUniformManager::UniformHandle        UniformHandle;
@@ -312,7 +312,7 @@ private:
 };
 
 GrGLMatrixConvolutionEffect::GrGLMatrixConvolutionEffect(const GrProgramStageFactory& factory,
-                                           const GrCustomStage& stage)
+                                           const GrEffect& stage)
     : INHERITED(factory)
     , fKernelUni(GrGLUniformManager::kInvalidUniformHandle)
     , fImageIncrementUni(GrGLUniformManager::kInvalidUniformHandle)
@@ -415,7 +415,7 @@ int encodeXY(int x, int y) {
 
 };
 
-GrGLProgramStage::StageKey GrGLMatrixConvolutionEffect::GenKey(const GrCustomStage& s,
+GrGLProgramStage::StageKey GrGLMatrixConvolutionEffect::GenKey(const GrEffect& s,
                                                         const GrGLCaps& caps) {
     const GrMatrixConvolutionEffect& m = static_cast<const GrMatrixConvolutionEffect&>(s);
     StageKey key = encodeXY(m.kernelSize().width(), m.kernelSize().height());
@@ -425,7 +425,7 @@ GrGLProgramStage::StageKey GrGLMatrixConvolutionEffect::GenKey(const GrCustomSta
 }
 
 void GrGLMatrixConvolutionEffect::setData(const GrGLUniformManager& uman,
-                                          const GrCustomStage& data) {
+                                          const GrEffect& data) {
     const GrMatrixConvolutionEffect& effect =
         static_cast<const GrMatrixConvolutionEffect&>(data);
     GrGLTexture& texture =
@@ -473,7 +473,7 @@ const GrProgramStageFactory& GrMatrixConvolutionEffect::getFactory() const {
     return GrTProgramStageFactory<GrMatrixConvolutionEffect>::getInstance();
 }
 
-bool GrMatrixConvolutionEffect::isEqual(const GrCustomStage& sBase) const {
+bool GrMatrixConvolutionEffect::isEqual(const GrEffect& sBase) const {
     const GrMatrixConvolutionEffect& s =
         static_cast<const GrMatrixConvolutionEffect&>(sBase);
     return INHERITED::isEqual(sBase) &&
@@ -492,9 +492,9 @@ GR_DEFINE_CUSTOM_STAGE_TEST(GrMatrixConvolutionEffect);
 // Allows for a 5x5 kernel (or 25x1, for that matter).
 #define MAX_KERNEL_SIZE 25
 
-GrCustomStage* GrMatrixConvolutionEffect::TestCreate(SkRandom* random,
-                                                     GrContext* context,
-                                                     GrTexture* textures[]) {
+GrEffect* GrMatrixConvolutionEffect::TestCreate(SkRandom* random,
+                                                GrContext* context,
+                                                GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrCustomStageUnitTest::kSkiaPMTextureIdx :
                                       GrCustomStageUnitTest::kAlphaTextureIdx;
     int width = random->nextRangeU(1, MAX_KERNEL_SIZE);
@@ -521,7 +521,7 @@ GrCustomStage* GrMatrixConvolutionEffect::TestCreate(SkRandom* random,
 
 }
 
-bool SkMatrixConvolutionImageFilter::asNewCustomStage(GrCustomStage** stage,
+bool SkMatrixConvolutionImageFilter::asNewCustomStage(GrEffect** stage,
                                                       GrTexture* texture) const {
     bool ok = fKernelSize.width() * fKernelSize.height() <= MAX_KERNEL_SIZE;
     if (ok && stage) {

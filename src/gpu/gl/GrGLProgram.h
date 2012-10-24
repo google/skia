@@ -43,7 +43,7 @@ public:
 
     static GrGLProgram* Create(const GrGLContextInfo& gl,
                                const Desc& desc,
-                               const GrCustomStage** customStages);
+                               const GrEffect** customStages);
 
     virtual ~GrGLProgram();
 
@@ -67,8 +67,8 @@ public:
     static int TexCoordAttributeIdx(int tcIdx) { return 4 + tcIdx; }
 
     /**
-     * This function uploads uniforms and calls each GrCustomStage's setData. It is called before a
-     * draw occurs using the program after the program has already been bound.
+     * This function uploads uniforms and calls each GrEffect's setData. It is called before a draw
+     * occurs using the program after the program has already been bound.
      */
     void setData(const GrDrawState& drawState);
 
@@ -164,18 +164,18 @@ private:
 
     GrGLProgram(const GrGLContextInfo& gl,
                 const Desc& desc,
-                const GrCustomStage** customStages);
+                const GrEffect** customStages);
 
     bool succeeded() const { return 0 != fProgramID; }
 
     /**
      *  This is the heavy initialization routine for building a GLProgram.
      */
-    bool genProgram(const GrCustomStage** customStages);
+    bool genProgram(const GrEffect** customStages);
 
     void genInputColor(GrGLShaderBuilder* builder, SkString* inColor);
 
-    static GrGLProgramStage* GenStageCode(const GrCustomStage* stage,
+    static GrGLProgramStage* GenStageCode(const GrEffect* stage,
                                           const StageDesc& desc, // TODO: Eliminate this
                                           StageUniforms* stageUniforms, // TODO: Eliminate this
                                           const char* fsInColor, // NULL means no incoming color

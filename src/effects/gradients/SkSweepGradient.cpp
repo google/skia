@@ -386,7 +386,7 @@ class GrGLSweepGradient : public GrGLGradientStage {
 public:
 
     GrGLSweepGradient(const GrProgramStageFactory& factory,
-                      const GrCustomStage&) : INHERITED (factory) { }
+                      const GrEffect&) : INHERITED (factory) { }
     virtual ~GrGLSweepGradient() { }
 
     virtual void emitVS(GrGLShaderBuilder* builder,
@@ -396,7 +396,7 @@ public:
                         const char* inputColor,
                         const TextureSamplerArray&) SK_OVERRIDE;
 
-    static StageKey GenKey(const GrCustomStage& s, const GrGLCaps& caps) { return 0; }
+    static StageKey GenKey(const GrEffect& s, const GrGLCaps& caps) { return 0; }
 
 private:
 
@@ -431,9 +431,9 @@ private:
 
 GR_DEFINE_CUSTOM_STAGE_TEST(GrSweepGradient);
 
-GrCustomStage* GrSweepGradient::TestCreate(SkRandom* random,
-                                           GrContext* context,
-                                           GrTexture**) {
+GrEffect* GrSweepGradient::TestCreate(SkRandom* random,
+                                      GrContext* context,
+                                      GrTexture**) {
     SkPoint center = {random->nextUScalar1(), random->nextUScalar1()};
 
     SkColor colors[kMaxRandomGradientColors];
@@ -446,9 +446,9 @@ GrCustomStage* GrSweepGradient::TestCreate(SkRandom* random,
     GrSamplerState sampler;
     shader->asNewCustomStage(context, &sampler);
     GrAssert(NULL != sampler.getCustomStage());
-    // const_cast and ref is a hack! Will remove when asNewCustomStage returns GrCustomStage*
+    // const_cast and ref is a hack! Will remove when asNewCustomStage returns GrEffect*
     sampler.getCustomStage()->ref();
-    return const_cast<GrCustomStage*>(sampler.getCustomStage());
+    return const_cast<GrEffect*>(sampler.getCustomStage());
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -466,7 +466,7 @@ void GrGLSweepGradient::emitFS(GrGLShaderBuilder* builder,
 /////////////////////////////////////////////////////////////////////
 
 bool SkSweepGradient::asNewCustomStage(GrContext* context, GrSamplerState* sampler) const {
-    SkAutoTUnref<GrCustomStage> stage(SkNEW_ARGS(GrSweepGradient, (context, *this)));
+    SkAutoTUnref<GrEffect> stage(SkNEW_ARGS(GrSweepGradient, (context, *this)));
 
 
     SkMatrix matrix;

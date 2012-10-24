@@ -1317,7 +1317,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
         ast.set(this, desc, match);
         GrTexture* texture = ast.texture();
         if (texture) {
-            SkAutoTUnref<GrCustomStage> stage;
+            SkAutoTUnref<GrEffect> stage;
             if (unpremul) {
                 stage.reset(this->createPMToUPMEffect(src, swapRAndB));
             }
@@ -1490,7 +1490,7 @@ void GrContext::writeRenderTargetPixels(GrRenderTarget* target,
         return;
     }
 #endif
-    SkAutoTUnref<GrCustomStage> stage;
+    SkAutoTUnref<GrEffect> stage;
     bool swapRAndB = (fGpu->preferredReadPixelsConfig(config) == GrPixelConfigSwapRAndB(config));
 
     GrPixelConfig textureConfig;
@@ -1736,7 +1736,7 @@ void test_pm_conversions(GrContext* ctx, int* pmToUPMValue, int* upmToPMValue) {
 }
 }
 
-GrCustomStage* GrContext::createPMToUPMEffect(GrTexture* texture, bool swapRAndB) {
+GrEffect* GrContext::createPMToUPMEffect(GrTexture* texture, bool swapRAndB) {
     if (!fDidTestPMConversions) {
         test_pm_conversions(this, &fPMToUPMConversion, &fUPMToPMConversion);
         fDidTestPMConversions = true;
@@ -1750,7 +1750,7 @@ GrCustomStage* GrContext::createPMToUPMEffect(GrTexture* texture, bool swapRAndB
     }
 }
 
-GrCustomStage* GrContext::createUPMToPMEffect(GrTexture* texture, bool swapRAndB) {
+GrEffect* GrContext::createUPMToPMEffect(GrTexture* texture, bool swapRAndB) {
     if (!fDidTestPMConversions) {
         test_pm_conversions(this, &fPMToUPMConversion, &fUPMToPMConversion);
         fDidTestPMConversions = true;

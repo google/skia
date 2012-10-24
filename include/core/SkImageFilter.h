@@ -17,7 +17,7 @@ class SkMatrix;
 struct SkIPoint;
 struct SkIRect;
 struct SkRect;
-class GrCustomStage;
+class GrEffect;
 class GrTexture;
 
 /**
@@ -83,14 +83,14 @@ public:
 
     /**
      *  Returns true if the filter can be expressed a single-pass
-     *  GrCustomStage, used to process this filter on the GPU, or false if
+     *  GrEffect, used to process this filter on the GPU, or false if
      *  not.
      *
-     *  If stage is non-NULL, a new GrCustomStage instance is stored
+     *  If stage is non-NULL, a new GrEffect instance is stored
      *  in it.  The caller assumes ownership of the stage, and it is up to the
      *  caller to unref it.
      */
-    virtual bool asNewCustomStage(GrCustomStage** stage, GrTexture*) const;
+    virtual bool asNewCustomStage(GrEffect** stage, GrTexture*) const;
 
     /**
      *  Returns true if the filter can be processed on the GPU.  This is most

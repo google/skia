@@ -358,7 +358,7 @@ class GrGLRadial2Gradient : public GrGLGradientStage {
 public:
 
     GrGLRadial2Gradient(const GrProgramStageFactory& factory,
-                        const GrCustomStage&);
+                        const GrEffect&);
     virtual ~GrGLRadial2Gradient() { }
 
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
@@ -368,9 +368,9 @@ public:
                         const char* outputColor,
                         const char* inputColor,
                         const TextureSamplerArray&) SK_OVERRIDE;
-    virtual void setData(const GrGLUniformManager&, const GrCustomStage&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE;
 
-    static StageKey GenKey(const GrCustomStage& s, const GrGLCaps& caps);
+    static StageKey GenKey(const GrEffect& s, const GrGLCaps& caps);
 
 protected:
 
@@ -413,7 +413,7 @@ public:
     virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE {
         return GrTProgramStageFactory<GrRadial2Gradient>::getInstance();
     }
-    virtual bool isEqual(const GrCustomStage& sBase) const SK_OVERRIDE {
+    virtual bool isEqual(const GrEffect& sBase) const SK_OVERRIDE {
         const GrRadial2Gradient& s = static_cast<const GrRadial2Gradient&>(sBase);
         return (INHERITED::isEqual(sBase) &&
                 this->fCenterX1 == s.fCenterX1 &&
@@ -449,9 +449,9 @@ private:
 
 GR_DEFINE_CUSTOM_STAGE_TEST(GrRadial2Gradient);
 
-GrCustomStage* GrRadial2Gradient::TestCreate(SkRandom* random,
-                                             GrContext* context,
-                                             GrTexture**) {
+GrEffect* GrRadial2Gradient::TestCreate(SkRandom* random,
+                                        GrContext* context,
+                                        GrTexture**) {
     SkPoint center1 = {random->nextUScalar1(), random->nextUScalar1()};
     SkScalar radius1 = random->nextUScalar1();
     SkPoint center2;
@@ -474,16 +474,16 @@ GrCustomStage* GrRadial2Gradient::TestCreate(SkRandom* random,
     GrSamplerState sampler;
     shader->asNewCustomStage(context, &sampler);
     GrAssert(NULL != sampler.getCustomStage());
-    // const_cast and ref is a hack! Will remove when asNewCustomStage returns GrCustomStage*
+    // const_cast and ref is a hack! Will remove when asNewCustomStage returns GrEffect*
     sampler.getCustomStage()->ref();
-    return const_cast<GrCustomStage*>(sampler.getCustomStage());
+    return const_cast<GrEffect*>(sampler.getCustomStage());
 }
 
 /////////////////////////////////////////////////////////////////////
 
 GrGLRadial2Gradient::GrGLRadial2Gradient(
         const GrProgramStageFactory& factory,
-        const GrCustomStage& baseData)
+        const GrEffect& baseData)
     : INHERITED(factory)
     , fVSParamUni(kInvalidUniformHandle)
     , fFSParamUni(kInvalidUniformHandle)
@@ -601,7 +601,7 @@ void GrGLRadial2Gradient::emitFS(GrGLShaderBuilder* builder,
     this->emitColorLookup(builder, t.c_str(), outputColor, inputColor, samplers[0]);
 }
 
-void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman, const GrCustomStage& baseData) {
+void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman, const GrEffect& baseData) {
     INHERITED::setData(uman, baseData);
     const GrRadial2Gradient& data =
         static_cast<const GrRadial2Gradient&>(baseData);
@@ -636,7 +636,7 @@ void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman, const GrCustom
     }
 }
 
-GrCustomStage::StageKey GrGLRadial2Gradient::GenKey(const GrCustomStage& s, const GrGLCaps& caps) {
+GrEffect::StageKey GrGLRadial2Gradient::GenKey(const GrEffect& s, const GrGLCaps& caps) {
     return (static_cast<const GrRadial2Gradient&>(s).isDegenerate());
 }
 

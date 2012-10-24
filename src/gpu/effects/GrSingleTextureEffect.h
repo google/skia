@@ -8,14 +8,14 @@
 #ifndef GrSingleTextureEffect_DEFINED
 #define GrSingleTextureEffect_DEFINED
 
-#include "GrCustomStage.h"
+#include "GrEffect.h"
 
 class GrGLSingleTextureEffect;
 
 /**
  * An effect that merely blits a single texture; commonly used as a base class.
  */
-class GrSingleTextureEffect : public GrCustomStage {
+class GrSingleTextureEffect : public GrEffect {
 
 public:
     /** Uses default texture params (unfiltered, clamp) */
@@ -41,7 +41,7 @@ private:
 
     GrTextureAccess fTextureAccess;
 
-    typedef GrCustomStage INHERITED;
+    typedef GrEffect INHERITED;
 };
 
 #endif

@@ -9,7 +9,7 @@
 #define GrGLShaderBuilder_DEFINED
 
 #include "GrAllocator.h"
-#include "GrCustomStage.h"
+#include "GrEffect.h"
 #include "gl/GrGLShaderVar.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLUniformManager.h"
@@ -122,7 +122,7 @@ public:
     /** Generates a StageKey for the shader code based on the texture access parameters and the
         capabilities of the GL context.  This is useful for keying the shader programs that may
         have multiple representations, based on the type/format of textures used. */
-    static GrCustomStage::StageKey KeyForTextureAccess(const GrTextureAccess& access,
+    static GrEffect::StageKey KeyForTextureAccess(const GrTextureAccess& access,
                                                        const GrGLCaps& caps);
 
     /** If texture swizzling is available using tex parameters then it is preferred over mangling

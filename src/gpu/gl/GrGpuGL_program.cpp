@@ -7,7 +7,7 @@
 
 #include "GrGpuGL.h"
 
-#include "GrCustomStage.h"
+#include "GrEffect.h"
 #include "GrGLProgramStage.h"
 #include "GrGpuVertex.h"
 
@@ -33,7 +33,7 @@ void GrGpuGL::ProgramCache::abandon() {
 }
 
 GrGLProgram* GrGpuGL::ProgramCache::getProgram(const ProgramDesc& desc,
-                                               const GrCustomStage** stages) {
+                                               const GrEffect** stages) {
     Entry newEntry;
     newEntry.fKey.setKeyData(desc.asKey());
 
@@ -199,7 +199,7 @@ void GrGpuGL::flushTextureMatrix(int s) {
     const GrDrawState& drawState = this->getDrawState();
 
     // FIXME: Still assuming only a single texture per custom stage
-    const GrCustomStage* stage = drawState.getSampler(s).getCustomStage();
+    const GrEffect* stage = drawState.getSampler(s).getCustomStage();
     if (0 == stage->numTextures()) {
         return;
     }
@@ -350,7 +350,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
             return false;
         }
 
-        const GrCustomStage* customStages [GrDrawState::kNumStages];
+        const GrEffect* customStages [GrDrawState::kNumStages];
         GrGLProgram::Desc desc;
         this->buildProgram(kDrawPoints_DrawType == type, blendOpts, dstCoeff, customStages, &desc);
 
@@ -568,9 +568,9 @@ namespace {
 void setup_custom_stage(GrGLProgram::Desc::StageDesc* stage,
                         const GrSamplerState& sampler,
                         const GrGLCaps& caps,
-                        const GrCustomStage** customStages,
+                        const GrEffect** customStages,
                         GrGLProgram* program, int index) {
-    const GrCustomStage* customStage = sampler.getCustomStage();
+    const GrEffect* customStage = sampler.getCustomStage();
     if (customStage) {
         const GrProgramStageFactory& factory = customStage->getFactory();
         stage->fCustomStageKey = factory.glStageKey(*customStage, caps);
@@ -586,7 +586,7 @@ void setup_custom_stage(GrGLProgram::Desc::StageDesc* stage,
 void GrGpuGL::buildProgram(bool isPoints,
                            BlendOptFlags blendOpts,
                            GrBlendCoeff dstCoeff,
-                           const GrCustomStage** customStages,
+                           const GrEffect** customStages,
                            ProgramDesc* desc) {
     const GrDrawState& drawState = this->getDrawState();
 
@@ -675,7 +675,7 @@ void GrGpuGL::buildProgram(bool isPoints,
             lastEnabledStage = s;
             const GrSamplerState& sampler = drawState.getSampler(s);
             // FIXME: Still assuming one texture per custom stage
-            const GrCustomStage* customStage = drawState.getSampler(s).getCustomStage();
+            const GrEffect* customStage = drawState.getSampler(s).getCustomStage();
 
             if (customStage->numTextures() > 0) {
                 const GrGLTexture* texture =

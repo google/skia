@@ -15,7 +15,7 @@
 #include "SkXfermode.h"
 
 class SkBitmap;
-class GrCustomStage;
+class GrEffect;
 class GrContext;
 
 class SK_API SkColorFilter : public SkFlattenable {
@@ -118,7 +118,7 @@ public:
     /** A subclass may implement this factory function to work with the GPU backend. If the return
         is non-NULL then the caller owns a ref on the returned object.
      */
-    virtual GrCustomStage* asNewCustomStage(GrContext*) const;
+    virtual GrEffect* asNewCustomStage(GrContext*) const;
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 protected:

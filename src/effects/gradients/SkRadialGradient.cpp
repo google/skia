@@ -477,7 +477,7 @@ class GrGLRadialGradient : public GrGLGradientStage {
 public:
 
     GrGLRadialGradient(const GrProgramStageFactory& factory,
-                       const GrCustomStage&) : INHERITED (factory) { }
+                       const GrEffect&) : INHERITED (factory) { }
     virtual ~GrGLRadialGradient() { }
 
     virtual void emitVS(GrGLShaderBuilder* builder,
@@ -487,7 +487,7 @@ public:
                         const char* inputColor,
                         const TextureSamplerArray&) SK_OVERRIDE;
 
-    static StageKey GenKey(const GrCustomStage& s, const GrGLCaps& caps) { return 0; }
+    static StageKey GenKey(const GrEffect& s, const GrGLCaps& caps) { return 0; }
 
 private:
 
@@ -523,9 +523,9 @@ private:
 
 GR_DEFINE_CUSTOM_STAGE_TEST(GrRadialGradient);
 
-GrCustomStage* GrRadialGradient::TestCreate(SkRandom* random,
-                                            GrContext* context,
-                                            GrTexture**) {
+GrEffect* GrRadialGradient::TestCreate(SkRandom* random,
+                                       GrContext* context,
+                                       GrTexture**) {
     SkPoint center = {random->nextUScalar1(), random->nextUScalar1()};
     SkScalar radius = random->nextUScalar1();
 
@@ -540,9 +540,9 @@ GrCustomStage* GrRadialGradient::TestCreate(SkRandom* random,
     GrSamplerState sampler;
     shader->asNewCustomStage(context, &sampler);
     GrAssert(NULL != sampler.getCustomStage());
-    // const_cast and ref is a hack! Will remove when asNewCustomStage returns GrCustomStage*
+    // const_cast and ref is a hack! Will remove when asNewCustomStage returns GrEffect*
     sampler.getCustomStage()->ref();
-    return const_cast<GrCustomStage*>(sampler.getCustomStage());
+    return const_cast<GrEffect*>(sampler.getCustomStage());
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -560,7 +560,7 @@ void GrGLRadialGradient::emitFS(GrGLShaderBuilder* builder,
 
 bool SkRadialGradient::asNewCustomStage(GrContext* context, GrSamplerState* sampler) const {
     SkASSERT(NULL != context && NULL != sampler);
-    SkAutoTUnref<GrCustomStage> stage(SkNEW_ARGS(GrRadialGradient, (context, *this, fTileMode)));
+    SkAutoTUnref<GrEffect> stage(SkNEW_ARGS(GrRadialGradient, (context, *this, fTileMode)));
 
     SkMatrix matrix;
     if (this->getLocalMatrix(&matrix)) {

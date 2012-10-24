@@ -37,7 +37,7 @@ public:
     typedef GrGLConvolutionEffect GLProgramStage;
 
     virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
-    virtual bool isEqual(const GrCustomStage&) const SK_OVERRIDE;
+    virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
 
     enum {
         // This was decided based on the min allowed value for the max texture

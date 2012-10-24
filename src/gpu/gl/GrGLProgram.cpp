@@ -8,7 +8,7 @@
 #include "GrGLProgram.h"
 
 #include "GrAllocator.h"
-#include "GrCustomStage.h"
+#include "GrEffect.h"
 #include "GrGLProgramStage.h"
 #include "gl/GrGLShaderBuilder.h"
 #include "GrGLShaderVar.h"
@@ -53,7 +53,7 @@ inline const char* dual_source_output_name() { return "dualSourceOut"; }
 
 GrGLProgram* GrGLProgram::Create(const GrGLContextInfo& gl,
                                  const Desc& desc,
-                                 const GrCustomStage** customStages) {
+                                 const GrEffect** customStages) {
     GrGLProgram* program = SkNEW_ARGS(GrGLProgram, (gl, desc, customStages));
     if (!program->succeeded()) {
         delete program;
@@ -64,7 +64,7 @@ GrGLProgram* GrGLProgram::Create(const GrGLContextInfo& gl,
 
 GrGLProgram::GrGLProgram(const GrGLContextInfo& gl,
                          const Desc& desc,
-                         const GrCustomStage** customStages)
+                         const GrEffect** customStages)
 : fContextInfo(gl)
 , fUniformManager(gl) {
     fDesc = desc;
@@ -500,7 +500,7 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
     return true;
 }
 
-bool GrGLProgram::genProgram(const GrCustomStage** customStages) {
+bool GrGLProgram::genProgram(const GrEffect** customStages) {
     GrAssert(0 == fProgramID);
 
     GrGLShaderBuilder builder(fContextInfo, fUniformManager);
@@ -896,7 +896,7 @@ void GrGLProgram::initSamplerUniforms() {
 // Stage code generation
 
 // TODO: Move this function to GrGLShaderBuilder
-GrGLProgramStage* GrGLProgram::GenStageCode(const GrCustomStage* stage,
+GrGLProgramStage* GrGLProgram::GenStageCode(const GrEffect* stage,
                                             const StageDesc& desc,
                                             StageUniforms* uniforms,
                                             const char* fsInColor, // NULL means no incoming color

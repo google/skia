@@ -22,7 +22,7 @@ public:
     virtual uint32_t getFlags() SK_OVERRIDE;
     virtual bool asColorMatrix(SkScalar matrix[20]) SK_OVERRIDE;
 #if SK_SUPPORT_GPU
-    virtual GrCustomStage* asNewCustomStage(GrContext*) const SK_OVERRIDE;
+    virtual GrEffect* asNewCustomStage(GrContext*) const SK_OVERRIDE;
 #endif
 
     struct State {

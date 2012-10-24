@@ -166,7 +166,7 @@ private:
         ProgramCache(const GrGLContextInfo& gl);
 
         void abandon();
-        GrGLProgram* getProgram(const GrGLProgram::Desc& desc, const GrCustomStage** stages);
+        GrGLProgram* getProgram(const GrGLProgram::Desc& desc, const GrEffect** stages);
     private:
         enum {
             kKeySize = sizeof(ProgramDesc),
@@ -240,7 +240,7 @@ private:
     void buildProgram(bool isPoints,
                       BlendOptFlags blendOpts,
                       GrBlendCoeff dstCoeff,
-                      const GrCustomStage** customStages,
+                      const GrEffect** customStages,
                       ProgramDesc* desc);
 
     // Inits GrDrawTarget::Caps, subclass may enable additional caps.

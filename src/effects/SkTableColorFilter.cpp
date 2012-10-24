@@ -41,7 +41,7 @@ public:
     virtual bool asComponentTable(SkBitmap* table) const SK_OVERRIDE;
 
 #if SK_SUPPORT_GPU
-    virtual GrCustomStage* asNewCustomStage(GrContext* context) const SK_OVERRIDE;
+    virtual GrEffect* asNewCustomStage(GrContext* context) const SK_OVERRIDE;
 #endif
 
     virtual void filterSpan(const SkPMColor src[], int count,
@@ -216,13 +216,13 @@ bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) const {
 
 #if SK_SUPPORT_GPU
 
-#include "GrCustomStage.h"
+#include "GrEffect.h"
 #include "gl/GrGLProgramStage.h"
 #include "SkGr.h"
 
 class GLColorTableEffect;
 
-class ColorTableEffect : public GrCustomStage {
+class ColorTableEffect : public GrEffect {
 public:
 
     explicit ColorTableEffect(GrTexture* texture);
@@ -230,7 +230,7 @@ public:
 
     static const char* Name() { return "ColorTable"; }
     virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
-    virtual bool isEqual(const GrCustomStage&) const SK_OVERRIDE;
+    virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
 
     virtual const GrTextureAccess& textureAccess(int index) const SK_OVERRIDE;
 
@@ -241,13 +241,13 @@ private:
 
     GrTextureAccess fTextureAccess;
 
-    typedef GrCustomStage INHERITED;
+    typedef GrEffect INHERITED;
 };
 
 class GLColorTableEffect : public GrGLLegacyProgramStage {
 public:
     GLColorTableEffect(const GrProgramStageFactory& factory,
-                         const GrCustomStage& stage);
+                         const GrEffect& stage);
 
     virtual void setupVariables(GrGLShaderBuilder* state) SK_OVERRIDE {}
     virtual void emitVS(GrGLShaderBuilder* state,
@@ -257,9 +257,9 @@ public:
                         const char* inputColor,
                         const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager&, const GrCustomStage&) SK_OVERRIDE {}
+    virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE {}
 
-    static StageKey GenKey(const GrCustomStage&, const GrGLCaps&);
+    static StageKey GenKey(const GrEffect&, const GrGLCaps&);
 
 private:
 
@@ -267,7 +267,7 @@ private:
 };
 
 GLColorTableEffect::GLColorTableEffect(
-    const GrProgramStageFactory& factory, const GrCustomStage& stage)
+    const GrProgramStageFactory& factory, const GrEffect& stage)
     : INHERITED(factory) {
  }
 
@@ -312,7 +312,7 @@ void GLColorTableEffect::emitFS(GrGLShaderBuilder* builder,
     code->appendf("\t\t%s.rgb *= %s.a;\n", outputColor, outputColor);
 }
 
-GrGLProgramStage::StageKey GLColorTableEffect::GenKey(const GrCustomStage& s,
+GrGLProgramStage::StageKey GLColorTableEffect::GenKey(const GrEffect& s,
                                                         const GrGLCaps& caps) {
     return 0;
 }
@@ -331,7 +331,7 @@ const GrProgramStageFactory&  ColorTableEffect::getFactory() const {
     return GrTProgramStageFactory<ColorTableEffect>::getInstance();
 }
 
-bool ColorTableEffect::isEqual(const GrCustomStage& sBase) const {
+bool ColorTableEffect::isEqual(const GrEffect& sBase) const {
     return INHERITED::isEqual(sBase);
 }
 
@@ -344,18 +344,18 @@ const GrTextureAccess& ColorTableEffect::textureAccess(int index) const {
 
 GR_DEFINE_CUSTOM_STAGE_TEST(ColorTableEffect);
 
-GrCustomStage* ColorTableEffect::TestCreate(SkRandom* random,
-                                              GrContext* context,
-                                              GrTexture* textures[]) {
+GrEffect* ColorTableEffect::TestCreate(SkRandom* random,
+                                       GrContext* context,
+                                       GrTexture* textures[]) {
     return SkNEW_ARGS(ColorTableEffect, (textures[GrCustomStageUnitTest::kAlphaTextureIdx]));
 }
 
-GrCustomStage* SkTable_ColorFilter::asNewCustomStage(GrContext* context) const {
+GrEffect* SkTable_ColorFilter::asNewCustomStage(GrContext* context) const {
     SkBitmap bitmap;
     this->asComponentTable(&bitmap);
     // passing NULL because this custom effect does no tiling or filtering.
     GrTexture* texture = GrLockCachedBitmapTexture(context, bitmap, NULL);
-    GrCustomStage* stage = SkNEW_ARGS(ColorTableEffect, (texture));
+    GrEffect* stage = SkNEW_ARGS(ColorTableEffect, (texture));
 
     // Unlock immediately, this is not great, but we don't have a way of
     // knowing when else to unlock it currently. TODO: Remove this when

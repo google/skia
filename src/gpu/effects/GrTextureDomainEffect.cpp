@@ -12,7 +12,7 @@
 class GrGLTextureDomainEffect : public GrGLLegacyProgramStage {
 public:
     GrGLTextureDomainEffect(const GrProgramStageFactory& factory,
-                            const GrCustomStage& stage);
+                            const GrEffect& stage);
 
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitVS(GrGLShaderBuilder* builder,
@@ -22,9 +22,9 @@ public:
                         const char* inputColor,
                         const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager&, const GrCustomStage&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE;
 
-    static inline StageKey GenKey(const GrCustomStage&, const GrGLCaps&) { return 0; }
+    static inline StageKey GenKey(const GrEffect&, const GrGLCaps&) { return 0; }
 
 private:
     GrGLUniformManager::UniformHandle fNameUni;
@@ -33,7 +33,7 @@ private:
 };
 
 GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrProgramStageFactory& factory,
-                                                 const GrCustomStage& stage)
+                                                 const GrEffect& stage)
     : INHERITED(factory)
     , fNameUni(GrGLUniformManager::kInvalidUniformHandle) {
 }
@@ -60,7 +60,7 @@ void GrGLTextureDomainEffect::emitFS(GrGLShaderBuilder* builder,
     builder->fFSCode.append(";\n");
 }
 
-void GrGLTextureDomainEffect::setData(const GrGLUniformManager& uman, const GrCustomStage& data) {
+void GrGLTextureDomainEffect::setData(const GrGLUniformManager& uman, const GrEffect& data) {
     const GrTextureDomainEffect& effect = static_cast<const GrTextureDomainEffect&>(data);
     const GrRect& domain = effect.domain();
 
@@ -105,7 +105,7 @@ const GrProgramStageFactory& GrTextureDomainEffect::getFactory() const {
     return GrTProgramStageFactory<GrTextureDomainEffect>::getInstance();
 }
 
-bool GrTextureDomainEffect::isEqual(const GrCustomStage& sBase) const {
+bool GrTextureDomainEffect::isEqual(const GrEffect& sBase) const {
     const GrTextureDomainEffect& s = static_cast<const GrTextureDomainEffect&>(sBase);
     return (INHERITED::isEqual(sBase) && this->fTextureDomain == s.fTextureDomain);
 }
@@ -114,9 +114,9 @@ bool GrTextureDomainEffect::isEqual(const GrCustomStage& sBase) const {
 
 GR_DEFINE_CUSTOM_STAGE_TEST(GrTextureDomainEffect);
 
-GrCustomStage* GrTextureDomainEffect::TestCreate(SkRandom* random,
-                                                 GrContext* context,
-                                                 GrTexture* textures[]) {
+GrEffect* GrTextureDomainEffect::TestCreate(SkRandom* random,
+                                            GrContext* context,
+                                            GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrCustomStageUnitTest::kSkiaPMTextureIdx :
                                       GrCustomStageUnitTest::kAlphaTextureIdx;
     GrRect domain;

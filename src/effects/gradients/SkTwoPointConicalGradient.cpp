@@ -323,7 +323,7 @@ class GrGLConical2Gradient : public GrGLGradientStage {
 public:
 
     GrGLConical2Gradient(const GrProgramStageFactory& factory,
-                         const GrCustomStage&);
+                         const GrEffect&);
     virtual ~GrGLConical2Gradient() { }
 
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
@@ -333,9 +333,9 @@ public:
                         const char* outputColor,
                         const char* inputColor,
                         const TextureSamplerArray&) SK_OVERRIDE;
-    virtual void setData(const GrGLUniformManager&, const GrCustomStage&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE;
 
-    static StageKey GenKey(const GrCustomStage& s, const GrGLCaps& caps);
+    static StageKey GenKey(const GrEffect& s, const GrGLCaps& caps);
 
 protected:
 
@@ -381,7 +381,7 @@ public:
     virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE {
         return GrTProgramStageFactory<GrConical2Gradient>::getInstance();
     }
-    virtual bool isEqual(const GrCustomStage& sBase) const SK_OVERRIDE {
+    virtual bool isEqual(const GrEffect& sBase) const SK_OVERRIDE {
         const GrConical2Gradient& s = static_cast<const GrConical2Gradient&>(sBase);
         return (INHERITED::isEqual(sBase) &&
                 this->fCenterX1 == s.fCenterX1 &&
@@ -415,9 +415,9 @@ private:
 
 GR_DEFINE_CUSTOM_STAGE_TEST(GrConical2Gradient);
 
-GrCustomStage* GrConical2Gradient::TestCreate(SkRandom* random,
-                                              GrContext* context,
-                                              GrTexture**) {
+GrEffect* GrConical2Gradient::TestCreate(SkRandom* random,
+                                         GrContext* context,
+                                         GrTexture**) {
     SkPoint center1 = {random->nextUScalar1(), random->nextUScalar1()};
     SkScalar radius1 = random->nextUScalar1();
     SkPoint center2;
@@ -440,9 +440,9 @@ GrCustomStage* GrConical2Gradient::TestCreate(SkRandom* random,
     GrSamplerState sampler;
     shader->asNewCustomStage(context, &sampler);
     GrAssert(NULL != sampler.getCustomStage());
-    // const_cast and ref is a hack! Will remove when asNewCustomStage returns GrCustomStage*
+    // const_cast and ref is a hack! Will remove when asNewCustomStage returns GrEffect*
     sampler.getCustomStage()->ref();
-    return const_cast<GrCustomStage*>(sampler.getCustomStage());
+    return const_cast<GrEffect*>(sampler.getCustomStage());
 }
 
 
@@ -450,7 +450,7 @@ GrCustomStage* GrConical2Gradient::TestCreate(SkRandom* random,
 
 GrGLConical2Gradient::GrGLConical2Gradient(
         const GrProgramStageFactory& factory,
-        const GrCustomStage& baseData)
+        const GrEffect& baseData)
     : INHERITED(factory)
     , fVSParamUni(kInvalidUniformHandle)
     , fFSParamUni(kInvalidUniformHandle)
@@ -626,7 +626,7 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
     }
 }
 
-void GrGLConical2Gradient::setData(const GrGLUniformManager& uman, const GrCustomStage& baseData) {
+void GrGLConical2Gradient::setData(const GrGLUniformManager& uman, const GrEffect& baseData) {
     INHERITED::setData(uman, baseData);
     const GrConical2Gradient& data =
         static_cast<const GrConical2Gradient&>(baseData);
@@ -663,7 +663,7 @@ void GrGLConical2Gradient::setData(const GrGLUniformManager& uman, const GrCusto
     }
 }
 
-GrCustomStage::StageKey GrGLConical2Gradient::GenKey(const GrCustomStage& s, const GrGLCaps& caps) {
+GrEffect::StageKey GrGLConical2Gradient::GenKey(const GrEffect& s, const GrGLCaps& caps) {
     return (static_cast<const GrConical2Gradient&>(s).isDegenerate());
 }
 

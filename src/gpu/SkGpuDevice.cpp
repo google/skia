@@ -512,7 +512,7 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
             SkColor filtered = colorFilter->filterColor(skPaint.getColor());
             grPaint->setColor(SkColor2GrColor(filtered));
         } else {
-            SkAutoTUnref<GrCustomStage> stage(colorFilter->asNewCustomStage(dev->context()));
+            SkAutoTUnref<GrEffect> stage(colorFilter->asNewCustomStage(dev->context()));
             if (NULL != stage.get()) {
                 grPaint->colorSampler(kColorFilterTextureIdx)->setCustomStage(stage);
             } else {
@@ -1415,7 +1415,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
     }
 
     GrRect textureDomain = GrRect::MakeEmpty();
-    SkAutoTUnref<GrCustomStage> stage;
+    SkAutoTUnref<GrEffect> stage;
     if (needsTextureDomain) {
         // Use a constrained texture domain to avoid color bleeding
         GrScalar left, top, right, bottom;
@@ -1448,7 +1448,7 @@ void apply_custom_stage(GrContext* context,
                         GrTexture* srcTexture,
                         GrTexture* dstTexture,
                         const GrRect& rect,
-                        GrCustomStage* stage) {
+                        GrEffect* stage) {
     SkASSERT(srcTexture && srcTexture->getContext() == context);
     GrContext::AutoMatrix am;
     am.setIdentity(context);
@@ -1475,7 +1475,7 @@ static GrTexture* filter_texture(SkDevice* device, GrContext* context,
     desc.fWidth = SkScalarCeilToInt(rect.width());
     desc.fHeight = SkScalarCeilToInt(rect.height());
     desc.fConfig = kRGBA_8888_GrPixelConfig;
-    GrCustomStage* stage;
+    GrEffect* stage;
 
     if (filter->canFilterImageGPU()) {
         // Save the render target and set it to NULL, so we don't accidentally draw to it in the

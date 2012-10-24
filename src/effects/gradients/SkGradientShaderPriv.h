@@ -223,7 +223,7 @@ class GrProgramStageFactory;
  class GrTextureStripAtlas;
 
 // Base class for Gr gradient effects
-class GrGradientEffect : public GrCustomStage {
+class GrGradientEffect : public GrEffect {
 public:
 
     GrGradientEffect(GrContext* ctx,
@@ -237,7 +237,7 @@ public:
     bool useAtlas() const { return SkToBool(-1 != fRow); }
     GrScalar getYCoord() const { return fYCoord; };
 
-    virtual bool isEqual(const GrCustomStage& stage) const SK_OVERRIDE {
+    virtual bool isEqual(const GrEffect& stage) const SK_OVERRIDE {
         const GrGradientEffect& s = static_cast<const GrGradientEffect&>(stage);
         return INHERITED::isEqual(stage) && this->useAtlas() == s.useAtlas() &&
                fYCoord == s.getYCoord();
@@ -264,7 +264,7 @@ private:
     GrTextureStripAtlas* fAtlas;
     int fRow;
 
-    typedef GrCustomStage INHERITED;
+    typedef GrEffect INHERITED;
 
 };
 
@@ -278,7 +278,7 @@ public:
     virtual ~GrGLGradientStage();
 
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
-    virtual void setData(const GrGLUniformManager&, const GrCustomStage&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE;
 
     // emit code that gets a fragment's color from an expression for t; for now
     // this always uses the texture, but for simpler cases we'll be able to lerp

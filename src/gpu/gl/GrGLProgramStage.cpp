@@ -17,10 +17,10 @@ GrGLProgramStage::~GrGLProgramStage() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLProgramStage::setData(const GrGLUniformManager&, const GrCustomStage&) {
+void GrGLProgramStage::setData(const GrGLUniformManager&, const GrEffect&) {
 }
 
-GrGLProgramStage::StageKey GrGLProgramStage::GenTextureKey(const GrCustomStage& stage,
+GrGLProgramStage::StageKey GrGLProgramStage::GenTextureKey(const GrEffect& stage,
                                                            const GrGLCaps& caps) {
     StageKey key = 0;
     for (int index = 0; index < stage.numTextures(); ++index) {
