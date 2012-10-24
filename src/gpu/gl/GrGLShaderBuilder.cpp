@@ -153,9 +153,9 @@ void GrGLShaderBuilder::appendTextureLookupAndModulate(
     GrGLSLModulate4f(out, modulation, lookup.c_str());
 }
 
-GrCustomStage::StageKey GrGLShaderBuilder::KeyForTextureAccess(const GrTextureAccess& access,
+GrEffect::StageKey GrGLShaderBuilder::KeyForTextureAccess(const GrTextureAccess& access,
                                                                const GrGLCaps& caps) {
-    GrCustomStage::StageKey key = 0;
+    GrEffect::StageKey key = 0;
 
     // Assume that swizzle support implies that we never have to modify a shader to adjust
     // for texture format/swizzle settings.

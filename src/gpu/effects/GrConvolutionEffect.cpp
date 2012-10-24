@@ -18,7 +18,7 @@ static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidU
 class GrGLConvolutionEffect : public GrGLLegacyProgramStage {
 public:
     GrGLConvolutionEffect(const GrProgramStageFactory& factory,
-                          const GrCustomStage& stage);
+                          const GrEffect& stage);
 
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitVS(GrGLShaderBuilder* builder,
@@ -28,9 +28,9 @@ public:
                         const char* inputColor,
                         const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager& uman, const GrCustomStage&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager& uman, const GrEffect&) SK_OVERRIDE;
 
-    static inline StageKey GenKey(const GrCustomStage&, const GrGLCaps&);
+    static inline StageKey GenKey(const GrEffect&, const GrGLCaps&);
 
 private:
     int width() const { return Gr1DKernelEffect::WidthFromRadius(fRadius); }
@@ -43,7 +43,7 @@ private:
 };
 
 GrGLConvolutionEffect::GrGLConvolutionEffect(const GrProgramStageFactory& factory,
-                                             const GrCustomStage& stage)
+                                             const GrEffect& stage)
     : INHERITED(factory)
     , fKernelUni(kInvalidUniformHandle)
     , fImageIncrementUni(kInvalidUniformHandle) {
@@ -88,7 +88,7 @@ void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* builder,
     GrGLSLMulVarBy4f(&builder->fFSCode, 2, outputColor, inputColor);
 }
 
-void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman, const GrCustomStage& data) {
+void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman, const GrEffect& data) {
     const GrConvolutionEffect& conv =
         static_cast<const GrConvolutionEffect&>(data);
     GrTexture& texture = *data.texture(0);
@@ -109,7 +109,7 @@ void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman, const GrCust
     uman.set1fv(fKernelUni, 0, this->width(), conv.kernel());
 }
 
-GrGLProgramStage::StageKey GrGLConvolutionEffect::GenKey(const GrCustomStage& s,
+GrGLProgramStage::StageKey GrGLConvolutionEffect::GenKey(const GrEffect& s,
                                                          const GrGLCaps& caps) {
     return static_cast<const GrConvolutionEffect&>(s).radius();
 }
@@ -161,7 +161,7 @@ const GrProgramStageFactory& GrConvolutionEffect::getFactory() const {
     return GrTProgramStageFactory<GrConvolutionEffect>::getInstance();
 }
 
-bool GrConvolutionEffect::isEqual(const GrCustomStage& sBase) const {
+bool GrConvolutionEffect::isEqual(const GrEffect& sBase) const {
      const GrConvolutionEffect& s =
         static_cast<const GrConvolutionEffect&>(sBase);
     return (INHERITED::isEqual(sBase) &&
@@ -174,9 +174,9 @@ bool GrConvolutionEffect::isEqual(const GrCustomStage& sBase) const {
 
 GR_DEFINE_CUSTOM_STAGE_TEST(GrConvolutionEffect);
 
-GrCustomStage* GrConvolutionEffect::TestCreate(SkRandom* random,
-                                              GrContext* context,
-                                              GrTexture* textures[]) {
+GrEffect* GrConvolutionEffect::TestCreate(SkRandom* random,
+                                          GrContext* context,
+                                          GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrCustomStageUnitTest::kSkiaPMTextureIdx :
                                       GrCustomStageUnitTest::kAlphaTextureIdx;
     Direction dir = random->nextBool() ? kX_Direction : kY_Direction;

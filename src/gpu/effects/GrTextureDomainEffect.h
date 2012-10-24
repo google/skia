@@ -8,7 +8,6 @@
 #ifndef GrTextureDomainEffect_DEFINED
 #define GrTextureDomainEffect_DEFINED
 
-//#include "GrCustomStage.h"
 #include "GrSingleTextureEffect.h"
 #include "GrRect.h"
 
@@ -32,7 +31,7 @@ public:
     typedef GrGLTextureDomainEffect GLProgramStage;
 
     virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
-    virtual bool isEqual(const GrCustomStage&) const SK_OVERRIDE;
+    virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
 
     const GrRect& domain() const { return fTextureDomain; }
 

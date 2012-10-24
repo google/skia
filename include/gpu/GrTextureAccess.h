@@ -103,14 +103,14 @@ private:
 /** A class representing the swizzle access pattern for a texture. Note that if the texture is
  *  an alpha-only texture then the alpha channel is substituted for other components. Any mangling
  *  to handle the r,g,b->a conversions for alpha textures is automatically included in the stage
- *  key. However, if a GrCustomStage uses different swizzles based on its input then it must
+ *  key. However, if a GrEffect uses different swizzles based on its input then it must
  *  consider that variation in its key-generation.
  */
 class GrTextureAccess : GrNoncopyable {
 public:
     /**
-     * A default GrTextureAccess must have reset() called on it in a GrCustomStage subclass's
-     * constructor if it will be accessible via GrCustomStage::textureAccess().
+     * A default GrTextureAccess must have reset() called on it in a GrEffect subclass's
+     * constructor if it will be accessible via GrEffect::textureAccess().
      */
     GrTextureAccess();
 

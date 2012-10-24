@@ -22,56 +22,56 @@ enum {
 
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
-class GrCustomStage;
 class GrContext;
+class GrEffect;
 class GrTexture;
 
-class GrCustomStageTestFactory : GrNoncopyable {
+class GrEffectTestFactory : GrNoncopyable {
 public:
 
-    typedef GrCustomStage* (*CreateProc)(SkRandom*, GrContext*, GrTexture* dummyTextures[]);
+    typedef GrEffect* (*CreateProc)(SkRandom*, GrContext*, GrTexture* dummyTextures[]);
 
-    GrCustomStageTestFactory(CreateProc createProc) {
+    GrEffectTestFactory(CreateProc createProc) {
         fCreateProc = createProc;
         GetFactories()->push_back(this);
     }
 
-    static GrCustomStage* CreateStage(SkRandom* random,
+    static GrEffect* CreateStage(SkRandom* random,
                                       GrContext* context,
                                       GrTexture* dummyTextures[]) {
         uint32_t idx = random->nextRangeU(0, GetFactories()->count() - 1);
-        GrCustomStageTestFactory* factory = (*GetFactories())[idx];
+        GrEffectTestFactory* factory = (*GetFactories())[idx];
         return factory->fCreateProc(random, context, dummyTextures);
     }
 
 private:
     CreateProc fCreateProc;
-    static SkTArray<GrCustomStageTestFactory*, true>* GetFactories();
+    static SkTArray<GrEffectTestFactory*, true>* GetFactories();
 };
 
-/** GrCustomStage subclasses should insert this macro in their declaration to be included in the
+/** GrEffect subclasses should insert this macro in their declaration to be included in the
  *  program generation unit test.
  */
 #define GR_DECLARE_CUSTOM_STAGE_TEST                                           \
-    static GrCustomStageTestFactory gTestFactory;                              \
-    static GrCustomStage* TestCreate(SkRandom*, GrContext*, GrTexture* dummyTextures[2])
+    static GrEffectTestFactory gTestFactory;                              \
+    static GrEffect* TestCreate(SkRandom*, GrContext*, GrTexture* dummyTextures[2])
 
-/** GrCustomStage subclasses should insert this macro in their implemenation file. They must then
+/** GrEffect subclasses should insert this macro in their implemenation file. They must then
  *  also implement this static function:
- *      GrCustomStage* TestCreate(SkRandom*, GrContext*, GrTexture* dummyTextures[2]);
+ *      GrEffect* TestCreate(SkRandom*, GrContext*, GrTexture* dummyTextures[2]);
  *  dummyTextures[] are valied textures that they can optionally use for their texture accesses. The
   * first texture has config kSkia8888_PM_GrPixelConfig and the second has kAlpha_8_GrPixelConfig.
   * TestCreate functions are also free to create additional textures using the GrContext.
  */
 #define GR_DEFINE_CUSTOM_STAGE_TEST(CustomStage)                               \
-    GrCustomStageTestFactory CustomStage :: gTestFactory(CustomStage :: TestCreate)
+    GrEffectTestFactory CustomStage :: gTestFactory(CustomStage :: TestCreate)
 
 #else // !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
 // The unit test relies on static initializers. Just declare the TestCreate function so that
 // its definitions will compile.
 #define GR_DECLARE_CUSTOM_STAGE_TEST \
-    static GrCustomStage* TestCreate(SkRandom*, GrContext*, GrTexture* dummyTextures[2])
+    static GrEffect* TestCreate(SkRandom*, GrContext*, GrTexture* dummyTextures[2])
 #define GR_DEFINE_CUSTOM_STAGE_TEST(X)
 
 #endif // !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS

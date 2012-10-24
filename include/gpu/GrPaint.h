@@ -20,7 +20,7 @@
  * functions and the how color is blended with the destination pixel.
  *
  * The paint allows installation of custom color and coverage stages. New types of stages are
- * created by subclassing GrCustomStage.
+ * created by subclassing GrEffect.
  *
  * The primitive color computation starts with the color specified by setColor(). This color is the
  * input to the first color stage. Each color stage feeds its output to the next color stage. The
@@ -39,7 +39,7 @@
  * Note that the coverage is applied after the blend. This is why they are computed as distinct
  * values.
  *
- * TODO: Encapsulate setXfermodeColorFilter in a GrCustomStage and remove from GrPaint.
+ * TODO: Encapsulate setXfermodeColorFilter in a GrEffect and remove from GrPaint.
  */
 class GrPaint {
 public:

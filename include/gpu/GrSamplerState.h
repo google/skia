@@ -11,7 +11,7 @@
 #ifndef GrSamplerState_DEFINED
 #define GrSamplerState_DEFINED
 
-#include "GrCustomStage.h"
+#include "GrEffect.h"
 #include "GrMatrix.h"
 #include "GrTypes.h"
 
@@ -70,7 +70,7 @@ public:
     class SavedCoordChange {
     private:
         GrMatrix fCoordChangeMatrix;
-        GR_DEBUGCODE(mutable SkAutoTUnref<GrCustomStage> fCustomStage;)
+        GR_DEBUGCODE(mutable SkAutoTUnref<GrEffect> fCustomStage;)
 
         friend class GrSamplerState;
     };
@@ -100,7 +100,7 @@ public:
     }
 
     /**
-     * Gets the texture matrix. This is will be removed soon and be managed by GrCustomStage.
+     * Gets the texture matrix. This is will be removed soon and be managed by GrEffect.
      */
     const GrMatrix& getMatrix() const { return fMatrix; }
 
@@ -117,7 +117,7 @@ public:
         GrSafeSetNull(fCustomStage);
     }
 
-    GrCustomStage* setCustomStage(GrCustomStage* stage) {
+    GrEffect* setCustomStage(GrEffect* stage) {
         GrAssert(0 == fSavedCoordChangeCnt);
         GrSafeAssign(fCustomStage, stage);
         fMatrix.reset();
@@ -125,7 +125,7 @@ public:
         return stage;
     }
 
-    GrCustomStage* setCustomStage(GrCustomStage* stage, const GrMatrix& matrix) {
+    GrEffect* setCustomStage(GrEffect* stage, const GrMatrix& matrix) {
         GrAssert(0 == fSavedCoordChangeCnt);
         GrSafeAssign(fCustomStage, stage);
         fMatrix = matrix;
@@ -133,12 +133,12 @@ public:
         return stage;
     }
 
-    const GrCustomStage* getCustomStage() const { return fCustomStage; }
+    const GrEffect* getCustomStage() const { return fCustomStage; }
 
 private:
     GrMatrix            fCoordChangeMatrix;
-    GrMatrix            fMatrix; // TODO: remove this, store in GrCustomStage
-    GrCustomStage*      fCustomStage;
+    GrMatrix            fMatrix; // TODO: remove this, store in GrEffect
+    GrEffect*           fCustomStage;
 
     GR_DEBUGCODE(mutable int fSavedCoordChangeCnt;)
 };

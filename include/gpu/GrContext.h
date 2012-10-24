@@ -23,9 +23,9 @@
 
 class GrAutoScratchTexture;
 class GrCacheKey;
-class GrCustomStage;
 class GrDrawState;
 class GrDrawTarget;
+class GrEffect;
 class GrFontCache;
 class GrGpu;
 class GrIndexBuffer;
@@ -920,8 +920,8 @@ private:
     // for use with textures released from an GrAutoScratchTexture.
     void addExistingTextureToCache(GrTexture* texture);
 
-    GrCustomStage* createPMToUPMEffect(GrTexture* texture, bool swapRAndB);
-    GrCustomStage* createUPMToPMEffect(GrTexture* texture, bool swapRAndB);
+    GrEffect* createPMToUPMEffect(GrTexture* texture, bool swapRAndB);
+    GrEffect* createUPMToPMEffect(GrTexture* texture, bool swapRAndB);
 
     typedef GrRefCnt INHERITED;
 };

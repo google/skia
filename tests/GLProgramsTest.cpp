@@ -35,7 +35,7 @@ typedef GrGLProgram::StageDesc StageDesc;
 // TODO: Effects should be able to register themselves for inclusion in the
 // randomly generated shaders. They should be able to configure themselves
 // randomly.
-const GrCustomStage* create_random_effect(StageDesc* stageDesc,
+const GrEffect* create_random_effect(StageDesc* stageDesc,
                                           GrRandom* random,
                                           GrContext* context,
                                           GrTexture* dummyTextures[]) {
@@ -44,9 +44,7 @@ const GrCustomStage* create_random_effect(StageDesc* stageDesc,
     // TODO: Remove GrRandom.
     SkRandom sk_random;
     sk_random.setSeed(random->nextU());
-    GrCustomStage* stage = GrCustomStageTestFactory::CreateStage(&sk_random,
-                                                                    context,
-                                                                    dummyTextures);
+    GrEffect* stage = GrEffectTestFactory::CreateStage(&sk_random, context, dummyTextures);
     GrAssert(stage);
     return stage;
 }
@@ -120,7 +118,7 @@ bool GrGpuGL::programUnitTest() {
             pdesc.fDualSrcOutput = ProgramDesc::kNone_DualSrcOutput;
         }
 
-        SkAutoTUnref<const GrCustomStage> customStages[GrDrawState::kNumStages];
+        SkAutoTUnref<const GrEffect> customStages[GrDrawState::kNumStages];
 
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
             StageDesc& stage = pdesc.fStages[s];
@@ -155,8 +153,8 @@ bool GrGpuGL::programUnitTest() {
             }
         }
         GR_STATIC_ASSERT(sizeof(customStages) ==
-                         GrDrawState::kNumStages * sizeof(GrCustomStage*));
-        const GrCustomStage** stages = reinterpret_cast<const GrCustomStage**>(&customStages);
+                         GrDrawState::kNumStages * sizeof(GrEffect*));
+        const GrEffect** stages = reinterpret_cast<const GrEffect**>(&customStages);
         SkAutoTUnref<GrGLProgram> program(GrGLProgram::Create(this->glContextInfo(),
                                                               pdesc,
                                                               stages));

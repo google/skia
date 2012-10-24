@@ -319,20 +319,20 @@ bool SkColorMatrixFilter::asColorMatrix(SkScalar matrix[20]) {
 }
 
 #if SK_SUPPORT_GPU
-#include "GrCustomStage.h"
+#include "GrEffect.h"
 #include "gl/GrGLProgramStage.h"
 
-class ColorMatrixEffect : public GrCustomStage {
+class ColorMatrixEffect : public GrEffect {
 public:
     static const char* Name() { return "Color Matrix"; }
 
-    ColorMatrixEffect(const SkColorMatrix& matrix) : GrCustomStage(0), fMatrix(matrix) {}
+    ColorMatrixEffect(const SkColorMatrix& matrix) : GrEffect(0), fMatrix(matrix) {}
 
     virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE {
         return GrTProgramStageFactory<ColorMatrixEffect>::getInstance();
     }
 
-    virtual bool isEqual(const GrCustomStage& s) const {
+    virtual bool isEqual(const GrEffect& s) const {
         const ColorMatrixEffect& cme = static_cast<const ColorMatrixEffect&>(s);
         return cme.fMatrix == fMatrix;
     }
@@ -342,10 +342,10 @@ public:
     class GLProgramStage : public GrGLLegacyProgramStage {
     public:
         // this class always generates the same code.
-        static StageKey GenKey(const GrCustomStage& s, const GrGLCaps&) { return 0; }
+        static StageKey GenKey(const GrEffect& s, const GrGLCaps&) { return 0; }
 
         GLProgramStage(const GrProgramStageFactory& factory,
-                       const GrCustomStage& stage)
+                       const GrEffect& stage)
         : INHERITED(factory)
         , fMatrixHandle(GrGLUniformManager::kInvalidUniformHandle)
         , fVectorHandle(GrGLUniformManager::kInvalidUniformHandle) {
@@ -383,7 +383,7 @@ public:
         }
 
         virtual void setData(const GrGLUniformManager& uniManager,
-                             const GrCustomStage& stage) SK_OVERRIDE {
+                             const GrEffect& stage) SK_OVERRIDE {
             const ColorMatrixEffect& cme = static_cast<const ColorMatrixEffect&>(stage);
             const float* m = cme.fMatrix.fMat;
             // The GL matrix is transposed from SkColorMatrix.
@@ -414,9 +414,9 @@ private:
 
 GR_DEFINE_CUSTOM_STAGE_TEST(ColorMatrixEffect);
 
-GrCustomStage* ColorMatrixEffect::TestCreate(SkRandom* random,
-                                             GrContext*,
-                                             GrTexture* dummyTextures[2]) {
+GrEffect* ColorMatrixEffect::TestCreate(SkRandom* random,
+                                        GrContext*,
+                                        GrTexture* dummyTextures[2]) {
     SkColorMatrix colorMatrix;
     for (int i = 0; i < SK_ARRAY_COUNT(colorMatrix.fMat); ++i) {
         colorMatrix.fMat[i] = random->nextSScalar1();
@@ -424,7 +424,7 @@ GrCustomStage* ColorMatrixEffect::TestCreate(SkRandom* random,
     return SkNEW_ARGS(ColorMatrixEffect, (colorMatrix));
 }
 
-GrCustomStage* SkColorMatrixFilter::asNewCustomStage(GrContext*) const {
+GrEffect* SkColorMatrixFilter::asNewCustomStage(GrContext*) const {
     return SkNEW_ARGS(ColorMatrixEffect, (fMatrix));
 }
 

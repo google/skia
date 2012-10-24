@@ -22,21 +22,21 @@ class SkString;
     particular stage of the Ganesh shading pipeline.
     Subclasses must have a function that produces a human-readable name:
         static const char* Name();
-    GrCustomStage objects *must* be immutable: after being constructed,
+    GrEffect objects *must* be immutable: after being constructed,
     their fields may not change.  (Immutability isn't actually required
     until they've been used in a draw call, but supporting that would require
     setters and getters that could fail, copy-on-write, or deep copying of these
     objects when they're stored by a GrGLProgramStage.)
   */
-class GrCustomStage : public GrRefCnt {
+class GrEffect : public GrRefCnt {
 
 public:
-    SK_DECLARE_INST_COUNT(GrCustomStage)
+    SK_DECLARE_INST_COUNT(GrEffect)
 
     typedef GrProgramStageFactory::StageKey StageKey;
 
-    explicit GrCustomStage(int numTextures);
-    virtual ~GrCustomStage();
+    explicit GrEffect(int numTextures);
+    virtual ~GrEffect();
 
     /** If given an input texture that is/is not opaque, is this
         stage guaranteed to produce an opaque output? */
@@ -45,12 +45,12 @@ public:
     /** This object, besides creating back-end-specific helper
         objects, is used for run-time-type-identification. The factory should be
         an instance of templated class, GrTProgramStageFactory. It is templated
-        on the subclass of GrCustomStage. The subclass must have a nested type
+        on the subclass of GrEffect. The subclass must have a nested type
         (or typedef) named GLProgramStage which will be the subclass of
         GrGLProgramStage created by the factory.
 
         Example:
-        class MyCustomStage : public GrCustomStage {
+        class MyCustomStage : public GrEffect {
         ...
             virtual const GrProgramStageFactory& getFactory() const
                                                             SK_OVERRIDE {
@@ -75,7 +75,7 @@ public:
         the two stages have the same return value for numTextures() and
         for texture() over all valid indicse.
      */
-    virtual bool isEqual(const GrCustomStage&) const;
+    virtual bool isEqual(const GrEffect&) const;
 
     /** Human-meaningful string to identify this effect; may be embedded
         in generated shader code. */
