@@ -57,7 +57,7 @@ public:
     typedef GrGLMagnifierEffect GLProgramStage;
 
 private:
-    GR_DECLARE_CUSTOM_STAGE_TEST;
+    GR_DECLARE_EFFECT_TEST;
 
     float fXOffset;
     float fYOffset;
@@ -181,7 +181,7 @@ GrGLProgramStage::StageKey GrGLMagnifierEffect::GenKey(const GrEffect& s,
 
 /////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_CUSTOM_STAGE_TEST(GrMagnifierEffect);
+GR_DEFINE_EFFECT_TEST(GrMagnifierEffect);
 
 GrEffect* GrMagnifierEffect::TestCreate(SkRandom* random,
                                         GrContext* context,

@@ -1444,11 +1444,11 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
 
 namespace {
 
-void apply_custom_stage(GrContext* context,
-                        GrTexture* srcTexture,
-                        GrTexture* dstTexture,
-                        const GrRect& rect,
-                        GrEffect* stage) {
+void apply_effect(GrContext* context,
+                  GrTexture* srcTexture,
+                  GrTexture* dstTexture,
+                  const GrRect& rect,
+                  GrEffect* effect) {
     SkASSERT(srcTexture && srcTexture->getContext() == context);
     GrContext::AutoMatrix am;
     am.setIdentity(context);
@@ -1458,7 +1458,7 @@ void apply_custom_stage(GrContext* context,
     GrMatrix sampleM;
     sampleM.setIDiv(srcTexture->width(), srcTexture->height());
     GrPaint paint;
-    paint.colorSampler(0)->setEffect(stage, sampleM);
+    paint.colorSampler(0)->setEffect(effect, sampleM);
     context->drawRect(paint, rect);
 }
 
@@ -1484,7 +1484,7 @@ static GrTexture* filter_texture(SkDevice* device, GrContext* context,
         texture = filter->onFilterImageGPU(&proxy, texture, rect);
     } else if (filter->asNewCustomStage(&stage, texture)) {
         GrAutoScratchTexture dst(context, desc);
-        apply_custom_stage(context, texture, dst.texture(), rect, stage);
+        apply_effect(context, texture, dst.texture(), rect, stage);
         texture = dst.detach();
         stage->unref();
     }

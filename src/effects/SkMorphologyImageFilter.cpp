@@ -259,7 +259,7 @@ protected:
     MorphologyType fType;
 
 private:
-    GR_DECLARE_CUSTOM_STAGE_TEST;
+    GR_DECLARE_EFFECT_TEST;
 
     typedef Gr1DKernelEffect INHERITED;
 };
@@ -398,7 +398,7 @@ bool GrMorphologyEffect::isEqual(const GrEffect& sBase) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_CUSTOM_STAGE_TEST(GrMorphologyEffect);
+GR_DEFINE_EFFECT_TEST(GrMorphologyEffect);
 
 GrEffect* GrMorphologyEffect::TestCreate(SkRandom* random,
                                          GrContext* context,

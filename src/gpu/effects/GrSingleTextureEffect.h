@@ -37,7 +37,7 @@ public:
     virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
 
 private:
-    GR_DECLARE_CUSTOM_STAGE_TEST;
+    GR_DECLARE_EFFECT_TEST;
 
     GrTextureAccess fTextureAccess;
 

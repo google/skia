@@ -198,7 +198,7 @@ int GrGpuGL::TextureMatrixOptFlags(const GrGLTexture* texture,
 void GrGpuGL::flushTextureMatrix(int s) {
     const GrDrawState& drawState = this->getDrawState();
 
-    // FIXME: Still assuming only a single texture per custom stage
+    // FIXME: Still assuming only a single texture per effect
     const GrEffect* stage = drawState.getSampler(s).getEffect();
     if (0 == stage->numTextures()) {
         return;
@@ -350,11 +350,11 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
             return false;
         }
 
-        const GrEffect* customStages [GrDrawState::kNumStages];
+        const GrEffect* effects[GrDrawState::kNumStages];
         GrGLProgram::Desc desc;
-        this->buildProgram(kDrawPoints_DrawType == type, blendOpts, dstCoeff, customStages, &desc);
+        this->buildProgram(kDrawPoints_DrawType == type, blendOpts, dstCoeff, effects, &desc);
 
-        fCurrentProgram.reset(fProgramCache->getProgram(desc, customStages));
+        fCurrentProgram.reset(fProgramCache->getProgram(desc, effects));
         if (NULL == fCurrentProgram.get()) {
             GrAssert(!"Failed to create program!");
             return false;
@@ -565,19 +565,19 @@ void GrGpuGL::setupGeometry(int* startVertex,
 
 namespace {
 
-void setup_custom_stage(GrGLProgram::Desc::StageDesc* stage,
-                        const GrSamplerState& sampler,
-                        const GrGLCaps& caps,
-                        const GrEffect** customStages,
-                        GrGLProgram* program, int index) {
-    const GrEffect* customStage = sampler.getEffect();
-    if (customStage) {
-        const GrProgramStageFactory& factory = customStage->getFactory();
-        stage->fCustomStageKey = factory.glStageKey(*customStage, caps);
-        customStages[index] = customStage;
+void setup_effect(GrGLProgram::Desc::StageDesc* stage,
+                  const GrSamplerState& sampler,
+                  const GrGLCaps& caps,
+                  const GrEffect** effects,
+                  GrGLProgram* program, int index) {
+    const GrEffect* effect = sampler.getEffect();
+    if (effect) {
+        const GrProgramStageFactory& factory = effect->getFactory();
+        stage->fCustomStageKey = factory.glStageKey(*effect, caps);
+        effects[index] = effect;
     } else {
         stage->fCustomStageKey = 0;
-        customStages[index] = NULL;
+        effects[index] = NULL;
     }
 }
 
@@ -586,7 +586,7 @@ void setup_custom_stage(GrGLProgram::Desc::StageDesc* stage,
 void GrGpuGL::buildProgram(bool isPoints,
                            BlendOptFlags blendOpts,
                            GrBlendCoeff dstCoeff,
-                           const GrEffect** customStages,
+                           const GrEffect** effects,
                            ProgramDesc* desc) {
     const GrDrawState& drawState = this->getDrawState();
 
@@ -674,12 +674,11 @@ void GrGpuGL::buildProgram(bool isPoints,
         if (!skip && stage.isEnabled()) {
             lastEnabledStage = s;
             const GrSamplerState& sampler = drawState.getSampler(s);
-            // FIXME: Still assuming one texture per custom stage
-            const GrEffect* customStage = drawState.getSampler(s).getEffect();
+            // FIXME: Still assuming one texture per effect
+            const GrEffect* effect = drawState.getSampler(s).getEffect();
 
-            if (customStage->numTextures() > 0) {
-                const GrGLTexture* texture =
-                    static_cast<const GrGLTexture*>(customStage->texture(0));
+            if (effect->numTextures() > 0) {
+                const GrGLTexture* texture = static_cast<const GrGLTexture*>(effect->texture(0));
                 GrMatrix samplerMatrix;
                 sampler.getTotalMatrix(&samplerMatrix);
                 if (NULL != texture) {
@@ -690,16 +689,15 @@ void GrGpuGL::buildProgram(bool isPoints,
                 }
             } else {
                 // Set identity to do the minimal amount of extra work for the no texture case.
-                // This will go away when custom stages manage their own texture matrix.
+                // This will go away when effects manage their own texture matrix.
                 stage.fOptFlags |= StageDesc::kIdentityMatrix_OptFlagBit;
             }
-            setup_custom_stage(&stage, sampler, this->glCaps(), customStages,
-                               fCurrentProgram.get(), s);
+            setup_effect(&stage, sampler, this->glCaps(), effects, fCurrentProgram.get(), s);
 
         } else {
             stage.fOptFlags         = 0;
             stage.fCustomStageKey   = 0;
-            customStages[s] = NULL;
+            effects[s] = NULL;
         }
     }
 

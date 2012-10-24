@@ -398,7 +398,7 @@ public:
     typedef GrGLConical2Gradient GLProgramStage;
 
 private:
-    GR_DECLARE_CUSTOM_STAGE_TEST;
+    GR_DECLARE_EFFECT_TEST;
 
     // @{
     // Cache of values - these can change arbitrarily, EXCEPT
@@ -413,7 +413,7 @@ private:
     typedef GrGradientEffect INHERITED;
 };
 
-GR_DEFINE_CUSTOM_STAGE_TEST(GrConical2Gradient);
+GR_DEFINE_EFFECT_TEST(GrConical2Gradient);
 
 GrEffect* GrConical2Gradient::TestCreate(SkRandom* random,
                                          GrContext* context,

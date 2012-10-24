@@ -172,7 +172,7 @@ bool GrConvolutionEffect::isEqual(const GrEffect& sBase) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_CUSTOM_STAGE_TEST(GrConvolutionEffect);
+GR_DEFINE_EFFECT_TEST(GrConvolutionEffect);
 
 GrEffect* GrConvolutionEffect::TestCreate(SkRandom* random,
                                           GrContext* context,

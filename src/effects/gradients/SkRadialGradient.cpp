@@ -514,14 +514,14 @@ public:
     typedef GrGLRadialGradient GLProgramStage;
 
 private:
-    GR_DECLARE_CUSTOM_STAGE_TEST;
+    GR_DECLARE_EFFECT_TEST;
 
     typedef GrGradientEffect INHERITED;
 };
 
 /////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_CUSTOM_STAGE_TEST(GrRadialGradient);
+GR_DEFINE_EFFECT_TEST(GrRadialGradient);
 
 GrEffect* GrRadialGradient::TestCreate(SkRandom* random,
                                        GrContext* context,

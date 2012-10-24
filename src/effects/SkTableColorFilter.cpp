@@ -237,7 +237,7 @@ public:
     typedef GLColorTableEffect GLProgramStage;
 
 private:
-    GR_DECLARE_CUSTOM_STAGE_TEST;
+    GR_DECLARE_EFFECT_TEST;
 
     GrTextureAccess fTextureAccess;
 
@@ -342,7 +342,7 @@ const GrTextureAccess& ColorTableEffect::textureAccess(int index) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_CUSTOM_STAGE_TEST(ColorTableEffect);
+GR_DEFINE_EFFECT_TEST(ColorTableEffect);
 
 GrEffect* ColorTableEffect::TestCreate(SkRandom* random,
                                        GrContext* context,

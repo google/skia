@@ -96,7 +96,7 @@ bool GrConfigConversionEffect::isEqual(const GrEffect& s) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_CUSTOM_STAGE_TEST(GrConfigConversionEffect);
+GR_DEFINE_EFFECT_TEST(GrConfigConversionEffect);
 
 GrEffect* GrConfigConversionEffect::TestCreate(SkRandom* random,
                                                GrContext* context,

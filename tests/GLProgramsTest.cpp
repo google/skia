@@ -118,7 +118,7 @@ bool GrGpuGL::programUnitTest() {
             pdesc.fDualSrcOutput = ProgramDesc::kNone_DualSrcOutput;
         }
 
-        SkAutoTUnref<const GrEffect> customStages[GrDrawState::kNumStages];
+        SkAutoTUnref<const GrEffect> effects[GrDrawState::kNumStages];
 
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
             StageDesc& stage = pdesc.fStages[s];
@@ -142,19 +142,19 @@ bool GrGpuGL::programUnitTest() {
 
             if (stage.isEnabled()) {
                 GrTexture* dummyTextures[] = {dummyTexture1.get(), dummyTexture2.get()};
-                customStages[s].reset(create_random_effect(&stage,
-                                                           &random,
-                                                           getContext(),
-                                                           dummyTextures));
-                if (NULL != customStages[s]) {
+                effects[s].reset(create_random_effect(&stage,
+                                                      &random,
+                                                      getContext(),
+                                                      dummyTextures));
+                if (NULL != effects[s]) {
                     stage.fCustomStageKey =
-                        customStages[s]->getFactory().glStageKey(*customStages[s], this->glCaps());
+                        effects[s]->getFactory().glStageKey(*effects[s], this->glCaps());
                 }
             }
         }
-        GR_STATIC_ASSERT(sizeof(customStages) ==
+        GR_STATIC_ASSERT(sizeof(effects) ==
                          GrDrawState::kNumStages * sizeof(GrEffect*));
-        const GrEffect** stages = reinterpret_cast<const GrEffect**>(&customStages);
+        const GrEffect** stages = reinterpret_cast<const GrEffect**>(&effects);
         SkAutoTUnref<GrGLProgram> program(GrGLProgram::Create(this->glContextInfo(),
                                                               pdesc,
                                                               stages));

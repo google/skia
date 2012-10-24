@@ -274,7 +274,7 @@ private:
     TileMode fTileMode;
     bool     fConvolveAlpha;
 
-    GR_DECLARE_CUSTOM_STAGE_TEST;
+    GR_DECLARE_EFFECT_TEST;
 
     typedef GrSingleTextureEffect INHERITED;
 };
@@ -486,7 +486,7 @@ bool GrMatrixConvolutionEffect::isEqual(const GrEffect& sBase) const {
            fConvolveAlpha == s.convolveAlpha();
 }
 
-GR_DEFINE_CUSTOM_STAGE_TEST(GrMatrixConvolutionEffect);
+GR_DEFINE_EFFECT_TEST(GrMatrixConvolutionEffect);
 
 // A little bit less than the minimum # uniforms required by DX9SM2 (32).
 // Allows for a 5x5 kernel (or 25x1, for that matter).

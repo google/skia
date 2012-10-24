@@ -337,7 +337,7 @@ public:
         return cme.fMatrix == fMatrix;
     }
 
-    GR_DECLARE_CUSTOM_STAGE_TEST;
+    GR_DECLARE_EFFECT_TEST;
 
     class GLProgramStage : public GrGLLegacyProgramStage {
     public:
@@ -412,7 +412,7 @@ private:
     typedef GrGLLegacyProgramStage INHERITED;
 };
 
-GR_DEFINE_CUSTOM_STAGE_TEST(ColorMatrixEffect);
+GR_DEFINE_EFFECT_TEST(ColorMatrixEffect);
 
 GrEffect* ColorMatrixEffect::TestCreate(SkRandom* random,
                                         GrContext*,
