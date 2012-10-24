@@ -292,13 +292,13 @@ const char* GrGLShaderBuilder::fragmentPosition() {
             fFSHeader.append("layout(origin_upper_left) in vec4 gl_FragCoord;\n");
             fSetupFragPosition = true;
         }
-        return "gl_FragCoord";        
+        return "gl_FragCoord";
     } else {
         static const char* kCoordName = "fragCoordYDown";
         if (!fSetupFragPosition) {
             GrAssert(GrGLUniformManager::kInvalidUniformHandle == fRTHeightUniform);
             const char* rtHeightName;
-        
+
             // temporarily change the stage index because we're inserting a uniform whose name
             // shouldn't be mangled to be stage-specific.
             int oldStageIdx = fCurrentStage;
@@ -308,7 +308,7 @@ const char* GrGLShaderBuilder::fragmentPosition() {
                                                 "RTHeight",
                                                 &rtHeightName);
             fCurrentStage = oldStageIdx;
-        
+
             this->fFSCode.prependf("\tvec4 %s = vec4(gl_FragCoord.x, %s - gl_FragCoord.y, gl_FragCoord.zw);\n",
                                    kCoordName, rtHeightName);
             fSetupFragPosition = true;

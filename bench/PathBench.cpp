@@ -673,7 +673,7 @@ private:
 
 // Chrome creates its own round rects with each corner possibly being different.
 // In its "zero radius" incarnation it creates degenerate round rects.
-// Note: PathTest::test_arb_round_rect_is_convex and 
+// Note: PathTest::test_arb_round_rect_is_convex and
 // test_arb_zero_rad_round_rect_is_rect perform almost exactly
 // the same test (but with no drawing)
 class ArbRoundRectBench : public SkBenchmark {

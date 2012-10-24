@@ -371,7 +371,7 @@ protected:
             fFB.drawLine(canvas, fPts);
         }
         fFB.drawFG(canvas);
-        
+
         {
             SkString str;
             str.printf("%s %s %s",
