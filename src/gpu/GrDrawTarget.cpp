@@ -748,7 +748,7 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
     GrAssert(NULL != drawState.getRenderTarget());
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (drawState.isStageEnabled(s)) {
-            const GrEffect* stage = drawState.getSampler(s).getCustomStage();
+            const GrEffect* stage = drawState.getSampler(s).getEffect();
             int numTextures = stage->numTextures();
             for (int t = 0; t < numTextures; ++t) {
                 GrTexture* texture = stage->texture(t);
@@ -831,7 +831,7 @@ bool GrDrawTarget::srcAlphaWillBeOne(GrVertexLayout layout) const {
     // Check if a color stage could create a partial alpha
     for (int s = 0; s < drawState.getFirstCoverageStage(); ++s) {
         if (this->isStageEnabled(s)) {
-            const GrEffect* stage = drawState.getSampler(s).getCustomStage();
+            const GrEffect* stage = drawState.getSampler(s).getEffect();
             // FIXME: The param indicates whether the texture is opaque or not. However, the stage
             // already controls its textures. It really needs to know whether the incoming color
             // (from a uni, per-vertex colors, or previous stage) is opaque or not.

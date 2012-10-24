@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrCustomStageUnitTest_DEFINED
-#define GrCustomStageUnitTest_DEFINED
+#ifndef GrEffectUnitTest_DEFINED
+#define GrEffectUnitTest_DEFINED
 
 #include "SkRandom.h"
 #include "GrNoncopyable.h"
 #include "SkTArray.h"
 
-namespace GrCustomStageUnitTest {
+namespace GrEffectUnitTest {
 // Used to access the dummy textures in TestCreate procs.
 enum {
     kSkiaPMTextureIdx = 0,

@@ -539,10 +539,10 @@ GrEffect* GrRadialGradient::TestCreate(SkRandom* random,
                                                                  tm));
     GrSamplerState sampler;
     shader->asNewCustomStage(context, &sampler);
-    GrAssert(NULL != sampler.getCustomStage());
+    GrAssert(NULL != sampler.getEffect());
     // const_cast and ref is a hack! Will remove when asNewCustomStage returns GrEffect*
-    sampler.getCustomStage()->ref();
-    return const_cast<GrEffect*>(sampler.getCustomStage());
+    sampler.getEffect()->ref();
+    return const_cast<GrEffect*>(sampler.getEffect());
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -568,9 +568,9 @@ bool SkRadialGradient::asNewCustomStage(GrContext* context, GrSamplerState* samp
             return false;
         }
         matrix.postConcat(fPtsToUnit);
-        sampler->setCustomStage(stage, matrix);
+        sampler->setEffect(stage, matrix);
     } else {
-        sampler->setCustomStage(stage, fPtsToUnit);
+        sampler->setEffect(stage, fPtsToUnit);
     }
 
     return true;

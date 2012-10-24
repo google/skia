@@ -347,7 +347,7 @@ GR_DEFINE_CUSTOM_STAGE_TEST(ColorTableEffect);
 GrEffect* ColorTableEffect::TestCreate(SkRandom* random,
                                        GrContext* context,
                                        GrTexture* textures[]) {
-    return SkNEW_ARGS(ColorTableEffect, (textures[GrCustomStageUnitTest::kAlphaTextureIdx]));
+    return SkNEW_ARGS(ColorTableEffect, (textures[GrEffectUnitTest::kAlphaTextureIdx]));
 }
 
 GrEffect* SkTable_ColorFilter::asNewCustomStage(GrContext* context) const {

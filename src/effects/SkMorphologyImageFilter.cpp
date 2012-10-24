@@ -403,8 +403,8 @@ GR_DEFINE_CUSTOM_STAGE_TEST(GrMorphologyEffect);
 GrEffect* GrMorphologyEffect::TestCreate(SkRandom* random,
                                          GrContext* context,
                                          GrTexture* textures[]) {
-    int texIdx = random->nextBool() ? GrCustomStageUnitTest::kSkiaPMTextureIdx :
-                                      GrCustomStageUnitTest::kAlphaTextureIdx;
+    int texIdx = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :
+                                      GrEffectUnitTest::kAlphaTextureIdx;
     Direction dir = random->nextBool() ? kX_Direction : kY_Direction;
     static const int kMaxRadius = 10;
     int radius = random->nextRangeU(1, kMaxRadius);
@@ -425,7 +425,7 @@ void apply_morphology_pass(GrContext* context,
     GrMatrix sampleM;
     sampleM.setIDiv(texture->width(), texture->height());
     GrPaint paint;
-    paint.colorSampler(0)->setCustomStage(SkNEW_ARGS(GrMorphologyEffect, (texture, direction, radius, morphType)), sampleM)->unref();
+    paint.colorSampler(0)->setEffect(SkNEW_ARGS(GrMorphologyEffect, (texture, direction, radius, morphType)), sampleM)->unref();
     context->drawRect(paint, rect);
 }
 
