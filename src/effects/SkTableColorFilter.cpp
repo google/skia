@@ -41,7 +41,7 @@ public:
     virtual bool asComponentTable(SkBitmap* table) const SK_OVERRIDE;
 
 #if SK_SUPPORT_GPU
-    virtual GrEffect* asNewCustomStage(GrContext* context) const SK_OVERRIDE;
+    virtual GrEffect* asNewEffect(GrContext* context) const SK_OVERRIDE;
 #endif
 
     virtual void filterSpan(const SkPMColor src[], int count,
@@ -350,10 +350,10 @@ GrEffect* ColorTableEffect::TestCreate(SkRandom* random,
     return SkNEW_ARGS(ColorTableEffect, (textures[GrEffectUnitTest::kAlphaTextureIdx]));
 }
 
-GrEffect* SkTable_ColorFilter::asNewCustomStage(GrContext* context) const {
+GrEffect* SkTable_ColorFilter::asNewEffect(GrContext* context) const {
     SkBitmap bitmap;
     this->asComponentTable(&bitmap);
-    // passing NULL because this custom effect does no tiling or filtering.
+    // passing NULL because this effect does no tiling or filtering.
     GrTexture* texture = GrLockCachedBitmapTexture(context, bitmap, NULL);
     GrEffect* stage = SkNEW_ARGS(ColorTableEffect, (texture));
 

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGLCustomStage_DEFINED
-#define GrGLCustomStage_DEFINED
+#ifndef GrGLProgramStage_DEFINED
+#define GrGLProgramStage_DEFINED
 
 #include "GrAllocator.h"
 #include "GrEffect.h"
@@ -24,8 +24,8 @@ class GrGLTexture;
     GLSL code that implements a GrEffect and for uploading uniforms at draw time. They also
     must have a function:
         static inline StageKey GenKey(const GrEffect&, const GrGLCaps&)
-    that is used to implement a program cache. When two GrCustomEffects produce the same key this
-    means that their GrGLProgramStages would emit the same GLSL code.
+    that is used to implement a program cache. When two GrEffects produce the same key this means
+    that their GrGLProgramStages would emit the same GLSL code.
 
     These objects are created by the factory object returned by the GrEffect::getFactory().
 */

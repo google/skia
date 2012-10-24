@@ -424,7 +424,7 @@ GrEffect* ColorMatrixEffect::TestCreate(SkRandom* random,
     return SkNEW_ARGS(ColorMatrixEffect, (colorMatrix));
 }
 
-GrEffect* SkColorMatrixFilter::asNewCustomStage(GrContext*) const {
+GrEffect* SkColorMatrixFilter::asNewEffect(GrContext*) const {
     return SkNEW_ARGS(ColorMatrixEffect, (fMatrix));
 }
 

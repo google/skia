@@ -521,8 +521,8 @@ GrEffect* GrMatrixConvolutionEffect::TestCreate(SkRandom* random,
 
 }
 
-bool SkMatrixConvolutionImageFilter::asNewCustomStage(GrEffect** stage,
-                                                      GrTexture* texture) const {
+bool SkMatrixConvolutionImageFilter::asNewEffect(GrEffect** stage,
+                                                 GrTexture* texture) const {
     bool ok = fKernelSize.width() * fKernelSize.height() <= MAX_KERNEL_SIZE;
     if (ok && stage) {
         *stage = SkNEW_ARGS(GrMatrixConvolutionEffect, (texture,

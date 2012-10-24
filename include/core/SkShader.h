@@ -307,12 +307,12 @@ public:
 
     /**
      *  If the shader subclass has a GrEffect implementation, this installs
-     *  a custom stage on the sampler. A GrContext pointer is required since custom
+     *  an effect on the sampler. A GrContext pointer is required since custom
      *  stages may need to create textures. The sampler parameter is necessary to set a
      *  texture matrix. It will eventually be removed and this function will operate as a
      *  GrEffect factory.
      */
-    virtual bool asNewCustomStage(GrContext* context, GrSamplerState* sampler) const;
+    virtual bool asNewEffect(GrContext* context, GrSamplerState* sampler) const;
 
     //////////////////////////////////////////////////////////////////////////
     //  Factory methods for stock shaders

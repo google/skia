@@ -472,9 +472,9 @@ GrEffect* GrRadial2Gradient::TestCreate(SkRandom* random,
                                                                          colors, stops, colorCount,
                                                                          tm));
     GrSamplerState sampler;
-    shader->asNewCustomStage(context, &sampler);
+    shader->asNewEffect(context, &sampler);
     GrAssert(NULL != sampler.getEffect());
-    // const_cast and ref is a hack! Will remove when asNewCustomStage returns GrEffect*
+    // const_cast and ref is a hack! Will remove when asNewEffect returns GrEffect*
     sampler.getEffect()->ref();
     return const_cast<GrEffect*>(sampler.getEffect());
 }
@@ -642,8 +642,8 @@ GrEffect::StageKey GrGLRadial2Gradient::GenKey(const GrEffect& s, const GrGLCaps
 
 /////////////////////////////////////////////////////////////////////
 
-bool SkTwoPointRadialGradient::asNewCustomStage(GrContext* context,
-                                                GrSamplerState* sampler) const {
+bool SkTwoPointRadialGradient::asNewEffect(GrContext* context,
+                                           GrSamplerState* sampler) const {
     SkASSERT(NULL != context && NULL != sampler);
     SkScalar diffLen = fDiff.length();
     SkMatrix matrix;
@@ -671,7 +671,7 @@ bool SkTwoPointRadialGradient::asNewCustomStage(GrContext* context,
 
 #else
 
-bool SkTwoPointRadialGradient::asNewCustomStage(GrContext*, GrSamplerState*) const {
+bool SkTwoPointRadialGradient::asNewEffect(GrContext*, GrSamplerState*) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;
 }

@@ -264,7 +264,7 @@ public:
                                  SkScalar kd, SkImageFilter* input);
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDiffuseLightingImageFilter)
 
-    virtual bool asNewCustomStage(GrEffect** stage, GrTexture*) const SK_OVERRIDE;
+    virtual bool asNewEffect(GrEffect** stage, GrTexture*) const SK_OVERRIDE;
     SkScalar kd() const { return fKD; }
 
 protected:
@@ -284,7 +284,7 @@ public:
     SkSpecularLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar ks, SkScalar shininess, SkImageFilter* input);
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSpecularLightingImageFilter)
 
-    virtual bool asNewCustomStage(GrEffect** stage, GrTexture*) const SK_OVERRIDE;
+    virtual bool asNewEffect(GrEffect** stage, GrTexture*) const SK_OVERRIDE;
     SkScalar ks() const { return fKS; }
     SkScalar shininess() const { return fShininess; }
 
@@ -821,8 +821,8 @@ bool SkDiffuseLightingImageFilter::onFilterImage(Proxy*,
     return true;
 }
 
-bool SkDiffuseLightingImageFilter::asNewCustomStage(GrEffect** stage,
-                                                    GrTexture* texture) const {
+bool SkDiffuseLightingImageFilter::asNewEffect(GrEffect** stage,
+                                               GrTexture* texture) const {
 #if SK_SUPPORT_GPU
     if (stage) {
         SkScalar scale = SkScalarMul(surfaceScale(), SkIntToScalar(255));
@@ -890,8 +890,8 @@ bool SkSpecularLightingImageFilter::onFilterImage(Proxy*,
     return true;
 }
 
-bool SkSpecularLightingImageFilter::asNewCustomStage(GrEffect** stage,
-                                                     GrTexture* texture) const {
+bool SkSpecularLightingImageFilter::asNewEffect(GrEffect** stage,
+                                                GrTexture* texture) const {
 #if SK_SUPPORT_GPU
     if (stage) {
         SkScalar scale = SkScalarMul(surfaceScale(), SkIntToScalar(255));

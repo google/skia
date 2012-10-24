@@ -170,7 +170,7 @@ void GrGLUniformManager::setMatrix3f(UniformHandle u, const GrGLfloat matrix[]) 
     const Uniform& uni = fUniforms[handle_to_index(u)];
     GrAssert(uni.fType == kMat33f_GrSLType);
     GrAssert(GrGLShaderVar::kNonArray == uni.fArrayCount);
-    // TODO: Re-enable this assert once texture matrices aren't forced on all custom effects
+    // TODO: Re-enable this assert once texture matrices aren't forced on all effects
     // GrAssert(kUnusedUniform != uni.fFSLocation || kUnusedUniform != uni.fVSLocation);
     if (kUnusedUniform != uni.fFSLocation) {
         GR_GL_CALL(fContext.interface(), UniformMatrix3fv(uni.fFSLocation, 1, false, matrix));

@@ -19,7 +19,7 @@ SkTArray<GrEffectTestFactory*, true>* GrEffectTestFactory::GetFactories() {
 }
 #endif
 
-class GrCustomStage_Globals {
+class GrEffect_Globals {
 public:
     static GrMemoryPool* GetTLS() {
         return (GrMemoryPool*)SkTLS::Get(CreateTLS, DeleteTLS);
@@ -69,9 +69,9 @@ const GrTextureAccess& GrEffect::textureAccess(int index) const {
 }
 
 void * GrEffect::operator new(size_t size) {
-    return GrCustomStage_Globals::GetTLS()->allocate(size);
+    return GrEffect_Globals::GetTLS()->allocate(size);
 }
 
 void GrEffect::operator delete(void* target) {
-    GrCustomStage_Globals::GetTLS()->release(target);
+    GrEffect_Globals::GetTLS()->release(target);
 }
