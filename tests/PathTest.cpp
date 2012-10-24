@@ -25,6 +25,27 @@ static SkSurface* new_surface(int w, int h) {
     return SkSurface::NewRaster(info, NULL);
 }
 
+// Make sure we stay non-finite once we get there (unless we reset or rewind).
+static void test_addrect_isfinite(skiatest::Reporter* reporter) {
+    SkPath path;
+    
+    path.addRect(SkRect::MakeWH(50, 100));
+    REPORTER_ASSERT(reporter, path.isFinite());
+
+    path.moveTo(0, 0);
+    path.lineTo(SK_ScalarInfinity, 42);
+    REPORTER_ASSERT(reporter, !path.isFinite());
+
+    path.addRect(SkRect::MakeWH(50, 100));
+    REPORTER_ASSERT(reporter, !path.isFinite());
+
+    path.reset();
+    REPORTER_ASSERT(reporter, path.isFinite());
+    
+    path.addRect(SkRect::MakeWH(50, 100));
+    REPORTER_ASSERT(reporter, path.isFinite());
+}
+
 // Inspired by http://ie.microsoft.com/testdrive/Performance/Chalkboard/
 // which triggered an assert, from a tricky cubic. This test replicates that
 // example, so we can ensure that we handle it (in SkEdge.cpp), and don't
@@ -1718,6 +1739,7 @@ static void TestPath(skiatest::Reporter* reporter) {
     test_tricky_cubic(reporter);
     test_arb_round_rect_is_convex(reporter);
     test_arb_zero_rad_round_rect_is_rect(reporter);
+    test_addrect_isfinite(reporter);
 }
 
 #include "TestClassDef.h"

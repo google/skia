@@ -157,7 +157,9 @@ private:
     // returns true if we should proceed
     void init(SkPath* path) {
         fPath = path;
-        fDirty = SkToBool(path->fBoundsIsDirty);
+        // Mark the path's bounds as dirty if (1) they are, or (2) the path
+        // is non-finite, and therefore its bounds are not meaningful
+        fDirty = SkToBool(path->fBoundsIsDirty) || !path->fIsFinite;
         fDegenerate = is_degenerate(*path);
         fEmpty = path->isEmpty();
         // Cannot use fRect for our bounds unless we know it is sorted
