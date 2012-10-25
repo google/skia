@@ -34,7 +34,7 @@ public:
 
     typedef GrGLSingleTextureEffect GLEffect;
 
-    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
 
 private:
     GR_DECLARE_EFFECT_TEST;

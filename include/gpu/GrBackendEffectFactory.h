@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrProgramStageFactory_DEFINED
-#define GrProgramStageFactory_DEFINED
+#ifndef GrBackendEffectFactory_DEFINED
+#define GrBackendEffectFactory_DEFINED
 
 #include "GrTypes.h"
 #include "SkTemplates.h"
@@ -21,7 +21,7 @@ class GrEffect;
 class GrGLEffect;
 class GrGLCaps;
 
-class GrProgramStageFactory : public GrNoncopyable {
+class GrBackendEffectFactory : public GrNoncopyable {
 public:
     typedef uint32_t StageKey;
     enum {
@@ -32,10 +32,10 @@ public:
     virtual StageKey glStageKey(const GrEffect&, const GrGLCaps&) const = 0;
     virtual GrGLEffect* createGLInstance(const GrEffect&) const = 0;
 
-    bool operator ==(const GrProgramStageFactory& b) const {
+    bool operator ==(const GrBackendEffectFactory& b) const {
         return fEffectClassID == b.fEffectClassID;
     }
-    bool operator !=(const GrProgramStageFactory& b) const {
+    bool operator !=(const GrBackendEffectFactory& b) const {
         return !(*this == b);
     }
 
@@ -46,7 +46,7 @@ protected:
         kIllegalEffectClassID = 0,
     };
 
-    GrProgramStageFactory() {
+    GrBackendEffectFactory() {
         fEffectClassID = kIllegalEffectClassID;
     }
 
@@ -66,7 +66,7 @@ private:
 };
 
 template <typename EffectClass>
-class GrTProgramStageFactory : public GrProgramStageFactory {
+class GrTBackendEffectFactory : public GrBackendEffectFactory {
 
 public:
     typedef typename EffectClass::GLEffect GLEffect;
@@ -105,18 +105,18 @@ public:
 
     /** This class is a singleton. This function returns the single instance.
      */
-    static const GrProgramStageFactory& getInstance() {
-        static SkAlignedSTStorage<1, GrTProgramStageFactory> gInstanceMem;
-        static const GrTProgramStageFactory* gInstance;
+    static const GrBackendEffectFactory& getInstance() {
+        static SkAlignedSTStorage<1, GrTBackendEffectFactory> gInstanceMem;
+        static const GrTBackendEffectFactory* gInstance;
         if (!gInstance) {
             gInstance = SkNEW_PLACEMENT(gInstanceMem.get(),
-                                        GrTProgramStageFactory);
+                                        GrTBackendEffectFactory);
         }
         return *gInstance;
     }
 
 protected:
-    GrTProgramStageFactory() {
+    GrTBackendEffectFactory() {
         fEffectClassID = GenID() << (kProgramStageKeyBits + kTexturingStageKeyBits) ;
     }
 };

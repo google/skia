@@ -195,7 +195,7 @@ private:
 #include "gl/GrGLEffect.h"
 
 class GrSamplerState;
-class GrProgramStageFactory;
+class GrBackendEffectFactory;
 
 /*
  * The intepretation of the texture matrix depends on the sample mode. The
@@ -274,7 +274,7 @@ private:
 class GrGLGradientStage : public GrGLLegacyEffect {
 public:
 
-    GrGLGradientStage(const GrProgramStageFactory& factory);
+    GrGLGradientStage(const GrBackendEffectFactory& factory);
     virtual ~GrGLGradientStage();
 
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;

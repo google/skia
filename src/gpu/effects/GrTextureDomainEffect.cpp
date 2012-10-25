@@ -7,11 +7,11 @@
 
 #include "GrTextureDomainEffect.h"
 #include "gl/GrGLEffect.h"
-#include "GrProgramStageFactory.h"
+#include "GrBackendEffectFactory.h"
 
 class GrGLTextureDomainEffect : public GrGLLegacyEffect {
 public:
-    GrGLTextureDomainEffect(const GrProgramStageFactory&, const GrEffect&);
+    GrGLTextureDomainEffect(const GrBackendEffectFactory&, const GrEffect&);
 
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitVS(GrGLShaderBuilder* builder,
@@ -31,7 +31,7 @@ private:
     typedef GrGLLegacyEffect INHERITED;
 };
 
-GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrProgramStageFactory& factory,
+GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrBackendEffectFactory& factory,
                                                  const GrEffect&)
     : INHERITED(factory)
     , fNameUni(GrGLUniformManager::kInvalidUniformHandle) {
@@ -100,8 +100,8 @@ GrTextureDomainEffect::~GrTextureDomainEffect() {
 
 }
 
-const GrProgramStageFactory& GrTextureDomainEffect::getFactory() const {
-    return GrTProgramStageFactory<GrTextureDomainEffect>::getInstance();
+const GrBackendEffectFactory& GrTextureDomainEffect::getFactory() const {
+    return GrTBackendEffectFactory<GrTextureDomainEffect>::getInstance();
 }
 
 bool GrTextureDomainEffect::isEqual(const GrEffect& sBase) const {

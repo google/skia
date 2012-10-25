@@ -262,7 +262,7 @@ public:
 
     typedef GrGLMatrixConvolutionEffect GLEffect;
 
-    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
     virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
 
 private:
@@ -281,7 +281,7 @@ private:
 
 class GrGLMatrixConvolutionEffect : public GrGLLegacyEffect {
 public:
-    GrGLMatrixConvolutionEffect(const GrProgramStageFactory& factory,
+    GrGLMatrixConvolutionEffect(const GrBackendEffectFactory& factory,
                                 const GrEffect& effect);
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitVS(GrGLShaderBuilder* state,
@@ -311,7 +311,7 @@ private:
     typedef GrGLLegacyEffect INHERITED;
 };
 
-GrGLMatrixConvolutionEffect::GrGLMatrixConvolutionEffect(const GrProgramStageFactory& factory,
+GrGLMatrixConvolutionEffect::GrGLMatrixConvolutionEffect(const GrBackendEffectFactory& factory,
                                            const GrEffect& effect)
     : INHERITED(factory)
     , fKernelUni(GrGLUniformManager::kInvalidUniformHandle)
@@ -469,8 +469,8 @@ GrMatrixConvolutionEffect::~GrMatrixConvolutionEffect() {
     delete[] fKernel;
 }
 
-const GrProgramStageFactory& GrMatrixConvolutionEffect::getFactory() const {
-    return GrTProgramStageFactory<GrMatrixConvolutionEffect>::getInstance();
+const GrBackendEffectFactory& GrMatrixConvolutionEffect::getFactory() const {
+    return GrTBackendEffectFactory<GrMatrixConvolutionEffect>::getInstance();
 }
 
 bool GrMatrixConvolutionEffect::isEqual(const GrEffect& sBase) const {

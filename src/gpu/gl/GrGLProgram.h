@@ -98,7 +98,7 @@ public:
 
             /** Non-zero if user-supplied code will write the stage's
                 contribution to the fragment shader. */
-            GrProgramStageFactory::StageKey fCustomStageKey;
+            GrBackendEffectFactory::StageKey fCustomStageKey;
 
             inline bool isEnabled() const {
                 return SkToBool(fOptFlags & kIsEnabled_OptFlagBit);

@@ -112,7 +112,7 @@ bool SkBlendImageFilter::onFilterImage(Proxy* proxy,
 #if SK_SUPPORT_GPU
 class GrGLBlendEffect  : public GrGLLegacyEffect {
 public:
-    GrGLBlendEffect(const GrProgramStageFactory& factory,
+    GrGLBlendEffect(const GrBackendEffectFactory& factory,
                     const GrEffect& effect);
     virtual ~GrGLBlendEffect();
 
@@ -139,7 +139,7 @@ public:
     virtual ~GrBlendEffect();
 
     virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
-    const GrProgramStageFactory& getFactory() const;
+    const GrBackendEffectFactory& getFactory() const;
     SkBlendImageFilter::Mode mode() const { return fMode; }
 
     typedef GrGLBlendEffect GLEffect;
@@ -230,13 +230,13 @@ bool GrBlendEffect::isEqual(const GrEffect& sBase) const {
            fMode == s.fMode;
 }
 
-const GrProgramStageFactory& GrBlendEffect::getFactory() const {
-    return GrTProgramStageFactory<GrBlendEffect>::getInstance();
+const GrBackendEffectFactory& GrBlendEffect::getFactory() const {
+    return GrTBackendEffectFactory<GrBlendEffect>::getInstance();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrGLBlendEffect::GrGLBlendEffect(const GrProgramStageFactory& factory,
+GrGLBlendEffect::GrGLBlendEffect(const GrBackendEffectFactory& factory,
                                  const GrEffect& effect)
     : INHERITED(factory),
       fMode(static_cast<const GrBlendEffect&>(effect).mode()) {

@@ -675,7 +675,7 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 #include "effects/GrTextureStripAtlas.h"
 #include "SkGr.h"
 
-GrGLGradientStage::GrGLGradientStage(const GrProgramStageFactory& factory)
+GrGLGradientStage::GrGLGradientStage(const GrBackendEffectFactory& factory)
     : INHERITED(factory)
     , fCachedYCoord(GR_ScalarMax)
     , fFSYUni(GrGLUniformManager::kInvalidUniformHandle) { }

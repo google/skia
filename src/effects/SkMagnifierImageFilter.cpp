@@ -18,7 +18,7 @@
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
-#include "GrProgramStageFactory.h"
+#include "GrBackendEffectFactory.h"
 
 class GrGLMagnifierEffect;
 
@@ -44,7 +44,7 @@ public:
 
     static const char* Name() { return "Magnifier"; }
 
-    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
     virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
 
     float x_offset() const { return fXOffset; }
@@ -74,7 +74,7 @@ typedef GrGLUniformManager::UniformHandle UniformHandle;
 
 class GrGLMagnifierEffect : public GrGLLegacyEffect {
 public:
-    GrGLMagnifierEffect(const GrProgramStageFactory& factory,
+    GrGLMagnifierEffect(const GrBackendEffectFactory& factory,
                         const GrEffect& effect);
 
     virtual void setupVariables(GrGLShaderBuilder* state) SK_OVERRIDE;
@@ -99,7 +99,7 @@ private:
     typedef GrGLLegacyEffect INHERITED;
 };
 
-GrGLMagnifierEffect::GrGLMagnifierEffect(const GrProgramStageFactory& factory,
+GrGLMagnifierEffect::GrGLMagnifierEffect(const GrBackendEffectFactory& factory,
                                          const GrEffect& effect)
     : INHERITED(factory)
     , fOffsetVar(GrGLUniformManager::kInvalidUniformHandle)
@@ -209,8 +209,8 @@ GrEffect* GrMagnifierEffect::TestCreate(SkRandom* random,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const GrProgramStageFactory& GrMagnifierEffect::getFactory() const {
-    return GrTProgramStageFactory<GrMagnifierEffect>::getInstance();
+const GrBackendEffectFactory& GrMagnifierEffect::getFactory() const {
+    return GrTBackendEffectFactory<GrMagnifierEffect>::getInstance();
 }
 
 bool GrMagnifierEffect::isEqual(const GrEffect& sBase) const {

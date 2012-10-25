@@ -8,7 +8,7 @@
 #include "GrGLSL.h"
 #include "GrGLEffect.h"
 
-GrGLEffect::GrGLEffect(const GrProgramStageFactory& factory)
+GrGLEffect::GrGLEffect(const GrBackendEffectFactory& factory)
     : fFactory(factory) {
 }
 

@@ -357,7 +357,7 @@ class GrGLRadial2Gradient : public GrGLGradientStage {
 
 public:
 
-    GrGLRadial2Gradient(const GrProgramStageFactory& factory,
+    GrGLRadial2Gradient(const GrBackendEffectFactory& factory,
                         const GrEffect&);
     virtual ~GrGLRadial2Gradient() { }
 
@@ -410,8 +410,8 @@ public:
     virtual ~GrRadial2Gradient() { }
 
     static const char* Name() { return "Two-Point Radial Gradient"; }
-    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE {
-        return GrTProgramStageFactory<GrRadial2Gradient>::getInstance();
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
+        return GrTBackendEffectFactory<GrRadial2Gradient>::getInstance();
     }
     virtual bool isEqual(const GrEffect& sBase) const SK_OVERRIDE {
         const GrRadial2Gradient& s = static_cast<const GrRadial2Gradient&>(sBase);
@@ -482,7 +482,7 @@ GrEffect* GrRadial2Gradient::TestCreate(SkRandom* random,
 /////////////////////////////////////////////////////////////////////
 
 GrGLRadial2Gradient::GrGLRadial2Gradient(
-        const GrProgramStageFactory& factory,
+        const GrBackendEffectFactory& factory,
         const GrEffect& baseData)
     : INHERITED(factory)
     , fVSParamUni(kInvalidUniformHandle)

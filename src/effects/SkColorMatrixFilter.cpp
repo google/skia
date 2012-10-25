@@ -328,8 +328,8 @@ public:
 
     ColorMatrixEffect(const SkColorMatrix& matrix) : GrEffect(0), fMatrix(matrix) {}
 
-    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE {
-        return GrTProgramStageFactory<ColorMatrixEffect>::getInstance();
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
+        return GrTBackendEffectFactory<ColorMatrixEffect>::getInstance();
     }
 
     virtual bool isEqual(const GrEffect& s) const {
@@ -344,7 +344,7 @@ public:
         // this class always generates the same code.
         static StageKey GenKey(const GrEffect& s, const GrGLCaps&) { return 0; }
 
-        GLEffect(const GrProgramStageFactory& factory,
+        GLEffect(const GrBackendEffectFactory& factory,
                  const GrEffect& effect)
         : INHERITED(factory)
         , fMatrixHandle(GrGLUniformManager::kInvalidUniformHandle)

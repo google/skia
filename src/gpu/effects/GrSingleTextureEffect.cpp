@@ -9,12 +9,12 @@
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
-#include "GrProgramStageFactory.h"
+#include "GrBackendEffectFactory.h"
 #include "GrTexture.h"
 
 class GrGLSingleTextureEffect : public GrGLLegacyEffect {
 public:
-    GrGLSingleTextureEffect(const GrProgramStageFactory& factory, const GrEffect&)
+    GrGLSingleTextureEffect(const GrBackendEffectFactory& factory, const GrEffect&)
     : INHERITED (factory) {
     }
 
@@ -61,8 +61,8 @@ const GrTextureAccess& GrSingleTextureEffect::textureAccess(int index) const {
     return fTextureAccess;
 }
 
-const GrProgramStageFactory& GrSingleTextureEffect::getFactory() const {
-    return GrTProgramStageFactory<GrSingleTextureEffect>::getInstance();
+const GrBackendEffectFactory& GrSingleTextureEffect::getFactory() const {
+    return GrTBackendEffectFactory<GrSingleTextureEffect>::getInstance();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

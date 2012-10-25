@@ -14,7 +14,7 @@
 #include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
-#include "GrProgramStageFactory.h"
+#include "GrBackendEffectFactory.h"
 #include "effects/GrSingleTextureEffect.h"
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLTexture.h"
@@ -328,7 +328,7 @@ public:
 
     typedef GrGLDiffuseLightingEffect GLEffect;
 
-    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
     virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
     SkScalar kd() const { return fKD; }
 private:
@@ -349,7 +349,7 @@ public:
 
     typedef GrGLSpecularLightingEffect GLEffect;
 
-    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
     virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
     SkScalar ks() const { return fKS; }
     SkScalar shininess() const { return fShininess; }
@@ -941,7 +941,7 @@ SkLight* create_random_light(SkRandom* random) {
 
 class GrGLLightingEffect  : public GrGLLegacyEffect {
 public:
-    GrGLLightingEffect(const GrProgramStageFactory& factory,
+    GrGLLightingEffect(const GrBackendEffectFactory& factory,
                        const GrEffect& effect);
     virtual ~GrGLLightingEffect();
 
@@ -971,7 +971,7 @@ private:
 
 class GrGLDiffuseLightingEffect  : public GrGLLightingEffect {
 public:
-    GrGLDiffuseLightingEffect(const GrProgramStageFactory& factory,
+    GrGLDiffuseLightingEffect(const GrBackendEffectFactory& factory,
                               const GrEffect& effect);
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitLightFunc(GrGLShaderBuilder*, SkString* funcName) SK_OVERRIDE;
@@ -987,7 +987,7 @@ private:
 
 class GrGLSpecularLightingEffect  : public GrGLLightingEffect {
 public:
-    GrGLSpecularLightingEffect(const GrProgramStageFactory& factory,
+    GrGLSpecularLightingEffect(const GrBackendEffectFactory& factory,
                                const GrEffect& effect);
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitLightFunc(GrGLShaderBuilder*, SkString* funcName) SK_OVERRIDE;
@@ -1027,8 +1027,8 @@ GrDiffuseLightingEffect::GrDiffuseLightingEffect(GrTexture* texture, const SkLig
     : INHERITED(texture, light, surfaceScale), fKD(kd) {
 }
 
-const GrProgramStageFactory& GrDiffuseLightingEffect::getFactory() const {
-    return GrTProgramStageFactory<GrDiffuseLightingEffect>::getInstance();
+const GrBackendEffectFactory& GrDiffuseLightingEffect::getFactory() const {
+    return GrTBackendEffectFactory<GrDiffuseLightingEffect>::getInstance();
 }
 
 bool GrDiffuseLightingEffect::isEqual(const GrEffect& sBase) const {
@@ -1053,7 +1053,7 @@ GrEffect* GrDiffuseLightingEffect::TestCreate(SkRandom* random,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrGLLightingEffect::GrGLLightingEffect(const GrProgramStageFactory& factory,
+GrGLLightingEffect::GrGLLightingEffect(const GrBackendEffectFactory& factory,
                                        const GrEffect& effect)
     : INHERITED(factory)
     , fImageIncrementUni(kInvalidUniformHandle)
@@ -1187,7 +1187,7 @@ void GrGLLightingEffect::setData(const GrGLUniformManager& uman, const GrEffect&
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrGLDiffuseLightingEffect::GrGLDiffuseLightingEffect(const GrProgramStageFactory& factory,
+GrGLDiffuseLightingEffect::GrGLDiffuseLightingEffect(const GrBackendEffectFactory& factory,
                                             const GrEffect& effect)
     : INHERITED(factory, effect)
     , fKDUni(kInvalidUniformHandle) {
@@ -1232,8 +1232,8 @@ GrSpecularLightingEffect::GrSpecularLightingEffect(GrTexture* texture, const SkL
       fShininess(shininess) {
 }
 
-const GrProgramStageFactory& GrSpecularLightingEffect::getFactory() const {
-    return GrTProgramStageFactory<GrSpecularLightingEffect>::getInstance();
+const GrBackendEffectFactory& GrSpecularLightingEffect::getFactory() const {
+    return GrTBackendEffectFactory<GrSpecularLightingEffect>::getInstance();
 }
 
 bool GrSpecularLightingEffect::isEqual(const GrEffect& sBase) const {
@@ -1259,7 +1259,7 @@ GrEffect* GrSpecularLightingEffect::TestCreate(SkRandom* random,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrGLSpecularLightingEffect::GrGLSpecularLightingEffect(const GrProgramStageFactory& factory,
+GrGLSpecularLightingEffect::GrGLSpecularLightingEffect(const GrBackendEffectFactory& factory,
                                             const GrEffect& effect)
     : GrGLLightingEffect(factory, effect)
     , fKSUni(kInvalidUniformHandle)

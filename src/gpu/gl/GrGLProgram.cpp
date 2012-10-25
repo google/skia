@@ -12,7 +12,7 @@
 #include "GrGLEffect.h"
 #include "gl/GrGLShaderBuilder.h"
 #include "GrGLShaderVar.h"
-#include "GrProgramStageFactory.h"
+#include "GrBackendEffectFactory.h"
 #include "SkTrace.h"
 #include "SkXfermode.h"
 

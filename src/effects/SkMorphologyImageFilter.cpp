@@ -251,7 +251,7 @@ public:
 
     typedef GrGLMorphologyEffect GLEffect;
 
-    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
     virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
 
 protected:
@@ -268,7 +268,7 @@ private:
 
 class GrGLMorphologyEffect  : public GrGLLegacyEffect {
 public:
-    GrGLMorphologyEffect (const GrProgramStageFactory& factory,
+    GrGLMorphologyEffect (const GrBackendEffectFactory& factory,
                           const GrEffect& effect);
 
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
@@ -293,7 +293,7 @@ private:
     typedef GrGLLegacyEffect INHERITED;
 };
 
-GrGLMorphologyEffect::GrGLMorphologyEffect(const GrProgramStageFactory& factory,
+GrGLMorphologyEffect::GrGLMorphologyEffect(const GrBackendEffectFactory& factory,
                                            const GrEffect& effect)
     : INHERITED(factory)
     , fImageIncrementUni(GrGLUniformManager::kInvalidUniformHandle) {
@@ -383,8 +383,8 @@ GrMorphologyEffect::GrMorphologyEffect(GrTexture* texture,
 GrMorphologyEffect::~GrMorphologyEffect() {
 }
 
-const GrProgramStageFactory& GrMorphologyEffect::getFactory() const {
-    return GrTProgramStageFactory<GrMorphologyEffect>::getInstance();
+const GrBackendEffectFactory& GrMorphologyEffect::getFactory() const {
+    return GrTBackendEffectFactory<GrMorphologyEffect>::getInstance();
 }
 
 bool GrMorphologyEffect::isEqual(const GrEffect& sBase) const {
