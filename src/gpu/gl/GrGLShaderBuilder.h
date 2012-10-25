@@ -119,11 +119,11 @@ public:
                       const char* body,
                       SkString* outName);
 
-    /** Generates a StageKey for the shader code based on the texture access parameters and the
+    /** Generates a EffectKey for the shader code based on the texture access parameters and the
         capabilities of the GL context.  This is useful for keying the shader programs that may
         have multiple representations, based on the type/format of textures used. */
-    static GrEffect::StageKey KeyForTextureAccess(const GrTextureAccess& access,
-                                                       const GrGLCaps& caps);
+    static GrEffect::EffectKey KeyForTextureAccess(const GrTextureAccess& access,
+                                                   const GrGLCaps& caps);
 
     /** If texture swizzling is available using tex parameters then it is preferred over mangling
         the generated shader code. This potentially allows greater reuse of cached shaders. */

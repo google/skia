@@ -58,7 +58,7 @@ public:
         GrGLSLMulVarBy4f(&builder->fFSCode, 2, outputColor, inputColor);
     }
 
-    static inline StageKey GenKey(const GrEffect& s, const GrGLCaps&) {
+    static inline EffectKey GenKey(const GrEffect& s, const GrGLCaps&) {
         const GrConfigConversionEffect& effect = static_cast<const GrConfigConversionEffect&>(s);
         return static_cast<int>(effect.swapsRedAndBlue()) | (effect.pmConversion() << 1);
     }

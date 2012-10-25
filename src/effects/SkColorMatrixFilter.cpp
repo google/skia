@@ -342,7 +342,7 @@ public:
     class GLEffect : public GrGLLegacyEffect {
     public:
         // this class always generates the same code.
-        static StageKey GenKey(const GrEffect& s, const GrGLCaps&) { return 0; }
+        static EffectKey GenKey(const GrEffect& s, const GrGLCaps&) { return 0; }
 
         GLEffect(const GrBackendEffectFactory& factory,
                  const GrEffect& effect)

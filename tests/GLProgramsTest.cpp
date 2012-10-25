@@ -136,7 +136,7 @@ bool GrGpuGL::programUnitTest() {
                 pdesc.fVertexLayout |= kTextFormat_VertexLayoutBit;
             }
 
-            stage.fCustomStageKey = 0;
+            stage.fEffectKey = 0;
 
             stage.fOptFlags |= STAGE_OPTS[random_int(&random, GR_ARRAY_COUNT(STAGE_OPTS))];
 
@@ -147,8 +147,8 @@ bool GrGpuGL::programUnitTest() {
                                                       getContext(),
                                                       dummyTextures));
                 if (NULL != effects[s]) {
-                    stage.fCustomStageKey =
-                        effects[s]->getFactory().glStageKey(*effects[s], this->glCaps());
+                    stage.fEffectKey =
+                        effects[s]->getFactory().glEffectKey(*effects[s], this->glCaps());
                 }
             }
         }

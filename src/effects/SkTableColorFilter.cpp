@@ -259,7 +259,7 @@ public:
 
     virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE {}
 
-    static StageKey GenKey(const GrEffect&, const GrGLCaps&);
+    static EffectKey GenKey(const GrEffect&, const GrGLCaps&);
 
 private:
 
@@ -312,7 +312,7 @@ void GLColorTableEffect::emitFS(GrGLShaderBuilder* builder,
     code->appendf("\t\t%s.rgb *= %s.a;\n", outputColor, outputColor);
 }
 
-GrGLEffect::StageKey GLColorTableEffect::GenKey(const GrEffect& s,
+GrGLEffect::EffectKey GLColorTableEffect::GenKey(const GrEffect& s,
                                                         const GrGLCaps& caps) {
     return 0;
 }

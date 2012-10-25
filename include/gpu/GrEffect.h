@@ -33,7 +33,7 @@ class GrEffect : public GrRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrEffect)
 
-    typedef GrBackendEffectFactory::StageKey StageKey;
+    typedef GrBackendEffectFactory::EffectKey EffectKey;
 
     explicit GrEffect(int numTextures);
     virtual ~GrEffect();
@@ -66,8 +66,8 @@ public:
         Equality is not the same thing as equivalence.
         To test for equivalence (that they will generate the same
         shader code, but may have different uniforms), check equality
-        of the stageKey produced by the GrBackendEffectFactory:
-        a.getFactory().glStageKey(a) == b.getFactory().glStageKey(b).
+        of the EffectKey produced by the GrBackendEffectFactory:
+        a.getFactory().glEffectKey(a) == b.getFactory().glEffectKey(b).
 
         The default implementation of this function returns true iff
         the two stages have the same return value for numTextures() and

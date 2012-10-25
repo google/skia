@@ -124,7 +124,7 @@ public:
     virtual void emitVS(GrGLShaderBuilder* builder,
                         const char* vertexCoords) SK_OVERRIDE {}
 
-    static inline StageKey GenKey(const GrEffect& s, const GrGLCaps&);
+    static inline EffectKey GenKey(const GrEffect& s, const GrGLCaps&);
 
 private:
     typedef GrGLLegacyEffect INHERITED;
@@ -275,7 +275,7 @@ void GrGLBlendEffect::emitFS(GrGLShaderBuilder* builder,
     }
 }
 
-GrGLEffect::StageKey GrGLBlendEffect::GenKey(const GrEffect& s, const GrGLCaps&) {
+GrGLEffect::EffectKey GrGLBlendEffect::GenKey(const GrEffect& s, const GrGLCaps&) {
     return static_cast<const GrBlendEffect&>(s).mode();
 }
 #endif

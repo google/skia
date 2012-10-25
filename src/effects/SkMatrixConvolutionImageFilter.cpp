@@ -291,7 +291,7 @@ public:
                         const char* inputColor,
                         const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline StageKey GenKey(const GrEffect& s, const GrGLCaps& caps);
+    static inline EffectKey GenKey(const GrEffect& s, const GrGLCaps& caps);
 
     virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE;
 
@@ -415,10 +415,10 @@ int encodeXY(int x, int y) {
 
 };
 
-GrGLEffect::StageKey GrGLMatrixConvolutionEffect::GenKey(const GrEffect& s,
+GrGLEffect::EffectKey GrGLMatrixConvolutionEffect::GenKey(const GrEffect& s,
                                                         const GrGLCaps& caps) {
     const GrMatrixConvolutionEffect& m = static_cast<const GrMatrixConvolutionEffect&>(s);
-    StageKey key = encodeXY(m.kernelSize().width(), m.kernelSize().height());
+    EffectKey key = encodeXY(m.kernelSize().width(), m.kernelSize().height());
     key |= m.tileMode() << 7;
     key |= m.convolveAlpha() ? 1 << 9 : 0;
     return key;

@@ -88,7 +88,7 @@ public:
     virtual void setData(const GrGLUniformManager& uman,
                          const GrEffect& data) SK_OVERRIDE;
 
-    static inline StageKey GenKey(const GrEffect&, const GrGLCaps&);
+    static inline EffectKey GenKey(const GrEffect&, const GrGLCaps&);
 
 private:
 
@@ -174,7 +174,7 @@ void GrGLMagnifierEffect::setData(const GrGLUniformManager& uman,
     uman.set2f(fInsetVar, zoom.x_inset(), zoom.y_inset());
 }
 
-GrGLEffect::StageKey GrGLMagnifierEffect::GenKey(const GrEffect& s,
+GrGLEffect::EffectKey GrGLMagnifierEffect::GenKey(const GrEffect& s,
                                                        const GrGLCaps& caps) {
     return 0;
 }

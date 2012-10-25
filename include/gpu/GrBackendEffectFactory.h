@@ -23,13 +23,19 @@ class GrGLCaps;
 
 class GrBackendEffectFactory : public GrNoncopyable {
 public:
-    typedef uint32_t StageKey;
+    typedef uint32_t EffectKey;
     enum {
-        kProgramStageKeyBits = 10,
-        kTexturingStageKeyBits = 6
+        kEffectKeyBits = 10,
+        /**
+         * Some aspects of the generated code may be determined by the particular textures that are
+         * associated with the effect. These manipulations are performed by GrGLShaderBuilder beyond
+         * GrGLEffects' control. So there is a dedicated part of the key which is combined
+         * automatically with the bits produced by GrGLEffect::GenKey().
+         */
+        kTextureKeyBits = 6
     };
 
-    virtual StageKey glStageKey(const GrEffect&, const GrGLCaps&) const = 0;
+    virtual EffectKey glEffectKey(const GrEffect&, const GrGLCaps&) const = 0;
     virtual GrGLEffect* createGLInstance(const GrEffect&) const = 0;
 
     bool operator ==(const GrBackendEffectFactory& b) const {
@@ -50,16 +56,16 @@ protected:
         fEffectClassID = kIllegalEffectClassID;
     }
 
-    static StageKey GenID() {
+    static EffectKey GenID() {
         // fCurrEffectClassID has been initialized to kIllegalEffectClassID. The
         // atomic inc returns the old value not the incremented value. So we add
         // 1 to the returned value.
         int32_t id = sk_atomic_inc(&fCurrEffectClassID) + 1;
-        GrAssert(id < (1 << (8 * sizeof(StageKey) - kProgramStageKeyBits)));
+        GrAssert(id < (1 << (8 * sizeof(EffectKey) - kEffectKeyBits)));
         return id;
     }
 
-    StageKey fEffectClassID;
+    EffectKey fEffectClassID;
 
 private:
     static int32_t fCurrEffectClassID;
@@ -81,19 +87,18 @@ public:
         id identifies the GrEffect subclass. The remainder is based
         on the aspects of the GrEffect object's configuration that affect
         GLSL code generation. */
-    virtual StageKey glStageKey(const GrEffect& effect, const GrGLCaps& caps) const SK_OVERRIDE {
+    virtual EffectKey glEffectKey(const GrEffect& effect, const GrGLCaps& caps) const SK_OVERRIDE {
         GrAssert(kIllegalEffectClassID != fEffectClassID);
-        StageKey stageID = GLEffect::GenKey(effect, caps);
-        StageKey textureKey = GLEffect::GenTextureKey(effect, caps);
+        EffectKey effectKey = GLEffect::GenKey(effect, caps);
+        EffectKey textureKey = GLEffect::GenTextureKey(effect, caps);
 #if GR_DEBUG
-        static const StageKey kIllegalIDMask = (uint16_t) (~((1U << kProgramStageKeyBits) - 1));
-        GrAssert(!(kIllegalIDMask & stageID));
+        static const EffectKey kIllegalIDMask = (uint16_t) (~((1U << kEffectKeyBits) - 1));
+        GrAssert(!(kIllegalIDMask & effectKey));
 
-        static const StageKey kIllegalTextureKeyMask =
-            (uint16_t) (~((1U << kTexturingStageKeyBits) - 1));
+        static const EffectKey kIllegalTextureKeyMask = (uint16_t) (~((1U << kTextureKeyBits) - 1));
         GrAssert(!(kIllegalTextureKeyMask & textureKey));
 #endif
-        return fEffectClassID | (textureKey << kProgramStageKeyBits) | stageID;
+        return fEffectClassID | (textureKey << kEffectKeyBits) | effectKey;
     }
 
     /** Returns a new instance of the appropriate *GL* implementation class
@@ -117,7 +122,7 @@ public:
 
 protected:
     GrTBackendEffectFactory() {
-        fEffectClassID = GenID() << (kProgramStageKeyBits + kTexturingStageKeyBits) ;
+        fEffectClassID = GenID() << (kEffectKeyBits + kTextureKeyBits) ;
     }
 };
 
