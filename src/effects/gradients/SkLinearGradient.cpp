@@ -512,7 +512,7 @@ public:
         return GrTProgramStageFactory<GrLinearGradient>::getInstance();
     }
 
-    typedef GrGLLinearGradient GLProgramStage;
+    typedef GrGLLinearGradient GLEffect;
 
 private:
     GR_DECLARE_EFFECT_TEST;

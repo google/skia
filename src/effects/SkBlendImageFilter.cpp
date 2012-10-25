@@ -142,7 +142,7 @@ public:
     const GrProgramStageFactory& getFactory() const;
     SkBlendImageFilter::Mode mode() const { return fMode; }
 
-    typedef GrGLBlendEffect GLProgramStage;
+    typedef GrGLBlendEffect GLEffect;
     static const char* Name() { return "Blend"; }
 
 private:

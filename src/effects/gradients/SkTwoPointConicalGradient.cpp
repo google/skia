@@ -395,7 +395,7 @@ public:
     GrScalar diffRadius() const { return fDiffRadius; }
     GrScalar radius() const { return fRadius0; }
 
-    typedef GrGLConical2Gradient GLProgramStage;
+    typedef GrGLConical2Gradient GLEffect;
 
 private:
     GR_DECLARE_EFFECT_TEST;

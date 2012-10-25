@@ -28,7 +28,7 @@ public:
 
     static const char* Name() { return "TextureDomain"; }
 
-    typedef GrGLTextureDomainEffect GLProgramStage;
+    typedef GrGLTextureDomainEffect GLEffect;
 
     virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
     virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;

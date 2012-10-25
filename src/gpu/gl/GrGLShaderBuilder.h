@@ -23,7 +23,7 @@ class GrGLContextInfo;
 class GrGLShaderBuilder {
 public:
     /**
-     * Used by GrGLProgramStages to add texture reads to their shader code.
+     * Used by GrGLEffects to add texture reads to their shader code.
      */
     class TextureSampler {
     public:

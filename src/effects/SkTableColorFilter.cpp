@@ -234,7 +234,7 @@ public:
 
     virtual const GrTextureAccess& textureAccess(int index) const SK_OVERRIDE;
 
-    typedef GLColorTableEffect GLProgramStage;
+    typedef GLColorTableEffect GLEffect;
 
 private:
     GR_DECLARE_EFFECT_TEST;

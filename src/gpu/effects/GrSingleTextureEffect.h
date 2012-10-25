@@ -32,7 +32,7 @@ public:
 
     static const char* Name() { return "Single Texture"; }
 
-    typedef GrGLSingleTextureEffect GLProgramStage;
+    typedef GrGLSingleTextureEffect GLEffect;
 
     virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
 

@@ -326,7 +326,7 @@ public:
 
     static const char* Name() { return "DiffuseLighting"; }
 
-    typedef GrGLDiffuseLightingEffect GLProgramStage;
+    typedef GrGLDiffuseLightingEffect GLEffect;
 
     virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
     virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
@@ -347,7 +347,7 @@ public:
 
     static const char* Name() { return "SpecularLighting"; }
 
-    typedef GrGLSpecularLightingEffect GLProgramStage;
+    typedef GrGLSpecularLightingEffect GLEffect;
 
     virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
     virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;

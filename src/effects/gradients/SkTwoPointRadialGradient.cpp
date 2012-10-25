@@ -427,7 +427,7 @@ public:
     GrScalar radius() const { return fRadius0; }
     bool isPosRoot() const { return SkToBool(fPosRoot); }
 
-    typedef GrGLRadial2Gradient GLProgramStage;
+    typedef GrGLRadial2Gradient GLEffect;
 
 private:
     GR_DECLARE_EFFECT_TEST;
