@@ -25,21 +25,27 @@
 # If you want more fine-grained control, you can run gyp and then build the
 # gyp-generated projects yourself.
 #
-# See http://code.google.com/p/skia/wiki/DocRoot for complete documentation.
+# See https://sites.google.com/site/skiadocs/ for complete documentation.
 
 BUILDTYPE ?= Debug
 CWD := $(shell pwd)
-ALL_TARGETS := skia_base_libs \
-               bench \
-               gm \
-               most \
-               SampleApp \
-               tests \
-               tools
 
-ifneq (,$(findstring skia_os=android, $(GYP_DEFINES)))
-  ALL_TARGETS += SkiaAndroidApp
-endif
+# Soon we should be able to get rid of VALID_TARGETS, and just pass control
+# to the gyp-generated Makefile for *any* target name.
+# But that will be a bit complicated, so let's keep it for a future CL.
+# Tracked as https://code.google.com/p/skia/issues/detail?id=947 ('eliminate
+# need for VALID_TARGETS in toplevel Makefile')
+VALID_TARGETS := \
+                 bench \
+                 debugger \
+                 everything \
+                 gm \
+                 most \
+                 SampleApp \
+                 SkiaAndroidApp \
+                 skia_base_libs \
+                 tests \
+                 tools
 
 # Default target.  This must be listed before all other targets.
 .PHONY: default
@@ -54,20 +60,18 @@ default: most
 
 uname := $(shell uname)
 ifneq (,$(findstring CYGWIN, $(uname)))
-  $(error Cannot build using Make on Windows. See http://code.google.com/p/skia/wiki/GettingStartedOnWindows)
+  $(error Cannot build using Make on Windows. See https://sites.google.com/site/skiadocs/user-documentation/quick-start-guides/windows)
 endif
 
+# If user requests "make all", chain to our explicitly-declared "everything"
+# target. See https://code.google.com/p/skia/issues/detail?id=932 ("gyp
+# automatically creates "all" target on some build flavors but not others")
 .PHONY: all
-all: $(ALL_TARGETS)
+all: everything
 
 .PHONY: clean
 clean:
 	rm -rf out xcodebuild
-
-# Add the debugger to the target list after the 'all' target is defined so that the
-# debugger is only executed with 'make debugger' and not 'make all' as well. The reason
-# for this is unless the user has Qt installed the debugger target will fail.
-ALL_TARGETS += debugger
 
 # Run gyp no matter what.
 .PHONY: gyp
@@ -99,8 +103,8 @@ out/Makefile:
 # the gyp-generated buildfiles.
 #
 # For the Mac, we create a convenience symlink to the generated binary.
-.PHONY: $(ALL_TARGETS)
-$(ALL_TARGETS):: gyp_if_needed
+.PHONY: $(VALID_TARGETS)
+$(VALID_TARGETS):: gyp_if_needed
 ifneq (,$(findstring skia_os=android, $(GYP_DEFINES)))
 	$(MAKE) -C out $@ BUILDTYPE=$(BUILDTYPE)
 else ifneq (,$(findstring Linux, $(uname)))

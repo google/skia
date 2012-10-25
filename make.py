@@ -24,7 +24,6 @@ TARGET_ALL     = 'all'
 TARGET_CLEAN   = 'clean'
 TARGET_DEFAULT = 'most'
 TARGET_GYP     = 'gyp'
-LIST_OF_ALL_TARGETS = ['SampleApp', 'bench', 'gm', 'tests', 'tools']
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 OUT_SUBDIR = 'out'
@@ -141,8 +140,11 @@ def Make(args):
 
     targets = []
     for arg in args:
+        # If user requests "make all", chain to our explicitly-declared "everything"
+        # target. See https://code.google.com/p/skia/issues/detail?id=932 ("gyp
+        # automatically creates "all" target on some build flavors but not others")
         if arg == TARGET_ALL:
-            targets.extend(LIST_OF_ALL_TARGETS)
+            targets.append('everything')
         elif arg == TARGET_CLEAN:
             MakeClean()
         elif arg.startswith('BUILDTYPE='):
