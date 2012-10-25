@@ -9,6 +9,7 @@
   'variables': {
     'gr_sources': [
       '<(skia_include_path)/gpu/GrAARectRenderer.h',
+      '<(skia_include_path)/gpu/GrBackendEffectFactory.h',
       '<(skia_include_path)/gpu/GrCacheID.h',
       '<(skia_include_path)/gpu/GrClipData.h',
       '<(skia_include_path)/gpu/GrColor.h',
@@ -25,7 +26,6 @@
       '<(skia_include_path)/gpu/GrNoncopyable.h',
       '<(skia_include_path)/gpu/GrPaint.h',
       '<(skia_include_path)/gpu/GrPoint.h',
-      '<(skia_include_path)/gpu/GrProgramStageFactory.h',
       '<(skia_include_path)/gpu/GrRect.h',
       '<(skia_include_path)/gpu/GrRefCnt.h',
       '<(skia_include_path)/gpu/GrRenderTarget.h',

@@ -479,7 +479,7 @@ void SkLinearGradient::shadeSpan16(int x, int y,
 class GrGLLinearGradient : public GrGLGradientStage {
 public:
 
-    GrGLLinearGradient(const GrProgramStageFactory& factory,
+    GrGLLinearGradient(const GrBackendEffectFactory& factory,
                        const GrEffect&)
                        : INHERITED (factory) { }
 
@@ -508,8 +508,8 @@ public:
     virtual ~GrLinearGradient() { }
 
     static const char* Name() { return "Linear Gradient"; }
-    const GrProgramStageFactory& getFactory() const SK_OVERRIDE {
-        return GrTProgramStageFactory<GrLinearGradient>::getInstance();
+    const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
+        return GrTBackendEffectFactory<GrLinearGradient>::getInstance();
     }
 
     typedef GrGLLinearGradient GLEffect;

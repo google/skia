@@ -9,7 +9,7 @@
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
-#include "GrProgramStageFactory.h"
+#include "GrBackendEffectFactory.h"
 
 // For brevity
 typedef GrGLUniformManager::UniformHandle UniformHandle;
@@ -17,7 +17,7 @@ static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidU
 
 class GrGLConvolutionEffect : public GrGLLegacyEffect {
 public:
-    GrGLConvolutionEffect(const GrProgramStageFactory&, const GrEffect&);
+    GrGLConvolutionEffect(const GrBackendEffectFactory&, const GrEffect&);
 
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitVS(GrGLShaderBuilder* builder,
@@ -41,7 +41,7 @@ private:
     typedef GrGLLegacyEffect INHERITED;
 };
 
-GrGLConvolutionEffect::GrGLConvolutionEffect(const GrProgramStageFactory& factory,
+GrGLConvolutionEffect::GrGLConvolutionEffect(const GrBackendEffectFactory& factory,
                                              const GrEffect& effect)
     : INHERITED(factory)
     , fKernelUni(kInvalidUniformHandle)
@@ -156,8 +156,8 @@ GrConvolutionEffect::GrConvolutionEffect(GrTexture* texture,
 GrConvolutionEffect::~GrConvolutionEffect() {
 }
 
-const GrProgramStageFactory& GrConvolutionEffect::getFactory() const {
-    return GrTProgramStageFactory<GrConvolutionEffect>::getInstance();
+const GrBackendEffectFactory& GrConvolutionEffect::getFactory() const {
+    return GrTBackendEffectFactory<GrConvolutionEffect>::getInstance();
 }
 
 bool GrConvolutionEffect::isEqual(const GrEffect& sBase) const {

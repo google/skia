@@ -385,7 +385,7 @@ void SkSweepGradient::shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC,
 class GrGLSweepGradient : public GrGLGradientStage {
 public:
 
-    GrGLSweepGradient(const GrProgramStageFactory& factory,
+    GrGLSweepGradient(const GrBackendEffectFactory& factory,
                       const GrEffect&) : INHERITED (factory) { }
     virtual ~GrGLSweepGradient() { }
 
@@ -415,8 +415,8 @@ public:
     virtual ~GrSweepGradient() { }
 
     static const char* Name() { return "Sweep Gradient"; }
-    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE {
-        return GrTProgramStageFactory<GrSweepGradient>::getInstance();
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
+        return GrTBackendEffectFactory<GrSweepGradient>::getInstance();
     }
 
     typedef GrGLSweepGradient GLEffect;

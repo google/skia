@@ -476,7 +476,7 @@ void SkRadialGradient::shadeSpan(int x, int y,
 class GrGLRadialGradient : public GrGLGradientStage {
 public:
 
-    GrGLRadialGradient(const GrProgramStageFactory& factory,
+    GrGLRadialGradient(const GrBackendEffectFactory& factory,
                        const GrEffect&) : INHERITED (factory) { }
     virtual ~GrGLRadialGradient() { }
 
@@ -507,8 +507,8 @@ public:
     virtual ~GrRadialGradient() { }
 
     static const char* Name() { return "Radial Gradient"; }
-    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE {
-        return GrTProgramStageFactory<GrRadialGradient>::getInstance();
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
+        return GrTBackendEffectFactory<GrRadialGradient>::getInstance();
     }
 
     typedef GrGLRadialGradient GLEffect;

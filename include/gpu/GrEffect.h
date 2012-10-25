@@ -10,7 +10,7 @@
 
 #include "GrRefCnt.h"
 #include "GrNoncopyable.h"
-#include "GrProgramStageFactory.h"
+#include "GrBackendEffectFactory.h"
 #include "GrEffectUnitTest.h"
 #include "GrTextureAccess.h"
 
@@ -33,7 +33,7 @@ class GrEffect : public GrRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrEffect)
 
-    typedef GrProgramStageFactory::StageKey StageKey;
+    typedef GrBackendEffectFactory::StageKey StageKey;
 
     explicit GrEffect(int numTextures);
     virtual ~GrEffect();
@@ -44,21 +44,20 @@ public:
 
     /** This object, besides creating back-end-specific helper objects, is used for run-time-type-
         identification. The factory should be an instance of templated class,
-        GrTProgramStageFactory. It is templated on the subclass of GrEffect. The subclass must have
+        GrTBackendEffectFactory. It is templated on the subclass of GrEffect. The subclass must have
         a nested type (or typedef) named GLEffect which will be the subclass of GrGLEffect created
         by the factory.
 
         Example:
         class MyCustomEffect : public GrEffect {
         ...
-            virtual const GrProgramStageFactory& getFactory() const
-                                                            SK_OVERRIDE {
-                return GrTProgramStageFactory<MyCustomEffect>::getInstance();
+            virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
+                return GrTBackendEffectFactory<MyCustomEffect>::getInstance();
             }
         ...
         };
      */
-    virtual const GrProgramStageFactory& getFactory() const = 0;
+    virtual const GrBackendEffectFactory& getFactory() const = 0;
 
     /** Returns true if the other effect will generate identical output.
         Must only be called if the two are already known to be of the
@@ -67,7 +66,7 @@ public:
         Equality is not the same thing as equivalence.
         To test for equivalence (that they will generate the same
         shader code, but may have different uniforms), check equality
-        of the stageKey produced by the GrProgramStageFactory:
+        of the stageKey produced by the GrBackendEffectFactory:
         a.getFactory().glStageKey(a) == b.getFactory().glStageKey(b).
 
         The default implementation of this function returns true iff

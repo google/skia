@@ -229,7 +229,7 @@ public:
     virtual ~ColorTableEffect();
 
     static const char* Name() { return "ColorTable"; }
-    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
     virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
 
     virtual const GrTextureAccess& textureAccess(int index) const SK_OVERRIDE;
@@ -246,7 +246,7 @@ private:
 
 class GLColorTableEffect : public GrGLLegacyEffect {
 public:
-    GLColorTableEffect(const GrProgramStageFactory& factory,
+    GLColorTableEffect(const GrBackendEffectFactory& factory,
                          const GrEffect& effect);
 
     virtual void setupVariables(GrGLShaderBuilder* state) SK_OVERRIDE {}
@@ -267,7 +267,7 @@ private:
 };
 
 GLColorTableEffect::GLColorTableEffect(
-    const GrProgramStageFactory& factory, const GrEffect& effect)
+    const GrBackendEffectFactory& factory, const GrEffect& effect)
     : INHERITED(factory) {
  }
 
@@ -327,8 +327,8 @@ ColorTableEffect::ColorTableEffect(GrTexture* texture)
 ColorTableEffect::~ColorTableEffect() {
 }
 
-const GrProgramStageFactory&  ColorTableEffect::getFactory() const {
-    return GrTProgramStageFactory<ColorTableEffect>::getInstance();
+const GrBackendEffectFactory&  ColorTableEffect::getFactory() const {
+    return GrTBackendEffectFactory<ColorTableEffect>::getInstance();
 }
 
 bool ColorTableEffect::isEqual(const GrEffect& sBase) const {

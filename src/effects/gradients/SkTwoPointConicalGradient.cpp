@@ -322,7 +322,7 @@ static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidU
 class GrGLConical2Gradient : public GrGLGradientStage {
 public:
 
-    GrGLConical2Gradient(const GrProgramStageFactory& factory,
+    GrGLConical2Gradient(const GrBackendEffectFactory& factory,
                          const GrEffect&);
     virtual ~GrGLConical2Gradient() { }
 
@@ -378,8 +378,8 @@ public:
     virtual ~GrConical2Gradient() { }
 
     static const char* Name() { return "Two-Point Conical Gradient"; }
-    virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE {
-        return GrTProgramStageFactory<GrConical2Gradient>::getInstance();
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
+        return GrTBackendEffectFactory<GrConical2Gradient>::getInstance();
     }
     virtual bool isEqual(const GrEffect& sBase) const SK_OVERRIDE {
         const GrConical2Gradient& s = static_cast<const GrConical2Gradient&>(sBase);
@@ -449,7 +449,7 @@ GrEffect* GrConical2Gradient::TestCreate(SkRandom* random,
 /////////////////////////////////////////////////////////////////////
 
 GrGLConical2Gradient::GrGLConical2Gradient(
-        const GrProgramStageFactory& factory,
+        const GrBackendEffectFactory& factory,
         const GrEffect& baseData)
     : INHERITED(factory)
     , fVSParamUni(kInvalidUniformHandle)

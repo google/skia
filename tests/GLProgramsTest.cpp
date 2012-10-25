@@ -13,7 +13,7 @@
 #if SK_SUPPORT_GPU && SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
 #include "gl/GrGpuGL.h"
-#include "GrProgramStageFactory.h"
+#include "GrBackendEffectFactory.h"
 #include "effects/GrConfigConversionEffect.h"
 
 #include "GrRandom.h"

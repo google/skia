@@ -572,7 +572,7 @@ void setup_effect(GrGLProgram::Desc::StageDesc* stage,
                   GrGLProgram* program, int index) {
     const GrEffect* effect = sampler.getEffect();
     if (effect) {
-        const GrProgramStageFactory& factory = effect->getFactory();
+        const GrBackendEffectFactory& factory = effect->getFactory();
         stage->fCustomStageKey = factory.glStageKey(*effect, caps);
         effects[index] = effect;
     } else {

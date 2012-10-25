@@ -10,7 +10,7 @@
 
 class GrGLConfigConversionEffect : public GrGLLegacyEffect {
 public:
-    GrGLConfigConversionEffect(const GrProgramStageFactory& factory,
+    GrGLConfigConversionEffect(const GrBackendEffectFactory& factory,
                                const GrEffect& s) : INHERITED (factory) {
         const GrConfigConversionEffect& effect = static_cast<const GrConfigConversionEffect&>(s);
         fSwapRedAndBlue = effect.swapsRedAndBlue();
@@ -85,8 +85,8 @@ GrConfigConversionEffect::GrConfigConversionEffect(GrTexture* texture,
     GrAssert(swapRedAndBlue || kNone_PMConversion != pmConversion);
 }
 
-const GrProgramStageFactory& GrConfigConversionEffect::getFactory() const {
-    return GrTProgramStageFactory<GrConfigConversionEffect>::getInstance();
+const GrBackendEffectFactory& GrConfigConversionEffect::getFactory() const {
+    return GrTBackendEffectFactory<GrConfigConversionEffect>::getInstance();
 }
 
 bool GrConfigConversionEffect::isEqual(const GrEffect& s) const {

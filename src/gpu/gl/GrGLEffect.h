@@ -36,12 +36,12 @@ public:
     typedef GrEffect::StageKey StageKey;
     enum {
         // the number of bits in StageKey available to GenKey
-        kProgramStageKeyBits = GrProgramStageFactory::kProgramStageKeyBits,
+        kProgramStageKeyBits = GrBackendEffectFactory::kProgramStageKeyBits,
     };
 
     typedef GrGLShaderBuilder::TextureSamplerArray TextureSamplerArray;
 
-    GrGLEffect(const GrProgramStageFactory&);
+    GrGLEffect(const GrBackendEffectFactory&);
 
     virtual ~GrGLEffect();
 
@@ -85,7 +85,7 @@ public:
 
 protected:
 
-    const GrProgramStageFactory& fFactory;
+    const GrBackendEffectFactory& fFactory;
 };
 
 /**
@@ -95,7 +95,7 @@ protected:
  */
 class GrGLLegacyEffect : public GrGLEffect {
 public:
-    GrGLLegacyEffect(const GrProgramStageFactory& factory) : GrGLEffect(factory) {}
+    GrGLLegacyEffect(const GrBackendEffectFactory& factory) : GrGLEffect(factory) {}
 
     virtual void setupVariables(GrGLShaderBuilder* builder) {};
     virtual void emitVS(GrGLShaderBuilder* builder,
