@@ -63,6 +63,10 @@ const static ErrorBitfield ERROR_DIMENSION_MISMATCH      = 0x04;
 const static ErrorBitfield ERROR_READING_REFERENCE_IMAGE = 0x08;
 const static ErrorBitfield ERROR_WRITING_REFERENCE_IMAGE = 0x10;
 
+// TODO: This should be defined as "\\" on Windows, but this is the way this
+// file has been working for a long time. We can fix it later.
+const static char* PATH_SEPARATOR = "/";
+
 // If true, emit a messange when we can't find a reference image to compare
 static bool gNotifyMissingReadReference;
 
@@ -112,11 +116,11 @@ static SkString make_filename(const char path[],
                               const SkString& name,
                               const char suffix[]) {
     SkString filename(path);
-    if (filename.endsWith("/")) {
+    if (filename.endsWith(PATH_SEPARATOR)) {
         filename.remove(filename.size() - 1, 1);
     }
     filename.append(pathSuffix);
-    filename.append("/");
+    filename.append(PATH_SEPARATOR);
     filename.appendf("%s.%s", name.c_str(), suffix);
     return filename;
 }
@@ -168,6 +172,14 @@ static void compute_diff(const SkBitmap& target, const SkBitmap& base,
     }
 }
 
+// Compares "target" and "base" bitmaps, returning the result (ERROR_NONE
+// if the two bitmaps are identical).
+//
+// If a "diff" bitmap is passed in, pixel diffs (if any) will be written
+// into it.
+//
+// The "name" and "renderModeDescriptor" arguments are only used in the debug
+// output.
 static ErrorBitfield compare(const SkBitmap& target, const SkBitmap& base,
                              const SkString& name,
                              const char* renderModeDescriptor,
@@ -242,7 +254,7 @@ enum ConfigFlags {
     kNone_ConfigFlag  = 0x0,
     /* Write GM images if a write path is provided. */
     kWrite_ConfigFlag = 0x1,
-    /* Read comparison GM images if a read path is provided. */
+    /* Read reference GM images if a read path is provided. */
     kRead_ConfigFlag  = 0x2,
     kRW_ConfigFlag    = (kWrite_ConfigFlag | kRead_ConfigFlag),
 };
@@ -434,14 +446,19 @@ static ErrorBitfield write_reference_image(const ConfigData& gRec,
     }
 }
 
-static ErrorBitfield compare_to_reference_image(const SkString& name,
+// Compares bitmap "bitmap" to "referenceBitmap"; if they are
+// different, writes out "bitmap" (in PNG format) within the diffPath subdir.
+//
+// Returns the ErrorBitfield from compare(), describing any differences
+// between "bitmap" and "referenceBitmap" (or ERROR_NONE if there are none).
+static ErrorBitfield compare_to_reference_image_in_memory(const SkString& name,
                                                 SkBitmap &bitmap,
-                                                const SkBitmap& comparisonBitmap,
+                                                const SkBitmap& referenceBitmap,
                                                 const char diffPath [],
                                                 const char renderModeDescriptor []) {
     ErrorBitfield errors;
     SkBitmap diffBitmap;
-    errors = compare(bitmap, comparisonBitmap, name, renderModeDescriptor,
+    errors = compare(bitmap, referenceBitmap, name, renderModeDescriptor,
                      diffPath ? &diffBitmap : NULL);
     if ((ERROR_NONE != errors) && diffPath) {
         // write out the generated image
@@ -453,19 +470,25 @@ static ErrorBitfield compare_to_reference_image(const SkString& name,
     return errors;
 }
 
-static ErrorBitfield compare_to_reference_image(const char readPath [],
+// Compares bitmap "bitmap" to a reference bitmap read from disk; if they are
+// different, writes out "bitmap" (in PNG format) within the diffPath subdir.
+//
+// Returns a description of the difference between "bitmap" and the reference
+// bitmap, or ERROR_READING_REFERENCE_IMAGE if unable to read the reference
+// bitmap from disk.
+static ErrorBitfield compare_to_reference_image_on_disk(const char readPath [],
                                                 const SkString& name,
                                                 SkBitmap &bitmap,
                                                 const char diffPath [],
                                                 const char renderModeDescriptor []) {
     SkString path = make_filename(readPath, "", name, "png");
-    SkBitmap orig;
-    if (SkImageDecoder::DecodeFile(path.c_str(), &orig,
+    SkBitmap referenceBitmap;
+    if (SkImageDecoder::DecodeFile(path.c_str(), &referenceBitmap,
                                    SkBitmap::kARGB_8888_Config,
                                    SkImageDecoder::kDecodePixels_Mode, NULL)) {
-        return compare_to_reference_image(name, bitmap,
-                                          orig, diffPath,
-                                          renderModeDescriptor);
+        return compare_to_reference_image_in_memory(name, bitmap,
+                                                    referenceBitmap, diffPath,
+                                                    renderModeDescriptor);
     } else {
         if (gNotifyMissingReadReference) {
             fprintf(stderr, "FAILED to read %s\n", path.c_str());
@@ -474,6 +497,11 @@ static ErrorBitfield compare_to_reference_image(const char readPath [],
     }
 }
 
+// NOTE: As far as I can tell, this function is NEVER called with a
+// non-blank renderModeDescriptor, EXCEPT with readPath and writePath are
+// both NULL (and thus no images are read from or written to disk).
+// So I don't trust that the renderModeDescriptor is being used for
+// anything other than debug output these days.
 static ErrorBitfield handle_test_results(GM* gm,
                                          const ConfigData& gRec,
                                          const char writePath [],
@@ -482,22 +510,22 @@ static ErrorBitfield handle_test_results(GM* gm,
                                          const char renderModeDescriptor [],
                                          SkBitmap& bitmap,
                                          SkDynamicMemoryWStream* pdf,
-                                         const SkBitmap* comparisonBitmap) {
+                                         const SkBitmap* referenceBitmap) {
     SkString name = make_name(gm->shortName(), gRec.fName);
     ErrorBitfield retval = ERROR_NONE;
 
     if (readPath && (gRec.fFlags & kRead_ConfigFlag)) {
-        retval |= compare_to_reference_image(readPath, name, bitmap,
-                                             diffPath, renderModeDescriptor);
+        retval |= compare_to_reference_image_on_disk(readPath, name, bitmap,
+                                                     diffPath, renderModeDescriptor);
     }
     if (writePath && (gRec.fFlags & kWrite_ConfigFlag)) {
         retval |= write_reference_image(gRec, writePath, renderModeDescriptor,
                                         name, bitmap, pdf);
     }
-    if (comparisonBitmap) {
-        retval |= compare_to_reference_image(name, bitmap,
-                                             *comparisonBitmap, diffPath,
-                                             renderModeDescriptor);
+    if (referenceBitmap) {
+        retval |= compare_to_reference_image_in_memory(name, bitmap,
+                                                       *referenceBitmap, diffPath,
+                                                       renderModeDescriptor);
     }
     return retval;
 }
@@ -572,7 +600,7 @@ static ErrorBitfield test_drawing(GM* gm,
 
 static ErrorBitfield test_deferred_drawing(GM* gm,
                          const ConfigData& gRec,
-                         const SkBitmap& comparisonBitmap,
+                         const SkBitmap& referenceBitmap,
                          const char diffPath [],
                          GrContext* context,
                          GrRenderTarget* rt) {
@@ -587,14 +615,14 @@ static ErrorBitfield test_deferred_drawing(GM* gm,
             return ERROR_NONE;
         }
         return handle_test_results(gm, gRec, NULL, NULL, diffPath,
-                                   "-deferred", bitmap, NULL, &comparisonBitmap);
+                                   "-deferred", bitmap, NULL, &referenceBitmap);
     }
     return ERROR_NONE;
 }
 
 static ErrorBitfield test_picture_playback(GM* gm,
                                            const ConfigData& gRec,
-                                           const SkBitmap& comparisonBitmap,
+                                           const SkBitmap& referenceBitmap,
                                            const char readPath [],
                                            const char diffPath []) {
     SkPicture* pict = generate_new_picture(gm);
@@ -604,7 +632,7 @@ static ErrorBitfield test_picture_playback(GM* gm,
         SkBitmap bitmap;
         generate_image_from_picture(gm, gRec, pict, &bitmap);
         return handle_test_results(gm, gRec, NULL, NULL, diffPath,
-                            "-replay", bitmap, NULL, &comparisonBitmap);
+                            "-replay", bitmap, NULL, &referenceBitmap);
     } else {
         return ERROR_NONE;
     }
@@ -612,7 +640,7 @@ static ErrorBitfield test_picture_playback(GM* gm,
 
 static ErrorBitfield test_picture_serialization(GM* gm,
                                                 const ConfigData& gRec,
-                                                const SkBitmap& comparisonBitmap,
+                                                const SkBitmap& referenceBitmap,
                                                 const char readPath [],
                                                 const char diffPath []) {
     SkPicture* pict = generate_new_picture(gm);
@@ -624,7 +652,7 @@ static ErrorBitfield test_picture_serialization(GM* gm,
         SkBitmap bitmap;
         generate_image_from_picture(gm, gRec, repict, &bitmap);
         return handle_test_results(gm, gRec, NULL, NULL, diffPath,
-                            "-serialize", bitmap, NULL, &comparisonBitmap);
+                            "-serialize", bitmap, NULL, &referenceBitmap);
     } else {
         return ERROR_NONE;
     }
@@ -644,7 +672,7 @@ static PipeFlagComboData gPipeWritingFlagCombos[] = {
 
 static ErrorBitfield test_pipe_playback(GM* gm,
                                         const ConfigData& gRec,
-                                        const SkBitmap& comparisonBitmap,
+                                        const SkBitmap& referenceBitmap,
                                         const char readPath [],
                                         const char diffPath []) {
     if (kRaster_Backend != gRec.fBackend) {
@@ -658,14 +686,15 @@ static ErrorBitfield test_pipe_playback(GM* gm,
         SkCanvas canvas(bitmap);
         PipeController pipeController(&canvas);
         SkGPipeWriter writer;
-        SkCanvas* pipeCanvas = writer.startRecording(&pipeController,
-                                                     gPipeWritingFlagCombos[i].flags);
+        SkCanvas* pipeCanvas = writer.startRecording(
+            &pipeController, gPipeWritingFlagCombos[i].flags);
         invokeGM(gm, pipeCanvas);
         writer.endRecording();
         SkString string("-pipe");
         string.append(gPipeWritingFlagCombos[i].name);
         errors |= handle_test_results(gm, gRec, NULL, NULL, diffPath,
-                                   string.c_str(), bitmap, NULL, &comparisonBitmap);
+                                      string.c_str(), bitmap, NULL,
+                                      &referenceBitmap);
         if (errors != ERROR_NONE) {
             break;
         }
@@ -675,7 +704,7 @@ static ErrorBitfield test_pipe_playback(GM* gm,
 
 static ErrorBitfield test_tiled_pipe_playback(GM* gm,
                                         const ConfigData& gRec,
-                                        const SkBitmap& comparisonBitmap,
+                                        const SkBitmap& referenceBitmap,
                                         const char readPath [],
                                         const char diffPath []) {
     if (kRaster_Backend != gRec.fBackend) {
@@ -689,14 +718,15 @@ static ErrorBitfield test_tiled_pipe_playback(GM* gm,
         SkCanvas canvas(bitmap);
         TiledPipeController pipeController(bitmap);
         SkGPipeWriter writer;
-        SkCanvas* pipeCanvas = writer.startRecording(&pipeController,
-                                                     gPipeWritingFlagCombos[i].flags);
+        SkCanvas* pipeCanvas = writer.startRecording(
+            &pipeController, gPipeWritingFlagCombos[i].flags);
         invokeGM(gm, pipeCanvas);
         writer.endRecording();
         SkString string("-tiled pipe");
         string.append(gPipeWritingFlagCombos[i].name);
         errors |= handle_test_results(gm, gRec, NULL, NULL, diffPath,
-                                      string.c_str(), bitmap, NULL, &comparisonBitmap);
+                                      string.c_str(), bitmap, NULL,
+                                      &referenceBitmap);
         if (errors != ERROR_NONE) {
             break;
         }
@@ -728,7 +758,7 @@ static const GLContextType kDontCare_GLContextType = 0;
 #endif
 
 // If the platform does not support writing PNGs of PDFs then there will be no
-// comparison images to read. However, we can always write the .pdf files
+// reference images to read. However, we can always write the .pdf files
 static const ConfigFlags kPDFConfigFlags = CAN_IMAGE_PDF ? kRW_ConfigFlag :
                                                            kWrite_ConfigFlag;
 
@@ -1218,4 +1248,3 @@ int main(int argc, char * const argv[]) {
     return tool_main(argc, (char**) argv);
 }
 #endif
-
