@@ -27,8 +27,9 @@ SkGLWidget::~SkGLWidget() {
 
 void SkGLWidget::initializeGL() {
     fCurIntf = GrGLCreateNativeInterface();
-    fCurContext = GrContext::Create(kOpenGL_Shaders_GrEngine, (GrPlatform3DContext) fCurIntf);
-    GrRenderTarget* curRenderTarget = fCurContext->createPlatformRenderTarget(getDesc(this->width(), this->height()));
+    fCurContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext) fCurIntf);
+    GrBackendRenderTargetDesc desc = this->getDesc(this->width(), this->height());
+    GrRenderTarget* curRenderTarget = fCurContext->wrapBackendRenderTarget(desc);
     fGpuDevice = new SkGpuDevice(fCurContext, curRenderTarget);
     fCanvas = new SkCanvas(fGpuDevice);
     curRenderTarget->unref();
@@ -39,7 +40,8 @@ void SkGLWidget::initializeGL() {
 }
 
 void SkGLWidget::resizeGL(int w, int h) {
-    GrRenderTarget* curRenderTarget = fCurContext->createPlatformRenderTarget(getDesc(w,h));
+    GrBackendRenderTargetDesc desc = this->getDesc(w, h);
+    GrRenderTarget* curRenderTarget = fCurContext->wrapBackendRenderTarget(desc);
     SkSafeUnref(fGpuDevice);
     SkSafeUnref(fCanvas);
     fGpuDevice = new SkGpuDevice(fCurContext, curRenderTarget);
@@ -57,8 +59,8 @@ void SkGLWidget::paintGL() {
     }
 }
 
-GrPlatformRenderTargetDesc SkGLWidget::getDesc(int w, int h) {
-    GrPlatformRenderTargetDesc desc;
+GrBackendRenderTargetDesc SkGLWidget::getDesc(int w, int h) {
+    GrBackendRenderTargetDesc desc;
     desc.fWidth = SkScalarRound(this->width());
     desc.fHeight = SkScalarRound(this->height());
     desc.fConfig = kSkia8888_PM_GrPixelConfig;

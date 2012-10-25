@@ -48,7 +48,7 @@ private:
     SkGpuDevice* fGpuDevice;
     SkCanvas* fCanvas;
     SkDebugger* fDebugger;
-    GrPlatformRenderTargetDesc getDesc(int w, int h);
+    GrBackendRenderTargetDesc getDesc(int w, int h);
 };
 
 #endif /* SKGLWIDGET_H_ */

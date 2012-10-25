@@ -173,9 +173,9 @@ bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
     }
 }
 
-GrTexture* GrGpu::createPlatformTexture(const GrPlatformTextureDesc& desc) {
+GrTexture* GrGpu::wrapBackendTexture(const GrBackendTextureDesc& desc) {
     this->handleDirtyContext();
-    GrTexture* tex = this->onCreatePlatformTexture(desc);
+    GrTexture* tex = this->onWrapBackendTexture(desc);
     if (NULL == tex) {
         return NULL;
     }
@@ -190,9 +190,9 @@ GrTexture* GrGpu::createPlatformTexture(const GrPlatformTextureDesc& desc) {
     }
 }
 
-GrRenderTarget* GrGpu::createPlatformRenderTarget(const GrPlatformRenderTargetDesc& desc) {
+GrRenderTarget* GrGpu::wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc) {
     this->handleDirtyContext();
-    return this->onCreatePlatformRenderTarget(desc);
+    return this->onWrapBackendRenderTarget(desc);
 }
 
 GrVertexBuffer* GrGpu::createVertexBuffer(uint32_t size, bool dynamic) {

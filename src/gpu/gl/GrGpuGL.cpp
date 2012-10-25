@@ -476,13 +476,13 @@ void GrGpuGL::onResetContext() {
     fHWConstAttribCoverage = GrColor_ILLEGAL;
 }
 
-GrTexture* GrGpuGL::onCreatePlatformTexture(const GrPlatformTextureDesc& desc) {
+GrTexture* GrGpuGL::onWrapBackendTexture(const GrBackendTextureDesc& desc) {
     GrGLTexture::Desc glTexDesc;
-    if (!configToGLFormats(desc.fConfig, false, NULL, NULL, NULL)) {
+    if (!this->configToGLFormats(desc.fConfig, false, NULL, NULL, NULL)) {
         return NULL;
     }
 
-    // next line relies on PlatformTextureDesc's flags matching GrTexture's
+    // next line relies on GrBackendTextureDesc's flags matching GrTexture's
     glTexDesc.fFlags = (GrTextureFlags) desc.fFlags;
     glTexDesc.fWidth = desc.fWidth;
     glTexDesc.fHeight = desc.fHeight;
@@ -493,7 +493,7 @@ GrTexture* GrGpuGL::onCreatePlatformTexture(const GrPlatformTextureDesc& desc) {
     glTexDesc.fOrientation = GrGLTexture::kBottomUp_Orientation;
 
     GrGLTexture* texture = NULL;
-    if (desc.fFlags & kRenderTarget_GrPlatformTextureFlag) {
+    if (desc.fFlags & kRenderTarget_GrBackendTextureFlag) {
         GrGLRenderTarget::Desc glRTDesc;
         glRTDesc.fRTFBOID = 0;
         glRTDesc.fTexFBOID = 0;
@@ -519,7 +519,7 @@ GrTexture* GrGpuGL::onCreatePlatformTexture(const GrPlatformTextureDesc& desc) {
     return texture;
 }
 
-GrRenderTarget* GrGpuGL::onCreatePlatformRenderTarget(const GrPlatformRenderTargetDesc& desc) {
+GrRenderTarget* GrGpuGL::onWrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc) {
     GrGLRenderTarget::Desc glDesc;
     glDesc.fConfig = desc.fConfig;
     glDesc.fRTFBOID = static_cast<GrGLuint>(desc.fRenderTargetHandle);

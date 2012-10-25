@@ -226,8 +226,7 @@ public:
         }
 
         SkASSERT(NULL == fCurContext);
-        fCurContext = GrContext::Create(kOpenGL_Shaders_GrEngine,
-                                        (GrPlatform3DContext) fCurIntf);
+        fCurContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext) fCurIntf);
 
         if (NULL == fCurContext || NULL == fCurIntf) {
             // We need some context and interface to see results
@@ -315,7 +314,7 @@ public:
         if (fCurContext) {
             win->attach(fBackend, fMSAASampleCount);
 
-            GrPlatformRenderTargetDesc desc;
+            GrBackendRenderTargetDesc desc;
             desc.fWidth = SkScalarRound(win->width());
             desc.fHeight = SkScalarRound(win->height());
             desc.fConfig = kSkia8888_PM_GrPixelConfig;
@@ -326,7 +325,7 @@ public:
             desc.fRenderTargetHandle = buffer;
 
             SkSafeUnref(fCurRenderTarget);
-            fCurRenderTarget = fCurContext->createPlatformRenderTarget(desc);
+            fCurRenderTarget = fCurContext->wrapBackendRenderTarget(desc);
         }
 #endif
     }
