@@ -19,6 +19,7 @@
     '../bench/GradientBench.cpp',
     '../bench/GrMemoryPoolBench.cpp',
     '../bench/InterpBench.cpp',
+    '../bench/LineBench.cpp',
     '../bench/MathBench.cpp',
     '../bench/MatrixBench.cpp',
     '../bench/MatrixConvolutionBench.cpp',
