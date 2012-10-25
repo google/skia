@@ -81,7 +81,7 @@ public:
         , fName(var.fName)
         , fCount(var.fCount)
         , fPrecision(var.fPrecision)
-        , fOrigin(fOrigin)
+        , fOrigin(var.fOrigin)
         , fUseUniformFloatArrays(var.fUseUniformFloatArrays) {
         GrAssert(kVoid_GrSLType != var.fType);
     }
