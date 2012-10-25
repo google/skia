@@ -829,9 +829,7 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
     SkBitmap dst;
     dst.setConfig(this->config(), r.width(), r.height(), this->rowBytes());
     dst.setIsVolatile(this->isVolatile());
-#ifndef SK_DISABLE_EXTRACTSUBSET_OPAQUE_FIX
     dst.setIsOpaque(this->isOpaque());
-#endif
 
     if (fPixelRef) {
         // share the pixelref with a custom offset
