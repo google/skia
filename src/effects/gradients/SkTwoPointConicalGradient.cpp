@@ -319,7 +319,7 @@ void SkTwoPointConicalGradient::flatten(
 typedef GrGLUniformManager::UniformHandle UniformHandle;
 static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidUniformHandle;
 
-class GrGLConical2Gradient : public GrGLGradientStage {
+class GrGLConical2Gradient : public GrGLGradientEffect {
 public:
 
     GrGLConical2Gradient(const GrBackendEffectFactory& factory,
@@ -358,7 +358,7 @@ protected:
 
 private:
 
-    typedef GrGLGradientStage INHERITED;
+    typedef GrGLGradientEffect INHERITED;
 
 };
 

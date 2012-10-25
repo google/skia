@@ -675,19 +675,19 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 #include "effects/GrTextureStripAtlas.h"
 #include "SkGr.h"
 
-GrGLGradientStage::GrGLGradientStage(const GrBackendEffectFactory& factory)
+GrGLGradientEffect::GrGLGradientEffect(const GrBackendEffectFactory& factory)
     : INHERITED(factory)
     , fCachedYCoord(GR_ScalarMax)
     , fFSYUni(GrGLUniformManager::kInvalidUniformHandle) { }
 
-GrGLGradientStage::~GrGLGradientStage() { }
+GrGLGradientEffect::~GrGLGradientEffect() { }
 
-void GrGLGradientStage::setupVariables(GrGLShaderBuilder* builder) {
+void GrGLGradientEffect::setupVariables(GrGLShaderBuilder* builder) {
     fFSYUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                   kFloat_GrSLType, "GradientYCoordFS");
 }
 
-void GrGLGradientStage::setData(const GrGLUniformManager& uman, const GrEffect& effect) {
+void GrGLGradientEffect::setData(const GrGLUniformManager& uman, const GrEffect& effect) {
     GrScalar yCoord = static_cast<const GrGradientEffect&>(effect).getYCoord();
     if (yCoord != fCachedYCoord) {
         uman.set1f(fFSYUni, yCoord);
@@ -695,11 +695,11 @@ void GrGLGradientStage::setData(const GrGLUniformManager& uman, const GrEffect& 
     }
 }
 
-void GrGLGradientStage::emitColorLookup(GrGLShaderBuilder* builder,
-                                        const char* gradientTValue,
-                                        const char* outputColor,
-                                        const char* inputColor,
-                                        const GrGLShaderBuilder::TextureSampler& sampler) {
+void GrGLGradientEffect::emitColorLookup(GrGLShaderBuilder* builder,
+                                         const char* gradientTValue,
+                                         const char* outputColor,
+                                         const char* inputColor,
+                                         const GrGLShaderBuilder::TextureSampler& sampler) {
 
     SkString* code = &builder->fFSCode;
     code->appendf("\tvec2 coord = vec2(%s, %s);\n",

@@ -353,7 +353,7 @@ void SkTwoPointRadialGradient::init() {
 typedef GrGLUniformManager::UniformHandle UniformHandle;
 static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidUniformHandle;
 
-class GrGLRadial2Gradient : public GrGLGradientStage {
+class GrGLRadial2Gradient : public GrGLGradientEffect {
 
 public:
 
@@ -393,7 +393,7 @@ protected:
 
 private:
 
-    typedef GrGLGradientStage INHERITED;
+    typedef GrGLGradientEffect INHERITED;
 
 };
 

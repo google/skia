@@ -476,7 +476,7 @@ void SkLinearGradient::shadeSpan16(int x, int y,
 
 /////////////////////////////////////////////////////////////////////
 
-class GrGLLinearGradient : public GrGLGradientStage {
+class GrGLLinearGradient : public GrGLGradientEffect {
 public:
 
     GrGLLinearGradient(const GrBackendEffectFactory& factory,
@@ -495,7 +495,7 @@ public:
 
 private:
 
-    typedef GrGLGradientStage INHERITED;
+    typedef GrGLGradientEffect INHERITED;
 };
 
 /////////////////////////////////////////////////////////////////////

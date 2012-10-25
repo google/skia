@@ -473,7 +473,7 @@ void SkRadialGradient::shadeSpan(int x, int y,
 
 #if SK_SUPPORT_GPU
 
-class GrGLRadialGradient : public GrGLGradientStage {
+class GrGLRadialGradient : public GrGLGradientEffect {
 public:
 
     GrGLRadialGradient(const GrBackendEffectFactory& factory,
@@ -491,7 +491,7 @@ public:
 
 private:
 
-    typedef GrGLGradientStage INHERITED;
+    typedef GrGLGradientEffect INHERITED;
 
 };
 

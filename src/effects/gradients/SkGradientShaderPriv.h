@@ -271,11 +271,11 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 // Base class for GL gradient effects
-class GrGLGradientStage : public GrGLLegacyEffect {
+class GrGLGradientEffect : public GrGLLegacyEffect {
 public:
 
-    GrGLGradientStage(const GrBackendEffectFactory& factory);
-    virtual ~GrGLGradientStage();
+    GrGLGradientEffect(const GrBackendEffectFactory& factory);
+    virtual ~GrGLGradientEffect();
 
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE;

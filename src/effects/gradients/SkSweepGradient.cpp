@@ -382,7 +382,7 @@ void SkSweepGradient::shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC,
 
 #if SK_SUPPORT_GPU
 
-class GrGLSweepGradient : public GrGLGradientStage {
+class GrGLSweepGradient : public GrGLGradientEffect {
 public:
 
     GrGLSweepGradient(const GrBackendEffectFactory& factory,
@@ -400,7 +400,7 @@ public:
 
 private:
 
-    typedef GrGLGradientStage INHERITED;
+    typedef GrGLGradientEffect INHERITED;
 
 };
 
