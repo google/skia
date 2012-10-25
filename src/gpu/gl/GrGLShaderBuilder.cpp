@@ -289,7 +289,11 @@ const char* GrGLShaderBuilder::fragmentPosition() {
     if (fContext.caps().fragCoordConventionsSupport()) {
         if (!fSetupFragPosition) {
             fFSHeader.append("#extension GL_ARB_fragment_coord_conventions: require\n");
-            fFSHeader.append("layout(origin_upper_left) in vec4 gl_FragCoord;\n");
+            fFSInputs.push_back().set(kVec4f_GrSLType,
+                                      GrGLShaderVar::kIn_TypeModifier,
+                                      "gl_FragCoord",
+                                      GrGLShaderVar::kDefault_Precision,
+                                      GrGLShaderVar::kUpperLeft_Origin);
             fSetupFragPosition = true;
         }
         return "gl_FragCoord";
