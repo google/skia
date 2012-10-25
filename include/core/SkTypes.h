@@ -123,6 +123,23 @@ struct SkCompileAssert {
 #define SK_COMPILE_ASSERT(expr, msg) \
     typedef SkCompileAssert<(bool(expr))> msg[bool(expr) ? 1 : -1]
 
+/*
+ *  Usage:  SK_MACRO_CONCAT(a, b)   to construct the symbol ab
+ *
+ *  SK_MACRO_CONCAT_IMPL_PRIV just exists to make this work. Do not use directly
+ *
+ */
+#define SK_MACRO_CONCAT(X, Y)           SK_MACRO_CONCAT_IMPL_PRIV(X, Y)
+#define SK_MACRO_CONCAT_IMPL_PRIV(X, Y)  X ## Y
+
+/*
+ *  Usage: SK_MACRO_APPEND_LINE(foo)    to make foo123, where 123 is the current
+ *                                      line number. Easy way to construct
+ *                                      unique names for local functions or
+ *                                      variables.
+ */
+#define SK_MACRO_APPEND_LINE(name)  SK_MACRO_CONCAT(name, __LINE__)
+
 ///////////////////////////////////////////////////////////////////////
 
 /**
