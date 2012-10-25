@@ -72,7 +72,7 @@ void GrGLTexture::onAbandon() {
     INHERITED::onAbandon();
 }
 
-intptr_t GrGLTexture::getTextureHandle() const {
+GrBackendObject GrGLTexture::getTextureHandle() const {
     return fTexIDObj->id();
 }
 
