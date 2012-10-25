@@ -271,7 +271,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 // Base class for GL gradient effects
-class GrGLGradientStage : public GrGLLegacyProgramStage {
+class GrGLGradientStage : public GrGLLegacyEffect {
 public:
 
     GrGLGradientStage(const GrProgramStageFactory& factory);
@@ -293,7 +293,7 @@ private:
     GrScalar fCachedYCoord;
     GrGLUniformManager::UniformHandle fFSYUni;
 
-    typedef GrGLLegacyProgramStage INHERITED;
+    typedef GrGLLegacyEffect INHERITED;
 };
 
 #endif

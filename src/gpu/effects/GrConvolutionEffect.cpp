@@ -15,7 +15,7 @@
 typedef GrGLUniformManager::UniformHandle UniformHandle;
 static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidUniformHandle;
 
-class GrGLConvolutionEffect : public GrGLLegacyProgramStage {
+class GrGLConvolutionEffect : public GrGLLegacyEffect {
 public:
     GrGLConvolutionEffect(const GrProgramStageFactory&, const GrEffect&);
 
@@ -38,7 +38,7 @@ private:
     UniformHandle   fKernelUni;
     UniformHandle   fImageIncrementUni;
 
-    typedef GrGLLegacyProgramStage INHERITED;
+    typedef GrGLLegacyEffect INHERITED;
 };
 
 GrGLConvolutionEffect::GrGLConvolutionEffect(const GrProgramStageFactory& factory,

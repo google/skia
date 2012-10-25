@@ -939,7 +939,7 @@ SkLight* create_random_light(SkRandom* random) {
 
 }
 
-class GrGLLightingEffect  : public GrGLLegacyProgramStage {
+class GrGLLightingEffect  : public GrGLLegacyEffect {
 public:
     GrGLLightingEffect(const GrProgramStageFactory& factory,
                        const GrEffect& effect);
@@ -960,7 +960,7 @@ public:
     virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE;
 
 private:
-    typedef GrGLLegacyProgramStage INHERITED;
+    typedef GrGLLegacyEffect INHERITED;
 
     UniformHandle   fImageIncrementUni;
     UniformHandle   fSurfaceScaleUni;
