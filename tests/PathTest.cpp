@@ -28,7 +28,7 @@ static SkSurface* new_surface(int w, int h) {
 // Make sure we stay non-finite once we get there (unless we reset or rewind).
 static void test_addrect_isfinite(skiatest::Reporter* reporter) {
     SkPath path;
-    
+
     path.addRect(SkRect::MakeWH(50, 100));
     REPORTER_ASSERT(reporter, path.isFinite());
 
@@ -41,7 +41,7 @@ static void test_addrect_isfinite(skiatest::Reporter* reporter) {
 
     path.reset();
     REPORTER_ASSERT(reporter, path.isFinite());
-    
+
     path.addRect(SkRect::MakeWH(50, 100));
     REPORTER_ASSERT(reporter, path.isFinite());
 }
