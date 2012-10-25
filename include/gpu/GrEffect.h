@@ -26,7 +26,7 @@ class SkString;
     their fields may not change.  (Immutability isn't actually required
     until they've been used in a draw call, but supporting that would require
     setters and getters that could fail, copy-on-write, or deep copying of these
-    objects when they're stored by a GrGLProgramStage.)
+    objects when they're stored by a GrGLEffect.)
   */
 class GrEffect : public GrRefCnt {
 
@@ -47,7 +47,7 @@ public:
         an instance of templated class, GrTProgramStageFactory. It is templated
         on the subclass of GrEffect. The subclass must have a nested type
         (or typedef) named GLProgramStage which will be the subclass of
-        GrGLProgramStage created by the factory.
+        GrGLEffect created by the factory.
 
         Example:
         class MyCustomEffect : public GrEffect {

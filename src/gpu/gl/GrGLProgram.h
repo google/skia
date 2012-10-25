@@ -19,7 +19,7 @@
 #include "SkXfermode.h"
 
 class GrBinHashKeyBuilder;
-class GrGLProgramStage;
+class GrGLEffect;
 class GrGLShaderBuilder;
 
 // optionally compile the experimental GS code. Set to GR_DEBUG
@@ -175,7 +175,7 @@ private:
 
     void genInputColor(GrGLShaderBuilder* builder, SkString* inColor);
 
-    static GrGLProgramStage* GenStageCode(const GrEffect* effect,
+    static GrGLEffect* GenStageCode(const GrEffect* effect,
                                           const StageDesc& desc, // TODO: Eliminate this
                                           StageUniforms* stageUniforms, // TODO: Eliminate this
                                           const char* fsInColor, // NULL means no incoming color
@@ -254,7 +254,7 @@ private:
     GrMatrix                    fTextureMatrices[GrDrawState::kNumStages];
     GrGLTexture::Orientation    fTextureOrientation[GrDrawState::kNumStages];
 
-    GrGLProgramStage*           fProgramStage[GrDrawState::kNumStages];
+    GrGLEffect*           fProgramStage[GrDrawState::kNumStages];
 
     Desc fDesc;
     const GrGLContextInfo&      fContextInfo;

@@ -6,21 +6,21 @@
  */
 
 #include "GrGLSL.h"
-#include "GrGLProgramStage.h"
+#include "GrGLEffect.h"
 
-GrGLProgramStage::GrGLProgramStage(const GrProgramStageFactory& factory)
+GrGLEffect::GrGLEffect(const GrProgramStageFactory& factory)
     : fFactory(factory) {
 }
 
-GrGLProgramStage::~GrGLProgramStage() {
+GrGLEffect::~GrGLEffect() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLProgramStage::setData(const GrGLUniformManager&, const GrEffect&) {
+void GrGLEffect::setData(const GrGLUniformManager&, const GrEffect&) {
 }
 
-GrGLProgramStage::StageKey GrGLProgramStage::GenTextureKey(const GrEffect& effect,
+GrGLEffect::StageKey GrGLEffect::GenTextureKey(const GrEffect& effect,
                                                            const GrGLCaps& caps) {
     StageKey key = 0;
     for (int index = 0; index < effect.numTextures(); ++index) {

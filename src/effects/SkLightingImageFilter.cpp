@@ -16,7 +16,7 @@
 #if SK_SUPPORT_GPU
 #include "GrProgramStageFactory.h"
 #include "effects/GrSingleTextureEffect.h"
-#include "gl/GrGLProgramStage.h"
+#include "gl/GrGLEffect.h"
 #include "gl/GrGLTexture.h"
 #include "GrEffect.h"
 
@@ -1168,7 +1168,7 @@ void GrGLLightingEffect::emitFS(GrGLShaderBuilder* builder,
     GrGLSLMulVarBy4f(code, 2, outputColor, inputColor);
 }
 
-GrGLProgramStage::StageKey GrGLLightingEffect::GenKey(const GrEffect& s,
+GrGLEffect::StageKey GrGLLightingEffect::GenKey(const GrEffect& s,
                                                       const GrGLCaps& caps) {
     return static_cast<const GrLightingEffect&>(s).light()->type();
 }

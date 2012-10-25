@@ -8,7 +8,7 @@
 #include "GrGpuGL.h"
 
 #include "GrEffect.h"
-#include "GrGLProgramStage.h"
+#include "GrGLEffect.h"
 #include "GrGpuVertex.h"
 
 typedef GrGLUniformManager::UniformHandle UniformHandle;

@@ -320,7 +320,7 @@ bool SkColorMatrixFilter::asColorMatrix(SkScalar matrix[20]) {
 
 #if SK_SUPPORT_GPU
 #include "GrEffect.h"
-#include "gl/GrGLProgramStage.h"
+#include "gl/GrGLEffect.h"
 
 class ColorMatrixEffect : public GrEffect {
 public:

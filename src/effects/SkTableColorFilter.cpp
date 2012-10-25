@@ -217,7 +217,7 @@ bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) const {
 #if SK_SUPPORT_GPU
 
 #include "GrEffect.h"
-#include "gl/GrGLProgramStage.h"
+#include "gl/GrGLEffect.h"
 #include "SkGr.h"
 
 class GLColorTableEffect;
@@ -312,7 +312,7 @@ void GLColorTableEffect::emitFS(GrGLShaderBuilder* builder,
     code->appendf("\t\t%s.rgb *= %s.a;\n", outputColor, outputColor);
 }
 
-GrGLProgramStage::StageKey GLColorTableEffect::GenKey(const GrEffect& s,
+GrGLEffect::StageKey GLColorTableEffect::GenKey(const GrEffect& s,
                                                         const GrGLCaps& caps) {
     return 0;
 }

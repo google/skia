@@ -14,7 +14,7 @@
 #include "GrContext.h"
 #include "GrTexture.h"
 #include "GrGpu.h"
-#include "gl/GrGLProgramStage.h"
+#include "gl/GrGLEffect.h"
 #include "effects/Gr1DKernelEffect.h"
 #endif
 
@@ -341,7 +341,7 @@ void GrGLMorphologyEffect::emitFS(GrGLShaderBuilder* builder,
     GrGLSLMulVarBy4f(code, 2, outputColor, inputColor);
 }
 
-GrGLProgramStage::StageKey GrGLMorphologyEffect::GenKey(const GrEffect& s,
+GrGLEffect::StageKey GrGLMorphologyEffect::GenKey(const GrEffect& s,
                                                         const GrGLCaps& caps) {
     const GrMorphologyEffect& m = static_cast<const GrMorphologyEffect&>(s);
     StageKey key = static_cast<StageKey>(m.radius());

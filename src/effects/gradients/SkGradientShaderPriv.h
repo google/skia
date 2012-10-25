@@ -192,7 +192,7 @@ private:
 
 #if SK_SUPPORT_GPU
 
-#include "gl/GrGLProgramStage.h"
+#include "gl/GrGLEffect.h"
 
 class GrSamplerState;
 class GrProgramStageFactory;

@@ -15,7 +15,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
 #include "effects/GrSingleTextureEffect.h"
-#include "gl/GrGLProgramStage.h"
+#include "gl/GrGLEffect.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
 #include "GrProgramStageFactory.h"
@@ -174,7 +174,7 @@ void GrGLMagnifierEffect::setData(const GrGLUniformManager& uman,
     uman.set2f(fInsetVar, zoom.x_inset(), zoom.y_inset());
 }
 
-GrGLProgramStage::StageKey GrGLMagnifierEffect::GenKey(const GrEffect& s,
+GrGLEffect::StageKey GrGLMagnifierEffect::GenKey(const GrEffect& s,
                                                        const GrGLCaps& caps) {
     return 0;
 }

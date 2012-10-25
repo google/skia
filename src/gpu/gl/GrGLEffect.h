@@ -20,7 +20,7 @@ class GrGLTexture;
 
 /** @file
     This file contains specializations for OpenGL of the shader stages declared in
-    include/gpu/GrEffect.h. Objects of type GrGLProgramStage are responsible for emitting the
+    include/gpu/GrEffect.h. Objects of type GrGLEffect are responsible for emitting the
     GLSL code that implements a GrEffect and for uploading uniforms at draw time. They also
     must have a function:
         static inline StageKey GenKey(const GrEffect&, const GrGLCaps&)
@@ -30,7 +30,7 @@ class GrGLTexture;
     These objects are created by the factory object returned by the GrEffect::getFactory().
 */
 
-class GrGLProgramStage {
+class GrGLEffect {
 
 public:
     typedef GrEffect::StageKey StageKey;
@@ -41,9 +41,9 @@ public:
 
     typedef GrGLShaderBuilder::TextureSamplerArray TextureSamplerArray;
 
-    GrGLProgramStage(const GrProgramStageFactory&);
+    GrGLEffect(const GrProgramStageFactory&);
 
-    virtual ~GrGLProgramStage();
+    virtual ~GrGLEffect();
 
     /** Called when the program stage should insert its code into the shaders. The code in each
         shader will be in its own block ({}) and so locally scoped names will not collide across
@@ -63,7 +63,7 @@ public:
                             color is solid white, trans black, known to be opaque, etc.) that allows
                             the effect to communicate back similar known info about its output.
         @param samplers     One entry for each GrTextureAccess of the GrEffect that generated the
-                            GrGLProgramStage. These can be passed to the builder to emit texture
+                            GrGLEffect. These can be passed to the builder to emit texture
                             reads in the generated code.
         */
     virtual void emitCode(GrGLShaderBuilder* builder,
@@ -74,7 +74,7 @@ public:
                           const char* inputColor,
                           const TextureSamplerArray& samplers) = 0;
 
-    /** A GrGLProgramStage instance can be reused with any GrEffect that produces the same stage
+    /** A GrGLEffect instance can be reused with any GrEffect that produces the same stage
         key; this function reads data from a stage and uploads any uniform variables required
         by the shaders created in emitCode(). */
     virtual void setData(const GrGLUniformManager&, const GrEffect&);
@@ -89,13 +89,13 @@ protected:
 };
 
 /**
- * This allows program stages that implemented an older set of virtual functions on GrGLProgramStage
+ * This allows program stages that implemented an older set of virtual functions on GrGLEffect
  * to continue to work by change their parent class to this class. New program stages should not use
  * this interface. It will be removed once older stages are modified to implement emitCode().
  */
-class GrGLLegacyProgramStage : public GrGLProgramStage {
+class GrGLLegacyProgramStage : public GrGLEffect {
 public:
-    GrGLLegacyProgramStage(const GrProgramStageFactory& factory) : GrGLProgramStage(factory) {}
+    GrGLLegacyProgramStage(const GrProgramStageFactory& factory) : GrGLEffect(factory) {}
 
     virtual void setupVariables(GrGLShaderBuilder* builder) {};
     virtual void emitVS(GrGLShaderBuilder* builder,

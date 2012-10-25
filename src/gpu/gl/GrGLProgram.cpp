@@ -9,7 +9,7 @@
 
 #include "GrAllocator.h"
 #include "GrEffect.h"
-#include "GrGLProgramStage.h"
+#include "GrGLEffect.h"
 #include "gl/GrGLShaderBuilder.h"
 #include "GrGLShaderVar.h"
 #include "GrProgramStageFactory.h"
@@ -896,7 +896,7 @@ void GrGLProgram::initSamplerUniforms() {
 // Stage code generation
 
 // TODO: Move this function to GrGLShaderBuilder
-GrGLProgramStage* GrGLProgram::GenStageCode(const GrEffect* effect,
+GrGLEffect* GrGLProgram::GenStageCode(const GrEffect* effect,
                                             const StageDesc& desc,
                                             StageUniforms* uniforms,
                                             const char* fsInColor, // NULL means no incoming color
@@ -904,7 +904,7 @@ GrGLProgramStage* GrGLProgram::GenStageCode(const GrEffect* effect,
                                             const char* vsInCoord,
                                             GrGLShaderBuilder* builder) {
 
-    GrGLProgramStage* glStage = effect->getFactory().createGLInstance(*effect);
+    GrGLEffect* glStage = effect->getFactory().createGLInstance(*effect);
 
     /// Vertex Shader Stuff
 
