@@ -13,12 +13,12 @@
 #include "GrNoncopyable.h"
 
 /** Given a GrEffect of a particular type, creates the corresponding
-    graphics-backend-specific GrGLProgramStage. Also tracks equivalence
+    graphics-backend-specific GrGLEffect. Also tracks equivalence
     of shaders generated via a key.
  */
 
 class GrEffect;
-class GrGLProgramStage;
+class GrGLEffect;
 class GrGLCaps;
 
 class GrProgramStageFactory : public GrNoncopyable {
@@ -30,7 +30,7 @@ public:
     };
 
     virtual StageKey glStageKey(const GrEffect&, const GrGLCaps&) const = 0;
-    virtual GrGLProgramStage* createGLInstance(const GrEffect&) const = 0;
+    virtual GrGLEffect* createGLInstance(const GrEffect&) const = 0;
 
     bool operator ==(const GrProgramStageFactory& b) const {
         return fEffectClassID == b.fEffectClassID;
@@ -72,7 +72,7 @@ public:
     typedef typename EffectClass::GLProgramStage GLProgramStage;
 
     /** Returns a human-readable name that is accessible via GrEffect or
-        GrGLProgramStage and is consistent between the two of them.
+        GrGLEffect and is consistent between the two of them.
      */
     virtual const char* name() const SK_OVERRIDE { return EffectClass::Name(); }
 

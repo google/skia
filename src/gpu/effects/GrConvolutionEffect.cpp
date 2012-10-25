@@ -6,7 +6,7 @@
  */
 
 #include "GrConvolutionEffect.h"
-#include "gl/GrGLProgramStage.h"
+#include "gl/GrGLEffect.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
 #include "GrProgramStageFactory.h"
@@ -108,7 +108,7 @@ void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman, const GrEffe
     uman.set1fv(fKernelUni, 0, this->width(), conv.kernel());
 }
 
-GrGLProgramStage::StageKey GrGLConvolutionEffect::GenKey(const GrEffect& s,
+GrGLEffect::StageKey GrGLConvolutionEffect::GenKey(const GrEffect& s,
                                                          const GrGLCaps& caps) {
     return static_cast<const GrConvolutionEffect&>(s).radius();
 }

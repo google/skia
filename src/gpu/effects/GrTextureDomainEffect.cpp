@@ -6,7 +6,7 @@
  */
 
 #include "GrTextureDomainEffect.h"
-#include "gl/GrGLProgramStage.h"
+#include "gl/GrGLEffect.h"
 #include "GrProgramStageFactory.h"
 
 class GrGLTextureDomainEffect : public GrGLLegacyProgramStage {

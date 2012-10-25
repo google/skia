@@ -12,7 +12,7 @@
 #if SK_SUPPORT_GPU
 #include "SkGr.h"
 #include "SkGrPixelRef.h"
-#include "gl/GrGLProgramStage.h"
+#include "gl/GrGLEffect.h"
 #endif
 
 namespace {
@@ -275,7 +275,7 @@ void GrGLBlendEffect::emitFS(GrGLShaderBuilder* builder,
     }
 }
 
-GrGLProgramStage::StageKey GrGLBlendEffect::GenKey(const GrEffect& s, const GrGLCaps&) {
+GrGLEffect::StageKey GrGLBlendEffect::GenKey(const GrEffect& s, const GrGLCaps&) {
     return static_cast<const GrBlendEffect&>(s).mode();
 }
 #endif

@@ -6,7 +6,7 @@
  */
 
 #include "GrConfigConversionEffect.h"
-#include "gl/GrGLProgramStage.h"
+#include "gl/GrGLEffect.h"
 
 class GrGLConfigConversionEffect : public GrGLLegacyProgramStage {
 public:

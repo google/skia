@@ -13,7 +13,7 @@
 #include "SkUnPreMultiply.h"
 
 #if SK_SUPPORT_GPU
-#include "gl/GrGLProgramStage.h"
+#include "gl/GrGLEffect.h"
 #endif
 
 SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(const SkISize& kernelSize, const SkScalar* kernel, SkScalar gain, SkScalar bias, const SkIPoint& target, TileMode tileMode, bool convolveAlpha, SkImageFilter* input)
@@ -415,7 +415,7 @@ int encodeXY(int x, int y) {
 
 };
 
-GrGLProgramStage::StageKey GrGLMatrixConvolutionEffect::GenKey(const GrEffect& s,
+GrGLEffect::StageKey GrGLMatrixConvolutionEffect::GenKey(const GrEffect& s,
                                                         const GrGLCaps& caps) {
     const GrMatrixConvolutionEffect& m = static_cast<const GrMatrixConvolutionEffect&>(s);
     StageKey key = encodeXY(m.kernelSize().width(), m.kernelSize().height());
