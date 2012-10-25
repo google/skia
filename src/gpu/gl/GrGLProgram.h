@@ -96,9 +96,8 @@ public:
 
             uint8_t fOptFlags;
 
-            /** Non-zero if user-supplied code will write the stage's
-                contribution to the fragment shader. */
-            GrBackendEffectFactory::StageKey fCustomStageKey;
+            /** Non-zero if this stage has an effect */
+            GrBackendEffectFactory::EffectKey fEffectKey;
 
             inline bool isEnabled() const {
                 return SkToBool(fOptFlags & kIsEnabled_OptFlagBit);
@@ -254,7 +253,7 @@ private:
     GrMatrix                    fTextureMatrices[GrDrawState::kNumStages];
     GrGLTexture::Orientation    fTextureOrientation[GrDrawState::kNumStages];
 
-    GrGLEffect*           fProgramStage[GrDrawState::kNumStages];
+    GrGLEffect*                 fEffects[GrDrawState::kNumStages];
 
     Desc fDesc;
     const GrGLContextInfo&      fContextInfo;

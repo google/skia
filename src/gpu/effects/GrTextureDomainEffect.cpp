@@ -23,7 +23,7 @@ public:
 
     virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE;
 
-    static inline StageKey GenKey(const GrEffect&, const GrGLCaps&) { return 0; }
+    static inline EffectKey GenKey(const GrEffect&, const GrGLCaps&) { return 0; }
 
 private:
     GrGLUniformManager::UniformHandle fNameUni;

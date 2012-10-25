@@ -29,7 +29,7 @@ public:
 
     virtual void setData(const GrGLUniformManager& uman, const GrEffect&) SK_OVERRIDE;
 
-    static inline StageKey GenKey(const GrEffect&, const GrGLCaps&);
+    static inline EffectKey GenKey(const GrEffect&, const GrGLCaps&);
 
 private:
     int width() const { return Gr1DKernelEffect::WidthFromRadius(fRadius); }
@@ -108,7 +108,7 @@ void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman, const GrEffe
     uman.set1fv(fKernelUni, 0, this->width(), conv.kernel());
 }
 
-GrGLEffect::StageKey GrGLConvolutionEffect::GenKey(const GrEffect& s,
+GrGLEffect::EffectKey GrGLConvolutionEffect::GenKey(const GrEffect& s,
                                                          const GrGLCaps& caps) {
     return static_cast<const GrConvolutionEffect&>(s).radius();
 }

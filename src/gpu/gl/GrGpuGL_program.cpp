@@ -573,10 +573,10 @@ void setup_effect(GrGLProgram::Desc::StageDesc* stage,
     const GrEffect* effect = sampler.getEffect();
     if (effect) {
         const GrBackendEffectFactory& factory = effect->getFactory();
-        stage->fCustomStageKey = factory.glStageKey(*effect, caps);
+        stage->fEffectKey = factory.glEffectKey(*effect, caps);
         effects[index] = effect;
     } else {
-        stage->fCustomStageKey = 0;
+        stage->fEffectKey = 0;
         effects[index] = NULL;
     }
 }
@@ -695,8 +695,8 @@ void GrGpuGL::buildProgram(bool isPoints,
             setup_effect(&stage, sampler, this->glCaps(), effects, fCurrentProgram.get(), s);
 
         } else {
-            stage.fOptFlags         = 0;
-            stage.fCustomStageKey   = 0;
+            stage.fOptFlags  = 0;
+            stage.fEffectKey = 0;
             effects[s] = NULL;
         }
     }

@@ -29,7 +29,7 @@ public:
         builder->fFSCode.append(";\n");
     }
 
-    static inline StageKey GenKey(const GrEffect&, const GrGLCaps&) { return 0; }
+    static inline EffectKey GenKey(const GrEffect&, const GrGLCaps&) { return 0; }
 
 private:
 

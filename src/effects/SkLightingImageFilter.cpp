@@ -955,7 +955,7 @@ public:
 
     virtual void emitLightFunc(GrGLShaderBuilder*, SkString* funcName) = 0;
 
-    static inline StageKey GenKey(const GrEffect& s, const GrGLCaps& caps);
+    static inline EffectKey GenKey(const GrEffect& s, const GrGLCaps& caps);
 
     virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE;
 
@@ -1168,7 +1168,7 @@ void GrGLLightingEffect::emitFS(GrGLShaderBuilder* builder,
     GrGLSLMulVarBy4f(code, 2, outputColor, inputColor);
 }
 
-GrGLEffect::StageKey GrGLLightingEffect::GenKey(const GrEffect& s,
+GrGLEffect::EffectKey GrGLLightingEffect::GenKey(const GrEffect& s,
                                                       const GrGLCaps& caps) {
     return static_cast<const GrLightingEffect&>(s).light()->type();
 }

@@ -23,7 +23,7 @@ class GrGLTexture;
     include/gpu/GrEffect.h. Objects of type GrGLEffect are responsible for emitting the
     GLSL code that implements a GrEffect and for uploading uniforms at draw time. They also
     must have a function:
-        static inline StageKey GenKey(const GrEffect&, const GrGLCaps&)
+        static inline EffectKey GenKey(const GrEffect&, const GrGLCaps&)
     that is used to implement a program cache. When two GrEffects produce the same key this means
     that their GrGLEffects would emit the same GLSL code.
 
@@ -33,10 +33,10 @@ class GrGLTexture;
 class GrGLEffect {
 
 public:
-    typedef GrEffect::StageKey StageKey;
+    typedef GrEffect::EffectKey EffectKey;
     enum {
-        // the number of bits in StageKey available to GenKey
-        kProgramStageKeyBits = GrBackendEffectFactory::kProgramStageKeyBits,
+        // the number of bits in EffectKey available to GenKey
+        kEffectKeyBits = GrBackendEffectFactory::kEffectKeyBits,
     };
 
     typedef GrGLShaderBuilder::TextureSamplerArray TextureSamplerArray;
@@ -51,7 +51,7 @@ public:
 
         @param builder      Interface used to emit code in the shaders.
         @param effect       The effect that generated this program stage.
-        @param key          The key that was computed by StageKey() from the generating GrEffect.
+        @param key          The key that was computed by EffectKey() from the generating GrEffect.
         @param vertexCoords A vec2 of texture coordinates in the VS, which may be altered. This will
                             be removed soon and stages will be responsible for computing their own
                             coords.
@@ -68,7 +68,7 @@ public:
         */
     virtual void emitCode(GrGLShaderBuilder* builder,
                           const GrEffect& effect,
-                          StageKey key,
+                          EffectKey key,
                           const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,
@@ -81,7 +81,7 @@ public:
 
     const char* name() const { return fFactory.name(); }
 
-    static StageKey GenTextureKey(const GrEffect&, const GrGLCaps&);
+    static EffectKey GenTextureKey(const GrEffect&, const GrGLCaps&);
 
 protected:
 
@@ -107,7 +107,7 @@ public:
 
     virtual void emitCode(GrGLShaderBuilder* builder,
                           const GrEffect&,
-                          StageKey,
+                          EffectKey,
                           const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,

@@ -335,7 +335,7 @@ public:
                         const TextureSamplerArray&) SK_OVERRIDE;
     virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE;
 
-    static StageKey GenKey(const GrEffect& s, const GrGLCaps& caps);
+    static EffectKey GenKey(const GrEffect& s, const GrGLCaps& caps);
 
 protected:
 
@@ -663,7 +663,7 @@ void GrGLConical2Gradient::setData(const GrGLUniformManager& uman, const GrEffec
     }
 }
 
-GrEffect::StageKey GrGLConical2Gradient::GenKey(const GrEffect& s, const GrGLCaps& caps) {
+GrEffect::EffectKey GrGLConical2Gradient::GenKey(const GrEffect& s, const GrGLCaps& caps) {
     return (static_cast<const GrConical2Gradient&>(s).isDegenerate());
 }
 

@@ -80,7 +80,7 @@ GrGLProgram::GrGLProgram(const GrGLContextInfo& gl,
     fRTHeight = -1;
 
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        fProgramStage[s] = NULL;
+        fEffects[s] = NULL;
         fTextureMatrices[s] = GrMatrix::InvalidMatrix();
         // this is arbitrary, just initialize to something
         fTextureOrientation[s] = GrGLTexture::kBottomUp_Orientation;
@@ -104,7 +104,7 @@ GrGLProgram::~GrGLProgram() {
     }
 
     for (int i = 0; i < GrDrawState::kNumStages; ++i) {
-        delete fProgramStage[i];
+        delete fEffects[i];
     }
 }
 
@@ -624,13 +624,13 @@ bool GrGLProgram::genProgram(const GrEffect** effects) {
                 }
 
                 builder.setCurrentStage(s);
-                fProgramStage[s] = GenStageCode(effects[s],
-                                                fDesc.fStages[s],
-                                                &fUniforms.fStages[s],
-                                                inColor.size() ? inColor.c_str() : NULL,
-                                                outColor.c_str(),
-                                                inCoords,
-                                                &builder);
+                fEffects[s] = GenStageCode(effects[s],
+                                           fDesc.fStages[s],
+                                           &fUniforms.fStages[s],
+                                           inColor.size() ? inColor.c_str() : NULL,
+                                           outColor.c_str(),
+                                           inCoords,
+                                           &builder);
                 builder.setNonStage();
                 inColor = outColor;
             }
@@ -729,13 +729,13 @@ bool GrGLProgram::genProgram(const GrEffect** effects) {
                         inCoverage.append("4");
                     }
                     builder.setCurrentStage(s);
-                    fProgramStage[s] = GenStageCode(effects[s],
-                                                    fDesc.fStages[s],
-                                                    &fUniforms.fStages[s],
-                                                    inCoverage.size() ? inCoverage.c_str() : NULL,
-                                                    outCoverage.c_str(),
-                                                    inCoords,
-                                                    &builder);
+                    fEffects[s] = GenStageCode(effects[s],
+                                               fDesc.fStages[s],
+                                               &fUniforms.fStages[s],
+                                               inCoverage.size() ? inCoverage.c_str() : NULL,
+                                               outCoverage.c_str(),
+                                               inCoords,
+                                               &builder);
                     builder.setNonStage();
                     inCoverage = outCoverage;
                 }
@@ -957,7 +957,7 @@ GrGLEffect* GrGLProgram::GenStageCode(const GrEffect* effect,
     builder->fFSCode.appendf("\t{ // %s \n", glStage->name());
     glStage->emitCode(builder,
                       *effect,
-                      desc.fCustomStageKey,
+                      desc.fEffectKey,
                       varyingVSName,
                       fsOutColor,
                       fsInColor,
@@ -975,10 +975,10 @@ void GrGLProgram::setData(const GrDrawState& drawState) {
         fRTHeight = rtHeight;
     }
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        if (NULL != fProgramStage[s]) {
+        if (NULL != fEffects[s]) {
             const GrSamplerState& sampler = drawState.getSampler(s);
             GrAssert(NULL != sampler.getEffect());
-            fProgramStage[s]->setData(fUniformManager, *sampler.getEffect());
+            fEffects[s]->setData(fUniformManager, *sampler.getEffect());
         }
     }
 }
