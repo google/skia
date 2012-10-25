@@ -30,13 +30,13 @@ static void thread_main(void*) {
     }
 }
 
-static void test_measuretext(skiatest::Reporter* reporter) {
+static void test_threads(SkThread::entryPointProc proc) {
     SkThread* threads[8];
     int N = SK_ARRAY_COUNT(threads);
     int i;
 
     for (i = 0; i < N; ++i) {
-        threads[i] = new SkThread(thread_main);
+        threads[i] = new SkThread(proc);
     }
 
     for (i = 0; i < N; ++i) {
@@ -52,12 +52,32 @@ static void test_measuretext(skiatest::Reporter* reporter) {
     }
 }
 
+static int32_t gCounter;
+
+static void* FakeCreateTLS() {
+    sk_atomic_inc(&gCounter);
+    return NULL;
+}
+
+static void FakeDeleteTLS(void* unused) {
+    sk_atomic_dec(&gCounter);
+}
+
+static void testTLSDestructor(void* unused) {
+    SkTLS::Get(FakeCreateTLS, FakeDeleteTLS);
+}
+
 static void TestTLS(skiatest::Reporter* reporter) {
-    test_measuretext(reporter);
+    // TODO: Disabled for now to work around
+    // http://code.google.com/p/skia/issues/detail?id=619
+    // ('flaky segfault in TLS test on Shuttle_Ubuntu12 buildbots')
+    //test_threads(&thread_main);
+
+    // Test to ensure that at thread destruction, TLS destructors
+    // have been called.
+    test_threads(&testTLSDestructor);
+    REPORTER_ASSERT(reporter, 0 == gCounter);
 }
 
 #include "TestClassDef.h"
-// TODO: Disabled for now to work around
-// http://code.google.com/p/skia/issues/detail?id=619
-// ('flaky segfault in TLS test on Shuttle_Ubuntu12 buildbots')
-// DEFINE_TESTCLASS("TLS", TLSClass, TestTLS)
+DEFINE_TESTCLASS("TLS", TLSClass, TestTLS)
