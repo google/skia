@@ -95,7 +95,9 @@ private:
 // Wrap SkPicture to allow installation of a SkFilterRecord object
 class SkFilterPicture : public SkPicture {
 public:
-    SkFilterPicture(SkPictureRecord* record) {
+    SkFilterPicture(int width, int height, SkPictureRecord* record) {
+        fWidth = width;
+        fHeight = height;
         fRecord = record;
         SkSafeRef(fRecord);
     }
@@ -187,7 +189,7 @@ int tool_main(int argc, char** argv) {
     filterRecord->report();
 
     if (!outFile.isEmpty()) {
-        SkFilterPicture outPicture(filterRecord);
+        SkFilterPicture outPicture(inPicture->width(), inPicture->height(), filterRecord);
         SkFILEWStream outStream(outFile.c_str());
 
         outPicture.serialize(&outStream);
