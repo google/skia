@@ -473,7 +473,7 @@ public:
 
     /**
      * Preconcats the current view matrix and restores the previous view matrix in the destructor.
-     * Stage matrices are automatically adjusted to compensate.
+     * Effect matrices are automatically adjusted to compensate.
      */
     class AutoViewMatrixRestore : public ::GrNoncopyable {
     public:

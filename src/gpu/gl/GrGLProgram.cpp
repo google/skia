@@ -904,7 +904,7 @@ GrGLEffect* GrGLProgram::GenStageCode(const GrEffect* effect,
                                             const char* vsInCoord,
                                             GrGLShaderBuilder* builder) {
 
-    GrGLEffect* glStage = effect->getFactory().createGLInstance(*effect);
+    GrGLEffect* glEffect = effect->getFactory().createGLInstance(*effect);
 
     /// Vertex Shader Stuff
 
@@ -953,19 +953,19 @@ GrGLEffect* GrGLProgram::GenStageCode(const GrEffect* effect,
     }
 
     // Enclose custom code in a block to avoid namespace conflicts
-    builder->fVSCode.appendf("\t{ // %s\n", glStage->name());
-    builder->fFSCode.appendf("\t{ // %s \n", glStage->name());
-    glStage->emitCode(builder,
-                      *effect,
-                      desc.fEffectKey,
-                      varyingVSName,
-                      fsOutColor,
-                      fsInColor,
-                      textureSamplers);
+    builder->fVSCode.appendf("\t{ // %s\n", glEffect->name());
+    builder->fFSCode.appendf("\t{ // %s \n", glEffect->name());
+    glEffect->emitCode(builder,
+                       *effect,
+                       desc.fEffectKey,
+                       varyingVSName,
+                       fsOutColor,
+                       fsInColor,
+                       textureSamplers);
     builder->fVSCode.appendf("\t}\n");
     builder->fFSCode.appendf("\t}\n");
 
-    return glStage;
+    return glEffect;
 }
 
 void GrGLProgram::setData(const GrDrawState& drawState) {
