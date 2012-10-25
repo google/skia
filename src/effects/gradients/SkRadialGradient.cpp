@@ -511,7 +511,7 @@ public:
         return GrTProgramStageFactory<GrRadialGradient>::getInstance();
     }
 
-    typedef GrGLRadialGradient GLProgramStage;
+    typedef GrGLRadialGradient GLEffect;
 
 private:
     GR_DECLARE_EFFECT_TEST;

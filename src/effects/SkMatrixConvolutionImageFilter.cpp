@@ -260,7 +260,7 @@ public:
     TileMode tileMode() const { return fTileMode; }
     bool convolveAlpha() const { return fConvolveAlpha; }
 
-    typedef GrGLMatrixConvolutionEffect GLProgramStage;
+    typedef GrGLMatrixConvolutionEffect GLEffect;
 
     virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
     virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;

@@ -34,7 +34,7 @@ public:
 
     static const char* Name() { return "Convolution"; }
 
-    typedef GrGLConvolutionEffect GLProgramStage;
+    typedef GrGLConvolutionEffect GLEffect;
 
     virtual const GrProgramStageFactory& getFactory() const SK_OVERRIDE;
     virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;

@@ -69,7 +69,7 @@ template <typename EffectClass>
 class GrTProgramStageFactory : public GrProgramStageFactory {
 
 public:
-    typedef typename EffectClass::GLProgramStage GLProgramStage;
+    typedef typename EffectClass::GLEffect GLEffect;
 
     /** Returns a human-readable name that is accessible via GrEffect or
         GrGLEffect and is consistent between the two of them.
@@ -83,8 +83,8 @@ public:
         GLSL code generation. */
     virtual StageKey glStageKey(const GrEffect& effect, const GrGLCaps& caps) const SK_OVERRIDE {
         GrAssert(kIllegalEffectClassID != fEffectClassID);
-        StageKey stageID = GLProgramStage::GenKey(effect, caps);
-        StageKey textureKey = GLProgramStage::GenTextureKey(effect, caps);
+        StageKey stageID = GLEffect::GenKey(effect, caps);
+        StageKey textureKey = GLEffect::GenTextureKey(effect, caps);
 #if GR_DEBUG
         static const StageKey kIllegalIDMask = (uint16_t) (~((1U << kProgramStageKeyBits) - 1));
         GrAssert(!(kIllegalIDMask & stageID));
@@ -99,8 +99,8 @@ public:
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrEffect; caller is responsible for deleting
         the object. */
-    virtual GLProgramStage* createGLInstance(const GrEffect& effect) const SK_OVERRIDE {
-        return SkNEW_ARGS(GLProgramStage, (*this, effect));
+    virtual GLEffect* createGLInstance(const GrEffect& effect) const SK_OVERRIDE {
+        return SkNEW_ARGS(GLEffect, (*this, effect));
     }
 
     /** This class is a singleton. This function returns the single instance.

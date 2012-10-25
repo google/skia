@@ -54,7 +54,7 @@ public:
     float x_inset() const { return fXInset; }
     float y_inset() const { return fYInset; }
 
-    typedef GrGLMagnifierEffect GLProgramStage;
+    typedef GrGLMagnifierEffect GLEffect;
 
 private:
     GR_DECLARE_EFFECT_TEST;

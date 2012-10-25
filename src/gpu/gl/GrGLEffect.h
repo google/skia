@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGLProgramStage_DEFINED
-#define GrGLProgramStage_DEFINED
+#ifndef GrGLEffect_DEFINED
+#define GrGLEffect_DEFINED
 
 #include "GrAllocator.h"
 #include "GrEffect.h"
@@ -25,7 +25,7 @@ class GrGLTexture;
     must have a function:
         static inline StageKey GenKey(const GrEffect&, const GrGLCaps&)
     that is used to implement a program cache. When two GrEffects produce the same key this means
-    that their GrGLProgramStages would emit the same GLSL code.
+    that their GrGLEffects would emit the same GLSL code.
 
     These objects are created by the factory object returned by the GrEffect::getFactory().
 */

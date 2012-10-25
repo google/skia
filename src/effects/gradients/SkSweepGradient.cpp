@@ -419,7 +419,7 @@ public:
         return GrTProgramStageFactory<GrSweepGradient>::getInstance();
     }
 
-    typedef GrGLSweepGradient GLProgramStage;
+    typedef GrGLSweepGradient GLEffect;
 
 private:
     GR_DECLARE_EFFECT_TEST;

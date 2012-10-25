@@ -42,12 +42,11 @@ public:
         effect guaranteed to produce an opaque output? */
     virtual bool isOpaque(bool inputTextureIsOpaque) const;
 
-    /** This object, besides creating back-end-specific helper
-        objects, is used for run-time-type-identification. The factory should be
-        an instance of templated class, GrTProgramStageFactory. It is templated
-        on the subclass of GrEffect. The subclass must have a nested type
-        (or typedef) named GLProgramStage which will be the subclass of
-        GrGLEffect created by the factory.
+    /** This object, besides creating back-end-specific helper objects, is used for run-time-type-
+        identification. The factory should be an instance of templated class,
+        GrTProgramStageFactory. It is templated on the subclass of GrEffect. The subclass must have
+        a nested type (or typedef) named GLEffect which will be the subclass of GrGLEffect created
+        by the factory.
 
         Example:
         class MyCustomEffect : public GrEffect {
@@ -73,7 +72,7 @@ public:
 
         The default implementation of this function returns true iff
         the two stages have the same return value for numTextures() and
-        for texture() over all valid indicse.
+        for texture() over all valid indices.
      */
     virtual bool isEqual(const GrEffect&) const;
 

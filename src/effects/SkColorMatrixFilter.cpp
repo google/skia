@@ -339,13 +339,13 @@ public:
 
     GR_DECLARE_EFFECT_TEST;
 
-    class GLProgramStage : public GrGLLegacyEffect {
+    class GLEffect : public GrGLLegacyEffect {
     public:
         // this class always generates the same code.
         static StageKey GenKey(const GrEffect& s, const GrGLCaps&) { return 0; }
 
-        GLProgramStage(const GrProgramStageFactory& factory,
-                       const GrEffect& effect)
+        GLEffect(const GrProgramStageFactory& factory,
+                 const GrEffect& effect)
         : INHERITED(factory)
         , fMatrixHandle(GrGLUniformManager::kInvalidUniformHandle)
         , fVectorHandle(GrGLUniformManager::kInvalidUniformHandle) {
