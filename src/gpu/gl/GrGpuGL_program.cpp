@@ -199,11 +199,11 @@ void GrGpuGL::flushTextureMatrix(int s) {
     const GrDrawState& drawState = this->getDrawState();
 
     // FIXME: Still assuming only a single texture per effect
-    const GrEffect* stage = drawState.getSampler(s).getEffect();
-    if (0 == stage->numTextures()) {
+    const GrEffect* effect = drawState.getSampler(s).getEffect();
+    if (0 == effect->numTextures()) {
         return;
     }
-    const GrGLTexture* texture = static_cast<const GrGLTexture*>(stage->texture(0));
+    const GrGLTexture* texture = static_cast<const GrGLTexture*>(effect->texture(0));
     if (NULL != texture) {
 
         bool orientationChange = fCurrentProgram->fTextureOrientation[s] !=

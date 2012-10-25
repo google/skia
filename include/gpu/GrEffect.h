@@ -39,7 +39,7 @@ public:
     virtual ~GrEffect();
 
     /** If given an input texture that is/is not opaque, is this
-        stage guaranteed to produce an opaque output? */
+        effect guaranteed to produce an opaque output? */
     virtual bool isOpaque(bool inputTextureIsOpaque) const;
 
     /** This object, besides creating back-end-specific helper

@@ -748,10 +748,10 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
     GrAssert(NULL != drawState.getRenderTarget());
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (drawState.isStageEnabled(s)) {
-            const GrEffect* stage = drawState.getSampler(s).getEffect();
-            int numTextures = stage->numTextures();
+            const GrEffect* effect = drawState.getSampler(s).getEffect();
+            int numTextures = effect->numTextures();
             for (int t = 0; t < numTextures; ++t) {
-                GrTexture* texture = stage->texture(t);
+                GrTexture* texture = effect->texture(t);
                 GrAssert(texture->asRenderTarget() != drawState.getRenderTarget());
             }
         }
@@ -831,11 +831,11 @@ bool GrDrawTarget::srcAlphaWillBeOne(GrVertexLayout layout) const {
     // Check if a color stage could create a partial alpha
     for (int s = 0; s < drawState.getFirstCoverageStage(); ++s) {
         if (this->isStageEnabled(s)) {
-            const GrEffect* stage = drawState.getSampler(s).getEffect();
-            // FIXME: The param indicates whether the texture is opaque or not. However, the stage
+            const GrEffect* effect = drawState.getSampler(s).getEffect();
+            // FIXME: The param indicates whether the texture is opaque or not. However, the effect
             // already controls its textures. It really needs to know whether the incoming color
             // (from a uni, per-vertex colors, or previous stage) is opaque or not.
-            if (!stage->isOpaque(true)) {
+            if (!effect->isOpaque(true)) {
                 return false;
             }
         }
@@ -913,7 +913,7 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
     }
 
     // check for coverage due to constant coverage, per-vertex coverage,
-    // edge aa or coverage texture stage
+    // edge aa or coverage stage
     bool hasCoverage = forceCoverage ||
                        0xffffffff != drawState.getCoverage() ||
                        (layout & kCoverage_VertexLayoutBit) ||

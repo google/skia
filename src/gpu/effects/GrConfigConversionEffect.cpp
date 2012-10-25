@@ -12,9 +12,9 @@ class GrGLConfigConversionEffect : public GrGLLegacyProgramStage {
 public:
     GrGLConfigConversionEffect(const GrProgramStageFactory& factory,
                                const GrEffect& s) : INHERITED (factory) {
-        const GrConfigConversionEffect& stage = static_cast<const GrConfigConversionEffect&>(s);
-        fSwapRedAndBlue = stage.swapsRedAndBlue();
-        fPMConversion = stage.pmConversion();
+        const GrConfigConversionEffect& effect = static_cast<const GrConfigConversionEffect&>(s);
+        fSwapRedAndBlue = effect.swapsRedAndBlue();
+        fPMConversion = effect.pmConversion();
     }
 
     virtual void emitVS(GrGLShaderBuilder* builder,
@@ -59,8 +59,8 @@ public:
     }
 
     static inline StageKey GenKey(const GrEffect& s, const GrGLCaps&) {
-        const GrConfigConversionEffect& stage = static_cast<const GrConfigConversionEffect&>(s);
-        return static_cast<int>(stage.swapsRedAndBlue()) | (stage.pmConversion() << 1);
+        const GrConfigConversionEffect& effect = static_cast<const GrConfigConversionEffect&>(s);
+        return static_cast<int>(effect.swapsRedAndBlue()) | (effect.pmConversion() << 1);
     }
 
 private:
@@ -177,24 +177,24 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
 
         GrPaint paint;
 
-        SkAutoTUnref<GrEffect> pmToUPMStage1(SkNEW_ARGS(GrConfigConversionEffect,
+        SkAutoTUnref<GrEffect> pmToUPMEffect1(SkNEW_ARGS(GrConfigConversionEffect,
                                                         (dataTex, false, *pmToUPMRule)));
-        SkAutoTUnref<GrEffect> upmToPMStage(SkNEW_ARGS(GrConfigConversionEffect,
+        SkAutoTUnref<GrEffect> upmToPMEffect(SkNEW_ARGS(GrConfigConversionEffect,
                                                        (readTex, false, *upmToPMRule)));
-        SkAutoTUnref<GrEffect> pmToUPMStage2(SkNEW_ARGS(GrConfigConversionEffect,
+        SkAutoTUnref<GrEffect> pmToUPMEffect2(SkNEW_ARGS(GrConfigConversionEffect,
                                                         (tempTex, false, *pmToUPMRule)));
 
         context->setRenderTarget(readTex->asRenderTarget());
-        paint.colorSampler(0)->setEffect(pmToUPMStage1);
+        paint.colorSampler(0)->setEffect(pmToUPMEffect1);
         context->drawRectToRect(paint, kDstRect, kSrcRect);
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, firstRead);
 
         context->setRenderTarget(tempTex->asRenderTarget());
-        paint.colorSampler(0)->setEffect(upmToPMStage);
+        paint.colorSampler(0)->setEffect(upmToPMEffect);
         context->drawRectToRect(paint, kDstRect, kSrcRect);
         context->setRenderTarget(readTex->asRenderTarget());
-        paint.colorSampler(0)->setEffect(pmToUPMStage2);
+        paint.colorSampler(0)->setEffect(pmToUPMEffect2);
         context->drawRectToRect(paint, kDstRect, kSrcRect);
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, secondRead);

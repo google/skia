@@ -237,9 +237,9 @@ public:
     bool useAtlas() const { return SkToBool(-1 != fRow); }
     GrScalar getYCoord() const { return fYCoord; };
 
-    virtual bool isEqual(const GrEffect& stage) const SK_OVERRIDE {
-        const GrGradientEffect& s = static_cast<const GrGradientEffect&>(stage);
-        return INHERITED::isEqual(stage) && this->useAtlas() == s.useAtlas() &&
+    virtual bool isEqual(const GrEffect& effect) const SK_OVERRIDE {
+        const GrGradientEffect& s = static_cast<const GrGradientEffect&>(effect);
+        return INHERITED::isEqual(effect) && this->useAtlas() == s.useAtlas() &&
                fYCoord == s.getYCoord();
     }
 

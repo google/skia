@@ -35,8 +35,7 @@ private:
     }
 };
 
-int32_t GrProgramStageFactory::fCurrStageClassID =
-                                    GrProgramStageFactory::kIllegalStageClassID;
+int32_t GrProgramStageFactory::fCurrEffectClassID = GrProgramStageFactory::kIllegalEffectClassID;
 
 GrEffect::GrEffect(int numTextures)
     : fNumTextures(numTextures) {

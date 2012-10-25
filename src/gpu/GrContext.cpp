@@ -1317,16 +1317,16 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
         ast.set(this, desc, match);
         GrTexture* texture = ast.texture();
         if (texture) {
-            SkAutoTUnref<GrEffect> stage;
+            SkAutoTUnref<GrEffect> effect;
             if (unpremul) {
-                stage.reset(this->createPMToUPMEffect(src, swapRAndB));
+                effect.reset(this->createPMToUPMEffect(src, swapRAndB));
             }
             // If we failed to create a PM->UPM effect and have no other conversions to perform then
             // there is no longer any point to using the scratch.
-            if (NULL != stage || flipY || swapRAndB) {
-                if (NULL == stage) {
-                    stage.reset(GrConfigConversionEffect::Create(src, swapRAndB));
-                    GrAssert(NULL != stage);
+            if (NULL != effect || flipY || swapRAndB) {
+                if (NULL == effect) {
+                    effect.reset(GrConfigConversionEffect::Create(src, swapRAndB));
+                    GrAssert(NULL != effect);
                 } else {
                     unpremul = false; // we will handle the UPM conversion in the draw
                 }
@@ -1345,7 +1345,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
                     matrix.setTranslate(SK_Scalar1 *left, SK_Scalar1 *top);
                 }
                 matrix.postIDiv(src->width(), src->height());
-                drawState->sampler(0)->setEffect(stage, matrix);
+                drawState->sampler(0)->setEffect(effect, matrix);
                 GrRect rect = GrRect::MakeWH(GrIntToScalar(width), GrIntToScalar(height));
                 fGpu->drawSimpleRect(rect, NULL);
                 // we want to read back from the scratch's origin
@@ -1490,7 +1490,7 @@ void GrContext::writeRenderTargetPixels(GrRenderTarget* target,
         return;
     }
 #endif
-    SkAutoTUnref<GrEffect> stage;
+    SkAutoTUnref<GrEffect> effect;
     bool swapRAndB = (fGpu->preferredReadPixelsConfig(config) == GrPixelConfigSwapRAndB(config));
 
     GrPixelConfig textureConfig;
@@ -1516,8 +1516,8 @@ void GrContext::writeRenderTargetPixels(GrRenderTarget* target,
         if (kRGBA_8888_GrPixelConfig != config && kBGRA_8888_GrPixelConfig != config) {
             return;
         }
-        stage.reset(this->createUPMToPMEffect(texture, swapRAndB));
-        if (NULL == stage) {
+        effect.reset(this->createUPMToPMEffect(texture, swapRAndB));
+        if (NULL == effect) {
             SkCanvas::Config8888 srcConfig8888, dstConfig8888;
             GR_DEBUGCODE(bool success = )
             grconfig_to_config8888(config, true, &srcConfig8888);
@@ -1534,9 +1534,9 @@ void GrContext::writeRenderTargetPixels(GrRenderTarget* target,
             rowBytes = 4 * width;
         }
     }
-    if (NULL == stage) {
-        stage.reset(GrConfigConversionEffect::Create(texture, swapRAndB));
-        GrAssert(NULL != stage);
+    if (NULL == effect) {
+        effect.reset(GrConfigConversionEffect::Create(texture, swapRAndB));
+        GrAssert(NULL != effect);
     }
 
     this->writeTexturePixels(texture,
@@ -1553,7 +1553,7 @@ void GrContext::writeRenderTargetPixels(GrRenderTarget* target,
     drawState->setRenderTarget(target);
 
     matrix.setIDiv(texture->width(), texture->height());
-    drawState->sampler(0)->setEffect(stage, matrix);
+    drawState->sampler(0)->setEffect(effect, matrix);
 
     fGpu->drawSimpleRect(GrRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height)), NULL);
 }

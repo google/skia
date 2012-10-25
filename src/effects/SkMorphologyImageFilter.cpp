@@ -269,7 +269,7 @@ private:
 class GrGLMorphologyEffect  : public GrGLLegacyProgramStage {
 public:
     GrGLMorphologyEffect (const GrProgramStageFactory& factory,
-                          const GrEffect& stage);
+                          const GrEffect& effect);
 
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitVS(GrGLShaderBuilder* state,
@@ -294,10 +294,10 @@ private:
 };
 
 GrGLMorphologyEffect::GrGLMorphologyEffect(const GrProgramStageFactory& factory,
-                                           const GrEffect& stage)
+                                           const GrEffect& effect)
     : INHERITED(factory)
     , fImageIncrementUni(GrGLUniformManager::kInvalidUniformHandle) {
-    const GrMorphologyEffect& m = static_cast<const GrMorphologyEffect&>(stage);
+    const GrMorphologyEffect& m = static_cast<const GrMorphologyEffect&>(effect);
     fRadius = m.radius();
     fType = m.type();
 }

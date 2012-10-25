@@ -17,8 +17,7 @@ static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidU
 
 class GrGLConvolutionEffect : public GrGLLegacyProgramStage {
 public:
-    GrGLConvolutionEffect(const GrProgramStageFactory& factory,
-                          const GrEffect& stage);
+    GrGLConvolutionEffect(const GrProgramStageFactory&, const GrEffect&);
 
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitVS(GrGLShaderBuilder* builder,
@@ -43,12 +42,12 @@ private:
 };
 
 GrGLConvolutionEffect::GrGLConvolutionEffect(const GrProgramStageFactory& factory,
-                                             const GrEffect& stage)
+                                             const GrEffect& effect)
     : INHERITED(factory)
     , fKernelUni(kInvalidUniformHandle)
     , fImageIncrementUni(kInvalidUniformHandle) {
     const GrConvolutionEffect& c =
-        static_cast<const GrConvolutionEffect&>(stage);
+        static_cast<const GrConvolutionEffect&>(effect);
     fRadius = c.radius();
 }
 

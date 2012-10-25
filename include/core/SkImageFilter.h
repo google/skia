@@ -86,11 +86,11 @@ public:
      *  GrEffect, used to process this filter on the GPU, or false if
      *  not.
      *
-     *  If stage is non-NULL, a new GrEffect instance is stored
+     *  If effect is non-NULL, a new GrEffect instance is stored
      *  in it.  The caller assumes ownership of the stage, and it is up to the
      *  caller to unref it.
      */
-    virtual bool asNewEffect(GrEffect** stage, GrTexture*) const;
+    virtual bool asNewEffect(GrEffect** effect, GrTexture*) const;
 
     /**
      *  Returns true if the filter can be processed on the GPU.  This is most

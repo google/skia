@@ -282,7 +282,7 @@ private:
 class GrGLMatrixConvolutionEffect : public GrGLLegacyProgramStage {
 public:
     GrGLMatrixConvolutionEffect(const GrProgramStageFactory& factory,
-                                const GrEffect& stage);
+                                const GrEffect& effect);
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitVS(GrGLShaderBuilder* state,
                         const char* vertexCoords) SK_OVERRIDE {}
@@ -312,14 +312,14 @@ private:
 };
 
 GrGLMatrixConvolutionEffect::GrGLMatrixConvolutionEffect(const GrProgramStageFactory& factory,
-                                           const GrEffect& stage)
+                                           const GrEffect& effect)
     : INHERITED(factory)
     , fKernelUni(GrGLUniformManager::kInvalidUniformHandle)
     , fImageIncrementUni(GrGLUniformManager::kInvalidUniformHandle)
     , fTargetUni(GrGLUniformManager::kInvalidUniformHandle)
     , fGainUni(GrGLUniformManager::kInvalidUniformHandle)
     , fBiasUni(GrGLUniformManager::kInvalidUniformHandle) {
-    const GrMatrixConvolutionEffect& m = static_cast<const GrMatrixConvolutionEffect&>(stage);
+    const GrMatrixConvolutionEffect& m = static_cast<const GrMatrixConvolutionEffect&>(effect);
     fKernelSize = m.kernelSize();
     fTileMode = m.tileMode();
     fConvolveAlpha = m.convolveAlpha();
@@ -521,18 +521,18 @@ GrEffect* GrMatrixConvolutionEffect::TestCreate(SkRandom* random,
 
 }
 
-bool SkMatrixConvolutionImageFilter::asNewEffect(GrEffect** stage,
+bool SkMatrixConvolutionImageFilter::asNewEffect(GrEffect** effect,
                                                  GrTexture* texture) const {
     bool ok = fKernelSize.width() * fKernelSize.height() <= MAX_KERNEL_SIZE;
-    if (ok && stage) {
-        *stage = SkNEW_ARGS(GrMatrixConvolutionEffect, (texture,
-                                                        fKernelSize,
-                                                        fKernel,
-                                                        fGain,
-                                                        fBias,
-                                                        fTarget,
-                                                        fTileMode,
-                                                        fConvolveAlpha));
+    if (ok && effect) {
+        *effect = SkNEW_ARGS(GrMatrixConvolutionEffect, (texture,
+                                                         fKernelSize,
+                                                         fKernel,
+                                                         fGain,
+                                                         fBias,
+                                                         fTarget,
+                                                         fTileMode,
+                                                         fConvolveAlpha));
     }
     return ok;
 }

@@ -20,11 +20,11 @@ GrGLProgramStage::~GrGLProgramStage() {
 void GrGLProgramStage::setData(const GrGLUniformManager&, const GrEffect&) {
 }
 
-GrGLProgramStage::StageKey GrGLProgramStage::GenTextureKey(const GrEffect& stage,
+GrGLProgramStage::StageKey GrGLProgramStage::GenTextureKey(const GrEffect& effect,
                                                            const GrGLCaps& caps) {
     StageKey key = 0;
-    for (int index = 0; index < stage.numTextures(); ++index) {
-        const GrTextureAccess& access = stage.textureAccess(index);
+    for (int index = 0; index < effect.numTextures(); ++index) {
+        const GrTextureAccess& access = effect.textureAccess(index);
         StageKey value = GrGLShaderBuilder::KeyForTextureAccess(access, caps) << index;
         GrAssert(0 == (value & key)); // keys for each access ought not to overlap
         key |= value;

@@ -14,8 +14,9 @@
 
 class GrGLSingleTextureEffect : public GrGLLegacyProgramStage {
 public:
-    GrGLSingleTextureEffect(const GrProgramStageFactory& factory,
-                            const GrEffect& stage) : INHERITED (factory) { }
+    GrGLSingleTextureEffect(const GrProgramStageFactory& factory, const GrEffect&)
+    : INHERITED (factory) {
+    }
 
     virtual void emitVS(GrGLShaderBuilder* builder,
                         const char* vertexCoords) SK_OVERRIDE { }

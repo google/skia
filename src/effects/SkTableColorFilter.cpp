@@ -247,7 +247,7 @@ private:
 class GLColorTableEffect : public GrGLLegacyProgramStage {
 public:
     GLColorTableEffect(const GrProgramStageFactory& factory,
-                         const GrEffect& stage);
+                         const GrEffect& effect);
 
     virtual void setupVariables(GrGLShaderBuilder* state) SK_OVERRIDE {}
     virtual void emitVS(GrGLShaderBuilder* state,
@@ -267,7 +267,7 @@ private:
 };
 
 GLColorTableEffect::GLColorTableEffect(
-    const GrProgramStageFactory& factory, const GrEffect& stage)
+    const GrProgramStageFactory& factory, const GrEffect& effect)
     : INHERITED(factory) {
  }
 
@@ -355,13 +355,13 @@ GrEffect* SkTable_ColorFilter::asNewEffect(GrContext* context) const {
     this->asComponentTable(&bitmap);
     // passing NULL because this effect does no tiling or filtering.
     GrTexture* texture = GrLockCachedBitmapTexture(context, bitmap, NULL);
-    GrEffect* stage = SkNEW_ARGS(ColorTableEffect, (texture));
+    GrEffect* effect = SkNEW_ARGS(ColorTableEffect, (texture));
 
     // Unlock immediately, this is not great, but we don't have a way of
     // knowing when else to unlock it currently. TODO: Remove this when
     // unref becomes the unlock replacement for all types of textures.
     GrUnlockCachedBitmapTexture(texture);
-    return stage;
+    return effect;
 }
 
 #endif // SK_SUPPORT_GPU

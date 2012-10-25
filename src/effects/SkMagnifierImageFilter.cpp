@@ -75,7 +75,7 @@ typedef GrGLUniformManager::UniformHandle UniformHandle;
 class GrGLMagnifierEffect : public GrGLLegacyProgramStage {
 public:
     GrGLMagnifierEffect(const GrProgramStageFactory& factory,
-                        const GrEffect& stage);
+                        const GrEffect& effect);
 
     virtual void setupVariables(GrGLShaderBuilder* state) SK_OVERRIDE;
     virtual void emitVS(GrGLShaderBuilder* state,
@@ -100,7 +100,7 @@ private:
 };
 
 GrGLMagnifierEffect::GrGLMagnifierEffect(const GrProgramStageFactory& factory,
-                                         const GrEffect& stage)
+                                         const GrEffect& effect)
     : INHERITED(factory)
     , fOffsetVar(GrGLUniformManager::kInvalidUniformHandle)
     , fZoomVar(GrGLUniformManager::kInvalidUniformHandle)
@@ -201,10 +201,10 @@ GrEffect* GrMagnifierEffect::TestCreate(SkRandom* random,
                                  SkIntToScalar(width), SkIntToScalar(height)),
                 inset));
     GrSamplerState sampler;
-    GrEffect* stage;
-    filter->asNewEffect(&stage, textures[0]);
-    GrAssert(NULL != stage);
-    return stage;
+    GrEffect* effect;
+    filter->asNewEffect(&effect, textures[0]);
+    GrAssert(NULL != effect);
+    return effect;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -243,18 +243,17 @@ SkMagnifierImageFilter::SkMagnifierImageFilter(SkRect srcRect, SkScalar inset)
     SkASSERT(srcRect.x() >= 0 && srcRect.y() >= 0 && inset >= 0);
 }
 
-bool SkMagnifierImageFilter::asNewEffect(GrEffect** stage,
+bool SkMagnifierImageFilter::asNewEffect(GrEffect** effect,
                                          GrTexture* texture) const {
 #if SK_SUPPORT_GPU
-    if (stage) {
-      *stage =
-          SkNEW_ARGS(GrMagnifierEffect, (texture,
-                                         fSrcRect.x() / texture->width(),
-                                         fSrcRect.y() / texture->height(),
-                                         texture->width() / fSrcRect.width(),
-                                         texture->height() / fSrcRect.height(),
-                                         fInset / texture->width(),
-                                         fInset / texture->height()));
+    if (effect) {
+      *effect = SkNEW_ARGS(GrMagnifierEffect, (texture,
+                                               fSrcRect.x() / texture->width(),
+                                               fSrcRect.y() / texture->height(),
+                                               texture->width() / fSrcRect.width(),
+                                               texture->height() / fSrcRect.height(),
+                                               fInset / texture->width(),
+                                               fInset / texture->height()));
     }
     return true;
 #else
