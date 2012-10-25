@@ -1086,7 +1086,7 @@ int tool_main(int argc, char** argv) {
             if ((gmIndex % moduloCount) != moduloIndex) {
                 continue;
             }
-            moduloStr.printf("[%d % %d] ", gmIndex, moduloCount);
+            moduloStr.printf("[%d.%d] ", gmIndex, moduloCount);
         }
 
         const char* shortName = gm->shortName();
