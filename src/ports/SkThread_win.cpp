@@ -123,7 +123,7 @@ extern "C" {
 
 #pragma const_seg(".CRT$XLB")
 extern const PIMAGE_TLS_CALLBACK skia_tls_callback;
-PIMAGE_TLS_CALLBACK skia_tls_callback = onTLSCallback;
+const PIMAGE_TLS_CALLBACK skia_tls_callback = onTLSCallback;
 #pragma const_seg()
 
 #else
