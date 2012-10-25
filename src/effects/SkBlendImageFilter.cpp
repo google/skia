@@ -113,7 +113,7 @@ bool SkBlendImageFilter::onFilterImage(Proxy* proxy,
 class GrGLBlendEffect  : public GrGLLegacyProgramStage {
 public:
     GrGLBlendEffect(const GrProgramStageFactory& factory,
-                    const GrEffect& stage);
+                    const GrEffect& effect);
     virtual ~GrGLBlendEffect();
 
     virtual void emitFS(GrGLShaderBuilder* builder,
@@ -237,9 +237,9 @@ const GrProgramStageFactory& GrBlendEffect::getFactory() const {
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGLBlendEffect::GrGLBlendEffect(const GrProgramStageFactory& factory,
-                                 const GrEffect& stage)
+                                 const GrEffect& effect)
     : INHERITED(factory),
-      fMode(static_cast<const GrBlendEffect&>(stage).mode()) {
+      fMode(static_cast<const GrBlendEffect&>(effect).mode()) {
 }
 
 GrGLBlendEffect::~GrGLBlendEffect() {

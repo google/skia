@@ -466,8 +466,7 @@ void GrGLSweepGradient::emitFS(GrGLShaderBuilder* builder,
 /////////////////////////////////////////////////////////////////////
 
 bool SkSweepGradient::asNewEffect(GrContext* context, GrSamplerState* sampler) const {
-    SkAutoTUnref<GrEffect> stage(SkNEW_ARGS(GrSweepGradient, (context, *this)));
-
+    SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrSweepGradient, (context, *this)));
 
     SkMatrix matrix;
     if (this->getLocalMatrix(&matrix)) {
@@ -475,9 +474,9 @@ bool SkSweepGradient::asNewEffect(GrContext* context, GrSamplerState* sampler) c
             return false;
         }
         matrix.postConcat(fPtsToUnit);
-        sampler->setEffect(stage, matrix);
+        sampler->setEffect(effect, matrix);
     } else {
-        sampler->setEffect(stage, fPtsToUnit);
+        sampler->setEffect(effect, fPtsToUnit);
     }
 
     return true;

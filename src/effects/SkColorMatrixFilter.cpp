@@ -345,7 +345,7 @@ public:
         static StageKey GenKey(const GrEffect& s, const GrGLCaps&) { return 0; }
 
         GLProgramStage(const GrProgramStageFactory& factory,
-                       const GrEffect& stage)
+                       const GrEffect& effect)
         : INHERITED(factory)
         , fMatrixHandle(GrGLUniformManager::kInvalidUniformHandle)
         , fVectorHandle(GrGLUniformManager::kInvalidUniformHandle) {
@@ -383,8 +383,8 @@ public:
         }
 
         virtual void setData(const GrGLUniformManager& uniManager,
-                             const GrEffect& stage) SK_OVERRIDE {
-            const ColorMatrixEffect& cme = static_cast<const ColorMatrixEffect&>(stage);
+                             const GrEffect& effect) SK_OVERRIDE {
+            const ColorMatrixEffect& cme = static_cast<const ColorMatrixEffect&>(effect);
             const float* m = cme.fMatrix.fMat;
             // The GL matrix is transposed from SkColorMatrix.
             GrGLfloat mt[]  = {

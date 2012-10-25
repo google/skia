@@ -562,7 +562,7 @@ void GrGLLinearGradient::emitFS(GrGLShaderBuilder* builder,
 bool SkLinearGradient::asNewEffect(GrContext* context, GrSamplerState* sampler) const {
     SkASSERT(NULL != context && NULL != sampler);
 
-    SkAutoTUnref<GrEffect> stage(SkNEW_ARGS(GrLinearGradient, (context, *this, fTileMode)));
+    SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrLinearGradient, (context, *this, fTileMode)));
 
     SkMatrix matrix;
     if (this->getLocalMatrix(&matrix)) {
@@ -570,9 +570,9 @@ bool SkLinearGradient::asNewEffect(GrContext* context, GrSamplerState* sampler) 
             return false;
         }
         matrix.postConcat(fPtsToUnit);
-        sampler->setEffect(stage, matrix);
+        sampler->setEffect(effect, matrix);
     } else {
-        sampler->setEffect(stage, fPtsToUnit);
+        sampler->setEffect(effect, fPtsToUnit);
     }
 
     return true;

@@ -77,7 +77,7 @@ public:
     /** A GrGLProgramStage instance can be reused with any GrEffect that produces the same stage
         key; this function reads data from a stage and uploads any uniform variables required
         by the shaders created in emitCode(). */
-    virtual void setData(const GrGLUniformManager&, const GrEffect& stage);
+    virtual void setData(const GrGLUniformManager&, const GrEffect&);
 
     const char* name() const { return fFactory.name(); }
 

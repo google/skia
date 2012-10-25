@@ -512,9 +512,9 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
             SkColor filtered = colorFilter->filterColor(skPaint.getColor());
             grPaint->setColor(SkColor2GrColor(filtered));
         } else {
-            SkAutoTUnref<GrEffect> stage(colorFilter->asNewEffect(dev->context()));
-            if (NULL != stage.get()) {
-                grPaint->colorSampler(kColorFilterTextureIdx)->setEffect(stage);
+            SkAutoTUnref<GrEffect> effect(colorFilter->asNewEffect(dev->context()));
+            if (NULL != effect.get()) {
+                grPaint->colorSampler(kColorFilterTextureIdx)->setEffect(effect);
             } else {
                 // TODO: rewrite this using asNewEffect()
                 SkColor color;
@@ -1415,7 +1415,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
     }
 
     GrRect textureDomain = GrRect::MakeEmpty();
-    SkAutoTUnref<GrEffect> stage;
+    SkAutoTUnref<GrEffect> effect;
     if (needsTextureDomain) {
         // Use a constrained texture domain to avoid color bleeding
         GrScalar left, top, right, bottom;
@@ -1434,11 +1434,11 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
             top = bottom = GrScalarHalf(paintRect.top() + paintRect.bottom());
         }
         textureDomain.setLTRB(left, top, right, bottom);
-        stage.reset(SkNEW_ARGS(GrTextureDomainEffect, (texture, textureDomain, params)));
+        effect.reset(SkNEW_ARGS(GrTextureDomainEffect, (texture, textureDomain, params)));
     } else {
-        stage.reset(SkNEW_ARGS(GrSingleTextureEffect, (texture, params)));
+        effect.reset(SkNEW_ARGS(GrSingleTextureEffect, (texture, params)));
     }
-    grPaint->colorSampler(kBitmapTextureIdx)->setEffect(stage);
+    grPaint->colorSampler(kBitmapTextureIdx)->setEffect(effect);
     fContext->drawRectToRect(*grPaint, dstRect, paintRect, &m);
 }
 
@@ -1475,18 +1475,18 @@ static GrTexture* filter_texture(SkDevice* device, GrContext* context,
     desc.fWidth = SkScalarCeilToInt(rect.width());
     desc.fHeight = SkScalarCeilToInt(rect.height());
     desc.fConfig = kRGBA_8888_GrPixelConfig;
-    GrEffect* stage;
+    GrEffect* effect;
 
     if (filter->canFilterImageGPU()) {
         // Save the render target and set it to NULL, so we don't accidentally draw to it in the
         // filter.  Also set the clip wide open and the matrix to identity.
         GrContext::AutoWideOpenIdentityDraw awo(context, NULL);
         texture = filter->onFilterImageGPU(&proxy, texture, rect);
-    } else if (filter->asNewEffect(&stage, texture)) {
+    } else if (filter->asNewEffect(&effect, texture)) {
         GrAutoScratchTexture dst(context, desc);
-        apply_effect(context, texture, dst.texture(), rect, stage);
+        apply_effect(context, texture, dst.texture(), rect, effect);
         texture = dst.detach();
-        stage->unref();
+        effect->unref();
     }
     return texture;
 }

@@ -896,7 +896,7 @@ void GrGLProgram::initSamplerUniforms() {
 // Stage code generation
 
 // TODO: Move this function to GrGLShaderBuilder
-GrGLProgramStage* GrGLProgram::GenStageCode(const GrEffect* stage,
+GrGLProgramStage* GrGLProgram::GenStageCode(const GrEffect* effect,
                                             const StageDesc& desc,
                                             StageUniforms* uniforms,
                                             const char* fsInColor, // NULL means no incoming color
@@ -904,7 +904,7 @@ GrGLProgramStage* GrGLProgram::GenStageCode(const GrEffect* stage,
                                             const char* vsInCoord,
                                             GrGLShaderBuilder* builder) {
 
-    GrGLProgramStage* glStage = stage->getFactory().createGLInstance(*stage);
+    GrGLProgramStage* glStage = effect->getFactory().createGLInstance(*effect);
 
     /// Vertex Shader Stuff
 
@@ -932,13 +932,13 @@ GrGLProgramStage* GrGLProgram::GenStageCode(const GrEffect* stage,
                         &varyingFSName);
     builder->setupTextureAccess(varyingFSName, texCoordVaryingType);
 
-    int numTextures = stage->numTextures();
+    int numTextures = effect->numTextures();
     SkSTArray<8, GrGLShaderBuilder::TextureSampler> textureSamplers;
 
     textureSamplers.push_back_n(numTextures);
 
     for (int i = 0; i < numTextures; ++i) {
-        textureSamplers[i].init(builder, &stage->textureAccess(i));
+        textureSamplers[i].init(builder, &effect->textureAccess(i));
         uniforms->fSamplerUniforms.push_back(textureSamplers[i].fSamplerUniform);
     }
 
@@ -956,7 +956,7 @@ GrGLProgramStage* GrGLProgram::GenStageCode(const GrEffect* stage,
     builder->fVSCode.appendf("\t{ // %s\n", glStage->name());
     builder->fFSCode.appendf("\t{ // %s \n", glStage->name());
     glStage->emitCode(builder,
-                      *stage,
+                      *effect,
                       desc.fCustomStageKey,
                       varyingVSName,
                       fsOutColor,

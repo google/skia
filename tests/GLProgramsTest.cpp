@@ -44,9 +44,9 @@ const GrEffect* create_random_effect(StageDesc* stageDesc,
     // TODO: Remove GrRandom.
     SkRandom sk_random;
     sk_random.setSeed(random->nextU());
-    GrEffect* stage = GrEffectTestFactory::CreateStage(&sk_random, context, dummyTextures);
-    GrAssert(stage);
-    return stage;
+    GrEffect* effect = GrEffectTestFactory::CreateStage(&sk_random, context, dummyTextures);
+    GrAssert(effect);
+    return effect;
 }
 }
 

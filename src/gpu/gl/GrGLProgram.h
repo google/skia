@@ -175,7 +175,7 @@ private:
 
     void genInputColor(GrGLShaderBuilder* builder, SkString* inColor);
 
-    static GrGLProgramStage* GenStageCode(const GrEffect* stage,
+    static GrGLProgramStage* GenStageCode(const GrEffect* effect,
                                           const StageDesc& desc, // TODO: Eliminate this
                                           StageUniforms* stageUniforms, // TODO: Eliminate this
                                           const char* fsInColor, // NULL means no incoming color

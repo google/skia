@@ -11,8 +11,7 @@
 
 class GrGLTextureDomainEffect : public GrGLLegacyProgramStage {
 public:
-    GrGLTextureDomainEffect(const GrProgramStageFactory& factory,
-                            const GrEffect& stage);
+    GrGLTextureDomainEffect(const GrProgramStageFactory&, const GrEffect&);
 
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitVS(GrGLShaderBuilder* builder,
@@ -33,7 +32,7 @@ private:
 };
 
 GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrProgramStageFactory& factory,
-                                                 const GrEffect& stage)
+                                                 const GrEffect&)
     : INHERITED(factory)
     , fNameUni(GrGLUniformManager::kInvalidUniformHandle) {
 }
