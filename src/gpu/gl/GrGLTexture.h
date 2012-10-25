@@ -79,7 +79,7 @@ public:
 
     virtual ~GrGLTexture() { this->release(); }
 
-    virtual intptr_t getTextureHandle() const SK_OVERRIDE;
+    virtual GrBackendObject getTextureHandle() const SK_OVERRIDE;
 
     virtual void invalidateCachedState() SK_OVERRIDE { fTexParams.invalidate(); }
 

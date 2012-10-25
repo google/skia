@@ -59,10 +59,10 @@ public:
     GrGLuint textureFBOID() const { return fTexFBOID; }
 
     // override of GrRenderTarget
-    virtual intptr_t getRenderTargetHandle() const {
+    virtual GrBackendObject getRenderTargetHandle() const {
         return this->renderFBOID();
     }
-    virtual intptr_t getRenderTargetResolvedHandle() const {
+    virtual GrBackendObject getRenderTargetResolvedHandle() const {
         return this->textureFBOID();
     }
     virtual ResolveType getResolveType() const {

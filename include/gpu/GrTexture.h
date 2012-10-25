@@ -111,9 +111,9 @@ public:
 
     /**
      *  Return the native ID or handle to the texture, depending on the
-     *  platform. e.g. on opengl, return the texture ID.
+     *  platform. e.g. on OpenGL, return the texture ID.
      */
-    virtual intptr_t getTextureHandle() const = 0;
+    virtual GrBackendObject getTextureHandle() const = 0;
 
     /**
      *  Call this when the state of the native API texture object is
