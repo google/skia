@@ -8,7 +8,7 @@
 #include "GrConfigConversionEffect.h"
 #include "gl/GrGLEffect.h"
 
-class GrGLConfigConversionEffect : public GrGLLegacyProgramStage {
+class GrGLConfigConversionEffect : public GrGLLegacyEffect {
 public:
     GrGLConfigConversionEffect(const GrProgramStageFactory& factory,
                                const GrEffect& s) : INHERITED (factory) {
@@ -67,7 +67,7 @@ private:
     bool                                    fSwapRedAndBlue;
     GrConfigConversionEffect::PMConversion  fPMConversion;
 
-    typedef GrGLLegacyProgramStage INHERITED;
+    typedef GrGLLegacyEffect INHERITED;
 
 };
 

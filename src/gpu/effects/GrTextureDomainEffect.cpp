@@ -9,7 +9,7 @@
 #include "gl/GrGLEffect.h"
 #include "GrProgramStageFactory.h"
 
-class GrGLTextureDomainEffect : public GrGLLegacyProgramStage {
+class GrGLTextureDomainEffect : public GrGLLegacyEffect {
 public:
     GrGLTextureDomainEffect(const GrProgramStageFactory&, const GrEffect&);
 
@@ -28,7 +28,7 @@ public:
 private:
     GrGLUniformManager::UniformHandle fNameUni;
 
-    typedef GrGLLegacyProgramStage INHERITED;
+    typedef GrGLLegacyEffect INHERITED;
 };
 
 GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrProgramStageFactory& factory,

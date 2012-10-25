@@ -93,9 +93,9 @@ protected:
  * to continue to work by change their parent class to this class. New program stages should not use
  * this interface. It will be removed once older stages are modified to implement emitCode().
  */
-class GrGLLegacyProgramStage : public GrGLEffect {
+class GrGLLegacyEffect : public GrGLEffect {
 public:
-    GrGLLegacyProgramStage(const GrProgramStageFactory& factory) : GrGLEffect(factory) {}
+    GrGLLegacyEffect(const GrProgramStageFactory& factory) : GrGLEffect(factory) {}
 
     virtual void setupVariables(GrGLShaderBuilder* builder) {};
     virtual void emitVS(GrGLShaderBuilder* builder,

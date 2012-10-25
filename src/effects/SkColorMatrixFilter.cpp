@@ -339,7 +339,7 @@ public:
 
     GR_DECLARE_EFFECT_TEST;
 
-    class GLProgramStage : public GrGLLegacyProgramStage {
+    class GLProgramStage : public GrGLLegacyEffect {
     public:
         // this class always generates the same code.
         static StageKey GenKey(const GrEffect& s, const GrGLCaps&) { return 0; }
@@ -409,7 +409,7 @@ public:
 private:
     SkColorMatrix fMatrix;
 
-    typedef GrGLLegacyProgramStage INHERITED;
+    typedef GrGLLegacyEffect INHERITED;
 };
 
 GR_DEFINE_EFFECT_TEST(ColorMatrixEffect);

@@ -266,7 +266,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GrGLMorphologyEffect  : public GrGLLegacyProgramStage {
+class GrGLMorphologyEffect  : public GrGLLegacyEffect {
 public:
     GrGLMorphologyEffect (const GrProgramStageFactory& factory,
                           const GrEffect& effect);
@@ -290,7 +290,7 @@ private:
     GrMorphologyEffect::MorphologyType  fType;
     GrGLUniformManager::UniformHandle   fImageIncrementUni;
 
-    typedef GrGLLegacyProgramStage INHERITED;
+    typedef GrGLLegacyEffect INHERITED;
 };
 
 GrGLMorphologyEffect::GrGLMorphologyEffect(const GrProgramStageFactory& factory,
