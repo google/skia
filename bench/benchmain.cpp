@@ -203,17 +203,16 @@ public:
         if (!glCtx->init(width, height)) {
             return false;
         }
-        GrPlatform3DContext ctx =
-            reinterpret_cast<GrPlatform3DContext>(glCtx->gl());
-        grCtx = GrContext::Create(kOpenGL_Shaders_GrEngine, ctx);
+        GrBackendContext ctx = reinterpret_cast<GrBackendContext>(glCtx->gl());
+        grCtx = GrContext::Create(kOpenGL_GrBackend, ctx);
         if (NULL != grCtx) {
-            GrPlatformRenderTargetDesc desc;
+            GrBackendRenderTargetDesc desc;
             desc.fConfig = kSkia8888_PM_GrPixelConfig;
             desc.fWidth = width;
             desc.fHeight = height;
             desc.fStencilBits = 8;
             desc.fRenderTargetHandle = glCtx->getFBOID();
-            GrRenderTarget* rt = grCtx->createPlatformRenderTarget(desc);
+            GrRenderTarget* rt = grCtx->wrapBackendRenderTarget(desc);
             if (NULL == rt) {
                 grCtx->unref();
                 return false;

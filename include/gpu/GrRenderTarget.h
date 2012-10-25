@@ -70,7 +70,7 @@ public:
      * If this RT is multisampled, this is the multisample buffer
      * @return the 3D API's handle to this object (e.g. FBO ID in OpenGL)
      */
-    virtual intptr_t getRenderTargetHandle() const = 0;
+    virtual GrBackendObject getRenderTargetHandle() const = 0;
 
     /**
      * If this RT is multisampled, this is the buffer it is resolved to.
@@ -78,7 +78,7 @@ public:
      * (In GL a separate FBO ID is used for the msaa and resolved buffers)
      * @return the 3D API's handle to this object (e.g. FBO ID in OpenGL)
      */
-    virtual intptr_t getRenderTargetResolvedHandle() const = 0;
+    virtual GrBackendObject getRenderTargetResolvedHandle() const = 0;
 
     /**
      * @return true if the surface is multisampled, false otherwise
@@ -94,9 +94,9 @@ public:
      * Call to indicate the multisample contents were modified such that the
      * render target needs to be resolved before it can be used as texture. Gr
      * tracks this for its own drawing and thus this only needs to be called
-     * when the render target has been modified outside of Gr. Only meaningful
-     * for Gr-created RT/Textures and Platform RT/Textures created with the
-     * kGrCanResolve flag.
+     * when the render target has been modified outside of Gr. This has no
+     * effect on wrapped backend render targets.
+     *
      * @param rect  a rect bounding the area needing resolve. NULL indicates
      *              the whole RT needs resolving.
      */

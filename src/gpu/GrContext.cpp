@@ -59,10 +59,9 @@ static const int DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS = 4;
 
 #define ASSERT_OWNED_RESOURCE(R) GrAssert(!(R) || (R)->getContext() == this)
 
-GrContext* GrContext::Create(GrEngine engine,
-                             GrPlatform3DContext context3D) {
+GrContext* GrContext::Create(GrBackend backend, GrBackendContext context) {
     GrContext* ctx = NULL;
-    GrGpu* fGpu = GrGpu::Create(engine, context3D);
+    GrGpu* fGpu = GrGpu::Create(backend, context);
     if (NULL != fGpu) {
         ctx = SkNEW_ARGS(GrContext, (fGpu));
         fGpu->unref();
@@ -531,12 +530,12 @@ int GrContext::getMaxRenderTargetSize() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrTexture* GrContext::createPlatformTexture(const GrPlatformTextureDesc& desc) {
-    return fGpu->createPlatformTexture(desc);
+GrTexture* GrContext::wrapBackendTexture(const GrBackendTextureDesc& desc) {
+    return fGpu->wrapBackendTexture(desc);
 }
 
-GrRenderTarget* GrContext::createPlatformRenderTarget(const GrPlatformRenderTargetDesc& desc) {
-    return fGpu->createPlatformRenderTarget(desc);
+GrRenderTarget* GrContext::wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc) {
+    return fGpu->wrapBackendRenderTarget(desc);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -186,16 +186,15 @@ static inline int16_t GrToS16(intptr_t x) {
 /**
  * Possible 3D APIs that may be used by Ganesh.
  */
-enum GrEngine {
-    kOpenGL_Shaders_GrEngine,
-    kOpenGL_Fixed_GrEngine,
+enum GrBackend {
+    kOpenGL_GrBackend,
 };
 
 /**
- * Engine-specific 3D context handle
+ * Backend-specific 3D context handle
  *      GrGLInterface* for OpenGL. If NULL will use the default GL interface.
  */
-typedef intptr_t GrPlatform3DContext;
+typedef intptr_t GrBackendContext;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -595,7 +594,7 @@ static inline bool GrIsFillInverted(GrPathFill fill) {
 ///////////////////////////////////////////////////////////////////////////////
 
 // opaque type for 3D API object handles
-typedef intptr_t GrPlatform3DObject;
+typedef intptr_t GrBackendObject;
 
 /**
  * Gr can wrap an existing texture created by the client with a GrTexture
@@ -618,11 +617,11 @@ typedef intptr_t GrPlatform3DObject;
  * Note: These flags currently form a subset of GrTexture's flags.
  */
 
-enum GrPlatformTextureFlags {
+enum GrBackendTextureFlags {
     /**
      * No flags enabled
      */
-    kNone_GrPlatformTextureFlag              = kNone_GrTextureFlags,
+    kNone_GrBackendTextureFlag             = kNone_GrTextureFlags,
     /**
      * Indicates that the texture is also a render target, and thus should have
      * a GrRenderTarget object.
@@ -630,13 +629,13 @@ enum GrPlatformTextureFlags {
      * D3D (future): client must have created the texture with flags that allow
      * it to be used as a render target.
      */
-    kRenderTarget_GrPlatformTextureFlag      = kRenderTarget_GrTextureFlagBit,
+    kRenderTarget_GrBackendTextureFlag     = kRenderTarget_GrTextureFlagBit,
 };
-GR_MAKE_BITFIELD_OPS(GrPlatformTextureFlags)
+GR_MAKE_BITFIELD_OPS(GrBackendTextureFlags)
 
-struct GrPlatformTextureDesc {
-    GrPlatformTextureDesc() { memset(this, 0, sizeof(*this)); }
-    GrPlatformTextureFlags          fFlags;
+struct GrBackendTextureDesc {
+    GrBackendTextureDesc() { memset(this, 0, sizeof(*this)); }
+    GrBackendTextureFlags           fFlags;
     int                             fWidth;         //<! width in pixels
     int                             fHeight;        //<! height in pixels
     GrPixelConfig                   fConfig;        //<! color format
@@ -649,7 +648,7 @@ struct GrPlatformTextureDesc {
      * Handle to the 3D API object.
      * OpenGL: Texture ID.
      */
-    GrPlatform3DObject              fTextureHandle;
+    GrBackendObject                 fTextureHandle;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -664,14 +663,14 @@ struct GrPlatformTextureDesc {
  * the 3D API doesn't require this (OpenGL).
  */
 
-struct GrPlatformRenderTargetDesc {
-    GrPlatformRenderTargetDesc() { memset(this, 0, sizeof(*this)); }
+struct GrBackendRenderTargetDesc {
+    GrBackendRenderTargetDesc() { memset(this, 0, sizeof(*this)); }
     int                             fWidth;         //<! width in pixels
     int                             fHeight;        //<! height in pixels
     GrPixelConfig                   fConfig;        //<! color format
     /**
      * The number of samples per pixel. Gr uses this to influence decisions
-     * about applying other forms of antialiasing.
+     * about applying other forms of anti-aliasing.
      */
     int                             fSampleCnt;
     /**
@@ -682,9 +681,26 @@ struct GrPlatformRenderTargetDesc {
      * Handle to the 3D API object.
      * OpenGL: FBO ID
      */
-    GrPlatform3DObject              fRenderTargetHandle;
+    GrBackendObject                 fRenderTargetHandle;
 };
 
+///////////////////////////////////////////////////////////////////////////////
+// Legacy names that will be kept until WebKit can be updated.
+
+typedef GrBackend GrEngine;
+static const GrBackend kOpenGL_Shaders_GrEngine = kOpenGL_GrBackend;
+
+typedef GrBackendContext GrPlatform3DContext;
+
+typedef GrBackendObject GrPlatform3DObject;
+
+typedef GrBackendTextureFlags GrPlatformTextureFlags;
+static const GrBackendTextureFlags kNone_GrPlatformTextureFlag = kNone_GrBackendTextureFlag;
+static const GrBackendTextureFlags kRenderTarget_GrPlatformTextureFlag = kRenderTarget_GrBackendTextureFlag;
+
+typedef GrBackendTextureDesc GrPlatformTextureDesc;
+
+typedef GrBackendRenderTargetDesc GrPlatformRenderTargetDesc;
 
 ///////////////////////////////////////////////////////////////////////////////
 

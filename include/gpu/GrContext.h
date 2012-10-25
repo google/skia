@@ -46,10 +46,9 @@ public:
     SK_DECLARE_INST_COUNT(GrContext)
 
     /**
-     * Creates a GrContext from within a 3D context.
+     * Creates a GrContext for a backend context.
      */
-    static GrContext* Create(GrEngine engine,
-                             GrPlatform3DContext context3D);
+    static GrContext* Create(GrBackend, GrBackendContext);
 
     /**
      * Returns the number of GrContext instances for the current thread.
@@ -290,7 +289,7 @@ public:
     bool isConfigRenderable(GrPixelConfig config) const;
 
     ///////////////////////////////////////////////////////////////////////////
-    // Platform Surfaces
+    // Backend Surfaces
 
     /**
      * Wraps an existing texture with a GrTexture object.
@@ -302,11 +301,11 @@ public:
      *
      * @return GrTexture object or NULL on failure.
      */
-    GrTexture* createPlatformTexture(const GrPlatformTextureDesc& desc);
+    GrTexture* wrapBackendTexture(const GrBackendTextureDesc& desc);
 
     /**
      * Wraps an existing render target with a GrRenderTarget object. It is
-     * similar to createPlatformTexture but can be used to draw into surfaces
+     * similar to wrapBackendTexture but can be used to draw into surfaces
      * that are not also textures (e.g. FBO 0 in OpenGL, or an MSAA buffer that
      * the client will resolve to a texture).
      *
@@ -314,8 +313,7 @@ public:
      *
      * @return GrTexture object or NULL on failure.
      */
-     GrRenderTarget* createPlatformRenderTarget(
-                                    const GrPlatformRenderTargetDesc& desc);
+     GrRenderTarget* wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc);
 
     ///////////////////////////////////////////////////////////////////////////
     // Matrix state
@@ -607,7 +605,7 @@ public:
      * be executed before the resolve.
      *
      * This is only necessary when a client wants to access the object directly
-     * using the underlying graphics API. GrContext will detect when it must
+     * using the backend API directly. GrContext will detect when it must
      * perform a resolve to a GrTexture used as the source of a draw or before
      * reading pixels back from a GrTexture or GrRenderTarget.
      */
@@ -859,6 +857,16 @@ public:
 #if GR_CACHE_STATS
     void printCacheStats() const;
 #endif
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Legacy names that will be kept until WebKit can be updated.
+    GrTexture* createPlatformTexture(const GrPlatformTextureDesc& desc) {
+        return this->wrapBackendTexture(desc);
+    }
+        
+    GrRenderTarget* createPlatformRenderTarget(const GrPlatformRenderTargetDesc& desc) {
+        return wrapBackendRenderTarget(desc);
+    }
 
 private:
     // Used to indicate whether a draw should be performed immediately or queued in fDrawBuffer.

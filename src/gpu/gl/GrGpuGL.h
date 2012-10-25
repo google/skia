@@ -66,10 +66,8 @@ protected:
     virtual GrIndexBuffer* onCreateIndexBuffer(uint32_t size,
                                                bool dynamic) SK_OVERRIDE;
     virtual GrPath* onCreatePath(const SkPath&) SK_OVERRIDE;
-    virtual GrTexture* onCreatePlatformTexture(
-        const GrPlatformTextureDesc& desc) SK_OVERRIDE;
-    virtual GrRenderTarget* onCreatePlatformRenderTarget(
-        const GrPlatformRenderTargetDesc& desc) SK_OVERRIDE;
+    virtual GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&) SK_OVERRIDE;
+    virtual GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) SK_OVERRIDE;
     virtual bool createStencilBufferForRenderTarget(GrRenderTarget* rt,
                                                     int width,
                                                     int height) SK_OVERRIDE;

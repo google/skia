@@ -93,8 +93,8 @@ GrContext* GpuTest::GetContext() {
     if (NULL == gGrContext.get()) {
         gGLContext.init();
         if (gGLContext.get()->init(800, 600)) {
-            GrPlatform3DContext ctx = reinterpret_cast<GrPlatform3DContext>(gGLContext.get()->gl());
-            gGrContext.reset(GrContext::Create(kOpenGL_Shaders_GrEngine, ctx));
+            GrBackendContext ctx = reinterpret_cast<GrBackendContext>(gGLContext.get()->gl());
+            gGrContext.reset(GrContext::Create(kOpenGL_GrBackend, ctx));
         }
     }
     if (gGLContext.get()) {

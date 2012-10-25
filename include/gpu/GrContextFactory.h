@@ -95,9 +95,8 @@ public:
         if (!glCtx.get()->init(kBogusSize, kBogusSize)) {
             return NULL;
         }
-        GrPlatform3DContext p3dctx =
-            reinterpret_cast<GrPlatform3DContext>(glCtx.get()->gl());
-        grCtx.reset(GrContext::Create(kOpenGL_Shaders_GrEngine, p3dctx));
+        GrBackendContext p3dctx = reinterpret_cast<GrBackendContext>(glCtx.get()->gl());
+        grCtx.reset(GrContext::Create(kOpenGL_GrBackend, p3dctx));
         if (!grCtx.get()) {
             return NULL;
         }
