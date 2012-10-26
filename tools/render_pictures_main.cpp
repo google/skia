@@ -23,7 +23,8 @@ static void usage(const char* argv0) {
     SkDebugf("SkPicture rendering tool\n");
     SkDebugf("\n"
 "Usage: \n"
-"     %s <input>... <outputDir> \n"
+"     %s <input>... \n"
+"     [-w <outputDir>]"
 "     [--mode pow2tile minWidth height[%] | simple\n"
 "         | tile width[%] height[%]]\n"
 "     [--pipe]\n"
@@ -84,7 +85,7 @@ static void make_output_filepath(SkString* path, const SkString& dir,
     path->remove(path->size() - 4, 4);
 }
 
-static bool render_picture(const SkString& inputPath, const SkString& outputDir,
+static bool render_picture(const SkString& inputPath, const SkString* outputDir,
                            sk_tools::PictureRenderer& renderer) {
     SkString inputFilename;
     sk_tools::get_basename(&inputFilename, inputPath);
@@ -109,12 +110,17 @@ static bool render_picture(const SkString& inputPath, const SkString& outputDir,
     renderer.init(&picture);
     renderer.setup();
 
-    SkString outputPath;
-    make_output_filepath(&outputPath, outputDir, inputFilename);
-
-    success = renderer.render(&outputPath);
-    if (!success) {
-        SkDebugf("Could not write to file %s\n", outputPath.c_str());
+    SkString* outputPath = NULL;
+    if (NULL != outputDir) {
+        outputPath = SkNEW(SkString);
+        make_output_filepath(outputPath, *outputDir, inputFilename);
+    }
+    success = renderer.render(outputPath);
+    if (outputPath) {
+        if (!success) {
+            SkDebugf("Could not write to file %s\n", outputPath->c_str());
+        }
+        SkDELETE(outputPath);
     }
 
     renderer.resetState();
@@ -123,11 +129,12 @@ static bool render_picture(const SkString& inputPath, const SkString& outputDir,
     return success;
 }
 
-static int process_input(const SkString& input, const SkString& outputDir,
+static int process_input(const SkString& input, const SkString* outputDir,
                           sk_tools::PictureRenderer& renderer) {
     SkOSFile::Iter iter(input.c_str(), "skp");
     SkString inputFilename;
     int failures = 0;
+    SkDebugf("process_input, %s\n", input.c_str());
     if (iter.next(&inputFilename)) {
         do {
             SkString inputPath;
@@ -150,7 +157,7 @@ static int process_input(const SkString& input, const SkString& outputDir,
 }
 
 static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* inputs,
-                              sk_tools::PictureRenderer*& renderer){
+                              sk_tools::PictureRenderer*& renderer, SkString*& outputDir){
     const char* argv0 = argv[0];
     char* const* stop = argv + argc;
 
@@ -247,6 +254,14 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
             SkDELETE(renderer);
             usage(argv0);
             exit(-1);
+        } else if (0 == strcmp(*argv, "-w")) {
+            ++argv;
+            if (argv >= stop) {
+                SkDebugf("Missing output directory for -w\n");
+                usage(argv0);
+                exit(-1);
+            }
+            outputDir = SkNEW_ARGS(SkString, (*argv));
         } else {
             inputs->push_back(SkString(*argv));
         }
@@ -325,8 +340,11 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
         renderer = SkNEW(sk_tools::PipePictureRenderer);
     }
 
-    if (inputs->count() < 2) {
+    if (inputs->empty()) {
         SkDELETE(renderer);
+        if (NULL != outputDir) {
+            SkDELETE(outputDir);
+        }
         usage(argv0);
         exit(-1);
     }
@@ -343,13 +361,12 @@ int tool_main(int argc, char** argv) {
     SkAutoGraphics ag;
     SkTArray<SkString> inputs;
     sk_tools::PictureRenderer* renderer = NULL;
-
-    parse_commandline(argc, argv, &inputs, renderer);
-    SkString outputDir = inputs[inputs.count() - 1];
+    SkString* outputDir = NULL;
+    parse_commandline(argc, argv, &inputs, renderer, outputDir);
     SkASSERT(renderer);
 
     int failures = 0;
-    for (int i = 0; i < inputs.count() - 1; i ++) {
+    for (int i = 0; i < inputs.count(); i ++) {
         failures += process_input(inputs[i], outputDir, *renderer);
     }
     if (failures != 0) {
@@ -365,7 +382,9 @@ int tool_main(int argc, char** argv) {
     }
 #endif
 #endif
-
+    if (NULL != outputDir) {
+        SkDELETE(outputDir);
+    }
     SkDELETE(renderer);
     return 0;
 }

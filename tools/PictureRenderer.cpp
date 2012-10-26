@@ -163,7 +163,10 @@ bool PipePictureRenderer::render(const SkString* path) {
     pipeCanvas->drawPicture(*fPicture);
     writer.endRecording();
     fCanvas->flush();
-    return path != NULL && write(fCanvas, *path);
+    if (NULL != path) {
+        return write(fCanvas, *path);
+    }
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -177,7 +180,10 @@ bool SimplePictureRenderer::render(const SkString* path) {
 
     fCanvas->drawPicture(*fPicture);
     fCanvas->flush();
-    return path != NULL && write(fCanvas, *path);
+    if (NULL != path) {
+        return write(fCanvas, *path);
+    }
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -382,7 +388,8 @@ static void DrawTile(void* data) {
     int32_t i;
     while ((i = tileData->nextTile(&tileRect)) != -1) {
         DrawTileToCanvas(tileData->fCanvas, tileRect, tileData->fController);
-        if (!writeAppendNumber(tileData->fCanvas, tileData->fPath, i)) {
+        if (NULL != tileData->fPath &&
+            !writeAppendNumber(tileData->fCanvas, tileData->fPath, i)) {
             *tileData->fSuccess = false;
             break;
         }
@@ -412,7 +419,8 @@ static void DrawClonedTiles(void* data) {
     int32_t i;
     while ((i = cloneData->nextTile(&tileRect)) != -1) {
         DrawTileToCanvas(cloneData->fCanvas, tileRect, cloneData->fClone);
-        if (!writeAppendNumber(cloneData->fCanvas, cloneData->fPath, i)) {
+        if (NULL != cloneData->fPath &&
+            !writeAppendNumber(cloneData->fCanvas, cloneData->fPath, i)) {
             *cloneData->fSuccess = false;
             break;
         }
@@ -486,13 +494,14 @@ bool TiledPictureRenderer::render(const SkString* path) {
         SkCanvas* canvas = this->setupCanvas(fTileWidth, fTileHeight);
         SkAutoUnref aur(canvas);
 
+        bool success = true;
         for (int i = 0; i < fTileRects.count(); ++i) {
             DrawTileToCanvas(canvas, fTileRects[i], fPicture);
-            if (!writeAppendNumber(canvas, path, i)) {
-                return false;
+            if (NULL != path) {
+                success &= writeAppendNumber(canvas, path, i);
             }
         }
-        return path != NULL;
+        return success;
     }
 }
 
