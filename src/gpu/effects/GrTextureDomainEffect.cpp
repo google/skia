@@ -9,17 +9,17 @@
 #include "gl/GrGLEffect.h"
 #include "GrBackendEffectFactory.h"
 
-class GrGLTextureDomainEffect : public GrGLLegacyEffect {
+class GrGLTextureDomainEffect : public GrGLEffect {
 public:
     GrGLTextureDomainEffect(const GrBackendEffectFactory&, const GrEffect&);
 
-    virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
-    virtual void emitVS(GrGLShaderBuilder* builder,
-                        const char* vertexCoords) SK_OVERRIDE { }
-    virtual void emitFS(GrGLShaderBuilder* builder,
-                        const char* outputColor,
-                        const char* inputColor,
-                        const TextureSamplerArray&) SK_OVERRIDE;
+    virtual void emitCode(GrGLShaderBuilder*,
+                          const GrEffect&,
+                          EffectKey,
+                          const char* vertexCoords,
+                          const char* outputColor,
+                          const char* inputColor,
+                          const TextureSamplerArray&) SK_OVERRIDE;
 
     virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
 
@@ -28,7 +28,7 @@ public:
 private:
     GrGLUniformManager::UniformHandle fNameUni;
 
-    typedef GrGLLegacyEffect INHERITED;
+    typedef GrGLEffect INHERITED;
 };
 
 GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrBackendEffectFactory& factory,
@@ -37,15 +37,17 @@ GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrBackendEffectFactory& f
     , fNameUni(GrGLUniformManager::kInvalidUniformHandle) {
 }
 
-void GrGLTextureDomainEffect::setupVariables(GrGLShaderBuilder* builder) {
+void GrGLTextureDomainEffect::emitCode(GrGLShaderBuilder* builder,
+                                       const GrEffect&,
+                                       EffectKey,
+                                       const char* vertexCoords,
+                                       const char* outputColor,
+                                       const char* inputColor,
+                                       const TextureSamplerArray& samplers) {
+
     fNameUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                    kVec4f_GrSLType, "TexDom");
-};
 
-void GrGLTextureDomainEffect::emitFS(GrGLShaderBuilder* builder,
-                                     const char* outputColor,
-                                     const char* inputColor,
-                                     const TextureSamplerArray& samplers) {
     builder->fFSCode.appendf("\tvec2 clampCoord = clamp(%s, %s.xy, %s.zw);\n",
                            builder->defaultTexCoordsName(),
                            builder->getUniformCStr(fNameUni),
