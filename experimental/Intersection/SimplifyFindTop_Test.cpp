@@ -32,7 +32,9 @@ static const SimplifyFindTopTest::Segment* testCommon(
     const SimplifyFindTopTest::Segment* topSegment = topStart->findTop(index,
             end);
 #else
-    const SimplifyFindTopTest::Segment* topSegment = findSortableTop(contourList, index, end);
+    SkPoint bestXY = {SK_ScalarMin, SK_ScalarMin};
+    const SimplifyFindTopTest::Segment* topSegment =
+            findSortableTop(contourList, index, end, bestXY);
 #endif
     return topSegment;
 }

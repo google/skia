@@ -24,7 +24,7 @@ static SkImageFilter* make2() {
     SkColorFilter* cf = SkColorFilter::CreateModeFilter(SK_ColorBLUE,
                                                         SkXfermode::kSrcIn_Mode);
     SkAutoUnref aur(cf);
-    return new SkColorFilterImageFilter(cf);
+    return SkColorFilterImageFilter::Create(cf);
 }
 static SkImageFilter* make3() {
     return new SkBlurImageFilter(8, 0);
@@ -56,7 +56,7 @@ static SkImageFilter* make6() {
     SkColorFilter* cf = SkColorFilter::CreateModeFilter(0x880000FF,
                                                         SkXfermode::kSrcIn_Mode);
     SkAutoUnref aur3(cf);
-    SkImageFilter* blue = new SkColorFilterImageFilter(cf);
+    SkImageFilter* blue = SkColorFilterImageFilter::Create(cf);
     SkAutoUnref aur4(blue);
 
     return new SkMergeImageFilter(compose, blue);
@@ -73,7 +73,7 @@ static SkImageFilter* make7() {
     SkColorFilter* cf = SkColorFilter::CreateModeFilter(0x880000FF,
                                                         SkXfermode::kSrcIn_Mode);
     SkAutoUnref aur3(cf);
-    SkImageFilter* blue = new SkColorFilterImageFilter(cf);
+    SkImageFilter* blue = SkColorFilterImageFilter::Create(cf);
     SkAutoUnref aur4(blue);
 
     return new SkMergeImageFilter(compose, blue);
