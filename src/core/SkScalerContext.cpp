@@ -462,29 +462,28 @@ static void generateMask(const SkMask& mask, const SkPath& path,
     draw.fBitmap = &bm;
     draw.drawPath(path, paint);
 
-    if (0 == dstRB) {
-        switch (mask.fFormat) {
-            case SkMask::kA8_Format:
-                if (maskPreBlend.isApplicable()) {
-                    applyLUTToA8Mask(mask, maskPreBlend.fG);
-                }
-            case SkMask::kLCD16_Format:
-                if (maskPreBlend.isApplicable()) {
-                    pack3xHToLCD16<true>(bm, mask, maskPreBlend);
-                } else {
-                    pack3xHToLCD16<false>(bm, mask, maskPreBlend);
-                }
-                break;
-            case SkMask::kLCD32_Format:
-                if (maskPreBlend.isApplicable()) {
-                    pack3xHToLCD32<true>(bm, mask, maskPreBlend);
-                } else {
-                    pack3xHToLCD32<false>(bm, mask, maskPreBlend);
-                }
-                break;
-            default:
-                SkDEBUGFAIL("bad format for copyback");
-        }
+    switch (mask.fFormat) {
+        case SkMask::kA8_Format:
+            if (maskPreBlend.isApplicable()) {
+                applyLUTToA8Mask(mask, maskPreBlend.fG);
+            }
+            break;
+        case SkMask::kLCD16_Format:
+            if (maskPreBlend.isApplicable()) {
+                pack3xHToLCD16<true>(bm, mask, maskPreBlend);
+            } else {
+                pack3xHToLCD16<false>(bm, mask, maskPreBlend);
+            }
+            break;
+        case SkMask::kLCD32_Format:
+            if (maskPreBlend.isApplicable()) {
+                pack3xHToLCD32<true>(bm, mask, maskPreBlend);
+            } else {
+                pack3xHToLCD32<false>(bm, mask, maskPreBlend);
+            }
+            break;
+        default:
+            break;
     }
 }
 
