@@ -26,23 +26,26 @@ public:
     SK_DECLARE_INST_COUNT(GrDrawState)
 
     /**
-     * Number of effect stages. Each stage takes as input a color and
-     * 2D texture coordinates. The color input to the first enabled stage is the
-     * per-vertex color or the constant color (setColor/setAlpha) if there are
-     * no per-vertex colors. For subsequent stages the input color is the output
-     * color from the previous enabled stage. The output color of each stage is
-     * the input color modulated with the result of a texture lookup. Texture
-     * lookups are specified by a texture a sampler (setSamplerState). Texture
-     * coordinates for each stage come from the vertices based on a
-     * GrVertexLayout bitfield. The output fragment color is the output color of
-     * the last enabled stage. The presence or absence of texture coordinates
-     * for each stage in the vertex layout indicates whether a stage is enabled
-     * or not.
+     * Total number of effect stages. Each stage can host a GrEffect. A stage is enabled if it has a
+     * GrEffect. The effect produces an output color in the fragment shader. It's inputs are the
+     * output from the previous enabled stage and a position. The position is either derived from
+     * the interpolated vertex positions or explicit per-vertex coords, depending upon the
+     * GrVertexLayout used to draw.
      *
-     * Stages 0 through GrPaint::kTotalStages-1 are reserved for setting up
-     * the draw (i.e., textures and filter masks). Stages GrPaint::kTotalStages
-     * through kNumStages-2 are earmarked for use by GrTextContext and
-     * GrPathRenderer-derived classes. kNumStages-1 is earmarked for clipping
+     * The stages are divided into two sets, color-computing and coverage-computing. The final color
+     * stage produces the final pixel color. The coverage-computing stages function exactly as the
+     * color-computing but the output of the final coverage stage is treated as a fractional pixel
+     * coverage rather than as input to the src/dst color blend step.
+     *
+     * The input color to the first enabled color-stage is either the constant color or interpolated
+     * per-vertex colors, depending upon GrVertexLayout. The input to the first coverage stage is
+     * either a constant coverage (usually full-coverage), interpolated per-vertex coverage, or
+     * edge-AA computed coverage. (This latter is going away as soon as it can be rewritten as a
+     * GrEffect).
+     *
+     * Stages 0 through GrPaint::kTotalStages-1 are reserved for stages copied from the client's
+     * GrPaint. Stages GrPaint::kTotalStages through kNumStages-2 are earmarked for use by
+     * GrTextContext and GrPathRenderer-derived classes. kNumStages-1 is earmarked for clipping
      * by GrClipMaskManager.
      */
     enum {
