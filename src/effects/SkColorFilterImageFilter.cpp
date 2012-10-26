@@ -56,6 +56,24 @@ bool matrix_needs_clamping(SkScalar matrix[20]) {
 
 };
 
+SkColorFilterImageFilter* SkColorFilterImageFilter::Create(SkColorFilter* cf,
+        SkImageFilter* input) {
+    SkASSERT(cf);
+    SkScalar colorMatrix[20], inputMatrix[20];
+    SkColorFilter* inputColorFilter;
+    if (input && cf->asColorMatrix(colorMatrix)
+              && (inputColorFilter = input->asColorFilter())
+              && inputColorFilter->asColorMatrix(inputMatrix)
+              && !matrix_needs_clamping(inputMatrix)) {
+        SkScalar combinedMatrix[20];
+        mult_color_matrix(inputMatrix, colorMatrix, combinedMatrix);
+        SkAutoTUnref<SkColorFilter> newCF(SkNEW_ARGS(SkColorMatrixFilter, (combinedMatrix)));
+        return SkNEW_ARGS(SkColorFilterImageFilter, (newCF, input->getInput(0)));
+    } else {
+        return SkNEW_ARGS(SkColorFilterImageFilter, (cf, input));
+    }
+}
+
 SkColorFilterImageFilter::SkColorFilterImageFilter(SkColorFilter* cf, SkImageFilter* input) : INHERITED(input), fColorFilter(cf) {
     SkASSERT(cf);
     SkSafeRef(cf);
@@ -79,37 +97,13 @@ bool SkColorFilterImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& sourc
                                              const SkMatrix& matrix,
                                              SkBitmap* result,
                                              SkIPoint* loc) {
-    SkImageFilter* parent = getInput(0);
-    SkScalar colorMatrix[20];
-    SkBitmap src;
-    SkColorFilter* cf;
-    if (parent && fColorFilter->asColorMatrix(colorMatrix)) {
-        SkColorFilter* parentColorFilter;
-        SkScalar parentMatrix[20];
-        while (parent && (parentColorFilter = parent->asColorFilter())
-                      && parentColorFilter->asColorMatrix(parentMatrix)
-                      && !matrix_needs_clamping(parentMatrix)) {
-            SkScalar combinedMatrix[20];
-            mult_color_matrix(parentMatrix, colorMatrix, combinedMatrix);
-            memcpy(colorMatrix, combinedMatrix, 20 * sizeof(SkScalar));
-            parent = parent->getInput(0);
-        }
-        if (!parent || !parent->filterImage(proxy, source, matrix, &src, loc)) {
-            src = source;
-        }
-        cf = SkNEW_ARGS(SkColorMatrixFilter, (colorMatrix));
-    } else {
-        src = this->getInputResult(proxy, source, matrix, loc);
-        cf = fColorFilter;
-        cf->ref();
-    }
-
+    SkBitmap src = this->getInputResult(proxy, source, matrix, loc);
     SkAutoTUnref<SkDevice> device(proxy->createDevice(src.width(), src.height()));
     SkCanvas canvas(device.get());
     SkPaint paint;
 
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-    paint.setColorFilter(cf)->unref();
+    paint.setColorFilter(fColorFilter);
     canvas.drawSprite(src, 0, 0, &paint);
 
     *result = device.get()->accessBitmap(false);

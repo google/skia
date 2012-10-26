@@ -29,7 +29,7 @@ static SkImageFilter* make_brightness(float amount, SkImageFilter* input = NULL)
                             0, 0, 1, 0, amount255,
                             0, 0, 0, 1, 0 };
     SkAutoTUnref<SkColorFilter> filter(new SkColorMatrixFilter(matrix));
-    return new SkColorFilterImageFilter(filter, input);
+    return SkColorFilterImageFilter::Create(filter, input);
 }
 
 static SkImageFilter* make_grayscale(SkImageFilter* input = NULL) {
@@ -40,13 +40,13 @@ static SkImageFilter* make_grayscale(SkImageFilter* input = NULL) {
     matrix[2] = matrix[7] = matrix[12] = SkFloatToScalar(0.0722f);
     matrix[18] = SkFloatToScalar(1.0f);
     SkAutoTUnref<SkColorFilter> filter(new SkColorMatrixFilter(matrix));
-    return new SkColorFilterImageFilter(filter, input);
+    return SkColorFilterImageFilter::Create(filter, input);
 }
 
 static SkImageFilter* make_mode_blue(SkImageFilter* input = NULL) {
     SkAutoTUnref<SkColorFilter> filter(
         SkColorFilter::CreateModeFilter(SK_ColorBLUE, SkXfermode::kSrcIn_Mode));
-    return new SkColorFilterImageFilter(filter, input);
+    return SkColorFilterImageFilter::Create(filter, input);
 }
 
 class ColorFilterImageFilterGM : public skiagm::GM {

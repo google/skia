@@ -176,12 +176,10 @@ protected:
         SkColorFilter* cf = SkColorFilter::CreateModeFilter(SK_ColorRED,
                                                      SkXfermode::kSrcIn_Mode);
         SkImageFilter* filters[] = {
-#if 1
             NULL,
             new IdentityImageFilter,
             new FailImageFilter,
-            new SkColorFilterImageFilter(cf),
-#endif
+            SkColorFilterImageFilter::Create(cf),
             new SkBlurImageFilter(12.0f, 0.0f),
         };
         cf->unref();

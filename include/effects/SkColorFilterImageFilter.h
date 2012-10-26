@@ -14,7 +14,7 @@ class SkColorFilter;
 
 class SK_API SkColorFilterImageFilter : public SkSingleInputImageFilter {
 public:
-    SkColorFilterImageFilter(SkColorFilter* cf, SkImageFilter* input = NULL);
+    static SkColorFilterImageFilter* Create(SkColorFilter* cf, SkImageFilter* input = NULL);
     virtual ~SkColorFilterImageFilter();
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkColorFilterImageFilter)
@@ -29,6 +29,7 @@ protected:
     virtual SkColorFilter* asColorFilter() const SK_OVERRIDE;
 
 private:
+    SkColorFilterImageFilter(SkColorFilter* cf, SkImageFilter* input);
     SkColorFilter*  fColorFilter;
 
     typedef SkSingleInputImageFilter INHERITED;
