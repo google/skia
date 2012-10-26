@@ -169,15 +169,15 @@ public:
     }
 
 protected:
-    virtual unsigned generateGlyphCount();
-    virtual uint16_t generateCharToGlyph(SkUnichar uni);
-    virtual void generateAdvance(SkGlyph* glyph);
-    virtual void generateMetrics(SkGlyph* glyph);
-    virtual void generateImage(const SkGlyph& glyph, SkMaskGamma::PreBlend* maskPreBlend);
-    virtual void generatePath(const SkGlyph& glyph, SkPath* path);
+    virtual unsigned generateGlyphCount() SK_OVERRIDE;
+    virtual uint16_t generateCharToGlyph(SkUnichar uni) SK_OVERRIDE;
+    virtual void generateAdvance(SkGlyph* glyph) SK_OVERRIDE;
+    virtual void generateMetrics(SkGlyph* glyph) SK_OVERRIDE;
+    virtual void generateImage(const SkGlyph& glyph) SK_OVERRIDE;
+    virtual void generatePath(const SkGlyph& glyph, SkPath* path) SK_OVERRIDE;
     virtual void generateFontMetrics(SkPaint::FontMetrics* mx,
-                                     SkPaint::FontMetrics* my);
-    virtual SkUnichar generateGlyphToChar(uint16_t glyph);
+                                     SkPaint::FontMetrics* my) SK_OVERRIDE;
+    virtual SkUnichar generateGlyphToChar(uint16_t glyph) SK_OVERRIDE;
 
 private:
     SkFaceRec*  fFaceRec;
@@ -1135,7 +1135,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
 }
 
 
-void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph, SkMaskGamma::PreBlend* maskPreBlend) {
+void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
     SkAutoMutexAcquire  ac(gFTMutex);
 
     FT_Error    err;
@@ -1153,7 +1153,7 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph, SkMaskGamma::
         return;
     }
 
-    generateGlyphImage(fFace, glyph, maskPreBlend);
+    generateGlyphImage(fFace, glyph);
 }
 
 
