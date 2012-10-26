@@ -51,7 +51,7 @@ public:
     const GrGLIRect& getViewport() const { return fViewport; }
 
     // The following two functions return the same ID when a
-    // texture-rendertarget is multisampled, and different IDs when
+    // texture/render target is multisampled, and different IDs when
     // it is.
     // FBO ID used to render into
     GrGLuint renderFBOID() const { return fRTFBOID; }
@@ -93,7 +93,7 @@ private:
     // else own them.
     bool        fOwnIDs;
 
-    // when we switch to this rendertarget we want to set the viewport to
+    // when we switch to this render target we want to set the viewport to
     // only render to to content area (as opposed to the whole allocation) and
     // we want the rendering to be at top left (GL has origin in bottom left)
     GrGLIRect fViewport;

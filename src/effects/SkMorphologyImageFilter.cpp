@@ -351,7 +351,7 @@ GrGLEffect::EffectKey GrGLMorphologyEffect::GenKey(const GrEffect& s,
 
 void GrGLMorphologyEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
     const Gr1DKernelEffect& kern = static_cast<const Gr1DKernelEffect&>(*stage.getEffect());
-    GrGLTexture& texture = *static_cast<GrGLTexture*>(kern.texture(0));
+    GrTexture& texture = *kern.texture(0);
     // the code we generated was for a specific kernel radius
     GrAssert(kern.radius() == fRadius);
     float imageIncrement[2] = { 0 };

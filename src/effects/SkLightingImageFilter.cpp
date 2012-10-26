@@ -17,7 +17,6 @@
 #include "GrBackendEffectFactory.h"
 #include "effects/GrSingleTextureEffect.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLTexture.h"
 #include "GrEffect.h"
 
 class GrGLDiffuseLightingEffect;
@@ -1175,8 +1174,8 @@ GrGLEffect::EffectKey GrGLLightingEffect::GenKey(const GrEffect& s,
 
 void GrGLLightingEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
     const GrLightingEffect& effect =static_cast<const GrLightingEffect&>(*stage.getEffect());
-    GrGLTexture* texture = static_cast<GrGLTexture*>(effect.texture(0));
-    float ySign = texture->orientation() == GrGLTexture::kTopDown_Orientation ? -1.0f : 1.0f;
+    GrTexture* texture = effect.texture(0);
+    float ySign = texture->origin() == GrSurface::kTopLeft_Origin ? -1.0f : 1.0f;
     uman.set2f(fImageIncrementUni, 1.0f / texture->width(), ySign / texture->height());
     uman.set1f(fSurfaceScaleUni, effect.surfaceScale());
     fLight->setData(uman, effect.light());
