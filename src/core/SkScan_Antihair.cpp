@@ -68,10 +68,10 @@ static inline int SmallDot6Scale(int value, int dot6) {
 static void call_hline_blitter(SkBlitter* blitter, int x, int y, int count,
                                U8CPU alpha) {
     SkASSERT(count > 0);
-    
+
     int16_t runs[HLINE_STACK_BUFFER + 1];
     uint8_t  aa[HLINE_STACK_BUFFER];
-    
+
     aa[0] = ApplyGamma(gGammaTable, alpha);
     do {
         int n = count;
@@ -107,22 +107,22 @@ class HLine_SkAntiHairBlitter : public SkAntiHairBlitter {
 public:
     virtual SkFixed drawCap(int x, SkFixed fy, SkFixed slope, int mod64) SK_OVERRIDE {
         fy += SK_Fixed1/2;
-        
+
         int y = fy >> 16;
         uint8_t  a = (uint8_t)(fy >> 8);
-        
+
         // lower line
         unsigned ma = SmallDot6Scale(a, mod64);
         if (ma) {
             call_hline_blitter(this->getBlitter(), x, y, 1, ma);
         }
-        
+
         // upper line
         ma = SmallDot6Scale(255 - a, mod64);
         if (ma) {
             call_hline_blitter(this->getBlitter(), x, y - 1, 1, ma);
         }
-        
+
         return fy - SK_Fixed1/2;
     }
 
@@ -131,21 +131,21 @@ public:
         SkASSERT(x < stopx);
         int count = stopx - x;
         fy += SK_Fixed1/2;
-        
+
         int y = fy >> 16;
         uint8_t  a = (uint8_t)(fy >> 8);
-        
+
         // lower line
         if (a) {
             call_hline_blitter(this->getBlitter(), x, y, count, a);
         }
-        
+
         // upper line
         a = 255 - a;
         if (a) {
             call_hline_blitter(this->getBlitter(), x, y - 1, count, a);
         }
-        
+
         return fy - SK_Fixed1/2;
     }
 };
@@ -155,10 +155,10 @@ public:
     virtual SkFixed drawCap(int x, SkFixed fy, SkFixed dy, int mod64) SK_OVERRIDE {
         int16_t runs[2];
         uint8_t  aa[1];
-        
+
         runs[0] = 1;
         runs[1] = 0;
-        
+
         fy += SK_Fixed1/2;
         SkBlitter* blitter = this->getBlitter();
 
@@ -181,19 +181,19 @@ public:
             SkASSERT(runs[1] == 0);
         }
         fy += dy;
-        
+
         return fy - SK_Fixed1/2;
     }
-    
+
     virtual SkFixed drawLine(int x, int stopx, SkFixed fy, SkFixed dy) SK_OVERRIDE {
         SkASSERT(x < stopx);
-        
+
         int16_t runs[2];
         uint8_t  aa[1];
-        
+
         runs[0] = 1;
         runs[1] = 0;
-        
+
         fy += SK_Fixed1/2;
         SkBlitter* blitter = this->getBlitter();
         do {
@@ -216,7 +216,7 @@ public:
             }
             fy += dy;
         } while (++x < stopx);
-        
+
         return fy - SK_Fixed1/2;
     }
 };
@@ -226,10 +226,10 @@ public:
     virtual SkFixed drawCap(int y, SkFixed fx, SkFixed dx, int mod64) SK_OVERRIDE {
         SkASSERT(0 == dx);
         fx += SK_Fixed1/2;
-        
+
         int x = fx >> 16;
         int a = (uint8_t)(fx >> 8);
-        
+
         unsigned ma = SmallDot6Scale(a, mod64);
         if (ma) {
             this->getBlitter()->blitV(x, y, 1, ma);
@@ -238,7 +238,7 @@ public:
         if (ma) {
             this->getBlitter()->blitV(x - 1, y, 1, ma);
         }
-        
+
         return fx - SK_Fixed1/2;
     }
 
@@ -246,10 +246,10 @@ public:
         SkASSERT(y < stopy);
         SkASSERT(0 == dx);
         fx += SK_Fixed1/2;
-        
+
         int x = fx >> 16;
         int a = (uint8_t)(fx >> 8);
-        
+
         if (a) {
             this->getBlitter()->blitV(x, y, stopy - y, a);
         }
@@ -257,7 +257,7 @@ public:
         if (a) {
             this->getBlitter()->blitV(x - 1, y, stopy - y, a);
         }
-        
+
         return fx - SK_Fixed1/2;
     }
 };
@@ -267,14 +267,14 @@ public:
     virtual SkFixed drawCap(int y, SkFixed fx, SkFixed dx, int mod64) SK_OVERRIDE {
         int16_t runs[3];
         uint8_t  aa[2];
-        
+
         runs[0] = 1;
         runs[2] = 0;
-        
+
         fx += SK_Fixed1/2;
         int x = fx >> 16;
         uint8_t  a = (uint8_t)(fx >> 8);
-        
+
         aa[0] = SmallDot6Scale(255 - a, mod64);
         aa[1] = SmallDot6Scale(a, mod64);
         // the clippng blitters might overwrite this guy, so we have to reset it each time
@@ -284,23 +284,23 @@ public:
         SkASSERT(runs[0] == 1);
         SkASSERT(runs[2] == 0);
         fx += dx;
-        
+
         return fx - SK_Fixed1/2;
     }
-    
+
     virtual SkFixed drawLine(int y, int stopy, SkFixed fx, SkFixed dx) SK_OVERRIDE {
         SkASSERT(y < stopy);
         int16_t runs[3];
         uint8_t  aa[2];
-        
+
         runs[0] = 1;
         runs[2] = 0;
-        
+
         fx += SK_Fixed1/2;
         do {
             int x = fx >> 16;
             uint8_t  a = (uint8_t)(fx >> 8);
-            
+
             aa[0] = 255 - a;
             aa[1] = a;
             // the clippng blitters might overwrite this guy, so we have to reset it each time

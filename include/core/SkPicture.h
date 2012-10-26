@@ -148,7 +148,7 @@ public:
     void abortPlayback();
 
 protected:
-    // fRecord and fWidth & fHeight are protected to allow derived classes to 
+    // fRecord and fWidth & fHeight are protected to allow derived classes to
     // install their own SkPictureRecord-derived recorders and set the picture
     // size
     SkPictureRecord* fRecord;
