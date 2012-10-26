@@ -12,18 +12,20 @@
 #include "GrBackendEffectFactory.h"
 #include "GrTexture.h"
 
-class GrGLSingleTextureEffect : public GrGLLegacyEffect {
+class GrGLSingleTextureEffect : public GrGLEffect {
 public:
     GrGLSingleTextureEffect(const GrBackendEffectFactory& factory, const GrEffect&)
     : INHERITED (factory) {
     }
 
-    virtual void emitVS(GrGLShaderBuilder* builder,
-                        const char* vertexCoords) SK_OVERRIDE { }
-    virtual void emitFS(GrGLShaderBuilder* builder,
-                        const char* outputColor,
-                        const char* inputColor,
-                        const TextureSamplerArray& samplers) SK_OVERRIDE {
+    virtual void emitCode(GrGLShaderBuilder* builder,
+                          const GrEffect&,
+                          EffectKey,
+                          const char* vertexCoords,
+                          const char* outputColor,
+                          const char* inputColor,
+                          const TextureSamplerArray& samplers) SK_OVERRIDE {
+
         builder->fFSCode.appendf("\t%s = ", outputColor);
         builder->appendTextureLookupAndModulate(&builder->fFSCode, inputColor, samplers[0]);
         builder->fFSCode.append(";\n");
@@ -33,7 +35,7 @@ public:
 
 private:
 
-    typedef GrGLLegacyEffect INHERITED;
+    typedef GrGLEffect INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

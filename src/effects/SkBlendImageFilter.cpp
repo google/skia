@@ -110,24 +110,24 @@ bool SkBlendImageFilter::onFilterImage(Proxy* proxy,
 ///////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
-class GrGLBlendEffect  : public GrGLLegacyEffect {
+class GrGLBlendEffect : public GrGLEffect {
 public:
     GrGLBlendEffect(const GrBackendEffectFactory& factory,
                     const GrEffect& effect);
     virtual ~GrGLBlendEffect();
 
-    virtual void emitFS(GrGLShaderBuilder* builder,
-                        const char* outputColor,
-                        const char* inputColor,
-                        const TextureSamplerArray&) SK_OVERRIDE;
-
-    virtual void emitVS(GrGLShaderBuilder* builder,
-                        const char* vertexCoords) SK_OVERRIDE {}
+    virtual void emitCode(GrGLShaderBuilder*,
+                          const GrEffect&,
+                          EffectKey,
+                          const char* vertexCoords,
+                          const char* outputColor,
+                          const char* inputColor,
+                          const TextureSamplerArray&) SK_OVERRIDE;
 
     static inline EffectKey GenKey(const GrEffect& s, const GrGLCaps&);
 
 private:
-    typedef GrGLLegacyEffect INHERITED;
+    typedef GrGLEffect INHERITED;
     SkBlendImageFilter::Mode fMode;
 };
 
@@ -245,10 +245,13 @@ GrGLBlendEffect::GrGLBlendEffect(const GrBackendEffectFactory& factory,
 GrGLBlendEffect::~GrGLBlendEffect() {
 }
 
-void GrGLBlendEffect::emitFS(GrGLShaderBuilder* builder,
-                             const char* outputColor,
-                             const char* inputColor,
-                             const TextureSamplerArray& samplers) {
+void GrGLBlendEffect::emitCode(GrGLShaderBuilder* builder,
+                               const GrEffect&,
+                               EffectKey,
+                               const char* vertexCoords,
+                               const char* outputColor,
+                               const char* inputColor,
+                               const TextureSamplerArray& samplers) {
     SkString* code = &builder->fFSCode;
     const char* bgColor = inputColor;
     const char* fgColor = "fgColor";

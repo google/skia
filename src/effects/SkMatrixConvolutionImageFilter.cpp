@@ -279,17 +279,17 @@ private:
     typedef GrSingleTextureEffect INHERITED;
 };
 
-class GrGLMatrixConvolutionEffect : public GrGLLegacyEffect {
+class GrGLMatrixConvolutionEffect : public GrGLEffect {
 public:
     GrGLMatrixConvolutionEffect(const GrBackendEffectFactory& factory,
                                 const GrEffect& effect);
-    virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
-    virtual void emitVS(GrGLShaderBuilder* state,
-                        const char* vertexCoords) SK_OVERRIDE {}
-    virtual void emitFS(GrGLShaderBuilder* state,
-                        const char* outputColor,
-                        const char* inputColor,
-                        const TextureSamplerArray&) SK_OVERRIDE;
+    virtual void emitCode(GrGLShaderBuilder*,
+                          const GrEffect&,
+                          EffectKey,
+                          const char* vertexCoords,
+                          const char* outputColor,
+                          const char* inputColor,
+                          const TextureSamplerArray&) SK_OVERRIDE;
 
     static inline EffectKey GenKey(const GrEffect& s, const GrGLCaps& caps);
 
@@ -308,7 +308,7 @@ private:
     UniformHandle  fGainUni;
     UniformHandle  fBiasUni;
 
-    typedef GrGLLegacyEffect INHERITED;
+    typedef GrGLEffect INHERITED;
 };
 
 GrGLMatrixConvolutionEffect::GrGLMatrixConvolutionEffect(const GrBackendEffectFactory& factory,
@@ -323,19 +323,6 @@ GrGLMatrixConvolutionEffect::GrGLMatrixConvolutionEffect(const GrBackendEffectFa
     fKernelSize = m.kernelSize();
     fTileMode = m.tileMode();
     fConvolveAlpha = m.convolveAlpha();
-}
-
-void GrGLMatrixConvolutionEffect::setupVariables(GrGLShaderBuilder* builder) {
-    fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                             kVec2f_GrSLType, "ImageIncrement");
-    fKernelUni = builder->addUniformArray(GrGLShaderBuilder::kFragment_ShaderType,
-                                             kFloat_GrSLType, "Kernel", fKernelSize.width() * fKernelSize.height());
-    fTargetUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                             kVec2f_GrSLType, "Target");
-    fGainUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                   kFloat_GrSLType, "Gain");
-    fBiasUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                   kFloat_GrSLType, "Bias");
 }
 
 static void appendTextureLookup(GrGLShaderBuilder* builder,
@@ -360,10 +347,25 @@ static void appendTextureLookup(GrGLShaderBuilder* builder,
     builder->appendTextureLookup(code, sampler, coord);
 }
 
-void GrGLMatrixConvolutionEffect::emitFS(GrGLShaderBuilder* builder,
-                                  const char* outputColor,
-                                  const char* inputColor,
-                                  const TextureSamplerArray& samplers) {
+void GrGLMatrixConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
+                                           const GrEffect&,
+                                           EffectKey,
+                                           const char* vertexCoords,
+                                           const char* outputColor,
+                                           const char* inputColor,
+                                           const TextureSamplerArray& samplers) {
+
+    fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                             kVec2f_GrSLType, "ImageIncrement");
+    fKernelUni = builder->addUniformArray(GrGLShaderBuilder::kFragment_ShaderType,
+                                             kFloat_GrSLType, "Kernel", fKernelSize.width() * fKernelSize.height());
+    fTargetUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                             kVec2f_GrSLType, "Target");
+    fGainUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                   kFloat_GrSLType, "Gain");
+    fBiasUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                   kFloat_GrSLType, "Bias");
+
     SkString* code = &builder->fFSCode;
 
     const char* target = builder->getUniformCStr(fTargetUni);

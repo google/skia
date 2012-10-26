@@ -244,18 +244,18 @@ private:
     typedef GrEffect INHERITED;
 };
 
-class GLColorTableEffect : public GrGLLegacyEffect {
+class GLColorTableEffect : public GrGLEffect {
 public:
     GLColorTableEffect(const GrBackendEffectFactory& factory,
                          const GrEffect& effect);
 
-    virtual void setupVariables(GrGLShaderBuilder* state) SK_OVERRIDE {}
-    virtual void emitVS(GrGLShaderBuilder* state,
-                        const char* vertexCoords) SK_OVERRIDE {}
-    virtual void emitFS(GrGLShaderBuilder* state,
-                        const char* outputColor,
-                        const char* inputColor,
-                        const TextureSamplerArray&) SK_OVERRIDE;
+    virtual void emitCode(GrGLShaderBuilder*,
+                          const GrEffect&,
+                          EffectKey,
+                          const char* vertexCoords,
+                          const char* outputColor,
+                          const char* inputColor,
+                          const TextureSamplerArray&) SK_OVERRIDE;
 
     virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE {}
 
@@ -263,7 +263,7 @@ public:
 
 private:
 
-    typedef GrGLLegacyEffect INHERITED;
+    typedef GrGLEffect INHERITED;
 };
 
 GLColorTableEffect::GLColorTableEffect(
@@ -271,10 +271,14 @@ GLColorTableEffect::GLColorTableEffect(
     : INHERITED(factory) {
  }
 
-void GLColorTableEffect::emitFS(GrGLShaderBuilder* builder,
+void GLColorTableEffect::emitCode(GrGLShaderBuilder* builder,
+                                  const GrEffect&,
+                                  EffectKey,
+                                  const char* vertexCoords,
                                   const char* outputColor,
                                   const char* inputColor,
                                   const TextureSamplerArray& samplers) {
+
     static const float kColorScaleFactor = 255.0f / 256.0f;
     static const float kColorOffsetFactor = 1.0f / 512.0f;
     SkString* code = &builder->fFSCode;

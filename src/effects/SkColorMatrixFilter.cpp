@@ -339,7 +339,7 @@ public:
 
     GR_DECLARE_EFFECT_TEST;
 
-    class GLEffect : public GrGLLegacyEffect {
+    class GLEffect : public GrGLEffect {
     public:
         // this class always generates the same code.
         static EffectKey GenKey(const GrEffect& s, const GrGLCaps&) { return 0; }
@@ -351,22 +351,20 @@ public:
         , fVectorHandle(GrGLUniformManager::kInvalidUniformHandle) {
         }
 
-        virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE {
+        virtual void emitCode(GrGLShaderBuilder* builder,
+                              const GrEffect&,
+                              EffectKey,
+                              const char* vertexCoords,
+                              const char* outputColor,
+                              const char* inputColor,
+                              const TextureSamplerArray&) SK_OVERRIDE {
             fMatrixHandle = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                                 kMat44f_GrSLType,
                                                 "ColorMatrix");
             fVectorHandle = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                                 kVec4f_GrSLType,
                                                 "ColorMatrixVector");
-        }
 
-        virtual void emitVS(GrGLShaderBuilder* builder, const char* vertexCoords) SK_OVERRIDE {
-        }
-
-        virtual void emitFS(GrGLShaderBuilder* builder,
-                            const char* outputColor,
-                            const char* inputColor,
-                            const TextureSamplerArray&) SK_OVERRIDE {
             if (NULL == inputColor) {
                 // could optimize this case, but we aren't for now.
                 inputColor = GrGLSLOnesVecf(4);
@@ -410,7 +408,7 @@ public:
 private:
     SkColorMatrix fMatrix;
 
-    typedef GrGLLegacyEffect INHERITED;
+    typedef GrGLEffect INHERITED;
 };
 
 GR_DEFINE_EFFECT_TEST(ColorMatrixEffect);
