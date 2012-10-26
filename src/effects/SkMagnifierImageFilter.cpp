@@ -85,8 +85,7 @@ public:
                         const char* inputColor,
                         const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager& uman,
-                         const GrEffect& data) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager& uman, const GrEffectStage& stage) SK_OVERRIDE;
 
     static inline EffectKey GenKey(const GrEffect&, const GrGLCaps&);
 
@@ -165,9 +164,8 @@ void GrGLMagnifierEffect::emitFS(GrGLShaderBuilder* state,
 }
 
 void GrGLMagnifierEffect::setData(const GrGLUniformManager& uman,
-                                  const GrEffect& data) {
-    const GrMagnifierEffect& zoom =
-        static_cast<const GrMagnifierEffect&>(data);
+                                  const GrEffectStage& stage) {
+    const GrMagnifierEffect& zoom = static_cast<const GrMagnifierEffect&>(*stage.getEffect());
 
     uman.set2f(fOffsetVar, zoom.x_offset(), zoom.y_offset());
     uman.set2f(fZoomVar, zoom.x_zoom(), zoom.y_zoom());

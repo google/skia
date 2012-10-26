@@ -293,7 +293,7 @@ public:
 
     static inline EffectKey GenKey(const GrEffect& s, const GrGLCaps& caps);
 
-    virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
 
 private:
     typedef GrGLUniformManager::UniformHandle        UniformHandle;
@@ -425,11 +425,10 @@ GrGLEffect::EffectKey GrGLMatrixConvolutionEffect::GenKey(const GrEffect& s,
 }
 
 void GrGLMatrixConvolutionEffect::setData(const GrGLUniformManager& uman,
-                                          const GrEffect& data) {
+                                          const GrEffectStage& stage) {
     const GrMatrixConvolutionEffect& effect =
-        static_cast<const GrMatrixConvolutionEffect&>(data);
-    GrGLTexture& texture =
-        *static_cast<GrGLTexture*>(data.texture(0));
+        static_cast<const GrMatrixConvolutionEffect&>(*stage.getEffect());
+    GrGLTexture& texture = *static_cast<GrGLTexture*>(effect.texture(0));
     // the code we generated was for a specific kernel size
     GrAssert(effect.kernelSize() == fKernelSize);
     GrAssert(effect.tileMode() == fTileMode);

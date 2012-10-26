@@ -281,7 +281,7 @@ public:
 
     static inline EffectKey GenKey(const GrEffect& s, const GrGLCaps& caps);
 
-    virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
 
 private:
     int width() const { return GrMorphologyEffect::WidthFromRadius(fRadius); }
@@ -349,11 +349,9 @@ GrGLEffect::EffectKey GrGLMorphologyEffect::GenKey(const GrEffect& s,
     return key;
 }
 
-void GrGLMorphologyEffect::setData(const GrGLUniformManager& uman, const GrEffect& data) {
-    const Gr1DKernelEffect& kern =
-        static_cast<const Gr1DKernelEffect&>(data);
-    GrGLTexture& texture =
-        *static_cast<GrGLTexture*>(data.texture(0));
+void GrGLMorphologyEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
+    const Gr1DKernelEffect& kern = static_cast<const Gr1DKernelEffect&>(*stage.getEffect());
+    GrGLTexture& texture = *static_cast<GrGLTexture*>(kern.texture(0));
     // the code we generated was for a specific kernel radius
     GrAssert(kern.radius() == fRadius);
     float imageIncrement[2] = { 0 };

@@ -21,7 +21,7 @@ public:
                         const char* inputColor,
                         const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
 
     static inline EffectKey GenKey(const GrEffect&, const GrGLCaps&) { return 0; }
 
@@ -59,8 +59,9 @@ void GrGLTextureDomainEffect::emitFS(GrGLShaderBuilder* builder,
     builder->fFSCode.append(";\n");
 }
 
-void GrGLTextureDomainEffect::setData(const GrGLUniformManager& uman, const GrEffect& data) {
-    const GrTextureDomainEffect& effect = static_cast<const GrTextureDomainEffect&>(data);
+void GrGLTextureDomainEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
+    const GrTextureDomainEffect& effect =
+        static_cast<const GrTextureDomainEffect&>(*stage.getEffect());
     const GrRect& domain = effect.domain();
 
     float values[4] = {

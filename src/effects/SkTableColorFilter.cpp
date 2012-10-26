@@ -257,7 +257,7 @@ public:
                         const char* inputColor,
                         const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE {}
+    virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE {}
 
     static EffectKey GenKey(const GrEffect&, const GrGLCaps&);
 

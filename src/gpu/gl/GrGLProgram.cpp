@@ -978,7 +978,7 @@ void GrGLProgram::setData(const GrDrawState& drawState) {
         if (NULL != fEffects[s]) {
             const GrEffectStage& stage = drawState.getStage(s);
             GrAssert(NULL != stage.getEffect());
-            fEffects[s]->setData(fUniformManager, *stage.getEffect());
+            fEffects[s]->setData(fUniformManager, stage);
         }
     }
 }
