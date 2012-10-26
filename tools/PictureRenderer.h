@@ -50,7 +50,8 @@ public:
      * If path is non-null, subclass implementations should call write().
      * @param path If non-null, also write the output to the file specified by path. path should
      *             have no extension; it will be added by write().
-     * @return bool True if path is non-null and the output is successfully written to a file.
+     * @return bool True if rendering succeeded and, if path is non-null, the output was
+     *             successfully written to a file.
      */
     virtual bool render(const SkString* path) = 0;
 
