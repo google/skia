@@ -617,7 +617,7 @@ protected:
     uint16_t                            generateCharToGlyph(SkUnichar uni) SK_OVERRIDE;
     void                                generateAdvance(SkGlyph* glyph) SK_OVERRIDE;
     void                                generateMetrics(SkGlyph* glyph) SK_OVERRIDE;
-    void                                generateImage(const SkGlyph& glyph, SkMaskGamma::PreBlend* maskPreBlend) SK_OVERRIDE;
+    void                                generateImage(const SkGlyph& glyph) SK_OVERRIDE;
     void                                generatePath(const SkGlyph& glyph, SkPath* path) SK_OVERRIDE;
     void                                generateFontMetrics(SkPaint::FontMetrics* mX, SkPaint::FontMetrics* mY) SK_OVERRIDE;
 
@@ -1198,7 +1198,7 @@ template <typename T> T* SkTAddByteOffset(T* ptr, size_t byteOffset) {
     return (T*)((char*)ptr + byteOffset);
 }
 
-void SkScalerContext_Mac::generateImage(const SkGlyph& glyph, SkMaskGamma::PreBlend* maskPreBlend) {
+void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
     CGGlyph cgGlyph = (CGGlyph) glyph.getGlyphID(fBaseGlyphCount);
 
     // FIXME: lcd smoothed un-hinted rasterization unsupported.
@@ -1237,37 +1237,31 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph, SkMaskGamma::PreBl
         }
     }
 
-    // Must be careful not to use these if maskPreBlend == NULL
-    const uint8_t* tableR = NULL;
-    const uint8_t* tableG = NULL;
-    const uint8_t* tableB = NULL;
-    if (maskPreBlend) {
-        tableR = maskPreBlend->fR;
-        tableG = maskPreBlend->fG;
-        tableB = maskPreBlend->fB;
-    }
-
     // Convert glyph to mask
     switch (glyph.fMaskFormat) {
         case SkMask::kLCD32_Format: {
-            if (maskPreBlend) {
-                rgb_to_lcd32<true>(cgPixels, cgRowBytes, glyph, tableR, tableG, tableB);
+            if (fPreBlend.isApplicable()) {
+                rgb_to_lcd32<true>(cgPixels, cgRowBytes, glyph,
+                                   fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
             } else {
-                rgb_to_lcd32<false>(cgPixels, cgRowBytes, glyph, tableR, tableG, tableB);
+                rgb_to_lcd32<false>(cgPixels, cgRowBytes, glyph,
+                                    fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
             }
         } break;
         case SkMask::kLCD16_Format: {
-            if (maskPreBlend) {
-                rgb_to_lcd16<true>(cgPixels, cgRowBytes, glyph, tableR, tableG, tableB);
+            if (fPreBlend.isApplicable()) {
+                rgb_to_lcd16<true>(cgPixels, cgRowBytes, glyph,
+                                   fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
             } else {
-                rgb_to_lcd16<false>(cgPixels, cgRowBytes, glyph, tableR, tableG, tableB);
+                rgb_to_lcd16<false>(cgPixels, cgRowBytes, glyph,
+                                    fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
             }
         } break;
         case SkMask::kA8_Format: {
-            if (maskPreBlend) {
-                rgb_to_a8<true>(cgPixels, cgRowBytes, glyph, tableG);
+            if (fPreBlend.isApplicable()) {
+                rgb_to_a8<true>(cgPixels, cgRowBytes, glyph, fPreBlend.fG);
             } else {
-                rgb_to_a8<false>(cgPixels, cgRowBytes, glyph, tableG);
+                rgb_to_a8<false>(cgPixels, cgRowBytes, glyph, fPreBlend.fG);
             }
         } break;
         case SkMask::kBW_Format: {

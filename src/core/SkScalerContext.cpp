@@ -77,14 +77,21 @@ static SkFlattenable* load_flattenable(const SkDescriptor* desc, uint32_t tag) {
 
 SkScalerContext::SkScalerContext(const SkDescriptor* desc)
     : fRec(*static_cast<const Rec*>(desc->findEntry(kRec_SkDescriptorTag, NULL)))
+
     , fBaseGlyphCount(0)
+
     , fPathEffect(static_cast<SkPathEffect*>(load_flattenable(desc, kPathEffect_SkDescriptorTag)))
     , fMaskFilter(static_cast<SkMaskFilter*>(load_flattenable(desc, kMaskFilter_SkDescriptorTag)))
     , fRasterizer(static_cast<SkRasterizer*>(load_flattenable(desc, kRasterizer_SkDescriptorTag)))
-      // initialize based on our settings. subclasses can also force this
+
+      // Initialize based on our settings. Subclasses can also force this.
     , fGenerateImageFromPath(fRec.fFrameWidth > 0 || fPathEffect != NULL || fRasterizer != NULL)
+
     , fNextContext(NULL)
-    , fMaskPreBlend(SkScalerContext::GetMaskPreBlend(fRec))
+
+    , fPreBlend(fMaskFilter ? SkMaskGamma::PreBlend() : SkScalerContext::GetMaskPreBlend(fRec))
+    , fPreBlendForFilter(fMaskFilter ? SkScalerContext::GetMaskPreBlend(fRec)
+                                     : SkMaskGamma::PreBlend())
 {
 #ifdef DUMP_REC
     desc->assertChecksum();
@@ -339,8 +346,22 @@ SK_ERROR:
     glyph->fMaskFormat = fRec.fMaskFormat;
 }
 
+
+static void applyLUTToA8Mask(const SkMask& mask, const uint8_t* lut) {
+    uint8_t* SK_RESTRICT dst = (uint8_t*)mask.fImage;
+    unsigned rowBytes = mask.fRowBytes;
+
+    for (int y = mask.fBounds.height() - 1; y >= 0; --y) {
+        for (int x = mask.fBounds.width() - 1; x >= 0; --x) {
+            dst[x] = lut[dst[x]];
+        }
+        dst += rowBytes;
+    }
+}
+
 template<bool APPLY_PREBLEND>
-static void pack3xHToLCD16(const SkBitmap& src, const SkMask& dst, SkMaskGamma::PreBlend* maskPreBlend) {
+static void pack3xHToLCD16(const SkBitmap& src, const SkMask& dst,
+                           const SkMaskGamma::PreBlend& maskPreBlend) {
     SkASSERT(SkBitmap::kA8_Config == src.config());
     SkASSERT(SkMask::kLCD16_Format == dst.fFormat);
 
@@ -349,21 +370,12 @@ static void pack3xHToLCD16(const SkBitmap& src, const SkMask& dst, SkMaskGamma::
     uint16_t* dstP = (uint16_t*)dst.fImage;
     size_t dstRB = dst.fRowBytes;
 
-    const uint8_t* maskPreBlendR = NULL;
-    const uint8_t* maskPreBlendG = NULL;
-    const uint8_t* maskPreBlendB = NULL;
-    if (APPLY_PREBLEND) {
-        maskPreBlendR = maskPreBlend->fR;
-        maskPreBlendG = maskPreBlend->fG;
-        maskPreBlendB = maskPreBlend->fB;
-    }
-
     for (int y = 0; y < height; ++y) {
         const uint8_t* srcP = src.getAddr8(0, y);
         for (int x = 0; x < width; ++x) {
-            U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>(*srcP++, maskPreBlendR);
-            U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>(*srcP++, maskPreBlendG);
-            U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>(*srcP++, maskPreBlendB);
+            U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>(*srcP++, maskPreBlend.fR);
+            U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>(*srcP++, maskPreBlend.fG);
+            U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>(*srcP++, maskPreBlend.fB);
             dstP[x] = SkPack888ToRGB16(r, g, b);
         }
         dstP = (uint16_t*)((char*)dstP + dstRB);
@@ -371,7 +383,8 @@ static void pack3xHToLCD16(const SkBitmap& src, const SkMask& dst, SkMaskGamma::
 }
 
 template<bool APPLY_PREBLEND>
-static void pack3xHToLCD32(const SkBitmap& src, const SkMask& dst, SkMaskGamma::PreBlend* maskPreBlend) {
+static void pack3xHToLCD32(const SkBitmap& src, const SkMask& dst,
+                           const SkMaskGamma::PreBlend& maskPreBlend) {
     SkASSERT(SkBitmap::kA8_Config == src.config());
     SkASSERT(SkMask::kLCD32_Format == dst.fFormat);
 
@@ -380,28 +393,20 @@ static void pack3xHToLCD32(const SkBitmap& src, const SkMask& dst, SkMaskGamma::
     SkPMColor* dstP = (SkPMColor*)dst.fImage;
     size_t dstRB = dst.fRowBytes;
 
-    const uint8_t* maskPreBlendR = NULL;
-    const uint8_t* maskPreBlendG = NULL;
-    const uint8_t* maskPreBlendB = NULL;
-    if (APPLY_PREBLEND) {
-        maskPreBlendR = maskPreBlend->fR;
-        maskPreBlendG = maskPreBlend->fG;
-        maskPreBlendB = maskPreBlend->fB;
-    }
-
     for (int y = 0; y < height; ++y) {
         const uint8_t* srcP = src.getAddr8(0, y);
         for (int x = 0; x < width; ++x) {
-            U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>(*srcP++, maskPreBlendR);
-            U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>(*srcP++, maskPreBlendG);
-            U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>(*srcP++, maskPreBlendB);
+            U8CPU r = sk_apply_lut_if<APPLY_PREBLEND>(*srcP++, maskPreBlend.fR);
+            U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>(*srcP++, maskPreBlend.fG);
+            U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>(*srcP++, maskPreBlend.fB);
             dstP[x] = SkPackARGB32(0xFF, r, g, b);
         }
         dstP = (SkPMColor*)((char*)dstP + dstRB);
     }
 }
 
-static void generateMask(const SkMask& mask, const SkPath& path, SkMaskGamma::PreBlend* maskPreBlend) {
+static void generateMask(const SkMask& mask, const SkPath& path,
+                         const SkMaskGamma::PreBlend& maskPreBlend) {
     SkBitmap::Config config;
     SkPaint     paint;
 
@@ -459,15 +464,19 @@ static void generateMask(const SkMask& mask, const SkPath& path, SkMaskGamma::Pr
 
     if (0 == dstRB) {
         switch (mask.fFormat) {
+            case SkMask::kA8_Format:
+                if (maskPreBlend.isApplicable()) {
+                    applyLUTToA8Mask(mask, maskPreBlend.fG);
+                }
             case SkMask::kLCD16_Format:
-                if (maskPreBlend) {
+                if (maskPreBlend.isApplicable()) {
                     pack3xHToLCD16<true>(bm, mask, maskPreBlend);
                 } else {
                     pack3xHToLCD16<false>(bm, mask, maskPreBlend);
                 }
                 break;
             case SkMask::kLCD32_Format:
-                if (maskPreBlend) {
+                if (maskPreBlend.isApplicable()) {
                     pack3xHToLCD32<true>(bm, mask, maskPreBlend);
                 } else {
                     pack3xHToLCD32<false>(bm, mask, maskPreBlend);
@@ -479,22 +488,9 @@ static void generateMask(const SkMask& mask, const SkPath& path, SkMaskGamma::Pr
     }
 }
 
-static void applyLUTToA8Glyph(const SkGlyph& glyph, const uint8_t* lut) {
-      uint8_t* SK_RESTRICT dst = (uint8_t*)glyph.fImage;
-      unsigned rowBytes = glyph.rowBytes();
-
-      for (int y = glyph.fHeight - 1; y >= 0; --y) {
-          for (int x = glyph.fWidth - 1; x >= 0; --x) {
-              dst[x] = lut[dst[x]];
-          }
-          dst += rowBytes;
-      }
-}
-
 void SkScalerContext::getImage(const SkGlyph& origGlyph) {
     const SkGlyph*  glyph = &origGlyph;
     SkGlyph         tmpGlyph;
-    SkMaskGamma::PreBlend* maskPreBlend = fMaskPreBlend.fG ? &fMaskPreBlend : NULL;
 
     if (fMaskFilter) {   // restore the prefilter bounds
         tmpGlyph.init(origGlyph.fID);
@@ -511,7 +507,6 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         SkASSERT(tmpGlyph.fWidth <= origGlyph.fWidth);
         SkASSERT(tmpGlyph.fHeight <= origGlyph.fHeight);
         glyph = &tmpGlyph;
-        maskPreBlend = NULL;
     }
 
     if (fGenerateImageFromPath) {
@@ -531,19 +526,14 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
                                         SkMask::kJustRenderImage_CreateMode)) {
                 return;
             }
-            //apply maskPreBlend to a8 (if not NULL)
-            if (maskPreBlend) {
-              applyLUTToA8Glyph(*glyph, maskPreBlend->fG);
+            if (fPreBlend.isApplicable()) {
+                applyLUTToA8Mask(mask, fPreBlend.fG);
             }
         } else {
-            generateMask(mask, devPath, maskPreBlend);
-            //apply maskPreBlend to a8 (if not NULL) -- already applied to lcd.
-            if (maskPreBlend && mask.fFormat == SkMask::kA8_Format) {
-                applyLUTToA8Glyph(*glyph, maskPreBlend->fG);
-            }
+            generateMask(mask, devPath, fPreBlend);
         }
     } else {
-        this->getGlyphContext(*glyph)->generateImage(*glyph, maskPreBlend);
+        this->getGlyphContext(*glyph)->generateImage(*glyph);
     }
 
     if (fMaskFilter) {
@@ -579,10 +569,9 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
             }
             SkMask::FreeImage(dstM.fImage);
 
-            /* Pre-blend is not currently applied to filtered text.
-               The primary filter is blur, for which contrast makes no sense,
-               and for which the destination guess error is more visible. */
-            //applyLUTToA8Glyph(origGlyph, fMaskPreBlend.fG);
+            if (fPreBlendForFilter.isApplicable()) {
+                applyLUTToA8Mask(srcM, fPreBlendForFilter.fG);
+            }
         }
     }
 }
@@ -739,22 +728,22 @@ public:
     SkScalerContext_Empty(const SkDescriptor* desc) : SkScalerContext(desc) {}
 
 protected:
-    virtual unsigned generateGlyphCount() {
+    virtual unsigned generateGlyphCount() SK_OVERRIDE {
         return 0;
     }
-    virtual uint16_t generateCharToGlyph(SkUnichar uni) {
+    virtual uint16_t generateCharToGlyph(SkUnichar uni) SK_OVERRIDE {
         return 0;
     }
-    virtual void generateAdvance(SkGlyph* glyph) {
+    virtual void generateAdvance(SkGlyph* glyph) SK_OVERRIDE {
         glyph->zeroMetrics();
     }
-    virtual void generateMetrics(SkGlyph* glyph) {
+    virtual void generateMetrics(SkGlyph* glyph) SK_OVERRIDE {
         glyph->zeroMetrics();
     }
-    virtual void generateImage(const SkGlyph& glyph, SkMaskGamma::PreBlend* maskPreBlend) {}
-    virtual void generatePath(const SkGlyph& glyph, SkPath* path) {}
+    virtual void generateImage(const SkGlyph& glyph) SK_OVERRIDE {}
+    virtual void generatePath(const SkGlyph& glyph, SkPath* path) SK_OVERRIDE {}
     virtual void generateFontMetrics(SkPaint::FontMetrics* mx,
-                                     SkPaint::FontMetrics* my) {
+                                     SkPaint::FontMetrics* my) SK_OVERRIDE {
         if (mx) {
             sk_bzero(mx, sizeof(*mx));
         }

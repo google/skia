@@ -119,20 +119,7 @@ static void copyFT2LCD16(const SkGlyph& glyph, const FT_Bitmap& bitmap,
     }
 }
 
-void SkScalerContext_FreeType_Base::generateGlyphImage(FT_Face face,
-                                                       const SkGlyph& glyph,
-                                                       SkMaskGamma::PreBlend* maskPreBlend)
-{
-    //Must be careful not to use these if maskPreBlend == NULL
-    const uint8_t* tableR = NULL;
-    const uint8_t* tableG = NULL;
-    const uint8_t* tableB = NULL;
-    if (maskPreBlend) {
-        tableR = maskPreBlend->fR;
-        tableG = maskPreBlend->fG;
-        tableB = maskPreBlend->fB;
-    }
-
+void SkScalerContext_FreeType_Base::generateGlyphImage(FT_Face face, const SkGlyph& glyph) {
     const bool doBGR = SkToBool(fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag);
     const bool doVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
 
@@ -167,12 +154,12 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(FT_Face face,
 
             if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
                 FT_Render_Glyph(face->glyph, doVert ? FT_RENDER_MODE_LCD_V : FT_RENDER_MODE_LCD);
-                if (maskPreBlend) {
+                if (fPreBlend.isApplicable()) {
                     copyFT2LCD16<true>(glyph, face->glyph->bitmap, doBGR, doVert,
-                                       tableR, tableG, tableB);
+                                       fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
                 } else {
                     copyFT2LCD16<false>(glyph, face->glyph->bitmap, doBGR, doVert,
-                                        tableR, tableG, tableB);
+                                        fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
                 }
             } else {
                 target.width = glyph.fWidth;
@@ -238,12 +225,12 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(FT_Face face,
                     dst += glyph.rowBytes();
                 }
             } else if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
-                if (maskPreBlend) {
+                if (fPreBlend.isApplicable()) {
                     copyFT2LCD16<true>(glyph, face->glyph->bitmap, doBGR, doVert,
-                                       tableR, tableG, tableB);
+                                       fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
                 } else {
                     copyFT2LCD16<false>(glyph, face->glyph->bitmap, doBGR, doVert,
-                                        tableR, tableG, tableB);
+                                        fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
                 }
             } else {
                 SkDEBUGFAIL("unknown glyph bitmap transform needed");
@@ -259,13 +246,13 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(FT_Face face,
 // We used to always do this pre-USE_COLOR_LUMINANCE, but with colorlum,
 // it is optional
 #if defined(SK_GAMMA_APPLY_TO_A8)
-    if (SkMask::kA8_Format == glyph.fMaskFormat && maskPreBlend) {
+    if (SkMask::kA8_Format == glyph.fMaskFormat && fPreBlend.isApplicable()) {
         uint8_t* SK_RESTRICT dst = (uint8_t*)glyph.fImage;
         unsigned rowBytes = glyph.rowBytes();
 
         for (int y = glyph.fHeight - 1; y >= 0; --y) {
             for (int x = glyph.fWidth - 1; x >= 0; --x) {
-                dst[x] = tableG[dst[x]];
+                dst[x] = fPreBlend.fG[dst[x]];
             }
             dst += rowBytes;
         }

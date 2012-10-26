@@ -548,9 +548,10 @@ protected:
     virtual uint16_t generateCharToGlyph(SkUnichar uni) SK_OVERRIDE;
     virtual void generateAdvance(SkGlyph* glyph) SK_OVERRIDE;
     virtual void generateMetrics(SkGlyph* glyph) SK_OVERRIDE;
-    virtual void generateImage(const SkGlyph& glyph, SkMaskGamma::PreBlend* maskPreBlend) SK_OVERRIDE;
+    virtual void generateImage(const SkGlyph& glyph) SK_OVERRIDE;
     virtual void generatePath(const SkGlyph& glyph, SkPath* path) SK_OVERRIDE;
-    virtual void generateFontMetrics(SkPaint::FontMetrics* mX, SkPaint::FontMetrics* mY) SK_OVERRIDE;
+    virtual void generateFontMetrics(SkPaint::FontMetrics* mX,
+                                     SkPaint::FontMetrics* mY) SK_OVERRIDE;
 
 private:
     HDCOffscreen fOffscreen;
@@ -1134,19 +1135,9 @@ static inline unsigned clamp255(unsigned x) {
     return x - (x >> 8);
 }
 
-void SkScalerContext_Windows::generateImage(const SkGlyph& glyph, SkMaskGamma::PreBlend* maskPreBlend) {
+void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
     SkAutoMutexAcquire ac(gFTMutex);
     SkASSERT(fDDC);
-
-    //Must be careful not to use these if maskPreBlend == NULL
-    const uint8_t* tableR = NULL;
-    const uint8_t* tableG = NULL;
-    const uint8_t* tableB = NULL;
-    if (maskPreBlend) {
-        tableR = maskPreBlend->fR;
-        tableG = maskPreBlend->fG;
-        tableB = maskPreBlend->fB;
-    }
 
     const bool isBW = SkMask::kBW_Format == fRec.fMaskFormat;
     const bool isAA = !isLCD(fRec);
@@ -1202,10 +1193,10 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph, SkMaskGamma::P
         // since the caller may require A8 for maskfilters, we can't check for BW
         // ... until we have the caller tell us that explicitly
         const SkGdiRGB* src = (const SkGdiRGB*)bits;
-        if (maskPreBlend) {
-            rgb_to_a8<true>(src, srcRB, glyph, tableG);
+        if (fPreBlend.isApplicable()) {
+            rgb_to_a8<true>(src, srcRB, glyph, fPreBlend.fG);
         } else {
-            rgb_to_a8<false>(src, srcRB, glyph, tableG);
+            rgb_to_a8<false>(src, srcRB, glyph, fPreBlend.fG);
         }
     } else {    // LCD16
         const SkGdiRGB* src = (const SkGdiRGB*)bits;
@@ -1214,17 +1205,21 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph, SkMaskGamma::P
             ((SkGlyph*)&glyph)->fMaskFormat = SkMask::kBW_Format;
         } else {
             if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
-                if (maskPreBlend) {
-                    rgb_to_lcd16<true>(src, srcRB, glyph, tableR, tableG, tableB);
+                if (fPreBlend.isApplicable()) {
+                    rgb_to_lcd16<true>(src, srcRB, glyph,
+                                       fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
                 } else {
-                    rgb_to_lcd16<false>(src, srcRB, glyph, tableR, tableG, tableB);
+                    rgb_to_lcd16<false>(src, srcRB, glyph,
+                                        fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
                 }
             } else {
                 SkASSERT(SkMask::kLCD32_Format == glyph.fMaskFormat);
-                if (maskPreBlend) {
-                    rgb_to_lcd32<true>(src, srcRB, glyph, tableR, tableG, tableB);
+                if (fPreBlend.isApplicable()) {
+                    rgb_to_lcd32<true>(src, srcRB, glyph,
+                                       fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
                 } else {
-                    rgb_to_lcd32<false>(src, srcRB, glyph, tableR, tableG, tableB);
+                    rgb_to_lcd32<false>(src, srcRB, glyph,
+                                        fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
                 }
             }
         }
