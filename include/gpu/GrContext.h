@@ -863,7 +863,7 @@ public:
     GrTexture* createPlatformTexture(const GrPlatformTextureDesc& desc) {
         return this->wrapBackendTexture(desc);
     }
-        
+
     GrRenderTarget* createPlatformRenderTarget(const GrPlatformRenderTargetDesc& desc) {
         return wrapBackendRenderTarget(desc);
     }
