@@ -17,8 +17,9 @@ static bool windingIsActive(int winding, int spanWinding, int oppWinding,
 }
 
 static void bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
-        const int aXorMask, const int bXorMask, SkPath& simple) {
+        const int aXorMask, const int bXorMask, PathWrapper& simple) {
     bool firstContour = true;
+    SkPoint topLeft = {SK_ScalarMin, SK_ScalarMin};
     do {
 
 #if SORTABLE_CONTOURS // old way
@@ -32,7 +33,7 @@ static void bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
         Segment* current = topStart->findTop(index, endIndex);
 #else // new way: iterate while top is unsortable
         int index, endIndex;
-        Segment* current = findSortableTop(contourList, index, endIndex);
+        Segment* current = findSortableTop(contourList, index, endIndex, topLeft);
         if (!current) {
             break;
         }
@@ -68,7 +69,7 @@ static void bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
             SkDebugf("%s contourWinding=%d\n", __FUNCTION__, contourWinding);
 #endif
         }
-        SkPoint lastPt;
+    //    SkPoint lastPt;
         int winding = contourWinding;
         int spanWinding = current->spanSign(index, endIndex);
         int oppWinding = current->oppSign(index, endIndex);
@@ -81,7 +82,7 @@ static void bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
                     __FUNCTION__, active ? "true" : "false",
                     winding, spanWinding);
         #endif
-            const SkPoint* firstPt = NULL;
+        //    const SkPoint* firstPt = NULL;
             do {
                 SkASSERT(!current->done());
                 int nextStart = index;
@@ -93,21 +94,23 @@ static void bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
                     // FIXME: if unsortable, allow partial paths to be later
                     // assembled
                     SkASSERT(!unsortable);
-                    if (active && firstPt && current->verb() != SkPath::kLine_Verb && *firstPt != lastPt) {
-                        lastPt = current->addCurveTo(index, endIndex, simple, true);
-                        SkASSERT(*firstPt == lastPt);
+                    if (active && simple.hasMove()
+                            && current->verb() != SkPath::kLine_Verb
+                            && !simple.isClosed()) {
+                       /* lastPt = */ current->addCurveTo(index, endIndex, simple, true);
+                        SkASSERT(simple.isClosed());
                     }
                     break;
                 }
-                if (!firstPt) {
-                    firstPt = &current->addMoveTo(index, simple, active);
-                }
-                lastPt = current->addCurveTo(index, endIndex, simple, active);
+         //       if (!firstPt) {
+         //           firstPt = &current->addMoveTo(index, simple, active);
+         //       }
+                /* lastPt = */ current->addCurveTo(index, endIndex, simple, active);
                 current = next;
                 index = nextStart;
                 endIndex = nextEnd;
-            } while (*firstPt != lastPt && (active || !current->done()));
-            if (firstPt && active) {
+            } while (!simple.isClosed() && (active || !current->done()));
+            if (simple.hasMove() && active) {
         #if DEBUG_PATH_CONSTRUCTION
                 SkDebugf("%s close\n", __FUNCTION__);
         #endif
@@ -175,5 +178,6 @@ void operate(const SkPath& one, const SkPath& two, ShapeOp op, SkPath& result) {
     coincidenceCheck(contourList);
     fixOtherTIndex(contourList);
     // construct closed contours
-    bridgeOp(contourList, op, aXorMask, bXorMask, result);
+    Op::PathWrapper wrapper(result);
+    bridgeOp(contourList, op, aXorMask, bXorMask, wrapper);
 }
