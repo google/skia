@@ -83,7 +83,7 @@ GrGLProgram::GrGLProgram(const GrGLContextInfo& gl,
         fEffects[s] = NULL;
         fTextureMatrices[s] = GrMatrix::InvalidMatrix();
         // this is arbitrary, just initialize to something
-        fTextureOrientation[s] = GrGLTexture::kBottomUp_Orientation;
+        fTextureOrigin[s] = GrSurface::kBottomLeft_Origin;
     }
 
     this->genProgram(effects);

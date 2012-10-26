@@ -428,7 +428,7 @@ void GrGLMatrixConvolutionEffect::setData(const GrGLUniformManager& uman,
                                           const GrEffectStage& stage) {
     const GrMatrixConvolutionEffect& effect =
         static_cast<const GrMatrixConvolutionEffect&>(*stage.getEffect());
-    GrGLTexture& texture = *static_cast<GrGLTexture*>(effect.texture(0));
+    GrTexture& texture = *effect.texture(0);
     // the code we generated was for a specific kernel size
     GrAssert(effect.kernelSize() == fKernelSize);
     GrAssert(effect.tileMode() == fTileMode);

@@ -161,19 +161,15 @@ void GrGpuGL::flushViewMatrix(DrawType type) {
 
 // helpers for texture matrices
 
-void GrGpuGL::AdjustTextureMatrix(const GrGLTexture* texture,
-                                  GrMatrix* matrix) {
+void GrGpuGL::AdjustTextureMatrix(const GrTexture* texture, GrMatrix* matrix) {
     GrAssert(NULL != texture);
     GrAssert(NULL != matrix);
-    GrGLTexture::Orientation orientation = texture->orientation();
-    if (GrGLTexture::kBottomUp_Orientation == orientation) {
+    if (GrSurface::kBottomLeft_Origin == texture->origin()) {
         GrMatrix invY;
         invY.setAll(GR_Scalar1, 0,           0,
                     0,          -GR_Scalar1, GR_Scalar1,
                     0,          0,           GrMatrix::I()[8]);
         matrix->postConcat(invY);
-    } else {
-        GrAssert(GrGLTexture::kTopDown_Orientation == orientation);
     }
 }
 
@@ -183,7 +179,7 @@ int GrGpuGL::TextureMatrixOptFlags(const GrGLTexture* texture,
     GrMatrix matrix;
     stage.getTotalMatrix(&matrix);
 
-    bool canBeIndentity = GrGLTexture::kTopDown_Orientation == texture->orientation();
+    bool canBeIndentity = GrSurface::kTopLeft_Origin == texture->origin();
 
     if (canBeIndentity && matrix.isIdentity()) {
         return GrGLProgram::StageDesc::kIdentityMatrix_OptFlagBit;
@@ -206,8 +202,7 @@ void GrGpuGL::flushTextureMatrix(int s) {
     const GrGLTexture* texture = static_cast<const GrGLTexture*>(effect->texture(0));
     if (NULL != texture) {
 
-        bool orientationChange = fCurrentProgram->fTextureOrientation[s] !=
-                                 texture->orientation();
+        bool originChange = fCurrentProgram->fTextureOrigin[s] != texture->origin();
 
         UniformHandle matrixUni = fCurrentProgram->fUniforms.fStages[s].fTextureMatrixUni;
 
@@ -216,7 +211,7 @@ void GrGpuGL::flushTextureMatrix(int s) {
         drawState.getStage(s).getTotalMatrix(&samplerMatrix);
 
         if (kInvalidUniformHandle != matrixUni &&
-            (orientationChange || !hwMatrix.cheapEqualTo(samplerMatrix))) {
+            (originChange || !hwMatrix.cheapEqualTo(samplerMatrix))) {
 
             GrMatrix m = samplerMatrix;
             AdjustTextureMatrix(texture, &m);
@@ -239,7 +234,7 @@ void GrGpuGL::flushTextureMatrix(int s) {
             fCurrentProgram->fTextureMatrices[s] = samplerMatrix;
         }
 
-        fCurrentProgram->fTextureOrientation[s] = texture->orientation();
+        fCurrentProgram->fTextureOrigin[s] = texture->origin();
     }
 }
 

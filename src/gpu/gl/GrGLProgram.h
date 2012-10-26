@@ -248,10 +248,9 @@ private:
     GrColor                     fCoverage;
     GrColor                     fColorFilterColor;
     int                         fRTHeight;
-    /// When it is sent to GL, the texture matrix will be flipped if the texture orientation
-    /// (below) requires.
+    /// When it is sent to GL, the texture matrix will be flipped if the texture origin requires.
     GrMatrix                    fTextureMatrices[GrDrawState::kNumStages];
-    GrGLTexture::Orientation    fTextureOrientation[GrDrawState::kNumStages];
+    GrSurface::Origin           fTextureOrigin[GrDrawState::kNumStages];
 
     GrGLEffect*                 fEffects[GrDrawState::kNumStages];
 

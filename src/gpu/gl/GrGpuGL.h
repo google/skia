@@ -146,8 +146,7 @@ private:
     const GrGLContextInfo& glContextInfo() const { return fGLContextInfo; }
 
     // adjusts texture matrix to account for orientation
-    static void AdjustTextureMatrix(const GrGLTexture* texture,
-                                    GrMatrix* matrix);
+    static void AdjustTextureMatrix(const GrTexture* texture, GrMatrix* matrix);
 
     // This helper determines if what optimizations can be applied to the matrix after any coord
     // adjustments are applied. The return is a bitfield of GrGLProgram::StageDesc::OptFlags.
