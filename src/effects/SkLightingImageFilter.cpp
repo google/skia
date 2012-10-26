@@ -957,7 +957,7 @@ public:
 
     static inline EffectKey GenKey(const GrEffect& s, const GrGLCaps& caps);
 
-    virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
 
 private:
     typedef GrGLLegacyEffect INHERITED;
@@ -975,7 +975,7 @@ public:
                               const GrEffect& effect);
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitLightFunc(GrGLShaderBuilder*, SkString* funcName) SK_OVERRIDE;
-    virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
 
 private:
     typedef GrGLLightingEffect INHERITED;
@@ -991,7 +991,7 @@ public:
                                const GrEffect& effect);
     virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
     virtual void emitLightFunc(GrGLShaderBuilder*, SkString* funcName) SK_OVERRIDE;
-    virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
 
 private:
     typedef GrGLLightingEffect INHERITED;
@@ -1173,10 +1173,9 @@ GrGLEffect::EffectKey GrGLLightingEffect::GenKey(const GrEffect& s,
     return static_cast<const GrLightingEffect&>(s).light()->type();
 }
 
-void GrGLLightingEffect::setData(const GrGLUniformManager& uman, const GrEffect& data) {
-    const GrLightingEffect& effect =
-        static_cast<const GrLightingEffect&>(data);
-    GrGLTexture* texture = static_cast<GrGLTexture*>(data.texture(0));
+void GrGLLightingEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
+    const GrLightingEffect& effect =static_cast<const GrLightingEffect&>(*stage.getEffect());
+    GrGLTexture* texture = static_cast<GrGLTexture*>(effect.texture(0));
     float ySign = texture->orientation() == GrGLTexture::kTopDown_Orientation ? -1.0f : 1.0f;
     uman.set2f(fImageIncrementUni, 1.0f / texture->width(), ySign / texture->height());
     uman.set1f(fSurfaceScaleUni, effect.surfaceScale());
@@ -1217,10 +1216,11 @@ void GrGLDiffuseLightingEffect::emitLightFunc(GrGLShaderBuilder* builder, SkStri
                           funcName);
 }
 
-void GrGLDiffuseLightingEffect::setData(const GrGLUniformManager& uman, const GrEffect& data) {
-    INHERITED::setData(uman, data);
+void GrGLDiffuseLightingEffect::setData(const GrGLUniformManager& uman,
+                                        const GrEffectStage& stage) {
+    INHERITED::setData(uman, stage);
     const GrDiffuseLightingEffect& effect =
-        static_cast<const GrDiffuseLightingEffect&>(data);
+        static_cast<const GrDiffuseLightingEffect&>(*stage.getEffect());
     uman.set1f(fKDUni, effect.kd());
 }
 
@@ -1297,9 +1297,10 @@ void GrGLSpecularLightingEffect::emitLightFunc(GrGLShaderBuilder* builder, SkStr
 }
 
 void GrGLSpecularLightingEffect::setData(const GrGLUniformManager& uman,
-                                         const GrEffect& data) {
-    INHERITED::setData(uman, data);
-    const GrSpecularLightingEffect& effect = static_cast<const GrSpecularLightingEffect&>(data);
+                                         const GrEffectStage& stage) {
+    INHERITED::setData(uman, stage);
+    const GrSpecularLightingEffect& effect =
+        static_cast<const GrSpecularLightingEffect&>(*stage.getEffect());
     uman.set1f(fKSUni, effect.ks());
     uman.set1f(fShininessUni, effect.shininess());
 }

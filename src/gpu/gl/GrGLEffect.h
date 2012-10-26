@@ -9,7 +9,7 @@
 #define GrGLEffect_DEFINED
 
 #include "GrAllocator.h"
-#include "GrEffect.h"
+#include "GrEffectStage.h"
 #include "GrGLProgram.h"
 #include "GrGLShaderBuilder.h"
 #include "GrGLShaderVar.h"
@@ -76,8 +76,10 @@ public:
 
     /** A GrGLEffect instance can be reused with any GrEffect that produces the same stage
         key; this function reads data from a stage and uploads any uniform variables required
-        by the shaders created in emitCode(). */
-    virtual void setData(const GrGLUniformManager&, const GrEffect&);
+        by the shaders created in emitCode(). The GrEffect installed in the GrEffectStage is
+        guaranteed to be of the same type that created this GrGLEffect and to have an identical
+        EffectKey as the one that created this GrGLEffect. */
+    virtual void setData(const GrGLUniformManager&, const GrEffectStage&);
 
     const char* name() const { return fFactory.name(); }
 

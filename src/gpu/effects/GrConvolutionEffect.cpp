@@ -27,7 +27,7 @@ public:
                         const char* inputColor,
                         const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager& uman, const GrEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager& uman, const GrEffectStage&) SK_OVERRIDE;
 
     static inline EffectKey GenKey(const GrEffect&, const GrGLCaps&);
 
@@ -87,10 +87,9 @@ void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* builder,
     GrGLSLMulVarBy4f(&builder->fFSCode, 2, outputColor, inputColor);
 }
 
-void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman, const GrEffect& data) {
-    const GrConvolutionEffect& conv =
-        static_cast<const GrConvolutionEffect&>(data);
-    GrTexture& texture = *data.texture(0);
+void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
+    const GrConvolutionEffect& conv = static_cast<const GrConvolutionEffect&>(*stage.getEffect());
+    GrTexture& texture = *conv.texture(0);
     // the code we generated was for a specific kernel radius
     GrAssert(conv.radius() == fRadius);
     float imageIncrement[2] = { 0 };

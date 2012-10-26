@@ -333,7 +333,7 @@ public:
                         const char* outputColor,
                         const char* inputColor,
                         const TextureSamplerArray&) SK_OVERRIDE;
-    virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
 
     static EffectKey GenKey(const GrEffect& s, const GrGLCaps& caps);
 
@@ -626,10 +626,9 @@ void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
     }
 }
 
-void GrGLConical2Gradient::setData(const GrGLUniformManager& uman, const GrEffect& baseData) {
-    INHERITED::setData(uman, baseData);
-    const GrConical2Gradient& data =
-        static_cast<const GrConical2Gradient&>(baseData);
+void GrGLConical2Gradient::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
+    INHERITED::setData(uman, stage);
+    const GrConical2Gradient& data = static_cast<const GrConical2Gradient&>(*stage.getEffect());
     GrAssert(data.isDegenerate() == fIsDegenerate);
     GrScalar centerX1 = data.center();
     GrScalar radius0 = data.radius();

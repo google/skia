@@ -383,8 +383,9 @@ public:
         }
 
         virtual void setData(const GrGLUniformManager& uniManager,
-                             const GrEffect& effect) SK_OVERRIDE {
-            const ColorMatrixEffect& cme = static_cast<const ColorMatrixEffect&>(effect);
+                             const GrEffectStage& stage) SK_OVERRIDE {
+            const ColorMatrixEffect& cme =
+                static_cast<const ColorMatrixEffect&>(*stage.getEffect());
             const float* m = cme.fMatrix.fMat;
             // The GL matrix is transposed from SkColorMatrix.
             GrGLfloat mt[]  = {
