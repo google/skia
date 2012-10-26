@@ -538,12 +538,12 @@ GrEffect* GrLinearGradient::TestCreate(SkRandom* random,
     SkAutoTUnref<SkShader> shader(SkGradientShader::CreateLinear(points,
                                                                  colors, stops, colorCount,
                                                                  tm));
-    GrSamplerState sampler;
-    shader->asNewEffect(context, &sampler);
-    GrAssert(NULL != sampler.getEffect());
+    GrEffectStage stage;
+    shader->asNewEffect(context, &stage);
+    GrAssert(NULL != stage.getEffect());
     // const_cast and ref is a hack! Will remove when asNewEffect returns GrEffect*
-    sampler.getEffect()->ref();
-    return const_cast<GrEffect*>(sampler.getEffect());
+    stage.getEffect()->ref();
+    return const_cast<GrEffect*>(stage.getEffect());
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -559,8 +559,8 @@ void GrGLLinearGradient::emitFS(GrGLShaderBuilder* builder,
 
 /////////////////////////////////////////////////////////////////////
 
-bool SkLinearGradient::asNewEffect(GrContext* context, GrSamplerState* sampler) const {
-    SkASSERT(NULL != context && NULL != sampler);
+bool SkLinearGradient::asNewEffect(GrContext* context, GrEffectStage* stage) const {
+    SkASSERT(NULL != context && NULL != stage);
 
     SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrLinearGradient, (context, *this, fTileMode)));
 
@@ -570,9 +570,9 @@ bool SkLinearGradient::asNewEffect(GrContext* context, GrSamplerState* sampler) 
             return false;
         }
         matrix.postConcat(fPtsToUnit);
-        sampler->setEffect(effect, matrix);
+        stage->setEffect(effect, matrix);
     } else {
-        sampler->setEffect(effect, fPtsToUnit);
+        stage->setEffect(effect, fPtsToUnit);
     }
 
     return true;
@@ -580,7 +580,7 @@ bool SkLinearGradient::asNewEffect(GrContext* context, GrSamplerState* sampler) 
 
 #else
 
-bool SkLinearGradient::asNewEffect(GrContext*, GrSamplerState*) const {
+bool SkLinearGradient::asNewEffect(GrContext*, GrEffectStage*) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;
 }

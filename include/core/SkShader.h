@@ -19,7 +19,7 @@
 class SkPath;
 class GrContext;
 class GrEffect;
-class GrSamplerState;
+class GrEffectStage;
 
 /** \class SkShader
  *
@@ -306,13 +306,12 @@ public:
     virtual GradientType asAGradient(GradientInfo* info) const;
 
     /**
-     *  If the shader subclass has a GrEffect implementation, this installs
-     *  an effect on the sampler. A GrContext pointer is required since custom
-     *  stages may need to create textures. The sampler parameter is necessary to set a
-     *  texture matrix. It will eventually be removed and this function will operate as a
-     *  GrEffect factory.
+     *  If the shader subclass has a GrEffect implementation, this installs an effect on the stage.
+     *  A GrContext pointer is required since effects may need to create textures. The stage
+     *  parameter is necessary to set a texture matrix. It will eventually be removed and this
+     *  function will operate as a GrEffect factory.
      */
-    virtual bool asNewEffect(GrContext* context, GrSamplerState* sampler) const;
+    virtual bool asNewEffect(GrContext* context, GrEffectStage* stage) const;
 
     //////////////////////////////////////////////////////////////////////////
     //  Factory methods for stock shaders

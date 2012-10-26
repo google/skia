@@ -121,7 +121,7 @@ bool GrGpuGL::programUnitTest() {
         SkAutoTUnref<const GrEffect> effects[GrDrawState::kNumStages];
 
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-            StageDesc& stage = pdesc.fStages[s];
+            StageDesc& stageDesc = pdesc.fStages[s];
             // enable the stage?
             if (random_bool(&random)) {
                 // use separate tex coords?
@@ -129,25 +129,24 @@ bool GrGpuGL::programUnitTest() {
                     int t = random_int(&random, GrDrawState::kMaxTexCoords);
                     pdesc.fVertexLayout |= StageTexCoordVertexLayoutBit(s, t);
                 }
-                stage.setEnabled(true);
+                stageDesc.setEnabled(true);
             }
             // use text-formatted verts?
             if (random_bool(&random)) {
                 pdesc.fVertexLayout |= kTextFormat_VertexLayoutBit;
             }
 
-            stage.fEffectKey = 0;
+            stageDesc.fEffectKey = 0;
+            stageDesc.fOptFlags |= STAGE_OPTS[random_int(&random, GR_ARRAY_COUNT(STAGE_OPTS))];
 
-            stage.fOptFlags |= STAGE_OPTS[random_int(&random, GR_ARRAY_COUNT(STAGE_OPTS))];
-
-            if (stage.isEnabled()) {
+            if (stageDesc.isEnabled()) {
                 GrTexture* dummyTextures[] = {dummyTexture1.get(), dummyTexture2.get()};
-                effects[s].reset(create_random_effect(&stage,
+                effects[s].reset(create_random_effect(&stageDesc,
                                                       &random,
                                                       getContext(),
                                                       dummyTextures));
                 if (NULL != effects[s]) {
-                    stage.fEffectKey =
+                    stageDesc.fEffectKey =
                         effects[s]->getFactory().glEffectKey(*effects[s], this->glCaps());
                 }
             }

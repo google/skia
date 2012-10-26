@@ -425,7 +425,7 @@ void apply_morphology_pass(GrContext* context,
     GrMatrix sampleM;
     sampleM.setIDiv(texture->width(), texture->height());
     GrPaint paint;
-    paint.colorSampler(0)->setEffect(SkNEW_ARGS(GrMorphologyEffect, (texture, direction, radius, morphType)), sampleM)->unref();
+    paint.colorStage(0)->setEffect(SkNEW_ARGS(GrMorphologyEffect, (texture, direction, radius, morphType)), sampleM)->unref();
     context->drawRect(paint, rect);
 }
 

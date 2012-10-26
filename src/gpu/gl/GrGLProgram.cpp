@@ -880,7 +880,7 @@ void GrGLProgram::initSamplerUniforms() {
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         int count = fUniforms.fStages[s].fSamplerUniforms.count();
         // FIXME: We're still always reserving one texture per stage. After GrTextureParams are
-        // expressed by the effect rather than the GrSamplerState we can move texture binding
+        // expressed by the effect rather than the GrEffectStage we can move texture binding
         // into GrGLProgram and it should be easier to fix this.
         GrAssert(count <= 1);
         for (int t = 0; t < count; ++t) {
@@ -976,9 +976,9 @@ void GrGLProgram::setData(const GrDrawState& drawState) {
     }
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (NULL != fEffects[s]) {
-            const GrSamplerState& sampler = drawState.getSampler(s);
-            GrAssert(NULL != sampler.getEffect());
-            fEffects[s]->setData(fUniformManager, *sampler.getEffect());
+            const GrEffectStage& stage = drawState.getStage(s);
+            GrAssert(NULL != stage.getEffect());
+            fEffects[s]->setData(fUniformManager, *stage.getEffect());
         }
     }
 }

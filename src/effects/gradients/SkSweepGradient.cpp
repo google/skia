@@ -443,12 +443,12 @@ GrEffect* GrSweepGradient::TestCreate(SkRandom* random,
     int colorCount = RandomGradientParams(random, colors, &stops, &tmIgnored);
     SkAutoTUnref<SkShader> shader(SkGradientShader::CreateSweep(center.fX, center.fY,
                                                                 colors, stops, colorCount));
-    GrSamplerState sampler;
-    shader->asNewEffect(context, &sampler);
-    GrAssert(NULL != sampler.getEffect());
+    GrEffectStage stage;
+    shader->asNewEffect(context, &stage);
+    GrAssert(NULL != stage.getEffect());
     // const_cast and ref is a hack! Will remove when asNewEffect returns GrEffect*
-    sampler.getEffect()->ref();
-    return const_cast<GrEffect*>(sampler.getEffect());
+    stage.getEffect()->ref();
+    return const_cast<GrEffect*>(stage.getEffect());
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -465,7 +465,7 @@ void GrGLSweepGradient::emitFS(GrGLShaderBuilder* builder,
 
 /////////////////////////////////////////////////////////////////////
 
-bool SkSweepGradient::asNewEffect(GrContext* context, GrSamplerState* sampler) const {
+bool SkSweepGradient::asNewEffect(GrContext* context, GrEffectStage* stage) const {
     SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrSweepGradient, (context, *this)));
 
     SkMatrix matrix;
@@ -474,9 +474,9 @@ bool SkSweepGradient::asNewEffect(GrContext* context, GrSamplerState* sampler) c
             return false;
         }
         matrix.postConcat(fPtsToUnit);
-        sampler->setEffect(effect, matrix);
+        stage->setEffect(effect, matrix);
     } else {
-        sampler->setEffect(effect, fPtsToUnit);
+        stage->setEffect(effect, fPtsToUnit);
     }
 
     return true;
@@ -484,7 +484,7 @@ bool SkSweepGradient::asNewEffect(GrContext* context, GrSamplerState* sampler) c
 
 #else
 
-bool SkSweepGradient::asNewEffect(GrContext*, GrSamplerState*) const {
+bool SkSweepGradient::asNewEffect(GrContext*, GrEffectStage*) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;
 }

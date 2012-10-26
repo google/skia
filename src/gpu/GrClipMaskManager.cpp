@@ -26,7 +26,7 @@ GR_DEFINE_RESOURCE_CACHE_DOMAIN(GrClipMaskManager, GetAlphaMaskDomain)
 ////////////////////////////////////////////////////////////////////////////////
 namespace {
 // set up the draw state to enable the aa clipping mask. Besides setting up the
-// sampler matrix this also alters the vertex layout
+// stage matrix this also alters the vertex layout
 void setup_drawstate_aaclip(GrGpu* gpu,
                             GrTexture* result,
                             const GrIRect &devBound) {
@@ -41,7 +41,7 @@ void setup_drawstate_aaclip(GrGpu* gpu,
                      SkIntToScalar(-devBound.fTop));
     mat.preConcat(drawState->getViewMatrix());
 
-    drawState->sampler(kMaskStage)->reset();
+    drawState->stage(kMaskStage)->reset();
     drawState->createTextureEffect(kMaskStage, result, mat);
 }
 

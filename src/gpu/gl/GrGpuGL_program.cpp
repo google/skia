@@ -178,10 +178,10 @@ void GrGpuGL::AdjustTextureMatrix(const GrGLTexture* texture,
 }
 
 int GrGpuGL::TextureMatrixOptFlags(const GrGLTexture* texture,
-                                   const GrSamplerState& sampler) {
+                                   const GrEffectStage& stage) {
     GrAssert(NULL != texture);
     GrMatrix matrix;
-    sampler.getTotalMatrix(&matrix);
+    stage.getTotalMatrix(&matrix);
 
     bool canBeIndentity = GrGLTexture::kTopDown_Orientation == texture->orientation();
 
@@ -199,7 +199,7 @@ void GrGpuGL::flushTextureMatrix(int s) {
     const GrDrawState& drawState = this->getDrawState();
 
     // FIXME: Still assuming only a single texture per effect
-    const GrEffect* effect = drawState.getSampler(s).getEffect();
+    const GrEffect* effect = drawState.getStage(s).getEffect();
     if (0 == effect->numTextures()) {
         return;
     }
@@ -213,7 +213,7 @@ void GrGpuGL::flushTextureMatrix(int s) {
 
         const GrMatrix& hwMatrix = fCurrentProgram->fTextureMatrices[s];
         GrMatrix samplerMatrix;
-        drawState.getSampler(s).getTotalMatrix(&samplerMatrix);
+        drawState.getStage(s).getTotalMatrix(&samplerMatrix);
 
         if (kInvalidUniformHandle != matrixUni &&
             (orientationChange || !hwMatrix.cheapEqualTo(samplerMatrix))) {
@@ -565,18 +565,18 @@ void GrGpuGL::setupGeometry(int* startVertex,
 
 namespace {
 
-void setup_effect(GrGLProgram::Desc::StageDesc* stage,
-                  const GrSamplerState& sampler,
+void setup_effect(GrGLProgram::Desc::StageDesc* stageDesc,
+                  const GrEffectStage& stage,
                   const GrGLCaps& caps,
                   const GrEffect** effects,
                   GrGLProgram* program, int index) {
-    const GrEffect* effect = sampler.getEffect();
+    const GrEffect* effect = stage.getEffect();
     if (effect) {
         const GrBackendEffectFactory& factory = effect->getFactory();
-        stage->fEffectKey = factory.glEffectKey(*effect, caps);
+        stageDesc->fEffectKey = factory.glEffectKey(*effect, caps);
         effects[index] = effect;
     } else {
-        stage->fEffectKey = 0;
+        stageDesc->fEffectKey = 0;
         effects[index] = NULL;
     }
 }
@@ -663,40 +663,40 @@ void GrGpuGL::buildProgram(bool isPoints,
     }
 
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        StageDesc& stage = desc->fStages[s];
+        StageDesc& stageDesc = desc->fStages[s];
 
-        stage.fOptFlags = 0;
-        stage.setEnabled(this->isStageEnabled(s));
+        stageDesc.fOptFlags = 0;
+        stageDesc.setEnabled(this->isStageEnabled(s));
 
         bool skip = s < drawState.getFirstCoverageStage() ? skipColor :
                                                             skipCoverage;
 
-        if (!skip && stage.isEnabled()) {
+        if (!skip && stageDesc.isEnabled()) {
             lastEnabledStage = s;
-            const GrSamplerState& sampler = drawState.getSampler(s);
+            const GrEffectStage& stage = drawState.getStage(s);
             // FIXME: Still assuming one texture per effect
-            const GrEffect* effect = drawState.getSampler(s).getEffect();
+            const GrEffect* effect = drawState.getStage(s).getEffect();
 
             if (effect->numTextures() > 0) {
                 const GrGLTexture* texture = static_cast<const GrGLTexture*>(effect->texture(0));
                 GrMatrix samplerMatrix;
-                sampler.getTotalMatrix(&samplerMatrix);
+                stage.getTotalMatrix(&samplerMatrix);
                 if (NULL != texture) {
                     // We call this helper function rather then simply checking the client-specified
                     // texture matrix. This is because we may have to concat a y-inversion to account
                     // for texture orientation.
-                    stage.fOptFlags |= TextureMatrixOptFlags(texture, sampler);
+                    stageDesc.fOptFlags |= TextureMatrixOptFlags(texture, stage);
                 }
             } else {
                 // Set identity to do the minimal amount of extra work for the no texture case.
                 // This will go away when effects manage their own texture matrix.
-                stage.fOptFlags |= StageDesc::kIdentityMatrix_OptFlagBit;
+                stageDesc.fOptFlags |= StageDesc::kIdentityMatrix_OptFlagBit;
             }
-            setup_effect(&stage, sampler, this->glCaps(), effects, fCurrentProgram.get(), s);
+            setup_effect(&stageDesc, stage, this->glCaps(), effects, fCurrentProgram.get(), s);
 
         } else {
-            stage.fOptFlags  = 0;
-            stage.fEffectKey = 0;
+            stageDesc.fOptFlags  = 0;
+            stageDesc.fEffectKey = 0;
             effects[s] = NULL;
         }
     }

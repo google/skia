@@ -129,8 +129,8 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         GrMatrix combinedMatrix = drawState->getViewMatrix();
         // We go to device space so that matrix changes allow us to concat
         // rect draws. When the caller has provided explicit source rects
-        // then we don't want to modify the sampler matrices. Otherwise
-        // we have to account for the view matrix change in the sampler
+        // then we don't want to modify the stages' matrices. Otherwise
+        // we have to account for the view matrix change in the stage
         // matrices.
         uint32_t explicitCoordMask = 0;
         if (srcRects) {
