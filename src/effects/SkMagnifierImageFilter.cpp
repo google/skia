@@ -200,7 +200,6 @@ GrEffect* GrMagnifierEffect::TestCreate(SkRandom* random,
                 SkRect::MakeXYWH(SkIntToScalar(x), SkIntToScalar(y),
                                  SkIntToScalar(width), SkIntToScalar(height)),
                 inset));
-    GrSamplerState sampler;
     GrEffect* effect;
     filter->asNewEffect(&effect, textures[0]);
     GrAssert(NULL != effect);

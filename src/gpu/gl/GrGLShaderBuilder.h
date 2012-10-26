@@ -181,8 +181,8 @@ public:
      * Sets the current stage (used to make variable names unique).
      * TODO: Hide from the GrEffects
      */
-    void setCurrentStage(int stage) { fCurrentStage = stage; }
-    void setNonStage() { fCurrentStage = kNonStageIdx; }
+    void setCurrentStage(int stageIdx) { fCurrentStageIdx = stageIdx; }
+    void setNonStage() { fCurrentStageIdx = kNonStageIdx; }
 
     GrGLUniformManager::UniformHandle getRTHeightUniform() const { return fRTHeightUniform; }
 
@@ -219,7 +219,7 @@ private:
 
     const GrGLContextInfo&              fContext;
     GrGLUniformManager&                 fUniformManager;
-    int                                 fCurrentStage;
+    int                                 fCurrentStageIdx;
     SkString                            fFSFunctions;
     SkString                            fFSHeader;
 

@@ -146,13 +146,13 @@ size_t GrDrawTarget::VertexSize(GrVertexLayout vertexLayout) {
  * Coverage
  */
 
-int GrDrawTarget::VertexStageCoordOffset(int stage, GrVertexLayout vertexLayout) {
+int GrDrawTarget::VertexStageCoordOffset(int stageIdx, GrVertexLayout vertexLayout) {
     GrAssert(check_layout(vertexLayout));
 
-    if (!StageUsesTexCoords(vertexLayout, stage)) {
+    if (!StageUsesTexCoords(vertexLayout, stageIdx)) {
         return 0;
     }
-    int tcIdx = VertexTexCoordsForStage(stage, vertexLayout);
+    int tcIdx = VertexTexCoordsForStage(stageIdx, vertexLayout);
     if (tcIdx >= 0) {
 
         int vecSize = (vertexLayout & kTextFormat_VertexLayoutBit) ?
@@ -313,11 +313,11 @@ bool GrDrawTarget::VertexUsesTexCoordIdx(int coordIndex,
     return !!(gTexCoordMasks[coordIndex] & vertexLayout);
 }
 
-int GrDrawTarget::VertexTexCoordsForStage(int stage,
+int GrDrawTarget::VertexTexCoordsForStage(int stageIdx,
                                           GrVertexLayout vertexLayout) {
-    GrAssert(stage < GrDrawState::kNumStages);
+    GrAssert(stageIdx < GrDrawState::kNumStages);
     GrAssert(check_layout(vertexLayout));
-    int bit = vertexLayout & gStageTexCoordMasks[stage];
+    int bit = vertexLayout & gStageTexCoordMasks[stageIdx];
     if (bit) {
         // figure out which set of texture coordates is used
         // bits are ordered T0S0, T0S1, T0S2, ..., T1S0, T1S1, ...
@@ -542,8 +542,8 @@ bool GrDrawTarget::reserveIndexSpace(int indexCount,
 
 }
 
-bool GrDrawTarget::StageUsesTexCoords(GrVertexLayout layout, int stage) {
-    return SkToBool(layout & gStageTexCoordMasks[stage]);
+bool GrDrawTarget::StageUsesTexCoords(GrVertexLayout layout, int stageIdx) {
+    return SkToBool(layout & gStageTexCoordMasks[stageIdx]);
 }
 
 bool GrDrawTarget::reserveVertexAndIndexSpace(GrVertexLayout vertexLayout,
@@ -748,7 +748,7 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
     GrAssert(NULL != drawState.getRenderTarget());
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (drawState.isStageEnabled(s)) {
-            const GrEffect* effect = drawState.getSampler(s).getEffect();
+            const GrEffect* effect = drawState.getStage(s).getEffect();
             int numTextures = effect->numTextures();
             for (int t = 0; t < numTextures; ++t) {
                 GrTexture* texture = effect->texture(t);
@@ -831,7 +831,7 @@ bool GrDrawTarget::srcAlphaWillBeOne(GrVertexLayout layout) const {
     // Check if a color stage could create a partial alpha
     for (int s = 0; s < drawState.getFirstCoverageStage(); ++s) {
         if (this->isStageEnabled(s)) {
-            const GrEffect* effect = drawState.getSampler(s).getEffect();
+            const GrEffect* effect = drawState.getStage(s).getEffect();
             // FIXME: The param indicates whether the texture is opaque or not. However, the effect
             // already controls its textures. It really needs to know whether the incoming color
             // (from a uni, per-vertex colors, or previous stage) is opaque or not.

@@ -61,7 +61,7 @@ public:
                                  SkMatrix* matrix,
                                  TileMode* xy) const;
     virtual SkShader::GradientType asAGradient(GradientInfo* info) const  SK_OVERRIDE;
-    virtual bool asNewEffect(GrContext* context, GrSamplerState* sampler) const SK_OVERRIDE;
+    virtual bool asNewEffect(GrContext* context, GrEffectStage* stage) const SK_OVERRIDE;
 
     SkScalar getCenterX1() const { return SkPoint::Distance(fCenter1, fCenter2); }
     SkScalar getStartRadius() const { return fRadius1; }

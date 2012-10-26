@@ -185,16 +185,16 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
                                                         (tempTex, false, *pmToUPMRule)));
 
         context->setRenderTarget(readTex->asRenderTarget());
-        paint.colorSampler(0)->setEffect(pmToUPMEffect1);
+        paint.colorStage(0)->setEffect(pmToUPMEffect1);
         context->drawRectToRect(paint, kDstRect, kSrcRect);
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, firstRead);
 
         context->setRenderTarget(tempTex->asRenderTarget());
-        paint.colorSampler(0)->setEffect(upmToPMEffect);
+        paint.colorStage(0)->setEffect(upmToPMEffect);
         context->drawRectToRect(paint, kDstRect, kSrcRect);
         context->setRenderTarget(readTex->asRenderTarget());
-        paint.colorSampler(0)->setEffect(pmToUPMEffect2);
+        paint.colorStage(0)->setEffect(pmToUPMEffect2);
         context->drawRectToRect(paint, kDstRect, kSrcRect);
 
         readTex->readPixels(0, 0, 256, 256, kRGBA_8888_GrPixelConfig, secondRead);

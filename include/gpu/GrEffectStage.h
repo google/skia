@@ -17,20 +17,20 @@
 
 #include "SkShader.h"
 
-class GrSamplerState {
+class GrEffectStage {
 public:
 
-    GrSamplerState()
+    GrEffectStage()
     : fEffect (NULL) {
         GR_DEBUGCODE(fSavedCoordChangeCnt = 0;)
     }
 
-    ~GrSamplerState() {
+    ~GrEffectStage() {
         GrSafeUnref(fEffect);
         GrAssert(0 == fSavedCoordChangeCnt);
     }
 
-    bool operator ==(const GrSamplerState& other) const {
+    bool operator ==(const GrEffectStage& other) const {
         // first handle cases where one or the other has no effect
         if (NULL == fEffect) {
             return NULL == other.fEffect;
@@ -49,9 +49,9 @@ public:
         return fMatrix == other.fMatrix && fCoordChangeMatrix == other.fCoordChangeMatrix;
     }
 
-    bool operator !=(const GrSamplerState& s) const { return !(*this == s); }
+    bool operator !=(const GrEffectStage& s) const { return !(*this == s); }
 
-    GrSamplerState& operator =(const GrSamplerState& other) {
+    GrEffectStage& operator =(const GrEffectStage& other) {
         GrSafeAssign(fEffect, other.fEffect);
         if (NULL != fEffect) {
             fMatrix = other.fMatrix;
@@ -72,7 +72,7 @@ public:
         GrMatrix fCoordChangeMatrix;
         GR_DEBUGCODE(mutable SkAutoTUnref<GrEffect> fEffect;)
 
-        friend class GrSamplerState;
+        friend class GrEffectStage;
     };
 
     /**

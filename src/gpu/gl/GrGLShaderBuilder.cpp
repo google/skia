@@ -92,7 +92,7 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctx, GrGLUniformMana
     , fUsesGS(false)
     , fContext(ctx)
     , fUniformManager(uniformManager)
-    , fCurrentStage(kNonStageIdx)
+    , fCurrentStageIdx(kNonStageIdx)
     , fSetupFragPosition(false)
     , fRTHeightUniform(GrGLUniformManager::kInvalidUniformHandle)
     , fTexCoordVaryingType(kVoid_GrSLType) {
@@ -109,8 +109,8 @@ void GrGLShaderBuilder::setupTextureAccess(const char* varyingFSName, GrSLType v
             break;
         case kVec3f_GrSLType: {
             fDefaultTexCoordsName = "inCoord";
-            GrAssert(kNonStageIdx != fCurrentStage);
-            fDefaultTexCoordsName.appendS32(fCurrentStage);
+            GrAssert(kNonStageIdx != fCurrentStageIdx);
+            fDefaultTexCoordsName.appendS32(fCurrentStageIdx);
             fTexCoordVaryingType = kVec3f_GrSLType;
             fFSCode.appendf("\t%s %s = %s.xy / %s.z;\n",
                             GrGLShaderVar::TypeString(kVec2f_GrSLType),
@@ -212,10 +212,10 @@ GrGLUniformManager::UniformHandle GrGLShaderBuilder::addUniformArray(uint32_t vi
     uni.fVariable.setType(type);
     uni.fVariable.setTypeModifier(GrGLShaderVar::kUniform_TypeModifier);
     SkString* uniName = uni.fVariable.accessName();
-    if (kNonStageIdx == fCurrentStage) {
+    if (kNonStageIdx == fCurrentStageIdx) {
         uniName->printf("u%s", name);
     } else {
-        uniName->printf("u%s%d", name, fCurrentStage);
+        uniName->printf("u%s%d", name, fCurrentStageIdx);
     }
     uni.fVariable.setArrayCount(count);
     uni.fVisibility = visibility;
@@ -246,10 +246,10 @@ void GrGLShaderBuilder::addVarying(GrSLType type,
     fVSOutputs.push_back();
     fVSOutputs.back().setType(type);
     fVSOutputs.back().setTypeModifier(GrGLShaderVar::kOut_TypeModifier);
-    if (kNonStageIdx == fCurrentStage) {
+    if (kNonStageIdx == fCurrentStageIdx) {
         fVSOutputs.back().accessName()->printf("v%s", name);
     } else {
-        fVSOutputs.back().accessName()->printf("v%s%d", name, fCurrentStage);
+        fVSOutputs.back().accessName()->printf("v%s%d", name, fCurrentStageIdx);
     }
     if (vsOutName) {
         *vsOutName = fVSOutputs.back().getName().c_str();
@@ -267,10 +267,10 @@ void GrGLShaderBuilder::addVarying(GrSLType type,
         fGSOutputs.push_back();
         fGSOutputs.back().setType(type);
         fGSOutputs.back().setTypeModifier(GrGLShaderVar::kOut_TypeModifier);
-        if (kNonStageIdx == fCurrentStage) {
+        if (kNonStageIdx == fCurrentStageIdx) {
             fGSOutputs.back().accessName()->printf("g%s", name);
         } else {
-            fGSOutputs.back().accessName()->printf("g%s%d", name, fCurrentStage);
+            fGSOutputs.back().accessName()->printf("g%s%d", name, fCurrentStageIdx);
         }
         fsName = fGSOutputs.back().accessName();
     } else {
@@ -305,13 +305,13 @@ const char* GrGLShaderBuilder::fragmentPosition() {
 
             // temporarily change the stage index because we're inserting a uniform whose name
             // shouldn't be mangled to be stage-specific.
-            int oldStageIdx = fCurrentStage;
-            fCurrentStage = kNonStageIdx;
+            int oldStageIdx = fCurrentStageIdx;
+            fCurrentStageIdx = kNonStageIdx;
             fRTHeightUniform = this->addUniform(kFragment_ShaderType,
                                                 kFloat_GrSLType,
                                                 "RTHeight",
                                                 &rtHeightName);
-            fCurrentStage = oldStageIdx;
+            fCurrentStageIdx = oldStageIdx;
 
             this->fFSCode.prependf("\tvec4 %s = vec4(gl_FragCoord.x, %s - gl_FragCoord.y, gl_FragCoord.zw);\n",
                                    kCoordName, rtHeightName);
@@ -332,8 +332,8 @@ void GrGLShaderBuilder::emitFunction(ShaderType shader,
                                      SkString* outName) {
     GrAssert(kFragment_ShaderType == shader);
     fFSFunctions.append(GrGLShaderVar::TypeString(returnType));
-    if (kNonStageIdx != fCurrentStage) {
-        outName->printf(" %s_%d", name, fCurrentStage);
+    if (kNonStageIdx != fCurrentStageIdx) {
+        outName->printf(" %s_%d", name, fCurrentStageIdx);
     } else {
         *outName = name;
     }

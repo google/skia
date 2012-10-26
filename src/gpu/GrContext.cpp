@@ -204,7 +204,7 @@ void convolve_gaussian(GrDrawTarget* target,
     SkAutoTUnref<GrConvolutionEffect> conv(SkNEW_ARGS(GrConvolutionEffect,
                                                       (texture, direction, radius,
                                                        sigma)));
-    drawState->sampler(0)->setEffect(conv, sampleM);
+    drawState->stage(0)->setEffect(conv, sampleM);
     target->drawSimpleRect(rect, NULL);
 }
 
@@ -331,7 +331,7 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
         texture->releaseRenderTarget();
     } else {
         // TODO: Our CPU stretch doesn't filter. But we create separate
-        // stretched textures when the sampler state is either filtered or
+        // stretched textures when the texture params is either filtered or
         // not. Either implement filtered stretch blit on CPU or just create
         // one when FBO case fails.
 
@@ -340,17 +340,13 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
         rtDesc.fWidth  = GrNextPow2(desc.fWidth);
         rtDesc.fHeight = GrNextPow2(desc.fHeight);
         int bpp = GrBytesPerPixel(desc.fConfig);
-        SkAutoSMalloc<128*128*4> stretchedPixels(bpp *
-                                                    rtDesc.fWidth *
-                                                    rtDesc.fHeight);
+        SkAutoSMalloc<128*128*4> stretchedPixels(bpp * rtDesc.fWidth * rtDesc.fHeight);
         stretchImage(stretchedPixels.get(), rtDesc.fWidth, rtDesc.fHeight,
-                        srcData, desc.fWidth, desc.fHeight, bpp);
+                     srcData, desc.fWidth, desc.fHeight, bpp);
 
         size_t stretchedRowBytes = rtDesc.fWidth * bpp;
 
-        GrTexture* texture = fGpu->createTexture(rtDesc,
-                                                    stretchedPixels.get(),
-                                                    stretchedRowBytes);
+        GrTexture* texture = fGpu->createTexture(rtDesc, stretchedPixels.get(), stretchedRowBytes);
         GrAssert(NULL != texture);
     }
 
@@ -452,9 +448,9 @@ GrTexture* GrContext::lockScratchTexture(const GrTextureDesc& inDesc,
         }
     }
 
-    // If the caller gives us the same desc/sampler twice we don't want
-    // to return the same texture the second time (unless it was previously
-    // released). So make it exclusive to hide it from future searches.
+    // If the caller gives us the same desc twice we don't want to return the
+    // same texture the second time (unless it was previously released). So
+    // make it exclusive to hide it from future searches.
     if (NULL != resource) {
         fTextureCache->makeExclusive(resource->getCacheEntry());
     }
@@ -858,7 +854,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
         m.postConcat(*srcMatrix);
     }
 
-    drawState->sampler(GrPaint::kFirstColorStage)->preConcatCoordChange(m);
+    drawState->stage(GrPaint::kFirstColorStage)->preConcatCoordChange(m);
 
     const GrVertexBuffer* sqVB = fGpu->getUnitSquareVertexBuffer();
     if (NULL == sqVB) {
@@ -1344,7 +1340,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
                     matrix.setTranslate(SK_Scalar1 *left, SK_Scalar1 *top);
                 }
                 matrix.postIDiv(src->width(), src->height());
-                drawState->sampler(0)->setEffect(effect, matrix);
+                drawState->stage(0)->setEffect(effect, matrix);
                 GrRect rect = GrRect::MakeWH(GrIntToScalar(width), GrIntToScalar(height));
                 fGpu->drawSimpleRect(rect, NULL);
                 // we want to read back from the scratch's origin
@@ -1552,7 +1548,7 @@ void GrContext::writeRenderTargetPixels(GrRenderTarget* target,
     drawState->setRenderTarget(target);
 
     matrix.setIDiv(texture->width(), texture->height());
-    drawState->sampler(0)->setEffect(effect, matrix);
+    drawState->stage(0)->setEffect(effect, matrix);
 
     fGpu->drawSimpleRect(GrRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height)), NULL);
 }
@@ -1816,8 +1812,8 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         scale_rect(&dstRect, i < scaleFactorX ? 0.5f : 1.0f,
                              i < scaleFactorY ? 0.5f : 1.0f);
 
-        paint.colorSampler(0)->setEffect(SkNEW_ARGS(GrSingleTextureEffect,
-                                                    (srcTexture, true)), matrix)->unref();
+        paint.colorStage(0)->setEffect(SkNEW_ARGS(GrSingleTextureEffect,
+                                                  (srcTexture, true)), matrix)->unref();
         this->drawRectToRect(paint, dstRect, srcRect);
         srcRect = dstRect;
         srcTexture = dstTexture;
@@ -1874,8 +1870,8 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         // FIXME:  This should be mitchell, not bilinear.
         matrix.setIDiv(srcTexture->width(), srcTexture->height());
         this->setRenderTarget(dstTexture->asRenderTarget());
-        paint.colorSampler(0)->setEffect(SkNEW_ARGS(GrSingleTextureEffect,(srcTexture, true)),
-                                         matrix)->unref();
+        paint.colorStage(0)->setEffect(SkNEW_ARGS(GrSingleTextureEffect,(srcTexture, true)),
+                                       matrix)->unref();
         SkRect dstRect(srcRect);
         scale_rect(&dstRect, (float) scaleFactorX, (float) scaleFactorY);
         this->drawRectToRect(paint, dstRect, srcRect);

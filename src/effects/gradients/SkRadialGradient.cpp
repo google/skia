@@ -537,12 +537,12 @@ GrEffect* GrRadialGradient::TestCreate(SkRandom* random,
     SkAutoTUnref<SkShader> shader(SkGradientShader::CreateRadial(center, radius,
                                                                  colors, stops, colorCount,
                                                                  tm));
-    GrSamplerState sampler;
-    shader->asNewEffect(context, &sampler);
-    GrAssert(NULL != sampler.getEffect());
+    GrEffectStage stage;
+    shader->asNewEffect(context, &stage);
+    GrAssert(NULL != stage.getEffect());
     // const_cast and ref is a hack! Will remove when asNewEffect returns GrEffect*
-    sampler.getEffect()->ref();
-    return const_cast<GrEffect*>(sampler.getEffect());
+    stage.getEffect()->ref();
+    return const_cast<GrEffect*>(stage.getEffect());
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -558,8 +558,8 @@ void GrGLRadialGradient::emitFS(GrGLShaderBuilder* builder,
 
 /////////////////////////////////////////////////////////////////////
 
-bool SkRadialGradient::asNewEffect(GrContext* context, GrSamplerState* sampler) const {
-    SkASSERT(NULL != context && NULL != sampler);
+bool SkRadialGradient::asNewEffect(GrContext* context, GrEffectStage* stage) const {
+    SkASSERT(NULL != context && NULL != stage);
     SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrRadialGradient, (context, *this, fTileMode)));
 
     SkMatrix matrix;
@@ -568,9 +568,9 @@ bool SkRadialGradient::asNewEffect(GrContext* context, GrSamplerState* sampler) 
             return false;
         }
         matrix.postConcat(fPtsToUnit);
-        sampler->setEffect(effect, matrix);
+        stage->setEffect(effect, matrix);
     } else {
-        sampler->setEffect(effect, fPtsToUnit);
+        stage->setEffect(effect, fPtsToUnit);
     }
 
     return true;
@@ -578,7 +578,7 @@ bool SkRadialGradient::asNewEffect(GrContext* context, GrSamplerState* sampler) 
 
 #else
 
-bool SkRadialGradient::asNewEffect(GrContext*, GrSamplerState*) const {
+bool SkRadialGradient::asNewEffect(GrContext*, GrEffectStage*) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;
 }

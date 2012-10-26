@@ -151,7 +151,7 @@ private:
 
     // This helper determines if what optimizations can be applied to the matrix after any coord
     // adjustments are applied. The return is a bitfield of GrGLProgram::StageDesc::OptFlags.
-    static int TextureMatrixOptFlags(const GrGLTexture* texture, const GrSamplerState& sampler);
+    static int TextureMatrixOptFlags(const GrGLTexture* texture, const GrEffectStage& sampler);
 
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
@@ -216,7 +216,7 @@ private:
                                     GrGLTexture* nextTexture);
 
     // sets the texture matrix for the currently bound program
-    void flushTextureMatrix(int stage);
+    void flushTextureMatrix(int stageIdx);
 
     // sets the color specified by GrDrawState::setColor()
     void flushColor(GrColor color);

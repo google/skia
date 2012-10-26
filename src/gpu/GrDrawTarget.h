@@ -190,18 +190,18 @@ public:
     /**
      * Generates a bit indicating that a texture stage uses texture coordinates
      *
-     * @param stage       the stage that will use texture coordinates.
+     * @param stageIdx    the stage that will use texture coordinates.
      * @param texCoordIdx the index of the texture coordinates to use
      *
      * @return the bit to add to a GrVertexLayout bitfield.
      */
-    static int StageTexCoordVertexLayoutBit(int stage, int texCoordIdx) {
-        GrAssert(stage < GrDrawState::kNumStages);
+    static int StageTexCoordVertexLayoutBit(int stageIdx, int texCoordIdx) {
+        GrAssert(stageIdx < GrDrawState::kNumStages);
         GrAssert(texCoordIdx < GrDrawState::kMaxTexCoords);
-        return 1 << (stage + (texCoordIdx * GrDrawState::kNumStages));
+        return 1 << (stageIdx + (texCoordIdx * GrDrawState::kNumStages));
     }
 
-    static bool StageUsesTexCoords(GrVertexLayout layout, int stage);
+    static bool StageUsesTexCoords(GrVertexLayout layout, int stageIdx);
 
 private:
     // non-stage bits start at this index.
@@ -674,13 +674,13 @@ public:
      * as texture coordinates, in which case the result of the function is
      * indistinguishable from the case when the stage is disabled.
      *
-     * @param stage         the stage to query
+     * @param stageIdx      the stage to query
      * @param vertexLayout  layout to query
      *
      * @return the texture coordinate index or -1 if the stage doesn't use
      *         separate (non-position) texture coordinates.
      */
-    static int VertexTexCoordsForStage(int stage, GrVertexLayout vertexLayout);
+    static int VertexTexCoordsForStage(int stageIdx, GrVertexLayout vertexLayout);
 
     /**
      * Helper function to compute the offset of texture coordinates in a vertex
@@ -688,7 +688,7 @@ public:
      *         layout has no texture coordinates. Will be 0 if positions are
      *         used as texture coordinates for the stage.
      */
-    static int VertexStageCoordOffset(int stage, GrVertexLayout vertexLayout);
+    static int VertexStageCoordOffset(int stageIdx, GrVertexLayout vertexLayout);
 
     /**
      * Helper function to compute the offset of the color in a vertex
@@ -941,8 +941,8 @@ protected:
         }
     }
 
-    bool isStageEnabled(int stage) const {
-        return this->getDrawState().isStageEnabled(stage);
+    bool isStageEnabled(int stageIdx) const {
+        return this->getDrawState().isStageEnabled(stageIdx);
     }
 
     // A sublcass can optionally overload this function to be notified before

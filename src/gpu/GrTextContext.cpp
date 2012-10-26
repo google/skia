@@ -29,7 +29,7 @@ void GrTextContext::flushGlyphs() {
     GrDrawState* drawState = fDrawTarget->drawState();
     if (fCurrVertex > 0) {
         // setup our sampler state for our text texture/atlas
-        drawState->sampler(kGlyphMaskStage)->reset();
+        drawState->stage(kGlyphMaskStage)->reset();
 
         GrAssert(GrIsALIGN4(fCurrVertex));
         GrAssert(fCurrTexture);

@@ -194,7 +194,7 @@ private:
 
 #include "gl/GrGLEffect.h"
 
-class GrSamplerState;
+class GrEffectStage;
 class GrBackendEffectFactory;
 
 /*
