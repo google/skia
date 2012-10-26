@@ -2841,12 +2841,106 @@ static void testQuadratic51() {
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = 0;
+static void testQuadratic53() {
+    SkPath path;
+    path.moveTo(303.12088f, 141.299606f);
+    path.lineTo(330.463562f, 217.659027f);
+    path.lineTo(303.12088f, 141.299606f);
+    path.close();
+    path.moveTo(371.919067f, 205.854996f);
+    path.lineTo(326.236786f, 205.854996f);
+    path.quadTo(329.104431f, 231.663818f, 351.512085f, 231.663818f);
+    path.lineTo(371.919067f, 205.854996f);
+    path.close();
+    testSimplifyx(path);
+}
+static void testQuadratic55() {
+    SkPath path;
+path.moveTo(303.12088f, 141.299606f);
+path.lineTo(330.463562f, 217.659027f);
+path.lineTo(358.606506f, 141.299606f);
+path.lineTo(303.12088f, 141.299606f);
+path.close();
+path.moveTo(326.236786f, 205.854996f);
+path.quadTo(329.104431f, 231.663818f, 351.512085f, 231.663818f);
+path.lineTo(326.236786f, 205.854996f);
+path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic56() {
+    SkPath path;
+path.moveTo(366.608826f, 151.196014f);
+path.quadTo(378.803101f, 136.674606f, 398.164948f, 136.674606f);
+path.lineTo(354.009216f, 208.816208f);
+path.lineTo(393.291473f, 102.232819f);
+path.lineTo(359.978058f, 136.581512f);
+path.quadTo(378.315979f, 136.581512f, 388.322723f, 149.613556f);
+path.lineTo(364.390686f, 157.898193f);
+path.quadTo(375.281769f, 136.674606f, 396.039917f, 136.674606f);
+path.lineTo(350, 120);
+path.lineTo(366.608826f, 151.196014f);
+path.close();
+    testSimplifyx(path);
+}
+
+static void testLine80() {
+    SkPath path;
+path.moveTo(4, 0);
+path.lineTo(3, 7);
+path.lineTo(7, 5);
+path.lineTo(2, 2);
+path.close();
+path.moveTo(0, 6);
+path.lineTo(6, 12);
+path.lineTo(8, 3);
+path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic58() {
+    SkPath path;
+path.moveTo(283.714233f, 240);
+path.lineTo(283.714233f, 141.299606f);
+path.lineTo(303.12088f, 141.299606f);
+path.lineTo(330.463562f, 217.659027f);
+path.lineTo(358.606506f, 141.299606f);
+path.lineTo(362.874634f, 159.705902f);
+path.lineTo(335.665344f, 233.397751f);
+path.lineTo(322.12738f, 233.397751f);
+path.lineTo(295.718353f, 159.505829f);
+path.lineTo(295.718353f, 240);
+path.lineTo(283.714233f, 240);
+path.close();
+path.moveTo(322.935669f, 231.030273f);
+path.quadTo(312.832214f, 220.393295f, 312.832214f, 203.454178f);
+path.quadTo(312.832214f, 186.981888f, 321.73526f, 176.444946f);
+path.quadTo(330.638306f, 165.90802f, 344.509705f, 165.90802f);
+path.quadTo(357.647522f, 165.90802f, 364.81665f, 175.244537f);
+path.lineTo(371.919067f, 205.854996f);
+path.lineTo(326.236786f, 205.854996f);
+path.quadTo(329.104431f, 231.663818f, 351.512085f, 231.663818f);
+path.lineTo(322.935669f, 231.030273f);
+path.close();
+path.moveTo(326.837006f, 195.984955f);
+path.lineTo(358.78125f, 195.984955f);
+path.quadTo(358.78125f, 175.778046f, 343.709442f, 175.778046f);
+path.quadTo(328.570923f, 175.778046f, 326.837006f, 195.984955f);
+path.close();
+    testSimplifyx(path);
+}
+
+static void (*firstTest)() = testQuadratic58;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(testQuadratic58),
+    TEST(testLine80),
+    TEST(testQuadratic56),
+    TEST(testQuadratic55),
+    TEST(testQuadratic53),
     TEST(testQuadratic51),
     TEST(testQuadratic38),
     TEST(testQuadratic37),
@@ -3127,7 +3221,7 @@ static const size_t subTestCount = sizeof(subTests) / sizeof(subTests[0]);
 
 static bool skipAll = false;
 static bool runSubTests = false;
-static bool runReverse = false;
+static bool runReverse = true;
 
 void SimplifyNew_Test() {
     if (skipAll) {

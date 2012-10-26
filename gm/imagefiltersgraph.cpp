@@ -56,7 +56,7 @@ protected:
                                                          SkXfermode::kSrcIn_Mode));
             SkAutoTUnref<SkImageFilter> blur(new SkBlurImageFilter(4.0f, 4.0f, bitmapSource));
             SkAutoTUnref<SkImageFilter> erode(new SkErodeImageFilter(4, 4, blur));
-            SkAutoTUnref<SkImageFilter> color(new SkColorFilterImageFilter(cf, erode));
+            SkAutoTUnref<SkImageFilter> color(SkColorFilterImageFilter::Create(cf, erode));
             SkAutoTUnref<SkImageFilter> merge(new SkMergeImageFilter(blur, color));
 
             SkPaint paint;
@@ -72,7 +72,7 @@ protected:
                                     0, 0, 0, SkFloatToScalar(0.5f), 0 };
 
             SkAutoTUnref<SkColorFilter> matrixFilter(new SkColorMatrixFilter(matrix));
-            SkAutoTUnref<SkImageFilter> colorMorph(new SkColorFilterImageFilter(matrixFilter, morph));
+            SkAutoTUnref<SkImageFilter> colorMorph(SkColorFilterImageFilter::Create(matrixFilter, morph));
             SkAutoTUnref<SkImageFilter> blendColor(new SkBlendImageFilter(SkBlendImageFilter::kNormal_Mode, colorMorph));
 
             SkPaint paint;

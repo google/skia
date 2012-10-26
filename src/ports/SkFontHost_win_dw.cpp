@@ -489,8 +489,7 @@ protected:
     virtual uint16_t generateCharToGlyph(SkUnichar uni) SK_OVERRIDE;
     virtual void generateAdvance(SkGlyph* glyph) SK_OVERRIDE;
     virtual void generateMetrics(SkGlyph* glyph) SK_OVERRIDE;
-    virtual void generateImage(const SkGlyph& glyph,
-                               SkMaskGamma::PreBlend* maskPreBlend) SK_OVERRIDE;
+    virtual void generateImage(const SkGlyph& glyph) SK_OVERRIDE;
     virtual void generatePath(const SkGlyph& glyph, SkPath* path) SK_OVERRIDE;
     virtual void generateFontMetrics(SkPaint::FontMetrics* mX,
                                      SkPaint::FontMetrics* mY) SK_OVERRIDE;
@@ -975,19 +974,8 @@ static void rgb_to_lcd32(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph,
     }
 }
 
-void SkScalerContext_Windows::generateImage(const SkGlyph& glyph,
-                                            SkMaskGamma::PreBlend* maskPreBlend) {
+void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
     SkAutoMutexAcquire ac(gFTMutex);
-
-    //Must be careful not to use these if maskPreBlend == NULL
-    const uint8_t* tableR = NULL;
-    const uint8_t* tableG = NULL;
-    const uint8_t* tableB = NULL;
-    if (maskPreBlend) {
-        tableR = maskPreBlend->fR;
-        tableG = maskPreBlend->fG;
-        tableB = maskPreBlend->fB;
-    }
 
     const bool isBW = SkMask::kBW_Format == fRec.fMaskFormat;
     const bool isAA = !isLCD(fRec);
@@ -1006,23 +994,23 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph,
     if (isBW) {
         bilevel_to_bw(src, glyph);
     } else if (isAA) {
-        if (maskPreBlend) {
-            rgb_to_a8<true>(src, glyph, tableG);
+        if (fPreBlend.isApplicable()) {
+            rgb_to_a8<true>(src, glyph, fPreBlend.fG);
         } else {
-            rgb_to_a8<false>(src, glyph, tableG);
+            rgb_to_a8<false>(src, glyph, fPreBlend.fG);
         }
     } else if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
-        if (maskPreBlend) {
-            rgb_to_lcd16<true>(src, glyph, tableR, tableG, tableB);
+        if (fPreBlend.isApplicable()) {
+            rgb_to_lcd16<true>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
         } else {
-            rgb_to_lcd16<false>(src, glyph, tableR, tableG, tableB);
+            rgb_to_lcd16<false>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
         }
     } else {
         SkASSERT(SkMask::kLCD32_Format == glyph.fMaskFormat);
-        if (maskPreBlend) {
-            rgb_to_lcd32<true>(src, glyph, tableR, tableG, tableB);
+        if (fPreBlend.isApplicable()) {
+            rgb_to_lcd32<true>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
         } else {
-            rgb_to_lcd32<false>(src, glyph, tableR, tableG, tableB);
+            rgb_to_lcd32<false>(src, glyph, fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
         }
     }
 }

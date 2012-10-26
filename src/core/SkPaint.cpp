@@ -1647,12 +1647,12 @@ static SkScalar gDeviceGamma = SK_ScalarMin;
  * The caller must hold the gMaskGammaCacheMutex and continue to hold it until
  * the returned SkMaskGamma pointer is refed or forgotten.
  */
-static SkMaskGamma* cachedMaskGamma(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma) {
+static const SkMaskGamma& cachedMaskGamma(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma) {
     if (0 == contrast && SK_Scalar1 == paintGamma && SK_Scalar1 == deviceGamma) {
         if (NULL == gLinearMaskGamma) {
             gLinearMaskGamma = SkNEW(SkMaskGamma);
         }
-        return gLinearMaskGamma;
+        return *gLinearMaskGamma;
     }
     if (gContrast != contrast || gPaintGamma != paintGamma || gDeviceGamma != deviceGamma) {
         SkSafeUnref(gMaskGamma);
@@ -1661,7 +1661,7 @@ static SkMaskGamma* cachedMaskGamma(SkScalar contrast, SkScalar paintGamma, SkSc
         gPaintGamma = paintGamma;
         gDeviceGamma = deviceGamma;
     }
-    return gMaskGamma;
+    return *gMaskGamma;
 }
 
 /*static*/ void SkPaint::Term() {
@@ -1690,7 +1690,7 @@ void SkScalerContext::PostMakeRec(const SkPaint& paint, SkScalerContext::Rec* re
         case SkMask::kLCD32_Format: {
             // filter down the luminance color to a finite number of bits
             SkColor color = rec->getLuminanceColor();
-            rec->setLuminanceColor(SkMaskGamma::cannonicalColor(color));
+            rec->setLuminanceColor(SkMaskGamma::CannonicalColor(color));
             break;
         }
         case SkMask::kA8_Format: {
@@ -1707,7 +1707,7 @@ void SkScalerContext::PostMakeRec(const SkPaint& paint, SkScalerContext::Rec* re
 
             // reduce to our finite number of bits
             color = SkColorSetRGB(lum, lum, lum);
-            rec->setLuminanceColor(SkMaskGamma::cannonicalColor(color));
+            rec->setLuminanceColor(SkMaskGamma::CannonicalColor(color));
             break;
         }
         case SkMask::kBW_Format:
@@ -1762,6 +1762,11 @@ void SkPaint::descriptorProc(const SkMatrix* deviceMatrix,
         descSize += mfBuffer.size();
         entryCount += 1;
         rec.fMaskFormat = SkMask::kA8_Format;   // force antialiasing with maskfilters
+        /* Pre-blend is not currently applied to filtered text.
+           The primary filter is blur, for which contrast makes no sense,
+           and for which the destination guess error is more visible.
+           Also, all existing users of blur have calibrated for linear. */
+        rec.ignorePreBlend();
     }
     if (ra) {
         raBuffer.writeFlattenable(ra);
@@ -1853,10 +1858,10 @@ SkGlyphCache* SkPaint::detachCache(const SkMatrix* deviceMatrix) const {
 //static
 SkMaskGamma::PreBlend SkScalerContext::GetMaskPreBlend(const SkScalerContext::Rec& rec) {
     SkAutoMutexAcquire ama(gMaskGammaCacheMutex);
-    SkMaskGamma* maskGamma = cachedMaskGamma(rec.getContrast(),
-                                             rec.getPaintGamma(),
-                                             rec.getDeviceGamma());
-    return maskGamma->preBlend(rec.getLuminanceColor());
+    const SkMaskGamma& maskGamma = cachedMaskGamma(rec.getContrast(),
+                                                   rec.getPaintGamma(),
+                                                   rec.getDeviceGamma());
+    return maskGamma.preBlend(rec.getLuminanceColor());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
