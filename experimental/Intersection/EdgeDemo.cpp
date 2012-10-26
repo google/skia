@@ -228,25 +228,35 @@ static void tryRoncoOnce(const SkPath& path, const SkRect& target, bool show) {
 }
 
 static void tryRonco(const SkPath& path) {
-    const SkRect& overall = path.getBounds();
-    const int divs = 64;
-    SkScalar cellWidth = overall.width() / divs * 2;
-    SkScalar cellHeight = overall.height() / divs * 2;
-    SkRect target;
+    int divMax = 17;
+    int divMin = 1;
+    int xDivMin = 0;
+    int yDivMin = 0;
+    bool allYs = true;
+    bool allXs = true;
     if (1) {
-        int xDiv = 27;
-        int yDiv = 11;
-        target.setXYWH(overall.fLeft + (overall.width() - cellWidth) * xDiv / divs,
-                overall.fTop + (overall.height() - cellHeight) * yDiv / divs,
-                 cellWidth, cellHeight);
-        tryRoncoOnce(path, target, true);
-    } else {
-        for (int xDiv = 0; xDiv < divs; ++xDiv) {
-            for (int yDiv = 0; yDiv < divs; ++yDiv) {
+        divMax = divMin = 3;
+        xDivMin = 0;
+        yDivMin = 0;
+        allXs = true;
+        allYs = true;
+    }
+    for (int divs = divMax; divs >= divMin; divs -= 2) {
+        SkDebugf("divs=%d\n",divs);
+        const SkRect& overall = path.getBounds();
+        SkScalar cellWidth = overall.width() / divs * 2;
+        SkScalar cellHeight = overall.height() / divs * 2;
+        SkRect target;
+        int xDivMax = divMax == divMin && !allXs ? xDivMin + 1 : divs;
+        int yDivMax = divMax == divMin && !allYs ? yDivMin + 1 : divs;
+        for (int xDiv = xDivMin; xDiv < xDivMax; ++xDiv) {
+            SkDebugf("xDiv=%d\n",xDiv);
+            for (int yDiv = yDivMin; yDiv < yDivMax; ++yDiv) {
+                SkDebugf("yDiv=%d\n",yDiv);
                 target.setXYWH(overall.fLeft + (overall.width() - cellWidth) * xDiv / divs,
                         overall.fTop + (overall.height() - cellHeight) * yDiv / divs,
                          cellWidth, cellHeight);
-                tryRoncoOnce(path, target, true);
+                tryRoncoOnce(path, target, divMax == divMin);
             }
         }
     }
@@ -277,10 +287,15 @@ static bool drawLetters(SkCanvas* canvas, int step, bool useOld)
         textPos[x].fY = height / 2;
     }
     paint.setTextSize(40 + step / 100.0f);
-#if 0
+#if 1
+    bool oneShot = false;
     for (int mask = 0; mask < 1 << testStrLen; ++mask) {
         char maskStr[testStrLen];
-        mask = 15;
+#if 1
+        mask = 3;
+        oneShot = true;
+#endif
+        SkDebugf("mask=%d\n", mask);
         for (int letter = 0; letter < testStrLen; ++letter) {
             maskStr[letter] = mask & (1 << letter) ? testStr[letter] : ' ';
         }
@@ -288,12 +303,16 @@ static bool drawLetters(SkCanvas* canvas, int step, bool useOld)
    //     showPath(path, NULL);
    //     SkDebugf("%d simplified:\n", mask);
         tryRonco(path);
-        testSimplifyx(path);
+    //    testSimplifyx(path);
+        if (oneShot) {
+            break;
+        }
     }
 #endif
     paint.getPosTextPath(testStr, testStrLen, textPos, &path);
 #if 1
     tryRonco(path);
+    SkDebugf("RoncoDone!\n");
 #endif
 #if 0
     showPath(path, NULL);
