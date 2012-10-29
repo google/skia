@@ -70,7 +70,7 @@ public:
     class SavedCoordChange {
     private:
         GrMatrix fCoordChangeMatrix;
-        GR_DEBUGCODE(mutable SkAutoTUnref<GrEffect> fEffect;)
+        GR_DEBUGCODE(mutable SkAutoTUnref<const GrEffect> fEffect;)
 
         friend class GrEffectStage;
     };
@@ -123,7 +123,7 @@ public:
         GrSafeSetNull(fEffect);
     }
 
-    GrEffect* setEffect(GrEffect* effect) {
+    const GrEffect* setEffect(const GrEffect* effect) {
         GrAssert(0 == fSavedCoordChangeCnt);
         GrSafeAssign(fEffect, effect);
         fMatrix.reset();
@@ -131,7 +131,7 @@ public:
         return effect;
     }
 
-    GrEffect* setEffect(GrEffect* effect, const GrMatrix& matrix) {
+    const GrEffect* setEffect(const GrEffect* effect, const GrMatrix& matrix) {
         GrAssert(0 == fSavedCoordChangeCnt);
         GrSafeAssign(fEffect, effect);
         fMatrix = matrix;
@@ -144,7 +144,7 @@ public:
 private:
     GrMatrix            fCoordChangeMatrix;
     GrMatrix            fMatrix; // TODO: remove this, store in GrEffect
-    GrEffect*           fEffect;
+    const GrEffect*     fEffect;
 
     GR_DEBUGCODE(mutable int fSavedCoordChangeCnt;)
 };
