@@ -9,8 +9,17 @@
 
 #include "SkOSFile.h"
 
-#include <stdio.h>
 #include <errno.h>
+#include <stdio.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#ifdef _WIN32
+#include <direct.h>
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
 
 SkFILE* sk_fopen(const char path[], SkFILE_Flags flags)
 {
@@ -98,3 +107,46 @@ void sk_fclose(SkFILE* f)
     ::fclose((FILE*)f);
 }
 
+bool sk_exists(const char *path)
+{
+#ifdef _WIN32
+    return (0 == _access(path, 0));
+#else
+    return (0 == access(path, 0));
+#endif
+}
+
+bool sk_isdir(const char *path)
+{
+    struct stat status;
+    if (0 != stat(path, &status)) {
+        return false;
+    }
+    return (status.st_mode & S_IFDIR);
+}
+
+bool sk_mkdir(const char* path)
+{
+    if (sk_isdir(path)) {
+        return true;
+    }
+    if (sk_exists(path)) {
+        fprintf(stderr,
+                "sk_mkdir: path '%s' already exists but is not a directory\n",
+                path);
+        return false;
+    }
+
+    int retval;
+#ifdef _WIN32
+    retval = _mkdir(path);
+#else
+    retval = mkdir(path, 0777);
+#endif
+    if (0 == retval) {
+        return true;
+    } else {
+        fprintf(stderr, "sk_mkdir: error %d creating dir '%s'\n", errno, path);
+        return false;
+    }
+}
