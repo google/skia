@@ -1286,7 +1286,8 @@ void GrGLSpecularLightingEffect::emitLightFunc(GrGLShaderBuilder* builder, SkStr
     SkString lightBody;
     lightBody.appendf("\tvec3 halfDir = vec3(normalize(surfaceToLight + vec3(0, 0, 1)));\n");
     lightBody.appendf("\tfloat colorScale = %s * pow(dot(normal, halfDir), %s);\n", ks, shininess);
-    lightBody.appendf("\treturn vec4(lightColor * clamp(colorScale, 0.0, 1.0), 1.0);\n");
+    lightBody.appendf("\tvec3 color = lightColor * clamp(colorScale, 0.0, 1.0);\n");
+    lightBody.appendf("\treturn vec4(color, max(max(color.r, color.g), color.b));\n");
     builder->emitFunction(GrGLShaderBuilder::kFragment_ShaderType,
                           kVec4f_GrSLType,
                           "light",
