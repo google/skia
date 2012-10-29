@@ -15,17 +15,17 @@
 typedef GrGLUniformManager::UniformHandle UniformHandle;
 static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidUniformHandle;
 
-class GrGLConvolutionEffect : public GrGLLegacyEffect {
+class GrGLConvolutionEffect : public GrGLEffect {
 public:
     GrGLConvolutionEffect(const GrBackendEffectFactory&, const GrEffect&);
 
-    virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
-    virtual void emitVS(GrGLShaderBuilder* builder,
-                        const char* vertexCoords) SK_OVERRIDE {};
-    virtual void emitFS(GrGLShaderBuilder* builder,
-                        const char* outputColor,
-                        const char* inputColor,
-                        const TextureSamplerArray&) SK_OVERRIDE;
+    virtual void emitCode(GrGLShaderBuilder*,
+                          const GrEffect&,
+                          EffectKey,
+                          const char* vertexCoords,
+                          const char* outputColor,
+                          const char* inputColor,
+                          const TextureSamplerArray&) SK_OVERRIDE;
 
     virtual void setData(const GrGLUniformManager& uman, const GrEffectStage&) SK_OVERRIDE;
 
@@ -38,7 +38,7 @@ private:
     UniformHandle   fKernelUni;
     UniformHandle   fImageIncrementUni;
 
-    typedef GrGLLegacyEffect INHERITED;
+    typedef GrGLEffect INHERITED;
 };
 
 GrGLConvolutionEffect::GrGLConvolutionEffect(const GrBackendEffectFactory& factory,
@@ -51,17 +51,17 @@ GrGLConvolutionEffect::GrGLConvolutionEffect(const GrBackendEffectFactory& facto
     fRadius = c.radius();
 }
 
-void GrGLConvolutionEffect::setupVariables(GrGLShaderBuilder* builder) {
+void GrGLConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
+                                     const GrEffect&,
+                                     EffectKey,
+                                     const char* vertexCoords,
+                                     const char* outputColor,
+                                     const char* inputColor,
+                                     const TextureSamplerArray& samplers) {
     fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                              kVec2f_GrSLType, "ImageIncrement");
     fKernelUni = builder->addUniformArray(GrGLShaderBuilder::kFragment_ShaderType,
                                           kFloat_GrSLType, "Kernel", this->width());
-}
-
-void GrGLConvolutionEffect::emitFS(GrGLShaderBuilder* builder,
-                                   const char* outputColor,
-                                   const char* inputColor,
-                                   const TextureSamplerArray& samplers) {
     SkString* code = &builder->fFSCode;
 
     code->appendf("\t\t%s = vec4(0, 0, 0, 0);\n", outputColor);
