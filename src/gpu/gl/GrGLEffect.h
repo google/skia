@@ -90,34 +90,4 @@ protected:
     const GrBackendEffectFactory& fFactory;
 };
 
-/**
- * This allows program stages that implemented an older set of virtual functions on GrGLEffect
- * to continue to work by change their parent class to this class. New program stages should not use
- * this interface. It will be removed once older stages are modified to implement emitCode().
- */
-class GrGLLegacyEffect : public GrGLEffect {
-public:
-    GrGLLegacyEffect(const GrBackendEffectFactory& factory) : GrGLEffect(factory) {}
-
-    virtual void setupVariables(GrGLShaderBuilder* builder) {};
-    virtual void emitVS(GrGLShaderBuilder* builder,
-                        const char* vertexCoords) = 0;
-    virtual void emitFS(GrGLShaderBuilder* builder,
-                        const char* outputColor,
-                        const char* inputColor,
-                        const TextureSamplerArray&) = 0;
-
-    virtual void emitCode(GrGLShaderBuilder* builder,
-                          const GrEffect&,
-                          EffectKey,
-                          const char* vertexCoords,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TextureSamplerArray& samplers) {
-        this->setupVariables(builder);
-        this->emitVS(builder, vertexCoords);
-        this->emitFS(builder, outputColor, inputColor, samplers);
-    }
-};
-
 #endif
