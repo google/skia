@@ -47,6 +47,18 @@ protected:
             make_bitmap();
             fInitialized = true;
         }
+        canvas->clear(0xFF101010);
+        SkPaint checkPaint;
+        checkPaint.setColor(0xFF202020);
+        for (int y = 0; y < HEIGHT; y += 16) {
+          for (int x = 0; x < WIDTH; x += 16) {
+            canvas->save();
+            canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
+            canvas->drawRect(SkRect::MakeXYWH(8, 0, 8, 8), checkPaint);
+            canvas->drawRect(SkRect::MakeXYWH(0, 8, 8, 8), checkPaint);
+            canvas->restore();
+          }
+        }
         SkPoint3 pointLocation(0, 0, SkIntToScalar(10));
         SkScalar azimuthRad = SkDegreesToRadians(SkIntToScalar(225));
         SkScalar elevationRad = SkDegreesToRadians(SkIntToScalar(5));
