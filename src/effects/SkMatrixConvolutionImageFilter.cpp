@@ -14,6 +14,7 @@
 
 #if SK_SUPPORT_GPU
 #include "gl/GrGLEffect.h"
+#include "GrTBackendEffectFactory.h"
 #endif
 
 SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(const SkISize& kernelSize, const SkScalar* kernel, SkScalar gain, SkScalar bias, const SkIPoint& target, TileMode tileMode, bool convolveAlpha, SkImageFilter* input)
@@ -284,14 +285,14 @@ public:
     GrGLMatrixConvolutionEffect(const GrBackendEffectFactory& factory,
                                 const GrEffect& effect);
     virtual void emitCode(GrGLShaderBuilder*,
-                          const GrEffect&,
+                          const GrEffectStage&,
                           EffectKey,
                           const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrEffect& s, const GrGLCaps& caps);
+    static inline EffectKey GenKey(const GrEffectStage&, const GrGLCaps&);
 
     virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
 
@@ -348,7 +349,7 @@ static void appendTextureLookup(GrGLShaderBuilder* builder,
 }
 
 void GrGLMatrixConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
-                                           const GrEffect&,
+                                           const GrEffectStage&,
                                            EffectKey,
                                            const char* vertexCoords,
                                            const char* outputColor,
@@ -417,9 +418,9 @@ int encodeXY(int x, int y) {
 
 };
 
-GrGLEffect::EffectKey GrGLMatrixConvolutionEffect::GenKey(const GrEffect& s,
-                                                        const GrGLCaps& caps) {
-    const GrMatrixConvolutionEffect& m = static_cast<const GrMatrixConvolutionEffect&>(s);
+GrGLEffect::EffectKey GrGLMatrixConvolutionEffect::GenKey(const GrEffectStage& s, const GrGLCaps&) {
+    const GrMatrixConvolutionEffect& m =
+        static_cast<const GrMatrixConvolutionEffect&>(*s.getEffect());
     EffectKey key = encodeXY(m.kernelSize().width(), m.kernelSize().height());
     key |= m.tileMode() << 7;
     key |= m.convolveAlpha() ? 1 << 9 : 0;

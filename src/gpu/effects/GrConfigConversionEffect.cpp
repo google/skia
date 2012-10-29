@@ -6,6 +6,7 @@
  */
 
 #include "GrConfigConversionEffect.h"
+#include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
 
 class GrGLConfigConversionEffect : public GrGLEffect {
@@ -18,7 +19,7 @@ public:
     }
 
     virtual void emitCode(GrGLShaderBuilder* builder,
-                          const GrEffect&,
+                          const GrEffectStage&,
                           EffectKey,
                           const char* vertexCoords,
                           const char* outputColor,
@@ -59,8 +60,9 @@ public:
         GrGLSLMulVarBy4f(&builder->fFSCode, 2, outputColor, inputColor);
     }
 
-    static inline EffectKey GenKey(const GrEffect& s, const GrGLCaps&) {
-        const GrConfigConversionEffect& effect = static_cast<const GrConfigConversionEffect&>(s);
+    static inline EffectKey GenKey(const GrEffectStage& s, const GrGLCaps&) {
+        const GrConfigConversionEffect& effect =
+            static_cast<const GrConfigConversionEffect&>(*s.getEffect());
         return static_cast<int>(effect.swapsRedAndBlue()) | (effect.pmConversion() << 1);
     }
 

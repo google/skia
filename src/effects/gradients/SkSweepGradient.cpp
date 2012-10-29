@@ -382,6 +382,8 @@ void SkSweepGradient::shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC,
 
 #if SK_SUPPORT_GPU
 
+#include "GrTBackendEffectFactory.h"
+
 class GrGLSweepGradient : public GrGLGradientEffect {
 public:
 
@@ -390,14 +392,14 @@ public:
     virtual ~GrGLSweepGradient() { }
 
     virtual void emitCode(GrGLShaderBuilder*,
-                          const GrEffect&,
+                          const GrEffectStage&,
                           EffectKey,
                           const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static EffectKey GenKey(const GrEffect& s, const GrGLCaps& caps) { return 0; }
+    static EffectKey GenKey(const GrEffectStage&, const GrGLCaps& caps) { return 0; }
 
 private:
 
@@ -455,7 +457,7 @@ GrEffect* GrSweepGradient::TestCreate(SkRandom* random,
 /////////////////////////////////////////////////////////////////////
 
 void GrGLSweepGradient::emitCode(GrGLShaderBuilder* builder,
-                                 const GrEffect&,
+                                 const GrEffectStage&,
                                  EffectKey,
                                  const char* vertexCoords,
                                  const char* outputColor,

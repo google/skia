@@ -13,7 +13,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrTexture.h"
-#include "GrGpu.h"
+#include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
 #include "effects/Gr1DKernelEffect.h"
 #endif
@@ -272,14 +272,14 @@ public:
                           const GrEffect& effect);
 
     virtual void emitCode(GrGLShaderBuilder*,
-                          const GrEffect&,
+                          const GrEffectStage&,
                           EffectKey,
                           const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrEffect& s, const GrGLCaps& caps);
+    static inline EffectKey GenKey(const GrEffectStage&, const GrGLCaps&);
 
     virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
 
@@ -303,7 +303,7 @@ GrGLMorphologyEffect::GrGLMorphologyEffect(const GrBackendEffectFactory& factory
 }
 
 void GrGLMorphologyEffect::emitCode(GrGLShaderBuilder* builder,
-                                    const GrEffect&,
+                                    const GrEffectStage&,
                                     EffectKey,
                                     const char* vertexCoords,
                                     const char* outputColor,
@@ -342,9 +342,8 @@ void GrGLMorphologyEffect::emitCode(GrGLShaderBuilder* builder,
     GrGLSLMulVarBy4f(code, 2, outputColor, inputColor);
 }
 
-GrGLEffect::EffectKey GrGLMorphologyEffect::GenKey(const GrEffect& s,
-                                                        const GrGLCaps& caps) {
-    const GrMorphologyEffect& m = static_cast<const GrMorphologyEffect&>(s);
+GrGLEffect::EffectKey GrGLMorphologyEffect::GenKey(const GrEffectStage& s, const GrGLCaps&) {
+    const GrMorphologyEffect& m = static_cast<const GrMorphologyEffect&>(*s.getEffect());
     EffectKey key = static_cast<EffectKey>(m.radius());
     key |= (m.type() << 8);
     return key;

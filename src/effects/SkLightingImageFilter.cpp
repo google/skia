@@ -14,10 +14,10 @@
 #include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
-#include "GrBackendEffectFactory.h"
 #include "effects/GrSingleTextureEffect.h"
 #include "gl/GrGLEffect.h"
 #include "GrEffect.h"
+#include "GrTBackendEffectFactory.h"
 
 class GrGLDiffuseLightingEffect;
 class GrGLSpecularLightingEffect;
@@ -949,14 +949,14 @@ public:
     virtual ~GrGLLightingEffect();
 
     virtual void emitCode(GrGLShaderBuilder*,
-                          const GrEffect&,
+                          const GrEffectStage&,
                           EffectKey,
                           const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrEffect& s, const GrGLCaps& caps);
+    static inline EffectKey GenKey(const GrEffectStage&, const GrGLCaps&);
 
     /**
      * Subclasses of GrGLLightingEffect must call INHERITED::setData();
@@ -1072,7 +1072,7 @@ GrGLLightingEffect::~GrGLLightingEffect() {
 }
 
 void GrGLLightingEffect::emitCode(GrGLShaderBuilder* builder,
-                                  const GrEffect&,
+                                  const GrEffectStage&,
                                   EffectKey,
                                   const char* vertexCoords,
                                   const char* outputColor,
@@ -1167,9 +1167,9 @@ void GrGLLightingEffect::emitCode(GrGLShaderBuilder* builder,
     GrGLSLMulVarBy4f(code, 2, outputColor, inputColor);
 }
 
-GrGLEffect::EffectKey GrGLLightingEffect::GenKey(const GrEffect& s,
-                                                      const GrGLCaps& caps) {
-    return static_cast<const GrLightingEffect&>(s).light()->type();
+GrGLEffect::EffectKey GrGLLightingEffect::GenKey(const GrEffectStage& s,
+                                                 const GrGLCaps& caps) {
+    return static_cast<const GrLightingEffect&>(*s.getEffect()).light()->type();
 }
 
 void GrGLLightingEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {

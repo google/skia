@@ -217,6 +217,7 @@ bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) const {
 #if SK_SUPPORT_GPU
 
 #include "GrEffect.h"
+#include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
 #include "SkGr.h"
 
@@ -250,7 +251,7 @@ public:
                          const GrEffect& effect);
 
     virtual void emitCode(GrGLShaderBuilder*,
-                          const GrEffect&,
+                          const GrEffectStage&,
                           EffectKey,
                           const char* vertexCoords,
                           const char* outputColor,
@@ -259,7 +260,7 @@ public:
 
     virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE {}
 
-    static EffectKey GenKey(const GrEffect&, const GrGLCaps&);
+    static EffectKey GenKey(const GrEffectStage&, const GrGLCaps&);
 
 private:
 
@@ -272,7 +273,7 @@ GLColorTableEffect::GLColorTableEffect(
  }
 
 void GLColorTableEffect::emitCode(GrGLShaderBuilder* builder,
-                                  const GrEffect&,
+                                  const GrEffectStage&,
                                   EffectKey,
                                   const char* vertexCoords,
                                   const char* outputColor,
@@ -316,8 +317,7 @@ void GLColorTableEffect::emitCode(GrGLShaderBuilder* builder,
     code->appendf("\t\t%s.rgb *= %s.a;\n", outputColor, outputColor);
 }
 
-GrGLEffect::EffectKey GLColorTableEffect::GenKey(const GrEffect& s,
-                                                        const GrGLCaps& caps) {
+GrGLEffect::EffectKey GLColorTableEffect::GenKey(const GrEffectStage&, const GrGLCaps&) {
     return 0;
 }
 

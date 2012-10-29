@@ -18,7 +18,7 @@
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
-#include "GrBackendEffectFactory.h"
+#include "GrTBackendEffectFactory.h"
 
 class GrGLMagnifierEffect;
 
@@ -78,7 +78,7 @@ public:
                         const GrEffect& effect);
 
     virtual void emitCode(GrGLShaderBuilder*,
-                          const GrEffect&,
+                          const GrEffectStage&,
                           EffectKey,
                           const char* vertexCoords,
                           const char* outputColor,
@@ -87,7 +87,7 @@ public:
 
     virtual void setData(const GrGLUniformManager& uman, const GrEffectStage& stage) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrEffect&, const GrGLCaps&);
+    static inline EffectKey GenKey(const GrEffectStage&, const GrGLCaps&);
 
 private:
 
@@ -107,7 +107,7 @@ GrGLMagnifierEffect::GrGLMagnifierEffect(const GrBackendEffectFactory& factory,
 }
 
 void GrGLMagnifierEffect::emitCode(GrGLShaderBuilder* builder,
-                                   const GrEffect&,
+                                   const GrEffectStage&,
                                    EffectKey,
                                    const char* vertexCoords,
                                    const char* outputColor,
@@ -167,8 +167,7 @@ void GrGLMagnifierEffect::setData(const GrGLUniformManager& uman,
     uman.set2f(fInsetVar, zoom.x_inset(), zoom.y_inset());
 }
 
-GrGLEffect::EffectKey GrGLMagnifierEffect::GenKey(const GrEffect& s,
-                                                       const GrGLCaps& caps) {
+GrGLEffect::EffectKey GrGLMagnifierEffect::GenKey(const GrEffectStage&, const GrGLCaps&) {
     return 0;
 }
 

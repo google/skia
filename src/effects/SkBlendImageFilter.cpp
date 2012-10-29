@@ -13,6 +13,7 @@
 #include "SkGr.h"
 #include "SkGrPixelRef.h"
 #include "gl/GrGLEffect.h"
+#include "GrTBackendEffectFactory.h"
 #endif
 
 namespace {
@@ -117,14 +118,14 @@ public:
     virtual ~GrGLBlendEffect();
 
     virtual void emitCode(GrGLShaderBuilder*,
-                          const GrEffect&,
+                          const GrEffectStage&,
                           EffectKey,
                           const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrEffect& s, const GrGLCaps&);
+    static inline EffectKey GenKey(const GrEffectStage&, const GrGLCaps&);
 
 private:
     typedef GrGLEffect INHERITED;
@@ -246,7 +247,7 @@ GrGLBlendEffect::~GrGLBlendEffect() {
 }
 
 void GrGLBlendEffect::emitCode(GrGLShaderBuilder* builder,
-                               const GrEffect&,
+                               const GrEffectStage&,
                                EffectKey,
                                const char* vertexCoords,
                                const char* outputColor,
@@ -278,7 +279,7 @@ void GrGLBlendEffect::emitCode(GrGLShaderBuilder* builder,
     }
 }
 
-GrGLEffect::EffectKey GrGLBlendEffect::GenKey(const GrEffect& s, const GrGLCaps&) {
-    return static_cast<const GrBlendEffect&>(s).mode();
+GrGLEffect::EffectKey GrGLBlendEffect::GenKey(const GrEffectStage& s, const GrGLCaps&) {
+    return static_cast<const GrBlendEffect&>(*s.getEffect()).mode();
 }
 #endif

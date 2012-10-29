@@ -53,8 +53,8 @@ inline const char* dual_source_output_name() { return "dualSourceOut"; }
 
 GrGLProgram* GrGLProgram::Create(const GrGLContextInfo& gl,
                                  const Desc& desc,
-                                 const GrEffect** effects) {
-    GrGLProgram* program = SkNEW_ARGS(GrGLProgram, (gl, desc, effects));
+                                 const GrEffectStage* stages[]) {
+    GrGLProgram* program = SkNEW_ARGS(GrGLProgram, (gl, desc, stages));
     if (!program->succeeded()) {
         delete program;
         program = NULL;
@@ -64,7 +64,7 @@ GrGLProgram* GrGLProgram::Create(const GrGLContextInfo& gl,
 
 GrGLProgram::GrGLProgram(const GrGLContextInfo& gl,
                          const Desc& desc,
-                         const GrEffect** effects)
+                         const GrEffectStage* stages[])
 : fContextInfo(gl)
 , fUniformManager(gl) {
     fDesc = desc;
@@ -86,7 +86,7 @@ GrGLProgram::GrGLProgram(const GrGLContextInfo& gl,
         fTextureOrigin[s] = GrSurface::kBottomLeft_Origin;
     }
 
-    this->genProgram(effects);
+    this->genProgram(stages);
 }
 
 GrGLProgram::~GrGLProgram() {
@@ -500,7 +500,7 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
     return true;
 }
 
-bool GrGLProgram::genProgram(const GrEffect** effects) {
+bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
     GrAssert(0 == fProgramID);
 
     GrGLShaderBuilder builder(fContextInfo, fUniformManager);
@@ -624,7 +624,7 @@ bool GrGLProgram::genProgram(const GrEffect** effects) {
                 }
 
                 builder.setCurrentStage(s);
-                fEffects[s] = GenStageCode(effects[s],
+                fEffects[s] = GenStageCode(*stages[s],
                                            fDesc.fStages[s],
                                            &fUniforms.fStages[s],
                                            inColor.size() ? inColor.c_str() : NULL,
@@ -729,7 +729,7 @@ bool GrGLProgram::genProgram(const GrEffect** effects) {
                         inCoverage.append("4");
                     }
                     builder.setCurrentStage(s);
-                    fEffects[s] = GenStageCode(effects[s],
+                    fEffects[s] = GenStageCode(*stages[s],
                                                fDesc.fStages[s],
                                                &fUniforms.fStages[s],
                                                inCoverage.size() ? inCoverage.c_str() : NULL,
@@ -896,14 +896,15 @@ void GrGLProgram::initSamplerUniforms() {
 // Stage code generation
 
 // TODO: Move this function to GrGLShaderBuilder
-GrGLEffect* GrGLProgram::GenStageCode(const GrEffect* effect,
-                                            const StageDesc& desc,
-                                            StageUniforms* uniforms,
-                                            const char* fsInColor, // NULL means no incoming color
-                                            const char* fsOutColor,
-                                            const char* vsInCoord,
-                                            GrGLShaderBuilder* builder) {
+GrGLEffect* GrGLProgram::GenStageCode(const GrEffectStage& stage,
+                                      const StageDesc& desc,
+                                      StageUniforms* uniforms,
+                                      const char* fsInColor, // NULL means no incoming color
+                                      const char* fsOutColor,
+                                      const char* vsInCoord,
+                                      GrGLShaderBuilder* builder) {
 
+    const GrEffect* effect = stage.getEffect();
     GrGLEffect* glEffect = effect->getFactory().createGLInstance(*effect);
 
     /// Vertex Shader Stuff
@@ -956,7 +957,7 @@ GrGLEffect* GrGLProgram::GenStageCode(const GrEffect* effect,
     builder->fVSCode.appendf("\t{ // %s\n", glEffect->name());
     builder->fFSCode.appendf("\t{ // %s \n", glEffect->name());
     glEffect->emitCode(builder,
-                       *effect,
+                       stage,
                        desc.fEffectKey,
                        varyingVSName,
                        fsOutColor,
