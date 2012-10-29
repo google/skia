@@ -9,7 +9,7 @@
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
-#include "GrBackendEffectFactory.h"
+#include "GrTBackendEffectFactory.h"
 
 // For brevity
 typedef GrGLUniformManager::UniformHandle UniformHandle;
@@ -20,7 +20,7 @@ public:
     GrGLConvolutionEffect(const GrBackendEffectFactory&, const GrEffect&);
 
     virtual void emitCode(GrGLShaderBuilder*,
-                          const GrEffect&,
+                          const GrEffectStage&,
                           EffectKey,
                           const char* vertexCoords,
                           const char* outputColor,
@@ -29,7 +29,7 @@ public:
 
     virtual void setData(const GrGLUniformManager& uman, const GrEffectStage&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrEffect&, const GrGLCaps&);
+    static inline EffectKey GenKey(const GrEffectStage&, const GrGLCaps&);
 
 private:
     int width() const { return Gr1DKernelEffect::WidthFromRadius(fRadius); }
@@ -52,7 +52,7 @@ GrGLConvolutionEffect::GrGLConvolutionEffect(const GrBackendEffectFactory& facto
 }
 
 void GrGLConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
-                                     const GrEffect&,
+                                     const GrEffectStage&,
                                      EffectKey,
                                      const char* vertexCoords,
                                      const char* outputColor,
@@ -107,9 +107,8 @@ void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman, const GrEffe
     uman.set1fv(fKernelUni, 0, this->width(), conv.kernel());
 }
 
-GrGLEffect::EffectKey GrGLConvolutionEffect::GenKey(const GrEffect& s,
-                                                         const GrGLCaps& caps) {
-    return static_cast<const GrConvolutionEffect&>(s).radius();
+GrGLEffect::EffectKey GrGLConvolutionEffect::GenKey(const GrEffectStage& s, const GrGLCaps&) {
+    return static_cast<const GrConvolutionEffect&>(*s.getEffect()).radius();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

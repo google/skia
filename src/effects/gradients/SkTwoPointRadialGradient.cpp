@@ -349,6 +349,8 @@ void SkTwoPointRadialGradient::init() {
 
 #if SK_SUPPORT_GPU
 
+#include "GrTBackendEffectFactory.h"
+
 // For brevity
 typedef GrGLUniformManager::UniformHandle UniformHandle;
 static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidUniformHandle;
@@ -362,7 +364,7 @@ public:
     virtual ~GrGLRadial2Gradient() { }
 
     virtual void emitCode(GrGLShaderBuilder*,
-                          const GrEffect&,
+                          const GrEffectStage&,
                           EffectKey,
                           const char* vertexCoords,
                           const char* outputColor,
@@ -370,7 +372,7 @@ public:
                           const TextureSamplerArray&) SK_OVERRIDE;
     virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
 
-    static EffectKey GenKey(const GrEffect& s, const GrGLCaps& caps);
+    static EffectKey GenKey(const GrEffectStage&, const GrGLCaps& caps);
 
 protected:
 
@@ -499,7 +501,7 @@ GrGLRadial2Gradient::GrGLRadial2Gradient(
 }
 
 void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
-                                   const GrEffect&,
+                                   const GrEffectStage&,
                                    EffectKey,
                                    const char* vertexCoords,
                                    const char* outputColor,
@@ -640,8 +642,8 @@ void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman, const GrEffect
     }
 }
 
-GrEffect::EffectKey GrGLRadial2Gradient::GenKey(const GrEffect& s, const GrGLCaps& caps) {
-    return (static_cast<const GrRadial2Gradient&>(s).isDegenerate());
+GrGLEffect::EffectKey GrGLRadial2Gradient::GenKey(const GrEffectStage& s, const GrGLCaps&) {
+    return (static_cast<const GrRadial2Gradient&>(*s.getEffect()).isDegenerate());
 }
 
 /////////////////////////////////////////////////////////////////////

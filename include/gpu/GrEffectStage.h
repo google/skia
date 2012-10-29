@@ -11,6 +11,7 @@
 #ifndef GrEffectStage_DEFINED
 #define GrEffectStage_DEFINED
 
+#include "GrBackendEffectFactory.h"
 #include "GrEffect.h"
 #include "GrMatrix.h"
 #include "GrTypes.h"

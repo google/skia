@@ -9,7 +9,7 @@
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
-#include "GrBackendEffectFactory.h"
+#include "GrTBackendEffectFactory.h"
 #include "GrTexture.h"
 
 class GrGLSingleTextureEffect : public GrGLEffect {
@@ -19,7 +19,7 @@ public:
     }
 
     virtual void emitCode(GrGLShaderBuilder* builder,
-                          const GrEffect&,
+                          const GrEffectStage&,
                           EffectKey,
                           const char* vertexCoords,
                           const char* outputColor,
@@ -31,7 +31,7 @@ public:
         builder->fFSCode.append(";\n");
     }
 
-    static inline EffectKey GenKey(const GrEffect&, const GrGLCaps&) { return 0; }
+    static inline EffectKey GenKey(const GrEffectStage&, const GrGLCaps&) { return 0; }
 
 private:
 

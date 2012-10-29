@@ -9,6 +9,7 @@
 #define GrGLShaderBuilder_DEFINED
 
 #include "GrAllocator.h"
+#include "GrBackendEffectFactory.h"
 #include "GrEffect.h"
 #include "gl/GrGLShaderVar.h"
 #include "gl/GrGLSL.h"
@@ -122,8 +123,8 @@ public:
     /** Generates a EffectKey for the shader code based on the texture access parameters and the
         capabilities of the GL context.  This is useful for keying the shader programs that may
         have multiple representations, based on the type/format of textures used. */
-    static GrEffect::EffectKey KeyForTextureAccess(const GrTextureAccess& access,
-                                                   const GrGLCaps& caps);
+    static GrBackendEffectFactory::EffectKey KeyForTextureAccess(const GrTextureAccess&,
+                                                                 const GrGLCaps&);
 
     /** If texture swizzling is available using tex parameters then it is preferred over mangling
         the generated shader code. This potentially allows greater reuse of cached shaders. */

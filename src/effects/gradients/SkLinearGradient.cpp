@@ -474,6 +474,8 @@ void SkLinearGradient::shadeSpan16(int x, int y,
 
 #if SK_SUPPORT_GPU
 
+#include "GrTBackendEffectFactory.h"
+
 /////////////////////////////////////////////////////////////////////
 
 class GrGLLinearGradient : public GrGLGradientEffect {
@@ -486,14 +488,14 @@ public:
     virtual ~GrGLLinearGradient() { }
 
     virtual void emitCode(GrGLShaderBuilder*,
-                          const GrEffect&,
+                          const GrEffectStage&,
                           EffectKey,
                           const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static EffectKey GenKey(const GrEffect& s, const GrGLCaps& caps) { return 0; }
+    static EffectKey GenKey(const GrEffectStage&, const GrGLCaps& caps) { return 0; }
 
 private:
 
@@ -551,7 +553,7 @@ GrEffect* GrLinearGradient::TestCreate(SkRandom* random,
 /////////////////////////////////////////////////////////////////////
 
 void GrGLLinearGradient::emitCode(GrGLShaderBuilder* builder,
-                                  const GrEffect&,
+                                  const GrEffectStage&,
                                   EffectKey,
                                   const char* vertexCoords,
                                   const char* outputColor,

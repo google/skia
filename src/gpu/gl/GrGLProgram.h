@@ -43,7 +43,7 @@ public:
 
     static GrGLProgram* Create(const GrGLContextInfo& gl,
                                const Desc& desc,
-                               const GrEffect** effects);
+                               const GrEffectStage* stages[]);
 
     virtual ~GrGLProgram();
 
@@ -163,24 +163,24 @@ private:
 
     GrGLProgram(const GrGLContextInfo& gl,
                 const Desc& desc,
-                const GrEffect** effects);
+                const GrEffectStage* stages[]);
 
     bool succeeded() const { return 0 != fProgramID; }
 
     /**
      *  This is the heavy initialization routine for building a GLProgram.
      */
-    bool genProgram(const GrEffect** effects);
+    bool genProgram(const GrEffectStage* stages[]);
 
     void genInputColor(GrGLShaderBuilder* builder, SkString* inColor);
 
-    static GrGLEffect* GenStageCode(const GrEffect* effect,
-                                          const StageDesc& desc, // TODO: Eliminate this
-                                          StageUniforms* stageUniforms, // TODO: Eliminate this
-                                          const char* fsInColor, // NULL means no incoming color
-                                          const char* fsOutColor,
-                                          const char* vsInCoord,
-                                          GrGLShaderBuilder* builder);
+    static GrGLEffect* GenStageCode(const GrEffectStage& stage,
+                                    const StageDesc& desc, // TODO: Eliminate this
+                                    StageUniforms* stageUniforms, // TODO: Eliminate this
+                                    const char* fsInColor, // NULL means no incoming color
+                                    const char* fsOutColor,
+                                    const char* vsInCoord,
+                                    GrGLShaderBuilder* builder);
 
     void genGeometryShader(GrGLShaderBuilder* segments) const;
 

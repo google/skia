@@ -320,6 +320,7 @@ bool SkColorMatrixFilter::asColorMatrix(SkScalar matrix[20]) {
 
 #if SK_SUPPORT_GPU
 #include "GrEffect.h"
+#include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
 
 class ColorMatrixEffect : public GrEffect {
@@ -342,7 +343,7 @@ public:
     class GLEffect : public GrGLEffect {
     public:
         // this class always generates the same code.
-        static EffectKey GenKey(const GrEffect& s, const GrGLCaps&) { return 0; }
+        static EffectKey GenKey(const GrEffectStage&, const GrGLCaps&) { return 0; }
 
         GLEffect(const GrBackendEffectFactory& factory,
                  const GrEffect& effect)
@@ -352,7 +353,7 @@ public:
         }
 
         virtual void emitCode(GrGLShaderBuilder* builder,
-                              const GrEffect&,
+                              const GrEffectStage&,
                               EffectKey,
                               const char* vertexCoords,
                               const char* outputColor,

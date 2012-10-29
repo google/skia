@@ -33,7 +33,7 @@ void GrGpuGL::ProgramCache::abandon() {
 }
 
 GrGLProgram* GrGpuGL::ProgramCache::getProgram(const ProgramDesc& desc,
-                                               const GrEffect** stages) {
+                                               const GrEffectStage* stages[]) {
     Entry newEntry;
     newEntry.fKey.setKeyData(desc.asKey());
 
@@ -345,11 +345,14 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
             return false;
         }
 
-        const GrEffect* effects[GrDrawState::kNumStages];
+        const GrEffectStage* stages[GrDrawState::kNumStages];
+        for (int i = 0; i < GrDrawState::kNumStages; ++i) {
+            stages[i] = drawState.isStageEnabled(i) ? &drawState.getStage(i) : NULL;
+        }
         GrGLProgram::Desc desc;
-        this->buildProgram(kDrawPoints_DrawType == type, blendOpts, dstCoeff, effects, &desc);
+        this->buildProgram(kDrawPoints_DrawType == type, blendOpts, dstCoeff, &desc);
 
-        fCurrentProgram.reset(fProgramCache->getProgram(desc, effects));
+        fCurrentProgram.reset(fProgramCache->getProgram(desc, stages));
         if (NULL == fCurrentProgram.get()) {
             GrAssert(!"Failed to create program!");
             return false;
@@ -558,30 +561,9 @@ void GrGpuGL::setupGeometry(int* startVertex,
     fHWGeometryState.fArrayPtrsDirty = false;
 }
 
-namespace {
-
-void setup_effect(GrGLProgram::Desc::StageDesc* stageDesc,
-                  const GrEffectStage& stage,
-                  const GrGLCaps& caps,
-                  const GrEffect** effects,
-                  GrGLProgram* program, int index) {
-    const GrEffect* effect = stage.getEffect();
-    if (effect) {
-        const GrBackendEffectFactory& factory = effect->getFactory();
-        stageDesc->fEffectKey = factory.glEffectKey(*effect, caps);
-        effects[index] = effect;
-    } else {
-        stageDesc->fEffectKey = 0;
-        effects[index] = NULL;
-    }
-}
-
-}
-
 void GrGpuGL::buildProgram(bool isPoints,
                            BlendOptFlags blendOpts,
                            GrBlendCoeff dstCoeff,
-                           const GrEffect** effects,
                            ProgramDesc* desc) {
     const GrDrawState& drawState = this->getDrawState();
 
@@ -687,12 +669,11 @@ void GrGpuGL::buildProgram(bool isPoints,
                 // This will go away when effects manage their own texture matrix.
                 stageDesc.fOptFlags |= StageDesc::kIdentityMatrix_OptFlagBit;
             }
-            setup_effect(&stageDesc, stage, this->glCaps(), effects, fCurrentProgram.get(), s);
-
+            const GrBackendEffectFactory& factory = effect->getFactory();
+            stageDesc.fEffectKey = factory.glEffectKey(stage, this->glCaps());
         } else {
             stageDesc.fOptFlags  = 0;
             stageDesc.fEffectKey = 0;
-            effects[s] = NULL;
         }
     }
 

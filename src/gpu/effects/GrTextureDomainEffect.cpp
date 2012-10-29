@@ -6,15 +6,15 @@
  */
 
 #include "GrTextureDomainEffect.h"
+#include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
-#include "GrBackendEffectFactory.h"
 
 class GrGLTextureDomainEffect : public GrGLEffect {
 public:
     GrGLTextureDomainEffect(const GrBackendEffectFactory&, const GrEffect&);
 
     virtual void emitCode(GrGLShaderBuilder*,
-                          const GrEffect&,
+                          const GrEffectStage&,
                           EffectKey,
                           const char* vertexCoords,
                           const char* outputColor,
@@ -23,7 +23,7 @@ public:
 
     virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrEffect&, const GrGLCaps&) { return 0; }
+    static inline EffectKey GenKey(const GrEffectStage&, const GrGLCaps&) { return 0; }
 
 private:
     GrGLUniformManager::UniformHandle fNameUni;
@@ -38,7 +38,7 @@ GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrBackendEffectFactory& f
 }
 
 void GrGLTextureDomainEffect::emitCode(GrGLShaderBuilder* builder,
-                                       const GrEffect&,
+                                       const GrEffectStage&,
                                        EffectKey,
                                        const char* vertexCoords,
                                        const char* outputColor,
