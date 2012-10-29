@@ -485,12 +485,14 @@ public:
 
     virtual ~GrGLLinearGradient() { }
 
-    virtual void emitVS(GrGLShaderBuilder* builder,
-                        const char* vertexCoords) SK_OVERRIDE { }
-    virtual void emitFS(GrGLShaderBuilder* builder,
-                        const char* outputColor,
-                        const char* inputColor,
-                        const TextureSamplerArray&) SK_OVERRIDE;
+    virtual void emitCode(GrGLShaderBuilder*,
+                          const GrEffect&,
+                          EffectKey,
+                          const char* vertexCoords,
+                          const char* outputColor,
+                          const char* inputColor,
+                          const TextureSamplerArray&) SK_OVERRIDE;
+
     static EffectKey GenKey(const GrEffect& s, const GrGLCaps& caps) { return 0; }
 
 private:
@@ -548,10 +550,14 @@ GrEffect* GrLinearGradient::TestCreate(SkRandom* random,
 
 /////////////////////////////////////////////////////////////////////
 
-void GrGLLinearGradient::emitFS(GrGLShaderBuilder* builder,
-                                const char* outputColor,
-                                const char* inputColor,
-                                const TextureSamplerArray& samplers) {
+void GrGLLinearGradient::emitCode(GrGLShaderBuilder* builder,
+                                  const GrEffect&,
+                                  EffectKey,
+                                  const char* vertexCoords,
+                                  const char* outputColor,
+                                  const char* inputColor,
+                                  const TextureSamplerArray& samplers) {
+    this->emitYCoordUniform(builder);
     SkString t;
     t.printf("%s.x", builder->defaultTexCoordsName());
     this->emitColorLookup(builder, t.c_str(), outputColor, inputColor, samplers[0]);

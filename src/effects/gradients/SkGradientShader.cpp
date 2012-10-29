@@ -682,7 +682,7 @@ GrGLGradientEffect::GrGLGradientEffect(const GrBackendEffectFactory& factory)
 
 GrGLGradientEffect::~GrGLGradientEffect() { }
 
-void GrGLGradientEffect::setupVariables(GrGLShaderBuilder* builder) {
+void GrGLGradientEffect::emitYCoordUniform(GrGLShaderBuilder* builder) {
     fFSYUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                   kFloat_GrSLType, "GradientYCoordFS");
 }
