@@ -16,6 +16,7 @@
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
+#include "SkOSFile.h"
 #include "SkPicture.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
@@ -63,13 +64,6 @@ const static ErrorBitfield ERROR_PIXEL_MISMATCH          = 0x02;
 const static ErrorBitfield ERROR_DIMENSION_MISMATCH      = 0x04;
 const static ErrorBitfield ERROR_READING_REFERENCE_IMAGE = 0x08;
 const static ErrorBitfield ERROR_WRITING_REFERENCE_IMAGE = 0x10;
-
-// TODO: This should be defined as "\\" on Windows, but this is the way this
-// file has been working for a long time. We can fix it later.
-const static char* PATH_SEPARATOR = "/";
-
-// If true, emit a messange when we can't find a reference image to compare
-static bool gNotifyMissingReadReference;
 
 using namespace skiagm;
 
@@ -156,9 +150,20 @@ static PipeFlagComboData gPipeWritingFlagCombos[] = {
 
 class GMMain {
 public:
-    static SkString make_name(const char shortName[], const char configName[]) {
-        SkString name(shortName);
-        name.appendf("_%s", configName);
+    GMMain() {
+        // Set default values of member variables, which tool_main()
+        // may override.
+        fNotifyMissingReadReference = true;
+        fUseFileHierarchy = false;
+    }
+
+    SkString make_name(const char shortName[], const char configName[]) {
+        SkString name;
+        if (fUseFileHierarchy) {
+            name.appendf("%s%c%s", configName, SkPATH_SEPARATOR, shortName);
+        } else {
+            name.appendf("%s_%s", shortName, configName);
+        }
         return name;
     }
 
@@ -167,12 +172,11 @@ public:
                                   const SkString& name,
                                   const char suffix[]) {
         SkString filename(path);
-        if (filename.endsWith(PATH_SEPARATOR)) {
+        if (filename.endsWith(SkPATH_SEPARATOR)) {
             filename.remove(filename.size() - 1, 1);
         }
-        filename.append(pathSuffix);
-        filename.append(PATH_SEPARATOR);
-        filename.appendf("%s.%s", name.c_str(), suffix);
+        filename.appendf("%s%c%s.%s", pathSuffix, SkPATH_SEPARATOR,
+                         name.c_str(), suffix);
         return filename;
     }
 
@@ -489,7 +493,7 @@ public:
     // Returns a description of the difference between "bitmap" and
     // the reference bitmap, or ERROR_READING_REFERENCE_IMAGE if
     // unable to read the reference bitmap from disk.
-    static ErrorBitfield compare_to_reference_image_on_disk(
+    ErrorBitfield compare_to_reference_image_on_disk(
       const char readPath [], const SkString& name, SkBitmap &bitmap,
       const char diffPath [], const char renderModeDescriptor []) {
         SkString path = make_filename(readPath, "", name, "png");
@@ -503,7 +507,7 @@ public:
                                                         diffPath,
                                                         renderModeDescriptor);
         } else {
-            if (gNotifyMissingReadReference) {
+            if (fNotifyMissingReadReference) {
                 fprintf(stderr, "FAILED to read %s\n", path.c_str());
             }
             return ERROR_READING_REFERENCE_IMAGE;
@@ -515,15 +519,15 @@ public:
     // both NULL (and thus no images are read from or written to disk).
     // So I don't trust that the renderModeDescriptor is being used for
     // anything other than debug output these days.
-    static ErrorBitfield handle_test_results(GM* gm,
-                                             const ConfigData& gRec,
-                                             const char writePath [],
-                                             const char readPath [],
-                                             const char diffPath [],
-                                             const char renderModeDescriptor [],
-                                             SkBitmap& bitmap,
-                                             SkDynamicMemoryWStream* pdf,
-                                             const SkBitmap* referenceBitmap) {
+    ErrorBitfield handle_test_results(GM* gm,
+                                      const ConfigData& gRec,
+                                      const char writePath [],
+                                      const char readPath [],
+                                      const char diffPath [],
+                                      const char renderModeDescriptor [],
+                                      SkBitmap& bitmap,
+                                      SkDynamicMemoryWStream* pdf,
+                                      const SkBitmap* referenceBitmap) {
         SkString name = make_name(gm->shortName(), gRec.fName);
         ErrorBitfield retval = ERROR_NONE;
 
@@ -580,14 +584,14 @@ public:
     // Test: draw into a bitmap or pdf.
     // Depending on flags, possibly compare to an expected image
     // and possibly output a diff image if it fails to match.
-    static ErrorBitfield test_drawing(GM* gm,
-                                      const ConfigData& gRec,
-                                      const char writePath [],
-                                      const char readPath [],
-                                      const char diffPath [],
-                                      GrContext* context,
-                                      GrRenderTarget* rt,
-                                      SkBitmap* bitmap) {
+    ErrorBitfield test_drawing(GM* gm,
+                               const ConfigData& gRec,
+                               const char writePath [],
+                               const char readPath [],
+                               const char diffPath [],
+                               GrContext* context,
+                               GrRenderTarget* rt,
+                               SkBitmap* bitmap) {
         SkDynamicMemoryWStream document;
 
         if (gRec.fBackend == kRaster_Backend ||
@@ -612,12 +616,12 @@ public:
                                    "", *bitmap, &document, NULL);
     }
 
-    static ErrorBitfield test_deferred_drawing(GM* gm,
-                                               const ConfigData& gRec,
-                                               const SkBitmap& referenceBitmap,
-                                               const char diffPath [],
-                                               GrContext* context,
-                                               GrRenderTarget* rt) {
+    ErrorBitfield test_deferred_drawing(GM* gm,
+                                        const ConfigData& gRec,
+                                        const SkBitmap& referenceBitmap,
+                                        const char diffPath [],
+                                        GrContext* context,
+                                        GrRenderTarget* rt) {
         SkDynamicMemoryWStream document;
 
         if (gRec.fBackend == kRaster_Backend ||
@@ -635,11 +639,11 @@ public:
         return ERROR_NONE;
     }
 
-    static ErrorBitfield test_pipe_playback(GM* gm,
-                                            const ConfigData& gRec,
-                                            const SkBitmap& referenceBitmap,
-                                            const char readPath [],
-                                            const char diffPath []) {
+    ErrorBitfield test_pipe_playback(GM* gm,
+                                     const ConfigData& gRec,
+                                     const SkBitmap& referenceBitmap,
+                                     const char readPath [],
+                                     const char diffPath []) {
         ErrorBitfield errors = ERROR_NONE;
         for (size_t i = 0; i < SK_ARRAY_COUNT(gPipeWritingFlagCombos); ++i) {
             SkBitmap bitmap;
@@ -664,7 +668,7 @@ public:
         return errors;
     }
 
-    static ErrorBitfield test_tiled_pipe_playback(
+    ErrorBitfield test_tiled_pipe_playback(
       GM* gm, const ConfigData& gRec, const SkBitmap& referenceBitmap,
       const char readPath [], const char diffPath []) {
         ErrorBitfield errors = ERROR_NONE;
@@ -690,6 +694,17 @@ public:
         }
         return errors;
     }
+
+    //
+    // member variables.
+    // They are public for now, to allow easier setting by tool_main().
+    //
+
+    // if true, emit a message when we can't find a reference image to compare
+    bool fNotifyMissingReadReference;
+
+    bool fUseFileHierarchy;
+
 }; // end of GMMain class definition
 
 #if SK_SUPPORT_GPU
@@ -734,8 +749,6 @@ static const ConfigData gRec[] = {
 
 static void usage(const char * argv0) {
     SkDebugf("%s\n", argv0);
-    SkDebugf("    [-w writePath] [-r readPath] [-d diffPath] [-i resourcePath]\n");
-    SkDebugf("    [-wp writePicturePath]\n");
     SkDebugf("    [--config ");
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
         if (i > 0) {
@@ -743,30 +756,37 @@ static void usage(const char * argv0) {
         }
         SkDebugf(gRec[i].fName);
     }
-    SkDebugf(" ]\n");
-    SkDebugf("    [--noreplay] [--nopipe] [--noserialize] [--forceBWtext] [--nopdf] \n"
-             "    [--tiledPipe] \n"
-             "    [--nodeferred] [--match substring] [--notexturecache]\n"
-             "    [-h|--help]\n"
+    SkDebugf("]:\n        run these configurations\n");
+    SkDebugf(
+// Alphabetized ignoring "no" prefix ("readPath", "noreplay", "resourcePath").
+// It would probably be better if we allowed both yes-and-no settings for each
+// one, e.g.:
+// [--replay|--noreplay]: whether to exercise SkPicture replay; default is yes
+"    [--nodeferred]: skip the deferred rendering test pass\n"
+"    [--diffPath|-d <path>]: write difference images into this directory\n"
+"    [--disable-missing-warning]: don't print a message to stderr if\n"
+"        unable to read a reference image for any tests (NOT default behavior)\n"
+"    [--enable-missing-warning]: print message to stderr (but don't fail) if\n"
+"        unable to read a reference image for any tests (default behavior)\n"
+"    [--forceBWtext]: disable text anti-aliasing\n"
+"    [--help|-h]: show this help message\n"
+"    [--hierarchy|--nohierarchy]: whether to use multilevel directory structure\n"
+"        when reading/writing files; default is no\n"
+"    [--match <substring>]: only run tests whose name includes this substring\n"
+"    [--modulo <remainder> <divisor>]: only run tests for which \n"
+"        testIndex %% divisor == remainder\n"
+"    [--nopdf]: skip the pdf rendering test pass\n"
+"    [--nopipe]: Skip SkGPipe replay\n"
+"    [--readPath|-r <path>]: read reference images from this dir, and report\n"
+"        any differences between those and the newly generated ones\n"
+"    [--noreplay]: do not exercise SkPicture replay\n"
+"    [--resourcePath|-i <path>]: directory that stores image resources\n"
+"    [--noserialize]: do not exercise SkPicture serialization & deserialization\n"
+"    [--notexturecache]: disable the gpu texture cache\n"
+"    [--tiledPipe]: Exercise tiled SkGPipe replay\n"
+"    [--writePath|-w <path>]: write rendered images into this directory\n"
+"    [--writePicturePath|-wp <path>]: write .skp files into this directory\n"
              );
-    SkDebugf("    writePath: directory to write rendered images in.\n");
-    SkDebugf("    writePicturePath: directory to write images to in .skp format.\n");
-    SkDebugf(
-             "    readPath: directory to read reference images from;\n"
-             "        reports if any pixels mismatch between reference and new images\n");
-    SkDebugf("    diffPath: directory to write difference images in.\n");
-    SkDebugf("    resourcePath: directory that stores image resources.\n");
-    SkDebugf("    --noreplay: do not exercise SkPicture replay.\n");
-    SkDebugf("    --nopipe: Skip SkGPipe replay.\n");
-    SkDebugf("    --tiledPipe: Exercise tiled SkGPipe replay.\n");
-    SkDebugf(
-             "    --noserialize: do not exercise SkPicture serialization & deserialization.\n");
-    SkDebugf("    --forceBWtext: disable text anti-aliasing.\n");
-    SkDebugf("    --nopdf: skip the pdf rendering test pass.\n");
-    SkDebugf("    --nodeferred: skip the deferred rendering test pass.\n");
-    SkDebugf("    --match foo: will only run tests that substring match foo.\n");
-    SkDebugf("    --notexturecache: disable the gpu texture cache.\n");
-    SkDebugf("    -h|--help : Show this help message. \n");
 }
 
 static int findConfig(const char config[]) {
@@ -869,82 +889,13 @@ int tool_main(int argc, char** argv) {
     SkTDArray<size_t> configs;
     bool userConfig = false;
 
-    int moduloIndex = -1;
-    int moduloCount = -1;
-
-    gNotifyMissingReadReference = true;
+    int moduloRemainder = -1;
+    int moduloDivisor = -1;
 
     const char* const commandName = argv[0];
     char* const* stop = argv + argc;
     for (++argv; argv < stop; ++argv) {
-        if (strcmp(*argv, "-w") == 0) {
-            argv++;
-            if (argv < stop && **argv) {
-                writePath = *argv;
-            }
-        } else if (strcmp(*argv, "-wp") == 0) {
-            argv++;
-            if (argv < stop && **argv) {
-                writePicturePath = *argv;
-            }
-        } else if (strcmp(*argv, "-r") == 0) {
-            argv++;
-            if (argv < stop && **argv) {
-                readPath = *argv;
-            }
-        } else if (strcmp(*argv, "-d") == 0) {
-            argv++;
-            if (argv < stop && **argv) {
-                diffPath = *argv;
-            }
-        } else if (strcmp(*argv, "-i") == 0) {
-            argv++;
-            if (argv < stop && **argv) {
-                resourcePath = *argv;
-            }
-        } else if (strcmp(*argv, "--forceBWtext") == 0) {
-            gForceBWtext = true;
-        } else if (strcmp(*argv, "--nopipe") == 0) {
-            doPipe = false;
-        } else if (strcmp(*argv, "--tiledPipe") == 0) {
-            doTiledPipe = true;
-        } else if (strcmp(*argv, "--noreplay") == 0) {
-            doReplay = false;
-        } else if (strcmp(*argv, "--nopdf") == 0) {
-            doPDF = false;
-        } else if (strcmp(*argv, "--nodeferred") == 0) {
-            doDeferred = false;
-        } else if (strcmp(*argv, "--modulo") == 0) {
-            ++argv;
-            if (argv >= stop) {
-                continue;
-            }
-            moduloIndex = atoi(*argv);
-
-            ++argv;
-            if (argv >= stop) {
-                continue;
-            }
-            moduloCount = atoi(*argv);
-        } else if (strcmp(*argv, "--disable-missing-warning") == 0) {
-            gNotifyMissingReadReference = false;
-        } else if (strcmp(*argv, "--enable-missing-warning") == 0) {
-            gNotifyMissingReadReference = true;
-        } else if (strcmp(*argv, "--serialize") == 0) {
-            // Leaving in this option so that a user need not modify
-            // their command line arguments to still run.
-            doSerialize = true;
-        } else if (strcmp(*argv, "--noserialize") == 0) {
-            doSerialize = false;
-        } else if (strcmp(*argv, "--match") == 0) {
-            ++argv;
-            if (argv < stop && **argv) {
-                // just record the ptr, no need for a deep copy
-                *fMatches.append() = *argv;
-            }
-        } else if (strcmp(*argv, "--notexturecache") == 0) {
-            disableTextureCache = true;
-        } else if (strcmp(*argv, "--config") == 0) {
+        if (strcmp(*argv, "--config") == 0) {
             argv++;
             if (argv < stop) {
                 int index = findConfig(*argv);
@@ -963,9 +914,83 @@ int tool_main(int argc, char** argv) {
                 usage(commandName);
                 return -1;
             }
+        } else if (strcmp(*argv, "--nodeferred") == 0) {
+            doDeferred = false;
+        } else if ((0 == strcmp(*argv, "--diffPath")) ||
+                   (0 == strcmp(*argv, "-d"))) {
+            argv++;
+            if (argv < stop && **argv) {
+                diffPath = *argv;
+            }
+        } else if (strcmp(*argv, "--disable-missing-warning") == 0) {
+            gmmain.fNotifyMissingReadReference = false;
+        } else if (strcmp(*argv, "--enable-missing-warning") == 0) {
+            gmmain.fNotifyMissingReadReference = true;
+        } else if (strcmp(*argv, "--forceBWtext") == 0) {
+            gForceBWtext = true;
         } else if (strcmp(*argv, "--help") == 0 || strcmp(*argv, "-h") == 0) {
             usage(commandName);
             return -1;
+        } else if (strcmp(*argv, "--hierarchy") == 0) {
+            gmmain.fUseFileHierarchy = true;
+        } else if (strcmp(*argv, "--nohierarchy") == 0) {
+            gmmain.fUseFileHierarchy = false;
+        } else if (strcmp(*argv, "--match") == 0) {
+            ++argv;
+            if (argv < stop && **argv) {
+                // just record the ptr, no need for a deep copy
+                *fMatches.append() = *argv;
+            }
+        } else if (strcmp(*argv, "--modulo") == 0) {
+            ++argv;
+            if (argv >= stop) {
+                continue;
+            }
+            moduloRemainder = atoi(*argv);
+
+            ++argv;
+            if (argv >= stop) {
+                continue;
+            }
+            moduloDivisor = atoi(*argv);
+        } else if (strcmp(*argv, "--nopdf") == 0) {
+            doPDF = false;
+        } else if (strcmp(*argv, "--nopipe") == 0) {
+            doPipe = false;
+        } else if ((0 == strcmp(*argv, "--readPath")) ||
+                   (0 == strcmp(*argv, "-r"))) {
+            argv++;
+            if (argv < stop && **argv) {
+                readPath = *argv;
+            }
+        } else if (strcmp(*argv, "--noreplay") == 0) {
+            doReplay = false;
+        } else if ((0 == strcmp(*argv, "--resourcePath")) ||
+                   (0 == strcmp(*argv, "-i"))) {
+            argv++;
+            if (argv < stop && **argv) {
+                resourcePath = *argv;
+            }
+        } else if (strcmp(*argv, "--serialize") == 0) {
+            doSerialize = true;
+        } else if (strcmp(*argv, "--noserialize") == 0) {
+            doSerialize = false;
+        } else if (strcmp(*argv, "--notexturecache") == 0) {
+            disableTextureCache = true;
+        } else if (strcmp(*argv, "--tiledPipe") == 0) {
+            doTiledPipe = true;
+        } else if ((0 == strcmp(*argv, "--writePath")) ||
+            (0 == strcmp(*argv, "-w"))) {
+            argv++;
+            if (argv < stop && **argv) {
+                writePath = *argv;
+            }
+        } else if ((0 == strcmp(*argv, "--writePicturePath")) ||
+                   (0 == strcmp(*argv, "-wp"))) {
+            argv++;
+            if (argv < stop && **argv) {
+                writePicturePath = *argv;
+            }
         } else {
             usage(commandName);
             return -1;
@@ -998,11 +1023,11 @@ int tool_main(int argc, char** argv) {
         fprintf(stderr, "reading resources from %s\n", resourcePath);
     }
 
-    if (moduloCount <= 0) {
-        moduloIndex = -1;
+    if (moduloDivisor <= 0) {
+        moduloRemainder = -1;
     }
-    if (moduloIndex < 0 || moduloIndex >= moduloCount) {
-        moduloIndex = -1;
+    if (moduloRemainder < 0 || moduloRemainder >= moduloDivisor) {
+        moduloRemainder = -1;
     }
 
     // Accumulate success of all tests.
@@ -1023,16 +1048,34 @@ int tool_main(int argc, char** argv) {
     int gmIndex = -1;
     SkString moduloStr;
 
+    // If we will be writing out files, prepare subdirectories.
+    if (writePath) {
+        if (!sk_mkdir(writePath)) {
+            return -1;
+        }
+        if (gmmain.fUseFileHierarchy) {
+            for (int i = 0; i < configs.count(); i++) {
+                ConfigData config = gRec[configs[i]];
+                SkString subdir;
+                subdir.appendf("%s%c%s", writePath, SkPATH_SEPARATOR,
+                               config.fName);
+                if (!sk_mkdir(subdir.c_str())) {
+                    return -1;
+                }
+            }
+        }
+    }
+
     Iter iter;
     GM* gm;
     while ((gm = iter.next()) != NULL) {
 
         ++gmIndex;
-        if (moduloIndex >= 0) {
-            if ((gmIndex % moduloCount) != moduloIndex) {
+        if (moduloRemainder >= 0) {
+            if ((gmIndex % moduloDivisor) != moduloRemainder) {
                 continue;
             }
-            moduloStr.printf("[%d.%d] ", gmIndex, moduloCount);
+            moduloStr.printf("[%d.%d] ", gmIndex, moduloDivisor);
         }
 
         const char* shortName = gm->shortName();
@@ -1050,6 +1093,7 @@ int tool_main(int argc, char** argv) {
 
         for (int i = 0; i < configs.count(); i++) {
             ConfigData config = gRec[configs[i]];
+
             // Skip any tests that we don't even need to try.
             if ((kPDF_Backend == config.fBackend) &&
                 (!doPDF || (gmFlags & GM::kSkipPDF_Flag)))

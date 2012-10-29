@@ -897,14 +897,14 @@ public:
         fEmpty = true;
         fDefer[0] = fDefer[1] = pt;
     }
-    
+
     void deferredMoveLine(const SkPoint& pt) {
         if (!fHasMove) {
             deferredMove(pt);
         }
         deferredLine(pt);
     }
-    
+
     bool hasMove() const {
         return fHasMove;
     }
@@ -918,7 +918,7 @@ public:
     bool isClosed() const {
         return !fEmpty && fFirstPt == fDefer[1];
     }
-    
+
     void lineTo() {
         if (fDefer[0] == fDefer[1]) {
             return;
@@ -952,7 +952,7 @@ protected:
     bool changedSlopes(const SkPoint& pt) const {
         if (fDefer[0] == fDefer[1]) {
             return false;
-        } 
+        }
         SkScalar deferDx = fDefer[1].fX - fDefer[0].fX;
         SkScalar deferDy = fDefer[1].fY - fDefer[0].fY;
         SkScalar lineDx = pt.fX - fDefer[1].fX;
@@ -1205,7 +1205,7 @@ public:
         init(pts, SkPath::kCubic_Verb, operand);
         fBounds.setCubicBounds(pts);
     }
-    
+
     /* SkPoint */ void addCurveTo(int start, int end, PathWrapper& path, bool active) const {
         SkPoint edge[4];
         const SkPoint* ePtr;
@@ -1876,7 +1876,7 @@ public:
         SkASSERT(fDoneSpans <= fTs.count());
         return fDoneSpans == fTs.count();
     }
-    
+
     bool done(int min) const {
         return fTs[min].fDone;
     }
@@ -2250,7 +2250,7 @@ public:
                 }
                 continue;
             }
-            
+
             if (!maxWinding && (!foundAngle || foundDone2)) {
         #if DEBUG_WINDING
                 if (foundAngle && foundDone2) {
@@ -2809,7 +2809,7 @@ public:
         } while (++index < fTs.count() && approximately_negative(fTs[index].fT - referenceT));
     #endif
     }
-    
+
     void markOneDone(const char* funName, int tIndex, int winding) {
         Span* span = markOneWinding(funName, tIndex, winding);
         if (!span) {
@@ -3511,7 +3511,7 @@ public:
         }
         return false;
     }
-    
+
     const SkPoint& end() const {
         const Segment& segment = fSegments.back();
         return segment.pts()[segment.verb()];
@@ -3635,7 +3635,7 @@ public:
         }
         path.close();
     }
-    
+
     void toPartialBackward(PathWrapper& path) const {
         int segmentCount = fSegments.count();
         for (int test = segmentCount - 1; test >= 0; --test) {

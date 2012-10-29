@@ -57,10 +57,14 @@ static void TestString(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !a.equals("help"));
 
     REPORTER_ASSERT(reporter,  a.startsWith("hell"));
+    REPORTER_ASSERT(reporter,  a.startsWith('h'));
     REPORTER_ASSERT(reporter, !a.startsWith( "ell"));
+    REPORTER_ASSERT(reporter, !a.startsWith( 'e'));
     REPORTER_ASSERT(reporter,  a.startsWith(""));
     REPORTER_ASSERT(reporter,  a.endsWith("llo"));
+    REPORTER_ASSERT(reporter,  a.endsWith('o'));
     REPORTER_ASSERT(reporter, !a.endsWith("ll" ));
+    REPORTER_ASSERT(reporter, !a.endsWith('l'));
     REPORTER_ASSERT(reporter,  a.endsWith(""));
     REPORTER_ASSERT(reporter,  a.contains("he"));
     REPORTER_ASSERT(reporter,  a.contains("ll"));
@@ -68,6 +72,8 @@ static void TestString(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter,  a.contains("hello"));
     REPORTER_ASSERT(reporter, !a.contains("hellohello"));
     REPORTER_ASSERT(reporter,  a.contains(""));
+    REPORTER_ASSERT(reporter,  a.contains('e'));
+    REPORTER_ASSERT(reporter, !a.contains('z'));
 
     SkString    e(a);
     SkString    f("hello");

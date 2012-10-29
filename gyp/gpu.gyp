@@ -71,6 +71,11 @@
           ],
         },
       }],
+      [ 'skia_texture_cache_mb_limit != 0', {
+        'defines': [
+          'GR_DEFAULT_TEXTURE_CACHE_MB_LIMIT=<(skia_texture_cache_mb_limit)',
+        ],
+      }],
     ],
     'direct_dependent_settings': {
       'conditions': [
