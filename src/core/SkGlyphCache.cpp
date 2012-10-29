@@ -599,7 +599,7 @@ void SkGlyphCache::AttachCache(SkGlyphCache* cache) {
     // if we have a fixed budget for our cache, do a purge here
     {
         size_t allocated = globals.fTotalMemoryUsed + cache->fMemoryUsed;
-        size_t budgeted = SkGraphics::GetFontCacheLimit();
+        size_t budgeted = globals.getFontCacheLimit();
         if (allocated > budgeted) {
             (void)InternalFreeCache(&globals, allocated - budgeted);
         }
