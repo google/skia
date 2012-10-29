@@ -7,7 +7,8 @@
  */
 
 
-//
+// TODO: add unittests for all these operations
+
 #ifndef SkOSFile_DEFINED
 #define SkOSFile_DEFINED
 
@@ -24,6 +25,12 @@ enum SkFILE_Flags {
     kWrite_SkFILE_Flag  = 0x02
 };
 
+#ifdef _WIN32
+const static char SkPATH_SEPARATOR = '\\';
+#else
+const static char SkPATH_SEPARATOR = '/';
+#endif
+
 SkFILE* sk_fopen(const char path[], SkFILE_Flags);
 void    sk_fclose(SkFILE*);
 
@@ -38,6 +45,17 @@ void    sk_fflush(SkFILE*);
 
 int     sk_fseek( SkFILE*, size_t, int );
 size_t  sk_ftell( SkFILE* );
+
+// Returns true if something (file, directory, ???) exists at this path.
+bool    sk_exists(const char *path);
+
+// Returns true if a directory exists at this path.
+bool    sk_isdir(const char *path);
+
+// Create a new directory at this path; returns true if successful.
+// If the directory already existed, this will return true.
+// Description of the error, if any, will be written to stderr.
+bool    sk_mkdir(const char* path);
 
 class SkOSFile {
 public:
@@ -79,4 +97,3 @@ private:
 };
 
 #endif
-

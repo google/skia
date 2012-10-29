@@ -36,13 +36,23 @@ static const size_t kBufferSize = 512;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkStrEndsWith(const char string[], const char suffix[]) {
+bool SkStrEndsWith(const char string[], const char suffixStr[]) {
     SkASSERT(string);
-    SkASSERT(suffix);
+    SkASSERT(suffixStr);
     size_t  strLen = strlen(string);
-    size_t  suffixLen = strlen(suffix);
+    size_t  suffixLen = strlen(suffixStr);
     return  strLen >= suffixLen &&
-            !strncmp(string + strLen - suffixLen, suffix, suffixLen);
+            !strncmp(string + strLen - suffixLen, suffixStr, suffixLen);
+}
+
+bool SkStrEndsWith(const char string[], const char suffixChar) {
+    SkASSERT(string);
+    size_t  strLen = strlen(string);
+    if (0 == strLen) {
+        return false;
+    } else {
+        return (suffixChar == string[strLen-1]);
+    }
 }
 
 int SkStrStartsWithOneOf(const char string[], const char prefixes[]) {
@@ -602,4 +612,3 @@ SkString SkStringPrintf(const char* format, ...) {
 
 #undef VSNPRINTF
 #undef SNPRINTF
-
