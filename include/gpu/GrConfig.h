@@ -369,6 +369,15 @@ inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
     #define GR_GEOM_BUFFER_LOCK_THRESHOLD (1 << 15)
 #endif
 
+/**
+ * GR_DEFAULT_TEXTURE_CACHE_MB_LIMIT gives a threshold (in megabytes) for the
+ * maximum size of the texture cache in vram. The value is only a default and
+ * can be overridden at runtime.
+ */
+#if !defined(GR_DEFAULT_TEXTURE_CACHE_MB_LIMIT)
+    #define GR_DEFAULT_TEXTURE_CACHE_MB_LIMIT 96
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 // tail section:
 //
