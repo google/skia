@@ -705,7 +705,6 @@ void GrGLGradientEffect::emitColorLookup(GrGLShaderBuilder* builder,
     code->appendf("\tvec2 coord = vec2(%s, %s);\n",
                   gradientTValue,
                   builder->getUniformVariable(fFSYUni).c_str());
-    GrGLSLMulVarBy4f(code, 1, outputColor, inputColor);
     code->appendf("\t%s = ", outputColor);
     builder->appendTextureLookupAndModulate(code, inputColor, sampler, "coord");
     code->append(";\n");
