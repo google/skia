@@ -30,6 +30,11 @@ public:
     /**
      *  Compute a 32-bit checksum for a given data block
      *
+     *  WARNING: this algorithm is tuned for efficiency, not backward/forward
+     *  compatibility.  It may change at any time, so a checksum generated with
+     *  one version of the Skia code may not match a checksum generated with
+     *  a different version of the Skia code.
+     *
      *  @param data Memory address of the data block to be processed. Must be
      *              32-bit aligned.
      *  @param size Size of the data block in bytes. Must be a multiple of 4.
@@ -83,4 +88,3 @@ public:
 };
 
 #endif
-
