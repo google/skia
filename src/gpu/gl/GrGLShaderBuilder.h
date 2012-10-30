@@ -9,6 +9,7 @@
 #define GrGLShaderBuilder_DEFINED
 
 #include "GrAllocator.h"
+#include "GrBackendEffectFactory.h"
 #include "GrEffect.h"
 #include "gl/GrGLShaderVar.h"
 #include "gl/GrGLSL.h"
@@ -122,8 +123,8 @@ public:
     /** Generates a EffectKey for the shader code based on the texture access parameters and the
         capabilities of the GL context.  This is useful for keying the shader programs that may
         have multiple representations, based on the type/format of textures used. */
-    static GrEffect::EffectKey KeyForTextureAccess(const GrTextureAccess& access,
-                                                   const GrGLCaps& caps);
+    static GrBackendEffectFactory::EffectKey KeyForTextureAccess(const GrTextureAccess&,
+                                                                 const GrGLCaps&);
 
     /** If texture swizzling is available using tex parameters then it is preferred over mangling
         the generated shader code. This potentially allows greater reuse of cached shaders. */
@@ -168,6 +169,11 @@ public:
     /** Returns a variable name that represents the position of the fragment in the FS. The position
         is in device space (e.g. 0,0 is the top left and pixel centers are at half-integers). */
     const char* fragmentPosition();
+
+    /** Returns a vertex attribute that represents the vertex position in the VS. This is the
+        pre-matrix position and is commonly used by effects to compute texture coords via a matrix.
+      */
+    const GrGLShaderVar& positionAttribute() const { return *fPositionVar; }
 
     /** Called after building is complete to get the final shader string. */
     void getShader(ShaderType, SkString*) const;
@@ -225,6 +231,8 @@ private:
 
     bool                                fSetupFragPosition;
     GrGLUniformManager::UniformHandle   fRTHeightUniform;
+
+    GrGLShaderVar*                      fPositionVar;
 
     /// Per-stage settings - only valid while we're inside GrGLProgram::genStageCode().
     //@{

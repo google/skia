@@ -13,7 +13,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrTexture.h"
-#include "GrGpu.h"
+#include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
 #include "effects/Gr1DKernelEffect.h"
 #endif
@@ -266,22 +266,22 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GrGLMorphologyEffect  : public GrGLLegacyEffect {
+class GrGLMorphologyEffect  : public GrGLEffect {
 public:
     GrGLMorphologyEffect (const GrBackendEffectFactory& factory,
                           const GrEffect& effect);
 
-    virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
-    virtual void emitVS(GrGLShaderBuilder* state,
-                        const char* vertexCoords) SK_OVERRIDE {};
-    virtual void emitFS(GrGLShaderBuilder* state,
-                        const char* outputColor,
-                        const char* inputColor,
-                        const TextureSamplerArray&) SK_OVERRIDE;
+    virtual void emitCode(GrGLShaderBuilder*,
+                          const GrEffectStage&,
+                          EffectKey,
+                          const char* vertexCoords,
+                          const char* outputColor,
+                          const char* inputColor,
+                          const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrEffect& s, const GrGLCaps& caps);
+    static inline EffectKey GenKey(const GrEffectStage&, const GrGLCaps&);
 
-    virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
 
 private:
     int width() const { return GrMorphologyEffect::WidthFromRadius(fRadius); }
@@ -290,7 +290,7 @@ private:
     GrMorphologyEffect::MorphologyType  fType;
     GrGLUniformManager::UniformHandle   fImageIncrementUni;
 
-    typedef GrGLLegacyEffect INHERITED;
+    typedef GrGLEffect INHERITED;
 };
 
 GrGLMorphologyEffect::GrGLMorphologyEffect(const GrBackendEffectFactory& factory,
@@ -302,15 +302,16 @@ GrGLMorphologyEffect::GrGLMorphologyEffect(const GrBackendEffectFactory& factory
     fType = m.type();
 }
 
-void GrGLMorphologyEffect::setupVariables(GrGLShaderBuilder* builder) {
+void GrGLMorphologyEffect::emitCode(GrGLShaderBuilder* builder,
+                                    const GrEffectStage&,
+                                    EffectKey,
+                                    const char* vertexCoords,
+                                    const char* outputColor,
+                                    const char* inputColor,
+                                    const TextureSamplerArray& samplers) {
     fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                              kVec2f_GrSLType, "ImageIncrement");
-}
 
-void GrGLMorphologyEffect::emitFS(GrGLShaderBuilder* builder,
-                                  const char* outputColor,
-                                  const char* inputColor,
-                                  const TextureSamplerArray& samplers) {
     SkString* code = &builder->fFSCode;
 
     const char* func;
@@ -341,19 +342,16 @@ void GrGLMorphologyEffect::emitFS(GrGLShaderBuilder* builder,
     GrGLSLMulVarBy4f(code, 2, outputColor, inputColor);
 }
 
-GrGLEffect::EffectKey GrGLMorphologyEffect::GenKey(const GrEffect& s,
-                                                        const GrGLCaps& caps) {
-    const GrMorphologyEffect& m = static_cast<const GrMorphologyEffect&>(s);
+GrGLEffect::EffectKey GrGLMorphologyEffect::GenKey(const GrEffectStage& s, const GrGLCaps&) {
+    const GrMorphologyEffect& m = static_cast<const GrMorphologyEffect&>(*s.getEffect());
     EffectKey key = static_cast<EffectKey>(m.radius());
     key |= (m.type() << 8);
     return key;
 }
 
-void GrGLMorphologyEffect::setData(const GrGLUniformManager& uman, const GrEffect& data) {
-    const Gr1DKernelEffect& kern =
-        static_cast<const Gr1DKernelEffect&>(data);
-    GrGLTexture& texture =
-        *static_cast<GrGLTexture*>(data.texture(0));
+void GrGLMorphologyEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
+    const Gr1DKernelEffect& kern = static_cast<const Gr1DKernelEffect&>(*stage.getEffect());
+    GrTexture& texture = *kern.texture(0);
     // the code we generated was for a specific kernel radius
     GrAssert(kern.radius() == fRadius);
     float imageIncrement[2] = { 0 };

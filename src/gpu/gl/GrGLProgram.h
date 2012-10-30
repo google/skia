@@ -43,7 +43,7 @@ public:
 
     static GrGLProgram* Create(const GrGLContextInfo& gl,
                                const Desc& desc,
-                               const GrEffect** effects);
+                               const GrEffectStage* stages[]);
 
     virtual ~GrGLProgram();
 
@@ -163,24 +163,24 @@ private:
 
     GrGLProgram(const GrGLContextInfo& gl,
                 const Desc& desc,
-                const GrEffect** effects);
+                const GrEffectStage* stages[]);
 
     bool succeeded() const { return 0 != fProgramID; }
 
     /**
      *  This is the heavy initialization routine for building a GLProgram.
      */
-    bool genProgram(const GrEffect** effects);
+    bool genProgram(const GrEffectStage* stages[]);
 
     void genInputColor(GrGLShaderBuilder* builder, SkString* inColor);
 
-    static GrGLEffect* GenStageCode(const GrEffect* effect,
-                                          const StageDesc& desc, // TODO: Eliminate this
-                                          StageUniforms* stageUniforms, // TODO: Eliminate this
-                                          const char* fsInColor, // NULL means no incoming color
-                                          const char* fsOutColor,
-                                          const char* vsInCoord,
-                                          GrGLShaderBuilder* builder);
+    static GrGLEffect* GenStageCode(const GrEffectStage& stage,
+                                    const StageDesc& desc, // TODO: Eliminate this
+                                    StageUniforms* stageUniforms, // TODO: Eliminate this
+                                    const char* fsInColor, // NULL means no incoming color
+                                    const char* fsOutColor,
+                                    const char* vsInCoord,
+                                    GrGLShaderBuilder* builder);
 
     void genGeometryShader(GrGLShaderBuilder* segments) const;
 
@@ -194,7 +194,8 @@ private:
     bool genEdgeCoverage(SkString* coverageVar, GrGLShaderBuilder* builder) const;
 
     // Creates a GL program ID, binds shader attributes to GL vertex attrs, and links the program
-    bool bindOutputsAttribsAndLinkProgram(SkString texCoordAttrNames[GrDrawState::kMaxTexCoords],
+    bool bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& builder,
+                                          SkString texCoordAttrNames[GrDrawState::kMaxTexCoords],
                                           bool bindColorOut,
                                           bool bindDualSrcOut);
 
@@ -248,10 +249,9 @@ private:
     GrColor                     fCoverage;
     GrColor                     fColorFilterColor;
     int                         fRTHeight;
-    /// When it is sent to GL, the texture matrix will be flipped if the texture orientation
-    /// (below) requires.
+    /// When it is sent to GL, the texture matrix will be flipped if the texture origin requires.
     GrMatrix                    fTextureMatrices[GrDrawState::kNumStages];
-    GrGLTexture::Orientation    fTextureOrientation[GrDrawState::kNumStages];
+    GrSurface::Origin           fTextureOrigin[GrDrawState::kNumStages];
 
     GrGLEffect*                 fEffects[GrDrawState::kNumStages];
 

@@ -32,13 +32,10 @@ bool random_bool(GrRandom* r) {
 }
 
 typedef GrGLProgram::StageDesc StageDesc;
-// TODO: Effects should be able to register themselves for inclusion in the
-// randomly generated shaders. They should be able to configure themselves
-// randomly.
-const GrEffect* create_random_effect(StageDesc* stageDesc,
-                                          GrRandom* random,
-                                          GrContext* context,
-                                          GrTexture* dummyTextures[]) {
+
+const GrEffect* create_random_effect(GrRandom* random,
+                                     GrContext* context,
+                                     GrTexture* dummyTextures[]) {
 
     // The new code uses SkRandom not GrRandom.
     // TODO: Remove GrRandom.
@@ -118,7 +115,7 @@ bool GrGpuGL::programUnitTest() {
             pdesc.fDualSrcOutput = ProgramDesc::kNone_DualSrcOutput;
         }
 
-        SkAutoTUnref<const GrEffect> effects[GrDrawState::kNumStages];
+        GrEffectStage stages[GrDrawState::kNumStages];
 
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
             StageDesc& stageDesc = pdesc.fStages[s];
@@ -141,22 +138,23 @@ bool GrGpuGL::programUnitTest() {
 
             if (stageDesc.isEnabled()) {
                 GrTexture* dummyTextures[] = {dummyTexture1.get(), dummyTexture2.get()};
-                effects[s].reset(create_random_effect(&stageDesc,
-                                                      &random,
-                                                      getContext(),
-                                                      dummyTextures));
-                if (NULL != effects[s]) {
+                SkAutoTUnref<const GrEffect> effect(create_random_effect(&random,
+                                                                         getContext(),
+                                                                         dummyTextures));
+                stages[s].setEffect(effect.get());
+                if (NULL != stages[s].getEffect()) {
                     stageDesc.fEffectKey =
-                        effects[s]->getFactory().glEffectKey(*effects[s], this->glCaps());
+                        stages[s].getEffect()->getFactory().glEffectKey(stages[s], this->glCaps());
                 }
             }
         }
-        GR_STATIC_ASSERT(sizeof(effects) ==
-                         GrDrawState::kNumStages * sizeof(GrEffect*));
-        const GrEffect** stages = reinterpret_cast<const GrEffect**>(&effects);
+        const GrEffectStage* stagePtrs[GrDrawState::kNumStages];
+        for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+            stagePtrs[s] = &stages[s];
+        }
         SkAutoTUnref<GrGLProgram> program(GrGLProgram::Create(this->glContextInfo(),
                                                               pdesc,
-                                                              stages));
+                                                              stagePtrs));
         if (NULL == program.get()) {
             return false;
         }

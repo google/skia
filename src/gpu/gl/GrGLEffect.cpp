@@ -17,11 +17,11 @@ GrGLEffect::~GrGLEffect() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLEffect::setData(const GrGLUniformManager&, const GrEffect&) {
+void GrGLEffect::setData(const GrGLUniformManager&, const GrEffectStage&) {
 }
 
 GrGLEffect::EffectKey GrGLEffect::GenTextureKey(const GrEffect& effect,
-                                                           const GrGLCaps& caps) {
+                                                const GrGLCaps& caps) {
     EffectKey key = 0;
     for (int index = 0; index < effect.numTextures(); ++index) {
         const GrTextureAccess& access = effect.textureAccess(index);

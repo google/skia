@@ -8,14 +8,13 @@
 #ifndef GrGLEffect_DEFINED
 #define GrGLEffect_DEFINED
 
-#include "GrAllocator.h"
-#include "GrEffect.h"
+#include "GrBackendEffectFactory.h"
 #include "GrGLProgram.h"
 #include "GrGLShaderBuilder.h"
 #include "GrGLShaderVar.h"
 #include "GrGLSL.h"
 
-struct GrGLInterface;
+class GrEffectStage;
 class GrGLTexture;
 
 /** @file
@@ -23,7 +22,7 @@ class GrGLTexture;
     include/gpu/GrEffect.h. Objects of type GrGLEffect are responsible for emitting the
     GLSL code that implements a GrEffect and for uploading uniforms at draw time. They also
     must have a function:
-        static inline EffectKey GenKey(const GrEffect&, const GrGLCaps&)
+        static inline EffectKey GenKey(const GrEffectStage&, const GrGLCaps&)
     that is used to implement a program cache. When two GrEffects produce the same key this means
     that their GrGLEffects would emit the same GLSL code.
 
@@ -33,7 +32,8 @@ class GrGLTexture;
 class GrGLEffect {
 
 public:
-    typedef GrEffect::EffectKey EffectKey;
+    typedef GrBackendEffectFactory::EffectKey EffectKey;
+
     enum {
         // the number of bits in EffectKey available to GenKey
         kEffectKeyBits = GrBackendEffectFactory::kEffectKeyBits,
@@ -50,7 +50,7 @@ public:
         stages.
 
         @param builder      Interface used to emit code in the shaders.
-        @param effect       The effect that generated this program stage.
+        @param stage        The effect stage that generated this program stage.
         @param key          The key that was computed by EffectKey() from the generating GrEffect.
         @param vertexCoords A vec2 of texture coordinates in the VS, which may be altered. This will
                             be removed soon and stages will be responsible for computing their own
@@ -67,7 +67,7 @@ public:
                             reads in the generated code.
         */
     virtual void emitCode(GrGLShaderBuilder* builder,
-                          const GrEffect& effect,
+                          const GrEffectStage& stage,
                           EffectKey key,
                           const char* vertexCoords,
                           const char* outputColor,
@@ -76,8 +76,10 @@ public:
 
     /** A GrGLEffect instance can be reused with any GrEffect that produces the same stage
         key; this function reads data from a stage and uploads any uniform variables required
-        by the shaders created in emitCode(). */
-    virtual void setData(const GrGLUniformManager&, const GrEffect&);
+        by the shaders created in emitCode(). The GrEffect installed in the GrEffectStage is
+        guaranteed to be of the same type that created this GrGLEffect and to have an identical
+        EffectKey as the one that created this GrGLEffect. */
+    virtual void setData(const GrGLUniformManager&, const GrEffectStage&);
 
     const char* name() const { return fFactory.name(); }
 
@@ -86,36 +88,6 @@ public:
 protected:
 
     const GrBackendEffectFactory& fFactory;
-};
-
-/**
- * This allows program stages that implemented an older set of virtual functions on GrGLEffect
- * to continue to work by change their parent class to this class. New program stages should not use
- * this interface. It will be removed once older stages are modified to implement emitCode().
- */
-class GrGLLegacyEffect : public GrGLEffect {
-public:
-    GrGLLegacyEffect(const GrBackendEffectFactory& factory) : GrGLEffect(factory) {}
-
-    virtual void setupVariables(GrGLShaderBuilder* builder) {};
-    virtual void emitVS(GrGLShaderBuilder* builder,
-                        const char* vertexCoords) = 0;
-    virtual void emitFS(GrGLShaderBuilder* builder,
-                        const char* outputColor,
-                        const char* inputColor,
-                        const TextureSamplerArray&) = 0;
-
-    virtual void emitCode(GrGLShaderBuilder* builder,
-                          const GrEffect&,
-                          EffectKey,
-                          const char* vertexCoords,
-                          const char* outputColor,
-                          const char* inputColor,
-                          const TextureSamplerArray& samplers) {
-        this->setupVariables(builder);
-        this->emitVS(builder, vertexCoords);
-        this->emitFS(builder, outputColor, inputColor, samplers);
-    }
 };
 
 #endif

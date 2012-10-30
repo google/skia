@@ -315,6 +315,8 @@ void SkTwoPointConicalGradient::flatten(
 
 #if SK_SUPPORT_GPU
 
+#include "GrTBackendEffectFactory.h"
+
 // For brevity
 typedef GrGLUniformManager::UniformHandle UniformHandle;
 static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidUniformHandle;
@@ -326,16 +328,16 @@ public:
                          const GrEffect&);
     virtual ~GrGLConical2Gradient() { }
 
-    virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
-    virtual void emitVS(GrGLShaderBuilder* builder,
-                        const char* vertexCoords) SK_OVERRIDE;
-    virtual void emitFS(GrGLShaderBuilder* builder,
-                        const char* outputColor,
-                        const char* inputColor,
-                        const TextureSamplerArray&) SK_OVERRIDE;
-    virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE;
+    virtual void emitCode(GrGLShaderBuilder*,
+                          const GrEffectStage&,
+                          EffectKey,
+                          const char* vertexCoords,
+                          const char* outputColor,
+                          const char* inputColor,
+                          const TextureSamplerArray&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
 
-    static EffectKey GenKey(const GrEffect& s, const GrGLCaps& caps);
+    static EffectKey GenKey(const GrEffectStage&, const GrGLCaps& caps);
 
 protected:
 
@@ -465,8 +467,14 @@ GrGLConical2Gradient::GrGLConical2Gradient(
     fIsDegenerate = data.isDegenerate();
 }
 
-void GrGLConical2Gradient::setupVariables(GrGLShaderBuilder* builder) {
-    INHERITED::setupVariables(builder);
+void GrGLConical2Gradient::emitCode(GrGLShaderBuilder* builder,
+                                    const GrEffectStage&,
+                                    EffectKey,
+                                    const char* vertexCoords,
+                                    const char* outputColor,
+                                    const char* inputColor,
+                                    const TextureSamplerArray& samplers) {
+    this->emitYCoordUniform(builder);
     // 2 copies of uniform array, 1 for each of vertex & fragment shader,
     // to work around Xoom bug. Doesn't seem to cause performance decrease
     // in test apps, but need to keep an eye on it.
@@ -481,155 +489,152 @@ void GrGLConical2Gradient::setupVariables(GrGLShaderBuilder* builder) {
         builder->addVarying(kFloat_GrSLType, "Conical2BCoeff",
                             &fVSVaryingName, &fFSVaryingName);
     }
-}
 
-void GrGLConical2Gradient::emitVS(GrGLShaderBuilder* builder,
-                                  const char* vertexCoords) {
-    SkString* code = &builder->fVSCode;
-    SkString p2; // distance between centers
-    SkString p3; // start radius
-    SkString p5; // difference in radii (r1 - r0)
-    builder->getUniformVariable(fVSParamUni).appendArrayAccess(2, &p2);
-    builder->getUniformVariable(fVSParamUni).appendArrayAccess(3, &p3);
-    builder->getUniformVariable(fVSParamUni).appendArrayAccess(5, &p5);
+    // VS
+    {
+        SkString* code = &builder->fVSCode;
+        SkString p2; // distance between centers
+        SkString p3; // start radius
+        SkString p5; // difference in radii (r1 - r0)
+        builder->getUniformVariable(fVSParamUni).appendArrayAccess(2, &p2);
+        builder->getUniformVariable(fVSParamUni).appendArrayAccess(3, &p3);
+        builder->getUniformVariable(fVSParamUni).appendArrayAccess(5, &p5);
 
-    // For radial gradients without perspective we can pass the linear
-    // part of the quadratic as a varying.
-    if (!builder->defaultTextureMatrixIsPerspective()) {
-        // r2Var = -2 * (r2Parm[2] * varCoord.x - r2Param[3] * r2Param[5])
-        code->appendf("\t%s = -2.0 * (%s * %s.x + %s * %s);\n",
-                      fVSVaryingName, p2.c_str(),
-                      vertexCoords, p3.c_str(), p5.c_str());
+        // For radial gradients without perspective we can pass the linear
+        // part of the quadratic as a varying.
+        if (!builder->defaultTextureMatrixIsPerspective()) {
+            // r2Var = -2 * (r2Parm[2] * varCoord.x - r2Param[3] * r2Param[5])
+            code->appendf("\t%s = -2.0 * (%s * %s.x + %s * %s);\n",
+                          fVSVaryingName, p2.c_str(),
+                          vertexCoords, p3.c_str(), p5.c_str());
+        }
+    }
+
+    // FS
+    {
+        SkString* code = &builder->fFSCode;
+
+        SkString cName("c");
+        SkString ac4Name("ac4");
+        SkString dName("d");
+        SkString qName("q");
+        SkString r0Name("r0");
+        SkString r1Name("r1");
+        SkString tName("t");
+        SkString p0; // 4a
+        SkString p1; // 1/a
+        SkString p2; // distance between centers
+        SkString p3; // start radius
+        SkString p4; // start radius squared
+        SkString p5; // difference in radii (r1 - r0)
+
+        builder->getUniformVariable(fFSParamUni).appendArrayAccess(0, &p0);
+        builder->getUniformVariable(fFSParamUni).appendArrayAccess(1, &p1);
+        builder->getUniformVariable(fFSParamUni).appendArrayAccess(2, &p2);
+        builder->getUniformVariable(fFSParamUni).appendArrayAccess(3, &p3);
+        builder->getUniformVariable(fFSParamUni).appendArrayAccess(4, &p4);
+        builder->getUniformVariable(fFSParamUni).appendArrayAccess(5, &p5);
+
+        // If we we're able to interpolate the linear component,
+        // bVar is the varying; otherwise compute it
+        SkString bVar;
+        if (!builder->defaultTextureMatrixIsPerspective()) {
+            bVar = fFSVaryingName;
+        } else {
+            bVar = "b";
+            code->appendf("\tfloat %s = -2.0 * (%s * %s.x + %s * %s);\n",
+                          bVar.c_str(), p2.c_str(), builder->defaultTexCoordsName(),
+                          p3.c_str(), p5.c_str());
+        }
+
+        // output will default to transparent black (we simply won't write anything
+        // else to it if invalid, instead of discarding or returning prematurely)
+        code->appendf("\t%s = vec4(0.0,0.0,0.0,0.0);\n", outputColor);
+
+        // c = (x^2)+(y^2) - params[4]
+        code->appendf("\tfloat %s = dot(%s, %s) - %s;\n", cName.c_str(),
+                      builder->defaultTexCoordsName(), builder->defaultTexCoordsName(),
+                      p4.c_str());
+
+        // Non-degenerate case (quadratic)
+        if (!fIsDegenerate) {
+
+            // ac4 = params[0] * c
+            code->appendf("\tfloat %s = %s * %s;\n", ac4Name.c_str(), p0.c_str(),
+                          cName.c_str());
+
+            // d = b^2 - ac4
+            code->appendf("\tfloat %s = %s * %s - %s;\n", dName.c_str(),
+                          bVar.c_str(), bVar.c_str(), ac4Name.c_str());
+
+            // only proceed if discriminant is >= 0
+            code->appendf("\tif (%s >= 0.0) {\n", dName.c_str());
+
+            // intermediate value we'll use to compute the roots
+            // q = -0.5 * (b +/- sqrt(d))
+            code->appendf("\t\tfloat %s = -0.5 * (%s + (%s < 0.0 ? -1.0 : 1.0)"
+                          " * sqrt(%s));\n", qName.c_str(), bVar.c_str(),
+                          bVar.c_str(), dName.c_str());
+
+            // compute both roots
+            // r0 = q * params[1]
+            code->appendf("\t\tfloat %s = %s * %s;\n", r0Name.c_str(),
+                          qName.c_str(), p1.c_str());
+            // r1 = c / q
+            code->appendf("\t\tfloat %s = %s / %s;\n", r1Name.c_str(),
+                          cName.c_str(), qName.c_str());
+
+            // Note: If there are two roots that both generate radius(t) > 0, the
+            // Canvas spec says to choose the larger t.
+
+            // so we'll look at the larger one first:
+            code->appendf("\t\tfloat %s = max(%s, %s);\n", tName.c_str(),
+                          r0Name.c_str(), r1Name.c_str());
+
+            // if r(t) > 0, then we're done; t will be our x coordinate
+            code->appendf("\t\tif (%s * %s + %s > 0.0) {\n", tName.c_str(),
+                          p5.c_str(), p3.c_str());
+
+            code->appendf("\t\t");
+            this->emitColorLookup(builder, tName.c_str(), outputColor, inputColor, samplers[0]);
+
+            // otherwise, if r(t) for the larger root was <= 0, try the other root
+            code->appendf("\t\t} else {\n");
+            code->appendf("\t\t\t%s = min(%s, %s);\n", tName.c_str(),
+                          r0Name.c_str(), r1Name.c_str());
+
+            // if r(t) > 0 for the smaller root, then t will be our x coordinate
+            code->appendf("\t\t\tif (%s * %s + %s > 0.0) {\n",
+                          tName.c_str(), p5.c_str(), p3.c_str());
+
+            code->appendf("\t\t\t");
+            this->emitColorLookup(builder, tName.c_str(), outputColor, inputColor, samplers[0]);
+
+            // end if (r(t) > 0) for smaller root
+            code->appendf("\t\t\t}\n");
+            // end if (r(t) > 0), else, for larger root
+            code->appendf("\t\t}\n");
+            // end if (discriminant >= 0)
+            code->appendf("\t}\n");
+        } else {
+
+            // linear case: t = -c/b
+            code->appendf("\tfloat %s = -(%s / %s);\n", tName.c_str(),
+                          cName.c_str(), bVar.c_str());
+
+            // if r(t) > 0, then t will be the x coordinate
+            code->appendf("\tif (%s * %s + %s > 0.0) {\n", tName.c_str(),
+                          p5.c_str(), p3.c_str());
+            code->appendf("\t");
+            this->emitColorLookup(builder, tName.c_str(), outputColor, inputColor, samplers[0]);
+            code->appendf("\t}\n");
+        }
     }
 }
 
-void GrGLConical2Gradient::emitFS(GrGLShaderBuilder* builder,
-                                  const char* outputColor,
-                                  const char* inputColor,
-                                  const TextureSamplerArray& samplers) {
-    SkString* code = &builder->fFSCode;
-
-    SkString cName("c");
-    SkString ac4Name("ac4");
-    SkString dName("d");
-    SkString qName("q");
-    SkString r0Name("r0");
-    SkString r1Name("r1");
-    SkString tName("t");
-    SkString p0; // 4a
-    SkString p1; // 1/a
-    SkString p2; // distance between centers
-    SkString p3; // start radius
-    SkString p4; // start radius squared
-    SkString p5; // difference in radii (r1 - r0)
-
-    builder->getUniformVariable(fFSParamUni).appendArrayAccess(0, &p0);
-    builder->getUniformVariable(fFSParamUni).appendArrayAccess(1, &p1);
-    builder->getUniformVariable(fFSParamUni).appendArrayAccess(2, &p2);
-    builder->getUniformVariable(fFSParamUni).appendArrayAccess(3, &p3);
-    builder->getUniformVariable(fFSParamUni).appendArrayAccess(4, &p4);
-    builder->getUniformVariable(fFSParamUni).appendArrayAccess(5, &p5);
-
-    // If we we're able to interpolate the linear component,
-    // bVar is the varying; otherwise compute it
-    SkString bVar;
-    if (!builder->defaultTextureMatrixIsPerspective()) {
-        bVar = fFSVaryingName;
-    } else {
-        bVar = "b";
-        code->appendf("\tfloat %s = -2.0 * (%s * %s.x + %s * %s);\n",
-                      bVar.c_str(), p2.c_str(), builder->defaultTexCoordsName(),
-                      p3.c_str(), p5.c_str());
-    }
-
-    // output will default to transparent black (we simply won't write anything
-    // else to it if invalid, instead of discarding or returning prematurely)
-    code->appendf("\t%s = vec4(0.0,0.0,0.0,0.0);\n", outputColor);
-
-    // c = (x^2)+(y^2) - params[4]
-    code->appendf("\tfloat %s = dot(%s, %s) - %s;\n", cName.c_str(),
-                  builder->defaultTexCoordsName(), builder->defaultTexCoordsName(),
-                  p4.c_str());
-
-    // Non-degenerate case (quadratic)
-    if (!fIsDegenerate) {
-
-        // ac4 = params[0] * c
-        code->appendf("\tfloat %s = %s * %s;\n", ac4Name.c_str(), p0.c_str(),
-                      cName.c_str());
-
-        // d = b^2 - ac4
-        code->appendf("\tfloat %s = %s * %s - %s;\n", dName.c_str(),
-                      bVar.c_str(), bVar.c_str(), ac4Name.c_str());
-
-        // only proceed if discriminant is >= 0
-        code->appendf("\tif (%s >= 0.0) {\n", dName.c_str());
-
-        // intermediate value we'll use to compute the roots
-        // q = -0.5 * (b +/- sqrt(d))
-        code->appendf("\t\tfloat %s = -0.5 * (%s + (%s < 0.0 ? -1.0 : 1.0)"
-                      " * sqrt(%s));\n", qName.c_str(), bVar.c_str(),
-                      bVar.c_str(), dName.c_str());
-
-        // compute both roots
-        // r0 = q * params[1]
-        code->appendf("\t\tfloat %s = %s * %s;\n", r0Name.c_str(),
-                      qName.c_str(), p1.c_str());
-        // r1 = c / q
-        code->appendf("\t\tfloat %s = %s / %s;\n", r1Name.c_str(),
-                      cName.c_str(), qName.c_str());
-
-        // Note: If there are two roots that both generate radius(t) > 0, the
-        // Canvas spec says to choose the larger t.
-
-        // so we'll look at the larger one first:
-        code->appendf("\t\tfloat %s = max(%s, %s);\n", tName.c_str(),
-                      r0Name.c_str(), r1Name.c_str());
-
-        // if r(t) > 0, then we're done; t will be our x coordinate
-        code->appendf("\t\tif (%s * %s + %s > 0.0) {\n", tName.c_str(),
-                      p5.c_str(), p3.c_str());
-
-        code->appendf("\t\t");
-        this->emitColorLookup(builder, tName.c_str(), outputColor, inputColor, samplers[0]);
-
-        // otherwise, if r(t) for the larger root was <= 0, try the other root
-        code->appendf("\t\t} else {\n");
-        code->appendf("\t\t\t%s = min(%s, %s);\n", tName.c_str(),
-                      r0Name.c_str(), r1Name.c_str());
-
-        // if r(t) > 0 for the smaller root, then t will be our x coordinate
-        code->appendf("\t\t\tif (%s * %s + %s > 0.0) {\n",
-                      tName.c_str(), p5.c_str(), p3.c_str());
-
-        code->appendf("\t\t\t");
-        this->emitColorLookup(builder, tName.c_str(), outputColor, inputColor, samplers[0]);
-
-        // end if (r(t) > 0) for smaller root
-        code->appendf("\t\t\t}\n");
-        // end if (r(t) > 0), else, for larger root
-        code->appendf("\t\t}\n");
-        // end if (discriminant >= 0)
-        code->appendf("\t}\n");
-    } else {
-
-        // linear case: t = -c/b
-        code->appendf("\tfloat %s = -(%s / %s);\n", tName.c_str(),
-                      cName.c_str(), bVar.c_str());
-
-        // if r(t) > 0, then t will be the x coordinate
-        code->appendf("\tif (%s * %s + %s > 0.0) {\n", tName.c_str(),
-                      p5.c_str(), p3.c_str());
-        code->appendf("\t");
-        this->emitColorLookup(builder, tName.c_str(), outputColor, inputColor, samplers[0]);
-        code->appendf("\t}\n");
-    }
-}
-
-void GrGLConical2Gradient::setData(const GrGLUniformManager& uman, const GrEffect& baseData) {
-    INHERITED::setData(uman, baseData);
-    const GrConical2Gradient& data =
-        static_cast<const GrConical2Gradient&>(baseData);
+void GrGLConical2Gradient::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
+    INHERITED::setData(uman, stage);
+    const GrConical2Gradient& data = static_cast<const GrConical2Gradient&>(*stage.getEffect());
     GrAssert(data.isDegenerate() == fIsDegenerate);
     GrScalar centerX1 = data.center();
     GrScalar radius0 = data.radius();
@@ -663,8 +668,8 @@ void GrGLConical2Gradient::setData(const GrGLUniformManager& uman, const GrEffec
     }
 }
 
-GrEffect::EffectKey GrGLConical2Gradient::GenKey(const GrEffect& s, const GrGLCaps& caps) {
-    return (static_cast<const GrConical2Gradient&>(s).isDegenerate());
+GrGLEffect::EffectKey GrGLConical2Gradient::GenKey(const GrEffectStage& s, const GrGLCaps&) {
+    return (static_cast<const GrConical2Gradient&>(*s.getEffect()).isDegenerate());
 }
 
 /////////////////////////////////////////////////////////////////////

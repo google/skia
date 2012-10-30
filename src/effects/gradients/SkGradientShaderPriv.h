@@ -271,17 +271,21 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 // Base class for GL gradient effects
-class GrGLGradientEffect : public GrGLLegacyEffect {
+class GrGLGradientEffect : public GrGLEffect {
 public:
-
     GrGLGradientEffect(const GrBackendEffectFactory& factory);
     virtual ~GrGLGradientEffect();
 
-    virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
-    virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
 
-    // emit code that gets a fragment's color from an expression for t; for now
-    // this always uses the texture, but for simpler cases we'll be able to lerp
+protected:
+    // Emits the uniform used as the y-coord to texture samples in derived classes. Subclasses
+    // should call this method from their emitCode().
+    void emitYCoordUniform(GrGLShaderBuilder* builder);
+
+    // emit code that gets a fragment's color from an expression for t; for now this always uses the
+    // texture, but for simpler cases we'll be able to lerp. Subclasses should call this method from
+    // their emitCode().
     void emitColorLookup(GrGLShaderBuilder* builder,
                          const char* gradientTValue,
                          const char* outputColor,
@@ -289,11 +293,10 @@ public:
                          const GrGLShaderBuilder::TextureSampler&);
 
 private:
-
     GrScalar fCachedYCoord;
     GrGLUniformManager::UniformHandle fFSYUni;
 
-    typedef GrGLLegacyEffect INHERITED;
+    typedef GrGLEffect INHERITED;
 };
 
 #endif

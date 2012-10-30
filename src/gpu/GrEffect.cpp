@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "GrContext.h"
 #include "GrEffect.h"
+#include "GrBackendEffectFactory.h"
+#include "GrContext.h"
 #include "GrMemoryPool.h"
 #include "SkTLS.h"
 
@@ -48,6 +49,11 @@ GrEffect::~GrEffect() {
 bool GrEffect::isOpaque(bool inputTextureIsOpaque) const {
     return false;
 }
+
+const char* GrEffect::name() const {
+    return this->getFactory().name();
+}
+
 
 bool GrEffect::isEqual(const GrEffect& s) const {
     if (this->numTextures() != s.numTextures()) {

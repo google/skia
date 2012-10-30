@@ -6,9 +6,10 @@
  */
 
 #include "GrConfigConversionEffect.h"
+#include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
 
-class GrGLConfigConversionEffect : public GrGLLegacyEffect {
+class GrGLConfigConversionEffect : public GrGLEffect {
 public:
     GrGLConfigConversionEffect(const GrBackendEffectFactory& factory,
                                const GrEffect& s) : INHERITED (factory) {
@@ -17,12 +18,13 @@ public:
         fPMConversion = effect.pmConversion();
     }
 
-    virtual void emitVS(GrGLShaderBuilder* builder,
-                        const char* vertexCoords) SK_OVERRIDE { }
-    virtual void emitFS(GrGLShaderBuilder* builder,
-                        const char* outputColor,
-                        const char* inputColor,
-                        const TextureSamplerArray& samplers) SK_OVERRIDE {
+    virtual void emitCode(GrGLShaderBuilder* builder,
+                          const GrEffectStage&,
+                          EffectKey,
+                          const char* vertexCoords,
+                          const char* outputColor,
+                          const char* inputColor,
+                          const TextureSamplerArray& samplers) SK_OVERRIDE {
         builder->fFSCode.appendf("\t\t%s = ", outputColor);
         builder->appendTextureLookup(&builder->fFSCode, samplers[0]);
         builder->fFSCode.append(";\n");
@@ -58,8 +60,9 @@ public:
         GrGLSLMulVarBy4f(&builder->fFSCode, 2, outputColor, inputColor);
     }
 
-    static inline EffectKey GenKey(const GrEffect& s, const GrGLCaps&) {
-        const GrConfigConversionEffect& effect = static_cast<const GrConfigConversionEffect&>(s);
+    static inline EffectKey GenKey(const GrEffectStage& s, const GrGLCaps&) {
+        const GrConfigConversionEffect& effect =
+            static_cast<const GrConfigConversionEffect&>(*s.getEffect());
         return static_cast<int>(effect.swapsRedAndBlue()) | (effect.pmConversion() << 1);
     }
 
@@ -67,7 +70,7 @@ private:
     bool                                    fSwapRedAndBlue;
     GrConfigConversionEffect::PMConversion  fPMConversion;
 
-    typedef GrGLLegacyEffect INHERITED;
+    typedef GrGLEffect INHERITED;
 
 };
 

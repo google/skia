@@ -96,6 +96,9 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctx, GrGLUniformMana
     , fSetupFragPosition(false)
     , fRTHeightUniform(GrGLUniformManager::kInvalidUniformHandle)
     , fTexCoordVaryingType(kVoid_GrSLType) {
+    
+    fPositionVar = &fVSAttrs.push_back();
+    fPositionVar->set(kVec2f_GrSLType, GrGLShaderVar::kAttribute_TypeModifier, "aPosition");
 }
 
 void GrGLShaderBuilder::setupTextureAccess(const char* varyingFSName, GrSLType varyingType) {
@@ -153,9 +156,10 @@ void GrGLShaderBuilder::appendTextureLookupAndModulate(
     GrGLSLModulate4f(out, modulation, lookup.c_str());
 }
 
-GrEffect::EffectKey GrGLShaderBuilder::KeyForTextureAccess(const GrTextureAccess& access,
-                                                           const GrGLCaps& caps) {
-    GrEffect::EffectKey key = 0;
+GrBackendEffectFactory::EffectKey GrGLShaderBuilder::KeyForTextureAccess(
+                                                            const GrTextureAccess& access,
+                                                            const GrGLCaps& caps) {
+    GrBackendEffectFactory::EffectKey key = 0;
 
     // Assume that swizzle support implies that we never have to modify a shader to adjust
     // for texture format/swizzle settings.

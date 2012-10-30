@@ -217,6 +217,7 @@ bool SkTable_ColorFilter::asComponentTable(SkBitmap* table) const {
 #if SK_SUPPORT_GPU
 
 #include "GrEffect.h"
+#include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
 #include "SkGr.h"
 
@@ -244,26 +245,26 @@ private:
     typedef GrEffect INHERITED;
 };
 
-class GLColorTableEffect : public GrGLLegacyEffect {
+class GLColorTableEffect : public GrGLEffect {
 public:
     GLColorTableEffect(const GrBackendEffectFactory& factory,
                          const GrEffect& effect);
 
-    virtual void setupVariables(GrGLShaderBuilder* state) SK_OVERRIDE {}
-    virtual void emitVS(GrGLShaderBuilder* state,
-                        const char* vertexCoords) SK_OVERRIDE {}
-    virtual void emitFS(GrGLShaderBuilder* state,
-                        const char* outputColor,
-                        const char* inputColor,
-                        const TextureSamplerArray&) SK_OVERRIDE;
+    virtual void emitCode(GrGLShaderBuilder*,
+                          const GrEffectStage&,
+                          EffectKey,
+                          const char* vertexCoords,
+                          const char* outputColor,
+                          const char* inputColor,
+                          const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE {}
+    virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE {}
 
-    static EffectKey GenKey(const GrEffect&, const GrGLCaps&);
+    static EffectKey GenKey(const GrEffectStage&, const GrGLCaps&);
 
 private:
 
-    typedef GrGLLegacyEffect INHERITED;
+    typedef GrGLEffect INHERITED;
 };
 
 GLColorTableEffect::GLColorTableEffect(
@@ -271,10 +272,14 @@ GLColorTableEffect::GLColorTableEffect(
     : INHERITED(factory) {
  }
 
-void GLColorTableEffect::emitFS(GrGLShaderBuilder* builder,
+void GLColorTableEffect::emitCode(GrGLShaderBuilder* builder,
+                                  const GrEffectStage&,
+                                  EffectKey,
+                                  const char* vertexCoords,
                                   const char* outputColor,
                                   const char* inputColor,
                                   const TextureSamplerArray& samplers) {
+
     static const float kColorScaleFactor = 255.0f / 256.0f;
     static const float kColorOffsetFactor = 1.0f / 512.0f;
     SkString* code = &builder->fFSCode;
@@ -312,8 +317,7 @@ void GLColorTableEffect::emitFS(GrGLShaderBuilder* builder,
     code->appendf("\t\t%s.rgb *= %s.a;\n", outputColor, outputColor);
 }
 
-GrGLEffect::EffectKey GLColorTableEffect::GenKey(const GrEffect& s,
-                                                        const GrGLCaps& caps) {
+GrGLEffect::EffectKey GLColorTableEffect::GenKey(const GrEffectStage&, const GrGLCaps&) {
     return 0;
 }
 
