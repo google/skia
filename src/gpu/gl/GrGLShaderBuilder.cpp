@@ -96,6 +96,9 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctx, GrGLUniformMana
     , fSetupFragPosition(false)
     , fRTHeightUniform(GrGLUniformManager::kInvalidUniformHandle)
     , fTexCoordVaryingType(kVoid_GrSLType) {
+    
+    fPositionVar = &fVSAttrs.push_back();
+    fPositionVar->set(kVec2f_GrSLType, GrGLShaderVar::kAttribute_TypeModifier, "aPosition");
 }
 
 void GrGLShaderBuilder::setupTextureAccess(const char* varyingFSName, GrSLType varyingType) {
