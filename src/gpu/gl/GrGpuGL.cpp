@@ -477,11 +477,20 @@ void GrGpuGL::onResetContext() {
 }
 
 GrTexture* GrGpuGL::onWrapBackendTexture(const GrBackendTextureDesc& desc) {
-    GrGLTexture::Desc glTexDesc;
     if (!this->configToGLFormats(desc.fConfig, false, NULL, NULL, NULL)) {
         return NULL;
     }
 
+    if (0 == desc.fTextureHandle) {
+        return NULL;
+    }
+
+    int maxSize = this->getCaps().maxTextureSize();
+    if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
+        return NULL;
+    }
+
+    GrGLTexture::Desc glTexDesc;
     // next line relies on GrBackendTextureDesc's flags matching GrTexture's
     glTexDesc.fFlags = (GrTextureFlags) desc.fFlags;
     glTexDesc.fWidth = desc.fWidth;
