@@ -406,7 +406,7 @@ void DeferredDevice::flushPendingCommands(PlaybackMode playbackMode) {
         fNotificationClient->prepareForDraw();
     }
     fPipeWriter.flushRecording(true);
-    fPipeController.playback(playbackMode);
+    fPipeController.playback(kSilent_PlaybackMode == playbackMode);
     if (playbackMode == kNormal_PlaybackMode && fNotificationClient) {
         fNotificationClient->flushedDrawCommands();
     }
