@@ -14,6 +14,15 @@
 #include "SkFDot6.h"
 #include "SkMath.h"
 
+//#ifdef SK_IGNORE_SETLINE_FIX
+#if 1
+    #define SkEdge_Compute_DY(top, y0)  ((32 - (y0)) & 63)
+#else
+    // This is correct, as it favors the lower-pixel when y0 is on a 1/2 pixel
+    // boundary, returning 64 instead of the old code, which returns 0.
+    #define SkEdge_Compute_DY(top, y0)  ((top << 6) + 32 - (y0))
+#endif
+
 struct SkEdge {
     enum Type {
         kLine_Type,
@@ -118,8 +127,9 @@ int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, int shift) {
     }
 
     SkFixed slope = SkFDot6Div(x1 - x0, y1 - y0);
+    const int dy  = SkEdge_Compute_DY(top, y0);
 
-    fX          = SkFDot6ToFixed(x0 + SkFixedMul(slope, (32 - y0) & 63));   // + SK_Fixed1/2
+    fX          = SkFDot6ToFixed(x0 + SkFixedMul(slope, dy));   // + SK_Fixed1/2
     fDX         = slope;
     fFirstY     = top;
     fLastY      = bot - 1;
