@@ -16,6 +16,10 @@
 #include "SkString.h"
 #include "SkTRegistry.h"
 
+#define DEF_GM(code) \
+    static skiagm::GM*          SK_MACRO_APPEND_LINE(F_)(void* p) { code; } \
+    static skiagm::GMRegistry   SK_MACRO_APPEND_LINE(R_)(SK_MACRO_APPEND_LINE(F_));
+
 namespace skiagm {
 
         static inline SkISize make_isize(int w, int h) {

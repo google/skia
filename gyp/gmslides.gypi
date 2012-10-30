@@ -29,6 +29,7 @@
     '../gm/drawlooper.cpp',
     '../gm/extractbitmap.cpp',
     '../gm/emptypath.cpp',
+    '../gm/fatpathfill.cpp',
     '../gm/filltypes.cpp',
     '../gm/filltypespersp.cpp',
     '../gm/fontscaler.cpp',
