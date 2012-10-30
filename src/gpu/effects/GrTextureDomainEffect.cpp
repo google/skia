@@ -6,29 +6,29 @@
  */
 
 #include "GrTextureDomainEffect.h"
+#include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
-#include "GrBackendEffectFactory.h"
 
-class GrGLTextureDomainEffect : public GrGLLegacyEffect {
+class GrGLTextureDomainEffect : public GrGLEffect {
 public:
     GrGLTextureDomainEffect(const GrBackendEffectFactory&, const GrEffect&);
 
-    virtual void setupVariables(GrGLShaderBuilder* builder) SK_OVERRIDE;
-    virtual void emitVS(GrGLShaderBuilder* builder,
-                        const char* vertexCoords) SK_OVERRIDE { }
-    virtual void emitFS(GrGLShaderBuilder* builder,
-                        const char* outputColor,
-                        const char* inputColor,
-                        const TextureSamplerArray&) SK_OVERRIDE;
+    virtual void emitCode(GrGLShaderBuilder*,
+                          const GrEffectStage&,
+                          EffectKey,
+                          const char* vertexCoords,
+                          const char* outputColor,
+                          const char* inputColor,
+                          const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager&, const GrEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrEffect&, const GrGLCaps&) { return 0; }
+    static inline EffectKey GenKey(const GrEffectStage&, const GrGLCaps&) { return 0; }
 
 private:
     GrGLUniformManager::UniformHandle fNameUni;
 
-    typedef GrGLLegacyEffect INHERITED;
+    typedef GrGLEffect INHERITED;
 };
 
 GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrBackendEffectFactory& factory,
@@ -37,15 +37,17 @@ GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrBackendEffectFactory& f
     , fNameUni(GrGLUniformManager::kInvalidUniformHandle) {
 }
 
-void GrGLTextureDomainEffect::setupVariables(GrGLShaderBuilder* builder) {
+void GrGLTextureDomainEffect::emitCode(GrGLShaderBuilder* builder,
+                                       const GrEffectStage&,
+                                       EffectKey,
+                                       const char* vertexCoords,
+                                       const char* outputColor,
+                                       const char* inputColor,
+                                       const TextureSamplerArray& samplers) {
+
     fNameUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                    kVec4f_GrSLType, "TexDom");
-};
 
-void GrGLTextureDomainEffect::emitFS(GrGLShaderBuilder* builder,
-                                     const char* outputColor,
-                                     const char* inputColor,
-                                     const TextureSamplerArray& samplers) {
     builder->fFSCode.appendf("\tvec2 clampCoord = clamp(%s, %s.xy, %s.zw);\n",
                            builder->defaultTexCoordsName(),
                            builder->getUniformCStr(fNameUni),
@@ -59,8 +61,9 @@ void GrGLTextureDomainEffect::emitFS(GrGLShaderBuilder* builder,
     builder->fFSCode.append(";\n");
 }
 
-void GrGLTextureDomainEffect::setData(const GrGLUniformManager& uman, const GrEffect& data) {
-    const GrTextureDomainEffect& effect = static_cast<const GrTextureDomainEffect&>(data);
+void GrGLTextureDomainEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
+    const GrTextureDomainEffect& effect =
+        static_cast<const GrTextureDomainEffect&>(*stage.getEffect());
     const GrRect& domain = effect.domain();
 
     float values[4] = {
@@ -70,8 +73,7 @@ void GrGLTextureDomainEffect::setData(const GrGLUniformManager& uman, const GrEf
         GrScalarToFloat(domain.bottom())
     };
     // vertical flip if necessary
-    const GrGLTexture* texture = static_cast<const GrGLTexture*>(effect.texture(0));
-    if (GrGLTexture::kBottomUp_Orientation == texture->orientation()) {
+    if (GrSurface::kBottomLeft_Origin == effect.texture(0)->origin()) {
         values[1] = 1.0f - values[1];
         values[3] = 1.0f - values[3];
         // The top and bottom were just flipped, so correct the ordering

@@ -8,6 +8,7 @@
 #ifndef GrDrawState_DEFINED
 #define GrDrawState_DEFINED
 
+#include "GrBackendEffectFactory.h"
 #include "GrColor.h"
 #include "GrMatrix.h"
 #include "GrRefCnt.h"

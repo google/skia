@@ -682,13 +682,13 @@ GrGLGradientEffect::GrGLGradientEffect(const GrBackendEffectFactory& factory)
 
 GrGLGradientEffect::~GrGLGradientEffect() { }
 
-void GrGLGradientEffect::setupVariables(GrGLShaderBuilder* builder) {
+void GrGLGradientEffect::emitYCoordUniform(GrGLShaderBuilder* builder) {
     fFSYUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                   kFloat_GrSLType, "GradientYCoordFS");
 }
 
-void GrGLGradientEffect::setData(const GrGLUniformManager& uman, const GrEffect& effect) {
-    GrScalar yCoord = static_cast<const GrGradientEffect&>(effect).getYCoord();
+void GrGLGradientEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
+    GrScalar yCoord = static_cast<const GrGradientEffect&>(*stage.getEffect()).getYCoord();
     if (yCoord != fCachedYCoord) {
         uman.set1f(fFSYUni, yCoord);
         fCachedYCoord = yCoord;

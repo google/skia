@@ -146,8 +146,7 @@ private:
     const GrGLContextInfo& glContextInfo() const { return fGLContextInfo; }
 
     // adjusts texture matrix to account for orientation
-    static void AdjustTextureMatrix(const GrGLTexture* texture,
-                                    GrMatrix* matrix);
+    static void AdjustTextureMatrix(const GrTexture* texture, GrMatrix* matrix);
 
     // This helper determines if what optimizations can be applied to the matrix after any coord
     // adjustments are applied. The return is a bitfield of GrGLProgram::StageDesc::OptFlags.
@@ -164,7 +163,7 @@ private:
         ProgramCache(const GrGLContextInfo& gl);
 
         void abandon();
-        GrGLProgram* getProgram(const GrGLProgram::Desc& desc, const GrEffect** stages);
+        GrGLProgram* getProgram(const GrGLProgram::Desc& desc, const GrEffectStage* stages[]);
     private:
         enum {
             kKeySize = sizeof(ProgramDesc),
@@ -238,7 +237,6 @@ private:
     void buildProgram(bool isPoints,
                       BlendOptFlags blendOpts,
                       GrBlendCoeff dstCoeff,
-                      const GrEffect** effects,
                       ProgramDesc* desc);
 
     // Inits GrDrawTarget::Caps, subclass may enable additional caps.

@@ -8,9 +8,10 @@
 
 
 
-#ifndef GrSamplerState_DEFINED
-#define GrSamplerState_DEFINED
+#ifndef GrEffectStage_DEFINED
+#define GrEffectStage_DEFINED
 
+#include "GrBackendEffectFactory.h"
 #include "GrEffect.h"
 #include "GrMatrix.h"
 #include "GrTypes.h"
@@ -70,7 +71,7 @@ public:
     class SavedCoordChange {
     private:
         GrMatrix fCoordChangeMatrix;
-        GR_DEBUGCODE(mutable SkAutoTUnref<GrEffect> fEffect;)
+        GR_DEBUGCODE(mutable SkAutoTUnref<const GrEffect> fEffect;)
 
         friend class GrEffectStage;
     };
@@ -79,7 +80,7 @@ public:
      * This gets the current coordinate system change. It is the accumulation of
      * preConcatCoordChange calls since the effect was installed. It is used when then caller
      * wants to temporarily change the source geometry coord system, draw something, and then
-     * restore the previous coord system (e.g. temporarily draw in device coords).s
+     * restore the previous coord system (e.g. temporarily draw in device coords).
      */
     void saveCoordChange(SavedCoordChange* savedCoordChange) const {
         savedCoordChange->fCoordChangeMatrix = fCoordChangeMatrix;
@@ -106,18 +107,24 @@ public:
 
     /**
      * Gets the matrix to apply at draw time. This is the original texture matrix combined with
-     * any coord system changes.
+     * any coord system changes. This will be removed when the matrix is managed by GrEffect.
      */
     void getTotalMatrix(GrMatrix* matrix) const {
         *matrix = fMatrix;
         matrix->preConcat(fCoordChangeMatrix);
     }
 
+    /**
+     * Gets the matrix representing all changes of coordinate system since the GrEffect was
+     * installed in the stage.
+     */
+    const GrMatrix& getCoordChangeMatrix() const { return fCoordChangeMatrix; }
+
     void reset() {
         GrSafeSetNull(fEffect);
     }
 
-    GrEffect* setEffect(GrEffect* effect) {
+    const GrEffect* setEffect(const GrEffect* effect) {
         GrAssert(0 == fSavedCoordChangeCnt);
         GrSafeAssign(fEffect, effect);
         fMatrix.reset();
@@ -125,7 +132,7 @@ public:
         return effect;
     }
 
-    GrEffect* setEffect(GrEffect* effect, const GrMatrix& matrix) {
+    const GrEffect* setEffect(const GrEffect* effect, const GrMatrix& matrix) {
         GrAssert(0 == fSavedCoordChangeCnt);
         GrSafeAssign(fEffect, effect);
         fMatrix = matrix;
@@ -138,7 +145,7 @@ public:
 private:
     GrMatrix            fCoordChangeMatrix;
     GrMatrix            fMatrix; // TODO: remove this, store in GrEffect
-    GrEffect*           fEffect;
+    const GrEffect*     fEffect;
 
     GR_DEBUGCODE(mutable int fSavedCoordChangeCnt;)
 };

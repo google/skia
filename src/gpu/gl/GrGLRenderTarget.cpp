@@ -49,7 +49,9 @@ GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu,
                 texture,
                 MakeDesc(kNone_GrTextureFlags,
                          viewport.fWidth, viewport.fHeight,
-                         desc.fConfig, desc.fSampleCnt)) {
+                         desc.fConfig, desc.fSampleCnt),
+                texture->origin()) {
+    GrAssert(kBottomLeft_Origin == texture->origin());
     GrAssert(NULL != texID);
     GrAssert(NULL != texture);
     // FBO 0 can't also be a texture, right?
@@ -70,7 +72,8 @@ GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu,
                 NULL,
                 MakeDesc(kNone_GrTextureFlags,
                          viewport.fWidth, viewport.fHeight,
-                         desc.fConfig, desc.fSampleCnt)) {
+                         desc.fConfig, desc.fSampleCnt),
+                kBottomLeft_Origin) {
     this->init(desc, viewport, NULL);
 }
 

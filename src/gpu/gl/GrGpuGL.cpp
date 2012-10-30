@@ -499,7 +499,7 @@ GrTexture* GrGpuGL::onWrapBackendTexture(const GrBackendTextureDesc& desc) {
     glTexDesc.fSampleCnt = desc.fSampleCnt;
     glTexDesc.fTextureID = static_cast<GrGLuint>(desc.fTextureHandle);
     glTexDesc.fOwnsID = false;
-    glTexDesc.fOrientation = GrGLTexture::kBottomUp_Orientation;
+    glTexDesc.fOrigin = GrSurface::kBottomLeft_Origin;
 
     GrGLTexture* texture = NULL;
     if (desc.fFlags & kRenderTarget_GrBackendTextureFlag) {
@@ -583,7 +583,7 @@ void GrGpuGL::onWriteTexturePixels(GrTexture* texture,
     desc.fConfig = glTex->config();
     desc.fSampleCnt = glTex->desc().fSampleCnt;
     desc.fTextureID = glTex->textureID();
-    desc.fOrientation = glTex->orientation();
+    desc.fOrigin = glTex->origin();
 
     this->uploadTexData(desc, false,
                         left, top, width, height,
@@ -674,7 +674,7 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     bool swFlipY = false;
     bool glFlipY = false;
     if (NULL != data) {
-        if (GrGLTexture::kBottomUp_Orientation == desc.fOrientation) {
+        if (GrSurface::kBottomLeft_Origin == desc.fOrigin) {
             if (this->glCaps().unpackFlipYSupport()) {
                 glFlipY = true;
             } else {
@@ -957,8 +957,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     // We keep GrRenderTargets in GL's normal orientation so that they
     // can be drawn to by the outside world without the client having
     // to render upside down.
-    glTexDesc.fOrientation = renderTarget ? GrGLTexture::kBottomUp_Orientation :
-                                            GrGLTexture::kTopDown_Orientation;
+    glTexDesc.fOrigin = renderTarget ? GrSurface::kBottomLeft_Origin : GrSurface::kTopLeft_Origin;
 
     glRTDesc.fSampleCnt = desc.fSampleCnt;
     if (GrGLCaps::kNone_MSFBOType == this->glCaps().msFBOType() &&

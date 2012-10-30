@@ -10,10 +10,10 @@
 
 #include "GrRefCnt.h"
 #include "GrNoncopyable.h"
-#include "GrBackendEffectFactory.h"
 #include "GrEffectUnitTest.h"
 #include "GrTextureAccess.h"
 
+class GrBackendEffectFactory;
 class GrContext;
 class GrTexture;
 class SkString;
@@ -32,8 +32,6 @@ class GrEffect : public GrRefCnt {
 
 public:
     SK_DECLARE_INST_COUNT(GrEffect)
-
-    typedef GrBackendEffectFactory::EffectKey EffectKey;
 
     explicit GrEffect(int numTextures);
     virtual ~GrEffect();
@@ -77,7 +75,7 @@ public:
 
     /** Human-meaningful string to identify this effect; may be embedded
         in generated shader code. */
-    const char* name() const { return this->getFactory().name(); }
+    const char* name() const;
 
     int numTextures() const { return fNumTextures; }
 

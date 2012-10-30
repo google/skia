@@ -457,7 +457,7 @@ struct GrTextureDesc {
      * applies if the kRenderTarget_GrTextureFlagBit is set. The actual number
      * of samples may not exactly match the request. The request will be rounded
      * up to the next supported sample count, or down if it is larger than the
-     * max supportex count.
+     * max supported count.
      */
     int                    fSampleCnt;
 };

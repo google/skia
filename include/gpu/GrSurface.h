@@ -34,6 +34,22 @@ public:
     int height() const { return fDesc.fHeight; }
 
     /**
+     * Some surfaces will be stored such that the upper and left edges of the content meet at the
+     * the origin (in texture coord space) and for other surfaces the lower and left edges meet at
+     * the origin. Render-targets are always consistent with the convention of the underlying
+     * backend API to make it easier to mix native backend rendering with Skia rendering. Wrapped
+     * backend surfaces always use the backend's convention as well.
+     */
+    enum Origin {
+        kTopLeft_Origin,
+        kBottomLeft_Origin,
+    };
+    Origin origin() const {
+        GrAssert(kTopLeft_Origin == fOrigin || kBottomLeft_Origin == fOrigin);
+        return fOrigin;
+    }
+
+    /**
      * Retrieves the pixel config specified when the surface was created.
      * For render targets this can be kUnknown_GrPixelConfig
      * if client asked us to render to a target that has a pixel
@@ -66,7 +82,7 @@ public:
      * @param height        height of rectangle to read in pixels.
      * @param config        the pixel config of the destination buffer
      * @param buffer        memory to read the rectangle into.
-     * @param rowBytes      number of bytes bewtween consecutive rows. Zero means rows are tightly
+     * @param rowBytes      number of bytes between consecutive rows. Zero means rows are tightly
      *                      packed.
      * @param pixelOpsFlags See the GrContext::PixelOpsFlags enum.
      *
@@ -88,7 +104,7 @@ public:
      * @param height        height of rectangle to write in pixels.
      * @param config        the pixel config of the source buffer
      * @param buffer        memory to read the rectangle from.
-     * @param rowBytes      number of bytes bewtween consecutive rows. Zero means rows are tightly
+     * @param rowBytes      number of bytes between consecutive rows. Zero means rows are tightly
      *                      packed.
      * @param pixelOpsFlags See the GrContext::PixelOpsFlags enum.
      */
@@ -99,14 +115,17 @@ public:
                              uint32_t pixelOpsFlags = 0) = 0;
 
 protected:
-    GrTextureDesc fDesc;
-
-    GrSurface(GrGpu* gpu, const GrTextureDesc& desc)
+    GrSurface(GrGpu* gpu, const GrTextureDesc& desc, Origin origin)
     : INHERITED(gpu)
-    , fDesc(desc) {
+    , fDesc(desc)
+    , fOrigin(origin) {
     }
 
+    GrTextureDesc fDesc;
+
 private:
+    Origin fOrigin;
+
     typedef GrResource INHERITED;
 };
 

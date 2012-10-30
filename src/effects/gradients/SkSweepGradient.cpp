@@ -382,6 +382,8 @@ void SkSweepGradient::shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC,
 
 #if SK_SUPPORT_GPU
 
+#include "GrTBackendEffectFactory.h"
+
 class GrGLSweepGradient : public GrGLGradientEffect {
 public:
 
@@ -389,14 +391,15 @@ public:
                       const GrEffect&) : INHERITED (factory) { }
     virtual ~GrGLSweepGradient() { }
 
-    virtual void emitVS(GrGLShaderBuilder* builder,
-                        const char* vertexCoords) SK_OVERRIDE { }
-    virtual void emitFS(GrGLShaderBuilder* builder,
-                        const char* outputColor,
-                        const char* inputColor,
-                        const TextureSamplerArray&) SK_OVERRIDE;
+    virtual void emitCode(GrGLShaderBuilder*,
+                          const GrEffectStage&,
+                          EffectKey,
+                          const char* vertexCoords,
+                          const char* outputColor,
+                          const char* inputColor,
+                          const TextureSamplerArray&) SK_OVERRIDE;
 
-    static EffectKey GenKey(const GrEffect& s, const GrGLCaps& caps) { return 0; }
+    static EffectKey GenKey(const GrEffectStage&, const GrGLCaps& caps) { return 0; }
 
 private:
 
@@ -453,10 +456,14 @@ GrEffect* GrSweepGradient::TestCreate(SkRandom* random,
 
 /////////////////////////////////////////////////////////////////////
 
-void GrGLSweepGradient::emitFS(GrGLShaderBuilder* builder,
-                              const char* outputColor,
-                              const char* inputColor,
-                              const TextureSamplerArray& samplers) {
+void GrGLSweepGradient::emitCode(GrGLShaderBuilder* builder,
+                                 const GrEffectStage&,
+                                 EffectKey,
+                                 const char* vertexCoords,
+                                 const char* outputColor,
+                                 const char* inputColor,
+                                 const TextureSamplerArray& samplers) {
+    this->emitYCoordUniform(builder);
     SkString t;
     t.printf("atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5",
         builder->defaultTexCoordsName(), builder->defaultTexCoordsName());
