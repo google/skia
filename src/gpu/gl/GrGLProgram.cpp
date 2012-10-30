@@ -25,7 +25,6 @@ SK_DEFINE_INST_COUNT(GrGLProgram)
 
 typedef GrGLProgram::Desc::StageDesc StageDesc;
 
-#define POS_ATTR_NAME "aPosition"
 #define COL_ATTR_NAME "aColor"
 #define COV_ATTR_NAME "aCoverage"
 #define EDGE_ATTR_NAME "aEdge"
@@ -567,13 +566,10 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
     fUniforms.fViewMatrixUni = builder.addUniform(GrGLShaderBuilder::kVertex_ShaderType,
                                                   kMat33f_GrSLType, "ViewM", &viewMName);
 
-    builder.fVSAttrs.push_back().set(kVec2f_GrSLType,
-                                     GrGLShaderVar::kAttribute_TypeModifier,
-                                     POS_ATTR_NAME);
-
-    builder.fVSCode.appendf("\tvec3 pos3 = %s * vec3("POS_ATTR_NAME", 1);\n"
+    
+    builder.fVSCode.appendf("\tvec3 pos3 = %s * vec3(%s, 1);\n"
                             "\tgl_Position = vec4(pos3.xy, 0, pos3.z);\n",
-                            viewMName);
+                            viewMName, builder.positionAttribute().getName().c_str());
 
     // incoming color to current stage being processed.
     SkString inColor;
@@ -616,7 +612,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
                 // figure out what our input coords are
                 int tcIdx = GrDrawTarget::VertexTexCoordsForStage(s, layout);
                 if (tcIdx < 0) {
-                    inCoords = POS_ATTR_NAME;
+                    inCoords = builder.positionAttribute().c_str();
                 } else {
                     // must have input tex coordinates if stage is enabled.
                     GrAssert(texCoordAttrs[tcIdx].size());
@@ -713,7 +709,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
                     int tcIdx =
                         GrDrawTarget::VertexTexCoordsForStage(s, layout);
                     if (tcIdx < 0) {
-                        inCoords = POS_ATTR_NAME;
+                        inCoords = builder.positionAttribute().c_str();
                     } else {
                         // must have input tex coordinates if stage is
                         // enabled.
@@ -801,7 +797,8 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
         return false;
     }
 
-    if (!this->bindOutputsAttribsAndLinkProgram(texCoordAttrs,
+    if (!this->bindOutputsAttribsAndLinkProgram(builder,
+                                                texCoordAttrs,
                                                 isColorDeclared,
                                                 dualSourceOutputWritten)) {
         return false;
@@ -814,7 +811,8 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
     return true;
 }
 
-bool GrGLProgram::bindOutputsAttribsAndLinkProgram(SkString texCoordAttrNames[],
+bool GrGLProgram::bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& builder,
+                                                   SkString texCoordAttrNames[],
                                                    bool bindColorOut,
                                                    bool bindDualSrcOut) {
     GL_CALL_RET(fProgramID, CreateProgram());
@@ -836,7 +834,9 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(SkString texCoordAttrNames[],
     }
 
     // Bind the attrib locations to same values for all shaders
-    GL_CALL(BindAttribLocation(fProgramID, PositionAttributeIdx(), POS_ATTR_NAME));
+    GL_CALL(BindAttribLocation(fProgramID,
+                               PositionAttributeIdx(),
+                               builder.positionAttribute().c_str()));
     for (int t = 0; t < GrDrawState::kMaxTexCoords; ++t) {
         if (texCoordAttrNames[t].size()) {
             GL_CALL(BindAttribLocation(fProgramID,

@@ -170,6 +170,11 @@ public:
         is in device space (e.g. 0,0 is the top left and pixel centers are at half-integers). */
     const char* fragmentPosition();
 
+    /** Returns a vertex attribute that represents the vertex position in the VS. This is the
+        pre-matrix position and is commonly used by effects to compute texture coords via a matrix.
+      */
+    const GrGLShaderVar& positionAttribute() const { return *fPositionVar; }
+
     /** Called after building is complete to get the final shader string. */
     void getShader(ShaderType, SkString*) const;
 
@@ -226,6 +231,8 @@ private:
 
     bool                                fSetupFragPosition;
     GrGLUniformManager::UniformHandle   fRTHeightUniform;
+
+    GrGLShaderVar*                      fPositionVar;
 
     /// Per-stage settings - only valid while we're inside GrGLProgram::genStageCode().
     //@{
