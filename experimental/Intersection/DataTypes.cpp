@@ -48,7 +48,7 @@ union Float_t
 #endif
 };
 
-bool AlmostEqualUlps(float A, float B, int maxUlpsDiff)
+bool AlmostEqualUlps(float A, float B)
 {
     Float_t uA(A);
     Float_t uB(B);
@@ -62,9 +62,11 @@ bool AlmostEqualUlps(float A, float B, int maxUlpsDiff)
 
     // Find the difference in ULPs.
     int ulpsDiff = abs(uA.i - uB.i);
-    return ulpsDiff <= maxUlpsDiff;
+    return ulpsDiff <= UlpsEpsilon;
 }
 
+// FIXME: obsolete, delete
+#if 1
 int UlpsDiff(float A, float B)
 {
     Float_t uA(A);
@@ -78,5 +80,5 @@ int FloatAsInt(float A)
     Float_t uA(A);
     return uA.i;
 }
-
+#endif
 

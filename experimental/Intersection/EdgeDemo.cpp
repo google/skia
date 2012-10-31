@@ -228,20 +228,20 @@ static void tryRoncoOnce(const SkPath& path, const SkRect& target, bool show) {
 }
 
 static void tryRonco(const SkPath& path) {
-    int divMax = 17;
+    int divMax = 64;
     int divMin = 1;
     int xDivMin = 0;
     int yDivMin = 0;
     bool allYs = true;
     bool allXs = true;
     if (1) {
-        divMax = divMin = 3;
-        xDivMin = 0;
+        divMax = divMin = 64;
+        xDivMin = 11;
         yDivMin = 0;
         allXs = true;
         allYs = true;
     }
-    for (int divs = divMax; divs >= divMin; divs -= 2) {
+    for (int divs = divMax; divs >= divMin; divs /= 2) {
         SkDebugf("divs=%d\n",divs);
         const SkRect& overall = path.getBounds();
         SkScalar cellWidth = overall.width() / divs * 2;
@@ -292,7 +292,7 @@ static bool drawLetters(SkCanvas* canvas, int step, bool useOld)
     for (int mask = 0; mask < 1 << testStrLen; ++mask) {
         char maskStr[testStrLen];
 #if 1
-        mask = 3;
+        mask = 12;
         oneShot = true;
 #endif
         SkDebugf("mask=%d\n", mask);
@@ -310,7 +310,7 @@ static bool drawLetters(SkCanvas* canvas, int step, bool useOld)
     }
 #endif
     paint.getPosTextPath(testStr, testStrLen, textPos, &path);
-#if 1
+#if 0
     tryRonco(path);
     SkDebugf("RoncoDone!\n");
 #endif
