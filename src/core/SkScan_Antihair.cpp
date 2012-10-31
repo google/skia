@@ -348,6 +348,25 @@ static bool canConvertFDot6ToFixed(SkFDot6 x) {
     return SkAbs32(x) <= maxDot6;
 }
 
+/*
+ *  We want the fractional part of ordinate, but we want multiples of 64 to
+ *  return 64, not 0, so we can't just say (ordinate & 63).
+ *  We basically want to compute those bits, and if they're 0, return 64.
+ *  We can do that w/o a branch with an extra sub and add.
+ */
+static int contribution_64(SkFDot6 ordinate) {
+#if 0
+    int result = ordinate & 63;
+    if (0 == result) {
+        result = 64;
+    }
+#else
+    int result = ((ordinate - 1) & 63) + 1;
+#endif
+    SkASSERT(result > 0 && result <= 64);
+    return result;
+}
+
 static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
                              const SkIRect* clip, SkBlitter* blitter) {
     // check for integer NaN (0x80000000) which we can't handle (can't negate it)
@@ -409,6 +428,7 @@ static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
 
         SkASSERT(istop > istart);
         if (istop - istart == 1) {
+            // we are within a single pixel
             scaleStart = x1 - x0;
             SkASSERT(scaleStart >= 0 && scaleStart <= 64);
             scaleStop = 0;
@@ -425,6 +445,11 @@ static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
                 fstart += slope * (clip->fLeft - istart);
                 istart = clip->fLeft;
                 scaleStart = 64;
+                if (istop - istart == 1) {
+                    // we are within a single pixel
+                    scaleStart = contribution_64(x1);
+                    scaleStop = 0;
+                }
             }
             if (istop > clip->fRight) {
                 istop = clip->fRight;
@@ -479,6 +504,7 @@ static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
 
         SkASSERT(istop > istart);
         if (istop - istart == 1) {
+            // we are within a single pixel
             scaleStart = y1 - y0;
             SkASSERT(scaleStart >= 0 && scaleStart <= 64);
             scaleStop = 0;
@@ -495,6 +521,11 @@ static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
                 fstart += slope * (clip->fTop - istart);
                 istart = clip->fTop;
                 scaleStart = 64;
+                if (istop - istart == 1) {
+                    // we are within a single pixel
+                    scaleStart = contribution_64(y1);
+                    scaleStop = 0;
+                }
             }
             if (istop > clip->fBottom) {
                 istop = clip->fBottom;
@@ -535,6 +566,13 @@ static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
 
     SkASSERT(hairBlitter);
     hairBlitter->setup(blitter);
+
+#ifdef SK_DEBUG
+    if (scaleStart > 0 && scaleStop > 0) {
+        // be sure we don't draw twice in the same pixel
+        SkASSERT(istart < istop - 1);
+    }
+#endif
 
     fstart = hairBlitter->drawCap(istart, fstart, slope, scaleStart);
     istart += 1;
