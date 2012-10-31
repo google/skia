@@ -848,7 +848,8 @@ bool SkMatrix::asAffine(SkScalar affine[6]) const {
     return true;
 }
 
-bool SkMatrix::invert(SkMatrix* inv) const {
+bool SkMatrix::invertNonIdentity(SkMatrix* inv) const {
+    SkASSERT(!this->isIdentity());
     int         isPersp = this->hasPerspective();
     int         shift;
     SkDetScalar scale = sk_inv_determinant(fMat, isPersp, &shift);
