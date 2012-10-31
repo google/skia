@@ -11,6 +11,7 @@
 #define SkTemplates_DEFINED
 
 #include "SkTypes.h"
+#include <new>
 
 /** \file SkTemplates.h
 
