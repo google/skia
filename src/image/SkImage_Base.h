@@ -14,7 +14,7 @@ class SkImage_Base : public SkImage {
 public:
     SkImage_Base(int width, int height) : INHERITED(width, height) {}
 
-    virtual void onDraw(SkCanvas*, SkScalar, SkScalar, const SkPaint*) = 0;
+    virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) = 0;
 
 private:
     typedef SkImage INHERITED;
