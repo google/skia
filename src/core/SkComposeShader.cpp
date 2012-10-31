@@ -94,8 +94,7 @@ bool SkComposeShader::setContext(const SkBitmap& device,
 
     SkMatrix tmpM;
 
-    (void)this->getLocalMatrix(&tmpM);
-    tmpM.setConcat(matrix, tmpM);
+    tmpM.setConcat(matrix, this->getLocalMatrix());
 
     SkAutoAlphaRestore  restore(const_cast<SkPaint*>(&paint), 0xFF);
 

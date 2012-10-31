@@ -2374,8 +2374,11 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
     VertState::Proc vertProc = state.chooseProc(vmode);
 
     if (NULL != textures || NULL != colors) {
-        SkMatrix  localM, tempM;
-        bool      hasLocalM = shader && shader->getLocalMatrix(&localM);
+        SkMatrix  tempM;
+        SkMatrix  savedLocalM;
+        if (shader) {
+            savedLocalM = shader->getLocalMatrix();
+        }
 
         if (NULL != colors) {
             if (!triShader.setContext(*fBitmap, p, *fMatrix)) {
@@ -2386,9 +2389,7 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
         while (vertProc(&state)) {
             if (NULL != textures) {
                 if (texture_to_matrix(state, vertices, textures, &tempM)) {
-                    if (hasLocalM) {
-                        tempM.postConcat(localM);
-                    }
+                    tempM.postConcat(savedLocalM);
                     shader->setLocalMatrix(tempM);
                     // need to recal setContext since we changed the local matrix
                     if (!shader->setContext(*fBitmap, p, *fMatrix)) {
@@ -2410,11 +2411,7 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
         }
         // now restore the shader's original local matrix
         if (NULL != shader) {
-            if (hasLocalM) {
-                shader->setLocalMatrix(localM);
-            } else {
-                shader->resetLocalMatrix();
-            }
+            shader->setLocalMatrix(savedLocalM);
         }
     } else {
         // no colors[] and no texture

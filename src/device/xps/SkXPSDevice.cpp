@@ -975,8 +975,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
             return S_OK;
         }
 
-        SkMatrix localMatrix;
-        shader->getLocalMatrix(&localMatrix);
+        SkMatrix localMatrix = shader->getLocalMatrix();
         if (NULL != parentTransform) {
             localMatrix.preConcat(*parentTransform);
         }
@@ -1022,8 +1021,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
             break;
         case SkShader::kDefault_BitmapType: {
             //TODO: outMatrix??
-            SkMatrix localMatrix;
-            shader->getLocalMatrix(&localMatrix);
+            SkMatrix localMatrix = shader->getLocalMatrix();
             if (NULL != parentTransform) {
                 localMatrix.preConcat(*parentTransform);
             }

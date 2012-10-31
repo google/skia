@@ -651,24 +651,20 @@ GrGLEffect::EffectKey GrGLRadial2Gradient::GenKey(const GrEffectStage& s, const 
 bool SkTwoPointRadialGradient::asNewEffect(GrContext* context,
                                            GrEffectStage* stage) const {
     SkASSERT(NULL != context && NULL != stage);
-    SkScalar diffLen = fDiff.length();
+    // invert the localM, translate to center1 (fPtsToUni), rotate so center2 is on x axis.
     SkMatrix matrix;
+    if (!this->getLocalMatrix().invert(&matrix)) {
+        return false;
+    }
+    matrix.postConcat(fPtsToUnit);
+
+    SkScalar diffLen = fDiff.length();
     if (0 != diffLen) {
         SkScalar invDiffLen = SkScalarInvert(diffLen);
-        matrix.setSinCos(-SkScalarMul(invDiffLen, fDiff.fY),
-                         SkScalarMul(invDiffLen, fDiff.fX));
-    } else {
-        matrix.reset();
-    }
-
-    matrix.preConcat(fPtsToUnit);
-
-    SkMatrix localM;
-    if (this->getLocalMatrix(&localM)) {
-        if (!localM.invert(&localM)) {
-            return false;
-        }
-        matrix.preConcat(localM);
+        SkMatrix rot;
+        rot.setSinCos(-SkScalarMul(invDiffLen, fDiff.fY),
+                       SkScalarMul(invDiffLen, fDiff.fX));
+        matrix.postConcat(rot);
     }
 
     stage->setEffect(SkNEW_ARGS(GrRadial2Gradient, (context, *this, fTileMode)), matrix)->unref();
