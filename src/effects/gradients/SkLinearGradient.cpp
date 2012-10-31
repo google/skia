@@ -569,20 +569,12 @@ void GrGLLinearGradient::emitCode(GrGLShaderBuilder* builder,
 
 bool SkLinearGradient::asNewEffect(GrContext* context, GrEffectStage* stage) const {
     SkASSERT(NULL != context && NULL != stage);
-
-    SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrLinearGradient, (context, *this, fTileMode)));
-
     SkMatrix matrix;
-    if (this->getLocalMatrix(&matrix)) {
-        if (!matrix.invert(&matrix)) {
-            return false;
-        }
-        matrix.postConcat(fPtsToUnit);
-        stage->setEffect(effect, matrix);
-    } else {
-        stage->setEffect(effect, fPtsToUnit);
+    if (!this->getLocalMatrix().invert(&matrix)) {
+        return false;
     }
-
+    matrix.postConcat(fPtsToUnit);
+    stage->setEffect(SkNEW_ARGS(GrLinearGradient, (context, *this, fTileMode)), matrix)->unref();
     return true;
 }
 

@@ -15,23 +15,24 @@
 
 SK_DEFINE_INST_COUNT(SkShader)
 
-SkShader::SkShader() : fLocalMatrix(NULL) {
+SkShader::SkShader() {
+    fLocalMatrix.reset();
     SkDEBUGCODE(fInSession = false;)
 }
 
 SkShader::SkShader(SkFlattenableReadBuffer& buffer)
-        : INHERITED(buffer), fLocalMatrix(NULL) {
+        : INHERITED(buffer) {
     if (buffer.readBool()) {
-        SkMatrix matrix;
-        buffer.readMatrix(&matrix);
-        setLocalMatrix(matrix);
+        buffer.readMatrix(&fLocalMatrix);
+    } else {
+        fLocalMatrix.reset();
     }
+
     SkDEBUGCODE(fInSession = false;)
 }
 
 SkShader::~SkShader() {
     SkASSERT(!fInSession);
-    sk_free(fLocalMatrix);
 }
 
 void SkShader::beginSession() {
@@ -46,41 +47,10 @@ void SkShader::endSession() {
 
 void SkShader::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    buffer.writeBool(fLocalMatrix != NULL);
-    if (fLocalMatrix) {
-        buffer.writeMatrix(*fLocalMatrix);
-    }
-}
-
-bool SkShader::getLocalMatrix(SkMatrix* localM) const {
-    if (fLocalMatrix) {
-        if (localM) {
-            *localM = *fLocalMatrix;
-        }
-        return true;
-    } else {
-        if (localM) {
-            localM->reset();
-        }
-        return false;
-    }
-}
-
-void SkShader::setLocalMatrix(const SkMatrix& localM) {
-    if (localM.isIdentity()) {
-        this->resetLocalMatrix();
-    } else {
-        if (fLocalMatrix == NULL) {
-            fLocalMatrix = (SkMatrix*)sk_malloc_throw(sizeof(SkMatrix));
-        }
-        *fLocalMatrix = localM;
-    }
-}
-
-void SkShader::resetLocalMatrix() {
-    if (fLocalMatrix) {
-        sk_free(fLocalMatrix);
-        fLocalMatrix = NULL;
+    bool hasLocalM = this->hasLocalMatrix();
+    buffer.writeBool(hasLocalM);
+    if (hasLocalM) {
+        buffer.writeMatrix(fLocalMatrix);
     }
 }
 
@@ -92,8 +62,8 @@ bool SkShader::setContext(const SkBitmap& device,
 
     fDeviceConfig = SkToU8(device.getConfig());
     fPaintAlpha = paint.getAlpha();
-    if (fLocalMatrix) {
-        total.setConcat(matrix, *fLocalMatrix);
+    if (this->hasLocalMatrix()) {
+        total.setConcat(matrix, this->getLocalMatrix());
         m = &total;
     }
     if (m->invert(&fTotalInverse)) {

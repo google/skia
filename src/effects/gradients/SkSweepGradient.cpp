@@ -473,19 +473,12 @@ void GrGLSweepGradient::emitCode(GrGLShaderBuilder* builder,
 /////////////////////////////////////////////////////////////////////
 
 bool SkSweepGradient::asNewEffect(GrContext* context, GrEffectStage* stage) const {
-    SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrSweepGradient, (context, *this)));
-
     SkMatrix matrix;
-    if (this->getLocalMatrix(&matrix)) {
-        if (!matrix.invert(&matrix)) {
-            return false;
-        }
-        matrix.postConcat(fPtsToUnit);
-        stage->setEffect(effect, matrix);
-    } else {
-        stage->setEffect(effect, fPtsToUnit);
+    if (!this->getLocalMatrix().invert(&matrix)) {
+        return false;
     }
-
+    matrix.postConcat(fPtsToUnit);
+    stage->setEffect(SkNEW_ARGS(GrSweepGradient, (context, *this)), matrix)->unref();
     return true;
 }
 

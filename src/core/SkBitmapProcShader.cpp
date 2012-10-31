@@ -329,10 +329,9 @@ bool SkBitmapProcShader::toDumpString(SkString* str) const {
 
     // add the (optional) matrix
     {
-        SkMatrix m;
-        if (this->getLocalMatrix(&m)) {
+        if (this->hasLocalMatrix()) {
             SkString info;
-            m.toDumpString(&info);
+            this->getLocalMatrix().toDumpString(&info);
             str->appendf(" %s", info.c_str());
         }
     }

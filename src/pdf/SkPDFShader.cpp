@@ -937,7 +937,7 @@ SkPDFShader::State::State(const SkShader& shader,
     fInfo.fColorCount = 0;
     fInfo.fColors = NULL;
     fInfo.fColorOffsets = NULL;
-    shader.getLocalMatrix(&fShaderTransform);
+    fShaderTransform = shader.getLocalMatrix();
     fImageTileModes[0] = fImageTileModes[1] = SkShader::kClamp_TileMode;
 
     fType = shader.asAGradient(&fInfo);

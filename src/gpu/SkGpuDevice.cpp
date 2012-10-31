@@ -584,6 +584,16 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
         return false;
     }
 
+    // since our texture coords will be in local space, we whack the texture
+    // matrix to map them back into 0...1 before we load it
+    if (shader->hasLocalMatrix()) {
+        SkMatrix inverse;
+        if (!shader->getLocalMatrix().invert(&inverse)) {
+            return false;
+        }
+        matrix.preConcat(inverse);
+    }
+
     // Must set wrap and filter on the sampler before requesting a texture.
     GrTextureParams params(tileModes, skPaint.isFilterBitmap());
     GrTexture* texture = textures[kShaderTextureIdx].set(dev, bitmap, &params);
@@ -593,15 +603,6 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
         return false;
     }
 
-    // since our texture coords will be in local space, we whack the texture
-    // matrix to map them back into 0...1 before we load it
-    SkMatrix localM;
-    if (shader->getLocalMatrix(&localM)) {
-        SkMatrix inverse;
-        if (localM.invert(&inverse)) {
-            matrix.preConcat(inverse);
-        }
-    }
     if (SkShader::kDefault_BitmapType == bmptype) {
         GrScalar sx = SkFloatToScalar(1.f / bitmap.width());
         GrScalar sy = SkFloatToScalar(1.f / bitmap.height());
