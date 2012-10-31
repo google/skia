@@ -24,6 +24,7 @@ public:
     virtual SkImage* onNewImageShapshot() SK_OVERRIDE;
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y,
                         const SkPaint*) SK_OVERRIDE;
+    virtual void onCopyOnWrite(SkImage*, SkCanvas*) SK_OVERRIDE;
 
 private:
     SkPicture*  fPicture;
@@ -73,6 +74,11 @@ void SkSurface_Picture::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
         return;
     }
     SkImagePrivDrawPicture(canvas, fPicture, x, y, paint);
+}
+
+void SkSurface_Picture::onCopyOnWrite(SkImage* cachedImage, SkCanvas*) {
+    // We always spawn a copy of the recording picture when we 
+    // are asked for a snapshot, so we never need to do anything here.
 }
 
 ///////////////////////////////////////////////////////////////////////////////

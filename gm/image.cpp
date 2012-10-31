@@ -11,7 +11,13 @@
 #include "SkStream.h"
 #include "SkData.h"
 
+#if SK_SUPPORT_GPU
+#include "GrContext.h"
+
+namespace skiagm {
 extern GrContext* GetGr();
+};
+#endif
 
 static SkData* fileToData(const char path[]) {
     SkFILEStream stream(path);
@@ -109,18 +115,39 @@ public:
 
 protected:
     virtual SkString onShortName() {
-        return SkString("image");
+        return SkString("image-surface");
     }
 
     virtual SkISize onISize() {
-        return SkISize::Make(640, 480);
+        return SkISize::Make(800, 500);
     }
 
     virtual void onDraw(SkCanvas* canvas) {
         drawJpeg(canvas, this->getISize());
 
-        canvas->translate(10, 10);
         canvas->scale(2, 2);
+
+        static const char* kLabel1 = "Original Img";
+        static const char* kLabel2 = "Modified Img";
+        static const char* kLabel3 = "Cur Surface";
+
+        static const char* kLabel4 = "Pre-Alloc Img";
+        static const char* kLabel5 = "New Alloc Img";
+        static const char* kLabel6 = "SkPicture";
+        static const char* kLabel7 = "GPU";
+
+        SkPaint textPaint;
+
+        canvas->drawText(kLabel1, strlen(kLabel1), 10,  60, textPaint);
+        canvas->drawText(kLabel2, strlen(kLabel2), 10, 140, textPaint);
+        canvas->drawText(kLabel3, strlen(kLabel3), 10, 220, textPaint);
+
+        canvas->drawText(kLabel4, strlen(kLabel4),  80, 10, textPaint);
+        canvas->drawText(kLabel5, strlen(kLabel5), 160, 10, textPaint);
+        canvas->drawText(kLabel6, strlen(kLabel6), 250, 10, textPaint);
+        canvas->drawText(kLabel7, strlen(kLabel7), 340, 10, textPaint);
+
+        canvas->translate(80, 20);
 
         // since we draw into this directly, we need to start fresh
         sk_bzero(fBuffer, fBufferSize);
@@ -134,12 +161,23 @@ protected:
         SkAutoTUnref<SkSurface> surf0(SkSurface::NewRasterDirect(info, NULL, fBuffer, RB));
         SkAutoTUnref<SkSurface> surf1(SkSurface::NewRaster(info, NULL));
         SkAutoTUnref<SkSurface> surf2(SkSurface::NewPicture(info.fWidth, info.fHeight));
+#if SK_SUPPORT_GPU
+        GrContext* ctx = skiagm::GetGr();
+
+        SkAutoTUnref<SkSurface> surf3(SkSurface::NewRenderTarget(ctx, info, NULL, 0));
+#endif
 
         test_surface(canvas, surf0);
         canvas->translate(80, 0);
         test_surface(canvas, surf1);
         canvas->translate(80, 0);
         test_surface(canvas, surf2);
+#if SK_SUPPORT_GPU
+        if (NULL != ctx) {
+            canvas->translate(80, 0);
+            test_surface(canvas, surf3);
+        }
+#endif
     }
 
     virtual uint32_t onGetFlags() const SK_OVERRIDE {
