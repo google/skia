@@ -401,11 +401,11 @@ struct SK_API SkRect {
     SkScalar    centerY() const { return SkScalarHalf(fTop + fBottom); }
 
     friend bool operator==(const SkRect& a, const SkRect& b) {
-        return 0 == memcmp(&a, &b, sizeof(a));
+        return SkScalarsEqual((SkScalar*)&a, (SkScalar*)&b, 4);
     }
 
     friend bool operator!=(const SkRect& a, const SkRect& b) {
-        return 0 != memcmp(&a, &b, sizeof(a));
+        return !SkScalarsEqual((SkScalar*)&a, (SkScalar*)&b, 4);
     }
 
     /** return the 4 points that enclose the rectangle
