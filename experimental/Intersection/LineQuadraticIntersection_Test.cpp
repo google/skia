@@ -55,7 +55,41 @@ static int doIntersect(Intersections& intersections, const Quadratic& quad, cons
     return result;
 }
 
+static struct oneLineQuad {
+    Quadratic quad;
+    _Line line;
+} oneOffs[] = {
+    {{{369.848602,145.680267}, {382.360413,121.298294}, {406.207703,121.298294}},
+        {{406.207703,121.298294}, {348.781738,123.864815}}}
+    };
+
+static size_t oneOffs_count = sizeof(oneOffs) / sizeof(oneOffs[0]);
+
+
+static void testOneOffs() {
+    Intersections intersections;
+    bool flipped = false;
+    for (size_t index = 0; index < oneOffs_count; ++index) {
+        const Quadratic& quad = oneOffs[index].quad;
+        const _Line& line = oneOffs[index].line;
+        int result = doIntersect(intersections, quad, line, flipped);
+        for (int inner = 0; inner < result; ++inner) {
+            double quadT = intersections.fT[0][inner];
+            double quadX, quadY;
+            xy_at_t(quad, quadT, quadX, quadY);
+            double lineT = intersections.fT[1][inner];
+            double lineX, lineY;
+            xy_at_t(line, lineT, lineX, lineY);
+            assert(approximately_equal(quadX, lineX)
+                    && approximately_equal(quadY, lineY));
+        }
+    }
+}
+
 void LineQuadraticIntersection_Test() {
+    if (1) {
+        testOneOffs();
+    }
     for (size_t index = firstLineQuadIntersectionTest; index < lineQuadTests_count; ++index) {
         const Quadratic& quad = lineQuadTests[index].quad;
         const _Line& line = lineQuadTests[index].line;

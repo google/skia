@@ -28,6 +28,7 @@ int gDebugMaxWindValue = SK_MaxS32;
 #define PRECISE_T_SORT 1
 #define SORTABLE_CONTOURS 0 // set to 1 for old code that works most of the time
 #define PIN_ADD_T 0
+#define TRY_ROTATE 1
 
 #define DEBUG_UNUSED 0 // set to expose unused functions
 #define FORCE_RELEASE 0
@@ -1346,8 +1347,16 @@ public:
                 && xyAtT(&span[-1]) == xyAtT(span)) {
             span[-1].fTiny = true;
             span[-1].fDone = true;
-            span[-1].fUnsortableStart = approximately_negative(newT - span[-1].fT)
-                    && approximately_greater_than_one(newT);
+            if (approximately_negative(newT - span[-1].fT)) {
+                if (approximately_greater_than_one(newT)) {
+                    span[-1].fUnsortableStart = true;
+                    span[-2].fUnsortableEnd = true;
+                }
+                if (approximately_less_than_zero(span[-1].fT)) {
+                    span->fUnsortableStart = true;
+                    span[-1].fUnsortableEnd = true;
+                }
+            }
             ++fDoneSpans;
         }
         if (fTs.end() - span > 1 && !span->fDone
@@ -1356,8 +1365,16 @@ public:
                 && xyAtT(&span[1]) == xyAtT(span)) {
             span->fTiny = true;
             span->fDone = true;
-            span->fUnsortableEnd = approximately_negative(span[1].fT - newT)
-                    && approximately_less_than_zero(newT);
+            if (approximately_negative(span[1].fT - newT)) {
+                if (approximately_greater_than_one(span[1].fT)) {
+                    span->fUnsortableStart = true;
+                    span[-1].fUnsortableEnd = true;
+                }
+                if (approximately_less_than_zero(newT)) {
+                    span[1].fUnsortableStart = true;
+                    span->fUnsortableEnd = true;
+                }
+            }
             ++fDoneSpans;
         }
         return insertedAt;
@@ -4175,11 +4192,10 @@ static void debugShowQuadLineIntersection(int pts, const Work& wt,
         const Work& wn, const double wtTs[2], const double wnTs[2]) {
     if (!pts) {
         SkDebugf("%s no intersect (%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)"
-                " (%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)\n",
+                " (%1.9g,%1.9g %1.9g,%1.9g)\n",
                 __FUNCTION__, wt.pts()[0].fX, wt.pts()[0].fY,
                 wt.pts()[1].fX, wt.pts()[1].fY, wt.pts()[2].fX, wt.pts()[2].fY,
-                wn.pts()[0].fX, wn.pts()[0].fY, wn.pts()[1].fX, wn.pts()[1].fY,
-                wt.pts()[2].fX, wt.pts()[2].fY );
+                wn.pts()[0].fX, wn.pts()[0].fY, wn.pts()[1].fX, wn.pts()[1].fY);
         return;
     }
     SkPoint wtOutPt, wnOutPt;
@@ -4191,13 +4207,15 @@ static void debugShowQuadLineIntersection(int pts, const Work& wt,
             wt.pts()[1].fX, wt.pts()[1].fY, wt.pts()[2].fX, wt.pts()[2].fY,
             wtOutPt.fX, wtOutPt.fY);
     if (pts == 2) {
-        SkDebugf(" wtTs[1]=%1.9g", wtTs[1]);
+        QuadXYAtT(wt.pts(), wtTs[1], &wtOutPt);
+        SkDebugf(" wtTs[1]=%1.9g (%1.9g,%1.9g)", wtTs[1], wtOutPt.fX, wtOutPt.fY);
     }
     SkDebugf(" wnTs[0]=%g (%1.9g,%1.9g %1.9g,%1.9g) (%1.9g,%1.9g)",
             wnTs[0], wn.pts()[0].fX, wn.pts()[0].fY,
             wn.pts()[1].fX, wn.pts()[1].fY, wnOutPt.fX, wnOutPt.fY);
     if (pts == 2) {
-        SkDebugf(" wnTs[1]=%1.9g", wnTs[1]);
+        LineXYAtT(wn.pts(), wnTs[1], &wnOutPt);
+        SkDebugf(" wnTs[1]=%1.9g (%1.9g,%1.9g)", wnTs[1], wnOutPt.fX, wnOutPt.fY);
     }
     SkDebugf("\n");
 }
@@ -4210,7 +4228,7 @@ static void debugShowQuadIntersection(int pts, const Work& wt,
                 __FUNCTION__, wt.pts()[0].fX, wt.pts()[0].fY,
                 wt.pts()[1].fX, wt.pts()[1].fY, wt.pts()[2].fX, wt.pts()[2].fY,
                 wn.pts()[0].fX, wn.pts()[0].fY, wn.pts()[1].fX, wn.pts()[1].fY,
-                wt.pts()[2].fX, wt.pts()[2].fY );
+                wn.pts()[2].fX, wn.pts()[2].fY );
         return;
     }
     SkPoint wtOutPt, wnOutPt;
@@ -4349,8 +4367,8 @@ static bool addIntersectTs(Contour* test, Contour* next) {
                         case Work::kQuad_Segment: {
                             swap = true;
                             pts = QuadLineIntersect(wn.pts(), wt.pts(), ts);
-                            debugShowQuadLineIntersection(pts, wt, wn,
-                                    ts.fT[1], ts.fT[0]);
+                            debugShowQuadLineIntersection(pts, wn, wt,
+                                    ts.fT[0], ts.fT[1]);
                             break;
                         }
                         case Work::kCubic_Segment: {
@@ -4375,13 +4393,13 @@ static bool addIntersectTs(Contour* test, Contour* next) {
                         case Work::kLine_Segment: {
                             pts = QuadLineIntersect(wt.pts(), wn.pts(), ts);
                             debugShowQuadLineIntersection(pts, wt, wn,
-                                    ts.fT[1], ts.fT[0]);
+                                    ts.fT[0], ts.fT[1]);
                             break;
                         }
                         case Work::kQuad_Segment: {
                             pts = QuadIntersect(wt.pts(), wn.pts(), ts);
                             debugShowQuadIntersection(pts, wt, wn,
-                                    ts.fT[1], ts.fT[0]);
+                                    ts.fT[0], ts.fT[1]);
                             break;
                         }
                         case Work::kCubic_Segment: {
@@ -4695,7 +4713,8 @@ static Segment* findUndone(SkTDArray<Contour*>& contourList, int& start, int& en
 static Segment* findChase(SkTDArray<Span*>& chase, int& tIndex, int& endIndex,
         int contourWinding) {
     while (chase.count()) {
-        Span* span = chase[chase.count() - 1];
+        Span* span;
+        chase.pop(&span);
         const Span& backPtr = span->fOther->span(span->fOtherIndex);
         Segment* segment = backPtr.fOther;
         tIndex = backPtr.fOtherIndex;
@@ -4705,10 +4724,14 @@ static Segment* findChase(SkTDArray<Span*>& chase, int& tIndex, int& endIndex,
             Angle* last = angles.end() - 1;
             tIndex = last->start();
             endIndex = last->end();
+   #if TRY_ROTATE
+            *chase.insert(0) = span;
+   #else
+            *chase.append() = span;
+   #endif
             return last->segment();
         }
         if (done == angles.count()) {
-            chase.pop(&span);
             continue;
         }
         SkTDArray<Angle*> sorted;
@@ -4717,7 +4740,6 @@ static Segment* findChase(SkTDArray<Span*>& chase, int& tIndex, int& endIndex,
         sorted[0]->segment()->debugShowSort(__FUNCTION__, sorted, 0, 0);
 #endif
         if (!sortable) {
-            chase.pop(&span);
             continue;
         }
         // find first angle, initialize winding to computed fWindSum
@@ -4781,6 +4803,11 @@ static Segment* findChase(SkTDArray<Span*>& chase, int& tIndex, int& endIndex,
                 break;
             }
         } while (++nextIndex != lastIndex);
+   #if TRY_ROTATE
+        *chase.insert(0) = span;
+   #else
+        *chase.append() = span;
+   #endif
         return segment;
     }
     return NULL;
@@ -4921,7 +4948,7 @@ static bool bridgeWinding(SkTDArray<Contour*>& contourList, PathWrapper& simple)
                 Segment* next = current->findNextWinding(chaseArray, active,
                         nextStart, nextEnd, winding, spanWinding, unsortable);
                 if (!next) {
-                    if (active && simple.hasMove()
+                    if (active && !unsortable && simple.hasMove()
                             && current->verb() != SkPath::kLine_Verb
                             && !simple.isClosed()) {
                         current->addCurveTo(index, endIndex, simple, true);
@@ -4941,7 +4968,7 @@ static bool bridgeWinding(SkTDArray<Contour*>& contourList, PathWrapper& simple)
                     int min = SkMin32(index, endIndex);
                     if (!current->done(min)) {
                         current->addCurveTo(index, endIndex, simple, true);
-                        current->markDone(SkMin32(index, endIndex), spanWinding);
+                        current->markDone(SkMin32(index, endIndex), winding ? winding : spanWinding);
                     }
                     closable = false;
                 }
@@ -5042,7 +5069,7 @@ static void makeContourList(SkTArray<Contour>& contours,
 }
 
 static bool approximatelyEqual(const SkPoint& a, const SkPoint& b) {
-    return approximately_equal(a.fX, b.fX) && approximately_equal(a.fY, b.fY);
+    return AlmostEqualUlps(a.fX, b.fX) && AlmostEqualUlps(a.fY, b.fY);
 }
 
     /*
@@ -5060,78 +5087,106 @@ static void assemble(const PathWrapper& path, PathWrapper& simple) {
     EdgeBuilder builder(path, contours);
     builder.finish();
     int count = contours.count();
-    int oIndex;
+    int outer;
     SkTDArray<int> runs; // indices of partial contours
-    for (oIndex = 0; oIndex < count; ++oIndex) {
-        const Contour& eContour = contours[oIndex];
+    for (outer = 0; outer < count; ++outer) {
+        const Contour& eContour = contours[outer];
         const SkPoint& eStart = eContour.start();
         const SkPoint& eEnd = eContour.end();
         if (approximatelyEqual(eStart, eEnd)) {
             eContour.toPath(simple);
             continue;
         }
-        *runs.append() = oIndex;
+        *runs.append() = outer;
     }
     count = runs.count();
+    if (count == 0) {
+        return;
+    }
     SkTDArray<int> sLink, eLink;
     sLink.setCount(count);
     eLink.setCount(count);
+    SkTDArray<double> sBest, eBest;
+    sBest.setCount(count);
+    eBest.setCount(count);
     int rIndex;
     for (rIndex = 0; rIndex < count; ++rIndex) {
-        sLink[rIndex] = eLink[rIndex] = INT_MAX;
-    }
-    for (rIndex = 0; rIndex < count - 1; ++rIndex) {
-        oIndex = runs[rIndex];
-        const Contour& oContour = contours[oIndex];
+        outer = runs[rIndex];
+        const Contour& oContour = contours[outer];
         const SkPoint& oStart = oContour.start();
         const SkPoint& oEnd = oContour.end();
-        for (int inner = rIndex + 1; inner < count; ++inner) {
-            int iIndex = runs[inner];
-            const Contour& iContour = contours[iIndex];
+        double dx = oEnd.fX - oStart.fX;
+        double dy = oEnd.fY - oStart.fY;
+        double dist = dx * dx + dy * dy;
+        sBest[rIndex] = eBest[rIndex] = dist;
+        sLink[rIndex] = eLink[rIndex] = rIndex;
+    }
+    for (rIndex = 0; rIndex < count - 1; ++rIndex) {
+        outer = runs[rIndex];
+        const Contour& oContour = contours[outer];
+        const SkPoint& oStart = oContour.start();
+        const SkPoint& oEnd = oContour.end();
+        double bestStartDist = sBest[rIndex];
+        double bestEndDist = eBest[rIndex];
+        for (int iIndex = rIndex + 1; iIndex < count; ++iIndex) {
+            int inner = runs[iIndex];
+            const Contour& iContour = contours[inner];
             const SkPoint& iStart = iContour.start();
             const SkPoint& iEnd = iContour.end();
-            if (approximatelyEqual(oStart, iStart)) {
-                SkASSERT(sLink[rIndex] == INT_MAX);
+            double dx = iStart.fX - oStart.fX;
+            double dy = iStart.fY - oStart.fY;
+            double dist = dx * dx + dy * dy;
+            if (bestStartDist > dist) {
+                bestStartDist = dist;
                 sLink[rIndex] = ~iIndex;
-                SkASSERT(sLink[iIndex] == INT_MAX);
                 sLink[iIndex] = ~rIndex;
-            } else if (approximatelyEqual(oStart, iEnd)) {
-                SkASSERT(sLink[rIndex] == INT_MAX);
+            }
+            dx = iEnd.fX - oStart.fX;
+            dy = iEnd.fY - oStart.fY;
+            dist = dx * dx + dy * dy;
+            if (bestStartDist > dist) {
+                bestStartDist = dist;
                 sLink[rIndex] = iIndex;
-                SkASSERT(eLink[iIndex] == INT_MAX);
                 eLink[iIndex] = rIndex;
             }
-            if (approximatelyEqual(oEnd, iStart)) {
-                SkASSERT(eLink[rIndex] == INT_MAX);
-                eLink[rIndex] = iIndex;
-                SkASSERT(sLink[iIndex] == INT_MAX);
+            dx = iStart.fX - oEnd.fX;
+            dy = iStart.fY - oEnd.fY;
+            dist = dx * dx + dy * dy;
+            if (bestEndDist > dist) {
+                bestEndDist = dist;
                 sLink[iIndex] = rIndex;
-            } else if (approximatelyEqual(oEnd, iEnd)) {
-                SkASSERT(eLink[rIndex] == INT_MAX);
-                eLink[rIndex] = ~iIndex;
-                SkASSERT(eLink[iIndex] == INT_MAX);
-                eLink[iIndex] = ~rIndex;
+                eLink[rIndex] = iIndex;
             }
-        }
+            dx = iEnd.fX - oEnd.fX;
+            dy = iEnd.fY - oEnd.fY;
+            dist = dx * dx + dy * dy;
+            if (bestEndDist > dist) {
+                bestEndDist = dist;
+                eLink[iIndex] = ~rIndex;
+                eLink[rIndex] = ~iIndex;
+            }
+       }
     }
     rIndex = 0;
     bool forward = true;
     bool first = true;
     const SkPoint* startPtr;
     int sIndex = sLink[rIndex];
+    SkASSERT(sIndex != INT_MAX);
+    sLink[rIndex] = INT_MAX;
+    int eIndex;
     if (sIndex < 0) {
-        SkASSERT(sLink[~sIndex] != INT_MAX);
+        eIndex = sLink[~sIndex];
         sLink[~sIndex] = INT_MAX;
     } else {
-        SkASSERT(eLink[sIndex] != INT_MAX);
+        eIndex = eLink[sIndex];
         eLink[sIndex] = INT_MAX;
     }
-    SkASSERT(sLink[rIndex] != INT_MAX);
-    sLink[rIndex] = INT_MAX;
+    SkASSERT(eIndex != INT_MAX);
     do {
         do {
-            oIndex = runs[rIndex];
-            const Contour& contour = contours[oIndex];
+            outer = runs[rIndex];
+            const Contour& contour = contours[outer];
             if (first) {
                 startPtr = &contour.start();
                 first = false;
@@ -5145,38 +5200,35 @@ static void assemble(const PathWrapper& path, PathWrapper& simple) {
                 contour.toPartialBackward(simple);
                 endPtr = &contour.start();
             }
-            if (approximatelyEqual(*startPtr, *endPtr)) {
+            if (sIndex == eIndex) {
                 simple.close();
                 first = forward = true;
                 break;
             }
-            int newRIndex;
             if (forward) {
-                newRIndex = eLink[rIndex];
-                SkASSERT(newRIndex != INT_MAX);
-                SkASSERT(eLink[rIndex] != INT_MAX);
+                eIndex = eLink[rIndex];
+                SkASSERT(eIndex != INT_MAX);
                 eLink[rIndex] = INT_MAX;
-                if (newRIndex >= 0) {
-                    SkASSERT(sLink[newRIndex] == rIndex);
-                    sLink[newRIndex] = INT_MAX;
+                if (eIndex >= 0) {
+                    SkASSERT(sLink[eIndex] == rIndex);
+                    sLink[eIndex] = INT_MAX;
                 } else {
-                    SkASSERT(eLink[~newRIndex] == ~rIndex);
-                    eLink[~newRIndex] = INT_MAX;
+                    SkASSERT(eLink[~eIndex] == ~rIndex);
+                    eLink[~eIndex] = INT_MAX;
                 }
             } else {
-                newRIndex = sLink[rIndex];
-                SkASSERT(newRIndex != INT_MAX);
-                SkASSERT(sLink[rIndex] != INT_MAX);
+                eIndex = sLink[rIndex];
+                SkASSERT(eIndex != INT_MAX);
                 sLink[rIndex] = INT_MAX;
-                if (newRIndex >= 0) {
-                    SkASSERT(eLink[newRIndex] == rIndex);
-                    eLink[newRIndex] = INT_MAX;
+                if (eIndex >= 0) {
+                    SkASSERT(eLink[eIndex] == rIndex);
+                    eLink[eIndex] = INT_MAX;
                 } else {
-                    SkASSERT(sLink[~newRIndex] == ~rIndex);
-                    sLink[~newRIndex] = INT_MAX;
+                    SkASSERT(sLink[~eIndex] == ~rIndex);
+                    sLink[~eIndex] = INT_MAX;
                 }
             }
-            rIndex = newRIndex;
+            rIndex = eIndex;
             if (rIndex < 0) {
                 forward ^= 1;
                 rIndex = ~rIndex;
@@ -5223,6 +5275,9 @@ void simplifyx(const SkPath& path, SkPath& result) {
     fixOtherTIndex(contourList);
 #if !SORTABLE_CONTOURS
     sortSegments(contourList);
+#endif
+#if DEBUG_ACTIVE_SPANS
+    debugShowActiveSpans(contourList);
 #endif
     // construct closed contours
     if (builder.xorMask() == kWinding_Mask

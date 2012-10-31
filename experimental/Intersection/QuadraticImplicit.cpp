@@ -144,31 +144,74 @@ bool intersect2(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
     assert(rootCount == rootCount2);
     addValidRoots(roots1, rootCount, 0, i);
     addValidRoots(roots2, rootCount, 1, i);
+    if (i.insertBalanced() && i.fUsed <= 1) {
+        if (i.fUsed == 1) {
+            _Point xy1, xy2;
+            xy_at_t(q1, i.fT[0][0], xy1.x, xy1.y);
+            xy_at_t(q2, i.fT[1][0], xy2.x, xy2.y);
+            if (!xy1.approximatelyEqual(xy2)) {
+                --i.fUsed;
+                --i.fUsed2;
+            }
+        }
+        return i.intersected();
+    }
     _Point pts[4];
     bool matches[4];
     int flipCheck[4];
+    int closest[4];
+    double dist[4];
     int index, ndex2;
     int flipIndex = 0;
     for (ndex2 = 0; ndex2 < i.fUsed2; ++ndex2) {
         xy_at_t(q2, i.fT[1][ndex2], pts[ndex2].x, pts[ndex2].y);
         matches[ndex2] = false;
     }
-    for (index = 0; index < i.fUsed; ) {
+    for (index = 0; index < i.fUsed; ++index) {
         _Point xy;
         xy_at_t(q1, i.fT[0][index], xy.x, xy.y);
+        dist[index] = DBL_MAX;
+        closest[index] = -1;
         for (ndex2 = 0; ndex2 < i.fUsed2; ++ndex2) {
-             if (approximately_equal(pts[ndex2].x, xy.x) && approximately_equal(pts[ndex2].y, xy.y)) {
+            if (!pts[ndex2].approximatelyEqual(xy)) {
+                continue;
+            }
+            double dx = pts[ndex2].x - xy.x;
+            double dy = pts[ndex2].y - xy.y;
+            double distance = dx * dx + dy * dy;
+            if (dist[index] <= distance) {
+                continue;
+            }
+            for (int outer = 0; outer < index; ++outer) {
+                if (closest[outer] != ndex2) {
+                    continue;
+                }
+                if (dist[outer] < distance) {
+                    goto next;
+                }
+                closest[outer] = -1;
+            }
+            dist[index] = distance;
+            closest[index] = ndex2;
+        next:
+            ;
+        }
+    }
+    for (index = 0; index < i.fUsed; ) {
+        for (ndex2 = 0; ndex2 < i.fUsed2; ++ndex2) {
+             if (closest[index] == ndex2) {
                 assert(flipIndex < 4);
                 flipCheck[flipIndex++] = ndex2;
                 matches[ndex2] = true;
-                goto next;
+                goto next2;
              }
         }
         if (--i.fUsed > index) {
             memmove(&i.fT[0][index], &i.fT[0][index + 1], (i.fUsed - index) * sizeof(i.fT[0][0]));
+            memmove(&closest[index], &closest[index + 1], (i.fUsed - index) * sizeof(closest[0]));
             continue;
         }
-    next:
+    next2:
         ++index;
     }
     for (ndex2 = 0; ndex2 < i.fUsed2; ) {

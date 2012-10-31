@@ -15,12 +15,11 @@ void cubecode_test(int test);
 void Intersection_Tests() {
     int testsRun = 0;
     SimplifyNew_Test();
+    QuadraticIntersection_Test();
     LineQuadraticIntersection_Test();
     MiniSimplify_Test();
-    QuadraticIntersection_Test();
     SimplifyAngle_Test();
     QuarticRoot_Test();
- //   QuadraticIntersection_Test();
     Simplify4x4QuadraticsThreaded_Test(testsRun);
     QuadLineIntersectThreaded_Test(testsRun);
     Simplify4x4RectsThreaded_Test(testsRun);
