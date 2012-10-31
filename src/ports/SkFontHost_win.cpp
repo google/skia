@@ -1318,19 +1318,13 @@ static void logfont_for_name(const char* familyName, LOGFONT& lf) {
 #endif
 }
 
-static void logfont_to_name(const LOGFONT& lf, SkString* s) {
+static void tchar_to_skstring(const TCHAR* t, SkString* s) {
 #ifdef UNICODE
-    // Get the buffer size needed first.
-    size_t str_len = WideCharToMultiByte(CP_UTF8, 0, lf.lfFaceName, -1, NULL,
-                                         0, NULL, NULL);
-    // Allocate a buffer (str_len already has terminating null accounted for).
-    s->resize(str_len);
-    // Now actually convert the string.
-    WideCharToMultiByte(CP_UTF8, 0, lf.lfFaceName, -1,
-                        s->writable_str(), str_len,
-                        NULL, NULL);
+    size_t sSize = WideCharToMultiByte(CP_UTF8, 0, t, -1, NULL, 0, NULL, NULL);
+    s->resize(sSize);
+    WideCharToMultiByte(CP_UTF8, 0, t, -1, s->writable_str(), sSize, NULL, NULL);
 #else
-    s->set(lf.lfFaceName);
+    s->set(t);
 #endif
 }
 
@@ -1338,8 +1332,38 @@ void SkFontHost::Serialize(const SkTypeface* rawFace, SkWStream* stream) {
     const LogFontTypeface* face = static_cast<const LogFontTypeface*>(rawFace);
     SkFontDescriptor descriptor(face->style());
 
+    // Get the actual name of the typeface. The logfont may not know this.
+    HFONT font = CreateFontIndirect(&face->fLogFont);
+
+    HDC deviceContext = ::CreateCompatibleDC(NULL);
+    HFONT savefont = (HFONT)SelectObject(deviceContext, font);
+
+    int fontNameLen; //length of fontName in TCHARS.
+    if (0 == (fontNameLen = GetTextFace(deviceContext, 0, NULL))) {
+        SkFontHost::EnsureTypefaceAccessible(*rawFace);
+        if (0 == (fontNameLen = GetTextFace(deviceContext, 0, NULL))) {
+            fontNameLen = 0;
+        }
+    }
+
+    SkAutoSTArray<LF_FULLFACESIZE, TCHAR> fontName(fontNameLen+1);
+    if (0 == GetTextFace(deviceContext, fontNameLen, fontName.get())) {
+        SkFontHost::EnsureTypefaceAccessible(*rawFace);
+        if (0 == GetTextFace(deviceContext, fontNameLen, fontName.get())) {
+            fontName[0] = 0;
+        }
+    }
+
+    if (deviceContext) {
+        ::SelectObject(deviceContext, savefont);
+        ::DeleteDC(deviceContext);
+    }
+    if (font) {
+        ::DeleteObject(font);
+    }
+
     SkString familyName;
-    logfont_to_name(face->fLogFont, &familyName);
+    tchar_to_skstring(fontName.get(), &familyName);
     descriptor.setFamilyName(familyName.c_str());
     //TODO: FileName and PostScriptName currently unsupported.
 
@@ -1429,7 +1453,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     info->fMultiMaster = false;
     info->fLastGlyphID = SkToU16(glyphCount - 1);
     info->fStyle = 0;
-    logfont_to_name(lf, &info->fFontName);
+    tchar_to_skstring(lf.lfFaceName, &info->fFontName);
 
     if (perGlyphInfo & SkAdvancedTypefaceMetrics::kToUnicode_PerGlyphInfo) {
         populate_glyph_to_unicode(hdc, glyphCount, &(info->fGlyphToUnicode));
