@@ -126,6 +126,10 @@ void GrGpu::unimpl(const char msg[]) {
 
 GrTexture* GrGpu::createTexture(const GrTextureDesc& desc,
                                 const void* srcData, size_t rowBytes) {
+    if (kUnknown_GrPixelConfig == desc.fConfig) {
+        return NULL;
+    }
+
     this->handleDirtyContext();
     GrTexture* tex = this->onCreateTexture(desc, srcData, rowBytes);
     if (NULL != tex &&

@@ -204,7 +204,8 @@ void SkGpuDevice::initFromRenderTarget(GrContext* context,
 SkGpuDevice::SkGpuDevice(GrContext* context,
                          SkBitmap::Config config,
                          int width,
-                         int height)
+                         int height,
+                         int sampleCount)
     : SkDevice(config, width, height, false /*isOpaque*/) {
 
     fDrawProcs = NULL;
@@ -218,14 +219,13 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
     if (config != SkBitmap::kRGB_565_Config) {
         config = SkBitmap::kARGB_8888_Config;
     }
-    SkBitmap bm;
-    bm.setConfig(config, width, height);
 
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit;
     desc.fWidth = width;
     desc.fHeight = height;
-    desc.fConfig = SkBitmapConfig2GrPixelConfig(bm.config());
+    desc.fConfig = SkBitmapConfig2GrPixelConfig(config);
+    desc.fSampleCnt = sampleCount;
 
     SkAutoTUnref<GrTexture> texture(fContext->createUncachedTexture(desc, NULL, 0));
 
