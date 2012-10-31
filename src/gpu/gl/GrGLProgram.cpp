@@ -566,7 +566,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
     fUniforms.fViewMatrixUni = builder.addUniform(GrGLShaderBuilder::kVertex_ShaderType,
                                                   kMat33f_GrSLType, "ViewM", &viewMName);
 
-    
+
     builder.fVSCode.appendf("\tvec3 pos3 = %s * vec3(%s, 1);\n"
                             "\tgl_Position = vec4(pos3.xy, 0, pos3.z);\n",
                             viewMName, builder.positionAttribute().getName().c_str());

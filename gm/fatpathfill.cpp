@@ -29,7 +29,7 @@ static void draw_pixel_centers(SkCanvas* canvas) {
     SkPaint paint;
     paint.setColor(0xFF0088FF);
     paint.setAntiAlias(true);
-    
+
     for (int y = 0; y < SMALL_H; ++y) {
         for (int x = 0; x < SMALL_W; ++x) {
             canvas->drawCircle(x + 0.5f, y + 0.5f, 1.5f / ZOOM, paint);
@@ -84,7 +84,7 @@ protected:
             line.moveTo(1, 2); line.lineTo(4 + i, 1);
             paint.getFillPath(line, &path);
             draw_fatpath(canvas, surface, &path, 1);
-            
+
             canvas->translate(0, SMALL_H);
         }
     }
