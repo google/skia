@@ -372,7 +372,7 @@ public:
      */
     void emitLightColorUniform(GrGLShaderBuilder*);
 
-    /** 
+    /**
      * These two functions are called from GrGLLightingEffect's emitCode() function.
      * emitSurfaceToLight places an expression in param out that is the vector from the surface to
      * the light. The expression will be used in the FS. emitLightColor writes an expression into
@@ -1421,7 +1421,7 @@ void GrGLSpotLight::emitLightColor(GrGLShaderBuilder* builder,
                           gLightColorArgs,
                           lightColorBody.c_str(),
                           &fLightColorFunc);
-                                       
+
     builder->fFSCode.appendf("%s(%s)", fLightColorFunc.c_str(), surfaceToLight);
 }
 

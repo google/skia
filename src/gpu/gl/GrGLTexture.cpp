@@ -26,7 +26,7 @@ void GrGLTexture::init(GrGpuGL* gpu,
                                      (GPUGL->glInterface(),
                                       textureDesc.fTextureID,
                                       textureDesc.fOwnsID));
-    
+
     if (NULL != rtDesc) {
         GrAssert(kBottomLeft_Origin == textureDesc.fOrigin);
         GrGLIRect vp;
