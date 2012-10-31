@@ -236,7 +236,7 @@ void GrContext::addStencilBuffer(GrStencilBuffer* sb) {
     GrResourceKey resourceKey = GrStencilBuffer::ComputeKey(sb->width(),
                                                             sb->height(),
                                                             sb->numSamples());
-    fTextureCache->create(resourceKey, sb);
+    fTextureCache->addResource(resourceKey, sb);
 }
 
 GrStencilBuffer* GrContext::findStencilBuffer(int width, int height,
@@ -378,7 +378,7 @@ GrTexture* GrContext::createTexture(
     }
 
     if (NULL != texture) {
-        fTextureCache->create(resourceKey, texture);
+        fTextureCache->addResource(resourceKey, texture);
     }
 
     return texture;
@@ -407,7 +407,8 @@ GrTexture* GrContext::lockScratchTexture(const GrTextureDesc& inDesc,
 
     do {
         GrResourceKey key = GrTexture::ComputeKey(fGpu, NULL, desc, cacheData, true);
-        resource = fTextureCache->find(key);
+        // Ensure we have exclusive access to the texture so future 'find' calls don't return it
+        resource = fTextureCache->find(key, GrResourceCache::kHide_OwnershipFlag);
         // if we miss, relax the fit of the flags...
         // then try doubling width... then height.
         if (NULL != resource || kExact_ScratchTexMatch == match) {
@@ -443,16 +444,10 @@ GrTexture* GrContext::lockScratchTexture(const GrTextureDesc& inDesc,
                                                       texture->desc(),
                                                       cacheData,
                                                       true);
-            fTextureCache->create(key, texture);
+            // Make the resource exclusive so future 'find' calls don't return it
+            fTextureCache->addResource(key, texture, GrResourceCache::kHide_OwnershipFlag);
             resource = texture;
         }
-    }
-
-    // If the caller gives us the same desc twice we don't want to return the
-    // same texture the second time (unless it was previously released). So
-    // make it exclusive to hide it from future searches.
-    if (NULL != resource) {
-        fTextureCache->makeExclusive(resource->getCacheEntry());
     }
 
     return static_cast<GrTexture*>(resource);
