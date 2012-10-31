@@ -16,6 +16,7 @@ class SkCanvas;
 class SkPaint;
 class SkShader;
 class GrContext;
+class GrTexture;
 
 // need for TileMode
 #include "SkShader.h"
