@@ -18,6 +18,15 @@
         '../src/utils',
       ],
       'sources': [
+        # Classes for a threadpool.
+        '../include/utils/SkCondVar.h',
+        '../include/utils/SkCountdown.h',
+        '../include/utils/SkRunnable.h',
+        '../include/utils/SkThreadPool.h',
+        '../src/utils/SkCondVar.cpp',
+        '../src/utils/SkCountdown.cpp',
+        '../src/utils/SkThreadPool.cpp',
+
         '../include/utils/SkBoundaryPatch.h',
         '../include/utils/SkCamera.h',
         '../include/utils/SkCubicInterval.h',
@@ -147,6 +156,15 @@
             '../src/utils/SkThreadUtils_pthread.cpp',
             '../src/utils/SkThreadUtils_pthread.h',
             '../src/utils/SkThreadUtils_pthread_other.cpp',
+
+            # SkThreadPool and related currently depend on pthread.
+            '../include/utils/SkCondVar.h',
+            '../include/utils/SkCountdown.h',
+            '../include/utils/SkRunnable.h',
+            '../include/utils/SkThreadPool.h',
+            '../src/utils/SkCondVar.cpp',
+            '../src/utils/SkCountdown.cpp',
+            '../src/utils/SkThreadPool.cpp',
           ],
         },{ #else if 'skia_os != "win"'
           'include_dirs!': [
