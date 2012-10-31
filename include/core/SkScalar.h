@@ -355,4 +355,21 @@ static inline SkScalar SkScalarLog2(SkScalar x) {
 SkScalar SkScalarInterpFunc(SkScalar searchKey, const SkScalar keys[],
                             const SkScalar values[], int length);
 
+/*
+ *  Helper to compare an array of scalars.
+ */
+static inline bool SkScalarsEqual(const SkScalar a[], const SkScalar b[], int n) {
+#ifdef SK_SCALAR_IS_FLOAT
+    SkASSERT(n >= 0);
+    for (int i = 0; i < n; ++i) {
+        if (a[i] != b[i]) {
+            return false;
+        }
+    }
+    return true;
+#else
+    return 0 == memcmp(a, b, n * sizeof(SkScalar));
+#endif
+}
+
 #endif
