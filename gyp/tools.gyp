@@ -120,6 +120,27 @@
       ],
     },
     {
+      'target_name': 'render_pdfs',
+      'type': 'executable',
+      'sources': [
+        '../tools/render_pdfs_main.cpp',
+        '../tools/PdfRenderer.cpp',
+        '../tools/PdfRenderer.h',
+      ],
+      'include_dirs': [
+        '../src/pipe/utils/',
+        '../src/utils/',
+      ],
+      'dependencies': [
+        'core.gyp:core',
+        'effects.gyp:effects',
+        'images.gyp:images',
+        'pdf.gyp:pdf',
+        'ports.gyp:ports',
+        'tools.gyp:picture_utils',
+      ],
+    },
+    {
       'target_name': 'picture_utils',
       'type': 'static_library',
       'sources': [
