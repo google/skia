@@ -371,9 +371,8 @@ public:
 
     GrConical2Gradient(GrContext* ctx,
                        const SkTwoPointConicalGradient& shader,
-                       const SkMatrix& matrix,
                        SkShader::TileMode tm)
-        : INHERITED(ctx, shader, matrix, tm)
+        : INHERITED(ctx, shader, tm)
         , fCenterX1(shader.getCenterX1())
         , fRadius0(shader.getStartRadius())
         , fDiffRadius(shader.getDiffRadius()) { }
@@ -469,17 +468,12 @@ GrGLConical2Gradient::GrGLConical2Gradient(
 }
 
 void GrGLConical2Gradient::emitCode(GrGLShaderBuilder* builder,
-                                    const GrEffectStage& stage,
-                                    EffectKey key,
+                                    const GrEffectStage&,
+                                    EffectKey,
                                     const char* vertexCoords,
                                     const char* outputColor,
                                     const char* inputColor,
                                     const TextureSamplerArray& samplers) {
-    const char* fsCoords;
-    const char* vsCoordsVarying;
-    GrSLType coordsVaryingType;
-    this->setupMatrix(builder, key, vertexCoords, &fsCoords, &vsCoordsVarying, &coordsVaryingType);
-
     this->emitYCoordUniform(builder);
     // 2 copies of uniform array, 1 for each of vertex & fragment shader,
     // to work around Xoom bug. Doesn't seem to cause performance decrease
@@ -491,7 +485,7 @@ void GrGLConical2Gradient::emitCode(GrGLShaderBuilder* builder,
 
     // For radial gradients without perspective we can pass the linear
     // part of the quadratic as a varying.
-    if (kVec2f_GrSLType == coordsVaryingType) {
+    if (!builder->defaultTextureMatrixIsPerspective()) {
         builder->addVarying(kFloat_GrSLType, "Conical2BCoeff",
                             &fVSVaryingName, &fFSVaryingName);
     }
@@ -508,11 +502,11 @@ void GrGLConical2Gradient::emitCode(GrGLShaderBuilder* builder,
 
         // For radial gradients without perspective we can pass the linear
         // part of the quadratic as a varying.
-        if (kVec2f_GrSLType == coordsVaryingType) {
+        if (!builder->defaultTextureMatrixIsPerspective()) {
             // r2Var = -2 * (r2Parm[2] * varCoord.x - r2Param[3] * r2Param[5])
             code->appendf("\t%s = -2.0 * (%s * %s.x + %s * %s);\n",
                           fVSVaryingName, p2.c_str(),
-                          vsCoordsVarying, p3.c_str(), p5.c_str());
+                          vertexCoords, p3.c_str(), p5.c_str());
         }
     }
 
@@ -544,12 +538,12 @@ void GrGLConical2Gradient::emitCode(GrGLShaderBuilder* builder,
         // If we we're able to interpolate the linear component,
         // bVar is the varying; otherwise compute it
         SkString bVar;
-        if (kVec2f_GrSLType == coordsVaryingType) {
+        if (!builder->defaultTextureMatrixIsPerspective()) {
             bVar = fFSVaryingName;
         } else {
             bVar = "b";
             code->appendf("\tfloat %s = -2.0 * (%s * %s.x + %s * %s);\n",
-                          bVar.c_str(), p2.c_str(), fsCoords,
+                          bVar.c_str(), p2.c_str(), builder->defaultTexCoordsName(),
                           p3.c_str(), p5.c_str());
         }
 
@@ -559,7 +553,7 @@ void GrGLConical2Gradient::emitCode(GrGLShaderBuilder* builder,
 
         // c = (x^2)+(y^2) - params[4]
         code->appendf("\tfloat %s = dot(%s, %s) - %s;\n", cName.c_str(),
-                      fsCoords, fsCoords,
+                      builder->defaultTexCoordsName(), builder->defaultTexCoordsName(),
                       p4.c_str());
 
         // Non-degenerate case (quadratic)
@@ -675,15 +669,7 @@ void GrGLConical2Gradient::setData(const GrGLUniformManager& uman, const GrEffec
 }
 
 GrGLEffect::EffectKey GrGLConical2Gradient::GenKey(const GrEffectStage& s, const GrGLCaps&) {
-    enum {
-        kIsDegenerate = 1 << kMatrixKeyBitCnt,
-    };
-
-    EffectKey key = GenMatrixKey(s);
-    if (static_cast<const GrConical2Gradient&>(*s.getEffect()).isDegenerate()) {
-        key |= kIsDegenerate;
-    }
-    return key;
+    return (static_cast<const GrConical2Gradient&>(*s.getEffect()).isDegenerate());
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -709,7 +695,7 @@ bool SkTwoPointConicalGradient::asNewEffect(GrContext* context,
         matrix.postConcat(rot);
     }
 
-    stage->setEffect(SkNEW_ARGS(GrConical2Gradient, (context, *this, matrix, fTileMode)))->unref();
+    stage->setEffect(SkNEW_ARGS(GrConical2Gradient, (context, *this, fTileMode)), matrix)->unref();
 
     return true;
 }

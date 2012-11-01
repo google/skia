@@ -404,11 +404,8 @@ private:
 class GrRadial2Gradient : public GrGradientEffect {
 public:
 
-    GrRadial2Gradient(GrContext* ctx,
-                      const SkTwoPointRadialGradient& shader,
-                      const SkMatrix& matrix,
-                      SkShader::TileMode tm)
-        : INHERITED(ctx, shader, matrix, tm)
+    GrRadial2Gradient(GrContext* ctx, const SkTwoPointRadialGradient& shader, SkShader::TileMode tm)
+        : INHERITED(ctx, shader, tm)
         , fCenterX1(shader.getCenterX1())
         , fRadius0(shader.getStartRadius())
         , fPosRoot(shader.getDiffRadius() < 0) { }
@@ -504,19 +501,14 @@ GrGLRadial2Gradient::GrGLRadial2Gradient(
 }
 
 void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
-                                   const GrEffectStage& stage,
-                                   EffectKey key,
+                                   const GrEffectStage&,
+                                   EffectKey,
                                    const char* vertexCoords,
                                    const char* outputColor,
                                    const char* inputColor,
                                    const TextureSamplerArray& samplers) {
 
     this->emitYCoordUniform(builder);
-    const char* fsCoords;
-    const char* vsCoordsVarying;
-    GrSLType coordsVaryingType;
-    this->setupMatrix(builder, key, vertexCoords, &fsCoords, &vsCoordsVarying, &coordsVaryingType);
-
     // 2 copies of uniform array, 1 for each of vertex & fragment shader,
     // to work around Xoom bug. Doesn't seem to cause performance decrease
     // in test apps, but need to keep an eye on it.
@@ -527,8 +519,9 @@ void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
 
     // For radial gradients without perspective we can pass the linear
     // part of the quadratic as a varying.
-    if (kVec2f_GrSLType == coordsVaryingType) {
-        builder->addVarying(kFloat_GrSLType, "Radial2BCoeff", &fVSVaryingName, &fFSVaryingName);
+    if (!builder->defaultTextureMatrixIsPerspective()) {
+        builder->addVarying(kFloat_GrSLType, "Radial2BCoeff",
+                          &fVSVaryingName, &fFSVaryingName);
     }
 
     // VS
@@ -541,11 +534,11 @@ void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
 
         // For radial gradients without perspective we can pass the linear
         // part of the quadratic as a varying.
-        if (kVec2f_GrSLType == coordsVaryingType) {
+        if (!builder->defaultTextureMatrixIsPerspective()) {
             // r2Var = 2 * (r2Parm[2] * varCoord.x - r2Param[3])
             code->appendf("\t%s = 2.0 *(%s * %s.x - %s);\n",
                           fVSVaryingName, p2.c_str(),
-                          vsCoordsVarying, p3.c_str());
+                          vertexCoords, p3.c_str());
         }
     }
 
@@ -572,19 +565,20 @@ void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
         // If we we're able to interpolate the linear component,
         // bVar is the varying; otherwise compute it
         SkString bVar;
-        if (kVec2f_GrSLType == coordsVaryingType) {
+        if (!builder->defaultTextureMatrixIsPerspective()) {
             bVar = fFSVaryingName;
         } else {
             bVar = "b";
             code->appendf("\tfloat %s = 2.0 * (%s * %s.x - %s);\n",
-                          bVar.c_str(), p2.c_str(), fsCoords, p3.c_str());
+                          bVar.c_str(), p2.c_str(),
+                          builder->defaultTexCoordsName(), p3.c_str());
         }
 
         // c = (x^2)+(y^2) - params[4]
         code->appendf("\tfloat %s = dot(%s, %s) - %s;\n",
                       cName.c_str(),
-                      fsCoords,
-                      fsCoords,
+                      builder->defaultTexCoordsName(),
+                      builder->defaultTexCoordsName(),
                       p4.c_str());
 
         // If we aren't degenerate, emit some extra code, and accept a slightly
@@ -649,15 +643,7 @@ void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman, const GrEffect
 }
 
 GrGLEffect::EffectKey GrGLRadial2Gradient::GenKey(const GrEffectStage& s, const GrGLCaps&) {
-    enum {
-        kIsDegenerate = 1 << kMatrixKeyBitCnt,
-    };
-
-    EffectKey key = GenMatrixKey(s);
-    if (static_cast<const GrRadial2Gradient&>(*s.getEffect()).isDegenerate()) {
-        key |= kIsDegenerate;
-    }
-    return key;
+    return (static_cast<const GrRadial2Gradient&>(*s.getEffect()).isDegenerate());
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -681,7 +667,7 @@ bool SkTwoPointRadialGradient::asNewEffect(GrContext* context,
         matrix.postConcat(rot);
     }
 
-    stage->setEffect(SkNEW_ARGS(GrRadial2Gradient, (context, *this, matrix, fTileMode)))->unref();
+    stage->setEffect(SkNEW_ARGS(GrRadial2Gradient, (context, *this, fTileMode)), matrix)->unref();
     return true;
 }
 
