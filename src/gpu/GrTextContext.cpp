@@ -34,7 +34,7 @@ void GrTextContext::flushGlyphs() {
         GrAssert(GrIsALIGN4(fCurrVertex));
         GrAssert(fCurrTexture);
         GrTextureParams params(SkShader::kRepeat_TileMode, false);
-        drawState->createTextureEffect(kGlyphMaskStage, fCurrTexture, GrMatrix::I(), params);
+        drawState->createTextureEffect(kGlyphMaskStage, fCurrTexture, SkMatrix::I(), params);
 
         if (!GrPixelConfigIsAlphaOnly(fCurrTexture->config())) {
             if (kOne_GrBlendCoeff != fPaint.getSrcBlendCoeff() ||
@@ -143,7 +143,7 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
         int x = vx >> 16;
         int y = vy >> 16;
         if (fClipRect.quickReject(x, y, x + width, y + height)) {
-//            Gr_clz(3);    // so we can set a break-point in the debugger
+//            SkCLZ(3);    // so we can set a break-point in the debugger
             return;
         }
     }
@@ -174,7 +174,7 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
         }
 
         GrContext::AutoMatrix am;
-        GrMatrix translate;
+        SkMatrix translate;
         translate.setTranslate(SkFixedToScalar(vx - SkIntToFixed(glyph->fBounds.fLeft)),
                                SkFixedToScalar(vy - SkIntToFixed(glyph->fBounds.fTop)));
         GrPaint tmpPaint(fPaint);

@@ -13,7 +13,7 @@
 #include "GrColor.h"
 #include "GrAARectRenderer.h"
 #include "GrClipData.h"
-#include "GrMatrix.h"
+#include "SkMatrix.h"
 #include "GrPaint.h"
 // not strictly needed but requires WK change in LayerTextureUpdaterCanvas to
 // remove.
@@ -322,13 +322,13 @@ public:
      * Gets the current transformation matrix.
      * @return the current matrix.
      */
-    const GrMatrix& getMatrix() const;
+    const SkMatrix& getMatrix() const;
 
     /**
      * Sets the transformation matrix.
      * @param m the matrix to set.
      */
-    void setMatrix(const GrMatrix& m);
+    void setMatrix(const SkMatrix& m);
 
     /**
      * Sets the current transformation matrix to identity.
@@ -340,7 +340,7 @@ public:
      * current matrix.
      * @param m the matrix to concat.
      */
-    void concatMatrix(const GrMatrix& m) const;
+    void concatMatrix(const SkMatrix& m) const;
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -389,7 +389,7 @@ public:
     void drawRect(const GrPaint& paint,
                   const GrRect&,
                   SkScalar strokeWidth = -1,
-                  const GrMatrix* matrix = NULL);
+                  const SkMatrix* matrix = NULL);
 
     /**
      * Maps a rect of paint coordinates onto the a rect of destination
@@ -409,8 +409,8 @@ public:
     void drawRectToRect(const GrPaint& paint,
                         const GrRect& dstRect,
                         const GrRect& srcRect,
-                        const GrMatrix* dstMatrix = NULL,
-                        const GrMatrix* srcMatrix = NULL);
+                        const SkMatrix* dstMatrix = NULL,
+                        const SkMatrix* srcMatrix = NULL);
 
     /**
      * Draws a path.
@@ -693,7 +693,7 @@ public:
         /**
          * Initializes by pre-concat'ing the context's current matrix with the preConcat param.
          */
-        void setPreConcat(GrContext* context, const GrMatrix& preConcat, GrPaint* paint = NULL) {
+        void setPreConcat(GrContext* context, const SkMatrix& preConcat, GrPaint* paint = NULL) {
             GrAssert(NULL != context);
 
             this->restore();
@@ -727,7 +727,7 @@ public:
          * Replaces the context's matrix with a new matrix. Returns false if the inverse matrix is
          * required to update a paint but the matrix cannot be inverted.
          */
-        bool set(GrContext* context, const GrMatrix& newMatrix, GrPaint* paint = NULL) {
+        bool set(GrContext* context, const SkMatrix& newMatrix, GrPaint* paint = NULL) {
             if (NULL != paint) {
                 if (!this->setIdentity(context, paint)) {
                     return false;
@@ -749,7 +749,7 @@ public:
          * made, not the matrix at the time AutoMatrix was first initialized. In other words, this
          * performs an incremental update of the paint.
          */
-        void preConcat(const GrMatrix& preConcat, GrPaint* paint = NULL) {
+        void preConcat(const SkMatrix& preConcat, GrPaint* paint = NULL) {
             if (NULL != paint) {
                 paint->sourceCoordChange(preConcat);
             }
@@ -774,7 +774,7 @@ public:
 
     private:
         GrContext*  fContext;
-        GrMatrix    fMatrix;
+        SkMatrix    fMatrix;
     };
 
     class AutoClip : GrNoncopyable {
@@ -930,11 +930,11 @@ private:
 
     bool installPMToUPMEffect(GrTexture* texture,
                               bool swapRAndB,
-                              const GrMatrix& matrix,
+                              const SkMatrix& matrix,
                               GrEffectStage* stage);
     bool installUPMToPMEffect(GrTexture* texture,
                               bool swapRAndB,
-                              const GrMatrix& matrix,
+                              const SkMatrix& matrix,
                               GrEffectStage* stage);
 
     typedef GrRefCnt INHERITED;

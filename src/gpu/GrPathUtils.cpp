@@ -12,7 +12,7 @@
 #include "SkGeometry.h"
 
 SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,
-                                          const GrMatrix& viewM,
+                                          const SkMatrix& viewM,
                                           const GrRect& pathBounds) {
     // In order to tesselate the path we get a bound on how much the matrix can
     // stretch when mapping to screen coordinates.
@@ -23,7 +23,7 @@ SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,
         // take worst case mapRadius amoung four corners.
         // (less than perfect)
         for (int i = 0; i < 4; ++i) {
-            GrMatrix mat;
+            SkMatrix mat;
             mat.setTranslate((i % 2) ? pathBounds.fLeft : pathBounds.fRight,
                              (i < 2) ? pathBounds.fTop : pathBounds.fBottom);
             mat.postConcat(viewM);

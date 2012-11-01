@@ -10,7 +10,7 @@
 
 #include "GrBackendEffectFactory.h"
 #include "GrColor.h"
-#include "GrMatrix.h"
+#include "SkMatrix.h"
 #include "GrRefCnt.h"
 #include "GrEffectStage.h"
 #include "GrStencil.h"
@@ -196,14 +196,14 @@ public:
         GrAssert(!this->getStage(stageIdx).getEffect());
         this->stage(stageIdx)->setEffect(SkNEW_ARGS(GrSingleTextureEffect, (texture)))->unref();
     }
-    void createTextureEffect(int stageIdx, GrTexture* texture, const GrMatrix& matrix) {
+    void createTextureEffect(int stageIdx, GrTexture* texture, const SkMatrix& matrix) {
         GrAssert(!this->getStage(stageIdx).getEffect());
         GrEffect* effect = SkNEW_ARGS(GrSingleTextureEffect, (texture, matrix));
         this->stage(stageIdx)->setEffect(effect)->unref();
     }
     void createTextureEffect(int stageIdx,
                              GrTexture* texture,
-                             const GrMatrix& matrix,
+                             const SkMatrix& matrix,
                              const GrTextureParams& params) {
         GrAssert(!this->getStage(stageIdx).getEffect());
         GrEffect* effect = SkNEW_ARGS(GrSingleTextureEffect, (texture, matrix, params));
@@ -271,7 +271,7 @@ public:
      * Called when the source coord system is changing. preConcat gives the transformation from the
      * old coord system to the new coord system.
      */
-    void preConcatStageMatrices(const GrMatrix& preConcat) {
+    void preConcatStageMatrices(const SkMatrix& preConcat) {
         for (int i = 0; i < kNumStages; ++i) {
             if (this->isStageEnabled(i)) {
                 fStages[i].preConcatCoordChange(preConcat);
@@ -284,8 +284,8 @@ public:
      * transformation from the old coord system to the new coord system. Returns false if the matrix
      * cannot be inverted.
      */
-    bool preConcatStageMatricesWithInverse(const GrMatrix& preConcatInverse) {
-        GrMatrix inv;
+    bool preConcatStageMatricesWithInverse(const SkMatrix& preConcatInverse) {
+        SkMatrix inv;
         bool computed = false;
         for (int i = 0; i < kNumStages; ++i) {
             if (this->isStageEnabled(i)) {
@@ -415,12 +415,12 @@ public:
      * fully covers the render target. (w and h are the width and height of the
      * the rendertarget.)
      */
-    void setViewMatrix(const GrMatrix& m) { fViewMatrix = m; }
+    void setViewMatrix(const SkMatrix& m) { fViewMatrix = m; }
 
     /**
      * Gets a writable pointer to the view matrix.
      */
-    GrMatrix* viewMatrix() { return &fViewMatrix; }
+    SkMatrix* viewMatrix() { return &fViewMatrix; }
 
     /**
      *  Multiplies the current view matrix by a matrix
@@ -432,7 +432,7 @@ public:
      *
      *  @param m the matrix used to modify the view matrix.
      */
-    void preConcatViewMatrix(const GrMatrix& m) { fViewMatrix.preConcat(m); }
+    void preConcatViewMatrix(const SkMatrix& m) { fViewMatrix.preConcat(m); }
 
     /**
      *  Multiplies the current view matrix by a matrix
@@ -444,13 +444,13 @@ public:
      *
      *  @param m the matrix used to modify the view matrix.
      */
-    void postConcatViewMatrix(const GrMatrix& m) { fViewMatrix.postConcat(m); }
+    void postConcatViewMatrix(const SkMatrix& m) { fViewMatrix.postConcat(m); }
 
     /**
      * Retrieves the current view matrix
      * @return the current view matrix.
      */
-    const GrMatrix& getViewMatrix() const { return fViewMatrix; }
+    const SkMatrix& getViewMatrix() const { return fViewMatrix; }
 
     /**
      *  Retrieves the inverse of the current view matrix.
@@ -461,10 +461,10 @@ public:
      *
      * @param matrix if not null, will receive a copy of the current inverse.
      */
-    bool getViewInverse(GrMatrix* matrix) const {
+    bool getViewInverse(SkMatrix* matrix) const {
         // TODO: determine whether we really need to leave matrix unmodified
         // at call sites when inversion fails.
-        GrMatrix inverse;
+        SkMatrix inverse;
         if (fViewMatrix.invert(&inverse)) {
             if (matrix) {
                 *matrix = inverse;
@@ -485,7 +485,7 @@ public:
         AutoViewMatrixRestore() : fDrawState(NULL) {}
 
         AutoViewMatrixRestore(GrDrawState* ds,
-                              const GrMatrix& preconcatMatrix,
+                              const SkMatrix& preconcatMatrix,
                               uint32_t explicitCoordStageMask = 0) {
             fDrawState = NULL;
             this->set(ds, preconcatMatrix, explicitCoordStageMask);
@@ -499,14 +499,14 @@ public:
         void restore();
 
         void set(GrDrawState* drawState,
-                 const GrMatrix& preconcatMatrix,
+                 const SkMatrix& preconcatMatrix,
                  uint32_t explicitCoordStageMask = 0);
 
         bool isSet() const { return NULL != fDrawState; }
 
     private:
         GrDrawState*                        fDrawState;
-        GrMatrix                            fViewMatrix;
+        SkMatrix                            fViewMatrix;
         GrEffectStage::SavedCoordChange     fSavedCoordChanges[GrDrawState::kNumStages];
         uint32_t                            fRestoreMask;
     };
@@ -548,7 +548,7 @@ public:
          * Returns the matrix that was set previously set on the drawState. This is only valid
          * if succeeded returns true.
          */
-        const GrMatrix& getOriginalMatrix() const {
+        const SkMatrix& getOriginalMatrix() const {
             GrAssert(this->succeeded());
             return fViewMatrix;
         }
@@ -560,7 +560,7 @@ public:
 
     private:
         GrDrawState*                        fDrawState;
-        GrMatrix                            fViewMatrix;
+        SkMatrix                            fViewMatrix;
         GrEffectStage::SavedCoordChange     fSavedCoordChanges[GrDrawState::kNumStages];
         uint32_t                            fRestoreMask;
     };
@@ -894,7 +894,7 @@ private:
 
     // These fields are roughly sorted by decreasing likelihood of being different in op==
     GrColor             fColor;
-    GrMatrix            fViewMatrix;
+    SkMatrix            fViewMatrix;
     GrRenderTarget*     fRenderTarget;
     GrBlendCoeff        fSrcBlend;
     GrBlendCoeff        fDstBlend;

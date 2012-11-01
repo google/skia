@@ -13,7 +13,7 @@
 
 #include "GrDrawState.h"
 #include "GrIndexBuffer.h"
-#include "GrMatrix.h"
+#include "SkMatrix.h"
 #include "GrRefCnt.h"
 #include "GrTemplates.h"
 
@@ -476,9 +476,9 @@ public:
      *                      srcMatrices are desired.
      */
     virtual void drawRect(const GrRect& rect,
-                          const GrMatrix* matrix,
+                          const SkMatrix* matrix,
                           const GrRect* srcRects[],
-                          const GrMatrix* srcMatrices[]);
+                          const SkMatrix* srcMatrices[]);
 
     /**
      * This call is used to draw multiple instances of some geometry with a
@@ -518,7 +518,7 @@ public:
      * matrices.
      */
     void drawSimpleRect(const GrRect& rect,
-                        const GrMatrix* matrix) {
+                        const SkMatrix* matrix) {
          drawRect(rect, matrix, NULL, NULL);
     }
 
@@ -992,9 +992,9 @@ protected:
     static GrVertexLayout GetRectVertexLayout(const GrRect* srcRects[]);
 
     static void SetRectVertices(const GrRect& rect,
-                                const GrMatrix* matrix,
+                                const SkMatrix* matrix,
                                 const GrRect* srcRects[],
-                                const GrMatrix* srcMatrices[],
+                                const SkMatrix* srcMatrices[],
                                 GrColor color,
                                 GrVertexLayout layout,
                                 void* vertices);

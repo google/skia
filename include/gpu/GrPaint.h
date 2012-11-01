@@ -174,8 +174,8 @@ public:
      * transformation from the old coord system to the new coord system. Returns false if the matrix
      * cannot be inverted.
      */
-    bool sourceCoordChangeByInverse(const GrMatrix& preConcatInverse) {
-        GrMatrix inv;
+    bool sourceCoordChangeByInverse(const SkMatrix& preConcatInverse) {
+        SkMatrix inv;
         bool computed = false;
         for (int i = 0; i < kMaxColorStages; ++i) {
             if (this->isColorStageEnabled(i)) {
@@ -204,7 +204,7 @@ public:
      * Called when the source coord system is changing. preConcat gives the transformation from the
      * old coord system to the new coord system.
      */
-    void sourceCoordChange(const GrMatrix& preConcat) {
+    void sourceCoordChange(const SkMatrix& preConcat) {
         for (int i = 0; i < kMaxColorStages; ++i) {
             if (this->isColorStageEnabled(i)) {
                 fColorStages[i].preConcatCoordChange(preConcat);

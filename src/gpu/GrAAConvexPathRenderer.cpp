@@ -200,7 +200,7 @@ void update_degenerate_test(DegenerateTestData* data, const GrPoint& pt) {
     }
 }
 
-inline bool get_direction(const SkPath& path, const GrMatrix& m, SkPath::Direction* dir) {
+inline bool get_direction(const SkPath& path, const SkMatrix& m, SkPath::Direction* dir) {
     if (!path.cheapComputeDirection(dir)) {
         return false;
     }
@@ -217,7 +217,7 @@ inline bool get_direction(const SkPath& path, const GrMatrix& m, SkPath::Directi
 }
 
 bool get_segments(const SkPath& path,
-                  const GrMatrix& m,
+                  const SkMatrix& m,
                   SegmentArray* segments,
                   SkPoint* fanPt,
                   int* vCount,
@@ -458,7 +458,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     if (!adcd.succeeded()) {
         return false;
     }
-    const GrMatrix* vm = &adcd.getOriginalMatrix();
+    const SkMatrix* vm = &adcd.getOriginalMatrix();
 
     GrVertexLayout layout = 0;
     layout |= GrDrawTarget::kEdge_VertexLayoutBit;
@@ -470,7 +470,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     if (vm->hasPerspective()) {
         origPath.transform(*vm, &tmpPath);
         path = &tmpPath;
-        vm = &GrMatrix::I();
+        vm = &SkMatrix::I();
     }
 
     QuadVertex *verts;

@@ -56,7 +56,7 @@ void GrDrawState::AutoViewMatrixRestore::restore() {
 }
 
 void GrDrawState::AutoViewMatrixRestore::set(GrDrawState* drawState,
-                                             const GrMatrix& preconcatMatrix,
+                                             const SkMatrix& preconcatMatrix,
                                              uint32_t explicitCoordStageMask) {
     this->restore();
 
@@ -104,7 +104,7 @@ bool GrDrawState::AutoDeviceCoordDraw::set(GrDrawState* drawState,
 
     fViewMatrix = drawState->getViewMatrix();
     fRestoreMask = 0;
-    GrMatrix invVM;
+    SkMatrix invVM;
     bool inverted = false;
 
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {

@@ -75,9 +75,9 @@ void GrInOrderDrawBuffer::resetDrawTracking() {
 }
 
 void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
-                                   const GrMatrix* matrix,
+                                   const SkMatrix* matrix,
                                    const GrRect* srcRects[],
-                                   const GrMatrix* srcMatrices[]) {
+                                   const SkMatrix* srcMatrices[]) {
 
     GrAssert(!(NULL == fQuadIndexBuffer && fCurrQuad));
     GrAssert(!(fDraws.empty() && fCurrQuad));
@@ -126,7 +126,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
             GrPrintf("Failed to get space for vertices!\n");
             return;
         }
-        GrMatrix combinedMatrix = drawState->getViewMatrix();
+        SkMatrix combinedMatrix = drawState->getViewMatrix();
         // We go to device space so that matrix changes allow us to concat
         // rect draws. When the caller has provided explicit source rects
         // then we don't want to modify the stages' matrices. Otherwise

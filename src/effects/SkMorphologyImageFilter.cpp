@@ -420,7 +420,7 @@ void apply_morphology_pass(GrContext* context,
                            int radius,
                            GrMorphologyEffect::MorphologyType morphType,
                            Gr1DKernelEffect::Direction direction) {
-    GrMatrix sampleM;
+    SkMatrix sampleM;
     sampleM.setIDiv(texture->width(), texture->height());
     GrPaint paint;
     paint.colorStage(0)->setEffect(SkNEW_ARGS(GrMorphologyEffect, (texture, direction, radius, morphType)), sampleM)->unref();

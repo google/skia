@@ -37,7 +37,7 @@ public:
     static bool InstallEffect(GrTexture*,
                               bool swapRedAndBlue,
                               PMConversion pmConversion,
-                              const GrMatrix& matrix,
+                              const SkMatrix& matrix,
                               GrEffectStage* stage);
 
     static const char* Name() { return "Config Conversion"; }

@@ -854,7 +854,7 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& devPath,
         GrContext::AutoMatrix am;
 
         // Draw hard shadow to pathTexture with path top-left at origin using tempPaint.
-        GrMatrix translate;
+        SkMatrix translate;
         translate.setTranslate(offset.fX, offset.fY);
         am.set(context, translate);
         context->drawPath(tempPaint, devPath, pathFillType);
@@ -871,7 +871,7 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& devPath,
         if (!isNormalBlur) {
             context->setIdentityMatrix();
             GrPaint paint;
-            GrMatrix matrix;
+            SkMatrix matrix;
             matrix.setIDiv(pathTexture->width(), pathTexture->height());
             // Blend pathTexture over blurTexture.
             context->setRenderTarget(blurTexture->asRenderTarget());
@@ -901,7 +901,7 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& devPath,
     // we assume the last mask index is available for use
     GrAssert(!grp->isCoverageStageEnabled(MASK_IDX));
 
-    GrMatrix matrix;
+    SkMatrix matrix;
     matrix.setTranslate(-finalRect.fLeft, -finalRect.fTop);
     matrix.postIDiv(blurTexture->width(), blurTexture->height());
 
@@ -958,7 +958,7 @@ bool drawWithMaskFilter(GrContext* context, const SkPath& devPath,
     // we assume the last mask index is available for use
     GrAssert(!grp->isCoverageStageEnabled(MASK_IDX));
 
-    GrMatrix m;
+    SkMatrix m;
     m.setTranslate(-dstM.fBounds.fLeft*SK_Scalar1, -dstM.fBounds.fTop*SK_Scalar1);
     m.postIDiv(texture->width(), texture->height());
 
@@ -1456,7 +1456,7 @@ void apply_effect(GrContext* context,
     GrContext::AutoRenderTarget art(context, dstTexture->asRenderTarget());
     GrContext::AutoClip acs(context, rect);
 
-    GrMatrix sampleM;
+    SkMatrix sampleM;
     sampleM.setIDiv(srcTexture->width(), srcTexture->height());
     GrPaint paint;
     paint.colorStage(0)->setEffect(effect, sampleM);

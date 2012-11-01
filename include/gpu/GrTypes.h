@@ -13,6 +13,7 @@
 
 #include "SkTypes.h"
 #include "GrConfig.h"
+#include "SkMath.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -137,11 +138,6 @@ static inline void Gr_bzero(void* dst, size_t size) {
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- *  Return the number of leading zeros in n
- */
-extern int Gr_clz(uint32_t n);
-
-/**
  *  Return true if n is a power of 2
  */
 static inline bool GrIsPow2(unsigned n) {
@@ -152,12 +148,12 @@ static inline bool GrIsPow2(unsigned n) {
  *  Return the next power of 2 >= n.
  */
 static inline uint32_t GrNextPow2(uint32_t n) {
-    return n ? (1 << (32 - Gr_clz(n - 1))) : 1;
+    return n ? (1 << (32 - SkCLZ(n - 1))) : 1;
 }
 
 static inline int GrNextPow2(int n) {
     GrAssert(n >= 0); // this impl only works for non-neg.
-    return n ? (1 << (32 - Gr_clz(n - 1))) : 1;
+    return n ? (1 << (32 - SkCLZ(n - 1))) : 1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

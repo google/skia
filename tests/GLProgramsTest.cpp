@@ -188,7 +188,7 @@ void forceLinking() {
     GrConfigConversionEffect::InstallEffect(NULL,
                                             false,
                                             GrConfigConversionEffect::kNone_PMConversion,
-                                            GrMatrix::I(),
+                                            SkMatrix::I(),
                                             &dummyStage);
     SkScalar matrix[20];
     SkColorMatrixFilter cmf(matrix);

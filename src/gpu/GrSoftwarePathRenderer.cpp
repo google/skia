@@ -36,7 +36,7 @@ namespace {
 // path bounds would be empty.
 bool get_path_and_clip_bounds(const GrDrawTarget* target,
                               const SkPath& path,
-                              const GrMatrix& matrix,
+                              const SkMatrix& matrix,
                               GrIRect* devPathBounds,
                               GrIRect* devClipBounds) {
     // compute bounds as intersection of rt size, clip, and path
@@ -117,7 +117,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
 
     GrDrawState* drawState = target->drawState();
 
-    GrMatrix vm = drawState->getViewMatrix();
+    SkMatrix vm = drawState->getViewMatrix();
 
     GrIRect devPathBounds, devClipBounds;
     if (!get_path_and_clip_bounds(target, path, vm,

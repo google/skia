@@ -77,20 +77,20 @@ GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture, const GrTexture
     fMatrix.reset();
 }
 
-GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture, const GrMatrix& m)
+GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture, const SkMatrix& m)
     : INHERITED(1)
     , fTextureAccess(texture)
     , fMatrix(m) {
 }
 
-GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture, const GrMatrix& m, bool bilerp)
+GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture, const SkMatrix& m, bool bilerp)
     : INHERITED(1)
     , fTextureAccess(texture, bilerp)
     , fMatrix(m) {
 }
 
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
-                                             const GrMatrix& m,
+                                             const SkMatrix& m,
                                              const GrTextureParams& params)
     : INHERITED(1)
     , fTextureAccess(texture, params)

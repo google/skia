@@ -35,7 +35,7 @@ void setup_drawstate_aaclip(GrGpu* gpu,
 
     static const int kMaskStage = GrPaint::kTotalStages+1;
 
-    GrMatrix mat;
+    SkMatrix mat;
     mat.setIDiv(result->width(), result->height());
     mat.preTranslate(SkIntToScalar(-devBound.fLeft),
                      SkIntToScalar(-devBound.fTop));
@@ -491,7 +491,7 @@ void GrClipMaskManager::drawTexture(GrTexture* target,
     // no AA here since it is encoded in the texture
     drawState->setRenderTarget(target->asRenderTarget());
 
-    GrMatrix sampleM;
+    SkMatrix sampleM;
     sampleM.setIDiv(texture->width(), texture->height());
 
     drawState->createTextureEffect(0, texture, sampleM);
@@ -1121,7 +1121,7 @@ bool GrClipMaskManager::createSoftwareClipMask(const GrClipData& clipDataIn,
 
     GrSWMaskHelper helper(this->getContext());
 
-    GrMatrix matrix;
+    SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(-clipDataIn.fOrigin.fX),
                         SkIntToScalar(-clipDataIn.fOrigin.fY));
     helper.init(*devResultBounds, &matrix);

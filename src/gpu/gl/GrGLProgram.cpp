@@ -72,7 +72,7 @@ GrGLProgram::GrGLProgram(const GrGLContextInfo& gl,
     fFShaderID = 0;
     fProgramID = 0;
 
-    fViewMatrix = GrMatrix::InvalidMatrix();
+    fViewMatrix = SkMatrix::InvalidMatrix();
     fViewportSize.set(-1, -1);
     fColor = GrColor_ILLEGAL;
     fColorFilterColor = GrColor_ILLEGAL;
@@ -80,7 +80,7 @@ GrGLProgram::GrGLProgram(const GrGLContextInfo& gl,
 
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         fEffects[s] = NULL;
-        fTextureMatrices[s] = GrMatrix::InvalidMatrix();
+        fTextureMatrices[s] = SkMatrix::InvalidMatrix();
         // this is arbitrary, just initialize to something
         fTextureOrigin[s] = GrSurface::kBottomLeft_Origin;
     }

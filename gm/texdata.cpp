@@ -101,7 +101,7 @@ protected:
 
                 GrPaint paint;
                 paint.setBlendFunc(kOne_GrBlendCoeff, kISA_GrBlendCoeff);
-                GrMatrix vm;
+                SkMatrix vm;
                 if (i) {
                     vm.setRotate(90 * SK_Scalar1,
                                  S * SK_Scalar1,
@@ -110,7 +110,7 @@ protected:
                     vm.reset();
                 }
                 ctx->setMatrix(vm);
-                GrMatrix tm;
+                SkMatrix tm;
                 tm = vm;
                 tm.postIDiv(2*S, 2*S);
                 paint.colorStage(0)->setEffect(SkNEW_ARGS(GrSingleTextureEffect,
