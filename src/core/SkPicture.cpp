@@ -190,11 +190,12 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
     bm.setConfig(SkBitmap::kNo_Config, width, height);
     SkAutoTUnref<SkDevice> dev(SkNEW_ARGS(SkDevice, (bm)));
 
+    // Must be set before calling createBBoxHierarchy
+    fWidth = width;
+    fHeight = height;
+
     if (recordingFlags & kOptimizeForClippedPlayback_RecordingFlag) {
-        SkScalar aspectRatio = SkScalarDiv(SkIntToScalar(width),
-                                           SkIntToScalar(height));
-        SkRTree* tree = SkRTree::Create(kRTreeMinChildren, kRTreeMaxChildren,
-                                        aspectRatio);
+        SkBBoxHierarchy* tree = this->createBBoxHierarchy();
         SkASSERT(NULL != tree);
         fRecord = SkNEW_ARGS(SkBBoxHierarchyRecord, (recordingFlags, tree, dev));
         tree->unref();
@@ -203,10 +204,19 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
     }
     fRecord->beginRecording();
 
-    fWidth = width;
-    fHeight = height;
-
     return fRecord;
+}
+
+SkBBoxHierarchy* SkPicture::createBBoxHierarchy() const {
+    // These values were empirically determined to produce reasonable 
+    // performance in most cases.
+    static const int kRTreeMinChildren = 6;
+    static const int kRTreeMaxChildren = 11;
+
+    SkScalar aspectRatio = SkScalarDiv(SkIntToScalar(fWidth),
+                                       SkIntToScalar(fHeight));
+    return SkRTree::Create(kRTreeMinChildren, kRTreeMaxChildren,
+                           aspectRatio);
 }
 
 SkCanvas* SkPicture::getRecordingCanvas() const {
