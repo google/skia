@@ -13,6 +13,7 @@
 #include "SkRefCnt.h"
 #include "SkSerializationHelpers.h"
 
+class SkBBoxHierarchy;
 class SkBitmap;
 class SkCanvas;
 class SkPicturePlayback;
@@ -154,15 +155,12 @@ protected:
     SkPictureRecord* fRecord;
     int fWidth, fHeight;
 
+    // For testing. Derived classes may instantiate an alternate
+    // SkBBoxHierarchy implementation
+    virtual SkBBoxHierarchy* createBBoxHierarchy() const;
+
 private:
     SkPicturePlayback* fPlayback;
-
-    /** Used by the R-Tree when kOptimizeForClippedPlayback_RecordingFlag is
-        set, these were empirically determined to produce reasonable performance
-        in most cases.
-    */
-    static const int kRTreeMinChildren = 6;
-    static const int kRTreeMaxChildren = 11;
 
     friend class SkFlatPicture;
     friend class SkPicturePlayback;
