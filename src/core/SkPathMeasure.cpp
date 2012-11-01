@@ -418,8 +418,7 @@ const SkPathMeasure::Segment* SkPathMeasure::distanceToSegment(
 
 bool SkPathMeasure::getPosTan(SkScalar distance, SkPoint* pos,
                               SkVector* tangent) {
-    SkASSERT(fPath);
-    if (fPath == NULL) {
+    if (NULL == fPath) {
         return false;
     }
 
@@ -446,6 +445,10 @@ bool SkPathMeasure::getPosTan(SkScalar distance, SkPoint* pos,
 
 bool SkPathMeasure::getMatrix(SkScalar distance, SkMatrix* matrix,
                               MatrixFlags flags) {
+    if (NULL == fPath) {
+        return false;
+    }
+
     SkPoint     position;
     SkVector    tangent;
 
