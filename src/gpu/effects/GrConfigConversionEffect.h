@@ -33,12 +33,10 @@ public:
         kPMConversionCnt
     };
 
-    // Installs an effect in the GrEffectStage to perform a config conversion.
-    static bool InstallEffect(GrTexture*,
-                              bool swapRedAndBlue,
-                              PMConversion pmConversion,
-                              const GrMatrix& matrix,
-                              GrEffectStage* stage);
+    // This will fail if the config is not 8888 and a PM conversion is requested.
+    static GrEffect* Create(GrTexture*,
+                                 bool swapRedAndBlue,
+                                 PMConversion pmConversion = kNone_PMConversion);
 
     static const char* Name() { return "Config Conversion"; }
     typedef GrGLConfigConversionEffect GLEffect;

@@ -399,9 +399,7 @@ public:
                           const char* inputColor,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static EffectKey GenKey(const GrEffectStage& stage, const GrGLCaps&) {
-        return GenMatrixKey(stage);
-    }
+    static EffectKey GenKey(const GrEffectStage&, const GrGLCaps& caps) { return 0; }
 
 private:
 
@@ -415,9 +413,8 @@ class GrSweepGradient : public GrGradientEffect {
 public:
 
     GrSweepGradient(GrContext* ctx,
-                    const SkSweepGradient& shader,
-                    const SkMatrix& matrix)
-    : INHERITED(ctx, shader, matrix, SkShader::kClamp_TileMode) { }
+                    const SkSweepGradient& shader)
+    : INHERITED(ctx, shader, SkShader::kClamp_TileMode) { }
     virtual ~GrSweepGradient() { }
 
     static const char* Name() { return "Sweep Gradient"; }
@@ -460,17 +457,16 @@ GrEffect* GrSweepGradient::TestCreate(SkRandom* random,
 /////////////////////////////////////////////////////////////////////
 
 void GrGLSweepGradient::emitCode(GrGLShaderBuilder* builder,
-                                 const GrEffectStage& stage,
-                                 EffectKey key,
+                                 const GrEffectStage&,
+                                 EffectKey,
                                  const char* vertexCoords,
                                  const char* outputColor,
                                  const char* inputColor,
                                  const TextureSamplerArray& samplers) {
     this->emitYCoordUniform(builder);
-    const char* coords;
-    this->setupMatrix(builder, key, vertexCoords, &coords);
     SkString t;
-    t.printf("atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5", coords, coords);
+    t.printf("atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5",
+        builder->defaultTexCoordsName(), builder->defaultTexCoordsName());
     this->emitColorLookup(builder, t.c_str(), outputColor, inputColor, samplers[0]);
 }
 
@@ -482,7 +478,7 @@ bool SkSweepGradient::asNewEffect(GrContext* context, GrEffectStage* stage) cons
         return false;
     }
     matrix.postConcat(fPtsToUnit);
-    stage->setEffect(SkNEW_ARGS(GrSweepGradient, (context, *this, matrix)))->unref();
+    stage->setEffect(SkNEW_ARGS(GrSweepGradient, (context, *this)), matrix)->unref();
     return true;
 }
 
