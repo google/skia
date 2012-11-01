@@ -928,8 +928,14 @@ private:
     // for use with textures released from an GrAutoScratchTexture.
     void addExistingTextureToCache(GrTexture* texture);
 
-    GrEffect* createPMToUPMEffect(GrTexture* texture, bool swapRAndB);
-    GrEffect* createUPMToPMEffect(GrTexture* texture, bool swapRAndB);
+    bool installPMToUPMEffect(GrTexture* texture,
+                              bool swapRAndB,
+                              const GrMatrix& matrix,
+                              GrEffectStage* stage);
+    bool installUPMToPMEffect(GrTexture* texture,
+                              bool swapRAndB,
+                              const GrMatrix& matrix,
+                              GrEffectStage* stage);
 
     typedef GrRefCnt INHERITED;
 };

@@ -15,6 +15,7 @@
 #include "SkTArray.h"
 
 class GrGLContextInfo;
+class SkMatrix;
 
 /** Manages a program's uniforms.
 */
@@ -46,6 +47,9 @@ public:
     void setMatrix4f(UniformHandle, const GrGLfloat matrix[]) const;
     void setMatrix3fv(UniformHandle, int offset, int arrayCount, const GrGLfloat matrices[]) const;
     void setMatrix4fv(UniformHandle, int offset, int arrayCount, const GrGLfloat matrices[]) const;
+
+    // convenience method for uploading a SkMatrix to a 3x3 matrix uniform
+    void setSkMatrix(UniformHandle, const SkMatrix&) const;
 
     struct BuilderUniform {
         GrGLShaderVar fVariable;
