@@ -122,7 +122,7 @@ bool sk_isdir(const char *path)
     if (0 != stat(path, &status)) {
         return false;
     }
-    return (status.st_mode & S_IFDIR);
+    return SkToBool(status.st_mode & S_IFDIR);
 }
 
 bool sk_mkdir(const char* path)
