@@ -146,7 +146,7 @@ private:
     const GrGLContextInfo& glContextInfo() const { return fGLContextInfo; }
 
     // adjusts texture matrix to account for orientation
-    static void AdjustTextureMatrix(const GrTexture* texture, GrMatrix* matrix);
+    static void AdjustTextureMatrix(const GrTexture* texture, SkMatrix* matrix);
 
     // This helper determines if what optimizations can be applied to the matrix after any coord
     // adjustments are applied. The return is a bitfield of GrGLProgram::StageDesc::OptFlags.
@@ -353,10 +353,10 @@ private:
     } fHWAAState;
 
     struct {
-        GrMatrix    fViewMatrix;
+        SkMatrix    fViewMatrix;
         SkISize     fRTSize;
         void invalidate() {
-            fViewMatrix = GrMatrix::InvalidMatrix();
+            fViewMatrix = SkMatrix::InvalidMatrix();
             fRTSize.fWidth = -1; // just make the first value compared illegal.
         }
     } fHWPathMatrixState;

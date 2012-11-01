@@ -221,7 +221,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
 bool GrConfigConversionEffect::InstallEffect(GrTexture* texture,
                                              bool swapRedAndBlue,
                                              PMConversion pmConversion,
-                                             const GrMatrix& matrix,
+                                             const SkMatrix& matrix,
                                              GrEffectStage* stage) {
     if (!swapRedAndBlue && kNone_PMConversion == pmConversion) {
         // If we returned a GrConfigConversionEffect that was equivalent to a GrSingleTextureEffect

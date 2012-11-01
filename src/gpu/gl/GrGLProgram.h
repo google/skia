@@ -240,7 +240,7 @@ private:
 
     // The matrix sent to GL is determined by both the client's matrix and
     // the size of the viewport.
-    GrMatrix  fViewMatrix;
+    SkMatrix  fViewMatrix;
     SkISize   fViewportSize;
 
     // these reflect the current values of uniforms
@@ -250,7 +250,7 @@ private:
     GrColor                     fColorFilterColor;
     int                         fRTHeight;
     /// When it is sent to GL, the texture matrix will be flipped if the texture origin requires.
-    GrMatrix                    fTextureMatrices[GrDrawState::kNumStages];
+    SkMatrix                    fTextureMatrices[GrDrawState::kNumStages];
     GrSurface::Origin           fTextureOrigin[GrDrawState::kNumStages];
 
     GrGLEffect*                 fEffects[GrDrawState::kNumStages];

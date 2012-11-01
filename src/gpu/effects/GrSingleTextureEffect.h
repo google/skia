@@ -9,7 +9,7 @@
 #define GrSingleTextureEffect_DEFINED
 
 #include "GrEffect.h"
-#include "GrMatrix.h"
+#include "SkMatrix.h"
 
 class GrGLSingleTextureEffect;
 
@@ -25,9 +25,9 @@ public:
     GrSingleTextureEffect(GrTexture* texture, const GrTextureParams&);
 
     /** These three constructors take an explicit matrix */
-    GrSingleTextureEffect(GrTexture*, const GrMatrix&); /* unfiltered, clamp mode */
-    GrSingleTextureEffect(GrTexture*, const GrMatrix&, bool bilerp); /* clamp mode */
-    GrSingleTextureEffect(GrTexture*, const GrMatrix&, const GrTextureParams&);
+    GrSingleTextureEffect(GrTexture*, const SkMatrix&); /* unfiltered, clamp mode */
+    GrSingleTextureEffect(GrTexture*, const SkMatrix&, bool bilerp); /* clamp mode */
+    GrSingleTextureEffect(GrTexture*, const SkMatrix&, const GrTextureParams&);
 
     virtual ~GrSingleTextureEffect();
 
@@ -35,7 +35,7 @@ public:
 
     static const char* Name() { return "Single Texture"; }
 
-    const GrMatrix& getMatrix() const { return fMatrix; }
+    const SkMatrix& getMatrix() const { return fMatrix; }
 
     typedef GrGLSingleTextureEffect GLEffect;
 
@@ -49,7 +49,7 @@ private:
     GR_DECLARE_EFFECT_TEST;
 
     GrTextureAccess fTextureAccess;
-    GrMatrix        fMatrix;
+    SkMatrix        fMatrix;
 
     typedef GrEffect INHERITED;
 };

@@ -10,7 +10,7 @@
 
 #include "GrBinHashKey.h"
 #include "GrDrawTarget.h"
-#include "GrMatrix.h"
+#include "SkMatrix.h"
 #include "GrRedBlackTree.h"
 #include "GrTDArray.h"
 

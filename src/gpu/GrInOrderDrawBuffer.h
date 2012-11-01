@@ -114,9 +114,9 @@ public:
 
     // overrides from GrDrawTarget
     virtual void drawRect(const GrRect& rect,
-                          const GrMatrix* matrix = NULL,
+                          const SkMatrix* matrix = NULL,
                           const GrRect* srcRects[] = NULL,
-                          const GrMatrix* srcMatrices[] = NULL) SK_OVERRIDE;
+                          const SkMatrix* srcMatrices[] = NULL) SK_OVERRIDE;
 
     virtual void drawIndexedInstances(GrPrimitiveType type,
                                       int instanceCount,

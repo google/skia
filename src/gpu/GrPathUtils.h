@@ -10,16 +10,18 @@
 #ifndef GrPathUtils_DEFINED
 #define GrPathUtils_DEFINED
 
-#include "GrMatrix.h"
+#include "GrRect.h"
 #include "SkPath.h"
 #include "SkTArray.h"
+
+class SkMatrix;
 
 /**
  *  Utilities for evaluating paths.
  */
 namespace GrPathUtils {
     SkScalar scaleToleranceToSrc(SkScalar devTol,
-                                 const GrMatrix& viewM,
+                                 const SkMatrix& viewM,
                                  const GrRect& pathBounds);
 
     /// Since we divide by tol if we're computing exact worst-case bounds,

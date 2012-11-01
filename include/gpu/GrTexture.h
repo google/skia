@@ -151,8 +151,8 @@ protected:
     , fRenderTarget(NULL) {
 
         // only make sense if alloc size is pow2
-        fShiftFixedX = 31 - Gr_clz(fDesc.fWidth);
-        fShiftFixedY = 31 - Gr_clz(fDesc.fHeight);
+        fShiftFixedX = 31 - SkCLZ(fDesc.fWidth);
+        fShiftFixedY = 31 - SkCLZ(fDesc.fHeight);
     }
 
     // GrResource overrides

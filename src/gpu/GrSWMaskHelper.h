@@ -9,7 +9,7 @@
 #define GrSWMaskHelper_DEFINED
 
 #include "GrColor.h"
-#include "GrMatrix.h"
+#include "SkMatrix.h"
 #include "GrNoncopyable.h"
 #include "SkBitmap.h"
 #include "SkDraw.h"
@@ -47,7 +47,7 @@ public:
     // may be accumulated in the helper during creation, "resultBounds"
     // allows the caller to specify the region of interest - to limit the
     // amount of work.
-    bool init(const GrIRect& resultBounds, const GrMatrix* matrix);
+    bool init(const GrIRect& resultBounds, const SkMatrix* matrix);
 
     // Draw a single rect into the accumulation bitmap using the specified op
     void draw(const GrRect& rect, SkRegion::Op op,
@@ -77,7 +77,7 @@ public:
                                             const GrIRect& resultBounds,
                                             GrPathFill fill,
                                             bool antiAlias,
-                                            GrMatrix* matrix);
+                                            SkMatrix* matrix);
 
     // This utility routine is used to add a path's mask to some other draw.
     // The ClipMaskManager uses it to accumulate clip masks while the
@@ -96,7 +96,7 @@ public:
 protected:
 private:
     GrContext*      fContext;
-    GrMatrix        fMatrix;
+    SkMatrix        fMatrix;
     SkBitmap        fBM;
     SkDraw          fDraw;
     SkRasterClip    fRasterClip;

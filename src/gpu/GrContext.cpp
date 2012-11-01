@@ -199,7 +199,7 @@ void convolve_gaussian(GrDrawTarget* target,
     GrDrawTarget::AutoStateRestore asr(target, GrDrawTarget::kReset_ASRInit);
     GrDrawState* drawState = target->drawState();
     drawState->setRenderTarget(rt);
-    GrMatrix sampleM;
+    SkMatrix sampleM;
     sampleM.setIDiv(texture->width(), texture->height());
     SkAutoTUnref<GrConvolutionEffect> conv(SkNEW_ARGS(GrConvolutionEffect,
                                                       (texture, direction, radius,
@@ -312,7 +312,7 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
         // texels in the resampled image are copies of texels from
         // the original.
         GrTextureParams params(SkShader::kClamp_TileMode, needsFiltering);
-        drawState->createTextureEffect(0, clampedTexture, GrMatrix::I(), params);
+        drawState->createTextureEffect(0, clampedTexture, SkMatrix::I(), params);
 
         static const GrVertexLayout layout =
                             GrDrawTarget::StageTexCoordVertexLayoutBit(0,0);
@@ -577,7 +577,7 @@ void GrContext::drawPaint(const GrPaint& origPaint) {
     r.setLTRB(0, 0,
               SkIntToScalar(getRenderTarget()->width()),
               SkIntToScalar(getRenderTarget()->height()));
-    GrMatrix inverse;
+    SkMatrix inverse;
     SkTCopyOnFirstWrite<GrPaint> paint(origPaint);
     AutoMatrix am;
 
@@ -646,8 +646,8 @@ static bool isIRect(const GrRect& r) {
 static bool apply_aa_to_rect(GrDrawTarget* target,
                              const GrRect& rect,
                              SkScalar width,
-                             const GrMatrix* matrix,
-                             GrMatrix* combinedMatrix,
+                             const SkMatrix* matrix,
+                             SkMatrix* combinedMatrix,
                              GrRect* devRect,
                              bool* useVertexCoverage) {
     // we use a simple coverage ramp to do aa on axis-aligned rects
@@ -706,14 +706,14 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
 void GrContext::drawRect(const GrPaint& paint,
                          const GrRect& rect,
                          SkScalar width,
-                         const GrMatrix* matrix) {
+                         const SkMatrix* matrix) {
     SK_TRACE_EVENT0("GrContext::drawRect");
 
     GrDrawTarget* target = this->prepareToDraw(&paint, DEFAULT_BUFFERING);
     GrDrawState::AutoStageDisable atr(fDrawState);
 
     GrRect devRect = rect;
-    GrMatrix combinedMatrix;
+    SkMatrix combinedMatrix;
     bool useVertexCoverage;
     bool needAA = paint.isAntiAlias() &&
                   !this->getRenderTarget()->isMultisampled();
@@ -792,10 +792,10 @@ void GrContext::drawRect(const GrPaint& paint,
             }
             target->setVertexSourceToBuffer(0, sqVB);
             GrDrawState* drawState = target->drawState();
-            GrMatrix m;
+            SkMatrix m;
             m.setAll(rect.width(),    0,             rect.fLeft,
                         0,            rect.height(), rect.fTop,
-                        0,            0,             GrMatrix::I()[8]);
+                        0,            0,             SkMatrix::I()[8]);
 
             if (NULL != matrix) {
                 m.postConcat(*matrix);
@@ -812,8 +812,8 @@ void GrContext::drawRect(const GrPaint& paint,
 void GrContext::drawRectToRect(const GrPaint& paint,
                                const GrRect& dstRect,
                                const GrRect& srcRect,
-                               const GrMatrix* dstMatrix,
-                               const GrMatrix* srcMatrix) {
+                               const SkMatrix* dstMatrix,
+                               const SkMatrix* srcMatrix) {
     SK_TRACE_EVENT0("GrContext::drawRectToRect");
 
     // srcRect refers to paint's first color stage
@@ -828,11 +828,11 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     GrDrawState::AutoStageDisable atr(fDrawState);
     GrDrawState* drawState = target->drawState();
 
-    GrMatrix m;
+    SkMatrix m;
 
     m.setAll(dstRect.width(), 0,                dstRect.fLeft,
              0,               dstRect.height(), dstRect.fTop,
-             0,               0,                GrMatrix::I()[8]);
+             0,               0,                SkMatrix::I()[8]);
     if (NULL != dstMatrix) {
         m.postConcat(*dstMatrix);
     }
@@ -844,7 +844,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
 
     m.setAll(srcRect.width(), 0,                srcRect.fLeft,
              0,               srcRect.height(), srcRect.fTop,
-             0,               0,                GrMatrix::I()[8]);
+             0,               0,                SkMatrix::I()[8]);
     if (NULL != srcMatrix) {
         m.postConcat(*srcMatrix);
     }
@@ -862,7 +862,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     GrDrawState::AutoStageDisable atr(fDrawState);
 
     const GrRect* srcRects[GrDrawState::kNumStages] = {NULL};
-    const GrMatrix* srcMatrices[GrDrawState::kNumStages] = {NULL};
+    const SkMatrix* srcMatrices[GrDrawState::kNumStages] = {NULL};
     srcRects[0] = &srcRect;
     srcMatrices[0] = srcMatrix;
 
@@ -998,7 +998,7 @@ void GrContext::drawOval(const GrPaint& paint,
 
     GrDrawState* drawState = target->drawState();
     GrDrawState::AutoStageDisable atr(fDrawState);
-    const GrMatrix vm = drawState->getViewMatrix();
+    const SkMatrix vm = drawState->getViewMatrix();
 
     const GrRenderTarget* rt = drawState->getRenderTarget();
     if (NULL == rt) {
@@ -1309,11 +1309,11 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
         if (texture) {
             GrEffectStage stage;
             // compute a matrix to perform the draw
-            GrMatrix textureMatrix;
+            SkMatrix textureMatrix;
             if (flipY) {
                 textureMatrix.setTranslate(SK_Scalar1 * left,
                                     SK_Scalar1 * (top + height));
-                textureMatrix.set(GrMatrix::kMScaleY, -SK_Scalar1);
+                textureMatrix.set(SkMatrix::kMScaleY, -SK_Scalar1);
             } else {
                 textureMatrix.setTranslate(SK_Scalar1 *left, SK_Scalar1 *top);
             }
@@ -1442,7 +1442,7 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst) {
     GrDrawTarget::AutoStateRestore asr(fGpu, GrDrawTarget::kReset_ASRInit);
     GrDrawState* drawState = fGpu->drawState();
     drawState->setRenderTarget(dst);
-    GrMatrix sampleM;
+    SkMatrix sampleM;
     sampleM.setIDiv(src->width(), src->height());
     drawState->createTextureEffect(0, src, sampleM);
     SkRect rect = SkRect::MakeXYWH(0, 0,
@@ -1510,7 +1510,7 @@ void GrContext::writeRenderTargetPixels(GrRenderTarget* target,
     }
 
     GrEffectStage stage;
-    GrMatrix textureMatrix;
+    SkMatrix textureMatrix;
     textureMatrix.setIDiv(texture->width(), texture->height());
 
     // allocate a tmp buffer and sw convert the pixels to premul
@@ -1560,7 +1560,7 @@ void GrContext::writeRenderTargetPixels(GrRenderTarget* target,
     GrDrawState* drawState = fGpu->drawState();
     *drawState->stage(0) = stage;
 
-    GrMatrix matrix;
+    SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
     drawState->setViewMatrix(matrix);
     drawState->setRenderTarget(target);
@@ -1645,11 +1645,11 @@ bool GrContext::isConfigRenderable(GrPixelConfig config) const {
     return fGpu->isConfigRenderable(config);
 }
 
-const GrMatrix& GrContext::getMatrix() const {
+const SkMatrix& GrContext::getMatrix() const {
     return fDrawState->getViewMatrix();
 }
 
-void GrContext::setMatrix(const GrMatrix& m) {
+void GrContext::setMatrix(const SkMatrix& m) {
     fDrawState->setViewMatrix(m);
 }
 
@@ -1657,7 +1657,7 @@ void GrContext::setIdentityMatrix() {
     fDrawState->viewMatrix()->reset();
 }
 
-void GrContext::concatMatrix(const GrMatrix& m) const {
+void GrContext::concatMatrix(const SkMatrix& m) const {
     fDrawState->preConcatViewMatrix(m);
 }
 
@@ -1748,7 +1748,7 @@ void test_pm_conversions(GrContext* ctx, int* pmToUPMValue, int* upmToPMValue) {
 
 bool GrContext::installPMToUPMEffect(GrTexture* texture,
                                      bool swapRAndB,
-                                     const GrMatrix& matrix,
+                                     const SkMatrix& matrix,
                                      GrEffectStage* stage) {
     if (!fDidTestPMConversions) {
         test_pm_conversions(this, &fPMToUPMConversion, &fUPMToPMConversion);
@@ -1766,7 +1766,7 @@ bool GrContext::installPMToUPMEffect(GrTexture* texture,
 
 bool GrContext::installUPMToPMEffect(GrTexture* texture,
                                      bool swapRAndB,
-                                     const GrMatrix& matrix,
+                                     const SkMatrix& matrix,
                                      GrEffectStage* stage) {
     if (!fDidTestPMConversions) {
         test_pm_conversions(this, &fPMToUPMConversion, &fUPMToPMConversion);
@@ -1828,7 +1828,7 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
     paint.reset();
 
     for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
-        GrMatrix matrix;
+        SkMatrix matrix;
         matrix.setIDiv(srcTexture->width(), srcTexture->height());
         this->setRenderTarget(dstTexture->asRenderTarget());
         SkRect dstRect(srcRect);
@@ -1889,7 +1889,7 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         clearRect = SkIRect::MakeXYWH(srcIRect.fRight, srcIRect.fTop,
                                       1, srcIRect.height());
         this->clear(&clearRect, 0x0);
-        GrMatrix matrix;
+        SkMatrix matrix;
         // FIXME:  This should be mitchell, not bilinear.
         matrix.setIDiv(srcTexture->width(), srcTexture->height());
         this->setRenderTarget(dstTexture->asRenderTarget());

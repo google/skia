@@ -208,7 +208,7 @@ GrTexture* SkBlendImageFilter::onFilterImageGPU(Proxy* proxy, GrTexture* src, co
     GrContext::AutoRenderTarget art(context, dst->asRenderTarget());
     GrContext::AutoClip ac(context, rect);
 
-    GrMatrix backgroundTexMatrix, foregroundTexMatrix;
+    SkMatrix backgroundTexMatrix, foregroundTexMatrix;
     backgroundTexMatrix.setIDiv(background->width(), background->height());
     foregroundTexMatrix.setIDiv(foreground->width(), foreground->height());
     GrPaint paint;

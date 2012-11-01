@@ -320,7 +320,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
                                              GrDrawTarget* target,
                                              bool stencilOnly) {
 
-    GrMatrix viewM = target->getDrawState().getViewMatrix();
+    SkMatrix viewM = target->getDrawState().getViewMatrix();
     SkScalar tol = SK_Scalar1;
     tol = GrPathUtils::scaleToleranceToSrc(tol, viewM, path.getBounds());
 
@@ -457,7 +457,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
                 bounds.setLTRB(0, 0,
                                SkIntToScalar(drawState->getRenderTarget()->width()),
                                SkIntToScalar(drawState->getRenderTarget()->height()));
-                GrMatrix vmi;
+                SkMatrix vmi;
                 // mapRect through persp matrix may not be correct
                 if (!drawState->getViewMatrix().hasPerspective() &&
                     drawState->getViewInverse(&vmi)) {

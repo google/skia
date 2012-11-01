@@ -98,7 +98,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const SkPath& path,
             0xffff,
             0x0000,
             0xffff);
-        GrMatrix vmi;
+        SkMatrix vmi;
         bounds.setLTRB(0, 0,
                        SkIntToScalar(drawState->getRenderTarget()->width()),
                        SkIntToScalar(drawState->getRenderTarget()->height()));
