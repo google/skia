@@ -350,6 +350,8 @@ public:
         : INHERITED(factory)
         , fMatrixHandle(GrGLUniformManager::kInvalidUniformHandle)
         , fVectorHandle(GrGLUniformManager::kInvalidUniformHandle) {
+            // no texture
+            fRequiresTextureMatrix = false;
         }
 
         virtual void emitCode(GrGLShaderBuilder* builder,

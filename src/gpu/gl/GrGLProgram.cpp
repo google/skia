@@ -909,48 +909,55 @@ GrGLEffect* GrGLProgram::GenStageCode(const GrEffectStage& stage,
 
     /// Vertex Shader Stuff
 
-    // decide whether we need a matrix to transform texture coords and whether the varying needs a
-    // perspective coord.
-    const char* matName = NULL;
-    GrSLType texCoordVaryingType;
-    if (desc.fOptFlags & StageDesc::kIdentityMatrix_OptFlagBit) {
-        texCoordVaryingType = kVec2f_GrSLType;
-    } else {
-        uniforms->fTextureMatrixUni = builder->addUniform(GrGLShaderBuilder::kVertex_ShaderType,
-                                                         kMat33f_GrSLType, "TexM", &matName);
-        builder->getUniformVariable(uniforms->fTextureMatrixUni);
+    const char* vertexCoords;
 
-        if (desc.fOptFlags & StageDesc::kNoPerspective_OptFlagBit) {
+    // Has the effect not yet been updated to insert its own texture matrix if necessary.
+    if (glEffect->requiresTextureMatrix()) {
+        // Decide whether we need a matrix to transform texture coords and whether the varying needs
+        // a perspective coord.
+        const char* matName = NULL;
+        GrSLType texCoordVaryingType;
+        if (desc.fOptFlags & StageDesc::kIdentityMatrix_OptFlagBit) {
             texCoordVaryingType = kVec2f_GrSLType;
         } else {
-            texCoordVaryingType = kVec3f_GrSLType;
-        }
-    }
-    const char *varyingVSName, *varyingFSName;
-    builder->addVarying(texCoordVaryingType,
-                        "Stage",
-                        &varyingVSName,
-                        &varyingFSName);
-    builder->setupTextureAccess(varyingFSName, texCoordVaryingType);
+            uniforms->fTextureMatrixUni = builder->addUniform(GrGLShaderBuilder::kVertex_ShaderType,
+                                                              kMat33f_GrSLType, "TexM", &matName);
+            builder->getUniformVariable(uniforms->fTextureMatrixUni);
 
+            if (desc.fOptFlags & StageDesc::kNoPerspective_OptFlagBit) {
+                texCoordVaryingType = kVec2f_GrSLType;
+            } else {
+                texCoordVaryingType = kVec3f_GrSLType;
+            }
+        }
+        const char *varyingVSName, *varyingFSName;
+        builder->addVarying(texCoordVaryingType,
+                            "Stage",
+                            &varyingVSName,
+                            &varyingFSName);
+        builder->setupTextureAccess(varyingFSName, texCoordVaryingType);
+
+        if (!matName) {
+            GrAssert(kVec2f_GrSLType == texCoordVaryingType);
+            builder->fVSCode.appendf("\t%s = %s;\n", varyingVSName, vsInCoord);
+        } else {
+            // varying = texMatrix * texCoord
+            builder->fVSCode.appendf("\t%s = (%s * vec3(%s, 1))%s;\n",
+                                     varyingVSName, matName, vsInCoord,
+                                     vector_all_coords(GrSLTypeToVecLength(texCoordVaryingType)));
+        }
+        vertexCoords = varyingVSName;
+    } else {
+        vertexCoords = vsInCoord;
+    }
+
+    // setup texture samplers for gl effect
     int numTextures = effect->numTextures();
     SkSTArray<8, GrGLShaderBuilder::TextureSampler> textureSamplers;
-
     textureSamplers.push_back_n(numTextures);
-
     for (int i = 0; i < numTextures; ++i) {
         textureSamplers[i].init(builder, &effect->textureAccess(i));
         uniforms->fSamplerUniforms.push_back(textureSamplers[i].fSamplerUniform);
-    }
-
-    if (!matName) {
-        GrAssert(kVec2f_GrSLType == texCoordVaryingType);
-        builder->fVSCode.appendf("\t%s = %s;\n", varyingVSName, vsInCoord);
-    } else {
-        // varying = texMatrix * texCoord
-        builder->fVSCode.appendf("\t%s = (%s * vec3(%s, 1))%s;\n",
-                                  varyingVSName, matName, vsInCoord,
-                                  vector_all_coords(GrSLTypeToVecLength(texCoordVaryingType)));
     }
 
     // Enclose custom code in a block to avoid namespace conflicts
@@ -959,7 +966,7 @@ GrGLEffect* GrGLProgram::GenStageCode(const GrEffectStage& stage,
     glEffect->emitCode(builder,
                        stage,
                        desc.fEffectKey,
-                       varyingVSName,
+                       vertexCoords,
                        fsOutColor,
                        fsInColor,
                        textureSamplers);
