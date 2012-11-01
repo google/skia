@@ -98,6 +98,13 @@
           ],
         }],
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
+          'link_settings': {
+            'libraries': [
+              '-lGL',
+              '-lGLU',
+              '-lX11',
+            ],
+          },
         },{
           'sources!': [
             '../src/views/unix/SkOSWindow_Unix.cpp',
