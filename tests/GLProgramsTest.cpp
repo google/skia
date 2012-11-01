@@ -184,7 +184,12 @@ void forceLinking();
 void forceLinking() {
     SkLightingImageFilter::CreateDistantLitDiffuse(SkPoint3(0,0,0), 0, 0, 0);
     SkMagnifierImageFilter mag(SkRect::MakeWH(SK_Scalar1, SK_Scalar1), SK_Scalar1);
-    GrConfigConversionEffect::Create(NULL, false);
+    GrEffectStage dummyStage;
+    GrConfigConversionEffect::InstallEffect(NULL,
+                                            false,
+                                            GrConfigConversionEffect::kNone_PMConversion,
+                                            GrMatrix::I(),
+                                            &dummyStage);
     SkScalar matrix[20];
     SkColorMatrixFilter cmf(matrix);
 }

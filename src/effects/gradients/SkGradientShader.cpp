@@ -678,7 +678,9 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 GrGLGradientEffect::GrGLGradientEffect(const GrBackendEffectFactory& factory)
     : INHERITED(factory)
     , fCachedYCoord(GR_ScalarMax)
-    , fFSYUni(GrGLUniformManager::kInvalidUniformHandle) { }
+    , fFSYUni(GrGLUniformManager::kInvalidUniformHandle) {
+    fRequiresTextureMatrix = false;
+}
 
 GrGLGradientEffect::~GrGLGradientEffect() { }
 
@@ -688,11 +690,35 @@ void GrGLGradientEffect::emitYCoordUniform(GrGLShaderBuilder* builder) {
 }
 
 void GrGLGradientEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
-    GrScalar yCoord = static_cast<const GrGradientEffect&>(*stage.getEffect()).getYCoord();
+    const GrGradientEffect& e = static_cast<const GrGradientEffect&>(*stage.getEffect());
+    const GrTexture* texture = e.texture(0);
+    fEffectMatrix.setData(uman, e.getMatrix(), stage.getCoordChangeMatrix(), texture);
+
+    GrScalar yCoord = e.getYCoord();
     if (yCoord != fCachedYCoord) {
         uman.set1f(fFSYUni, yCoord);
         fCachedYCoord = yCoord;
     }
+}
+
+GrGLEffect::EffectKey GrGLGradientEffect::GenMatrixKey(const GrEffectStage& s) {
+    const GrGradientEffect& e = static_cast<const GrGradientEffect&>(*s.getEffect());
+    const GrTexture* texture = e.texture(0);
+    return GrGLEffectMatrix::GenKey(e.getMatrix(), s.getCoordChangeMatrix(), texture); 
+}
+
+void GrGLGradientEffect::setupMatrix(GrGLShaderBuilder* builder,
+                                     EffectKey key,
+                                     const char* vertexCoords,
+                                     const char** fsCoordName,
+                                     const char** vsVaryingName,
+                                     GrSLType* vsVaryingType) {
+    fEffectMatrix.emitCodeMakeFSCoords2D(builder,
+                                         key & kMatrixKeyMask,
+                                         vertexCoords,
+                                         fsCoordName,
+                                         vsVaryingName,
+                                         vsVaryingType);
 }
 
 void GrGLGradientEffect::emitColorLookup(GrGLShaderBuilder* builder,
@@ -714,12 +740,15 @@ void GrGLGradientEffect::emitColorLookup(GrGLShaderBuilder* builder,
 
 GrGradientEffect::GrGradientEffect(GrContext* ctx,
                                    const SkGradientShaderBase& shader,
+                                   const SkMatrix& matrix,
                                    SkShader::TileMode tileMode)
     : INHERITED(1) {
     // TODO: check for simple cases where we don't need a texture:
     //GradientInfo info;
     //shader.asAGradient(&info);
     //if (info.fColorCount == 2) { ...
+
+    fMatrix = matrix;
 
     SkBitmap bitmap;
     shader.getGradientTableBitmap(&bitmap);

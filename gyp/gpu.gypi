@@ -147,6 +147,8 @@
       '<(skia_src_path)/gpu/gl/GrGLDefines.h',
       '<(skia_src_path)/gpu/gl/GrGLEffect.cpp',
       '<(skia_src_path)/gpu/gl/GrGLEffect.h',
+      '<(skia_src_path)/gpu/gl/GrGLEffectMatrix.cpp',
+      '<(skia_src_path)/gpu/gl/GrGLEffectMatrix.h',
       '<(skia_src_path)/gpu/gl/GrGLIndexBuffer.cpp',
       '<(skia_src_path)/gpu/gl/GrGLIndexBuffer.h',
       '<(skia_src_path)/gpu/gl/GrGLInterface.cpp',

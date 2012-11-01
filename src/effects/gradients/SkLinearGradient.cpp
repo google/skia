@@ -495,7 +495,9 @@ public:
                           const char* inputColor,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static EffectKey GenKey(const GrEffectStage&, const GrGLCaps& caps) { return 0; }
+    static EffectKey GenKey(const GrEffectStage& stage, const GrGLCaps&) {
+        return GenMatrixKey(stage);
+    }
 
 private:
 
@@ -507,8 +509,11 @@ private:
 class GrLinearGradient : public GrGradientEffect {
 public:
 
-    GrLinearGradient(GrContext* ctx, const SkLinearGradient& shader, SkShader::TileMode tm)
-        : INHERITED(ctx, shader, tm) { }
+    GrLinearGradient(GrContext* ctx,
+                     const SkLinearGradient& shader,
+                     const SkMatrix& matrix,
+                     SkShader::TileMode tm)
+        : INHERITED(ctx, shader, matrix, tm) { }
     virtual ~GrLinearGradient() { }
 
     static const char* Name() { return "Linear Gradient"; }
@@ -553,15 +558,18 @@ GrEffect* GrLinearGradient::TestCreate(SkRandom* random,
 /////////////////////////////////////////////////////////////////////
 
 void GrGLLinearGradient::emitCode(GrGLShaderBuilder* builder,
-                                  const GrEffectStage&,
-                                  EffectKey,
+                                  const GrEffectStage& stage,
+                                  EffectKey key,
                                   const char* vertexCoords,
                                   const char* outputColor,
                                   const char* inputColor,
                                   const TextureSamplerArray& samplers) {
     this->emitYCoordUniform(builder);
+    const char* coords;
+    this->setupMatrix(builder, key, vertexCoords, &coords);
     SkString t;
-    t.printf("%s.x", builder->defaultTexCoordsName());
+    t.append(coords);
+    t.append(".x");
     this->emitColorLookup(builder, t.c_str(), outputColor, inputColor, samplers[0]);
 }
 
@@ -574,7 +582,7 @@ bool SkLinearGradient::asNewEffect(GrContext* context, GrEffectStage* stage) con
         return false;
     }
     matrix.postConcat(fPtsToUnit);
-    stage->setEffect(SkNEW_ARGS(GrLinearGradient, (context, *this, fTileMode)), matrix)->unref();
+    stage->setEffect(SkNEW_ARGS(GrLinearGradient, (context, *this, matrix, fTileMode)))->unref();
     return true;
 }
 
