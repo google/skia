@@ -29,8 +29,8 @@ class SK_API SkGpuDevice : public SkDevice {
 public:
     /**
      *  New device that will create an offscreen renderTarget based on the
-     *  config, width, height, and sampleCount. The device's storage will not 
-     *  count against the GrContext's texture cache budget. The device's pixels 
+     *  config, width, height, and sampleCount. The device's storage will not
+     *  count against the GrContext's texture cache budget. The device's pixels
      *  will be uninitialized.
      */
     SkGpuDevice(GrContext*, SkBitmap::Config, int width, int height, int sampleCount = 0);

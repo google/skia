@@ -230,7 +230,7 @@ public:
     /**
      *  Search for an entry with the same Key. If found, return it.
      *  If not found, return null.
-     *  If ownershipFlags includes kNoOtherOwners and a resource is returned 
+     *  If ownershipFlags includes kNoOtherOwners and a resource is returned
      *  then that resource has no other refs to it.
      *  If ownershipFlags includes kHide and a resource is returned then that
      *  resource will not be returned from future 'find' calls until it is
@@ -238,21 +238,21 @@ public:
      *  For a resource to be completely exclusive to a caller both kNoOtherOwners
      *  and kHide must be specified.
      */
-    GrResource* find(const GrResourceKey& key, 
+    GrResource* find(const GrResourceKey& key,
                      uint32_t ownershipFlags = 0);
 
     /**
-     *  Add the new resource to the cache (by creating a new cache entry based 
-     *  on the provided key and resource). 
+     *  Add the new resource to the cache (by creating a new cache entry based
+     *  on the provided key and resource).
      *
      *  Ownership of the resource is transferred to the resource cache,
      *  which will unref() it when it is purged or deleted.
      *
      *  If ownershipFlags includes kHide, subsequent calls to 'find' will not
-     *  return 'resource' until it is 'freed' (and recycled) or makeNonExclusive 
+     *  return 'resource' until it is 'freed' (and recycled) or makeNonExclusive
      *  is called.
      */
-    void addResource(const GrResourceKey& key, 
+    void addResource(const GrResourceKey& key,
                      GrResource* resource,
                      uint32_t ownershipFlags = 0);
 

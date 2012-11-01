@@ -176,7 +176,7 @@ void GrResourceCache::attachToHead(GrResourceEntry* entry,
 // is relying on the texture.
 class GrTFindUnreffedFunctor {
 public:
-    bool operator()(const GrResourceEntry* entry) const { 
+    bool operator()(const GrResourceEntry* entry) const {
         return 1 == entry->resource()->getRefCnt();
     }
 };
@@ -213,7 +213,7 @@ bool GrResourceCache::hasKey(const GrResourceKey& key) const {
     return NULL != fCache.find(key);
 }
 
-void GrResourceCache::addResource(const GrResourceKey& key, 
+void GrResourceCache::addResource(const GrResourceKey& key,
                                   GrResource* resource,
                                   uint32_t ownershipFlags) {
     GrAssert(NULL == resource->getCacheEntry());
@@ -275,8 +275,8 @@ void GrResourceCache::makeNonExclusive(GrResourceEntry* entry) {
 #endif
 
     if (entry->resource()->isValid()) {
-        // Since scratch textures still count against the cache budget even 
-        // when they have been removed from the cache, re-adding them doesn't 
+        // Since scratch textures still count against the cache budget even
+        // when they have been removed from the cache, re-adding them doesn't
         // alter the budget information.
         attachToHead(entry, kIgnore_BudgetBehavior);
         fCache.insert(entry->key(), entry);
