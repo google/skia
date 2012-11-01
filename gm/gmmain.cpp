@@ -816,7 +816,7 @@ namespace skiagm {
 #if SK_SUPPORT_GPU
 SkAutoTUnref<GrContext> gGrContext;
 /**
- * Sets the global GrContext, accessible by indivual GMs
+ * Sets the global GrContext, accessible by individual GMs
  */
 static void SetGr(GrContext* grContext) {
     SkSafeRef(grContext);
@@ -953,6 +953,10 @@ int tool_main(int argc, char** argv) {
                 continue;
             }
             moduloDivisor = atoi(*argv);
+            if (moduloRemainder < 0 || moduloDivisor <= 0 || moduloRemainder >= moduloDivisor) {
+                SkDebugf("invalid modulo values.");
+                return -1;
+            }
         } else if (strcmp(*argv, "--nopdf") == 0) {
             doPDF = false;
         } else if (strcmp(*argv, "--nopipe") == 0) {
