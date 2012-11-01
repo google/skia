@@ -1307,35 +1307,44 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
         ast.set(this, desc, match);
         GrTexture* texture = ast.texture();
         if (texture) {
-            SkAutoTUnref<GrEffect> effect;
+            GrEffectStage stage;
+            // compute a matrix to perform the draw
+            GrMatrix textureMatrix;
+            if (flipY) {
+                textureMatrix.setTranslate(SK_Scalar1 * left,
+                                    SK_Scalar1 * (top + height));
+                textureMatrix.set(GrMatrix::kMScaleY, -GR_Scalar1);
+            } else {
+                textureMatrix.setTranslate(SK_Scalar1 *left, SK_Scalar1 *top);
+            }
+            textureMatrix.postIDiv(src->width(), src->height());
+
+            bool effectInstalled = false;
             if (unpremul) {
-                effect.reset(this->createPMToUPMEffect(src, swapRAndB));
+                if (this->installPMToUPMEffect(src, swapRAndB, textureMatrix, &stage)) {
+                    effectInstalled = true;
+                    unpremul = false; // we no longer need to do this on CPU after the readback.
+                }
             }
             // If we failed to create a PM->UPM effect and have no other conversions to perform then
             // there is no longer any point to using the scratch.
-            if (NULL != effect || flipY || swapRAndB) {
-                if (NULL == effect) {
-                    effect.reset(GrConfigConversionEffect::Create(src, swapRAndB));
-                    GrAssert(NULL != effect);
-                } else {
-                    unpremul = false; // we will handle the UPM conversion in the draw
+            if (effectInstalled || flipY || swapRAndB) {
+                if (!effectInstalled) {
+                    SkAssertResult(GrConfigConversionEffect::InstallEffect(
+                                            src,
+                                            swapRAndB,
+                                            GrConfigConversionEffect::kNone_PMConversion,
+                                            textureMatrix,
+                                            &stage));
                 }
                 swapRAndB = false; // we will handle the swap in the draw.
+                flipY = false; // we already incorporated the y flip in the matrix
 
                 GrDrawTarget::AutoStateRestore asr(fGpu, GrDrawTarget::kReset_ASRInit);
                 GrDrawState* drawState = fGpu->drawState();
+                *drawState->stage(0) = stage;
+
                 drawState->setRenderTarget(texture->asRenderTarget());
-                GrMatrix matrix;
-                if (flipY) {
-                    matrix.setTranslate(SK_Scalar1 * left,
-                                        SK_Scalar1 * (top + height));
-                    matrix.set(GrMatrix::kMScaleY, -GR_Scalar1);
-                    flipY = false; // the y flip will be handled in the draw
-                } else {
-                    matrix.setTranslate(SK_Scalar1 *left, SK_Scalar1 *top);
-                }
-                matrix.postIDiv(src->width(), src->height());
-                drawState->stage(0)->setEffect(effect, matrix);
                 GrRect rect = GrRect::MakeWH(GrIntToScalar(width), GrIntToScalar(height));
                 fGpu->drawSimpleRect(rect, NULL);
                 // we want to read back from the scratch's origin
@@ -1350,7 +1359,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
                           readConfig, buffer, rowBytes, readUpsideDown)) {
         return false;
     }
-    // Perform any conversions we weren't able to perfom using a scratch texture.
+    // Perform any conversions we weren't able to perform using a scratch texture.
     if (unpremul || swapRAndB || flipY) {
         // These are initialized to suppress a warning
         SkCanvas::Config8888 srcC8888 = SkCanvas::kNative_Premul_Config8888;
@@ -1480,7 +1489,7 @@ void GrContext::writeRenderTargetPixels(GrRenderTarget* target,
         return;
     }
 #endif
-    SkAutoTUnref<GrEffect> effect;
+
     bool swapRAndB = (fGpu->preferredReadPixelsConfig(config) == GrPixelConfigSwapRAndB(config));
 
     GrPixelConfig textureConfig;
@@ -1499,15 +1508,24 @@ void GrContext::writeRenderTargetPixels(GrRenderTarget* target,
     if (NULL == texture) {
         return;
     }
+
+    GrEffectStage stage;
+    GrMatrix textureMatrix;
+    textureMatrix.setIDiv(texture->width(), texture->height());
+
     // allocate a tmp buffer and sw convert the pixels to premul
     SkAutoSTMalloc<128 * 128, uint32_t> tmpPixels(0);
 
+    bool effectInstalled = false;
     if (kUnpremul_PixelOpsFlag & flags) {
         if (kRGBA_8888_GrPixelConfig != config && kBGRA_8888_GrPixelConfig != config) {
             return;
         }
-        effect.reset(this->createUPMToPMEffect(texture, swapRAndB));
-        if (NULL == effect) {
+        effectInstalled = this->installUPMToPMEffect(texture,
+                                                     swapRAndB,
+                                                     textureMatrix,
+                                                     &stage);
+        if (!effectInstalled) {
             SkCanvas::Config8888 srcConfig8888, dstConfig8888;
             GR_DEBUGCODE(bool success = )
             grconfig_to_config8888(config, true, &srcConfig8888);
@@ -1524,9 +1542,13 @@ void GrContext::writeRenderTargetPixels(GrRenderTarget* target,
             rowBytes = 4 * width;
         }
     }
-    if (NULL == effect) {
-        effect.reset(GrConfigConversionEffect::Create(texture, swapRAndB));
-        GrAssert(NULL != effect);
+    if (!effectInstalled) {
+        SkAssertResult(GrConfigConversionEffect::InstallEffect(
+                                                    texture,
+                                                    swapRAndB,
+                                                    GrConfigConversionEffect::kNone_PMConversion,
+                                                    textureMatrix,
+                                                    &stage));
     }
 
     this->writeTexturePixels(texture,
@@ -1536,14 +1558,12 @@ void GrContext::writeRenderTargetPixels(GrRenderTarget* target,
 
     GrDrawTarget::AutoStateRestore  asr(fGpu, GrDrawTarget::kReset_ASRInit);
     GrDrawState* drawState = fGpu->drawState();
+    *drawState->stage(0) = stage;
 
     GrMatrix matrix;
     matrix.setTranslate(GrIntToScalar(left), GrIntToScalar(top));
     drawState->setViewMatrix(matrix);
     drawState->setRenderTarget(target);
-
-    matrix.setIDiv(texture->width(), texture->height());
-    drawState->stage(0)->setEffect(effect, matrix);
 
     fGpu->drawSimpleRect(GrRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height)), NULL);
 }
@@ -1726,7 +1746,10 @@ void test_pm_conversions(GrContext* ctx, int* pmToUPMValue, int* upmToPMValue) {
 }
 }
 
-GrEffect* GrContext::createPMToUPMEffect(GrTexture* texture, bool swapRAndB) {
+bool GrContext::installPMToUPMEffect(GrTexture* texture,
+                                     bool swapRAndB,
+                                     const GrMatrix& matrix,
+                                     GrEffectStage* stage) {
     if (!fDidTestPMConversions) {
         test_pm_conversions(this, &fPMToUPMConversion, &fUPMToPMConversion);
         fDidTestPMConversions = true;
@@ -1734,13 +1757,17 @@ GrEffect* GrContext::createPMToUPMEffect(GrTexture* texture, bool swapRAndB) {
     GrConfigConversionEffect::PMConversion pmToUPM =
         static_cast<GrConfigConversionEffect::PMConversion>(fPMToUPMConversion);
     if (GrConfigConversionEffect::kNone_PMConversion != pmToUPM) {
-        return GrConfigConversionEffect::Create(texture, swapRAndB, pmToUPM);
+        GrConfigConversionEffect::InstallEffect(texture, swapRAndB, pmToUPM, matrix, stage);
+        return true;
     } else {
-        return NULL;
+        return false;
     }
 }
 
-GrEffect* GrContext::createUPMToPMEffect(GrTexture* texture, bool swapRAndB) {
+bool GrContext::installUPMToPMEffect(GrTexture* texture,
+                                     bool swapRAndB,
+                                     const GrMatrix& matrix,
+                                     GrEffectStage* stage) {
     if (!fDidTestPMConversions) {
         test_pm_conversions(this, &fPMToUPMConversion, &fUPMToPMConversion);
         fDidTestPMConversions = true;
@@ -1748,9 +1775,10 @@ GrEffect* GrContext::createUPMToPMEffect(GrTexture* texture, bool swapRAndB) {
     GrConfigConversionEffect::PMConversion upmToPM =
         static_cast<GrConfigConversionEffect::PMConversion>(fUPMToPMConversion);
     if (GrConfigConversionEffect::kNone_PMConversion != upmToPM) {
-        return GrConfigConversionEffect::Create(texture, swapRAndB, upmToPM);
+        GrConfigConversionEffect::InstallEffect(texture, swapRAndB, upmToPM, matrix, stage);
+        return true;
     } else {
-        return NULL;
+        return false;
     }
 }
 
@@ -1808,7 +1836,7 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
                              i < scaleFactorY ? 0.5f : 1.0f);
 
         paint.colorStage(0)->setEffect(SkNEW_ARGS(GrSingleTextureEffect,
-                                                  (srcTexture, true)), matrix)->unref();
+                                                  (srcTexture, matrix, true)))->unref();
         this->drawRectToRect(paint, dstRect, srcRect);
         srcRect = dstRect;
         srcTexture = dstTexture;
@@ -1865,8 +1893,8 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         // FIXME:  This should be mitchell, not bilinear.
         matrix.setIDiv(srcTexture->width(), srcTexture->height());
         this->setRenderTarget(dstTexture->asRenderTarget());
-        paint.colorStage(0)->setEffect(SkNEW_ARGS(GrSingleTextureEffect,(srcTexture, true)),
-                                       matrix)->unref();
+        paint.colorStage(0)->setEffect(SkNEW_ARGS(GrSingleTextureEffect,(srcTexture,
+                                                                         matrix, true)))->unref();
         SkRect dstRect(srcRect);
         scale_rect(&dstRect, (float) scaleFactorX, (float) scaleFactorY);
         this->drawRectToRect(paint, dstRect, srcRect);

@@ -218,21 +218,27 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     }
 }
 
-GrEffect* GrConfigConversionEffect::Create(GrTexture* texture,
-                                                bool swapRedAndBlue,
-                                                PMConversion pmConversion) {
+bool GrConfigConversionEffect::InstallEffect(GrTexture* texture,
+                                             bool swapRedAndBlue,
+                                             PMConversion pmConversion,
+                                             const GrMatrix& matrix,
+                                             GrEffectStage* stage) {
     if (!swapRedAndBlue && kNone_PMConversion == pmConversion) {
         // If we returned a GrConfigConversionEffect that was equivalent to a GrSingleTextureEffect
         // then we may pollute our texture cache with redundant shaders. So in the case that no
         // conversions were requested we instead return a GrSingleTextureEffect.
-        return SkNEW_ARGS(GrSingleTextureEffect, (texture));
+        stage->setEffect(SkNEW_ARGS(GrSingleTextureEffect, (texture, matrix)), matrix)->unref();
+        return true;
     } else {
         if (kRGBA_8888_GrPixelConfig != texture->config() &&
             kBGRA_8888_GrPixelConfig != texture->config() &&
             kNone_PMConversion != pmConversion) {
             // The PM conversions assume colors are 0..255
-            return NULL;
+            return false;
         }
-        return SkNEW_ARGS(GrConfigConversionEffect, (texture, swapRedAndBlue, pmConversion));
+        stage->setEffect(SkNEW_ARGS(GrConfigConversionEffect, (texture,
+                                                               swapRedAndBlue,
+                                                               pmConversion)), matrix)->unref();
+        return true;
     }
 }

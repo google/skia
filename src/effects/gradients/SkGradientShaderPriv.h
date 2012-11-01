@@ -193,12 +193,13 @@ private:
 #if SK_SUPPORT_GPU
 
 #include "gl/GrGLEffect.h"
+#include "gl/GrGLEffectMatrix.h"
 
 class GrEffectStage;
 class GrBackendEffectFactory;
 
 /*
- * The intepretation of the texture matrix depends on the sample mode. The
+ * The interpretation of the texture matrix depends on the sample mode. The
  * texture matrix is applied both when the texture coordinates are explicit
  * and  when vertex positions are used as texture  coordinates. In the latter
  * case the texture matrix is applied to the pre-view-matrix position
@@ -228,6 +229,7 @@ public:
 
     GrGradientEffect(GrContext* ctx,
                      const SkGradientShaderBase& shader,
+                     const SkMatrix& matrix,
                      SkShader::TileMode tileMode);
 
     virtual ~GrGradientEffect();
@@ -236,11 +238,12 @@ public:
 
     bool useAtlas() const { return SkToBool(-1 != fRow); }
     GrScalar getYCoord() const { return fYCoord; };
+    const SkMatrix& getMatrix() const { return fMatrix;}
 
     virtual bool isEqual(const GrEffect& effect) const SK_OVERRIDE {
         const GrGradientEffect& s = static_cast<const GrGradientEffect&>(effect);
         return INHERITED::isEqual(effect) && this->useAtlas() == s.useAtlas() &&
-               fYCoord == s.getYCoord();
+               fYCoord == s.getYCoord() && fMatrix.cheapEqualTo(s.getMatrix());
     }
 
 protected:
@@ -263,6 +266,7 @@ private:
     GrScalar fYCoord;
     GrTextureStripAtlas* fAtlas;
     int fRow;
+    SkMatrix fMatrix;
 
     typedef GrEffect INHERITED;
 
@@ -279,6 +283,36 @@ public:
     virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
 
 protected:
+    /**
+     * Subclasses must reserve the lower kMatrixKeyBitCnt of their key for use by
+     * GrGLGradientEffect.
+     */
+    enum {
+        kMatrixKeyBitCnt = GrGLEffectMatrix::kKeyBits,
+        kMatrixKeyMask = (1 << kMatrixKeyBitCnt) - 1,
+    };
+
+    /**
+     * Subclasses must call this. It will return a value restricted to the lower kMatrixKeyBitCnt
+     * bits.
+     */
+    static EffectKey GenMatrixKey(const GrEffectStage& s);
+
+    /**
+     * Inserts code to implement the GrGradientEffect's matrix. This should be called before a
+     * subclass emits its own code. The name of the 2D coords is output via fsCoordName and already
+     * incorporates any perspective division. The caller can also optionally retrieve the name of
+     * the varying inserted in the VS and its type, which may be either vec2f or vec3f depending
+     * upon whether the matrix has perspective or not. It is not necessary to mask the key before
+     * calling.
+     */
+    void setupMatrix(GrGLShaderBuilder* builder,
+                     EffectKey key,
+                     const char* vertexCoords,
+                     const char** fsCoordName,
+                     const char** vsVaryingName = NULL,
+                     GrSLType* vsVaryingType = NULL);
+
     // Emits the uniform used as the y-coord to texture samples in derived classes. Subclasses
     // should call this method from their emitCode().
     void emitYCoordUniform(GrGLShaderBuilder* builder);
@@ -295,6 +329,7 @@ protected:
 private:
     GrScalar fCachedYCoord;
     GrGLUniformManager::UniformHandle fFSYUni;
+    GrGLEffectMatrix fEffectMatrix;
 
     typedef GrGLEffect INHERITED;
 };
