@@ -10,8 +10,6 @@
 
 GrGLEffect::GrGLEffect(const GrBackendEffectFactory& factory)
     : fFactory(factory) {
-
-    fRequiresTextureMatrix = true;
 }
 
 GrGLEffect::~GrGLEffect() {

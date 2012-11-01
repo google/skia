@@ -12,20 +12,12 @@
 #include "GrNoncopyable.h"
 #include "SkTArray.h"
 
-class SkMatrix;
-
 namespace GrEffectUnitTest {
 // Used to access the dummy textures in TestCreate procs.
 enum {
     kSkiaPMTextureIdx = 0,
     kAlphaTextureIdx = 1,
 };
-
-/**
- * A helper for use in GrEffect::TestCreate functions.
- */
-const SkMatrix& TestMatrix(SkRandom*);
-
 }
 
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
@@ -64,13 +56,12 @@ private:
     static GrEffectTestFactory gTestFactory;                                        \
     static GrEffect* TestCreate(SkRandom*, GrContext*, GrTexture* dummyTextures[2])
 
-/** GrEffect subclasses should insert this macro in their implementation file. They must then
+/** GrEffect subclasses should insert this macro in their implemenation file. They must then
  *  also implement this static function:
  *      GrEffect* TestCreate(SkRandom*, GrContext*, GrTexture* dummyTextures[2]);
- * dummyTextures[] are valid textures that can optionally be used to construct GrTextureAccesses.
- * The first texture has config kSkia8888_PM_GrPixelConfig and the second has
- * kAlpha_8_GrPixelConfig. TestCreate functions are also free to create additional textures using
- * the GrContext.
+ *  dummyTextures[] are valied textures that they can optionally use for their texture accesses. The
+  * first texture has config kSkia8888_PM_GrPixelConfig and the second has kAlpha_8_GrPixelConfig.
+  * TestCreate functions are also free to create additional textures using the GrContext.
  */
 #define GR_DEFINE_EFFECT_TEST(Effect)                                               \
     GrEffectTestFactory Effect :: gTestFactory(Effect :: TestCreate)

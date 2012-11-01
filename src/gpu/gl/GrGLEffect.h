@@ -51,9 +51,7 @@ public:
 
         @param builder      Interface used to emit code in the shaders.
         @param stage        The effect stage that generated this program stage.
-        @param key          The key that was computed by GenKey() from the generating GrEffect.
-                            Only the bits indicated by GrBackendEffectFactory::kEffectKeyBits are
-                            guaranteed to match the value produced by GenKey();
+        @param key          The key that was computed by EffectKey() from the generating GrEffect.
         @param vertexCoords A vec2 of texture coordinates in the VS, which may be altered. This will
                             be removed soon and stages will be responsible for computing their own
                             coords.
@@ -87,14 +85,7 @@ public:
 
     static EffectKey GenTextureKey(const GrEffect&, const GrGLCaps&);
 
-    bool requiresTextureMatrix() const { return fRequiresTextureMatrix; }
-
-
 protected:
-    // HACK: This is a temporary field that allows GrGLEffect subclasses to opt into the new
-    // shader gen where a texture matrix is not automatically inserted. It defaults to true and is
-    // set to false in a subclass to opt into the new behavior.
-    bool fRequiresTextureMatrix;
 
     const GrBackendEffectFactory& fFactory;
 };
