@@ -147,7 +147,7 @@ int num_quad_subdivs(const SkPoint p[3]) {
         return -1;
     }
 
-    GrScalar dsqd = p[1].distanceToLineBetweenSqd(p[0], p[2]);
+    SkScalar dsqd = p[1].distanceToLineBetweenSqd(p[0], p[2]);
     if (dsqd < gDegenerateToLineTolSqd) {
         return -1;
     }
@@ -322,13 +322,13 @@ struct Vertex {
     GrPoint fPos;
     union {
         struct {
-            GrScalar fA;
-            GrScalar fB;
-            GrScalar fC;
+            SkScalar fA;
+            SkScalar fB;
+            SkScalar fC;
         } fLine;
         GrVec   fQuadCoord;
         struct {
-            GrScalar fBogus[4];
+            SkScalar fBogus[4];
         };
     };
 };

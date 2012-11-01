@@ -48,7 +48,7 @@ private:
 
     bool createGeom(const SkPath& path,
                     GrPathFill fill,
-                    GrScalar srcSpaceTol,
+                    SkScalar srcSpaceTol,
                     GrDrawTarget* target,
                     GrPrimitiveType* primType,
                     int* vertexCnt,

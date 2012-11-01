@@ -575,8 +575,8 @@ void GrContext::drawPaint(const GrPaint& origPaint) {
     // don't overflow fixed-point implementations
     GrRect r;
     r.setLTRB(0, 0,
-              GrIntToScalar(getRenderTarget()->width()),
-              GrIntToScalar(getRenderTarget()->height()));
+              SkIntToScalar(getRenderTarget()->width()),
+              SkIntToScalar(getRenderTarget()->height()));
     GrMatrix inverse;
     SkTCopyOnFirstWrite<GrPaint> paint(origPaint);
     AutoMatrix am;
@@ -619,8 +619,8 @@ inline bool disable_coverage_aa_for_blend(GrDrawTarget* target) {
  would be faster.
  */
 static void setStrokeRectStrip(GrPoint verts[10], GrRect rect,
-                               GrScalar width) {
-    const GrScalar rad = GrScalarHalf(width);
+                               SkScalar width) {
+    const SkScalar rad = SkScalarHalf(width);
     rect.sort();
 
     verts[0].set(rect.fLeft + rad, rect.fTop + rad);
@@ -639,13 +639,13 @@ static void setStrokeRectStrip(GrPoint verts[10], GrRect rect,
  * Returns true if the rects edges are integer-aligned.
  */
 static bool isIRect(const GrRect& r) {
-    return GrScalarIsInt(r.fLeft) && GrScalarIsInt(r.fTop) &&
-           GrScalarIsInt(r.fRight) && GrScalarIsInt(r.fBottom);
+    return SkScalarIsInt(r.fLeft) && SkScalarIsInt(r.fTop) &&
+           SkScalarIsInt(r.fRight) && SkScalarIsInt(r.fBottom);
 }
 
 static bool apply_aa_to_rect(GrDrawTarget* target,
                              const GrRect& rect,
-                             GrScalar width,
+                             SkScalar width,
                              const GrMatrix* matrix,
                              GrMatrix* combinedMatrix,
                              GrRect* devRect,
@@ -705,7 +705,7 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
 
 void GrContext::drawRect(const GrPaint& paint,
                          const GrRect& rect,
-                         GrScalar width,
+                         SkScalar width,
                          const GrMatrix* matrix) {
     SK_TRACE_EVENT0("GrContext::drawRect");
 
@@ -733,7 +733,7 @@ void GrContext::drawRect(const GrPaint& paint,
                 combinedMatrix.mapVectors(&strokeSize, 1);
                 strokeSize.setAbs(strokeSize);
             } else {
-                strokeSize.set(GR_Scalar1, GR_Scalar1);
+                strokeSize.set(SK_Scalar1, SK_Scalar1);
             }
             fAARectRenderer->strokeAARect(this->getGpu(), target, devRect,
                                          strokeSize, useVertexCoverage);
@@ -940,8 +940,8 @@ namespace {
 struct CircleVertex {
     GrPoint fPos;
     GrPoint fCenter;
-    GrScalar fOuterRadius;
-    GrScalar fInnerRadius;
+    SkScalar fOuterRadius;
+    SkScalar fInnerRadius;
 };
 
 /* Returns true if will map a circle to another circle. This can be true
@@ -1014,13 +1014,13 @@ void GrContext::drawOval(const GrPaint& paint,
     GrAssert(sizeof(CircleVertex) == GrDrawTarget::VertexSize(layout));
 
     GrPoint center = GrPoint::Make(rect.centerX(), rect.centerY());
-    GrScalar radius = SkScalarHalf(rect.width());
+    SkScalar radius = SkScalarHalf(rect.width());
 
     vm.mapPoints(&center, 1);
     radius = vm.mapRadius(radius);
 
-    GrScalar outerRadius = radius;
-    GrScalar innerRadius = 0;
+    SkScalar outerRadius = radius;
+    SkScalar innerRadius = 0;
     SkScalar halfWidth = 0;
     if (strokeWidth == 0) {
         halfWidth = SkScalarHalf(SK_Scalar1);
@@ -1313,7 +1313,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
             if (flipY) {
                 textureMatrix.setTranslate(SK_Scalar1 * left,
                                     SK_Scalar1 * (top + height));
-                textureMatrix.set(GrMatrix::kMScaleY, -GR_Scalar1);
+                textureMatrix.set(GrMatrix::kMScaleY, -SK_Scalar1);
             } else {
                 textureMatrix.setTranslate(SK_Scalar1 *left, SK_Scalar1 *top);
             }
@@ -1345,7 +1345,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
                 *drawState->stage(0) = stage;
 
                 drawState->setRenderTarget(texture->asRenderTarget());
-                GrRect rect = GrRect::MakeWH(GrIntToScalar(width), GrIntToScalar(height));
+                GrRect rect = GrRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
                 fGpu->drawSimpleRect(rect, NULL);
                 // we want to read back from the scratch's origin
                 left = 0;
@@ -1561,7 +1561,7 @@ void GrContext::writeRenderTargetPixels(GrRenderTarget* target,
     *drawState->stage(0) = stage;
 
     GrMatrix matrix;
-    matrix.setTranslate(GrIntToScalar(left), GrIntToScalar(top));
+    matrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
     drawState->setViewMatrix(matrix);
     drawState->setRenderTarget(target);
 

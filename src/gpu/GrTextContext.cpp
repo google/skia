@@ -131,8 +131,8 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
         return;
     }
 
-    vx += GrIntToFixed(glyph->fBounds.fLeft);
-    vy += GrIntToFixed(glyph->fBounds.fTop);
+    vx += SkIntToFixed(glyph->fBounds.fLeft);
+    vy += SkIntToFixed(glyph->fBounds.fTop);
 
     // keep them as ints until we've done the clip-test
     GrFixed width = glyph->fBounds.width();
@@ -175,8 +175,8 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
 
         GrContext::AutoMatrix am;
         GrMatrix translate;
-        translate.setTranslate(GrFixedToScalar(vx - GrIntToFixed(glyph->fBounds.fLeft)),
-                               GrFixedToScalar(vy - GrIntToFixed(glyph->fBounds.fTop)));
+        translate.setTranslate(SkFixedToScalar(vx - SkIntToFixed(glyph->fBounds.fLeft)),
+                               SkFixedToScalar(vy - SkIntToFixed(glyph->fBounds.fTop)));
         GrPaint tmpPaint(fPaint);
         am.setPreConcat(fContext, translate, &tmpPaint);
         fContext->drawPath(tmpPaint, *glyph->fPath, kWinding_GrPathFill);
@@ -187,8 +187,8 @@ HAS_ATLAS:
     GrAssert(glyph->fAtlas);
 
     // now promote them to fixed
-    width = GrIntToFixed(width);
-    height = GrIntToFixed(height);
+    width = SkIntToFixed(width);
+    height = SkIntToFixed(height);
 
     GrTexture* texture = glyph->fAtlas->texture();
     GrAssert(texture);
@@ -234,8 +234,8 @@ HAS_ATLAS:
         GrAlwaysAssert(success);
     }
 
-    GrFixed tx = GrIntToFixed(glyph->fAtlasLocation.fX);
-    GrFixed ty = GrIntToFixed(glyph->fAtlasLocation.fY);
+    GrFixed tx = SkIntToFixed(glyph->fAtlasLocation.fX);
+    GrFixed ty = SkIntToFixed(glyph->fAtlasLocation.fY);
 
 #if GR_TEXT_SCALAR_IS_USHORT
     int x = vx >> 16;

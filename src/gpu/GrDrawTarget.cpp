@@ -126,7 +126,7 @@ size_t GrDrawTarget::VertexSize(GrVertexLayout vertexLayout) {
         size += sizeof(GrColor);
     }
     if (vertexLayout & kEdge_VertexLayoutBit) {
-        size += 4 * sizeof(GrScalar);
+        size += 4 * sizeof(SkScalar);
     }
     return size;
 }
@@ -269,7 +269,7 @@ int GrDrawTarget::VertexSizeAndOffsetsByIdx(
         if (NULL != edgeOffset) {
             *edgeOffset = size;
         }
-        size += 4 * sizeof(GrScalar);
+        size += 4 * sizeof(SkScalar);
     } else {
         if (NULL != edgeOffset) {
             *edgeOffset = -1;

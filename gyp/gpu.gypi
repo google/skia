@@ -31,7 +31,6 @@
       '<(skia_include_path)/gpu/GrRefCnt.h',
       '<(skia_include_path)/gpu/GrRenderTarget.h',
       '<(skia_include_path)/gpu/GrResource.h',
-      '<(skia_include_path)/gpu/GrScalar.h',
       '<(skia_include_path)/gpu/GrSurface.h',
       '<(skia_include_path)/gpu/GrTBackendEffectFactory.h',
       '<(skia_include_path)/gpu/GrTextContext.h',

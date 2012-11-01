@@ -97,32 +97,32 @@ void GrGpuGL::flushViewMatrix(DrawType type) {
             // rescale the coords from skia's "device" coords to GL's normalized coords,
             // and perform a y-flip.
             GrMatrix m;
-            m.setScale(GrIntToScalar(2) / rt->width(), GrIntToScalar(-2) / rt->height());
-            m.postTranslate(-GR_Scalar1, GR_Scalar1);
+            m.setScale(SkIntToScalar(2) / rt->width(), SkIntToScalar(-2) / rt->height());
+            m.postTranslate(-SK_Scalar1, SK_Scalar1);
             m.preConcat(vm);
 
             // GL wants a column-major 4x4.
             GrGLfloat mv[]  = {
                 // col 0
-                GrScalarToFloat(m[GrMatrix::kMScaleX]),
-                GrScalarToFloat(m[GrMatrix::kMSkewY]),
+                SkScalarToFloat(m[GrMatrix::kMScaleX]),
+                SkScalarToFloat(m[GrMatrix::kMSkewY]),
                 0,
-                GrScalarToFloat(m[GrMatrix::kMPersp0]),
+                SkScalarToFloat(m[GrMatrix::kMPersp0]),
 
                 // col 1
-                GrScalarToFloat(m[GrMatrix::kMSkewX]),
-                GrScalarToFloat(m[GrMatrix::kMScaleY]),
+                SkScalarToFloat(m[GrMatrix::kMSkewX]),
+                SkScalarToFloat(m[GrMatrix::kMScaleY]),
                 0,
-                GrScalarToFloat(m[GrMatrix::kMPersp1]),
+                SkScalarToFloat(m[GrMatrix::kMPersp1]),
 
                 // col 2
                 0, 0, 0, 0,
 
                 // col3
-                GrScalarToFloat(m[GrMatrix::kMTransX]),
-                GrScalarToFloat(m[GrMatrix::kMTransY]),
+                SkScalarToFloat(m[GrMatrix::kMTransX]),
+                SkScalarToFloat(m[GrMatrix::kMTransY]),
                 0.0f,
-                GrScalarToFloat(m[GrMatrix::kMPersp2])
+                SkScalarToFloat(m[GrMatrix::kMPersp2])
             };
             GL_CALL(MatrixMode(GR_GL_PROJECTION));
             GL_CALL(LoadMatrixf(mv));
@@ -133,23 +133,23 @@ void GrGpuGL::flushViewMatrix(DrawType type) {
                fCurrentProgram->fViewportSize != viewportSize) {
         GrMatrix m;
         m.setAll(
-            GrIntToScalar(2) / viewportSize.fWidth, 0, -GR_Scalar1,
-            0,-GrIntToScalar(2) / viewportSize.fHeight, GR_Scalar1,
+            SkIntToScalar(2) / viewportSize.fWidth, 0, -SK_Scalar1,
+            0,-SkIntToScalar(2) / viewportSize.fHeight, SK_Scalar1,
             0, 0, GrMatrix::I()[8]);
         m.setConcat(m, vm);
 
         // ES doesn't allow you to pass true to the transpose param,
         // so do our own transpose
         GrGLfloat mt[]  = {
-            GrScalarToFloat(m[GrMatrix::kMScaleX]),
-            GrScalarToFloat(m[GrMatrix::kMSkewY]),
-            GrScalarToFloat(m[GrMatrix::kMPersp0]),
-            GrScalarToFloat(m[GrMatrix::kMSkewX]),
-            GrScalarToFloat(m[GrMatrix::kMScaleY]),
-            GrScalarToFloat(m[GrMatrix::kMPersp1]),
-            GrScalarToFloat(m[GrMatrix::kMTransX]),
-            GrScalarToFloat(m[GrMatrix::kMTransY]),
-            GrScalarToFloat(m[GrMatrix::kMPersp2])
+            SkScalarToFloat(m[GrMatrix::kMScaleX]),
+            SkScalarToFloat(m[GrMatrix::kMSkewY]),
+            SkScalarToFloat(m[GrMatrix::kMPersp0]),
+            SkScalarToFloat(m[GrMatrix::kMSkewX]),
+            SkScalarToFloat(m[GrMatrix::kMScaleY]),
+            SkScalarToFloat(m[GrMatrix::kMPersp1]),
+            SkScalarToFloat(m[GrMatrix::kMTransX]),
+            SkScalarToFloat(m[GrMatrix::kMTransY]),
+            SkScalarToFloat(m[GrMatrix::kMPersp2])
         };
         fCurrentProgram->fUniformManager.setMatrix3f(fCurrentProgram->fUniforms.fViewMatrixUni, mt);
         fCurrentProgram->fViewMatrix = vm;
@@ -166,8 +166,8 @@ void GrGpuGL::AdjustTextureMatrix(const GrTexture* texture, GrMatrix* matrix) {
     GrAssert(NULL != matrix);
     if (GrSurface::kBottomLeft_Origin == texture->origin()) {
         GrMatrix invY;
-        invY.setAll(GR_Scalar1, 0,           0,
-                    0,          -GR_Scalar1, GR_Scalar1,
+        invY.setAll(SK_Scalar1, 0,           0,
+                    0,          -SK_Scalar1, SK_Scalar1,
                     0,          0,           GrMatrix::I()[8]);
         matrix->postConcat(invY);
     }
@@ -219,15 +219,15 @@ void GrGpuGL::flushTextureMatrix(int s) {
             // ES doesn't allow you to pass true to the transpose param,
             // so do our own transpose
             GrGLfloat mt[]  = {
-                GrScalarToFloat(m[GrMatrix::kMScaleX]),
-                GrScalarToFloat(m[GrMatrix::kMSkewY]),
-                GrScalarToFloat(m[GrMatrix::kMPersp0]),
-                GrScalarToFloat(m[GrMatrix::kMSkewX]),
-                GrScalarToFloat(m[GrMatrix::kMScaleY]),
-                GrScalarToFloat(m[GrMatrix::kMPersp1]),
-                GrScalarToFloat(m[GrMatrix::kMTransX]),
-                GrScalarToFloat(m[GrMatrix::kMTransY]),
-                GrScalarToFloat(m[GrMatrix::kMPersp2])
+                SkScalarToFloat(m[GrMatrix::kMScaleX]),
+                SkScalarToFloat(m[GrMatrix::kMSkewY]),
+                SkScalarToFloat(m[GrMatrix::kMPersp0]),
+                SkScalarToFloat(m[GrMatrix::kMSkewX]),
+                SkScalarToFloat(m[GrMatrix::kMScaleY]),
+                SkScalarToFloat(m[GrMatrix::kMPersp1]),
+                SkScalarToFloat(m[GrMatrix::kMTransX]),
+                SkScalarToFloat(m[GrMatrix::kMTransY]),
+                SkScalarToFloat(m[GrMatrix::kMPersp2])
             };
 
             fCurrentProgram->fUniformManager.setMatrix3f(matrixUni, mt);
@@ -464,7 +464,7 @@ void GrGpuGL::setupGeometry(int* startVertex,
         scalarType = TEXT_COORDS_GL_TYPE;
         texCoordNorm = SkToBool(TEXT_COORDS_ARE_NORMALIZED);
     } else {
-        GR_STATIC_ASSERT(GR_SCALAR_IS_FLOAT);
+        GR_STATIC_ASSERT(SK_SCALAR_IS_FLOAT);
         scalarType = GR_GL_FLOAT;
         texCoordNorm = false;
     }

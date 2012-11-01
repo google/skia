@@ -67,10 +67,10 @@ void GrGLTextureDomainEffect::setData(const GrGLUniformManager& uman, const GrEf
     const GrRect& domain = effect.domain();
 
     float values[4] = {
-        GrScalarToFloat(domain.left()),
-        GrScalarToFloat(domain.top()),
-        GrScalarToFloat(domain.right()),
-        GrScalarToFloat(domain.bottom())
+        SkScalarToFloat(domain.left()),
+        SkScalarToFloat(domain.top()),
+        SkScalarToFloat(domain.right()),
+        SkScalarToFloat(domain.bottom())
     };
     // vertical flip if necessary
     if (GrSurface::kBottomLeft_Origin == effect.texture(0)->origin()) {

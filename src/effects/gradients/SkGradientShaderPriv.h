@@ -237,7 +237,7 @@ public:
     virtual const GrTextureAccess& textureAccess(int index) const SK_OVERRIDE;
 
     bool useAtlas() const { return SkToBool(-1 != fRow); }
-    GrScalar getYCoord() const { return fYCoord; };
+    SkScalar getYCoord() const { return fYCoord; };
     const SkMatrix& getMatrix() const { return fMatrix;}
 
     virtual bool isEqual(const GrEffect& effect) const SK_OVERRIDE {
@@ -263,7 +263,7 @@ protected:
 
 private:
     GrTextureAccess fTextureAccess;
-    GrScalar fYCoord;
+    SkScalar fYCoord;
     GrTextureStripAtlas* fAtlas;
     int fRow;
     SkMatrix fMatrix;
@@ -327,7 +327,7 @@ protected:
                          const GrGLShaderBuilder::TextureSampler&);
 
 private:
-    GrScalar fCachedYCoord;
+    SkScalar fCachedYCoord;
     GrGLUniformManager::UniformHandle fFSYUni;
     GrGLEffectMatrix fEffectMatrix;
 

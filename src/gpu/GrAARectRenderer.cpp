@@ -25,7 +25,7 @@ static GrVertexLayout aa_rect_layout(const GrDrawTarget* target,
 }
 
 static void setInsetFan(GrPoint* pts, size_t stride,
-                        const GrRect& r, GrScalar dx, GrScalar dy) {
+                        const GrRect& r, SkScalar dx, SkScalar dy) {
     pts->setRectFan(r.fLeft + dx, r.fTop + dy,
                     r.fRight - dx, r.fBottom - dy, stride);
 }
@@ -126,8 +126,8 @@ void GrAARectRenderer::fillAARect(GrGpu* gpu,
     GrPoint* fan0Pos = reinterpret_cast<GrPoint*>(verts);
     GrPoint* fan1Pos = reinterpret_cast<GrPoint*>(verts + 4 * vsize);
 
-    setInsetFan(fan0Pos, vsize, devRect, -GR_ScalarHalf, -GR_ScalarHalf);
-    setInsetFan(fan1Pos, vsize, devRect,  GR_ScalarHalf,  GR_ScalarHalf);
+    setInsetFan(fan0Pos, vsize, devRect, -SK_ScalarHalf, -SK_ScalarHalf);
+    setInsetFan(fan1Pos, vsize, devRect,  SK_ScalarHalf,  SK_ScalarHalf);
 
     verts += sizeof(GrPoint);
     for (int i = 0; i < 4; ++i) {
@@ -157,15 +157,15 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
                                     const GrRect& devRect,
                                     const GrVec& devStrokeSize,
                                     bool useVertexCoverage) {
-    const GrScalar& dx = devStrokeSize.fX;
-    const GrScalar& dy = devStrokeSize.fY;
-    const GrScalar rx = GrMul(dx, GR_ScalarHalf);
-    const GrScalar ry = GrMul(dy, GR_ScalarHalf);
+    const SkScalar& dx = devStrokeSize.fX;
+    const SkScalar& dy = devStrokeSize.fY;
+    const SkScalar rx = SkScalarMul(dx, SK_ScalarHalf);
+    const SkScalar ry = SkScalarMul(dy, SK_ScalarHalf);
 
-    GrScalar spare;
+    SkScalar spare;
     {
-        GrScalar w = devRect.width() - dx;
-        GrScalar h = devRect.height() - dy;
+        SkScalar w = devRect.width() - dx;
+        SkScalar h = devRect.height() - dy;
         spare = GrMin(w, h);
     }
 
@@ -200,13 +200,13 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
     GrPoint* fan3Pos = reinterpret_cast<GrPoint*>(verts + 12 * vsize);
 
     setInsetFan(fan0Pos, vsize, devRect,
-                -rx - GR_ScalarHalf, -ry - GR_ScalarHalf);
+                -rx - SK_ScalarHalf, -ry - SK_ScalarHalf);
     setInsetFan(fan1Pos, vsize, devRect,
-                -rx + GR_ScalarHalf, -ry + GR_ScalarHalf);
+                -rx + SK_ScalarHalf, -ry + SK_ScalarHalf);
     setInsetFan(fan2Pos, vsize, devRect,
-                rx - GR_ScalarHalf,  ry - GR_ScalarHalf);
+                rx - SK_ScalarHalf,  ry - SK_ScalarHalf);
     setInsetFan(fan3Pos, vsize, devRect,
-                rx + GR_ScalarHalf,  ry + GR_ScalarHalf);
+                rx + SK_ScalarHalf,  ry + SK_ScalarHalf);
 
     // The outermost rect has 0 coverage
     verts += sizeof(GrPoint);

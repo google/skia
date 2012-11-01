@@ -11,13 +11,13 @@
 #include "GrPoint.h"
 #include "SkGeometry.h"
 
-GrScalar GrPathUtils::scaleToleranceToSrc(GrScalar devTol,
+SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,
                                           const GrMatrix& viewM,
                                           const GrRect& pathBounds) {
     // In order to tesselate the path we get a bound on how much the matrix can
     // stretch when mapping to screen coordinates.
-    GrScalar stretch = viewM.getMaxStretch();
-    GrScalar srcTol = devTol;
+    SkScalar stretch = viewM.getMaxStretch();
+    SkScalar srcTol = devTol;
 
     if (stretch < 0) {
         // take worst case mapRadius amoung four corners.
@@ -30,21 +30,21 @@ GrScalar GrPathUtils::scaleToleranceToSrc(GrScalar devTol,
             stretch = SkMaxScalar(stretch, mat.mapRadius(SK_Scalar1));
         }
     }
-    srcTol = GrScalarDiv(srcTol, stretch);
+    srcTol = SkScalarDiv(srcTol, stretch);
     return srcTol;
 }
 
 static const int MAX_POINTS_PER_CURVE = 1 << 10;
-static const GrScalar gMinCurveTol = GrFloatToScalar(0.0001f);
+static const SkScalar gMinCurveTol = SkFloatToScalar(0.0001f);
 
 uint32_t GrPathUtils::quadraticPointCount(const GrPoint points[],
-                                          GrScalar tol) {
+                                          SkScalar tol) {
     if (tol < gMinCurveTol) {
         tol = gMinCurveTol;
     }
     GrAssert(tol > 0);
 
-    GrScalar d = points[1].distanceToLineSegmentBetween(points[0], points[2]);
+    SkScalar d = points[1].distanceToLineSegmentBetween(points[0], points[2]);
     if (d <= tol) {
         return 1;
     } else {
@@ -67,7 +67,7 @@ uint32_t GrPathUtils::quadraticPointCount(const GrPoint points[],
 uint32_t GrPathUtils::generateQuadraticPoints(const GrPoint& p0,
                                               const GrPoint& p1,
                                               const GrPoint& p2,
-                                              GrScalar tolSqd,
+                                              SkScalar tolSqd,
                                               GrPoint** points,
                                               uint32_t pointsLeft) {
     if (pointsLeft < 2 ||
@@ -78,10 +78,10 @@ uint32_t GrPathUtils::generateQuadraticPoints(const GrPoint& p0,
     }
 
     GrPoint q[] = {
-        { GrScalarAve(p0.fX, p1.fX), GrScalarAve(p0.fY, p1.fY) },
-        { GrScalarAve(p1.fX, p2.fX), GrScalarAve(p1.fY, p2.fY) },
+        { SkScalarAve(p0.fX, p1.fX), SkScalarAve(p0.fY, p1.fY) },
+        { SkScalarAve(p1.fX, p2.fX), SkScalarAve(p1.fY, p2.fY) },
     };
-    GrPoint r = { GrScalarAve(q[0].fX, q[1].fX), GrScalarAve(q[0].fY, q[1].fY) };
+    GrPoint r = { SkScalarAve(q[0].fX, q[1].fX), SkScalarAve(q[0].fY, q[1].fY) };
 
     pointsLeft >>= 1;
     uint32_t a = generateQuadraticPoints(p0, q[0], r, tolSqd, points, pointsLeft);
@@ -90,13 +90,13 @@ uint32_t GrPathUtils::generateQuadraticPoints(const GrPoint& p0,
 }
 
 uint32_t GrPathUtils::cubicPointCount(const GrPoint points[],
-                                           GrScalar tol) {
+                                           SkScalar tol) {
     if (tol < gMinCurveTol) {
         tol = gMinCurveTol;
     }
     GrAssert(tol > 0);
 
-    GrScalar d = GrMax(
+    SkScalar d = GrMax(
         points[1].distanceToLineSegmentBetweenSqd(points[0], points[3]),
         points[2].distanceToLineSegmentBetweenSqd(points[0], points[3]));
     d = SkScalarSqrt(d);
@@ -119,7 +119,7 @@ uint32_t GrPathUtils::generateCubicPoints(const GrPoint& p0,
                                           const GrPoint& p1,
                                           const GrPoint& p2,
                                           const GrPoint& p3,
-                                          GrScalar tolSqd,
+                                          SkScalar tolSqd,
                                           GrPoint** points,
                                           uint32_t pointsLeft) {
     if (pointsLeft < 2 ||
@@ -130,15 +130,15 @@ uint32_t GrPathUtils::generateCubicPoints(const GrPoint& p0,
             return 1;
         }
     GrPoint q[] = {
-        { GrScalarAve(p0.fX, p1.fX), GrScalarAve(p0.fY, p1.fY) },
-        { GrScalarAve(p1.fX, p2.fX), GrScalarAve(p1.fY, p2.fY) },
-        { GrScalarAve(p2.fX, p3.fX), GrScalarAve(p2.fY, p3.fY) }
+        { SkScalarAve(p0.fX, p1.fX), SkScalarAve(p0.fY, p1.fY) },
+        { SkScalarAve(p1.fX, p2.fX), SkScalarAve(p1.fY, p2.fY) },
+        { SkScalarAve(p2.fX, p3.fX), SkScalarAve(p2.fY, p3.fY) }
     };
     GrPoint r[] = {
-        { GrScalarAve(q[0].fX, q[1].fX), GrScalarAve(q[0].fY, q[1].fY) },
-        { GrScalarAve(q[1].fX, q[2].fX), GrScalarAve(q[1].fY, q[2].fY) }
+        { SkScalarAve(q[0].fX, q[1].fX), SkScalarAve(q[0].fY, q[1].fY) },
+        { SkScalarAve(q[1].fX, q[2].fX), SkScalarAve(q[1].fY, q[2].fY) }
     };
-    GrPoint s = { GrScalarAve(r[0].fX, r[1].fX), GrScalarAve(r[0].fY, r[1].fY) };
+    GrPoint s = { SkScalarAve(r[0].fX, r[1].fX), SkScalarAve(r[0].fY, r[1].fY) };
     pointsLeft >>= 1;
     uint32_t a = generateCubicPoints(p0, q[0], r[0], s, tolSqd, points, pointsLeft);
     uint32_t b = generateCubicPoints(s, r[1], q[2], p3, tolSqd, points, pointsLeft);
@@ -146,7 +146,7 @@ uint32_t GrPathUtils::generateCubicPoints(const GrPoint& p0,
 }
 
 int GrPathUtils::worstCasePointCount(const SkPath& path, int* subpaths,
-                                     GrScalar tol) {
+                                     SkScalar tol) {
     if (tol < gMinCurveTol) {
         tol = gMinCurveTol;
     }
@@ -199,16 +199,16 @@ void GrPathUtils::QuadUVMatrix::set(const GrPoint qPts[3]) {
     //                           [0  0   1]
     //                           [1  1   1]
     // We invert the control pt matrix and post concat to both sides to get M.
-    UVpts.setAll(0,   GR_ScalarHalf,  GR_Scalar1,
-                 0,               0,  GR_Scalar1,
-                 SkScalarToPersp(GR_Scalar1),
-                 SkScalarToPersp(GR_Scalar1),
-                 SkScalarToPersp(GR_Scalar1));
+    UVpts.setAll(0,   SK_ScalarHalf,  SK_Scalar1,
+                 0,               0,  SK_Scalar1,
+                 SkScalarToPersp(SK_Scalar1),
+                 SkScalarToPersp(SK_Scalar1),
+                 SkScalarToPersp(SK_Scalar1));
     m.setAll(qPts[0].fX, qPts[1].fX, qPts[2].fX,
              qPts[0].fY, qPts[1].fY, qPts[2].fY,
-             SkScalarToPersp(GR_Scalar1),
-             SkScalarToPersp(GR_Scalar1),
-             SkScalarToPersp(GR_Scalar1));
+             SkScalarToPersp(SK_Scalar1),
+             SkScalarToPersp(SK_Scalar1),
+             SkScalarToPersp(SK_Scalar1));
     if (!m.invert(&m)) {
         // The quad is degenerate. Hopefully this is rare. Find the pts that are
         // farthest apart to compute a line (unless it is really a pt).
@@ -251,9 +251,9 @@ void GrPathUtils::QuadUVMatrix::set(const GrPoint qPts[3]) {
         m.postConcat(UVpts);
 
         // The matrix should not have perspective.
-        static const GrScalar gTOL = GrFloatToScalar(1.f / 100.f);
-        GrAssert(GrScalarAbs(m.get(SkMatrix::kMPersp0)) < gTOL);
-        GrAssert(GrScalarAbs(m.get(SkMatrix::kMPersp1)) < gTOL);
+        static const SkScalar gTOL = SkFloatToScalar(1.f / 100.f);
+        GrAssert(SkScalarAbs(m.get(SkMatrix::kMPersp0)) < gTOL);
+        GrAssert(SkScalarAbs(m.get(SkMatrix::kMPersp1)) < gTOL);
 
         // It may not be normalized to have 1.0 in the bottom right
         float m33 = m.get(SkMatrix::kMPersp2);

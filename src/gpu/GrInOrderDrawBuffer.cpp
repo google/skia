@@ -182,16 +182,16 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
                 // conservative test fails.
                 const GrRenderTarget* target = drawState->getRenderTarget();
                 if (0 >= devClipRect.fLeft) {
-                    devClipRect.fLeft = GR_ScalarMin;
+                    devClipRect.fLeft = SK_ScalarMin;
                 }
                 if (target->width() <= devClipRect.fRight) {
-                    devClipRect.fRight = GR_ScalarMax;
+                    devClipRect.fRight = SK_ScalarMax;
                 }
                 if (0 >= devClipRect.top()) {
-                    devClipRect.fTop = GR_ScalarMin;
+                    devClipRect.fTop = SK_ScalarMin;
                 }
                 if (target->height() <= devClipRect.fBottom) {
-                    devClipRect.fBottom = GR_ScalarMax;
+                    devClipRect.fBottom = SK_ScalarMax;
                 }
                 int stride = VertexSize(layout);
                 bool insideClip = true;

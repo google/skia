@@ -20,12 +20,12 @@
     #define GrFixedToTextScalar(x)  (x)
 #elif GR_TEXT_SCALAR_IS_FIXED
     typedef GrFixed                 GrTextScalar;
-    #define GrIntToTextScalar(x)    GrIntToFixed(x)
+    #define GrIntToTextScalar(x)    SkIntToFixed(x)
     #define GrFixedToTextScalar(x)  (x)
 #elif GR_TEXT_SCALAR_IS_FLOAT
     typedef float                   GrTextScalar;
     #define GrIntToTextScalar(x)    ((GrTextScalar)x)
-    #define GrFixedToTextScalar(x)  GrFixedToFloat(x)
+    #define GrFixedToTextScalar(x)  SkFixedToFloat(x)
 #else
     #error "Text scalar type not defined"
 #endif

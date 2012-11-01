@@ -66,8 +66,8 @@ public:
      * atlas and scaleFactor, returned by getVerticalScaleFactor(), is the y-scale of the row,
      * relative to the height of the overall atlas texture.
      */
-    GrScalar getYOffset(int row) const { return SkIntToScalar(row) / fNumRows; }
-    GrScalar getVerticalScaleFactor() const { return SkIntToScalar(fDesc.fRowHeight) / fDesc.fHeight; }
+    SkScalar getYOffset(int row) const { return SkIntToScalar(row) / fNumRows; }
+    SkScalar getVerticalScaleFactor() const { return SkIntToScalar(fDesc.fRowHeight) / fDesc.fHeight; }
 
     GrContext* getContext() const { return fDesc.fContext; }
     GrTexture* getTexture() const { return fTexture; }
