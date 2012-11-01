@@ -464,7 +464,7 @@ void GrGpuGL::setupGeometry(int* startVertex,
         scalarType = TEXT_COORDS_GL_TYPE;
         texCoordNorm = SkToBool(TEXT_COORDS_ARE_NORMALIZED);
     } else {
-        GR_STATIC_ASSERT(SK_SCALAR_IS_FLOAT);
+//        GR_STATIC_ASSERT(SK_SCALAR_IS_FLOAT);
         scalarType = GR_GL_FLOAT;
         texCoordNorm = false;
     }
