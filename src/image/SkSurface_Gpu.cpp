@@ -97,7 +97,7 @@ void SkSurface_Gpu::onCopyOnWrite(SkImage* image, SkCanvas* canvas) {
             SkTextureImageSetTexture(image, NULL);
             return;
         }
-    
+
         fDevice->context()->copyTexture(rt->asTexture(), tex->asRenderTarget());
 
         SkTextureImageSetTexture(image, tex);
@@ -135,7 +135,7 @@ SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, const SkImage::Info& info,
     if (NULL == tex) {
         return NULL;
     }
-    
+
     return SkNEW_ARGS(SkSurface_Gpu, (ctx, tex->asRenderTarget()));
 }
 
