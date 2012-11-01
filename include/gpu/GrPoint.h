@@ -12,7 +12,7 @@
 #define GrPoint_DEFINED
 
 #include "GrTypes.h"
-#include "GrScalar.h"
+#include "SkScalar.h"
 #include "SkPoint.h"
 
 #define GrPoint     SkPoint

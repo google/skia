@@ -52,7 +52,7 @@ struct Segment {
 typedef SkTArray<Segment, true> SegmentArray;
 
 void center_of_mass(const SegmentArray& segments, SkPoint* c) {
-    GrScalar area = 0;
+    SkScalar area = 0;
     SkPoint center = {0, 0};
     int count = segments.count();
     SkPoint p0 = {0, 0};
@@ -71,7 +71,7 @@ void center_of_mass(const SegmentArray& segments, SkPoint* c) {
             pi = pj;
             const SkPoint pj = segments[i + 1].endPt() - p0;
 
-            GrScalar t = GrMul(pi.fX, pj.fY) - GrMul(pj.fX, pi.fY);
+            SkScalar t = SkScalarMul(pi.fX, pj.fY) - SkScalarMul(pj.fX, pi.fY);
             area += t;
             center.fX += (pi.fX + pj.fX) * t;
             center.fY += (pi.fY + pj.fY) * t;
@@ -93,9 +93,9 @@ void center_of_mass(const SegmentArray& segments, SkPoint* c) {
         *c = avg;
     } else {
         area *= 3;
-        area = GrScalarDiv(GR_Scalar1, area);
-        center.fX = GrScalarMul(center.fX, area);
-        center.fY = GrScalarMul(center.fY, area);
+        area = SkScalarDiv(SK_Scalar1, area);
+        center.fX = SkScalarMul(center.fX, area);
+        center.fY = SkScalarMul(center.fY, area);
         // undo the translate of p0 to the origin.
         *c = center + p0;
     }
@@ -168,7 +168,7 @@ struct DegenerateTestData {
     }           fStage;
     GrPoint     fFirstPoint;
     GrVec       fLineNormal;
-    GrScalar    fLineC;
+    SkScalar    fLineC;
 };
 
 void update_degenerate_test(DegenerateTestData* data, const GrPoint& pt) {
@@ -206,8 +206,8 @@ inline bool get_direction(const SkPath& path, const GrMatrix& m, SkPath::Directi
     }
     // check whether m reverses the orientation
     GrAssert(!m.hasPerspective());
-    GrScalar det2x2 = GrMul(m.get(SkMatrix::kMScaleX), m.get(SkMatrix::kMScaleY)) -
-                      GrMul(m.get(SkMatrix::kMSkewX), m.get(SkMatrix::kMSkewY));
+    SkScalar det2x2 = SkScalarMul(m.get(SkMatrix::kMScaleX), m.get(SkMatrix::kMScaleY)) -
+                      SkScalarMul(m.get(SkMatrix::kMSkewX), m.get(SkMatrix::kMSkewY));
     if (det2x2 < 0) {
         GR_STATIC_ASSERT(0 == SkPath::kCW_Direction || 1 == SkPath::kCW_Direction);
         GR_STATIC_ASSERT(0 == SkPath::kCCW_Direction || 1 == SkPath::kCCW_Direction);
@@ -296,8 +296,8 @@ bool get_segments(const SkPath& path,
 struct QuadVertex {
     GrPoint  fPos;
     GrPoint  fUV;
-    GrScalar fD0;
-    GrScalar fD1;
+    SkScalar fD0;
+    SkScalar fD1;
 };
 
 void create_vertices(const SegmentArray&  segments,
@@ -347,7 +347,7 @@ void create_vertices(const SegmentArray&  segments,
 
             // we draw the line edge as a degenerate quad (u is 0, v is the
             // signed distance to the edge)
-            GrScalar dist = fanPt.distanceToLineBetween(verts[v + 1].fPos,
+            SkScalar dist = fanPt.distanceToLineBetween(verts[v + 1].fPos,
                                                         verts[v + 2].fPos);
             verts[v + 0].fUV.set(0, dist);
             verts[v + 1].fUV.set(0, 0);
@@ -388,21 +388,21 @@ void create_vertices(const SegmentArray&  segments,
             verts[v + 4].fPos = qpts[2] + segb.fNorms[1];
             verts[v + 5].fPos = qpts[1] + midVec;
 
-            GrScalar c = segb.fNorms[0].dot(qpts[0]);
+            SkScalar c = segb.fNorms[0].dot(qpts[0]);
             verts[v + 0].fD0 =  -segb.fNorms[0].dot(fanPt) + c;
             verts[v + 1].fD0 =  0.f;
             verts[v + 2].fD0 =  -segb.fNorms[0].dot(qpts[2]) + c;
-            verts[v + 3].fD0 = -GR_ScalarMax/100;
-            verts[v + 4].fD0 = -GR_ScalarMax/100;
-            verts[v + 5].fD0 = -GR_ScalarMax/100;
+            verts[v + 3].fD0 = -SK_ScalarMax/100;
+            verts[v + 4].fD0 = -SK_ScalarMax/100;
+            verts[v + 5].fD0 = -SK_ScalarMax/100;
 
             c = segb.fNorms[1].dot(qpts[2]);
             verts[v + 0].fD1 =  -segb.fNorms[1].dot(fanPt) + c;
             verts[v + 1].fD1 =  -segb.fNorms[1].dot(qpts[0]) + c;
             verts[v + 2].fD1 =  0.f;
-            verts[v + 3].fD1 = -GR_ScalarMax/100;
-            verts[v + 4].fD1 = -GR_ScalarMax/100;
-            verts[v + 5].fD1 = -GR_ScalarMax/100;
+            verts[v + 3].fD1 = -SK_ScalarMax/100;
+            verts[v + 4].fD1 = -SK_ScalarMax/100;
+            verts[v + 5].fD1 = -SK_ScalarMax/100;
 
             GrPathUtils::QuadUVMatrix toUV(qpts);
             toUV.apply<6, sizeof(QuadVertex), sizeof(GrPoint)>(verts + v);

@@ -11,7 +11,7 @@
 
 #include "GrGLIRect.h"
 #include "GrRenderTarget.h"
-#include "GrScalar.h"
+#include "SkScalar.h"
 
 class GrGpuGL;
 class GrGLTexture;

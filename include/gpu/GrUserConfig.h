@@ -63,9 +63,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Decide Ganesh types
 
-#define GR_SCALAR_IS_FIXED          0
-#define GR_SCALAR_IS_FLOAT          1
-
 #define GR_TEXT_SCALAR_IS_USHORT    0
 #define GR_TEXT_SCALAR_IS_FIXED     0
 #define GR_TEXT_SCALAR_IS_FLOAT     1

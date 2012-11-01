@@ -18,7 +18,7 @@
  *  Utilities for evaluating paths.
  */
 namespace GrPathUtils {
-    GrScalar scaleToleranceToSrc(GrScalar devTol,
+    SkScalar scaleToleranceToSrc(SkScalar devTol,
                                  const GrMatrix& viewM,
                                  const GrRect& pathBounds);
 
@@ -26,28 +26,28 @@ namespace GrPathUtils {
     /// very small tolerances will be increased to gMinCurveTol.
     int worstCasePointCount(const SkPath&,
                             int* subpaths,
-                            GrScalar tol);
+                            SkScalar tol);
 
     /// Since we divide by tol if we're computing exact worst-case bounds,
     /// very small tolerances will be increased to gMinCurveTol.
-    uint32_t quadraticPointCount(const GrPoint points[], GrScalar tol);
+    uint32_t quadraticPointCount(const GrPoint points[], SkScalar tol);
 
     uint32_t generateQuadraticPoints(const GrPoint& p0,
                                      const GrPoint& p1,
                                      const GrPoint& p2,
-                                     GrScalar tolSqd,
+                                     SkScalar tolSqd,
                                      GrPoint** points,
                                      uint32_t pointsLeft);
 
     /// Since we divide by tol if we're computing exact worst-case bounds,
     /// very small tolerances will be increased to gMinCurveTol.
-    uint32_t cubicPointCount(const GrPoint points[], GrScalar tol);
+    uint32_t cubicPointCount(const GrPoint points[], SkScalar tol);
 
     uint32_t generateCubicPoints(const GrPoint& p0,
                                  const GrPoint& p1,
                                  const GrPoint& p2,
                                  const GrPoint& p3,
-                                 GrScalar tolSqd,
+                                 SkScalar tolSqd,
                                  GrPoint** points,
                                  uint32_t pointsLeft);
 

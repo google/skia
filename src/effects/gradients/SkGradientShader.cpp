@@ -677,7 +677,7 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 GrGLGradientEffect::GrGLGradientEffect(const GrBackendEffectFactory& factory)
     : INHERITED(factory)
-    , fCachedYCoord(GR_ScalarMax)
+    , fCachedYCoord(SK_ScalarMax)
     , fFSYUni(GrGLUniformManager::kInvalidUniformHandle) {
     fRequiresTextureMatrix = false;
 }
@@ -694,7 +694,7 @@ void GrGLGradientEffect::setData(const GrGLUniformManager& uman, const GrEffectS
     const GrTexture* texture = e.texture(0);
     fEffectMatrix.setData(uman, e.getMatrix(), stage.getCoordChangeMatrix(), texture);
 
-    GrScalar yCoord = e.getYCoord();
+    SkScalar yCoord = e.getYCoord();
     if (yCoord != fCachedYCoord) {
         uman.set1f(fFSYUni, yCoord);
         fCachedYCoord = yCoord;
@@ -769,13 +769,13 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
 
     fRow = fAtlas->lockRow(bitmap);
     if (-1 != fRow) {
-        fYCoord = fAtlas->getYOffset(fRow) + GR_ScalarHalf *
+        fYCoord = fAtlas->getYOffset(fRow) + SK_ScalarHalf *
                   fAtlas->getVerticalScaleFactor();
         fTextureAccess.reset(fAtlas->getTexture(), params);
     } else {
         GrTexture* texture = GrLockCachedBitmapTexture(ctx, bitmap, &params);
         fTextureAccess.reset(texture, params);
-        fYCoord = GR_ScalarHalf;
+        fYCoord = SK_ScalarHalf;
 
         // Unlock immediately, this is not great, but we don't have a way of
         // knowing when else to unlock it currently, so it may get purged from
@@ -806,7 +806,7 @@ int GrGradientEffect::RandomGradientParams(SkRandom* random,
         *stops = NULL;
     }
 
-    GrScalar stop = 0.f;
+    SkScalar stop = 0.f;
     for (int i = 0; i < outColors; ++i) {
         colors[i] = random->nextU();
         if (NULL != *stops) {

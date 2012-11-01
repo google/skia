@@ -979,7 +979,7 @@ GrGLEffect* GrGLProgram::GenStageCode(const GrEffectStage& stage,
 void GrGLProgram::setData(const GrDrawState& drawState) {
     int rtHeight = drawState.getRenderTarget()->height();
     if (GrGLUniformManager::kInvalidUniformHandle != fUniforms.fRTHeight && fRTHeight != rtHeight) {
-        fUniformManager.set1f(fUniforms.fRTHeight, GrIntToScalar(rtHeight));
+        fUniformManager.set1f(fUniforms.fRTHeight, SkIntToScalar(rtHeight));
         fRTHeight = rtHeight;
     }
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {

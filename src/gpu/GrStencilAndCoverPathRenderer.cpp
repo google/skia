@@ -75,7 +75,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const SkPath& path,
 
     // fill the path, zero out the stencil
     GrRect bounds = p->getBounds();
-    GrScalar bloat = drawState->getViewMatrix().getMaxStretch() * GR_ScalarHalf;
+    SkScalar bloat = drawState->getViewMatrix().getMaxStretch() * SK_ScalarHalf;
     GrDrawState::AutoDeviceCoordDraw adcd;
 
     if (nonInvertedFill == fill) {
@@ -100,8 +100,8 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const SkPath& path,
             0xffff);
         GrMatrix vmi;
         bounds.setLTRB(0, 0,
-                       GrIntToScalar(drawState->getRenderTarget()->width()),
-                       GrIntToScalar(drawState->getRenderTarget()->height()));
+                       SkIntToScalar(drawState->getRenderTarget()->width()),
+                       SkIntToScalar(drawState->getRenderTarget()->height()));
         // mapRect through persp matrix may not be correct
         if (!drawState->getViewMatrix().hasPerspective() && drawState->getViewInverse(&vmi)) {
             vmi.mapRect(&bounds);

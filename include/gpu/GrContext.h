@@ -388,7 +388,7 @@ public:
      */
     void drawRect(const GrPaint& paint,
                   const GrRect&,
-                  GrScalar strokeWidth = -1,
+                  SkScalar strokeWidth = -1,
                   const GrMatrix* matrix = NULL);
 
     /**

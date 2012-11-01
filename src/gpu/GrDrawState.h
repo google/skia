@@ -662,7 +662,7 @@ public:
 
     /**
      * When specifying edges as vertex data this enum specifies what type of
-     * edges are in use. The edges are always 4 GrScalars in memory, even when
+     * edges are in use. The edges are always 4 SkScalars in memory, even when
      * the edge type requires fewer than 4.
      *
      * TODO: Fix the fact that HairLine and Circle edge types use y-down coords.

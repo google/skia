@@ -13,13 +13,13 @@
 #include <stddef.h>
 
 #if 0
-#if GR_SCALAR_IS_FLOAT
-    const GrScalar GrMatrix::gRESCALE(GR_Scalar1);
+#if SK_SCALAR_IS_FLOAT
+    const SkScalar GrMatrix::gRESCALE(SK_Scalar1);
 #else
-    GR_STATIC_ASSERT(GR_SCALAR_IS_FIXED);
+    GR_STATIC_ASSERT(SK_SCALAR_IS_FIXED);
     // fixed point isn't supported right now
     GR_STATIC_ASSERT(false);
-const GrScalar GrMatrix::gRESCALE(1 << 30);
+const SkScalar GrMatrix::gRESCALE(1 << 30);
 #endif
 
 const GrMatrix::MapProc GrMatrix::gMapProcs[] = {
@@ -65,29 +65,29 @@ const GrMatrix::MapProc GrMatrix::gMapProcs[] = {
 };
 
 void GrMatrix::setIdentity() {
-    fM[0] = GR_Scalar1; fM[1] = 0;          fM[2] = 0;
-    fM[3] = 0;          fM[4] = GR_Scalar1; fM[5] = 0;
+    fM[0] = SK_Scalar1; fM[1] = 0;          fM[2] = 0;
+    fM[3] = 0;          fM[4] = SK_Scalar1; fM[5] = 0;
     fM[6] = 0;          fM[7] = 0;          fM[8] = gRESCALE;
     fTypeMask = 0;
 }
 
-void GrMatrix::setTranslate(GrScalar dx, GrScalar dy) {
-    fM[0] = GR_Scalar1; fM[1] = 0;          fM[2] = dx;
-    fM[3] = 0;          fM[4] = GR_Scalar1; fM[5] = dy;
+void GrMatrix::setTranslate(SkScalar dx, SkScalar dy) {
+    fM[0] = SK_Scalar1; fM[1] = 0;          fM[2] = dx;
+    fM[3] = 0;          fM[4] = SK_Scalar1; fM[5] = dy;
     fM[6] = 0;          fM[7] = 0;          fM[8] = gRESCALE;
     fTypeMask = (0 != dx || 0 != dy) ? kTranslate_TypeBit : 0;
 }
 
-void GrMatrix::setScale(GrScalar sx, GrScalar sy) {
+void GrMatrix::setScale(SkScalar sx, SkScalar sy) {
     fM[0] = sx; fM[1] = 0;  fM[2] = 0;
     fM[3] = 0;  fM[4] = sy; fM[5] = 0;
     fM[6] = 0;  fM[7] = 0;  fM[8] = gRESCALE;
-    fTypeMask = (GR_Scalar1 != sx || GR_Scalar1 != sy) ? kScale_TypeBit : 0;
+    fTypeMask = (SK_Scalar1 != sx || SK_Scalar1 != sy) ? kScale_TypeBit : 0;
 }
 
-void GrMatrix::setSkew(GrScalar skx, GrScalar sky) {
-    fM[0] = GR_Scalar1; fM[1] = skx;        fM[2] = 0;
-    fM[3] = sky;        fM[4] = GR_Scalar1; fM[5] = 0;
+void GrMatrix::setSkew(SkScalar skx, SkScalar sky) {
+    fM[0] = SK_Scalar1; fM[1] = skx;        fM[2] = 0;
+    fM[3] = sky;        fM[4] = SK_Scalar1; fM[5] = 0;
     fM[6] = 0;          fM[7] = 0;          fM[8] = gRESCALE;
     fTypeMask = (0 != skx || 0 != sky) ? kSkew_TypeBit : 0;
 }
@@ -204,7 +204,7 @@ bool GrMatrix::invert(GrMatrix* inverted) const {
         t[8] = ((double)fM[0]*fM[4] - (double)fM[1]*fM[3]);
         det = 1.0 / det;
         for (int i = 0; i < 9; ++i) {
-            inverted->fM[i] = (GrScalar)(t[i] * det);
+            inverted->fM[i] = (SkScalar)(t[i] * det);
         }
     } else {
         t[0] =  (double)fM[4]*gRESCALE;
@@ -218,11 +218,11 @@ bool GrMatrix::invert(GrMatrix* inverted) const {
         t[8] = (double)fM[0]*fM[4] - (double)fM[1]*fM[3];
         det = 1.0 / det;
         for (int i = 0; i < 6; ++i) {
-            inverted->fM[i] = (GrScalar)(t[i] * det);
+            inverted->fM[i] = (SkScalar)(t[i] * det);
         }
         inverted->fM[6] = 0;
         inverted->fM[7] = 0;
-        inverted->fM[8] = (GrScalar)(t[8] * det);
+        inverted->fM[8] = (SkScalar)(t[8] * det);
     }
     inverted->computeTypeMask();
     return true;
@@ -246,8 +246,8 @@ bool GrMatrix::hasPerspective() const {
 
 bool GrMatrix::isIdentity() const {
     GrAssert((0 == fTypeMask) ==
-             (GR_Scalar1 == fM[kScaleX] && 0          == fM[kSkewX]  && 0          == fM[kTransX] &&
-              0          == fM[kSkewY]  && GR_Scalar1 == fM[kScaleY] && 0          == fM[kTransY] &&
+             (SK_Scalar1 == fM[kScaleX] && 0          == fM[kSkewX]  && 0          == fM[kTransX] &&
+              0          == fM[kSkewY]  && SK_Scalar1 == fM[kScaleY] && 0          == fM[kTransY] &&
               0          == fM[kPersp0] && 0          == fM[kPersp1] && gRESCALE == fM[kPersp2]));
     return (0 == fTypeMask);
 }
@@ -273,41 +273,41 @@ bool GrMatrix::preservesAxisAlignment() const {
     return false;
 }
 
-GrScalar GrMatrix::getMaxStretch() const {
+SkScalar GrMatrix::getMaxStretch() const {
 
     if (fTypeMask & kPerspective_TypeBit) {
-        return -GR_Scalar1;
+        return -SK_Scalar1;
     }
 
-    GrScalar stretch;
+    SkScalar stretch;
 
     if (isIdentity()) {
-        stretch = GR_Scalar1;
+        stretch = SK_Scalar1;
     } else if (!(fTypeMask & kSkew_TypeBit)) {
-        stretch = GrMax(GrScalarAbs(fM[kScaleX]), GrScalarAbs(fM[kScaleY]));
+        stretch = GrMax(SkScalarAbs(fM[kScaleX]), SkScalarAbs(fM[kScaleY]));
     } else if (fTypeMask & kZeroScale_TypeBit) {
-        stretch = GrMax(GrScalarAbs(fM[kSkewX]), GrScalarAbs(fM[kSkewY]));
+        stretch = GrMax(SkScalarAbs(fM[kSkewX]), SkScalarAbs(fM[kSkewY]));
     } else {
         // ignore the translation part of the matrix, just look at 2x2 portion.
         // compute singular values, take largest abs value.
         // [a b; b c] = A^T*A
-        GrScalar a = GrMul(fM[kScaleX], fM[kScaleX]) + GrMul(fM[kSkewY],  fM[kSkewY]);
-        GrScalar b = GrMul(fM[kScaleX], fM[kSkewX]) +  GrMul(fM[kScaleY], fM[kSkewY]);
-        GrScalar c = GrMul(fM[kSkewX],  fM[kSkewX]) +  GrMul(fM[kScaleY], fM[kScaleY]);
+        SkScalar a = SkScalarMul(fM[kScaleX], fM[kScaleX]) + SkScalarMul(fM[kSkewY],  fM[kSkewY]);
+        SkScalar b = SkScalarMul(fM[kScaleX], fM[kSkewX]) +  SkScalarMul(fM[kScaleY], fM[kSkewY]);
+        SkScalar c = SkScalarMul(fM[kSkewX],  fM[kSkewX]) +  SkScalarMul(fM[kScaleY], fM[kScaleY]);
         // eigenvalues of A^T*A are the squared singular values of A.
         // characteristic equation is det((A^T*A) - l*I) = 0
         // l^2 - (a + c)l + (ac-b^2)
         // solve using quadratic equation (divisor is non-zero since l^2 has 1 coeff
         // and roots are guaraunteed to be pos and real).
-        GrScalar largerRoot;
-        GrScalar bSqd = GrMul(b,b);
+        SkScalar largerRoot;
+        SkScalar bSqd = SkScalarMul(b,b);
         // TODO: fixed point tolerance value.
         if (bSqd < 1e-10) { // will be true if upper left 2x2 is orthogonal, which is common, so save some math
             largerRoot = GrMax(a, c);
         } else {
-            GrScalar aminusc = a - c;
-            GrScalar apluscdiv2 = (a + c) / 2;
-            GrScalar x = sqrtf(GrMul(aminusc,aminusc) + GrMul(4,(bSqd))) / 2;
+            SkScalar aminusc = a - c;
+            SkScalar apluscdiv2 = (a + c) / 2;
+            SkScalar x = sqrtf(SkScalarMul(aminusc,aminusc) + SkScalarMul(4,(bSqd))) / 2;
             largerRoot = apluscdiv2 + x;
         }
 
@@ -318,13 +318,13 @@ GrScalar GrMatrix::getMaxStretch() const {
     // (modulo some error) and we should find a vector that is scaled by almost
     // stretch.
     GrPoint pt;
-    GrScalar max = 0;
+    SkScalar max = 0;
     for (int i = 0; i < 1000; ++i) {
-        GrScalar x = (float)rand() / RAND_MAX;
-        GrScalar y = sqrtf(1 - (x*x));
+        SkScalar x = (float)rand() / RAND_MAX;
+        SkScalar y = sqrtf(1 - (x*x));
         pt.fX = fM[kScaleX]*x + fM[kSkewX]*y;
         pt.fY = fM[kSkewY]*x + fM[kScaleY]*y;
-        GrScalar d = pt.distanceToOrigin();
+        SkScalar d = pt.distanceToOrigin();
         GrAssert(d <= (1.0001 * stretch));
         max = GrMax(max, pt.distanceToOrigin());
     }
@@ -366,8 +366,8 @@ void GrMatrix::mapIdentity(GrPoint* dst, const GrPoint* src, uint32_t count) con
 
 void GrMatrix::mapScale(GrPoint* dst, const GrPoint* src, uint32_t count) const {
     for (uint32_t i = 0; i < count; ++i) {
-        dst[i].fX = GrMul(src[i].fX, fM[kScaleX]);
-        dst[i].fY = GrMul(src[i].fY, fM[kScaleY]);
+        dst[i].fX = SkScalarMul(src[i].fX, fM[kScaleX]);
+        dst[i].fY = SkScalarMul(src[i].fY, fM[kScaleY]);
     }
 }
 
@@ -381,21 +381,21 @@ void GrMatrix::mapTranslate(GrPoint* dst, const GrPoint* src, uint32_t count) co
 
 void GrMatrix::mapScaleAndTranslate(GrPoint* dst, const GrPoint* src, uint32_t count) const {
     for (uint32_t i = 0; i < count; ++i) {
-        dst[i].fX = GrMul(src[i].fX, fM[kScaleX]) + fM[kTransX];
-        dst[i].fY = GrMul(src[i].fY, fM[kScaleY]) + fM[kTransY];
+        dst[i].fX = SkScalarMul(src[i].fX, fM[kScaleX]) + fM[kTransX];
+        dst[i].fY = SkScalarMul(src[i].fY, fM[kScaleY]) + fM[kTransY];
     }
 }
 
 void GrMatrix::mapSkew(GrPoint* dst, const GrPoint* src, uint32_t count) const {
     if (src != dst) {
         for (uint32_t i = 0; i < count; ++i) {
-            dst[i].fX = src[i].fX + GrMul(src[i].fY, fM[kSkewX]);
-            dst[i].fY = src[i].fY + GrMul(src[i].fX, fM[kSkewY]);
+            dst[i].fX = src[i].fX + SkScalarMul(src[i].fY, fM[kSkewX]);
+            dst[i].fY = src[i].fY + SkScalarMul(src[i].fX, fM[kSkewY]);
         }
     } else {
         for (uint32_t i = 0; i < count; ++i) {
-            GrScalar newX = src[i].fX + GrMul(src[i].fY, fM[kSkewX]);
-            dst[i].fY = src[i].fY + GrMul(src[i].fX, fM[kSkewY]);
+            SkScalar newX = src[i].fX + SkScalarMul(src[i].fY, fM[kSkewX]);
+            dst[i].fY = src[i].fY + SkScalarMul(src[i].fX, fM[kSkewY]);
             dst[i].fX = newX;
         }
     }
@@ -404,13 +404,13 @@ void GrMatrix::mapSkew(GrPoint* dst, const GrPoint* src, uint32_t count) const {
 void GrMatrix::mapScaleAndSkew(GrPoint* dst, const GrPoint* src, uint32_t count) const {
     if (src != dst) {
         for (uint32_t i = 0; i < count; ++i) {
-            dst[i].fX = GrMul(src[i].fX, fM[kScaleX]) + GrMul(src[i].fY, fM[kSkewX]);
-            dst[i].fY = GrMul(src[i].fY, fM[kScaleY]) + GrMul(src[i].fX, fM[kSkewY]);
+            dst[i].fX = SkScalarMul(src[i].fX, fM[kScaleX]) + SkScalarMul(src[i].fY, fM[kSkewX]);
+            dst[i].fY = SkScalarMul(src[i].fY, fM[kScaleY]) + SkScalarMul(src[i].fX, fM[kSkewY]);
         }
     } else {
         for (uint32_t i = 0; i < count; ++i) {
-            GrScalar newX = GrMul(src[i].fX, fM[kScaleX]) + GrMul(src[i].fY, fM[kSkewX]);
-            dst[i].fY = GrMul(src[i].fY, fM[kScaleY]) + GrMul(src[i].fX, fM[kSkewY]);
+            SkScalar newX = SkScalarMul(src[i].fX, fM[kScaleX]) + SkScalarMul(src[i].fY, fM[kSkewX]);
+            dst[i].fY = SkScalarMul(src[i].fY, fM[kScaleY]) + SkScalarMul(src[i].fX, fM[kSkewY]);
             dst[i].fX = newX;
         }
     }
@@ -419,13 +419,13 @@ void GrMatrix::mapScaleAndSkew(GrPoint* dst, const GrPoint* src, uint32_t count)
 void GrMatrix::mapSkewAndTranslate(GrPoint* dst, const GrPoint* src, uint32_t count) const {
     if (src != dst) {
         for (uint32_t i = 0; i < count; ++i) {
-            dst[i].fX = src[i].fX + GrMul(src[i].fY, fM[kSkewX]) + fM[kTransX];
-            dst[i].fY = src[i].fY + GrMul(src[i].fX, fM[kSkewY]) + fM[kTransY];
+            dst[i].fX = src[i].fX + SkScalarMul(src[i].fY, fM[kSkewX]) + fM[kTransX];
+            dst[i].fY = src[i].fY + SkScalarMul(src[i].fX, fM[kSkewY]) + fM[kTransY];
         }
     } else {
         for (uint32_t i = 0; i < count; ++i) {
-            GrScalar newX = src[i].fX + GrMul(src[i].fY, fM[kSkewX]) + fM[kTransX];
-            dst[i].fY = src[i].fY + GrMul(src[i].fX, fM[kSkewY]) + fM[kTransY];
+            SkScalar newX = src[i].fX + SkScalarMul(src[i].fY, fM[kSkewX]) + fM[kTransX];
+            dst[i].fY = src[i].fY + SkScalarMul(src[i].fX, fM[kSkewY]) + fM[kTransY];
             dst[i].fX = newX;
         }
     }
@@ -434,13 +434,13 @@ void GrMatrix::mapSkewAndTranslate(GrPoint* dst, const GrPoint* src, uint32_t co
 void GrMatrix::mapNonPerspective(GrPoint* dst, const GrPoint* src, uint32_t count) const {
     if (src != dst) {
         for (uint32_t i = 0; i < count; ++i) {
-            dst[i].fX = GrMul(fM[kScaleX], src[i].fX) + GrMul(fM[kSkewX], src[i].fY) + fM[kTransX];
-            dst[i].fY = GrMul(fM[kSkewY], src[i].fX) + GrMul(fM[kScaleY], src[i].fY) + fM[kTransY];
+            dst[i].fX = SkScalarMul(fM[kScaleX], src[i].fX) + SkScalarMul(fM[kSkewX], src[i].fY) + fM[kTransX];
+            dst[i].fY = SkScalarMul(fM[kSkewY], src[i].fX) + SkScalarMul(fM[kScaleY], src[i].fY) + fM[kTransY];
         }
     } else {
         for (uint32_t i = 0; i < count; ++i) {
-            GrScalar newX = GrMul(fM[kScaleX], src[i].fX) + GrMul(fM[kSkewX], src[i].fY) + fM[kTransX];
-            dst[i].fY = GrMul(fM[kSkewY], src[i].fX) + GrMul(fM[kScaleY], src[i].fY) + fM[kTransY];
+            SkScalar newX = SkScalarMul(fM[kScaleX], src[i].fX) + SkScalarMul(fM[kSkewX], src[i].fY) + fM[kTransX];
+            dst[i].fY = SkScalarMul(fM[kSkewY], src[i].fX) + SkScalarMul(fM[kScaleY], src[i].fY) + fM[kTransY];
             dst[i].fX = newX;
         }
     }
@@ -448,16 +448,16 @@ void GrMatrix::mapNonPerspective(GrPoint* dst, const GrPoint* src, uint32_t coun
 
 void GrMatrix::mapPerspective(GrPoint* dst, const GrPoint* src, uint32_t count) const {
     for (uint32_t i = 0; i < count; ++i) {
-        GrScalar x, y, w;
-        x = GrMul(fM[kScaleX], src[i].fX) + GrMul(fM[kSkewX], src[i].fY) + fM[kTransX];
-        y = GrMul(fM[kSkewY], src[i].fX) + GrMul(fM[kScaleY], src[i].fY) + fM[kTransY];
-        w = GrMul(fM[kPersp0], src[i].fX) + GrMul(fM[kPersp1], src[i].fY) + fM[kPersp2];
+        SkScalar x, y, w;
+        x = SkScalarMul(fM[kScaleX], src[i].fX) + SkScalarMul(fM[kSkewX], src[i].fY) + fM[kTransX];
+        y = SkScalarMul(fM[kSkewY], src[i].fX) + SkScalarMul(fM[kScaleY], src[i].fY) + fM[kTransY];
+        w = SkScalarMul(fM[kPersp0], src[i].fX) + SkScalarMul(fM[kPersp1], src[i].fY) + fM[kPersp2];
         // TODO need fixed point invert
         if (w) {
             w = 1 / w;
         }
-        dst[i].fX = GrMul(x, w);
-        dst[i].fY = GrMul(y, w);
+        dst[i].fX = SkScalarMul(x, w);
+        dst[i].fY = SkScalarMul(y, w);
     }
 }
 
@@ -479,13 +479,13 @@ void GrMatrix::mapSetToTranslate(GrPoint* dst, const GrPoint* src, uint32_t coun
 void GrMatrix::mapSwappedScale(GrPoint* dst, const GrPoint* src, uint32_t count) const {
     if (src != dst) {
         for (uint32_t i = 0; i < count; ++i) {
-            dst[i].fX = GrMul(src[i].fY, fM[kSkewX]);
-            dst[i].fY = GrMul(src[i].fX, fM[kSkewY]);
+            dst[i].fX = SkScalarMul(src[i].fY, fM[kSkewX]);
+            dst[i].fY = SkScalarMul(src[i].fX, fM[kSkewY]);
         }
     } else {
         for (uint32_t i = 0; i < count; ++i) {
-            GrScalar newX = GrMul(src[i].fY, fM[kSkewX]);
-            dst[i].fY = GrMul(src[i].fX, fM[kSkewY]);
+            SkScalar newX = SkScalarMul(src[i].fY, fM[kSkewX]);
+            dst[i].fY = SkScalarMul(src[i].fX, fM[kSkewY]);
             dst[i].fX = newX;
         }
     }
@@ -494,13 +494,13 @@ void GrMatrix::mapSwappedScale(GrPoint* dst, const GrPoint* src, uint32_t count)
 void GrMatrix::mapSwappedScaleAndTranslate(GrPoint* dst, const GrPoint* src, uint32_t count) const {
     if (src != dst) {
         for (uint32_t i = 0; i < count; ++i) {
-            dst[i].fX = GrMul(src[i].fY, fM[kSkewX]) + fM[kTransX];
-            dst[i].fY = GrMul(src[i].fX, fM[kSkewY]) + fM[kTransY];
+            dst[i].fX = SkScalarMul(src[i].fY, fM[kSkewX]) + fM[kTransX];
+            dst[i].fY = SkScalarMul(src[i].fX, fM[kSkewY]) + fM[kTransY];
         }
     } else {
         for (uint32_t i = 0; i < count; ++i) {
-            GrScalar newX = GrMul(src[i].fY, fM[kSkewX]) + fM[kTransX];
-            dst[i].fY = GrMul(src[i].fX, fM[kSkewY]) + fM[kTransY];
+            SkScalar newX = SkScalarMul(src[i].fY, fM[kSkewX]) + fM[kTransX];
+            dst[i].fY = SkScalarMul(src[i].fX, fM[kSkewY]) + fM[kTransY];
             dst[i].fX = newX;
         }
     }
@@ -532,62 +532,62 @@ static void create_matrix(GrMatrix* matrix, GrRandom& rand) {
     switch (type) {
         case kRotate_MatrixType: {
             float angle = rand.nextF() * 2 *3.14159265358979323846f;
-            GrScalar cosa = GrFloatToScalar(cosf(angle));
-            GrScalar sina = GrFloatToScalar(sinf(angle));
+            SkScalar cosa = SkFloatToScalar(cosf(angle));
+            SkScalar sina = SkFloatToScalar(sinf(angle));
             matrix->setAll(cosa,      -sina,           0,
                            sina,       cosa,           0,
                            0,          0,              GrMatrix::I()[8]);
         } break;
         case kScaleX_MatrixType: {
-            GrScalar scale = GrFloatToScalar(rand.nextF(-2, 2));
+            SkScalar scale = SkFloatToScalar(rand.nextF(-2, 2));
             matrix->setAll(scale,      0,              0,
-                           0,          GR_Scalar1,     0,
+                           0,          SK_Scalar1,     0,
                            0,          0,              GrMatrix::I()[8]);
         } break;
         case kScaleY_MatrixType: {
-            GrScalar scale = GrFloatToScalar(rand.nextF(-2, 2));
-            matrix->setAll(GR_Scalar1, 0,              0,
+            SkScalar scale = SkFloatToScalar(rand.nextF(-2, 2));
+            matrix->setAll(SK_Scalar1, 0,              0,
                            0,          scale,          0,
                            0,          0,              GrMatrix::I()[8]);
         } break;
         case kSkewX_MatrixType: {
-            GrScalar skew = GrFloatToScalar(rand.nextF(-2, 2));
-            matrix->setAll(GR_Scalar1, skew,           0,
-                           0,          GR_Scalar1,     0,
+            SkScalar skew = SkFloatToScalar(rand.nextF(-2, 2));
+            matrix->setAll(SK_Scalar1, skew,           0,
+                           0,          SK_Scalar1,     0,
                            0,          0,              GrMatrix::I()[8]);
         } break;
         case kSkewY_MatrixType: {
-            GrScalar skew = GrFloatToScalar(rand.nextF(-2, 2));
-            matrix->setAll(GR_Scalar1, 0,              0,
-                           skew,       GR_Scalar1,     0,
+            SkScalar skew = SkFloatToScalar(rand.nextF(-2, 2));
+            matrix->setAll(SK_Scalar1, 0,              0,
+                           skew,       SK_Scalar1,     0,
                            0,          0,              GrMatrix::I()[8]);
         } break;
         case kTranslateX_MatrixType: {
-            GrScalar trans = GrFloatToScalar(rand.nextF(-10, 10));
-            matrix->setAll(GR_Scalar1, 0,              trans,
-                           0,          GR_Scalar1,     0,
+            SkScalar trans = SkFloatToScalar(rand.nextF(-10, 10));
+            matrix->setAll(SK_Scalar1, 0,              trans,
+                           0,          SK_Scalar1,     0,
                            0,          0,              GrMatrix::I()[8]);
         } break;
         case kTranslateY_MatrixType: {
-            GrScalar trans = GrFloatToScalar(rand.nextF(-10, 10));
-            matrix->setAll(GR_Scalar1, 0,              0,
-                           0,          GR_Scalar1,     trans,
+            SkScalar trans = SkFloatToScalar(rand.nextF(-10, 10));
+            matrix->setAll(SK_Scalar1, 0,              0,
+                           0,          SK_Scalar1,     trans,
                            0,          0,              GrMatrix::I()[8]);
         } break;
         case kSwapScaleXY_MatrixType: {
-            GrScalar xy = GrFloatToScalar(rand.nextF(-2, 2));
-            GrScalar yx = GrFloatToScalar(rand.nextF(-2, 2));
+            SkScalar xy = SkFloatToScalar(rand.nextF(-2, 2));
+            SkScalar yx = SkFloatToScalar(rand.nextF(-2, 2));
             matrix->setAll(0,          xy,             0,
                            yx,         0,              0,
                            0,          0,              GrMatrix::I()[8]);
         } break;
         case kPersp_MatrixType: {
-            GrScalar p0 = GrFloatToScalar(rand.nextF(-2, 2));
-            GrScalar p1 = GrFloatToScalar(rand.nextF(-2, 2));
-            GrScalar p2 = GrFloatToScalar(rand.nextF(-0.5f, 0.75f));
-            matrix->setAll(GR_Scalar1, 0,              0,
-                           0,          GR_Scalar1,     0,
-                           p0,         p1,             GrMul(p2,GrMatrix::I()[8]));
+            SkScalar p0 = SkFloatToScalar(rand.nextF(-2, 2));
+            SkScalar p1 = SkFloatToScalar(rand.nextF(-2, 2));
+            SkScalar p2 = SkFloatToScalar(rand.nextF(-0.5f, 0.75f));
+            matrix->setAll(SK_Scalar1, 0,              0,
+                           0,          SK_Scalar1,     0,
+                           p0,         p1,             SkScalarMul(p2,GrMatrix::I()[8]));
         } break;
         default:
             GrAssert(0);
@@ -612,8 +612,8 @@ void GrMatrix::UnitTest() {
             GrAssert(a.isIdentity());
         } else if (1 == i) {
             num = 0;
-            a.setAll(0, GR_Scalar1, 0,
-                     GR_Scalar1, 0, 0,
+            a.setAll(0, SK_Scalar1, 0,
+                     SK_Scalar1, 0, 0,
                      0, 0, I()[8]);
         }
         for (int j = 0; j < num; ++j) {
@@ -621,17 +621,17 @@ void GrMatrix::UnitTest() {
             a.preConcat(b);
         }
 
-        GrScalar maxStretch = a.getMaxStretch();
+        SkScalar maxStretch = a.getMaxStretch();
         if (maxStretch > 0) {
-            maxStretch = GrMul(GR_Scalar1 + GR_Scalar1 / 100, maxStretch);
+            maxStretch = SkScalarMul(SK_Scalar1 + SK_Scalar1 / 100, maxStretch);
         }
         GrPoint origin = a.mapPoint(GrPoint::Make(0,0));
 
         for (int j = 0; j < 9; ++j) {
             int mask, origMask = a.fTypeMask;
-            GrScalar old = a[j];
+            SkScalar old = a[j];
 
-            a.set(j, GR_Scalar1);
+            a.set(j, SK_Scalar1);
             mask = a.fTypeMask;
             a.computeTypeMask();
             GrAssert(mask == a.fTypeMask);
@@ -641,7 +641,7 @@ void GrMatrix::UnitTest() {
             a.computeTypeMask();
             GrAssert(mask == a.fTypeMask);
 
-            a.set(j, 10 * GR_Scalar1);
+            a.set(j, 10 * SK_Scalar1);
             mask = a.fTypeMask;
             a.computeTypeMask();
             GrAssert(mask == a.fTypeMask);
@@ -652,8 +652,8 @@ void GrMatrix::UnitTest() {
 
         for (int j = 0; j < 100; ++j) {
             GrPoint pt;
-            pt.fX = GrFloatToScalar(rand.nextF(-10, 10));
-            pt.fY = GrFloatToScalar(rand.nextF(-10, 10));
+            pt.fX = SkFloatToScalar(rand.nextF(-10, 10));
+            pt.fY = SkFloatToScalar(rand.nextF(-10, 10));
 
             GrPoint t0, t1, t2;
             t0 = a.mapPoint(pt);             // map to a new point
@@ -664,7 +664,7 @@ void GrMatrix::UnitTest() {
             if (maxStretch >= 0.f) {
                 GrVec vec = origin - t0;
 //                vec.setBetween(t0, origin);
-                GrScalar stretch = vec.length() / pt.distanceToOrigin();
+                SkScalar stretch = vec.length() / pt.distanceToOrigin();
                 GrAssert(stretch <= maxStretch);
             }
         }
@@ -673,8 +673,8 @@ void GrMatrix::UnitTest() {
             GrMatrix c;
             c.setConcat(a,b);
             for (int i = 0; i < 9; ++i) {
-                GrScalar diff = GrScalarAbs(c[i] - I()[i]);
-                GrAssert(diff < (5*GR_Scalar1 / 100));
+                SkScalar diff = SkScalarAbs(c[i] - I()[i]);
+                GrAssert(diff < (5*SK_Scalar1 / 100));
             }
         }
     }

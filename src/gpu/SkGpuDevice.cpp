@@ -604,8 +604,8 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
     }
 
     if (SkShader::kDefault_BitmapType == bmptype) {
-        GrScalar sx = SkFloatToScalar(1.f / bitmap.width());
-        GrScalar sy = SkFloatToScalar(1.f / bitmap.height());
+        SkScalar sx = SkFloatToScalar(1.f / bitmap.width());
+        SkScalar sy = SkFloatToScalar(1.f / bitmap.height());
         matrix.postScale(sx, sy);
     }
     stage->setEffect(SkNEW_ARGS(GrSingleTextureEffect, (texture, matrix, params)))->unref();
@@ -964,10 +964,10 @@ bool drawWithMaskFilter(GrContext* context, const SkPath& devPath,
 
     grp->coverageStage(MASK_IDX)->setEffect(SkNEW_ARGS(GrSingleTextureEffect, (texture, m)))->unref();
     GrRect d;
-    d.setLTRB(GrIntToScalar(dstM.fBounds.fLeft),
-              GrIntToScalar(dstM.fBounds.fTop),
-              GrIntToScalar(dstM.fBounds.fRight),
-              GrIntToScalar(dstM.fBounds.fBottom));
+    d.setLTRB(SkIntToScalar(dstM.fBounds.fLeft),
+              SkIntToScalar(dstM.fBounds.fTop),
+              SkIntToScalar(dstM.fBounds.fRight),
+              SkIntToScalar(dstM.fBounds.fBottom));
 
     context->drawRect(*grp, d);
     return true;
@@ -1419,20 +1419,20 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
     SkAutoTUnref<GrEffect> effect;
     if (needsTextureDomain) {
         // Use a constrained texture domain to avoid color bleeding
-        GrScalar left, top, right, bottom;
-        if (srcRect.width() > GR_Scalar1) {
-            GrScalar border = GR_ScalarHalf / bitmap.width();
+        SkScalar left, top, right, bottom;
+        if (srcRect.width() > SK_Scalar1) {
+            SkScalar border = SK_ScalarHalf / bitmap.width();
             left = paintRect.left() + border;
             right = paintRect.right() - border;
         } else {
-            left = right = GrScalarHalf(paintRect.left() + paintRect.right());
+            left = right = SkScalarHalf(paintRect.left() + paintRect.right());
         }
-        if (srcRect.height() > GR_Scalar1) {
-            GrScalar border = GR_ScalarHalf / bitmap.height();
+        if (srcRect.height() > SK_Scalar1) {
+            SkScalar border = SK_ScalarHalf / bitmap.height();
             top = paintRect.top() + border;
             bottom = paintRect.bottom() - border;
         } else {
-            top = bottom = GrScalarHalf(paintRect.top() + paintRect.bottom());
+            top = bottom = SkScalarHalf(paintRect.top() + paintRect.bottom());
         }
         textureDomain.setLTRB(left, top, right, bottom);
         effect.reset(SkNEW_ARGS(GrTextureDomainEffect, (texture, textureDomain, params)));
@@ -1533,12 +1533,12 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     }
 
     fContext->drawRectToRect(grPaint,
-                            GrRect::MakeXYWH(GrIntToScalar(left),
-                                            GrIntToScalar(top),
-                                            GrIntToScalar(w),
-                                            GrIntToScalar(h)),
-                            GrRect::MakeWH(GR_Scalar1 * w / texture->width(),
-                                        GR_Scalar1 * h / texture->height()));
+                            GrRect::MakeXYWH(SkIntToScalar(left),
+                                            SkIntToScalar(top),
+                                            SkIntToScalar(w),
+                                            SkIntToScalar(h)),
+                            GrRect::MakeWH(SK_Scalar1 * w / texture->width(),
+                                        SK_Scalar1 * h / texture->height()));
 }
 
 void SkGpuDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
@@ -1611,15 +1611,15 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
     int w = bm.width();
     int h = bm.height();
 
-    GrRect dstRect = GrRect::MakeXYWH(GrIntToScalar(x),
-                                      GrIntToScalar(y),
-                                      GrIntToScalar(w),
-                                      GrIntToScalar(h));
+    GrRect dstRect = GrRect::MakeXYWH(SkIntToScalar(x),
+                                      SkIntToScalar(y),
+                                      SkIntToScalar(w),
+                                      SkIntToScalar(h));
 
     // The device being drawn may not fill up its texture (saveLayer uses
     // the approximate ).
-    GrRect srcRect = GrRect::MakeWH(GR_Scalar1 * w / devTex->width(),
-                                    GR_Scalar1 * h / devTex->height());
+    GrRect srcRect = GrRect::MakeWH(SK_Scalar1 * w / devTex->width(),
+                                    SK_Scalar1 * h / devTex->height());
 
     fContext->drawRectToRect(grPaint, dstRect, srcRect);
 }

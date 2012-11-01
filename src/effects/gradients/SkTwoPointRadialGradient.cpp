@@ -387,8 +387,8 @@ protected:
     // @{
     /// Values last uploaded as uniforms
 
-    GrScalar fCachedCenter;
-    GrScalar fCachedRadius;
+    SkScalar fCachedCenter;
+    SkScalar fCachedRadius;
     bool     fCachedPosRoot;
 
     // @}
@@ -427,9 +427,9 @@ public:
     }
 
     // The radial gradient parameters can collapse to a linear (instead of quadratic) equation.
-    bool isDegenerate() const { return GR_Scalar1 == fCenterX1; }
-    GrScalar center() const { return fCenterX1; }
-    GrScalar radius() const { return fRadius0; }
+    bool isDegenerate() const { return SK_Scalar1 == fCenterX1; }
+    SkScalar center() const { return fCenterX1; }
+    SkScalar radius() const { return fRadius0; }
     bool isPosRoot() const { return SkToBool(fPosRoot); }
 
     typedef GrGLRadial2Gradient GLEffect;
@@ -441,8 +441,8 @@ private:
     // Cache of values - these can change arbitrarily, EXCEPT
     // we shouldn't change between degenerate and non-degenerate?!
 
-    GrScalar fCenterX1;
-    GrScalar fRadius0;
+    SkScalar fCenterX1;
+    SkScalar fRadius0;
     SkBool8  fPosRoot;
 
     // @}
@@ -494,8 +494,8 @@ GrGLRadial2Gradient::GrGLRadial2Gradient(
     , fFSParamUni(kInvalidUniformHandle)
     , fVSVaryingName(NULL)
     , fFSVaryingName(NULL)
-    , fCachedCenter(GR_ScalarMax)
-    , fCachedRadius(-GR_ScalarMax)
+    , fCachedCenter(SK_ScalarMax)
+    , fCachedRadius(-SK_ScalarMax)
     , fCachedPosRoot(0) {
 
     const GrRadial2Gradient& data =
@@ -618,13 +618,13 @@ void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman, const GrEffect
     INHERITED::setData(uman, stage);
     const GrRadial2Gradient& data = static_cast<const GrRadial2Gradient&>(*stage.getEffect());
     GrAssert(data.isDegenerate() == fIsDegenerate);
-    GrScalar centerX1 = data.center();
-    GrScalar radius0 = data.radius();
+    SkScalar centerX1 = data.center();
+    SkScalar radius0 = data.radius();
     if (fCachedCenter != centerX1 ||
         fCachedRadius != radius0 ||
         fCachedPosRoot != data.isPosRoot()) {
 
-        GrScalar a = GrMul(centerX1, centerX1) - GR_Scalar1;
+        SkScalar a = SkScalarMul(centerX1, centerX1) - SK_Scalar1;
 
         // When we're in the degenerate (linear) case, the second
         // value will be INF but the program doesn't read it. (We
@@ -632,11 +632,11 @@ void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman, const GrEffect
         // all in the linear case just to keep the code complexity
         // down).
         float values[6] = {
-            GrScalarToFloat(a),
-            1 / (2.f * GrScalarToFloat(a)),
-            GrScalarToFloat(centerX1),
-            GrScalarToFloat(radius0),
-            GrScalarToFloat(GrMul(radius0, radius0)),
+            SkScalarToFloat(a),
+            1 / (2.f * SkScalarToFloat(a)),
+            SkScalarToFloat(centerX1),
+            SkScalarToFloat(radius0),
+            SkScalarToFloat(SkScalarMul(radius0, radius0)),
             data.isPosRoot() ? 1.f : -1.f
         };
 
