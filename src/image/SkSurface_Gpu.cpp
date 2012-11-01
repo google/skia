@@ -92,7 +92,7 @@ void SkSurface_Gpu::onCopyOnWrite(SkImage* image, SkCanvas* canvas) {
         desc.fConfig = SkBitmapConfig2GrPixelConfig(fDevice->config());
         desc.fSampleCnt = 0;
 
-        GrTexture* tex = fDevice->context()->createUncachedTexture(desc, NULL, 0);
+        SkAutoTUnref<GrTexture> tex(fDevice->context()->createUncachedTexture(desc, NULL, 0));
         if (NULL == tex) {
             SkTextureImageSetTexture(image, NULL);
             return;
@@ -131,7 +131,7 @@ SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, const SkImage::Info& info,
     desc.fConfig = SkBitmapConfig2GrPixelConfig(config);
     desc.fSampleCnt = sampleCount;
 
-    GrTexture* tex = ctx->createUncachedTexture(desc, NULL, 0);
+    SkAutoTUnref<GrTexture> tex(ctx->createUncachedTexture(desc, NULL, 0));
     if (NULL == tex) {
         return NULL;
     }
