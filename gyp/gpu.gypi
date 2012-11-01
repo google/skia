@@ -238,6 +238,7 @@
     'skgr_native_gl_sources': [
       '<(skia_include_path)/gpu/gl/SkNativeGLContext.h',
       '<(skia_src_path)/gpu/gl/mac/SkNativeGLContext_mac.cpp',
+      '<(skia_src_path)/gpu/gl/nacl/SkNativeGLContext_nacl.cpp',
       '<(skia_src_path)/gpu/gl/win/SkNativeGLContext_win.cpp',
       '<(skia_src_path)/gpu/gl/unix/SkNativeGLContext_unix.cpp',
       '<(skia_src_path)/gpu/gl/android/SkNativeGLContext_android.cpp',

@@ -98,7 +98,7 @@
       },
     ],
 
-    ['skia_os in ["linux", "freebsd", "openbsd", "solaris"]',
+    ['skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl"]',
       {
         'defines': [
           'SK_SAMPLES_FOR_X',
@@ -141,9 +141,23 @@
               '-m32',
             ],
           }],
-        ],
-        'include_dirs' : [
-          '/usr/include/freetype2',
+          [ 'skia_os == "nacl"', {
+            'defines': [
+              'SK_BUILD_FOR_NACL',
+            ],
+            'link_settings': {
+              'libraries': [
+                '-lppapi',
+                '-lppapi_cpp',
+                '-lnosys',
+                '-pthread',
+              ],
+            },
+          }, { # skia_os != "nacl"
+            'include_dirs' : [
+              '/usr/include/freetype2',
+            ],
+          }],
         ],
       },
     ],
@@ -321,7 +335,7 @@
     # static initializers if we're using a pthread-compatible thread interface.
     [ 'skia_os != "win"', {
       'defines': [
-        'SK_USE_POSIX_THREADS'
+        'SK_USE_POSIX_THREADS',
       ],
     }],
   ], # end 'conditions'

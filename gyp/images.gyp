@@ -89,7 +89,7 @@
             '../src/ports/SkImageDecoder_CG.cpp',
           ],
         }],
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl"]', {
           'sources!': [
             '../src/images/SkImageDecoder_libgif.cpp',
             '../src/images/SkMovie_gif.cpp',

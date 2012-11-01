@@ -20,6 +20,7 @@
         '../src/utils',
       ],
       'sources': [
+        '../src/ports/SkDebug_nacl.cpp',
         '../src/ports/SkDebug_stdio.cpp',
         '../src/ports/SkDebug_win.cpp',
         '../src/ports/SkFontDescriptor.h',
@@ -39,35 +40,50 @@
       ],
       'conditions': [
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
-          'conditions': [
-            [ 'skia_nacl', {
-              'defines': [
-                'SK_CAN_USE_DLOPEN=0',
-              ],
-              'sources': [
-                '../src/ports/SkFontHost_none.cpp',
-              ],
-            }, {
-              'defines': [
-                #The font host requires at least FreeType 2.3.0 at runtime.
-                'SK_FONTHOST_FREETYPE_RUNTIME_VERSION=0x020300',
-                'SK_CAN_USE_DLOPEN=1',
-              ],
-              'sources': [
-                '../src/ports/SkFontHost_FreeType.cpp',
-                '../src/ports/SkFontHost_FreeType_common.cpp',
-                '../src/ports/SkFontHost_linux.cpp',
-              ],
-              'link_settings': {
-                'libraries': [
-                  '-lfreetype',
-                  '-ldl',
-                ],
-              },
-            }],
+          'defines': [
+            #The font host requires at least FreeType 2.3.0 at runtime.
+            'SK_FONTHOST_FREETYPE_RUNTIME_VERSION=0x020300',\
+            'SK_CAN_USE_DLOPEN=1',
+          ],
+          'link_settings': {
+            'libraries': [
+              '-lfreetype',
+              '-ldl',
+            ],
+          },
+          'sources': [
+            '../src/ports/SkFontHost_FreeType.cpp',
+            '../src/ports/SkFontHost_FreeType_common.cpp',
+            '../src/ports/SkFontHost_linux.cpp',
+            '../src/ports/SkThread_pthread.cpp',
+          ],
+        }],
+        [ 'skia_os == "nacl"', {
+          'dependencies': [
+            # On other OS, we can dynamically link against freetype.  For nacl,
+            # we have to include our own version since the naclports version is
+            # too old (<0x020300) to provide the functionality we need.
+            'freetype.gyp:freetype',
+          ],
+          'export_dependent_settings': [
+            'freetype.gyp:freetype',
+          ],
+          'defines': [
+            # We use Android's repo, which provides at least FreeType 2.4.0
+            'SK_FONTHOST_FREETYPE_RUNTIME_VERSION=0x020400',\
           ],
           'sources': [
+            '../src/ports/SkFontHost_FreeType.cpp',
+            '../src/ports/SkFontHost_FreeType_common.cpp',
+            '../src/ports/SkFontHost_linux.cpp',
             '../src/ports/SkThread_pthread.cpp',
+          ],
+          'sources!': [
+            '../src/ports/SkDebug_stdio.cpp',
+          ],
+        }, {
+          'sources!': [
+            '../src/ports/SkDebug_nacl.cpp',
           ],
         }],
         [ 'skia_os == "mac"', {
@@ -150,7 +166,7 @@
             #TODO: include the ports/SkImageRef_ashmem.cpp for non-NDK builds
           ],
           'dependencies': [
-             'android_deps.gyp:ft2',
+             'freetype.gyp:freetype',
              'android_deps.gyp:expat',
           ],
         }],

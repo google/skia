@@ -129,12 +129,6 @@
           ],
         }],
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
-          'link_settings': {
-            'libraries': [
-              '-lGL',
-              '-lGLU',
-            ],
-          },
           'sources!': [
             '../src/utils/SkThreadUtils_pthread_other.cpp',
           ],
@@ -176,7 +170,7 @@
             '../src/utils/win/SkIStream.cpp',
           ],
         }],
-        [ 'skia_nacl == 1', {
+        [ 'skia_os == "nacl"', {
           'sources': [
             '../src/utils/SkThreadUtils_pthread_other.cpp',
           ],

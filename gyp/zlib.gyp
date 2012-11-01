@@ -29,7 +29,7 @@
           },
           'defines': [ 'SK_ZLIB_INCLUDE=<zlib.h>', ],
         }],
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "android"]', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "android", "nacl"]', {
           'link_settings': { 'libraries': [ '-lz', ], },
           'defines': [ 'SK_ZLIB_INCLUDE=<zlib.h>', ],
         }],
