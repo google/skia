@@ -102,7 +102,9 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#if defined(SK_BUILD_FOR_MAC)
+#if defined(SK_BUILD_FOR_NACL)
+    #include "SkOSWindow_NaCl.h"
+#elif defined(SK_BUILD_FOR_MAC)
     #include "SkOSWindow_Mac.h"
 #elif defined(SK_BUILD_FOR_WIN)
     #include "SkOSWindow_Win.h"

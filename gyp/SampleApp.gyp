@@ -290,6 +290,11 @@
             '../src/gpu', # To pull gl/GrGLUtil.h
           ],
         }],
+        [ 'skia_os == "nacl"', {
+          'sources': [
+            '../../nacl/src/nacl_sample.cpp',
+          ],
+        }],
       ],
       'msvs_settings': {
         'VCLinkerTool': {

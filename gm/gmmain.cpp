@@ -1301,7 +1301,7 @@ int tool_main(int argc, char** argv) {
     return (0 == testsFailed) ? 0 : -1;
 }
 
-#if !defined SK_BUILD_FOR_IOS
+#if !defined(SK_BUILD_FOR_IOS) && !defined(SK_BUILD_FOR_NACL)
 int main(int argc, char * const argv[]) {
     return tool_main(argc, (char**) argv);
 }
