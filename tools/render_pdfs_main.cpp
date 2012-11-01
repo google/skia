@@ -187,7 +187,9 @@ static void parse_commandline(int argc, char* const argv[],
     }
 }
 
-int main(int argc, char* const argv[]) {
+int tool_main(int argc, char** argv);
+int tool_main(int argc, char** argv) {
+
     SkAutoGraphics ag;
     SkTArray<SkString> inputs;
 
@@ -208,4 +210,10 @@ int main(int argc, char* const argv[]) {
         return 1;
     }
 }
+
+#if !defined SK_BUILD_FOR_IOS
+int main(int argc, char * const argv[]) {
+    return tool_main(argc, (char**) argv);
+}
+#endif
 
