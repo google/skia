@@ -8,6 +8,7 @@
 #include "gl/GrGLShaderBuilder.h"
 #include "gl/GrGLProgram.h"
 #include "gl/GrGLUniformHandle.h"
+#include "SkMatrix.h"
 
 #define ASSERT_ARRAY_UPLOAD_IN_BOUNDS(UNI, OFFSET, COUNT) \
          GrAssert(offset + arrayCount <= uni.fArrayCount || \
@@ -230,6 +231,23 @@ void GrGLUniformManager::setMatrix4fv(UniformHandle u,
                    UniformMatrix4fv(uni.fVSLocation + offset, arrayCount, false, matrices));
     }
 }
+
+void GrGLUniformManager::setSkMatrix(UniformHandle u, const SkMatrix& matrix) const {
+    GR_STATIC_ASSERT(SK_SCALAR_IS_FLOAT);
+    GrGLfloat mt[] = {
+        matrix.get(SkMatrix::kMScaleX),
+        matrix.get(SkMatrix::kMSkewY),
+        matrix.get(SkMatrix::kMPersp0),
+        matrix.get(SkMatrix::kMSkewX),
+        matrix.get(SkMatrix::kMScaleY),
+        matrix.get(SkMatrix::kMPersp1),
+        matrix.get(SkMatrix::kMTransX),
+        matrix.get(SkMatrix::kMTransY),
+        matrix.get(SkMatrix::kMPersp2),
+    };
+    this->setMatrix3f(u, mt);
+}
+
 
 void GrGLUniformManager::getUniformLocations(GrGLuint programID, const BuilderUniformArray& uniforms) {
     GrAssert(uniforms.count() == fUniforms.count());
