@@ -95,9 +95,9 @@ void PictureBenchmark::run(SkPicture* pict) {
         timerData.appendTimes(timer, fRepeats - 1 == i);
     }
 
-    const char* configName = usingGpu ? "gpu" : "raster";
+    SkString configName = fRenderer->getConfigName();
     SkString result = timerData.getResult(fLogPerIter, fPrintMin, fRepeats,
-                                          configName, fShowWallTime, fShowTruncatedWallTime,
+                                          configName.c_str(), fShowWallTime, fShowTruncatedWallTime,
                                           fShowCpuTime, fShowTruncatedCpuTime,
                                           usingGpu && fShowGpuTime);
     result.append("\n");
