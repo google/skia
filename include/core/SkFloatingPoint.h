@@ -87,4 +87,10 @@ static inline float sk_float_copysign(float x, float y) {
     #define sk_float_ceil2int(x)    (int)sk_float_ceil(x)
 #endif
 
+extern const uint32_t gIEEENotANumber;
+extern const uint32_t gIEEEInfinity;
+
+#define SK_FloatNaN                 (*reinterpret_cast<const float*>(&gIEEENotANumber))
+#define SK_FloatInfinity            (*reinterpret_cast<const float*>(&gIEEEInfinity))
+
 #endif

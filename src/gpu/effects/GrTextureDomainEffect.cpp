@@ -8,6 +8,8 @@
 #include "GrTextureDomainEffect.h"
 #include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
+#include "gl/GrGLEffectMatrix.h"
+#include "SkFloatingPoint.h"
 
 class GrGLTextureDomainEffect : public GrGLEffect {
 public:
@@ -23,10 +25,12 @@ public:
 
     virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrEffectStage&, const GrGLCaps&) { return 0; }
+    static inline EffectKey GenKey(const GrEffectStage&, const GrGLCaps&);
 
 private:
     GrGLUniformManager::UniformHandle fNameUni;
+    GrGLEffectMatrix                  fEffectMatrix;
+    GrGLfloat                         fPrevDomain[4];
 
     typedef GrGLEffect INHERITED;
 };
@@ -35,21 +39,24 @@ GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrBackendEffectFactory& f
                                                  const GrEffect&)
     : INHERITED(factory)
     , fNameUni(GrGLUniformManager::kInvalidUniformHandle) {
+    fRequiresTextureMatrix = false;
+    fPrevDomain[0] = SK_FloatNaN;
 }
 
 void GrGLTextureDomainEffect::emitCode(GrGLShaderBuilder* builder,
                                        const GrEffectStage&,
-                                       EffectKey,
+                                       EffectKey key,
                                        const char* vertexCoords,
                                        const char* outputColor,
                                        const char* inputColor,
                                        const TextureSamplerArray& samplers) {
-
+    const char* coords;
+    fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, vertexCoords, &coords);
     fNameUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                    kVec4f_GrSLType, "TexDom");
 
     builder->fFSCode.appendf("\tvec2 clampCoord = clamp(%s, %s.xy, %s.zw);\n",
-                           builder->defaultTexCoordsName(),
+                           coords,
                            builder->getUniformCStr(fNameUni),
                            builder->getUniformCStr(fNameUni));
 
@@ -80,7 +87,19 @@ void GrGLTextureDomainEffect::setData(const GrGLUniformManager& uman, const GrEf
         // of elements so that values = (l, t, r, b).
         SkTSwap(values[1], values[3]);
     }
-    uman.set4fv(fNameUni, 0, 1, values);
+    if (0 != memcmp(values, fPrevDomain, 4 * sizeof(GrGLfloat))) {
+        uman.set4fv(fNameUni, 0, 1, values);
+    }
+    fEffectMatrix.setData(uman,
+                          effect.getMatrix(),
+                          stage.getCoordChangeMatrix(),
+                          effect.texture(0));
+}   
+
+GrGLEffect::EffectKey GrGLTextureDomainEffect::GenKey(const GrEffectStage& stage, const GrGLCaps&) {
+    const GrTextureDomainEffect& effect =
+        static_cast<const GrTextureDomainEffect&>(*stage.getEffect());
+    return GrGLEffectMatrix::GenKey(effect.getMatrix(), effect.getMatrix(), effect.texture(0));
 }
 
 
