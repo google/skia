@@ -25,12 +25,14 @@ static void erase(SkSurface* surface) {
 }
 
 static SkShader* createChecker() {
+//    SkColor colors[] = { 0xFFFDFDFD, 0xFFF4F4F4 };
+    SkColor colors[] = { 0xFFFFFFFF, 0xFFFFFFFF };
     SkBitmap bm;
     bm.setConfig(SkBitmap::kARGB_8888_Config, 2, 2);
     bm.allocPixels();
     bm.lockPixels();
-    *bm.getAddr32(0, 0) = *bm.getAddr32(1, 1) = SkPreMultiplyColor(0xFFFDFDFD);
-    *bm.getAddr32(0, 1) = *bm.getAddr32(1, 0) = SkPreMultiplyColor(0xFFF4F4F4);
+    *bm.getAddr32(0, 0) = *bm.getAddr32(1, 1) = SkPreMultiplyColor(colors[0]);
+    *bm.getAddr32(0, 1) = *bm.getAddr32(1, 0) = SkPreMultiplyColor(colors[1]);
     SkShader* s = SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode,
                                                SkShader::kRepeat_TileMode);
 
@@ -48,6 +50,9 @@ public:
         fGrid = true;
         fShowSkeleton = true;
         fUseGPU = false;
+        fUseClip = false;
+        
+        fClipRect.set(2, 2, 11, 8 );
     }
 
     int getZoom() const { return fZ; }
@@ -63,6 +68,9 @@ public:
 
     bool getUseGPU() const { return fUseGPU; }
     void setUseGPU(bool ug) { fUseGPU = ug; }
+
+    bool getUseClip() const { return fUseClip; }
+    void setUseClip(bool uc) { fUseClip = uc; }
 
     enum Style {
         kHair_Style,
@@ -95,11 +103,11 @@ public:
     void drawRect(SkCanvas* canvas, SkPoint pts[2]);
 
 private:
-    bool fAA, fGrid, fShowSkeleton, fUseGPU;
+    bool fAA, fGrid, fShowSkeleton, fUseGPU, fUseClip;
     Style fStyle;
     int fW, fH, fZ;
     SkMatrix fMatrix, fInverse;
-    SkRect   fBounds;
+    SkRect   fBounds, fClipRect;
     SkAutoTUnref<SkShader> fShader;
     SkAutoTUnref<SkSurface> fMinSurface;
     SkAutoTUnref<SkSurface> fMaxSurface;
@@ -200,6 +208,19 @@ void FatBits::drawFG(SkCanvas* canvas) {
             canvas->drawPoint(x, y, inner);
         }
     }
+
+    if (fUseClip) {
+        SkPaint p;
+        p.setStyle(SkPaint::kStroke_Style);
+        p.setColor(SK_ColorLTGRAY);
+        SkRect r = {
+            fClipRect.fLeft * fZ,
+            fClipRect.fTop * fZ,
+            fClipRect.fRight * fZ,
+            fClipRect.fBottom * fZ
+        };
+        canvas->drawRect(r, p);
+    }
 }
 
 void FatBits::drawLineSkeleton(SkCanvas* max, const SkPoint pts[]) {
@@ -254,7 +275,16 @@ void FatBits::drawLine(SkCanvas* canvas, SkPoint pts[]) {
     erase(fMinSurface);
     this->setupPaint(&paint);
     paint.setColor(FAT_PIXEL_COLOR);
+    if (fUseClip) {
+        fMinSurface->getCanvas()->save();
+        SkRect r = fClipRect;
+        r.inset(SK_Scalar1/3, SK_Scalar1/3);
+        fMinSurface->getCanvas()->clipRect(r, SkRegion::kIntersect_Op, true);
+    }
     fMinSurface->getCanvas()->drawLine(pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY, paint);
+    if (fUseClip) {
+        fMinSurface->getCanvas()->restore();
+    }
     this->copyMinToMax();
 
     SkCanvas* max = fMaxSurface->getCanvas();
@@ -331,6 +361,10 @@ protected:
         SkUnichar uni;
         if (SampleCode::CharQ(*evt, &uni)) {
             switch (uni) {
+                case 'c':
+                    fFB.setUseClip(!fFB.getUseClip());
+                    this->inval(NULL);
+                    return true;
                 case 'r':
                     fIsRect = !fIsRect;
                     this->inval(NULL);
@@ -374,10 +408,11 @@ protected:
 
         {
             SkString str;
-            str.printf("%s %s %s",
+            str.printf("%s %s %s %s",
                        fFB.getAA() ? "AA" : "BW",
                        FatBits::kHair_Style == fFB.getStyle() ? "Hair" : "Stroke",
-                       fFB.getUseGPU() ? "GPU" : "CPU");
+                       fFB.getUseGPU() ? "GPU" : "CPU",
+                       fFB.getUseClip() ? "clip" : "noclip");
             SkPaint paint;
             paint.setAntiAlias(true);
             paint.setTextSize(16);
