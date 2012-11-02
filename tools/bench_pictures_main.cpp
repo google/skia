@@ -30,6 +30,7 @@ static void usage(const char* argv0) {
 "     [--mode pow2tile minWidth height[] | record | simple\n"
 "             | tile width[] height[] | playbackCreation]\n"
 "     [--pipe]\n"
+"     [--bbh bbhType]\n"
 "     [--multi numThreads]\n"
 "     [--device bitmap"
 #if SK_SUPPORT_GPU
@@ -76,6 +77,10 @@ static void usage(const char* argv0) {
 "     --multi numThreads : Set the number of threads for multi threaded drawing. Must be greater\n"
 "                          than 1. Only works with tiled rendering.\n"
 "     --pipe: Benchmark SkGPipe rendering. Compatible with tiled, multithreaded rendering.\n");
+    SkDebugf(
+"     --bbh bbhType: Set the bounding box hierarchy type to be used. Accepted\n"
+"                    values are: none, rtree. Default value is none.\n"
+"                    Not compatible with --pipe.\n");
     SkDebugf(
 "     --device bitmap"
 #if SK_SUPPORT_GPU
@@ -156,6 +161,8 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     const char* heightString = NULL;
     bool isPowerOf2Mode = false;
     const char* mode = NULL;
+    sk_tools::PictureRenderer::BBoxHierarchyType bbhType = 
+        sk_tools::PictureRenderer::kNone_BBoxHierarchyType;
     for (++argv; argv < stop; ++argv) {
         if (0 == strcmp(*argv, "--repeat")) {
             ++argv;
@@ -203,6 +210,25 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 usage(argv0);
                 exit(-1);
             }
+        } else if (0 == strcmp(*argv, "--bbh")) {
+            ++argv;
+            if (argv >= stop) {
+                gLogger.logError("Missing value for --bbh\n");
+                usage(argv0);
+                exit(-1);
+            }
+            if (0 == strcmp(*argv, "none")) {
+                bbhType = sk_tools::PictureRenderer::kNone_BBoxHierarchyType;
+            } else if (0 == strcmp(*argv, "rtree")) {
+                bbhType = sk_tools::PictureRenderer::kRTree_BBoxHierarchyType;
+            } else {
+                SkString err;
+                err.printf("%s is not a valid value for --bbhType\n", *argv);
+                gLogger.logError(err);
+                usage(argv0);
+                exit(-1);
+            }
+
         } else if (0 == strcmp(*argv, "--mode")) {
 
             ++argv;
@@ -336,6 +362,12 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
         exit(-1);
     }
 
+    if (usePipe && sk_tools::PictureRenderer::kNone_BBoxHierarchyType != bbhType) {
+        gLogger.logError("--pipe and --bbh cannot be used together\n");
+        usage(argv0);
+        exit(-1);
+    }
+
     if (useTiles) {
         SkASSERT(NULL == renderer);
         sk_tools::TiledPictureRenderer* tiledRenderer = SkNEW(sk_tools::TiledPictureRenderer);
@@ -411,6 +443,8 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     if (NULL == renderer) {
         renderer = SkNEW(sk_tools::SimplePictureRenderer);
     }
+
+    renderer->setBBoxHierarchyType(bbhType);
     benchmark->setRenderer(renderer)->unref();
     benchmark->setRepeats(repeats);
     benchmark->setDeviceType(deviceType);

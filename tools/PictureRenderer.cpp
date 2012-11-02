@@ -18,6 +18,7 @@
 #include "SkImageEncoder.h"
 #include "SkMatrix.h"
 #include "SkPicture.h"
+#include "SkRTree.h"
 #include "SkScalar.h"
 #include "SkString.h"
 #include "SkTemplates.h"
@@ -45,6 +46,7 @@ void PictureRenderer::init(SkPicture* pict) {
     }
 
     fPicture = pict;
+    fPicture->ref();
     fCanvas.reset(this->setupCanvas());
 }
 
@@ -78,8 +80,26 @@ SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
 
 void PictureRenderer::end() {
     this->resetState();
+    SkSafeUnref(fPicture);
     fPicture = NULL;
     fCanvas.reset(NULL);
+}
+
+/** Converts fPicture to a picture that uses a BBoxHierarchy.
+ *  PictureRenderer subclasses that are used to test picture playback
+ *  should call this method during init.
+ */
+void PictureRenderer::buildBBoxHierarchy() {
+    SkASSERT(NULL != fPicture);
+    if (kNone_BBoxHierarchyType != fBBoxHierarchyType && NULL != fPicture) {
+        SkPicture* newPicture = this->createPicture();
+        SkCanvas* recorder = newPicture->beginRecording(fPicture->width(), fPicture->height(),
+                                                        this->recordFlags());
+        fPicture->draw(recorder);
+        newPicture->endRecording();
+        fPicture->unref();
+        fPicture = newPicture;
+    }
 }
 
 void PictureRenderer::resetState() {
@@ -97,6 +117,11 @@ void PictureRenderer::resetState() {
         SK_GL(*glContext, Finish());
     }
 #endif
+}
+
+uint32_t PictureRenderer::recordFlags() {
+    return kNone_BBoxHierarchyType == fBBoxHierarchyType ? 0 :
+        SkPicture::kOptimizeForClippedPlayback_RecordingFlag;
 }
 
 /**
@@ -140,10 +165,11 @@ static bool writeAppendNumber(SkCanvas* canvas, const SkString* path, int number
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 bool RecordPictureRenderer::render(const SkString*) {
-    SkPicture replayer;
-    SkCanvas* recorder = replayer.beginRecording(fPicture->width(), fPicture->height());
+    SkAutoTUnref<SkPicture> replayer(this->createPicture());
+    SkCanvas* recorder = replayer->beginRecording(fPicture->width(), fPicture->height(),
+                                                  this->recordFlags());
     fPicture->draw(recorder);
-    replayer.endRecording();
+    replayer->endRecording();
     // Since this class does not actually render, return false.
     return false;
 }
@@ -170,6 +196,11 @@ bool PipePictureRenderer::render(const SkString* path) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
+
+void SimplePictureRenderer::init(SkPicture* picture) {
+    INHERITED::init(picture);
+    this->buildBBoxHierarchy();
+}
 
 bool SimplePictureRenderer::render(const SkString* path) {
     SkASSERT(fCanvas.get() != NULL);
@@ -210,6 +241,10 @@ void TiledPictureRenderer::init(SkPicture* pict) {
     // Do not call INHERITED::init(), which would create a (potentially large) canvas which is not
     // used by bench_pictures.
     fPicture = pict;
+    fPicture->ref();
+    if (!fUsePipe) {
+        this->buildBBoxHierarchy();
+    }
 
     if (fTileWidthPercentage > 0) {
         fTileWidth = sk_float_ceil2int(float(fTileWidthPercentage * fPicture->width() / 100));
@@ -521,14 +556,42 @@ SkCanvas* TiledPictureRenderer::setupCanvas(int width, int height) {
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 void PlaybackCreationRenderer::setup() {
-    SkCanvas* recorder = fReplayer.beginRecording(fPicture->width(), fPicture->height());
+    fReplayer.reset(this->createPicture());
+    SkCanvas* recorder = fReplayer->beginRecording(fPicture->width(), fPicture->height(),
+                                                   this->recordFlags());
     fPicture->draw(recorder);
 }
 
 bool PlaybackCreationRenderer::render(const SkString*) {
-    fReplayer.endRecording();
+    fReplayer->endRecording();
     // Since this class does not actually render, return false.
     return false;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////
+// SkPicture variants for each BBoxHierarchy type
+
+class RTreePicture : public SkPicture {
+public:
+    virtual SkBBoxHierarchy* createBBoxHierarchy() const SK_OVERRIDE{
+        static const int kRTreeMinChildren = 6;
+        static const int kRTreeMaxChildren = 11;
+        SkScalar aspectRatio = SkScalarDiv(SkIntToScalar(fWidth),
+                                           SkIntToScalar(fHeight));
+        return SkRTree::Create(kRTreeMinChildren, kRTreeMaxChildren,
+                               aspectRatio);
+    }
+};
+
+SkPicture* PictureRenderer::createPicture() {
+    switch (fBBoxHierarchyType) {
+        case kNone_BBoxHierarchyType:
+            return SkNEW(SkPicture);
+        case kRTree_BBoxHierarchyType:
+            return SkNEW(RTreePicture);
+    }
+    SkASSERT(0); // invalid bbhType
+    return NULL;
 }
+
+} // namespace sk_tools
