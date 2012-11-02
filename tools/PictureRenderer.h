@@ -100,6 +100,7 @@ public:
     PictureRenderer()
         : fPicture(NULL)
         , fDeviceType(kBitmap_DeviceType)
+        , fBBoxHierarchyType(kNone_BBoxHierarchyType)
 #if SK_SUPPORT_GPU
         , fGrContext(fGrContextFactory.get(GrContextFactory::kNative_GLContextType))
 #endif
