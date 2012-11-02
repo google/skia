@@ -63,7 +63,7 @@ static void usage(const char* argv0) {
     SkDebugf(
 "     --multi count : Set the number of threads for multi threaded drawing. Must be greater\n"
 "                     than 1. Only works with tiled rendering.\n"
-"     --pipe: Benchmark SkGPipe rendering. Compatible with tiled, multithreaded rendering.\n");
+"     --pipe: Benchmark SkGPipe rendering. Currently incompatible with \"mode\".\n");
     SkDebugf(
 "     --device bitmap"
 #if SK_SUPPORT_GPU
@@ -174,7 +174,12 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
 
     for (++argv; argv < stop; ++argv) {
         if (0 == strcmp(*argv, "--mode")) {
-            SkDELETE(renderer);
+            if (renderer != NULL) {
+                renderer->unref();
+                SkDebugf("Cannot combine modes.\n");
+                usage(argv0);
+                exit(-1);
+            }
 
             ++argv;
             if (argv >= stop) {
@@ -218,12 +223,14 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
         } else if (0 == strcmp(*argv, "--multi")) {
             ++argv;
             if (argv >= stop) {
+                SkSafeUnref(renderer);
                 SkDebugf("Missing arg for --multi\n");
                 usage(argv0);
                 exit(-1);
             }
             numThreads = atoi(*argv);
             if (numThreads < 2) {
+                SkSafeUnref(renderer);
                 SkDebugf("Number of threads must be at least 2.\n");
                 usage(argv0);
                 exit(-1);
@@ -231,6 +238,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
         } else if (0 == strcmp(*argv, "--device")) {
             ++argv;
             if (argv >= stop) {
+                SkSafeUnref(renderer);
                 SkDebugf("Missing mode for --device\n");
                 usage(argv0);
                 exit(-1);
@@ -245,13 +253,14 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
             }
 #endif
             else {
+                SkSafeUnref(renderer);
                 SkDebugf("%s is not a valid mode for --device\n", *argv);
                 usage(argv0);
                 exit(-1);
             }
 
         } else if ((0 == strcmp(*argv, "-h")) || (0 == strcmp(*argv, "--help"))) {
-            SkDELETE(renderer);
+            SkSafeUnref(renderer);
             usage(argv0);
             exit(-1);
         } else if (0 == strcmp(*argv, "-w")) {
@@ -268,6 +277,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     }
 
     if (numThreads > 1 && !useTiles) {
+        SkSafeUnref(renderer);
         SkDebugf("Multithreaded drawing requires tiled rendering.\n");
         usage(argv0);
         exit(-1);
@@ -275,7 +285,12 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
 
     if (useTiles) {
         SkASSERT(NULL == renderer);
-        sk_tools::TiledPictureRenderer* tiledRenderer = SkNEW(sk_tools::TiledPictureRenderer);
+        sk_tools::TiledPictureRenderer* tiledRenderer;
+        if (numThreads > 1) {
+            tiledRenderer = SkNEW_ARGS(sk_tools::MultiCorePictureRenderer, (numThreads));
+        } else {
+            tiledRenderer = SkNEW(sk_tools::TiledPictureRenderer);
+        }
         if (isPowerOf2Mode) {
             int minWidth = atoi(widthString);
             if (!SkIsPow2(minWidth) || minWidth < 0) {
@@ -332,16 +347,24 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 exit(-1);
             }
 #endif
-            tiledRenderer->setNumberOfThreads(numThreads);
         }
-        tiledRenderer->setUsePipe(usePipe);
         renderer = tiledRenderer;
+        if (usePipe) {
+            SkDebugf("Pipe rendering is currently not compatible with tiling.\n"
+                     "Turning off pipe.\n");
+        }
     } else if (usePipe) {
+        if (renderer != NULL) {
+            renderer->unref();
+            SkDebugf("Pipe is incompatible with other modes.\n");
+            usage(argv0);
+            exit(-1);
+        }
         renderer = SkNEW(sk_tools::PipePictureRenderer);
     }
 
     if (inputs->empty()) {
-        SkDELETE(renderer);
+        SkSafeUnref(renderer);
         if (NULL != outputDir) {
             SkDELETE(outputDir);
         }
