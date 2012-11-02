@@ -23,11 +23,12 @@ public:
 
     /// Convolve with an arbitrary user-specified kernel
     GrConvolutionEffect(GrTexture*, Direction,
-                        int halfWidth, const float* kernel = NULL);
+                        int halfWidth, const float* kernel);
 
-    /// Convolve with a gaussian kernel
+    /// Convolve with a Gaussian kernel
     GrConvolutionEffect(GrTexture*, Direction,
-                        int halfWidth, float gaussianSigma);
+                        int halfWidth,
+                        float gaussianSigma);
     virtual ~GrConvolutionEffect();
 
     const float* kernel() const { return fKernel; }
