@@ -199,12 +199,10 @@ void convolve_gaussian(GrDrawTarget* target,
     GrDrawTarget::AutoStateRestore asr(target, GrDrawTarget::kReset_ASRInit);
     GrDrawState* drawState = target->drawState();
     drawState->setRenderTarget(rt);
-    SkMatrix sampleM;
-    sampleM.setIDiv(texture->width(), texture->height());
     SkAutoTUnref<GrConvolutionEffect> conv(SkNEW_ARGS(GrConvolutionEffect,
                                                       (texture, direction, radius,
                                                        sigma)));
-    drawState->stage(0)->setEffect(conv, sampleM);
+    drawState->stage(0)->setEffect(conv);
     target->drawSimpleRect(rect, NULL);
 }
 

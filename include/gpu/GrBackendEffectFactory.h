@@ -32,7 +32,7 @@ class GrBackendEffectFactory : public GrNoncopyable {
 public:
     typedef uint32_t EffectKey;
     enum {
-        kEffectKeyBits = 10,
+        kEffectKeyBits = 12,
         /**
          * Some aspects of the generated code may be determined by the particular textures that are
          * associated with the effect. These manipulations are performed by GrGLShaderBuilder beyond
@@ -64,12 +64,15 @@ protected:
     }
 
     static EffectKey GenID() {
+        static const int32_t kClassIDBits = 8 * sizeof(EffectKey) -
+                                            kTextureKeyBits -
+                                            kEffectKeyBits;
         // fCurrEffectClassID has been initialized to kIllegalEffectClassID. The
         // atomic inc returns the old value not the incremented value. So we add
         // 1 to the returned value.
         int32_t id = sk_atomic_inc(&fCurrEffectClassID) + 1;
-        GrAssert(id < (1 << (8 * sizeof(EffectKey) - kEffectKeyBits)));
-        return id;
+        GrAssert(id < (1 << kClassIDBits));
+        return static_cast<EffectKey>(id);
     }
 
     EffectKey fEffectClassID;
