@@ -10,16 +10,18 @@
 
 #include "GrEffect.h"
 #include "SkMatrix.h"
+#include "GrTexture.h"
 
 class GrGLSingleTextureEffect;
 
 /**
- * An effect that merely blits a single texture; commonly used as a base class.
+ * An effect that draws a single texture with a texture matrix; commonly used as a base class. The
+ * output color is the texture color is modulated against the input color.
  */
 class GrSingleTextureEffect : public GrEffect {
 
 public:
-    /** These three constructors assume an identity matrix */
+    /** These three constructors assume an identity matrix. TODO: Remove these.*/
     GrSingleTextureEffect(GrTexture* texture); /* unfiltered, clamp mode */
     GrSingleTextureEffect(GrTexture* texture, bool bilerp); /* clamp mode */
     GrSingleTextureEffect(GrTexture* texture, const GrTextureParams&);
@@ -45,6 +47,14 @@ public:
         const GrSingleTextureEffect& ste = static_cast<const GrSingleTextureEffect&>(effect);
         return INHERITED::isEqual(effect) && fMatrix.cheapEqualTo(ste.getMatrix());
     }
+
+    static inline SkMatrix MakeDivByTextureWHMatrix(const GrTexture* texture) {
+        GrAssert(NULL != texture);
+        SkMatrix mat;
+        mat.setIDiv(texture->width(), texture->height());
+        return mat;
+    }
+
 private:
     GR_DECLARE_EFFECT_TEST;
 

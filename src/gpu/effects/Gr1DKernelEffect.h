@@ -9,7 +9,6 @@
 #define Gr1DKernelEffect_DEFINED
 
 #include "GrSingleTextureEffect.h"
-#include "GrTexture.h"
 #include "SkMatrix.h"
 
 /**
@@ -20,15 +19,6 @@
  * read. Since the center pixel is also read, the total width is one larger than
  * two times the radius.
  */
-
-namespace {
-inline SkMatrix make_texture_matrix(GrTexture* tex) {
-    GrAssert(NULL != tex);
-    SkMatrix mat;
-    mat.setIDiv(tex->width(), tex->height());
-    return mat;
-}
-}
 
 class Gr1DKernelEffect : public GrSingleTextureEffect {
 
@@ -41,7 +31,7 @@ public:
     Gr1DKernelEffect(GrTexture* texture,
                      Direction direction,
                      int radius)
-        : GrSingleTextureEffect(texture, make_texture_matrix(texture))
+        : GrSingleTextureEffect(texture, MakeDivByTextureWHMatrix(texture))
         , fDirection(direction)
         , fRadius(radius) {}
 

@@ -16,6 +16,7 @@
 #if SK_SUPPORT_GPU
 #include "effects/GrSingleTextureEffect.h"
 #include "gl/GrGLEffect.h"
+#include "gl/GrGLEffectMatrix.h"
 #include "GrEffect.h"
 #include "GrTBackendEffectFactory.h"
 
@@ -969,9 +970,10 @@ protected:
 private:
     typedef GrGLEffect INHERITED;
 
-    UniformHandle   fImageIncrementUni;
-    UniformHandle   fSurfaceScaleUni;
-    GrGLLight*      fLight;
+    UniformHandle       fImageIncrementUni;
+    UniformHandle       fSurfaceScaleUni;
+    GrGLLight*          fLight;
+    GrGLEffectMatrix    fEffectMatrix;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1008,7 +1010,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrLightingEffect::GrLightingEffect(GrTexture* texture, const SkLight* light, SkScalar surfaceScale)
-    : GrSingleTextureEffect(texture)
+    : INHERITED(texture, MakeDivByTextureWHMatrix(texture))
     , fLight(light)
     , fSurfaceScale(surfaceScale) {
     fLight->ref();
@@ -1065,6 +1067,7 @@ GrGLLightingEffect::GrGLLightingEffect(const GrBackendEffectFactory& factory,
     , fSurfaceScaleUni(kInvalidUniformHandle) {
     const GrLightingEffect& m = static_cast<const GrLightingEffect&>(effect);
     fLight = m.light()->createGLLight();
+    fRequiresTextureMatrix = false;
 }
 
 GrGLLightingEffect::~GrGLLightingEffect() {
@@ -1073,11 +1076,14 @@ GrGLLightingEffect::~GrGLLightingEffect() {
 
 void GrGLLightingEffect::emitCode(GrGLShaderBuilder* builder,
                                   const GrEffectStage&,
-                                  EffectKey,
+                                  EffectKey key,
                                   const char* vertexCoords,
                                   const char* outputColor,
                                   const char* inputColor,
                                   const TextureSamplerArray& samplers) {
+    const char* coords;
+    fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, vertexCoords, &coords);
+
     fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                               kVec2f_GrSLType,
                                              "ImageIncrement");
@@ -1139,7 +1145,7 @@ void GrGLLightingEffect::emitCode(GrGLShaderBuilder* builder,
                           interiorNormalBody.c_str(),
                           &interiorNormalName);
 
-    code->appendf("\t\tvec2 coord = %s;\n", builder->defaultTexCoordsName());
+    code->appendf("\t\tvec2 coord = %s;\n", coords);
     code->appendf("\t\tfloat m[9];\n");
 
     const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
@@ -1169,7 +1175,13 @@ void GrGLLightingEffect::emitCode(GrGLShaderBuilder* builder,
 
 GrGLEffect::EffectKey GrGLLightingEffect::GenKey(const GrEffectStage& s,
                                                  const GrGLCaps& caps) {
-    return static_cast<const GrLightingEffect&>(*s.getEffect()).light()->type();
+    const GrLightingEffect& effect = static_cast<const GrLightingEffect&>(*s.getEffect());
+    EffectKey key = static_cast<const GrLightingEffect&>(*s.getEffect()).light()->type();
+    key <<= GrGLEffectMatrix::kKeyBits;
+    EffectKey matrixKey = GrGLEffectMatrix::GenKey(effect.getMatrix(),
+                                                   s.getCoordChangeMatrix(),
+                                                   effect.texture(0));
+    return key | matrixKey;
 }
 
 void GrGLLightingEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
@@ -1179,6 +1191,10 @@ void GrGLLightingEffect::setData(const GrGLUniformManager& uman, const GrEffectS
     uman.set2f(fImageIncrementUni, 1.0f / texture->width(), ySign / texture->height());
     uman.set1f(fSurfaceScaleUni, effect.surfaceScale());
     fLight->setData(uman, effect.light());
+    fEffectMatrix.setData(uman,
+                          effect.getMatrix(),
+                          stage.getCoordChangeMatrix(),
+                          effect.texture(0));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1186,7 +1202,7 @@ void GrGLLightingEffect::setData(const GrGLUniformManager& uman, const GrEffectS
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGLDiffuseLightingEffect::GrGLDiffuseLightingEffect(const GrBackendEffectFactory& factory,
-                                            const GrEffect& effect)
+                                                     const GrEffect& effect)
     : INHERITED(factory, effect)
     , fKDUni(kInvalidUniformHandle) {
 }
