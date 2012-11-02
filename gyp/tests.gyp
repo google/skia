@@ -25,6 +25,7 @@
         '../tests/BlitRowTest.cpp',
         '../tests/BlurTest.cpp',
         '../tests/CanvasTest.cpp',
+        '../tests/ChecksumTest.cpp',
         '../tests/ClampRangeTest.cpp',
         '../tests/ClipCacheTest.cpp',
         '../tests/ClipCubicTest.cpp',
@@ -109,6 +110,7 @@
         'images.gyp:images',
         'pdf.gyp:pdf',
         'tools.gyp:picture_utils',
+        'utils.gyp:utils',
       ],
       'conditions': [
         [ 'skia_gpu == 1', {
