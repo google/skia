@@ -36,6 +36,11 @@ public:
 #endif
     };
 
+    enum BBoxHierarchyType {
+        kNone_BBoxHierarchyType = 0,
+        kRTree_BBoxHierarchyType,
+    };
+
     virtual void init(SkPicture* pict);
 
     /**
@@ -60,6 +65,10 @@ public:
 
     void setDeviceType(SkDeviceTypes deviceType) {
         fDeviceType = deviceType;
+    }
+
+    void setBBoxHierarchyType(BBoxHierarchyType bbhType) {
+        fBBoxHierarchyType = bbhType;
     }
 
     bool isUsingBitmapDevice() {
@@ -97,12 +106,17 @@ public:
         {}
 
 protected:
+    void buildBBoxHierarchy();
+    SkPicture* createPicture();
+    uint32_t recordFlags();
     SkCanvas* setupCanvas();
     virtual SkCanvas* setupCanvas(int width, int height);
 
     SkAutoTUnref<SkCanvas> fCanvas;
     SkPicture* fPicture;
     SkDeviceTypes fDeviceType;
+    BBoxHierarchyType fBBoxHierarchyType;
+
 
 #if SK_SUPPORT_GPU
     GrContextFactory fGrContextFactory;
@@ -135,6 +149,8 @@ private:
 
 class SimplePictureRenderer : public PictureRenderer {
 public:
+    virtual void init(SkPicture* pict) SK_OVERRIDE;
+
     virtual bool render(const SkString*) SK_OVERRIDE;
 
 private:
@@ -255,7 +271,7 @@ public:
     virtual SkString getNormalTimeFormat() SK_OVERRIDE { return SkString("%6.4f"); }
 
 private:
-    SkPicture fReplayer;
+    SkAutoTUnref<SkPicture> fReplayer;
     typedef PictureRenderer INHERITED;
 };
 

@@ -106,6 +106,7 @@
         '../src/pipe/utils/SamplePipeControllers.cpp',
       ],
       'include_dirs': [
+        '../src/core/',
         '../src/pipe/utils/',
         '../src/utils/',
       ],
