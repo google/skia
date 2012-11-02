@@ -616,7 +616,7 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
 
 ///////////////////////////////////////////////////////////////////////////////
 void SkGpuDevice::clear(SkColor color) {
-    fContext->clear(NULL, color, fRenderTarget);
+    fContext->clear(NULL, SkColor2GrColor(color), fRenderTarget);
     fNeedClear = false;
 }
 

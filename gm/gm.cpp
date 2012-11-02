@@ -40,7 +40,7 @@ void GM::setBGColor(SkColor color) {
 }
 
 void GM::onDrawBackground(SkCanvas* canvas) {
-    canvas->drawColor(fBGColor);
+    canvas->drawColor(fBGColor, SkXfermode::kSrc_Mode);
 }
 
 void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
