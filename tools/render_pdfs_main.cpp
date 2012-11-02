@@ -66,7 +66,7 @@ static bool replace_filename_extension(SkString* path,
     return false;
 }
 
-/** Builds the output filename. path = dir/name, and it replaces expected 
+/** Builds the output filename. path = dir/name, and it replaces expected
  * .skp extension with .pdf extention.
  * @param path Output filename.
  * @param name The name of the file.

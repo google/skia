@@ -208,7 +208,7 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
 }
 
 SkBBoxHierarchy* SkPicture::createBBoxHierarchy() const {
-    // These values were empirically determined to produce reasonable 
+    // These values were empirically determined to produce reasonable
     // performance in most cases.
     static const int kRTreeMinChildren = 6;
     static const int kRTreeMaxChildren = 11;

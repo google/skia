@@ -134,7 +134,7 @@ void GrGLEffectMatrix::emitCodeMakeFSCoords2D(GrGLShaderBuilder* builder,
                                               GrSLType* vsVaryingType,
                                               const char* suffix) {
     const char* fsVaryingName;
-        
+
     GrSLType varyingType = this->emitCode(builder,
                                           key,
                                           vertexCoords,
