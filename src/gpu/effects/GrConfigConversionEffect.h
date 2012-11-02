@@ -61,7 +61,8 @@ public:
 private:
     GrConfigConversionEffect(GrTexture*,
                             bool swapRedAndBlue,
-                            PMConversion pmConversion);
+                            PMConversion pmConversion,
+                            const SkMatrix& matrix);
 
     bool            fSwapRedAndBlue;
     PMConversion    fPMConversion;
