@@ -53,6 +53,7 @@
         '../src/utils/SkBitSet.h',
         '../src/utils/SkBoundaryPatch.cpp',
         '../src/utils/SkCamera.cpp',
+        '../src/utils/SkConsistentChecksum.h',
         '../src/utils/SkCubicInterval.cpp',
         '../src/utils/SkCullPoints.cpp',
         '../src/utils/SkDeferredCanvas.cpp',
