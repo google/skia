@@ -12,6 +12,7 @@
     '../gm/bitmapscroll.cpp',
     '../gm/blend.cpp',
     '../gm/blurs.cpp',
+    '../gm/blurrect.cpp',
     '../gm/circles.cpp',
     '../gm/colorfilterimagefilter.cpp',
     '../gm/colormatrix.cpp',
