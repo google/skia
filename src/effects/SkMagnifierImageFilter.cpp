@@ -16,6 +16,7 @@
 #if SK_SUPPORT_GPU
 #include "effects/GrSingleTextureEffect.h"
 #include "gl/GrGLEffect.h"
+#include "gl/GrGLEffectMatrix.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLTexture.h"
 #include "GrTBackendEffectFactory.h"
@@ -32,7 +33,7 @@ public:
                       float yZoom,
                       float xInset,
                       float yInset)
-        : GrSingleTextureEffect(texture)
+        : GrSingleTextureEffect(texture, MakeDivByTextureWHMatrix(texture))
         , fXOffset(xOffset)
         , fYOffset(yOffset)
         , fXZoom(xZoom)
@@ -91,9 +92,11 @@ public:
 
 private:
 
-    UniformHandle  fOffsetVar;
-    UniformHandle  fZoomVar;
-    UniformHandle  fInsetVar;
+    UniformHandle       fOffsetVar;
+    UniformHandle       fZoomVar;
+    UniformHandle       fInsetVar;
+
+    GrGLEffectMatrix    fEffectMatrix;
 
     typedef GrGLEffect INHERITED;
 };
@@ -104,15 +107,18 @@ GrGLMagnifierEffect::GrGLMagnifierEffect(const GrBackendEffectFactory& factory,
     , fOffsetVar(GrGLUniformManager::kInvalidUniformHandle)
     , fZoomVar(GrGLUniformManager::kInvalidUniformHandle)
     , fInsetVar(GrGLUniformManager::kInvalidUniformHandle) {
+    fRequiresTextureMatrix = false;
 }
 
 void GrGLMagnifierEffect::emitCode(GrGLShaderBuilder* builder,
                                    const GrEffectStage&,
-                                   EffectKey,
+                                   EffectKey key,
                                    const char* vertexCoords,
                                    const char* outputColor,
                                    const char* inputColor,
                                    const TextureSamplerArray& samplers) {
+    const char* coords;
+    fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, vertexCoords, &coords);
     fOffsetVar = builder->addUniform(
         GrGLShaderBuilder::kFragment_ShaderType |
         GrGLShaderBuilder::kVertex_ShaderType,
@@ -128,10 +134,10 @@ void GrGLMagnifierEffect::emitCode(GrGLShaderBuilder* builder,
 
     SkString* code = &builder->fFSCode;
 
-    code->appendf("\t\tvec2 coord = %s;\n", builder->defaultTexCoordsName());
+    code->appendf("\t\tvec2 coord = %s;\n", coords);
     code->appendf("\t\tvec2 zoom_coord = %s + %s / %s;\n",
                   builder->getUniformCStr(fOffsetVar),
-                  builder->defaultTexCoordsName(),
+                  coords,
                   builder->getUniformCStr(fZoomVar));
 
     code->appendf("\t\tvec2 delta = min(coord, vec2(1.0, 1.0) - coord);\n");
@@ -165,10 +171,14 @@ void GrGLMagnifierEffect::setData(const GrGLUniformManager& uman,
     uman.set2f(fOffsetVar, zoom.x_offset(), zoom.y_offset());
     uman.set2f(fZoomVar, zoom.x_zoom(), zoom.y_zoom());
     uman.set2f(fInsetVar, zoom.x_inset(), zoom.y_inset());
+    fEffectMatrix.setData(uman, zoom.getMatrix(), stage.getCoordChangeMatrix(), zoom.texture(0));
 }
 
-GrGLEffect::EffectKey GrGLMagnifierEffect::GenKey(const GrEffectStage&, const GrGLCaps&) {
-    return 0;
+GrGLEffect::EffectKey GrGLMagnifierEffect::GenKey(const GrEffectStage& stage, const GrGLCaps&) {
+    const GrMagnifierEffect& zoom = static_cast<const GrMagnifierEffect&>(*stage.getEffect());
+    return GrGLEffectMatrix::GenKey(zoom.getMatrix(),
+                                    stage.getCoordChangeMatrix(),
+                                    zoom.texture(0));
 }
 
 /////////////////////////////////////////////////////////////////////

@@ -89,6 +89,9 @@ public:
      *  If effect is non-NULL, a new GrEffect instance is stored
      *  in it.  The caller assumes ownership of the stage, and it is up to the
      *  caller to unref it.
+     *
+     *  The effect can assume its vertexCoords space maps 1-to-1 with texels
+     *  in the texture.
      */
     virtual bool asNewEffect(GrEffect** effect, GrTexture*) const;
 
