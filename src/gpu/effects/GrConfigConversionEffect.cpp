@@ -6,8 +6,11 @@
  */
 
 #include "GrConfigConversionEffect.h"
+#include "GrContext.h"
 #include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
+#include "gl/GrGLEffectMatrix.h"
+#include "SkMatrix.h"
 
 class GrGLConfigConversionEffect : public GrGLEffect {
 public:
@@ -16,17 +19,20 @@ public:
         const GrConfigConversionEffect& effect = static_cast<const GrConfigConversionEffect&>(s);
         fSwapRedAndBlue = effect.swapsRedAndBlue();
         fPMConversion = effect.pmConversion();
+        fRequiresTextureMatrix = false;
     }
 
     virtual void emitCode(GrGLShaderBuilder* builder,
                           const GrEffectStage&,
-                          EffectKey,
+                          EffectKey key,
                           const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,
                           const TextureSamplerArray& samplers) SK_OVERRIDE {
+        const char* coords;
+        GrSLType coordsType = fEffectMatrix.emitCode(builder, key, vertexCoords, &coords);
         builder->fFSCode.appendf("\t\t%s = ", outputColor);
-        builder->appendTextureLookup(&builder->fFSCode, samplers[0]);
+        builder->appendTextureLookup(&builder->fFSCode, samplers[0], coords, coordsType);
         builder->fFSCode.append(";\n");
         if (GrConfigConversionEffect::kNone_PMConversion == fPMConversion) {
             GrAssert(fSwapRedAndBlue);
@@ -60,15 +66,32 @@ public:
         GrGLSLMulVarBy4f(&builder->fFSCode, 2, outputColor, inputColor);
     }
 
+    void setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
+        const GrConfigConversionEffect& effect =
+            static_cast<const GrConfigConversionEffect&>(*stage.getEffect());
+        fEffectMatrix.setData(uman,
+                              effect.getMatrix(),
+                              stage.getCoordChangeMatrix(),
+                              effect.texture(0));
+    }
+
     static inline EffectKey GenKey(const GrEffectStage& s, const GrGLCaps&) {
         const GrConfigConversionEffect& effect =
             static_cast<const GrConfigConversionEffect&>(*s.getEffect());
-        return static_cast<int>(effect.swapsRedAndBlue()) | (effect.pmConversion() << 1);
+        EffectKey key = static_cast<EffectKey>(effect.swapsRedAndBlue()) |
+                        (effect.pmConversion() << 1);
+        key <<= GrGLEffectMatrix::kKeyBits;
+        EffectKey matrixKey =  GrGLEffectMatrix::GenKey(effect.getMatrix(),
+                                                        s.getCoordChangeMatrix(),
+                                                        effect.texture(0));
+        GrAssert(!(matrixKey & key));
+        return matrixKey | key;
     }
 
 private:
     bool                                    fSwapRedAndBlue;
     GrConfigConversionEffect::PMConversion  fPMConversion;
+    GrGLEffectMatrix                        fEffectMatrix;
 
     typedef GrGLEffect INHERITED;
 
@@ -78,8 +101,9 @@ private:
 
 GrConfigConversionEffect::GrConfigConversionEffect(GrTexture* texture,
                                                    bool swapRedAndBlue,
-                                                   PMConversion pmConversion)
-    : GrSingleTextureEffect(texture)
+                                                   PMConversion pmConversion,
+                                                   const SkMatrix& matrix)
+    : GrSingleTextureEffect(texture, matrix)
     , fSwapRedAndBlue(swapRedAndBlue)
     , fPMConversion(pmConversion) {
     GrAssert(kRGBA_8888_GrPixelConfig == texture->config() ||
@@ -111,8 +135,10 @@ GrEffect* GrConfigConversionEffect::TestCreate(SkRandom* random,
     } else {
         swapRB = random->nextBool();
     }
-    return SkNEW_ARGS(GrConfigConversionEffect,
-            (textures[GrEffectUnitTest::kSkiaPMTextureIdx], swapRB, pmConv));
+    return SkNEW_ARGS(GrConfigConversionEffect, (textures[GrEffectUnitTest::kSkiaPMTextureIdx],
+                                                 swapRB,
+                                                 pmConv,
+                                                 GrEffectUnitTest::TestMatrix(random)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -179,13 +205,21 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         // We then verify that two reads produced the same values.
 
         GrPaint paint;
-
         SkAutoTUnref<GrEffect> pmToUPMEffect1(SkNEW_ARGS(GrConfigConversionEffect,
-                                                        (dataTex, false, *pmToUPMRule)));
+                                                        (dataTex,
+                                                         false,
+                                                         *pmToUPMRule,
+                                                         SkMatrix::I())));
         SkAutoTUnref<GrEffect> upmToPMEffect(SkNEW_ARGS(GrConfigConversionEffect,
-                                                       (readTex, false, *upmToPMRule)));
+                                                       (readTex,
+                                                        false,
+                                                        *upmToPMRule,
+                                                        SkMatrix::I())));
         SkAutoTUnref<GrEffect> pmToUPMEffect2(SkNEW_ARGS(GrConfigConversionEffect,
-                                                        (tempTex, false, *pmToUPMRule)));
+                                                        (tempTex,
+                                                         false,
+                                                         *pmToUPMRule,
+                                                         SkMatrix::I())));
 
         context->setRenderTarget(readTex->asRenderTarget());
         paint.colorStage(0)->setEffect(pmToUPMEffect1);
@@ -238,7 +272,7 @@ bool GrConfigConversionEffect::InstallEffect(GrTexture* texture,
         }
         stage->setEffect(SkNEW_ARGS(GrConfigConversionEffect, (texture,
                                                                swapRedAndBlue,
-                                                               pmConversion)), matrix)->unref();
+                                                               pmConversion, matrix)))->unref();
         return true;
     }
 }
