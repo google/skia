@@ -7,13 +7,17 @@
 
 #ifndef PictureRenderer_DEFINED
 #define PictureRenderer_DEFINED
+
+#include "SkCountdown.h"
 #include "SkMath.h"
 #include "SkPicture.h"
-#include "SkTypes.h"
-#include "SkTDArray.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
+#include "SkRunnable.h"
 #include "SkString.h"
+#include "SkTDArray.h"
+#include "SkThreadPool.h"
+#include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
@@ -23,7 +27,7 @@
 class SkBitmap;
 class SkCanvas;
 class SkGLContext;
-class ThreadSafePipeController;
+class SkThread;
 
 namespace sk_tools {
 
@@ -41,6 +45,9 @@ public:
         kRTree_BBoxHierarchyType,
     };
 
+    /**
+     * Called with each new SkPicture to render.
+     */
     virtual void init(SkPicture* pict);
 
     /**
@@ -60,7 +67,12 @@ public:
      */
     virtual bool render(const SkString* path) = 0;
 
+    /**
+     * Called once finished with a particular SkPicture, before calling init again, and before
+     * being done with this Renderer.
+     */
     virtual void end();
+
     void resetState();
 
     void setDeviceType(SkDeviceTypes deviceType) {
@@ -164,8 +176,6 @@ public:
 
     virtual void init(SkPicture* pict) SK_OVERRIDE;
 
-    virtual void setup() SK_OVERRIDE;
-
     /**
      * Renders to tiles, rather than a single canvas. If a path is provided, a separate file is
      * created for each tile, named "path0.png", "path1.png", etc.
@@ -220,41 +230,49 @@ public:
         return fTileMinPowerOf2Width;
     }
 
-    /**
-     * Set the number of threads to use for drawing. Non-positive numbers will set it to 1.
-     */
-    void setNumberOfThreads(int num) {
-        fNumThreads = SkMax32(num, 1);
-    }
-
-    void setUsePipe(bool usePipe) {
-        fUsePipe = usePipe;
-    }
-
-    ~TiledPictureRenderer();
+protected:
+    virtual SkCanvas* setupCanvas(int width, int height) SK_OVERRIDE;
+    SkTDArray<SkRect> fTileRects;
 
 private:
-    bool              fUsePipe;
     int               fTileWidth;
     int               fTileHeight;
     double            fTileWidthPercentage;
     double            fTileHeightPercentage;
     int               fTileMinPowerOf2Width;
-    SkTDArray<SkRect> fTileRects;
-
-    // These are only used for multithreaded rendering
-    int32_t                   fTileCounter;
-    int                       fNumThreads;
-    SkTDArray<SkCanvas*>      fCanvasPool;
-    SkPicture*                fPictureClones;
-    ThreadSafePipeController* fPipeController;
 
     void setupTiles();
     void setupPowerOf2Tiles();
-    virtual SkCanvas* setupCanvas(int width, int height) SK_OVERRIDE;
-    bool multiThreaded() { return fNumThreads > 1; }
 
     typedef PictureRenderer INHERITED;
+};
+
+class CloneData;
+
+class MultiCorePictureRenderer : public TiledPictureRenderer {
+public:
+    explicit MultiCorePictureRenderer(int threadCount);
+
+    ~MultiCorePictureRenderer();
+
+    virtual void init(SkPicture* pict) SK_OVERRIDE;
+
+    /**
+     * Behaves like TiledPictureRenderer::render(), only using multiple threads.
+     */
+    virtual bool render(const SkString* path) SK_OVERRIDE;
+
+    virtual void end() SK_OVERRIDE;
+
+private:
+    const int            fNumThreads;
+    SkTDArray<SkCanvas*> fCanvasPool;
+    SkThreadPool         fThreadPool;
+    SkPicture*           fPictureClones;
+    CloneData**          fCloneData;
+    SkCountdown          fCountdown;
+
+    typedef TiledPictureRenderer INHERITED;
 };
 
 /**

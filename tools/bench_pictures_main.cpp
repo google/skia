@@ -76,7 +76,7 @@ static void usage(const char* argv0) {
     SkDebugf(
 "     --multi numThreads : Set the number of threads for multi threaded drawing. Must be greater\n"
 "                          than 1. Only works with tiled rendering.\n"
-"     --pipe: Benchmark SkGPipe rendering. Compatible with tiled, multithreaded rendering.\n");
+"     --pipe: Benchmark SkGPipe rendering. Currently incompatible with \"mode\".\n");
     SkDebugf(
 "     --bbh bbhType: Set the bounding box hierarchy type to be used. Accepted\n"
 "                    values are: none, rtree. Default value is none.\n"
@@ -135,6 +135,12 @@ static bool run_single_benchmark(const SkString& inputPath,
     return true;
 }
 
+#define PRINT_USAGE_AND_EXIT \
+    do {                     \
+        usage(argv0);        \
+        exit(-1);            \
+    } while (0)
+
 static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* inputs,
                               sk_tools::PictureBenchmark* benchmark) {
     const char* argv0 = argv[0];
@@ -144,7 +150,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     sk_tools::PictureRenderer::SkDeviceTypes deviceType =
         sk_tools::PictureRenderer::kBitmap_DeviceType;
 
-    sk_tools::PictureRenderer* renderer = NULL;
+    SkAutoTUnref<sk_tools::PictureRenderer> renderer(NULL);
 
     // Create a string to show our current settings.
     // TODO: Make it prettier. Currently it just repeats the command line.
@@ -170,12 +176,11 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 repeats = atoi(*argv);
                 if (repeats < 1) {
                     gLogger.logError("--repeat must be given a value > 0\n");
-                    exit(-1);
+                    PRINT_USAGE_AND_EXIT;
                 }
             } else {
                 gLogger.logError("Missing arg for --repeat\n");
-                usage(argv0);
-                exit(-1);
+                PRINT_USAGE_AND_EXIT;
             }
         } else if (0 == strcmp(*argv, "--pipe")) {
             usePipe = true;
@@ -194,28 +199,24 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 }
             } else {
                 gLogger.logError("Missing arg for --logFile\n");
-                usage(argv0);
-                exit(-1);
+                PRINT_USAGE_AND_EXIT;
             }
         } else if (0 == strcmp(*argv, "--multi")) {
             ++argv;
             if (argv >= stop) {
                 gLogger.logError("Missing arg for --multi\n");
-                usage(argv0);
-                exit(-1);
+                PRINT_USAGE_AND_EXIT;
             }
             numThreads = atoi(*argv);
             if (numThreads < 2) {
                 gLogger.logError("Number of threads must be at least 2.\n");
-                usage(argv0);
-                exit(-1);
+                PRINT_USAGE_AND_EXIT;
             }
         } else if (0 == strcmp(*argv, "--bbh")) {
             ++argv;
             if (argv >= stop) {
                 gLogger.logError("Missing value for --bbh\n");
-                usage(argv0);
-                exit(-1);
+                PRINT_USAGE_AND_EXIT;
             }
             if (0 == strcmp(*argv, "none")) {
                 bbhType = sk_tools::PictureRenderer::kNone_BBoxHierarchyType;
@@ -225,23 +226,25 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 SkString err;
                 err.printf("%s is not a valid value for --bbhType\n", *argv);
                 gLogger.logError(err);
-                usage(argv0);
-                exit(-1);
+                PRINT_USAGE_AND_EXIT;
             }
 
         } else if (0 == strcmp(*argv, "--mode")) {
+            if (renderer.get() != NULL) {
+                SkDebugf("Cannot combine modes.\n");
+                PRINT_USAGE_AND_EXIT;
+            }
 
             ++argv;
             if (argv >= stop) {
                 gLogger.logError("Missing mode for --mode\n");
-                usage(argv0);
-                exit(-1);
+                PRINT_USAGE_AND_EXIT;
             }
 
             if (0 == strcmp(*argv, "record")) {
-                renderer = SkNEW(sk_tools::RecordPictureRenderer);
+                renderer.reset(SkNEW(sk_tools::RecordPictureRenderer));
             } else if (0 == strcmp(*argv, "simple")) {
-                renderer = SkNEW(sk_tools::SimplePictureRenderer);
+                renderer.reset(SkNEW(sk_tools::SimplePictureRenderer));
             } else if ((0 == strcmp(*argv, "tile")) || (0 == strcmp(*argv, "pow2tile"))) {
                 useTiles = true;
                 mode = *argv;
@@ -255,33 +258,29 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                     SkString err;
                     err.printf("Missing width for --mode %s\n", mode);
                     gLogger.logError(err);
-                    usage(argv0);
-                    exit(-1);
+                    PRINT_USAGE_AND_EXIT;
                 }
 
                 widthString = *argv;
                 ++argv;
                 if (argv >= stop) {
                     gLogger.logError("Missing height for --mode tile\n");
-                    usage(argv0);
-                    exit(-1);
+                    PRINT_USAGE_AND_EXIT;
                 }
                 heightString = *argv;
             } else if (0 == strcmp(*argv, "playbackCreation")) {
-                renderer = SkNEW(sk_tools::PlaybackCreationRenderer);
+                renderer.reset(SkNEW(sk_tools::PlaybackCreationRenderer));
             } else {
                 SkString err;
                 err.printf("%s is not a valid mode for --mode\n", *argv);
                 gLogger.logError(err);
-                usage(argv0);
-                exit(-1);
+                PRINT_USAGE_AND_EXIT;
             }
         }  else if (0 == strcmp(*argv, "--device")) {
             ++argv;
             if (argv >= stop) {
                 gLogger.logError("Missing mode for --device\n");
-                usage(argv0);
-                exit(-1);
+                PRINT_USAGE_AND_EXIT;
             }
 
             if (0 == strcmp(*argv, "bitmap")) {
@@ -296,8 +295,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 SkString err;
                 err.printf("%s is not a valid mode for --device\n", *argv);
                 gLogger.logError(err);
-                usage(argv0);
-                exit(-1);
+                PRINT_USAGE_AND_EXIT;
             }
         } else if (0 == strcmp(*argv, "--timers")) {
             ++argv;
@@ -333,8 +331,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                                            truncatedTimerCpu, timerGpu);
             } else {
                 gLogger.logError("Missing arg for --timers\n");
-                usage(argv0);
-                exit(-1);
+                PRINT_USAGE_AND_EXIT;
             }
         } else if (0 == strcmp(*argv, "--min")) {
             benchmark->setPrintMin(true);
@@ -345,12 +342,10 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 benchmark->setLogPerIter(log);
             } else {
                 gLogger.logError("Missing arg for --logPerIter\n");
-                usage(argv0);
-                exit(-1);
+                PRINT_USAGE_AND_EXIT;
             }
         } else if (0 == strcmp(*argv, "--help") || 0 == strcmp(*argv, "-h")) {
-            usage(argv0);
-            exit(0);
+            PRINT_USAGE_AND_EXIT;
         } else {
             inputs->push_back(SkString(*argv));
         }
@@ -358,19 +353,22 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
 
     if (numThreads > 1 && !useTiles) {
         gLogger.logError("Multithreaded drawing requires tiled rendering.\n");
-        usage(argv0);
-        exit(-1);
+        PRINT_USAGE_AND_EXIT;
     }
 
     if (usePipe && sk_tools::PictureRenderer::kNone_BBoxHierarchyType != bbhType) {
         gLogger.logError("--pipe and --bbh cannot be used together\n");
-        usage(argv0);
-        exit(-1);
+        PRINT_USAGE_AND_EXIT;
     }
 
     if (useTiles) {
         SkASSERT(NULL == renderer);
-        sk_tools::TiledPictureRenderer* tiledRenderer = SkNEW(sk_tools::TiledPictureRenderer);
+        sk_tools::TiledPictureRenderer* tiledRenderer;
+        if (numThreads > 1) {
+            tiledRenderer = SkNEW_ARGS(sk_tools::MultiCorePictureRenderer, (numThreads));
+        } else {
+            tiledRenderer = SkNEW(sk_tools::TiledPictureRenderer);
+        }
         if (isPowerOf2Mode) {
             int minWidth = atoi(widthString);
             if (!SkIsPow2(minWidth) || minWidth < 0) {
@@ -379,8 +377,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 err.printf("-mode %s must be given a width"
                          " value that is a power of two\n", mode);
                 gLogger.logError(err);
-                usage(argv0);
-                exit(-1);
+                PRINT_USAGE_AND_EXIT;
             }
             tiledRenderer->setTileMinPowerOf2Width(minWidth);
         } else if (sk_tools::is_percentage(widthString)) {
@@ -388,16 +385,14 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
             if (!(tiledRenderer->getTileWidthPercentage() > 0)) {
                 tiledRenderer->unref();
                 gLogger.logError("--mode tile must be given a width percentage > 0\n");
-                usage(argv0);
-                exit(-1);
+                PRINT_USAGE_AND_EXIT;
             }
         } else {
             tiledRenderer->setTileWidth(atoi(widthString));
             if (!(tiledRenderer->getTileWidth() > 0)) {
                 tiledRenderer->unref();
                 gLogger.logError("--mode tile must be given a width > 0\n");
-                usage(argv0);
-                exit(-1);
+                PRINT_USAGE_AND_EXIT;
             }
         }
 
@@ -406,16 +401,14 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
             if (!(tiledRenderer->getTileHeightPercentage() > 0)) {
                 tiledRenderer->unref();
                 gLogger.logError("--mode tile must be given a height percentage > 0\n");
-                usage(argv0);
-                exit(-1);
+                PRINT_USAGE_AND_EXIT;
             }
         } else {
             tiledRenderer->setTileHeight(atoi(heightString));
             if (!(tiledRenderer->getTileHeight() > 0)) {
                 tiledRenderer->unref();
                 gLogger.logError("--mode tile must be given a height > 0\n");
-                usage(argv0);
-                exit(-1);
+                PRINT_USAGE_AND_EXIT;
             }
         }
         if (numThreads > 1) {
@@ -423,29 +416,32 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
             if (sk_tools::PictureRenderer::kGPU_DeviceType == deviceType) {
                 tiledRenderer->unref();
                 gLogger.logError("GPU not compatible with multithreaded tiling.\n");
-                usage(argv0);
-                exit(-1);
+                PRINT_USAGE_AND_EXIT;
             }
 #endif
-            tiledRenderer->setNumberOfThreads(numThreads);
         }
-        tiledRenderer->setUsePipe(usePipe);
-        renderer = tiledRenderer;
+        renderer.reset(tiledRenderer);
+        if (usePipe) {
+            SkDebugf("Pipe rendering is currently not compatible with tiling.\n"
+                     "Turning off pipe.\n");
+        }
     } else if (usePipe) {
-        renderer = SkNEW(sk_tools::PipePictureRenderer);
+        if (renderer.get() != NULL) {
+            SkDebugf("Pipe is incompatible with other modes.\n");
+            PRINT_USAGE_AND_EXIT;
+        }
+        renderer.reset(SkNEW(sk_tools::PipePictureRenderer));
     }
     if (inputs->count() < 1) {
-        SkSafeUnref(renderer);
-        usage(argv0);
-        exit(-1);
+        PRINT_USAGE_AND_EXIT;
     }
 
     if (NULL == renderer) {
-        renderer = SkNEW(sk_tools::SimplePictureRenderer);
+        renderer.reset(SkNEW(sk_tools::SimplePictureRenderer));
     }
 
     renderer->setBBoxHierarchyType(bbhType);
-    benchmark->setRenderer(renderer)->unref();
+    benchmark->setRenderer(renderer);
     benchmark->setRepeats(repeats);
     benchmark->setDeviceType(deviceType);
     benchmark->setLogger(&gLogger);
