@@ -42,11 +42,19 @@ SkSurface_Gpu::SkSurface_Gpu(GrContext* ctx, const SkImage::Info& info,
     SkBitmap::Config config = SkImageInfoToBitmapConfig(info, &isOpaque);
 
     fDevice = SkNEW_ARGS(SkGpuDevice, (ctx, config, info.fWidth, info.fHeight, sampleCount));
+
+    if (!isOpaque) {
+        fDevice->clear(0x0);
+    }
 }
 
 SkSurface_Gpu::SkSurface_Gpu(GrContext* ctx, GrRenderTarget* renderTarget)
         : INHERITED(renderTarget->width(), renderTarget->height()) {
     fDevice = SkNEW_ARGS(SkGpuDevice, (ctx, renderTarget));
+
+    if (kRGB_565_GrPixelConfig != renderTarget->config()) {
+        fDevice->clear(0x0);
+    }
 }
 
 SkSurface_Gpu::~SkSurface_Gpu() {
