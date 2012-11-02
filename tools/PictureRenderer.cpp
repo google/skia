@@ -174,6 +174,10 @@ bool RecordPictureRenderer::render(const SkString*) {
     return false;
 }
 
+SkString RecordPictureRenderer::getConfigNameInternal() {
+    return SkString("record");
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 bool PipePictureRenderer::render(const SkString* path) {
@@ -193,6 +197,10 @@ bool PipePictureRenderer::render(const SkString* path) {
         return write(fCanvas, *path);
     }
     return true;
+}
+
+SkString PipePictureRenderer::getConfigNameInternal() {
+    return SkString("pipe");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -215,6 +223,10 @@ bool SimplePictureRenderer::render(const SkString* path) {
         return write(fCanvas, *path);
     }
     return true;
+}
+
+SkString SimplePictureRenderer::getConfigNameInternal() {
+    return SkString("simple");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -361,6 +373,29 @@ SkCanvas* TiledPictureRenderer::setupCanvas(int width, int height) {
     canvas->clipRect(clip);
     return canvas;
 }
+
+SkString TiledPictureRenderer::getConfigNameInternal() {
+    SkString name;
+    if (fTileMinPowerOf2Width > 0) {
+        name.append("pow2tile_");
+        name.appendf("%i", fTileMinPowerOf2Width);
+    } else {
+        name.append("tile_");
+        if (fTileWidthPercentage > 0) {
+            name.appendf("%.f%%", fTileWidthPercentage);
+        } else {
+            name.appendf("%i", fTileWidth);
+        }
+    }
+    name.append("x");
+    if (fTileHeightPercentage > 0) {
+        name.appendf("%.f%%", fTileHeightPercentage);
+    } else {
+        name.appendf("%i", fTileHeight);
+    }
+    return name;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 // Holds all of the information needed to draw a set of tiles.
@@ -484,6 +519,12 @@ MultiCorePictureRenderer::~MultiCorePictureRenderer() {
     SkDELETE_ARRAY(fPictureClones);
 }
 
+SkString MultiCorePictureRenderer::getConfigNameInternal() {
+    SkString name = this->INHERITED::getConfigNameInternal();
+    name.appendf("_multi_%i_threads", fNumThreads);
+    return name;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 void PlaybackCreationRenderer::setup() {
@@ -497,6 +538,10 @@ bool PlaybackCreationRenderer::render(const SkString*) {
     fReplayer->endRecording();
     // Since this class does not actually render, return false.
     return false;
+}
+
+SkString PlaybackCreationRenderer::getConfigNameInternal() {
+    return SkString("playback_creation");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////

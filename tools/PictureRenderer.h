@@ -91,6 +91,22 @@ public:
 
     virtual SkString getNormalTimeFormat() { return SkString("%6.2f"); }
 
+    /**
+     * Reports the configuration of this PictureRenderer.
+     */
+    SkString getConfigName() {
+        SkString config = this->getConfigNameInternal();
+        if (kRTree_BBoxHierarchyType == fBBoxHierarchyType) {
+            config.append("_rtree");
+        }
+#if SK_SUPPORT_GPU
+        if (this->isUsingGpuDevice()) {
+            config.append("_gpu");
+        }
+#endif
+        return config;
+    }
+
 #if SK_SUPPORT_GPU
     bool isUsingGpuDevice() {
         return kGPU_DeviceType == fDeviceType;
@@ -137,6 +153,8 @@ protected:
 #endif
 
 private:
+    virtual SkString getConfigNameInternal() = 0;
+
     typedef SkRefCnt INHERITED;
 };
 
@@ -150,6 +168,9 @@ class RecordPictureRenderer : public PictureRenderer {
     virtual SkString getPerIterTimeFormat() SK_OVERRIDE { return SkString("%.4f"); }
 
     virtual SkString getNormalTimeFormat() SK_OVERRIDE { return SkString("%6.4f"); }
+
+private:
+    virtual SkString getConfigNameInternal() SK_OVERRIDE;
 };
 
 class PipePictureRenderer : public PictureRenderer {
@@ -157,6 +178,8 @@ public:
     virtual bool render(const SkString*) SK_OVERRIDE;
 
 private:
+    virtual SkString getConfigNameInternal() SK_OVERRIDE;
+
     typedef PictureRenderer INHERITED;
 };
 
@@ -167,6 +190,8 @@ public:
     virtual bool render(const SkString*) SK_OVERRIDE;
 
 private:
+    virtual SkString getConfigNameInternal() SK_OVERRIDE;
+
     typedef PictureRenderer INHERITED;
 };
 
@@ -231,8 +256,10 @@ public:
     }
 
 protected:
-    virtual SkCanvas* setupCanvas(int width, int height) SK_OVERRIDE;
     SkTDArray<SkRect> fTileRects;
+
+    virtual SkCanvas* setupCanvas(int width, int height) SK_OVERRIDE;
+    virtual SkString getConfigNameInternal() SK_OVERRIDE;
 
 private:
     int               fTileWidth;
@@ -265,6 +292,8 @@ public:
     virtual void end() SK_OVERRIDE;
 
 private:
+    virtual SkString getConfigNameInternal() SK_OVERRIDE;
+
     const int            fNumThreads;
     SkTDArray<SkCanvas*> fCanvasPool;
     SkThreadPool         fThreadPool;
@@ -291,6 +320,9 @@ public:
 
 private:
     SkAutoTUnref<SkPicture> fReplayer;
+
+    virtual SkString getConfigNameInternal() SK_OVERRIDE;
+
     typedef PictureRenderer INHERITED;
 };
 
