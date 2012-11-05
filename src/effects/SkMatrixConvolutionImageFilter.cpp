@@ -431,7 +431,7 @@ GrGLEffect::EffectKey GrGLMatrixConvolutionEffect::GenKey(const GrEffectStage& s
     EffectKey key = encodeXY(m.kernelSize().width(), m.kernelSize().height());
     key |= m.tileMode() << 7;
     key |= m.convolveAlpha() ? 1 << 9 : 0;
-    key << GrGLEffectMatrix::kKeyBits;
+    key <<= GrGLEffectMatrix::kKeyBits;
     EffectKey matrixKey = GrGLEffectMatrix::GenKey(m.getMatrix(),
                                                    s.getCoordChangeMatrix(),
                                                    m.texture(0));
