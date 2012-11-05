@@ -284,7 +284,6 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
     if (NULL == clampedTexture) {
         clampedTexture = this->createTexture(NULL, desc, cacheData, srcData, rowBytes);
 
-        GrAssert(NULL != clampedTexture);
         if (NULL == clampedTexture) {
             return NULL;
         }
