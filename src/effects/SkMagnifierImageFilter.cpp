@@ -107,7 +107,6 @@ GrGLMagnifierEffect::GrGLMagnifierEffect(const GrBackendEffectFactory& factory,
     , fOffsetVar(GrGLUniformManager::kInvalidUniformHandle)
     , fZoomVar(GrGLUniformManager::kInvalidUniformHandle)
     , fInsetVar(GrGLUniformManager::kInvalidUniformHandle) {
-    fRequiresTextureMatrix = false;
 }
 
 void GrGLMagnifierEffect::emitCode(GrGLShaderBuilder* builder,

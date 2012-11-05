@@ -14,6 +14,7 @@
 #include "SkGrPixelRef.h"
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLEffectMatrix.h"
+#include "effects/GrSingleTextureEffect.h"
 #include "GrTBackendEffectFactory.h"
 #endif
 
@@ -246,7 +247,6 @@ GrGLBlendEffect::GrGLBlendEffect(const GrBackendEffectFactory& factory,
                                  const GrEffect& effect)
     : INHERITED(factory),
       fMode(static_cast<const GrBlendEffect&>(effect).mode()) {
-    fRequiresTextureMatrix = false;
 }
 
 GrGLBlendEffect::~GrGLBlendEffect() {

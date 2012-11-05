@@ -1067,7 +1067,6 @@ GrGLLightingEffect::GrGLLightingEffect(const GrBackendEffectFactory& factory,
     , fSurfaceScaleUni(kInvalidUniformHandle) {
     const GrLightingEffect& m = static_cast<const GrLightingEffect&>(effect);
     fLight = m.light()->createGLLight();
-    fRequiresTextureMatrix = false;
 }
 
 GrGLLightingEffect::~GrGLLightingEffect() {

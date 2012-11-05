@@ -39,7 +39,6 @@ GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrBackendEffectFactory& f
                                                  const GrEffect&)
     : INHERITED(factory)
     , fNameUni(GrGLUniformManager::kInvalidUniformHandle) {
-    fRequiresTextureMatrix = false;
     fPrevDomain[0] = SK_FloatNaN;
 }
 

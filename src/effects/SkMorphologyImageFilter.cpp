@@ -302,7 +302,6 @@ GrGLMorphologyEffect::GrGLMorphologyEffect(const GrBackendEffectFactory& factory
     const GrMorphologyEffect& m = static_cast<const GrMorphologyEffect&>(effect);
     fRadius = m.radius();
     fType = m.type();
-    fRequiresTextureMatrix = false;
 }
 
 void GrGLMorphologyEffect::emitCode(GrGLShaderBuilder* builder,

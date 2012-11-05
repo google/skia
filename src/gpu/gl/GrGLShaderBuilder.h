@@ -77,18 +77,12 @@ public:
 
     GrGLShaderBuilder(const GrGLContextInfo&, GrGLUniformManager&);
 
-    /** Determines whether we should use texture2D() or texture2Dproj(), and if an explicit divide
-        is required for the sample coordinates, creates the new variable and emits the code to
-        initialize it. This should only be called by GrGLProgram.*/
-    void setupTextureAccess(const char* varyingFSName, GrSLType varyingType);
-
-    /** Appends a texture sample with projection if necessary; if coordName is not
-        specified, uses fSampleCoords. coordType must either be Vec2f or Vec3f. The latter is
-        interpreted as projective texture coords. The vec length and swizzle order of the result
-        depends on the GrTextureAccess associated with the TextureSampler. */
+    /** Appends a 2D texture sample with projection if necessary. coordType must either be Vec2f or
+        Vec3f. The latter is interpreted as projective texture coords. The vec length and swizzle
+        order of the result depends on the GrTextureAccess associated with the TextureSampler. */
     void appendTextureLookup(SkString* out,
                              const TextureSampler&,
-                             const char* coordName = NULL,
+                             const char* coordName,
                              GrSLType coordType = kVec2f_GrSLType) const;
 
     /** Does the work of appendTextureLookup and modulates the result by modulation. The result is
@@ -98,17 +92,8 @@ public:
     void appendTextureLookupAndModulate(SkString* out,
                                         const char* modulation,
                                         const TextureSampler&,
-                                        const char* coordName = NULL,
+                                        const char* coordName,
                                         GrSLType coordType = kVec2f_GrSLType) const;
-
-    /** Gets the name of the default texture coords which are always kVec2f */
-    const char* defaultTexCoordsName() const { return fDefaultTexCoordsName.c_str(); }
-
-    /* Returns true if the texture matrix from which the default texture coords are computed has
-       perspective. */
-    bool defaultTextureMatrixIsPerspective() const {
-        return fTexCoordVaryingType == kVec3f_GrSLType;
-    }
 
     /** Emits a helper function outside of main(). Currently ShaderType must be
         kFragment_ShaderType. */
@@ -233,14 +218,6 @@ private:
     GrGLUniformManager::UniformHandle   fRTHeightUniform;
 
     GrGLShaderVar*                      fPositionVar;
-
-    /// Per-stage settings - only valid while we're inside GrGLProgram::genStageCode().
-    //@{
-    GrSLType         fTexCoordVaryingType;  // the type, either Vec2f or Vec3f, of the coords passed
-                                            // as a varying from the VS to the FS.
-    SkString         fDefaultTexCoordsName; // the name of the default 2D coords value.
-    //@}
-
 };
 
 #endif

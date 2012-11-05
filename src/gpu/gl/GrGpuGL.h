@@ -145,18 +145,10 @@ private:
 
     const GrGLContextInfo& glContextInfo() const { return fGLContextInfo; }
 
-    // adjusts texture matrix to account for orientation
-    static void AdjustTextureMatrix(const GrTexture* texture, SkMatrix* matrix);
-
-    // This helper determines if what optimizations can be applied to the matrix after any coord
-    // adjustments are applied. The return is a bitfield of GrGLProgram::StageDesc::OptFlags.
-    static int TextureMatrixOptFlags(const GrGLTexture* texture, const GrEffectStage& sampler);
-
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
     // for readability of function impls
     typedef GrGLProgram::Desc        ProgramDesc;
-    typedef ProgramDesc::StageDesc   StageDesc;
 
     class ProgramCache : public ::GrNoncopyable {
     public:
@@ -213,9 +205,6 @@ private:
     void flushBoundTextureAndParams(int stage,
                                     const GrTextureParams& params,
                                     GrGLTexture* nextTexture);
-
-    // sets the texture matrix for the currently bound program
-    void flushTextureMatrix(int stageIdx);
 
     // sets the color specified by GrDrawState::setColor()
     void flushColor(GrColor color);

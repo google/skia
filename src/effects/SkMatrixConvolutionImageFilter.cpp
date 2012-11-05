@@ -15,6 +15,7 @@
 #if SK_SUPPORT_GPU
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLEffectMatrix.h"
+#include "effects/GrSingleTextureEffect.h"
 #include "GrTBackendEffectFactory.h"
 #include "GrTexture.h"
 #include "SkMatrix.h"
@@ -330,7 +331,6 @@ GrGLMatrixConvolutionEffect::GrGLMatrixConvolutionEffect(const GrBackendEffectFa
     fKernelSize = m.kernelSize();
     fTileMode = m.tileMode();
     fConvolveAlpha = m.convolveAlpha();
-    fRequiresTextureMatrix = false;
 }
 
 static void appendTextureLookup(GrGLShaderBuilder* builder,

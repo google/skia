@@ -31,8 +31,6 @@ bool random_bool(GrRandom* r) {
     return r->nextF() > .5f;
 }
 
-typedef GrGLProgram::StageDesc StageDesc;
-
 const GrEffect* create_random_effect(GrRandom* random,
                                      GrContext* context,
                                      GrTexture* dummyTextures[]) {
@@ -58,13 +56,6 @@ bool GrGpuGL::programUnitTest() {
     dummyDesc.fWidth = 16;
     dummyDesc.fHeight = 22;
     SkAutoTUnref<GrTexture> dummyTexture2(this->createTexture(dummyDesc, NULL, 0));
-
-    // GrGLSLGeneration glslGeneration =
-            GrGetGLSLGeneration(this->glBinding(), this->glInterface());
-    static const int STAGE_OPTS[] = {
-        0,
-        StageDesc::kNoPerspective_OptFlagBit,
-    };
 
     static const int NUM_TESTS = 512;
 
@@ -118,7 +109,6 @@ bool GrGpuGL::programUnitTest() {
         GrEffectStage stages[GrDrawState::kNumStages];
 
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-            StageDesc& stageDesc = pdesc.fStages[s];
             // enable the stage?
             if (random_bool(&random)) {
                 // use separate tex coords?
@@ -126,24 +116,18 @@ bool GrGpuGL::programUnitTest() {
                     int t = random_int(&random, GrDrawState::kMaxTexCoords);
                     pdesc.fVertexLayout |= StageTexCoordVertexLayoutBit(s, t);
                 }
-                stageDesc.setEnabled(true);
-            }
-            // use text-formatted verts?
-            if (random_bool(&random)) {
-                pdesc.fVertexLayout |= kTextFormat_VertexLayoutBit;
-            }
+                // use text-formatted verts?
+                if (random_bool(&random)) {
+                    pdesc.fVertexLayout |= kTextFormat_VertexLayoutBit;
+                }
 
-            stageDesc.fEffectKey = 0;
-            stageDesc.fOptFlags |= STAGE_OPTS[random_int(&random, GR_ARRAY_COUNT(STAGE_OPTS))];
-
-            if (stageDesc.isEnabled()) {
                 GrTexture* dummyTextures[] = {dummyTexture1.get(), dummyTexture2.get()};
                 SkAutoTUnref<const GrEffect> effect(create_random_effect(&random,
-                                                                         getContext(),
-                                                                         dummyTextures));
+                                                                            getContext(),
+                                                                            dummyTextures));
                 stages[s].setEffect(effect.get());
                 if (NULL != stages[s].getEffect()) {
-                    stageDesc.fEffectKey =
+                    pdesc.fEffectKeys[s] =
                         stages[s].getEffect()->getFactory().glEffectKey(stages[s], this->glCaps());
                 }
             }
