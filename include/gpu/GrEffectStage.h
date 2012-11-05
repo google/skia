@@ -47,7 +47,7 @@ public:
             return false;
         }
 
-        return fMatrix == other.fMatrix && fCoordChangeMatrix == other.fCoordChangeMatrix;
+        return fCoordChangeMatrix == other.fCoordChangeMatrix;
     }
 
     bool operator !=(const GrEffectStage& s) const { return !(*this == s); }
@@ -55,7 +55,6 @@ public:
     GrEffectStage& operator =(const GrEffectStage& other) {
         GrSafeAssign(fEffect, other.fEffect);
         if (NULL != fEffect) {
-            fMatrix = other.fMatrix;
             fCoordChangeMatrix = other.fCoordChangeMatrix;
         }
         return *this;
@@ -101,20 +100,6 @@ public:
     }
 
     /**
-     * Gets the texture matrix. This is will be removed soon and be managed by GrEffect.
-     */
-    const SkMatrix& getMatrix() const { return fMatrix; }
-
-    /**
-     * Gets the matrix to apply at draw time. This is the original texture matrix combined with
-     * any coord system changes. This will be removed when the matrix is managed by GrEffect.
-     */
-    void getTotalMatrix(SkMatrix* matrix) const {
-        *matrix = fMatrix;
-        matrix->preConcat(fCoordChangeMatrix);
-    }
-
-    /**
      * Gets the matrix representing all changes of coordinate system since the GrEffect was
      * installed in the stage.
      */
@@ -127,15 +112,6 @@ public:
     const GrEffect* setEffect(const GrEffect* effect) {
         GrAssert(0 == fSavedCoordChangeCnt);
         GrSafeAssign(fEffect, effect);
-        fMatrix.reset();
-        fCoordChangeMatrix.reset();
-        return effect;
-    }
-
-    const GrEffect* setEffect(const GrEffect* effect, const SkMatrix& matrix) {
-        GrAssert(0 == fSavedCoordChangeCnt);
-        GrSafeAssign(fEffect, effect);
-        fMatrix = matrix;
         fCoordChangeMatrix.reset();
         return effect;
     }
@@ -144,7 +120,6 @@ public:
 
 private:
     SkMatrix            fCoordChangeMatrix;
-    SkMatrix            fMatrix; // TODO: remove this, store in GrEffect
     const GrEffect*     fEffect;
 
     GR_DEBUGCODE(mutable int fSavedCoordChangeCnt;)

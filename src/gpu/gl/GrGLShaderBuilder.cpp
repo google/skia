@@ -94,37 +94,10 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctx, GrGLUniformMana
     , fUniformManager(uniformManager)
     , fCurrentStageIdx(kNonStageIdx)
     , fSetupFragPosition(false)
-    , fRTHeightUniform(GrGLUniformManager::kInvalidUniformHandle)
-    , fTexCoordVaryingType(kVoid_GrSLType) {
+    , fRTHeightUniform(GrGLUniformManager::kInvalidUniformHandle) {
 
     fPositionVar = &fVSAttrs.push_back();
     fPositionVar->set(kVec2f_GrSLType, GrGLShaderVar::kAttribute_TypeModifier, "aPosition");
-}
-
-void GrGLShaderBuilder::setupTextureAccess(const char* varyingFSName, GrSLType varyingType) {
-    // FIXME: We don't know how the effect will manipulate the coords. So we give up on using
-    // projective texturing and always give the stage 2D coords. This will be fixed when effects
-    // are responsible for setting up their own tex coords / tex matrices.
-    switch (varyingType) {
-        case kVec2f_GrSLType:
-            fDefaultTexCoordsName = varyingFSName;
-            fTexCoordVaryingType = kVec2f_GrSLType;
-            break;
-        case kVec3f_GrSLType: {
-            fDefaultTexCoordsName = "inCoord";
-            GrAssert(kNonStageIdx != fCurrentStageIdx);
-            fDefaultTexCoordsName.appendS32(fCurrentStageIdx);
-            fTexCoordVaryingType = kVec3f_GrSLType;
-            fFSCode.appendf("\t%s %s = %s.xy / %s.z;\n",
-                            GrGLShaderVar::TypeString(kVec2f_GrSLType),
-                            fDefaultTexCoordsName.c_str(),
-                            varyingFSName,
-                            varyingFSName);
-            break;
-        }
-        default:
-            GrCrash("Tex coords must either be Vec2f or Vec3f");
-    }
 }
 
 void GrGLShaderBuilder::appendTextureLookup(SkString* out,
@@ -132,11 +105,8 @@ void GrGLShaderBuilder::appendTextureLookup(SkString* out,
                                             const char* coordName,
                                             GrSLType varyingType) const {
     GrAssert(NULL != sampler.textureAccess());
+    GrAssert(NULL != coordName);
 
-    if (NULL == coordName) {
-        coordName = fDefaultTexCoordsName.c_str();
-        varyingType = kVec2f_GrSLType;
-    }
     out->appendf("%s(%s, %s)",
                  sample_function_name(varyingType),
                  this->getUniformCStr(sampler.fSamplerUniform),

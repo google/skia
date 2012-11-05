@@ -270,8 +270,6 @@ private:
 GLColorTableEffect::GLColorTableEffect(
     const GrBackendEffectFactory& factory, const GrEffect& effect)
     : INHERITED(factory) {
-    // texture coords are computed from the incoming color.
-    fRequiresTextureMatrix = false;
  }
 
 void GLColorTableEffect::emitCode(GrGLShaderBuilder* builder,

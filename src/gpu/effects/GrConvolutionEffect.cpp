@@ -51,7 +51,6 @@ GrGLConvolutionEffect::GrGLConvolutionEffect(const GrBackendEffectFactory& facto
     const GrConvolutionEffect& c =
         static_cast<const GrConvolutionEffect&>(effect);
     fRadius = c.radius();
-    fRequiresTextureMatrix = false;
 }
 
 void GrGLConvolutionEffect::emitCode(GrGLShaderBuilder* builder,

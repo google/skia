@@ -9,7 +9,6 @@
 #define GrGLEffect_DEFINED
 
 #include "GrBackendEffectFactory.h"
-#include "GrGLProgram.h"
 #include "GrGLShaderBuilder.h"
 #include "GrGLShaderVar.h"
 #include "GrGLSL.h"
@@ -35,6 +34,7 @@ public:
     typedef GrBackendEffectFactory::EffectKey EffectKey;
 
     enum {
+        kNoEffectKey = GrBackendEffectFactory::kNoEffectKey,
         // the number of bits in EffectKey available to GenKey
         kEffectKeyBits = GrBackendEffectFactory::kEffectKeyBits,
     };
@@ -54,9 +54,10 @@ public:
         @param key          The key that was computed by GenKey() from the generating GrEffect.
                             Only the bits indicated by GrBackendEffectFactory::kEffectKeyBits are
                             guaranteed to match the value produced by GenKey();
-        @param vertexCoords A vec2 of texture coordinates in the VS, which may be altered. This will
-                            be removed soon and stages will be responsible for computing their own
-                            coords.
+        @param vertexCoords A vec2 in the VS that holds the position in local coords. This is either
+                            the pre-view-matrix vertex position or if explicit per-vertex texture
+                            coords are used with a stage then it is those coordinates. See
+                            GrVertexLayout.
         @param outputColor  A predefined vec4 in the FS in which the stage should place its output
                             color (or coverage).
         @param inputColor   A vec4 that holds the input color to the stage in the FS. This may be
@@ -87,15 +88,7 @@ public:
 
     static EffectKey GenTextureKey(const GrEffect&, const GrGLCaps&);
 
-    bool requiresTextureMatrix() const { return fRequiresTextureMatrix; }
-
-
 protected:
-    // HACK: This is a temporary field that allows GrGLEffect subclasses to opt into the new
-    // shader gen where a texture matrix is not automatically inserted. It defaults to true and is
-    // set to false in a subclass to opt into the new behavior.
-    bool fRequiresTextureMatrix;
-
     const GrBackendEffectFactory& fFactory;
 };
 

@@ -16,9 +16,7 @@
 class GrGLSingleTextureEffect : public GrGLEffect {
 public:
     GrGLSingleTextureEffect(const GrBackendEffectFactory& factory, const GrEffect&)
-    : INHERITED (factory) {
-        fRequiresTextureMatrix = false;
-    }
+    : INHERITED (factory) {}
 
     virtual void emitCode(GrGLShaderBuilder* builder,
                           const GrEffectStage&,

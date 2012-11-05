@@ -679,7 +679,6 @@ GrGLGradientEffect::GrGLGradientEffect(const GrBackendEffectFactory& factory)
     : INHERITED(factory)
     , fCachedYCoord(SK_ScalarMax)
     , fFSYUni(GrGLUniformManager::kInvalidUniformHandle) {
-    fRequiresTextureMatrix = false;
 }
 
 GrGLGradientEffect::~GrGLGradientEffect() { }

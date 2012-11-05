@@ -1456,10 +1456,8 @@ void apply_effect(GrContext* context,
     GrContext::AutoRenderTarget art(context, dstTexture->asRenderTarget());
     GrContext::AutoClip acs(context, rect);
 
-    SkMatrix sampleM;
-    sampleM.setIDiv(srcTexture->width(), srcTexture->height());
     GrPaint paint;
-    paint.colorStage(0)->setEffect(effect, sampleM);
+    paint.colorStage(0)->setEffect(effect);
     context->drawRect(paint, rect);
 }
 

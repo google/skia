@@ -32,6 +32,7 @@ class GrBackendEffectFactory : public GrNoncopyable {
 public:
     typedef uint32_t EffectKey;
     enum {
+        kNoEffectKey = 0,
         kEffectKeyBits = 12,
         /**
          * Some aspects of the generated code may be determined by the particular textures that are

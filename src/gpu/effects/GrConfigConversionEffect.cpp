@@ -19,7 +19,6 @@ public:
         const GrConfigConversionEffect& effect = static_cast<const GrConfigConversionEffect&>(s);
         fSwapRedAndBlue = effect.swapsRedAndBlue();
         fPMConversion = effect.pmConversion();
-        fRequiresTextureMatrix = false;
     }
 
     virtual void emitCode(GrGLShaderBuilder* builder,
@@ -261,7 +260,7 @@ bool GrConfigConversionEffect::InstallEffect(GrTexture* texture,
         // If we returned a GrConfigConversionEffect that was equivalent to a GrSingleTextureEffect
         // then we may pollute our texture cache with redundant shaders. So in the case that no
         // conversions were requested we instead return a GrSingleTextureEffect.
-        stage->setEffect(SkNEW_ARGS(GrSingleTextureEffect, (texture, matrix)), matrix)->unref();
+        stage->setEffect(SkNEW_ARGS(GrSingleTextureEffect, (texture, matrix)))->unref();
         return true;
     } else {
         if (kRGBA_8888_GrPixelConfig != texture->config() &&

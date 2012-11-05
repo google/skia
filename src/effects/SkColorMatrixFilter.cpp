@@ -349,10 +349,7 @@ public:
                  const GrEffect& effect)
         : INHERITED(factory)
         , fMatrixHandle(GrGLUniformManager::kInvalidUniformHandle)
-        , fVectorHandle(GrGLUniformManager::kInvalidUniformHandle) {
-            // no texture
-            fRequiresTextureMatrix = false;
-        }
+        , fVectorHandle(GrGLUniformManager::kInvalidUniformHandle) {}
 
         virtual void emitCode(GrGLShaderBuilder* builder,
                               const GrEffectStage&,
