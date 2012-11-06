@@ -32,7 +32,9 @@ public:
         kBitmap_Type,
         kRect_Type,
         kPath_Type,
-        kText_Type
+        kText_Type,
+
+        kTypeCount
     };
 
     /**

@@ -20,6 +20,97 @@
 
 const int DEFAULT_REPEATS = 1;
 
+static char const * const gFilterTypes[] = {
+    "paint",
+    "point",
+    "line",
+    "bitmap",
+    "rect",
+    "path",
+    "text",
+    "all",
+};
+
+static const size_t kFilterTypesCount = sizeof(gFilterTypes) / sizeof(gFilterTypes[0]);
+
+static char const * const gFilterFlags[] = {
+    "antiAlias",
+    "filterBitmap",
+    "dither",
+    "underlineText",
+    "strikeThruText",
+    "fakeBoldText",
+    "linearText",
+    "subpixelText",
+    "devKernText",
+    "LCDRenderText",
+    "embeddedBitmapText",
+    "autoHinting",
+    "verticalText",
+    "genA8FromLCD",
+    "blur",
+    "hinting",
+    "slightHinting",
+};
+
+static const size_t kFilterFlagsCount = sizeof(gFilterFlags) / sizeof(gFilterFlags[0]);
+
+static SkString filtersName(sk_tools::PictureRenderer::DrawFilterFlags* drawFilters) {
+    int all = drawFilters[0];
+    size_t tIndex;
+    for (tIndex = 1; tIndex < SkDrawFilter::kTypeCount; ++tIndex) {
+        all &= drawFilters[tIndex];
+    }
+    SkString result;
+    for (size_t fIndex = 0; fIndex < kFilterFlagsCount; ++fIndex) {
+        SkString types;
+        if (all & (1 << fIndex)) {
+            types = gFilterTypes[SkDrawFilter::kTypeCount];
+        } else {
+            for (tIndex = 0; tIndex < SkDrawFilter::kTypeCount; ++tIndex) {
+                if (drawFilters[tIndex] & (1 << fIndex)) {
+                    types += gFilterTypes[tIndex];
+                }
+            }
+        }
+        if (!types.size()) {
+            continue;
+        }
+        result += "_";
+        result += types;
+        result += ".";
+        result += gFilterFlags[fIndex];
+    }
+    return result;
+}
+
+static SkString filterTypesUsage() {
+    SkString result;
+    for (size_t index = 0; index < kFilterTypesCount; ++index) {
+        result += gFilterTypes[index];
+        if (index < kFilterTypesCount - 1) {
+            result += " | ";
+        }
+    }
+    return result;
+}
+
+static SkString filterFlagsUsage() {
+    SkString result;
+    size_t len = 0;
+    for (size_t index = 0; index < kFilterFlagsCount; ++index) {
+        result += gFilterFlags[index];
+        if (result.size() - len >= 72) {
+            result += "\n           ";
+            len = result.size();
+        }
+        if (index < kFilterFlagsCount - 1) {
+            result += " | ";
+        }
+    }
+    return result;
+}
+
 static void usage(const char* argv0) {
     SkDebugf("SkPicture benchmarking tool\n");
     SkDebugf("\n"
@@ -36,9 +127,10 @@ static void usage(const char* argv0) {
 #if SK_SUPPORT_GPU
 " | gpu"
 #endif
-"]"
-, argv0);
-    SkDebugf("\n\n");
+"]\n"
+"     [--filter [%s]:\n            [%s]]\n"
+, argv0, filterTypesUsage().c_str(), filterFlagsUsage().c_str());
+    SkDebugf("\n");
     SkDebugf(
 "     inputDir:  A list of directories and files to use as input. Files are\n"
 "                expected to have the .skp extension.\n\n"
@@ -49,7 +141,7 @@ static void usage(const char* argv0) {
     SkDebugf("     --timers [wcgWC]* : "
              "Display wall, cpu, gpu, truncated wall or truncated cpu time for each picture.\n");
     SkDebugf(
-"     --mode pow2tile minWidht height[] | record | simple\n"
+"     --mode pow2tile minWidth height[] | record | simple\n"
 "            | tile width[] height[] | playbackCreation:\n"
 "            Run in the corresponding mode.\n"
 "            Default is simple.\n");
@@ -101,6 +193,11 @@ static void usage(const char* argv0) {
 "     --repeat:  "
 "Set the number of times to repeat each test."
 " Default is %i.\n", DEFAULT_REPEATS);
+    SkDebugf(
+"     --filter type:flag : ");
+    SkDebugf(
+"Enable canvas filtering to disable a paint flag,\n"
+"                     disable blur, or use less hinting.\n");
 }
 
 SkBenchLogger gLogger;
@@ -175,6 +272,8 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     bool gridSupported = false;
     sk_tools::PictureRenderer::BBoxHierarchyType bbhType =
         sk_tools::PictureRenderer::kNone_BBoxHierarchyType;
+    sk_tools::PictureRenderer::DrawFilterFlags drawFilters[SkDrawFilter::kTypeCount];
+    sk_bzero(drawFilters, sizeof(drawFilters));
     for (++argv; argv < stop; ++argv) {
         if (0 == strcmp(*argv, "--repeat")) {
             ++argv;
@@ -368,6 +467,58 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 gLogger.logError("Missing arg for --logPerIter\n");
                 PRINT_USAGE_AND_EXIT;
             }
+        } else if (0 == strcmp(*argv, "--filter")) {
+            ++argv;
+            if (argv < stop) {
+                const char* colon = strchr(*argv, ':');
+                if (colon) {
+                    int type = -1;
+                    size_t typeLen = colon - *argv;
+                    for (size_t tIndex = 0; tIndex < kFilterTypesCount; ++tIndex) {
+                        if (typeLen == strlen(gFilterTypes[tIndex])
+                                && !strncmp(*argv, gFilterTypes[tIndex], typeLen)) {
+                            type = tIndex;
+                            break;
+                        }
+                    }
+                    if (type < 0) {
+                        SkString err;
+                        err.printf("Unknown type for --filter %s\n", *argv);
+                        gLogger.logError(err);
+                        PRINT_USAGE_AND_EXIT;
+                    }
+                    int flag = -1;
+                    size_t flagLen = strlen(*argv) - typeLen - 1;
+                    for (size_t fIndex = 0; fIndex < kFilterFlagsCount; ++fIndex) {
+                        if (flagLen == strlen(gFilterFlags[fIndex])
+                                && !strncmp(colon + 1, gFilterFlags[fIndex], flagLen)) {
+                            flag = 1 << fIndex;
+                            break;
+                        }
+                    }
+                    if (flag < 0) {
+                        SkString err;
+                        err.printf("Unknown flag for --filter %s\n", *argv);
+                        gLogger.logError(err);
+                        PRINT_USAGE_AND_EXIT;
+                    }
+                    for (int index = 0; index < SkDrawFilter::kTypeCount; ++index) {
+                        if (type != SkDrawFilter::kTypeCount && index != type) {
+                            continue;
+                        }
+                        drawFilters[index] = (sk_tools::PictureRenderer::DrawFilterFlags)
+                                (drawFilters[index] | flag);
+                    }
+                } else {
+                    SkString err;
+                    err.printf("Unknown arg for --filter %s : missing colon\n", *argv);
+                    gLogger.logError(err);
+                    PRINT_USAGE_AND_EXIT;
+                }
+            } else {
+                gLogger.logError("Missing arg for --filter\n");
+                PRINT_USAGE_AND_EXIT;
+            }
         } else if (0 == strcmp(*argv, "--help") || 0 == strcmp(*argv, "-h")) {
             PRINT_USAGE_AND_EXIT;
         } else {
@@ -471,6 +622,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     }
 
     renderer->setBBoxHierarchyType(bbhType);
+    renderer->setDrawFilters(drawFilters, filtersName(drawFilters));
     renderer->setGridSize(gridWidth, gridHeight);
     benchmark->setRenderer(renderer);
     benchmark->setRepeats(repeats);
