@@ -164,6 +164,11 @@ static bool writeAppendNumber(SkCanvas* canvas, const SkString* path, int number
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
+SkCanvas* RecordPictureRenderer::setupCanvas(int width, int height) {
+    // defer the canvas setup until the render step
+    return NULL;
+}
+
 bool RecordPictureRenderer::render(const SkString*) {
     SkAutoTUnref<SkPicture> replayer(this->createPicture());
     SkCanvas* recorder = replayer->beginRecording(fPicture->width(), fPicture->height(),

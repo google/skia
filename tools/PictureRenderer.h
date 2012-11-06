@@ -169,6 +169,9 @@ class RecordPictureRenderer : public PictureRenderer {
 
     virtual SkString getNormalTimeFormat() SK_OVERRIDE { return SkString("%6.4f"); }
 
+protected:
+    virtual SkCanvas* setupCanvas(int width, int height) SK_OVERRIDE;
+
 private:
     virtual SkString getConfigNameInternal() SK_OVERRIDE;
 };
