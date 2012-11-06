@@ -7,6 +7,7 @@
 
 #include "SkDebuggerGUI.h"
 #include "SkGraphics.h"
+#include "SkImageDecoder.h"
 #include <QListWidgetItem>
 
 SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
@@ -573,8 +574,8 @@ void SkDebuggerGUI::setupDirectoryWidget() {
 
 void SkDebuggerGUI::loadPicture(QString fileName) {
     fLoading = true;
-    SkStream* stream = new SkFILEStream(fileName.toAscii());
-    SkPicture* picture = new SkPicture(stream);
+    SkStream* stream = SkNEW_ARGS(SkFILEStream, (fileName.toAscii()));
+    SkPicture* picture = SkNEW_ARGS(SkPicture, (stream, NULL, &SkImageDecoder::DecodeStream));
     fCanvasWidget.resetWidgetTransform();
     fDebugger.loadPicture(picture);
 
