@@ -152,6 +152,13 @@ SkString* SkObjectParser::PathToString(const SkPath& path) {
         }
     }
 
+    SkString* boundStr = SkObjectParser::RectToString(path.getBounds(), "    Bound: ");
+
+    if (NULL != boundStr) {
+        mPath->append(*boundStr);
+        SkDELETE(boundStr);
+    }
+
     return mPath;
 }
 
@@ -179,8 +186,15 @@ SkString* SkObjectParser::PointModeToString(SkCanvas::PointMode mode) {
     return mMode;
 }
 
-SkString* SkObjectParser::RectToString(const SkRect& rect) {
-    SkString* mRect = new SkString("SkRect: ");
+SkString* SkObjectParser::RectToString(const SkRect& rect, const char* title) {
+
+    SkString* mRect = new SkString;
+    
+    if (NULL == title) {
+        mRect->append("SkRect: ");
+    } else {
+        mRect->append(title);
+    }
     mRect->append("(");
     mRect->appendScalar(rect.left());
     mRect->append(", ");

@@ -83,7 +83,7 @@ public:
         Returns a string representation of the SkRects coordinates.
         @param rect  SkRect
      */
-    static SkString* RectToString(const SkRect& rect);
+    static SkString* RectToString(const SkRect& rect, const char* title = NULL);
 
     /**
         Returns a string representation of the SkRegion enum.

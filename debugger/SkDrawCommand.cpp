@@ -172,7 +172,7 @@ DrawBitmapNine::DrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
 
     this->fInfo.push(SkObjectParser::BitmapToString(bitmap));
     this->fInfo.push(SkObjectParser::IRectToString(center));
-    this->fInfo.push(SkObjectParser::RectToString(dst));
+    this->fInfo.push(SkObjectParser::RectToString(dst, "Dst: "));
     if (paint) this->fInfo.push(SkObjectParser::PaintToString(*paint));
 }
 
@@ -189,8 +189,8 @@ DrawBitmapRect::DrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
     this->fDrawType = DRAW_BITMAP_RECT_TO_RECT;
 
     this->fInfo.push(SkObjectParser::BitmapToString(bitmap));
-    if (src) this->fInfo.push(SkObjectParser::RectToString(*src));
-    this->fInfo.push(SkObjectParser::RectToString(dst));
+    if (src) this->fInfo.push(SkObjectParser::RectToString(*src, "Src: "));
+    this->fInfo.push(SkObjectParser::RectToString(dst, "Dst: "));
     if (paint) this->fInfo.push(SkObjectParser::PaintToString(*paint));
 }
 
@@ -429,7 +429,7 @@ SaveLayer::SaveLayer(const SkRect* bounds, const SkPaint* paint,
     this->fFlags = flags;
     this->fDrawType = SAVE_LAYER;
 
-    if (bounds) this->fInfo.push(SkObjectParser::RectToString(*bounds));
+    if (bounds) this->fInfo.push(SkObjectParser::RectToString(*bounds, "Bounds: "));
     if (paint) this->fInfo.push(SkObjectParser::PaintToString(*paint));
     this->fInfo.push(SkObjectParser::SaveFlagsToString(flags));
 }
