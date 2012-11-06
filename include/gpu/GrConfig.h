@@ -126,8 +126,12 @@ typedef unsigned __int64 uint64_t;
  *  macros here before anyone else has a chance to include stdint.h without
  *  these.
  */
+#ifndef __STDC_LIMIT_MACROS
 #define __STDC_LIMIT_MACROS
+#endif
+#ifndef __STDC_CONSTANT_MACROS
 #define __STDC_CONSTANT_MACROS
+#endif
 #include <stdint.h>
 #endif
 
