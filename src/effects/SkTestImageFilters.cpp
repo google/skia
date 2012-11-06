@@ -18,38 +18,6 @@ public:
     }
 };
 
-bool SkOffsetImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
-                                        const SkMatrix& matrix,
-                                        SkBitmap* result,
-                                        SkIPoint* loc) {
-    SkVector vec;
-    matrix.mapVectors(&vec, &fOffset, 1);
-
-    loc->fX += SkScalarRoundToInt(vec.fX);
-    loc->fY += SkScalarRoundToInt(vec.fY);
-    *result = src;
-    return true;
-}
-
-bool SkOffsetImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                         SkIRect* dst) {
-    SkVector vec;
-    ctm.mapVectors(&vec, &fOffset, 1);
-
-    *dst = src;
-    dst->offset(SkScalarRoundToInt(vec.fX), SkScalarRoundToInt(vec.fY));
-    return true;
-}
-
-void SkOffsetImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
-    buffer.writePoint(fOffset);
-}
-
-SkOffsetImageFilter::SkOffsetImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
-    buffer.readPoint(&fOffset);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkComposeImageFilter::~SkComposeImageFilter() {

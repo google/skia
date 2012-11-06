@@ -13,6 +13,7 @@
 
 #include "SkBlurImageFilter.h"
 #include "SkColorFilterImageFilter.h"
+#include "SkOffsetImageFilter.h"
 #include "SkTestImageFilters.h"
 
 #define FILTER_WIDTH    SkIntToScalar(150)
