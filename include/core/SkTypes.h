@@ -112,13 +112,9 @@ inline void operator delete(void* p) {
     #define SkAssertResult(cond)        cond
 #endif
 
-namespace {
-
 template <bool>
 struct SkCompileAssert {
 };
-
-}  // namespace
 
 #define SK_COMPILE_ASSERT(expr, msg) \
     typedef SkCompileAssert<(bool(expr))> msg[bool(expr) ? 1 : -1]
