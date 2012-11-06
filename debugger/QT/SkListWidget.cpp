@@ -61,6 +61,7 @@ void SkListWidget::paint (QPainter *painter,
             QIcon(qvariant_cast<QPixmap>(index.data(Qt::DecorationRole)));
     QIcon deleteIcon =
             QIcon(qvariant_cast<QPixmap>(index.data(Qt::UserRole + 2)));
+    int indent = index.data(Qt::UserRole + 3).toInt();
 
     QString drawCommandText = index.data(Qt::DisplayRole).toString();
     QString drawCommandNumber = index.data(Qt::UserRole + 1).toString();
@@ -74,7 +75,8 @@ void SkListWidget::paint (QPainter *painter,
      * spot act as a margin for the bottom and right sides. Positive values in
      * x1,y1 act as a margin for the top and left. The target area will not
      * affect size of text but will scale icons. */
-    int imageSpace = 35;
+    static const int kImageSpace = 35;
+    static const int kCommandNumberSpace = 30;
 
     // Breakpoint Icon
     r = option.rect.adjusted(5, 10, -10, -10);
@@ -85,12 +87,12 @@ void SkListWidget::paint (QPainter *painter,
     deleteIcon.paint(painter, r, Qt::AlignVCenter|Qt::AlignLeft);
 
     // Draw Command
-    r = option.rect.adjusted(imageSpace, 0, -10, -7);
+    r = option.rect.adjusted(kImageSpace+kCommandNumberSpace+indent, 0, -10, -7);
     painter->drawText(r.left(), r.top(), r.width(), r.height(),
-            Qt::AlignBottom|Qt::AlignRight, drawCommandText, &r);
+            Qt::AlignBottom|Qt::AlignLeft, drawCommandText, &r);
 
     // Draw Command Number
-    r = option.rect.adjusted(imageSpace, 0, -10, -7);
+    r = option.rect.adjusted(kImageSpace, 0, -10, -7);
     painter->drawText(r.left(), r.top(), r.width(), r.height(),
             Qt::AlignBottom|Qt::AlignLeft, drawCommandNumber, &r);
 }

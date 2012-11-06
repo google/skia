@@ -607,10 +607,23 @@ void SkDebuggerGUI::loadPicture(QString fileName) {
 void SkDebuggerGUI::setupListWidget(SkTDArray<SkString*>* command) {
     fListWidget.clear();
     int counter = 0;
+    int indent = 0;
     for (int i = 0; i < command->count(); i++) {
         QListWidgetItem *item = new QListWidgetItem();
         item->setData(Qt::DisplayRole, (*command)[i]->c_str());
         item->setData(Qt::UserRole + 1, counter++);
+
+        if (0 == strcmp("Restore", (*command)[i]->c_str())) {
+            indent -= 10;
+        }
+
+        item->setData(Qt::UserRole + 3, indent);
+
+        if (0 == strcmp("Save", (*command)[i]->c_str()) ||
+            0 == strcmp("Save Layer", (*command)[i]->c_str())) {
+            indent += 10;
+        }
+
         fListWidget.addItem(item);
     }
 }
