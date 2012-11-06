@@ -28,7 +28,7 @@ static void stroke_rect(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
 static void draw_donut(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
     SkRect  rect;
     SkPath  path;
-    
+
     rect = r;
     rect.outset(STROKE_WIDTH/2, STROKE_WIDTH/2);
     path.addRect(rect);

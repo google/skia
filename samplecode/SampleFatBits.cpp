@@ -51,7 +51,7 @@ public:
         fShowSkeleton = true;
         fUseGPU = false;
         fUseClip = false;
-        
+
         fClipRect.set(2, 2, 11, 8 );
     }
 

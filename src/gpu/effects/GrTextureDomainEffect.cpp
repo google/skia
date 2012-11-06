@@ -93,7 +93,7 @@ void GrGLTextureDomainEffect::setData(const GrGLUniformManager& uman, const GrEf
                           effect.getMatrix(),
                           stage.getCoordChangeMatrix(),
                           effect.texture(0));
-}   
+}
 
 GrGLEffect::EffectKey GrGLTextureDomainEffect::GenKey(const GrEffectStage& stage, const GrGLCaps&) {
     const GrTextureDomainEffect& effect =

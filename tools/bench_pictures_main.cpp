@@ -167,7 +167,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     const char* heightString = NULL;
     bool isPowerOf2Mode = false;
     const char* mode = NULL;
-    sk_tools::PictureRenderer::BBoxHierarchyType bbhType = 
+    sk_tools::PictureRenderer::BBoxHierarchyType bbhType =
         sk_tools::PictureRenderer::kNone_BBoxHierarchyType;
     for (++argv; argv < stop; ++argv) {
         if (0 == strcmp(*argv, "--repeat")) {
