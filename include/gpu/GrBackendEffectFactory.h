@@ -67,7 +67,7 @@ protected:
     static EffectKey GenID() {
         GR_DEBUGCODE(static const int32_t kClassIDBits = 8 * sizeof(EffectKey) -
                                             kTextureKeyBits -
-		                            kEffectKeyBits);
+                                    kEffectKeyBits);
         // fCurrEffectClassID has been initialized to kIllegalEffectClassID. The
         // atomic inc returns the old value not the incremented value. So we add
         // 1 to the returned value.
