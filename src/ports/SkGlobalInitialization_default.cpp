@@ -39,6 +39,7 @@
 #include "SkLayerDrawLooper.h"
 #include "SkLayerRasterizer.h"
 #include "SkLightingImageFilter.h"
+#include "SkOffsetImageFilter.h"
 #include "SkMagnifierImageFilter.h"
 #include "SkMatrixConvolutionImageFilter.h"
 #include "SkMorphologyImageFilter.h"

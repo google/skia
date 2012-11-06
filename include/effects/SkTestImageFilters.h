@@ -4,28 +4,6 @@
 #include "SkImageFilter.h"
 #include "SkPoint.h"
 
-class SK_API SkOffsetImageFilter : public SkImageFilter {
-public:
-    SkOffsetImageFilter(SkScalar dx, SkScalar dy) : INHERITED(0) {
-        fOffset.set(dx, dy);
-    }
-
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkOffsetImageFilter)
-
-protected:
-    SkOffsetImageFilter(SkFlattenableReadBuffer& buffer);
-    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
-
-    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
-                               SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
-    virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) SK_OVERRIDE;
-
-private:
-    SkVector fOffset;
-
-    typedef SkImageFilter INHERITED;
-};
-
 class SK_API SkComposeImageFilter : public SkImageFilter {
 public:
     SkComposeImageFilter(SkImageFilter* outer, SkImageFilter* inner) : INHERITED(outer, inner) {}
