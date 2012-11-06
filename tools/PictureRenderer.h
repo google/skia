@@ -11,6 +11,7 @@
 #include "SkCountdown.h"
 #include "SkDrawFilter.h"
 #include "SkMath.h"
+#include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
