@@ -78,9 +78,12 @@ static void usage(const char* argv0) {
 "                          than 1. Only works with tiled rendering.\n"
 "     --pipe: Benchmark SkGPipe rendering. Currently incompatible with \"mode\".\n");
     SkDebugf(
-"     --bbh bbhType: Set the bounding box hierarchy type to be used. Accepted\n"
-"                    values are: none, rtree. Default value is none.\n"
-"                    Not compatible with --pipe.\n");
+"     --bbh bbhType [width height]: Set the bounding box hierarchy type to\n"
+"                     be used. Accepted values are: none, rtree, grid. Default\n"
+"                     value is none. Not compatible with --pipe. With value\n"
+"                     'grid', width and height must be specified. 'grid' can\n"
+"                     only be used with modes tile, record, and\n"
+"                     playbackCreation.");
     SkDebugf(
 "     --device bitmap"
 #if SK_SUPPORT_GPU
@@ -165,8 +168,11 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     bool useTiles = false;
     const char* widthString = NULL;
     const char* heightString = NULL;
+    int gridWidth = 0;
+    int gridHeight = 0;
     bool isPowerOf2Mode = false;
     const char* mode = NULL;
+    bool gridSupported = false;
     sk_tools::PictureRenderer::BBoxHierarchyType bbhType =
         sk_tools::PictureRenderer::kNone_BBoxHierarchyType;
     for (++argv; argv < stop; ++argv) {
@@ -222,6 +228,20 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 bbhType = sk_tools::PictureRenderer::kNone_BBoxHierarchyType;
             } else if (0 == strcmp(*argv, "rtree")) {
                 bbhType = sk_tools::PictureRenderer::kRTree_BBoxHierarchyType;
+            } else if (0 == strcmp(*argv, "grid")) {
+                bbhType = sk_tools::PictureRenderer::kTileGrid_BBoxHierarchyType;
+                ++argv;
+                if (argv >= stop) {
+                    gLogger.logError("Missing width for --bbh grid\n");
+                    PRINT_USAGE_AND_EXIT;
+                }
+                gridWidth = atoi(*argv);
+                ++argv;
+                if (argv >= stop) {
+                    gLogger.logError("Missing height for --bbh grid\n");
+                    PRINT_USAGE_AND_EXIT;
+                }
+                gridHeight = atoi(*argv);
             } else {
                 SkString err;
                 err.printf("%s is not a valid value for --bbhType\n", *argv);
@@ -243,6 +263,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
 
             if (0 == strcmp(*argv, "record")) {
                 renderer.reset(SkNEW(sk_tools::RecordPictureRenderer));
+                gridSupported = true;
             } else if (0 == strcmp(*argv, "simple")) {
                 renderer.reset(SkNEW(sk_tools::SimplePictureRenderer));
             } else if ((0 == strcmp(*argv, "tile")) || (0 == strcmp(*argv, "pow2tile"))) {
@@ -251,6 +272,8 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
 
                 if (0 == strcmp(*argv, "pow2tile")) {
                     isPowerOf2Mode = true;
+                } else {
+                    gridSupported = true;
                 }
 
                 ++argv;
@@ -270,6 +293,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 heightString = *argv;
             } else if (0 == strcmp(*argv, "playbackCreation")) {
                 renderer.reset(SkNEW(sk_tools::PlaybackCreationRenderer));
+                gridSupported = true;
             } else {
                 SkString err;
                 err.printf("%s is not a valid mode for --mode\n", *argv);
@@ -361,6 +385,12 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
         PRINT_USAGE_AND_EXIT;
     }
 
+    if (sk_tools::PictureRenderer::kTileGrid_BBoxHierarchyType == bbhType &&
+        !gridSupported) {
+        gLogger.logError("'--bbh grid' is not compatible with specified --mode.\n");
+        PRINT_USAGE_AND_EXIT;
+    }
+
     if (useTiles) {
         SkASSERT(NULL == renderer);
         sk_tools::TiledPictureRenderer* tiledRenderer;
@@ -441,6 +471,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     }
 
     renderer->setBBoxHierarchyType(bbhType);
+    renderer->setGridSize(gridWidth, gridHeight);
     benchmark->setRenderer(renderer);
     benchmark->setRepeats(repeats);
     benchmark->setDeviceType(deviceType);

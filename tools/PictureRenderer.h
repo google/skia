@@ -43,6 +43,7 @@ public:
     enum BBoxHierarchyType {
         kNone_BBoxHierarchyType = 0,
         kRTree_BBoxHierarchyType,
+        kTileGrid_BBoxHierarchyType,
     };
 
     /**
@@ -83,6 +84,11 @@ public:
         fBBoxHierarchyType = bbhType;
     }
 
+    void setGridSize(int width, int height) {
+        fGridWidth = width;
+        fGridHeight = height;
+    }
+
     bool isUsingBitmapDevice() {
         return kBitmap_DeviceType == fDeviceType;
     }
@@ -98,6 +104,8 @@ public:
         SkString config = this->getConfigNameInternal();
         if (kRTree_BBoxHierarchyType == fBBoxHierarchyType) {
             config.append("_rtree");
+        } else if (kTileGrid_BBoxHierarchyType == fBBoxHierarchyType) {
+            config.append("_grid");
         }
 #if SK_SUPPORT_GPU
         if (this->isUsingGpuDevice()) {
@@ -129,6 +137,8 @@ public:
         : fPicture(NULL)
         , fDeviceType(kBitmap_DeviceType)
         , fBBoxHierarchyType(kNone_BBoxHierarchyType)
+        , fGridWidth(0)
+        , fGridHeight(0)
 #if SK_SUPPORT_GPU
         , fGrContext(fGrContextFactory.get(GrContextFactory::kNative_GLContextType))
 #endif
@@ -145,7 +155,7 @@ protected:
     SkPicture* fPicture;
     SkDeviceTypes fDeviceType;
     BBoxHierarchyType fBBoxHierarchyType;
-
+    int fGridWidth, fGridHeight; // used when fBBoxHierarchyType is TileGrid
 
 #if SK_SUPPORT_GPU
     GrContextFactory fGrContextFactory;
