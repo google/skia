@@ -1,4 +1,4 @@
-/*
+*
  * Copyright 2012 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
@@ -9,6 +9,7 @@
 #define PictureRenderer_DEFINED
 
 #include "SkCountdown.h"
+#include "SkDrawFilter.h"
 #include "SkMath.h"
 #include "SkPicture.h"
 #include "SkRect.h"
@@ -46,6 +47,20 @@ public:
         kTileGrid_BBoxHierarchyType,
     };
 
+    // this uses SkPaint::Flags as a base and adds additional flags
+    enum DrawFilterFlags {
+        kNone_DrawFilterFlag = 0,
+        kBlur_DrawFilterFlag = 0x4000,
+        kHinting_DrawFilterFlag = 0x8000, // toggles between no hinting and normal hinting
+        kSlightHinting_DrawFilterFlag = 0x10000, // toggles between slight and normal hinting
+    };
+
+    SK_COMPILE_ASSERT(!(kBlur_DrawFilterFlag & SkPaint::kAllFlags), blur_flag_must_be_greater);
+    SK_COMPILE_ASSERT(!(kHinting_DrawFilterFlag & SkPaint::kAllFlags),
+            hinting_flag_must_be_greater);
+    SK_COMPILE_ASSERT(!(kSlightHinting_DrawFilterFlag & SkPaint::kAllFlags),
+            slight_hinting_flag_must_be_greater);
+
     /**
      * Called with each new SkPicture to render.
      */
@@ -80,6 +95,11 @@ public:
         fDeviceType = deviceType;
     }
 
+    void setDrawFilters(DrawFilterFlags* filters, const SkString& configName) {
+        fDrawFilters = filters;
+        fDrawFiltersConfig = configName;
+    }
+
     void setBBoxHierarchyType(BBoxHierarchyType bbhType) {
         fBBoxHierarchyType = bbhType;
     }
@@ -112,6 +132,7 @@ public:
             config.append("_gpu");
         }
 #endif
+        config.append(fDrawFiltersConfig.c_str());
         return config;
     }
 
@@ -137,6 +158,7 @@ public:
         : fPicture(NULL)
         , fDeviceType(kBitmap_DeviceType)
         , fBBoxHierarchyType(kNone_BBoxHierarchyType)
+        , fDrawFilters(NULL)
         , fGridWidth(0)
         , fGridHeight(0)
 #if SK_SUPPORT_GPU
@@ -155,6 +177,8 @@ protected:
     SkPicture* fPicture;
     SkDeviceTypes fDeviceType;
     BBoxHierarchyType fBBoxHierarchyType;
+    DrawFilterFlags* fDrawFilters;
+    SkString fDrawFiltersConfig;
     int fGridWidth, fGridHeight; // used when fBBoxHierarchyType is TileGrid
 
 #if SK_SUPPORT_GPU

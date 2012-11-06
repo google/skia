@@ -16,6 +16,7 @@
 #endif
 #include "SkGraphics.h"
 #include "SkImageEncoder.h"
+#include "SkMaskFilter.h"
 #include "SkMatrix.h"
 #include "SkPicture.h"
 #include "SkRTree.h"
@@ -51,25 +52,58 @@ void PictureRenderer::init(SkPicture* pict) {
     fCanvas.reset(this->setupCanvas());
 }
 
+class FlagsDrawFilter : public SkDrawFilter {
+public:
+    FlagsDrawFilter(PictureRenderer::DrawFilterFlags* flags) :
+        fFlags(flags) {}
+
+    virtual void filter(SkPaint* paint, Type t) {
+        paint->setFlags(paint->getFlags() & ~fFlags[t] & SkPaint::kAllFlags);
+        if (PictureRenderer::kBlur_DrawFilterFlag & fFlags[t]) {
+            SkMaskFilter* maskFilter = paint->getMaskFilter();
+            SkMaskFilter::BlurInfo blurInfo;
+            if (maskFilter && maskFilter->asABlur(&blurInfo)) {
+                paint->setMaskFilter(NULL);
+            }
+        }
+        if (PictureRenderer::kHinting_DrawFilterFlag & fFlags[t]) {
+            paint->setHinting(SkPaint::kNo_Hinting);
+        } else if (PictureRenderer::kSlightHinting_DrawFilterFlag & fFlags[t]) {
+            paint->setHinting(SkPaint::kSlight_Hinting);
+        }
+    }
+
+private:
+    PictureRenderer::DrawFilterFlags* fFlags;
+};
+
+static SkCanvas* setUpFilter(SkCanvas* canvas, PictureRenderer::DrawFilterFlags* drawFilters) {
+    if (drawFilters && !canvas->getDrawFilter()) {
+        canvas->setDrawFilter(SkNEW_ARGS(FlagsDrawFilter, (drawFilters)))->unref();
+    }
+    return canvas;
+}
+
 SkCanvas* PictureRenderer::setupCanvas() {
     return this->setupCanvas(fPicture->width(), fPicture->height());
 }
 
 SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
+    SkCanvas* canvas;
     switch(fDeviceType) {
         case kBitmap_DeviceType: {
             SkBitmap bitmap;
             sk_tools::setup_bitmap(&bitmap, width, height);
-            return SkNEW_ARGS(SkCanvas, (bitmap));
-            break;
+            canvas = SkNEW_ARGS(SkCanvas, (bitmap));
+            return setUpFilter(canvas, fDrawFilters);
         }
 #if SK_SUPPORT_GPU
         case kGPU_DeviceType: {
             SkAutoTUnref<SkGpuDevice> device(SkNEW_ARGS(SkGpuDevice,
                                                     (fGrContext, SkBitmap::kARGB_8888_Config,
                                                     width, height)));
-            return SkNEW_ARGS(SkCanvas, (device.get()));
-            break;
+            canvas = SkNEW_ARGS(SkCanvas, (device.get()));
+            return setUpFilter(canvas, fDrawFilters);
         }
 #endif
         default:
