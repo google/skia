@@ -56,7 +56,9 @@ private:
     int fTileWidth, fTileHeight, fXTileCount, fYTileCount, fTileCount;
     SkTDArray<void *> *fTileData;
     int fInsertionCount;
+    SkIRect fGridBounds;
 
+    friend class TileGridTest;
     typedef SkBBoxHierarchy INHERITED;
 };
 

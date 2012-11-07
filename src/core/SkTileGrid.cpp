@@ -16,6 +16,7 @@ SkTileGrid::SkTileGrid(int tileWidth, int tileHeight, int xTileCount, int yTileC
     fYTileCount = yTileCount;
     fTileCount = fXTileCount * fYTileCount;
     fInsertionCount = 0;
+    fGridBounds = SkIRect::MakeXYWH(0, 0, fTileWidth * fXTileCount, fTileHeight * fYTileCount);
 
     fTileData = SkNEW_ARRAY(SkTDArray<void *>, fTileCount);
 }
@@ -32,6 +33,10 @@ void SkTileGrid::insert(void* data, const SkIRect& bounds, bool) {
     SkASSERT(!bounds.isEmpty());
     SkIRect dilatedBounds = bounds;
     dilatedBounds.outset(1,1); // Consideration for filtering and AA
+
+    if (!SkIRect::Intersects(dilatedBounds, fGridBounds)) {
+        return;
+    }
 
     int minTileX = SkMax32(SkMin32(dilatedBounds.left() / fTileWidth, fXTileCount - 1), 0);
     int maxTileX = SkMax32(SkMin32(dilatedBounds.right() / fTileWidth, fXTileCount - 1), 0);
