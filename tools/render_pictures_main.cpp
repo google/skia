@@ -42,7 +42,7 @@ static void usage(const char* argv0) {
     SkDebugf(
 "     outputDir: directory to write the rendered images.\n\n");
     SkDebugf(
-"     --mode pow2tile minWidth height[%] | simple\n"
+"     --mode pow2tile minWidth height[%] | simple | rerecord\n"
 "          | tile width[%] height[%]: Run in the corresponding mode.\n"
 "                                     Default is simple.\n");
     SkDebugf(
@@ -55,7 +55,9 @@ static void usage(const char* argv0) {
 "                                                  power of two. A simple render\n"
 "                                                  is done with these tiles.\n");
     SkDebugf(
-"                     simple, Render using the default rendering method.\n");
+"                     simple, Render using the default rendering method.\n"
+"                     rerecord, Record the picture as a new skp, with the bitmaps PNG encoded.\n"
+             );
     SkDebugf(
 "                     tile width[%] height[%], Do a simple render using tiles\n"
 "                                              with the given dimensions.\n");
@@ -213,6 +215,8 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                     exit(-1);
                 }
                 heightString = *argv;
+            } else if (0 == strcmp(*argv, "rerecord")) {
+                renderer = SkNEW(sk_tools::RecordPictureRenderer);
             } else {
                 SkDebugf("%s is not a valid mode for --mode\n", *argv);
                 usage(argv0);
