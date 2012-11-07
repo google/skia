@@ -363,6 +363,14 @@ public:
                           SkRegion::Op op = SkRegion::kIntersect_Op,
                           bool doAntiAlias = false);
 
+    /** EXPERIMENTAL -- only used for testing
+        Set to false to force clips to be hard, even if doAntiAlias=true is
+        passed to clipRect or clipPath.
+     */
+    void setAllowSoftClip(bool allow) {
+        fAllowSoftClip = allow;
+    }
+
     /** Modify the current clip with the specified region. Note that unlike
         clipRect() and clipPath() which transform their arguments by the current
         matrix, clipRegion() assumes its argument is already in device
@@ -1027,6 +1035,7 @@ private:
      */
     mutable SkRectCompareType fLocalBoundsCompareType;
     mutable bool              fLocalBoundsCompareTypeDirty;
+    bool fAllowSoftClip;
 
     const SkRectCompareType& getLocalClipBoundsCompareType() const {
         if (fLocalBoundsCompareTypeDirty) {
