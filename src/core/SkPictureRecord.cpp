@@ -365,6 +365,12 @@ bool SkPictureRecord::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
 }
 
 bool SkPictureRecord::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
+
+    SkRect r;
+    if (path.isRect(&r)) {
+        return this->clipRect(r, op, doAA);
+    }
+
     addDraw(CLIP_PATH);
     addPath(path);
     addInt(ClipParams_pack(op, doAA));
