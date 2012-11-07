@@ -91,6 +91,7 @@
         '../tests/Test.cpp',
         '../tests/Test.h',
         '../tests/TestSize.cpp',
+        '../tests/TileGridTest.cpp',
         '../tests/TLSTest.cpp',
         '../tests/ToUnicode.cpp',
         '../tests/UnicodeTest.cpp',
