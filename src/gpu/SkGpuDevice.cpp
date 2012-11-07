@@ -1435,7 +1435,11 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
             top = bottom = SkScalarHalf(paintRect.top() + paintRect.bottom());
         }
         textureDomain.setLTRB(left, top, right, bottom);
-        effect.reset(SkNEW_ARGS(GrTextureDomainEffect, (texture, textureDomain, params)));
+        effect.reset(GrTextureDomainEffect::Create(texture,
+                                                   SkMatrix::I(),
+                                                   textureDomain,
+                                                   GrTextureDomainEffect::kClamp_WrapMode,
+                                                   params.isBilerp()));
     } else {
         effect.reset(SkNEW_ARGS(GrSingleTextureEffect, (texture, params)));
     }

@@ -134,6 +134,11 @@ public:
                      fDoAA(false) {}
             friend bool operator==(const Clip& a, const Clip& b);
             friend bool operator!=(const Clip& a, const Clip& b);
+            /**
+             * Gets the bounds of the clip element, either the rect or path bounds.
+             */
+            const SkRect& getBounds() const;
+
             const SkRect*   fRect;  // if non-null, this is a rect clip
             const SkPath*   fPath;  // if non-null, this is a path clip
             SkRegion::Op    fOp;

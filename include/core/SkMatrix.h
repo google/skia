@@ -173,6 +173,8 @@ public:
     /** Set the matrix to translate by (dx, dy).
     */
     void setTranslate(SkScalar dx, SkScalar dy);
+    void setTranslate(const SkVector& v) { this->setTranslate(v.fX, v.fY); }
+
     /** Set the matrix to scale by sx and sy, with a pivot point at (px, py).
         The pivot point is the coordinate that should remain unchanged by the
         specified transformation.

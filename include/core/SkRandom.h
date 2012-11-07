@@ -84,7 +84,7 @@ public:
         in the range [min..max).
     */
     SkScalar nextRangeScalar(SkScalar min, SkScalar max) {
-        return SkScalarMul(this->nextSScalar1(), (max - min)) + min;
+        return SkScalarMul(this->nextUScalar1(), (max - min)) + min;
     }
 
     /** Return the next pseudo random number expressed as a SkScalar
