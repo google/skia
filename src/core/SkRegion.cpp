@@ -338,6 +338,10 @@ bool SkRegion::contains(int32_t x, int32_t y) const {
     return false;
 }
 
+static SkRegion::RunType scanline_bottom(const SkRegion::RunType runs[]) {
+    return runs[0];
+}
+
 static const SkRegion::RunType* scanline_next(const SkRegion::RunType runs[]) {
     // skip [B N [L R]... S]
     return runs + 2 + runs[1] * 2 + 1;
@@ -370,13 +374,14 @@ bool SkRegion::contains(const SkIRect& r) const {
 
     SkASSERT(this->isComplex());
     const RunType* scanline = fRunHead->findScanline(r.fTop);
-
+    RunType bottom;
     do {
         if (!scanline_contains(scanline, r.fLeft, r.fRight)) {
             return false;
         }
+        bottom = scanline_bottom(scanline);
         scanline = scanline_next(scanline);
-    } while (r.fBottom >= scanline[0]);
+    } while (r.fBottom > bottom);
     return true;
 }
 

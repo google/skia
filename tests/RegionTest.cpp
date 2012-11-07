@@ -15,7 +15,7 @@ static void Union(SkRegion* rgn, const SkIRect& rect) {
 
 #define TEST_NO_INTERSECT(rgn, rect)    REPORTER_ASSERT(reporter, !rgn.intersects(rect))
 #define TEST_INTERSECT(rgn, rect)       REPORTER_ASSERT(reporter, rgn.intersects(rect))
-#define TEST_NO_CONTAINS(rgn, rect)     REPORTER_ASSERT(reporter, rgn.contains(rect))
+#define TEST_NO_CONTAINS(rgn, rect)     REPORTER_ASSERT(reporter, !rgn.contains(rect))
 
 // inspired by http://code.google.com/p/skia/issues/detail?id=958
 //
