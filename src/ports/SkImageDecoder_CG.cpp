@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkColorPriv.h"
 
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
@@ -86,6 +87,8 @@ bool SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     CGContextDrawImage(cg, CGRectMake(0, 0, width, height), image);
     CGContextRelease(cg);
 
+    // since CGImage won't tell us if it is opaque, we have to compute it.
+    bm->computeAndSetOpaquePredicate();
     bm->unlockPixels();
     return true;
 }

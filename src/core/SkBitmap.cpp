@@ -668,6 +668,81 @@ SkColor SkBitmap::getColor(int x, int y) const {
     return 0;
 }
 
+bool SkBitmap::ComputeIsOpaque(const SkBitmap& bm) {
+    SkAutoLockPixels alp(bm);
+    if (!bm.getPixels()) {
+        return false;
+    }
+
+    const int height = bm.height();
+    const int width = bm.width();
+
+    switch (bm.config()) {
+        case SkBitmap::kA1_Config: {
+            // TODO
+        } break;
+        case SkBitmap::kA8_Config: {
+            unsigned a = 0xFF;
+            for (int y = 0; y < height; ++y) {
+                const uint8_t* row = bm.getAddr8(0, y);
+                for (int x = 0; x < width; ++x) {
+                    a &= row[x];
+                }
+                if (0xFF != a) {
+                    return false;
+                }
+            }
+            return true;
+        } break;
+        case kRLE_Index8_Config:
+        case SkBitmap::kIndex8_Config: {
+            SkAutoLockColors alc(bm);
+            const SkPMColor* table = alc.colors();
+            if (!table) {
+                return false;
+            }
+            SkPMColor c = ~0;
+            for (int i = bm.getColorTable()->count() - 1; i >= 0; --i) {
+                c &= table[i];
+            }
+            return 0xFF == SkGetPackedA32(c);
+        } break;
+        case SkBitmap::kRGB_565_Config:
+            return true;
+            break;
+        case SkBitmap::kARGB_4444_Config: {
+            unsigned c = 0xFFFF;
+            for (int y = 0; y < height; ++y) {
+                const SkPMColor16* row = bm.getAddr16(0, y);
+                for (int x = 0; x < width; ++x) {
+                    c &= row[x];
+                }
+                if (0xF != SkGetPackedA4444(c)) {
+                    return false;
+                }
+            }
+            return true;
+        } break;
+        case SkBitmap::kARGB_8888_Config: {
+            SkPMColor c = ~0;
+            for (int y = 0; y < height; ++y) {
+                const SkPMColor* row = bm.getAddr32(0, y);
+                for (int x = 0; x < width; ++x) {
+                    c &= row[x];
+                }
+                if (0xFF != SkGetPackedA32(c)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        default:
+            break;
+    }
+    return false;
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
