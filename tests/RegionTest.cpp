@@ -67,6 +67,13 @@ static void test_fromchrome(skiatest::Reporter* reporter) {
     Union(&container, SkIRect::MakeXYWH(30, 20, 10, 20));
     TEST_NO_CONTAINS(container, SkIRect::MakeXYWH(0, 0, 10, 39));
     TEST_NO_CONTAINS(container, SkIRect::MakeXYWH(29, 0, 10, 39));
+
+    {
+        SkRegion rgn;
+        Union(&rgn, SkIRect::MakeXYWH(0, 0, 10, 10));
+        Union(&rgn, SkIRect::MakeLTRB(5, 10, 20, 20));
+        TEST_INTERSECT(rgn, SkIRect::MakeXYWH(15, 0, 5, 11));
+    }
 }
 
 static void test_empties(skiatest::Reporter* reporter) {
