@@ -43,6 +43,9 @@ if len(sys.argv) != 2:
 
 testname = sys.argv[1]
 
+is_svn_checkout = os.path.exists(os.path.join('..', '.svn'))
+is_git_checkout = os.path.exists(os.path.join('..', '.git'))
+
 for pair in pairs:
     if (pair[0] == 'base-shuttle-win7-intel-angle'):
         testtypes = [ 'angle' ]
@@ -63,7 +66,11 @@ for pair in pairs:
         outfilename = os.path.join(pair[0], infilename);
         cmd = [ 'cp', temp.name, outfilename ]
         subprocess.call(cmd);
-        cmd = [ 'svn', 'add', '--quiet', outfilename ]
-        subprocess.call(cmd)
-        cmd = [ 'svn', 'propset', '--quiet', 'svn:mime-type', 'image/png', outfilename ];
-        subprocess.call(cmd)
+        if is_svn_checkout:
+            cmd = [ 'svn', 'add', '--quiet', outfilename ]
+            subprocess.call(cmd)
+            cmd = [ 'svn', 'propset', '--quiet', 'svn:mime-type', 'image/png', outfilename ];
+            subprocess.call(cmd)
+        elif is_git_checkout:
+            cmd = [ 'git', 'add', outfilename ]
+            subprocess.call(cmd)
