@@ -21,6 +21,7 @@
 #include "SkPicture.h"
 #include "SkRTree.h"
 #include "SkScalar.h"
+#include "SkStream.h"
 #include "SkString.h"
 #include "SkTemplates.h"
 #include "SkTileGrid.h"
@@ -213,13 +214,25 @@ SkCanvas* RecordPictureRenderer::setupCanvas(int width, int height) {
     return NULL;
 }
 
-bool RecordPictureRenderer::render(const SkString*) {
+static bool PNGEncodeBitmapToStream(SkWStream* wStream, const SkBitmap& bm) {
+    return SkImageEncoder::EncodeStream(wStream, bm, SkImageEncoder::kPNG_Type, 100);
+}
+
+bool RecordPictureRenderer::render(const SkString* path) {
     SkAutoTUnref<SkPicture> replayer(this->createPicture());
     SkCanvas* recorder = replayer->beginRecording(fPicture->width(), fPicture->height(),
                                                   this->recordFlags());
     fPicture->draw(recorder);
     replayer->endRecording();
-    // Since this class does not actually render, return false.
+    if (path != NULL) {
+        // Record the new picture as a new SKP with PNG encoded bitmaps.
+        SkString skpPath(*path);
+        // ".skp" was removed from 'path' before being passed in here.
+        skpPath.append(".skp");
+        SkFILEWStream stream(skpPath.c_str());
+        replayer->serialize(&stream, &PNGEncodeBitmapToStream);
+        return true;
+    }
     return false;
 }
 
