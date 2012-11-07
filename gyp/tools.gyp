@@ -101,7 +101,10 @@
       'target_name': 'picture_renderer',
       'type': 'static_library',
       'sources': [
+        '../tools/PictureRenderer.h',
         '../tools/PictureRenderer.cpp',
+        '../tools/CopyTilesRenderer.h',
+        '../tools/CopyTilesRenderer.cpp',
         '../src/pipe/utils/SamplePipeControllers.h',
         '../src/pipe/utils/SamplePipeControllers.cpp',
       ],

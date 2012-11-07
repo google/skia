@@ -6,6 +6,7 @@
  */
 
 #include "BenchTimer.h"
+#include "CopyTilesRenderer.h"
 #include "PictureBenchmark.h"
 #include "SkBenchLogger.h"
 #include "SkCanvas.h"
@@ -120,8 +121,8 @@ static void usage(const char* argv0) {
 "     %s <inputDir>...\n"
 "     [--logFile filename][--timers [wcgWC]*][--logPerIter 1|0][--min]\n"
 "     [--repeat] \n"
-"     [--mode pow2tile minWidth height[] | record | simple\n"
-"             | tile width[] height[] | playbackCreation]\n"
+"     [--mode pow2tile minWidth height | record | simple\n"
+"             | tile width height | playbackCreation]\n"
 "     [--pipe]\n"
 "     [--bbh bbhType]\n"
 "     [--multi numThreads]\n"
@@ -143,12 +144,12 @@ static void usage(const char* argv0) {
     SkDebugf("     --timers [wcgWC]* : "
              "Display wall, cpu, gpu, truncated wall or truncated cpu time for each picture.\n");
     SkDebugf(
-"     --mode pow2tile minWidth height[] | record | simple\n"
-"            | tile width[] height[] | playbackCreation:\n"
+"     --mode pow2tile minWidth height | copyTile width height | record | simple\n"
+"            | tile width height | playbackCreation:\n"
 "            Run in the corresponding mode.\n"
 "            Default is simple.\n");
     SkDebugf(
-"                     pow2tile minWidth height[], Creates tiles with widths\n"
+"                     pow2tile minWidth height, Creates tiles with widths\n"
 "                                                 that are all a power of two\n"
 "                                                 such that they minimize the\n"
 "                                                 amount of wasted tile space.\n"
@@ -162,8 +163,16 @@ static void usage(const char* argv0) {
     SkDebugf(
 "                     simple, Benchmark a simple rendering.\n");
     SkDebugf(
-"                     tile width[] height[], Benchmark simple rendering using\n"
-"                                            tiles with the given dimensions.\n");
+"                     tile width height, Benchmark simple rendering using\n"
+"                                            tiles with the given dimensions.\n"
+"                     copyTile width height, Draw the picture, then copy it into tiles.\n"
+"                                                Does not support percentages.\n"
+"                                                If the picture is large enough, breaks it into\n"
+"                                                larger tiles (and draws the picture once per\n"
+"                                                larger tile) to avoid creating a large canvas.\n"
+"                                                Add --tiles x y to specify the number of tiles\n"
+"                                                per larger tile in the x and y direction.\n"
+             );
     SkDebugf(
 "                     playbackCreation, Benchmark creation of the SkPicturePlayback.\n");
     SkDebugf("\n");
@@ -271,6 +280,9 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     int gridWidth = 0;
     int gridHeight = 0;
     bool isPowerOf2Mode = false;
+    bool isCopyMode = false;
+    const char* xTilesString = NULL;
+    const char* yTilesString = NULL;
     const char* mode = NULL;
     bool gridSupported = false;
     sk_tools::PictureRenderer::BBoxHierarchyType bbhType =
@@ -368,12 +380,15 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 gridSupported = true;
             } else if (0 == strcmp(*argv, "simple")) {
                 renderer.reset(SkNEW(sk_tools::SimplePictureRenderer));
-            } else if ((0 == strcmp(*argv, "tile")) || (0 == strcmp(*argv, "pow2tile"))) {
+            } else if ((0 == strcmp(*argv, "tile")) || (0 == strcmp(*argv, "pow2tile"))
+                       || 0 == strcmp(*argv, "copyTile")) {
                 useTiles = true;
                 mode = *argv;
 
                 if (0 == strcmp(*argv, "pow2tile")) {
                     isPowerOf2Mode = true;
+                } else if (0 == strcmp(*argv, "copyTile")) {
+                    isCopyMode = true;
                 } else {
                     gridSupported = true;
                 }
@@ -389,7 +404,9 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 widthString = *argv;
                 ++argv;
                 if (argv >= stop) {
-                    gLogger.logError("Missing height for --mode tile\n");
+                    SkString err;
+                    err.appendf("Missing height for --mode %s\n", mode);
+                    gLogger.logError(err);
                     PRINT_USAGE_AND_EXIT;
                 }
                 heightString = *argv;
@@ -402,6 +419,19 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 gLogger.logError(err);
                 PRINT_USAGE_AND_EXIT;
             }
+        } else if (0 == strcmp(*argv, "--tiles")) {
+            ++argv;
+            if (argv >= stop) {
+                gLogger.logError("Missing x for --tiles\n");
+                PRINT_USAGE_AND_EXIT;
+            }
+            xTilesString = *argv;
+            ++argv;
+            if (argv >= stop) {
+                gLogger.logError("Missing y for --tiles\n");
+                PRINT_USAGE_AND_EXIT;
+            }
+            yTilesString = *argv;
         }  else if (0 == strcmp(*argv, "--device")) {
             ++argv;
             if (argv >= stop) {
@@ -548,7 +578,21 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     if (useTiles) {
         SkASSERT(NULL == renderer);
         sk_tools::TiledPictureRenderer* tiledRenderer;
-        if (numThreads > 1) {
+        if (isCopyMode) {
+            int x, y;
+            if (xTilesString != NULL) {
+                SkASSERT(yTilesString != NULL);
+                x = atoi(xTilesString);
+                y = atoi(yTilesString);
+                if (x <= 0 || y <= 0) {
+                    gLogger.logError("--tiles must be given values > 0\n");
+                    PRINT_USAGE_AND_EXIT;
+                }
+            } else {
+                x = y = 4;
+            }
+            tiledRenderer = SkNEW_ARGS(sk_tools::CopyTilesRenderer, (x, y));
+        } else if (numThreads > 1) {
             tiledRenderer = SkNEW_ARGS(sk_tools::MultiCorePictureRenderer, (numThreads));
         } else {
             tiledRenderer = SkNEW(sk_tools::TiledPictureRenderer);
@@ -565,33 +609,55 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
             }
             tiledRenderer->setTileMinPowerOf2Width(minWidth);
         } else if (sk_tools::is_percentage(widthString)) {
+            if (isCopyMode) {
+                tiledRenderer->unref();
+                SkString err;
+                err.printf("--mode %s does not support percentages.\n", mode);
+                gLogger.logError(err.c_str());
+                PRINT_USAGE_AND_EXIT;
+            }
             tiledRenderer->setTileWidthPercentage(atof(widthString));
             if (!(tiledRenderer->getTileWidthPercentage() > 0)) {
                 tiledRenderer->unref();
-                gLogger.logError("--mode tile must be given a width percentage > 0\n");
+                SkString err;
+                err.appendf("--mode %s must be given a width percentage > 0\n", mode);
+                gLogger.logError(err);
                 PRINT_USAGE_AND_EXIT;
             }
         } else {
             tiledRenderer->setTileWidth(atoi(widthString));
             if (!(tiledRenderer->getTileWidth() > 0)) {
                 tiledRenderer->unref();
-                gLogger.logError("--mode tile must be given a width > 0\n");
+                SkString err;
+                err.appendf("--mode %s must be given a width > 0\n", mode);
+                gLogger.logError(err);
                 PRINT_USAGE_AND_EXIT;
             }
         }
 
         if (sk_tools::is_percentage(heightString)) {
+            if (isCopyMode) {
+                tiledRenderer->unref();
+                SkString err;
+                err.printf("--mode %s does not support percentages.\n", mode);
+                gLogger.logError(err.c_str());
+                PRINT_USAGE_AND_EXIT;
+            }
             tiledRenderer->setTileHeightPercentage(atof(heightString));
             if (!(tiledRenderer->getTileHeightPercentage() > 0)) {
                 tiledRenderer->unref();
-                gLogger.logError("--mode tile must be given a height percentage > 0\n");
+                SkString err;
+                err.appendf("--mode %s must be given a height percentage > 0\n", mode);
+                gLogger.logError(err);
                 PRINT_USAGE_AND_EXIT;
             }
         } else {
             tiledRenderer->setTileHeight(atoi(heightString));
             if (!(tiledRenderer->getTileHeight() > 0)) {
                 tiledRenderer->unref();
-                gLogger.logError("--mode tile must be given a height > 0\n");
+                SkString err;
+                err.appendf("--mode %s must be given a height > 0\n", mode);
+                gLogger.logError(err);
                 PRINT_USAGE_AND_EXIT;
             }
         }
