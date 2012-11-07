@@ -7,6 +7,7 @@
  */
 
 #include "GrClipMaskManager.h"
+#include "effects/GrTextureDomainEffect.h"
 #include "GrGpu.h"
 #include "GrRenderTarget.h"
 #include "GrStencilBuffer.h"
@@ -42,7 +43,13 @@ void setup_drawstate_aaclip(GrGpu* gpu,
     mat.preConcat(drawState->getViewMatrix());
 
     drawState->stage(kMaskStage)->reset();
-    drawState->createTextureEffect(kMaskStage, result, mat);
+
+    SkIRect domainTexels = SkIRect::MakeWH(devBound.width(), devBound.height());
+    drawState->stage(kMaskStage)->setEffect(
+        GrTextureDomainEffect::Create(result,
+                                      mat,
+                                      GrTextureDomainEffect::MakeTexelDomain(result, domainTexels),
+                                      GrTextureDomainEffect::kDecal_WrapMode))->unref();
 }
 
 bool path_needs_SW_renderer(GrContext* context,
@@ -152,8 +159,7 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn) {
     GrIRect devClipBounds;
     bool isIntersectionOfRects = false;
 
-    clipDataIn->getConservativeBounds(rt, &devClipBounds,
-                                      &isIntersectionOfRects);
+    clipDataIn->getConservativeBounds(rt, &devClipBounds, &isIntersectionOfRects);
     if (devClipBounds.isEmpty()) {
         return false;
     }
@@ -483,25 +489,31 @@ bool GrClipMaskManager::drawClipShape(GrTexture* target,
     return true;
 }
 
-void GrClipMaskManager::drawTexture(GrTexture* target,
-                                    GrTexture* texture) {
+void GrClipMaskManager::mergeMask(GrTexture* dstMask,
+                                  GrTexture* srcMask,
+                                  SkRegion::Op op,
+                                  const GrIRect& dstBound,
+                                  const GrIRect& srcBound) {
     GrDrawState* drawState = fGpu->drawState();
     GrAssert(NULL != drawState);
+    SkMatrix oldMatrix = drawState->getViewMatrix();
+    drawState->viewMatrix()->reset();
 
-    // no AA here since it is encoded in the texture
-    drawState->setRenderTarget(target->asRenderTarget());
+    drawState->setRenderTarget(dstMask->asRenderTarget());
 
+    setup_boolean_blendcoeffs(drawState, op);
+    
     SkMatrix sampleM;
-    sampleM.setIDiv(texture->width(), texture->height());
-
-    drawState->createTextureEffect(0, texture, sampleM);
-
-    GrRect rect = GrRect::MakeWH(SkIntToScalar(target->width()),
-                                 SkIntToScalar(target->height()));
-
-    fGpu->drawSimpleRect(rect, NULL);
+    sampleM.setIDiv(srcMask->width(), srcMask->height());
+    drawState->stage(0)->setEffect(
+        GrTextureDomainEffect::Create(srcMask,
+                                      sampleM,
+                                      GrTextureDomainEffect::MakeTexelDomain(srcMask, srcBound),
+                                      GrTextureDomainEffect::kDecal_WrapMode))->unref();
+    fGpu->drawSimpleRect(SkRect::MakeFromIRect(dstBound), NULL);
 
     drawState->disableStage(0);
+    drawState->setViewMatrix(oldMatrix);
 }
 
 // get a texture to act as a temporary buffer for AA clip boolean operations
@@ -599,14 +611,18 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClipData& clipDataIn,
 
     GrDrawTarget::AutoGeometryPush agp(fGpu);
 
-    if (0 != devResultBounds->fTop || 0 != devResultBounds->fLeft ||
-        0 != clipDataIn.fOrigin.fX || 0 != clipDataIn.fOrigin.fY) {
-        // if we were able to trim down the size of the mask we need to
-        // offset the paths & rects that will be used to compute it
-        drawState->viewMatrix()->setTranslate(
-                SkIntToScalar(-devResultBounds->fLeft-clipDataIn.fOrigin.fX),
-                SkIntToScalar(-devResultBounds->fTop-clipDataIn.fOrigin.fY));
-    }
+    // The mask we generate is translated so that its upper-left corner is at devResultBounds
+    // upper-left corner in device space.
+    GrIRect maskResultBounds = GrIRect::MakeWH(devResultBounds->width(), devResultBounds->height());
+
+    // Set the matrix so that rendered clip elements are transformed from the space of the clip
+    // stack to the alpha-mask. This accounts for both translation due to the clip-origin and the
+    // placement of the mask within the device.
+    SkVector clipToMaskOffset = {
+        SkIntToScalar(-devResultBounds->fLeft - clipDataIn.fOrigin.fX),
+        SkIntToScalar(-devResultBounds->fTop - clipDataIn.fOrigin.fY)
+    };
+    drawState->viewMatrix()->setTranslate(clipToMaskOffset);
 
     bool clearToInside;
     SkRegion::Op firstOp = SkRegion::kReplace_Op; // suppress warning
@@ -618,10 +634,12 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClipData& clipDataIn,
                                                               &clearToInside,
                                                               &firstOp,
                                                               clipDataIn);
-
-    fGpu->clear(NULL,
+    // The scratch texture that we are drawing into can be substantially larger than the mask. Only
+    // clear the part that we care about.
+    fGpu->clear(&maskResultBounds,
                 clearToInside ? 0xffffffff : 0x00000000,
                 accum->asRenderTarget());
+    bool accumClearedToZero = !clearToInside;
 
     GrAutoScratchTexture temp;
     bool first = true;
@@ -636,8 +654,10 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClipData& clipDataIn,
 
         if (SkRegion::kReplace_Op == op) {
             // clear the accumulator and draw the new object directly into it
-            fGpu->clear(NULL, 0x00000000, accum->asRenderTarget());
-
+            if (!accumClearedToZero) {
+                fGpu->clear(&maskResultBounds, 0x00000000, accum->asRenderTarget());
+            }
+            
             setup_boolean_blendcoeffs(drawState, op);
             this->drawClipShape(accum, clip, *devResultBounds);
 
@@ -655,40 +675,31 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClipData& clipDataIn,
                 return false;
             }
 
+            // this is the bounds of the clip element in the space of the alpha-mask. The temporary
+            // mask buffer can be substantially larger than the actually clip stack element. We
+            // touch the minimum number of pixels necessary and use decal mode to combine it with
+            // the accumulator
+            GrRect elementMaskBounds = clip->getBounds();
+            elementMaskBounds.offset(clipToMaskOffset);
+            GrIRect elementMaskIBounds;
+            elementMaskBounds.roundOut(&elementMaskIBounds);
+
             // clear the temp target & draw into it
-            fGpu->clear(NULL, 0x00000000, temp.texture()->asRenderTarget());
+            fGpu->clear(&elementMaskIBounds, 0x00000000, temp.texture()->asRenderTarget());
 
             setup_boolean_blendcoeffs(drawState, SkRegion::kReplace_Op);
-            this->drawClipShape(temp.texture(), clip, *devResultBounds);
-
-            // TODO: rather than adding these two translations here
-            // compute the bounding box needed to render the texture
-            // into temp
-            if (0 != devResultBounds->fTop || 0 != devResultBounds->fLeft ||
-                0 != clipDataIn.fOrigin.fX || 0 != clipDataIn.fOrigin.fY) {
-                // In order for the merge of the temp clip into the accumulator
-                // to work we need to disable the translation
-                drawState->viewMatrix()->reset();
-            }
+            this->drawClipShape(temp.texture(), clip, elementMaskIBounds);
 
             // Now draw into the accumulator using the real operation
             // and the temp buffer as a texture
-            setup_boolean_blendcoeffs(drawState, op);
-            this->drawTexture(accum, temp.texture());
-
-            if (0 != devResultBounds->fTop || 0 != devResultBounds->fLeft ||
-                0 != clipDataIn.fOrigin.fX || 0 != clipDataIn.fOrigin.fY) {
-                drawState->viewMatrix()->setTranslate(
-                  SkIntToScalar(-devResultBounds->fLeft-clipDataIn.fOrigin.fX),
-                  SkIntToScalar(-devResultBounds->fTop-clipDataIn.fOrigin.fY));
-            }
-
+            this->mergeMask(accum, temp.texture(), op, maskResultBounds, elementMaskIBounds);
         } else {
             // all the remaining ops can just be directly draw into
             // the accumulation buffer
             setup_boolean_blendcoeffs(drawState, op);
             this->drawClipShape(accum, clip, *devResultBounds);
         }
+        accumClearedToZero = false;
     }
 
     *result = accum;

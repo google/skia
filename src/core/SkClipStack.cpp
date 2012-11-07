@@ -724,6 +724,17 @@ bool operator!=(const SkClipStack::Iter::Clip& a,
     return !(a == b);
 }
 
+const SkRect& SkClipStack::Iter::Clip::getBounds() const {
+    if (NULL != fRect) {
+        return *fRect;
+    } else if (NULL != fPath) {
+        return fPath->getBounds();
+    } else {
+        static const SkRect kEmpty = {0, 0, 0, 0};
+        return kEmpty;
+    }
+}
+
 SkClipStack::Iter::Iter(const SkClipStack& stack, IterStart startLoc)
     : fStack(&stack) {
     this->reset(stack, startLoc);
