@@ -88,7 +88,7 @@ bool requires_AA(const SkClipStack& clipIn) {
     const SkClipStack::Iter::Clip* clip = NULL;
     for (clip = iter.skipToTopmost(SkRegion::kReplace_Op);
          NULL != clip;
-         clip = iter.next()) {
+         clip = iter.nextCombined()) {
 
         if (clip->fDoAA) {
             return true;
@@ -117,13 +117,7 @@ bool GrClipMaskManager::useSWOnlyPath(const SkClipStack& clipIn) {
 
     for (clip = iter.skipToTopmost(SkRegion::kReplace_Op);
          NULL != clip;
-         clip = iter.next()) {
-
-        if (SkRegion::kReplace_Op == clip->fOp) {
-            // Everything before a replace op can be ignored so start
-            // afresh w.r.t. determining if any element uses the SW path
-            useSW = false;
-        }
+         clip = iter.nextCombined()) {
 
         // rects can always be drawn directly w/o using the software path
         // so only paths need to be checked
@@ -297,7 +291,7 @@ const SkClipStack::Iter::Clip* process_initial_clip_elements(
 
     for (clip = iter->skipToTopmost(SkRegion::kReplace_Op);
          NULL != clip && !done;
-         clip = iter->next()) {
+         clip = iter->nextCombined()) {
         switch (clip->fOp) {
             case SkRegion::kReplace_Op:
                 // replace ignores everything previous
@@ -644,7 +638,7 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClipData& clipDataIn,
     GrAutoScratchTexture temp;
     bool first = true;
     // walk through each clip element and perform its set op
-    for ( ; NULL != clip; clip = iter.next()) {
+    for ( ; NULL != clip; clip = iter.nextCombined()) {
 
         SkRegion::Op op = clip->fOp;
         if (first) {
@@ -785,7 +779,7 @@ bool GrClipMaskManager::createStencilClipMask(const GrClipData& clipDataIn,
 
         // walk through each clip element and perform its set op
         // with the existing clip.
-        for ( ; NULL != clip; clip = iter.next()) {
+        for ( ; NULL != clip; clip = iter.nextCombined()) {
             GrPathFill fill;
             bool fillInverted = false;
             // enabled at bottom of loop
@@ -1151,7 +1145,7 @@ bool GrClipMaskManager::createSoftwareClipMask(const GrClipData& clipDataIn,
     helper.clear(clearToInside ? 0xFF : 0x00);
 
     bool first = true;
-    for ( ; NULL != clip; clip = iter.next()) {
+    for ( ; NULL != clip; clip = iter.nextCombined()) {
 
         SkRegion::Op op = clip->fOp;
         if (first) {
