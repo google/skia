@@ -59,11 +59,17 @@ public:
 
     virtual void filter(SkPaint* paint, Type t) {
         paint->setFlags(paint->getFlags() & ~fFlags[t] & SkPaint::kAllFlags);
-        if (PictureRenderer::kBlur_DrawFilterFlag & fFlags[t]) {
+        if ((PictureRenderer::kBlur_DrawFilterFlag | PictureRenderer::kLowBlur_DrawFilterFlag)
+                & fFlags[t]) {
             SkMaskFilter* maskFilter = paint->getMaskFilter();
             SkMaskFilter::BlurInfo blurInfo;
             if (maskFilter && maskFilter->asABlur(&blurInfo)) {
-                paint->setMaskFilter(NULL);
+                if (PictureRenderer::kBlur_DrawFilterFlag & fFlags[t]) {
+                    paint->setMaskFilter(NULL);
+                } else {
+                    blurInfo.fHighQuality = false;
+                    maskFilter->setAsABlur(blurInfo);
+                }
             }
         }
         if (PictureRenderer::kHinting_DrawFilterFlag & fFlags[t]) {
@@ -80,6 +86,9 @@ private:
 static SkCanvas* setUpFilter(SkCanvas* canvas, PictureRenderer::DrawFilterFlags* drawFilters) {
     if (drawFilters && !canvas->getDrawFilter()) {
         canvas->setDrawFilter(SkNEW_ARGS(FlagsDrawFilter, (drawFilters)))->unref();
+        if (drawFilters[0] & PictureRenderer::kAAClip_DrawFilterFlag) {
+            canvas->setAllowSoftClip(false);
+        }
     }
     return canvas;
 }
