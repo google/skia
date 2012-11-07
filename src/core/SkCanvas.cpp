@@ -440,6 +440,7 @@ SkDevice* SkCanvas::init(SkDevice* device) {
     fBounder = NULL;
     fLocalBoundsCompareType.setEmpty();
     fLocalBoundsCompareTypeDirty = true;
+    fAllowSoftClip = true;
     fDeviceCMDirty = false;
     fSaveLayerCount = 0;
     fMetaData = NULL;
@@ -1061,6 +1062,7 @@ bool SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
 
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
+    doAA &= fAllowSoftClip;
 
     if (fMCRec->fMatrix->rectStaysRect()) {
         // for these simpler matrices, we can stay a rect ever after applying
@@ -1141,6 +1143,7 @@ bool SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
 
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
+    doAA &= fAllowSoftClip;
 
     SkPath devPath;
     path.transform(*fMCRec->fMatrix, &devPath);

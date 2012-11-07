@@ -81,6 +81,14 @@ public:
     virtual BlurType asABlur(BlurInfo*) const;
 
     /**
+     * TEMPORARY HACK -- SkMaskFilters are designed to be immutable
+     * Optional method for maskfilters that can be described as a blur. If so,
+     * set the current blur to respect the [radius / ignore-transform /
+     * quality] settings.
+     */
+    virtual void setAsABlur(const BlurInfo& );
+
+    /**
      * The fast bounds function is used to enable the paint to be culled early
      * in the drawing pipeline. This function accepts the current bounds of the
      * paint as its src param and the filter adjust those bounds using its

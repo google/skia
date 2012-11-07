@@ -22,6 +22,7 @@ public:
     virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
                             SkIPoint* margin) SK_OVERRIDE;
     virtual BlurType asABlur(BlurInfo*) const SK_OVERRIDE;
+    virtual void setAsABlur(const BlurInfo&) SK_OVERRIDE;
     virtual void computeFastBounds(const SkRect& src, SkRect* dst) SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurMaskFilterImpl)
@@ -131,6 +132,14 @@ SkMaskFilter::BlurType SkBlurMaskFilterImpl::asABlur(BlurInfo* info) const {
         info->fHighQuality = SkToBool(fBlurFlags & SkBlurMaskFilter::kHighQuality_BlurFlag);
     }
     return gBlurStyle2BlurType[fBlurStyle];
+}
+
+void SkBlurMaskFilterImpl::setAsABlur(const BlurInfo& info) {
+    fRadius = info.fRadius;
+    fBlurFlags = fBlurFlags & ~(SkBlurMaskFilter::kIgnoreTransform_BlurFlag
+            | SkBlurMaskFilter::kHighQuality_BlurFlag)
+            | (info.fIgnoreTransform ? SkBlurMaskFilter::kIgnoreTransform_BlurFlag : 0)
+            | (info.fHighQuality ? SkBlurMaskFilter::kHighQuality_BlurFlag : 0);
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkBlurMaskFilter)
