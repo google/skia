@@ -51,9 +51,11 @@ public:
     // this uses SkPaint::Flags as a base and adds additional flags
     enum DrawFilterFlags {
         kNone_DrawFilterFlag = 0,
-        kBlur_DrawFilterFlag = 0x4000,
-        kHinting_DrawFilterFlag = 0x8000, // toggles between no hinting and normal hinting
-        kSlightHinting_DrawFilterFlag = 0x10000, // toggles between slight and normal hinting
+        kBlur_DrawFilterFlag = 0x4000, // toggles between blur and no blur
+        kLowBlur_DrawFilterFlag = 0x8000, // toggles between low and high quality blur
+        kHinting_DrawFilterFlag = 0x10000, // toggles between no hinting and normal hinting
+        kSlightHinting_DrawFilterFlag = 0x20000, // toggles between slight and normal hinting
+        kAAClip_DrawFilterFlag = 0x40000, // toggles between soft and hard clip
     };
 
     SK_COMPILE_ASSERT(!(kBlur_DrawFilterFlag & SkPaint::kAllFlags), blur_flag_must_be_greater);
@@ -96,8 +98,8 @@ public:
         fDeviceType = deviceType;
     }
 
-    void setDrawFilters(DrawFilterFlags* filters, const SkString& configName) {
-        fDrawFilters = filters;
+    void setDrawFilters(DrawFilterFlags const * const filters, const SkString& configName) {
+        memcpy(fDrawFilters, filters, sizeof(fDrawFilters));
         fDrawFiltersConfig = configName;
     }
 
@@ -159,13 +161,14 @@ public:
         : fPicture(NULL)
         , fDeviceType(kBitmap_DeviceType)
         , fBBoxHierarchyType(kNone_BBoxHierarchyType)
-        , fDrawFilters(NULL)
         , fGridWidth(0)
         , fGridHeight(0)
 #if SK_SUPPORT_GPU
         , fGrContext(fGrContextFactory.get(GrContextFactory::kNative_GLContextType))
 #endif
-        {}
+        {
+            sk_bzero(fDrawFilters, sizeof(fDrawFilters));
+        }
 
 protected:
     void buildBBoxHierarchy();
@@ -178,7 +181,7 @@ protected:
     SkPicture* fPicture;
     SkDeviceTypes fDeviceType;
     BBoxHierarchyType fBBoxHierarchyType;
-    DrawFilterFlags* fDrawFilters;
+    DrawFilterFlags fDrawFilters[SkDrawFilter::kTypeCount];
     SkString fDrawFiltersConfig;
     int fGridWidth, fGridHeight; // used when fBBoxHierarchyType is TileGrid
 

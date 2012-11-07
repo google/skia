@@ -49,8 +49,10 @@ static char const * const gFilterFlags[] = {
     "verticalText",
     "genA8FromLCD",
     "blur",
+    "lowBlur",
     "hinting",
     "slightHinting",
+    "AAClip",
 };
 
 static const size_t kFilterFlagsCount = sizeof(gFilterFlags) / sizeof(gFilterFlags[0]);
@@ -194,10 +196,11 @@ static void usage(const char* argv0) {
 "Set the number of times to repeat each test."
 " Default is %i.\n", DEFAULT_REPEATS);
     SkDebugf(
-"     --filter type:flag : ");
-    SkDebugf(
-"Enable canvas filtering to disable a paint flag,\n"
-"                     disable blur, or use less hinting.\n");
+"     --filter type:flag : Enable canvas filtering to disable a paint flag,\n"
+"                     use no blur or low quality blur, or use no hinting or\n"
+"                     slight hinting. For all flags except AAClip, specify the\n"
+"                     type of primitive to effect, or choose all. for AAClip\n"
+"                     alone, the filter affects all clips independent of type.\n");
 }
 
 SkBenchLogger gLogger;
