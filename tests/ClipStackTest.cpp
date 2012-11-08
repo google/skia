@@ -595,7 +595,7 @@ static void test_iter_rect_merging(skiatest::Reporter* reporter) {
         stack.clipDevRect(nestedChild, SkRegion::kIntersect_Op, true); stack.save();
 
         SkClipStack::Iter iter(stack, SkClipStack::Iter::kBottom_IterStart);
-        
+
         clip = iter.nextCombined();
         REPORTER_ASSERT(reporter, clip->fDoAA && *clip->fRect == nestedChild);
 
@@ -611,7 +611,7 @@ static void test_iter_rect_merging(skiatest::Reporter* reporter) {
         stack.clipDevRect(nestedParent, SkRegion::kIntersect_Op, true); stack.save();
 
         SkClipStack::Iter iter(stack, SkClipStack::Iter::kBottom_IterStart);
-        
+
         clip = iter.nextCombined();
         REPORTER_ASSERT(reporter, !clip->fDoAA && *clip->fRect == nestedChild);
 

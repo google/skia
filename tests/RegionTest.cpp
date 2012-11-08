@@ -28,7 +28,7 @@ static void test_fromchrome(skiatest::Reporter* reporter) {
     TEST_INTERSECT(r, SkIRect::MakeXYWH(-1, -1, 2, 2));
     TEST_INTERSECT(r, SkIRect::MakeXYWH(0, -1, 2, 2));
     TEST_INTERSECT(r, SkIRect::MakeXYWH(-1, -1, 3, 3));
-    
+
     Union(&r, SkIRect::MakeXYWH(0, 0, 3, 3));
     Union(&r, SkIRect::MakeXYWH(10, 0, 3, 3));
     Union(&r, SkIRect::MakeXYWH(0, 10, 13, 3));
@@ -36,32 +36,32 @@ static void test_fromchrome(skiatest::Reporter* reporter) {
     TEST_INTERSECT(r, SkIRect::MakeXYWH(2, -1, 2, 2));
     TEST_INTERSECT(r, SkIRect::MakeXYWH(2, 2, 2, 2));
     TEST_INTERSECT(r, SkIRect::MakeXYWH(-1, 2, 2, 2));
-    
+
     TEST_INTERSECT(r, SkIRect::MakeXYWH(9, -1, 2, 2));
     TEST_INTERSECT(r, SkIRect::MakeXYWH(12, -1, 2, 2));
     TEST_INTERSECT(r, SkIRect::MakeXYWH(12, 2, 2, 2));
     TEST_INTERSECT(r, SkIRect::MakeXYWH(9, 2, 2, 2));
-    
+
     TEST_INTERSECT(r, SkIRect::MakeXYWH(0, -1, 13, 5));
     TEST_INTERSECT(r, SkIRect::MakeXYWH(1, -1, 11, 5));
     TEST_INTERSECT(r, SkIRect::MakeXYWH(2, -1, 9, 5));
     TEST_INTERSECT(r, SkIRect::MakeXYWH(2, -1, 8, 5));
     TEST_INTERSECT(r, SkIRect::MakeXYWH(3, -1, 8, 5));
-    
+
     TEST_INTERSECT(r, SkIRect::MakeXYWH(0, 1, 13, 1));
     TEST_INTERSECT(r, SkIRect::MakeXYWH(1, 1, 11, 1));
     TEST_INTERSECT(r, SkIRect::MakeXYWH(2, 1, 9, 1));
     TEST_INTERSECT(r, SkIRect::MakeXYWH(2, 1, 8, 1));
     TEST_INTERSECT(r, SkIRect::MakeXYWH(3, 1, 8, 1));
-    
+
     TEST_INTERSECT(r, SkIRect::MakeXYWH(0, 0, 13, 13));
     TEST_INTERSECT(r, SkIRect::MakeXYWH(0, 1, 13, 11));
     TEST_INTERSECT(r, SkIRect::MakeXYWH(0, 2, 13, 9));
     TEST_INTERSECT(r, SkIRect::MakeXYWH(0, 2, 13, 8));
-    
-    
+
+
     // These test SkRegion::contains(Rect) and SkRegion::contains(Region)
-    
+
     SkRegion container;
     Union(&container, SkIRect::MakeXYWH(0, 0, 40, 20));
     Union(&container, SkIRect::MakeXYWH(30, 20, 10, 20));

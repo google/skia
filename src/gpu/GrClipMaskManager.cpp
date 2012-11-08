@@ -496,7 +496,7 @@ void GrClipMaskManager::mergeMask(GrTexture* dstMask,
     drawState->setRenderTarget(dstMask->asRenderTarget());
 
     setup_boolean_blendcoeffs(drawState, op);
-    
+
     SkMatrix sampleM;
     sampleM.setIDiv(srcMask->width(), srcMask->height());
     drawState->stage(0)->setEffect(
@@ -651,7 +651,7 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClipData& clipDataIn,
             if (!accumClearedToZero) {
                 fGpu->clear(&maskResultBounds, 0x00000000, accum->asRenderTarget());
             }
-            
+
             setup_boolean_blendcoeffs(drawState, op);
             this->drawClipShape(accum, clip, *devResultBounds);
 
