@@ -17,6 +17,7 @@
 #include "SkMovie.h"
 #include "SkStream.h"
 #include "SkTScopedComPtr.h"
+#include "SkUnPreMultiply.h"
 
 class SkImageDecoder_WIC : public SkImageDecoder {
 protected:
@@ -134,6 +135,9 @@ bool SkImageDecoder_WIC::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
             stride * height,
             reinterpret_cast<BYTE *>(bm->getPixels())
         );
+
+        // Note: we don't need to premultiply here since we specified PBGRA
+        bm->computeAndSetOpaquePredicate();
     }
 
     return SUCCEEDED(hr);
@@ -183,13 +187,30 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
     //Convert to 8888 if needed.
     const SkBitmap* bitmap;
     SkBitmap bitmapCopy;
-    if (SkBitmap::kARGB_8888_Config == bitmapOrig.config()) {
+    if (SkBitmap::kARGB_8888_Config == bitmapOrig.config() && bitmapOrig.isOpaque()) {
         bitmap = &bitmapOrig;
     } else {
         if (!bitmapOrig.copyTo(&bitmapCopy, SkBitmap::kARGB_8888_Config)) {
             return false;
         }
         bitmap = &bitmapCopy;
+    }
+
+    // We cannot use PBGRA so we need to unpremultiply ourselves
+    if (!bitmap->isOpaque()) {
+        SkAutoLockPixels alp(*bitmap);
+
+        uint8_t* pixels = reinterpret_cast<uint8_t*>(bitmap->getPixels());
+        for (int y = 0; y < bitmap->height(); ++y) {
+            for (int x = 0; x < bitmap->width(); ++x) {
+                uint8_t* bytes = pixels + y * bitmap->rowBytes() + x * bitmap->bytesPerPixel();
+
+                SkPMColor* src = reinterpret_cast<SkPMColor*>(bytes);
+                SkColor* dst = reinterpret_cast<SkColor*>(bytes);
+
+                *dst = SkUnPreMultiply::PMColorToColor(*src);
+            }
+        }
     }
 
     //Initialize COM.
