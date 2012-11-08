@@ -136,8 +136,8 @@ SkMaskFilter::BlurType SkBlurMaskFilterImpl::asABlur(BlurInfo* info) const {
 
 void SkBlurMaskFilterImpl::setAsABlur(const BlurInfo& info) {
     fRadius = info.fRadius;
-    fBlurFlags = fBlurFlags & ~(SkBlurMaskFilter::kIgnoreTransform_BlurFlag
-            | SkBlurMaskFilter::kHighQuality_BlurFlag)
+    fBlurFlags = (fBlurFlags & ~(SkBlurMaskFilter::kIgnoreTransform_BlurFlag
+                                 | SkBlurMaskFilter::kHighQuality_BlurFlag))
             | (info.fIgnoreTransform ? SkBlurMaskFilter::kIgnoreTransform_BlurFlag : 0)
             | (info.fHighQuality ? SkBlurMaskFilter::kHighQuality_BlurFlag : 0);
 }
