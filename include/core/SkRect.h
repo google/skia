@@ -547,7 +547,7 @@ struct SK_API SkRect {
         fLeft = newX;
         fTop = newY;
     }
-    
+
     /** Inset the rectangle by (dx,dy). If dx is positive, then the sides are
         moved inwards, making the rectangle narrower. If dx is negative, then
         the sides are moved outwards, making the rectangle wider. The same holds
@@ -722,8 +722,8 @@ struct SK_API SkRect {
         dst->set(SkScalarCeilToInt(fLeft), SkScalarCeilToInt(fTop),
                  SkScalarFloorToInt(fRight), SkScalarFloorToInt(fBottom));
     }
-    
-    
+
+
     /**
      *  Swap top/bottom or left/right if there are flipped (i.e. if width()
      *  or height() would have returned a negative value.) This should be called

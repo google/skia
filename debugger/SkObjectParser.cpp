@@ -189,7 +189,7 @@ SkString* SkObjectParser::PointModeToString(SkCanvas::PointMode mode) {
 SkString* SkObjectParser::RectToString(const SkRect& rect, const char* title) {
 
     SkString* mRect = new SkString;
-    
+
     if (NULL == title) {
         mRect->append("SkRect: ");
     } else {
