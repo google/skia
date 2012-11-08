@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 #include "Test.h"
+#include "SkRandom.h"
 #include "SkRect.h"
 
 #ifdef SK_SCALAR_IS_FLOAT
@@ -13,6 +14,37 @@ static float make_zero() {
     return sk_float_sin(0);
 }
 #endif
+
+static void test_center(skiatest::Reporter* reporter) {
+    static const struct {
+        SkIRect  fRect;
+        SkIPoint fCenter;
+    } data[] = {
+        { { 0, 0, 0, 0 }, { 0, 0 } },
+        { { 0, 0, 1, 1 }, { 0, 0 } },
+        { { -1, -1, 0, 0 }, { -1, -1 } },
+        { { 0, 0, 10, 7 }, { 5, 3 } },
+        { { 0, 0, 11, 6 }, { 5, 3 } },
+    };
+    for (size_t index = 0; index < SK_ARRAY_COUNT(data); ++index) {
+        REPORTER_ASSERT(reporter,
+                        data[index].fRect.centerX() == data[index].fCenter.x());
+        REPORTER_ASSERT(reporter,
+                        data[index].fRect.centerY() == data[index].fCenter.y());
+    }
+
+    SkRandom rand;
+    for (int i = 0; i < 10000; ++i) {
+        SkIRect r;
+        
+        r.set(rand.nextS() >> 2, rand.nextS() >> 2,
+              rand.nextS() >> 2, rand.nextS() >> 2);
+        int cx = r.centerX();
+        int cy = r.centerY();
+        REPORTER_ASSERT(reporter, (r.left() + r.right() >> 1) == cx);
+        REPORTER_ASSERT(reporter, (r.top() + r.bottom() >> 1) == cy);
+    }
+}
 
 static void check_invalid(skiatest::Reporter* reporter,
                           SkScalar l, SkScalar t, SkScalar r, SkScalar b) {
@@ -47,6 +79,8 @@ static void TestInfRect(skiatest::Reporter* reporter) {
         check_invalid(reporter, small, invalid[i], big, big);
         check_invalid(reporter, invalid[i], small, big, big);
     }
+    
+    test_center(reporter);
 }
 
 // need tests for SkStrSearch
