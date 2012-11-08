@@ -70,37 +70,20 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-static SkBenchmark* Fact00(void* p) { return new BlurBench(p, SMALL, SkBlurMaskFilter::kNormal_BlurStyle); }
-static SkBenchmark* Fact01(void* p) { return new BlurBench(p, SMALL, SkBlurMaskFilter::kSolid_BlurStyle); }
-static SkBenchmark* Fact02(void* p) { return new BlurBench(p, SMALL, SkBlurMaskFilter::kOuter_BlurStyle); }
-static SkBenchmark* Fact03(void* p) { return new BlurBench(p, SMALL, SkBlurMaskFilter::kInner_BlurStyle); }
+DEF_BENCH(return new BlurBench(p, SMALL, SkBlurMaskFilter::kNormal_BlurStyle);)
+DEF_BENCH(return new BlurBench(p, SMALL, SkBlurMaskFilter::kSolid_BlurStyle);)
+DEF_BENCH(return new BlurBench(p, SMALL, SkBlurMaskFilter::kOuter_BlurStyle);)
+DEF_BENCH(return new BlurBench(p, SMALL, SkBlurMaskFilter::kInner_BlurStyle);)
 
-static SkBenchmark* Fact10(void* p) { return new BlurBench(p, BIG, SkBlurMaskFilter::kNormal_BlurStyle); }
-static SkBenchmark* Fact11(void* p) { return new BlurBench(p, BIG, SkBlurMaskFilter::kSolid_BlurStyle); }
-static SkBenchmark* Fact12(void* p) { return new BlurBench(p, BIG, SkBlurMaskFilter::kOuter_BlurStyle); }
-static SkBenchmark* Fact13(void* p) { return new BlurBench(p, BIG, SkBlurMaskFilter::kInner_BlurStyle); }
+DEF_BENCH(return new BlurBench(p, BIG, SkBlurMaskFilter::kNormal_BlurStyle);)
+DEF_BENCH(return new BlurBench(p, BIG, SkBlurMaskFilter::kSolid_BlurStyle);)
+DEF_BENCH(return new BlurBench(p, BIG, SkBlurMaskFilter::kOuter_BlurStyle);)
+DEF_BENCH(return new BlurBench(p, BIG, SkBlurMaskFilter::kInner_BlurStyle);)
 
-static SkBenchmark* Fact20(void* p) { return new BlurBench(p, REAL, SkBlurMaskFilter::kNormal_BlurStyle); }
-static SkBenchmark* Fact21(void* p) { return new BlurBench(p, REAL, SkBlurMaskFilter::kSolid_BlurStyle); }
-static SkBenchmark* Fact22(void* p) { return new BlurBench(p, REAL, SkBlurMaskFilter::kOuter_BlurStyle); }
-static SkBenchmark* Fact23(void* p) { return new BlurBench(p, REAL, SkBlurMaskFilter::kInner_BlurStyle); }
+DEF_BENCH(return new BlurBench(p, REAL, SkBlurMaskFilter::kNormal_BlurStyle);)
+DEF_BENCH(return new BlurBench(p, REAL, SkBlurMaskFilter::kSolid_BlurStyle);)
+DEF_BENCH(return new BlurBench(p, REAL, SkBlurMaskFilter::kOuter_BlurStyle);)
+DEF_BENCH(return new BlurBench(p, REAL, SkBlurMaskFilter::kInner_BlurStyle);)
 
-static SkBenchmark* FactNone(void* p) { return new BlurBench(p, 0, SkBlurMaskFilter::kNormal_BlurStyle); }
-
-static BenchRegistry gReg00(Fact00);
-static BenchRegistry gReg01(Fact01);
-static BenchRegistry gReg02(Fact02);
-static BenchRegistry gReg03(Fact03);
-
-static BenchRegistry gReg10(Fact10);
-static BenchRegistry gReg11(Fact11);
-static BenchRegistry gReg12(Fact12);
-static BenchRegistry gReg13(Fact13);
-
-static BenchRegistry gReg20(Fact20);
-static BenchRegistry gReg21(Fact21);
-static BenchRegistry gReg22(Fact22);
-static BenchRegistry gReg23(Fact23);
-
-static BenchRegistry gRegNone(FactNone);
+DEF_BENCH(return new BlurBench(p, 0, SkBlurMaskFilter::kNormal_BlurStyle);)
 
