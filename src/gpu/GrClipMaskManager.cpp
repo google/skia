@@ -22,7 +22,6 @@
 GR_DEFINE_RESOURCE_CACHE_DOMAIN(GrClipMaskManager, GetAlphaMaskDomain)
 
 #define GR_AA_CLIP 1
-#define GR_SW_CLIP 1
 
 ////////////////////////////////////////////////////////////////////////////////
 namespace {
@@ -158,7 +157,7 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn) {
         return false;
     }
 
-#if GR_SW_CLIP
+#if GR_AA_CLIP
     bool requiresAA = requires_AA(*clipDataIn->fClipStack);
 
     // If MSAA is enabled we can do everything in the stencil buffer.
@@ -182,9 +181,7 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn) {
         // if SW clip mask creation fails fall through to the other
         // two possible methods (bottoming out at stencil clipping)
     }
-#endif // GR_SW_CLIP
 
-#if GR_AA_CLIP
     // If MSAA is enabled use the (faster) stencil path for AA clipping
     // otherwise the alpha clip mask is our only option
     if (0 == rt->numSamples() && requiresAA) {
@@ -346,7 +343,7 @@ const SkClipStack::Iter::Clip* process_initial_clip_elements(
                 break;
             case SkRegion::kReverseDifference_Op:
                 // if all pixels are clearToInside then reverse difference
-                // produces empty set. Otherise it is same as replace
+                // produces empty set. Otherwise it is same as replace
                 if (*clearToInside) {
                     *clearToInside = false;
                 } else {
@@ -401,48 +398,8 @@ void setup_boolean_blendcoeffs(GrDrawState* drawState, SkRegion::Op op) {
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-bool draw_path_in_software(GrContext* context,
-                           GrGpu* gpu,
-                           const SkPath& path,
-                           GrPathFill fill,
-                           bool doAA,
-                           const GrIRect& resultBounds) {
-
-    SkAutoTUnref<GrTexture> texture(
-                GrSWMaskHelper::DrawPathMaskToTexture(context, path,
-                                                      resultBounds, fill,
-                                                      doAA, NULL));
-    if (NULL == texture) {
-        return false;
-    }
-
-    // The ClipMaskManager accumulates the clip mask in the UL corner
-    GrIRect rect = GrIRect::MakeWH(resultBounds.width(), resultBounds.height());
-
-    GrSWMaskHelper::DrawToTargetWithPathMask(texture, gpu, rect);
-
-    GrAssert(!GrIsFillInverted(fill));
-    return true;
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
-bool draw_path(GrContext* context,
-               GrGpu* gpu,
-               const SkPath& path,
-               GrPathFill fill,
-               bool doAA,
-               const GrIRect& resultBounds) {
-
-    GrPathRenderer* pr = context->getPathRenderer(path, fill, gpu, doAA, false);
-    if (NULL == pr) {
-        return draw_path_in_software(context, gpu, path, fill, doAA, resultBounds);
-    }
-
-    pr->drawPath(path, fill, gpu, doAA);
-    return true;
-}
 
 // 'rect' enters in device coordinates and leaves in canvas coordinates
 void device_to_canvas(SkRect* rect, const SkIPoint& origin) {
@@ -459,11 +416,18 @@ void device_to_canvas(SkRect* rect, const SkIPoint& origin) {
 ////////////////////////////////////////////////////////////////////////////////
 bool GrClipMaskManager::drawClipShape(GrTexture* target,
                                       const SkClipStack::Iter::Clip* clip,
-                                      const GrIRect& resultBounds) {
+                                      const SkIRect& clipRect) {
     GrDrawState* drawState = fGpu->drawState();
     GrAssert(NULL != drawState);
 
     drawState->setRenderTarget(target->asRenderTarget());
+
+    GrDrawTarget::AutoClipRestore acr(fGpu);
+    SkClipStack rectStack(clipRect);
+    GrClipData cd;
+    cd.fClipStack = &rectStack;
+    cd.fOrigin.setZero();
+    fGpu->setClip(&cd);
 
     if (NULL != clip->fRect) {
         if (clip->fDoAA) {
@@ -474,11 +438,18 @@ bool GrClipMaskManager::drawClipShape(GrTexture* target,
             fGpu->drawSimpleRect(*clip->fRect, NULL);
         }
     } else if (NULL != clip->fPath) {
-        return draw_path(this->getContext(), fGpu,
-                         *clip->fPath,
-                         get_path_fill(*clip->fPath),
-                         clip->fDoAA,
-                         resultBounds);
+
+        GrPathRenderer* pr = this->getContext()->getPathRenderer(*clip->fPath,
+                                                                 get_path_fill(*clip->fPath),
+                                                                 fGpu,
+                                                                 clip->fDoAA,
+                                                                 false);
+        if (NULL == pr) {
+            GrAssert(false); // We should have done the whole clip-stack in SW.
+            return false;
+        }
+
+        pr->drawPath(*clip->fPath, get_path_fill(*clip->fPath), fGpu, clip->fDoAA);
     }
     return true;
 }
@@ -564,7 +535,7 @@ bool GrClipMaskManager::clipMaskPreamble(const GrClipData& clipDataIn,
     clipDataIn.getConservativeBounds(rt, devResultBounds);
 
     // need to outset a pixel since the standard bounding box computation
-    // path doesn't leave any room for antialiasing (esp. w.r.t. rects)
+    // path doesn't leave any room for anti-aliasing (esp. w.r.t. rects)
     devResultBounds->outset(1, 1);
 
     // TODO: make sure we don't outset if bounds are still 0,0 @ min
@@ -577,6 +548,30 @@ bool GrClipMaskManager::clipMaskPreamble(const GrClipData& clipDataIn,
 
     this->setupCache(*clipDataIn.fClipStack, *devResultBounds);
     return false;
+}
+
+namespace {
+// Does a look-ahead to check whether we can bound earlier mask generation by forthcoming
+// intersections.
+void get_current_mask_bounds(const SkIRect& maskResultBounds,
+                             const SkClipStack::Iter& curr,
+                             const SkVector& clipToMaskOffset,
+                             SkRect* currMaskBounds) {
+    SkClipStack::Iter isectIter(curr);
+    const SkClipStack::Iter::Clip* clip = isectIter.skipToNext(SkRegion::kIntersect_Op);
+    if (NULL != clip) {
+        *currMaskBounds = clip->getBounds();
+        while (NULL != (clip = isectIter.next()) &&
+               SkRegion::kIntersect_Op == clip->fOp &&
+               !clip->isInverseFilled()) {
+            currMaskBounds->intersect(clip->getBounds());
+        }
+        currMaskBounds->offset(clipToMaskOffset);
+        currMaskBounds->intersect(SkRect::MakeFromIRect(maskResultBounds));
+    } else {
+        *currMaskBounds = SkRect::MakeFromIRect(maskResultBounds);
+    }
+}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -621,8 +616,9 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClipData& clipDataIn,
     bool clearToInside;
     SkRegion::Op firstOp = SkRegion::kReplace_Op; // suppress warning
 
-    SkClipStack::Iter iter(*clipDataIn.fClipStack,
-                           SkClipStack::Iter::kBottom_IterStart);
+    SkClipStack::Iter iter(*clipDataIn.fClipStack, SkClipStack::Iter::kBottom_IterStart);
+    iter.skipToTopmost(SkRegion::kReplace_Op);
+
     const SkClipStack::Iter::Clip* clip = process_initial_clip_elements(&iter,
                                                               *devResultBounds,
                                                               &clearToInside,
@@ -633,10 +629,26 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClipData& clipDataIn,
     fGpu->clear(&maskResultBounds,
                 clearToInside ? 0xffffffff : 0x00000000,
                 accum->asRenderTarget());
-    bool accumClearedToZero = !clearToInside;
+    GR_DEBUGCODE(bool accumClearedToZero = !clearToInside;)
 
+    
     GrAutoScratchTexture temp;
     bool first = true;
+
+    // We bound mask-generation to both the known bounds of the final result as well as the bounds
+    // of the next run of intersections. This limits the amount of clearing and merging we have
+    // to do and can also allow us to skip intersect-rects entirely.
+    SkRect currMaskBounds;
+    SkIRect currMaskIBounds;
+    get_current_mask_bounds(maskResultBounds, iter, clipToMaskOffset, &currMaskBounds);
+    // currMaskBounds is used to reduce the number of pixels touched. It also allows us to skip
+    // non-AA intersect rects since we've clipped earlier elements to those rects already.
+    // We round out here which is consistent with how non-AA rects are handled.
+    currMaskBounds.roundOut(&currMaskIBounds);
+
+    // used to know when we're through with a run of intersect ops.
+    SkRegion::Op prevOp = SkRegion::kReplace_Op;
+
     // walk through each clip element and perform its set op
     for ( ; NULL != clip; clip = iter.nextCombined()) {
 
@@ -646,18 +658,33 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClipData& clipDataIn,
             op = firstOp;
         }
 
-        if (SkRegion::kReplace_Op == op) {
-            // clear the accumulator and draw the new object directly into it
-            if (!accumClearedToZero) {
-                fGpu->clear(&maskResultBounds, 0x00000000, accum->asRenderTarget());
+        if (op == SkRegion::kIntersect_Op) {
+            // When we encounter an intersect we may have already fully accounted for it by applying
+            // currMaskBounds to the accumulated mask.
+            if (NULL != clip->fRect &&
+                (!clip->fDoAA || clip->fRect->contains(currMaskBounds))) {
+                prevOp = SkRegion::kIntersect_Op;
+                continue;
             }
+        } else if (prevOp == SkRegion::kIntersect_Op) {
+            // We've finished a run of intersects, update currMaskBounds based on the next run.
+            get_current_mask_bounds(maskResultBounds, iter, clipToMaskOffset, &currMaskBounds);
+            currMaskBounds.roundOut(&currMaskIBounds);
+        }
 
+        prevOp = op;
+
+        if (SkRegion::kReplace_Op == op) {
+            // The accumulator should already be cleared. There can only be one replace since we
+            // skip to the last one. Moreover, process_initial_clip_elements will have set
+            // clearToInside to false before the initial clear.
+            GrAssert(accumClearedToZero);
             setup_boolean_blendcoeffs(drawState, op);
-            this->drawClipShape(accum, clip, *devResultBounds);
+            this->drawClipShape(accum, clip, currMaskIBounds);
 
         } else if (SkRegion::kReverseDifference_Op == op ||
                    SkRegion::kIntersect_Op == op) {
-            // there is no point in intersecting a screen filling rectangle.
+            // There is no point in intersecting a screen filling rectangle.
             if (SkRegion::kIntersect_Op == op && NULL != clip->fRect &&
                 contains(*clip->fRect, *devResultBounds, clipDataIn.fOrigin)) {
                 continue;
@@ -669,31 +696,32 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClipData& clipDataIn,
                 return false;
             }
 
-            // this is the bounds of the clip element in the space of the alpha-mask. The temporary
+            // This is the bounds of the clip element in the space of the alpha-mask. The temporary
             // mask buffer can be substantially larger than the actually clip stack element. We
             // touch the minimum number of pixels necessary and use decal mode to combine it with
-            // the accumulator
+            // the accumulator.
             GrRect elementMaskBounds = clip->getBounds();
             elementMaskBounds.offset(clipToMaskOffset);
+            elementMaskBounds.intersect(currMaskBounds);
             GrIRect elementMaskIBounds;
             elementMaskBounds.roundOut(&elementMaskIBounds);
 
-            // clear the temp target & draw into it
+            // Clear the temp target & draw into it
             fGpu->clear(&elementMaskIBounds, 0x00000000, temp.texture()->asRenderTarget());
 
             setup_boolean_blendcoeffs(drawState, SkRegion::kReplace_Op);
-            this->drawClipShape(temp.texture(), clip, elementMaskIBounds);
+            this->drawClipShape(temp.texture(), clip, currMaskIBounds);
 
-            // Now draw into the accumulator using the real operation
-            // and the temp buffer as a texture
+            // Now draw into the accumulator using the real operation and the temp buffer as a
+            // texture
             this->mergeMask(accum, temp.texture(), op, maskResultBounds, elementMaskIBounds);
         } else {
             // all the remaining ops can just be directly draw into
             // the accumulation buffer
             setup_boolean_blendcoeffs(drawState, op);
-            this->drawClipShape(accum, clip, *devResultBounds);
+            this->drawClipShape(accum, clip, currMaskIBounds);
         }
-        accumClearedToZero = false;
+        GR_DEBUGCODE(accumClearedToZero = false;)
     }
 
     *result = accum;

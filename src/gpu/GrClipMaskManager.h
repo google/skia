@@ -126,7 +126,7 @@ private:
 
     bool drawClipShape(GrTexture* target,
                        const SkClipStack::Iter::Clip* clip,
-                       const GrIRect& resultBounds);
+                       const SkIRect& clipRect);
 
     void mergeMask(GrTexture* dstMask,
                    GrTexture* srcMask,
