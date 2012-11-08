@@ -132,7 +132,16 @@ GrEffect* GrTextureDomainEffect::Create(GrTexture* texture,
     } else {
         SkRect clippedDomain;
         // We don't currently handle domains that are empty or don't intersect the texture.
-        SkAssertResult(clippedDomain.intersect(kFullRect, domain));
+        // It is OK if the domain rect is a line or point, but it should not be inverted. We do not
+        // handle rects that do not intersect the [0..1]x[0..1] rect.
+        GrAssert(domain.fLeft <= domain.fRight);
+        GrAssert(domain.fTop <= domain.fBottom);
+        clippedDomain.fLeft = SkMaxScalar(domain.fLeft, kFullRect.fLeft);
+        clippedDomain.fRight = SkMinScalar(domain.fRight, kFullRect.fRight);
+        clippedDomain.fTop = SkMaxScalar(domain.fTop, kFullRect.fTop);
+        clippedDomain.fBottom = SkMinScalar(domain.fBottom, kFullRect.fBottom);
+        GrAssert(clippedDomain.fLeft <= clippedDomain.fRight);
+        GrAssert(clippedDomain.fTop <= clippedDomain.fBottom);
         return SkNEW_ARGS(GrTextureDomainEffect,
                           (texture, matrix, clippedDomain, wrapMode, bilerp));
     }
