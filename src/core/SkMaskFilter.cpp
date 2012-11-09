@@ -67,8 +67,8 @@ static void dump(const SkMask& mask) {
 
 static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
                               const SkIRect& clipR, SkBlitter* blitter) {
-    int cx = mask.fBounds.left() + mask.fBounds.right() >> 1;
-    int cy = mask.fBounds.top() + mask.fBounds.bottom() >> 1;
+    int cx = mask.fBounds.centerX();
+    int cy = mask.fBounds.centerY();
     SkMask m;
     
     // top-left
