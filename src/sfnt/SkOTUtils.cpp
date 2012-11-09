@@ -96,7 +96,7 @@ SkData* SkOTUtils::RenameFont(SkStream* fontData,
         if (oldOffset > oldNameTableOffset) {
             currentEntry->offset = SkEndian_SwapBE32(oldOffset - oldNameTablePhysicalSize);
         }
-        if (SkOTTableHead::TAG == tableEntry.tag) {
+        if (SkOTTableHead::TAG == currentEntry->tag) {
             headTableEntry = currentEntry;
         }
     }
