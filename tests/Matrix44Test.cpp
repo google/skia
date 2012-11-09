@@ -95,7 +95,7 @@ static void test_concat(skiatest::Reporter* reporter) {
     d.preConcat(b);
     REPORTER_ASSERT(reporter, d == c);
     
-    c.map(src, dst); c.map(src + 4, dst + 4);
+    c.mapScalars(src, dst); c.mapScalars(src + 4, dst + 4);
     for (i = 0; i < 3; ++i) {
         REPORTER_ASSERT(reporter, 10 == dst[i]);
         REPORTER_ASSERT(reporter, 12 == dst[i + 4]);
@@ -107,7 +107,7 @@ static void test_concat(skiatest::Reporter* reporter) {
     d.postConcat(b);
     REPORTER_ASSERT(reporter, d == c);
 
-    c.map(src, dst); c.map(src + 4, dst + 4);
+    c.mapScalars(src, dst); c.mapScalars(src + 4, dst + 4);
     for (i = 0; i < 3; ++i) {
         REPORTER_ASSERT(reporter, 20 == dst[i]);
         REPORTER_ASSERT(reporter, 22 == dst[i + 4]);
