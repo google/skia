@@ -24,9 +24,9 @@ static bool drawPaths(SkCanvas* canvas, const SkPath& path, bool useOld)
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);
-  //  paint.setStrokeWidth(6);
-  //  paint.setColor(0x1F003f7f);
- //   canvas->drawPath(path, paint);
+//   paint.setStrokeWidth(6);
+ //  paint.setColor(0x1F003f7f);
+ //  canvas->drawPath(path, paint);
     paint.setColor(0xFF305F00);
     paint.setStrokeWidth(1);
     canvas->drawPath(out, paint);
@@ -287,7 +287,7 @@ static bool drawLetters(SkCanvas* canvas, int step, bool useOld)
         textPos[x].fY = height / 2;
     }
     paint.setTextSize(40 + step / 100.0f);
-#if 1
+#if 0
     bool oneShot = false;
     for (int mask = 0; mask < 1 << testStrLen; ++mask) {
         char maskStr[testStrLen];

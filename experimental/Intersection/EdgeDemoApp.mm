@@ -16,7 +16,7 @@ public:
     };
 protected:
     virtual void onDraw(SkCanvas* canvas) {
-        static int step = 17907; // 17907 drawLetters first error
+        static int step = 0; // 17907 drawLetters first error
                              // drawStars triggers error at 33348
                              // drawStars error not easy to debug last time I checked
         static double seconds;
