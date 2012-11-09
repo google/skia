@@ -138,7 +138,7 @@ public:
              * Gets the bounds of the clip element, either the rect or path bounds.
              */
             const SkRect& getBounds() const;
-            /** 
+            /**
              * Returns true if the clip element is a path that is inverse filled
              */
             bool isInverseFilled() const;

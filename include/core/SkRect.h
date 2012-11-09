@@ -79,7 +79,7 @@ struct SK_API SkIRect {
      *  (right + left) / 2 when the sum is negative.
      */
     int centerX() const { return (fRight + fLeft) >> 1; }
-    
+
     /**
      *  Since the center of an integer rect may fall on a factional value, this
      *  method is defined to return (bottom + top) >> 1
@@ -88,7 +88,7 @@ struct SK_API SkIRect {
      *  (bottom + top) / 2 when the sum is negative.
      */
     int centerY() const { return (fBottom + fTop) >> 1; }
-    
+
     /**
      *  Return true if the rectangle's width or height are <= 0
      */
