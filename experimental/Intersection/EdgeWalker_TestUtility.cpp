@@ -286,6 +286,24 @@ bool testSimplifyx(const SkPath& path) {
     return result == 0;
 }
 
+bool testShapeOp(const SkPath& a, const SkPath& b, const ShapeOp shapeOp) {
+    SkPath out;
+    operate(a, b, shapeOp, out);
+    SkPath pathOut;
+    SkRegion rgnA, rgnB, openClip, rgnOut;
+    openClip.setRect(-16000, -16000, 16000, 16000);
+    rgnA.setPath(a, openClip);
+    rgnB.setPath(b, openClip);
+    rgnOut.op(rgnA, rgnB, (SkRegion::Op) shapeOp);
+    rgnOut.getBoundaryPath(&pathOut);
+    SkBitmap bitmap;
+    int result = comparePaths(pathOut, out, bitmap);
+    if (result && gPathStrAssert) {
+        SkASSERT(0);
+    }
+    return result == 0;
+}
+
 const int maxThreadsAllocated = 64;
 static int maxThreads = 1;
 static int threadIndex;

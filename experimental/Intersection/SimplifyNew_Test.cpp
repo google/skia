@@ -2556,55 +2556,59 @@ static void testIntersect1() {
     one.addRect(0, 0, 6, 6, (SkPath::Direction) 0);
     two.addRect(3, 3, 9, 9, (SkPath::Direction) 0);
     operate(one, two, kIntersect_Op, result);
-    SkASSERT(result.countPoints() == 4);
+    SkASSERT(result.countPoints() == 5);
     SkASSERT(result.countVerbs() == 6); // move, 4 lines, close
     SkRect bounds = result.getBounds();
     SkASSERT(bounds.fLeft == 3);
     SkASSERT(bounds.fTop == 3);
     SkASSERT(bounds.fRight == 6);
     SkASSERT(bounds.fBottom == 6);
+    testShapeOp(one, two, kIntersect_Op);
 }
 
 static void testUnion1() {
     SkPath one, two, result;
     one.addRect(0, 0, 6, 6, (SkPath::Direction) 0);
     two.addRect(3, 3, 9, 9, (SkPath::Direction) 0);
-    operate(one, two, kIntersect_Op, result);
-    SkASSERT(result.countPoints() == 8);
+    operate(one, two, kUnion_Op, result);
+    SkASSERT(result.countPoints() == 9);
     SkASSERT(result.countVerbs() == 10); // move, 8 lines, close
     SkRect bounds = result.getBounds();
     SkASSERT(bounds.fLeft == 0);
     SkASSERT(bounds.fTop == 0);
     SkASSERT(bounds.fRight == 9);
     SkASSERT(bounds.fBottom == 9);
+    testShapeOp(one, two, kUnion_Op);
 }
 
 static void testDiff1() {
     SkPath one, two, result;
     one.addRect(0, 0, 6, 6, (SkPath::Direction) 0);
     two.addRect(3, 3, 9, 9, (SkPath::Direction) 0);
-    operate(one, two, kIntersect_Op, result);
-    SkASSERT(result.countPoints() == 6);
-    SkASSERT(result.countVerbs() == 8); // move, 8 lines, close
+    operate(one, two, kDifference_Op, result);
+    SkASSERT(result.countPoints() == 7);
+    SkASSERT(result.countVerbs() == 8); // move, 6 lines, close
     SkRect bounds = result.getBounds();
     SkASSERT(bounds.fLeft == 0);
     SkASSERT(bounds.fTop == 0);
     SkASSERT(bounds.fRight == 6);
     SkASSERT(bounds.fBottom == 6);
+    testShapeOp(one, two, kDifference_Op);
 }
 
 static void testXor1() {
     SkPath one, two, result;
     one.addRect(0, 0, 6, 6, (SkPath::Direction) 0);
     two.addRect(3, 3, 9, 9, (SkPath::Direction) 0);
-    operate(one, two, kIntersect_Op, result);
-    SkASSERT(result.countPoints() == 10);
-    SkASSERT(result.countVerbs() == 12); // move, 8 lines, close
+    operate(one, two, kXor_Op, result);
+    SkASSERT(result.countPoints() == 14);
+    SkASSERT(result.countVerbs() == 16); // move, 6 lines, close, move, 6 lines, close
     SkRect bounds = result.getBounds();
     SkASSERT(bounds.fLeft == 0);
     SkASSERT(bounds.fTop == 0);
-    SkASSERT(bounds.fRight == 12);
-    SkASSERT(bounds.fBottom == 12);
+    SkASSERT(bounds.fRight == 9);
+    SkASSERT(bounds.fBottom == 9);
+    testShapeOp(one, two, kXor_Op);
 }
 
 static void testQuadratic22() {
@@ -3213,15 +3217,15 @@ static struct {
 } subTests[] = {
     TEST(testXor1),
     TEST(testDiff1),
-    TEST(testUnion1),
     TEST(testIntersect1),
+    TEST(testUnion1),
 };
 
 static const size_t subTestCount = sizeof(subTests) / sizeof(subTests[0]);
 
 static bool skipAll = false;
-static bool runSubTests = false;
-static bool runReverse = true;
+static bool runBinaryTestsFirst = true;
+static bool runReverse = false;
 
 void SimplifyNew_Test() {
     if (skipAll) {
@@ -3232,7 +3236,7 @@ void SimplifyNew_Test() {
     gDebugMaxWindValue = 4;
     size_t index;
 #endif
-    if (runSubTests) {
+    if (runBinaryTestsFirst) {
         index = subTestCount - 1;
         do {
             SkDebugf("  %s [%s]\n", __FUNCTION__, subTests[index].str);
@@ -3259,6 +3263,13 @@ void SimplifyNew_Test() {
         }
         index += runReverse ? -1 : 1;
     } while (true);
+    if (!runBinaryTestsFirst) {
+        index = subTestCount - 1;
+        do {
+            SkDebugf("  %s [%s]\n", __FUNCTION__, subTests[index].str);
+            (*subTests[index].fun)();
+        } while (index--);
+    }
 #ifdef SK_DEBUG
     gDebugMaxWindSum = SK_MaxS32;
     gDebugMaxWindValue = SK_MaxS32;

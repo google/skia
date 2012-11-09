@@ -22,6 +22,7 @@ extern bool testSimplify(const SkPath& path, bool fill, SkPath& out,
 extern bool testSimplifyx(SkPath& path, bool useXor, SkPath& out,
         State4& state, const char* pathStr);
 extern bool testSimplifyx(const SkPath& path);
+extern bool testShapeOp(const SkPath& a, const SkPath& b, const ShapeOp );
 
 struct State4 {
     State4();
