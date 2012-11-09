@@ -105,6 +105,32 @@ protected:
     // empty for now, but lets get our subclass to remember to init us for the future
     SkMaskFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
 
+    enum FilterReturn {
+        kFalse_FilterReturn,
+        kTrue_FilterReturn,
+        kUnimplemented_FilterReturn
+    };
+
+    /**
+     *  Override if your subclass can filter a rect, and return the answer as
+     *  a ninepatch mask to be stretched over the returned outerRect. On success
+     *  return kTrue_FilterReturn. On failure (e.g. out of memory) return
+     *  kFalse_FilterReturn. If the normal filterMask() entry-point should be
+     *  called (the default) return kUnimplemented_FilterReturn.
+     *
+     *  By convention, the caller will take the center rol/col from the returned
+     *  mask as the slice it can replicate horizontally and vertically as we
+     *  stretch the mask to fit inside outerRect. It is an error for outerRect
+     *  to be smaller than the mask's bounds. This would imply that the width
+     *  and height of the mask should be odd. This is not required, just that
+     *  the caller will call mask.fBounds.centerX() and centerY() to find the
+     *  strips that will be replicated.
+     */
+    virtual FilterReturn filterRectToNine(const SkRect&, const SkMatrix&,
+                                          const SkIRect& clipBounds,
+                                          SkMask* ninePatchMask,
+                                          SkIRect* outerRect);
+
 private:
     friend class SkDraw;
 

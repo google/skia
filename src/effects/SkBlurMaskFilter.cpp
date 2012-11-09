@@ -6,7 +6,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkBlurMaskFilter.h"
 #include "SkBlurMask.h"
 #include "SkFlattenableBuffers.h"
@@ -27,6 +26,12 @@ public:
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurMaskFilterImpl)
 
+protected:
+    virtual FilterReturn filterRectToNine(const SkRect&, const SkMatrix&,
+                                          const SkIRect& clipBounds,
+                                          SkMask* ninePatchMask,
+                                          SkIRect* outerRect) SK_OVERRIDE;
+        
 private:
     SkScalar                    fRadius;
     SkBlurMaskFilter::BlurStyle fBlurStyle;
@@ -95,6 +100,97 @@ bool SkBlurMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src,
 
     return SkBlurMask::Blur(dst, src, radius, (SkBlurMask::Style)fBlurStyle,
                             blurQuality, margin);
+}
+
+#include "SkCanvas.h"
+
+static bool drawRectIntoMask(const SkRect& r, SkMask* mask) {
+    r.roundOut(&mask->fBounds);
+    mask->fRowBytes = SkAlign4(mask->fBounds.width());
+    mask->fFormat = SkMask::kA8_Format;
+    size_t size = mask->computeImageSize();
+    mask->fImage = SkMask::AllocImage(size);
+    if (NULL == mask->fImage) {
+        return false;
+    }
+    sk_bzero(mask->fImage, size);
+
+    SkBitmap bitmap;
+    bitmap.setConfig(SkBitmap::kA8_Config,
+                     mask->fBounds.width(), mask->fBounds.height(),
+                     mask->fRowBytes);
+    bitmap.setPixels(mask->fImage);
+
+    SkCanvas canvas(bitmap);
+    canvas.translate(-SkScalarFloorToScalar(r.left()),
+                    -SkScalarFloorToScalar(r.top()));
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+
+    canvas.drawRect(r, paint);
+    return true;
+}
+
+SkMaskFilter::FilterReturn
+SkBlurMaskFilterImpl::filterRectToNine(const SkRect& rect, const SkMatrix& matrix,
+                                       const SkIRect& clipBounds,
+                                       SkMask* ninePatchMask,
+                                       SkIRect* outerRect) {
+    SkIPoint margin;
+    SkMask  srcM, dstM;
+    rect.roundOut(&srcM.fBounds);
+    srcM.fImage = NULL;
+    srcM.fFormat = SkMask::kA8_Format;
+    srcM.fRowBytes = 0;
+    if (!this->filterMask(&dstM, srcM, matrix, &margin)) {
+        return kFalse_FilterReturn;
+    }
+
+    /*
+     *  smallR is the smallest version of 'rect' that will still guarantee that
+     *  we get the same blur results on all edges, plus 1 center row/col that is
+     *  representative of the extendible/stretchable edges of the ninepatch.
+     *  Since our actual edge may be fractional we inset 1 more to be sure we
+     *  don't miss any interior blur.
+     *  x is an added pixel of blur, and { and } are the (fractional) edge
+     *  pixels from the original rect.
+     *
+     *   x x { x x .... x x } x x
+     *
+     *  Thus, in this case, we inset by a total of 5 (on each side) beginning
+     *  with our outer-rect (dstM.fBounds)
+     */
+    SkRect smallR = rect;
+    {
+        // +3 is from +1 for each edge (to account for possible fractional pixel
+        // edges, and +1 to make room for a center rol/col.
+        int smallW = dstM.fBounds.width() - srcM.fBounds.width() + 3;
+        int smallH = dstM.fBounds.height() - srcM.fBounds.height() + 3;
+        // we want the inset amounts to be integral, so we don't change any
+        // fractional phase on the fRight or fBottom of our smallR.
+        SkScalar dx = SkIntToScalar(srcM.fBounds.width() - smallW);
+        SkScalar dy = SkIntToScalar(srcM.fBounds.height() - smallH);
+        if (dx < 0 || dy < 0) {
+            // we're too small, relative to our blur, to break into nine-patch,
+            // so we ask to have our normal filterMask() be called.
+            return kUnimplemented_FilterReturn;
+        }
+        SkASSERT(dx >= 0 && dy >= 0);
+        smallR.set(rect.left(), rect.top(), rect.right() - dx, rect.bottom() - dy);
+        SkASSERT(!smallR.isEmpty());
+    }
+
+    if (!drawRectIntoMask(smallR, &srcM)) {
+        return kFalse_FilterReturn;
+    }
+
+    if (!this->filterMask(ninePatchMask, srcM, matrix, &margin)) {
+        return kFalse_FilterReturn;
+    }
+    ninePatchMask->fBounds.offsetTo(0, 0);
+    *outerRect = dstM.fBounds;
+    return kTrue_FilterReturn;
 }
 
 void SkBlurMaskFilterImpl::computeFastBounds(const SkRect& src, SkRect* dst) {
