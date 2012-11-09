@@ -323,7 +323,7 @@ bool SkMatrix44::invert(SkMatrix44* inverse) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkMatrix44::map(const SkScalar src[4], SkScalar dst[4]) const {
+void SkMatrix44::mapScalars(const SkScalar src[4], SkScalar dst[4]) const {
     SkScalar result[4];
     for (int i = 0; i < 4; i++) {
         SkMScalar value = 0;
@@ -334,6 +334,20 @@ void SkMatrix44::map(const SkScalar src[4], SkScalar dst[4]) const {
     }
     memcpy(dst, result, sizeof(result));
 }
+
+#ifdef SK_MSCALAR_IS_DOUBLE
+void SkMatrix44::mapMScalars(const SkMScalar src[4], SkMScalar dst[4]) const {
+    SkMScalar result[4];
+    for (int i = 0; i < 4; i++) {
+        SkMScalar value = 0;
+        for (int j = 0; j < 4; j++) {
+            value += fMat[j][i] * src[j];
+        }
+        result[i] = SkMScalarToScalar(value);
+    }
+    memcpy(dst, result, sizeof(result));
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

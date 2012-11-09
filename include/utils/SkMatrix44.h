@@ -186,9 +186,29 @@ public:
     /** Apply the matrix to the src vector, returning the new vector in dst.
         It is legal for src and dst to point to the same memory.
      */
-    void map(const SkScalar src[4], SkScalar dst[4]) const;
+    void mapScalars(const SkScalar src[4], SkScalar dst[4]) const;
+    void mapScalars(SkScalar vec[4]) const {
+        this->mapScalars(vec, vec);
+    }
+
+    // DEPRECATED: call mapScalars()
+    void map(const SkScalar src[4], SkScalar dst[4]) const {
+        this->mapScalars(src, dst);
+    }
+    // DEPRECATED: call mapScalars()
     void map(SkScalar vec[4]) const {
-        this->map(vec, vec);
+        this->mapScalars(vec, vec);
+    }
+
+#ifdef SK_MSCALAR_IS_DOUBLE
+    void mapMScalars(SkMScalar src[4], SkMScalar dst[4]) const;
+#else
+    void mapMScalars(SkMScalar src[4], SkMScalar dst[4]) const {
+        this->mapScalars(src, dst);
+    }
+#endif
+    void mapMScalars(SkMScalar vec[4]) const {
+        this->mapMScalars(vec, vec);
     }
 
     friend SkVector4 operator*(const SkMatrix44& m, const SkVector4& src) {
