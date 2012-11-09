@@ -36,7 +36,7 @@ static void test_center(skiatest::Reporter* reporter) {
     SkRandom rand;
     for (int i = 0; i < 10000; ++i) {
         SkIRect r;
-        
+
         r.set(rand.nextS() >> 2, rand.nextS() >> 2,
               rand.nextS() >> 2, rand.nextS() >> 2);
         int cx = r.centerX();
@@ -79,7 +79,7 @@ static void TestInfRect(skiatest::Reporter* reporter) {
         check_invalid(reporter, small, invalid[i], big, big);
         check_invalid(reporter, invalid[i], small, big, big);
     }
-    
+
     test_center(reporter);
 }
 

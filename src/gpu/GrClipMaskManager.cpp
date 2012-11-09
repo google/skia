@@ -631,7 +631,7 @@ bool GrClipMaskManager::createAlphaClipMask(const GrClipData& clipDataIn,
                 accum->asRenderTarget());
     GR_DEBUGCODE(bool accumClearedToZero = !clearToInside;)
 
-    
+
     GrAutoScratchTexture temp;
     bool first = true;
 
