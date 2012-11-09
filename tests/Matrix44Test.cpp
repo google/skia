@@ -76,6 +76,44 @@ static void test_common_angles(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_concat(skiatest::Reporter* reporter) {
+    int i;
+    SkMatrix44 a, b, c, d;
+
+    a.setTranslate(10, 10, 10);
+    b.setScale(2, 2, 2);
+
+    SkScalar src[8] = {
+        0, 0, 0, 1,
+        1, 1, 1, 1
+    };
+    SkScalar dst[8];
+
+    c.setConcat(a, b);
+
+    d = a;
+    d.preConcat(b);
+    REPORTER_ASSERT(reporter, d == c);
+    
+    c.map(src, dst); c.map(src + 4, dst + 4);
+    for (i = 0; i < 3; ++i) {
+        REPORTER_ASSERT(reporter, 10 == dst[i]);
+        REPORTER_ASSERT(reporter, 12 == dst[i + 4]);
+    }
+    
+    c.setConcat(b, a);
+
+    d = a;
+    d.postConcat(b);
+    REPORTER_ASSERT(reporter, d == c);
+
+    c.map(src, dst); c.map(src + 4, dst + 4);
+    for (i = 0; i < 3; ++i) {
+        REPORTER_ASSERT(reporter, 20 == dst[i]);
+        REPORTER_ASSERT(reporter, 22 == dst[i + 4]);
+    }
+}
+
 static void TestMatrix44(skiatest::Reporter* reporter) {
 #ifdef SK_SCALAR_IS_FLOAT
     SkMatrix44 mat, inverse, iden1, iden2, rot;
@@ -138,6 +176,8 @@ static void TestMatrix44(skiatest::Reporter* reporter) {
                         0, 0, 1, 4,
                         0, 0, 0, 1);
     }
+
+    test_concat(reporter);
 
     if (false) { // avoid bit rot, suppress warning (working on making this pass)
         test_common_angles(reporter);
