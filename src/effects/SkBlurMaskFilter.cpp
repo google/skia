@@ -31,7 +31,7 @@ protected:
                                           const SkIRect& clipBounds,
                                           SkMask* ninePatchMask,
                                           SkIRect* outerRect) SK_OVERRIDE;
-        
+
 private:
     SkScalar                    fRadius;
     SkBlurMaskFilter::BlurStyle fBlurStyle;

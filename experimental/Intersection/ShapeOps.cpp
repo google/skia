@@ -125,7 +125,7 @@ static Segment* findChaseOp(SkTDArray<Span*>& chase, int& tIndex, int& endIndex)
     return NULL;
 }
 
-static bool windingIsActive(int winding, int oppWinding, int spanWinding, 
+static bool windingIsActive(int winding, int oppWinding, int spanWinding,
         bool windingIsOp, ShapeOp op) {
     bool active = windingIsActive(winding, spanWinding);
     if (!active) {
@@ -165,7 +165,7 @@ static bool bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
             } else {
                 contourWinding = sumWinding;
                 oppContourWinding = 0;
-                SkASSERT(0); 
+                SkASSERT(0);
                 // FIXME: need to get oppContourWinding by building sort wheel and
                 // retrieving sumWinding of uphill opposite span, calling inner contour check
                 // if need be
@@ -190,7 +190,7 @@ static bool bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
         int spanWinding = current->spanSign(index, endIndex);
         SkTDArray<Span*> chaseArray;
         do {
-            bool active = windingIsActive(winding, oppWinding, spanWinding, 
+            bool active = windingIsActive(winding, oppWinding, spanWinding,
                     current->operand(), op);
         #if DEBUG_WINDING
             SkDebugf("%s active=%s winding=%d oppWinding=%d spanWinding=%d\n",

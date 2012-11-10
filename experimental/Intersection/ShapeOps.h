@@ -19,7 +19,7 @@ enum ShapeOp {
     kIntersect_Op,
     kUnion_Op,
     kXor_Op,
-    kShapeOp_Count 
+    kShapeOp_Count
 };
 
 enum ShapeOpMask {

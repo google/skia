@@ -3084,7 +3084,7 @@ public:
     SkPath::Verb verb() const {
         return fVerb;
     }
-    
+
     int windSum(int tIndex) const {
         return fTs[tIndex].fWindSum;
     }
@@ -3106,7 +3106,7 @@ public:
         int index = SkMin32(start, end);
         return windValue(index);
     }
-    
+
     SkScalar xAtT(const Span* span) const {
         return xyAtT(span).fX;
     }
@@ -3364,7 +3364,7 @@ public:
                 last = lastSum;
                 wind = windSum;
             }
-            SkDebugf(" winding: %d->%d (max=%d) ", last, wind, 
+            SkDebugf(" winding: %d->%d (max=%d) ", last, wind,
                     useInnerWinding(last, wind) ? wind : last);
             SkDebugf(" done=%d tiny=%d opp=%d\n", mSpan.fDone, mSpan.fTiny, opp);
 #if false && DEBUG_ANGLE
@@ -3572,7 +3572,7 @@ public:
             fSegments[sIndex].fixOtherTIndex();
         }
     }
-    
+
     bool operand() const {
         return fOperand;
     }

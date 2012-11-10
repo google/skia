@@ -70,7 +70,7 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
     int cx = mask.fBounds.centerX();
     int cy = mask.fBounds.centerY();
     SkMask m;
-    
+
     // top-left
     m.fBounds = mask.fBounds;
     m.fBounds.fRight = cx;
@@ -78,7 +78,7 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
     extractMaskSubset(mask, &m);
     m.fBounds.offsetTo(outerR.left(), outerR.top());
     blitClippedMask(blitter, m, m.fBounds, clipR);
-    
+
     // top-right
     m.fBounds = mask.fBounds;
     m.fBounds.fLeft = cx + 1;
@@ -86,7 +86,7 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
     extractMaskSubset(mask, &m);
     m.fBounds.offsetTo(outerR.right() - m.fBounds.width(), outerR.top());
     blitClippedMask(blitter, m, m.fBounds, clipR);
-    
+
     // bottom-left
     m.fBounds = mask.fBounds;
     m.fBounds.fRight = cx;
@@ -94,7 +94,7 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
     extractMaskSubset(mask, &m);
     m.fBounds.offsetTo(outerR.left(), outerR.bottom() - m.fBounds.height());
     blitClippedMask(blitter, m, m.fBounds, clipR);
-    
+
     // bottom-right
     m.fBounds = mask.fBounds;
     m.fBounds.fLeft = cx + 1;
@@ -174,9 +174,9 @@ static void draw_nine(const SkMask& mask, const SkIRect& outerR,
     // if we get here, we need to (possibly) resolve the clip and blitter
     SkAAClipBlitterWrapper wrapper(clip, blitter);
     blitter = wrapper.getBlitter();
-    
+
     SkRegion::Cliperator clipper(wrapper.getRgn(), outerR);
-    
+
     if (!clipper.done() && (!bounder || bounder->doIRect(outerR))) {
         const SkIRect& cr = clipper.rect();
         do {
