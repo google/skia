@@ -298,7 +298,7 @@ public:
             SkDebugf(
                      "----- %s max pixel mismatch for %s is %d\n",
                      renderModeDescriptor, name.c_str(), maxErr);
-            
+
             if (diff) {
                 diff->setConfig(SkBitmap::kARGB_8888_Config, w, h);
                 diff->allocPixels();
@@ -885,7 +885,7 @@ static bool is_recordable_failure(ErrorBitfield errorCode) {
 struct FailRec {
     SkString    fName;
     int         fMaxPixelError;
-    
+
     FailRec() : fMaxPixelError(0) {}
     FailRec(const SkString& name) : fName(name), fMaxPixelError(0) {}
 };

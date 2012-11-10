@@ -94,13 +94,13 @@ static void test_concat(skiatest::Reporter* reporter) {
     d = a;
     d.preConcat(b);
     REPORTER_ASSERT(reporter, d == c);
-    
+
     c.mapScalars(src, dst); c.mapScalars(src + 4, dst + 4);
     for (i = 0; i < 3; ++i) {
         REPORTER_ASSERT(reporter, 10 == dst[i]);
         REPORTER_ASSERT(reporter, 12 == dst[i + 4]);
     }
-    
+
     c.setConcat(b, a);
 
     d = a;
