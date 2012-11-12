@@ -175,7 +175,7 @@ int tool_main(int argc, char** argv) {
 
     SkFILEStream inStream(inFile.c_str());
     if (inStream.isValid()) {
-        inPicture = SkNEW_ARGS(SkPicture, 
+        inPicture = SkNEW_ARGS(SkPicture,
                                (&inStream, NULL, &SkImageDecoder::DecodeStream));
     }
 
