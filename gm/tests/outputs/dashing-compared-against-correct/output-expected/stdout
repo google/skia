@@ -1,0 +1,5 @@
+reading from gm/tests/inputs/dashing-correct-images
+writing to gm/tests/outputs/dashing-compared-against-correct/output-actual/images
+drawing... dashing2 [640 480]
+drawing... dashing [640 300]
+Ran 2 tests: 2 passed, 0 failed, 0 missing reference images
