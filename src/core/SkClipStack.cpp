@@ -735,10 +735,6 @@ const SkRect& SkClipStack::Iter::Clip::getBounds() const {
     }
 }
 
-bool SkClipStack::Iter::Clip::isInverseFilled() const {
-    return NULL != fPath && fPath->isInverseFillType();
-}
-
 SkClipStack::Iter::Iter(const SkClipStack& stack, IterStart startLoc)
     : fStack(&stack) {
     this->reset(stack, startLoc);
@@ -821,18 +817,6 @@ const SkClipStack::Iter::Clip* SkClipStack::Iter::skipToTopmost(SkRegion::Op op)
     }
 
     return this->next();
-}
-
-const SkClipStack::Iter::Clip* SkClipStack::Iter::skipToNext(SkRegion::Op op) {
-    const SkClipStack::Rec* rec;
-    do {
-        rec = (const SkClipStack::Rec*)fIter.next();
-        if (NULL == rec) {
-            return NULL;
-        }
-    } while (rec->fOp != op);
-    this->updateClip(rec);
-    return &fClip;
 }
 
 const SkClipStack::Iter::Clip* SkClipStack::Iter::nextCombined() {

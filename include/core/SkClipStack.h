@@ -138,10 +138,6 @@ public:
              * Gets the bounds of the clip element, either the rect or path bounds.
              */
             const SkRect& getBounds() const;
-            /**
-             * Returns true if the clip element is a path that is inverse filled
-             */
-            bool isInverseFilled() const;
 
             const SkRect*   fRect;  // if non-null, this is a rect clip
             const SkPath*   fPath;  // if non-null, this is a path clip
@@ -176,12 +172,6 @@ public:
          * returns NULL.
          */
         const Clip* skipToTopmost(SkRegion::Op op);
-
-        /**
-         * Moves forward to the next clip element that uses op. If no clip with that op is found,
-         * returns NULL.
-         */
-        const Clip* skipToNext(SkRegion::Op op);
 
         /**
          * Restarts the iterator on a clip stack.
