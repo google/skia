@@ -201,9 +201,9 @@ public:
     }
 
 #ifdef SK_MSCALAR_IS_DOUBLE
-    void mapMScalars(SkMScalar src[4], SkMScalar dst[4]) const;
+    void mapMScalars(const SkMScalar src[4], SkMScalar dst[4]) const;
 #else
-    void mapMScalars(SkMScalar src[4], SkMScalar dst[4]) const {
+    void mapMScalars(const SkMScalar src[4], SkMScalar dst[4]) const {
         this->mapScalars(src, dst);
     }
 #endif
