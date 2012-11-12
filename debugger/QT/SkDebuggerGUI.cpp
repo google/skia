@@ -17,6 +17,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     , fToolBar(this)
     , fActionOpen(this)
     , fActionBreakpoint(this)
+    , fActionProfile(this)
     , fActionCancel(this)
     , fActionClearBreakpoints(this)
     , fActionClearDeletes(this)
@@ -64,6 +65,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     connect(&fActionInspector, SIGNAL(triggered()), this, SLOT(actionInspector()));
     connect(&fActionInspector, SIGNAL(triggered()), this, SLOT(actionSettings()));
     connect(&fFilter, SIGNAL(activated(QString)), this, SLOT(toggleFilter(QString)));
+    connect(&fActionProfile, SIGNAL(triggered()), this, SLOT(actionProfile()));
     connect(&fActionCancel, SIGNAL(triggered()), this, SLOT(actionCancel()));
     connect(&fActionClearBreakpoints, SIGNAL(triggered()), this, SLOT(actionClearBreakpoints()));
     connect(&fActionClearDeletes, SIGNAL(triggered()), this, SLOT(actionClearDeletes()));
@@ -115,6 +117,9 @@ void SkDebuggerGUI::showDeletes() {
         item->setHidden(fDebugger.isCommandVisible(row)
                 && fDeletesActivated);
     }
+}
+
+void SkDebuggerGUI::actionProfile() {
 }
 
 void SkDebuggerGUI::actionCancel() {
@@ -207,11 +212,10 @@ void SkDebuggerGUI::actionRewind() {
 }
 
 void SkDebuggerGUI::actionSave() {
-    QString filename;
-    filename.append(fPath);
-    filename.append("/");
-    filename.append(fDirectoryWidget.currentItem()->text());
-    saveToFile(filename);
+    fFileName = fPath.toAscii();
+    fFileName.append("/");
+    fFileName.append(fDirectoryWidget.currentItem()->text().toAscii());
+    saveToFile(fFileName);
 }
 
 void SkDebuggerGUI::actionSaveAs() {
@@ -220,7 +224,7 @@ void SkDebuggerGUI::actionSaveAs() {
     if (!filename.endsWith(".skp", Qt::CaseInsensitive)) {
         filename.append(".skp");
     }
-    saveToFile(filename);
+    saveToFile(SkString(filename.toAscii()));
 }
 
 void SkDebuggerGUI::actionScale(float scaleFactor) {
@@ -256,29 +260,28 @@ void SkDebuggerGUI::drawComplete() {
     fInspectorWidget.setClip(fDebugger.getCurrentClip());
 }
 
-void SkDebuggerGUI::saveToFile(QString filename) {
-    SkFILEWStream file(filename.toAscii());
+void SkDebuggerGUI::saveToFile(const SkString& filename) {
+    SkFILEWStream file(filename.c_str());
     fDebugger.makePicture()->serialize(&file);
 }
 
 void SkDebuggerGUI::loadFile(QListWidgetItem *item) {
     if (fDirectoryWidgetActive) {
-        QString fileName;
-        fileName.append(fPath);
-        fileName.append("/");
-        fileName.append(item->text());
-        loadPicture(fileName);
+        fFileName = fPath.toAscii();
+        fFileName.append("/");
+        fFileName.append(item->text().toAscii());
+        loadPicture(fFileName);
     }
 }
 
 void SkDebuggerGUI::openFile() {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "",
+    QString temp = QFileDialog::getOpenFileName(this, tr("Open File"), "",
             tr("Files (*.*)"));
     fDirectoryWidgetActive = false;
-    if (!fileName.isNull()) {
-        QFileInfo pathInfo(fileName);
+    if (!temp.isEmpty()) {
+        QFileInfo pathInfo(temp);
         fPath = pathInfo.path();
-        loadPicture(fileName);
+        loadPicture(SkString(temp.toAscii()));
         setupDirectoryWidget();
     }
     fDirectoryWidgetActive = true;
@@ -391,6 +394,12 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
 
     fActionDirectory.setShortcut(QKeySequence(tr("Ctrl+D")));
     fActionDirectory.setText("Directory");
+
+    QIcon profile;
+    profile.addFile(QString::fromUtf8(":/images/Ico/reload.png"), QSize(),
+                    QIcon::Normal, QIcon::Off);
+    fActionProfile.setIcon(profile);
+    fActionProfile.setText("Profile");
 
     QIcon inspector;
     inspector.addFile(QString::fromUtf8(":/images/Ico/inspector.png"),
@@ -505,13 +514,17 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fToolBar.addSeparator();
     fToolBar.addAction(&fActionInspector);
     fToolBar.addSeparator();
+    fToolBar.addAction(&fActionProfile);
+
+    fToolBar.addSeparator();
     fToolBar.addWidget(&fSpacer);
     fToolBar.addWidget(&fFilter);
     fToolBar.addAction(&fActionCancel);
 
     // TODO(chudy): Remove static call.
     fDirectoryWidgetActive = false;
-    fPath = "/usr/local/google/home/chudy/trunk-git/trunk/skp";
+    fPath = "";
+    fFileName = "";
     setupDirectoryWidget();
     fDirectoryWidgetActive = true;
 
@@ -572,9 +585,10 @@ void SkDebuggerGUI::setupDirectoryWidget() {
     }
 }
 
-void SkDebuggerGUI::loadPicture(QString fileName) {
+void SkDebuggerGUI::loadPicture(const SkString& fileName) {
+    fFileName = fileName;
     fLoading = true;
-    SkStream* stream = SkNEW_ARGS(SkFILEStream, (fileName.toAscii()));
+    SkStream* stream = SkNEW_ARGS(SkFILEStream, (fileName.c_str()));
     SkPicture* picture = SkNEW_ARGS(SkPicture, (stream, NULL, &SkImageDecoder::DecodeStream));
     fCanvasWidget.resetWidgetTransform();
     fDebugger.loadPicture(picture);
@@ -624,6 +638,8 @@ void SkDebuggerGUI::setupListWidget(SkTDArray<SkString*>* command) {
             0 == strcmp("Save Layer", (*command)[i]->c_str())) {
             indent += 10;
         }
+
+        item->setData(Qt::UserRole + 4, -1.0);
 
         fListWidget.addItem(item);
     }

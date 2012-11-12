@@ -61,6 +61,11 @@ private slots:
     void actionBreakpoints();
 
     /**
+        Profile the commands
+     */
+    void actionProfile();
+
+    /**
         Cancels the command filter in the list widget.
      */
     void actionCancel();
@@ -206,6 +211,7 @@ private:
 
     QAction fActionOpen;
     QAction fActionBreakpoint;
+    QAction fActionProfile;
     QAction fActionCancel;
     QAction fActionClearBreakpoints;
     QAction fActionClearDeletes;
@@ -244,6 +250,7 @@ private:
     SkSettingsWidget fSettingsWidget;
 
     QString fPath;
+    SkString fFileName;
     bool fDirectoryWidgetActive;
 
     QMenuBar fMenuBar;
@@ -268,12 +275,12 @@ private:
         Pipes a QString in with the location of the filename, proceeds to updating
         the listwidget, combowidget and inspectorwidget.
      */
-    void loadPicture(QString fileName);
+    void loadPicture(const SkString& fileName);
 
     /**
         Creates a picture of the current canvas.
      */
-    void saveToFile(QString filename);
+    void saveToFile(const SkString& filename);
 
     /**
         Populates the list widget with the vector of strings passed in.
