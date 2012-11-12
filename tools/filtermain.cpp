@@ -7,6 +7,7 @@
 
 #include "SkDevice.h"
 #include "SkGraphics.h"
+#include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkPicture.h"
 #include "SkPicturePlayback.h"
@@ -36,10 +37,12 @@ public:
     virtual bool translate(SkScalar dx, SkScalar dy) SK_OVERRIDE {
         ++fTransTot;
 
+#if 0
         if (0 == dx && 0 == dy) {
             ++fTransSkipped;
             return true;
         }
+#endif
 
         return INHERITED::translate(dx, dy);
     }
@@ -47,10 +50,12 @@ public:
     virtual bool scale(SkScalar sx, SkScalar sy) SK_OVERRIDE {
         ++fScalesTot;
 
+#if 0
         if (SK_Scalar1 == sx && SK_Scalar1 == sy) {
             ++fScalesSkipped;
             return true;
         }
+#endif
 
         return INHERITED::scale(sx, sy);
     }
@@ -106,6 +111,9 @@ private:
     typedef SkPicture INHERITED;
 };
 
+static bool PNGEncodeBitmapToStream(SkWStream* stream, const SkBitmap& bitmap) {
+    return SkImageEncoder::EncodeStream(stream, bitmap, SkImageEncoder::kPNG_Type, 100);
+}
 
 // This function is not marked as 'static' so it can be referenced externally
 // in the iOS build.
@@ -167,7 +175,8 @@ int tool_main(int argc, char** argv) {
 
     SkFILEStream inStream(inFile.c_str());
     if (inStream.isValid()) {
-        inPicture = SkNEW_ARGS(SkPicture, (&inStream));
+        inPicture = SkNEW_ARGS(SkPicture, 
+                               (&inStream, NULL, &SkImageDecoder::DecodeStream));
     }
 
     if (NULL == inPicture) {
@@ -192,7 +201,7 @@ int tool_main(int argc, char** argv) {
         SkFilterPicture outPicture(inPicture->width(), inPicture->height(), filterRecord);
         SkFILEWStream outStream(outFile.c_str());
 
-        outPicture.serialize(&outStream);
+        outPicture.serialize(&outStream, &PNGEncodeBitmapToStream);
     }
 
     if (!textureDir.isEmpty()) {
