@@ -2501,7 +2501,7 @@ bool SkPath::cheapComputeDirection(Direction* dir) const {
                 int next = find_diff_pt(pts, index, n, 1);
                 SkASSERT(next != index);
                 cross = cross_prod(pts[prev], pts[index], pts[next]);
-                // if we get a zero and the points are horizontal, then we look at the spread in 
+                // if we get a zero and the points are horizontal, then we look at the spread in
                 // x-direction. We really should continue to walk away from the degeneracy until
                 // there is a divergence.
                 if (0 == cross && pts[prev].fY == pts[index].fY && pts[next].fY == pts[index].fY) {
