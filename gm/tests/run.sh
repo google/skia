@@ -1,6 +1,15 @@
 #!/bin/bash
 
 # Self-tests for gm, based on tools/tests/run.sh
+#
+# These tests are run by the Skia_PerCommit_House_Keeping bot at every commit,
+# so make sure that they still pass when you make changes to gm!
+#
+# TODO: Even though these tests are passing on the Skia_PerCommit_House_Keeping
+# bot (which runs on Linux), they fail when I run them on my Mac.
+# Ideally, these tests should pass on all development platforms...
+# otherwise, how can developers be expected to test them before committing a
+# change?
 
 # cd into .../trunk so all the paths will work
 cd $(dirname $0)/../..
