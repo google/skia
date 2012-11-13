@@ -5,6 +5,14 @@
  * found in the LICENSE file.
  */
 
+/*
+ * Code for the "gm" (Golden Master) rendering comparison tool.
+ *
+ * If you make changes to this, re-run the self-tests at gm/tests/run.sh
+ * to make sure they still pass... you may need to change the expected
+ * results of the self-test.
+ */
+
 #include "gm.h"
 #include "system_preferences.h"
 #include "SkColorPriv.h"
@@ -78,6 +86,14 @@ static int compute_PMColor_maxDiff(SkPMColor c0, SkPMColor c1) {
     int db = SkAbs32(SkGetPackedB32(c0) - SkGetPackedB32(c1));
     return SkMax32(da, SkMax32(dr, SkMax32(dg, db)));
 }
+
+struct FailRec {
+    SkString    fName;
+    int         fMaxPixelError;
+
+    FailRec() : fMaxPixelError(0) {}
+    FailRec(const SkString& name) : fName(name), fMaxPixelError(0) {}
+};
 
 class Iter {
 public:
@@ -171,7 +187,9 @@ public:
 
     SkString make_name(const char shortName[], const char configName[]) {
         SkString name;
-        if (fUseFileHierarchy) {
+        if (0 == strlen(configName)) {
+            name.append(shortName);
+        } else if (fUseFileHierarchy) {
             name.appendf("%s%c%s", configName, SkPATH_SEPARATOR, shortName);
         } else {
             name.appendf("%s_%s", shortName, configName);
@@ -239,18 +257,45 @@ public:
         }
     }
 
+    // Records an error in fFailedTests, if we want to record errors
+    // of this type.
+    void RecordError(ErrorBitfield errorType, const SkString& name,
+                     const char renderModeDescriptor [], int maxPixelError=0) {
+        switch (errorType) {
+        case ERROR_NONE:
+            break;
+        case ERROR_READING_REFERENCE_IMAGE:
+            break;
+        default:
+            FailRec& rec = fFailedTests.push_back(make_name(
+                name.c_str(), renderModeDescriptor));
+            rec.fMaxPixelError = maxPixelError;
+            break;
+        }
+    }
+
+    // List contents of fFailedTests via SkDebug.
+    void ListErrors() {
+        for (int i = 0; i < fFailedTests.count(); ++i) {
+            int pixErr = fFailedTests[i].fMaxPixelError;
+            SkString pixStr;
+            if (pixErr > 0) {
+                pixStr.printf(" pixel_error %d", pixErr);
+            }
+            SkDebugf("\t\t%s%s\n", fFailedTests[i].fName.c_str(),
+                     pixStr.c_str());
+        }
+    }
+
     // Compares "target" and "base" bitmaps, returning the result
     // (ERROR_NONE if the two bitmaps are identical).
     //
     // If a "diff" bitmap is passed in, pixel diffs (if any) will be written
     // into it.
-    //
-    // The "name" and "renderModeDescriptor" arguments are only used
-    // in the debug output.
-    static ErrorBitfield compare(const SkBitmap& target, const SkBitmap& base,
-                                 const SkString& name,
-                                 const char* renderModeDescriptor,
-                                 SkBitmap* diff, int* maxPixelError) {
+    ErrorBitfield compare(const SkBitmap& target, const SkBitmap& base,
+                          const SkString& name,
+                          const char* renderModeDescriptor,
+                          SkBitmap* diff) {
         SkBitmap copy;
         const SkBitmap* bm = &target;
         if (target.config() != SkBitmap::kARGB_8888_Config) {
@@ -274,6 +319,7 @@ public:
                      "---- %s dimensions mismatch for %s base [%d %d] current [%d %d]\n",
                      renderModeDescriptor, name.c_str(),
                      bp->width(), bp->height(), w, h);
+            RecordError(ERROR_DIMENSION_MISMATCH, name, renderModeDescriptor);
             return ERROR_DIMENSION_MISMATCH;
         }
 
@@ -291,19 +337,17 @@ public:
             }
         }
 
-        if (maxPixelError) {
-            *maxPixelError = maxErr;
-        }
         if (maxErr > 0) {
             SkDebugf(
                      "----- %s max pixel mismatch for %s is %d\n",
                      renderModeDescriptor, name.c_str(), maxErr);
-
             if (diff) {
                 diff->setConfig(SkBitmap::kARGB_8888_Config, w, h);
                 diff->allocPixels();
                 compute_diff(*bm, *bp, diff);
             }
+            RecordError(ERROR_PIXEL_MISMATCH, name, renderModeDescriptor,
+                        maxErr);
             return ERROR_PIXEL_MISMATCH;
         }
         return ERROR_NONE;
@@ -452,7 +496,7 @@ public:
 #endif
     }
 
-    static ErrorBitfield write_reference_image(
+    ErrorBitfield write_reference_image(
       const ConfigData& gRec, const char writePath [],
       const char renderModeDescriptor [], const SkString& name,
         SkBitmap& bitmap, SkDynamicMemoryWStream* document) {
@@ -477,6 +521,8 @@ public:
             return ERROR_NONE;
         } else {
             fprintf(stderr, "FAILED to write %s\n", path.c_str());
+            RecordError(ERROR_WRITING_REFERENCE_IMAGE, name,
+                        renderModeDescriptor);
             return ERROR_WRITING_REFERENCE_IMAGE;
         }
     }
@@ -487,18 +533,19 @@ public:
     //
     // Returns the ErrorBitfield from compare(), describing any differences
     // between "bitmap" and "referenceBitmap" (or ERROR_NONE if there are none).
-    static ErrorBitfield compare_to_reference_image_in_memory(
+    ErrorBitfield compare_to_reference_image_in_memory(
       const SkString& name, SkBitmap &bitmap, const SkBitmap& referenceBitmap,
-      const char diffPath [], const char renderModeDescriptor [],
-                                                          int* maxPixelError) {
+      const char diffPath [], const char renderModeDescriptor []) {
         ErrorBitfield errors;
         SkBitmap diffBitmap;
         errors = compare(bitmap, referenceBitmap, name, renderModeDescriptor,
-                         diffPath ? &diffBitmap : NULL, maxPixelError);
+                         diffPath ? &diffBitmap : NULL);
         if ((ERROR_NONE != errors) && diffPath) {
             // write out the generated image
             SkString genName = make_filename(diffPath, "", name, "png");
             if (!write_bitmap(genName, bitmap)) {
+                RecordError(ERROR_WRITING_REFERENCE_IMAGE, name,
+                            renderModeDescriptor);
                 errors |= ERROR_WRITING_REFERENCE_IMAGE;
             }
         }
@@ -514,8 +561,7 @@ public:
     // unable to read the reference bitmap from disk.
     ErrorBitfield compare_to_reference_image_on_disk(
       const char readPath [], const SkString& name, SkBitmap &bitmap,
-      const char diffPath [], const char renderModeDescriptor [],
-      int* maxPixelError) {
+      const char diffPath [], const char renderModeDescriptor []) {
         SkString path = make_filename(readPath, "", name, "png");
         SkBitmap referenceBitmap;
         if (SkImageDecoder::DecodeFile(path.c_str(), &referenceBitmap,
@@ -525,12 +571,13 @@ public:
             return compare_to_reference_image_in_memory(name, bitmap,
                                                         referenceBitmap,
                                                         diffPath,
-                                                        renderModeDescriptor,
-                                                        maxPixelError);
+                                                        renderModeDescriptor);
         } else {
             if (fNotifyMissingReadReference) {
                 fprintf(stderr, "FAILED to read %s\n", path.c_str());
             }
+            RecordError(ERROR_READING_REFERENCE_IMAGE, name,
+                        renderModeDescriptor);
             return ERROR_READING_REFERENCE_IMAGE;
         }
     }
@@ -548,16 +595,14 @@ public:
                                       const char renderModeDescriptor [],
                                       SkBitmap& bitmap,
                                       SkDynamicMemoryWStream* pdf,
-                                      const SkBitmap* referenceBitmap,
-                                      int* maxPixelError) {
+                                      const SkBitmap* referenceBitmap) {
         SkString name = make_name(gm->shortName(), gRec.fName);
         ErrorBitfield retval = ERROR_NONE;
 
         if (readPath && (gRec.fFlags & kRead_ConfigFlag)) {
             retval |= compare_to_reference_image_on_disk(readPath, name, bitmap,
                                                          diffPath,
-                                                         renderModeDescriptor,
-                                                         maxPixelError);
+                                                         renderModeDescriptor);
         }
         if (writePath && (gRec.fFlags & kWrite_ConfigFlag)) {
             retval |= write_reference_image(gRec, writePath,
@@ -566,8 +611,7 @@ public:
         }
         if (referenceBitmap) {
             retval |= compare_to_reference_image_in_memory(
-              name, bitmap, *referenceBitmap, diffPath, renderModeDescriptor,
-              maxPixelError);
+              name, bitmap, *referenceBitmap, diffPath, renderModeDescriptor);
         }
         return retval;
     }
@@ -615,8 +659,7 @@ public:
                                const char diffPath [],
                                GrContext* context,
                                GrRenderTarget* rt,
-                               SkBitmap* bitmap,
-                               int* maxPixelError) {
+                               SkBitmap* bitmap) {
         SkDynamicMemoryWStream document;
 
         if (gRec.fBackend == kRaster_Backend ||
@@ -638,7 +681,7 @@ public:
             generate_xps(gm, document);
         }
         return handle_test_results(gm, gRec, writePath, readPath, diffPath,
-                                   "", *bitmap, &document, NULL, maxPixelError);
+                                   "", *bitmap, &document, NULL);
     }
 
     ErrorBitfield test_deferred_drawing(GM* gm,
@@ -659,7 +702,7 @@ public:
             }
             return handle_test_results(gm, gRec, NULL, NULL, diffPath,
                                        "-deferred", bitmap, NULL,
-                                       &referenceBitmap, NULL);
+                                       &referenceBitmap);
         }
         return ERROR_NONE;
     }
@@ -685,7 +728,7 @@ public:
             string.append(gPipeWritingFlagCombos[i].name);
             errors |= handle_test_results(gm, gRec, NULL, NULL, diffPath,
                                           string.c_str(), bitmap, NULL,
-                                          &referenceBitmap, NULL);
+                                          &referenceBitmap);
             if (errors != ERROR_NONE) {
                 break;
             }
@@ -712,7 +755,7 @@ public:
             string.append(gPipeWritingFlagCombos[i].name);
             errors |= handle_test_results(gm, gRec, NULL, NULL, diffPath,
                                           string.c_str(), bitmap, NULL,
-                                          &referenceBitmap, NULL);
+                                          &referenceBitmap);
             if (errors != ERROR_NONE) {
                 break;
             }
@@ -729,6 +772,9 @@ public:
     bool fNotifyMissingReadReference;
 
     bool fUseFileHierarchy;
+
+    // information about all failed tests we have encountered so far
+    SkTArray<FailRec> fFailedTests;
 
 }; // end of GMMain class definition
 
@@ -877,18 +923,6 @@ private:
 GrContext* GetGr() { return NULL; }
 #endif
 }
-
-static bool is_recordable_failure(ErrorBitfield errorCode) {
-    return ERROR_NONE != errorCode && !(ERROR_READING_REFERENCE_IMAGE & errorCode);
-}
-
-struct FailRec {
-    SkString    fName;
-    int         fMaxPixelError;
-
-    FailRec() : fMaxPixelError(0) {}
-    FailRec(const SkString& name) : fName(name), fMaxPixelError(0) {}
-};
 
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
@@ -1080,8 +1114,6 @@ int tool_main(int argc, char** argv) {
     }
 #endif
 
-    SkTArray<FailRec> failedTests;
-
     int gmIndex = -1;
     SkString moduloStr;
 
@@ -1179,14 +1211,12 @@ int tool_main(int argc, char** argv) {
 #endif
 
             SkBitmap comparisonBitmap;
-            int maxPixelError = 0;
 
             if (ERROR_NONE == renderErrors) {
                 renderErrors |= gmmain.test_drawing(gm, config, writePath,
                                                     readPath, diffPath, GetGr(),
                                                     renderTarget,
-                                                    &comparisonBitmap,
-                                                    &maxPixelError);
+                                                    &comparisonBitmap);
             }
 
             if (doDeferred && !renderErrors &&
@@ -1199,11 +1229,6 @@ int tool_main(int argc, char** argv) {
             }
 
             testErrors |= renderErrors;
-            if (is_recordable_failure(renderErrors)) {
-                FailRec& rec = failedTests.push_back();
-                rec.fName = gmmain.make_name(shortName, config.fName);
-                rec.fMaxPixelError = maxPixelError;
-            }
         }
 
         SkBitmap comparisonBitmap;
@@ -1228,11 +1253,7 @@ int tool_main(int argc, char** argv) {
                                                          NULL, NULL, diffPath,
                                                          "-replay", bitmap,
                                                          NULL,
-                                                         &comparisonBitmap, NULL);
-                if (is_recordable_failure(pictErrors)) {
-                    failedTests.push_back(gmmain.make_name(shortName,
-                                                           "pict-replay"));
-                }
+                                                         &comparisonBitmap);
             }
 
             if ((ERROR_NONE == testErrors) &&
@@ -1248,11 +1269,7 @@ int tool_main(int argc, char** argv) {
                                                          NULL, NULL, diffPath,
                                                          "-serialize", bitmap,
                                                          NULL,
-                                                         &comparisonBitmap, NULL);
-                if (is_recordable_failure(pictErrors)) {
-                    failedTests.push_back(gmmain.make_name(shortName,
-                                                           "pict-serialize"));
-                }
+                                                         &comparisonBitmap);
             }
 
             if (writePicturePath) {
@@ -1276,9 +1293,6 @@ int tool_main(int argc, char** argv) {
                 pipeErrors |= gmmain.test_pipe_playback(gm, compareConfig,
                                                         comparisonBitmap,
                                                         readPath, diffPath);
-                if (is_recordable_failure(pipeErrors)) {
-                    failedTests.push_back(gmmain.make_name(shortName, "pipe"));
-                }
             }
 
             if ((ERROR_NONE == testErrors) &&
@@ -1288,10 +1302,6 @@ int tool_main(int argc, char** argv) {
                                                               comparisonBitmap,
                                                               readPath,
                                                               diffPath);
-                if (is_recordable_failure(pipeErrors)) {
-                    failedTests.push_back(gmmain.make_name(shortName,
-                                                           "pipe-tiled"));
-                }
             }
 
             testErrors |= pipeErrors;
@@ -1315,14 +1325,7 @@ int tool_main(int argc, char** argv) {
     }
     SkDebugf("Ran %d tests: %d passed, %d failed, %d missing reference images\n",
              testsRun, testsPassed, testsFailed, testsMissingReferenceImages);
-    for (int i = 0; i < failedTests.count(); ++i) {
-        int pixErr = failedTests[i].fMaxPixelError;
-        SkString pixStr;
-        if (pixErr > 0) {
-            pixStr.printf(" pixel_error %d", pixErr);
-        }
-        SkDebugf("\t\t%s%s\n", failedTests[i].fName.c_str(), pixStr.c_str());
-    }
+    gmmain.ListErrors();
 
 #if SK_SUPPORT_GPU
 
