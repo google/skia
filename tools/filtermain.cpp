@@ -9,17 +9,21 @@
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
+#include "SkOSFile.h"
 #include "SkPicture.h"
 #include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
 #include "SkStream.h"
+#include "picture_utils.h"
 
 static void usage() {
     SkDebugf("Usage: filter -i inFile [-o outFile] [-t textureDir] [-h|--help]");
     SkDebugf("\n\n");
     SkDebugf("    -i inFile  : file to file.\n");
     SkDebugf("    -o outFile : result of filtering.\n");
-    SkDebugf("    -t textureDir : directory in which to place textures.\n");
+    SkDebugf("    --input-dir : process all files in dir with .skp extension.\n");
+    SkDebugf("    --output-dir : results of filtering the input dir.\n");
+    SkDebugf("    -t textureDir : directory in which to place textures. (only available w/ single file)\n");
     SkDebugf("    -h|--help  : Show this help message.\n");
 }
 
@@ -115,6 +119,46 @@ static bool PNGEncodeBitmapToStream(SkWStream* stream, const SkBitmap& bitmap) {
     return SkImageEncoder::EncodeStream(stream, bitmap, SkImageEncoder::kPNG_Type, 100);
 }
 
+int filter_picture(const SkString& inFile, const SkString& outFile, const SkString& textureDir) {
+    SkPicture* inPicture = NULL;
+
+    SkFILEStream inStream(inFile.c_str());
+    if (inStream.isValid()) {
+        inPicture = SkNEW_ARGS(SkPicture, (&inStream, NULL, &SkImageDecoder::DecodeStream));
+    }
+
+    if (NULL == inPicture) {
+        SkDebugf("Could not read file %s\n", inFile.c_str());
+        return -1;
+    }
+
+    SkBitmap bm;
+    bm.setConfig(SkBitmap::kNo_Config, inPicture->width(), inPicture->height());
+    SkAutoTUnref<SkDevice> dev(SkNEW_ARGS(SkDevice, (bm)));
+
+    SkAutoTUnref<SkFilterRecord> filterRecord(SkNEW_ARGS(SkFilterRecord, (0, dev)));
+
+    // Playback the read in picture to the SkFilterRecorder to allow filtering
+    filterRecord->beginRecording();
+    inPicture->draw(filterRecord);
+    filterRecord->endRecording();
+
+    filterRecord->report();
+
+    if (!outFile.isEmpty()) {
+        SkFilterPicture outPicture(inPicture->width(), inPicture->height(), filterRecord);
+        SkFILEWStream outStream(outFile.c_str());
+
+        outPicture.serialize(&outStream);
+    }
+
+    if (!textureDir.isEmpty()) {
+        filterRecord->saveImages(textureDir);
+    }
+
+    return 0;
+}
+
 // This function is not marked as 'static' so it can be referenced externally
 // in the iOS build.
 int tool_main(int argc, char** argv) {
@@ -125,7 +169,7 @@ int tool_main(int argc, char** argv) {
         return -1;
     }
 
-    SkString inFile, outFile, textureDir;
+    SkString inFile, outFile, inDir, outDir, textureDir;
 
     char* const* stop = argv + argc;
     for (++argv; argv < stop; ++argv) {
@@ -135,6 +179,24 @@ int tool_main(int argc, char** argv) {
                 inFile.set(*argv);
             } else {
                 SkDebugf("missing arg for -i\n");
+                usage();
+                return -1;
+            }
+        } else if (strcmp(*argv, "--input-dir") == 0) {
+            argv++;
+            if (argv < stop && **argv) {
+                inDir.set(*argv);
+            } else {
+                SkDebugf("missing arg for --input-dir\n");
+                usage();
+                return -1;
+            }
+        } else if (strcmp(*argv, "--output-dir") == 0) {
+            argv++;
+            if (argv < stop && **argv) {
+                outDir.set(*argv);
+            } else {
+                SkDebugf("missing arg for --output-dir\n");
                 usage();
                 return -1;
             }
@@ -166,50 +228,34 @@ int tool_main(int argc, char** argv) {
         }
     }
 
-    if (inFile.isEmpty()) {
+    if(!inDir.isEmpty() && !textureDir.isEmpty()) {
+        SkDebugf("ERROR: The textureDir option is not permitted when passing an input directory.\n");
         usage();
         return -1;
     }
 
-    SkPicture* inPicture = NULL;
+    SkOSFile::Iter iter(inDir.c_str(), "skp");
+    int failures = 0;
+    SkString inputFilename, outputFilename;
+    if (iter.next(&inputFilename)) {
 
-    SkFILEStream inStream(inFile.c_str());
-    if (inStream.isValid()) {
-        inPicture = SkNEW_ARGS(SkPicture,
-                               (&inStream, NULL, &SkImageDecoder::DecodeStream));
-    }
+        do {
+            sk_tools::make_filepath(&inFile, inDir, inputFilename);
+            if (!outDir.isEmpty()) {
+                sk_tools::make_filepath(&outFile, outDir, inputFilename);
+            }
+            SkDebugf("Executing %s\n", inputFilename.c_str());
+            filter_picture(inFile, outFile, textureDir);
+        } while(iter.next(&inputFilename));
 
-    if (NULL == inPicture) {
-        SkDebugf("Could not read file %s\n", inFile.c_str());
+    } else if (!inFile.isEmpty()) {
+        filter_picture(inFile, outFile, textureDir);
+    } else {
+        usage();
         return -1;
     }
 
-    SkBitmap bm;
-    bm.setConfig(SkBitmap::kNo_Config, inPicture->width(), inPicture->height());
-    SkAutoTUnref<SkDevice> dev(SkNEW_ARGS(SkDevice, (bm)));
-
-    SkAutoTUnref<SkFilterRecord> filterRecord(SkNEW_ARGS(SkFilterRecord, (0, dev)));
-
-    // Playback the read in picture to the SkFilterRecorder to allow filtering
-    filterRecord->beginRecording();
-    inPicture->draw(filterRecord);
-    filterRecord->endRecording();
-
-    filterRecord->report();
-
-    if (!outFile.isEmpty()) {
-        SkFilterPicture outPicture(inPicture->width(), inPicture->height(), filterRecord);
-        SkFILEWStream outStream(outFile.c_str());
-
-        outPicture.serialize(&outStream, &PNGEncodeBitmapToStream);
-    }
-
-    if (!textureDir.isEmpty()) {
-        filterRecord->saveImages(textureDir);
-    }
-
     SkGraphics::Term();
-
     return 0;
 }
 
