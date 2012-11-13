@@ -149,9 +149,21 @@ public:
     void abortPlayback();
 
 protected:
-    // fRecord and fWidth & fHeight are protected to allow derived classes to
-    // install their own SkPictureRecord-derived recorders and set the picture
-    // size
+    // V2 : adds SkPixelRef's generation ID.
+    // V3 : PictInfo tag at beginning, and EOF tag at the end
+    // V4 : move SkPictInfo to be the header
+    // V5 : don't read/write FunctionPtr on cross-process (we can detect that)
+    // V6 : added serialization of SkPath's bounds (and packed its flags tighter)
+    // V7 : changed drawBitmapRect(IRect) to drawBitmapRectToRect(Rect)
+    // V8 : Add an option for encoding bitmaps
+    // V9 : Allow the reader and writer of an SKP disagree on whether to support
+    //      SK_SUPPORT_HINTING_SCALE_FACTOR
+    static const int PICTURE_VERSION = 9;
+
+    // fPlayback, fRecord, fWidth & fHeight are protected to allow derived classes to
+    // install their own SkPicturePlayback-derived players,SkPictureRecord-derived 
+    // recorders and set the picture size
+    SkPicturePlayback* fPlayback;
     SkPictureRecord* fRecord;
     int fWidth, fHeight;
 
@@ -160,7 +172,6 @@ protected:
     virtual SkBBoxHierarchy* createBBoxHierarchy() const;
 
 private:
-    SkPicturePlayback* fPlayback;
 
     friend class SkFlatPicture;
     friend class SkPicturePlayback;

@@ -253,17 +253,6 @@ void SkPicture::draw(SkCanvas* surface) {
 
 #include "SkStream.h"
 
-// V2 : adds SkPixelRef's generation ID.
-// V3 : PictInfo tag at beginning, and EOF tag at the end
-// V4 : move SkPictInfo to be the header
-// V5 : don't read/write FunctionPtr on cross-process (we can detect that)
-// V6 : added serialization of SkPath's bounds (and packed its flags tighter)
-// V7 : changed drawBitmapRect(IRect) to drawBitmapRectToRect(Rect)
-// V8 : Add an option for encoding bitmaps
-// V9 : Allow the reader and writer of an SKP disagree on whether to support
-//      SK_SUPPORT_HINTING_SCALE_FACTOR
-#define PICTURE_VERSION     9
-
 SkPicture::SkPicture(SkStream* stream, bool* success, SkSerializationHelpers::DecodeBitmap decoder) : SkRefCnt() {
     if (success) {
         *success = false;
