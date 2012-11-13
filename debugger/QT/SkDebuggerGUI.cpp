@@ -224,7 +224,7 @@ void SkDebuggerGUI::actionSaveAs() {
     if (!filename.endsWith(".skp", Qt::CaseInsensitive)) {
         filename.append(".skp");
     }
-    saveToFile(SkString(filename.toAscii()));
+    saveToFile(SkString(filename.toAscii().data()));
 }
 
 void SkDebuggerGUI::actionScale(float scaleFactor) {
@@ -281,7 +281,7 @@ void SkDebuggerGUI::openFile() {
     if (!temp.isEmpty()) {
         QFileInfo pathInfo(temp);
         fPath = pathInfo.path();
-        loadPicture(SkString(temp.toAscii()));
+        loadPicture(SkString(temp.toAscii().data()));
         setupDirectoryWidget();
     }
     fDirectoryWidgetActive = true;
