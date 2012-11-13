@@ -8,6 +8,14 @@
 #include "Test.h"
 #include "SkMatrix44.h"
 
+static bool nearly_equal_double(double a, double b) {
+    const double tolerance = 1e-7;
+    double diff = a - b;
+    if (diff < 0)
+        diff = -diff;
+    return diff <= tolerance;
+}
+
 static bool nearly_equal_scalar(SkMScalar a, SkMScalar b) {
     // Note that we get more compounded error for multiple operations when
     // SK_SCALAR_IS_FIXED.
@@ -114,6 +122,31 @@ static void test_concat(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_determinant(skiatest::Reporter* reporter) {
+  SkMatrix44 a;
+  REPORTER_ASSERT(reporter, nearly_equal_double(1, a.determinant()));
+  a.set(1, 1, SkFloatToMScalar(2));
+  REPORTER_ASSERT(reporter, nearly_equal_double(2, a.determinant()));
+  SkMatrix44 b;
+  REPORTER_ASSERT(reporter, a.invert(&b));
+  REPORTER_ASSERT(reporter, nearly_equal_double(0.5, b.determinant()));
+  SkMatrix44 c = b = a;
+  c.set(0, 1, SkFloatToMScalar(4));
+  b.set(1, 0, SkFloatToMScalar(4));
+  REPORTER_ASSERT(reporter,
+                  nearly_equal_double(a.determinant(),
+                                      b.determinant()));
+  SkMatrix44 d = a;
+  d.set(0, 0, SkFloatToMScalar(8));
+  REPORTER_ASSERT(reporter, nearly_equal_double(16, d.determinant()));
+
+  SkMatrix44 e = a;
+  e.postConcat(d);
+  REPORTER_ASSERT(reporter, nearly_equal_double(32, e.determinant()));
+  e.set(0, 0, SkFloatToMScalar(0));
+  REPORTER_ASSERT(reporter, nearly_equal_double(0, e.determinant()));
+}
+
 static void TestMatrix44(skiatest::Reporter* reporter) {
 #ifdef SK_SCALAR_IS_FLOAT
     SkMatrix44 mat, inverse, iden1, iden2, rot;
@@ -182,6 +215,8 @@ static void TestMatrix44(skiatest::Reporter* reporter) {
     if (false) { // avoid bit rot, suppress warning (working on making this pass)
         test_common_angles(reporter);
     }
+
+    test_determinant(reporter);
 #endif
 }
 

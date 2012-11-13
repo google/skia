@@ -219,6 +219,8 @@ public:
 
     void dump() const;
 
+    double determinant() const;
+
 private:
     /*  Stored in the same order as opengl:
          [3][0] = tx
@@ -226,8 +228,6 @@ private:
          [3][2] = tz
      */
     SkMScalar fMat[4][4];
-
-    double determinant() const;
 };
 
 #endif
