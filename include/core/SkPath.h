@@ -106,15 +106,15 @@ public:
     };
 
     /**
-     *  Return the path's convexity, as stored in the path. If it is currently
-     *  unknown, and the computeIfUnknown bool is true, then this will first
-     *  call ComputeConvexity() and then return that (cached) value.
+     *  Return the path's convexity, as stored in the path. If it is currently unknown,
+     *  then this function will attempt to compute the convexity (and cache the result).
      */
     Convexity getConvexity() const {
-        if (kUnknown_Convexity == fConvexity) {
-            fConvexity = (uint8_t)ComputeConvexity(*this);
+        if (kUnknown_Convexity != fConvexity) {
+            return static_cast<Convexity>(fConvexity);
+        } else {
+            return this->internalGetConvexity();
         }
-        return (Convexity)fConvexity;
     }
 
     /**
@@ -127,28 +127,14 @@ public:
 
     /**
      *  Store a convexity setting in the path. There is no automatic check to
-     *  see if this value actually agress with the return value from
-     *  ComputeConvexity().
+     *  see if this value actually agrees with the return value that would be
+     *  computed by getConvexity().
      *
      *  Note: even if this is set to a "known" value, if the path is later
      *  changed (e.g. lineTo(), addRect(), etc.) then the cached value will be
      *  reset to kUnknown_Convexity.
      */
     void setConvexity(Convexity);
-
-    /**
-     *  Compute the convexity of the specified path. This does not look at the
-     *  value stored in the path, but computes it directly from the path's data.
-     *
-     *  This never returns kUnknown_Convexity.
-     *
-     *  If there is more than one contour, this returns kConcave_Convexity.
-     *  If the contour is degenerate (e.g. there are fewer than 3 non-degenerate
-     *  segments), then this returns kConvex_Convexity.
-     *  The contour is treated as if it were closed, even if there is no kClose
-     *  verb.
-     */
-    static Convexity ComputeConvexity(const SkPath&);
 
     /**
      *  DEPRECATED: use getConvexity()
@@ -498,17 +484,25 @@ public:
     void close();
 
     enum Direction {
+        /** Direction either has not been or could not be computed */
+        kUnknown_Direction,
         /** clockwise direction for adding closed contours */
         kCW_Direction,
         /** counter-clockwise direction for adding closed contours */
-        kCCW_Direction
+        kCCW_Direction,
     };
+
+    static Direction OppositeDirection(Direction dir) {
+        static const Direction kOppositeDir[] = {kUnknown_Direction, kCCW_Direction, kCW_Direction};
+        return kOppositeDir[dir];
+    }
 
     /**
      *  Tries to quickly compute the direction of the first non-degenerate
      *  contour. If it can be computed, return true and set dir to that
      *  direction. If it cannot be (quickly) determined, return false and ignore
-     *  the dir parameter.
+     *  the dir parameter. If the direction was determined, it is cached to make
+     *  subsequent calls return quickly.
      */
     bool cheapComputeDirection(Direction* dir) const;
 
@@ -518,6 +512,7 @@ public:
      *  specified direction.
      */
     bool cheapIsDirection(Direction dir) const {
+        SkASSERT(kCW_Direction == dir || kCCW_Direction == dir);
         Direction computedDir;
         return this->cheapComputeDirection(&computedDir) && computedDir == dir;
     }
@@ -827,11 +822,12 @@ public:
 
 private:
     enum SerializationOffsets {
-        kIsFinite_SerializationShift = 25,
-        kIsOval_SerializationShift = 24,
-        kConvexity_SerializationShift = 16,
-        kFillType_SerializationShift = 8,
-        kSegmentMask_SerializationShift = 0
+        kDirection_SerializationShift = 26, // requires 2 bits
+        kIsFinite_SerializationShift = 25,  // requires 1 bit
+        kIsOval_SerializationShift = 24,    // requires 1 bit
+        kConvexity_SerializationShift = 16, // requires 2 bits
+        kFillType_SerializationShift = 8,   // requires 2 bits
+        kSegmentMask_SerializationShift = 0 // requires 3 bits
     };
 
 #if SK_DEBUG_PATH_REF
@@ -865,6 +861,7 @@ private:
     uint8_t             fSegmentMask;
     mutable uint8_t     fBoundsIsDirty;
     mutable uint8_t     fConvexity;
+    mutable uint8_t     fDirection;
     mutable SkBool8     fIsFinite;    // only meaningful if bounds are valid
     mutable SkBool8     fIsOval;
 #ifdef SK_BUILD_FOR_ANDROID
@@ -900,8 +897,11 @@ private:
 
     inline bool hasOnlyMoveTos() const;
 
+    Convexity internalGetConvexity() const;
+
     friend class SkAutoPathBoundsUpdate;
     friend class SkAutoDisableOvalCheck;
+    friend class SkAutoDisableDirectionCheck;
     friend class SkBench_AddPathTest; // perf test pathTo/reversePathTo
 };
 
