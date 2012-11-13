@@ -727,7 +727,6 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
                     apply_kernel_interp(dp, rx, ry, sumBuffer, tmp_sw, tmp_sh,
                                         outer_weight);
             }
-#endif
         }
 
         dst->fImage = dp;
