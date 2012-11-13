@@ -311,6 +311,86 @@ void SkPath::swap(SkPath& other) {
     }
 }
 
+static inline bool check_edge_against_rect(const SkPoint& p0,
+                                           const SkPoint& p1,
+                                           const SkRect& rect,
+                                           SkPath::Direction dir) {
+    const SkPoint* edgeBegin;
+    SkVector v;
+    if (SkPath::kCW_Direction == dir) {
+        v = p1 - p0;
+        edgeBegin = &p0;
+    } else {
+        v = p0 - p1;
+        edgeBegin = &p1;
+    }
+    if (v.fX || v.fY) {
+        // check the cross product of v with the vec from edgeBegin to each rect corner
+        SkScalar yL = SkScalarMul(v.fY, rect.fLeft - edgeBegin->fX);
+        SkScalar xT = SkScalarMul(v.fX, rect.fTop - edgeBegin->fY);
+        SkScalar yR = SkScalarMul(v.fY, rect.fRight - edgeBegin->fX);
+        SkScalar xB = SkScalarMul(v.fX, rect.fBottom - edgeBegin->fY);
+        if ((xT < yL) || (xT < yR) || (xB < yL) || (xB < yR)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
+    // This only handles non-degenerate convex paths currently.
+    if (kConvex_Convexity != this->getConvexity()) {
+        return false;
+    }
+    
+    Direction direction;
+    if (!this->cheapComputeDirection(&direction)) {
+        return false;
+    }
+
+    SkPoint firstPt;
+    SkPoint prevPt;
+    RawIter iter(*this);
+    SkPath::Verb verb;
+    SkPoint pts[4];
+    SkDEBUGCODE(int moveCnt = 0;)
+
+    while ((verb = iter.next(pts)) != kDone_Verb) {
+        int nextPt = -1;
+        switch (verb) {
+            case kMove_Verb:
+                SkASSERT(!moveCnt);
+                SkDEBUGCODE(++moveCnt);
+                firstPt = prevPt = pts[0];
+                break;
+            case kLine_Verb:
+                nextPt = 1;
+                SkASSERT(moveCnt);
+                break;
+            case kQuad_Verb:
+                SkASSERT(moveCnt);
+                nextPt = 2;
+                break;
+            case kCubic_Verb:
+                SkASSERT(moveCnt);
+                nextPt = 3;
+                break;
+            case kClose_Verb:
+                break;
+            default:
+                SkDEBUGFAIL("unknown verb");
+        }
+        if (-1 != nextPt) {
+            if (!check_edge_against_rect(prevPt, pts[nextPt], rect, direction)) {
+                return false;
+            }
+            prevPt = pts[nextPt];
+        }
+    }
+
+    return check_edge_against_rect(prevPt, firstPt, rect, direction);
+}
+
 #ifdef SK_BUILD_FOR_ANDROID
 uint32_t SkPath::getGenerationID() const {
     return fGenerationID;

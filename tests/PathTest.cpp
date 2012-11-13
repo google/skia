@@ -822,6 +822,162 @@ static void test_isLine(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, pts[1].equals(lineX, lineY));
 }
 
+static void test_conservativelyContains(skiatest::Reporter* reporter) {
+    SkPath path;
+
+    // kBaseRect is used to construct most our test paths: a rect, a circle, and a round-rect.
+    static const SkRect kBaseRect = SkRect::MakeWH(SkIntToScalar(100), SkIntToScalar(100));
+
+    // A circle that bounds kBaseRect (with a significant amount of slop)
+    SkScalar circleR = SkMaxScalar(kBaseRect.width(), kBaseRect.height());
+    circleR = SkScalarMul(circleR, SkFloatToScalar(1.75f)) / 2;
+    static const SkPoint kCircleC = {kBaseRect.centerX(), kBaseRect.centerY()};
+
+    // round-rect radii
+    static const SkScalar kRRRadii[] = {SkIntToScalar(5), SkIntToScalar(3)};
+    
+    static const struct {
+        SkRect fQueryRect;
+        bool   fInRect;
+        bool   fInCircle;
+        bool   fInRR;
+    } kQueries[] = {
+        {kBaseRect, true, true, false},
+
+        // rect well inside of kBaseRect
+        {SkRect::MakeLTRB(kBaseRect.fLeft + SkFloatToScalar(0.25f)*kBaseRect.width(),
+                          kBaseRect.fTop + SkFloatToScalar(0.25f)*kBaseRect.height(),
+                          kBaseRect.fRight - SkFloatToScalar(0.25f)*kBaseRect.width(),
+                          kBaseRect.fBottom - SkFloatToScalar(0.25f)*kBaseRect.height()),
+                          true, true, true},
+
+        // rects with edges off by one from kBaseRect's edges
+        {SkRect::MakeXYWH(kBaseRect.fLeft, kBaseRect.fTop,
+                          kBaseRect.width(), kBaseRect.height() + 1),
+         false, true, false},
+        {SkRect::MakeXYWH(kBaseRect.fLeft, kBaseRect.fTop,
+                          kBaseRect.width() + 1, kBaseRect.height()),
+         false, true, false},
+        {SkRect::MakeXYWH(kBaseRect.fLeft, kBaseRect.fTop,
+                          kBaseRect.width() + 1, kBaseRect.height() + 1),
+         false, true, false},
+        {SkRect::MakeXYWH(kBaseRect.fLeft - 1, kBaseRect.fTop,
+                          kBaseRect.width(), kBaseRect.height()),
+         false, true, false},
+        {SkRect::MakeXYWH(kBaseRect.fLeft, kBaseRect.fTop - 1,
+                          kBaseRect.width(), kBaseRect.height()),
+         false, true, false},
+        {SkRect::MakeXYWH(kBaseRect.fLeft - 1, kBaseRect.fTop,
+                          kBaseRect.width() + 2, kBaseRect.height()),
+         false, true, false},
+        {SkRect::MakeXYWH(kBaseRect.fLeft, kBaseRect.fTop - 1,
+                          kBaseRect.width() + 2, kBaseRect.height()),
+         false, true, false},
+
+        // zero-w/h rects at each corner of kBaseRect
+        {SkRect::MakeXYWH(kBaseRect.fLeft, kBaseRect.fTop, 0, 0), true, true, false},
+        {SkRect::MakeXYWH(kBaseRect.fRight, kBaseRect.fTop, 0, 0), true, true, false},
+        {SkRect::MakeXYWH(kBaseRect.fLeft, kBaseRect.fBottom, 0, 0), true, true, false},
+        {SkRect::MakeXYWH(kBaseRect.fRight, kBaseRect.fBottom, 0, 0), true, true, false},
+
+        // far away rect
+        {SkRect::MakeXYWH(10 * kBaseRect.fRight, 10 * kBaseRect.fBottom,
+                          SkIntToScalar(10), SkIntToScalar(10)),
+         false, false, false},
+
+        // very large rect containing kBaseRect
+        {SkRect::MakeXYWH(kBaseRect.fLeft - 5 * kBaseRect.width(),
+                          kBaseRect.fTop - 5 * kBaseRect.height(),
+                          11 * kBaseRect.width(), 11 * kBaseRect.height()),
+         false, false, false},
+
+        // skinny rect that spans same y-range as kBaseRect
+        {SkRect::MakeXYWH(kBaseRect.centerX(), kBaseRect.fTop,
+                          SkIntToScalar(1), kBaseRect.height()),
+         true, true, true},
+
+        // short rect that spans same x-range as kBaseRect
+        {SkRect::MakeXYWH(kBaseRect.fLeft, kBaseRect.centerY(), kBaseRect.width(), SkScalar(1)),
+         true, true, true},
+
+        // skinny rect that spans slightly larger y-range than kBaseRect
+        {SkRect::MakeXYWH(kBaseRect.centerX(), kBaseRect.fTop,
+                          SkIntToScalar(1), kBaseRect.height() + 1),
+         false, true, false},
+
+        // short rect that spans slightly larger x-range than kBaseRect
+        {SkRect::MakeXYWH(kBaseRect.fLeft, kBaseRect.centerY(),
+                          kBaseRect.width() + 1, SkScalar(1)),
+         false, true, false},
+    };
+
+    for (int inv = 0; inv < 4; ++inv) {
+        for (int q = 0; q < SK_ARRAY_COUNT(kQueries); ++q) {
+            SkRect qRect = kQueries[q].fQueryRect;
+            if (inv & 0x1) {
+                SkTSwap(qRect.fLeft, qRect.fRight);
+            }
+            if (inv & 0x2) {
+                SkTSwap(qRect.fTop, qRect.fBottom);
+            }
+            for (int d = 0; d < 2; ++d) {
+                SkPath::Direction dir = d ? SkPath::kCCW_Direction : SkPath::kCW_Direction;
+                path.reset();
+                path.addRect(kBaseRect, dir);
+                REPORTER_ASSERT(reporter, kQueries[q].fInRect ==
+                                          path.conservativelyContainsRect(qRect));
+
+                path.reset();
+                path.addCircle(kCircleC.fX, kCircleC.fY, circleR, dir);
+                REPORTER_ASSERT(reporter, kQueries[q].fInCircle ==
+                                          path.conservativelyContainsRect(qRect));
+
+                path.reset();
+                path.addRoundRect(kBaseRect, kRRRadii[0], kRRRadii[1], dir);
+                REPORTER_ASSERT(reporter, kQueries[q].fInRR ==
+                                          path.conservativelyContainsRect(qRect));
+            }
+            // Slightly non-convex shape, shouldn't contain any rects.
+            path.reset();
+            path.moveTo(0, 0);
+            path.lineTo(SkIntToScalar(50), SkFloatToScalar(0.05f));
+            path.lineTo(SkIntToScalar(100), 0);
+            path.lineTo(SkIntToScalar(100), SkIntToScalar(100));
+            path.lineTo(0, SkIntToScalar(100));
+            path.close();
+            REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(qRect));
+        }
+    }
+
+    // make sure a minimal convex shape works, a right tri with edges along pos x and y axes.
+    path.reset();
+    path.moveTo(0, 0);
+    path.lineTo(SkIntToScalar(100), 0);
+    path.lineTo(0, SkIntToScalar(100));
+
+    // inside, on along top edge
+    REPORTER_ASSERT(reporter, path.conservativelyContainsRect(SkRect::MakeXYWH(SkIntToScalar(50), 0,
+                                                                               SkIntToScalar(10),
+                                                                               SkIntToScalar(10))));
+    // above
+    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(
+        SkRect::MakeXYWH(SkIntToScalar(50),
+                         SkIntToScalar(-10),
+                         SkIntToScalar(10),
+                         SkIntToScalar(10))));
+    // to the left
+    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(SkRect::MakeXYWH(SkIntToScalar(-10),
+                                                                                SkIntToScalar(5),
+                                                                                SkIntToScalar(5),
+                                                                                SkIntToScalar(5))));
+
+    // outside the diagonal edge
+    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(SkRect::MakeXYWH(SkIntToScalar(10),
+                                                                                SkIntToScalar(200),
+                                                                                SkIntToScalar(20),
+                                                                                SkIntToScalar(5))));
+}
+
 // Simple isRect test is inline TestPath, below.
 // test_isRect provides more extensive testing.
 static void test_isRect(skiatest::Reporter* reporter) {
@@ -1810,6 +1966,7 @@ static void TestPath(skiatest::Reporter* reporter) {
     test_direction(reporter);
     test_convexity(reporter);
     test_convexity2(reporter);
+    test_conservativelyContains(reporter);
     test_close(reporter);
     test_segment_masks(reporter);
     test_flattening(reporter);

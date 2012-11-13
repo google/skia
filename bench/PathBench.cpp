@@ -779,6 +779,90 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
+class ConservativelyContainsBench : public SkBenchmark {
+public:
+    enum Type {
+        kRect_Type,
+        kRoundRect_Type,
+        kOval_Type,
+    };
+
+    ConservativelyContainsBench(void* param, Type type) : INHERITED(param) {
+        fIsRendering = false;
+        fParity = false;
+        fName = "conservatively_contains_";
+        switch (type) {
+            case kRect_Type:
+                fName.append("rect");
+                fPath.addRect(kBaseRect);
+                break;
+            case kRoundRect_Type:
+                fName.append("round_rect");
+                fPath.addRoundRect(kBaseRect, kRRRadii[0], kRRRadii[1]);
+                break;
+            case kOval_Type:
+                fName.append("oval");
+                fPath.addOval(kBaseRect);
+                break;
+        }
+    }
+
+private:
+    virtual const char* onGetName() SK_OVERRIDE {
+        return fName.c_str();
+    }
+
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        for (int i = 0; i < N; ++i) {
+            const SkRect& rect = fQueryRects[i % kQueryRectCnt];
+            fParity = fParity != fPath.conservativelyContainsRect(rect);
+        }
+    }
+
+    virtual void onPreDraw() SK_OVERRIDE {
+        fQueryRects.setCount(kQueryRectCnt);
+
+        SkRandom rand;
+        for (int i = 0; i < kQueryRectCnt; ++i) {
+            SkSize size;
+            SkPoint xy;
+            size.fWidth = rand.nextRangeScalar(kQueryMin.fWidth,  kQueryMax.fWidth);
+            size.fHeight = rand.nextRangeScalar(kQueryMin.fHeight, kQueryMax.fHeight);
+            xy.fX = rand.nextRangeScalar(kBounds.fLeft, kBounds.fRight - size.fWidth);
+            xy.fY = rand.nextRangeScalar(kBounds.fTop, kBounds.fBottom - size.fHeight);
+
+            fQueryRects[i] = SkRect::MakeXYWH(xy.fX, xy.fY, size.fWidth, size.fHeight);
+        }
+    }
+
+    virtual void onPostDraw() SK_OVERRIDE {
+        fQueryRects.setCount(0);
+    }
+
+    enum {
+        N = SkBENCHLOOP(100000),
+        kQueryRectCnt = 400,
+    };
+    static const SkRect kBounds;   // bounds for all random query rects
+    static const SkSize kQueryMin; // minimum query rect size, should be <= kQueryMax
+    static const SkSize kQueryMax; // max query rect size, should < kBounds
+    static const SkRect kBaseRect; // rect that is used to construct the path
+    static const SkScalar kRRRadii[2]; // x and y radii for round rect
+
+    SkString            fName;
+    SkPath              fPath;
+    bool                fParity;
+    SkTDArray<SkRect>   fQueryRects;
+
+    typedef SkBenchmark INHERITED;
+};
+
+const SkRect ConservativelyContainsBench::kBounds = SkRect::MakeWH(SkIntToScalar(100), SkIntToScalar(100));
+const SkSize ConservativelyContainsBench::kQueryMin = SkSize::Make(SkIntToScalar(1), SkIntToScalar(1));
+const SkSize ConservativelyContainsBench::kQueryMax = SkSize::Make(SkIntToScalar(40), SkIntToScalar(40));
+const SkRect ConservativelyContainsBench::kBaseRect = SkRect::MakeXYWH(SkIntToScalar(25), SkIntToScalar(25), SkIntToScalar(50), SkIntToScalar(50));
+const SkScalar ConservativelyContainsBench::kRRRadii[2] = {SkIntToScalar(5), SkIntToScalar(10)};
+
 static SkBenchmark* FactT00(void* p) { return new TrianglePathBench(p, FLAGS00); }
 static SkBenchmark* FactT01(void* p) { return new TrianglePathBench(p, FLAGS01); }
 static SkBenchmark* FactT10(void* p) { return new TrianglePathBench(p, FLAGS10); }
@@ -883,3 +967,12 @@ static BenchRegistry gRegArbRoundRectTest(ArbRoundRectTest);
 
 static SkBenchmark* ZeroRadRoundRectTest(void* p) { return new ArbRoundRectBench(p, true); }
 static BenchRegistry gRegZeroRadRoundRectTest(ZeroRadRoundRectTest);
+
+static SkBenchmark* RectConservativelyContainsTest(void* p) { return new ConservativelyContainsBench(p, ConservativelyContainsBench::kRect_Type); }
+static BenchRegistry gRegRectConservativelyContainsTest(RectConservativelyContainsTest);
+
+static SkBenchmark* RoundRectConservativelyContainsTest(void* p) { return new ConservativelyContainsBench(p, ConservativelyContainsBench::kRoundRect_Type); }
+static BenchRegistry gRegRoundRectConservativelyContainsTest(RoundRectConservativelyContainsTest);
+
+static SkBenchmark* OvalConservativelyContainsTest(void* p) { return new ConservativelyContainsBench(p, ConservativelyContainsBench::kOval_Type); }
+static BenchRegistry gRegOvalConservativelyContainsTest(OvalConservativelyContainsTest);
