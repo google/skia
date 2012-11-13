@@ -12,6 +12,82 @@
 #include "SkTemplates.h"
 #include "SkEndian.h"
 
+static int boxBlurX(const uint8_t* src, int src_row_bytes,
+                    uint8_t* dst, int dst_row_bytes,
+                    int radius, int width, int height)
+{
+    int kernelSize = radius * 2 + 1;
+    int border = SkMin32(width, radius * 2);
+    uint32_t scale = (1 << 24) / kernelSize;
+    for (int y = 0; y < height; ++y) {
+        int sum = 0;
+        uint8_t* dptr = dst + y * dst_row_bytes;
+        const uint8_t* sptr = src + y * src_row_bytes - radius;
+        for (int x = 0; x < border; ++x) {
+            sum += *(sptr + radius);
+            *dptr++ = (sum * scale) >> 24;
+            sptr++;
+        }
+        for (int x = width; x < radius * 2; ++x) {
+            *dptr++ = (sum * scale) >> 24;
+            sptr++;
+        }
+        for (int x = radius * 2; x < width; ++x) {
+            sum += *(sptr + radius);
+            *dptr++ = (sum * scale) >> 24;
+            sum -= *(sptr - radius);
+            sptr++;
+        }
+        for (int x = 0; x < border; ++x) {
+            *dptr++ = (sum * scale) >> 24;
+            sum -= *(sptr - radius);
+            sptr++;
+        }
+        SkASSERT(sum == 0);
+    }
+    return width + radius * 2;
+}
+
+static int boxBlurY(const uint8_t* src, int src_row_bytes,
+                    uint8_t* dst, int dst_row_bytes,
+                    int radius, int width, int height)
+{
+    int kernelSize = radius * 2 + 1;
+    uint32_t scale = (1 << 24) / kernelSize;
+    int border = SkMin32(height, radius * 2);
+    for (int x = 0; x < width; ++x) {
+        int sum = 0;
+        uint8_t* dptr = dst + x;
+        const uint8_t* sptr = src + x - radius * src_row_bytes;
+        for (int y = 0; y < border; ++y) {
+            sum += *(sptr + radius * src_row_bytes);
+            *dptr = (sum * scale) >> 24;
+            sptr += src_row_bytes;
+            dptr += dst_row_bytes;
+        }
+        for (int y = height; y < radius * 2; ++y) {
+            *dptr = (sum * scale) >> 24;
+            sptr += src_row_bytes;
+            dptr += dst_row_bytes;
+        }
+        for (int y = radius * 2; y < height; ++y) {
+            sum += *(sptr + radius * src_row_bytes);
+            *dptr = (sum * scale) >> 24;
+            sum -= *(sptr - radius * src_row_bytes);
+            sptr += src_row_bytes;
+            dptr += dst_row_bytes;
+        }
+        for (int y = 0; y < border; ++y) {
+            *dptr = (sum * scale) >> 24;
+            sum -= *(sptr - radius * src_row_bytes);
+            sptr += src_row_bytes;
+            dptr += dst_row_bytes;
+        }
+        SkASSERT(sum == 0);
+    }
+    return height + radius * 2;
+}
+
 // Unrolling the integer blur kernel seems to give us a ~15% speedup on Windows,
 // breakeven on Mac, and ~15% slowdown on Linux.
 // Reading a word at a time when bulding the sum buffer seems to give
@@ -553,7 +629,7 @@ void SkMask_FreeImage(uint8_t* image) {
 
 bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
                       SkScalar radius, Style style, Quality quality,
-                      SkIPoint* margin)
+                      SkIPoint* margin, bool separable)
 {
     if (src.fFormat != SkMask::kA8_Format) {
         return false;
@@ -602,7 +678,20 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
         SkAutoTCallVProc<uint8_t, SkMask_FreeImage> autoCall(dp);
 
         // build the blurry destination
-        {
+        if (separable) {
+            SkAutoTMalloc<uint8_t>  tmpBuffer(dstSize);
+            uint8_t*                tp = tmpBuffer.get();
+            int w = sw, h = sh;
+
+            w = boxBlurX(sp, src.fRowBytes, tp, dst->fRowBytes, rx, w, h);
+            h = boxBlurY(tp, dst->fRowBytes, dp, dst->fRowBytes, ry, w, h);
+            if (quality == kHigh_Quality) {
+                w = boxBlurX(dp, dst->fRowBytes, tp, dst->fRowBytes, rx, w, h);
+                h = boxBlurY(tp, dst->fRowBytes, dp, dst->fRowBytes, ry, w, h);
+                w = boxBlurX(dp, dst->fRowBytes, tp, dst->fRowBytes, rx, w, h);
+                h = boxBlurY(tp, dst->fRowBytes, dp, dst->fRowBytes, ry, w, h);
+            }
+        } else {
             const size_t storageW = sw + 2 * (passCount - 1) * rx + 1;
             const size_t storageH = sh + 2 * (passCount - 1) * ry + 1;
             SkAutoTMalloc<uint32_t> storage(storageW * storageH);
@@ -638,6 +727,7 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
                     apply_kernel_interp(dp, rx, ry, sumBuffer, tmp_sw, tmp_sh,
                                         outer_weight);
             }
+#endif
         }
 
         dst->fImage = dp;
@@ -670,3 +760,16 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
     return true;
 }
 
+bool SkBlurMask::BlurSeparable(SkMask* dst, const SkMask& src,
+                               SkScalar radius, Style style, Quality quality,
+                               SkIPoint* margin)
+{
+    return SkBlurMask::Blur(dst, src, radius, style, quality, margin, true);
+}
+
+bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
+                     SkScalar radius, Style style, Quality quality,
+                     SkIPoint* margin)
+{
+    return SkBlurMask::Blur(dst, src, radius, style, quality, margin, false);
+}
