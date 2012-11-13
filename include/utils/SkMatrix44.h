@@ -29,7 +29,7 @@
         return x;
     }
     static const SkMScalar SK_MScalarPI = 3.141592653589793;
-#else
+#elif defined SK_MSCALAR_IS_FLOAT
     typedef float SkMScalar;
     static inline float SkFloatToMScalar(float x) {
         return x;
@@ -202,7 +202,7 @@ public:
 
 #ifdef SK_MSCALAR_IS_DOUBLE
     void mapMScalars(const SkMScalar src[4], SkMScalar dst[4]) const;
-#else
+#elif defined SK_MSCALAR_IS_FLOAT
     void mapMScalars(const SkMScalar src[4], SkMScalar dst[4]) const {
         this->mapScalars(src, dst);
     }
