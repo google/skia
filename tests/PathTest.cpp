@@ -387,7 +387,8 @@ static void test_direction(skiatest::Reporter* reporter) {
         "M 20 10 Q 20 20 30 20 L 10 20", // test double-back at y-max
         // rect with top two corners replaced by cubics with identical middle
         // control points
-        "M 10 10 C 10 0 10 0 20 0 L 40 0 C 50 0 50 0 50 10"
+        "M 10 10 C 10 0 10 0 20 0 L 40 0 C 50 0 50 0 50 10",
+        "M 20 10 L 0 10 Q 10 10 20 0",  // left, degenerate serif
     };
     for (i = 0; i < SK_ARRAY_COUNT(gCW); ++i) {
         path.reset();
@@ -402,7 +403,8 @@ static void test_direction(skiatest::Reporter* reporter) {
         "M 20 10 Q 20 20 10 20 L 30 20", // test double-back at y-max
         // rect with top two corners replaced by cubics with identical middle
         // control points
-        "M 50 10 C 50 0 50 0 40 0 L 20 0 C 10 0 10 0 10 10"
+        "M 50 10 C 50 0 50 0 40 0 L 20 0 C 10 0 10 0 10 10",
+        "M 10 10 L 30 10 Q 20 10 10 0",  // right, degenerate serif
     };
     for (i = 0; i < SK_ARRAY_COUNT(gCCW); ++i) {
         path.reset();
