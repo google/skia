@@ -292,7 +292,7 @@ public:
     }
 
     /** Calling this will, if the internal cache of the bounds is out of date,
-        update it so that subsequent calls to getBounds will be instanteous.
+        update it so that subsequent calls to getBounds will be instantaneous.
         This also means that any copies or simple transformations of the path
         will inherit the cached bounds.
      */
@@ -300,6 +300,14 @@ public:
         // for now, just calling getBounds() is sufficient
         this->getBounds();
     }
+
+    /**
+     * Does a conservative test to see whether a rectangle is inside a path. Currently it only
+     * will ever return true for single convex contour paths. The empty-status of the rect is not
+     * considered (e.g. a rect that is a point can be inside a path). Points or line segments where
+     * the rect edge touches the path border are not considered containment violations.
+     */
+    bool conservativelyContainsRect(const SkRect& rect) const;
 
     //  Construction methods
 
