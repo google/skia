@@ -209,9 +209,7 @@ inline bool get_direction(const SkPath& path, const SkMatrix& m, SkPath::Directi
     SkScalar det2x2 = SkScalarMul(m.get(SkMatrix::kMScaleX), m.get(SkMatrix::kMScaleY)) -
                       SkScalarMul(m.get(SkMatrix::kMSkewX), m.get(SkMatrix::kMSkewY));
     if (det2x2 < 0) {
-        GR_STATIC_ASSERT(0 == SkPath::kCW_Direction || 1 == SkPath::kCW_Direction);
-        GR_STATIC_ASSERT(0 == SkPath::kCCW_Direction || 1 == SkPath::kCCW_Direction);
-        *dir = static_cast<SkPath::Direction>(*dir ^ 0x1);
+        *dir = SkPath::OppositeDirection(*dir);
     }
     return true;
 }
@@ -223,7 +221,7 @@ bool get_segments(const SkPath& path,
                   int* vCount,
                   int* iCount) {
     SkPath::Iter iter(path, true);
-    // This renderer overemphasises very thin path regions. We use the distance
+    // This renderer over-emphasizes very thin path regions. We use the distance
     // to the path from the sample to compute coverage. Every pixel intersected
     // by the path will be hit and the maximum distance is sqrt(2)/2. We don't
     // notice that the sample may be close to a very thin area of the path and
