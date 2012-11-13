@@ -161,7 +161,7 @@ protected:
     static const int PICTURE_VERSION = 9;
 
     // fPlayback, fRecord, fWidth & fHeight are protected to allow derived classes to
-    // install their own SkPicturePlayback-derived players,SkPictureRecord-derived 
+    // install their own SkPicturePlayback-derived players,SkPictureRecord-derived
     // recorders and set the picture size
     SkPicturePlayback* fPlayback;
     SkPictureRecord* fRecord;

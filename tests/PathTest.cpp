@@ -1474,7 +1474,7 @@ static void check_for_circle(skiatest::Reporter* reporter,
     SkRect rect;
     REPORTER_ASSERT(reporter, path.isOval(&rect) == expectedCircle);
     REPORTER_ASSERT(reporter, path.cheapIsDirection(expectedDir));
-   
+
     if (expectedCircle) {
         REPORTER_ASSERT(reporter, rect.height() == rect.width());
     }
