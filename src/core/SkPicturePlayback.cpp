@@ -574,6 +574,14 @@ struct SkipClipRec {
 };
 #endif
 
+#ifdef SK_PICTURE_PROFILING_STUBS
+void SkPicturePlayback::preDraw(size_t offset, int type) {
+}
+
+void SkPicturePlayback::postDraw(size_t offset) {
+}
+#endif
+
 void SkPicturePlayback::draw(SkCanvas& canvas) {
 #ifdef ENABLE_TIME_DRAW
     SkAutoTime  at("SkPicture::draw", 50);
@@ -622,7 +630,14 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
     SkMatrix initialMatrix = canvas.getTotalMatrix();
 
     while (!reader.eof()) {
-        switch (reader.readInt()) {
+#ifdef SK_PICTURE_PROFILING_STUBS
+        size_t curOffset = reader.offset();
+#endif
+        int type = reader.readInt();
+#ifdef SK_PICTURE_PROFILING_STUBS
+        this->preDraw(curOffset, type);
+#endif
+        switch (type) {
             case CLIP_PATH: {
                 const SkPath& path = getPath(reader);
                 uint32_t packed = reader.readInt();
@@ -864,6 +879,10 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
             default:
                 SkASSERT(0);
         }
+
+#ifdef SK_PICTURE_PROFILING_STUBS
+        this->postDraw(curOffset);
+#endif
 
         if (it.isValid()) {
             uint32_t off = it.draw();
