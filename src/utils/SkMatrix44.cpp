@@ -42,7 +42,7 @@ void SkMatrix44::asColMajorf(float dst[]) const {
     for (int i = 0; i < 16; ++i) {
         dst[i] = SkMScalarToFloat(src[i]);
     }
-#else
+#elif defined SK_MSCALAR_IS_FLOAT
     memcpy(dst, src, 16 * sizeof(float));
 #endif
 }
@@ -51,7 +51,7 @@ void SkMatrix44::asColMajord(double dst[]) const {
     const SkMScalar* src = &fMat[0][0];
 #ifdef SK_MSCALAR_IS_DOUBLE
     memcpy(dst, src, 16 * sizeof(double));
-#else
+#elif defined SK_MSCALAR_IS_FLOAT
     for (int i = 0; i < 16; ++i) {
         dst[i] = SkMScalarToDouble(src[i]);
     }
