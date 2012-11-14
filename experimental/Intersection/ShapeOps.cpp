@@ -78,6 +78,7 @@ static Segment* findChaseOp(SkTDArray<Span*>& chase, int& tIndex, int& endIndex)
         segment->debugShowSort(__FUNCTION__, sorted, firstIndex, winding, oWinding);
     #endif
         winding -= segment->spanSign(angle);
+        oWinding -= segment->oppSign(angle);
         bool firstOperand = segment->operand();
         do {
             SkASSERT(nextIndex != firstIndex);
@@ -87,14 +88,17 @@ static Segment* findChaseOp(SkTDArray<Span*>& chase, int& tIndex, int& endIndex)
             angle = sorted[nextIndex];
             segment = angle->segment();
             int deltaSum = segment->spanSign(angle);
+            int deltaOppSum = segment->oppSign(angle);
             bool angleIsOp = segment->operand() ^ firstOperand;
             int maxWinding;
             if (angleIsOp) {
                 maxWinding = oWinding;
                 oWinding -= deltaSum;
+                winding -= deltaOppSum;
             } else {
                 maxWinding = winding;
                 winding -= deltaSum;
+                oWinding -= deltaOppSum;
             }
     #if DEBUG_SORT
             SkDebugf("%s id=%d maxWinding=%d winding=%d oWinding=%d sign=%d\n", __FUNCTION__,
@@ -125,14 +129,29 @@ static Segment* findChaseOp(SkTDArray<Span*>& chase, int& tIndex, int& endIndex)
     return NULL;
 }
 
-static bool windingIsActive(int winding, int oppWinding, int spanWinding,
+static bool windingIsActive(int winding, int oppWinding, int spanWinding, int oppSpanWinding,
         bool windingIsOp, ShapeOp op) {
     bool active = windingIsActive(winding, spanWinding);
     if (!active) {
         return false;
     }
+    if (oppSpanWinding && windingIsActive(oppWinding, oppSpanWinding)) {
+        return op == kIntersect_Op || op == kUnion_Op;
+    }
     bool opActive = oppWinding != 0;
     return gOpLookup[op][opActive][windingIsOp];
+}
+
+static int updateWindings(const Segment* current, int index, int endIndex,
+        int& spanWinding, int& oppWinding, int& oppSpanWinding) {
+    int winding = updateWindings(current, index, endIndex, spanWinding);
+    int lesser = SkMin32(index, endIndex);
+    oppWinding = current->oppSum(lesser);
+    oppSpanWinding = current->oppSign(index, endIndex);
+    if (oppSpanWinding && useInnerWinding(oppWinding - oppSpanWinding, oppWinding)) {
+        oppWinding -= oppSpanWinding;
+    }
+    return winding;
 }
 
 static bool bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
@@ -188,14 +207,15 @@ static bool bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
         int winding = contourWinding;
         int oppWinding = oppContourWinding;
         int spanWinding = current->spanSign(index, endIndex);
+        int oppSpanWinding = current->oppSign(index, endIndex);
         SkTDArray<Span*> chaseArray;
         do {
-            bool active = windingIsActive(winding, oppWinding, spanWinding,
+            bool active = windingIsActive(winding, oppWinding, spanWinding, oppSpanWinding,
                     current->operand(), op);
         #if DEBUG_WINDING
-            SkDebugf("%s active=%s winding=%d oppWinding=%d spanWinding=%d\n",
+            SkDebugf("%s active=%s winding=%d oppWinding=%d spanWinding=%d oppSpanWinding=%d\n",
                     __FUNCTION__, active ? "true" : "false",
-                    winding, oppWinding, spanWinding);
+                    winding, oppWinding, spanWinding, oppSpanWinding);
         #endif
             do {
         #if DEBUG_ACTIVE_SPANS
@@ -207,7 +227,7 @@ static bool bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
                 int nextStart = index;
                 int nextEnd = endIndex;
                 Segment* next = current->findNextOp(chaseArray, active,
-                        nextStart, nextEnd, winding, oppWinding, spanWinding,
+                        nextStart, nextEnd, winding, oppWinding, spanWinding, oppSpanWinding,
                         unsortable, op, aXorMask, bXorMask);
                 if (!next) {
                     SkASSERT(!unsortable);
@@ -244,7 +264,8 @@ static bool bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
             if (!current) {
                 break;
             }
-            winding = updateWindings(current, index, endIndex, spanWinding, &oppWinding);
+            winding = updateWindings(current, index, endIndex, spanWinding, oppWinding,
+                    oppSpanWinding);
         } while (true);
     } while (true);
     return closable;
@@ -281,7 +302,8 @@ void operate(const SkPath& one, const SkPath& two, ShapeOp op, SkPath& result) {
         } while (addIntersectTs(current, next) && nextPtr != listEnd);
     } while (currentPtr != listEnd);
     // eat through coincident edges
-    coincidenceCheck(contourList);
+    coincidenceCheck(contourList, (aXorMask == kEvenOdd_Mask)
+            ^ (bXorMask == kEvenOdd_Mask));
     fixOtherTIndex(contourList);
     sortSegments(contourList);
 #if DEBUG_ACTIVE_SPANS
