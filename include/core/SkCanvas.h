@@ -85,14 +85,6 @@ public:
     */
     SkDevice* getDevice() const;
 
-    /** DEPRECATED -- use constructor(device)
-     
-        Specify a device for this canvas to draw into. If it is not null, its
-        reference count is incremented. If the canvas was already holding a
-        device, its reference count is decremented. The new device is returned.
-    */
-    virtual SkDevice* setDevice(SkDevice* device);
-
     /**
      *  saveLayer() can create another device (which is later drawn onto
      *  the previous device). getTopDevice() returns the top-most device current
@@ -976,6 +968,17 @@ protected:
     // notify our surface (if we have one) that we are about to draw, so it
     // can perform copy-on-write or invalidate any cached images
     void predrawNotify();
+
+    /** DEPRECATED -- use constructor(device)
+
+     Marked as 'protected' to avoid new clients using this before we can
+     completely remove it.
+
+     Specify a device for this canvas to draw into. If it is not null, its
+     reference count is incremented. If the canvas was already holding a
+     device, its reference count is decremented. The new device is returned.
+     */
+    virtual SkDevice* setDevice(SkDevice* device);
 
 private:
     class MCRec;
