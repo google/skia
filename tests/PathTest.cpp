@@ -835,7 +835,7 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
 
     // round-rect radii
     static const SkScalar kRRRadii[] = {SkIntToScalar(5), SkIntToScalar(3)};
-    
+
     static const struct {
         SkRect fQueryRect;
         bool   fInRect;

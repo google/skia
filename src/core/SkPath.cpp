@@ -342,7 +342,7 @@ bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
     if (kConvex_Convexity != this->getConvexity()) {
         return false;
     }
-    
+
     Direction direction;
     if (!this->cheapComputeDirection(&direction)) {
         return false;
