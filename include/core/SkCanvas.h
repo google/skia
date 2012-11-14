@@ -85,7 +85,9 @@ public:
     */
     SkDevice* getDevice() const;
 
-    /** Specify a device for this canvas to draw into. If it is not null, its
+    /** DEPRECATED -- use constructor(device)
+     
+        Specify a device for this canvas to draw into. If it is not null, its
         reference count is incremented. If the canvas was already holding a
         device, its reference count is decremented. The new device is returned.
     */
