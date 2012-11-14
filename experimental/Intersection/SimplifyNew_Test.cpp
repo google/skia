@@ -2552,62 +2552,58 @@ static void testQuadratic21() {
 }
 
 static void testIntersect1() {
-    SkPath one, two, result;
-    one.addRect(0, 0, 6, 6, (SkPath::Direction) 0);
-    two.addRect(3, 3, 9, 9, (SkPath::Direction) 0);
-    operate(one, two, kIntersect_Op, result);
-    SkASSERT(result.countPoints() == 5);
-    SkASSERT(result.countVerbs() == 6); // move, 4 lines, close
-    SkRect bounds = result.getBounds();
-    SkASSERT(bounds.fLeft == 3);
-    SkASSERT(bounds.fTop == 3);
-    SkASSERT(bounds.fRight == 6);
-    SkASSERT(bounds.fBottom == 6);
+    SkPath one, two;
+    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
+    two.addRect(3, 3, 9, 9, SkPath::kCW_Direction);
     testShapeOp(one, two, kIntersect_Op);
 }
 
 static void testUnion1() {
-    SkPath one, two, result;
-    one.addRect(0, 0, 6, 6, (SkPath::Direction) 0);
-    two.addRect(3, 3, 9, 9, (SkPath::Direction) 0);
-    operate(one, two, kUnion_Op, result);
-    SkASSERT(result.countPoints() == 9);
-    SkASSERT(result.countVerbs() == 10); // move, 8 lines, close
-    SkRect bounds = result.getBounds();
-    SkASSERT(bounds.fLeft == 0);
-    SkASSERT(bounds.fTop == 0);
-    SkASSERT(bounds.fRight == 9);
-    SkASSERT(bounds.fBottom == 9);
+    SkPath one, two;
+    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
+    two.addRect(3, 3, 9, 9, SkPath::kCW_Direction);
     testShapeOp(one, two, kUnion_Op);
 }
 
 static void testDiff1() {
-    SkPath one, two, result;
-    one.addRect(0, 0, 6, 6, (SkPath::Direction) 0);
-    two.addRect(3, 3, 9, 9, (SkPath::Direction) 0);
-    operate(one, two, kDifference_Op, result);
-    SkASSERT(result.countPoints() == 7);
-    SkASSERT(result.countVerbs() == 8); // move, 6 lines, close
-    SkRect bounds = result.getBounds();
-    SkASSERT(bounds.fLeft == 0);
-    SkASSERT(bounds.fTop == 0);
-    SkASSERT(bounds.fRight == 6);
-    SkASSERT(bounds.fBottom == 6);
+    SkPath one, two;
+    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
+    two.addRect(3, 3, 9, 9, SkPath::kCW_Direction);
     testShapeOp(one, two, kDifference_Op);
 }
 
 static void testXor1() {
-    SkPath one, two, result;
-    one.addRect(0, 0, 6, 6, (SkPath::Direction) 0);
-    two.addRect(3, 3, 9, 9, (SkPath::Direction) 0);
-    operate(one, two, kXor_Op, result);
-    SkASSERT(result.countPoints() == 14);
-    SkASSERT(result.countVerbs() == 16); // move, 6 lines, close, move, 6 lines, close
-    SkRect bounds = result.getBounds();
-    SkASSERT(bounds.fLeft == 0);
-    SkASSERT(bounds.fTop == 0);
-    SkASSERT(bounds.fRight == 9);
-    SkASSERT(bounds.fBottom == 9);
+    SkPath one, two;
+    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
+    two.addRect(3, 3, 9, 9, SkPath::kCW_Direction);
+    testShapeOp(one, two, kXor_Op);
+}
+
+static void testIntersect2() {
+    SkPath one, two;
+    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
+    two.addRect(0, 3, 9, 9, SkPath::kCW_Direction);
+    testShapeOp(one, two, kIntersect_Op);
+}
+
+static void testUnion2() {
+    SkPath one, two;
+    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
+    two.addRect(0, 3, 9, 9, SkPath::kCW_Direction);
+    testShapeOp(one, two, kUnion_Op);
+}
+
+static void testDiff2() {
+    SkPath one, two;
+    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
+    two.addRect(0, 3, 9, 9, SkPath::kCW_Direction);
+    testShapeOp(one, two, kDifference_Op);
+}
+
+static void testXor2() {
+    SkPath one, two;
+    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
+    two.addRect(0, 3, 9, 9, SkPath::kCW_Direction);
     testShapeOp(one, two, kXor_Op);
 }
 
@@ -3215,13 +3211,19 @@ static struct {
     void (*fun)();
     const char* str;
 } subTests[] = {
-    TEST(testXor1),
     TEST(testDiff1),
     TEST(testIntersect1),
     TEST(testUnion1),
+    TEST(testXor1),
+    TEST(testDiff2),
+    TEST(testIntersect2),
+    TEST(testUnion2),
+    TEST(testXor2),
 };
 
 static const size_t subTestCount = sizeof(subTests) / sizeof(subTests[0]);
+
+static void (*firstBinaryTest)() = testUnion2;
 
 static bool skipAll = false;
 static bool runBinaryTestsFirst = true;
@@ -3236,6 +3238,14 @@ void SimplifyNew_Test() {
     gDebugMaxWindValue = 4;
     size_t index;
 #endif
+    if (firstBinaryTest) {
+        index = subTestCount - 1;
+        while (index > 0 && subTests[index].fun != firstBinaryTest) {
+            --index;
+        }
+        SkDebugf("  %s [%s]\n", __FUNCTION__, subTests[index].str);
+        (*subTests[index].fun)();
+    }
     if (runBinaryTestsFirst) {
         index = subTestCount - 1;
         do {
