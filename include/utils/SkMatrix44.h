@@ -119,6 +119,13 @@ public:
     SkMScalar get(int row, int col) const;
     void set(int row, int col, const SkMScalar& value);
 
+    double getDouble(int row, int col) const {
+        return SkMScalarToDouble(this->get(row, col));
+    }
+    void setDouble(int row, int col, double value) {
+        this->set(row, col, SkDoubleToMScalar(value));
+    }
+
     void asColMajorf(float[]) const;
     void asColMajord(double[]) const;
     void asRowMajorf(float[]) const;
@@ -182,6 +189,9 @@ public:
         not invertible, return false and ignore the inverse parameter.
      */
     bool invert(SkMatrix44* inverse) const;
+
+    /** Transpose this matrix in place. */
+    void transpose();
 
     /** Apply the matrix to the src vector, returning the new vector in dst.
         It is legal for src and dst to point to the same memory.

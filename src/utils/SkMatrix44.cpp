@@ -323,6 +323,17 @@ bool SkMatrix44::invert(SkMatrix44* inverse) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void SkMatrix44::transpose() {
+    SkTSwap(fMat[0][1], fMat[1][0]);
+    SkTSwap(fMat[0][2], fMat[2][0]);
+    SkTSwap(fMat[0][3], fMat[3][0]);
+    SkTSwap(fMat[1][2], fMat[2][1]);
+    SkTSwap(fMat[1][3], fMat[3][1]);
+    SkTSwap(fMat[2][3], fMat[3][2]);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void SkMatrix44::mapScalars(const SkScalar src[4], SkScalar dst[4]) const {
     SkScalar result[4];
     for (int i = 0; i < 4; i++) {
