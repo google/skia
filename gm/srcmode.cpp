@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
+#include "SkSurface.h"
 
 #define W   SkIntToScalar(80)
 #define H   SkIntToScalar(60)
@@ -56,7 +57,7 @@ class SrcModeGM : public skiagm::GM {
     SkPath fPath;
 public:
     SrcModeGM() {
-        this->setBGColor(0xFFDDDDDD);
+        this->setBGColor(SK_ColorBLACK);
     }
 
 protected:
@@ -68,7 +69,7 @@ protected:
         return SkISize::Make(640, 760);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void drawContent(SkCanvas* canvas) {
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
 
         SkPaint paint;
@@ -105,6 +106,24 @@ protected:
             canvas->restore();
             canvas->translate(0, (H * 5 / 4) * SK_ARRAY_COUNT(procs));
         }
+    }
+
+    static SkSurface* compat_surface(SkCanvas* canvas, const SkISize& size) {
+        SkImage::Info info = {
+            size.width(),
+            size.height(),
+            SkImage::kPMColor_ColorType,
+            SkImage::kPremul_AlphaType
+        };
+        return SkSurface::NewRaster(info);
+    }
+
+    virtual void onDraw(SkCanvas* canvas) {
+        SkAutoTUnref<SkSurface> surf(compat_surface(canvas, this->getISize()));
+        surf->getCanvas()->drawColor(SK_ColorWHITE);
+        this->drawContent(surf->getCanvas());
+        surf->draw(canvas, 0, 0, NULL);
+        
     }
 
 private:
