@@ -207,63 +207,34 @@ private:
 };
 
 
-static SkBenchmark* RectFactory1F(void* p) { return SkNEW_ARGS(RectBench, (p, 1)); }
-static SkBenchmark* RectFactory1S(void* p) { return SkNEW_ARGS(RectBench, (p, 1, 4)); }
-static SkBenchmark* RectFactory2F(void* p) { return SkNEW_ARGS(RectBench, (p, 3)); }
-static SkBenchmark* RectFactory2S(void* p) { return SkNEW_ARGS(RectBench, (p, 3, 4)); }
-static SkBenchmark* OvalFactory1(void* p) { return SkNEW_ARGS(OvalBench, (p, 1)); }
-static SkBenchmark* OvalFactory2(void* p) { return SkNEW_ARGS(OvalBench, (p, 3)); }
-static SkBenchmark* RRectFactory1(void* p) { return SkNEW_ARGS(RRectBench, (p, 1)); }
-static SkBenchmark* RRectFactory2(void* p) { return SkNEW_ARGS(RRectBench, (p, 3)); }
-static SkBenchmark* PointsFactory(void* p) {
-    return SkNEW_ARGS(PointsBench, (p, SkCanvas::kPoints_PointMode, "points"));
-}
-static SkBenchmark* LinesFactory(void* p) {
-    return SkNEW_ARGS(PointsBench, (p, SkCanvas::kLines_PointMode, "lines"));
-}
-static SkBenchmark* PolygonFactory(void* p) {
-    return SkNEW_ARGS(PointsBench, (p, SkCanvas::kPolygon_PointMode, "polygon"));
-}
+DEF_BENCH( return SkNEW_ARGS(RectBench, (p, 1)); )
+DEF_BENCH( return SkNEW_ARGS(RectBench, (p, 1, 4)); )
+DEF_BENCH( return SkNEW_ARGS(RectBench, (p, 3)); )
+DEF_BENCH( return SkNEW_ARGS(RectBench, (p, 3, 4)); )
+DEF_BENCH( return SkNEW_ARGS(OvalBench, (p, 1)); )
+DEF_BENCH( return SkNEW_ARGS(OvalBench, (p, 3)); )
+DEF_BENCH( return SkNEW_ARGS(RRectBench, (p, 1)); )
+DEF_BENCH( return SkNEW_ARGS(RRectBench, (p, 3)); )
+DEF_BENCH( return SkNEW_ARGS(PointsBench, (p, SkCanvas::kPoints_PointMode, "points")); )
+DEF_BENCH( return SkNEW_ARGS(PointsBench, (p, SkCanvas::kLines_PointMode, "lines")); )
+DEF_BENCH( return SkNEW_ARGS(PointsBench, (p, SkCanvas::kPolygon_PointMode, "polygon")); )
 
 /* init the blitmask bench
  */
-static SkBenchmark* BlitMaskOpaqueFactory(void* p) {
-    return SkNEW_ARGS(BlitMaskBench,
+DEF_BENCH( return SkNEW_ARGS(BlitMaskBench,
                       (p, SkCanvas::kPoints_PointMode,
                       BlitMaskBench::kMaskOpaque, "maskopaque")
-                      );
-}
-static SkBenchmark* BlitMaskBlackFactory(void* p) {
-    return SkNEW_ARGS(BlitMaskBench,
+                      ); )
+DEF_BENCH( return SkNEW_ARGS(BlitMaskBench,
                       (p, SkCanvas::kPoints_PointMode,
                       BlitMaskBench::kMaskBlack, "maskblack")
-                      );
-}
-static SkBenchmark* BlitMaskColorFactory(void* p) {
-    return SkNEW_ARGS(BlitMaskBench,
+                      ); )
+DEF_BENCH( return SkNEW_ARGS(BlitMaskBench,
                       (p, SkCanvas::kPoints_PointMode,
                       BlitMaskBench::kMaskColor, "maskcolor")
-                      );
-}
-static SkBenchmark* BlitMaskShaderFactory(void* p) {
-    return SkNEW_ARGS(BlitMaskBench,
+                      ); )
+DEF_BENCH( return SkNEW_ARGS(BlitMaskBench,
                      (p, SkCanvas::kPoints_PointMode,
                      BlitMaskBench::KMaskShader, "maskshader")
-                     );
-}
+                     ); )
 
-static BenchRegistry gRectReg1F(RectFactory1F);
-static BenchRegistry gRectReg1S(RectFactory1S);
-static BenchRegistry gRectReg2F(RectFactory2F);
-static BenchRegistry gRectReg2S(RectFactory2S);
-static BenchRegistry gOvalReg1(OvalFactory1);
-static BenchRegistry gOvalReg2(OvalFactory2);
-static BenchRegistry gRRectReg1(RRectFactory1);
-static BenchRegistry gRRectReg2(RRectFactory2);
-static BenchRegistry gPointsReg(PointsFactory);
-static BenchRegistry gLinesReg(LinesFactory);
-static BenchRegistry gPolygonReg(PolygonFactory);
-static BenchRegistry gRectRegOpaque(BlitMaskOpaqueFactory);
-static BenchRegistry gRectRegBlack(BlitMaskBlackFactory);
-static BenchRegistry gRectRegColor(BlitMaskColorFactory);
-static BenchRegistry gRectRegShader(BlitMaskShaderFactory);
