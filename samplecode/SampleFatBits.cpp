@@ -91,10 +91,10 @@ public:
         SkImage::Info info = {
             width, height, SkImage::kPMColor_ColorType, SkImage::kPremul_AlphaType
         };
-        fMinSurface.reset(SkSurface::NewRaster(info, NULL));
+        fMinSurface.reset(SkSurface::NewRaster(info));
         info.fWidth *= zoom;
         info.fHeight *= zoom;
-        fMaxSurface.reset(SkSurface::NewRaster(info, NULL));
+        fMaxSurface.reset(SkSurface::NewRaster(info));
     }
 
     void drawBG(SkCanvas*);

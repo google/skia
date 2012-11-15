@@ -22,7 +22,7 @@ static SkSurface* new_surface(int width, int height) {
         SkImage::kPMColor_ColorType,
         SkImage::kPremul_AlphaType
     };
-    return SkSurface::NewRaster(info, NULL);
+    return SkSurface::NewRaster(info);
 }
 
 static void draw_pixel_centers(SkCanvas* canvas) {

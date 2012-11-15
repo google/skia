@@ -23,8 +23,6 @@ class GrTexture;
 
 ////// EXPERIMENTAL
 
-class SkColorSpace;
-
 /**
  *  SkImage is an abstraction for drawing a rectagle of pixels, though the
  *  particular type of image could be actually storing its data on the GPU, or
@@ -65,8 +63,8 @@ public:
         AlphaType   fAlphaType;
     };
 
-    static SkImage* NewRasterCopy(const Info&, SkColorSpace*, const void* pixels, size_t rowBytes);
-    static SkImage* NewRasterData(const Info&, SkColorSpace*, SkData* pixels, size_t rowBytes);
+    static SkImage* NewRasterCopy(const Info&, const void* pixels, size_t rowBytes);
+    static SkImage* NewRasterData(const Info&, SkData* pixels, size_t rowBytes);
     static SkImage* NewEncodedData(SkData*);
     static SkImage* NewTexture(GrTexture*);
 

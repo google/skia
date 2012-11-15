@@ -22,7 +22,7 @@ static SkSurface* new_surface(int w, int h) {
     SkImage::Info info = {
         w, h, SkImage::kPMColor_ColorType, SkImage::kPremul_AlphaType
     };
-    return SkSurface::NewRaster(info, NULL);
+    return SkSurface::NewRaster(info);
 }
 
 // Make sure we stay non-finite once we get there (unless we reset or rewind).
