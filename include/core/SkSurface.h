@@ -35,8 +35,7 @@ public:
      *  If the requested surface cannot be created, or the request is not a
      *  supported configuration, NULL will be returned.
      */
-    static SkSurface* NewRasterDirect(const SkImage::Info&, SkColorSpace*,
-                                      void* pixels, size_t rowBytes);
+    static SkSurface* NewRasterDirect(const SkImage::Info&, void* pixels, size_t rowBytes);
 
     /**
      *  Return a new surface, with the memory for the pixels automatically
@@ -45,7 +44,7 @@ public:
      *  If the requested surface cannot be created, or the request is not a
      *  supported configuration, NULL will be returned.
      */
-    static SkSurface* NewRaster(const SkImage::Info&, SkColorSpace*);
+    static SkSurface* NewRaster(const SkImage::Info&);
 
     /**
      *  Return a new surface whose contents will be recorded into a picture.
@@ -63,8 +62,7 @@ public:
      *  Return a new surface whose contents will be drawn to an offscreen
      *  render target, allocated by the surface.
      */
-    static SkSurface* NewRenderTarget(GrContext*, const SkImage::Info&,
-                                      SkColorSpace*, int sampleCount = 0);
+    static SkSurface* NewRenderTarget(GrContext*, const SkImage::Info&, int sampleCount = 0);
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
@@ -107,7 +105,7 @@ public:
      *  ... // draw using canvasB
      *  canvasA->drawSurface(surfaceB); // <--- this will always be optimal!
      */
-    SkSurface* newSurface(const SkImage::Info&, SkColorSpace*);
+    SkSurface* newSurface(const SkImage::Info&);
 
     /**
      *  Returns an image of the current state of the surface pixels up to this

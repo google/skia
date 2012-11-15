@@ -158,13 +158,13 @@ protected:
         info.fHeight = H;
         info.fColorType = SkImage::kPMColor_ColorType;
         info.fAlphaType = SkImage::kPremul_AlphaType;
-        SkAutoTUnref<SkSurface> surf0(SkSurface::NewRasterDirect(info, NULL, fBuffer, RB));
-        SkAutoTUnref<SkSurface> surf1(SkSurface::NewRaster(info, NULL));
+        SkAutoTUnref<SkSurface> surf0(SkSurface::NewRasterDirect(info, fBuffer, RB));
+        SkAutoTUnref<SkSurface> surf1(SkSurface::NewRaster(info));
         SkAutoTUnref<SkSurface> surf2(SkSurface::NewPicture(info.fWidth, info.fHeight));
 #if SK_SUPPORT_GPU
         GrContext* ctx = skiagm::GetGr();
 
-        SkAutoTUnref<SkSurface> surf3(SkSurface::NewRenderTarget(ctx, info, NULL, 0));
+        SkAutoTUnref<SkSurface> surf3(SkSurface::NewRenderTarget(ctx, info, 0));
 #endif
 
         test_surface(canvas, surf0);

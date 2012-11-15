@@ -123,8 +123,8 @@ SkImage* SkSurface::newImageShapshot() {
     return image;
 }
 
-SkSurface* SkSurface::newSurface(const SkImage::Info& info, SkColorSpace* cs) {
-    return asSB(this)->onNewSurface(info, cs);
+SkSurface* SkSurface::newSurface(const SkImage::Info& info) {
+    return asSB(this)->onNewSurface(info);
 }
 
 void SkSurface::draw(SkCanvas* canvas, SkScalar x, SkScalar y,
