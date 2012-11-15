@@ -840,7 +840,12 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
     // Will this automatically clear out due to nature of refcnt?
     SkTDArray<SkString*>* commands = fDebugger.getDrawCommands();
 
-    SkASSERT(commands->count() == fOffsets.count());
+    // If SkPicturePlayback is compiled w/o SK_PICTURE_PROFILING_STUBS
+    // the offset count will always be zero
+    SkASSERT(0 == fOffsets.count() || commands->count() == fOffsets.count());
+    if (0 == fOffsets.count()) {
+        fActionProfile.setDisabled(true);
+    }
 
     /* fDebugCanvas is reinitialized every load picture. Need it to retain value
      * of the visibility filter.
