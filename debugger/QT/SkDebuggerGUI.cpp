@@ -9,6 +9,12 @@
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include <QListWidgetItem>
+#include "PictureBenchmark.h"
+#include "PictureRenderer.h"
+#include "SkBenchLogger.h"
+#include "SkPictureRecord.h"
+#include "SkPicturePlayback.h"
+#include "BenchTimer.h"
 
 SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
         QMainWindow(parent)
@@ -119,7 +125,167 @@ void SkDebuggerGUI::showDeletes() {
     }
 }
 
+// The timed picture playback uses the SkPicturePlayback's profiling stubs
+// to time individual commands. The offsets are needed to map SkPicture
+// offsets to individual commands.
+class SkTimedPicturePlayback : public SkPicturePlayback {
+public:
+    SkTimedPicturePlayback(SkStream* stream, const SkPictInfo& info, bool* isValid,
+                           SkSerializationHelpers::DecodeBitmap decoder,
+                           const SkTDArray<size_t>& offsets) 
+        : INHERITED(stream, info, isValid, decoder)
+        , fTot(0.0)
+        , fCurCommand(0)
+        , fOffsets(offsets) {
+        fTimes.setCount(fOffsets.count());
+        for (int i = 0; i < fOffsets.count(); ++i) {
+            fTimes[i] = 0;
+        }
+    }
+
+    int count() const { return fTimes.count(); }
+
+    double time(int index) const { return fTimes[index] / fTot; }
+
+protected:
+    BenchTimer fTimer;
+    SkTDArray<size_t> fOffsets; // offset in the SkPicture for each command
+    SkTDArray<double> fTimes;   // sum of time consumed for each command
+    double fTot;                // total of all times in 'fTimes'
+    size_t fCurOffset;
+    int fCurCommand;            // the current command being executed/timed
+
+    virtual void preDraw(size_t offset, int type) {
+        // This search isn't as bad as it seems. In normal playback mode, the 
+        // base class steps through the commands in order and can only skip ahead
+        // a bit on a clip. This class is only used during profiling so we 
+        // don't have to worry about forward/backward scrubbing through commands.
+        for (int i = 0; offset != fOffsets[fCurCommand]; ++i) {
+            fCurCommand = (fCurCommand+1) % fOffsets.count();
+            SkASSERT(i <= fOffsets.count()); // should always find the offset in the list
+        }
+
+        fCurOffset = offset;
+
+        fTimer.start();
+    }
+
+    virtual void postDraw(size_t offset) {
+        fTimer.end();
+
+        SkASSERT(offset == fCurOffset);
+
+        fTimes[fCurCommand] += fTimer.fWall;
+        fTot += fTimer.fWall;
+    }
+
+private:
+    typedef SkPicturePlayback INHERITED;
+};
+
+// Wrap SkPicture to allow installation of an SkTimedPicturePlayback object
+class SkTimedPicture : public SkPicture {
+public:
+    explicit SkTimedPicture(SkStream* stream,
+                            bool* success,
+                            SkSerializationHelpers::DecodeBitmap decoder,
+                            const SkTDArray<size_t>& offsets) {
+        if (success) {
+            *success = false;
+        }
+        fRecord = NULL;
+        fPlayback = NULL;
+        fWidth = fHeight = 0;
+
+        SkPictInfo info;
+
+        if (!stream->read(&info, sizeof(info))) {
+            return;
+        }
+        if (SkPicture::PICTURE_VERSION != info.fVersion) {
+            return;
+        }
+
+        if (stream->readBool()) {
+            bool isValid = false;
+            fPlayback = SkNEW_ARGS(SkTimedPicturePlayback, 
+                                   (stream, info, &isValid, decoder, offsets));
+            if (!isValid) {
+                SkDELETE(fPlayback);
+                fPlayback = NULL;
+                return;
+            }
+        }
+
+        // do this at the end, so that they will be zero if we hit an error.
+        fWidth = info.fWidth;
+        fHeight = info.fHeight;
+        if (success) {
+            *success = true;
+        }
+    }
+
+    int count() const { return ((SkTimedPicturePlayback*) fPlayback)->count(); }
+
+    // return the fraction of the total time this command consumed
+    double time(int index) const { return ((SkTimedPicturePlayback*) fPlayback)->time(index); }
+
+private:
+    typedef SkPicture INHERITED;
+};
+
 void SkDebuggerGUI::actionProfile() {
+    // In order to profile we pass the command offsets (that were read-in
+    // in loadPicture by the SkOffsetPicture) to an SkTimedPlaybackPicture.
+    // The SkTimedPlaybackPicture in turn passes the offsets to an 
+    // SkTimedPicturePlayback object which uses them to track the performance
+    // of individual commands.
+    if (fFileName.isEmpty()) {
+        return;
+    }
+
+    SkFILEStream inputStream;
+
+    inputStream.setPath(fFileName.c_str());
+    if (!inputStream.isValid()) {
+        return;
+    }
+
+    bool success = false;
+    SkTimedPicture picture(&inputStream, &success, &SkImageDecoder::DecodeStream, fOffsets);
+    if (!success) {
+        return;
+    }
+
+    sk_tools::PictureBenchmark benchmark;
+
+    sk_tools::TiledPictureRenderer* renderer = NULL;
+
+    renderer = SkNEW(sk_tools::TiledPictureRenderer);
+    renderer->setTileWidth(256);
+    renderer->setTileHeight(256);
+
+
+    benchmark.setRepeats(2);
+    benchmark.setRenderer(renderer);
+    benchmark.setTimersToShow(true, false, true, false, false);
+
+    SkBenchLogger logger;
+
+    benchmark.setLogger(&logger);
+
+    benchmark.run(&picture);
+
+    SkASSERT(picture.count() == fListWidget.count());
+
+    // extract the individual command times from the SkTimedPlaybackPicture
+    for (int i = 0; i < picture.count(); ++i) {
+        double temp = picture.time(i);
+
+        QListWidgetItem* item = fListWidget.item(i);
+
+        item->setData(Qt::UserRole + 4, 100.0*temp);
+    }
 }
 
 void SkDebuggerGUI::actionCancel() {
@@ -585,19 +751,96 @@ void SkDebuggerGUI::setupDirectoryWidget() {
     }
 }
 
+// SkOffsetPicturePlayback records the offset of each command in the picture.
+// These are needed by the profiling system.
+class SkOffsetPicturePlayback : public SkPicturePlayback {
+public:
+    SkOffsetPicturePlayback(SkStream* stream, const SkPictInfo& info, bool* isValid,
+                            SkSerializationHelpers::DecodeBitmap decoder)
+        : INHERITED(stream, info, isValid, decoder) {
+    }
+
+    const SkTDArray<size_t>& offsets() const { return fOffsets; }
+
+protected:
+    SkTDArray<size_t> fOffsets;
+
+    virtual void preDraw(size_t offset, int type) {
+        *fOffsets.append() = offset;
+    }
+
+private:
+    typedef SkPicturePlayback INHERITED;
+};
+
+// Picture to wrap an SkOffsetPicturePlayback.
+class SkOffsetPicture : public SkPicture {
+public:
+    SkOffsetPicture(SkStream* stream, 
+                    bool* success, 
+                    SkSerializationHelpers::DecodeBitmap decoder) {
+        if (success) {
+            *success = false;
+        }
+        fRecord = NULL;
+        fPlayback = NULL;
+        fWidth = fHeight = 0;
+
+        SkPictInfo info;
+
+        if (!stream->read(&info, sizeof(info))) {
+            return;
+        }
+        if (PICTURE_VERSION != info.fVersion) {
+            return;
+        }
+
+        if (stream->readBool()) {
+            bool isValid = false;
+            fPlayback = SkNEW_ARGS(SkOffsetPicturePlayback, (stream, info, &isValid, decoder));
+            if (!isValid) {
+                SkDELETE(fPlayback);
+                fPlayback = NULL;
+                return;
+            }
+        }
+
+        // do this at the end, so that they will be zero if we hit an error.
+        fWidth = info.fWidth;
+        fHeight = info.fHeight;
+        if (success) {
+            *success = true;
+        }
+    }
+
+    const SkTDArray<size_t>& offsets() const { 
+        return ((SkOffsetPicturePlayback*) fPlayback)->offsets(); 
+    }
+
+private:
+    typedef SkPicture INHERITED;
+};
+
+
+
 void SkDebuggerGUI::loadPicture(const SkString& fileName) {
     fFileName = fileName;
     fLoading = true;
     SkStream* stream = SkNEW_ARGS(SkFILEStream, (fileName.c_str()));
-    SkPicture* picture = SkNEW_ARGS(SkPicture, (stream, NULL, &SkImageDecoder::DecodeStream));
+    SkOffsetPicture* picture = SkNEW_ARGS(SkOffsetPicture, (stream, NULL, &SkImageDecoder::DecodeStream));
+
     fCanvasWidget.resetWidgetTransform();
     fDebugger.loadPicture(picture);
+
+    fOffsets = picture->offsets();
 
     SkSafeUnref(stream);
     SkSafeUnref(picture);
 
     // Will this automatically clear out due to nature of refcnt?
     SkTDArray<SkString*>* commands = fDebugger.getDrawCommands();
+
+    SkASSERT(commands->count() == fOffsets.count());
 
     /* fDebugCanvas is reinitialized every load picture. Need it to retain value
      * of the visibility filter.
