@@ -1465,7 +1465,7 @@ public:
             other.addCancelOutsides(tStart, oStart, *this, endT);
         }
     }
-    
+
     int bumpCoincidentThis(const Span* oTest, const bool transfer, const bool decrementThis,
             const bool thisXor, const bool opp, int index, SkTDArray<double>& outsideTs,
             SkTDArray<double>& xOutsideTs)
@@ -1584,10 +1584,10 @@ public:
             if (decrementThis) {
                 oIndex = other.bumpCoincidentOther(test, transfer, decrementThis, otherXor, opp,
                         tRatio, oEndT, oIndex, oOutsideTs);
-                index = bumpCoincidentThis(oTest, transfer, decrementThis, thisXor, opp, 
+                index = bumpCoincidentThis(oTest, transfer, decrementThis, thisXor, opp,
                         index, outsideTs, xOutsideTs);
             } else {
-                index = bumpCoincidentThis(oTest, transfer, decrementThis, thisXor, opp, 
+                index = bumpCoincidentThis(oTest, transfer, decrementThis, thisXor, opp,
                         index, outsideTs, xOutsideTs);
                 oIndex = other.bumpCoincidentOther(test, transfer, decrementThis, otherXor, opp,
                         tRatio, oEndT, oIndex, oOutsideTs);
@@ -3048,7 +3048,7 @@ public:
         SkASSERT(angle->segment() == this);
         return oppSign(angle->start(), angle->end());
     }
-    
+
     int oppSign(int startIndex, int endIndex) const {
         int result = startIndex < endIndex ? -fTs[startIndex].fOppValue
                 : fTs[endIndex].fOppValue;
@@ -3473,7 +3473,7 @@ public:
                 wind = windSum;
             }
             if (!oppoSign) {
-                SkDebugf(" %d->%d (max=%d)", last, wind, 
+                SkDebugf(" %d->%d (max=%d)", last, wind,
                         useInnerWinding(last, wind) ? wind : last);
             } else {
                 SkDebugf(" %d->%d (%d->%d)", last, wind, opp ? lastSum : oppLastSum,
