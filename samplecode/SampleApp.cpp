@@ -92,6 +92,8 @@ SkTDArray<char> gTempDataStore;
 
 static SampleWindow* gSampleWindow;
 
+static bool gShowGMBounds;
+
 static void postEventToSink(SkEvent* evt, SkEventSink* sink) {
     evt->setTargetID(sink->getSinkID())->post();
 }
@@ -1731,6 +1733,8 @@ static void cleanup_for_filename(SkString* name) {
 }
 #endif
 
+//extern bool gIgnoreFastBlurRect;
+
 bool SampleWindow::onHandleChar(SkUnichar uni) {
     {
         SkView* view = curr_view(this);
@@ -1773,12 +1777,23 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
     }
 
     switch (uni) {
+        case 'B':
+//            gIgnoreFastBlurRect = !gIgnoreFastBlurRect;
+            this->inval(NULL);
+            break;
+
         case 'f':
             // only
             toggleFPS();
             break;
         case 'g':
             fRequestGrabImage = true;
+            this->inval(NULL);
+            break;
+        case 'G':
+            gShowGMBounds = !gShowGMBounds;
+            postEventToSink(GMSampleView::NewShowSizeEvt(gShowGMBounds),
+                            curr_view(this));
             this->inval(NULL);
             break;
         case 'i':
