@@ -1043,8 +1043,10 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
 
     err = FT_Load_Glyph( fFace, glyph->getGlyphID(fBaseGlyphCount), fLoadGlyphFlags );
     if (err != 0) {
-        SkDEBUGF(("SkScalerContext_FreeType::generateMetrics(%x): FT_Load_Glyph(glyph:%d flags:%d) returned 0x%x\n",
+#if 0
+        SkDEBUGF(("SkScalerContext_FreeType::generateMetrics(%x): FT_Load_Glyph(glyph:%d flags:%x) returned 0x%x\n",
                     fFaceRec->fFontID, glyph->getGlyphID(fBaseGlyphCount), fLoadGlyphFlags, err));
+#endif
     ERROR:
         glyph->zeroMetrics();
         return;
