@@ -73,6 +73,37 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
+class SrcModeRectBench : public RectBench {
+public:
+    SrcModeRectBench(void* param) : INHERITED(param, 1, 0) {
+        fMode = SkXfermode::Create(SkXfermode::kSrc_Mode);
+    }
+    
+    virtual ~SrcModeRectBench() {
+        SkSafeUnref(fMode);
+    }
+
+protected:
+    virtual void setupPaint(SkPaint* paint) SK_OVERRIDE {
+        this->INHERITED::setupPaint(paint);
+        // srcmode is most interesting when we're not opaque
+        paint->setAlpha(0x80);
+        paint->setXfermode(fMode);
+    }
+
+    virtual const char* onGetName() SK_OVERRIDE {
+        fName.set(this->INHERITED::onGetName());
+        fName.prepend("srcmode_");
+        return fName.c_str();
+    }
+
+private:
+    SkString fName;
+    SkXfermode* fMode;
+
+    typedef RectBench INHERITED;
+};
+
 class OvalBench : public RectBench {
 public:
     OvalBench(void* param, int shift) : RectBench(param, shift) {}
@@ -218,6 +249,8 @@ DEF_BENCH( return SkNEW_ARGS(RRectBench, (p, 3)); )
 DEF_BENCH( return SkNEW_ARGS(PointsBench, (p, SkCanvas::kPoints_PointMode, "points")); )
 DEF_BENCH( return SkNEW_ARGS(PointsBench, (p, SkCanvas::kLines_PointMode, "lines")); )
 DEF_BENCH( return SkNEW_ARGS(PointsBench, (p, SkCanvas::kPolygon_PointMode, "polygon")); )
+
+DEF_BENCH( return SkNEW_ARGS(SrcModeRectBench, (p)); )
 
 /* init the blitmask bench
  */
