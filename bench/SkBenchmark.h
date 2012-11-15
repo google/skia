@@ -107,7 +107,7 @@ public:
     bool findDefineScalar(const char* key, SkScalar* value) const;
 
 protected:
-    void setupPaint(SkPaint* paint);
+    virtual void setupPaint(SkPaint* paint);
 
     virtual const char* onGetName() = 0;
     virtual void onPreDraw() {}
