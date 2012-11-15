@@ -12,80 +12,50 @@
 #include "SkTemplates.h"
 #include "SkEndian.h"
 
-static int boxBlurX(const uint8_t* src, int src_row_bytes,
-                    uint8_t* dst, int dst_row_bytes,
-                    int radius, int width, int height)
+/**
+ * This function performs a box blur in X, of the given radius.  If the
+ * "transpose" parameter is true, it will transpose the pixels on write, 
+ * such that X and Y are swapped. Reads are always performed from contiguous
+ * memory in X, for speed. The destination buffer (dst) must be at least
+ * (width + radius * 2) * height bytes in size.
+ */
+static int boxBlur(const uint8_t* src, int src_y_stride, uint8_t* dst,
+                   int radius, int width, int height, bool transpose)
 {
     int kernelSize = radius * 2 + 1;
     int border = SkMin32(width, radius * 2);
     uint32_t scale = (1 << 24) / kernelSize;
+    int new_width = width + radius * 2;
+    int dst_x_stride = transpose ? height : 1;
+    int dst_y_stride = transpose ? 1 : new_width;
     for (int y = 0; y < height; ++y) {
         int sum = 0;
-        uint8_t* dptr = dst + y * dst_row_bytes;
-        const uint8_t* sptr = src + y * src_row_bytes - radius;
+        uint8_t* dptr = dst + y * dst_y_stride;
+        const uint8_t* right = src + y * src_y_stride;
+        const uint8_t* left = right;
         for (int x = 0; x < border; ++x) {
-            sum += *(sptr + radius);
-            *dptr++ = (sum * scale) >> 24;
-            sptr++;
+            sum += *right++;
+            *dptr = (sum * scale) >> 24;
+            dptr += dst_x_stride;
         }
         for (int x = width; x < radius * 2; ++x) {
-            *dptr++ = (sum * scale) >> 24;
-            sptr++;
+            *dptr = (sum * scale) >> 24;
+            dptr += dst_x_stride;
         }
         for (int x = radius * 2; x < width; ++x) {
-            sum += *(sptr + radius);
-            *dptr++ = (sum * scale) >> 24;
-            sum -= *(sptr - radius);
-            sptr++;
+            sum += *right++;
+            *dptr = (sum * scale) >> 24;
+            sum -= *left++;
+            dptr += dst_x_stride;
         }
         for (int x = 0; x < border; ++x) {
-            *dptr++ = (sum * scale) >> 24;
-            sum -= *(sptr - radius);
-            sptr++;
+            *dptr = (sum * scale) >> 24;
+            sum -= *left++;
+            dptr += dst_x_stride;
         }
         SkASSERT(sum == 0);
     }
-    return width + radius * 2;
-}
-
-static int boxBlurY(const uint8_t* src, int src_row_bytes,
-                    uint8_t* dst, int dst_row_bytes,
-                    int radius, int width, int height)
-{
-    int kernelSize = radius * 2 + 1;
-    uint32_t scale = (1 << 24) / kernelSize;
-    int border = SkMin32(height, radius * 2);
-    for (int x = 0; x < width; ++x) {
-        int sum = 0;
-        uint8_t* dptr = dst + x;
-        const uint8_t* sptr = src + x - radius * src_row_bytes;
-        for (int y = 0; y < border; ++y) {
-            sum += *(sptr + radius * src_row_bytes);
-            *dptr = (sum * scale) >> 24;
-            sptr += src_row_bytes;
-            dptr += dst_row_bytes;
-        }
-        for (int y = height; y < radius * 2; ++y) {
-            *dptr = (sum * scale) >> 24;
-            sptr += src_row_bytes;
-            dptr += dst_row_bytes;
-        }
-        for (int y = radius * 2; y < height; ++y) {
-            sum += *(sptr + radius * src_row_bytes);
-            *dptr = (sum * scale) >> 24;
-            sum -= *(sptr - radius * src_row_bytes);
-            sptr += src_row_bytes;
-            dptr += dst_row_bytes;
-        }
-        for (int y = 0; y < border; ++y) {
-            *dptr = (sum * scale) >> 24;
-            sum -= *(sptr - radius * src_row_bytes);
-            sptr += src_row_bytes;
-            dptr += dst_row_bytes;
-        }
-        SkASSERT(sum == 0);
-    }
-    return height + radius * 2;
+    return new_width;
 }
 
 // Unrolling the integer blur kernel seems to give us a ~15% speedup on Windows,
@@ -683,13 +653,18 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
             uint8_t*                tp = tmpBuffer.get();
             int w = sw, h = sh;
 
-            w = boxBlurX(sp, src.fRowBytes, tp, dst->fRowBytes, rx, w, h);
-            h = boxBlurY(tp, dst->fRowBytes, dp, dst->fRowBytes, ry, w, h);
             if (quality == kHigh_Quality) {
-                w = boxBlurX(dp, dst->fRowBytes, tp, dst->fRowBytes, rx, w, h);
-                h = boxBlurY(tp, dst->fRowBytes, dp, dst->fRowBytes, ry, w, h);
-                w = boxBlurX(dp, dst->fRowBytes, tp, dst->fRowBytes, rx, w, h);
-                h = boxBlurY(tp, dst->fRowBytes, dp, dst->fRowBytes, ry, w, h);
+                // Do three X blurs, with a transpose on the final one.
+                w = boxBlur(sp, src.fRowBytes, tp, rx, w, h, false);
+                w = boxBlur(tp, w,             dp, rx, w, h, false);
+                w = boxBlur(dp, w,             tp, rx, w, h, true);
+                // Do three Y blurs, with a transpose on the final one.
+                h = boxBlur(tp, h,             dp, ry, h, w, false);
+                h = boxBlur(dp, h,             tp, ry, h, w, false);
+                h = boxBlur(tp, h,             dp, ry, h, w, true);
+            } else {
+                w = boxBlur(sp, src.fRowBytes, tp, rx, w, h, true);
+                h = boxBlur(tp, h,             dp, ry, h, w, true);
             }
         } else {
             const size_t storageW = sw + 2 * (passCount - 1) * rx + 1;
