@@ -7,9 +7,22 @@
 
 #include "gm.h"
 #include "SkCanvas.h"
+#include "SkGradientShader.h"
 
-#define W   SkIntToScalar(100)
+#define W   SkIntToScalar(80)
 #define H   SkIntToScalar(60)
+
+typedef void (*PaintProc)(SkPaint*);
+
+static void identity_paintproc(SkPaint* paint) {}
+static void gradient_paintproc(SkPaint* paint) {
+    const SkColor colors[] = { SK_ColorGREEN, SK_ColorBLUE };
+    const SkPoint pts[] = { { 0, 0 }, { W, H } };
+    SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL,
+                                                 SK_ARRAY_COUNT(colors),
+                                                 SkShader::kClamp_TileMode);
+    paint->setShader(s)->unref();
+}
 
 typedef void (*Proc)(SkCanvas*, const SkPaint&);
 
@@ -36,7 +49,7 @@ static void draw_oval(SkCanvas* canvas, const SkPaint& paint) {
 static void draw_text(SkCanvas* canvas, const SkPaint& paint) {
     SkPaint p(paint);
     p.setTextSize(H/4);
-    canvas->drawText("Hamburgefons", 12, 0, H*2/3, p);
+    canvas->drawText("Hamburge", 8, 0, H*2/3, p);
 }
 
 class SrcModeGM : public skiagm::GM {
@@ -52,14 +65,13 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return SkISize::Make(640, 480);
+        return SkISize::Make(640, 760);
     }
 
     virtual void onDraw(SkCanvas* canvas) {
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
 
         SkPaint paint;
-        paint.setAntiAlias(true);
         paint.setColor(0x80FF0000);
 
         const Proc procs[] = {
@@ -70,15 +82,28 @@ protected:
             SkXfermode::kSrcOver_Mode, SkXfermode::kSrc_Mode, SkXfermode::kClear_Mode
         };
 
-        for (size_t x = 0; x < SK_ARRAY_COUNT(modes); ++x) {
-            paint.setXfermodeMode(modes[x]);
+        const PaintProc paintProcs[] = {
+            identity_paintproc, gradient_paintproc
+        };
+
+        for (int aa = 0; aa <= 1; ++aa) {
+            paint.setAntiAlias(SkToBool(aa));
             canvas->save();
-            for (size_t y = 0; y < SK_ARRAY_COUNT(procs); ++y) {
-                procs[y](canvas, paint);
-                canvas->translate(0, H * 5 / 4);
+            for (size_t i = 0; i < SK_ARRAY_COUNT(paintProcs); ++i) {
+                paintProcs[i](&paint);
+                for (size_t x = 0; x < SK_ARRAY_COUNT(modes); ++x) {
+                    paint.setXfermodeMode(modes[x]);
+                    canvas->save();
+                    for (size_t y = 0; y < SK_ARRAY_COUNT(procs); ++y) {
+                        procs[y](canvas, paint);
+                        canvas->translate(0, H * 5 / 4);
+                    }
+                    canvas->restore();
+                    canvas->translate(W * 5 / 4, 0);
+                }
             }
             canvas->restore();
-            canvas->translate(W * 5 / 4, 0);
+            canvas->translate(0, (H * 5 / 4) * SK_ARRAY_COUNT(procs));
         }
     }
 
