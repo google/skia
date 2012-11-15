@@ -81,6 +81,8 @@
         '../debugger',      # To pull SkDebugger.h
         '../debugger/QT',   # For all the QT UI Goodies
         '../src/gpu',       # To pull gl/GrGLUtil.h
+        '../bench',
+        '../tools',
         '<@(qt_includes)',
       ],
       'sources': [
@@ -107,6 +109,14 @@
         '../debugger/QT/SkRasterWidget.h',
         '../debugger/QT/SkRasterWidget.cpp',
 
+        '../tools/PictureBenchmark.h',
+        '../tools/PictureBenchmark.cpp',
+
+        '../bench/SkBenchLogger.h',
+        '../bench/SkBenchLogger.cpp',
+        '../bench/TimerData.h',
+        '../bench/TimerData.cpp',
+
         # To update this file edit SkIcons.qrc and rerun rcc to generate cpp
         '../debugger/QT/qrc_SkIcons.cpp',
 
@@ -122,6 +132,8 @@
         'skia_base_libs.gyp:skia_base_libs',
         'images.gyp:images',
         'effects.gyp:effects',
+        'bench.gyp:bench_timer',
+        'tools.gyp:picture_renderer',
         'debugger_mocs',
       ],
       'link_settings': {

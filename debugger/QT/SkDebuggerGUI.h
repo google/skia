@@ -251,6 +251,7 @@ private:
 
     QString fPath;
     SkString fFileName;
+    SkTDArray<size_t> fOffsets; // the offset of each command in the SkPicture
     bool fDirectoryWidgetActive;
 
     QMenuBar fMenuBar;
