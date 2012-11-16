@@ -546,11 +546,11 @@ void SkARGB32_Shader_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) 
 #ifndef SK_IGNORE_FAST_SRCMODE
 void SkARGB32_Shader_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
     SkASSERT(x >= 0 && y >= 0 && y + height <= fDevice.height());
-    
+
     uint32_t*   device = fDevice.getAddr32(x, y);
     size_t      deviceRB = fDevice.rowBytes();
     SkShader*   shader = fShader;
-    
+
     if (fConstInY) {
         SkPMColor c;
         fShader->shadeSpan(x, y, &c, 1);
