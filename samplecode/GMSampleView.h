@@ -42,7 +42,7 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     virtual bool onEvent(const SkEvent& evt) SK_OVERRIDE {
         if (evt.isType("GMSampleView::showSize")) {
             fShowSize = SkToBool(evt.getFast32());

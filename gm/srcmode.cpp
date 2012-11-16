@@ -123,7 +123,7 @@ protected:
         surf->getCanvas()->drawColor(SK_ColorWHITE);
         this->drawContent(surf->getCanvas());
         surf->draw(canvas, 0, 0, NULL);
-        
+
     }
 
 private:

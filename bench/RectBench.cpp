@@ -78,7 +78,7 @@ public:
     SrcModeRectBench(void* param) : INHERITED(param, 1, 0) {
         fMode = SkXfermode::Create(SkXfermode::kSrc_Mode);
     }
-    
+
     virtual ~SrcModeRectBench() {
         SkSafeUnref(fMode);
     }

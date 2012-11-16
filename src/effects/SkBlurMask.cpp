@@ -14,7 +14,7 @@
 
 /**
  * This function performs a box blur in X, of the given radius.  If the
- * "transpose" parameter is true, it will transpose the pixels on write, 
+ * "transpose" parameter is true, it will transpose the pixels on write,
  * such that X and Y are swapped. Reads are always performed from contiguous
  * memory in X, for speed. The destination buffer (dst) must be at least
  * (width + radius * 2) * height bytes in size.
