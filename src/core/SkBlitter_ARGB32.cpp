@@ -631,10 +631,10 @@ void SkARGB32_Shader_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
                 device = (uint32_t*)((char*)device + deviceRB);
             } while (--height > 0);
         } else {
-            // can't use fProc, since we need to use an unknown alpha
+            SkBlitRow::Proc32 proc = (255 == alpha) ? fProc32 : fProc32Blend;
             do {
                 shader->shadeSpan(x, y, span, 1);
-                *device = SkFourByteInterp(*span, *device, alpha);
+                proc(device, span, 1, alpha);
                 y += 1;
                 device = (uint32_t*)((char*)device + deviceRB);
             } while (--height > 0);
