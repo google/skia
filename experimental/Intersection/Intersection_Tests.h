@@ -37,6 +37,7 @@ void Simplify4x4QuadralateralsThreaded_Test(int& );
 void Simplify4x4QuadraticsThreaded_Test(int& );
 void Simplify4x4RectsThreaded_Test(int& );
 void SimplifyRectangularPaths_Test();
+void ShapeOps4x4RectsThreaded_Test(int& );
 void QuadLineIntersectThreaded_Test(int& );
 void QuadraticBezierClip_Test();
 void QuadraticCoincidence_Test();
