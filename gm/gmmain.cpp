@@ -379,13 +379,14 @@ public:
         }
     }
 
-    static void invokeGM(GM* gm, SkCanvas* canvas, bool isPDF = false) {
+    static void invokeGM(GM* gm, SkCanvas* canvas, bool isPDF, bool isDeferred) {
         SkAutoCanvasRestore acr(canvas, true);
 
         if (!isPDF) {
             canvas->concat(gm->getInitialTransform());
         }
         installFilter(canvas);
+        gm->setCanvasIsDeferred(isDeferred);
         gm->draw(canvas);
         canvas->setDrawFilter(NULL);
     }
@@ -407,7 +408,7 @@ public:
             } else {
                 canvas.reset(new SkCanvas(device));
             }
-            invokeGM(gm, canvas);
+            invokeGM(gm, canvas, false, deferred);
             canvas->flush();
         }
 #if SK_SUPPORT_GPU
@@ -421,7 +422,7 @@ public:
             } else {
                 canvas.reset(new SkCanvas(device));
             }
-            invokeGM(gm, canvas);
+            invokeGM(gm, canvas, false, deferred);
             // the device is as large as the current rendertarget, so
             // we explicitly only readback the amount we expect (in
             // size) overwrite our previous allocation
@@ -463,7 +464,7 @@ public:
         SkAutoUnref aur(dev);
 
         SkCanvas c(dev);
-        invokeGM(gm, &c, true);
+        invokeGM(gm, &c, true, false);
 
         SkPDFDocument doc;
         doc.appendPage(dev);
@@ -489,7 +490,7 @@ public:
         SkCanvas c(dev);
         dev->beginPortfolio(&xps);
         dev->beginSheet(unitsPerMeter, pixelsPerMeter, trimSize);
-        invokeGM(gm, &c);
+        invokeGM(gm, &c, false, false);
         dev->endSheet();
         dev->endPortfolio();
 
@@ -621,7 +622,7 @@ public:
         SkPicture* pict = new SkPicture;
         SkISize size = gm->getISize();
         SkCanvas* cv = pict->beginRecording(size.width(), size.height());
-        invokeGM(gm, cv);
+        invokeGM(gm, cv, false, false);
         pict->endRecording();
 
         return pict;
@@ -722,7 +723,7 @@ public:
             SkGPipeWriter writer;
             SkCanvas* pipeCanvas = writer.startRecording(
               &pipeController, gPipeWritingFlagCombos[i].flags);
-            invokeGM(gm, pipeCanvas);
+            invokeGM(gm, pipeCanvas, false, false);
             writer.endRecording();
             SkString string("-pipe");
             string.append(gPipeWritingFlagCombos[i].name);
@@ -749,7 +750,7 @@ public:
             SkGPipeWriter writer;
             SkCanvas* pipeCanvas = writer.startRecording(
               &pipeController, gPipeWritingFlagCombos[i].flags);
-            invokeGM(gm, pipeCanvas);
+            invokeGM(gm, pipeCanvas, false, false);
             writer.endRecording();
             SkString string("-tiled pipe");
             string.append(gPipeWritingFlagCombos[i].name);

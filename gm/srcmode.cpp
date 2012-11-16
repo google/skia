@@ -115,7 +115,8 @@ protected:
         }
     }
 
-    static SkSurface* compat_surface(SkCanvas* canvas, const SkISize& size) {
+    static SkSurface* compat_surface(SkCanvas* canvas, const SkISize& size,
+                                     bool skipGPU) {
         SkImage::Info info = {
             size.width(),
             size.height(),
@@ -124,7 +125,7 @@ protected:
         };
 #if SK_SUPPORT_GPU
         SkDevice* dev = canvas->getDevice();
-        if (dev->accessRenderTarget()) {
+        if (!skipGPU && dev->accessRenderTarget()) {
             SkGpuDevice* gd = (SkGpuDevice*)dev;
             GrContext* ctx = gd->context();
             return SkSurface::NewRenderTarget(ctx, info, 0);
@@ -134,7 +135,8 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        SkAutoTUnref<SkSurface> surf(compat_surface(canvas, this->getISize()));
+        SkAutoTUnref<SkSurface> surf(compat_surface(canvas, this->getISize(),
+                                                    this->isCanvasDeferred()));
         surf->getCanvas()->drawColor(SK_ColorWHITE);
         this->drawContent(surf->getCanvas());
         surf->draw(canvas, 0, 0, NULL);
