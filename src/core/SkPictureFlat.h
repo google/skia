@@ -448,20 +448,6 @@ public:
     }
 
     /**
-     * Given a pointer to an array of type T we allocate the array and fill it
-     * with the unflattened dictionary contents. The return value is the size of
-     * the allocated array.
-     */
-    int unflattenDictionary(T*& array) const {
-        int elementCount = fData.count();
-        if (elementCount > 0) {
-            array = SkNEW_ARRAY(T, elementCount);
-            this->unflattenIntoArray(array);
-        }
-        return elementCount;
-    }
-
-    /**
      *  Unflatten the objects and return them in SkTRefArray, or return NULL
      *  if there no objects (instead of an empty array).
      */

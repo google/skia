@@ -373,7 +373,11 @@ int32_t SkBitmapHeap::insert(const SkBitmap& originalBitmap) {
     fBytesAllocated += entry->fBytesAllocated;
 
     if (fOwnerCount != IGNORE_OWNERS) {
-        entry->addReferences(fOwnerCount);
+        if (fDeferAddingOwners) {
+            *fDeferredEntries.append() = entry->fSlot;
+        } else {
+            entry->addReferences(fOwnerCount);
+        }
     }
     if (fPreferredCount != UNLIMITED_SIZE) {
         this->appendToLRU(fLookupTable[searchIndex]);

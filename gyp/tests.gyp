@@ -21,6 +21,7 @@
         '../tests/AtomicTest.cpp',
         '../tests/BitmapCopyTest.cpp',
         '../tests/BitmapGetColorTest.cpp',
+        '../tests/BitmapHeapTest.cpp',
         '../tests/BitSetTest.cpp',
         '../tests/BlitRowTest.cpp',
         '../tests/BlurTest.cpp',
