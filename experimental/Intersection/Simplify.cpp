@@ -29,7 +29,7 @@ int gDebugMaxWindValue = SK_MaxS32;
 #define TRY_ROTATE 1
 
 #define DEBUG_UNUSED 0 // set to expose unused functions
-#define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging
+#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging
 
 #if FORCE_RELEASE || defined SK_RELEASE
 
@@ -1476,21 +1476,21 @@ public:
         const double oStartT = oTest->fT;
         do {
             if (transfer) {
-                if (!decrementThis & !thisXor & !opp) {
+                if (opp) {
+                    if (decrementThis) {
+                        if (decrementSpan(end)) {
+                            TrackOutside(outsideTs, end->fT, oStartT);
+                        }
+                    } else {
+                        end->fOppValue += oTest->fWindValue;
+                    }
+                } else if (!decrementThis & !thisXor) {
             #ifdef SK_DEBUG
                     SkASSERT(abs(end->fWindValue) < gDebugMaxWindValue);
             #endif
                     ++(end->fWindValue);
                 } else if (decrementSpan(end)) {
                     TrackOutside(outsideTs, end->fT, oStartT);
-                }
-            } else if (opp) {
-                if (decrementThis) {
-                    if (decrementSpan(end)) {
-                        TrackOutside(outsideTs, end->fT, oStartT);
-                    }
-                } else {
-                    end->fOppValue += oTest->fWindValue;
                 }
             } else if (oTest->fWindValue) {
                 SkASSERT(decrementThis);
@@ -1520,21 +1520,21 @@ public:
         while (!approximately_negative(oEndT - oEnd->fT)
                 && approximately_negative(oEnd->fT - otherTMatch)) {
             if (transfer) {
-                if (decrementThis & !otherXor & !opp) {
+                if (opp) {
+                    if (decrementThis) {
+                        oEnd->fOppValue += test->fWindValue;
+                    } else {
+                        if (decrementSpan(oEnd)) {
+                            TrackOutside(oOutsideTs, oEnd->fT, startT);
+                        }
+                    }
+                } else if (decrementThis & !otherXor & !opp) {
              #ifdef SK_DEBUG
                    SkASSERT(abs(oEnd->fWindValue) < gDebugMaxWindValue);
             #endif
                     ++(oEnd->fWindValue);
                 } else if (decrementSpan(oEnd)) {
                     TrackOutside(oOutsideTs, oEnd->fT, startT);
-                }
-            } else if (opp) {
-                if (decrementThis) {
-                    oEnd->fOppValue += test->fWindValue;
-                } else {
-                    if (decrementSpan(oEnd)) {
-                        TrackOutside(oOutsideTs, oEnd->fT, startT);
-                    }
                 }
             } else if (test->fWindValue) {
                 SkASSERT(decrementThis);
@@ -1579,7 +1579,7 @@ public:
         SkTDArray<double> xOutsideTs;
         SkTDArray<double> oOutsideTs;
         do {
-            bool transfer = test->fWindValue && oTest->fWindValue && !opp;
+            bool transfer = test->fWindValue && oTest->fWindValue;
             bool decrementThis = test->fWindValue < oTest->fWindValue;
             if (decrementThis) {
                 oIndex = other.bumpCoincidentOther(test, transfer, decrementThis, otherXor, opp,
@@ -1689,7 +1689,7 @@ public:
         other->addTwoAngles(next, oIndex, angles);
     }
 
-    int computeSum(int startIndex, int endIndex) {
+    int computeSum(int startIndex, int endIndex, int* oppoSum) {
         SkTDArray<Angle> angles;
         addTwoAngles(startIndex, endIndex, angles);
         buildAngles(endIndex, angles, false);
@@ -1751,7 +1751,11 @@ public:
                 segment->markAndChaseWinding(angle, maxWinding);
             }
         } while (++nextIndex != lastIndex);
-        return windSum(SkMin32(startIndex, endIndex));
+        int minIndex = SkMin32(startIndex, endIndex);
+        if (oppoSum) {
+            *oppoSum = oppSum(minIndex);
+        }
+        return windSum(minIndex);
     }
 
     int crossedSpan(const SkPoint& basePt, SkScalar& bestY, double& hitT) const {
@@ -3231,6 +3235,15 @@ public:
 
     SkScalar yAtT(const Span* span) const {
         return xyAtT(span).fY;
+    }
+
+    void zeroSpan(Span* span) {
+        SkASSERT(span->fWindValue > 0);
+        span->fWindValue = 0;
+        if (!span->fDone) {
+            span->fDone = true;
+            ++fDoneSpans;
+        }
     }
 
 #if DEBUG_DUMP
@@ -4990,7 +5003,7 @@ static bool bridgeWinding(SkTDArray<Contour*>& contourList, PathWrapper& simple)
             int sumWinding = current->windSum(SkMin32(index, endIndex));
             // FIXME: don't I have to adjust windSum to get contourWinding?
             if (sumWinding == SK_MinS32) {
-                sumWinding = current->computeSum(index, endIndex);
+                sumWinding = current->computeSum(index, endIndex, NULL);
             }
             if (sumWinding == SK_MinS32) {
                 contourWinding = innerContourCheck(contourList, current,
