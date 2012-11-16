@@ -20,12 +20,13 @@
  * (width + radius * 2) * height bytes in size.
  */
 static int boxBlur(const uint8_t* src, int src_y_stride, uint8_t* dst,
-                   int radius, int width, int height, bool transpose)
+                   int leftRadius, int rightRadius, int width, int height,
+                   bool transpose)
 {
-    int kernelSize = radius * 2 + 1;
-    int border = SkMin32(width, radius * 2);
+    int kernelSize = leftRadius + rightRadius + 1;
+    int border = SkMin32(width, leftRadius + rightRadius);
     uint32_t scale = (1 << 24) / kernelSize;
-    int new_width = width + radius * 2;
+    int new_width = width + SkMax32(leftRadius, rightRadius) * 2;
     int dst_x_stride = transpose ? height : 1;
     int dst_y_stride = transpose ? 1 : new_width;
     for (int y = 0; y < height; ++y) {
@@ -33,16 +34,19 @@ static int boxBlur(const uint8_t* src, int src_y_stride, uint8_t* dst,
         uint8_t* dptr = dst + y * dst_y_stride;
         const uint8_t* right = src + y * src_y_stride;
         const uint8_t* left = right;
+        for (int x = 0; x < leftRadius - rightRadius; x++) {
+            *dptr++ = 0;
+        }
         for (int x = 0; x < border; ++x) {
             sum += *right++;
             *dptr = (sum * scale) >> 24;
             dptr += dst_x_stride;
         }
-        for (int x = width; x < radius * 2; ++x) {
+        for (int x = width; x < leftRadius + rightRadius; ++x) {
             *dptr = (sum * scale) >> 24;
             dptr += dst_x_stride;
         }
-        for (int x = radius * 2; x < width; ++x) {
+        for (int x = leftRadius + rightRadius; x < width; ++x) {
             sum += *right++;
             *dptr = (sum * scale) >> 24;
             sum -= *left++;
@@ -52,10 +56,21 @@ static int boxBlur(const uint8_t* src, int src_y_stride, uint8_t* dst,
             *dptr = (sum * scale) >> 24;
             sum -= *left++;
             dptr += dst_x_stride;
+        }
+        for (int x = 0; x < rightRadius - leftRadius; x++) {
+            *dptr++ = 0;
         }
         SkASSERT(sum == 0);
     }
     return new_width;
+}
+
+static void get_adjusted_radii(SkScalar passRadius, int *loRadius, int *hiRadius)
+{
+    *loRadius = *hiRadius = SkScalarCeil(passRadius);
+    if (SkIntToScalar(*hiRadius) - passRadius > SkFloatToScalar(0.5f)) {
+        *loRadius = *hiRadius - 1;
+    }
 }
 
 // Unrolling the integer blur kernel seems to give us a ~15% speedup on Windows,
@@ -606,7 +621,7 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
     }
 
     // Force high quality off for small radii (performance)
-    if (radius < SkIntToScalar(3)) quality = kLow_Quality;
+    if (radius < SkIntToScalar(3) && !separable) quality = kLow_Quality;
 
     // highQuality: use three box blur passes as a cheap way to approximate a Gaussian blur
     int passCount = (quality == kHigh_Quality) ? 3 : 1;
@@ -654,17 +669,19 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
             int w = sw, h = sh;
 
             if (quality == kHigh_Quality) {
+                int loRadius, hiRadius;
+                get_adjusted_radii(passRadius, &loRadius, &hiRadius);
                 // Do three X blurs, with a transpose on the final one.
-                w = boxBlur(sp, src.fRowBytes, tp, rx, w, h, false);
-                w = boxBlur(tp, w,             dp, rx, w, h, false);
-                w = boxBlur(dp, w,             tp, rx, w, h, true);
+                w = boxBlur(sp, src.fRowBytes, tp, loRadius, hiRadius, w, h, false);
+                w = boxBlur(tp, w,             dp, hiRadius, loRadius, w, h, false);
+                w = boxBlur(dp, w,             tp, hiRadius, hiRadius, w, h, true);
                 // Do three Y blurs, with a transpose on the final one.
-                h = boxBlur(tp, h,             dp, ry, h, w, false);
-                h = boxBlur(dp, h,             tp, ry, h, w, false);
-                h = boxBlur(tp, h,             dp, ry, h, w, true);
+                h = boxBlur(tp, h,             dp, loRadius, hiRadius, h, w, false);
+                h = boxBlur(dp, h,             tp, hiRadius, loRadius, h, w, false);
+                h = boxBlur(tp, h,             dp, hiRadius, hiRadius, h, w, true);
             } else {
-                w = boxBlur(sp, src.fRowBytes, tp, rx, w, h, true);
-                h = boxBlur(tp, h,             dp, ry, h, w, true);
+                w = boxBlur(sp, src.fRowBytes, tp, rx, rx, w, h, true);
+                h = boxBlur(tp, h,             dp, ry, ry, h, w, true);
             }
         } else {
             const size_t storageW = sw + 2 * (passCount - 1) * rx + 1;
