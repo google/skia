@@ -132,7 +132,7 @@ class SkTimedPicturePlayback : public SkPicturePlayback {
 public:
     SkTimedPicturePlayback(SkStream* stream, const SkPictInfo& info, bool* isValid,
                            SkSerializationHelpers::DecodeBitmap decoder,
-                           const SkTDArray<size_t>& offsets) 
+                           const SkTDArray<size_t>& offsets)
         : INHERITED(stream, info, isValid, decoder)
         , fTot(0.0)
         , fCurCommand(0)
@@ -156,9 +156,9 @@ protected:
     int fCurCommand;            // the current command being executed/timed
 
     virtual void preDraw(size_t offset, int type) {
-        // This search isn't as bad as it seems. In normal playback mode, the 
+        // This search isn't as bad as it seems. In normal playback mode, the
         // base class steps through the commands in order and can only skip ahead
-        // a bit on a clip. This class is only used during profiling so we 
+        // a bit on a clip. This class is only used during profiling so we
         // don't have to worry about forward/backward scrubbing through commands.
         for (int i = 0; offset != fOffsets[fCurCommand]; ++i) {
             fCurCommand = (fCurCommand+1) % fOffsets.count();
@@ -208,7 +208,7 @@ public:
 
         if (stream->readBool()) {
             bool isValid = false;
-            fPlayback = SkNEW_ARGS(SkTimedPicturePlayback, 
+            fPlayback = SkNEW_ARGS(SkTimedPicturePlayback,
                                    (stream, info, &isValid, decoder, offsets));
             if (!isValid) {
                 SkDELETE(fPlayback);
@@ -237,7 +237,7 @@ private:
 void SkDebuggerGUI::actionProfile() {
     // In order to profile we pass the command offsets (that were read-in
     // in loadPicture by the SkOffsetPicture) to an SkTimedPlaybackPicture.
-    // The SkTimedPlaybackPicture in turn passes the offsets to an 
+    // The SkTimedPlaybackPicture in turn passes the offsets to an
     // SkTimedPicturePlayback object which uses them to track the performance
     // of individual commands.
     if (fFileName.isEmpty()) {
@@ -776,8 +776,8 @@ private:
 // Picture to wrap an SkOffsetPicturePlayback.
 class SkOffsetPicture : public SkPicture {
 public:
-    SkOffsetPicture(SkStream* stream, 
-                    bool* success, 
+    SkOffsetPicture(SkStream* stream,
+                    bool* success,
                     SkSerializationHelpers::DecodeBitmap decoder) {
         if (success) {
             *success = false;
@@ -813,8 +813,8 @@ public:
         }
     }
 
-    const SkTDArray<size_t>& offsets() const { 
-        return ((SkOffsetPicturePlayback*) fPlayback)->offsets(); 
+    const SkTDArray<size_t>& offsets() const {
+        return ((SkOffsetPicturePlayback*) fPlayback)->offsets();
     }
 
 private:
