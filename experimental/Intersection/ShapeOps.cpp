@@ -171,10 +171,12 @@ static bool bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
             contourWinding = oppContourWinding = 0;
             firstContour = false;
         } else {
-            int sumWinding = current->windSum(SkMin32(index, endIndex));
+            int minIndex = SkMin32(index, endIndex);
+            int sumWinding = current->windSum(minIndex);
+            int oppSumWinding = current->oppSum(minIndex);
             // FIXME: don't I have to adjust windSum to get contourWinding?
             if (sumWinding == SK_MinS32) {
-                sumWinding = current->computeSum(index, endIndex);
+                sumWinding = current->computeSum(index, endIndex, &oppSumWinding);
             }
             if (sumWinding == SK_MinS32) {
                 contourWinding = innerContourCheck(contourList, current,
@@ -182,21 +184,12 @@ static bool bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
                 oppContourWinding = innerContourCheck(contourList, current,
                         index, endIndex, true);
             } else {
-                contourWinding = sumWinding;
-                oppContourWinding = 0;
-                SkASSERT(0);
-                // FIXME: need to get oppContourWinding by building sort wheel and
-                // retrieving sumWinding of uphill opposite span, calling inner contour check
-                // if need be
-                int spanWinding = current->spanSign(index, endIndex);
-                bool inner = useInnerWinding(sumWinding - spanWinding, sumWinding);
-                if (inner) {
-                    contourWinding -= spanWinding;
-                }
+                int spanWinding, oppWinding;
+                contourWinding = updateWindings(current, index, endIndex, spanWinding, oppWinding,
+                        oppContourWinding);
 #if DEBUG_WINDING
-                SkDebugf("%s sumWinding=%d spanWinding=%d sign=%d inner=%d result=%d\n", __FUNCTION__,
-                        sumWinding, spanWinding, SkSign32(index - endIndex),
-                        inner, contourWinding);
+                SkDebugf("%s contourWinding=%d oppContourWinding=%d spanWinding=%d oppWinding=%d\n",
+                        __FUNCTION__, contourWinding, oppContourWinding, spanWinding, oppWinding);
 #endif
             }
 #if DEBUG_WINDING
