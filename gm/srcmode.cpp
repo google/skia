@@ -10,12 +10,17 @@
 #include "SkGradientShader.h"
 #include "SkSurface.h"
 
+#include "SkGpuDevice.h"
+
 #define W   SkIntToScalar(80)
 #define H   SkIntToScalar(60)
 
 typedef void (*PaintProc)(SkPaint*);
 
-static void identity_paintproc(SkPaint* paint) {}
+static void identity_paintproc(SkPaint* paint) {
+    paint->setShader(NULL);
+}
+
 static void gradient_paintproc(SkPaint* paint) {
     const SkColor colors[] = { SK_ColorGREEN, SK_ColorBLUE };
     const SkPoint pts[] = { { 0, 0 }, { W, H } };
@@ -115,6 +120,13 @@ protected:
             SkImage::kPMColor_ColorType,
             SkImage::kPremul_AlphaType
         };
+        
+        SkDevice* dev = canvas->getDevice();
+        if (dev->accessRenderTarget()) {
+            SkGpuDevice* gd = (SkGpuDevice*)dev;
+            GrContext* ctx = gd->context();
+            return SkSurface::NewRenderTarget(ctx, info, 0);
+        }
         return SkSurface::NewRaster(info);
     }
 
@@ -123,7 +135,6 @@ protected:
         surf->getCanvas()->drawColor(SK_ColorWHITE);
         this->drawContent(surf->getCanvas());
         surf->draw(canvas, 0, 0, NULL);
-
     }
 
 private:
