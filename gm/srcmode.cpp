@@ -10,7 +10,9 @@
 #include "SkGradientShader.h"
 #include "SkSurface.h"
 
-#include "SkGpuDevice.h"
+#if SK_SUPPORT_GPU
+    #include "SkGpuDevice.h"
+#endif
 
 #define W   SkIntToScalar(80)
 #define H   SkIntToScalar(60)
@@ -120,13 +122,14 @@ protected:
             SkImage::kPMColor_ColorType,
             SkImage::kPremul_AlphaType
         };
-        
+#if SK_SUPPORT_GPU
         SkDevice* dev = canvas->getDevice();
         if (dev->accessRenderTarget()) {
             SkGpuDevice* gd = (SkGpuDevice*)dev;
             GrContext* ctx = gd->context();
             return SkSurface::NewRenderTarget(ctx, info, 0);
         }
+#endif
         return SkSurface::NewRaster(info);
     }
 
