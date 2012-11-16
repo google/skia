@@ -2607,6 +2607,17 @@ static void testXor2() {
     testShapeOp(one, two, kXor_Op);
 }
 
+static void testOp1d() {
+    SkPath path, pathB;
+    path.setFillType((SkPath::FillType) 0);
+    path.addRect(0, 0, 1, 1, (SkPath::Direction) 0);
+    path.addRect(0, 0, 2, 2, (SkPath::Direction) 0);
+    pathB.setFillType((SkPath::FillType) 0);
+    pathB.addRect(0, 0, 1, 1, (SkPath::Direction) 0);
+    pathB.addRect(0, 0, 1, 1, (SkPath::Direction) 0);
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
 static void testQuadratic22() {
     SkPath path;
     path.moveTo(0, 0);
@@ -3219,11 +3230,12 @@ static struct {
     TEST(testIntersect2),
     TEST(testUnion2),
     TEST(testXor2),
+    TEST(testOp1d),
 };
 
 static const size_t subTestCount = sizeof(subTests) / sizeof(subTests[0]);
 
-static void (*firstBinaryTest)() = testUnion2;
+static void (*firstBinaryTest)() = testOp1d;
 
 static bool skipAll = false;
 static bool runBinaryTestsFirst = true;

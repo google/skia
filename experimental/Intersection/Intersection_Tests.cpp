@@ -15,6 +15,7 @@ void cubecode_test(int test);
 void Intersection_Tests() {
     int testsRun = 0;
     SimplifyNew_Test();
+    ShapeOps4x4RectsThreaded_Test(testsRun);
     QuadraticIntersection_Test();
     LineQuadraticIntersection_Test();
     MiniSimplify_Test();

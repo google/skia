@@ -268,7 +268,14 @@ bool testSimplifyx(SkPath& path, bool useXor, SkPath& out, State4& state,
         char temp[8192];
         bzero(temp, sizeof(temp));
         SkMemoryWStream stream(temp, sizeof(temp));
-        outputToStream(state, pathStr, fillType, stream);
+        const char* pathPrefix = NULL;
+        const char* nameSuffix = NULL;
+        if (fillType == SkPath::kEvenOdd_FillType) {
+            pathPrefix = "    path.setFillType(SkPath::kEvenOdd_FillType);\n";
+            nameSuffix = "x";
+        }
+        const char testFunction[] = "testSimplifyx(path);";
+        outputToStream(state, pathStr, pathPrefix, nameSuffix, testFunction, stream);
         SkDebugf(temp);
         SkASSERT(0);
     }
@@ -440,52 +447,100 @@ void outputProgress(const State4& state, const char* pathStr, SkPath::FillType p
         }
         SkDebugf("%s\n", pathStr);
     }
+    const char testFunction[] = "testSimplifyx(path);";
+    const char* pathPrefix = NULL;
+    const char* nameSuffix = NULL;
+    if (pathFillType == SkPath::kEvenOdd_FillType) {
+        pathPrefix = "    path.setFillType(SkPath::kEvenOdd_FillType);\n";
+        nameSuffix = "x";
+    }
     if (gUsePhysicalFiles) {
         SkFILEWStream outFile(state.filename);
         if (!outFile.isValid()) {
             SkASSERT(0);
             return;
         }
-        outputToStream(state, pathStr, pathFillType, outFile);
+        outputToStream(state, pathStr, pathPrefix, nameSuffix, testFunction, outFile);
         return;
     }
     SkFILEWStream outRam(state.filename);
-    outputToStream(state, pathStr, pathFillType, outRam);
+    outputToStream(state, pathStr, pathPrefix, nameSuffix, testFunction, outRam);
 }
 
-static void writeTestName(SkPath::FillType pathFillType, SkWStream& outFile) {
+static const char* opStrs[] = {
+    "kDifference_Op",
+    "kIntersect_Op",
+    "kUnion_Op",
+    "kXor_Op",
+};
+
+static const char* opSuffixes[] = {
+    "d",
+    "i",
+    "u",
+    "x",
+};
+
+void outputProgress(const State4& state, const char* pathStr, ShapeOp op) {
+    SkString testFunc("testShapeOp(path, pathB, ");
+    testFunc += opStrs[op];
+    testFunc += ");";
+    const char* testFunction = testFunc.c_str();
+    if (gRunTestsInOneThread && gShowOutputProgress) {
+        SkDebugf("%s\n", pathStr);
+        SkDebugf("    %s\n", testFunction);
+    }
+    const char* nameSuffix = opSuffixes[op];
+    if (gUsePhysicalFiles) {
+        SkFILEWStream outFile(state.filename);
+        if (!outFile.isValid()) {
+            SkASSERT(0);
+            return;
+        }
+        outputToStream(state, pathStr, NULL, nameSuffix, testFunction, outFile);
+        return;
+    }
+    SkFILEWStream outRam(state.filename);
+    outputToStream(state, pathStr, NULL, nameSuffix, testFunction, outRam);
+}
+
+static void writeTestName(const char* nameSuffix, SkWStream& outFile) {
     outFile.writeText(testName);
     outFile.writeDecAsText(testNumber);
-    if (pathFillType == SkPath::kEvenOdd_FillType) {
-        outFile.writeText("x");
+    if (nameSuffix) {
+        outFile.writeText(nameSuffix);
     }
 }
 
-void outputToStream(const State4& state, const char* pathStr, SkPath::FillType pathFillType, SkWStream& outFile) {
+void outputToStream(const State4& state, const char* pathStr, const char* pathPrefix,
+        const char* nameSuffix,
+        const char* testFunction, SkWStream& outFile) {
     outFile.writeText("<div id=\"");
-    writeTestName(pathFillType, outFile);
+    writeTestName(nameSuffix, outFile);
     outFile.writeText("\">\n");
-    if (pathFillType == SkPath::kEvenOdd_FillType) {
-        outFile.writeText("    path.setFillType(SkPath::kEvenOdd_FillType);\n");
+    if (pathPrefix) {
+        outFile.writeText(pathPrefix);
     }
     outFile.writeText(pathStr);
     outFile.writeText("</div>\n\n");
 
     outFile.writeText(marker);
     outFile.writeText("    ");
-    writeTestName(pathFillType, outFile);
+    writeTestName(nameSuffix, outFile);
     outFile.writeText(",\n\n\n");
 
     outFile.writeText("static void ");
-    writeTestName(pathFillType, outFile);
-    outFile.writeText("() {\n    SkPath path;\n");
-    if (pathFillType == SkPath::kEvenOdd_FillType) {
-        outFile.writeText("    path.setFillType(SkPath::kEvenOdd_FillType);\n");
+    writeTestName(nameSuffix, outFile);
+    outFile.writeText("() {\n    SkPath path, pathB;\n");
+    if (pathPrefix) {
+        outFile.writeText(pathPrefix);
     }
     outFile.writeText(pathStr);
-    outFile.writeText("    testSimplifyx(path);\n}\n\n");
+    outFile.writeText("    ");
+    outFile.writeText(testFunction);
+    outFile.writeText("\n}\n\n");
     outFile.writeText("static void (*firstTest)() = ");
-    writeTestName(pathFillType, outFile);
+    writeTestName(nameSuffix, outFile);
     outFile.writeText(";\n\n");
 
     outFile.writeText("static struct {\n");
@@ -493,7 +548,7 @@ void outputToStream(const State4& state, const char* pathStr, SkPath::FillType p
     outFile.writeText("    const char* str;\n");
     outFile.writeText("} tests[] = {\n");
     outFile.writeText("    TEST(");
-    writeTestName(pathFillType, outFile);
+    writeTestName(pathPrefix, outFile);
     outFile.writeText("),\n");
     outFile.flush();
 }

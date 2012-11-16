@@ -48,6 +48,9 @@ void createThread(State4* statePtr, void* (*test)(void* ));
 int dispatchTest4(void* (*testFun)(void* ), int a, int b, int c, int d);
 void initializeTests(const char* testName, size_t testNameSize);
 void outputProgress(const State4& state, const char* pathStr, SkPath::FillType );
-void outputToStream(const State4& state, const char* pathStr, SkPath::FillType, SkWStream& outFile);
+void outputProgress(const State4& state, const char* pathStr, ShapeOp op);
+void outputToStream(const State4& state, const char* pathStr, const char* pathPrefix,
+                    const char* nameSuffix,
+                    const char* testFunction, SkWStream& outFile);
 bool runNextTestSet(State4& state);
 int waitForCompletion();
