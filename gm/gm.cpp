@@ -12,6 +12,7 @@ SkString GM::gResourcePath;
 
 GM::GM() {
     fBGColor = SK_ColorWHITE;
+    fCanvasIsDeferred = false;
 }
 GM::~GM() {}
 

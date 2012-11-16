@@ -71,6 +71,11 @@ namespace skiagm {
             gResourcePath = resourcePath;
         }
 
+        bool isCanvasDeferred() const { return fCanvasIsDeferred; }
+        void setCanvasIsDeferred(bool isDeferred) {
+            fCanvasIsDeferred = isDeferred;
+        }
+
     protected:
         static SkString gResourcePath;
 
@@ -84,6 +89,7 @@ namespace skiagm {
     private:
         SkString fShortName;
         SkColor  fBGColor;
+        bool     fCanvasIsDeferred; // work-around problem in srcmode.cpp
     };
 
     typedef SkTRegistry<GM*, void*> GMRegistry;
