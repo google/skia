@@ -37,13 +37,14 @@ public:
     virtual void execute(SkCanvas* canvas)=0;
     DrawType getType() { return fDrawType; };
 
+    static const char* GetCommandString(DrawType type);
+
 protected:
     DrawType fDrawType;
     SkTDArray<SkString*> fInfo;
 
 private:
     bool fVisible;
-    static const char* GetCommandString(DrawType type);
 };
 
 class Restore : public SkDrawCommand {

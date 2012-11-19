@@ -12,6 +12,7 @@
 
 #include "SkDebugCanvas.h"
 #include "SkPicture.h"
+#include "SkTArray.h"
 
 class SkDebugger {
 public:
@@ -41,8 +42,12 @@ public:
         fDebugCanvas->toggleCommand(index, isVisible);
     }
 
-    SkTDArray<SkString*>* getDrawCommands() {
+    SkTArray<SkString>* getDrawCommandsAsStrings() {
         return fDebugCanvas->getDrawCommandsAsStrings();
+    }
+
+    const SkTDArray<SkDrawCommand*>& getDrawCommands() const {
+        return fDebugCanvas->getDrawCommands();
     }
 
     void highlightCurrentCommand(bool on) {
