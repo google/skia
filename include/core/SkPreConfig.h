@@ -195,13 +195,17 @@
 
 #if defined(SKIA_DLL)
     #if defined(WIN32)
-        #if SKIA_IMPLEMENTATION
+        #if defined(SKIA_IMPLEMENTATION)
             #define SK_API __declspec(dllexport)
         #else
             #define SK_API __declspec(dllimport)
         #endif
     #else
-        #define SK_API __attribute__((visibility("default")))
+        #if defined(SKIA_IMPLEMENTATION)
+            #define SK_API __attribute__((visibility("default")))
+        #else
+            #define SK_API
+        #endif
     #endif
 #else
     #define SK_API
