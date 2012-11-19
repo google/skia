@@ -305,14 +305,14 @@ void SkDebuggerGUI::actionClearBreakpoints() {
         QListWidgetItem* item = fListWidget.item(row);
         item->setCheckState(Qt::Unchecked);
         item->setData(Qt::DecorationRole,
-                QPixmap(":/images/Icons/blank.png"));
+                QPixmap(":/blank.png"));
     }
 }
 
 void SkDebuggerGUI::actionClearDeletes() {
     for (int row = 0; row < fListWidget.count(); row++) {
         QListWidgetItem* item = fListWidget.item(row);
-        item->setData(Qt::UserRole + 2, QPixmap(":/images/Icons/blank.png"));
+        item->setData(Qt::UserRole + 2, QPixmap(":/blank.png"));
         fDebugger.setCommandVisible(row, true);
     }
     if (fPause) {
@@ -337,10 +337,10 @@ void SkDebuggerGUI::actionDelete() {
     QListWidgetItem* item = fListWidget.currentItem();
 
     if (fDebugger.isCommandVisible(currentRow)) {
-        item->setData(Qt::UserRole + 2, QPixmap(":/images/Icons/delete.png"));
+        item->setData(Qt::UserRole + 2, QPixmap(":/delete.png"));
         fDebugger.setCommandVisible(currentRow, false);
     } else {
-        item->setData(Qt::UserRole + 2, QPixmap(":/images/Icons/blank.png"));
+        item->setData(Qt::UserRole + 2, QPixmap(":/blank.png"));
         fDebugger.setCommandVisible(currentRow, true);
     }
 
@@ -505,11 +505,11 @@ void SkDebuggerGUI::toggleBreakpoint() {
     if (item->checkState() == Qt::Unchecked) {
         item->setCheckState(Qt::Checked);
         item->setData(Qt::DecorationRole,
-                QPixmap(":/images/Icons/breakpoint_16x16.png"));
+                QPixmap(":/breakpoint_16x16.png"));
     } else {
         item->setCheckState(Qt::Unchecked);
         item->setData(Qt::DecorationRole,
-                QPixmap(":/images/Icons/blank.png"));
+                QPixmap(":/blank.png"));
     }
 }
 
@@ -526,7 +526,7 @@ void SkDebuggerGUI::toggleFilter(QString string) {
 
 void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     QIcon windowIcon;
-    windowIcon.addFile(QString::fromUtf8(":/images/Icons/skia.png"), QSize(),
+    windowIcon.addFile(QString::fromUtf8(":/skia.png"), QSize(),
             QIcon::Normal, QIcon::Off);
     SkDebuggerGUI->setObjectName(QString::fromUtf8("SkDebuggerGUI"));
     SkDebuggerGUI->resize(1200, 1000);
@@ -537,14 +537,14 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fActionOpen.setText("Open");
 
     QIcon breakpoint;
-    breakpoint.addFile(QString::fromUtf8(":/images/Icons/breakpoint.png"),
+    breakpoint.addFile(QString::fromUtf8(":/breakpoint.png"),
             QSize(), QIcon::Normal, QIcon::Off);
     fActionBreakpoint.setShortcut(QKeySequence(tr("Ctrl+B")));
     fActionBreakpoint.setIcon(breakpoint);
     fActionBreakpoint.setText("Breakpoints");
 
     QIcon cancel;
-    cancel.addFile(QString::fromUtf8(":/images/Ico/reload.png"), QSize(),
+    cancel.addFile(QString::fromUtf8(":/reload.png"), QSize(),
             QIcon::Normal, QIcon::Off);
     fActionCancel.setIcon(cancel);
     fActionCancel.setText("Clear Filter");
@@ -597,7 +597,7 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fActionPause.setText("Pause");
 
     QIcon rewind;
-    rewind.addFile(QString::fromUtf8(":/images/Ico/rewind.png"), QSize(),
+    rewind.addFile(QString::fromUtf8(":/rewind.png"), QSize(),
             QIcon::Normal, QIcon::Off);
     fActionRewind.setShortcut(QKeySequence(tr("Ctrl+R")));
     fActionRewind.setIcon(rewind);
@@ -614,14 +614,14 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fActionShowDeletes.setText("Deleted Commands");
 
     QIcon stepBack;
-    stepBack.addFile(QString::fromUtf8(":/images/Ico/previous.png"), QSize(),
+    stepBack.addFile(QString::fromUtf8(":/previous.png"), QSize(),
             QIcon::Normal, QIcon::Off);
     fActionStepBack.setShortcut(QKeySequence(tr("[")));
     fActionStepBack.setIcon(stepBack);
     fActionStepBack.setText("Step Back");
 
     QIcon stepForward;
-    stepForward.addFile(QString::fromUtf8(":/images/Ico/next.png"),
+    stepForward.addFile(QString::fromUtf8(":/next.png"),
             QSize(), QIcon::Normal, QIcon::Off);
     fActionStepForward.setShortcut(QKeySequence(tr("]")));
     fActionStepForward.setIcon(stepForward);
