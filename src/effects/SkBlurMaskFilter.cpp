@@ -27,10 +27,9 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurMaskFilterImpl)
 
 protected:
-    virtual FilterReturn filterRectToNine(const SkRect&, const SkMatrix&,
-                                          const SkIRect& clipBounds,
-                                          SkMask* ninePatchMask,
-                                          SkIRect* outerRect) SK_OVERRIDE;
+    virtual FilterReturn filterRectsToNine(const SkRect[], int count, const SkMatrix&,
+                                           const SkIRect& clipBounds,
+                                           NinePatch*) SK_OVERRIDE;
 
 private:
     SkScalar                    fRadius;
@@ -104,8 +103,8 @@ bool SkBlurMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src,
 
 #include "SkCanvas.h"
 
-static bool drawRectIntoMask(const SkRect& r, SkMask* mask) {
-    r.roundOut(&mask->fBounds);
+static bool drawRectsIntoMask(const SkRect rects[], int count, SkMask* mask) {
+    rects[0].roundOut(&mask->fBounds);
     mask->fRowBytes = SkAlign4(mask->fBounds.width());
     mask->fFormat = SkMask::kA8_Format;
     size_t size = mask->computeImageSize();
@@ -122,24 +121,37 @@ static bool drawRectIntoMask(const SkRect& r, SkMask* mask) {
     bitmap.setPixels(mask->fImage);
 
     SkCanvas canvas(bitmap);
-    canvas.translate(-SkScalarFloorToScalar(r.left()),
-                    -SkScalarFloorToScalar(r.top()));
+    canvas.translate(-SkIntToScalar(mask->fBounds.left()),
+                     -SkIntToScalar(mask->fBounds.top()));
 
     SkPaint paint;
     paint.setAntiAlias(true);
 
-    canvas.drawRect(r, paint);
+    if (1 == count) {
+        canvas.drawRect(rects[0], paint);
+    } else {
+        // todo: do I need a fast way to do this?
+        SkPath path;
+        path.addRect(rects[0]);
+        path.addRect(rects[1]);
+        path.setFillType(SkPath::kEvenOdd_FillType);
+        canvas.drawPath(path, paint);
+    }
     return true;
 }
 
 SkMaskFilter::FilterReturn
-SkBlurMaskFilterImpl::filterRectToNine(const SkRect& rect, const SkMatrix& matrix,
-                                       const SkIRect& clipBounds,
-                                       SkMask* ninePatchMask,
-                                       SkIRect* outerRect) {
+SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
+                                        const SkMatrix& matrix,
+                                        const SkIRect& clipBounds,
+                                        NinePatch* patch) {
+    if (count < 1 || count > 2) {
+        return kUnimplemented_FilterReturn;
+    }
+
     SkIPoint margin;
     SkMask  srcM, dstM;
-    rect.roundOut(&srcM.fBounds);
+    rects[0].roundOut(&srcM.fBounds);
     srcM.fImage = NULL;
     srcM.fFormat = SkMask::kA8_Format;
     srcM.fRowBytes = 0;
@@ -161,35 +173,56 @@ SkBlurMaskFilterImpl::filterRectToNine(const SkRect& rect, const SkMatrix& matri
      *  Thus, in this case, we inset by a total of 5 (on each side) beginning
      *  with our outer-rect (dstM.fBounds)
      */
-    SkRect smallR = rect;
-    {
-        // +3 is from +1 for each edge (to account for possible fractional pixel
-        // edges, and +1 to make room for a center rol/col.
-        int smallW = dstM.fBounds.width() - srcM.fBounds.width() + 3;
-        int smallH = dstM.fBounds.height() - srcM.fBounds.height() + 3;
-        // we want the inset amounts to be integral, so we don't change any
-        // fractional phase on the fRight or fBottom of our smallR.
-        SkScalar dx = SkIntToScalar(srcM.fBounds.width() - smallW);
-        SkScalar dy = SkIntToScalar(srcM.fBounds.height() - smallH);
-        if (dx < 0 || dy < 0) {
-            // we're too small, relative to our blur, to break into nine-patch,
-            // so we ask to have our normal filterMask() be called.
-            return kUnimplemented_FilterReturn;
-        }
-        SkASSERT(dx >= 0 && dy >= 0);
-        smallR.set(rect.left(), rect.top(), rect.right() - dx, rect.bottom() - dy);
-        SkASSERT(!smallR.isEmpty());
+    SkRect smallR[2];
+    SkIPoint center;
+
+    // +2 is from +1 for each edge (to account for possible fractional edges
+    int smallW = dstM.fBounds.width() - srcM.fBounds.width() + 2;
+    int smallH = dstM.fBounds.height() - srcM.fBounds.height() + 2;
+    SkIRect innerIR;
+
+    if (1 == count) {
+        innerIR = srcM.fBounds;
+        center.set(smallW, smallH);
+    } else {
+        SkASSERT(2 == count);
+        rects[1].roundIn(&innerIR);
+        center.set(smallW + (innerIR.left() - srcM.fBounds.left()),
+                   smallH + (innerIR.top() - srcM.fBounds.top()));
     }
 
-    if (!drawRectIntoMask(smallR, &srcM)) {
+    // +1 so we get a clean, stretchable, center row/col
+    smallW += 1;
+    smallH += 1;
+
+    // we want the inset amounts to be integral, so we don't change any
+    // fractional phase on the fRight or fBottom of our smallR.
+    const SkScalar dx = SkIntToScalar(innerIR.width() - smallW);
+    const SkScalar dy = SkIntToScalar(innerIR.height() - smallH);
+    if (dx < 0 || dy < 0) {
+        // we're too small, relative to our blur, to break into nine-patch,
+        // so we ask to have our normal filterMask() be called.
+        return kUnimplemented_FilterReturn;
+    }
+
+    smallR[0].set(rects[0].left(), rects[0].top(), rects[0].right() - dx, rects[0].bottom() - dy);
+    SkASSERT(!smallR[0].isEmpty());
+    if (2 == count) {
+        smallR[1].set(rects[1].left(), rects[1].top(),
+                      rects[1].right() - dx, rects[1].bottom() - dy);
+        SkASSERT(!smallR[1].isEmpty());
+    }
+
+    if (!drawRectsIntoMask(smallR, count, &srcM)) {
         return kFalse_FilterReturn;
     }
 
-    if (!this->filterMask(ninePatchMask, srcM, matrix, &margin)) {
+    if (!this->filterMask(&patch->fMask, srcM, matrix, &margin)) {
         return kFalse_FilterReturn;
     }
-    ninePatchMask->fBounds.offsetTo(0, 0);
-    *outerRect = dstM.fBounds;
+    patch->fMask.fBounds.offsetTo(0, 0);
+    patch->fOuterRect = dstM.fBounds;
+    patch->fCenter = center;
     return kTrue_FilterReturn;
 }
 
