@@ -9,9 +9,7 @@
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include <QListWidgetItem>
-#include "PictureBenchmark.h"
 #include "PictureRenderer.h"
-#include "SkBenchLogger.h"
 #include "SkPictureRecord.h"
 #include "SkPicturePlayback.h"
 #include "BenchTimer.h"
@@ -138,21 +136,36 @@ public:
         , fCurCommand(0)
         , fOffsets(offsets) {
         fTimes.setCount(fOffsets.count());
+        fTypeTimes.setCount(LAST_DRAWTYPE_ENUM+1);
+        this->resetTimes();
+    }
+
+    void resetTimes() {
         for (int i = 0; i < fOffsets.count(); ++i) {
-            fTimes[i] = 0;
+            fTimes[i] = 0.0;
         }
+        for (int i = 0; i < fTypeTimes.count(); ++i) {
+            fTypeTimes[i] = 0.0f;
+        }
+        fTot = 0.0;
     }
 
     int count() const { return fTimes.count(); }
 
     double time(int index) const { return fTimes[index] / fTot; }
 
+    const SkTDArray<double>* typeTimes() const { return &fTypeTimes; }
+
+    double totTime() const { return fTot; }
+
 protected:
     BenchTimer fTimer;
     SkTDArray<size_t> fOffsets; // offset in the SkPicture for each command
     SkTDArray<double> fTimes;   // sum of time consumed for each command
+    SkTDArray<double> fTypeTimes; // sum of time consumed for each type of command (e.g., drawPath)
     double fTot;                // total of all times in 'fTimes'
     size_t fCurOffset;
+    int fCurType;
     int fCurCommand;            // the current command being executed/timed
 
     virtual void preDraw(size_t offset, int type) {
@@ -166,6 +179,15 @@ protected:
         }
 
         fCurOffset = offset;
+        fCurType = type;
+        // The SkDebugCanvas doesn't recognize these types. This class needs to
+        // convert or else we'll wind up with a mismatch between the type counts
+        // the debugger displays and the profile times.
+        if (DRAW_POS_TEXT_TOP_BOTTOM == type) {
+            fCurType = DRAW_POS_TEXT;
+        } else if (DRAW_POS_TEXT_H_TOP_BOTTOM == type) {
+            fCurType = DRAW_POS_TEXT_H;
+        }
 
         fTimer.start();
     }
@@ -174,13 +196,16 @@ protected:
         fTimer.end();
 
         SkASSERT(offset == fCurOffset);
+        SkASSERT(fCurType <= LAST_DRAWTYPE_ENUM);
 
 #if defined(SK_BUILD_FOR_WIN32)
         // CPU timer doesn't work well on Windows
         fTimes[fCurCommand] += fTimer.fWall;
+        fTypeTimes[fCurType] += fTimer.fWall;
         fTot += fTimer.fWall;
 #else
         fTimes[fCurCommand] += fTimer.fCpu;
+        fTypeTimes[fCurType] += fTimer.fCpu;
         fTot += fTimer.fCpu;
 #endif
     }
@@ -231,14 +256,58 @@ public:
         }
     }
 
+    void resetTimes() { ((SkTimedPicturePlayback*) fPlayback)->resetTimes(); }
+
     int count() const { return ((SkTimedPicturePlayback*) fPlayback)->count(); }
 
     // return the fraction of the total time this command consumed
     double time(int index) const { return ((SkTimedPicturePlayback*) fPlayback)->time(index); }
 
+    const SkTDArray<double>* typeTimes() const { return ((SkTimedPicturePlayback*) fPlayback)->typeTimes(); }
+
+    double totTime() const { return ((SkTimedPicturePlayback*) fPlayback)->totTime(); }
+
 private:
+    // disallow default ctor b.c. we don't have a good way to setup the fPlayback ptr
+    SkTimedPicture();
+    // disallow the copy ctor - enabling would require copying code from SkPicture
+    SkTimedPicture(const SkTimedPicture& src);
+
     typedef SkPicture INHERITED;
 };
+
+// This is a simplification of PictureBenchmark's run with the addition of
+// clearing of the times after the first pass (in resetTimes)
+void SkDebuggerGUI::run(SkTimedPicture* pict, 
+                        sk_tools::PictureRenderer* renderer, 
+                        int repeats) {
+    SkASSERT(pict);
+    if (NULL == pict) {
+        return;
+    }
+
+    SkASSERT(renderer != NULL);
+    if (NULL == renderer) {
+        return;
+    }
+
+    renderer->init(pict);
+
+    renderer->setup();
+    renderer->render(NULL);
+    renderer->resetState();
+
+    // We throw this away the first batch of times to remove first time effects (such as paging in this program)
+    pict->resetTimes();
+
+    for (int i = 0; i < repeats; ++i) {
+        renderer->setup();
+        renderer->render(NULL);
+        renderer->resetState();
+    }
+
+    renderer->end();
+}
 
 void SkDebuggerGUI::actionProfile() {
     // In order to profile we pass the command offsets (that were read-in
@@ -263,24 +332,21 @@ void SkDebuggerGUI::actionProfile() {
         return;
     }
 
-    sk_tools::PictureBenchmark benchmark;
-
+    // For now this #if allows switching between tiled and simple rendering
+    // modes. Eventually this will be accomplished via the GUI
+#if 1
     sk_tools::TiledPictureRenderer* renderer = NULL;
 
     renderer = SkNEW(sk_tools::TiledPictureRenderer);
     renderer->setTileWidth(256);
     renderer->setTileHeight(256);
+#else
+    sk_tools::SimplePictureRenderer* renderer = NULL;
 
+    renderer = SkNEW(sk_tools::SimplePictureRenderer);
+#endif
 
-    benchmark.setRepeats(2);
-    benchmark.setRenderer(renderer);
-    benchmark.setTimersToShow(true, false, true, false, false);
-
-    SkBenchLogger logger;
-
-    benchmark.setLogger(&logger);
-
-    benchmark.run(&picture);
+    run(&picture, renderer, 2);
 
     SkASSERT(picture.count() == fListWidget.count());
 
@@ -292,6 +358,8 @@ void SkDebuggerGUI::actionProfile() {
 
         item->setData(Qt::UserRole + 4, 100.0*temp);
     }
+
+    setupOverviewText(picture.typeTimes(), picture.totTime());
 }
 
 void SkDebuggerGUI::actionCancel() {
@@ -825,6 +893,11 @@ public:
     }
 
 private:
+    // disallow default ctor b.c. we don't have a good way to setup the fPlayback ptr
+    SkOffsetPicture();
+    // disallow the copy ctor - enabling would require copying code from SkPicture
+    SkOffsetPicture(const SkOffsetPicture& src);
+
     typedef SkPicture INHERITED;
 };
 
@@ -845,7 +918,7 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
     SkSafeUnref(picture);
 
     // Will this automatically clear out due to nature of refcnt?
-    SkTDArray<SkString*>* commands = fDebugger.getDrawCommands();
+    SkTArray<SkString>* commands = fDebugger.getDrawCommandsAsStrings();
 
     // If SkPicturePlayback is compiled w/o SK_PICTURE_PROFILING_STUBS
     // the offset count will always be zero
@@ -863,6 +936,7 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
 
     setupListWidget(commands);
     setupComboBox(commands);
+    setupOverviewText(NULL, 0.0);
     fInspectorWidget.setDisabled(false);
     fSettingsWidget.setDisabled(false);
     fMenuEdit.setDisabled(false);
@@ -874,23 +948,23 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
     actionPlay();
 }
 
-void SkDebuggerGUI::setupListWidget(SkTDArray<SkString*>* command) {
+void SkDebuggerGUI::setupListWidget(SkTArray<SkString>* command) {
     fListWidget.clear();
     int counter = 0;
     int indent = 0;
     for (int i = 0; i < command->count(); i++) {
         QListWidgetItem *item = new QListWidgetItem();
-        item->setData(Qt::DisplayRole, (*command)[i]->c_str());
+        item->setData(Qt::DisplayRole, (*command)[i].c_str());
         item->setData(Qt::UserRole + 1, counter++);
 
-        if (0 == strcmp("Restore", (*command)[i]->c_str())) {
+        if (0 == strcmp("Restore", (*command)[i].c_str())) {
             indent -= 10;
         }
 
         item->setData(Qt::UserRole + 3, indent);
 
-        if (0 == strcmp("Save", (*command)[i]->c_str()) ||
-            0 == strcmp("Save Layer", (*command)[i]->c_str())) {
+        if (0 == strcmp("Save", (*command)[i].c_str()) ||
+            0 == strcmp("Save Layer", (*command)[i].c_str())) {
             indent += 10;
         }
 
@@ -900,31 +974,75 @@ void SkDebuggerGUI::setupListWidget(SkTDArray<SkString*>* command) {
     }
 }
 
-void SkDebuggerGUI::setupComboBox(SkTDArray<SkString*>* command) {
-    fFilter.clear();
-    fFilter.addItem("--Filter By Available Commands--");
+void SkDebuggerGUI::setupOverviewText(const SkTDArray<double>* typeTimes, double totTime) {
 
-    std::map<std::string, int> map;
-    for (int i = 0; i < command->count(); i++) {
-        map[(*command)[i]->c_str()]++;
+    const SkTDArray<SkDrawCommand*>& commands = fDebugger.getDrawCommands();
+
+    SkTDArray<int> counts;
+    counts.setCount(LAST_DRAWTYPE_ENUM+1);
+    for (int i = 0; i < LAST_DRAWTYPE_ENUM+1; ++i) {
+        counts[i] = 0;
+    }
+
+    for (int i = 0; i < commands.count(); i++) {
+        counts[commands[i]->getType()]++;
     }
 
     QString overview;
-    int counter = 0;
-    for (std::map<std::string, int>::iterator it = map.begin(); it != map.end();
-            ++it) {
-        overview.append((it->first).c_str());
+    int total = 0;
+#ifdef SK_DEBUG
+    double totPercent = 0, tempSum = 0;
+#endif
+    for (int i = 0; i < LAST_DRAWTYPE_ENUM+1; ++i) {
+        if (0 == counts[i]) {
+            // if there were no commands of this type then they should've consumed no time
+            SkASSERT(NULL == typeTimes || 0.0 == (*typeTimes)[i]);
+            continue;
+        }
+
+        overview.append(SkDrawCommand::GetCommandString((DrawType) i));
         overview.append(": ");
-        overview.append(QString::number(it->second));
+        overview.append(QString::number(counts[i]));
+        if (NULL != typeTimes) {
+            overview.append(" - ");
+            overview.append(QString::number((*typeTimes)[i], 'f', 1));
+            overview.append("ms");
+            overview.append(" - ");
+            double percent = 100.0*(*typeTimes)[i]/totTime;
+            overview.append(QString::number(percent, 'f', 1));
+            overview.append("%");
+#ifdef SK_DEBUG
+            totPercent += percent;
+            tempSum += (*typeTimes)[i];
+#endif
+        }
         overview.append("<br/>");
-        counter += it->second;
-        fFilter.addItem((it->first).c_str());
+        total += counts[i];
     }
-    QString total;
-    total.append("Total Draw Commands: ");
-    total.append(QString::number(counter));
-    total.append("<br/>");
-    overview.insert(0, total);
+#ifdef SK_DEBUG
+    if (NULL != typeTimes) {
+        SkASSERT(SkScalarNearlyEqual(totPercent, 100.0));
+        SkASSERT(SkScalarNearlyEqual(tempSum, totTime));
+    }
+#endif
+
+    if (totTime > 0.0) {
+        overview.append("Total Time: ");
+        overview.append(QString::number(totTime, 'f', 2));
+        overview.append("ms");
+#ifdef SK_DEBUG
+        overview.append(" ");
+        overview.append(QString::number(totPercent));
+        overview.append("% ");
+#endif
+        overview.append("<br/>");
+    }
+
+    QString totalStr;
+    totalStr.append("Total Draw Commands: ");
+    totalStr.append(QString::number(total));
+    totalStr.append("<br/>");
+    overview.insert(0, totalStr);
 
     overview.append("<br/>");
     overview.append("SkPicture Width: ");
@@ -935,6 +1053,21 @@ void SkDebuggerGUI::setupComboBox(SkTDArray<SkString*>* command) {
     overview.append(QString::number(fDebugger.pictureHeight()));
     overview.append("px");
     fInspectorWidget.setText(overview, SkInspectorWidget::kOverview_TabType);
+}
+
+void SkDebuggerGUI::setupComboBox(SkTArray<SkString>* command) {
+    fFilter.clear();
+    fFilter.addItem("--Filter By Available Commands--");
+
+    std::map<std::string, int> map;
+    for (int i = 0; i < command->count(); i++) {
+        map[(*command)[i].c_str()]++;
+    }
+
+    for (std::map<std::string, int>::iterator it = map.begin(); it != map.end(); 
+         ++it) {
+        fFilter.addItem((it->first).c_str());
+    }
 
     // NOTE(chudy): Makes first item unselectable.
     QStandardItemModel* model = qobject_cast<QStandardItemModel*>(

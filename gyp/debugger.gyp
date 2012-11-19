@@ -109,14 +109,6 @@
         '../debugger/QT/SkRasterWidget.h',
         '../debugger/QT/SkRasterWidget.cpp',
 
-        '../tools/PictureBenchmark.h',
-        '../tools/PictureBenchmark.cpp',
-
-        '../bench/SkBenchLogger.h',
-        '../bench/SkBenchLogger.cpp',
-        '../bench/TimerData.h',
-        '../bench/TimerData.cpp',
-
         # To update this file edit SkIcons.qrc and rerun rcc to generate cpp
         '../debugger/QT/qrc_SkIcons.cpp',
 

@@ -35,6 +35,11 @@
 #include <QtGui/QMenuBar>
 #include <vector>
 
+class SkTimedPicture;
+namespace sk_tools {
+    class PictureRenderer;
+}
+
 /** \class SkDebuggerGUI
 
     Container for the UI and it's functions.
@@ -286,18 +291,31 @@ private:
     /**
         Populates the list widget with the vector of strings passed in.
      */
-    void setupListWidget(SkTDArray<SkString*>* command);
+    void setupListWidget(SkTArray<SkString>* command);
 
     /**
         Populates the combo box widget with the vector of strings passed in.
      */
-    void setupComboBox(SkTDArray<SkString*>* command);
+    void setupComboBox(SkTArray<SkString>* command);
+
+    /**
+        Fills in the overview pane with text
+     */
+    void setupOverviewText(const SkTDArray<double>* typeTimes, double totTime);
 
     /**
         Updates the directory widget with the latest directory path stored in
         the global class variable fPath.
      */
     void setupDirectoryWidget();
+
+    /**
+        Render the supplied picture several times tracking the time consumed
+        by each command.
+     */
+    void run(SkTimedPicture* pict, 
+             sk_tools::PictureRenderer* renderer, 
+             int repeats);
 };
 
 #endif // SKDEBUGGERUI_H

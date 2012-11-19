@@ -13,7 +13,7 @@
 #include "SkCanvas.h"
 #include "SkDrawCommand.h"
 #include "SkPicture.h"
-#include "SkTDArray.h"
+#include "SkTArray.h"
 #include "SkString.h"
 
 class SkDebugCanvas : public SkCanvas {
@@ -85,12 +85,12 @@ public:
     /**
         Returns the vector of draw commands
      */
-    SkTDArray<SkDrawCommand*> getDrawCommands();
+    const SkTDArray<SkDrawCommand*>& getDrawCommands() const;
 
     /**
      * Returns the string vector of draw commands
      */
-    SkTDArray<SkString*>* getDrawCommandsAsStrings();
+    SkTArray<SkString>* getDrawCommandsAsStrings() const;
 
     /**
         Returns length of draw command vector.

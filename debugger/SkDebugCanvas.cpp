@@ -142,16 +142,16 @@ bool SkDebugCanvas::getDrawCommandVisibilityAt(int index) {
     return commandVector[index]->isVisible();
 }
 
-SkTDArray <SkDrawCommand*> SkDebugCanvas::getDrawCommands() {
+const SkTDArray <SkDrawCommand*>& SkDebugCanvas::getDrawCommands() const {
     return commandVector;
 }
 
 // TODO(chudy): Free command string memory.
-SkTDArray<SkString*>* SkDebugCanvas::getDrawCommandsAsStrings() {
-    SkTDArray<SkString*>* commandString = new SkTDArray<SkString*>();
+SkTArray<SkString>* SkDebugCanvas::getDrawCommandsAsStrings() const {
+    SkTArray<SkString>* commandString = new SkTArray<SkString>(commandVector.count());
     if (!commandVector.isEmpty()) {
         for (int i = 0; i < commandVector.count(); i ++) {
-            commandString->push(new SkString(commandVector[i]->toString()));
+            commandString->push_back() = commandVector[i]->toString();
         }
     }
     return commandString;
