@@ -66,9 +66,10 @@ static void dump(const SkMask& mask) {
 #endif
 
 static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
+                              const SkIPoint& center, bool fillCenter,
                               const SkIRect& clipR, SkBlitter* blitter) {
-    int cx = mask.fBounds.centerX();
-    int cy = mask.fBounds.centerY();
+    int cx = center.x();
+    int cy = center.y();
     SkMask m;
 
     // top-left
@@ -109,7 +110,9 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
                outerR.top() + cy - mask.fBounds.top(),
                outerR.right() + (cx + 1 - mask.fBounds.right()),
                outerR.bottom() + (cy + 1 - mask.fBounds.bottom()));
-    blitClippedRect(blitter, innerR, clipR);
+    if (fillCenter) {
+        blitClippedRect(blitter, innerR, clipR);
+    }
 
     const int innerW = innerR.width();
     size_t storageSize = (innerW + 1) * (sizeof(int16_t) + sizeof(uint8_t));
@@ -169,6 +172,7 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
 }
 
 static void draw_nine(const SkMask& mask, const SkIRect& outerR,
+                      const SkIPoint& center, bool fillCenter,
                       const SkRasterClip& clip, SkBounder* bounder,
                       SkBlitter* blitter) {
     // if we get here, we need to (possibly) resolve the clip and blitter
@@ -180,33 +184,45 @@ static void draw_nine(const SkMask& mask, const SkIRect& outerR,
     if (!clipper.done() && (!bounder || bounder->doIRect(outerR))) {
         const SkIRect& cr = clipper.rect();
         do {
-            draw_nine_clipped(mask, outerR, cr, blitter);
+            draw_nine_clipped(mask, outerR, center, fillCenter, cr, blitter);
             clipper.next();
         } while (!clipper.done());
     }
 }
 
+static int countNestedRects(const SkPath& path, SkRect rects[2]) {
+    if (path.isNestedRects(rects)) {
+        return 2;
+    }
+    return path.isRect(&rects[0]);
+}
+
 bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
                               const SkRasterClip& clip, SkBounder* bounder,
                               SkBlitter* blitter, SkPaint::Style style) {
-    SkRect rect;
-    if (!SK_IGNORE_FAST_BLURRECT &&
-                devPath.isRect(&rect) && SkPaint::kFill_Style == style) {
-        SkMask  mask;
-        SkIRect outerBounds;
+    SkRect rects[2];
+    int rectCount = 0;
+    if (!SK_IGNORE_FAST_BLURRECT && SkPaint::kFill_Style == style) {
+        rectCount = countNestedRects(devPath, rects);
+    }
+    if (rectCount > 0) {
+        NinePatch patch;
 
-        mask.fImage = NULL;
-        switch (this->filterRectToNine(rect, matrix, clip.getBounds(), &mask,
-                                       &outerBounds)) {
+        patch.fMask.fImage = NULL;
+        switch (this->filterRectsToNine(rects, rectCount, matrix,
+                                        clip.getBounds(), &patch)) {
             case kFalse_FilterReturn:
-                SkASSERT(!mask.fImage);
+                SkASSERT(NULL == patch.fMask.fImage);
                 return false;
+
             case kTrue_FilterReturn:
-                draw_nine(mask, outerBounds, clip, bounder, blitter);
-                SkMask::FreeImage(mask.fImage);
+                draw_nine(patch.fMask, patch.fOuterRect, patch.fCenter,
+                          1 == rectCount, clip, bounder, blitter);
+                SkMask::FreeImage(patch.fMask.fImage);
                 return true;
+
             case kUnimplemented_FilterReturn:
-                SkASSERT(!mask.fImage);
+                SkASSERT(NULL == patch.fMask.fImage);
                 // fall through
                 break;
         }
@@ -244,10 +260,8 @@ bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
 }
 
 SkMaskFilter::FilterReturn
-SkMaskFilter::filterRectToNine(const SkRect&, const SkMatrix&,
-                               const SkIRect& clipBounds,
-                               SkMask* ninePatchMask,
-                               SkIRect* outerRect) {
+SkMaskFilter::filterRectsToNine(const SkRect[], int count, const SkMatrix&,
+                                const SkIRect& clipBounds, NinePatch*) {
     return kUnimplemented_FilterReturn;
 }
 

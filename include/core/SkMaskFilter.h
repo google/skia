@@ -111,6 +111,12 @@ protected:
         kUnimplemented_FilterReturn
     };
 
+    struct NinePatch {
+        SkMask      fMask;      // fBounds must have [0,0] in its top-left
+        SkIRect     fOuterRect; // width/height must be >= fMask.fBounds'
+        SkIPoint    fCenter;    // identifies center row/col for stretching
+    };
+
     /**
      *  Override if your subclass can filter a rect, and return the answer as
      *  a ninepatch mask to be stretched over the returned outerRect. On success
@@ -126,10 +132,10 @@ protected:
      *  the caller will call mask.fBounds.centerX() and centerY() to find the
      *  strips that will be replicated.
      */
-    virtual FilterReturn filterRectToNine(const SkRect&, const SkMatrix&,
-                                          const SkIRect& clipBounds,
-                                          SkMask* ninePatchMask,
-                                          SkIRect* outerRect);
+    virtual FilterReturn filterRectsToNine(const SkRect[], int count,
+                                           const SkMatrix&,
+                                           const SkIRect& clipBounds,
+                                           NinePatch*);
 
 private:
     friend class SkDraw;
