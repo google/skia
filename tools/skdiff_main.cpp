@@ -117,10 +117,10 @@ struct DiffRecord {
         : fFilename (filename)
         , fBasePath (basePath)
         , fComparisonPath (comparisonPath)
-        , fBaseBitmap (new SkBitmap ())
-        , fComparisonBitmap (new SkBitmap ())
-        , fDifferenceBitmap (new SkBitmap ())
-        , fWhiteBitmap (new SkBitmap ())
+        , fBaseBitmap (NULL)
+        , fComparisonBitmap (NULL)
+        , fDifferenceBitmap (NULL)
+        , fWhiteBitmap (NULL)
         , fBaseHeight (0)
         , fBaseWidth (0)
         , fFractionDifference (0)
@@ -659,17 +659,31 @@ static SkString filename_to_white_filename (const SkString& filename) {
     return filename_to_derived_filename(filename, "-white.png");
 }
 
-static void release_bitmaps(DiffRecord* drp) {
-    delete drp->fBaseBitmap;
-    drp->fBaseBitmap = NULL;
-    delete drp->fComparisonBitmap;
-    drp->fComparisonBitmap = NULL;
-    delete drp->fDifferenceBitmap;
-    drp->fDifferenceBitmap = NULL;
-    delete drp->fWhiteBitmap;
-    drp->fWhiteBitmap = NULL;
-}
+class AutoCreateAndReleaseBitmaps {
 
+public:
+    AutoCreateAndReleaseBitmaps(DiffRecord* drp)
+    : fDrp(drp) {
+        SkASSERT(drp != NULL);
+        drp->fBaseBitmap = SkNEW(SkBitmap);
+        drp->fComparisonBitmap = SkNEW(SkBitmap);
+        drp->fDifferenceBitmap = SkNEW(SkBitmap);
+        drp->fWhiteBitmap = SkNEW(SkBitmap);
+    }
+    ~AutoCreateAndReleaseBitmaps() {
+        SkDELETE(fDrp->fBaseBitmap);
+        fDrp->fBaseBitmap = NULL;
+        SkDELETE(fDrp->fComparisonBitmap);
+        fDrp->fComparisonBitmap = NULL;
+        SkDELETE(fDrp->fDifferenceBitmap);
+        fDrp->fDifferenceBitmap = NULL;
+        SkDELETE(fDrp->fWhiteBitmap);
+        fDrp->fWhiteBitmap = NULL;
+    }
+
+private:
+    DiffRecord* fDrp;
+};
 
 /// If outputDir.isEmpty(), don't write out diff files.
 static void create_and_write_diff_image(DiffRecord* drp,
@@ -696,8 +710,6 @@ static void create_and_write_diff_image(DiffRecord* drp,
         whitePath.append(filename_to_white_filename(filename));
         write_bitmap(whitePath, drp->fWhiteBitmap);
     }
-
-    release_bitmaps(drp);
 }
 
 /// Returns true if string contains any of these substrings.
@@ -860,11 +872,14 @@ static void create_diff_images (DiffMetricProc dmp,
             } else {
                 if (are_buffers_equal(baseFileBits, comparisonFileBits)) {
                     drp->fResult = kEqualBits;
-                } else if (get_bitmaps(baseFileBits, comparisonFileBits, drp)) {
-                    create_and_write_diff_image(drp, dmp, colorThreshold,
-                                                outputDir, *baseFiles[i]);
                 } else {
-                    drp->fResult = kDifferentOther;
+                    AutoCreateAndReleaseBitmaps createBitmaps(drp);
+                    if (get_bitmaps(baseFileBits, comparisonFileBits, drp)) {
+                        create_and_write_diff_image(drp, dmp, colorThreshold,
+                                                    outputDir, *baseFiles[i]);
+                    } else {
+                        drp->fResult = kDifferentOther;
+                    }
                 }
             }
             if (baseFileBits) {
