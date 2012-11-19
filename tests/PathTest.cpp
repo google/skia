@@ -18,6 +18,12 @@
 #include "SkWriter32.h"
 #include "SkSurface.h"
 
+#if defined(WIN32)
+    #define SUPPRESS_VISIBILITY_WARNING
+#else
+    #define SUPPRESS_VISIBILITY_WARNING __attribute__((visibility("hidden")))
+#endif
+
 static SkSurface* new_surface(int w, int h) {
     SkImage::Info info = {
         w, h, SkImage::kPMColor_ColorType, SkImage::kPremul_AlphaType
@@ -836,7 +842,7 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
     // round-rect radii
     static const SkScalar kRRRadii[] = {SkIntToScalar(5), SkIntToScalar(3)};
 
-    static const struct {
+    static const struct SUPPRESS_VISIBILITY_WARNING {
         SkRect fQueryRect;
         bool   fInRect;
         bool   fInCircle;
@@ -912,7 +918,7 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
     };
 
     for (int inv = 0; inv < 4; ++inv) {
-        for (int q = 0; q < SK_ARRAY_COUNT(kQueries); ++q) {
+        for (size_t q = 0; q < SK_ARRAY_COUNT(kQueries); ++q) {
             SkRect qRect = kQueries[q].fQueryRect;
             if (inv & 0x1) {
                 SkTSwap(qRect.fLeft, qRect.fRight);
@@ -1042,6 +1048,12 @@ static void test_isRect(skiatest::Reporter* reporter) {
             path.close();
         }
         REPORTER_ASSERT(reporter, fail ^ path.isRect(0));
+        if (!fail) {
+            SkRect computed, expected;
+            expected.set(tests[testIndex], testLen[testIndex] / sizeof(SkPoint));
+            REPORTER_ASSERT(reporter, path.isRect(&computed));
+            REPORTER_ASSERT(reporter, expected == computed);
+        }
         if (tests[testIndex] == lastPass) {
             fail = true;
         }
@@ -1104,6 +1116,186 @@ static void test_isRect(skiatest::Reporter* reporter) {
     }
     path1.close();
     REPORTER_ASSERT(reporter, fail ^ path1.isRect(0));
+}
+
+static void test_isNestedRects(skiatest::Reporter* reporter) {
+    // passing tests (all moveTo / lineTo...
+    SkPoint r1[] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
+    SkPoint r2[] = {{1, 0}, {1, 1}, {0, 1}, {0, 0}};
+    SkPoint r3[] = {{1, 1}, {0, 1}, {0, 0}, {1, 0}};
+    SkPoint r4[] = {{0, 1}, {0, 0}, {1, 0}, {1, 1}};
+    SkPoint r5[] = {{0, 0}, {0, 1}, {1, 1}, {1, 0}};
+    SkPoint r6[] = {{0, 1}, {1, 1}, {1, 0}, {0, 0}};
+    SkPoint r7[] = {{1, 1}, {1, 0}, {0, 0}, {0, 1}};
+    SkPoint r8[] = {{1, 0}, {0, 0}, {0, 1}, {1, 1}};
+    SkPoint r9[] = {{0, 1}, {1, 1}, {1, 0}, {0, 0}};
+    SkPoint ra[] = {{0, 0}, {0, .5f}, {0, 1}, {.5f, 1}, {1, 1}, {1, .5f},
+        {1, 0}, {.5f, 0}};
+    SkPoint rb[] = {{0, 0}, {.5f, 0}, {1, 0}, {1, .5f}, {1, 1}, {.5f, 1},
+        {0, 1}, {0, .5f}};
+    SkPoint rc[] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}, {0, 0}};
+    SkPoint rd[] = {{0, 0}, {0, 1}, {1, 1}, {1, 0}, {0, 0}};
+    SkPoint re[] = {{0, 0}, {1, 0}, {1, 0}, {1, 1}, {0, 1}};
+
+    // failing tests
+    SkPoint f1[] = {{0, 0}, {1, 0}, {1, 1}}; // too few points
+    SkPoint f2[] = {{0, 0}, {1, 1}, {0, 1}, {1, 0}}; // diagonal
+    SkPoint f3[] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}, {0, 0}, {1, 0}}; // wraps
+    SkPoint f4[] = {{0, 0}, {1, 0}, {0, 0}, {1, 0}, {1, 1}, {0, 1}}; // backs up
+    SkPoint f5[] = {{0, 0}, {1, 0}, {1, 1}, {2, 0}}; // end overshoots
+    SkPoint f6[] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}, {0, 2}}; // end overshoots
+    SkPoint f7[] = {{0, 0}, {1, 0}, {1, 1}, {0, 2}}; // end overshoots
+    SkPoint f8[] = {{0, 0}, {1, 0}, {1, 1}, {1, 0}}; // 'L'
+
+    // failing, no close
+    SkPoint c1[] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}}; // close doesn't match
+    SkPoint c2[] = {{0, 0}, {1, 0}, {1, 2}, {0, 2}, {0, 1}}; // ditto
+
+    size_t testLen[] = {
+        sizeof(r1), sizeof(r2), sizeof(r3), sizeof(r4), sizeof(r5), sizeof(r6),
+        sizeof(r7), sizeof(r8), sizeof(r9), sizeof(ra), sizeof(rb), sizeof(rc),
+        sizeof(rd), sizeof(re),
+        sizeof(f1), sizeof(f2), sizeof(f3), sizeof(f4), sizeof(f5), sizeof(f6),
+        sizeof(f7), sizeof(f8),
+        sizeof(c1), sizeof(c2)
+    };
+    SkPoint* tests[] = {
+        r1, r2, r3, r4, r5, r6, r7, r8, r9, ra, rb, rc, rd, re,
+        f1, f2, f3, f4, f5, f6, f7, f8,
+        c1, c2
+    };
+    const SkPoint* lastPass = re;
+    const SkPoint* lastClose = f8;
+    const size_t testCount = sizeof(tests) / sizeof(tests[0]);
+    size_t index;
+    for (int rectFirst = 0; rectFirst <= 1; ++rectFirst) {
+        bool fail = false;
+        bool close = true;
+        for (size_t testIndex = 0; testIndex < testCount; ++testIndex) {
+            SkPath path;
+            if (rectFirst) {
+                path.addRect(-1, -1, 2, 2, SkPath::kCW_Direction);
+            }
+            path.moveTo(tests[testIndex][0].fX, tests[testIndex][0].fY);
+            for (index = 1; index < testLen[testIndex] / sizeof(SkPoint); ++index) {
+                path.lineTo(tests[testIndex][index].fX, tests[testIndex][index].fY);
+            }
+            if (close) {
+                path.close();
+            }
+            if (!rectFirst) {
+                path.addRect(-1, -1, 2, 2, SkPath::kCCW_Direction);
+            }
+            REPORTER_ASSERT(reporter, fail ^ path.isNestedRects(0));
+            if (!fail) {
+                SkRect expected[2], computed[2];
+                SkRect testBounds;
+                testBounds.set(tests[testIndex], testLen[testIndex] / sizeof(SkPoint));
+                expected[0] = SkRect::MakeLTRB(-1, -1, 2, 2);
+                expected[1] = testBounds;
+                REPORTER_ASSERT(reporter, path.isNestedRects(computed));
+                REPORTER_ASSERT(reporter, expected[0] == computed[0]);
+                REPORTER_ASSERT(reporter, expected[1] == computed[1]);
+            }
+            if (tests[testIndex] == lastPass) {
+                fail = true;
+            }
+            if (tests[testIndex] == lastClose) {
+                close = false;
+            }
+        }
+
+        // fail, close then line
+        SkPath path1;
+        if (rectFirst) {
+            path1.addRect(-1, -1, 2, 2, SkPath::kCW_Direction);
+        }
+        path1.moveTo(r1[0].fX, r1[0].fY);
+        for (index = 1; index < testLen[0] / sizeof(SkPoint); ++index) {
+            path1.lineTo(r1[index].fX, r1[index].fY);
+        }
+        path1.close();
+        path1.lineTo(1, 0);
+        if (!rectFirst) {
+            path1.addRect(-1, -1, 2, 2, SkPath::kCCW_Direction);
+        }
+        REPORTER_ASSERT(reporter, fail ^ path1.isNestedRects(0));
+
+        // fail, move in the middle
+        path1.reset();
+        if (rectFirst) {
+            path1.addRect(-1, -1, 2, 2, SkPath::kCW_Direction);
+        }
+        path1.moveTo(r1[0].fX, r1[0].fY);
+        for (index = 1; index < testLen[0] / sizeof(SkPoint); ++index) {
+            if (index == 2) {
+                path1.moveTo(1, .5f);
+            }
+            path1.lineTo(r1[index].fX, r1[index].fY);
+        }
+        path1.close();
+        if (!rectFirst) {
+            path1.addRect(-1, -1, 2, 2, SkPath::kCCW_Direction);
+        }
+        REPORTER_ASSERT(reporter, fail ^ path1.isNestedRects(0));
+
+        // fail, move on the edge
+        path1.reset();
+        if (rectFirst) {
+            path1.addRect(-1, -1, 2, 2, SkPath::kCW_Direction);
+        }
+        for (index = 1; index < testLen[0] / sizeof(SkPoint); ++index) {
+            path1.moveTo(r1[index - 1].fX, r1[index - 1].fY);
+            path1.lineTo(r1[index].fX, r1[index].fY);
+        }
+        path1.close();
+        if (!rectFirst) {
+            path1.addRect(-1, -1, 2, 2, SkPath::kCCW_Direction);
+        }
+        REPORTER_ASSERT(reporter, fail ^ path1.isNestedRects(0));
+
+        // fail, quad
+        path1.reset();
+        if (rectFirst) {
+            path1.addRect(-1, -1, 2, 2, SkPath::kCW_Direction);
+        }
+        path1.moveTo(r1[0].fX, r1[0].fY);
+        for (index = 1; index < testLen[0] / sizeof(SkPoint); ++index) {
+            if (index == 2) {
+                path1.quadTo(1, .5f, 1, .5f);
+            }
+            path1.lineTo(r1[index].fX, r1[index].fY);
+        }
+        path1.close();
+        if (!rectFirst) {
+            path1.addRect(-1, -1, 2, 2, SkPath::kCCW_Direction);
+        }
+        REPORTER_ASSERT(reporter, fail ^ path1.isNestedRects(0));
+
+        // fail, cubic
+        path1.reset();
+        if (rectFirst) {
+            path1.addRect(-1, -1, 2, 2, SkPath::kCW_Direction);
+        }
+        path1.moveTo(r1[0].fX, r1[0].fY);
+        for (index = 1; index < testLen[0] / sizeof(SkPoint); ++index) {
+            if (index == 2) {
+                path1.cubicTo(1, .5f, 1, .5f, 1, .5f);
+            }
+            path1.lineTo(r1[index].fX, r1[index].fY);
+        }
+        path1.close();
+        if (!rectFirst) {
+            path1.addRect(-1, -1, 2, 2, SkPath::kCCW_Direction);
+        }
+        REPORTER_ASSERT(reporter, fail ^ path1.isNestedRects(0));
+        
+        // fail,  not nested
+        path1.reset();
+        path1.addRect(1, 1, 3, 3, SkPath::kCW_Direction);
+        path1.addRect(2, 2, 4, 4, SkPath::kCW_Direction);
+        REPORTER_ASSERT(reporter, fail ^ path1.isNestedRects(0));
+    }
 }
 
 static void write_and_read_back(skiatest::Reporter* reporter,
@@ -1208,7 +1400,7 @@ static void test_zero_length_paths(skiatest::Reporter* reporter) {
     SkPath  p;
     uint8_t verbs[32];
 
-    struct zeroPathTestData {
+    struct SUPPRESS_VISIBILITY_WARNING zeroPathTestData {
         const char* testPath;
         const size_t numResultPts;
         const SkRect resultBound;
@@ -1962,6 +2154,7 @@ static void TestPath(skiatest::Reporter* reporter) {
 
     test_isLine(reporter);
     test_isRect(reporter);
+    test_isNestedRects(reporter);
     test_zero_length_paths(reporter);
     test_direction(reporter);
     test_convexity(reporter);

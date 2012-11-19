@@ -488,11 +488,11 @@ FIXME: Allow colinear quads and cubics to be treated like lines.
 FIXME: If the API passes fill-only, return true if the filled stroke
        is a rectangle, though the caller failed to close the path.
  */
-bool SkPath::isRect(SkRect* rect) const {
-    SkDEBUGCODE(this->validate();)
-
+bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** ptsPtr) const {
     int corners = 0;
     SkPoint first, last;
+    const SkPoint* pts = *ptsPtr;
+    const SkPoint* savePts;
     first.set(0, 0);
     last.set(0, 0);
     int firstDirection = 0;
@@ -500,13 +500,12 @@ bool SkPath::isRect(SkRect* rect) const {
     int nextDirection = 0;
     bool closedOrMoved = false;
     bool autoClose = false;
-    const SkPoint* pts = fPathRef->points();
     int verbCnt = fPathRef->countVerbs();
-    int currVerb = 0;
-    while (currVerb < verbCnt) {
-        switch (fPathRef->atVerb(currVerb++)) {
+    while (*currVerb < verbCnt && (!allowPartial || !autoClose)) {
+        switch (fPathRef->atVerb(*currVerb)) {
             case kClose_Verb:
-                pts = fPathRef->points();
+                savePts = pts;
+                pts = *ptsPtr;
                 autoClose = true;
             case kLine_Verb: {
                 SkScalar left = last.fX;
@@ -561,14 +560,55 @@ bool SkPath::isRect(SkRect* rect) const {
                 closedOrMoved = true;
                 break;
         }
+        *currVerb += 1;
         lastDirection = nextDirection;
     }
     // Success if 4 corners and first point equals last
     bool result = 4 == corners && first == last;
+    *ptsPtr = savePts;
+    return result;
+}
+
+bool SkPath::isRect(SkRect* rect) const {
+    SkDEBUGCODE(this->validate();)
+    int currVerb = 0;
+    const SkPoint* pts = fPathRef->points();
+    bool result = isRectContour(false, &currVerb, &pts);
     if (result && rect) {
         *rect = getBounds();
     }
     return result;
+}
+
+bool SkPath::isNestedRects(SkRect rects[2]) const {
+    SkDEBUGCODE(this->validate();)
+    int currVerb = 0;
+    const SkPoint* pts = fPathRef->points();
+    const SkPoint* first = pts;
+    if (!isRectContour(true, &currVerb, &pts)) {
+        return false;
+    }
+    const SkPoint* last = pts;
+    SkRect testRects[2];
+    if (isRectContour(false, &currVerb, &pts)) {
+        testRects[0].set(first, last - first);
+        testRects[1].set(last, pts - last);
+        if (testRects[0].contains(testRects[1])) {
+            if (rects) {
+                rects[0] = testRects[0];
+                rects[1] = testRects[1];
+            }
+            return true;
+        }
+        if (testRects[1].contains(testRects[0])) {
+            if (rects) {
+                rects[0] = testRects[1];
+                rects[1] = testRects[0];
+            }
+            return true;
+        }
+    }
+    return false;
 }
 
 int SkPath::countPoints() const {
