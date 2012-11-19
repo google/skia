@@ -179,6 +179,11 @@
             '../src/utils/SkThreadUtils_pthread_linux.cpp',
           ],
         }],
+        [ 'skia_os == "android"', {
+          'sources': [
+            '../src/utils/android/ashmem.c',
+          ],
+        }],
       ],
       'direct_dependent_settings': {
         'include_dirs': [
