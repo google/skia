@@ -318,7 +318,11 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLScissor(GrGLint x,
 
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLShaderSource(GrGLuint shader,
                                                  GrGLsizei count,
+#if GR_USE_NEW_GL_SHADER_SOURCE_SIGNATURE
+                                                 const char* const * str,
+#else
                                                  const char** str,
+#endif
                                                  const GrGLint* length) {
 }
 

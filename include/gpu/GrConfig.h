@@ -375,6 +375,15 @@ inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
     #define GR_DEFAULT_TEXTURE_CACHE_MB_LIMIT 96
 #endif
 
+/**
+ * GR_USE_NEW_GL_SHADER_SOURCE_SIGNATURE is for compatibility with the new version
+ * of the OpenGLES2.0 headers from Khronos.  glShaderSource now takes a const char * const *,
+ * instead of a const char **.
+ */
+#if !defined(GR_USE_NEW_GL_SHADER_SOURCE_SIGNATURE)
+    #define GR_USE_NEW_GL_SHADER_SOURCE_SIGNATURE 0
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 // tail section:
 //
