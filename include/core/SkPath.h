@@ -245,6 +245,16 @@ public:
     */
     bool isRect(SkRect* rect) const;
 
+    /** Returns true if the path specifies a pair of nested rectangles. If so, and if
+        rect is not null, set rect[0] to the outer rectangle and rect[1] to the inner
+        rectangle. If the path does not specify a pair of nested rectangles, return
+        false and ignore rect.
+
+        @param rect If not null, returns the path as a pair of nested rectangles
+        @return true if the path describes a pair of nested rectangles
+    */
+    bool isNestedRects(SkRect rect[2]) const;
+
     /** Return the number of points in the path
      */
     int countPoints() const;
@@ -906,6 +916,8 @@ private:
     inline bool hasOnlyMoveTos() const;
 
     Convexity internalGetConvexity() const;
+    
+    bool isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts) const;
 
     friend class SkAutoPathBoundsUpdate;
     friend class SkAutoDisableOvalCheck;
