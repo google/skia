@@ -12,5 +12,6 @@
    <file>rewind.png</file>
    <file>previous.png</file>
    <file>next.png</file>
+   <file>profile.png</file>
  </qresource>
  </RCC>

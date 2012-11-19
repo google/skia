@@ -568,28 +568,28 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fActionDirectory.setText("Directory");
 
     QIcon profile;
-    profile.addFile(QString::fromUtf8(":/images/Ico/reload.png"), QSize(),
+    profile.addFile(QString::fromUtf8(":/profile.png"), QSize(),
                     QIcon::Normal, QIcon::Off);
     fActionProfile.setIcon(profile);
     fActionProfile.setText("Profile");
     fActionProfile.setDisabled(true);
 
     QIcon inspector;
-    inspector.addFile(QString::fromUtf8(":/images/Ico/inspector.png"),
+    inspector.addFile(QString::fromUtf8(":/inspector.png"),
             QSize(), QIcon::Normal, QIcon::Off);
     fActionInspector.setShortcut(QKeySequence(tr("Ctrl+I")));
     fActionInspector.setIcon(inspector);
     fActionInspector.setText("Inspector");
 
     QIcon play;
-    play.addFile(QString::fromUtf8(":/images/Ico/play.png"), QSize(),
+    play.addFile(QString::fromUtf8(":/play.png"), QSize(),
             QIcon::Normal, QIcon::Off);
     fActionPlay.setShortcut(QKeySequence(tr("Ctrl+P")));
     fActionPlay.setIcon(play);
     fActionPlay.setText("Play");
 
     QIcon pause;
-    pause.addFile(QString::fromUtf8(":/images/Ico/pause.png"), QSize(),
+    pause.addFile(QString::fromUtf8(":/pause.png"), QSize(),
             QIcon::Normal, QIcon::Off);
     fActionPause.setShortcut(QKeySequence(tr("Space")));
     fActionPause.setCheckable(true);
