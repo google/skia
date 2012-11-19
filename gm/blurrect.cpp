@@ -28,15 +28,34 @@ static void stroke_rect(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
 static void draw_donut(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
     SkRect  rect;
     SkPath  path;
-
+    
     rect = r;
     rect.outset(STROKE_WIDTH/2, STROKE_WIDTH/2);
     path.addRect(rect);
     rect = r;
     rect.inset(STROKE_WIDTH/2, STROKE_WIDTH/2);
+    
     path.addRect(rect);
     path.setFillType(SkPath::kEvenOdd_FillType);
+    
+    canvas->drawPath(path, p);
+}
 
+static void draw_donut_skewed(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
+    SkRect  rect;
+    SkPath  path;
+    
+    rect = r;
+    rect.outset(STROKE_WIDTH/2, STROKE_WIDTH/2);
+    path.addRect(rect);
+    rect = r;
+    rect.inset(STROKE_WIDTH/2, STROKE_WIDTH/2);
+    
+    rect.offset(7, -7);
+    
+    path.addRect(rect);
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    
     canvas->drawPath(path, p);
 }
 
@@ -65,7 +84,7 @@ protected:
         paint.setMaskFilter(fMaskFilter);
 
         static const Proc procs[] = {
-            fill_rect, stroke_rect, draw_donut
+            fill_rect, draw_donut, draw_donut_skewed
         };
 
         SkRect  r = { 0, 0, 250, 120 };
