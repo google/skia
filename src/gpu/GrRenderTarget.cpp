@@ -95,6 +95,10 @@ void GrRenderTarget::overrideResolveRect(const GrIRect rect) {
 }
 
 void GrRenderTarget::setStencilBuffer(GrStencilBuffer* stencilBuffer) {
+    if (stencilBuffer == fStencilBuffer) {
+        return;
+    }
+
     if (NULL != fStencilBuffer) {
         fStencilBuffer->unref();
 
