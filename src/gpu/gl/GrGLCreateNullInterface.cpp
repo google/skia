@@ -49,7 +49,11 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLQueryCounter(GrGLuint id, GrGLenum target) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLReadBuffer(GrGLenum src) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLReadPixels(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, GrGLvoid* pixels) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLScissor(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height) {}
+#if GR_USE_NEW_GL_SHADER_SOURCE_SIGNATURE
+GrGLvoid GR_GL_FUNCTION_TYPE nullGLShaderSource(GrGLuint shader, GrGLsizei count, const char* const * str, const GrGLint* length) {}
+#else
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLShaderSource(GrGLuint shader, GrGLsizei count, const char** str, const GrGLint* length) {}
+#endif
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLStencilFunc(GrGLenum func, GrGLint ref, GrGLuint mask) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLStencilFuncSeparate(GrGLenum face, GrGLenum func, GrGLint ref, GrGLuint mask) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLStencilMask(GrGLuint mask) {}

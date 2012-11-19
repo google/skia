@@ -109,7 +109,12 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fReadBuffer = glReadBuffer;
         interface->fReadPixels = glReadPixels;
         interface->fScissor = glScissor;
+	// The new OpenGLES2 header has an extra "const" in it.  :(
+#if GR_USE_NEW_GL_SHADER_SOURCE_SIGNATURE
+        interface->fShaderSource = (GrGLShaderSourceProc) glShaderSource;
+#else
         interface->fShaderSource = glShaderSource;
+#endif
         interface->fStencilFunc = glStencilFunc;
         interface->fStencilFuncSeparate = glStencilFuncSeparate;
         interface->fStencilMask = glStencilMask;
