@@ -175,8 +175,14 @@ protected:
 
         SkASSERT(offset == fCurOffset);
 
+#if defined(SK_BUILD_FOR_WIN32)
+        // CPU timer doesn't work well on Windows
         fTimes[fCurCommand] += fTimer.fWall;
         fTot += fTimer.fWall;
+#else
+        fTimes[fCurCommand] += fTimer.fCpu;
+        fTot += fTimer.fCpu;
+#endif
     }
 
 private:
@@ -566,6 +572,7 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
                     QIcon::Normal, QIcon::Off);
     fActionProfile.setIcon(profile);
     fActionProfile.setText("Profile");
+    fActionProfile.setDisabled(true);
 
     QIcon inspector;
     inspector.addFile(QString::fromUtf8(":/images/Ico/inspector.png"),
@@ -843,8 +850,8 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
     // If SkPicturePlayback is compiled w/o SK_PICTURE_PROFILING_STUBS
     // the offset count will always be zero
     SkASSERT(0 == fOffsets.count() || commands->count() == fOffsets.count());
-    if (0 == fOffsets.count()) {
-        fActionProfile.setDisabled(true);
+    if (commands->count() == fOffsets.count()) {
+        fActionProfile.setDisabled(false);
     }
 
     /* fDebugCanvas is reinitialized every load picture. Need it to retain value
