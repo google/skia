@@ -67,7 +67,7 @@ void SkListWidget::paint (QPainter *painter,
     QString drawCommandNumber = index.data(Qt::UserRole + 1).toString();
     float time = index.data(Qt::UserRole + 4).toFloat();
     QString drawTime;
-    drawTime.setNum(time, 'g', 3);
+    drawTime.setNum(time, 'f', 2);
 
     /* option.rect is a struct that Qt uses as a target to draw into. Following
      * the format (x1,y1,x2,y2) x1 and y1 represent where the painter can start
@@ -79,7 +79,7 @@ void SkListWidget::paint (QPainter *painter,
      * x1,y1 act as a margin for the top and left. The target area will not
      * affect size of text but will scale icons. */
     static const int kImageSpace = 35;
-    static const int kCommandNumberSpace = 30;
+    static const int kCommandNumberSpace = 33;
     static const int kTimeSpace = 30;
 
     // Breakpoint Icon
