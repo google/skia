@@ -123,57 +123,80 @@ static void test_concat(skiatest::Reporter* reporter) {
 }
 
 static void test_determinant(skiatest::Reporter* reporter) {
-  SkMatrix44 a;
-  REPORTER_ASSERT(reporter, nearly_equal_double(1, a.determinant()));
-  a.set(1, 1, SkFloatToMScalar(2));
-  REPORTER_ASSERT(reporter, nearly_equal_double(2, a.determinant()));
-  SkMatrix44 b;
-  REPORTER_ASSERT(reporter, a.invert(&b));
-  REPORTER_ASSERT(reporter, nearly_equal_double(0.5, b.determinant()));
-  SkMatrix44 c = b = a;
-  c.set(0, 1, SkFloatToMScalar(4));
-  b.set(1, 0, SkFloatToMScalar(4));
-  REPORTER_ASSERT(reporter,
-                  nearly_equal_double(a.determinant(),
-                                      b.determinant()));
-  SkMatrix44 d = a;
-  d.set(0, 0, SkFloatToMScalar(8));
-  REPORTER_ASSERT(reporter, nearly_equal_double(16, d.determinant()));
+    SkMatrix44 a;
+    REPORTER_ASSERT(reporter, nearly_equal_double(1, a.determinant()));
+    a.set(1, 1, SkFloatToMScalar(2));
+    REPORTER_ASSERT(reporter, nearly_equal_double(2, a.determinant()));
+    SkMatrix44 b;
+    REPORTER_ASSERT(reporter, a.invert(&b));
+    REPORTER_ASSERT(reporter, nearly_equal_double(0.5, b.determinant()));
+    SkMatrix44 c = b = a;
+    c.set(0, 1, SkFloatToMScalar(4));
+    b.set(1, 0, SkFloatToMScalar(4));
+    REPORTER_ASSERT(reporter,
+                    nearly_equal_double(a.determinant(),
+                                        b.determinant()));
+    SkMatrix44 d = a;
+    d.set(0, 0, SkFloatToMScalar(8));
+    REPORTER_ASSERT(reporter, nearly_equal_double(16, d.determinant()));
 
-  SkMatrix44 e = a;
-  e.postConcat(d);
-  REPORTER_ASSERT(reporter, nearly_equal_double(32, e.determinant()));
-  e.set(0, 0, SkFloatToMScalar(0));
-  REPORTER_ASSERT(reporter, nearly_equal_double(0, e.determinant()));
+    SkMatrix44 e = a;
+    e.postConcat(d);
+    REPORTER_ASSERT(reporter, nearly_equal_double(32, e.determinant()));
+    e.set(0, 0, SkFloatToMScalar(0));
+    REPORTER_ASSERT(reporter, nearly_equal_double(0, e.determinant()));
 }
 
 static void test_transpose(skiatest::Reporter* reporter) {
-  SkMatrix44 a;
-  SkMatrix44 b;
+    SkMatrix44 a;
+    SkMatrix44 b;
 
-  int i = 0;
-  for (int row = 0; row < 4; ++row) {
-    for (int col = 0; col < 4; ++col) {
-      a.setDouble(row, col, i);
-      b.setDouble(col, row, i++);
+    int i = 0;
+    for (int row = 0; row < 4; ++row) {
+        for (int col = 0; col < 4; ++col) {
+            a.setDouble(row, col, i);
+            b.setDouble(col, row, i++);
+        }
     }
-  }
 
-  a.transpose();
-  REPORTER_ASSERT(reporter, nearly_equal(a, b));
+    a.transpose();
+    REPORTER_ASSERT(reporter, nearly_equal(a, b));
 }
 
 static void test_get_set_double(skiatest::Reporter* reporter) {
-  SkMatrix44 a;
-  for (int row = 0; row < 4; ++row) {
-    for (int col = 0; col < 4; ++col) {
-      a.setDouble(row, col, 3.141592653589793);
-      REPORTER_ASSERT(reporter, nearly_equal_double(3.141592653589793,
-                                                    a.getDouble(row, col)));
-      a.setDouble(row, col, 0);
-      REPORTER_ASSERT(reporter, nearly_equal_double(0, a.getDouble(row, col)));
+    SkMatrix44 a;
+    for (int row = 0; row < 4; ++row) {
+        for (int col = 0; col < 4; ++col) {
+            a.setDouble(row, col, 3.141592653589793);
+            REPORTER_ASSERT(reporter,
+                            nearly_equal_double(3.141592653589793,
+                                                a.getDouble(row, col)));
+            a.setDouble(row, col, 0);
+            REPORTER_ASSERT(reporter,
+                            nearly_equal_double(0, a.getDouble(row, col)));
+        }
     }
-  }
+}
+
+static void test_set_row_col_major(skiatest::Reporter* reporter) {
+    SkMatrix44 a, b, c, d;
+    for (int row = 0; row < 4; ++row)
+        for (int col = 0; col < 4; ++col)
+            a.setDouble(row, col, row * 4 + col);
+    double bufferd[16];
+    float bufferf[16];
+    a.asColMajord(bufferd);
+    b.setColMajord(bufferd);
+    REPORTER_ASSERT(reporter, nearly_equal(a, b));
+    b.setRowMajord(bufferd);
+    b.transpose();
+    REPORTER_ASSERT(reporter, nearly_equal(a, b));
+    a.asColMajorf(bufferf);
+    b.setColMajorf(bufferf);
+    REPORTER_ASSERT(reporter, nearly_equal(a, b));
+    b.setRowMajorf(bufferf);
+    b.transpose();
+    REPORTER_ASSERT(reporter, nearly_equal(a, b));
 }
 
 static void TestMatrix44(skiatest::Reporter* reporter) {

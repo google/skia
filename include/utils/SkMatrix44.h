@@ -126,10 +126,25 @@ public:
         this->set(row, col, SkDoubleToMScalar(value));
     }
 
+    /** These methods allow one to efficiently read matrix entries into an
+     *  array. The given array must have room for exactly 16 entries. Whenever
+     *  possible, they will try to use memcpy rather than an entry-by-entry
+     *  copy.
+     */
     void asColMajorf(float[]) const;
     void asColMajord(double[]) const;
     void asRowMajorf(float[]) const;
     void asRowMajord(double[]) const;
+
+    /** These methods allow one to efficiently set all matrix entries from an
+     *  array. The given array must have room for exactly 16 entries. Whenever
+     *  possible, they will try to use memcpy rather than an entry-by-entry
+     *  copy.
+     */
+    void setColMajorf(const float[]);
+    void setColMajord(const double[]);
+    void setRowMajorf(const float[]);
+    void setRowMajord(const double[]);
 
     bool isIdentity() const;
     void setIdentity();
