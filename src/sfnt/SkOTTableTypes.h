@@ -18,14 +18,16 @@ typedef signed char SK_OT_CHAR; //easier to debug
 #else
 typedef int8_t SK_OT_CHAR;
 #endif
-typedef int16_t SK_OT_SHORT;
+typedef uint16_t SK_OT_SHORT;
 typedef uint16_t SK_OT_USHORT;
 typedef uint32_t SK_OT_ULONG;
-typedef int32_t SK_OT_LONG;
-//16.16 Fixed point representation.
+typedef uint32_t SK_OT_LONG;
+//16.16 Signed fixed point representation.
 typedef int32_t SK_OT_Fixed;
+//2.14 Signed fixed point representation.
+typedef uint16_t SK_OT_F2DOT14;
 //F units are the units of measurement in em space.
-typedef int16_t SK_OT_FWORD;
+typedef uint16_t SK_OT_FWORD;
 typedef uint16_t SK_OT_UFWORD;
 //Number of seconds since 12:00 midnight, January 1, 1904.
 typedef uint64_t SK_OT_LONGDATETIME;

@@ -52,19 +52,19 @@ struct SkSFNTHeader {
     SK_SFNT_USHORT searchRange;
     SK_SFNT_USHORT entrySelector;
     SK_SFNT_USHORT rangeShift;
-};
-
-struct SkSFNTTableDirectoryEntry {
-    SK_SFNT_ULONG tag;
-    SK_SFNT_ULONG checksum;
-    SK_SFNT_ULONG offset; //From beginning of header.
-    SK_SFNT_ULONG logicalLength;
+    
+    struct TableDirectoryEntry {
+        SK_SFNT_ULONG tag;
+        SK_SFNT_ULONG checksum;
+        SK_SFNT_ULONG offset; //From beginning of header.
+        SK_SFNT_ULONG logicalLength;
+    }; //tableDirectoryEntries[numTables]
 };
 
 #pragma pack(pop)
 
 
 SK_COMPILE_ASSERT(sizeof(SkSFNTHeader) == 12, sizeof_SkSFNTHeader_not_12);
-SK_COMPILE_ASSERT(sizeof(SkSFNTTableDirectoryEntry) == 16, sizeof_SkSFNTTableDirectoryEntry_not_16);
+SK_COMPILE_ASSERT(sizeof(SkSFNTHeader::TableDirectoryEntry) == 16, sizeof_SkSFNTHeader_TableDirectoryEntry_not_16);
 
 #endif

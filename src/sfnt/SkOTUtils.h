@@ -9,6 +9,7 @@
 #define SkOTUtils_DEFINED
 
 #include "SkOTTableTypes.h"
+class SkData;
 class SkStream;
 
 struct SkOTUtils {
@@ -30,8 +31,7 @@ struct SkOTUtils {
       *
       *  fontName and fontNameLen must be specified in terms of ASCII chars.
       */
-    static SkData* RenameFont(SkStream* fontData,
-                              const char* fontName, int fontNameLen);
+    static SkData* RenameFont(SkStream* fontData, const char* fontName, int fontNameLen);
 };
 
 #endif
