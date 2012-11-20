@@ -1289,7 +1289,7 @@ static void test_isNestedRects(skiatest::Reporter* reporter) {
             path1.addRect(-1, -1, 2, 2, SkPath::kCCW_Direction);
         }
         REPORTER_ASSERT(reporter, fail ^ path1.isNestedRects(0));
-        
+
         // fail,  not nested
         path1.reset();
         path1.addRect(1, 1, 3, 3, SkPath::kCW_Direction);

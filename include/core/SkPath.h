@@ -916,7 +916,7 @@ private:
     inline bool hasOnlyMoveTos() const;
 
     Convexity internalGetConvexity() const;
-    
+
     bool isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts) const;
 
     friend class SkAutoPathBoundsUpdate;
