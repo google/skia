@@ -4,9 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+ 
 #include "Simplify.h"
 
 namespace Op {
+
+#define INCLUDED_BY_SHAPE_OPS 1
 
 #include "Simplify.cpp"
 
@@ -185,8 +188,8 @@ static bool bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
                         index, endIndex, true);
             } else {
                 int spanWinding, oppWinding;
-                contourWinding = updateWindings(current, index, endIndex, spanWinding, oppWinding,
-                        oppContourWinding);
+                contourWinding = updateWindings(current, index, endIndex, spanWinding,
+                        oppContourWinding, oppWinding);
 #if DEBUG_WINDING
                 SkDebugf("%s contourWinding=%d oppContourWinding=%d spanWinding=%d oppWinding=%d\n",
                         __FUNCTION__, contourWinding, oppContourWinding, spanWinding, oppWinding);
@@ -295,8 +298,20 @@ void operate(const SkPath& one, const SkPath& two, ShapeOp op, SkPath& result) {
         } while (addIntersectTs(current, next) && nextPtr != listEnd);
     } while (currentPtr != listEnd);
     // eat through coincident edges
+    
+    int total = 0;
+    int index;
+    for (index = 0; index < contourList.count(); ++index) {
+        total += contourList[index]->segments().count();
+    }
+#if DEBUG_WINDING
+    Op::Contour::debugShowWindingValues(contourList);
+#endif
     coincidenceCheck(contourList, (aXorMask == kEvenOdd_Mask)
-            ^ (bXorMask == kEvenOdd_Mask));
+            ^ (bXorMask == kEvenOdd_Mask), total);
+#if DEBUG_WINDING
+    Op::Contour::debugShowWindingValues(contourList);
+#endif
     fixOtherTIndex(contourList);
     sortSegments(contourList);
 #if DEBUG_ACTIVE_SPANS
