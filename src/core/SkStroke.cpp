@@ -612,6 +612,11 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
         SkRect rect;
         if (src.isRect(&rect)) {
             this->strokeRect(rect, dst);
+            // our answer should preserve the inverseness of the src
+            if (src.isInverseFillType()) {
+                SkASSERT(!dst->isInverseFillType());
+                dst->toggleInverseFillType();
+            }
             return;
         }
     }
@@ -780,7 +785,7 @@ void SkStroke::strokeRect(const SkRect& origRect, SkPath* dst) const {
             break;
     }
 
-    if (fWidth < SkMinScalar(rw, rh)) {
+    if (fWidth < SkMinScalar(rw, rh) && !fDoFill) {
         r = rect;
         r.inset(radius, radius);
         dst->addRect(r, reverse_direction(dir));
