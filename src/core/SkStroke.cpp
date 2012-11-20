@@ -608,6 +608,7 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
     }
 
     // If src is really a rect, call our specialty strokeRect() method
+#ifndef SK_IGNORE_NEW_STROKERECT
     {
         SkRect rect;
         if (src.isRect(&rect)) {
@@ -620,6 +621,7 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
             return;
         }
     }
+#endif
 
 #ifdef SK_SCALAR_IS_FIXED
     void (*proc)(SkPoint pts[], int count) = identity_proc;
