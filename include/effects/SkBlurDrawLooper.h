@@ -31,8 +31,10 @@ public:
         kIgnoreTransform_BlurFlag   = 0x01,
         kOverrideColor_BlurFlag     = 0x02,
         kHighQuality_BlurFlag       = 0x04,
+        /** faster, but may discretize the radius */
+        kCoarseRadius_BlurFlag      = 0x08,
         /** mask for all blur flags */
-        kAll_BlurFlag = 0x07
+        kAll_BlurFlag               = 0x0F
     };
 
     SkBlurDrawLooper(SkScalar radius, SkScalar dx, SkScalar dy, SkColor color,

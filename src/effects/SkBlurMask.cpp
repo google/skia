@@ -34,8 +34,9 @@ static int boxBlur(const uint8_t* src, int src_y_stride, uint8_t* dst,
         uint8_t* dptr = dst + y * dst_y_stride;
         const uint8_t* right = src + y * src_y_stride;
         const uint8_t* left = right;
-        for (int x = 0; x < leftRadius - rightRadius; x++) {
-            *dptr++ = 0;
+        for (int x = 0; x < rightRadius - leftRadius; x++) {
+            *dptr = 0;
+            dptr += dst_x_stride;
         }
         for (int x = 0; x < border; ++x) {
             sum += *right++;
@@ -57,8 +58,9 @@ static int boxBlur(const uint8_t* src, int src_y_stride, uint8_t* dst,
             sum -= *left++;
             dptr += dst_x_stride;
         }
-        for (int x = 0; x < rightRadius - leftRadius; x++) {
-            *dptr++ = 0;
+        for (int x = 0; x < leftRadius - rightRadius; x++) {
+            *dptr = 0;
+            dptr += dst_x_stride;
         }
         SkASSERT(sum == 0);
     }

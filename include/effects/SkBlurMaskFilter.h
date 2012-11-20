@@ -29,8 +29,10 @@ public:
         kIgnoreTransform_BlurFlag   = 0x01,
         /** Use a smother, higher qulity blur algorithm */
         kHighQuality_BlurFlag       = 0x02,
+        /** Do faster blurs by rounding the radius to a set of sub-integer values */
+        kCoarseRadius_BlurFlag      = 0x04,
         /** mask for all blur flags */
-        kAll_BlurFlag = 0x03
+        kAll_BlurFlag = 0x07
     };
 
     /** Create a blur maskfilter.
