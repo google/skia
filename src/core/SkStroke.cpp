@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2008 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #include "SkStrokerPriv.h"
 #include "SkGeometry.h"
@@ -609,6 +607,15 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
         return;
     }
 
+    // If src is really a rect, call our specialty strokeRect() method
+    {
+        SkRect rect;
+        if (src.isRect(&rect)) {
+            this->strokeRect(rect, dst);
+            return;
+        }
+    }
+
 #ifdef SK_SCALAR_IS_FIXED
     void (*proc)(SkPoint pts[], int count) = identity_proc;
     if (needs_to_shrink(src)) {
@@ -699,6 +706,84 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
     if (src.isInverseFillType()) {
         SkASSERT(!dst->isInverseFillType());
         dst->toggleInverseFillType();
+    }
+}
+
+static SkPath::Direction reverse_direction(SkPath::Direction dir) {
+    SkASSERT(SkPath::kUnknown_Direction != dir);
+    return SkPath::kCW_Direction == dir ? SkPath::kCCW_Direction : SkPath::kCW_Direction;
+}
+
+static void addBevel(SkPath* path, const SkRect& r, const SkRect& outer, SkPath::Direction dir) {
+    SkPoint pts[8];
+
+    if (SkPath::kCW_Direction == dir) {
+        pts[0].set(r.fLeft, outer.fTop);
+        pts[1].set(r.fRight, outer.fTop);
+        pts[2].set(outer.fRight, r.fTop);
+        pts[3].set(outer.fRight, r.fBottom);
+        pts[4].set(r.fRight, outer.fBottom);
+        pts[5].set(r.fLeft, outer.fBottom);
+        pts[6].set(outer.fLeft, r.fBottom);
+        pts[7].set(outer.fLeft, r.fTop);
+    } else {
+        pts[7].set(r.fLeft, outer.fTop);
+        pts[6].set(r.fRight, outer.fTop);
+        pts[5].set(outer.fRight, r.fTop);
+        pts[4].set(outer.fRight, r.fBottom);
+        pts[3].set(r.fRight, outer.fBottom);
+        pts[2].set(r.fLeft, outer.fBottom);
+        pts[1].set(outer.fLeft, r.fBottom);
+        pts[0].set(outer.fLeft, r.fTop);
+    }
+    path->addPoly(pts, 8, true);
+}
+
+void SkStroke::strokeRect(const SkRect& origRect, SkPath* dst) const {
+    SkASSERT(dst != NULL);
+    dst->reset();
+
+    SkScalar radius = SkScalarHalf(fWidth);
+    if (radius <= 0) {
+        return;
+    }
+
+    SkPath::Direction dir = SkPath::kCW_Direction;
+    SkScalar rw = origRect.width();
+    SkScalar rh = origRect.height();
+    if ((rw < 0) ^ (rh < 0)) {
+        dir = SkPath::kCCW_Direction;
+    }
+    SkRect rect(origRect);
+    rect.sort();
+    // reassign these, now that we know they'll be >= 0
+    rw = rect.width();
+    rh = rect.height();
+
+    SkRect r(rect);
+    r.outset(radius, radius);
+
+    SkPaint::Join join = (SkPaint::Join)fJoin;
+    if (SkPaint::kMiter_Join == join && fMiterLimit < SK_ScalarSqrt2) {
+        join = SkPaint::kBevel_Join;
+    }
+
+    switch (fJoin) {
+        case SkPaint::kMiter_Join:
+            dst->addRect(r, dir);
+            break;
+        case SkPaint::kBevel_Join:
+            addBevel(dst, rect, r, dir);
+            break;
+        case SkPaint::kRound_Join:
+            dst->addRoundRect(r, radius, radius);
+            break;
+    }
+
+    if (fWidth < SkMinScalar(rw, rh)) {
+        r = rect;
+        r.inset(radius, radius);
+        dst->addRect(r, reverse_direction(dir));
     }
 }
 

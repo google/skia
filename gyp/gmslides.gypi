@@ -69,6 +69,7 @@
     '../gm/simpleaaclip.cpp',
     '../gm/srcmode.cpp',
     '../gm/strokefill.cpp',
+    '../gm/strokerect.cpp',
     '../gm/strokerects.cpp',
     '../gm/strokes.cpp',
     '../gm/tablecolorfilter.cpp',

@@ -88,6 +88,7 @@
         '../tests/SrcOverTest.cpp',
         '../tests/StreamTest.cpp',
         '../tests/StringTest.cpp',
+        '../tests/StrokeTest.cpp',
         '../tests/TDLinkedListTest.cpp',
         '../tests/Test.cpp',
         '../tests/Test.h',
