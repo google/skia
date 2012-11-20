@@ -20,7 +20,7 @@ private:
 
 public:
     GMSampleView(GM* gm)
-    : fGM(gm), fShowSize(false) {}
+    : fShowSize(false), fGM(gm) {}
 
     virtual ~GMSampleView() {
         delete fGM;
