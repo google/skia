@@ -14,8 +14,13 @@
       'sources': [
         '../src/sfnt/SkIBMFamilyClass.h',
         '../src/sfnt/SkOTTableTypes.h',
+        '../src/sfnt/SkOTTable_glyf.h',
         '../src/sfnt/SkOTTable_head.h',
         '../src/sfnt/SkOTTable_hhea.h',
+        '../src/sfnt/SkOTTable_loca.h',
+        '../src/sfnt/SkOTTable_maxp.h',
+        '../src/sfnt/SkOTTable_maxp_CFF.h',
+        '../src/sfnt/SkOTTable_maxp_TT.h',
         '../src/sfnt/SkOTTable_name.h',
         '../src/sfnt/SkOTTable_OS_2.h',
         '../src/sfnt/SkOTTable_OS_2_V0.h',

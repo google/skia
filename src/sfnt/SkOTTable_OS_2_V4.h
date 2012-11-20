@@ -18,7 +18,8 @@
 
 struct SkOTTableOS2_V4 {
     SK_OT_USHORT version;
-    static const SK_OT_USHORT version4 = SkTEndian_SwapBE16(4);
+    static const SK_OT_USHORT VERSION = SkTEndian_SwapBE16(4);
+    
     SK_OT_SHORT xAvgCharWidth;
     struct WeightClass {
         SK_TYPED_ENUM(Value, SK_OT_USHORT,

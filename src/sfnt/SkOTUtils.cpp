@@ -14,6 +14,16 @@
 #include "SkOTTableTypes.h"
 #include "SkOTUtils.h"
 
+extern const uint8_t SK_OT_GlyphData_NoOutline[] = {
+    0x0,0x0, //SkOTTableGlyphData::numberOfContours
+    0x0,0x0, //SkOTTableGlyphData::xMin
+    0x0,0x0, //SkOTTableGlyphData::yMin
+    0x0,0x0, //SkOTTableGlyphData::xMax
+    0x0,0x0, //SkOTTableGlyphData::yMax
+    
+    0x0,0x0, //SkOTTableGlyphDataInstructions::length
+};
+
 uint32_t SkOTUtils::CalcTableChecksum(SK_OT_ULONG *data, size_t length) {
     uint32_t sum = 0;
     SK_OT_ULONG *dataEnd = data + ((length + 3) & ~3) / sizeof(SK_OT_ULONG);
@@ -23,8 +33,7 @@ uint32_t SkOTUtils::CalcTableChecksum(SK_OT_ULONG *data, size_t length) {
     return sum;
 }
 
-SkData* SkOTUtils::RenameFont(SkStream* fontData,
-                              const char* fontName, int fontNameLen) {
+SkData* SkOTUtils::RenameFont(SkStream* fontData, const char* fontName, int fontNameLen) {
 
     // Get the sfnt header.
     SkSFNTHeader sfntHeader;
@@ -34,7 +43,7 @@ SkData* SkOTUtils::RenameFont(SkStream* fontData,
 
     // Find the existing 'name' table.
     int tableIndex;
-    SkSFNTTableDirectoryEntry tableEntry;
+    SkSFNTHeader::TableDirectoryEntry tableEntry;
     int numTables = SkEndian_SwapBE16(sfntHeader.numTables);
     for (tableIndex = 0; tableIndex < numTables; ++tableIndex) {
         if (fontData->read(&tableEntry, sizeof(tableEntry)) < sizeof(tableEntry)) {
@@ -88,9 +97,9 @@ SkData* SkOTUtils::RenameFont(SkStream* fontData,
     }
 
     //Fix up the offsets of the directory entries after the old 'name' table entry.
-    SkSFNTTableDirectoryEntry* currentEntry = reinterpret_cast<SkSFNTTableDirectoryEntry*>(data + sizeof(SkSFNTHeader));
-    SkSFNTTableDirectoryEntry* endEntry = currentEntry + numTables;
-    SkSFNTTableDirectoryEntry* headTableEntry = NULL;
+    SkSFNTHeader::TableDirectoryEntry* currentEntry = reinterpret_cast<SkSFNTHeader::TableDirectoryEntry*>(data + sizeof(SkSFNTHeader));
+    SkSFNTHeader::TableDirectoryEntry* endEntry = currentEntry + numTables;
+    SkSFNTHeader::TableDirectoryEntry* headTableEntry = NULL;
     for (; currentEntry < endEntry; ++currentEntry) {
         uint32_t oldOffset = SkEndian_SwapBE32(currentEntry->offset);
         if (oldOffset > oldNameTableOffset) {
@@ -102,7 +111,7 @@ SkData* SkOTUtils::RenameFont(SkStream* fontData,
     }
 
     // Make the table directory entry point to the new 'name' table.
-    SkSFNTTableDirectoryEntry* nameTableEntry = reinterpret_cast<SkSFNTTableDirectoryEntry*>(data + sizeof(SkSFNTHeader)) + tableIndex;
+    SkSFNTHeader::TableDirectoryEntry* nameTableEntry = reinterpret_cast<SkSFNTHeader::TableDirectoryEntry*>(data + sizeof(SkSFNTHeader)) + tableIndex;
     nameTableEntry->logicalLength = SkEndian_SwapBE32(nameTableLogicalSize);
     nameTableEntry->offset = SkEndian_SwapBE32(originalDataSize);
 

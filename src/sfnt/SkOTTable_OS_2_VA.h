@@ -19,8 +19,10 @@
 //Original V0 TT
 struct SkOTTableOS2_VA {
     SK_OT_USHORT version;
-    //The only way to differentiate versionA and version0 is by size.
-    static const SK_OT_USHORT version0 = SkTEndian_SwapBE16(0);
+    //SkOTTableOS2_VA::VERSION and SkOTTableOS2_V0::VERSION are both 0.
+    //The only way to differentiate these two versions is by the size of the table.
+    static const SK_OT_USHORT VERSION = SkTEndian_SwapBE16(0);
+    
     SK_OT_SHORT xAvgCharWidth;
     struct WeightClass {
         SK_TYPED_ENUM(Value, SK_OT_USHORT,
