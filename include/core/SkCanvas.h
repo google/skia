@@ -1085,7 +1085,20 @@ public:
         }
     }
     ~SkAutoCanvasRestore() {
-        fCanvas->restoreToCount(fSaveCount);
+        if (fCanvas) {
+            fCanvas->restoreToCount(fSaveCount);
+        }
+    }
+
+    /**
+     *  Perform the restore now, instead of waiting for the destructor. Will
+     *  only do this once.
+     */
+    void restore() {
+        if (fCanvas) {
+            fCanvas->restoreToCount(fSaveCount);
+            fCanvas = NULL;
+        }
     }
 
 private:
