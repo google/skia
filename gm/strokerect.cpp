@@ -11,16 +11,18 @@
 
 #define STROKE_WIDTH    SkIntToScalar(20)
 
-static void draw_path(SkCanvas* canvas, const SkPath& path, const SkRect& rect, SkPaint::Join join) {
+static void draw_path(SkCanvas* canvas, const SkPath& path, const SkRect& rect,
+                      SkPaint::Join join, int doFill) {
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStyle(doFill ? SkPaint::kStrokeAndFill_Style : SkPaint::kStroke_Style);
 
     paint.setColor(SK_ColorGRAY);
     paint.setStrokeWidth(STROKE_WIDTH);
     paint.setStrokeJoin(join);
     canvas->drawRect(rect, paint);
 
+    paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(0);
     paint.setColor(SK_ColorRED);
     canvas->drawPath(path, paint);
@@ -49,7 +51,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return SkISize::Make(1024, 480);
+        return SkISize::Make(1024, 740);
     }
 
     virtual void onDraw(SkCanvas* canvas) {
@@ -65,7 +67,7 @@ protected:
         };
 
         static const SkScalar W = 80;
-        static const SkScalar H = 110;
+        static const SkScalar H = 80;
         static const SkRect gRects[] = {
             { 0, 0, W, H },
             { W, 0, 0, H },
@@ -77,24 +79,27 @@ protected:
             { 0, 0, 0, H },
             { 0, 0, 0, 0 },
         };
-            
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gJoins); ++i) {
-            SkPaint::Join join = gJoins[i];
-            paint.setStrokeJoin(join);
 
-            SkAutoCanvasRestore acr(canvas, true);
-            for (size_t j = 0; j < SK_ARRAY_COUNT(gRects); ++j) {
-                const SkRect& r = gRects[j];
+        for (int doFill = 0; doFill <= 1; ++doFill) {
+            for (size_t i = 0; i < SK_ARRAY_COUNT(gJoins); ++i) {
+                SkPaint::Join join = gJoins[i];
+                paint.setStrokeJoin(join);
 
-                SkPath path, fillPath;
-                path.addRect(r);
-                paint.getFillPath(path, &fillPath);
-                draw_path(canvas, fillPath, r, join);
+                SkAutoCanvasRestore acr(canvas, true);
+                for (size_t j = 0; j < SK_ARRAY_COUNT(gRects); ++j) {
+                    const SkRect& r = gRects[j];
 
-                canvas->translate(W + 2 * STROKE_WIDTH, 0);
+                    SkPath path, fillPath;
+                    path.addRect(r);
+                    paint.getFillPath(path, &fillPath);
+                    draw_path(canvas, fillPath, r, join, doFill);
+
+                    canvas->translate(W + 2 * STROKE_WIDTH, 0);
+                }
+                acr.restore();
+                canvas->translate(0, H + 2 * STROKE_WIDTH);
             }
-            acr.restore();
-            canvas->translate(0, H + 2 * STROKE_WIDTH);
+            paint.setStyle(SkPaint::kStrokeAndFill_Style);
         }
     }
 
