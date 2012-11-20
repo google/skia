@@ -278,8 +278,8 @@ private:
 
 // This is a simplification of PictureBenchmark's run with the addition of
 // clearing of the times after the first pass (in resetTimes)
-void SkDebuggerGUI::run(SkTimedPicture* pict, 
-                        sk_tools::PictureRenderer* renderer, 
+void SkDebuggerGUI::run(SkTimedPicture* pict,
+                        sk_tools::PictureRenderer* renderer,
                         int repeats) {
     SkASSERT(pict);
     if (NULL == pict) {
@@ -1064,7 +1064,7 @@ void SkDebuggerGUI::setupComboBox(SkTArray<SkString>* command) {
         map[(*command)[i].c_str()]++;
     }
 
-    for (std::map<std::string, int>::iterator it = map.begin(); it != map.end(); 
+    for (std::map<std::string, int>::iterator it = map.begin(); it != map.end();
          ++it) {
         fFilter.addItem((it->first).c_str());
     }

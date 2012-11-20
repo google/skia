@@ -152,13 +152,13 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
     if (count < 1 || count > 2) {
         return kUnimplemented_FilterReturn;
     }
-    
+
     // TODO: take clipBounds into account to limit our coordinates up front
     // for now, just skip too-large src rects (to take the old code path).
     if (rect_coordinates_exceed(rects[0], SkIntToScalar(32767))) {
         return kUnimplemented_FilterReturn;
     }
-    
+
     SkIPoint margin;
     SkMask  srcM, dstM;
     rects[0].roundOut(&srcM.fBounds);
