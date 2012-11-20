@@ -404,14 +404,32 @@ static void Repeat_S32_D32_nofilter_trans_shaderproc(const SkBitmapProcState& s,
     }
 }
 
-void SkBitmapProcState::setupForTranslate() {
+static void DoNothing_shaderproc(const SkBitmapProcState&, int x, int y,
+                                 SkPMColor* SK_RESTRICT colors, int count) {
+    // if we get called, the matrix is too tricky, so we just draw nothing
+    sk_memset32(colors, 0, count);
+}
+
+bool SkBitmapProcState::setupForTranslate() {
     SkPoint pt;
     fInvProc(*fInvMatrix, SK_ScalarHalf, SK_ScalarHalf, &pt);
+
+    /*
+     *  if the translate is larger than our ints, we can get random results, or
+     *  worse, we might get 0x80000000, which wreaks havoc on us, since we can't
+     *  negate it.
+     */
+    const SkScalar too_big = SkIntToScalar(1 << 30);
+    if (SkScalarAbs(pt.fX) > too_big || SkScalarAbs(pt.fY) > too_big) {
+        return false;
+    }
+
     // Since we know we're not filtered, we re-purpose these fields allow
     // us to go from device -> src coordinates w/ just an integer add,
     // rather than running through the inverse-matrix
     fFilterOneX = SkScalarFloorToInt(pt.fX);
     fFilterOneY = SkScalarFloorToInt(pt.fY);
+    return true;
 }
 
 SkBitmapProcState::ShaderProc32 SkBitmapProcState::chooseShaderProc32() {
@@ -432,12 +450,16 @@ SkBitmapProcState::ShaderProc32 SkBitmapProcState::chooseShaderProc32() {
     SkShader::TileMode ty = (SkShader::TileMode)fTileModeY;
 
     if (SkShader::kClamp_TileMode == tx && SkShader::kClamp_TileMode == ty) {
-        this->setupForTranslate();
-        return Clamp_S32_D32_nofilter_trans_shaderproc;
+        if (this->setupForTranslate()) {
+            return Clamp_S32_D32_nofilter_trans_shaderproc;
+        }
+        return DoNothing_shaderproc;
     }
     if (SkShader::kRepeat_TileMode == tx && SkShader::kRepeat_TileMode == ty) {
-        this->setupForTranslate();
-        return Repeat_S32_D32_nofilter_trans_shaderproc;
+        if (this->setupForTranslate()) {
+            return Repeat_S32_D32_nofilter_trans_shaderproc;
+        }
+        return DoNothing_shaderproc;
     }
     return NULL;
 }
