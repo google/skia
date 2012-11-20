@@ -1811,16 +1811,19 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface*) {
 
     rec->fFlags &= ~flagsWeDontSupport;
 
+    bool lcdSupport = supports_LCD();
+    
     // Only two levels of hinting are supported.
     // kNo_Hinting means avoid CoreGraphics outline dilation.
     // kNormal_Hinting means CoreGraphics outline dilation is allowed.
-    SkPaint::Hinting h = rec->getHinting();
-    if (SkPaint::kSlight_Hinting == h) {
-        h = SkPaint::kNo_Hinting;
-    } else if (SkPaint::kFull_Hinting == h) {
-        h = SkPaint::kNormal_Hinting;
+    // If there is no lcd support, hinting (dilation) cannot be supported.
+    SkPaint::Hinting hinting = rec->getHinting();
+    if (SkPaint::kSlight_Hinting == hinting || !lcdSupport) {
+        hinting = SkPaint::kNo_Hinting;
+    } else if (SkPaint::kFull_Hinting == hinting) {
+        hinting = SkPaint::kNormal_Hinting;
     }
-    rec->setHinting(h);
+    rec->setHinting(hinting);
 
     // FIXME: lcd smoothed un-hinted rasterization unsupported.
     // Tracked by http://code.google.com/p/skia/issues/detail?id=915 .
@@ -1841,7 +1844,6 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface*) {
     // Currenly side with LCD, effectively ignoring the hinting setting.
     // [LCD][yes-hint]: generate LCD using CoreGraphic's LCD output.
 
-    bool lcdSupport = supports_LCD();
     if (isLCDFormat(rec->fMaskFormat)) {
         if (lcdSupport) {
             //CoreGraphics creates 555 masks for smoothed text anyway.
@@ -1852,13 +1854,15 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface*) {
         }
     }
 
-    if (lcdSupport) {
-        //CoreGraphics dialates smoothed text as needed.
-        rec->setContrast(0);
-    } else {
+    // Unhinted A8 masks (those not derived from LCD masks) must respect SK_GAMMA_APPLY_TO_A8.
+    // All other masks can use regular gamma.
+    if (SkMask::kA8_Format == rec->fMaskFormat && SkPaint::kNo_Hinting == hinting) {
 #ifndef SK_GAMMA_APPLY_TO_A8
         rec->ignorePreBlend();
 #endif
+    } else {
+        //CoreGraphics dialates smoothed text as needed.
+        rec->setContrast(0);
     }
 }
 
