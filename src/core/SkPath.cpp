@@ -492,7 +492,7 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
     int corners = 0;
     SkPoint first, last;
     const SkPoint* pts = *ptsPtr;
-    const SkPoint* savePts;
+    const SkPoint* savePts = NULL;
     first.set(0, 0);
     last.set(0, 0);
     int firstDirection = 0;
@@ -532,6 +532,9 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
                 if (closedOrMoved) {
                     return false; // closed followed by a line
                 }
+                if (autoClose && nextDirection == firstDirection) {
+                    break; // colinear with first
+                }
                 closedOrMoved = autoClose;
                 if (lastDirection != nextDirection) {
                     if (++corners > 4) {
@@ -564,8 +567,10 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
         lastDirection = nextDirection;
     }
     // Success if 4 corners and first point equals last
-    bool result = 4 == corners && first == last;
-    *ptsPtr = savePts;
+    bool result = 4 == corners && (first == last || autoClose);
+    if (savePts) {
+        *ptsPtr = savePts;
+    }
     return result;
 }
 

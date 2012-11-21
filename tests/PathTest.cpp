@@ -1004,6 +1004,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
     SkPoint rc[] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}, {0, 0}};
     SkPoint rd[] = {{0, 0}, {0, 1}, {1, 1}, {1, 0}, {0, 0}};
     SkPoint re[] = {{0, 0}, {1, 0}, {1, 0}, {1, 1}, {0, 1}};
+    SkPoint rf[] = {{1, 0}, {8, 0}, {8, 8}, {0, 8}, {0, 0}};
 
     // failing tests
     SkPoint f1[] = {{0, 0}, {1, 0}, {1, 1}}; // too few points
@@ -1014,6 +1015,9 @@ static void test_isRect(skiatest::Reporter* reporter) {
     SkPoint f6[] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}, {0, 2}}; // end overshoots
     SkPoint f7[] = {{0, 0}, {1, 0}, {1, 1}, {0, 2}}; // end overshoots
     SkPoint f8[] = {{0, 0}, {1, 0}, {1, 1}, {1, 0}}; // 'L'
+    SkPoint f9[] = {{1, 0}, {8, 0}, {8, 8}, {0, 8}, {0, 0}, {2, 0}}; // overlaps
+    SkPoint fa[] = {{1, 0}, {8, 0}, {8, 8}, {0, 8}, {0, -1}, {1, -1}}; // non colinear gap
+    SkPoint fb[] = {{1, 0}, {8, 0}, {8, 8}, {0, 8}, {0, 1}}; // falls short
 
     // failing, no close
     SkPoint c1[] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}}; // close doesn't match
@@ -1022,18 +1026,18 @@ static void test_isRect(skiatest::Reporter* reporter) {
     size_t testLen[] = {
         sizeof(r1), sizeof(r2), sizeof(r3), sizeof(r4), sizeof(r5), sizeof(r6),
         sizeof(r7), sizeof(r8), sizeof(r9), sizeof(ra), sizeof(rb), sizeof(rc),
-        sizeof(rd), sizeof(re),
+        sizeof(rd), sizeof(re), sizeof(rf),
         sizeof(f1), sizeof(f2), sizeof(f3), sizeof(f4), sizeof(f5), sizeof(f6),
-        sizeof(f7), sizeof(f8),
+        sizeof(f7), sizeof(f8), sizeof(f9), sizeof(fa), sizeof(fb),
         sizeof(c1), sizeof(c2)
     };
     SkPoint* tests[] = {
-        r1, r2, r3, r4, r5, r6, r7, r8, r9, ra, rb, rc, rd, re,
-        f1, f2, f3, f4, f5, f6, f7, f8,
+        r1, r2, r3, r4, r5, r6, r7, r8, r9, ra, rb, rc, rd, re, rf,
+        f1, f2, f3, f4, f5, f6, f7, f8, f9, fa, fb,
         c1, c2
     };
-    SkPoint* lastPass = re;
-    SkPoint* lastClose = f8;
+    SkPoint* lastPass = rf;
+    SkPoint* lastClose = fb;
     bool fail = false;
     bool close = true;
     const size_t testCount = sizeof(tests) / sizeof(tests[0]);
@@ -1296,6 +1300,15 @@ static void test_isNestedRects(skiatest::Reporter* reporter) {
         path1.addRect(2, 2, 4, 4, SkPath::kCW_Direction);
         REPORTER_ASSERT(reporter, fail ^ path1.isNestedRects(0));
     }
+
+    // pass, stroke rect
+    SkPath src, dst;
+    src.addRect(1, 1, 7, 7, SkPath::kCW_Direction);
+    SkPaint strokePaint;
+    strokePaint.setStyle(SkPaint::kStroke_Style);
+    strokePaint.setStrokeWidth(2);
+    strokePaint.getFillPath(src, &dst);
+    REPORTER_ASSERT(reporter, dst.isNestedRects(0));
 }
 
 static void write_and_read_back(skiatest::Reporter* reporter,
