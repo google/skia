@@ -2618,6 +2618,28 @@ static void testOp1d() {
     testShapeOp(path, pathB, kDifference_Op);
 }
 
+static void testOp2d() {
+    SkPath path, pathB;
+    path.setFillType((SkPath::FillType) 0);
+    path.addRect(0, 0, 1, 1, (SkPath::Direction) 0);
+    path.addRect(0, 0, 2, 2, (SkPath::Direction) 0);
+    pathB.setFillType((SkPath::FillType) 1);
+    pathB.addRect(0, 0, 1, 1, (SkPath::Direction) 0);
+    pathB.addRect(0, 0, 1, 1, (SkPath::Direction) 0);
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void testOp3d() {
+    SkPath path, pathB;
+    path.setFillType((SkPath::FillType) 0);
+    path.addRect(0, 0, 1, 1, (SkPath::Direction) 0);
+    path.addRect(1, 1, 2, 2, (SkPath::Direction) 0);
+    pathB.setFillType((SkPath::FillType) 0);
+    pathB.addRect(0, 0, 1, 1, (SkPath::Direction) 0);
+    pathB.addRect(0, 0, 1, 1, (SkPath::Direction) 0);
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
 static void testQuadratic22() {
     SkPath path;
     path.moveTo(0, 0);
@@ -3231,11 +3253,13 @@ static struct {
     TEST(testUnion2),
     TEST(testXor2),
     TEST(testOp1d),
+    TEST(testOp2d),
+    TEST(testOp3d),
 };
 
 static const size_t subTestCount = sizeof(subTests) / sizeof(subTests[0]);
 
-static void (*firstBinaryTest)() = testOp1d;
+static void (*firstBinaryTest)() = testOp3d;
 
 static bool skipAll = false;
 static bool runBinaryTestsFirst = true;

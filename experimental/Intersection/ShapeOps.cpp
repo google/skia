@@ -304,12 +304,12 @@ void operate(const SkPath& one, const SkPath& two, ShapeOp op, SkPath& result) {
     for (index = 0; index < contourList.count(); ++index) {
         total += contourList[index]->segments().count();
     }
-#if DEBUG_WINDING
+#if DEBUG_SHOW_WINDING
     Op::Contour::debugShowWindingValues(contourList);
 #endif
     coincidenceCheck(contourList, (aXorMask == kEvenOdd_Mask)
             ^ (bXorMask == kEvenOdd_Mask), total);
-#if DEBUG_WINDING
+#if DEBUG_SHOW_WINDING
     Op::Contour::debugShowWindingValues(contourList);
 #endif
     fixOtherTIndex(contourList);
