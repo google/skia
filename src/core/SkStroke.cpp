@@ -786,6 +786,8 @@ void SkStroke::strokeRect(const SkRect& origRect, SkPath* dst,
         case SkPaint::kRound_Join:
             dst->addRoundRect(r, radius, radius, dir);
             break;
+        default:
+            break;
     }
 
     if (fWidth < SkMinScalar(rw, rh) && !fDoFill) {
