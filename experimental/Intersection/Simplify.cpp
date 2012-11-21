@@ -43,6 +43,7 @@ const bool gRunTestsInOneThread = false;
 #define DEBUG_CROSS 0
 #define DEBUG_MARK_DONE 0
 #define DEBUG_PATH_CONSTRUCTION 0
+#define DEBUG_SHOW_WINDING 0
 #define DEBUG_SORT 0
 #define DEBUG_WIND_BUMP 0
 #define DEBUG_WINDING 0
@@ -59,6 +60,7 @@ const bool gRunTestsInOneThread = true;
 #define DEBUG_CROSS 0
 #define DEBUG_MARK_DONE 1
 #define DEBUG_PATH_CONSTRUCTION 1
+#define DEBUG_SHOW_WINDING 0
 #define DEBUG_SORT 1
 #define DEBUG_WIND_BUMP 0
 #define DEBUG_WINDING 1
@@ -1470,8 +1472,8 @@ public:
     }
 
     int bumpCoincidentThis(const Span* oTest, const bool transfer, const bool decrementThis,
-            const bool thisXor, const bool opp, int index, SkTDArray<double>& outsideTs,
-            SkTDArray<double>& xOutsideTs)
+            const bool thisXor, const int oXorMask, const bool opp, int index,
+            SkTDArray<double>& outsideTs, SkTDArray<double>& xOutsideTs)
     {
         Span* const test = &fTs[index];
         Span* end = test;
@@ -1481,11 +1483,18 @@ public:
             if (transfer) {
                 if (opp) {
                     if (decrementThis) {
-                        zeroSpan(end);
+                        zeroSpan(end, oStartT);
                         TrackOutside(outsideTs, end->fT, oStartT);
                     } else {
                         end->fWindValue += oTest->fOppValue;
-                        end->fOppValue += oTest->fWindValue;
+                        end->fOppValue = (end->fOppValue + oTest->fWindValue) & oXorMask;
+                        if (thisXor) {
+                            SkASSERT(end->fWindValue);
+                            if (!(end->fWindValue & 1)) {
+                                zeroSpan(end, oStartT);
+                                TrackOutside(outsideTs, end->fT, oStartT);
+                            }
+                        }
                     }
                 } else if (!decrementThis & !thisXor) {
             #ifdef SK_DEBUG
@@ -1511,8 +1520,8 @@ public:
     // intermediate T values (using this as the master, other as the follower)
     // and walk other conditionally -- hoping that it catches up in the end
     int bumpCoincidentOther(const Span* test, const bool transfer, const bool decrementThis,
-            const bool otherXor, const bool opp, const double tRatio, const double oEndT,
-            int& oIndex, SkTDArray<double>& oOutsideTs)
+            const bool otherXor, const int xorMask, const bool opp, const double tRatio,
+            const double oEndT, int& oIndex, SkTDArray<double>& oOutsideTs)
     {
         Span* const oTest = &fTs[oIndex];
         Span* oEnd = oTest;
@@ -1526,12 +1535,19 @@ public:
                 if (opp) {
                     if (decrementThis) {
                         oEnd->fWindValue += test->fOppValue;
-                        oEnd->fOppValue += test->fWindValue;
+                        oEnd->fOppValue = (oEnd->fOppValue + test->fWindValue) & xorMask;
+                        if (otherXor) {
+                            SkASSERT(oEnd->fWindValue);
+                            if (!(oEnd->fWindValue & 1)) {
+                                zeroSpan(oEnd, startT);
+                                TrackOutside(oOutsideTs, oEnd->fT, startT);
+                            }
+                        }
                     } else {
-                        zeroSpan(oEnd);
+                        zeroSpan(oEnd, startT);
                         TrackOutside(oOutsideTs, oEnd->fT, startT);
                     }
-                } else if (decrementThis & !otherXor & !opp) {
+                } else if (decrementThis & !otherXor) {
              #ifdef SK_DEBUG
                    SkASSERT(abs(oEnd->fWindValue) < gDebugMaxWindValue);
             #endif
@@ -1581,19 +1597,22 @@ public:
         SkTDArray<double> outsideTs;
         SkTDArray<double> xOutsideTs;
         SkTDArray<double> oOutsideTs;
+        int xorMask = thisXor ? 1 : -1;
+        int oXorMask = otherXor ? 1 : -1;
         do {
             bool transfer = test->fWindValue && oTest->fWindValue;
-            bool decrementThis = test->fWindValue < oTest->fWindValue;
+            bool decrementThis = test->fWindValue < oTest->fWindValue ||
+                    (test->fWindValue == oTest->fWindValue && thisXor);
             if (decrementThis) {
-                oIndex = other.bumpCoincidentOther(test, transfer, decrementThis, otherXor, opp,
-                        tRatio, oEndT, oIndex, oOutsideTs);
-                index = bumpCoincidentThis(oTest, transfer, decrementThis, thisXor, opp,
+                oIndex = other.bumpCoincidentOther(test, transfer, decrementThis, otherXor, xorMask,
+                        opp, tRatio, oEndT, oIndex, oOutsideTs);
+                index = bumpCoincidentThis(oTest, transfer, decrementThis, thisXor, oXorMask, opp,
                         index, outsideTs, xOutsideTs);
             } else {
-                index = bumpCoincidentThis(oTest, transfer, decrementThis, thisXor, opp,
+                index = bumpCoincidentThis(oTest, transfer, decrementThis, thisXor, oXorMask, opp,
                         index, outsideTs, xOutsideTs);
-                oIndex = other.bumpCoincidentOther(test, transfer, decrementThis, otherXor, opp,
-                        tRatio, oEndT, oIndex, oOutsideTs);
+                oIndex = other.bumpCoincidentOther(test, transfer, decrementThis, otherXor, xorMask,
+                        opp, tRatio, oEndT, oIndex, oOutsideTs);
             }
             test = &fTs[index];
             oTest = &other.fTs[oIndex];
@@ -1735,9 +1754,11 @@ public:
         if (inner) {
             winding += spanWinding;
         }
-        int oppoWinding = base->oppSign(angle);
-        if (useInnerWinding(oWinding + oppoWinding, oWinding)) {
-            oWinding += oppoWinding;
+        if (oppoSum) {
+            int oppoWinding = base->oppSign(angle);
+            if (useInnerWinding(oWinding + oppoWinding, oWinding)) {
+                oWinding += oppoWinding;
+            }
         }
     #if DEBUG_SORT
         base->debugShowSort(__FUNCTION__, sorted, firstIndex, winding, oWinding);
@@ -1759,15 +1780,15 @@ public:
             if (opp) {
                 oMaxWinding = oWinding;
                 oWinding -= spanSign;
+                maxWinding = winding;
                 if (oppoSign) {
-                    maxWinding = winding;
                     winding -= oppoSign;
                 }
             } else {
                 maxWinding = winding;
                 winding -= spanSign;
+                oMaxWinding = oWinding;
                 if (oppoSign) {
-                    oMaxWinding = oWinding;
                     oWinding -= oppoSign;
                 }
             }
@@ -1787,7 +1808,7 @@ public:
                     if (oppoSign && useInnerWinding(oMaxWinding, oWinding)) {
                         oMaxWinding = oWinding;
                     }
-                    segment->markAndChaseWinding(angle, maxWinding, oMaxWinding);
+                    segment->markAndChaseWinding(angle, maxWinding, oppoSum ? oMaxWinding : 0);
                 }
             }
         } while (++nextIndex != lastIndex);
@@ -2079,7 +2100,7 @@ public:
                     foundFlipped = altFlipped;
                     foundSum = 0;
                     foundOpp = angleIsOp;
-                    foundOppWinding = oMaxWinding;
+                    foundOppWinding = oSumWinding;
                 }
                 continue;
             }
@@ -3135,7 +3156,7 @@ public:
         fBounds.set(SK_ScalarMax, SK_ScalarMax, SK_ScalarMax, SK_ScalarMax);
         fTs.reset();
     }
-
+    
     // This marks all spans unsortable so that this info is available for early
     // exclusion in find top and others. This could be optimized to only mark
     // adjacent spans that unsortable. However, this makes it difficult to later
@@ -3288,14 +3309,21 @@ public:
         return xyAtT(span).fY;
     }
 
-    void zeroSpan(Span* span) {
+    void zeroSpan(Span* span, double otherT) {
         SkASSERT(span->fWindValue > 0);
         span->fWindValue = 0;
-        span->fOppValue = 0;
         if (!span->fDone) {
             span->fDone = true;
             ++fDoneSpans;
         }
+        int oppValue = span->fOppValue;
+        if (!oppValue) {
+            return;
+        }
+        span->fOppValue = 0;
+        Segment* other = span->fOther;
+        Span& oSpan = other->fTs[span->fOtherIndex];
+        SkASSERT(0);
     }
 
 #if DEBUG_DUMP
@@ -3563,7 +3591,9 @@ public:
     static char as_digit(int value) {
         return value < 0 ? '?' : value <= 9 ? '0' + value : '+';
     }
+#endif
 
+#if DEBUG_SHOW_WINDING
     int debugShowWindingValues(int slotCount, int ofInterest) const {
         if (!(1 << fID & ofInterest)) {
             return 0;
@@ -3585,7 +3615,9 @@ public:
                 slots.begin() + slotCount);
         return sum;
     }
+#endif
 
+#if DEBUG_WINDING
     bool debugVerifyWinding(int start, int end, int winding) const {
         const Span& span = fTs[SkMin32(start, end)];
         int spanWinding = span.fWindSum;
@@ -3786,13 +3818,12 @@ public:
         fContainsCurves = fContainsIntercepts = false;
     }
 
-    // FIXME: for binary ops, need to keep both ops winding contributions separately
-    // in edge array
     void resolveCoincidence(SkTDArray<Contour*>& contourList) {
         int count = fCoincidences.count();
         for (int index = 0; index < count; ++index) {
             Coincidence& coincidence = fCoincidences[index];
             Contour* thisContour = coincidence.fContours[0];
+            SkASSERT(thisContour == this);
             Contour* otherContour = coincidence.fContours[1];
             int thisIndex = coincidence.fSegments[0];
             int otherIndex = coincidence.fSegments[1];
@@ -3845,7 +3876,7 @@ public:
             thisOne.debugShowTs();
             other.debugShowTs();
         #endif
-        #if DEBUG_WINDING
+        #if DEBUG_SHOW_WINDING
             debugShowWindingValues(contourList);
         #endif
         }
@@ -4037,7 +4068,7 @@ public:
     }
 #endif
 
-#if DEBUG_WINDING
+#if DEBUG_SHOW_WINDING
     int debugShowWindingValues(int totalSegments, int ofInterest) {
         int count = fSegments.count();
         int sum = 0;
@@ -4116,7 +4147,7 @@ EdgeBuilder(const SkPath& path, SkTArray<Contour>& contours)
 void init() {
     fCurrentContour = NULL;
     fOperand = false;
-    fXorMask = (fPath->getFillType() & 1) ? kEvenOdd_Mask : kWinding_Mask;
+    fXorMask[0] = fXorMask[1] = (fPath->getFillType() & 1) ? kEvenOdd_Mask : kWinding_Mask;
 #if DEBUG_DUMP
     gContourID = 0;
     gSegmentID = 0;
@@ -4128,7 +4159,7 @@ void addOperand(const SkPath& path) {
     SkASSERT(fPathVerbs.count() > 0 && fPathVerbs.end()[-1] == SkPath::kDone_Verb);
     fPathVerbs.pop();
     fPath = &path;
-    fXorMask = (fPath->getFillType() & 1) ? kEvenOdd_Mask : kWinding_Mask;
+    fXorMask[1] = (fPath->getFillType() & 1) ? kEvenOdd_Mask : kWinding_Mask;
     preFetch();
 }
 
@@ -4158,7 +4189,7 @@ void finish() {
 }
 
 ShapeOpMask xorMask() const {
-    return fXorMask;
+    return fXorMask[fOperand];
 }
 
 protected:
@@ -4202,7 +4233,7 @@ void walk() {
                 if (!fCurrentContour) {
                     fCurrentContour = fContours.push_back_n(1);
                     fCurrentContour->setOperand(fOperand);
-                    fCurrentContour->setXor(fXorMask == kEvenOdd_Mask);
+                    fCurrentContour->setXor(fXorMask[fOperand] == kEvenOdd_Mask);
                     *fExtra.append() = -1; // start new contour
                 }
                 finalCurveEnd = pointsPtr++;
@@ -4277,7 +4308,7 @@ private:
     SkTArray<Contour>& fContours;
     SkTDArray<SkPoint> fReducePts; // segments created on the fly
     SkTDArray<int> fExtra; // -1 marks new contour, > 0 offsets into contour
-    ShapeOpMask fXorMask;
+    ShapeOpMask fXorMask[2];
     int fSecondHalf;
     bool fOperand;
 };
