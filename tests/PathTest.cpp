@@ -1052,12 +1052,34 @@ static void test_isRect(skiatest::Reporter* reporter) {
             path.close();
         }
         REPORTER_ASSERT(reporter, fail ^ path.isRect(0));
+        REPORTER_ASSERT(reporter, fail ^ path.isRect(NULL, NULL));
+
         if (!fail) {
             SkRect computed, expected;
             expected.set(tests[testIndex], testLen[testIndex] / sizeof(SkPoint));
             REPORTER_ASSERT(reporter, path.isRect(&computed));
             REPORTER_ASSERT(reporter, expected == computed);
+            
+            bool isClosed;
+            SkPath::Direction direction, cheapDirection;
+            REPORTER_ASSERT(reporter, path.cheapComputeDirection(&cheapDirection));
+            REPORTER_ASSERT(reporter, path.isRect(&isClosed, &direction));
+            REPORTER_ASSERT(reporter, isClosed == close);
+            REPORTER_ASSERT(reporter, direction == cheapDirection);
+        } else {
+            SkRect computed;
+            computed.set(123, 456, 789, 1011);
+            REPORTER_ASSERT(reporter, !path.isRect(&computed));
+            REPORTER_ASSERT(reporter, computed.fLeft == 123 && computed.fTop == 456);
+            REPORTER_ASSERT(reporter, computed.fRight == 789 && computed.fBottom == 1011);
+
+            bool isClosed = (bool) -1;
+            SkPath::Direction direction = (SkPath::Direction) -1;
+            REPORTER_ASSERT(reporter, !path.isRect(&isClosed, &direction));
+            REPORTER_ASSERT(reporter, isClosed == (bool) -1);
+            REPORTER_ASSERT(reporter, direction == (SkPath::Direction) -1);
         }
+        
         if (tests[testIndex] == lastPass) {
             fail = true;
         }

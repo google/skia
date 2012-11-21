@@ -535,6 +535,17 @@ public:
         return this->cheapComputeDirection(&computedDir) && computedDir == dir;
     }
 
+    /** Returns true if the path specifies a rectangle. If so, and if isClosed is
+        not null, set isClosed to true if the path is closed. Also, if returning true
+        and direction is not null, return the rect direction. If the path does not
+        specify a rectangle, return false and ignore isClosed and direction.
+
+        @param isClosed If not null, set to true if the path is closed
+        @param direction If not null, set to the rectangle's direction
+        @return true if the path specifies a rectangle
+    */
+    bool isRect(bool* isClosed, Direction* direction) const;
+
     /** Add a closed rectangle contour to the path
         @param rect The rectangle to add as a closed contour to the path
         @param dir  The direction to wind the rectangle's contour
@@ -917,7 +928,8 @@ private:
 
     Convexity internalGetConvexity() const;
 
-    bool isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts) const;
+    bool isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts,
+                       bool* isClosed, Direction* direction) const;
 
     friend class SkAutoPathBoundsUpdate;
     friend class SkAutoDisableOvalCheck;
