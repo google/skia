@@ -45,6 +45,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     , fListWidget(&fCentralWidget)
     , fDirectoryWidget(&fCentralWidget)
     , fCanvasWidget(this, &fDebugger)
+    , fImageWidget(&fDebugger)
     , fMenuBar(this)
     , fMenuFile(this)
     , fMenuNavigate(this)
@@ -385,8 +386,10 @@ void SkDebuggerGUI::actionClearDeletes() {
     }
     if (fPause) {
         fCanvasWidget.drawTo(fPausedRow);
+        fImageWidget.draw();
     } else {
         fCanvasWidget.drawTo(fListWidget.currentRow());
+        fImageWidget.draw();
     }
 }
 
@@ -394,6 +397,7 @@ void SkDebuggerGUI::actionCommandFilter() {
     fDebugger.highlightCurrentCommand(
             fSettingsWidget.getVisibilityButton()->isChecked());
     fCanvasWidget.drawTo(fListWidget.currentRow());
+    fImageWidget.draw();
 }
 
 void SkDebuggerGUI::actionClose() {
@@ -414,8 +418,10 @@ void SkDebuggerGUI::actionDelete() {
 
     if (fPause) {
         fCanvasWidget.drawTo(fPausedRow);
+        fImageWidget.draw();
     } else {
         fCanvasWidget.drawTo(currentRow);
+        fImageWidget.draw();
     }
 }
 
@@ -426,8 +432,10 @@ void SkDebuggerGUI::actionGLWidget(bool isToggled) {
 void SkDebuggerGUI::actionInspector() {
     if (fInspectorWidget.isHidden()) {
         fInspectorWidget.setHidden(false);
+        fImageWidget.setHidden(false);
     } else {
         fInspectorWidget.setHidden(true);
+        fImageWidget.setHidden(true);
     }
 }
 
@@ -531,6 +539,7 @@ void SkDebuggerGUI::pauseDrawing(bool isPaused) {
     fPause = isPaused;
     fPausedRow = fListWidget.currentRow();
     fCanvasWidget.drawTo(fPausedRow);
+    fImageWidget.draw();
 }
 
 void SkDebuggerGUI::registerListClick(QListWidgetItem *item) {
@@ -540,6 +549,7 @@ void SkDebuggerGUI::registerListClick(QListWidgetItem *item) {
         if (currentRow != -1) {
             if (!fPause) {
                 fCanvasWidget.drawTo(currentRow);
+                fImageWidget.draw();
             }
             SkTDArray<SkString*> *currInfo = fDebugger.getCommandInfo(
                     currentRow);
@@ -712,9 +722,16 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fCanvasWidget.setSizePolicy(QSizePolicy::Expanding,
             QSizePolicy::Expanding);
 
+    fImageWidget.setFixedSize(SkImageWidget::kImageWidgetWidth, 
+                              SkImageWidget::kImageWidgetHeight);
+
     fInspectorWidget.setSizePolicy(QSizePolicy::Expanding,
             QSizePolicy::Expanding);
     fInspectorWidget.setMaximumHeight(300);
+
+    fSettingsAndImageLayout.setSpacing(6);
+    fSettingsAndImageLayout.addWidget(&fSettingsWidget);
+    fSettingsAndImageLayout.addWidget(&fImageWidget);
 
     fSettingsWidget.setSizePolicy(QSizePolicy::Expanding,
             QSizePolicy::Expanding);
@@ -724,12 +741,13 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fLeftColumnLayout.addWidget(&fListWidget);
     fLeftColumnLayout.addWidget(&fDirectoryWidget);
 
-    fCanvasAndSettingsLayout.setSpacing(6);
-    fCanvasAndSettingsLayout.addWidget(&fCanvasWidget);
-    fCanvasAndSettingsLayout.addWidget(&fSettingsWidget);
+    fCanvasSettingsAndImageLayout.setSpacing(6);
+    fCanvasSettingsAndImageLayout.addWidget(&fCanvasWidget);
+    fCanvasSettingsAndImageLayout.addLayout(&fSettingsAndImageLayout);
+
 
     fMainAndRightColumnLayout.setSpacing(6);
-    fMainAndRightColumnLayout.addLayout(&fCanvasAndSettingsLayout);
+    fMainAndRightColumnLayout.addLayout(&fCanvasSettingsAndImageLayout);
     fMainAndRightColumnLayout.addWidget(&fInspectorWidget);
 
     fCentralWidget.setLayout(&fContainerLayout);

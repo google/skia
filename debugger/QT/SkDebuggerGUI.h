@@ -17,6 +17,7 @@
 #include "SkListWidget.h"
 #include "SkInspectorWidget.h"
 #include "SkRasterWidget.h"
+#include "SkImageWidget.h"
 #include "SkSettingsWidget.h"
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -244,13 +245,15 @@ private:
     QHBoxLayout fContainerLayout;
     QVBoxLayout fLeftColumnLayout;
     QVBoxLayout fMainAndRightColumnLayout;
-    QHBoxLayout fCanvasAndSettingsLayout;
+    QHBoxLayout fCanvasSettingsAndImageLayout;
+    QVBoxLayout fSettingsAndImageLayout;
 
     QListWidget fListWidget;
     QListWidget fDirectoryWidget;
 
     SkDebugger fDebugger;
     SkCanvasWidget fCanvasWidget;
+    SkImageWidget fImageWidget;
     SkInspectorWidget fInspectorWidget;
     SkSettingsWidget fSettingsWidget;
 
