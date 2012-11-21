@@ -17,7 +17,7 @@
 struct SkOTTableMaximumProfile_TT {
     SK_OT_Fixed version;
     static const SK_OT_Fixed VERSION = SkTEndian_SwapBE32(0x00010000);
-    
+
     SK_OT_USHORT numGlyphs;
     SK_OT_USHORT maxPoints;
     SK_OT_USHORT maxContours;

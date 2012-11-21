@@ -19,7 +19,7 @@ struct SkOTTableIndexToLocation {
     static const SK_OT_CHAR TAG2 = 'c';
     static const SK_OT_CHAR TAG3 = 'a';
     static const SK_OT_ULONG TAG = SkOTTableTAG<SkOTTableIndexToLocation>::value;
-    
+
     union Offsets {
         SK_OT_USHORT shortOffset[1];
         SK_OT_ULONG longOffset[1];

@@ -26,7 +26,7 @@ struct SkOTTableOS2 {
 
     union Version {
         SK_OT_USHORT version;
-        
+
         //original V0 TT
         struct VA : SkOTTableOS2_VA { } vA;
         struct V0 : SkOTTableOS2_V0 { } v0;
