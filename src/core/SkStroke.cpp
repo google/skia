@@ -776,7 +776,7 @@ void SkStroke::strokeRect(const SkRect& origRect, SkPath* dst,
         join = SkPaint::kBevel_Join;
     }
 
-    switch (fJoin) {
+    switch (join) {
         case SkPaint::kMiter_Join:
             dst->addRect(r, dir);
             break;
