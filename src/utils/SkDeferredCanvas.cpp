@@ -16,13 +16,10 @@
 #include "SkPaint.h"
 #include "SkShader.h"
 
-#ifndef SK_DEFERRED_CANVAS_BITMAP_SIZE_THRESHOLD
-#define SK_DEFERRED_CANVAS_BITMAP_SIZE_THRESHOLD ~0 // Disables this feature
-#endif
-
 enum {
     // Deferred canvas will auto-flush when recording reaches this limit
     kDefaultMaxRecordingStorageBytes = 64*1024*1024,
+    kDeferredCanvasBitmapSizeThreshold = ~0, // Disables this feature
 };
 
 enum PlaybackMode {
@@ -327,7 +324,7 @@ DeferredDevice::DeferredDevice(
     , fRecordingCanvas(NULL)
     , fFreshFrame(true)
     , fPreviousStorageAllocated(0)
-    , fBitmapSizeThreshold(SK_DEFERRED_CANVAS_BITMAP_SIZE_THRESHOLD){
+    , fBitmapSizeThreshold(kDeferredCanvasBitmapSizeThreshold){
 
     fMaxRecordingStorageBytes = kDefaultMaxRecordingStorageBytes;
     fNotificationClient = notificationClient;
