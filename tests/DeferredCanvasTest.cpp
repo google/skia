@@ -391,6 +391,47 @@ static void TestDeferredCanvasBitmapShaderNoLeak(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 0 == canvas.storageAllocatedForRecording());
 }
 
+static void TestDeferredCanvasBitmapSizeThreshold(skiatest::Reporter* reporter) {
+    SkBitmap store;
+    store.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
+    store.allocPixels();
+    
+    SkBitmap sourceImage;
+    // 100 by 100 image, takes 40,000 bytes in memory
+    sourceImage.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
+    sourceImage.allocPixels();
+
+    // 1 under : should not store the image
+    {
+        SkDevice device(store);
+        SkDeferredCanvas canvas(&device);
+        canvas.setBitmapSizeThreshold(39999);
+        canvas.drawBitmap(sourceImage, 0, 0, NULL);
+        size_t newBytesAllocated = canvas.storageAllocatedForRecording();
+        REPORTER_ASSERT(reporter, newBytesAllocated == 0);
+    }
+
+    // exact value : should store the image
+    {
+        SkDevice device(store);
+        SkDeferredCanvas canvas(&device);
+        canvas.setBitmapSizeThreshold(40000);
+        canvas.drawBitmap(sourceImage, 0, 0, NULL);
+        size_t newBytesAllocated = canvas.storageAllocatedForRecording();
+        REPORTER_ASSERT(reporter, newBytesAllocated > 0);
+    }
+
+    // 1 over : should still store the image
+    {
+        SkDevice device(store);
+        SkDeferredCanvas canvas(&device);
+        canvas.setBitmapSizeThreshold(40001);
+        canvas.drawBitmap(sourceImage, 0, 0, NULL);
+        size_t newBytesAllocated = canvas.storageAllocatedForRecording();
+        REPORTER_ASSERT(reporter, newBytesAllocated > 0);
+    }
+}
+
 static void TestDeferredCanvas(skiatest::Reporter* reporter) {
     TestDeferredCanvasBitmapAccess(reporter);
     TestDeferredCanvasFlush(reporter);
@@ -399,6 +440,7 @@ static void TestDeferredCanvas(skiatest::Reporter* reporter) {
     TestDeferredCanvasBitmapCaching(reporter);
     TestDeferredCanvasSkip(reporter);
     TestDeferredCanvasBitmapShaderNoLeak(reporter);
+    TestDeferredCanvasBitmapSizeThreshold(reporter);
 }
 
 #include "TestClassDef.h"

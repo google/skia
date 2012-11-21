@@ -199,4 +199,12 @@
    backend. Defaults to 1 (build the GPU code).
  */
 //#define SK_SUPPORT_GPU 1
+
+/* Defines the maximum size allowed for a given image to be rendered using the
+   deferred canvas. If the image is larger than this threshold, the image
+   is considered too large and the copy done by the deferred canvas too
+   expensive, so an image of that size would instead be drawn immediately.
+*/
+//#define SK_DEFERRED_CANVAS_BITMAP_SIZE_THRESHOLD 1048576
+
 #endif
