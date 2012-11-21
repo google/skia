@@ -943,14 +943,14 @@ bool GrRedBlackTree<T,C>::validateChildRelations(const Node* n,
 }
 #endif
 
-#include "GrRandom.h"
+#include "SkRandom.h"
 
 template <typename T, typename C>
 void GrRedBlackTree<T,C>::UnitTest() {
     GrRedBlackTree<int> tree;
     typedef GrRedBlackTree<int>::Iter iter;
 
-    GrRandom r;
+    SkRandom r;
 
     int count[100] = {0};
     // add 10K ints

@@ -91,7 +91,6 @@
       '<(skia_src_path)/gpu/GrPathUtils.cpp',
       '<(skia_src_path)/gpu/GrPathUtils.h',
       '<(skia_src_path)/gpu/GrPlotMgr.h',
-      '<(skia_src_path)/gpu/GrRandom.h',
       '<(skia_src_path)/gpu/GrRectanizer.cpp',
       '<(skia_src_path)/gpu/GrRectanizer.h',
       '<(skia_src_path)/gpu/GrRedBlackTree.h',
