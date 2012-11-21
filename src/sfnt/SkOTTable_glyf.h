@@ -26,7 +26,7 @@ struct SkOTTableGlyph {
     static const SK_OT_CHAR TAG2 = 'y';
     static const SK_OT_CHAR TAG3 = 'f';
     static const SK_OT_ULONG TAG = SkOTTableTAG<SkOTTableGlyph>::value;
-    
+
     class Iterator {
     public:
         Iterator(const SkOTTableGlyph& glyf,
@@ -36,7 +36,7 @@ struct SkOTTableGlyph {
         , fLocaFormat(SkOTTableHead::IndexToLocFormat::ShortOffsets == locaFormat.value ? 0 : 1)
         , fCurrentGlyphOffset(0)
         { fLocaPtr.shortOffset = reinterpret_cast<const SK_OT_USHORT*>(&loca); }
-        
+
         void advance(uint16_t num) {
             fLocaPtr.shortOffset += num << fLocaFormat;
             fCurrentGlyphOffset = fLocaFormat ? SkEndian_SwapBE32(*fLocaPtr.longOffset)
@@ -70,15 +70,15 @@ struct SkOTTableGlyphData {
     SK_OT_FWORD yMin;
     SK_OT_FWORD xMax;
     SK_OT_FWORD yMax;
-    
+
     struct Simple {
         SK_OT_USHORT endPtsOfContours[1/*numberOfContours*/];
-        
+
         struct Instructions {
             SK_OT_USHORT length;
             SK_OT_BYTE data[1/*length*/];
         };
-        
+
         union Flags {
             struct Field {
                 SK_OT_BYTE_BITFIELD(
@@ -101,11 +101,11 @@ struct SkOTTableGlyphData {
                 SK_OT_BYTE value;
             } raw;
         };
-        
+
         //xCoordinates
         //yCoordinates
     };
-    
+
     struct Composite {
         struct Component {
             union Flags {
@@ -140,7 +140,7 @@ struct SkOTTableGlyphData {
                     static const SK_OT_USHORT MORE_COMPONENTS_Mask = SkTEndian_SwapBE16(1 << 5);
                     static const SK_OT_USHORT WE_HAVE_AN_X_AND_Y_SCALE_Mask = SkTEndian_SwapBE16(1 << 6);
                     static const SK_OT_USHORT WE_HAVE_A_TWO_BY_TWO_Mask = SkTEndian_SwapBE16(1 << 7);
-                    
+
                     static const SK_OT_USHORT WE_HAVE_INSTRUCTIONS_Mask = SkTEndian_SwapBE16(1 << 8);
                     static const SK_OT_USHORT USE_MY_METRICS_Mask = SkTEndian_SwapBE16(1 << 9);
                     static const SK_OT_USHORT OVERLAP_COMPOUND_Mask = SkTEndian_SwapBE16(1 << 10);
@@ -200,7 +200,7 @@ struct SkOTTableGlyphData {
                 } byteIndex;
             } transform;
         } component;//[] last element does not set MORE_COMPONENTS
-        
+
         /** Comes after the last Component if the last component has WE_HAVE_INSTR. */
         struct Instructions {
             SK_OT_USHORT length;

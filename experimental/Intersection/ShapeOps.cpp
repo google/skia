@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #include "Simplify.h"
 
 namespace Op {
@@ -298,7 +298,7 @@ void operate(const SkPath& one, const SkPath& two, ShapeOp op, SkPath& result) {
         } while (addIntersectTs(current, next) && nextPtr != listEnd);
     } while (currentPtr != listEnd);
     // eat through coincident edges
-    
+
     int total = 0;
     int index;
     for (index = 0; index < contourList.count(); ++index) {

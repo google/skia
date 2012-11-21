@@ -20,7 +20,7 @@ extern const uint8_t SK_OT_GlyphData_NoOutline[] = {
     0x0,0x0, //SkOTTableGlyphData::yMin
     0x0,0x0, //SkOTTableGlyphData::xMax
     0x0,0x0, //SkOTTableGlyphData::yMax
-    
+
     0x0,0x0, //SkOTTableGlyphDataInstructions::length
 };
 

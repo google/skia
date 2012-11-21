@@ -3392,7 +3392,7 @@ public:
             SkDebugf(" windValue=%d\n", fTs[i].fWindValue);
         }
     }
-    
+
     // This isn't useful yet -- but leaving it in for now in case i think of something
     // to use it for
     void validateActiveSpans() const {

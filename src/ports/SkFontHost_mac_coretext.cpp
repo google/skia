@@ -1812,7 +1812,7 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface*) {
     rec->fFlags &= ~flagsWeDontSupport;
 
     bool lcdSupport = supports_LCD();
-    
+
     // Only two levels of hinting are supported.
     // kNo_Hinting means avoid CoreGraphics outline dilation.
     // kNormal_Hinting means CoreGraphics outline dilation is allowed.

@@ -52,7 +52,7 @@ struct SkSFNTHeader {
     SK_SFNT_USHORT searchRange;
     SK_SFNT_USHORT entrySelector;
     SK_SFNT_USHORT rangeShift;
-    
+
     struct TableDirectoryEntry {
         SK_SFNT_ULONG tag;
         SK_SFNT_ULONG checksum;

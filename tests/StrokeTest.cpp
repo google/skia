@@ -42,7 +42,7 @@ static void test_strokerect(skiatest::Reporter* reporter) {
         paint.getFillPath(path, &fillPath);
 
         REPORTER_ASSERT(reporter, equal(outer, fillPath.getBounds()));
-        
+
         bool isMiter = SkPaint::kMiter_Join == joins[i];
         SkRect nested[2];
         REPORTER_ASSERT(reporter, fillPath.isNestedRects(nested) == isMiter);

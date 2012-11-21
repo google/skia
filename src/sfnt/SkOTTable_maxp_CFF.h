@@ -16,7 +16,7 @@
 struct SkOTTableMaximumProfile_CFF {
     SK_OT_Fixed version;
     static const SK_OT_Fixed VERSION = SkTEndian_SwapBE32(0x00005000);
-    
+
     SK_OT_USHORT numGlyphs;
 };
 
