@@ -68,7 +68,8 @@ namespace skiatest {
 
                 // Try checksums of different-sized chunks, but always
                 // 32-bit aligned and big enough to contain all the
-                // nonzero bytes.
+                // nonzero bytes.  (Remaining bytes will still be zero
+                // from the initial sk_bzero() call.)
                 size_t checksum_size = (((i/4)+1)*4);
                 REPORTER_ASSERT(fReporter, checksum_size <= buf_size);
 
@@ -80,25 +81,37 @@ namespace skiatest {
             }
         }
 
-        // Return the checksum of a portion of this static test data
-        // (8 bytes repeated twice): "1234567812345678"
-        uint32_t GetTestDataChecksum(size_t offset, size_t len) {
-            static char testbytes[] = "1234567812345678";
-            uint32_t* ptr = reinterpret_cast<uint32_t*>(testbytes);
-            return ComputeChecksum(ptr, len);
+        // Return the checksum of a buffer of bytes 'len' long.
+        // The pattern of values within the buffer will be consistent
+        // for every call, based on 'seed'.
+        uint32_t GetTestDataChecksum(size_t len, char seed=0) {
+            SkAutoMalloc storage(len);
+            uint32_t* start = (uint32_t *)storage.get();
+            char* ptr = (char *)start;
+            for (size_t i = 0; i < len; ++i) {
+                *ptr++ = ((seed+i) & 0x7f);
+            }
+            uint32_t result = ComputeChecksum(start, len);
+            return result;
         }
 
         void RunTest() {
             // Test self-consistency of checksum algorithms.
             fWhichAlgorithm = kSkChecksum;
             REPORTER_ASSERT(fReporter,
-                            GetTestDataChecksum(0, 8) ==
-                            GetTestDataChecksum(8, 8));
+                            GetTestDataChecksum(8, 0) ==
+                            GetTestDataChecksum(8, 0));
+            REPORTER_ASSERT(fReporter,
+                            GetTestDataChecksum(8, 0) !=
+                            GetTestDataChecksum(8, 1));
             TestChecksumSelfConsistency(128);
             fWhichAlgorithm = kSkConsistentChecksum;
             REPORTER_ASSERT(fReporter,
-                            GetTestDataChecksum(0, 8) ==
-                            GetTestDataChecksum(8, 8));
+                            GetTestDataChecksum(8, 0) ==
+                            GetTestDataChecksum(8, 0));
+            REPORTER_ASSERT(fReporter,
+                            GetTestDataChecksum(8, 0) !=
+                            GetTestDataChecksum(8, 1));
             TestChecksumSelfConsistency(128);
 
             // Test checksum results that should be consistent across
@@ -107,9 +120,25 @@ namespace skiatest {
             REPORTER_ASSERT(fReporter, ComputeChecksum(NULL, 0) == 0);
             fWhichAlgorithm = kSkConsistentChecksum;
             REPORTER_ASSERT(fReporter, ComputeChecksum(NULL, 0) == 0);
-            REPORTER_ASSERT(fReporter, GetTestDataChecksum(0, 8) == 0xa12fac2c);
-            REPORTER_ASSERT(fReporter, GetTestDataChecksum(8, 8) == 0xa12fac2c);
-            REPORTER_ASSERT(fReporter, GetTestDataChecksum(8, 4) == 0x34333231);
+            REPORTER_ASSERT(fReporter, GetTestDataChecksum(4)  == 0x03020100);
+            REPORTER_ASSERT(fReporter, GetTestDataChecksum(8)  == 0x07860485);
+
+            // TODO: note the weakness exposed by these collisions...
+            // We need to improve the SkConsistentChecksum algorithm
+            // (and maybe SkChecksum too?)
+            // We would prefer that these asserts FAIL!
+            // Filed as https://code.google.com/p/skia/issues/detail?id=981
+            // ('SkChecksum algorithm allows for way too many collisions')
+            fWhichAlgorithm = kSkChecksum;
+            REPORTER_ASSERT(fReporter,
+                GetTestDataChecksum(128) == GetTestDataChecksum(256));
+            REPORTER_ASSERT(fReporter,
+                GetTestDataChecksum(132) == GetTestDataChecksum(260));
+            fWhichAlgorithm = kSkConsistentChecksum;
+            REPORTER_ASSERT(fReporter, GetTestDataChecksum(128) == 0);
+            REPORTER_ASSERT(fReporter, GetTestDataChecksum(132) == 0x03020100);
+            REPORTER_ASSERT(fReporter, GetTestDataChecksum(256) == 0);
+            REPORTER_ASSERT(fReporter, GetTestDataChecksum(260) == 0x03020100);
         }
 
         Reporter* fReporter;
