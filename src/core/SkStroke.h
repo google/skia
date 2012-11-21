@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,15 +5,12 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkStroke_DEFINED
 #define SkStroke_DEFINED
 
+#include "SkPath.h"
 #include "SkPoint.h"
 #include "SkPaint.h"
-
-struct SkRect;
-class SkPath;
 
 /** \class SkStroke
     SkStroke is the utility class that constructs paths by stroking
@@ -40,7 +36,11 @@ public:
     bool    getDoFill() const { return SkToBool(fDoFill); }
     void    setDoFill(bool doFill) { fDoFill = SkToU8(doFill); }
 
-    void    strokeRect(const SkRect&, SkPath*) const;
+    /**
+     *  Stroke the specified rect, winding it in the specified direction..
+     */
+    void    strokeRect(const SkRect& rect, SkPath* result,
+                       SkPath::Direction = SkPath::kCW_Direction) const;
     void    strokePath(const SkPath& path, SkPath*) const;
 
     ////////////////////////////////////////////////////////////////
