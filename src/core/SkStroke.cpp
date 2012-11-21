@@ -610,9 +610,10 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
     // If src is really a rect, call our specialty strokeRect() method
 #ifndef SK_IGNORE_NEW_STROKERECT
     {
-        SkRect rect;
-        if (src.isRect(&rect)) {
-            this->strokeRect(rect, dst);
+        bool isClosed;
+        SkPath::Direction dir;
+        if (src.isRect(&isClosed, &dir) && isClosed) {
+            this->strokeRect(src.getBounds(), dst, dir);
             // our answer should preserve the inverseness of the src
             if (src.isInverseFillType()) {
                 SkASSERT(!dst->isInverseFillType());
@@ -746,7 +747,8 @@ static void addBevel(SkPath* path, const SkRect& r, const SkRect& outer, SkPath:
     path->addPoly(pts, 8, true);
 }
 
-void SkStroke::strokeRect(const SkRect& origRect, SkPath* dst) const {
+void SkStroke::strokeRect(const SkRect& origRect, SkPath* dst,
+                          SkPath::Direction dir) const {
     SkASSERT(dst != NULL);
     dst->reset();
 
@@ -755,11 +757,10 @@ void SkStroke::strokeRect(const SkRect& origRect, SkPath* dst) const {
         return;
     }
 
-    SkPath::Direction dir = SkPath::kCW_Direction;
     SkScalar rw = origRect.width();
     SkScalar rh = origRect.height();
     if ((rw < 0) ^ (rh < 0)) {
-        dir = SkPath::kCCW_Direction;
+        dir = reverse_direction(dir);
     }
     SkRect rect(origRect);
     rect.sort();
@@ -783,7 +784,7 @@ void SkStroke::strokeRect(const SkRect& origRect, SkPath* dst) const {
             addBevel(dst, rect, r, dir);
             break;
         case SkPaint::kRound_Join:
-            dst->addRoundRect(r, radius, radius);
+            dst->addRoundRect(r, radius, radius, dir);
             break;
     }
 
