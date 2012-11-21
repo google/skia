@@ -459,9 +459,9 @@ bool SkPath::isLine(SkPoint line[2]) const {
 
  The direction is computed such that:
   0: vertical up
-  1: horizontal right
+  1: horizontal left
   2: vertical down
-  3: horizontal left
+  3: horizontal right
 
 A rectangle cycles up/right/down/left or up/left/down/right.
 
@@ -488,7 +488,8 @@ FIXME: Allow colinear quads and cubics to be treated like lines.
 FIXME: If the API passes fill-only, return true if the filled stroke
        is a rectangle, though the caller failed to close the path.
  */
-bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** ptsPtr) const {
+bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** ptsPtr,
+        bool* isClosed, Direction* direction) const {
     int corners = 0;
     SkPoint first, last;
     const SkPoint* pts = *ptsPtr;
@@ -571,6 +572,12 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
     if (savePts) {
         *ptsPtr = savePts;
     }
+    if (result && isClosed) {
+        *isClosed = autoClose;
+    }
+    if (result && direction) {
+        *direction = firstDirection == (lastDirection + 1 & 3) ? kCCW_Direction : kCW_Direction;
+    }
     return result;
 }
 
@@ -578,11 +585,18 @@ bool SkPath::isRect(SkRect* rect) const {
     SkDEBUGCODE(this->validate();)
     int currVerb = 0;
     const SkPoint* pts = fPathRef->points();
-    bool result = isRectContour(false, &currVerb, &pts);
+    bool result = isRectContour(false, &currVerb, &pts, NULL, NULL);
     if (result && rect) {
         *rect = getBounds();
     }
     return result;
+}
+
+bool SkPath::isRect(bool* isClosed, Direction* direction) const {
+    SkDEBUGCODE(this->validate();)
+    int currVerb = 0;
+    const SkPoint* pts = fPathRef->points();
+    return isRectContour(false, &currVerb, &pts, isClosed, direction);
 }
 
 bool SkPath::isNestedRects(SkRect rects[2]) const {
@@ -590,12 +604,12 @@ bool SkPath::isNestedRects(SkRect rects[2]) const {
     int currVerb = 0;
     const SkPoint* pts = fPathRef->points();
     const SkPoint* first = pts;
-    if (!isRectContour(true, &currVerb, &pts)) {
+    if (!isRectContour(true, &currVerb, &pts, NULL, NULL)) {
         return false;
     }
     const SkPoint* last = pts;
     SkRect testRects[2];
-    if (isRectContour(false, &currVerb, &pts)) {
+    if (isRectContour(false, &currVerb, &pts, NULL, NULL)) {
         testRects[0].set(first, last - first);
         testRects[1].set(last, pts - last);
         if (testRects[0].contains(testRects[1])) {
