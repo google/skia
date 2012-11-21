@@ -116,6 +116,12 @@ public:
     size_t freeMemoryIfPossible(size_t bytesToFree);
 
     /**
+     * Specifies the maximum size (in bytes) allowed for a given image to be
+     * rendered using the deferred canvas.
+     */
+    void setBitmapSizeThreshold(size_t sizeThreshold);
+
+    /**
      * Executes all pending commands without drawing
      */
     void silentFlush();
