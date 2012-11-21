@@ -200,7 +200,8 @@ static SkBitmap createBitmap(const SkPath& path) {
 }
 
 bool SkDebugCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
-    addDrawCommand(new ClipPath(path, op, doAA, createBitmap(path)));
+    SkBitmap bitmap = createBitmap(path);
+    addDrawCommand(new ClipPath(path, op, doAA, bitmap));
     return true;
 }
 
@@ -248,7 +249,8 @@ void SkDebugCanvas::drawPaint(const SkPaint& paint) {
 }
 
 void SkDebugCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
-    addDrawCommand(new DrawPath(path, paint, createBitmap(path)));
+    SkBitmap bitmap = createBitmap(path);
+    addDrawCommand(new DrawPath(path, paint, bitmap));
 }
 
 void SkDebugCanvas::drawPicture(SkPicture& picture) {

@@ -170,7 +170,7 @@ class DrawPath : public SkDrawCommand {
 public:
     DrawPath(const SkPath& path, const SkPaint& paint, SkBitmap& bitmap);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
-    virtual const SkBitmap* DrawPath::getBitmap() const SK_OVERRIDE;
+    virtual const SkBitmap* getBitmap() const SK_OVERRIDE;
 
 private:
     const SkPath* fPath;
