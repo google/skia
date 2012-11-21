@@ -145,8 +145,9 @@ static bool drawRectsIntoMask(const SkRect rects[], int count, SkMask* mask) {
     return true;
 }
 
-static bool rect_coordinates_exceed(const SkRect& r, SkScalar v) {
-    return r.fLeft < -v || r.fTop < -v || r.fRight > v || r.fBottom > v;
+static bool rect_exceeds(const SkRect& r, SkScalar v) {
+    return r.fLeft < -v || r.fTop < -v || r.fRight > v || r.fBottom > v ||
+           r.width() > v || r.height() > v;
 }
 
 SkMaskFilter::FilterReturn
@@ -160,7 +161,7 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
 
     // TODO: take clipBounds into account to limit our coordinates up front
     // for now, just skip too-large src rects (to take the old code path).
-    if (rect_coordinates_exceed(rects[0], SkIntToScalar(32767))) {
+    if (rect_exceeds(rects[0], SkIntToScalar(32767))) {
         return kUnimplemented_FilterReturn;
     }
 
