@@ -75,11 +75,12 @@ void Clear::execute(SkCanvas* canvas) {
     canvas->clear(this->fColor);
 }
 
-ClipPath::ClipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
+ClipPath::ClipPath(const SkPath& path, SkRegion::Op op, bool doAA, SkBitmap& bitmap) {
     this->fPath = &path;
     this->fOp = op;
     this->fDoAA = doAA;
     this->fDrawType = CLIP_PATH;
+    this->fBitmap = bitmap;
 
     this->fInfo.push(SkObjectParser::PathToString(path));
     this->fInfo.push(SkObjectParser::RegionOpToString(op));
@@ -88,6 +89,10 @@ ClipPath::ClipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
 
 void ClipPath::execute(SkCanvas* canvas) {
     canvas->clipPath(*this->fPath, this->fOp, this->fDoAA);
+}
+
+const SkBitmap* ClipPath::getBitmap() const {
+    return &fBitmap;
 }
 
 ClipRegion::ClipRegion(const SkRegion& region, SkRegion::Op op) {
@@ -220,9 +225,10 @@ void DrawPaint::execute(SkCanvas* canvas) {
     canvas->drawPaint(*this->fPaint);
 }
 
-DrawPath::DrawPath(const SkPath& path, const SkPaint& paint) {
+DrawPath::DrawPath(const SkPath& path, const SkPaint& paint, SkBitmap& bitmap) {
     this->fPath = &path;
     this->fPaint = &paint;
+    this->fBitmap = bitmap;
     this->fDrawType = DRAW_PATH;
 
     this->fInfo.push(SkObjectParser::PathToString(path));
@@ -231,6 +237,10 @@ DrawPath::DrawPath(const SkPath& path, const SkPaint& paint) {
 
 void DrawPath::execute(SkCanvas* canvas) {
     canvas->drawPath(*this->fPath, *this->fPaint);
+}
+
+const SkBitmap* DrawPath::getBitmap() const {
+    return &fBitmap;
 }
 
 DrawPicture::DrawPicture(SkPicture& picture) {

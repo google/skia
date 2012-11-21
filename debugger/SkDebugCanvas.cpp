@@ -10,6 +10,8 @@
 #include <iostream>
 #include "SkDebugCanvas.h"
 #include "SkDrawCommand.h"
+#include "SkDevice.h"
+#include "SkImageWidget.h"
 
 static SkBitmap make_noconfig_bm(int width, int height) {
     SkBitmap bm;
@@ -165,8 +167,40 @@ void SkDebugCanvas::clear(SkColor color) {
     addDrawCommand(new Clear(color));
 }
 
+static SkBitmap createBitmap(const SkPath& path) {
+    SkBitmap bitmap;
+    bitmap.setConfig(SkBitmap::kARGB_8888_Config, 
+                     SkImageWidget::kImageWidgetWidth, 
+                     SkImageWidget::kImageWidgetHeight);
+    bitmap.allocPixels();
+    bitmap.eraseColor(SK_ColorWHITE);
+    SkDevice* device = new SkDevice(bitmap);
+
+    SkCanvas canvas(device);
+    device->unref();
+
+    const SkRect& bounds = path.getBounds();
+
+    if (bounds.width() > bounds.height()) {
+        canvas.scale(SkDoubleToScalar((0.9*SkImageWidget::kImageWidgetWidth)/bounds.width()), 
+                     SkDoubleToScalar((0.9*SkImageWidget::kImageWidgetHeight)/bounds.width()));
+    } else {
+        canvas.scale(SkDoubleToScalar((0.9*SkImageWidget::kImageWidgetWidth)/bounds.height()), 
+                     SkDoubleToScalar((0.9*SkImageWidget::kImageWidgetHeight)/bounds.height()));
+    }
+    canvas.translate(-bounds.fLeft+2, -bounds.fTop+2);
+
+    SkPaint p;
+    p.setColor(SK_ColorBLACK);
+    p.setStyle(SkPaint::kStroke_Style);
+
+    canvas.drawPath(path, p);
+
+    return bitmap;
+}
+
 bool SkDebugCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
-    addDrawCommand(new ClipPath(path, op, doAA));
+    addDrawCommand(new ClipPath(path, op, doAA, createBitmap(path)));
     return true;
 }
 
@@ -214,7 +248,7 @@ void SkDebugCanvas::drawPaint(const SkPaint& paint) {
 }
 
 void SkDebugCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
-    addDrawCommand(new DrawPath(path, paint));
+    addDrawCommand(new DrawPath(path, paint, createBitmap(path)));
 }
 
 void SkDebugCanvas::drawPicture(SkPicture& picture) {

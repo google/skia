@@ -37,6 +37,8 @@ public:
     virtual void execute(SkCanvas* canvas)=0;
     DrawType getType() { return fDrawType; };
 
+    virtual const SkBitmap* getBitmap() const { return NULL; }
+
     static const char* GetCommandString(DrawType type);
 
 protected:
@@ -63,12 +65,14 @@ private:
 
 class ClipPath : public SkDrawCommand {
 public:
-    ClipPath(const SkPath& path, SkRegion::Op op, bool doAA);
+    ClipPath(const SkPath& path, SkRegion::Op op, bool doAA, SkBitmap& bitmap);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual const SkBitmap* getBitmap() const SK_OVERRIDE;
 private:
     const SkPath* fPath;
     SkRegion::Op fOp;
     bool fDoAA;
+    SkBitmap fBitmap;
 };
 
 class ClipRegion : public SkDrawCommand {
@@ -164,11 +168,14 @@ private:
 
 class DrawPath : public SkDrawCommand {
 public:
-    DrawPath(const SkPath& path, const SkPaint& paint);
+    DrawPath(const SkPath& path, const SkPaint& paint, SkBitmap& bitmap);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual const SkBitmap* DrawPath::getBitmap() const SK_OVERRIDE;
+
 private:
     const SkPath* fPath;
     const SkPaint* fPaint;
+    SkBitmap fBitmap;
 };
 
 class DrawPicture : public SkDrawCommand {
