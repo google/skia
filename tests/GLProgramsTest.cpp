@@ -16,27 +16,25 @@
 #include "GrBackendEffectFactory.h"
 #include "effects/GrConfigConversionEffect.h"
 
-#include "GrRandom.h"
+#include "SkRandom.h"
 #include "Test.h"
 
 namespace {
 
-// GrRandoms nextU() values have patterns in the low bits
+// SkRandoms nextU() values have patterns in the low bits
 // So using nextU() % array_count might never take some values.
-int random_int(GrRandom* r, int count) {
+int random_int(SkRandom* r, int count) {
     return (int)(r->nextF() * count);
 }
 
-bool random_bool(GrRandom* r) {
+bool random_bool(SkRandom* r) {
     return r->nextF() > .5f;
 }
 
-const GrEffect* create_random_effect(GrRandom* random,
+const GrEffect* create_random_effect(SkRandom* random,
                                      GrContext* context,
                                      GrTexture* dummyTextures[]) {
 
-    // The new code uses SkRandom not GrRandom.
-    // TODO: Remove GrRandom.
     SkRandom sk_random;
     sk_random.setSeed(random->nextU());
     GrEffect* effect = GrEffectTestFactory::CreateStage(&sk_random, context, dummyTextures);
@@ -59,7 +57,7 @@ bool GrGpuGL::programUnitTest() {
 
     static const int NUM_TESTS = 512;
 
-    GrRandom random;
+    SkRandom random;
     for (int t = 0; t < NUM_TESTS; ++t) {
 
 #if 0

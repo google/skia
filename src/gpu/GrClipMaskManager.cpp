@@ -242,8 +242,8 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn) {
 #define VISUALIZE_COMPLEX_CLIP 0
 
 #if VISUALIZE_COMPLEX_CLIP
-    #include "GrRandom.h"
-    GrRandom gRandom;
+    #include "SkRandom.h"
+    SkRandom gRandom;
     #define SET_RANDOM_COLOR drawState->setColor(0xff000000 | gRandom.nextU());
 #else
     #define SET_RANDOM_COLOR
