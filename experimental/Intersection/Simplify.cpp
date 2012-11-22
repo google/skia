@@ -3156,7 +3156,7 @@ public:
         fBounds.set(SK_ScalarMax, SK_ScalarMax, SK_ScalarMax, SK_ScalarMax);
         fTs.reset();
     }
-    
+
     // This marks all spans unsortable so that this info is available for early
     // exclusion in find top and others. This could be optimized to only mark
     // adjacent spans that unsortable. However, this makes it difficult to later

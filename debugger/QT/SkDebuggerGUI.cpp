@@ -722,7 +722,7 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fCanvasWidget.setSizePolicy(QSizePolicy::Expanding,
             QSizePolicy::Expanding);
 
-    fImageWidget.setFixedSize(SkImageWidget::kImageWidgetWidth, 
+    fImageWidget.setFixedSize(SkImageWidget::kImageWidgetWidth,
                               SkImageWidget::kImageWidgetHeight);
 
     fInspectorWidget.setSizePolicy(QSizePolicy::Expanding,
