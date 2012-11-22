@@ -395,7 +395,7 @@ static void TestDeferredCanvasBitmapSizeThreshold(skiatest::Reporter* reporter) 
     SkBitmap store;
     store.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
     store.allocPixels();
-    
+
     SkBitmap sourceImage;
     // 100 by 100 image, takes 40,000 bytes in memory
     sourceImage.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);

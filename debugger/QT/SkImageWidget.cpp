@@ -11,7 +11,7 @@
 #include "SkDebugger.h"
 #include "SkImageWidget.h"
 
-SkImageWidget::SkImageWidget(SkDebugger *debugger) 
+SkImageWidget::SkImageWidget(SkDebugger *debugger)
     : QWidget()
     , fDebugger(debugger) {
     this->setStyleSheet("QWidget {background-color: white; border: 1px solid #cccccc;}");

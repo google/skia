@@ -169,8 +169,8 @@ void SkDebugCanvas::clear(SkColor color) {
 
 static SkBitmap createBitmap(const SkPath& path) {
     SkBitmap bitmap;
-    bitmap.setConfig(SkBitmap::kARGB_8888_Config, 
-                     SkImageWidget::kImageWidgetWidth, 
+    bitmap.setConfig(SkBitmap::kARGB_8888_Config,
+                     SkImageWidget::kImageWidgetWidth,
                      SkImageWidget::kImageWidgetHeight);
     bitmap.allocPixels();
     bitmap.eraseColor(SK_ColorWHITE);
@@ -182,10 +182,10 @@ static SkBitmap createBitmap(const SkPath& path) {
     const SkRect& bounds = path.getBounds();
 
     if (bounds.width() > bounds.height()) {
-        canvas.scale(SkDoubleToScalar((0.9*SkImageWidget::kImageWidgetWidth)/bounds.width()), 
+        canvas.scale(SkDoubleToScalar((0.9*SkImageWidget::kImageWidgetWidth)/bounds.width()),
                      SkDoubleToScalar((0.9*SkImageWidget::kImageWidgetHeight)/bounds.width()));
     } else {
-        canvas.scale(SkDoubleToScalar((0.9*SkImageWidget::kImageWidgetWidth)/bounds.height()), 
+        canvas.scale(SkDoubleToScalar((0.9*SkImageWidget::kImageWidgetWidth)/bounds.height()),
                      SkDoubleToScalar((0.9*SkImageWidget::kImageWidgetHeight)/bounds.height()));
     }
     canvas.translate(-bounds.fLeft+2, -bounds.fTop+2);
