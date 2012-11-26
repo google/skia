@@ -6,10 +6,12 @@
  * found in the LICENSE file.
  */
 #include "Test.h"
+#include "GrClipMaskManager.h"
 #include "SkClipStack.h"
 #include "SkPath.h"
+#include "SkRandom.h"
 #include "SkRect.h"
-
+#include "SkRegion.h"
 
 
 static void test_assign_and_comparison(skiatest::Reporter* reporter) {
@@ -640,6 +642,199 @@ static void test_iter_rect_merging(skiatest::Reporter* reporter) {
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+typedef void (*AddElementFunc) (const SkRect& rect, bool aa, SkRegion::Op op, SkClipStack* stack);
+
+static void add_round_rect(const SkRect& rect, bool aa, SkRegion::Op op, SkClipStack* stack) {
+    SkPath path;
+    SkScalar rx = rect.width() / 10;
+    SkScalar ry = rect.width() / 20;
+    path.addRoundRect(rect, rx, ry);
+    stack->clipDevPath(path, op, aa);
+};
+
+static void add_rect(const SkRect& rect, bool aa, SkRegion::Op op, SkClipStack* stack) {
+    stack->clipDevRect(rect, op, aa);
+};
+
+static void add_oval(const SkRect& rect, bool aa, SkRegion::Op op, SkClipStack* stack) {
+    SkPath path;
+    path.addOval(rect);
+    stack->clipDevPath(path, op, aa);
+};
+
+static void add_elem_to_stack(const SkClipStack::Iter::Clip& clip, SkClipStack* stack) {
+    if (NULL != clip.fPath) {
+        stack->clipDevPath(*clip.fPath, clip.fOp, clip.fDoAA);
+    } else if (NULL != clip.fRect) {
+        stack->clipDevRect(*clip.fRect, clip.fOp, clip.fDoAA);
+    }
+}
+
+static void add_elem_to_region(const SkClipStack::Iter::Clip& clip,
+                               const SkIRect& bounds,
+                               SkRegion* region) {
+    SkRegion elemRegion;
+    SkRegion boundsRgn(bounds);
+
+    if (NULL != clip.fPath) {
+        elemRegion.setPath(*clip.fPath, boundsRgn);
+    } else if (NULL != clip.fRect) {
+        SkPath path;
+        path.addRect(*clip.fRect);
+        elemRegion.setPath(path, boundsRgn);
+    } else {
+        // TODO: Figure out why we sometimes get here in the reduced clip stack.
+        region->setEmpty();
+        return;
+    }
+    region->op(elemRegion, clip.fOp);
+}
+
+// This can assist with debugging the clip stack reduction code when the test below fails.
+static void print_clip(const SkClipStack::Iter::Clip& clip) {
+    static const char* kOpStrs[] = {
+        "DF",
+        "IS",
+        "UN",
+        "XR",
+        "RD",
+        "RP",
+    };
+    if (clip.fRect || clip.fPath) {
+        const SkRect& bounds = clip.getBounds();
+        SkDebugf("%s %s [%f %f] x [%f %f]\n",
+                 kOpStrs[clip.fOp],
+                 (clip.fRect ? "R" : "P"),
+                 bounds.fLeft, bounds.fRight, bounds.fTop, bounds.fBottom);
+    } else {
+        SkDebugf("EM\n");
+    }
+}
+
+static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
+    // We construct random clip stacks, reduce them, and then rasterize both versions to verify that
+    // they are equal. 
+
+    // All the clip elements will be contained within these bounds.
+    static const SkRect kBounds = SkRect::MakeWH(100, 100);
+
+    enum {
+        kNumTests = 200,
+        kMinElemsPerTest = 1,
+        kMaxElemsPerTest = 50,
+    };
+
+    // min/max size of a clip element as a fraction of kBounds.
+    static const SkScalar kMinElemSizeFrac = SK_Scalar1 / 5;
+    static const SkScalar kMaxElemSizeFrac = SK_Scalar1;
+
+    static const SkRegion::Op kOps[] = {
+        SkRegion::kDifference_Op,
+        SkRegion::kIntersect_Op,
+        SkRegion::kUnion_Op,
+        SkRegion::kXOR_Op,
+        SkRegion::kReverseDifference_Op,
+        SkRegion::kReplace_Op,
+    };
+
+    // Replace operations short-circuit the optimizer. We want to make sure that we test this code
+    // path a little bit but we don't want it to prevent us from testing many longer traversals in
+    // the optimizer.
+    static const int kReplaceDiv = 4 * kMaxElemsPerTest;
+
+    static const AddElementFunc kElementFuncs[] = {
+        add_rect,
+        add_round_rect,
+        add_oval,
+    };
+
+    SkRandom r;
+
+    for (int i = 0; i < kNumTests; ++i) {
+        // Randomly generate a clip stack.
+        SkClipStack stack;
+        int numElems = r.nextRangeU(kMinElemsPerTest, kMaxElemsPerTest);
+        for (int e = 0; e < numElems; ++e) {
+            SkRegion::Op op = kOps[r.nextULessThan(SK_ARRAY_COUNT(kOps))];
+            if (op == SkRegion::kReplace_Op) {
+                if (r.nextU() % kReplaceDiv) {
+                    --e;
+                    continue;
+                }
+            }
+            
+            // saves can change the clip stack behavior when an element is added.
+            bool doSave = r.nextBool();
+            
+            SkSize size = SkSize::Make(
+                SkScalarFloorToScalar(SkScalarMul(kBounds.width(), r.nextRangeScalar(kMinElemSizeFrac, kMaxElemSizeFrac))),
+                SkScalarFloorToScalar(SkScalarMul(kBounds.height(), r.nextRangeScalar(kMinElemSizeFrac, kMaxElemSizeFrac))));
+
+            SkPoint xy = {SkScalarFloorToScalar(r.nextRangeScalar(kBounds.fLeft, kBounds.fRight - size.fWidth)),
+                          SkScalarFloorToScalar(r.nextRangeScalar(kBounds.fTop, kBounds.fBottom - size.fHeight))};
+
+            SkRect rect = SkRect::MakeXYWH(xy.fX, xy.fY, size.fWidth, size.fHeight);
+
+            // AA is always disabled. The optimizer can cause changes in aa rasterization of the
+            // clip stack. A fractional edge repeated in different elements may be rasterized fewer
+            // times using the reduced stack.
+            kElementFuncs[r.nextULessThan(SK_ARRAY_COUNT(kElementFuncs))](rect, false, op, &stack);
+            if (doSave) {
+                stack.save();
+            }
+        }
+
+        // Get the reduced version of the stack.
+        SkTDArray<SkClipStack::Iter::Clip> reducedClips;
+        SkRect resultBounds;
+        bool bounded;
+        GrReducedClip::InitialState initial;
+        GrReducedClip::GrReduceClipStack(stack, &reducedClips, &resultBounds, &bounded, &initial);
+
+        // Build a new clip stack based on the reduced clip elements
+        SkClipStack reducedStack;
+        if (GrReducedClip::kAllOut_InitialState == initial) {
+            // whether the result is bounded or not, the whole plane should start outside the clip.
+            reducedStack.clipEmpty();
+        }
+        for (int c = 0; c < reducedClips.count(); ++c) {
+            add_elem_to_stack(reducedClips[c], &reducedStack);
+        }
+        if (bounded) {
+            // GrReduceClipStack() assumes that there is an implicit clip to the bounds
+            reducedStack.clipDevRect(resultBounds, SkRegion::kIntersect_Op, true);
+        }
+
+        // convert both the original stack and reduced stack to SkRegions and see if they're equal
+        SkRect inflatedBounds = kBounds;
+        inflatedBounds.outset(kBounds.width() / 2, kBounds.height() / 2);
+        SkIRect inflatedIBounds;
+        inflatedBounds.roundOut(&inflatedIBounds);
+
+        SkRegion region;
+        SkRegion reducedRegion;
+
+        region.setRect(inflatedIBounds);
+        const SkClipStack::Iter::Clip* clip;
+        SkClipStack::Iter iter(stack, SkClipStack::Iter::kBottom_IterStart);
+        while ((clip = iter.next())) {
+            add_elem_to_region(*clip, inflatedIBounds, &region);
+        }
+
+        reducedRegion.setRect(inflatedIBounds);
+        iter.reset(reducedStack, SkClipStack::Iter::kBottom_IterStart);
+        while ((clip = iter.next())) {
+            add_elem_to_region(*clip, inflatedIBounds, &reducedRegion);
+        }
+
+        REPORTER_ASSERT(reporter, region == reducedRegion);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 static void TestClipStack(skiatest::Reporter* reporter) {
     SkClipStack stack;
 
@@ -681,6 +876,7 @@ static void TestClipStack(skiatest::Reporter* reporter) {
     test_isWideOpen(reporter);
     test_rect_merging(reporter);
     test_iter_rect_merging(reporter);
+    test_reduced_clip_stack(reporter);
 }
 
 #include "TestClassDef.h"

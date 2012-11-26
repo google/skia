@@ -131,13 +131,25 @@ public:
 
         struct Clip {
             Clip() : fRect(NULL), fPath(NULL), fOp(SkRegion::kIntersect_Op),
-                     fDoAA(false) {}
+                     fDoAA(false), fGenID(kInvalidGenID) {}
             friend bool operator==(const Clip& a, const Clip& b);
             friend bool operator!=(const Clip& a, const Clip& b);
             /**
-             * Gets the bounds of the clip element, either the rect or path bounds.
+             * Gets the bounds of the clip element, either the rect or path bounds. (Whether the
+             * shape is inverse filled is not considered)
              */
             const SkRect& getBounds() const;
+
+            /**
+             * Conservatively checks whether the clip shape (rect/path) contains the rect param.
+             * (Whether the shape is inverse filled is not considered)
+             */
+            bool contains(const SkRect&) const;
+
+            /**
+             * Is the clip shape inverse filled.
+             */
+            bool isInverseFilled() const;
 
             const SkRect*   fRect;  // if non-null, this is a rect clip
             const SkPath*   fPath;  // if non-null, this is a path clip

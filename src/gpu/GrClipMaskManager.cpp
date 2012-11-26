@@ -25,6 +25,320 @@ GR_DEFINE_RESOURCE_CACHE_DOMAIN(GrClipMaskManager, GetAlphaMaskDomain)
 #define GR_SW_CLIP 1
 
 ////////////////////////////////////////////////////////////////////////////////
+
+namespace GrReducedClip {
+
+/*
+There are plenty of optimizations that could be added here. For example we could consider
+checking for cases where an inverse path can be changed to a regular fill with a different op.
+(e.g. [kIntersect, inverse path] -> [kDifference, path]). Maybe flips could be folded into
+earlier operations. Or would inserting flips and reversing earlier ops ever be a win? Perhaps
+for the case where the bounds are kInsideOut_BoundsType. We could restrict earlier operations
+based on later intersect operations, and perhaps remove intersect-rects. We could optionally
+take a rect in case the caller knows a bound on what is to be drawn through this clip.
+*/
+void GrReduceClipStack(const SkClipStack& stack,
+                       SkTDArray<SkClipStack::Iter::Clip>* resultClips,
+                       SkRect* resultBounds,
+                       bool* resultsAreBounded,
+                       InitialState* initialState) {
+    resultClips->reset();
+
+    if (stack.isWideOpen()) {
+        *initialState = kAllIn_InitialState;
+        *resultsAreBounded = false;
+        return;
+    }
+
+    SkClipStack::BoundsType type;
+    bool iior;
+    stack.getBounds(resultBounds, &type, &iior);
+    if (iior) {
+        *resultsAreBounded = true;
+        *initialState = kAllOut_InitialState;
+        SkClipStack::Iter::Clip* clip = resultClips->append();
+        // append doesn't call the default cons.
+        *clip = SkClipStack::Iter::Clip();
+
+        // iior should only be true if aa/non-aa status matches.
+        SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
+        clip->fDoAA = iter.prev()->fDoAA;
+        clip->fOp = SkRegion::kReplace_Op;
+        clip->fRect = resultBounds;
+        return;
+    }
+
+    *resultsAreBounded = SkClipStack::kNormal_BoundsType == type && !resultBounds->isEmpty();
+
+    // walk backwards until we get to:
+    //  a) the beginning
+    //  b) an operation that is known to make the bounds all inside/outside
+    //  c) a replace operation    
+
+    static const InitialState kUnknown_InitialState = static_cast<InitialState>(-1);
+    *initialState = kUnknown_InitialState;
+
+    // During our backwards walk, track whether we've seen ops that either grow or shrink the clip.
+    // TODO: track these per saved clip so that we can consider them on the forward pass.
+    bool embiggens = false;
+    bool emsmallens = false;
+
+    SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
+    while ((kUnknown_InitialState == *initialState)) {
+        const SkClipStack::Iter::Clip* clip = iter.prev();
+        if (NULL == clip) {
+            *initialState = kAllIn_InitialState;
+            break;
+        }
+        if (!embiggens && SkClipStack::kEmptyGenID == clip->fGenID) {
+            *initialState = kAllOut_InitialState;
+            break;
+        }
+        if (!emsmallens && SkClipStack::kWideOpenGenID == clip->fGenID) {
+            *initialState = kAllIn_InitialState;
+            break;
+        }
+
+        bool skippable = false;
+        bool isFlip = false; // does this op just flip the in/out state of every point in the bounds
+
+        switch (clip->fOp) {
+            case SkRegion::kDifference_Op:
+                if (*resultsAreBounded) {
+                    // check if the shape subtracted either contains the entire bounds (and makes
+                    // the clip empty) or is outside the bounds and therefore can be skipped.
+                    if (clip->isInverseFilled()) {
+                        if (clip->contains(*resultBounds)) {
+                            skippable = true;
+                        } else if (!SkRect::Intersects(clip->getBounds(), *resultBounds)) {
+                            *initialState = kAllOut_InitialState;
+                            skippable = true;
+                        }
+                    } else {
+                        if (clip->contains(*resultBounds)) {
+                            *initialState = kAllOut_InitialState;
+                            skippable = true;
+                        } else if (!SkRect::Intersects(clip->getBounds(), *resultBounds)) {
+                            skippable = true;
+                        }
+                    }
+                }
+                if (!skippable) {
+                    emsmallens = true;
+                }
+                break;
+            case SkRegion::kIntersect_Op:
+                if (*resultsAreBounded) {
+                    // check if the shape intersected contains the entire bounds and therefore can
+                    // be skipped or it is outside the entire bounds and therfore makes the clip
+                    // empty.
+                    if (clip->isInverseFilled()) {
+                        if (clip->contains(*resultBounds)) {
+                            *initialState = kAllOut_InitialState;
+                            skippable = true;
+                        } else if (!SkRect::Intersects(clip->getBounds(), *resultBounds)) {
+                            skippable = true;
+                        }
+                    } else {
+                        if (clip->contains(*resultBounds)) {
+                            skippable = true;
+                        } else if (!SkRect::Intersects(clip->getBounds(), *resultBounds)) {
+                            *initialState = kAllOut_InitialState;
+                            skippable = true;
+                        }
+                    }
+                }
+                if (!skippable) {
+                    emsmallens = true;
+                }
+                break;
+            case SkRegion::kUnion_Op:
+                if (*resultsAreBounded) {
+                    // If the unioned shape contains the entire bounds then after this element
+                    // the bounds is entirely inside the clip. If the unioned shape is outside the
+                    // bounds then this op can be skipped.
+                    if (clip->isInverseFilled()) {
+                        if (clip->contains(*resultBounds)) {
+                            skippable = true;
+                        } else if (!SkRect::Intersects(clip->getBounds(), *resultBounds)) {
+                            *initialState = kAllIn_InitialState;
+                            skippable = true;
+                        }
+                    } else {
+                        if (clip->contains(*resultBounds)) {
+                            *initialState = kAllIn_InitialState;
+                            skippable = true;
+                        } else if (!SkRect::Intersects(clip->getBounds(), *resultBounds)) {
+                            skippable = true;
+                        }
+                    }
+                }
+                if (!skippable) {
+                    embiggens = true;
+                }
+                break;
+            case SkRegion::kXOR_Op:
+                if (*resultsAreBounded) {
+                    if (clip->isInverseFilled()) {
+                        if (clip->contains(*resultBounds)) {
+                            skippable = true;
+                        } else if (!SkRect::Intersects(clip->getBounds(), *resultBounds)) {
+                            isFlip = true;
+                        }
+                    } else {
+                        if (clip->contains(*resultBounds)) {
+                            isFlip = true;
+                        } else if (!SkRect::Intersects(clip->getBounds(), *resultBounds)) {
+                            skippable = true;
+                        }
+                    }
+                }
+                if (!skippable) {
+                    emsmallens = embiggens = true;
+                }
+                break;
+            case SkRegion::kReverseDifference_Op:
+                if (*resultsAreBounded) {
+                    if (clip->isInverseFilled()) {
+                        if (clip->contains(*resultBounds)) {
+                            *initialState = kAllOut_InitialState;
+                            skippable = true;
+                        } else if (!SkRect::Intersects(clip->getBounds(), *resultBounds)) {
+                            isFlip = true;
+                        }
+                    } else {
+                        if (clip->contains(*resultBounds)) {
+                            isFlip = true;
+                        } else if (!SkRect::Intersects(clip->getBounds(), *resultBounds)) {
+                            *initialState = kAllOut_InitialState;
+                            skippable = true;
+                        }
+                    }
+                }
+                if (!skippable) {
+                    emsmallens = embiggens = true;
+                }
+                break;
+            case SkRegion::kReplace_Op:
+                if (*resultsAreBounded) {
+                    if (clip->isInverseFilled()) {
+                        if (clip->contains(*resultBounds)) {
+                            *initialState = kAllOut_InitialState;
+                            skippable = true;
+                        } else if (!SkRect::Intersects(clip->getBounds(), *resultBounds)) {
+                            *initialState = kAllIn_InitialState;
+                            skippable = true;
+                        }
+                    } else {
+                        if (clip->contains(*resultBounds)) {
+                            *initialState = kAllIn_InitialState;
+                            skippable = true;
+                        } else if (!SkRect::Intersects(clip->getBounds(), *resultBounds)) {
+                            *initialState = kAllOut_InitialState;
+                            skippable = true;
+                        }
+                    }
+                }
+                if (!skippable) {
+                    *initialState = kAllOut_InitialState;
+                    embiggens = emsmallens = true;
+                }
+                break;
+            default:
+                SkDEBUGFAIL("Unexpected op.");
+                break;
+        }
+        if (!skippable) {
+            SkClipStack::Iter::Clip* newClip = resultClips->prepend();
+            // if it is a flip, change it to a bounds-filling rect
+            if (isFlip) {
+                SkASSERT(SkRegion::kXOR_Op == clip->fOp || 
+                         SkRegion::kReverseDifference_Op == clip->fOp);
+                newClip->fPath = NULL;
+                newClip->fRect = resultBounds;
+                // assuming this is faster to perform on GPU with stenciling than xor.
+                newClip->fOp = SkRegion::kReverseDifference_Op;
+                newClip->fDoAA = false;
+                newClip->fGenID = SkClipStack::kInvalidGenID;
+            } else {
+                *newClip = *clip;
+            }
+        }
+    }
+
+    if ((kAllOut_InitialState == *initialState && !embiggens) ||
+        (kAllIn_InitialState == *initialState && !emsmallens)) {
+        resultClips->reset();
+    } else {
+        int clipsToSkip = 0;
+        while (1) {
+            SkClipStack::Iter::Clip* clip = &(*resultClips)[clipsToSkip];
+            bool skippable = false;
+            switch (clip->fOp) {
+                case SkRegion::kDifference_Op:
+                    skippable = kAllOut_InitialState == *initialState;
+                    break;
+                case SkRegion::kIntersect_Op:
+                    skippable = kAllOut_InitialState == *initialState;
+                    break;
+                case SkRegion::kUnion_Op:
+                    if (kAllIn_InitialState == *initialState) {
+                        // unioning the infinite plane with anything is a no-op.
+                        skippable = true;
+                    } else {
+                        // unioning the empty set with a shape is the shape.
+                        clip->fOp = SkRegion::kReplace_Op;
+                    }
+                    break;
+                case SkRegion::kXOR_Op:
+                    if (kAllOut_InitialState == *initialState) {
+                        // xor could be changed to diff in the kAllIn case, not sure it's a win.
+                        clip->fOp = SkRegion::kReplace_Op;
+                    }
+                    break;
+                case SkRegion::kReverseDifference_Op:
+                    if (kAllIn_InitialState == *initialState) {
+                        // subtracting the whole plane will yield the empty set.
+                        skippable = true;
+                        *initialState = kAllOut_InitialState;
+                    } else {
+                        // this picks up flips inserted in the backwards pass.
+                        if (*resultsAreBounded && NULL != clip->fRect) {
+                            skippable = clip->isInverseFilled() ?
+                                !SkRect::Intersects(clip->getBounds(), *resultBounds) :
+                                clip->contains(*resultBounds);
+                        }
+                        if (skippable) {
+                            *initialState = kAllIn_InitialState;
+                        } else {
+                            clip->fOp = SkRegion::kReplace_Op;
+                        }
+                    }
+                    break;
+                case SkRegion::kReplace_Op:
+                    SkASSERT(!clipsToSkip); // replace should always be the first op
+                    skippable = false; // we would have skipped it in the backwards walk if we
+                                       // could've.
+                    break;
+                default:
+                    SkDEBUGFAIL("Unexpected op.");
+                    break;
+            }
+            if (!skippable) {
+                break;
+            } else {
+                ++clipsToSkip;
+                if (clipsToSkip == resultClips->count()) {
+                    break;
+                }
+            }
+        }
+        resultClips->remove(0, clipsToSkip);
+    }
+}
+} // namespace GrReducedClip
+
+////////////////////////////////////////////////////////////////////////////////
 namespace {
 // set up the draw state to enable the aa clipping mask. Besides setting up the
 // stage matrix this also alters the vertex layout

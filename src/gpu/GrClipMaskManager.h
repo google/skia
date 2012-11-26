@@ -157,4 +157,29 @@ private:
     typedef GrNoncopyable INHERITED;
 };
 
+
+namespace GrReducedClip {
+
+enum InitialState {
+    kAllIn_InitialState,
+    kAllOut_InitialState,
+};
+
+/** This function takes a clip stack and produces a reduced set of SkClipStack::Iter::Clip elements
+ *  in param clips that are equivalent to the full stack. If a finite bound for the area inside the
+ *  clip can be determined resultsAreBounds will be true and resultBounds will be those bounds. When
+ *  the results are bounded it is assumed that the caller will restrict the effect of each operation
+ *  to the bounds or intersect with the bounds as a final step. The initial state of the bounds (or
+ *  the unbounded plane when resultsArBounded is false) before the first element of clips is applied
+ *  is returned via initialState. This function is declared here so that it can be unit-tested. It
+ *  may become a member function of SkClipStack when its interface is determined to be stable.
+ */
+void GrReduceClipStack(const SkClipStack& stack,
+                       SkTDArray<SkClipStack::Iter::Clip>* resultClips,
+                       SkRect* resultBounds,
+                       bool* resultsAreBounded,
+                       InitialState* initialState);
+
+} // namespace GrReducedClip
+
 #endif // GrClipMaskManager_DEFINED
