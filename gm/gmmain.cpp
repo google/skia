@@ -155,12 +155,13 @@ struct ConfigData {
 
 class BWTextDrawFilter : public SkDrawFilter {
 public:
-    virtual void filter(SkPaint*, Type) SK_OVERRIDE;
+    virtual bool filter(SkPaint*, Type) SK_OVERRIDE;
 };
-void BWTextDrawFilter::filter(SkPaint* p, Type t) {
+bool BWTextDrawFilter::filter(SkPaint* p, Type t) {
     if (kText_Type == t) {
         p->setAntiAlias(false);
     }
+    return true;
 }
 
 struct PipeFlagComboData {
