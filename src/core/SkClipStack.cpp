@@ -735,6 +735,20 @@ const SkRect& SkClipStack::Iter::Clip::getBounds() const {
     }
 }
 
+bool SkClipStack::Iter::Clip::contains(const SkRect& rect) const {
+    if (NULL != fRect) {
+        return fRect->contains(rect);
+    } else if (NULL != fPath) {
+        return fPath->conservativelyContainsRect(rect);
+    } else {
+        return false;
+    }
+}
+
+bool SkClipStack::Iter::Clip::isInverseFilled() const {
+    return NULL != fPath && fPath->isInverseFillType();
+}
+
 SkClipStack::Iter::Iter(const SkClipStack& stack, IterStart startLoc)
     : fStack(&stack) {
     this->reset(stack, startLoc);
