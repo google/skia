@@ -872,12 +872,17 @@ void SkPath::close() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static void assert_known_direction(int dir) {
+    SkASSERT(SkPath::kCW_Direction == dir || SkPath::kCCW_Direction == dir);
+}
+
 void SkPath::addRect(const SkRect& rect, Direction dir) {
     this->addRect(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, dir);
 }
 
 void SkPath::addRect(SkScalar left, SkScalar top, SkScalar right,
                      SkScalar bottom, Direction dir) {
+    assert_known_direction(dir);
     fDirection = this->hasOnlyMoveTos() ? dir : kUnknown_Direction;
     SkAutoDisableDirectionCheck addc(this);
 
@@ -938,6 +943,8 @@ void SkPath::addPoly(const SkPoint pts[], int count, bool close) {
 
 void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                           Direction dir) {
+    assert_known_direction(dir);
+
     SkScalar    w = rect.width();
     SkScalar    halfW = SkScalarHalf(w);
     SkScalar    h = rect.height();
@@ -1058,6 +1065,8 @@ static void add_corner_arc(SkPath* path, const SkRect& rect,
 
 void SkPath::addRoundRect(const SkRect& rect, const SkScalar rad[],
                           Direction dir) {
+    assert_known_direction(dir);
+
     // abort before we invoke SkAutoPathBoundsUpdate()
     if (rect.isEmpty()) {
         return;
@@ -1094,6 +1103,8 @@ bool SkPath::hasOnlyMoveTos() const {
 }
 
 void SkPath::addOval(const SkRect& oval, Direction dir) {
+    assert_known_direction(dir);
+
     /* If addOval() is called after previous moveTo(),
        this path is still marked as an oval. This is used to
        fit into WebKit's calling sequences.

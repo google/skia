@@ -375,6 +375,7 @@ static void test_direction(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !path.cheapComputeDirection(NULL));
     REPORTER_ASSERT(reporter, !path.cheapIsDirection(SkPath::kCW_Direction));
     REPORTER_ASSERT(reporter, !path.cheapIsDirection(SkPath::kCCW_Direction));
+    REPORTER_ASSERT(reporter, path.cheapIsDirection(SkPath::kUnknown_Direction));
 
     static const char* gDegen[] = {
         "M 10 10",
