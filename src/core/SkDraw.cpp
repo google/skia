@@ -727,12 +727,6 @@ void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
     SkPoint strokeSize;
     RectType rtype = ComputeRectType(paint, *fMatrix, &strokeSize);
 
-#ifdef SK_DISABLE_FAST_AA_STROKE_RECT
-    if (kStroke_RectType == rtype && paint.isAntiAlias()) {
-        rtype = kPath_RectType;
-    }
-#endif
-
     if (kPath_RectType == rtype) {
         SkPath  tmp;
         tmp.addRect(rect);

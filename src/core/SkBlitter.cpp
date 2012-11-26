@@ -871,7 +871,6 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
         }
     }
 
-#ifndef SK_IGNORE_FAST_SRCMODE
     /*
      *  If the xfermode is CLEAR, then we can completely ignore the installed
      *  color/shader/colorfilter, and just pretend we're SRC + color==0. This
@@ -884,14 +883,9 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
         mode = p->setXfermodeMode(SkXfermode::kSrc_Mode);
         p->setColor(0);
     }
-#endif
 
     if (NULL == shader) {
-#ifdef SK_IGNORE_CF_OPTIMIZATION
-        if (mode || cf) {
-#else
         if (mode) {
-#endif
             // xfermodes (and filters) require shaders for our current blitters
             shader = SkNEW(SkColorShader);
             paint.writable()->setShader(shader)->unref();

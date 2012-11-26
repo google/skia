@@ -160,13 +160,6 @@ static inline uint32_t getSkipableSize(unsigned drawType) {
  *  the restore() call. If we still need the restore(), return false.
  */
 static bool collapseSaveClipRestore(SkWriter32* writer, int32_t offset) {
-    // Some unexplained crashes in Chrome may be caused by this. Disabling
-    // for now to see if it helps.
-    // crbug.com/147406
-#ifdef SK_DISABLE_PICTURE_PEEPHOLE_OPTIMIZATION
-    return false;
-#endif
-
 #ifdef TRACK_COLLAPSE_STATS
     gCollapseCalls += 1;
 #endif

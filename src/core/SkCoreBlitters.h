@@ -130,9 +130,7 @@ public:
     SkARGB32_Shader_Blitter(const SkBitmap& device, const SkPaint& paint);
     virtual ~SkARGB32_Shader_Blitter();
     virtual void blitH(int x, int y, int width) SK_OVERRIDE;
-#ifndef SK_IGNORE_FAST_SRCMODE
     virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE;
-#endif
     virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
     virtual void blitAntiH(int x, int y, const SkAlpha[], const int16_t[]) SK_OVERRIDE;
     virtual void blitMask(const SkMask&, const SkIRect&) SK_OVERRIDE;

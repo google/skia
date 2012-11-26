@@ -263,7 +263,6 @@ void SkARGB32_Black_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SK_IGNORE_FAST_SRCMODE
 // Special version of SkBlitRow::Factory32 that knows we're in kSrc_Mode,
 // instead of kSrcOver_Mode
 static void blend_srcmode(SkPMColor* SK_RESTRICT device,
@@ -274,7 +273,6 @@ static void blend_srcmode(SkPMColor* SK_RESTRICT device,
         device[i] = SkFourByteInterp256(span[i], device[i], aa256);
     }
 }
-#endif
 
 SkARGB32_Shader_Blitter::SkARGB32_Shader_Blitter(const SkBitmap& device,
                             const SkPaint& paint) : INHERITED(device, paint) {
@@ -298,7 +296,6 @@ SkARGB32_Shader_Blitter::SkARGB32_Shader_Blitter(const SkBitmap& device,
             fShadeDirectlyIntoDevice = true;
         }
     } else {
-#ifndef SK_IGNORE_FAST_SRCMODE
         SkXfermode::Mode mode;
         if (fXfermode->asMode(&mode)) {
             if (SkXfermode::kSrc_Mode == mode) {
@@ -306,7 +303,6 @@ SkARGB32_Shader_Blitter::SkARGB32_Shader_Blitter(const SkBitmap& device,
                 fProc32Blend = blend_srcmode;
             }
         }
-#endif
     }
 
     fConstInY = SkToBool(fShader->getFlags() & SkShader::kConstInY32_Flag);
@@ -543,7 +539,6 @@ void SkARGB32_Shader_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) 
     }
 }
 
-#ifndef SK_IGNORE_FAST_SRCMODE
 void SkARGB32_Shader_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
     SkASSERT(x >= 0 && y >= 0 && y + height <= fDevice.height());
 
@@ -641,4 +636,4 @@ void SkARGB32_Shader_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
         }
     }
 }
-#endif
+
