@@ -105,48 +105,56 @@ private:
 class DrawBitmap : public SkDrawCommand {
 public:
     DrawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
-            const SkPaint* paint);
+            const SkPaint* paint, SkBitmap& resizedBitmap);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual const SkBitmap* getBitmap() const SK_OVERRIDE;
 private:
     const SkPaint* fPaint;
     const SkBitmap* fBitmap;
     SkScalar fLeft;
     SkScalar fTop;
+    SkBitmap fResizedBitmap;
 };
 
 class DrawBitmapMatrix : public SkDrawCommand {
 public:
     DrawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& matrix,
-            const SkPaint* paint);
+            const SkPaint* paint, SkBitmap& resizedBitmap);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual const SkBitmap* getBitmap() const SK_OVERRIDE;
 private:
     const SkPaint* fPaint;
     const SkBitmap* fBitmap;
     const SkMatrix* fMatrix;
+    SkBitmap fResizedBitmap;
 };
 
 class DrawBitmapNine : public SkDrawCommand {
 public:
     DrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
-            const SkRect& dst, const SkPaint* paint);
+            const SkRect& dst, const SkPaint* paint, SkBitmap& resizedBitmap);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual const SkBitmap* getBitmap() const SK_OVERRIDE;
 private:
     const SkBitmap* fBitmap;
     const SkIRect* fCenter;
     const SkRect* fDst;
     const SkPaint* fPaint;
+    SkBitmap fResizedBitmap;
 };
 
 class DrawBitmapRect : public SkDrawCommand {
 public:
     DrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
-            const SkRect& dst, const SkPaint* paint);
+            const SkRect& dst, const SkPaint* paint, SkBitmap& resizedBitmap);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual const SkBitmap* getBitmap() const SK_OVERRIDE;
 private:
     const SkRect* fSrc;
     const SkPaint* fPaint;
     const SkBitmap* fBitmap;
     const SkRect* fDst;
+    SkBitmap fResizedBitmap;
 };
 
 class DrawData : public SkDrawCommand {
@@ -263,13 +271,16 @@ private:
 
 class DrawSprite : public SkDrawCommand {
 public:
-    DrawSprite(const SkBitmap& bitmap, int left, int top, const SkPaint* paint);
+    DrawSprite(const SkBitmap& bitmap, int left, int top, const SkPaint* paint,
+               SkBitmap& resizedBitmap);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual const SkBitmap* getBitmap() const SK_OVERRIDE;
 private:
     const SkPaint* fPaint;
     int fLeft;
     int fTop;
     const SkBitmap* fBitmap;
+    SkBitmap fResizedBitmap;
 };
 
 class DrawVertices : public SkDrawCommand {
