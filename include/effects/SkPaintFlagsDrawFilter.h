@@ -14,8 +14,7 @@ class SK_API SkPaintFlagsDrawFilter : public SkDrawFilter {
 public:
     SkPaintFlagsDrawFilter(uint32_t clearFlags, uint32_t setFlags);
 
-    // overrides
-    virtual void filter(SkPaint*, Type);
+    virtual bool filter(SkPaint*, Type) SK_OVERRIDE;
 
 private:
     uint16_t    fClearFlags;    // user specified

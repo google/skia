@@ -58,7 +58,7 @@ public:
     FlagsDrawFilter(PictureRenderer::DrawFilterFlags* flags) :
         fFlags(flags) {}
 
-    virtual void filter(SkPaint* paint, Type t) {
+    virtual bool filter(SkPaint* paint, Type t) {
         paint->setFlags(paint->getFlags() & ~fFlags[t] & SkPaint::kAllFlags);
         if ((PictureRenderer::kBlur_DrawFilterFlag | PictureRenderer::kLowBlur_DrawFilterFlag)
                 & fFlags[t]) {
@@ -78,6 +78,7 @@ public:
         } else if (PictureRenderer::kSlightHinting_DrawFilterFlag & fFlags[t]) {
             paint->setHinting(SkPaint::kSlight_Hinting);
         }
+        return true;
     }
 
 private:
