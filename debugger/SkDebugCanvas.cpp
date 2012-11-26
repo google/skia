@@ -199,6 +199,48 @@ static SkBitmap createBitmap(const SkPath& path) {
     return bitmap;
 }
 
+static SkBitmap createBitmap(const SkBitmap& input, const SkRect* srcRect) {
+    SkBitmap bitmap;
+    bitmap.setConfig(SkBitmap::kARGB_8888_Config, 
+                     SkImageWidget::kImageWidgetWidth, 
+                     SkImageWidget::kImageWidgetHeight);
+    bitmap.allocPixels();
+    bitmap.eraseColor(SK_ColorLTGRAY);
+    SkDevice* device = new SkDevice(bitmap);
+
+    SkCanvas canvas(device);
+    device->unref();
+
+    SkScalar xScale = (SkImageWidget::kImageWidgetWidth-2.0) / input.width();
+    SkScalar yScale = (SkImageWidget::kImageWidgetHeight-2.0) / input.height();
+
+    if (input.width() > input.height()) {
+        yScale *= input.height() / (float) input.width();
+    } else {
+        xScale *= input.width() / (float) input.height();
+    }
+
+    SkRect dst = SkRect::MakeXYWH(SK_Scalar1, SK_Scalar1, 
+                                  xScale * input.width(),
+                                  yScale * input.height());
+
+    canvas.drawBitmapRect(input, NULL, dst);
+
+    if (NULL != srcRect) {
+        SkRect r = SkRect::MakeLTRB(srcRect->fLeft * xScale + SK_Scalar1,
+                                    srcRect->fTop * yScale + SK_Scalar1,
+                                    srcRect->fRight * xScale + SK_Scalar1,
+                                    srcRect->fBottom * yScale + SK_Scalar1);
+        SkPaint p;
+        p.setColor(SK_ColorRED);
+        p.setStyle(SkPaint::kStroke_Style);
+
+        canvas.drawRect(r, p);
+    }
+
+    return bitmap;
+}
+
 bool SkDebugCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     SkBitmap bitmap = createBitmap(path);
     addDrawCommand(new ClipPath(path, op, doAA, bitmap));
@@ -222,22 +264,26 @@ bool SkDebugCanvas::concat(const SkMatrix& matrix) {
 
 void SkDebugCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar left,
         SkScalar top, const SkPaint* paint = NULL) {
-    addDrawCommand(new DrawBitmap(bitmap, left, top, paint));
+    SkBitmap resizedBitmap = createBitmap(bitmap, NULL);
+    addDrawCommand(new DrawBitmap(bitmap, left, top, paint, resizedBitmap));
 }
 
 void SkDebugCanvas::drawBitmapRectToRect(const SkBitmap& bitmap,
         const SkRect* src, const SkRect& dst, const SkPaint* paint) {
-    addDrawCommand(new DrawBitmapRect(bitmap, src, dst, paint));
+    SkBitmap resizedBitmap = createBitmap(bitmap, src);
+    addDrawCommand(new DrawBitmapRect(bitmap, src, dst, paint, resizedBitmap));
 }
 
 void SkDebugCanvas::drawBitmapMatrix(const SkBitmap& bitmap,
         const SkMatrix& matrix, const SkPaint* paint) {
-    addDrawCommand(new DrawBitmapMatrix(bitmap, matrix, paint));
+    SkBitmap resizedBitmap = createBitmap(bitmap, NULL);
+    addDrawCommand(new DrawBitmapMatrix(bitmap, matrix, paint, resizedBitmap));
 }
 
 void SkDebugCanvas::drawBitmapNine(const SkBitmap& bitmap,
         const SkIRect& center, const SkRect& dst, const SkPaint* paint) {
-    addDrawCommand(new DrawBitmapNine(bitmap, center, dst, paint));
+    SkBitmap resizedBitmap = createBitmap(bitmap, NULL);
+    addDrawCommand(new DrawBitmapNine(bitmap, center, dst, paint, resizedBitmap));
 }
 
 void SkDebugCanvas::drawData(const void* data, size_t length) {
@@ -279,7 +325,8 @@ void SkDebugCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
 
 void SkDebugCanvas::drawSprite(const SkBitmap& bitmap, int left, int top,
         const SkPaint* paint = NULL) {
-    addDrawCommand(new DrawSprite(bitmap, left, top, paint));
+    SkBitmap resizedBitmap = createBitmap(bitmap, NULL);
+    addDrawCommand(new DrawSprite(bitmap, left, top, paint, resizedBitmap));
 }
 
 void SkDebugCanvas::drawText(const void* text, size_t byteLength, SkScalar x,

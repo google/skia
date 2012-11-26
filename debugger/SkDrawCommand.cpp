@@ -135,12 +135,13 @@ void Concat::execute(SkCanvas* canvas) {
 }
 
 DrawBitmap::DrawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
-        const SkPaint* paint) {
+        const SkPaint* paint, SkBitmap& resizedBitmap) {
     this->fBitmap = &bitmap;
     this->fLeft = left;
     this->fTop = top;
     this->fPaint = paint;
     this->fDrawType = DRAW_BITMAP;
+    this->fResizedBitmap = resizedBitmap;
 
     this->fInfo.push(SkObjectParser::BitmapToString(bitmap));
     this->fInfo.push(SkObjectParser::ScalarToString(left, "SkScalar left: "));
@@ -151,12 +152,17 @@ void DrawBitmap::execute(SkCanvas* canvas) {
     canvas->drawBitmap(*this->fBitmap, this->fLeft, this->fTop, this->fPaint);
 }
 
+const SkBitmap* DrawBitmap::getBitmap() const {
+    return &fResizedBitmap;
+}
+
 DrawBitmapMatrix::DrawBitmapMatrix(const SkBitmap& bitmap,
-        const SkMatrix& matrix, const SkPaint* paint) {
+        const SkMatrix& matrix, const SkPaint* paint, SkBitmap& resizedBitmap) {
     this->fBitmap = &bitmap;
     this->fMatrix = &matrix;
     this->fPaint = paint;
     this->fDrawType = DRAW_BITMAP_MATRIX;
+    this->fResizedBitmap = resizedBitmap;
 
     this->fInfo.push(SkObjectParser::BitmapToString(bitmap));
     this->fInfo.push(SkObjectParser::MatrixToString(matrix));
@@ -167,13 +173,18 @@ void DrawBitmapMatrix::execute(SkCanvas* canvas) {
     canvas->drawBitmapMatrix(*this->fBitmap, *this->fMatrix, this->fPaint);
 }
 
+const SkBitmap* DrawBitmapMatrix::getBitmap() const {
+    return &fResizedBitmap;
+}
+
 DrawBitmapNine::DrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
-        const SkRect& dst, const SkPaint* paint) {
+        const SkRect& dst, const SkPaint* paint, SkBitmap& resizedBitmap) {
     this->fBitmap = &bitmap;
     this->fCenter = &center;
     this->fDst = &dst;
     this->fPaint = paint;
     this->fDrawType = DRAW_BITMAP_NINE;
+    this->fResizedBitmap = resizedBitmap;
 
     this->fInfo.push(SkObjectParser::BitmapToString(bitmap));
     this->fInfo.push(SkObjectParser::IRectToString(center));
@@ -185,13 +196,18 @@ void DrawBitmapNine::execute(SkCanvas* canvas) {
     canvas->drawBitmapNine(*this->fBitmap, *this->fCenter, *this->fDst, this->fPaint);
 }
 
+const SkBitmap* DrawBitmapNine::getBitmap() const {
+    return &fResizedBitmap;
+}
+
 DrawBitmapRect::DrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
-        const SkRect& dst, const SkPaint* paint) {
+        const SkRect& dst, const SkPaint* paint, SkBitmap& resizedBitmap) {
     this->fBitmap = &bitmap;
     this->fSrc = src;
     this->fDst = &dst;
     this->fPaint = paint;
     this->fDrawType = DRAW_BITMAP_RECT_TO_RECT;
+    this->fResizedBitmap = resizedBitmap;
 
     this->fInfo.push(SkObjectParser::BitmapToString(bitmap));
     if (src) this->fInfo.push(SkObjectParser::RectToString(*src, "Src: "));
@@ -201,6 +217,10 @@ DrawBitmapRect::DrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
 
 void DrawBitmapRect::execute(SkCanvas* canvas) {
     canvas->drawBitmapRectToRect(*this->fBitmap, this->fSrc, *this->fDst, this->fPaint);
+}
+
+const SkBitmap* DrawBitmapRect::getBitmap() const {
+    return &fResizedBitmap;
 }
 
 DrawData::DrawData(const void* data, size_t length) {
@@ -324,12 +344,13 @@ void DrawRectC::execute(SkCanvas* canvas) {
 }
 
 DrawSprite::DrawSprite(const SkBitmap& bitmap, int left, int top,
-        const SkPaint* paint) {
+        const SkPaint* paint, SkBitmap& resizedBitmap) {
     this->fBitmap = &bitmap;
     this->fLeft = left;
     this->fTop = top;
     this->fPaint = paint;
     this->fDrawType = DRAW_SPRITE;
+    this->fResizedBitmap = resizedBitmap;
 
     this->fInfo.push(SkObjectParser::BitmapToString(bitmap));
     this->fInfo.push(SkObjectParser::IntToString(left, "Left: "));
@@ -338,6 +359,10 @@ DrawSprite::DrawSprite(const SkBitmap& bitmap, int left, int top,
 
 void DrawSprite::execute(SkCanvas* canvas) {
     canvas->drawSprite(*this->fBitmap, this->fLeft, this->fTop, this->fPaint);
+}
+
+const SkBitmap* DrawSprite::getBitmap() const {
+    return &fResizedBitmap;
 }
 
 DrawTextC::DrawTextC(const void* text, size_t byteLength, SkScalar x, SkScalar y,
