@@ -575,7 +575,7 @@ void SkARGB32_Shader_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
                     device = (uint32_t*)((char*)device + deviceRB);
                 } while (--height > 0);
             } else {
-                SkBlitRow::Proc32 proc = fProc32;
+                SkBlitRow::Proc32 proc = (255 == alpha) ? fProc32 : fProc32Blend;
                 do {
                     proc(device, &c, 1, alpha);
                     device = (uint32_t*)((char*)device + deviceRB);

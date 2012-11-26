@@ -59,18 +59,36 @@ static void draw_donut_skewed(SkCanvas* canvas, const SkRect& r, const SkPaint& 
     canvas->drawPath(path, p);
 }
 
+#include "SkGradientShader.h"
+
+typedef void (*PaintProc)(SkPaint*, SkScalar width);
+
+static void setgrad(SkPaint* paint, SkScalar width) {
+    SkPoint pts[] = { { 0, 0 }, { width, 0 } };
+    SkColor colors[] = { SK_ColorRED, SK_ColorGREEN };
+    SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, 2,
+                                                 SkShader::kClamp_TileMode);
+    paint->setShader(s)->unref();
+}
+
 class BlurRectGM : public skiagm::GM {
     SkAutoTUnref<SkMaskFilter> fMaskFilter;
+    SkString  fName;
+    PaintProc fPProc;
+    SkAlpha   fAlpha;
 public:
-    BlurRectGM() :
+    BlurRectGM(const char name[], PaintProc pproc, U8CPU alpha) :
         fMaskFilter(SkBlurMaskFilter::Create(STROKE_WIDTH/2,
                                        SkBlurMaskFilter::kNormal_BlurStyle,
                                        SkBlurMaskFilter::kHighQuality_BlurFlag))
+        , fName(name)
+        , fPProc(pproc)
+        , fAlpha(SkToU8(alpha))
     {}
 
 protected:
     virtual SkString onShortName() {
-        return SkString("blurrect");
+        return fName;
     }
 
     virtual SkISize onISize() {
@@ -80,14 +98,18 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         canvas->translate(STROKE_WIDTH*3/2, STROKE_WIDTH*3/2);
 
+        SkRect  r = { 0, 0, 250, 120 };
+        
         SkPaint paint;
         paint.setMaskFilter(fMaskFilter);
+        if (fPProc) {
+            fPProc(&paint, r.width());
+        }
+        paint.setAlpha(fAlpha);
 
         static const Proc procs[] = {
             fill_rect, draw_donut, draw_donut_skewed
         };
-
-        SkRect  r = { 0, 0, 250, 120 };
 
         this->drawProcs(canvas, r, paint, false, procs, SK_ARRAY_COUNT(procs));
         canvas->translate(r.width() * 4/3, 0);
@@ -120,5 +142,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new BlurRectGM;)
+DEF_GM(return new BlurRectGM("blurrect", NULL, 0xFF);)
+DEF_GM(return new BlurRectGM("blurrect_grad_80", setgrad, 0x80);)
 
