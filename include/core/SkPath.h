@@ -510,9 +510,15 @@ public:
         kCCW_Direction,
     };
 
+    /**
+     *  Return the opposite of the specified direction. kUnknown is its own
+     *  opposite.
+     */
     static Direction OppositeDirection(Direction dir) {
-        static const Direction kOppositeDir[] = {kUnknown_Direction, kCCW_Direction, kCW_Direction};
-        return kOppositeDir[dir];
+        static const Direction gOppositeDir[] = {
+            kUnknown_Direction, kCCW_Direction, kCW_Direction
+        };
+        return gOppositeDir[dir];
     }
 
     /**
@@ -527,12 +533,13 @@ public:
     /**
      *  Returns true if the path's direction can be computed via
      *  cheapComputDirection() and if that computed direction matches the
-     *  specified direction.
+     *  specified direction. If dir is kUnknown, returns true if the direction
+     *  cannot be computed.
      */
     bool cheapIsDirection(Direction dir) const {
-        SkASSERT(kCW_Direction == dir || kCCW_Direction == dir);
-        Direction computedDir;
-        return this->cheapComputeDirection(&computedDir) && computedDir == dir;
+        Direction computedDir = kUnknown_Direction;
+        (void)this->cheapComputeDirection(&computedDir);
+        return computedDir == dir;
     }
 
     /** Returns true if the path specifies a rectangle. If so, and if isClosed is
@@ -546,44 +553,52 @@ public:
     */
     bool isRect(bool* isClosed, Direction* direction) const;
 
-    /** Add a closed rectangle contour to the path
-        @param rect The rectangle to add as a closed contour to the path
-        @param dir  The direction to wind the rectangle's contour
-    */
+    /**
+     *  Add a closed rectangle contour to the path
+     *  @param rect The rectangle to add as a closed contour to the path
+     *  @param dir  The direction to wind the rectangle's contour. Cannot be
+     *              kUnknown_Direction.
+     */
     void    addRect(const SkRect& rect, Direction dir = kCW_Direction);
 
-    /** Add a closed rectangle contour to the path
-
-        @param left     The left side of a rectangle to add as a closed contour
-                        to the path
-        @param top      The top of a rectangle to add as a closed contour to the
-                        path
-        @param right    The right side of a rectangle to add as a closed contour
-                        to the path
-        @param bottom   The bottom of a rectangle to add as a closed contour to
-                        the path
-        @param dir      The direction to wind the rectangle's contour
-    */
+    /**
+     *  Add a closed rectangle contour to the path
+     *
+     *  @param left     The left side of a rectangle to add as a closed contour
+     *                  to the path
+     *  @param top      The top of a rectangle to add as a closed contour to the
+     *                  path
+     *  @param right    The right side of a rectangle to add as a closed contour
+     *                  to the path
+     *  @param bottom   The bottom of a rectangle to add as a closed contour to
+     *                  the path
+     *  @param dir  The direction to wind the rectangle's contour. Cannot be
+     *              kUnknown_Direction.
+     */
     void addRect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom,
                  Direction dir = kCW_Direction);
 
-    /** Add a closed oval contour to the path
-
-        @param oval The bounding oval to add as a closed contour to the path
-        @param dir  The direction to wind the oval's contour
-    */
+    /**
+     *  Add a closed oval contour to the path
+     *
+     *  @param oval The bounding oval to add as a closed contour to the path
+     *  @param dir  The direction to wind the oval's contour. Cannot be
+     *              kUnknown_Direction.
+     */
     void addOval(const SkRect& oval, Direction dir = kCW_Direction);
 
-    /** Add a closed circle contour to the path
-
-        @param x        The x-coordinate of the center of a circle to add as a
-                        closed contour to the path
-        @param y        The y-coordinate of the center of a circle to add as a
-                        closed contour to the path
-        @param radius   The radius of a circle to add as a closed contour to the
-                        path
-        @param dir      The direction to wind the circle's contour
-    */
+    /**
+     *  Add a closed circle contour to the path
+     *
+     *  @param x        The x-coordinate of the center of a circle to add as a
+     *                  closed contour to the path
+     *  @param y        The y-coordinate of the center of a circle to add as a
+     *                  closed contour to the path
+     *  @param radius   The radius of a circle to add as a closed contour to the
+     *                  path
+     *  @param dir  The direction to wind the circle's contour. Cannot be
+     *              kUnknown_Direction.
+     */
     void addCircle(SkScalar x, SkScalar y, SkScalar radius,
                    Direction dir = kCW_Direction);
 
@@ -595,22 +610,26 @@ public:
     */
     void addArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle);
 
-    /** Add a closed round-rectangle contour to the path
-        @param rect The bounds of a round-rectangle to add as a closed contour
-        @param rx   The x-radius of the rounded corners on the round-rectangle
-        @param ry   The y-radius of the rounded corners on the round-rectangle
-        @param dir  The direction to wind the round-rectangle's contour
-    */
+    /**
+     *  Add a closed round-rectangle contour to the path
+     *  @param rect The bounds of a round-rectangle to add as a closed contour
+     *  @param rx   The x-radius of the rounded corners on the round-rectangle
+     *  @param ry   The y-radius of the rounded corners on the round-rectangle
+     *  @param dir  The direction to wind the rectangle's contour. Cannot be
+     *              kUnknown_Direction.
+     */
     void    addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                          Direction dir = kCW_Direction);
 
-    /** Add a closed round-rectangle contour to the path. Each corner receives
-        two radius values [X, Y]. The corners are ordered top-left, top-right,
-        bottom-right, bottom-left.
-        @param rect The bounds of a round-rectangle to add as a closed contour
-        @param radii Array of 8 scalars, 4 [X,Y] pairs for each corner
-        @param dir  The direction to wind the round-rectangle's contour
-        */
+    /**
+     *  Add a closed round-rectangle contour to the path. Each corner receives
+     *  two radius values [X, Y]. The corners are ordered top-left, top-right,
+     *  bottom-right, bottom-left.
+     *  @param rect The bounds of a round-rectangle to add as a closed contour
+     *  @param radii Array of 8 scalars, 4 [X,Y] pairs for each corner
+     *  @param dir  The direction to wind the rectangle's contour. Cannot be
+     *              kUnknown_Direction.
+     */
     void addRoundRect(const SkRect& rect, const SkScalar radii[],
                       Direction dir = kCW_Direction);
 
