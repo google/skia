@@ -6,7 +6,9 @@
  * found in the LICENSE file.
  */
 #include "Test.h"
-#include "GrClipMaskManager.h"
+#if SK_SUPPORT_GPU
+    #include "GrClipMaskManager.h"
+#endif
 #include "SkClipStack.h"
 #include "SkPath.h"
 #include "SkRandom.h"
@@ -644,6 +646,8 @@ static void test_iter_rect_merging(skiatest::Reporter* reporter) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if SK_SUPPORT_GPU
+
 typedef void (*AddElementFunc) (const SkRect& rect, bool aa, SkRegion::Op op, SkClipStack* stack);
 
 static void add_round_rect(const SkRect& rect, bool aa, SkRegion::Op op, SkClipStack* stack) {
@@ -833,6 +837,7 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
     }
 }
 
+#endif
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static void TestClipStack(skiatest::Reporter* reporter) {
