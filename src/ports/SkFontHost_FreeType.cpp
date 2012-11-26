@@ -678,12 +678,10 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface*) {
         }
     }
 
-#ifndef SK_IGNORE_ROTATED_FREETYPE_FIX
     // rotated text looks bad with hinting, so we disable it as needed
     if (!isAxisAligned(*rec)) {
         h = SkPaint::kNo_Hinting;
     }
-#endif
     rec->setHinting(h);
 
 #ifndef SK_GAMMA_APPLY_TO_A8

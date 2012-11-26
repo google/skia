@@ -13,13 +13,6 @@
 #include "SkDraw.h"
 #include "SkRasterClip.h"
 
-#ifdef SK_IGNORE_FAST_BLURRECT
-#if (SK_IGNORE_FAST_BLURRECT != 0 && SK_IGNORE_FAST_BLURRECT != 1)
-    #error "SK_IGNORE_FAST_BLURRECT must be 0 or 1 or undefined"
-#endif
-#else
-    #define SK_IGNORE_FAST_BLURRECT   0
-#endif
 
 SK_DEFINE_INST_COUNT(SkMaskFilter)
 
@@ -202,7 +195,7 @@ bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
                               SkBlitter* blitter, SkPaint::Style style) {
     SkRect rects[2];
     int rectCount = 0;
-    if (!SK_IGNORE_FAST_BLURRECT && SkPaint::kFill_Style == style) {
+    if (SkPaint::kFill_Style == style) {
         rectCount = countNestedRects(devPath, rects);
     }
     if (rectCount > 0) {

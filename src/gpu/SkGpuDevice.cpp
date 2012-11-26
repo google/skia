@@ -772,9 +772,6 @@ inline bool shouldDrawBlurWithCPU(const SkRect& rect, SkScalar radius) {
 bool drawWithGPUMaskFilter(GrContext* context, const SkPath& devPath,
                            SkMaskFilter* filter, const SkRegion& clip,
                            SkBounder* bounder, GrPaint* grp, GrPathFill pathFillType) {
-#ifdef SK_DISABLE_GPU_BLUR
-    return false;
-#endif
     SkMaskFilter::BlurInfo info;
     SkMaskFilter::BlurType blurType = filter->asABlur(&info);
     if (SkMaskFilter::kNone_BlurType == blurType) {
