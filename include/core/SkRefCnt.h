@@ -155,10 +155,8 @@ public:
     T* get() const { return fObj; }
 
     void reset(T* obj) {
-        if (obj != fObj) {
-            SkSafeUnref(fObj);
-            fObj = obj;
-        }
+        SkSafeUnref(fObj);
+        fObj = obj;
     }
 
     void swap(SkAutoTUnref* other) {
