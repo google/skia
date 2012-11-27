@@ -12,7 +12,17 @@
 #include "PictureRenderer.h"
 #include "SkPictureRecord.h"
 #include "SkPicturePlayback.h"
-#include "BenchTimer.h"
+
+#if defined(SK_BUILD_FOR_WIN32)
+    #include "BenchSysTimer_windows.h"
+#elif defined(SK_BUILD_FOR_MAC)
+    #include "BenchSysTimer_mach.h"
+#elif defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_ANDROID)
+    #include "BenchSysTimer_posix.h"
+#else
+    #include "BenchSysTimer_c.h"
+#endif
+
 
 SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
         QMainWindow(parent)
@@ -160,7 +170,7 @@ public:
     double totTime() const { return fTot; }
 
 protected:
-    BenchTimer fTimer;
+    BenchSysTimer fTimer;
     SkTDArray<size_t> fOffsets; // offset in the SkPicture for each command
     SkTDArray<double> fTimes;   // sum of time consumed for each command
     SkTDArray<double> fTypeTimes; // sum of time consumed for each type of command (e.g., drawPath)
@@ -190,25 +200,28 @@ protected:
             fCurType = DRAW_POS_TEXT_H;
         }
 
-        fTimer.start();
+#if defined(SK_BUILD_FOR_WIN32)
+        // CPU timer doesn't work well on Windows
+        fTimer.startWall();
+#else
+        fTimer.startCpu();
+#endif
     }
 
     virtual void postDraw(size_t offset) {
-        fTimer.end();
+#if defined(SK_BUILD_FOR_WIN32)
+        // CPU timer doesn't work well on Windows
+        double time = fTimer.endWall();
+#else
+        double time = fTimer.endCpu();
+#endif
 
         SkASSERT(offset == fCurOffset);
         SkASSERT(fCurType <= LAST_DRAWTYPE_ENUM);
 
-#if defined(SK_BUILD_FOR_WIN32)
-        // CPU timer doesn't work well on Windows
-        fTimes[fCurCommand] += fTimer.fWall;
-        fTypeTimes[fCurType] += fTimer.fWall;
-        fTot += fTimer.fWall;
-#else
-        fTimes[fCurCommand] += fTimer.fCpu;
-        fTypeTimes[fCurType] += fTimer.fCpu;
-        fTot += fTimer.fCpu;
-#endif
+        fTimes[fCurCommand] += time;
+        fTypeTimes[fCurType] += time;
+        fTot += time;
     }
 
 private:
@@ -335,7 +348,16 @@ void SkDebuggerGUI::actionProfile() {
 
     // For now this #if allows switching between tiled and simple rendering
     // modes. Eventually this will be accomplished via the GUI
-#if 1
+#if 0
+    // With the current batch of SysTimers, profiling in tiled mode
+    // gets swamped by the timing overhead:
+    //
+    //                       tile mode           simple mode
+    // debugger                64.2ms              12.8ms
+    // bench_pictures          16.9ms              12.4ms
+    //
+    // This is b.c. in tiled mode each command is called many more times
+    // but typically does less work on each invocation (due to clipping)
     sk_tools::TiledPictureRenderer* renderer = NULL;
 
     renderer = SkNEW(sk_tools::TiledPictureRenderer);
@@ -347,7 +369,9 @@ void SkDebuggerGUI::actionProfile() {
     renderer = SkNEW(sk_tools::SimplePictureRenderer);
 #endif
 
-    run(&picture, renderer, 2);
+    static const int kNumRepeats = 10;
+
+    run(&picture, renderer, kNumRepeats);
 
     SkASSERT(picture.count() == fListWidget.count());
 
