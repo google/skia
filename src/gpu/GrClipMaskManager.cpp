@@ -73,7 +73,7 @@ void GrReduceClipStack(const SkClipStack& stack,
     // walk backwards until we get to:
     //  a) the beginning
     //  b) an operation that is known to make the bounds all inside/outside
-    //  c) a replace operation    
+    //  c) a replace operation
 
     static const InitialState kUnknown_InitialState = static_cast<InitialState>(-1);
     *initialState = kUnknown_InitialState;
@@ -252,7 +252,7 @@ void GrReduceClipStack(const SkClipStack& stack,
             SkClipStack::Iter::Clip* newClip = resultClips->prepend();
             // if it is a flip, change it to a bounds-filling rect
             if (isFlip) {
-                SkASSERT(SkRegion::kXOR_Op == clip->fOp || 
+                SkASSERT(SkRegion::kXOR_Op == clip->fOp ||
                          SkRegion::kReverseDifference_Op == clip->fOp);
                 newClip->fPath = NULL;
                 newClip->fRect = resultBounds;

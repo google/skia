@@ -201,8 +201,8 @@ static SkBitmap createBitmap(const SkPath& path) {
 
 static SkBitmap createBitmap(const SkBitmap& input, const SkRect* srcRect) {
     SkBitmap bitmap;
-    bitmap.setConfig(SkBitmap::kARGB_8888_Config, 
-                     SkImageWidget::kImageWidgetWidth, 
+    bitmap.setConfig(SkBitmap::kARGB_8888_Config,
+                     SkImageWidget::kImageWidgetWidth,
                      SkImageWidget::kImageWidgetHeight);
     bitmap.allocPixels();
     bitmap.eraseColor(SK_ColorLTGRAY);
@@ -220,7 +220,7 @@ static SkBitmap createBitmap(const SkBitmap& input, const SkRect* srcRect) {
         xScale *= input.width() / (float) input.height();
     }
 
-    SkRect dst = SkRect::MakeXYWH(SK_Scalar1, SK_Scalar1, 
+    SkRect dst = SkRect::MakeXYWH(SK_Scalar1, SK_Scalar1,
                                   xScale * input.width(),
                                   yScale * input.height());
 

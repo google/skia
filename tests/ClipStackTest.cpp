@@ -719,7 +719,7 @@ static void print_clip(const SkClipStack::Iter::Clip& clip) {
 
 static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
     // We construct random clip stacks, reduce them, and then rasterize both versions to verify that
-    // they are equal. 
+    // they are equal.
 
     // All the clip elements will be contained within these bounds.
     static const SkRect kBounds = SkRect::MakeWH(100, 100);
@@ -768,10 +768,10 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
                     continue;
                 }
             }
-            
+
             // saves can change the clip stack behavior when an element is added.
             bool doSave = r.nextBool();
-            
+
             SkSize size = SkSize::Make(
                 SkScalarFloorToScalar(SkScalarMul(kBounds.width(), r.nextRangeScalar(kMinElemSizeFrac, kMaxElemSizeFrac))),
                 SkScalarFloorToScalar(SkScalarMul(kBounds.height(), r.nextRangeScalar(kMinElemSizeFrac, kMaxElemSizeFrac))));

@@ -99,7 +99,7 @@ protected:
         canvas->translate(STROKE_WIDTH*3/2, STROKE_WIDTH*3/2);
 
         SkRect  r = { 0, 0, 250, 120 };
-        
+
         SkPaint paint;
         paint.setMaskFilter(fMaskFilter);
         if (fPProc) {
