@@ -20,7 +20,8 @@ static SkBitmap make_noconfig_bm(int width, int height) {
 }
 
 SkDebugCanvas::SkDebugCanvas(int width, int height)
-        : INHERITED(make_noconfig_bm(width, height)) {
+        : INHERITED(make_noconfig_bm(width, height))
+        , fOutstandingSaveCount(0) {
     // TODO(chudy): Free up memory from all draw commands in destructor.
     fWidth = width;
     fHeight = height;
@@ -96,6 +97,9 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
     if (fIndex < index) {
         i = fIndex + 1;
     } else {
+        for (int j = 0; j < fOutstandingSaveCount; j++) {
+            canvas->restore();
+        }
         i = 0;
         canvas->clear(0);
         canvas->resetMatrix();
@@ -103,6 +107,7 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
                                      SkIntToScalar(fHeight));
         canvas->clipRect(rect, SkRegion::kReplace_Op );
         applyUserTransform(canvas);
+        fOutstandingSaveCount = 0;
     }
 
     for (; i <= index; i++) {
@@ -122,6 +127,7 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
 
         if (commandVector[i]->isVisible()) {
             commandVector[i]->execute(canvas);
+            commandVector[i]->trackSaveState(&fOutstandingSaveCount);
         }
     }
     fMatrix = canvas->getTotalMatrix();

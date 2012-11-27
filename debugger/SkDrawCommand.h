@@ -35,6 +35,9 @@ public:
 
     SkTDArray<SkString*>* Info() {return &fInfo; };
     virtual void execute(SkCanvas* canvas)=0;
+    /** Does nothing by default, but used by save() and restore()-type
+        subclassse to track unresolved save() calls. */
+    virtual void trackSaveState(int* state) { };
     DrawType getType() { return fDrawType; };
 
     virtual const SkBitmap* getBitmap() const { return NULL; }
@@ -53,6 +56,7 @@ class Restore : public SkDrawCommand {
 public:
     Restore();
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void trackSaveState(int* state) SK_OVERRIDE;
 };
 
 class Clear : public SkDrawCommand {
@@ -314,6 +318,7 @@ class Save : public SkDrawCommand {
 public:
     Save(SkCanvas::SaveFlags flags);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void trackSaveState(int* state) SK_OVERRIDE;
 private:
     SkCanvas::SaveFlags fFlags;
 };
@@ -323,6 +328,7 @@ public:
     SaveLayer(const SkRect* bounds, const SkPaint* paint,
             SkCanvas::SaveFlags flags);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void trackSaveState(int* state) SK_OVERRIDE;
 private:
     const SkRect* fBounds;
     const SkPaint* fPaint;

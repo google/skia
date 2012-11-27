@@ -436,6 +436,10 @@ void Restore::execute(SkCanvas* canvas) {
     canvas->restore();
 }
 
+void Restore::trackSaveState(int* state) {
+    (*state)--;
+}
+
 Rotate::Rotate(SkScalar degrees) {
     this->fDegrees = degrees;
     this->fDrawType = ROTATE;
@@ -457,6 +461,10 @@ void Save::execute(SkCanvas* canvas) {
     canvas->save(this->fFlags);
 }
 
+void Save::trackSaveState(int* state) {
+    (*state)++;
+}
+
 SaveLayer::SaveLayer(const SkRect* bounds, const SkPaint* paint,
         SkCanvas::SaveFlags flags) {
     this->fBounds = bounds;
@@ -471,6 +479,10 @@ SaveLayer::SaveLayer(const SkRect* bounds, const SkPaint* paint,
 
 void SaveLayer::execute(SkCanvas* canvas) {
     canvas->saveLayer(this->fBounds, this->fPaint, this->fFlags);
+}
+
+void SaveLayer::trackSaveState(int* state) {
+    (*state)++;
 }
 
 Scale::Scale(SkScalar sx, SkScalar sy) {
