@@ -32,8 +32,8 @@ from oauth2_plugin import oauth2_plugin
 
 
 # Ratios for calculating suggested picture bench upper and lower bounds.
-BENCH_UB = 1.05  # Allow for 5% room for normal variance on the up side.
-BENCH_LB = 0.9
+BENCH_UB = 1.1  # Allow for 10% room for normal variance on the up side.
+BENCH_LB = 0.85
 
 # List of platforms to track.
 PLATFORMS = ['Mac_Float_Bench_32',
@@ -123,7 +123,7 @@ def OutputSkpBenchExpectations(rev_min, rev_max, representation_alg):
   for key in keys:
     bench_val = expectation_dic[key]
     # Prints out expectation lines.
-    print '%s,%.2f,%.2f,%.2f' % (key, bench_val, bench_val * BENCH_LB,
+    print '%s,%.3f,%.3f,%.3f' % (key, bench_val, bench_val * BENCH_LB,
                                  bench_val * BENCH_UB)
 
 def main():
