@@ -79,20 +79,20 @@ namespace skiagm {
 
     class HairModesGM : public GM {
         SkPaint fBGPaint;
-    public:
-        HairModesGM() {
-            fBGPaint.setShader(make_bg_shader())->unref();
-        }
 
     protected:
 
-        virtual SkString onShortName() {
+        virtual SkString onShortName() SK_OVERRIDE {
             return SkString("hairmodes");
         }
 
         virtual SkISize onISize() { return make_isize(640, 480); }
 
-        virtual void onDraw(SkCanvas* canvas) {
+        virtual void onOnceBeforeDraw() SK_OVERRIDE {
+            fBGPaint.setShader(make_bg_shader())->unref();
+        }
+
+        virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
             const SkRect bounds = SkRect::MakeWH(W, H);
             static const SkAlpha gAlphaValue[] = { 0xFF, 0x88, 0x88 };
 

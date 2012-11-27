@@ -64,9 +64,6 @@ public:
     TilingGM()
             : fLooper(SkIntToScalar(1), SkIntToScalar(2), SkIntToScalar(2),
                       0x88000000) {
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gConfigs); i++) {
-            makebm(&fTexture[i], gConfigs[i], gWidth, gHeight);
-        }
     }
 
     SkBitmap    fTexture[SK_ARRAY_COUNT(gConfigs)];
@@ -78,7 +75,13 @@ protected:
 
     SkISize onISize() { return SkISize::Make(880, 560); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gConfigs); i++) {
+            makebm(&fTexture[i], gConfigs[i], gWidth, gHeight);
+        }
+    }
+
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
 
         SkRect r = { 0, 0, SkIntToScalar(gWidth*2), SkIntToScalar(gHeight*2) };
 
