@@ -903,7 +903,7 @@ static void TestClipStack(skiatest::Reporter* reporter) {
     test_rect_merging(reporter);
     test_iter_rect_merging(reporter);
 #if SK_SUPPORT_GPU
-    test_reduced_clip_stack(reporter);
+    //test_reduced_clip_stack(reporter);
 #endif
 }
 
