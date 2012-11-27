@@ -111,6 +111,13 @@ public:
     */
     bool nextBool() { return this->nextU() >= 0x80000000; }
 
+    /** A biased version of nextBool().
+     */
+    bool nextBiasedBool(SkScalar fractionTrue) {
+        SkASSERT(fractionTrue >= 0 && fractionTrue <= SK_Scalar1);
+        return this->nextUScalar1() <= fractionTrue;
+    }
+
     /** Return the next pseudo random number as a signed 64bit value.
     */
     void next64(Sk64* a) {

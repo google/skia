@@ -130,7 +130,7 @@ void GrReduceClipStack(const SkClipStack& stack,
             case SkRegion::kIntersect_Op:
                 if (*resultsAreBounded) {
                     // check if the shape intersected contains the entire bounds and therefore can
-                    // be skipped or it is outside the entire bounds and therfore makes the clip
+                    // be skipped or it is outside the entire bounds and therefore makes the clip
                     // empty.
                     if (clip->isInverseFilled()) {
                         if (clip->contains(*resultBounds)) {
@@ -154,8 +154,8 @@ void GrReduceClipStack(const SkClipStack& stack,
                 break;
             case SkRegion::kUnion_Op:
                 if (*resultsAreBounded) {
-                    // If the unioned shape contains the entire bounds then after this element
-                    // the bounds is entirely inside the clip. If the unioned shape is outside the
+                    // If the union-ed shape contains the entire bounds then after this element
+                    // the bounds is entirely inside the clip. If the union-ed shape is outside the
                     // bounds then this op can be skipped.
                     if (clip->isInverseFilled()) {
                         if (clip->contains(*resultBounds)) {
@@ -179,6 +179,10 @@ void GrReduceClipStack(const SkClipStack& stack,
                 break;
             case SkRegion::kXOR_Op:
                 if (*resultsAreBounded) {
+                    // If the bounds is entirely inside the shape being xor-ed then the effect is
+                    // to flip the inside/outside state of every point in the bounds. We may be
+                    // able to take advantage of this in the forward pass. If the xor-ed shape
+                    // doesn't intersect the bounds then it can be skipped.
                     if (clip->isInverseFilled()) {
                         if (clip->contains(*resultBounds)) {
                             skippable = true;
@@ -198,6 +202,10 @@ void GrReduceClipStack(const SkClipStack& stack,
                 }
                 break;
             case SkRegion::kReverseDifference_Op:
+                // When the bounds is entirely within the rev-diff shape then this behaves like xor
+                // and reverses every point inside the bounds. If the shape is completely outside
+                // the bounds then we know after this element is applied that the bounds will be
+                // all outside the current clip.B
                 if (*resultsAreBounded) {
                     if (clip->isInverseFilled()) {
                         if (clip->contains(*resultBounds)) {
@@ -220,7 +228,11 @@ void GrReduceClipStack(const SkClipStack& stack,
                 }
                 break;
             case SkRegion::kReplace_Op:
-                if (*resultsAreBounded) {
+                // Replace will always terminate our walk. We will either begin the forward walk
+                // at the replace op or detect here than the shape is either completely inside
+                // or completely outside the bounds. In this latter case it can be skipped by
+                // setting the correct value for initialState.
+                if (*resultsAreBounded) {                    
                     if (clip->isInverseFilled()) {
                         if (clip->contains(*resultBounds)) {
                             *initialState = kAllOut_InitialState;
@@ -276,9 +288,11 @@ void GrReduceClipStack(const SkClipStack& stack,
             bool skippable = false;
             switch (clip->fOp) {
                 case SkRegion::kDifference_Op:
+                    // subtracting from the empty set yields the empty set.
                     skippable = kAllOut_InitialState == *initialState;
                     break;
                 case SkRegion::kIntersect_Op:
+                    // intersecting with the empty set yields the empty set
                     skippable = kAllOut_InitialState == *initialState;
                     break;
                 case SkRegion::kUnion_Op:

@@ -647,25 +647,44 @@ static void test_iter_rect_merging(skiatest::Reporter* reporter) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
+// Functions that add a shape to the clip stack. The shape is computed from a rectangle.
+// AA is always disabled since the clip stack reducer can cause changes in aa rasterization of the
+// stack. A fractional edge repeated in different elements may be rasterized fewer times using the
+// reduced stack.
+typedef void (*AddElementFunc) (const SkRect& rect,
+                                bool invert,
+                                SkRegion::Op op,
+                                SkClipStack* stack);
 
-typedef void (*AddElementFunc) (const SkRect& rect, bool aa, SkRegion::Op op, SkClipStack* stack);
-
-static void add_round_rect(const SkRect& rect, bool aa, SkRegion::Op op, SkClipStack* stack) {
+static void add_round_rect(const SkRect& rect, bool invert, SkRegion::Op op, SkClipStack* stack) {
     SkPath path;
     SkScalar rx = rect.width() / 10;
-    SkScalar ry = rect.width() / 20;
+    SkScalar ry = rect.height() / 20;
     path.addRoundRect(rect, rx, ry);
-    stack->clipDevPath(path, op, aa);
+    if (invert) {
+        path.setFillType(SkPath::kInverseWinding_FillType);
+    }
+    stack->clipDevPath(path, op, false);
 };
 
-static void add_rect(const SkRect& rect, bool aa, SkRegion::Op op, SkClipStack* stack) {
-    stack->clipDevRect(rect, op, aa);
+static void add_rect(const SkRect& rect, bool invert, SkRegion::Op op, SkClipStack* stack) {
+    if (invert) {
+        SkPath path;
+        path.addRect(rect);
+        path.setFillType(SkPath::kInverseWinding_FillType);
+        stack->clipDevPath(path, op, false);
+    } else {
+        stack->clipDevRect(rect, op, false);
+    }
 };
 
-static void add_oval(const SkRect& rect, bool aa, SkRegion::Op op, SkClipStack* stack) {
+static void add_oval(const SkRect& rect, bool invert, SkRegion::Op op, SkClipStack* stack) {
     SkPath path;
     path.addOval(rect);
-    stack->clipDevPath(path, op, aa);
+    if (invert) {
+        path.setFillType(SkPath::kInverseWinding_FillType);
+    }
+    stack->clipDevPath(path, op, false);
 };
 
 static void add_elem_to_stack(const SkClipStack::Iter::Clip& clip, SkClipStack* stack) {
@@ -706,11 +725,12 @@ static void print_clip(const SkClipStack::Iter::Clip& clip) {
         "RD",
         "RP",
     };
-    if (clip.fRect || clip.fPath) {
+    if (NULL != clip.fRect || NULL != clip.fPath) {
         const SkRect& bounds = clip.getBounds();
-        SkDebugf("%s %s [%f %f] x [%f %f]\n",
+        SkDebugf("%s %s %s [%f %f] x [%f %f]\n",
                  kOpStrs[clip.fOp],
-                 (clip.fRect ? "R" : "P"),
+                 (NULL != clip.fRect ? "R" : "P"),
+                 ((NULL != clip.fPath && clip.fPath->isInverseFillType() ? "I" : " ")),
                  bounds.fLeft, bounds.fRight, bounds.fTop, bounds.fBottom);
     } else {
         SkDebugf("EM\n");
@@ -748,6 +768,9 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
     // the optimizer.
     static const int kReplaceDiv = 4 * kMaxElemsPerTest;
 
+    // We want to test inverse fills. However, they are quite rare in practice so don't over do it.
+    static const SkScalar kFractionInverted = SK_Scalar1 / kMaxElemsPerTest;
+
     static const AddElementFunc kElementFuncs[] = {
         add_rect,
         add_round_rect,
@@ -781,10 +804,8 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
 
             SkRect rect = SkRect::MakeXYWH(xy.fX, xy.fY, size.fWidth, size.fHeight);
 
-            // AA is always disabled. The optimizer can cause changes in aa rasterization of the
-            // clip stack. A fractional edge repeated in different elements may be rasterized fewer
-            // times using the reduced stack.
-            kElementFuncs[r.nextULessThan(SK_ARRAY_COUNT(kElementFuncs))](rect, false, op, &stack);
+            bool invert = r.nextBiasedBool(kFractionInverted);
+            kElementFuncs[r.nextULessThan(SK_ARRAY_COUNT(kElementFuncs))](rect, invert, op, &stack);
             if (doSave) {
                 stack.save();
             }
