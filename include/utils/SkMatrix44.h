@@ -105,20 +105,27 @@ public:
         return *this;
     }
 
-    bool operator==(const SkMatrix44& other) const {
-        return !memcmp(this, &other, sizeof(*this));
-    }
+    bool operator==(const SkMatrix44& other) const;
     bool operator!=(const SkMatrix44& other) const {
-        return !!memcmp(this, &other, sizeof(*this));
+        return !(other == *this);
     }
 
     SkMatrix44(const SkMatrix&);
     SkMatrix44& operator=(const SkMatrix& src);
     operator SkMatrix() const;
 
-    SkMScalar get(int row, int col) const;
-    void set(int row, int col, const SkMScalar& value);
+    SkMScalar get(int row, int col) const {
+        SkASSERT((unsigned)row <= 3);
+        SkASSERT((unsigned)col <= 3);
+        return fMat[col][row];
+    }
 
+    void set(int row, int col, SkMScalar value) {
+        SkASSERT((unsigned)row <= 3);
+        SkASSERT((unsigned)col <= 3);
+        fMat[col][row] = value;
+    }
+    
     double getDouble(int row, int col) const {
         return SkMScalarToDouble(this->get(row, col));
     }

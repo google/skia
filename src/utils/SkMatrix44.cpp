@@ -22,16 +22,15 @@ SkMatrix44::SkMatrix44(const SkMatrix44& a, const SkMatrix44& b) {
     this->setConcat(a, b);
 }
 
-SkMScalar SkMatrix44::get(int row, int col) const {
-    SkASSERT(row <= 3 && row >= 0);
-    SkASSERT(col <= 3 && col >= 0);
-    return fMat[col][row];
-}
-
-void SkMatrix44::set(int row, int col, const SkMScalar& value) {
-    SkASSERT(row <= 3 && row >= 0);
-    SkASSERT(col <= 3 && col >= 0);
-    fMat[col][row] = value;
+bool SkMatrix44::operator==(const SkMatrix44& other) const {
+    const SkMScalar* a = &fMat[0][0];
+    const SkMScalar* b = &other.fMat[0][0];
+    for (int i = 0; i < 16; ++i) {
+        if (a[i] != b[i]) {
+            return false;
+        }
+    }
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
