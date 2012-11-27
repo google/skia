@@ -9,6 +9,22 @@
 #include "SkCanvas.h"
 #include "SkPath.h"
 
+// Reproduces bug found here: http://jsfiddle.net/R8Cu5/1/
+//
+#include "SkGradientShader.h"
+static void test_grad(SkCanvas* canvas) {
+    SkPoint pts[] = {
+        { 478.544067f, -84.2041016f },
+        { 602.455933f, 625.204102f },
+    };
+    SkColor colors[] = { SK_ColorBLACK, SK_ColorBLACK, SK_ColorRED, SK_ColorRED };
+    SkScalar pos[] = { 0, 0.3f, 0.3f, 1.0f };
+    SkShader* s = SkGradientShader::CreateLinear(pts, colors, pos, 4, SkShader::kClamp_TileMode);
+    SkPaint p;
+    p.setShader(s)->unref();
+    canvas->drawPaint(p);
+}
+
 static SkCanvas* MakeCanvas(const SkIRect& bounds) {
     SkBitmap bm;
     bm.setConfig(SkBitmap::kARGB_8888_Config, bounds.width(), bounds.height());
@@ -158,6 +174,9 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
+        if (false) {
+            test_grad(canvas); return;
+        }
         if (false) { // avoid bit rot, suppress warning
             test_mask();
         }
