@@ -79,6 +79,7 @@ namespace skiagm {
     protected:
         static SkString gResourcePath;
 
+        virtual void onOnceBeforeDraw() {}
         virtual void onDraw(SkCanvas*) = 0;
         virtual void onDrawBackground(SkCanvas*);
         virtual SkISize onISize() = 0;
@@ -90,6 +91,7 @@ namespace skiagm {
         SkString fShortName;
         SkColor  fBGColor;
         bool     fCanvasIsDeferred; // work-around problem in srcmode.cpp
+        bool     fHaveCalledOnceBeforeDraw;
     };
 
     typedef SkTRegistry<GM*, void*> GMRegistry;

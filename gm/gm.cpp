@@ -13,6 +13,7 @@ SkString GM::gResourcePath;
 GM::GM() {
     fBGColor = SK_ColorWHITE;
     fCanvasIsDeferred = false;
+    fHaveCalledOnceBeforeDraw = false;
 }
 GM::~GM() {}
 
@@ -22,10 +23,18 @@ void GM::draw(SkCanvas* canvas) {
 }
 
 void GM::drawContent(SkCanvas* canvas) {
+    if (!fHaveCalledOnceBeforeDraw) {
+        fHaveCalledOnceBeforeDraw = true;
+        this->onOnceBeforeDraw();
+    }
     this->onDraw(canvas);
 }
 
 void GM::drawBackground(SkCanvas* canvas) {
+    if (!fHaveCalledOnceBeforeDraw) {
+        fHaveCalledOnceBeforeDraw = true;
+        this->onOnceBeforeDraw();
+    }
     this->onDrawBackground(canvas);
 }
 
