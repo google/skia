@@ -26,6 +26,8 @@
 #include "SkFloatingPoint.h"
 #include "SkGlyph.h"
 #include "SkMaskGamma.h"
+#include "SkSFNTHeader.h"
+#include "SkOTUtils.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkString.h"
@@ -1661,43 +1663,56 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct FontHeader {
-    SkFixed fVersion;
-    uint16_t fNumTables;
-    uint16_t fSearchRange;
-    uint16_t fEntrySelector;
-    uint16_t fRangeShift;
-};
-
-struct TableEntry {
-    uint32_t fTag;
-    uint32_t fCheckSum;
-    uint32_t fOffset;
-    uint32_t fLength;
-};
-
-static uint32_t CalcTableCheckSum(uint32_t *table, uint32_t numberOfBytesInTable) {
-    uint32_t sum = 0;
-    uint32_t nLongs = (numberOfBytesInTable + 3) / 4;
-
-    while (nLongs-- > 0) {
-        sum += SkEndian_SwapBE32(*table++);
+static SK_SFNT_ULONG get_font_type_tag(SkFontID uniqueID) {
+    CTFontRef ctFont = GetFontRefFromFontID(uniqueID);
+    CFNumberRef fontFormatRef =
+        static_cast<CFNumberRef>(CTFontCopyAttribute(ctFont, kCTFontFormatAttribute));
+    if (!fontFormatRef) {
+        return 0;
     }
-    return sum;
+    
+    SkASSERT(kCFNumberSInt32Type == CFNumberGetType(fontFormatRef));
+    SInt32 fontFormatValue;
+    if (!CFNumberGetValue(fontFormatRef, kCFNumberSInt32Type, &fontFormatValue)) {
+        CFRelease(fontFormatRef);
+        return 0;
+    }
+    CFRelease(fontFormatRef);
+    
+    switch (fontFormatValue) {
+        case kCTFontFormatOpenTypePostScript:
+            return SkSFNTHeader::fontType_OpenTypeCFF::TAG;
+        case kCTFontFormatOpenTypeTrueType:
+            return SkSFNTHeader::fontType_WindowsTrueType::TAG;
+        case kCTFontFormatTrueType:
+            return SkSFNTHeader::fontType_MacTrueType::TAG;
+        case kCTFontFormatPostScript:
+            return SkSFNTHeader::fontType_PostScript::TAG;
+        case kCTFontFormatBitmap:
+            return SkSFNTHeader::fontType_MacTrueType::TAG;
+        case kCTFontFormatUnrecognized:
+        default:
+            return 0;
+    }
 }
 
 SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
+    SK_SFNT_ULONG fontType = get_font_type_tag(uniqueID);
+    if (0 == fontType) {
+        return NULL;
+    }
+    
     // get table tags
-    int tableCount = CountTables(uniqueID);
+    int numTables = CountTables(uniqueID);
     SkTDArray<SkFontTableTag> tableTags;
-    tableTags.setCount(tableCount);
+    tableTags.setCount(numTables);
     GetTableTags(uniqueID, tableTags.begin());
 
     // calc total size for font, save sizes
     SkTDArray<size_t> tableSizes;
-    size_t totalSize = sizeof(FontHeader) + sizeof(TableEntry) * tableCount;
-    for (int index = 0; index < tableCount; ++index) {
-        size_t tableSize = GetTableSize(uniqueID, tableTags[index]);
+    size_t totalSize = sizeof(SkSFNTHeader) + sizeof(SkSFNTHeader::TableDirectoryEntry) * numTables;
+    for (int tableIndex = 0; tableIndex < numTables; ++tableIndex) {
+        size_t tableSize = GetTableSize(uniqueID, tableTags[tableIndex]);
         totalSize += (tableSize + 3) & ~3;
         *tableSizes.append() = tableSize;
     }
@@ -1711,33 +1726,34 @@ SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
     // compute font header entries
     uint16_t entrySelector = 0;
     uint16_t searchRange = 1;
-    while (searchRange < tableCount >> 1) {
+    while (searchRange < numTables >> 1) {
         entrySelector++;
         searchRange <<= 1;
     }
     searchRange <<= 4;
-    uint16_t rangeShift = (tableCount << 4) - searchRange;
+    uint16_t rangeShift = (numTables << 4) - searchRange;
 
-    // write font header (also called sfnt header, offset subtable)
-    FontHeader* offsetTable = (FontHeader*)dataPtr;
-    offsetTable->fVersion = SkEndian_SwapBE32(SK_Fixed1);
-    offsetTable->fNumTables = SkEndian_SwapBE16(tableCount);
-    offsetTable->fSearchRange = SkEndian_SwapBE16(searchRange);
-    offsetTable->fEntrySelector = SkEndian_SwapBE16(entrySelector);
-    offsetTable->fRangeShift = SkEndian_SwapBE16(rangeShift);
-    dataPtr += sizeof(FontHeader);
+    // write font header
+    SkSFNTHeader* header = (SkSFNTHeader*)dataPtr;
+    header->fontType = fontType;
+    header->numTables = SkEndian_SwapBE16(numTables);
+    header->searchRange = SkEndian_SwapBE16(searchRange);
+    header->entrySelector = SkEndian_SwapBE16(entrySelector);
+    header->rangeShift = SkEndian_SwapBE16(rangeShift);
+    dataPtr += sizeof(SkSFNTHeader);
 
     // write tables
-    TableEntry* entry = (TableEntry*)dataPtr;
-    dataPtr += sizeof(TableEntry) * tableCount;
-    for (int index = 0; index < tableCount; ++index) {
-        size_t tableSize = tableSizes[index];
-        GetTableData(uniqueID, tableTags[index], 0, tableSize, dataPtr);
-        entry->fTag = SkEndian_SwapBE32(tableTags[index]);
-        entry->fCheckSum = SkEndian_SwapBE32(CalcTableCheckSum(
-            (uint32_t*)dataPtr, tableSize));
-        entry->fOffset = SkEndian_SwapBE32(dataPtr - dataStart);
-        entry->fLength = SkEndian_SwapBE32(tableSize);
+    SkSFNTHeader::TableDirectoryEntry* entry = (SkSFNTHeader::TableDirectoryEntry*)dataPtr;
+    dataPtr += sizeof(SkSFNTHeader::TableDirectoryEntry) * numTables;
+    for (int tableIndex = 0; tableIndex < numTables; ++tableIndex) {
+        size_t tableSize = tableSizes[tableIndex];
+        GetTableData(uniqueID, tableTags[tableIndex], 0, tableSize, dataPtr);
+        entry->tag = SkEndian_SwapBE32(tableTags[tableIndex]);
+        entry->checksum = SkEndian_SwapBE32(SkOTUtils::CalcTableChecksum((SK_OT_ULONG*)dataPtr,
+                                                                         tableSize));
+        entry->offset = SkEndian_SwapBE32(dataPtr - dataStart);
+        entry->logicalLength = SkEndian_SwapBE32(tableSize);
+        
         dataPtr += (tableSize + 3) & ~3;
         ++entry;
     }
