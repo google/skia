@@ -227,6 +227,82 @@ bool SkDashPathEffect::filterPath(SkPath* dst, const SkPath& src,
     return true;
 }
 
+// Currently asPoints is more restrictive then it needs to be. In the future
+// we need to:
+//      allow kRound_Cap capping (could allow rotations in the matrix with this)
+//      loosen restriction on initial dash length
+//      allow cases where (stroke width == interval[0]) and return size
+//      allow partial first and last pixels
+bool SkDashPathEffect::asPoints(PointData* results,
+                                const SkPath& src,
+                                const SkStrokeRec& rec,
+                                const SkMatrix& matrix) const {
+    if (rec.isFillStyle() || fInitialDashLength < 0 || SK_Scalar1 != rec.getWidth()) {
+        return false;
+    }
+
+    if (fIntervalLength != 2 || SK_Scalar1 != fIntervals[0] || SK_Scalar1 != fIntervals[1]) {
+        return false;
+    }
+
+    if (fScaleToFit || 0 != fInitialDashLength) {
+        return false;
+    }
+
+    SkPoint pts[2];
+
+    if (rec.isHairlineStyle() || !src.isLine(pts)) {
+        return false;
+    }
+
+    if (SkPaint::kButt_Cap != rec.getCap()) {
+        return false;
+    }
+
+    if (!matrix.rectStaysRect()) {
+        return false;
+    }
+
+    SkPathMeasure   meas(src, false);
+    SkScalar        length = meas.getLength();
+
+    if (!SkScalarIsInt(length)) {
+        return false;
+    }
+
+    if (NULL != results) {
+        results->fFlags = 0;    // don't use clip rect & draw rects
+        results->fSize.set(SK_Scalar1, SK_Scalar1);
+
+        SkVector tangent = pts[1] - pts[0];
+        if (tangent.isZero()) {
+            return false;
+        }
+
+        tangent.scale(SkScalarInvert(length));
+
+        SkScalar ptCount = SkScalarDiv(length, SkIntToScalar(2));
+        results->fPoints.setReserve(SkScalarCeilToInt(ptCount));
+
+        // +1 b.c. fInitialDashLength is zero so the initial segment will be skipped
+        int index = fInitialDashIndex+1;
+
+        for (SkScalar distance = SK_ScalarHalf; distance < length; distance += SK_Scalar1) {
+            SkASSERT(index <= fCount);
+
+            if (0 == index) {
+                SkScalar x0 = pts[0].fX + SkScalarMul(tangent.fX, distance);
+                SkScalar y0 = pts[0].fY + SkScalarMul(tangent.fY, distance);
+                results->fPoints.append()->set(x0, y0);
+            }
+
+            index ^= 1; // 0 -> 1 -> 0 ...
+        }
+    }
+
+    return true;
+}
+
 SkFlattenable::Factory SkDashPathEffect::getFactory() {
     return fInitialDashLength < 0 ? NULL : CreateProc;
 }
