@@ -125,7 +125,7 @@ public:
         SkASSERT((unsigned)col <= 3);
         fMat[col][row] = value;
     }
-    
+
     double getDouble(int row, int col) const {
         return SkMScalarToDouble(this->get(row, col));
     }

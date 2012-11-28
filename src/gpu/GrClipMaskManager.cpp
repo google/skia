@@ -232,7 +232,7 @@ void GrReduceClipStack(const SkClipStack& stack,
                 // at the replace op or detect here than the shape is either completely inside
                 // or completely outside the bounds. In this latter case it can be skipped by
                 // setting the correct value for initialState.
-                if (*resultsAreBounded) {                    
+                if (*resultsAreBounded) {
                     if (clip->isInverseFilled()) {
                         if (clip->contains(*resultBounds)) {
                             *initialState = kAllOut_InitialState;
