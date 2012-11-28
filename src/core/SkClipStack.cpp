@@ -13,7 +13,8 @@
 
 
 // 0-2 are reserved for invalid, empty & wide-open
-int32_t SkClipStack::gGenID = 3;
+static const int32_t kFirstUnreservedGenID = 3;
+int32_t SkClipStack::gGenID = kFirstUnreservedGenID;
 
 struct SkClipStack::Rec {
     enum State {
@@ -61,7 +62,7 @@ struct SkClipStack::Rec {
         fOp = op;
         fState = kRect_State;
         fDoAA = doAA;
-        // bounding box members are updated in a following updateBound call
+        // bounding box members are updated in a following updateBoundAndGenID call
     }
 
     Rec(int saveCount, const SkPath& path, SkRegion::Op op, bool doAA)
@@ -72,7 +73,7 @@ struct SkClipStack::Rec {
         fOp = op;
         fState = kPath_State;
         fDoAA = doAA;
-        // bounding box members are updated in a following updateBound call
+        // bounding box members are updated in a following updateBoundAndGenID call
     }
 
     void setEmpty() {
@@ -83,7 +84,7 @@ struct SkClipStack::Rec {
         fGenID = kEmptyGenID;
     }
 
-    void checkEmpty() {
+    void checkEmpty() const {
         SkASSERT(fFiniteBound.isEmpty());
         SkASSERT(kNormal_BoundsType == fFiniteBoundType);
         SkASSERT(!fIsIntersectionOfRects);
@@ -196,6 +197,7 @@ struct SkClipStack::Rec {
                 // occur w/in the intersection of the two finite bounds
                 if (!fFiniteBound.intersect(prevFinite)) {
                     fFiniteBound.setEmpty();
+                    fGenID = kEmptyGenID;
                 }
                 fFiniteBoundType = kNormal_BoundsType;
                 break;
@@ -254,6 +256,7 @@ struct SkClipStack::Rec {
             case kInvPrev_InvCur_FillCombo:
                 if (!fFiniteBound.intersect(prevFinite)) {
                     fFiniteBound.setEmpty();
+                    fGenID = kWideOpenGenID;
                 }
                 fFiniteBoundType = kInsideOut_BoundsType;
                 break;
@@ -299,6 +302,7 @@ struct SkClipStack::Rec {
             case kPrev_Cur_FillCombo:
                 if (!fFiniteBound.intersect(prevFinite)) {
                     fFiniteBound.setEmpty();
+                    fGenID = kEmptyGenID;
                 }
                 break;
             default:
@@ -321,6 +325,7 @@ struct SkClipStack::Rec {
             case kInvPrev_Cur_FillCombo:
                 if (!fFiniteBound.intersect(prevFinite)) {
                     fFiniteBound.setEmpty();
+                    fGenID = kEmptyGenID;
                 }
                 fFiniteBoundType = kNormal_BoundsType;
                 break;
@@ -341,7 +346,10 @@ struct SkClipStack::Rec {
         }
     }
 
-    void updateBound(const Rec* prior) {
+    void updateBoundAndGenID(const Rec* prior) {
+        // We set this first here but we may overwrite it later if we determine that the clip is
+        // either wide-open or empty.
+        fGenID = GetNextGenID();
 
         // First, optimistically update the current Rec's bound information
         // with the current clip's bound
@@ -588,8 +596,6 @@ bool SkClipStack::intersectRectWithClip(SkRect* rect) const {
 
 void SkClipStack::clipDevRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
 
-    int32_t genID = GetNextGenID();
-
     // Use reverse iterator instead of back because Rect path may need previous
     SkDeque::Iter iter(fDeque, SkDeque::Iter::kBack_IterStart);
     Rec* rec = (Rec*) iter.prev();
@@ -609,8 +615,7 @@ void SkClipStack::clipDevRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
 
                     rec->fDoAA = doAA;
                     Rec* prev = (Rec*) iter.prev();
-                    rec->updateBound(prev);
-                    rec->fGenID = genID;
+                    rec->updateBoundAndGenID(prev);
                     return;
                 }
                 break;
@@ -624,8 +629,7 @@ void SkClipStack::clipDevRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
         }
     }
     new (fDeque.push_back()) Rec(fSaveCount, rect, op, doAA);
-    ((Rec*) fDeque.back())->updateBound(rec);
-    ((Rec*) fDeque.back())->fGenID = genID;
+    ((Rec*) fDeque.back())->updateBoundAndGenID(rec);
 
     if (rec && rec->fSaveCount == fSaveCount) {
         this->purgeClip(rec);
@@ -637,8 +641,6 @@ void SkClipStack::clipDevPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     if (path.isRect(&alt)) {
         return this->clipDevRect(alt, op, doAA);
     }
-
-    int32_t genID = GetNextGenID();
 
     Rec* rec = (Rec*)fDeque.back();
     if (rec && rec->canBeIntersectedInPlace(fSaveCount, op)) {
@@ -664,8 +666,7 @@ void SkClipStack::clipDevPath(const SkPath& path, SkRegion::Op op, bool doAA) {
         }
     }
     new (fDeque.push_back()) Rec(fSaveCount, path, op, doAA);
-    ((Rec*) fDeque.back())->updateBound(rec);
-    ((Rec*) fDeque.back())->fGenID = genID;
+    ((Rec*) fDeque.back())->updateBoundAndGenID(rec);
 
     if (rec && rec->fSaveCount == fSaveCount) {
         this->purgeClip(rec);
@@ -693,6 +694,7 @@ void SkClipStack::clipEmpty() {
     if (rec && rec->fSaveCount == fSaveCount) {
         this->purgeClip(rec);
     }
+    ((Rec*)fDeque.back())->fGenID = kEmptyGenID;
 }
 
 bool SkClipStack::isWideOpen() const {
@@ -701,8 +703,8 @@ bool SkClipStack::isWideOpen() const {
     }
 
     const Rec* back = (const Rec*) fDeque.back();
-    return kInsideOut_BoundsType == back->fFiniteBoundType &&
-           back->fFiniteBound.isEmpty();
+    return kWideOpenGenID == back->fGenID ||
+           (kInsideOut_BoundsType == back->fFiniteBoundType && back->fFiniteBound.isEmpty());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -760,6 +762,7 @@ const SkClipStack::Iter::Clip* SkClipStack::Iter::updateClip(
         case SkClipStack::Rec::kEmpty_State:
             fClip.fRect = NULL;
             fClip.fPath = NULL;
+            rec->checkEmpty();
             break;
         case SkClipStack::Rec::kRect_State:
             fClip.fRect = &rec->fRect;
@@ -934,6 +937,9 @@ void SkClipStack::removePurgeClipCallback(PFPurgeClipCB callback, void* data) co
 // The clip state represented by 'rec' will never be used again. Purge it.
 void SkClipStack::purgeClip(Rec* rec) {
     SkASSERT(NULL != rec);
+    if (rec->fGenID >= 0 && rec->fGenID < kFirstUnreservedGenID) {
+        return;
+    }
 
     for (int i = 0; i < fCallbackData.count(); ++i) {
         (*fCallbackData[i].fCallback)(rec->fGenID, fCallbackData[i].fData);
@@ -944,6 +950,7 @@ void SkClipStack::purgeClip(Rec* rec) {
 }
 
 int32_t SkClipStack::GetNextGenID() {
+    // TODO: handle overflow.
     return sk_atomic_inc(&gGenID);
 }
 

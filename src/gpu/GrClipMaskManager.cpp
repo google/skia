@@ -90,11 +90,11 @@ void GrReduceClipStack(const SkClipStack& stack,
             *initialState = kAllIn_InitialState;
             break;
         }
-        if (!embiggens && SkClipStack::kEmptyGenID == clip->fGenID) {
+        if (SkClipStack::kEmptyGenID == clip->fGenID) {
             *initialState = kAllOut_InitialState;
             break;
         }
-        if (!emsmallens && SkClipStack::kWideOpenGenID == clip->fGenID) {
+        if (SkClipStack::kWideOpenGenID == clip->fGenID) {
             *initialState = kAllIn_InitialState;
             break;
         }
