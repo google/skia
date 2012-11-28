@@ -1671,7 +1671,6 @@ static SK_SFNT_ULONG get_font_type_tag(SkFontID uniqueID) {
         return 0;
     }
     
-    SkASSERT(kCFNumberSInt32Type == CFNumberGetType(fontFormatRef));
     SInt32 fontFormatValue;
     if (!CFNumberGetValue(fontFormatRef, kCFNumberSInt32Type, &fontFormatValue)) {
         CFRelease(fontFormatRef);
