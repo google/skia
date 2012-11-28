@@ -12,6 +12,10 @@
 
 #include "SkFlattenable.h"
 #include "SkPaint.h"
+#include "SkPath.h"
+#include "SkPoint.h"
+#include "SkRect.h"
+#include "SkTDArray.h"
 
 class SkPath;
 
@@ -128,6 +132,47 @@ public:
      *  The baseline implementation just assigns src to dst.
      */
     virtual void computeFastBounds(SkRect* dst, const SkRect& src);
+
+    /** \class PointData
+
+        PointData aggregates all the information needed to draw the point
+        primitives returned by an 'asPoints' call. 
+    */
+    class PointData {
+    public:
+        PointData()
+            : fFlags(0) {
+            fSize.set(SK_Scalar1, SK_Scalar1);
+            // 'asPoints' needs to initialize/fill-in 'fClipRect' if it sets 
+            // the kUseClip flag
+        };
+        ~PointData() {};
+
+        // TODO: consider using passed-in flags to limit the work asPoints does.
+        // For example, a kNoPath flag could indicate don't bother generating
+        // stamped solutions.
+
+        // Currently none of these flags are supported.
+        enum PointFlags {
+            kCircles_PointFlag            = 0x01,   // draw points as circles (instead of rects)
+            kUsePath_PointFlag            = 0x02,   // draw points as stamps of the returned path
+            kUseClip_PointFlag            = 0x04,   // apply 'fClipRect' before drawing the points
+        };
+
+        uint32_t           fFlags;      // flags that impact the drawing of the points
+        // TODO: consider replacing the TDArray with either SkData or a ptr/len field
+        SkTDArray<SkPoint> fPoints;     // the center point of each generated point
+        SkVector           fSize;       // the size to draw the points
+        SkRect             fClipRect;   // clip required to draw the points (if kUseClip is set)
+        SkPath             fPath;       // 'stamp' to be used at each point (if kUsePath is set)
+    };
+
+    /**
+     *  Does applying this path effect to 'src' yield a set of points? If so,
+     *  optionally return the points in 'results'.
+     */
+    virtual bool asPoints(PointData* results, const SkPath& src, 
+                          const SkStrokeRec&, const SkMatrix&) const;
 
 protected:
     SkPathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}

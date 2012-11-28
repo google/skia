@@ -171,9 +171,87 @@ protected:
 
 //////////////////////////////////////////////////////////////////////////////
 
+// Test out the on/off line dashing Chrome if fond of
+class Dashing3GM : public skiagm::GM {
+public:
+    Dashing3GM() {}
+
+protected:
+    SkString onShortName() {
+        return SkString("dashing3");
+    }
+
+    SkISize onISize() { return skiagm::make_isize(640, 480); }
+
+    // Draw a 100x100 block of dashed lines. The horizontal ones are BW
+    // while the vertical ones are AA.
+    void drawDashedLines(SkCanvas* canvas, SkScalar length, SkScalar phase) {
+        SkPaint p;
+        p.setColor(SK_ColorBLACK);
+        p.setStyle(SkPaint::kStroke_Style);
+        p.setStrokeWidth(SK_Scalar1);
+
+        SkScalar intervals[2] = { SK_Scalar1, SK_Scalar1 };
+
+        p.setPathEffect(new SkDashPathEffect(intervals, 2, phase, false));
+
+        SkPoint pts[2];
+
+        for (int y = 0; y < 100; y += 5) {
+            pts[0].set(0, SkIntToScalar(y));
+            pts[1].set(length, SkIntToScalar(y));
+
+            canvas->drawPoints(SkCanvas::kLines_PointMode, 2, pts, p);
+        }
+
+        p.setAntiAlias(true);
+
+        for (int x = 0; x < 100; x += 7) {
+            pts[0].set(SkIntToScalar(x), 0);
+            pts[1].set(SkIntToScalar(x), length);
+
+            canvas->drawPoints(SkCanvas::kLines_PointMode, 2, pts, p);
+        }
+    }
+
+    virtual void onDraw(SkCanvas* canvas) {
+        // fast path should work on this run
+        canvas->save();
+            this->drawDashedLines(canvas, 100, SK_Scalar1);
+        canvas->restore();
+
+        // non-1 phase should break the fast path
+        canvas->save();
+            canvas->translate(110, 0);
+            this->drawDashedLines(canvas, 100, SK_ScalarHalf);
+        canvas->restore();
+
+        // non-integer length should break the fast path
+        canvas->save();
+            canvas->translate(220, 0);
+            this->drawDashedLines(canvas, 99.5, SK_ScalarHalf);
+        canvas->restore();
+
+        // rotation should break the fast path
+        canvas->save();
+            canvas->translate(110+SK_ScalarRoot2Over2*100, 110+SK_ScalarRoot2Over2*100);
+            canvas->rotate(45);
+            canvas->translate(-50, -50);
+
+            this->drawDashedLines(canvas, 100, SK_Scalar1);
+        canvas->restore();
+
+    }
+
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
 static skiagm::GM* F0(void*) { return new DashingGM; }
 static skiagm::GM* F1(void*) { return new Dashing2GM; }
+static skiagm::GM* F2(void*) { return new Dashing3GM; }
 
 static skiagm::GMRegistry gR0(F0);
 static skiagm::GMRegistry gR1(F1);
+static skiagm::GMRegistry gR2(F2);
 

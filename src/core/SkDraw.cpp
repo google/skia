@@ -635,6 +635,39 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                 break;
             }
             case SkCanvas::kLines_PointMode:
+#ifndef SK_DISABLE_DASHING_OPTIMIZATION
+                if (2 == count && NULL != paint.getPathEffect()) {
+                    // most likely a dashed line - see if it is one of the ones
+                    // we can accelerate
+                    SkStrokeRec rec(paint);
+                    SkPathEffect::PointData dst;
+
+                    SkPath path;
+                    path.moveTo(pts[0]);
+                    path.lineTo(pts[1]);
+
+                    if (paint.getPathEffect()->asPoints(&dst, path, rec, *fMatrix) &&
+                        SK_Scalar1 == dst.fSize.fX && SK_Scalar1 == dst.fSize.fY &&
+                        !(SkPathEffect::PointData::kUsePath_PointFlag & dst.fFlags)) {
+                        SkPaint newP(paint);
+                        newP.setPathEffect(NULL);
+
+                        if (SkPathEffect::PointData::kCircles_PointFlag & dst.fFlags) {
+                            newP.setStrokeCap(SkPaint::kRound_Cap);
+                        } else {
+                            newP.setStrokeCap(SkPaint::kButt_Cap);
+                        }
+
+                        this->drawPoints(SkCanvas::kPoints_PointMode,
+                                         dst.fPoints.count(),
+                                         dst.fPoints.begin(),
+                                         newP,
+                                         forceUseDevice);
+                        break;
+                    }
+                }
+#endif // DISABLE_DASHING_OPTIMIZATION
+                // couldn't take fast path so fall through!
             case SkCanvas::kPolygon_PointMode: {
                 count -= 1;
                 SkPath path;
