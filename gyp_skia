@@ -11,6 +11,7 @@
 
 import glob
 import os
+import platform
 import shlex
 import sys
 
@@ -21,10 +22,6 @@ gyp_source_dir = os.path.join(script_dir, 'third_party', 'externals', 'gyp')
 
 # Directory within which we can find most of Skia's gyp configuration files.
 gyp_config_dir = os.path.join(script_dir, 'gyp')
-
-# Directory within which we want all generated files (including Makefiles)
-# to be written.
-output_dir = os.path.join(os.path.abspath(script_dir), 'out')
 
 # Ensure we import our current gyp source's module, not any version
 # pre-installed in your PYTHONPATH.
@@ -53,6 +50,31 @@ def additional_include_files(args=[]):
   AddInclude(os.path.join(gyp_config_dir, 'common.gypi'))
 
   return result
+
+# Return the directory where all generated files (including Makefiles) are to
+# be written.
+def get_output_dir():
+
+  # SKIA_OUT can be any directory either as a child of the standard out/
+  # directory or any given location on the file system (e.g. /tmp/skia)
+  output_dir = os.getenv('SKIA_OUT')
+
+  if not output_dir:
+    return os.path.join(os.path.abspath(script_dir), 'out')
+
+  if (os.name != 'posix' or
+     (sys.platform.startswith('darwin') and 
+      (not os.getenv('GYP_GENERATORS') or 
+       'make' not in os.getenv('GYP_GENERATORS')))):
+    print 'ERROR: variable SKIA_OUT is not valid on Mac (using xcodebuild)' \
+          ' or Windows'
+    sys.exit(-1);
+
+  if os.path.isabs(output_dir):
+    return output_dir
+  else:
+    return os.path.join(os.path.abspath(script_dir), output_dir)
+
 
 if __name__ == '__main__':
   args = sys.argv[1:]
@@ -83,7 +105,7 @@ if __name__ == '__main__':
   args.extend(['--depth', '.'])
 
   # Tell gyp to write the Makefiles into output_dir
-  args.extend(['--generator-output', os.path.abspath(output_dir)])
+  args.extend(['--generator-output', os.path.abspath(get_output_dir())])
 
   # Tell make to write its output into the same dir
   args.extend(['-Goutput_dir=.'])
