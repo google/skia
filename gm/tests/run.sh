@@ -63,9 +63,13 @@ GM_TESTDIR=gm/tests
 GM_INPUTS=$GM_TESTDIR/inputs
 GM_OUTPUTS=$GM_TESTDIR/outputs
 
-gm_test "--hierarchy --match dashing --config 4444 -r $GM_INPUTS/dashing-correct-images" "$GM_OUTPUTS/dashing-compared-against-correct"
+# Compare generated image against an input image file with identical bytes.
+gm_test "--hierarchy --match dashing2 --config 4444 -r $GM_INPUTS/identical-bytes" "$GM_OUTPUTS/compared-against-identical-bytes"
 
-# In this case, dashing.png has different pixels, but dashing2.png differs only in PNG encoding (identical pixels)
-gm_test "--hierarchy --match dashing --config 4444 -r $GM_INPUTS/dashing-incorrect-images" "$GM_OUTPUTS/dashing-compared-against-incorrect"
+# Compare generated image against an input image file with identical pixels but different PNG encoding.
+gm_test "--hierarchy --match dashing2 --config 4444 -r $GM_INPUTS/identical-pixels" "$GM_OUTPUTS/compared-against-identical-pixels"
+
+# Compare generated image against an input image file with different pixels.
+gm_test "--hierarchy --match dashing2 --config 4444 -r $GM_INPUTS/different-pixels" "$GM_OUTPUTS/compared-against-different-pixels"
 
 echo "All tests passed."

@@ -1,7 +1,0 @@
-reading from gm/tests/inputs/dashing-incorrect-images
-writing to gm/tests/outputs/dashing-compared-against-incorrect/output-actual/images
-drawing... dashing2 [640 480]
-drawing... dashing [640 300]
------  max pixel mismatch for 4444/dashing is 51
-Ran 2 tests: 1 passed, 1 failed, 0 missing reference images
-		4444/dashing pixel_error 51

@@ -1,1 +1,0 @@
-out/Debug/gm --hierarchy --match dashing --config 4444 -r gm/tests/inputs/dashing-incorrect-images -w gm/tests/outputs/dashing-compared-against-incorrect/output-actual/images
