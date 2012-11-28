@@ -128,7 +128,7 @@ private:
 
 /**
  *  Specialized version of SkAutoTUnref<SkData> for automatically unref-ing a
- *  SkData. If the SkData is null, data(), bytes() and size() will return 0.
+ *  SkData.
  */
 class SkAutoDataUnref : SkNoncopyable {
 public:
