@@ -27,6 +27,7 @@
 #
 # See https://sites.google.com/site/skiadocs/ for complete documentation.
 
+SKIA_OUT ?= out
 BUILDTYPE ?= Debug
 CWD := $(shell pwd)
 
@@ -72,6 +73,9 @@ all: everything
 .PHONY: clean
 clean:
 	rm -rf out xcodebuild
+ifneq (out, $(SKIA_OUT))
+	rm -rf $(SKIA_OUT)
+endif
 
 # Run gyp no matter what.
 .PHONY: gyp
@@ -90,13 +94,13 @@ gyp:
 .PHONY: gyp_if_needed
 gyp_if_needed:
 ifneq (,$(findstring Linux, $(uname)))
-	$(MAKE) out/Makefile
+	$(MAKE) $(SKIA_OUT)/Makefile
 endif
 ifneq (,$(findstring Darwin, $(uname)))
 	$(CWD)/gyp_skia
 endif
 
-out/Makefile:
+$(SKIA_OUT)/Makefile:
 	$(CWD)/gyp_skia
 
 # For all specific targets: run gyp if necessary, and then pass control to
@@ -106,9 +110,11 @@ out/Makefile:
 .PHONY: $(VALID_TARGETS)
 $(VALID_TARGETS):: gyp_if_needed
 ifneq (,$(findstring skia_os=android, $(GYP_DEFINES)))
-	$(MAKE) -C out $@ BUILDTYPE=$(BUILDTYPE)
+	$(MAKE) -C $(SKIA_OUT) $@ BUILDTYPE=$(BUILDTYPE)
 else ifneq (,$(findstring Linux, $(uname)))
-	$(MAKE) -C out $@ BUILDTYPE=$(BUILDTYPE)
+	$(MAKE) -C $(SKIA_OUT) $@ BUILDTYPE=$(BUILDTYPE)
+else ifneq (,$(findstring make, $(GYP_GENERATORS)))
+	$(MAKE) -C $(SKIA_OUT) $@ BUILDTYPE=$(BUILDTYPE)
 else ifneq (,$(findstring Darwin, $(uname)))
 	rm -f out/$(BUILDTYPE) || if test -d out/$(BUILDTYPE); then echo "run 'make clean' or otherwise delete out/$(BUILDTYPE)"; exit 1; fi
 	xcodebuild -project out/gyp/$@.xcodeproj -configuration $(BUILDTYPE)
