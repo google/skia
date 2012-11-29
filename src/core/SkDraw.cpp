@@ -318,8 +318,8 @@ static void bw_pt_rect_hair_proc(const PtProcRec& rec, const SkPoint devPts[],
     const SkIRect& r = rec.fClip->getBounds();
 
     for (int i = 0; i < count; i++) {
-        int x = SkScalarFloor(devPts[i].fX);
-        int y = SkScalarFloor(devPts[i].fY);
+        int x = SkScalarFloorToInt(devPts[i].fX);
+        int y = SkScalarFloorToInt(devPts[i].fY);
         if (r.contains(x, y)) {
             blitter->blitH(x, y, 1);
         }
@@ -334,16 +334,36 @@ static void bw_pt_rect_16_hair_proc(const PtProcRec& rec,
     uint32_t value;
     const SkBitmap* bitmap = blitter->justAnOpaqueColor(&value);
     SkASSERT(bitmap);
-
+    
     uint16_t* addr = bitmap->getAddr16(0, 0);
     int rb = bitmap->rowBytes();
-
+    
     for (int i = 0; i < count; i++) {
-        int x = SkScalarFloor(devPts[i].fX);
-        int y = SkScalarFloor(devPts[i].fY);
+        int x = SkScalarFloorToInt(devPts[i].fX);
+        int y = SkScalarFloorToInt(devPts[i].fY);
         if (r.contains(x, y)) {
-//            *bitmap->getAddr16(x, y) = SkToU16(value);
             ((uint16_t*)((char*)addr + y * rb))[x] = SkToU16(value);
+        }
+    }
+}
+
+static void bw_pt_rect_32_hair_proc(const PtProcRec& rec,
+                                    const SkPoint devPts[], int count,
+                                    SkBlitter* blitter) {
+    SkASSERT(rec.fRC->isRect());
+    const SkIRect& r = rec.fRC->getBounds();
+    uint32_t value;
+    const SkBitmap* bitmap = blitter->justAnOpaqueColor(&value);
+    SkASSERT(bitmap);
+    
+    SkPMColor* addr = bitmap->getAddr32(0, 0);
+    int rb = bitmap->rowBytes();
+    
+    for (int i = 0; i < count; i++) {
+        int x = SkScalarFloorToInt(devPts[i].fX);
+        int y = SkScalarFloorToInt(devPts[i].fY);
+        if (r.contains(x, y)) {
+            ((SkPMColor*)((char*)addr + y * rb))[x] = value;
         }
     }
 }
@@ -397,13 +417,13 @@ static void bw_square_proc(const PtProcRec& rec, const SkPoint devPts[],
     for (int i = 0; i < count; i++) {
         SkFixed x = SkScalarToFixed(devPts[i].fX);
         SkFixed y = SkScalarToFixed(devPts[i].fY);
-
+        
         SkXRect r;
         r.fLeft = x - radius;
         r.fTop = y - radius;
         r.fRight = x + radius;
         r.fBottom = y + radius;
-
+        
         SkScan::FillXRect(r, *rec.fRC, blitter);
     }
 }
@@ -437,7 +457,7 @@ bool PtProcRec::init(SkCanvas::PointMode mode, const SkPaint& paint,
         fPaint = &paint;
         fClip = NULL;
         fRC = rc;
-        fRadius = SK_Fixed1 >> 1;
+        fRadius = SK_FixedHalf;
         return true;
     }
     if (paint.getStrokeCap() != SkPaint::kRound_Cap &&
@@ -479,19 +499,25 @@ PtProcRec::Proc PtProcRec::chooseProc(SkBlitter** blitterPtr) {
     SkASSERT(2 == SkCanvas::kPolygon_PointMode);
     SkASSERT((unsigned)fMode <= (unsigned)SkCanvas::kPolygon_PointMode);
 
-    // first check for hairlines
-    if (0 == fPaint->getStrokeWidth()) {
-        if (fPaint->isAntiAlias()) {
+    if (fPaint->isAntiAlias()) {
+        if (0 == fPaint->getStrokeWidth()) {
             static const Proc gAAProcs[] = {
                 aa_square_proc, aa_line_hair_proc, aa_poly_hair_proc
             };
             proc = gAAProcs[fMode];
-        } else {
+        } else if (fPaint->getStrokeCap() != SkPaint::kRound_Cap) {
+            SkASSERT(SkCanvas::kPoints_PointMode == fMode);
+            proc = aa_square_proc;
+        }
+    } else {    // BW
+        if (fRadius <= SK_FixedHalf) {    // small radii and hairline
             if (SkCanvas::kPoints_PointMode == fMode && fClip->isRect()) {
                 uint32_t value;
                 const SkBitmap* bm = blitter->justAnOpaqueColor(&value);
-                if (bm && bm->config() == SkBitmap::kRGB_565_Config) {
+                if (bm && SkBitmap::kRGB_565_Config == bm->config()) {
                     proc = bw_pt_rect_16_hair_proc;
+                } else if (bm && SkBitmap::kARGB_8888_Config == bm->config()) {
+                    proc = bw_pt_rect_32_hair_proc;
                 } else {
                     proc = bw_pt_rect_hair_proc;
                 }
@@ -501,11 +527,6 @@ PtProcRec::Proc PtProcRec::chooseProc(SkBlitter** blitterPtr) {
                 };
                 proc = gBWProcs[fMode];
             }
-        }
-    } else if (fPaint->getStrokeCap() != SkPaint::kRound_Cap) {
-        SkASSERT(SkCanvas::kPoints_PointMode == fMode);
-        if (fPaint->isAntiAlias()) {
-            proc = aa_square_proc;
         } else {
             proc = bw_square_proc;
         }
