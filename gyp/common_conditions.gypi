@@ -290,6 +290,9 @@
           '<(android_base)/toolchains/<(android_toolchain)/sysroot/usr/include',
         ],
         'conditions': [
+          [ 'skia_profile_enabled == 1', {
+            'cflags': ['-g', '-fno-omit-frame-pointer', '-marm', '-mapcs'],
+          }],
           [ 'skia_arch_type == "arm"', {
             'ldflags': [
               '-Wl',

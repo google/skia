@@ -54,9 +54,12 @@
           # ARM), the compiler doesn't like that.
           'cflags!': [
             '-fno-omit-frame-pointer',
+            '-mapcs-frame',
+            '-mapcs',
           ],
           'cflags': [
             '-fomit-frame-pointer',
+            '-mno-apcs-frame',
           ],
           'variables': {
             'arm_neon_optional%': '<(arm_neon_optional>',
