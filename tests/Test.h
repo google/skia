@@ -104,6 +104,7 @@ namespace skiatest {
             fContext = GetContext();
         }
         static GrContext* GetContext();
+        static void DestroyContext();
     protected:
         GrContext* fContext;
     private:
