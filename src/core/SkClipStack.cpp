@@ -16,439 +16,346 @@
 static const int32_t kFirstUnreservedGenID = 3;
 int32_t SkClipStack::gGenID = kFirstUnreservedGenID;
 
-struct SkClipStack::Element {
-    enum Type {
-        //!< This element makes the clip empty (regardless of previous elements).
-        kEmpty_Type,
-        //!< This element combines a rect with the current clip using a set operation
-        kRect_Type,
-        //!< This element combines a path with the current clip using a set operation
-        kPath_Type,
-    };
+void SkClipStack::Element::checkEmpty() const {
+    SkASSERT(fFiniteBound.isEmpty());
+    SkASSERT(kNormal_BoundsType == fFiniteBoundType);
+    SkASSERT(!fIsIntersectionOfRects);
+    SkASSERT(kEmptyGenID == fGenID);
+    SkASSERT(fPath.isEmpty());
+}
 
-    SkPath          fPath;
-    SkRect          fRect;
-    int             fSaveCount;
-    SkRegion::Op    fOp;
-    Type            fType;
-    bool            fDoAA;
-
-    // fFiniteBoundType and fFiniteBound are used to incrementally update
-    // the clip stack's bound. When fFiniteBoundType is kNormal_BoundsType,
-    // fFiniteBound represents the  conservative bounding box of the pixels
-    // that aren't clipped (i.e., any pixels that can be drawn to are inside
-    // the bound). When fFiniteBoundType is kInsideOut_BoundsType (which occurs
-    // when a clip is inverse filled), fFiniteBound represents the
-    // conservative bounding box of the pixels that _are_ clipped (i.e., any
-    // pixels that cannot be drawn to are inside the bound). When
-    // fFiniteBoundType is kInsideOut_BoundsType the actual bound is
-    // the infinite plane. This behavior of fFiniteBoundType and
-    // fFiniteBound is required so that we can capture the cancelling out
-    // of the extensions to infinity when two inverse filled clips are
-    // Booleaned together.
-    SkClipStack::BoundsType fFiniteBoundType;
-    SkRect                  fFiniteBound;
-    bool                    fIsIntersectionOfRects;
-
-    int                     fGenID;
-
-    Element(int saveCount)
-    : fGenID(kInvalidGenID) {
-        fSaveCount = saveCount;
-        this->setEmpty();
-    }
-
-    Element(int saveCount, const SkRect& rect, SkRegion::Op op, bool doAA)
-        : fRect(rect)
-        , fGenID(kInvalidGenID) {
-        fSaveCount = saveCount;
-        fOp = op;
-        fType = kRect_Type;
-        fDoAA = doAA;
-        // bounding box members are updated in a following updateBoundAndGenID call
-    }
-
-    Element(int saveCount, const SkPath& path, SkRegion::Op op, bool doAA)
-        : fPath(path)
-        , fGenID(kInvalidGenID) {
-        fRect.setEmpty();
-        fSaveCount = saveCount;
-        fOp = op;
-        fType = kPath_Type;
-        fDoAA = doAA;
-        // bounding box members are updated in a following updateBoundAndGenID call
-    }
-
-    void setEmpty() {
-        fType = kEmpty_Type;
-        fFiniteBound.setEmpty();
-        fFiniteBoundType = kNormal_BoundsType;
-        fIsIntersectionOfRects = false;
-        fGenID = kEmptyGenID;
-    }
-
-    void checkEmpty() const {
-        SkASSERT(fFiniteBound.isEmpty());
-        SkASSERT(kNormal_BoundsType == fFiniteBoundType);
-        SkASSERT(!fIsIntersectionOfRects);
-        SkASSERT(kEmptyGenID == fGenID);
-    }
-
-    bool operator==(const Element& b) const {
-        if (fSaveCount != b.fSaveCount ||
-            fOp != b.fOp ||
-            fType != b.fType ||
-            fDoAA != b.fDoAA) {
-            return false;
-        }
-        switch (fType) {
-            case kEmpty_Type:
-                return true;
-            case kRect_Type:
-                return fRect == b.fRect;
-            case kPath_Type:
-                return fPath == b.fPath;
-        }
-        return false;  // Silence the compiler.
-    }
-
-    bool operator!=(const Element& b) const {
-        return !(*this == b);
-    }
-
-
-    /**
-     *  Returns true if this Element can be intersected in place with a new clip
-     */
-    bool canBeIntersectedInPlace(int saveCount, SkRegion::Op op) const {
-        if (kEmpty_Type == fType && (
-                    SkRegion::kDifference_Op == op ||
-                    SkRegion::kIntersect_Op == op)) {
-            return true;
-        }
-        // Only clips within the same save/restore frame (as captured by
-        // the save count) can be merged
-        return  fSaveCount == saveCount &&
-                SkRegion::kIntersect_Op == op &&
-                (SkRegion::kIntersect_Op == fOp || SkRegion::kReplace_Op == fOp);
-    }
-
-    /**
-     * This method checks to see if two rect clips can be safely merged into
-     * one. The issue here is that to be strictly correct all the edges of
-     * the resulting rect must have the same anti-aliasing.
-     */
-    bool rectRectIntersectAllowed(const SkRect& newR, bool newAA) const {
-        SkASSERT(kRect_Type == fType);
-
-        if (fDoAA == newAA) {
-            // if the AA setting is the same there is no issue
-            return true;
-        }
-
-        if (!SkRect::Intersects(fRect, newR)) {
-            // The calling code will correctly set the result to the empty clip
-            return true;
-        }
-
-        if (fRect.contains(newR)) {
-            // if the new rect carves out a portion of the old one there is no
-            // issue
-            return true;
-        }
-
-        // So either the two overlap in some complex manner or newR contains oldR.
-        // In the first, case the edges will require different AA. In the second,
-        // the AA setting that would be carried forward is incorrect (e.g., oldR
-        // is AA while newR is BW but since newR contains oldR, oldR will be
-        // drawn BW) since the new AA setting will predominate.
+bool SkClipStack::Element::operator==(const Element& b) const {
+    if (fSaveCount != b.fSaveCount ||
+        fOp != b.fOp ||
+        fType != b.fType ||
+        fDoAA != b.fDoAA) {
         return false;
     }
+    switch (fType) {
+        case kEmpty_Type:
+            return true;
+        case kRect_Type:
+            return fRect == b.fRect;
+        case kPath_Type:
+            return fPath == b.fPath;
+    }
+    return false;  // Silence the compiler.
+}
 
+bool SkClipStack::Element::operator!=(const Element& b) const {
+    return !(*this == b);
+}
 
-    /**
-     * The different combination of fill & inverse fill when combining
-     * bounding boxes
-     */
-    enum FillCombo {
-        kPrev_Cur_FillCombo,
-        kPrev_InvCur_FillCombo,
-        kInvPrev_Cur_FillCombo,
-        kInvPrev_InvCur_FillCombo
-    };
+bool SkClipStack::Element::canBeIntersectedInPlace(int saveCount, SkRegion::Op op) const {
+    if (kEmpty_Type == fType &&
+        (SkRegion::kDifference_Op == op || SkRegion::kIntersect_Op == op)) {
+        return true;
+    }
+    // Only clips within the same save/restore frame (as captured by
+    // the save count) can be merged
+    return  fSaveCount == saveCount &&
+            SkRegion::kIntersect_Op == op &&
+            (SkRegion::kIntersect_Op == fOp || SkRegion::kReplace_Op == fOp);
+}
 
-    // a mirror of combineBoundsRevDiff
-    void combineBoundsDiff(FillCombo combination, const SkRect& prevFinite) {
-        switch (combination) {
-            case kInvPrev_InvCur_FillCombo:
-                // In this case the only pixels that can remain set
-                // are inside the current clip rect since the extensions
-                // to infinity of both clips cancel out and whatever
-                // is outside of the current clip is removed
-                fFiniteBoundType = kNormal_BoundsType;
-                break;
-            case kInvPrev_Cur_FillCombo:
-                // In this case the current op is finite so the only pixels
-                // that aren't set are whatever isn't set in the previous
-                // clip and whatever this clip carves out
-                fFiniteBound.join(prevFinite);
-                fFiniteBoundType = kInsideOut_BoundsType;
-                break;
-            case kPrev_InvCur_FillCombo:
-                // In this case everything outside of this clip's bound
-                // is erased, so the only pixels that can remain set
-                // occur w/in the intersection of the two finite bounds
-                if (!fFiniteBound.intersect(prevFinite)) {
-                    fFiniteBound.setEmpty();
-                    fGenID = kEmptyGenID;
-                }
-                fFiniteBoundType = kNormal_BoundsType;
-                break;
-            case kPrev_Cur_FillCombo:
-                // The most conservative result bound is that of the
-                // prior clip. This could be wildly incorrect if the
-                // second clip either exactly matches the first clip
-                // (which should yield the empty set) or reduces the
-                // size of the prior bound (e.g., if the second clip
-                // exactly matched the bottom half of the prior clip).
-                // We ignore these two possibilities.
-                fFiniteBound = prevFinite;
-                break;
-            default:
-                SkDEBUGFAIL("SkClipStack::Element::combineBoundsDiff Invalid fill combination");
-                break;
-        }
+bool SkClipStack::Element::rectRectIntersectAllowed(const SkRect& newR, bool newAA) const {
+    SkASSERT(kRect_Type == fType);
+
+    if (fDoAA == newAA) {
+        // if the AA setting is the same there is no issue
+        return true;
     }
 
-    void combineBoundsXOR(int combination, const SkRect& prevFinite) {
-
-        switch (combination) {
-            case kInvPrev_Cur_FillCombo:       // fall through
-            case kPrev_InvCur_FillCombo:
-                // With only one of the clips inverted the result will always
-                // extend to infinity. The only pixels that may be un-writeable
-                // lie within the union of the two finite bounds
-                fFiniteBound.join(prevFinite);
-                fFiniteBoundType = kInsideOut_BoundsType;
-                break;
-            case kInvPrev_InvCur_FillCombo:
-                // The only pixels that can survive are within the
-                // union of the two bounding boxes since the extensions
-                // to infinity of both clips cancel out
-                // fall through!
-            case kPrev_Cur_FillCombo:
-                // The most conservative bound for xor is the
-                // union of the two bounds. If the two clips exactly overlapped
-                // the xor could yield the empty set. Similarly the xor
-                // could reduce the size of the original clip's bound (e.g.,
-                // if the second clip exactly matched the bottom half of the
-                // first clip). We ignore these two cases.
-                fFiniteBound.join(prevFinite);
-                fFiniteBoundType = kNormal_BoundsType;
-                break;
-            default:
-                SkDEBUGFAIL("SkClipStack::Element::combineBoundsXOR Invalid fill combination");
-                break;
-        }
+    if (!SkRect::Intersects(fRect, newR)) {
+        // The calling code will correctly set the result to the empty clip
+        return true;
     }
 
-    // a mirror of combineBoundsIntersection
-    void combineBoundsUnion(int combination, const SkRect& prevFinite) {
-
-        switch (combination) {
-            case kInvPrev_InvCur_FillCombo:
-                if (!fFiniteBound.intersect(prevFinite)) {
-                    fFiniteBound.setEmpty();
-                    fGenID = kWideOpenGenID;
-                }
-                fFiniteBoundType = kInsideOut_BoundsType;
-                break;
-            case kInvPrev_Cur_FillCombo:
-                // The only pixels that won't be drawable are inside
-                // the prior clip's finite bound
-                fFiniteBound = prevFinite;
-                fFiniteBoundType = kInsideOut_BoundsType;
-                break;
-            case kPrev_InvCur_FillCombo:
-                // The only pixels that won't be drawable are inside
-                // this clip's finite bound
-                break;
-            case kPrev_Cur_FillCombo:
-                fFiniteBound.join(prevFinite);
-                break;
-            default:
-                SkDEBUGFAIL("SkClipStack::Element::combineBoundsUnion Invalid fill combination");
-                break;
-        }
+    if (fRect.contains(newR)) {
+        // if the new rect carves out a portion of the old one there is no
+        // issue
+        return true;
     }
 
-    // a mirror of combineBoundsUnion
-    void combineBoundsIntersection(int combination, const SkRect& prevFinite) {
+    // So either the two overlap in some complex manner or newR contains oldR.
+    // In the first, case the edges will require different AA. In the second,
+    // the AA setting that would be carried forward is incorrect (e.g., oldR
+    // is AA while newR is BW but since newR contains oldR, oldR will be
+    // drawn BW) since the new AA setting will predominate.
+    return false;
+}
 
-        switch (combination) {
-            case kInvPrev_InvCur_FillCombo:
-                // The only pixels that aren't writable in this case
-                // occur in the union of the two finite bounds
-                fFiniteBound.join(prevFinite);
-                fFiniteBoundType = kInsideOut_BoundsType;
-                break;
-            case kInvPrev_Cur_FillCombo:
-                // In this case the only pixels that will remain writeable
-                // are within the current clip
-                break;
-            case kPrev_InvCur_FillCombo:
-                // In this case the only pixels that will remain writeable
-                // are with the previous clip
-                fFiniteBound = prevFinite;
-                fFiniteBoundType = kNormal_BoundsType;
-                break;
-            case kPrev_Cur_FillCombo:
-                if (!fFiniteBound.intersect(prevFinite)) {
-                    fFiniteBound.setEmpty();
-                    fGenID = kEmptyGenID;
-                }
-                break;
-            default:
-                SkDEBUGFAIL("SkClipStack::Element::combineBoundsIntersection Invalid fill combination");
-                break;
-        }
-    }
-
-    // a mirror of combineBoundsDiff
-    void combineBoundsRevDiff(int combination, const SkRect& prevFinite) {
-
-        switch (combination) {
-            case kInvPrev_InvCur_FillCombo:
-                // The only pixels that can survive are in the
-                // previous bound since the extensions to infinity in
-                // both clips cancel out
-                fFiniteBound = prevFinite;
-                fFiniteBoundType = kNormal_BoundsType;
-                break;
-            case kInvPrev_Cur_FillCombo:
-                if (!fFiniteBound.intersect(prevFinite)) {
-                    fFiniteBound.setEmpty();
-                    fGenID = kEmptyGenID;
-                }
-                fFiniteBoundType = kNormal_BoundsType;
-                break;
-            case kPrev_InvCur_FillCombo:
-                fFiniteBound.join(prevFinite);
-                fFiniteBoundType = kInsideOut_BoundsType;
-                break;
-            case kPrev_Cur_FillCombo:
-                // Fall through - as with the kDifference_Op case, the
-                // most conservative result bound is the bound of the
-                // current clip. The prior clip could reduce the size of this
-                // bound (as in the kDifference_Op case) but we are ignoring
-                // those cases.
-                break;
-            default:
-                SkDEBUGFAIL("SkClipStack::Element::combineBoundsRevDiff Invalid fill combination");
-                break;
-        }
-    }
-
-    void updateBoundAndGenID(const Element* prior) {
-        // We set this first here but we may overwrite it later if we determine that the clip is
-        // either wide-open or empty.
-        fGenID = GetNextGenID();
-
-        // First, optimistically update the current Element's bound information
-        // with the current clip's bound
-        fIsIntersectionOfRects = false;
-        if (kRect_Type == fType) {
-            fFiniteBound = fRect;
+// a mirror of combineBoundsRevDiff
+void SkClipStack::Element::combineBoundsDiff(FillCombo combination, const SkRect& prevFinite) {
+    switch (combination) {
+        case kInvPrev_InvCur_FillCombo:
+            // In this case the only pixels that can remain set
+            // are inside the current clip rect since the extensions
+            // to infinity of both clips cancel out and whatever
+            // is outside of the current clip is removed
             fFiniteBoundType = kNormal_BoundsType;
-
-            if (SkRegion::kReplace_Op == fOp ||
-                (SkRegion::kIntersect_Op == fOp && NULL == prior) ||
-                (SkRegion::kIntersect_Op == fOp && prior->fIsIntersectionOfRects &&
-                 prior->rectRectIntersectAllowed(fRect, fDoAA))) {
-                fIsIntersectionOfRects = true;
+            break;
+        case kInvPrev_Cur_FillCombo:
+            // In this case the current op is finite so the only pixels
+            // that aren't set are whatever isn't set in the previous
+            // clip and whatever this clip carves out
+            fFiniteBound.join(prevFinite);
+            fFiniteBoundType = kInsideOut_BoundsType;
+            break;
+        case kPrev_InvCur_FillCombo:
+            // In this case everything outside of this clip's bound
+            // is erased, so the only pixels that can remain set
+            // occur w/in the intersection of the two finite bounds
+            if (!fFiniteBound.intersect(prevFinite)) {
+                fFiniteBound.setEmpty();
+                fGenID = kEmptyGenID;
             }
+            fFiniteBoundType = kNormal_BoundsType;
+            break;
+        case kPrev_Cur_FillCombo:
+            // The most conservative result bound is that of the
+            // prior clip. This could be wildly incorrect if the
+            // second clip either exactly matches the first clip
+            // (which should yield the empty set) or reduces the
+            // size of the prior bound (e.g., if the second clip
+            // exactly matched the bottom half of the prior clip).
+            // We ignore these two possibilities.
+            fFiniteBound = prevFinite;
+            break;
+        default:
+            SkDEBUGFAIL("SkClipStack::Element::combineBoundsDiff Invalid fill combination");
+            break;
+    }
+}
 
-        } else {
-            SkASSERT(kPath_Type == fType);
+void SkClipStack::Element::combineBoundsXOR(int combination, const SkRect& prevFinite) {
 
-            fFiniteBound = fPath.getBounds();
+    switch (combination) {
+        case kInvPrev_Cur_FillCombo:       // fall through
+        case kPrev_InvCur_FillCombo:
+            // With only one of the clips inverted the result will always
+            // extend to infinity. The only pixels that may be un-writeable
+            // lie within the union of the two finite bounds
+            fFiniteBound.join(prevFinite);
+            fFiniteBoundType = kInsideOut_BoundsType;
+            break;
+        case kInvPrev_InvCur_FillCombo:
+            // The only pixels that can survive are within the
+            // union of the two bounding boxes since the extensions
+            // to infinity of both clips cancel out
+            // fall through!
+        case kPrev_Cur_FillCombo:
+            // The most conservative bound for xor is the
+            // union of the two bounds. If the two clips exactly overlapped
+            // the xor could yield the empty set. Similarly the xor
+            // could reduce the size of the original clip's bound (e.g.,
+            // if the second clip exactly matched the bottom half of the
+            // first clip). We ignore these two cases.
+            fFiniteBound.join(prevFinite);
+            fFiniteBoundType = kNormal_BoundsType;
+            break;
+        default:
+            SkDEBUGFAIL("SkClipStack::Element::combineBoundsXOR Invalid fill combination");
+            break;
+    }
+}
 
-            if (fPath.isInverseFillType()) {
-                fFiniteBoundType = kInsideOut_BoundsType;
-            } else {
-                fFiniteBoundType = kNormal_BoundsType;
+// a mirror of combineBoundsIntersection
+void SkClipStack::Element::combineBoundsUnion(int combination, const SkRect& prevFinite) {
+
+    switch (combination) {
+        case kInvPrev_InvCur_FillCombo:
+            if (!fFiniteBound.intersect(prevFinite)) {
+                fFiniteBound.setEmpty();
+                fGenID = kWideOpenGenID;
             }
+            fFiniteBoundType = kInsideOut_BoundsType;
+            break;
+        case kInvPrev_Cur_FillCombo:
+            // The only pixels that won't be drawable are inside
+            // the prior clip's finite bound
+            fFiniteBound = prevFinite;
+            fFiniteBoundType = kInsideOut_BoundsType;
+            break;
+        case kPrev_InvCur_FillCombo:
+            // The only pixels that won't be drawable are inside
+            // this clip's finite bound
+            break;
+        case kPrev_Cur_FillCombo:
+            fFiniteBound.join(prevFinite);
+            break;
+        default:
+            SkDEBUGFAIL("SkClipStack::Element::combineBoundsUnion Invalid fill combination");
+            break;
+    }
+}
+
+// a mirror of combineBoundsUnion
+void SkClipStack::Element::combineBoundsIntersection(int combination, const SkRect& prevFinite) {
+
+    switch (combination) {
+        case kInvPrev_InvCur_FillCombo:
+            // The only pixels that aren't writable in this case
+            // occur in the union of the two finite bounds
+            fFiniteBound.join(prevFinite);
+            fFiniteBoundType = kInsideOut_BoundsType;
+            break;
+        case kInvPrev_Cur_FillCombo:
+            // In this case the only pixels that will remain writeable
+            // are within the current clip
+            break;
+        case kPrev_InvCur_FillCombo:
+            // In this case the only pixels that will remain writeable
+            // are with the previous clip
+            fFiniteBound = prevFinite;
+            fFiniteBoundType = kNormal_BoundsType;
+            break;
+        case kPrev_Cur_FillCombo:
+            if (!fFiniteBound.intersect(prevFinite)) {
+                fFiniteBound.setEmpty();
+                fGenID = kEmptyGenID;
+            }
+            break;
+        default:
+            SkDEBUGFAIL("SkClipStack::Element::combineBoundsIntersection Invalid fill combination");
+            break;
+    }
+}
+
+// a mirror of combineBoundsDiff
+void SkClipStack::Element::combineBoundsRevDiff(int combination, const SkRect& prevFinite) {
+
+    switch (combination) {
+        case kInvPrev_InvCur_FillCombo:
+            // The only pixels that can survive are in the
+            // previous bound since the extensions to infinity in
+            // both clips cancel out
+            fFiniteBound = prevFinite;
+            fFiniteBoundType = kNormal_BoundsType;
+            break;
+        case kInvPrev_Cur_FillCombo:
+            if (!fFiniteBound.intersect(prevFinite)) {
+                fFiniteBound.setEmpty();
+                fGenID = kEmptyGenID;
+            }
+            fFiniteBoundType = kNormal_BoundsType;
+            break;
+        case kPrev_InvCur_FillCombo:
+            fFiniteBound.join(prevFinite);
+            fFiniteBoundType = kInsideOut_BoundsType;
+            break;
+        case kPrev_Cur_FillCombo:
+            // Fall through - as with the kDifference_Op case, the
+            // most conservative result bound is the bound of the
+            // current clip. The prior clip could reduce the size of this
+            // bound (as in the kDifference_Op case) but we are ignoring
+            // those cases.
+            break;
+        default:
+            SkDEBUGFAIL("SkClipStack::Element::combineBoundsRevDiff Invalid fill combination");
+            break;
+    }
+}
+
+void SkClipStack::Element::updateBoundAndGenID(const Element* prior) {
+    // We set this first here but we may overwrite it later if we determine that the clip is
+    // either wide-open or empty.
+    fGenID = GetNextGenID();
+
+    // First, optimistically update the current Element's bound information
+    // with the current clip's bound
+    fIsIntersectionOfRects = false;
+    if (kRect_Type == fType) {
+        fFiniteBound = fRect;
+        fFiniteBoundType = kNormal_BoundsType;
+
+        if (SkRegion::kReplace_Op == fOp ||
+            (SkRegion::kIntersect_Op == fOp && NULL == prior) ||
+            (SkRegion::kIntersect_Op == fOp && prior->fIsIntersectionOfRects &&
+                prior->rectRectIntersectAllowed(fRect, fDoAA))) {
+            fIsIntersectionOfRects = true;
         }
 
-        if (!fDoAA) {
-            // Here we mimic a non-anti-aliased scanline system. If there is
-            // no anti-aliasing we can integerize the bounding box to exclude
-            // fractional parts that won't be rendered.
-            // Note: the left edge is handled slightly differently below. We
-            // are a bit more generous in the rounding since we don't want to
-            // risk missing the left pixels when fLeft is very close to .5
-            fFiniteBound.set(SkIntToScalar(SkScalarFloorToInt(fFiniteBound.fLeft+0.45f)),
-                             SkIntToScalar(SkScalarRound(fFiniteBound.fTop)),
-                             SkIntToScalar(SkScalarRound(fFiniteBound.fRight)),
-                             SkIntToScalar(SkScalarRound(fFiniteBound.fBottom)));
-        }
+    } else {
+        SkASSERT(kPath_Type == fType);
 
-        // Now set up the previous Element's bound information taking into
-        // account that there may be no previous clip
-        SkRect prevFinite;
-        SkClipStack::BoundsType prevType;
+        fFiniteBound = fPath.getBounds();
 
-        if (NULL == prior) {
-            // no prior clip means the entire plane is writable
-            prevFinite.setEmpty();   // there are no pixels that cannot be drawn to
-            prevType = kInsideOut_BoundsType;
+        if (fPath.isInverseFillType()) {
+            fFiniteBoundType = kInsideOut_BoundsType;
         } else {
-            prevFinite = prior->fFiniteBound;
-            prevType = prior->fFiniteBoundType;
-        }
-
-        FillCombo combination = kPrev_Cur_FillCombo;
-        if (kInsideOut_BoundsType == fFiniteBoundType) {
-            combination = (FillCombo) (combination | 0x01);
-        }
-        if (kInsideOut_BoundsType == prevType) {
-            combination = (FillCombo) (combination | 0x02);
-        }
-
-        SkASSERT(kInvPrev_InvCur_FillCombo == combination ||
-                 kInvPrev_Cur_FillCombo == combination ||
-                 kPrev_InvCur_FillCombo == combination ||
-                 kPrev_Cur_FillCombo == combination);
-
-        // Now integrate with clip with the prior clips
-        switch (fOp) {
-            case SkRegion::kDifference_Op:
-                this->combineBoundsDiff(combination, prevFinite);
-                break;
-            case SkRegion::kXOR_Op:
-                this->combineBoundsXOR(combination, prevFinite);
-                break;
-            case SkRegion::kUnion_Op:
-                this->combineBoundsUnion(combination, prevFinite);
-                break;
-            case SkRegion::kIntersect_Op:
-                this->combineBoundsIntersection(combination, prevFinite);
-                break;
-            case SkRegion::kReverseDifference_Op:
-                this->combineBoundsRevDiff(combination, prevFinite);
-                break;
-            case SkRegion::kReplace_Op:
-                // Replace just ignores everything prior
-                // The current clip's bound information is already filled in
-                // so nothing to do
-                break;
-            default:
-                SkDebugf("SkRegion::Op error/n");
-                SkASSERT(0);
-                break;
+            fFiniteBoundType = kNormal_BoundsType;
         }
     }
-};
+
+    if (!fDoAA) {
+        // Here we mimic a non-anti-aliased scanline system. If there is
+        // no anti-aliasing we can integerize the bounding box to exclude
+        // fractional parts that won't be rendered.
+        // Note: the left edge is handled slightly differently below. We
+        // are a bit more generous in the rounding since we don't want to
+        // risk missing the left pixels when fLeft is very close to .5
+        fFiniteBound.set(SkIntToScalar(SkScalarFloorToInt(fFiniteBound.fLeft+0.45f)),
+                         SkIntToScalar(SkScalarRound(fFiniteBound.fTop)),
+                         SkIntToScalar(SkScalarRound(fFiniteBound.fRight)),
+                         SkIntToScalar(SkScalarRound(fFiniteBound.fBottom)));
+    }
+
+    // Now determine the previous Element's bound information taking into
+    // account that there may be no previous clip
+    SkRect prevFinite;
+    SkClipStack::BoundsType prevType;
+
+    if (NULL == prior) {
+        // no prior clip means the entire plane is writable
+        prevFinite.setEmpty();   // there are no pixels that cannot be drawn to
+        prevType = kInsideOut_BoundsType;
+    } else {
+        prevFinite = prior->fFiniteBound;
+        prevType = prior->fFiniteBoundType;
+    }
+
+    FillCombo combination = kPrev_Cur_FillCombo;
+    if (kInsideOut_BoundsType == fFiniteBoundType) {
+        combination = (FillCombo) (combination | 0x01);
+    }
+    if (kInsideOut_BoundsType == prevType) {
+        combination = (FillCombo) (combination | 0x02);
+    }
+
+    SkASSERT(kInvPrev_InvCur_FillCombo == combination ||
+                kInvPrev_Cur_FillCombo == combination ||
+                kPrev_InvCur_FillCombo == combination ||
+                kPrev_Cur_FillCombo == combination);
+
+    // Now integrate with clip with the prior clips
+    switch (fOp) {
+        case SkRegion::kDifference_Op:
+            this->combineBoundsDiff(combination, prevFinite);
+            break;
+        case SkRegion::kXOR_Op:
+            this->combineBoundsXOR(combination, prevFinite);
+            break;
+        case SkRegion::kUnion_Op:
+            this->combineBoundsUnion(combination, prevFinite);
+            break;
+        case SkRegion::kIntersect_Op:
+            this->combineBoundsIntersection(combination, prevFinite);
+            break;
+        case SkRegion::kReverseDifference_Op:
+            this->combineBoundsRevDiff(combination, prevFinite);
+            break;
+        case SkRegion::kReplace_Op:
+            // Replace just ignores everything prior
+            // The current clip's bound information is already filled in
+            // so nothing to do
+            break;
+        default:
+            SkDebugf("SkRegion::Op error/n");
+            SkASSERT(0);
+            break;
+    }
+}
 
 // This constant determines how many Element's are allocated together as a block in
 // the deque. As such it needs to balance allocating too much memory vs.
