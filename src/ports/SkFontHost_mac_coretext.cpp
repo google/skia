@@ -1670,14 +1670,14 @@ static SK_SFNT_ULONG get_font_type_tag(SkFontID uniqueID) {
     if (!fontFormatRef) {
         return 0;
     }
-    
+
     SInt32 fontFormatValue;
     if (!CFNumberGetValue(fontFormatRef, kCFNumberSInt32Type, &fontFormatValue)) {
         CFRelease(fontFormatRef);
         return 0;
     }
     CFRelease(fontFormatRef);
-    
+
     switch (fontFormatValue) {
         case kCTFontFormatOpenTypePostScript:
             return SkSFNTHeader::fontType_OpenTypeCFF::TAG;
@@ -1700,7 +1700,7 @@ SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
     if (0 == fontType) {
         return NULL;
     }
-    
+
     // get table tags
     int numTables = CountTables(uniqueID);
     SkTDArray<SkFontTableTag> tableTags;
@@ -1752,7 +1752,7 @@ SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
                                                                          tableSize));
         entry->offset = SkEndian_SwapBE32(dataPtr - dataStart);
         entry->logicalLength = SkEndian_SwapBE32(tableSize);
-        
+
         dataPtr += (tableSize + 3) & ~3;
         ++entry;
     }

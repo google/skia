@@ -116,7 +116,7 @@ void SkPathEffect::computeFastBounds(SkRect* dst, const SkRect& src) {
     *dst = src;
 }
 
-bool SkPathEffect::asPoints(PointData* results, const SkPath& src, 
+bool SkPathEffect::asPoints(PointData* results, const SkPath& src,
                             const SkStrokeRec&, const SkMatrix&) const {
     return false;
 }
