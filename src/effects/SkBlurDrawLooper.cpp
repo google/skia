@@ -27,10 +27,6 @@ SkBlurDrawLooper::SkBlurDrawLooper(SkScalar radius, SkScalar dx, SkScalar dy,
             SkBlurMaskFilter::kHighQuality_BlurFlag :
             SkBlurMaskFilter::kNone_BlurFlag;
 
-        blurFlags |= flags & kCoarseRadius_BlurFlag ?
-            SkBlurMaskFilter::kCoarseRadius_BlurFlag :
-            SkBlurMaskFilter::kNone_BlurFlag;
-
         fBlur = SkBlurMaskFilter::Create(radius,
                                          SkBlurMaskFilter::kNormal_BlurStyle,
                                          blurFlags);

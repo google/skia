@@ -860,10 +860,12 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
     }
 
     // Force high quality off for small radii (performance)
-    if (radius < SkIntToScalar(3) && !separable) quality = kLow_Quality;
+    if (radius < SkIntToScalar(3)) {
+        quality = kLow_Quality;
+    }
 
     // highQuality: use three box blur passes as a cheap way to approximate a Gaussian blur
-    int passCount = (quality == kHigh_Quality || separable) ? 3 : 1;
+    int passCount = (kHigh_Quality == quality) ? 3 : 1;
     SkScalar passRadius = SkScalarDiv(radius, SkScalarSqrt(SkIntToScalar(passCount)));
 
     int rx = SkScalarCeil(passRadius);
@@ -907,27 +909,36 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
             uint8_t*                tp = tmpBuffer.get();
             int w = sw, h = sh;
 
-            if (outer_weight == 255 || quality == kLow_Quality) {
-                // For separable blurs, low quality means no interpolation.
+            if (outer_weight == 255) {
                 int loRadius, hiRadius;
                 get_adjusted_radii(passRadius, &loRadius, &hiRadius);
-                // Do three X blurs, with a transpose on the final one.
-                w = boxBlur(sp, src.fRowBytes, tp, loRadius, hiRadius, w, h, false);
-                w = boxBlur(tp, w,             dp, hiRadius, loRadius, w, h, false);
-                w = boxBlur(dp, w,             tp, hiRadius, hiRadius, w, h, true);
-                // Do three Y blurs, with a transpose on the final one.
-                h = boxBlur(tp, h,             dp, loRadius, hiRadius, h, w, false);
-                h = boxBlur(dp, h,             tp, hiRadius, loRadius, h, w, false);
-                h = boxBlur(tp, h,             dp, hiRadius, hiRadius, h, w, true);
+                if (kHigh_Quality == quality) {
+                    // Do three X blurs, with a transpose on the final one.
+                    w = boxBlur(sp, src.fRowBytes, tp, loRadius, hiRadius, w, h, false);
+                    w = boxBlur(tp, w,             dp, hiRadius, loRadius, w, h, false);
+                    w = boxBlur(dp, w,             tp, hiRadius, hiRadius, w, h, true);
+                    // Do three Y blurs, with a transpose on the final one.
+                    h = boxBlur(tp, h,             dp, loRadius, hiRadius, h, w, false);
+                    h = boxBlur(dp, h,             tp, hiRadius, loRadius, h, w, false);
+                    h = boxBlur(tp, h,             dp, hiRadius, hiRadius, h, w, true);
+                } else {
+                    w = boxBlur(sp, src.fRowBytes, tp, rx, rx, w, h, true);
+                    h = boxBlur(tp, h,             dp, ry, ry, h, w, true);
+                }
             } else {
-                // Do three X blurs, with a transpose on the final one.
-                w = boxBlurInterp(sp, src.fRowBytes, tp, rx, w, h, false, outer_weight);
-                w = boxBlurInterp(tp, w,             dp, rx, w, h, false, outer_weight);
-                w = boxBlurInterp(dp, w,             tp, rx, w, h, true, outer_weight);
-                // Do three Y blurs, with a transpose on the final one.
-                h = boxBlurInterp(tp, h,             dp, ry, h, w, false, outer_weight);
-                h = boxBlurInterp(dp, h,             tp, ry, h, w, false, outer_weight);
-                h = boxBlurInterp(tp, h,             dp, ry, h, w, true, outer_weight);
+                if (kHigh_Quality == quality) {
+                    // Do three X blurs, with a transpose on the final one.
+                    w = boxBlurInterp(sp, src.fRowBytes, tp, rx, w, h, false, outer_weight);
+                    w = boxBlurInterp(tp, w,             dp, rx, w, h, false, outer_weight);
+                    w = boxBlurInterp(dp, w,             tp, rx, w, h, true, outer_weight);
+                    // Do three Y blurs, with a transpose on the final one.
+                    h = boxBlurInterp(tp, h,             dp, ry, h, w, false, outer_weight);
+                    h = boxBlurInterp(dp, h,             tp, ry, h, w, false, outer_weight);
+                    h = boxBlurInterp(tp, h,             dp, ry, h, w, true, outer_weight);
+                } else {
+                    w = boxBlurInterp(sp, src.fRowBytes, tp, rx, w, h, true, outer_weight);
+                    h = boxBlurInterp(tp, h,             dp, ry, h, w, true, outer_weight);
+                }
             }
         } else {
             const size_t storageW = sw + 2 * (passCount - 1) * rx + 1;
@@ -943,7 +954,7 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
                 apply_kernel_interp(dp, rx, ry, sumBuffer, sw, sh, outer_weight);
             }
 
-            if (quality == kHigh_Quality) {
+            if (kHigh_Quality == quality) {
                 //pass2: dp is source, tmpBuffer is destination
                 int tmp_sw = sw + 2 * rx;
                 int tmp_sh = sh + 2 * ry;

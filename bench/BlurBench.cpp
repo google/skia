@@ -16,6 +16,7 @@
 #define SMALL   SkIntToScalar(2)
 #define REAL    SkFloatToScalar(1.5f)
 #define BIG     SkIntToScalar(10)
+#define REALBIG SkFloatToScalar(100.5f)
 
 static const char* gStyleName[] = {
     "normal",
@@ -27,17 +28,20 @@ static const char* gStyleName[] = {
 class BlurBench : public SkBenchmark {
     SkScalar    fRadius;
     SkBlurMaskFilter::BlurStyle fStyle;
+    uint32_t                    fFlags;
     SkString    fName;
 
 public:
-    BlurBench(void* param, SkScalar rad, SkBlurMaskFilter::BlurStyle bs) : INHERITED(param) {
+    BlurBench(void* param, SkScalar rad, SkBlurMaskFilter::BlurStyle bs, uint32_t flags = 0) : INHERITED(param) {
         fRadius = rad;
         fStyle = bs;
+        fFlags = flags;
         const char* name = rad > 0 ? gStyleName[bs] : "none";
+        const char* quality = flags & SkBlurMaskFilter::kHighQuality_BlurFlag ? "high_quality" : "low_quality";
         if (SkScalarFraction(rad) != 0) {
-            fName.printf("blur_%.2f_%s", SkScalarToFloat(rad), name);
+            fName.printf("blur_%.2f_%s_%s", SkScalarToFloat(rad), name, quality);
         } else {
-            fName.printf("blur_%d_%s", SkScalarRound(rad), name);
+            fName.printf("blur_%d_%s_%s", SkScalarRound(rad), name, quality);
         }
     }
 
@@ -59,7 +63,7 @@ protected:
             r.offset(fRadius, fRadius);
 
             if (fRadius > 0) {
-                SkMaskFilter* mf = SkBlurMaskFilter::Create(fRadius, fStyle, 0);
+                SkMaskFilter* mf = SkBlurMaskFilter::Create(fRadius, fStyle, fFlags);
                 paint.setMaskFilter(mf)->unref();
             }
             canvas->drawOval(r, paint);
@@ -80,10 +84,23 @@ DEF_BENCH(return new BlurBench(p, BIG, SkBlurMaskFilter::kSolid_BlurStyle);)
 DEF_BENCH(return new BlurBench(p, BIG, SkBlurMaskFilter::kOuter_BlurStyle);)
 DEF_BENCH(return new BlurBench(p, BIG, SkBlurMaskFilter::kInner_BlurStyle);)
 
+DEF_BENCH(return new BlurBench(p, REALBIG, SkBlurMaskFilter::kNormal_BlurStyle);)
+DEF_BENCH(return new BlurBench(p, REALBIG, SkBlurMaskFilter::kSolid_BlurStyle);)
+DEF_BENCH(return new BlurBench(p, REALBIG, SkBlurMaskFilter::kOuter_BlurStyle);)
+DEF_BENCH(return new BlurBench(p, REALBIG, SkBlurMaskFilter::kInner_BlurStyle);)
+
 DEF_BENCH(return new BlurBench(p, REAL, SkBlurMaskFilter::kNormal_BlurStyle);)
 DEF_BENCH(return new BlurBench(p, REAL, SkBlurMaskFilter::kSolid_BlurStyle);)
 DEF_BENCH(return new BlurBench(p, REAL, SkBlurMaskFilter::kOuter_BlurStyle);)
 DEF_BENCH(return new BlurBench(p, REAL, SkBlurMaskFilter::kInner_BlurStyle);)
+
+DEF_BENCH(return new BlurBench(p, SMALL, SkBlurMaskFilter::kNormal_BlurStyle, SkBlurMaskFilter::kHighQuality_BlurFlag);)
+
+DEF_BENCH(return new BlurBench(p, BIG, SkBlurMaskFilter::kNormal_BlurStyle, SkBlurMaskFilter::kHighQuality_BlurFlag);)
+
+DEF_BENCH(return new BlurBench(p, REALBIG, SkBlurMaskFilter::kNormal_BlurStyle, SkBlurMaskFilter::kHighQuality_BlurFlag);)
+
+DEF_BENCH(return new BlurBench(p, REAL, SkBlurMaskFilter::kNormal_BlurStyle, SkBlurMaskFilter::kHighQuality_BlurFlag);)
 
 DEF_BENCH(return new BlurBench(p, 0, SkBlurMaskFilter::kNormal_BlurStyle);)
 

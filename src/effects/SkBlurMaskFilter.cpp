@@ -97,13 +97,13 @@ bool SkBlurMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src,
         (fBlurFlags & SkBlurMaskFilter::kHighQuality_BlurFlag) ?
             SkBlurMask::kHigh_Quality : SkBlurMask::kLow_Quality;
 
-    if (fBlurFlags & SkBlurMaskFilter::kCoarseRadius_BlurFlag) {
-        return SkBlurMask::BlurSeparable(dst, src, radius, (SkBlurMask::Style)fBlurStyle,
-                                blurQuality, margin);
-    } else {
-        return SkBlurMask::Blur(dst, src, radius, (SkBlurMask::Style)fBlurStyle,
-                                blurQuality, margin);
-    }
+#ifdef SK_BLUR_MASK_SEPARABLE
+    return SkBlurMask::BlurSeparable(dst, src, radius, (SkBlurMask::Style)fBlurStyle,
+                            blurQuality, margin);
+#else
+    return SkBlurMask::Blur(dst, src, radius, (SkBlurMask::Style)fBlurStyle,
+                            blurQuality, margin);
+#endif
 }
 
 #include "SkCanvas.h"
