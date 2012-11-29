@@ -793,7 +793,9 @@ static const ConfigFlags kPDFConfigFlags = CAN_IMAGE_PDF ? kRW_ConfigFlag :
 
 static const ConfigData gRec[] = {
     { SkBitmap::kARGB_8888_Config, kRaster_Backend, kDontCare_GLContextType,                  0, kRW_ConfigFlag,    "8888" },
+#if 0   // stop testing this (for now at least) since we want to remove support for it (soon please!!!)
     { SkBitmap::kARGB_4444_Config, kRaster_Backend, kDontCare_GLContextType,                  0, kRW_ConfigFlag,    "4444" },
+#endif
     { SkBitmap::kRGB_565_Config,   kRaster_Backend, kDontCare_GLContextType,                  0, kRW_ConfigFlag,    "565" },
 #if defined(SK_SCALAR_IS_FLOAT) && SK_SUPPORT_GPU
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNative_GLContextType,  0, kRW_ConfigFlag,    "gpu" },
