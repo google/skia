@@ -90,9 +90,9 @@ bool Test::run() {
 
 void GpuTest::DestroyContext() {
 #if SK_SUPPORT_GPU
-    // preserve this order, we want gGrContext destroyed after gEGLContext
-    gGLContext.reset(NULL);
+    // preserve this order, we want gGrContext destroyed before gGLContext
     gGrContext.reset(NULL);
+    gGLContext.reset(NULL);
 #endif
 }
 
