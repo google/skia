@@ -18,6 +18,7 @@
         '../include/images',
       ],
       'sources': [
+        '../include/images/SkBitmapFactory.h',
         '../include/images/SkFlipPixelRef.h',
         '../include/images/SkImageDecoder.h',
         '../include/images/SkImageEncoder.h',
@@ -29,6 +30,7 @@
 
         '../src/images/bmpdecoderhelper.cpp',
         '../src/images/bmpdecoderhelper.h',
+        '../src/images/SkBitmapFactory.cpp',
         '../src/images/SkFDStream.cpp',
         '../src/images/SkFlipPixelRef.cpp',
         '../src/images/SkImageDecoder.cpp',

@@ -20,6 +20,7 @@
         '../tests/AnnotationTest.cpp',
         '../tests/AtomicTest.cpp',
         '../tests/BitmapCopyTest.cpp',
+        '../tests/BitmapFactoryTest.cpp',
         '../tests/BitmapGetColorTest.cpp',
         '../tests/BitmapHeapTest.cpp',
         '../tests/BitSetTest.cpp',
