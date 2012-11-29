@@ -79,6 +79,7 @@
         '../tests/RefCntTest.cpp',
         '../tests/RefDictTest.cpp',
         '../tests/RegionTest.cpp',
+        '../tests/RoundRectTest.cpp',
         '../tests/RTreeTest.cpp',
         '../tests/ScalarTest.cpp',
         '../tests/ShaderOpacityTest.cpp',
