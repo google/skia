@@ -41,7 +41,7 @@ public:
 
     virtual bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*) SK_OVERRIDE;
 
-    virtual bool asPoints(PointData* results, const SkPath& src, 
+    virtual bool asPoints(PointData* results, const SkPath& src,
                           const SkStrokeRec&, const SkMatrix&) const SK_OVERRIDE;
 
     // overrides for SkFlattenable

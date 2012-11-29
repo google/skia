@@ -136,14 +136,14 @@ public:
     /** \class PointData
 
         PointData aggregates all the information needed to draw the point
-        primitives returned by an 'asPoints' call. 
+        primitives returned by an 'asPoints' call.
     */
     class PointData {
     public:
         PointData()
             : fFlags(0) {
             fSize.set(SK_Scalar1, SK_Scalar1);
-            // 'asPoints' needs to initialize/fill-in 'fClipRect' if it sets 
+            // 'asPoints' needs to initialize/fill-in 'fClipRect' if it sets
             // the kUseClip flag
         };
         ~PointData() {};
@@ -171,7 +171,7 @@ public:
      *  Does applying this path effect to 'src' yield a set of points? If so,
      *  optionally return the points in 'results'.
      */
-    virtual bool asPoints(PointData* results, const SkPath& src, 
+    virtual bool asPoints(PointData* results, const SkPath& src,
                           const SkStrokeRec&, const SkMatrix&) const;
 
 protected:
