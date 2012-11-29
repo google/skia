@@ -16,7 +16,7 @@
 static const int32_t kFirstUnreservedGenID = 3;
 int32_t SkClipStack::gGenID = kFirstUnreservedGenID;
 
-struct SkClipStack::Rec {
+struct SkClipStack::Element {
     enum State {
         kEmpty_State,
         kRect_State,
@@ -49,13 +49,13 @@ struct SkClipStack::Rec {
 
     int                     fGenID;
 
-    Rec(int saveCount)
+    Element(int saveCount)
     : fGenID(kInvalidGenID) {
         fSaveCount = saveCount;
         this->setEmpty();
     }
 
-    Rec(int saveCount, const SkRect& rect, SkRegion::Op op, bool doAA)
+    Element(int saveCount, const SkRect& rect, SkRegion::Op op, bool doAA)
         : fRect(rect)
         , fGenID(kInvalidGenID) {
         fSaveCount = saveCount;
@@ -65,7 +65,7 @@ struct SkClipStack::Rec {
         // bounding box members are updated in a following updateBoundAndGenID call
     }
 
-    Rec(int saveCount, const SkPath& path, SkRegion::Op op, bool doAA)
+    Element(int saveCount, const SkPath& path, SkRegion::Op op, bool doAA)
         : fPath(path)
         , fGenID(kInvalidGenID) {
         fRect.setEmpty();
@@ -91,7 +91,7 @@ struct SkClipStack::Rec {
         SkASSERT(kEmptyGenID == fGenID);
     }
 
-    bool operator==(const Rec& b) const {
+    bool operator==(const Element& b) const {
         if (fSaveCount != b.fSaveCount ||
             fOp != b.fOp ||
             fState != b.fState ||
@@ -109,13 +109,13 @@ struct SkClipStack::Rec {
         return false;  // Silence the compiler.
     }
 
-    bool operator!=(const Rec& b) const {
+    bool operator!=(const Element& b) const {
         return !(*this == b);
     }
 
 
     /**
-     *  Returns true if this Rec can be intersected in place with a new clip
+     *  Returns true if this Element can be intersected in place with a new clip
      */
     bool canBeIntersectedInPlace(int saveCount, SkRegion::Op op) const {
         if (kEmpty_State == fState && (
@@ -212,7 +212,7 @@ struct SkClipStack::Rec {
                 fFiniteBound = prevFinite;
                 break;
             default:
-                SkDEBUGFAIL("SkClipStack::Rec::CombineBoundsDiff Invalid fill combination");
+                SkDEBUGFAIL("SkClipStack::Element::CombineBoundsDiff Invalid fill combination");
                 break;
         }
     }
@@ -244,7 +244,7 @@ struct SkClipStack::Rec {
                 fFiniteBoundType = kNormal_BoundsType;
                 break;
             default:
-                SkDEBUGFAIL("SkClipStack::Rec::CombineBoundsXOR Invalid fill combination");
+                SkDEBUGFAIL("SkClipStack::Element::CombineBoundsXOR Invalid fill combination");
                 break;
         }
     }
@@ -274,7 +274,7 @@ struct SkClipStack::Rec {
                 fFiniteBound.join(prevFinite);
                 break;
             default:
-                SkDEBUGFAIL("SkClipStack::Rec::CombineBoundsUnion Invalid fill combination");
+                SkDEBUGFAIL("SkClipStack::Element::CombineBoundsUnion Invalid fill combination");
                 break;
         }
     }
@@ -306,7 +306,7 @@ struct SkClipStack::Rec {
                 }
                 break;
             default:
-                SkDEBUGFAIL("SkClipStack::Rec::CombineBoundsIntersection Invalid fill combination");
+                SkDEBUGFAIL("SkClipStack::Element::CombineBoundsIntersection Invalid fill combination");
                 break;
         }
     }
@@ -341,17 +341,17 @@ struct SkClipStack::Rec {
                 // those cases.
                 break;
             default:
-                SkDEBUGFAIL("SkClipStack::Rec::CombineBoundsRevDiff Invalid fill combination");
+                SkDEBUGFAIL("SkClipStack::Element::CombineBoundsRevDiff Invalid fill combination");
                 break;
         }
     }
 
-    void updateBoundAndGenID(const Rec* prior) {
+    void updateBoundAndGenID(const Element* prior) {
         // We set this first here but we may overwrite it later if we determine that the clip is
         // either wide-open or empty.
         fGenID = GetNextGenID();
 
-        // First, optimistically update the current Rec's bound information
+        // First, optimistically update the current Element's bound information
         // with the current clip's bound
         fIsIntersectionOfRects = false;
         if (kRect_State == fState) {
@@ -390,7 +390,7 @@ struct SkClipStack::Rec {
                              SkIntToScalar(SkScalarRound(fFiniteBound.fBottom)));
         }
 
-        // Now set up the previous Rec's bound information taking into
+        // Now set up the previous Element's bound information taking into
         // account that there may be no previous clip
         SkRect prevFinite;
         SkClipStack::BoundsType prevType;
@@ -447,24 +447,24 @@ struct SkClipStack::Rec {
     }
 };
 
-// This constant determines how many Rec's are allocated together as a block in
+// This constant determines how many Element's are allocated together as a block in
 // the deque. As such it needs to balance allocating too much memory vs.
 // incurring allocation/deallocation thrashing. It should roughly correspond to
 // the deepest save/restore stack we expect to see.
-static const int kDefaultRecordAllocCnt = 8;
+static const int kDefaultElementAllocCnt = 8;
 
 SkClipStack::SkClipStack()
-    : fDeque(sizeof(Rec), kDefaultRecordAllocCnt)
+    : fDeque(sizeof(Element), kDefaultElementAllocCnt)
     , fSaveCount(0) {
 }
 
 SkClipStack::SkClipStack(const SkClipStack& b)
-    : fDeque(sizeof(Rec), kDefaultRecordAllocCnt) {
+    : fDeque(sizeof(Element), kDefaultElementAllocCnt) {
     *this = b;
 }
 
 SkClipStack::SkClipStack(const SkRect& r)
-    : fDeque(sizeof(Rec), kDefaultRecordAllocCnt)
+    : fDeque(sizeof(Element), kDefaultElementAllocCnt)
     , fSaveCount(0) {
     if (!r.isEmpty()) {
         this->clipDevRect(r, SkRegion::kReplace_Op, false);
@@ -472,7 +472,7 @@ SkClipStack::SkClipStack(const SkRect& r)
 }
 
 SkClipStack::SkClipStack(const SkIRect& r)
-    : fDeque(sizeof(Rec), kDefaultRecordAllocCnt)
+    : fDeque(sizeof(Element), kDefaultElementAllocCnt)
     , fSaveCount(0) {
     if (!r.isEmpty()) {
         SkRect temp;
@@ -493,10 +493,10 @@ SkClipStack& SkClipStack::operator=(const SkClipStack& b) {
 
     fSaveCount = b.fSaveCount;
     SkDeque::F2BIter recIter(b.fDeque);
-    for (const Rec* rec = (const Rec*)recIter.next();
-         rec != NULL;
-         rec = (const Rec*)recIter.next()) {
-        new (fDeque.push_back()) Rec(*rec);
+    for (const Element* element = (const Element*)recIter.next();
+         element != NULL;
+         element = (const Element*)recIter.next()) {
+        new (fDeque.push_back()) Element(*element);
     }
 
     return *this;
@@ -509,25 +509,25 @@ bool SkClipStack::operator==(const SkClipStack& b) const {
     }
     SkDeque::F2BIter myIter(fDeque);
     SkDeque::F2BIter bIter(b.fDeque);
-    const Rec* myRec = (const Rec*)myIter.next();
-    const Rec* bRec = (const Rec*)bIter.next();
+    const Element* myElement = (const Element*)myIter.next();
+    const Element* bElement = (const Element*)bIter.next();
 
-    while (myRec != NULL && bRec != NULL) {
-        if (*myRec != *bRec) {
+    while (myElement != NULL && bElement != NULL) {
+        if (*myElement != *bElement) {
             return false;
         }
-        myRec = (const Rec*)myIter.next();
-        bRec = (const Rec*)bIter.next();
+        myElement = (const Element*)myIter.next();
+        bElement = (const Element*)bIter.next();
     }
-    return myRec == NULL && bRec == NULL;
+    return myElement == NULL && bElement == NULL;
 }
 
 void SkClipStack::reset() {
     // We used a placement new for each object in fDeque, so we're responsible
     // for calling the destructor on each of them as well.
     while (!fDeque.empty()) {
-        Rec* rec = (Rec*)fDeque.back();
-        rec->~Rec();
+        Element* element = (Element*)fDeque.back();
+        element->~Element();
         fDeque.pop_back();
     }
 
@@ -541,12 +541,12 @@ void SkClipStack::save() {
 void SkClipStack::restore() {
     fSaveCount -= 1;
     while (!fDeque.empty()) {
-        Rec* rec = (Rec*)fDeque.back();
-        if (rec->fSaveCount <= fSaveCount) {
+        Element* element = (Element*)fDeque.back();
+        if (element->fSaveCount <= fSaveCount) {
             break;
         }
-        this->purgeClip(rec);
-        rec->~Rec();
+        this->purgeClip(element);
+        element->~Element();
         fDeque.pop_back();
     }
 }
@@ -556,9 +556,9 @@ void SkClipStack::getBounds(SkRect* canvFiniteBound,
                             bool* isIntersectionOfRects) const {
     SkASSERT(NULL != canvFiniteBound && NULL != boundType);
 
-    Rec* rec = (Rec*)fDeque.back();
+    Element* element = (Element*)fDeque.back();
 
-    if (NULL == rec) {
+    if (NULL == element) {
         // the clip is wide open - the infinite plane w/ no pixels un-writeable
         canvFiniteBound->setEmpty();
         *boundType = kInsideOut_BoundsType;
@@ -568,10 +568,10 @@ void SkClipStack::getBounds(SkRect* canvFiniteBound,
         return;
     }
 
-    *canvFiniteBound = rec->fFiniteBound;
-    *boundType = rec->fFiniteBoundType;
+    *canvFiniteBound = element->fFiniteBound;
+    *boundType = element->fFiniteBoundType;
     if (NULL != isIntersectionOfRects) {
-        *isIntersectionOfRects = rec->fIsIntersectionOfRects;
+        *isIntersectionOfRects = element->fIsIntersectionOfRects;
     }
 }
 
@@ -598,41 +598,41 @@ void SkClipStack::clipDevRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
 
     // Use reverse iterator instead of back because Rect path may need previous
     SkDeque::Iter iter(fDeque, SkDeque::Iter::kBack_IterStart);
-    Rec* rec = (Rec*) iter.prev();
+    Element* element = (Element*) iter.prev();
 
-    if (rec && rec->canBeIntersectedInPlace(fSaveCount, op)) {
-        switch (rec->fState) {
-            case Rec::kEmpty_State:
-                rec->checkEmpty();
+    if (element && element->canBeIntersectedInPlace(fSaveCount, op)) {
+        switch (element->fState) {
+            case Element::kEmpty_State:
+                element->checkEmpty();
                 return;
-            case Rec::kRect_State:
-                if (rec->rectRectIntersectAllowed(rect, doAA)) {
-                    this->purgeClip(rec);
-                    if (!rec->fRect.intersect(rect)) {
-                        rec->setEmpty();
+            case Element::kRect_State:
+                if (element->rectRectIntersectAllowed(rect, doAA)) {
+                    this->purgeClip(element);
+                    if (!element->fRect.intersect(rect)) {
+                        element->setEmpty();
                         return;
                     }
 
-                    rec->fDoAA = doAA;
-                    Rec* prev = (Rec*) iter.prev();
-                    rec->updateBoundAndGenID(prev);
+                    element->fDoAA = doAA;
+                    Element* prev = (Element*) iter.prev();
+                    element->updateBoundAndGenID(prev);
                     return;
                 }
                 break;
-            case Rec::kPath_State:
-                if (!SkRect::Intersects(rec->fPath.getBounds(), rect)) {
-                    this->purgeClip(rec);
-                    rec->setEmpty();
+            case Element::kPath_State:
+                if (!SkRect::Intersects(element->fPath.getBounds(), rect)) {
+                    this->purgeClip(element);
+                    element->setEmpty();
                     return;
                 }
                 break;
         }
     }
-    new (fDeque.push_back()) Rec(fSaveCount, rect, op, doAA);
-    ((Rec*) fDeque.back())->updateBoundAndGenID(rec);
+    new (fDeque.push_back()) Element(fSaveCount, rect, op, doAA);
+    ((Element*) fDeque.back())->updateBoundAndGenID(element);
 
-    if (rec && rec->fSaveCount == fSaveCount) {
-        this->purgeClip(rec);
+    if (element && element->fSaveCount == fSaveCount) {
+        this->purgeClip(element);
     }
 }
 
@@ -642,59 +642,59 @@ void SkClipStack::clipDevPath(const SkPath& path, SkRegion::Op op, bool doAA) {
         return this->clipDevRect(alt, op, doAA);
     }
 
-    Rec* rec = (Rec*)fDeque.back();
-    if (rec && rec->canBeIntersectedInPlace(fSaveCount, op)) {
+    Element* element = (Element*)fDeque.back();
+    if (element && element->canBeIntersectedInPlace(fSaveCount, op)) {
         const SkRect& pathBounds = path.getBounds();
-        switch (rec->fState) {
-            case Rec::kEmpty_State:
-                rec->checkEmpty();
+        switch (element->fState) {
+            case Element::kEmpty_State:
+                element->checkEmpty();
                 return;
-            case Rec::kRect_State:
-                if (!SkRect::Intersects(rec->fRect, pathBounds)) {
-                    this->purgeClip(rec);
-                    rec->setEmpty();
+            case Element::kRect_State:
+                if (!SkRect::Intersects(element->fRect, pathBounds)) {
+                    this->purgeClip(element);
+                    element->setEmpty();
                     return;
                 }
                 break;
-            case Rec::kPath_State:
-                if (!SkRect::Intersects(rec->fPath.getBounds(), pathBounds)) {
-                    this->purgeClip(rec);
-                    rec->setEmpty();
+            case Element::kPath_State:
+                if (!SkRect::Intersects(element->fPath.getBounds(), pathBounds)) {
+                    this->purgeClip(element);
+                    element->setEmpty();
                     return;
                 }
                 break;
         }
     }
-    new (fDeque.push_back()) Rec(fSaveCount, path, op, doAA);
-    ((Rec*) fDeque.back())->updateBoundAndGenID(rec);
+    new (fDeque.push_back()) Element(fSaveCount, path, op, doAA);
+    ((Element*) fDeque.back())->updateBoundAndGenID(element);
 
-    if (rec && rec->fSaveCount == fSaveCount) {
-        this->purgeClip(rec);
+    if (element && element->fSaveCount == fSaveCount) {
+        this->purgeClip(element);
     }
 }
 
 void SkClipStack::clipEmpty() {
 
-    Rec* rec = (Rec*) fDeque.back();
+    Element* element = (Element*) fDeque.back();
 
-    if (rec && rec->canBeIntersectedInPlace(fSaveCount, SkRegion::kIntersect_Op)) {
-        switch (rec->fState) {
-            case Rec::kEmpty_State:
-                rec->checkEmpty();
+    if (element && element->canBeIntersectedInPlace(fSaveCount, SkRegion::kIntersect_Op)) {
+        switch (element->fState) {
+            case Element::kEmpty_State:
+                element->checkEmpty();
                 return;
-            case Rec::kRect_State:
-            case Rec::kPath_State:
-                this->purgeClip(rec);
-                rec->setEmpty();
+            case Element::kRect_State:
+            case Element::kPath_State:
+                this->purgeClip(element);
+                element->setEmpty();
                 return;
         }
     }
-    new (fDeque.push_back()) Rec(fSaveCount);
+    new (fDeque.push_back()) Element(fSaveCount);
 
-    if (rec && rec->fSaveCount == fSaveCount) {
-        this->purgeClip(rec);
+    if (element && element->fSaveCount == fSaveCount) {
+        this->purgeClip(element);
     }
-    ((Rec*)fDeque.back())->fGenID = kEmptyGenID;
+    ((Element*)fDeque.back())->fGenID = kEmptyGenID;
 }
 
 bool SkClipStack::isWideOpen() const {
@@ -702,7 +702,7 @@ bool SkClipStack::isWideOpen() const {
         return true;
     }
 
-    const Rec* back = (const Rec*) fDeque.back();
+    const Element* back = (const Element*) fDeque.back();
     return kWideOpenGenID == back->fGenID ||
            (kInsideOut_BoundsType == back->fFiniteBoundType && back->fFiniteBound.isEmpty());
 }
@@ -757,44 +757,44 @@ SkClipStack::Iter::Iter(const SkClipStack& stack, IterStart startLoc)
 }
 
 const SkClipStack::Iter::Clip* SkClipStack::Iter::updateClip(
-                        const SkClipStack::Rec* rec) {
-    switch (rec->fState) {
-        case SkClipStack::Rec::kEmpty_State:
+                        const SkClipStack::Element* element) {
+    switch (element->fState) {
+        case SkClipStack::Element::kEmpty_State:
             fClip.fRect = NULL;
             fClip.fPath = NULL;
-            rec->checkEmpty();
+            element->checkEmpty();
             break;
-        case SkClipStack::Rec::kRect_State:
-            fClip.fRect = &rec->fRect;
+        case SkClipStack::Element::kRect_State:
+            fClip.fRect = &element->fRect;
             fClip.fPath = NULL;
             break;
-        case SkClipStack::Rec::kPath_State:
+        case SkClipStack::Element::kPath_State:
             fClip.fRect = NULL;
-            fClip.fPath = &rec->fPath;
+            fClip.fPath = &element->fPath;
             break;
     }
-    fClip.fOp = rec->fOp;
-    fClip.fDoAA = rec->fDoAA;
-    fClip.fGenID = rec->fGenID;
+    fClip.fOp = element->fOp;
+    fClip.fDoAA = element->fDoAA;
+    fClip.fGenID = element->fGenID;
     return &fClip;
 }
 
 const SkClipStack::Iter::Clip* SkClipStack::Iter::next() {
-    const SkClipStack::Rec* rec = (const SkClipStack::Rec*)fIter.next();
-    if (NULL == rec) {
+    const SkClipStack::Element* element = (const SkClipStack::Element*)fIter.next();
+    if (NULL == element) {
         return NULL;
     }
 
-    return this->updateClip(rec);
+    return this->updateClip(element);
 }
 
 const SkClipStack::Iter::Clip* SkClipStack::Iter::prev() {
-    const SkClipStack::Rec* rec = (const SkClipStack::Rec*)fIter.prev();
-    if (NULL == rec) {
+    const SkClipStack::Element* element = (const SkClipStack::Element*)fIter.prev();
+    if (NULL == element) {
         return NULL;
     }
 
-    return this->updateClip(rec);
+    return this->updateClip(element);
 }
 
 const SkClipStack::Iter::Clip* SkClipStack::Iter::skipToTopmost(SkRegion::Op op) {
@@ -805,15 +805,15 @@ const SkClipStack::Iter::Clip* SkClipStack::Iter::skipToTopmost(SkRegion::Op op)
 
     fIter.reset(fStack->fDeque, SkDeque::Iter::kBack_IterStart);
 
-    const SkClipStack::Rec* rec = NULL;
+    const SkClipStack::Element* element = NULL;
 
-    for (rec = (const SkClipStack::Rec*) fIter.prev();
-         NULL != rec;
-         rec = (const SkClipStack::Rec*) fIter.prev()) {
+    for (element = (const SkClipStack::Element*) fIter.prev();
+         NULL != element;
+         element = (const SkClipStack::Element*) fIter.prev()) {
 
-        if (op == rec->fOp) {
+        if (op == element->fOp) {
             // The Deque's iterator is actually one pace ahead of the
-            // returned value. So while "rec" is the element we want to
+            // returned value. So while "element" is the element we want to
             // return, the iterator is actually pointing at (and will
             // return on the next "next" or "prev" call) the element
             // in front of it in the deque. Bump the iterator forward a
@@ -828,7 +828,7 @@ const SkClipStack::Iter::Clip* SkClipStack::Iter::skipToTopmost(SkRegion::Op op)
         }
     }
 
-    if (NULL == rec) {
+    if (NULL == element) {
         // There were no "op" clips
         fIter.reset(fStack->fDeque, SkDeque::Iter::kFront_IterStart);
     }
@@ -934,19 +934,19 @@ void SkClipStack::removePurgeClipCallback(PFPurgeClipCB callback, void* data) co
     }
 }
 
-// The clip state represented by 'rec' will never be used again. Purge it.
-void SkClipStack::purgeClip(Rec* rec) {
-    SkASSERT(NULL != rec);
-    if (rec->fGenID >= 0 && rec->fGenID < kFirstUnreservedGenID) {
+// The clip state represented by 'element' will never be used again. Purge it.
+void SkClipStack::purgeClip(Element* element) {
+    SkASSERT(NULL != element);
+    if (element->fGenID >= 0 && element->fGenID < kFirstUnreservedGenID) {
         return;
     }
 
     for (int i = 0; i < fCallbackData.count(); ++i) {
-        (*fCallbackData[i].fCallback)(rec->fGenID, fCallbackData[i].fData);
+        (*fCallbackData[i].fCallback)(element->fGenID, fCallbackData[i].fData);
     }
 
-    // Invalidate rec's gen ID so handlers can detect already handled records
-    rec->fGenID = kInvalidGenID;
+    // Invalidate element's gen ID so handlers can detect already handled records
+    element->fGenID = kInvalidGenID;
 }
 
 int32_t SkClipStack::GetNextGenID() {
@@ -960,6 +960,6 @@ int32_t SkClipStack::getTopmostGenID() const {
         return kInvalidGenID;
     }
 
-    Rec* rec = (Rec*)fDeque.back();
-    return rec->fGenID;
+    Element* element = (Element*)fDeque.back();
+    return element->fGenID;
 }
