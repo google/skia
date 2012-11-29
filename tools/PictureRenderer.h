@@ -367,6 +367,8 @@ private:
     typedef PictureRenderer INHERITED;
 };
 
+extern PictureRenderer* CreateGatherPixelRefsRenderer();
+
 }
 
 #endif  // PictureRenderer_DEFINED
