@@ -6,10 +6,231 @@
  */
 #include "Test.h"
 #include "SkCanvas.h"
+#include "SkColorPriv.h"
+#include "SkData.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkRandom.h"
+#include "SkShader.h"
 #include "SkStream.h"
+
+#include "SkPictureUtils.h"
+
+static void make_bm(SkBitmap* bm, int w, int h, SkColor color, bool immutable) {
+    bm->setConfig(SkBitmap::kARGB_8888_Config, w, h);
+    bm->allocPixels();
+    bm->eraseColor(color);
+    if (immutable) {
+        bm->setImmutable();
+    }
+}
+
+typedef void (*DrawBitmapProc)(SkCanvas*, const SkBitmap&, const SkPoint&);
+
+static void drawbitmap_proc(SkCanvas* canvas, const SkBitmap& bm,
+                            const SkPoint& pos) {
+    canvas->drawBitmap(bm, pos.fX, pos.fY, NULL);
+}
+
+static void drawbitmaprect_proc(SkCanvas* canvas, const SkBitmap& bm,
+                                const SkPoint& pos) {
+    SkRect r = {
+        0, 0, SkIntToScalar(bm.width()), SkIntToScalar(bm.height())
+    };
+    r.offset(pos.fX, pos.fY);
+    canvas->drawBitmapRectToRect(bm, NULL, r, NULL);
+}
+
+static void drawshader_proc(SkCanvas* canvas, const SkBitmap& bm,
+                            const SkPoint& pos) {
+    SkRect r = {
+        0, 0, SkIntToScalar(bm.width()), SkIntToScalar(bm.height())
+    };
+    r.offset(pos.fX, pos.fY);
+
+    SkShader* s = SkShader::CreateBitmapShader(bm,
+                                               SkShader::kClamp_TileMode,
+                                               SkShader::kClamp_TileMode);
+    SkPaint paint;
+    paint.setShader(s)->unref();
+    canvas->drawRect(r, paint);
+}
+
+// Return a picture with the bitmaps drawn at the specified positions.
+static SkPicture* record_bitmaps(const SkBitmap bm[], const SkPoint pos[],
+                                 int count, DrawBitmapProc proc) {
+    SkPicture* pic = new SkPicture;
+    SkCanvas* canvas = pic->beginRecording(1000, 1000);
+    for (int i = 0; i < count; ++i) {
+        proc(canvas, bm[i], pos[i]);
+    }
+    pic->endRecording();
+    return pic;
+}
+
+static void rand_rect(SkRect* rect, SkRandom& rand, SkScalar W, SkScalar H) {
+    rect->fLeft   = rand.nextRangeScalar(-W, 2*W);
+    rect->fTop    = rand.nextRangeScalar(-H, 2*H);
+    rect->fRight  = rect->fLeft + rand.nextRangeScalar(0, W);
+    rect->fBottom = rect->fTop + rand.nextRangeScalar(0, H);
+
+    // we integralize rect to make our tests more predictable, since Gather is
+    // a little sloppy.
+    SkIRect ir;
+    rect->round(&ir);
+    rect->set(ir);
+}
+
+// Allocate result to be large enough to hold subset, and then draw the picture
+// into it, offsetting by subset's top/left corner.
+static void draw(SkPicture* pic, const SkRect& subset, SkBitmap* result) {
+    SkIRect ir;
+    subset.roundOut(&ir);
+    int w = ir.width();
+    int h = ir.height();
+    make_bm(result, w, h, 0, false);
+
+    SkCanvas canvas(*result);
+    canvas.translate(-SkIntToScalar(ir.left()), -SkIntToScalar(ir.top()));
+    canvas.drawPicture(*pic);
+}
+
+template <typename T> int find_index(const T* array, T elem, int count) {
+    for (int i = 0; i < count; ++i) {
+        if (array[i] == elem) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// Return true if 'ref' is found in array[]
+static bool find(SkPixelRef const * const * array, SkPixelRef const * ref, int count) {
+    return find_index<const SkPixelRef*>(array, ref, count) >= 0;
+}
+
+// Look at each pixel in bm, and if its color appears in colors[], find the
+// corresponding value in refs[] and append that ref into array, skipping
+// duplicates of the same value.
+static void gather_from_colors(const SkBitmap& bm, SkPixelRef* const refs[],
+                               int count, SkTDArray<SkPixelRef*>* array) {
+    // Since we only want to return unique values in array, when we scan we just
+    // set a bit for each index'd color found. In practice we only have a few
+    // distinct colors, so we just use an int's bits as our array. Hence the
+    // assert that count <= number-of-bits-in-our-int.
+    SkASSERT((unsigned)count <= 32);
+    uint32_t bitarray = 0;
+
+    SkAutoLockPixels alp(bm);
+
+    for (int y = 0; y < bm.height(); ++y) {
+        for (int x = 0; x < bm.width(); ++x) {
+            SkPMColor pmc = *bm.getAddr32(x, y);
+            // the only good case where the color is not found would be if
+            // the color is transparent, meaning no bitmap was drawn in that
+            // pixel.
+            if (pmc) {
+                int index = SkGetPackedR32(pmc);
+                SkASSERT(SkGetPackedG32(pmc) == index);
+                SkASSERT(SkGetPackedB32(pmc) == index);
+                SkASSERT(index < count);
+                bitarray |= 1 << index;
+            }
+        }
+    }
+
+    for (int i = 0; i < count; ++i) {
+        if (bitarray & (1 << i)) {
+            *array->append() = refs[i];
+        }
+    }
+}
+
+static void test_gatherpixelrefs(skiatest::Reporter* reporter) {
+    const int IW = 8;
+    const int IH = IW;
+    const SkScalar W = SkIntToScalar(IW);
+    const SkScalar H = W;
+
+    static const int N = 4;
+    SkBitmap bm[N];
+    SkPMColor pmcolors[N];
+    SkPixelRef* refs[N];
+
+    const SkPoint pos[] = {
+        { 0, 0 }, { W, 0 }, { 0, H }, { W, H }
+    };
+
+    // Our convention is that the color components contain the index of their
+    // corresponding bitmap/pixelref
+    for (int i = 0; i < N; ++i) {
+        make_bm(&bm[i], IW, IH, SkColorSetARGB(0xFF, i, i, i), true);
+        refs[i] = bm[i].pixelRef();
+    }
+
+    static const DrawBitmapProc procs[] = {
+        drawbitmap_proc, drawbitmaprect_proc, drawshader_proc
+    };
+
+    SkRandom rand;
+    for (size_t k = 0; k < SK_ARRAY_COUNT(procs); ++k) {
+        SkAutoTUnref<SkPicture> pic(record_bitmaps(bm, pos, N, procs[k]));
+
+        // quick check for a small piece of each quadrant, which should just
+        // contain 1 bitmap.
+        for (size_t  i = 0; i < SK_ARRAY_COUNT(pos); ++i) {
+            SkRect r;
+            r.set(2, 2, W - 2, H - 2);
+            r.offset(pos[i].fX, pos[i].fY);
+            SkAutoDataUnref data(SkPictureUtils::GatherPixelRefs(pic, r));
+            REPORTER_ASSERT(reporter, data);
+            int count = data->size() / sizeof(SkPixelRef*);
+            REPORTER_ASSERT(reporter, 1 == count);
+            REPORTER_ASSERT(reporter, *(SkPixelRef**)data->data() == refs[i]);
+        }
+
+        // Test a bunch of random (mostly) rects, and compare the gather results
+        // with a deduced list of refs by looking at the colors drawn.
+        for (int j = 0; j < 100; ++j) {
+            SkRect r;
+            rand_rect(&r, rand, 2*W, 2*H);
+
+            SkBitmap result;
+            draw(pic, r, &result);
+            SkTDArray<SkPixelRef*> array;
+
+            SkData* data = SkPictureUtils::GatherPixelRefs(pic, r);
+            size_t dataSize = data ? data->size() : 0;
+            int gatherCount = dataSize / sizeof(SkPixelRef*);
+            SkASSERT(gatherCount * sizeof(SkPixelRef*) == dataSize);
+            SkPixelRef** gatherRefs = data ? (SkPixelRef**)(data->data()) : NULL;
+            SkAutoDataUnref adu(data);
+
+            gather_from_colors(result, refs, N, &array);
+            
+            /*
+             *  GatherPixelRefs is conservative, so it can return more bitmaps
+             *  that we actually can see (usually because of conservative bounds
+             *  inflation for antialiasing). Thus our check here is only that
+             *  Gather didn't miss any that we actually saw. Even that isn't
+             *  a strict requirement on Gather, which is meant to be quick and
+             *  only mostly-correct, but at the moment this test should work.
+             */
+            for (int i = 0; i < array.count(); ++i) {
+                bool found = find(gatherRefs, array[i], gatherCount);
+                REPORTER_ASSERT(reporter, found);
+#if 0
+                // enable this block of code to debug failures, as it will rerun
+                // the case that failed.
+                if (!found) {
+                    SkData* data = SkPictureUtils::GatherPixelRefs(pic, r);
+                    size_t dataSize = data ? data->size() : 0;
+                }
+#endif
+            }
+        }
+    }
+}
 
 #ifdef SK_DEBUG
 // Ensure that deleting SkPicturePlayback does not assert. Asserts only fire in debug mode, so only
@@ -91,6 +312,7 @@ static void TestPicture(skiatest::Reporter* reporter) {
     test_serializing_empty_picture();
 #endif
     test_peephole(reporter);
+    test_gatherpixelrefs(reporter);
 }
 
 #include "TestClassDef.h"

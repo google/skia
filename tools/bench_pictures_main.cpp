@@ -413,6 +413,8 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
             } else if (0 == strcmp(*argv, "playbackCreation")) {
                 renderer.reset(SkNEW(sk_tools::PlaybackCreationRenderer));
                 gridSupported = true;
+            } else if (0 == strcmp(*argv, "gatherPixelRefs")) {
+                renderer.reset(sk_tools::CreateGatherPixelRefsRenderer());
             } else {
                 SkString err;
                 err.printf("%s is not a valid mode for --mode\n", *argv);

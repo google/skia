@@ -70,6 +70,7 @@
         '../src/utils/SkParse.cpp',
         '../src/utils/SkParseColor.cpp',
         '../src/utils/SkParsePath.cpp',
+        '../src/utils/SkPictureUtils.cpp',
         '../src/utils/SkProxyCanvas.cpp',
         '../src/utils/SkThreadUtils.h',
         '../src/utils/SkThreadUtils_pthread.cpp',
