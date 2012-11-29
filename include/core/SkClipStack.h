@@ -112,7 +112,7 @@ public:
     int32_t getTopmostGenID() const;
 
 private:
-    struct Rec;
+    struct Element;
 
 public:
     class Iter {
@@ -199,7 +199,7 @@ public:
          * updateClip updates fClip to the current state of fIter. It unifies
          * functionality needed by both next() and prev().
          */
-        const Clip* updateClip(const SkClipStack::Rec* rec);
+        const Clip* updateClip(const SkClipStack::Element* element);
     };
 
     /**
@@ -278,9 +278,9 @@ private:
     mutable SkTDArray<ClipCallbackData> fCallbackData;
 
     /**
-     * Invoke all the purge callbacks passing in rec's generation ID.
+     * Invoke all the purge callbacks passing in element's generation ID.
      */
-    void purgeClip(Rec* rec);
+    void purgeClip(Element* element);
 
     /**
      * Return the next unique generation ID.
