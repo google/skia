@@ -186,6 +186,7 @@ int tool_main(int argc, char** argv) {
 #endif
 
     SkGraphics::Term();
+    GpuTest::DestroyContext();
 
     return (failCount == 0) ? 0 : 1;
 }

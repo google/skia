@@ -83,15 +83,24 @@ bool Test::run() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#if SK_SUPPORT_GPU
+    static SkAutoTUnref<SkNativeGLContext> gGLContext;
+    static SkAutoTUnref<GrContext> gGrContext;
+#endif
+
+void GpuTest::DestroyContext() {
+#if SK_SUPPORT_GPU
+    // preserve this order, we want gGrContext destroyed after gEGLContext
+    gGLContext.reset(NULL);
+    gGrContext.reset(NULL);
+#endif
+}
+
 
 GrContext* GpuTest::GetContext() {
 #if SK_SUPPORT_GPU
-    // preserve this order, we want gGrContext destroyed after gEGLContext
-    static SkTLazy<SkNativeGLContext> gGLContext;
-    static SkAutoTUnref<GrContext> gGrContext;
-
     if (NULL == gGrContext.get()) {
-        gGLContext.init();
+        gGLContext.reset(new SkNativeGLContext());
         if (gGLContext.get()->init(800, 600)) {
             GrBackendContext ctx = reinterpret_cast<GrBackendContext>(gGLContext.get()->gl());
             gGrContext.reset(GrContext::Create(kOpenGL_GrBackend, ctx));
