@@ -318,14 +318,6 @@ public:
         const Clip* prev();
 
         /**
-         * This is a variant of next() that greedily attempts to combine elements when possible.
-         * Currently it attempts to combine intersecting rectangles, though it may do more in the
-         * future. The returned Clip may not refer to a single element in the stack, so its
-         * generation ID may be invalid.
-         */
-        const Clip* nextCombined();
-
-        /**
          * Moves the iterator to the topmost clip with the specified RegionOp
          * and returns that clip. If no clip with that op is found,
          * returns NULL.
@@ -341,7 +333,6 @@ public:
         const SkClipStack* fStack;
         Clip               fClip;
         SkDeque::Iter      fIter;
-        SkRect             fCombinedRect; // used for nextCombined()
         /**
          * updateClip updates fClip to the current state of fIter. It unifies
          * functionality needed by both next() and prev().
