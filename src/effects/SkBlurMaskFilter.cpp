@@ -97,7 +97,7 @@ bool SkBlurMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src,
         (fBlurFlags & SkBlurMaskFilter::kHighQuality_BlurFlag) ?
             SkBlurMask::kHigh_Quality : SkBlurMask::kLow_Quality;
 
-#ifdef SK_BLUR_MASK_SEPARABLE
+#ifndef SK_DISABLE_SEPARABLE_MASK_BLUR
     return SkBlurMask::BlurSeparable(dst, src, radius, (SkBlurMask::Style)fBlurStyle,
                             blurQuality, margin);
 #else
