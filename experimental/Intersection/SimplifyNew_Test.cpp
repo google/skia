@@ -446,134 +446,134 @@ static void testLine14x() {
 
 static void testLine15() {
     SkPath path;
-    path.addRect(0, 0, 9, 9, (SkPath::Direction) 0);
+    path.addRect(0, 0, 9, 9, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine15x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 9, 9, (SkPath::Direction) 0);
+    path.addRect(0, 0, 9, 9, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine16() {
     SkPath path;
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(0, 4, 9, 9, (SkPath::Direction) 0);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(0, 4, 9, 9, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine16x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(0, 4, 9, 9, (SkPath::Direction) 0);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(0, 4, 9, 9, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine17() {
     SkPath path;
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(4, 12, 13, 13, (SkPath::Direction) 0);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(4, 12, 13, 13, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine17x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(4, 12, 13, 13, (SkPath::Direction) 0);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(4, 12, 13, 13, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine18() {
     SkPath path;
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(12, 4, 21, 21, (SkPath::Direction) 0);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(12, 4, 21, 21, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine18x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(12, 4, 21, 21, (SkPath::Direction) 0);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(12, 4, 21, 21, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine19() {
     SkPath path;
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(12, 16, 21, 21, (SkPath::Direction) 0);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(12, 16, 21, 21, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine19x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(12, 16, 21, 21, (SkPath::Direction) 0);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(12, 16, 21, 21, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine20() {
     SkPath path;
-    path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
-    path.addRect(0, 12, 9, 9, (SkPath::Direction) 0);
+    path.addRect(0, 12, 12, 12, SkPath::kCW_Direction);
+    path.addRect(0, 12, 9, 9, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine20x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
-    path.addRect(0, 12, 9, 9, (SkPath::Direction) 0);
+    path.addRect(0, 12, 12, 12, SkPath::kCW_Direction);
+    path.addRect(0, 12, 9, 9, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine21() {
     SkPath path;
-    path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
-    path.addRect(0, 16, 9, 9, (SkPath::Direction) 0);
+    path.addRect(0, 12, 12, 12, SkPath::kCW_Direction);
+    path.addRect(0, 16, 9, 9, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine21x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
-    path.addRect(0, 16, 9, 9, (SkPath::Direction) 0);
+    path.addRect(0, 12, 12, 12, SkPath::kCW_Direction);
+    path.addRect(0, 16, 9, 9, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine22() {
     SkPath path;
-    path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
-    path.addRect(4, 12, 13, 13, (SkPath::Direction) 0);
+    path.addRect(0, 12, 12, 12, SkPath::kCW_Direction);
+    path.addRect(4, 12, 13, 13, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine22x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
-    path.addRect(4, 12, 13, 13, (SkPath::Direction) 0);
+    path.addRect(0, 12, 12, 12, SkPath::kCW_Direction);
+    path.addRect(4, 12, 13, 13, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine23() {
     SkPath path;
-    path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
-    path.addRect(12, 0, 21, 21, (SkPath::Direction) 0);
+    path.addRect(0, 12, 12, 12, SkPath::kCW_Direction);
+    path.addRect(12, 0, 21, 21, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine23x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
-    path.addRect(12, 0, 21, 21, (SkPath::Direction) 0);
+    path.addRect(0, 12, 12, 12, SkPath::kCW_Direction);
+    path.addRect(12, 0, 21, 21, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
@@ -606,1071 +606,1081 @@ static void testLine24ax() {
 
 static void testLine24() {
     SkPath path;
-    path.addRect(0, 18, 12, 12, (SkPath::Direction) 0);
-    path.addRect(4, 12, 13, 13, (SkPath::Direction) 0);
+    path.addRect(0, 18, 12, 12, SkPath::kCW_Direction);
+    path.addRect(4, 12, 13, 13, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine24x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 18, 12, 12, (SkPath::Direction) 0);
-    path.addRect(4, 12, 13, 13, (SkPath::Direction) 0);
+    path.addRect(0, 18, 12, 12, SkPath::kCW_Direction);
+    path.addRect(4, 12, 13, 13, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine25() {
     SkPath path;
-    path.addRect(0, 6, 12, 12, (SkPath::Direction) 0);
-    path.addRect(12, 0, 21, 21, (SkPath::Direction) 0);
+    path.addRect(0, 6, 12, 12, SkPath::kCW_Direction);
+    path.addRect(12, 0, 21, 21, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine25x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 6, 12, 12, (SkPath::Direction) 0);
-    path.addRect(12, 0, 21, 21, (SkPath::Direction) 0);
+    path.addRect(0, 6, 12, 12, SkPath::kCW_Direction);
+    path.addRect(12, 0, 21, 21, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine26() {
     SkPath path;
-    path.addRect(0, 18, 12, 12, (SkPath::Direction) 0);
-    path.addRect(0, 12, 9, 9, (SkPath::Direction) 0);
+    path.addRect(0, 18, 12, 12, SkPath::kCW_Direction);
+    path.addRect(0, 12, 9, 9, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine26x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 18, 12, 12, (SkPath::Direction) 0);
-    path.addRect(0, 12, 9, 9, (SkPath::Direction) 0);
+    path.addRect(0, 18, 12, 12, SkPath::kCW_Direction);
+    path.addRect(0, 12, 9, 9, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine27() {
     SkPath path;
-    path.addRect(0, 18, 12, 12, (SkPath::Direction) 0);
-    path.addRect(12, 8, 21, 21, (SkPath::Direction) 0);
+    path.addRect(0, 18, 12, 12, SkPath::kCW_Direction);
+    path.addRect(12, 8, 21, 21, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine27x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 18, 12, 12, (SkPath::Direction) 0);
-    path.addRect(12, 8, 21, 21, (SkPath::Direction) 0);
+    path.addRect(0, 18, 12, 12, SkPath::kCW_Direction);
+    path.addRect(12, 8, 21, 21, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine28() {
     SkPath path;
-    path.addRect(0, 6, 12, 12, (SkPath::Direction) 0);
-    path.addRect(0, 0, 9, 9, (SkPath::Direction) 0);
+    path.addRect(0, 6, 12, 12, SkPath::kCW_Direction);
+    path.addRect(0, 0, 9, 9, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine28x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 6, 12, 12, (SkPath::Direction) 0);
-    path.addRect(0, 0, 9, 9, (SkPath::Direction) 0);
+    path.addRect(0, 6, 12, 12, SkPath::kCW_Direction);
+    path.addRect(0, 0, 9, 9, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine29() {
     SkPath path;
-    path.addRect(0, 18, 12, 12, (SkPath::Direction) 0);
-    path.addRect(12, 12, 21, 21, (SkPath::Direction) 0);
+    path.addRect(0, 18, 12, 12, SkPath::kCW_Direction);
+    path.addRect(12, 12, 21, 21, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine29x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 18, 12, 12, (SkPath::Direction) 0);
-    path.addRect(12, 12, 21, 21, (SkPath::Direction) 0);
+    path.addRect(0, 18, 12, 12, SkPath::kCW_Direction);
+    path.addRect(12, 12, 21, 21, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine30() {
     SkPath path;
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(4, 4, 13, 13, (SkPath::Direction) 0);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(4, 4, 13, 13, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine30x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(4, 4, 13, 13, (SkPath::Direction) 0);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(4, 4, 13, 13, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine31() {
     SkPath path;
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(0, 4, 9, 9, (SkPath::Direction) 0);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(0, 4, 9, 9, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine31x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(0, 4, 9, 9, (SkPath::Direction) 0);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(0, 4, 9, 9, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine32() {
     SkPath path;
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(4, 12, 13, 13, (SkPath::Direction) 0);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(4, 12, 13, 13, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine32x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(4, 12, 13, 13, (SkPath::Direction) 0);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(4, 12, 13, 13, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine33() {
     SkPath path;
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(4, 16, 13, 13, (SkPath::Direction) 0);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(4, 16, 13, 13, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine33x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(4, 16, 13, 13, (SkPath::Direction) 0);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(4, 16, 13, 13, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine34() {
     SkPath path;
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 6, 12, 12, (SkPath::Direction) 0);
-    path.addRect(4, 12, 13, 13, (SkPath::Direction) 0);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 6, 12, 12, SkPath::kCW_Direction);
+    path.addRect(4, 12, 13, 13, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine34x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 6, 12, 12, (SkPath::Direction) 0);
-    path.addRect(4, 12, 13, 13, (SkPath::Direction) 0);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 6, 12, 12, SkPath::kCW_Direction);
+    path.addRect(4, 12, 13, 13, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine35() {
     SkPath path;
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(6, 0, 18, 18, (SkPath::Direction) 0);
-    path.addRect(4, 16, 13, 13, (SkPath::Direction) 0);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(6, 0, 18, 18, SkPath::kCW_Direction);
+    path.addRect(4, 16, 13, 13, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine35x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(6, 0, 18, 18, (SkPath::Direction) 0);
-    path.addRect(4, 16, 13, 13, (SkPath::Direction) 0);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(6, 0, 18, 18, SkPath::kCW_Direction);
+    path.addRect(4, 16, 13, 13, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine36() {
     SkPath path;
-    path.addRect(0, 10, 20, 20, (SkPath::Direction) 0);
-    path.addRect(6, 12, 18, 18, (SkPath::Direction) 0);
-    path.addRect(4, 16, 13, 13, (SkPath::Direction) 0);
+    path.addRect(0, 10, 20, 20, SkPath::kCW_Direction);
+    path.addRect(6, 12, 18, 18, SkPath::kCW_Direction);
+    path.addRect(4, 16, 13, 13, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine36x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 10, 20, 20, (SkPath::Direction) 0);
-    path.addRect(6, 12, 18, 18, (SkPath::Direction) 0);
-    path.addRect(4, 16, 13, 13, (SkPath::Direction) 0);
+    path.addRect(0, 10, 20, 20, SkPath::kCW_Direction);
+    path.addRect(6, 12, 18, 18, SkPath::kCW_Direction);
+    path.addRect(4, 16, 13, 13, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine37() {
     SkPath path;
-    path.addRect(0, 20, 20, 20, (SkPath::Direction) 0);
-    path.addRect(18, 24, 30, 30, (SkPath::Direction) 0);
-    path.addRect(0, 0, 9, 9, (SkPath::Direction) 0);
+    path.addRect(0, 20, 20, 20, SkPath::kCW_Direction);
+    path.addRect(18, 24, 30, 30, SkPath::kCW_Direction);
+    path.addRect(0, 0, 9, 9, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine37x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 20, 20, 20, (SkPath::Direction) 0);
-    path.addRect(18, 24, 30, 30, (SkPath::Direction) 0);
-    path.addRect(0, 0, 9, 9, (SkPath::Direction) 0);
+    path.addRect(0, 20, 20, 20, SkPath::kCW_Direction);
+    path.addRect(18, 24, 30, 30, SkPath::kCW_Direction);
+    path.addRect(0, 0, 9, 9, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine38() {
     SkPath path;
-    path.addRect(10, 0, 30, 30, (SkPath::Direction) 0);
-    path.addRect(6, 12, 18, 18, (SkPath::Direction) 0);
-    path.addRect(12, 12, 21, 21, (SkPath::Direction) 0);
+    path.addRect(10, 0, 30, 30, SkPath::kCW_Direction);
+    path.addRect(6, 12, 18, 18, SkPath::kCW_Direction);
+    path.addRect(12, 12, 21, 21, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine38x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(10, 0, 30, 30, (SkPath::Direction) 0);
-    path.addRect(6, 12, 18, 18, (SkPath::Direction) 0);
-    path.addRect(12, 12, 21, 21, (SkPath::Direction) 0);
+    path.addRect(10, 0, 30, 30, SkPath::kCW_Direction);
+    path.addRect(6, 12, 18, 18, SkPath::kCW_Direction);
+    path.addRect(12, 12, 21, 21, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine40() {
     SkPath path;
-    path.addRect(10, 0, 30, 30, (SkPath::Direction) 0);
-    path.addRect(12, 18, 24, 24, (SkPath::Direction) 0);
-    path.addRect(4, 16, 13, 13, (SkPath::Direction) 0);
+    path.addRect(10, 0, 30, 30, SkPath::kCW_Direction);
+    path.addRect(12, 18, 24, 24, SkPath::kCW_Direction);
+    path.addRect(4, 16, 13, 13, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine40x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(10, 0, 30, 30, (SkPath::Direction) 0);
-    path.addRect(12, 18, 24, 24, (SkPath::Direction) 0);
-    path.addRect(4, 16, 13, 13, (SkPath::Direction) 0);
+    path.addRect(10, 0, 30, 30, SkPath::kCW_Direction);
+    path.addRect(12, 18, 24, 24, SkPath::kCW_Direction);
+    path.addRect(4, 16, 13, 13, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine41() {
     SkPath path;
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(18, 24, 30, 30, (SkPath::Direction) 0);
-    path.addRect(12, 0, 21, 21, (SkPath::Direction) 0);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(18, 24, 30, 30, SkPath::kCW_Direction);
+    path.addRect(12, 0, 21, 21, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine41x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(18, 24, 30, 30, (SkPath::Direction) 0);
-    path.addRect(12, 0, 21, 21, (SkPath::Direction) 0);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(18, 24, 30, 30, SkPath::kCW_Direction);
+    path.addRect(12, 0, 21, 21, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine42() {
     SkPath path;
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(8, 16, 17, 17, (SkPath::Direction) 0);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(8, 16, 17, 17, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine42x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(8, 16, 17, 17, (SkPath::Direction) 0);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(8, 16, 17, 17, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine43() {
     SkPath path;
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(6, 24, 18, 18, (SkPath::Direction) 0);
-    path.addRect(0, 32, 9, 36, (SkPath::Direction) 1);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(6, 24, 18, 18, SkPath::kCW_Direction);
+    path.addRect(0, 32, 9, 36, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine43x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(6, 24, 18, 18, (SkPath::Direction) 0);
-    path.addRect(0, 32, 9, 36, (SkPath::Direction) 1);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(6, 24, 18, 18, SkPath::kCW_Direction);
+    path.addRect(0, 32, 9, 36, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine44() {
     SkPath path;
-    path.addRect(10, 40, 30, 30, (SkPath::Direction) 0);
-    path.addRect(18, 0, 30, 30, (SkPath::Direction) 0);
-    path.addRect(18, 32, 27, 36, (SkPath::Direction) 1);
+    path.addRect(10, 40, 30, 30, SkPath::kCW_Direction);
+    path.addRect(18, 0, 30, 30, SkPath::kCW_Direction);
+    path.addRect(18, 32, 27, 36, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine44x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(10, 40, 30, 30, (SkPath::Direction) 0);
-    path.addRect(18, 0, 30, 30, (SkPath::Direction) 0);
-    path.addRect(18, 32, 27, 36, (SkPath::Direction) 1);
+    path.addRect(10, 40, 30, 30, SkPath::kCW_Direction);
+    path.addRect(18, 0, 30, 30, SkPath::kCW_Direction);
+    path.addRect(18, 32, 27, 36, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine45() {
     SkPath path;
-    path.addRect(10, 0, 30, 30, (SkPath::Direction) 0);
-    path.addRect(18, 0, 30, 30, (SkPath::Direction) 0);
-    path.addRect(24, 32, 33, 36, (SkPath::Direction) 0);
+    path.addRect(10, 0, 30, 30, SkPath::kCW_Direction);
+    path.addRect(18, 0, 30, 30, SkPath::kCW_Direction);
+    path.addRect(24, 32, 33, 36, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine45x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(10, 0, 30, 30, (SkPath::Direction) 0);
-    path.addRect(18, 0, 30, 30, (SkPath::Direction) 0);
-    path.addRect(24, 32, 33, 36, (SkPath::Direction) 0);
+    path.addRect(10, 0, 30, 30, SkPath::kCW_Direction);
+    path.addRect(18, 0, 30, 30, SkPath::kCW_Direction);
+    path.addRect(24, 32, 33, 36, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine46() {
     SkPath path;
-    path.addRect(10, 40, 30, 30, (SkPath::Direction) 0);
-    path.addRect(24, 0, 36, 36, (SkPath::Direction) 0);
-    path.addRect(24, 32, 33, 36, (SkPath::Direction) 0);
+    path.addRect(10, 40, 30, 30, SkPath::kCW_Direction);
+    path.addRect(24, 0, 36, 36, SkPath::kCW_Direction);
+    path.addRect(24, 32, 33, 36, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine46x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(10, 40, 30, 30, (SkPath::Direction) 0);
-    path.addRect(24, 0, 36, 36, (SkPath::Direction) 0);
-    path.addRect(24, 32, 33, 36, (SkPath::Direction) 0);
+    path.addRect(10, 40, 30, 30, SkPath::kCW_Direction);
+    path.addRect(24, 0, 36, 36, SkPath::kCW_Direction);
+    path.addRect(24, 32, 33, 36, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine47() {
     SkPath path;
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(0, 0, 9, 9, (SkPath::Direction) 1);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(0, 0, 9, 9, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine47x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(0, 0, 9, 9, (SkPath::Direction) 1);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(0, 0, 9, 9, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine48() {
     SkPath path;
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 6, 12, 12, (SkPath::Direction) 0);
-    path.addRect(0, 0, 9, 9, (SkPath::Direction) 1);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 6, 12, 12, SkPath::kCW_Direction);
+    path.addRect(0, 0, 9, 9, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine48x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 6, 12, 12, (SkPath::Direction) 0);
-    path.addRect(0, 0, 9, 9, (SkPath::Direction) 1);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 6, 12, 12, SkPath::kCW_Direction);
+    path.addRect(0, 0, 9, 9, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine49() {
     SkPath path;
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(0, 0, 9, 9, (SkPath::Direction) 0);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(0, 0, 9, 9, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine49x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(0, 0, 9, 9, (SkPath::Direction) 0);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(0, 0, 9, 9, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine50() {
     SkPath path;
-    path.addRect(10, 30, 30, 30, (SkPath::Direction) 0);
-    path.addRect(24, 20, 36, 30, (SkPath::Direction) 0);
+    path.addRect(10, 30, 30, 30, SkPath::kCW_Direction);
+    path.addRect(24, 20, 36, 30, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine50x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(10, 30, 30, 30, (SkPath::Direction) 0);
-    path.addRect(24, 20, 36, 30, (SkPath::Direction) 0);
+    path.addRect(10, 30, 30, 30, SkPath::kCW_Direction);
+    path.addRect(24, 20, 36, 30, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine51() {
     SkPath path;
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
-    path.addRect(4, 12, 13, 13, (SkPath::Direction) 1);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 12, 12, 12, SkPath::kCW_Direction);
+    path.addRect(4, 12, 13, 13, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine51x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
-    path.addRect(4, 12, 13, 13, (SkPath::Direction) 1);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 12, 12, 12, SkPath::kCW_Direction);
+    path.addRect(4, 12, 13, 13, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine52() {
     SkPath path;
-    path.addRect(0, 30, 20, 20, (SkPath::Direction) 0);
-    path.addRect(6, 20, 18, 30, (SkPath::Direction) 0);
-    path.addRect(32, 0, 36, 41, (SkPath::Direction) 0);
+    path.addRect(0, 30, 20, 20, SkPath::kCW_Direction);
+    path.addRect(6, 20, 18, 30, SkPath::kCW_Direction);
+    path.addRect(32, 0, 36, 41, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine52x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 30, 20, 20, (SkPath::Direction) 0);
-    path.addRect(6, 20, 18, 30, (SkPath::Direction) 0);
-    path.addRect(32, 0, 36, 41, (SkPath::Direction) 0);
+    path.addRect(0, 30, 20, 20, SkPath::kCW_Direction);
+    path.addRect(6, 20, 18, 30, SkPath::kCW_Direction);
+    path.addRect(32, 0, 36, 41, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine53() {
     SkPath path;
-    path.addRect(10, 30, 30, 30, (SkPath::Direction) 0);
-    path.addRect(12, 20, 24, 30, (SkPath::Direction) 0);
-    path.addRect(12, 32, 21, 36, (SkPath::Direction) 1);
+    path.addRect(10, 30, 30, 30, SkPath::kCW_Direction);
+    path.addRect(12, 20, 24, 30, SkPath::kCW_Direction);
+    path.addRect(12, 32, 21, 36, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine53x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(10, 30, 30, 30, (SkPath::Direction) 0);
-    path.addRect(12, 20, 24, 30, (SkPath::Direction) 0);
-    path.addRect(12, 32, 21, 36, (SkPath::Direction) 1);
+    path.addRect(10, 30, 30, 30, SkPath::kCW_Direction);
+    path.addRect(12, 20, 24, 30, SkPath::kCW_Direction);
+    path.addRect(12, 32, 21, 36, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine54() {
     SkPath path;
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(6, 0, 18, 18, (SkPath::Direction) 0);
-    path.addRect(8, 4, 17, 17, (SkPath::Direction) 1);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(6, 0, 18, 18, SkPath::kCW_Direction);
+    path.addRect(8, 4, 17, 17, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine54x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(6, 0, 18, 18, (SkPath::Direction) 0);
-    path.addRect(8, 4, 17, 17, (SkPath::Direction) 1);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(6, 0, 18, 18, SkPath::kCW_Direction);
+    path.addRect(8, 4, 17, 17, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine55() {
     SkPath path;
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(6, 6, 18, 18, (SkPath::Direction) 0);
-    path.addRect(4, 4, 13, 13, (SkPath::Direction) 1);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(6, 6, 18, 18, SkPath::kCW_Direction);
+    path.addRect(4, 4, 13, 13, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine55x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(6, 6, 18, 18, (SkPath::Direction) 0);
-    path.addRect(4, 4, 13, 13, (SkPath::Direction) 1);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(6, 6, 18, 18, SkPath::kCW_Direction);
+    path.addRect(4, 4, 13, 13, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine56() {
     SkPath path;
-    path.addRect(0, 20, 20, 20, (SkPath::Direction) 0);
-    path.addRect(18, 20, 30, 30, (SkPath::Direction) 0);
-    path.addRect(12, 0, 21, 21, (SkPath::Direction) 1);
+    path.addRect(0, 20, 20, 20, SkPath::kCW_Direction);
+    path.addRect(18, 20, 30, 30, SkPath::kCW_Direction);
+    path.addRect(12, 0, 21, 21, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine56x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 20, 20, 20, (SkPath::Direction) 0);
-    path.addRect(18, 20, 30, 30, (SkPath::Direction) 0);
-    path.addRect(12, 0, 21, 21, (SkPath::Direction) 1);
+    path.addRect(0, 20, 20, 20, SkPath::kCW_Direction);
+    path.addRect(18, 20, 30, 30, SkPath::kCW_Direction);
+    path.addRect(12, 0, 21, 21, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine57() {
     SkPath path;
-    path.addRect(20, 0, 40, 40, (SkPath::Direction) 0);
-    path.addRect(20, 0, 30, 40, (SkPath::Direction) 0);
-    path.addRect(12, 0, 21, 21, (SkPath::Direction) 1);
+    path.addRect(20, 0, 40, 40, SkPath::kCW_Direction);
+    path.addRect(20, 0, 30, 40, SkPath::kCW_Direction);
+    path.addRect(12, 0, 21, 21, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine57x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(20, 0, 40, 40, (SkPath::Direction) 0);
-    path.addRect(20, 0, 30, 40, (SkPath::Direction) 0);
-    path.addRect(12, 0, 21, 21, (SkPath::Direction) 1);
+    path.addRect(20, 0, 40, 40, SkPath::kCW_Direction);
+    path.addRect(20, 0, 30, 40, SkPath::kCW_Direction);
+    path.addRect(12, 0, 21, 21, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine58() {
     SkPath path;
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 1);
-    path.addRect(0, 12, 9, 9, (SkPath::Direction) 1);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 0, 12, 12, SkPath::kCCW_Direction);
+    path.addRect(0, 12, 9, 9, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine58x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 1);
-    path.addRect(0, 12, 9, 9, (SkPath::Direction) 1);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 0, 12, 12, SkPath::kCCW_Direction);
+    path.addRect(0, 12, 9, 9, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine59() {
     SkPath path;
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(6, 6, 18, 18, (SkPath::Direction) 1);
-    path.addRect(4, 4, 13, 13, (SkPath::Direction) 1);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(6, 6, 18, 18, SkPath::kCCW_Direction);
+    path.addRect(4, 4, 13, 13, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine59x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(6, 6, 18, 18, (SkPath::Direction) 1);
-    path.addRect(4, 4, 13, 13, (SkPath::Direction) 1);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(6, 6, 18, 18, SkPath::kCCW_Direction);
+    path.addRect(4, 4, 13, 13, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine60() {
     SkPath path;
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(6, 12, 18, 18, (SkPath::Direction) 1);
-    path.addRect(4, 12, 13, 13, (SkPath::Direction) 1);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(6, 12, 18, 18, SkPath::kCCW_Direction);
+    path.addRect(4, 12, 13, 13, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine60x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(6, 12, 18, 18, (SkPath::Direction) 1);
-    path.addRect(4, 12, 13, 13, (SkPath::Direction) 1);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(6, 12, 18, 18, SkPath::kCCW_Direction);
+    path.addRect(4, 12, 13, 13, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine61() {
     SkPath path;
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(12, 0, 24, 24, (SkPath::Direction) 1);
-    path.addRect(12, 0, 21, 21, (SkPath::Direction) 1);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(12, 0, 24, 24, SkPath::kCCW_Direction);
+    path.addRect(12, 0, 21, 21, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine61x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(12, 0, 24, 24, (SkPath::Direction) 1);
-    path.addRect(12, 0, 21, 21, (SkPath::Direction) 1);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(12, 0, 24, 24, SkPath::kCCW_Direction);
+    path.addRect(12, 0, 21, 21, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine62() {
     SkPath path;
-    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
-    path.addRect(4, 12, 13, 13, (SkPath::Direction) 1);
+    path.addRect(0, 0, 60, 60, SkPath::kCW_Direction);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 12, 12, 12, SkPath::kCW_Direction);
+    path.addRect(4, 12, 13, 13, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine62x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 12, 12, 12, (SkPath::Direction) 0);
-    path.addRect(4, 12, 13, 13, (SkPath::Direction) 1);
+    path.addRect(0, 0, 60, 60, SkPath::kCW_Direction);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 12, 12, 12, SkPath::kCW_Direction);
+    path.addRect(4, 12, 13, 13, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine63() {
     SkPath path;
-    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
-    path.addRect(0, 10, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 6, 12, 12, (SkPath::Direction) 1);
-    path.addRect(0, 32, 9, 36, (SkPath::Direction) 1);
+    path.addRect(0, 0, 60, 60, SkPath::kCW_Direction);
+    path.addRect(0, 10, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 6, 12, 12, SkPath::kCCW_Direction);
+    path.addRect(0, 32, 9, 36, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine63x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
-    path.addRect(0, 10, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 6, 12, 12, (SkPath::Direction) 1);
-    path.addRect(0, 32, 9, 36, (SkPath::Direction) 1);
+    path.addRect(0, 0, 60, 60, SkPath::kCW_Direction);
+    path.addRect(0, 10, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 6, 12, 12, SkPath::kCCW_Direction);
+    path.addRect(0, 32, 9, 36, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine64() {
     SkPath path;
-    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
-    path.addRect(10, 40, 30, 30, (SkPath::Direction) 0);
-    path.addRect(18, 6, 30, 30, (SkPath::Direction) 0);
+    path.addRect(0, 0, 60, 60, SkPath::kCW_Direction);
+    path.addRect(10, 40, 30, 30, SkPath::kCW_Direction);
+    path.addRect(18, 6, 30, 30, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine64x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
-    path.addRect(10, 40, 30, 30, (SkPath::Direction) 0);
-    path.addRect(18, 6, 30, 30, (SkPath::Direction) 0);
+    path.addRect(0, 0, 60, 60, SkPath::kCW_Direction);
+    path.addRect(10, 40, 30, 30, SkPath::kCW_Direction);
+    path.addRect(18, 6, 30, 30, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine65() {
     SkPath path;
-    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
-    path.addRect(10, 0, 30, 30, (SkPath::Direction) 0);
-    path.addRect(24, 0, 36, 36, (SkPath::Direction) 0);
-    path.addRect(32, 6, 36, 41, (SkPath::Direction) 1);
+    path.addRect(0, 0, 60, 60, SkPath::kCW_Direction);
+    path.addRect(10, 0, 30, 30, SkPath::kCW_Direction);
+    path.addRect(24, 0, 36, 36, SkPath::kCW_Direction);
+    path.addRect(32, 6, 36, 41, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine65x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
-    path.addRect(10, 0, 30, 30, (SkPath::Direction) 0);
-    path.addRect(24, 0, 36, 36, (SkPath::Direction) 0);
-    path.addRect(32, 6, 36, 41, (SkPath::Direction) 1);
+    path.addRect(0, 0, 60, 60, SkPath::kCW_Direction);
+    path.addRect(10, 0, 30, 30, SkPath::kCW_Direction);
+    path.addRect(24, 0, 36, 36, SkPath::kCW_Direction);
+    path.addRect(32, 6, 36, 41, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine66() {
     SkPath path;
-    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
-    path.addRect(0, 30, 20, 20, (SkPath::Direction) 0);
-    path.addRect(12, 20, 24, 30, (SkPath::Direction) 0);
+    path.addRect(0, 0, 60, 60, SkPath::kCW_Direction);
+    path.addRect(0, 30, 20, 20, SkPath::kCW_Direction);
+    path.addRect(12, 20, 24, 30, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine66x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
-    path.addRect(0, 30, 20, 20, (SkPath::Direction) 0);
-    path.addRect(12, 20, 24, 30, (SkPath::Direction) 0);
+    path.addRect(0, 0, 60, 60, SkPath::kCW_Direction);
+    path.addRect(0, 30, 20, 20, SkPath::kCW_Direction);
+    path.addRect(12, 20, 24, 30, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine67() {
     SkPath path;
-    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
-    path.addRect(10, 40, 30, 30, (SkPath::Direction) 0);
-    path.addRect(24, 20, 36, 30, (SkPath::Direction) 0);
-    path.addRect(32, 0, 36, 41, (SkPath::Direction) 0);
+    path.addRect(0, 0, 60, 60, SkPath::kCW_Direction);
+    path.addRect(10, 40, 30, 30, SkPath::kCW_Direction);
+    path.addRect(24, 20, 36, 30, SkPath::kCW_Direction);
+    path.addRect(32, 0, 36, 41, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine67x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
-    path.addRect(10, 40, 30, 30, (SkPath::Direction) 0);
-    path.addRect(24, 20, 36, 30, (SkPath::Direction) 0);
-    path.addRect(32, 0, 36, 41, (SkPath::Direction) 0);
+    path.addRect(0, 0, 60, 60, SkPath::kCW_Direction);
+    path.addRect(10, 40, 30, 30, SkPath::kCW_Direction);
+    path.addRect(24, 20, 36, 30, SkPath::kCW_Direction);
+    path.addRect(32, 0, 36, 41, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine68a() {
     SkPath path;
-    path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 0);
-    path.addRect(1, 2, 4, 2, (SkPath::Direction) 0);
+    path.addRect(0, 0, 8, 8, SkPath::kCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCW_Direction);
+    path.addRect(1, 2, 4, 2, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine68ax() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 0);
-    path.addRect(1, 2, 4, 2, (SkPath::Direction) 0);
+    path.addRect(0, 0, 8, 8, SkPath::kCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCW_Direction);
+    path.addRect(1, 2, 4, 2, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine68b() {
     SkPath path;
-    path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
-    path.addRect(1, 2, 2, 2, (SkPath::Direction) 0);
+    path.addRect(0, 0, 8, 8, SkPath::kCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCCW_Direction);
+    path.addRect(1, 2, 2, 2, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine68bx() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
-    path.addRect(1, 2, 2, 2, (SkPath::Direction) 0);
+    path.addRect(0, 0, 8, 8, SkPath::kCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCCW_Direction);
+    path.addRect(1, 2, 2, 2, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine68c() {
     SkPath path;
-    path.addRect(0, 0, 8, 8, (SkPath::Direction) 1);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 0);
-    path.addRect(1, 2, 4, 2, (SkPath::Direction) 0);
+    path.addRect(0, 0, 8, 8, SkPath::kCCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCW_Direction);
+    path.addRect(1, 2, 4, 2, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine68cx() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 8, 8, (SkPath::Direction) 1);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 0);
-    path.addRect(1, 2, 4, 2, (SkPath::Direction) 0);
+    path.addRect(0, 0, 8, 8, SkPath::kCCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCW_Direction);
+    path.addRect(1, 2, 4, 2, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine68d() {
     SkPath path;
-    path.addRect(0, 0, 8, 8, (SkPath::Direction) 1);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
-    path.addRect(1, 2, 4, 2, (SkPath::Direction) 0);
+    path.addRect(0, 0, 8, 8, SkPath::kCCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCCW_Direction);
+    path.addRect(1, 2, 4, 2, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine68dx() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 8, 8, (SkPath::Direction) 1);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
-    path.addRect(1, 2, 4, 2, (SkPath::Direction) 0);
+    path.addRect(0, 0, 8, 8, SkPath::kCCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCCW_Direction);
+    path.addRect(1, 2, 4, 2, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine68e() {
     SkPath path;
-    path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
-    path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
-    path.addRect(1, 2, 2, 2, (SkPath::Direction) 0);
+    path.addRect(0, 0, 8, 8, SkPath::kCW_Direction);
+    path.addRect(0, 0, 8, 8, SkPath::kCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCCW_Direction);
+    path.addRect(1, 2, 2, 2, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine68ex() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
-    path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
-    path.addRect(1, 2, 2, 2, (SkPath::Direction) 0);
+    path.addRect(0, 0, 8, 8, SkPath::kCW_Direction);
+    path.addRect(0, 0, 8, 8, SkPath::kCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCCW_Direction);
+    path.addRect(1, 2, 2, 2, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine68f() {
     SkPath path;
-    path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
-    path.addRect(1, 2, 2, 2, (SkPath::Direction) 0);
+    path.addRect(0, 0, 8, 8, SkPath::kCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCCW_Direction);
+    path.addRect(1, 2, 2, 2, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine68fx() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
-    path.addRect(1, 2, 2, 2, (SkPath::Direction) 0);
+    path.addRect(0, 0, 8, 8, SkPath::kCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCCW_Direction);
+    path.addRect(1, 2, 2, 2, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine68g() {
     SkPath path;
-    path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
-    path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
-    path.addRect(1, 2, 2, 2, (SkPath::Direction) 0);
+    path.addRect(0, 0, 8, 8, SkPath::kCW_Direction);
+    path.addRect(0, 0, 8, 8, SkPath::kCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCCW_Direction);
+    path.addRect(1, 2, 2, 2, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine68gx() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
-    path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
-    path.addRect(1, 2, 2, 2, (SkPath::Direction) 0);
+    path.addRect(0, 0, 8, 8, SkPath::kCW_Direction);
+    path.addRect(0, 0, 8, 8, SkPath::kCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCCW_Direction);
+    path.addRect(1, 2, 2, 2, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine68h() {
     SkPath path;
-    path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
-    path.addRect(1, 2, 2, 2, (SkPath::Direction) 0);
+    path.addRect(0, 0, 8, 8, SkPath::kCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCCW_Direction);
+    path.addRect(1, 2, 2, 2, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine68hx() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 8, 8, (SkPath::Direction) 0);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
-    path.addRect(2, 2, 6, 6, (SkPath::Direction) 1);
-    path.addRect(1, 2, 2, 2, (SkPath::Direction) 0);
+    path.addRect(0, 0, 8, 8, SkPath::kCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCCW_Direction);
+    path.addRect(2, 2, 6, 6, SkPath::kCCW_Direction);
+    path.addRect(1, 2, 2, 2, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine69() {
     SkPath path;
-    path.addRect(0, 20, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 20, 12, 30, (SkPath::Direction) 0);
-    path.addRect(12, 32, 21, 36, (SkPath::Direction) 0);
+    path.addRect(0, 20, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 20, 12, 30, SkPath::kCW_Direction);
+    path.addRect(12, 32, 21, 36, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine69x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 20, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 20, 12, 30, (SkPath::Direction) 0);
-    path.addRect(12, 32, 21, 36, (SkPath::Direction) 0);
+    path.addRect(0, 20, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 20, 12, 30, SkPath::kCW_Direction);
+    path.addRect(12, 32, 21, 36, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine70() {
     SkPath path;
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 24, 12, 12, (SkPath::Direction) 0);
-    path.addRect(12, 32, 21, 36, (SkPath::Direction) 1);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 24, 12, 12, SkPath::kCW_Direction);
+    path.addRect(12, 32, 21, 36, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine70x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 24, 12, 12, (SkPath::Direction) 0);
-    path.addRect(12, 32, 21, 36, (SkPath::Direction) 1);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 24, 12, 12, SkPath::kCW_Direction);
+    path.addRect(12, 32, 21, 36, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine71() {
     SkPath path;
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(12, 0, 24, 24, (SkPath::Direction) 0);
-    path.addRect(12, 32, 21, 36, (SkPath::Direction) 0);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(12, 0, 24, 24, SkPath::kCW_Direction);
+    path.addRect(12, 32, 21, 36, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine71x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 20, 20, (SkPath::Direction) 0);
-    path.addRect(12, 0, 24, 24, (SkPath::Direction) 0);
-    path.addRect(12, 32, 21, 36, (SkPath::Direction) 0);
+    path.addRect(0, 0, 20, 20, SkPath::kCW_Direction);
+    path.addRect(12, 0, 24, 24, SkPath::kCW_Direction);
+    path.addRect(12, 32, 21, 36, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine72() {
     SkPath path;
-    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
-    path.addRect(10, 40, 30, 30, (SkPath::Direction) 0);
-    path.addRect(6, 20, 18, 30, (SkPath::Direction) 0);
+    path.addRect(0, 0, 60, 60, SkPath::kCW_Direction);
+    path.addRect(10, 40, 30, 30, SkPath::kCW_Direction);
+    path.addRect(6, 20, 18, 30, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine72x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
-    path.addRect(10, 40, 30, 30, (SkPath::Direction) 0);
-    path.addRect(6, 20, 18, 30, (SkPath::Direction) 0);
+    path.addRect(0, 0, 60, 60, SkPath::kCW_Direction);
+    path.addRect(10, 40, 30, 30, SkPath::kCW_Direction);
+    path.addRect(6, 20, 18, 30, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine73() {
     SkPath path;
-    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
-    path.addRect(0, 40, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 20, 12, 30, (SkPath::Direction) 0);
-    path.addRect(0, 0, 9, 9, (SkPath::Direction) 1);
+    path.addRect(0, 0, 60, 60, SkPath::kCW_Direction);
+    path.addRect(0, 40, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 20, 12, 30, SkPath::kCW_Direction);
+    path.addRect(0, 0, 9, 9, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine73x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
-    path.addRect(0, 40, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 20, 12, 30, (SkPath::Direction) 0);
-    path.addRect(0, 0, 9, 9, (SkPath::Direction) 1);
+    path.addRect(0, 0, 60, 60, SkPath::kCW_Direction);
+    path.addRect(0, 40, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 20, 12, 30, SkPath::kCW_Direction);
+    path.addRect(0, 0, 9, 9, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine74() {
     SkPath path;
-    path.addRect(20, 30, 40, 40, (SkPath::Direction) 0);
-    path.addRect(24, 20, 36, 30, (SkPath::Direction) 1);
-    path.addRect(32, 24, 36, 41, (SkPath::Direction) 1);
+    path.addRect(20, 30, 40, 40, SkPath::kCW_Direction);
+    path.addRect(24, 20, 36, 30, SkPath::kCCW_Direction);
+    path.addRect(32, 24, 36, 41, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine74x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(20, 30, 40, 40, (SkPath::Direction) 0);
-    path.addRect(24, 20, 36, 30, (SkPath::Direction) 1);
-    path.addRect(32, 24, 36, 41, (SkPath::Direction) 1);
+    path.addRect(20, 30, 40, 40, SkPath::kCW_Direction);
+    path.addRect(24, 20, 36, 30, SkPath::kCCW_Direction);
+    path.addRect(32, 24, 36, 41, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine75() {
     SkPath path;
-    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
-    path.addRect(10, 0, 30, 30, (SkPath::Direction) 1);
-    path.addRect(18, 0, 30, 30, (SkPath::Direction) 1);
-    path.addRect(12, 0, 21, 21, (SkPath::Direction) 1);
+    path.addRect(0, 0, 60, 60, SkPath::kCW_Direction);
+    path.addRect(10, 0, 30, 30, SkPath::kCCW_Direction);
+    path.addRect(18, 0, 30, 30, SkPath::kCCW_Direction);
+    path.addRect(12, 0, 21, 21, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine75x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 60, 60, (SkPath::Direction) 0);
-    path.addRect(10, 0, 30, 30, (SkPath::Direction) 1);
-    path.addRect(18, 0, 30, 30, (SkPath::Direction) 1);
-    path.addRect(12, 0, 21, 21, (SkPath::Direction) 1);
+    path.addRect(0, 0, 60, 60, SkPath::kCW_Direction);
+    path.addRect(10, 0, 30, 30, SkPath::kCCW_Direction);
+    path.addRect(18, 0, 30, 30, SkPath::kCCW_Direction);
+    path.addRect(12, 0, 21, 21, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine76() {
     SkPath path;
-    path.addRect(36, 0, 66, 60, (SkPath::Direction) 0);
-    path.addRect(10, 20, 40, 30, (SkPath::Direction) 0);
-    path.addRect(24, 20, 36, 30, (SkPath::Direction) 1);
-    path.addRect(32, 6, 36, 41, (SkPath::Direction) 1);
+    path.addRect(36, 0, 66, 60, SkPath::kCW_Direction);
+    path.addRect(10, 20, 40, 30, SkPath::kCW_Direction);
+    path.addRect(24, 20, 36, 30, SkPath::kCCW_Direction);
+    path.addRect(32, 6, 36, 41, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine76x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(36, 0, 66, 60, (SkPath::Direction) 0);
-    path.addRect(10, 20, 40, 30, (SkPath::Direction) 0);
-    path.addRect(24, 20, 36, 30, (SkPath::Direction) 1);
-    path.addRect(32, 6, 36, 41, (SkPath::Direction) 1);
+    path.addRect(36, 0, 66, 60, SkPath::kCW_Direction);
+    path.addRect(10, 20, 40, 30, SkPath::kCW_Direction);
+    path.addRect(24, 20, 36, 30, SkPath::kCCW_Direction);
+    path.addRect(32, 6, 36, 41, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine77() {
     SkPath path;
-    path.addRect(20, 0, 40, 40, (SkPath::Direction) 0);
-    path.addRect(24, 6, 36, 36, (SkPath::Direction) 1);
-    path.addRect(24, 32, 33, 36, (SkPath::Direction) 1);
+    path.addRect(20, 0, 40, 40, SkPath::kCW_Direction);
+    path.addRect(24, 6, 36, 36, SkPath::kCCW_Direction);
+    path.addRect(24, 32, 33, 36, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine77x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(20, 0, 40, 40, (SkPath::Direction) 0);
-    path.addRect(24, 6, 36, 36, (SkPath::Direction) 1);
-    path.addRect(24, 32, 33, 36, (SkPath::Direction) 1);
+    path.addRect(20, 0, 40, 40, SkPath::kCW_Direction);
+    path.addRect(24, 6, 36, 36, SkPath::kCCW_Direction);
+    path.addRect(24, 32, 33, 36, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine78() {
     SkPath path;
-    path.addRect(0, 0, 30, 60, (SkPath::Direction) 0);
-    path.addRect(10, 20, 30, 30, (SkPath::Direction) 1);
-    path.addRect(18, 20, 30, 30, (SkPath::Direction) 1);
-    path.addRect(32, 0, 36, 41, (SkPath::Direction) 1);
+    path.addRect(0, 0, 30, 60, SkPath::kCW_Direction);
+    path.addRect(10, 20, 30, 30, SkPath::kCCW_Direction);
+    path.addRect(18, 20, 30, 30, SkPath::kCCW_Direction);
+    path.addRect(32, 0, 36, 41, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine78x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 30, 60, (SkPath::Direction) 0);
-    path.addRect(10, 20, 30, 30, (SkPath::Direction) 1);
-    path.addRect(18, 20, 30, 30, (SkPath::Direction) 1);
-    path.addRect(32, 0, 36, 41, (SkPath::Direction) 1);
+    path.addRect(0, 0, 30, 60, SkPath::kCW_Direction);
+    path.addRect(10, 20, 30, 30, SkPath::kCCW_Direction);
+    path.addRect(18, 20, 30, 30, SkPath::kCCW_Direction);
+    path.addRect(32, 0, 36, 41, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine79() {
     SkPath path;
-    path.addRect(0, 36, 60, 30, (SkPath::Direction) 0);
-    path.addRect(10, 30, 40, 30, (SkPath::Direction) 0);
-    path.addRect(0, 20, 12, 30, (SkPath::Direction) 1);
-    path.addRect(0, 32, 9, 36, (SkPath::Direction) 1);
+    path.addRect(0, 36, 60, 30, SkPath::kCW_Direction);
+    path.addRect(10, 30, 40, 30, SkPath::kCW_Direction);
+    path.addRect(0, 20, 12, 30, SkPath::kCCW_Direction);
+    path.addRect(0, 32, 9, 36, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine79x() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 36, 60, 30, (SkPath::Direction) 0);
-    path.addRect(10, 30, 40, 30, (SkPath::Direction) 0);
-    path.addRect(0, 20, 12, 30, (SkPath::Direction) 1);
-    path.addRect(0, 32, 9, 36, (SkPath::Direction) 1);
+    path.addRect(0, 36, 60, 30, SkPath::kCW_Direction);
+    path.addRect(10, 30, 40, 30, SkPath::kCW_Direction);
+    path.addRect(0, 20, 12, 30, SkPath::kCCW_Direction);
+    path.addRect(0, 32, 9, 36, SkPath::kCCW_Direction);
+    testSimplifyx(path);
+}
+
+static void testLine81() {
+    SkPath path;
+    path.addRect(-1, -1, 3, 3, SkPath::kCW_Direction);
+    path.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    path.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    path.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    path.addRect(1, 1, 2, 2, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
@@ -2254,35 +2264,35 @@ static void testQuadralateral9x() {
 static void testLine1ax() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 0, 12, 12, (SkPath::Direction) 0);
-    path.addRect(4, 0, 13, 13, (SkPath::Direction) 0);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(4, 0, 13, 13, SkPath::kCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine2ax() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(0, 20, 20, 20, (SkPath::Direction) 0);
-    path.addRect(0, 20, 12, 30, (SkPath::Direction) 0);
-    path.addRect(12, 0, 21, 21, (SkPath::Direction) 1);
+    path.addRect(0, 20, 20, 20, SkPath::kCW_Direction);
+    path.addRect(0, 20, 12, 30, SkPath::kCW_Direction);
+    path.addRect(12, 0, 21, 21, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine3aax() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(10, 30, 30, 30, (SkPath::Direction) 0);
-    path.addRect(18, 20, 30, 30, (SkPath::Direction) 1);
-    path.addRect(0, 32, 9, 36, (SkPath::Direction) 1);
+    path.addRect(10, 30, 30, 30, SkPath::kCW_Direction);
+    path.addRect(18, 20, 30, 30, SkPath::kCCW_Direction);
+    path.addRect(0, 32, 9, 36, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
 static void testLine4ax() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
-    path.addRect(10, 30, 30, 30, (SkPath::Direction) 0);
-    path.addRect(24, 20, 36, 30, (SkPath::Direction) 1);
-    path.addRect(0, 32, 9, 36, (SkPath::Direction) 1);
+    path.addRect(10, 30, 30, 30, SkPath::kCW_Direction);
+    path.addRect(24, 20, 36, 30, SkPath::kCCW_Direction);
+    path.addRect(0, 32, 9, 36, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
@@ -2610,33 +2620,33 @@ static void testXor2() {
 static void testOp1d() {
     SkPath path, pathB;
     path.setFillType((SkPath::FillType) 0);
-    path.addRect(0, 0, 1, 1, (SkPath::Direction) 0);
-    path.addRect(0, 0, 2, 2, (SkPath::Direction) 0);
+    path.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    path.addRect(0, 0, 2, 2, SkPath::kCW_Direction);
     pathB.setFillType((SkPath::FillType) 0);
-    pathB.addRect(0, 0, 1, 1, (SkPath::Direction) 0);
-    pathB.addRect(0, 0, 1, 1, (SkPath::Direction) 0);
+    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
     testShapeOp(path, pathB, kDifference_Op);
 }
 
 static void testOp2d() {
     SkPath path, pathB;
     path.setFillType((SkPath::FillType) 0);
-    path.addRect(0, 0, 1, 1, (SkPath::Direction) 0);
-    path.addRect(0, 0, 2, 2, (SkPath::Direction) 0);
+    path.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    path.addRect(0, 0, 2, 2, SkPath::kCW_Direction);
     pathB.setFillType((SkPath::FillType) 1);
-    pathB.addRect(0, 0, 1, 1, (SkPath::Direction) 0);
-    pathB.addRect(0, 0, 1, 1, (SkPath::Direction) 0);
+    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
     testShapeOp(path, pathB, kDifference_Op);
 }
 
 static void testOp3d() {
     SkPath path, pathB;
     path.setFillType((SkPath::FillType) 0);
-    path.addRect(0, 0, 1, 1, (SkPath::Direction) 0);
-    path.addRect(1, 1, 2, 2, (SkPath::Direction) 0);
+    path.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    path.addRect(1, 1, 2, 2, SkPath::kCW_Direction);
     pathB.setFillType((SkPath::FillType) 0);
-    pathB.addRect(0, 0, 1, 1, (SkPath::Direction) 0);
-    pathB.addRect(0, 0, 1, 1, (SkPath::Direction) 0);
+    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
     testShapeOp(path, pathB, kDifference_Op);
 }
 
@@ -2963,14 +2973,13 @@ path.close();
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = testQuadratic58;
+static void (*firstTest)() = testLine81;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
     TEST(testQuadratic58),
-    TEST(testLine80),
     TEST(testQuadratic56),
     TEST(testQuadratic55),
     TEST(testQuadratic53),
@@ -3145,6 +3154,8 @@ static struct {
     TEST(testLine3x),
     TEST(testLine2x),
     TEST(testLine1x),
+    TEST(testLine81),
+    TEST(testLine80),
     TEST(testLine79),
     TEST(testLine78),
     TEST(testLine77),
@@ -3259,7 +3270,7 @@ static struct {
 
 static const size_t subTestCount = sizeof(subTests) / sizeof(subTests[0]);
 
-static void (*firstBinaryTest)() = testOp3d;
+static void (*firstBinaryTest)() = testOp1d;
 
 static bool skipAll = false;
 static bool runBinaryTestsFirst = true;
@@ -3274,7 +3285,7 @@ void SimplifyNew_Test() {
     gDebugMaxWindValue = 4;
     size_t index;
 #endif
-    if (firstBinaryTest) {
+    if (runBinaryTestsFirst && firstBinaryTest) {
         index = subTestCount - 1;
         while (index > 0 && subTests[index].fun != firstBinaryTest) {
             --index;

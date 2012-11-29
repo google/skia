@@ -29,7 +29,7 @@ int gDebugMaxWindValue = SK_MaxS32;
 #define TRY_ROTATE 1
 
 #define DEBUG_UNUSED 0 // set to expose unused functions
-#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging
+#define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging
 
 #if FORCE_RELEASE || defined SK_RELEASE
 
@@ -843,10 +843,7 @@ static const bool gOpLookup[][2][2] = {
     {{true , true }, {true , true }}, // a ^ b
 };
 
-static bool activeOp(bool angleIsOp, int otherNonZero, int otherCoin, ShapeOp op) {
-    if (otherNonZero != otherCoin) {
-        return op == kIntersect_Op || op == kUnion_Op;
-    }
+static bool isActiveOp(bool angleIsOp, int otherNonZero, ShapeOp op) {
     return gOpLookup[op][otherNonZero][angleIsOp];
 }
 
@@ -1083,6 +1080,43 @@ public:
             lastUnsortable = span.fUnsortableEnd;
         }
         SkASSERT(result.fY < SK_ScalarMax);
+    }
+
+    bool activeOp(int index, int endIndex, int xorMiMask, int xorSuMask, ShapeOp op) {
+        int sumMiWinding = updateWinding(endIndex, index);
+        int sumSuWinding = updateOppWinding(endIndex, index);
+        if (fOperand) {
+            SkTSwap<int>(sumMiWinding, sumSuWinding);
+        }
+        int maxWinding, sumWinding, oppMaxWinding, oppSumWinding;
+        return activeOp(xorMiMask, xorSuMask, index, endIndex, op, sumMiWinding, sumSuWinding,
+            maxWinding, sumWinding, oppMaxWinding, oppSumWinding);
+    }
+    
+    bool activeOp(int xorMiMask, int xorSuMask,
+            int index, int endIndex, ShapeOp op,
+            int& sumMiWinding, int& sumSuWinding, 
+            int& maxWinding, int& sumWinding, int& oppMaxWinding, int& oppSumWinding) {
+        setUpWindings(index, endIndex, sumMiWinding, sumSuWinding,
+                maxWinding, sumWinding, oppMaxWinding, oppSumWinding);
+        int mask, oppMask;
+        if (operand()) {
+            mask = xorSuMask;
+            oppMask = xorMiMask;
+        } else {
+            mask = xorMiMask;
+            oppMask = xorSuMask;
+        }
+        if ((sumWinding & mask) && (maxWinding & mask)) {
+            return false;
+        }
+        int oppCoin = oppSign(index, endIndex) & oppMask;
+        if (oppCoin) {
+            return op == kIntersect_Op || op == kUnion_Op
+                    || (oppSumWinding & oppMask && oppMaxWinding & oppMask);
+        }
+        bool oppNonZero = oppMaxWinding & oppMask;
+        return isActiveOp(operand(), oppNonZero, op);
     }
 
     void addAngle(SkTDArray<Angle>& angles, int start, int end) const {
@@ -1711,7 +1745,7 @@ public:
         other->addTwoAngles(next, oIndex, angles);
     }
 
-    int computeSum(int startIndex, int endIndex, int* oppoSum) {
+    int computeSum(int startIndex, int endIndex, bool binary) {
         SkTDArray<Angle> angles;
         addTwoAngles(startIndex, endIndex, angles);
         buildAngles(endIndex, angles, false);
@@ -1753,12 +1787,6 @@ public:
     #endif
         if (inner) {
             winding += spanWinding;
-        }
-        if (oppoSum) {
-            int oppoWinding = base->oppSign(angle);
-            if (useInnerWinding(oWinding + oppoWinding, oWinding)) {
-                oWinding += oppoWinding;
-            }
         }
     #if DEBUG_SORT
         base->debugShowSort(__FUNCTION__, sorted, firstIndex, winding, oWinding);
@@ -1808,14 +1836,11 @@ public:
                     if (oppoSign && useInnerWinding(oMaxWinding, oWinding)) {
                         oMaxWinding = oWinding;
                     }
-                    segment->markAndChaseWinding(angle, maxWinding, oppoSum ? oMaxWinding : 0);
+                    segment->markAndChaseWinding(angle, maxWinding, binary ? oMaxWinding : 0);
                 }
             }
         } while (++nextIndex != lastIndex);
         int minIndex = SkMin32(startIndex, endIndex);
-        if (oppoSum) {
-            *oppoSum = oppSum(minIndex);
-        }
         return windSum(minIndex);
     }
 
@@ -1927,38 +1952,27 @@ public:
         return fTs[min].fDone;
     }
 
-    bool done(const Angle& angle) const {
-        return done(SkMin32(angle.start(), angle.end()));
+    bool done(const Angle* angle) const {
+        return done(SkMin32(angle->start(), angle->end()));
     }
 
-    Segment* findNextOp(SkTDArray<Span*>& chase, bool active,
-            int& nextStart, int& nextEnd, int& winding, int& oppWinding,
-            int& spanWinding, int& oppSpanWinding, bool& unsortable, ShapeOp op,
-            const int aXorMask, const int bXorMask) {
+    /*
+     The M and S variable name parts stand for the operators.
+       Mi stands for Minuend (see wiki subtraction, analogous to difference)
+       Su stands for Subtrahend
+     The Opp variable name part designates that the value is for the Opposite operator.
+     Opposite values result from combining coincident spans.
+     */
+     
+    Segment* findNextOp(SkTDArray<Span*>& chase, int& nextStart, int& nextEnd,
+            bool& unsortable, ShapeOp op, const int xorMiMask, const int xorSuMask) {
         const int startIndex = nextStart;
-        const int endIndex = nextEnd;
-        int outerWinding = winding;
-        int innerWinding = winding + spanWinding;
-    #if DEBUG_WINDING
-        SkDebugf("%s winding=%d spanWinding=%d outerWinding=%d innerWinding=%d oppWinding=%d\n",
-                __FUNCTION__, winding, spanWinding, outerWinding, innerWinding, oppWinding);
-    #endif
-        if (useInnerWinding(outerWinding, innerWinding)) {
-            outerWinding = innerWinding;
-        }
-        int outerOppWinding = oppWinding;
-        if (oppSpanWinding) {
-            int innerOppWinding = oppWinding + oppSpanWinding;
-            if (useInnerWinding(oppWinding, innerOppWinding)) {
-                outerOppWinding = innerOppWinding;
-            }
-        }
+        const int endIndex = nextEnd;    
         SkASSERT(startIndex != endIndex);
-        int count = fTs.count();
-        SkASSERT(startIndex < endIndex ? startIndex < count - 1
-                : startIndex > 0);
-        int step = SkSign32(endIndex - startIndex);
-        int end = nextExactSpan(startIndex, step);
+        const int count = fTs.count();
+        SkASSERT(startIndex < endIndex ? startIndex < count - 1 : startIndex > 0);
+        const int step = SkSign32(endIndex - startIndex);
+        const int end = nextExactSpan(startIndex, step);
         SkASSERT(end >= 0);
         Span* endSpan = &fTs[end];
         Segment* other;
@@ -1968,7 +1982,7 @@ public:
     #if DEBUG_WINDING
             SkDebugf("%s simple\n", __FUNCTION__);
     #endif
-            markDone(SkMin32(startIndex, endIndex), outerWinding, outerOppWinding);
+            markDoneBinary(SkMin32(startIndex, endIndex));
             other = endSpan->fOther;
             nextStart = endSpan->fOtherIndex;
             double startT = other->fTs[nextStart].fT;
@@ -1992,7 +2006,7 @@ public:
         int firstIndex = findStartingEdge(sorted, startIndex, end);
         SkASSERT(firstIndex >= 0);
     #if DEBUG_SORT
-        debugShowSort(__FUNCTION__, sorted, firstIndex, winding, oppWinding);
+        debugShowSort(__FUNCTION__, sorted, firstIndex);
     #endif
         if (!sortable) {
             unsortable = true;
@@ -2003,180 +2017,60 @@ public:
         SkDebugf("%s firstIndex=[%d] sign=%d\n", __FUNCTION__, firstIndex,
                 sorted[firstIndex]->sign());
     #endif
-        int aSumWinding = winding;
-        int bSumWinding = oppWinding;
-        bool angleIsOp = sorted[firstIndex]->segment()->operand() ^ operand();
-        const Angle* firstAngle = sorted[firstIndex];
-        int angleSpan = spanSign(firstAngle);
-        int oppoSign = oppSign(firstAngle);
-        if (angleIsOp) {
-            bSumWinding -= angleSpan;
-            aSumWinding -= oppoSign;
-        } else {
-            aSumWinding -= angleSpan;
-            bSumWinding -= oppoSign;
+        int sumMiWinding = updateWinding(endIndex, startIndex);
+        int sumSuWinding = updateOppWinding(endIndex, startIndex);
+        if (operand()) {
+            SkTSwap<int>(sumMiWinding, sumSuWinding);
         }
         int nextIndex = firstIndex + 1;
         int lastIndex = firstIndex != 0 ? firstIndex : angleCount;
         const Angle* foundAngle = NULL;
         bool foundDone = false;
-#define TWO_CHANNEL_DONE 0
-#if TWO_CHANNEL_DONE
-        bool foundDone2 = false;
-#define FOUND_DONE2 foundDone2
-#else
-#define FOUND_DONE2 foundDone
-#endif
         // iterate through the angle, and compute everyone's winding
-        bool aAltFlipped = false;
-        bool bAltFlipped = false;
-        bool foundFlipped = false;
-        int foundSum = SK_MinS32;
-        int foundOppWinding = SK_MinS32;
         Segment* nextSegment;
-        int aLastNonZeroSum = winding;
-        int bLastNonZeroSum = oppWinding;
-        bool foundOpp;
         do {
+            SkASSERT(nextIndex != firstIndex);
             if (nextIndex == angleCount) {
                 nextIndex = 0;
             }
             const Angle* nextAngle = sorted[nextIndex];
             nextSegment = nextAngle->segment();
-            bool nextDone = nextSegment->done(*nextAngle);
-            bool nextTiny = nextSegment->tiny(*nextAngle);
-            angleIsOp = nextSegment->operand() ^ operand();
-            int deltaSum = nextSegment->spanSign(nextAngle);
-            int oppDeltaSum = nextSegment->oppSign(nextAngle);
-            int maxWinding, xorMask, sumWinding, oMaxWinding, oSumWinding;
-            bool otherNonZero, altFlipped, otherCoin;
-            if (angleIsOp) {
-                maxWinding = bSumWinding;
-                if (bSumWinding) {
-                    bLastNonZeroSum = bSumWinding;
-                }
-                bSumWinding -= deltaSum;
-                sumWinding = bSumWinding;
-                otherNonZero = aSumWinding & aXorMask;
-                xorMask = bXorMask;
-                bAltFlipped ^= bLastNonZeroSum * bSumWinding < 0; // flip if different signs
-                altFlipped = bAltFlipped;
-                oMaxWinding = aSumWinding;
-                aSumWinding -= oppDeltaSum;
-                oSumWinding = aSumWinding;
-                otherCoin = aSumWinding & aXorMask;
-            } else {
-                maxWinding = aSumWinding;
-                if (aSumWinding) {
-                    aLastNonZeroSum = aSumWinding;
-                }
-                aSumWinding -= deltaSum;
-                sumWinding = aSumWinding;
-                otherNonZero = bSumWinding & bXorMask;
-                xorMask = aXorMask;
-                aAltFlipped ^= aLastNonZeroSum * aSumWinding < 0; // flip if different signs
-                altFlipped = aAltFlipped;
-                oMaxWinding = bSumWinding;
-                bSumWinding -= oppDeltaSum;
-                oSumWinding = bSumWinding;
-                otherCoin = bSumWinding & bXorMask;
-            }
-            if (oppDeltaSum && useInnerWinding(oMaxWinding, oSumWinding)) {
-                oMaxWinding = oSumWinding;
-            }
-            bool opIsActive = activeOp(nextSegment->operand(), otherNonZero, otherCoin, op);
-            if (!(sumWinding & xorMask)) {
-                if (!active) {
-                    markAndChaseDone(startIndex, endIndex, outerWinding, outerOppWinding);
-                    nextSegment->markAndChaseWinding(nextAngle, maxWinding, oMaxWinding);
-    #if DEBUG_WINDING
-                    SkDebugf("%s [%d] inactive\n", __FUNCTION__, nextIndex);
-    #endif
-                    return NULL;
-                }
-                if (opIsActive && (!foundAngle || foundDone)) {
-                    foundAngle = nextAngle;
-                    foundDone = nextDone && !nextTiny;
-                    foundFlipped = altFlipped;
-                    foundSum = 0;
-                    foundOpp = angleIsOp;
-                    foundOppWinding = oSumWinding;
-                }
-                continue;
-            }
-            if (opIsActive && !(maxWinding & xorMask) && (!foundAngle || FOUND_DONE2)) {
-        #if DEBUG_WINDING
-                if (foundAngle && FOUND_DONE2) {
-                    SkDebugf("%s [%d] !foundAngle && foundDone2\n", __FUNCTION__, nextIndex);
-                }
-        #endif
+            int maxWinding, sumWinding, oppMaxWinding, oppSumWinding;
+            bool activeAngle = nextSegment->activeOp(xorMiMask, xorSuMask, nextAngle->start(),
+                    nextAngle->end(), op, sumMiWinding, sumSuWinding,
+                    maxWinding, sumWinding, oppMaxWinding, oppSumWinding);
+            if (activeAngle && (!foundAngle || foundDone)) {
                 foundAngle = nextAngle;
-                FOUND_DONE2 = nextDone && !nextTiny;
-                foundFlipped = altFlipped;
-                foundSum = sumWinding;
-                foundOpp = angleIsOp;
-                foundOppWinding = oMaxWinding;
+                foundDone = nextSegment->done(nextAngle) && !nextSegment->tiny(nextAngle);
             }
             if (nextSegment->done()) {
                 continue;
             }
-            // if the winding is non-zero, nextAngle does not connect to
-            // current chain. If we haven't done so already, mark the angle
-            // as done, record the winding value, and mark connected unambiguous
-            // segments as well.
-            if (nextSegment->windSum(nextAngle) == SK_MinS32) {
-                if (useInnerWinding(maxWinding, sumWinding)) {
-                    maxWinding = sumWinding;
-                }
-                Span* last;
-                if (foundAngle) {
-                    last = nextSegment->markAndChaseWinding(nextAngle, maxWinding, oMaxWinding);
-                } else {
-                    last = nextSegment->markAndChaseDone(nextAngle, maxWinding, oMaxWinding);
-                }
-                if (last) {
-                    *chase.append() = last;
-                }
+            if (nextSegment->windSum(nextAngle) != SK_MinS32) {
+                continue;
+            }
+            Span* last = nextSegment->markAngle(maxWinding, sumWinding, oppMaxWinding,
+                    oppSumWinding, activeAngle, nextAngle);
+            if (last) {
+                *chase.append() = last;
+#if DEBUG_WINDING
+                SkDebugf("%s chase.append id=%d\n", __FUNCTION__,
+                        last->fOther->fTs[last->fOtherIndex].fOther->debugID());
+#endif
             }
         } while (++nextIndex != lastIndex);
-        markDone(SkMin32(startIndex, endIndex), outerWinding, outerOppWinding);
+        markDoneBinary(SkMin32(startIndex, endIndex));
         if (!foundAngle) {
             return NULL;
         }
-    #if DEBUG_WINDING
-        int oldSpanSign = spanSign(nextStart, nextEnd);
-    #endif
         nextStart = foundAngle->start();
         nextEnd = foundAngle->end();
         nextSegment = foundAngle->segment();
-        int flipped = foundFlipped ? -1 : 1;
-        int minStartEnd = SkMin32(nextStart, nextEnd);
-        spanWinding = SkSign32(spanWinding) * flipped * nextSegment->windValue(minStartEnd);
-        oppSpanWinding = SkSign32(oppSpanWinding) * flipped * nextSegment->oppValue(minStartEnd);
 
     #if DEBUG_WINDING
-        SkDebugf("%s foundFlipped=%d spanWinding=%d oldSpanSign=%d spanSign=%d\n",
-                __FUNCTION__, foundFlipped, spanWinding, oldSpanSign,
-                nextSegment->spanSign(foundAngle));
-        SkDebugf("%s foundOpp=%d oppWinding=%d oppSpanWinding=%d foundOppWinding=%d winding=%d"
-                " foundSum=", __FUNCTION__, foundOpp, oppWinding, oppSpanWinding, foundOppWinding,
-                winding);
-        if (foundSum == SK_MinS32) {
-            SkDebugf("?");
-        } else {
-            SkDebugf("%d", foundSum);
-        }
-        SkDebugf("\n");
+        SkDebugf("%s from:[%d] to:[%d] start=%d end=%d\n",
+                __FUNCTION__, debugID(), nextSegment->debugID(), nextStart, nextEnd);
      #endif
-        if (oppWinding != foundOppWinding) {
-            oppWinding = foundOppWinding;
-            if (foundOpp) {
-                SkASSERT(foundSum != SK_MinS32);
-                winding = foundSum;
-                spanWinding = nextSegment->spanSign(foundAngle);
-                oppSpanWinding = nextSegment->oppSign(foundAngle);
-            }
-        }
         return nextSegment;
     }
 
@@ -2293,8 +2187,8 @@ public:
                 lastNonZeroSum = sumWinding;
             }
             nextSegment = nextAngle->segment();
-            bool nextDone = nextSegment->done(*nextAngle);
-            bool nextTiny = nextSegment->tiny(*nextAngle);
+            bool nextDone = nextSegment->done(nextAngle);
+            bool nextTiny = nextSegment->tiny(nextAngle);
             sumWinding -= nextSegment->spanSign(nextAngle);
             altFlipped ^= lastNonZeroSum * sumWinding < 0; // flip if different signs
     #if 0 && DEBUG_WINDING
@@ -2352,6 +2246,10 @@ public:
                 }
                 if (last) {
                     *chase.append() = last;
+    #if DEBUG_WINDING
+                    SkDebugf("%s chase.append id=%d\n", __FUNCTION__,
+                            last->fOther->fTs[last->fOtherIndex].fOther->debugID());
+    #endif
                 }
             }
         } while (++nextIndex != lastIndex);
@@ -2455,7 +2353,7 @@ public:
             }
             nextAngle = sorted[nextIndex];
             nextSegment = nextAngle->segment();
-            if (!nextSegment->done(*nextAngle)) {
+            if (!nextSegment->done(nextAngle)) {
                 break;
             }
             if (++nextIndex == lastIndex) {
@@ -2728,7 +2626,7 @@ public:
         return last;
     }
 
-    Span* innerChaseDone(int index, int step, int winding, int oppWinding) {
+    Span* innerChaseDoneBinary(int index, int step, int winding, int oppWinding) {
         int end = nextExactSpan(index, step);
         SkASSERT(end >= 0);
         if (multipleSpans(end)) {
@@ -2738,11 +2636,25 @@ public:
         Segment* other = endSpan.fOther;
         index = endSpan.fOtherIndex;
         int otherEnd = other->nextExactSpan(index, step);
-        Span* last = other->innerChaseDone(index, step, winding, oppWinding);
-        other->markDone(SkMin32(index, otherEnd), winding, oppWinding);
+        Span* last = other->innerChaseDoneBinary(index, step, winding, oppWinding);
+        other->markDoneBinary(SkMin32(index, otherEnd), winding, oppWinding);
         return last;
     }
 
+    Span* innerChaseDoneBinary(int index, int step) {
+        int end = nextExactSpan(index, step);
+        SkASSERT(end >= 0);
+        if (multipleSpans(end)) {
+            return &fTs[end];
+        }
+        const Span& endSpan = fTs[end];
+        Segment* other = endSpan.fOther;
+        index = endSpan.fOtherIndex;
+        int otherEnd = other->nextExactSpan(index, step);
+        Span* last = other->innerChaseDoneBinary(index, step);
+        other->markDoneBinary(SkMin32(index, otherEnd));
+        return last;
+    }
 
     Span* innerChaseWinding(int index, int step, int winding) {
         int end = nextExactSpan(index, step);
@@ -2789,6 +2701,18 @@ public:
         fOperand = operand;
         fPts = pts;
         fVerb = verb;
+    }
+
+    void initWinding(int start, int end, int winding, int oppWinding) {
+        int local = spanSign(start, end);
+        if (local * winding >= 0) {
+            winding += local;
+        }
+        local = oppSign(start, end);
+        if (local * oppWinding >= 0) {
+            oppWinding += local;
+        }
+        markAndChaseWinding(start, end, winding, oppWinding);
     }
 
     bool intersected() const {
@@ -2864,12 +2788,6 @@ public:
         return markAndChaseDone(index, endIndex, winding);
     }
 
-    Span* markAndChaseDone(const Angle* angle, int winding, int oppWinding) {
-        int index = angle->start();
-        int endIndex = angle->end();
-        return markAndChaseDone(index, endIndex, winding, oppWinding);
-    }
-
     Span* markAndChaseDone(int index, int endIndex, int winding) {
         int step = SkSign32(endIndex - index);
         Span* last = innerChaseDone(index, step, winding);
@@ -2877,10 +2795,19 @@ public:
         return last;
     }
 
-    Span* markAndChaseDone(int index, int endIndex, int winding, int oppWinding) {
+    Span* markAndChaseDoneBinary(const Angle* angle, int winding, int oppWinding) {
+        int index = angle->start();
+        int endIndex = angle->end();
         int step = SkSign32(endIndex - index);
-        Span* last = innerChaseDone(index, step, winding, oppWinding);
-        markDone(SkMin32(index, endIndex), winding, oppWinding);
+        Span* last = innerChaseDoneBinary(index, step, winding, oppWinding);
+        markDoneBinary(SkMin32(index, endIndex), winding, oppWinding);
+        return last;
+    }
+    
+    Span* markAndChaseDoneBinary(int index, int endIndex) {
+        int step = SkSign32(endIndex - index);
+        Span* last = innerChaseDoneBinary(index, step);
+        markDoneBinary(SkMin32(index, endIndex));
         return last;
     }
 
@@ -2893,14 +2820,36 @@ public:
         markWinding(min, winding);
         return last;
     }
-
-    Span* markAndChaseWinding(const Angle* angle, int winding, int oppWinding) {
-        int index = angle->start();
-        int endIndex = angle->end();
+    
+    Span* markAndChaseWinding(int index, int endIndex, int winding, int oppWinding) {
         int min = SkMin32(index, endIndex);
         int step = SkSign32(endIndex - index);
         Span* last = innerChaseWinding(index, step, winding, oppWinding);
         markWinding(min, winding, oppWinding);
+        return last;
+    }
+
+    Span* markAndChaseWinding(const Angle* angle, int winding, int oppWinding) {
+        int start = angle->start();
+        int end = angle->end();
+        return markAndChaseWinding(start, end, winding, oppWinding);
+    }
+
+    Span* markAngle(int maxWinding, int sumWinding, int oppMaxWinding, int oppSumWinding,
+            bool activeAngle, const Angle* angle) {
+        SkASSERT(angle->segment() == this);
+        if (useInnerWinding(maxWinding, sumWinding)) {
+            maxWinding = sumWinding;
+        }
+        if (oppMaxWinding != oppSumWinding && useInnerWinding(oppMaxWinding, oppSumWinding)) {
+            oppMaxWinding = oppSumWinding;
+        }
+        Span* last;
+        if (activeAngle) {
+            last = markAndChaseWinding(angle, maxWinding, oppMaxWinding);
+        } else {
+            last = markAndChaseDoneBinary(angle, maxWinding, oppMaxWinding);
+        }
         return last;
     }
 
@@ -2922,16 +2871,27 @@ public:
         } while (++index < fTs.count() && precisely_negative(fTs[index].fT - referenceT));
     }
 
-    void markDone(int index, int winding, int oppWinding) {
+    void markDoneBinary(int index, int winding, int oppWinding) {
       //  SkASSERT(!done());
         SkASSERT(winding);
         double referenceT = fTs[index].fT;
         int lesser = index;
         while (--lesser >= 0 && precisely_negative(referenceT - fTs[lesser].fT)) {
-            markOneDone(__FUNCTION__, lesser, winding, oppWinding);
+            markOneDoneBinary(__FUNCTION__, lesser, winding, oppWinding);
         }
         do {
-            markOneDone(__FUNCTION__, index, winding, oppWinding);
+            markOneDoneBinary(__FUNCTION__, index, winding, oppWinding);
+        } while (++index < fTs.count() && precisely_negative(fTs[index].fT - referenceT));
+    }
+
+    void markDoneBinary(int index) {
+        double referenceT = fTs[index].fT;
+        int lesser = index;
+        while (--lesser >= 0 && precisely_negative(referenceT - fTs[lesser].fT)) {
+            markOneDoneBinary(__FUNCTION__, lesser);
+        }
+        do {
+            markOneDoneBinary(__FUNCTION__, index);
         } while (++index < fTs.count() && precisely_negative(fTs[index].fT - referenceT));
     }
 
@@ -2944,7 +2904,16 @@ public:
         fDoneSpans++;
     }
 
-    void markOneDone(const char* funName, int tIndex, int winding, int oppWinding) {
+    void markOneDoneBinary(const char* funName, int tIndex) {
+        Span* span = verifyOneWinding(funName, tIndex);
+        if (!span) {
+            return;
+        }
+        span->fDone = true;
+        fDoneSpans++;
+    }
+
+    void markOneDoneBinary(const char* funName, int tIndex, int winding, int oppWinding) {
         Span* span = markOneWinding(funName, tIndex, winding, oppWinding);
         if (!span) {
             return;
@@ -2987,6 +2956,19 @@ public:
         SkASSERT(abs(oppWinding) <= gDebugMaxWindSum);
    #endif
         span.fOppSum = oppWinding;
+        return &span;
+    }
+
+    Span* verifyOneWinding(const char* funName, int tIndex) {
+        Span& span = fTs[tIndex];
+        if (span.fDone) {
+            return NULL;
+        }
+    #if DEBUG_MARK_DONE
+        debugShowNewWinding(funName, span, span.fWindSum, span.fOppSum);
+    #endif
+        SkASSERT(span.fWindSum != SK_MinS32);
+        SkASSERT(span.fOppSum != SK_MinS32);
         return &span;
     }
 
@@ -3157,6 +3139,23 @@ public:
         fTs.reset();
     }
 
+    void setUpWindings(int index, int endIndex, int& sumMiWinding, int& sumSuWinding,
+            int& maxWinding, int& sumWinding, int& oppMaxWinding, int& oppSumWinding) {
+        int deltaSum = spanSign(index, endIndex);
+        int oppDeltaSum = oppSign(index, endIndex);
+        if (operand()) {
+            maxWinding = sumSuWinding;
+            sumWinding = sumSuWinding -= deltaSum;
+            oppMaxWinding = sumMiWinding;
+            oppSumWinding = sumMiWinding -= oppDeltaSum;
+        } else {
+            maxWinding = sumMiWinding;
+            sumWinding = sumMiWinding -= deltaSum;
+            oppMaxWinding = sumSuWinding;
+            oppSumWinding = sumSuWinding -= oppDeltaSum;
+        }
+    }
+
     // This marks all spans unsortable so that this info is available for early
     // exclusion in find top and others. This could be optimized to only mark
     // adjacent spans that unsortable. However, this makes it difficult to later
@@ -3213,9 +3212,9 @@ public:
         return fTs[tIndex].fT;
     }
 
-    bool tiny(const Angle& angle) const {
-        int start = angle.start();
-        int end = angle.end();
+    bool tiny(const Angle* angle) const {
+        int start = angle->start();
+        int end = angle->end();
         const Span& mSpan = fTs[SkMin32(start, end)];
         return mSpan.fTiny;
     }
@@ -3252,6 +3251,50 @@ public:
 
     void updatePts(const SkPoint pts[]) {
         fPts = pts;
+    }
+
+    int updateOppWinding(int index, int endIndex) const {
+        int lesser = SkMin32(index, endIndex);
+        int oppWinding = oppSum(lesser);
+        int oppSpanWinding = oppSign(index, endIndex);
+        if (oppSpanWinding && useInnerWinding(oppWinding - oppSpanWinding, oppWinding)) {
+            oppWinding -= oppSpanWinding;
+        }
+        return oppWinding;
+    }
+    
+    int updateOppWinding(const Angle* angle) const {
+        int startIndex = angle->start();
+        int endIndex = angle->end();
+        return updateOppWinding(endIndex, startIndex);
+    }
+
+    int updateOppWindingReverse(const Angle* angle) const {
+        int startIndex = angle->start();
+        int endIndex = angle->end();
+        return updateOppWinding(startIndex, endIndex);
+    }
+
+    int updateWinding(int index, int endIndex) const {
+        int lesser = SkMin32(index, endIndex);
+        int winding = windSum(lesser);
+        int spanWinding = spanSign(index, endIndex);
+        if (useInnerWinding(winding - spanWinding, winding)) {
+            winding -= spanWinding;
+        }
+        return winding;
+    }
+
+    int updateWinding(const Angle* angle) const {
+        int startIndex = angle->start();
+        int endIndex = angle->end();
+        return updateWinding(endIndex, startIndex);
+    }
+
+    int updateWindingReverse(const Angle* angle) const {
+        int startIndex = angle->start();
+        int endIndex = angle->end();
+        return updateWinding(startIndex, endIndex);
     }
 
     SkPath::Verb verb() const {
@@ -3585,6 +3628,15 @@ public:
             }
         } while (index != first);
     }
+
+    void debugShowSort(const char* fun, const SkTDArray<Angle*>& angles, int first) {
+        const Angle* firstAngle = angles[first];
+        const Segment* segment = firstAngle->segment();
+        int winding = segment->updateWinding(firstAngle);
+        int oppWinding = segment->updateOppWinding(firstAngle);
+        debugShowSort(fun, angles, first, winding, oppWinding);
+    }
+
 #endif
 
 #if DEBUG_WINDING
@@ -4794,7 +4846,7 @@ static int innerContourCheck(SkTDArray<Contour*>& contourList,
     double tHit;
     for (int cTest = 0; cTest < contourCount; ++cTest) {
         Contour* contour = contourList[cTest];
-        if (contour->operand() ^ current->operand() != opp) {
+        if ((contour->operand() ^ current->operand()) != opp) {
             continue;
         }
         if (basePt.fY < contour->bounds().fTop) {
@@ -5143,7 +5195,7 @@ static bool bridgeWinding(SkTDArray<Contour*>& contourList, PathWrapper& simple)
             int sumWinding = current->windSum(SkMin32(index, endIndex));
             // FIXME: don't I have to adjust windSum to get contourWinding?
             if (sumWinding == SK_MinS32) {
-                sumWinding = current->computeSum(index, endIndex, NULL);
+                sumWinding = current->computeSum(index, endIndex, false);
             }
             if (sumWinding == SK_MinS32) {
                 contourWinding = innerContourCheck(contourList, current,
