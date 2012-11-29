@@ -23,13 +23,13 @@ static void* testSimplify4x4RectsMain(void* data)
     bzero(pathStr, sizeof(pathStr));
     do {
         int aShape = state.a & 0x03;
-        int aCW = state.a >> 2;
+        SkPath::Direction aCW = state.a >> 2 ? SkPath::kCCW_Direction : SkPath::kCW_Direction;
         int bShape = state.b & 0x03;
-        int bCW = state.b >> 2;
+        SkPath::Direction bCW = state.b >> 2 ? SkPath::kCCW_Direction : SkPath::kCW_Direction;
         int cShape = state.c & 0x03;
-        int cCW = state.c >> 2;
+        SkPath::Direction cCW = state.c >> 2 ? SkPath::kCCW_Direction : SkPath::kCW_Direction;
         int dShape = state.d & 0x03;
-        int dCW = state.d >> 2;
+        SkPath::Direction dCW = state.d >> 2 ? SkPath::kCCW_Direction : SkPath::kCW_Direction;
         for (int aXAlign = 0 ; aXAlign < 5; ++aXAlign) {
         for (int aYAlign = 0 ; aYAlign < 5; ++aYAlign)      {
         for (int bXAlign = 0 ; bXAlign < 5; ++bXAlign)          {
@@ -63,9 +63,9 @@ static void* testSimplify4x4RectsMain(void* data)
                         aXAlign = 5;
                         break;
                 }
-                path.addRect(l, t, r, b, (SkPath::Direction) aCW);
+                path.addRect(l, t, r, b, aCW);
                 str += sprintf(str, "    path.addRect(%d, %d, %d, %d,"
-                        " (SkPath::Direction) %d);\n", l, t, r, b, aCW);
+                        " SkPath::kC%sWDirection);\n", l, t, r, b, aCW ? "C" : "");
             } else {
                 aXAlign = 5;
                 aYAlign = 5;
@@ -91,9 +91,9 @@ static void* testSimplify4x4RectsMain(void* data)
                         bXAlign = 5;
                         break;
                 }
-                path.addRect(l, t, r, b, (SkPath::Direction) bCW);
+                path.addRect(l, t, r, b, bCW);
                 str += sprintf(str, "    path.addRect(%d, %d, %d, %d,"
-                        " (SkPath::Direction) %d);\n", l, t, r, b, bCW);
+                        " SkPath::kC%sWDirection);\n", l, t, r, b, bCW ? "C" : "");
             } else {
                 bXAlign = 5;
                 bYAlign = 5;
@@ -119,9 +119,9 @@ static void* testSimplify4x4RectsMain(void* data)
                         cXAlign = 5;
                         break;
                 }
-                path.addRect(l, t, r, b, (SkPath::Direction) cCW);
+                path.addRect(l, t, r, b, cCW);
                 str += sprintf(str, "    path.addRect(%d, %d, %d, %d,"
-                        " (SkPath::Direction) %d);\n", l, t, r, b, cCW);
+                        " SkPath::kC%sWDirection);\n", l, t, r, b, cCW ? "C" : "");
             } else {
                 cXAlign = 5;
                 cYAlign = 5;
@@ -147,9 +147,9 @@ static void* testSimplify4x4RectsMain(void* data)
                         dXAlign = 5;
                         break;
                 }
-                path.addRect(l, t, r, b, (SkPath::Direction) dCW);
+                path.addRect(l, t, r, b, dCW);
                 str += sprintf(str, "    path.addRect(%d, %d, %d, %d,"
-                        " (SkPath::Direction) %d);\n", l, t, r, b, dCW);
+                        " SkPath::kC%sWDirection);\n", l, t, r, b, dCW ? "C" : "");
             } else {
                 dXAlign = 5;
                 dYAlign = 5;

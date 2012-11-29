@@ -33,21 +33,21 @@ static void* testShapeOps4x4RectsMain(void* data)
             char* str = pathStr;
             pathA.setFillType((SkPath::FillType) e);
             str += sprintf(str, "    path.setFillType((SkPath::FillType) %d);\n", e);
-            pathA.addRect(state.a, state.a, state.b, state.b, (SkPath::Direction) 0);
+            pathA.addRect(state.a, state.a, state.b, state.b, SkPath::kCW_Direction);
             str += sprintf(str, "    path.addRect(%d, %d, %d, %d,"
-                    " (SkPath::Direction) %d);\n", state.a, state.a, state.b, state.b, 0);
-            pathA.addRect(state.c, state.c, state.d, state.d, (SkPath::Direction) 0);
+                    " SkPath::kCW_Direction);\n", state.a, state.a, state.b, state.b);
+            pathA.addRect(state.c, state.c, state.d, state.d, SkPath::kCW_Direction);
             str += sprintf(str, "    path.addRect(%d, %d, %d, %d,"
-                    " (SkPath::Direction) %d);\n", state.c, state.c, state.d, state.d, 0);
+                    " SkPath::kCW_Direction);\n", state.c, state.c, state.d, state.d);
             pathA.close();
             pathB.setFillType((SkPath::FillType) f);
             str += sprintf(str, "    pathB.setFillType((SkPath::FillType) %d);\n", f);
-            pathB.addRect(a, a, b, b, (SkPath::Direction) 0);
+            pathB.addRect(a, a, b, b, SkPath::kCW_Direction);
             str += sprintf(str, "    pathB.addRect(%d, %d, %d, %d,"
-                    " (SkPath::Direction) %d);\n", a, a, b, b, 0);
-            pathB.addRect(c, c, d, d, (SkPath::Direction) 0);
+                    " SkPath::kCW_Direction);\n", a, a, b, b);
+            pathB.addRect(c, c, d, d, SkPath::kCW_Direction);
             str += sprintf(str, "    pathB.addRect(%d, %d, %d, %d,"
-                    " (SkPath::Direction) %d);\n", c, c, d, d, 0);
+                    " SkPath::kCW_Direction);\n", c, c, d, d);
             pathB.close();
             outputProgress(state, pathStr, kDifference_Op);
             testShapeOp(pathA, pathB, kDifference_Op);
