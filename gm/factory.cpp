@@ -6,46 +6,43 @@
  */
 
 #include "gm.h"
+#include "SkBitmapFactory.h"
 #include "SkCanvas.h"
-#include "SkImageDecoder.h"
+#include "SkData.h"
 #include "SkStream.h"
 
 namespace skiagm {
 
-/** Draw a CMYK encoded jpeg - libjpeg doesn't support CMYK->RGB
-    conversion so this tests Skia's internal processing
-*/
-class CMYKJpegGM : public GM {
+/**
+ *  Draw a PNG created by SkBitmapFactory.
+ */
+class FactoryGM : public GM {
 public:
-    CMYKJpegGM() {}
+    FactoryGM() {}
 
 protected:
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
-
-        // parameters to the "decode" call
-        bool dither = false;
-        SkBitmap::Config prefConfig = SkBitmap::kARGB_8888_Config;
-
         SkString filename(INHERITED::gResourcePath);
         if (!filename.endsWith("/") && !filename.endsWith("\\")) {
             filename.append("/");
         }
 
-        filename.append("CMYK.jpg");
+        // Copyright-free file from http://openclipart.org/detail/29213/paper-plane-by-ddoo
+        filename.append("plane.png");
 
         SkFILEStream stream(filename.c_str());
-        SkImageDecoder* codec = SkImageDecoder::Factory(&stream);
-        if (codec) {
+        if (stream.isValid()) {
             stream.rewind();
-            codec->setDitherImage(dither);
-            codec->decode(&stream, &fBitmap, prefConfig,
-                          SkImageDecoder::kDecodePixels_Mode);
-            SkDELETE(codec);
+            size_t length = stream.getLength();
+            void* buffer = sk_malloc_throw(length);
+            stream.read(buffer, length);
+            SkAutoDataUnref data(SkData::NewFromMalloc(buffer, length));
+            SkBitmapFactory::DecodeBitmap(&fBitmap, data);
         }
     }
 
     virtual SkString onShortName() {
-        return SkString("cmykjpeg");
+        return SkString("factory");
     }
 
     virtual SkISize onISize() {
@@ -53,8 +50,6 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-
-        canvas->translate(20*SK_Scalar1, 20*SK_Scalar1);
         canvas->drawBitmap(fBitmap, 0, 0);
     }
 
@@ -64,16 +59,9 @@ private:
     typedef GM INHERITED;
 };
 
-void forceLinking();
-
-void forceLinking() {
-    SkImageDecoder *creator = CreateJPEGImageDecoder();
-    SkASSERT(creator);
-}
-
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new CMYKJpegGM; }
+static GM* MyFactory(void*) { return new FactoryGM; }
 static GMRegistry reg(MyFactory);
 
 }
