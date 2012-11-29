@@ -124,6 +124,7 @@ public:
         SkASSERT((unsigned)row <= 3);
         SkASSERT((unsigned)col <= 3);
         fMat[col][row] = value;
+        fIdentity = false;
     }
 
     double getDouble(int row, int col) const {
@@ -260,6 +261,8 @@ private:
          [3][2] = tz
      */
     SkMScalar fMat[4][4];
+
+    bool fIdentity;
 };
 
 #endif

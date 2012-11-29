@@ -23,6 +23,9 @@ SkMatrix44::SkMatrix44(const SkMatrix44& a, const SkMatrix44& b) {
 }
 
 bool SkMatrix44::operator==(const SkMatrix44& other) const {
+    if (fIdentity && other.fIdentity)
+        return true;
+
     const SkMScalar* a = &fMat[0][0];
     const SkMScalar* b = &other.fMat[0][0];
     for (int i = 0; i < 16; ++i) {
@@ -90,6 +93,7 @@ void SkMatrix44::setColMajorf(const float src[]) {
 #elif defined SK_MSCALAR_IS_FLOAT
     memcpy(dst, src, 16 * sizeof(float));
 #endif
+    fIdentity = false;
 }
 
 void SkMatrix44::setColMajord(const double src[]) {
@@ -101,6 +105,7 @@ void SkMatrix44::setColMajord(const double src[]) {
         dst[i] = SkMScalarToDouble(src[i]);
     }
 #endif
+    fIdentity = false;
 }
 
 void SkMatrix44::setRowMajorf(const float src[]) {
@@ -113,6 +118,7 @@ void SkMatrix44::setRowMajorf(const float src[]) {
         src += 4;
         dst += 1;
     }
+    fIdentity = false;
 }
 
 void SkMatrix44::setRowMajord(const double src[]) {
@@ -125,11 +131,15 @@ void SkMatrix44::setRowMajord(const double src[]) {
         src += 4;
         dst += 1;
     }
+    fIdentity = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkMatrix44::isIdentity() const {
+    if (fIdentity)
+        return true;
+
     static const SkMScalar  sIdentityMat[4][4] = {
         { 1, 0, 0, 0 },
         { 0, 1, 0, 0 },
@@ -144,6 +154,7 @@ bool SkMatrix44::isIdentity() const {
 void SkMatrix44::setIdentity() {
     sk_bzero(fMat, sizeof(fMat));
     fMat[0][0] = fMat[1][1] = fMat[2][2] = fMat[3][3] = 1;
+    fIdentity = true;
 }
 
 void SkMatrix44::set3x3(SkMScalar m00, SkMScalar m01, SkMScalar m02,
@@ -154,6 +165,7 @@ void SkMatrix44::set3x3(SkMScalar m00, SkMScalar m01, SkMScalar m02,
     fMat[1][0] = m10; fMat[1][1] = m11; fMat[1][2] = m12; fMat[1][3] = 0;
     fMat[2][0] = m20; fMat[2][1] = m21; fMat[2][2] = m22; fMat[2][3] = 0;
     fMat[3][0] = 0;   fMat[3][1] = 0;   fMat[3][2] = 0;   fMat[3][3] = 1;
+    fIdentity = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -164,6 +176,7 @@ void SkMatrix44::setTranslate(SkMScalar tx, SkMScalar ty, SkMScalar tz) {
     fMat[3][1] = ty;
     fMat[3][2] = tz;
     fMat[3][3] = 1;
+    fIdentity = false;
 }
 
 void SkMatrix44::preTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz) {
@@ -176,6 +189,7 @@ void SkMatrix44::postTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz) {
     fMat[3][0] += dx;
     fMat[3][1] += dy;
     fMat[3][2] += dz;
+    fIdentity = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -186,6 +200,7 @@ void SkMatrix44::setScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
     fMat[1][1] = sy;
     fMat[2][2] = sz;
     fMat[3][3] = 1;
+    fIdentity = false;
 }
 
 void SkMatrix44::preScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
@@ -200,6 +215,7 @@ void SkMatrix44::postScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
         fMat[i][1] *= sy;
         fMat[i][2] *= sz;
     }
+    fIdentity = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -263,6 +279,7 @@ void SkMatrix44::setConcat(const SkMatrix44& a, const SkMatrix44& b) {
         }
     }
     memcpy(fMat, result, sizeof(result));
+    fIdentity = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -363,6 +380,7 @@ bool SkMatrix44::invert(SkMatrix44* inverse) const {
             inverse->fMat[i][j] = SkDoubleToMScalar(tmp[i][j] * invDet);
         }
     }
+    inverse->fIdentity = false;
     return true;
 }
 
@@ -444,6 +462,7 @@ SkMatrix44::SkMatrix44(const SkMatrix& src) {
 
 SkMatrix44& SkMatrix44::operator=(const SkMatrix& src) {
     initFromMatrix(fMat, src);
+    fIdentity = src.isIdentity();
     return *this;
 }
 
