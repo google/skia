@@ -47,8 +47,8 @@ SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(SkFlattenableRead
     SkASSERT(readSize == size);
     fGain = buffer.readScalar();
     fBias = buffer.readScalar();
-    fTarget.fX = buffer.readScalar();
-    fTarget.fY = buffer.readScalar();
+    fTarget.fX = buffer.readInt();
+    fTarget.fY = buffer.readInt();
     fTileMode = (TileMode) buffer.readInt();
     fConvolveAlpha = buffer.readBool();
 }
@@ -60,8 +60,8 @@ void SkMatrixConvolutionImageFilter::flatten(SkFlattenableWriteBuffer& buffer) c
     buffer.writeScalarArray(fKernel, fKernelSize.fWidth * fKernelSize.fHeight);
     buffer.writeScalar(fGain);
     buffer.writeScalar(fBias);
-    buffer.writeScalar(fTarget.fX);
-    buffer.writeScalar(fTarget.fY);
+    buffer.writeInt(fTarget.fX);
+    buffer.writeInt(fTarget.fY);
     buffer.writeInt((int) fTileMode);
     buffer.writeBool(fConvolveAlpha);
 }
@@ -478,8 +478,8 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrTexture* texture,
     for (int i = 0; i < kernelSize.width() * kernelSize.height(); i++) {
         fKernel[i] = SkScalarToFloat(kernel[i]);
     }
-    fTarget[0] = target.x();
-    fTarget[1] = target.y();
+    fTarget[0] = static_cast<float>(target.x());
+    fTarget[1] = static_cast<float>(target.y());
 }
 
 GrMatrixConvolutionEffect::~GrMatrixConvolutionEffect() {
