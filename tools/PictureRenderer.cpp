@@ -669,7 +669,7 @@ public:
                                        SkIntToScalar(fPicture->height()));
         SkData* data = SkPictureUtils::GatherPixelRefs(fPicture, bounds);
         SkSafeUnref(data);
-        
+
         return NULL == path;    // we don't have anything to write
     }
 
@@ -682,5 +682,5 @@ private:
 PictureRenderer* CreateGatherPixelRefsRenderer() {
     return SkNEW(GatherRenderer);
 }
-    
+
 } // namespace sk_tools

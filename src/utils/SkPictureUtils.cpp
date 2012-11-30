@@ -76,7 +76,7 @@ public:
                              SkCanvas::Config8888 config8888) SK_OVERRIDE {
         not_supported();
     }
-    
+
     virtual void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE {
         this->addBitmapFromPaint(paint);
     }
@@ -146,7 +146,7 @@ protected:
 class NoSaveLayerCanvas : public SkCanvas {
 public:
     NoSaveLayerCanvas(SkDevice* device) : INHERITED(device) {}
-    
+
     // turn saveLayer() into save() for speed, should not affect correctness.
     virtual int saveLayer(const SkRect* bounds, const SkPaint* paint,
                           SaveFlags flags) SK_OVERRIDE {

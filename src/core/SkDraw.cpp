@@ -334,10 +334,10 @@ static void bw_pt_rect_16_hair_proc(const PtProcRec& rec,
     uint32_t value;
     const SkBitmap* bitmap = blitter->justAnOpaqueColor(&value);
     SkASSERT(bitmap);
-    
+
     uint16_t* addr = bitmap->getAddr16(0, 0);
     int rb = bitmap->rowBytes();
-    
+
     for (int i = 0; i < count; i++) {
         int x = SkScalarFloorToInt(devPts[i].fX);
         int y = SkScalarFloorToInt(devPts[i].fY);
@@ -355,10 +355,10 @@ static void bw_pt_rect_32_hair_proc(const PtProcRec& rec,
     uint32_t value;
     const SkBitmap* bitmap = blitter->justAnOpaqueColor(&value);
     SkASSERT(bitmap);
-    
+
     SkPMColor* addr = bitmap->getAddr32(0, 0);
     int rb = bitmap->rowBytes();
-    
+
     for (int i = 0; i < count; i++) {
         int x = SkScalarFloorToInt(devPts[i].fX);
         int y = SkScalarFloorToInt(devPts[i].fY);
@@ -417,13 +417,13 @@ static void bw_square_proc(const PtProcRec& rec, const SkPoint devPts[],
     for (int i = 0; i < count; i++) {
         SkFixed x = SkScalarToFixed(devPts[i].fX);
         SkFixed y = SkScalarToFixed(devPts[i].fY);
-        
+
         SkXRect r;
         r.fLeft = x - radius;
         r.fTop = y - radius;
         r.fRight = x + radius;
         r.fBottom = y + radius;
-        
+
         SkScan::FillXRect(r, *rec.fRC, blitter);
     }
 }
