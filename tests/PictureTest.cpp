@@ -207,7 +207,7 @@ static void test_gatherpixelrefs(skiatest::Reporter* reporter) {
             SkAutoDataUnref adu(data);
 
             gather_from_colors(result, refs, N, &array);
-            
+
             /*
              *  GatherPixelRefs is conservative, so it can return more bitmaps
              *  that we actually can see (usually because of conservative bounds

@@ -1092,10 +1092,10 @@ public:
         return activeOp(xorMiMask, xorSuMask, index, endIndex, op, sumMiWinding, sumSuWinding,
             maxWinding, sumWinding, oppMaxWinding, oppSumWinding);
     }
-    
+
     bool activeOp(int xorMiMask, int xorSuMask,
             int index, int endIndex, ShapeOp op,
-            int& sumMiWinding, int& sumSuWinding, 
+            int& sumMiWinding, int& sumSuWinding,
             int& maxWinding, int& sumWinding, int& oppMaxWinding, int& oppSumWinding) {
         setUpWindings(index, endIndex, sumMiWinding, sumSuWinding,
                 maxWinding, sumWinding, oppMaxWinding, oppSumWinding);
@@ -1963,11 +1963,11 @@ public:
      The Opp variable name part designates that the value is for the Opposite operator.
      Opposite values result from combining coincident spans.
      */
-     
+
     Segment* findNextOp(SkTDArray<Span*>& chase, int& nextStart, int& nextEnd,
             bool& unsortable, ShapeOp op, const int xorMiMask, const int xorSuMask) {
         const int startIndex = nextStart;
-        const int endIndex = nextEnd;    
+        const int endIndex = nextEnd;
         SkASSERT(startIndex != endIndex);
         const int count = fTs.count();
         SkASSERT(startIndex < endIndex ? startIndex < count - 1 : startIndex > 0);
@@ -2803,7 +2803,7 @@ public:
         markDoneBinary(SkMin32(index, endIndex), winding, oppWinding);
         return last;
     }
-    
+
     Span* markAndChaseDoneBinary(int index, int endIndex) {
         int step = SkSign32(endIndex - index);
         Span* last = innerChaseDoneBinary(index, step);
@@ -2820,7 +2820,7 @@ public:
         markWinding(min, winding);
         return last;
     }
-    
+
     Span* markAndChaseWinding(int index, int endIndex, int winding, int oppWinding) {
         int min = SkMin32(index, endIndex);
         int step = SkSign32(endIndex - index);
@@ -3262,7 +3262,7 @@ public:
         }
         return oppWinding;
     }
-    
+
     int updateOppWinding(const Angle* angle) const {
         int startIndex = angle->start();
         int endIndex = angle->end();

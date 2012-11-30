@@ -75,14 +75,14 @@ void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
     }
 
     // Proportionally scale down all radii to fit. Find the minimum ratio
-    // of a side and the radii on that side (for all four sides) and use 
+    // of a side and the radii on that side (for all four sides) and use
     // that to scale down _all_ the radii. This algorithm is from the
     // W3 spec (http://www.w3.org/TR/css3-background/) section 5.5 - Overlapping
     // Curves:
-    // "Let f = min(Li/Si), where i is one of { top, right, bottom, left }, 
+    // "Let f = min(Li/Si), where i is one of { top, right, bottom, left },
     //   Si is the sum of the two corresponding radii of the corners on side i,
-    //   and Ltop = Lbottom = the width of the box, 
-    //   and Lleft = Lright = the height of the box. 
+    //   and Ltop = Lbottom = the width of the box,
+    //   and Lleft = Lright = the height of the box.
     // If f < 1, then all corner radii are reduced by multiplying them by f."
     SkScalar scale = SK_Scalar1;
 
@@ -143,7 +143,7 @@ bool SkRRect::contains(SkScalar x, SkScalar y) const {
         canonicalPt.set(x - fRect.centerX(), y - fRect.centerY());
         index = kUpperLeft_Corner;  // any corner will do in this case
     } else {
-        if (x < fRect.fLeft + fRadii[kUpperLeft_Corner].fX && 
+        if (x < fRect.fLeft + fRadii[kUpperLeft_Corner].fX &&
             y < fRect.fTop + fRadii[kUpperLeft_Corner].fY) {
             // UL corner
             index = kUpperLeft_Corner;
@@ -252,7 +252,7 @@ void SkRRect::validate() const {
             SkASSERT(fRect.isEmpty());
             SkASSERT(allRadiiZero && allRadiiSame && allCornersSquare);
 
-            SkASSERT(0 == fRect.fLeft && 0 == fRect.fTop && 
+            SkASSERT(0 == fRect.fLeft && 0 == fRect.fTop &&
                      0 == fRect.fRight && 0 == fRect.fBottom);
             break;
         case kRect_Type:

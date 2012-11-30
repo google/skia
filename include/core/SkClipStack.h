@@ -103,7 +103,7 @@ public:
            clips are Booleaned together. */
         SkClipStack::BoundsType fFiniteBoundType;
         SkRect                  fFiniteBound;
- 
+
         // When element is applied to the previous elements in the stack is the result known to be
         // equivalent to a single rect intersection? IIOW, is the clip effectively a rectangle.
         bool                    fIsIntersectionOfRects;
@@ -163,7 +163,7 @@ public:
         inline bool operator!=(const Element& b) const;
         inline bool canBeIntersectedInPlace(int saveCount, SkRegion::Op op) const;
         /* This method checks to see if two rect clips can be safely merged into one. The issue here
-          is that to be strictly correct all the edges of the resulting rect must have the same 
+          is that to be strictly correct all the edges of the resulting rect must have the same
           anti-aliasing. */
         bool rectRectIntersectAllowed(const SkRect& newR, bool newAA) const;
         /** Determines possible finite bounds for the Element given the previous element of the

@@ -16,7 +16,7 @@ static void test_round_rect_basic(skiatest::Reporter* reporter) {
     // Test out initialization methods
     SkPoint zeroPt = { 0.0, 0.0 };
     SkRRect empty;
-    
+
     empty.setEmpty();
 
     REPORTER_ASSERT(reporter, SkRRect::kEmpty_Type == empty.type());
@@ -48,7 +48,7 @@ static void test_round_rect_basic(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, rr2.rect() == rect);
 
     for (int i = 0; i < 4; ++i) {
-        REPORTER_ASSERT(reporter, 
+        REPORTER_ASSERT(reporter,
                         rr2.radii((SkRRect::Corner) i).equalsWithinTolerance(halfPoint));
     }
 
@@ -63,7 +63,7 @@ static void test_round_rect_basic(skiatest::Reporter* reporter) {
     for (int i = 0; i < 4; ++i) {
         REPORTER_ASSERT(reporter, p == rr3.radii((SkRRect::Corner) i));
     }
-    
+
     //----
     SkPoint radii[4] = { { 5, 5 }, { 5, 5 }, { 5, 5 }, { 5, 5 } };
 
@@ -99,7 +99,7 @@ static void test_round_rect_basic(skiatest::Reporter* reporter) {
 // Test out the cases when the RR degenerates to a rect
 static void test_round_rect_rects(skiatest::Reporter* reporter) {
     SkRect r;
-    static const SkPoint pts[] = { 
+    static const SkPoint pts[] = {
         // Upper Left
         { -SK_Scalar1, -SK_Scalar1 },               // out
         { SK_Scalar1, SK_Scalar1 },                 // in
@@ -121,7 +121,7 @@ static void test_round_rect_rects(skiatest::Reporter* reporter) {
 
     //----
     SkRRect empty;
-    
+
     empty.setEmpty();
 
     REPORTER_ASSERT(reporter, SkRRect::kEmpty_Type == empty.type());
@@ -166,7 +166,7 @@ static void test_round_rect_ovals(skiatest::Reporter* reporter) {
     static const SkScalar kEps = 0.1f;
     static const SkScalar kWidthTol = SkScalarHalf(kWidth) * (SK_Scalar1 - SK_ScalarRoot2Over2);
     static const SkScalar kHeightTol = SkScalarHalf(kHeight) * (SK_Scalar1 - SK_ScalarRoot2Over2);
-    static const SkPoint pts[] = { 
+    static const SkPoint pts[] = {
         // Upper Left
         { kWidthTol - kEps, kHeightTol - kEps },       // out
         { kWidthTol + kEps, kHeightTol + kEps },       // in
@@ -204,7 +204,7 @@ static void test_round_rect_ovals(skiatest::Reporter* reporter) {
 static void test_round_rect_general(skiatest::Reporter* reporter) {
     static const SkScalar kEps = 0.1f;
     static const SkScalar kDist20 = 20 * (SK_Scalar1 - SK_ScalarRoot2Over2);
-    static const SkPoint pts[] = { 
+    static const SkPoint pts[] = {
         // Upper Left
         { kDist20 - kEps, kDist20 - kEps },       // out
         { kDist20 + kEps, kDist20 + kEps },       // in
@@ -236,7 +236,7 @@ static void test_round_rect_general(skiatest::Reporter* reporter) {
 
     //----
     static const SkScalar kDist50 = 50*(SK_Scalar1 - SK_ScalarRoot2Over2);
-    static const SkPoint pts2[] = { 
+    static const SkPoint pts2[] = {
         // Upper Left
         { -SK_Scalar1, -SK_Scalar1 },           // out
         { SK_Scalar1, SK_Scalar1 },             // in
