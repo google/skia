@@ -71,6 +71,7 @@
     the performance impact. By default these flags are undefined, but can be
     enabled by uncommenting them below.
  */
+//#define SK_DEBUG_GLYPH_CACHE
 //#define SK_DEBUG_PATH
 
 /*  To assist debugging, Skia provides an instance counting utility in

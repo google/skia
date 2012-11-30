@@ -693,6 +693,7 @@ size_t SkGlyphCache::InternalFreeCache(SkGlyphCache_Globals* globals,
 
 #ifdef SK_DEBUG
 void SkGlyphCache::validate() const {
+#ifdef SK_DEBUG_GLYPH_CACHE
     int count = fGlyphArray.count();
     for (int i = 0; i < count; i++) {
         const SkGlyph* glyph = fGlyphArray[i];
@@ -702,6 +703,7 @@ void SkGlyphCache::validate() const {
             SkASSERT(fImageAlloc.contains(glyph->fImage));
         }
     }
+#endif
 }
 #endif
 
