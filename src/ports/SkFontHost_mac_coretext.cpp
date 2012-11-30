@@ -27,6 +27,10 @@
 #include "SkGlyph.h"
 #include "SkMaskGamma.h"
 #include "SkSFNTHeader.h"
+#include "SkOTTable_glyf.h"
+#include "SkOTTable_head.h"
+#include "SkOTTable_hhea.h"
+#include "SkOTTable_loca.h"
 #include "SkOTUtils.h"
 #include "SkPaint.h"
 #include "SkPath.h"
@@ -52,6 +56,23 @@ public:
 
 private:
     CFTypeRef fObj;
+};
+
+template<typename T> class AutoCGTable : SkNoncopyable {
+public:
+    AutoCGTable(CGFontRef font)
+    //Undocumented: the tag parameter in this call is expected in machine order and not BE order.
+    : fCFData(CGFontCopyTableForTag(font, SkSetFourByteTag(T::TAG0, T::TAG1, T::TAG2, T::TAG3)))
+    , fData(fCFData ? reinterpret_cast<const T*>(CFDataGetBytePtr(fCFData)) : NULL)
+    { }
+    ~AutoCGTable() { CFSafeRelease(fCFData); }
+    
+    const T* operator->() const { return fData; }
+    
+private:
+    CFDataRef fCFData;
+public:
+    const T* fData;
 };
 
 // inline versions of these rect helpers
@@ -353,17 +374,6 @@ static SkTypeface::Style computeStyleBits(CTFontRef font, bool* isMonospace) {
     return (SkTypeface::Style)style;
 }
 
-class AutoCFDataRelease {
-public:
-    AutoCFDataRelease(CFDataRef obj) : fObj(obj) {}
-    const uint16_t* getShortPtr() {
-        return fObj ? (const uint16_t*) CFDataGetBytePtr(fObj) : NULL;
-    }
-    ~AutoCFDataRelease() { CFSafeRelease(fObj); }
-private:
-    CFDataRef fObj;
-};
-
 static SkFontID CTFontRef_to_SkFontID(CTFontRef fontRef) {
     SkFontID id = 0;
 // CTFontGetPlatformFont and ATSFontRef are not supported on iOS, so we have to
@@ -379,10 +389,9 @@ static SkFontID CTFontRef_to_SkFontID(CTFontRef fontRef) {
     // CTFontGetPlatformFont returns NULL if the font is local
     // (e.g., was created by a CSS3 @font-face rule).
     CGFontRef cgFont = CTFontCopyGraphicsFont(fontRef, NULL);
-    AutoCFDataRelease headRef(CGFontCopyTableForTag(cgFont, 'head'));
-    const uint16_t* headData = headRef.getShortPtr();
-    if (headData) {
-        id = (SkFontID) (headData[4] | headData[5] << 16); // checksum
+    AutoCGTable<SkOTTableHead> headTable(cgFont);
+    if (headTable.fData) {
+        id = (SkFontID) headTable->checksumAdjustment;
         id = (id & 0x3FFFFFFF) | 0x40000000; // make top two bits 01
     }
     // well-formed fonts have checksums, but as a last resort, use the pointer.
@@ -626,7 +635,7 @@ protected:
 
 private:
     static void                         CTPathElement(void *info, const CGPathElement *element);
-    uint16_t                            getAdjustStart();
+    uint16_t                            getFBoundingBoxesGlyphOffset();
     void                                getVerticalOffset(CGGlyph glyphID, SkIPoint* offset) const;
     bool                                generateBBoxes();
 
@@ -635,15 +644,15 @@ private:
     SkMatrix                            fUnitMatrix; // without font size
     SkMatrix                            fVerticalMatrix; // unit rotated
     SkMatrix                            fMatrix; // with font size
-    SkMatrix                            fAdjustBadMatrix; // lion-specific fix
+    SkMatrix                            fFBoundingBoxesMatrix; // lion-specific fix
     Offscreen                           fOffscreen;
     CTFontRef                           fCTFont;
     CTFontRef                           fCTVerticalFont; // for vertical advance
     CGFontRef                           fCGFont;
-    GlyphRect*                          fAdjustBad;
-    uint16_t                            fAdjustStart;
+    GlyphRect*                          fFBoundingBoxes;
+    uint16_t                            fFBoundingBoxesGlyphOffset;
     uint16_t                            fGlyphCount;
-    bool                                fGeneratedBBoxes;
+    bool                                fGeneratedFBoundingBoxes;
     bool                                fDoSubPosition;
     bool                                fVertical;
 
@@ -653,9 +662,9 @@ private:
 SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
         : SkScalerContext(desc)
         , fCTVerticalFont(NULL)
-        , fAdjustBad(NULL)
-        , fAdjustStart(0)
-        , fGeneratedBBoxes(false)
+        , fFBoundingBoxes(NULL)
+        , fFBoundingBoxesGlyphOffset(0)
+        , fGeneratedFBoundingBoxes(false)
 {
     CTFontRef ctFont = GetFontRefFromFontID(fRec.fFontID);
     CFIndex numGlyphs = CTFontGetGlyphCount(ctFont);
@@ -725,7 +734,7 @@ SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
 }
 
 SkScalerContext_Mac::~SkScalerContext_Mac() {
-    delete[] fAdjustBad;
+    delete[] fFBoundingBoxes;
     CFSafeRelease(fCTFont);
     CFSafeRelease(fCTVerticalFont);
     CFSafeRelease(fCGFont);
@@ -848,48 +857,16 @@ void SkScalerContext_Mac::getVerticalOffset(CGGlyph glyphID, SkIPoint* offset) c
     offset->fY = SkScalarRound(floatOffset.fY);
 }
 
-/* from http://developer.apple.com/fonts/TTRefMan/RM06/Chap6loca.html
- * There are two versions of this table, the short and the long. The version
- * used is specified in the Font Header ('head') table in the indexToLocFormat
- * field. The choice of long or short offsets is dependent on the maximum
- * possible offset distance.
- *
- * 'loca' short version: The actual local offset divided by 2 is stored.
- * 'loca' long version: The actual local offset is stored.
- *
- * The result is a offset into a table of 2 byte (16 bit) entries.
- */
-static uint32_t getLocaTableEntry(const uint16_t*& locaPtr, int locaFormat) {
-    uint32_t data = SkEndian_SwapBE16(*locaPtr++); // short
-    if (locaFormat) {
-        data = data << 15 | SkEndian_SwapBE16(*locaPtr++) >> 1; // long
+uint16_t SkScalerContext_Mac::getFBoundingBoxesGlyphOffset() {
+    if (fFBoundingBoxesGlyphOffset) {
+        return fFBoundingBoxesGlyphOffset;
     }
-    return data;
-}
-
-// see http://developer.apple.com/fonts/TTRefMan/RM06/Chap6hhea.html
-static uint16_t getNumLongMetrics(const uint16_t* hheaData) {
-    const int kNumOfLongHorMetrics = 17;
-    return SkEndian_SwapBE16(hheaData[kNumOfLongHorMetrics]);
-}
-
-// see http://developer.apple.com/fonts/TTRefMan/RM06/Chap6head.html
-static int getLocaFormat(const uint16_t* headData) {
-    const int kIndexToLocFormat = 25;
-    return SkEndian_SwapBE16(headData[kIndexToLocFormat]);
-}
-
-uint16_t SkScalerContext_Mac::getAdjustStart() {
-    if (fAdjustStart) {
-        return fAdjustStart;
+    fFBoundingBoxesGlyphOffset = fGlyphCount; // fallback for all fonts
+    AutoCGTable<SkOTTableHorizontalHeader> hheaTable(fCGFont);
+    if (hheaTable.fData) {
+        fFBoundingBoxesGlyphOffset = SkEndian_SwapBE16(hheaTable->numberOfHMetrics);
     }
-    fAdjustStart = fGlyphCount; // fallback for all fonts
-    AutoCFDataRelease hheaRef(CGFontCopyTableForTag(fCGFont, 'hhea'));
-    const uint16_t* hheaData = hheaRef.getShortPtr();
-    if (hheaData) {
-        fAdjustStart = getNumLongMetrics(hheaData);
-    }
-    return fAdjustStart;
+    return fFBoundingBoxesGlyphOffset;
 }
 
 /*
@@ -898,53 +875,50 @@ uint16_t SkScalerContext_Mac::getAdjustStart() {
  * glyph count. This workaround reads the glyph bounds from the font directly.
  *
  * The table is computed only if the font is a TrueType font, if the glyph
- * value is >= fAdjustStart. (called only if fAdjustStart < fGlyphCount).
+ * value is >= fFBoundingBoxesGlyphOffset. (called only if fFBoundingBoxesGlyphOffset < fGlyphCount).
  *
- * TODO: A future optimization will compute fAdjustBad once per CGFont, and
- * compute fAdjustBadMatrix once per font context.
+ * TODO: A future optimization will compute fFBoundingBoxes once per CGFont, and
+ * compute fFBoundingBoxesMatrix once per font context.
  */
 bool SkScalerContext_Mac::generateBBoxes() {
-    if (fGeneratedBBoxes) {
-        return NULL != fAdjustBad;
+    if (fGeneratedFBoundingBoxes) {
+        return NULL != fFBoundingBoxes;
     }
-    fGeneratedBBoxes = true;
-    AutoCFDataRelease headRef(CGFontCopyTableForTag(fCGFont, 'head'));
-    const uint16_t* headData = headRef.getShortPtr();
-    if (!headData) {
+    fGeneratedFBoundingBoxes = true;
+    
+    AutoCGTable<SkOTTableHead> headTable(fCGFont);
+    if (!headTable.fData) {
         return false;
     }
-    AutoCFDataRelease locaRef(CGFontCopyTableForTag(fCGFont, 'loca'));
-    const uint16_t* locaData = locaRef.getShortPtr();
-    if (!locaData) {
+    
+    AutoCGTable<SkOTTableIndexToLocation> locaTable(fCGFont);
+    if (!locaTable.fData) {
         return false;
     }
-    AutoCFDataRelease glyfRef(CGFontCopyTableForTag(fCGFont, 'glyf'));
-    const uint16_t* glyfData = glyfRef.getShortPtr();
-    if (!glyfData) {
+    
+    AutoCGTable<SkOTTableGlyph> glyfTable(fCGFont);
+    if (!glyfTable.fData) {
         return false;
     }
-    CFIndex entries = fGlyphCount - fAdjustStart;
-    fAdjustBad = new GlyphRect[entries];
-    int locaFormat = getLocaFormat(headData);
-    const uint16_t* locaPtr = &locaData[fAdjustStart << locaFormat];
-    uint32_t last = getLocaTableEntry(locaPtr, locaFormat);
-    for (CFIndex index = 0; index < entries; ++index) {
-        uint32_t offset = getLocaTableEntry(locaPtr, locaFormat);
-        GlyphRect& rect = fAdjustBad[index];
-        if (offset != last) {
-            rect.fMinX = SkEndian_SwapBE16(glyfData[last + 1]);
-            rect.fMinY = SkEndian_SwapBE16(glyfData[last + 2]);
-            rect.fMaxX = SkEndian_SwapBE16(glyfData[last + 3]);
-            rect.fMaxY = SkEndian_SwapBE16(glyfData[last + 4]);
-        } else {
-            sk_bzero(&rect, sizeof(GlyphRect));
-        }
-        last = offset;
+    
+    uint16_t entries = fGlyphCount - fFBoundingBoxesGlyphOffset;
+    fFBoundingBoxes = new GlyphRect[entries];
+    
+    SkOTTableHead::IndexToLocFormat locaFormat = headTable->indexToLocFormat;
+    SkOTTableGlyph::Iterator glyphDataIter(*glyfTable.fData, *locaTable.fData, locaFormat);
+    glyphDataIter.advance(fFBoundingBoxesGlyphOffset);
+    for (uint16_t boundingBoxesIndex = 0; boundingBoxesIndex < entries; ++boundingBoxesIndex) {
+        const SkOTTableGlyphData* glyphData = glyphDataIter.next();
+        GlyphRect& rect = fFBoundingBoxes[boundingBoxesIndex];
+        rect.fMinX = SkEndian_SwapBE16(glyphData->xMin);
+        rect.fMinY = SkEndian_SwapBE16(glyphData->yMin);
+        rect.fMaxX = SkEndian_SwapBE16(glyphData->xMax);
+        rect.fMaxY = SkEndian_SwapBE16(glyphData->yMax);
     }
-    fAdjustBadMatrix = fMatrix;
-    flip(&fAdjustBadMatrix);
+    fFBoundingBoxesMatrix = fMatrix;
+    flip(&fFBoundingBoxesMatrix);
     SkScalar fontScale = getFontScale(fCGFont);
-    fAdjustBadMatrix.preScale(fontScale, fontScale);
+    fFBoundingBoxesMatrix.preScale(fontScale, fontScale);
     return true;
 }
 
@@ -1054,13 +1028,13 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     // Get the metrics
     bool lionAdjustedMetrics = false;
     if (isLion() || isMountainLion()) {
-        if (cgGlyph < fGlyphCount && cgGlyph >= getAdjustStart()
+        if (cgGlyph < fGlyphCount && cgGlyph >= getFBoundingBoxesGlyphOffset()
                     && generateBBoxes()) {
             lionAdjustedMetrics = true;
             SkRect adjust;
-            const GlyphRect& gRect = fAdjustBad[cgGlyph - fAdjustStart];
+            const GlyphRect& gRect = fFBoundingBoxes[cgGlyph - fFBoundingBoxesGlyphOffset];
             adjust.set(gRect.fMinX, gRect.fMinY, gRect.fMaxX, gRect.fMaxY);
-            fAdjustBadMatrix.mapRect(&adjust);
+            fFBoundingBoxesMatrix.mapRect(&adjust);
             theBounds.origin.x = SkScalarToFloat(adjust.fLeft) - 1;
             theBounds.origin.y = SkScalarToFloat(adjust.fTop) - 1;
         }
@@ -1670,13 +1644,12 @@ static SK_SFNT_ULONG get_font_type_tag(SkFontID uniqueID) {
     if (!fontFormatRef) {
         return 0;
     }
+    AutoCFRelease fontFormatRefAutoRelease(fontFormatRef);
 
     SInt32 fontFormatValue;
     if (!CFNumberGetValue(fontFormatRef, kCFNumberSInt32Type, &fontFormatValue)) {
-        CFRelease(fontFormatRef);
         return 0;
     }
-    CFRelease(fontFormatRef);
 
     switch (fontFormatValue) {
         case kCTFontFormatOpenTypePostScript:
