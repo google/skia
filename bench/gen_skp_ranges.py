@@ -35,6 +35,11 @@ from oauth2_plugin import oauth2_plugin
 BENCH_UB = 1.1  # Allow for 10% room for normal variance on the up side.
 BENCH_LB = 0.85
 
+# Further allow for a fixed amount of noise. This is especially useful for
+# benches of smaller absolute value. Keeping this value small will not affect
+# performance tunings.
+BENCH_ALLOWED_NOISE = 10
+
 # List of platforms to track.
 PLATFORMS = ['Mac_Float_Bench_32',
              'Nexus10_4-1_Float_Bench_32',
@@ -56,8 +61,8 @@ Feel free to revise PLATFORMS for your own needs. The default is the most common
 combination that we care most about. Platforms that did not run bench_pictures
 in the given revision range will not have corresponding outputs.
 Please check http://go/skpbench to choose a range that fits your needs.
-BENCH_UB and BENCH_LB can be changed to expand or narrow the permitted bench
-ranges without triggering buidbot alerts.
+BENCH_UB, BENCH_LB and BENCH_ALLOWED_NOISE can be changed to expand or narrow
+the permitted bench ranges without triggering buidbot alerts.
 """
 HELP_STRING = """
 Outputs expectation picture bench ranges for the latest revisions for the given
@@ -123,8 +128,9 @@ def OutputSkpBenchExpectations(rev_min, rev_max, representation_alg):
   for key in keys:
     bench_val = expectation_dic[key]
     # Prints out expectation lines.
-    print '%s,%.3f,%.3f,%.3f' % (key, bench_val, bench_val * BENCH_LB,
-                                 bench_val * BENCH_UB)
+    print '%s,%.3f,%.3f,%.3f' % (key, bench_val,
+                                 bench_val * BENCH_LB - BENCH_ALLOWED_NOISE,
+                                 bench_val * BENCH_UB + BENCH_ALLOWED_NOISE)
 
 def main():
   """Parses flags and outputs expected Skia picture bench results."""
