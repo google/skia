@@ -66,9 +66,9 @@ public:
     , fData(fCFData ? reinterpret_cast<const T*>(CFDataGetBytePtr(fCFData)) : NULL)
     { }
     ~AutoCGTable() { CFSafeRelease(fCFData); }
-    
+
     const T* operator->() const { return fData; }
-    
+
 private:
     CFDataRef fCFData;
 public:
@@ -885,25 +885,25 @@ bool SkScalerContext_Mac::generateBBoxes() {
         return NULL != fFBoundingBoxes;
     }
     fGeneratedFBoundingBoxes = true;
-    
+
     AutoCGTable<SkOTTableHead> headTable(fCGFont);
     if (!headTable.fData) {
         return false;
     }
-    
+
     AutoCGTable<SkOTTableIndexToLocation> locaTable(fCGFont);
     if (!locaTable.fData) {
         return false;
     }
-    
+
     AutoCGTable<SkOTTableGlyph> glyfTable(fCGFont);
     if (!glyfTable.fData) {
         return false;
     }
-    
+
     uint16_t entries = fGlyphCount - fFBoundingBoxesGlyphOffset;
     fFBoundingBoxes = new GlyphRect[entries];
-    
+
     SkOTTableHead::IndexToLocFormat locaFormat = headTable->indexToLocFormat;
     SkOTTableGlyph::Iterator glyphDataIter(*glyfTable.fData, *locaTable.fData, locaFormat);
     glyphDataIter.advance(fFBoundingBoxesGlyphOffset);
