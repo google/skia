@@ -37,7 +37,6 @@ static void check_list(const SkTInternalLList<ListElement>& list,
                        bool in0, bool in1, bool in2, bool in3,
                        ListElement elements[4]) {
 
-    list.validate();
     REPORTER_ASSERT(reporter, empty == list.isEmpty());
 #if SK_DEBUG
     REPORTER_ASSERT(reporter, numElements == list.countEntries());
@@ -96,29 +95,6 @@ static void TestTInternalLList(skiatest::Reporter* reporter) {
 
     // list should be empty again
     check_list(list, reporter, true, 0, false, false, false, false, elements);
-
-    // test out methods that add to the middle of the list.
-    list.addAfter(&elements[1], NULL);
-    check_list(list, reporter, false, 1, false, true, false, false, elements);
-
-    list.remove(&elements[1]);
-
-    list.addBefore(&elements[1], NULL);
-    check_list(list, reporter, false, 1, false, true, false, false, elements);
-
-    list.addBefore(&elements[0], &elements[1]);
-    check_list(list, reporter, false, 2, true, true, false, false, elements);
-
-    list.addAfter(&elements[3], &elements[1]);
-    check_list(list, reporter, false, 3, true, true, false, true, elements);
-
-    list.addBefore(&elements[2], &elements[3]);
-    check_list(list, reporter, false, 4, true, true, true, true, elements);
-
-    cur = iter.init(list, Iter::kHead_IterStart);
-    for (int i = 0; NULL != cur; ++i, cur = iter.next()) {
-        REPORTER_ASSERT(reporter, cur->fID == i);
-    }
 }
 
 static void TestTLList(skiatest::Reporter* reporter) {
@@ -162,23 +138,12 @@ static void TestTLList(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, iter3.get()->fID == iter1.get()->fID);
         REPORTER_ASSERT(reporter, iter4.get()->fID == iter1.get()->fID);
         REPORTER_ASSERT(reporter, list1 == list2);
-       
-        list2.reset();
-
-        // use both before/after in-place construction on an empty list
-        SkNEW_INSERT_IN_LLIST_BEFORE(&list2, list2.headIter(), ListElement, (1));
-        REPORTER_ASSERT(reporter, list2 == list1);
-        list2.reset();
     
-        SkNEW_INSERT_IN_LLIST_AFTER(&list2, list2.tailIter(), ListElement, (1));
-        REPORTER_ASSERT(reporter, list2 == list1);
-
         // add an element to the second list, check that iters are still valid
         list2.addToHead(ListElement(2));
 #ifdef SK_ENABLE_INST_COUNT
         SkASSERT(3 == ListElement::InstanceCount());
 #endif
-
         REPORTER_ASSERT(reporter, iter3.get()->fID == iter1.get()->fID);
         REPORTER_ASSERT(reporter, iter4.get()->fID == iter1.get()->fID);
         REPORTER_ASSERT(reporter, 1 == Iter(list2, Iter::kTail_IterStart).get()->fID);
@@ -198,64 +163,14 @@ static void TestTLList(skiatest::Reporter* reporter) {
 #endif
         REPORTER_ASSERT(reporter, list1.isEmpty() && list2.isEmpty());
 
-        // randomly perform insertions and deletions on a list and perform tests
         int count = 0;
         for (int j = 0; j < 100; ++j) {
             if (list1.isEmpty() || random.nextBiasedBool(3  * SK_Scalar1 / 4)) {
-                int id = j;
-                // Choose one of three ways to insert a new element: at the head, at the tail,
-                // before a random element, after a random element
-                int numValidMethods = 0 == count ? 2 : 4;
-                int insertionMethod = random.nextULessThan(numValidMethods);
-                switch (insertionMethod) {
-                    case 0:
-                        list1.addToHead(ListElement(id));
-                        break;
-                    case 1:
-                        list1.addToTail(ListElement(id));
-                        break;
-                    case 2: // fallthru to share code that picks random element.
-                    case 3: {
-                        int n = random.nextULessThan(list1.count());
-                        Iter iter = list1.headIter();
-                        // remember the elements before/after the insertion point.
-                        while (n--) {
-                            iter.next();
-                        }
-                        Iter prev(iter);
-                        Iter next(iter);
-                        next.next();
-                        prev.prev();
-
-                        SkASSERT(NULL != iter.get());
-                        // insert either before or after the iterator, then check that the
-                        // surrounding sequence is correct.
-                        if (2 == insertionMethod) {
-                            SkNEW_INSERT_IN_LLIST_BEFORE(&list1, iter, ListElement, (id));
-                            Iter newItem(iter);
-                            newItem.prev();
-                            REPORTER_ASSERT(reporter, newItem.get()->fID == id);
-
-                            if (NULL != next.get()) {
-                                REPORTER_ASSERT(reporter, next.prev()->fID == iter.get()->fID);
-                            }
-                            if (NULL != prev.get()) {
-                                REPORTER_ASSERT(reporter, prev.next()->fID == id);
-                            }
-                        } else {
-                            SkNEW_INSERT_IN_LLIST_AFTER(&list1, iter, ListElement, (id));
-                            Iter newItem(iter);
-                            newItem.next();
-                            REPORTER_ASSERT(reporter, newItem.get()->fID == id);
-
-                            if (NULL != next.get()) {
-                                REPORTER_ASSERT(reporter, next.prev()->fID == id);
-                            }
-                            if (NULL != prev.get()) {
-                                REPORTER_ASSERT(reporter, prev.next()->fID == iter.get()->fID);
-                            }
-                        }
-                    }    
+                int id = static_cast<int>(random.nextU());
+                if (random.nextBool()) {
+                    list1.addToHead(ListElement(id));
+                } else {
+                    list1.addToTail(ListElement(id));
                 }
                 ++count;
             } else {
