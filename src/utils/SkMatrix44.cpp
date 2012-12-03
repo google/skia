@@ -102,7 +102,7 @@ void SkMatrix44::setColMajord(const double src[]) {
     memcpy(dst, src, 16 * sizeof(double));
 #elif defined SK_MSCALAR_IS_FLOAT
     for (int i = 0; i < 16; ++i) {
-        dst[i] = SkMScalarToDouble(src[i]);
+        dst[i] = SkDoubleToMScalar(src[i]);
     }
 #endif
     fIdentity = false;
@@ -124,10 +124,10 @@ void SkMatrix44::setRowMajorf(const float src[]) {
 void SkMatrix44::setRowMajord(const double src[]) {
     SkMScalar* dst = &fMat[0][0];
     for (int i = 0; i < 4; ++i) {
-        dst[0] = SkMScalarToDouble(src[0]);
-        dst[4] = SkMScalarToDouble(src[1]);
-        dst[8] = SkMScalarToDouble(src[2]);
-        dst[12] = SkMScalarToDouble(src[3]);
+        dst[0] = SkDoubleToMScalar(src[0]);
+        dst[4] = SkDoubleToMScalar(src[1]);
+        dst[8] = SkDoubleToMScalar(src[2]);
+        dst[12] = SkDoubleToMScalar(src[3]);
         src += 4;
         dst += 1;
     }

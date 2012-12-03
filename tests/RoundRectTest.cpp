@@ -136,7 +136,7 @@ static void test_round_rect_rects(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, SkRRect::kRect_Type == rr1.type());
     r = rr1.rect();
     REPORTER_ASSERT(reporter, rect == r);
-    for (int i = 0; i < SK_ARRAY_COUNT(pts); ++i) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(pts); ++i) {
         REPORTER_ASSERT(reporter, isIn[i] == rr1.contains(pts[i].fX, pts[i].fY));
     }
 
@@ -149,7 +149,7 @@ static void test_round_rect_rects(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, SkRRect::kRect_Type == rr2.type());
     r = rr2.rect();
     REPORTER_ASSERT(reporter, rect == r);
-    for (int i = 0; i < SK_ARRAY_COUNT(pts); ++i) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(pts); ++i) {
         REPORTER_ASSERT(reporter, isIn[i] == rr2.contains(pts[i].fX, pts[i].fY));
     }
 
@@ -195,7 +195,7 @@ static void test_round_rect_ovals(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, SkRRect::kOval_Type == rr1.type());
     oval = rr1.rect();
     REPORTER_ASSERT(reporter, oval == rect);
-    for (int i = 0; i < SK_ARRAY_COUNT(pts); ++i) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(pts); ++i) {
         REPORTER_ASSERT(reporter, isIn[i] == rr1.contains(pts[i].fX, pts[i].fY));
     }
 }
@@ -230,7 +230,7 @@ static void test_round_rect_general(skiatest::Reporter* reporter) {
     rr1.setRectXY(rect, 20, 20);
 
     REPORTER_ASSERT(reporter, SkRRect::kSimple_Type == rr1.type());
-    for (int i = 0; i < SK_ARRAY_COUNT(pts); ++i) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(pts); ++i) {
         REPORTER_ASSERT(reporter, isIn[i] == rr1.contains(pts[i].fX, pts[i].fY));
     }
 
@@ -261,7 +261,7 @@ static void test_round_rect_general(skiatest::Reporter* reporter) {
     rr2.setRectRadii(rect, radii);
 
     REPORTER_ASSERT(reporter, SkRRect::kComplex_Type == rr2.type());
-    for (int i = 0; i < SK_ARRAY_COUNT(pts); ++i) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(pts); ++i) {
         REPORTER_ASSERT(reporter, isIn[i] == rr2.contains(pts2[i].fX, pts2[i].fY));
     }
 }

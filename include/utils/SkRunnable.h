@@ -10,6 +10,7 @@
 
 class SkRunnable {
 public:
+    virtual ~SkRunnable() {};
     virtual void run() = 0;
 };
 

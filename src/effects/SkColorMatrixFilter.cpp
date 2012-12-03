@@ -417,7 +417,7 @@ GrEffect* ColorMatrixEffect::TestCreate(SkRandom* random,
                                         GrContext*,
                                         GrTexture* dummyTextures[2]) {
     SkColorMatrix colorMatrix;
-    for (int i = 0; i < SK_ARRAY_COUNT(colorMatrix.fMat); ++i) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(colorMatrix.fMat); ++i) {
         colorMatrix.fMat[i] = random->nextSScalar1();
     }
     return SkNEW_ARGS(ColorMatrixEffect, (colorMatrix));
