@@ -10,7 +10,14 @@
 
 /** Doubly-linked list of objects. The objects' lifetimes are controlled by the list. I.e. the
     the list creates the objects and they are deleted upon removal. This class block-allocates
-    space for entries based on a param passed to the constructor. */
+    space for entries based on a param passed to the constructor.
+
+    Elements of the list can be constructed in place using the following macros:
+        SkNEW_INSERT_IN_LLIST_BEFORE(list, location, type_name, args)
+        SkNEW_INSERT_IN_LLIST_AFTER(list, location, type_name, args)
+    where list is a SkTLList<type_name>*, location is an iterator, and args is the paren-surrounded
+    constructor arguments for type_name. These macros behave like addBefore() and addAfter().
+*/
 template <typename T>
 class SkTLList : public SkNoncopyable {
 private:
@@ -23,6 +30,9 @@ private:
     typedef SkTInternalLList<Node> NodeList;
 
 public:
+
+    class Iter;
+
     /** allocCnt is the number of objects to allocate as a group. In the worst case fragmentation
         each object is using the space required for allocCnt unfragmented objects. */
     SkTLList(int allocCnt = 1) : fCount(0), fAllocCnt(allocCnt) {
@@ -62,6 +72,22 @@ public:
         SkNEW_PLACEMENT_ARGS(node->fObj, T, (t));
         this->validate();
     }
+
+    /** Adds a new element to the list before the location indicated by the iterator. If the
+        iterator refers to a NULL location then the new element is added at the tail */
+    void addBefore(const T& t, const Iter& location) {
+        SkNEW_PLACEMENT_ARGS(this->internalAddBefore(location), T, (t));
+    }
+
+    /** Adds a new element to the list after the location indicated by the iterator. If the
+        iterator refers to a NULL location then the new element is added at the head */
+    void addAfter(const T& t, const Iter& location) {
+        SkNEW_PLACEMENT_ARGS(this->internalAddAfter(location), T, (t));
+    }
+
+    /** Convenience methods for getting an iterator initialized to the head/tail of the list. */
+    Iter headIter() const { return Iter(*this, Iter::kHead_IterStart); }
+    Iter tailIter() const { return Iter(*this, Iter::kTail_IterStart); }
 
     void popHead() {
         this->validate();
@@ -155,6 +181,9 @@ public:
         Iter& operator= (const Iter& iter) { INHERITED::operator=(iter); return *this; }
 
     private:
+        friend class SkTLList;
+        Node* getNode() { return INHERITED::get(); }
+
         T* nodeToObj(Node* node) {
             if (NULL != node) {
                 return reinterpret_cast<T*>(node->fObj);
@@ -162,6 +191,12 @@ public:
                 return NULL;
             }
         }
+    };
+
+    // For use with operator new
+    enum Placement {
+        kBefore_Placement,
+        kAfter_Placement,
     };
 
 private:
@@ -198,7 +233,6 @@ private:
         fList.remove(node);
         reinterpret_cast<T*>(node->fObj)->~T();
         if (0 == --node->fBlock->fNodesInUse) {
-            // Delete a block when it no longer has any nodes in use to reduce memory consumption.
             Block* block = node->fBlock;
             for (int i = 0; i < fAllocCnt; ++i) {
                 if (block->fNodes + i != node) {
@@ -265,8 +299,52 @@ private:
 #endif
     }
 
+    // Support in-place initializing of objects inserted into the list via operator new.
+    template <typename S>
+    friend void *operator new(size_t,
+                              SkTLList<S>* list,
+                              Placement placement,
+                              const typename SkTLList<S>::Iter& location);
+
+    // Helpers that insert the node and returns a pointer to where the new object should be init'ed.
+    void* internalAddBefore(Iter location) {
+        this->validate();
+        Node* node = this->createNode();
+        fList.addBefore(node, location.getNode());
+        this->validate();
+        return node->fObj;
+    }
+
+    void* internalAddAfter(Iter location) {
+        this->validate();
+        Node* node = this->createNode();
+        fList.addAfter(node, location.getNode());
+        this->validate();
+        return node->fObj;
+    }
+
     NodeList fList;
     NodeList fFreeList;
     int fCount;
     int fAllocCnt;
+
 };
+
+// Use the below macros rather than calling this directly
+template <typename T>
+inline void *operator new(size_t, SkTLList<T>* list,
+                          typename SkTLList<T>::Placement placement,
+                          const typename SkTLList<T>::Iter& location) {
+    SkASSERT(NULL != list);
+    if (SkTLList<T>::kBefore_Placement == placement) {
+        return list->internalAddBefore(location);
+    } else {
+        return list->internalAddAfter(location);
+    }
+}
+
+#define SkNEW_INSERT_IN_LLIST_BEFORE(list, location, type_name, args) \
+    (new (list, SkTLList< type_name >::kBefore_Placement, location) type_name args)
+
+#define SkNEW_INSERT_IN_LLIST_AFTER(list, location, type_name, args) \
+    (new (list, SkTLList< type_name >::kAfter_Placement, location) type_name args)
