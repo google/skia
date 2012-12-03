@@ -6,7 +6,7 @@
  */
 
 #include "Test.h"
-#include "SkTDLinkedList.h"
+#include "SkTInternalLList.h"
 
 class ListElement {
 public:
@@ -16,10 +16,10 @@ public:
     int fID;
 
 private:
-    SK_DEFINE_DLINKEDLIST_INTERFACE(ListElement);
+    SK_DECLARE_INTERNAL_LLIST_INTERFACE(ListElement);
 };
 
-static void CheckList(const SkTDLinkedList<ListElement>& list,
+static void CheckList(const SkTInternalLList<ListElement>& list,
                       skiatest::Reporter* reporter,
                       bool empty,
                       int numElements,
@@ -37,7 +37,7 @@ static void CheckList(const SkTDLinkedList<ListElement>& list,
 }
 
 static void TestTDLinkedList(skiatest::Reporter* reporter) {
-    SkTDLinkedList<ListElement> list;
+    SkTInternalLList<ListElement> list;
     ListElement elements[4] = {
         ListElement(0),
         ListElement(1),
@@ -59,14 +59,15 @@ static void TestTDLinkedList(skiatest::Reporter* reporter) {
     CheckList(list, reporter, false, 4, true, true, true, true, elements);
 
     // test out iterators
-    SkTDLinkedList<ListElement>::Iter iter;
+    typedef SkTInternalLList<ListElement>::Iter Iter;
+    Iter iter;
 
-    ListElement* cur = iter.init(list, SkTDLinkedList<ListElement>::Iter::kHead_IterStart);
+    ListElement* cur = iter.init(list, Iter::kHead_IterStart);
     for (int i = 0; NULL != cur; ++i, cur = iter.next()) {
         REPORTER_ASSERT(reporter, cur->fID == 3-i);
     }
 
-    cur = iter.init(list, SkTDLinkedList<ListElement>::Iter::kTail_IterStart);
+    cur = iter.init(list, Iter::kTail_IterStart);
     for (int i = 0; NULL != cur; ++i, cur = iter.prev()) {
         REPORTER_ASSERT(reporter, cur->fID == i);
     }

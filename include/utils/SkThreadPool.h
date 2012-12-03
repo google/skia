@@ -10,7 +10,7 @@
 
 #include "SkCondVar.h"
 #include "SkTDArray.h"
-#include "SkTDLinkedList.h"
+#include "SkTInternalLList.h"
 
 class SkRunnable;
 class SkThread;
@@ -36,13 +36,13 @@ public:
         SkRunnable* fRunnable;
 
     private:
-        SK_DEFINE_DLINKEDLIST_INTERFACE(LinkedRunnable)
+        SK_DECLARE_INTERNAL_LLIST_INTERFACE(LinkedRunnable);
     };
 
-    SkTDLinkedList<LinkedRunnable> fQueue;
-    SkCondVar                      fReady;
-    SkTDArray<SkThread*>           fThreads;
-    bool                           fDone;
+    SkTInternalLList<LinkedRunnable>    fQueue;
+    SkCondVar                           fReady;
+    SkTDArray<SkThread*>                fThreads;
+    bool                            fDone;
 
     static void Loop(void*);  // Static because we pass in this.
 };
