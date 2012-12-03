@@ -10,10 +10,6 @@
 
 #include "SkMatrix44.h"
 
-SkMatrix44::SkMatrix44() {
-    this->setIdentity();
-}
-
 SkMatrix44::SkMatrix44(const SkMatrix44& src) {
     memcpy(this, &src, sizeof(src));
 }
@@ -22,18 +18,69 @@ SkMatrix44::SkMatrix44(const SkMatrix44& a, const SkMatrix44& b) {
     this->setConcat(a, b);
 }
 
-bool SkMatrix44::operator==(const SkMatrix44& other) const {
-    if (fIdentity && other.fIdentity)
-        return true;
+static inline bool eq4(const SkMScalar* SK_RESTRICT a,
+                      const SkMScalar* SK_RESTRICT b) {
+    return (a[0] == b[0]) & (a[1] == b[1]) & (a[2] == b[2]) & (a[3] == b[3]);
+}
 
-    const SkMScalar* a = &fMat[0][0];
-    const SkMScalar* b = &other.fMat[0][0];
+bool SkMatrix44::operator==(const SkMatrix44& other) const {
+    if (this == &other) {
+        return true;
+    }
+
+    if (this->isTriviallyIdentity() && other.isTriviallyIdentity()) {
+        return true;
+    }
+
+    const SkMScalar* SK_RESTRICT a = &fMat[0][0];
+    const SkMScalar* SK_RESTRICT b = &other.fMat[0][0];
+
+#if 0
     for (int i = 0; i < 16; ++i) {
         if (a[i] != b[i]) {
             return false;
         }
     }
     return true;
+#else
+    // to reduce branch instructions, we compare 4 at a time.
+    // see bench/Matrix44Bench.cpp for test.
+    if (!eq4(&a[0], &b[0])) {
+        return false;
+    }
+    if (!eq4(&a[4], &b[4])) {
+        return false;
+    }
+    if (!eq4(&a[8], &b[8])) {
+        return false;
+    }
+    return eq4(&a[12], &b[12]);
+#endif
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+int SkMatrix44::computeTypeMask() const {
+    unsigned mask = 0;
+    
+    if (0 != perspX() || 0 != perspY() || 0 != perspZ() || 1 != fMat[3][3]) {
+        return kTranslate_Mask | kScale_Mask | kAffine_Mask | kPerspective_Mask;
+    }
+
+    if (0 != transX() || 0 != transY() || 0 != transZ()) {
+        mask |= kTranslate_Mask;
+    }
+
+    if (1 != scaleX() || 1 != scaleY() || 1 != scaleZ()) {
+        mask |= kScale_Mask;
+    }
+
+    if (0 != fMat[1][0] || 0 != fMat[0][1] || 0 != fMat[0][2] ||
+        0 != fMat[2][0] || 0 != fMat[1][2] || 0 != fMat[2][1]) {
+            mask |= kAffine_Mask;
+    }
+
+    return mask;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -93,7 +140,8 @@ void SkMatrix44::setColMajorf(const float src[]) {
 #elif defined SK_MSCALAR_IS_FLOAT
     memcpy(dst, src, 16 * sizeof(float));
 #endif
-    fIdentity = false;
+
+    this->dirtyTypeMask();
 }
 
 void SkMatrix44::setColMajord(const double src[]) {
@@ -105,7 +153,8 @@ void SkMatrix44::setColMajord(const double src[]) {
         dst[i] = SkDoubleToMScalar(src[i]);
     }
 #endif
-    fIdentity = false;
+
+    this->dirtyTypeMask();
 }
 
 void SkMatrix44::setRowMajorf(const float src[]) {
@@ -118,7 +167,7 @@ void SkMatrix44::setRowMajorf(const float src[]) {
         src += 4;
         dst += 1;
     }
-    fIdentity = false;
+    this->dirtyTypeMask();
 }
 
 void SkMatrix44::setRowMajord(const double src[]) {
@@ -131,41 +180,30 @@ void SkMatrix44::setRowMajord(const double src[]) {
         src += 4;
         dst += 1;
     }
-    fIdentity = false;
+    this->dirtyTypeMask();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkMatrix44::isIdentity() const {
-    if (fIdentity)
-        return true;
-
-    static const SkMScalar  sIdentityMat[4][4] = {
-        { 1, 0, 0, 0 },
-        { 0, 1, 0, 0 },
-        { 0, 0, 1, 0 },
-        { 0, 0, 0, 1 },
-    };
-    return !memcmp(fMat, sIdentityMat, sizeof(fMat));
+const SkMatrix44& SkMatrix44::I() {
+    static SkMatrix44 gIdentity;
+    return gIdentity;
 }
-
-///////////////////////////////////////////////////////////////////////////////
 
 void SkMatrix44::setIdentity() {
     sk_bzero(fMat, sizeof(fMat));
     fMat[0][0] = fMat[1][1] = fMat[2][2] = fMat[3][3] = 1;
-    fIdentity = true;
+    this->setTypeMask(kIdentity_Mask);
 }
 
 void SkMatrix44::set3x3(SkMScalar m00, SkMScalar m01, SkMScalar m02,
                         SkMScalar m10, SkMScalar m11, SkMScalar m12,
                         SkMScalar m20, SkMScalar m21, SkMScalar m22) {
-    sk_bzero(fMat, sizeof(fMat));
     fMat[0][0] = m00; fMat[0][1] = m01; fMat[0][2] = m02; fMat[0][3] = 0;
     fMat[1][0] = m10; fMat[1][1] = m11; fMat[1][2] = m12; fMat[1][3] = 0;
     fMat[2][0] = m20; fMat[2][1] = m21; fMat[2][2] = m22; fMat[2][3] = 0;
     fMat[3][0] = 0;   fMat[3][1] = 0;   fMat[3][2] = 0;   fMat[3][3] = 1;
-    fIdentity = false;
+    this->dirtyTypeMask();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -176,7 +214,12 @@ void SkMatrix44::setTranslate(SkMScalar tx, SkMScalar ty, SkMScalar tz) {
     fMat[3][1] = ty;
     fMat[3][2] = tz;
     fMat[3][3] = 1;
-    fIdentity = false;
+    
+    int mask = kIdentity_Mask;
+    if (0 != tx || 0 != ty || 0 != tz) {
+        mask |= kTranslate_Mask;
+    }
+    this->setTypeMask(mask);
 }
 
 void SkMatrix44::preTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz) {
@@ -189,7 +232,7 @@ void SkMatrix44::postTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz) {
     fMat[3][0] += dx;
     fMat[3][1] += dy;
     fMat[3][2] += dz;
-    fIdentity = false;
+    this->dirtyTypeMask();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -200,7 +243,12 @@ void SkMatrix44::setScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
     fMat[1][1] = sy;
     fMat[2][2] = sz;
     fMat[3][3] = 1;
-    fIdentity = false;
+    
+    int mask = kIdentity_Mask;
+    if (0 != sx || 0 != sy || 0 != sz) {
+        mask |= kScale_Mask;
+    }
+    this->setTypeMask(mask);
 }
 
 void SkMatrix44::preScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
@@ -215,16 +263,16 @@ void SkMatrix44::postScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
         fMat[i][1] *= sy;
         fMat[i][2] *= sz;
     }
-    fIdentity = false;
+    this->dirtyTypeMask();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMatrix44::setRotateAbout(SkMScalar x, SkMScalar y, SkMScalar z,
                                 SkMScalar radians) {
-    double len2 = x * x + y * y + z * z;
-    if (len2 != 1) {
-        if (len2 == 0) {
+    double len2 = (double)x * x + (double)y * y + (double)z * z;
+    if (1 != len2) {
+        if (0 == len2) {
             this->setIdentity();
             return;
         }
@@ -268,18 +316,33 @@ void SkMatrix44::setRotateAboutUnit(SkMScalar x, SkMScalar y, SkMScalar z,
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMatrix44::setConcat(const SkMatrix44& a, const SkMatrix44& b) {
-    SkMScalar result[4][4];
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
+    if (a.isIdentity()) {
+        *this = b;
+        return;
+    }
+    if (b.isIdentity()) {
+        *this = a;
+        return;
+    }
+
+    bool useStorage = (this == &a || this == &b);
+    SkMScalar storage[16];
+    SkMScalar* result = useStorage ? storage : &fMat[0][0];
+
+    for (int j = 0; j < 4; j++) {
+        for (int i = 0; i < 4; i++) {
             double value = 0;
             for (int k = 0; k < 4; k++) {
                 value += SkMScalarToDouble(a.fMat[k][i]) * b.fMat[j][k];
             }
-            result[j][i] = SkDoubleToMScalar(value);
+            *result++ = SkDoubleToMScalar(value);
         }
     }
-    memcpy(fMat, result, sizeof(result));
-    fIdentity = false;
+    if (useStorage) {
+        memcpy(fMat, storage, sizeof(storage));
+    }
+
+    this->dirtyTypeMask();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -328,10 +391,20 @@ static inline double dabs(double x) {
 }
 
 bool SkMatrix44::invert(SkMatrix44* inverse) const {
+    if (this->isTriviallyIdentity()) {
+        if (inverse) {
+            *inverse = *this;
+            return true;
+        }
+    }
+
     double det = this->determinant();
     if (dabs(det) < TOO_SMALL_FOR_DETERMINANT) {
         return false;
     }
+
+    // We now we will succeed, so return early if the caller doesn't actually
+    // want the computed inverse.
     if (NULL == inverse) {
         return true;
     }
@@ -380,7 +453,7 @@ bool SkMatrix44::invert(SkMatrix44* inverse) const {
             inverse->fMat[i][j] = SkDoubleToMScalar(tmp[i][j] * invDet);
         }
     }
-    inverse->fIdentity = false;
+    inverse->dirtyTypeMask();
     return true;
 }
 
@@ -393,12 +466,18 @@ void SkMatrix44::transpose() {
     SkTSwap(fMat[1][2], fMat[2][1]);
     SkTSwap(fMat[1][3], fMat[3][1]);
     SkTSwap(fMat[2][3], fMat[3][2]);
+
+    if (!this->isTriviallyIdentity()) {
+        this->dirtyTypeMask();
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMatrix44::mapScalars(const SkScalar src[4], SkScalar dst[4]) const {
-    SkScalar result[4];
+    SkScalar storage[4];
+    SkScalar* result = (src == dst) ? storage : dst;
+
     for (int i = 0; i < 4; i++) {
         SkMScalar value = 0;
         for (int j = 0; j < 4; j++) {
@@ -406,21 +485,31 @@ void SkMatrix44::mapScalars(const SkScalar src[4], SkScalar dst[4]) const {
         }
         result[i] = SkMScalarToScalar(value);
     }
-    memcpy(dst, result, sizeof(result));
+    
+    if (storage == result) {
+        memcpy(dst, storage, sizeof(storage));
+    }
 }
 
 #ifdef SK_MSCALAR_IS_DOUBLE
+
 void SkMatrix44::mapMScalars(const SkMScalar src[4], SkMScalar dst[4]) const {
-    SkMScalar result[4];
+    SkMScalar storage[4];
+    SkMScalar* result = (src == dst) ? storage : dst;
+    
     for (int i = 0; i < 4; i++) {
         SkMScalar value = 0;
         for (int j = 0; j < 4; j++) {
             value += fMat[j][i] * src[j];
         }
-        result[i] = SkMScalarToScalar(value);
+        result[i] = value;
     }
-    memcpy(dst, result, sizeof(result));
+    
+    if (storage == result) {
+        memcpy(dst, storage, sizeof(storage));
+    }
 }
+
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -445,6 +534,8 @@ void SkMatrix44::dump() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// TODO: make this support src' perspective elements
+//
 static void initFromMatrix(SkMScalar dst[4][4], const SkMatrix& src) {
     sk_bzero(dst, 16 * sizeof(SkMScalar));
     dst[0][0] = SkScalarToMScalar(src[SkMatrix::kMScaleX]);
@@ -462,10 +553,17 @@ SkMatrix44::SkMatrix44(const SkMatrix& src) {
 
 SkMatrix44& SkMatrix44::operator=(const SkMatrix& src) {
     initFromMatrix(fMat, src);
-    fIdentity = src.isIdentity();
+
+    if (src.isIdentity()) {
+        this->setTypeMask(kIdentity_Mask);
+    } else {
+        this->dirtyTypeMask();
+    }
     return *this;
 }
 
+// TODO: make this support our perspective elements
+//
 SkMatrix44::operator SkMatrix() const {
     SkMatrix dst;
     dst.reset();    // setup our perspective correctly for identity

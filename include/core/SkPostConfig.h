@@ -33,7 +33,9 @@
 #if defined(SK_MSCALAR_IS_DOUBLE) && defined(SK_MSCALAR_IS_FLOAT)
     #error "cannot define both SK_MSCALAR_IS_DOUBLE and SK_MSCALAR_IS_FLOAT"
 #elif !defined(SK_MSCALAR_IS_DOUBLE) && !defined(SK_MSCALAR_IS_FLOAT)
-    #define SK_MSCALAR_IS_FLOAT
+    // default is double, as that is faster given our impl uses doubles
+    // for intermediate calculations.
+    #define SK_MSCALAR_IS_DOUBLE
 #endif
 
 #if defined(SK_CPU_LENDIAN) && defined(SK_CPU_BENDIAN)

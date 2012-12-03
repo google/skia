@@ -1,10 +1,10 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
 #include "SkMatrix44.h"
 
@@ -72,6 +72,30 @@ static bool is_identity(const SkMatrix44& m) {
     return nearly_equal(m, identity);
 }
 
+static void test_gettype(skiatest::Reporter* reporter) {
+    SkMatrix44 matrix;
+    
+    REPORTER_ASSERT(reporter, matrix.isIdentity());
+    REPORTER_ASSERT(reporter, SkMatrix44::kIdentity_Mask == matrix.getType());
+    
+    int expectedMask;
+
+    matrix.set(1, 1, 0);
+    expectedMask = SkMatrix44::kScale_Mask;
+    REPORTER_ASSERT(reporter, matrix.getType() == expectedMask);
+
+    matrix.set(0, 3, 1);    // translate-x
+    expectedMask |= SkMatrix44::kTranslate_Mask;
+    REPORTER_ASSERT(reporter, matrix.getType() == expectedMask);
+
+    matrix.set(2, 0, 1);
+    expectedMask |= SkMatrix44::kAffine_Mask;
+    REPORTER_ASSERT(reporter, matrix.getType() == expectedMask);
+    
+    matrix.set(3, 2, 1);
+    REPORTER_ASSERT(reporter, matrix.getType() & SkMatrix44::kPerspective_Mask);
+}
+
 static void test_common_angles(skiatest::Reporter* reporter) {
     SkMatrix44 rot;
     // Test precision of rotation in common cases
@@ -125,25 +149,25 @@ static void test_concat(skiatest::Reporter* reporter) {
 static void test_determinant(skiatest::Reporter* reporter) {
     SkMatrix44 a;
     REPORTER_ASSERT(reporter, nearly_equal_double(1, a.determinant()));
-    a.set(1, 1, SkFloatToMScalar(2));
+    a.set(1, 1, 2);
     REPORTER_ASSERT(reporter, nearly_equal_double(2, a.determinant()));
     SkMatrix44 b;
     REPORTER_ASSERT(reporter, a.invert(&b));
     REPORTER_ASSERT(reporter, nearly_equal_double(0.5, b.determinant()));
     SkMatrix44 c = b = a;
-    c.set(0, 1, SkFloatToMScalar(4));
-    b.set(1, 0, SkFloatToMScalar(4));
+    c.set(0, 1, 4);
+    b.set(1, 0, 4);
     REPORTER_ASSERT(reporter,
                     nearly_equal_double(a.determinant(),
                                         b.determinant()));
     SkMatrix44 d = a;
-    d.set(0, 0, SkFloatToMScalar(8));
+    d.set(0, 0, 8);
     REPORTER_ASSERT(reporter, nearly_equal_double(16, d.determinant()));
 
     SkMatrix44 e = a;
     e.postConcat(d);
     REPORTER_ASSERT(reporter, nearly_equal_double(32, e.determinant()));
-    e.set(0, 0, SkFloatToMScalar(0));
+    e.set(0, 0, 0);
     REPORTER_ASSERT(reporter, nearly_equal_double(0, e.determinant()));
 }
 
@@ -180,9 +204,12 @@ static void test_get_set_double(skiatest::Reporter* reporter) {
 
 static void test_set_row_col_major(skiatest::Reporter* reporter) {
     SkMatrix44 a, b, c, d;
-    for (int row = 0; row < 4; ++row)
-        for (int col = 0; col < 4; ++col)
+    for (int row = 0; row < 4; ++row) {
+        for (int col = 0; col < 4; ++col) {
             a.setDouble(row, col, row * 4 + col);
+        }
+    }
+            
     double bufferd[16];
     float bufferf[16];
     a.asColMajord(bufferd);
@@ -200,31 +227,26 @@ static void test_set_row_col_major(skiatest::Reporter* reporter) {
 }
 
 static void TestMatrix44(skiatest::Reporter* reporter) {
-#ifdef SK_SCALAR_IS_FLOAT
     SkMatrix44 mat, inverse, iden1, iden2, rot;
 
     mat.reset();
-    mat.setTranslate(SK_Scalar1, SK_Scalar1, SK_Scalar1);
+    mat.setTranslate(1, 1, 1);
     mat.invert(&inverse);
     iden1.setConcat(mat, inverse);
     REPORTER_ASSERT(reporter, is_identity(iden1));
 
-    mat.setScale(SkIntToScalar(2), SkIntToScalar(2), SkIntToScalar(2));
+    mat.setScale(2, 2, 2);
     mat.invert(&inverse);
     iden1.setConcat(mat, inverse);
     REPORTER_ASSERT(reporter, is_identity(iden1));
 
-    mat.setScale(SK_Scalar1/2, SK_Scalar1/2, SK_Scalar1/2);
+    mat.setScale(SK_MScalar1/2, SK_MScalar1/2, SK_MScalar1/2);
     mat.invert(&inverse);
     iden1.setConcat(mat, inverse);
     REPORTER_ASSERT(reporter, is_identity(iden1));
 
-    mat.setScale(SkIntToScalar(3), SkIntToScalar(5), SkIntToScalar(20));
-    rot.setRotateDegreesAbout(
-        SkIntToScalar(0),
-        SkIntToScalar(0),
-        SkIntToScalar(-1),
-        SkIntToScalar(90));
+    mat.setScale(3, 3, 3);
+    rot.setRotateDegreesAbout(0, 0, -1, 90);
     mat.postConcat(rot);
     REPORTER_ASSERT(reporter, mat.invert(NULL));
     mat.invert(&inverse);
@@ -268,10 +290,11 @@ static void TestMatrix44(skiatest::Reporter* reporter) {
         test_common_angles(reporter);
     }
 
+    test_gettype(reporter);
     test_determinant(reporter);
     test_transpose(reporter);
     test_get_set_double(reporter);
-#endif
+    test_set_row_col_major(reporter);
 }
 
 #include "TestClassDef.h"
