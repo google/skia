@@ -133,7 +133,7 @@ public:
         } else {
             prev->fNext = newEntry;
         }
-#if SK_DEBUG
+#ifdef SK_DEBUG
         newEntry->fList = this;
 #endif
     }
@@ -162,7 +162,7 @@ public:
         } else {
             next->fPrev = newEntry;
         }
-#if SK_DEBUG
+#ifdef SK_DEBUG
         newEntry->fList = this;
 #endif
     }
