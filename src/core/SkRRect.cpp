@@ -276,12 +276,9 @@ void SkRRect::validate() const {
             SkASSERT(!fRect.isEmpty());
             SkASSERT(!allRadiiZero && !allRadiiSame && !allCornersSquare);
             break;
-#if 0
-        // error: case value not in enumerated type 'SkRRect::Type
         case kUnknown_Type:
             // no limits on this
             break;
-#endif
     }
 }
 #endif // SK_DEBUG

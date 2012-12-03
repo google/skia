@@ -55,6 +55,9 @@ public:
      * by type(). The subtypes become progressively less restrictive.
      */
     enum Type {
+        // !< Internal indicator that the sub type must be computed.
+        kUnknown_Type = -1,
+
         // !< The RR is empty
         kEmpty_Type,
 
@@ -197,11 +200,6 @@ public:
     SkDEBUGCODE(void validate() const;)
 
 private:
-    enum {
-        //!< Internal indicator that the sub type must be computed.
-        kUnknown_Type = -1
-    };
-
     SkRect fRect;
     // Radii order is UL, UR, LR, LL. Use Corner enum to index into fRadii[]
     SkVector fRadii[4];
