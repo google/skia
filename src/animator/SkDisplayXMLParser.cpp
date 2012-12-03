@@ -176,7 +176,7 @@ bool SkDisplayXMLParser::onEndElement(const char elem[])
             return true;
         if (parentIndex > 0) {
             SkDisplayable* parent = fParents[parentIndex - 1].fDisplayable;
-            bool result = parent->add(fMaker, displayable);
+            bool result = parent->addChild(fMaker, displayable);
             if (fMaker.hasError())
                 return true;
             if (result == false) {

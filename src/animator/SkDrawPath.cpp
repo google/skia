@@ -45,7 +45,7 @@ SkDrawPath::~SkDrawPath() {
         delete *part;
 }
 
-bool SkDrawPath::add(SkAnimateMaker& maker, SkDisplayable* child) {
+bool SkDrawPath::addChild(SkAnimateMaker& maker, SkDisplayable* child) {
     SkASSERT(child && child->isPathPart());
     SkPathPart* part = (SkPathPart*) child;
     *fParts.append() = part;
@@ -188,7 +188,7 @@ const SkMemberInfo SkPolyline::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkPolyline);
 
-bool SkPolyline::add(SkAnimateMaker& , SkDisplayable*) {
+bool SkPolyline::addChild(SkAnimateMaker& , SkDisplayable*) {
     return false;
 }
 

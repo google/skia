@@ -47,7 +47,7 @@ SkPost::~SkPost() {
         delete *part;
 }
 
-bool SkPost::add(SkAnimateMaker& , SkDisplayable* child) {
+bool SkPost::addChild(SkAnimateMaker& , SkDisplayable* child) {
     SkASSERT(child && child->isDataInput());
     SkDataInput* part = (SkDataInput*) child;
     *fParts.append() = part;

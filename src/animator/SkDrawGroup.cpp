@@ -49,7 +49,7 @@ SkGroup::~SkGroup() {
     }
 }
 
-bool SkGroup::add(SkAnimateMaker& , SkDisplayable* child) {
+bool SkGroup::addChild(SkAnimateMaker& , SkDisplayable* child) {
     SkASSERT(child);
 //  SkASSERT(child->isDrawable());
     *fChildren.append() = (SkDrawable*) child;
@@ -86,7 +86,7 @@ SkDisplayable* SkGroup::deepCopy(SkAnimateMaker* maker) {
     for (SkDrawable** ptr = fChildren.begin(); ptr < fChildren.end(); ptr++) {
         SkDisplayable* displayable = (SkDisplayable*)*ptr;
         SkDisplayable* deeperCopy = displayable->deepCopy(maker);
-        ((SkGroup*)copy)->add(*maker, deeperCopy);
+        ((SkGroup*)copy)->addChild(*maker, deeperCopy);
     }
     return copy;
 }
