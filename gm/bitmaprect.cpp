@@ -94,9 +94,9 @@ static void make_3x3_bitmap(SkBitmap* bitmap) {
     static const int gYSize = 3;
 
     SkColor textureData[gXSize][gYSize] = {
-        SK_ColorRED,    SK_ColorWHITE, SK_ColorBLUE,
-        SK_ColorGREEN,  SK_ColorBLACK, SK_ColorCYAN,
-        SK_ColorYELLOW, SK_ColorGRAY,  SK_ColorMAGENTA
+        { SK_ColorRED,    SK_ColorWHITE, SK_ColorBLUE },
+        { SK_ColorGREEN,  SK_ColorBLACK, SK_ColorCYAN },
+        { SK_ColorYELLOW, SK_ColorGRAY,  SK_ColorMAGENTA }
     };
 
 

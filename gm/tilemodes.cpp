@@ -170,6 +170,8 @@ static SkShader* make_grad(SkShader::TileMode tx, SkShader::TileMode ty) {
         case 2:
             return SkGradientShader::CreateSweep(center.fX, center.fY, colors, NULL, SK_ARRAY_COUNT(colors));
     }
+
+    return NULL;
 }
 
 static SkShader* make_radial(SkShader::TileMode tx, SkShader::TileMode ty) {

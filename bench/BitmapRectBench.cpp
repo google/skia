@@ -59,8 +59,8 @@ public:
         fBitmap.eraseColor(SK_ColorBLACK);
         drawIntoBitmap(fBitmap);
 
-        fSrcR.set(0, 0, w, h);
-        fDstR.set(0, 0, w, h);
+        fSrcR.iset(0, 0, w, h);
+        fDstR.iset(0, 0, w, h);
     }
 
 protected:

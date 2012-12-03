@@ -123,11 +123,11 @@ protected:
         int idx = 0;
         static const int kRectsPerRow = SkMax32(this->getISize().fWidth / kRectWidth, 1);
         for (size_t cfm = 0; cfm < SK_ARRAY_COUNT(modes); ++cfm) {
-            for (int cfc = 0; cfc < SK_ARRAY_COUNT(colors); ++cfc) {
+            for (size_t cfc = 0; cfc < SK_ARRAY_COUNT(colors); ++cfc) {
                 SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(colors[cfc],
                                                                                modes[cfm]));
                 paint.setColorFilter(cf);
-                for (int s = 0; s < SK_ARRAY_COUNT(shaders); ++s) {
+                for (size_t s = 0; s < SK_ARRAY_COUNT(shaders); ++s) {
                     paint.setShader(shaders[s]);
                     bool hasShader = NULL == paint.getShader();
                     int paintColorCnt = hasShader ? SK_ARRAY_COUNT(alphas) : SK_ARRAY_COUNT(colors);
@@ -146,7 +146,7 @@ protected:
             }
         }
 
-        for (int i = 0; i < SK_ARRAY_COUNT(shaders); ++i) {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(shaders); ++i) {
             SkSafeUnref(shaders[i]);
         }
     }
