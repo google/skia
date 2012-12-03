@@ -1636,7 +1636,10 @@ static SK_SFNT_ULONG get_font_type_tag(SkFontID uniqueID) {
             return SkSFNTHeader::fontType_MacTrueType::TAG;
         case kCTFontFormatUnrecognized:
         default:
-            return 0;
+            //CT seems to be unreliable in being able to obtain the type,
+            //even if all we want is the first four bytes of the font resource.
+            //Just the presence of the FontForge 'FFTM' table seems to throw it off.
+            return SkSFNTHeader::fontType_WindowsTrueType::TAG;
     }
 }
 
