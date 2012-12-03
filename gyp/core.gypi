@@ -164,7 +164,6 @@
         '<(skia_src_path)/core/SkTextFormatParams.h',
         '<(skia_src_path)/core/SkTileGrid.cpp',
         '<(skia_src_path)/core/SkTileGrid.h',
-        '<(skia_src_path)/core/SkTLList.h',
         '<(skia_src_path)/core/SkTLS.cpp',
         '<(skia_src_path)/core/SkTSearch.cpp',
         '<(skia_src_path)/core/SkTSort.h',
