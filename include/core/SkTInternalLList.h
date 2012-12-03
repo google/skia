@@ -109,6 +109,64 @@ public:
 #endif
     }
 
+    /**
+     * Inserts a new list entry before an existing list entry. The new entry must not already be
+     * a member of this or any other list. If existingEntry is NULL then the new entry is added
+     * at the tail.
+     */
+    void addBefore(T* newEntry, T* existingEntry) {
+        SkASSERT(NULL != newEntry);
+
+        if (NULL == existingEntry) {
+            this->addToTail(newEntry);
+            return;
+        }
+
+        SkASSERT(this->isInList(existingEntry));
+        newEntry->fNext = existingEntry;
+        T* prev = existingEntry->fPrev;
+        existingEntry->fPrev = newEntry;
+        newEntry->fPrev = prev;
+        if (NULL == prev) {
+            SkASSERT(fHead == existingEntry);
+            fHead = newEntry;
+        } else {
+            prev->fNext = newEntry;
+        }
+#if SK_DEBUG
+        newEntry->fList = this;
+#endif
+    }
+
+    /**
+     * Inserts a new list entry after an existing list entry. The new entry must not already be
+     * a member of this or any other list. If existingEntry is NULL then the new entry is added
+     * at the head.
+     */
+    void addAfter(T* newEntry, T* existingEntry) {
+        SkASSERT(NULL != newEntry);
+
+        if (NULL == existingEntry) {
+            this->addToHead(newEntry);
+            return;
+        }
+
+        SkASSERT(this->isInList(existingEntry));
+        newEntry->fPrev = existingEntry;
+        T* next = existingEntry->fNext;
+        existingEntry->fNext = newEntry;
+        newEntry->fNext = next;
+        if (NULL == next) {
+            SkASSERT(fTail == existingEntry);
+            fTail = newEntry;
+        } else {
+            next->fPrev = newEntry;
+        }
+#if SK_DEBUG
+        newEntry->fList = this;
+#endif
+    }
+
     bool isEmpty() const {
         return NULL == fHead && NULL == fTail;
     }
@@ -168,6 +226,20 @@ public:
 #ifdef SK_DEBUG
     void validate() const {
         SkASSERT(!fHead == !fTail);
+        Iter iter;
+        for (T* item = iter.init(*this, Iter::kHead_IterStart); NULL != (item = iter.next()); ) {
+            SkASSERT(this->isInList(item));
+            if (NULL == item->fPrev) {
+                SkASSERT(fHead == item);
+            } else {
+                SkASSERT(item->fPrev->fNext == item);
+            }
+            if (NULL == item->fNext) {
+                SkASSERT(fTail == item);
+            } else {
+                SkASSERT(item->fNext->fPrev == item);
+            }
+        }
     }
 
     /**
