@@ -43,19 +43,44 @@
 
 class SkScalerContext_Mac;
 
-static void CFSafeRelease(CFTypeRef obj) {
-    if (obj) {
-        CFRelease(obj);
+// Being templated and taking const T* prevents calling
+// CFSafeRelease(autoCFRelease) through implicit conversion.
+template <typename T> static void CFSafeRelease(/*CFTypeRef*/const T* cfTypeRef) {
+    if (cfTypeRef) {
+        CFRelease(cfTypeRef);
     }
 }
 
-class AutoCFRelease : SkNoncopyable {
+// Being templated and taking const T* prevents calling
+// CFSafeRetain(autoCFRelease) through implicit conversion.
+template <typename T> static void CFSafeRetain(/*CFTypeRef*/const T* cfTypeRef) {
+    if (cfTypeRef) {
+        CFRetain(cfTypeRef);
+    }
+}
+
+/** Acts like a CFRef, but calls CFSafeRelease when it goes out of scope. */
+template<typename CFRef> class AutoCFRelease : private SkNoncopyable {
 public:
-    AutoCFRelease(CFTypeRef obj) : fObj(obj) {}
-    ~AutoCFRelease() { CFSafeRelease(fObj); }
+    explicit AutoCFRelease(CFRef cfRef = NULL) : fCFRef(cfRef) { }
+    ~AutoCFRelease() { CFSafeRelease(fCFRef); }
+
+    void reset(CFRef that = NULL) {
+        CFSafeRetain(that);
+        CFSafeRelease(fCFRef);
+        fCFRef = that;
+    }
+
+    AutoCFRelease& operator =(CFRef that) {
+        reset(that);
+        return *this;
+    }
+
+    operator CFRef() const { return fCFRef; }
+    CFRef get() const { return fCFRef; }
 
 private:
-    CFTypeRef fObj;
+    CFRef fCFRef;
 };
 
 template<typename T> class AutoCGTable : SkNoncopyable {
@@ -65,12 +90,11 @@ public:
     : fCFData(CGFontCopyTableForTag(font, SkSetFourByteTag(T::TAG0, T::TAG1, T::TAG2, T::TAG3)))
     , fData(fCFData ? reinterpret_cast<const T*>(CFDataGetBytePtr(fCFData)) : NULL)
     { }
-    ~AutoCGTable() { CFSafeRelease(fCFData); }
 
     const T* operator->() const { return fData; }
 
 private:
-    CFDataRef fCFData;
+    AutoCFRelease<CFDataRef> fCFData;
 public:
     const T* fData;
 };
@@ -302,17 +326,15 @@ static bool supports_LCD() {
         return (bool) gSupportsLCD;
     }
     int rgb = 0;
-    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-    CGContextRef cgContext = CGBitmapContextCreate(&rgb, 1, 1, 8, 4, colorspace,
-                                                   BITMAP_INFO_RGB);
+    AutoCFRelease<CGColorSpaceRef> colorspace(CGColorSpaceCreateDeviceRGB());
+    AutoCFRelease<CGContextRef> cgContext(CGBitmapContextCreate(&rgb, 1, 1, 8, 4,
+                                                                colorspace, BITMAP_INFO_RGB));
     CGContextSelectFont(cgContext, "Helvetica", 16, kCGEncodingMacRoman);
     CGContextSetShouldSmoothFonts(cgContext, true);
     CGContextSetShouldAntialias(cgContext, true);
     CGContextSetTextDrawingMode(cgContext, kCGTextFill);
     CGContextSetGrayFillColor(  cgContext, 1, 1);
     CGContextShowTextAtPoint(cgContext, -1, 0, "|", 1);
-    CFSafeRelease(colorspace);
-    CFSafeRelease(cgContext);
     int r = (rgb >> 16) & 0xFF;
     int g = (rgb >>  8) & 0xFF;
     int b = (rgb >>  0) & 0xFF;
@@ -323,7 +345,6 @@ static bool supports_LCD() {
 class Offscreen {
 public:
     Offscreen();
-    ~Offscreen();
 
     CGRGBPixel* getCG(const SkScalerContext_Mac& context, const SkGlyph& glyph,
                       CGGlyph glyphID, size_t* rowBytesPtr,
@@ -334,10 +355,10 @@ private:
         kSize = 32 * 32 * sizeof(CGRGBPixel)
     };
     SkAutoSMalloc<kSize> fImageStorage;
-    CGColorSpaceRef fRGBSpace;
+    AutoCFRelease<CGColorSpaceRef> fRGBSpace;
 
     // cached state
-    CGContextRef    fCG;
+    AutoCFRelease<CGContextRef> fCG;
     SkISize         fSize;
     bool            fDoAA;
     bool            fDoLCD;
@@ -349,11 +370,6 @@ private:
 
 Offscreen::Offscreen() : fRGBSpace(NULL), fCG(NULL) {
     fSize.set(0,0);
-}
-
-Offscreen::~Offscreen() {
-    CFSafeRelease(fCG);
-    CFSafeRelease(fRGBSpace);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -388,7 +404,7 @@ static SkFontID CTFontRef_to_SkFontID(CTFontRef fontRef) {
 #endif
     // CTFontGetPlatformFont returns NULL if the font is local
     // (e.g., was created by a CSS3 @font-face rule).
-    CGFontRef cgFont = CTFontCopyGraphicsFont(fontRef, NULL);
+    AutoCFRelease<CGFontRef> cgFont(CTFontCopyGraphicsFont(fontRef, NULL));
     AutoCGTable<SkOTTableHead> headTable(cgFont);
     if (headTable.fData) {
         id = (SkFontID) headTable->checksumAdjustment;
@@ -399,7 +415,6 @@ static SkFontID CTFontRef_to_SkFontID(CTFontRef fontRef) {
         id = (SkFontID) (uintptr_t) fontRef;
         id = (id & 0x3FFFFFFF) | 0x80000000; // make top two bits 10
     }
-    CGFontRelease(cgFont);
     return id;
 }
 
@@ -407,16 +422,15 @@ class SkTypeface_Mac : public SkTypeface {
 public:
     SkTypeface_Mac(SkTypeface::Style style, SkFontID fontID, bool isMonospace,
                    CTFontRef fontRef, const char name[])
-    : SkTypeface(style, fontID, isMonospace) {
+    : SkTypeface(style, fontID, isMonospace)
+    , fName(name)
+    , fFontRef(fontRef) // caller has already called CFRetain for us
+    {
         SkASSERT(fontRef);
-        fFontRef = fontRef; // caller has already called CFRetain for us
-        fName.set(name);
     }
 
-    virtual ~SkTypeface_Mac() { CFRelease(fFontRef); }
-
     SkString    fName;
-    CTFontRef   fFontRef;
+    AutoCFRelease<CTFontRef> fFontRef;
 };
 
 static CTFontRef typeface_to_fontref(const SkTypeface* face) {
@@ -433,69 +447,61 @@ static SkTypeface* NewFromFontRef(CTFontRef fontRef, const char name[]) {
     return new SkTypeface_Mac(style, fontID, isMonospace, fontRef, name);
 }
 
-static SkTypeface* NewFromName(const char familyName[],
-                               SkTypeface::Style theStyle) {
-    CFMutableDictionaryRef      cfAttributes, cfTraits;
-    CFNumberRef                 cfFontTraits;
-    CTFontSymbolicTraits        ctFontTraits;
-    CTFontDescriptorRef         ctFontDesc;
-    CFStringRef                 cfFontName;
-    CTFontRef                   ctFont;
+static SkTypeface* NewFromName(const char familyName[], SkTypeface::Style theStyle) {
+    CTFontRef ctFont = NULL;
 
-
-    // Get the state we need
-    ctFontDesc   = NULL;
-    ctFont       = NULL;
-    ctFontTraits = 0;
-
+    CTFontSymbolicTraits ctFontTraits = 0;
     if (theStyle & SkTypeface::kBold) {
         ctFontTraits |= kCTFontBoldTrait;
     }
-
     if (theStyle & SkTypeface::kItalic) {
         ctFontTraits |= kCTFontItalicTrait;
     }
 
     // Create the font info
-    cfFontName   = CFStringCreateWithCString(NULL, familyName, kCFStringEncodingUTF8);
-    cfFontTraits = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &ctFontTraits);
-    cfAttributes = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-    cfTraits     = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+    AutoCFRelease<CFStringRef> cfFontName(
+            CFStringCreateWithCString(NULL, familyName, kCFStringEncodingUTF8));
 
+    AutoCFRelease<CFNumberRef> cfFontTraits(
+            CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &ctFontTraits));
+
+    AutoCFRelease<CFMutableDictionaryRef> cfAttributes(
+            CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
+                                      &kCFTypeDictionaryKeyCallBacks,
+                                      &kCFTypeDictionaryValueCallBacks));
+
+    AutoCFRelease<CFMutableDictionaryRef> cfTraits(
+            CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
+                                      &kCFTypeDictionaryKeyCallBacks,
+                                      &kCFTypeDictionaryValueCallBacks));
 
     // Create the font
     if (cfFontName != NULL && cfFontTraits != NULL && cfAttributes != NULL && cfTraits != NULL) {
         CFDictionaryAddValue(cfTraits, kCTFontSymbolicTrait, cfFontTraits);
 
         CFDictionaryAddValue(cfAttributes, kCTFontFamilyNameAttribute, cfFontName);
-        CFDictionaryAddValue(cfAttributes, kCTFontTraitsAttribute,     cfTraits);
+        CFDictionaryAddValue(cfAttributes, kCTFontTraitsAttribute, cfTraits);
 
-        ctFontDesc = CTFontDescriptorCreateWithAttributes(cfAttributes);
+        AutoCFRelease<CTFontDescriptorRef> ctFontDesc(
+                CTFontDescriptorCreateWithAttributes(cfAttributes));
+
         if (ctFontDesc != NULL) {
             if (isLeopard()) {
                 // CTFontCreateWithFontDescriptor on Leopard ignores the name
-                CTFontRef ctNamed = CTFontCreateWithName(cfFontName, 1, NULL);
-                ctFont = CTFontCreateCopyWithAttributes(ctNamed, 1, NULL,
-                                                        ctFontDesc);
-                CFSafeRelease(ctNamed);
+                AutoCFRelease<CTFontRef> ctNamed(CTFontCreateWithName(cfFontName, 1, NULL));
+                ctFont = CTFontCreateCopyWithAttributes(ctNamed, 1, NULL, ctFontDesc);
             } else {
                 ctFont = CTFontCreateWithFontDescriptor(ctFontDesc, 0, NULL);
             }
         }
     }
 
-    CFSafeRelease(cfFontName);
-    CFSafeRelease(cfFontTraits);
-    CFSafeRelease(cfAttributes);
-    CFSafeRelease(cfTraits);
-    CFSafeRelease(ctFontDesc);
-
     return ctFont ? NewFromFontRef(ctFont, familyName) : NULL;
 }
 
 static CTFontRef GetFontRefFromFontID(SkFontID fontID) {
     SkTypeface_Mac* face = reinterpret_cast<SkTypeface_Mac*>(SkTypefaceCache::FindByID(fontID));
-    return face ? face->fFontRef : 0;
+    return face ? face->fFontRef.get() : NULL;
 }
 
 static SkTypeface* GetDefaultFace() {
@@ -516,7 +522,7 @@ static SkTypeface* GetDefaultFace() {
 extern CTFontRef SkTypeface_GetCTFontRef(const SkTypeface* face);
 CTFontRef SkTypeface_GetCTFontRef(const SkTypeface* face) {
     const SkTypeface_Mac* macface = (const SkTypeface_Mac*)face;
-    return macface ? macface->fFontRef : NULL;
+    return macface ? macface->fFontRef.get() : NULL;
 }
 
 /*  This function is visible on the outside. It first searches the cache, and if
@@ -646,9 +652,9 @@ private:
     SkMatrix                            fMatrix; // with font size
     SkMatrix                            fFBoundingBoxesMatrix; // lion-specific fix
     Offscreen                           fOffscreen;
-    CTFontRef                           fCTFont;
-    CTFontRef                           fCTVerticalFont; // for vertical advance
-    CGFontRef                           fCGFont;
+    AutoCFRelease<CTFontRef> fCTFont;
+    AutoCFRelease<CTFontRef> fCTVerticalFont; // for vertical advance
+    AutoCFRelease<CGFontRef> fCGFont;
     GlyphRect*                          fFBoundingBoxes;
     uint16_t                            fFBoundingBoxesGlyphOffset;
     uint16_t                            fGlyphCount;
@@ -661,7 +667,6 @@ private:
 
 SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
         : SkScalerContext(desc)
-        , fCTVerticalFont(NULL)
         , fFBoundingBoxes(NULL)
         , fFBoundingBoxesGlyphOffset(0)
         , fGeneratedFBoundingBoxes(false)
@@ -695,31 +700,26 @@ SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
     }
     flip(&fUnitMatrix); // flip to fix up bounds later
     fVertical = SkToBool(fRec.fFlags & kVertical_Flag);
-    CTFontDescriptorRef ctFontDesc = NULL;
+    AutoCFRelease<CTFontDescriptorRef> ctFontDesc;
     if (fVertical) {
-        CFMutableDictionaryRef cfAttributes = CFDictionaryCreateMutable(
-                kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks,
-                &kCFTypeDictionaryValueCallBacks);
+        AutoCFRelease<CFMutableDictionaryRef> cfAttributes(CFDictionaryCreateMutable(
+                kCFAllocatorDefault, 0,
+                &kCFTypeDictionaryKeyCallBacks,
+                &kCFTypeDictionaryValueCallBacks));
         if (cfAttributes) {
             CTFontOrientation ctOrientation = kCTFontVerticalOrientation;
-            CFNumberRef cfVertical = CFNumberCreate(kCFAllocatorDefault,
-                    kCFNumberSInt32Type, &ctOrientation);
-            CFDictionaryAddValue(cfAttributes, kCTFontOrientationAttribute,
-                    cfVertical);
-            CFSafeRelease(cfVertical);
+            AutoCFRelease<CFNumberRef> cfVertical(CFNumberCreate(
+                    kCFAllocatorDefault, kCFNumberSInt32Type, &ctOrientation));
+            CFDictionaryAddValue(cfAttributes, kCTFontOrientationAttribute, cfVertical);
             ctFontDesc = CTFontDescriptorCreateWithAttributes(cfAttributes);
-            CFRelease(cfAttributes);
         }
     }
-    fCTFont = CTFontCreateCopyWithAttributes(ctFont, unitFontSize, &transform,
-            ctFontDesc);
-    CFSafeRelease(ctFontDesc);
+    fCTFont = CTFontCreateCopyWithAttributes(ctFont, unitFontSize, &transform, ctFontDesc);
     fCGFont = CTFontCopyGraphicsFont(fCTFont, NULL);
     if (fVertical) {
         CGAffineTransform rotateLeft = CGAffineTransformMake(0, -1, 1, 0, 0, 0);
         transform = CGAffineTransformConcat(rotateLeft, transform);
-        fCTVerticalFont = CTFontCreateCopyWithAttributes(ctFont, unitFontSize,
-                &transform, NULL);
+        fCTVerticalFont = CTFontCreateCopyWithAttributes(ctFont, unitFontSize, &transform, NULL);
         fVerticalMatrix = fUnitMatrix;
         if (isSnowLeopard()) {
             SkScalar scale = SkScalarMul(fRec.fTextSize, getFontScale(fCGFont));
@@ -735,9 +735,6 @@ SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
 
 SkScalerContext_Mac::~SkScalerContext_Mac() {
     delete[] fFBoundingBoxes;
-    CFSafeRelease(fCTFont);
-    CFSafeRelease(fCTVerticalFont);
-    CFSafeRelease(fCGFont);
 }
 
 CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& glyph,
@@ -767,7 +764,6 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
 
     size_t rowBytes = fSize.fWidth * sizeof(CGRGBPixel);
     if (!fCG || fSize.fWidth < glyph.fWidth || fSize.fHeight < glyph.fHeight) {
-        CFSafeRelease(fCG);
         if (fSize.fWidth < glyph.fWidth) {
             fSize.fWidth = RoundSize(glyph.fWidth);
         }
@@ -985,12 +981,9 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     // empty path or not, and if so, we jam the bounds to 0. Hopefully a zero-advance
     // is rare, so we won't incur a big performance cost for this extra check.
     if (0 == theAdvance.width && 0 == theAdvance.height) {
-        CGPathRef path = CTFontCreatePathForGlyph(fCTFont, cgGlyph, NULL);
+        AutoCFRelease<CGPathRef> path(CTFontCreatePathForGlyph(fCTFont, cgGlyph, NULL));
         if (NULL == path || CGPathIsEmpty(path)) {
             theBounds = CGRectMake(0, 0, 0, 0);
-        }
-        if (path) {
-            CGPathRelease(path);
         }
     }
 
@@ -1301,12 +1294,11 @@ void SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path) {
     }
 
     CGGlyph   cgGlyph = (CGGlyph)glyph.getGlyphID(fBaseGlyphCount);
-    CGPathRef cgPath  = CTFontCreatePathForGlyph(font, cgGlyph, NULL);
+    AutoCFRelease<CGPathRef> cgPath(CTFontCreatePathForGlyph(font, cgGlyph, NULL));
 
     path->reset();
     if (cgPath != NULL) {
         CGPathApply(cgPath, path, SkScalerContext_Mac::CTPathElement);
-        CFRelease(cgPath);
     }
 
     if (fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag) {
@@ -1314,7 +1306,7 @@ void SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path) {
         m.setScale(SkFloatToScalar(1 / scaleX), SkFloatToScalar(1 / scaleY));
         path->transform(m);
         // balance the call to CTFontCreateCopyWithAttributes
-        CFRelease(font);
+        CFSafeRelease(font);
     }
     if (fRec.fFlags & SkScalerContext::kVertical_Flag) {
         SkIPoint offset;
@@ -1387,39 +1379,27 @@ void SkScalerContext_Mac::CTPathElement(void *info, const CGPathElement *element
 // Returns NULL on failure
 // Call must still manage its ownership of provider
 static SkTypeface* create_from_dataProvider(CGDataProviderRef provider) {
-    CGFontRef cg = CGFontCreateWithDataProvider(provider);
+    AutoCFRelease<CGFontRef> cg(CGFontCreateWithDataProvider(provider));
     if (NULL == cg) {
         return NULL;
     }
     CTFontRef ct = CTFontCreateWithGraphicsFont(cg, 0, NULL, NULL);
-    CGFontRelease(cg);
     return cg ? SkCreateTypefaceFromCTFont(ct) : NULL;
 }
 
-class AutoCGDataProviderRelease : SkNoncopyable {
-public:
-    AutoCGDataProviderRelease(CGDataProviderRef provider) : fProvider(provider) {}
-    ~AutoCGDataProviderRelease() { CGDataProviderRelease(fProvider); }
-
-private:
-    CGDataProviderRef fProvider;
-};
-
 SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
-    CGDataProviderRef provider = SkCreateDataProviderFromStream(stream);
+    AutoCFRelease<CGDataProviderRef> provider(SkCreateDataProviderFromStream(stream));
     if (NULL == provider) {
         return NULL;
     }
-    AutoCGDataProviderRelease ar(provider);
     return create_from_dataProvider(provider);
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
-    CGDataProviderRef provider = CGDataProviderCreateWithFilename(path);
+    AutoCFRelease<CGDataProviderRef> provider(CGDataProviderCreateWithFilename(path));
     if (NULL == provider) {
         return NULL;
     }
-    AutoCGDataProviderRelease ar(provider);
     return create_from_dataProvider(provider);
 }
 
@@ -1449,21 +1429,19 @@ static void populate_glyph_to_unicode_slow(CTFontRef ctFont,
 // supported.
 static void populate_glyph_to_unicode(CTFontRef ctFont,
         const unsigned glyphCount, SkTDArray<SkUnichar>* glyphToUnicode) {
-    CFCharacterSetRef charSet = CTFontCopyCharacterSet(ctFont);
-    AutoCFRelease autoSetRelease(charSet);
+    AutoCFRelease<CFCharacterSetRef> charSet(CTFontCopyCharacterSet(ctFont));
     if (!charSet) {
         populate_glyph_to_unicode_slow(ctFont, glyphCount, glyphToUnicode);
         return;
     }
 
-    CFDataRef bitmap = CFCharacterSetCreateBitmapRepresentation(
-        kCFAllocatorDefault, charSet);
+    AutoCFRelease<CFDataRef> bitmap(CFCharacterSetCreateBitmapRepresentation(kCFAllocatorDefault,
+                                                                             charSet));
     if (!bitmap) {
         return;
     }
     CFIndex length = CFDataGetLength(bitmap);
     if (!length) {
-        CFSafeRelease(bitmap);
         return;
     }
     if (length > 8192) {
@@ -1491,7 +1469,6 @@ static void populate_glyph_to_unicode(CTFontRef ctFont,
             }
         }
     }
-    CFSafeRelease(bitmap);
 }
 
 static bool getWidthAdvance(CTFontRef ctFont, int gId, int16_t* data) {
@@ -1523,15 +1500,14 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
         const uint32_t* glyphIDs,
         uint32_t glyphIDsCount) {
-    CTFontRef ctFont = GetFontRefFromFontID(fontID);
-    ctFont = CTFontCreateCopyWithAttributes(ctFont, CTFontGetUnitsPerEm(ctFont),
-                                            NULL, NULL);
+    CTFontRef originalCTFont = GetFontRefFromFontID(fontID);
+    AutoCFRelease<CTFontRef> ctFont(CTFontCreateCopyWithAttributes(
+            originalCTFont, CTFontGetUnitsPerEm(originalCTFont), NULL, NULL));
     SkAdvancedTypefaceMetrics* info = new SkAdvancedTypefaceMetrics;
 
     {
-        CFStringRef fontName = CTFontCopyPostScriptName(ctFont);
+        AutoCFRelease<CFStringRef> fontName(CTFontCopyPostScriptName(ctFont));
         CFStringToSkString(fontName, &info->fFontName);
-        CFRelease(fontName);
     }
 
     info->fMultiMaster = false;
@@ -1557,7 +1533,6 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         info->fStemV = 0;
         info->fCapHeight = 0;
         info->fBBox = SkIRect::MakeEmpty();
-        CFSafeRelease(ctFont);
         return info;
     }
 
@@ -1623,15 +1598,13 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
                         SkAdvancedTypefaceMetrics::WidthRange::kDefault);
         } else {
             info->fGlyphWidths.reset(
-                skia_advanced_typeface_metrics_utils::getAdvanceData(ctFont,
+                skia_advanced_typeface_metrics_utils::getAdvanceData(ctFont.get(),
                                glyphCount,
                                glyphIDs,
                                glyphIDsCount,
                                &getWidthAdvance));
         }
     }
-
-    CFSafeRelease(ctFont);
     return info;
 }
 
@@ -1639,12 +1612,11 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
 
 static SK_SFNT_ULONG get_font_type_tag(SkFontID uniqueID) {
     CTFontRef ctFont = GetFontRefFromFontID(uniqueID);
-    CFNumberRef fontFormatRef =
-        static_cast<CFNumberRef>(CTFontCopyAttribute(ctFont, kCTFontFormatAttribute));
+    AutoCFRelease<CFNumberRef> fontFormatRef(
+            static_cast<CFNumberRef>(CTFontCopyAttribute(ctFont, kCTFontFormatAttribute)));
     if (!fontFormatRef) {
         return 0;
     }
-    AutoCFRelease fontFormatRefAutoRelease(fontFormatRef);
 
     SInt32 fontFormatValue;
     if (!CFNumberGetValue(fontFormatRef, kCFNumberSInt32Type, &fontFormatValue)) {
@@ -1858,25 +1830,21 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface*) {
 
 int SkFontHost::CountTables(SkFontID fontID) {
     CTFontRef ctFont = GetFontRefFromFontID(fontID);
-    CFArrayRef cfArray = CTFontCopyAvailableTables(ctFont,
-                                                   kCTFontTableOptionNoOptions);
+    AutoCFRelease<CFArrayRef> cfArray(CTFontCopyAvailableTables(ctFont,
+                                                                kCTFontTableOptionNoOptions));
     if (NULL == cfArray) {
         return 0;
     }
-
-    AutoCFRelease ar(cfArray);
     return CFArrayGetCount(cfArray);
 }
 
 int SkFontHost::GetTableTags(SkFontID fontID, SkFontTableTag tags[]) {
     CTFontRef ctFont = GetFontRefFromFontID(fontID);
-    CFArrayRef cfArray = CTFontCopyAvailableTables(ctFont,
-                                                   kCTFontTableOptionNoOptions);
+    AutoCFRelease<CFArrayRef> cfArray(CTFontCopyAvailableTables(ctFont,
+                                                                kCTFontTableOptionNoOptions));
     if (NULL == cfArray) {
         return 0;
     }
-
-    AutoCFRelease ar(cfArray);
 
     int count = CFArrayGetCount(cfArray);
     if (tags) {
@@ -1896,33 +1864,28 @@ static CFDataRef copyTableFromFont(CTFontRef ctFont, SkFontTableTag tag) {
     CFDataRef data = CTFontCopyTable(ctFont, (CTFontTableTag) tag,
                                      kCTFontTableOptionNoOptions);
     if (NULL == data) {
-        CGFontRef cgFont = CTFontCopyGraphicsFont(ctFont, NULL);
+        AutoCFRelease<CGFontRef> cgFont(CTFontCopyGraphicsFont(ctFont, NULL));
         data = CGFontCopyTableForTag(cgFont, tag);
-        CGFontRelease(cgFont);
     }
     return data;
 }
 
 size_t SkFontHost::GetTableSize(SkFontID fontID, SkFontTableTag tag) {
     CTFontRef ctFont = GetFontRefFromFontID(fontID);
-    CFDataRef srcData = copyTableFromFont(ctFont, tag);
+    AutoCFRelease<CFDataRef> srcData(copyTableFromFont(ctFont, tag));
     if (NULL == srcData) {
         return 0;
     }
-
-    AutoCFRelease ar(srcData);
     return CFDataGetLength(srcData);
 }
 
 size_t SkFontHost::GetTableData(SkFontID fontID, SkFontTableTag tag,
                                 size_t offset, size_t length, void* dst) {
     CTFontRef ctFont = GetFontRefFromFontID(fontID);
-    CFDataRef srcData = copyTableFromFont(ctFont, tag);
+    AutoCFRelease<CFDataRef> srcData(copyTableFromFont(ctFont, tag));
     if (NULL == srcData) {
         return 0;
     }
-
-    AutoCFRelease ar(srcData);
 
     size_t srcSize = CFDataGetLength(srcData);
     if (offset >= srcSize) {
