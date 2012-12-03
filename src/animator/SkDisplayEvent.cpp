@@ -52,7 +52,7 @@ SkDisplayEvent::~SkDisplayEvent() {
     deleteMembers();
 }
 
-bool SkDisplayEvent::add(SkAnimateMaker& , SkDisplayable* child) {
+bool SkDisplayEvent::addChild(SkAnimateMaker& , SkDisplayable* child) {
     *fChildren.append() = child;
     return true;
 }

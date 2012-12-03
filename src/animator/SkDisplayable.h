@@ -32,7 +32,7 @@ public:
     SkDisplayable();
 #endif
     virtual ~SkDisplayable();
-    virtual bool add(SkAnimateMaker& , SkDisplayable* child);
+    virtual bool addChild(SkAnimateMaker& , SkDisplayable* child);
     virtual bool canContainDependents() const;
     virtual bool childrenNeedDisposing() const;
     virtual void clearBounder();

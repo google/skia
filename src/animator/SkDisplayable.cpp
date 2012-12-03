@@ -39,7 +39,7 @@ SkDisplayable::~SkDisplayable() {
 #endif
 }
 
-bool SkDisplayable::add(SkAnimateMaker& , SkDisplayable* child) {
+bool SkDisplayable::addChild(SkAnimateMaker& , SkDisplayable* child) {
     return false;
 }
 
