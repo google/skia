@@ -21,6 +21,7 @@
     '../bench/InterpBench.cpp',
     '../bench/LineBench.cpp',
     '../bench/MathBench.cpp',
+    '../bench/Matrix44Bench.cpp',
     '../bench/MatrixBench.cpp',
     '../bench/MatrixConvolutionBench.cpp',
     '../bench/MemoryBench.cpp',
