@@ -14,7 +14,7 @@
 #include "GrConfig.h"
 #include "GrTypes.h"
 #include "GrTHashCache.h"
-#include "SkTDLinkedList.h"
+#include "SkTInternalLList.h"
 
 class GrResource;
 
@@ -159,8 +159,8 @@ private:
     GrResourceKey    fKey;
     GrResource*      fResource;
 
-    // we're a dlinklist
-    SK_DEFINE_DLINKEDLIST_INTERFACE(GrResourceEntry);
+    // we're a linked list
+    SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrResourceEntry);
 
     friend class GrResourceCache;
     friend class GrDLinkedList;
@@ -312,8 +312,8 @@ private:
     class Key;
     GrTHashTable<GrResourceEntry, Key, 8> fCache;
 
-    // manage the dlink list
-    typedef SkTDLinkedList<GrResourceEntry> EntryList;
+    // We're an internal doubly linked list
+    typedef SkTInternalLList<GrResourceEntry> EntryList;
     EntryList    fList;
 
 #if GR_DEBUG
@@ -342,7 +342,7 @@ private:
     bool fPurging;
 
 #if GR_DEBUG
-    static size_t countBytes(const SkTDLinkedList<GrResourceEntry>& list);
+    static size_t countBytes(const SkTInternalLList<GrResourceEntry>& list);
 #endif
 };
 

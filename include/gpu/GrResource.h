@@ -12,7 +12,7 @@
 
 #include "GrRefCnt.h"
 
-#include "SkTDLinkedList.h"
+#include "SkTInternalLList.h"
 
 class GrGpu;
 class GrContext;
@@ -93,8 +93,8 @@ private:
                             // release() on all such resources in its
                             // destructor.
 
-    // we're a dlinklist
-    SK_DEFINE_DLINKEDLIST_INTERFACE(GrResource);
+    // We're in an internal doubly linked list
+    SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrResource);
 
     GrResourceEntry* fCacheEntry;  // NULL if not in cache
 

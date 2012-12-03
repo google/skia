@@ -5,14 +5,13 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkTDLinkedList_DEFINED
-#define SkTDLinkedList_DEFINED
+#ifndef SkTInternalLList_DEFINED
+#define SkTInternalLList_DEFINED
 
 #include "SkTypes.h"
 
 /**
- * Helper class to automatically initialize the doubly linked list
- * created pointers.
+ * Helper class to automatically initialize the doubly linked list created pointers.
  */
 template <typename T> class SkPtrWrapper {
   public:
@@ -26,23 +25,22 @@ template <typename T> class SkPtrWrapper {
 
 
 /**
- * This macro creates the member variables required by
- * the SkTDLinkedList class. It should be placed in the private section
- * of any class that will be stored in a double linked list.
+ * This macro creates the member variables required by the SkTInternalLList class. It should be
+ * placed in the private section of any class that will be stored in a double linked list.
  */
-#define SK_DEFINE_DLINKEDLIST_INTERFACE(ClassName)              \
-    friend class SkTDLinkedList<ClassName>;                     \
-    /* back pointer to the owning list - for debugging */       \
-    SkDEBUGCODE(SkPtrWrapper<SkTDLinkedList<ClassName> > fList;)\
-    SkPtrWrapper<ClassName> fPrev;                              \
-    SkPtrWrapper<ClassName> fNext;
+#define SK_DECLARE_INTERNAL_LLIST_INTERFACE(ClassName)              \
+    friend class SkTInternalLList<ClassName>;                       \
+    /* back pointer to the owning list - for debugging */           \
+    SkDEBUGCODE(SkPtrWrapper<SkTInternalLList<ClassName> > fList;)  \
+    SkPtrWrapper<ClassName> fPrev;                                  \
+    SkPtrWrapper<ClassName> fNext
 
 /**
  * This class implements a templated internal doubly linked list data structure.
  */
-template <class T> class SkTDLinkedList : public SkNoncopyable {
+template <class T> class SkTInternalLList : public SkNoncopyable {
 public:
-    SkTDLinkedList()
+    SkTInternalLList()
         : fHead(NULL)
         , fTail(NULL) {
     }
@@ -92,6 +90,25 @@ public:
 #endif
     }
 
+    void addToTail(T* entry) {
+        SkASSERT(NULL == entry->fPrev && NULL == entry->fNext);
+        SkASSERT(NULL == entry->fList);
+
+        entry->fPrev = fTail;
+        entry->fNext = NULL;
+        if (NULL != fTail) {
+            fTail->fNext = entry;
+        }
+        fTail = entry;
+        if (NULL == fHead) {
+            fHead = entry;
+        }
+
+#ifdef SK_DEBUG
+        entry->fList = this;
+#endif
+    }
+
     bool isEmpty() const {
         return NULL == fHead && NULL == fTail;
     }
@@ -106,52 +123,56 @@ public:
             kTail_IterStart
         };
 
-        Iter() : fCur(NULL) {}
+        Iter() : fCurr(NULL) {}
+        Iter(const Iter& iter) : fCurr(iter.fCurr) {}
+        Iter& operator= (const Iter& iter) { fCurr = iter.fCurr; return *this; }
 
-        T* init(SkTDLinkedList& list, IterStart startLoc) {
+        T* init(const SkTInternalLList& list, IterStart startLoc) {
             if (kHead_IterStart == startLoc) {
-                fCur = list.fHead;
+                fCurr = list.fHead;
             } else {
                 SkASSERT(kTail_IterStart == startLoc);
-                fCur = list.fTail;
+                fCurr = list.fTail;
             }
 
-            return fCur;
+            return fCurr;
         }
+
+        T* get() { return fCurr; }
 
         /**
          * Return the next/previous element in the list or NULL if at the end.
          */
         T* next() {
-            if (NULL == fCur) {
+            if (NULL == fCurr) {
                 return NULL;
             }
 
-            fCur = fCur->fNext;
-            return fCur;
+            fCurr = fCurr->fNext;
+            return fCurr;
         }
 
         T* prev() {
-            if (NULL == fCur) {
+            if (NULL == fCurr) {
                 return NULL;
             }
 
-            fCur = fCur->fPrev;
-            return fCur;
+            fCurr = fCurr->fPrev;
+            return fCurr;
         }
 
     private:
-        T* fCur;
+        T* fCurr;
     };
 
 #ifdef SK_DEBUG
     void validate() const {
-        GrAssert(!fHead == !fTail);
+        SkASSERT(!fHead == !fTail);
     }
 
     /**
-     * Debugging-only method that uses the list back pointer to check if
-     * 'entry' is indeed in 'this' list.
+     * Debugging-only method that uses the list back pointer to check if 'entry' is indeed in 'this'
+     * list.
      */
     bool isInList(const T* entry) const {
         return entry->fList == this;
@@ -176,4 +197,4 @@ private:
     typedef SkNoncopyable INHERITED;
 };
 
-#endif // SkTDLinkedList_DEFINED
+#endif

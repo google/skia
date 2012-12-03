@@ -553,7 +553,7 @@ private:
 
     bool                        fContextIsDirty;
 
-    typedef SkTDLinkedList<GrResource> ResourceList;
+    typedef SkTInternalLList<GrResource> ResourceList;
     ResourceList                fResourceList;
 
     // Given a rt, find or create a stencil buffer and attach it
