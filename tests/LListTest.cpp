@@ -174,7 +174,10 @@ static void TestTLList(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, list2 == list1);
 
         // add an element to the second list, check that iters are still valid
+        iter3.init(list2, Iter::kHead_IterStart);
+        iter4.init(list2, Iter::kTail_IterStart);
         list2.addToHead(ListElement(2));
+
 #ifdef SK_ENABLE_INST_COUNT
         SkASSERT(3 == ListElement::InstanceCount());
 #endif
