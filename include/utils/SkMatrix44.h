@@ -37,7 +37,7 @@
 #endif
     typedef float SkMScalar;
     typedef int32_t SkMIntScalar;
-    
+
     static inline float SkFloatToMScalar(float x) {
         return x;
     }
@@ -134,7 +134,7 @@ public:
         kAffine_Mask        = 0x04,  //!< set if the matrix skews or rotates
         kPerspective_Mask   = 0x08   //!< set if the matrix is in perspective
     };
-    
+
     /**
      *  Returns a bitfield describing the transformations the matrix may
      *  perform. The bitfield is computed conservatively, so it may include
@@ -153,7 +153,7 @@ public:
     inline bool isIdentity() const {
         return 0 == this->getType();
     }
-    
+
     void setIdentity();
     inline void reset() { this->setIdentity();}
 
@@ -319,7 +319,7 @@ private:
     // we are always packed with no extra bits, allowing us to call memcpy
     // without fear of copying uninitialized bits.
     mutable SkMIntScalar    fTypeMask;
-    
+
     enum {
         kUnknown_Mask = 0x80,
 
@@ -333,7 +333,7 @@ private:
     SkMScalar scaleX() const { return fMat[0][0]; }
     SkMScalar scaleY() const { return fMat[1][1]; }
     SkMScalar scaleZ() const { return fMat[2][2]; }
-    
+
     SkMScalar perspX() const { return fMat[0][3]; }
     SkMScalar perspY() const { return fMat[1][3]; }
     SkMScalar perspZ() const { return fMat[2][3]; }

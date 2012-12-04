@@ -81,7 +81,7 @@ protected:
 
         for (int i = 0; i < REPEAT_LOOP; ++i) {
             SkPath line, path;
-            line.moveTo(SkIntToScalar(1), SkIntToScalar(2)); 
+            line.moveTo(SkIntToScalar(1), SkIntToScalar(2));
             line.lineTo(SkIntToScalar(4 + i), SkIntToScalar(1));
             paint.getFillPath(line, &path);
             draw_fatpath(canvas, surface, &path, 1);

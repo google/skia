@@ -74,10 +74,10 @@ static bool is_identity(const SkMatrix44& m) {
 
 static void test_gettype(skiatest::Reporter* reporter) {
     SkMatrix44 matrix;
-    
+
     REPORTER_ASSERT(reporter, matrix.isIdentity());
     REPORTER_ASSERT(reporter, SkMatrix44::kIdentity_Mask == matrix.getType());
-    
+
     int expectedMask;
 
     matrix.set(1, 1, 0);
@@ -91,7 +91,7 @@ static void test_gettype(skiatest::Reporter* reporter) {
     matrix.set(2, 0, 1);
     expectedMask |= SkMatrix44::kAffine_Mask;
     REPORTER_ASSERT(reporter, matrix.getType() == expectedMask);
-    
+
     matrix.set(3, 2, 1);
     REPORTER_ASSERT(reporter, matrix.getType() & SkMatrix44::kPerspective_Mask);
 }
@@ -209,7 +209,7 @@ static void test_set_row_col_major(skiatest::Reporter* reporter) {
             a.setDouble(row, col, row * 4 + col);
         }
     }
-            
+
     double bufferd[16];
     float bufferf[16];
     a.asColMajord(bufferd);

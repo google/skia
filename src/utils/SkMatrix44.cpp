@@ -62,7 +62,7 @@ bool SkMatrix44::operator==(const SkMatrix44& other) const {
 
 int SkMatrix44::computeTypeMask() const {
     unsigned mask = 0;
-    
+
     if (0 != perspX() || 0 != perspY() || 0 != perspZ() || 1 != fMat[3][3]) {
         return kTranslate_Mask | kScale_Mask | kAffine_Mask | kPerspective_Mask;
     }
@@ -214,7 +214,7 @@ void SkMatrix44::setTranslate(SkMScalar tx, SkMScalar ty, SkMScalar tz) {
     fMat[3][1] = ty;
     fMat[3][2] = tz;
     fMat[3][3] = 1;
-    
+
     int mask = kIdentity_Mask;
     if (0 != tx || 0 != ty || 0 != tz) {
         mask |= kTranslate_Mask;
@@ -243,7 +243,7 @@ void SkMatrix44::setScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
     fMat[1][1] = sy;
     fMat[2][2] = sz;
     fMat[3][3] = 1;
-    
+
     int mask = kIdentity_Mask;
     if (0 != sx || 0 != sy || 0 != sz) {
         mask |= kScale_Mask;
@@ -485,7 +485,7 @@ void SkMatrix44::mapScalars(const SkScalar src[4], SkScalar dst[4]) const {
         }
         result[i] = SkMScalarToScalar(value);
     }
-    
+
     if (storage == result) {
         memcpy(dst, storage, sizeof(storage));
     }
@@ -496,7 +496,7 @@ void SkMatrix44::mapScalars(const SkScalar src[4], SkScalar dst[4]) const {
 void SkMatrix44::mapMScalars(const SkMScalar src[4], SkMScalar dst[4]) const {
     SkMScalar storage[4];
     SkMScalar* result = (src == dst) ? storage : dst;
-    
+
     for (int i = 0; i < 4; i++) {
         SkMScalar value = 0;
         for (int j = 0; j < 4; j++) {
@@ -504,7 +504,7 @@ void SkMatrix44::mapMScalars(const SkMScalar src[4], SkMScalar dst[4]) const {
         }
         result[i] = value;
     }
-    
+
     if (storage == result) {
         memcpy(dst, storage, sizeof(storage));
     }

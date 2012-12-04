@@ -62,7 +62,7 @@ public:
             }
         }
     }
-    
+
     void addToHead(const T& t) {
         this->validate();
         Node* node = this->createNode();
