@@ -162,14 +162,14 @@ static void TestTLList(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, iter3.get()->fID == iter1.get()->fID);
         REPORTER_ASSERT(reporter, iter4.get()->fID == iter1.get()->fID);
         REPORTER_ASSERT(reporter, list1 == list2);
-       
+
         list2.reset();
 
         // use both before/after in-place construction on an empty list
         SkNEW_INSERT_IN_LLIST_BEFORE(&list2, list2.headIter(), ListElement, (1));
         REPORTER_ASSERT(reporter, list2 == list1);
         list2.reset();
-    
+
         SkNEW_INSERT_IN_LLIST_AFTER(&list2, list2.tailIter(), ListElement, (1));
         REPORTER_ASSERT(reporter, list2 == list1);
 
@@ -255,7 +255,7 @@ static void TestTLList(skiatest::Reporter* reporter) {
                                 REPORTER_ASSERT(reporter, prev.next()->fID == iter.get()->fID);
                             }
                         }
-                    }    
+                    }
                 }
                 ++count;
             } else {
@@ -263,7 +263,7 @@ static void TestTLList(skiatest::Reporter* reporter) {
                 int n = random.nextULessThan(list1.count());
                 Iter::IterStart start;
                 ListElement* (Iter::*incrFunc)();
-                
+
                 if (random.nextBool()) {
                     start = Iter::kHead_IterStart;
                     incrFunc = &Iter::next;
