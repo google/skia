@@ -24,28 +24,6 @@ void SkClipStack::Element::checkEmpty() const {
     SkASSERT(fPath.isEmpty());
 }
 
-bool SkClipStack::Element::operator==(const Element& b) const {
-    if (fSaveCount != b.fSaveCount ||
-        fOp != b.fOp ||
-        fType != b.fType ||
-        fDoAA != b.fDoAA) {
-        return false;
-    }
-    switch (fType) {
-        case kEmpty_Type:
-            return true;
-        case kRect_Type:
-            return fRect == b.fRect;
-        case kPath_Type:
-            return fPath == b.fPath;
-    }
-    return false;  // Silence the compiler.
-}
-
-bool SkClipStack::Element::operator!=(const Element& b) const {
-    return !(*this == b);
-}
-
 bool SkClipStack::Element::canBeIntersectedInPlace(int saveCount, SkRegion::Op op) const {
     if (kEmpty_Type == fType &&
         (SkRegion::kDifference_Op == op || SkRegion::kIntersect_Op == op)) {
@@ -622,92 +600,20 @@ bool SkClipStack::isWideOpen() const {
 SkClipStack::Iter::Iter() : fStack(NULL) {
 }
 
-bool operator==(const SkClipStack::Iter::Clip& a,
-                const SkClipStack::Iter::Clip& b) {
-    return a.fOp == b.fOp && a.fDoAA == b.fDoAA &&
-           ((a.fRect == NULL && b.fRect == NULL) ||
-               (a.fRect != NULL && b.fRect != NULL && *a.fRect == *b.fRect)) &&
-           ((a.fPath == NULL && b.fPath == NULL) ||
-               (a.fPath != NULL && b.fPath != NULL && *a.fPath == *b.fPath));
-}
-
-bool operator!=(const SkClipStack::Iter::Clip& a,
-                const SkClipStack::Iter::Clip& b) {
-    return !(a == b);
-}
-
-const SkRect& SkClipStack::Iter::Clip::getBounds() const {
-    if (NULL != fRect) {
-        return *fRect;
-    } else if (NULL != fPath) {
-        return fPath->getBounds();
-    } else {
-        static const SkRect kEmpty = {0, 0, 0, 0};
-        return kEmpty;
-    }
-}
-
-bool SkClipStack::Iter::Clip::contains(const SkRect& rect) const {
-    if (NULL != fRect) {
-        return fRect->contains(rect);
-    } else if (NULL != fPath) {
-        return fPath->conservativelyContainsRect(rect);
-    } else {
-        return false;
-    }
-}
-
-bool SkClipStack::Iter::Clip::isInverseFilled() const {
-    return NULL != fPath && fPath->isInverseFillType();
-}
-
 SkClipStack::Iter::Iter(const SkClipStack& stack, IterStart startLoc)
     : fStack(&stack) {
     this->reset(stack, startLoc);
 }
 
-const SkClipStack::Iter::Clip* SkClipStack::Iter::updateClip(
-                        const SkClipStack::Element* element) {
-    switch (element->fType) {
-        case SkClipStack::Element::kEmpty_Type:
-            fClip.fRect = NULL;
-            fClip.fPath = NULL;
-            element->checkEmpty();
-            break;
-        case SkClipStack::Element::kRect_Type:
-            fClip.fRect = &element->fRect;
-            fClip.fPath = NULL;
-            break;
-        case SkClipStack::Element::kPath_Type:
-            fClip.fRect = NULL;
-            fClip.fPath = &element->fPath;
-            break;
-    }
-    fClip.fOp = element->fOp;
-    fClip.fDoAA = element->fDoAA;
-    fClip.fGenID = element->fGenID;
-    return &fClip;
+const SkClipStack::Element* SkClipStack::Iter::next() {
+    return (const SkClipStack::Element*)fIter.next();
 }
 
-const SkClipStack::Iter::Clip* SkClipStack::Iter::next() {
-    const SkClipStack::Element* element = (const SkClipStack::Element*)fIter.next();
-    if (NULL == element) {
-        return NULL;
-    }
-
-    return this->updateClip(element);
+const SkClipStack::Element* SkClipStack::Iter::prev() {
+    return (const SkClipStack::Element*)fIter.prev();
 }
 
-const SkClipStack::Iter::Clip* SkClipStack::Iter::prev() {
-    const SkClipStack::Element* element = (const SkClipStack::Element*)fIter.prev();
-    if (NULL == element) {
-        return NULL;
-    }
-
-    return this->updateClip(element);
-}
-
-const SkClipStack::Iter::Clip* SkClipStack::Iter::skipToTopmost(SkRegion::Op op) {
+const SkClipStack::Element* SkClipStack::Iter::skipToTopmost(SkRegion::Op op) {
 
     if (NULL == fStack) {
         return NULL;

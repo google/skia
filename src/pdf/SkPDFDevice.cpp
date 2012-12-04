@@ -226,8 +226,8 @@ static void skip_clip_stack_prefix(const SkClipStack& prefix,
     SkClipStack::B2TIter prefixIter(prefix);
     iter->reset(stack, SkClipStack::Iter::kBottom_IterStart);
 
-    const SkClipStack::B2TIter::Clip* prefixEntry;
-    const SkClipStack::B2TIter::Clip* iterEntry;
+    const SkClipStack::Element* prefixEntry;
+    const SkClipStack::Element* iterEntry;
 
     for (prefixEntry = prefixIter.next(); prefixEntry;
             prefixEntry = prefixIter.next()) {
@@ -236,12 +236,9 @@ static void skip_clip_stack_prefix(const SkClipStack& prefix,
         // Because of SkClipStack does internal intersection, the last clip
         // entry may differ.
         if (*prefixEntry != *iterEntry) {
-            SkASSERT(prefixEntry->fOp == SkRegion::kIntersect_Op);
-            SkASSERT(iterEntry->fOp == SkRegion::kIntersect_Op);
-            SkASSERT((iterEntry->fRect == NULL) ==
-                    (prefixEntry->fRect == NULL));
-            SkASSERT((iterEntry->fPath == NULL) ==
-                    (prefixEntry->fPath == NULL));
+            SkASSERT(prefixEntry->getOp() == SkRegion::kIntersect_Op);
+            SkASSERT(iterEntry->getOp() == SkRegion::kIntersect_Op);
+            SkASSERT(iterEntry->getType() == prefixEntry->getType());
             // back up the iterator by one
             iter->prev();
             prefixEntry = prefixIter.next();
@@ -306,10 +303,9 @@ void GraphicStackState::updateClip(const SkClipStack& clipStack,
     // If the clip stack does anything other than intersect or if it uses
     // an inverse fill type, we have to fall back to the clip region.
     bool needRegion = false;
-    const SkClipStack::B2TIter::Clip* clipEntry;
+    const SkClipStack::Element* clipEntry;
     for (clipEntry = iter.next(); clipEntry; clipEntry = iter.next()) {
-        if (clipEntry->fOp != SkRegion::kIntersect_Op ||
-                (clipEntry->fPath && clipEntry->fPath->isInverseFillType())) {
+        if (clipEntry->getOp() != SkRegion::kIntersect_Op || clipEntry->isInverseFilled()) {
             needRegion = true;
             break;
         }
@@ -323,19 +319,24 @@ void GraphicStackState::updateClip(const SkClipStack& clipStack,
         skip_clip_stack_prefix(fEntries[0].fClipStack, clipStack, &iter);
         SkMatrix transform;
         transform.setTranslate(translation.fX, translation.fY);
-        const SkClipStack::B2TIter::Clip* clipEntry;
+        const SkClipStack::Element* clipEntry;
         for (clipEntry = iter.next(); clipEntry; clipEntry = iter.next()) {
-            SkASSERT(clipEntry->fOp == SkRegion::kIntersect_Op);
-            if (clipEntry->fRect) {
-                SkRect translatedClip;
-                transform.mapRect(&translatedClip, *clipEntry->fRect);
-                emit_clip(NULL, &translatedClip, fContentStream);
-            } else if (clipEntry->fPath) {
-                SkPath translatedPath;
-                clipEntry->fPath->transform(transform, &translatedPath);
-                emit_clip(&translatedPath, NULL, fContentStream);
-            } else {
-                SkASSERT(false);
+            SkASSERT(clipEntry->getOp() == SkRegion::kIntersect_Op);
+            switch (clipEntry->getType()) {
+                case SkClipStack::Element::kRect_Type: {
+                    SkRect translatedClip;
+                    transform.mapRect(&translatedClip, clipEntry->getRect());
+                    emit_clip(NULL, &translatedClip, fContentStream);
+                    break;
+                }
+                case SkClipStack::Element::kPath_Type: {
+                    SkPath translatedPath;
+                    clipEntry->getPath().transform(transform, &translatedPath);
+                    emit_clip(&translatedPath, NULL, fContentStream);
+                    break;
+                }
+                default:
+                    SkASSERT(false);
             }
         }
     }

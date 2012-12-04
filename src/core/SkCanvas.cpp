@@ -1194,15 +1194,23 @@ void SkCanvas::validateClip() const {
     SkRasterClip tmpClip(ir);
 
     SkClipStack::B2TIter                iter(fClipStack);
-    const SkClipStack::B2TIter::Clip*   clip;
-    while ((clip = iter.next()) != NULL) {
-        if (clip->fPath) {
-            clipPathHelper(this, &tmpClip, *clip->fPath, clip->fOp, clip->fDoAA);
-        } else if (clip->fRect) {
-            clip->fRect->round(&ir);
-            tmpClip.op(ir, clip->fOp);
-        } else {
-            tmpClip.setEmpty();
+    const SkClipStack::Element* element;
+    while ((element = iter.next()) != NULL) {
+        switch (element->getType()) {
+            case SkClipStack::Element::kPath_Type:
+                clipPathHelper(this,
+                               &tmpClip,
+                               element->getPath(),
+                               element->getOp(),
+                               element->isAA());
+                break;
+            case SkClipStack::Element::kRect_Type:
+                element->getRect().round(&ir);
+                tmpClip.op(ir, element->getOp());
+                break;
+            case SkClipStack::Element::kEmpty_Type:
+                tmpClip.setEmpty();
+                break;
         }
     }
 
@@ -1216,16 +1224,20 @@ void SkCanvas::validateClip() const {
 
 void SkCanvas::replayClips(ClipVisitor* visitor) const {
     SkClipStack::B2TIter                iter(fClipStack);
-    const SkClipStack::B2TIter::Clip*   clip;
+    const SkClipStack::Element*         element;
 
-    SkRect empty = { 0, 0, 0, 0 };
-    while ((clip = iter.next()) != NULL) {
-        if (clip->fPath) {
-            visitor->clipPath(*clip->fPath, clip->fOp, clip->fDoAA);
-        } else if (clip->fRect) {
-            visitor->clipRect(*clip->fRect, clip->fOp, clip->fDoAA);
-        } else {
-            visitor->clipRect(empty, SkRegion::kIntersect_Op, false);
+    static const SkRect kEmpty = { 0, 0, 0, 0 };
+    while ((element = iter.next()) != NULL) {
+        switch (element->getType()) {
+            case SkClipStack::Element::kPath_Type:
+                visitor->clipPath(element->getPath(), element->getOp(), element->isAA());
+                break;
+            case SkClipStack::Element::kRect_Type:
+                visitor->clipRect(element->getRect(), element->getOp(), element->isAA());
+                break;
+            case SkClipStack::Element::kEmpty_Type:
+                visitor->clipRect(kEmpty, SkRegion::kIntersect_Op, false);
+                break;
         }
     }
 }
