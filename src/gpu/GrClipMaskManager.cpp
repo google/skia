@@ -39,32 +39,48 @@ based on later intersect operations, and perhaps remove intersect-rects. We coul
 take a rect in case the caller knows a bound on what is to be drawn through this clip.
 */
 void GrReduceClipStack(const SkClipStack& stack,
+                       const SkRect& queryBounds,
                        ElementList* result,
-                       SkRect* resultBounds,
-                       bool* resultsAreBounded,
                        InitialState* initialState) {
     result->reset();
 
     if (stack.isWideOpen()) {
         *initialState = kAllIn_InitialState;
-        *resultsAreBounded = false;
         return;
     }
 
-    SkClipStack::BoundsType type;
+    SkClipStack::BoundsType stackBoundsType;
+    SkRect stackBounds;
     bool iior;
-    stack.getBounds(resultBounds, &type, &iior);
-    if (iior) {
-        *resultsAreBounded = true;
-        *initialState = kAllOut_InitialState;
-        SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
-        // iior should only be true if aa/non-aa status matches among all elements.
-        bool doAA = iter.prev()->isAA();
-        SkNEW_INSERT_AT_LLIST_TAIL(result, Element, (*resultBounds, SkRegion::kReplace_Op, doAA));
-        return;
-    }
+    stack.getBounds(&stackBounds, &stackBoundsType, &iior);
 
-    *resultsAreBounded = SkClipStack::kNormal_BoundsType == type && !resultBounds->isEmpty();
+    if (iior) {
+        SkASSERT(SkClipStack::kNormal_BoundsType == stackBoundsType);
+        SkRect isectRect;
+        if (stackBounds.contains(queryBounds)) {
+            *initialState = kAllIn_InitialState;
+        } else if (isectRect.intersect(stackBounds, queryBounds)) {
+            // iior should only be true if aa/non-aa status matches among all elements.
+            SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
+            bool doAA = iter.prev()->isAA();
+            SkNEW_INSERT_AT_LLIST_HEAD(result, Element, (isectRect, SkRegion::kReplace_Op, doAA));
+        } else {
+            *initialState = kAllOut_InitialState;
+        }
+        return;
+    } else {
+        if (SkClipStack::kNormal_BoundsType == stackBoundsType) {
+            if (!SkRect::Intersects(stackBounds, queryBounds)) {
+                *initialState = kAllOut_InitialState;
+                return;
+            }
+        } else {
+            if (stackBounds.contains(queryBounds)) {
+                *initialState = kAllOut_InitialState;
+                return;
+            }
+        }
+    }
 
     // walk backwards until we get to:
     //  a) the beginning
@@ -100,23 +116,21 @@ void GrReduceClipStack(const SkClipStack& stack,
 
         switch (element->getOp()) {
             case SkRegion::kDifference_Op:
-                if (*resultsAreBounded) {
-                    // check if the shape subtracted either contains the entire bounds (and makes
-                    // the clip empty) or is outside the bounds and therefore can be skipped.
-                    if (element->isInverseFilled()) {
-                        if (element->contains(*resultBounds)) {
-                            skippable = true;
-                        } else if (!SkRect::Intersects(element->getBounds(), *resultBounds)) {
-                            *initialState = kAllOut_InitialState;
-                            skippable = true;
-                        }
-                    } else {
-                        if (element->contains(*resultBounds)) {
-                            *initialState = kAllOut_InitialState;
-                            skippable = true;
-                        } else if (!SkRect::Intersects(element->getBounds(), *resultBounds)) {
-                            skippable = true;
-                        }
+                // check if the shape subtracted either contains the entire bounds (and makes
+                // the clip empty) or is outside the bounds and therefore can be skipped.
+                if (element->isInverseFilled()) {
+                    if (element->contains(queryBounds)) {
+                        skippable = true;
+                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
+                        *initialState = kAllOut_InitialState;
+                        skippable = true;
+                    }
+                } else {
+                    if (element->contains(queryBounds)) {
+                        *initialState = kAllOut_InitialState;
+                        skippable = true;
+                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
+                        skippable = true;
                     }
                 }
                 if (!skippable) {
@@ -124,24 +138,22 @@ void GrReduceClipStack(const SkClipStack& stack,
                 }
                 break;
             case SkRegion::kIntersect_Op:
-                if (*resultsAreBounded) {
-                    // check if the shape intersected contains the entire bounds and therefore can
-                    // be skipped or it is outside the entire bounds and therefore makes the clip
-                    // empty.
-                    if (element->isInverseFilled()) {
-                        if (element->contains(*resultBounds)) {
-                            *initialState = kAllOut_InitialState;
-                            skippable = true;
-                        } else if (!SkRect::Intersects(element->getBounds(), *resultBounds)) {
-                            skippable = true;
-                        }
-                    } else {
-                        if (element->contains(*resultBounds)) {
-                            skippable = true;
-                        } else if (!SkRect::Intersects(element->getBounds(), *resultBounds)) {
-                            *initialState = kAllOut_InitialState;
-                            skippable = true;
-                        }
+                // check if the shape intersected contains the entire bounds and therefore can
+                // be skipped or it is outside the entire bounds and therefore makes the clip
+                // empty.
+                if (element->isInverseFilled()) {
+                    if (element->contains(queryBounds)) {
+                        *initialState = kAllOut_InitialState;
+                        skippable = true;
+                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
+                        skippable = true;
+                    }
+                } else {
+                    if (element->contains(queryBounds)) {
+                        skippable = true;
+                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
+                        *initialState = kAllOut_InitialState;
+                        skippable = true;
                     }
                 }
                 if (!skippable) {
@@ -149,24 +161,22 @@ void GrReduceClipStack(const SkClipStack& stack,
                 }
                 break;
             case SkRegion::kUnion_Op:
-                if (*resultsAreBounded) {
-                    // If the union-ed shape contains the entire bounds then after this element
-                    // the bounds is entirely inside the clip. If the union-ed shape is outside the
-                    // bounds then this op can be skipped.
-                    if (element->isInverseFilled()) {
-                        if (element->contains(*resultBounds)) {
-                            skippable = true;
-                        } else if (!SkRect::Intersects(element->getBounds(), *resultBounds)) {
-                            *initialState = kAllIn_InitialState;
-                            skippable = true;
-                        }
-                    } else {
-                        if (element->contains(*resultBounds)) {
-                            *initialState = kAllIn_InitialState;
-                            skippable = true;
-                        } else if (!SkRect::Intersects(element->getBounds(), *resultBounds)) {
-                            skippable = true;
-                        }
+                // If the union-ed shape contains the entire bounds then after this element
+                // the bounds is entirely inside the clip. If the union-ed shape is outside the
+                // bounds then this op can be skipped.
+                if (element->isInverseFilled()) {
+                    if (element->contains(queryBounds)) {
+                        skippable = true;
+                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
+                        *initialState = kAllIn_InitialState;
+                        skippable = true;
+                    }
+                } else {
+                    if (element->contains(queryBounds)) {
+                        *initialState = kAllIn_InitialState;
+                        skippable = true;
+                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
+                        skippable = true;
                     }
                 }
                 if (!skippable) {
@@ -174,23 +184,21 @@ void GrReduceClipStack(const SkClipStack& stack,
                 }
                 break;
             case SkRegion::kXOR_Op:
-                if (*resultsAreBounded) {
-                    // If the bounds is entirely inside the shape being xor-ed then the effect is
-                    // to flip the inside/outside state of every point in the bounds. We may be
-                    // able to take advantage of this in the forward pass. If the xor-ed shape
-                    // doesn't intersect the bounds then it can be skipped.
-                    if (element->isInverseFilled()) {
-                        if (element->contains(*resultBounds)) {
-                            skippable = true;
-                        } else if (!SkRect::Intersects(element->getBounds(), *resultBounds)) {
-                            isFlip = true;
-                        }
-                    } else {
-                        if (element->contains(*resultBounds)) {
-                            isFlip = true;
-                        } else if (!SkRect::Intersects(element->getBounds(), *resultBounds)) {
-                            skippable = true;
-                        }
+                // If the bounds is entirely inside the shape being xor-ed then the effect is
+                // to flip the inside/outside state of every point in the bounds. We may be
+                // able to take advantage of this in the forward pass. If the xor-ed shape
+                // doesn't intersect the bounds then it can be skipped.
+                if (element->isInverseFilled()) {
+                    if (element->contains(queryBounds)) {
+                        skippable = true;
+                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
+                        isFlip = true;
+                    }
+                } else {
+                    if (element->contains(queryBounds)) {
+                        isFlip = true;
+                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
+                        skippable = true;
                     }
                 }
                 if (!skippable) {
@@ -202,21 +210,19 @@ void GrReduceClipStack(const SkClipStack& stack,
                 // and reverses every point inside the bounds. If the shape is completely outside
                 // the bounds then we know after this element is applied that the bounds will be
                 // all outside the current clip.B
-                if (*resultsAreBounded) {
-                    if (element->isInverseFilled()) {
-                        if (element->contains(*resultBounds)) {
-                            *initialState = kAllOut_InitialState;
-                            skippable = true;
-                        } else if (!SkRect::Intersects(element->getBounds(), *resultBounds)) {
-                            isFlip = true;
-                        }
-                    } else {
-                        if (element->contains(*resultBounds)) {
-                            isFlip = true;
-                        } else if (!SkRect::Intersects(element->getBounds(), *resultBounds)) {
-                            *initialState = kAllOut_InitialState;
-                            skippable = true;
-                        }
+                if (element->isInverseFilled()) {
+                    if (element->contains(queryBounds)) {
+                        *initialState = kAllOut_InitialState;
+                        skippable = true;
+                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
+                        isFlip = true;
+                    }
+                } else {
+                    if (element->contains(queryBounds)) {
+                        isFlip = true;
+                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
+                        *initialState = kAllOut_InitialState;
+                        skippable = true;
                     }
                 }
                 if (!skippable) {
@@ -228,23 +234,21 @@ void GrReduceClipStack(const SkClipStack& stack,
                 // at the replace op or detect here than the shape is either completely inside
                 // or completely outside the bounds. In this latter case it can be skipped by
                 // setting the correct value for initialState.
-                if (*resultsAreBounded) {
-                    if (element->isInverseFilled()) {
-                        if (element->contains(*resultBounds)) {
-                            *initialState = kAllOut_InitialState;
-                            skippable = true;
-                        } else if (!SkRect::Intersects(element->getBounds(), *resultBounds)) {
-                            *initialState = kAllIn_InitialState;
-                            skippable = true;
-                        }
-                    } else {
-                        if (element->contains(*resultBounds)) {
-                            *initialState = kAllIn_InitialState;
-                            skippable = true;
-                        } else if (!SkRect::Intersects(element->getBounds(), *resultBounds)) {
-                            *initialState = kAllOut_InitialState;
-                            skippable = true;
-                        }
+                if (element->isInverseFilled()) {
+                    if (element->contains(queryBounds)) {
+                        *initialState = kAllOut_InitialState;
+                        skippable = true;
+                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
+                        *initialState = kAllIn_InitialState;
+                        skippable = true;
+                    }
+                } else {
+                    if (element->contains(queryBounds)) {
+                        *initialState = kAllIn_InitialState;
+                        skippable = true;
+                    } else if (!SkRect::Intersects(element->getBounds(), queryBounds)) {
+                        *initialState = kAllOut_InitialState;
+                        skippable = true;
                     }
                 }
                 if (!skippable) {
@@ -263,7 +267,7 @@ void GrReduceClipStack(const SkClipStack& stack,
                          SkRegion::kReverseDifference_Op == element->getOp());
                 SkNEW_INSERT_AT_LLIST_HEAD(result,
                                            Element,
-                                           (*resultBounds, SkRegion::kReverseDifference_Op, false));
+                                           (queryBounds, SkRegion::kReverseDifference_Op, false));
             } else {
                 result->addToHead(*element);
             }
@@ -309,11 +313,9 @@ void GrReduceClipStack(const SkClipStack& stack,
                         *initialState = kAllOut_InitialState;
                     } else {
                         // this picks up flips inserted in the backwards pass.
-                        if (*resultsAreBounded) {
-                            skippable = element->isInverseFilled() ?
-                                !SkRect::Intersects(element->getBounds(), *resultBounds) :
-                                element->contains(*resultBounds);
-                        }
+                        skippable = element->isInverseFilled() ?
+                            !SkRect::Intersects(element->getBounds(), queryBounds) :
+                            element->contains(queryBounds);
                         if (skippable) {
                             *initialState = kAllIn_InitialState;
                         } else {

@@ -659,13 +659,17 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
             }
         }
 
+        SkRect inflatedBounds = kBounds;
+        inflatedBounds.outset(kBounds.width() / 2, kBounds.height() / 2);
+        SkIRect inflatedIBounds;
+        inflatedBounds.roundOut(&inflatedIBounds);
+
         typedef GrReducedClip::ElementList ElementList;
         // Get the reduced version of the stack.
         ElementList reducedClips;
-        SkRect resultBounds;
-        bool bounded;
+
         GrReducedClip::InitialState initial;
-        GrReducedClip::GrReduceClipStack(stack, &reducedClips, &resultBounds, &bounded, &initial);
+        GrReducedClip::GrReduceClipStack(stack, inflatedBounds, &reducedClips, &initial);
 
         // Build a new clip stack based on the reduced clip elements
         SkClipStack reducedStack;
@@ -676,17 +680,8 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         for (ElementList::Iter iter = reducedClips.headIter(); NULL != iter.get(); iter.next()) {
             add_elem_to_stack(*iter.get(), &reducedStack);
         }
-        if (bounded) {
-            // GrReduceClipStack() assumes that there is an implicit clip to the bounds
-            reducedStack.clipDevRect(resultBounds, SkRegion::kIntersect_Op, true);
-        }
 
         // convert both the original stack and reduced stack to SkRegions and see if they're equal
-        SkRect inflatedBounds = kBounds;
-        inflatedBounds.outset(kBounds.width() / 2, kBounds.height() / 2);
-        SkIRect inflatedIBounds;
-        inflatedBounds.roundOut(&inflatedIBounds);
-
         SkRegion region;
         SkRegion reducedRegion;
 
