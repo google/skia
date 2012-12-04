@@ -360,3 +360,4 @@ void *operator new(size_t, SkTLList<T>* list,
 
 #define SkNEW_INSERT_AT_LLIST_TAIL(list, type_name, args) \
     SkNEW_INSERT_IN_LLIST_AFTER((list), (list)->tailIter(), type_name, args)
+
