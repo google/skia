@@ -154,7 +154,6 @@ static void test_gatherpixelrefs(skiatest::Reporter* reporter) {
 
     static const int N = 4;
     SkBitmap bm[N];
-    SkPMColor pmcolors[N];
     SkPixelRef* refs[N];
 
     const SkPoint pos[] = {
@@ -306,10 +305,30 @@ static void test_peephole(skiatest::Reporter* reporter) {
     }
 }
 
+#ifndef SK_DEBUG
+// Only test this is in release mode. We deliberately crash in debug mode, since a valid caller
+// should never do this.
+static void test_bad_bitmap() {
+    // This bitmap has a width and height but no pixels. As a result, attempting to record it will
+    // fail.
+    SkBitmap bm;
+    bm.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
+    SkPicture picture;
+    SkCanvas* recordingCanvas = picture.beginRecording(100, 100);
+    recordingCanvas->drawBitmap(bm, 0, 0);
+    picture.endRecording();
+
+    SkCanvas canvas;
+    canvas.drawPicture(picture);
+}
+#endif
+
 static void TestPicture(skiatest::Reporter* reporter) {
 #ifdef SK_DEBUG
     test_deleting_empty_playback();
     test_serializing_empty_picture();
+#else
+    test_bad_bitmap();
 #endif
     test_peephole(reporter);
     test_gatherpixelrefs(reporter);
