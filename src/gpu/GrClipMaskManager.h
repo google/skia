@@ -19,6 +19,7 @@
 #include "SkDeque.h"
 #include "SkPath.h"
 #include "SkRefCnt.h"
+#include "SkTLList.h"
 
 #include "GrClipMaskCache.h"
 
@@ -125,7 +126,7 @@ private:
     bool useSWOnlyPath(const SkClipStack& clipIn);
 
     bool drawClipShape(GrTexture* target,
-                       const SkClipStack::Iter::Clip* clip,
+                       const SkClipStack::Element* element,
                        const GrIRect& resultBounds);
 
     void mergeMask(GrTexture* dstMask,
@@ -157,8 +158,9 @@ private:
     typedef GrNoncopyable INHERITED;
 };
 
-
 namespace GrReducedClip {
+
+typedef SkTLList<SkClipStack::Element> ElementList;
 
 enum InitialState {
     kAllIn_InitialState,
@@ -175,7 +177,7 @@ enum InitialState {
  *  may become a member function of SkClipStack when its interface is determined to be stable.
  */
 void GrReduceClipStack(const SkClipStack& stack,
-                       SkTDArray<SkClipStack::Iter::Clip>* resultClips,
+                       ElementList* result,
                        SkRect* resultBounds,
                        bool* resultsAreBounded,
                        InitialState* initialState);

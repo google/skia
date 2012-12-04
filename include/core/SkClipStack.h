@@ -58,6 +58,30 @@ public:
             this->initPath(0, path, op, doAA);
         }
 
+        bool operator== (const Element& element) const {
+            if (this == &element) {
+                return true;
+            }
+            if (fOp != element.fOp ||
+                fType != element.fType ||
+                fDoAA != element.fDoAA ||
+                fSaveCount != element.fSaveCount) {
+                return false;
+            }
+            switch (fType) {
+                case kPath_Type:
+                    return fPath == element.fPath;
+                case kRect_Type:
+                    return fRect == element.fRect;
+                case kEmpty_Type:
+                    return true;
+                default:
+                    SkDEBUGFAIL("Unexpected type.");
+                    return false;
+            }
+        }
+        bool operator!= (const Element& element) const { return !(*this == element); }
+
         //!< Call to get the type of the clip element.
         Type getType() const { return fType; }
 
@@ -74,12 +98,58 @@ public:
             when it is rasterized. */
         bool isAA() const { return fDoAA; }
 
+        void setOp(SkRegion::Op op) { fOp = op; }
+
         /** The GenID can be used by clip stack clients to cache representations of the clip. The
             ID corresponds to the set of clip elements up to and including this element within the
             stack not to the element itself. That is the same clip path in different stacks will
             have a different ID since the elements produce different clip result in the context of
             their stacks. */
         int32_t getGenID() const { return fGenID; }
+
+        /**
+         * Gets the bounds of the clip element, either the rect or path bounds. (Whether the shape
+         * is inverse filled is not considered.)
+         */
+        const SkRect& getBounds() const {
+            static const SkRect kEmpty = { 0, 0, 0, 0 };
+            switch (fType) {
+                case kRect_Type:
+                    return fRect;
+                case kPath_Type:
+                    return fPath.getBounds();
+                case kEmpty_Type:
+                    return kEmpty;
+                default:
+                    SkDEBUGFAIL("Unexpected type.");
+                    return kEmpty;
+            }
+        }
+
+        /**
+         * Conservatively checks whether the clip shape contains the rect param. (Whether the shape
+         * is inverse filled is not considered.)
+         */
+        bool contains(const SkRect& rect) const {
+            switch (fType) {
+                case kRect_Type:
+                    return fRect.contains(rect);
+                case kPath_Type:
+                    return fPath.conservativelyContainsRect(rect);
+                case kEmpty_Type:
+                    return false;
+                default:
+                    SkDEBUGFAIL("Unexpected type.");
+                    return false;
+            }
+        }
+
+        /**
+         * Is the clip shape inverse filled.
+         */
+        bool isInverseFilled() const {
+            return kPath_Type == fType && fPath.isInverseFillType();
+        }
 
     private:
         friend class SkClipStack;
@@ -159,8 +229,6 @@ public:
 
         // All Element methods below are only used within SkClipStack.cpp
         inline void checkEmpty() const;
-        inline bool operator==(const Element& b) const;
-        inline bool operator!=(const Element& b) const;
         inline bool canBeIntersectedInPlace(int saveCount, SkRegion::Op op) const;
         /* This method checks to see if two rect clips can be safely merged into one. The issue here
           is that to be strictly correct all the edges of the resulting rect must have the same
@@ -276,53 +344,18 @@ public:
 
         Iter(const SkClipStack& stack, IterStart startLoc);
 
-        struct Clip {
-            Clip() : fRect(NULL), fPath(NULL), fOp(SkRegion::kIntersect_Op),
-                     fDoAA(false), fGenID(kInvalidGenID) {}
-            friend bool operator==(const Clip& a, const Clip& b);
-            friend bool operator!=(const Clip& a, const Clip& b);
-            /**
-             * Gets the bounds of the clip element, either the rect or path bounds. (Whether the
-             * shape is inverse filled is not considered)
-             */
-            const SkRect& getBounds() const;
-
-            /**
-             * Conservatively checks whether the clip shape (rect/path) contains the rect param.
-             * (Whether the shape is inverse filled is not considered)
-             */
-            bool contains(const SkRect&) const;
-
-            /**
-             * Is the clip shape inverse filled.
-             */
-            bool isInverseFilled() const;
-
-            const SkRect*   fRect;  // if non-null, this is a rect clip
-            const SkPath*   fPath;  // if non-null, this is a path clip
-            SkRegion::Op    fOp;
-            bool            fDoAA;
-            int32_t         fGenID;
-        };
+        /**
+         *  Return the clip element for this iterator. If next()/prev() returns NULL, then the
+         *  iterator is done.
+         */
+        const Element* next();
+        const Element* prev();
 
         /**
-         *  Return the clip for this element in the iterator. If next() returns
-         *  NULL, then the iterator is done. The type of clip is determined by
-         *  the pointers fRect and fPath:
-         *
-         *  fRect==NULL  fPath!=NULL    path clip
-         *  fRect!=NULL  fPath==NULL    rect clip
-         *  fRect==NULL  fPath==NULL    empty clip
+         * Moves the iterator to the topmost element with the specified RegionOp and returns that
+         * element. If no clip element with that op is found, the first element is returned.
          */
-        const Clip* next();
-        const Clip* prev();
-
-        /**
-         * Moves the iterator to the topmost clip with the specified RegionOp
-         * and returns that clip. If no clip with that op is found,
-         * returns NULL.
-         */
-        const Clip* skipToTopmost(SkRegion::Op op);
+        const Element* skipToTopmost(SkRegion::Op op);
 
         /**
          * Restarts the iterator on a clip stack.
@@ -331,13 +364,7 @@ public:
 
     private:
         const SkClipStack* fStack;
-        Clip               fClip;
         SkDeque::Iter      fIter;
-        /**
-         * updateClip updates fClip to the current state of fIter. It unifies
-         * functionality needed by both next() and prev().
-         */
-        const Clip* updateClip(const SkClipStack::Element* element);
     };
 
     /**
@@ -356,7 +383,6 @@ public:
         : INHERITED(stack, kBottom_IterStart) {
         }
 
-        using Iter::Clip;
         using Iter::next;
 
         /**

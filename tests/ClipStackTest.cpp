@@ -152,13 +152,14 @@ static void test_iterators(skiatest::Reporter* reporter) {
 
     // bottom to top iteration
     {
-        const SkClipStack::B2TIter::Clip* clip = NULL;
+        const SkClipStack::Element* element = NULL;
 
         SkClipStack::B2TIter iter(stack);
         int i;
 
-        for (i = 0, clip = iter.next(); clip; ++i, clip = iter.next()) {
-            REPORTER_ASSERT(reporter, *clip->fRect == gRects[i]);
+        for (i = 0, element = iter.next(); element; ++i, element = iter.next()) {
+            REPORTER_ASSERT(reporter, SkClipStack::Element::kRect_Type == element->getType());
+            REPORTER_ASSERT(reporter, element->getRect() == gRects[i]);
         }
 
         SkASSERT(i == 4);
@@ -166,13 +167,14 @@ static void test_iterators(skiatest::Reporter* reporter) {
 
     // top to bottom iteration
     {
-        const SkClipStack::Iter::Clip* clip = NULL;
+        const SkClipStack::Element* element = NULL;
 
         SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
         int i;
 
-        for (i = 3, clip = iter.prev(); clip; --i, clip = iter.prev()) {
-            REPORTER_ASSERT(reporter, *clip->fRect == gRects[i]);
+        for (i = 3, element = iter.prev(); element; --i, element = iter.prev()) {
+            REPORTER_ASSERT(reporter, SkClipStack::Element::kRect_Type == element->getType());
+            REPORTER_ASSERT(reporter, element->getRect() == gRects[i]);
         }
 
         SkASSERT(i == -1);
@@ -180,12 +182,13 @@ static void test_iterators(skiatest::Reporter* reporter) {
 
     // skipToTopmost
     {
-        const SkClipStack::Iter::Clip*clip = NULL;
+        const SkClipStack::Element* element = NULL;
 
         SkClipStack::Iter iter(stack, SkClipStack::Iter::kBottom_IterStart);
 
-        clip = iter.skipToTopmost(SkRegion::kUnion_Op);
-        REPORTER_ASSERT(reporter, *clip->fRect == gRects[3]);
+        element = iter.skipToTopmost(SkRegion::kUnion_Op);
+        REPORTER_ASSERT(reporter, SkClipStack::Element::kRect_Type == element->getType());
+        REPORTER_ASSERT(reporter, element->getRect() == gRects[3]);
     }
 }
 
@@ -362,10 +365,10 @@ static int count(const SkClipStack& stack) {
 
     SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
 
-    const SkClipStack::Iter::Clip* clip = NULL;
+    const SkClipStack::Element* element = NULL;
     int count = 0;
 
-    for (clip = iter.prev(); clip; clip = iter.prev(), ++count) {
+    for (element = iter.prev(); element; element = iter.prev(), ++count) {
         ;
     }
 
@@ -520,36 +523,47 @@ static void add_oval(const SkRect& rect, bool invert, SkRegion::Op op, SkClipSta
     stack->clipDevPath(path, op, false);
 };
 
-static void add_elem_to_stack(const SkClipStack::Iter::Clip& clip, SkClipStack* stack) {
-    if (NULL != clip.fPath) {
-        stack->clipDevPath(*clip.fPath, clip.fOp, clip.fDoAA);
-    } else if (NULL != clip.fRect) {
-        stack->clipDevRect(*clip.fRect, clip.fOp, clip.fDoAA);
+static void add_elem_to_stack(const SkClipStack::Element& element, SkClipStack* stack) {
+    switch (element.getType()) {
+        case SkClipStack::Element::kRect_Type:
+            stack->clipDevRect(element.getRect(), element.getOp(), element.isAA());
+            break;
+        case SkClipStack::Element::kPath_Type:
+            stack->clipDevPath(element.getPath(), element.getOp(), element.isAA());
+            break;
+        case SkClipStack::Element::kEmpty_Type:
+            SkDEBUGFAIL("Why did the reducer produce an explicit empty.");
+            stack->clipEmpty();
+            break;
     }
 }
 
-static void add_elem_to_region(const SkClipStack::Iter::Clip& clip,
+static void add_elem_to_region(const SkClipStack::Element& element,
                                const SkIRect& bounds,
                                SkRegion* region) {
     SkRegion elemRegion;
     SkRegion boundsRgn(bounds);
 
-    if (NULL != clip.fPath) {
-        elemRegion.setPath(*clip.fPath, boundsRgn);
-    } else if (NULL != clip.fRect) {
-        SkPath path;
-        path.addRect(*clip.fRect);
-        elemRegion.setPath(path, boundsRgn);
-    } else {
-        // TODO: Figure out why we sometimes get here in the reduced clip stack.
-        region->setEmpty();
-        return;
+    switch (element.getType()) {
+        case SkClipStack::Element::kRect_Type: {
+            SkPath path;
+            path.addRect(element.getRect());
+            elemRegion.setPath(path, boundsRgn);
+            break;
+        }
+        case SkClipStack::Element::kPath_Type:
+            elemRegion.setPath(element.getPath(), boundsRgn);
+            break;
+        case SkClipStack::Element::kEmpty_Type:
+            // 
+            region->setEmpty();
+            return;
     }
-    region->op(elemRegion, clip.fOp);
+    region->op(elemRegion, element.getOp());
 }
 
 // This can assist with debugging the clip stack reduction code when the test below fails.
-static void print_clip(const SkClipStack::Iter::Clip& clip) {
+static void print_clip(const SkClipStack::Element& element) {
     static const char* kOpStrs[] = {
         "DF",
         "IS",
@@ -558,12 +572,13 @@ static void print_clip(const SkClipStack::Iter::Clip& clip) {
         "RD",
         "RP",
     };
-    if (NULL != clip.fRect || NULL != clip.fPath) {
-        const SkRect& bounds = clip.getBounds();
+    if (SkClipStack::Element::kEmpty_Type != element.getType()) {
+        const SkRect& bounds = element.getBounds();
+        bool isRect = SkClipStack::Element::kRect_Type == element.getType();
         SkDebugf("%s %s %s [%f %f] x [%f %f]\n",
-                 kOpStrs[clip.fOp],
-                 (NULL != clip.fRect ? "R" : "P"),
-                 ((NULL != clip.fPath && clip.fPath->isInverseFillType() ? "I" : " ")),
+                 kOpStrs[element.getOp()],
+                 (isRect ? "R" : "P"),
+                 (element.isInverseFilled() ? "I" : " "),
                  bounds.fLeft, bounds.fRight, bounds.fTop, bounds.fBottom);
     } else {
         SkDebugf("EM\n");
@@ -644,8 +659,9 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
             }
         }
 
+        typedef GrReducedClip::ElementList ElementList;
         // Get the reduced version of the stack.
-        SkTDArray<SkClipStack::Iter::Clip> reducedClips;
+        ElementList reducedClips;
         SkRect resultBounds;
         bool bounded;
         GrReducedClip::InitialState initial;
@@ -657,8 +673,8 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
             // whether the result is bounded or not, the whole plane should start outside the clip.
             reducedStack.clipEmpty();
         }
-        for (int c = 0; c < reducedClips.count(); ++c) {
-            add_elem_to_stack(reducedClips[c], &reducedStack);
+        for (ElementList::Iter iter = reducedClips.headIter(); NULL != iter.get(); iter.next()) {
+            add_elem_to_stack(*iter.get(), &reducedStack);
         }
         if (bounded) {
             // GrReduceClipStack() assumes that there is an implicit clip to the bounds
@@ -675,16 +691,16 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         SkRegion reducedRegion;
 
         region.setRect(inflatedIBounds);
-        const SkClipStack::Iter::Clip* clip;
+        const SkClipStack::Element* element;
         SkClipStack::Iter iter(stack, SkClipStack::Iter::kBottom_IterStart);
-        while ((clip = iter.next())) {
-            add_elem_to_region(*clip, inflatedIBounds, &region);
+        while ((element = iter.next())) {
+            add_elem_to_region(*element, inflatedIBounds, &region);
         }
 
         reducedRegion.setRect(inflatedIBounds);
         iter.reset(reducedStack, SkClipStack::Iter::kBottom_IterStart);
-        while ((clip = iter.next())) {
-            add_elem_to_region(*clip, inflatedIBounds, &reducedRegion);
+        while ((element = iter.next())) {
+            add_elem_to_region(*element, inflatedIBounds, &reducedRegion);
         }
 
         REPORTER_ASSERT(reporter, region == reducedRegion);
@@ -712,15 +728,14 @@ static void TestClipStack(skiatest::Reporter* reporter) {
 
     // all of the above rects should have been intersected, leaving only 1 rect
     SkClipStack::B2TIter iter(stack);
-    const SkClipStack::B2TIter::Clip* clip = iter.next();
+    const SkClipStack::Element* element = iter.next();
     SkRect answer;
     answer.iset(25, 25, 75, 75);
 
-    REPORTER_ASSERT(reporter, clip);
-    REPORTER_ASSERT(reporter, clip->fRect);
-    REPORTER_ASSERT(reporter, !clip->fPath);
-    REPORTER_ASSERT(reporter, SkRegion::kIntersect_Op == clip->fOp);
-    REPORTER_ASSERT(reporter, *clip->fRect == answer);
+    REPORTER_ASSERT(reporter, NULL != element);
+    REPORTER_ASSERT(reporter, SkClipStack::Element::kRect_Type == element->getType());
+    REPORTER_ASSERT(reporter, SkRegion::kIntersect_Op == element->getOp());
+    REPORTER_ASSERT(reporter, element->getRect() == answer);
     // now check that we only had one in our iterator
     REPORTER_ASSERT(reporter, !iter.next());
 
