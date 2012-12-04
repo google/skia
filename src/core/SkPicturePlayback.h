@@ -93,7 +93,11 @@ private:
     };
 
     const SkBitmap& getBitmap(SkReader32& reader) {
-        int index = reader.readInt();
+        const int index = reader.readInt();
+        if (SkBitmapHeap::INVALID_SLOT == index) {
+            SkDebugf("An invalid bitmap was recorded!\n");
+            return fBadBitmap;
+        }
         return (*fBitmaps)[index];
     }
 
@@ -190,6 +194,10 @@ private:    // these help us with reading/writing
     void flattenToBuffer(SkOrderedWriteBuffer&) const;
 
 private:
+    // Only used by getBitmap() if the passed in index is SkBitmapHeap::INVALID_SLOT. This empty
+    // bitmap allows playback to draw nothing and move on.
+    SkBitmap fBadBitmap;
+
     SkAutoTUnref<SkBitmapHeap> fBitmapHeap;
     SkAutoTUnref<SkPathHeap> fPathHeap;
 

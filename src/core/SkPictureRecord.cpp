@@ -657,7 +657,12 @@ void SkPictureRecord::drawData(const void* data, size_t length) {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkPictureRecord::addBitmap(const SkBitmap& bitmap) {
-    addInt(fBitmapHeap->insert(bitmap));
+    const int index = fBitmapHeap->insert(bitmap);
+    // In debug builds, a bad return value from insert() will crash, allowing for debugging. In
+    // release builds, the invalid value will be recorded so that the reader will know that there
+    // was a problem.
+    SkASSERT(index != SkBitmapHeap::INVALID_SLOT);
+    addInt(index);
 }
 
 void SkPictureRecord::addMatrix(const SkMatrix& matrix) {
