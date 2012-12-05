@@ -26,7 +26,7 @@ public:
 
 protected:
     virtual SkISize onISize() {
-        return SkISize::Make(960, 480);
+        return SkISize::Make(770, 770);
     }
 
     virtual SkString onShortName() SK_OVERRIDE {
@@ -58,39 +58,43 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        canvas->translate(8, 8);
+        canvas->translate(8.5f, 8.5f);
 
-        const SkRect rect = { 0, 0, 100, 100 };
+        const SkRect rect = { 0, 0, 80, 80 };
         const SkScalar RAD = rect.width()/8;
 
         int i = 0;
-        for (int doEvenOdd = 0; doEvenOdd <= 1; ++doEvenOdd) {
-            for (int outerRR = 0; outerRR <= 1; ++outerRR) {
-                for (int innerRR = 0; innerRR <= 1; ++innerRR) {
-                    for (int outerCW = 0; outerCW <= 1; ++outerCW) {
-                        for (int innerCW = 0; innerCW <= 1; ++innerCW) {
-                            SkPath path;
-                            path.setFillType(doEvenOdd ? SkPath::kEvenOdd_FillType : SkPath::kWinding_FillType);
-                            SkPath::Direction outerDir = outerCW ? SkPath::kCW_Direction : SkPath::kCCW_Direction;
-                            SkPath::Direction innerDir = innerCW ? SkPath::kCW_Direction : SkPath::kCCW_Direction;
-                            if (outerRR) {
-                                path.addRoundRect(rect, RAD, RAD, outerDir);
-                            } else {
-                                path.addRect(rect, outerDir);
-                            }
-                            SkRect inner = inset(rect);
-                            if (innerRR) {
-                                path.addRoundRect(inner, RAD, RAD, innerDir);
-                            } else {
-                                path.addRect(inner, innerDir);
-                            }
+        for (int insetFirst = 0; insetFirst <= 1; ++insetFirst) {
+            for (int doEvenOdd = 0; doEvenOdd <= 1; ++doEvenOdd) {
+                for (int outerRR = 0; outerRR <= 1; ++outerRR) {
+                    for (int innerRR = 0; innerRR <= 1; ++innerRR) {
+                        for (int outerCW = 0; outerCW <= 1; ++outerCW) {
+                            for (int innerCW = 0; innerCW <= 1; ++innerCW) {
+                                SkPath path;
+                                path.setFillType(doEvenOdd ? SkPath::kEvenOdd_FillType : SkPath::kWinding_FillType);
+                                SkPath::Direction outerDir = outerCW ? SkPath::kCW_Direction : SkPath::kCCW_Direction;
+                                SkPath::Direction innerDir = innerCW ? SkPath::kCW_Direction : SkPath::kCCW_Direction;
+                                
+                                SkRect r = insetFirst ? inset(rect) : rect;
+                                if (outerRR) {
+                                    path.addRoundRect(r, RAD, RAD, outerDir);
+                                } else {
+                                    path.addRect(r, outerDir);
+                                }
+                                r = insetFirst ? rect : inset(rect);
+                                if (innerRR) {
+                                    path.addRoundRect(r, RAD, RAD, innerDir);
+                                } else {
+                                    path.addRect(r, innerDir);
+                                }
 
-                            SkScalar dx = (i / 4) * rect.width() * 6 / 5;
-                            SkScalar dy = (i % 4) * rect.height() * 6 / 5;
-                            i++;
-                            path.offset(dx, dy);
-
-                            this->show(canvas, path);
+                                SkScalar dx = (i / 8) * rect.width() * 6 / 5;
+                                SkScalar dy = (i % 8) * rect.height() * 6 / 5;
+                                i++;
+                                path.offset(dx, dy);
+                                
+                                this->show(canvas, path);
+                            }
                         }
                     }
                 }
