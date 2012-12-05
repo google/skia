@@ -106,6 +106,13 @@ SkString* SkObjectParser::PaintToString(const SkPaint& paint) {
 SkString* SkObjectParser::PathToString(const SkPath& path) {
     SkString* mPath = new SkString("Path (");
 
+    static const char* gFillStrings[] = {
+        "Winding", "EvenOdd", "InverseWinding", "InverseEvenOdd"
+    };
+
+    mPath->append(gFillStrings[path.getFillType()]);
+    mPath->append(", ");
+
     static const char* gConvexityStrings[] = {
         "Unknown", "Convex", "Concave"
     };
