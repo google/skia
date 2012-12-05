@@ -1,1 +1,1 @@
-out/Debug/gm --hierarchy --match dashing2 --config 4444 -r gm/tests/inputs/identical-bytes -w gm/tests/outputs/compared-against-identical-bytes/output-actual/images
+out/Debug/gm --hierarchy --match dashing2 --config 8888 -r gm/tests/inputs/identical-bytes -w gm/tests/outputs/compared-against-identical-bytes/output-actual/images
