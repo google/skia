@@ -43,6 +43,7 @@
         '../include/utils/SkParse.h',
         '../include/utils/SkParsePaint.h',
         '../include/utils/SkParsePath.h',
+        '../include/utils/SkPictureUtils.h',
         '../include/utils/SkProxyCanvas.h',
         '../include/utils/SkUnitMappers.h',
         '../include/utils/SkWGL.h',
