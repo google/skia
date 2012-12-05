@@ -13,7 +13,7 @@
 class SkData;
 struct SkRect;
 
-class SkPictureUtils {
+class SK_API SkPictureUtils {
 public:
     /**
      *  Given a rectangular visible "window" into the picture, return an array
