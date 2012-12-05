@@ -28,7 +28,31 @@
       'target_name': 'skdiff',
       'type': 'executable',
       'sources': [
+        '../tools/skdiff.cpp',
+        '../tools/skdiff.h',
+        '../tools/skdiff_html.cpp',
+        '../tools/skdiff_html.h',
         '../tools/skdiff_main.cpp',
+        '../tools/skdiff_utils.cpp',
+        '../tools/skdiff_utils.h',
+      ],
+      'dependencies': [
+        'skia_base_libs.gyp:skia_base_libs',
+        'effects.gyp:effects',
+        'images.gyp:images',
+      ],
+    },
+    {
+      'target_name': 'skimagediff',
+      'type': 'executable',
+      'sources': [
+        '../tools/skdiff.cpp',
+        '../tools/skdiff.h',
+        '../tools/skdiff_html.cpp',
+        '../tools/skdiff_html.h',
+        '../tools/skdiff_image.cpp',
+        '../tools/skdiff_utils.cpp',
+        '../tools/skdiff_utils.h',
       ],
       'dependencies': [
         'skia_base_libs.gyp:skia_base_libs',

@@ -7,9 +7,7 @@ compared 2 file pairs:
 [_] 0 file pairs contain the same pixel values, but not the same bits
 [_] 0 file pairs have identical dimensions but some differing pixels
 [_] 0 file pairs have differing dimensions
-[_] 0 file pairs contain different bits and are not parsable images
-[_] 0 file pairs missing from comparisonDir
-[_] 0 file pairs missing from baseDir
+[_] 0 file pairs could not be compared
 [_] 0 file pairs not compared yet
 (results marked with [*] will cause nonzero return value)
 
