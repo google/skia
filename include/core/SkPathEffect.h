@@ -141,12 +141,16 @@ public:
     class PointData {
     public:
         PointData()
-            : fFlags(0) {
+            : fFlags(0)
+            , fPoints(NULL)
+            , fNumPoints(0) {
             fSize.set(SK_Scalar1, SK_Scalar1);
             // 'asPoints' needs to initialize/fill-in 'fClipRect' if it sets
             // the kUseClip flag
         };
-        ~PointData() {};
+        ~PointData() {
+            delete [] fPoints;
+        }
 
         // TODO: consider using passed-in flags to limit the work asPoints does.
         // For example, a kNoPath flag could indicate don't bother generating
@@ -161,7 +165,8 @@ public:
 
         uint32_t           fFlags;      // flags that impact the drawing of the points
         // TODO: consider replacing the TDArray with either SkData or a ptr/len field
-        SkTDArray<SkPoint> fPoints;     // the center point of each generated point
+        SkPoint*           fPoints;     // the center point of each generated point
+        int                fNumPoints;  // number of points in fPoints
         SkVector           fSize;       // the size to draw the points
         SkRect             fClipRect;   // clip required to draw the points (if kUseClip is set)
         SkPath             fPath;       // 'stamp' to be used at each point (if kUsePath is set)

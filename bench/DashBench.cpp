@@ -220,7 +220,6 @@ private:
  */
 class DashLineBench : public SkBenchmark {
     SkString fName;
-    SkPath   fPath;
     SkScalar fStrokeWidth;
     bool     fIsRound;
     SkAutoTUnref<SkPathEffect> fPE;
@@ -260,6 +259,58 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
+class DrawPointsDashingBench : public SkBenchmark {
+    SkString fName;
+    int      fStrokeWidth;
+    bool     fdoAA;
+
+    SkAutoTUnref<SkPathEffect> fPathEffect;
+
+    enum {
+        N = SkBENCHLOOP(480)
+    };
+
+public:
+    DrawPointsDashingBench(void* param, int dashLength, int strokeWidth, bool doAA) 
+        : INHERITED(param) {
+        fName.printf("drawpointsdash_%d_%d%s", dashLength, strokeWidth, doAA ? "_aa" : "_bw");
+        fStrokeWidth = strokeWidth;
+        fdoAA = doAA;
+
+        SkScalar vals[] = { SkIntToScalar(dashLength), SkIntToScalar(dashLength) };
+        fPathEffect.reset(new SkDashPathEffect(vals, 2, SK_Scalar1, false));
+    }
+
+protected:
+    virtual const char* onGetName() SK_OVERRIDE {
+        return fName.c_str();
+    }
+
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+
+        SkPaint p;
+        this->setupPaint(&p);
+        p.setColor(SK_ColorBLACK);
+        p.setStyle(SkPaint::kStroke_Style);
+        p.setStrokeWidth(SkIntToScalar(fStrokeWidth));
+        p.setPathEffect(fPathEffect);
+        p.setAntiAlias(fdoAA);
+
+        SkPoint pts[2] = {
+            { SkIntToScalar(10), 0 },
+            { SkIntToScalar(640), 0 }
+        };
+
+        for (int i = 0; i < N; ++i) {
+
+            pts[0].fY = pts[1].fY = SkIntToScalar(i % 480);
+            canvas->drawPoints(SkCanvas::kLines_PointMode, 2, pts, p);
+        }
+    }
+
+private:
+    typedef SkBenchmark INHERITED;
+};
 ///////////////////////////////////////////////////////////////////////////////
 
 static const SkScalar gDots[] = { SK_Scalar1, SK_Scalar1 };
@@ -280,6 +331,13 @@ static SkBenchmark* gF701(void* p) { return new DashLineBench(p, 0, true); }
 static SkBenchmark* gF711(void* p) { return new DashLineBench(p, SK_Scalar1, true); }
 static SkBenchmark* gF721(void* p) { return new DashLineBench(p, 2 * SK_Scalar1, true); }
 
+static SkBenchmark* gF8(void* p) { return new DrawPointsDashingBench(p, 1, 1, false); }
+static SkBenchmark* gF9(void* p) { return new DrawPointsDashingBench(p, 1, 1, true); }
+static SkBenchmark* gF10(void* p) { return new DrawPointsDashingBench(p, 3, 1, false); }
+static SkBenchmark* gF11(void* p) { return new DrawPointsDashingBench(p, 3, 1, true); }
+static SkBenchmark* gF12(void* p) { return new DrawPointsDashingBench(p, 5, 5, false); }
+static SkBenchmark* gF13(void* p) { return new DrawPointsDashingBench(p, 5, 5, true); }
+
 static BenchRegistry gR0(gF0);
 static BenchRegistry gR1(gF1);
 static BenchRegistry gR2(gF2);
@@ -293,3 +351,10 @@ static BenchRegistry gR720(gF720);
 static BenchRegistry gR701(gF701);
 static BenchRegistry gR711(gF711);
 static BenchRegistry gR721(gF721);
+
+static BenchRegistry gR8(gF8);
+static BenchRegistry gR9(gF9);
+static BenchRegistry gR10(gF10);
+static BenchRegistry gR11(gF11);
+static BenchRegistry gR12(gF12);
+static BenchRegistry gR13(gF13);

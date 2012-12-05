@@ -281,11 +281,13 @@ bool SkDashPathEffect::asPoints(PointData* results,
 
         tangent.scale(SkScalarInvert(length));
 
-        SkScalar ptCount = SkScalarDiv(length, SkIntToScalar(2));
-        results->fPoints.setReserve(SkScalarCeilToInt(ptCount));
+        SkScalar ptCount = SkScalarDiv(length-1, SkIntToScalar(2));
+        results->fNumPoints = SkScalarCeilToInt(ptCount);
+        results->fPoints = new SkPoint[results->fNumPoints];
 
         // +1 b.c. fInitialDashLength is zero so the initial segment will be skipped
         int index = fInitialDashIndex+1;
+        int iCurPt = 0;
 
         for (SkScalar distance = SK_ScalarHalf; distance < length; distance += SK_Scalar1) {
             SkASSERT(index <= fCount);
@@ -293,11 +295,15 @@ bool SkDashPathEffect::asPoints(PointData* results,
             if (0 == index) {
                 SkScalar x0 = pts[0].fX + SkScalarMul(tangent.fX, distance);
                 SkScalar y0 = pts[0].fY + SkScalarMul(tangent.fY, distance);
-                results->fPoints.append()->set(x0, y0);
+                SkASSERT(iCurPt < results->fNumPoints);
+                results->fPoints[iCurPt].set(x0, y0);
+                ++iCurPt;
             }
 
             index ^= 1; // 0 -> 1 -> 0 ...
         }
+
+        SkASSERT(iCurPt == results->fNumPoints);
     }
 
     return true;
