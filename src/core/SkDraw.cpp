@@ -672,18 +672,26 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                         !(SkPathEffect::PointData::kUsePath_PointFlag & dst.fFlags)) {
                         SkPaint newP(paint);
                         newP.setPathEffect(NULL);
+                        newP.setStyle(SkPaint::kFill_Style);
 
                         if (SkPathEffect::PointData::kCircles_PointFlag & dst.fFlags) {
                             newP.setStrokeCap(SkPaint::kRound_Cap);
                         } else {
                             newP.setStrokeCap(SkPaint::kButt_Cap);
                         }
-
-                        this->drawPoints(SkCanvas::kPoints_PointMode,
-                                         dst.fPoints.count(),
-                                         dst.fPoints.begin(),
-                                         newP,
-                                         forceUseDevice);
+                        if (fDevice) {
+                            fDevice->drawPoints(*this, 
+                                                SkCanvas::kPoints_PointMode,
+                                                dst.fNumPoints,
+                                                dst.fPoints,
+                                                newP);
+                        } else {
+                            this->drawPoints(SkCanvas::kPoints_PointMode,
+                                             dst.fNumPoints,
+                                             dst.fPoints,
+                                             newP,
+                                             forceUseDevice);
+                        }
                         break;
                     }
                 }
