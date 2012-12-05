@@ -349,6 +349,17 @@ void *operator new(size_t, SkTLList<T>* list,
     }
 }
 
+// Skia doesn't use C++ exceptions but it may be compiled with them enabled. Having an op delete
+// to match the op new silences warnings about missing op delete when a constructor throws an
+// exception.
+template <typename T>
+void operator delete(void*,
+                     SkTLList<T>*,
+                     typename SkTLList<T>::Placement,
+                     const typename SkTLList<T>::Iter&) {
+    SK_CRASH();
+}
+
 #define SkNEW_INSERT_IN_LLIST_BEFORE(list, location, type_name, args) \
     (new ((list), SkTLList< type_name >::kBefore_Placement, (location)) type_name args)
 
