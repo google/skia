@@ -49,7 +49,7 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setColor(SK_ColorRED);
         canvas->drawPath(path, paint);
-        
+
         if (hasInterior) {
             paint.setStyle(SkPaint::kFill_Style);
             paint.setColor(0x8800FF00);
@@ -89,7 +89,7 @@ protected:
                             SkScalar dy = (i % 4) * rect.height() * 6 / 5;
                             i++;
                             path.offset(dx, dy);
-                            
+
                             this->show(canvas, path);
                         }
                     }

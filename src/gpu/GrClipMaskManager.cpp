@@ -280,7 +280,7 @@ void GrReduceClipStack(const SkClipStack& stack,
     } else {
         int clipsToSkip = 0;
         Element* element = result->headIter().get();
-        while (NULL != element) {            
+        while (NULL != element) {
             bool skippable = false;
             switch (element->getOp()) {
                 case SkRegion::kDifference_Op:
