@@ -555,7 +555,7 @@ static void add_elem_to_region(const SkClipStack::Element& element,
             elemRegion.setPath(element.getPath(), boundsRgn);
             break;
         case SkClipStack::Element::kEmpty_Type:
-            // 
+            //
             region->setEmpty();
             return;
     }

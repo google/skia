@@ -168,7 +168,7 @@ enum InitialState {
 };
 
 /**
- * This function takes a clip stack and a query rectangle and it produces a reduced set of 
+ * This function takes a clip stack and a query rectangle and it produces a reduced set of
  * SkClipStack::Elements that are equivalent to applying the full stack to the rectangle. The
  * initial state of the query rectangle before the first clip element is applied is returned via
  * initialState. This function is declared here so that it can be unit-tested. It may become a

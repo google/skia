@@ -185,8 +185,8 @@ protected:
 
     // Draw a 100x100 block of dashed lines. The horizontal ones are BW
     // while the vertical ones are AA.
-    void drawDashedLines(SkCanvas* canvas, 
-                         SkScalar lineLength, 
+    void drawDashedLines(SkCanvas* canvas,
+                         SkScalar lineLength,
                          SkScalar phase,
                          SkScalar dashLength,
                          int strokeWidth,
@@ -284,7 +284,7 @@ protected:
         // 3on/3off 3x1 rects - should use rect fast path regardless of phase
         for (int phase = 0; phase <= 3; ++phase) {
             canvas->save();
-                canvas->translate(SkIntToScalar(phase*110+2), 
+                canvas->translate(SkIntToScalar(phase*110+2),
                                   SkIntToScalar(330));
                 this->drawDashedLines(canvas, 100, SkIntToScalar(phase), SkIntToScalar(3), 1, false);
             canvas->restore();
