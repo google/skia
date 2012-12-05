@@ -72,6 +72,112 @@ static bool is_identity(const SkMatrix44& m) {
     return nearly_equal(m, identity);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+static bool bits_isonly(int value, int mask) {
+    return 0 == (value & ~mask);
+}
+
+static void test_translate(skiatest::Reporter* reporter) {
+    SkMatrix44 mat, inverse;
+
+    mat.setTranslate(0, 0, 0);
+    REPORTER_ASSERT(reporter, bits_isonly(mat.getType(), SkMatrix44::kIdentity_Mask));
+    mat.setTranslate(1, 2, 3);
+    REPORTER_ASSERT(reporter, bits_isonly(mat.getType(), SkMatrix44::kTranslate_Mask));
+    REPORTER_ASSERT(reporter, mat.invert(&inverse));
+    REPORTER_ASSERT(reporter, bits_isonly(inverse.getType(), SkMatrix44::kTranslate_Mask));
+    
+    SkMatrix44 a, b, c;
+    a.set3x3(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    b.setTranslate(10, 11, 12);
+
+    c.setConcat(a, b);
+    mat = a;
+    mat.preTranslate(10, 11, 12);
+    REPORTER_ASSERT(reporter, mat == c);
+
+    c.setConcat(b, a);
+    mat = a;
+    mat.postTranslate(10, 11, 12);
+    REPORTER_ASSERT(reporter, mat == c);
+}
+
+static void test_scale(skiatest::Reporter* reporter) {
+    SkMatrix44 mat, inverse;
+    
+    mat.setScale(1, 1, 1);
+    REPORTER_ASSERT(reporter, bits_isonly(mat.getType(), SkMatrix44::kIdentity_Mask));
+    mat.setScale(1, 2, 3);
+    REPORTER_ASSERT(reporter, bits_isonly(mat.getType(), SkMatrix44::kScale_Mask));
+    REPORTER_ASSERT(reporter, mat.invert(&inverse));
+    REPORTER_ASSERT(reporter, bits_isonly(inverse.getType(), SkMatrix44::kScale_Mask));
+
+    SkMatrix44 a, b, c;
+    a.set3x3(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    b.setScale(10, 11, 12);
+    
+    c.setConcat(a, b);
+    mat = a;
+    mat.preScale(10, 11, 12);
+    REPORTER_ASSERT(reporter, mat == c);
+    
+    c.setConcat(b, a);
+    mat = a;
+    mat.postScale(10, 11, 12);
+    REPORTER_ASSERT(reporter, mat == c);
+}
+
+static void make_i(SkMatrix44* mat) { mat->setIdentity(); }
+static void make_t(SkMatrix44* mat) { mat->setTranslate(1, 2, 3); }
+static void make_s(SkMatrix44* mat) { mat->setScale(1, 2, 3); }
+static void make_st(SkMatrix44* mat) {
+    mat->setScale(1, 2, 3);
+    mat->postTranslate(1, 2, 3);
+}
+static void make_a(SkMatrix44* mat) {
+    mat->setRotateDegreesAbout(1, 2, 3, 45);
+}
+static void make_p(SkMatrix44* mat) {
+    SkMScalar data[] = {
+        1, 2, 3, 4, 5, 6, 7, 8,
+        1, 2, 3, 4, 5, 6, 7, 8,
+    };
+    mat->setRowMajor(data);
+}
+
+typedef void (*Make44Proc)(SkMatrix44*);
+
+static const Make44Proc gMakeProcs[] = {
+    make_i, make_t, make_s, make_st, make_a, make_p
+};
+
+static void test_map2(skiatest::Reporter* reporter, const SkMatrix44& mat) {
+    SkMScalar src2[] = { 1, 2 };
+    SkMScalar src4[] = { src2[0], src2[1], 0, 1 };
+    SkMScalar dstA[4], dstB[4];
+
+    for (int i = 0; i < 4; ++i) {
+        dstA[i] = 123456789;
+        dstB[i] = 987654321;
+    }
+
+    mat.map2(src2, 1, dstA);
+    mat.mapMScalars(src4, dstB);
+    
+    for (int i = 0; i < 4; ++i) {
+        REPORTER_ASSERT(reporter, dstA[i] == dstB[i]);
+    }
+}
+
+static void test_map2(skiatest::Reporter* reporter) {
+    SkMatrix44 mat;
+
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gMakeProcs); ++i) {
+        gMakeProcs[i](&mat);
+        test_map2(reporter, mat);
+    }
+}
+
 static void test_gettype(skiatest::Reporter* reporter) {
     SkMatrix44 matrix;
 
@@ -295,6 +401,9 @@ static void TestMatrix44(skiatest::Reporter* reporter) {
     test_transpose(reporter);
     test_get_set_double(reporter);
     test_set_row_col_major(reporter);
+    test_translate(reporter);
+    test_scale(reporter);
+    test_map2(reporter);
 }
 
 #include "TestClassDef.h"
