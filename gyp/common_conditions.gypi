@@ -125,6 +125,11 @@
           '-Wno-c++11-extensions'
         ],
         'conditions' : [
+          ['skia_warnings_as_errors == 1', {
+            'cflags': [
+              '-Werror',
+            ],
+          }],
           ['skia_arch_width == 64', {
             'cflags': [
               '-m64',
@@ -290,6 +295,11 @@
           '<(android_base)/toolchains/<(android_toolchain)/sysroot/usr/include',
         ],
         'conditions': [
+          [ 'skia_warnings_as_errors == 1', {
+            'cflags': [
+              '-Werror',
+            ],
+          }],
           [ 'skia_profile_enabled == 1', {
             'cflags': ['-g', '-fno-omit-frame-pointer', '-marm', '-mapcs'],
           }],
