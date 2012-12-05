@@ -7,7 +7,7 @@
  */
 #include "Test.h"
 #if SK_SUPPORT_GPU
-    #include "GrClipMaskManager.h"
+    #include "GrReducedClip.h"
 #endif
 #include "SkClipStack.h"
 #include "SkPath.h"

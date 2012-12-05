@@ -95,6 +95,8 @@
       '<(skia_src_path)/gpu/GrRectanizer.h',
       '<(skia_src_path)/gpu/GrRedBlackTree.h',
       '<(skia_src_path)/gpu/GrRenderTarget.cpp',
+      '<(skia_src_path)/gpu/GrReducedClip.cpp',
+      '<(skia_src_path)/gpu/GrReducedClip.h',
       '<(skia_src_path)/gpu/GrResource.cpp',
       '<(skia_src_path)/gpu/GrResourceCache.cpp',
       '<(skia_src_path)/gpu/GrResourceCache.h',
