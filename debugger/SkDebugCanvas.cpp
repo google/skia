@@ -101,7 +101,7 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
             canvas->restore();
         }
         i = 0;
-        canvas->clear(0);
+        canvas->clear(SK_ColorTRANSPARENT);
         canvas->resetMatrix();
         SkRect rect = SkRect::MakeWH(SkIntToScalar(fWidth),
                                      SkIntToScalar(fHeight));

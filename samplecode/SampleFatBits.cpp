@@ -21,7 +21,7 @@
 #define WIRE_FRAME_SIZE     1.5f
 
 static void erase(SkSurface* surface) {
-    surface->getCanvas()->clear(0);
+    surface->getCanvas()->clear(SK_ColorTRANSPARENT);
 }
 
 static SkShader* createChecker() {

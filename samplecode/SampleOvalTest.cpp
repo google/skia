@@ -45,7 +45,7 @@ protected:
         SkCanvas canvas(fBitmap);
         SkPaint p;
 
-        fBitmap.eraseColor(0);
+        fBitmap.eraseColor(SK_ColorTRANSPARENT);
         canvas.drawOval(SkRect::MakeSize(fSize), p);
     }
 

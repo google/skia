@@ -48,7 +48,7 @@ static void lettersToBitmap(SkBitmap* dst, const char chars[],
     SkBitmap src;
     src.setConfig(config, w, h);
     src.allocPixels();
-    src.eraseColor(0);
+    src.eraseColor(SK_ColorTRANSPARENT);
     {
         SkCanvas canvas(src);
         paint.setAntiAlias(true);

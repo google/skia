@@ -22,7 +22,7 @@ static void test_strokerect(SkCanvas* canvas) {
     SkBitmap bitmap;
     bitmap.setConfig(SkBitmap::kA8_Config, width*2, height*2);
     bitmap.allocPixels();
-    bitmap.eraseColor(0);
+    bitmap.eraseColor(SK_ColorTRANSPARENT);
 
     SkScalar dx = 20;
     SkScalar dy = 20;
@@ -41,12 +41,12 @@ static void test_strokerect(SkCanvas* canvas) {
     paint.setStrokeWidth(1);
 
     // use the rect
-    c.clear(0);
+    c.clear(SK_ColorTRANSPARENT);
     c.drawRect(r, paint);
     canvas->drawBitmap(bitmap, 0, 0, NULL);
 
     // use the path
-    c.clear(0);
+    c.clear(SK_ColorTRANSPARENT);
     c.drawPath(path, paint);
     canvas->drawBitmap(bitmap, SkIntToScalar(2*width), 0, NULL);
 }

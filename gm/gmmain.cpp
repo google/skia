@@ -371,7 +371,7 @@ public:
                              SkBitmap* bitmap) {
         bitmap->setConfig(gRec.fConfig, size.width(), size.height());
         bitmap->allocPixels();
-        bitmap->eraseColor(0);
+        bitmap->eraseColor(SK_ColorTRANSPARENT);
     }
 
     static void installFilter(SkCanvas* canvas) {

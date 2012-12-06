@@ -36,7 +36,7 @@ static void test_wacky_bitmapshader(skiatest::Reporter* reporter,
     SkBitmap dev;
     dev.setConfig(SkBitmap::kARGB_8888_Config, 0x56F, 0x4f6);
     dev.allocPixels();
-    dev.eraseColor(0);  // necessary, so we know if we draw to it
+    dev.eraseColor(SK_ColorTRANSPARENT);  // necessary, so we know if we draw to it
 
     SkMatrix matrix;
 

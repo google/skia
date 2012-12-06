@@ -28,7 +28,7 @@ static void drawAndTest(skiatest::Reporter* reporter, const SkPath& path,
     // explicitly specify a trim rowbytes, so we have no padding on each row
     bm.setConfig(SkBitmap::kARGB_8888_Config, DIMENSION, DIMENSION, DIMENSION*4);
     bm.allocPixels();
-    bm.eraseColor(0);
+    bm.eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas canvas(bm);
     SkPaint p(paint);

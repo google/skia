@@ -20,7 +20,7 @@ static void test_giantClip() {
     bm.setConfig(SkBitmap::kARGB_8888_Config, 64919, 1);
     bm.allocPixels();
     SkCanvas canvas(bm);
-    canvas.clear(0);
+    canvas.clear(SK_ColorTRANSPARENT);
 
     SkPath path;
     path.moveTo(0, 0); path.lineTo(1, 0); path.lineTo(33, 1);

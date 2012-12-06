@@ -210,7 +210,7 @@ static void test_giantaa(skiatest::Reporter* reporter) {
     const int W = 400;
     const int H = 400;
     SkAutoTUnref<SkCanvas> canvas(new_canvas(33000, 10));
-    canvas.get()->clear(0);
+    canvas.get()->clear(SK_ColorTRANSPARENT);
 
     SkPaint paint;
     paint.setAntiAlias(true);

@@ -44,7 +44,7 @@ SkDevice::SkDevice(SkBitmap::Config config, int width, int height, bool isOpaque
     fBitmap.allocPixels();
     fBitmap.setIsOpaque(isOpaque);
     if (!isOpaque) {
-        fBitmap.eraseColor(0);
+        fBitmap.eraseColor(SK_ColorTRANSPARENT);
     }
 }
 
