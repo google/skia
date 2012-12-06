@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#ifndef SkTLList_DEFINED
+#define SkTLList_DEFINED
+
 #include "SkTInternalLList.h"
 #include "SkTemplates.h"
 
@@ -94,6 +97,11 @@ public:
     /** Convenience methods for getting an iterator initialized to the head/tail of the list. */
     Iter headIter() const { return Iter(*this, Iter::kHead_IterStart); }
     Iter tailIter() const { return Iter(*this, Iter::kTail_IterStart); }
+
+    T* head() { return Iter(*this, Iter::kHead_IterStart).get(); }
+    T* tail() { return Iter(*this, Iter::kTail_IterStart).get(); }
+    const T* head() const { return Iter(*this, Iter::kHead_IterStart).get(); }
+    const T* tail() const { return Iter(*this, Iter::kTail_IterStart).get(); }
 
     void popHead() {
         this->validate();
@@ -372,3 +380,4 @@ void operator delete(void*,
 #define SkNEW_INSERT_AT_LLIST_TAIL(list, type_name, args) \
     SkNEW_INSERT_IN_LLIST_AFTER((list), (list)->tailIter(), type_name, args)
 
+#endif

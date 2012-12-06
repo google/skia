@@ -144,7 +144,7 @@ void GrSWMaskHelper::toTexture(GrTexture *texture, uint8_t alpha) {
     GrDrawState::AutoRenderTargetRestore artr(fContext->getGpu()->drawState(),
                                               texture->asRenderTarget());
 
-    fContext->getGpu()->clear(NULL, SkColorSetARGB(alpha, alpha, alpha, alpha));
+    fContext->getGpu()->clear(NULL, GrColorPackRGBA(alpha, alpha, alpha, alpha));
 
     texture->writePixels(0, 0, fBM.width(), fBM.height(),
                          kAlpha_8_GrPixelConfig,

@@ -102,9 +102,8 @@ static void check_state(skiatest::Reporter* reporter,
                         const SkClipStack& clip,
                         GrTexture* mask,
                         const GrIRect& bound) {
-    SkClipStack cacheClip;
-    cache.getLastClip(&cacheClip);
-    REPORTER_ASSERT(reporter, clip == cacheClip);
+    SkClipStack cacheClip;    
+    REPORTER_ASSERT(reporter, clip.getTopmostGenID() == cache.getLastClipGenID());
 
     REPORTER_ASSERT(reporter, mask == cache.getLastMask());
 
@@ -146,7 +145,7 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
     desc.fHeight = Y_SIZE;
     desc.fConfig = kSkia8888_PM_GrPixelConfig;
 
-    cache.acquireMask(clip1, desc, bound1);
+    cache.acquireMask(clip1.getTopmostGenID(), desc, bound1);
 
     GrTexture* texture1 = cache.getLastMask();
     REPORTER_ASSERT(reporter, texture1);
@@ -171,7 +170,7 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 
     SkClipStack clip2(bound2);
 
-    cache.acquireMask(clip2, desc, bound2);
+    cache.acquireMask(clip2.getTopmostGenID(), desc, bound2);
 
     GrTexture* texture2 = cache.getLastMask();
     REPORTER_ASSERT(reporter, texture2);
@@ -185,8 +184,8 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
     REPORTER_ASSERT(reporter, 1 == texture2->getRefCnt());
 
     // check to make sure canReuse works
-    REPORTER_ASSERT(reporter, cache.canReuse(clip2, bound2));
-    REPORTER_ASSERT(reporter, !cache.canReuse(clip1, bound1));
+    REPORTER_ASSERT(reporter, cache.canReuse(clip2.getTopmostGenID(), bound2));
+    REPORTER_ASSERT(reporter, !cache.canReuse(clip1.getTopmostGenID(), bound1));
 
     // pop the state
     cache.pop();
