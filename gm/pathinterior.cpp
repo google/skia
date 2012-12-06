@@ -74,7 +74,7 @@ protected:
                                 path.setFillType(doEvenOdd ? SkPath::kEvenOdd_FillType : SkPath::kWinding_FillType);
                                 SkPath::Direction outerDir = outerCW ? SkPath::kCW_Direction : SkPath::kCCW_Direction;
                                 SkPath::Direction innerDir = innerCW ? SkPath::kCW_Direction : SkPath::kCCW_Direction;
-                                
+
                                 SkRect r = insetFirst ? inset(rect) : rect;
                                 if (outerRR) {
                                     path.addRoundRect(r, RAD, RAD, outerDir);
@@ -92,7 +92,7 @@ protected:
                                 SkScalar dy = (i % 8) * rect.height() * 6 / 5;
                                 i++;
                                 path.offset(dx, dy);
-                                
+
                                 this->show(canvas, path);
                             }
                         }

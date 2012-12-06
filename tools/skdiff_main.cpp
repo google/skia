@@ -50,7 +50,7 @@ struct DiffSummary {
             for (int comparison = 0; comparison < DiffResource::kStatusCount; ++comparison) {
                 fStatusOfType[base][comparison].deleteAll();
             }
-        } 
+        }
     }
 
     uint32_t fNumMatches;
