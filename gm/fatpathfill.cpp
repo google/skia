@@ -41,7 +41,7 @@ static void draw_fatpath(SkCanvas* canvas, SkSurface* surface,
                          const SkPath paths[], int count) {
     SkPaint paint;
 
-    surface->getCanvas()->clear(0);
+    surface->getCanvas()->clear(SK_ColorTRANSPARENT);
     for (int i = 0; i < count; ++i) {
         surface->getCanvas()->drawPath(paths[i], paint);
     }

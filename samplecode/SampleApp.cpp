@@ -468,7 +468,7 @@ static void testpdf() {
         SkBitmap bm;
         bm.setConfig(SkBitmap::kA8_Config, 64, 64);
         bm.allocPixels();
-        bm.eraseColor(0);
+        bm.eraseColor(SK_ColorTRANSPARENT);
 
         SkCanvas canvas(bm);
 

@@ -29,7 +29,7 @@ static SkCanvas* MakeCanvas(const SkIRect& bounds) {
     SkBitmap bm;
     bm.setConfig(SkBitmap::kARGB_8888_Config, bounds.width(), bounds.height());
     bm.allocPixels();
-    bm.eraseColor(0);
+    bm.eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas* canvas = new SkCanvas(bm);
     canvas->translate(-SkIntToScalar(bounds.fLeft), -SkIntToScalar(bounds.fTop));

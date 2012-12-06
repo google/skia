@@ -88,6 +88,6 @@ namespace sk_tools {
     void setup_bitmap(SkBitmap* bitmap, int width, int height) {
         bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
         bitmap->allocPixels();
-        bitmap->eraseColor(0);
+        bitmap->eraseColor(SK_ColorTRANSPARENT);
     }
 }

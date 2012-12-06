@@ -120,7 +120,7 @@ public:
             fBitmaps[i].setConfig(gConfigs[i], WIDTH, HEIGHT);
             SkFlipPixelRef* pr = new SkFlipPixelRef(gConfigs[i], WIDTH, HEIGHT);
             fBitmaps[i].setPixelRef(pr)->unref();
-            fBitmaps[i].eraseColor(0);
+            fBitmaps[i].eraseColor(SK_ColorTRANSPARENT);
 
             status = pthread_create(&fThreads[i], &attr,  draw_proc, &fBitmaps[i]);
             SkASSERT(0 == status);

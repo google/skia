@@ -34,7 +34,7 @@ static void make_bitmap(SkBitmap* bitmap, GrContext* ctx, SkIRect* center) {
 
     SkCanvas canvas(dev);
     dev->unref();
-    canvas.clear(0);
+    canvas.clear(SK_ColorTRANSPARENT);
 
     SkRect r = SkRect::MakeWH(SkIntToScalar(kSize), SkIntToScalar(kSize));
     const SkScalar strokeWidth = SkIntToScalar(6);

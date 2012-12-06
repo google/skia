@@ -46,7 +46,7 @@ enum benchModes {
 
 static void erase(SkBitmap& bm) {
     if (bm.config() == SkBitmap::kA8_Config) {
-        bm.eraseColor(0);
+        bm.eraseColor(SK_ColorTRANSPARENT);
     } else {
         bm.eraseColor(SK_ColorWHITE);
     }

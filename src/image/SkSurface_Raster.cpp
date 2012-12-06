@@ -103,7 +103,7 @@ SkSurface_Raster::SkSurface_Raster(const SkImage::Info& info, SkPixelRef* pr, si
     fWeOwnThePixels = true;
 
     if (!isOpaque) {
-        fBitmap.eraseColor(0);
+        fBitmap.eraseColor(SK_ColorTRANSPARENT);
     }
 }
 

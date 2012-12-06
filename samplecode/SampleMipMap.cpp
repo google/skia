@@ -16,7 +16,7 @@ static SkBitmap createBitmap(int n) {
     SkBitmap bitmap;
     bitmap.setConfig(SkBitmap::kARGB_8888_Config, n, n);
     bitmap.allocPixels();
-    bitmap.eraseColor(0);
+    bitmap.eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas canvas(bitmap);
     SkRect r;
@@ -83,7 +83,7 @@ protected:
 
         SkAutoCanvasRestore acr(canvas, true);
         for (int i = 0; i < 6; i++) {
-            bg.eraseColor(0);
+            bg.eraseColor(SK_ColorTRANSPARENT);
             SkCanvas c(bg);
             c.scale(SK_Scalar1 / (1 << i), SK_Scalar1 / (1 << i));
             c.drawBitmap(bitmap, 0, 0, NULL);

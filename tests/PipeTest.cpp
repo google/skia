@@ -32,7 +32,7 @@ static void testDrawingAfterEndRecording(SkCanvas* canvas) {
     SkBitmap bm;
     bm.setConfig(SkBitmap::kARGB_8888_Config, 2, 2);
     bm.allocPixels();
-    bm.eraseColor(0);
+    bm.eraseColor(SK_ColorTRANSPARENT);
 
     SkShader* shader = SkShader::CreateBitmapShader(bm, SkShader::kClamp_TileMode,
                                                     SkShader::kClamp_TileMode);

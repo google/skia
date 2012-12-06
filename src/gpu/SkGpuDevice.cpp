@@ -59,12 +59,12 @@ enum {
 // a sub region of a larger source image.
 #define COLOR_BLEED_TOLERANCE SkFloatToScalar(0.001f)
 
-#define DO_DEFERRED_CLEAR()     \
-    do {                        \
-        if (fNeedClear) {       \
-            this->clear(0x0);   \
-        }                       \
-    } while (false)             \
+#define DO_DEFERRED_CLEAR()             \
+    do {                                \
+        if (fNeedClear) {               \
+            this->clear(SK_ColorTRANSPARENT); \
+        }                               \
+    } while (false)                     \
 
 ///////////////////////////////////////////////////////////////////////////////
 

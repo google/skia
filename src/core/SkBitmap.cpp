@@ -1023,7 +1023,7 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
     } else {
         // if the src has alpha, we have to clear the dst first
         if (!src->isOpaque()) {
-            tmpDst.eraseColor(0);
+            tmpDst.eraseColor(SK_ColorTRANSPARENT);
         }
 
         SkCanvas canvas(tmpDst);

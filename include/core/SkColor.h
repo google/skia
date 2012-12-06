@@ -73,18 +73,20 @@ static inline SkColor SkColorSetA(SkColor c, U8CPU a) {
 
 // common colors
 
-#define SK_ColorBLACK   0xFF000000  //!< black SkColor value
-#define SK_ColorDKGRAY  0xFF444444  //!< dark gray SkColor value
-#define SK_ColorGRAY    0xFF888888  //!< gray SkColor value
-#define SK_ColorLTGRAY  0xFFCCCCCC  //!< light gray SkColor value
-#define SK_ColorWHITE   0xFFFFFFFF  //!< white SkColor value
+#define SK_ColorTRANSPARENT 0x00000000  //!< transparent SkColor value
 
-#define SK_ColorRED     0xFFFF0000  //!< red SkColor value
-#define SK_ColorGREEN   0xFF00FF00  //!< green SkColor value
-#define SK_ColorBLUE    0xFF0000FF  //!< blue SkColor value
-#define SK_ColorYELLOW  0xFFFFFF00  //!< yellow SkColor value
-#define SK_ColorCYAN    0xFF00FFFF  //!< cyan SkColor value
-#define SK_ColorMAGENTA 0xFFFF00FF  //!< magenta SkColor value
+#define SK_ColorBLACK       0xFF000000  //!< black SkColor value
+#define SK_ColorDKGRAY      0xFF444444  //!< dark gray SkColor value
+#define SK_ColorGRAY        0xFF888888  //!< gray SkColor value
+#define SK_ColorLTGRAY      0xFFCCCCCC  //!< light gray SkColor value
+#define SK_ColorWHITE       0xFFFFFFFF  //!< white SkColor value
+
+#define SK_ColorRED         0xFFFF0000  //!< red SkColor value
+#define SK_ColorGREEN       0xFF00FF00  //!< green SkColor value
+#define SK_ColorBLUE        0xFF0000FF  //!< blue SkColor value
+#define SK_ColorYELLOW      0xFFFFFF00  //!< yellow SkColor value
+#define SK_ColorCYAN        0xFF00FFFF  //!< cyan SkColor value
+#define SK_ColorMAGENTA     0xFFFF00FF  //!< magenta SkColor value
 
 ////////////////////////////////////////////////////////////////////////
 

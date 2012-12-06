@@ -74,7 +74,7 @@ struct SkScalerContextRec {
      *  paint and device gamma to be effectively 1.0.
      */
     void ignorePreBlend() {
-        setLuminanceColor(0x00000000);
+        setLuminanceColor(SK_ColorTRANSPARENT);
         setPaintGamma(SK_Scalar1);
         setDeviceGamma(SK_Scalar1);
         setContrast(0);

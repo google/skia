@@ -127,7 +127,7 @@ bool SkImageDecoder_WIC::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     //Copy the pixels into the bitmap.
     if (SUCCEEDED(hr)) {
         SkAutoLockPixels alp(*bm);
-        bm->eraseColor(0);
+        bm->eraseColor(SK_ColorTRANSPARENT);
         const int stride = bm->rowBytes();
         hr = piBitmapSourceConverted->CopyPixels(
             NULL,                             //Get all the pixels

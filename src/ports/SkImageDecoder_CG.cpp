@@ -78,7 +78,7 @@ bool SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     }
 
     bm->lockPixels();
-    bm->eraseColor(0);
+    bm->eraseColor(SK_ColorTRANSPARENT);
 
     // use the same colorspace, so we don't change the pixels at all
     CGColorSpaceRef cs = CGImageGetColorSpace(image);

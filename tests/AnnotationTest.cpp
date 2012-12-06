@@ -16,7 +16,7 @@ static void test_nodraw(skiatest::Reporter* reporter) {
     SkBitmap bm;
     bm.setConfig(SkBitmap::kARGB_8888_Config, 10, 10);
     bm.allocPixels();
-    bm.eraseColor(0);
+    bm.eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas canvas(bm);
     SkRect r = SkRect::MakeWH(SkIntToScalar(10), SkIntToScalar(10));

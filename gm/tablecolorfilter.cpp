@@ -15,7 +15,7 @@ static void make_bm0(SkBitmap* bm) {
     int H = 120;
     bm->setConfig(SkBitmap::kARGB_8888_Config, W, H);
     bm->allocPixels();
-    bm->eraseColor(0);
+    bm->eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas canvas(*bm);
     SkPaint paint;
@@ -34,7 +34,7 @@ static void make_bm1(SkBitmap* bm) {
     int H = 120;
     bm->setConfig(SkBitmap::kARGB_8888_Config, W, H);
     bm->allocPixels();
-    bm->eraseColor(0);
+    bm->eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas canvas(*bm);
     SkPaint paint;
