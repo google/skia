@@ -12,6 +12,7 @@
 #include "GrContext.h"
 #include "GrNoncopyable.h"
 #include "GrRect.h"
+#include "GrReducedClip.h"
 #include "GrStencil.h"
 #include "GrTexture.h"
 
@@ -111,23 +112,33 @@ private:
 
     GrClipMaskCache fAACache;       // cache for the AA path
 
-    bool createStencilClipMask(const GrClipData& clipDataIn,
-                               const GrIRect& devClipBounds);
-    bool createAlphaClipMask(const GrClipData& clipDataIn,
-                             GrTexture** result,
-                             GrIRect *devResultBounds);
-    bool createSoftwareClipMask(const GrClipData& clipDataIn,
-                                GrTexture** result,
-                                GrIRect *devResultBounds);
-    bool clipMaskPreamble(const GrClipData& clipDataIn,
-                          GrTexture** result,
-                          GrIRect *devResultBounds);
+    // Draws the clip into the stencil buffer
+    bool createStencilClipMask(GrReducedClip::InitialState initialState,
+                               const GrReducedClip::ElementList& elements,
+                               const SkIRect& clipSpaceIBounds,
+                               const SkIPoint& clipSpaceToStencilOffset);
+    // Creates an alpha mask of the clip. The mask is a rasterization of elements through the
+    // rect specified by clipSpaceIBounds.
+    GrTexture* createAlphaClipMask(int32_t clipStackGenID,
+                                   GrReducedClip::InitialState initialState,
+                                   const GrReducedClip::ElementList& elements,
+                                   const SkIRect& clipSpaceIBounds);
+    // Similar to createAlphaClipMask but it rasterizes in SW and uploads to the result texture.
+    GrTexture* createSoftwareClipMask(int32_t clipStackGenID,
+                                      GrReducedClip::InitialState initialState,
+                                      const GrReducedClip::ElementList& elements,
+                                      const SkIRect& clipSpaceIBounds);
 
-    bool useSWOnlyPath(const SkClipStack& clipIn);
+    // Gets a texture to use for the clip mask. If true is returned then a cached mask was found 
+    // that already contains the rasterization of the clip stack, otherwise an uninitialized texture
+    // is returned.
+    bool getMaskTexture(int32_t clipStackGenID,
+                        const SkIRect& clipSpaceIBounds,
+                        GrTexture** result);
 
-    bool drawClipShape(GrTexture* target,
-                       const SkClipStack::Element* element,
-                       const GrIRect& resultBounds);
+    bool useSWOnlyPath(const GrReducedClip::ElementList& elements);
+
+    bool drawClipShape(GrTexture* target, const SkClipStack::Element* element);
 
     void mergeMask(GrTexture* dstMask,
                    GrTexture* srcMask,
@@ -135,7 +146,7 @@ private:
                    const GrIRect& dstBound,
                    const GrIRect& srcBound);
 
-    void getTemp(const GrIRect& bounds, GrAutoScratchTexture* temp);
+    void getTemp(int width, int height, GrAutoScratchTexture* temp);
 
     void setupCache(const SkClipStack& clip,
                     const GrIRect& bounds);
