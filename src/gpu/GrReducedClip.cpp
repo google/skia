@@ -13,6 +13,13 @@ typedef SkClipStack::Element Element;
 
 namespace GrReducedClip {
 
+// helper function
+void reduced_stack_walker(const SkClipStack& stack,
+                          const SkRect& queryBounds,
+                          ElementList* result,
+                          InitialState* initialState,
+                          bool* requiresAA);
+
 /*
 There are plenty of optimizations that could be added here. For example we could consider
 checking for cases where an inverse path can be changed to a regular fill with a different op.
@@ -22,10 +29,12 @@ for the case where the bounds are kInsideOut_BoundsType. We could restrict earli
 based on later intersect operations, and perhaps remove intersect-rects. We could optionally
 take a rect in case the caller knows a bound on what is to be drawn through this clip.
 */
-void GrReduceClipStack(const SkClipStack& stack,
-                       const SkRect& queryBounds,
-                       ElementList* result,
-                       InitialState* initialState) {
+void ReduceClipStack(const SkClipStack& stack,
+                     const SkIRect& queryBounds,
+                     ElementList* result,
+                     InitialState* initialState,
+                     SkIRect* tighterBounds,
+                     bool* requiresAA) {
     result->reset();
 
     if (stack.isWideOpen()) {
@@ -33,38 +42,97 @@ void GrReduceClipStack(const SkClipStack& stack,
         return;
     }
 
+
+    // We initially look at whether the bounds alone is sufficient. We also use the stack bounds to
+    // attempt to compute the tighterBounds.
+
     SkClipStack::BoundsType stackBoundsType;
     SkRect stackBounds;
     bool iior;
     stack.getBounds(&stackBounds, &stackBoundsType, &iior);
 
+    const SkIRect* bounds = &queryBounds;
+
+    SkRect scalarQueryBounds = SkRect::MakeFromIRect(queryBounds);
+
     if (iior) {
         SkASSERT(SkClipStack::kNormal_BoundsType == stackBoundsType);
         SkRect isectRect;
-        if (stackBounds.contains(queryBounds)) {
+        if (stackBounds.contains(scalarQueryBounds)) {
             *initialState = kAllIn_InitialState;
-        } else if (isectRect.intersect(stackBounds, queryBounds)) {
-            // iior should only be true if aa/non-aa status matches among all elements.
-            SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
-            bool doAA = iter.prev()->isAA();
-            SkNEW_INSERT_AT_LLIST_HEAD(result, Element, (isectRect, SkRegion::kReplace_Op, doAA));
+            if (NULL != tighterBounds) {
+                *tighterBounds = queryBounds;
+            }
+            if (NULL != requiresAA) {
+               *requiresAA = false;
+            }
+        } else if (isectRect.intersect(stackBounds, scalarQueryBounds)) {
+            if (NULL != tighterBounds) {
+                isectRect.roundOut(tighterBounds);
+                SkRect scalarTighterBounds = SkRect::MakeFromIRect(*tighterBounds);
+                if (scalarTighterBounds == isectRect) {
+                    // the round-out didn't add any area outside the clip rect.
+                    *requiresAA = false;
+                    *initialState = kAllIn_InitialState;
+                    return;
+                }
+                *initialState = kAllOut_InitialState;
+                // iior should only be true if aa/non-aa status matches among all elements.
+                SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
+                bool doAA = iter.prev()->isAA();
+                SkNEW_INSERT_AT_LLIST_HEAD(result, Element, (isectRect, SkRegion::kReplace_Op, doAA));
+                if (NULL != requiresAA) {
+                    *requiresAA = doAA;
+                }
+            }
         } else {
             *initialState = kAllOut_InitialState;
+             if (NULL != requiresAA) {
+                *requiresAA = false;
+             }
         }
         return;
     } else {
         if (SkClipStack::kNormal_BoundsType == stackBoundsType) {
-            if (!SkRect::Intersects(stackBounds, queryBounds)) {
+            if (!SkRect::Intersects(stackBounds, scalarQueryBounds)) {
                 *initialState = kAllOut_InitialState;
+                if (NULL != requiresAA) {
+                   *requiresAA = false;
+                }
                 return;
             }
+            if (NULL != tighterBounds) {
+                SkIRect stackIBounds;
+                stackBounds.roundOut(&stackIBounds);
+                tighterBounds->intersect(queryBounds, stackIBounds);
+                bounds = tighterBounds;
+            }
         } else {
-            if (stackBounds.contains(queryBounds)) {
+            if (stackBounds.contains(scalarQueryBounds)) {
                 *initialState = kAllOut_InitialState;
+                if (NULL != requiresAA) {
+                   *requiresAA = false;
+                }
                 return;
+            }
+            if (NULL != tighterBounds) {
+                *tighterBounds = queryBounds;
             }
         }
     }
+
+    SkRect scalarBounds = SkRect::MakeFromIRect(*bounds);
+    
+    // Now that we have determined the bounds to use and filtered out the trivial cases, call the
+    // helper that actually walks the stack.
+    reduced_stack_walker(stack, scalarBounds, result, initialState, requiresAA);
+}
+
+void reduced_stack_walker(const SkClipStack& stack,
+                          const SkRect& queryBounds,
+                          ElementList* result,
+                          InitialState* initialState,
+                          bool* requiresAA) {
 
     // walk backwards until we get to:
     //  a) the beginning
@@ -80,6 +148,7 @@ void GrReduceClipStack(const SkClipStack& stack,
     bool emsmallens = false;
 
     SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
+    int numAAElements = 0;
     while ((kUnknown_InitialState == *initialState)) {
         const Element* element = iter.prev();
         if (NULL == element) {
@@ -254,6 +323,9 @@ void GrReduceClipStack(const SkClipStack& stack,
                                            (queryBounds, SkRegion::kReverseDifference_Op, false));
             } else {
                 result->addToHead(*element);
+                if (element->isAA()) {
+                    ++numAAElements;
+                }
             }
         }
     }
@@ -262,7 +334,6 @@ void GrReduceClipStack(const SkClipStack& stack,
         (kAllIn_InitialState == *initialState && !emsmallens)) {
         result->reset();
     } else {
-        int clipsToSkip = 0;
         Element* element = result->headIter().get();
         while (NULL != element) {
             bool skippable = false;
@@ -308,7 +379,6 @@ void GrReduceClipStack(const SkClipStack& stack,
                     }
                     break;
                 case SkRegion::kReplace_Op:
-                    SkASSERT(!clipsToSkip); // replace should always be the first op
                     skippable = false; // we would have skipped it in the backwards walk if we
                                        // could've.
                     break;
@@ -319,10 +389,16 @@ void GrReduceClipStack(const SkClipStack& stack,
             if (!skippable) {
                 break;
             } else {
+                if (element->isAA()) {
+                    --numAAElements;
+                }
                 result->popHead();
                 element = result->headIter().get();
             }
         }
+    }
+    if (NULL != requiresAA) {
+        *requiresAA = numAAElements > 0;
     }
 }
 } // namespace GrReducedClip

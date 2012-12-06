@@ -669,7 +669,13 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         ElementList reducedClips;
 
         GrReducedClip::InitialState initial;
-        GrReducedClip::GrReduceClipStack(stack, inflatedBounds, &reducedClips, &initial);
+        SkIRect tBounds;
+        SkIRect* tightBounds = r.nextBool() ? &tBounds : NULL;
+        GrReducedClip::ReduceClipStack(stack,
+                                       inflatedIBounds,
+                                       &reducedClips,
+                                       &initial,
+                                       tightBounds);
 
         // Build a new clip stack based on the reduced clip elements
         SkClipStack reducedStack;
@@ -679,6 +685,11 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         }
         for (ElementList::Iter iter = reducedClips.headIter(); NULL != iter.get(); iter.next()) {
             add_elem_to_stack(*iter.get(), &reducedStack);
+        }
+
+        // GrReducedClipStack assumes that the final result is clipped to the returned bounds
+        if (NULL != tightBounds) {
+            reducedStack.clipDevRect(*tightBounds, SkRegion::kIntersect_Op);
         }
 
         // convert both the original stack and reduced stack to SkRegions and see if they're equal

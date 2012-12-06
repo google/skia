@@ -22,12 +22,19 @@ enum InitialState {
  * This function takes a clip stack and a query rectangle and it produces a reduced set of
  * SkClipStack::Elements that are equivalent to applying the full stack to the rectangle. The
  * initial state of the query rectangle before the first clip element is applied is returned via
- * initialState. This function is declared here so that it can be unit-tested. It may become a
- * member function of SkClipStack when its interface is determined to be stable.
+ * initialState. Optionally, the caller can request a tighter bounds on the clip be returned via
+ * tighterBounds. If not NULL, tighterBounds will always be contained by queryBounds after return.
+ * If tighterBounds is specified then it is assumed that the caller will implicitly clip against it.
+ * If the caller specifies non-NULL for requiresAA then it will indicate whether anti-aliasing is
+ * required to process any of the elements in the result.
+ *
+ * This may become a member function of SkClipStack when its interface is determined to be stable.
  */
-void GrReduceClipStack(const SkClipStack& stack,
-                       const SkRect& queryBounds,
-                       ElementList* result,
-                       InitialState* initialState);
+void ReduceClipStack(const SkClipStack& stack,
+                     const SkIRect& queryBounds,
+                     ElementList* result,
+                     InitialState* initialState,
+                     SkIRect* tighterBounds = NULL,
+                     bool* requiresAA = NULL);
 
 } // namespace GrReducedClip
