@@ -232,7 +232,8 @@ void operate(const SkPath& one, const SkPath& two, ShapeOp op, SkPath& result) {
     builder.finish();
     const int xorOpMask = builder.xorMask();
     SkTDArray<Op::Contour*> contourList;
-    makeContourList(contours, contourList);
+    makeContourList(contours, contourList, xorMask == kEvenOdd_Mask,
+            xorOpMask == kEvenOdd_Mask);
     Op::Contour** currentPtr = contourList.begin();
     if (!currentPtr) {
         return;
@@ -257,8 +258,7 @@ void operate(const SkPath& one, const SkPath& two, ShapeOp op, SkPath& result) {
 #if DEBUG_SHOW_WINDING
     Op::Contour::debugShowWindingValues(contourList);
 #endif
-    coincidenceCheck(contourList, (xorMask == kEvenOdd_Mask)
-            ^ (xorOpMask == kEvenOdd_Mask), total);
+    coincidenceCheck(contourList, total);
 #if DEBUG_SHOW_WINDING
     Op::Contour::debugShowWindingValues(contourList);
 #endif

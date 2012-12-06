@@ -19,7 +19,7 @@ static const SimplifyFindTopTest::Segment* testCommon(
         SkTArray<SimplifyFindTopTest::Contour>& contours,
         int& index, int& end) {
     SkTDArray<SimplifyFindTopTest::Contour*> contourList;
-    makeContourList(contours, contourList);
+    makeContourList(contours, contourList, false, false);
     addIntersectTs(contourList[0], contourList[0]);
     if (contours.count() > 1) {
         SkASSERT(contours.count() == 2);

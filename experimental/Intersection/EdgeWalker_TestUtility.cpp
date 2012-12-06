@@ -29,25 +29,133 @@ static const char marker[] =
     "\n"
     "var testDivs = [\n";
 
+static const char* opStrs[] = {
+    "kDifference_Op",
+    "kIntersect_Op",
+    "kUnion_Op",
+    "kXor_Op",
+};
+
+static const char* opSuffixes[] = {
+    "d",
+    "i",
+    "u",
+    "x",
+};
+
 static const char preferredFilename[] = "/flash/debug/XX.txt";
 static const char backupFilename[] = "../../experimental/Intersection/debugXX.txt";
 
 static bool gShowPath = false;
 static bool gComparePaths = true;
-//static bool gDrawLastAsciiPaths = true;
-//static bool gDrawAllAsciiPaths = false;
 static bool gShowOutputProgress = false;
-static bool gShowAsciiPaths = true;
-static bool gComparePathsAssert = false;
+static bool gComparePathsAssert = true;
 static bool gPathStrAssert = true;
 static bool gUsePhysicalFiles = false;
 
-void showPath(const SkPath& path, const char* str) {
-    SkDebugf("%s\n", !str ? "original:" : str);
-    SkPath::Iter iter(path, true);
+static bool isRectContour(SkPath::Iter& iter, SkRect& rect, SkPath::Direction& direction) {
+    int corners = 0;
+    SkPoint first, last;
+    first.set(0, 0);
+    last.set(0, 0);
+    int firstDirection = 0;
+    int lastDirection = 0;
+    int nextDirection = 0;
+    bool closedOrMoved = false;
+    bool autoClose = false;
+    rect.setEmpty();
+    uint8_t verb;
+    SkPoint data[4];
+    SkTDArray<SkPoint> sides;
+    bool empty = true;
+    while ((verb = iter.next(data)) != SkPath::kDone_Verb && !autoClose) {
+        empty = false;
+        SkPoint* pts = &data[1];
+        switch (verb) {
+            case SkPath::kClose_Verb:
+                pts = &last;
+                autoClose = true;
+            case SkPath::kLine_Verb: {
+                SkScalar left = last.fX;
+                SkScalar top = last.fY;
+                SkScalar right = pts->fX;
+                SkScalar bottom = pts->fY;
+                *sides.append() = *pts;
+                ++pts;
+                if (left != right && top != bottom) {
+                    return false; // diagonal
+                }
+                if (left == right && top == bottom) {
+                    break; // single point on side OK
+                }
+                nextDirection = (left != right) << 0 |
+                    (left < right || top < bottom) << 1;
+                if (0 == corners) {
+                    firstDirection = nextDirection;
+                    first = last;
+                    last = pts[-1];
+                    corners = 1;
+                    closedOrMoved = false;
+                    break;
+                }
+                if (closedOrMoved) {
+                    return false; // closed followed by a line
+                }
+                if (autoClose && nextDirection == firstDirection) {
+                    break; // colinear with first
+                }
+                closedOrMoved = autoClose;
+                if (lastDirection != nextDirection) {
+                    if (++corners > 4) {
+                        return false; // too many direction changes
+                    }
+                }
+                last = pts[-1];
+                if (lastDirection == nextDirection) {
+                    break; // colinear segment
+                }
+                // Possible values for corners are 2, 3, and 4.
+                // When corners == 3, nextDirection opposes firstDirection.
+                // Otherwise, nextDirection at corner 2 opposes corner 4.
+                int turn = firstDirection ^ (corners - 1);
+                int directionCycle = 3 == corners ? 0 : nextDirection ^ turn;
+                if ((directionCycle ^ turn) != nextDirection) {
+                    return false; // direction didn't follow cycle
+                }
+                break;
+            }
+            case SkPath::kQuad_Verb:
+            case SkPath::kCubic_Verb:
+                return false; // quadratic, cubic not allowed
+            case SkPath::kMove_Verb:
+                last = *pts++;
+                *sides.append() = last;
+                closedOrMoved = true;
+                break;
+        }
+        lastDirection = nextDirection;
+    }
+    // Success if 4 corners and first point equals last
+    bool result = 4 == corners && (first == last || autoClose);
+    if (result) {
+        direction = firstDirection == (lastDirection + 1 & 3) ? SkPath::kCCW_Direction
+                : SkPath::kCW_Direction;
+        rect.set(&sides[0], sides.count());
+    } else {
+        rect.setEmpty();
+    }
+    return !empty;
+}
+
+static void showPathContour(SkPath::Iter& iter, bool skip) {
     uint8_t verb;
     SkPoint pts[4];
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+        if (skip) {
+            if (verb == SkPath::kClose_Verb) {
+                return;
+            }
+        }
         switch (verb) {
             case SkPath::kMove_Verb:
                 SkDebugf("path.moveTo(%1.9g, %1.9g);\n", pts[0].fX, pts[0].fY);
@@ -66,7 +174,7 @@ void showPath(const SkPath& path, const char* str) {
                 break;
             case SkPath::kClose_Verb:
                 SkDebugf("path.close();\n");
-                continue;
+                return;
             default:
                 SkDEBUGFAIL("bad verb");
                 return;
@@ -74,8 +182,32 @@ void showPath(const SkPath& path, const char* str) {
     }
 }
 
-static int pathsDrawTheSame(const SkPath& one, const SkPath& two,
-        SkBitmap& bits, int& error2x2) {
+void showPath(const SkPath& path, const char* str) {
+    SkDebugf("%s\n", !str ? "original:" : str);
+    SkPath::Iter iter(path, true);
+    SkTDArray<SkRect> rects;
+    SkTDArray<SkPath::Direction> directions;
+    SkRect rect;
+    SkPath::Direction direction;
+    while (isRectContour(iter, rect, direction)) {
+        *rects.append() = rect;
+        *directions.append() = direction;
+    }
+    iter.setPath(path, true);
+    for (int contour = 0; contour < rects.count(); ++contour) {
+        const SkRect& rect = rects[contour];
+        bool useRect = !rect.isEmpty();
+        showPathContour(iter, useRect);
+        if (useRect) {
+            SkDebugf("path.addRect(%1.9g, %1.9g, %1.9g, %1.9g, %s);\n", rect.fLeft, rect.fTop,
+                    rect.fRight, rect.fBottom, directions[contour] == SkPath::kCCW_Direction
+                    ? "SkPath::kCCW_Direction" : "SkPath::kCW_Direction");
+        }
+    }
+}
+
+static int pathsDrawTheSame(const SkPath& one, const SkPath& two, 
+        SkBitmap& bits, SkPath& scaledOne, SkPath& scaledTwo, int& error2x2) {
     const int bitWidth = 64;
     const int bitHeight = 64;
     if (bits.width() == 0) {
@@ -98,7 +230,6 @@ static int pathsDrawTheSame(const SkPath& one, const SkPath& two,
     SkMatrix scale;
     scale.reset();
     scale.preScale(hScale, vScale);
-    SkPath scaledOne, scaledTwo;
     one.transform(scale, &scaledOne);
     two.transform(scale, &scaledTwo);
     const SkRect& bounds1 = scaledOne.getBounds();
@@ -134,9 +265,6 @@ static int pathsDrawTheSame(const SkPath& one, const SkPath& two,
     if (errors2 >= 6 || errors > 160) {
         SkDebugf("%s errors2=%d errors=%d\n", __FUNCTION__, errors2, errors);
     }
-    if (errors2 >= 7) {
-        drawAsciiPaths(scaledOne, scaledTwo, true);
-    }
     error2x2 = errors2;
     return errors;
 }
@@ -144,10 +272,6 @@ static int pathsDrawTheSame(const SkPath& one, const SkPath& two,
 bool drawAsciiPaths(const SkPath& one, const SkPath& two, bool drawPaths) {
     if (!drawPaths) {
         return true;
-    }
-    if (gShowAsciiPaths) {
-        showPath(one, "one:");
-        showPath(two, "two:");
     }
     const SkRect& bounds1 = one.getBounds();
     const SkRect& bounds2 = two.getBounds();
@@ -193,17 +317,58 @@ bool drawAsciiPaths(const SkPath& one, const SkPath& two, bool drawPaths) {
     return true;
 }
 
+static void showSimplifiedPath(const SkPath& one, const SkPath& two, 
+        const SkPath& scaledOne, const SkPath& scaledTwo) {
+    showPath(one, "original:");
+    showPath(two, "simplified:");
+    drawAsciiPaths(scaledOne, scaledTwo, true);
+}
+
 int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap) {
     int errors2x2;
-    int errors = pathsDrawTheSame(one, two, bitmap, errors2x2);
+    SkPath scaledOne, scaledTwo;
+    int errors = pathsDrawTheSame(one, two, bitmap, scaledOne, scaledTwo, errors2x2);
     if (errors2x2 == 0) {
         return 0;
     }
     const int MAX_ERRORS = 8;
+    if (errors2x2 == MAX_ERRORS || errors2x2 == MAX_ERRORS - 1) {
+        showSimplifiedPath(one, two, scaledOne, scaledTwo);
+    }
     if (errors2x2 > MAX_ERRORS && gComparePathsAssert) {
         SkDebugf("%s errors=%d\n", __FUNCTION__, errors);
-        showPath(one);
-        showPath(two, "simplified:");
+        showSimplifiedPath(one, two, scaledOne, scaledTwo);
+        SkASSERT(0);
+    }
+    return errors2x2 > MAX_ERRORS ? errors2x2 : 0;
+}
+
+static void showShapeOpPath(const SkPath& one, const SkPath& two, const SkPath& a, const SkPath& b, 
+        const SkPath& scaledOne, const SkPath& scaledTwo, const ShapeOp shapeOp) {
+    SkASSERT((unsigned) shapeOp < sizeof(opStrs) / sizeof(opStrs[0]));
+    showPath(a, "minuend:");
+    SkDebugf("op: %s\n", opStrs[shapeOp]);
+    showPath(b, "subtrahend:");
+    showPath(one, "region:");
+    showPath(two, "op result:");
+    drawAsciiPaths(scaledOne, scaledTwo, true);
+}
+
+int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap,
+        const SkPath& a, const SkPath& b, const ShapeOp shapeOp) {
+    int errors2x2;
+    SkPath scaledOne, scaledTwo;
+    int errors = pathsDrawTheSame(one, two, bitmap, scaledOne, scaledTwo, errors2x2);
+    if (errors2x2 == 0) {
+        return 0;
+    }
+    const int MAX_ERRORS = 8;
+    if (errors2x2 == MAX_ERRORS || errors2x2 == MAX_ERRORS - 1) {
+        showShapeOpPath(one, two, a, b, scaledOne, scaledTwo, shapeOp);
+    }
+    if (errors2x2 > MAX_ERRORS && gComparePathsAssert) {
+        SkDebugf("%s errors=%d\n", __FUNCTION__, errors);
+        showShapeOpPath(one, two, a, b, scaledOne, scaledTwo, shapeOp);
         SkASSERT(0);
     }
     return errors2x2 > MAX_ERRORS ? errors2x2 : 0;
@@ -304,7 +469,7 @@ bool testShapeOp(const SkPath& a, const SkPath& b, const ShapeOp shapeOp) {
     rgnOut.op(rgnA, rgnB, (SkRegion::Op) shapeOp);
     rgnOut.getBoundaryPath(&pathOut);
     SkBitmap bitmap;
-    int result = comparePaths(pathOut, out, bitmap);
+    int result = comparePaths(pathOut, out, bitmap, a, b, shapeOp);
     if (result && gPathStrAssert) {
         SkASSERT(0);
     }
@@ -466,20 +631,6 @@ void outputProgress(const State4& state, const char* pathStr, SkPath::FillType p
     SkFILEWStream outRam(state.filename);
     outputToStream(state, pathStr, pathPrefix, nameSuffix, testFunction, outRam);
 }
-
-static const char* opStrs[] = {
-    "kDifference_Op",
-    "kIntersect_Op",
-    "kUnion_Op",
-    "kXor_Op",
-};
-
-static const char* opSuffixes[] = {
-    "d",
-    "i",
-    "u",
-    "x",
-};
 
 void outputProgress(const State4& state, const char* pathStr, ShapeOp op) {
     SkString testFunc("testShapeOp(path, pathB, ");

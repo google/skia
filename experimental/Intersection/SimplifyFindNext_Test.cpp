@@ -21,7 +21,7 @@ static const SimplifyFindNextTest::Segment* testCommon(
         int contourWinding, int spanWinding, int startIndex, int endIndex,
         SkTArray<SimplifyFindNextTest::Contour>& contours) {
     SkTDArray<SimplifyFindNextTest::Contour*> contourList;
-    makeContourList(contours, contourList);
+    makeContourList(contours, contourList, false, false);
     addIntersectTs(contourList[0], contourList[0]);
     if (contours.count() > 1) {
         SkASSERT(contours.count() == 2);

@@ -27,12 +27,14 @@ static void* testShapeOps4x4RectsMain(void* data)
         for (int c = 0 ; c < 6; ++c)          {
         for (int d = c + 1 ; d < 7; ++d)           {
         for (int op = 0 ; op < kShapeOp_Count; ++op)    {
-        for (int e = 0 ; e <= SkPath::kEvenOdd_FillType; ++e) {
-        for (int f = 0 ; f <= SkPath::kEvenOdd_FillType; ++f)   {
+        for (int e = SkPath::kWinding_FillType ; e <= SkPath::kEvenOdd_FillType; ++e) {
+        for (int f = SkPath::kWinding_FillType ; f <= SkPath::kEvenOdd_FillType; ++f)   {
             SkPath pathA, pathB;
             char* str = pathStr;
             pathA.setFillType((SkPath::FillType) e);
-            str += sprintf(str, "    path.setFillType((SkPath::FillType) %d);\n", e);
+            str += sprintf(str, "    path.setFillType(SkPath::k%s_FillType);\n",
+                    e == SkPath::kWinding_FillType ? "Winding" : e == SkPath::kEvenOdd_FillType
+                    ? "EvenOdd" : "?UNDEFINED");
             pathA.addRect(state.a, state.a, state.b, state.b, SkPath::kCW_Direction);
             str += sprintf(str, "    path.addRect(%d, %d, %d, %d,"
                     " SkPath::kCW_Direction);\n", state.a, state.a, state.b, state.b);
@@ -41,7 +43,9 @@ static void* testShapeOps4x4RectsMain(void* data)
                     " SkPath::kCW_Direction);\n", state.c, state.c, state.d, state.d);
             pathA.close();
             pathB.setFillType((SkPath::FillType) f);
-            str += sprintf(str, "    pathB.setFillType((SkPath::FillType) %d);\n", f);
+            str += sprintf(str, "    pathB.setFillType(SkPath::k%s_FillType);\n",
+                    f == SkPath::kWinding_FillType ? "Winding" : f == SkPath::kEvenOdd_FillType
+                    ? "EvenOdd" : "?UNDEFINED");
             pathB.addRect(a, a, b, b, SkPath::kCW_Direction);
             str += sprintf(str, "    pathB.addRect(%d, %d, %d, %d,"
                     " SkPath::kCW_Direction);\n", a, a, b, b);
