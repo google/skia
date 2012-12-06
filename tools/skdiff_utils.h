@@ -15,7 +15,7 @@ class SkBitmap;
 class SkData;
 class SkString;
 
-/** Returns true if the two buffers passed in are both non-NULL, 
+/** Returns true if the two buffers passed in are both non-NULL,
  *  have the same length, and contain exactly the same byte values.
  */
 bool are_buffers_equal(SkData* skdata1, SkData* skdata2);

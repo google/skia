@@ -271,7 +271,7 @@ class DrawPointsDashingBench : public SkBenchmark {
     };
 
 public:
-    DrawPointsDashingBench(void* param, int dashLength, int strokeWidth, bool doAA) 
+    DrawPointsDashingBench(void* param, int dashLength, int strokeWidth, bool doAA)
         : INHERITED(param) {
         fName.printf("drawpointsdash_%d_%d%s", dashLength, strokeWidth, doAA ? "_aa" : "_bw");
         fStrokeWidth = strokeWidth;

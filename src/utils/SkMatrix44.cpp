@@ -62,7 +62,7 @@ bool SkMatrix44::operator==(const SkMatrix44& other) const {
 
 int SkMatrix44::computeTypeMask() const {
     unsigned mask = 0;
-    
+
     if (0 != perspX() || 0 != perspY() || 0 != perspZ() || 1 != fMat[3][3]) {
         return kTranslate_Mask | kScale_Mask | kAffine_Mask | kPerspective_Mask;
     }
@@ -214,7 +214,7 @@ void SkMatrix44::setTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz) {
     if (!dx && !dy && !dz) {
         return;
     }
-    
+
     fMat[3][0] = dx;
     fMat[3][1] = dy;
     fMat[3][2] = dz;
@@ -276,7 +276,7 @@ void SkMatrix44::preScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
     if (1 == sx && 1 == sy && 1 == sz) {
         return;
     }
-    
+
     SkMatrix44 tmp;
     tmp.setScale(sx, sy, sz);
     this->preConcat(tmp);
@@ -286,7 +286,7 @@ void SkMatrix44::postScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
     if (1 == sx && 1 == sy && 1 == sz) {
         return;
     }
-    
+
     for (int i = 0; i < 4; i++) {
         fMat[i][0] *= sx;
         fMat[i][1] *= sy;
@@ -562,7 +562,7 @@ void SkMatrix44::mapScalars(const SkScalar src[4], SkScalar dst[4]) const {
         }
         result[i] = SkMScalarToScalar(value);
     }
-    
+
     if (storage == result) {
         memcpy(dst, storage, sizeof(storage));
     }
@@ -573,7 +573,7 @@ void SkMatrix44::mapScalars(const SkScalar src[4], SkScalar dst[4]) const {
 void SkMatrix44::mapMScalars(const SkMScalar src[4], SkMScalar dst[4]) const {
     SkMScalar storage[4];
     SkMScalar* result = (src == dst) ? storage : dst;
-    
+
     for (int i = 0; i < 4; i++) {
         SkMScalar value = 0;
         for (int j = 0; j < 4; j++) {
@@ -581,7 +581,7 @@ void SkMatrix44::mapMScalars(const SkMScalar src[4], SkMScalar dst[4]) const {
         }
         result[i] = value;
     }
-    
+
     if (storage == result) {
         memcpy(dst, storage, sizeof(storage));
     }
@@ -742,7 +742,7 @@ void SkMatrix44::map2(const double src2[], int count, double dst4[]) const {
     static const Map2Procd gProc[] = {
         map2_id, map2_td, map2_sd, map2_sd, map2_ad, map2_ad, map2_ad, map2_ad
     };
-    
+
     TypeMask mask = this->getType();
     Map2Procd proc = (mask & kPerspective_Mask) ? map2_pd : gProc[mask];
     proc(fMat, src2, count, dst4);

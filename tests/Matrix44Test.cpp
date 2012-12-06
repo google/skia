@@ -86,7 +86,7 @@ static void test_translate(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, bits_isonly(mat.getType(), SkMatrix44::kTranslate_Mask));
     REPORTER_ASSERT(reporter, mat.invert(&inverse));
     REPORTER_ASSERT(reporter, bits_isonly(inverse.getType(), SkMatrix44::kTranslate_Mask));
-    
+
     SkMatrix44 a, b, c;
     a.set3x3(1, 2, 3, 4, 5, 6, 7, 8, 9);
     b.setTranslate(10, 11, 12);
@@ -104,7 +104,7 @@ static void test_translate(skiatest::Reporter* reporter) {
 
 static void test_scale(skiatest::Reporter* reporter) {
     SkMatrix44 mat, inverse;
-    
+
     mat.setScale(1, 1, 1);
     REPORTER_ASSERT(reporter, bits_isonly(mat.getType(), SkMatrix44::kIdentity_Mask));
     mat.setScale(1, 2, 3);
@@ -115,12 +115,12 @@ static void test_scale(skiatest::Reporter* reporter) {
     SkMatrix44 a, b, c;
     a.set3x3(1, 2, 3, 4, 5, 6, 7, 8, 9);
     b.setScale(10, 11, 12);
-    
+
     c.setConcat(a, b);
     mat = a;
     mat.preScale(10, 11, 12);
     REPORTER_ASSERT(reporter, mat == c);
-    
+
     c.setConcat(b, a);
     mat = a;
     mat.postScale(10, 11, 12);
@@ -163,7 +163,7 @@ static void test_map2(skiatest::Reporter* reporter, const SkMatrix44& mat) {
 
     mat.map2(src2, 1, dstA);
     mat.mapMScalars(src4, dstB);
-    
+
     for (int i = 0; i < 4; ++i) {
         REPORTER_ASSERT(reporter, dstA[i] == dstB[i]);
     }

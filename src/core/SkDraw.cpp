@@ -680,7 +680,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                             newP.setStrokeCap(SkPaint::kButt_Cap);
                         }
                         if (fDevice) {
-                            fDevice->drawPoints(*this, 
+                            fDevice->drawPoints(*this,
                                                 SkCanvas::kPoints_PointMode,
                                                 dst.fNumPoints,
                                                 dst.fPoints,
