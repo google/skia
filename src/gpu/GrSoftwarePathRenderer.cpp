@@ -12,7 +12,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrSoftwarePathRenderer::canDrawPath(const SkPath& path,
-                                         GrPathFill fill,
+                                         const SkStroke& stroke,
                                          const GrDrawTarget* target,
                                          bool antiAlias) const {
     if (!antiAlias || NULL == fContext) {
@@ -107,7 +107,7 @@ void draw_around_inv_path(GrDrawTarget* target,
 ////////////////////////////////////////////////////////////////////////////////
 // return true on success; false on failure
 bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
-                                        GrPathFill fill,
+                                        const SkStroke& stroke,
                                         GrDrawTarget* target,
                                         bool antiAlias) {
 
@@ -122,15 +122,15 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
     GrIRect devPathBounds, devClipBounds;
     if (!get_path_and_clip_bounds(target, path, vm,
                                   &devPathBounds, &devClipBounds)) {
-        if (GrIsFillInverted(fill)) {
+        if (path.isInverseFillType()) {
             draw_around_inv_path(target, devClipBounds, devPathBounds);
         }
         return true;
     }
 
     SkAutoTUnref<GrTexture> texture(
-            GrSWMaskHelper::DrawPathMaskToTexture(fContext, path,
-                                                  devPathBounds, fill,
+            GrSWMaskHelper::DrawPathMaskToTexture(fContext, path, stroke,
+                                                  devPathBounds,
                                                   antiAlias, &vm));
     if (NULL == texture) {
         return false;
@@ -138,7 +138,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
 
     GrSWMaskHelper::DrawToTargetWithPathMask(texture, target, devPathBounds);
 
-    if (GrIsFillInverted(fill)) {
+    if (path.isInverseFillType()) {
         draw_around_inv_path(target, devClipBounds, devPathBounds);
     }
 

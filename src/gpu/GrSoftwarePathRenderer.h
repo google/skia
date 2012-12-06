@@ -25,12 +25,12 @@ public:
     }
 
     virtual bool canDrawPath(const SkPath& path,
-                            GrPathFill fill,
-                            const GrDrawTarget* target,
-                            bool antiAlias) const SK_OVERRIDE;
+                             const SkStroke& stroke,
+                             const GrDrawTarget* target,
+                             bool antiAlias) const SK_OVERRIDE;
 protected:
     virtual bool onDrawPath(const SkPath& path,
-                            GrPathFill fill,
+                            const SkStroke& stroke,
                             GrDrawTarget* target,
                             bool antiAlias) SK_OVERRIDE;
 

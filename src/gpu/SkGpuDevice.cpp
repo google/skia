@@ -741,22 +741,6 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
 // helpers for applying mask filters
 namespace {
 
-GrPathFill skToGrFillType(SkPath::FillType fillType) {
-    switch (fillType) {
-        case SkPath::kWinding_FillType:
-            return kWinding_GrPathFill;
-        case SkPath::kEvenOdd_FillType:
-            return kEvenOdd_GrPathFill;
-        case SkPath::kInverseWinding_FillType:
-            return kInverseWinding_GrPathFill;
-        case SkPath::kInverseEvenOdd_FillType:
-            return kInverseEvenOdd_GrPathFill;
-        default:
-            SkDebugf("Unsupported path fill type\n");
-            return kHairLine_GrPathFill;
-    }
-}
-
 // We prefer to blur small rect with small radius via CPU.
 #define MIN_GPU_BLUR_SIZE SkIntToScalar(64)
 #define MIN_GPU_BLUR_RADIUS SkIntToScalar(32)
@@ -769,9 +753,9 @@ inline bool shouldDrawBlurWithCPU(const SkRect& rect, SkScalar radius) {
     return false;
 }
 
-bool drawWithGPUMaskFilter(GrContext* context, const SkPath& devPath,
+bool drawWithGPUMaskFilter(GrContext* context, const SkPath& devPath, bool doHairLine,
                            SkMaskFilter* filter, const SkRegion& clip,
-                           SkBounder* bounder, GrPaint* grp, GrPathFill pathFillType) {
+                           SkBounder* bounder, GrPaint* grp) {
     SkMaskFilter::BlurInfo info;
     SkMaskFilter::BlurType blurType = filter->asABlur(&info);
     if (SkMaskFilter::kNone_BlurType == blurType) {
@@ -854,7 +838,7 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& devPath,
         SkMatrix translate;
         translate.setTranslate(offset.fX, offset.fY);
         am.set(context, translate);
-        context->drawPath(tempPaint, devPath, pathFillType);
+        context->drawPath(tempPaint, devPath, doHairLine);
 
         // If we're doing a normal blur, we can clobber the pathTexture in the
         // gaussianBlur.  Otherwise, we need to save it for later compositing.
@@ -980,7 +964,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     CHECK_FOR_NODRAW_ANNOTATION(paint);
     CHECK_SHOULD_DRAW(draw, false);
 
-    bool             doFill = true;
+    bool             doHairLine = false;
 
     GrPaint grPaint;
     SkAutoCachedTexture textures[GrPaint::kMaxColorStages];
@@ -996,7 +980,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     // if we can, we draw lots faster (raster device does this same test)
     SkScalar hairlineCoverage;
     if (SkDrawTreatAsHairline(paint, fContext->getMatrix(), &hairlineCoverage)) {
-        doFill = false;
+        doHairLine = true;
         grPaint.setCoverage(SkScalarRoundToInt(hairlineCoverage * grPaint.getCoverage()));
     }
 
@@ -1022,11 +1006,11 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     SkDEBUGCODE(prePathMatrix = (const SkMatrix*)0x50FF8001;)
 
     if (paint.getPathEffect() ||
-        (doFill && paint.getStyle() != SkPaint::kFill_Style)) {
+        (!doHairLine && paint.getStyle() != SkPaint::kFill_Style)) {
         // it is safe to use tmpPath here, even if we already used it for the
         // prepathmatrix, since getFillPath can take the same object for its
         // input and output safely.
-        doFill = paint.getFillPath(*pathPtr, &tmpPath);
+        doHairLine = !paint.getFillPath(*pathPtr, &tmpPath);
         pathPtr = &tmpPath;
     }
 
@@ -1036,41 +1020,17 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
 
         // transform the path into device space
         pathPtr->transform(fContext->getMatrix(), devPathPtr);
-        GrPathFill pathFillType = doFill ?
-            skToGrFillType(devPathPtr->getFillType()) : kHairLine_GrPathFill;
-        if (!drawWithGPUMaskFilter(fContext, *devPathPtr, paint.getMaskFilter(),
-                                   *draw.fClip, draw.fBounder, &grPaint, pathFillType)) {
-            SkPaint::Style style = doFill ? SkPaint::kFill_Style :
-                SkPaint::kStroke_Style;
+        if (!drawWithGPUMaskFilter(fContext, *devPathPtr, doHairLine, paint.getMaskFilter(),
+                                   *draw.fClip, draw.fBounder, &grPaint)) {
+            SkPaint::Style style = doHairLine ? SkPaint::kStroke_Style :
+                                                SkPaint::kFill_Style;
             drawWithMaskFilter(fContext, *devPathPtr, paint.getMaskFilter(),
                                *draw.fClip, draw.fBounder, &grPaint, style);
         }
         return;
     }
 
-    GrPathFill fill = kHairLine_GrPathFill;
-
-    if (doFill) {
-        switch (pathPtr->getFillType()) {
-            case SkPath::kWinding_FillType:
-                fill = kWinding_GrPathFill;
-                break;
-            case SkPath::kEvenOdd_FillType:
-                fill = kEvenOdd_GrPathFill;
-                break;
-            case SkPath::kInverseWinding_FillType:
-                fill = kInverseWinding_GrPathFill;
-                break;
-            case SkPath::kInverseEvenOdd_FillType:
-                fill = kInverseEvenOdd_GrPathFill;
-                break;
-            default:
-                SkDebugf("Unsupported path fill type\n");
-                return;
-        }
-    }
-
-    fContext->drawPath(grPaint, *pathPtr, fill);
+    fContext->drawPath(grPaint, *pathPtr, doHairLine);
 }
 
 namespace {

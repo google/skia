@@ -15,6 +15,8 @@
 #include "GrRefCnt.h"
 #include "GrClipMaskManager.h"
 
+#include "SkPath.h"
+
 class GrContext;
 class GrIndexBufferAllocPool;
 class GrPath;
@@ -473,10 +475,10 @@ protected:
     // necessary to stencil the path. These are still subject to filtering by
     // the clip mask manager.
     virtual void setStencilPathSettings(const GrPath&,
-                                        GrPathFill,
+                                        SkPath::FillType,
                                         GrStencilSettings* settings) = 0;
     // overridden by backend-specific derived class to perform the path stenciling.
-    virtual void onGpuStencilPath(const GrPath*, GrPathFill) = 0;
+    virtual void onGpuStencilPath(const GrPath*, SkPath::FillType) = 0;
 
     // overridden by backend-specific derived class to perform flush
     virtual void onForceRenderTargetFlush() = 0;
@@ -568,7 +570,8 @@ private:
     virtual void onDrawNonIndexed(GrPrimitiveType type,
                                   int startVertex,
                                   int vertexCount) SK_OVERRIDE;
-    virtual void onStencilPath(const GrPath* path, GrPathFill fill) SK_OVERRIDE;
+    virtual void onStencilPath(const GrPath* path, const SkStroke& stroke,
+                               SkPath::FillType) SK_OVERRIDE;
 
     // readies the pools to provide vertex/index data.
     void prepareVertexPool();

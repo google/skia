@@ -40,6 +40,7 @@ class GrTextureParams;
 class GrVertexBuffer;
 class GrVertexBufferAllocPool;
 class GrSoftwarePathRenderer;
+class SkStroke;
 
 class GR_API GrContext : public GrRefCnt {
 public:
@@ -417,11 +418,9 @@ public:
      *
      * @param paint         describes how to color pixels.
      * @param path          the path to draw
-     * @param fill          the path filling rule to use.
-     * @param translate     optional additional translation applied to the
-     *                      path.
+     * @param doHairLine    whether the stroke can be optimized as a hairline
      */
-    void drawPath(const GrPaint& paint, const SkPath& path, GrPathFill fill);
+    void drawPath(const GrPaint& paint, const SkPath& path, bool doHairLine);
 
     /**
      * Draws vertices with a paint.
@@ -849,7 +848,7 @@ public:
     GrStencilBuffer* findStencilBuffer(int width, int height, int sampleCnt);
 
     GrPathRenderer* getPathRenderer(const SkPath& path,
-                                    GrPathFill fill,
+                                    const SkStroke& stroke,
                                     const GrDrawTarget* target,
                                     bool antiAlias,
                                     bool allowSW);
@@ -912,7 +911,7 @@ private:
     /// draw state is left unmodified.
     GrDrawTarget* prepareToDraw(const GrPaint*, BufferedDraw);
 
-    void internalDrawPath(const GrPaint& paint, const SkPath& path, GrPathFill fill);
+    void internalDrawPath(const GrPaint& paint, const SkPath& path, const SkStroke& stroke);
 
     GrTexture* createResizedTexture(const GrTextureDesc& desc,
                                     const GrCacheData& cacheData,

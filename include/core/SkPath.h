@@ -88,7 +88,7 @@ public:
     }
 
     /** Returns true if the filltype is one of the Inverse variants */
-    bool isInverseFillType() const { return (fFillType & 2) != 0; }
+    bool isInverseFillType() const { return IsInverseFill((FillType)fFillType); }
 
     /**
      *  Toggle between inverse and normal filltypes. This reverse the return
@@ -519,6 +519,28 @@ public:
             kUnknown_Direction, kCCW_Direction, kCW_Direction
         };
         return gOppositeDir[dir];
+    }
+
+    /**
+     *  Returns whether or not a fill type is inverted
+     */
+    static bool IsInverseFill(FillType fill) {
+        SK_COMPILE_ASSERT(0 == kWinding_FillType, fill_type_mismatch);
+        SK_COMPILE_ASSERT(1 == kEvenOdd_FillType, fill_type_mismatch);
+        SK_COMPILE_ASSERT(2 == kInverseWinding_FillType, fill_type_mismatch);
+        SK_COMPILE_ASSERT(3 == kInverseEvenOdd_FillType, fill_type_mismatch);
+        return (fill & 2) != 0;
+    }
+
+    /**
+     *  Returns the equivalent non-inverted fill type to the given fill type
+     */
+    static FillType NonInverseFill(FillType fill) {
+        SK_COMPILE_ASSERT(0 == kWinding_FillType, fill_type_mismatch);
+        SK_COMPILE_ASSERT(1 == kEvenOdd_FillType, fill_type_mismatch);
+        SK_COMPILE_ASSERT(2 == kInverseWinding_FillType, fill_type_mismatch);
+        SK_COMPILE_ASSERT(3 == kInverseEvenOdd_FillType, fill_type_mismatch);
+        return (FillType)(fill & 1);
     }
 
     /**

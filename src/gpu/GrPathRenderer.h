@@ -16,6 +16,7 @@
 #include "SkTArray.h"
 
 class SkPath;
+class SkStroke;
 
 struct GrPoint;
 
@@ -57,10 +58,9 @@ public:
      * the target's stencil settings but use those already set on target. The
      * target is passed as a param in case the answer depends upon draw state.
      *
-     * @param target target that the path will be rendered to
-     * @param path   the path that will be drawn
-     * @param fill   the fill rule that will be used, will never be an inverse
-     *               rule.
+     * @param target    target that the path will be rendered to
+     * @param path      the path that will be drawn
+     * @param stroke    the stroke information (width, join, cap).
      *
      * @return false if this path renderer can generate interior-only fragments
      *         without changing the stencil settings on the target. If it
@@ -68,7 +68,7 @@ public:
      *         clips.
      */
     virtual bool requiresStencilPass(const SkPath& path,
-                                     GrPathFill fill,
+                                     const SkStroke& stroke,
                                      const GrDrawTarget* target) const {
         return false;
     }
@@ -80,14 +80,14 @@ public:
      * rendering a path.
      *
      * @param path       The path to draw
-     * @param fill       The fill rule to use
+     * @param stroke     The stroke information (width, join, cap)
      * @param target     The target that the path will be rendered to
      * @param antiAlias  True if anti-aliasing is required.
      *
      * @return  true if the path can be drawn by this object, false otherwise.
      */
     virtual bool canDrawPath(const SkPath& path,
-                             GrPathFill fill,
+                             const SkStroke& stroke,
                              const GrDrawTarget* target,
                              bool antiAlias) const = 0;
     /**
@@ -96,22 +96,22 @@ public:
      * path renderer didn't claim that it needs to use the stencil internally).
      *
      * @param path                  the path to draw.
-     * @param fill                  the path filling rule to use.
+     * @param stroke                the stroke information (width, join, cap)
      * @param target                target that the path will be rendered to
      * @param antiAlias             true if anti-aliasing is required.
      */
     virtual bool drawPath(const SkPath& path,
-                          GrPathFill fill,
+                          const SkStroke& stroke,
                           GrDrawTarget* target,
                           bool antiAlias) {
-        GrAssert(this->canDrawPath(path, fill, target, antiAlias));
-        return this->onDrawPath(path, fill, target, antiAlias);
+        GrAssert(this->canDrawPath(path, stroke, target, antiAlias));
+        return this->onDrawPath(path, stroke, target, antiAlias);
     }
 
     /**
      * Draws the path to the stencil buffer. Assume the writable stencil bits
      * are already initialized to zero. Fill will always be either
-     * kWinding_GrPathFill or kEvenOdd_GrPathFill.
+     * kWinding_FillType or kEvenOdd_FillType.
      *
      * Only called if requiresStencilPass returns true for the same combo of
      * target, path, and fill. Never called with an inverse fill.
@@ -121,7 +121,7 @@ public:
      *
      */
     virtual void drawPathToStencil(const SkPath& path,
-                                   GrPathFill fill,
+                                   const SkStroke& stroke,
                                    GrDrawTarget* target) {
         GrCrash("Unexpected call to drawPathToStencil.");
     }
@@ -131,12 +131,12 @@ protected:
      * Draws the path into the draw target.
      *
      * @param path                  the path to draw.
-     * @param fill                  the path filling rule to use.
+     * @param stroke                the stroke information (width, join, cap)
      * @param target                target that the path will be rendered to
      * @param antiAlias             whether antialiasing is enabled or not.
      */
     virtual bool onDrawPath(const SkPath& path,
-                            GrPathFill fill,
+                            const SkStroke& stroke,
                             GrDrawTarget* target,
                             bool antiAlias) = 0;
 

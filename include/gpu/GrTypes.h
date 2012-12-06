@@ -540,53 +540,6 @@ static int inline NumPathCmdPoints(GrPathCmd cmd) {
     return gNumPoints[cmd];
 }
 
-/**
- * Path filling rules
- */
-enum GrPathFill {
-    kWinding_GrPathFill,
-    kEvenOdd_GrPathFill,
-    kInverseWinding_GrPathFill,
-    kInverseEvenOdd_GrPathFill,
-    kHairLine_GrPathFill,
-
-    kGrPathFillCount
-};
-
-static inline GrPathFill GrNonInvertedFill(GrPathFill fill) {
-    static const GrPathFill gNonInvertedFills[] = {
-        kWinding_GrPathFill, // kWinding_GrPathFill
-        kEvenOdd_GrPathFill, // kEvenOdd_GrPathFill
-        kWinding_GrPathFill, // kInverseWinding_GrPathFill
-        kEvenOdd_GrPathFill, // kInverseEvenOdd_GrPathFill
-        kHairLine_GrPathFill,// kHairLine_GrPathFill
-    };
-    GR_STATIC_ASSERT(0 == kWinding_GrPathFill);
-    GR_STATIC_ASSERT(1 == kEvenOdd_GrPathFill);
-    GR_STATIC_ASSERT(2 == kInverseWinding_GrPathFill);
-    GR_STATIC_ASSERT(3 == kInverseEvenOdd_GrPathFill);
-    GR_STATIC_ASSERT(4 == kHairLine_GrPathFill);
-    GR_STATIC_ASSERT(5 == kGrPathFillCount);
-    return gNonInvertedFills[fill];
-}
-
-static inline bool GrIsFillInverted(GrPathFill fill) {
-    static const bool gIsFillInverted[] = {
-        false, // kWinding_GrPathFill
-        false, // kEvenOdd_GrPathFill
-        true,  // kInverseWinding_GrPathFill
-        true,  // kInverseEvenOdd_GrPathFill
-        false, // kHairLine_GrPathFill
-    };
-    GR_STATIC_ASSERT(0 == kWinding_GrPathFill);
-    GR_STATIC_ASSERT(1 == kEvenOdd_GrPathFill);
-    GR_STATIC_ASSERT(2 == kInverseWinding_GrPathFill);
-    GR_STATIC_ASSERT(3 == kInverseEvenOdd_GrPathFill);
-    GR_STATIC_ASSERT(4 == kHairLine_GrPathFill);
-    GR_STATIC_ASSERT(5 == kGrPathFillCount);
-    return gIsFillInverted[fill];
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 // opaque type for 3D API object handles
