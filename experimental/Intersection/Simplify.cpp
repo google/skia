@@ -29,13 +29,14 @@ int gDebugMaxWindValue = SK_MaxS32;
 #define TRY_ROTATE 1
 
 #define DEBUG_UNUSED 0 // set to expose unused functions
-#define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging
+#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging
 
 #if FORCE_RELEASE || defined SK_RELEASE
 
 const bool gRunTestsInOneThread = false;
 
 #define DEBUG_ACTIVE_SPANS 0
+#define DEBUG_ACTIVE_SPANS_SHORT_FORM 0
 #define DEBUG_ADD_INTERSECTING_TS 0
 #define DEBUG_ADD_T_PAIR 0
 #define DEBUG_ANGLE 0
@@ -53,6 +54,7 @@ const bool gRunTestsInOneThread = false;
 const bool gRunTestsInOneThread = true;
 
 #define DEBUG_ACTIVE_SPANS 1
+#define DEBUG_ACTIVE_SPANS_SHORT_FORM 1
 #define DEBUG_ADD_INTERSECTING_TS 1
 #define DEBUG_ADD_T_PAIR 1
 #define DEBUG_ANGLE 1
@@ -792,7 +794,7 @@ struct Bounds : public SkRect {
     void add(const Bounds& toAdd) {
         add(toAdd.fLeft, toAdd.fTop, toAdd.fRight, toAdd.fBottom);
     }
-
+    
     bool isEmpty() {
         return fLeft > fRight || fTop > fBottom
                 || (fLeft == fRight && fTop == fBottom)
@@ -999,7 +1001,7 @@ public:
         return fBounds.fTop < rh.fBounds.fTop;
     }
 
-    bool activeAngle(int index, int& done, SkTDArray<Angle>& angles) const {
+    bool activeAngle(int index, int& done, SkTDArray<Angle>& angles) {
         if (activeAngleInner(index, done, angles)) {
             return true;
         }
@@ -1018,37 +1020,43 @@ public:
         return false;
     }
 
-    bool activeAngleOther(int index, int& done, SkTDArray<Angle>& angles) const {
+    bool activeAngleOther(int index, int& done, SkTDArray<Angle>& angles) {
         Span* span = &fTs[index];
         Segment* other = span->fOther;
         int oIndex = span->fOtherIndex;
         return other->activeAngleInner(oIndex, done, angles);
     }
 
-    bool activeAngleInner(int index, int& done, SkTDArray<Angle>& angles) const {
+    bool activeAngleInner(int index, int& done, SkTDArray<Angle>& angles) {
         int next = nextExactSpan(index, 1);
         if (next > 0) {
-            const Span& upSpan = fTs[index];
-            if (upSpan.fWindValue) {
+            Span& upSpan = fTs[index];
+            if (upSpan.fWindValue || upSpan.fOppValue) {
                 addAngle(angles, index, next);
                 if (upSpan.fDone || upSpan.fUnsortableEnd) {
                     done++;
                 } else if (upSpan.fWindSum != SK_MinS32) {
                     return true;
                 }
+            } else if (!upSpan.fDone) {
+                upSpan.fDone = true;
+                fDoneSpans++;
             }
         }
         int prev = nextExactSpan(index, -1);
         // edge leading into junction
         if (prev >= 0) {
-            const Span& downSpan = fTs[prev];
-            if (downSpan.fWindValue) {
+            Span& downSpan = fTs[prev];
+            if (downSpan.fWindValue || downSpan.fOppValue) {
                 addAngle(angles, index, prev);
                 if (downSpan.fDone) {
                     done++;
                  } else if (downSpan.fWindSum != SK_MinS32) {
                     return true;
                 }
+            } else if (!downSpan.fDone) {
+                downSpan.fDone = true;
+                fDoneSpans++;
             }
         }
         return false;
@@ -1112,8 +1120,21 @@ public:
         }
         int oppCoin = oppSign(index, endIndex) & oppMask;
         if (oppCoin) {
-            return op == kIntersect_Op || op == kUnion_Op
-                    || (oppSumWinding & oppMask && oppMaxWinding & oppMask);
+            bool oppCrossZero = !(oppSumWinding & oppMask) || !(oppMaxWinding & oppMask);
+            bool outside = !(oppSumWinding & oppMask) ^ !(sumWinding & mask);
+            switch (op) {
+                case kIntersect_Op:
+                    return !oppCrossZero | !outside;
+                case kUnion_Op:
+                    return oppCrossZero & !outside;
+                case kDifference_Op:
+                    return oppCrossZero ? outside : operand();
+                case kXor_Op:
+                    return !oppCrossZero;
+                default:
+                    SkASSERT(0);
+            }
+                
         }
         bool oppNonZero = oppMaxWinding & oppMask;
         return isActiveOp(operand(), oppNonZero, op);
@@ -1222,7 +1243,7 @@ public:
         do {
             ++oIndex;
         } while (!approximately_negative(oStart - other.fTs[oIndex].fT));
-        if (tIndex > 0 || oIndex > 0) {
+        if (tIndex > 0 || oIndex > 0 || fOperand != other.fOperand) {
             addTPair(tStart, other, oStart, false);
         }
         tStart = fTs[tIndex].fT;
@@ -1237,15 +1258,15 @@ public:
                 nextT = other.fTs[++oIndex].fT;
             } while (approximately_negative(nextT - oStart));
             oStart = nextT;
-            if (tStart == 1 && oStart == 1) {
+            if (tStart == 1 && oStart == 1 && fOperand == other.fOperand) {
                 break;
             }
             addTPair(tStart, other, oStart, false);
         } while (tStart < 1 && oStart < 1 && !approximately_negative(oEnd - oStart));
     }
 
-    void addCubic(const SkPoint pts[4], bool operand) {
-        init(pts, SkPath::kCubic_Verb, operand);
+    void addCubic(const SkPoint pts[4], bool operand, bool evenOdd) {
+        init(pts, SkPath::kCubic_Verb, operand, evenOdd);
         fBounds.setCubicBounds(pts);
     }
 
@@ -1298,8 +1319,8 @@ public:
       //  return ePtr[fVerb];
     }
 
-    void addLine(const SkPoint pts[2], bool operand) {
-        init(pts, SkPath::kLine_Verb, operand);
+    void addLine(const SkPoint pts[2], bool operand, bool evenOdd) {
+        init(pts, SkPath::kLine_Verb, operand, evenOdd);
         fBounds.set(pts, 2);
     }
 
@@ -1327,8 +1348,8 @@ public:
         span.fOtherIndex = otherIndex;
     }
 
-    void addQuad(const SkPoint pts[3], bool operand) {
-        init(pts, SkPath::kQuad_Verb, operand);
+    void addQuad(const SkPoint pts[3], bool operand, bool evenOdd) {
+        init(pts, SkPath::kQuad_Verb, operand, evenOdd);
         fBounds.setQuadBounds(pts);
     }
 
@@ -1505,44 +1526,19 @@ public:
         }
     }
 
-    int bumpCoincidentThis(const Span* oTest, const bool transfer, const bool decrementThis,
-            const bool thisXor, const int oXorMask, const bool opp, int index,
-            SkTDArray<double>& outsideTs, SkTDArray<double>& xOutsideTs)
-    {
+    int bumpCoincidentThis(const Span* oTest, bool opp, int index,
+            SkTDArray<double>& outsideTs) {
+        int oWindValue = oTest->fWindValue;
+        int oOppValue = oTest->fOppValue;
+        if (opp) {
+            SkTSwap<int>(oWindValue, oOppValue);
+        }
         Span* const test = &fTs[index];
         Span* end = test;
-        const int startIndex = index;
         const double oStartT = oTest->fT;
         do {
-            if (transfer) {
-                if (opp) {
-                    if (decrementThis) {
-                        zeroSpan(end, oStartT);
-                        TrackOutside(outsideTs, end->fT, oStartT);
-                    } else {
-                        end->fWindValue += oTest->fOppValue;
-                        end->fOppValue = (end->fOppValue + oTest->fWindValue) & oXorMask;
-                        if (thisXor) {
-                            SkASSERT(end->fWindValue);
-                            if (!(end->fWindValue & 1)) {
-                                zeroSpan(end, oStartT);
-                                TrackOutside(outsideTs, end->fT, oStartT);
-                            }
-                        }
-                    }
-                } else if (!decrementThis & !thisXor) {
-            #ifdef SK_DEBUG
-                    SkASSERT(abs(end->fWindValue) < gDebugMaxWindValue);
-            #endif
-                    ++(end->fWindValue);
-                } else if (decrementSpan(end)) {
-                    TrackOutside(outsideTs, end->fT, oStartT);
-                }
-            } else if (oTest->fWindValue) {
-                SkASSERT(decrementThis);
-                if (startIndex > 0 && fTs[startIndex - 1].fWindValue) {
-                    TrackOutside(xOutsideTs, end->fT, oStartT);
-                }
+            if (bumpSpan(end, oWindValue, oOppValue)) {
+                TrackOutside(outsideTs, end->fT, oStartT);
             }
             end = &fTs[++index];
         } while (approximately_negative(end->fT - test->fT));
@@ -1553,48 +1549,16 @@ public:
     // may not have the same intermediate points. Compute the corresponding
     // intermediate T values (using this as the master, other as the follower)
     // and walk other conditionally -- hoping that it catches up in the end
-    int bumpCoincidentOther(const Span* test, const bool transfer, const bool decrementThis,
-            const bool otherXor, const int xorMask, const bool opp, const double tRatio,
-            const double oEndT, int& oIndex, SkTDArray<double>& oOutsideTs)
-    {
+    int bumpCoincidentOther(const Span* test, double oEndT, int& oIndex,
+            SkTDArray<double>& oOutsideTs) {
         Span* const oTest = &fTs[oIndex];
         Span* oEnd = oTest;
         const double startT = test->fT;
-        const int oStartIndex = oIndex;
         const double oStartT = oTest->fT;
-        double otherTMatch = (test->fT - startT) * tRatio + oStartT;
         while (!approximately_negative(oEndT - oEnd->fT)
-                && approximately_negative(oEnd->fT - otherTMatch)) {
-            if (transfer) {
-                if (opp) {
-                    if (decrementThis) {
-                        oEnd->fWindValue += test->fOppValue;
-                        oEnd->fOppValue = (oEnd->fOppValue + test->fWindValue) & xorMask;
-                        if (otherXor) {
-                            SkASSERT(oEnd->fWindValue);
-                            if (!(oEnd->fWindValue & 1)) {
-                                zeroSpan(oEnd, startT);
-                                TrackOutside(oOutsideTs, oEnd->fT, startT);
-                            }
-                        }
-                    } else {
-                        zeroSpan(oEnd, startT);
-                        TrackOutside(oOutsideTs, oEnd->fT, startT);
-                    }
-                } else if (decrementThis & !otherXor) {
-             #ifdef SK_DEBUG
-                   SkASSERT(abs(oEnd->fWindValue) < gDebugMaxWindValue);
-            #endif
-                    ++(oEnd->fWindValue);
-                } else if (decrementSpan(oEnd)) {
-                    TrackOutside(oOutsideTs, oEnd->fT, startT);
-                }
-            } else if (test->fWindValue) {
-                SkASSERT(decrementThis);
-                if (oStartIndex > 0 && fTs[oStartIndex - 1].fWindValue) {
-                    SkASSERT(0); // track for later?
-                }
-            }
+                && approximately_negative(oEnd->fT - oStartT)) {
+            zeroSpan(oEnd);
+            TrackOutside(oOutsideTs, oEnd->fT, startT);
             oEnd = &fTs[++oIndex];
         }
         return oIndex;
@@ -1609,14 +1573,10 @@ public:
 
     // set spans from start to end to increment the greater by one and decrement
     // the lesser
-    void addTCoincident(bool thisXor, bool otherXor, double startT, double endT,
-            Segment& other, double oStartT, double oEndT) {
+    void addTCoincident(double startT, double endT, Segment& other, double oStartT, double oEndT) {
         SkASSERT(!approximately_negative(endT - startT));
         SkASSERT(!approximately_negative(oEndT - oStartT));
         bool opp = fOperand ^ other.fOperand;
-        if (!opp) {
-            otherXor = thisXor;
-        }
         int index = 0;
         while (!approximately_negative(startT - fTs[index].fT)) {
             ++index;
@@ -1625,41 +1585,21 @@ public:
         while (!approximately_negative(oStartT - other.fTs[oIndex].fT)) {
             ++oIndex;
         }
-        double tRatio = (oEndT - oStartT) / (endT - startT);
         Span* test = &fTs[index];
         Span* oTest = &other.fTs[oIndex];
         SkTDArray<double> outsideTs;
-        SkTDArray<double> xOutsideTs;
         SkTDArray<double> oOutsideTs;
-        int xorMask = thisXor ? 1 : -1;
-        int oXorMask = otherXor ? 1 : -1;
         do {
-            bool transfer = test->fWindValue && oTest->fWindValue;
-            bool decrementThis = test->fWindValue < oTest->fWindValue ||
-                    (test->fWindValue == oTest->fWindValue && thisXor);
-            if (decrementThis) {
-                oIndex = other.bumpCoincidentOther(test, transfer, decrementThis, otherXor, xorMask,
-                        opp, tRatio, oEndT, oIndex, oOutsideTs);
-                index = bumpCoincidentThis(oTest, transfer, decrementThis, thisXor, oXorMask, opp,
-                        index, outsideTs, xOutsideTs);
-            } else {
-                index = bumpCoincidentThis(oTest, transfer, decrementThis, thisXor, oXorMask, opp,
-                        index, outsideTs, xOutsideTs);
-                oIndex = other.bumpCoincidentOther(test, transfer, decrementThis, otherXor, xorMask,
-                        opp, tRatio, oEndT, oIndex, oOutsideTs);
-            }
+            // if either span has an opposite value and the operands don't match, resolve first
+            index = bumpCoincidentThis(oTest, opp, index, outsideTs);
+            oIndex = other.bumpCoincidentOther(test, oEndT, oIndex, oOutsideTs);
             test = &fTs[index];
             oTest = &other.fTs[oIndex];
         } while (!approximately_negative(endT - test->fT));
         SkASSERT(approximately_negative(oTest->fT - oEndT));
         SkASSERT(approximately_negative(oEndT - oTest->fT));
-        if (!done()) {
-            if (outsideTs.count()) {
-                addCoinOutsides(outsideTs, other, oEndT);
-            }
-            if (xOutsideTs.count()) {
-                addCoinOutsides(xOutsideTs, other, oEndT);
-            }
+        if (!done() && outsideTs.count()) {
+            addCoinOutsides(outsideTs, other, oEndT);
         }
         if (!other.done() && oOutsideTs.count()) {
             other.addCoinOutsides(oOutsideTs, *this, endT);
@@ -1698,13 +1638,15 @@ public:
 
     void addTwoAngles(int start, int end, SkTDArray<Angle>& angles) const {
         // add edge leading into junction
-        if (fTs[SkMin32(end, start)].fWindValue > 0) {
+        int min = SkMin32(end, start);
+        if (fTs[min].fWindValue > 0 || fTs[min].fOppValue > 0) {
             addAngle(angles, end, start);
         }
         // add edge leading away from junction
         int step = SkSign32(end - start);
         int tIndex = nextExactSpan(end, step);
-        if (tIndex >= 0 && fTs[SkMin32(end, tIndex)].fWindValue > 0) {
+        min = SkMin32(end, tIndex);
+        if (tIndex >= 0 && (fTs[min].fWindValue > 0 || fTs[min].fOppValue > 0)) {
             addAngle(angles, end, tIndex);
         }
     }
@@ -1828,7 +1770,7 @@ public:
                     if (oppoSign && useInnerWinding(maxWinding, winding)) {
                         maxWinding = winding;
                     }
-                    segment->markAndChaseWinding(angle, oMaxWinding, maxWinding);
+                    (void) segment->markAndChaseWinding(angle, oMaxWinding, maxWinding);
                 } else {
                     if (useInnerWinding(maxWinding, winding)) {
                         maxWinding = winding;
@@ -1836,7 +1778,7 @@ public:
                     if (oppoSign && useInnerWinding(oMaxWinding, oWinding)) {
                         oMaxWinding = oWinding;
                     }
-                    segment->markAndChaseWinding(angle, maxWinding, binary ? oMaxWinding : 0);
+                    (void) segment->markAndChaseWinding(angle, maxWinding, binary ? oMaxWinding : 0);
                 }
             }
         } while (++nextIndex != lastIndex);
@@ -1931,13 +1873,31 @@ public:
         return false;
     }
 
-    bool decrementSpan(Span* span) {
+    void decrementSpan(Span* span) {
         SkASSERT(span->fWindValue > 0);
         if (--(span->fWindValue) == 0) {
-            if (!span->fDone) {
+            if (!span->fOppValue && !span->fDone) {
                 span->fDone = true;
                 ++fDoneSpans;
             }
+        }
+    }
+
+    bool bumpSpan(Span* span, int windDelta, int oppDelta) {
+        SkASSERT(!span->fDone);
+        span->fWindValue += windDelta;
+        SkASSERT(span->fWindValue >= 0);
+        span->fOppValue += oppDelta;
+        SkASSERT(span->fOppValue >= 0);
+        if (fXor) {
+            span->fWindValue &= 1;
+        }
+        if (fOppXor) {
+            span->fOppValue &= 1;
+        }
+        if (!span->fWindValue && !span->fOppValue) {
+            span->fDone = true;
+            ++fDoneSpans;
             return true;
         }
         return false;
@@ -2380,7 +2340,7 @@ public:
     }
 
     // FIXME: this is tricky code; needs its own unit test
-    void findTooCloseToCall(bool thisXor, bool otherXor) {
+    void findTooCloseToCall() {
         int count = fTs.count();
         if (count < 3) { // require t=0, x, 1 at minimum
             return;
@@ -2503,11 +2463,7 @@ public:
             if (flipped) {
                 mOther->addTCancel(moStartT, moEndT, *tOther, toEndT, toStartT);
             } else {
-                // FIXME: this is bogus for multiple ops
-                // the xorMask needs to be accumulated from the union of the two
-                // edges -- which means that the segment must have its own copy of the mask
-                mOther->addTCoincident(thisXor, otherXor,
-                        moStartT, moEndT, *tOther, toStartT, toEndT);
+                mOther->addTCoincident(moStartT, moEndT, *tOther, toStartT, toEndT);
             }
         }
     }
@@ -2609,96 +2565,11 @@ public:
             }
         }
     }
-
-    // OPTIMIZATION: uses tail recursion. Unwise?
-    Span* innerChaseDone(int index, int step, int winding) {
-        int end = nextExactSpan(index, step);
-        SkASSERT(end >= 0);
-        if (multipleSpans(end)) {
-            return &fTs[end];
-        }
-        const Span& endSpan = fTs[end];
-        Segment* other = endSpan.fOther;
-        index = endSpan.fOtherIndex;
-        int otherEnd = other->nextExactSpan(index, step);
-        Span* last = other->innerChaseDone(index, step, winding);
-        other->markDone(SkMin32(index, otherEnd), winding);
-        return last;
-    }
-
-    Span* innerChaseDoneBinary(int index, int step, int winding, int oppWinding) {
-        int end = nextExactSpan(index, step);
-        SkASSERT(end >= 0);
-        if (multipleSpans(end)) {
-            return &fTs[end];
-        }
-        const Span& endSpan = fTs[end];
-        Segment* other = endSpan.fOther;
-        index = endSpan.fOtherIndex;
-        int otherEnd = other->nextExactSpan(index, step);
-        Span* last = other->innerChaseDoneBinary(index, step, winding, oppWinding);
-        other->markDoneBinary(SkMin32(index, otherEnd), winding, oppWinding);
-        return last;
-    }
-
-    Span* innerChaseDoneBinary(int index, int step) {
-        int end = nextExactSpan(index, step);
-        SkASSERT(end >= 0);
-        if (multipleSpans(end)) {
-            return &fTs[end];
-        }
-        const Span& endSpan = fTs[end];
-        Segment* other = endSpan.fOther;
-        index = endSpan.fOtherIndex;
-        int otherEnd = other->nextExactSpan(index, step);
-        Span* last = other->innerChaseDoneBinary(index, step);
-        other->markDoneBinary(SkMin32(index, otherEnd));
-        return last;
-    }
-
-    Span* innerChaseWinding(int index, int step, int winding) {
-        int end = nextExactSpan(index, step);
-        SkASSERT(end >= 0);
-        if (multipleSpans(end)) {
-            return &fTs[end];
-        }
-        const Span& endSpan = fTs[end];
-        Segment* other = endSpan.fOther;
-        index = endSpan.fOtherIndex;
-        int otherEnd = other->nextExactSpan(index, step);
-        int min = SkMin32(index, otherEnd);
-        if (other->fTs[min].fWindSum != SK_MinS32) {
-            SkASSERT(other->fTs[min].fWindSum == winding);
-            return NULL;
-        }
-        Span* last = other->innerChaseWinding(index, step, winding);
-        other->markWinding(min, winding);
-        return last;
-    }
-
-    Span* innerChaseWinding(int index, int step, int winding, int oppWinding) {
-        int end = nextExactSpan(index, step);
-        SkASSERT(end >= 0);
-        if (multipleSpans(end)) {
-            return &fTs[end];
-        }
-        const Span& endSpan = fTs[end];
-        Segment* other = endSpan.fOther;
-        index = endSpan.fOtherIndex;
-        int otherEnd = other->nextExactSpan(index, step);
-        int min = SkMin32(index, otherEnd);
-        if (other->fTs[min].fWindSum != SK_MinS32) {
-            SkASSERT(other->fTs[min].fWindSum == winding);
-            return NULL;
-        }
-        Span* last = other->innerChaseWinding(index, step, winding, oppWinding);
-        other->markWinding(min, winding, oppWinding);
-        return last;
-    }
-
-    void init(const SkPoint pts[], SkPath::Verb verb, bool operand) {
+    
+    void init(const SkPoint pts[], SkPath::Verb verb, bool operand, bool evenOdd) {
         fDoneSpans = 0;
         fOperand = operand;
+        fXor = evenOdd;
         fPts = pts;
         fVerb = verb;
     }
@@ -2712,7 +2583,7 @@ public:
         if (local * oppWinding >= 0) {
             oppWinding += local;
         }
-        markAndChaseWinding(start, end, winding, oppWinding);
+        (void) markAndChaseWinding(start, end, winding, oppWinding);
     }
 
     bool intersected() const {
@@ -2790,8 +2661,13 @@ public:
 
     Span* markAndChaseDone(int index, int endIndex, int winding) {
         int step = SkSign32(endIndex - index);
-        Span* last = innerChaseDone(index, step, winding);
-        markDone(SkMin32(index, endIndex), winding);
+        int min = SkMin32(index, endIndex);
+        markDone(min, winding);
+        Span* last;
+        Segment* other = this;
+        while ((other = other->nextChase(index, step, min, last))) {
+            other->markDone(min, winding);
+        }
         return last;
     }
 
@@ -2799,33 +2675,59 @@ public:
         int index = angle->start();
         int endIndex = angle->end();
         int step = SkSign32(endIndex - index);
-        Span* last = innerChaseDoneBinary(index, step, winding, oppWinding);
-        markDoneBinary(SkMin32(index, endIndex), winding, oppWinding);
+        int min = SkMin32(index, endIndex);
+        markDoneBinary(min, winding, oppWinding);
+        Span* last;
+        Segment* other = this;
+        while ((other = other->nextChase(index, step, min, last))) {
+            other->markDoneBinary(min, winding, oppWinding);
+        }
         return last;
     }
 
     Span* markAndChaseDoneBinary(int index, int endIndex) {
         int step = SkSign32(endIndex - index);
-        Span* last = innerChaseDoneBinary(index, step);
-        markDoneBinary(SkMin32(index, endIndex));
+        int min = SkMin32(index, endIndex);
+        markDoneBinary(min);
+        Span* last;
+        Segment* other = this;
+        while ((other = other->nextChase(index, step, min, last))) {
+            other->markDoneBinary(min);
+        }
         return last;
     }
 
-    Span* markAndChaseWinding(const Angle* angle, int winding) {
+    Span* markAndChaseWinding(const Angle* angle, const int winding) {
         int index = angle->start();
         int endIndex = angle->end();
+        int step = SkSign32(endIndex - index);        
         int min = SkMin32(index, endIndex);
-        int step = SkSign32(endIndex - index);
-        Span* last = innerChaseWinding(index, step, winding);
         markWinding(min, winding);
+        Span* last;
+        Segment* other = this;
+        while ((other = other->nextChase(index, step, min, last))) {
+            if (other->fTs[min].fWindSum != SK_MinS32) {
+                SkASSERT(other->fTs[min].fWindSum == winding);
+                return NULL;
+            }
+            other->markWinding(min, winding);
+        }
         return last;
     }
 
     Span* markAndChaseWinding(int index, int endIndex, int winding, int oppWinding) {
         int min = SkMin32(index, endIndex);
         int step = SkSign32(endIndex - index);
-        Span* last = innerChaseWinding(index, step, winding, oppWinding);
         markWinding(min, winding, oppWinding);
+        Span* last;
+        Segment* other = this;
+        while ((other = other->nextChase(index, step, min, last))) {
+            if (other->fTs[min].fWindSum != SK_MinS32) {
+                SkASSERT(other->fTs[min].fWindSum == winding);
+                return NULL;
+            }
+            other->markWinding(min, winding, oppWinding);
+        }
         return last;
     }
 
@@ -3005,7 +2907,7 @@ public:
 
     void markWinding(int index, int winding, int oppWinding) {
     //    SkASSERT(!done());
-        SkASSERT(winding);
+        SkASSERT(winding || oppWinding);
         double referenceT = fTs[index].fT;
         int lesser = index;
         while (--lesser >= 0 && precisely_negative(referenceT - fTs[lesser].fT)) {
@@ -3042,7 +2944,7 @@ public:
             Span& newSpan = fTs[tIndex];
             newSpan.fWindValue = nextDoorWind;
             newSpan.fOppValue = nextOppWind;
-            if (!nextDoorWind && !newSpan.fDone) {
+            if (!nextDoorWind && !nextOppWind && !newSpan.fDone) {
                 newSpan.fDone = true;
                 ++fDoneSpans;
             }
@@ -3056,6 +2958,21 @@ public:
     // or this code could be more complicated in detecting this case. Worth it?
     bool multipleSpans(int end) const {
         return end > 0 && end < fTs.count() - 1;
+    }
+
+    Segment* nextChase(int& index, const int step, int& min, Span*& last) const {
+        int end = nextExactSpan(index, step);
+        SkASSERT(end >= 0);
+        if (multipleSpans(end)) {
+            last = &fTs[end];
+            return NULL;
+        }
+        const Span& endSpan = fTs[end];
+        Segment* other = endSpan.fOther;
+        index = endSpan.fOtherIndex;
+        int otherEnd = other->nextExactSpan(index, step);
+        min = SkMin32(index, otherEnd);
+        return other;
     }
 
     // This has callers for two different situations: one establishes the end
@@ -3134,9 +3051,13 @@ public:
     }
 
     void reset() {
-        init(NULL, (SkPath::Verb) -1, false);
+        init(NULL, (SkPath::Verb) -1, false, false);
         fBounds.set(SK_ScalarMax, SK_ScalarMax, SK_ScalarMax, SK_ScalarMax);
         fTs.reset();
+    }
+
+    void setOppXor(bool isOppXor) {
+        fOppXor = isOppXor;
     }
 
     void setUpWindings(int index, int endIndex, int& sumMiWinding, int& sumSuWinding,
@@ -3227,7 +3148,7 @@ public:
             *outsideTs.append() = start;
         }
     }
-
+    
     void undoneSpan(int& start, int& end) {
         size_t tCount = fTs.count();
         size_t index;
@@ -3352,21 +3273,35 @@ public:
         return xyAtT(span).fY;
     }
 
-    void zeroSpan(Span* span, double otherT) {
-        SkASSERT(span->fWindValue > 0);
+    void zeroCoincidentOpp(Span* oTest, int index) {
+        Span* const test = &fTs[index];
+        Span* end = test;
+        do {
+            end->fOppValue = 0;
+            end = &fTs[++index];
+        } while (approximately_negative(end->fT - test->fT));
+    }
+
+    void zeroCoincidentOther(Span* test, const double tRatio, const double oEndT, int oIndex) {
+        Span* const oTest = &fTs[oIndex];
+        Span* oEnd = oTest;
+        const double startT = test->fT;
+        const double oStartT = oTest->fT;
+        double otherTMatch = (test->fT - startT) * tRatio + oStartT;
+        while (!approximately_negative(oEndT - oEnd->fT)
+                && approximately_negative(oEnd->fT - otherTMatch)) {
+            oEnd->fOppValue = 0;
+            oEnd = &fTs[++oIndex];
+        }
+    }
+
+    void zeroSpan(Span* span) {
+        SkASSERT(span->fWindValue > 0 || span->fOppValue > 0);
         span->fWindValue = 0;
-        if (!span->fDone) {
-            span->fDone = true;
-            ++fDoneSpans;
-        }
-        int oppValue = span->fOppValue;
-        if (!oppValue) {
-            return;
-        }
         span->fOppValue = 0;
-        Segment* other = span->fOther;
-        Span& oSpan = other->fTs[span->fOtherIndex];
-        SkASSERT(0);
+        SkASSERT(!span->fDone);
+        span->fDone = true;
+        ++fDoneSpans;
     }
 
 #if DEBUG_DUMP
@@ -3427,9 +3362,36 @@ public:
 #if DEBUG_CONCIDENT
     void debugShowTs() const {
         SkDebugf("%s id=%d", __FUNCTION__, fID);
-        for (int i = 0; i < fTs.count(); ++i) {
-            SkDebugf(" [o=%d t=%1.3g %1.9g,%1.9g w=%d]", fTs[i].fOther->fID,
-                    fTs[i].fT, xAtT(&fTs[i]), yAtT(&fTs[i]), fTs[i].fWindValue);
+        int lastWind = -1;
+        int lastOpp = -1;
+        double lastT = -1;
+        int i;
+        for (i = 0; i < fTs.count(); ++i) {
+            bool change = lastT != fTs[i].fT || lastWind != fTs[i].fWindValue
+                    || lastOpp != fTs[i].fOppValue;
+            if (change && lastWind >= 0) {
+                SkDebugf(" t=%1.3g %1.9g,%1.9g w=%d o=%d]",
+                        lastT, xyAtT(i - 1).fX, xyAtT(i - 1).fY, lastWind, lastOpp);
+            }
+            if (change) {
+                SkDebugf(" [o=%d", fTs[i].fOther->fID);
+                lastWind = fTs[i].fWindValue;
+                lastOpp = fTs[i].fOppValue;
+                lastT = fTs[i].fT;
+            } else {
+                SkDebugf(",%d", fTs[i].fOther->fID);
+            }
+        }
+        if (i <= 0) {
+            return;
+        }
+        SkDebugf(" t=%1.3g %1.9g,%1.9g w=%d o=%d]",
+                lastT, xyAtT(i - 1).fX, xyAtT(i - 1).fY, lastWind, lastOpp);
+        if (fOperand) {
+            SkDebugf(" operand");
+        }
+        if (done()) {
+            SkDebugf(" done");
         }
         SkDebugf("\n");
     }
@@ -3440,10 +3402,21 @@ public:
         if (done()) {
             return;
         }
+#if DEBUG_ACTIVE_SPANS_SHORT_FORM
+        int lastId = -1;
+        double lastT = -1;
+#endif
         for (int i = 0; i < fTs.count(); ++i) {
             if (fTs[i].fDone) {
                 continue;
             }
+#if DEBUG_ACTIVE_SPANS_SHORT_FORM
+            if (lastId == fID && lastT == fTs[i].fT) {
+                continue;
+            }
+            lastId = fID;
+            lastT = fTs[i].fT;
+#endif
             SkDebugf("%s id=%d", __FUNCTION__, fID);
             SkDebugf(" (%1.9g,%1.9g", fPts[0].fX, fPts[0].fY);
             for (int vIndex = 1; vIndex <= fVerb; ++vIndex) {
@@ -3460,7 +3433,7 @@ public:
             } else {
                 SkDebugf("%d", fTs[i].fWindSum);
             }
-            SkDebugf(" windValue=%d\n", fTs[i].fWindValue);
+            SkDebugf(" windValue=%d oppValue=%d\n", fTs[i].fWindValue, fTs[i].fOppValue);
         }
     }
 
@@ -3687,11 +3660,15 @@ public:
 
 private:
     const SkPoint* fPts;
-    SkPath::Verb fVerb;
     Bounds fBounds;
     SkTDArray<Span> fTs; // two or more (always includes t=0 t=1)
+    // OPTIMIZATION: could pack donespans, verb, operand, xor into 1 int-sized value
     int fDoneSpans; // quick check that segment is finished
+    // OPTIMIZATION: force the following to be byte-sized
+    SkPath::Verb fVerb;
     bool fOperand;
+    bool fXor; // set if original contour had even-odd fill
+    bool fOppXor; // set if opposite operand had even-odd fill
 #if DEBUG_DUMP
     int fID;
 #endif
@@ -3753,12 +3730,12 @@ public:
     }
 
     void addCubic(const SkPoint pts[4]) {
-        fSegments.push_back().addCubic(pts, fOperand);
+        fSegments.push_back().addCubic(pts, fOperand, fXor);
         fContainsCurves = true;
     }
 
     int addLine(const SkPoint pts[2]) {
-        fSegments.push_back().addLine(pts, fOperand);
+        fSegments.push_back().addLine(pts, fOperand, fXor);
         return fSegments.count();
     }
 
@@ -3767,7 +3744,7 @@ public:
     }
 
     int addQuad(const SkPoint pts[3]) {
-        fSegments.push_back().addQuad(pts, fOperand);
+        fSegments.push_back().addQuad(pts, fOperand, fXor);
         fContainsCurves = true;
         return fSegments.count();
     }
@@ -3845,11 +3822,10 @@ public:
         return segment.pts()[segment.verb()];
     }
 
-    void findTooCloseToCall(bool otherXor) {
+    void findTooCloseToCall() {
         int segmentCount = fSegments.count();
-        otherXor ^= fXor;
         for (int sIndex = 0; sIndex < segmentCount; ++sIndex) {
-            fSegments[sIndex].findTooCloseToCall(fXor, otherXor);
+            fSegments[sIndex].findTooCloseToCall();
         }
     }
 
@@ -3874,13 +3850,18 @@ public:
         int count = fCoincidences.count();
         for (int index = 0; index < count; ++index) {
             Coincidence& coincidence = fCoincidences[index];
-            Contour* thisContour = coincidence.fContours[0];
-            SkASSERT(thisContour == this);
-            Contour* otherContour = coincidence.fContours[1];
+            SkASSERT(coincidence.fContours[0] == this);
             int thisIndex = coincidence.fSegments[0];
+            Segment& thisOne = fSegments[thisIndex];
+            if (thisOne.done()) {
+                continue;
+            }
+            Contour* otherContour = coincidence.fContours[1];
             int otherIndex = coincidence.fSegments[1];
-            Segment& thisOne = thisContour->fSegments[thisIndex];
             Segment& other = otherContour->fSegments[otherIndex];
+            if (other.done()) {
+                continue;
+            }
         #if DEBUG_CONCIDENT
             thisOne.debugShowTs();
             other.debugShowTs();
@@ -3900,7 +3881,7 @@ public:
                 cancelers ^= true;
             }
             SkASSERT(!approximately_negative(oEndT - oStartT));
-            bool opp = thisContour->fOperand ^ otherContour->fOperand;
+            bool opp = fOperand ^ otherContour->fOperand;
             if (cancelers && !opp) {
                 // make sure startT and endT have t entries
                 if (startT > 0 || oEndT < 1
@@ -3921,8 +3902,7 @@ public:
                         || thisOne.isMissing(endT) || other.isMissing(oEndT)) {
                     other.addTPair(oEndT, thisOne, endT, true);
                 }
-                thisOne.addTCoincident(thisContour->fXor, otherContour->fXor,
-                        startT, endT, other, oStartT, oEndT);
+                thisOne.addTCoincident(startT, endT, other, oStartT, oEndT);
             }
         #if DEBUG_CONCIDENT
             thisOne.debugShowTs();
@@ -3940,6 +3920,14 @@ public:
 
     void setOperand(bool isOp) {
         fOperand = isOp;
+    }
+    
+    void setOppXor(bool isOppXor) {
+        fOppXor = isOppXor;
+        int segmentCount = fSegments.count();
+        for (int test = 0; test < segmentCount; ++test) {
+            fSegments[test].setOppXor(isOppXor);
+        }
     }
 
     void setXor(bool isXor) {
@@ -4174,6 +4162,7 @@ private:
     bool fContainsCurves;
     bool fOperand; // true for the second argument to a binary operator
     bool fXor;
+    bool fOppXor;
 #if DEBUG_DUMP
     int fID;
 #endif
@@ -4820,7 +4809,7 @@ static bool addIntersectTs(Contour* test, Contour* next) {
 
 // resolve any coincident pairs found while intersecting, and
 // see if coincidence is formed by clipping non-concident segments
-static void coincidenceCheck(SkTDArray<Contour*>& contourList, bool otherXor, int total) {
+static void coincidenceCheck(SkTDArray<Contour*>& contourList, int total) {
     int contourCount = contourList.count();
     for (int cIndex = 0; cIndex < contourCount; ++cIndex) {
         Contour* contour = contourList[cIndex];
@@ -4828,7 +4817,7 @@ static void coincidenceCheck(SkTDArray<Contour*>& contourList, bool otherXor, in
     }
     for (int cIndex = 0; cIndex < contourCount; ++cIndex) {
         Contour* contour = contourList[cIndex];
-        contour->findTooCloseToCall(otherXor);
+        contour->findTooCloseToCall();
     }
 }
 
@@ -5333,14 +5322,16 @@ static void sortSegments(SkTDArray<Contour*>& contourList) {
     }
 }
 
-static void makeContourList(SkTArray<Contour>& contours,
-        SkTDArray<Contour*>& list) {
+static void makeContourList(SkTArray<Contour>& contours, SkTDArray<Contour*>& list,
+        bool evenOdd, bool oppEvenOdd) {
     int count = contours.count();
     if (count == 0) {
         return;
     }
     for (int index = 0; index < count; ++index) {
-        *list.append() = &contours[index];
+        Contour& contour = contours[index];
+        contour.setOppXor(contour.operand() ? evenOdd : oppEvenOdd);
+        *list.append() = &contour;
     }
     QSort<Contour>(list.begin(), list.end() - 1);
 }
@@ -5532,7 +5523,7 @@ void simplifyx(const SkPath& path, SkPath& result) {
     EdgeBuilder builder(path, contours);
     builder.finish();
     SkTDArray<Contour*> contourList;
-    makeContourList(contours, contourList);
+    makeContourList(contours, contourList, false, false);
     Contour** currentPtr = contourList.begin();
     if (!currentPtr) {
         return;
@@ -5548,7 +5539,7 @@ void simplifyx(const SkPath& path, SkPath& result) {
         } while (addIntersectTs(current, next) && nextPtr != listEnd);
     } while (currentPtr != listEnd);
     // eat through coincident edges
-    coincidenceCheck(contourList, false, 0);
+    coincidenceCheck(contourList, 0);
     fixOtherTIndex(contourList);
     sortSegments(contourList);
 #if DEBUG_ACTIVE_SPANS

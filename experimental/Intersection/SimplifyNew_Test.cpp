@@ -2561,95 +2561,6 @@ static void testQuadratic21() {
     testSimplifyx(path);
 }
 
-static void testIntersect1() {
-    SkPath one, two;
-    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
-    two.addRect(3, 3, 9, 9, SkPath::kCW_Direction);
-    testShapeOp(one, two, kIntersect_Op);
-}
-
-static void testUnion1() {
-    SkPath one, two;
-    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
-    two.addRect(3, 3, 9, 9, SkPath::kCW_Direction);
-    testShapeOp(one, two, kUnion_Op);
-}
-
-static void testDiff1() {
-    SkPath one, two;
-    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
-    two.addRect(3, 3, 9, 9, SkPath::kCW_Direction);
-    testShapeOp(one, two, kDifference_Op);
-}
-
-static void testXor1() {
-    SkPath one, two;
-    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
-    two.addRect(3, 3, 9, 9, SkPath::kCW_Direction);
-    testShapeOp(one, two, kXor_Op);
-}
-
-static void testIntersect2() {
-    SkPath one, two;
-    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
-    two.addRect(0, 3, 9, 9, SkPath::kCW_Direction);
-    testShapeOp(one, two, kIntersect_Op);
-}
-
-static void testUnion2() {
-    SkPath one, two;
-    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
-    two.addRect(0, 3, 9, 9, SkPath::kCW_Direction);
-    testShapeOp(one, two, kUnion_Op);
-}
-
-static void testDiff2() {
-    SkPath one, two;
-    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
-    two.addRect(0, 3, 9, 9, SkPath::kCW_Direction);
-    testShapeOp(one, two, kDifference_Op);
-}
-
-static void testXor2() {
-    SkPath one, two;
-    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
-    two.addRect(0, 3, 9, 9, SkPath::kCW_Direction);
-    testShapeOp(one, two, kXor_Op);
-}
-
-static void testOp1d() {
-    SkPath path, pathB;
-    path.setFillType((SkPath::FillType) 0);
-    path.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
-    path.addRect(0, 0, 2, 2, SkPath::kCW_Direction);
-    pathB.setFillType((SkPath::FillType) 0);
-    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
-    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
-    testShapeOp(path, pathB, kDifference_Op);
-}
-
-static void testOp2d() {
-    SkPath path, pathB;
-    path.setFillType((SkPath::FillType) 0);
-    path.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
-    path.addRect(0, 0, 2, 2, SkPath::kCW_Direction);
-    pathB.setFillType((SkPath::FillType) 1);
-    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
-    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
-    testShapeOp(path, pathB, kDifference_Op);
-}
-
-static void testOp3d() {
-    SkPath path, pathB;
-    path.setFillType((SkPath::FillType) 0);
-    path.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
-    path.addRect(1, 1, 2, 2, SkPath::kCW_Direction);
-    pathB.setFillType((SkPath::FillType) 0);
-    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
-    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
-    testShapeOp(path, pathB, kDifference_Op);
-}
-
 static void testQuadratic22() {
     SkPath path;
     path.moveTo(0, 0);
@@ -3249,6 +3160,150 @@ static struct {
     TEST(testLine1),
 };
 
+static void testIntersect1() {
+    SkPath one, two;
+    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
+    two.addRect(3, 3, 9, 9, SkPath::kCW_Direction);
+    testShapeOp(one, two, kIntersect_Op);
+}
+
+static void testUnion1() {
+    SkPath one, two;
+    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
+    two.addRect(3, 3, 9, 9, SkPath::kCW_Direction);
+    testShapeOp(one, two, kUnion_Op);
+}
+
+static void testDiff1() {
+    SkPath one, two;
+    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
+    two.addRect(3, 3, 9, 9, SkPath::kCW_Direction);
+    testShapeOp(one, two, kDifference_Op);
+}
+
+static void testXor1() {
+    SkPath one, two;
+    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
+    two.addRect(3, 3, 9, 9, SkPath::kCW_Direction);
+    testShapeOp(one, two, kXor_Op);
+}
+
+static void testIntersect2() {
+    SkPath one, two;
+    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
+    two.addRect(0, 3, 9, 9, SkPath::kCW_Direction);
+    testShapeOp(one, two, kIntersect_Op);
+}
+
+static void testUnion2() {
+    SkPath one, two;
+    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
+    two.addRect(0, 3, 9, 9, SkPath::kCW_Direction);
+    testShapeOp(one, two, kUnion_Op);
+}
+
+static void testDiff2() {
+    SkPath one, two;
+    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
+    two.addRect(0, 3, 9, 9, SkPath::kCW_Direction);
+    testShapeOp(one, two, kDifference_Op);
+}
+
+static void testXor2() {
+    SkPath one, two;
+    one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
+    two.addRect(0, 3, 9, 9, SkPath::kCW_Direction);
+    testShapeOp(one, two, kXor_Op);
+}
+
+static void testOp1d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    path.addRect(0, 0, 2, 2, SkPath::kCW_Direction);
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void testOp2d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    path.addRect(0, 0, 2, 2, SkPath::kCW_Direction);
+    pathB.setFillType(SkPath::kEvenOdd_FillType);
+    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void testOp3d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    path.addRect(1, 1, 2, 2, SkPath::kCW_Direction);
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void testOp1u() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    path.addRect(0, 0, 3, 3, SkPath::kCW_Direction);
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    testShapeOp(path, pathB, kUnion_Op);
+}
+
+static void testOp4d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    path.addRect(2, 2, 4, 4, SkPath::kCW_Direction);
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void testOp5d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.addRect(0, 0, 2, 2, SkPath::kCW_Direction);
+    path.addRect(0, 0, 3, 3, SkPath::kCW_Direction);
+    pathB.setFillType(SkPath::kEvenOdd_FillType);
+    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void testOp6d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    path.addRect(0, 0, 3, 3, SkPath::kCW_Direction);
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void testOp7d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.addRect(0, 0, 2, 2, SkPath::kCW_Direction);
+    path.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    pathB.setFillType(SkPath::kEvenOdd_FillType);
+    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    pathB.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
 static const size_t testCount = sizeof(tests) / sizeof(tests[0]);
 
 static struct {
@@ -3266,11 +3321,16 @@ static struct {
     TEST(testOp1d),
     TEST(testOp2d),
     TEST(testOp3d),
+    TEST(testOp1u),
+    TEST(testOp4d),
+    TEST(testOp5d),
+    TEST(testOp6d),
+    TEST(testOp7d),
 };
 
 static const size_t subTestCount = sizeof(subTests) / sizeof(subTests[0]);
 
-static void (*firstBinaryTest)() = testOp1d;
+static void (*firstBinaryTest)() = 0;
 
 static bool skipAll = false;
 static bool runBinaryTestsFirst = true;
