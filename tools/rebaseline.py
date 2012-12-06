@@ -51,7 +51,7 @@ for testname in sys.argv[1:]:
         if (pair[0] == 'base-shuttle-win7-intel-angle'):
             testtypes = [ 'angle' ]
         else:
-            testtypes = [ '4444', '565', '8888', 'gpu', 'pdf' ]
+            testtypes = [ '565', '8888', 'gpu', 'pdf' ]
         print pair[0] + ':'
         for testtype in testtypes:
             infilename = testname + '_' + testtype + '.png'
