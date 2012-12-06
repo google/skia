@@ -16,6 +16,7 @@
 #include "SkFlattenable.h"
 
 class SkColorTable;
+class SkData;
 struct SkIRect;
 class SkMutex;
 
@@ -113,6 +114,18 @@ public:
     */
     void setURI(const SkString& uri) { fURI = uri; }
 
+    /**
+     *  If the pixelRef has an encoded (i.e. compressed) representation,
+     *  return a ref to its data. If the pixelRef
+     *  is uncompressed or otherwise does not have this form, return NULL.
+     *
+     *  If non-null is returned, the caller is responsible for calling unref()
+     *  on the data when it is finished.
+     */
+    SkData* refEncodedData() {
+        return this->onRefEncodedData();
+    }
+
     /** Are we really wrapping a texture instead of a bitmap?
      */
     virtual SkGpuTexture* getTexture() { return NULL; }
@@ -162,6 +175,9 @@ protected:
      *  The base class implementation returns false;
      */
     virtual bool onReadPixels(SkBitmap* dst, const SkIRect* subsetOrNull);
+
+    // default impl returns NULL.
+    virtual SkData* onRefEncodedData();
 
     /** Return the mutex associated with this pixelref. This value is assigned
         in the constructor, and cannot change during the lifetime of the object.

@@ -168,6 +168,10 @@ bool SkPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
     return false;
 }
 
+SkData* SkPixelRef::onRefEncodedData() {
+    return NULL;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_BUILD_FOR_ANDROID
