@@ -21,6 +21,7 @@ class GrAutoScratchTexture;
 class GrContext;
 class GrTexture;
 class SkPath;
+class SkStroke;
 class GrDrawTarget;
 
 /**
@@ -54,8 +55,8 @@ public:
               bool antiAlias, uint8_t alpha);
 
     // Draw a single path into the accumuation bitmap using the specified op
-    void draw(const SkPath& path, SkRegion::Op op,
-              GrPathFill fill, bool antiAlias, uint8_t alpha);
+    void draw(const SkPath& path, const SkStroke& stroke, SkRegion::Op op,
+              bool antiAlias, uint8_t alpha);
 
     // Helper function to get a scratch texture suitable for capturing the
     // result (i.e., right size & format)
@@ -74,8 +75,8 @@ public:
     // to the GPU. The result is returned in "result".
     static GrTexture* DrawPathMaskToTexture(GrContext* context,
                                             const SkPath& path,
+                                            const SkStroke& stroke,
                                             const GrIRect& resultBounds,
-                                            GrPathFill fill,
                                             bool antiAlias,
                                             SkMatrix* matrix);
 

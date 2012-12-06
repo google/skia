@@ -179,7 +179,7 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
                                SkFixedToScalar(vy - SkIntToFixed(glyph->fBounds.fTop)));
         GrPaint tmpPaint(fPaint);
         am.setPreConcat(fContext, translate, &tmpPaint);
-        fContext->drawPath(tmpPaint, *glyph->fPath, kWinding_GrPathFill);
+        fContext->drawPath(tmpPaint, *glyph->fPath, false);
         return;
     }
 

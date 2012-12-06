@@ -14,6 +14,7 @@
 #include "GrIndexBuffer.h"
 #include "GrPathUtils.h"
 #include "SkGeometry.h"
+#include "SkStroke.h"
 #include "SkTemplates.h"
 
 namespace {
@@ -546,10 +547,10 @@ bool GrAAHairLinePathRenderer::createGeom(
 }
 
 bool GrAAHairLinePathRenderer::canDrawPath(const SkPath& path,
-                                           GrPathFill fill,
+                                           const SkStroke& stroke,
                                            const GrDrawTarget* target,
                                            bool antiAlias) const {
-    if (fill != kHairLine_GrPathFill || !antiAlias) {
+    if ((0 != stroke.getWidthIfStroked()) || !antiAlias) {
         return false;
     }
 
@@ -563,7 +564,7 @@ bool GrAAHairLinePathRenderer::canDrawPath(const SkPath& path,
 }
 
 bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
-                                          GrPathFill fill,
+                                          const SkStroke&,
                                           GrDrawTarget* target,
                                           bool antiAlias) {
 

@@ -17,6 +17,7 @@
 #include "GrRefCnt.h"
 #include "GrTemplates.h"
 
+#include "SkPath.h"
 #include "SkXfermode.h"
 #include "SkTLazy.h"
 #include "SkTArray.h"
@@ -24,6 +25,8 @@
 class GrClipData;
 class GrPath;
 class GrVertexBuffer;
+
+class SkStroke;
 
 class GrDrawTarget : public GrRefCnt {
 protected:
@@ -452,7 +455,7 @@ public:
      * winding (not inverse or hairline). It will respect the HW antialias flag
      * on the draw state (if possible in the 3D API).
      */
-    void stencilPath(const GrPath*, GrPathFill);
+    void stencilPath(const GrPath*, const SkStroke& stroke, SkPath::FillType fill);
 
     /**
      * Helper function for drawing rects. This does not use the current index
@@ -981,7 +984,7 @@ protected:
     virtual void onDrawNonIndexed(GrPrimitiveType type,
                                   int startVertex,
                                   int vertexCount) = 0;
-    virtual void onStencilPath(const GrPath*, GrPathFill) = 0;
+    virtual void onStencilPath(const GrPath*, const SkStroke& stroke, SkPath::FillType fill) = 0;
 
     // subclass overrides to be notified when clip is set. Must call
     // INHERITED::clipwillBeSet

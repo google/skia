@@ -32,6 +32,7 @@ public:
 
     void    setMiterLimit(SkScalar);
     void    setWidth(SkScalar);
+    SkScalar getWidthIfStroked() const { return fDoFill ? -SK_Scalar1 : fWidth; }
 
     bool    getDoFill() const { return SkToBool(fDoFill); }
     void    setDoFill(bool doFill) { fDoFill = SkToU8(doFill); }

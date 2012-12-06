@@ -34,14 +34,14 @@ GrPathRenderer* GrPathRendererChain::addPathRenderer(GrPathRenderer* pr) {
 }
 
 GrPathRenderer* GrPathRendererChain::getPathRenderer(const SkPath& path,
-                                                     GrPathFill fill,
+                                                     const SkStroke& stroke,
                                                      const GrDrawTarget* target,
                                                      bool antiAlias) {
     if (!fInit) {
         this->init();
     }
     for (int i = 0; i < fChain.count(); ++i) {
-        if (fChain[i]->canDrawPath(path, fill, target, antiAlias)) {
+        if (fChain[i]->canDrawPath(path, stroke, target, antiAlias)) {
             return fChain[i];
         }
     }

@@ -26,6 +26,7 @@
 #include "SkTLazy.h"
 #include "SkTLS.h"
 #include "SkTrace.h"
+#include "SkStroke.h"
 
 SK_DEFINE_INST_COUNT(GrContext)
 SK_DEFINE_INST_COUNT(GrDrawState)
@@ -985,9 +986,14 @@ void GrContext::drawOval(const GrPaint& paint,
         rect.height() != rect.width()) {
         SkPath path;
         path.addOval(rect);
-        GrPathFill fill = (strokeWidth == 0) ?
-                           kHairLine_GrPathFill : kWinding_GrPathFill;
-        this->internalDrawPath(paint, path, fill);
+        path.setFillType(SkPath::kWinding_FillType);
+        SkStroke stroke;
+        if (strokeWidth < 0) {
+            stroke.setDoFill(true);
+        } else {
+            stroke.setWidth(strokeWidth);
+        }
+        this->internalDrawPath(paint, path, stroke);
         return;
     }
 
@@ -1057,26 +1063,33 @@ void GrContext::drawOval(const GrPaint& paint,
     target->drawNonIndexed(kTriangleStrip_GrPrimitiveType, 0, 4);
 }
 
-void GrContext::drawPath(const GrPaint& paint, const SkPath& path, GrPathFill fill) {
+void GrContext::drawPath(const GrPaint& paint, const SkPath& path, bool doHairLine) {
 
     if (path.isEmpty()) {
-       if (GrIsFillInverted(fill)) {
+       if (path.isInverseFillType()) {
            this->drawPaint(paint);
        }
        return;
     }
 
     SkRect ovalRect;
-    if (!GrIsFillInverted(fill) && path.isOval(&ovalRect)) {
-        SkScalar width = (fill == kHairLine_GrPathFill) ? 0 : -SK_Scalar1;
+    if (!path.isInverseFillType() && path.isOval(&ovalRect)) {
+        SkScalar width = doHairLine ? 0 : -SK_Scalar1;
         this->drawOval(paint, ovalRect, width);
         return;
     }
 
-    this->internalDrawPath(paint, path, fill);
+    SkStroke stroke;
+    if (doHairLine) {
+        stroke.setWidth(0);
+    } else {
+        stroke.setDoFill(true);
+    }
+
+    this->internalDrawPath(paint, path, stroke);
 }
 
-void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path, GrPathFill fill) {
+void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path, const SkStroke& stroke) {
 
     // Note that below we may sw-rasterize the path into a scratch texture.
     // Scratch textures can be recycled after they are returned to the texture
@@ -1099,7 +1112,7 @@ void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path, GrPat
         prAA = false;
     }
 
-    GrPathRenderer* pr = this->getPathRenderer(path, fill, target, prAA, true);
+    GrPathRenderer* pr = this->getPathRenderer(path, stroke, target, prAA, true);
     if (NULL == pr) {
 #if GR_DEBUG
         GrPrintf("Unable to find path renderer compatible with path.\n");
@@ -1107,7 +1120,7 @@ void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path, GrPat
         return;
     }
 
-    pr->drawPath(path, fill, target, prAA);
+    pr->drawPath(path, stroke, target, prAA);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1598,7 +1611,7 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint, BufferedDraw buffer
  * can be individually allowed/disallowed via the "allowSW" boolean.
  */
 GrPathRenderer* GrContext::getPathRenderer(const SkPath& path,
-                                           GrPathFill fill,
+                                           const SkStroke& stroke,
                                            const GrDrawTarget* target,
                                            bool antiAlias,
                                            bool allowSW) {
@@ -1608,7 +1621,8 @@ GrPathRenderer* GrContext::getPathRenderer(const SkPath& path,
                        (this, GrPathRendererChain::kNone_UsageFlag));
     }
 
-    GrPathRenderer* pr = fPathRendererChain->getPathRenderer(path, fill,
+    GrPathRenderer* pr = fPathRendererChain->getPathRenderer(path,
+                                                             stroke,
                                                              target,
                                                              antiAlias);
 

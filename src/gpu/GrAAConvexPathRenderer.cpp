@@ -12,8 +12,8 @@
 #include "GrDrawState.h"
 #include "GrPathUtils.h"
 #include "SkString.h"
+#include "SkStroke.h"
 #include "SkTrace.h"
-
 
 GrAAConvexPathRenderer::GrAAConvexPathRenderer() {
 }
@@ -429,20 +429,15 @@ void create_vertices(const SegmentArray&  segments,
 }
 
 bool GrAAConvexPathRenderer::canDrawPath(const SkPath& path,
-                                         GrPathFill fill,
+                                         const SkStroke& stroke,
                                          const GrDrawTarget* target,
                                          bool antiAlias) const {
-    if (!target->getCaps().shaderDerivativeSupport() || !antiAlias ||
-        kHairLine_GrPathFill == fill || GrIsFillInverted(fill) ||
-        !path.isConvex()) {
-        return false;
-    }  else {
-        return true;
-    }
+    return (target->getCaps().shaderDerivativeSupport() && antiAlias &&
+            stroke.getDoFill() && !path.isInverseFillType() && path.isConvex());
 }
 
 bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
-                                        GrPathFill fill,
+                                        const SkStroke&,
                                         GrDrawTarget* target,
                                         bool antiAlias) {
 

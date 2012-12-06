@@ -17,6 +17,7 @@
 class GrContext;
 
 class SkPath;
+class SkStroke;
 class GrPathRenderer;
 
 /**
@@ -42,7 +43,7 @@ public:
     GrPathRenderer* addPathRenderer(GrPathRenderer* pr);
 
     GrPathRenderer* getPathRenderer(const SkPath& path,
-                                    GrPathFill fill,
+                                    const SkStroke& stroke,
                                     const GrDrawTarget* target,
                                     bool antiAlias);
 

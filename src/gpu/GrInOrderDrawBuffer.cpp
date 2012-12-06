@@ -487,7 +487,8 @@ void GrInOrderDrawBuffer::onDrawNonIndexed(GrPrimitiveType primitiveType,
     draw->fIndexBuffer = NULL;
 }
 
-void GrInOrderDrawBuffer::onStencilPath(const GrPath* path, GrPathFill fill) {
+void GrInOrderDrawBuffer::onStencilPath(const GrPath* path, const SkStroke& stroke,
+                                        SkPath::FillType fill) {
     if (this->needsNewClip()) {
         this->recordClip();
     }
@@ -499,6 +500,7 @@ void GrInOrderDrawBuffer::onStencilPath(const GrPath* path, GrPathFill fill) {
     sp->fPath.reset(path);
     path->ref();
     sp->fFill = fill;
+    sp->fStroke = stroke;
 }
 
 void GrInOrderDrawBuffer::clear(const GrIRect* rect,
@@ -610,7 +612,7 @@ bool GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
             }
             case kStencilPath_Cmd: {
                 const StencilPath& sp = fStencilPaths[currStencilPath];
-                target->stencilPath(sp.fPath.get(), sp.fFill);
+                target->stencilPath(sp.fPath.get(), sp.fStroke, sp.fFill);
                 ++currStencilPath;
                 break;
             }

@@ -576,7 +576,7 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
         *isClosed = autoClose;
     }
     if (result && direction) {
-        *direction = firstDirection == (lastDirection + 1 & 3) ? kCCW_Direction : kCW_Direction;
+        *direction = firstDirection == ((lastDirection + 1) & 3) ? kCCW_Direction : kCW_Direction;
     }
     return result;
 }

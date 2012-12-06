@@ -9,6 +9,8 @@
 #include "GrDrawState.h"
 #include "GrGpu.h"
 
+#include "SkStroke.h"
+
 // TODO: try to remove this #include
 #include "GrContext.h"
 
@@ -28,23 +30,6 @@ SkXfermode::Mode op_to_mode(SkRegion::Op op) {
     };
 
     return modeMap[op];
-}
-
-////////////////////////////////////////////////////////////////////////////////
-SkPath::FillType gr_fill_to_sk_fill(GrPathFill fill) {
-    switch (fill) {
-        case kWinding_GrPathFill:
-            return SkPath::kWinding_FillType;
-        case kEvenOdd_GrPathFill:
-            return SkPath::kEvenOdd_FillType;
-        case kInverseWinding_GrPathFill:
-            return SkPath::kInverseWinding_FillType;
-        case kInverseEvenOdd_GrPathFill:
-            return SkPath::kInverseEvenOdd_FillType;
-        default:
-            GrCrash("Unexpected fill.");
-            return SkPath::kWinding_FillType;
-    }
 }
 
 }
@@ -70,22 +55,22 @@ void GrSWMaskHelper::draw(const GrRect& rect, SkRegion::Op op,
 /**
  * Draw a single path element of the clip stack into the accumulation bitmap
  */
-void GrSWMaskHelper::draw(const SkPath& path, SkRegion::Op op,
-                          GrPathFill fill, bool antiAlias, uint8_t alpha) {
+void GrSWMaskHelper::draw(const SkPath& path, const SkStroke& stroke, SkRegion::Op op,
+                          bool antiAlias, uint8_t alpha) {
 
     SkPaint paint;
-    SkPath tmpPath;
-    const SkPath* pathToDraw = &path;
-    if (kHairLine_GrPathFill == fill) {
+    SkScalar width = stroke.getWidthIfStroked();
+    if (0 == width) {
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SK_Scalar1);
     } else {
-        paint.setStyle(SkPaint::kFill_Style);
-        SkPath::FillType skfill = gr_fill_to_sk_fill(fill);
-        if (skfill != pathToDraw->getFillType()) {
-            tmpPath = *pathToDraw;
-            tmpPath.setFillType(skfill);
-            pathToDraw = &tmpPath;
+        if (stroke.getDoFill()) {
+            paint.setStyle(SkPaint::kFill_Style);
+        } else {
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setStrokeJoin(stroke.getJoin());
+            paint.setStrokeCap(stroke.getCap());
+            paint.setStrokeWidth(width);
         }
     }
     SkXfermode* mode = SkXfermode::Create(op_to_mode(op));
@@ -94,7 +79,7 @@ void GrSWMaskHelper::draw(const SkPath& path, SkRegion::Op op,
     paint.setAntiAlias(antiAlias);
     paint.setColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
 
-    fDraw.drawPath(*pathToDraw, paint);
+    fDraw.drawPath(path, paint);
 
     SkSafeUnref(mode);
 }
@@ -174,8 +159,8 @@ void GrSWMaskHelper::toTexture(GrTexture *texture, uint8_t alpha) {
  */
 GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrContext* context,
                                                  const SkPath& path,
+                                                 const SkStroke& stroke,
                                                  const GrIRect& resultBounds,
-                                                 GrPathFill fill,
                                                  bool antiAlias,
                                                  SkMatrix* matrix) {
     GrAutoScratchTexture ast;
@@ -186,7 +171,7 @@ GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrContext* context,
         return NULL;
     }
 
-    helper.draw(path, SkRegion::kReplace_Op, fill, antiAlias, 0xFF);
+    helper.draw(path, stroke, SkRegion::kReplace_Op, antiAlias, 0xFF);
 
     if (!helper.getTexture(&ast)) {
         return NULL;

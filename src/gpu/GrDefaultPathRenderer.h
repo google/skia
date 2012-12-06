@@ -22,32 +22,32 @@ public:
 
 
     virtual bool requiresStencilPass(const SkPath& path,
-                                     GrPathFill fill,
+                                     const SkStroke& stroke,
                                      const GrDrawTarget* target) const SK_OVERRIDE;
 
     virtual bool canDrawPath(const SkPath& path,
-                            GrPathFill fill,
-                            const GrDrawTarget* target,
-                            bool antiAlias) const SK_OVERRIDE;
+                             const SkStroke& stroke,
+                             const GrDrawTarget* target,
+                             bool antiAlias) const SK_OVERRIDE;
 
     virtual void drawPathToStencil(const SkPath& path,
-                                   GrPathFill fill,
+                                   const SkStroke& stroke,
                                    GrDrawTarget* target) SK_OVERRIDE;
 
 private:
 
     virtual bool onDrawPath(const SkPath& path,
-                            GrPathFill fill,
+                            const SkStroke& stroke,
                             GrDrawTarget* target,
                             bool antiAlias) SK_OVERRIDE;
 
     bool internalDrawPath(const SkPath& path,
-                          GrPathFill fill,
+                          const SkStroke& stroke,
                           GrDrawTarget* target,
                           bool stencilOnly);
 
     bool createGeom(const SkPath& path,
-                    GrPathFill fill,
+                    const SkStroke& stroke,
                     SkScalar srcSpaceTol,
                     GrDrawTarget* target,
                     GrPrimitiveType* primType,

@@ -1681,13 +1681,13 @@ const GrStencilSettings& even_odd_nv_path_stencil_settings() {
 
 
 void GrGpuGL::setStencilPathSettings(const GrPath&,
-                                     GrPathFill fill,
+                                     SkPath::FillType fill,
                                      GrStencilSettings* settings) {
     switch (fill) {
-        case kEvenOdd_GrPathFill:
+        case SkPath::kEvenOdd_FillType:
             *settings = even_odd_nv_path_stencil_settings();
             return;
-        case kWinding_GrPathFill:
+        case SkPath::kWinding_FillType:
             *settings = winding_nv_path_stencil_settings();
             return;
         default:
@@ -1695,7 +1695,7 @@ void GrGpuGL::setStencilPathSettings(const GrPath&,
     }
 }
 
-void GrGpuGL::onGpuStencilPath(const GrPath* path, GrPathFill fill) {
+void GrGpuGL::onGpuStencilPath(const GrPath* path, SkPath::FillType fill) {
     GrAssert(fCaps.pathStencilingSupport());
 
     GrGLuint id = static_cast<const GrGLPath*>(path)->pathID();
@@ -1711,14 +1711,14 @@ void GrGpuGL::onGpuStencilPath(const GrPath* path, GrPathFill fill) {
     GrAssert(!fStencilSettings.isTwoSided());
     GrGLenum fillMode;
     switch (fill) {
-        case kWinding_GrPathFill:
+        case SkPath::kWinding_FillType:
             fillMode = GR_GL_COUNT_UP;
             GrAssert(kIncClamp_StencilOp ==
                      fStencilSettings.passOp(GrStencilSettings::kFront_Face));
             GrAssert(kIncClamp_StencilOp ==
                      fStencilSettings.failOp(GrStencilSettings::kFront_Face));
             break;
-        case kEvenOdd_GrPathFill:
+        case SkPath::kEvenOdd_FillType:
             fillMode = GR_GL_INVERT;
             GrAssert(kInvert_StencilOp ==
                      fStencilSettings.passOp(GrStencilSettings::kFront_Face));

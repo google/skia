@@ -104,10 +104,10 @@ protected:
                                      uint32_t numVertices) SK_OVERRIDE;
 
     virtual void setStencilPathSettings(const GrPath&,
-                                        GrPathFill,
+                                        SkPath::FillType,
                                         GrStencilSettings* settings)
                                         SK_OVERRIDE;
-    virtual void onGpuStencilPath(const GrPath*, GrPathFill) SK_OVERRIDE;
+    virtual void onGpuStencilPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
 
     virtual void clearStencil() SK_OVERRIDE;
     virtual void clearStencilClip(const GrIRect& rect,
