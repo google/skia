@@ -79,7 +79,7 @@ public:
 
 protected:
 #ifdef SK_PICTURE_PROFILING_STUBS
-    virtual void preDraw(size_t offset, int type);
+    virtual size_t preDraw(size_t offset, int type);
     virtual void postDraw(size_t offset);
 #endif
 
