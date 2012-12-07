@@ -5,6 +5,9 @@
       'product_name': 'skia_utils',
       'type': 'static_library',
       'standalone_static_library': 1,
+      'dependencies': [
+        'cityhash',
+      ],
       'include_dirs': [
         '../include/config',
         '../include/core',
@@ -23,6 +26,7 @@
         '../include/utils/SkCountdown.h',
         '../include/utils/SkRunnable.h',
         '../include/utils/SkThreadPool.h',
+        '../src/utils/SkCityHash.cpp',
         '../src/utils/SkCondVar.cpp',
         '../src/utils/SkCountdown.cpp',
         '../src/utils/SkThreadPool.cpp',
@@ -190,6 +194,25 @@
       'direct_dependent_settings': {
         'include_dirs': [
           '../include/utils',
+        ],
+      },
+    },
+    {
+      'target_name': 'cityhash',
+      'type': 'static_library',
+      'standalone_static_library': 1,
+      'include_dirs': [
+        '../include/config',
+        '../include/core',
+        '../src/utils/cityhash',
+        '../third_party/externals/cityhash/src',
+      ],
+      'sources': [
+        '../third_party/externals/cityhash/src/city.cc',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '../third_party/externals/cityhash/src',
         ],
       },
     },
