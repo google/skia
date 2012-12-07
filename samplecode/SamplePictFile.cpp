@@ -13,6 +13,7 @@
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
+#include "SkOSFile.h"
 #include "SkPath.h"
 #include "SkPicture.h"
 #include "SkRandom.h"
@@ -31,8 +32,10 @@
 class PictFileView : public SampleView {
     SkString    fFilename;
     SkPicture*  fPicture;
+    SkPicture*  fBBoxPicture;
+    bool        fUseBBox;
 
-    static SkPicture* LoadPicture(const char path[]) {
+    static SkPicture* LoadPicture(const char path[], bool useBBox) {
         SkPicture* pic = NULL;
 
         SkBitmap bm;
@@ -60,16 +63,30 @@ class PictFileView : public SampleView {
                 p2.serialize(&writer);
             }
         }
-        return pic;
+
+        if (useBBox) {
+            SkPicture* bboxPicture = SkNEW(SkPicture);
+            pic->draw(bboxPicture->beginRecording(pic->width(), pic->height(),
+                    SkPicture::kOptimizeForClippedPlayback_RecordingFlag));
+            bboxPicture->endRecording();
+            SkDELETE(pic);
+            return bboxPicture;
+
+        } else {
+            return pic;
+        }
     }
 
 public:
     PictFileView(const char name[] = NULL) : fFilename(name) {
         fPicture = NULL;
+        fBBoxPicture = NULL;
+        fUseBBox = false;
     }
 
     virtual ~PictFileView() {
         SkSafeUnref(fPicture);
+        SkSafeUnref(fBBoxPicture);
     }
 
 protected:
@@ -77,19 +94,33 @@ protected:
     virtual bool onQuery(SkEvent* evt) {
         if (SampleCode::TitleQ(*evt)) {
             SkString name("P:");
-            name.append(fFilename);
+            char* basename = strrchr(fFilename.c_str(), SkPATH_SEPARATOR);
+            name.append(basename ? basename+1: fFilename.c_str());
+            if (fUseBBox) {
+                name.append(" <bbox>");
+            }
             SampleCode::TitleR(evt, name.c_str());
             return true;
         }
         return this->INHERITED::onQuery(evt);
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
-        if (!fPicture) {
-            fPicture = LoadPicture(fFilename.c_str());
+    virtual bool onEvent(const SkEvent& evt) {
+        if (evt.isType("PictFileView::toggleBBox")) {
+            fUseBBox = !fUseBBox;
+            return true;
         }
-        if (fPicture) {
-            canvas->drawPicture(*fPicture);
+        return this->INHERITED::onEvent(evt);
+    }
+
+    virtual void onDrawContent(SkCanvas* canvas) {
+        SkPicture** picture = fUseBBox ? &fBBoxPicture : &fPicture;
+
+        if (!*picture) {
+            *picture = LoadPicture(fFilename.c_str(), fUseBBox);
+        }
+        if (*picture) {
+            canvas->drawPicture(**picture);
         }
     }
 
