@@ -144,7 +144,7 @@ public:
 
     /** Return the number of bytes from the pointer returned by getPixels()
         to the end of the allocated space in the buffer. Required in
-        cases where extractBitmap has been called.
+        cases where extractSubset has been called.
     */
     size_t getSafeSize() const ;
 
