@@ -21,9 +21,7 @@ void reduced_stack_walker(const SkClipStack& stack,
                           bool* requiresAA);
 
 /*
-There are plenty of optimizations that could be added here. For example we could consider
-checking for cases where an inverse path can be changed to a regular fill with a different op.
-(e.g. [kIntersect, inverse path] -> [kDifference, path]). Maybe flips could be folded into
+There are plenty of optimizations that could be added here. Maybe flips could be folded into
 earlier operations. Or would inserting flips and reversing earlier ops ever be a win? Perhaps
 for the case where the bounds are kInsideOut_BoundsType. We could restrict earlier operations
 based on later intersect operations, and perhaps remove intersect-rects. We could optionally
@@ -322,9 +320,22 @@ void reduced_stack_walker(const SkClipStack& stack,
                                            Element,
                                            (queryBounds, SkRegion::kReverseDifference_Op, false));
             } else {
-                result->addToHead(*element);
-                if (element->isAA()) {
+                Element* newElement = result->addToHead(*element);
+                if (newElement->isAA()) {
                     ++numAAElements;
+                }
+                // Intersecting an inverse shape is the same as differencing the non-inverse shape.
+                // Replacing with a inverse shape the same as setting initialState=kAllIn and
+                // differencing the non-inverse shape.
+                bool isReplace = SkRegion::kReplace_Op == newElement->getOp();
+                if (newElement->isInverseFilled() &&
+                    (SkRegion::kIntersect_Op == newElement->getOp() || isReplace)) {
+                    newElement->invertShapeFillType();
+                    newElement->setOp(SkRegion::kDifference_Op);
+                    if (isReplace) {
+                        SkASSERT(kAllOut_InitialState == *initialState);
+                        *initialState = kAllIn_InitialState;
+                    }
                 }
             }
         }

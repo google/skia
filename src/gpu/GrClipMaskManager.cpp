@@ -20,6 +20,8 @@
 #include "GrSWMaskHelper.h"
 #include "GrCacheID.h"
 
+#include "SkTLazy.h"
+
 GR_DEFINE_RESOURCE_CACHE_DOMAIN(GrClipMaskManager, GetAlphaMaskDomain)
 
 #define GR_AA_CLIP 1
@@ -59,11 +61,16 @@ void setup_drawstate_aaclip(GrGpu* gpu,
 
 bool path_needs_SW_renderer(GrContext* context,
                             GrGpu* gpu,
-                            const SkPath& path,
+                            const SkPath& origPath,
                             const SkStroke& stroke,
                             bool doAA) {
+    // the gpu alpha mask will draw the inverse paths as non-inverse to a temp buffer
+    SkTCopyOnFirstWrite<SkPath> path(origPath);
+    if (path->isInverseFillType()) {
+        path.writable()->toggleInverseFillType();
+    }
     // last (false) parameter disallows use of the SW path renderer
-    return NULL == context->getPathRenderer(path, stroke, gpu, doAA, false);
+    return NULL == context->getPathRenderer(*path, stroke, gpu, doAA, false);
 }
 
 }
@@ -300,9 +307,13 @@ bool GrClipMaskManager::drawClipShape(GrTexture* target, const SkClipStack::Elem
             }
             return true;
         case Element::kPath_Type: {
+            SkTCopyOnFirstWrite<SkPath> path(element->getPath());
+            if (path->isInverseFillType()) {
+                path.writable()->toggleInverseFillType();
+            }
             SkStroke stroke;
             stroke.setDoFill(true);
-            GrPathRenderer* pr = this->getContext()->getPathRenderer(element->getPath(),
+            GrPathRenderer* pr = this->getContext()->getPathRenderer(*path,
                                                                      stroke,
                                                                      fGpu,
                                                                      element->isAA(), false);
@@ -437,16 +448,11 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t clipStackGenID,
     GrAutoScratchTexture temp;
     // walk through each clip element and perform its set op
     for (ElementList::Iter iter = elements.headIter(); iter.get(); iter.next()) {
-
         const Element* element = iter.get();
         SkRegion::Op op = element->getOp();
 
-        if (SkRegion::kReplace_Op == op) {
-            setup_boolean_blendcoeffs(drawState, op);
-            this->drawClipShape(result, element);
-
-        } else if (SkRegion::kReverseDifference_Op == op ||
-                   SkRegion::kIntersect_Op == op) {
+        if (SkRegion::kReverseDifference_Op == op || SkRegion::kIntersect_Op == op ||
+            element->isInverseFilled()) {
             this->getTemp(maskSpaceIBounds.fRight, maskSpaceIBounds.fBottom, &temp);
             if (NULL == temp.texture()) {
                 fAACache.reset();
@@ -466,21 +472,27 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t clipStackGenID,
                 elementBounds.roundOut(&maskSpaceElementIBounds);
             }
 
-            // clear the temp target & draw into it
-            fGpu->clear(&maskSpaceElementIBounds, 0x00000000, temp.texture()->asRenderTarget());
+            // determines whether we're drawing white-on-black or black-on-white
+            bool invert = element->isInverseFilled();
 
+            // clear the temp target & draw into it
+            fGpu->clear(&maskSpaceElementIBounds,
+                        invert ? 0xffffffff : 0x00000000,
+                        temp.texture()->asRenderTarget());
+            drawState->setAlpha(invert ? 0x00 : 0xff);
             setup_boolean_blendcoeffs(drawState, SkRegion::kReplace_Op);
+
             if (!this->drawClipShape(temp.texture(), element)) {
                 fAACache.reset();
                 return NULL;
             }
 
-            // Now draw into the accumulator using the real operation
-            // and the temp buffer as a texture
+            // Now draw into the accumulator using the real operation and the temp buffer as a
+            // texture
             this->mergeMask(result, temp.texture(), op, maskSpaceIBounds, maskSpaceElementIBounds);
         } else {
-            // all the remaining ops can just be directly draw into
-            // the accumulation buffer
+            // all the remaining ops can just be directly draw into the accumulation buffer
+            drawState->setAlpha(0xff);
             setup_boolean_blendcoeffs(drawState, op);
             this->drawClipShape(result, element);
         }

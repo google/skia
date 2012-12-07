@@ -98,6 +98,10 @@ public:
             when it is rasterized. */
         bool isAA() const { return fDoAA; }
 
+        //!< Inverts the fill of the clip shape. Note that a kEmpty element remains kEmpty.
+        void invertShapeFillType();
+
+        //!< Sets the set operation represented by the element.
         void setOp(SkRegion::Op op) { fOp = op; }
 
         /** The GenID can be used by clip stack clients to cache representations of the clip. The

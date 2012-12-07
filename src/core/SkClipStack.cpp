@@ -16,6 +16,21 @@
 static const int32_t kFirstUnreservedGenID = 3;
 int32_t SkClipStack::gGenID = kFirstUnreservedGenID;
 
+void SkClipStack::Element::invertShapeFillType() {
+    switch (fType) {
+        case kRect_Type:
+            fPath.reset();
+            fPath.addRect(fRect);
+            fPath.setFillType(SkPath::kInverseWinding_FillType);
+            fType = kPath_Type;
+            break;
+        case kPath_Type:
+            fPath.toggleInverseFillType();
+        case kEmpty_Type:
+            break;
+    }
+}
+
 void SkClipStack::Element::checkEmpty() const {
     SkASSERT(fFiniteBound.isEmpty());
     SkASSERT(kNormal_BoundsType == fFiniteBoundType);

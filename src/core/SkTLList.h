@@ -66,32 +66,34 @@ public:
         }
     }
 
-    void addToHead(const T& t) {
+    T* addToHead(const T& t) {
         this->validate();
         Node* node = this->createNode();
         fList.addToHead(node);
         SkNEW_PLACEMENT_ARGS(node->fObj, T, (t));
         this->validate();
+        return reinterpret_cast<T*>(node->fObj);
     }
 
-    void addToTail(const T& t) {
+    T* addToTail(const T& t) {
         this->validate();
         Node* node = this->createNode();
         fList.addToTail(node);
         SkNEW_PLACEMENT_ARGS(node->fObj, T, (t));
         this->validate();
+        return reinterpret_cast<T*>(node->fObj);
     }
 
     /** Adds a new element to the list before the location indicated by the iterator. If the
         iterator refers to a NULL location then the new element is added at the tail */
-    void addBefore(const T& t, const Iter& location) {
-        SkNEW_PLACEMENT_ARGS(this->internalAddBefore(location), T, (t));
+    T* addBefore(const T& t, const Iter& location) {
+        return SkNEW_PLACEMENT_ARGS(this->internalAddBefore(location), T, (t));
     }
 
     /** Adds a new element to the list after the location indicated by the iterator. If the
         iterator refers to a NULL location then the new element is added at the head */
-    void addAfter(const T& t, const Iter& location) {
-        SkNEW_PLACEMENT_ARGS(this->internalAddAfter(location), T, (t));
+    T* addAfter(const T& t, const Iter& location) {
+        return SkNEW_PLACEMENT_ARGS(this->internalAddAfter(location), T, (t));
     }
 
     /** Convenience methods for getting an iterator initialized to the head/tail of the list. */
