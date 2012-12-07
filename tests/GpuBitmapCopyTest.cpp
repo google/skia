@@ -10,7 +10,10 @@
 
 #include "GrContext.h"
 #include "SkBitmap.h"
+#include "SkCanvas.h"
+#include "SkColor.h"
 #include "SkGpuDevice.h"
+#include "SkPaint.h"
 #include "SkPixelRef.h"
 #include "SkRect.h"
 #include "Test.h"
@@ -29,6 +32,89 @@ struct Pair {
     const char*         fValid;
 };
 
+extern bool getUpperLeftFromOffset(const SkBitmap& bm, int* x, int* y);
+extern size_t getSubOffset(const SkBitmap& bm, int x, int y);
+
+/**
+ *  Tests that getUpperLeftFromOffset and getSubOffset agree with each other.
+ */
+static void TestSubsetHelpers(skiatest::Reporter* reporter, const SkBitmap& bitmap){
+    int x, y;
+    bool upperLeft = getUpperLeftFromOffset(bitmap, &x, &y);
+    REPORTER_ASSERT(reporter, upperLeft);
+    REPORTER_ASSERT(reporter, getSubOffset(bitmap, x, y) == bitmap.pixelRefOffset());
+}
+
+/**
+ *  Check to ensure that copying a GPU-backed SkBitmap behaved as expected.
+ *  @param reporter Used to report failures.
+ *  @param desiredConfig Config being copied to. If the copy succeeded, dst must have this Config.
+ *  @param success True if the copy succeeded.
+ *  @param src A GPU-backed SkBitmap that had copyTo or deepCopyTo called on it.
+ *  @param dst SkBitmap that was copied to.
+ *  @param deepCopy True if deepCopyTo was used; false if copyTo was used.
+ *  @param subset Portion of src's SkPixelRef that src represents. dst should represent the same
+ *      portion after the copy. Pass NULL for all pixels.
+ */
+static void TestIndividualCopy(skiatest::Reporter* reporter, const SkBitmap::Config desiredConfig,
+                               const bool success, const SkBitmap& src, const SkBitmap& dst,
+                               const bool deepCopy = true, const SkIRect* subset = NULL) {
+    if (success) {
+        REPORTER_ASSERT(reporter, src.width() == dst.width());
+        REPORTER_ASSERT(reporter, src.height() == dst.height());
+        REPORTER_ASSERT(reporter, dst.config() == desiredConfig);
+        if (src.config() == dst.config()) {
+            // FIXME: When calling copyTo (so deepCopy is false here), sometimes we copy the pixels
+            // exactly, in which case the IDs should be the same, but sometimes we do a bitmap draw,
+            // in which case the IDs should not be the same. Is there any way to determine which is
+            // the case at this point?
+            if (deepCopy) {
+                REPORTER_ASSERT(reporter, src.getGenerationID() == dst.getGenerationID());
+            }
+            REPORTER_ASSERT(reporter, src.pixelRef() != NULL && dst.pixelRef() != NULL);
+
+            // Do read backs and make sure that the two are the same.
+            SkBitmap srcReadBack, dstReadBack;
+            {
+                SkASSERT(src.getTexture() != NULL);
+                bool readBack = src.pixelRef()->readPixels(&srcReadBack, subset);
+                REPORTER_ASSERT(reporter, readBack);
+            }
+            if (dst.getTexture() != NULL) {
+                bool readBack = dst.pixelRef()->readPixels(&dstReadBack, subset);
+                REPORTER_ASSERT(reporter, readBack);
+            } else {
+                // If dst is not a texture, do a copy instead, to the same config as srcReadBack.
+                bool copy = dst.copyTo(&dstReadBack, srcReadBack.config());
+                REPORTER_ASSERT(reporter, copy);
+            }
+
+            SkAutoLockPixels srcLock(srcReadBack);
+            SkAutoLockPixels dstLock(dstReadBack);
+            REPORTER_ASSERT(reporter, srcReadBack.readyToDraw() && dstReadBack.readyToDraw());
+
+            const char* srcP = static_cast<const char*>(srcReadBack.getAddr(0, 0));
+            const char* dstP = static_cast<const char*>(dstReadBack.getAddr(0, 0));
+            REPORTER_ASSERT(reporter, srcP != dstP);
+
+            REPORTER_ASSERT(reporter, !memcmp(srcP, dstP, srcReadBack.getSize()));
+        } else {
+            REPORTER_ASSERT(reporter, src.getGenerationID() != dst.getGenerationID());
+        }
+
+        // If the copy used a subset, test the pixel offset calculation functions.
+        if (subset != NULL) {
+            TestSubsetHelpers(reporter, dst);
+        }
+    } else {
+        // dst should be unchanged from its initial state
+        REPORTER_ASSERT(reporter, dst.config() == SkBitmap::kNo_Config);
+        REPORTER_ASSERT(reporter, dst.width() == 0);
+        REPORTER_ASSERT(reporter, dst.height() == 0);
+    }
+
+}
+
 // Stripped down version of TestBitmapCopy that checks basic fields (width, height, config, genID)
 // to ensure that they were copied properly.
 static void TestGpuBitmapCopy(skiatest::Reporter* reporter, GrContext* grContext) {
@@ -45,14 +131,30 @@ static void TestGpuBitmapCopy(skiatest::Reporter* reporter, GrContext* grContext
     const int H = 33;
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gPairs); i++) {
+        SkBitmap src, dst;
+
+        SkGpuDevice* device = SkNEW_ARGS(SkGpuDevice, (grContext, gPairs[i].fConfig, W, H));
+        SkAutoUnref aur(device);
+        src = device->accessBitmap(false);
+        device->clear(SK_ColorWHITE);
+
+        // Draw something different to the same portion of the bitmap that we will extract as a
+        // subset, so that comparing the pixels of the subset will be meaningful.
+        SkIRect subsetRect = SkIRect::MakeLTRB(W/2, H/2, W, H);
+        SkCanvas drawingCanvas(device);
+        SkPaint paint;
+        paint.setColor(SK_ColorRED);
+        drawingCanvas.drawRect(SkRect::MakeFromIRect(subsetRect), paint);
+
+        // Extract a subset. If this succeeds we will test copying the subset.
+        SkBitmap subset;
+        const bool extracted = src.extractSubset(&subset, subsetRect);
+        if (extracted) {
+            TestSubsetHelpers(reporter, subset);
+        }
+
         for (size_t j = 0; j < SK_ARRAY_COUNT(gPairs); j++) {
-            SkBitmap src, dst;
-
-            SkGpuDevice* device = SkNEW_ARGS(SkGpuDevice, (grContext, gPairs[i].fConfig, W, H));
-            SkAutoUnref aur(device);
-            src = device->accessBitmap(false);
-            device->clear(SK_ColorWHITE);
-
+            dst.reset();
             bool success = src.deepCopyTo(&dst, gPairs[j].fConfig);
             bool expected = gPairs[i].fValid[j] != '0';
             if (success != expected) {
@@ -73,37 +175,27 @@ static void TestGpuBitmapCopy(skiatest::Reporter* reporter, GrContext* grContext
                 reporter->reportFailed(str);
             }
 
-            if (success) {
-                REPORTER_ASSERT(reporter, src.width() == dst.width());
-                REPORTER_ASSERT(reporter, src.height() == dst.height());
-                REPORTER_ASSERT(reporter, dst.config() == gPairs[j].fConfig);
-                if (src.config() == dst.config()) {
-                    REPORTER_ASSERT(reporter, src.getGenerationID() == dst.getGenerationID());
-                    // Do read backs and make sure that the two are the same.
-                    SkBitmap srcReadBack, dstReadBack;
-                    REPORTER_ASSERT(reporter, src.pixelRef() != NULL
-                                    && dst.pixelRef() != NULL);
-                    src.pixelRef()->readPixels(&srcReadBack);
-                    dst.pixelRef()->readPixels(&dstReadBack);
-                    SkAutoLockPixels srcLock(srcReadBack);
-                    SkAutoLockPixels dstLock(dstReadBack);
-                    REPORTER_ASSERT(reporter, srcReadBack.readyToDraw()
-                                    && dstReadBack.readyToDraw());
-                    const char* srcP = (const char*)srcReadBack.getAddr(0, 0);
-                    const char* dstP = (const char*)dstReadBack.getAddr(0, 0);
-                    REPORTER_ASSERT(reporter, srcP != dstP);
-                    REPORTER_ASSERT(reporter, !memcmp(srcP, dstP, srcReadBack.getSize()));
-                } else {
-                    REPORTER_ASSERT(reporter, src.getGenerationID() != dst.getGenerationID());
-                }
-            } else {
-                // dst should be unchanged from its initial state
-                REPORTER_ASSERT(reporter, dst.config() == SkBitmap::kNo_Config);
-                REPORTER_ASSERT(reporter, dst.width() == 0);
-                REPORTER_ASSERT(reporter, dst.height() == 0);
+            TestIndividualCopy(reporter, gPairs[j].fConfig, success, src, dst);
+
+            // Test copying the subset bitmap, using both copyTo and deepCopyTo.
+            if (extracted) {
+                SkBitmap subsetCopy;
+                success = subset.copyTo(&subsetCopy, gPairs[j].fConfig);
+                REPORTER_ASSERT(reporter, success == expected);
+                REPORTER_ASSERT(reporter, success == canSucceed);
+                TestIndividualCopy(reporter, gPairs[j].fConfig, success, subset, subsetCopy, false,
+                                   &subsetRect);
+
+                // Reset the bitmap so that a failed copyTo will leave it in the expected state.
+                subsetCopy.reset();
+                success = subset.deepCopyTo(&subsetCopy, gPairs[j].fConfig);
+                REPORTER_ASSERT(reporter, success == expected);
+                REPORTER_ASSERT(reporter, success == canSucceed);
+                TestIndividualCopy(reporter, gPairs[j].fConfig, success, subset, subsetCopy, true,
+                                   &subsetRect);
             }
         } // for (size_t j = ...
-    }
+    } // for (size_t i = ...
 }
 
 #include "TestClassDef.h"

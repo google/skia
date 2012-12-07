@@ -591,11 +591,15 @@ public:
 
 
     /**
-     * Copies all texels from one texture to another.
+     * Copies a rectangle of texels from src to dst. The size of dst is the size of the rectangle
+     * copied and topLeft is the position of the rect in src. The rectangle is clipped to src's
+     * bounds.
      * @param src           the texture to copy from.
      * @param dst           the render target to copy to.
+     * @param topLeft       the point in src that will be copied to the top-left of dst. If NULL,
+     *                      (0, 0) will be used.
      */
-    void copyTexture(GrTexture* src, GrRenderTarget* dst);
+    void copyTexture(GrTexture* src, GrRenderTarget* dst, const SkIPoint* topLeft = NULL);
 
     /**
      * Resolves a render target that has MSAA. The intermediate MSAA buffer is
