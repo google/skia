@@ -125,13 +125,13 @@ namespace skiatest {
             REPORTER_ASSERT(fReporter, GetTestDataChecksum(256) == 0xd4de9dc9);
             REPORTER_ASSERT(fReporter, GetTestDataChecksum(260) == 0xecf0325d);
             fWhichAlgorithm = kSkCityHash64;
-            REPORTER_ASSERT(fReporter, ComputeChecksum(NULL, 0) == 0x9ae16a3b2f90404f);
-            REPORTER_ASSERT(fReporter, GetTestDataChecksum(4)   == 0x82bffd898958e540);
-            REPORTER_ASSERT(fReporter, GetTestDataChecksum(8)   == 0xad5a13e1e8e93b98);
-            REPORTER_ASSERT(fReporter, GetTestDataChecksum(128) == 0x10b153630af1f395);
-            REPORTER_ASSERT(fReporter, GetTestDataChecksum(132) == 0x7db71dc4adcc6647);
-            REPORTER_ASSERT(fReporter, GetTestDataChecksum(256) == 0xeee763519b91b010);
-            REPORTER_ASSERT(fReporter, GetTestDataChecksum(260) == 0x2fe19e0b2239bc23);
+            REPORTER_ASSERT(fReporter, ComputeChecksum(NULL, 0) == 0x9ae16a3b2f90404fULL);
+            REPORTER_ASSERT(fReporter, GetTestDataChecksum(4)   == 0x82bffd898958e540ULL);
+            REPORTER_ASSERT(fReporter, GetTestDataChecksum(8)   == 0xad5a13e1e8e93b98ULL);
+            REPORTER_ASSERT(fReporter, GetTestDataChecksum(128) == 0x10b153630af1f395ULL);
+            REPORTER_ASSERT(fReporter, GetTestDataChecksum(132) == 0x7db71dc4adcc6647ULL);
+            REPORTER_ASSERT(fReporter, GetTestDataChecksum(256) == 0xeee763519b91b010ULL);
+            REPORTER_ASSERT(fReporter, GetTestDataChecksum(260) == 0x2fe19e0b2239bc23ULL);
 
             // TODO: note the weakness exposed by these collisions...
             // We need to improve the SkChecksum algorithm.
