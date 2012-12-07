@@ -1437,7 +1437,7 @@ void GrContext::resolveRenderTarget(GrRenderTarget* target) {
     fGpu->resolveRenderTarget(target);
 }
 
-void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst) {
+void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst, const SkIPoint* topLeft) {
     if (NULL == src || NULL == dst) {
         return;
     }
@@ -1454,11 +1454,18 @@ void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst) {
     drawState->setRenderTarget(dst);
     SkMatrix sampleM;
     sampleM.setIDiv(src->width(), src->height());
+    SkIRect srcRect = SkIRect::MakeWH(dst->width(), dst->height());
+    if (NULL != topLeft) {
+        srcRect.offset(*topLeft);
+    }
+    SkIRect srcBounds = SkIRect::MakeWH(src->width(), src->height());
+    if (!srcRect.intersect(srcBounds)) {
+        return;
+    }
+    sampleM.preTranslate(SkIntToScalar(srcRect.fLeft), SkIntToScalar(srcRect.fTop));
     drawState->createTextureEffect(0, src, sampleM);
-    SkRect rect = SkRect::MakeXYWH(0, 0,
-                                   SK_Scalar1 * src->width(),
-                                   SK_Scalar1 * src->height());
-    fGpu->drawSimpleRect(rect, NULL);
+    SkRect dstR = SkRect::MakeWH(SkIntToScalar(srcRect.width()), SkIntToScalar(srcRect.height()));
+    fGpu->drawSimpleRect(dstR, NULL);
 }
 
 void GrContext::writeRenderTargetPixels(GrRenderTarget* target,
