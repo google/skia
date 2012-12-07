@@ -72,7 +72,8 @@ public:
     virtual void drawData(const void*, size_t) SK_OVERRIDE;
     virtual bool isDrawingToLayer() const SK_OVERRIDE;
 
-    void addFontMetricsTopBottom(const SkPaint& paint, SkScalar minY, SkScalar maxY);
+    void addFontMetricsTopBottom(const SkPaint& paint, int paintIndex,
+                                 SkScalar minY, SkScalar maxY);
 
     const SkTDArray<SkPicture* >& getPictureRefs() const {
         return fPictureRefs;
@@ -118,8 +119,8 @@ private:
     void addBitmap(const SkBitmap& bitmap);
     void addMatrix(const SkMatrix& matrix);
     void addMatrixPtr(const SkMatrix* matrix);
-    void addPaint(const SkPaint& paint);
-    void addPaintPtr(const SkPaint* paint);
+    int  addPaint(const SkPaint& paint) { return this->addPaintPtr(&paint); }
+    int  addPaintPtr(const SkPaint* paint);
     void addPath(const SkPath& path);
     void addPicture(SkPicture& picture);
     void addPoint(const SkPoint& point);

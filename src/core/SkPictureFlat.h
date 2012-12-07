@@ -329,8 +329,33 @@ public:
         return !memcmp(a.dataToCompare(), b.dataToCompare(), N);
     }
 
+    // returns true if fTopBot[] has been recorded
+    bool isTopBotValid() const {
+        return fTopBot[0] < fTopBot[1];
+    }
+
+    // Returns fTopBot array, so it can be passed to a routine to compute them.
+    // For efficiency, we assert that fTopBot have not been recorded yet.
+    SkScalar* writableTopBot() {
+        SkASSERT(!this->isTopBotValid());
+        return fTopBot;
+    }
+
+    // return the topbot[] after it has been recorded
+    const SkScalar* topBot() const {
+        SkASSERT(this->isTopBotValid());
+        return fTopBot;
+    }
+
 private:
+    // This is *not* part of the key for search/sort
     int fIndex;
+
+    // Cache of paint's FontMetrics fTop,fBottom
+    // initialied to [0,0] as a sentinel that they have not been recorded yet
+    //
+    // This is *not* part of the key for search/sort
+    SkScalar fTopBot[2];
 
     // From here down is the data we look at in the search/sort. We always begin
     // with the checksum and then length.
@@ -620,6 +645,10 @@ class SkPaintDictionary : public SkFlatDictionary<SkPaint> {
     : SkFlatDictionary<SkPaint>(controller) {
         fFlattenProc = &SkFlattenObjectProc<SkPaint>;
         fUnflattenProc = &SkUnflattenObjectProc<SkPaint>;
+    }
+
+    SkFlatData* writableFlatData(int index) {
+        return const_cast<SkFlatData*>((*this)[index]);
     }
 };
 
