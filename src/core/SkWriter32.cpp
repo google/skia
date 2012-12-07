@@ -66,6 +66,7 @@ SkWriter32::SkWriter32(size_t minSize, void* storage, size_t storageSize) {
     fSize = 0;
     fSingleBlock = NULL;
     fSingleBlockSize = 0;
+    fWrittenBeforeLastBlock = 0;
 
     storageSize &= ~3;  // trunc down to multiple of 4
     if (storageSize >= MIN_BLOCKSIZE) {
@@ -96,6 +97,7 @@ void SkWriter32::reset() {
     }
 
     fSize = 0;
+    fWrittenBeforeLastBlock = 0;
     fSingleBlock = NULL;
     if (fHeadIsExternalStorage) {
         SkASSERT(fHead);
@@ -128,7 +130,11 @@ uint32_t* SkWriter32::reserve(size_t size) {
     if (NULL == block) {
         SkASSERT(NULL == fHead);
         fHead = fTail = block = Block::Create(SkMax32(size, fMinSize));
+        SkASSERT(0 == fWrittenBeforeLastBlock);
     } else if (block->available() < size) {
+        SkASSERT(fSize > 0);
+        fWrittenBeforeLastBlock = fSize;
+
         fTail = Block::Create(SkMax32(size, fMinSize));
         block->fNext = fTail;
         block = fTail;
@@ -149,6 +155,11 @@ uint32_t* SkWriter32::peek32(size_t offset) {
         return (uint32_t*)(fSingleBlock + offset);
     }
 
+    // try the fast case, where offset is within fTail
+    if (offset >= fWrittenBeforeLastBlock) {
+        return fTail->peek32(offset - fWrittenBeforeLastBlock);
+    }
+    
     Block* block = fHead;
     SkASSERT(NULL != block);
 
@@ -179,29 +190,39 @@ void SkWriter32::rewindToOffset(size_t offset) {
         return;
     }
 
-    // Similar to peek32, except that we free up any following blocks
-    Block* block = fHead;
-    SkASSERT(NULL != block);
-    while (offset >= block->fAllocatedSoFar) {
-        offset -= block->fAllocatedSoFar;
-        block = block->fNext;
+    // Try the fast case, where offset is within fTail
+    if (offset >= fWrittenBeforeLastBlock) {
+        fTail->fAllocatedSoFar = offset - fWrittenBeforeLastBlock;
+    } else {
+        // Similar to peek32, except that we free up any following blocks.
+        // We have to re-compute fWrittenBeforeLastBlock as well.
+
+        size_t globalOffset = offset;
+        Block* block = fHead;
         SkASSERT(NULL != block);
-    }
+        while (offset >= block->fAllocatedSoFar) {
+            offset -= block->fAllocatedSoFar;
+            block = block->fNext;
+            SkASSERT(NULL != block);
+        }
 
-    // update the size on the "last" block
-    block->fAllocatedSoFar = offset;
-    // end our list
-    fTail = block;
-    Block* next = block->fNext;
-    block->fNext = NULL;
-    // free up any trailing blocks
-    block = next;
-    while (block) {
+        // this has to be recomputed, since we may free up fTail
+        fWrittenBeforeLastBlock = globalOffset - offset;
+
+        // update the size on the "last" block
+        block->fAllocatedSoFar = offset;
+        // end our list
+        fTail = block;
         Block* next = block->fNext;
-        sk_free(block);
+        block->fNext = NULL;
+        // free up any trailing blocks
         block = next;
+        while (block) {
+            Block* next = block->fNext;
+            sk_free(block);
+            block = next;
+        }
     }
-
     SkDEBUGCODE(this->validate();)
 }
 
@@ -310,6 +331,10 @@ void SkWriter32::validate() const {
         SkASSERT(SkIsAlign4(block->fSizeOfBlock));
         SkASSERT(SkIsAlign4(block->fAllocatedSoFar));
         SkASSERT(block->fAllocatedSoFar <= block->fSizeOfBlock);
+        if (NULL == block->fNext) {
+            SkASSERT(fTail == block);
+            SkASSERT(fWrittenBeforeLastBlock == accum);
+        }
         accum += block->fAllocatedSoFar;
         SkASSERT(accum <= fSize);
         block = block->fNext;

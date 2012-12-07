@@ -37,6 +37,7 @@ public:
           fSize(0),
           fSingleBlock(NULL),
           fSingleBlockSize(0),
+          fWrittenBeforeLastBlock(0),
           fHead(NULL),
           fTail(NULL),
           fHeadIsExternalStorage(false) {}
@@ -196,6 +197,9 @@ private:
 
     char*       fSingleBlock;
     uint32_t    fSingleBlockSize;
+
+    // sum of bytes written in all blocks *before* fTail
+    uint32_t    fWrittenBeforeLastBlock;
 
     struct Block;
     Block*  fHead;
