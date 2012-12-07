@@ -505,7 +505,9 @@ bool SkPicturePlayback::parseBufferTag(SkOrderedReadBuffer& buffer,
         case PICT_BITMAP_BUFFER_TAG: {
             fBitmaps = SkTRefArray<SkBitmap>::Create(size);
             for (size_t i = 0; i < size; ++i) {
-                buffer.readBitmap(&fBitmaps->writableAt(i));
+                SkBitmap* bm = &fBitmaps->writableAt(i);
+                buffer.readBitmap(bm);
+                bm->setImmutable();
             }
         } break;
         case PICT_MATRIX_BUFFER_TAG:
