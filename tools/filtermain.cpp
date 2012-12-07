@@ -15,14 +15,16 @@
 #include "SkPictureRecord.h"
 #include "SkStream.h"
 #include "picture_utils.h"
+#include "path_utils.h"
 
 static void usage() {
-    SkDebugf("Usage: filter -i inFile [-o outFile] [-t textureDir] [-h|--help]");
-    SkDebugf("\n\n");
+    SkDebugf("Usage: filter -i inFile [-o outFile] [--input-dir path] [--output-dir path]\n");
+    SkDebugf("                        [-p pathFile] [-t textureDir] [-h|--help]\n\n");
     SkDebugf("    -i inFile  : file to file.\n");
     SkDebugf("    -o outFile : result of filtering.\n");
     SkDebugf("    --input-dir : process all files in dir with .skp extension.\n");
     SkDebugf("    --output-dir : results of filtering the input dir.\n");
+    SkDebugf("    -p pathFile : file in which to place compileable path data.\n");
     SkDebugf("    -t textureDir : directory in which to place textures. (only available w/ single file)\n");
     SkDebugf("    -h|--help  : Show this help message.\n");
 }
@@ -30,12 +32,30 @@ static void usage() {
 // SkFilterRecord allows the filter to manipulate the read in SkPicture
 class SkFilterRecord : public SkPictureRecord {
 public:
-    SkFilterRecord(uint32_t recordFlags, SkDevice* device)
+    SkFilterRecord(uint32_t recordFlags, SkDevice* device, SkFILEWStream* pathStream)
         : INHERITED(recordFlags, device)
         , fTransSkipped(0)
         , fTransTot(0)
         , fScalesSkipped(0)
-        , fScalesTot(0) {
+        , fScalesTot(0)
+        , fPathStream(pathStream) {
+    }
+
+    virtual ~SkFilterRecord() {
+    }
+
+    virtual bool clipPath(const SkPath& path, SkRegion::Op op, bool doAntiAlias) SK_OVERRIDE {
+        if (!path.isRect(NULL) && 4 < path.countPoints()) {
+            sk_tools::dump_path(fPathStream, path);
+        }
+        return INHERITED::clipPath(path, op, doAntiAlias);
+    }
+
+    virtual void drawPath(const SkPath& path, const SkPaint& p) SK_OVERRIDE {
+        if (!path.isRect(NULL) && 4 < path.countPoints()) {
+            sk_tools::dump_path(fPathStream, path);
+        }
+        INHERITED::drawPath(path, p);
     }
 
     virtual bool translate(SkScalar dx, SkScalar dy) SK_OVERRIDE {
@@ -97,6 +117,7 @@ protected:
     int fScalesSkipped;
     int fScalesTot;
 
+    SkFILEWStream* fPathStream;
 private:
     typedef SkPictureRecord INHERITED;
 };
@@ -119,7 +140,8 @@ static bool PNGEncodeBitmapToStream(SkWStream* stream, const SkBitmap& bitmap) {
     return SkImageEncoder::EncodeStream(stream, bitmap, SkImageEncoder::kPNG_Type, 100);
 }
 
-int filter_picture(const SkString& inFile, const SkString& outFile, const SkString& textureDir) {
+int filter_picture(const SkString& inFile, const SkString& outFile, 
+                   const SkString& textureDir, SkFILEWStream *pathStream) {
     SkPicture* inPicture = NULL;
 
     SkFILEStream inStream(inFile.c_str());
@@ -136,7 +158,7 @@ int filter_picture(const SkString& inFile, const SkString& outFile, const SkStri
     bm.setConfig(SkBitmap::kNo_Config, inPicture->width(), inPicture->height());
     SkAutoTUnref<SkDevice> dev(SkNEW_ARGS(SkDevice, (bm)));
 
-    SkAutoTUnref<SkFilterRecord> filterRecord(SkNEW_ARGS(SkFilterRecord, (0, dev)));
+    SkAutoTUnref<SkFilterRecord> filterRecord(SkNEW_ARGS(SkFilterRecord, (0, dev, pathStream)));
 
     // Playback the read in picture to the SkFilterRecorder to allow filtering
     filterRecord->beginRecording();
@@ -169,7 +191,7 @@ int tool_main(int argc, char** argv) {
         return -1;
     }
 
-    SkString inFile, outFile, inDir, outDir, textureDir;
+    SkString inFile, outFile, inDir, outDir, textureDir, pathFile;
 
     char* const* stop = argv + argc;
     for (++argv; argv < stop; ++argv) {
@@ -209,6 +231,15 @@ int tool_main(int argc, char** argv) {
                 usage();
                 return -1;
             }
+        } else if (strcmp(*argv, "-p") == 0) {
+            argv++;
+            if (argv < stop && **argv) {
+                pathFile.set(*argv);
+            } else {
+                SkDebugf("missing arg for -p\n");
+                usage();
+                return -1;
+            }
         } else if (strcmp(*argv, "-t") == 0) {
             argv++;
             if (argv < stop && **argv) {
@@ -234,6 +265,19 @@ int tool_main(int argc, char** argv) {
         return -1;
     }
 
+    SkFILEWStream *pathStream = NULL;
+
+    if (!pathFile.isEmpty()) {
+        pathStream = new SkFILEWStream(pathFile.c_str());
+        if (!pathStream->isValid()) {
+            SkDebugf("Could open path file %s\n", pathFile.c_str());
+            delete pathStream;
+            return -1;
+        }
+
+        sk_tools::dump_path_prefix(pathStream);
+    }
+
     SkOSFile::Iter iter(inDir.c_str(), "skp");
     int failures = 0;
     SkString inputFilename, outputFilename;
@@ -245,14 +289,24 @@ int tool_main(int argc, char** argv) {
                 sk_tools::make_filepath(&outFile, outDir, inputFilename);
             }
             SkDebugf("Executing %s\n", inputFilename.c_str());
-            filter_picture(inFile, outFile, textureDir);
+            filter_picture(inFile, outFile, textureDir, pathStream);
         } while(iter.next(&inputFilename));
 
     } else if (!inFile.isEmpty()) {
-        filter_picture(inFile, outFile, textureDir);
+        filter_picture(inFile, outFile, textureDir, pathStream);
     } else {
         usage();
+        if (NULL != pathStream) {
+            delete pathStream;
+            pathStream = NULL;
+        }
         return -1;
+    }
+
+    if (NULL != pathStream) {
+        sk_tools::dump_path_suffix(pathStream);
+        delete pathStream;
+        pathStream = NULL;
     }
 
     SkGraphics::Term();
