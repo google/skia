@@ -141,11 +141,13 @@ class SkTimedPicturePlayback : public SkPicturePlayback {
 public:
     SkTimedPicturePlayback(SkStream* stream, const SkPictInfo& info, bool* isValid,
                            SkSerializationHelpers::DecodeBitmap decoder,
-                           const SkTDArray<size_t>& offsets)
+                           const SkTDArray<size_t>& offsets,
+                           const SkTDArray<bool>& deletedCommands)
         : INHERITED(stream, info, isValid, decoder)
         , fTot(0.0)
         , fCurCommand(0)
-        , fOffsets(offsets) {
+        , fOffsets(offsets)
+        , fSkipCommands(deletedCommands) {
         fTimes.setCount(fOffsets.count());
         fTypeTimes.setCount(LAST_DRAWTYPE_ENUM+1);
         this->resetTimes();
@@ -172,6 +174,7 @@ public:
 protected:
     BenchSysTimer fTimer;
     SkTDArray<size_t> fOffsets; // offset in the SkPicture for each command
+    SkTDArray<bool> fSkipCommands; // has the command been deleted in the GUI?
     SkTDArray<double> fTimes;   // sum of time consumed for each command
     SkTDArray<double> fTypeTimes; // sum of time consumed for each type of command (e.g., drawPath)
     double fTot;                // total of all times in 'fTimes'
@@ -179,7 +182,7 @@ protected:
     int fCurType;
     int fCurCommand;            // the current command being executed/timed
 
-    virtual void preDraw(size_t offset, int type) {
+    virtual size_t preDraw(size_t offset, int type) SK_OVERRIDE {
         // This search isn't as bad as it seems. In normal playback mode, the
         // base class steps through the commands in order and can only skip ahead
         // a bit on a clip. This class is only used during profiling so we
@@ -187,6 +190,17 @@ protected:
         for (int i = 0; offset != fOffsets[fCurCommand]; ++i) {
             fCurCommand = (fCurCommand+1) % fOffsets.count();
             SkASSERT(i <= fOffsets.count()); // should always find the offset in the list
+        }
+
+        if (fSkipCommands[fCurCommand]) {
+            while (fCurCommand < fSkipCommands.count() && fSkipCommands[fCurCommand]) {
+                ++fCurCommand;
+            }
+            if (fCurCommand == fSkipCommands.count()) {
+                // Signal SkPicturePlayback to stop playing back
+                return SK_MaxU32;
+            }
+            return fOffsets[fCurCommand];
         }
 
         fCurOffset = offset;
@@ -206,9 +220,11 @@ protected:
 #else
         fTimer.startCpu();
 #endif
+
+        return 0;
     }
 
-    virtual void postDraw(size_t offset) {
+    virtual void postDraw(size_t offset) SK_OVERRIDE {
 #if defined(SK_BUILD_FOR_WIN32)
         // CPU timer doesn't work well on Windows
         double time = fTimer.endWall();
@@ -234,7 +250,8 @@ public:
     explicit SkTimedPicture(SkStream* stream,
                             bool* success,
                             SkSerializationHelpers::DecodeBitmap decoder,
-                            const SkTDArray<size_t>& offsets) {
+                            const SkTDArray<size_t>& offsets,
+                            const SkTDArray<bool>& deletedCommands) {
         if (success) {
             *success = false;
         }
@@ -254,7 +271,7 @@ public:
         if (stream->readBool()) {
             bool isValid = false;
             fPlayback = SkNEW_ARGS(SkTimedPicturePlayback,
-                                   (stream, info, &isValid, decoder, offsets));
+                                   (stream, info, &isValid, decoder, offsets, deletedCommands));
             if (!isValid) {
                 SkDELETE(fPlayback);
                 fPlayback = NULL;
@@ -341,7 +358,8 @@ void SkDebuggerGUI::actionProfile() {
     }
 
     bool success = false;
-    SkTimedPicture picture(&inputStream, &success, &SkImageDecoder::DecodeStream, fOffsets);
+    SkTimedPicture picture(&inputStream, &success, &SkImageDecoder::DecodeStream, 
+                           fOffsets, fSkipCommands);
     if (!success) {
         return;
     }
@@ -407,6 +425,7 @@ void SkDebuggerGUI::actionClearDeletes() {
         QListWidgetItem* item = fListWidget.item(row);
         item->setData(Qt::UserRole + 2, QPixmap(":/blank.png"));
         fDebugger.setCommandVisible(row, true);
+        fSkipCommands[row] = false;
     }
     if (fPause) {
         fCanvasWidget.drawTo(fPausedRow);
@@ -435,9 +454,11 @@ void SkDebuggerGUI::actionDelete() {
     if (fDebugger.isCommandVisible(currentRow)) {
         item->setData(Qt::UserRole + 2, QPixmap(":/delete.png"));
         fDebugger.setCommandVisible(currentRow, false);
+        fSkipCommands[currentRow] = true;
     } else {
         item->setData(Qt::UserRole + 2, QPixmap(":/blank.png"));
         fDebugger.setCommandVisible(currentRow, true);
+        fSkipCommands[currentRow] = false;
     }
 
     if (fPause) {
@@ -882,8 +903,9 @@ public:
 protected:
     SkTDArray<size_t> fOffsets;
 
-    virtual void preDraw(size_t offset, int type) {
+    virtual size_t preDraw(size_t offset, int type) SK_OVERRIDE {
         *fOffsets.append() = offset;
+        return 0;
     }
 
 private:
@@ -955,6 +977,11 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
     fDebugger.loadPicture(picture);
 
     fOffsets = picture->offsets();
+
+    fSkipCommands.setCount(fOffsets.count());
+    for (int i = 0; i < fOffsets.count(); ++i) {
+        fSkipCommands[i] = false;
+    }
 
     SkSafeUnref(stream);
     SkSafeUnref(picture);

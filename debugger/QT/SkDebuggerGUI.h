@@ -260,6 +260,7 @@ private:
     QString fPath;
     SkString fFileName;
     SkTDArray<size_t> fOffsets; // the offset of each command in the SkPicture
+    SkTDArray<bool> fSkipCommands; // has a specific command been deleted?
     bool fDirectoryWidgetActive;
 
     QMenuBar fMenuBar;
