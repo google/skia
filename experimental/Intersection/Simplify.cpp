@@ -794,7 +794,7 @@ struct Bounds : public SkRect {
     void add(const Bounds& toAdd) {
         add(toAdd.fLeft, toAdd.fTop, toAdd.fRight, toAdd.fBottom);
     }
-    
+
     bool isEmpty() {
         return fLeft > fRight || fTop > fBottom
                 || (fLeft == fRight && fTop == fBottom)
@@ -1134,7 +1134,7 @@ public:
                 default:
                     SkASSERT(0);
             }
-                
+
         }
         bool oppNonZero = oppMaxWinding & oppMask;
         return isActiveOp(operand(), oppNonZero, op);
@@ -2565,7 +2565,7 @@ public:
             }
         }
     }
-    
+
     void init(const SkPoint pts[], SkPath::Verb verb, bool operand, bool evenOdd) {
         fDoneSpans = 0;
         fOperand = operand;
@@ -2700,7 +2700,7 @@ public:
     Span* markAndChaseWinding(const Angle* angle, const int winding) {
         int index = angle->start();
         int endIndex = angle->end();
-        int step = SkSign32(endIndex - index);        
+        int step = SkSign32(endIndex - index);
         int min = SkMin32(index, endIndex);
         markWinding(min, winding);
         Span* last;
@@ -3148,7 +3148,7 @@ public:
             *outsideTs.append() = start;
         }
     }
-    
+
     void undoneSpan(int& start, int& end) {
         size_t tCount = fTs.count();
         size_t index;
@@ -3921,7 +3921,7 @@ public:
     void setOperand(bool isOp) {
         fOperand = isOp;
     }
-    
+
     void setOppXor(bool isOppXor) {
         fOppXor = isOppXor;
         int segmentCount = fSegments.count();

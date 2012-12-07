@@ -102,7 +102,7 @@ static void check_state(skiatest::Reporter* reporter,
                         const SkClipStack& clip,
                         GrTexture* mask,
                         const GrIRect& bound) {
-    SkClipStack cacheClip;    
+    SkClipStack cacheClip;
     REPORTER_ASSERT(reporter, clip.getTopmostGenID() == cache.getLastClipGenID());
 
     REPORTER_ASSERT(reporter, mask == cache.getLastMask());

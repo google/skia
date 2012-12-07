@@ -129,7 +129,7 @@ private:
                                       const GrReducedClip::ElementList& elements,
                                       const SkIRect& clipSpaceIBounds);
 
-    // Gets a texture to use for the clip mask. If true is returned then a cached mask was found 
+    // Gets a texture to use for the clip mask. If true is returned then a cached mask was found
     // that already contains the rasterization of the clip stack, otherwise an uninitialized texture
     // is returned.
     bool getMaskTexture(int32_t clipStackGenID,

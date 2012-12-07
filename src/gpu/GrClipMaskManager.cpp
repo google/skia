@@ -81,7 +81,7 @@ bool GrClipMaskManager::useSWOnlyPath(const ElementList& elements) {
     bool useSW = false;
     SkStroke stroke;
     stroke.setDoFill(true);
-    
+
     for (ElementList::Iter iter(elements.headIter()); iter.get(); iter.next()) {
         const Element* element = iter.get();
         // rects can always be drawn directly w/o using the software path
@@ -915,7 +915,7 @@ GrTexture* GrClipMaskManager::createSoftwareClipMask(int32_t clipStackGenID,
                 GrAssert(Element::kPath_Type == element->getType());
                 SkPath clipPath = element->getPath();
                 clipPath.toggleInverseFillType();
-                helper.draw(clipPath, stroke, 
+                helper.draw(clipPath, stroke,
                             SkRegion::kReplace_Op,
                             element->isAA(),
                             0x00);
