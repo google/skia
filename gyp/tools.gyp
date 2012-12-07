@@ -199,6 +199,8 @@
       ],
       'sources': [
         '../tools/filtermain.cpp',
+        '../tools/path_utils.cpp',
+        '../tools/path_utils.h',
       ],
       'dependencies': [
         'skia_base_libs.gyp:skia_base_libs',
