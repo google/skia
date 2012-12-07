@@ -43,15 +43,15 @@ if len(sys.argv) < 2:
     '[ <testname> ... ]'
     exit(1)
 
-is_svn_checkout = os.path.exists(os.path.join('..', '.svn'))
-is_git_checkout = os.path.exists(os.path.join('..', '.git'))
+is_svn_checkout = os.path.exists('.svn') or os.path.exists(os.path.join('..', '.svn') )
+is_git_checkout = os.path.exists('.git') or os.path.exists(os.path.join('..', '.git'))
 
 for testname in sys.argv[1:]:
     for pair in pairs:
         if (pair[0] == 'base-shuttle-win7-intel-angle'):
             testtypes = [ 'angle' ]
         else:
-            testtypes = [ '565', '8888', 'gpu', 'pdf' ]
+            testtypes = [ '565', '8888', 'gpu', 'pdf', 'mesa' ]
         print pair[0] + ':'
         for testtype in testtypes:
             infilename = testname + '_' + testtype + '.png'
