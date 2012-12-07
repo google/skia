@@ -168,7 +168,6 @@ private:
     bool fRequestGrabImage;
     bool fMeasureFPS;
     SkMSec fMeasureFPS_Time;
-    SkMSec fMeasureFPS_StartTime;
     bool fMagnify;
     SkISize fTileCount;
 
