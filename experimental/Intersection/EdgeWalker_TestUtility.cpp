@@ -206,7 +206,7 @@ void showPath(const SkPath& path, const char* str) {
     }
 }
 
-static int pathsDrawTheSame(const SkPath& one, const SkPath& two, 
+static int pathsDrawTheSame(const SkPath& one, const SkPath& two,
         SkBitmap& bits, SkPath& scaledOne, SkPath& scaledTwo, int& error2x2) {
     const int bitWidth = 64;
     const int bitHeight = 64;
@@ -317,7 +317,7 @@ bool drawAsciiPaths(const SkPath& one, const SkPath& two, bool drawPaths) {
     return true;
 }
 
-static void showSimplifiedPath(const SkPath& one, const SkPath& two, 
+static void showSimplifiedPath(const SkPath& one, const SkPath& two,
         const SkPath& scaledOne, const SkPath& scaledTwo) {
     showPath(one, "original:");
     showPath(two, "simplified:");
@@ -343,7 +343,7 @@ int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap) {
     return errors2x2 > MAX_ERRORS ? errors2x2 : 0;
 }
 
-static void showShapeOpPath(const SkPath& one, const SkPath& two, const SkPath& a, const SkPath& b, 
+static void showShapeOpPath(const SkPath& one, const SkPath& two, const SkPath& a, const SkPath& b,
         const SkPath& scaledOne, const SkPath& scaledTwo, const ShapeOp shapeOp) {
     SkASSERT((unsigned) shapeOp < sizeof(opStrs) / sizeof(opStrs[0]));
     showPath(a, "minuend:");

@@ -122,7 +122,7 @@ void ReduceClipStack(const SkClipStack& stack,
     }
 
     SkRect scalarBounds = SkRect::MakeFromIRect(*bounds);
-    
+
     // Now that we have determined the bounds to use and filtered out the trivial cases, call the
     // helper that actually walks the stack.
     reduced_stack_walker(stack, scalarBounds, result, initialState, requiresAA);
