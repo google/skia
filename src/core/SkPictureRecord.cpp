@@ -473,19 +473,30 @@ void SkPictureRecord::drawSprite(const SkBitmap& bitmap, int left, int top,
     validate();
 }
 
-void SkPictureRecord::addFontMetricsTopBottom(const SkPaint& paint,
-                                              SkScalar minY, SkScalar maxY) {
+// Return fontmetrics.fTop,fBottom in topbot[0,1], after they have been
+// tweaked by paint.computeFastBounds().
+//
+static void computeFontMetricsTopBottom(const SkPaint& paint, SkScalar topbot[2]) {
     SkPaint::FontMetrics metrics;
     paint.getFontMetrics(&metrics);
     SkRect bounds;
     // construct a rect so we can see any adjustments from the paint.
     // we use 0,1 for left,right, just so the rect isn't empty
-    bounds.set(0, metrics.fTop + minY,
-               SK_Scalar1, metrics.fBottom + maxY);
+    bounds.set(0, metrics.fTop, SK_Scalar1, metrics.fBottom);
     (void)paint.computeFastBounds(bounds, &bounds);
-    // now record the top and bottom
-    addScalar(bounds.fTop);
-    addScalar(bounds.fBottom);
+    topbot[0] = bounds.fTop;
+    topbot[1] = bounds.fBottom;
+}
+
+void SkPictureRecord::addFontMetricsTopBottom(const SkPaint& paint, int index,
+                                              SkScalar minY, SkScalar maxY) {
+    SkFlatData* flat = fPaints.writableFlatData(index);
+    if (!flat->isTopBotValid()) {
+        computeFontMetricsTopBottom(paint, flat->writableTopBot());
+        SkASSERT(flat->isTopBotValid());
+    }
+    addScalar(flat->topBot()[0] + minY);
+    addScalar(flat->topBot()[1] + maxY);
 }
 
 void SkPictureRecord::drawText(const void* text, size_t byteLength, SkScalar x,
@@ -493,12 +504,12 @@ void SkPictureRecord::drawText(const void* text, size_t byteLength, SkScalar x,
     bool fast = !paint.isVerticalText() && paint.canComputeFastBounds();
 
     addDraw(fast ? DRAW_TEXT_TOP_BOTTOM : DRAW_TEXT);
-    addPaint(paint);
+    int paintIndex = addPaint(paint);
     addText(text, byteLength);
     addScalar(x);
     addScalar(y);
     if (fast) {
-        addFontMetricsTopBottom(paint, y, y);
+        addFontMetricsTopBottom(paint, paintIndex - 1, y, y);
     }
     validate();
 }
@@ -539,7 +550,7 @@ void SkPictureRecord::drawPosText(const void* text, size_t byteLength,
     } else {
         addDraw(DRAW_POS_TEXT);
     }
-    addPaint(paint);
+    int paintIndex = addPaint(paint);
     addText(text, byteLength);
     addInt(points);
 
@@ -548,7 +559,7 @@ void SkPictureRecord::drawPosText(const void* text, size_t byteLength,
 #endif
     if (canUseDrawH) {
         if (fast) {
-            addFontMetricsTopBottom(paint, pos[0].fY, pos[0].fY);
+            addFontMetricsTopBottom(paint, paintIndex - 1, pos[0].fY, pos[0].fY);
         }
         addScalar(pos[0].fY);
         SkScalar* xptr = (SkScalar*)fWriter.reserve(points * sizeof(SkScalar));
@@ -558,7 +569,7 @@ void SkPictureRecord::drawPosText(const void* text, size_t byteLength,
     else {
         fWriter.writeMul4(pos, points * sizeof(SkPoint));
         if (fastBounds) {
-            addFontMetricsTopBottom(paint, minY, maxY);
+            addFontMetricsTopBottom(paint, paintIndex - 1, minY, maxY);
         }
     }
 #ifdef SK_DEBUG_SIZE
@@ -578,7 +589,7 @@ void SkPictureRecord::drawPosTextH(const void* text, size_t byteLength,
     bool fast = !paint.isVerticalText() && paint.canComputeFastBounds();
 
     addDraw(fast ? DRAW_POS_TEXT_H_TOP_BOTTOM : DRAW_POS_TEXT_H);
-    addPaint(paint);
+    int paintIndex = this->addPaint(paint);
     addText(text, byteLength);
     addInt(points);
 
@@ -586,7 +597,7 @@ void SkPictureRecord::drawPosTextH(const void* text, size_t byteLength,
     size_t start = fWriter.size();
 #endif
     if (fast) {
-        addFontMetricsTopBottom(paint, constY, constY);
+        addFontMetricsTopBottom(paint, paintIndex - 1, constY, constY);
     }
     addScalar(constY);
     fWriter.writeMul4(xpos, points * sizeof(SkScalar));
@@ -673,12 +684,10 @@ void SkPictureRecord::addMatrixPtr(const SkMatrix* matrix) {
     this->addInt(matrix ? fMatrices.find(*matrix) : 0);
 }
 
-void SkPictureRecord::addPaint(const SkPaint& paint) {
-    addPaintPtr(&paint);
-}
-
-void SkPictureRecord::addPaintPtr(const SkPaint* paint) {
-    this->addInt(paint ? fPaints.find(*paint) : 0);
+int SkPictureRecord::addPaintPtr(const SkPaint* paint) {
+    int index = paint ? fPaints.find(*paint) : 0;
+    this->addInt(index);
+    return index;
 }
 
 void SkPictureRecord::addPath(const SkPath& path) {

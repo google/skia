@@ -120,6 +120,7 @@ SkFlatData* SkFlatData::Create(SkFlatController* controller, const void* obj,
     SkFlatData* result = (SkFlatData*) controller->allocThrow(allocSize);
 
     result->fIndex = index;
+    result->fTopBot[0] = result->fTopBot[1] = 0; // initial to sentinel values
     result->fFlatSize = size;
 
     // put the serialized contents into the data section of the new allocation
