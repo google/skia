@@ -159,7 +159,7 @@ uint32_t* SkWriter32::peek32(size_t offset) {
     if (offset >= fWrittenBeforeLastBlock) {
         return fTail->peek32(offset - fWrittenBeforeLastBlock);
     }
-    
+
     Block* block = fHead;
     SkASSERT(NULL != block);
 
