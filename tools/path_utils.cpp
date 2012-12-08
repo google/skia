@@ -16,7 +16,7 @@ namespace sk_tools {
         if (NULL == pathStream) {
             return;
         }
- 
+
         pathStream->writeText("#include \"SkScalar.h\"\n");
         pathStream->writeText("#include \"SkPoint.h\"\n");
         pathStream->writeText("#include \"SkBitmap.h\"\n");
@@ -81,7 +81,7 @@ namespace sk_tools {
         pathStream->writeText(" = ");
         pathStream->writeDecAsText(numVerbs);
         pathStream->writeText(";\n");
-            
+
         pathStream->writeText("uint8_t verbs");
         pathStream->writeDecAsText(gCurPathID);
         pathStream->writeText("[] = {\n");

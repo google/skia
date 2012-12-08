@@ -358,7 +358,7 @@ void SkDebuggerGUI::actionProfile() {
     }
 
     bool success = false;
-    SkTimedPicture picture(&inputStream, &success, &SkImageDecoder::DecodeStream, 
+    SkTimedPicture picture(&inputStream, &success, &SkImageDecoder::DecodeStream,
                            fOffsets, fSkipCommands);
     if (!success) {
         return;

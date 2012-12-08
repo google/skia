@@ -19,7 +19,7 @@ namespace sk_tools {
     //      dump_path_suffix - once per program invocation
     //
     // The output system relies on a global current path ID and assumes that
-    // only one set of aggregation arrays will be written per program 
+    // only one set of aggregation arrays will be written per program
     // invocation. These utilities are not thread safe.
 
     // Write of the headers needed to compile the resulting .cpp file

@@ -140,7 +140,7 @@ static bool PNGEncodeBitmapToStream(SkWStream* stream, const SkBitmap& bitmap) {
     return SkImageEncoder::EncodeStream(stream, bitmap, SkImageEncoder::kPNG_Type, 100);
 }
 
-int filter_picture(const SkString& inFile, const SkString& outFile, 
+int filter_picture(const SkString& inFile, const SkString& outFile,
                    const SkString& textureDir, SkFILEWStream *pathStream) {
     SkPicture* inPicture = NULL;
 
