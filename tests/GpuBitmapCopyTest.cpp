@@ -118,6 +118,9 @@ static void TestIndividualCopy(skiatest::Reporter* reporter, const SkBitmap::Con
 // Stripped down version of TestBitmapCopy that checks basic fields (width, height, config, genID)
 // to ensure that they were copied properly.
 static void TestGpuBitmapCopy(skiatest::Reporter* reporter, GrContext* grContext) {
+#ifdef SK_BUILD_FOR_ANDROID // https://code.google.com/p/skia/issues/detail?id=753
+    return;
+#endif
     if (NULL == grContext) {
         return;
     }
