@@ -29,7 +29,7 @@ int gDebugMaxWindValue = SK_MaxS32;
 #define TRY_ROTATE 1
 
 #define DEBUG_UNUSED 0 // set to expose unused functions
-#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging
+#define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging
 
 #if FORCE_RELEASE || defined SK_RELEASE
 
@@ -1581,8 +1581,14 @@ public:
         SkTDArray<double> oOutsideTs;
         do {
             // if either span has an opposite value and the operands don't match, resolve first
-            index = bumpCoincidentThis(oTest, opp, index, outsideTs);
-            oIndex = other.bumpCoincidentOther(test, oEndT, oIndex, oOutsideTs);
+            SkASSERT(!test->fDone || !oTest->fDone);
+            if (test->fDone || oTest->fDone) {
+                index = advanceCoincidentThis(oTest, opp, index);
+                oIndex = other.advanceCoincidentOther(test, oEndT, oIndex);
+            } else {
+                index = bumpCoincidentThis(oTest, opp, index, outsideTs);
+                oIndex = other.bumpCoincidentOther(test, oEndT, oIndex, oOutsideTs);
+            }
             test = &fTs[index];
             oTest = &other.fTs[oIndex];
         } while (!approximately_negative(endT - test->fT));
@@ -1639,6 +1645,26 @@ public:
         if (tIndex >= 0 && (fTs[min].fWindValue > 0 || fTs[min].fOppValue > 0)) {
             addAngle(angles, end, tIndex);
         }
+    }
+
+    int advanceCoincidentThis(const Span* oTest, bool opp, int index) {
+        Span* const test = &fTs[index];
+        Span* end = test;
+        do {
+            end = &fTs[++index];
+        } while (approximately_negative(end->fT - test->fT));
+        return index;
+    }
+
+    int advanceCoincidentOther(const Span* test, double oEndT, int& oIndex) {
+        Span* const oTest = &fTs[oIndex];
+        Span* oEnd = oTest;
+        const double oStartT = oTest->fT;
+        while (!approximately_negative(oEndT - oEnd->fT)
+                && approximately_negative(oEnd->fT - oStartT)) {
+            oEnd = &fTs[++oIndex];
+        }
+        return oIndex;
     }
 
     const Bounds& bounds() const {
@@ -1891,6 +1917,16 @@ public:
             return true;
         }
         return false;
+    }
+    
+    // OPTIMIZE
+    // when the edges are initially walked, they don't automatically get the prior and next
+    // edges assigned to positions t=0 and t=1. Doing that would remove the need for this check,
+    // and would additionally remove the need for similar checks in condition edges. It would   
+    // also allow intersection code to assume end of segment intersections (maybe?)
+    bool complete() const {
+        int count = fTs.count();
+        return count > 1 && fTs[0].fT == 0 && fTs[--count].fT == 1;
     }
 
     bool done() const {
@@ -3825,13 +3861,10 @@ public:
             SkASSERT(coincidence.fContours[0] == this);
             int thisIndex = coincidence.fSegments[0];
             Segment& thisOne = fSegments[thisIndex];
-            if (thisOne.done()) {
-                continue;
-            }
             Contour* otherContour = coincidence.fContours[1];
             int otherIndex = coincidence.fSegments[1];
             Segment& other = otherContour->fSegments[otherIndex];
-            if (other.done()) {
+            if ((thisOne.done() || other.done()) && thisOne.complete() && other.complete()) {
                 continue;
             }
         #if DEBUG_CONCIDENT
@@ -3864,7 +3897,9 @@ public:
                         || thisOne.isMissing(endT) || other.isMissing(oStartT)) {
                     other.addTPair(oStartT, thisOne, endT, true);
                 }
-                thisOne.addTCancel(startT, endT, other, oStartT, oEndT);
+                if (!thisOne.done() && !other.done()) {
+                    thisOne.addTCancel(startT, endT, other, oStartT, oEndT);
+                }
             } else {
                 if (startT > 0 || oStartT > 0
                         || thisOne.isMissing(startT) || other.isMissing(oStartT)) {
@@ -3874,7 +3909,9 @@ public:
                         || thisOne.isMissing(endT) || other.isMissing(oEndT)) {
                     other.addTPair(oEndT, thisOne, endT, true);
                 }
-                thisOne.addTCoincident(startT, endT, other, oStartT, oEndT);
+                if (!thisOne.done() && !other.done()) {
+                    thisOne.addTCoincident(startT, endT, other, oStartT, oEndT);
+                }
             }
         #if DEBUG_CONCIDENT
             thisOne.debugShowTs();
