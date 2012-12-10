@@ -163,6 +163,7 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
         paint.setStyle(SkPaint::kFill_Style);
         paint.setAlpha(255);
         canvas.drawRect(fullRect, paint);
+        canvas.restore();
         REPORTER_ASSERT(reporter, !canvas.isFreshFrame());
     }
 
@@ -182,7 +183,7 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
         paint.setAlpha( 100 );
         paint.setXfermodeMode(SkXfermode::kSrc_Mode);
         canvas.drawRect(fullRect, paint);
-        REPORTER_ASSERT(reporter, !canvas.isFreshFrame());
+        REPORTER_ASSERT(reporter, canvas.isFreshFrame());
     }
 }
 
