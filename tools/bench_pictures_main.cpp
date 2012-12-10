@@ -378,6 +378,8 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
             if (0 == strcmp(*argv, "record")) {
                 renderer.reset(SkNEW(sk_tools::RecordPictureRenderer));
                 gridSupported = true;
+            } else if (0 == strcmp(*argv, "clone")) {
+                renderer.reset(sk_tools::CreatePictureCloneRenderer());
             } else if (0 == strcmp(*argv, "simple")) {
                 renderer.reset(SkNEW(sk_tools::SimplePictureRenderer));
             } else if ((0 == strcmp(*argv, "tile")) || (0 == strcmp(*argv, "pow2tile"))

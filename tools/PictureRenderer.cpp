@@ -669,10 +669,10 @@ public:
                                        SkIntToScalar(fPicture->height()));
         SkData* data = SkPictureUtils::GatherPixelRefs(fPicture, bounds);
         SkSafeUnref(data);
-
+        
         return NULL == path;    // we don't have anything to write
     }
-
+    
 private:
     virtual SkString getConfigNameInternal() SK_OVERRIDE {
         return SkString("gather_pixelrefs");
@@ -681,6 +681,29 @@ private:
 
 PictureRenderer* CreateGatherPixelRefsRenderer() {
     return SkNEW(GatherRenderer);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+class PictureCloneRenderer : public PictureRenderer {
+public:
+    virtual bool render(const SkString* path) SK_OVERRIDE {
+        for (int i = 0; i < 100; ++i) {
+            SkPicture* clone = fPicture->clone();
+            SkSafeUnref(clone);
+        }
+        
+        return NULL == path;    // we don't have anything to write
+    }
+    
+private:
+    virtual SkString getConfigNameInternal() SK_OVERRIDE {
+        return SkString("picture_clone");
+    }
+};
+
+PictureRenderer* CreatePictureCloneRenderer() {
+    return SkNEW(PictureCloneRenderer);
 }
 
 } // namespace sk_tools
