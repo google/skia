@@ -95,11 +95,11 @@ int intersect(const _Line& a, const _Line& b, double aRange[2], double bRange[2]
     double ab0y = a[0].y - b[0].y;
     double ab0x = a[0].x - b[0].x;
     double numerA = ab0y * bxLen - byLen * ab0x;
-    if (numerA < 0 && denom > numerA || numerA > 0 && denom < numerA) {
+    if ((numerA < 0 && denom > numerA) || (numerA > 0 && denom < numerA)) {
         return 0;
     }
     double numerB = ab0y * axLen - ayLen * ab0x;
-    if (numerB < 0 && denom > numerB || numerB > 0 && denom < numerB) {
+    if ((numerB < 0 && denom > numerB) || (numerB > 0 && denom < numerB)) {
         return 0;
     }
     /* Is the intersection along the the segments */

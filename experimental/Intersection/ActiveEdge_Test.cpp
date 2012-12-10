@@ -48,10 +48,10 @@ size_t leftRightCount = sizeof(leftRight) / sizeof(leftRight[0]);
 // older code that worked mostly
 static bool operator_less_than(const UnitTest::ActiveEdge& lh,
         const UnitTest::ActiveEdge& rh) {
-    if (rh.fAbove.fY - lh.fAbove.fY > lh.fBelow.fY - rh.fAbove.fY
-            && lh.fBelow.fY < rh.fBelow.fY
-            || lh.fAbove.fY - rh.fAbove.fY < rh.fBelow.fY - lh.fAbove.fY
-            && rh.fBelow.fY < lh.fBelow.fY) {
+    if ((rh.fAbove.fY - lh.fAbove.fY > lh.fBelow.fY - rh.fAbove.fY
+            && lh.fBelow.fY < rh.fBelow.fY)
+            || (lh.fAbove.fY - rh.fAbove.fY < rh.fBelow.fY - lh.fAbove.fY
+            && rh.fBelow.fY < lh.fBelow.fY)) {
         const SkPoint& check = rh.fBelow.fY <= lh.fBelow.fY
                 && lh.fBelow != rh.fBelow ? rh.fBelow :
                 rh.fAbove;

@@ -100,13 +100,13 @@ static int check_linear(const Quadratic& quad, Quadratic& reduction,
                 return 2;
             }
             replace = (extrema.x < quad[0].x | extrema.x < quad[2].x)
-                    ^ quad[0].x < quad[2].x;
+                    ^ (quad[0].x < quad[2].x);
         } else {
             if (extrema.y < quad[0].y ^ extrema.y < quad[2].y) {
                 return 2;
             }
             replace = (extrema.y < quad[0].y | extrema.y < quad[2].y)
-                    ^ quad[0].y < quad[2].y;
+                    ^ (quad[0].y < quad[2].y);
         }
         reduction[replace] = extrema;
     }

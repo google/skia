@@ -121,10 +121,10 @@ void CubicReduceOrder_Test() {
             printf("[%d] line computed ends match order=%d\n", (int) index, order);
         }
         if (controlsInside) {
-            if (       reduce[0].x != cubic[0].x && reduce[0].x != cubic[3].x
-                    || reduce[0].y != cubic[0].y && reduce[0].y != cubic[3].y
-                    || reduce[1].x != cubic[0].x && reduce[1].x != cubic[3].x
-                    || reduce[1].y != cubic[0].y && reduce[1].y != cubic[3].y) {
+            if (       (reduce[0].x != cubic[0].x && reduce[0].x != cubic[3].x)
+                    || (reduce[0].y != cubic[0].y && reduce[0].y != cubic[3].y)
+                    || (reduce[1].x != cubic[0].x && reduce[1].x != cubic[3].x)
+                    || (reduce[1].y != cubic[0].y && reduce[1].y != cubic[3].y)) {
                 printf("[%d] line computed ends order=%d\n", (int) index, order);
             }
         } else {
@@ -132,10 +132,10 @@ void CubicReduceOrder_Test() {
                 // while a control point is outside of bounding box formed by end points, split
             _Rect bounds = {DBL_MAX, DBL_MAX, -DBL_MAX, -DBL_MAX};
             find_tight_bounds(cubic, bounds);
-            if (       !approximately_equal(reduce[0].x, bounds.left) && !approximately_equal(reduce[0].x, bounds.right)
-                    || !approximately_equal(reduce[0].y, bounds.top) && !approximately_equal(reduce[0].y, bounds.bottom)
-                    || !approximately_equal(reduce[1].x, bounds.left) && !approximately_equal(reduce[1].x, bounds.right)
-                    || !approximately_equal(reduce[1].y, bounds.top) && !approximately_equal(reduce[1].y, bounds.bottom)) {
+            if (       (!approximately_equal(reduce[0].x, bounds.left) && !approximately_equal(reduce[0].x, bounds.right))
+                    || (!approximately_equal(reduce[0].y, bounds.top) && !approximately_equal(reduce[0].y, bounds.bottom))
+                    || (!approximately_equal(reduce[1].x, bounds.left) && !approximately_equal(reduce[1].x, bounds.right))
+                    || (!approximately_equal(reduce[1].y, bounds.top) && !approximately_equal(reduce[1].y, bounds.bottom))) {
                 printf("[%d] line computed tight bounds order=%d\n", (int) index, order);
             }
 

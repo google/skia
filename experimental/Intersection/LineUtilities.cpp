@@ -103,14 +103,14 @@ void x_at(const _Point& p1, const _Point& p2, double top, double bottom,
     // if p1.y > p2.y, maxX can be affected
     double slope = (p2.x - p1.x) / (p2.y - p1.y);
     int topFlags = flags & (kFindTopMin | kFindTopMax);
-    if (topFlags && (top <= p1.y && top >= p2.y
-            || top >= p1.y && top <= p2.y)) {
+    if (topFlags && ((top <= p1.y && top >= p2.y)
+            || (top >= p1.y && top <= p2.y))) {
         double x = p1.x + (top - p1.y) * slope;
         setMinMax(x, topFlags, minX, maxX);
     }
     int bottomFlags = flags & (kFindBottomMin | kFindBottomMax);
-    if (bottomFlags && (bottom <= p1.y && bottom >= p2.y
-            || bottom >= p1.y && bottom <= p2.y)) {
+    if (bottomFlags && ((bottom <= p1.y && bottom >= p2.y)
+            || (bottom >= p1.y && bottom <= p2.y))) {
         double x = p1.x + (bottom - p1.y) * slope;
         setMinMax(x, bottomFlags, minX, maxX);
     }

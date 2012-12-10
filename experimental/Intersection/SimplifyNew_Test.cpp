@@ -3330,7 +3330,7 @@ static struct {
 
 static const size_t subTestCount = sizeof(subTests) / sizeof(subTests[0]);
 
-static void (*firstBinaryTest)() = 0;
+static void (*firstBinaryTest)() = testOp2d;
 
 static bool skipAll = false;
 static bool runBinaryTestsFirst = true;

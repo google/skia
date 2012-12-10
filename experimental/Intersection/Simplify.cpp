@@ -794,7 +794,7 @@ struct Bounds : public SkRect {
     void add(const Bounds& toAdd) {
         add(toAdd.fLeft, toAdd.fTop, toAdd.fRight, toAdd.fBottom);
     }
-
+    
     bool isEmpty() {
         return fLeft > fRight || fTop > fBottom
                 || (fLeft == fRight && fTop == fBottom)
@@ -823,7 +823,7 @@ struct Bounds : public SkRect {
 // return outerWinding * innerWinding > 0
 //      || ((outerWinding + innerWinding < 0) ^ ((outerWinding - innerWinding) < 0)))
 static bool useInnerWinding(int outerWinding, int innerWinding) {
-    SkASSERT(outerWinding != innerWinding);
+  //  SkASSERT(outerWinding != innerWinding);
     int absOut = abs(outerWinding);
     int absIn = abs(innerWinding);
     bool result = absOut == absIn ? outerWinding < 0 : absOut < absIn;
@@ -836,18 +836,22 @@ static bool useInnerWinding(int outerWinding, int innerWinding) {
     return result;
 }
 
-static const bool gOpLookup[][2][2] = {
-    //     ==0             !=0
-    //  b      a        b      a
-    {{true , false}, {false, true }}, // a - b
-    {{false, false}, {true , true }}, // a & b
-    {{true , true }, {false, false}}, // a | b
-    {{true , true }, {true , true }}, // a ^ b
+#define F (false)      // discard the edge
+#define T (true)       // keep the edge
+
+static const bool gActiveEdge[kShapeOp_Count][2][2][2][2] = {
+//                 miFrom=0                              miFrom=1
+//         miTo=0            miTo=1              miTo=0             miTo=1
+//    suFrom=0    1     suFrom=0     1      suFrom=0    1      suFrom=0    1
+//   suTo=0,1 suTo=0,1  suTo=0,1 suTo=0,1  suTo=0,1 suTo=0,1  suTo=0,1 suTo=0,1
+    {{{{F, F}, {F, F}}, {{T, F}, {T, F}}}, {{{T, T}, {F, F}}, {{F, T}, {T, F}}}}, // mi - su
+    {{{{F, F}, {F, F}}, {{F, T}, {F, T}}}, {{{F, F}, {T, T}}, {{F, T}, {T, F}}}}, // mi & su
+    {{{{F, T}, {T, F}}, {{T, T}, {F, F}}}, {{{T, F}, {T, F}}, {{F, F}, {F, F}}}}, // mi | su
+    {{{{F, T}, {T, F}}, {{T, F}, {F, T}}}, {{{T, F}, {F, T}}, {{F, T}, {T, F}}}}, // mi ^ su
 };
 
-static bool isActiveOp(bool angleIsOp, int otherNonZero, ShapeOp op) {
-    return gOpLookup[op][otherNonZero][angleIsOp];
-}
+#undef F
+#undef T
 
 // wrap path to keep track of whether the contour is initialized and non-empty
 class PathWrapper {
@@ -1098,46 +1102,32 @@ public:
         }
         int maxWinding, sumWinding, oppMaxWinding, oppSumWinding;
         return activeOp(xorMiMask, xorSuMask, index, endIndex, op, sumMiWinding, sumSuWinding,
-            maxWinding, sumWinding, oppMaxWinding, oppSumWinding);
+                maxWinding, sumWinding, oppMaxWinding, oppSumWinding);
     }
-
-    bool activeOp(int xorMiMask, int xorSuMask,
-            int index, int endIndex, ShapeOp op,
+    
+    bool activeOp(int xorMiMask, int xorSuMask, int index, int endIndex, ShapeOp op,
             int& sumMiWinding, int& sumSuWinding,
             int& maxWinding, int& sumWinding, int& oppMaxWinding, int& oppSumWinding) {
         setUpWindings(index, endIndex, sumMiWinding, sumSuWinding,
                 maxWinding, sumWinding, oppMaxWinding, oppSumWinding);
-        int mask, oppMask;
+        bool miFrom;
+        bool miTo;
+        bool suFrom;
+        bool suTo;
         if (operand()) {
-            mask = xorSuMask;
-            oppMask = xorMiMask;
+            miFrom = (oppMaxWinding & xorMiMask) != 0;
+            miTo = (oppSumWinding & xorMiMask) != 0;
+            suFrom = (maxWinding & xorSuMask) != 0;
+            suTo = (sumWinding & xorSuMask) != 0;
         } else {
-            mask = xorMiMask;
-            oppMask = xorSuMask;
+            miFrom = (maxWinding & xorMiMask) != 0;
+            miTo = (sumWinding & xorMiMask) != 0;
+            suFrom = (oppMaxWinding & xorSuMask) != 0;
+            suTo = (oppSumWinding & xorSuMask) != 0;
         }
-        if ((sumWinding & mask) && (maxWinding & mask)) {
-            return false;
-        }
-        int oppCoin = oppSign(index, endIndex) & oppMask;
-        if (oppCoin) {
-            bool oppCrossZero = !(oppSumWinding & oppMask) || !(oppMaxWinding & oppMask);
-            bool outside = !(oppSumWinding & oppMask) ^ !(sumWinding & mask);
-            switch (op) {
-                case kIntersect_Op:
-                    return !oppCrossZero | !outside;
-                case kUnion_Op:
-                    return oppCrossZero & !outside;
-                case kDifference_Op:
-                    return oppCrossZero ? outside : operand();
-                case kXor_Op:
-                    return !oppCrossZero;
-                default:
-                    SkASSERT(0);
-            }
-
-        }
-        bool oppNonZero = oppMaxWinding & oppMask;
-        return isActiveOp(operand(), oppNonZero, op);
+        bool result = gActiveEdge[op][miFrom][miTo][suFrom][suTo];
+        SkASSERT(result != -1);
+        return result;
     }
 
     void addAngle(SkTDArray<Angle>& angles, int start, int end) const {
@@ -2481,8 +2471,7 @@ public:
         // iterate through T intersections and return topmost
         // topmost tangent from y-min to first pt is closer to horizontal
         SkASSERT(!done());
-        int firstT;
-        int lastT;
+        int firstT = -1;
         SkPoint topPt;
         topPt.fY = SK_ScalarMax;
         int count = fTs.count();
@@ -2499,15 +2488,14 @@ public:
                 if (topPt.fY > intercept.fY || (topPt.fY == intercept.fY
                         && topPt.fX > intercept.fX)) {
                     topPt = intercept;
-                    firstT = lastT = index;
-                } else if (topPt == intercept) {
-                    lastT = index;
+                    firstT = index;
                 }
             }
     next:
             lastDone = span.fDone;
             lastUnsortable = span.fUnsortableEnd;
         }
+        SkASSERT(firstT >= 0);
         // sort the edges to find the leftmost
         int step = 1;
         int end = nextSpan(firstT, step);
@@ -2565,7 +2553,7 @@ public:
             }
         }
     }
-
+    
     void init(const SkPoint pts[], SkPath::Verb verb, bool operand, bool evenOdd) {
         fDoneSpans = 0;
         fOperand = operand;
@@ -2700,7 +2688,7 @@ public:
     Span* markAndChaseWinding(const Angle* angle, const int winding) {
         int index = angle->start();
         int endIndex = angle->end();
-        int step = SkSign32(endIndex - index);
+        int step = SkSign32(endIndex - index);        
         int min = SkMin32(index, endIndex);
         markWinding(min, winding);
         Span* last;
@@ -2775,7 +2763,7 @@ public:
 
     void markDoneBinary(int index, int winding, int oppWinding) {
       //  SkASSERT(!done());
-        SkASSERT(winding);
+        SkASSERT(winding || oppWinding);
         double referenceT = fTs[index].fT;
         int lesser = index;
         while (--lesser >= 0 && precisely_negative(referenceT - fTs[lesser].fT)) {
@@ -3148,7 +3136,7 @@ public:
             *outsideTs.append() = start;
         }
     }
-
+    
     void undoneSpan(int& start, int& end) {
         size_t tCount = fTs.count();
         size_t index;
@@ -3200,7 +3188,7 @@ public:
         int lesser = SkMin32(index, endIndex);
         int winding = windSum(lesser);
         int spanWinding = spanSign(index, endIndex);
-        if (useInnerWinding(winding - spanWinding, winding)) {
+        if (winding && useInnerWinding(winding - spanWinding, winding)) {
             winding -= spanWinding;
         }
         return winding;
@@ -3642,22 +3630,6 @@ public:
     }
 #endif
 
-#if DEBUG_WINDING
-    bool debugVerifyWinding(int start, int end, int winding) const {
-        const Span& span = fTs[SkMin32(start, end)];
-        int spanWinding = span.fWindSum;
-        if (spanWinding == SK_MinS32) {
-            return true;
-        }
-        int spanSign = SkSign32(start - end);
-        int signedVal = spanSign * span.fWindValue;
-        if (signedVal < 0) {
-            spanWinding -= signedVal;
-        }
-        return span.fWindSum == winding;
-    }
-#endif
-
 private:
     const SkPoint* fPts;
     Bounds fBounds;
@@ -3921,7 +3893,7 @@ public:
     void setOperand(bool isOp) {
         fOperand = isOp;
     }
-
+    
     void setOppXor(bool isOppXor) {
         fOppXor = isOppXor;
         int segmentCount = fSegments.count();
@@ -5203,7 +5175,6 @@ static bool bridgeWinding(SkTDArray<Contour*>& contourList, PathWrapper& simple)
 #endif
             }
 #if DEBUG_WINDING
-         //   SkASSERT(current->debugVerifyWinding(index, endIndex, contourWinding));
             SkDebugf("%s contourWinding=%d\n", __FUNCTION__, contourWinding);
 #endif
         }
@@ -5460,13 +5431,10 @@ static void assemble(const PathWrapper& path, PathWrapper& simple) {
                 first = false;
                 simple.deferredMove(startPtr[0]);
             }
-            const SkPoint* endPtr;
             if (forward) {
                 contour.toPartialForward(simple);
-                endPtr = &contour.end();
             } else {
                 contour.toPartialBackward(simple);
-                endPtr = &contour.start();
             }
             if (sIndex == eIndex) {
                 simple.close();
