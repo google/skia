@@ -35,6 +35,7 @@ SkBitmapProcShader::SkBitmapProcShader(const SkBitmap& src,
 SkBitmapProcShader::SkBitmapProcShader(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer) {
     buffer.readBitmap(&fRawBitmap);
+    fRawBitmap.setImmutable();
     fState.fTileModeX = buffer.readUInt();
     fState.fTileModeY = buffer.readUInt();
     fFlags = 0; // computed in setContext
