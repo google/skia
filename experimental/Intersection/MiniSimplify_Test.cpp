@@ -58,6 +58,8 @@ static void construct() {
                 case SkPath::kCubic_Verb:
                     path.cubicTo(test->pts[1].fX, test->pts[1].fY, test->pts[2].fX, test->pts[2].fY, test->pts[3].fX, test->pts[3].fY);
                     break;
+                default:
+                    SkASSERT(0);
             }
             test++;
         } while (!pathComplete);

@@ -741,7 +741,7 @@ struct Bounds : public SkRect {
 
     bool isEmpty() {
         return fLeft > fRight || fTop > fBottom
-                || fLeft == fRight && fTop == fBottom
+                || (fLeft == fRight && fTop == fBottom)
                 || isnan(fLeft) || isnan(fRight)
                 || isnan(fTop) || isnan(fBottom);
     }
@@ -2206,7 +2206,7 @@ static void makeHorizontalList(SkTDArray<HorizontalEdge>& edges,
 
 static void skipCoincidence(int lastWinding, int winding, int windingMask,
             ActiveEdge* activePtr, ActiveEdge* firstCoincident) {
-    if (((lastWinding & windingMask) == 0) ^ (winding & windingMask) != 0) {
+    if (((lastWinding & windingMask) == 0) ^ ((winding & windingMask) != 0)) {
         return;
     }
     // FIXME: ? shouldn't this be if (lastWinding & windingMask) ?

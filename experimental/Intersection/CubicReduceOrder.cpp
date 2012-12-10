@@ -133,13 +133,13 @@ static int check_linear(const Cubic& cubic, Cubic& reduction,
                 continue;
             }
             replace = (extrema.x < cubic[0].x | extrema.x < cubic[3].x)
-                    ^ cubic[0].x < cubic[3].x;
+                    ^ (cubic[0].x < cubic[3].x);
         } else {
             if (extrema.y < cubic[0].y ^ extrema.y < cubic[3].y) {
                 continue;
             }
             replace = (extrema.y < cubic[0].y | extrema.y < cubic[3].y)
-                    ^ cubic[0].y < cubic[3].y;
+                    ^ (cubic[0].y < cubic[3].y);
         }
         reduction[replace] = extrema;
     }

@@ -145,7 +145,7 @@ bool chop(double minT1, double maxT1, double minT2, double maxT2, int split) {
 
 private:
 
-static const double tClipLimit = 0.8; // http://cagd.cs.byu.edu/~tom/papers/bezclip.pdf see Multiple intersections
+const double tClipLimit = 0.8; // http://cagd.cs.byu.edu/~tom/papers/bezclip.pdf see Multiple intersections
 const Cubic& cubic1;
 const Cubic& cubic2;
 Intersections& intersections;

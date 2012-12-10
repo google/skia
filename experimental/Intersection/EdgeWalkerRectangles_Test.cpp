@@ -149,8 +149,8 @@ static void testSimplifyCorner() {
     }
     SkRect one = SkRect::MakeLTRB(10, 10, 20, 20);
     SkRect two = SkRect::MakeLTRB(20, 20, 40, 40);
-    if (boundsArray[0] != one && boundsArray[0] != two
-            || boundsArray[1] != one && boundsArray[1] != two) {
+    if ((boundsArray[0] != one && boundsArray[0] != two)
+            || (boundsArray[1] != one && boundsArray[1] != two)) {
         SkDebugf("%s expected match\n", __FUNCTION__);
     }
 }
