@@ -375,6 +375,23 @@ static int count(const SkClipStack& stack) {
     return count;
 }
 
+static void test_rect_inverse_fill(skiatest::Reporter* reporter) {
+    // non-intersecting rectangles
+    SkRect rect  = SkRect::MakeLTRB(0, 0, 10, 10);
+
+    SkPath path;
+    path.addRect(rect);
+    path.toggleInverseFillType();
+    SkClipStack stack;
+    stack.clipDevPath(path, SkRegion::kIntersect_Op, false);
+
+    SkRect bounds;
+    SkClipStack::BoundsType boundsType;
+    stack.getBounds(&bounds, &boundsType);
+    REPORTER_ASSERT(reporter, SkClipStack::kInsideOut_BoundsType == boundsType);
+    REPORTER_ASSERT(reporter, bounds == rect);
+}
+
 // Test out SkClipStack's merging of rect clips. In particular exercise
 // merging of aa vs. bw rects.
 static void test_rect_merging(skiatest::Reporter* reporter) {
@@ -755,6 +772,7 @@ static void TestClipStack(skiatest::Reporter* reporter) {
     test_bounds(reporter, false);       // once with paths
     test_isWideOpen(reporter);
     test_rect_merging(reporter);
+    test_rect_inverse_fill(reporter);
 #if SK_SUPPORT_GPU
     test_reduced_clip_stack(reporter);
 #endif

@@ -541,7 +541,7 @@ void SkClipStack::clipDevRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
 
 void SkClipStack::clipDevPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     SkRect alt;
-    if (path.isRect(&alt)) {
+    if (path.isRect(&alt) && !path.isInverseFillType()) {
         return this->clipDevRect(alt, op, doAA);
     }
 
