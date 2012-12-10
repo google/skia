@@ -368,6 +368,7 @@ private:
 };
 
 extern PictureRenderer* CreateGatherPixelRefsRenderer();
+extern PictureRenderer* CreatePictureCloneRenderer();
 
 }
 
