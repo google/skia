@@ -186,8 +186,8 @@ void SkMatrix44::setRowMajord(const double src[]) {
 ///////////////////////////////////////////////////////////////////////////////
 
 const SkMatrix44& SkMatrix44::I() {
-    static SkMatrix44 gIdentity;
-    return gIdentity;
+    static const SkMatrix44 gIdentity44(kIdentity_Constructor);
+    return gIdentity44;
 }
 
 void SkMatrix44::setIdentity() {
@@ -277,7 +277,7 @@ void SkMatrix44::preScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
         return;
     }
 
-    SkMatrix44 tmp;
+    SkMatrix44 tmp(kUninitialized_Constructor);
     tmp.setScale(sx, sy, sz);
     this->preConcat(tmp);
 }
