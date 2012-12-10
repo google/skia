@@ -323,6 +323,73 @@ static void test_bad_bitmap() {
 }
 #endif
 
+#include "SkData.h"
+#include "SkImageRef_GlobalPool.h"
+// Class to test SkPixelRef::onRefEncodedData, since there are currently no implementations in skia.
+class SkDataImageRef : public SkImageRef_GlobalPool {
+
+public:
+    SkDataImageRef(SkMemoryStream* stream)
+        : SkImageRef_GlobalPool(stream, SkBitmap::kNo_Config) {
+        SkASSERT(stream != NULL);
+        fData = stream->copyToData();
+        this->setImmutable();
+    }
+
+    ~SkDataImageRef() {
+        fData->unref();
+    }
+
+    virtual SkData* onRefEncodedData() SK_OVERRIDE {
+        fData->ref();
+        return fData;
+    }
+
+private:
+    SkData* fData;
+};
+
+#include "SkImageEncoder.h"
+
+static bool PNGEncodeBitmapToStream(SkWStream* wStream, const SkBitmap& bm) {
+    return SkImageEncoder::EncodeStream(wStream, bm, SkImageEncoder::kPNG_Type, 100);
+}
+
+static SkData* serialized_picture_from_bitmap(const SkBitmap& bitmap) {
+    SkPicture picture;
+    SkCanvas* canvas = picture.beginRecording(bitmap.width(), bitmap.height());
+    canvas->drawBitmap(bitmap, 0, 0);
+    SkDynamicMemoryWStream wStream;
+    picture.serialize(&wStream, &PNGEncodeBitmapToStream);
+    return wStream.copyToData();
+}
+
+static void test_bitmap_with_encoded_data(skiatest::Reporter* reporter) {
+    // Create a bitmap that will be encoded.
+    SkBitmap original;
+    make_bm(&original, 100, 100, SK_ColorBLUE, true);
+    SkDynamicMemoryWStream wStream;
+    if (!SkImageEncoder::EncodeStream(&wStream, original, SkImageEncoder::kPNG_Type, 100)) {
+        return;
+    }
+    SkAutoDataUnref data(wStream.copyToData());
+    SkMemoryStream memStream;
+    memStream.setData(data);
+
+    // Use the encoded bitmap as the data for an image ref.
+    SkBitmap bm;
+    SkAutoTUnref<SkDataImageRef> imageRef(SkNEW_ARGS(SkDataImageRef, (&memStream)));
+    imageRef->getInfo(&bm);
+    bm.setPixelRef(imageRef);
+
+    // Write both bitmaps to pictures, and ensure that the resulting data streams are the same.
+    // Flattening original will follow the old path of performing an encode, while flattening bm
+    // will use the already encoded data.
+    SkAutoDataUnref picture1(serialized_picture_from_bitmap(original));
+    SkAutoDataUnref picture2(serialized_picture_from_bitmap(bm));
+    REPORTER_ASSERT(reporter, picture1->equals(picture2));
+}
+
 static void TestPicture(skiatest::Reporter* reporter) {
 #ifdef SK_DEBUG
     test_deleting_empty_playback();
@@ -332,6 +399,7 @@ static void TestPicture(skiatest::Reporter* reporter) {
 #endif
     test_peephole(reporter);
     test_gatherpixelrefs(reporter);
+    test_bitmap_with_encoded_data(reporter);
 }
 
 #include "TestClassDef.h"
