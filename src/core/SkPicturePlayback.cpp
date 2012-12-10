@@ -194,6 +194,20 @@ SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src, SkPictCopyInf
              */
             deepCopyInfo->paintData.setCount(src.fPaints->count());
 
+            /* Use an SkBitmapHeap to avoid flattening bitmaps in shaders. If there already is one,
+             * use it. If this SkPicturePlayback was created from a stream, fBitmapHeap will be
+             * NULL, so create a new one.
+             */
+            if (fBitmapHeap.get() == NULL) {
+                // FIXME: Put this on the stack inside SkPicture::clone. Further, is it possible to
+                // do the rest of this initialization in SkPicture::clone as well?
+                SkBitmapHeap* heap = SkNEW(SkBitmapHeap);
+                deepCopyInfo->controller.setBitmapStorage(heap);
+                heap->unref();
+            } else {
+                deepCopyInfo->controller.setBitmapStorage(fBitmapHeap);
+            }
+
             SkDEBUGCODE(int heapSize = SafeCount(fBitmapHeap.get());)
             for (int i = 0; i < src.fPaints->count(); i++) {
                 if (needs_deep_copy(src.fPaints->at(i))) {
