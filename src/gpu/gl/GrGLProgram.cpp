@@ -285,7 +285,7 @@ bool GrGLProgram::genEdgeCoverage(SkString* coverageVar,
             break;
         }
         if (fDesc.fDiscardIfOutsideEdge) {
-            builder->fFSCode.appendf("\tif (edgeAlpha <= 0) {\n\t\tdiscard;\n\t}\n");
+            builder->fFSCode.appendf("\tif (edgeAlpha <= 0.0) {\n\t\tdiscard;\n\t}\n");
         }
         *coverageVar = "edgeAlpha";
         return true;
