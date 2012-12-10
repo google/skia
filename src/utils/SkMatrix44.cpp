@@ -411,6 +411,13 @@ static inline double det3x3(double m00, double m01, double m02,
     promoting our SkMScalar values to double (if needed).
  */
 double SkMatrix44::determinant() const {
+    if (this->isIdentity()) {
+        return 1;
+    }
+    if (this->isScaleTranslate()) {
+        return fMat[0][0] * fMat[1][1] * fMat[2][2] * fMat[3][3];
+    }
+
     return  fMat[0][0] * det3x3(fMat[1][1], fMat[1][2], fMat[1][3],
                                 fMat[2][1], fMat[2][2], fMat[2][3],
                                 fMat[3][1], fMat[3][2], fMat[3][3]) -
@@ -438,23 +445,19 @@ static inline double dabs(double x) {
 }
 
 bool SkMatrix44::invert(SkMatrix44* inverse) const {
-    const SkMatrix44::TypeMask mask = this->getType();
-
-    if (kIdentity_Mask == mask) {
+    if (this->isIdentity()) {
         if (inverse) {
             *inverse = *this;
             return true;
         }
     }
-
-    if (kTranslate_Mask == mask) {
+    if (this->isTranslate()) {
         if (inverse) {
             inverse->setTranslate(-fMat[3][0], -fMat[3][1], -fMat[3][2]);
         }
         return true;
     }
-
-    if (bits_isonly(mask, kScale_Mask | kTranslate_Mask)) {
+    if (this->isScaleTranslate()) {
         if (0 == fMat[0][0] * fMat[1][1] * fMat[2][2]) {
             return false;
         }
@@ -470,7 +473,7 @@ bool SkMatrix44::invert(SkMatrix44* inverse) const {
             inverse->fMat[2][2] = 1 / fMat[2][2];
             inverse->fMat[3][3] = 1;
 
-            inverse->setTypeMask(mask);
+            inverse->setTypeMask(this->getType());
         }
         return true;
     }

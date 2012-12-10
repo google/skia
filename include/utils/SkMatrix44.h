@@ -150,8 +150,25 @@ public:
         return (TypeMask)fTypeMask;
     }
 
+    /**
+     *  Return true if the matrix is identity.
+     */
     inline bool isIdentity() const {
-        return 0 == this->getType();
+        return kIdentity_Mask == this->getType();
+    }
+
+    /**
+     *  Return true if the matrix contains translate or is identity.
+     */
+    inline bool isTranslate() const {
+        return !(this->getType() & ~kTranslate_Mask);
+    }
+
+    /**
+     *  Return true if the matrix only contains scale or translate or is identity.
+     */
+    inline bool isScaleTranslate() const {
+        return !(this->getType() & ~(kScale_Mask | kTranslate_Mask));
     }
 
     void setIdentity();
