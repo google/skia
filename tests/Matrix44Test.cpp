@@ -77,6 +77,35 @@ static bool bits_isonly(int value, int mask) {
     return 0 == (value & ~mask);
 }
 
+static void test_constructor(skiatest::Reporter* reporter) {
+    // Allocate a matrix on the heap
+    SkMatrix44* placeholderMatrix = new SkMatrix44();
+    for (int row = 0; row < 4; ++row) {
+        for (int col = 0; col < 4; ++col) {
+            placeholderMatrix->setDouble(row, col, row * col);
+        }
+    }
+
+    // Use placement-new syntax to trigger the constructor on top of the heap
+    // address we already initialized. This allows us to check that the
+    // constructor did avoid initializing the matrix contents.
+    SkMatrix44* testMatrix = new(placeholderMatrix) SkMatrix44(SkMatrix44::kUninitialized_Constructor);
+    REPORTER_ASSERT(reporter, testMatrix == placeholderMatrix);
+    REPORTER_ASSERT(reporter, !testMatrix->isIdentity());
+    for (int row = 0; row < 4; ++row) {
+        for (int col = 0; col < 4; ++col) {
+            REPORTER_ASSERT(reporter, nearly_equal_double(row * col, testMatrix->getDouble(row, col)));
+        }
+    }
+
+    // Verify that kIdentity_Constructor really does initialize to an identity matrix.
+    testMatrix = 0;
+    testMatrix = new(placeholderMatrix) SkMatrix44(SkMatrix44::kIdentity_Constructor); 
+    REPORTER_ASSERT(reporter, testMatrix == placeholderMatrix);
+    REPORTER_ASSERT(reporter, testMatrix->isIdentity());
+    REPORTER_ASSERT(reporter, *testMatrix == SkMatrix44::I());
+}
+
 static void test_translate(skiatest::Reporter* reporter) {
     SkMatrix44 mat, inverse;
 
@@ -396,6 +425,7 @@ static void TestMatrix44(skiatest::Reporter* reporter) {
         test_common_angles(reporter);
     }
 
+    test_constructor(reporter);
     test_gettype(reporter);
     test_determinant(reporter);
     test_transpose(reporter);

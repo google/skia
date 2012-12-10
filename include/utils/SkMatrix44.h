@@ -103,6 +103,17 @@ struct SkVector4 {
 
 class SK_API SkMatrix44 {
 public:
+
+    enum Uninitialized_Constructor {
+        kUninitialized_Constructor
+    };
+    enum Identity_Constructor {
+        kIdentity_Constructor
+    };
+
+    SkMatrix44(Uninitialized_Constructor) { }
+    SkMatrix44(Identity_Constructor) { this->setIdentity(); }
+
     SkMatrix44() { this->setIdentity(); }
     SkMatrix44(const SkMatrix44&);
     SkMatrix44(const SkMatrix44& a, const SkMatrix44& b);
