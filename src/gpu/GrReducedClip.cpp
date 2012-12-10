@@ -325,7 +325,7 @@ void reduced_stack_walker(const SkClipStack& stack,
                     ++numAAElements;
                 }
                 // Intersecting an inverse shape is the same as differencing the non-inverse shape.
-                // Replacing with a inverse shape the same as setting initialState=kAllIn and
+                // Replacing with an inverse shape is the same as setting initialState=kAllIn and
                 // differencing the non-inverse shape.
                 bool isReplace = SkRegion::kReplace_Op == newElement->getOp();
                 if (newElement->isInverseFilled() &&

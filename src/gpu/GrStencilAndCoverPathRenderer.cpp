@@ -42,15 +42,16 @@ bool GrStencilAndCoverPathRenderer::canDrawPath(const SkPath& path,
            target->getDrawState().getStencil().isDisabled();
 }
 
-bool GrStencilAndCoverPathRenderer::requiresStencilPass(const SkPath& path,
-                                                        const SkStroke& stroke,
-                                                        const GrDrawTarget* target) const {
-    return true;
+GrPathRenderer::StencilSupport GrStencilAndCoverPathRenderer::onGetStencilSupport(
+                                                        const SkPath&,
+                                                        const SkStroke& ,
+                                                        const GrDrawTarget*) const {
+    return GrPathRenderer::kStencilOnly_StencilSupport;
 }
 
-void GrStencilAndCoverPathRenderer::drawPathToStencil(const SkPath& path,
-                                                      const SkStroke& stroke,
-                                                      GrDrawTarget* target) {
+void GrStencilAndCoverPathRenderer::onStencilPath(const SkPath& path,
+                                                  const SkStroke& stroke,
+                                                  GrDrawTarget* target) {
     GrAssert(!path.isInverseFillType());
     SkAutoTUnref<GrPath> p(fGpu->createPath(path));
     target->stencilPath(p, stroke, path.getFillType());

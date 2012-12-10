@@ -162,10 +162,15 @@ static inline bool single_pass_path(const SkPath& path, const SkStroke& stroke) 
 #endif
 }
 
-bool GrDefaultPathRenderer::requiresStencilPass(const SkPath& path,
-                                                const SkStroke& stroke,
-                                                const GrDrawTarget* target) const {
-    return !single_pass_path(path, stroke);
+GrPathRenderer::StencilSupport GrDefaultPathRenderer::onGetStencilSupport(
+                                                            const SkPath& path,
+                                                            const SkStroke& stroke,
+                                                            const GrDrawTarget*) const {
+    if (single_pass_path(path, stroke)) {
+        return GrPathRenderer::kNoRestriction_StencilSupport;
+    } else {
+        return GrPathRenderer::kStencilOnly_StencilSupport;
+    }
 }
 
 static inline void append_countour_edge_indices(bool hairLine,
@@ -508,9 +513,9 @@ bool GrDefaultPathRenderer::onDrawPath(const SkPath& path,
                                   false);
 }
 
-void GrDefaultPathRenderer::drawPathToStencil(const SkPath& path,
-                                              const SkStroke& stroke,
-                                              GrDrawTarget* target) {
+void GrDefaultPathRenderer::onStencilPath(const SkPath& path,
+                                          const SkStroke& stroke,
+                                          GrDrawTarget* target) {
     GrAssert(SkPath::kInverseEvenOdd_FillType != path.getFillType());
     GrAssert(SkPath::kInverseWinding_FillType != path.getFillType());
     this->internalDrawPath(path, stroke, target, true);

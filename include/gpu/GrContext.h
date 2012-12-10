@@ -15,6 +15,7 @@
 #include "GrClipData.h"
 #include "SkMatrix.h"
 #include "GrPaint.h"
+#include "GrPathRendererChain.h"
 // not strictly needed but requires WK change in LayerTextureUpdaterCanvas to
 // remove.
 #include "GrRenderTarget.h"
@@ -32,7 +33,6 @@ class GrIndexBuffer;
 class GrIndexBufferAllocPool;
 class GrInOrderDrawBuffer;
 class GrPathRenderer;
-class GrPathRendererChain;
 class GrResourceEntry;
 class GrResourceCache;
 class GrStencilBuffer;
@@ -851,11 +851,13 @@ public:
     void addStencilBuffer(GrStencilBuffer* sb);
     GrStencilBuffer* findStencilBuffer(int width, int height, int sampleCnt);
 
-    GrPathRenderer* getPathRenderer(const SkPath& path,
-                                    const SkStroke& stroke,
-                                    const GrDrawTarget* target,
-                                    bool antiAlias,
-                                    bool allowSW);
+    GrPathRenderer* getPathRenderer(
+                    const SkPath& path,
+                    const SkStroke& stroke,
+                    const GrDrawTarget* target,
+                    bool allowSW,
+                    GrPathRendererChain::DrawType drawType = GrPathRendererChain::kColor_DrawType,
+                    GrPathRendererChain::StencilSupport* stencilSupport = NULL);
 
 #if GR_CACHE_STATS
     void printCacheStats() const;

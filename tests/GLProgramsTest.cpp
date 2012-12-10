@@ -92,8 +92,10 @@ bool GrGpuGL::programUnitTest() {
             pdesc.fVertexLayout |= GrDrawTarget::kEdge_VertexLayoutBit;
             if (this->getCaps().shaderDerivativeSupport()) {
                 pdesc.fVertexEdgeType = (GrDrawState::VertexEdgeType) random_int(&random, GrDrawState::kVertexEdgeTypeCnt);
+                pdesc.fDiscardIfOutsideEdge = random.nextBool();
             } else {
                 pdesc.fVertexEdgeType = GrDrawState::kHairLine_EdgeType;
+                pdesc.fDiscardIfOutsideEdge = false;
             }
         } else {
         }

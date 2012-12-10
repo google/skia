@@ -28,6 +28,13 @@ bool GrSoftwarePathRenderer::canDrawPath(const SkPath& path,
     return true;
 }
 
+GrPathRenderer::StencilSupport GrSoftwarePathRenderer::onGetStencilSupport(
+                                                                        const SkPath&,
+                                                                        const SkStroke&,
+                                                                        const GrDrawTarget*) const {
+    return GrPathRenderer::kNoSupport_StencilSupport;
+}
+
 namespace {
 
 ////////////////////////////////////////////////////////////////////////////////

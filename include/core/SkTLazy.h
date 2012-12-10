@@ -116,10 +116,21 @@ class SkTCopyOnFirstWrite {
 public:
     SkTCopyOnFirstWrite(const T& initial) : fObj(&initial) {}
 
+    // Constructor for delayed initialization.
+    SkTCopyOnFirstWrite() : fObj(NULL) {}
+
+    // Should only be called once, and only if the default constructor was used.
+    void init(const T& initial) {
+        SkASSERT(NULL == fObj);
+        SkASSERT(!fLazy.isValid());
+        fObj = &initial;
+    }
+
     /**
      * Returns a writable T*. The first time this is called the initial object is cloned.
      */
     T* writable() {
+        SkASSERT(NULL != fObj);
         if (!fLazy.isValid()) {
             fLazy.set(*fObj);
             fObj = fLazy.get();

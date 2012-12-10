@@ -553,9 +553,11 @@ void GrGpuGL::buildProgram(bool isPoints,
 
     if (!skipCoverage && (desc->fVertexLayout &GrDrawTarget::kEdge_VertexLayoutBit)) {
         desc->fVertexEdgeType = drawState.getVertexEdgeType();
+        desc->fDiscardIfOutsideEdge = drawState.getStencil().doesWrite();
     } else {
-        // use canonical value when not set to avoid cache misses
+        // Use canonical values when edge-aa is not enabled to avoid program cache misses.
         desc->fVertexEdgeType = GrDrawState::kHairLine_EdgeType;
+        desc->fDiscardIfOutsideEdge = false;
     }
 
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
