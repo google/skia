@@ -284,6 +284,9 @@ bool GrGLProgram::genEdgeCoverage(SkString* coverageVar,
             GrCrash("Unknown Edge Type!");
             break;
         }
+        if (fDesc.fDiscardIfOutsideEdge) {
+            builder->fFSCode.appendf("\tif (edgeAlpha <= 0) {\n\t\tdiscard;\n\t}\n");
+        }
         *coverageVar = "edgeAlpha";
         return true;
     } else {

@@ -12,72 +12,86 @@
 
 #include "GrDrawTarget.h"
 #include "GrPathRendererChain.h"
+#include "GrStencil.h"
 
+#include "SkStroke.h"
 #include "SkTArray.h"
 
 class SkPath;
-class SkStroke;
 
 struct GrPoint;
 
 /**
  *  Base class for drawing paths into a GrDrawTarget.
  *
- *  Derived classes can use stages GrPaint::kTotalStages through
- *  GrDrawState::kNumStages-1. The stages before GrPaint::kTotalStages
- *  are reserved for setting up the draw (i.e., textures and filter masks).
+ *  Derived classes can use stages GrPaint::kTotalStages through GrDrawState::kNumStages-1. The
+ *  stages before GrPaint::kTotalStages are reserved for setting up the draw (i.e., textures and
+ *  filter masks).
  */
 class GR_API GrPathRenderer : public GrRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrPathRenderer)
 
     /**
-     * This is called to install custom path renderers in every GrContext at
-     * create time. The default implementation in GrCreatePathRenderer_none.cpp
-     * does not add any additional renderers. Link against another
-     * implementation to install your own. The first added is the most preferred
-     * path renderer, second is second most preferred, etc.
+     * This is called to install custom path renderers in every GrContext at create time. The
+     * default implementation in GrCreatePathRenderer_none.cpp does not add any additional
+     * renderers. Link against another implementation to install your own. The first added is the
+     * most preferred path renderer, second is second most preferred, etc.
      *
      * @param context   the context that will use the path renderer
-     * @param flags     flags indicating how path renderers will be used
      * @param prChain   the chain to add path renderers to.
      */
-    static void AddPathRenderers(GrContext* context,
-                                 GrPathRendererChain::UsageFlags flags,
-                                 GrPathRendererChain* prChain);
+    static void AddPathRenderers(GrContext* context, GrPathRendererChain* prChain);
 
 
     GrPathRenderer();
 
     /**
-     * For complex clips Gr uses the stencil buffer. The path renderer must be
-     * able to render paths into the stencil buffer. However, the path renderer
-     * itself may require the stencil buffer to resolve the path fill rule.
-     * This function queries whether the path render needs its own stencil
-     * pass. If this returns false then drawPath() should not modify the
-     * the target's stencil settings but use those already set on target. The
-     * target is passed as a param in case the answer depends upon draw state.
+     * A caller may wish to use a path renderer to draw a path into the stencil buffer. However,
+     * the path renderer itself may require use of the stencil buffer. Also a path renderer may
+     * use a GrEffect coverage stage that sets coverage to zero to eliminate pixels that are covered
+     * by bounding geometry but outside the path. These exterior pixels would still be rendered into
+     * the stencil.
+     *
+     * A GrPathRenderer can provide three levels of support for stenciling paths:
+     * 1) kNoRestriction: This is the most general. The caller sets up the GrDrawState on the target
+     *                    and calls drawPath(). The path is rendered exactly as the draw state
+     *                    indicates including support for simultaneous color and stenciling with
+     *                    arbitrary stenciling rules. Pixels partially covered by AA paths are
+     *                    affected by the stencil settings.
+     * 2) kStencilOnly: The path renderer cannot apply arbitrary stencil rules nor shade and stencil
+     *                  simultaneously. The path renderer does support the stencilPath() function
+     *                  which performs no color writes and writes a non-zero stencil value to pixels
+     *                  covered by the path.
+     * 3) kNoSupport: This path renderer cannot be used to stencil the path.
+     */
+    typedef GrPathRendererChain::StencilSupport StencilSupport;
+    static const StencilSupport kNoSupport_StencilSupport =
+        GrPathRendererChain::kNoSupport_StencilSupport;
+    static const StencilSupport kStencilOnly_StencilSupport =
+        GrPathRendererChain::kStencilOnly_StencilSupport;
+    static const StencilSupport kNoRestriction_StencilSupport =
+        GrPathRendererChain::kNoRestriction_StencilSupport;
+
+    /**
+     * This function is to get the stencil support for a particular path. The path's fill must
+     * not be an inverse type.
      *
      * @param target    target that the path will be rendered to
      * @param path      the path that will be drawn
      * @param stroke    the stroke information (width, join, cap).
-     *
-     * @return false if this path renderer can generate interior-only fragments
-     *         without changing the stencil settings on the target. If it
-     *         returns true the drawPathToStencil will be used when rendering
-     *         clips.
      */
-    virtual bool requiresStencilPass(const SkPath& path,
+    StencilSupport getStencilSupport(const SkPath& path,
                                      const SkStroke& stroke,
                                      const GrDrawTarget* target) const {
-        return false;
+        GrAssert(!path.isInverseFillType());
+        return this->onGetStencilSupport(path, stroke, target);
     }
 
     /**
-     * Returns true if this path renderer is able to render the path.
-     * Returning false allows the caller to fallback to another path renderer
-     * This function is called when searching for a path renderer capable of
-     * rendering a path.
+     * Returns true if this path renderer is able to render the path. Returning false allows the
+     * caller to fallback to another path renderer This function is called when searching for a path
+     * renderer capable of rendering a path.
      *
      * @param path       The path to draw
      * @param stroke     The stroke information (width, join, cap)
@@ -91,54 +105,71 @@ public:
                              const GrDrawTarget* target,
                              bool antiAlias) const = 0;
     /**
-     * Draws the path into the draw target. If requiresStencilBuffer returned
-     * false then the target may be setup for stencil rendering (since the
-     * path renderer didn't claim that it needs to use the stencil internally).
+     * Draws the path into the draw target. If getStencilSupport() would return kNoRestriction then
+     * the subclass must respect the stencil settings of the target's draw state.
      *
      * @param path                  the path to draw.
      * @param stroke                the stroke information (width, join, cap)
      * @param target                target that the path will be rendered to
      * @param antiAlias             true if anti-aliasing is required.
      */
-    virtual bool drawPath(const SkPath& path,
-                          const SkStroke& stroke,
-                          GrDrawTarget* target,
-                          bool antiAlias) {
+    bool drawPath(const SkPath& path,
+                  const SkStroke& stroke,
+                  GrDrawTarget* target,
+                  bool antiAlias) {
         GrAssert(this->canDrawPath(path, stroke, target, antiAlias));
         return this->onDrawPath(path, stroke, target, antiAlias);
     }
 
     /**
-     * Draws the path to the stencil buffer. Assume the writable stencil bits
-     * are already initialized to zero. Fill will always be either
-     * kWinding_FillType or kEvenOdd_FillType.
-     *
-     * Only called if requiresStencilPass returns true for the same combo of
-     * target, path, and fill. Never called with an inverse fill.
-     *
-     * The default implementation assumes the path filling algorithm doesn't
-     * require a separate stencil pass and so crashes.
-     *
-     */
-    virtual void drawPathToStencil(const SkPath& path,
-                                   const SkStroke& stroke,
-                                   GrDrawTarget* target) {
-        GrCrash("Unexpected call to drawPathToStencil.");
-    }
-
-protected:
-    /**
-     * Draws the path into the draw target.
+     * Draws the path to the stencil buffer. Assume the writable stencil bits are already
+     * initialized to zero. The pixels inside the path will have non-zero stencil values afterwards.
      *
      * @param path                  the path to draw.
      * @param stroke                the stroke information (width, join, cap)
      * @param target                target that the path will be rendered to
-     * @param antiAlias             whether antialiasing is enabled or not.
+     */
+    void stencilPath(const SkPath& path, const SkStroke& stroke, GrDrawTarget* target) {
+        GrAssert(kNoSupport_StencilSupport != this->getStencilSupport(path, stroke, target));
+        this->onStencilPath(path, stroke, target);
+    }
+
+protected:
+    /**
+     * Subclass overrides if it has any limitations of stenciling support.
+     */
+    virtual StencilSupport onGetStencilSupport(const SkPath&,
+                                               const SkStroke&,
+                                               const GrDrawTarget*) const {
+        return kNoRestriction_StencilSupport;
+    }
+
+    /**
+     * Subclass implementation of drawPath()
      */
     virtual bool onDrawPath(const SkPath& path,
                             const SkStroke& stroke,
                             GrDrawTarget* target,
                             bool antiAlias) = 0;
+
+    /**
+     * Subclass implementation of stencilPath(). Subclass must override iff it ever returns
+     * kStencilOnly in onGetStencilSupport().
+     */
+    virtual void onStencilPath(const SkPath& path,  const SkStroke& stroke, GrDrawTarget* target) {
+        GrDrawTarget::AutoStateRestore asr(target, GrDrawTarget::kPreserve_ASRInit);
+        GrDrawState* drawState = target->drawState();
+        GR_STATIC_CONST_SAME_STENCIL(kIncrementStencil,
+                                     kReplace_StencilOp,
+                                     kReplace_StencilOp,
+                                     kAlways_StencilFunc,
+                                     0xffff,
+                                     0xffff,
+                                     0xffff);
+        drawState->setStencil(kIncrementStencil);
+        drawState->enableState(GrDrawState::kNoColorWrites_StateBit);
+        this->drawPath(path, stroke, target, false);
+    }
 
 private:
 

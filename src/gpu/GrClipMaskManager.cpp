@@ -70,7 +70,11 @@ bool path_needs_SW_renderer(GrContext* context,
         path.writable()->toggleInverseFillType();
     }
     // last (false) parameter disallows use of the SW path renderer
-    return NULL == context->getPathRenderer(*path, stroke, gpu, doAA, false);
+    GrPathRendererChain::DrawType type = doAA ?
+                                         GrPathRendererChain::kColorAntiAlias_DrawType :
+                                         GrPathRendererChain::kColor_DrawType;
+
+    return NULL == context->getPathRenderer(*path, stroke, gpu, false, type);
 }
 
 }
@@ -313,10 +317,14 @@ bool GrClipMaskManager::drawClipShape(GrTexture* target, const SkClipStack::Elem
             }
             SkStroke stroke;
             stroke.setDoFill(true);
+            GrPathRendererChain::DrawType type = element->isAA() ?
+                GrPathRendererChain::kColorAntiAlias_DrawType :
+                GrPathRendererChain::kColor_DrawType;
             GrPathRenderer* pr = this->getContext()->getPathRenderer(*path,
                                                                      stroke,
                                                                      fGpu,
-                                                                     element->isAA(), false);
+                                                                     false,
+                                                                     type);
             if (NULL == pr) {
                 return false;
             }
@@ -580,10 +588,9 @@ bool GrClipMaskManager::createStencilClipMask(InitialState initialState,
                 drawState->setState(GrDrawState::kHWAntialias_StateBit, element->isAA());
             }
 
-            // Can the clip element be drawn directly to the stencil buffer
-            // with a non-inverted fill rule without extra passes to
-            // resolve in/out status?
-            bool canRenderDirectToStencil = false;
+            // This will be used to determine whether the clip shape can be rendered into the
+            // stencil with arbitrary stencil settings.
+            GrPathRenderer::StencilSupport stencilSupport;
 
             SkStroke stroke;
             stroke.setDoFill(true);
@@ -591,29 +598,37 @@ bool GrClipMaskManager::createStencilClipMask(InitialState initialState,
             SkRegion::Op op = element->getOp();
 
             GrPathRenderer* pr = NULL;
-            SkPath clipPath;
+            SkTCopyOnFirstWrite<SkPath> clipPath;
             if (Element::kRect_Type == element->getType()) {
-                canRenderDirectToStencil = true;
+                stencilSupport = GrPathRenderer::kNoRestriction_StencilSupport;
                 fill = SkPath::kEvenOdd_FillType;
                 fillInverted = false;
             } else {
                 GrAssert(Element::kPath_Type == element->getType());
-                clipPath = element->getPath();
-                fill = clipPath.getFillType();
-                fillInverted = clipPath.isInverseFillType();
-                fill = SkPath::NonInverseFill(fill);
-                clipPath.setFillType(fill);
-                pr = this->getContext()->getPathRenderer(clipPath, stroke, fGpu, false, true);
+                clipPath.init(element->getPath());
+                fill = clipPath->getFillType();
+                fillInverted = clipPath->isInverseFillType();
+                if (fillInverted) {
+                    clipPath.writable()->toggleInverseFillType();
+                    fill = clipPath->getFillType();
+                }
+                pr = this->getContext()->getPathRenderer(*clipPath,
+                                                         stroke,
+                                                         fGpu,
+                                                         false,
+                                                         GrPathRendererChain::kStencilOnly_DrawType,
+                                                         &stencilSupport);
                 if (NULL == pr) {
                     fGpu->setClip(oldClipData);
                     return false;
                 }
-                canRenderDirectToStencil = !pr->requiresStencilPass(clipPath, stroke, fGpu);
             }
 
             int passes;
             GrStencilSettings stencilSettings[GrStencilSettings::kMaxStencilClipPasses];
 
+            bool canRenderDirectToStencil =
+                GrPathRenderer::kNoRestriction_StencilSupport == stencilSupport;
             bool canDrawDirectToClip; // Given the renderer, the element,
                                       // fill rule, and set operation can
                                       // we render the element directly to
@@ -642,9 +657,9 @@ bool GrClipMaskManager::createStencilClipMask(InitialState initialState,
                     GrAssert(Element::kPath_Type == element->getType());
                     if (canRenderDirectToStencil) {
                         *drawState->stencil() = gDrawToStencil;
-                        pr->drawPath(clipPath, stroke, fGpu, false);
+                        pr->drawPath(*clipPath, stroke, fGpu, false);
                     } else {
-                        pr->drawPathToStencil(clipPath, stroke, fGpu);
+                        pr->stencilPath(*clipPath, stroke, fGpu);
                     }
                 }
             }
@@ -661,7 +676,7 @@ bool GrClipMaskManager::createStencilClipMask(InitialState initialState,
                     } else {
                         GrAssert(Element::kPath_Type == element->getType());
                         SET_RANDOM_COLOR
-                        pr->drawPath(clipPath, stroke, fGpu, false);
+                        pr->drawPath(*clipPath, stroke, fGpu, false);
                     }
                 } else {
                     SET_RANDOM_COLOR

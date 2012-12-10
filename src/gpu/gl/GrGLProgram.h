@@ -108,7 +108,10 @@ public:
             kDualSrcOutputCnt
         };
 
+        // TODO: remove these two members when edge-aa can be rewritten as a GrEffect.
         GrDrawState::VertexEdgeType fVertexEdgeType;
+        // should the FS discard if the edge-aa coverage is zero (to avoid stencil manipulation)
+        bool                        fDiscardIfOutsideEdge;
 
         // stripped of bits that don't affect program generation
         GrVertexLayout fVertexLayout;

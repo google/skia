@@ -1112,7 +1112,10 @@ void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path, const
         prAA = false;
     }
 
-    GrPathRenderer* pr = this->getPathRenderer(path, stroke, target, prAA, true);
+    GrPathRendererChain::DrawType type = prAA ? GrPathRendererChain::kColorAntiAlias_DrawType :
+                                                GrPathRendererChain::kColor_DrawType;
+
+    GrPathRenderer* pr = this->getPathRenderer(path, stroke, target, true, type);
     if (NULL == pr) {
 #if GR_DEBUG
         GrPrintf("Unable to find path renderer compatible with path.\n");
@@ -1620,24 +1623,24 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint, BufferedDraw buffer
 GrPathRenderer* GrContext::getPathRenderer(const SkPath& path,
                                            const SkStroke& stroke,
                                            const GrDrawTarget* target,
-                                           bool antiAlias,
-                                           bool allowSW) {
+                                           bool allowSW,
+                                           GrPathRendererChain::DrawType drawType,
+                                           GrPathRendererChain::StencilSupport* stencilSupport) {
+
     if (NULL == fPathRendererChain) {
-        fPathRendererChain =
-            SkNEW_ARGS(GrPathRendererChain,
-                       (this, GrPathRendererChain::kNone_UsageFlag));
+        fPathRendererChain = SkNEW_ARGS(GrPathRendererChain, (this));
     }
 
     GrPathRenderer* pr = fPathRendererChain->getPathRenderer(path,
                                                              stroke,
                                                              target,
-                                                             antiAlias);
+                                                             drawType,
+                                                             stencilSupport);
 
     if (NULL == pr && allowSW) {
         if (NULL == fSoftwarePathRenderer) {
             fSoftwarePathRenderer = SkNEW_ARGS(GrSoftwarePathRenderer, (this));
         }
-
         pr = fSoftwarePathRenderer;
     }
 
