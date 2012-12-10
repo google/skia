@@ -146,6 +146,24 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record, bool deepCop
 #endif
 }
 
+static bool needs_deep_copy(const SkPaint& paint) {
+    /*
+     *  These fields are known to be immutable, and so can be shallow-copied
+     *
+     *  getTypeface();
+     *  getAnnotation();
+     */
+
+    return paint.getPathEffect() ||
+           paint.getShader() ||
+           paint.getXfermode() ||
+           paint.getMaskFilter() ||
+           paint.getColorFilter() ||
+           paint.getRasterizer() ||
+           paint.getLooper() ||
+           paint.getImageFilter();
+}
+
 SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src, SkPictCopyInfo* deepCopyInfo) {
     this->init();
 
@@ -178,9 +196,14 @@ SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src, SkPictCopyInf
 
             SkDEBUGCODE(int heapSize = SafeCount(fBitmapHeap.get());)
             for (int i = 0; i < src.fPaints->count(); i++) {
-                deepCopyInfo->paintData[i] = SkFlatData::Create(&deepCopyInfo->controller,
-                                                                &src.fPaints->at(i), 0,
-                                                                &SkFlattenObjectProc<SkPaint>);
+                if (needs_deep_copy(src.fPaints->at(i))) {
+                    deepCopyInfo->paintData[i] = SkFlatData::Create(&deepCopyInfo->controller,
+                                                                    &src.fPaints->at(i), 0,
+                                                                    &SkFlattenObjectProc<SkPaint>);
+                } else {
+                    // this is our sentinel, which we use in the unflatten loop
+                    deepCopyInfo->paintData[i] = NULL;
+                }
             }
             SkASSERT(SafeCount(fBitmapHeap.get()) == heapSize);
 
@@ -191,11 +214,17 @@ SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src, SkPictCopyInf
 
         fPaints = SkTRefArray<SkPaint>::Create(src.fPaints->count());
         SkASSERT(deepCopyInfo->paintData.count() == src.fPaints->count());
+        SkBitmapHeap* bmHeap = deepCopyInfo->controller.getBitmapHeap();
+        SkTypefacePlayback* tfPlayback = deepCopyInfo->controller.getTypefacePlayback();
         for (int i = 0; i < src.fPaints->count(); i++) {
-            deepCopyInfo->paintData[i]->unflatten(&fPaints->writableAt(i),
-                                                  &SkUnflattenObjectProc<SkPaint>,
-                                                  deepCopyInfo->controller.getBitmapHeap(),
-                                                  deepCopyInfo->controller.getTypefacePlayback());
+            if (deepCopyInfo->paintData[i]) {
+                deepCopyInfo->paintData[i]->unflatten(&fPaints->writableAt(i),
+                                                      &SkUnflattenObjectProc<SkPaint>,
+                                                      bmHeap, tfPlayback);
+            } else {
+                // needs_deep_copy was false, so just need to assign
+                fPaints->writableAt(i) = src.fPaints->at(i);
+            }
         }
 
     } else {
