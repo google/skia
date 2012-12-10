@@ -1051,6 +1051,10 @@ void SampleWindow::draw(SkCanvas* canvas) {
         this->updateMatrix();
     }
 
+    if (fMeasureFPS) {
+        fMeasureFPS_Time = 0;
+    }
+
     if (fNClip) {
         this->INHERITED::draw(canvas);
         SkBitmap orig = capture_bitmap(canvas);
@@ -1109,6 +1113,11 @@ void SampleWindow::draw(SkCanvas* canvas) {
     }
     if (fMagnify && !fSaveToPdf) {
         magnify(canvas);
+    }
+
+    if (fMeasureFPS && fMeasureFPS_Time) {
+        this->updateTitle();
+        this->postInvalDelay();
     }
 
     // do this last
@@ -1396,10 +1405,8 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
     }
 
     // Do this after presentGL and other finishing, rather than in afterChild
-    if (fMeasureFPS && fMeasureFPS_Time) {
-        fMeasureFPS_Time = SkTime::GetMSecs() - fMeasureFPS_Time;
-        this->updateTitle();
-        this->postInvalDelay();
+    if (fMeasureFPS && fMeasureFPS_StartTime) {
+        fMeasureFPS_Time += SkTime::GetMSecs() - fMeasureFPS_StartTime;
     }
 
     //    if ((fScrollTestX | fScrollTestY) != 0)
@@ -1471,9 +1478,8 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
     this->installDrawFilter(canvas);
 
     if (fMeasureFPS) {
-        fMeasureFPS_Time = 0;   // 0 means the child is not aware of repeat-draw
         if (SampleView::SetRepeatDraw(child, FPS_REPEAT_COUNT)) {
-            fMeasureFPS_Time = SkTime::GetMSecs();
+            fMeasureFPS_StartTime = SkTime::GetMSecs();
         }
     } else {
         (void)SampleView::SetRepeatDraw(child, 1);
@@ -1778,6 +1784,13 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
     }
 
     switch (uni) {
+        case 'b':
+            {
+            postEventToSink(SkNEW_ARGS(SkEvent, ("PictFileView::toggleBBox")), curr_view(this));
+            this->updateTitle();
+            this->inval(NULL);
+            break;
+            }
         case 'B':
 //            gIgnoreFastBlurRect = !gIgnoreFastBlurRect;
             this->inval(NULL);
