@@ -2884,7 +2884,7 @@ path.close();
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = testLine81;
+static void (*firstTest)() = testLine79x;
 
 static struct {
     void (*fun)();
@@ -3333,7 +3333,7 @@ static const size_t subTestCount = sizeof(subTests) / sizeof(subTests[0]);
 static void (*firstBinaryTest)() = testOp2d;
 
 static bool skipAll = false;
-static bool runBinaryTestsFirst = true;
+static bool runBinaryTestsFirst = false;
 static bool runReverse = false;
 
 void SimplifyNew_Test() {
