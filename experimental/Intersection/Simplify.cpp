@@ -794,7 +794,7 @@ struct Bounds : public SkRect {
     void add(const Bounds& toAdd) {
         add(toAdd.fLeft, toAdd.fTop, toAdd.fRight, toAdd.fBottom);
     }
-    
+
     bool isEmpty() {
         return fLeft > fRight || fTop > fBottom
                 || (fLeft == fRight && fTop == fBottom)
@@ -1104,7 +1104,7 @@ public:
         return activeOp(xorMiMask, xorSuMask, index, endIndex, op, sumMiWinding, sumSuWinding,
                 maxWinding, sumWinding, oppMaxWinding, oppSumWinding);
     }
-    
+
     bool activeOp(int xorMiMask, int xorSuMask, int index, int endIndex, ShapeOp op,
             int& sumMiWinding, int& sumSuWinding,
             int& maxWinding, int& sumWinding, int& oppMaxWinding, int& oppSumWinding) {
@@ -1918,11 +1918,11 @@ public:
         }
         return false;
     }
-    
+
     // OPTIMIZE
     // when the edges are initially walked, they don't automatically get the prior and next
     // edges assigned to positions t=0 and t=1. Doing that would remove the need for this check,
-    // and would additionally remove the need for similar checks in condition edges. It would   
+    // and would additionally remove the need for similar checks in condition edges. It would
     // also allow intersection code to assume end of segment intersections (maybe?)
     bool complete() const {
         int count = fTs.count();
@@ -2589,7 +2589,7 @@ public:
             }
         }
     }
-    
+
     void init(const SkPoint pts[], SkPath::Verb verb, bool operand, bool evenOdd) {
         fDoneSpans = 0;
         fOperand = operand;
@@ -2724,7 +2724,7 @@ public:
     Span* markAndChaseWinding(const Angle* angle, const int winding) {
         int index = angle->start();
         int endIndex = angle->end();
-        int step = SkSign32(endIndex - index);        
+        int step = SkSign32(endIndex - index);
         int min = SkMin32(index, endIndex);
         markWinding(min, winding);
         Span* last;
@@ -3172,7 +3172,7 @@ public:
             *outsideTs.append() = start;
         }
     }
-    
+
     void undoneSpan(int& start, int& end) {
         size_t tCount = fTs.count();
         size_t index;
@@ -3930,7 +3930,7 @@ public:
     void setOperand(bool isOp) {
         fOperand = isOp;
     }
-    
+
     void setOppXor(bool isOppXor) {
         fOppXor = isOppXor;
         int segmentCount = fSegments.count();

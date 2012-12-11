@@ -56,7 +56,7 @@ public:
     /** Returns a GrPathRenderer compatible with the request if one is available. If the caller
         is drawing the path to the stencil buffer then stencilSupport can be used to determine
         whether the path can be rendered with arbitrary stencil rules or not. See comments on
-        StencilSupport in GrPathRenderer.h. */     
+        StencilSupport in GrPathRenderer.h. */
     GrPathRenderer* getPathRenderer(const SkPath& path,
                                     const SkStroke& stroke,
                                     const GrDrawTarget* target,
