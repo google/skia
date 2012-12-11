@@ -669,10 +669,10 @@ public:
                                        SkIntToScalar(fPicture->height()));
         SkData* data = SkPictureUtils::GatherPixelRefs(fPicture, bounds);
         SkSafeUnref(data);
-        
+
         return NULL == path;    // we don't have anything to write
     }
-    
+
 private:
     virtual SkString getConfigNameInternal() SK_OVERRIDE {
         return SkString("gather_pixelrefs");
@@ -692,10 +692,10 @@ public:
             SkPicture* clone = fPicture->clone();
             SkSafeUnref(clone);
         }
-        
+
         return NULL == path;    // we don't have anything to write
     }
-    
+
 private:
     virtual SkString getConfigNameInternal() SK_OVERRIDE {
         return SkString("picture_clone");

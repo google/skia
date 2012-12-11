@@ -40,7 +40,7 @@ protected:
                             GrDrawTarget*,
                             bool antiAlias) SK_OVERRIDE;
 
-    virtual void onStencilPath(const SkPath&,  
+    virtual void onStencilPath(const SkPath&,
                                const SkStroke&,
                                GrDrawTarget*) SK_OVERRIDE;
 
