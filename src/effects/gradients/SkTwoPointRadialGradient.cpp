@@ -462,7 +462,7 @@ GrEffect* GrRadial2Gradient::TestCreate(SkRandom* random,
     SkPoint center2;
     SkScalar radius2;
     do {
-        center1.set(random->nextUScalar1(), random->nextUScalar1());
+        center2.set(random->nextUScalar1(), random->nextUScalar1());
         radius2 = random->nextUScalar1 ();
         // There is a bug in two point radial gradients with idenitical radii
     } while (radius1 == radius2);

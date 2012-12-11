@@ -426,7 +426,7 @@ GrEffect* GrConical2Gradient::TestCreate(SkRandom* random,
     SkPoint center2;
     SkScalar radius2;
     do {
-        center1.set(random->nextUScalar1(), random->nextUScalar1());
+        center2.set(random->nextUScalar1(), random->nextUScalar1());
         radius2 = random->nextUScalar1 ();
         // If the circles are identical the factory will give us an empty shader.
     } while (radius1 == radius2 && center1 == center2);
