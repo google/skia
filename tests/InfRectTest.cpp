@@ -41,8 +41,8 @@ static void test_center(skiatest::Reporter* reporter) {
               rand.nextS() >> 2, rand.nextS() >> 2);
         int cx = r.centerX();
         int cy = r.centerY();
-        REPORTER_ASSERT(reporter, (r.left() + r.right() >> 1) == cx);
-        REPORTER_ASSERT(reporter, (r.top() + r.bottom() >> 1) == cy);
+        REPORTER_ASSERT(reporter, ((r.left() + r.right()) >> 1) == cx);
+        REPORTER_ASSERT(reporter, ((r.top() + r.bottom()) >> 1) == cy);
     }
 }
 

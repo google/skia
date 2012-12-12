@@ -118,7 +118,7 @@ protected:
 
                 canvas->drawText(kText, kTextLen, 0, 0, fillPaint);
                 canvas->drawText(kText, kTextLen, 0, 0, outlinePaint);
-                int w = fillPaint.measureText(kText, kTextLen);
+                SkScalar w = fillPaint.measureText(kText, kTextLen);
                 canvas->translate(w + 10.f, 0.f);
                 ++i;
                 if (!(i % 2)) {
