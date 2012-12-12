@@ -634,7 +634,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
 #endif
 
 #ifdef SPEW_CLIP_SKIPPING
-    SkipClipRec skipRect, skipRRect, skipRegion, skipPath;
+    SkipClipRec skipRect, skipRegion, skipPath;
 #endif
 
 #ifdef SK_BUILD_FOR_ANDROID
@@ -731,26 +731,10 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 bool doAA = ClipParams_unpackDoAA(packed);
                 size_t offsetToRestore = reader.readInt();
                 SkASSERT(!offsetToRestore || \
-                         offsetToRestore >= reader.offset());
+                    offsetToRestore >= reader.offset());
                 if (!canvas.clipRect(rect, op, doAA) && offsetToRestore) {
 #ifdef SPEW_CLIP_SKIPPING
                     skipRect.recordSkip(offsetToRestore - reader.offset());
-#endif
-                    reader.setOffset(offsetToRestore);
-                }
-            } break;
-            case CLIP_RRECT: {
-                SkRRect rrect;
-                reader.readRRect(&rrect);
-                uint32_t packed = reader.readInt();
-                SkRegion::Op op = ClipParams_unpackRegionOp(packed);
-                bool doAA = ClipParams_unpackDoAA(packed);
-                size_t offsetToRestore = reader.readInt();
-                SkASSERT(!offsetToRestore || \
-                         offsetToRestore >= reader.offset());
-                if (!canvas.clipRRect(rrect, op, doAA) && offsetToRestore) {
-#ifdef SPEW_CLIP_SKIPPING
-                    skipRRect.recordSkip(offsetToRestore - reader.offset());
 #endif
                     reader.setOffset(offsetToRestore);
                 }
@@ -791,10 +775,6 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 size_t length = reader.readInt();
                 canvas.drawData(reader.skip(length), length);
                 // skip handles padding the read out to a multiple of 4
-            } break;
-            case DRAW_OVAL: {
-                const SkPaint& paint = *getPaint(reader);
-                canvas.drawOval(reader.skipT<SkRect>(), paint);
             } break;
             case DRAW_PAINT:
                 canvas.drawPaint(*getPaint(reader));
@@ -856,11 +836,6 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
             case DRAW_RECT: {
                 const SkPaint& paint = *getPaint(reader);
                 canvas.drawRect(reader.skipT<SkRect>(), paint);
-            } break;
-            case DRAW_RRECT: {
-                const SkPaint& paint = *getPaint(reader);
-                SkRRect rrect;
-                canvas.drawRRect(*reader.readRRect(&rrect), paint);
             } break;
             case DRAW_SPRITE: {
                 const SkPaint* paint = getPaint(reader);
@@ -977,10 +952,10 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
 
 #ifdef SPEW_CLIP_SKIPPING
     {
-        size_t size =  skipRect.fSize + skipRRect.fSize + skipPath.fSize + skipRegion.fSize;
-        SkDebugf("--- Clip skips %d%% rect:%d rrect:%d path:%d rgn:%d\n",
-             size * 100 / reader.offset(), skipRect.fCount, skipRRect.fCount,
-                 skipPath.fCount, skipRegion.fCount);
+        size_t size =  skipRect.fSize + skipPath.fSize + skipRegion.fSize;
+        SkDebugf("--- Clip skips %d%% rect:%d path:%d rgn:%d\n",
+             size * 100 / reader.offset(), skipRect.fCount, skipPath.fCount,
+             skipRegion.fCount);
     }
 #endif
 //    this->dumpSize();

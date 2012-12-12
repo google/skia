@@ -13,7 +13,6 @@
 #include "SkMatrix.h"
 #include "SkPath.h"
 #include "SkRegion.h"
-#include "SkRRect.h"
 #include "SkScalar.h"
 
 class SkString;
@@ -116,11 +115,6 @@ public:
         size_t size = matrix->readFromMemory(this->peek());
         SkASSERT(SkAlign4(size) == size);
         (void)this->skip(size);
-    }
-
-    SkRRect* readRRect(SkRRect* rrect) {
-        rrect->readFromMemory(this->skip(SkRRect::kSizeInMemory));
-        return rrect;
     }
 
     void readRegion(SkRegion* rgn) {

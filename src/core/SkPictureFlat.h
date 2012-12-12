@@ -29,7 +29,6 @@ enum DrawType {
     CLIP_PATH,
     CLIP_REGION,
     CLIP_RECT,
-    CLIP_RRECT,
     CONCAT,
     DRAW_BITMAP,
     DRAW_BITMAP_MATRIX,
@@ -37,7 +36,6 @@ enum DrawType {
     DRAW_BITMAP_RECT_TO_RECT,
     DRAW_CLEAR,
     DRAW_DATA,
-    DRAW_OVAL,
     DRAW_PAINT,
     DRAW_PATH,
     DRAW_PICTURE,
@@ -47,7 +45,6 @@ enum DrawType {
     DRAW_POS_TEXT_H,
     DRAW_POS_TEXT_H_TOP_BOTTOM, // fast variant of DRAW_POS_TEXT_H
     DRAW_RECT,
-    DRAW_RRECT,
     DRAW_SPRITE,
     DRAW_TEXT,
     DRAW_TEXT_ON_PATH,

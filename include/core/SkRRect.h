@@ -11,8 +11,6 @@
 #include "SkRect.h"
 #include "SkPoint.h"
 
-class SkPath;
-
 // Path forward:
 //   core work
 //      add validate method (all radii positive, all radii sums < rect size, etc.)
@@ -85,7 +83,7 @@ public:
     /**
      * Returns the RR's sub type.
      */
-    Type getType() const {
+    Type type() const {
         SkDEBUGCODE(this->validate();)
 
         if (kUnknown_Type == fType) {
@@ -94,14 +92,6 @@ public:
         SkASSERT(kUnknown_Type != fType);
         return fType;
     }
-
-    Type type() const { return this->getType(); }
-
-    inline bool isEmpty() const { return kEmpty_Type == this->getType(); }
-    inline bool isRect() const { return kRect_Type == this->getType(); }
-    inline bool isOval() const { return kOval_Type == this->getType(); }
-    inline bool isSimple() const { return kSimple_Type == this->getType(); }
-    inline bool isComplex() const { return kComplex_Type == this->getType(); }
 
     /**
      * Set this RR to the empty rectangle (0,0,0,0) with 0 x & y radii.
@@ -172,16 +162,6 @@ public:
 
     const SkRect& rect() const { return fRect; }
     const SkVector& radii(Corner corner) const { return fRadii[corner]; }
-    const SkRect& getBounds() const { return fRect; }
-
-    /**
-     *  When a rrect is simple, all of its radii are equal. This returns one
-     *  of those radii. This call requires the rrect to be non-complex.
-     */
-    const SkVector& getSimpleRadii() const {
-        SkASSERT(!this->isComplex());
-        return fRadii[0];
-    }
 
     friend bool operator==(const SkRRect& a, const SkRRect& b) {
         return a.fRect == b.fRect &&
@@ -219,24 +199,6 @@ public:
 
     SkDEBUGCODE(void validate() const;)
 
-    enum {
-        kSizeInMemory = 12 * sizeof(SkScalar)
-    };
-    
-    /**
-     *  Write the rrect into the specified buffer. This is guaranteed to always
-     *  write kSizeInMemory bytes, and that value is guaranteed to always be
-     *  a multiple of 4. Return kSizeInMemory.
-     */
-    uint32_t writeToMemory(void* buffer) const;
-
-    /**
-     *  Read the rrect from the specified buffer. This is guaranteed to always
-     *  read kSizeInMemory bytes, and that value is guaranteed to always be
-     *  a multiple of 4. Return kSizeInMemory.
-     */
-    uint32_t readFromMemory(const void* buffer);
-
 private:
     SkRect fRect;
     // Radii order is UL, UR, LR, LL. Use Corner enum to index into fRadii[]
@@ -246,9 +208,6 @@ private:
     // uninitialized data
 
     void computeType() const;
-
-    // to access fRadii directly
-    friend class SkPath;
 };
 
 #endif

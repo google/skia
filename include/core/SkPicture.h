@@ -158,8 +158,7 @@ protected:
     // V8 : Add an option for encoding bitmaps
     // V9 : Allow the reader and writer of an SKP disagree on whether to support
     //      SK_SUPPORT_HINTING_SCALE_FACTOR
-    // V10: add drawRRect, drawOval, clipRRect
-    static const uint32_t PICTURE_VERSION = 10;
+    static const uint32_t PICTURE_VERSION = 9;
 
     // fPlayback, fRecord, fWidth & fHeight are protected to allow derived classes to
     // install their own SkPicturePlayback-derived players,SkPictureRecord-derived

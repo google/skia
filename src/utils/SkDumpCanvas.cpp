@@ -8,7 +8,6 @@
 #include "SkDumpCanvas.h"
 #include "SkPicture.h"
 #include "SkPixelRef.h"
-#include "SkRRect.h"
 #include "SkString.h"
 #include <stdarg.h>
 
@@ -30,31 +29,6 @@ static void toString(const SkRect& r, SkString* str) {
 
 static void toString(const SkIRect& r, SkString* str) {
     str->appendf("[%d,%d %d:%d]", r.fLeft, r.fTop, r.width(), r.height());
-}
-
-static void toString(const SkRRect& rrect, SkString* str) {
-    SkRect r = rrect.getBounds();
-    str->appendf("[%g,%g %g:%g]",
-                 SkScalarToFloat(r.fLeft), SkScalarToFloat(r.fTop),
-                 SkScalarToFloat(r.width()), SkScalarToFloat(r.height()));
-    if (rrect.isOval()) {
-        str->append("()");
-    } else if (rrect.isSimple()) {
-        const SkVector& rad = rrect.getSimpleRadii();
-        str->appendf("(%g,%g)", rad.x(), rad.y());
-    } else if (rrect.isComplex()) {
-        SkVector radii[4] = {
-            rrect.radii(SkRRect::kUpperLeft_Corner),
-            rrect.radii(SkRRect::kUpperRight_Corner),
-            rrect.radii(SkRRect::kLowerRight_Corner),
-            rrect.radii(SkRRect::kLowerLeft_Corner),
-        };
-        str->appendf("(%g,%g %g,%g %g,%g %g,%g)",
-                     radii[0].x(), radii[0].y(),
-                     radii[1].x(), radii[1].y(),
-                     radii[2].x(), radii[2].y(),
-                     radii[3].x(), radii[3].y());
-    }
 }
 
 static void dumpVerbs(const SkPath& path, SkString* str) {
@@ -299,14 +273,6 @@ bool SkDumpCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
     return this->INHERITED::clipRect(rect, op, doAA);
 }
 
-bool SkDumpCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
-    SkString str;
-    toString(rrect, &str);
-    this->dump(kClip_Verb, NULL, "clipRRect(%s %s %s)", str.c_str(), toString(op),
-               bool_to_aastring(doAA));
-    return this->INHERITED::clipRRect(rrect, op, doAA);
-}
-
 bool SkDumpCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     SkString str;
     toString(path, &str);
@@ -335,22 +301,10 @@ void SkDumpCanvas::drawPoints(PointMode mode, size_t count,
                count);
 }
 
-void SkDumpCanvas::drawOval(const SkRect& rect, const SkPaint& paint) {
-    SkString str;
-    toString(rect, &str);
-    this->dump(kDrawOval_Verb, &paint, "drawOval(%s)", str.c_str());
-}
-
 void SkDumpCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
     SkString str;
     toString(rect, &str);
     this->dump(kDrawRect_Verb, &paint, "drawRect(%s)", str.c_str());
-}
-
-void SkDumpCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
-    SkString str;
-    toString(rrect, &str);
-    this->dump(kDrawRRect_Verb, &paint, "drawRRect(%s)", str.c_str());
 }
 
 void SkDumpCanvas::drawPath(const SkPath& path, const SkPaint& paint) {

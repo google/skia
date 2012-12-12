@@ -8,7 +8,6 @@
 #include "SkPictureRecord.h"
 #include "SkTSearch.h"
 #include "SkPixelRef.h"
-#include "SkRRect.h"
 #include "SkBBoxHierarchy.h"
 #include "SkPictureStateTree.h"
 
@@ -112,7 +111,6 @@ static inline uint32_t getSkipableSize(unsigned drawType) {
         4,  // CLIP_PATH,
         4,  // CLIP_REGION,
         7,  // CLIP_RECT,
-        15, // CLIP_RRECT,
         2,  // CONCAT,
         0,  // DRAW_BITMAP,
         0,  // DRAW_BITMAP_MATRIX,
@@ -120,7 +118,6 @@ static inline uint32_t getSkipableSize(unsigned drawType) {
         0,  // DRAW_BITMAP_RECT,
         0,  // DRAW_CLEAR,
         0,  // DRAW_DATA,
-        0,  // DRAW_OVAL,
         0,  // DRAW_PAINT,
         0,  // DRAW_PATH,
         0,  // DRAW_PICTURE,
@@ -130,7 +127,6 @@ static inline uint32_t getSkipableSize(unsigned drawType) {
         0,  // DRAW_POS_TEXT_H,
         0,  // DRAW_POS_TEXT_H_TOP_BOTTOM, // fast variant of DRAW_POS_TEXT_H
         0,  // DRAW_RECT,
-        0,  // DRAW_RRECT,
         0,  // DRAW_SPRITE,
         0,  // DRAW_TEXT,
         0,  // DRAW_TEXT_ON_PATH,
@@ -356,28 +352,9 @@ bool SkPictureRecord::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
     addRect(rect);
     addInt(ClipParams_pack(op, doAA));
     recordRestoreOffsetPlaceholder(op);
-    
+
     validate();
     return this->INHERITED::clipRect(rect, op, doAA);
-}
-
-bool SkPictureRecord::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
-    if (rrect.isRect()) {
-        return this->SkPictureRecord::clipRect(rrect.getBounds(), op, doAA);
-    }
-
-    addDraw(CLIP_RRECT);
-    addRRect(rrect);
-    addInt(ClipParams_pack(op, doAA));
-    recordRestoreOffsetPlaceholder(op);
-    
-    validate();
-
-    if (fRecordFlags & SkPicture::kUsePathBoundsForClip_RecordingFlag) {
-        return this->INHERITED::clipRect(rrect.getBounds(), op, doAA);
-    } else {
-        return this->INHERITED::clipRRect(rrect, op, doAA);
-    }
 }
 
 bool SkPictureRecord::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
@@ -433,34 +410,10 @@ void SkPictureRecord::drawPoints(PointMode mode, size_t count, const SkPoint pts
     validate();
 }
 
-void SkPictureRecord::drawOval(const SkRect& oval, const SkPaint& paint) {
-    addDraw(DRAW_OVAL);
-    addPaint(paint);
-    addRect(oval);
-    validate();
-}
-
 void SkPictureRecord::drawRect(const SkRect& rect, const SkPaint& paint) {
     addDraw(DRAW_RECT);
     addPaint(paint);
     addRect(rect);
-    validate();
-}
-
-void SkPictureRecord::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
-    if (rrect.isRect()) {
-        addDraw(DRAW_RECT);
-        addPaint(paint);
-        addRect(rrect.getBounds());
-    } else if (rrect.isOval()) {
-        addDraw(DRAW_OVAL);
-        addPaint(paint);
-        addRect(rrect.getBounds());
-    } else {
-        addDraw(DRAW_RRECT);
-        addPaint(paint);
-        addRRect(rrect);
-    }
     validate();
 }
 
@@ -799,10 +752,6 @@ void SkPictureRecord::addIRectPtr(const SkIRect* rect) {
     if (fWriter.writeBool(rect != NULL)) {
         *(SkIRect*)fWriter.reserve(sizeof(SkIRect)) = *rect;
     }
-}
-
-void SkPictureRecord::addRRect(const SkRRect& rrect) {
-    fWriter.writeRRect(rrect);
 }
 
 void SkPictureRecord::addRegion(const SkRegion& region) {
