@@ -144,6 +144,14 @@ bool SkNWayCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
     return this->INHERITED::clipRect(rect, op, doAA);
 }
 
+bool SkNWayCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->clipRRect(rrect, op, doAA);
+    }
+    return this->INHERITED::clipRRect(rrect, op, doAA);
+}
+
 bool SkNWayCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     Iter iter(fList);
     while (iter.next()) {
@@ -175,10 +183,24 @@ void SkNWayCanvas::drawPoints(PointMode mode, size_t count, const SkPoint pts[],
     }
 }
 
+void SkNWayCanvas::drawOval(const SkRect& rect, const SkPaint& paint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawOval(rect, paint);
+    }
+}
+
 void SkNWayCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {
         iter->drawRect(rect, paint);
+    }
+}
+
+void SkNWayCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawRRect(rrect, paint);
     }
 }
 

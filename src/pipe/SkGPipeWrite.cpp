@@ -21,11 +21,16 @@
 #include "SkPathEffect.h"
 #include "SkPictureFlat.h"
 #include "SkRasterizer.h"
+#include "SkRRect.h"
 #include "SkShader.h"
 #include "SkStream.h"
 #include "SkTSearch.h"
 #include "SkTypeface.h"
 #include "SkWriter32.h"
+
+enum {
+    kSizeOfFlatRRect = sizeof(SkRect) + 4 * sizeof(SkVector)
+};
 
 static bool isCrossProcess(uint32_t flags) {
     return SkToBool(flags & SkGPipeWriter::kCrossProcess_Flag);
@@ -208,8 +213,8 @@ public:
     virtual bool skew(SkScalar sx, SkScalar sy) SK_OVERRIDE;
     virtual bool concat(const SkMatrix& matrix) SK_OVERRIDE;
     virtual void setMatrix(const SkMatrix& matrix) SK_OVERRIDE;
-    virtual bool clipRect(const SkRect& rect, SkRegion::Op op,
-                          bool doAntiAlias = false) SK_OVERRIDE;
+    virtual bool clipRect(const SkRect&, SkRegion::Op op, bool doAntiAlias = false) SK_OVERRIDE;
+    virtual bool clipRRect(const SkRRect&, SkRegion::Op op, bool doAntiAlias = false) SK_OVERRIDE;
     virtual bool clipPath(const SkPath& path, SkRegion::Op op,
                           bool doAntiAlias = false) SK_OVERRIDE;
     virtual bool clipRegion(const SkRegion& region, SkRegion::Op op) SK_OVERRIDE;
@@ -217,7 +222,9 @@ public:
     virtual void drawPaint(const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(PointMode, size_t count, const SkPoint pts[],
                             const SkPaint&) SK_OVERRIDE;
+    virtual void drawOval(const SkRect&, const SkPaint&) SK_OVERRIDE;
     virtual void drawRect(const SkRect& rect, const SkPaint&) SK_OVERRIDE;
+    virtual void drawRRect(const SkRRect&, const SkPaint&) SK_OVERRIDE;
     virtual void drawPath(const SkPath& path, const SkPaint&) SK_OVERRIDE;
     virtual void drawBitmap(const SkBitmap&, SkScalar left, SkScalar top,
                             const SkPaint*) SK_OVERRIDE;
@@ -625,6 +632,17 @@ bool SkGPipeCanvas::clipRect(const SkRect& rect, SkRegion::Op rgnOp,
     return this->INHERITED::clipRect(rect, rgnOp, doAntiAlias);
 }
 
+bool SkGPipeCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op rgnOp,
+                              bool doAntiAlias) {
+    NOTIFY_SETUP(this);
+    if (this->needOpBytes(kSizeOfFlatRRect)) {
+        unsigned flags = doAntiAlias & kClip_HasAntiAlias_DrawOpFlag;
+        this->writeOp(kClipRRect_DrawOp, flags, rgnOp);
+        fWriter.writeRRect(rrect);
+    }
+    return this->INHERITED::clipRRect(rrect, rgnOp, doAntiAlias);
+}
+
 bool SkGPipeCanvas::clipPath(const SkPath& path, SkRegion::Op rgnOp,
                              bool doAntiAlias) {
     NOTIFY_SETUP(this);
@@ -683,12 +701,30 @@ void SkGPipeCanvas::drawPoints(PointMode mode, size_t count,
     }
 }
 
+void SkGPipeCanvas::drawOval(const SkRect& rect, const SkPaint& paint) {
+    NOTIFY_SETUP(this);
+    this->writePaint(paint);
+    if (this->needOpBytes(sizeof(SkRect))) {
+        this->writeOp(kDrawOval_DrawOp);
+        fWriter.writeRect(rect);
+    }
+}
+
 void SkGPipeCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
     NOTIFY_SETUP(this);
     this->writePaint(paint);
     if (this->needOpBytes(sizeof(SkRect))) {
         this->writeOp(kDrawRect_DrawOp);
         fWriter.writeRect(rect);
+    }
+}
+
+void SkGPipeCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
+    NOTIFY_SETUP(this);
+    this->writePaint(paint);
+    if (this->needOpBytes(kSizeOfFlatRRect)) {
+        this->writeOp(kDrawRRect_DrawOp);
+        fWriter.writeRRect(rrect);
     }
 }
 

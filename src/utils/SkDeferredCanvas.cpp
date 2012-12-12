@@ -14,6 +14,7 @@
 #include "SkDrawFilter.h"
 #include "SkGPipe.h"
 #include "SkPaint.h"
+#include "SkRRect.h"
 #include "SkShader.h"
 
 enum {
@@ -782,6 +783,15 @@ bool SkDeferredCanvas::clipRect(const SkRect& rect,
     return val;
 }
 
+bool SkDeferredCanvas::clipRRect(const SkRRect& rrect,
+                                 SkRegion::Op op,
+                                 bool doAntiAlias) {
+    this->drawingCanvas()->clipRRect(rrect, op, doAntiAlias);
+    bool val = this->INHERITED::clipRRect(rrect, op, doAntiAlias);
+    this->recordedDrawCommand();
+    return val;
+}
+
 bool SkDeferredCanvas::clipPath(const SkPath& path,
                                 SkRegion::Op op,
                                 bool doAntiAlias) {
@@ -826,15 +836,33 @@ void SkDeferredCanvas::drawPoints(PointMode mode, size_t count,
     this->recordedDrawCommand();
 }
 
+void SkDeferredCanvas::drawOval(const SkRect& rect, const SkPaint& paint) {
+    AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
+    this->drawingCanvas()->drawOval(rect, paint);
+    this->recordedDrawCommand();
+}
+
 void SkDeferredCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
     if (fDeferredDrawing && this->isFullFrame(&rect, &paint) &&
         isPaintOpaque(&paint)) {
         this->getDeferredDevice()->skipPendingCommands();
     }
-
+    
     AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     this->drawingCanvas()->drawRect(rect, paint);
     this->recordedDrawCommand();
+}
+
+void SkDeferredCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
+    if (rrect.isRect()) {
+        this->SkDeferredCanvas::drawRect(rrect.getBounds(), paint);
+    } else if (rrect.isOval()) {
+        this->SkDeferredCanvas::drawOval(rrect.getBounds(), paint);
+    } else {
+        AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
+        this->drawingCanvas()->drawRRect(rrect, paint);
+        this->recordedDrawCommand();
+    }
 }
 
 void SkDeferredCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
