@@ -219,6 +219,28 @@ static void test_giantaa(skiatest::Reporter* reporter) {
     canvas.get()->drawPath(path, paint);
 }
 
+// Extremely large path_length/dash_length ratios may cause infinite looping
+// in SkDashPathEffect::filterPath() due to single precision rounding.
+// The test is quite expensive, but it should get much faster after the fix
+// for http://crbug.com/165432 goes in.
+static void test_infinite_dash(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(5000000, 0);
+
+    SkScalar intervals[] = { 0.2f, 0.2f };
+    SkDashPathEffect dash(intervals, 2, 0);
+
+    SkPath filteredPath;
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setPathEffect(&dash);
+
+    paint.getFillPath(path, &filteredPath);
+    // If we reach this, we passed.
+    REPORTER_ASSERT(reporter, true);
+}
+
 static void TestDrawPath(skiatest::Reporter* reporter) {
     test_giantaa(reporter);
     test_bug533(reporter);
@@ -228,6 +250,7 @@ static void TestDrawPath(skiatest::Reporter* reporter) {
     test_crbug_140803(reporter);
     test_inversepathwithclip(reporter);
 //    test_crbug131181(reporter);
+    test_infinite_dash(reporter);
 }
 
 #include "TestClassDef.h"

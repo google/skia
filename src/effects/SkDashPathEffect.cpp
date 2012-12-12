@@ -186,8 +186,10 @@ bool SkDashPathEffect::filterPath(SkPath* dst, const SkPath& src,
             }
         }
 
-        SkScalar    distance = 0;
-        SkScalar    dlen = SkScalarMul(fInitialDashLength, scale);
+        // Using double precision to avoid looping indefinitely due to single precision rounding
+        // (for extreme path_length/dash_length ratios). See test_infinite_dash() unittest.
+        double  distance = 0;
+        double  dlen = SkScalarMul(fInitialDashLength, scale);
 
         while (distance < length) {
             SkASSERT(dlen >= 0);
