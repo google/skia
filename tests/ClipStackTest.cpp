@@ -497,6 +497,184 @@ static void test_rect_merging(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_quickContains(skiatest::Reporter* reporter) {
+    SkRect testRect = SkRect::MakeLTRB(10, 10, 40, 40);
+    SkRect insideRect = SkRect::MakeLTRB(20, 20, 30, 30);
+    SkRect intersectingRect = SkRect::MakeLTRB(25, 25, 50, 50);
+    SkRect outsideRect = SkRect::MakeLTRB(0, 0, 50, 50);
+    SkRect nonIntersectingRect = SkRect::MakeLTRB(100, 100, 110, 110);
+
+    SkPath insideCircle;
+    insideCircle.addCircle(25, 25, 5);
+    SkPath intersectingCircle;
+    intersectingCircle.addCircle(25, 40, 10);
+    SkPath outsideCircle;
+    outsideCircle.addCircle(25, 25, 50);
+    SkPath nonIntersectingCircle;
+    nonIntersectingCircle.addCircle(100, 100, 5);
+
+    {
+        SkClipStack stack;
+        stack.clipDevRect(outsideRect, SkRegion::kDifference_Op, false);
+        // return false because quickContains currently does not care for kDifference_Op
+        REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
+    }
+    
+    // Replace Op tests
+    {
+        SkClipStack stack;
+        stack.clipDevRect(outsideRect, SkRegion::kReplace_Op, false);
+        REPORTER_ASSERT(reporter, true == stack.quickContains(testRect));
+    }
+
+    {
+        SkClipStack stack;
+        stack.clipDevRect(insideRect, SkRegion::kIntersect_Op, false);
+        stack.save(); // To prevent in-place substitution by replace OP
+        stack.clipDevRect(outsideRect, SkRegion::kReplace_Op, false);
+        REPORTER_ASSERT(reporter, true == stack.quickContains(testRect));
+        stack.restore();
+    }
+
+    {
+        SkClipStack stack;
+        stack.clipDevRect(outsideRect, SkRegion::kIntersect_Op, false);
+        stack.save(); // To prevent in-place substitution by replace OP
+        stack.clipDevRect(insideRect, SkRegion::kReplace_Op, false);
+        REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
+        stack.restore();
+    }
+
+    // Verify proper traversal of multi-element clip
+    {
+        SkClipStack stack;
+        stack.clipDevRect(insideRect, SkRegion::kIntersect_Op, false);
+        // Use a path for second clip to prevent in-place intersection
+        stack.clipDevPath(outsideCircle, SkRegion::kIntersect_Op, false);
+        REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
+    }
+
+    // Intersect Op tests with rectangles
+    {
+        SkClipStack stack;
+        stack.clipDevRect(outsideRect, SkRegion::kIntersect_Op, false);
+        REPORTER_ASSERT(reporter, true == stack.quickContains(testRect));
+    }
+
+    {
+        SkClipStack stack;
+        stack.clipDevRect(insideRect, SkRegion::kIntersect_Op, false);
+        REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
+    }
+
+    {
+        SkClipStack stack;
+        stack.clipDevRect(intersectingRect, SkRegion::kIntersect_Op, false);
+        REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
+    }
+
+    {
+        SkClipStack stack;
+        stack.clipDevRect(nonIntersectingRect, SkRegion::kIntersect_Op, false);
+        REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
+    }
+
+    // Intersect Op tests with circle paths
+    {
+        SkClipStack stack;
+        stack.clipDevPath(outsideCircle, SkRegion::kIntersect_Op, false);
+        REPORTER_ASSERT(reporter, true == stack.quickContains(testRect));
+    }
+
+    {
+        SkClipStack stack;
+        stack.clipDevPath(insideCircle, SkRegion::kIntersect_Op, false);
+        REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
+    }
+
+    {
+        SkClipStack stack;
+        stack.clipDevPath(intersectingCircle, SkRegion::kIntersect_Op, false);
+        REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
+    }
+
+    {
+        SkClipStack stack;
+        stack.clipDevPath(nonIntersectingCircle, SkRegion::kIntersect_Op, false);
+        REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
+    }
+
+    // Intersect Op tests with inverse filled rectangles
+    {
+        SkClipStack stack;
+        SkPath path;
+        path.addRect(outsideRect);
+        path.toggleInverseFillType();
+        stack.clipDevPath(path, SkRegion::kIntersect_Op, false);
+        REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
+    }
+
+    {
+        SkClipStack stack;
+        SkPath path;
+        path.addRect(insideRect);
+        path.toggleInverseFillType();
+        stack.clipDevPath(path, SkRegion::kIntersect_Op, false);
+        REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
+    }
+
+    {
+        SkClipStack stack;
+        SkPath path;
+        path.addRect(intersectingRect);
+        path.toggleInverseFillType();
+        stack.clipDevPath(path, SkRegion::kIntersect_Op, false);
+        REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
+    }
+
+    {
+        SkClipStack stack;
+        SkPath path;
+        path.addRect(nonIntersectingRect);
+        path.toggleInverseFillType();
+        stack.clipDevPath(path, SkRegion::kIntersect_Op, false);
+        REPORTER_ASSERT(reporter, true == stack.quickContains(testRect));
+    }
+
+    // Intersect Op tests with inverse filled circles
+    {
+        SkClipStack stack;
+        SkPath path = outsideCircle;
+        path.toggleInverseFillType();
+        stack.clipDevPath(path, SkRegion::kIntersect_Op, false);
+        REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
+    }
+
+    {
+        SkClipStack stack;
+        SkPath path = insideCircle;
+        path.toggleInverseFillType();
+        stack.clipDevPath(path, SkRegion::kIntersect_Op, false);
+        REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
+    }
+
+    {
+        SkClipStack stack;
+        SkPath path = intersectingCircle;
+        path.toggleInverseFillType();
+        stack.clipDevPath(path, SkRegion::kIntersect_Op, false);
+        REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
+    }
+
+    {
+        SkClipStack stack;
+        SkPath path = nonIntersectingCircle;
+        path.toggleInverseFillType();
+        stack.clipDevPath(path, SkRegion::kIntersect_Op, false);
+        REPORTER_ASSERT(reporter, true == stack.quickContains(testRect));
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
@@ -773,6 +951,7 @@ static void TestClipStack(skiatest::Reporter* reporter) {
     test_isWideOpen(reporter);
     test_rect_merging(reporter);
     test_rect_inverse_fill(reporter);
+    test_quickContains(reporter);
 #if SK_SUPPORT_GPU
     test_reduced_clip_stack(reporter);
 #endif

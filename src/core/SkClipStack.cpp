@@ -497,6 +497,31 @@ bool SkClipStack::intersectRectWithClip(SkRect* rect) const {
     }
 }
 
+bool SkClipStack::quickContains(const SkRect& rect) const {
+
+    Iter iter(*this, Iter::kTop_IterStart);
+    const Element* element = iter.prev();
+    while (element != NULL) {
+        if (SkRegion::kIntersect_Op != element->getOp() && SkRegion::kReplace_Op != element->getOp())
+            return false;
+        if (element->isInverseFilled()) {
+            // Part of 'rect' could be trimmed off by the inverse-filled clip element
+            if (SkRect::Intersects(element->getBounds(), rect)) {
+                return false;
+            }
+        } else {
+            if (!element->contains(rect)) {
+                return false;
+            }
+        }
+        if (SkRegion::kReplace_Op == element->getOp()) {
+            break;
+        }
+        element = iter.prev();
+    }
+    return true;
+}
+
 void SkClipStack::clipDevRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
 
     // Use reverse iterator instead of back because Rect path may need previous

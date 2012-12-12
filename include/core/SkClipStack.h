@@ -292,6 +292,13 @@ public:
      */
     bool intersectRectWithClip(SkRect* devRect) const;
 
+    /**
+     * Returns true if the input rect in device space is entirely contained
+     * by the clip. A return value of false does not guarantee that the rect
+     * is not contained by the clip.
+     */
+    bool quickContains(const SkRect& devRect) const;
+
     void clipDevRect(const SkIRect& ir, SkRegion::Op op) {
         SkRect r;
         r.set(ir);
