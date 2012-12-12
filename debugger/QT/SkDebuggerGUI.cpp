@@ -182,7 +182,7 @@ protected:
     int fCurType;
     int fCurCommand;            // the current command being executed/timed
 
-    virtual size_t preDraw(size_t offset, int type) SK_OVERRIDE {
+    virtual size_t preDraw(size_t offset, int type) {
         // This search isn't as bad as it seems. In normal playback mode, the
         // base class steps through the commands in order and can only skip ahead
         // a bit on a clip. This class is only used during profiling so we
@@ -224,7 +224,7 @@ protected:
         return 0;
     }
 
-    virtual void postDraw(size_t offset) SK_OVERRIDE {
+    virtual void postDraw(size_t offset) {
 #if defined(SK_BUILD_FOR_WIN32)
         // CPU timer doesn't work well on Windows
         double time = fTimer.endWall();
@@ -903,7 +903,7 @@ public:
 protected:
     SkTDArray<size_t> fOffsets;
 
-    virtual size_t preDraw(size_t offset, int type) SK_OVERRIDE {
+    virtual size_t preDraw(size_t offset, int type) {
         *fOffsets.append() = offset;
         return 0;
     }

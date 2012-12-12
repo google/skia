@@ -262,7 +262,7 @@ private:
 class DrawPointsDashingBench : public SkBenchmark {
     SkString fName;
     int      fStrokeWidth;
-    bool     fdoAA;
+    bool     fDoAA;
 
     SkAutoTUnref<SkPathEffect> fPathEffect;
 
@@ -275,7 +275,7 @@ public:
         : INHERITED(param) {
         fName.printf("drawpointsdash_%d_%d%s", dashLength, strokeWidth, doAA ? "_aa" : "_bw");
         fStrokeWidth = strokeWidth;
-        fdoAA = doAA;
+        fDoAA = doAA;
 
         SkScalar vals[] = { SkIntToScalar(dashLength), SkIntToScalar(dashLength) };
         fPathEffect.reset(new SkDashPathEffect(vals, 2, SK_Scalar1, false));
@@ -294,7 +294,7 @@ protected:
         p.setStyle(SkPaint::kStroke_Style);
         p.setStrokeWidth(SkIntToScalar(fStrokeWidth));
         p.setPathEffect(fPathEffect);
-        p.setAntiAlias(fdoAA);
+        p.setAntiAlias(fDoAA);
 
         SkPoint pts[2] = {
             { SkIntToScalar(10), 0 },

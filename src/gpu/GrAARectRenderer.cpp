@@ -13,8 +13,7 @@ SK_DEFINE_INST_COUNT(GrAARectRenderer)
 
 namespace {
 
-static GrVertexLayout aa_rect_layout(const GrDrawTarget* target,
-                                     bool useCoverage) {
+static GrVertexLayout aa_rect_layout(bool useCoverage) {
     GrVertexLayout layout = 0;
     if (useCoverage) {
         layout |= GrDrawTarget::kCoverage_VertexLayoutBit;
@@ -24,8 +23,8 @@ static GrVertexLayout aa_rect_layout(const GrDrawTarget* target,
     return layout;
 }
 
-static void setInsetFan(GrPoint* pts, size_t stride,
-                        const GrRect& r, SkScalar dx, SkScalar dy) {
+static void set_inset_fan(GrPoint* pts, size_t stride,
+                          const GrRect& r, SkScalar dx, SkScalar dy) {
     pts->setRectFan(r.fLeft + dx, r.fTop + dy,
                     r.fRight - dx, r.fBottom - dy, stride);
 }
@@ -106,7 +105,7 @@ void GrAARectRenderer::fillAARect(GrGpu* gpu,
                                   GrDrawTarget* target,
                                   const GrRect& devRect,
                                   bool useVertexCoverage) {
-    GrVertexLayout layout = aa_rect_layout(target, useVertexCoverage);
+    GrVertexLayout layout = aa_rect_layout(useVertexCoverage);
 
     size_t vsize = GrDrawTarget::VertexSize(layout);
 
@@ -126,8 +125,8 @@ void GrAARectRenderer::fillAARect(GrGpu* gpu,
     GrPoint* fan0Pos = reinterpret_cast<GrPoint*>(verts);
     GrPoint* fan1Pos = reinterpret_cast<GrPoint*>(verts + 4 * vsize);
 
-    setInsetFan(fan0Pos, vsize, devRect, -SK_ScalarHalf, -SK_ScalarHalf);
-    setInsetFan(fan1Pos, vsize, devRect,  SK_ScalarHalf,  SK_ScalarHalf);
+    set_inset_fan(fan0Pos, vsize, devRect, -SK_ScalarHalf, -SK_ScalarHalf);
+    set_inset_fan(fan1Pos, vsize, devRect,  SK_ScalarHalf,  SK_ScalarHalf);
 
     verts += sizeof(GrPoint);
     for (int i = 0; i < 4; ++i) {
@@ -175,7 +174,7 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
         this->fillAARect(gpu, target, r, useVertexCoverage);
         return;
     }
-    GrVertexLayout layout = aa_rect_layout(target, useVertexCoverage);
+    GrVertexLayout layout = aa_rect_layout(useVertexCoverage);
     size_t vsize = GrDrawTarget::VertexSize(layout);
 
     GrDrawTarget::AutoReleaseGeometry geo(target, layout, 16, 0);
@@ -199,14 +198,14 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
     GrPoint* fan2Pos = reinterpret_cast<GrPoint*>(verts + 8 * vsize);
     GrPoint* fan3Pos = reinterpret_cast<GrPoint*>(verts + 12 * vsize);
 
-    setInsetFan(fan0Pos, vsize, devRect,
-                -rx - SK_ScalarHalf, -ry - SK_ScalarHalf);
-    setInsetFan(fan1Pos, vsize, devRect,
-                -rx + SK_ScalarHalf, -ry + SK_ScalarHalf);
-    setInsetFan(fan2Pos, vsize, devRect,
-                rx - SK_ScalarHalf,  ry - SK_ScalarHalf);
-    setInsetFan(fan3Pos, vsize, devRect,
-                rx + SK_ScalarHalf,  ry + SK_ScalarHalf);
+    set_inset_fan(fan0Pos, vsize, devRect,
+                  -rx - SK_ScalarHalf, -ry - SK_ScalarHalf);
+    set_inset_fan(fan1Pos, vsize, devRect,
+                  -rx + SK_ScalarHalf, -ry + SK_ScalarHalf);
+    set_inset_fan(fan2Pos, vsize, devRect,
+                  rx - SK_ScalarHalf,  ry - SK_ScalarHalf);
+    set_inset_fan(fan3Pos, vsize, devRect,
+                  rx + SK_ScalarHalf,  ry + SK_ScalarHalf);
 
     // The outermost rect has 0 coverage
     verts += sizeof(GrPoint);
