@@ -140,6 +140,8 @@ public:
     virtual void setMatrix(const SkMatrix& matrix) SK_OVERRIDE;
     virtual bool clipRect(const SkRect& rect, SkRegion::Op op,
                           bool doAntiAlias) SK_OVERRIDE;
+    virtual bool clipRRect(const SkRRect& rect, SkRegion::Op op,
+                           bool doAntiAlias) SK_OVERRIDE;
     virtual bool clipPath(const SkPath& path, SkRegion::Op op,
                           bool doAntiAlias) SK_OVERRIDE;
     virtual bool clipRegion(const SkRegion& deviceRgn,
@@ -148,8 +150,9 @@ public:
     virtual void drawPaint(const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(PointMode mode, size_t count, const SkPoint pts[],
                             const SkPaint& paint) SK_OVERRIDE;
-    virtual void drawRect(const SkRect& rect, const SkPaint& paint)
-                          SK_OVERRIDE;
+    virtual void drawOval(const SkRect&, const SkPaint& paint) SK_OVERRIDE;
+    virtual void drawRect(const SkRect& rect, const SkPaint& paint) SK_OVERRIDE;
+    virtual void drawRRect(const SkRRect&, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPath(const SkPath& path, const SkPaint& paint)
                           SK_OVERRIDE;
     virtual void drawBitmap(const SkBitmap& bitmap, SkScalar left,

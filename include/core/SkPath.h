@@ -28,6 +28,7 @@ class SkWriter32;
 class SkAutoPathBoundsUpdate;
 class SkString;
 class SkPathRef;
+class SkRRect;
 
 #ifndef SK_DEBUG_PATH_REF
     #define SK_DEBUG_PATH_REF 0
@@ -654,6 +655,11 @@ public:
      */
     void addRoundRect(const SkRect& rect, const SkScalar radii[],
                       Direction dir = kCW_Direction);
+
+    /**
+     *  Add a SkRRect contour to the path
+     */
+    void addRRect(const SkRRect&, Direction dir = kCW_Direction);
 
     /**
      *  Add a new contour made of just lines. This is just a fast version of
