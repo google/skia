@@ -23,6 +23,7 @@
         '../tests/BitmapFactoryTest.cpp',
         '../tests/BitmapGetColorTest.cpp',
         '../tests/BitmapHeapTest.cpp',
+        '../tests/BitmapTransformerTest.cpp',
         '../tests/BitSetTest.cpp',
         '../tests/BlitRowTest.cpp',
         '../tests/BlurTest.cpp',
