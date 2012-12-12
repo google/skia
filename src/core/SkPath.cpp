@@ -11,8 +11,8 @@
 #include "SkBuffer.h"
 #include "SkMath.h"
 #include "SkPathRef.h"
+#include "SkRRect.h"
 #include "SkThread.h"
-
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -1086,6 +1086,21 @@ void SkPath::addRoundRect(const SkRect& rect, const SkScalar rad[],
         add_corner_arc(this, rect, rad[2], rad[3], 270, dir, false);
     }
     this->close();
+}
+
+void SkPath::addRRect(const SkRRect& rrect, Direction dir) {
+    const SkRect& bounds = rrect.getBounds();
+
+    if (rrect.isRect()) {
+        this->addRect(bounds, dir);
+    } else if (rrect.isOval()) {
+        this->addOval(bounds, dir);
+    } else if (rrect.isSimple()) {
+        const SkVector& rad = rrect.getSimpleRadii();
+        this->addRoundRect(bounds, rad.x(), rad.y(), dir);
+    } else {
+        this->addRoundRect(bounds, (const SkScalar*)&rrect.fRadii[0], dir);
+    }
 }
 
 bool SkPath::hasOnlyMoveTos() const {
