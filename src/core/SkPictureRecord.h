@@ -36,16 +36,13 @@ public:
     virtual bool concat(const SkMatrix& matrix) SK_OVERRIDE;
     virtual void setMatrix(const SkMatrix& matrix) SK_OVERRIDE;
     virtual bool clipRect(const SkRect&, SkRegion::Op, bool) SK_OVERRIDE;
-    virtual bool clipRRect(const SkRRect&, SkRegion::Op, bool) SK_OVERRIDE;
     virtual bool clipPath(const SkPath&, SkRegion::Op, bool) SK_OVERRIDE;
     virtual bool clipRegion(const SkRegion& region, SkRegion::Op op) SK_OVERRIDE;
     virtual void clear(SkColor) SK_OVERRIDE;
     virtual void drawPaint(const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(PointMode, size_t count, const SkPoint pts[],
                             const SkPaint&) SK_OVERRIDE;
-    virtual void drawOval(const SkRect&, const SkPaint&) SK_OVERRIDE;
-    virtual void drawRect(const SkRect&, const SkPaint&) SK_OVERRIDE;
-    virtual void drawRRect(const SkRRect&, const SkPaint&) SK_OVERRIDE;
+    virtual void drawRect(const SkRect& rect, const SkPaint&) SK_OVERRIDE;
     virtual void drawPath(const SkPath& path, const SkPaint&) SK_OVERRIDE;
     virtual void drawBitmap(const SkBitmap&, SkScalar left, SkScalar top,
                             const SkPaint*) SK_OVERRIDE;
@@ -132,7 +129,6 @@ private:
     void addRectPtr(const SkRect* rect);
     void addIRect(const SkIRect& rect);
     void addIRectPtr(const SkIRect* rect);
-    void addRRect(const SkRRect&);
     void addRegion(const SkRegion& region);
     void addText(const void* text, size_t byteLength);
 

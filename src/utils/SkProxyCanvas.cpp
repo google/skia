@@ -62,10 +62,6 @@ bool SkProxyCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
     return fProxy->clipRect(rect, op, doAA);
 }
 
-bool SkProxyCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
-    return fProxy->clipRRect(rrect, op, doAA);
-}
-
 bool SkProxyCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     return fProxy->clipPath(path, op, doAA);
 }
@@ -83,16 +79,8 @@ void SkProxyCanvas::drawPoints(PointMode mode, size_t count,
     fProxy->drawPoints(mode, count, pts, paint);
 }
 
-void SkProxyCanvas::drawOval(const SkRect& rect, const SkPaint& paint) {
-    fProxy->drawOval(rect, paint);
-}
-
 void SkProxyCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
     fProxy->drawRect(rect, paint);
-}
-
-void SkProxyCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
-    fProxy->drawRRect(rrect, paint);
 }
 
 void SkProxyCanvas::drawPath(const SkPath& path, const SkPaint& paint) {

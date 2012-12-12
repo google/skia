@@ -19,7 +19,6 @@
 #include "SkPath.h"
 #include "SkPathHeap.h"
 #include "SkRegion.h"
-#include "SkRRect.h"
 #include "SkPictureFlat.h"
 #include "SkSerializationHelpers.h"
 
@@ -148,7 +147,7 @@ private:
         int index = reader.readInt();
         return (*fRegions)[index - 1];
     }
-    
+
     void getText(SkReader32& reader, TextContainer* text) {
         size_t length = text->fByteLength = reader.readInt();
         text->fText = (const char*)reader.skip(length);

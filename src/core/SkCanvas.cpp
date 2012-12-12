@@ -17,7 +17,6 @@
 #include "SkMetaData.h"
 #include "SkPicture.h"
 #include "SkRasterClip.h"
-#include "SkRRect.h"
 #include "SkScalarCompare.h"
 #include "SkSurface_Base.h"
 #include "SkTemplates.h"
@@ -1126,18 +1125,6 @@ static bool clipPathHelper(const SkCanvas* canvas, SkRasterClip* currClip,
     }
 }
 
-bool SkCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
-    if (rrect.isRect()) {
-        // call the non-virtual version
-        return this->SkCanvas::clipRect(rrect.getBounds(), op, doAA);
-    } else {
-        SkPath path;
-        path.addRRect(rrect);
-        // call the non-virtual version
-        return this->SkCanvas::clipPath(path, op, doAA);
-    }
-}
-
 bool SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
 #ifdef SK_ENABLE_CLIP_QUICKREJECT
     if (SkRegion::kIntersect_Op == op && !path.isInverseFillType()) {
@@ -1478,40 +1465,6 @@ void SkCanvas::drawRect(const SkRect& r, const SkPaint& paint) {
 
     LOOPER_END
 }
-
-void SkCanvas::drawOval(const SkRect& oval, const SkPaint& paint) {
-    if (paint.canComputeFastBounds()) {
-        SkRect storage;
-        if (this->quickReject(paint.computeFastBounds(oval, &storage))) {
-            return;
-        }
-    }
-    
-    SkPath  path;
-    path.addOval(oval);
-    // call the non-virtual version
-    this->SkCanvas::drawPath(path, paint);
-}
-
-void SkCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
-    if (paint.canComputeFastBounds()) {
-        SkRect storage;
-        if (this->quickReject(paint.computeFastBounds(rrect.getBounds(), &storage))) {
-            return;
-        }
-    }
-
-    if (rrect.isRect()) {
-        // call the non-virtual version
-        this->SkCanvas::drawRect(rrect.getBounds(), paint);
-    } else {
-        SkPath  path;
-        path.addRRect(rrect);
-        // call the non-virtual version
-        this->SkCanvas::drawPath(path, paint);
-    }
-}
-
 
 void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     if (!path.isFinite()) {
@@ -1945,7 +1898,17 @@ void SkCanvas::drawCircle(SkScalar cx, SkScalar cy, SkScalar radius,
 
     SkRect  r;
     r.set(cx - radius, cy - radius, cx + radius, cy + radius);
-    this->drawOval(r, paint);
+
+    if (paint.canComputeFastBounds()) {
+        SkRect storage;
+        if (this->quickReject(paint.computeFastBounds(r, &storage))) {
+            return;
+        }
+    }
+
+    SkPath  path;
+    path.addOval(r);
+    this->drawPath(path, paint);
 }
 
 void SkCanvas::drawRoundRect(const SkRect& r, SkScalar rx, SkScalar ry,
@@ -1957,12 +1920,26 @@ void SkCanvas::drawRoundRect(const SkRect& r, SkScalar rx, SkScalar ry,
                 return;
             }
         }
-        SkRRect rrect;
-        rrect.setRectXY(r, rx, ry);
-        this->drawRRect(rrect, paint);
+
+        SkPath  path;
+        path.addRoundRect(r, rx, ry, SkPath::kCW_Direction);
+        this->drawPath(path, paint);
     } else {
         this->drawRect(r, paint);
     }
+}
+
+void SkCanvas::drawOval(const SkRect& oval, const SkPaint& paint) {
+    if (paint.canComputeFastBounds()) {
+        SkRect storage;
+        if (this->quickReject(paint.computeFastBounds(oval, &storage))) {
+            return;
+        }
+    }
+
+    SkPath  path;
+    path.addOval(oval);
+    this->drawPath(path, paint);
 }
 
 void SkCanvas::drawArc(const SkRect& oval, SkScalar startAngle,

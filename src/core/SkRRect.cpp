@@ -227,30 +227,6 @@ void SkRRect::computeType() const {
     fType = kComplex_Type;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-uint32_t SkRRect::writeToMemory(void* buffer) const {
-    SkASSERT(kSizeInMemory == sizeof(SkRect) + sizeof(fRadii));
-
-    memcpy(buffer, &fRect, sizeof(SkRect));
-    memcpy((char*)buffer + sizeof(SkRect), fRadii, sizeof(fRadii));
-    return kSizeInMemory;
-}
-
-uint32_t SkRRect::readFromMemory(const void* buffer) {
-    SkScalar storage[12];
-    SkASSERT(sizeof(storage) == kSizeInMemory);
-
-    // we make a local copy, to ensure alignment before we cast
-    memcpy(storage, buffer, kSizeInMemory);
-
-    this->setRectRadii(*(const SkRect*)&storage[0],
-                       (const SkVector*)&storage[4]);
-    return kSizeInMemory;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 #ifdef SK_DEBUG
 void SkRRect::validate() const {
     bool allRadiiZero = (0 == fRadii[0].fX && 0 == fRadii[0].fY);
