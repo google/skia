@@ -53,6 +53,10 @@
 
         '../src/utils/SkBase64.cpp',
         '../src/utils/SkBase64.h',
+        '../src/utils/SkBitmapChecksummer.cpp',
+        '../src/utils/SkBitmapChecksummer.h',
+        '../src/utils/SkBitmapTransformer.cpp',
+        '../src/utils/SkBitmapTransformer.h',
         '../src/utils/SkBitSet.cpp',
         '../src/utils/SkBitSet.h',
         '../src/utils/SkBoundaryPatch.cpp',
