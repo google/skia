@@ -542,15 +542,17 @@ bool GrClipMaskManager::createStencilClipMask(InitialState initialState,
 
         stencilBuffer->setLastClip(genID, clipSpaceIBounds, clipSpaceToStencilOffset);
 
-        // We set the current clip to the bounds so that our recursive draws are scissored to them.
-        SkIRect stencilSpaceIBounds(clipSpaceIBounds);
-        stencilSpaceIBounds.offset(clipSpaceToStencilOffset);
-        GrDrawTarget::AutoClipRestore(fGpu, stencilSpaceIBounds);
 
         GrDrawTarget::AutoStateRestore asr(fGpu, GrDrawTarget::kReset_ASRInit);
         drawState = fGpu->drawState();
         drawState->setRenderTarget(rt);
         GrDrawTarget::AutoGeometryPush agp(fGpu);
+
+        // We set the current clip to the bounds so that our recursive draws are scissored to them.
+        SkIRect stencilSpaceIBounds(clipSpaceIBounds);
+        stencilSpaceIBounds.offset(clipSpaceToStencilOffset);
+        GrDrawTarget::AutoClipRestore acr(fGpu, stencilSpaceIBounds);
+        drawState->enableState(GrDrawState::kClip_StateBit);
 
         // Set the matrix so that rendered clip elements are transformed from clip to stencil space.
         SkVector translate = {
