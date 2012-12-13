@@ -11,16 +11,18 @@
 #ifndef GrDrawTarget_DEFINED
 #define GrDrawTarget_DEFINED
 
+#include "GrClipData.h"
 #include "GrDrawState.h"
 #include "GrIndexBuffer.h"
 #include "SkMatrix.h"
 #include "GrRefCnt.h"
 #include "GrTemplates.h"
 
+#include "SkClipStack.h"
 #include "SkPath.h"
-#include "SkXfermode.h"
 #include "SkTLazy.h"
 #include "SkTArray.h"
+#include "SkXfermode.h"
 
 class GrClipData;
 class GrPath;
@@ -641,12 +643,16 @@ public:
             fClip = fTarget->getClip();
         }
 
+        AutoClipRestore(GrDrawTarget* target, const SkIRect& newClip);
+
         ~AutoClipRestore() {
             fTarget->setClip(fClip);
         }
     private:
-        GrDrawTarget*      fTarget;
-        const GrClipData*  fClip;
+        GrDrawTarget*           fTarget;
+        const GrClipData*       fClip;
+        SkTLazy<SkClipStack>    fStack;
+        GrClipData              fReplacementClip;
     };
 
     ////////////////////////////////////////////////////////////////////////////

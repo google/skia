@@ -1218,6 +1218,15 @@ void GrDrawTarget::AutoReleaseGeometry::reset() {
     fIndices = NULL;
 }
 
+GrDrawTarget::AutoClipRestore::AutoClipRestore(GrDrawTarget* target, const SkIRect& newClip) {
+    fTarget = target;
+    fClip = fTarget->getClip();
+    fStack.init();
+    fStack.get()->clipDevRect(newClip, SkRegion::kReplace_Op);
+    fReplacementClip.fClipStack = fStack.get();
+    target->setClip(&fReplacementClip);
+}
+
 void GrDrawTarget::Caps::print() const {
     static const char* gNY[] = {"NO", "YES"};
     GrPrintf("8 Bit Palette Support       : %s\n", gNY[fInternals.f8BitPaletteSupport]);
