@@ -213,6 +213,8 @@ bool SkGradientShaderBase::setContext(const SkBitmap& device,
     const SkMatrix& inverse = this->getTotalInverse();
 
     if (!fDstToIndex.setConcat(fPtsToUnit, inverse)) {
+        // need to keep our set/end context calls balanced.
+        this->INHERITED::endContext();
         return false;
     }
 
