@@ -38,8 +38,8 @@ namespace sk_tools {
         int i = 0;
         bool success = true;
         SkBitmap dst;
-        for (int x = 0; x < fPicture->width(); x += fLargeTileWidth) {
-            for (int y = 0; y < fPicture->height(); y += fLargeTileHeight) {
+        for (int x = 0; x < this->getViewWidth(); x += fLargeTileWidth) {
+            for (int y = 0; y < this->getViewHeight(); y += fLargeTileHeight) {
                 SkAutoCanvasRestore autoRestore(fCanvas, true);
                 fCanvas->translate(SkIntToScalar(-x), SkIntToScalar(-y));
                 // Draw the picture

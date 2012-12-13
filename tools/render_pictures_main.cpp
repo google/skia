@@ -30,6 +30,7 @@ static void usage(const char* argv0) {
 "         | tile width height]\n"
 "     [--pipe]\n"
 "     [--multi count]\n"
+"     [--viewport width height]\n"
 "     [--device bitmap"
 #if SK_SUPPORT_GPU
 " | gpu"
@@ -74,6 +75,7 @@ static void usage(const char* argv0) {
     SkDebugf(
 "     --multi count : Set the number of threads for multi threaded drawing. Must be greater\n"
 "                     than 1. Only works with tiled rendering.\n"
+"     --viewport width height : Set the viewport.\n"
 "     --pipe: Benchmark SkGPipe rendering. Currently incompatible with \"mode\".\n");
     SkDebugf(
 "     --device bitmap"
@@ -185,7 +187,8 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     const char* xTilesString = NULL;
     const char* yTilesString = NULL;
     const char* mode = NULL;
-
+    SkISize viewport;
+    viewport.setEmpty();
     for (++argv; argv < stop; ++argv) {
         if (0 == strcmp(*argv, "--mode")) {
             if (renderer != NULL) {
@@ -237,6 +240,21 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 usage(argv0);
                 exit(-1);
             }
+        } else if (0 == strcmp(*argv, "--viewport")) {
+            ++argv;
+            if (argv >= stop) {
+                SkDebugf("Missing width for --viewport\n");
+                usage(argv0);
+                exit(-1);
+            }
+            viewport.fWidth = atoi(*argv);
+            ++argv;
+            if (argv >= stop) {
+                SkDebugf("Missing height for --viewport\n");
+                usage(argv0);
+                exit(-1);
+            }
+            viewport.fHeight = atoi(*argv);
         } else if (0 == strcmp(*argv, "--tiles")) {
             ++argv;
             if (argv >= stop) {
@@ -441,6 +459,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
         renderer = SkNEW(sk_tools::SimplePictureRenderer);
     }
 
+    renderer->setViewport(viewport);
     renderer->setDeviceType(deviceType);
 }
 
