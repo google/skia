@@ -321,7 +321,10 @@ TiledPictureRenderer::TiledPictureRenderer()
     , fTileHeight(kDefaultTileHeight)
     , fTileWidthPercentage(0.0)
     , fTileHeightPercentage(0.0)
-    , fTileMinPowerOf2Width(0) { }
+    , fTileMinPowerOf2Width(0)
+    , fCurrentTileOffset(-1)
+    , fTilesX(0)
+    , fTilesY(0) { }
 
 void TiledPictureRenderer::init(SkPicture* pict) {
     SkASSERT(pict != NULL);
@@ -348,6 +351,10 @@ void TiledPictureRenderer::init(SkPicture* pict) {
     } else {
         this->setupTiles();
     }
+    fCanvas.reset(this->setupCanvas(fTileWidth, fTileHeight));
+    // Initialize to -1 so that the first call to nextTile will set this up to draw tile 0 on the
+    // first call to drawCurrentTile.
+    fCurrentTileOffset = -1;
 }
 
 void TiledPictureRenderer::end() {
@@ -360,14 +367,29 @@ void TiledPictureRenderer::setupTiles() {
     const int width = this->getViewWidth();
     const int height = this->getViewHeight();
 
+    fTilesX = fTilesY = 0;
     for (int tile_y_start = 0; tile_y_start < height; tile_y_start += fTileHeight) {
+        fTilesY++;
         for (int tile_x_start = 0; tile_x_start < width; tile_x_start += fTileWidth) {
+            if (0 == tile_y_start) {
+                // Only count tiles in the X direction on the first pass.
+                fTilesX++;
+            }
             *fTileRects.append() = SkRect::MakeXYWH(SkIntToScalar(tile_x_start),
                                                     SkIntToScalar(tile_y_start),
                                                     SkIntToScalar(fTileWidth),
                                                     SkIntToScalar(fTileHeight));
         }
     }
+}
+
+bool TiledPictureRenderer::tileDimensions(int &x, int &y) {
+    if (fTileRects.count() == 0 || NULL == fPicture) {
+        return false;
+    }
+    x = fTilesX;
+    y = fTilesY;
+    return true;
 }
 
 // The goal of the powers of two tiles is to minimize the amount of wasted tile
@@ -392,8 +414,10 @@ void TiledPictureRenderer::setupPowerOf2Tiles() {
     int num_bits = SkScalarCeilToInt(SkScalarLog2(SkIntToScalar(width)));
     int largest_possible_tile_size = 1 << num_bits;
 
+    fTilesX = fTilesY = 0;
     // The tile height is constant for a particular picture.
     for (int tile_y_start = 0; tile_y_start < height; tile_y_start += fTileHeight) {
+        fTilesY++;
         int tile_x_start = 0;
         int current_width = largest_possible_tile_size;
         // Set fTileWidth to be the width of the widest tile, so that each canvas is large enough
@@ -403,6 +427,10 @@ void TiledPictureRenderer::setupPowerOf2Tiles() {
         while (current_width >= fTileMinPowerOf2Width) {
             // It is very important this is a bitwise AND.
             if (current_width & rounded_value) {
+                if (0 == tile_y_start) {
+                    // Only count tiles in the X direction on the first pass.
+                    fTilesX++;
+                }
                 *fTileRects.append() = SkRect::MakeXYWH(SkIntToScalar(tile_x_start),
                                                         SkIntToScalar(tile_y_start),
                                                         SkIntToScalar(current_width),
@@ -433,21 +461,31 @@ static void DrawTileToCanvas(SkCanvas* canvas, const SkRect& tileRect, T* playba
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
+bool TiledPictureRenderer::nextTile(int &i, int &j) {
+    if (++fCurrentTileOffset < fTileRects.count()) {
+        i = fCurrentTileOffset % fTilesX;
+        j = fCurrentTileOffset / fTilesX;
+        return true;
+    }
+    return false;
+}
+
+void TiledPictureRenderer::drawCurrentTile() {
+    SkASSERT(fCurrentTileOffset >= 0 && fCurrentTileOffset < fTileRects.count());
+    DrawTileToCanvas(fCanvas, fTileRects[fCurrentTileOffset], fPicture);
+}
+
 bool TiledPictureRenderer::render(const SkString* path) {
     SkASSERT(fPicture != NULL);
     if (NULL == fPicture) {
         return false;
     }
 
-    // Reuse one canvas for all tiles.
-    SkCanvas* canvas = this->setupCanvas(fTileWidth, fTileHeight);
-    SkAutoUnref aur(canvas);
-
     bool success = true;
     for (int i = 0; i < fTileRects.count(); ++i) {
-        DrawTileToCanvas(canvas, fTileRects[i], fPicture);
+        DrawTileToCanvas(fCanvas, fTileRects[i], fPicture);
         if (NULL != path) {
-            success &= writeAppendNumber(canvas, path, i);
+            success &= writeAppendNumber(fCanvas, path, i);
         }
     }
     return success;

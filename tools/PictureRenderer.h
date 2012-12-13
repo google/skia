@@ -33,7 +33,10 @@ class SkThread;
 
 namespace sk_tools {
 
+class TiledPictureRenderer;
+
 class PictureRenderer : public SkRefCnt {
+
 public:
     enum SkDeviceTypes {
         kBitmap_DeviceType,
@@ -96,6 +99,12 @@ public:
      * being done with this Renderer.
      */
     virtual void end();
+
+    /**
+     * If this PictureRenderer is actually a TiledPictureRender, return a pointer to this as a
+     * TiledPictureRender so its methods can be called.
+     */
+    virtual TiledPictureRenderer* getTiledRenderer() { return NULL; }
 
     void resetState();
 
@@ -320,6 +329,36 @@ public:
         return fTileMinPowerOf2Width;
     }
 
+    virtual TiledPictureRenderer* getTiledRenderer() SK_OVERRIDE { return this; }
+
+    /**
+     * Report the number of tiles in the x and y directions. Must not be called before init.
+     * @param x Output parameter identifying the number of tiles in the x direction.
+     * @param y Output parameter identifying the number of tiles in the y direction.
+     * @return True if the tiles have been set up, and x and y are meaningful. If false, x and y are
+     *         unmodified.
+     */
+    bool tileDimensions(int& x, int&y);
+
+    /**
+     * Move to the next tile and return its indices. Must be called before calling drawCurrentTile
+     * for the first time.
+     * @param i Output parameter identifying the column of the next tile to be drawn on the next
+     *          call to drawNextTile.
+     * @param j Output parameter identifying the row  of the next tile to be drawn on the next call
+     *          to drawNextTile.
+     * @param True if the tiles have been created and the next tile to be drawn by drawCurrentTile
+     *        is within the range of tiles. If false, i and j are unmodified.
+     */
+    bool nextTile(int& i, int& j);
+
+    /**
+     * Render one tile. This will draw the same tile each time it is called until nextTile is
+     * called. The tile rendered will depend on how many calls have been made to nextTile.
+     * It is an error to call this without first calling nextTile, or if nextTile returns false.
+     */
+    void drawCurrentTile();
+
 protected:
     SkTDArray<SkRect> fTileRects;
 
@@ -327,11 +366,19 @@ protected:
     virtual SkString getConfigNameInternal() SK_OVERRIDE;
 
 private:
-    int               fTileWidth;
-    int               fTileHeight;
-    double            fTileWidthPercentage;
-    double            fTileHeightPercentage;
-    int               fTileMinPowerOf2Width;
+    int    fTileWidth;
+    int    fTileHeight;
+    double fTileWidthPercentage;
+    double fTileHeightPercentage;
+    int    fTileMinPowerOf2Width;
+
+    // These variables are only used for timing individual tiles.
+    // Next tile to draw in fTileRects.
+    int    fCurrentTileOffset;
+    // Number of tiles in the x direction.
+    int    fTilesX;
+    // Number of tiles in the y direction.
+    int    fTilesY;
 
     void setupTiles();
     void setupPowerOf2Tiles();
