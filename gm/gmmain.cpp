@@ -29,6 +29,7 @@
 #include "SkRefCnt.h"
 #include "SkStream.h"
 #include "SkTArray.h"
+#include "SkTileGridPicture.h"
 #include "SamplePipeControllers.h"
 
 #if SK_SUPPORT_GPU
@@ -129,10 +130,16 @@ private:
 };
 
 enum Backend {
-  kRaster_Backend,
-  kGPU_Backend,
-  kPDF_Backend,
-  kXPS_Backend,
+    kRaster_Backend,
+    kGPU_Backend,
+    kPDF_Backend,
+    kXPS_Backend,
+};
+
+enum BbhType {
+    kNone_BbhType,
+    kRTree_BbhType,
+    kTileGrid_BbhType,
 };
 
 enum ConfigFlags {
@@ -175,7 +182,6 @@ static PipeFlagComboData gPipeWritingFlagCombos[] = {
     { " cross-process, shared address", SkGPipeWriter::kCrossProcess_Flag
         | SkGPipeWriter::kSharedAddressSpace_Flag }
 };
-
 
 class GMMain {
 public:
@@ -618,11 +624,18 @@ public:
         return retval;
     }
 
-    static SkPicture* generate_new_picture(GM* gm) {
+    static SkPicture* generate_new_picture(GM* gm, BbhType bbhType) {
         // Pictures are refcounted so must be on heap
-        SkPicture* pict = new SkPicture;
+        SkPicture* pict;
         SkISize size = gm->getISize();
-        SkCanvas* cv = pict->beginRecording(size.width(), size.height());
+        if (kTileGrid_BbhType == bbhType) {
+            pict = new SkTileGridPicture(16, 16, size.width(), size.height());
+        } else {
+            pict = new SkPicture;
+        }
+        uint32_t recordFlags = (kNone_BbhType == bbhType) ?
+            0 : SkPicture::kOptimizeForClippedPlayback_RecordingFlag;
+        SkCanvas* cv = pict->beginRecording(size.width(), size.height(), recordFlags);
         invokeGM(gm, cv, false, false);
         pict->endRecording();
 
@@ -856,9 +869,11 @@ static void usage(const char * argv0) {
 "        any differences between those and the newly generated ones\n"
 "    [--noreplay]: do not exercise SkPicture replay\n"
 "    [--resourcePath|-i <path>]: directory that stores image resources\n"
+"    [--rtree]: use an rtree structure for SkPicture testing\n"
 "    [--noserialize]: do not exercise SkPicture serialization & deserialization\n"
 "    [--notexturecache]: disable the gpu texture cache\n"
 "    [--tiledPipe]: Exercise tiled SkGPipe replay\n"
+"    [--tileGrid]: use a tileGrid structure for SkPicture testing\n"
 "    [--writePath|-w <path>]: write rendered images into this directory\n"
 "    [--writePicturePath|-wp <path>]: write .skp files into this directory\n"
              );
@@ -959,6 +974,7 @@ int tool_main(int argc, char** argv) {
     bool disableTextureCache = false;
     SkTDArray<size_t> configs;
     bool userConfig = false;
+    BbhType bbhType = kNone_BbhType;
 
     int moduloRemainder = -1;
     int moduloDivisor = -1;
@@ -995,6 +1011,10 @@ int tool_main(int argc, char** argv) {
             }
         } else if (strcmp(*argv, "--disable-missing-warning") == 0) {
             gmmain.fNotifyMissingReadReference = false;
+        } else if (strcmp(*argv, "--rtree") == 0) {
+            bbhType = kRTree_BbhType;
+        } else if (strcmp(*argv, "--tileGrid") == 0) {
+            bbhType = kTileGrid_BbhType;
         } else if (strcmp(*argv, "--enable-missing-warning") == 0) {
             gmmain.fNotifyMissingReadReference = true;
         } else if (strcmp(*argv, "--forceBWtext") == 0) {
@@ -1246,7 +1266,7 @@ int tool_main(int argc, char** argv) {
             ErrorBitfield pictErrors = ERROR_NONE;
 
             //SkAutoTUnref<SkPicture> pict(generate_new_picture(gm));
-            SkPicture* pict = gmmain.generate_new_picture(gm);
+            SkPicture* pict = gmmain.generate_new_picture(gm, bbhType);
             SkAutoUnref aur(pict);
 
             if ((ERROR_NONE == testErrors) && doReplay) {
