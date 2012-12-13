@@ -62,16 +62,6 @@ SkFilterShader::~SkFilterShader() {
     fShader->unref();
 }
 
-void SkFilterShader::beginSession() {
-    this->INHERITED::beginSession();
-    fShader->beginSession();
-}
-
-void SkFilterShader::endSession() {
-    fShader->endSession();
-    this->INHERITED::endSession();
-}
-
 void SkFilterShader::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeFlattenable(fShader);
@@ -96,8 +86,22 @@ uint32_t SkFilterShader::getFlags() {
 bool SkFilterShader::setContext(const SkBitmap& device,
                                 const SkPaint& paint,
                                 const SkMatrix& matrix) {
-    return  this->INHERITED::setContext(device, paint, matrix) &&
-            fShader->setContext(device, paint, matrix);
+    // we need to keep the setContext/endContext calls balanced. If we return
+    // false, our endContext() will not be called.
+
+    if (!this->INHERITED::setContext(device, paint, matrix)) {
+        return false;
+    }
+    if (!fShader->setContext(device, paint, matrix)) {
+        this->INHERITED::endContext();
+        return false;
+    }
+    return true;
+}
+
+void SkFilterShader::endContext() {
+    fShader->endContext();
+    this->INHERITED::endContext();
 }
 
 void SkFilterShader::shadeSpan(int x, int y, SkPMColor result[], int count) {
