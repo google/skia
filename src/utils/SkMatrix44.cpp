@@ -277,9 +277,15 @@ void SkMatrix44::preScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
         return;
     }
 
-    SkMatrix44 tmp(kUninitialized_Constructor);
-    tmp.setScale(sx, sy, sz);
-    this->preConcat(tmp);
+    // The implementation matrix * pureScale can be shortcut
+    // by knowing that pureScale components effectively scale
+    // the columns of the original matrix.
+    for (int i = 0; i < 4; i++) {
+        fMat[0][i] *= sx;
+        fMat[1][i] *= sy;
+        fMat[2][i] *= sz;
+    }
+    this->dirtyTypeMask();
 }
 
 void SkMatrix44::postScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
