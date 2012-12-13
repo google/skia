@@ -15,6 +15,20 @@
 #include "SkString.h"
 #include "SkFlattenable.h"
 
+#ifdef SK_DEBUG
+    /**
+     *  Defining SK_IGNORE_PIXELREF_SETPRELOCKED will force all pixelref
+     *  subclasses to correctly handle lock/unlock pixels. For performance
+     *  reasons, simple malloc-based subclasses call setPreLocked() to skip
+     *  the overhead of implementing these calls.
+     *
+     *  This build-flag disables that optimization, to add in debugging our
+     *  call-sites, to ensure that they correctly balance their calls of
+     *  lock and unlock.
+     */
+//    #define SK_IGNORE_PIXELREF_SETPRELOCKED
+#endif
+
 class SkColorTable;
 class SkData;
 struct SkIRect;
