@@ -1486,7 +1486,7 @@ void SkCanvas::drawOval(const SkRect& oval, const SkPaint& paint) {
             return;
         }
     }
-    
+
     SkPath  path;
     path.addOval(oval);
     // call the non-virtual version

@@ -222,7 +222,7 @@ public:
     enum {
         kSizeInMemory = 12 * sizeof(SkScalar)
     };
-    
+
     /**
      *  Write the rrect into the specified buffer. This is guaranteed to always
      *  write kSizeInMemory bytes, and that value is guaranteed to always be
