@@ -166,6 +166,18 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
         canvas.restore();
         REPORTER_ASSERT(reporter, !canvas.isFreshFrame());
     }
+    {
+        canvas.save(SkCanvas::kMatrixClip_SaveFlag);
+        SkPaint paint;
+        paint.setStyle( SkPaint::kFill_Style );
+        paint.setAlpha( 255 );
+        SkPath path;
+        path.addCircle(SkIntToScalar(0), SkIntToScalar(0), SkIntToScalar(2));
+        canvas.clipPath(path, SkRegion::kIntersect_Op, false);
+        canvas.drawRect(fullRect, paint);
+        canvas.restore();
+        REPORTER_ASSERT(reporter, !canvas.isFreshFrame());
+    }
 
     // Verify that stroked rect does not trigger a fresh frame
     {

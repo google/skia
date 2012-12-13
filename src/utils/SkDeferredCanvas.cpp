@@ -684,25 +684,8 @@ bool SkDeferredCanvas::isFullFrame(const SkRect* rect,
         }
     }
 
-    switch (canvas->getClipType()) {
-        case SkCanvas::kRect_ClipType :
-            {
-                SkIRect bounds;
-                canvas->getClipDeviceBounds(&bounds);
-                if (bounds.fLeft > 0 || bounds.fTop > 0 ||
-                    bounds.fRight < canvasSize.fWidth ||
-                    bounds.fBottom < canvasSize.fHeight)
-                    return false;
-            }
-            break;
-        case SkCanvas::kComplex_ClipType :
-            return false; // conservative
-        case SkCanvas::kEmpty_ClipType:
-        default:
-            break;
-    };
-
-    return true;
+    return this->getClipStack()->quickContains(SkRect::MakeXYWH(0, 0,
+        SkIntToScalar(canvasSize.fWidth), SkIntToScalar(canvasSize.fHeight)));
 }
 
 int SkDeferredCanvas::save(SaveFlags flags) {
