@@ -356,7 +356,7 @@ bool SkPictureRecord::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
     addRect(rect);
     addInt(ClipParams_pack(op, doAA));
     recordRestoreOffsetPlaceholder(op);
-    
+
     validate();
     return this->INHERITED::clipRect(rect, op, doAA);
 }
@@ -370,7 +370,7 @@ bool SkPictureRecord::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA
     addRRect(rrect);
     addInt(ClipParams_pack(op, doAA));
     recordRestoreOffsetPlaceholder(op);
-    
+
     validate();
 
     if (fRecordFlags & SkPicture::kUsePathBoundsForClip_RecordingFlag) {

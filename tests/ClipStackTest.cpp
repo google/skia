@@ -519,7 +519,7 @@ static void test_quickContains(skiatest::Reporter* reporter) {
         // return false because quickContains currently does not care for kDifference_Op
         REPORTER_ASSERT(reporter, false == stack.quickContains(testRect));
     }
-    
+
     // Replace Op tests
     {
         SkClipStack stack;

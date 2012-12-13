@@ -847,7 +847,7 @@ void SkDeferredCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
         isPaintOpaque(&paint)) {
         this->getDeferredDevice()->skipPendingCommands();
     }
-    
+
     AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     this->drawingCanvas()->drawRect(rect, paint);
     this->recordedDrawCommand();

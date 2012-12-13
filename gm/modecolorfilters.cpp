@@ -137,7 +137,7 @@ protected:
                         SkScalar x = SkIntToScalar(idx % kRectsPerRow);
                         SkScalar y = SkIntToScalar(idx / kRectsPerRow);
                         SkRect rect = SkRect::MakeXYWH(x * kRectWidth, y * kRectHeight,
-                                                       SkIntToScalar(kRectWidth), 
+                                                       SkIntToScalar(kRectWidth),
                                                        SkIntToScalar(kRectHeight));
                         canvas->drawRect(rect, bgPaint);
                         canvas->drawRect(rect, paint);
