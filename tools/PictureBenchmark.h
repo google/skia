@@ -24,11 +24,24 @@ public:
 
     ~PictureBenchmark();
 
+    /**
+     * Draw the provided SkPicture fRepeats times while collecting timing data, and log the output
+     * via fLogger.
+     */
     void run(SkPicture* pict);
 
     void setRepeats(int repeats) {
         fRepeats = repeats;
     }
+
+    /**
+     * If true, tells run to log separate timing data for each individual tile. Each tile will be
+     * drawn fRepeats times. Requires the PictureRenderer set by setRenderer to be a
+     * TiledPictureRenderer.
+     */
+    void setTimeIndividualTiles(bool indiv) { fTimeIndividualTiles = true; }
+
+    bool timeIndividualTiles() { return fTimeIndividualTiles; }
 
     PictureRenderer* setRenderer(PictureRenderer*);
 
@@ -63,6 +76,7 @@ private:
     bool             fShowCpuTime;
     bool             fShowTruncatedCpuTime;
     bool             fShowGpuTime;
+    bool             fTimeIndividualTiles;
 
     void logProgress(const char msg[]);
 

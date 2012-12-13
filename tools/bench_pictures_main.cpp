@@ -120,7 +120,7 @@ static void usage(const char* argv0) {
 "Usage: \n"
 "     %s <inputDir>...\n"
 "     [--logFile filename][--timers [wcgWC]*][--logPerIter 1|0][--min]\n"
-"     [--repeat] \n"
+"     [--repeat][--timeIndividualTiles] \n"
 "     [--mode pow2tile minWidth height | record | simple\n"
 "             | tile width height | playbackCreation]\n"
 "     [--pipe]\n"
@@ -144,6 +144,9 @@ static void usage(const char* argv0) {
     SkDebugf("     --min : Print the minimum times (instead of average).\n");
     SkDebugf("     --timers [wcgWC]* : "
              "Display wall, cpu, gpu, truncated wall or truncated cpu time for each picture.\n");
+    SkDebugf("     --timeIndividualTiles : Report times for drawing individual tiles, rather than\n"
+"                                          times for drawing the whole page.\n"
+"                                          Requires --mode tile\n");
     SkDebugf(
 "     --mode pow2tile minWidth height | copyTile width height | record | simple\n"
 "            | tile width height | playbackCreation:\n"
@@ -510,6 +513,8 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 gLogger.logError("Missing arg for --timers\n");
                 PRINT_USAGE_AND_EXIT;
             }
+        } else if (0 == strcmp(*argv, "--timeIndividualTiles")) {
+            benchmark->setTimeIndividualTiles(true);
         } else if (0 == strcmp(*argv, "--min")) {
             benchmark->setPrintMin(true);
         } else if (0 == strcmp(*argv, "--logPerIter")) {
@@ -613,6 +618,10 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 x = y = 4;
             }
             tiledRenderer = SkNEW_ARGS(sk_tools::CopyTilesRenderer, (x, y));
+            if (benchmark->timeIndividualTiles()) {
+                gLogger.logError("timeIndividualTiles is not compatible with copyTile\n");
+                PRINT_USAGE_AND_EXIT;
+            }
         } else if (numThreads > 1) {
             tiledRenderer = SkNEW_ARGS(sk_tools::MultiCorePictureRenderer, (numThreads));
         } else {
@@ -693,15 +702,21 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
         }
         renderer.reset(tiledRenderer);
         if (usePipe) {
-            SkDebugf("Pipe rendering is currently not compatible with tiling.\n"
+            gLogger.logError("Pipe rendering is currently not compatible with tiling.\n"
                      "Turning off pipe.\n");
         }
-    } else if (usePipe) {
-        if (renderer.get() != NULL) {
-            SkDebugf("Pipe is incompatible with other modes.\n");
+    } else {
+        if (benchmark->timeIndividualTiles()) {
+            gLogger.logError("timeIndividualTiles requires tiled rendering.\n");
             PRINT_USAGE_AND_EXIT;
         }
-        renderer.reset(SkNEW(sk_tools::PipePictureRenderer));
+        if (usePipe) {
+            if (renderer.get() != NULL) {
+                gLogger.logError("Pipe is incompatible with other modes.\n");
+                PRINT_USAGE_AND_EXIT;
+            }
+            renderer.reset(SkNEW(sk_tools::PipePictureRenderer));
+        }
     }
     if (inputs->count() < 1) {
         PRINT_USAGE_AND_EXIT;

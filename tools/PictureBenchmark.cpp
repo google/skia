@@ -27,6 +27,7 @@ PictureBenchmark::PictureBenchmark()
 , fShowCpuTime(true)
 , fShowTruncatedCpuTime(false)
 , fShowGpuTime(false)
+, fTimeIndividualTiles(false)
 {}
 
 PictureBenchmark::~PictureBenchmark() {
@@ -37,12 +38,9 @@ BenchTimer* PictureBenchmark::setupTimer() {
 #if SK_SUPPORT_GPU
     if (fRenderer != NULL && fRenderer->isUsingGpuDevice()) {
         return SkNEW_ARGS(BenchTimer, (fRenderer->getGLContext()));
-    } else {
-        return SkNEW_ARGS(BenchTimer, (NULL));
     }
-#else
-    return SkNEW_ARGS(BenchTimer, (NULL));
 #endif
+    return SkNEW_ARGS(BenchTimer, (NULL));
 }
 
 void PictureBenchmark::logProgress(const char msg[]) {
@@ -80,28 +78,66 @@ void PictureBenchmark::run(SkPicture* pict) {
     usingGpu = fRenderer->isUsingGpuDevice();
 #endif
 
-    TimerData timerData(fRenderer->getPerIterTimeFormat(), fRenderer->getNormalTimeFormat());
-    for (int i = 0; i < fRepeats; ++i) {
-        fRenderer->setup();
+    if (fTimeIndividualTiles) {
+        TiledPictureRenderer* tiledRenderer = fRenderer->getTiledRenderer();
+        SkASSERT(tiledRenderer);
+        if (NULL == tiledRenderer) {
+            return;
+        }
+        int xTiles, yTiles;
+        if (!tiledRenderer->tileDimensions(xTiles, yTiles)) {
+            return;
+        }
 
-        timer->start();
-        fRenderer->render(NULL);
-        timer->truncatedEnd();
+        // Insert a newline so that each tile is reported on its own line (separate from the line
+        // that describes the skp being run).
+        this->logProgress("\n");
 
-        // Finishes gl context
-        fRenderer->resetState();
-        timer->end();
+        int x, y;
+        while (tiledRenderer->nextTile(x, y)) {
+            TimerData timerData(tiledRenderer->getPerIterTimeFormat(),
+                                tiledRenderer->getNormalTimeFormat());
+            for (int i = 0; i < fRepeats; ++i) {
+                timer->start();
+                tiledRenderer->drawCurrentTile();
+                timer->truncatedEnd();
+                tiledRenderer->resetState();
+                timer->end();
+                timerData.appendTimes(timer, fRepeats - 1 == i);
+            }
+            SkString configName = tiledRenderer->getConfigName();
+            configName.appendf(": tile [%i,%i] out of [%i,%i]", x, y, xTiles, yTiles);
+            SkString result = timerData.getResult(fLogPerIter, fPrintMin, fRepeats,
+                                                  configName.c_str(), fShowWallTime,
+                                                  fShowTruncatedWallTime, fShowCpuTime,
+                                                  fShowTruncatedCpuTime, usingGpu && fShowGpuTime);
+            result.append("\n");
+            this->logProgress(result.c_str());
+        }
+    } else {
+        TimerData timerData(fRenderer->getPerIterTimeFormat(), fRenderer->getNormalTimeFormat());
+        for (int i = 0; i < fRepeats; ++i) {
+            fRenderer->setup();
 
-        timerData.appendTimes(timer, fRepeats - 1 == i);
+            timer->start();
+            fRenderer->render(NULL);
+            timer->truncatedEnd();
+
+            // Finishes gl context
+            fRenderer->resetState();
+            timer->end();
+
+            timerData.appendTimes(timer, fRepeats - 1 == i);
+        }
+
+        SkString configName = fRenderer->getConfigName();
+        SkString result = timerData.getResult(fLogPerIter, fPrintMin, fRepeats,
+                                              configName.c_str(), fShowWallTime,
+                                              fShowTruncatedWallTime, fShowCpuTime,
+                                              fShowTruncatedCpuTime, usingGpu && fShowGpuTime);
+        result.append("\n");
+        this->logProgress(result.c_str());
     }
-
-    SkString configName = fRenderer->getConfigName();
-    SkString result = timerData.getResult(fLogPerIter, fPrintMin, fRepeats,
-                                          configName.c_str(), fShowWallTime, fShowTruncatedWallTime,
-                                          fShowCpuTime, fShowTruncatedCpuTime,
-                                          usingGpu && fShowGpuTime);
-    result.append("\n");
-    this->logProgress(result.c_str());
 
     fRenderer->end();
     SkDELETE(timer);
