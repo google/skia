@@ -129,34 +129,73 @@ static bool windingIsActive(int winding, int oppWinding, int spanWinding, int op
 }
 */
 
+static Segment* findSortableTopNew(SkTDArray<Contour*>& contourList, bool& firstContour, int& index,
+        int& endIndex, SkPoint& topLeft, bool& unsortable) {
+    Segment* current;
+    bool allowTies = true;
+    bool first = true;
+    do {
+        current = findSortableTop(contourList, index, endIndex, topLeft, unsortable, allowTies,
+                true);
+        if (!current) {
+            if (first) {
+                return NULL;
+            }
+            break;
+        }
+        first = false;
+        if (firstContour) {
+            current->initWinding(index, endIndex, 0, 0);
+            firstContour = false;
+            return current;
+        }
+        int minIndex = SkMin32(index, endIndex);
+        int sumWinding = current->windSum(minIndex);
+        if (sumWinding == SK_MinS32) {
+            sumWinding = current->computeSum(index, endIndex, true);
+            if (sumWinding != SK_MinS32) {
+                return current;
+            }
+        }
+        allowTies = false;
+        int contourWinding = innerContourCheck(contourList, current, index, endIndex, false);
+        if (contourWinding == SK_MinS32) {
+            continue;
+        }
+        int oppContourWinding = innerContourCheck(contourList, current, index, endIndex, true);
+        if (oppContourWinding == SK_MinS32) {
+            continue;
+        }
+        current->initWinding(index, endIndex, contourWinding, oppContourWinding);
+        return current;
+    } while (true);
+    // the simple upward projection of the unresolved points hit unsortable angles
+    // shoot rays at right angles to the segment to find its winding, ignoring angle cases
+    SkASSERT(0); // steal code from findSortableTopOld and put it here
+    return current;
+}
+
 static bool bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
         const int xorMask, const int xorOpMask, PathWrapper& simple) {
     bool firstContour = true;
     bool unsortable = false;
+    bool topUnsortable = false;
+    bool firstRetry = false;
     bool closable = true;
     SkPoint topLeft = {SK_ScalarMin, SK_ScalarMin};
     do {
         int index, endIndex;
-        Segment* current = findSortableTop(contourList, index, endIndex, topLeft);
+        Segment* current = findSortableTopNew(contourList, firstContour, index, endIndex, topLeft,
+                topUnsortable);
         if (!current) {
+            if (topUnsortable) {
+                topUnsortable = false;
+                SkASSERT(!firstRetry);
+                firstRetry = true;
+                topLeft.fX = topLeft.fY = SK_ScalarMin;
+                continue;
+            }
             break;
-        }
-        if (firstContour) {
-            current->initWinding(index, endIndex, 0, 0);
-            firstContour = false;
-        } else {
-            int minIndex = SkMin32(index, endIndex);
-            int sumWinding = current->windSum(minIndex);
-            if (sumWinding == SK_MinS32) {
-                sumWinding = current->computeSum(index, endIndex, true);
-            }
-            if (sumWinding == SK_MinS32) {
-                int contourWinding = innerContourCheck(contourList, current,
-                        index, endIndex, false);
-                int oppContourWinding = innerContourCheck(contourList, current,
-                        index, endIndex, true);
-                current->initWinding(index, endIndex, contourWinding, oppContourWinding);
-            }
         }
         SkTDArray<Span*> chaseArray;
         do {
