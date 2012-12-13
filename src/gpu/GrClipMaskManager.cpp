@@ -89,7 +89,6 @@ bool GrClipMaskManager::useSWOnlyPath(const ElementList& elements) {
     // TODO: generalize this function so that when
     // a clip gets complex enough it can just be done in SW regardless
     // of whether it would invoke the GrSoftwarePathRenderer.
-    bool useSW = false;
     SkStroke stroke;
     stroke.setDoFill(true);
 
@@ -305,7 +304,10 @@ bool GrClipMaskManager::drawClipShape(GrTexture* target, const SkClipStack::Elem
             // TODO: Do rects directly to the accumulator using a aa-rect GrEffect that covers the
             // entire mask bounds and writes 0 outside the rect.
             if (element->isAA()) {
-                getContext()->getAARectRenderer()->fillAARect(fGpu, fGpu, element->getRect(), true);
+                getContext()->getAARectRenderer()->fillAARect(fGpu,
+                                                              fGpu,
+                                                              element->getRect(),
+                                                              false);
             } else {
                 fGpu->drawSimpleRect(element->getRect(), NULL);
             }
@@ -443,6 +445,9 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t clipStackGenID,
     // The texture may be larger than necessary, this rect represents the part of the texture
     // we populate with a rasterization of the clip.
     SkIRect maskSpaceIBounds = SkIRect::MakeWH(clipSpaceIBounds.width(), clipSpaceIBounds.height());
+
+    // We're drawing a coverage mask and want coverage to be run through the blend function.
+    drawState->enableState(GrDrawState::kCoverageDrawing_StateBit);
 
     // Set the matrix so that rendered clip elements are transformed to mask space from clip space.
     drawState->viewMatrix()->setTranslate(clipToMaskOffset);
