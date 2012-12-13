@@ -91,7 +91,6 @@ public:
                 int colorCount, SkShader::TileMode mode, SkUnitMapper* mapper);
     virtual ~SkGradientShaderBase();
 
-    // overrides
     virtual bool setContext(const SkBitmap&, const SkPaint&, const SkMatrix&) SK_OVERRIDE;
     virtual uint32_t getFlags() SK_OVERRIDE { return fFlags; }
     virtual bool isOpaque() const SK_OVERRIDE;
