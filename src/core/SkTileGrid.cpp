@@ -8,7 +8,7 @@
 
 #include "SkTileGrid.h"
 
-SkTileGrid::SkTileGrid(int tileWidth, int tileHeight, int xTileCount, int yTileCount)
+SkTileGrid::SkTileGrid(int tileWidth, int tileHeight, int xTileCount, int yTileCount, SkTileGridNextDatumFunctionPtr nextDatumFunction)
 {
     fTileWidth = tileWidth;
     fTileHeight = tileHeight;
@@ -17,7 +17,7 @@ SkTileGrid::SkTileGrid(int tileWidth, int tileHeight, int xTileCount, int yTileC
     fTileCount = fXTileCount * fYTileCount;
     fInsertionCount = 0;
     fGridBounds = SkIRect::MakeXYWH(0, 0, fTileWidth * fXTileCount, fTileHeight * fYTileCount);
-
+    fNextDatumFunction = nextDatumFunction;
     fTileData = SkNEW_ARRAY(SkTDArray<void *>, fTileCount);
 }
 
@@ -52,12 +52,42 @@ void SkTileGrid::insert(void* data, const SkIRect& bounds, bool) {
 }
 
 void SkTileGrid::search(const SkIRect& query, SkTDArray<void*>* results) {
-    SkASSERT(query.width() == fTileWidth + 2 && query.height() == fTileHeight + 2);
-    SkASSERT((query.left() + 1) % fTileWidth == 0);
-    SkASSERT((query.top() + 1) % fTileHeight == 0);
-    SkASSERT(results);
-    // The +1 is to compensate for the outset in applied SkCanvas::getClipBounds
-    *results = this->tile((query.left() + 1) / fTileWidth, (query.top() + 1) / fTileHeight);
+    // The +1/-1 is to compensate for the outset in applied SkCanvas::getClipBounds
+    int tileStartX = (query.left() + 1) / fTileWidth;
+    int tileEndX = (query.right() + fTileWidth - 1) / fTileWidth;
+    int tileStartY = (query.top() + 1) / fTileHeight;
+    int tileEndY = (query.bottom() + fTileHeight - 1) / fTileHeight;
+    if (tileStartX >= fXTileCount || tileStartY >= fYTileCount || tileEndX <= 0 || tileEndY <= 0) {
+        return; // query does not intersect the grid
+    }
+    // clamp to grid
+    if (tileStartX < 0) tileStartX = 0;
+    if (tileStartY < 0) tileStartY = 0;
+    if (tileEndX > fXTileCount) tileEndX = fXTileCount;
+    if (tileEndY > fYTileCount) tileEndY = fYTileCount;
+
+    int queryTileCount = (tileEndX - tileStartX) * (tileEndY - tileStartY);
+    if (queryTileCount == 1) {
+        *results = this->tile(tileStartX, tileStartY);
+    } else {
+        results->reset();
+        SkTDArray<int> curPositions;
+        curPositions.setCount(queryTileCount);
+        SkTDArray<void *>** tileRange =
+            (SkTDArray<void *>**)alloca(queryTileCount * sizeof(SkTDArray<void *>*));
+        int tile = 0;
+        for (int x = tileStartX; x < tileEndX; ++x) {
+            for (int y = tileStartY; y < tileEndY; ++y) {
+                tileRange[tile] = &this->tile(x, y);
+                curPositions[tile] = tileRange[tile]->count() ? 0 : kTileFinished;
+                ++tile;
+            }
+        }
+        void *nextElement;
+        while(NULL != (nextElement = fNextDatumFunction(tileRange, curPositions))) {
+            results->push(nextElement);
+        }
+    }
 }
 
 void SkTileGrid::clear() {
@@ -69,5 +99,3 @@ void SkTileGrid::clear() {
 int SkTileGrid::getCount() const {
     return fInsertionCount;
 }
-
-

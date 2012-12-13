@@ -24,7 +24,7 @@
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTemplates.h"
-#include "SkTileGrid.h"
+#include "SkTileGridPicture.h"
 #include "SkTDArray.h"
 #include "SkThreadUtils.h"
 #include "SkTypes.h"
@@ -624,22 +624,6 @@ public:
     }
 };
 
-class TileGridPicture : public SkPicture {
-public:
-    TileGridPicture(int tileWidth, int tileHeight, int xTileCount, int yTileCount) {
-        fTileWidth = tileWidth;
-        fTileHeight = tileHeight;
-        fXTileCount = xTileCount;
-        fYTileCount = yTileCount;
-    }
-
-    virtual SkBBoxHierarchy* createBBoxHierarchy() const SK_OVERRIDE{
-        return SkNEW_ARGS(SkTileGrid, (fTileWidth, fTileHeight, fXTileCount, fYTileCount));
-    }
-private:
-    int fTileWidth, fTileHeight, fXTileCount, fYTileCount;
-};
-
 SkPicture* PictureRenderer::createPicture() {
     switch (fBBoxHierarchyType) {
         case kNone_BBoxHierarchyType:
@@ -647,14 +631,8 @@ SkPicture* PictureRenderer::createPicture() {
         case kRTree_BBoxHierarchyType:
             return SkNEW(RTreePicture);
         case kTileGrid_BBoxHierarchyType:
-            {
-                int xTileCount = fPicture->width() / fGridWidth +
-                    ((fPicture->width() % fGridWidth) ? 1 : 0);
-                int yTileCount = fPicture->height() / fGridHeight +
-                    ((fPicture->height() % fGridHeight) ? 1 : 0);
-                return SkNEW_ARGS(TileGridPicture, (fGridWidth, fGridHeight, xTileCount,
-                                                    yTileCount));
-            }
+            return SkNEW_ARGS(SkTileGridPicture, (fGridWidth, fGridHeight, fPicture->width(),
+                fPicture->height()));
     }
     SkASSERT(0); // invalid bbhType
     return NULL;
