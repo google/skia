@@ -130,6 +130,9 @@ public:
      */
     SkString getConfigName() {
         SkString config = this->getConfigNameInternal();
+        if (!fViewport.isEmpty()) {
+            config.appendf("_viewport_%ix%i", fViewport.width(), fViewport.height());
+        }
         if (kRTree_BBoxHierarchyType == fBBoxHierarchyType) {
             config.append("_rtree");
         } else if (kTileGrid_BBoxHierarchyType == fBBoxHierarchyType) {
