@@ -6,11 +6,9 @@
  */
 
 #include "SkFlattenable.h"
-#include "SkFlipPixelRef.h"
 #include "SkImageRef_GlobalPool.h"
 #include "SkImages.h"
 
 void SkImages::InitializeFlattenables() {
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkFlipPixelRef)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkImageRef_GlobalPool)
 }

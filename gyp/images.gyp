@@ -19,7 +19,6 @@
       ],
       'sources': [
         '../include/images/SkBitmapFactory.h',
-        '../include/images/SkFlipPixelRef.h',
         '../include/images/SkImageDecoder.h',
         '../include/images/SkImageEncoder.h',
         '../include/images/SkImageRef.h',
@@ -32,7 +31,6 @@
         '../src/images/bmpdecoderhelper.h',
         '../src/images/SkBitmapFactory.cpp',
         '../src/images/SkFDStream.cpp',
-        '../src/images/SkFlipPixelRef.cpp',
         '../src/images/SkImageDecoder.cpp',
         '../src/images/SkImageDecoder_Factory.cpp',
         '../src/images/SkImageDecoder_libjpeg.cpp',
