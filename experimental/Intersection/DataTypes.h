@@ -104,6 +104,10 @@ inline bool approximately_positive(double x) {
     return x > -FLT_EPSILON;
 }
 
+inline bool approximately_positive_squared(double x) {
+    return x > -(FLT_EPSILON * FLT_EPSILON);
+}
+
 inline bool approximately_zero_or_more(double x) {
     return x > -FLT_EPSILON;
 }

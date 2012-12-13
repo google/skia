@@ -46,9 +46,13 @@ static int quadraticRootsX(const double A, const double B, const double C,
     /* normal form: x^2 + px + q = 0 */
     const double p = B / (2 * A);
     const double q = C / A;
-    const double D = p * p - q;
+    double D = p * p - q;
     if (D < 0) {
-        return 0;
+        if (approximately_positive_squared(D)) {
+            D = 0;
+        } else {
+            return 0;
+        }
     }
     double sqrt_D = sqrt(D);
     if (approximately_less_than_zero(sqrt_D)) {

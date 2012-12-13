@@ -33,8 +33,9 @@ static const SimplifyFindTopTest::Segment* testCommon(
             end);
 #else
     SkPoint bestXY = {SK_ScalarMin, SK_ScalarMin};
+    bool unsortable = false;
     const SimplifyFindTopTest::Segment* topSegment =
-            findSortableTop(contourList, index, end, bestXY);
+            findSortableTop(contourList, index, end, bestXY, unsortable, true, true);
 #endif
     return topSegment;
 }

@@ -2840,11 +2840,189 @@ path.lineTo(369.961151, 137.980698);
 path.close();
 </div>
 
+<div id="testQuadratic62x">
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(2, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(2, 0);
+    path.quadTo(3, 1, 1, 2);
+    path.close();
+</div>
+
+<div id="testLine1a">
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(4, 0, 13, 13, SkPath::kCCW_Direction);
+    path.close();
+</div>
+
+<div id="testQuadratic63">
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(3, 2);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(2, 1);
+    path.quadTo(2, 1, 2, 2);
+    path.close();
+</div>
+
+<div id="testQuadratic64">
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(2, 3);
+    path.close();
+    path.moveTo(1, 2);
+    path.lineTo(2, 2);
+    path.quadTo(0, 3, 3, 3);
+    path.close();
+</div>
+
+<div id="testQuadratic65">
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(3, 2);
+    path.close();
+    path.moveTo(2, 1);
+    path.lineTo(2, 2);
+    path.quadTo(0, 3, 1, 3);
+    path.close();
+</div>
+
+<div id="testQuadratic66">
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 1);
+    path.lineTo(3, 2);
+    path.close();
+    path.moveTo(2, 0);
+    path.lineTo(1, 1);
+    path.quadTo(3, 2, 2, 3);
+    path.close();
+</div>
+
+<div id="testQuadratic67x">
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 2, 1);
+    path.lineTo(2, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(2, 0);
+    path.quadTo(1, 1, 3, 2);
+    path.close();
+</div>
+
+<div id="testQuadratic68">
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.lineTo(1, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(0, 1, 2, 1);
+    path.close();
+</div>
+
+<div id="testQuadratic69">
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 1);
+    path.lineTo(3, 2);
+    path.close();
+    path.moveTo(2, 0);
+    path.lineTo(1, 1);
+    path.quadTo(3, 2, 2, 3);
+    path.close();
+</div>
+
+<div id="testQuadratic70x">
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.lineTo(1, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(0, 1, 2, 1);
+    path.close();
+</div>
+
+<div id="testQuadratic71">
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 1, 1);
+    path.lineTo(3, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(1, 1, 3, 1);
+    path.close();
+</div>
+
+<div id="testQuadratic72">
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 1, 2);
+    path.lineTo(1, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.quadTo(0, 1, 3, 2);
+    path.close();
+</div>
+
+<div id="testQuadratic73">
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 0, 3);
+    path.lineTo(0, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.quadTo(0, 1, 1, 1);
+    path.close();
+</div>
+
+<div id="testQuadratic74">
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 1, 3);
+    path.lineTo(1, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 1);
+    path.quadTo(3, 2, 2, 3);
+    path.close();
+</div>
+
+<div id="testQuadratic75">
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 1, 3);
+    path.lineTo(2, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 1);
+    path.quadTo(3, 2, 2, 3);
+    path.close();
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    testQuadratic75,
+    testQuadratic74,
+    testQuadratic73,
+    testQuadratic72,
+    testQuadratic71,
+    testQuadratic70x,
+    testQuadratic69,
+    testQuadratic68,
+    testQuadratic67x,
+    testQuadratic66,
+    testQuadratic65,
+    testQuadratic64,
+    testQuadratic63,
+    testLine1a,
+    testQuadratic62x,
     testLine81,
     testQuadratic61,
     testQuadratic60,

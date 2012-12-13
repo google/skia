@@ -2261,11 +2261,19 @@ static void testQuadralateral9x() {
     testSimplifyx(path);
 }
 
+static void testLine1a() {
+    SkPath path;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
+    path.addRect(4, 0, 13, 13, SkPath::kCCW_Direction);
+    testSimplifyx(path);
+}
+
 static void testLine1ax() {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.addRect(0, 0, 12, 12, SkPath::kCW_Direction);
-    path.addRect(4, 0, 13, 13, SkPath::kCW_Direction);
+    path.addRect(4, 0, 13, 13, SkPath::kCCW_Direction);
     testSimplifyx(path);
 }
 
@@ -2884,12 +2892,214 @@ path.close();
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = testLine79x;
+static void testQuadratic59x() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(2, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(2, 0);
+    path.quadTo(3, 1, 1, 2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic59() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(2, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(2, 0);
+    path.quadTo(3, 1, 1, 2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic63() {
+    SkPath path, pathB;
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(3, 2);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(2, 1);
+    path.quadTo(2, 1, 2, 2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic64() {
+    SkPath path, pathB;
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(2, 3);
+    path.close();
+    path.moveTo(1, 2);
+    path.lineTo(2, 2);
+    path.quadTo(0, 3, 3, 3);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic65() {
+    SkPath path, pathB;
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 0);
+    path.lineTo(3, 2);
+    path.close();
+    path.moveTo(2, 1);
+    path.lineTo(2, 2);
+    path.quadTo(0, 3, 1, 3);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic67x() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 2, 1);
+    path.lineTo(2, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(2, 0);
+    path.quadTo(1, 1, 3, 2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic68() {
+    SkPath path, pathB;
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.lineTo(1, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(0, 1, 2, 1);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic69() {
+    SkPath path, pathB;
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 0, 1);
+    path.lineTo(3, 2);
+    path.close();
+    path.moveTo(2, 0);
+    path.lineTo(1, 1);
+    path.quadTo(3, 2, 2, 3);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic70x() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 0, 1);
+    path.lineTo(1, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(0, 1, 2, 1);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic71() {
+    SkPath path, pathB;
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 1, 1);
+    path.lineTo(3, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(1, 1, 3, 1);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic72() {
+    SkPath path, pathB;
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 1, 2);
+    path.lineTo(1, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.quadTo(0, 1, 3, 2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic73() {
+    SkPath path, pathB;
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 0, 3);
+    path.lineTo(0, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 0);
+    path.quadTo(0, 1, 1, 1);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic74() {
+    SkPath path, pathB;
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 1, 3);
+    path.lineTo(1, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 1);
+    path.quadTo(3, 2, 2, 3);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic75() {
+    SkPath path, pathB;
+    path.moveTo(0, 0);
+    path.quadTo(1, 0, 1, 3);
+    path.lineTo(2, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 1);
+    path.quadTo(3, 2, 2, 3);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void (*firstTest)() = testQuadratic75;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(testQuadratic75),
+    TEST(testQuadratic74),
+    TEST(testQuadratic73),
+    TEST(testQuadratic72),
+    TEST(testQuadratic71),
+    TEST(testQuadratic70x),
+    TEST(testQuadratic69),
+    TEST(testQuadratic68), 
+    TEST(testQuadratic67x),
+    TEST(testQuadratic65),
+    TEST(testQuadratic64),
+    TEST(testQuadratic63),
+    TEST(testLine1a),
+    TEST(testLine1ax),
+    TEST(testQuadratic59),
+    TEST(testQuadratic59x),
     TEST(testQuadratic58),
     TEST(testQuadratic56),
     TEST(testQuadratic55),
@@ -3304,6 +3514,17 @@ static void testOp7d() {
     testShapeOp(path, pathB, kDifference_Op);
 }
 
+static void testOp2u() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.addRect(0, 0, 2, 2, SkPath::kCW_Direction);
+    path.addRect(0, 0, 2, 2, SkPath::kCW_Direction);
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.addRect(0, 0, 3, 3, SkPath::kCW_Direction);
+    pathB.addRect(1, 1, 2, 2, SkPath::kCW_Direction);
+    testShapeOp(path, pathB, kUnion_Op);
+}
+
 static const size_t testCount = sizeof(tests) / sizeof(tests[0]);
 
 static struct {
@@ -3326,11 +3547,12 @@ static struct {
     TEST(testOp5d),
     TEST(testOp6d),
     TEST(testOp7d),
+    TEST(testOp2u),
 };
 
 static const size_t subTestCount = sizeof(subTests) / sizeof(subTests[0]);
 
-static void (*firstBinaryTest)() = testOp2d;
+static void (*firstBinaryTest)() = 0;
 
 static bool skipAll = false;
 static bool runBinaryTestsFirst = false;
