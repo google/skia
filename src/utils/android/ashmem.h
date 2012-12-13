@@ -1,10 +1,8 @@
-/* cutils/ashmem.h
- **
- ** Copyright 2008 The Android Open Source Project
- **
- ** This file is dual licensed.  It may be redistributed and/or modified
- ** under the terms of the Apache 2.0 License OR version 2 of the GNU
- ** General Public License.
+/*
+ * Copyright 2008 The Android Open Source Project
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
  */
 
 #ifndef _CUTILS_ASHMEM_H
