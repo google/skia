@@ -542,19 +542,10 @@ bool GrClipMaskManager::createStencilClipMask(InitialState initialState,
 
         stencilBuffer->setLastClip(genID, clipSpaceIBounds, clipSpaceToStencilOffset);
 
-        // we set the current clip to the bounds so that our recursive draws are scissored to them.
-        // We use the copy of the GrClipData we just stashed on the SB to render from. We set it
-        // back after we finish drawing it into the stencil.
-        const GrClipData* oldClipData = fGpu->getClip();
-
+        // We set the current clip to the bounds so that our recursive draws are scissored to them.
         SkIRect stencilSpaceIBounds(clipSpaceIBounds);
         stencilSpaceIBounds.offset(clipSpaceToStencilOffset);
-
-        SkClipStack newClipStack(stencilSpaceIBounds);
-        GrClipData newClipData; // origin defaults to (0,0)
-        newClipData.fClipStack = &newClipStack;
-
-        fGpu->setClip(&newClipData);
+        GrDrawTarget::AutoClipRestore(fGpu, stencilSpaceIBounds);
 
         GrDrawTarget::AutoStateRestore asr(fGpu, GrDrawTarget::kReset_ASRInit);
         drawState = fGpu->drawState();
@@ -624,7 +615,6 @@ bool GrClipMaskManager::createStencilClipMask(InitialState initialState,
                                                          GrPathRendererChain::kStencilOnly_DrawType,
                                                          &stencilSupport);
                 if (NULL == pr) {
-                    fGpu->setClip(oldClipData);
                     return false;
                 }
             }
@@ -691,8 +681,6 @@ bool GrClipMaskManager::createStencilClipMask(InitialState initialState,
                 }
             }
         }
-        // restore clip
-        fGpu->setClip(oldClipData);
     }
     // set this last because recursive draws may overwrite it back to kNone.
     GrAssert(kNone_ClipMaskType == fCurrClipMaskType);
