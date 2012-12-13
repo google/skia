@@ -280,7 +280,7 @@
             'experimental.gyp:experimental',
           ],
           'dependencies': [
-            'android_system.gyp:SampleAppAndroid',
+            'android_deps.gyp:Android_EntryPoint',
           ],
         }],
         [ 'skia_gpu == 1', {
