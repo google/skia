@@ -41,18 +41,6 @@ SkBitmapProcShader::SkBitmapProcShader(SkFlattenableReadBuffer& buffer)
     fFlags = 0; // computed in setContext
 }
 
-void SkBitmapProcShader::beginSession() {
-    this->INHERITED::beginSession();
-
-    fRawBitmap.lockPixels();
-}
-
-void SkBitmapProcShader::endSession() {
-    fRawBitmap.unlockPixels();
-
-    this->INHERITED::endSession();
-}
-
 SkShader::BitmapType SkBitmapProcShader::asABitmap(SkBitmap* texture,
                                                    SkMatrix* texM,
                                                    TileMode xy[]) const {
@@ -102,6 +90,7 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
     }
 
     if (!fState.chooseProcs(this->getTotalInverse(), paint)) {
+        fState.fOrigBitmap.unlockPixels();
         return false;
     }
 
@@ -147,6 +136,11 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
 
     fFlags = flags;
     return true;
+}
+
+void SkBitmapProcShader::endContext() {
+    fState.fOrigBitmap.unlockPixels();
+    this->INHERITED::endContext();
 }
 
 #define BUF_MAX     128
