@@ -482,7 +482,19 @@ public:
                           const SkMatrix* matrix,
                           const GrRect* srcRects[],
                           const SkMatrix* srcMatrices[]);
+    /**
+     * Helper for drawRect when the caller doesn't need separate src rects or
+     * matrices.
+     */
+    void drawSimpleRect(const GrRect& rect, const SkMatrix* matrix = NULL) {
+        drawRect(rect, matrix, NULL, NULL);
+    }
+    void drawSimpleRect(const GrIRect& irect, const SkMatrix* matrix = NULL) {
+        SkRect rect = SkRect::MakeFromIRect(irect);
+        this->drawRect(rect, matrix, NULL, NULL);
+    }
 
+    
     /**
      * This call is used to draw multiple instances of some geometry with a
      * given number of vertices (V) and indices (I) per-instance. The indices in
@@ -515,15 +527,6 @@ public:
                                       int instanceCount,
                                       int verticesPerInstance,
                                       int indicesPerInstance);
-
-    /**
-     * Helper for drawRect when the caller doesn't need separate src rects or
-     * matrices.
-     */
-    void drawSimpleRect(const GrRect& rect,
-                        const SkMatrix* matrix) {
-         drawRect(rect, matrix, NULL, NULL);
-    }
 
     /**
      * Clear the current render target if one isn't passed in. Ignores the
@@ -886,14 +889,13 @@ protected:
     };
     GR_DECL_BITFIELD_OPS_FRIENDS(BlendOptFlags);
 
-    // Determines what optimizations can be applied based on the blend.
-    // The coeffecients may have to be tweaked in order for the optimization
-    // to work. srcCoeff and dstCoeff are optional params that receive the
-    // tweaked coeffecients.
-    // Normally the function looks at the current state to see if coverage
-    // is enabled. By setting forceCoverage the caller can speculatively
-    // determine the blend optimizations that would be used if there was
-    // partial pixel coverage
+    /** 
+     * Determines what optimizations can be applied based on the blend. The coefficients may have
+     * to be tweaked in order for the optimization to work. srcCoeff and dstCoeff are optional
+     * params that receive the tweaked coefficients. Normally the function looks at the current
+     * state to see if coverage is enabled. By setting forceCoverage the caller can speculatively
+     * determine the blend optimizations that would be used if there was partial pixel coverage.
+     */
     BlendOptFlags getBlendOpts(bool forceCoverage = false,
                                GrBlendCoeff* srcCoeff = NULL,
                                GrBlendCoeff* dstCoeff = NULL) const;

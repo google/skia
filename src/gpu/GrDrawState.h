@@ -44,6 +44,9 @@ public:
      * edge-AA computed coverage. (This latter is going away as soon as it can be rewritten as a
      * GrEffect).
      *
+     * See the documentation of kCoverageDrawing_StateBit for information about disabling the
+     * the color / coverage distinction.
+     *
      * Stages 0 through GrPaint::kTotalStages-1 are reserved for stages copied from the client's
      * GrPaint. Stages GrPaint::kTotalStages through kNumStages-2 are earmarked for use by
      * GrTextContext and GrPathRenderer-derived classes. kNumStages-1 is earmarked for clipping
@@ -715,9 +718,9 @@ public:
          */
         kDither_StateBit        = 0x01,
         /**
-         * Perform HW anti-aliasing. This means either HW FSAA, if supported
-         * by the render target, or smooth-line rendering if a line primitive
-         * is drawn and line smoothing is supported by the 3D API.
+         * Perform HW anti-aliasing. This means either HW FSAA, if supported by the render target,
+         * or smooth-line rendering if a line primitive is drawn and line smoothing is supported by
+         * the 3D API.
          */
         kHWAntialias_StateBit   = 0x02,
         /**
@@ -729,6 +732,16 @@ public:
          * operations.
          */
         kNoColorWrites_StateBit = 0x08,
+
+        /**
+         * Usually coverage is applied after color blending. The color is blended using the coeffs
+         * specified by setBlendFunc(). The blended color is then combined with dst using coeffs
+         * of src_coverage, 1-src_coverage. Sometimes we are explicitly drawing a coverage mask. In
+         * this case there is no distinction between coverage and color and the caller needs direct
+         * control over the blend coeffs. When set, there will be a single blend step controlled by
+         * setBlendFunc() which will use coverage*color as the src color.
+         */
+         kCoverageDrawing_StateBit = 0x10,
 
         // Users of the class may add additional bits to the vector
         kDummyStateBit,
@@ -785,6 +798,10 @@ public:
 
     bool isColorWriteDisabled() const {
         return 0 != (fFlagBits & kNoColorWrites_StateBit);
+    }
+
+    bool isCoverageDrawing() const {
+        return 0 != (fFlagBits & kCoverageDrawing_StateBit);
     }
 
     bool isStateFlagEnabled(uint32_t stateBit) const {
