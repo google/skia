@@ -418,18 +418,38 @@ double SkMatrix44::determinant() const {
         return fMat[0][0] * fMat[1][1] * fMat[2][2] * fMat[3][3];
     }
 
-    return  fMat[0][0] * det3x3(fMat[1][1], fMat[1][2], fMat[1][3],
-                                fMat[2][1], fMat[2][2], fMat[2][3],
-                                fMat[3][1], fMat[3][2], fMat[3][3]) -
-    fMat[1][0] * det3x3(fMat[0][1], fMat[0][2], fMat[0][3],
-                        fMat[2][1], fMat[2][2], fMat[2][3],
-                        fMat[3][1], fMat[3][2], fMat[3][3]) +
-    fMat[2][0] * det3x3(fMat[0][1], fMat[0][2], fMat[0][3],
-                        fMat[1][1], fMat[1][2], fMat[1][3],
-                        fMat[3][1], fMat[3][2], fMat[3][3]) -
-    fMat[3][0] * det3x3(fMat[0][1], fMat[0][2], fMat[0][3],
-                        fMat[1][1], fMat[1][2], fMat[1][3],
-                        fMat[2][1], fMat[2][2], fMat[2][3]);
+    double a00 = fMat[0][0];
+    double a01 = fMat[0][1];
+    double a02 = fMat[0][2];
+    double a03 = fMat[0][3];
+    double a10 = fMat[1][0];
+    double a11 = fMat[1][1];
+    double a12 = fMat[1][2];
+    double a13 = fMat[1][3];
+    double a20 = fMat[2][0];
+    double a21 = fMat[2][1];
+    double a22 = fMat[2][2];
+    double a23 = fMat[2][3];
+    double a30 = fMat[3][0];
+    double a31 = fMat[3][1];
+    double a32 = fMat[3][2];
+    double a33 = fMat[3][3];
+
+    double b00 = a00 * a11 - a01 * a10;
+    double b01 = a00 * a12 - a02 * a10;
+    double b02 = a00 * a13 - a03 * a10;
+    double b03 = a01 * a12 - a02 * a11;
+    double b04 = a01 * a13 - a03 * a11;
+    double b05 = a02 * a13 - a03 * a12;
+    double b06 = a20 * a31 - a21 * a30;
+    double b07 = a20 * a32 - a22 * a30;
+    double b08 = a20 * a33 - a23 * a30;
+    double b09 = a21 * a32 - a22 * a31;
+    double b10 = a21 * a33 - a23 * a31;
+    double b11 = a22 * a33 - a23 * a32;
+
+    // Calculate the determinant
+    return b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -478,61 +498,78 @@ bool SkMatrix44::invert(SkMatrix44* inverse) const {
         return true;
     }
 
-    double det = this->determinant();
+    double a00 = fMat[0][0];
+    double a01 = fMat[0][1];
+    double a02 = fMat[0][2];
+    double a03 = fMat[0][3];
+    double a10 = fMat[1][0];
+    double a11 = fMat[1][1];
+    double a12 = fMat[1][2];
+    double a13 = fMat[1][3];
+    double a20 = fMat[2][0];
+    double a21 = fMat[2][1];
+    double a22 = fMat[2][2];
+    double a23 = fMat[2][3];
+    double a30 = fMat[3][0];
+    double a31 = fMat[3][1];
+    double a32 = fMat[3][2];
+    double a33 = fMat[3][3];
+
+    double b00 = a00 * a11 - a01 * a10;
+    double b01 = a00 * a12 - a02 * a10;
+    double b02 = a00 * a13 - a03 * a10;
+    double b03 = a01 * a12 - a02 * a11;
+    double b04 = a01 * a13 - a03 * a11;
+    double b05 = a02 * a13 - a03 * a12;
+    double b06 = a20 * a31 - a21 * a30;
+    double b07 = a20 * a32 - a22 * a30;
+    double b08 = a20 * a33 - a23 * a30;
+    double b09 = a21 * a32 - a22 * a31;
+    double b10 = a21 * a33 - a23 * a31;
+    double b11 = a22 * a33 - a23 * a32;
+
+    // Calculate the determinant
+    double det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+
     if (dabs(det) < TOO_SMALL_FOR_DETERMINANT) {
         return false;
     }
-
-    // We now we will succeed, so return early if the caller doesn't actually
-    // want the computed inverse.
     if (NULL == inverse) {
         return true;
     }
+    double invdet = 1.0 / det;
 
-    // we explicitly promote to doubles to keep the intermediate values in
-    // higher precision (assuming SkMScalar isn't already a double)
-    double m00 = fMat[0][0];
-    double m01 = fMat[0][1];
-    double m02 = fMat[0][2];
-    double m03 = fMat[0][3];
-    double m10 = fMat[1][0];
-    double m11 = fMat[1][1];
-    double m12 = fMat[1][2];
-    double m13 = fMat[1][3];
-    double m20 = fMat[2][0];
-    double m21 = fMat[2][1];
-    double m22 = fMat[2][2];
-    double m23 = fMat[2][3];
-    double m30 = fMat[3][0];
-    double m31 = fMat[3][1];
-    double m32 = fMat[3][2];
-    double m33 = fMat[3][3];
+    b00 *= invdet;
+    b01 *= invdet;
+    b02 *= invdet;
+    b03 *= invdet;
+    b04 *= invdet;
+    b05 *= invdet;
+    b06 *= invdet;
+    b07 *= invdet;
+    b08 *= invdet;
+    b09 *= invdet;
+    b10 *= invdet;
+    b11 *= invdet;
 
-    double tmp[4][4];
+    inverse->fMat[0][0] = SkDoubleToMScalar(a11 * b11 - a12 * b10 + a13 * b09);
+    inverse->fMat[0][1] = SkDoubleToMScalar(a02 * b10 - a01 * b11 - a03 * b09);
+    inverse->fMat[0][2] = SkDoubleToMScalar(a31 * b05 - a32 * b04 + a33 * b03);
+    inverse->fMat[0][3] = SkDoubleToMScalar(a22 * b04 - a21 * b05 - a23 * b03);
+    inverse->fMat[1][0] = SkDoubleToMScalar(a12 * b08 - a10 * b11 - a13 * b07);
+    inverse->fMat[1][1] = SkDoubleToMScalar(a00 * b11 - a02 * b08 + a03 * b07);
+    inverse->fMat[1][2] = SkDoubleToMScalar(a32 * b02 - a30 * b05 - a33 * b01);
+    inverse->fMat[1][3] = SkDoubleToMScalar(a20 * b05 - a22 * b02 + a23 * b01);
+    inverse->fMat[2][0] = SkDoubleToMScalar(a10 * b10 - a11 * b08 + a13 * b06);
+    inverse->fMat[2][1] = SkDoubleToMScalar(a01 * b08 - a00 * b10 - a03 * b06);
+    inverse->fMat[2][2] = SkDoubleToMScalar(a30 * b04 - a31 * b02 + a33 * b00);
+    inverse->fMat[2][3] = SkDoubleToMScalar(a21 * b02 - a20 * b04 - a23 * b00);
+    inverse->fMat[3][0] = SkDoubleToMScalar(a11 * b07 - a10 * b09 - a12 * b06);
+    inverse->fMat[3][1] = SkDoubleToMScalar(a00 * b09 - a01 * b07 + a02 * b06);
+    inverse->fMat[3][2] = SkDoubleToMScalar(a31 * b01 - a30 * b03 - a32 * b00);
+    inverse->fMat[3][3] = SkDoubleToMScalar(a20 * b03 - a21 * b01 + a22 * b00);
+    inverse->dirtyTypeMask();
 
-    tmp[0][0] = m12*m23*m31 - m13*m22*m31 + m13*m21*m32 - m11*m23*m32 - m12*m21*m33 + m11*m22*m33;
-    tmp[0][1] = m03*m22*m31 - m02*m23*m31 - m03*m21*m32 + m01*m23*m32 + m02*m21*m33 - m01*m22*m33;
-    tmp[0][2] = m02*m13*m31 - m03*m12*m31 + m03*m11*m32 - m01*m13*m32 - m02*m11*m33 + m01*m12*m33;
-    tmp[0][3] = m03*m12*m21 - m02*m13*m21 - m03*m11*m22 + m01*m13*m22 + m02*m11*m23 - m01*m12*m23;
-    tmp[1][0] = m13*m22*m30 - m12*m23*m30 - m13*m20*m32 + m10*m23*m32 + m12*m20*m33 - m10*m22*m33;
-    tmp[1][1] = m02*m23*m30 - m03*m22*m30 + m03*m20*m32 - m00*m23*m32 - m02*m20*m33 + m00*m22*m33;
-    tmp[1][2] = m03*m12*m30 - m02*m13*m30 - m03*m10*m32 + m00*m13*m32 + m02*m10*m33 - m00*m12*m33;
-    tmp[1][3] = m02*m13*m20 - m03*m12*m20 + m03*m10*m22 - m00*m13*m22 - m02*m10*m23 + m00*m12*m23;
-    tmp[2][0] = m11*m23*m30 - m13*m21*m30 + m13*m20*m31 - m10*m23*m31 - m11*m20*m33 + m10*m21*m33;
-    tmp[2][1] = m03*m21*m30 - m01*m23*m30 - m03*m20*m31 + m00*m23*m31 + m01*m20*m33 - m00*m21*m33;
-    tmp[2][2] = m01*m13*m30 - m03*m11*m30 + m03*m10*m31 - m00*m13*m31 - m01*m10*m33 + m00*m11*m33;
-    tmp[2][3] = m03*m11*m20 - m01*m13*m20 - m03*m10*m21 + m00*m13*m21 + m01*m10*m23 - m00*m11*m23;
-    tmp[3][0] = m12*m21*m30 - m11*m22*m30 - m12*m20*m31 + m10*m22*m31 + m11*m20*m32 - m10*m21*m32;
-    tmp[3][1] = m01*m22*m30 - m02*m21*m30 + m02*m20*m31 - m00*m22*m31 - m01*m20*m32 + m00*m21*m32;
-    tmp[3][2] = m02*m11*m30 - m01*m12*m30 - m02*m10*m31 + m00*m12*m31 + m01*m10*m32 - m00*m11*m32;
-    tmp[3][3] = m01*m12*m20 - m02*m11*m20 + m02*m10*m21 - m00*m12*m21 - m01*m10*m22 + m00*m11*m22;
-
-    double invDet = 1.0 / det;
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            inverse->fMat[i][j] = SkDoubleToMScalar(tmp[i][j] * invDet);
-        }
-    }
     inverse->dirtyTypeMask();
     return true;
 }
