@@ -71,7 +71,6 @@
         '../samplecode/SampleMovie.cpp',
         '../samplecode/SampleOvalTest.cpp',
         '../samplecode/SampleOverflow.cpp',
-        '../samplecode/SamplePageFlip.cpp',
         '../samplecode/SamplePatch.cpp',
         '../samplecode/SamplePath.cpp',
         '../samplecode/SamplePathClip.cpp',
@@ -156,7 +155,6 @@
           'sources!': [
             # require UNIX functions
             '../samplecode/SampleEncode.cpp',
-            '../samplecode/SamplePageFlip.cpp',
           ],
         }],
         [ 'skia_os == "mac"', {
