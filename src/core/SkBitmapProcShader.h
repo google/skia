@@ -20,11 +20,12 @@ public:
     // overrides from SkShader
     virtual bool isOpaque() const SK_OVERRIDE;
     virtual bool setContext(const SkBitmap&, const SkPaint&, const SkMatrix&);
-    virtual void endContext();
     virtual uint32_t getFlags() { return fFlags; }
     virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count);
     virtual ShadeProc asAShadeProc(void** ctx) SK_OVERRIDE;
     virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count);
+    virtual void beginSession();
+    virtual void endSession();
     virtual BitmapType asABitmap(SkBitmap*, SkMatrix*, TileMode*) const;
 
     static bool CanDo(const SkBitmap&, TileMode tx, TileMode ty);

@@ -43,6 +43,18 @@ SkComposeShader::~SkComposeShader() {
     fShaderA->unref();
 }
 
+void SkComposeShader::beginSession() {
+    this->INHERITED::beginSession();
+    fShaderA->beginSession();
+    fShaderB->beginSession();
+}
+
+void SkComposeShader::endSession() {
+    fShaderA->endSession();
+    fShaderB->endSession();
+    this->INHERITED::endSession();
+}
+
 class SkAutoAlphaRestore {
 public:
     SkAutoAlphaRestore(SkPaint* paint, uint8_t newAlpha) {
@@ -69,10 +81,7 @@ void SkComposeShader::flatten(SkFlattenableWriteBuffer& buffer) const {
 /*  We call setContext on our two worker shaders. However, we
     always let them see opaque alpha, and if the paint really
     is translucent, then we apply that after the fact.
-
-    We need to keep the calls to setContext/endContext balanced, since if we
-    return false, our endContext() will not be called.
- */
+*/
 bool SkComposeShader::setContext(const SkBitmap& device,
                                  const SkPaint& paint,
                                  const SkMatrix& matrix) {
@@ -89,25 +98,8 @@ bool SkComposeShader::setContext(const SkBitmap& device,
 
     SkAutoAlphaRestore  restore(const_cast<SkPaint*>(&paint), 0xFF);
 
-    bool setContextA = fShaderA->setContext(device, paint, tmpM);
-    bool setContextB = fShaderB->setContext(device, paint, tmpM);
-    if (!setContextA || !setContextB) {
-        if (setContextB) {
-            fShaderB->endContext();
-        }
-        else if (setContextA) {
-            fShaderA->endContext();
-        }
-        this->INHERITED::endContext();
-        return false;
-    }
-    return true;
-}
-
-void SkComposeShader::endContext() {
-    fShaderB->endContext();
-    fShaderA->endContext();
-    this->INHERITED::endContext();
+    return  fShaderA->setContext(device, paint, tmpM) &&
+            fShaderB->setContext(device, paint, tmpM);
 }
 
 // larger is better (fewer times we have to loop), but we shouldn't

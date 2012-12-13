@@ -17,7 +17,7 @@ SK_DEFINE_INST_COUNT(SkShader)
 
 SkShader::SkShader() {
     fLocalMatrix.reset();
-    SkDEBUGCODE(fInSetContext = false;)
+    SkDEBUGCODE(fInSession = false;)
 }
 
 SkShader::SkShader(SkFlattenableReadBuffer& buffer)
@@ -28,11 +28,21 @@ SkShader::SkShader(SkFlattenableReadBuffer& buffer)
         fLocalMatrix.reset();
     }
 
-    SkDEBUGCODE(fInSetContext = false;)
+    SkDEBUGCODE(fInSession = false;)
 }
 
 SkShader::~SkShader() {
-    SkASSERT(!fInSetContext);
+    SkASSERT(!fInSession);
+}
+
+void SkShader::beginSession() {
+    SkASSERT(!fInSession);
+    SkDEBUGCODE(fInSession = true;)
+}
+
+void SkShader::endSession() {
+    SkASSERT(fInSession);
+    SkDEBUGCODE(fInSession = false;)
 }
 
 void SkShader::flatten(SkFlattenableWriteBuffer& buffer) const {
@@ -47,8 +57,6 @@ void SkShader::flatten(SkFlattenableWriteBuffer& buffer) const {
 bool SkShader::setContext(const SkBitmap& device,
                           const SkPaint& paint,
                           const SkMatrix& matrix) {
-    SkASSERT(!this->setContextHasBeenCalled());
-
     const SkMatrix* m = &matrix;
     SkMatrix        total;
 
@@ -60,15 +68,9 @@ bool SkShader::setContext(const SkBitmap& device,
     }
     if (m->invert(&fTotalInverse)) {
         fTotalInverseClass = (uint8_t)ComputeMatrixClass(fTotalInverse);
-        SkDEBUGCODE(fInSetContext = true;)
         return true;
     }
     return false;
-}
-
-void SkShader::endContext() {
-    SkASSERT(fInSetContext);
-    SkDEBUGCODE(fInSetContext = false;)
 }
 
 SkShader::ShadeProc SkShader::asAShadeProc(void** ctx) {

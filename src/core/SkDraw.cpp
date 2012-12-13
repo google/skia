@@ -1228,6 +1228,13 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         }
     }
 
+    // only lock the pixels if we passed the clip and bounder tests
+    SkAutoLockPixels alp(bitmap);
+    // after the lock, check if we are valid
+    if (!bitmap.readyToDraw()) {
+        return;
+    }
+
     if (bitmap.getConfig() != SkBitmap::kA8_Config &&
             just_translate(matrix, bitmap)) {
         int ix = SkScalarRound(matrix.getTranslateX());
@@ -2272,7 +2279,7 @@ public:
 
     bool setup(const SkPoint pts[], const SkColor colors[], int, int, int);
 
-    virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
+    virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count);
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTriColorShader)
 
@@ -2399,7 +2406,7 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
     if (NULL != colors) {
         if (NULL == textures) {
             // just colors (no texture)
-            shader = p.setShader(&triShader);
+            p.setShader(&triShader);
         } else {
             // colors * texture
             SkASSERT(shader);
@@ -2414,7 +2421,6 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
             if (releaseMode) {
                 xmode->unref();
             }
-            shader = compose;
         }
     }
 
@@ -2430,17 +2436,10 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
             savedLocalM = shader->getLocalMatrix();
         }
 
-        // do we need this? triShader should have been installed in p, either
-        // directly or indirectly (using compose shader), so its setContext
-        // should have already been called.
         if (NULL != colors) {
-            SkASSERT(triShader.setContextHasBeenCalled());
-#if 0   
-            
             if (!triShader.setContext(*fBitmap, p, *fMatrix)) {
                 colors = NULL;
             }
-#endif
         }
 
         while (vertProc(&state)) {
@@ -2449,7 +2448,6 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
                     tempM.postConcat(savedLocalM);
                     shader->setLocalMatrix(tempM);
                     // need to recal setContext since we changed the local matrix
-                    shader->endContext();
                     if (!shader->setContext(*fBitmap, p, *fMatrix)) {
                         continue;
                     }
