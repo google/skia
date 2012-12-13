@@ -126,6 +126,7 @@ static void usage(const char* argv0) {
 "     [--pipe]\n"
 "     [--bbh bbhType]\n"
 "     [--multi numThreads]\n"
+"     [--viewport width height]\n"
 "     [--device bitmap"
 #if SK_SUPPORT_GPU
 " | gpu"
@@ -179,6 +180,7 @@ static void usage(const char* argv0) {
     SkDebugf(
 "     --multi numThreads : Set the number of threads for multi threaded drawing. Must be greater\n"
 "                          than 1. Only works with tiled rendering.\n"
+"     --viewport width height : Set the viewport.\n"
 "     --pipe: Benchmark SkGPipe rendering. Currently incompatible with \"mode\".\n");
     SkDebugf(
 "     --bbh bbhType [width height]: Set the bounding box hierarchy type to\n"
@@ -289,6 +291,8 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
         sk_tools::PictureRenderer::kNone_BBoxHierarchyType;
     sk_tools::PictureRenderer::DrawFilterFlags drawFilters[SkDrawFilter::kTypeCount];
     sk_bzero(drawFilters, sizeof(drawFilters));
+    SkISize viewport;
+    viewport.setEmpty();
     for (++argv; argv < stop; ++argv) {
         if (0 == strcmp(*argv, "--repeat")) {
             ++argv;
@@ -423,6 +427,19 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 gLogger.logError(err);
                 PRINT_USAGE_AND_EXIT;
             }
+        } else if (0 == strcmp(*argv, "--viewport")) {
+            ++argv;
+            if (argv >= stop) {
+                gLogger.logError("Missing width for --viewport\n");
+                PRINT_USAGE_AND_EXIT;
+            }
+            viewport.fWidth = atoi(*argv);
+            ++argv;
+            if (argv >= stop) {
+                gLogger.logError("Missing height for --viewport\n");
+                PRINT_USAGE_AND_EXIT;
+            }
+            viewport.fHeight = atoi(*argv);
         } else if (0 == strcmp(*argv, "--tiles")) {
             ++argv;
             if (argv >= stop) {
@@ -697,6 +714,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     renderer->setBBoxHierarchyType(bbhType);
     renderer->setDrawFilters(drawFilters, filtersName(drawFilters));
     renderer->setGridSize(gridWidth, gridHeight);
+    renderer->setViewport(viewport);
     benchmark->setRenderer(renderer);
     benchmark->setRepeats(repeats);
     benchmark->setDeviceType(deviceType);

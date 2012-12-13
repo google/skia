@@ -98,7 +98,9 @@ static SkCanvas* setUpFilter(SkCanvas* canvas, PictureRenderer::DrawFilterFlags*
 }
 
 SkCanvas* PictureRenderer::setupCanvas() {
-    return this->setupCanvas(fPicture->width(), fPicture->height());
+    const int width = this->getViewWidth();
+    const int height = this->getViewHeight();
+    return this->setupCanvas(width, height);
 }
 
 SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
@@ -131,6 +133,24 @@ void PictureRenderer::end() {
     SkSafeUnref(fPicture);
     fPicture = NULL;
     fCanvas.reset(NULL);
+}
+
+int PictureRenderer::getViewWidth() {
+    SkASSERT(fPicture != NULL);
+    int width = fPicture->width();
+    if (fViewport.width() > 0) {
+        width = SkMin32(width, fViewport.width());
+    }
+    return width;
+}
+
+int PictureRenderer::getViewHeight() {
+    SkASSERT(fPicture != NULL);
+    int height = fPicture->height();
+    if (fViewport.height() > 0) {
+        height = SkMin32(height, fViewport.height());
+    }
+    return height;
 }
 
 /** Converts fPicture to a picture that uses a BBoxHierarchy.
@@ -336,8 +356,12 @@ void TiledPictureRenderer::end() {
 }
 
 void TiledPictureRenderer::setupTiles() {
-    for (int tile_y_start = 0; tile_y_start < fPicture->height(); tile_y_start += fTileHeight) {
-        for (int tile_x_start = 0; tile_x_start < fPicture->width(); tile_x_start += fTileWidth) {
+    // Only use enough tiles to cover the viewport
+    const int width = this->getViewWidth();
+    const int height = this->getViewHeight();
+
+    for (int tile_y_start = 0; tile_y_start < height; tile_y_start += fTileHeight) {
+        for (int tile_x_start = 0; tile_x_start < width; tile_x_start += fTileWidth) {
             *fTileRects.append() = SkRect::MakeXYWH(SkIntToScalar(tile_x_start),
                                                     SkIntToScalar(tile_y_start),
                                                     SkIntToScalar(fTileWidth),
@@ -356,17 +380,20 @@ void TiledPictureRenderer::setupTiles() {
 // value gives us the tiles we need: a bit of value one means we need a tile of
 // that size.
 void TiledPictureRenderer::setupPowerOf2Tiles() {
-    int rounded_value = fPicture->width();
-    if (fPicture->width() % fTileMinPowerOf2Width != 0) {
-        rounded_value = fPicture->width() - (fPicture->width() % fTileMinPowerOf2Width)
-            + fTileMinPowerOf2Width;
+    // Only use enough tiles to cover the viewport
+    const int width = this->getViewWidth();
+    const int height = this->getViewHeight();
+
+    int rounded_value = width;
+    if (width % fTileMinPowerOf2Width != 0) {
+        rounded_value = width - (width % fTileMinPowerOf2Width) + fTileMinPowerOf2Width;
     }
 
-    int num_bits = SkScalarCeilToInt(SkScalarLog2(SkIntToScalar(fPicture->width())));
+    int num_bits = SkScalarCeilToInt(SkScalarLog2(SkIntToScalar(width)));
     int largest_possible_tile_size = 1 << num_bits;
 
     // The tile height is constant for a particular picture.
-    for (int tile_y_start = 0; tile_y_start < fPicture->height(); tile_y_start += fTileHeight) {
+    for (int tile_y_start = 0; tile_y_start < height; tile_y_start += fTileHeight) {
         int tile_x_start = 0;
         int current_width = largest_possible_tile_size;
         // Set fTileWidth to be the width of the widest tile, so that each canvas is large enough
@@ -429,12 +456,13 @@ bool TiledPictureRenderer::render(const SkString* path) {
 SkCanvas* TiledPictureRenderer::setupCanvas(int width, int height) {
     SkCanvas* canvas = this->INHERITED::setupCanvas(width, height);
     SkASSERT(fPicture != NULL);
+    const int totalWidth = this->getViewWidth();
+    const int totalHeight = this->getViewHeight();
     // Clip the tile to an area that is completely in what the SkPicture says is the
     // drawn-to area. This is mostly important for tiles on the right and bottom edges
     // as they may go over this area and the picture may have some commands that
     // draw outside of this area and so should not actually be written.
-    SkRect clip = SkRect::MakeWH(SkIntToScalar(fPicture->width()),
-                                 SkIntToScalar(fPicture->height()));
+    SkRect clip = SkRect::MakeWH(SkIntToScalar(totalWidth), SkIntToScalar(totalHeight));
     canvas->clipRect(clip);
     return canvas;
 }

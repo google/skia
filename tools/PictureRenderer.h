@@ -70,6 +70,11 @@ public:
     virtual void init(SkPicture* pict);
 
     /**
+     *  Set the viewport so that only the portion listed gets drawn.
+     */
+    void setViewport(SkISize size) { fViewport = size; }
+
+    /**
      * Perform any setup that should done prior to each iteration of render() which should not be
      * timed.
      */
@@ -168,29 +173,45 @@ public:
 #endif
         {
             sk_bzero(fDrawFilters, sizeof(fDrawFilters));
+            fViewport.set(0, 0);
         }
 
 protected:
-    void buildBBoxHierarchy();
-    SkPicture* createPicture();
-    uint32_t recordFlags();
-    SkCanvas* setupCanvas();
-    virtual SkCanvas* setupCanvas(int width, int height);
-
     SkAutoTUnref<SkCanvas> fCanvas;
-    SkPicture* fPicture;
-    SkDeviceTypes fDeviceType;
-    BBoxHierarchyType fBBoxHierarchyType;
-    DrawFilterFlags fDrawFilters[SkDrawFilter::kTypeCount];
-    SkString fDrawFiltersConfig;
-    int fGridWidth, fGridHeight; // used when fBBoxHierarchyType is TileGrid
+    SkPicture*             fPicture;
+    SkDeviceTypes          fDeviceType;
+    BBoxHierarchyType      fBBoxHierarchyType;
+    DrawFilterFlags        fDrawFilters[SkDrawFilter::kTypeCount];
+    SkString               fDrawFiltersConfig;
+    int                    fGridWidth, fGridHeight; // used when fBBoxHierarchyType is TileGrid
 
 #if SK_SUPPORT_GPU
     GrContextFactory fGrContextFactory;
     GrContext* fGrContext;
 #endif
 
+    void buildBBoxHierarchy();
+
+    /**
+     * Return the total width that should be drawn. If the viewport width has been set greater than
+     * 0, this will be the minimum of the current SkPicture's width and the viewport's width.
+     */
+    int getViewWidth();
+
+    /**
+     * Return the total height that should be drawn. If the viewport height has been set greater
+     * than 0, this will be the minimum of the current SkPicture's height and the viewport's height.
+     */
+    int getViewHeight();
+
+    SkPicture* createPicture();
+    uint32_t recordFlags();
+    SkCanvas* setupCanvas();
+    virtual SkCanvas* setupCanvas(int width, int height);
+
 private:
+    SkISize                fViewport;
+
     virtual SkString getConfigNameInternal() = 0;
 
     typedef SkRefCnt INHERITED;
