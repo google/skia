@@ -292,15 +292,16 @@ void SkTwoPointRadialGradient::shadeSpan(int x, int y, SkPMColor* dstCParam,
     }
 }
 
-bool SkTwoPointRadialGradient::setContext( const SkBitmap& device,
-                                          const SkPaint& paint,
-                                          const SkMatrix& matrix){
-    // For now, we might have divided by zero, so detect that
-    if (0 == fDiffRadius) {
+bool SkTwoPointRadialGradient::setContext(
+    const SkBitmap& device,
+    const SkPaint& paint,
+    const SkMatrix& matrix){
+    if (!this->INHERITED::setContext(device, paint, matrix)) {
         return false;
     }
 
-    if (!this->INHERITED::setContext(device, paint, matrix)) {
+    // For now, we might have divided by zero, so detect that
+    if (0 == fDiffRadius) {
         return false;
     }
 

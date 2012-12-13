@@ -34,10 +34,11 @@ public:
     SkComposeShader(SkShader* sA, SkShader* sB, SkXfermode* mode = NULL);
     virtual ~SkComposeShader();
 
-    virtual bool setContext(const SkBitmap&, const SkPaint&,
-                            const SkMatrix&) SK_OVERRIDE;
-    virtual void endContext() SK_OVERRIDE;
-    virtual void shadeSpan(int x, int y, SkPMColor[], int count) SK_OVERRIDE;
+    // override
+    virtual bool setContext(const SkBitmap& device, const SkPaint& paint, const SkMatrix& matrix);
+    virtual void shadeSpan(int x, int y, SkPMColor result[], int count);
+    virtual void beginSession();
+    virtual void endSession();
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposeShader)
 

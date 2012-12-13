@@ -17,12 +17,14 @@ public:
     SkFilterShader(SkShader* shader, SkColorFilter* filter);
     virtual ~SkFilterShader();
 
-    virtual uint32_t getFlags() SK_OVERRIDE;
-    virtual bool setContext(const SkBitmap&, const SkPaint&,
-                            const SkMatrix&) SK_OVERRIDE;
-    virtual void endContext() SK_OVERRIDE;
-    virtual void shadeSpan(int x, int y, SkPMColor[], int count) SK_OVERRIDE;
-    virtual void shadeSpan16(int x, int y, uint16_t[], int count) SK_OVERRIDE;
+    // override
+    virtual uint32_t getFlags();
+    virtual bool setContext(const SkBitmap& device, const SkPaint& paint,
+                            const SkMatrix& matrix);
+    virtual void shadeSpan(int x, int y, SkPMColor result[], int count);
+    virtual void shadeSpan16(int x, int y, uint16_t result[], int count);
+    virtual void beginSession();
+    virtual void endSession();
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkFilterShader)
 
