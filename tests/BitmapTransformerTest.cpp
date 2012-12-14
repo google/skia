@@ -46,7 +46,7 @@ namespace skiatest {
                 // Bytes we expect to get:
                 const int kWidth = 3;
                 const int kHeight = 5;
-                const char comparisonBuffer[] = {
+                const unsigned char comparisonBuffer[] = {
                     // kHeight rows, each with kWidth pixels, premultiplied ARGB for each pixel
                     0xff,0xff,0x00,0x00, 0xff,0xff,0x00,0x00, 0xff,0xff,0x00,0x00, // red
                     0xff,0x00,0xff,0x00, 0xff,0x00,0xff,0x00, 0xff,0x00,0xff,0x00, // green
