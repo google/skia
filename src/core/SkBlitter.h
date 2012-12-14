@@ -51,6 +51,13 @@ public:
     */
     virtual const SkBitmap* justAnOpaqueColor(uint32_t* value);
 
+    /**
+     *  Special method just to identify the null blitter, which is returned
+     *  from Choose() if the request cannot be fulfilled. Default impl
+     *  returns false.
+     */
+    virtual bool isNullBlitter() const;
+
     ///@name non-virtual helpers
     void blitMaskRegion(const SkMask& mask, const SkRegion& clip);
     void blitRectRegion(const SkIRect& rect, const SkRegion& clip);
@@ -92,6 +99,7 @@ public:
     virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
     virtual void blitMask(const SkMask&, const SkIRect& clip) SK_OVERRIDE;
     virtual const SkBitmap* justAnOpaqueColor(uint32_t* value) SK_OVERRIDE;
+    virtual bool isNullBlitter() const SK_OVERRIDE;
 };
 
 /** Wraps another (real) blitter, and ensures that the real blitter is only

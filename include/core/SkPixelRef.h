@@ -65,6 +65,8 @@ public:
      */
     bool isLocked() const { return fLockCount > 0; }
 
+    SkDEBUGCODE(int getLockCount() const { return fLockCount; })
+
     /** Call to access the pixel memory, which is returned. Balance with a call
         to unlockPixels().
     */
