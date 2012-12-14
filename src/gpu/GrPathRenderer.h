@@ -118,6 +118,8 @@ public:
                   GrDrawTarget* target,
                   bool antiAlias) {
         GrAssert(this->canDrawPath(path, stroke, target, antiAlias));
+        GrAssert(target->drawState()->getStencil().isDisabled() ||
+                 kNoRestriction_StencilSupport == this->getStencilSupport(path, stroke, target));
         return this->onDrawPath(path, stroke, target, antiAlias);
     }
 
