@@ -23,7 +23,10 @@ public:
     SkRect  fRects[N];
     SkColor fColors[N];
 
-    RectBench(void* param, int shift, int stroke = 0) : INHERITED(param), fShift(shift), fStroke(stroke) {
+    RectBench(void* param, int shift, int stroke = 0) 
+        : INHERITED(param)
+        , fShift(shift)
+        , fStroke(stroke) {
         SkRandom rand;
         const SkScalar offset = SK_Scalar1/3;
         for (int i = 0; i < N; i++) {
@@ -159,6 +162,40 @@ protected:
     virtual const char* onGetName() { return fName; }
 };
 
+class AARectBench : public SkBenchmark {
+public:
+    enum {
+        W = 640,
+        H = 480,
+    };
+
+    AARectBench(void* param) : INHERITED(param) {}
+
+protected:
+
+    virtual const char* onGetName() { return "aarects"; }
+
+    virtual void onDraw(SkCanvas* canvas) {
+        SkPaint paint;
+        this->setupPaint(&paint);
+        paint.setAntiAlias(true);
+        paint.setColor(SK_ColorBLACK);
+        SkRect r;
+
+        // Draw small aa rects in a grid across the screen
+        for (SkScalar y = SK_ScalarHalf; y < H; y += SkIntToScalar(2)) {
+            for (SkScalar x = SK_ScalarHalf; x < W; x += SkIntToScalar(2)) {
+                r.set(x, y, 
+                      x+SkFloatToScalar(1.5f), y+SkFloatToScalar(1.5f));
+                canvas->drawRect(r, paint);
+            }
+        }
+
+    }
+private:
+    typedef SkBenchmark INHERITED;
+};
+
 /*******************************************************************************
  * to bench BlitMask [Opaque, Black, color, shader]
  *******************************************************************************/
@@ -251,6 +288,7 @@ DEF_BENCH( return SkNEW_ARGS(PointsBench, (p, SkCanvas::kLines_PointMode, "lines
 DEF_BENCH( return SkNEW_ARGS(PointsBench, (p, SkCanvas::kPolygon_PointMode, "polygon")); )
 
 DEF_BENCH( return SkNEW_ARGS(SrcModeRectBench, (p)); )
+DEF_BENCH( return SkNEW_ARGS(AARectBench, (p)); )
 
 /* init the blitmask bench
  */
