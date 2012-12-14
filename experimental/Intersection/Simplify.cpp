@@ -5711,7 +5711,7 @@ static void assemble(const PathWrapper& path, PathWrapper& simple) {
         } else {
             SkDebugf("   ");
         }
-        SkDebugf(" start=(%1.9g,%1.9g) end=(%1.9g,%1.9g)\n", 
+        SkDebugf(" start=(%1.9g,%1.9g) end=(%1.9g,%1.9g)\n",
                 eStart.fX, eStart.fY, eEnd.fX, eEnd.fY);
 #endif
         if (approximatelyEqual(eStart, eEnd)) {
@@ -5814,8 +5814,8 @@ static void assemble(const PathWrapper& path, PathWrapper& simple) {
         SkASSERT(eIndex != INT_MAX);
 #if DEBUG_ASSEMBLE
         SkDebugf("%s sIndex=%c%d eIndex=%c%d\n", __FUNCTION__, sIndex < 0 ? 's' : 'e',
-                    sIndex < 0 ? ~sIndex : sIndex, eIndex < 0 ? 's' : 'e', 
-                    eIndex < 0 ? ~eIndex : eIndex);  
+                    sIndex < 0 ? ~sIndex : sIndex, eIndex < 0 ? 's' : 'e',
+                    eIndex < 0 ? ~eIndex : eIndex);
 #endif
         do {
             outer = runs[rIndex];
@@ -5832,7 +5832,7 @@ static void assemble(const PathWrapper& path, PathWrapper& simple) {
             }
 #if DEBUG_ASSEMBLE
             SkDebugf("%s rIndex=%d eIndex=%s%d close=%d\n", __FUNCTION__, rIndex,
-                eIndex < 0 ? "~" : "", eIndex < 0 ? ~eIndex : eIndex, 
+                eIndex < 0 ? "~" : "", eIndex < 0 ? ~eIndex : eIndex,
                 sIndex == ((rIndex != eIndex) ^ forward ? eIndex : ~eIndex));
 #endif
             if (sIndex == ((rIndex != eIndex) ^ forward ? eIndex : ~eIndex)) {

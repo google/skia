@@ -587,7 +587,7 @@ public:
         }
         return true;
     }
-    
+
     virtual void endContext() SK_OVERRIDE {
         if (fProxy) {
             fProxy->endContext();
