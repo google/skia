@@ -293,9 +293,10 @@ bool draw_path_in_software(GrContext* context,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool GrClipMaskManager::drawClipShape(GrTexture* target, const SkClipStack::Element* element) {
+bool GrClipMaskManager::drawElement(GrTexture* target,
+                                    const SkClipStack::Element* element,
+                                    GrPathRenderer* pr) {
     GrDrawState* drawState = fGpu->drawState();
-    GrAssert(NULL != drawState);
 
     drawState->setRenderTarget(target->asRenderTarget());
 
@@ -319,14 +320,12 @@ bool GrClipMaskManager::drawClipShape(GrTexture* target, const SkClipStack::Elem
             }
             SkStroke stroke;
             stroke.setDoFill(true);
-            GrPathRendererChain::DrawType type = element->isAA() ?
-                GrPathRendererChain::kColorAntiAlias_DrawType :
-                GrPathRendererChain::kColor_DrawType;
-            GrPathRenderer* pr = this->getContext()->getPathRenderer(*path,
-                                                                     stroke,
-                                                                     fGpu,
-                                                                     false,
-                                                                     type);
+            if (NULL == pr) {
+                GrPathRendererChain::DrawType type;
+                type = element->isAA() ? GrPathRendererChain::kColorAntiAlias_DrawType :
+                                         GrPathRendererChain::kColor_DrawType;
+                pr = this->getContext()->getPathRenderer(*path, stroke, fGpu, false, type);
+            }
             if (NULL == pr) {
                 return false;
             }
@@ -341,13 +340,41 @@ bool GrClipMaskManager::drawClipShape(GrTexture* target, const SkClipStack::Elem
     return true;
 }
 
+bool GrClipMaskManager::canStencilAndDrawElement(GrTexture* target,
+                                                 const SkClipStack::Element* element,
+                                                 GrPathRenderer** pr) {
+    GrDrawState* drawState = fGpu->drawState();
+    drawState->setRenderTarget(target->asRenderTarget());
+
+    switch (element->getType()) {
+        case Element::kRect_Type:
+            return true;
+        case Element::kPath_Type: {
+            SkTCopyOnFirstWrite<SkPath> path(element->getPath());
+            if (path->isInverseFillType()) {
+                path.writable()->toggleInverseFillType();
+            }
+            SkStroke stroke;
+            stroke.setDoFill(true);
+            GrPathRendererChain::DrawType type = element->isAA() ?
+                GrPathRendererChain::kStencilAndColorAntiAlias_DrawType :
+                GrPathRendererChain::kStencilAndColor_DrawType;
+            *pr = this->getContext()->getPathRenderer(*path, stroke, fGpu, false, type);
+            return NULL != *pr;
+        }
+        default:
+            // something is wrong if we're trying to draw an empty element.
+            GrCrash("Unexpected element type");
+            return false;
+    }
+}
+
 void GrClipMaskManager::mergeMask(GrTexture* dstMask,
                                   GrTexture* srcMask,
                                   SkRegion::Op op,
                                   const GrIRect& dstBound,
                                   const GrIRect& srcBound) {
     GrDrawState* drawState = fGpu->drawState();
-    GrAssert(NULL != drawState);
     SkMatrix oldMatrix = drawState->getViewMatrix();
     drawState->viewMatrix()->reset();
 
@@ -401,7 +428,7 @@ bool GrClipMaskManager::getMaskTexture(int32_t clipStackGenID,
         fAACache.reset();
 
         GrTextureDesc desc;
-        desc.fFlags = kRenderTarget_GrTextureFlagBit|kNoStencil_GrTextureFlagBit;
+        desc.fFlags = kRenderTarget_GrTextureFlagBit;
         desc.fWidth = clipSpaceIBounds.width();
         desc.fHeight = clipSpaceIBounds.height();
         desc.fConfig = kAlpha_8_GrPixelConfig;
@@ -458,56 +485,100 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t clipStackGenID,
                 kAllIn_InitialState == initialState ? 0xffffffff : 0x00000000,
                 result->asRenderTarget());
 
+    // When we use the stencil in the below loop it is important to have this clip installed.
+    // The second pass that zeros the stencil buffer renders the rect maskSpaceIBounds so the first
+    // pass must not set values outside of this bounds or stencil values outside the rect won't be
+    // cleared.
+    GrDrawTarget::AutoClipRestore acr(fGpu, maskSpaceIBounds);
+    drawState->enableState(GrDrawState::kClip_StateBit);
+
     GrAutoScratchTexture temp;
     // walk through each clip element and perform its set op
     for (ElementList::Iter iter = elements.headIter(); iter.get(); iter.next()) {
         const Element* element = iter.get();
         SkRegion::Op op = element->getOp();
+        bool invert = element->isInverseFilled();
 
-        if (SkRegion::kReverseDifference_Op == op || SkRegion::kIntersect_Op == op ||
-            element->isInverseFilled()) {
-            this->getTemp(maskSpaceIBounds.fRight, maskSpaceIBounds.fBottom, &temp);
-            if (NULL == temp.texture()) {
-                fAACache.reset();
-                return NULL;
-            }
-
+        if (invert || SkRegion::kIntersect_Op == op || SkRegion::kReverseDifference_Op == op) {
+            GrPathRenderer* pr = NULL;
+            bool useTemp = !this->canStencilAndDrawElement(result, element, &pr);
+            GrTexture* dst;
             // This is the bounds of the clip element in the space of the alpha-mask. The temporary
             // mask buffer can be substantially larger than the actually clip stack element. We
             // touch the minimum number of pixels necessary and use decal mode to combine it with
-            // the accumulator
+            // the accumulator.
             GrIRect maskSpaceElementIBounds;
-            if (element->isInverseFilled()) {
-                maskSpaceElementIBounds = maskSpaceIBounds;
+
+            if (useTemp) {
+                if (invert) {
+                    maskSpaceElementIBounds = maskSpaceIBounds;
+                } else {
+                    GrRect elementBounds = element->getBounds();
+                    elementBounds.offset(clipToMaskOffset);
+                    elementBounds.roundOut(&maskSpaceElementIBounds);
+                }
+
+                this->getTemp(maskSpaceIBounds.fRight, maskSpaceIBounds.fBottom, &temp);
+                if (NULL == temp.texture()) {
+                    fAACache.reset();
+                    return NULL;
+                }   
+                dst = temp.texture();
+                // clear the temp target and set blend to replace
+                fGpu->clear(&maskSpaceElementIBounds,
+                            invert ? 0xffffffff : 0x00000000,
+                            dst->asRenderTarget());
+                setup_boolean_blendcoeffs(drawState, SkRegion::kReplace_Op);
+                
             } else {
-                GrRect elementBounds = element->getBounds();
-                elementBounds.offset(clipToMaskOffset);
-                elementBounds.roundOut(&maskSpaceElementIBounds);
+                // draw directly into the result with the stencil set to make the pixels affected
+                // by the clip shape be non-zero.
+                dst = result;
+                GR_STATIC_CONST_SAME_STENCIL(kStencilInElement,
+                                             kReplace_StencilOp,
+                                             kReplace_StencilOp,
+                                             kAlways_StencilFunc,
+                                             0xffff,
+                                             0xffff,
+                                             0xffff);
+                drawState->setStencil(kStencilInElement);
+                setup_boolean_blendcoeffs(drawState, op);                
             }
 
-            // determines whether we're drawing white-on-black or black-on-white
-            bool invert = element->isInverseFilled();
-
-            // clear the temp target & draw into it
-            fGpu->clear(&maskSpaceElementIBounds,
-                        invert ? 0xffffffff : 0x00000000,
-                        temp.texture()->asRenderTarget());
             drawState->setAlpha(invert ? 0x00 : 0xff);
-            setup_boolean_blendcoeffs(drawState, SkRegion::kReplace_Op);
 
-            if (!this->drawClipShape(temp.texture(), element)) {
+            if (!this->drawElement(dst, element, pr)) {
                 fAACache.reset();
                 return NULL;
             }
 
-            // Now draw into the accumulator using the real operation and the temp buffer as a
-            // texture
-            this->mergeMask(result, temp.texture(), op, maskSpaceIBounds, maskSpaceElementIBounds);
+            if (useTemp) {
+                // Now draw into the accumulator using the real operation and the temp buffer as a
+                // texture
+                this->mergeMask(result,
+                                temp.texture(),
+                                op,
+                                maskSpaceIBounds,
+                                maskSpaceElementIBounds);
+            } else {
+                // Draw to the exterior pixels (those with a zero stencil value).
+                drawState->setAlpha(invert ? 0xff : 0x00);
+                GR_STATIC_CONST_SAME_STENCIL(kDrawOutsideElement,
+                                             kZero_StencilOp,
+                                             kZero_StencilOp,
+                                             kEqual_StencilFunc,
+                                             0xffff,
+                                             0x0000,
+                                             0xffff);
+                drawState->setStencil(kDrawOutsideElement);
+                fGpu->drawSimpleRect(clipSpaceIBounds);
+                drawState->disableStencil();
+            }
         } else {
             // all the remaining ops can just be directly draw into the accumulation buffer
             drawState->setAlpha(0xff);
             setup_boolean_blendcoeffs(drawState, op);
-            this->drawClipShape(result, element);
+            this->drawElement(result, element);
         }
     }
 
@@ -541,7 +612,6 @@ bool GrClipMaskManager::createStencilClipMask(InitialState initialState,
     if (stencilBuffer->mustRenderClip(genID, clipSpaceIBounds, clipSpaceToStencilOffset)) {
 
         stencilBuffer->setLastClip(genID, clipSpaceIBounds, clipSpaceToStencilOffset);
-
 
         GrDrawTarget::AutoStateRestore asr(fGpu, GrDrawTarget::kReset_ASRInit);
         drawState = fGpu->drawState();
