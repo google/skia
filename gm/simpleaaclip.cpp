@@ -195,18 +195,8 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 // rects
-static GM* MyFactory(void*) { return new SimpleClipGM(
-                                            SimpleClipGM::kRect_GeomType); }
-static GMRegistry reg(MyFactory);
-
-// paths
-static GM* MyFactory2(void*) { return new SimpleClipGM(
-                                            SimpleClipGM::kPath_GeomType); }
-static GMRegistry reg2(MyFactory2);
-
-// aa clip
-static GM* MyFactory3(void*) { return new SimpleClipGM(
-                                            SimpleClipGM::kAAClip_GeomType); }
-static GMRegistry reg3(MyFactory3);
-
+DEF_GM( return new SimpleClipGM(SimpleClipGM::kRect_GeomType); )
+DEF_GM( return new SimpleClipGM(SimpleClipGM::kPath_GeomType); )
+DEF_GM( return new SimpleClipGM(SimpleClipGM::kAAClip_GeomType); )
+    
 }
