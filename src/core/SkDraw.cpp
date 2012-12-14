@@ -1235,6 +1235,14 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
 
     if (bitmap.getConfig() != SkBitmap::kA8_Config &&
             just_translate(matrix, bitmap)) {
+        //
+        // It is safe to call lock pixels now, since we know the matrix is
+        // (more or less) identity.
+        //
+        SkAutoLockPixels alp(bitmap);
+        if (!bitmap.readyToDraw()) {
+            return;
+        }
         int ix = SkScalarRound(matrix.getTranslateX());
         int iy = SkScalarRound(matrix.getTranslateY());
         if (clipHandlesSprite(*fRC, ix, iy, bitmap)) {
