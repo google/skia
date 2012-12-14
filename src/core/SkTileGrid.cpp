@@ -8,6 +8,10 @@
 
 #include "SkTileGrid.h"
 
+#if defined(SK_BUILD_FOR_WIN)
+#include <malloc.h>  // for alloca  
+#endif
+
 SkTileGrid::SkTileGrid(int tileWidth, int tileHeight, int xTileCount, int yTileCount, SkTileGridNextDatumFunctionPtr nextDatumFunction)
 {
     fTileWidth = tileWidth;
