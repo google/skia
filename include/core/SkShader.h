@@ -159,7 +159,7 @@ public:
      */
     virtual void endContext();
 
-    SkDEBUGCODE(bool setContextHasBeenCalled() const { return fInSetContext ? true : false; })
+    SkDEBUGCODE(bool setContextHasBeenCalled() const { return SkToBool(fInSetContext); })
 
     /**
      *  Called for each span of the object being drawn. Your subclass should
