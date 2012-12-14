@@ -8,10 +8,6 @@
 
 #include "SkTileGrid.h"
 
-#if defined(SK_BUILD_FOR_WIN)
-#include <malloc.h>  // for alloca  
-#endif
-
 SkTileGrid::SkTileGrid(int tileWidth, int tileHeight, int xTileCount, int yTileCount, SkTileGridNextDatumFunctionPtr nextDatumFunction)
 {
     fTileWidth = tileWidth;
@@ -77,8 +73,10 @@ void SkTileGrid::search(const SkIRect& query, SkTDArray<void*>* results) {
         results->reset();
         SkTDArray<int> curPositions;
         curPositions.setCount(queryTileCount);
-        SkTDArray<void *>** tileRange =
-            (SkTDArray<void *>**)alloca(queryTileCount * sizeof(SkTDArray<void *>*));
+        // Note: Reserving space for 1024 tile pointers on the stack. If the malloc
+        // becomes a bottleneck, we may consider increasing that number.
+        SkAutoSTArray<1024, SkTDArray<void *>*> storage(queryTileCount);
+        SkTDArray<void *>** tileRange = storage.get();
         int tile = 0;
         for (int x = tileStartX; x < tileEndX; ++x) {
             for (int y = tileStartY; y < tileEndY; ++y) {
