@@ -42,5 +42,42 @@ def PlaybackCreationConfig(**kwargs):
 
 
 def MultiThreadTileConfig(threads, tile_x, tile_y, **kwargs):
-  return TiledBitmapConfig(multi=threads, tile_x=tile_x, tile_y=tile_y,
+  return TiledBitmapConfig(multi=str(threads), tile_x=tile_x, tile_y=tile_y,
                            **kwargs)
+
+
+def RTreeConfig(tile_x, tile_y, mode, **kwargs):
+  return BitmapConfig(mode=mode, bbh=['rtree', str(tile_x), str(tile_y)],
+                      **kwargs)
+
+
+def GridConfig(tile_x, tile_y, mode, **kwargs):
+  return BitmapConfig(mode=mode, bbh=['grid', str(tile_x), str(tile_y)],
+                      **kwargs)
+
+
+def RecordRTreeConfig(tile_x, tile_y, **kwargs):
+  return RTreeConfig(tile_x=tile_x, tile_y=tile_y, mode='record', **kwargs)
+
+
+def PlaybackCreationRTreeConfig(tile_x, tile_y, **kwargs):
+  return RTreeConfig(tile_x=tile_x, tile_y=tile_y, mode='playbackCreation',
+                     **kwargs)
+
+
+def TileRTreeConfig(tile_x, tile_y, **kwargs):
+  return RTreeConfig(tile_x=tile_x, tile_y=tile_y,
+                     mode=['tile', str(tile_x), str(tile_y)], **kwargs)
+
+
+def RecordGridConfig(tile_x, tile_y, **kwargs):
+  return GridConfig(tile_x=tile_x, tile_y=tile_y, mode='record', **kwargs)
+
+
+def PlaybackCreationGridConfig(tile_x, tile_y, **kwargs):
+  return GridConfig(tile_x, tile_y, mode='playbackCreation')
+
+
+def TileGridConfig(tile_x, tile_y, **kwargs):
+  return GridConfig(tile_x, tile_y, mode=['tile', str(tile_x), str(tile_y)],
+                    **kwargs)
