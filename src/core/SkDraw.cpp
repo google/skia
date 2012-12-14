@@ -2424,6 +2424,13 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
     }
 
     SkAutoBlitterChoose blitter(*fBitmap, *fMatrix, p);
+    // important that we abort early, as below we may manipulate the shader
+    // and that is only valid if the shader returned true from setContext.
+    // If it returned false, then our blitter will be the NullBlitter.
+    if (blitter->isNullBlitter()) {
+        return;
+    }
+
     // setup our state and function pointer for iterating triangles
     VertState       state(count, indices, indexCount);
     VertState::Proc vertProc = state.chooseProc(vmode);

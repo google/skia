@@ -22,6 +22,8 @@
 
 SkBlitter::~SkBlitter() {}
 
+bool SkBlitter::isNullBlitter() const { return false; }
+
 const SkBitmap* SkBlitter::justAnOpaqueColor(uint32_t* value) {
     return NULL;
 }
@@ -235,6 +237,8 @@ void SkNullBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {}
 const SkBitmap* SkNullBlitter::justAnOpaqueColor(uint32_t* value) {
     return NULL;
 }
+
+bool SkNullBlitter::isNullBlitter() const { return true; }
 
 ///////////////////////////////////////////////////////////////////////////////
 
