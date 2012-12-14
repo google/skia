@@ -3091,7 +3091,7 @@ static struct {
     TEST(testQuadratic71),
     TEST(testQuadratic70x),
     TEST(testQuadratic69),
-    TEST(testQuadratic68), 
+    TEST(testQuadratic68),
     TEST(testQuadratic67x),
     TEST(testQuadratic65),
     TEST(testQuadratic64),

@@ -79,22 +79,22 @@ private:
 class InvertMatrix44Bench : public Matrix44Bench {
 public:
     InvertMatrix44Bench(void* param) : INHERITED(param, "invert") {
-	fM0.set(0, 0, -1.1);
-	fM0.set(0, 1, 2.1);
-	fM0.set(0, 2, -3.1);
-	fM0.set(0, 3, 4.1);
-	fM0.set(1, 0, 5.1);
-	fM0.set(1, 1, -6.1);
-	fM0.set(1, 2, 7.1);
-	fM0.set(1, 3, 8.1);
-	fM0.set(2, 0, -9.1);
-	fM0.set(2, 1, 10.1);
-	fM0.set(2, 2, 11.1);
-	fM0.set(2, 3, -12.1);
-	fM0.set(3, 0, -13.1);
-	fM0.set(3, 1, 14.1);
-	fM0.set(3, 2, -15.1);
-	fM0.set(3, 3, 16.1);
+    fM0.set(0, 0, -1.1);
+    fM0.set(0, 1, 2.1);
+    fM0.set(0, 2, -3.1);
+    fM0.set(0, 3, 4.1);
+    fM0.set(1, 0, 5.1);
+    fM0.set(1, 1, -6.1);
+    fM0.set(1, 2, 7.1);
+    fM0.set(1, 3, 8.1);
+    fM0.set(2, 0, -9.1);
+    fM0.set(2, 1, 10.1);
+    fM0.set(2, 2, 11.1);
+    fM0.set(2, 3, -12.1);
+    fM0.set(3, 0, -13.1);
+    fM0.set(3, 1, 14.1);
+    fM0.set(3, 2, -15.1);
+    fM0.set(3, 3, 16.1);
     }
 protected:
     virtual void performTest() {

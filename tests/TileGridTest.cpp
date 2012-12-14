@@ -55,7 +55,7 @@ public:
     static void TestUnalignedQuery(skiatest::Reporter* reporter) {
         // Use SkTileGridPicture to generate a SkTileGrid with a helper
         SkTileGridPicture picture(10, 10, 20, 20);
-        SkRect rect1 = SkRect::MakeXYWH(SkIntToScalar(0), SkIntToScalar(0), 
+        SkRect rect1 = SkRect::MakeXYWH(SkIntToScalar(0), SkIntToScalar(0),
             SkIntToScalar(8), SkIntToScalar(8));
         SkRect rect2 = SkRect::MakeXYWH(SkIntToScalar(11), SkIntToScalar(11),
             SkIntToScalar(1), SkIntToScalar(1));

@@ -496,7 +496,7 @@ public:
         this->drawRect(rect, matrix, NULL, NULL);
     }
 
-    
+
     /**
      * This call is used to draw multiple instances of some geometry with a
      * given number of vertices (V) and indices (I) per-instance. The indices in
@@ -895,7 +895,7 @@ protected:
     };
     GR_DECL_BITFIELD_OPS_FRIENDS(BlendOptFlags);
 
-    /** 
+    /**
      * Determines what optimizations can be applied based on the blend. The coefficients may have
      * to be tweaked in order for the optimization to work. srcCoeff and dstCoeff are optional
      * params that receive the tweaked coefficients. Normally the function looks at the current
