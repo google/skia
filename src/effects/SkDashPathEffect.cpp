@@ -198,12 +198,12 @@ bool SkDashPathEffect::filterPath(SkPath* dst, const SkPath& src,
                 addedSegment = true;
 
                 if (specialLine) {
-                    lineRec.addSegment(SkDoubleToScalar(distance), 
-                                       SkDoubleToScalar(distance + dlen), 
+                    lineRec.addSegment(SkDoubleToScalar(distance),
+                                       SkDoubleToScalar(distance + dlen),
                                        dst);
                 } else {
-                    meas.getSegment(SkDoubleToScalar(distance), 
-                                    SkDoubleToScalar(distance + dlen), 
+                    meas.getSegment(SkDoubleToScalar(distance),
+                                    SkDoubleToScalar(distance + dlen),
                                     dst, true);
                 }
             }
