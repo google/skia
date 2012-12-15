@@ -23,7 +23,7 @@ public:
     SkRect  fRects[N];
     SkColor fColors[N];
 
-    RectBench(void* param, int shift, int stroke = 0) 
+    RectBench(void* param, int shift, int stroke = 0)
         : INHERITED(param)
         , fShift(shift)
         , fStroke(stroke) {
@@ -185,7 +185,7 @@ protected:
         // Draw small aa rects in a grid across the screen
         for (SkScalar y = SK_ScalarHalf; y < H; y += SkIntToScalar(2)) {
             for (SkScalar x = SK_ScalarHalf; x < W; x += SkIntToScalar(2)) {
-                r.set(x, y, 
+                r.set(x, y,
                       x+SkFloatToScalar(1.5f), y+SkFloatToScalar(1.5f));
                 canvas->drawRect(r, paint);
             }

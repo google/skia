@@ -522,14 +522,14 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t clipStackGenID,
                 if (NULL == temp.texture()) {
                     fAACache.reset();
                     return NULL;
-                }   
+                }
                 dst = temp.texture();
                 // clear the temp target and set blend to replace
                 fGpu->clear(&maskSpaceElementIBounds,
                             invert ? 0xffffffff : 0x00000000,
                             dst->asRenderTarget());
                 setup_boolean_blendcoeffs(drawState, SkRegion::kReplace_Op);
-                
+
             } else {
                 // draw directly into the result with the stencil set to make the pixels affected
                 // by the clip shape be non-zero.
@@ -542,7 +542,7 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t clipStackGenID,
                                              0xffff,
                                              0xffff);
                 drawState->setStencil(kStencilInElement);
-                setup_boolean_blendcoeffs(drawState, op);                
+                setup_boolean_blendcoeffs(drawState, op);
             }
 
             drawState->setAlpha(invert ? 0x00 : 0xff);
