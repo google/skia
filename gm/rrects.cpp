@@ -94,7 +94,7 @@ private:
 
     static const int kNumSimpleCases = 3;
     static const int kNumComplexCases = 19;
-    static const SkVector RRectGM::gRadii[kNumComplexCases][4];
+    static const SkVector gRadii[kNumComplexCases][4];
 
     static const int kNumRRects = kNumSimpleCases + kNumComplexCases;
     SkRRect fRRects[kNumRRects];
