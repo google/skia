@@ -67,7 +67,7 @@ static void draw_rrect_color(SkCanvas* canvas, const SkRRect& rrect) {
 
 static void drawrr(SkCanvas* canvas, const SkRRect& rrect, InsetProc proc) {
     SkRRect rr;
-    for (SkScalar d = -30; d <= 30; d += 10) {
+    for (SkScalar d = -30; d <= 30; d += 5) {
         proc(rrect, d, d, &rr);
         draw_rrect_color(canvas, rr);
     }
