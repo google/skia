@@ -450,22 +450,22 @@ static const ProcCoeff gProcCoeffs[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkXfermode::asCoeff(Coeff* src, Coeff* dst) {
+bool SkXfermode::asCoeff(Coeff* src, Coeff* dst) const {
     return false;
 }
 
-bool SkXfermode::asMode(Mode* mode) {
+bool SkXfermode::asMode(Mode* mode) const {
     return false;
 }
 
-SkPMColor SkXfermode::xferColor(SkPMColor src, SkPMColor dst) {
+SkPMColor SkXfermode::xferColor(SkPMColor src, SkPMColor dst) const{
     // no-op. subclasses should override this
     return dst;
 }
 
 void SkXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
                         const SkPMColor* SK_RESTRICT src, int count,
-                        const SkAlpha* SK_RESTRICT aa) {
+                        const SkAlpha* SK_RESTRICT aa) const {
     SkASSERT(dst && src && count >= 0);
 
     if (NULL == aa) {
@@ -489,7 +489,7 @@ void SkXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
 
 void SkXfermode::xfer16(uint16_t* dst,
                         const SkPMColor* SK_RESTRICT src, int count,
-                        const SkAlpha* SK_RESTRICT aa) {
+                        const SkAlpha* SK_RESTRICT aa) const {
     SkASSERT(dst && src && count >= 0);
 
     if (NULL == aa) {
@@ -514,8 +514,7 @@ void SkXfermode::xfer16(uint16_t* dst,
 
 void SkXfermode::xfer4444(SkPMColor16* SK_RESTRICT dst,
                           const SkPMColor* SK_RESTRICT src, int count,
-                          const SkAlpha* SK_RESTRICT aa)
-{
+                          const SkAlpha* SK_RESTRICT aa) const {
     SkASSERT(dst && src && count >= 0);
 
     if (NULL == aa) {
@@ -540,8 +539,7 @@ void SkXfermode::xfer4444(SkPMColor16* SK_RESTRICT dst,
 
 void SkXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
                         const SkPMColor src[], int count,
-                        const SkAlpha* SK_RESTRICT aa)
-{
+                        const SkAlpha* SK_RESTRICT aa) const {
     SkASSERT(dst && src && count >= 0);
 
     if (NULL == aa) {
@@ -569,7 +567,7 @@ void SkXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
 
 void SkProcXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
                             const SkPMColor* SK_RESTRICT src, int count,
-                            const SkAlpha* SK_RESTRICT aa) {
+                            const SkAlpha* SK_RESTRICT aa) const {
     SkASSERT(dst && src && count >= 0);
 
     SkXfermodeProc proc = fProc;
@@ -597,7 +595,7 @@ void SkProcXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
 
 void SkProcXfermode::xfer16(uint16_t* SK_RESTRICT dst,
                             const SkPMColor* SK_RESTRICT src, int count,
-                            const SkAlpha* SK_RESTRICT aa) {
+                            const SkAlpha* SK_RESTRICT aa) const {
     SkASSERT(dst && src && count >= 0);
 
     SkXfermodeProc proc = fProc;
@@ -626,7 +624,7 @@ void SkProcXfermode::xfer16(uint16_t* SK_RESTRICT dst,
 
 void SkProcXfermode::xfer4444(SkPMColor16* SK_RESTRICT dst,
                               const SkPMColor* SK_RESTRICT src, int count,
-                              const SkAlpha* SK_RESTRICT aa) {
+                              const SkAlpha* SK_RESTRICT aa) const {
     SkASSERT(dst && src && count >= 0);
 
     SkXfermodeProc proc = fProc;
@@ -655,7 +653,7 @@ void SkProcXfermode::xfer4444(SkPMColor16* SK_RESTRICT dst,
 
 void SkProcXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
                             const SkPMColor* SK_RESTRICT src, int count,
-                            const SkAlpha* SK_RESTRICT aa) {
+                            const SkAlpha* SK_RESTRICT aa) const {
     SkASSERT(dst && src && count >= 0);
 
     SkXfermodeProc proc = fProc;
@@ -711,14 +709,14 @@ public:
         fDstCoeff = rec.fDC;
     }
 
-    virtual bool asMode(Mode* mode) {
+    virtual bool asMode(Mode* mode) const SK_OVERRIDE {
         if (mode) {
             *mode = fMode;
         }
         return true;
     }
 
-    virtual bool asCoeff(Coeff* sc, Coeff* dc) {
+    virtual bool asCoeff(Coeff* sc, Coeff* dc) const SK_OVERRIDE {
         if (CANNOT_USE_COEFF == fSrcCoeff) {
             return false;
         }
@@ -765,8 +763,8 @@ class SkClearXfermode : public SkProcCoeffXfermode {
 public:
     SkClearXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kClear_Mode) {}
 
-    virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) SK_OVERRIDE;
-    virtual void xferA8(SkAlpha*, const SkPMColor*, int, const SkAlpha*) SK_OVERRIDE;
+    virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
+    virtual void xferA8(SkAlpha*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkClearXfermode)
 
@@ -778,7 +776,7 @@ private:
 
 void SkClearXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
                              const SkPMColor* SK_RESTRICT, int count,
-                             const SkAlpha* SK_RESTRICT aa) {
+                             const SkAlpha* SK_RESTRICT aa) const {
     SkASSERT(dst && count >= 0);
 
     if (NULL == aa) {
@@ -796,7 +794,7 @@ void SkClearXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
 }
 void SkClearXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
                              const SkPMColor* SK_RESTRICT, int count,
-                             const SkAlpha* SK_RESTRICT aa) {
+                             const SkAlpha* SK_RESTRICT aa) const {
     SkASSERT(dst && count >= 0);
 
     if (NULL == aa) {
@@ -819,8 +817,8 @@ class SkSrcXfermode : public SkProcCoeffXfermode {
 public:
     SkSrcXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kSrc_Mode) {}
 
-    virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) SK_OVERRIDE;
-    virtual void xferA8(SkAlpha*, const SkPMColor*, int, const SkAlpha*) SK_OVERRIDE;
+    virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
+    virtual void xferA8(SkAlpha*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSrcXfermode)
 
@@ -832,7 +830,7 @@ private:
 
 void SkSrcXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
                            const SkPMColor* SK_RESTRICT src, int count,
-                           const SkAlpha* SK_RESTRICT aa) {
+                           const SkAlpha* SK_RESTRICT aa) const {
     SkASSERT(dst && src && count >= 0);
 
     if (NULL == aa) {
@@ -851,7 +849,7 @@ void SkSrcXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
 
 void SkSrcXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
                            const SkPMColor* SK_RESTRICT src, int count,
-                           const SkAlpha* SK_RESTRICT aa) {
+                           const SkAlpha* SK_RESTRICT aa) const {
     SkASSERT(dst && src && count >= 0);
 
     if (NULL == aa) {
@@ -873,13 +871,13 @@ void SkSrcXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 class SkDstInXfermode : public SkProcCoeffXfermode {
 public:
     SkDstInXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kDstIn_Mode) {}
 
-    virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) SK_OVERRIDE;
+    virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDstInXfermode)
 
@@ -891,7 +889,7 @@ private:
 
 void SkDstInXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
                              const SkPMColor* SK_RESTRICT src, int count,
-                             const SkAlpha* SK_RESTRICT aa) {
+                             const SkAlpha* SK_RESTRICT aa) const {
     SkASSERT(dst && src);
 
     if (count <= 0) {
@@ -909,13 +907,13 @@ void SkDstInXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
     } while (--count != 0);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 class SkDstOutXfermode : public SkProcCoeffXfermode {
 public:
     SkDstOutXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kDstOut_Mode) {}
 
-    virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) SK_OVERRIDE;
+    virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDstOutXfermode)
 
@@ -928,7 +926,7 @@ private:
 
 void SkDstOutXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
                               const SkPMColor* SK_RESTRICT src, int count,
-                              const SkAlpha* SK_RESTRICT aa) {
+                              const SkAlpha* SK_RESTRICT aa) const {
     SkASSERT(dst && src);
 
     if (count <= 0) {
@@ -1002,7 +1000,7 @@ bool SkXfermode::ModeAsCoeff(Mode mode, Coeff* src, Coeff* dst) {
     return true;
 }
 
-bool SkXfermode::AsMode(SkXfermode* xfer, Mode* mode) {
+bool SkXfermode::AsMode(const SkXfermode* xfer, Mode* mode) {
     if (NULL == xfer) {
         if (mode) {
             *mode = kSrcOver_Mode;
@@ -1012,14 +1010,14 @@ bool SkXfermode::AsMode(SkXfermode* xfer, Mode* mode) {
     return xfer->asMode(mode);
 }
 
-bool SkXfermode::AsCoeff(SkXfermode* xfer, Coeff* src, Coeff* dst) {
+bool SkXfermode::AsCoeff(const SkXfermode* xfer, Coeff* src, Coeff* dst) {
     if (NULL == xfer) {
         return ModeAsCoeff(kSrcOver_Mode, src, dst);
     }
     return xfer->asCoeff(src, dst);
 }
 
-bool SkXfermode::IsMode(SkXfermode* xfer, Mode mode) {
+bool SkXfermode::IsMode(const SkXfermode* xfer, Mode mode) {
     // if xfer==null then the mode is srcover
     Mode m = kSrcOver_Mode;
     if (xfer && !xfer->asMode(&m)) {
