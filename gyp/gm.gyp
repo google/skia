@@ -10,7 +10,6 @@
       'include_dirs' : [
         '../src/core',
         '../src/pipe/utils/',
-        '../src/utils/',
       ],
       'includes': [
         'gmslides.gypi',
@@ -27,8 +26,6 @@
         'effects.gyp:effects',
         'images.gyp:images',
         'pdf.gyp:pdf',
-        'utils.gyp:utils',
-        '../third_party/externals/jsoncpp/jsoncpp.gyp:jsoncpp',
       ],
       'conditions': [
         ['skia_os == "mac"', {

@@ -15,7 +15,6 @@
 
 #include "gm.h"
 #include "system_preferences.h"
-#include "SkBitmapChecksummer.h"
 #include "SkColorPriv.h"
 #include "SkData.h"
 #include "SkDeferredCanvas.h"
@@ -32,8 +31,6 @@
 #include "SkTArray.h"
 #include "SkTileGridPicture.h"
 #include "SamplePipeControllers.h"
-
-#include "json/value.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
@@ -76,16 +73,6 @@ const static ErrorBitfield ERROR_PIXEL_MISMATCH          = 0x02;
 const static ErrorBitfield ERROR_DIMENSION_MISMATCH      = 0x04;
 const static ErrorBitfield ERROR_READING_REFERENCE_IMAGE = 0x08;
 const static ErrorBitfield ERROR_WRITING_REFERENCE_IMAGE = 0x10;
-
-const static char kJsonKey_ActualResults[]   = "actual-results";
-const static char kJsonKey_ActualResults_Failed[]        = "failed";
-const static char kJsonKey_ActualResults_FailureIgnored[]= "failure-ignored";
-const static char kJsonKey_ActualResults_Succeeded[]     = "succeeded";
-const static char kJsonKey_ActualResults_AnyStatus_Checksum[]    = "checksum";
-
-const static char kJsonKey_ExpectedResults[] = "expected-results";
-const static char kJsonKey_ExpectedResults_Checksums[]     = "checksums";
-const static char kJsonKey_ExpectedResults_IgnoreFailure[] = "ignore-failure";
 
 using namespace skiagm;
 
@@ -583,57 +570,24 @@ public:
     ErrorBitfield compare_to_reference_image_on_disk(
       const char readPath [], const SkString& name, SkBitmap &bitmap,
       const char diffPath [], const char renderModeDescriptor []) {
-        ErrorBitfield retval;
         SkString path = make_filename(readPath, "", name, "png");
         SkBitmap referenceBitmap;
-        Json::Value expectedChecksumsArray;
-
-        bool decodedReferenceBitmap =
-            SkImageDecoder::DecodeFile(path.c_str(), &referenceBitmap,
+        if (SkImageDecoder::DecodeFile(path.c_str(), &referenceBitmap,
                                        SkBitmap::kARGB_8888_Config,
                                        SkImageDecoder::kDecodePixels_Mode,
-                                       NULL);
-        if (decodedReferenceBitmap) {
-            expectedChecksumsArray.append(Json::UInt64(
-                SkBitmapChecksummer::Compute64(referenceBitmap)));
-            retval = compare_to_reference_image_in_memory(name, bitmap,
-                                                          referenceBitmap,
-                                                          diffPath,
-                                                          renderModeDescriptor);
+                                       NULL)) {
+            return compare_to_reference_image_in_memory(name, bitmap,
+                                                        referenceBitmap,
+                                                        diffPath,
+                                                        renderModeDescriptor);
         } else {
             if (fNotifyMissingReadReference) {
                 fprintf(stderr, "FAILED to read %s\n", path.c_str());
             }
             RecordError(ERROR_READING_REFERENCE_IMAGE, name,
                         renderModeDescriptor);
-            retval = ERROR_READING_REFERENCE_IMAGE;
+            return ERROR_READING_REFERENCE_IMAGE;
         }
-
-        // Add this result to the appropriate JSON collection of actual results,
-        // depending on status.
-        Json::Value actualResults;
-        actualResults[kJsonKey_ActualResults_AnyStatus_Checksum] = Json::UInt64(
-            SkBitmapChecksummer::Compute64(bitmap));
-        if (decodedReferenceBitmap) {
-            if (ERROR_NONE == retval) {
-                fJsonActualResults_Succeeded[name.c_str()] = actualResults;
-            } else {
-                fJsonActualResults_Failed[name.c_str()] = actualResults;
-            }
-        } else {
-            fJsonActualResults_FailureIgnored[name.c_str()] = actualResults;
-        }
-
-        // Add this test to the JSON collection of expected results.
-        // For now, we assume that this collection starts out empty and we
-        // just fill it in as we go; once gm accepts a JSON file as input,
-        // we'll have to change that.
-        Json::Value expectedResults;
-        expectedResults[kJsonKey_ExpectedResults_Checksums] = expectedChecksumsArray;
-        expectedResults[kJsonKey_ExpectedResults_IgnoreFailure] = !decodedReferenceBitmap;
-        fJsonExpectedResults[name.c_str()] = expectedResults;
-
-        return retval;
     }
 
     // NOTE: As far as I can tell, this function is NEVER called with a
@@ -837,11 +791,6 @@ public:
     // information about all failed tests we have encountered so far
     SkTArray<FailRec> fFailedTests;
 
-    Json::Value fJsonExpectedResults;
-    Json::Value fJsonActualResults_Failed;
-    Json::Value fJsonActualResults_FailureIgnored;
-    Json::Value fJsonActualResults_Succeeded;
-
 }; // end of GMMain class definition
 
 #if SK_SUPPORT_GPU
@@ -925,7 +874,6 @@ static void usage(const char * argv0) {
 "    [--notexturecache]: disable the gpu texture cache\n"
 "    [--tiledPipe]: Exercise tiled SkGPipe replay\n"
 "    [--tileGrid]: use a tileGrid structure for SkPicture testing\n"
-"    [--writeJsonSummary <path>]: write a JSON-formatted result summary to this file\n"
 "    [--writePath|-w <path>]: write rendered images into this directory\n"
 "    [--writePicturePath|-wp <path>]: write .skp files into this directory\n"
              );
@@ -1009,7 +957,6 @@ int tool_main(int argc, char** argv) {
     setSystemPreferences();
     GMMain gmmain;
 
-    const char* writeJsonSummaryPath = NULL;// if non-null, where we write the JSON summary
     const char* writePath = NULL;   // if non-null, where we write the originals
     const char* writePicturePath = NULL;    // if non-null, where we write serialized pictures
     const char* readPath = NULL;    // if non-null, were we read from to compare
@@ -1132,11 +1079,6 @@ int tool_main(int argc, char** argv) {
             argv++;
             if (argv < stop && **argv) {
                 writePath = *argv;
-            }
-        } else if (0 == strcmp(*argv, "--writeJsonSummary")) {
-            argv++;
-            if (argv < stop && **argv) {
-                writeJsonSummaryPath = *argv;
             }
         } else if ((0 == strcmp(*argv, "--writePicturePath")) ||
                    (0 == strcmp(*argv, "-wp"))) {
@@ -1408,22 +1350,6 @@ int tool_main(int argc, char** argv) {
     SkDebugf("Ran %d tests: %d passed, %d failed, %d missing reference images\n",
              testsRun, testsPassed, testsFailed, testsMissingReferenceImages);
     gmmain.ListErrors();
-
-    if (NULL != writeJsonSummaryPath) {
-        Json::Value actualResults;
-        actualResults[kJsonKey_ActualResults_Failed] =
-            gmmain.fJsonActualResults_Failed;
-        actualResults[kJsonKey_ActualResults_FailureIgnored] =
-            gmmain.fJsonActualResults_FailureIgnored;
-        actualResults[kJsonKey_ActualResults_Succeeded] =
-            gmmain.fJsonActualResults_Succeeded;
-        Json::Value root;
-        root[kJsonKey_ActualResults] = actualResults;
-        root[kJsonKey_ExpectedResults] = gmmain.fJsonExpectedResults;
-        std::string jsonStdString = root.toStyledString();
-        SkFILEWStream stream(writeJsonSummaryPath);
-        stream.write(jsonStdString.c_str(), jsonStdString.length());
-    }
 
 #if SK_SUPPORT_GPU
 
