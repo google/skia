@@ -23,10 +23,10 @@
 #include "GrSoftwarePathRenderer.h"
 #include "GrStencilBuffer.h"
 #include "GrTextStrike.h"
+#include "SkStrokeRec.h"
 #include "SkTLazy.h"
 #include "SkTLS.h"
 #include "SkTrace.h"
-#include "SkStroke.h"
 
 SK_DEFINE_INST_COUNT(GrContext)
 SK_DEFINE_INST_COUNT(GrDrawState)
@@ -720,7 +720,7 @@ void GrContext::drawRect(const GrPaint& paint,
             return;
         }
         if (width >= 0) {
-            GrVec strokeSize;;
+            GrVec strokeSize;
             if (width > 0) {
                 strokeSize.set(width, width);
                 combinedMatrix.mapVectors(&strokeSize, 1);
@@ -982,11 +982,10 @@ void GrContext::drawOval(const GrPaint& paint,
         SkPath path;
         path.addOval(rect);
         path.setFillType(SkPath::kWinding_FillType);
-        SkStroke stroke;
-        if (strokeWidth < 0) {
-            stroke.setDoFill(true);
-        } else {
-            stroke.setWidth(strokeWidth);
+        SkStrokeRec stroke(0 == strokeWidth ? SkStrokeRec::kHairline_InitStyle :
+                                           SkStrokeRec::kFill_InitStyle);
+        if (strokeWidth > 0) {
+            stroke.setStrokeStyle(strokeWidth, true);
         }
         this->internalDrawPath(paint, path, stroke);
         return;
@@ -1058,7 +1057,7 @@ void GrContext::drawOval(const GrPaint& paint,
     target->drawNonIndexed(kTriangleStrip_GrPrimitiveType, 0, 4);
 }
 
-void GrContext::drawPath(const GrPaint& paint, const SkPath& path, bool doHairLine) {
+void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const SkStrokeRec& stroke) {
 
     if (path.isEmpty()) {
        if (path.isInverseFillType()) {
@@ -1067,24 +1066,27 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, bool doHairLi
        return;
     }
 
+    const SkPath* pathPtr = &path;
+    SkPath tmpPath;
+    SkStrokeRec strokeRec(stroke);
+    if (!strokeRec.isHairlineStyle()) {
+        if (strokeRec.applyToPath(&tmpPath, *pathPtr)) {
+            pathPtr = &tmpPath;
+            strokeRec.setFillStyle();
+        }
+    }
+
     SkRect ovalRect;
-    if (!path.isInverseFillType() && path.isOval(&ovalRect)) {
-        SkScalar width = doHairLine ? 0 : -SK_Scalar1;
+    if (!pathPtr->isInverseFillType() && pathPtr->isOval(&ovalRect)) {
+        SkScalar width = strokeRec.isHairlineStyle() ? 0 : -SK_Scalar1;
         this->drawOval(paint, ovalRect, width);
         return;
     }
 
-    SkStroke stroke;
-    if (doHairLine) {
-        stroke.setWidth(0);
-    } else {
-        stroke.setDoFill(true);
-    }
-
-    this->internalDrawPath(paint, path, stroke);
+    this->internalDrawPath(paint, *pathPtr, strokeRec);
 }
 
-void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path, const SkStroke& stroke) {
+void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path, const SkStrokeRec& stroke) {
 
     // Note that below we may sw-rasterize the path into a scratch texture.
     // Scratch textures can be recycled after they are returned to the texture
@@ -1616,7 +1618,7 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint* paint, BufferedDraw buffer
  * can be individually allowed/disallowed via the "allowSW" boolean.
  */
 GrPathRenderer* GrContext::getPathRenderer(const SkPath& path,
-                                           const SkStroke& stroke,
+                                           const SkStrokeRec& stroke,
                                            const GrDrawTarget* target,
                                            bool allowSW,
                                            GrPathRendererChain::DrawType drawType,

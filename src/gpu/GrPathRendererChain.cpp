@@ -33,7 +33,7 @@ GrPathRenderer* GrPathRendererChain::addPathRenderer(GrPathRenderer* pr) {
 }
 
 GrPathRenderer* GrPathRendererChain::getPathRenderer(const SkPath& path,
-                                                     const SkStroke& stroke,
+                                                     const SkStrokeRec& stroke,
                                                      const GrDrawTarget* target,
                                                      DrawType drawType,
                                                      StencilSupport* stencilSupport) {

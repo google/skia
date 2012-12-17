@@ -410,7 +410,7 @@ void GrGpu::onDrawNonIndexed(GrPrimitiveType type,
     this->onGpuDrawNonIndexed(type, sVertex, vertexCount);
 }
 
-void GrGpu::onStencilPath(const GrPath* path, const SkStroke& stroke, SkPath::FillType fill) {
+void GrGpu::onStencilPath(const GrPath* path, const SkStrokeRec&, SkPath::FillType fill) {
     this->handleDirtyContext();
 
     // TODO: make this more effecient (don't copy and copy back)

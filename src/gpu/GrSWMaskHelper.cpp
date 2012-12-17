@@ -9,7 +9,7 @@
 #include "GrDrawState.h"
 #include "GrGpu.h"
 
-#include "SkStroke.h"
+#include "SkStrokeRec.h"
 
 // TODO: try to remove this #include
 #include "GrContext.h"
@@ -55,24 +55,24 @@ void GrSWMaskHelper::draw(const GrRect& rect, SkRegion::Op op,
 /**
  * Draw a single path element of the clip stack into the accumulation bitmap
  */
-void GrSWMaskHelper::draw(const SkPath& path, const SkStroke& stroke, SkRegion::Op op,
+void GrSWMaskHelper::draw(const SkPath& path, const SkStrokeRec& stroke, SkRegion::Op op,
                           bool antiAlias, uint8_t alpha) {
 
     SkPaint paint;
-    SkScalar width = stroke.getWidthIfStroked();
-    if (0 == width) {
+    if (stroke.isHairlineStyle()) {
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SK_Scalar1);
     } else {
-        if (stroke.getDoFill()) {
+        if (stroke.isFillStyle()) {
             paint.setStyle(SkPaint::kFill_Style);
         } else {
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setStrokeJoin(stroke.getJoin());
             paint.setStrokeCap(stroke.getCap());
-            paint.setStrokeWidth(width);
+            paint.setStrokeWidth(stroke.getWidth());
         }
     }
+
     SkXfermode* mode = SkXfermode::Create(op_to_mode(op));
 
     paint.setXfermode(mode);
@@ -159,7 +159,7 @@ void GrSWMaskHelper::toTexture(GrTexture *texture, uint8_t alpha) {
  */
 GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrContext* context,
                                                  const SkPath& path,
-                                                 const SkStroke& stroke,
+                                                 const SkStrokeRec& stroke,
                                                  const GrIRect& resultBounds,
                                                  bool antiAlias,
                                                  SkMatrix* matrix) {

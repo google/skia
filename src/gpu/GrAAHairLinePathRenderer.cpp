@@ -547,10 +547,10 @@ bool GrAAHairLinePathRenderer::createGeom(
 }
 
 bool GrAAHairLinePathRenderer::canDrawPath(const SkPath& path,
-                                           const SkStroke& stroke,
+                                           const SkStrokeRec& stroke,
                                            const GrDrawTarget* target,
                                            bool antiAlias) const {
-    if ((0 != stroke.getWidthIfStroked()) || !antiAlias) {
+    if (!stroke.isHairlineStyle() || !antiAlias) {
         return false;
     }
 
@@ -564,7 +564,7 @@ bool GrAAHairLinePathRenderer::canDrawPath(const SkPath& path,
 }
 
 bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
-                                          const SkStroke&,
+                                          const SkStrokeRec&,
                                           GrDrawTarget* target,
                                           bool antiAlias) {
 

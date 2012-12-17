@@ -487,7 +487,9 @@ void GrInOrderDrawBuffer::onDrawNonIndexed(GrPrimitiveType primitiveType,
     draw->fIndexBuffer = NULL;
 }
 
-void GrInOrderDrawBuffer::onStencilPath(const GrPath* path, const SkStroke& stroke,
+GrInOrderDrawBuffer::StencilPath::StencilPath() : fStroke(SkStrokeRec::kFill_InitStyle) {}
+
+void GrInOrderDrawBuffer::onStencilPath(const GrPath* path, const SkStrokeRec& stroke,
                                         SkPath::FillType fill) {
     if (this->needsNewClip()) {
         this->recordClip();

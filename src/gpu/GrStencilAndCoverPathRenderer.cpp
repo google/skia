@@ -11,7 +11,7 @@
 #include "GrContext.h"
 #include "GrGpu.h"
 #include "GrPath.h"
-#include "SkStroke.h"
+#include "SkStrokeRec.h"
 
 GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrContext* context) {
     GrAssert(NULL != context);
@@ -34,23 +34,23 @@ GrStencilAndCoverPathRenderer::~GrStencilAndCoverPathRenderer() {
 }
 
 bool GrStencilAndCoverPathRenderer::canDrawPath(const SkPath& path,
-                                                const SkStroke& stroke,
+                                                const SkStrokeRec& stroke,
                                                 const GrDrawTarget* target,
                                                 bool antiAlias) const {
-    return stroke.getDoFill() &&
+    return stroke.isFillStyle() &&
            !antiAlias && // doesn't do per-path AA, relies on the target having MSAA
            target->getDrawState().getStencil().isDisabled();
 }
 
 GrPathRenderer::StencilSupport GrStencilAndCoverPathRenderer::onGetStencilSupport(
                                                         const SkPath&,
-                                                        const SkStroke& ,
+                                                        const SkStrokeRec& ,
                                                         const GrDrawTarget*) const {
     return GrPathRenderer::kStencilOnly_StencilSupport;
 }
 
 void GrStencilAndCoverPathRenderer::onStencilPath(const SkPath& path,
-                                                  const SkStroke& stroke,
+                                                  const SkStrokeRec& stroke,
                                                   GrDrawTarget* target) {
     GrAssert(!path.isInverseFillType());
     SkAutoTUnref<GrPath> p(fGpu->createPath(path));
@@ -58,18 +58,18 @@ void GrStencilAndCoverPathRenderer::onStencilPath(const SkPath& path,
 }
 
 bool GrStencilAndCoverPathRenderer::onDrawPath(const SkPath& path,
-                                               const SkStroke& stroke,
+                                               const SkStrokeRec& stroke,
                                                GrDrawTarget* target,
                                                bool antiAlias) {
     GrAssert(!antiAlias);
-    GrAssert(0 != stroke.getWidthIfStroked());
+    GrAssert(!stroke.isHairlineStyle());
 
     GrDrawState* drawState = target->drawState();
     GrAssert(drawState->getStencil().isDisabled());
 
     SkAutoTUnref<GrPath> p(fGpu->createPath(path));
 
-    SkPath::FillType nonInvertedFill = SkPath::NonInverseFill(path.getFillType());
+    SkPath::FillType nonInvertedFill = SkPath::ConvertToNonInverseFillType(path.getFillType());
     target->stencilPath(p, stroke, nonInvertedFill);
 
     // TODO: Use built in cover operation rather than a rect draw. This will require making our
