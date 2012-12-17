@@ -38,6 +38,7 @@ function compare_directories {
 # - with the arguments in $1
 # - writing resulting images into $2/output-actual/images
 # - writing stdout into $2/output-actual/stdout
+# - writing json summary into $2/output-actual/json-summary.txt
 # - writing return value into $2/output-actual/return_value
 # Then compare all of those against $2/output-expected .
 function gm_test {
@@ -51,7 +52,7 @@ function gm_test {
 
   rm -rf $ACTUAL_OUTPUT_DIR
   mkdir -p $ACTUAL_OUTPUT_DIR
-  COMMAND="$GM_BINARY $GM_ARGS -w $ACTUAL_OUTPUT_DIR/images"
+  COMMAND="$GM_BINARY $GM_ARGS --writeJsonSummary $ACTUAL_OUTPUT_DIR/json-summary.txt -w $ACTUAL_OUTPUT_DIR/images"
   echo "$COMMAND" >$ACTUAL_OUTPUT_DIR/command_line
   $COMMAND &>$ACTUAL_OUTPUT_DIR/stdout
   echo $? >$ACTUAL_OUTPUT_DIR/return_value
@@ -71,5 +72,8 @@ gm_test "--hierarchy --match dashing2 --config 8888 -r $GM_INPUTS/identical-pixe
 
 # Compare generated image against an input image file with different pixels.
 gm_test "--hierarchy --match dashing2 --config 8888 -r $GM_INPUTS/different-pixels" "$GM_OUTPUTS/compared-against-different-pixels"
+
+# Compare generated image against an empty "expected image" dir.
+gm_test "--hierarchy --match dashing2 --config 8888 -r $GM_INPUTS/empty-dir" "$GM_OUTPUTS/compared-against-empty-dir"
 
 echo "All tests passed."
