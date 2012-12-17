@@ -29,6 +29,8 @@ public:
      */
     virtual void handleBBox(const SkRect& bbox) = 0;
 
+    virtual void drawOval(const SkRect& rect, const SkPaint& paint) SK_OVERRIDE;
+    virtual void drawRRect(const SkRRect& rrect, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawRect(const SkRect& rect, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPath(const SkPath& path, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(PointMode mode, size_t count, const SkPoint pts[],
