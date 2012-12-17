@@ -3078,13 +3078,13 @@ static void testQuadratic75() {
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = testQuadratic75;
+static void (*firstTest)() = testQuadratic63;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
-    TEST(testQuadratic75),
+//    TEST(testQuadratic75),
     TEST(testQuadratic74),
     TEST(testQuadratic73),
     TEST(testQuadratic72),
