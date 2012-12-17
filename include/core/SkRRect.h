@@ -103,6 +103,9 @@ public:
     inline bool isSimple() const { return kSimple_Type == this->getType(); }
     inline bool isComplex() const { return kComplex_Type == this->getType(); }
 
+    SkScalar width() const { return fRect.width(); }
+    SkScalar height() const { return fRect.height(); }
+
     /**
      * Set this RR to the empty rectangle (0,0,0,0) with 0 x & y radii.
      */
@@ -216,6 +219,17 @@ public:
      *  edges of the corners are considered to be inside.
      */
     bool contains(SkScalar x, SkScalar y) const;
+
+    void inset(SkScalar dx, SkScalar dy, SkRRect* dst) const;
+    void inset(SkScalar dx, SkScalar dy) {
+        this->inset(dx, dy, this);
+    }
+    void outset(SkScalar dx, SkScalar dy, SkRRect* dst) const {
+        this->inset(-dx, -dy, dst);
+    }
+    void outset(SkScalar dx, SkScalar dy) {
+        this->inset(-dx, -dy, this);
+    }
 
     SkDEBUGCODE(void validate() const;)
 
