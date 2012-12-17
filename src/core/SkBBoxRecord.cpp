@@ -8,6 +8,18 @@
 
 #include "SkBBoxRecord.h"
 
+void SkBBoxRecord::drawOval(const SkRect& rect, const SkPaint& paint) {
+    if (this->transformBounds(rect, &paint)) {
+        INHERITED::drawOval(rect, paint);
+    }
+}
+
+void SkBBoxRecord::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
+    if (this->transformBounds(rrect.rect(), &paint)) {
+        INHERITED::drawRRect(rrect, paint);
+    }
+}
+
 void SkBBoxRecord::drawRect(const SkRect& rect, const SkPaint& paint) {
     if (this->transformBounds(rect, &paint)) {
         INHERITED::drawRect(rect, paint);
