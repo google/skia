@@ -1035,8 +1035,12 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
 static void add_corner_arc(SkPath* path, const SkRect& rect,
                            SkScalar rx, SkScalar ry, int startAngle,
                            SkPath::Direction dir, bool forceMoveTo) {
-    rx = SkMinScalar(SkScalarHalf(rect.width()), rx);
-    ry = SkMinScalar(SkScalarHalf(rect.height()), ry);
+    // These two asserts are not sufficient, since really we want to know 
+    // that the pair of radii (e.g. left and right, or top and bottom) sum 
+    // to <= dimension, but we don't have that data here, so we just have 
+    // these conservative asserts.
+    SkASSERT(0 <= rx && rx <= rect.width());
+    SkASSERT(0 <= ry && ry <= rect.height());
 
     SkRect   r;
     r.set(-rx, -ry, rx, ry);
@@ -1063,32 +1067,20 @@ static void add_corner_arc(SkPath* path, const SkRect& rect,
     path->arcTo(r, start, sweep, forceMoveTo);
 }
 
-void SkPath::addRoundRect(const SkRect& rect, const SkScalar rad[],
+void SkPath::addRoundRect(const SkRect& rect, const SkScalar radii[],
                           Direction dir) {
-    assert_known_direction(dir);
-
-    // abort before we invoke SkAutoPathBoundsUpdate()
-    if (rect.isEmpty()) {
-        return;
-    }
-
-    SkAutoPathBoundsUpdate apbu(this, rect);
-
-    if (kCW_Direction == dir) {
-        add_corner_arc(this, rect, rad[0], rad[1], 180, dir, true);
-        add_corner_arc(this, rect, rad[2], rad[3], 270, dir, false);
-        add_corner_arc(this, rect, rad[4], rad[5],   0, dir, false);
-        add_corner_arc(this, rect, rad[6], rad[7],  90, dir, false);
-    } else {
-        add_corner_arc(this, rect, rad[0], rad[1], 180, dir, true);
-        add_corner_arc(this, rect, rad[6], rad[7],  90, dir, false);
-        add_corner_arc(this, rect, rad[4], rad[5],   0, dir, false);
-        add_corner_arc(this, rect, rad[2], rad[3], 270, dir, false);
-    }
-    this->close();
+    SkRRect rrect;
+    rrect.setRectRadii(rect, (const SkVector*) radii);
+    this->addRRect(rrect, dir);
 }
 
 void SkPath::addRRect(const SkRRect& rrect, Direction dir) {
+    assert_known_direction(dir);
+
+    if (rrect.isEmpty()) {
+        return;
+    }
+
     const SkRect& bounds = rrect.getBounds();
 
     if (rrect.isRect()) {
@@ -1099,7 +1091,20 @@ void SkPath::addRRect(const SkRRect& rrect, Direction dir) {
         const SkVector& rad = rrect.getSimpleRadii();
         this->addRoundRect(bounds, rad.x(), rad.y(), dir);
     } else {
-        this->addRoundRect(bounds, (const SkScalar*)&rrect.fRadii[0], dir);
+        SkAutoPathBoundsUpdate apbu(this, bounds);
+
+        if (kCW_Direction == dir) {
+            add_corner_arc(this, bounds, rrect.fRadii[0].fX, rrect.fRadii[0].fY, 180, dir, true);
+            add_corner_arc(this, bounds, rrect.fRadii[1].fX, rrect.fRadii[1].fY, 270, dir, false);
+            add_corner_arc(this, bounds, rrect.fRadii[2].fX, rrect.fRadii[2].fY,   0, dir, false);
+            add_corner_arc(this, bounds, rrect.fRadii[3].fX, rrect.fRadii[3].fY,  90, dir, false);
+        } else {
+            add_corner_arc(this, bounds, rrect.fRadii[0].fX, rrect.fRadii[0].fY, 180, dir, true);
+            add_corner_arc(this, bounds, rrect.fRadii[3].fX, rrect.fRadii[3].fY,  90, dir, false);
+            add_corner_arc(this, bounds, rrect.fRadii[2].fX, rrect.fRadii[2].fY,   0, dir, false);
+            add_corner_arc(this, bounds, rrect.fRadii[1].fX, rrect.fRadii[1].fY, 270, dir, false);
+        }
+        this->close();
     }
 }
 
