@@ -164,12 +164,14 @@ public:
         };
 
         uint32_t           fFlags;      // flags that impact the drawing of the points
-        // TODO: consider replacing the TDArray with either SkData or a ptr/len field
         SkPoint*           fPoints;     // the center point of each generated point
         int                fNumPoints;  // number of points in fPoints
         SkVector           fSize;       // the size to draw the points
         SkRect             fClipRect;   // clip required to draw the points (if kUseClip is set)
         SkPath             fPath;       // 'stamp' to be used at each point (if kUsePath is set)
+
+        SkPath             fFirst;      // If not empty, contains geometry for first point
+        SkPath             fLast;       // If not empty, contains geometry for last point
     };
 
     /**

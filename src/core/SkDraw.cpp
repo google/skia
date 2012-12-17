@@ -661,37 +661,79 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                     // most likely a dashed line - see if it is one of the ones
                     // we can accelerate
                     SkStrokeRec rec(paint);
-                    SkPathEffect::PointData dst;
+                    SkPathEffect::PointData pointData;
 
                     SkPath path;
                     path.moveTo(pts[0]);
                     path.lineTo(pts[1]);
 
-                    if (paint.getPathEffect()->asPoints(&dst, path, rec, *fMatrix) &&
-                        SK_Scalar1 == dst.fSize.fX && SK_Scalar1 == dst.fSize.fY &&
-                        !(SkPathEffect::PointData::kUsePath_PointFlag & dst.fFlags)) {
+                    if (paint.getPathEffect()->asPoints(&pointData, path, rec, *fMatrix)) {
+                        // 'asPoints' managed to find some fast path
+
                         SkPaint newP(paint);
                         newP.setPathEffect(NULL);
                         newP.setStyle(SkPaint::kFill_Style);
 
-                        if (SkPathEffect::PointData::kCircles_PointFlag & dst.fFlags) {
-                            newP.setStrokeCap(SkPaint::kRound_Cap);
-                        } else {
-                            newP.setStrokeCap(SkPaint::kButt_Cap);
+                        if (!pointData.fFirst.isEmpty()) {
+                            if (fDevice) {
+                                fDevice->drawPath(*this, pointData.fFirst, newP);
+                            } else {
+                                this->drawPath(pointData.fFirst, newP);
+                            }
                         }
-                        if (fDevice) {
-                            fDevice->drawPoints(*this,
-                                                SkCanvas::kPoints_PointMode,
-                                                dst.fNumPoints,
-                                                dst.fPoints,
-                                                newP);
-                        } else {
-                            this->drawPoints(SkCanvas::kPoints_PointMode,
-                                             dst.fNumPoints,
-                                             dst.fPoints,
-                                             newP,
-                                             forceUseDevice);
+
+                        if (!pointData.fLast.isEmpty()) {
+                            if (fDevice) {
+                                fDevice->drawPath(*this, pointData.fLast, newP);
+                            } else {
+                                this->drawPath(pointData.fLast, newP);
+                            }
                         }
+
+                        if (pointData.fSize.fX == pointData.fSize.fY) {
+                            // The rest of the dashed line can just be drawn as points
+                            SkASSERT(pointData.fSize.fX == SkScalarHalf(newP.getStrokeWidth()));
+
+                            if (SkPathEffect::PointData::kCircles_PointFlag & pointData.fFlags) {
+                                newP.setStrokeCap(SkPaint::kRound_Cap);
+                            } else {
+                                newP.setStrokeCap(SkPaint::kButt_Cap);
+                            }
+
+                            if (fDevice) {
+                                fDevice->drawPoints(*this, 
+                                                    SkCanvas::kPoints_PointMode,
+                                                    pointData.fNumPoints,
+                                                    pointData.fPoints,
+                                                    newP);
+                            } else {
+                                this->drawPoints(SkCanvas::kPoints_PointMode,
+                                                 pointData.fNumPoints,
+                                                 pointData.fPoints,
+                                                 newP,
+                                                 forceUseDevice);
+                            }
+                            break;
+                        } else {
+                            // The rest of the dashed line must be drawn as rects
+                            SkASSERT(!(SkPathEffect::PointData::kCircles_PointFlag & 
+                                      pointData.fFlags));
+
+                            SkRect r;
+
+                            for (int i = 0; i < pointData.fNumPoints; ++i) {
+                                r.set(pointData.fPoints[i].fX - pointData.fSize.fX,
+                                      pointData.fPoints[i].fY - pointData.fSize.fY,
+                                      pointData.fPoints[i].fX + pointData.fSize.fX,
+                                      pointData.fPoints[i].fY + pointData.fSize.fY);
+                                if (fDevice) {
+                                    fDevice->drawRect(*this, r, newP);
+                                } else {
+                                    this->drawRect(r, newP);
+                                }
+                            }
+                        }
+
                         break;
                     }
                 }
