@@ -662,14 +662,20 @@ public:
      *  @param radii Array of 8 scalars, 4 [X,Y] pairs for each corner
      *  @param dir  The direction to wind the rectangle's contour. Cannot be
      *              kUnknown_Direction.
+     * Note: The radii here now go through the same constraint handling as the
+     *       SkRRect radii (i.e., either radii at a corner being 0 implies a
+     *       sqaure corner and oversized radii are proportionally scaled down).
      */
     void addRoundRect(const SkRect& rect, const SkScalar radii[],
                       Direction dir = kCW_Direction);
 
     /**
-     *  Add a SkRRect contour to the path
+     *  Add an SkRRect contour to the path
+     *  @param rrect The rounded rect to add as a closed contour
+     *  @param dir   The winding direction for the new contour. Cannot be
+     *               kUnknown_Direction.
      */
-    void addRRect(const SkRRect&, Direction dir = kCW_Direction);
+    void addRRect(const SkRRect& rrect, Direction dir = kCW_Direction);
 
     /**
      *  Add a new contour made of just lines. This is just a fast version of
