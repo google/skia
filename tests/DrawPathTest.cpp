@@ -241,6 +241,26 @@ static void test_infinite_dash(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, true);
 }
 
+// http://crbug.com/165432
+// Limit extreme dash path effects to avoid exhausting the system memory.
+static void test_crbug_165432(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(10000000, 0);
+
+    SkScalar intervals[] = { 0.5f, 0.5f };
+    SkDashPathEffect dash(intervals, 2, 0);
+
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setPathEffect(&dash);
+
+    SkPath filteredPath;
+    SkStrokeRec rec(paint);
+    REPORTER_ASSERT(reporter, !dash.filterPath(&filteredPath, path, &rec));
+    REPORTER_ASSERT(reporter, filteredPath.isEmpty());
+}
+
 static void TestDrawPath(skiatest::Reporter* reporter) {
     test_giantaa(reporter);
     test_bug533(reporter);
@@ -251,6 +271,7 @@ static void TestDrawPath(skiatest::Reporter* reporter) {
     test_inversepathwithclip(reporter);
 //    test_crbug131181(reporter);
     test_infinite_dash(reporter);
+    test_crbug_165432(reporter);
 }
 
 #include "TestClassDef.h"
