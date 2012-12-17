@@ -21,11 +21,11 @@ static int32_t rowmul3(const int32_t array[], unsigned r, unsigned g,
     return array[0] * r + array[1] * g  + array[2] * b + array[4];
 }
 
-static void General(SkColorMatrixFilter::State* state,
-                    unsigned r, unsigned g, unsigned b, unsigned a) {
-    const int32_t* SK_RESTRICT array = state->fArray;
-    const int shift = state->fShift;
-    int32_t* SK_RESTRICT result = state->fResult;
+static void General(const SkColorMatrixFilter::State& state,
+                    unsigned r, unsigned g, unsigned b, unsigned a,
+                    int32_t* SK_RESTRICT result) {
+    const int32_t* SK_RESTRICT array = state.fArray;
+    const int shift = state.fShift;
 
     result[0] = rowmul4(&array[0], r, g, b, a) >> shift;
     result[1] = rowmul4(&array[5], r, g, b, a) >> shift;
@@ -33,10 +33,10 @@ static void General(SkColorMatrixFilter::State* state,
     result[3] = rowmul4(&array[15], r, g, b, a) >> shift;
 }
 
-static void General16(SkColorMatrixFilter::State* state,
-                      unsigned r, unsigned g, unsigned b, unsigned a) {
-    const int32_t* SK_RESTRICT array = state->fArray;
-    int32_t* SK_RESTRICT result = state->fResult;
+static void General16(const SkColorMatrixFilter::State& state,
+                      unsigned r, unsigned g, unsigned b, unsigned a,
+                      int32_t* SK_RESTRICT result) {
+    const int32_t* SK_RESTRICT array = state.fArray;
 
     result[0] = rowmul4(&array[0], r, g, b, a) >> 16;
     result[1] = rowmul4(&array[5], r, g, b, a) >> 16;
@@ -44,11 +44,11 @@ static void General16(SkColorMatrixFilter::State* state,
     result[3] = rowmul4(&array[15], r, g, b, a) >> 16;
 }
 
-static void AffineAdd(SkColorMatrixFilter::State* state,
-                      unsigned r, unsigned g, unsigned b, unsigned a) {
-    const int32_t* SK_RESTRICT array = state->fArray;
-    const int shift = state->fShift;
-    int32_t* SK_RESTRICT result = state->fResult;
+static void AffineAdd(const SkColorMatrixFilter::State& state,
+                      unsigned r, unsigned g, unsigned b, unsigned a,
+                      int32_t* SK_RESTRICT result) {
+    const int32_t* SK_RESTRICT array = state.fArray;
+    const int shift = state.fShift;
 
     result[0] = rowmul3(&array[0], r, g, b) >> shift;
     result[1] = rowmul3(&array[5], r, g, b) >> shift;
@@ -56,10 +56,10 @@ static void AffineAdd(SkColorMatrixFilter::State* state,
     result[3] = a;
 }
 
-static void AffineAdd16(SkColorMatrixFilter::State* state,
-                        unsigned r, unsigned g, unsigned b, unsigned a) {
-    const int32_t* SK_RESTRICT array = state->fArray;
-    int32_t* SK_RESTRICT result = state->fResult;
+static void AffineAdd16(const SkColorMatrixFilter::State& state,
+                        unsigned r, unsigned g, unsigned b, unsigned a,
+                        int32_t* SK_RESTRICT result) {
+    const int32_t* SK_RESTRICT array = state.fArray;
 
     result[0] = rowmul3(&array[0], r, g, b) >> 16;
     result[1] = rowmul3(&array[5], r, g, b) >> 16;
@@ -67,11 +67,11 @@ static void AffineAdd16(SkColorMatrixFilter::State* state,
     result[3] = a;
 }
 
-static void ScaleAdd(SkColorMatrixFilter::State* state,
-                     unsigned r, unsigned g, unsigned b, unsigned a) {
-    const int32_t* SK_RESTRICT array = state->fArray;
-    const int shift = state->fShift;
-    int32_t* SK_RESTRICT result = state->fResult;
+static void ScaleAdd(const SkColorMatrixFilter::State& state,
+                     unsigned r, unsigned g, unsigned b, unsigned a,
+                     int32_t* SK_RESTRICT result) {
+    const int32_t* SK_RESTRICT array = state.fArray;
+    const int shift = state.fShift;
 
     // cast to (int) to keep the expression signed for the shift
     result[0] = (array[0] * (int)r + array[4]) >> shift;
@@ -80,10 +80,10 @@ static void ScaleAdd(SkColorMatrixFilter::State* state,
     result[3] = a;
 }
 
-static void ScaleAdd16(SkColorMatrixFilter::State* state,
-                       unsigned r, unsigned g, unsigned b, unsigned a) {
-    const int32_t* SK_RESTRICT array = state->fArray;
-    int32_t* SK_RESTRICT result = state->fResult;
+static void ScaleAdd16(const SkColorMatrixFilter::State& state,
+                       unsigned r, unsigned g, unsigned b, unsigned a,
+                       int32_t* SK_RESTRICT result) {
+    const int32_t* SK_RESTRICT array = state.fArray;
 
     // cast to (int) to keep the expression signed for the shift
     result[0] = (array[0] * (int)r + array[4]) >> 16;
@@ -92,11 +92,11 @@ static void ScaleAdd16(SkColorMatrixFilter::State* state,
     result[3] = a;
 }
 
-static void Add(SkColorMatrixFilter::State* state,
-                unsigned r, unsigned g, unsigned b, unsigned a) {
-    const int32_t* SK_RESTRICT array = state->fArray;
-    const int shift = state->fShift;
-    int32_t* SK_RESTRICT result = state->fResult;
+static void Add(const SkColorMatrixFilter::State& state,
+                unsigned r, unsigned g, unsigned b, unsigned a,
+                int32_t* SK_RESTRICT result) {
+    const int32_t* SK_RESTRICT array = state.fArray;
+    const int shift = state.fShift;
 
     result[0] = r + (array[4] >> shift);
     result[1] = g + (array[9] >> shift);
@@ -104,10 +104,10 @@ static void Add(SkColorMatrixFilter::State* state,
     result[3] = a;
 }
 
-static void Add16(SkColorMatrixFilter::State* state,
-                  unsigned r, unsigned g, unsigned b, unsigned a) {
-    const int32_t* SK_RESTRICT array = state->fArray;
-    int32_t* SK_RESTRICT result = state->fResult;
+static void Add16(const SkColorMatrixFilter::State& state,
+                  unsigned r, unsigned g, unsigned b, unsigned a,
+                  int32_t* SK_RESTRICT result) {
+    const int32_t* SK_RESTRICT array = state.fArray;
 
     result[0] = r + (array[4] >> 16);
     result[1] = g + (array[9] >> 16);
@@ -212,15 +212,15 @@ SkColorMatrixFilter::SkColorMatrixFilter(const SkScalar array[20]) {
     this->initState(array);
 }
 
-uint32_t SkColorMatrixFilter::getFlags() {
+uint32_t SkColorMatrixFilter::getFlags() const {
     return this->INHERITED::getFlags() | fFlags;
 }
 
 void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count,
-                                     SkPMColor dst[]) {
+                                     SkPMColor dst[]) const {
     Proc proc = fProc;
-    State* state = &fState;
-    int32_t* result = state->fResult;
+    const State& state = fState;
+    int32_t result[4];
 
     if (NULL == proc) {
         if (src != dst) {
@@ -251,7 +251,7 @@ void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count,
             SkASSERT(b <= 255);
         }
 
-        proc(state, r, g, b, a);
+        proc(state, r, g, b, a, result);
 
         r = pin(result[0], SK_R32_MASK);
         g = pin(result[1], SK_G32_MASK);
@@ -263,12 +263,12 @@ void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count,
 }
 
 void SkColorMatrixFilter::filterSpan16(const uint16_t src[], int count,
-                                       uint16_t dst[]) {
+                                       uint16_t dst[]) const {
     SkASSERT(fFlags & SkColorFilter::kHasFilter16_Flag);
 
     Proc   proc = fProc;
-    State* state = &fState;
-    int32_t* result = state->fResult;
+    const State& state = fState;
+    int32_t result[4];
 
     if (NULL == proc) {
         if (src != dst) {
@@ -285,7 +285,7 @@ void SkColorMatrixFilter::filterSpan16(const uint16_t src[], int count,
         unsigned g = SkPacked16ToG32(c);
         unsigned b = SkPacked16ToB32(c);
 
-        proc(state, r, g, b, 0);
+        proc(state, r, g, b, 0, result);
 
         r = pin(result[0], SK_R32_MASK);
         g = pin(result[1], SK_G32_MASK);
@@ -311,7 +311,7 @@ SkColorMatrixFilter::SkColorMatrixFilter(SkFlattenableReadBuffer& buffer)
     this->initState(fMatrix.fMat);
 }
 
-bool SkColorMatrixFilter::asColorMatrix(SkScalar matrix[20]) {
+bool SkColorMatrixFilter::asColorMatrix(SkScalar matrix[20]) const {
     if (matrix) {
         memcpy(matrix, fMatrix.fMat, 20 * sizeof(SkScalar));
     }
