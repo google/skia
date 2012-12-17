@@ -45,7 +45,7 @@ public:
 #endif
 
     virtual void filterSpan(const SkPMColor src[], int count,
-                            SkPMColor dst[]) SK_OVERRIDE;
+                            SkPMColor dst[]) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTable_ColorFilter)
 
@@ -104,7 +104,7 @@ static const uint8_t gIdentityTable[] = {
 };
 
 void SkTable_ColorFilter::filterSpan(const SkPMColor src[], int count,
-                                     SkPMColor dst[]) {
+                                     SkPMColor dst[]) const {
     const uint8_t* table = fStorage;
     const uint8_t* tableA = gIdentityTable;
     const uint8_t* tableR = gIdentityTable;

@@ -13,11 +13,11 @@
 
 SK_DEFINE_INST_COUNT(SkColorFilter)
 
-bool SkColorFilter::asColorMode(SkColor* color, SkXfermode::Mode* mode) {
+bool SkColorFilter::asColorMode(SkColor* color, SkXfermode::Mode* mode) const {
     return false;
 }
 
-bool SkColorFilter::asColorMatrix(SkScalar matrix[20]) {
+bool SkColorFilter::asColorMatrix(SkScalar matrix[20]) const {
     return false;
 }
 
@@ -25,7 +25,7 @@ bool SkColorFilter::asComponentTable(SkBitmap*) const {
     return false;
 }
 
-void SkColorFilter::filterSpan16(const uint16_t s[], int count, uint16_t d[]) {
+void SkColorFilter::filterSpan16(const uint16_t s[], int count, uint16_t d[]) const {
     SkASSERT(this->getFlags() & SkColorFilter::kHasFilter16_Flag);
     SkDEBUGFAIL("missing implementation of SkColorFilter::filterSpan16");
 
@@ -34,7 +34,7 @@ void SkColorFilter::filterSpan16(const uint16_t s[], int count, uint16_t d[]) {
     }
 }
 
-SkColor SkColorFilter::filterColor(SkColor c) {
+SkColor SkColorFilter::filterColor(SkColor c) const {
     SkPMColor dst, src = SkPreMultiplyColor(c);
     this->filterSpan(&src, 1, &dst);
     return SkUnPreMultiply::PMColorToColor(dst);
