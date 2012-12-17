@@ -41,7 +41,12 @@ namespace sk_tools {
         for (int x = 0; x < this->getViewWidth(); x += fLargeTileWidth) {
             for (int y = 0; y < this->getViewHeight(); y += fLargeTileHeight) {
                 SkAutoCanvasRestore autoRestore(fCanvas, true);
-                fCanvas->translate(SkIntToScalar(-x), SkIntToScalar(-y));
+                // Translate so that we draw the correct portion of the picture.
+                // Perform a postTranslate so that the scaleFactor does not interfere with the
+                // positioning.
+                SkMatrix mat(fCanvas->getTotalMatrix());
+                mat.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
+                fCanvas->setMatrix(mat);
                 // Draw the picture
                 fCanvas->drawPicture(*fPicture);
                 // Now extract the picture into tiles

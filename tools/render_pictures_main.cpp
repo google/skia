@@ -30,7 +30,7 @@ static void usage(const char* argv0) {
 "         | tile width height]\n"
 "     [--pipe]\n"
 "     [--multi count]\n"
-"     [--viewport width height]\n"
+"     [--viewport width height][--scale sf]\n"
 "     [--device bitmap"
 #if SK_SUPPORT_GPU
 " | gpu"
@@ -76,6 +76,7 @@ static void usage(const char* argv0) {
 "     --multi count : Set the number of threads for multi threaded drawing. Must be greater\n"
 "                     than 1. Only works with tiled rendering.\n"
 "     --viewport width height : Set the viewport.\n"
+"     --scale sf : Scale drawing by sf.\n"
 "     --pipe: Benchmark SkGPipe rendering. Currently incompatible with \"mode\".\n");
     SkDebugf(
 "     --device bitmap"
@@ -189,6 +190,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     const char* mode = NULL;
     SkISize viewport;
     viewport.setEmpty();
+    SkScalar scaleFactor = SK_Scalar1;
     for (++argv; argv < stop; ++argv) {
         if (0 == strcmp(*argv, "--mode")) {
             if (renderer != NULL) {
@@ -255,6 +257,14 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 exit(-1);
             }
             viewport.fHeight = atoi(*argv);
+        } else if (0 == strcmp(*argv, "--scale")) {
+            ++argv;
+            if (argv >= stop) {
+                SkDebugf("Missing scaleFactor for --scale\n");
+                usage(argv0);
+                exit(-1);
+            }
+            scaleFactor = atof(*argv);
         } else if (0 == strcmp(*argv, "--tiles")) {
             ++argv;
             if (argv >= stop) {
@@ -460,6 +470,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     }
 
     renderer->setViewport(viewport);
+    renderer->setScaleFactor(scaleFactor);
     renderer->setDeviceType(deviceType);
 }
 

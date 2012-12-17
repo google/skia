@@ -126,7 +126,7 @@ static void usage(const char* argv0) {
 "     [--pipe]\n"
 "     [--bbh bbhType]\n"
 "     [--multi numThreads]\n"
-"     [--viewport width height]\n"
+"     [--viewport width height][--scale sf]\n"
 "     [--device bitmap"
 #if SK_SUPPORT_GPU
 " | gpu"
@@ -184,6 +184,7 @@ static void usage(const char* argv0) {
 "     --multi numThreads : Set the number of threads for multi threaded drawing. Must be greater\n"
 "                          than 1. Only works with tiled rendering.\n"
 "     --viewport width height : Set the viewport.\n"
+"     --scale sf : Scale drawing by sf.\n"
 "     --pipe: Benchmark SkGPipe rendering. Currently incompatible with \"mode\".\n");
     SkDebugf(
 "     --bbh bbhType [width height]: Set the bounding box hierarchy type to\n"
@@ -296,6 +297,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     sk_bzero(drawFilters, sizeof(drawFilters));
     SkISize viewport;
     viewport.setEmpty();
+    SkScalar scaleFactor = SK_Scalar1;
     for (++argv; argv < stop; ++argv) {
         if (0 == strcmp(*argv, "--repeat")) {
             ++argv;
@@ -443,6 +445,13 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 PRINT_USAGE_AND_EXIT;
             }
             viewport.fHeight = atoi(*argv);
+        } else if (0 == strcmp(*argv, "--scale")) {
+            ++argv;
+            if (argv >= stop) {
+                gLogger.logError("Missing scaleFactor for --scale\n");
+                PRINT_USAGE_AND_EXIT;
+            }
+            scaleFactor = atof(*argv);
         } else if (0 == strcmp(*argv, "--tiles")) {
             ++argv;
             if (argv >= stop) {
@@ -730,6 +739,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     renderer->setDrawFilters(drawFilters, filtersName(drawFilters));
     renderer->setGridSize(gridWidth, gridHeight);
     renderer->setViewport(viewport);
+    renderer->setScaleFactor(scaleFactor);
     benchmark->setRenderer(renderer);
     benchmark->setRepeats(repeats);
     benchmark->setDeviceType(deviceType);
