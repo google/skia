@@ -48,6 +48,54 @@ static void inset1(const SkRRect& src, SkScalar dx, SkScalar dy, SkRRect* dst) {
     dst->setRectRadii(r, radii);
 }
 
+static void inset2(const SkRRect& src, SkScalar dx, SkScalar dy, SkRRect* dst) {
+    SkRect r = src.rect();
+    
+    r.inset(dx, dy);
+    if (r.isEmpty()) {
+        dst->setEmpty();
+        return;
+    }
+    
+    SkVector radii[4];
+    for (int i = 0; i < 4; ++i) {
+        radii[i] = src.radii((SkRRect::Corner)i);
+    }
+    for (int i = 0; i < 4; ++i) {
+        if (radii[i].fX) {
+            radii[i].fX -= dx;
+        }
+        if (radii[i].fY) {
+            radii[i].fY -= dy;
+        }
+    }
+    dst->setRectRadii(r, radii);
+}
+
+static SkScalar prop(SkScalar radius, SkScalar delta, SkScalar newSize, SkScalar oldSize) {
+    return newSize * radius / oldSize;
+}
+
+static void inset3(const SkRRect& src, SkScalar dx, SkScalar dy, SkRRect* dst) {
+    SkRect r = src.rect();
+    
+    r.inset(dx, dy);
+    if (r.isEmpty()) {
+        dst->setEmpty();
+        return;
+    }
+    
+    SkVector radii[4];
+    for (int i = 0; i < 4; ++i) {
+        radii[i] = src.radii((SkRRect::Corner)i);
+    }
+    for (int i = 0; i < 4; ++i) {
+        radii[i].fX = prop(radii[i].fX, dx, r.width(), src.rect().width());
+        radii[i].fY = prop(radii[i].fY, dy, r.height(), src.rect().height());
+    }
+    dst->setRectRadii(r, radii);
+}
+
 static void draw_rrect_color(SkCanvas* canvas, const SkRRect& rrect) {
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -83,16 +131,18 @@ protected:
     }
     
     virtual SkISize onISize() {
-        return SkISize::Make(640, 480);
+        return SkISize::Make(820, 710);
     }
     
     virtual void onDraw(SkCanvas* canvas) {
-        static const InsetProc insetProcs[] = { inset0, inset1 };
+        static const InsetProc insetProcs[] = {
+            inset0, inset1, inset2, inset3
+        };
 
         SkRRect rrect[4];
-        SkRect r = { 0, 0, 120, 160 };
+        SkRect r = { 0, 0, 120, 100 };
         SkVector radii[4] = {
-            { 0, 0 }, { 20, 20 }, { 10, 40 }, { 40, 40 }
+            { 0, 0 }, { 30, 1 }, { 10, 40 }, { 40, 40 }
         };
         
         rrect[0].setRect(r);
@@ -100,15 +150,15 @@ protected:
         rrect[2].setRectXY(r, 20, 20);
         rrect[3].setRectRadii(r, radii);
 
-        canvas->translate(50, 50);
+        canvas->translate(50.5f, 50.5f);
         for (size_t j = 0; j < SK_ARRAY_COUNT(insetProcs); ++j) {
             canvas->save();
             for (size_t i = 0; i < SK_ARRAY_COUNT(rrect); ++i) {
                 drawrr(canvas, rrect[i], insetProcs[j]);
-                canvas->translate(rrect[i].width() * 5 / 3, 0);
+                canvas->translate(200, 0);
             }
             canvas->restore();
-            canvas->translate(0, rrect[0].height() * 5 / 3);
+            canvas->translate(0, 170);
         }
     }
     
