@@ -228,7 +228,7 @@ void SkRRect::computeType() const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
+#if 0
 void SkRRect::inset(SkScalar dx, SkScalar dy, SkRRect* dst) const {
 
     SkRect r = fRect;
@@ -244,7 +244,7 @@ void SkRRect::inset(SkScalar dx, SkScalar dy, SkRRect* dst) const {
     }
     dst->setRectRadii(r, radii);
 }
-
+#endif
 ///////////////////////////////////////////////////////////////////////////////
 
 uint32_t SkRRect::writeToMemory(void* buffer) const {
