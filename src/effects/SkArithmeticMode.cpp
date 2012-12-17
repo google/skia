@@ -12,7 +12,7 @@ public:
     }
 
     virtual void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
-                        const SkAlpha aa[]) SK_OVERRIDE;
+                        const SkAlpha aa[]) const SK_OVERRIDE;
 
     SK_DECLARE_UNFLATTENABLE_OBJECT()
 
@@ -48,7 +48,7 @@ static bool needsUnpremul(int alpha) {
 }
 
 void SkArithmeticMode_scalar::xfer32(SkPMColor dst[], const SkPMColor src[],
-                                     int count, const SkAlpha aaCoverage[]) {
+                                 int count, const SkAlpha aaCoverage[]) const {
     SkScalar k1 = fK[0] / 255;
     SkScalar k2 = fK[1];
     SkScalar k3 = fK[2];
