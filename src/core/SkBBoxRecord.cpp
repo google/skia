@@ -257,12 +257,13 @@ void SkBBoxRecord::drawPicture(SkPicture& picture) {
 
 bool SkBBoxRecord::transformBounds(const SkRect& bounds, const SkPaint* paint) {
     SkRect outBounds = bounds;
+    outBounds.sort();
 
     if (paint) {
         // account for stroking, path effects, shadows, etc
         if (paint->canComputeFastBounds()) {
             SkRect temp;
-            outBounds = paint->computeFastBounds(bounds, &temp);
+            outBounds = paint->computeFastBounds(outBounds, &temp);
         } else {
             // set bounds to current clip
             if (!this->getClipBounds(&outBounds)) {
