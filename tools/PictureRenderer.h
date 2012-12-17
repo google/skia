@@ -78,6 +78,11 @@ public:
     void setViewport(SkISize size) { fViewport = size; }
 
     /**
+     *  Set the scale factor at which draw the picture.
+     */
+    void setScaleFactor(SkScalar scale) { fScaleFactor = scale; }
+
+    /**
      * Perform any setup that should done prior to each iteration of render() which should not be
      * timed.
      */
@@ -180,6 +185,7 @@ public:
         , fBBoxHierarchyType(kNone_BBoxHierarchyType)
         , fGridWidth(0)
         , fGridHeight(0)
+        , fScaleFactor(SK_Scalar1)
 #if SK_SUPPORT_GPU
         , fGrContext(fGrContextFactory.get(GrContextFactory::kNative_GLContextType))
 #endif
@@ -216,6 +222,11 @@ protected:
      */
     int getViewHeight();
 
+    /**
+     * Scales the provided canvas to the scale factor set by setScaleFactor.
+     */
+    void scaleToScaleFactor(SkCanvas*);
+
     SkPicture* createPicture();
     uint32_t recordFlags();
     SkCanvas* setupCanvas();
@@ -223,6 +234,7 @@ protected:
 
 private:
     SkISize                fViewport;
+    SkScalar               fScaleFactor;
 
     virtual SkString getConfigNameInternal() = 0;
 

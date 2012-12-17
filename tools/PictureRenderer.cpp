@@ -87,14 +87,13 @@ private:
     PictureRenderer::DrawFilterFlags* fFlags;
 };
 
-static SkCanvas* setUpFilter(SkCanvas* canvas, PictureRenderer::DrawFilterFlags* drawFilters) {
+static void setUpFilter(SkCanvas* canvas, PictureRenderer::DrawFilterFlags* drawFilters) {
     if (drawFilters && !canvas->getDrawFilter()) {
         canvas->setDrawFilter(SkNEW_ARGS(FlagsDrawFilter, (drawFilters)))->unref();
         if (drawFilters[0] & PictureRenderer::kAAClip_DrawFilterFlag) {
             canvas->setAllowSoftClip(false);
         }
     }
-    return canvas;
 }
 
 SkCanvas* PictureRenderer::setupCanvas() {
@@ -110,22 +109,31 @@ SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
             SkBitmap bitmap;
             sk_tools::setup_bitmap(&bitmap, width, height);
             canvas = SkNEW_ARGS(SkCanvas, (bitmap));
-            return setUpFilter(canvas, fDrawFilters);
         }
+        break;
 #if SK_SUPPORT_GPU
         case kGPU_DeviceType: {
             SkAutoTUnref<SkGpuDevice> device(SkNEW_ARGS(SkGpuDevice,
                                                     (fGrContext, SkBitmap::kARGB_8888_Config,
                                                     width, height)));
             canvas = SkNEW_ARGS(SkCanvas, (device.get()));
-            return setUpFilter(canvas, fDrawFilters);
         }
+        break;
 #endif
         default:
             SkASSERT(0);
+            return NULL;
     }
+    setUpFilter(canvas, fDrawFilters);
+    this->scaleToScaleFactor(canvas);
+    return canvas;
+}
 
-    return NULL;
+void PictureRenderer::scaleToScaleFactor(SkCanvas* canvas) {
+    SkASSERT(canvas != NULL);
+    if (fScaleFactor != SK_Scalar1) {
+        canvas->scale(fScaleFactor, fScaleFactor);
+    }
 }
 
 void PictureRenderer::end() {
@@ -243,8 +251,9 @@ static bool PNGEncodeBitmapToStream(SkWStream* wStream, const SkBitmap& bm) {
 
 bool RecordPictureRenderer::render(const SkString* path) {
     SkAutoTUnref<SkPicture> replayer(this->createPicture());
-    SkCanvas* recorder = replayer->beginRecording(fPicture->width(), fPicture->height(),
+    SkCanvas* recorder = replayer->beginRecording(this->getViewWidth(), this->getViewHeight(),
                                                   this->recordFlags());
+    this->scaleToScaleFactor(recorder);
     fPicture->draw(recorder);
     replayer->endRecording();
     if (path != NULL) {
@@ -452,8 +461,11 @@ void TiledPictureRenderer::setupPowerOf2Tiles() {
 template<class T>
 static void DrawTileToCanvas(SkCanvas* canvas, const SkRect& tileRect, T* playback) {
     int saveCount = canvas->save();
-    // Translate so that we draw the correct portion of the picture
-    canvas->translate(-tileRect.fLeft, -tileRect.fTop);
+    // Translate so that we draw the correct portion of the picture.
+    // Perform a postTranslate so that the scaleFactor does not interfere with the positioning.
+    SkMatrix mat(canvas->getTotalMatrix());
+    mat.postTranslate(-tileRect.fLeft, -tileRect.fTop);
+    canvas->setMatrix(mat);
     playback->draw(canvas);
     canvas->restoreToCount(saveCount);
     canvas->flush();
@@ -494,14 +506,15 @@ bool TiledPictureRenderer::render(const SkString* path) {
 SkCanvas* TiledPictureRenderer::setupCanvas(int width, int height) {
     SkCanvas* canvas = this->INHERITED::setupCanvas(width, height);
     SkASSERT(fPicture != NULL);
-    const int totalWidth = this->getViewWidth();
-    const int totalHeight = this->getViewHeight();
-    // Clip the tile to an area that is completely in what the SkPicture says is the
-    // drawn-to area. This is mostly important for tiles on the right and bottom edges
-    // as they may go over this area and the picture may have some commands that
-    // draw outside of this area and so should not actually be written.
-    SkRect clip = SkRect::MakeWH(SkIntToScalar(totalWidth), SkIntToScalar(totalHeight));
-    canvas->clipRect(clip);
+    // Clip the tile to an area that is completely inside both the SkPicture and the viewport. This
+    // is mostly important for tiles on the right and bottom edges as they may go over this area and
+    // the picture may have some commands that draw outside of this area and so should not actually
+    // be written.
+    // Uses a clipRegion so that it will be unaffected by the scale factor, which may have been set
+    // by INHERITED::setupCanvas.
+    SkRegion clipRegion;
+    clipRegion.setRect(0, 0, this->getViewWidth(), this->getViewHeight());
+    canvas->clipRegion(clipRegion);
     return canvas;
 }
 
@@ -660,8 +673,9 @@ SkString MultiCorePictureRenderer::getConfigNameInternal() {
 
 void PlaybackCreationRenderer::setup() {
     fReplayer.reset(this->createPicture());
-    SkCanvas* recorder = fReplayer->beginRecording(fPicture->width(), fPicture->height(),
+    SkCanvas* recorder = fReplayer->beginRecording(this->getViewWidth(), this->getViewHeight(),
                                                    this->recordFlags());
+    this->scaleToScaleFactor(recorder);
     fPicture->draw(recorder);
 }
 
