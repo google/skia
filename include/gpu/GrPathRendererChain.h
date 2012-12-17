@@ -17,7 +17,7 @@ class GrContext;
 class GrDrawTarget;
 class GrPathRenderer;
 class SkPath;
-class SkStroke;
+class SkStrokeRec;
 
 /**
  * Keeps track of an ordered list of path renderers. When a path needs to be
@@ -58,7 +58,7 @@ public:
         whether the path can be rendered with arbitrary stencil rules or not. See comments on
         StencilSupport in GrPathRenderer.h. */
     GrPathRenderer* getPathRenderer(const SkPath& path,
-                                    const SkStroke& stroke,
+                                    const SkStrokeRec& rec,
                                     const GrDrawTarget* target,
                                     DrawType drawType,
                                     StencilSupport* stencilSupport);

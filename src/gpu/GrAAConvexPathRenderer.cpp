@@ -12,7 +12,7 @@
 #include "GrDrawState.h"
 #include "GrPathUtils.h"
 #include "SkString.h"
-#include "SkStroke.h"
+#include "SkStrokeRec.h"
 #include "SkTrace.h"
 
 GrAAConvexPathRenderer::GrAAConvexPathRenderer() {
@@ -429,15 +429,15 @@ void create_vertices(const SegmentArray&  segments,
 }
 
 bool GrAAConvexPathRenderer::canDrawPath(const SkPath& path,
-                                         const SkStroke& stroke,
+                                         const SkStrokeRec& stroke,
                                          const GrDrawTarget* target,
                                          bool antiAlias) const {
     return (target->getCaps().shaderDerivativeSupport() && antiAlias &&
-            stroke.getDoFill() && !path.isInverseFillType() && path.isConvex());
+            stroke.isFillStyle() && !path.isInverseFillType() && path.isConvex());
 }
 
 bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
-                                        const SkStroke&,
+                                        const SkStrokeRec&,
                                         GrDrawTarget* target,
                                         bool antiAlias) {
 

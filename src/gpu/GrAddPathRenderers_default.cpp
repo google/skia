@@ -10,7 +10,6 @@
 #include "GrStencilAndCoverPathRenderer.h"
 #include "GrAAHairLinePathRenderer.h"
 #include "GrAAConvexPathRenderer.h"
-#include "GrSoftwarePathRenderer.h"
 
 void GrPathRenderer::AddPathRenderers(GrContext* ctx, GrPathRendererChain* chain) {
     if (GrPathRenderer* pr = GrStencilAndCoverPathRenderer::Create(ctx)) {

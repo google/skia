@@ -19,6 +19,8 @@
 #include "SkDrawProcs.h"
 #include "SkGlyphCache.h"
 #include "SkImageFilter.h"
+#include "SkPathEffect.h"
+#include "SkStroke.h"
 #include "SkUtils.h"
 
 #define CACHE_COMPATIBLE_DEVICE_TEXTURES 1
@@ -753,7 +755,7 @@ inline bool shouldDrawBlurWithCPU(const SkRect& rect, SkScalar radius) {
     return false;
 }
 
-bool drawWithGPUMaskFilter(GrContext* context, const SkPath& devPath, bool doHairLine,
+bool drawWithGPUMaskFilter(GrContext* context, const SkPath& devPath, const SkStrokeRec& stroke,
                            SkMaskFilter* filter, const SkRegion& clip,
                            SkBounder* bounder, GrPaint* grp) {
     SkMaskFilter::BlurInfo info;
@@ -838,7 +840,7 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& devPath, bool doHai
         SkMatrix translate;
         translate.setTranslate(offset.fX, offset.fY);
         am.set(context, translate);
-        context->drawPath(tempPaint, devPath, doHairLine);
+        context->drawPath(tempPaint, devPath, stroke);
 
         // If we're doing a normal blur, we can clobber the pathTexture in the
         // gaussianBlur.  Otherwise, we need to save it for later compositing.
@@ -964,8 +966,6 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     CHECK_FOR_NODRAW_ANNOTATION(paint);
     CHECK_SHOULD_DRAW(draw, false);
 
-    bool             doHairLine = false;
-
     GrPaint grPaint;
     SkAutoCachedTexture textures[GrPaint::kMaxColorStages];
     if (!skPaint2GrPaintShader(this,
@@ -979,8 +979,8 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     // can we cheat, and threat a thin stroke as a hairline w/ coverage
     // if we can, we draw lots faster (raster device does this same test)
     SkScalar hairlineCoverage;
-    if (SkDrawTreatAsHairline(paint, fContext->getMatrix(), &hairlineCoverage)) {
-        doHairLine = true;
+    bool doHairLine = SkDrawTreatAsHairline(paint, fContext->getMatrix(), &hairlineCoverage);
+    if (doHairLine) {
         grPaint.setCoverage(SkScalarRoundToInt(hairlineCoverage * grPaint.getCoverage()));
     }
 
@@ -988,7 +988,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     // where the original path can in fact be modified in place (even though
     // its parameter type is const).
     SkPath* pathPtr = const_cast<SkPath*>(&origSrcPath);
-    SkPath  tmpPath;
+    SkPath  tmpPath, effectPath;
 
     if (prePathMatrix) {
         SkPath* result = pathPtr;
@@ -1005,32 +1005,40 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     // at this point we're done with prePathMatrix
     SkDEBUGCODE(prePathMatrix = (const SkMatrix*)0x50FF8001;)
 
-    if (paint.getPathEffect() ||
-        (!doHairLine && paint.getStyle() != SkPaint::kFill_Style)) {
-        // it is safe to use tmpPath here, even if we already used it for the
-        // prepathmatrix, since getFillPath can take the same object for its
-        // input and output safely.
-        doHairLine = !paint.getFillPath(*pathPtr, &tmpPath);
-        pathPtr = &tmpPath;
+    SkStrokeRec stroke(paint);
+    SkPathEffect* pathEffect = paint.getPathEffect();
+    if (pathEffect && pathEffect->filterPath(&effectPath, *pathPtr, &stroke)) {
+        pathPtr = &effectPath;
+    }
+
+    if (!pathEffect && doHairLine) {
+        stroke.setHairlineStyle();
     }
 
     if (paint.getMaskFilter()) {
+        if (!stroke.isHairlineStyle()) {
+            if (stroke.applyToPath(&tmpPath, *pathPtr)) {
+                pathPtr = &tmpPath;
+                stroke.setFillStyle();
+            }
+        }
+
         // avoid possibly allocating a new path in transform if we can
         SkPath* devPathPtr = pathIsMutable ? pathPtr : &tmpPath;
 
         // transform the path into device space
         pathPtr->transform(fContext->getMatrix(), devPathPtr);
-        if (!drawWithGPUMaskFilter(fContext, *devPathPtr, doHairLine, paint.getMaskFilter(),
+        if (!drawWithGPUMaskFilter(fContext, *devPathPtr, stroke, paint.getMaskFilter(),
                                    *draw.fClip, draw.fBounder, &grPaint)) {
-            SkPaint::Style style = doHairLine ? SkPaint::kStroke_Style :
-                                                SkPaint::kFill_Style;
+            SkPaint::Style style = stroke.isHairlineStyle() ? SkPaint::kStroke_Style :
+                                                              SkPaint::kFill_Style;
             drawWithMaskFilter(fContext, *devPathPtr, paint.getMaskFilter(),
                                *draw.fClip, draw.fBounder, &grPaint, style);
         }
         return;
     }
 
-    fContext->drawPath(grPaint, *pathPtr, doHairLine);
+    fContext->drawPath(grPaint, *pathPtr, stroke);
 }
 
 namespace {

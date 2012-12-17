@@ -20,32 +20,32 @@ public:
     GrDefaultPathRenderer(bool separateStencilSupport, bool stencilWrapOpsSupport);
 
     virtual bool canDrawPath(const SkPath&,
-                             const SkStroke&,
+                             const SkStrokeRec&,
                              const GrDrawTarget*,
                              bool antiAlias) const SK_OVERRIDE;
 
 private:
 
     virtual StencilSupport onGetStencilSupport(const SkPath&,
-                                               const SkStroke&,
+                                               const SkStrokeRec&,
                                                const GrDrawTarget*) const SK_OVERRIDE;
 
     virtual bool onDrawPath(const SkPath&,
-                            const SkStroke&,
+                            const SkStrokeRec&,
                             GrDrawTarget*,
                             bool antiAlias) SK_OVERRIDE;
 
     virtual void onStencilPath(const SkPath&,
-                               const SkStroke&,
+                               const SkStrokeRec&,
                                GrDrawTarget*) SK_OVERRIDE;
 
     bool internalDrawPath(const SkPath&,
-                          const SkStroke&,
+                          const SkStrokeRec&,
                           GrDrawTarget*,
                           bool stencilOnly);
 
     bool createGeom(const SkPath&,
-                    const SkStroke&,
+                    const SkStrokeRec&,
                     SkScalar srcSpaceTol,
                     GrDrawTarget*,
                     GrPrimitiveType*,

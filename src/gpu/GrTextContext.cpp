@@ -17,6 +17,7 @@
 #include "GrTextStrike.h"
 #include "GrTextStrike_impl.h"
 #include "SkPath.h"
+#include "SkStrokeRec.h"
 
 enum {
     kGlyphMaskStage = GrPaint::kTotalStages,
@@ -179,7 +180,8 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
                                SkFixedToScalar(vy - SkIntToFixed(glyph->fBounds.fTop)));
         GrPaint tmpPaint(fPaint);
         am.setPreConcat(fContext, translate, &tmpPaint);
-        fContext->drawPath(tmpPaint, *glyph->fPath, false);
+        SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
+        fContext->drawPath(tmpPaint, *glyph->fPath, stroke);
         return;
     }
 

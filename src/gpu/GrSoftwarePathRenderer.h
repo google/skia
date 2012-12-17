@@ -25,16 +25,16 @@ public:
     }
 
     virtual bool canDrawPath(const SkPath&,
-                             const SkStroke&,
+                             const SkStrokeRec&,
                              const GrDrawTarget*,
                              bool antiAlias) const SK_OVERRIDE;
 protected:
     virtual StencilSupport onGetStencilSupport(const SkPath&,
-                                               const SkStroke&,
+                                               const SkStrokeRec&,
                                                const GrDrawTarget*) const SK_OVERRIDE;
 
     virtual bool onDrawPath(const SkPath&,
-                            const SkStroke&,
+                            const SkStrokeRec&,
                             GrDrawTarget*,
                             bool antiAlias) SK_OVERRIDE;
 

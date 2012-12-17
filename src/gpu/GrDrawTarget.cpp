@@ -10,12 +10,11 @@
 
 #include "GrDrawTarget.h"
 #include "GrGpuVertex.h"
-#include "GrIndexBuffer.h"
 #include "GrRenderTarget.h"
 #include "GrTexture.h"
 #include "GrVertexBuffer.h"
 
-#include "SkStroke.h"
+#include "SkStrokeRec.h"
 
 SK_DEFINE_INST_COUNT(GrDrawTarget)
 
@@ -785,12 +784,12 @@ void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
     }
 }
 
-void GrDrawTarget::stencilPath(const GrPath* path, const SkStroke& stroke, SkPath::FillType fill) {
+void GrDrawTarget::stencilPath(const GrPath* path, const SkStrokeRec& stroke, SkPath::FillType fill) {
     // TODO: extract portions of checkDraw that are relevant to path stenciling.
     GrAssert(NULL != path);
     GrAssert(fCaps.pathStencilingSupport());
-    GrAssert(0 != stroke.getWidthIfStroked());
-    GrAssert(!SkPath::IsInverseFill(fill));
+    GrAssert(!stroke.isHairlineStyle());
+    GrAssert(!SkPath::IsInverseFillType(fill));
     this->onStencilPath(path, stroke, fill);
 }
 

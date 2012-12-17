@@ -643,7 +643,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
 
     // kDrawComplete will be the signal that we have reached the end of
     // the command stream
-    static const int kDrawComplete = SK_MaxU32;
+    static const uint32_t kDrawComplete = SK_MaxU32;
 
     SkReader32 reader(fOpData->bytes(), fOpData->size());
     TextContainer text;

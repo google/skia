@@ -570,7 +570,7 @@ private:
     virtual void onDrawNonIndexed(GrPrimitiveType type,
                                   int startVertex,
                                   int vertexCount) SK_OVERRIDE;
-    virtual void onStencilPath(const GrPath* path, const SkStroke& stroke,
+    virtual void onStencilPath(const GrPath* path, const SkStrokeRec& stroke,
                                SkPath::FillType) SK_OVERRIDE;
 
     // readies the pools to provide vertex/index data.

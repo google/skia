@@ -11,9 +11,9 @@
 #include "GrSWMaskHelper.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-bool GrSoftwarePathRenderer::canDrawPath(const SkPath& path,
-                                         const SkStroke& stroke,
-                                         const GrDrawTarget* target,
+bool GrSoftwarePathRenderer::canDrawPath(const SkPath&,
+                                         const SkStrokeRec&,
+                                         const GrDrawTarget*,
                                          bool antiAlias) const {
     if (!antiAlias || NULL == fContext) {
         // TODO: We could allow the SW path to also handle non-AA paths but
@@ -30,7 +30,7 @@ bool GrSoftwarePathRenderer::canDrawPath(const SkPath& path,
 
 GrPathRenderer::StencilSupport GrSoftwarePathRenderer::onGetStencilSupport(
                                                                         const SkPath&,
-                                                                        const SkStroke&,
+                                                                        const SkStrokeRec&,
                                                                         const GrDrawTarget*) const {
     return GrPathRenderer::kNoSupport_StencilSupport;
 }
@@ -114,7 +114,7 @@ void draw_around_inv_path(GrDrawTarget* target,
 ////////////////////////////////////////////////////////////////////////////////
 // return true on success; false on failure
 bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
-                                        const SkStroke& stroke,
+                                        const SkStrokeRec& stroke,
                                         GrDrawTarget* target,
                                         bool antiAlias) {
 

@@ -17,7 +17,7 @@
 #include "GrPath.h"
 
 #include "SkClipStack.h"
-#include "SkStroke.h"
+#include "SkStrokeRec.h"
 #include "SkTemplates.h"
 
 class GrGpu;
@@ -158,8 +158,10 @@ private:
     };
 
     struct StencilPath {
+        StencilPath();
+
         SkAutoTUnref<const GrPath>  fPath;
-        SkStroke                    fStroke;
+        SkStrokeRec                 fStroke;
         SkPath::FillType            fFill;
     };
 
@@ -181,7 +183,7 @@ private:
     virtual void onDrawNonIndexed(GrPrimitiveType primitiveType,
                                   int startVertex,
                                   int vertexCount) SK_OVERRIDE;
-    virtual void onStencilPath(const GrPath*, const SkStroke& stroke, SkPath::FillType) SK_OVERRIDE;
+    virtual void onStencilPath(const GrPath*, const SkStrokeRec& stroke, SkPath::FillType) SK_OVERRIDE;
     virtual bool onReserveVertexSpace(GrVertexLayout layout,
                                       int vertexCount,
                                       void** vertices) SK_OVERRIDE;

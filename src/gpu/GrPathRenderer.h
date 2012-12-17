@@ -14,7 +14,7 @@
 #include "GrPathRendererChain.h"
 #include "GrStencil.h"
 
-#include "SkStroke.h"
+#include "SkStrokeRec.h"
 #include "SkTArray.h"
 
 class SkPath;
@@ -82,7 +82,7 @@ public:
      * @param stroke    the stroke information (width, join, cap).
      */
     StencilSupport getStencilSupport(const SkPath& path,
-                                     const SkStroke& stroke,
+                                     const SkStrokeRec& stroke,
                                      const GrDrawTarget* target) const {
         GrAssert(!path.isInverseFillType());
         return this->onGetStencilSupport(path, stroke, target);
@@ -101,7 +101,7 @@ public:
      * @return  true if the path can be drawn by this object, false otherwise.
      */
     virtual bool canDrawPath(const SkPath& path,
-                             const SkStroke& stroke,
+                             const SkStrokeRec& rec,
                              const GrDrawTarget* target,
                              bool antiAlias) const = 0;
     /**
@@ -114,7 +114,7 @@ public:
      * @param antiAlias             true if anti-aliasing is required.
      */
     bool drawPath(const SkPath& path,
-                  const SkStroke& stroke,
+                  const SkStrokeRec& stroke,
                   GrDrawTarget* target,
                   bool antiAlias) {
         GrAssert(this->canDrawPath(path, stroke, target, antiAlias));
@@ -131,7 +131,7 @@ public:
      * @param stroke                the stroke information (width, join, cap)
      * @param target                target that the path will be rendered to
      */
-    void stencilPath(const SkPath& path, const SkStroke& stroke, GrDrawTarget* target) {
+    void stencilPath(const SkPath& path, const SkStrokeRec& stroke, GrDrawTarget* target) {
         GrAssert(kNoSupport_StencilSupport != this->getStencilSupport(path, stroke, target));
         this->onStencilPath(path, stroke, target);
     }
@@ -141,7 +141,7 @@ protected:
      * Subclass overrides if it has any limitations of stenciling support.
      */
     virtual StencilSupport onGetStencilSupport(const SkPath&,
-                                               const SkStroke&,
+                                               const SkStrokeRec&,
                                                const GrDrawTarget*) const {
         return kNoRestriction_StencilSupport;
     }
@@ -150,7 +150,7 @@ protected:
      * Subclass implementation of drawPath()
      */
     virtual bool onDrawPath(const SkPath& path,
-                            const SkStroke& stroke,
+                            const SkStrokeRec& stroke,
                             GrDrawTarget* target,
                             bool antiAlias) = 0;
 
@@ -158,7 +158,7 @@ protected:
      * Subclass implementation of stencilPath(). Subclass must override iff it ever returns
      * kStencilOnly in onGetStencilSupport().
      */
-    virtual void onStencilPath(const SkPath& path,  const SkStroke& stroke, GrDrawTarget* target) {
+    virtual void onStencilPath(const SkPath& path,  const SkStrokeRec& stroke, GrDrawTarget* target) {
         GrDrawTarget::AutoStateRestore asr(target, GrDrawTarget::kPreserve_ASRInit);
         GrDrawState* drawState = target->drawState();
         GR_STATIC_CONST_SAME_STENCIL(kIncrementStencil,
