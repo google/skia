@@ -71,20 +71,29 @@ static void setgrad(SkPaint* paint, SkScalar width) {
     paint->setShader(s)->unref();
 }
 
+static const char* gBlurStyle2Name[] = {
+    "normal",
+    "solid",
+    "outer",
+    "inner"
+};
+
 class BlurRectGM : public skiagm::GM {
     SkAutoTUnref<SkMaskFilter> fMaskFilter;
     SkString  fName;
     PaintProc fPProc;
     SkAlpha   fAlpha;
 public:
-    BlurRectGM(const char name[], PaintProc pproc, U8CPU alpha) :
-        fMaskFilter(SkBlurMaskFilter::Create(STROKE_WIDTH/2,
-                                       SkBlurMaskFilter::kNormal_BlurStyle,
+    BlurRectGM(const char name[], PaintProc pproc, U8CPU alpha,
+               SkBlurMaskFilter::BlurStyle bs) :
+        fMaskFilter(SkBlurMaskFilter::Create(STROKE_WIDTH/2, bs,
                                        SkBlurMaskFilter::kHighQuality_BlurFlag))
         , fName(name)
         , fPProc(pproc)
         , fAlpha(SkToU8(alpha))
-    {}
+    {
+        fName.appendf("_%s", gBlurStyle2Name[bs]);
+    }
 
 protected:
     virtual SkString onShortName() {
@@ -142,6 +151,10 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new BlurRectGM("blurrect", NULL, 0xFF);)
-DEF_GM(return new BlurRectGM("blurrect_grad_80", setgrad, 0x80);)
+DEF_GM(return new BlurRectGM("blurrect", NULL, 0xFF, SkBlurMaskFilter::kNormal_BlurStyle);)
+DEF_GM(return new BlurRectGM("blurrect", NULL, 0xFF, SkBlurMaskFilter::kSolid_BlurStyle);)
+DEF_GM(return new BlurRectGM("blurrect", NULL, 0xFF, SkBlurMaskFilter::kOuter_BlurStyle);)
+DEF_GM(return new BlurRectGM("blurrect", NULL, 0xFF, SkBlurMaskFilter::kInner_BlurStyle);)
+
+DEF_GM(return new BlurRectGM("blurrect_grad_80", setgrad, 0x80, SkBlurMaskFilter::kNormal_BlurStyle);)
 
