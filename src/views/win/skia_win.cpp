@@ -7,6 +7,9 @@
  */
 #include <Windows.h>
 #include <tchar.h>
+
+#include "SkApplication.h"
+
 #define MAX_LOADSTRING 100
 
 // Global Variables:
@@ -47,6 +50,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
             DispatchMessage(&msg);
         }
     }
+
+    application_term();
 
     return (int) msg.wParam;
 }
@@ -118,12 +123,12 @@ char* tchar_to_utf8(const TCHAR* str) {
 
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow, LPTSTR lpCmdLine)
 {
-   HWND hWnd;
+   application_init();
 
    hInst = hInstance; // Store instance handle in our global variable
 
-   hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
+   HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+                            CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
 
    if (!hWnd)
    {
@@ -145,7 +150,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow, LPTSTR lpCmdLine)
    for (int i = 0; i < argc; ++i) {
       free(argv[i]);
    }
-
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
 
