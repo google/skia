@@ -164,6 +164,7 @@ bool SkDashPathEffect::filterPath(SkPath* dst, const SkPath& src,
 
     SkPathMeasure   meas(src, false);
     const SkScalar* intervals = fIntervals;
+    SkScalar        dashCount = 0;
 
     SpecialLineRec lineRec;
     const bool specialLine = lineRec.init(src, dst, rec, meas.getLength(),
@@ -175,6 +176,21 @@ bool SkDashPathEffect::filterPath(SkPath* dst, const SkPath& src,
         SkScalar    length = meas.getLength();
         int         index = fInitialDashIndex;
         SkScalar    scale = SK_Scalar1;
+
+        // Since the path length / dash length ratio may be arbitrarily large, we can exert
+        // significant memory pressure while attempting to build the filtered path. To avoid this,
+        // we simply give up dashing beyond a certain threshold.
+        //
+        // The original bug report (http://crbug.com/165432) is based on a path yielding more than
+        // 90 million dash segments and crashing the memory allocator. A limit of 1 million
+        // segments seems reasonable: at 2 verbs per segment * 9 bytes per verb, this caps the
+        // maximum dash memory overhead at roughly 17MB per path.
+        static const SkScalar kMaxDashCount = 1000000;
+        dashCount += length * (fCount >> 1) / fIntervalLength;
+        if (dashCount > kMaxDashCount) {
+            dst->reset();
+            return false;
+        }
 
         if (fScaleToFit) {
             if (fIntervalLength >= length) {
