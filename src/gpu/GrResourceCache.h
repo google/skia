@@ -119,26 +119,6 @@ private:
 };
 
 
-class GrCacheKey {
-public:
-    GrCacheKey(const GrTextureDesc& desc, const GrResourceKey& key)
-        : fDesc(desc)
-        , fKey(key) {
-    }
-
-    void set(const GrTextureDesc& desc, const GrResourceKey& key) {
-        fDesc = desc;
-        fKey = key;
-    }
-
-    const GrTextureDesc& desc() const { return fDesc; }
-    const GrResourceKey& key() const { return fKey; }
-
-protected:
-    GrTextureDesc fDesc;
-    GrResourceKey fKey;
-};
-
 ///////////////////////////////////////////////////////////////////////////////
 
 class GrResourceEntry {

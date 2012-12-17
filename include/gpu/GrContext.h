@@ -23,7 +23,6 @@
 #include "GrTexture.h"
 
 class GrAutoScratchTexture;
-class GrCacheKey;
 class GrDrawState;
 class GrDrawTarget;
 class GrEffect;
@@ -136,12 +135,6 @@ public:
                              const GrTextureDesc& desc,
                              const GrCacheData& cacheData,
                              void* srcData, size_t rowBytes);
-
-    /**
-     * Look for a texture that matches 'key' in the cache. If not found,
-     * return NULL.
-     */
-    GrTexture* findTexture(const GrCacheKey& key);
 
     /**
      *  Search for an entry based on key and dimensions. If found,

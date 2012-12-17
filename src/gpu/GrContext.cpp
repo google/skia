@@ -209,11 +209,6 @@ void convolve_gaussian(GrDrawTarget* target,
 
 }
 
-
-GrTexture* GrContext::findTexture(const GrCacheKey& key) {
-    return static_cast<GrTexture*>(fTextureCache->find(key.key()));
-}
-
 GrTexture* GrContext::findTexture(const GrTextureDesc& desc,
                                   const GrCacheData& cacheData,
                                   const GrTextureParams* params) {
