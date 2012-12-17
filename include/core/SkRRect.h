@@ -220,6 +220,7 @@ public:
      */
     bool contains(SkScalar x, SkScalar y) const;
 
+#if 0
     void inset(SkScalar dx, SkScalar dy, SkRRect* dst) const;
     void inset(SkScalar dx, SkScalar dy) {
         this->inset(dx, dy, this);
@@ -230,6 +231,7 @@ public:
     void outset(SkScalar dx, SkScalar dy) {
         this->inset(-dx, -dy, this);
     }
+#endif
 
     SkDEBUGCODE(void validate() const;)
 
