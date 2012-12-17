@@ -252,80 +252,191 @@ bool SkDashPathEffect::filterPath(SkPath* dst, const SkPath& src,
 // Currently asPoints is more restrictive then it needs to be. In the future
 // we need to:
 //      allow kRound_Cap capping (could allow rotations in the matrix with this)
-//      loosen restriction on initial dash length
-//      allow cases where (stroke width == interval[0]) and return size
-//      allow partial first and last pixels
+//      allow paths to be returned
 bool SkDashPathEffect::asPoints(PointData* results,
                                 const SkPath& src,
                                 const SkStrokeRec& rec,
                                 const SkMatrix& matrix) const {
-    if (rec.isFillStyle() || fInitialDashLength < 0 || SK_Scalar1 != rec.getWidth()) {
+    // width < 0 -> fill && width == 0 -> hairline so requiring width > 0 rules both out
+    if (fInitialDashLength < 0 || 0 >= rec.getWidth()) {
         return false;
     }
 
-    if (fIntervalLength != 2 || SK_Scalar1 != fIntervals[0] || SK_Scalar1 != fIntervals[1]) {
+    // TODO: this next test could be eased up. We could allow any number of
+    // intervals as long as all the ons match and all the offs match.
+    // Additionally, they do not necessarily need to be integers.
+    // We cannot allow arbitrary intervals since we want the returned points
+    // to be uniformly sized.
+    if (fCount != 2 || 
+        !SkScalarNearlyEqual(fIntervals[0], fIntervals[1]) ||
+        !SkScalarIsInt(fIntervals[0]) ||
+        !SkScalarIsInt(fIntervals[1])) {
         return false;
     }
 
-    if (fScaleToFit || 0 != fInitialDashLength) {
+    // TODO: this next test could be eased up. The rescaling should not impact
+    // the equality of the ons & offs. However, we would need to remove the 
+    // integer intervals restriction first
+    if (fScaleToFit) {
         return false;
     }
 
     SkPoint pts[2];
 
-    if (rec.isHairlineStyle() || !src.isLine(pts)) {
+    if (!src.isLine(pts)) {
         return false;
     }
 
+    // TODO: this test could be eased up to allow circles
     if (SkPaint::kButt_Cap != rec.getCap()) {
         return false;
     }
 
+    // TODO: this test could be eased up for circles. Rotations could be allowed.
     if (!matrix.rectStaysRect()) {
         return false;
     }
 
-    SkPathMeasure   meas(src, false);
-    SkScalar        length = meas.getLength();
+    SkScalar        length = SkPoint::Distance(pts[1], pts[0]);
 
-    if (!SkScalarIsInt(length)) {
+    SkVector tangent = pts[1] - pts[0];
+    if (tangent.isZero()) {
+        return false;
+    }
+
+    tangent.scale(SkScalarInvert(length));
+
+    // TODO: make this test for horizontal & vertical lines more robust
+    bool isXAxis = true;
+    if (SK_Scalar1 == tangent.fX || -SK_Scalar1 == tangent.fX) {
+        results->fSize.set(SkScalarHalf(fIntervals[0]), SkScalarHalf(rec.getWidth()));
+    } else if (SK_Scalar1 == tangent.fY || -SK_Scalar1 == tangent.fY) {
+        results->fSize.set(SkScalarHalf(rec.getWidth()), SkScalarHalf(fIntervals[0]));
+        isXAxis = false;
+    } else if (SkPaint::kRound_Cap != rec.getCap()) {
+        // Angled lines don't have axis-aligned boxes.
         return false;
     }
 
     if (NULL != results) {
-        results->fFlags = 0;    // don't use clip rect & draw rects
-        results->fSize.set(SK_Scalar1, SK_Scalar1);
+        results->fFlags = 0;   
 
-        SkVector tangent = pts[1] - pts[0];
-        if (tangent.isZero()) {
-            return false;
+        if (SkPaint::kRound_Cap == rec.getCap()) {
+            results->fFlags |= PointData::kCircles_PointFlag;
         }
 
-        tangent.scale(SkScalarInvert(length));
+        results->fNumPoints = 0;
+        SkScalar len2 = length;
+        bool partialFirst = false;
+        if (fInitialDashLength > 0 || 0 == fInitialDashIndex) {
+            SkASSERT(len2 >= fInitialDashLength);
+            if (0 == fInitialDashIndex) {
+                if (fInitialDashLength > 0) {
+                    partialFirst = true;
+                    if (fInitialDashLength >= fIntervals[0]) {
+                        ++results->fNumPoints;  // partial first dash
+                    }
+                    len2 -= fInitialDashLength;
+                }
+                len2 -= fIntervals[1];  // also skip first space
+                if (len2 < 0) {
+                    len2 = 0;
+                }
+            } else {
+                len2 -= fInitialDashLength; // skip initial partial empty
+            }
+        }
+        int numMidPoints = SkScalarFloorToInt(SkScalarDiv(len2, fIntervalLength));
+        results->fNumPoints += numMidPoints;
+        len2 -= numMidPoints * fIntervalLength;
+        bool partialLast = false;
+        if (len2 > 0) {
+            if (len2 < fIntervals[0]) {
+                partialLast = true; 
+            } else {
+                ++numMidPoints;
+                ++results->fNumPoints;
+            }
+        }
 
-        SkScalar ptCount = SkScalarDiv(length-1, SkIntToScalar(2));
-        results->fNumPoints = SkScalarCeilToInt(ptCount);
         results->fPoints = new SkPoint[results->fNumPoints];
 
-        // +1 b.c. fInitialDashLength is zero so the initial segment will be skipped
-        int index = fInitialDashIndex+1;
-        int iCurPt = 0;
+        SkScalar    distance = 0;
+        int         curPt = 0;
 
-        for (SkScalar distance = SK_ScalarHalf; distance < length; distance += SK_Scalar1) {
-            SkASSERT(index <= fCount);
+        if (fInitialDashLength > 0 || 0 == fInitialDashIndex) {
+            SkASSERT(fInitialDashLength <= length);
 
-            if (0 == index) {
-                SkScalar x0 = pts[0].fX + SkScalarMul(tangent.fX, distance);
-                SkScalar y0 = pts[0].fY + SkScalarMul(tangent.fY, distance);
-                SkASSERT(iCurPt < results->fNumPoints);
-                results->fPoints[iCurPt].set(x0, y0);
-                ++iCurPt;
+            if (0 == fInitialDashIndex) {
+                if (fInitialDashLength > 0) {
+                    // partial first block
+                    SkASSERT(SkPaint::kRound_Cap != rec.getCap()); // can't handle partial circles
+                    SkScalar x = pts[0].fX + SkScalarMul(tangent.fX, SkScalarHalf(fInitialDashLength));
+                    SkScalar y = pts[0].fY + SkScalarMul(tangent.fY, SkScalarHalf(fInitialDashLength));
+                    SkScalar halfWidth, halfHeight;
+                    if (isXAxis) {
+                        halfWidth = SkScalarHalf(fInitialDashLength);
+                        halfHeight = SkScalarHalf(rec.getWidth());
+                    } else {
+                        halfWidth = SkScalarHalf(rec.getWidth());
+                        halfHeight = SkScalarHalf(fInitialDashLength);
+                    }
+                    if (fInitialDashLength < fIntervals[0]) {
+                        // This one will not be like the others
+                        results->fFirst.addRect(x - halfWidth, y - halfHeight,
+                                                x + halfWidth, y + halfHeight);
+                    } else {
+                        SkASSERT(curPt < results->fNumPoints);
+                        results->fPoints[curPt].set(x, y);
+                        ++curPt;
+                    }
+
+                    distance += fInitialDashLength;
+                }
+
+                distance += fIntervals[1];  // skip over the next blank block too
+            } else {
+                distance += fInitialDashLength;
             }
-
-            index ^= 1; // 0 -> 1 -> 0 ...
         }
 
-        SkASSERT(iCurPt == results->fNumPoints);
+        if (0 != numMidPoints) {
+            distance += SkScalarHalf(fIntervals[0]);
+
+            for (int i = 0; i < numMidPoints; ++i) {
+                SkScalar x = pts[0].fX + SkScalarMul(tangent.fX, distance);
+                SkScalar y = pts[0].fY + SkScalarMul(tangent.fY, distance);
+
+                SkASSERT(curPt < results->fNumPoints);
+                results->fPoints[curPt].set(x, y);
+                ++curPt;
+
+                distance += fIntervalLength;
+            }
+
+            distance -= SkScalarHalf(fIntervals[0]);
+        }
+
+        if (partialLast) {
+            // partial final block
+            SkASSERT(SkPaint::kRound_Cap != rec.getCap()); // can't handle partial circles
+            SkScalar temp = length - distance;
+            SkASSERT(temp < fIntervals[0]);
+            SkScalar x = pts[0].fX + SkScalarMul(tangent.fX, distance + SkScalarHalf(temp));
+            SkScalar y = pts[0].fY + SkScalarMul(tangent.fY, distance + SkScalarHalf(temp));
+            SkScalar halfWidth, halfHeight;
+            if (isXAxis) {
+                halfWidth = SkScalarHalf(temp);
+                halfHeight = SkScalarHalf(rec.getWidth());
+            } else {
+                halfWidth = SkScalarHalf(rec.getWidth());
+                halfHeight = SkScalarHalf(temp);
+            }
+            results->fLast.addRect(x - halfWidth, y - halfHeight,
+                                   x + halfWidth, y + halfHeight);
+        }
+
+        SkASSERT(curPt == results->fNumPoints);
     }
 
     return true;
