@@ -159,6 +159,12 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
         return kUnimplemented_FilterReturn;
     }
 
+    // TODO: report correct metrics for innerstyle, where we do not grow the
+    // total bounds, but we do need an inset the size of our blur-radius
+    if (SkBlurMaskFilter::kInner_BlurStyle == fBlurStyle) {
+        return kUnimplemented_FilterReturn;
+    }
+
     // TODO: take clipBounds into account to limit our coordinates up front
     // for now, just skip too-large src rects (to take the old code path).
     if (rect_exceeds(rects[0], SkIntToScalar(32767))) {
