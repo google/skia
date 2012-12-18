@@ -97,3 +97,9 @@ bool SkBBoxHierarchyRecord::clipPath(const SkPath& path,
     return INHERITED::clipPath(path, op, doAntiAlias);
 }
 
+bool SkBBoxHierarchyRecord::clipRRect(const SkRRect& rrect,
+                                      SkRegion::Op op,
+                                      bool doAntiAlias) {
+    fStateTree->appendClip(this->writeStream().size());
+    return INHERITED::clipRRect(rrect, op, doAntiAlias);
+}
