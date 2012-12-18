@@ -96,7 +96,7 @@ public:
      * @return bool True if rendering succeeded and, if path is non-null, the output was
      *             successfully written to a file.
      */
-    virtual bool render(const SkString* path) = 0;
+    virtual bool render(const SkString* path, SkBitmap** out = NULL) = 0;
 
     /**
      * Called once finished with a particular SkPicture, before calling init again, and before
@@ -245,7 +245,7 @@ private:
  * to time.
  */
 class RecordPictureRenderer : public PictureRenderer {
-    virtual bool render(const SkString*) SK_OVERRIDE;
+    virtual bool render(const SkString*, SkBitmap** out = NULL) SK_OVERRIDE;
 
     virtual SkString getPerIterTimeFormat() SK_OVERRIDE { return SkString("%.4f"); }
 
@@ -260,7 +260,7 @@ private:
 
 class PipePictureRenderer : public PictureRenderer {
 public:
-    virtual bool render(const SkString*) SK_OVERRIDE;
+    virtual bool render(const SkString*, SkBitmap** out = NULL) SK_OVERRIDE;
 
 private:
     virtual SkString getConfigNameInternal() SK_OVERRIDE;
@@ -272,7 +272,7 @@ class SimplePictureRenderer : public PictureRenderer {
 public:
     virtual void init(SkPicture* pict) SK_OVERRIDE;
 
-    virtual bool render(const SkString*) SK_OVERRIDE;
+    virtual bool render(const SkString*, SkBitmap** out = NULL) SK_OVERRIDE;
 
 private:
     virtual SkString getConfigNameInternal() SK_OVERRIDE;
@@ -291,7 +291,7 @@ public:
      * created for each tile, named "path0.png", "path1.png", etc.
      * Multithreaded mode currently does not support writing to a file.
      */
-    virtual bool render(const SkString* path) SK_OVERRIDE;
+    virtual bool render(const SkString* path, SkBitmap** out = NULL) SK_OVERRIDE;
 
     virtual void end() SK_OVERRIDE;
 
@@ -410,7 +410,7 @@ public:
     /**
      * Behaves like TiledPictureRenderer::render(), only using multiple threads.
      */
-    virtual bool render(const SkString* path) SK_OVERRIDE;
+    virtual bool render(const SkString* path, SkBitmap** out = NULL) SK_OVERRIDE;
 
     virtual void end() SK_OVERRIDE;
 
@@ -435,7 +435,7 @@ class PlaybackCreationRenderer : public PictureRenderer {
 public:
     virtual void setup() SK_OVERRIDE;
 
-    virtual bool render(const SkString*) SK_OVERRIDE;
+    virtual bool render(const SkString*, SkBitmap** out = NULL) SK_OVERRIDE;
 
     virtual SkString getPerIterTimeFormat() SK_OVERRIDE { return SkString("%.4f"); }
 

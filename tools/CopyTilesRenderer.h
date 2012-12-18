@@ -29,7 +29,7 @@ namespace sk_tools {
          *  Similar to TiledPictureRenderer, this will draw a PNG for each tile. However, the
          *  numbering (and actual tiles) will be different.
          */
-        virtual bool render(const SkString* path) SK_OVERRIDE;
+        virtual bool render(const SkString* path, SkBitmap** out) SK_OVERRIDE;
 
     private:
         int fXTilesPerLargeTile;
