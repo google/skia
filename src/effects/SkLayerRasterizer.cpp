@@ -87,7 +87,7 @@ static bool compute_bounds(const SkDeque& layers, const SkPath& path,
 
 bool SkLayerRasterizer::onRasterize(const SkPath& path, const SkMatrix& matrix,
                                     const SkIRect* clipBounds,
-                                    SkMask* mask, SkMask::CreateMode mode) {
+                                    SkMask* mask, SkMask::CreateMode mode) const {
     if (fLayers.empty()) {
         return false;
     }

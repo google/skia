@@ -28,14 +28,14 @@ public:
     */
     bool rasterize(const SkPath& path, const SkMatrix& matrix,
                    const SkIRect* clipBounds, SkMaskFilter* filter,
-                   SkMask* mask, SkMask::CreateMode mode);
+                   SkMask* mask, SkMask::CreateMode mode) const;
 
 protected:
     SkRasterizer(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
 
     virtual bool onRasterize(const SkPath& path, const SkMatrix& matrix,
                              const SkIRect* clipBounds,
-                             SkMask* mask, SkMask::CreateMode mode);
+                             SkMask* mask, SkMask::CreateMode mode) const;
 
 private:
     typedef SkFlattenable INHERITED;

@@ -41,7 +41,7 @@ protected:
     // override from SkRasterizer
     virtual bool onRasterize(const SkPath& path, const SkMatrix& matrix,
                              const SkIRect* clipBounds,
-                             SkMask* mask, SkMask::CreateMode mode);
+                             SkMask* mask, SkMask::CreateMode mode) const;
 
 private:
     SkDeque fLayers;
