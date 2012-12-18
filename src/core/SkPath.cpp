@@ -1035,9 +1035,9 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
 static void add_corner_arc(SkPath* path, const SkRect& rect,
                            SkScalar rx, SkScalar ry, int startAngle,
                            SkPath::Direction dir, bool forceMoveTo) {
-    // These two asserts are not sufficient, since really we want to know 
-    // that the pair of radii (e.g. left and right, or top and bottom) sum 
-    // to <= dimension, but we don't have that data here, so we just have 
+    // These two asserts are not sufficient, since really we want to know
+    // that the pair of radii (e.g. left and right, or top and bottom) sum
+    // to <= dimension, but we don't have that data here, so we just have
     // these conservative asserts.
     SkASSERT(0 <= rx && rx <= rect.width());
     SkASSERT(0 <= ry && ry <= rect.height());

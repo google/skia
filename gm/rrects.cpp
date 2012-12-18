@@ -40,7 +40,7 @@ protected:
 
         SkPaint paint;
         // when clipping the AA is pushed into the clip operation
-        paint.setAntiAlias(fDoClip ? false : fDoAA); 
+        paint.setAntiAlias(fDoClip ? false : fDoAA);
 
         static const SkRect kMaxTileBound = SkRect::MakeWH(SkIntToScalar(kTileX), SkIntToScalar(kTileY));
 
@@ -67,7 +67,7 @@ protected:
     }
 
     void setUpRRects() {
-        // each RRect must fit in a 0x0 -> (kTileX-2)x(kTileY-2) block. These will be tiled across 
+        // each RRect must fit in a 0x0 -> (kTileX-2)x(kTileY-2) block. These will be tiled across
         // the screen in kTileX x kTileY tiles. The extra empty pixels on each side are for AA.
 
         // simple cases
