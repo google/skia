@@ -39,8 +39,6 @@ namespace skiagm {
             kSkipPipe_Flag      = 1 << 2,
             kSkipTiled_Flag     = 1 << 3,
             kSkip565_Flag       = 1 << 4,
-            kRTree_Flag         = 1 << 5,
-            kTileGrid_Flag      = 1 << 6,
         };
 
         void draw(SkCanvas*);
