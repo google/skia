@@ -29,6 +29,24 @@ def TiledGPUConfig(tile_x, tile_y, **kwargs):
   return GPUConfig(mode=['tile', str(tile_x), str(tile_y)], **kwargs)
 
 
+def ViewportBitmapConfig(viewport_x, viewport_y, **kwargs):
+  return BitmapConfig(viewport=[str(viewport_x), str(viewport_y)], **kwargs)
+
+
+def ViewportGPUConfig(viewport_x, viewport_y, **kwargs):
+  return GPUConfig(viewport=[str(viewport_x), str(viewport_y)], **kwargs)
+
+
+def ViewportRTreeConfig(viewport_x, viewport_y, **kwargs):
+  return RTreeConfig(viewport_x, viewport_y, mode='simple',
+                     viewport=[str(viewport_x), str(viewport_y)], **kwargs)
+
+
+def ViewportGridConfig(viewport_x, viewport_y, **kwargs):
+  return GridConfig(viewport_x, viewport_y, mode='simple',
+                    viewport=[str(viewport_x), str(viewport_y)], **kwargs)
+
+
 def CopyTilesConfig(tile_x, tile_y, **kwargs):
   return BitmapConfig(mode=['copyTile', str(tile_x), str(tile_y)], **kwargs)
 
