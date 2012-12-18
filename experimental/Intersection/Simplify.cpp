@@ -1027,7 +1027,7 @@ public:
         fDefer[0] = fDefer[1] = pt2;
         fEmpty = false;
     }
-    
+
     bool someAssemblyRequired() const {
         return fCloses < fMoves;
     }
@@ -2456,7 +2456,7 @@ public:
             const Angle* nextAngle = sorted[nextIndex];
             nextSegment = nextAngle->segment();
             int maxWinding;
-            bool activeAngle = nextSegment->activeWinding(nextAngle->start(), nextAngle->end(), 
+            bool activeAngle = nextSegment->activeWinding(nextAngle->start(), nextAngle->end(),
                     maxWinding, sumWinding);
             if (activeAngle && (!foundAngle || foundDone) && outside != (sumWinding & 1)) {
                 foundAngle = nextAngle;
@@ -3569,7 +3569,7 @@ public:
         return fVerb;
     }
 
-    int windingAtT(double tHit, int tIndex, bool crossOpp) const { 
+    int windingAtT(double tHit, int tIndex, bool crossOpp) const {
         if (approximately_zero(tHit - t(tIndex))) { // if we hit the end of a span, disregard
             return SK_MinS32;
         }

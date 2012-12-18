@@ -20,7 +20,7 @@ static void inset0(const SkRRect& src, SkScalar dx, SkScalar dy, SkRRect* dst) {
         dst->setEmpty();
         return;
     }
-    
+
     SkVector radii[4];
     for (int i = 0; i < 4; ++i) {
         radii[i] = src.radii((SkRRect::Corner)i);
@@ -40,7 +40,7 @@ static void inset1(const SkRRect& src, SkScalar dx, SkScalar dy, SkRRect* dst) {
         dst->setEmpty();
         return;
     }
-    
+
     SkVector radii[4];
     for (int i = 0; i < 4; ++i) {
         radii[i] = src.radii((SkRRect::Corner)i);
@@ -50,13 +50,13 @@ static void inset1(const SkRRect& src, SkScalar dx, SkScalar dy, SkRRect* dst) {
 
 static void inset2(const SkRRect& src, SkScalar dx, SkScalar dy, SkRRect* dst) {
     SkRect r = src.rect();
-    
+
     r.inset(dx, dy);
     if (r.isEmpty()) {
         dst->setEmpty();
         return;
     }
-    
+
     SkVector radii[4];
     for (int i = 0; i < 4; ++i) {
         radii[i] = src.radii((SkRRect::Corner)i);
@@ -78,13 +78,13 @@ static SkScalar prop(SkScalar radius, SkScalar delta, SkScalar newSize, SkScalar
 
 static void inset3(const SkRRect& src, SkScalar dx, SkScalar dy, SkRRect* dst) {
     SkRect r = src.rect();
-    
+
     r.inset(dx, dy);
     if (r.isEmpty()) {
         dst->setEmpty();
         return;
     }
-    
+
     SkVector radii[4];
     for (int i = 0; i < 4; ++i) {
         radii[i] = src.radii((SkRRect::Corner)i);
@@ -124,16 +124,16 @@ static void drawrr(SkCanvas* canvas, const SkRRect& rrect, InsetProc proc) {
 class RRectGM : public skiagm::GM {
 public:
     RRectGM() {}
-    
+
 protected:
     virtual SkString onShortName() {
         return SkString("rrect");
     }
-    
+
     virtual SkISize onISize() {
         return SkISize::Make(820, 710);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         static const InsetProc insetProcs[] = {
             inset0, inset1, inset2, inset3
@@ -144,7 +144,7 @@ protected:
         SkVector radii[4] = {
             { 0, 0 }, { 30, 1 }, { 10, 40 }, { 40, 40 }
         };
-        
+
         rrect[0].setRect(r);
         rrect[1].setOval(r);
         rrect[2].setRectXY(r, 20, 20);
@@ -161,7 +161,7 @@ protected:
             canvas->translate(0, 170);
         }
     }
-    
+
 private:
     typedef GM INHERITED;
 };

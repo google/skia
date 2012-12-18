@@ -267,7 +267,7 @@ bool SkDashPathEffect::asPoints(PointData* results,
     // Additionally, they do not necessarily need to be integers.
     // We cannot allow arbitrary intervals since we want the returned points
     // to be uniformly sized.
-    if (fCount != 2 || 
+    if (fCount != 2 ||
         !SkScalarNearlyEqual(fIntervals[0], fIntervals[1]) ||
         !SkScalarIsInt(fIntervals[0]) ||
         !SkScalarIsInt(fIntervals[1])) {
@@ -275,7 +275,7 @@ bool SkDashPathEffect::asPoints(PointData* results,
     }
 
     // TODO: this next test could be eased up. The rescaling should not impact
-    // the equality of the ons & offs. However, we would need to remove the 
+    // the equality of the ons & offs. However, we would need to remove the
     // integer intervals restriction first
     if (fScaleToFit) {
         return false;
@@ -319,7 +319,7 @@ bool SkDashPathEffect::asPoints(PointData* results,
     }
 
     if (NULL != results) {
-        results->fFlags = 0;   
+        results->fFlags = 0;
 
         if (SkPaint::kRound_Cap == rec.getCap()) {
             results->fFlags |= PointData::kCircles_PointFlag;
@@ -352,7 +352,7 @@ bool SkDashPathEffect::asPoints(PointData* results,
         bool partialLast = false;
         if (len2 > 0) {
             if (len2 < fIntervals[0]) {
-                partialLast = true; 
+                partialLast = true;
             } else {
                 ++numMidPoints;
                 ++results->fNumPoints;

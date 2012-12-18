@@ -701,7 +701,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                             }
 
                             if (fDevice) {
-                                fDevice->drawPoints(*this, 
+                                fDevice->drawPoints(*this,
                                                     SkCanvas::kPoints_PointMode,
                                                     pointData.fNumPoints,
                                                     pointData.fPoints,
@@ -716,7 +716,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                             break;
                         } else {
                             // The rest of the dashed line must be drawn as rects
-                            SkASSERT(!(SkPathEffect::PointData::kCircles_PointFlag & 
+                            SkASSERT(!(SkPathEffect::PointData::kCircles_PointFlag &
                                       pointData.fFlags));
 
                             SkRect r;
