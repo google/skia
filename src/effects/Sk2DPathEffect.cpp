@@ -16,7 +16,8 @@ Sk2DPathEffect::Sk2DPathEffect(const SkMatrix& mat) : fMatrix(mat) {
     fMatrixIsInvertible = mat.invert(&fInverse);
 }
 
-bool Sk2DPathEffect::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*) {
+bool Sk2DPathEffect::filterPath(SkPath* dst, const SkPath& src,
+                                SkStrokeRec*) const {
     if (!fMatrixIsInvertible) {
         return false;
     }
@@ -44,7 +45,7 @@ bool Sk2DPathEffect::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*) {
     return true;
 }
 
-void Sk2DPathEffect::nextSpan(int x, int y, int count, SkPath* path) {
+void Sk2DPathEffect::nextSpan(int x, int y, int count, SkPath* path) const {
     if (!fMatrixIsInvertible) {
         return;
     }
@@ -60,9 +61,9 @@ void Sk2DPathEffect::nextSpan(int x, int y, int count, SkPath* path) {
     } while (--count > 0);
 }
 
-void Sk2DPathEffect::begin(const SkIRect& uvBounds, SkPath* dst) {}
-void Sk2DPathEffect::next(const SkPoint& loc, int u, int v, SkPath* dst) {}
-void Sk2DPathEffect::end(SkPath* dst) {}
+void Sk2DPathEffect::begin(const SkIRect& uvBounds, SkPath* dst) const {}
+void Sk2DPathEffect::next(const SkPoint& loc, int u, int v, SkPath* dst) const {}
+void Sk2DPathEffect::end(SkPath* dst) const {}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -78,7 +79,8 @@ Sk2DPathEffect::Sk2DPathEffect(SkFlattenableReadBuffer& buffer) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkLine2DPathEffect::filterPath(SkPath *dst, const SkPath &src, SkStrokeRec *rec) {
+bool SkLine2DPathEffect::filterPath(SkPath* dst, const SkPath& src,
+                                    SkStrokeRec* rec) const {
     if (this->INHERITED::filterPath(dst, src, rec)) {
         rec->setStrokeStyle(fWidth);
         return true;
@@ -86,7 +88,7 @@ bool SkLine2DPathEffect::filterPath(SkPath *dst, const SkPath &src, SkStrokeRec 
     return false;
 }
 
-void SkLine2DPathEffect::nextSpan(int u, int v, int ucount, SkPath *dst) {
+void SkLine2DPathEffect::nextSpan(int u, int v, int ucount, SkPath* dst) const {
     if (ucount > 1) {
         SkPoint    src[2], dstP[2];
 
@@ -124,6 +126,7 @@ void SkPath2DPathEffect::flatten(SkFlattenableWriteBuffer& buffer) const {
     buffer.writePath(fPath);
 }
 
-void SkPath2DPathEffect::next(const SkPoint& loc, int u, int v, SkPath* dst) {
+void SkPath2DPathEffect::next(const SkPoint& loc, int u, int v,
+                              SkPath* dst) const {
     dst->addPath(fPath, loc.fX, loc.fY);
 }

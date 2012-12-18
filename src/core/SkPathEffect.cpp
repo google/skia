@@ -14,7 +14,7 @@
 
 SK_DEFINE_INST_COUNT(SkPathEffect)
 
-void SkPathEffect::computeFastBounds(SkRect* dst, const SkRect& src) {
+void SkPathEffect::computeFastBounds(SkRect* dst, const SkRect& src) const {
     *dst = src;
 }
 
@@ -56,7 +56,7 @@ SkPairPathEffect::SkPairPathEffect(SkFlattenableReadBuffer& buffer) {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkComposePathEffect::filterPath(SkPath* dst, const SkPath& src,
-                                     SkStrokeRec* rec) {
+                                     SkStrokeRec* rec) const {
     // we may have failed to unflatten these, so we have to check
     if (!fPE0 || !fPE1) {
         return false;
@@ -74,7 +74,7 @@ bool SkComposePathEffect::filterPath(SkPath* dst, const SkPath& src,
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkSumPathEffect::filterPath(SkPath* dst, const SkPath& src,
-                                 SkStrokeRec* rec) {
+                                 SkStrokeRec* rec) const {
     // use bit-or so that we always call both, even if the first one succeeds
     return fPE0->filterPath(dst, src, rec) | fPE1->filterPath(dst, src, rec);
 }

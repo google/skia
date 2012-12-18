@@ -74,26 +74,26 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Dot2DPathEffect)
 
 protected:
-    virtual void begin(const SkIRect& uvBounds, SkPath* dst) {
+    virtual void begin(const SkIRect& uvBounds, SkPath* dst) const SK_OVERRIDE {
         if (fPts) {
             fPts->reset();
         }
         this->INHERITED::begin(uvBounds, dst);
     }
-//    virtual void end(SkPath* dst) {}
-    virtual void next(const SkPoint& loc, int u, int v, SkPath* dst)
-    {
+
+    virtual void next(const SkPoint& loc, int u, int v,
+                      SkPath* dst) const SK_OVERRIDE {
         if (fPts) {
             *fPts->append() = loc;
         }
         dst->addCircle(loc.fX, loc.fY, fRadius);
     }
 
-    Dot2DPathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(buffer)
-    {
+    Dot2DPathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
         fRadius = buffer.readScalar();
         fPts = NULL;
     }
+
     virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
         this->INHERITED::flatten(buffer);
         buffer.writeScalar(fRadius);
@@ -109,7 +109,8 @@ private:
 class InverseFillPE : public SkPathEffect {
 public:
     InverseFillPE() {}
-    virtual bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*) SK_OVERRIDE {
+    virtual bool filterPath(SkPath* dst, const SkPath& src,
+                            SkStrokeRec*) const SK_OVERRIDE {
         *dst = src;
         dst->setFillType(SkPath::kInverseWinding_FillType);
         return true;

@@ -23,9 +23,8 @@ public:
     SkCornerPathEffect(SkScalar radius);
     virtual ~SkCornerPathEffect();
 
-    // overrides for SkPathEffect
-    //  This method is not exported to java.
-    virtual bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*) SK_OVERRIDE;
+    virtual bool filterPath(SkPath* dst, const SkPath& src,
+                            SkStrokeRec*) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkCornerPathEffect)
 
