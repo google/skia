@@ -920,11 +920,11 @@ static void usage(const char * argv0) {
 "        any differences between those and the newly generated ones\n"
 "    [--noreplay]: do not exercise SkPicture replay\n"
 "    [--resourcePath|-i <path>]: directory that stores image resources\n"
-"    [--rtree]: use an rtree structure for SkPicture testing\n"
+"    [--nortree]: Do not exercise the R-Tree variant of SkPicture\n"
 "    [--noserialize]: do not exercise SkPicture serialization & deserialization\n"
 "    [--notexturecache]: disable the gpu texture cache\n"
 "    [--tiledPipe]: Exercise tiled SkGPipe replay\n"
-"    [--tileGrid]: use a tileGrid structure for SkPicture testing\n"
+"    [--notileGrid]: Do not exercise the tile grid variant of SkPicture\n"
 "    [--writeJsonSummary <path>]: write a JSON-formatted result summary to this file\n"
 "    [--writePath|-w <path>]: write rendered images into this directory\n"
 "    [--writePicturePath|-wp <path>]: write .skp files into this directory\n"
@@ -1024,10 +1024,11 @@ int tool_main(int argc, char** argv) {
     bool doTiledPipe = false;
     bool doSerialize = true;
     bool doDeferred = true;
+    bool doRTree = true;
+    bool doTileGrid = true;
     bool disableTextureCache = false;
     SkTDArray<size_t> configs;
     bool userConfig = false;
-    BbhType bbhType = kNone_BbhType;
 
     int moduloRemainder = -1;
     int moduloDivisor = -1;
@@ -1064,10 +1065,10 @@ int tool_main(int argc, char** argv) {
             }
         } else if (strcmp(*argv, "--disable-missing-warning") == 0) {
             gmmain.fNotifyMissingReadReference = false;
-        } else if (strcmp(*argv, "--rtree") == 0) {
-            bbhType = kRTree_BbhType;
-        } else if (strcmp(*argv, "--tileGrid") == 0) {
-            bbhType = kTileGrid_BbhType;
+        } else if (strcmp(*argv, "--nortree") == 0) {
+            doRTree = false;
+        } else if (strcmp(*argv, "--notileGrid") == 0) {
+            doTileGrid = false;
         } else if (strcmp(*argv, "--enable-missing-warning") == 0) {
             gmmain.fNotifyMissingReadReference = true;
         } else if (strcmp(*argv, "--forceBWtext") == 0) {
@@ -1324,7 +1325,7 @@ int tool_main(int argc, char** argv) {
             ErrorBitfield pictErrors = ERROR_NONE;
 
             //SkAutoTUnref<SkPicture> pict(generate_new_picture(gm));
-            SkPicture* pict = gmmain.generate_new_picture(gm, bbhType);
+            SkPicture* pict = gmmain.generate_new_picture(gm, kNone_BbhType);
             SkAutoUnref aur(pict);
 
             if ((ERROR_NONE == testErrors) && doReplay) {
@@ -1364,6 +1365,32 @@ int tool_main(int argc, char** argv) {
             }
 
             testErrors |= pictErrors;
+        }
+
+        if (!(gmFlags & GM::kSkipPicture_Flag) && doRTree) {
+            SkPicture* pict = gmmain.generate_new_picture(gm, kRTree_BbhType);
+            SkAutoUnref aur(pict);
+            SkBitmap bitmap;
+            gmmain.generate_image_from_picture(gm, compareConfig, pict,
+                                               &bitmap);
+            testErrors |= gmmain.handle_test_results(gm, compareConfig,
+                                                     NULL, NULL, diffPath,
+                                                     "-rtree", bitmap,
+                                                     NULL,
+                                                     &comparisonBitmap);
+        }
+
+        if (!(gmFlags & GM::kSkipPicture_Flag) && doTileGrid) {
+            SkPicture* pict = gmmain.generate_new_picture(gm, kTileGrid_BbhType);
+            SkAutoUnref aur(pict);
+            SkBitmap bitmap;
+            gmmain.generate_image_from_picture(gm, compareConfig, pict,
+                                               &bitmap);
+            testErrors |= gmmain.handle_test_results(gm, compareConfig,
+                                                     NULL, NULL, diffPath,
+                                                     "-tilegrid", bitmap,
+                                                     NULL,
+                                                     &comparisonBitmap);
         }
 
         // run the pipe centric GM steps
