@@ -32,8 +32,6 @@
 #include "AndroidPathRenderer.h"
 #include "Vertex.h"
 
-#include "cutils/compiler.h"
-
 namespace android {
 namespace uirenderer {
 
@@ -49,7 +47,7 @@ SkRect PathRenderer::ComputePathBounds(const SkPath& path, const SkPaint* paint)
 }
 
 void computeInverseScales(const SkMatrix* transform, float &inverseScaleX, float& inverseScaleY) {
-    if (CC_UNLIKELY(transform && transform->getType() & (SkMatrix::kScale_Mask|SkMatrix::kAffine_Mask|SkMatrix::kPerspective_Mask))) {
+    if (transform && transform->getType() & (SkMatrix::kScale_Mask|SkMatrix::kAffine_Mask|SkMatrix::kPerspective_Mask)) {
         float m00 = transform->getScaleX();
         float m01 = transform->getSkewY();
         float m10 = transform->getSkewX();
