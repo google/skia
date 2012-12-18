@@ -262,9 +262,6 @@ SkMaskFilter::BlurType SkMaskFilter::asABlur(BlurInfo*) const {
     return kNone_BlurType;
 }
 
-void SkMaskFilter::setAsABlur(const BlurInfo& ) {
-}
-
 void SkMaskFilter::computeFastBounds(const SkRect& src, SkRect* dst) {
     SkMask  srcM, dstM;
 

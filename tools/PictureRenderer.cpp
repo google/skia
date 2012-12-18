@@ -62,17 +62,11 @@ public:
 
     virtual bool filter(SkPaint* paint, Type t) {
         paint->setFlags(paint->getFlags() & ~fFlags[t] & SkPaint::kAllFlags);
-        if ((PictureRenderer::kBlur_DrawFilterFlag | PictureRenderer::kLowBlur_DrawFilterFlag)
-                & fFlags[t]) {
+        if (PictureRenderer::kBlur_DrawFilterFlag & fFlags[t]) {
             SkMaskFilter* maskFilter = paint->getMaskFilter();
             SkMaskFilter::BlurInfo blurInfo;
             if (maskFilter && maskFilter->asABlur(&blurInfo)) {
-                if (PictureRenderer::kBlur_DrawFilterFlag & fFlags[t]) {
-                    paint->setMaskFilter(NULL);
-                } else {
-                    blurInfo.fHighQuality = false;
-                    maskFilter->setAsABlur(blurInfo);
-                }
+                paint->setMaskFilter(NULL);
             }
         }
         if (PictureRenderer::kHinting_DrawFilterFlag & fFlags[t]) {

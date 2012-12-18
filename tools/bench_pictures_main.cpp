@@ -50,7 +50,6 @@ static char const * const gFilterFlags[] = {
     "verticalText",
     "genA8FromLCD",
     "blur",
-    "lowBlur",
     "hinting",
     "slightHinting",
     "AAClip",
