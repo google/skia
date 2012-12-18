@@ -243,7 +243,7 @@ static bool PNGEncodeBitmapToStream(SkWStream* wStream, const SkBitmap& bm) {
     return SkImageEncoder::EncodeStream(wStream, bm, SkImageEncoder::kPNG_Type, 100);
 }
 
-bool RecordPictureRenderer::render(const SkString* path) {
+bool RecordPictureRenderer::render(const SkString* path, SkBitmap** out) {
     SkAutoTUnref<SkPicture> replayer(this->createPicture());
     SkCanvas* recorder = replayer->beginRecording(this->getViewWidth(), this->getViewHeight(),
                                                   this->recordFlags());
@@ -268,7 +268,7 @@ SkString RecordPictureRenderer::getConfigNameInternal() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-bool PipePictureRenderer::render(const SkString* path) {
+bool PipePictureRenderer::render(const SkString* path, SkBitmap** out) {
     SkASSERT(fCanvas.get() != NULL);
     SkASSERT(fPicture != NULL);
     if (NULL == fCanvas.get() || NULL == fPicture) {
@@ -284,6 +284,11 @@ bool PipePictureRenderer::render(const SkString* path) {
     if (NULL != path) {
         return write(fCanvas, *path);
     }
+    if (NULL != out) {
+        *out = SkNEW(SkBitmap);
+        setup_bitmap(*out, fPicture->width(), fPicture->height());
+        fCanvas->readPixels(*out, 0, 0);
+    }    
     return true;
 }
 
@@ -298,7 +303,7 @@ void SimplePictureRenderer::init(SkPicture* picture) {
     this->buildBBoxHierarchy();
 }
 
-bool SimplePictureRenderer::render(const SkString* path) {
+bool SimplePictureRenderer::render(const SkString* path, SkBitmap** out) {
     SkASSERT(fCanvas.get() != NULL);
     SkASSERT(fPicture != NULL);
     if (NULL == fCanvas.get() || NULL == fPicture) {
@@ -310,6 +315,13 @@ bool SimplePictureRenderer::render(const SkString* path) {
     if (NULL != path) {
         return write(fCanvas, *path);
     }
+    
+    if (NULL != out) {
+        *out = SkNEW(SkBitmap);
+        setup_bitmap(*out, fPicture->width(), fPicture->height());
+        fCanvas->readPixels(*out, 0, 0);
+    }
+
     return true;
 }
 
@@ -467,6 +479,15 @@ static void DrawTileToCanvas(SkCanvas* canvas, const SkRect& tileRect, T* playba
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
+static void bitmapCopySubset(const SkBitmap& src, SkBitmap* dst, int xDst,
+                             int yDst) {
+    for (int y = 0; y <src.height() && y + yDst < dst->height() ; y++) {
+        for (int x = 0; x < src.width() && x + xDst < dst->width() ; x++) {
+            *dst->getAddr32(xDst + x, yDst + y) = *src.getAddr32(x, y);
+        }
+    }
+}
+
 bool TiledPictureRenderer::nextTile(int &i, int &j) {
     if (++fCurrentTileOffset < fTileRects.count()) {
         i = fCurrentTileOffset % fTilesX;
@@ -481,17 +502,31 @@ void TiledPictureRenderer::drawCurrentTile() {
     DrawTileToCanvas(fCanvas, fTileRects[fCurrentTileOffset], fPicture);
 }
 
-bool TiledPictureRenderer::render(const SkString* path) {
+bool TiledPictureRenderer::render(const SkString* path, SkBitmap** out) {
     SkASSERT(fPicture != NULL);
     if (NULL == fPicture) {
         return false;
     }
 
+    SkBitmap bitmap;
+    if (out){
+        *out = SkNEW(SkBitmap);
+        setup_bitmap(*out, fPicture->width(), fPicture->height());
+        setup_bitmap(&bitmap, fTileWidth, fTileHeight);
+    }
     bool success = true;
     for (int i = 0; i < fTileRects.count(); ++i) {
         DrawTileToCanvas(fCanvas, fTileRects[i], fPicture);
         if (NULL != path) {
             success &= writeAppendNumber(fCanvas, path, i);
+        }
+        if (NULL != out) {
+            if (fCanvas->readPixels(&bitmap, 0, 0)) {
+                bitmapCopySubset(bitmap, *out, fTileRects[i].left(),
+                                 fTileRects[i].top());
+            } else {
+                success = false;
+            }
         }
     }
     return success;
@@ -555,6 +590,13 @@ public:
 
     virtual void run() SK_OVERRIDE {
         SkGraphics::SetTLSFontCacheLimit(1024 * 1024);
+
+        SkBitmap bitmap;
+        if (fBitmap != NULL) {
+            // All tiles are the same size.
+            setup_bitmap(&bitmap, fRects[0].width(), fRects[0].height());
+        }
+        
         for (int i = fStart; i < fEnd; i++) {
             DrawTileToCanvas(fCanvas, fRects[i], fClone);
             if (fPath != NULL && !writeAppendNumber(fCanvas, fPath, i)
@@ -563,6 +605,17 @@ public:
                 // If one tile fails to write to a file, do not continue drawing the rest.
                 break;
             }
+            if (fBitmap != NULL) {
+                if (fCanvas->readPixels(&bitmap, 0, 0)) {
+                    SkAutoLockPixels alp(*fBitmap);
+                    bitmapCopySubset(bitmap, fBitmap, fRects[i].left(),
+                                     fRects[i].top());
+                } else {
+                    *fSuccess = false;
+                    // If one tile fails to read pixels, do not continue drawing the rest.
+                    break;
+                }
+            }
         }
         fDone->run();
     }
@@ -570,6 +623,10 @@ public:
     void setPathAndSuccess(const SkString* path, bool* success) {
         fPath = path;
         fSuccess = success;
+    }
+
+    void setBitmap(SkBitmap* bitmap) {
+        fBitmap = bitmap;
     }
 
 private:
@@ -584,6 +641,7 @@ private:
     bool*              fSuccess;    // Only meaningful if path is non-null. Shared by all threads,
                                     // and only set to false upon failure to write to a PNG.
     SkRunnable*        fDone;
+    SkBitmap*          fBitmap;
 };
 
 MultiCorePictureRenderer::MultiCorePictureRenderer(int threadCount)
@@ -623,11 +681,23 @@ void MultiCorePictureRenderer::init(SkPicture *pict) {
     }
 }
 
-bool MultiCorePictureRenderer::render(const SkString *path) {
+bool MultiCorePictureRenderer::render(const SkString *path, SkBitmap** out) {
     bool success = true;
     if (path != NULL) {
         for (int i = 0; i < fNumThreads-1; i++) {
             fCloneData[i]->setPathAndSuccess(path, &success);
+        }
+    }
+
+    if (NULL != out) {
+        *out = SkNEW(SkBitmap);
+        setup_bitmap(*out, fPicture->width(), fPicture->height());
+        for (int i = 0; i < fNumThreads; i++) {
+            fCloneData[i]->setBitmap(*out);
+        }
+    } else {
+        for (int i = 0; i < fNumThreads; i++) {
+            fCloneData[i]->setBitmap(NULL);
         }
     }
 
@@ -673,7 +743,7 @@ void PlaybackCreationRenderer::setup() {
     fPicture->draw(recorder);
 }
 
-bool PlaybackCreationRenderer::render(const SkString*) {
+bool PlaybackCreationRenderer::render(const SkString*, SkBitmap** out) {
     fReplayer->endRecording();
     // Since this class does not actually render, return false.
     return false;
@@ -716,7 +786,8 @@ SkPicture* PictureRenderer::createPicture() {
 
 class GatherRenderer : public PictureRenderer {
 public:
-    virtual bool render(const SkString* path) SK_OVERRIDE {
+    virtual bool render(const SkString* path, SkBitmap** out = NULL)
+            SK_OVERRIDE {
         SkRect bounds = SkRect::MakeWH(SkIntToScalar(fPicture->width()),
                                        SkIntToScalar(fPicture->height()));
         SkData* data = SkPictureUtils::GatherPixelRefs(fPicture, bounds);
@@ -739,7 +810,8 @@ PictureRenderer* CreateGatherPixelRefsRenderer() {
 
 class PictureCloneRenderer : public PictureRenderer {
 public:
-    virtual bool render(const SkString* path) SK_OVERRIDE {
+    virtual bool render(const SkString* path, SkBitmap** out = NULL)
+            SK_OVERRIDE {
         for (int i = 0; i < 100; ++i) {
             SkPicture* clone = fPicture->clone();
             SkSafeUnref(clone);

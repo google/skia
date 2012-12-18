@@ -34,7 +34,7 @@ namespace sk_tools {
         fCanvas.reset(this->INHERITED::setupCanvas(fLargeTileWidth, fLargeTileHeight));
     }
 
-    bool CopyTilesRenderer::render(const SkString* path) {
+    bool CopyTilesRenderer::render(const SkString* path, SkBitmap** out) {
         int i = 0;
         bool success = true;
         SkBitmap dst;
