@@ -211,9 +211,10 @@ void SkBBoxRecord::drawPosTextH(const void* text, size_t byteLength, const SkSca
 
 void SkBBoxRecord::drawSprite(const SkBitmap& bitmap, int left, int top,
                               const SkPaint* paint) {
-    SkRect bbox = {SkIntToScalar(left), SkIntToScalar(top), SkIntToScalar(left + bitmap.width()), SkIntToScalar(top + bitmap.height())};
+    SkRect bbox;
+    bbox.set(SkIRect::MakeXYWH(left, top, bitmap.width(), bitmap.height()));
     this->handleBBox(bbox); // directly call handleBBox, matrix is ignored
-    INHERITED::drawBitmap(bitmap, left, top, paint);
+    INHERITED::drawSprite(bitmap, left, top, paint);
 }
 
 void SkBBoxRecord::drawTextOnPath(const void* text, size_t byteLength,
