@@ -48,13 +48,14 @@ public:
      *  If this method returns true, the caller will apply (as needed) the
      *  resulting stroke-rec to dst and then draw.
      */
-    virtual bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*) = 0;
+    virtual bool filterPath(SkPath* dst, const SkPath& src,
+                            SkStrokeRec*) const = 0;
 
     /**
      *  Compute a conservative bounds for its effect, given the src bounds.
      *  The baseline implementation just assigns src to dst.
      */
-    virtual void computeFastBounds(SkRect* dst, const SkRect& src);
+    virtual void computeFastBounds(SkRect* dst, const SkRect& src) const;
 
     /** \class PointData
 
@@ -152,7 +153,8 @@ public:
     SkComposePathEffect(SkPathEffect* outer, SkPathEffect* inner)
         : INHERITED(outer, inner) {}
 
-    virtual bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*) SK_OVERRIDE;
+    virtual bool filterPath(SkPath* dst, const SkPath& src,
+                            SkStrokeRec*) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposePathEffect)
 
@@ -182,7 +184,8 @@ public:
     SkSumPathEffect(SkPathEffect* first, SkPathEffect* second)
         : INHERITED(first, second) {}
 
-    virtual bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*) SK_OVERRIDE;
+    virtual bool filterPath(SkPath* dst, const SkPath& src,
+                            SkStrokeRec*) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSumPathEffect)
 

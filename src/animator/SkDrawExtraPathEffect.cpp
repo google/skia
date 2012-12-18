@@ -94,8 +94,7 @@ public:
     SK_DECLARE_UNFLATTENABLE_OBJECT()
 
 protected:
-    virtual SkScalar begin(SkScalar contourLength)
-    {
+    virtual SkScalar begin(SkScalar contourLength) const {
         SkScriptValue value;
         SkAnimatorScript engine(*fMaker, NULL, SkType_Float);
         engine.propertyCallBack(GetContourLength, &contourLength);
@@ -104,8 +103,7 @@ protected:
         return value.fOperand.fScalar;
     }
 
-    virtual SkScalar next(SkPath* dst, SkScalar distance, SkPathMeasure& )
-    {
+    virtual SkScalar next(SkPath* dst, SkScalar distance, SkPathMeasure&) const {
         fMaker->setExtraPropertyCallBack(fDraw->fType, GetDistance, &distance);
         SkDrawPath* drawPath = NULL;
         if (fDraw->addPath->isPath()) {
