@@ -11,7 +11,7 @@
 bool SkStippleMaskFilter::filterMask(SkMask* dst,
                                      const SkMask& src,
                                      const SkMatrix& matrix,
-                                     SkIPoint* margin) {
+                                     SkIPoint* margin) const {
 
     if (src.fFormat != SkMask::kA8_Format) {
         return false;

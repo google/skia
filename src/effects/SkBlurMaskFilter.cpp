@@ -17,18 +17,18 @@ public:
                          uint32_t flags);
 
     // overrides from SkMaskFilter
-    virtual SkMask::Format getFormat() SK_OVERRIDE;
+    virtual SkMask::Format getFormat() const SK_OVERRIDE;
     virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
-                            SkIPoint* margin) SK_OVERRIDE;
+                            SkIPoint* margin) const SK_OVERRIDE;
     virtual BlurType asABlur(BlurInfo*) const SK_OVERRIDE;
-    virtual void computeFastBounds(const SkRect& src, SkRect* dst) SK_OVERRIDE;
+    virtual void computeFastBounds(const SkRect&, SkRect*) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurMaskFilterImpl)
 
 protected:
     virtual FilterReturn filterRectsToNine(const SkRect[], int count, const SkMatrix&,
                                            const SkIRect& clipBounds,
-                                           NinePatch*) SK_OVERRIDE;
+                                           NinePatch*) const SK_OVERRIDE;
 
 private:
     SkScalar                    fRadius;
@@ -74,12 +74,13 @@ SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkScalar radius,
     SkASSERT(flags <= SkBlurMaskFilter::kAll_BlurFlag);
 }
 
-SkMask::Format SkBlurMaskFilterImpl::getFormat() {
+SkMask::Format SkBlurMaskFilterImpl::getFormat() const {
     return SkMask::kA8_Format;
 }
 
 bool SkBlurMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src,
-                                      const SkMatrix& matrix, SkIPoint* margin) {
+                                      const SkMatrix& matrix,
+                                      SkIPoint* margin) const{
     SkScalar radius;
     if (fBlurFlags & SkBlurMaskFilter::kIgnoreTransform_BlurFlag) {
         radius = fRadius;
@@ -153,7 +154,7 @@ SkMaskFilter::FilterReturn
 SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
                                         const SkMatrix& matrix,
                                         const SkIRect& clipBounds,
-                                        NinePatch* patch) {
+                                        NinePatch* patch) const {
     if (count < 1 || count > 2) {
         return kUnimplemented_FilterReturn;
     }
@@ -249,7 +250,8 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
     return kTrue_FilterReturn;
 }
 
-void SkBlurMaskFilterImpl::computeFastBounds(const SkRect& src, SkRect* dst) {
+void SkBlurMaskFilterImpl::computeFastBounds(const SkRect& src,
+                                             SkRect* dst) const {
     dst->set(src.fLeft - fRadius, src.fTop - fRadius,
              src.fRight + fRadius, src.fBottom + fRadius);
 }

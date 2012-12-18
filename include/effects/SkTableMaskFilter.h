@@ -22,8 +22,6 @@ public:
     SkTableMaskFilter(const uint8_t table[256]);
     virtual ~SkTableMaskFilter();
 
-    void setTable(const uint8_t table[256]);
-
     /** Utility that sets the gamma table
      */
     static void MakeGammaTable(uint8_t table[256], SkScalar gamma);
@@ -45,9 +43,9 @@ public:
         return SkNEW_ARGS(SkTableMaskFilter, (table));
     }
 
-    // overrides from SkMaskFilter
-    virtual SkMask::Format getFormat();
-    virtual bool filterMask(SkMask*, const SkMask&, const SkMatrix&, SkIPoint*);
+    virtual SkMask::Format getFormat() const SK_OVERRIDE;
+    virtual bool filterMask(SkMask*, const SkMask&, const SkMatrix&,
+                            SkIPoint*) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTableMaskFilter)
 

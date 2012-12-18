@@ -17,7 +17,7 @@
 SK_DEFINE_INST_COUNT(SkMaskFilter)
 
 bool SkMaskFilter::filterMask(SkMask*, const SkMask&, const SkMatrix&,
-                              SkIPoint*) {
+                              SkIPoint*) const {
     return false;
 }
 
@@ -192,7 +192,7 @@ static int countNestedRects(const SkPath& path, SkRect rects[2]) {
 
 bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
                               const SkRasterClip& clip, SkBounder* bounder,
-                              SkBlitter* blitter, SkPaint::Style style) {
+                              SkBlitter* blitter, SkPaint::Style style) const {
     SkRect rects[2];
     int rectCount = 0;
     if (SkPaint::kFill_Style == style) {
@@ -254,7 +254,7 @@ bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
 
 SkMaskFilter::FilterReturn
 SkMaskFilter::filterRectsToNine(const SkRect[], int count, const SkMatrix&,
-                                const SkIRect& clipBounds, NinePatch*) {
+                                const SkIRect& clipBounds, NinePatch*) const {
     return kUnimplemented_FilterReturn;
 }
 
@@ -262,7 +262,7 @@ SkMaskFilter::BlurType SkMaskFilter::asABlur(BlurInfo*) const {
     return kNone_BlurType;
 }
 
-void SkMaskFilter::computeFastBounds(const SkRect& src, SkRect* dst) {
+void SkMaskFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
     SkMask  srcM, dstM;
 
     srcM.fImage = NULL;

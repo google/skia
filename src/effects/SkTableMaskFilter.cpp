@@ -17,17 +17,13 @@ SkTableMaskFilter::SkTableMaskFilter() {
 }
 
 SkTableMaskFilter::SkTableMaskFilter(const uint8_t table[256]) {
-    this->setTable(table);
+    memcpy(fTable, table, sizeof(fTable));
 }
 
 SkTableMaskFilter::~SkTableMaskFilter() {}
 
-void SkTableMaskFilter::setTable(const uint8_t table[256]) {
-    memcpy(fTable, table, 256);
-}
-
 bool SkTableMaskFilter::filterMask(SkMask* dst, const SkMask& src,
-                                 const SkMatrix&, SkIPoint* margin) {
+                                 const SkMatrix&, SkIPoint* margin) const {
     if (src.fFormat != SkMask::kA8_Format) {
         return false;
     }
@@ -68,7 +64,7 @@ bool SkTableMaskFilter::filterMask(SkMask* dst, const SkMask& src,
     return true;
 }
 
-SkMask::Format SkTableMaskFilter::getFormat() {
+SkMask::Format SkTableMaskFilter::getFormat() const {
     return SkMask::kA8_Format;
 }
 

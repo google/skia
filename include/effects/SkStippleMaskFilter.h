@@ -20,10 +20,10 @@ public:
 
     virtual bool filterMask(SkMask* dst, const SkMask& src,
                             const SkMatrix& matrix,
-                            SkIPoint* margin) SK_OVERRIDE;
+                            SkIPoint* margin) const SK_OVERRIDE;
 
     // getFormat is from SkMaskFilter
-    virtual SkMask::Format getFormat() SK_OVERRIDE {
+    virtual SkMask::Format getFormat() const SK_OVERRIDE {
         return SkMask::kA8_Format;
     }
 
