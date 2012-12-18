@@ -300,16 +300,16 @@ void GrInOrderDrawBuffer::drawIndexedInstances(GrPrimitiveType type,
             draw->fVertexBuffer != vertexBuffer) {
 
             draw = this->recordDraw();
-            draw->fIndexBuffer = geomSrc.fIndexBuffer;
-            geomSrc.fIndexBuffer->ref();
+            draw->fPrimitiveType = type;
+            draw->fStartVertex = poolState.fPoolStartVertex;
+            draw->fStartIndex = 0;
+            draw->fVertexCount = 0;
+            draw->fIndexCount = 0;
+            draw->fVertexLayout = geomSrc.fVertexLayout;
             draw->fVertexBuffer = vertexBuffer;
             vertexBuffer->ref();
-            draw->fPrimitiveType = type;
-            draw->fStartIndex = 0;
-            draw->fIndexCount = 0;
-            draw->fStartVertex = poolState.fPoolStartVertex;
-            draw->fVertexCount = 0;
-            draw->fVertexLayout = geomSrc.fVertexLayout;
+            draw->fIndexBuffer = geomSrc.fIndexBuffer;
+            geomSrc.fIndexBuffer->ref();
         } else {
             GrAssert(!(draw->fIndexCount % indicesPerInstance));
             GrAssert(!(draw->fVertexCount % verticesPerInstance));
@@ -343,15 +343,16 @@ void GrInOrderDrawBuffer::drawIndexedInstances(GrPrimitiveType type,
             if (!instancesToConcat) {
                 int startVertex = draw->fStartVertex + draw->fVertexCount;
                 draw = this->recordDraw();
-                draw->fIndexBuffer = geomSrc.fIndexBuffer;
-                geomSrc.fIndexBuffer->ref();
+                draw->fPrimitiveType = type;
+                draw->fStartVertex = startVertex;
+                draw->fStartIndex = 0;
+                draw->fVertexCount = 0;
+                draw->fIndexCount = 0;
+                draw->fVertexLayout = geomSrc.fVertexLayout;
                 draw->fVertexBuffer = vertexBuffer;
                 vertexBuffer->ref();
-                draw->fPrimitiveType = type;
-                draw->fStartIndex = 0;
-                draw->fStartVertex = startVertex;
-                draw->fVertexCount = 0;
-                draw->fVertexLayout = geomSrc.fVertexLayout;
+                draw->fIndexBuffer = geomSrc.fIndexBuffer;
+                geomSrc.fIndexBuffer->ref();
                 instancesToConcat = maxInstancesPerDraw;
             }
             draw->fVertexCount += instancesToConcat * verticesPerInstance;

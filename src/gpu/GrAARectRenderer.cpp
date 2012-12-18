@@ -36,7 +36,7 @@ void GrAARectRenderer::reset() {
     GrSafeSetNull(fAAStrokeRectIndexBuffer);
 }
 
-const uint16_t GrAARectRenderer::gFillAARectIdx[] = {
+static const uint16_t gFillAARectIdx[] = {
     0, 1, 5, 5, 4, 0,
     1, 2, 6, 6, 5, 1,
     2, 3, 7, 7, 6, 2,
@@ -44,27 +44,47 @@ const uint16_t GrAARectRenderer::gFillAARectIdx[] = {
     4, 5, 6, 6, 7, 4,
 };
 
-int GrAARectRenderer::aaFillRectIndexCount() {
-    return GR_ARRAY_COUNT(gFillAARectIdx);
-}
+static const int kIndicesPerAAFillRect = GR_ARRAY_COUNT(gFillAARectIdx);
+static const int kVertsPerAAFillRect = 8;
+static const int kNumAAFillRectsInIndexBuffer = 256;
 
 GrIndexBuffer* GrAARectRenderer::aaFillRectIndexBuffer(GrGpu* gpu) {
+    static const size_t kAAFillRectIndexBufferSize = kIndicesPerAAFillRect *
+                                                     sizeof(uint16_t) *
+                                                     kNumAAFillRectsInIndexBuffer;
+
     if (NULL == fAAFillRectIndexBuffer) {
-        fAAFillRectIndexBuffer = gpu->createIndexBuffer(sizeof(gFillAARectIdx),
-                                                         false);
+        fAAFillRectIndexBuffer = gpu->createIndexBuffer(kAAFillRectIndexBufferSize, false);
         if (NULL != fAAFillRectIndexBuffer) {
-#if GR_DEBUG
-            bool updated =
-#endif
-            fAAFillRectIndexBuffer->updateData(gFillAARectIdx,
-                                               sizeof(gFillAARectIdx));
-            GR_DEBUGASSERT(updated);
+            uint16_t* data = (uint16_t*) fAAFillRectIndexBuffer->lock();
+            bool useTempData = (NULL == data);
+            if (useTempData) {
+                data = SkNEW_ARRAY(uint16_t, kNumAAFillRectsInIndexBuffer * kIndicesPerAAFillRect);
+            }
+            for (int i = 0; i < kNumAAFillRectsInIndexBuffer; ++i) {
+                // Each AA filled rect is drawn with 8 vertices and 10 triangles (8 around
+                // the inner rect (for AA) and 2 for the inner rect.
+                int baseIdx = i * kIndicesPerAAFillRect;
+                uint16_t baseVert = (uint16_t)(i * kVertsPerAAFillRect);
+                for (int j = 0; j < kIndicesPerAAFillRect; ++j) {
+                    data[baseIdx+j] = baseVert + gFillAARectIdx[j];
+                }
+            }
+            if (useTempData) {
+                if (!fAAFillRectIndexBuffer->updateData(data, kAAFillRectIndexBufferSize)) {
+                    GrCrash("Can't get AA Fill Rect indices into buffer!");
+                }
+                SkDELETE_ARRAY(data);
+            } else {
+                fAAFillRectIndexBuffer->unlock();
+            }
         }
     }
+
     return fAAFillRectIndexBuffer;
 }
 
-const uint16_t GrAARectRenderer::gStrokeAARectIdx[] = {
+static const uint16_t gStrokeAARectIdx[] = {
     0 + 0, 1 + 0, 5 + 0, 5 + 0, 4 + 0, 0 + 0,
     1 + 0, 2 + 0, 6 + 0, 6 + 0, 5 + 0, 1 + 0,
     2 + 0, 3 + 0, 7 + 0, 7 + 0, 6 + 0, 2 + 0,
@@ -114,6 +134,7 @@ void GrAARectRenderer::fillAARect(GrGpu* gpu,
         GrPrintf("Failed to get space for vertices!\n");
         return;
     }
+
     GrIndexBuffer* indexBuffer = this->aaFillRectIndexBuffer(gpu);
     if (NULL == indexBuffer) {
         GrPrintf("Failed to create index buffer!\n");
@@ -146,9 +167,9 @@ void GrAARectRenderer::fillAARect(GrGpu* gpu,
     }
 
     target->setIndexSourceToBuffer(indexBuffer);
-
-    target->drawIndexed(kTriangles_GrPrimitiveType, 0,
-                        0, 8, this->aaFillRectIndexCount());
+    target->drawIndexedInstances(kTriangles_GrPrimitiveType, 1,
+                                 kVertsPerAAFillRect,
+                                 kIndicesPerAAFillRect);
 }
 
 void GrAARectRenderer::strokeAARect(GrGpu* gpu,
