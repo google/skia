@@ -167,7 +167,10 @@ bool SkGrPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
         height = fSurface->height();
     }
     dst->setConfig(SkBitmap::kARGB_8888_Config, width, height);
-    dst->allocPixels();
+    if (!dst->allocPixels()) {
+        SkDebugf("SkGrPixelRef::onReadPixels failed to alloc bitmap for result!\n");
+        return false;
+    }
     SkAutoLockPixels al(*dst);
     void* buffer = dst->getPixels();
     return fSurface->readPixels(left, top, width, height,
