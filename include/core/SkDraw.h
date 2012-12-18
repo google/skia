@@ -76,7 +76,7 @@ public:
         solely to assist in computing the mask's bounds (if the mode requests that).
     */
     static bool DrawToMask(const SkPath& devPath, const SkIRect* clipBounds,
-                           SkMaskFilter* filter, const SkMatrix* filterMatrix,
+                           const SkMaskFilter*, const SkMatrix* filterMatrix,
                            SkMask* mask, SkMask::CreateMode mode,
                            SkPaint::Style style);
 

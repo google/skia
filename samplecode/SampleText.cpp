@@ -31,8 +31,7 @@
 class ReduceNoise : public SkKernel33ProcMaskFilter {
 public:
     ReduceNoise(int percent256) : SkKernel33ProcMaskFilter(percent256) {}
-    virtual uint8_t computeValue(uint8_t* const* srcRows)
-    {
+    virtual uint8_t computeValue(uint8_t* const* srcRows) const {
         int c = srcRows[1][1];
         int min = 255, max = 0;
         for (int i = 0; i < 3; i++)
@@ -58,8 +57,7 @@ private:
 class Darken : public SkKernel33ProcMaskFilter {
 public:
     Darken(int percent256) : SkKernel33ProcMaskFilter(percent256) {}
-    virtual uint8_t computeValue(uint8_t* const* srcRows)
-    {
+    virtual uint8_t computeValue(uint8_t* const* srcRows) const {
         int c = srcRows[1][1];
         float f = c / 255.f;
 
