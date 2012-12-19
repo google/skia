@@ -675,15 +675,17 @@ public:
     static SkPicture* generate_new_picture(GM* gm, BbhType bbhType, SkScalar scale = SK_Scalar1) {
         // Pictures are refcounted so must be on heap
         SkPicture* pict;
-        SkISize size = gm->getISize();
+        int width = SkScalarCeilToInt(SkScalarMul(SkIntToScalar(gm->getISize().width()), scale));
+        int height = SkScalarCeilToInt(SkScalarMul(SkIntToScalar(gm->getISize().height()), scale));
+        
         if (kTileGrid_BbhType == bbhType) {
-            pict = new SkTileGridPicture(16, 16, size.width(), size.height());
+            pict = new SkTileGridPicture(16, 16, width, height);
         } else {
             pict = new SkPicture;
         }
         uint32_t recordFlags = (kNone_BbhType == bbhType) ?
             0 : SkPicture::kOptimizeForClippedPlayback_RecordingFlag;
-        SkCanvas* cv = pict->beginRecording(size.width(), size.height(), recordFlags);
+        SkCanvas* cv = pict->beginRecording(width, height, recordFlags);
         cv->scale(scale, scale);
         invokeGM(gm, cv, false, false);
         pict->endRecording();
