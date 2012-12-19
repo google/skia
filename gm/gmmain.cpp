@@ -455,11 +455,13 @@ public:
     }
 
     static void generate_image_from_picture(GM* gm, const ConfigData& gRec,
-                                            SkPicture* pict, SkBitmap* bitmap) {
+                                            SkPicture* pict, SkBitmap* bitmap,
+                                            SkScalar scale = SK_Scalar1) {
         SkISize size = gm->getISize();
         setup_bitmap(gRec, size, bitmap);
         SkCanvas canvas(*bitmap);
         installFilter(&canvas);
+        canvas.scale(scale, scale);
         canvas.drawPicture(*pict);
     }
 
@@ -670,7 +672,7 @@ public:
         return retval;
     }
 
-    static SkPicture* generate_new_picture(GM* gm, BbhType bbhType) {
+    static SkPicture* generate_new_picture(GM* gm, BbhType bbhType, SkScalar scale = SK_Scalar1) {
         // Pictures are refcounted so must be on heap
         SkPicture* pict;
         SkISize size = gm->getISize();
@@ -682,6 +684,7 @@ public:
         uint32_t recordFlags = (kNone_BbhType == bbhType) ?
             0 : SkPicture::kOptimizeForClippedPlayback_RecordingFlag;
         SkCanvas* cv = pict->beginRecording(size.width(), size.height(), recordFlags);
+        cv->scale(scale, scale);
         invokeGM(gm, cv, false, false);
         pict->endRecording();
 
@@ -925,6 +928,8 @@ static void usage(const char * argv0) {
 "    [--notexturecache]: disable the gpu texture cache\n"
 "    [--tiledPipe]: Exercise tiled SkGPipe replay\n"
 "    [--notileGrid]: Do not exercise the tile grid variant of SkPicture\n"
+"    [--tileGridReplayScales <scales>]: Comma separated list of floating-point scale\n"
+"        factors to be used for tileGrid playback testing. Default value: 1.0\n"
 "    [--writeJsonSummary <path>]: write a JSON-formatted result summary to this file\n"
 "    [--writePath|-w <path>]: write rendered images into this directory\n"
 "    [--writePicturePath|-wp <path>]: write .skp files into this directory\n"
@@ -1028,6 +1033,8 @@ int tool_main(int argc, char** argv) {
     bool doTileGrid = true;
     bool disableTextureCache = false;
     SkTDArray<size_t> configs;
+    SkTDArray<SkScalar> tileGridReplayScales;
+    *tileGridReplayScales.append() = SK_Scalar1; // By default only test at scale 1.0
     bool userConfig = false;
 
     int moduloRemainder = -1;
@@ -1069,6 +1076,24 @@ int tool_main(int argc, char** argv) {
             doRTree = false;
         } else if (strcmp(*argv, "--notileGrid") == 0) {
             doTileGrid = false;
+        } else if (strcmp(*argv, "--tileGridReplayScales") == 0) {
+            tileGridReplayScales.reset();
+            ++argv;
+            if (argv < stop) {
+                char* token = strtok(*argv, ",");
+                while (NULL != token) {
+                    double val = atof(token);
+                    if (0 < val) {
+                        *tileGridReplayScales.append() = SkDoubleToScalar(val);
+                    }
+                    token = strtok(NULL, ",");
+                }
+            }
+            if (0 == tileGridReplayScales.count()) {
+                // Should have at least one scale
+                usage(commandName);
+                return -1;
+            }
         } else if (strcmp(*argv, "--enable-missing-warning") == 0) {
             gmmain.fNotifyMissingReadReference = true;
         } else if (strcmp(*argv, "--forceBWtext") == 0) {
@@ -1381,16 +1406,27 @@ int tool_main(int argc, char** argv) {
         }
 
         if (!(gmFlags & GM::kSkipPicture_Flag) && doTileGrid) {
-            SkPicture* pict = gmmain.generate_new_picture(gm, kTileGrid_BbhType);
-            SkAutoUnref aur(pict);
-            SkBitmap bitmap;
-            gmmain.generate_image_from_picture(gm, compareConfig, pict,
-                                               &bitmap);
-            testErrors |= gmmain.handle_test_results(gm, compareConfig,
-                                                     NULL, NULL, diffPath,
-                                                     "-tilegrid", bitmap,
-                                                     NULL,
-                                                     &comparisonBitmap);
+            for(int scaleIndex = 0; scaleIndex < tileGridReplayScales.count(); ++scaleIndex) {
+                SkScalar replayScale = tileGridReplayScales[scaleIndex];
+                // We record with the reciprocal scale to obtain a replay
+                // result that can be validated against comparisonBitmap.
+                SkScalar recordScale = SkScalarInvert(replayScale);
+                SkPicture* pict = gmmain.generate_new_picture(gm, kTileGrid_BbhType, recordScale);
+                SkAutoUnref aur(pict);
+                SkBitmap bitmap;
+                gmmain.generate_image_from_picture(gm, compareConfig, pict,
+                                                   &bitmap, replayScale);
+                SkString suffix("-tilegrid");
+                if (SK_Scalar1 != replayScale) {
+                    suffix += "-scale-";
+                    suffix.appendScalar(replayScale);
+                }
+                testErrors |= gmmain.handle_test_results(gm, compareConfig,
+                                                         NULL, NULL, diffPath,
+                                                         suffix.c_str(), bitmap,
+                                                         NULL,
+                                                         &comparisonBitmap);
+            }
         }
 
         // run the pipe centric GM steps
