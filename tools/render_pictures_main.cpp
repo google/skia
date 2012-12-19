@@ -218,7 +218,7 @@ static bool render_picture(const SkString& inputPath, const SkString* outputDir,
             SkDELETE(referenceBitmap);
             return false;
         }
-        
+
         for (int y = 0; success && y < bitmap->height(); y++) {
             for (int x = 0; success && x < bitmap->width(); x++) {
                 if (*referenceBitmap->getAddr32(x, y) != *bitmap->getAddr32(x, y)) {
