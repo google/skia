@@ -288,7 +288,7 @@ bool PipePictureRenderer::render(const SkString* path, SkBitmap** out) {
         *out = SkNEW(SkBitmap);
         setup_bitmap(*out, fPicture->width(), fPicture->height());
         fCanvas->readPixels(*out, 0, 0);
-    }    
+    }
     return true;
 }
 
@@ -315,7 +315,7 @@ bool SimplePictureRenderer::render(const SkString* path, SkBitmap** out) {
     if (NULL != path) {
         return write(fCanvas, *path);
     }
-    
+
     if (NULL != out) {
         *out = SkNEW(SkBitmap);
         setup_bitmap(*out, fPicture->width(), fPicture->height());
@@ -596,7 +596,7 @@ public:
             // All tiles are the same size.
             setup_bitmap(&bitmap, fRects[0].width(), fRects[0].height());
         }
-        
+
         for (int i = fStart; i < fEnd; i++) {
             DrawTileToCanvas(fCanvas, fRects[i], fClone);
             if (fPath != NULL && !writeAppendNumber(fCanvas, fPath, i)
