@@ -12,7 +12,6 @@
 
 #include "GrClipData.h"
 #include "GrResource.h"
-#include "GrCacheID.h"
 
 class GrRenderTarget;
 class GrResourceEntry;
@@ -21,7 +20,6 @@ class GrResourceKey;
 class GrStencilBuffer : public GrResource {
 public:
     SK_DECLARE_INST_COUNT(GrStencilBuffer);
-    GR_DECLARE_RESOURCE_CACHE_TYPE()
 
     virtual ~GrStencilBuffer() {
         // TODO: allow SB to be purged and detach itself from rts

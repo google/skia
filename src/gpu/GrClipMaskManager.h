@@ -41,8 +41,6 @@ class GrDrawState;
  */
 class GrClipMaskManager : public GrNoncopyable {
 public:
-    GR_DECLARE_RESOURCE_CACHE_DOMAIN(GetAlphaMaskDomain)
-
     GrClipMaskManager()
         : fGpu(NULL)
         , fCurrClipMaskType(kNone_ClipMaskType) {

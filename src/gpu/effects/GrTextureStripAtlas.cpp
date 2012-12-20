@@ -17,9 +17,6 @@
     #define VALIDATE
 #endif
 
-GR_DEFINE_RESOURCE_CACHE_DOMAIN(GrTextureStripAtlas, GetTextureStripAtlasDomain)
-
-
 int32_t GrTextureStripAtlas::gCacheCount = 0;
 
 GrTHashTable<GrTextureStripAtlas::AtlasEntry,
@@ -73,7 +70,7 @@ GrTextureStripAtlas* GrTextureStripAtlas::GetAtlas(const GrTextureStripAtlas::De
 }
 
 GrTextureStripAtlas::GrTextureStripAtlas(GrTextureStripAtlas::Desc desc)
-    : fCacheID(sk_atomic_inc(&gCacheCount))
+    : fCacheKey(sk_atomic_inc(&gCacheCount))
     , fLockedRows(0)
     , fDesc(desc)
     , fNumRows(desc.fHeight / desc.fRowHeight)
@@ -198,11 +195,16 @@ void GrTextureStripAtlas::lockTexture() {
     texDesc.fWidth = fDesc.fWidth;
     texDesc.fHeight = fDesc.fHeight;
     texDesc.fConfig = fDesc.fConfig;
-    GrCacheData cacheData(fCacheID);
-    cacheData.fResourceDomain = GetTextureStripAtlasDomain();
-    fTexture = fDesc.fContext->findTexture(texDesc, cacheData, &params);
+    
+    static const GrCacheID::Domain gTextureStripAtlasDomain = GrCacheID::GenerateDomain();
+    GrCacheID::Key key;
+    *key.fData32 = fCacheKey;
+    memset(key.fData32 + 1, 0, sizeof(key) - sizeof(uint32_t));
+    GrCacheID cacheID(gTextureStripAtlasDomain, key);
+
+    fTexture = fDesc.fContext->findTexture(texDesc, cacheID, &params);
     if (NULL == fTexture) {
-        fTexture = fDesc.fContext->createTexture(&params, texDesc, cacheData, NULL, 0);
+        fTexture = fDesc.fContext->createTexture(&params, texDesc, cacheID, NULL, 0);
         // This is a new texture, so all of our cache info is now invalid
         this->initLRU();
         fKeyTable.rewind();
