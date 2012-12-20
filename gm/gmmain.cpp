@@ -677,7 +677,7 @@ public:
         SkPicture* pict;
         int width = SkScalarCeilToInt(SkScalarMul(SkIntToScalar(gm->getISize().width()), scale));
         int height = SkScalarCeilToInt(SkScalarMul(SkIntToScalar(gm->getISize().height()), scale));
-        
+
         if (kTileGrid_BbhType == bbhType) {
             pict = new SkTileGridPicture(16, 16, width, height);
         } else {
