@@ -1104,7 +1104,7 @@ bool SkGpuDevice::shouldTileBitmap(const SkBitmap& bitmap,
         return false;
     }
     // if the entire texture is already in our cache then no reason to tile it
-    if (GrIsBitmapInCache(fContext, bitmap, &params)) {
+    if (this->isBitmapInTextureCache(bitmap, params)) {
         return false;
     }
 
@@ -1848,6 +1848,22 @@ void SkGpuDevice::flush() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+bool SkGpuDevice::isBitmapInTextureCache(const SkBitmap& bitmap,
+                                         const GrTextureParams& params) const {
+    uint64_t key = bitmap.getGenerationID();
+    key |= ((uint64_t) bitmap.pixelRefOffset()) << 32;
+
+    GrTextureDesc desc;
+    desc.fWidth = bitmap.width();
+    desc.fHeight = bitmap.height();
+    desc.fConfig = SkBitmapConfig2GrPixelConfig(bitmap.config());
+
+    GrCacheData cacheData(key);
+
+    return this->context()->isTextureInCache(desc, cacheData, &params);
+}
+
+
 SkDevice* SkGpuDevice::onCreateCompatibleDevice(SkBitmap::Config config,
                                                 int width, int height,
                                                 bool isOpaque,
@@ -1867,10 +1883,10 @@ SkDevice* SkGpuDevice::onCreateCompatibleDevice(SkBitmap::Config config,
 #if CACHE_COMPATIBLE_DEVICE_TEXTURES
     // layers are never draw in repeat modes, so we can request an approx
     // match and ignore any padding.
-    const GrContext::ScratchTexMatch match = (kSaveLayer_Usage == usage) ?
-                                                GrContext::kApprox_ScratchTexMatch :
-                                                GrContext::kExact_ScratchTexMatch;
-    texture = fContext->lockScratchTexture(desc, match);
+    GrContext::ScratchTexMatch matchType = (kSaveLayer_Usage == usage) ?
+                                    GrContext::kApprox_ScratchTexMatch :
+                                    GrContext::kExact_ScratchTexMatch;
+    texture = fContext->lockScratchTexture(desc, matchType);
 #else
     tunref.reset(fContext->createUncachedTexture(desc, NULL, 0));
     texture = tunref.get();

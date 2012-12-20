@@ -21,6 +21,8 @@
  */
 class GrTextureStripAtlas {
 public:
+    GR_DECLARE_RESOURCE_CACHE_DOMAIN(GetTextureStripAtlasDomain)
+
     /**
      * Descriptor struct which we'll use as a hash table key
      **/
@@ -155,7 +157,7 @@ private:
 
     // A unique ID for this texture (formed with: gCacheCount++), so we can be sure that if we
     // get a texture back from the texture cache, that it's the same one we last used.
-    const int32_t fCacheKey;
+    const uint64_t fCacheID;
 
     // Total locks on all rows (when this reaches zero, we can unlock our texture)
     int32_t fLockedRows;
