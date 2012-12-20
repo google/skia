@@ -6,6 +6,7 @@
          }
       },
       "failure-ignored" : null,
+      "no-comparison" : null,
       "succeeded" : null
    },
    "expected-results" : {

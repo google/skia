@@ -9,10 +9,5 @@
       },
       "succeeded" : null
    },
-   "expected-results" : {
-      "8888/dashing2" : {
-         "checksums" : null,
-         "ignore-failure" : true
-      }
-   }
+   "expected-results" : null
 }

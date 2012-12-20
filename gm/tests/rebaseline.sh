@@ -5,34 +5,64 @@
 # Use with caution: are you sure the new results are actually correct?
 #
 # YOU MUST RE-RUN THIS UNTIL THE SELF-TESTS SUCCEED!
-# (It takes one run for each call to gm_test in run.sh)
+# (It takes one run for each failing call to gm_test in run.sh)
+
+function replace_expected_with_actual {
+  # Delete all the expected output files
+  EXPECTED_FILES=$(find outputs/*/output-expected -type f | grep -v /\.svn/)
+  for EXPECTED_FILE in $EXPECTED_FILES; do
+    rm $EXPECTED_FILE
+  done
+
+  # Copy all the actual output files into the "expected" directories,
+  # creating new subdirs as we go.
+  ACTUAL_FILES=$(find outputs/*/output-actual -type f | grep -v /\.svn/)
+  for ACTUAL_FILE in $ACTUAL_FILES; do
+    EXPECTED_FILE=${ACTUAL_FILE//actual/expected}
+    mkdir -p $(dirname $EXPECTED_FILE)
+    cp $ACTUAL_FILE $EXPECTED_FILE
+  done
+}
+
+function svn_add_new_files {
+  # Delete all the "actual" directories, so we can svn-add any new "expected"
+  # directories without adding the "actual" ones.
+  rm -rf outputs/*/output-actual
+  FILES=$(svn stat outputs/* | grep ^\? | awk '{print $2}')
+  for FILE in $FILES; do
+    svn add $FILE
+  done
+  FILES=$(svn stat outputs/*/output-expected | grep ^\? | awk '{print $2}')
+  for FILE in $FILES; do
+    svn add $FILE
+  done
+}
+
+function svn_delete_old_files {
+  FILES=$(svn stat outputs/*/output-expected | grep ^\! | awk '{print $2}')
+  for FILE in $FILES; do
+    svn rm $FILE
+  done
+  FILES=$(svn stat outputs/* | grep ^\! | awk '{print $2}')
+  for FILE in $FILES; do
+    svn rm $FILE
+  done
+}
+
 
 # cd into the gm self-test dir
 cd $(dirname $0)
 
 ./run.sh
+SELFTEST_RESULT=$?
+echo
+if [ "$SELFTEST_RESULT" != "0" ]; then
+  replace_expected_with_actual
+  echo "Self-tests still failing, you should probably run this again..."
+else
+  svn_add_new_files
+  svn_delete_old_files
+  echo "Self-tests succeeded this time, you should be done!"
+fi
+exit $SELFTEST_RESULT
 
-# Delete all the expected output files
-EXPECTED_FILES=$(find outputs/*/output-expected -type f | grep -v /\.svn/)
-for EXPECTED_FILE in $EXPECTED_FILES; do
-  rm $EXPECTED_FILE
-done
-
-# Copy all the actual output files into the "expected" directories,
-# creating new subdirs as we go.
-ACTUAL_FILES=$(find outputs/*/output-actual -type f | grep -v /\.svn/)
-for ACTUAL_FILE in $ACTUAL_FILES; do
-  EXPECTED_FILE=${ACTUAL_FILE//actual/expected}
-  mkdir -p $(dirname $EXPECTED_FILE)
-  cp $ACTUAL_FILE $EXPECTED_FILE
-done
-
-# "svn add" any newly expected files/dirs, and "svn rm" any that are gone now
-FILES=$(svn stat outputs/*/output-expected | grep ^\? | awk '{print $2}')
-for FILE in $FILES; do
-  svn add $FILE
-done
-FILES=$(svn stat outputs/*/output-expected | grep ^\! | awk '{print $2}')
-for FILE in $FILES; do
-  svn rm $FILE
-done
