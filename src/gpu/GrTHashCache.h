@@ -226,6 +226,13 @@ void GrTHashTable<T, Key, kHashBits>::unrefAll() {
 #if GR_DEBUG
 template <typename T, typename Key, size_t kHashBits>
 void GrTHashTable<T, Key, kHashBits>::validate() const {
+    for (size_t i = 0; i < GR_ARRAY_COUNT(fHash); i++) {
+        if (fHash[i]) {
+            unsigned hashIndex = hash2Index(Key::GetHash(*fHash[i]));
+            GrAssert(hashIndex == i);
+        }
+    }
+
     int count = fSorted.count();
     for (int i = 1; i < count; i++) {
         GrAssert(Key::LT(*fSorted[i - 1], *fSorted[i]) ||

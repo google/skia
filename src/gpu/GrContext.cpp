@@ -209,20 +209,18 @@ void convolve_gaussian(GrDrawTarget* target,
 
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
 GrTexture* GrContext::findTexture(const GrTextureDesc& desc,
-                                  const GrCacheID& cacheID,
+                                  const GrCacheData& cacheData,
                                   const GrTextureParams* params) {
-    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, cacheID);
+    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, cacheData, false);
     GrResource* resource = fTextureCache->find(resourceKey);
     return static_cast<GrTexture*>(resource);
 }
 
 bool GrContext::isTextureInCache(const GrTextureDesc& desc,
-                                 const GrCacheID& cacheID,
+                                 const GrCacheData& cacheData,
                                  const GrTextureParams* params) const {
-    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, cacheID);
+    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, cacheData, false);
     return fTextureCache->hasKey(resourceKey);
 }
 
@@ -274,13 +272,13 @@ static void stretchImage(void* dst,
 // The desired texture is NPOT and tiled but that isn't supported by
 // the current hardware. Resize the texture to be a POT
 GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
-                                           const GrCacheID& cacheID,
+                                           const GrCacheData& cacheData,
                                            void* srcData,
                                            size_t rowBytes,
                                            bool needsFiltering) {
-    GrTexture* clampedTexture = this->findTexture(desc, cacheID, NULL);
+    GrTexture* clampedTexture = this->findTexture(desc, cacheData, NULL);
     if (NULL == clampedTexture) {
-        clampedTexture = this->createTexture(NULL, desc, cacheID, srcData, rowBytes);
+        clampedTexture = this->createTexture(NULL, desc, cacheData, srcData, rowBytes);
 
         if (NULL == clampedTexture) {
             return NULL;
@@ -352,22 +350,22 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
 GrTexture* GrContext::createTexture(
         const GrTextureParams* params,
         const GrTextureDesc& desc,
-        const GrCacheID& cacheID,
+        const GrCacheData& cacheData,
         void* srcData,
         size_t rowBytes) {
-    SK_TRACE_EVENT0("GrContext::createTexture");
+    SK_TRACE_EVENT0("GrContext::createAndLockTexture");
 
 #if GR_DUMP_TEXTURE_UPLOAD
-    GrPrintf("GrContext::createTexture[%d %d]\n", desc.fWidth, desc.fHeight);
+    GrPrintf("GrContext::createAndLockTexture [%d %d]\n", desc.fWidth, desc.fHeight);
 #endif
 
-    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, cacheID);
+    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, cacheData, false);
 
     SkAutoTUnref<GrTexture> texture;
     if (GrTexture::NeedsResizing(resourceKey)) {
-        texture.reset(this->createResizedTexture(desc, cacheID,
-                                                 srcData, rowBytes,
-                                                 GrTexture::NeedsFiltering(resourceKey)));
+        texture.reset(this->createResizedTexture(desc, cacheData,
+                                             srcData, rowBytes,
+                                             GrTexture::NeedsFiltering(resourceKey)));
     } else {
         texture.reset(fGpu->createTexture(desc, srcData, rowBytes));
     }
@@ -379,13 +377,15 @@ GrTexture* GrContext::createTexture(
     return texture;
 }
 
-GrTexture* GrContext::lockScratchTexture(const GrTextureDesc& inDesc, ScratchTexMatch match) {
+GrTexture* GrContext::lockScratchTexture(const GrTextureDesc& inDesc,
+                                         ScratchTexMatch match) {
     GrTextureDesc desc = inDesc;
+    GrCacheData cacheData(GrCacheData::kScratch_CacheID);
 
     GrAssert((desc.fFlags & kRenderTarget_GrTextureFlagBit) ||
              !(desc.fFlags & kNoStencil_GrTextureFlagBit));
 
-    if (kApprox_ScratchTexMatch == match) {
+    if (kExact_ScratchTexMatch != match) {
         // bin by pow2 with a reasonable min
         static const int MIN_SIZE = 256;
         desc.fWidth  = GrMax(MIN_SIZE, GrNextPow2(desc.fWidth));
@@ -399,7 +399,7 @@ GrTexture* GrContext::lockScratchTexture(const GrTextureDesc& inDesc, ScratchTex
     bool doubledH = false;
 
     do {
-        GrResourceKey key = GrTexture::ComputeScratchKey(desc);
+        GrResourceKey key = GrTexture::ComputeKey(fGpu, NULL, desc, cacheData, true);
         // Ensure we have exclusive access to the texture so future 'find' calls don't return it
         resource = fTextureCache->find(key, GrResourceCache::kHide_OwnershipFlag);
         // if we miss, relax the fit of the flags...
@@ -433,7 +433,10 @@ GrTexture* GrContext::lockScratchTexture(const GrTextureDesc& inDesc, ScratchTex
         desc.fHeight = origHeight;
         SkAutoTUnref<GrTexture> texture(fGpu->createTexture(desc, NULL, 0));
         if (NULL != texture) {
-            GrResourceKey key = GrTexture::ComputeScratchKey(texture->desc());
+            GrResourceKey key = GrTexture::ComputeKey(fGpu, NULL,
+                                                      texture->desc(),
+                                                      cacheData,
+                                                      true);
             // Make the resource exclusive so future 'find' calls don't return it
             fTextureCache->addResource(key, texture, GrResourceCache::kHide_OwnershipFlag);
             resource = texture;
@@ -472,7 +475,7 @@ void GrContext::unlockScratchTexture(GrTexture* texture) {
     // If this is a scratch texture we detached it from the cache
     // while it was locked (to avoid two callers simultaneously getting
     // the same texture).
-    if (texture->getCacheEntry()->key().isScratch()) {
+    if (GrTexture::IsScratchTexture(texture->getCacheEntry()->key())) {
         fTextureCache->makeNonExclusive(texture->getCacheEntry());
     }
 

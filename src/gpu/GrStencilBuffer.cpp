@@ -13,6 +13,7 @@
 #include "GrResourceCache.h"
 
 SK_DEFINE_INST_COUNT(GrStencilBuffer)
+GR_DEFINE_RESOURCE_CACHE_TYPE(GrStencilBuffer)
 
 void GrStencilBuffer::transferToCache() {
     GrAssert(NULL == this->getCacheEntry());
@@ -21,28 +22,30 @@ void GrStencilBuffer::transferToCache() {
 }
 
 namespace {
-// we should never have more than one stencil buffer with same combo of (width,height,samplecount)
-void gen_cache_id(int width, int height, int sampleCnt, GrCacheID* cacheID) {
-    static const GrCacheID::Domain gStencilBufferDomain = GrCacheID::GenerateDomain();
-    GrCacheID::Key key;
-    uint32_t* keyData = key.fData32;
-    keyData[0] = width;
-    keyData[1] = height;
-    keyData[2] = sampleCnt;
-    GR_STATIC_ASSERT(sizeof(key) >= 3 * sizeof(uint32_t));
-    cacheID->reset(gStencilBufferDomain, key);
+// we should never have more than one stencil buffer with same combo of
+// (width,height,samplecount)
+void gen_stencil_key_values(int width,
+                            int height,
+                            int sampleCnt,
+                            GrCacheID* cacheID) {
+    cacheID->fPublicID = GrCacheID::kDefaultPublicCacheID;
+    cacheID->fResourceSpecific32 = width | (height << 16);
+    cacheID->fDomain = GrCacheData::kScratch_ResourceDomain;
+
+    GrAssert(sampleCnt >= 0 && sampleCnt < 256);
+    cacheID->fResourceSpecific16 = sampleCnt << 8;
+
+    // last 8 bits of 'fResourceSpecific16' is free for flags
 }
 }
 
 GrResourceKey GrStencilBuffer::ComputeKey(int width,
                                           int height,
                                           int sampleCnt) {
-    // All SBs are created internally to attach to RTs so they all use the same domain.
-    static const GrResourceKey::ResourceType gStencilBufferResourceType =
-        GrResourceKey::GenerateResourceType();
-    GrCacheID id;
-    gen_cache_id(width, height, sampleCnt, &id);
+    GrCacheID id(GrStencilBuffer::GetResourceType());
+    gen_stencil_key_values(width, height, sampleCnt, &id);
 
-    // we don't use any flags for SBs currently.
-    return GrResourceKey(id, gStencilBufferResourceType, 0);
+    uint32_t v[4];
+    id.toRaw(v);
+    return GrResourceKey(v);
 }

@@ -118,21 +118,22 @@ public:
     // Textures
 
     /**
-     * Create a new entry, based on the specified key and texture and return it.
+     *  Create a new entry, based on the specified key and texture, and return
+     *  a "locked" texture. Must call be balanced with an unlockTexture() call.
      *
      * @param params    The texture params used to draw a texture may help determine
      *                  the cache entry used. (e.g. different versions may exist
      *                  for different wrap modes on GPUs with limited NPOT
      *                  texture support). NULL implies clamp wrap modes.
      * @param desc      Description of the texture properties.
-     * @param cacheID Cache-specific properties (e.g., texture gen ID)
+     * @param cacheData Cache-specific properties (e.g., texture gen ID)
      * @param srcData   Pointer to the pixel values.
      * @param rowBytes  The number of bytes between rows of the texture. Zero
      *                  implies tightly packed rows.
      */
     GrTexture* createTexture(const GrTextureParams* params,
                              const GrTextureDesc& desc,
-                             const GrCacheID& cacheID,
+                             const GrCacheData& cacheData,
                              void* srcData, size_t rowBytes);
 
     /**
@@ -140,14 +141,14 @@ public:
      *  return it. The return value will be NULL if not found.
      *
      *  @param desc     Description of the texture properties.
-     *  @param cacheID Cache-specific properties (e.g., texture gen ID)
+     *  @param cacheData Cache-specific properties (e.g., texture gen ID)
      *  @param params   The texture params used to draw a texture may help determine
      *                  the cache entry used. (e.g. different versions may exist
      *                  for different wrap modes on GPUs with limited NPOT
      *                  texture support). NULL implies clamp wrap modes.
      */
     GrTexture* findTexture(const GrTextureDesc& desc,
-                           const GrCacheID& cacheID,
+                           const GrCacheData& cacheData,
                            const GrTextureParams* params);
     /**
      * Determines whether a texture is in the cache. If the texture is found it
@@ -155,7 +156,7 @@ public:
      * the texture for deletion.
      */
     bool isTextureInCache(const GrTextureDesc& desc,
-                          const GrCacheID& cacheID,
+                          const GrCacheData& cacheData,
                           const GrTextureParams* params) const;
 
     /**
@@ -190,10 +191,11 @@ public:
      * such an API will create gaps in the tiling pattern. This includes clamp
      * mode. (This may be addressed in a future update.)
      */
-    GrTexture* lockScratchTexture(const GrTextureDesc&, ScratchTexMatch match);
+    GrTexture* lockScratchTexture(const GrTextureDesc& desc,
+                                  ScratchTexMatch match);
 
     /**
-     *  When done with an entry, call unlockScratchTexture(entry) on it, which returns
+     *  When done with an entry, call unlockTexture(entry) on it, which returns
      *  it to the cache, where it may be purged.
      */
     void unlockScratchTexture(GrTexture* texture);
@@ -911,7 +913,7 @@ private:
     void internalDrawPath(const GrPaint& paint, const SkPath& path, const SkStrokeRec& stroke);
 
     GrTexture* createResizedTexture(const GrTextureDesc& desc,
-                                    const GrCacheID& cacheID,
+                                    const GrCacheData& cacheData,
                                     void* srcData,
                                     size_t rowBytes,
                                     bool needsFiltering);
@@ -949,7 +951,8 @@ public:
 
     GrAutoScratchTexture(GrContext* context,
                          const GrTextureDesc& desc,
-                         GrContext::ScratchTexMatch match = GrContext::kApprox_ScratchTexMatch)
+                         GrContext::ScratchTexMatch match =
+                            GrContext::kApprox_ScratchTexMatch)
       : fContext(NULL)
       , fTexture(NULL) {
       this->set(context, desc, match);
@@ -993,7 +996,8 @@ public:
 
     GrTexture* set(GrContext* context,
                    const GrTextureDesc& desc,
-                   GrContext::ScratchTexMatch match = GrContext::kApprox_ScratchTexMatch) {
+                   GrContext::ScratchTexMatch match =
+                        GrContext::kApprox_ScratchTexMatch) {
         this->reset();
 
         fContext = context;

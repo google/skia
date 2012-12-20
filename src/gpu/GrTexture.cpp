@@ -15,6 +15,7 @@
 #include "GrResourceCache.h"
 
 SK_DEFINE_INST_COUNT(GrTexture)
+GR_DEFINE_RESOURCE_CACHE_TYPE(GrTexture)
 
 /**
  * This method allows us to interrupt the normal deletion process and place
@@ -115,73 +116,97 @@ void GrTexture::validateDesc() const {
     }
 }
 
-// These flags need to fit in a GrResourceKey::ResourceFlags so they can be folded into the texture
+// These flags need to fit in <= 8 bits so they can be folded into the texture
 // key
-enum TextureFlags {
-    /**
-     * The kStretchToPOT bit is set when the texture is NPOT and is being repeated but the
-     * hardware doesn't support that feature.
+enum TextureBits {
+    /*
+     * The kNPOT bit is set when the texture is NPOT and is being repeated
+     * but the hardware doesn't support that feature.
      */
-    kStretchToPOT_TextureFlag = 0x1,
-    /**
-     * The kFilter bit can only be set when the kStretchToPOT flag is set and indicates whether the
-     * stretched texture should be bilerp filtered or point sampled. 
+    kNPOT_TextureBit            = 0x1,
+    /*
+     * The kFilter bit can only be set when the kNPOT flag is set and indicates
+     * whether the resizing of the texture should use filtering. This is
+     * to handle cases where the original texture is indexed to disable
+     * filtering.
      */
-    kFilter_TextureFlag       = 0x2,
+    kFilter_TextureBit          = 0x2,
+    /*
+     * The kScratch bit is set if the texture is being used as a scratch
+     * texture.
+     */
+    kScratch_TextureBit         = 0x4,
 };
 
 namespace {
-GrResourceKey::ResourceFlags get_texture_flags(const GrGpu* gpu,
-                                               const GrTextureParams* params,
-                                               const GrTextureDesc& desc) {
-    GrResourceKey::ResourceFlags flags = 0;
-    bool tiled = NULL != params && params->isTiled();
-    if (tiled & !gpu->getCaps().npotTextureTileSupport()) {
-        if (!GrIsPow2(desc.fWidth) || GrIsPow2(desc.fHeight)) {
-            flags |= kStretchToPOT_TextureFlag;
+void gen_texture_key_values(const GrGpu* gpu,
+                            const GrTextureParams* params,
+                            const GrTextureDesc& desc,
+                            const GrCacheData& cacheData,
+                            bool scratch,
+                            GrCacheID* cacheID) {
+
+    uint64_t clientKey = cacheData.fClientCacheID;
+
+    if (scratch) {
+        // Instead of a client-provided key of the texture contents
+        // we create a key from the descriptor.
+        GrAssert(GrCacheData::kScratch_CacheID == clientKey);
+        clientKey = (desc.fFlags << 8) | ((uint64_t) desc.fConfig << 32);
+    }
+
+    cacheID->fPublicID = clientKey;
+    cacheID->fDomain = cacheData.fResourceDomain;
+
+    // we assume we only need 16 bits of width and height
+    // assert that texture creation will fail anyway if this assumption
+    // would cause key collisions.
+    GrAssert(gpu->getCaps().maxTextureSize() <= SK_MaxU16);
+    cacheID->fResourceSpecific32 = desc.fWidth | (desc.fHeight << 16);
+
+    GrAssert(desc.fSampleCnt >= 0 && desc.fSampleCnt < 256);
+    cacheID->fResourceSpecific16 = desc.fSampleCnt << 8;
+
+    if (!gpu->getCaps().npotTextureTileSupport()) {
+        bool isPow2 = GrIsPow2(desc.fWidth) && GrIsPow2(desc.fHeight);
+
+        bool tiled = NULL != params && params->isTiled();
+
+        if (tiled && !isPow2) {
+            cacheID->fResourceSpecific16 |= kNPOT_TextureBit;
             if (params->isBilerp()) {
-                flags |= kFilter_TextureFlag;
+                cacheID->fResourceSpecific16 |= kFilter_TextureBit;
             }
         }
     }
-    return flags;
-}
 
-GrResourceKey::ResourceType texture_resource_type() {
-    static const GrResourceKey::ResourceType gType = GrResourceKey::GenerateResourceType();
-    return gType;
+    if (scratch) {
+        cacheID->fResourceSpecific16 |= kScratch_TextureBit;
+    }
 }
 }
 
 GrResourceKey GrTexture::ComputeKey(const GrGpu* gpu,
                                     const GrTextureParams* params,
                                     const GrTextureDesc& desc,
-                                    const GrCacheID& cacheID) {
-    GrResourceKey::ResourceFlags flags = get_texture_flags(gpu, params, desc);
-    return GrResourceKey(cacheID, texture_resource_type(), flags);
-}
+                                    const GrCacheData& cacheData,
+                                    bool scratch) {
+    GrCacheID id(GrTexture::GetResourceType());
+    gen_texture_key_values(gpu, params, desc, cacheData, scratch, &id);
 
-GrResourceKey GrTexture::ComputeScratchKey(const GrTextureDesc& desc) {
-    GrCacheID::Key idKey;
-    // Instead of a client-provided key of the texture contents we create a key from the
-    // descriptor.
-    GR_STATIC_ASSERT(sizeof(idKey) >= 12);
-    GrAssert(desc.fHeight < (1 << 16));
-    GrAssert(desc.fWidth < (1 << 16));
-    idKey.fData32[0] = (desc.fWidth) | (desc.fHeight << 16);
-    idKey.fData32[1] = desc.fConfig | desc.fSampleCnt << 16;
-    idKey.fData32[2] = desc.fFlags;
-    static const int kPadSize = sizeof(idKey) - 12;
-    memset(idKey.fData8 + 12, 0, kPadSize);
-
-    GrCacheID cacheID(GrResourceKey::ScratchDomain(), idKey);
-    return GrResourceKey(cacheID, texture_resource_type(), 0);
+    uint32_t v[4];
+    id.toRaw(v);
+    return GrResourceKey(v);
 }
 
 bool GrTexture::NeedsResizing(const GrResourceKey& key) {
-    return SkToBool(key.getResourceFlags() & kStretchToPOT_TextureFlag);
+    return 0 != (key.getValue32(3) & kNPOT_TextureBit);
+}
+
+bool GrTexture::IsScratchTexture(const GrResourceKey& key) {
+    return 0 != (key.getValue32(3) & kScratch_TextureBit);
 }
 
 bool GrTexture::NeedsFiltering(const GrResourceKey& key) {
-    return SkToBool(key.getResourceFlags() & kFilter_TextureFlag);
+    return 0 != (key.getValue32(3) & kFilter_TextureBit);
 }
