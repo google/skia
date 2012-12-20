@@ -80,6 +80,7 @@ const static ErrorBitfield ERROR_WRITING_REFERENCE_IMAGE = 0x10;
 const static char kJsonKey_ActualResults[]   = "actual-results";
 const static char kJsonKey_ActualResults_Failed[]        = "failed";
 const static char kJsonKey_ActualResults_FailureIgnored[]= "failure-ignored";
+const static char kJsonKey_ActualResults_NoComparison[]  = "no-comparison";
 const static char kJsonKey_ActualResults_Succeeded[]     = "succeeded";
 const static char kJsonKey_ActualResults_AnyStatus_Checksum[]    = "checksum";
 
@@ -623,7 +624,7 @@ public:
                 fJsonActualResults_Failed[name.c_str()] = actualResults;
             }
         } else {
-            fJsonActualResults_FailureIgnored[name.c_str()] = actualResults;
+            fJsonActualResults_NoComparison[name.c_str()] = actualResults;
         }
 
         // Add this test to the JSON collection of expected results.
@@ -659,6 +660,17 @@ public:
             retval |= compare_to_reference_image_on_disk(readPath, name, bitmap,
                                                          diffPath,
                                                          renderModeDescriptor);
+        } else if (NULL == referenceBitmap) {
+            // If we are running without "--readPath", we still want to
+            // record the actual results.
+            //
+            // For now, though, we don't record results of comparisons against
+            // different in-memory representations (hence the referenceBitmap
+            // NULL check).
+            Json::Value actualResults;
+            actualResults[kJsonKey_ActualResults_AnyStatus_Checksum] =
+                Json::UInt64(SkBitmapChecksummer::Compute64(bitmap));
+            fJsonActualResults_NoComparison[name.c_str()] = actualResults;
         }
         if (writePath && (gRec.fFlags & kWrite_ConfigFlag)) {
             retval |= write_reference_image(gRec, writePath,
@@ -845,6 +857,7 @@ public:
     Json::Value fJsonExpectedResults;
     Json::Value fJsonActualResults_Failed;
     Json::Value fJsonActualResults_FailureIgnored;
+    Json::Value fJsonActualResults_NoComparison;
     Json::Value fJsonActualResults_Succeeded;
 
 }; // end of GMMain class definition
@@ -1480,6 +1493,8 @@ int tool_main(int argc, char** argv) {
             gmmain.fJsonActualResults_Failed;
         actualResults[kJsonKey_ActualResults_FailureIgnored] =
             gmmain.fJsonActualResults_FailureIgnored;
+        actualResults[kJsonKey_ActualResults_NoComparison] =
+            gmmain.fJsonActualResults_NoComparison;
         actualResults[kJsonKey_ActualResults_Succeeded] =
             gmmain.fJsonActualResults_Succeeded;
         Json::Value root;

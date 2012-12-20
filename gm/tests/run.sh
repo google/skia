@@ -76,4 +76,9 @@ gm_test "--hierarchy --match dashing2 --config 8888 -r $GM_INPUTS/different-pixe
 # Compare generated image against an empty "expected image" dir.
 gm_test "--hierarchy --match dashing2 --config 8888 -r $GM_INPUTS/empty-dir" "$GM_OUTPUTS/compared-against-empty-dir"
 
+# If run without "-r", the JSON's "actual-results" section should contain
+# actual checksums marked as "failure-ignored", but the "expected-results"
+# section should be empty.
+gm_test "--hierarchy --match dashing2 --config 8888" "$GM_OUTPUTS/no-readpath"
+
 echo "All tests passed."
