@@ -11,6 +11,20 @@
 #include "GrResourceCache.h"
 #include "GrResource.h"
 
+
+GrResourceKey::ResourceType GrResourceKey::GenerateResourceType() {
+    static int32_t gNextType = 0;
+
+    int32_t type = sk_atomic_inc(&gNextType);
+    if (type >= (1 << 8 * sizeof(ResourceType))) {
+        GrCrash("Too many Resource Types");
+    }
+
+    return static_cast<ResourceType>(type);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 GrResourceEntry::GrResourceEntry(const GrResourceKey& key, GrResource* resource)
         : fKey(key), fResource(resource) {
     // we assume ownership of the resource, and will unref it when we die
@@ -30,36 +44,6 @@ void GrResourceEntry::validate() const {
     fResource->validate();
 }
 #endif
-
-///////////////////////////////////////////////////////////////////////////////
-
-class GrResourceCache::Key {
-    typedef GrResourceEntry T;
-
-    const GrResourceKey& fKey;
-public:
-    Key(const GrResourceKey& key) : fKey(key) {}
-
-    uint32_t getHash() const { return fKey.hashIndex(); }
-
-    static bool LT(const T& entry, const Key& key) {
-        return entry.key() < key.fKey;
-    }
-    static bool EQ(const T& entry, const Key& key) {
-        return entry.key() == key.fKey;
-    }
-#if GR_DEBUG
-    static uint32_t GetHash(const T& entry) {
-        return entry.key().hashIndex();
-    }
-    static bool LT(const T& a, const T& b) {
-        return a.key() < b.key();
-    }
-    static bool EQ(const T& a, const T& b) {
-        return a.key() == b.key();
-    }
-#endif
-};
 
 ///////////////////////////////////////////////////////////////////////////////
 

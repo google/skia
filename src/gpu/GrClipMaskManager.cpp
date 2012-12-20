@@ -18,11 +18,8 @@
 #include "GrAAConvexPathRenderer.h"
 #include "GrAAHairLinePathRenderer.h"
 #include "GrSWMaskHelper.h"
-#include "GrCacheID.h"
 
 #include "SkTLazy.h"
-
-GR_DEFINE_RESOURCE_CACHE_DOMAIN(GrClipMaskManager, GetAlphaMaskDomain)
 
 #define GR_AA_CLIP 1
 

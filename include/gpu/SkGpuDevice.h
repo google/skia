@@ -110,9 +110,6 @@ public:
     class SkAutoCachedTexture; // used internally
 
 protected:
-    bool isBitmapInTextureCache(const SkBitmap& bitmap,
-                                const GrTextureParams& params) const;
-
     // overrides from SkDevice
     virtual bool onReadPixels(const SkBitmap& bitmap,
                               int x, int y,

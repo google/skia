@@ -14,27 +14,12 @@
 #include "GrConfig.h"
 #include "GrTypes.h"
 #include "GrTHashCache.h"
+#include "GrBinHashKey.h"
 #include "SkTInternalLList.h"
 
 class GrResource;
+class GrResourceEntry;
 
-// return true if a<b, or false if b<a
-//
-#define RET_IF_LT_OR_GT(a, b)   \
-    do {                        \
-        if ((a) < (b)) {        \
-            return true;        \
-        }                       \
-        if ((b) < (a)) {        \
-            return false;       \
-        }                       \
-    } while (0)
-
-/**
- *  Helper class for GrResourceCache, the Key is used to identify src data for
- *  a resource. It is identified by 2 32bit data fields which can hold any
- *  data (uninterpreted by the cache) and a width/height.
- */
 class GrResourceKey {
 public:
     enum {
@@ -43,81 +28,118 @@ public:
         kHashMask   = kHashCount - 1
     };
 
-    GrResourceKey(uint32_t p0, uint32_t p1, uint32_t p2, uint32_t p3) {
-        fP[0] = p0;
-        fP[1] = p1;
-        fP[2] = p2;
-        fP[3] = p3;
-        this->computeHashIndex();
+    static GrCacheID::Domain ScratchDomain() {
+        static const GrCacheID::Domain gDomain = GrCacheID::GenerateDomain();
+        return gDomain;
     }
 
-    GrResourceKey(uint32_t v[4]) {
-        memcpy(fP, v, 4 * sizeof(uint32_t));
-        this->computeHashIndex();
-    }
+    /** Uniquely identifies the GrResource subclass in the key to avoid collisions
+        across resource types. */
+    typedef uint8_t ResourceType;
+
+    /** Flags set by the GrResource subclass. */
+    typedef uint8_t ResourceFlags;
+
+    /** Generate a unique ResourceType */
+    static ResourceType GenerateResourceType();
+
+    /** Creates a key for resource */
+    GrResourceKey(const GrCacheID& id, ResourceType type, ResourceFlags flags) {
+        this->init(id.getDomain(), id.getKey(), type, flags);
+    };
 
     GrResourceKey(const GrResourceKey& src) {
-        memcpy(fP, src.fP, 4 * sizeof(uint32_t));
-#if GR_DEBUG
-        this->computeHashIndex();
-        GrAssert(fHashIndex == src.fHashIndex);
-#endif
-        fHashIndex = src.fHashIndex;
+        fKey = src.fKey;
+    }
+
+    GrResourceKey() {
+        fKey.fHashedKey.reset();
+    }
+
+    void reset(const GrCacheID& id, ResourceType type, ResourceFlags flags) {
+        this->init(id.getDomain(), id.getKey(), type, flags);
     }
 
     //!< returns hash value [0..kHashMask] for the key
-    int hashIndex() const { return fHashIndex; }
-
-    friend bool operator==(const GrResourceKey& a, const GrResourceKey& b) {
-        GR_DEBUGASSERT(-1 != a.fHashIndex && -1 != b.fHashIndex);
-        return 0 == memcmp(a.fP, b.fP, 4 * sizeof(uint32_t));
+    int getHash() const {
+        return fKey.fHashedKey.getHash() & kHashMask;
     }
 
-    friend bool operator!=(const GrResourceKey& a, const GrResourceKey& b) {
-        GR_DEBUGASSERT(-1 != a.fHashIndex && -1 != b.fHashIndex);
-        return !(a == b);
+    bool isScratch() const {
+        return ScratchDomain() ==
+            *reinterpret_cast<const GrCacheID::Domain*>(fKey.fHashedKey.getData() +
+                                                        kCacheIDDomainOffset);
     }
 
-    friend bool operator<(const GrResourceKey& a, const GrResourceKey& b) {
-        RET_IF_LT_OR_GT(a.fP[0], b.fP[0]);
-        RET_IF_LT_OR_GT(a.fP[1], b.fP[1]);
-        RET_IF_LT_OR_GT(a.fP[2], b.fP[2]);
-        return a.fP[3] < b.fP[3];
+    ResourceType getResourceType() const {
+        return *reinterpret_cast<const ResourceType*>(fKey.fHashedKey.getData() +
+                                                      kResourceTypeOffset);
     }
 
-    uint32_t getValue32(int i) const {
-        GrAssert(i >=0 && i < 4);
-        return fP[i];
+    ResourceFlags getResourceFlags() const {
+        return *reinterpret_cast<const ResourceFlags*>(fKey.fHashedKey.getData() +
+                                                       kResourceFlagsOffset);
     }
+
+    int compare(const GrResourceKey& other) const {
+        return fKey.fHashedKey.compare(other.fKey.fHashedKey);
+    }
+
+    static bool LT(const GrResourceKey& a, const GrResourceKey& b) {
+        return a.compare(b) < 0;
+    }
+
+    static bool EQ(const GrResourceKey& a, const GrResourceKey& b) {
+        return 0 == a.compare(b);
+    }
+
+    inline static bool LT(const GrResourceEntry& entry, const GrResourceKey& key);
+    inline static bool EQ(const GrResourceEntry& entry, const GrResourceKey& key);
+    inline static bool LT(const GrResourceEntry& a, const GrResourceEntry& b);
+    inline static bool EQ(const GrResourceEntry& a, const GrResourceEntry& b);
+
 private:
+    enum {
+        kCacheIDKeyOffset = 0,
+        kCacheIDDomainOffset = kCacheIDKeyOffset + sizeof(GrCacheID::Key),
+        kResourceTypeOffset = kCacheIDDomainOffset + sizeof(GrCacheID::Domain),
+        kResourceFlagsOffset = kResourceTypeOffset + sizeof(ResourceType),
+        kPadOffset = kResourceFlagsOffset + sizeof(ResourceFlags),
+        kKeySize = SkAlign4(kPadOffset),
+        kPadSize = kKeySize - kPadOffset
+    };
 
-    static uint32_t rol(uint32_t x) {
-        return (x >> 24) | (x << 8);
+    void init(const GrCacheID::Domain domain,
+              const GrCacheID::Key& key,
+              ResourceType type,
+              ResourceFlags flags) {
+        union {
+            uint8_t  fKey8[kKeySize];
+            uint32_t fKey32[kKeySize / 4];
+        } keyData;
+        
+        uint8_t* k = keyData.fKey8;
+        memcpy(k + kCacheIDKeyOffset, key.fData8, sizeof(GrCacheID::Key));
+        memcpy(k + kCacheIDDomainOffset, &domain, sizeof(GrCacheID::Domain));
+        memcpy(k + kResourceTypeOffset, &type, sizeof(ResourceType));
+        memcpy(k + kResourceFlagsOffset, &flags, sizeof(ResourceFlags));
+        memset(k + kPadOffset, 0, kPadSize);
+        fKey.fHashedKey.setKeyData(keyData.fKey32);
     }
-    static uint32_t ror(uint32_t x) {
-        return (x >> 8) | (x << 24);
-    }
-    static uint32_t rohalf(uint32_t x) {
-        return (x >> 16) | (x << 16);
-    }
 
-    void computeHashIndex() {
-        uint32_t hash = fP[0] ^ rol(fP[1]) ^ ror(fP[2]) ^ rohalf(fP[3]);
-        // this way to mix and reduce hash to its index may have to change
-        // depending on how many bits we allocate to the index
-        hash ^= hash >> 16;
-        hash ^= hash >> 8;
-        fHashIndex = hash & kHashMask;
-    }
+    struct Key;
+    typedef GrTBinHashKey<Key, kKeySize> HashedKey;
 
-    uint32_t    fP[4];
+    struct Key {
+        int compare(const HashedKey& hashedKey) const {
+            return fHashedKey.compare(fHashedKey);
+        }
+        
+        HashedKey fHashedKey;
+    };
 
-    // this is computed from the fP... fields
-    int         fHashIndex;
-
-    friend class GrContext;
+    Key fKey;
 };
-
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -145,6 +167,22 @@ private:
     friend class GrResourceCache;
     friend class GrDLinkedList;
 };
+
+bool GrResourceKey::LT(const GrResourceEntry& entry, const GrResourceKey& key) {
+    return LT(entry.key(), key);
+}
+
+bool GrResourceKey::EQ(const GrResourceEntry& entry, const GrResourceKey& key) {
+    return EQ(entry.key(), key);
+}
+
+bool GrResourceKey::LT(const GrResourceEntry& a, const GrResourceEntry& b) {
+    return LT(a.key(), b.key());
+}
+
+bool GrResourceKey::EQ(const GrResourceEntry& a, const GrResourceEntry& b) {
+    return EQ(a.key(), b.key());
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -289,8 +327,7 @@ private:
 
     void removeInvalidResource(GrResourceEntry* entry);
 
-    class Key;
-    GrTHashTable<GrResourceEntry, Key, 8> fCache;
+    GrTHashTable<GrResourceEntry, GrResourceKey, 8> fCache;
 
     // We're an internal doubly linked list
     typedef SkTInternalLList<GrResourceEntry> EntryList;
