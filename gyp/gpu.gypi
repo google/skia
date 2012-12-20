@@ -10,7 +10,6 @@
     'gr_sources': [
       '<(skia_include_path)/gpu/GrAARectRenderer.h',
       '<(skia_include_path)/gpu/GrBackendEffectFactory.h',
-      '<(skia_include_path)/gpu/GrCacheID.h',
       '<(skia_include_path)/gpu/GrClipData.h',
       '<(skia_include_path)/gpu/GrColor.h',
       '<(skia_include_path)/gpu/GrConfig.h',

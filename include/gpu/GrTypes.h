@@ -459,44 +459,55 @@ struct GrTextureDesc {
 };
 
 /**
- * GrCacheData holds user-provided cache-specific data. It is used in
- * combination with the GrTextureDesc to construct a cache key for texture
- * resources.
+ * GrCacheID is used create and find cached GrResources (e.g. GrTextures). The ID has two parts:
+ * the domain and the key. Domains simply allow multiple clients to use 0-based indices as their
+ * cache key without colliding. The key uniquely identifies a GrResource within the domain.
+ * Users of the cache must obtain a domain via GenerateDomain().
  */
-struct GrCacheData {
-    /*
-     * Scratch textures should all have this value as their fClientCacheID
-     */
-    static const uint64_t kScratch_CacheID = 0xBBBBBBBB;
+struct GrCacheID {
+public:
+    typedef uint8_t  Domain;
+
+    struct Key {
+        union {
+            uint8_t  fData8[16];
+            uint32_t fData32[4];
+            uint64_t fData64[2];
+        };
+    };
 
     /**
-      * Resources in the "scratch" domain can be used by any domain. All
-      * scratch textures will have this as their domain.
-      */
-    static const uint8_t kScratch_ResourceDomain = 0;
+     * A default cache ID is invalid; a set method must be called before the object is used.
+     */
+    GrCacheID() { fDomain = kInvalid_Domain; }
 
-
-    // No default constructor is provided since, if you are creating one
-    // of these, you should definitely have a key (or be using the scratch
-    // key).
-    GrCacheData(uint64_t key)
-    : fClientCacheID(key)
-    , fResourceDomain(kScratch_ResourceDomain) {
+    /**
+     * Initialize the cache ID to a domain and key.
+     */
+    GrCacheID(Domain domain, const Key& key) {
+        GrAssert(kInvalid_Domain != domain); 
+        this->reset(domain, key);
     }
 
-    /**
-     * A user-provided texture ID. It should be unique to the texture data and
-     * does not need to take into account the width or height. Two textures
-     * with the same ID but different dimensions will not collide. This field
-     * is only relevant for textures that will be cached.
-     */
-    uint64_t               fClientCacheID;
+    void reset(Domain domain, const Key& key) {
+        fDomain = domain;
+        memcpy(&fKey, &key, sizeof(Key));
+    }
 
-    /**
-     * Allows cache clients to cluster their textures inside domains (e.g.,
-     * alpha clip masks). Only relevant for cached textures.
-     */
-    uint8_t                fResourceDomain;
+    /** Has this been initialized to a valid domain */
+    bool isValid() const { return kInvalid_Domain != fDomain; }
+
+    const Key& getKey() const { GrAssert(this->isValid()); return fKey; }
+    Domain getDomain() const { GrAssert(this->isValid()); return fDomain; }
+    
+    /** Creates a new unique ID domain. */
+    static Domain GenerateDomain();
+
+private:
+    Key             fKey;
+    Domain          fDomain;
+
+    static const Domain kInvalid_Domain = 0;
 };
 
 /**
