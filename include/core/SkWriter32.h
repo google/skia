@@ -24,6 +24,7 @@ class SkStream;
 class SkWStream;
 
 class SkWriter32 : SkNoncopyable {
+    struct BlockHeader;
 public:
     /**
      *  The caller can specify an initial block of storage, which the caller manages.
@@ -36,20 +37,11 @@ public:
     SkWriter32(size_t minSize)
         : fMinSize(minSize),
           fSize(0),
-          fSingleBlock(NULL),
-          fSingleBlockSize(0),
           fWrittenBeforeLastBlock(0),
           fHead(NULL),
-          fTail(NULL),
-          fHeadIsExternalStorage(false) {}
+          fTail(NULL) {}
 
     ~SkWriter32();
-
-    /**
-     *  Returns the single block backing the writer, or NULL if the memory is
-     *  to be dynamically allocated.
-     */
-    void* getSingleBlock() const { return fSingleBlock; }
 
     // return the current offset (will always be a multiple of 4)
     uint32_t bytesWritten() const { return fSize; }
@@ -57,14 +49,20 @@ public:
     uint32_t  size() const { return this->bytesWritten(); }
 
     void      reset();
-    uint32_t* reserve(size_t size); // size MUST be multiple of 4
+    
+    // size MUST be multiple of 4
+    uint32_t* reserve(size_t size) {
+        SkASSERT(SkAlign4(size) == size);
+        
+        Block* block = fTail;
+        if (NULL == block || block->available() < size) {
+            block = this->doReserve(size);
+        }
+        fSize += size;
+        return block->alloc(size);
+    }
 
-    /**
-     *  Specify the single block to back the writer, rathern than dynamically
-     *  allocating the memory. If block == NULL, then the writer reverts to
-     *  dynamic allocation (and resets).
-     */
-    void reset(void* block, size_t size);
+    void reset(void* storage, size_t size);
 
     bool writeBool(bool value) {
         this->writeInt(value);
@@ -197,22 +195,79 @@ public:
     bool writeToStream(SkWStream*);
 
 private:
+    struct Block {
+        Block*  fNext;
+        char*   fBasePtr;
+        size_t  fSizeOfBlock;      // total space allocated (after this)
+        size_t  fAllocatedSoFar;    // space used so far
+
+        size_t  available() const { return fSizeOfBlock - fAllocatedSoFar; }
+        char*   base() { return fBasePtr; }
+        const char* base() const { return fBasePtr; }
+
+        uint32_t* alloc(size_t size) {
+            SkASSERT(SkAlign4(size) == size);
+            SkASSERT(this->available() >= size);
+            void* ptr = this->base() + fAllocatedSoFar;
+            fAllocatedSoFar += size;
+            SkASSERT(fAllocatedSoFar <= fSizeOfBlock);
+            return (uint32_t*)ptr;
+        }
+
+        uint32_t* peek32(size_t offset) {
+            SkASSERT(offset <= fAllocatedSoFar + 4);
+            void* ptr = this->base() + offset;
+            return (uint32_t*)ptr;
+        }
+        
+        void rewind() {
+            fNext = NULL;
+            fAllocatedSoFar = 0;
+            // keep fSizeOfBlock as is
+        }
+        
+        static Block* Create(size_t size) {
+            SkASSERT(SkIsAlign4(size));
+            Block* block = (Block*)sk_malloc_throw(sizeof(Block) + size);
+            block->fNext = NULL;
+            block->fBasePtr = (char*)(block + 1);
+            block->fSizeOfBlock = size;
+            block->fAllocatedSoFar = 0;
+            return block;
+        }
+
+        Block* initFromStorage(void* storage, size_t size) {
+            SkASSERT(SkIsAlign4((intptr_t)storage));
+            SkASSERT(SkIsAlign4(size));
+            Block* block = this;
+            block->fNext = NULL;
+            block->fBasePtr = (char*)storage;
+            block->fSizeOfBlock = size;
+            block->fAllocatedSoFar = 0;
+            return block;
+        }
+    };
+
+    enum {
+        MIN_BLOCKSIZE = sizeof(SkWriter32::Block) + sizeof(intptr_t)
+    };
+    
+    Block       fExternalBlock;
+    Block*      fHead;
+    Block*      fTail;
     size_t      fMinSize;
     uint32_t    fSize;
-
-    char*       fSingleBlock;
-    uint32_t    fSingleBlockSize;
-
     // sum of bytes written in all blocks *before* fTail
     uint32_t    fWrittenBeforeLastBlock;
 
-    struct Block;
-    Block*  fHead;
-    Block*  fTail;
-
-    bool fHeadIsExternalStorage;
+    bool isHeadExternallyAllocated() const {
+        return fHead == &fExternalBlock;
+    }
 
     Block* newBlock(size_t bytes);
+    
+    // only call from reserve()
+    Block* doReserve(size_t bytes);
 
     SkDEBUGCODE(void validate() const;)
 };
