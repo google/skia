@@ -117,7 +117,7 @@ private:
             uint8_t  fKey8[kKeySize];
             uint32_t fKey32[kKeySize / 4];
         } keyData;
-        
+
         uint8_t* k = keyData.fKey8;
         memcpy(k + kCacheIDKeyOffset, key.fData8, sizeof(GrCacheID::Key));
         memcpy(k + kCacheIDDomainOffset, &domain, sizeof(GrCacheID::Domain));
@@ -134,7 +134,7 @@ private:
         int compare(const HashedKey& hashedKey) const {
             return fHashedKey.compare(fHashedKey);
         }
-        
+
         HashedKey fHashedKey;
     };
 

@@ -195,7 +195,7 @@ void GrTextureStripAtlas::lockTexture() {
     texDesc.fWidth = fDesc.fWidth;
     texDesc.fHeight = fDesc.fHeight;
     texDesc.fConfig = fDesc.fConfig;
-    
+
     static const GrCacheID::Domain gTextureStripAtlasDomain = GrCacheID::GenerateDomain();
     GrCacheID::Key key;
     *key.fData32 = fCacheKey;
