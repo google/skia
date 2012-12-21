@@ -72,11 +72,11 @@ static Segment* findChaseOp(SkTDArray<Span*>& chase, int& nextStart, int& nextEn
             if (nextIndex == angleCount) {
                 nextIndex = 0;
             }
-            int maxWinding, sumWinding, oppMaxWinding, oppSumWinding;
             angle = sorted[nextIndex];
             segment = angle->segment();
             int start = angle->start();
             int end = angle->end();
+            int maxWinding, sumWinding, oppMaxWinding, oppSumWinding;
             segment->setUpWindings(start, end, sumMiWinding, sumSuWinding,
                     maxWinding, sumWinding, oppMaxWinding, oppSumWinding);
             if (!segment->done(angle)) {
@@ -139,10 +139,11 @@ static bool bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
     SkPoint topLeft = {SK_ScalarMin, SK_ScalarMin};
     do {
         int index, endIndex;
+        bool done;
         Segment* current = findSortableTopNew(contourList, firstContour, index, endIndex, topLeft,
-                topUnsortable);
+                topUnsortable, done, true);
         if (!current) {
-            if (topUnsortable) {
+            if (topUnsortable || !done) {
                 topUnsortable = false;
                 SkASSERT(!firstRetry);
                 firstRetry = true;

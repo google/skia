@@ -76,6 +76,9 @@ int intersect(const _Line& a, const _Line& b, double aRange[2], double bRange[2]
             double a1 = aPtr[2];
             double b0 = bPtr[0];
             double b1 = bPtr[2];
+            // OPTIMIZATION: restructure to reject before the divide
+            // e.g., if ((a0 - b0) * (a0 - a1) < 0 || abs(a0 - b0) > abs(a0 - a1)) 
+            // (except efficient)
             double at0 = (a0 - b0) / (a0 - a1);
             double at1 = (a0 - b1) / (a0 - a1);
             if ((at0 < 0 && at1 < 0) || (at0 > 1 && at1 > 1)) {
