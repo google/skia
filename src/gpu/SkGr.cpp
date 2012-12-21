@@ -64,7 +64,7 @@ static void generate_bitmap_cache_id(const SkBitmap& bitmap, GrCacheID* id) {
     int16_t width = static_cast<int16_t>(bitmap.width());
     int16_t height = static_cast<int16_t>(bitmap.height());
 
-    GrCacheID::Key key;        
+    GrCacheID::Key key;
     memcpy(key.fData8, &genID, 4);
     memcpy(key.fData8 + 4, &width, 2);
     memcpy(key.fData8 + 6, &height, 2);

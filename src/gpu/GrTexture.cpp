@@ -125,7 +125,7 @@ enum TextureFlags {
     kStretchToPOT_TextureFlag = 0x1,
     /**
      * The kFilter bit can only be set when the kStretchToPOT flag is set and indicates whether the
-     * stretched texture should be bilerp filtered or point sampled. 
+     * stretched texture should be bilerp filtered or point sampled.
      */
     kFilter_TextureFlag       = 0x2,
 };
