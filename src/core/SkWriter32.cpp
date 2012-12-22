@@ -43,7 +43,7 @@ void SkWriter32::reset() {
 
 void SkWriter32::reset(void* storage, size_t storageSize) {
     this->reset();
-    
+
     storageSize &= ~3;  // trunc down to multiple of 4
     if (storageSize > 0 && SkIsAlign4((intptr_t)storage)) {
         fHead = fTail = fExternalBlock.initFromStorage(storage, storageSize);

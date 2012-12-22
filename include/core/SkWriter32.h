@@ -49,11 +49,11 @@ public:
     uint32_t  size() const { return this->bytesWritten(); }
 
     void      reset();
-    
+
     // size MUST be multiple of 4
     uint32_t* reserve(size_t size) {
         SkASSERT(SkAlign4(size) == size);
-        
+
         Block* block = fTail;
         if (NULL == block || block->available() < size) {
             block = this->doReserve(size);
@@ -219,13 +219,13 @@ private:
             void* ptr = this->base() + offset;
             return (uint32_t*)ptr;
         }
-        
+
         void rewind() {
             fNext = NULL;
             fAllocatedSoFar = 0;
             // keep fSizeOfBlock as is
         }
-        
+
         static Block* Create(size_t size) {
             SkASSERT(SkIsAlign4(size));
             Block* block = (Block*)sk_malloc_throw(sizeof(Block) + size);
@@ -251,7 +251,7 @@ private:
     enum {
         MIN_BLOCKSIZE = sizeof(SkWriter32::Block) + sizeof(intptr_t)
     };
-    
+
     Block       fExternalBlock;
     Block*      fHead;
     Block*      fTail;
@@ -265,7 +265,7 @@ private:
     }
 
     Block* newBlock(size_t bytes);
-    
+
     // only call from reserve()
     Block* doReserve(size_t bytes);
 

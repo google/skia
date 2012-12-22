@@ -114,7 +114,7 @@ private:
 
   static const char* trim(char* sz) {
     if (sz == NULL) return NULL;
-    
+
     while (*sz == ' ' || *sz == '\t' || *sz == '\r' || *sz == '\n' || *sz == ',')
       sz++;
 
@@ -153,13 +153,13 @@ private:
 SkSourceDb* source_db = NULL;
 
 bool endsWith(const char* who, const char* what) {
-	int a = strlen(who);
-	int b = strlen(what);
-	return stricmp(who + a - b, what) == 0; // insecure
+    int a = strlen(who);
+    int b = strlen(what);
+    return stricmp(who + a - b, what) == 0; // insecure
 }
 
 bool sourceFile(const char* szFileName) {
-	return endsWith(szFileName, ".h") || endsWith(szFileName, ".c") || endsWith(szFileName, ".cpp") || endsWith(szFileName, ".cc");
+    return endsWith(szFileName, ".h") || endsWith(szFileName, ".c") || endsWith(szFileName, ".cpp") || endsWith(szFileName, ".cc");
 }
 
 // "
@@ -168,128 +168,128 @@ bool sourceFile(const char* szFileName) {
 class CppState {
 public:
 
-	CppState() : line(1), inComment(false), inLineComment(false), inDoubleQuote(false), inSingleQuote(false), isEscaping(false), commentEnding(false), commentMightBeStarting(false) {
-	}
+    CppState() : line(1), inComment(false), inLineComment(false), inDoubleQuote(false), inSingleQuote(false), isEscaping(false), commentEnding(false), commentMightBeStarting(false) {
+    }
 
-	void apply(int ch) {
-		if (ch == '\n') {
-			line++;
-			if (inLineComment) inLineComment = false;
-		}
+    void apply(int ch) {
+        if (ch == '\n') {
+            line++;
+            if (inLineComment) inLineComment = false;
+        }
 
-		if (inLineComment) {
-			return;
-		}
+        if (inLineComment) {
+            return;
+        }
 
-		if (commentMightBeStarting) {
-			commentMightBeStarting = false;
-			if (ch == '*') {
-				inComment = true;
-			} else if (ch == '/') {
-				inLineComment = true;
-			} else {
-				add('/');//previously we has / but was not pushed on tokens
-				newToken();//
-			}
-		}
+        if (commentMightBeStarting) {
+            commentMightBeStarting = false;
+            if (ch == '*') {
+                inComment = true;
+            } else if (ch == '/') {
+                inLineComment = true;
+            } else {
+                add('/');//previously we has / but was not pushed on tokens
+                newToken();//
+            }
+        }
 
-		if (inSingleQuote) {
-			if (isEscaping)
-				isEscaping = false;
-			else if (ch == '\\')
-				isEscaping = true;
-			else if (ch == '\'') {
-				inSingleQuote = false;
-				newToken();
-				pushToken("__SINGLE_QUOTE__");
-				newToken();
-			}
+        if (inSingleQuote) {
+            if (isEscaping)
+                isEscaping = false;
+            else if (ch == '\\')
+                isEscaping = true;
+            else if (ch == '\'') {
+                inSingleQuote = false;
+                newToken();
+                pushToken("__SINGLE_QUOTE__");
+                newToken();
+            }
 
-			return;
-		} else if (inDoubleQuote) {
-			if (isEscaping)
-				isEscaping = false;
-			else if (ch == '\\')
-				isEscaping = true;
-			else if (ch == '\"') {
-				inDoubleQuote = false;
-				newToken();
-				pushToken("__DOUBLE_QUOTE__");
-				newToken();
-			}
+            return;
+        } else if (inDoubleQuote) {
+            if (isEscaping)
+                isEscaping = false;
+            else if (ch == '\\')
+                isEscaping = true;
+            else if (ch == '\"') {
+                inDoubleQuote = false;
+                newToken();
+                pushToken("__DOUBLE_QUOTE__");
+                newToken();
+            }
 
-			return;
-		} else if (inComment) {
-			if (ch == '*') {
-				commentEnding = true;
-			} else if (ch == '/') {
-				inComment = false;
-				commentEnding = false;
-			} else {
-				commentEnding = false;
-			}
+            return;
+        } else if (inComment) {
+            if (ch == '*') {
+                commentEnding = true;
+            } else if (ch == '/') {
+                inComment = false;
+                commentEnding = false;
+            } else {
+                commentEnding = false;
+            }
 
-			return;
-		}
+            return;
+        }
 
-		switch (ch) {
-		case '\'':
-			newToken();
-			inSingleQuote = true;
-			return;
+        switch (ch) {
+        case '\'':
+            newToken();
+            inSingleQuote = true;
+            return;
 
-		case '\"':
-			newToken();
-			inDoubleQuote = true;
-			return;
+        case '\"':
+            newToken();
+            inDoubleQuote = true;
+            return;
 
-		case '/':
-			newToken();
-			commentMightBeStarting = true;
-			return;
-		}
+        case '/':
+            newToken();
+            commentMightBeStarting = true;
+            return;
+        }
 
-		if (isspace(ch)) {
-			newToken();
-		} else if (tokenDelimiter(ch)) {
-			newToken();
-			if (isSingleCharToken(ch)) {
-				add(ch);
-				newToken();
-			}
-		} else if (isTokenable(ch)) {
-  			add(ch);
-		} else {
-			printf("undexpected ... %c", (char)ch);
-		}
-	}
+        if (isspace(ch)) {
+            newToken();
+        } else if (tokenDelimiter(ch)) {
+            newToken();
+            if (isSingleCharToken(ch)) {
+                add(ch);
+                newToken();
+            }
+        } else if (isTokenable(ch)) {
+              add(ch);
+        } else {
+            printf("undexpected ... %c", (char)ch);
+        }
+    }
 
-	bool enteredFunction() {
-		if (inComment || inLineComment || inDoubleQuote || inSingleQuote || commentMightBeStarting) {
-			return false;
-		}
+    bool enteredFunction() {
+        if (inComment || inLineComment || inDoubleQuote || inSingleQuote || commentMightBeStarting) {
+            return false;
+        }
 
-		if (tokens.size() == 0) {
-			return false;
-		}
+        if (tokens.size() == 0) {
+            return false;
+        }
 
-		if (tokens[tokens.size() - 1] != "{") {
-			return false;
-		}
+        if (tokens[tokens.size() - 1] != "{") {
+            return false;
+        }
 
-		int i = tokens.size() - 2;
+        int i = tokens.size() - 2;
 
-		bool foundCloseBraket = false;
-		int innerBrakets = 0;
-		bool foundOpenBraket = false;
+        bool foundCloseBraket = false;
+        int innerBrakets = 0;
+        bool foundOpenBraket = false;
     int iName = -1;
 
-		while (i >= 0) {
-			string t_i = tokens[i]; // debugging sucks!
+        while (i >= 0) {
+            string t_i = tokens[i]; // debugging sucks!
 
-      if (!foundCloseBraket && (tokens[i] == "enum" 
-                             || tokens[i] == "struct" 
-                             || tokens[i] == "class" 
+      if (!foundCloseBraket && (tokens[i] == "enum"
+                             || tokens[i] == "struct"
+                             || tokens[i] == "class"
                              || tokens[i] == "namespace"
                              || tokens[i] == "public"
                              || tokens[i] == "private"
@@ -301,70 +301,70 @@ public:
         return false;
       }
 
-			if (tokens[i] == ")") {
-				if (foundCloseBraket)
-					innerBrakets++;
-				else if (i >= 3 && tokens[i - 1] == "." && tokens[i - 2] == "." && tokens[i - 3] == ".") {
-					i -= 3;
-				}
-				foundCloseBraket = true;
-			} else if (tokens[i] == "(" && innerBrakets > 0) {
-				innerBrakets--;
-			} else if (tokens[i] == "(" && innerBrakets == 0) {
-				foundOpenBraket = true;
-				i--; if ( i < 0) return false;
-				string name = tokens[i];
+            if (tokens[i] == ")") {
+                if (foundCloseBraket)
+                    innerBrakets++;
+                else if (i >= 3 && tokens[i - 1] == "." && tokens[i - 2] == "." && tokens[i - 3] == ".") {
+                    i -= 3;
+                }
+                foundCloseBraket = true;
+            } else if (tokens[i] == "(" && innerBrakets > 0) {
+                innerBrakets--;
+            } else if (tokens[i] == "(" && innerBrakets == 0) {
+                foundOpenBraket = true;
+                i--; if ( i < 0) return false;
+                string name = tokens[i];
         iName = i;
 
-				if (name == "if" || name == "while" || name == "switch"|| name == "for") {
-					return false;
-				}
+                if (name == "if" || name == "while" || name == "switch"|| name == "for") {
+                    return false;
+                }
 
-				if (!CouldBeFunctionName(name)) return false;
-				if (i >= 6 && tokens[i - 1] == ":" && tokens[i - 2] == ":" && CouldBeClassnName(tokens[i - 3]) && tokens[i - 4] == ":" && tokens[i - 5] == ":" && CouldBeClassnName(tokens[i - 6])) {
-					name =  tokens[i - 6] + "::" + tokens[i - 3] + "::" + name;
+                if (!CouldBeFunctionName(name)) return false;
+                if (i >= 6 && tokens[i - 1] == ":" && tokens[i - 2] == ":" && CouldBeClassnName(tokens[i - 3]) && tokens[i - 4] == ":" && tokens[i - 5] == ":" && CouldBeClassnName(tokens[i - 6])) {
+                    name =  tokens[i - 6] + "::" + tokens[i - 3] + "::" + name;
           iName = i - 6;
-					if (i >= 7 && (tokens[i - 7] == ":" || tokens[i-7] == ",")) {
-						i -= 7 + 1;
-						name = "";
-						foundCloseBraket = false;
-						foundOpenBraket = false;
-						innerBrakets = 0;
-						continue;
-					}
-				}
-				else if (i >= 3 && tokens[i - 1] == ":" && tokens[i - 2] == ":" && CouldBeClassnName(tokens[i - 3])) {
-					name = tokens[i - 3] + "::" + name;
+                    if (i >= 7 && (tokens[i - 7] == ":" || tokens[i-7] == ",")) {
+                        i -= 7 + 1;
+                        name = "";
+                        foundCloseBraket = false;
+                        foundOpenBraket = false;
+                        innerBrakets = 0;
+                        continue;
+                    }
+                }
+                else if (i >= 3 && tokens[i - 1] == ":" && tokens[i - 2] == ":" && CouldBeClassnName(tokens[i - 3])) {
+                    name = tokens[i - 3] + "::" + name;
           iName = i - 3;
-					if (i >= 4 && (tokens[i - 4] == ":" || tokens[i-4] == ",")) {
-						i -= 4 + 1;
-						name = "";
-						foundCloseBraket = false;
-						foundOpenBraket = false;
-						innerBrakets = 0;
-						continue;
-					}
-				}
-				else if (i >= 1 && (tokens[i - 1] == ":" || tokens[i-1] == ",")) {
-					i -= 1 + 1;
-					name = "";
-					foundCloseBraket = false;
-					foundOpenBraket = false;
-					innerBrakets = 0;
-					continue;
-				}
+                    if (i >= 4 && (tokens[i - 4] == ":" || tokens[i-4] == ",")) {
+                        i -= 4 + 1;
+                        name = "";
+                        foundCloseBraket = false;
+                        foundOpenBraket = false;
+                        innerBrakets = 0;
+                        continue;
+                    }
+                }
+                else if (i >= 1 && (tokens[i - 1] == ":" || tokens[i-1] == ",")) {
+                    i -= 1 + 1;
+                    name = "";
+                    foundCloseBraket = false;
+                    foundOpenBraket = false;
+                    innerBrakets = 0;
+                    continue;
+                }
 
-				if (name == "") {
-					return false;
-				}
+                if (name == "") {
+                    return false;
+                }
 
         if (iName >= 2 && tokens[iName - 2] == "#" && tokens[iName - 1] == "define") {
           return false;
         }
 
-        if (iName >= 1 && (tokens[i - 1] == "enum" 
-                        || tokens[i - 1] == "struct" 
-                        || tokens[i - 1] == "class" 
+        if (iName >= 1 && (tokens[i - 1] == "enum"
+                        || tokens[i - 1] == "struct"
+                        || tokens[i - 1] == "class"
                         || tokens[i - 1] == "namespace"
                         || tokens[i - 1] == "public"
                         || tokens[i - 1] == "private"
@@ -396,194 +396,194 @@ public:
 
         if (isInline) return false; //do not trace inline functions
 
-				lastFunctionName = name;
-				return true;
-			} else {
-				if (!foundCloseBraket) {
-					if (!IgnorableFunctionModifier(tokens[i])) {
-						return false;
-					}
-				} else {
-					if (!IgnorableFunctionParameter(tokens[i])) {
-						return false;
-					}
-				}
-			}
+                lastFunctionName = name;
+                return true;
+            } else {
+                if (!foundCloseBraket) {
+                    if (!IgnorableFunctionModifier(tokens[i])) {
+                        return false;
+                    }
+                } else {
+                    if (!IgnorableFunctionParameter(tokens[i])) {
+                        return false;
+                    }
+                }
+            }
 
-			i--;
-		}
+            i--;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	const char* functionName() {
-		return lastFunctionName.c_str();
-	}
+    const char* functionName() {
+        return lastFunctionName.c_str();
+    }
 
-	int lineNumber() {
-		return line;
-	}
+    int lineNumber() {
+        return line;
+    }
 
 private:
 
-	bool CouldBeFunctionName(const string& str) {
-		if (str.empty()) return false;
-		if (!isalpha(str[0]) && str[0] != '_' && str[0] != '~' && str[0] != ':') return false;
-		for (int i = 1; i < str.length(); i++) {
-			if (!isalpha(str[i]) && !isdigit(str[i]) && str[i] != '_' && str[i] != ':') return false;
-		}
+    bool CouldBeFunctionName(const string& str) {
+        if (str.empty()) return false;
+        if (!isalpha(str[0]) && str[0] != '_' && str[0] != '~' && str[0] != ':') return false;
+        for (int i = 1; i < str.length(); i++) {
+            if (!isalpha(str[i]) && !isdigit(str[i]) && str[i] != '_' && str[i] != ':') return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	bool isNumber(const string& str) {
-		if (str.empty()) return false;
-		for (int i = 0; i < str.length(); i++) {
-			if (!isdigit(str[i]) && str[i] != '.' && str[i] != 'x' && str[i] != 'X' && str[i] != 'e' && str[i] != 'E') return false;
-		}
+    bool isNumber(const string& str) {
+        if (str.empty()) return false;
+        for (int i = 0; i < str.length(); i++) {
+            if (!isdigit(str[i]) && str[i] != '.' && str[i] != 'x' && str[i] != 'X' && str[i] != 'e' && str[i] != 'E') return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
 
-	bool isOperator(const string& str) {
-		if (str.empty()) return false;
-		for (int i = 1; i < str.length(); i++) {
-			switch (str[i]) {
-			case '<':
-			case '>':
-			case '=':
-			case '+':
-			case '-':
-			case '*':
-			case '/':
-			case '(':
-			case ')':
-			case '[':
-			case ']':
-			case '!':
-			case '|':
-			case '&':
-			case '^':
-			case '%':
-				break;
-			default:
-				return false;
-			}
-		}
+    bool isOperator(const string& str) {
+        if (str.empty()) return false;
+        for (int i = 1; i < str.length(); i++) {
+            switch (str[i]) {
+            case '<':
+            case '>':
+            case '=':
+            case '+':
+            case '-':
+            case '*':
+            case '/':
+            case '(':
+            case ')':
+            case '[':
+            case ']':
+            case '!':
+            case '|':
+            case '&':
+            case '^':
+            case '%':
+                break;
+            default:
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	bool CouldBeClassnName(const string& str) {
-		return CouldBeFunctionName(str);
-	}
+    bool CouldBeClassnName(const string& str) {
+        return CouldBeFunctionName(str);
+    }
 
-	bool IgnorableFunctionModifier(const string& str) {
-		return str.empty() || CouldBeFunctionName(str);
-	}
+    bool IgnorableFunctionModifier(const string& str) {
+        return str.empty() || CouldBeFunctionName(str);
+    }
 
-	bool IgnorableFunctionParameter(const string& str) {
-		if (str.empty()) return true;
-		if (CouldBeFunctionName(str)) return true;
-		if (str == ",") return true;
-		if (str == "*") return true;
-		if (str == "=") return true;
-		if (str == "&") return true;
-		if (str == "<") return true;
-		if (str == ">") return true;
-		if (str == ":") return true;
-		if (str == "=") return true;
-		if (isNumber(str)) return true;
-		if (str == "]") return true;
-		if (str == "[") return true;
+    bool IgnorableFunctionParameter(const string& str) {
+        if (str.empty()) return true;
+        if (CouldBeFunctionName(str)) return true;
+        if (str == ",") return true;
+        if (str == "*") return true;
+        if (str == "=") return true;
+        if (str == "&") return true;
+        if (str == "<") return true;
+        if (str == ">") return true;
+        if (str == ":") return true;
+        if (str == "=") return true;
+        if (isNumber(str)) return true;
+        if (str == "]") return true;
+        if (str == "[") return true;
 
     if (str == ";") return false;
 
-		return false;
-	}
+        return false;
+    }
 
 
-	bool tokenDelimiter(int ch) {
-		if (isspace(ch))	return true;
-		if (isdigit(ch))	return false;
-		if (isalpha(ch))	return false;
-		if (ch == '_')	    return false;
-							return true;
-	}
+    bool tokenDelimiter(int ch) {
+        if (isspace(ch))    return true;
+        if (isdigit(ch))    return false;
+        if (isalpha(ch))    return false;
+        if (ch == '_')        return false;
+                            return true;
+    }
 
-	bool isTokenable(int ch) {
-		if (isdigit(ch))	return true;
-		if (isalpha(ch))	return true;
-		if (ch == '_')	    return true;
-							return false;
-	}
-	
-	bool isSingleCharToken(int ch) {
-		if (isspace(ch))	return false;
-		if (isdigit(ch))	return false;
-		if (isalpha(ch))	return false;
-		if (ch == '_')	    return false;
-							return true;
-	}
+    bool isTokenable(int ch) {
+        if (isdigit(ch))    return true;
+        if (isalpha(ch))    return true;
+        if (ch == '_')        return true;
+                            return false;
+    }
 
-	void add(char ch) {
-	  token += ch;
-	}
+    bool isSingleCharToken(int ch) {
+        if (isspace(ch))    return false;
+        if (isdigit(ch))    return false;
+        if (isalpha(ch))    return false;
+        if (ch == '_')        return false;
+                            return true;
+    }
 
-	void pushToken(const char* sz) {
-		newToken();
-		token = sz;
-		newToken();
-	}
+    void add(char ch) {
+      token += ch;
+    }
 
-	void newToken() {
-		if (token.empty()) return;
+    void pushToken(const char* sz) {
+        newToken();
+        token = sz;
+        newToken();
+    }
 
-		if (tokens.size() > 0) {
-			string last = tokens[tokens.size() -1];
-			if (last == "operator") {
-				if (isOperator(op + token)) {
-					op += token;
-					token = "";
-					return;
-				} else if (op != "" && isOperator(op)) {
-					tokens[tokens.size() -1] = last + op;
-					op = "";
-					return;
-				} else if (isOperator(token)) {
-					op = token;
-					token = "";
-					return;
-				} else {
-					// compile error?
-					op = "";
-				}
-			} else if (last == "~") {
-				tokens[tokens.size() -1] = last + token;
-				token = "";
-				return;
-			}
-		}
+    void newToken() {
+        if (token.empty()) return;
 
-		tokens.push_back(token);
-		token = "";
-	}
+        if (tokens.size() > 0) {
+            string last = tokens[tokens.size() -1];
+            if (last == "operator") {
+                if (isOperator(op + token)) {
+                    op += token;
+                    token = "";
+                    return;
+                } else if (op != "" && isOperator(op)) {
+                    tokens[tokens.size() -1] = last + op;
+                    op = "";
+                    return;
+                } else if (isOperator(token)) {
+                    op = token;
+                    token = "";
+                    return;
+                } else {
+                    // compile error?
+                    op = "";
+                }
+            } else if (last == "~") {
+                tokens[tokens.size() -1] = last + token;
+                token = "";
+                return;
+            }
+        }
 
-	int line;
-	vector<string> tokens;
-	string token;
-	string lastFunctionName;
+        tokens.push_back(token);
+        token = "";
+    }
 
-	bool inComment;
-	bool inLineComment;
-	bool inDoubleQuote;
-	bool inSingleQuote;
-	bool isEscaping;
-	bool commentEnding;
-	bool commentMightBeStarting;
+    int line;
+    vector<string> tokens;
+    string token;
+    string lastFunctionName;
 
-	string op;
+    bool inComment;
+    bool inLineComment;
+    bool inDoubleQuote;
+    bool inSingleQuote;
+    bool isEscaping;
+    bool commentEnding;
+    bool commentMightBeStarting;
+
+    string op;
 };
 
 char output[100000000];
@@ -596,10 +596,10 @@ void emit(char ch) {
 }
 
 void emit(const char* szCode, const char* szFunctionName, int fileId, int line) {
-	sprintf(now, szCode, szFunctionName, fileId, line);
-	while (*now) {
-		now++;
-	}
+    sprintf(now, szCode, szFunctionName, fileId, line);
+    while (*now) {
+        now++;
+    }
 }
 
 void runFile(const char* szFileNameInput, const char* szFileNameOutput, const char* szInclude) {
@@ -608,21 +608,21 @@ void runFile(const char* szFileNameInput, const char* szFileNameOutput, const ch
 
   if (!sourceFile(szFileNameInput))
     return;
-  
+
   now = output;
   int fileId = source_db->obtainFileId(szFileNameInput);
   FILE* file = fopen(szFileNameInput, "rt");
   int ch;
   CppState state;
   while (true) {
-	int ch = getc(file);
-	if (ch == -1)
-		break;
+    int ch = getc(file);
+    if (ch == -1)
+        break;
     state.apply(ch);
     emit(ch);
     if (ch == '{' && state.enteredFunction()) { // {
       emit("LS_TRACE(\"%s\", %i, %i);", state.functionName(), fileId, state.lineNumber()); // light symbol traces, create a macro to define it
-	}
+    }
   }
   fclose(file);
 
@@ -645,13 +645,13 @@ void runAll(char* szFileHolder, const char* szInclude) {
   while (true) {
     char szFileName[10000] = "";
     fgets(szFileName, 10000, file);
-	  char* end = szFileName + strlen(szFileName) - 1;
-	  while (end > szFileName && (*end == '\n' || *end == '\r' || *end == ' ' || *end == '\t')) {
-	    *end = 0;
-	    end--;
-  	}
-	if (strlen(szFileName) == 0)
-		break;
+      char* end = szFileName + strlen(szFileName) - 1;
+      while (end > szFileName && (*end == '\n' || *end == '\r' || *end == ' ' || *end == '\t')) {
+        *end = 0;
+        end--;
+      }
+    if (strlen(szFileName) == 0)
+        break;
 
   runFile(szFileName, szFileName, szInclude);
   }

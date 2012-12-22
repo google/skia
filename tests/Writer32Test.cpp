@@ -194,7 +194,7 @@ static void Tests(skiatest::Reporter* reporter) {
 
         writer.reset(storage, sizeof(storage));
         testWritePad(reporter, &writer);
-        
+
         // try overflowing the storage-block
         uint32_t smallStorage[8];
         writer.reset(smallStorage, sizeof(smallStorage));
