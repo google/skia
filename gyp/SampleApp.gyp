@@ -81,6 +81,7 @@
         '../samplecode/SamplePolyToPoly.cpp',
         '../samplecode/SampleRegion.cpp',
         '../samplecode/SampleRepeatTile.cpp',
+        '../samplecode/SampleRotateCircles.cpp',
         '../samplecode/SampleShaders.cpp',
         '../samplecode/SampleShaderText.cpp',
         '../samplecode/SampleSkLayer.cpp',
