@@ -1784,7 +1784,7 @@ public:
         }
         return oIndex;
     }
-    
+
     bool betweenTs(int lesser, double testT, int greater) {
         if (lesser > greater) {
             SkTSwap<int>(lesser, greater);
@@ -3015,7 +3015,7 @@ public:
     bool isVertical() const {
         return fBounds.fLeft == fBounds.fRight;
     }
-    
+
     bool isVertical(int start, int end) const {
         return (*SegmentVertical[fVerb])(fPts, start, end);
     }
@@ -3729,7 +3729,7 @@ public:
     SkPath::Verb verb() const {
         return fVerb;
     }
-    
+
     int windingAtTX(double tHit, int tIndex, bool crossOpp) const {
         if (approximately_zero(tHit - t(tIndex))) { // if we hit the end of a span, disregard
             return SK_MinS32;
@@ -3741,7 +3741,7 @@ public:
         return updateWinding(tIndex, endIndex);
     }
 
-    int windingAtT(double tHit, int tIndex, bool crossOpp, bool& zeroDx) const { 
+    int windingAtT(double tHit, int tIndex, bool crossOpp, bool& zeroDx) const {
         if (approximately_zero(tHit - t(tIndex))) { // if we hit the end of a span, disregard
             return SK_MinS32;
         }
