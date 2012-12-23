@@ -220,18 +220,34 @@ public:
      */
     bool contains(SkScalar x, SkScalar y) const;
 
-#if 0
+    /**
+     *  Call inset on the bounds, and adjust the radii to reflect what happens
+     *  in stroking: If the corner is sharp (no curvature), leave it alone,
+     *  otherwise we grow/shrink the radii by the amount of the inset. If a
+     *  given radius becomes negative, it is pinned to 0.
+     *
+     *  It is valid for dst == this.
+     */
     void inset(SkScalar dx, SkScalar dy, SkRRect* dst) const;
+
     void inset(SkScalar dx, SkScalar dy) {
         this->inset(dx, dy, this);
     }
+
+    /**
+     *  Call outset on the bounds, and adjust the radii to reflect what happens
+     *  in stroking: If the corner is sharp (no curvature), leave it alone,
+     *  otherwise we grow/shrink the radii by the amount of the inset. If a
+     *  given radius becomes negative, it is pinned to 0.
+     *
+     *  It is valid for dst == this.
+     */
     void outset(SkScalar dx, SkScalar dy, SkRRect* dst) const {
         this->inset(-dx, -dy, dst);
     }
     void outset(SkScalar dx, SkScalar dy) {
         this->inset(-dx, -dy, this);
     }
-#endif
 
     SkDEBUGCODE(void validate() const;)
 
