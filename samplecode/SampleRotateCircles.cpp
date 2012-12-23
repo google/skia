@@ -21,7 +21,7 @@ class RotateCirclesView : public SampleView {
 public:
     RotateCirclesView() {
         this->setBGColor(SK_ColorLTGRAY);
-        
+
         fAngle = 0;
     }
 
@@ -55,7 +55,7 @@ protected:
             paint.setColor(rand.nextU());
             paint.setAlpha(0xFF);
             color = ~color;
-    
+
             paint.setStyle(SkPaint::kFill_Style);
 
             canvas->save();
@@ -70,9 +70,9 @@ protected:
             rotateAbout(canvas, fAngle * scale * sign, cx + DX, cy);
             canvas->drawCircle(cx + DX, cy, 10, paint);
             canvas->restore();
-            
+
         }
-        
+
         fAngle = (fAngle + 1) % 360;
         this->inval(NULL);
     }
