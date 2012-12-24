@@ -9,6 +9,10 @@
 #include "SkGeometry.h"
 #include "SkPath.h"
 
+// remove this line when we can rebaseline the self-test in gm.
+// then we can just add it to chrome's skia.gyp (to rebaseline webkit eventually
+#define SK_IGNORE_QUAD_STROKE_FIX
+
 #define kMaxQuadSubdivide   5
 #define kMaxCubicSubdivide  4
 
