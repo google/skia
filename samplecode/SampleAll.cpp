@@ -51,7 +51,8 @@ static inline SkPMColor rgb2gray(SkPMColor c) {
 
 class SkGrayScaleColorFilter : public SkColorFilter {
 public:
-    virtual void filterSpan(const SkPMColor src[], int count, SkPMColor result[]) {
+    virtual void filterSpan(const SkPMColor src[], int count,
+                            SkPMColor result[]) const SK_OVERRIDE {
         for (int i = 0; i < count; i++)
             result[i] = rgb2gray(src[i]);
     }
@@ -63,7 +64,8 @@ public:
         fMask = SkPackARGB32(0xFF, redMask, greenMask, blueMask);
     }
 
-    virtual void filterSpan(const SkPMColor src[], int count, SkPMColor result[]) {
+    virtual void filterSpan(const SkPMColor src[], int count,
+                            SkPMColor result[]) const SK_OVERRIDE {
         SkPMColor mask = fMask;
         for (int i = 0; i < count; i++) {
             result[i] = src[i] & mask;
@@ -163,7 +165,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Dot2DPathEffect)
 
 protected:
-    virtual void next(const SkPoint& loc, int u, int v, SkPath* dst) {
+    virtual void next(const SkPoint& loc, int u, int v, SkPath* dst) const SK_OVERRIDE {
         dst->addCircle(loc.fX, loc.fY, fRadius);
     }
 
