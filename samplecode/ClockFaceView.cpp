@@ -19,8 +19,7 @@
 #include "SkTypeface.h"
 #include "SkAvoidXfermode.h"
 
-static inline SkPMColor rgb2gray(SkPMColor c)
-{
+static inline SkPMColor rgb2gray(SkPMColor c) {
     unsigned r = SkGetPackedR32(c);
     unsigned g = SkGetPackedG32(c);
     unsigned b = SkGetPackedB32(c);
@@ -32,32 +31,33 @@ static inline SkPMColor rgb2gray(SkPMColor c)
 
 class SkGrayScaleColorFilter : public SkColorFilter {
 public:
-    virtual void filterSpan(const SkPMColor src[], int count, SkPMColor result[])
-    {
-        for (int i = 0; i < count; i++)
+    virtual void filterSpan(const SkPMColor src[], int count,
+                            SkPMColor result[]) const SK_OVERRIDE {
+        for (int i = 0; i < count; i++) {
             result[i] = rgb2gray(src[i]);
+        }
     }
 };
 
 class SkChannelMaskColorFilter : public SkColorFilter {
 public:
-    SkChannelMaskColorFilter(U8CPU redMask, U8CPU greenMask, U8CPU blueMask)
-    {
+    SkChannelMaskColorFilter(U8CPU redMask, U8CPU greenMask, U8CPU blueMask) {
         fMask = SkPackARGB32(0xFF, redMask, greenMask, blueMask);
     }
 
-    virtual void filterSpan(const SkPMColor src[], int count, SkPMColor result[])
-    {
+    virtual void filterSpan(const SkPMColor src[], int count,
+                            SkPMColor result[]) const SK_OVERRIDE {
         SkPMColor mask = fMask;
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < count; i++) {
             result[i] = src[i] & mask;
+        }
     }
 
 private:
     SkPMColor   fMask;
 };
 
-///////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include "SkGradientShader.h"
 #include "SkLayerRasterizer.h"
@@ -164,33 +164,29 @@ class ClockFaceView : public SkView {
     SkTypeface* fFace;
     SkScalar fInterp;
     SkScalar fDx;
+
 public:
-    ClockFaceView()
-    {
+    ClockFaceView() {
         fFace = SkTypeface::CreateFromFile("/Users/reed/Downloads/p052024l.pfb");
         fInterp = 0;
         fDx = SK_Scalar1/64;
     }
 
-    virtual ~ClockFaceView()
-    {
+    virtual ~ClockFaceView() {
         SkSafeUnref(fFace);
     }
 
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt)
-    {
-        if (SampleCode::TitleQ(*evt))
-        {
+    virtual bool onQuery(SkEvent* evt) {
+        if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Text Effects");
             return true;
         }
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawBG(SkCanvas* canvas)
-    {
+    void drawBG(SkCanvas* canvas) {
 //        canvas->drawColor(0xFFDDDDDD);
         canvas->drawColor(SK_ColorWHITE);
     }
