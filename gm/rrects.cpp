@@ -77,7 +77,7 @@ protected:
 
         // The first complex case needs special handling since it is a square
         fRRects[kNumSimpleCases].setRectRadii(SkRect::MakeWH(kTileY-2, kTileY-2), gRadii[0]);
-        for (int i = 1; i < SK_ARRAY_COUNT(gRadii); ++i) {
+        for (size_t i = 1; i < SK_ARRAY_COUNT(gRadii); ++i) {
             fRRects[kNumSimpleCases+i].setRectRadii(SkRect::MakeWH(kTileX-2, kTileY-2), gRadii[i]);
         }
     }

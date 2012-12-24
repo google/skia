@@ -35,11 +35,12 @@ public:
     SkWriter32(size_t minSize, void* initialStorage, size_t storageSize);
 
     SkWriter32(size_t minSize)
-        : fMinSize(minSize),
-          fSize(0),
-          fWrittenBeforeLastBlock(0),
-          fHead(NULL),
-          fTail(NULL) {}
+        : fHead(NULL)
+        , fTail(NULL)
+        , fMinSize(minSize)
+        , fSize(0)
+        , fWrittenBeforeLastBlock(0)
+        {}
 
     ~SkWriter32();
 
