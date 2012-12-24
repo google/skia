@@ -120,7 +120,7 @@ public:
     SkPowerMode(SkScalar exponent) { this->init(exponent); }
 
     virtual void xfer16(uint16_t dst[], const SkPMColor src[], int count,
-                        const SkAlpha aa[]);
+                        const SkAlpha aa[]) const SK_OVERRIDE;
 
     typedef SkFlattenable* (*Factory)(SkFlattenableReadBuffer&);
 
@@ -160,7 +160,7 @@ void SkPowerMode::init(SkScalar e) {
 }
 
 void SkPowerMode::xfer16(uint16_t dst[], const SkPMColor src[], int count,
-                         const SkAlpha aa[]) {
+                         const SkAlpha aa[]) const {
     for (int i = 0; i < count; i++) {
         SkPMColor c = src[i];
         int r = SkGetPackedR32(c);
