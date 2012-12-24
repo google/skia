@@ -21,7 +21,7 @@ static void test_inset(skiatest::Reporter* reporter) {
 
     rr.inset(20, 20, &rr2);
     REPORTER_ASSERT(reporter, rr2.isRect());
-    
+
     rr.inset(r.width()/2, r.height()/2, &rr2);
     REPORTER_ASSERT(reporter, rr2.isEmpty());
 

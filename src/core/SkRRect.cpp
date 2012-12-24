@@ -231,7 +231,7 @@ void SkRRect::computeType() const {
 
 void SkRRect::inset(SkScalar dx, SkScalar dy, SkRRect* dst) const {
     SkRect r = fRect;
-    
+
     r.inset(dx, dy);
     if (r.isEmpty()) {
         dst->setEmpty();
