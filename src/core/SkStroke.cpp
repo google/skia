@@ -260,7 +260,7 @@ void SkPathStroker::quad_to(const SkPoint pts[3],
         this->quad_to(&tmp[2], norm, unit, normalBC, unitNormalBC, subDivide);
     } else {
         SkVector    normalB;
-        
+
 #ifdef SK_IGNORE_QUAD_STROKE_FIX
         SkVector unitB;
         SkAssertResult(set_normal_unitnormal(pts[0], pts[2], fRadius,

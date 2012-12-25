@@ -67,7 +67,7 @@ protected:
 
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setStrokeWidth(rad*2);
-            
+
             canvas->save();
             rotateAbout(canvas, fAngle * scale * sign, cx + DX, cy);
             canvas->drawCircle(cx + DX, cy, 10, paint);
@@ -77,7 +77,7 @@ protected:
             rotateAbout(canvas, fAngle * scale * sign, cx + DX, cy + DX);
             canvas->drawCircle(cx + DX, cy + DX, 10, paint);
             canvas->restore();
-            
+
         }
 
         fAngle = (fAngle + 1) % 360;
@@ -93,7 +93,7 @@ class TestCirclesView : public SampleView {
 public:
     TestCirclesView() {
     }
-    
+
 protected:
     virtual bool onQuery(SkEvent* evt) SK_OVERRIDE {
         if (SampleCode::TitleQ(*evt)) {
@@ -106,12 +106,12 @@ protected:
     void draw_real_circle(SkCanvas* canvas, SkScalar radius) {
         int w = SkScalarCeilToInt(radius * 2);
         int h = w;
-        
+
         SkBitmap bm;
         bm.setConfig(SkBitmap::kARGB_8888_Config, w, h);
         bm.allocPixels();
         bm.eraseColor(0);
-        
+
         SkAutoLockPixels alp(bm);
 
         SkScalar cx = radius;
@@ -124,7 +124,7 @@ protected:
                 }
             }
         }
-        
+
         canvas->drawBitmap(bm, 0, 0, NULL);
     }
 
@@ -133,7 +133,7 @@ protected:
         canvas->translate(10, 10);
 
         draw_real_circle(canvas, radius);
-        
+
         SkPaint paint;
         paint.setAntiAlias(true);
 
@@ -145,7 +145,7 @@ protected:
         paint.setColor(0x8000FF00);
         canvas->drawCircle(radius, radius, radius/2, paint);
     }
-    
+
 private:
     typedef SkView INHERITED;
 };
@@ -197,18 +197,18 @@ public:
         fPts[1].set(50, 100);
         fPts[2].set(150, 50);
         fPts[3].set(300, 50);
-        
+
         fPts[4].set(350, 200);
         fPts[5].set(350, 100);
         fPts[6].set(450, 50);
-        
+
         fPts[7].set(200, 200);
         fPts[8].set(400, 400);
-        
+
         fWidth = 50;
         fDWidth = 0.25f;
     }
-    
+
 protected:
     virtual bool onQuery(SkEvent* evt) SK_OVERRIDE {
         if (SampleCode::TitleQ(*evt)) {
@@ -223,7 +223,7 @@ protected:
         SkPaint paint;
         paint.setColor(color);
         paint.setAlpha(0x80);
-        
+
         int n = path.countPoints();
         SkAutoSTArray<32, SkPoint> pts(n);
         if (show_lines) {
@@ -242,7 +242,7 @@ protected:
 
         SkPathMeasure meas(path, false);
         SkScalar total = meas.getLength();
-        
+
         SkScalar delta = 8;
         SkPaint paint;
         paint.setColor(color);
@@ -283,7 +283,7 @@ protected:
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPath path;
         SkScalar width = fWidth;
-        
+
         path.moveTo(fPts[0]);
         path.cubicTo(fPts[1], fPts[2], fPts[3]);
         draw_stroke(canvas, path, width);
@@ -301,7 +301,7 @@ protected:
         rr.setRectXY(r, rad, rad);
         path.addRRect(rr);
         draw_stroke(canvas, path, width);
-        
+
         path.reset();
         SkRRect rr2;
         rr.inset(width/2, width/2, &rr2);
@@ -312,7 +312,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setColor(0x40FF8844);
         canvas->drawPath(path, paint);
-        
+
         fWidth += fDWidth;
         if (fDWidth > 0 && fWidth > 100) {
             fDWidth = -fDWidth;
@@ -336,7 +336,7 @@ protected:
         }
         return this->INHERITED::onFindClickHandler(x, y);
     }
-    
+
     virtual bool onClick(Click* click) {
         int index = ((MyClick*)click)->fIndex;
         fPts[index].offset(click->fICurr.fX - click->fIPrev.fX,
