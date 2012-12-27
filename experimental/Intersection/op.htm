@@ -3090,11 +3090,23 @@ path.close();
     path.close();
 </div>
 
+<div id="testQuadratic83">
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 2, 0);
+    path.lineTo(2, 2);
+    path.close();
+    path.moveTo(0, 1);
+    path.lineTo(0, 2);
+    path.quadTo(2, 2, 1, 3);
+    path.close();
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    testQuadratic83,
     testQuadratic82,
     testQuadratic81,
     testQuadratic80,

@@ -24,11 +24,9 @@
 int gDebugMaxWindSum = SK_MaxS32;
 int gDebugMaxWindValue = SK_MaxS32;
 #endif
-bool gUseOldBridgeWinding = false;
 
 #define PIN_ADD_T 0
 #define TRY_ROTATE 1
-#define CHECK_IN_X 0
 
 #define DEBUG_UNUSED 0 // set to expose unused functions
 #define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging
@@ -1928,78 +1926,7 @@ public:
         return windSum(minIndex);
     }
 
-    int crossedSpanX(const SkPoint& basePt, SkScalar& bestX, double& hitT,
-            bool opp) const {
-        SkScalar right = fBounds.fRight;
-        int bestT = -1;
-        if (right <= bestX) {
-            return bestT;
-        }
-        SkScalar left = fBounds.fLeft;
-        if (left >= basePt.fX) {
-            return bestT;
-        }
-        if (fBounds.fTop > basePt.fY) {
-            return bestT;
-        }
-        if (fBounds.fBottom < basePt.fY) {
-            return bestT;
-        }
-        if (fBounds.fTop == fBounds.fBottom) {
-            return bestT;
-        }
-        int end = 0;
-        do {
-            int start = end;
-            end = nextExactSpan(start, 1);
-            if ((opp ? fTs[start].fOppValue : fTs[start].fWindValue) == 0) {
-                continue;
-            }
-            SkPoint edge[4];
-            double startT = fTs[start].fT;
-            double endT = fTs[end].fT;
-            (*SegmentSubDivide[fVerb])(fPts, startT, endT, edge);
-            // intersect ray starting at basePt with edge
-            Intersections intersections;
-            // FIXME: always use original and limit results to T values within
-            // start t and end t.
-            // OPTIMIZE: use specialty function that intersects ray with curve,
-            // returning t values only for curve (we don't care about t on ray)
-            int pts = (*HSegmentIntersect[fVerb])(edge, left, right, basePt.fY,
-                    false, intersections);
-            if (pts == 0) {
-                continue;
-            }
-            if (pts > 1 && fVerb == SkPath::kLine_Verb) {
-            // if the intersection is edge on, wait for another one
-                continue;
-            }
-            for (int index = 0; index < pts; ++index) {
-                double foundT = intersections.fT[0][index];
-                double testT = startT + (endT - startT) * foundT;
-                SkScalar testX = (*SegmentXAtT[fVerb])(fPts, testT);
-                if (bestX < testX && testX < basePt.fX) {
-                    if (fVerb > SkPath::kLine_Verb
-                            && !approximately_less_than_zero(foundT)
-                            && !approximately_greater_than_one(foundT)) {
-                        SkScalar dy = (*SegmentDYAtT[fVerb])(fPts, testT);
-                        if (approximately_zero(dy)) {
-                            continue;
-                        }
-                    }
-                    bestX = testX;
-                    while (start + 1 < end && fTs[start].fDone) {
-                        ++start;
-                    }
-                    bestT = foundT < 1 ? start : end;
-                    hitT = testT;
-                }
-            }
-        } while (fTs[end].fT != 1);
-        return bestT;
-    }
-
-    int crossedSpanY(const SkPoint& basePt, SkScalar& bestY, double& hitT,
+    int crossedSpanY(const SkPoint& basePt, SkScalar& bestY, double& hitT, bool& hitSomething,
             bool opp) const {
         SkScalar bottom = fBounds.fBottom;
         int bestT = -1;
@@ -2020,6 +1947,11 @@ public:
             return bestT;
         }
         int end = 0;
+        int xbestT = -1;
+        double xhitT;
+        bool xhitSomething = false;
+        SkScalar xbestY = bestY;
+        bool expectNoDx = false;
         do {
             int start = end;
             end = nextSpan(start, 1);
@@ -2031,29 +1963,58 @@ public:
             double endT = fTs[end].fT;
             (*SegmentSubDivide[fVerb])(fPts, startT, endT, edge);
             // intersect ray starting at basePt with edge
-            Intersections intersections;
+            Intersections intersections, intersectionsX;
             // FIXME: always use original and limit results to T values within
             // start t and end t.
             // OPTIMIZE: use specialty function that intersects ray with curve,
             // returning t values only for curve (we don't care about t on ray)
             int pts = (*VSegmentIntersect[fVerb])(edge, top, bottom, basePt.fX,
                     false, intersections);
-            if (pts == 0) {
-                continue;
+            int ptsX = (*VSegmentIntersect[fVerb])(fPts, top, bottom, basePt.fX,
+                    false, intersectionsX);
+            int index;
+            for (index = 0; index < ptsX; ++index) {
+                double xfoundT = intersectionsX.fT[0][index];
+                SkScalar xtestY = (*SegmentYAtT[fVerb])(fPts, xfoundT);
+                if (approximately_negative(xtestY - bestY)
+                        || approximately_negative(basePt.fY - xtestY)) {
+                    continue;
+                }
+                xhitSomething = true;
+                if (pts > 1 && fVerb == SkPath::kLine_Verb) {
+                // if the intersection is edge on, wait for another one
+                    expectNoDx = true;
+                    break;
+                }
+                if (fVerb > SkPath::kLine_Verb
+                        && !approximately_negative(xfoundT - startT)
+                        && !approximately_negative(endT - xfoundT)) {
+                    SkScalar xdx = (*SegmentDXAtT[fVerb])(fPts, xfoundT);
+                    if (approximately_zero(xdx)) {
+                        continue;
+                    }
+                }
+                xbestY = xtestY;
+                while (start + 1 < end && fTs[start].fDone) {
+                    ++start;
+                }
+                xbestT = xfoundT < 1 ? start : end;
+                xhitT = xfoundT;
             }
-            if (pts > 1 && fVerb == SkPath::kLine_Verb) {
-            // if the intersection is edge on, wait for another one
-                continue;
-            }
-            for (int index = 0; index < pts; ++index) {
+            for (index = 0; index < pts; ++index) {
                 double foundT = intersections.fT[0][index];
-                double testT = startT + (endT - startT) * foundT;
-                SkScalar testY = (*SegmentYAtT[fVerb])(fPts, testT);
+                SkScalar testY = (*SegmentYAtT[fVerb])(edge, foundT);
                 if (bestY < testY && testY < basePt.fY) {
+                    hitSomething = true;
+                    if (pts > 1 && fVerb == SkPath::kLine_Verb) {
+                    // if the intersection is edge on, wait for another one
+                        SkASSERT(expectNoDx);
+                        return -1;
+                    }
                     if (fVerb > SkPath::kLine_Verb
                             && !approximately_less_than_zero(foundT)
                             && !approximately_greater_than_one(foundT)) {
-                        SkScalar dx = (*SegmentDXAtT[fVerb])(fPts, testT);
+                        SkScalar dx = (*SegmentDXAtT[fVerb])(edge, foundT);
                         if (approximately_zero(dx)) {
                             continue;
                         }
@@ -2063,10 +2024,29 @@ public:
                         ++start;
                     }
                     bestT = foundT < 1 ? start : end;
-                    hitT = testT;
+                    hitT = startT + (endT - startT) * foundT;
                 }
             }
         } while (fTs[end].fT != 1);
+        SkASSERT(!expectNoDx);
+        if (bestT != xbestT) {
+            SkDebugf("%s mismatch bestT=%d xbestT=%d\n", __FUNCTION__, bestT, xbestT);
+            bestT = xbestT;
+        }
+        if (bestY != xbestY) {
+            SkDebugf("%s mismatch bestY=%1.9g xbestY=%1.9g\n", __FUNCTION__, bestY, xbestY);
+            bestY = xbestY;
+        }
+        if (hitT != xhitT) {
+            SkDebugf("%s mismatch hitT=%1.9g xhitT=%1.9g\n", __FUNCTION__, hitT, xhitT);
+            hitT = xhitT;
+        }
+        if (hitSomething != xhitSomething) {
+            SkDebugf("%s mismatch hitSomething=%d xhitSomething=%d\n", __FUNCTION__, hitSomething,
+                    xhitSomething);
+            hitSomething = xhitSomething;
+        }
+        
         return bestT;
     }
 
@@ -2925,28 +2905,16 @@ public:
         fPts = pts;
         fVerb = verb;
     }
-
-    void initWinding(int start, int end, bool checkInX, int winding, int oppWinding) {
+    
+    void initWinding(int start, int end) {
         int local = spanSign(start, end);
-        if (checkInX && !winding) {
-            winding = -local;
-        } else if ((local * winding >= 0) ^ (checkInX && winding != 0)) {
-            winding += local;
-        }
         int oppLocal = oppSign(start, end);
-        if ((oppLocal * oppWinding >= 0) ^ (checkInX & oppWinding != 0)) {
-            oppWinding += oppLocal;
-        }
-        (void) markAndChaseWinding(start, end, winding, oppWinding);
+        (void) markAndChaseWinding(start, end, local, oppLocal);
     }
 
-    void initWindingX(int start, int end, double tHit, int winding, int oppWinding) {
-        SkScalar dx = (*SegmentDXAtT[fVerb])(fPts, tHit);
-        SkASSERT(dx);
+    void initWinding(int start, int end, int winding, int oppWinding) {
         int local = spanSign(start, end);
-        if (!winding) {
-            winding = dx < 0 ? -local : local;
-        } else if (local * winding >= 0) {
+        if (local * winding >= 0) {
             winding += local;
         }
         int oppLocal = oppSign(start, end);
@@ -2954,6 +2922,43 @@ public:
             oppWinding += oppLocal;
         }
         (void) markAndChaseWinding(start, end, winding, oppWinding);
+    }
+
+/*
+when we start with a vertical intersect, we try to use the dx to determine if the edge is to
+the left or the right of vertical. This determines if we need to add the span's
+sign or not. However, this isn't enough. 
+If the supplied sign (winding) is zero, then we didn't hit another vertical span, so dx is needed. 
+If there was a winding, then it may or may not need adjusting. If the span the winding was borrowed
+from has the same x direction as this span, the winding should change. If the dx is opposite, then
+the same winding is shared by both. 
+*/
+    void initWinding(int start, int end, double tHit, int winding, SkScalar hitDx, int oppWind,
+            SkScalar hitOppDx) {
+        SkASSERT(hitDx || !winding);
+        SkScalar dx = (*SegmentDXAtT[fVerb])(fPts, tHit);
+        SkASSERT(dx);
+        int windVal = windValue(SkMin32(start, end));
+        if (!winding) {
+            winding = dx < 0 ? windVal : -windVal;
+        } else if (hitDx * dx >= 0) {
+            int sideWind = winding + (dx < 0 ? windVal : -windVal);
+            if (abs(winding) < abs(sideWind)) {
+                winding = sideWind;
+            }
+        }
+        int oppLocal = oppSign(start, end);
+        SkASSERT(hitOppDx || !oppWind || !oppLocal);
+        int oppWindVal = oppValue(SkMin32(start, end));
+        if (!oppWind) {
+            oppWind = dx < 0 ? oppWindVal : -oppWindVal;
+        } else if (hitOppDx * dx >= 0) {
+            int oppSideWind = oppWind + (dx < 0 ? oppWindVal : -oppWindVal);
+            if (abs(oppWind) < abs(oppSideWind)) {
+                oppWind = oppSideWind;
+            }
+        }
+        (void) markAndChaseWinding(start, end, winding, oppWind);
     }
 
     bool intersected() const {
@@ -3741,7 +3746,7 @@ public:
         return updateWinding(tIndex, endIndex);
     }
 
-    int windingAtT(double tHit, int tIndex, bool crossOpp, bool& zeroDx) const {
+    int windingAtT(double tHit, int tIndex, bool crossOpp, SkScalar& dx) const { 
         if (approximately_zero(tHit - t(tIndex))) { // if we hit the end of a span, disregard
             return SK_MinS32;
         }
@@ -3753,7 +3758,7 @@ public:
                 windVal);
     #endif
         // see if a + change in T results in a +/- change in X (compute x'(T))
-        SkScalar dx = (*SegmentDXAtT[fVerb])(fPts, tHit);
+        dx = (*SegmentDXAtT[fVerb])(fPts, tHit);
         if (fVerb > SkPath::kLine_Verb && approximately_zero(dx)) {
             dx = fPts[2].fX - fPts[1].fX - dx;
         }
@@ -3761,7 +3766,6 @@ public:
         SkDebugf("%s dx=%1.9g\n", __FUNCTION__, dx);
     #endif
         if (dx == 0) {
-            zeroDx = true;
             return SK_MinS32;
         }
         if (winding * dx > 0) { // if same signs, result is negative
@@ -3793,6 +3797,10 @@ public:
         int end = angle->end();
         int index = SkMin32(start, end);
         return windValue(index);
+    }
+
+    SkScalar xAtT(int index) const {
+        return xAtT(&fTs[index]);
     }
 
     SkScalar xAtT(const Span* span) const {
@@ -4308,6 +4316,7 @@ public:
         fContainsIntercepts = true;
     }
 
+#if 0
     const Segment* crossedSegmentY(const SkPoint& basePt, SkScalar& bestY,
             int &tIndex, double& hitT, bool opp) {
         int segmentCount = fSegments.count();
@@ -4324,6 +4333,7 @@ public:
         }
         return bestSegment;
     }
+#endif
 
     bool crosses(const Contour* crosser) const {
         for (int index = 0; index < fCrosses.count(); ++index) {
@@ -5364,72 +5374,8 @@ static void coincidenceCheck(SkTDArray<Contour*>& contourList, int total) {
     }
 }
 
-#if CHECK_IN_X
-static int contourRangeCheckX(SkTDArray<Contour*>& contourList, Segment*& current, int& index,
-        int& endIndex, double& bestHit, bool& tryAgain, double mid, bool opp) {
-    SkPoint basePt;
-    current->xyAtT(index, endIndex, mid, basePt);
-    int contourCount = contourList.count();
-    SkScalar bestX = SK_ScalarMin;
-    Segment* bestSeg = NULL;
-    int bestTIndex;
-    bool bestOpp;
-    for (int cTest = 0; cTest < contourCount; ++cTest) {
-        Contour* contour = contourList[cTest];
-        bool testOpp = contour->operand() ^ current->operand() ^ opp;
-        if (basePt.fX < contour->bounds().fLeft) {
-            continue;
-        }
-        if (bestX > contour->bounds().fRight) {
-            continue;
-        }
-        int segmentCount = contour->segments().count();
-        for (int test = 0; test < segmentCount; ++test) {
-            Segment* testSeg = &contour->segments()[test];
-            SkScalar testX = bestX;
-            double testHit;
-            int testTIndex = testSeg->crossedSpanX(basePt, testX, testHit, testOpp);
-            if (testTIndex < 0) {
-                continue;
-            }
-            if (testSeg == current && current->betweenTs(index, testHit, endIndex)) {
-                continue;
-            }
-            bestSeg = testSeg;
-            bestHit = testHit;
-            bestOpp = testOpp;
-            bestTIndex = testTIndex;
-            bestX = testX;
-        }
-    }
-    if (!bestSeg) {
-        return 0;
-    }
-    bool zeroDx = bestSeg->windSum(bestTIndex) == SK_MinS32;
-    int result;
-    if (!zeroDx) {
-        int tryAnother = bestSeg->windingAtTX(bestHit, bestTIndex, bestOpp);
-        result = bestSeg->windingAtT(bestHit, bestTIndex, bestOpp, zeroDx);
-        if (result != tryAnother) {
-            SkDebugf("%s result=%d tryAnother=%d\n", __FUNCTION__, result,
-                    tryAnother);
-        }
-        result = tryAnother;
-        zeroDx = false;
-    }
-    if (zeroDx) {
-        current = bestSeg;
-        index = bestTIndex;
-        endIndex = bestSeg->nextSpan(bestTIndex, 1);
-        tryAgain = true;
-        return 0;
-    }
-    return result;
-}
-#endif
-
 static int contourRangeCheckY(SkTDArray<Contour*>& contourList,  Segment*& current, int& index,
-        int& endIndex, double& bestHit, bool& tryAgain, double mid, bool opp) {
+        int& endIndex, double& bestHit, SkScalar& bestDx, bool& tryAgain, double& mid, bool opp) {
     SkPoint basePt;
     current->xyAtT(index, endIndex, mid, basePt);
     int contourCount = contourList.count();
@@ -5437,6 +5383,7 @@ static int contourRangeCheckY(SkTDArray<Contour*>& contourList,  Segment*& curre
     Segment* bestSeg = NULL;
     int bestTIndex;
     bool bestOpp;
+    bool hitSomething = false;
     for (int cTest = 0; cTest < contourCount; ++cTest) {
         Contour* contour = contourList[cTest];
         bool testOpp = contour->operand() ^ current->operand() ^ opp;
@@ -5451,12 +5398,28 @@ static int contourRangeCheckY(SkTDArray<Contour*>& contourList,  Segment*& curre
             Segment* testSeg = &contour->segments()[test];
             SkScalar testY = bestY;
             double testHit;
-            int testTIndex = testSeg->crossedSpanY(basePt, testY, testHit, testOpp);
+            int testTIndex = testSeg->crossedSpanY(basePt, testY, testHit, hitSomething, testOpp);
             if (testTIndex < 0) {
                 continue;
             }
             if (testSeg == current && current->betweenTs(index, testHit, endIndex)) {
-                continue;
+                double baseT = current->t(index);
+                double endT = current->t(endIndex);
+                double newMid = (testHit - baseT) / (endT - baseT);
+#if DEBUG_WINDING
+                SkPoint midXY, newXY;
+                current->xyAtT(index, endIndex, mid, midXY);
+                current->xyAtT(index, endIndex, newMid, newXY);
+                SkDebugf("%s [%d] mid=%1.9g->%1.9g s=%1.9g (%1.9g,%1.9g) m=%1.9g (%1.9g,%1.9g)"
+                        " n=%1.9g (%1.9g,%1.9g) e=%1.9g (%1.9g,%1.9g)\n", __FUNCTION__,
+                        current->debugID(), mid, newMid,
+                        baseT, current->xAtT(index), current->yAtT(index),
+                        baseT + mid * (endT - baseT), midXY.fX, midXY.fY,
+                        baseT + newMid * (endT - baseT), newXY.fX, newXY.fY,
+                        endT, current->xAtT(endIndex), current->yAtT(endIndex));
+#endif
+                mid = newMid * 2; // calling loop with divide by 2 before continuing
+                return SK_MinS32;
             }
             bestSeg = testSeg;
             bestHit = testHit;
@@ -5466,7 +5429,7 @@ static int contourRangeCheckY(SkTDArray<Contour*>& contourList,  Segment*& curre
         }
     }
     if (!bestSeg) {
-        return 0;
+        return hitSomething ? SK_MinS32 : 0;
     }
     if (bestSeg->windSum(bestTIndex) == SK_MinS32) {
         current = bestSeg;
@@ -5475,14 +5438,16 @@ static int contourRangeCheckY(SkTDArray<Contour*>& contourList,  Segment*& curre
         tryAgain = true;
         return 0;
     }
-    bool zeroDx = false;
     int tryAnother = bestSeg->windingAtTX(bestHit, bestTIndex, bestOpp);
-    int result = bestSeg->windingAtT(bestHit, bestTIndex, bestOpp, zeroDx);
+    int result = bestSeg->windingAtT(bestHit, bestTIndex, bestOpp, bestDx);
     if (result != tryAnother) {
         SkDebugf("%s result=%d tryAnother=%d\n", __FUNCTION__, result,
                 tryAnother);
     }
-    SkASSERT(!zeroDx);
+    double baseT = current->t(index);
+    double endT = current->t(endIndex);
+    bestHit = baseT + mid * (endT - baseT);
+    SkASSERT(bestDx);
     return result;
 }
 
@@ -5490,6 +5455,7 @@ static int contourRangeCheckY(SkTDArray<Contour*>& contourList,  Segment*& curre
 // note: when we compute line intersections, we keep track of whether
 // two contours touch, so we need only look at contours not touching this one.
 // OPTIMIZATION: sort contourList vertically to avoid linear walk
+#if 0
 static int innerContourCheck(SkTDArray<Contour*>& contourList,
         const Segment* current, int index, int endIndex, bool opp) {
     const SkPoint& basePt = current->xyAtT(endIndex);
@@ -5622,6 +5588,24 @@ static int innerContourCheck(SkTDArray<Contour*>& contourList,
                 windValue, angle->sign());
 #endif
     } else {
+    //    start here;
+    /*
+        FIXME: fails because the span found by findTop is not the span closest to vertical
+        intersecting the found point. Because the most vertical span could be done, and the
+        span found undone, findTop should not be changed. Instead, the spans at the found
+        point need to be sorted again, and the winding found below needs to be adjusted by
+        the span signs of the spans walking from vertical to the findTop span
+        findTop could but probably shouldn't compute this adjustment, since if the found span
+        already has computed winding, we won't get to innerContourCheck --
+        best solution -- findTop could check to see if found span already has computed winding
+        before returning adjustment
+    */
+   #if 0
+        int windingTx = test->windingAtTX(tHit, tIndex, crossOpp);
+        SkScalar dx;
+        int windingT = test->windingAtT(tHit, tIndex, crossOpp, dx);
+        SkDebugf("%s windingTx=%d windingT=%d\n", __FUNCTION__, windingTx, windingT);
+   #endif
         winding = crossOpp ? test->oppSum(tIndex) : test->windSum(tIndex);
         if (winding == SK_MinS32) {
             return SK_MinS32; // unsortable
@@ -5639,7 +5623,7 @@ static int innerContourCheck(SkTDArray<Contour*>& contourList,
         dx = pts[2].fX - pts[1].fX - dx;
     }
 #if DEBUG_WINDING
-    SkDebugf("%s dx=%1.9g\n", __FUNCTION__, dx);
+    SkDebugf("%s dx=%1.9g winding=%d\n", __FUNCTION__, dx, winding);
 #endif
     SkASSERT(dx != 0);
     if (winding * dx > 0) { // if same signs, result is negative
@@ -5650,6 +5634,7 @@ static int innerContourCheck(SkTDArray<Contour*>& contourList,
     }
     return winding;
 }
+#endif
 
 static Segment* findUndone(SkTDArray<Contour*>& contourList, int& start, int& end) {
     int contourCount = contourList.count();
@@ -5809,11 +5794,13 @@ static void debugShowActiveSpans(SkTDArray<Contour*>& contourList) {
 }
 #endif
 
+#if 0
 static bool windingIsActive(int winding, int spanWinding) {
     // FIXME: !spanWinding test must be superflorous, true?
     return winding * spanWinding <= 0 && abs(winding) <= abs(spanWinding)
             && (!winding || !spanWinding || winding == -spanWinding);
 }
+#endif
 
 static Segment* findSortableTop(SkTDArray<Contour*>& contourList, int& index,
         int& endIndex, SkPoint& topLeft, bool& unsortable, bool& done, bool onlySortable) {
@@ -5851,6 +5838,7 @@ static Segment* findSortableTop(SkTDArray<Contour*>& contourList, int& index,
     return result;
 }
 
+#if 0
 static int updateWindings(const Segment* current, int index, int endIndex, int& spanWinding) {
     int lesser = SkMin32(index, endIndex);
     spanWinding = current->spanSign(index, endIndex);
@@ -5869,23 +5857,16 @@ static int updateWindings(const Segment* current, int index, int endIndex, int& 
     }
     return winding;
 }
-
-typedef int (*RangeChecker)(SkTDArray<Contour*>& contourList, Segment*& current,
-        int& index, int& endIndex, double& tHit, bool& tryAgain, double mid, bool opp);
+#endif
 
 static int rightAngleWinding(SkTDArray<Contour*>& contourList,
-        Segment*& current, int& index, int& endIndex, double& tHit, bool& checkInX, bool& tryAgain,
+        Segment*& current, int& index, int& endIndex, double& tHit, SkScalar& hitDx, bool& tryAgain,
         bool opp) {
-#if CHECK_IN_X
-    RangeChecker checker = checkInX ? contourRangeCheckX : contourRangeCheckY;
-#else
-    RangeChecker checker = contourRangeCheckY;
-#endif
     double test = 0.9;
     int contourWinding;
     do {
-        contourWinding = (*checker)(contourList, current, index, endIndex, tHit, tryAgain, test,
-                opp);
+        contourWinding = contourRangeCheckY(contourList, current, index, endIndex, tHit, hitDx,
+                tryAgain, test, opp);
         if (contourWinding != SK_MinS32 || tryAgain) {
             return contourWinding;
         }
@@ -5913,174 +5894,7 @@ static void skipVertical(SkTDArray<Contour*>& contourList,
     }
 }
 
-static Segment* tryRightAngleRay(SkTDArray<Contour*>& contourList, int& index,
-        int& endIndex, SkPoint& topLeft, bool& unsortable, bool& checkInX) {
-    // the simple upward projection of the unresolved points hit unsortable angles
-    // shoot rays at right angles to the segment to find its winding, ignoring angle cases
-    topLeft.fX = topLeft.fY = SK_ScalarMin;
-    Segment* current;
-    do {
-        bool done;
-        current = findSortableTop(contourList, index, endIndex, topLeft, unsortable, done, false);
-        SkASSERT(current); // FIXME: return to caller that path cannot be simplified (yet)
-        checkInX = current->moreHorizontal(index, endIndex, unsortable);
-    } while (unsortable);
-    return current;
-}
-
-static Segment* findSortableTopOld(SkTDArray<Contour*>& contourList, bool& firstContour, int& index,
-        int& endIndex, SkPoint& topLeft, int& contourWinding, bool& unsortable) {
-    Segment* current;
-    do {
-        bool done;
-        current = findSortableTop(contourList, index, endIndex, topLeft, unsortable, done, true);
-        if (!current) {
-            break;
-        }
-        if (firstContour) {
-            contourWinding = 0;
-            firstContour = false;
-            break;
-        }
-        int sumWinding = current->windSum(SkMin32(index, endIndex));
-        // FIXME: don't I have to adjust windSum to get contourWinding?
-        if (sumWinding == SK_MinS32) {
-            sumWinding = current->computeSum(index, endIndex, false);
-        }
-        if (sumWinding == SK_MinS32) {
-            contourWinding = innerContourCheck(contourList, current, index, endIndex, false);
-        } else {
-            contourWinding = sumWinding;
-            int spanWinding = current->spanSign(index, endIndex);
-            bool inner = useInnerWinding(sumWinding - spanWinding, sumWinding);
-            if (inner) {
-                contourWinding -= spanWinding;
-            }
-#if DEBUG_WINDING
-            SkDebugf("%s sumWinding=%d spanWinding=%d sign=%d inner=%d result=%d\n",
-                    __FUNCTION__, sumWinding, spanWinding, SkSign32(index - endIndex),
-                    inner, contourWinding);
-#endif
-        }
-    } while (contourWinding == SK_MinS32);
-    if (contourWinding != SK_MinS32) {
-#if DEBUG_WINDING
-        SkDebugf("%s contourWinding=%d\n", __FUNCTION__, contourWinding);
-#endif
-        return current;
-    }
-    bool checkInX;
-    current = tryRightAngleRay(contourList, index, endIndex, topLeft, unsortable, checkInX);
-    bool tryAgain = false;
-    double tHit;
-    do {
-        contourWinding = rightAngleWinding(contourList, current, index, endIndex, tHit,
-            checkInX, tryAgain, false);
-    } while (tryAgain);
-    return current;
-}
-
-// Each segment may have an inside or an outside. Segments contained within
-// winding may have insides on either side, and form a contour that should be
-// ignored. Segments that are coincident with opposing direction segments may
-// have outsides on either side, and should also disappear.
-// 'Normal' segments will have one inside and one outside. Subsequent connections
-// when winding should follow the intersection direction. If more than one edge
-// is an option, choose first edge that continues the inside.
-    // since we start with leftmost top edge, we'll traverse through a
-    // smaller angle counterclockwise to get to the next edge.
-// returns true if all edges were processed
-static bool bridgeWinding(SkTDArray<Contour*>& contourList, PathWrapper& simple) {
-    bool firstContour = true;
-    bool unsortable = false;
-    bool topUnsortable = false;
-    bool firstRetry = false;
-    bool closable = true;
-    SkPoint topLeft = {SK_ScalarMin, SK_ScalarMin};
-    do {
-        int index, endIndex;
-        // iterates while top is unsortable
-        int contourWinding;
-        Segment* current = findSortableTopOld(contourList, firstContour, index, endIndex, topLeft,
-                contourWinding, topUnsortable);
-        if (!current) {
-            if (topUnsortable) {
-                topUnsortable = false;
-                SkASSERT(!firstRetry);
-                firstRetry = true;
-                topLeft.fX = topLeft.fY = SK_ScalarMin;
-                continue;
-            }
-            break;
-        }
-        int winding = contourWinding;
-        int spanWinding = current->spanSign(index, endIndex);
-        // FIXME: needs work. While it works in limited situations, it does
-        // not always compute winding correctly. Active should be removed and instead
-        // the initial winding should be correctly passed in so that if the
-        // inner contour is wound the same way, it never finds an accumulated
-        // winding of zero. Inside 'find next', we need to look for transitions
-        // other than zero when resolving sorted angles.
-        SkTDArray<Span*> chaseArray;
-        do {
-            bool active = windingIsActive(winding, spanWinding);
-        #if DEBUG_WINDING
-            SkDebugf("%s active=%s winding=%d spanWinding=%d\n",
-                    __FUNCTION__, active ? "true" : "false",
-                    winding, spanWinding);
-        #endif
-            do {
-                SkASSERT(unsortable || !current->done());
-                int nextStart = index;
-                int nextEnd = endIndex;
-                Segment* next = current->findNextWinding(chaseArray, active,
-                        nextStart, nextEnd, winding, spanWinding, unsortable);
-                if (!next) {
-                    if (active && !unsortable && simple.hasMove()
-                            && current->verb() != SkPath::kLine_Verb
-                            && !simple.isClosed()) {
-                        current->addCurveTo(index, endIndex, simple, true);
-                        SkASSERT(simple.isClosed());
-                    }
-                    break;
-                }
-        #if DEBUG_FLOW
-                SkDebugf("%s current id=%d from=(%1.9g,%1.9g) to=(%1.9g,%1.9g)\n", __FUNCTION__,
-                        current->debugID(), current->xyAtT(index).fX, current->xyAtT(index).fY,
-                        current->xyAtT(endIndex).fX, current->xyAtT(endIndex).fY);
-        #endif
-                current->addCurveTo(index, endIndex, simple, active);
-                current = next;
-                index = nextStart;
-                endIndex = nextEnd;
-            } while (!simple.isClosed()
-                    && ((active && !unsortable) || !current->done()));
-            if (active) {
-                if (!simple.isClosed()) {
-                    SkASSERT(unsortable);
-                    int min = SkMin32(index, endIndex);
-                    if (!current->done(min)) {
-                        current->addCurveTo(index, endIndex, simple, true);
-                        current->markDone(min, winding ? winding : spanWinding);
-                    }
-                    closable = false;
-                }
-                simple.close();
-            }
-            current = findChase(chaseArray, index, endIndex);
-        #if DEBUG_ACTIVE_SPANS
-            debugShowActiveSpans(contourList);
-        #endif
-            if (!current) {
-                break;
-            }
-            winding = updateWindings(current, index, endIndex, spanWinding);
-        } while (true);
-    } while (true);
-    return closable;
-}
-
-static Segment* findSortableTopNew(SkTDArray<Contour*>& contourList, bool& firstContour, int& index,
+static Segment* findSortableTop(SkTDArray<Contour*>& contourList, bool& firstContour, int& index,
         int& endIndex, SkPoint& topLeft, bool& unsortable, bool& done, bool binary) {
     Segment* current = findSortableTop(contourList, index, endIndex, topLeft, unsortable, done,
             true);
@@ -6088,7 +5902,7 @@ static Segment* findSortableTopNew(SkTDArray<Contour*>& contourList, bool& first
         return NULL;
     }
     if (firstContour) {
-        current->initWinding(index, endIndex, false, 0, 0);
+        current->initWinding(index, endIndex);
         firstContour = false;
         return current;
     }
@@ -6103,35 +5917,30 @@ static Segment* findSortableTopNew(SkTDArray<Contour*>& contourList, bool& first
     }
     int contourWinding;
     int oppContourWinding = 0;
-#if 1
+#if 0
     contourWinding = innerContourCheck(contourList, current, index, endIndex, false);
     if (contourWinding != SK_MinS32) {
         if (binary) {
             oppContourWinding = innerContourCheck(contourList, current, index, endIndex, true);
         }
         if (!binary || oppContourWinding != SK_MinS32) {
-            current->initWinding(index, endIndex, false, contourWinding, oppContourWinding);
+            current->initWinding(index, endIndex, contourWinding, oppContourWinding);
             return current;
         }
     }
 #endif
     // the simple upward projection of the unresolved points hit unsortable angles
     // shoot rays at right angles to the segment to find its winding, ignoring angle cases
-#if CHECK_IN_X
-    bool checkInX = current->moreHorizontal(index, endIndex, unsortable);
-#else
-    bool checkInX = false;
-#endif
     bool tryAgain;
     double tHit;
+    SkScalar hitDx = 0;
+    SkScalar hitOppDx = 0;
     do {
-#if !CHECK_IN_X
         // if current is vertical, find another candidate which is not
         // if only remaining candidates are vertical, then they can be marked done
         skipVertical(contourList, current, index, endIndex);
-#endif
         tryAgain = false;
-        contourWinding = rightAngleWinding(contourList, current, index, endIndex, tHit, checkInX,
+        contourWinding = rightAngleWinding(contourList, current, index, endIndex, tHit, hitDx,
                 tryAgain, false);
         if (tryAgain) {
             continue;
@@ -6139,19 +5948,16 @@ static Segment* findSortableTopNew(SkTDArray<Contour*>& contourList, bool& first
         if (!binary) {
             break;
         }
-        oppContourWinding = rightAngleWinding(contourList, current, index, endIndex, tHit, checkInX,
+        oppContourWinding = rightAngleWinding(contourList, current, index, endIndex, tHit, hitOppDx,
                 tryAgain, true);
     } while (tryAgain);
-#if CHECK_IN_X
-    current->initWinding(index, endIndex, checkInX, contourWinding, oppContourWinding);
-#else
-    current->initWindingX(index, endIndex, tHit, contourWinding, oppContourWinding);
-#endif
+    
+    current->initWinding(index, endIndex, tHit, contourWinding, hitDx, oppContourWinding, hitOppDx);
     return current;
 }
 
 // rewrite that abandons keeping local track of winding
-static bool bridgeWindingX(SkTDArray<Contour*>& contourList, PathWrapper& simple) {
+static bool bridgeWinding(SkTDArray<Contour*>& contourList, PathWrapper& simple) {
     bool firstContour = true;
     bool unsortable = false;
     bool topUnsortable = false;
@@ -6159,7 +5965,7 @@ static bool bridgeWindingX(SkTDArray<Contour*>& contourList, PathWrapper& simple
     do {
         int index, endIndex;
         bool topDone;
-        Segment* current = findSortableTopNew(contourList, firstContour, index, endIndex, topLeft,
+        Segment* current = findSortableTop(contourList, firstContour, index, endIndex, topLeft,
                 topUnsortable, topDone, false);
         if (!current) {
             if (topUnsortable || !topDone) {
@@ -6541,9 +6347,7 @@ void simplifyx(const SkPath& path, SkPath& result) {
     debugShowActiveSpans(contourList);
 #endif
     // construct closed contours
-    if (builder.xorMask() == kWinding_Mask
-                ? gUseOldBridgeWinding ? !bridgeWinding(contourList, simple)
-                : bridgeWindingX(contourList, simple)
+    if (builder.xorMask() == kWinding_Mask ? bridgeWinding(contourList, simple)
                 : !bridgeXor(contourList, simple))
     { // if some edges could not be resolved, assemble remaining fragments
         SkPath temp;
