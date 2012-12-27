@@ -3269,12 +3269,26 @@ static void testQuadratic82() {
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = testQuadratic82;
+static void testQuadratic83() {
+    SkPath path, pathB;
+    path.moveTo(0, 0);
+    path.quadTo(0, 0, 2, 0);
+    path.lineTo(2, 2);
+    path.close();
+    path.moveTo(0, 1);
+    path.lineTo(0, 2);
+    path.quadTo(2, 2, 1, 3);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void (*firstTest)() = testQuadratic83;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(testQuadratic83),
     TEST(testQuadratic82),
     TEST(testQuadratic81),
     TEST(testQuadratic80),

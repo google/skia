@@ -140,7 +140,7 @@ static bool bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
     do {
         int index, endIndex;
         bool done;
-        Segment* current = findSortableTopNew(contourList, firstContour, index, endIndex, topLeft,
+        Segment* current = findSortableTop(contourList, firstContour, index, endIndex, topLeft,
                 topUnsortable, done, true);
         if (!current) {
             if (topUnsortable || !done) {
