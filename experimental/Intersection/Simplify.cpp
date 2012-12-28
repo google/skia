@@ -2046,7 +2046,7 @@ public:
                     xhitSomething);
             hitSomething = xhitSomething;
         }
-        
+
         return bestT;
     }
 
@@ -2905,7 +2905,7 @@ public:
         fPts = pts;
         fVerb = verb;
     }
-    
+
     void initWinding(int start, int end) {
         int local = spanSign(start, end);
         int oppLocal = oppSign(start, end);
@@ -2927,11 +2927,11 @@ public:
 /*
 when we start with a vertical intersect, we try to use the dx to determine if the edge is to
 the left or the right of vertical. This determines if we need to add the span's
-sign or not. However, this isn't enough. 
-If the supplied sign (winding) is zero, then we didn't hit another vertical span, so dx is needed. 
+sign or not. However, this isn't enough.
+If the supplied sign (winding) is zero, then we didn't hit another vertical span, so dx is needed.
 If there was a winding, then it may or may not need adjusting. If the span the winding was borrowed
 from has the same x direction as this span, the winding should change. If the dx is opposite, then
-the same winding is shared by both. 
+the same winding is shared by both.
 */
     void initWinding(int start, int end, double tHit, int winding, SkScalar hitDx, int oppWind,
             SkScalar hitOppDx) {
@@ -3746,7 +3746,7 @@ the same winding is shared by both.
         return updateWinding(tIndex, endIndex);
     }
 
-    int windingAtT(double tHit, int tIndex, bool crossOpp, SkScalar& dx) const { 
+    int windingAtT(double tHit, int tIndex, bool crossOpp, SkScalar& dx) const {
         if (approximately_zero(tHit - t(tIndex))) { // if we hit the end of a span, disregard
             return SK_MinS32;
         }
@@ -5951,7 +5951,7 @@ static Segment* findSortableTop(SkTDArray<Contour*>& contourList, bool& firstCon
         oppContourWinding = rightAngleWinding(contourList, current, index, endIndex, tHit, hitOppDx,
                 tryAgain, true);
     } while (tryAgain);
-    
+
     current->initWinding(index, endIndex, tHit, contourWinding, hitDx, oppContourWinding, hitOppDx);
     return current;
 }
