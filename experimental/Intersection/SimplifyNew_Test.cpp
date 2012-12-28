@@ -3282,12 +3282,82 @@ static void testQuadratic83() {
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = testQuadratic83;
+static void testQuadratic84() {
+    SkPath path, pathB;
+    path.moveTo(0, 0);
+    path.quadTo(2, 0, 1, 1);
+    path.lineTo(2, 1);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(2, 0);
+    path.quadTo(0, 1, 2, 2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic85() {
+    SkPath path, pathB;
+    path.moveTo(0, 0);
+    path.quadTo(3, 0, 1, 1);
+    path.lineTo(1, 1);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(3, 0);
+    path.quadTo(0, 1, 1, 2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic86() {
+    SkPath path, pathB;
+    path.moveTo(0, 0);
+    path.quadTo(0, 1, 1, 1);
+    path.lineTo(2, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(1, 1, 1, 3);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic87() {
+    SkPath path, pathB;
+    path.moveTo(0, 0);
+    path.quadTo(2, 1, 0, 2);
+    path.lineTo(2, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 1);
+    path.quadTo(0, 2, 3, 2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testQuadratic88() {
+    SkPath path, pathB;
+    path.moveTo(0, 0);
+    path.quadTo(2, 1, 0, 2);
+    path.lineTo(2, 2);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(1, 1);
+    path.quadTo(0, 2, 2, 2);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void (*firstTest)() = testQuadratic88;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(testQuadratic88),
+    TEST(testQuadratic87),
+    TEST(testQuadratic86),
+    TEST(testQuadratic85),
+    TEST(testQuadratic84),
     TEST(testQuadratic83),
     TEST(testQuadratic82),
     TEST(testQuadratic81),

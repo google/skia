@@ -3101,11 +3101,71 @@ path.close();
     path.close();
 </div>
 
+<div id="testQuadratic84">
+    path.moveTo(0, 0);
+    path.quadTo(2, 0, 1, 1);
+    path.lineTo(2, 1);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(2, 0);
+    path.quadTo(0, 1, 2, 2);
+    path.close();
+</div>
+
+<div id="testQuadratic85">
+    path.moveTo(0, 0);
+    path.quadTo(3, 0, 1, 1);
+    path.lineTo(1, 1);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(3, 0);
+    path.quadTo(0, 1, 1, 2);
+    path.close();
+</div>
+
+<div id="testQuadratic86">
+    path.moveTo(0, 0);
+    path.quadTo(0, 1, 1, 1);
+    path.lineTo(2, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.quadTo(1, 1, 1, 3);
+    path.close();
+</div>
+
+<div id="testQuadratic87">
+    path.moveTo(0, 0);
+    path.quadTo(2, 1, 0, 2);
+    path.lineTo(2, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 1);
+    path.quadTo(0, 2, 3, 2);
+    path.close();
+</div>
+
+<div id="testQuadratic88">
+    path.moveTo(0, 0);
+    path.quadTo(2, 1, 0, 2);
+    path.lineTo(2, 2);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(1, 1);
+    path.quadTo(0, 2, 2, 2);
+    path.close();
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    testQuadratic88,
+    testQuadratic87,
+    testQuadratic86,
+    testQuadratic85,
+    testQuadratic84,
     testQuadratic83,
     testQuadratic82,
     testQuadratic81,
