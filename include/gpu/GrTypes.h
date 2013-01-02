@@ -664,7 +664,4 @@ typedef GrBackendRenderTargetDesc GrPlatformRenderTargetDesc;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// this is included only to make it easy to use this debugging facility
-#include "GrInstanceCounter.h"
-
 #endif
