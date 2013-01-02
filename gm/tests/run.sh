@@ -5,8 +5,11 @@
 # These tests are run by the Skia_PerCommit_House_Keeping bot at every commit,
 # so make sure that they still pass when you make changes to gm!
 #
-# TODO: Even though these tests are passing on the Skia_PerCommit_House_Keeping
-# bot (which runs on Linux), they fail when I run them on my Mac.
+# TODO: currently, this only passes on Linux (which is the platform that
+# the housekeeper bot runs on, e.g.
+# http://70.32.156.51:10117/builders/Skia_PerCommit_House_Keeping/builds/1417/steps/RunGmSelfTests/logs/stdio )
+# See https://code.google.com/p/skia/issues/detail?id=677
+# ('make tools/tests/run.sh work cross-platform')
 # Ideally, these tests should pass on all development platforms...
 # otherwise, how can developers be expected to test them before committing a
 # change?

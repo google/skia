@@ -1,7 +1,17 @@
 #!/bin/bash
 
 # Tests for our tools.
+#
 # TODO: for now, it only tests skdiff
+#
+# TODO: currently, this only passes on Linux (which is the platform that
+# the housekeeper bot runs on, e.g.
+# http://70.32.156.51:10117/builders/Skia_PerCommit_House_Keeping/builds/1415/steps/RunToolSelfTests/logs/stdio )
+# See https://code.google.com/p/skia/issues/detail?id=677
+# ('make tools/tests/run.sh work cross-platform')
+# Ideally, these tests should pass on all development platforms...
+# otherwise, how can developers be expected to test them before committing a
+# change?
 
 # cd into .../trunk so all the paths will work
 cd $(dirname $0)/../..
