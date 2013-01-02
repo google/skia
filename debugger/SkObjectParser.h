@@ -86,6 +86,12 @@ public:
     static SkString* RectToString(const SkRect& rect, const char* title = NULL);
 
     /**
+        Returns a string representation of an SkRRect.
+        @param rrect  SkRRect
+     */
+    static SkString* RRectToString(const SkRRect& rrect, const char* title = NULL);
+
+    /**
         Returns a string representation of the SkRegion enum.
         @param op  SkRegion::op enum
      */

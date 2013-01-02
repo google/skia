@@ -7,6 +7,7 @@
  */
 
 #include "SkObjectParser.h"
+#include "SkRRect.h"
 
 /* TODO(chudy): Replace all std::strings with char */
 
@@ -212,6 +213,50 @@ SkString* SkObjectParser::RectToString(const SkRect& rect, const char* title) {
     mRect->appendScalar(rect.bottom());
     mRect->append(")");
     return mRect;
+}
+
+SkString* SkObjectParser::RRectToString(const SkRRect& rrect, const char* title) {
+
+    SkString* mRRect = new SkString;
+
+    if (NULL == title) {
+        mRRect->append("SkRRect (");
+        if (rrect.isEmpty()) {
+            mRRect->append("empty");
+        } else if (rrect.isRect()) {
+            mRRect->append("rect");
+        } else if (rrect.isOval()) {
+            mRRect->append("oval");
+        } else if (rrect.isSimple()) {
+            mRRect->append("simple");
+        } else {
+            SkASSERT(rrect.isComplex());
+            mRRect->append("complex");
+        }
+        mRRect->append("): ");
+    } else {
+        mRRect->append(title);
+    }
+    mRRect->append("(");
+    mRRect->appendScalar(rrect.rect().left());
+    mRRect->append(", ");
+    mRRect->appendScalar(rrect.rect().top());
+    mRRect->append(", ");
+    mRRect->appendScalar(rrect.rect().right());
+    mRRect->append(", ");
+    mRRect->appendScalar(rrect.rect().bottom());
+    mRRect->append(") radii: (");
+    for (int i = 0; i < 4; ++i) {
+        const SkVector& radii = rrect.radii((SkRRect::Corner) i);
+        mRRect->appendScalar(radii.fX);
+        mRRect->append(", ");
+        mRRect->appendScalar(radii.fY);
+        if (i < 3) {
+            mRRect->append(", ");
+        }
+    }
+    mRRect->append(")");
+    return mRRect;
 }
 
 SkString* SkObjectParser::RegionOpToString(SkRegion::Op op) {
