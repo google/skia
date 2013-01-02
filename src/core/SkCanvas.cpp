@@ -1708,10 +1708,10 @@ void SkCanvas::internalDrawBitmapNine(const SkBitmap& bitmap,
     c.fBottom = SkPin32(center.fBottom, c.fTop, h);
 
     const SkScalar srcX[4] = {
-        0, SkIntToScalar(c.fLeft), SkIntToScalar(c.fRight), w
+        0, SkIntToScalar(c.fLeft), SkIntToScalar(c.fRight), SkIntToScalar(w)
     };
     const SkScalar srcY[4] = {
-        0, SkIntToScalar(c.fTop), SkIntToScalar(c.fBottom), h
+        0, SkIntToScalar(c.fTop), SkIntToScalar(c.fBottom), SkIntToScalar(h)
     };
     SkScalar dstX[4] = {
         dst.fLeft, dst.fLeft + SkIntToScalar(c.fLeft),
