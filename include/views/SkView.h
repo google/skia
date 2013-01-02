@@ -15,6 +15,7 @@
 #include "SkDOM.h"
 #include "SkTDict.h"
 #include "SkMatrix.h"
+#include "SkMetaData.h"
 
 class SkCanvas;
 class SkLayerView;
@@ -155,6 +156,8 @@ public:
         SkIPoint    fIOrig, fIPrev, fICurr;
         State       fState;
         void*       fOwner;
+
+        SkMetaData  fMeta;
     private:
         SkEventSinkID   fTargetID;
         char*           fType;
