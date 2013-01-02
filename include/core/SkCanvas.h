@@ -803,10 +803,7 @@ public:
 
     /** Draw the picture into this canvas. This method effective brackets the
         playback of the picture's draw calls with save/restore, so the state
-        of this canvas will be unchanged after this call. This contrasts with
-        the more immediate method SkPicture::draw(), which does not bracket
-        the canvas with save/restore, thus the canvas may be left in a changed
-        state after the call.
+        of this canvas will be unchanged after this call.
         @param picture The recorded drawing commands to playback into this
                        canvas.
     */
