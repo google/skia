@@ -6,6 +6,12 @@
 #
 # YOU MUST RE-RUN THIS UNTIL THE SELF-TESTS SUCCEED!
 # (It takes one run for each failing call to gm_test in run.sh)
+#
+# TODO: currently, this must be run on Linux to generate baselines that match
+# the ones on the housekeeper bot (which runs on Linux... see
+# http://70.32.156.51:10117/builders/Skia_PerCommit_House_Keeping/builds/1417/steps/RunGmSelfTests/logs/stdio )
+# See https://code.google.com/p/skia/issues/detail?id=677
+# ('make tools/tests/run.sh work cross-platform')
 
 function replace_expected_with_actual {
   # Delete all the expected output files
