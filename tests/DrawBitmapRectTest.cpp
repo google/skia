@@ -9,6 +9,90 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkShader.h"
+#include "SkRandom.h"
+#include "SkMatrixUtils.h"
+
+static void rand_matrix(SkMatrix* mat, SkRandom& rand, unsigned mask) {
+    mat->setIdentity();
+    if (mask & SkMatrix::kTranslate_Mask) {
+        mat->postTranslate(rand.nextSScalar1(), rand.nextSScalar1());
+    }
+    if (mask & SkMatrix::kScale_Mask) {
+        mat->postScale(rand.nextSScalar1(), rand.nextSScalar1());
+    }
+    if (mask & SkMatrix::kAffine_Mask) {
+        mat->postRotate(rand.nextSScalar1() * 360);
+    }
+    if (mask & SkMatrix::kPerspective_Mask) {
+        mat->setPerspX(rand.nextSScalar1());
+        mat->setPerspY(rand.nextSScalar1());
+    }
+}
+
+static void rand_rect(SkRect* r, SkRandom& rand) {
+    r->set(rand.nextSScalar1() * 1000, rand.nextSScalar1() * 1000,
+           rand.nextSScalar1() * 1000, rand.nextSScalar1() * 1000);
+    r->sort();
+}
+
+static void test_treatAsSprite(skiatest::Reporter* reporter) {
+    const unsigned bilerBits = kSkSubPixelBitsForBilerp;
+
+    SkMatrix mat;
+    SkRect r;
+    SkRandom rand;
+
+    // assert: translate-only no-filter can always be treated as sprite
+    for (int i = 0; i < 1000; ++i) {
+        rand_matrix(&mat, rand, SkMatrix::kTranslate_Mask);
+        for (int j = 0; j < 1000; ++j) {
+            rand_rect(&r, rand);
+            REPORTER_ASSERT(reporter, SkTreatAsSprite(mat, r, 0));
+        }
+    }
+    
+    // assert: rotate/perspect is never treated as sprite
+    for (int i = 0; i < 1000; ++i) {
+        rand_matrix(&mat, rand, SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask);
+        for (int j = 0; j < 1000; ++j) {
+            rand_rect(&r, rand);
+            REPORTER_ASSERT(reporter, !SkTreatAsSprite(mat, r, 0));
+            REPORTER_ASSERT(reporter, !SkTreatAsSprite(mat, r, bilerBits));
+        }
+    }
+
+    r.set(10, 10, 500, 600);
+
+    const SkScalar tooMuchSubpixel = SkFloatToScalar(100.1f);
+    mat.setTranslate(tooMuchSubpixel, 0);
+    REPORTER_ASSERT(reporter, !SkTreatAsSprite(mat, r, bilerBits));
+    mat.setTranslate(0, tooMuchSubpixel);
+    REPORTER_ASSERT(reporter, !SkTreatAsSprite(mat, r, bilerBits));
+
+    const SkScalar tinySubPixel = SkFloatToScalar(100.02f);
+    mat.setTranslate(tinySubPixel, 0);
+    REPORTER_ASSERT(reporter, SkTreatAsSprite(mat, r, bilerBits));
+    mat.setTranslate(0, tinySubPixel);
+    REPORTER_ASSERT(reporter, SkTreatAsSprite(mat, r, bilerBits));
+    
+    const SkScalar twoThirds = SK_Scalar1 * 2 / 3;
+    const SkScalar bigScale = SkScalarDiv(r.width() + twoThirds, r.width());
+    mat.setScale(bigScale, bigScale);
+    REPORTER_ASSERT(reporter, !SkTreatAsSprite(mat, r, false));
+    REPORTER_ASSERT(reporter, !SkTreatAsSprite(mat, r, bilerBits));
+    
+    const SkScalar oneThird = SK_Scalar1 / 3;
+    const SkScalar smallScale = SkScalarDiv(r.width() + oneThird, r.width());
+    mat.setScale(smallScale, smallScale);
+    REPORTER_ASSERT(reporter, SkTreatAsSprite(mat, r, false));
+    REPORTER_ASSERT(reporter, !SkTreatAsSprite(mat, r, bilerBits));
+    
+    const SkScalar oneFortyth = SK_Scalar1 / 40;
+    const SkScalar tinyScale = SkScalarDiv(r.width() + oneFortyth, r.width());
+    mat.setScale(tinyScale, tinyScale);
+    REPORTER_ASSERT(reporter, SkTreatAsSprite(mat, r, false));
+    REPORTER_ASSERT(reporter, SkTreatAsSprite(mat, r, bilerBits));
+}
 
 static void assert_ifDrawnTo(skiatest::Reporter* reporter,
                              const SkBitmap& bm, bool shouldBeDrawn) {
@@ -179,6 +263,8 @@ static void TestDrawBitmapRect(skiatest::Reporter* reporter) {
 
     test_nan_antihair(reporter);
     test_giantrepeat_crbug118018(reporter);
+
+    test_treatAsSprite(reporter);
 }
 
 #include "TestClassDef.h"
