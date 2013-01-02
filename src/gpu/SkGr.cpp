@@ -69,6 +69,8 @@ static void generate_bitmap_cache_id(const SkBitmap& bitmap, GrCacheID* id) {
     memcpy(key.fData8 + 4, &width, 2);
     memcpy(key.fData8 + 6, &height, 2);
     memcpy(key.fData8 + 8, &offset, sizeof(size_t));
+    static const size_t kKeyDataSize = 8 + sizeof(size_t);
+    memset(key.fData8 + kKeyDataSize, 0, sizeof(key) - kKeyDataSize);
     GR_STATIC_ASSERT(sizeof(key) >= 8 + sizeof(size_t));
     static const GrCacheID::Domain gBitmapTextureDomain = GrCacheID::GenerateDomain();
     id->reset(gBitmapTextureDomain, key);

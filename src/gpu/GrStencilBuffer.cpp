@@ -29,6 +29,7 @@ void gen_cache_id(int width, int height, int sampleCnt, GrCacheID* cacheID) {
     keyData[0] = width;
     keyData[1] = height;
     keyData[2] = sampleCnt;
+    memset(keyData + 3, 0, sizeof(key) - 3 * sizeof(uint32_t));
     GR_STATIC_ASSERT(sizeof(key) >= 3 * sizeof(uint32_t));
     cacheID->reset(gStencilBufferDomain, key);
 }
