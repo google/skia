@@ -27,12 +27,14 @@ const char* SkDrawCommand::GetCommandString(DrawType type) {
         case CLIP_PATH: return "Clip Path";
         case CLIP_REGION: return "Clip Region";
         case CLIP_RECT: return "Clip Rect";
+        case CLIP_RRECT: return "Clip RRect";
         case CONCAT: return "Concat";
         case DRAW_BITMAP: return "Draw Bitmap";
         case DRAW_BITMAP_MATRIX: return "Draw Bitmap Matrix";
         case DRAW_BITMAP_NINE: return "Draw Bitmap Nine";
         case DRAW_BITMAP_RECT_TO_RECT: return "Draw Bitmap Rect";
         case DRAW_DATA: return "Draw Data";
+        case DRAW_OVAL: return "Draw Oval";
         case DRAW_PAINT: return "Draw Paint";
         case DRAW_PATH: return "Draw Path";
         case DRAW_PICTURE: return "Draw Picture";
@@ -40,6 +42,7 @@ const char* SkDrawCommand::GetCommandString(DrawType type) {
         case DRAW_POS_TEXT: return "Draw Pos Text";
         case DRAW_POS_TEXT_H: return "Draw Pos Text H";
         case DRAW_RECT: return "Draw Rect";
+        case DRAW_RRECT: return "Draw RRect";
         case DRAW_SPRITE: return "Draw Sprite";
         case DRAW_TEXT: return "Draw Text";
         case DRAW_TEXT_ON_PATH: return "Draw Text On Path";
@@ -121,6 +124,21 @@ ClipRect::ClipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
 
 void ClipRect::execute(SkCanvas* canvas) {
     canvas->clipRect(*this->fRect, this->fOp, this->fDoAA);
+}
+
+ClipRRect::ClipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
+    this->fRRect = &rrect;
+    this->fOp = op;
+    this->fDoAA = doAA;
+    this->fDrawType = CLIP_RRECT;
+
+    this->fInfo.push(SkObjectParser::RRectToString(rrect));
+    this->fInfo.push(SkObjectParser::RegionOpToString(op));
+    this->fInfo.push(SkObjectParser::BoolToString(doAA));
+}
+
+void ClipRRect::execute(SkCanvas* canvas) {
+    canvas->clipRRect(*this->fRRect, this->fOp, this->fDoAA);
 }
 
 Concat::Concat(const SkMatrix& matrix) {
@@ -234,6 +252,19 @@ void DrawData::execute(SkCanvas* canvas) {
     canvas->drawData(this->fData, this->fLength);
 }
 
+DrawOval::DrawOval(const SkRect& oval, const SkPaint& paint) {
+    this->fOval = &oval;
+    this->fPaint = &paint;
+    this->fDrawType = DRAW_OVAL;
+
+    this->fInfo.push(SkObjectParser::RectToString(oval));
+    this->fInfo.push(SkObjectParser::PaintToString(paint));
+}
+
+void DrawOval::execute(SkCanvas* canvas) {
+    canvas->drawOval(*this->fOval, *this->fPaint);
+}
+
 DrawPaint::DrawPaint(const SkPaint& paint) {
     this->fPaint = &paint;
     this->fDrawType = DRAW_PAINT;
@@ -341,6 +372,19 @@ DrawRectC::DrawRectC(const SkRect& rect, const SkPaint& paint) {
 
 void DrawRectC::execute(SkCanvas* canvas) {
     canvas->drawRect(*this->fRect, *this->fPaint);
+}
+
+DrawRRect::DrawRRect(const SkRRect& rrect, const SkPaint& paint) {
+    this->fRRect = rrect;
+    this->fPaint = &paint;
+    this->fDrawType = DRAW_RRECT;
+
+    this->fInfo.push(SkObjectParser::RRectToString(rrect));
+    this->fInfo.push(SkObjectParser::PaintToString(paint));
+}
+
+void DrawRRect::execute(SkCanvas* canvas) {
+    canvas->drawRRect(this->fRRect, *this->fPaint);
 }
 
 DrawSprite::DrawSprite(const SkBitmap& bitmap, int left, int top,

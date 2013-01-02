@@ -34,22 +34,22 @@ SkDebugCanvas::SkDebugCanvas(int width, int height)
 }
 
 SkDebugCanvas::~SkDebugCanvas() {
-    commandVector.deleteAll();
+    fCommandVector.deleteAll();
 }
 
 void SkDebugCanvas::addDrawCommand(SkDrawCommand* command) {
-    commandVector.push(command);
+    fCommandVector.push(command);
 }
 
 void SkDebugCanvas::draw(SkCanvas* canvas) {
-    if(!commandVector.isEmpty()) {
-        for (int i = 0; i < commandVector.count(); i++) {
-            if (commandVector[i]->isVisible()) {
-                commandVector[i]->execute(canvas);
+    if(!fCommandVector.isEmpty()) {
+        for (int i = 0; i < fCommandVector.count(); i++) {
+            if (fCommandVector[i]->isVisible()) {
+                fCommandVector[i]->execute(canvas);
             }
         }
     }
-    fIndex = commandVector.count() - 1;
+    fIndex = fCommandVector.count() - 1;
 }
 
 void SkDebugCanvas::applyUserTransform(SkCanvas* canvas) {
@@ -74,8 +74,8 @@ int SkDebugCanvas::getCommandAtPoint(int x, int y, int index) {
     int layer = 0;
     SkColor prev = bitmap.getColor(0,0);
     for (int i = 0; i < index; i++) {
-        if (commandVector[i]->isVisible()) {
-            commandVector[i]->execute(&canvas);
+        if (fCommandVector[i]->isVisible()) {
+            fCommandVector[i]->execute(&canvas);
         }
         if (prev != bitmap.getColor(0,0)) {
             layer = i;
@@ -87,8 +87,8 @@ int SkDebugCanvas::getCommandAtPoint(int x, int y, int index) {
 
 void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
     int counter = 0;
-    SkASSERT(!commandVector.isEmpty());
-    SkASSERT(index < commandVector.count());
+    SkASSERT(!fCommandVector.isEmpty());
+    SkASSERT(index < fCommandVector.count());
     int i;
 
     // This only works assuming the canvas and device are the same ones that
@@ -125,9 +125,9 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
             canvas->restore();
         }
 
-        if (commandVector[i]->isVisible()) {
-            commandVector[i]->execute(canvas);
-            commandVector[i]->trackSaveState(&fOutstandingSaveCount);
+        if (fCommandVector[i]->isVisible()) {
+            fCommandVector[i]->execute(canvas);
+            fCommandVector[i]->trackSaveState(&fOutstandingSaveCount);
         }
     }
     fMatrix = canvas->getTotalMatrix();
@@ -136,30 +136,30 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
 }
 
 SkDrawCommand* SkDebugCanvas::getDrawCommandAt(int index) {
-    SkASSERT(index < commandVector.count());
-    return commandVector[index];
+    SkASSERT(index < fCommandVector.count());
+    return fCommandVector[index];
 }
 
 SkTDArray<SkString*>* SkDebugCanvas::getCommandInfo(int index) {
-    SkASSERT(index < commandVector.count());
-    return commandVector[index]->Info();
+    SkASSERT(index < fCommandVector.count());
+    return fCommandVector[index]->Info();
 }
 
 bool SkDebugCanvas::getDrawCommandVisibilityAt(int index) {
-    SkASSERT(index < commandVector.count());
-    return commandVector[index]->isVisible();
+    SkASSERT(index < fCommandVector.count());
+    return fCommandVector[index]->isVisible();
 }
 
 const SkTDArray <SkDrawCommand*>& SkDebugCanvas::getDrawCommands() const {
-    return commandVector;
+    return fCommandVector;
 }
 
 // TODO(chudy): Free command string memory.
 SkTArray<SkString>* SkDebugCanvas::getDrawCommandsAsStrings() const {
-    SkTArray<SkString>* commandString = new SkTArray<SkString>(commandVector.count());
-    if (!commandVector.isEmpty()) {
-        for (int i = 0; i < commandVector.count(); i ++) {
-            commandString->push_back() = commandVector[i]->toString();
+    SkTArray<SkString>* commandString = new SkTArray<SkString>(fCommandVector.count());
+    if (!fCommandVector.isEmpty()) {
+        for (int i = 0; i < fCommandVector.count(); i ++) {
+            commandString->push_back() = fCommandVector[i]->toString();
         }
     }
     return commandString;
@@ -258,6 +258,11 @@ bool SkDebugCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
     return true;
 }
 
+bool SkDebugCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
+    addDrawCommand(new ClipRRect(rrect, op, doAA));
+    return true;
+}
+
 bool SkDebugCanvas::clipRegion(const SkRegion& region, SkRegion::Op op) {
     addDrawCommand(new ClipRegion(region, op));
     return true;
@@ -296,6 +301,10 @@ void SkDebugCanvas::drawData(const void* data, size_t length) {
     addDrawCommand(new DrawData(data, length));
 }
 
+void SkDebugCanvas::drawOval(const SkRect& oval, const SkPaint& paint) {
+    addDrawCommand(new DrawOval(oval, paint));
+}
+
 void SkDebugCanvas::drawPaint(const SkPaint& paint) {
     addDrawCommand(new DrawPaint(paint));
 }
@@ -327,6 +336,10 @@ void SkDebugCanvas::drawPosTextH(const void* text, size_t byteLength,
 void SkDebugCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
     // NOTE(chudy): Messing up when renamed to DrawRect... Why?
     addDrawCommand(new DrawRectC(rect, paint));
+}
+
+void SkDebugCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
+    addDrawCommand(new DrawRRect(rrect, paint));
 }
 
 void SkDebugCanvas::drawSprite(const SkBitmap& bitmap, int left, int top,
@@ -393,6 +406,6 @@ bool SkDebugCanvas::translate(SkScalar dx, SkScalar dy) {
 }
 
 void SkDebugCanvas::toggleCommand(int index, bool toggle) {
-    SkASSERT(index < commandVector.count());
-    commandVector[index]->setVisible(toggle);
+    SkASSERT(index < fCommandVector.count());
+    fCommandVector[index]->setVisible(toggle);
 }

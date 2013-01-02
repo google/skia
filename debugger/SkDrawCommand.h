@@ -98,6 +98,16 @@ private:
     bool fDoAA;
 };
 
+class ClipRRect : public SkDrawCommand {
+public:
+    ClipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA);
+    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+private:
+    const SkRRect* fRRect;
+    SkRegion::Op fOp;
+    bool fDoAA;
+};
+
 class Concat : public SkDrawCommand {
 public:
     Concat(const SkMatrix& matrix);
@@ -168,6 +178,15 @@ public:
 private:
     const void* fData;
     size_t fLength;
+};
+
+class DrawOval : public SkDrawCommand {
+public:
+    DrawOval(const SkRect& oval, const SkPaint& paint);
+    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+private:
+    const SkRect* fOval;
+    const SkPaint* fPaint;
 };
 
 class DrawPaint : public SkDrawCommand {
@@ -270,6 +289,15 @@ public:
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
 private:
     const SkRect* fRect;
+    const SkPaint* fPaint;
+};
+
+class DrawRRect : public SkDrawCommand {
+public:
+    DrawRRect(const SkRRect& rrect, const SkPaint& paint);
+    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+private:
+    SkRRect fRRect;
     const SkPaint* fPaint;
 };
 
