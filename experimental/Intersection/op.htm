@@ -3156,11 +3156,166 @@ path.close();
     path.close();
 </div>
 
+<div id="testQuadratic89x">
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(0, 0);
+    path.quadTo(3, 1, 2, 2);
+    path.lineTo(0, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(2, 1);
+    path.quadTo(3, 1, 3, 3);
+    path.close();
+</div>
+
+<div id="testQuadratic90x">
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(0, 0);
+    path.quadTo(3, 0, 2, 2);
+    path.lineTo(1, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(0, 1);
+    path.quadTo(3, 2, 2, 3);
+    path.close();
+</div>
+
+<div id="testQuadratic91">
+    path.moveTo(0, 0);
+    path.quadTo(3, 2, 2, 3);
+    path.lineTo(2, 3);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 1);
+    path.quadTo(2, 1, 2, 3);
+    path.close();
+</div>
+
+<div id="testQuadratic92x">
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(1, 0);
+    path.quadTo(3, 0, 2, 2);
+    path.lineTo(2, 2);
+    path.close();
+    path.moveTo(2, 0);
+    path.lineTo(0, 1);
+    path.quadTo(3, 2, 2, 3);
+    path.close();
+</div>
+
+<div id="testLine82">
+    path.addRect(20, 0, 40, 40, SkPath::kCCWDirection);
+    path.addRect(24, 20, 36, 30, SkPath::kCCWDirection);
+    path.addRect(24, 32, 33, 36, SkPath::kCCWDirection);
+</div>
+
+<div id="testLine82a">
+    SkPath path;
+    path.addRect(0, 0, 6, 10, SkPath::kCW_Direction);
+    path.addRect(2, 2, 4, 4, SkPath::kCW_Direction);
+    path.addRect(2, 6, 4, 8, SkPath::kCW_Direction);
+    testSimplifyx(path);
+</div>
+
+<div id="testLine82b">
+    SkPath path;
+    path.addRect(0, 0, 6, 10, SkPath::kCW_Direction);
+    path.addRect(2, 2, 4, 4, SkPath::kCW_Direction);
+    path.addRect(2, 6, 4, 8, SkPath::kCCW_Direction);
+    testSimplifyx(path);
+</div>
+
+<div id="testLine82c">
+    SkPath path;
+    path.addRect(0, 0, 6, 10, SkPath::kCW_Direction);
+    path.addRect(2, 2, 4, 4, SkPath::kCCW_Direction);
+    path.addRect(2, 6, 4, 8, SkPath::kCW_Direction);
+    testSimplifyx(path);
+</div>
+
+
+<div id="testLine82d">
+    SkPath path;
+    path.addRect(0, 0, 6, 10, SkPath::kCW_Direction);
+    path.addRect(2, 2, 4, 4, SkPath::kCCW_Direction);
+    path.addRect(2, 6, 4, 8, SkPath::kCCW_Direction);
+    testSimplifyx(path);
+</div>
+
+<div id="testLine82e">
+    SkPath path;
+    path.addRect(0, 0, 6, 10, SkPath::kCCW_Direction);
+    path.addRect(2, 2, 4, 4, SkPath::kCW_Direction);
+    path.addRect(2, 6, 4, 8, SkPath::kCW_Direction);
+    testSimplifyx(path);
+</div>
+
+<div id="testLine82f">
+    SkPath path;
+    path.addRect(0, 0, 6, 10, SkPath::kCCW_Direction);
+    path.addRect(2, 2, 4, 4, SkPath::kCW_Direction);
+    path.addRect(2, 6, 4, 8, SkPath::kCCW_Direction);
+    testSimplifyx(path);
+</div>
+
+<div id="testLine82g">
+    SkPath path;
+    path.addRect(0, 0, 6, 10, SkPath::kCCW_Direction);
+    path.addRect(2, 2, 4, 4, SkPath::kCCW_Direction);
+    path.addRect(2, 6, 4, 8, SkPath::kCW_Direction);
+    testSimplifyx(path);
+</div>
+
+<div id="testLine82h">
+    SkPath path;
+    path.addRect(0, 0, 6, 10, SkPath::kCCW_Direction);
+    path.addRect(2, 2, 4, 4, SkPath::kCCW_Direction);
+    path.addRect(2, 6, 4, 8, SkPath::kCCW_Direction);
+    testSimplifyx(path);
+</div>
+
+<div id="testLine83">
+path.addRect(10, 30, 30, 40, SkPath::kCCW_Direction);
+path.addRect(0, 12, 12, 18, SkPath::kCCW_Direction);
+path.addRect(4, 13, 13, 16, SkPath::kCCW_Direction);
+</div>
+
+<div id="testLine84x">
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.addRect(0, 12, 60, 30, SkPath::kCCW_Direction);
+    path.addRect(10, 20, 40, 30, SkPath::kCCW_Direction);
+    path.addRect(0, 12, 12, 12, SkPath::kCCW_Direction);
+    path.addRect(4, 12, 13, 13, SkPath::kCCW_Direction);
+</div>
+
+<div id="testLine85">
+    path.addRect(36, 0, 66, 60, SkPath::kCCW_Direction);
+    path.addRect(20, 0, 40, 40, SkPath::kCCW_Direction);
+    path.addRect(12, 0, 24, 24, SkPath::kCCW_Direction);
+    path.addRect(32, 0, 36, 41, SkPath::kCCW_Direction);
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    testLine85,
+    testLine84x,
+    testLine83,
+    testLine82h,
+    testLine82g,
+    testLine82f,
+    testLine82e,
+    testLine82d,
+    testLine82c,
+    testLine82b,
+    testLine82a,
+    testLine82,
+    testQuadratic92x,
+    testQuadratic91,
+    testQuadratic90x,
+    testQuadratic89x,
     testQuadratic88,
     testQuadratic87,
     testQuadratic86,
