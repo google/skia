@@ -29,25 +29,28 @@ static void rand_matrix(SkMatrix* mat, SkRandom& rand, unsigned mask) {
     }
 }
 
-static void rand_rect(SkRect* r, SkRandom& rand) {
-    r->set(rand.nextSScalar1() * 1000, rand.nextSScalar1() * 1000,
-           rand.nextSScalar1() * 1000, rand.nextSScalar1() * 1000);
-    r->sort();
+static void rand_size(SkISize* size, SkRandom& rand) {
+    size->set(rand.nextU() & 0xFFFF, rand.nextU() & 0xFFFF);
+}
+
+static bool treat_as_sprite(const SkMatrix& mat, const SkISize& size,
+                            unsigned bits) {
+    return SkTreatAsSprite(mat, size.width(), size.height(), bits);
 }
 
 static void test_treatAsSprite(skiatest::Reporter* reporter) {
     const unsigned bilerBits = kSkSubPixelBitsForBilerp;
 
     SkMatrix mat;
-    SkRect r;
+    SkISize  size;
     SkRandom rand;
 
     // assert: translate-only no-filter can always be treated as sprite
     for (int i = 0; i < 1000; ++i) {
         rand_matrix(&mat, rand, SkMatrix::kTranslate_Mask);
         for (int j = 0; j < 1000; ++j) {
-            rand_rect(&r, rand);
-            REPORTER_ASSERT(reporter, SkTreatAsSprite(mat, r, 0));
+            rand_size(&size, rand);
+            REPORTER_ASSERT(reporter, treat_as_sprite(mat, size, 0));
         }
     }
 
@@ -55,43 +58,43 @@ static void test_treatAsSprite(skiatest::Reporter* reporter) {
     for (int i = 0; i < 1000; ++i) {
         rand_matrix(&mat, rand, SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask);
         for (int j = 0; j < 1000; ++j) {
-            rand_rect(&r, rand);
-            REPORTER_ASSERT(reporter, !SkTreatAsSprite(mat, r, 0));
-            REPORTER_ASSERT(reporter, !SkTreatAsSprite(mat, r, bilerBits));
+            rand_size(&size, rand);
+            REPORTER_ASSERT(reporter, !treat_as_sprite(mat, size, 0));
+            REPORTER_ASSERT(reporter, !treat_as_sprite(mat, size, bilerBits));
         }
     }
 
-    r.set(10, 10, 500, 600);
+    size.set(500, 600);
 
     const SkScalar tooMuchSubpixel = SkFloatToScalar(100.1f);
     mat.setTranslate(tooMuchSubpixel, 0);
-    REPORTER_ASSERT(reporter, !SkTreatAsSprite(mat, r, bilerBits));
+    REPORTER_ASSERT(reporter, !treat_as_sprite(mat, size, bilerBits));
     mat.setTranslate(0, tooMuchSubpixel);
-    REPORTER_ASSERT(reporter, !SkTreatAsSprite(mat, r, bilerBits));
+    REPORTER_ASSERT(reporter, !treat_as_sprite(mat, size, bilerBits));
 
     const SkScalar tinySubPixel = SkFloatToScalar(100.02f);
     mat.setTranslate(tinySubPixel, 0);
-    REPORTER_ASSERT(reporter, SkTreatAsSprite(mat, r, bilerBits));
+    REPORTER_ASSERT(reporter, treat_as_sprite(mat, size, bilerBits));
     mat.setTranslate(0, tinySubPixel);
-    REPORTER_ASSERT(reporter, SkTreatAsSprite(mat, r, bilerBits));
+    REPORTER_ASSERT(reporter, treat_as_sprite(mat, size, bilerBits));
 
     const SkScalar twoThirds = SK_Scalar1 * 2 / 3;
-    const SkScalar bigScale = SkScalarDiv(r.width() + twoThirds, r.width());
+    const SkScalar bigScale = SkScalarDiv(size.width() + twoThirds, size.width());
     mat.setScale(bigScale, bigScale);
-    REPORTER_ASSERT(reporter, !SkTreatAsSprite(mat, r, false));
-    REPORTER_ASSERT(reporter, !SkTreatAsSprite(mat, r, bilerBits));
+    REPORTER_ASSERT(reporter, !treat_as_sprite(mat, size, false));
+    REPORTER_ASSERT(reporter, !treat_as_sprite(mat, size, bilerBits));
 
     const SkScalar oneThird = SK_Scalar1 / 3;
-    const SkScalar smallScale = SkScalarDiv(r.width() + oneThird, r.width());
+    const SkScalar smallScale = SkScalarDiv(size.width() + oneThird, size.width());
     mat.setScale(smallScale, smallScale);
-    REPORTER_ASSERT(reporter, SkTreatAsSprite(mat, r, false));
-    REPORTER_ASSERT(reporter, !SkTreatAsSprite(mat, r, bilerBits));
+    REPORTER_ASSERT(reporter, treat_as_sprite(mat, size, false));
+    REPORTER_ASSERT(reporter, !treat_as_sprite(mat, size, bilerBits));
 
     const SkScalar oneFortyth = SK_Scalar1 / 40;
-    const SkScalar tinyScale = SkScalarDiv(r.width() + oneFortyth, r.width());
+    const SkScalar tinyScale = SkScalarDiv(size.width() + oneFortyth, size.width());
     mat.setScale(tinyScale, tinyScale);
-    REPORTER_ASSERT(reporter, SkTreatAsSprite(mat, r, false));
-    REPORTER_ASSERT(reporter, SkTreatAsSprite(mat, r, bilerBits));
+    REPORTER_ASSERT(reporter, treat_as_sprite(mat, size, false));
+    REPORTER_ASSERT(reporter, treat_as_sprite(mat, size, bilerBits));
 }
 
 static void assert_ifDrawnTo(skiatest::Reporter* reporter,
