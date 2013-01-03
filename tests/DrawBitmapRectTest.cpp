@@ -50,7 +50,7 @@ static void test_treatAsSprite(skiatest::Reporter* reporter) {
             REPORTER_ASSERT(reporter, SkTreatAsSprite(mat, r, 0));
         }
     }
-    
+
     // assert: rotate/perspect is never treated as sprite
     for (int i = 0; i < 1000; ++i) {
         rand_matrix(&mat, rand, SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask);
@@ -74,19 +74,19 @@ static void test_treatAsSprite(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, SkTreatAsSprite(mat, r, bilerBits));
     mat.setTranslate(0, tinySubPixel);
     REPORTER_ASSERT(reporter, SkTreatAsSprite(mat, r, bilerBits));
-    
+
     const SkScalar twoThirds = SK_Scalar1 * 2 / 3;
     const SkScalar bigScale = SkScalarDiv(r.width() + twoThirds, r.width());
     mat.setScale(bigScale, bigScale);
     REPORTER_ASSERT(reporter, !SkTreatAsSprite(mat, r, false));
     REPORTER_ASSERT(reporter, !SkTreatAsSprite(mat, r, bilerBits));
-    
+
     const SkScalar oneThird = SK_Scalar1 / 3;
     const SkScalar smallScale = SkScalarDiv(r.width() + oneThird, r.width());
     mat.setScale(smallScale, smallScale);
     REPORTER_ASSERT(reporter, SkTreatAsSprite(mat, r, false));
     REPORTER_ASSERT(reporter, !SkTreatAsSprite(mat, r, bilerBits));
-    
+
     const SkScalar oneFortyth = SK_Scalar1 / 40;
     const SkScalar tinyScale = SkScalarDiv(r.width() + oneFortyth, r.width());
     mat.setScale(tinyScale, tinyScale);
