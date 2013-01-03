@@ -166,6 +166,7 @@ void compute_diff(DiffRecord* dr, DiffMetricProc diffFunction, const int colorTh
     SkAutoLockPixels alpDiff(dr->fDifference.fBitmap);
     SkAutoLockPixels alpWhite(dr->fWhite.fBitmap);
     int mismatchedPixels = 0;
+    int totalMismatchA = 0;
     int totalMismatchR = 0;
     int totalMismatchG = 0;
     int totalMismatchB = 0;
@@ -177,17 +178,21 @@ void compute_diff(DiffRecord* dr, DiffMetricProc diffFunction, const int colorTh
         for (int x = 0; x < w; x++) {
             SkPMColor c0 = *dr->fBase.fBitmap.getAddr32(x, y);
             SkPMColor c1 = *dr->fComparison.fBitmap.getAddr32(x, y);
-            SkPMColor trueDifference = compute_diff_pmcolor(c0, c1);
             SkPMColor outputDifference = diffFunction(c0, c1);
-            uint32_t thisR = SkGetPackedR32(trueDifference);
-            uint32_t thisG = SkGetPackedG32(trueDifference);
-            uint32_t thisB = SkGetPackedB32(trueDifference);
+            uint32_t thisA = SkAbs32(SkGetPackedA32(c0) - SkGetPackedA32(c1));
+            uint32_t thisR = SkAbs32(SkGetPackedR32(c0) - SkGetPackedR32(c1));
+            uint32_t thisG = SkAbs32(SkGetPackedG32(c0) - SkGetPackedG32(c1));
+            uint32_t thisB = SkAbs32(SkGetPackedB32(c0) - SkGetPackedB32(c1));
+            totalMismatchA += thisA;
             totalMismatchR += thisR;
             totalMismatchG += thisG;
             totalMismatchB += thisB;
             // In HSV, value is defined as max RGB component.
             int value = MAX3(thisR, thisG, thisB);
             dr->fWeightedFraction += ((float) value) / 255;
+            if (thisA > dr->fMaxMismatchA) {
+                dr->fMaxMismatchA = thisA;
+            }
             if (thisR > dr->fMaxMismatchR) {
                 dr->fMaxMismatchR = thisR;
             }
@@ -215,6 +220,8 @@ void compute_diff(DiffRecord* dr, DiffMetricProc diffFunction, const int colorTh
     int pixelCount = w * h;
     dr->fFractionDifference = ((float) mismatchedPixels) / pixelCount;
     dr->fWeightedFraction /= pixelCount;
+    dr->fTotalMismatchA = totalMismatchA;
+    dr->fAverageMismatchA = ((float) totalMismatchA) / pixelCount;
     dr->fAverageMismatchR = ((float) totalMismatchR) / pixelCount;
     dr->fAverageMismatchG = ((float) totalMismatchG) / pixelCount;
     dr->fAverageMismatchB = ((float) totalMismatchB) / pixelCount;
