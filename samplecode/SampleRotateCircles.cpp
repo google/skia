@@ -339,8 +339,8 @@ protected:
 
     virtual bool onClick(Click* click) {
         int index = ((MyClick*)click)->fIndex;
-        fPts[index].offset(click->fICurr.fX - click->fIPrev.fX,
-                           click->fICurr.fY - click->fIPrev.fY);
+        fPts[index].offset(SkIntToScalar(click->fICurr.fX - click->fIPrev.fX),
+                           SkIntToScalar(click->fICurr.fY - click->fIPrev.fY));
         this->inval(NULL);
         return true;
     }
