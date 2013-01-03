@@ -28,6 +28,7 @@
 #include "SkAutoKern.h"
 #include "SkBitmapProcShader.h"
 #include "SkDrawProcs.h"
+#include "SkMatrixUtils.h"
 
 //#define TRACE_BITMAP_DRAWS
 
@@ -1113,6 +1114,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
     go ahead and treat it as if it were, so that subsequent code can go fast.
  */
 static bool just_translate(const SkMatrix& matrix, const SkBitmap& bitmap) {
+#ifdef SK_IGNORE_TREAT_AS_SPRITE
     SkMatrix::TypeMask mask = matrix.getType();
 
     if (mask & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask)) {
@@ -1129,6 +1131,9 @@ static bool just_translate(const SkMatrix& matrix, const SkBitmap& bitmap) {
     }
     // if we got here, we're either kTranslate_Mask or identity
     return true;
+#else
+    return SkTreatAsSpriteFilter(matrix, bitmap.width(), bitmap.height());
+#endif
 }
 
 void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap,

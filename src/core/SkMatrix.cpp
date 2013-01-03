@@ -1807,8 +1807,9 @@ void SkMatrix::toDumpString(SkString* str) const {
 
 #include "SkMatrixUtils.h"
 
-bool SkTreatAsSprite(const SkMatrix& mat, const SkRect& src,
+bool SkTreatAsSprite(const SkMatrix& mat, int width, int height,
                      unsigned subpixelBits) {
+    // quick reject on affine or perspective
     if (mat.getType() & ~(SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask)) {
         return false;
     }
@@ -1824,15 +1825,17 @@ bool SkTreatAsSprite(const SkMatrix& mat, const SkRect& src,
     }
 
     SkRect dst;
-    SkIRect isrc, idst;
-
-    mat.mapRect(&dst, src);
-
+    SkIRect isrc = { 0, 0, width, height };
+    
     {
-        SkRect tmp = src;
-        tmp.offset(mat.getTranslateX(), mat.getTranslateY());
-        tmp.round(&isrc);
+        SkRect src;
+        src.set(isrc);
+        mat.mapRect(&dst, src);
     }
+
+    // just apply the translate to isrc
+    isrc.offset(SkScalarRoundToInt(mat.getTranslateX()),
+                SkScalarRoundToInt(mat.getTranslateY()));
 
     if (subpixelBits) {
         isrc.fLeft <<= subpixelBits;
@@ -1847,6 +1850,7 @@ bool SkTreatAsSprite(const SkMatrix& mat, const SkRect& src,
         dst.fBottom *= scale;
     }
 
+    SkIRect idst;
     dst.round(&idst);
     return isrc == idst;
 }
