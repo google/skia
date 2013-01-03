@@ -115,9 +115,12 @@ struct DiffRecord {
         , fWhite()
         , fFractionDifference(0)
         , fWeightedFraction(0)
+        , fAverageMismatchA(0)
         , fAverageMismatchR(0)
         , fAverageMismatchG(0)
         , fAverageMismatchB(0)
+        , fTotalMismatchA(0)
+        , fMaxMismatchA(0)
         , fMaxMismatchR(0)
         , fMaxMismatchG(0)
         , fMaxMismatchB(0)
@@ -135,10 +138,14 @@ struct DiffRecord {
     float fFractionDifference;
     float fWeightedFraction;
 
+    float fAverageMismatchA;
     float fAverageMismatchR;
     float fAverageMismatchG;
     float fAverageMismatchB;
 
+    uint32_t fTotalMismatchA;
+
+    uint32_t fMaxMismatchA;
     uint32_t fMaxMismatchR;
     uint32_t fMaxMismatchG;
     uint32_t fMaxMismatchB;
