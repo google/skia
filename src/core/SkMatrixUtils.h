@@ -27,6 +27,6 @@
  *  of subpixel-bits to simulate filtering.
  */
 bool SkTreatAsSprite(const SkMatrix&, const SkRect& src, unsigned subpixelBits);
-    
+
 
 #endif

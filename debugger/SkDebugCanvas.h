@@ -165,7 +165,7 @@ public:
                              const SkPoint pos[], const SkPaint&) SK_OVERRIDE;
 
     virtual void drawPosTextH(const void* text, size_t byteLength,
-                              const SkScalar xpos[], SkScalar constY, 
+                              const SkScalar xpos[], SkScalar constY,
                               const SkPaint&) SK_OVERRIDE;
 
     virtual void drawRect(const SkRect& rect, const SkPaint&) SK_OVERRIDE;
