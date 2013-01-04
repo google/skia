@@ -11,7 +11,6 @@
 #include "GrAllocator.h"
 #include "GrBackendEffectFactory.h"
 #include "GrEffect.h"
-#include "gl/GrGLShaderVar.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLUniformManager.h"
 
@@ -24,7 +23,7 @@ class GrGLContextInfo;
 class GrGLShaderBuilder {
 public:
     /**
-     * Used by GrGLEffects to add texture reads to their shader code.
+     * Passed to GrGLEffects to add texture reads to their shader code.
      */
     class TextureSampler {
     public:
@@ -46,15 +45,19 @@ public:
         const GrTextureAccess* textureAccess() const { return fTextureAccess; }
 
     private:
-        void init(GrGLShaderBuilder* builder, const GrTextureAccess* access) {
+        // The idx param is used to ensure multiple samplers within a single effect have unique
+        // uniform names.
+        void init(GrGLShaderBuilder* builder, const GrTextureAccess* access, int idx) {
             GrAssert(NULL == fTextureAccess);
             GrAssert(GrGLUniformManager::kInvalidUniformHandle == fSamplerUniform);
 
             GrAssert(NULL != builder);
             GrAssert(NULL != access);
+            SkString name;
+            name.printf("Sampler%d_", idx);
             fSamplerUniform = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                                   kSampler2D_GrSLType,
-                                                  "Sampler");
+                                                  name.c_str());
             GrAssert(GrGLUniformManager::kInvalidUniformHandle != fSamplerUniform);
 
             fTextureAccess = access;
@@ -160,25 +163,31 @@ public:
       */
     const GrGLShaderVar& positionAttribute() const { return *fPositionVar; }
 
+    /**
+     * Interfaces used by GrGLProgram.
+     * TODO: Hide these from the GrEffects using friend or splitting this into two related classes.
+     * Also, GrGLProgram's shader string construction should be moved to this class.
+     */
+
     /** Called after building is complete to get the final shader string. */
     void getShader(ShaderType, SkString*) const;
 
-    /**
-     * TODO: Make this do all the compiling, linking, etc. Hide from the GrEffects
-     */
-    void finished(GrGLuint programID);
-
-    /**
-     * Sets the current stage (used to make variable names unique).
-     * TODO: Hide from the GrEffects
-     */
     void setCurrentStage(int stageIdx) { fCurrentStageIdx = stageIdx; }
     void setNonStage() { fCurrentStageIdx = kNonStageIdx; }
-
+    // TODO: move remainder of shader code generation to this class and call this privately
+    // Handles of sampler uniforms generated for the effect are appended to samplerHandles.
+    GrGLEffect* createAndEmitGLEffect(
+                                const GrEffectStage& stage,
+                                GrBackendEffectFactory::EffectKey key,
+                                const char* fsInColor, // NULL means no incoming color
+                                const char* fsOutColor,
+                                const char* vsInCoord,                                      
+                                SkTArray<GrGLUniformManager::UniformHandle, true>* samplerHandles);
     GrGLUniformManager::UniformHandle getRTHeightUniform() const { return fRTHeightUniform; }
+    // TODO: Make this do all the compiling, linking, etc.
+    void finished(GrGLuint programID);
 
 private:
-
     typedef GrTAllocator<GrGLShaderVar> VarArray;
 
     void appendDecls(const VarArray&, SkString*) const;

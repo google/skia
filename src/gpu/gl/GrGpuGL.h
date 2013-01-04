@@ -36,6 +36,11 @@ public:
         return fGLContextInfo.glslGeneration();
     }
 
+    // Used by GrGLProgram to bind necessary textures for GrGLEffects.
+    void bindTexture(int unitIdx, const GrTextureParams& params, GrGLTexture* texture);
+
+    bool programUnitTest();
+
     // GrGpu overrides
     virtual GrPixelConfig preferredReadPixelsConfig(GrPixelConfig config)
                                                             const SK_OVERRIDE;
@@ -50,9 +55,6 @@ public:
     virtual bool fullReadPixelsIsFasterThanPartial() const SK_OVERRIDE;
 
     virtual void abandonResources() SK_OVERRIDE;
-
-    bool programUnitTest();
-
 
 protected:
     // GrGpu overrides
@@ -195,16 +197,6 @@ private:
         unsigned int                fCurrLRUStamp;
         const GrGLContextInfo&      fGL;
     };
-
-    // binds the texture and sets its texture params
-    // This may also perform a downsample on the src texture which may or may
-    // not modify the scissor test and rect. So in flushGraphicsState a
-    // call to flushScissor must occur after all textures have been flushed via
-    // this function.
-    void flushBoundTextureAndParams(int stage);
-    void flushBoundTextureAndParams(int stage,
-                                    const GrTextureParams& params,
-                                    GrGLTexture* nextTexture);
 
     // sets the color specified by GrDrawState::setColor()
     void flushColor(GrColor color);
