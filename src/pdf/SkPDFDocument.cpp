@@ -98,13 +98,11 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
         fDocCatalog->insert("Pages", new SkPDFObjRef(pageTreeRoot))->unref();
 
         /* TODO(vandebo): output intent
-        SkRefPtr<SkPDFDict> outputIntent = new SkPDFDict("OutputIntent");
-        outputIntent->unref();  // SkRefPtr and new both took a reference.
+        SkAutoTUnref<SkPDFDict> outputIntent = new SkPDFDict("OutputIntent");
         outputIntent->insert("S", new SkPDFName("GTS_PDFA1"))->unref();
         outputIntent->insert("OutputConditionIdentifier",
                              new SkPDFString("sRGB"))->unref();
-        SkRefPtr<SkPDFArray> intentArray = new SkPDFArray;
-        intentArray->unref();  // SkRefPtr and new both took a reference.
+        SkAutoTUnref<SkPDFArray> intentArray = new SkPDFArray;
         intentArray->append(outputIntent.get());
         fDocCatalog->insert("OutputIntent", intentArray.get());
         */
