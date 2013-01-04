@@ -25,6 +25,7 @@
           {
             'include_dirs' : [
               '../src/gpu',
+              '../src/effects',
             ],
           },
         ],

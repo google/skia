@@ -10,6 +10,7 @@
     '../bench/BitmapBench.cpp',
     '../bench/BitmapRectBench.cpp',
     '../bench/BlurBench.cpp',
+    '../bench/BlurRectBench.cpp',
     '../bench/ChecksumBench.cpp',
     '../bench/ChromeBench.cpp',
     '../bench/DashBench.cpp',
