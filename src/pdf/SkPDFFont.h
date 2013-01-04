@@ -180,7 +180,7 @@ private:
         FontRec(SkPDFFont* font, uint32_t fontID, uint16_t fGlyphID);
     };
 
-    SkRefPtr<SkTypeface> fTypeface;
+    SkAutoTUnref<SkTypeface> fTypeface;
 
     // The glyph IDs accessible with this font.  For Type1 (non CID) fonts,
     // this will be a subset if the font has more than 255 glyphs.
@@ -188,9 +188,9 @@ private:
     uint16_t fLastGlyphID;
     // The font info is only kept around after construction for large
     // Type1 (non CID) fonts that need multiple "fonts" to access all glyphs.
-    SkRefPtr<SkAdvancedTypefaceMetrics> fFontInfo;
+    SkAutoTUnref<SkAdvancedTypefaceMetrics> fFontInfo;
     SkTDArray<SkPDFObject*> fResources;
-    SkRefPtr<SkPDFDict> fDescriptor;
+    SkAutoTUnref<SkPDFDict> fDescriptor;
 
     SkAdvancedTypefaceMetrics::FontType fFontType;
 

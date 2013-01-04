@@ -31,8 +31,7 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
     getResources(&dummy_resourceList);
 #endif
 
-    SkRefPtr<SkStream> content = device->content();
-    content->unref();  // SkRefPtr and content() both took a reference.
+    SkAutoTUnref<SkStream> content(device->content());
     setData(content.get());
 
     insertName("Type", "XObject");
@@ -55,8 +54,7 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
 
     // Right now SkPDFFormXObject is only used for saveLayer, which implies
     // isolated blending.  Do this conditionally if that changes.
-    SkRefPtr<SkPDFDict> group = new SkPDFDict("Group");
-    group->unref();  // SkRefPtr and new both took a reference.
+    SkAutoTUnref<SkPDFDict> group(new SkPDFDict("Group"));
     group->insertName("S", "Transparency");
     group->insert("I", new SkPDFBool(true))->unref();  // Isolated.
     insert("Group", group.get());
