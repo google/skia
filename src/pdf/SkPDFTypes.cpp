@@ -73,7 +73,10 @@ void SkPDFObject::GetResourcesHelper(SkTDArray<SkPDFObject*>* resources,
     }
 }
 
-SkPDFObjRef::SkPDFObjRef(SkPDFObject* obj) : fObj(obj) {}
+SkPDFObjRef::SkPDFObjRef(SkPDFObject* obj) : fObj(obj) {
+    SkSafeRef(obj);
+}
+
 SkPDFObjRef::~SkPDFObjRef() {}
 
 void SkPDFObjRef::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
