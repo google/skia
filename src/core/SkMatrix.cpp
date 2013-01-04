@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #include "SkMatrix.h"
 #include "Sk64.h"
@@ -853,6 +851,7 @@ bool SkMatrix::invertNonIdentity(SkMatrix* inv) const {
 
     TypeMask mask = this->getType();
 
+#ifndef SK_IGNORE_FAST_SCALEMATRIX_INVERT
     if (0 == (mask & ~(kScale_Mask | kTranslate_Mask))) {
         if (inv) {
             if (mask & kScale_Mask) {
@@ -884,7 +883,8 @@ bool SkMatrix::invertNonIdentity(SkMatrix* inv) const {
         }
         return true;
     }
-    
+#endif
+
     int         isPersp = mask & kPerspective_Mask;
     int         shift;
     SkDetScalar scale = sk_inv_determinant(fMat, isPersp, &shift);
