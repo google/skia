@@ -10,6 +10,7 @@
       'type': 'executable',
       'include_dirs' : [
         '../src/core',
+        '../src/effects',
       ],
       'includes': [
         'bench.gypi'
@@ -25,7 +26,6 @@
           {
             'include_dirs' : [
               '../src/gpu',
-              '../src/effects',
             ],
           },
         ],
