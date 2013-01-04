@@ -298,7 +298,7 @@ static double horizontalIntersect(const Quadratic& quad, const _Point& pt) {
         double x;
         double t = rootVals[index];
         xy_at_t(quad, t, x, *(double*) 0);
-        if (approximately_equal(x, pt.x)) {
+        if (AlmostEqualUlps(x, pt.x)) {
             return t;
         }
     }
@@ -313,7 +313,7 @@ static double verticalIntersect(const Quadratic& quad, const _Point& pt) {
         double y;
         double t = rootVals[index];
         xy_at_t(quad, t, *(double*) 0, y);
-        if (approximately_equal(y, pt.y)) {
+        if (AlmostEqualUlps(y, pt.y)) {
             return t;
         }
     }

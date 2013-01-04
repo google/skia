@@ -19,7 +19,7 @@ bool implicit_matches(const _Line& one, const _Line& two) {
           (dy1 * dy2) * dx1 / dy1 == (dy1 * dy2) * dx2 / dy2
                  dy2  * dx1       ==  dy1        * dx2
      */
-    if (!approximately_equal(oneD.x * twoD.y, twoD.x * oneD.y)) {
+    if (!AlmostEqualUlps(oneD.x * twoD.y, twoD.x * oneD.y)) {
         return false;
     }
     /* See if the axis intercepts match, i.e.
@@ -27,7 +27,7 @@ bool implicit_matches(const _Line& one, const _Line& two) {
          dx * (y0 - x0 * dy / dx) == dx * (y1 - x1 * dy / dx)
          dx *  y0 - x0 * dy       == dx *  y1 - x1 * dy
      */
-    if (!approximately_equal(oneD.x * one[0].y - oneD.y * one[0].x,
+    if (!AlmostEqualUlps(oneD.x * one[0].y - oneD.y * one[0].x,
             oneD.x * two[0].y - oneD.y * two[0].x)) {
         return false;
     }

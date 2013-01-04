@@ -29,6 +29,8 @@
         '../experimental/Intersection/CubicReduceOrder.cpp',
         '../experimental/Intersection/CubicReduceOrder_Test.cpp',
         '../experimental/Intersection/CubicSubDivide.cpp',
+        '../experimental/Intersection/CubicToQuadratics.cpp',
+        '../experimental/Intersection/CubicToQuadratics_Test.cpp',
         '../experimental/Intersection/CubicUtilities.cpp',
         '../experimental/Intersection/DataTypes.cpp',
         '../experimental/Intersection/EdgeMain.cpp',

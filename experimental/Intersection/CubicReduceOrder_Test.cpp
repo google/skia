@@ -132,10 +132,10 @@ void CubicReduceOrder_Test() {
                 // while a control point is outside of bounding box formed by end points, split
             _Rect bounds = {DBL_MAX, DBL_MAX, -DBL_MAX, -DBL_MAX};
             find_tight_bounds(cubic, bounds);
-            if (       (!approximately_equal(reduce[0].x, bounds.left) && !approximately_equal(reduce[0].x, bounds.right))
-                    || (!approximately_equal(reduce[0].y, bounds.top) && !approximately_equal(reduce[0].y, bounds.bottom))
-                    || (!approximately_equal(reduce[1].x, bounds.left) && !approximately_equal(reduce[1].x, bounds.right))
-                    || (!approximately_equal(reduce[1].y, bounds.top) && !approximately_equal(reduce[1].y, bounds.bottom))) {
+            if (       (!AlmostEqualUlps(reduce[0].x, bounds.left) && !AlmostEqualUlps(reduce[0].x, bounds.right))
+                    || (!AlmostEqualUlps(reduce[0].y, bounds.top) && !AlmostEqualUlps(reduce[0].y, bounds.bottom))
+                    || (!AlmostEqualUlps(reduce[1].x, bounds.left) && !AlmostEqualUlps(reduce[1].x, bounds.right))
+                    || (!AlmostEqualUlps(reduce[1].y, bounds.top) && !AlmostEqualUlps(reduce[1].y, bounds.bottom))) {
                 printf("[%d] line computed tight bounds order=%d\n", (int) index, order);
             }
 
