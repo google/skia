@@ -148,10 +148,10 @@ int reduceOrder(const Quadratic& quad, Quadratic& reduction) {
         }
     }
     for (index = 0; index < 3; ++index) {
-        if (approximately_equal(quad[index].x, quad[minX].x)) {
+        if (AlmostEqualUlps(quad[index].x, quad[minX].x)) {
             minXSet |= 1 << index;
         }
-        if (approximately_equal(quad[index].y, quad[minY].y)) {
+        if (AlmostEqualUlps(quad[index].y, quad[minY].y)) {
             minYSet |= 1 << index;
         }
     }

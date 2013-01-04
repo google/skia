@@ -105,8 +105,7 @@ bool QuadImplicitForm::implicit_match(const QuadImplicitForm& p2) const {
         if (first == index) {
             continue;
         }
-        if (!approximately_equal(p[index] * p2.p[first],
-                p[first] * p2.p[index])) {
+        if (!AlmostEqualUlps(p[index] * p2.p[first], p[first] * p2.p[index])) {
             return false;
         }
     }

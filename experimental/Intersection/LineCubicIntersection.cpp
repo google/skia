@@ -224,7 +224,7 @@ int verticalIntersect(const Cubic& cubic, double top, double bottom, double x,
 int intersect(const Cubic& cubic, const _Line& line, double cRange[3], double lRange[3]) {
     LineCubicIntersections c(cubic, line, cRange);
     int roots;
-    if (approximately_equal(line[0].y, line[1].y)) {
+    if (AlmostEqualUlps(line[0].y, line[1].y)) {
         roots = c.horizontalIntersect(line[0].y);
     } else {
         roots = c.intersect();

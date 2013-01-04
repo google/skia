@@ -45,7 +45,7 @@ static int findUnitQuadRoots(double A, double B, double C, double roots[2])
     double Q = (B < 0) ? -(B-R)/2 : -(B+R)/2;
     r += validUnitDivide(Q, A, r);
     r += validUnitDivide(C, Q, r);
-    if (r - roots == 2 && approximately_equal(roots[0], roots[1])) { // nearly-equal?
+    if (r - roots == 2 && AlmostEqualUlps(roots[0], roots[1])) { // nearly-equal?
         r -= 1; // skip the double root
     }
     return (int)(r - roots);

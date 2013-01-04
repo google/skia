@@ -491,8 +491,7 @@ bool implicit_matches(const Cubic& one, const Cubic& two) {
         if (first == index) {
             continue;
         }
-        if (!approximately_equal(p1[index] * p2[first],
-                p1[first] * p2[index])) {
+        if (!AlmostEqualUlps(p1[index] * p2[first], p1[first] * p2[index])) {
             return false;
         }
     }

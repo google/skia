@@ -45,11 +45,11 @@ void LineCubicIntersection_Test() {
                 double tt2 = range2[pt];
                 double tx2, ty2;
                 xy_at_t(line, tt2, tx2, ty2);
-                if (!approximately_equal(tx1, tx2)) {
+                if (!AlmostEqualUlps(tx1, tx2)) {
                     printf("%s [%d,%d] x!= t1=%g (%g,%g) t2=%g (%g,%g)\n",
                         __FUNCTION__, (int)index, pt, tt1, tx1, ty1, tt2, tx2, ty2);
                 }
-                if (!approximately_equal(ty1, ty2)) {
+                if (!AlmostEqualUlps(ty1, ty2)) {
                     printf("%s [%d,%d] y!= t1=%g (%g,%g) t2=%g (%g,%g)\n",
                         __FUNCTION__, (int)index, pt, tt1, tx1, ty1, tt2, tx2, ty2);
                 }

@@ -80,8 +80,8 @@ static void testOneOffs() {
             double lineT = intersections.fT[1][inner];
             double lineX, lineY;
             xy_at_t(line, lineT, lineX, lineY);
-            assert(approximately_equal(quadX, lineX)
-                    && approximately_equal(quadY, lineY));
+            assert(AlmostEqualUlps(quadX, lineX)
+                    && AlmostEqualUlps(quadY, lineY));
         }
     }
 }
@@ -120,12 +120,12 @@ void LineQuadraticIntersection_Test() {
             double tt2 = intersections.fT[1][pt];
             SkASSERT(tt2 >= 0 && tt2 <= 1);
             xy_at_t(line, tt2, t2.x, t2.y);
-            if (!approximately_equal(t1.x, t2.x)) {
+            if (!AlmostEqualUlps(t1.x, t2.x)) {
                 SkDebugf("%s [%d,%d] x!= t1=%1.9g (%1.9g,%1.9g) t2=%1.9g (%1.9g,%1.9g)\n",
                     __FUNCTION__, (int)index, pt, tt1, t1.x, t1.y, tt2, t2.x, t2.y);
                 SkASSERT(0);
             }
-            if (!approximately_equal(t1.y, t2.y)) {
+            if (!AlmostEqualUlps(t1.y, t2.y)) {
                 SkDebugf("%s [%d,%d] y!= t1=%1.9g (%1.9g,%1.9g) t2=%1.9g (%1.9g,%1.9g)\n",
                     __FUNCTION__, (int)index, pt, tt1, t1.x, t1.y, tt2, t2.x, t2.y);
                 SkASSERT(0);

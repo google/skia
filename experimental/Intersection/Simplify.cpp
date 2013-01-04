@@ -522,20 +522,20 @@ static bool LineVertical(const SkPoint a[2], double startT, double endT) {
     double x[2];
     xy_at_t(aLine, startT, x[0], *(double*) 0);
     xy_at_t(aLine, endT, x[1], *(double*) 0);
-    return approximately_equal((float) x[0], (float) x[1]);
+    return AlmostEqualUlps((float) x[0], (float) x[1]);
 }
 
 static bool QuadVertical(const SkPoint a[3], double startT, double endT) {
     SkPoint dst[3];
     QuadSubDivide(a, startT, endT, dst);
-    return approximately_equal(dst[0].fX, dst[1].fX) && approximately_equal(dst[1].fX, dst[2].fX);
+    return AlmostEqualUlps(dst[0].fX, dst[1].fX) && AlmostEqualUlps(dst[1].fX, dst[2].fX);
 }
 
 static bool CubicVertical(const SkPoint a[4], double startT, double endT) {
     SkPoint dst[4];
     CubicSubDivide(a, startT, endT, dst);
-    return approximately_equal(dst[0].fX, dst[1].fX) && approximately_equal(dst[1].fX, dst[2].fX)
-            && approximately_equal(dst[2].fX, dst[3].fX);
+    return AlmostEqualUlps(dst[0].fX, dst[1].fX) && AlmostEqualUlps(dst[1].fX, dst[2].fX)
+            && AlmostEqualUlps(dst[2].fX, dst[3].fX);
 }
 
 static bool (* const SegmentVertical[])(const SkPoint [], double , double) = {
@@ -1285,8 +1285,8 @@ public:
             (*SegmentXYAtT[angles[0].verb()])(angles[0].pts(),
                     (*angles[0].spans())[angles[0].start()].fT, &angle0Pt);
             (*SegmentXYAtT[fVerb])(fPts, fTs[start].fT, &newPt);
-            SkASSERT(approximately_equal(angle0Pt.fX, newPt.fX));
-            SkASSERT(approximately_equal(angle0Pt.fY, newPt.fY));
+            SkASSERT(AlmostEqualUlps(angle0Pt.fX, newPt.fX));
+            SkASSERT(AlmostEqualUlps(angle0Pt.fY, newPt.fY));
         }
 #endif
         angle->set(fPts, fVerb, this, start, end, fTs);
@@ -1979,7 +1979,7 @@ public:
         }
         if (fBounds.fLeft == fBounds.fRight) {
             // if vertical, and directly above test point, wait for another one
-            return approximately_equal(basePt.fX, fBounds.fLeft) ? SK_MinS32 : bestTIndex;
+            return AlmostEqualUlps(basePt.fX, fBounds.fLeft) ? SK_MinS32 : bestTIndex;
         }
         // intersect ray starting at basePt with edge
         Intersections intersections;

@@ -104,6 +104,21 @@ static void interp_cubic_coords(const double* src, double* dst, double t)
 
 void chop_at(const Cubic& src, CubicPair& dst, double t)
 {
+    if (t == 0.5) {
+        dst.pts[0] = src[0];
+        dst.pts[1].x = (src[0].x + src[1].x) / 2;
+        dst.pts[1].y = (src[0].y + src[1].y) / 2;
+        dst.pts[2].x = (src[0].x + 2 * src[1].x + src[2].x) / 4;
+        dst.pts[2].y = (src[0].y + 2 * src[1].y + src[2].y) / 4;
+        dst.pts[3].x = (src[0].x + 3 * (src[1].x + src[2].x) + src[3].x) / 8;
+        dst.pts[3].y = (src[0].y + 3 * (src[1].y + src[2].y) + src[3].y) / 8;
+        dst.pts[4].x = (src[1].x + 2 * src[2].x + src[3].x) / 4;
+        dst.pts[4].y = (src[1].y + 2 * src[2].y + src[3].y) / 4;
+        dst.pts[5].x = (src[2].x + src[3].x) / 2;
+        dst.pts[5].y = (src[2].y + src[3].y) / 2;
+        dst.pts[6] = src[3];
+        return;
+    }
     interp_cubic_coords(&src[0].x, &dst.pts[0].x, t);
     interp_cubic_coords(&src[0].y, &dst.pts[0].y, t);
 }

@@ -53,7 +53,7 @@ void LineParameter_Test() {
             distSq *= distSq;
             double answersSq = answers[index][inner];
             answersSq *= answersSq;
-            if (approximately_equal(distSq, normalSquared * answersSq)) {
+            if (AlmostEqualUlps(distSq, normalSquared * answersSq)) {
                 continue;
             }
             printf("%s [%d,%d] denormalizedDistance:%g != answer:%g"
@@ -66,8 +66,7 @@ void LineParameter_Test() {
         double normalizedDistance[2];
         lineParameters.controlPtDistance(cubic, normalizedDistance);
         for (inner = 0; inner < 2; ++inner) {
-            if (approximately_equal(fabs(normalizedDistance[inner]),
-                    answers[index][inner])) {
+            if (AlmostEqualUlps(fabs(normalizedDistance[inner]), answers[index][inner])) {
                 continue;
             }
             printf("%s [%d,%d] normalizedDistance:%1.10g != answer:%g\n",

@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 #include "CubicUtilities.h"
-#include "DataTypes.h"
 #include "QuadraticUtilities.h"
 
 void coefficients(const double* cubic, double& A, double& B, double& C, double& D) {

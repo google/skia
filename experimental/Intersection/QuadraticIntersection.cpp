@@ -72,22 +72,22 @@ bool intersect(double minT1, double maxT1, double minT2, double maxT2) {
                 largeT = interp(minT2, maxT2, minT);
                 xy_at_t(quad2, largeT, q2pt.x, q2pt.y);
                 xy_at_t(quad1, minT1, q1pt.x, q1pt.y);
-                if (approximately_equal(q2pt.x, q1pt.x) && approximately_equal(q2pt.y, q1pt.y)) {
+                if (AlmostEqualUlps(q2pt.x, q1pt.x) && AlmostEqualUlps(q2pt.y, q1pt.y)) {
                     smallT = minT1;
                 } else {
                     xy_at_t(quad1, maxT1, q1pt.x, q1pt.y); // FIXME: debug code
-                    assert(approximately_equal(q2pt.x, q1pt.x) && approximately_equal(q2pt.y, q1pt.y));
+                    assert(AlmostEqualUlps(q2pt.x, q1pt.x) && AlmostEqualUlps(q2pt.y, q1pt.y));
                     smallT = maxT1;
                 }
             } else {
                 smallT = interp(minT1, maxT1, minT);
                 xy_at_t(quad1, smallT, q1pt.x, q1pt.y);
                 xy_at_t(quad2, minT2, q2pt.x, q2pt.y);
-                if (approximately_equal(q2pt.x, q1pt.x) && approximately_equal(q2pt.y, q1pt.y)) {
+                if (AlmostEqualUlps(q2pt.x, q1pt.x) && AlmostEqualUlps(q2pt.y, q1pt.y)) {
                     largeT = minT2;
                 } else {
                     xy_at_t(quad2, maxT2, q2pt.x, q2pt.y); // FIXME: debug code
-                    assert(approximately_equal(q2pt.x, q1pt.x) && approximately_equal(q2pt.y, q1pt.y));
+                    assert(AlmostEqualUlps(q2pt.x, q1pt.x) && AlmostEqualUlps(q2pt.y, q1pt.y));
                     largeT = maxT2;
                 }
             }
@@ -180,8 +180,8 @@ bool intersectAsLine(double minT1, double maxT1, double minT2, double maxT2,
             xy_at_t(treat1AsLine ? quad2 : quad1, midQuadT, midQuad.x, midQuad.y);
             double lineT = t_at(treat1AsLine ? line1 : line2, midQuad);
             xy_at_t(treat1AsLine ? line1 : line2, lineT, midLine.x, midLine.y);
-            if (approximately_equal(midQuad.x, midLine.x)
-                    && approximately_equal(midQuad.y, midLine.y)) {
+            if (AlmostEqualUlps(midQuad.x, midLine.x)
+                    && AlmostEqualUlps(midQuad.y, midLine.y)) {
                 smallT1 = lq.fT[0][0];
                 largeT1 = lq.fT[1][0];
                 smallT2 = lq.fT[0][1];
@@ -331,7 +331,7 @@ static void hackToFixPartialCoincidence(const Quadratic& q1, const Quadratic& q2
         _Line ends1;
         xy_at_t(q1, start1, ends1[0].x, ends1[0].y);
         xy_at_t(q1, end1, ends1[1].x, ends1[1].y);
-        if (!approximately_equal(ends1[0].x, ends1[1].x) || approximately_equal(ends1[0].y, ends1[1].y)) {
+        if (!AlmostEqualUlps(ends1[0].x, ends1[1].x) || AlmostEqualUlps(ends1[0].y, ends1[1].y)) {
             cIndex += 2;
             continue;
         }
@@ -341,7 +341,7 @@ static void hackToFixPartialCoincidence(const Quadratic& q1, const Quadratic& q2
         xy_at_t(q2, start2, ends2[0].x, ends2[0].y);
         xy_at_t(q2, end2, ends2[1].x, ends2[1].y);
         // again, approximately should be used with T values, not points FIXME
-        if (!approximately_equal(ends2[0].x, ends2[1].x) || approximately_equal(ends2[0].y, ends2[1].y)) {
+        if (!AlmostEqualUlps(ends2[0].x, ends2[1].x) || AlmostEqualUlps(ends2[0].y, ends2[1].y)) {
             cIndex += 2;
             continue;
         }

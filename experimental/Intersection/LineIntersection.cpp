@@ -34,6 +34,7 @@ int intersect(const _Line& a, const _Line& b, double aRange[2], double bRange[2]
          axLen * (ay - ax * ayLen / axLen) == axLen * (by - bx * ayLen / axLen)
          axLen *  ay - ax * ayLen          == axLen *  by - bx * ayLen
         */
+        // FIXME: need to use AlmostEqualUlps variant instead
         if (approximately_equal_squared(axLen * a[0].y - ayLen * a[0].x,
                 axLen * b[0].y - ayLen * b[0].x)) {
             const double* aPtr;
@@ -124,7 +125,7 @@ int horizontalIntersect(const _Line& line, double y, double tRange[2]) {
     if (min > y || max < y) {
         return 0;
     }
-    if (approximately_equal(min, max)) {
+    if (AlmostEqualUlps(min, max)) {
         tRange[0] = 0;
         tRange[1] = 1;
         return 2;
@@ -235,7 +236,7 @@ static int verticalIntersect(const _Line& line, double x, double tRange[2]) {
     if (min > x || max < x) {
         return 0;
     }
-    if (approximately_equal(min, max)) {
+    if (AlmostEqualUlps(min, max)) {
         tRange[0] = 0;
         tRange[1] = 1;
         return 2;

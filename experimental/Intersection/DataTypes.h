@@ -19,6 +19,8 @@
 #include <sys/types.h>
 
 extern bool AlmostEqualUlps(float A, float B);
+inline bool AlmostEqualUlps(double A, double B) { return AlmostEqualUlps((float) A, (float) B); }
+
 // FIXME: delete
 int UlpsDiff(float A, float B);
 int FloatAsInt(float A);

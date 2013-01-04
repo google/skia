@@ -90,7 +90,7 @@ static void setMinMax(double x, int flags, double& minX, double& maxX) {
 
 void x_at(const _Point& p1, const _Point& p2, double top, double bottom,
         int flags, double& minX, double& maxX) {
-    if (approximately_equal(p1.y, p2.y)) {
+    if (AlmostEqualUlps(p1.y, p2.y)) {
         // It should be OK to bail early in this case. There's another edge
         // which shares this end point which can intersect without failing to
         // have a slope ... maybe
