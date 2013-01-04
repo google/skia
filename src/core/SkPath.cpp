@@ -1147,24 +1147,7 @@ void SkPath::addOval(const SkRect& oval, Direction dir) {
     SkScalar    cy = oval.centerY();
     SkScalar    rx = SkScalarHalf(oval.width());
     SkScalar    ry = SkScalarHalf(oval.height());
-#if 0   // these seem faster than using quads (1/2 the number of edges)
-    SkScalar    sx = SkScalarMul(rx, CUBIC_ARC_FACTOR);
-    SkScalar    sy = SkScalarMul(ry, CUBIC_ARC_FACTOR);
 
-    this->incReserve(13);
-    this->moveTo(cx + rx, cy);
-    if (dir == kCCW_Direction) {
-        this->cubicTo(cx + rx, cy - sy, cx + sx, cy - ry, cx, cy - ry);
-        this->cubicTo(cx - sx, cy - ry, cx - rx, cy - sy, cx - rx, cy);
-        this->cubicTo(cx - rx, cy + sy, cx - sx, cy + ry, cx, cy + ry);
-        this->cubicTo(cx + sx, cy + ry, cx + rx, cy + sy, cx + rx, cy);
-    } else {
-        this->cubicTo(cx + rx, cy + sy, cx + sx, cy + ry, cx, cy + ry);
-        this->cubicTo(cx - sx, cy + ry, cx - rx, cy + sy, cx - rx, cy);
-        this->cubicTo(cx - rx, cy - sy, cx - sx, cy - ry, cx, cy - ry);
-        this->cubicTo(cx + sx, cy - ry, cx + rx, cy - sy, cx + rx, cy);
-    }
-#else
     SkScalar    sx = SkScalarMul(rx, SK_ScalarTanPIOver8);
     SkScalar    sy = SkScalarMul(ry, SK_ScalarTanPIOver8);
     SkScalar    mx = SkScalarMul(rx, SK_ScalarRoot2Over2);
@@ -1202,7 +1185,6 @@ void SkPath::addOval(const SkRect& oval, Direction dir) {
         this->quadTo(cx + sx,       T, cx + mx, cy - my);
         this->quadTo(      R, cy - sy,       R, cy     );
     }
-#endif
     this->close();
 }
 
