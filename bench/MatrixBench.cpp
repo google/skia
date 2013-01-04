@@ -407,9 +407,13 @@ DEF_BENCH( return new GetTypeMatrixBench(p); )
 DEF_BENCH( return new InvertMapRectMatrixBench(p, "invert_maprect_identity", 0); )
 
 DEF_BENCH(return new InvertMapRectMatrixBench(p,
-                                "invert_maprect_rectstaysrect",
-                                InvertMapRectMatrixBench::kScale_Flag |
-                                InvertMapRectMatrixBench::kTranslate_Flag); )
+                                  "invert_maprect_rectstaysrect",
+                                  InvertMapRectMatrixBench::kScale_Flag |
+                                  InvertMapRectMatrixBench::kTranslate_Flag); )
+
+DEF_BENCH(return new InvertMapRectMatrixBench(p,
+                                  "invert_maprect_translate",
+                                  InvertMapRectMatrixBench::kTranslate_Flag); )
 
 DEF_BENCH(return new InvertMapRectMatrixBench(p,
                                   "invert_maprect_nonpersp",
