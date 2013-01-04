@@ -91,10 +91,10 @@ public:
 
 private:
     // Multiple pages may reference the content.
-    SkAutoTUnref<SkPDFDevice> fDevice;
+    SkRefPtr<SkPDFDevice> fDevice;
 
     // Once the content is finalized, put it into a stream for output.
-    SkAutoTUnref<SkPDFStream> fContentStream;
+    SkRefPtr<SkPDFStream> fContentStream;
 };
 
 #endif

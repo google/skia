@@ -229,5 +229,37 @@ private:
     SkRefCnt* fObj;
 };
 
+/** Wrapper class for SkRefCnt pointers. This manages ref/unref of a pointer to
+    a SkRefCnt (or subclass) object.
+ */
+template <typename T> class SkRefPtr {
+public:
+    SkRefPtr() : fObj(NULL) {}
+    SkRefPtr(T* obj) : fObj(obj) { SkSafeRef(fObj); }
+    SkRefPtr(const SkRefPtr& o) : fObj(o.fObj) { SkSafeRef(fObj); }
+    ~SkRefPtr() { SkSafeUnref(fObj); }
+
+    SkRefPtr& operator=(const SkRefPtr& rp) {
+        SkRefCnt_SafeAssign(fObj, rp.fObj);
+        return *this;
+    }
+    SkRefPtr& operator=(T* obj) {
+        SkRefCnt_SafeAssign(fObj, obj);
+        return *this;
+    }
+
+    T* get() const { return fObj; }
+    T& operator*() const { return *fObj; }
+    T* operator->() const { return fObj; }
+
+    typedef T* SkRefPtr::*unspecified_bool_type;
+    operator unspecified_bool_type() const {
+        return fObj ? &SkRefPtr::fObj : NULL;
+    }
+
+private:
+    T* fObj;
+};
+
 #endif
 
