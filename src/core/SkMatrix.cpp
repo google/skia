@@ -850,7 +850,42 @@ bool SkMatrix::asAffine(SkScalar affine[6]) const {
 
 bool SkMatrix::invertNonIdentity(SkMatrix* inv) const {
     SkASSERT(!this->isIdentity());
-    int         isPersp = this->hasPerspective();
+
+    TypeMask mask = this->getType();
+
+    if (0 == (mask & ~(kScale_Mask | kTranslate_Mask))) {
+        if (inv) {
+            if (mask & kScale_Mask) {
+                SkScalar invX = fMat[kMScaleX];
+                SkScalar invY = fMat[kMScaleY];
+                if (0 == invX || 0 == invY) {
+                    return false;
+                }
+                invX = SkScalarInvert(invX);
+                invY = SkScalarInvert(invY);
+
+                // Must be careful when writing to inv, since it may be the
+                // same memory as this.
+
+                inv->fMat[kMSkewX] = inv->fMat[kMSkewY] =
+                inv->fMat[kMPersp0] = inv->fMat[kMPersp1] = 0;
+
+                inv->fMat[kMScaleX] = invX;
+                inv->fMat[kMScaleY] = invY;
+                inv->fMat[kMPersp2] = kMatrix22Elem;
+                inv->fMat[kMTransX] = -SkScalarMul(fMat[kMTransX], invX);
+                inv->fMat[kMTransY] = -SkScalarMul(fMat[kMTransY], invY);
+
+                inv->setTypeMask(mask | kRectStaysRect_Mask);
+            } else {
+                // translate only
+                inv->setTranslate(-fMat[kMTransX], -fMat[kMTransY]);
+            }
+        }
+        return true;
+    }
+    
+    int         isPersp = mask & kPerspective_Mask;
     int         shift;
     SkDetScalar scale = sk_inv_determinant(fMat, isPersp, &shift);
 
