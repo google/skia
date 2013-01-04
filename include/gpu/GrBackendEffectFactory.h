@@ -63,6 +63,7 @@ protected:
     GrBackendEffectFactory() {
         fEffectClassID = kIllegalEffectClassID;
     }
+    virtual ~GrBackendEffectFactory() {}
 
     static EffectKey GenID() {
         GR_DEBUGCODE(static const int32_t kClassIDBits = 8 * sizeof(EffectKey) -
