@@ -15,6 +15,7 @@
 SkPDFPage::SkPDFPage(SkPDFDevice* content)
     : SkPDFDict("Page"),
       fDevice(content) {
+  SkSafeRef(content);
 }
 
 SkPDFPage::~SkPDFPage() {}
@@ -32,10 +33,8 @@ void SkPDFPage::finalizePage(SkPDFCatalog* catalog, bool firstPage,
             }
         }
 
-        SkRefPtr<SkStream> content = fDevice->content();
-        content->unref();  // SkRefPtr and content() both took a reference.
-        fContentStream = new SkPDFStream(content.get());
-        fContentStream->unref();  // SkRefPtr and new both took a reference.
+        SkAutoTUnref<SkStream> content(fDevice->content());
+        fContentStream.reset(new SkPDFStream(content.get()));
         insert("Contents", new SkPDFObjRef(fContentStream.get()))->unref();
     }
     catalog->addObject(fContentStream.get(), firstPage);
@@ -67,12 +66,9 @@ void SkPDFPage::GeneratePageTree(const SkTDArray<SkPDFPage*>& pages,
     // one child.
     static const int kNodeSize = 8;
 
-    SkRefPtr<SkPDFName> kidsName = new SkPDFName("Kids");
-    kidsName->unref();  // SkRefPtr and new both took a reference.
-    SkRefPtr<SkPDFName> countName = new SkPDFName("Count");
-    countName->unref();  // SkRefPtr and new both took a reference.
-    SkRefPtr<SkPDFName> parentName = new SkPDFName("Parent");
-    parentName->unref();  // SkRefPtr and new both took a reference.
+    SkAutoTUnref<SkPDFName> kidsName(new SkPDFName("Kids"));
+    SkAutoTUnref<SkPDFName> countName(new SkPDFName("Count"));
+    SkAutoTUnref<SkPDFName> parentName(new SkPDFName("Parent"));
 
     // curNodes takes a reference to its items, which it passes to pageTree.
     SkTDArray<SkPDFDict*> curNodes;
@@ -95,11 +91,9 @@ void SkPDFPage::GeneratePageTree(const SkTDArray<SkPDFPage*>& pages,
             }
 
             SkPDFDict* newNode = new SkPDFDict("Pages");
-            SkRefPtr<SkPDFObjRef> newNodeRef = new SkPDFObjRef(newNode);
-            newNodeRef->unref();  // SkRefPtr and new both took a reference.
+            SkAutoTUnref<SkPDFObjRef> newNodeRef(new SkPDFObjRef(newNode));
 
-            SkRefPtr<SkPDFArray> kids = new SkPDFArray;
-            kids->unref();  // SkRefPtr and new both took a reference.
+            SkAutoTUnref<SkPDFArray> kids(new SkPDFArray);
             kids->reserve(kNodeSize);
 
             int count = 0;

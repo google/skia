@@ -112,7 +112,7 @@ public:
     virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
 private:
-    SkRefPtr<SkPDFObject> fObj;
+    SkAutoTUnref<SkPDFObject> fObj;
 
     typedef SkPDFObject INHERITED;
 };
