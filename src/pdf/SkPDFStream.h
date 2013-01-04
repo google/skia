@@ -62,8 +62,8 @@ private:
     State fState;
 
     // TODO(vandebo): Use SkData (after removing deprecated constructor).
-    SkAutoTUnref<SkStream> fData;
-    SkAutoTUnref<SkPDFStream> fSubstitute;
+    SkRefPtr<SkStream> fData;
+    SkRefPtr<SkPDFStream> fSubstitute;
 
     typedef SkPDFDict INHERITED;
 

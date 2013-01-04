@@ -1006,7 +1006,8 @@ SkPDFDict* SkPDFDevice::getResourceDict() {
         fResourceDict = SkNEW(SkPDFDict);
 
         if (fGraphicStateResources.count()) {
-            SkAutoTUnref<SkPDFDict> extGState(new SkPDFDict());
+            SkRefPtr<SkPDFDict> extGState = new SkPDFDict();
+            extGState->unref();  // SkRefPtr and new both took a reference.
             for (int i = 0; i < fGraphicStateResources.count(); i++) {
                 SkString nameString("G");
                 nameString.appendS32(i);
@@ -1018,7 +1019,8 @@ SkPDFDict* SkPDFDevice::getResourceDict() {
         }
 
         if (fXObjectResources.count()) {
-            SkAutoTUnref<SkPDFDict> xObjects(new SkPDFDict());
+            SkRefPtr<SkPDFDict> xObjects = new SkPDFDict();
+            xObjects->unref();  // SkRefPtr and new both took a reference.
             for (int i = 0; i < fXObjectResources.count(); i++) {
                 SkString nameString("X");
                 nameString.appendS32(i);
@@ -1030,7 +1032,8 @@ SkPDFDict* SkPDFDevice::getResourceDict() {
         }
 
         if (fFontResources.count()) {
-            SkAutoTUnref<SkPDFDict> fonts(new SkPDFDict());
+            SkRefPtr<SkPDFDict> fonts = new SkPDFDict();
+            fonts->unref();  // SkRefPtr and new both took a reference.
             for (int i = 0; i < fFontResources.count(); i++) {
                 SkString nameString("F");
                 nameString.appendS32(i);
@@ -1041,7 +1044,8 @@ SkPDFDict* SkPDFDevice::getResourceDict() {
         }
 
         if (fShaderResources.count()) {
-            SkAutoTUnref<SkPDFDict> patterns(new SkPDFDict());
+            SkRefPtr<SkPDFDict> patterns = new SkPDFDict();
+            patterns->unref();  // SkRefPtr and new both took a reference.
             for (int i = 0; i < fShaderResources.count(); i++) {
                 SkString nameString("P");
                 nameString.appendS32(i);
@@ -1054,7 +1058,8 @@ SkPDFDict* SkPDFDevice::getResourceDict() {
         // For compatibility, add all proc sets (only used for output to PS
         // devices).
         const char procs[][7] = {"PDF", "Text", "ImageB", "ImageC", "ImageI"};
-        SkAutoTUnref<SkPDFArray> procSets(new SkPDFArray());
+        SkRefPtr<SkPDFArray> procSets = new SkPDFArray();
+        procSets->unref();  // SkRefPtr and new both took a reference.
         procSets->reserve(SK_ARRAY_COUNT(procs));
         for (size_t i = 0; i < SK_ARRAY_COUNT(procs); i++)
             procSets->appendName(procs[i]);
@@ -1261,8 +1266,9 @@ void SkPDFDevice::drawFormXObjectWithClip(SkPDFFormXObject* xobject,
     SkPaint stockPaint;
     this->drawPaint(draw, stockPaint);
     SkAutoTUnref<SkPDFFormXObject> maskFormXObject(createFormXObjectFromDevice());
-    SkAutoTUnref<SkPDFGraphicState> sMaskGS(
-        SkPDFGraphicState::GetSMaskGraphicState(maskFormXObject, invertClip));
+    SkRefPtr<SkPDFGraphicState> sMaskGS =
+        SkPDFGraphicState::GetSMaskGraphicState(maskFormXObject, invertClip);
+    sMaskGS->unref();  // SkRefPtr and getSMaskGraphicState both took a ref.
 
     // Draw the xobject with the clip as a mask.
     ScopedContentEntry content(this, &fExistingClipStack, fExistingClipRegion,
@@ -1277,7 +1283,8 @@ void SkPDFDevice::drawFormXObjectWithClip(SkPDFFormXObject* xobject,
     fXObjectResources.push(xobject);
     xobject->ref();
 
-    sMaskGS.reset(SkPDFGraphicState::GetNoSMaskGraphicState());
+    sMaskGS = SkPDFGraphicState::GetNoSMaskGraphicState();
+    sMaskGS->unref();  // SkRefPtr and getSMaskGraphicState both took a ref.
     SkPDFUtils::ApplyGraphicState(addGraphicStateResource(sMaskGS.get()),
                                   &content.entry()->fContent);
 }
@@ -1414,25 +1421,27 @@ void SkPDFDevice::finishContentEntry(const SkXfermode::Mode xfermode,
         return;
     }
 
-    SkAutoTUnref<SkPDFGraphicState> sMaskGS;
+    SkRefPtr<SkPDFGraphicState> sMaskGS;
     if (xfermode == SkXfermode::kSrcIn_Mode ||
             xfermode == SkXfermode::kSrcOut_Mode) {
-        sMaskGS.reset(SkPDFGraphicState::GetSMaskGraphicState(
-                dst, xfermode == SkXfermode::kSrcOut_Mode));
+        sMaskGS = SkPDFGraphicState::GetSMaskGraphicState(
+                dst, xfermode == SkXfermode::kSrcOut_Mode);
         fXObjectResources.push(srcFormXObject.get());
         srcFormXObject.get()->ref();
     } else {
-        sMaskGS.reset(SkPDFGraphicState::GetSMaskGraphicState(
-                srcFormXObject.get(), xfermode == SkXfermode::kDstOut_Mode));
+        sMaskGS = SkPDFGraphicState::GetSMaskGraphicState(
+                srcFormXObject.get(), xfermode == SkXfermode::kDstOut_Mode);
         // dst already added to fXObjectResources in drawFormXObjectWithClip.
     }
+    sMaskGS->unref();  // SkRefPtr and getSMaskGraphicState both took a ref.
     SkPDFUtils::ApplyGraphicState(addGraphicStateResource(sMaskGS.get()),
                                   &inClipContentEntry.entry()->fContent);
 
     SkPDFUtils::DrawFormXObject(fXObjectResources.count() - 1,
                                 &inClipContentEntry.entry()->fContent);
 
-    sMaskGS.reset(SkPDFGraphicState::GetNoSMaskGraphicState());
+    sMaskGS = SkPDFGraphicState::GetNoSMaskGraphicState();
+    sMaskGS->unref();  // SkRefPtr and getSMaskGraphicState both took a ref.
     SkPDFUtils::ApplyGraphicState(addGraphicStateResource(sMaskGS.get()),
                                   &inClipContentEntry.entry()->fContent);
 }
@@ -1465,7 +1474,7 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
     entry->fShaderIndex = -1;
 
     // PDF treats a shader as a color, so we only set one or the other.
-    SkAutoTUnref<SkPDFObject> pdfShader;
+    SkRefPtr<SkPDFObject> pdfShader;
     const SkShader* shader = paint.getShader();
     SkColor color = paint.getColor();
     if (shader) {
@@ -1485,7 +1494,8 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
         fInitialTransform.mapRect(&boundsTemp);
         boundsTemp.roundOut(&bounds);
 
-        pdfShader.reset(SkPDFShader::GetPDFShader(*shader, transform, bounds));
+        pdfShader = SkPDFShader::GetPDFShader(*shader, transform, bounds);
+        SkSafeUnref(pdfShader.get());  // getShader and SkRefPtr both took a ref
 
         if (pdfShader.get()) {
             // pdfShader has been canonicalized so we can directly compare
@@ -1494,7 +1504,7 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
             if (resourceIndex < 0) {
                 resourceIndex = fShaderResources.count();
                 fShaderResources.push(pdfShader.get());
-                pdfShader.get()->ref();
+                pdfShader->ref();
             }
             entry->fShaderIndex = resourceIndex;
         } else {
@@ -1513,16 +1523,15 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
         }
     }
 
-    SkAutoTUnref<SkPDFGraphicState> newGraphicState;
+    SkRefPtr<SkPDFGraphicState> newGraphicState;
     if (color == paint.getColor()) {
-        newGraphicState.reset(
-                SkPDFGraphicState::GetGraphicStateForPaint(paint));
+        newGraphicState = SkPDFGraphicState::GetGraphicStateForPaint(paint);
     } else {
         SkPaint newPaint = paint;
         newPaint.setColor(color);
-        newGraphicState.reset(
-                SkPDFGraphicState::GetGraphicStateForPaint(newPaint));
+        newGraphicState = SkPDFGraphicState::GetGraphicStateForPaint(newPaint);
     }
+    newGraphicState->unref();  // getGraphicState and SkRefPtr both took a ref.
     int resourceIndex = addGraphicStateResource(newGraphicState.get());
     entry->fGraphicStateIndex = resourceIndex;
 
@@ -1563,12 +1572,13 @@ void SkPDFDevice::updateFont(const SkPaint& paint, uint16_t glyphID,
 }
 
 int SkPDFDevice::getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID) {
-    SkAutoTUnref<SkPDFFont> newFont(SkPDFFont::GetFontResource(typeface, glyphID));
+    SkRefPtr<SkPDFFont> newFont = SkPDFFont::GetFontResource(typeface, glyphID);
+    newFont->unref();  // getFontResource and SkRefPtr both took a ref.
     int resourceIndex = fFontResources.find(newFont.get());
     if (resourceIndex < 0) {
         resourceIndex = fFontResources.count();
         fFontResources.push(newFont.get());
-        newFont.get()->ref();
+        newFont->ref();
     }
     return resourceIndex;
 }

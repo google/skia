@@ -21,20 +21,19 @@ static bool skip_compression(SkPDFCatalog* catalog) {
 SkPDFStream::SkPDFStream(SkStream* stream)
     : fState(kUnused_State),
       fData(stream) {
-    SkSafeRef(stream);
 }
 
 SkPDFStream::SkPDFStream(SkData* data) : fState(kUnused_State) {
     SkMemoryStream* stream = new SkMemoryStream;
     stream->setData(data);
-    fData.reset(stream);  // Transfer ownership.
+    fData = stream;
+    fData->unref();  // SkRefPtr and new both took a reference.
 }
 
 SkPDFStream::SkPDFStream(const SkPDFStream& pdfStream)
         : SkPDFDict(),
           fState(kUnused_State),
-          fData(pdfStream.fData.get()) {
-    fData.get()->ref();
+          fData(pdfStream.fData) {
     bool removeLength = true;
     // Don't uncompress an already compressed stream, but we could.
     if (pdfStream.fState == kCompressed_State) {
@@ -85,8 +84,7 @@ size_t SkPDFStream::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
 SkPDFStream::SkPDFStream() : fState(kUnused_State) {}
 
 void SkPDFStream::setData(SkStream* stream) {
-    fData.reset(stream);
-    SkSafeRef(stream);
+    fData = stream;
 }
 
 bool SkPDFStream::populate(SkPDFCatalog* catalog) {
@@ -98,7 +96,8 @@ bool SkPDFStream::populate(SkPDFCatalog* catalog) {
             if (compressedData.getOffset() < fData->getLength()) {
                 SkMemoryStream* stream = new SkMemoryStream;
                 stream->setData(compressedData.copyToData())->unref();
-                fData.reset(stream);  // Transfer ownership.
+                fData = stream;
+                fData->unref();  // SkRefPtr and new both took a reference.
                 insertName("Filter", "FlateDecode");
             }
             fState = kCompressed_State;
@@ -109,7 +108,8 @@ bool SkPDFStream::populate(SkPDFCatalog* catalog) {
     } else if (fState == kNoCompression_State && !skip_compression(catalog) &&
                SkFlate::HaveFlate()) {
         if (!fSubstitute.get()) {
-            fSubstitute.reset(new SkPDFStream(*this));
+            fSubstitute = new SkPDFStream(*this);
+            fSubstitute->unref();  // SkRefPtr and new both took a reference.
             catalog->setSubstitute(this, fSubstitute.get());
         }
         return false;

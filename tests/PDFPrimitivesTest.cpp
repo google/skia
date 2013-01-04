@@ -94,9 +94,11 @@ static void SimpleCheckObjectOutput(skiatest::Reporter* reporter,
 
 static void TestPDFStream(skiatest::Reporter* reporter) {
     char streamBytes[] = "Test\nFoo\tBar";
-    SkAutoTUnref<SkMemoryStream> streamData(new SkMemoryStream(
-        streamBytes, strlen(streamBytes), true));
-    SkAutoTUnref<SkPDFStream> stream(new SkPDFStream(streamData.get()));
+    SkRefPtr<SkMemoryStream> streamData = new SkMemoryStream(
+        streamBytes, strlen(streamBytes), true);
+    streamData->unref();  // SkRefPtr and new both took a reference.
+    SkRefPtr<SkPDFStream> stream = new SkPDFStream(streamData.get());
+    stream->unref();  // SkRefPtr and new both took a reference.
     SimpleCheckObjectOutput(
         reporter, stream.get(),
         "<</Length 12\n>> stream\nTest\nFoo\tBar\nendstream");
@@ -112,7 +114,8 @@ static void TestPDFStream(skiatest::Reporter* reporter) {
                               "with an uncompressed string.";
         SkAutoDataUnref streamData2(SkData::NewWithCopy(streamBytes2,
                                                         strlen(streamBytes2)));
-        SkAutoTUnref<SkPDFStream> stream(new SkPDFStream(streamData2.get()));
+        SkRefPtr<SkPDFStream> stream = new SkPDFStream(streamData2.get());
+        stream->unref();  // SkRefPtr and new both took a reference.
 
         SkDynamicMemoryWStream compressedByteStream;
         SkFlate::Deflate(streamData2.get(), &compressedByteStream);
@@ -143,11 +146,13 @@ static void TestPDFStream(skiatest::Reporter* reporter) {
 
 static void TestCatalog(skiatest::Reporter* reporter) {
     SkPDFCatalog catalog((SkPDFDocument::Flags)0);
-    SkAutoTUnref<SkPDFInt> int1(new SkPDFInt(1));
-    SkAutoTUnref<SkPDFInt> int2(new SkPDFInt(2));
-    SkAutoTUnref<SkPDFInt> int3(new SkPDFInt(3));
-    int1.get()->ref();
-    SkAutoTUnref<SkPDFInt> int1Again(int1.get());
+    SkRefPtr<SkPDFInt> int1 = new SkPDFInt(1);
+    int1->unref();  // SkRefPtr and new both took a reference.
+    SkRefPtr<SkPDFInt> int2 = new SkPDFInt(2);
+    int2->unref();  // SkRefPtr and new both took a reference.
+    SkRefPtr<SkPDFInt> int3 = new SkPDFInt(3);
+    int3->unref();  // SkRefPtr and new both took a reference.
+    SkRefPtr<SkPDFInt> int1Again(int1.get());
 
     catalog.addObject(int1.get(), false);
     catalog.addObject(int2.get(), false);
@@ -168,9 +173,12 @@ static void TestCatalog(skiatest::Reporter* reporter) {
 }
 
 static void TestObjectRef(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkPDFInt> int1(new SkPDFInt(1));
-    SkAutoTUnref<SkPDFInt> int2(new SkPDFInt(2));
-    SkAutoTUnref<SkPDFObjRef> int2ref(new SkPDFObjRef(int2.get()));
+    SkRefPtr<SkPDFInt> int1 = new SkPDFInt(1);
+    int1->unref();  // SkRefPtr and new both took a reference.
+    SkRefPtr<SkPDFInt> int2 = new SkPDFInt(2);
+    int2->unref();  // SkRefPtr and new both took a reference.
+    SkRefPtr<SkPDFObjRef> int2ref = new SkPDFObjRef(int2.get());
+    int2ref->unref();  // SkRefPtr and new both took a reference.
 
     SkPDFCatalog catalog((SkPDFDocument::Flags)0);
     catalog.addObject(int1.get(), false);
@@ -187,11 +195,16 @@ static void TestObjectRef(skiatest::Reporter* reporter) {
 }
 
 static void TestSubstitute(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkPDFTestDict> proxy(new SkPDFTestDict());
-    SkAutoTUnref<SkPDFTestDict> stub(new SkPDFTestDict());
-    SkAutoTUnref<SkPDFInt> int33(new SkPDFInt(33));
-    SkAutoTUnref<SkPDFDict> stubResource(new SkPDFDict());
-    SkAutoTUnref<SkPDFInt> int44(new SkPDFInt(44));
+    SkRefPtr<SkPDFTestDict> proxy = new SkPDFTestDict();
+    proxy->unref();  // SkRefPtr and new both took a reference.
+    SkRefPtr<SkPDFTestDict> stub = new SkPDFTestDict();
+    stub->unref();  // SkRefPtr and new both took a reference.
+    SkRefPtr<SkPDFInt> int33 = new SkPDFInt(33);
+    int33->unref();  // SkRefPtr and new both took a reference.
+    SkRefPtr<SkPDFDict> stubResource = new SkPDFDict();
+    stubResource->unref();  // SkRefPtr and new both took a reference.
+    SkRefPtr<SkPDFInt> int44 = new SkPDFInt(44);
+    int44->unref();  // SkRefPtr and new both took a reference.
 
     stub->insert("Value", int33.get());
     stubResource->insert("InnerValue", int44.get());
@@ -218,74 +231,89 @@ static void TestSubstitute(skiatest::Reporter* reporter) {
 }
 
 static void TestPDFPrimitives(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkPDFInt> int42(new SkPDFInt(42));
+    SkRefPtr<SkPDFInt> int42 = new SkPDFInt(42);
+    int42->unref();  // SkRefPtr and new both took a reference.
     SimpleCheckObjectOutput(reporter, int42.get(), "42");
 
-    SkAutoTUnref<SkPDFScalar> realHalf(new SkPDFScalar(SK_ScalarHalf));
+    SkRefPtr<SkPDFScalar> realHalf = new SkPDFScalar(SK_ScalarHalf);
+    realHalf->unref();  // SkRefPtr and new both took a reference.
     SimpleCheckObjectOutput(reporter, realHalf.get(), "0.5");
 
 #if defined(SK_SCALAR_IS_FLOAT)
-    SkAutoTUnref<SkPDFScalar> bigScalar(new SkPDFScalar(110999.75f));
+    SkRefPtr<SkPDFScalar> bigScalar = new SkPDFScalar(110999.75f);
+    bigScalar->unref();  // SkRefPtr and new both took a reference.
 #if !defined(SK_ALLOW_LARGE_PDF_SCALARS)
     SimpleCheckObjectOutput(reporter, bigScalar.get(), "111000");
 #else
     SimpleCheckObjectOutput(reporter, bigScalar.get(), "110999.75");
 
-    SkAutoTUnref<SkPDFScalar> biggerScalar(new SkPDFScalar(50000000.1));
+    SkRefPtr<SkPDFScalar> biggerScalar = new SkPDFScalar(50000000.1);
+    biggerScalar->unref();  // SkRefPtr and new both took a reference.
     SimpleCheckObjectOutput(reporter, biggerScalar.get(), "50000000");
 
-    SkAutoTUnref<SkPDFScalar> smallestScalar(new SkPDFScalar(1.0/65536));
+    SkRefPtr<SkPDFScalar> smallestScalar = new SkPDFScalar(1.0/65536);
+    smallestScalar->unref();  // SkRefPtr and new both took a reference.
     SimpleCheckObjectOutput(reporter, smallestScalar.get(), "0.00001526");
 #endif
 #endif
 
-    SkAutoTUnref<SkPDFString> stringSimple(
-        new SkPDFString("test ) string ( foo"));
+    SkRefPtr<SkPDFString> stringSimple = new SkPDFString("test ) string ( foo");
+    stringSimple->unref();  // SkRefPtr and new both took a reference.
     SimpleCheckObjectOutput(reporter, stringSimple.get(),
                             "(test \\) string \\( foo)");
-    SkAutoTUnref<SkPDFString> stringComplex(
-        new SkPDFString("\ttest ) string ( foo"));
+    SkRefPtr<SkPDFString> stringComplex =
+        new SkPDFString("\ttest ) string ( foo");
+    stringComplex->unref();  // SkRefPtr and new both took a reference.
     SimpleCheckObjectOutput(reporter, stringComplex.get(),
                             "<0974657374202920737472696E67202820666F6F>");
 
-    SkAutoTUnref<SkPDFName> name(new SkPDFName("Test name\twith#tab"));
+    SkRefPtr<SkPDFName> name = new SkPDFName("Test name\twith#tab");
+    name->unref();  // SkRefPtr and new both took a reference.
     const char expectedResult[] = "/Test#20name#09with#23tab";
     CheckObjectOutput(reporter, name.get(), expectedResult,
                       strlen(expectedResult), false, false);
 
-    SkAutoTUnref<SkPDFName> escapedName(new SkPDFName("A#/%()<>[]{}B"));
+    SkRefPtr<SkPDFName> escapedName = new SkPDFName("A#/%()<>[]{}B");
+    escapedName->unref();  // SkRefPtr and new both took a reference.
     const char escapedNameExpected[] = "/A#23#2F#25#28#29#3C#3E#5B#5D#7B#7DB";
     CheckObjectOutput(reporter, escapedName.get(), escapedNameExpected,
                       strlen(escapedNameExpected), false, false);
 
     // Test that we correctly handle characters with the high-bit set.
     const unsigned char highBitCString[] = {0xDE, 0xAD, 'b', 'e', 0xEF, 0};
-    SkAutoTUnref<SkPDFName> highBitName(
-        new SkPDFName((const char*)highBitCString));
+    SkRefPtr<SkPDFName> highBitName = new SkPDFName((const char*)highBitCString);
+    highBitName->unref();  // SkRefPtr and new both took a reference.
     const char highBitExpectedResult[] = "/#DE#ADbe#EF";
     CheckObjectOutput(reporter, highBitName.get(), highBitExpectedResult,
                       strlen(highBitExpectedResult), false, false);
 
-    SkAutoTUnref<SkPDFArray> array(new SkPDFArray);
+    SkRefPtr<SkPDFArray> array = new SkPDFArray;
+    array->unref();  // SkRefPtr and new both took a reference.
     SimpleCheckObjectOutput(reporter, array.get(), "[]");
     array->append(int42.get());
     SimpleCheckObjectOutput(reporter, array.get(), "[42]");
     array->append(realHalf.get());
     SimpleCheckObjectOutput(reporter, array.get(), "[42 0.5]");
-    SkAutoTUnref<SkPDFInt> int0(new SkPDFInt(0));
+    SkRefPtr<SkPDFInt> int0 = new SkPDFInt(0);
+    int0->unref();  // SkRefPtr and new both took a reference.
     array->append(int0.get());
     SimpleCheckObjectOutput(reporter, array.get(), "[42 0.5 0]");
-    SkAutoTUnref<SkPDFInt> int1(new SkPDFInt(1));
+    SkRefPtr<SkPDFInt> int1 = new SkPDFInt(1);
+    int1->unref();  // SkRefPtr and new both took a reference.
     array->setAt(0, int1.get());
     SimpleCheckObjectOutput(reporter, array.get(), "[1 0.5 0]");
 
-    SkAutoTUnref<SkPDFDict> dict(new SkPDFDict);
+    SkRefPtr<SkPDFDict> dict = new SkPDFDict;
+    dict->unref();  // SkRefPtr and new both took a reference.
     SimpleCheckObjectOutput(reporter, dict.get(), "<<>>");
-    SkAutoTUnref<SkPDFName> n1(new SkPDFName("n1"));
+    SkRefPtr<SkPDFName> n1 = new SkPDFName("n1");
+    n1->unref();  // SkRefPtr and new both took a reference.
     dict->insert(n1.get(), int42.get());
     SimpleCheckObjectOutput(reporter, dict.get(), "<</n1 42\n>>");
-    SkAutoTUnref<SkPDFName> n2(new SkPDFName("n2"));
-    SkAutoTUnref<SkPDFName> n3(new SkPDFName("n3"));
+    SkRefPtr<SkPDFName> n2 = new SkPDFName("n2");
+    n2->unref();  // SkRefPtr and new both took a reference.
+    SkRefPtr<SkPDFName> n3 = new SkPDFName("n3");
+    n3->unref();  // SkRefPtr and new both took a reference.
     dict->insert(n2.get(), realHalf.get());
     dict->insert(n3.get(), array.get());
     SimpleCheckObjectOutput(reporter, dict.get(),

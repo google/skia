@@ -612,7 +612,8 @@ SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
         return;
     }
 
-    SkAutoTUnref<SkPDFArray> domain(new SkPDFArray);
+    SkRefPtr<SkPDFArray> domain = new SkPDFArray;
+    domain->unref();  // SkRefPtr and new both took a reference.
     domain->reserve(4);
     domain->appendScalar(bbox.fLeft);
     domain->appendScalar(bbox.fRight);
@@ -639,14 +640,16 @@ SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
         functionCode = codeFunction(*info);
     }
 
-    SkAutoTUnref<SkPDFDict> pdfShader(new SkPDFDict);
+    SkRefPtr<SkPDFStream> function = makePSFunction(functionCode, domain.get());
+    // Pass one reference to fResources, SkRefPtr and new both took a reference.
+    fResources.push(function.get());
+
+    SkRefPtr<SkPDFDict> pdfShader = new SkPDFDict;
+    pdfShader->unref();  // SkRefPtr and new both took a reference.
     pdfShader->insertInt("ShadingType", 1);
     pdfShader->insertName("ColorSpace", "DeviceRGB");
     pdfShader->insert("Domain", domain.get());
-
-    SkPDFStream* function = makePSFunction(functionCode, domain.get());
-    pdfShader->insert("Function", new SkPDFObjRef(function))->unref();
-    fResources.push(function);  // Pass ownership to resource list.
+    pdfShader->insert("Function", new SkPDFObjRef(function.get()))->unref();
 
     insertInt("PatternType", 2);
     insert("Matrix", SkPDFUtils::MatrixToArray(finalMatrix))->unref();
@@ -822,7 +825,8 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
         }
     }
 
-    SkAutoTUnref<SkPDFArray> patternBBoxArray(new SkPDFArray);
+    SkRefPtr<SkPDFArray> patternBBoxArray = new SkPDFArray;
+    patternBBoxArray->unref();  // SkRefPtr and new both took a reference.
     patternBBoxArray->reserve(4);
     patternBBoxArray->appendScalar(patternBBox.fLeft);
     patternBBoxArray->appendScalar(patternBBox.fTop);
@@ -830,10 +834,11 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
     patternBBoxArray->appendScalar(patternBBox.fBottom);
 
     // Put the canvas into the pattern stream (fContent).
-    SkAutoTUnref<SkStream> content(pattern.content());
-    setData(content.get());
+    SkRefPtr<SkStream> content = pattern.content();
+    content->unref();  // SkRefPtr and content() both took a reference.
     pattern.getResources(&fResources, false);
 
+    setData(content.get());
     insertName("Type", "Pattern");
     insertInt("PatternType", 1);
     insertInt("PaintType", 1);
