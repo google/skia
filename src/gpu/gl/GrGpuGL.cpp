@@ -2024,43 +2024,25 @@ inline GrGLenum tile_to_gl_wrap(SkShader::TileMode tm) {
 
 }
 
-void GrGpuGL::flushBoundTextureAndParams(int stageIdx) {
-    GrDrawState* drawState = this->drawState();
-    // FIXME: Assuming at most one texture per effect
-    const GrEffect* effect = drawState->stage(stageIdx)->getEffect();
-    if (effect->numTextures() > 0) {
-        GrGLTexture* nextTexture =  static_cast<GrGLTexture*>(effect->texture(0));
-        if (NULL != nextTexture) {
-            const GrTextureParams& texParams = effect->textureAccess(0).getParams();
-            this->flushBoundTextureAndParams(stageIdx, texParams, nextTexture);
-        }
-    }
-}
+void GrGpuGL::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTexture* texture) {
+    GrAssert(NULL != texture);
 
-void GrGpuGL::flushBoundTextureAndParams(int stageIdx,
-                                         const GrTextureParams& params,
-                                         GrGLTexture* nextTexture) {
-
-    // true for now, but maybe not with GrEffect.
-    GrAssert(NULL != nextTexture);
     // If we created a rt/tex and rendered to it without using a texture and now we're texturing
     // from the rt it will still be the last bound texture, but it needs resolving. So keep this
     // out of the "last != next" check.
-    GrGLRenderTarget* texRT =  static_cast<GrGLRenderTarget*>(nextTexture->asRenderTarget());
+    GrGLRenderTarget* texRT =  static_cast<GrGLRenderTarget*>(texture->asRenderTarget());
     if (NULL != texRT) {
         this->onResolveRenderTarget(texRT);
     }
 
-    if (fHWBoundTextures[stageIdx] != nextTexture) {
-        this->setTextureUnit(stageIdx);
-        GL_CALL(BindTexture(GR_GL_TEXTURE_2D, nextTexture->textureID()));
-        //GrPrintf("---- bindtexture %d\n", nextTexture->textureID());
-        fHWBoundTextures[stageIdx] = nextTexture;
+    if (fHWBoundTextures[unitIdx] != texture) {
+        this->setTextureUnit(unitIdx);
+        GL_CALL(BindTexture(GR_GL_TEXTURE_2D, texture->textureID()));
+        fHWBoundTextures[unitIdx] = texture;
     }
 
     ResetTimestamp timestamp;
-    const GrGLTexture::TexParams& oldTexParams =
-                            nextTexture->getCachedTexParams(&timestamp);
+    const GrGLTexture::TexParams& oldTexParams = texture->getCachedTexParams(&timestamp);
     bool setAll = timestamp < this->getResetTimestamp();
     GrGLTexture::TexParams newTexParams;
 
@@ -2069,10 +2051,10 @@ void GrGpuGL::flushBoundTextureAndParams(int stageIdx,
     newTexParams.fWrapS = tile_to_gl_wrap(params.getTileModeX());
     newTexParams.fWrapT = tile_to_gl_wrap(params.getTileModeY());
     memcpy(newTexParams.fSwizzleRGBA,
-           GrGLShaderBuilder::GetTexParamSwizzle(nextTexture->config(), this->glCaps()),
+           GrGLShaderBuilder::GetTexParamSwizzle(texture->config(), this->glCaps()),
            sizeof(newTexParams.fSwizzleRGBA));
     if (setAll || newTexParams.fFilter != oldTexParams.fFilter) {
-        this->setTextureUnit(stageIdx);
+        this->setTextureUnit(unitIdx);
         GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
                               GR_GL_TEXTURE_MAG_FILTER,
                               newTexParams.fFilter));
@@ -2081,13 +2063,13 @@ void GrGpuGL::flushBoundTextureAndParams(int stageIdx,
                               newTexParams.fFilter));
     }
     if (setAll || newTexParams.fWrapS != oldTexParams.fWrapS) {
-        this->setTextureUnit(stageIdx);
+        this->setTextureUnit(unitIdx);
         GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
                               GR_GL_TEXTURE_WRAP_S,
                               newTexParams.fWrapS));
     }
     if (setAll || newTexParams.fWrapT != oldTexParams.fWrapT) {
-        this->setTextureUnit(stageIdx);
+        this->setTextureUnit(unitIdx);
         GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
                               GR_GL_TEXTURE_WRAP_T,
                               newTexParams.fWrapT));
@@ -2096,12 +2078,11 @@ void GrGpuGL::flushBoundTextureAndParams(int stageIdx,
         (setAll || memcmp(newTexParams.fSwizzleRGBA,
                           oldTexParams.fSwizzleRGBA,
                           sizeof(newTexParams.fSwizzleRGBA)))) {
-        this->setTextureUnit(stageIdx);
+        this->setTextureUnit(unitIdx);
         set_tex_swizzle(newTexParams.fSwizzleRGBA,
                         this->glInterface());
     }
-    nextTexture->setCachedTexParams(newTexParams,
-                                    this->getResetTimestamp());
+    texture->setCachedTexParams(newTexParams, this->getResetTimestamp());
 }
 
 void GrGpuGL::flushMiscFixedFunctionState() {

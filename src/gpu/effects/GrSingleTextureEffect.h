@@ -10,9 +10,9 @@
 
 #include "GrEffect.h"
 #include "SkMatrix.h"
-#include "GrTexture.h"
 
 class GrGLSingleTextureEffect;
+class GrTexture;
 
 /**
  * An effect that draws a single texture with a texture matrix; commonly used as a base class. The
@@ -46,13 +46,6 @@ public:
     virtual bool isEqual(const GrEffect& effect) const SK_OVERRIDE {
         const GrSingleTextureEffect& ste = static_cast<const GrSingleTextureEffect&>(effect);
         return INHERITED::isEqual(effect) && fMatrix.cheapEqualTo(ste.getMatrix());
-    }
-
-    static inline SkMatrix MakeDivByTextureWHMatrix(const GrTexture* texture) {
-        GrAssert(NULL != texture);
-        SkMatrix mat;
-        mat.setIDiv(texture->width(), texture->height());
-        return mat;
     }
 
 private:

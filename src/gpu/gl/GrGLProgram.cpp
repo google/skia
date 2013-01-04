@@ -10,6 +10,7 @@
 #include "GrAllocator.h"
 #include "GrEffect.h"
 #include "GrGLEffect.h"
+#include "GrGpuGL.h"
 #include "GrGLShaderVar.h"
 #include "GrBackendEffectFactory.h"
 #include "SkTrace.h"
@@ -30,16 +31,6 @@ namespace {
 inline void tex_attr_name(int coordIdx, SkString* s) {
     *s = "aTexCoord";
     s->appendS32(coordIdx);
-}
-
-inline const char* float_vector_type_str(int count) {
-    return GrGLShaderVar::TypeString(GrSLFloatVectorType(count));
-}
-
-inline const char* vector_all_coords(int count) {
-    static const char* ALL[] = {"ERROR", "", ".xy", ".xyz", ".xyzw"};
-    GrAssert(count >= 1 && count < (int)GR_ARRAY_COUNT(ALL));
-    return ALL[count];
 }
 
 inline const char* declared_color_output_name() { return "fsColorOut"; }
@@ -126,12 +117,14 @@ void GrGLProgram::overrideBlend(GrBlendCoeff* srcCoeff,
     }
 }
 
+namespace {
+
 // given two blend coeffecients determine whether the src
 // and/or dst computation can be omitted.
-static inline void needBlendInputs(SkXfermode::Coeff srcCoeff,
-                                   SkXfermode::Coeff dstCoeff,
-                                   bool* needSrcValue,
-                                   bool* needDstValue) {
+inline void need_blend_inputs(SkXfermode::Coeff srcCoeff,
+                              SkXfermode::Coeff dstCoeff,
+                              bool* needSrcValue,
+                              bool* needDstValue) {
     if (SkXfermode::kZero_Coeff == srcCoeff) {
         switch (dstCoeff) {
             // these all read the src
@@ -170,9 +163,9 @@ static inline void needBlendInputs(SkXfermode::Coeff srcCoeff,
  * Create a blend_coeff * value string to be used in shader code. Sets empty
  * string if result is trivially zero.
  */
-static void blendTermString(SkString* str, SkXfermode::Coeff coeff,
-                             const char* src, const char* dst,
-                             const char* value) {
+inline void blend_term_string(SkString* str, SkXfermode::Coeff coeff,
+                       const char* src, const char* dst,
+                       const char* value) {
     switch (coeff) {
     case SkXfermode::kZero_Coeff:    /** 0 */
         *str = "";
@@ -213,18 +206,19 @@ static void blendTermString(SkString* str, SkXfermode::Coeff coeff,
  * Adds a line to the fragment shader code which modifies the color by
  * the specified color filter.
  */
-static void addColorFilter(SkString* fsCode, const char * outputVar,
-                           SkXfermode::Coeff uniformCoeff,
-                           SkXfermode::Coeff colorCoeff,
-                           const char* filterColor,
-                           const char* inColor) {
+void add_color_filter(SkString* fsCode, const char * outputVar,
+                      SkXfermode::Coeff uniformCoeff,
+                      SkXfermode::Coeff colorCoeff,
+                      const char* filterColor,
+                      const char* inColor) {
     SkString colorStr, constStr;
-    blendTermString(&colorStr, colorCoeff, filterColor, inColor, inColor);
-    blendTermString(&constStr, uniformCoeff, filterColor, inColor, filterColor);
+    blend_term_string(&colorStr, colorCoeff, filterColor, inColor, inColor);
+    blend_term_string(&constStr, uniformCoeff, filterColor, inColor, filterColor);
 
     fsCode->appendf("\t%s = ", outputVar);
     GrGLSLAdd4f(fsCode, colorStr.c_str(), constStr.c_str());
     fsCode->append(";\n");
+}
 }
 
 bool GrGLProgram::genEdgeCoverage(SkString* coverageVar,
@@ -308,8 +302,8 @@ void GrGLProgram::genInputColor(GrGLShaderBuilder* builder, SkString* inColor) {
             } break;
         case GrGLProgram::Desc::kUniform_ColorInput: {
             const char* name;
-            fUniforms.fColorUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                                      kVec4f_GrSLType, "Color", &name);
+            fUniformHandles.fColorUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                                            kVec4f_GrSLType, "Color", &name);
             *inColor = name;
             break;
         }
@@ -326,8 +320,8 @@ void GrGLProgram::genInputColor(GrGLShaderBuilder* builder, SkString* inColor) {
 
 void GrGLProgram::genUniformCoverage(GrGLShaderBuilder* builder, SkString* inOutCoverage) {
     const char* covUniName;
-    fUniforms.fCoverageUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                                 kVec4f_GrSLType, "Coverage", &covUniName);
+    fUniformHandles.fCoverageUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
+                                                       kVec4f_GrSLType, "Coverage", &covUniName);
     if (inOutCoverage->size()) {
         builder->fFSCode.appendf("\tvec4 uniCoverage = %s * %s;\n",
                                   covUniName, inOutCoverage->c_str());
@@ -542,8 +536,8 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
 
     bool needColorFilterUniform;
     bool needComputedColor;
-    needBlendInputs(uniformCoeff, colorCoeff,
-                    &needColorFilterUniform, &needComputedColor);
+    need_blend_inputs(uniformCoeff, colorCoeff,
+                      &needColorFilterUniform, &needComputedColor);
 
     // the dual source output has no canonical var name, have to
     // declare an output, which is incompatible with gl_FragColor/gl_FragData.
@@ -560,8 +554,8 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
     }
 
     const char* viewMName;
-    fUniforms.fViewMatrixUni = builder.addUniform(GrGLShaderBuilder::kVertex_ShaderType,
-                                                  kMat33f_GrSLType, "ViewM", &viewMName);
+    fUniformHandles.fViewMatrixUni = builder.addUniform(GrGLShaderBuilder::kVertex_ShaderType,
+                                                        kMat33f_GrSLType, "ViewM", &viewMName);
 
 
     builder.fVSCode.appendf("\tvec3 pos3 = %s * vec3(%s, 1);\n"
@@ -617,13 +611,12 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
                 }
 
                 builder.setCurrentStage(s);
-                fEffects[s] = GenStageCode(*stages[s],
-                                           fDesc.fEffectKeys[s],
-                                           &fUniforms.fStages[s],
-                                           inColor.size() ? inColor.c_str() : NULL,
-                                           outColor.c_str(),
-                                           inCoords,
-                                           &builder);
+                fEffects[s] = builder.createAndEmitGLEffect(*stages[s],
+                                                            fDesc.fEffectKeys[s],
+                                                            inColor.size() ? inColor.c_str() : NULL,
+                                                            outColor.c_str(),
+                                                            inCoords,
+                                                            &fUniformHandles.fSamplerUnis[s]);
                 builder.setNonStage();
                 inColor = outColor;
             }
@@ -639,15 +632,16 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
         if (uniformCoeffIsZero) {
             uniformCoeff = SkXfermode::kZero_Coeff;
             bool bogus;
-            needBlendInputs(SkXfermode::kZero_Coeff, colorCoeff,
-                            &needColorFilterUniform, &bogus);
+            need_blend_inputs(SkXfermode::kZero_Coeff, colorCoeff,
+                              &needColorFilterUniform, &bogus);
         }
     }
     const char* colorFilterColorUniName = NULL;
     if (needColorFilterUniform) {
-        fUniforms.fColorFilterUni = builder.addUniform(GrGLShaderBuilder::kFragment_ShaderType,
-                                                       kVec4f_GrSLType, "FilterColor",
-                                                       &colorFilterColorUniName);
+        fUniformHandles.fColorFilterUni = builder.addUniform(
+                                                        GrGLShaderBuilder::kFragment_ShaderType,
+                                                        kVec4f_GrSLType, "FilterColor",
+                                                        &colorFilterColorUniName);
     }
     bool wroteFragColorZero = false;
     if (SkXfermode::kZero_Coeff == uniformCoeff &&
@@ -659,7 +653,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
     } else if (SkXfermode::kDst_Mode != fDesc.fColorFilterXfermode) {
         builder.fFSCode.append("\tvec4 filteredColor;\n");
         const char* color = adjustInColor(inColor);
-        addColorFilter(&builder.fFSCode, "filteredColor", uniformCoeff,
+        add_color_filter(&builder.fFSCode, "filteredColor", uniformCoeff,
                        colorCoeff, colorFilterColorUniName, color);
         inColor = "filteredColor";
     }
@@ -722,13 +716,13 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
                         inCoverage.append("4");
                     }
                     builder.setCurrentStage(s);
-                    fEffects[s] = GenStageCode(*stages[s],
-                                               fDesc.fEffectKeys[s],
-                                               &fUniforms.fStages[s],
-                                               inCoverage.size() ? inCoverage.c_str() : NULL,
-                                               outCoverage.c_str(),
-                                               inCoords,
-                                               &builder);
+                    fEffects[s] = builder.createAndEmitGLEffect(
+                                                    *stages[s],
+                                                    fDesc.fEffectKeys[s],
+                                                    inCoverage.size() ? inCoverage.c_str() : NULL,
+                                                    outCoverage.c_str(),
+                                                    inCoords,
+                                                    &fUniformHandles.fSamplerUnis[s]);
                     builder.setNonStage();
                     inCoverage = outCoverage;
                 }
@@ -803,7 +797,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
 
     builder.finished(fProgramID);
     this->initSamplerUniforms();
-    fUniforms.fRTHeight = builder.getRTHeightUniform();
+    fUniformHandles.fRTHeightUni = builder.getRTHeightUniform();
 
     return true;
 }
@@ -874,72 +868,48 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& buil
 
 void GrGLProgram::initSamplerUniforms() {
     GL_CALL(UseProgram(fProgramID));
+    // We simply bind the uniforms to successive texture units beginning at 0. setData() assumes this
+    // behavior.
+    GrGLint texUnitIdx = 0;
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        int count = fUniforms.fStages[s].fSamplerUniforms.count();
-        // FIXME: We're still always reserving one texture per stage. After GrTextureParams are
-        // expressed by the effect rather than the GrEffectStage we can move texture binding
-        // into GrGLProgram and it should be easier to fix this.
-        GrAssert(count <= 1);
-        for (int t = 0; t < count; ++t) {
-            UniformHandle uh = fUniforms.fStages[s].fSamplerUniforms[t];
-            if (GrGLUniformManager::kInvalidUniformHandle != uh) {
-                fUniformManager.setSampler(uh, s);
+        int numSamplers = fUniformHandles.fSamplerUnis[s].count();
+        for (int u = 0; u < numSamplers; ++u) {
+            UniformHandle handle = fUniformHandles.fSamplerUnis[s][u];
+            if (GrGLUniformManager::kInvalidUniformHandle != handle) {
+                fUniformManager.setSampler(handle, texUnitIdx);
+                ++texUnitIdx;
             }
         }
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Stage code generation
 
-// TODO: Move this function to GrGLShaderBuilder
-GrGLEffect* GrGLProgram::GenStageCode(const GrEffectStage& stage,
-                                      GrGLEffect::EffectKey key,
-                                      StageUniforms* uniforms,
-                                      const char* fsInColor, // NULL means no incoming color
-                                      const char* fsOutColor,
-                                      const char* vsInCoord,
-                                      GrGLShaderBuilder* builder) {
+void GrGLProgram::setData(GrGpuGL* gpu) {
+    const GrDrawState& drawState = gpu->getDrawState();
 
-    const GrEffect* effect = stage.getEffect();
-    GrGLEffect* glEffect = effect->getFactory().createGLInstance(*effect);
-
-    // setup texture samplers for GL effect
-    int numTextures = effect->numTextures();
-    SkSTArray<8, GrGLShaderBuilder::TextureSampler> textureSamplers;
-    textureSamplers.push_back_n(numTextures);
-    for (int i = 0; i < numTextures; ++i) {
-        textureSamplers[i].init(builder, &effect->textureAccess(i));
-        uniforms->fSamplerUniforms.push_back(textureSamplers[i].fSamplerUniform);
-    }
-
-    // Enclose custom code in a block to avoid namespace conflicts
-    builder->fVSCode.appendf("\t{ // %s\n", glEffect->name());
-    builder->fFSCode.appendf("\t{ // %s \n", glEffect->name());
-    glEffect->emitCode(builder,
-                       stage,
-                       key,
-                       vsInCoord,
-                       fsOutColor,
-                       fsInColor,
-                       textureSamplers);
-    builder->fVSCode.appendf("\t}\n");
-    builder->fFSCode.appendf("\t}\n");
-
-    return glEffect;
-}
-
-void GrGLProgram::setData(const GrDrawState& drawState) {
     int rtHeight = drawState.getRenderTarget()->height();
-    if (GrGLUniformManager::kInvalidUniformHandle != fUniforms.fRTHeight && fRTHeight != rtHeight) {
-        fUniformManager.set1f(fUniforms.fRTHeight, SkIntToScalar(rtHeight));
+    if (GrGLUniformManager::kInvalidUniformHandle != fUniformHandles.fRTHeightUni &&
+        fRTHeight != rtHeight) {
+        fUniformManager.set1f(fUniformHandles.fRTHeightUni, SkIntToScalar(rtHeight));
         fRTHeight = rtHeight;
     }
+    GrGLint texUnitIdx = 0;
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (NULL != fEffects[s]) {
             const GrEffectStage& stage = drawState.getStage(s);
             GrAssert(NULL != stage.getEffect());
             fEffects[s]->setData(fUniformManager, stage);
+            int numSamplers = fUniformHandles.fSamplerUnis[s].count();
+            for (int u = 0; u < numSamplers; ++u) {
+                UniformHandle handle = fUniformHandles.fSamplerUnis[s][u];
+                if (GrGLUniformManager::kInvalidUniformHandle != handle) {
+                    const GrTextureAccess& access = stage.getEffect()->textureAccess(u);
+                    GrGLTexture* texture = static_cast<GrGLTexture*>(access.getTexture());
+                    gpu->bindTexture(texUnitIdx, access.getParams(), texture);
+                    ++texUnitIdx;
+                }
+            }
         }
     }
 }

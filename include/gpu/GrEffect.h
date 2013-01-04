@@ -11,11 +11,11 @@
 #include "GrRefCnt.h"
 #include "GrNoncopyable.h"
 #include "GrEffectUnitTest.h"
+#include "GrTexture.h"
 #include "GrTextureAccess.h"
 
 class GrBackendEffectFactory;
 class GrContext;
-class GrTexture;
 class SkString;
 
 /** Provides custom vertex shader, fragment shader, uniform data for a
@@ -85,6 +85,15 @@ public:
 
     /** Shortcut for textureAccess(index).texture(); */
     GrTexture* texture(int index) const { return this->textureAccess(index).getTexture(); }
+
+    /** Useful for effects that want to insert a texture matrix that is implied by the texture
+        dimensions */
+    static inline SkMatrix MakeDivByTextureWHMatrix(const GrTexture* texture) {
+        GrAssert(NULL != texture);
+        SkMatrix mat;
+        mat.setIDiv(texture->width(), texture->height());
+        return mat;
+    }
 
     void* operator new(size_t size);
     void operator delete(void* target);

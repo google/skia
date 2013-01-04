@@ -48,7 +48,9 @@ public:
 
     virtual ~GrGLProgram();
 
-    /** Call to abandon GL objects owned by this program */
+    /**
+     * Call to abandon GL objects owned by this program.
+     */
     void abandon();
 
     /**
@@ -68,10 +70,11 @@ public:
     static int TexCoordAttributeIdx(int tcIdx) { return 4 + tcIdx; }
 
     /**
-     * This function uploads uniforms and calls each GrEffect's setData. It is called before a draw
-     * occurs using the program after the program has already been bound.
+     * This function uploads uniforms and calls each GrGLEffect's setData. It is called before a
+     * draw occurs using the program after the program has already been bound. It also uses the
+     * GrGpuGL object to bind the textures required by the GrGLEffects.
      */
-    void setData(const GrDrawState& drawState);
+    void setData(GrGpuGL*);
 
     // Parameters that affect code generation
     // This structs should be kept compact; it is input to an expensive hash key generator.
@@ -114,30 +117,24 @@ public:
         bool                        fDiscardIfOutsideEdge;
 
         // stripped of bits that don't affect program generation
-        GrVertexLayout fVertexLayout;
+        GrVertexLayout              fVertexLayout;
 
         /** Non-zero if this stage has an effect */
-        GrGLEffect::EffectKey fEffectKeys[GrDrawState::kNumStages];
+        GrGLEffect::EffectKey       fEffectKeys[GrDrawState::kNumStages];
 
         // To enable experimental geometry shader code (not for use in
         // production)
 #if GR_GL_EXPERIMENTAL_GS
-        bool fExperimentalGS;
+        bool                        fExperimentalGS;
 #endif
-
-        uint8_t fColorInput;        // casts to enum ColorInput
-        uint8_t fCoverageInput;     // casts to enum CoverageInput
-        uint8_t fDualSrcOutput;     // casts to enum DualSrcOutput
-        int8_t fFirstCoverageStage;
-        SkBool8 fEmitsPointSize;
-
-        uint8_t fColorFilterXfermode;  // casts to enum SkXfermode::Mode
+        uint8_t                     fColorInput;            // casts to enum ColorInput
+        uint8_t                     fCoverageInput;         // casts to enum ColorInput
+        uint8_t                     fDualSrcOutput;         // casts to enum DualSrcOutput
+        int8_t                      fFirstCoverageStage;
+        SkBool8                     fEmitsPointSize;
+        uint8_t                     fColorFilterXfermode;   // casts to enum SkXfermode::Mode
     };
-    GR_STATIC_ASSERT(!(sizeof(Desc) % 4));
-
 private:
-    struct StageUniforms;
-
     GrGLProgram(const GrGLContextInfo& gl,
                 const Desc& desc,
                 const GrEffectStage* stages[]);
@@ -150,14 +147,6 @@ private:
     bool genProgram(const GrEffectStage* stages[]);
 
     void genInputColor(GrGLShaderBuilder* builder, SkString* inColor);
-
-    static GrGLEffect* GenStageCode(const GrEffectStage& stage,
-                                    GrGLEffect::EffectKey key,
-                                    StageUniforms* stageUniforms, // TODO: Eliminate this
-                                    const char* fsInColor, // NULL means no incoming color
-                                    const char* fsOutColor,
-                                    const char* vsInCoord,
-                                    GrGLShaderBuilder* builder);
 
     void genGeometryShader(GrGLShaderBuilder* segments) const;
 
@@ -183,41 +172,39 @@ private:
 
     const char* adjustInColor(const SkString& inColor) const;
 
-    struct StageUniforms {
-        SkTArray<UniformHandle, true> fSamplerUniforms;
-    };
-
-    struct Uniforms {
-        UniformHandle fViewMatrixUni;
-        UniformHandle fColorUni;
-        UniformHandle fCoverageUni;
-        UniformHandle fColorFilterUni;
+    typedef SkSTArray<4, UniformHandle, true> SamplerUniSArray;
+    
+    struct UniformHandles {
+        UniformHandle       fViewMatrixUni;
+        UniformHandle       fColorUni;
+        UniformHandle       fCoverageUni;
+        UniformHandle       fColorFilterUni;
         // We use the render target height to provide a y-down frag coord when specifying
         // origin_upper_left is not supported.
-        UniformHandle fRTHeight;
-        StageUniforms fStages[GrDrawState::kNumStages];
-        Uniforms() {
+        UniformHandle       fRTHeightUni;
+        // An array of sampler uniform handles for each effect.
+        SamplerUniSArray    fSamplerUnis[GrDrawState::kNumStages];
+        
+        UniformHandles() {
             fViewMatrixUni = GrGLUniformManager::kInvalidUniformHandle;
             fColorUni = GrGLUniformManager::kInvalidUniformHandle;
             fCoverageUni = GrGLUniformManager::kInvalidUniformHandle;
             fColorFilterUni = GrGLUniformManager::kInvalidUniformHandle;
-            fRTHeight = GrGLUniformManager::kInvalidUniformHandle;
+            fRTHeightUni = GrGLUniformManager::kInvalidUniformHandle;
         }
     };
 
-    // IDs
-    GrGLuint    fVShaderID;
-    GrGLuint    fGShaderID;
-    GrGLuint    fFShaderID;
-    GrGLuint    fProgramID;
-
+    // GL IDs
+    GrGLuint                    fVShaderID;
+    GrGLuint                    fGShaderID;
+    GrGLuint                    fFShaderID;
+    GrGLuint                    fProgramID;
     // The matrix sent to GL is determined by both the client's matrix and
     // the size of the viewport.
-    SkMatrix  fViewMatrix;
-    SkISize   fViewportSize;
+    SkMatrix                    fViewMatrix;
+    SkISize                     fViewportSize;
 
-    // these reflect the current values of uniforms
-    // (GL uniform values travel with program)
+    // these reflect the current values of uniforms (GL uniform values travel with program)
     GrColor                     fColor;
     GrColor                     fCoverage;
     GrColor                     fColorFilterColor;
@@ -225,11 +212,11 @@ private:
 
     GrGLEffect*                 fEffects[GrDrawState::kNumStages];
 
-    Desc fDesc;
+    Desc                        fDesc;
     const GrGLContextInfo&      fContextInfo;
 
     GrGLUniformManager          fUniformManager;
-    Uniforms                    fUniforms;
+    UniformHandles              fUniformHandles;
 
     friend class GrGpuGL; // TODO: remove this by adding getters and moving functionality.
 

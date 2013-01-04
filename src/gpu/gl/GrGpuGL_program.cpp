@@ -151,7 +151,9 @@ void GrGpuGL::flushViewMatrix(DrawType type) {
             SkScalarToFloat(m[SkMatrix::kMTransY]),
             SkScalarToFloat(m[SkMatrix::kMPersp2])
         };
-        fCurrentProgram->fUniformManager.setMatrix3f(fCurrentProgram->fUniforms.fViewMatrixUni, mt);
+        fCurrentProgram->fUniformManager.setMatrix3f(
+                                            fCurrentProgram->fUniformHandles.fViewMatrixUni,
+                                            mt);
         fCurrentProgram->fViewMatrix = vm;
         fCurrentProgram->fViewportSize = viewportSize;
     }
@@ -183,9 +185,10 @@ void GrGpuGL::flushColor(GrColor color) {
                     // OpenGL ES doesn't support unsigned byte varieties of glUniform
                     GrGLfloat c[4];
                     GrColorToRGBAFloat(color, c);
-                    GrAssert(kInvalidUniformHandle !=  fCurrentProgram->fUniforms.fColorUni);
-                    fCurrentProgram->fUniformManager.set4fv(fCurrentProgram->fUniforms.fColorUni,
-                                                            0, 1, c);
+                    GrAssert(kInvalidUniformHandle !=  fCurrentProgram->fUniformHandles.fColorUni);
+                    fCurrentProgram->fUniformManager.set4fv(
+                                                        fCurrentProgram->fUniformHandles.fColorUni,
+                                                        0, 1, c);
                     fCurrentProgram->fColor = color;
                 }
                 break;
@@ -196,7 +199,7 @@ void GrGpuGL::flushColor(GrColor color) {
                 GrCrash("Unknown color type.");
         }
     }
-    UniformHandle filterColorUni = fCurrentProgram->fUniforms.fColorFilterUni;
+    UniformHandle filterColorUni = fCurrentProgram->fUniformHandles.fColorFilterUni;
     if (kInvalidUniformHandle != filterColorUni &&
         fCurrentProgram->fColorFilterColor != drawState.getColorFilterColor()) {
         GrGLfloat c[4];
@@ -234,9 +237,11 @@ void GrGpuGL::flushCoverage(GrColor coverage) {
                     // glUniform
                     GrGLfloat c[4];
                     GrColorToRGBAFloat(coverage, c);
-                    GrAssert(kInvalidUniformHandle !=  fCurrentProgram->fUniforms.fCoverageUni);
-                    fCurrentProgram->fUniformManager.set4fv(fCurrentProgram->fUniforms.fCoverageUni,
-                                                            0, 1, c);
+                    GrAssert(kInvalidUniformHandle !=
+                             fCurrentProgram->fUniformHandles.fCoverageUni);
+                    fCurrentProgram->fUniformManager.set4fv(
+                                                    fCurrentProgram->fUniformHandles.fCoverageUni,
+                                                    0, 1, c);
                     fCurrentProgram->fCoverage = coverage;
                 }
                 break;
@@ -302,13 +307,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
         this->flushColor(color);
         this->flushCoverage(coverage);
 
-        fCurrentProgram->setData(drawState);
-
-        for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-            if (this->isStageEnabled(s)) {
-                this->flushBoundTextureAndParams(s);
-            }
-        }
+        fCurrentProgram->setData(this);
     }
     this->flushStencil(type);
     this->flushViewMatrix(type);
@@ -318,8 +317,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
     GrIRect* devRect = NULL;
     GrIRect devClipBounds;
     if (drawState.isClipState()) {
-        fClip->getConservativeBounds(drawState.getRenderTarget(),
-                                     &devClipBounds);
+        fClip->getConservativeBounds(drawState.getRenderTarget(), &devClipBounds);
         devRect = &devClipBounds;
     }
     // This must come after textures are flushed because a texture may need
