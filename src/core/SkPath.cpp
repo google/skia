@@ -939,99 +939,6 @@ void SkPath::addPoly(const SkPoint pts[], int count, bool close) {
     SkDEBUGCODE(this->validate();)
 }
 
-#define CUBIC_ARC_FACTOR    ((SK_ScalarSqrt2 - SK_Scalar1) * 4 / 3)
-
-void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
-                          Direction dir) {
-    assert_known_direction(dir);
-
-    SkScalar    w = rect.width();
-    SkScalar    halfW = SkScalarHalf(w);
-    SkScalar    h = rect.height();
-    SkScalar    halfH = SkScalarHalf(h);
-
-    if (halfW <= 0 || halfH <= 0) {
-        return;
-    }
-
-    bool skip_hori = rx >= halfW;
-    bool skip_vert = ry >= halfH;
-
-    if (skip_hori && skip_vert) {
-        this->addOval(rect, dir);
-        return;
-    }
-
-    fDirection = this->hasOnlyMoveTos() ? dir : kUnknown_Direction;
-
-    SkAutoPathBoundsUpdate apbu(this, rect);
-    SkAutoDisableDirectionCheck(this);
-
-    if (skip_hori) {
-        rx = halfW;
-    } else if (skip_vert) {
-        ry = halfH;
-    }
-
-    SkScalar    sx = SkScalarMul(rx, CUBIC_ARC_FACTOR);
-    SkScalar    sy = SkScalarMul(ry, CUBIC_ARC_FACTOR);
-
-    this->incReserve(17);
-    this->moveTo(rect.fRight - rx, rect.fTop);
-    if (dir == kCCW_Direction) {
-        if (!skip_hori) {
-            this->lineTo(rect.fLeft + rx, rect.fTop);       // top
-        }
-        this->cubicTo(rect.fLeft + rx - sx, rect.fTop,
-                      rect.fLeft, rect.fTop + ry - sy,
-                      rect.fLeft, rect.fTop + ry);          // top-left
-        if (!skip_vert) {
-            this->lineTo(rect.fLeft, rect.fBottom - ry);        // left
-        }
-        this->cubicTo(rect.fLeft, rect.fBottom - ry + sy,
-                      rect.fLeft + rx - sx, rect.fBottom,
-                      rect.fLeft + rx, rect.fBottom);       // bot-left
-        if (!skip_hori) {
-            this->lineTo(rect.fRight - rx, rect.fBottom);   // bottom
-        }
-        this->cubicTo(rect.fRight - rx + sx, rect.fBottom,
-                      rect.fRight, rect.fBottom - ry + sy,
-                      rect.fRight, rect.fBottom - ry);      // bot-right
-        if (!skip_vert) {
-            this->lineTo(rect.fRight, rect.fTop + ry);
-        }
-        this->cubicTo(rect.fRight, rect.fTop + ry - sy,
-                      rect.fRight - rx + sx, rect.fTop,
-                      rect.fRight - rx, rect.fTop);         // top-right
-    } else {
-        this->cubicTo(rect.fRight - rx + sx, rect.fTop,
-                      rect.fRight, rect.fTop + ry - sy,
-                      rect.fRight, rect.fTop + ry);         // top-right
-        if (!skip_vert) {
-            this->lineTo(rect.fRight, rect.fBottom - ry);
-        }
-        this->cubicTo(rect.fRight, rect.fBottom - ry + sy,
-                      rect.fRight - rx + sx, rect.fBottom,
-                      rect.fRight - rx, rect.fBottom);      // bot-right
-        if (!skip_hori) {
-            this->lineTo(rect.fLeft + rx, rect.fBottom);    // bottom
-        }
-        this->cubicTo(rect.fLeft + rx - sx, rect.fBottom,
-                      rect.fLeft, rect.fBottom - ry + sy,
-                      rect.fLeft, rect.fBottom - ry);       // bot-left
-        if (!skip_vert) {
-            this->lineTo(rect.fLeft, rect.fTop + ry);       // left
-        }
-        this->cubicTo(rect.fLeft, rect.fTop + ry - sy,
-                      rect.fLeft + rx - sx, rect.fTop,
-                      rect.fLeft + rx, rect.fTop);          // top-left
-        if (!skip_hori) {
-            this->lineTo(rect.fRight - rx, rect.fTop);      // top
-        }
-    }
-    this->close();
-}
-
 static void add_corner_arc(SkPath* path, const SkRect& rect,
                            SkScalar rx, SkScalar ry, int startAngle,
                            SkPath::Direction dir, bool forceMoveTo) {
@@ -1120,6 +1027,99 @@ bool SkPath::hasOnlyMoveTos() const {
         ++verbs;
     }
     return true;
+}
+
+#define CUBIC_ARC_FACTOR    ((SK_ScalarSqrt2 - SK_Scalar1) * 4 / 3)
+
+void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
+                          Direction dir) {
+    assert_known_direction(dir);
+    
+    SkScalar    w = rect.width();
+    SkScalar    halfW = SkScalarHalf(w);
+    SkScalar    h = rect.height();
+    SkScalar    halfH = SkScalarHalf(h);
+    
+    if (halfW <= 0 || halfH <= 0) {
+        return;
+    }
+    
+    bool skip_hori = rx >= halfW;
+    bool skip_vert = ry >= halfH;
+    
+    if (skip_hori && skip_vert) {
+        this->addOval(rect, dir);
+        return;
+    }
+    
+    fDirection = this->hasOnlyMoveTos() ? dir : kUnknown_Direction;
+    
+    SkAutoPathBoundsUpdate apbu(this, rect);
+    SkAutoDisableDirectionCheck(this);
+    
+    if (skip_hori) {
+        rx = halfW;
+    } else if (skip_vert) {
+        ry = halfH;
+    }
+    
+    SkScalar    sx = SkScalarMul(rx, CUBIC_ARC_FACTOR);
+    SkScalar    sy = SkScalarMul(ry, CUBIC_ARC_FACTOR);
+    
+    this->incReserve(17);
+    this->moveTo(rect.fRight - rx, rect.fTop);
+    if (dir == kCCW_Direction) {
+        if (!skip_hori) {
+            this->lineTo(rect.fLeft + rx, rect.fTop);       // top
+        }
+        this->cubicTo(rect.fLeft + rx - sx, rect.fTop,
+                      rect.fLeft, rect.fTop + ry - sy,
+                      rect.fLeft, rect.fTop + ry);          // top-left
+        if (!skip_vert) {
+            this->lineTo(rect.fLeft, rect.fBottom - ry);        // left
+        }
+        this->cubicTo(rect.fLeft, rect.fBottom - ry + sy,
+                      rect.fLeft + rx - sx, rect.fBottom,
+                      rect.fLeft + rx, rect.fBottom);       // bot-left
+        if (!skip_hori) {
+            this->lineTo(rect.fRight - rx, rect.fBottom);   // bottom
+        }
+        this->cubicTo(rect.fRight - rx + sx, rect.fBottom,
+                      rect.fRight, rect.fBottom - ry + sy,
+                      rect.fRight, rect.fBottom - ry);      // bot-right
+        if (!skip_vert) {
+            this->lineTo(rect.fRight, rect.fTop + ry);
+        }
+        this->cubicTo(rect.fRight, rect.fTop + ry - sy,
+                      rect.fRight - rx + sx, rect.fTop,
+                      rect.fRight - rx, rect.fTop);         // top-right
+    } else {
+        this->cubicTo(rect.fRight - rx + sx, rect.fTop,
+                      rect.fRight, rect.fTop + ry - sy,
+                      rect.fRight, rect.fTop + ry);         // top-right
+        if (!skip_vert) {
+            this->lineTo(rect.fRight, rect.fBottom - ry);
+        }
+        this->cubicTo(rect.fRight, rect.fBottom - ry + sy,
+                      rect.fRight - rx + sx, rect.fBottom,
+                      rect.fRight - rx, rect.fBottom);      // bot-right
+        if (!skip_hori) {
+            this->lineTo(rect.fLeft + rx, rect.fBottom);    // bottom
+        }
+        this->cubicTo(rect.fLeft + rx - sx, rect.fBottom,
+                      rect.fLeft, rect.fBottom - ry + sy,
+                      rect.fLeft, rect.fBottom - ry);       // bot-left
+        if (!skip_vert) {
+            this->lineTo(rect.fLeft, rect.fTop + ry);       // left
+        }
+        this->cubicTo(rect.fLeft, rect.fTop + ry - sy,
+                      rect.fLeft + rx - sx, rect.fTop,
+                      rect.fLeft + rx, rect.fTop);          // top-left
+        if (!skip_hori) {
+            this->lineTo(rect.fRight - rx, rect.fTop);      // top
+        }
+    }
+    this->close();
 }
 
 void SkPath::addOval(const SkRect& oval, Direction dir) {
