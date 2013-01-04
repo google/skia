@@ -1034,38 +1034,38 @@ bool SkPath::hasOnlyMoveTos() const {
 void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                           Direction dir) {
     assert_known_direction(dir);
-    
+
     SkScalar    w = rect.width();
     SkScalar    halfW = SkScalarHalf(w);
     SkScalar    h = rect.height();
     SkScalar    halfH = SkScalarHalf(h);
-    
+
     if (halfW <= 0 || halfH <= 0) {
         return;
     }
-    
+
     bool skip_hori = rx >= halfW;
     bool skip_vert = ry >= halfH;
-    
+
     if (skip_hori && skip_vert) {
         this->addOval(rect, dir);
         return;
     }
-    
+
     fDirection = this->hasOnlyMoveTos() ? dir : kUnknown_Direction;
-    
+
     SkAutoPathBoundsUpdate apbu(this, rect);
     SkAutoDisableDirectionCheck(this);
-    
+
     if (skip_hori) {
         rx = halfW;
     } else if (skip_vert) {
         ry = halfH;
     }
-    
+
     SkScalar    sx = SkScalarMul(rx, CUBIC_ARC_FACTOR);
     SkScalar    sy = SkScalarMul(ry, CUBIC_ARC_FACTOR);
-    
+
     this->incReserve(17);
     this->moveTo(rect.fRight - rx, rect.fTop);
     if (dir == kCCW_Direction) {

@@ -3178,14 +3178,14 @@ the same winding is shared by both.
 #if DEBUG_UNSORTABLE
             SkDebugf("%s start id=%d [%d] (%1.9g,%1.9g)\n", __FUNCTION__, fID, start,
                     xAtT(start), yAtT(start));
-#endif            
+#endif
             span->fUnsortableStart = true;
         } else {
             --span;
 #if DEBUG_UNSORTABLE
             SkDebugf("%s end id=%d [%d] (%1.9g,%1.9g) next:(%1.9g,%1.9g)\n", __FUNCTION__, fID,
                 start - 1, xAtT(start - 1), yAtT(start - 1), xAtT(start), yAtT(start));
-#endif            
+#endif
             span->fUnsortableEnd = true;
         }
         if (!span->fUnsortableStart || !span->fUnsortableEnd || span->fDone) {
@@ -4341,7 +4341,7 @@ public:
         #endif
         }
     }
-    
+
     void calcCoincidentWinding() {
         int count = fCoincidences.count();
         for (int index = 0; index < count; ++index) {

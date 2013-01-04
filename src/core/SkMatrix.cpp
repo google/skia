@@ -1826,7 +1826,7 @@ bool SkTreatAsSprite(const SkMatrix& mat, int width, int height,
 
     SkRect dst;
     SkIRect isrc = { 0, 0, width, height };
-    
+
     {
         SkRect src;
         src.set(isrc);
