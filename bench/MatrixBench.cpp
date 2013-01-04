@@ -264,7 +264,6 @@ private:
     typedef MatrixBench INHERITED;
 };
 
-#ifdef SK_SCALAR_IS_FLOAT
 class ScaleTransMixedMatrixBench : public MatrixBench {
  public:
     ScaleTransMixedMatrixBench(void* p) : INHERITED(p, "scaletrans_mixed"), fCount (16) {
@@ -341,7 +340,6 @@ class ScaleTransDoubleMatrixBench : public MatrixBench {
     SkRandom fRandom;
     typedef MatrixBench INHERITED;
 };
-#endif
 
 class InvertMapRectMatrixBench : public MatrixBench {
 public:
@@ -398,69 +396,43 @@ private:
     typedef MatrixBench INHERITED;
 };
 
+///////////////////////////////////////////////////////////////////////////////
 
+DEF_BENCH( return new EqualsMatrixBench(p); )
+DEF_BENCH( return new ScaleMatrixBench(p); )
+DEF_BENCH( return new FloatConcatMatrixBench(p); )
+DEF_BENCH( return new FloatDoubleConcatMatrixBench(p); )
+DEF_BENCH( return new DoubleConcatMatrixBench(p); )
+DEF_BENCH( return new GetTypeMatrixBench(p); )
+DEF_BENCH( return new InvertMapRectMatrixBench(p, "invert_maprect_identity", 0); )
 
+DEF_BENCH(return new InvertMapRectMatrixBench(p,
+                                "invert_maprect_rectstaysrect",
+                                InvertMapRectMatrixBench::kScale_Flag |
+                                InvertMapRectMatrixBench::kTranslate_Flag); )
 
-static SkBenchmark* M0(void* p) { return new EqualsMatrixBench(p); }
-static SkBenchmark* M1(void* p) { return new ScaleMatrixBench(p); }
-static SkBenchmark* M2(void* p) { return new FloatConcatMatrixBench(p); }
-static SkBenchmark* M3(void* p) { return new FloatDoubleConcatMatrixBench(p); }
-static SkBenchmark* M4(void* p) { return new DoubleConcatMatrixBench(p); }
-static SkBenchmark* M5(void* p) { return new GetTypeMatrixBench(p); }
-static SkBenchmark* M6(void* p) {
-    return new InvertMapRectMatrixBench(p,
-        "invert_maprect_identity", 0);
-}
-static SkBenchmark* M7(void* p) {
-    return new InvertMapRectMatrixBench(p,
-        "invert_maprect_rectstaysrect",
-        InvertMapRectMatrixBench::kScale_Flag |
-        InvertMapRectMatrixBench::kTranslate_Flag);
-}
-static SkBenchmark* M8(void* p) {
-    return new InvertMapRectMatrixBench(p,
-        "invert_maprect_nonpersp",
-        InvertMapRectMatrixBench::kScale_Flag |
-        InvertMapRectMatrixBench::kRotate_Flag |
-        InvertMapRectMatrixBench::kTranslate_Flag);
-}
-static SkBenchmark* M9(void* p) {
-    return new InvertMapRectMatrixBench(p,
-        "invert_maprect_persp",
-        InvertMapRectMatrixBench::kPerspective_Flag);
-}
-static SkBenchmark* M10(void* p) {
-    return new InvertMapRectMatrixBench(p,
-        "invert_maprect_typemask_rectstaysrect",
-        InvertMapRectMatrixBench::kUncachedTypeMask_Flag |
-        InvertMapRectMatrixBench::kScale_Flag |
-        InvertMapRectMatrixBench::kTranslate_Flag);
-}
-static SkBenchmark* M11(void* p) {
-    return new InvertMapRectMatrixBench(p,
-        "invert_maprect_typemask_nonpersp",
-        InvertMapRectMatrixBench::kUncachedTypeMask_Flag |
-        InvertMapRectMatrixBench::kScale_Flag |
-        InvertMapRectMatrixBench::kRotate_Flag |
-        InvertMapRectMatrixBench::kTranslate_Flag);
-}
+DEF_BENCH(return new InvertMapRectMatrixBench(p,
+                                  "invert_maprect_nonpersp",
+                                  InvertMapRectMatrixBench::kScale_Flag |
+                                  InvertMapRectMatrixBench::kRotate_Flag |
+                                  InvertMapRectMatrixBench::kTranslate_Flag); )
 
-static BenchRegistry gReg0(M0);
-static BenchRegistry gReg1(M1);
-static BenchRegistry gReg2(M2);
-static BenchRegistry gReg3(M3);
-static BenchRegistry gReg4(M4);
-static BenchRegistry gReg5(M5);
-static BenchRegistry gReg6(M6);
-static BenchRegistry gReg7(M7);
-static BenchRegistry gReg8(M8);
-static BenchRegistry gReg9(M9);
-static BenchRegistry gReg10(M10);
-static BenchRegistry gReg11(M11);
+DEF_BENCH( return new InvertMapRectMatrixBench(p,
+                               "invert_maprect_persp",
+                               InvertMapRectMatrixBench::kPerspective_Flag); )
 
-#ifdef SK_SCALAR_IS_FLOAT
-static SkBenchmark* FlM0(void* p) { return new ScaleTransMixedMatrixBench(p); }
-static SkBenchmark* FlM1(void* p) { return new ScaleTransDoubleMatrixBench(p); }
-static BenchRegistry gFlReg5(FlM0);
-static BenchRegistry gFlReg6(FlM1);
-#endif
+DEF_BENCH( return new InvertMapRectMatrixBench(p,
+                           "invert_maprect_typemask_rectstaysrect",
+                           InvertMapRectMatrixBench::kUncachedTypeMask_Flag |
+                           InvertMapRectMatrixBench::kScale_Flag |
+                           InvertMapRectMatrixBench::kTranslate_Flag); )
+
+DEF_BENCH( return new InvertMapRectMatrixBench(p,
+                           "invert_maprect_typemask_nonpersp",
+                           InvertMapRectMatrixBench::kUncachedTypeMask_Flag |
+                           InvertMapRectMatrixBench::kScale_Flag |
+                           InvertMapRectMatrixBench::kRotate_Flag |
+                           InvertMapRectMatrixBench::kTranslate_Flag); )
+
+DEF_BENCH( return new ScaleTransMixedMatrixBench(p); )
+DEF_BENCH( return new ScaleTransDoubleMatrixBench(p); )
