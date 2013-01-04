@@ -6,6 +6,7 @@
       'mac_bundle' : 1,
       'include_dirs' : [
         '../src/core', # needed to get SkConcaveToTriangle, maybe this should be moved to include dir?
+        '../src/effects', #needed for BlurMask.h
         '../gm',       # needed to pull gm.h
         '../samplecode', # To pull SampleApp.h and SampleCode.h
         '../src/pipe/utils', # For TiledPipeController
