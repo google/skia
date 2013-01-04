@@ -925,6 +925,7 @@ static void usage(const char * argv0) {
 "        unable to read a reference image for any tests (NOT default behavior)\n"
 "    [--enable-missing-warning]: print message to stderr (but don't fail) if\n"
 "        unable to read a reference image for any tests (default behavior)\n"
+"    [--exclude-config]: disable this config (may be used multiple times)\n"
 "    [--forceBWtext]: disable text anti-aliasing\n"
 "    [--help|-h]: show this help message\n"
 "    [--hierarchy|--nohierarchy]: whether to use multilevel directory structure\n"
@@ -946,6 +947,7 @@ static void usage(const char * argv0) {
 "    [--tileGridReplayScales <scales>]: Comma separated list of floating-point scale\n"
 "        factors to be used for tileGrid playback testing. Default value: 1.0\n"
 "    [--writeJsonSummary <path>]: write a JSON-formatted result summary to this file\n"
+"    [--verbose] print diagnostics (e.g. list each config to be tested)\n"
 "    [--writePath|-w <path>]: write rendered images into this directory\n"
 "    [--writePicturePath|-wp <path>]: write .skp files into this directory\n"
              );
@@ -1015,6 +1017,13 @@ GrContext* GetGr() { return NULL; }
 #endif
 }
 
+template <typename T> void appendUnique(SkTDArray<T>* array, const T& value) {
+    int index = array->find(value);
+    if (index < 0) {
+        *array->append() = value;
+    }
+}
+
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
 
@@ -1046,8 +1055,10 @@ int tool_main(int argc, char** argv) {
     bool doDeferred = true;
     bool doRTree = true;
     bool doTileGrid = true;
+    bool doVerbose = false;
     bool disableTextureCache = false;
     SkTDArray<size_t> configs;
+    SkTDArray<size_t> excludeConfigs;
     SkTDArray<SkScalar> tileGridReplayScales;
     *tileGridReplayScales.append() = SK_Scalar1; // By default only test at scale 1.0
     bool userConfig = false;
@@ -1063,7 +1074,7 @@ int tool_main(int argc, char** argv) {
             if (argv < stop) {
                 int index = findConfig(*argv);
                 if (index >= 0) {
-                    *configs.append() = index;
+                    appendUnique<size_t>(&configs, index);
                     userConfig = true;
                 } else {
                     SkString str;
@@ -1074,6 +1085,24 @@ int tool_main(int argc, char** argv) {
                 }
             } else {
                 SkDebugf("missing arg for --config\n");
+                usage(commandName);
+                return -1;
+            }
+        } else if (strcmp(*argv, "--exclude-config") == 0) {
+            argv++;
+            if (argv < stop) {
+                int index = findConfig(*argv);
+                if (index >= 0) {
+                    *excludeConfigs.append() = index;
+                } else {
+                    SkString str;
+                    str.printf("unrecognized exclude-config %s\n", *argv);
+                    SkDebugf(str.c_str());
+                    usage(commandName);
+                    return -1;
+                }
+            } else {
+                SkDebugf("missing arg for --exclude-config\n");
                 usage(commandName);
                 return -1;
             }
@@ -1168,6 +1197,8 @@ int tool_main(int argc, char** argv) {
             disableTextureCache = true;
         } else if (strcmp(*argv, "--tiledPipe") == 0) {
             doTiledPipe = true;
+        } else if (!strcmp(*argv, "--verbose") || !strcmp(*argv, "-v")) {
+            doVerbose = true;
         } else if ((0 == strcmp(*argv, "--writePath")) ||
             (0 == strcmp(*argv, "-w"))) {
             argv++;
@@ -1200,6 +1231,24 @@ int tool_main(int argc, char** argv) {
         for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
             *configs.append() = i;
         }
+    }
+    // now remove any explicitly excluded configs
+    for (int i = 0; i < excludeConfigs.count(); ++i) {
+        int index = configs.find(excludeConfigs[i]);
+        if (index >= 0) {
+            configs.remove(index);
+            // now assert that there was only one copy in configs[]
+            SkASSERT(configs.find(excludeConfigs[i]) < 0);
+        }
+    }
+
+    if (doVerbose) {
+        SkString str;
+        str.printf("gm: %d configs:", configs.count());
+        for (int i = 0; i < configs.count(); ++i) {
+            str.appendf(" %s", gRec[configs[i]].fName);
+        }
+        SkDebugf("%s\n", str.c_str());
     }
 
     GM::SetResourcePath(resourcePath);
