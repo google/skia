@@ -3,7 +3,7 @@ http://stackoverflow.com/questions/2009160/how-do-i-convert-the-2-control-points
 */
 
 /*
-Let's call the control points of the cubic Q0..Q3 and the control points of the quadratic P0..P2. 
+Let's call the control points of the cubic Q0..Q3 and the control points of the quadratic P0..P2.
 Then for degree elevation, the equations are:
 
 Q0 = P0
@@ -25,11 +25,11 @@ Cubic defined by: P1/2 - anchor points, C1/C2 control points
 |x| is the euclidean norm of x
 mid-point approx of cubic: a quad that shares the same anchors with the cubic and has the
  control point at C = (3·C2 - P2 + 3·C1 - P1)/4
- 
+
 Algorithm
 
 pick an absolute precision (prec)
-Compute the Tdiv as the root of (cubic) equation 
+Compute the Tdiv as the root of (cubic) equation
 sqrt(3)/18 · |P2 - 3·C2 + 3·C1 - P1|/2 · Tdiv ^ 3 = prec
 if Tdiv < 0.5 divide the cubic at Tdiv. First segment [0..Tdiv] can be approximated with by a
  quadratic, with a defect less than prec, by the mid-point approximation.

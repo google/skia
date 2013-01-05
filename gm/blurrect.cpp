@@ -161,7 +161,7 @@ public:
         , fRectHeight( rectHeight )
         , fRadius( radius )
     {}
-    
+
   int width() const { return fRectWidth; }
   int height() const { return fRectHeight; }
   int radius() const { return fRadius; }
@@ -174,7 +174,7 @@ protected:
     virtual SkISize onISize() {
         return SkISize::Make(640, 480);
     }
-    
+
     virtual void makeMask( SkMask *m, SkRect r ) = 0;
 
     virtual void onDraw(SkCanvas* canvas) {
@@ -221,7 +221,7 @@ protected:
 
     memset( src.fImage, 0xff, src.computeTotalImageSize() );
 
-    SkBlurMask::BlurSeparable( m, src, radius()/2, SkBlurMask::kNormal_Style, SkBlurMask::kHigh_Quality );    
+    SkBlurMask::BlurSeparable( m, src, radius()/2, SkBlurMask::kNormal_Style, SkBlurMask::kHigh_Quality );
   }
 };
 

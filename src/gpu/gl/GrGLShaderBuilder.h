@@ -181,7 +181,7 @@ public:
                                 GrBackendEffectFactory::EffectKey key,
                                 const char* fsInColor, // NULL means no incoming color
                                 const char* fsOutColor,
-                                const char* vsInCoord,                                      
+                                const char* vsInCoord,
                                 SkTArray<GrGLUniformManager::UniformHandle, true>* samplerHandles);
     GrGLUniformManager::UniformHandle getRTHeightUniform() const { return fRTHeightUniform; }
     // TODO: Make this do all the compiling, linking, etc.
