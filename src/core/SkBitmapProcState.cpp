@@ -126,12 +126,28 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         bool fixupMatrix = clamp_clamp ?
         just_trans_clamp(*m, *fBitmap) : just_trans_general(*m);
         if (fixupMatrix) {
+#ifdef SK_IGNORE_TRANS_CLAMP_FIX
             if (m != &fUnitInvMatrix) {    // can't mutate the original
                 fUnitInvMatrix = inv;
                 m = &fUnitInvMatrix;
             }
             fUnitInvMatrix.set(SkMatrix::kMScaleX, SK_Scalar1);
             fUnitInvMatrix.set(SkMatrix::kMScaleY, SK_Scalar1);
+#else
+            // If we can be treated just like translate, construct that inverse
+            // such that we landed in the proper place. Given that m may have
+            // some slight scale, we have to invert it to compute this new
+            // matrix.
+            SkMatrix forward;
+            if (m->invert(&forward)) {
+                SkScalar tx = -SkScalarRoundToScalar(forward.getTranslateX());
+                SkScalar ty = -SkScalarRoundToScalar(forward.getTranslateY());
+                fUnitInvMatrix.setTranslate(tx, ty);
+                m = &fUnitInvMatrix;
+                // now the following code will sniff m, and decide to take the
+                // fast case (since m is purely translate).
+            }
+#endif
         }
     }
 
