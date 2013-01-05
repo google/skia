@@ -31,11 +31,11 @@ protected:
     virtual const char* onGetName() {
         return fName.c_str();
     }
-    
+
     SkScalar radius() const {
         return fRadius;
     }
-    
+
     void setName( SkString name ) {
         fName = name;
     }
@@ -48,9 +48,9 @@ protected:
 
         int pad = fRadius * 1.5 + 1;
         SkRect r = SkRect::MakeWH(2 * pad + 1, 2 * pad + 1);
-        
+
         int loop_count;
-        
+
         if (fRadius > SkIntToScalar(50)) {
           loop_count = 10;
         } else if (fRadius > SkIntToScalar(5)) {
@@ -58,14 +58,14 @@ protected:
         } else {
           loop_count = 10000;
         }
-        
+
         preBenchSetup( r );
-        
+
         for (int i = 0; i < SkBENCHLOOP(loop_count); i++) {
             makeBlurryRect( r );
         }
     }
-    
+
     virtual void makeBlurryRect( SkRect &r ) = 0;
     virtual void preBenchSetup( SkRect &r ) {}
 private:
@@ -77,13 +77,13 @@ class BlurRectDirectBench: public BlurRectBench {
  public:
     BlurRectDirectBench( void *param, SkScalar rad ) : BlurRectBench( param, rad ) {
         SkString name;
-        
+
         if (SkScalarFraction(rad) != 0) {
             name.printf("blurrect_direct_%.2f", SkScalarToFloat(rad));
         } else {
             name.printf("blurrect_direct_%d", SkScalarRound(rad));
         }
-        
+
         setName( name );
     }
 protected:
@@ -103,20 +103,20 @@ public:
         } else {
             name.printf("blurrect_separable_%d", SkScalarRound(rad));
         }
-        
+
         setName( name );
     }
 
 protected:
-    virtual void preBenchSetup( SkRect &r ) {    
+    virtual void preBenchSetup( SkRect &r ) {
         fSrcMask.fFormat = SkMask::kA8_Format;
         fSrcMask.fRowBytes = r.width();
         fSrcMask.fBounds = SkIRect::MakeWH(r.width(), r.height());
         fSrcMask.fImage = SkMask::AllocImage( fSrcMask.computeTotalImageSize() );
-        
+
         memset( fSrcMask.fImage, 0xff, fSrcMask.computeTotalImageSize() );
     }
-    
+
     virtual void makeBlurryRect( SkRect &r ) {
         SkMask mask;
         SkBlurMask::BlurSeparable( &mask, fSrcMask, radius(), SkBlurMask::kNormal_Style, SkBlurMask::kHigh_Quality );

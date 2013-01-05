@@ -12,10 +12,10 @@
 #include "SkTemplates.h"
 #include "SkEndian.h"
 
-// scale factor for the blur radius to match the behavior of the all existing blur 
+// scale factor for the blur radius to match the behavior of the all existing blur
 // code (both on the CPU and the GPU).  This magic constant is  1/sqrt(3).
 
-// TODO: get rid of this fudge factor and move any required fudging up into 
+// TODO: get rid of this fudge factor and move any required fudging up into
 // the calling library
 
 #define kBlurRadiusFudgeFactor SkFloatToScalar( .57735f )
@@ -1032,16 +1032,16 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
 
 /* Convolving a box with itself three times results in a piecewise
    quadratic function:
-   
+
    0                              x <= -1.5
    9/8 + 3/2 x + 1/2 x^2   -1.5 < x <= 1.5
    3/4 - x^2                -.5 < x <= .5
    9/8 - 3/2 x + 1/2 x^2    0.5 < x <= 1.5
    0                        1.5 < x
-   
+
    To get the profile curve of the blurred step function at the rectangle
    edge, we evaluate the indefinite integral, which is piecewise cubic:
-   
+
    0                                        x <= -1.5
    5/8 + 9/8 x + 3/4 x^2 + 1/6 x^3   -1.5 < x <= -0.5
    1/2 + 3/4 x - 1/3 x^3              -.5 < x <= .5
@@ -1069,16 +1069,16 @@ static float gaussian_integral( float x ) {
     return 0.4375 + (-x3 / 6 - 3 * x2 / 4 - 1.125 * x);
 }
 
-/* 
+/*
     compute_profile allocates and fills in an array of floating
-    point values between 0 and 255 for the profile signature of 
+    point values between 0 and 255 for the profile signature of
     a blurred half-plane with the given blur radius.  Since we're
     going to be doing screened multiplications (i.e., 1 - (1-x)(1-y))
     all the time, we actually fill in the profile pre-inverted
     (already done 255-x).
-    
+
     The function returns the size of the array allocated for the
-    profile.  It's the responsibility of the caller to delete the 
+    profile.  It's the responsibility of the caller to delete the
     memory returned in profile_out.
 */
 
@@ -1101,7 +1101,7 @@ static int compute_profile( SkScalar radius, unsigned int **profile_out ) {
     return size;
 }
 
-// TODO MAYBE: Maintain a profile cache to avoid recomputing this for 
+// TODO MAYBE: Maintain a profile cache to avoid recomputing this for
 // commonly used radii.  Consider baking some of the most common blur radii
 // directly in as static data?
 
@@ -1113,71 +1113,71 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
                           SkIPoint *margin) {
     int profile_size;
     unsigned int *profile;
-  
-    
+
+
     float radius = SkScalarToFloat( SkScalarMul( provided_radius, kBlurRadiusFudgeFactor ) );
-  
+
     profile_size = compute_profile( radius, &profile );
-  
+
     int pad = (int) (radius * 1.5f + 1);
     if (margin) {
         margin->set( pad, pad );
     }
     dst->fBounds = SkIRect::MakeWH(src.width(), src.height());
     dst->fBounds.outset(pad, pad);
-    
+
     dst->fRowBytes = dst->fBounds.width();
     dst->fFormat = SkMask::kA8_Format;
     dst->fImage = NULL;
-  
+
     size_t dstSize = dst->computeImageSize();
     if (0 == dstSize) {
         return false;   // too big to allocate, abort
     }
-  
+
     int             sw = src.width();
     int             sh = src.height();
-  
+
     uint8_t*        dp = SkMask::AllocImage(dstSize);
-  
+
     dst->fImage = dp;
-  
+
     SkAutoTCallVProc<uint8_t, SkMask_FreeImage> autoCall(dp);
-  
+
     int dst_height = dst->fBounds.height();
     int dst_width = dst->fBounds.width();
-  
+
     // nearest odd number less than the profile size represents the center
     // of the (2x scaled) profile
     int center = ( profile_size & ~1 ) - 1;
-  
+
     int w = sw - center;
     int h = sh - center;
-  
+
     uint8_t *outptr = dp;
-  
+
     for (int y = 0 ; y < dst_height ; y++)
     {
         // time to fill in a scanline of the blurry rectangle.
         // to avoid floating point math, everything is multiplied by
         // 2 where needed.  This keeps things nice and integer-oriented.
-  
+
         int dy = abs((y << 1) - dst_height) - h; // how far are we from the original edge?
         int oy = dy >> 1;
         if (oy < 0) oy = 0;
-  
+
         unsigned int profile_y = profile[oy];
-  
+
         for (int x = 0 ; x < (dst_width << 1) ; x += 2) {
             int dx = abs( x - dst_width ) - w;
             int ox = dx >> 1;
             if (ox < 0) ox = 0;
-  
+
             unsigned int maskval = SkMulDiv255Round(profile[ox], profile_y);
-  
+
             *(outptr++) = maskval;
         }
     }
-  
+
     return true;
 }

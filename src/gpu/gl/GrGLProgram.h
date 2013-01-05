@@ -173,7 +173,7 @@ private:
     const char* adjustInColor(const SkString& inColor) const;
 
     typedef SkSTArray<4, UniformHandle, true> SamplerUniSArray;
-    
+
     struct UniformHandles {
         UniformHandle       fViewMatrixUni;
         UniformHandle       fColorUni;
@@ -184,7 +184,7 @@ private:
         UniformHandle       fRTHeightUni;
         // An array of sampler uniform handles for each effect.
         SamplerUniSArray    fSamplerUnis[GrDrawState::kNumStages];
-        
+
         UniformHandles() {
             fViewMatrixUni = GrGLUniformManager::kInvalidUniformHandle;
             fColorUni = GrGLUniformManager::kInvalidUniformHandle;
