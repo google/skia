@@ -211,11 +211,6 @@
         '../src/utils/cityhash',
         '../third_party/externals/cityhash/src',
       ],
-      'xcode_settings': {
-        'OTHER_CPLUSPLUSFLAGS!': [
-          '-Werror',
-        ]
-      },
       'sources': [
         '../third_party/externals/cityhash/src/city.cc',
       ],
@@ -224,6 +219,15 @@
           '../third_party/externals/cityhash/src',
         ],
       },
+      'conditions': [
+        [ 'skia_os == "mac"', {
+          'xcode_settings': {
+            'OTHER_CPLUSPLUSFLAGS!': [
+              '-Werror',
+            ]
+          },
+        }],
+      ],
     },
   ],
 }
