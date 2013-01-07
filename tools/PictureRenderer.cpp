@@ -522,8 +522,8 @@ bool TiledPictureRenderer::render(const SkString* path, SkBitmap** out) {
         }
         if (NULL != out) {
             if (fCanvas->readPixels(&bitmap, 0, 0)) {
-                bitmapCopySubset(bitmap, *out, fTileRects[i].left(),
-                                 fTileRects[i].top());
+                bitmapCopySubset(bitmap, *out, SkScalarFloorToInt(fTileRects[i].left()),
+                                 SkScalarFloorToInt(fTileRects[i].top()));
             } else {
                 success = false;
             }
@@ -594,7 +594,7 @@ public:
         SkBitmap bitmap;
         if (fBitmap != NULL) {
             // All tiles are the same size.
-            setup_bitmap(&bitmap, fRects[0].width(), fRects[0].height());
+            setup_bitmap(&bitmap, SkScalarFloorToInt(fRects[0].width()), SkScalarFloorToInt(fRects[0].height()));
         }
 
         for (int i = fStart; i < fEnd; i++) {
@@ -608,8 +608,8 @@ public:
             if (fBitmap != NULL) {
                 if (fCanvas->readPixels(&bitmap, 0, 0)) {
                     SkAutoLockPixels alp(*fBitmap);
-                    bitmapCopySubset(bitmap, fBitmap, fRects[i].left(),
-                                     fRects[i].top());
+                    bitmapCopySubset(bitmap, fBitmap, SkScalarFloorToInt(fRects[i].left()),
+                                     SkScalarFloorToInt(fRects[i].top()));
                 } else {
                     *fSuccess = false;
                     // If one tile fails to read pixels, do not continue drawing the rest.
