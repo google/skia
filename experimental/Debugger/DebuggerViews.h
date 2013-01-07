@@ -85,7 +85,7 @@ private:
 };
 
 
-static void* PaintProc(void* ptr, bool doRef) {
+static inline void* PaintProc(void* ptr, bool doRef) {
     SkPaint* p = (SkPaint*) ptr;
 
     if (doRef) {

@@ -120,23 +120,6 @@ typedef void (*LinearShadeProc)(TileProc proc, SkFixed dx, SkFixed fx,
                                 SkPMColor* dstC, const SkPMColor* cache,
                                 int toggle, int count);
 
-// This function is deprecated, and will be replaced by
-// shadeSpan_linear_vertical_lerp() once Chrome has been weaned off of it.
-void shadeSpan_linear_vertical(TileProc proc, SkFixed dx, SkFixed fx,
-                               SkPMColor* SK_RESTRICT dstC,
-                               const SkPMColor* SK_RESTRICT cache,
-                               int toggle, int count) {
-    // We're a vertical gradient, so no change in a span.
-    // If colors change sharply across the gradient, dithering is
-    // insufficient (it subsamples the color space) and we need to lerp.
-    unsigned fullIndex = proc(fx);
-    unsigned fi = fullIndex >> (16 - SkGradientShaderBase::kCache32Bits);
-    sk_memset32_dither(dstC,
-            cache[toggle + fi],
-            cache[(toggle ^ SkGradientShaderBase::kDitherStride32) + fi],
-            count);
-}
-
 // Linear interpolation (lerp) is unnecessary if there are no sharp
 // discontinuities in the gradient - which must be true if there are
 // only 2 colors - but it's cheap.
@@ -256,15 +239,7 @@ void SkLinearGradient::shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC,
 
         LinearShadeProc shadeProc = shadeSpan_linear_repeat;
         if (SkFixedNearlyZero(dx)) {
-#ifdef SK_SIMPLE_TWOCOLOR_VERTICAL_GRADIENTS
-            if (fColorCount > 2) {
-                shadeProc = shadeSpan_linear_vertical_lerp;
-            } else {
-                shadeProc = shadeSpan_linear_vertical;
-            }
-#else
             shadeProc = shadeSpan_linear_vertical_lerp;
-#endif
         } else if (SkShader::kClamp_TileMode == fTileMode) {
             shadeProc = shadeSpan_linear_clamp;
         } else if (SkShader::kMirror_TileMode == fTileMode) {

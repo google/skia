@@ -491,7 +491,7 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-static SkBenchmark* ScrollGmailFactory(void* p) {
+static inline SkBenchmark* ScrollGmailFactory(void* p) {
     return SkNEW_ARGS(ScrollGmailBench, (p));
 }
 

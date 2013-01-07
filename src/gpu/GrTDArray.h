@@ -14,11 +14,11 @@
 #include "GrTypes.h"
 #include "GrRefCnt.h"
 
-static int GrInitialArrayAllocationCount() {
+static inline int GrInitialArrayAllocationCount() {
     return 4;
 }
 
-static int GrNextArrayAllocationCount(int count) {
+static inline int GrNextArrayAllocationCount(int count) {
     return count + ((count + 1) >> 1);
 }
 

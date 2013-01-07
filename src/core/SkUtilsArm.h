@@ -39,11 +39,11 @@
 // probes the CPU at runtime (and caches the result).
 
 #if SK_ARM_NEON_IS_NONE
-static bool sk_cpu_arm_has_neon(void) {
+static inline bool sk_cpu_arm_has_neon(void) {
     return false;
 }
 #elif SK_ARM_NEON_IS_ALWAYS
-static bool sk_cpu_arm_has_neon(void) {
+static inline bool sk_cpu_arm_has_neon(void) {
     return true;
 }
 #else // SK_ARM_NEON_IS_DYNAMIC

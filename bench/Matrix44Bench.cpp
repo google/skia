@@ -48,9 +48,9 @@ public:
 protected:
     virtual void performTest() {
         for (int i = 0; i < 10; ++i) {
-            fM0 == fM1;
-            fM1 == fM2;
-            fM2 == fM0;
+            (void) (fM0 == fM1);
+            (void) (fM1 == fM2);
+            (void) (fM2 == fM0);
         }
     }
 private:

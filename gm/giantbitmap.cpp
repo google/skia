@@ -114,7 +114,7 @@ protected:
 
         canvas->translate(SkIntToScalar(50), SkIntToScalar(50));
 
-        SkRect r = SkRect::MakeXYWH(-50, -50, 32, 16);
+//        SkRect r = SkRect::MakeXYWH(-50, -50, 32, 16);
 //        canvas->drawRect(r, paint); return;
         canvas->drawPaint(paint);
     }

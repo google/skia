@@ -16,7 +16,7 @@
 #define GetPackedG16As32(packed)    (SkGetPackedG16(dc) << (8 - SK_G16_BITS))
 #define GetPackedB16As32(packed)    (SkGetPackedB16(dc) << (8 - SK_B16_BITS))
 
-static bool S32A_D565_Blend_0(SkPMColor sc, uint16_t dc, U8CPU alpha) {
+static inline bool S32A_D565_Blend_0(SkPMColor sc, uint16_t dc, U8CPU alpha) {
     unsigned dst_scale = 255 - SkMulDiv255Round(SkGetPackedA32(sc), alpha);
     unsigned dr = SkMulS16(SkPacked32ToR16(sc), alpha) + SkMulS16(SkGetPackedR16(dc), dst_scale);
     unsigned dg = SkMulS16(SkPacked32ToG16(sc), alpha) + SkMulS16(SkGetPackedG16(dc), dst_scale);
@@ -30,7 +30,7 @@ static bool S32A_D565_Blend_0(SkPMColor sc, uint16_t dc, U8CPU alpha) {
     return false;
 }
 
-static bool S32A_D565_Blend_01(SkPMColor sc, uint16_t dc, U8CPU alpha) {
+static inline bool S32A_D565_Blend_01(SkPMColor sc, uint16_t dc, U8CPU alpha) {
     unsigned dst_scale = 255 - SkMulDiv255Round(SkGetPackedA32(sc), alpha);
     unsigned dr = SkMulS16(SkGetPackedR32(sc), alpha) + SkMulS16(SkGetPackedR16(dc) << 3, dst_scale);
     unsigned dg = SkMulS16(SkGetPackedG32(sc), alpha) + SkMulS16(SkGetPackedG16(dc) << 2, dst_scale);
@@ -44,7 +44,7 @@ static bool S32A_D565_Blend_01(SkPMColor sc, uint16_t dc, U8CPU alpha) {
     return false;
 }
 
-static bool S32A_D565_Blend_02(SkPMColor sc, uint16_t dc, U8CPU alpha) {
+static inline bool S32A_D565_Blend_02(SkPMColor sc, uint16_t dc, U8CPU alpha) {
     unsigned dst_scale = 255 - SkMulDiv255Round(SkGetPackedA32(sc), alpha);
     unsigned dr = SkMulS16(SkGetPackedR32(sc), alpha) + SkMulS16(GetPackedR16As32(dc), dst_scale);
     unsigned dg = SkMulS16(SkGetPackedG32(sc), alpha) + SkMulS16(GetPackedG16As32(dc), dst_scale);
@@ -62,7 +62,7 @@ static bool S32A_D565_Blend_02(SkPMColor sc, uint16_t dc, U8CPU alpha) {
     return false;
 }
 
-static bool S32A_D565_Blend_1(SkPMColor sc, uint16_t dc, U8CPU alpha) {
+static inline bool S32A_D565_Blend_1(SkPMColor sc, uint16_t dc, U8CPU alpha) {
     unsigned dst_scale = 255 - SkMulDiv255Round(SkGetPackedA32(sc), alpha);
     unsigned dr = (SkMulS16(SkGetPackedR32(sc), alpha) >> 3) + SkMulS16(SkGetPackedR16(dc), dst_scale);
     unsigned dg = (SkMulS16(SkGetPackedG32(sc), alpha) >> 2) + SkMulS16(SkGetPackedG16(dc), dst_scale);
@@ -76,11 +76,11 @@ static bool S32A_D565_Blend_1(SkPMColor sc, uint16_t dc, U8CPU alpha) {
     return false;
 }
 
-static int SkDiv65025Round(int x) {
+static inline int SkDiv65025Round(int x) {
     return (x + 65025/2) / 65025;
 //    return x / 65025;
 }
-static bool S32A_D565_Blend_2(SkPMColor sc, uint16_t dc, U8CPU alpha) {
+static inline bool S32A_D565_Blend_2(SkPMColor sc, uint16_t dc, U8CPU alpha) {
     unsigned dst_scale = 255*255 - SkGetPackedA32(sc) * alpha;
     alpha *= 255;
     unsigned dr = (SkGetPackedR32(sc) >> 3) * alpha + SkGetPackedR16(dc) * dst_scale;
@@ -95,7 +95,7 @@ static bool S32A_D565_Blend_2(SkPMColor sc, uint16_t dc, U8CPU alpha) {
     return false;
 }
 
-static void test_565blend(skiatest::Reporter* reporter) {
+static inline void test_565blend(skiatest::Reporter* reporter) {
     int total_failures = 0;
     for (int global_alpha = 0; global_alpha <= 255; ++global_alpha) {
         int failures = 0;
@@ -118,7 +118,7 @@ static void test_565blend(skiatest::Reporter* reporter) {
     SkDebugf("total failures %d\n", total_failures);
 }
 
-static void test_premul(skiatest::Reporter* reporter) {
+static inline void test_premul(skiatest::Reporter* reporter) {
     for (int a = 0; a <= 255; a++) {
         for (int x = 0; x <= 255; x++) {
             SkColor c0 = SkColorSetARGB(a, x, x, x);
@@ -162,7 +162,7 @@ static void test_interp(skiatest::Reporter* reporter) {
 }
 */
 
-static void test_fast_interp(skiatest::Reporter* reporter) {
+static inline void test_fast_interp(skiatest::Reporter* reporter) {
     SkRandom r;
 
     U8CPU a0 = 0;

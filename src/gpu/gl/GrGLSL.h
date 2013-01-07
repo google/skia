@@ -57,7 +57,7 @@ enum GrSLConstantVec {
 };
 
 namespace {
-inline int GrSLTypeToVecLength(GrSLType type) {
+static inline int GrSLTypeToVecLength(GrSLType type) {
     static const int kVecLengths[] = {
         0, // kVoid_GrSLType
         1, // kFloat_GrSLType
@@ -72,14 +72,14 @@ inline int GrSLTypeToVecLength(GrSLType type) {
     return kVecLengths[type];
 }
 
-const char* GrGLSLOnesVecf(int count) {
+static inline const char* GrGLSLOnesVecf(int count) {
     static const char* kONESVEC[] = {"ERROR", "1.0", "vec2(1,1)",
                                      "vec3(1,1,1)", "vec4(1,1,1,1)"};
     GrAssert(count >= 1 && count < (int)GR_ARRAY_COUNT(kONESVEC));
     return kONESVEC[count];
 }
 
-const char* GrGLSLZerosVecf(int count) {
+static inline const char* GrGLSLZerosVecf(int count) {
     static const char* kZEROSVEC[] = {"ERROR", "0.0", "vec2(0,0)",
                                       "vec3(0,0,0)", "vec4(0,0,0,0)"};
     GrAssert(count >= 1 && count < (int)GR_ARRAY_COUNT(kZEROSVEC));
