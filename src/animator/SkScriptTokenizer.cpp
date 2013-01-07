@@ -993,7 +993,7 @@ void SkScriptEngine2::processLogicalOp(Op op) {
                 SkASSERT(arrayValue.fType == SkOperand2::kArray);  // !!! add error handling
                 SkOpArray* array = arrayValue.fOperand.fArray;
                 SkOperand2 operand;
-                bool success = array->getIndex(index, &operand);
+                SkDEBUGCODE(bool success = ) array->getIndex(index, &operand);
                 SkASSERT(success); // !!! add error handling
                 SkScriptValue2 resultValue;
                 resultValue.fType = array->getType();

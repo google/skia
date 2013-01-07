@@ -1514,7 +1514,7 @@ bool SkScriptEngine::ConvertTo(SkScriptEngine* engine, SkDisplayTypes toType, Sk
             break;
         case SkType_Float:
             if (type == SkType_Int) {
-                if ((uint32_t)operand.fS32 == SK_NaN32)
+                if (operand.fS32 == SK_NaN32)
                     operand.fScalar = SK_ScalarNaN;
                 else if (SkAbs32(operand.fS32) == SK_MaxS32)
                     operand.fScalar = SkSign32(operand.fS32) * SK_ScalarMax;
@@ -1562,7 +1562,7 @@ bool SkScriptEngine::ConvertTo(SkScriptEngine* engine, SkDisplayTypes toType, Sk
 
 SkScalar SkScriptEngine::IntToScalar(int32_t s32) {
     SkScalar scalar;
-    if ((uint32_t)s32 == SK_NaN32)
+    if (s32 == SK_NaN32)
         scalar = SK_ScalarNaN;
     else if (SkAbs32(s32) == SK_MaxS32)
         scalar = SkSign32(s32) * SK_ScalarMax;

@@ -201,7 +201,7 @@ typedef uint8_t SkBool8;
 #define SK_MinS32   -SK_MaxS32
 #define SK_MaxU32   0xFFFFFFFF
 #define SK_MinU32   0
-#define SK_NaN32    0x80000000
+#define SK_NaN32    (1 << 31)
 
 /** Returns true if the value can be represented with signed 16bits
  */

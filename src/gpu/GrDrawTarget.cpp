@@ -93,6 +93,7 @@ const GrVertexLayout gTexCoordMasks[] = {
 };
 GR_STATIC_ASSERT(GrDrawState::kMaxTexCoords == GR_ARRAY_COUNT(gTexCoordMasks));
 
+#ifdef SK_DEBUG
 bool check_layout(GrVertexLayout layout) {
     // can only have 1 or 0 bits set for each stage.
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
@@ -103,6 +104,7 @@ bool check_layout(GrVertexLayout layout) {
     }
     return true;
 }
+#endif
 
 int num_tex_coords(GrVertexLayout layout) {
     int cnt = 0;
@@ -467,7 +469,7 @@ GrDrawTarget::GrDrawTarget() : fClip(NULL) {
 
 GrDrawTarget::~GrDrawTarget() {
     GrAssert(1 == fGeoSrcStateStack.count());
-    GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
+    SkDEBUGCODE(GeometrySrcState& geoSrc = fGeoSrcStateStack.back());
     GrAssert(kNone_GeometrySrcType == geoSrc.fIndexSrc);
     GrAssert(kNone_GeometrySrcType == geoSrc.fVertexSrc);
     fDrawState->unref();

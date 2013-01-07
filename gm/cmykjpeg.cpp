@@ -67,7 +67,7 @@ private:
 void forceLinking();
 
 void forceLinking() {
-    SkImageDecoder *creator = CreateJPEGImageDecoder();
+    SkDEBUGCODE(SkImageDecoder *creator = ) CreateJPEGImageDecoder();
     SkASSERT(creator);
 }
 

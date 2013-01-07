@@ -235,7 +235,7 @@ void SkPost::findSinkID() {
     const char* ch = sink.c_str();
     do {
         const char* end = strchr(ch, '.');
-        size_t len = end ? end - ch : strlen(ch);
+        size_t len = end ? (size_t) (end - ch) : strlen(ch);
         SkDisplayable* displayable = NULL;
         if (SK_LITERAL_STR_EQUAL("parent", ch, len)) {
             if (fTargetMaker->fParentMaker)

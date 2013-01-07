@@ -51,7 +51,7 @@ TiledPipeController::TiledPipeController(const SkBitmap& bitmap,
         rect.setLTRB(0, top, bitmap.width(), bottom);
         top = bottom;
 
-        bool extracted = bitmap.extractSubset(&fBitmaps[i], rect);
+        SkDEBUGCODE(bool extracted = )bitmap.extractSubset(&fBitmaps[i], rect);
         SkASSERT(extracted);
         SkDevice* device = new SkDevice(fBitmaps[i]);
         SkCanvas* canvas = new SkCanvas(device);

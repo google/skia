@@ -43,7 +43,7 @@ SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(SkFlattenableRead
     fKernelSize.fHeight = buffer.readInt();
     uint32_t size = fKernelSize.fWidth * fKernelSize.fHeight;
     fKernel = SkNEW_ARRAY(SkScalar, size);
-    uint32_t readSize = buffer.readScalarArray(fKernel);
+    SkDEBUGCODE(uint32_t readSize = )buffer.readScalarArray(fKernel);
     SkASSERT(readSize == size);
     fGain = buffer.readScalar();
     fBias = buffer.readScalar();

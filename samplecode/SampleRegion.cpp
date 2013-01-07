@@ -274,13 +274,13 @@ protected:
 
             {
                 char    buffer[1000];
-                size_t  size = tmp.writeToMemory(NULL);
+                SkDEBUGCODE(size_t  size = ) tmp.writeToMemory(NULL);
                 SkASSERT(size <= sizeof(buffer));
-                size_t  size2 = tmp.writeToMemory(buffer);
+                SkDEBUGCODE(size_t  size2 = ) tmp.writeToMemory(buffer);
                 SkASSERT(size == size2);
 
                 SkRegion    tmp3;
-                size2 = tmp3.readFromMemory(buffer);
+                SkDEBUGCODE(size2 = ) tmp3.readFromMemory(buffer);
                 SkASSERT(size == size2);
 
                 SkASSERT(tmp3 == tmp);

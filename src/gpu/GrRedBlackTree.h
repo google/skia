@@ -956,7 +956,7 @@ void GrRedBlackTree<T,C>::UnitTest() {
     // add 10K ints
     for (int i = 0; i < 10000; ++i) {
         int x = r.nextU()%100;
-        Iter xi = tree.insert(x);
+        SkDEBUGCODE(Iter xi = ) tree.insert(x);
         GrAssert(*xi == x);
         ++count[x];
     }

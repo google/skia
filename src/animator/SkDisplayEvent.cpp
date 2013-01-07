@@ -174,7 +174,7 @@ void SkDisplayEvent::onEndElement(SkAnimateMaker& maker)
         return;
     maker.fEvents.addEvent(this);
     if (kind == kOnEnd) {
-        bool found = maker.find(target.c_str(), &fTarget);
+        SkDEBUGCODE(bool found = ) maker.find(target.c_str(), &fTarget);
         SkASSERT(found);
         SkASSERT(fTarget && fTarget->isAnimate());
         SkAnimateBase* animate = (SkAnimateBase*) fTarget;

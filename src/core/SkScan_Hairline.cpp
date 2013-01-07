@@ -33,10 +33,12 @@ static void vertline(int y, int stopy, SkFixed fx, SkFixed dx,
     } while (++y < stopy);
 }
 
+#ifdef SK_DEBUG
 static bool canConvertFDot6ToFixed(SkFDot6 x) {
     const int maxDot6 = SK_MaxS32 >> (16 - 6);
     return SkAbs32(x) <= maxDot6;
 }
+#endif
 
 void SkScan::HairLineRgn(const SkPoint& pt0, const SkPoint& pt1,
                          const SkRegion* clip, SkBlitter* blitter) {

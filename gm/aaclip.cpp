@@ -36,11 +36,14 @@ static SkCanvas* MakeCanvas(const SkIRect& bounds) {
     return canvas;
 }
 
+#ifdef SK_DEBUG
 static void GetBitmap(const SkCanvas* canvas, SkBitmap* bm) {
     *bm = canvas->getDevice()->accessBitmap(false);
 }
+#endif
 
 static void compare_canvas(const SkCanvas* a, const SkCanvas* b) {
+#ifdef SK_DEBUG
     SkBitmap bma, bmb;
     GetBitmap(a, &bma);
     GetBitmap(b, &bmb);
@@ -60,6 +63,7 @@ static void compare_canvas(const SkCanvas* a, const SkCanvas* b) {
             SkASSERT(0xFF000000 == rowb[x]);
         }
     }
+#endif
 }
 
 static void drawRectAsPath(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {

@@ -168,6 +168,7 @@ static bool is_between_unsorted(SkScalar value,
 #endif
 
 #ifdef SK_SCALAR_IS_FLOAT
+#ifdef SK_DEBUG
 // This is an example of why we need to pin the result computed in
 // sect_with_horizontal. If we didn't explicitly pin, is_between_unsorted would
 // fail.
@@ -180,6 +181,7 @@ static void sect_with_horizontal_test_for_pin_results() {
     float x = sect_with_horizontal(pts, 0);
     SkASSERT(is_between_unsorted(x, pts[0].fX, pts[1].fX));
 }
+#endif
 #endif
 
 int SkLineClipper::ClipLine(const SkPoint pts[], const SkRect& clip,

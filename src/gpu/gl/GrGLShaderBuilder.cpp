@@ -172,7 +172,7 @@ GrGLUniformManager::UniformHandle GrGLShaderBuilder::addUniformArray(uint32_t vi
                                                                      int count,
                                                                      const char** outName) {
     GrAssert(name && strlen(name));
-    static const uint32_t kVisibilityMask = kVertex_ShaderType | kFragment_ShaderType;
+    SkDEBUGCODE(static const uint32_t kVisibilityMask = kVertex_ShaderType | kFragment_ShaderType);
     GrAssert(0 == (~kVisibilityMask & visibility));
     GrAssert(0 != visibility);
 

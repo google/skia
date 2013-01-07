@@ -174,7 +174,7 @@ void SkActive::create(SkDrawable* drawable, SkMSec time) {
         if (animate->formula.size() > 0) {
             SkTDOperandArray values;
             values.setCount(count);
-            bool success = animate->fFieldInfo->setValue(fMaker, &values, 0, 0, NULL,
+            SkDEBUGCODE(bool success = ) animate->fFieldInfo->setValue(fMaker, &values, 0, 0, NULL,
                 animate->getValuesType(), animate->formula);
             SkASSERT(success);
             fApply.applyValues(index, values.begin(), count, animate->getValuesType(), time);
@@ -212,7 +212,7 @@ bool SkActive::immediate(bool enable) {
             if (animate->formula.size() > 0) {
                 SkTDOperandArray values;
                 values.setCount(count);
-                bool success = animate->fFieldInfo->setValue(fMaker, &values, 0, 0, NULL,
+                SkDEBUGCODE(bool success = ) animate->fFieldInfo->setValue(fMaker, &values, 0, 0, NULL,
                     animate->getValuesType(), animate->formula);
                 SkASSERT(success);
                 fApply.applyValues(index, values.begin(), count, animate->getValuesType(), time);
