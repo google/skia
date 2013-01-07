@@ -205,6 +205,15 @@
             'GR_GL_USE_NV_PATH_RENDERING=1',
           ],
         }],
+        [ 'skia_stroke_path_rendering', {
+          'sources': [
+            '../experimental/StrokePathRenderer/GrStrokePathRenderer.h',
+            '../experimental/StrokePathRenderer/GrStrokePathRenderer.cpp',
+          ],
+          'defines': [
+            'GR_STROKE_PATH_RENDERING=1',
+          ],
+        }],
         [ 'skia_os == "linux"', {
           'sources!': [
             '../src/gpu/gl/GrGLDefaultInterface_none.cpp',
