@@ -209,6 +209,7 @@ int tool_main(int argc, char** argv) {
         SkDebugf("Failed to render %i PDFs.\n", failures);
         return 1;
     }
+    return 0;
 }
 
 #if !defined SK_BUILD_FOR_IOS
