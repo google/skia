@@ -7,8 +7,8 @@
 
 
 #include "gl/GrGLInterface.h"
-#include "GrTDArray.h"
 #include "GrGLDefines.h"
+#include "SkTDArray.h"
 
 namespace { // added to suppress 'no previous prototype' warning
 
@@ -132,7 +132,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLDeleteIds(GrGLsizei n, const GrGLuint* ids) {
 
 // In debug builds we do asserts that ensure we agree with GL about when a buffer
 // is mapped.
-static GrTDArray<GrGLuint> gMappedBuffers;
+static SkTDArray<GrGLuint> gMappedBuffers;
 static GrGLuint gCurrArrayBuffer;
 static GrGLuint gCurrElementArrayBuffer;
 

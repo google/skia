@@ -11,7 +11,8 @@
 #ifndef GrTHashCache_DEFINED
 #define GrTHashCache_DEFINED
 
-#include "GrTDArray.h"
+#include "GrTypes.h"
+#include "SkTDArray.h"
 
 // GrTDefaultFindFunctor implements the default find behavior for
 // GrTHashTable (i.e., return the first resource that matches the
@@ -58,7 +59,7 @@ public:
 #endif
 
     // testing
-    const GrTDArray<T*>& getArray() const { return fSorted; }
+    const SkTDArray<T*>& getArray() const { return fSorted; }
 private:
     enum {
         kHashCount = 1 << kHashBits,
@@ -73,7 +74,7 @@ private:
     }
 
     mutable T* fHash[kHashCount];
-    GrTDArray<T*> fSorted;
+    SkTDArray<T*> fSorted;
 
     // search fSorted, and return the found index, or ~index of where it
     // should be inserted

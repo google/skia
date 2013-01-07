@@ -12,9 +12,9 @@
 #define GrBufferAllocPool_DEFINED
 
 #include "GrNoncopyable.h"
-#include "GrTDArray.h"
 
 #include "SkTArray.h"
+#include "SkTDArray.h"
 
 class GrGeometryBuffer;
 class GrGpu;
@@ -170,7 +170,7 @@ private:
     GrGpu*                          fGpu;
     bool                            fGpuIsReffed;
     bool                            fFrequentResetHint;
-    GrTDArray<GrGeometryBuffer*>    fPreallocBuffers;
+    SkTDArray<GrGeometryBuffer*>    fPreallocBuffers;
     size_t                          fMinBlockSize;
     BufferType                      fBufferType;
 

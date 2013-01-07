@@ -105,7 +105,6 @@
       '<(skia_src_path)/gpu/GrStencilBuffer.cpp',
       '<(skia_src_path)/gpu/GrStencilBuffer.h',
       '<(skia_src_path)/gpu/GrTBSearch.h',
-      '<(skia_src_path)/gpu/GrTDArray.h',
       '<(skia_src_path)/gpu/GrSWMaskHelper.cpp',
       '<(skia_src_path)/gpu/GrSWMaskHelper.h',
       '<(skia_src_path)/gpu/GrSoftwarePathRenderer.cpp',
