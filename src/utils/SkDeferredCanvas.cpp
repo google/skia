@@ -20,7 +20,7 @@
 enum {
     // Deferred canvas will auto-flush when recording reaches this limit
     kDefaultMaxRecordingStorageBytes = 64*1024*1024,
-    kDeferredCanvasBitmapSizeThreshold = ~0, // Disables this feature
+    kDeferredCanvasBitmapSizeThreshold = ~0U, // Disables this feature
 };
 
 enum PlaybackMode {

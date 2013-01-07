@@ -249,11 +249,12 @@ protected:
 
         SkPoint pos, tan;
         for (SkScalar dist = 0; dist <= total; dist += delta) {
-            (void)meas.getPosTan(dist, &pos, &tan);
-            tan.scale(radius);
-            tan.rotateCCW();
-            canvas->drawLine(pos.x() + tan.x(), pos.y() + tan.y(),
-                             pos.x() - tan.x(), pos.y() - tan.y(), paint);
+            if (meas.getPosTan(dist, &pos, &tan)) {
+                tan.scale(radius);
+                tan.rotateCCW();
+                canvas->drawLine(pos.x() + tan.x(), pos.y() + tan.y(),
+                                 pos.x() - tan.x(), pos.y() - tan.y(), paint);
+            }
         }
     }
 
