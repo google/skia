@@ -46,7 +46,7 @@ http://www.caffeineowl.com/graphics/2d/vectorial/cubic2quad01.html
 #include "CubicUtilities.h"
 #include "CurveIntersection.h"
 
-static double calcTDiv(const Cubic& cubic, double start) {
+static double calcTDiv(const Cubic& cubic, double precision, double start) {
     const double adjust = sqrt(3) / 36;
     Cubic sub;
     const Cubic* cPtr;
@@ -61,7 +61,7 @@ static double calcTDiv(const Cubic& cubic, double start) {
     double dx = c[3].x - 3 * (c[2].x - c[1].x) - c[0].x;
     double dy = c[3].y - 3 * (c[2].y - c[1].y) - c[0].y;
     double dist = sqrt(dx * dx + dy * dy);
-    double tDiv3 = FLT_EPSILON / (adjust * dist);
+    double tDiv3 = precision / (adjust * dist);
     return cube_root(tDiv3);
 }
 
@@ -72,7 +72,7 @@ static void demote(const Cubic& cubic, Quadratic& quad) {
     quad[2] = cubic[3];
 }
 
-int cubic_to_quadratics(const Cubic& cubic, SkTDArray<Quadratic>& quadratics) {
+int cubic_to_quadratics(const Cubic& cubic, double precision, SkTDArray<Quadratic>& quadratics) {
     quadratics.setCount(1); // FIXME: every place I have setCount(), I also want setReserve()
     Cubic reduced;
     int order = reduceOrder(cubic, reduced, kReduceOrder_QuadraticsAllowed);
@@ -80,10 +80,10 @@ int cubic_to_quadratics(const Cubic& cubic, SkTDArray<Quadratic>& quadratics) {
         memcpy(quadratics[0], reduced, order * sizeof(_Point));
         return order;
     }
-    double tDiv = calcTDiv(cubic, 0);
+    double tDiv = calcTDiv(cubic, precision, 0);
     if (approximately_greater_than_one(tDiv)) {
         demote(cubic, quadratics[0]);
-        return 2;
+        return 3;
     }
     if (tDiv >= 0.5) {
         CubicPair pair;
@@ -91,7 +91,7 @@ int cubic_to_quadratics(const Cubic& cubic, SkTDArray<Quadratic>& quadratics) {
         quadratics.setCount(2);
         demote(pair.first(), quadratics[0]);
         demote(pair.second(), quadratics[1]);
-        return 2;
+        return 3;
     }
     double start = 0;
     int index = -1;
@@ -99,17 +99,17 @@ int cubic_to_quadratics(const Cubic& cubic, SkTDArray<Quadratic>& quadratics) {
     // or if the control points are tangent to each other
     do {
         Cubic part;
-        sub_divide(part, start, tDiv, part);
+        sub_divide(cubic, start, tDiv, part);
         quadratics.append();
         demote(part, quadratics[++index]);
         if (tDiv == 1) {
             break;
         }
         start = tDiv;
-        tDiv = calcTDiv(cubic, start);
+        tDiv = calcTDiv(cubic, precision, start);
         if (tDiv > 1) {
             tDiv = 1;
         }
     } while (true);
-    return 2;
+    return 3;
 }
