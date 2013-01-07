@@ -6,13 +6,10 @@
  * found in the LICENSE file.
  */
 
-
-
 #include "GrBinHashKey.h"
 #include "GrDrawTarget.h"
 #include "SkMatrix.h"
 #include "GrRedBlackTree.h"
-#include "GrTDArray.h"
 
 // FIXME: needs to be in a header
 void gr_run_unittests();
@@ -27,37 +24,6 @@ static bool EQ(const int& elem, int value) {
     return elem == value;
 }
 #include "GrTBSearch.h"
-
-static void dump(const GrTDArray<int>& array) {
-#if 0
-    for (int i = 0; i < array.count(); i++) {
-        printf(" %d", array[i]);
-    }
-    printf("\n");
-#endif
-}
-
-static void test_tdarray() {
-    GrTDArray<int> array;
-
-    *array.append() = 0; dump(array);
-    *array.append() = 2; dump(array);
-    *array.append() = 4; dump(array);
-    *array.append() = 6; dump(array);
-    GrAssert(array.count() == 4);
-
-    *array.insert(0) = -1; dump(array);
-    *array.insert(2) = 1; dump(array);
-    *array.insert(4) = 3; dump(array);
-    *array.insert(7) = 7; dump(array);
-    GrAssert(array.count() == 8);
-    array.remove(3); dump(array);
-    array.remove(0); dump(array);
-    array.removeShuffle(4); dump(array);
-    array.removeShuffle(1); dump(array);
-    GrAssert(array.count() == 4);
-}
-
 
 static void test_bsearch() {
     const int array[] = {
@@ -106,7 +72,6 @@ static void test_binHashKey()
 
 
 void gr_run_unittests() {
-    test_tdarray();
     test_bsearch();
     test_binHashKey();
     GrRedBlackTree<int>::UnitTest();
