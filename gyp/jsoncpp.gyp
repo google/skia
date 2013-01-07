@@ -45,6 +45,15 @@
           '../third_party/externals/jsoncpp/source/include/',
         ],
       },
+      'conditions': [
+        [ 'skia_os == "mac"', {
+          'xcode_settings': {
+            'OTHER_CPLUSPLUSFLAGS!': [
+              '-Werror',
+            ]
+          },
+        }],
+      ],
     },
   ],
 }
