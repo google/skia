@@ -136,7 +136,7 @@ void fillCanvas(SkCanvas* canvas) {
     static SkBitmap bmp;
     if (bmp.isNull()) {
         bmp.setConfig(SkBitmap::kARGB_8888_Config, DEV_W, DEV_H);
-        bool alloc = bmp.allocPixels();
+        SkDEBUGCODE(bool alloc = ) bmp.allocPixels();
         SkASSERT(alloc);
         SkAutoLockPixels alp(bmp);
         intptr_t pixels = reinterpret_cast<intptr_t>(bmp.getPixels());

@@ -360,6 +360,8 @@ void GrGpu::geometrySourceWillPush() {
     newState.fPoolStartVertex = DEBUG_INVAL_START_IDX;
     newState.fPoolIndexBuffer = (GrIndexBuffer*)DEBUG_INVAL_BUFFER;
     newState.fPoolStartIndex = DEBUG_INVAL_START_IDX;
+#else
+    (void) newState; // silence compiler warning
 #endif
 }
 

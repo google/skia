@@ -33,6 +33,7 @@ inline GrGLubyte verb_to_gl_path_cmd(const SkPath::Verb verb) {
     return gTable[verb];
 }
 
+#ifdef SK_DEBUG
 inline int num_pts(const SkPath::Verb verb) {
     static const int gTable[] = {
         1, // move
@@ -50,6 +51,7 @@ inline int num_pts(const SkPath::Verb verb) {
     GrAssert(verb >= 0 && (size_t)verb < GR_ARRAY_COUNT(gTable));
     return gTable[verb];
 }
+#endif
 }
 
 GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path) : INHERITED(gpu) {

@@ -95,7 +95,7 @@ char* SkOrderedReadBuffer::readString() {
 }
 
 void* SkOrderedReadBuffer::readEncodedString(size_t* length, SkPaint::TextEncoding encoding) {
-    int32_t encodingType = fReader.readInt();
+    SkDEBUGCODE(int32_t encodingType = ) fReader.readInt();
     SkASSERT(encodingType == encoding);
     *length =  fReader.readInt();
     void* data = sk_malloc_throw(*length);

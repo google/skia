@@ -341,7 +341,7 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
 
         size_t stretchedRowBytes = rtDesc.fWidth * bpp;
 
-        GrTexture* texture = fGpu->createTexture(rtDesc, stretchedPixels.get(), stretchedRowBytes);
+        SkDEBUGCODE(GrTexture* texture = )fGpu->createTexture(rtDesc, stretchedPixels.get(), stretchedRowBytes);
         GrAssert(NULL != texture);
     }
 

@@ -18,7 +18,7 @@ static void testop(const SkIRect& r0, const SkIRect& r1, SkRegion::Op op,
     c1.setRect(r1);
     c2.op(c0, c1, op);
 
-    SkIRect r2 = c2.getBounds();
+    SkDEBUGCODE(SkIRect r2 = c2.getBounds());
     SkASSERT(r2 == expectedR);
 }
 

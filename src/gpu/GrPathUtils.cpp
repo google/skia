@@ -251,7 +251,7 @@ void GrPathUtils::QuadUVMatrix::set(const GrPoint qPts[3]) {
         m.postConcat(UVpts);
 
         // The matrix should not have perspective.
-        static const SkScalar gTOL = SkFloatToScalar(1.f / 100.f);
+        SkDEBUGCODE(static const SkScalar gTOL = SkFloatToScalar(1.f / 100.f));
         GrAssert(SkScalarAbs(m.get(SkMatrix::kMPersp0)) < gTOL);
         GrAssert(SkScalarAbs(m.get(SkMatrix::kMPersp1)) < gTOL);
 

@@ -40,7 +40,7 @@ struct SkOTTableGlyph {
         void advance(uint16_t num) {
             fLocaPtr.shortOffset += num << fLocaFormat;
             fCurrentGlyphOffset = fLocaFormat ? SkEndian_SwapBE32(*fLocaPtr.longOffset)
-                                              : SkEndian_SwapBE16(*fLocaPtr.shortOffset) << 1;
+                                              : uint32_t(SkEndian_SwapBE16(*fLocaPtr.shortOffset) << 1);
         }
         const SkOTTableGlyphData* next() {
             uint32_t previousGlyphOffset = fCurrentGlyphOffset;

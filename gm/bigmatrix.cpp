@@ -41,6 +41,7 @@ protected:
 
         bool success = m.invert(&m);
         SkASSERT(success);
+        (void) success; // silence compiler :(
 
         SkPath path;
 

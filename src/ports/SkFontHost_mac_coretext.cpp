@@ -1524,12 +1524,15 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     info->fDescent = (int16_t) CTFontGetDescent(ctFont);
     info->fCapHeight = (int16_t) CTFontGetCapHeight(ctFont);
     CGRect bbox = CTFontGetBoundingBox(ctFont);
-    info->fBBox = SkIRect::MakeLTRB(
-            CGToScalar(CGRectGetMinX_inline(bbox)),   // Left
-            CGToScalar(CGRectGetMaxY_inline(bbox)),   // Top
-            CGToScalar(CGRectGetMaxX_inline(bbox)),   // Right
-            CGToScalar(CGRectGetMinY_inline(bbox)));  // Bottom
-
+    
+    SkRect r;
+    r.set( CGToScalar(CGRectGetMinX_inline(bbox)),   // Left
+           CGToScalar(CGRectGetMaxY_inline(bbox)),   // Top
+           CGToScalar(CGRectGetMaxX_inline(bbox)),   // Right
+           CGToScalar(CGRectGetMinY_inline(bbox)));  // Bottom
+           
+    r.roundOut(&(info->fBBox));
+    
     // Figure out a good guess for StemV - Min width of i, I, !, 1.
     // This probably isn't very good with an italic font.
     int16_t min_width = SHRT_MAX;

@@ -471,7 +471,7 @@ void SkApply::endSave(int index) {
             info->setValue(target, fActive->fSaveRestore[activeIndex], count);
     } else {
         SkScriptValue scriptValue;
-        bool success = target->getProperty(info->propertyIndex(), &scriptValue);
+        SkDEBUGCODE(bool success = ) target->getProperty(info->propertyIndex(), &scriptValue);
         SkASSERT(success == true);
         last[0] = scriptValue.fOperand;
         scriptValue.fOperand = fActive->fSaveRestore[activeIndex][0];
@@ -629,7 +629,7 @@ bool SkApply::interpolate(SkAnimateMaker& maker, SkMSec rawTime) {
                 fLastTime = animate->dur;
             SkTypedArray formulaValues;
             formulaValues.setCount(count);
-            bool success = animate->fFieldInfo->setValue(maker, &formulaValues, 0, 0, NULL,
+            SkDEBUGCODE(bool success = ) animate->fFieldInfo->setValue(maker, &formulaValues, 0, 0, NULL,
                 animate->getValuesType(), animate->formula);
             SkASSERT(success);
             if (restore)
@@ -761,7 +761,7 @@ void SkApply::save(int index) {
             info->setValue(target, last.begin(), count);
     } else {
         SkScriptValue scriptValue;
-        bool success = target->getProperty(info->propertyIndex(), &scriptValue);
+        SkDEBUGCODE(bool success = ) target->getProperty(info->propertyIndex(), &scriptValue);
         SkASSERT(success == true);
         SkASSERT(scriptValue.fType == SkType_Float);
         fActive->fSaveRestore[activeIndex][0] = scriptValue.fOperand;
