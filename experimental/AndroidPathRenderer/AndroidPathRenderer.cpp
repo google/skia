@@ -52,8 +52,8 @@ inline void computeInverseScales(const SkMatrix* transform, float &inverseScaleX
         float m01 = transform->getSkewY();
         float m10 = transform->getSkewX();
         float m11 = transform->getScaleY();
-        float scaleX = sqrt(m00 * m00 + m01 * m01);
-        float scaleY = sqrt(m10 * m10 + m11 * m11);
+        float scaleX = sk_float_sqrt(m00 * m00 + m01 * m01);
+        float scaleY = sk_float_sqrt(m10 * m10 + m11 * m11);
         inverseScaleX = (scaleX != 0) ? (1.0f / scaleX) : 1.0f;
         inverseScaleY = (scaleY != 0) ? (1.0f / scaleY) : 1.0f;
     } else {
@@ -82,7 +82,7 @@ inline void copyAlphaVertex(AlphaVertex* destPtr, const AlphaVertex* srcPtr) {
  */
 inline SkVector totalOffsetFromNormals(const SkVector& normalA, const SkVector& normalB) {
     SkVector pseudoNormal = normalA + normalB;
-    pseudoNormal.scale(1.0f / (1.0f + fabs(normalA.dot(normalB))));
+    pseudoNormal.scale(1.0f / (1.0f + sk_float_abs(normalA.dot(normalB))));
     return pseudoNormal;
 }
 
@@ -661,8 +661,8 @@ void PathRenderer::RecursiveCubicBezierVertices(
         float sqrInvScaleX, float sqrInvScaleY, SkTArray<Vertex, true>* outputVertices) {
     float dx = p2x - p1x;
     float dy = p2y - p1y;
-    float d1 = fabs((c1x - p2x) * dy - (c1y - p2y) * dx);
-    float d2 = fabs((c2x - p2x) * dy - (c2y - p2y) * dx);
+    float d1 = sk_float_abs((c1x - p2x) * dy - (c1y - p2y) * dx);
+    float d2 = sk_float_abs((c2x - p2x) * dy - (c2y - p2y) * dx);
     float d = d1 + d2;
 
     // multiplying by sqrInvScaleY/X equivalent to multiplying in dimensional scale factors

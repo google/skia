@@ -138,7 +138,7 @@ private:
 class BlurRectCompareGM : public skiagm::GM {
     SkString  fName;
     unsigned int fRectWidth, fRectHeight;
-    float fRadius;
+    SkScalar fRadius;
 public:
     BlurRectCompareGM(const char name[], unsigned int rectWidth, unsigned int rectHeight, float radius) :
         fName(name)
@@ -149,7 +149,7 @@ public:
 
   int width() const { return fRectWidth; }
   int height() const { return fRectHeight; }
-  int radius() const { return fRadius; }
+  SkScalar radius() const { return fRadius; }
 
 protected:
     virtual SkString onShortName() {
@@ -160,7 +160,7 @@ protected:
         return SkISize::Make(640, 480);
     }
 
-    virtual void makeMask( SkMask *m, SkRect r ) = 0;
+    virtual void makeMask( SkMask *m, const SkRect& ) = 0;
 
     virtual void onDraw(SkCanvas* canvas) {
       SkRect r;
@@ -184,12 +184,14 @@ private:
 
 class BlurRectFastGM: public BlurRectCompareGM {
 public:
-  BlurRectFastGM(const char name[], unsigned int rect_width, unsigned int rect_height, float blur_radius) :
-    BlurRectCompareGM( name, rect_width, rect_height, blur_radius ) {}
+    BlurRectFastGM(const char name[], unsigned int rect_width,
+                   unsigned int rect_height, float blur_radius) :
+        BlurRectCompareGM( name, rect_width, rect_height, blur_radius ) {}
 protected:
-  virtual void makeMask( SkMask *m, SkRect r ) {
-    SkBlurMask::BlurRect( m, r, radius(), SkBlurMask::kNormal_Style, SkBlurMask::kHigh_Quality );
-  }
+    virtual void makeMask( SkMask *m, const SkRect& r) SK_OVERRIDE {
+        SkBlurMask::BlurRect( m, r, radius(), SkBlurMask::kNormal_Style,
+                             SkBlurMask::kHigh_Quality );
+    }
 };
 
 class BlurRectSlowGM: public BlurRectCompareGM {
@@ -197,17 +199,18 @@ public:
   BlurRectSlowGM(const char name[], unsigned int rect_width, unsigned int rect_height, float blur_radius) :
     BlurRectCompareGM( name, rect_width, rect_height, blur_radius ) {}
 protected:
-  virtual void makeMask( SkMask *m, SkRect r ) {
-    SkMask src;
-    src.fFormat = SkMask::kA8_Format;
-    src.fRowBytes = r.width();
-    src.fBounds = SkIRect::MakeWH(r.width(), r.height());
-    src.fImage = SkMask::AllocImage( src.computeTotalImageSize() );
+    virtual void makeMask( SkMask *m, const SkRect& r) SK_OVERRIDE {
+        SkMask src;
+        r.roundOut(&src.fBounds);
+        src.fBounds.offset(-src.fBounds.fLeft, -src.fBounds.fTop);  // move to origin
+        src.fFormat = SkMask::kA8_Format;
+        src.fRowBytes = src.fBounds.width();
+        src.fImage = SkMask::AllocImage( src.computeTotalImageSize() );
 
-    memset( src.fImage, 0xff, src.computeTotalImageSize() );
+        memset( src.fImage, 0xff, src.computeTotalImageSize() );
 
-    SkBlurMask::BlurSeparable( m, src, radius()/2, SkBlurMask::kNormal_Style, SkBlurMask::kHigh_Quality );
-  }
+        SkBlurMask::BlurSeparable( m, src, radius()/2, SkBlurMask::kNormal_Style, SkBlurMask::kHigh_Quality );
+    }
 };
 
 

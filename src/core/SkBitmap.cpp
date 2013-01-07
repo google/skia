@@ -701,7 +701,7 @@ bool SkBitmap::ComputeIsOpaque(const SkBitmap& bm) {
             if (!table) {
                 return false;
             }
-            SkPMColor c = ~0;
+            SkPMColor c = (SkPMColor)~0;
             for (int i = bm.getColorTable()->count() - 1; i >= 0; --i) {
                 c &= table[i];
             }
@@ -724,7 +724,7 @@ bool SkBitmap::ComputeIsOpaque(const SkBitmap& bm) {
             return true;
         } break;
         case SkBitmap::kARGB_8888_Config: {
-            SkPMColor c = ~0;
+            SkPMColor c = (SkPMColor)~0;
             for (int y = 0; y < height; ++y) {
                 const SkPMColor* row = bm.getAddr32(0, y);
                 for (int x = 0; x < width; ++x) {

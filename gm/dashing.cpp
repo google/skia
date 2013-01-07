@@ -245,7 +245,7 @@ protected:
         // 1on/1off 1x1 squares with phase of 1 and non-integer length - rects fastpath
         canvas->save();
             canvas->translate(332, 0);
-            this->drawDashedLines(canvas, 99.5, SK_ScalarHalf, SK_Scalar1, 1, false);
+            this->drawDashedLines(canvas, 99.5f, SK_ScalarHalf, SK_Scalar1, 1, false);
         canvas->restore();
 
         // 1on/1off 3x3 squares with phase of 0 - points fast path
