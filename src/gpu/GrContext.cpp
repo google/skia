@@ -1063,24 +1063,15 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const SkStrok
        return;
     }
 
-    const SkPath* pathPtr = &path;
-    SkPath tmpPath;
-    SkStrokeRec strokeRec(stroke);
-    if (!strokeRec.isHairlineStyle()) {
-        if (strokeRec.applyToPath(&tmpPath, *pathPtr)) {
-            pathPtr = &tmpPath;
-            strokeRec.setFillStyle();
-        }
-    }
-
     SkRect ovalRect;
-    if (!pathPtr->isInverseFillType() && pathPtr->isOval(&ovalRect)) {
-        SkScalar width = strokeRec.isHairlineStyle() ? 0 : -SK_Scalar1;
+    if ((stroke.isHairlineStyle() || stroke.isFillStyle()) && !path.isInverseFillType() &&
+        path.isOval(&ovalRect)) {
+        SkScalar width = stroke.isHairlineStyle() ? 0 : -SK_Scalar1;
         this->drawOval(paint, ovalRect, width);
         return;
     }
 
-    this->internalDrawPath(paint, *pathPtr, strokeRec);
+    this->internalDrawPath(paint, path, stroke);
 }
 
 void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path, const SkStrokeRec& stroke) {
@@ -1109,7 +1100,23 @@ void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path, const
     GrPathRendererChain::DrawType type = prAA ? GrPathRendererChain::kColorAntiAlias_DrawType :
                                                 GrPathRendererChain::kColor_DrawType;
 
-    GrPathRenderer* pr = this->getPathRenderer(path, stroke, target, true, type);
+    const SkPath* pathPtr = &path;
+    SkPath tmpPath;
+    SkStrokeRec strokeRec(stroke);
+
+    // Try a 1st time without stroking the path and without allowing the SW renderer
+    GrPathRenderer* pr = this->getPathRenderer(*pathPtr, strokeRec, target, false, type);
+
+    if ((NULL == pr) && !strokeRec.isHairlineStyle()) {
+        // It didn't work the 1st time, so try again with the stroked path
+        if (strokeRec.applyToPath(&tmpPath, *pathPtr)) {
+            pathPtr = &tmpPath;
+            strokeRec.setFillStyle();
+        }
+        // This time, allow SW renderer
+        pr = this->getPathRenderer(*pathPtr, strokeRec, target, true, type);
+    }
+
     if (NULL == pr) {
 #if GR_DEBUG
         GrPrintf("Unable to find path renderer compatible with path.\n");
@@ -1117,7 +1124,7 @@ void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path, const
         return;
     }
 
-    pr->drawPath(path, stroke, target, prAA);
+    pr->drawPath(*pathPtr, strokeRec, target, prAA);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

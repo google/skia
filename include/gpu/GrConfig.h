@@ -384,6 +384,14 @@ inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
     #define GR_USE_NEW_GL_SHADER_SOURCE_SIGNATURE 0
 #endif
 
+/**
+ * GR_STROKE_PATH_RENDERING controls whether or not the GrStrokePathRenderer can be selected
+ * as a path renderer. GrStrokePathRenderer is currently an experimental path renderer.
+ */
+#if !defined(GR_STROKE_PATH_RENDERING)
+    #define GR_STROKE_PATH_RENDERING                 0
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 // tail section:
 //
