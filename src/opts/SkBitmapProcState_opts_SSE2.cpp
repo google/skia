@@ -678,8 +678,6 @@ void S32_D16_filter_DX_SSE2(const SkBitmapProcState& s,
     // ( 0,  0,  0,  0,  0,  0,  0,  0)
     __m128i zero = _mm_setzero_si128();
 
-    __m128i _m_shift_5 = _mm_set1_epi32((1<<5)-1);
-    __m128i _m_shift_6 = _mm_set1_epi32((1<<6)-1);
     do {
         uint32_t XX = *xy++;    // x0:14 | 4 | x1:14
         unsigned x0 = XX >> 18;

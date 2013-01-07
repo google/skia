@@ -31,34 +31,17 @@ uint32_t SkPackConfig8888(SkCanvas::Config8888 config,
                           uint32_t g,
                           uint32_t b);
 
+///////////////////////////////////////////////////////////////////////////////
+// Implementation
+
 namespace {
 
 /**
   Copies all pixels from a bitmap to a dst ptr with a given rowBytes and
   Config8888. The bitmap must have kARGB_8888_Config.
  */
-inline void SkCopyBitmapToConfig8888(uint32_t* dstPixels,
-                                     size_t dstRowBytes,
-                                     SkCanvas::Config8888 dstConfig8888,
-                                     const SkBitmap& srcBmp);
 
-/**
-  Copies over all pixels in a bitmap from a src ptr with a given rowBytes and
-  Config8888. The bitmap must have pixels and be kARGB_8888_Config.
- */
-inline void SkCopyConfig8888ToBitmap(const SkBitmap& dstBmp,
-                                     const uint32_t* srcPixels,
-                                     size_t srcRowBytes,
-                                     SkCanvas::Config8888 srcConfig8888);
-
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Implementation
-
-namespace {
-
-inline void SkCopyBitmapToConfig8888(uint32_t* dstPixels,
+static inline void SkCopyBitmapToConfig8888(uint32_t* dstPixels,
                                      size_t dstRowBytes,
                                      SkCanvas::Config8888 dstConfig8888,
                                      const SkBitmap& srcBmp) {
@@ -72,7 +55,11 @@ inline void SkCopyBitmapToConfig8888(uint32_t* dstPixels,
     SkConvertConfig8888Pixels(dstPixels, dstRowBytes, dstConfig8888, srcPixels, srcRowBytes, SkCanvas::kNative_Premul_Config8888, w, h);
 }
 
-inline void SkCopyConfig8888ToBitmap(const SkBitmap& dstBmp,
+/**
+  Copies over all pixels in a bitmap from a src ptr with a given rowBytes and
+  Config8888. The bitmap must have pixels and be kARGB_8888_Config.
+ */
+static inline void SkCopyConfig8888ToBitmap(const SkBitmap& dstBmp,
                                      const uint32_t* srcPixels,
                                      size_t srcRowBytes,
                                      SkCanvas::Config8888 srcConfig8888) {

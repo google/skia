@@ -136,11 +136,7 @@ private:
     typedef SkPicture INHERITED;
 };
 
-static bool PNGEncodeBitmapToStream(SkWStream* stream, const SkBitmap& bitmap) {
-    return SkImageEncoder::EncodeStream(stream, bitmap, SkImageEncoder::kPNG_Type, 100);
-}
-
-int filter_picture(const SkString& inFile, const SkString& outFile,
+static int filter_picture(const SkString& inFile, const SkString& outFile,
                    const SkString& textureDir, SkFILEWStream *pathStream) {
     SkPicture* inPicture = NULL;
 
@@ -183,6 +179,8 @@ int filter_picture(const SkString& inFile, const SkString& outFile,
 
 // This function is not marked as 'static' so it can be referenced externally
 // in the iOS build.
+int tool_main(int argc, char** argv); // suppress a warning on mac
+
 int tool_main(int argc, char** argv) {
     SkGraphics::Init();
 
@@ -279,7 +277,7 @@ int tool_main(int argc, char** argv) {
     }
 
     SkOSFile::Iter iter(inDir.c_str(), "skp");
-    int failures = 0;
+
     SkString inputFilename, outputFilename;
     if (iter.next(&inputFilename)) {
 

@@ -347,8 +347,7 @@ void SkGpuDevice::writePixels(const SkBitmap& bitmap, int x, int y,
 }
 
 namespace {
-void purgeClipCB(int genID, void* data) {
-    GrContext* context = (GrContext*) data;
+void purgeClipCB(int genID, void* ) {
 
     if (SkClipStack::kInvalidGenID == genID ||
         SkClipStack::kEmptyGenID == genID ||
@@ -1339,8 +1338,6 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
         SkDebugf("nothing to draw\n");
         return;
     }
-
-    GrEffectStage* stage = grPaint->colorStage(kBitmapTextureIdx);
 
     GrTexture* texture;
     SkAutoCachedTexture act(this, bitmap, &params, &texture);

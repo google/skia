@@ -55,10 +55,15 @@
     }
 }
 
-- (void)updateMenu:(SkOSMenu*)menu {
+- (void)updateMenu:(const SkOSMenu*)menu {
     // the first menu is always assumed to be the static, the second is 
     // repopulated every time over and over again 
-    int menuIndex = fMenus->find(menu);
+
+    // seems pretty weird that we have to get rid of the const'ness here,
+    // but trying to propagate the const'ness through all the way to the fMenus
+    // vector was a non-starter.
+
+    int menuIndex = fMenus->find(const_cast<SkOSMenu *>(menu));
     if (menuIndex >= 0 && menuIndex < fMenus->count()) {
         NSUInteger first = 0;
         for (NSInteger i = 0; i < menuIndex; ++i) {

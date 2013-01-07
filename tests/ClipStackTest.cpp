@@ -758,7 +758,7 @@ static void add_elem_to_region(const SkClipStack::Element& element,
 }
 
 // This can assist with debugging the clip stack reduction code when the test below fails.
-static void print_clip(const SkClipStack::Element& element) {
+static inline void print_clip(const SkClipStack::Element& element) {
     static const char* kOpStrs[] = {
         "DF",
         "IS",

@@ -33,7 +33,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         for (int i = 0; i < N; i++) {
-            volatile uint32_t result = SkChecksum::Compute(fData, sizeof(fData));
+            (void) SkChecksum::Compute(fData, sizeof(fData));
         }
     }
 

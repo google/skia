@@ -24,7 +24,7 @@
     #define USE_DITHER_32BIT_GRADIENT
 #endif
 
-static void sk_memset32_dither(uint32_t dst[], uint32_t v0, uint32_t v1,
+static inline void sk_memset32_dither(uint32_t dst[], uint32_t v0, uint32_t v1,
                                int count) {
     if (count > 0) {
         if (v0 == v1) {
@@ -44,13 +44,13 @@ static void sk_memset32_dither(uint32_t dst[], uint32_t v0, uint32_t v1,
 
 //  Clamp
 
-static SkFixed clamp_tileproc(SkFixed x) {
+static inline SkFixed clamp_tileproc(SkFixed x) {
     return SkClampMax(x, 0xFFFF);
 }
 
 // Repeat
 
-static SkFixed repeat_tileproc(SkFixed x) {
+static inline SkFixed repeat_tileproc(SkFixed x) {
     return x & 0xFFFF;
 }
 

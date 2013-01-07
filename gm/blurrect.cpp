@@ -19,13 +19,6 @@ static void fill_rect(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
     canvas->drawRect(r, p);
 }
 
-static void stroke_rect(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
-    SkPaint paint(p);
-    paint.setStyle(SkPaint::kStroke_Style);
-    paint.setStrokeWidth(STROKE_WIDTH);
-    canvas->drawRect(r, paint);
-}
-
 static void draw_donut(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
     SkRect  rect;
     SkPath  path;
@@ -63,14 +56,6 @@ static void draw_donut_skewed(SkCanvas* canvas, const SkRect& r, const SkPaint& 
 #include "SkGradientShader.h"
 
 typedef void (*PaintProc)(SkPaint*, SkScalar width);
-
-static void setgrad(SkPaint* paint, SkScalar width) {
-    SkPoint pts[] = { { 0, 0 }, { width, 0 } };
-    SkColor colors[] = { SK_ColorRED, SK_ColorGREEN };
-    SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, 2,
-                                                 SkShader::kClamp_TileMode);
-    paint->setShader(s)->unref();
-}
 
 static const char* gBlurStyle2Name[] = {
     "normal",

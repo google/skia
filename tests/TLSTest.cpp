@@ -71,7 +71,7 @@ static void TestTLS(skiatest::Reporter* reporter) {
     // TODO: Disabled for now to work around
     // http://code.google.com/p/skia/issues/detail?id=619
     // ('flaky segfault in TLS test on Shuttle_Ubuntu12 buildbots')
-    //test_threads(&thread_main);
+    if( false ) test_threads(&thread_main);
 
     // Test to ensure that at thread destruction, TLS destructors
     // have been called.

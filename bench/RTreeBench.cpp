@@ -145,22 +145,22 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-static SkIRect make_simple_rect(SkRandom&, int index, int numRects) {
+static inline SkIRect make_simple_rect(SkRandom&, int index, int numRects) {
     SkIRect out = {0, 0, GENERATE_EXTENTS, GENERATE_EXTENTS};
     return out;
 }
 
-static SkIRect make_concentric_rects_increasing(SkRandom&, int index, int numRects) {
+static inline SkIRect make_concentric_rects_increasing(SkRandom&, int index, int numRects) {
     SkIRect out = {0, 0, index + 1, index + 1};
     return out;
 }
 
-static SkIRect make_concentric_rects_decreasing(SkRandom&, int index, int numRects) {
+static inline SkIRect make_concentric_rects_decreasing(SkRandom&, int index, int numRects) {
     SkIRect out = {0, 0, numRects - index, numRects - index};
     return out;
 }
 
-static SkIRect make_point_rects(SkRandom& rand, int index, int numRects) {
+static inline SkIRect make_point_rects(SkRandom& rand, int index, int numRects) {
     SkIRect out;
     out.fLeft   = rand.nextU() % GENERATE_EXTENTS;
     out.fTop    = rand.nextU() % GENERATE_EXTENTS;
@@ -169,7 +169,7 @@ static SkIRect make_point_rects(SkRandom& rand, int index, int numRects) {
     return out;
 }
 
-static SkIRect make_random_rects(SkRandom& rand, int index, int numRects) {
+static inline SkIRect make_random_rects(SkRandom& rand, int index, int numRects) {
     SkIRect out;
     out.fLeft   = rand.nextS() % GENERATE_EXTENTS;
     out.fTop    = rand.nextS() % GENERATE_EXTENTS;
@@ -178,7 +178,7 @@ static SkIRect make_random_rects(SkRandom& rand, int index, int numRects) {
     return out;
 }
 
-static SkIRect make_large_rects(SkRandom& rand, int index, int numRects) {
+static inline SkIRect make_large_rects(SkRandom& rand, int index, int numRects) {
     SkIRect out;
     out.fLeft   = rand.nextU() % GENERATE_EXTENTS;
     out.fTop    = rand.nextU() % GENERATE_EXTENTS;
@@ -189,23 +189,23 @@ static SkIRect make_large_rects(SkRandom& rand, int index, int numRects) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkBenchmark* Fact0(void* p) {
+static inline SkBenchmark* Fact0(void* p) {
     return SkNEW_ARGS(BBoxBuildBench, (p, "random", &make_random_rects, true,
                       SkRTree::Create(5, 16)));
 }
-static SkBenchmark* Fact1(void* p) {
+static inline SkBenchmark* Fact1(void* p) {
     return SkNEW_ARGS(BBoxBuildBench, (p, "random", &make_random_rects, false,
                       SkRTree::Create(5, 16)));
 }
-static SkBenchmark* Fact2(void* p) {
+static inline SkBenchmark* Fact2(void* p) {
     return SkNEW_ARGS(BBoxBuildBench, (p, "concentric",
                       &make_concentric_rects_increasing, true, SkRTree::Create(5, 16)));
 }
-static SkBenchmark* Fact3(void* p) {
+static inline SkBenchmark* Fact3(void* p) {
     return SkNEW_ARGS(BBoxQueryBench, (p, "random", &make_random_rects, true,
                       BBoxQueryBench::kRandom_QueryType, SkRTree::Create(5, 16)));
 }
-static SkBenchmark* Fact4(void* p) {
+static inline SkBenchmark* Fact4(void* p) {
     return SkNEW_ARGS(BBoxQueryBench, (p, "random", &make_random_rects, false,
                       BBoxQueryBench::kRandom_QueryType, SkRTree::Create(5, 16)));
 }

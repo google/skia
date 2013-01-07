@@ -260,31 +260,6 @@ void setup_boolean_blendcoeffs(GrDrawState* drawState, SkRegion::Op op) {
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-bool draw_path_in_software(GrContext* context,
-                           GrGpu* gpu,
-                           const SkPath& path,
-                           bool doAA,
-                           const GrIRect& resultBounds) {
-    SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
-
-    SkAutoTUnref<GrTexture> texture(
-                GrSWMaskHelper::DrawPathMaskToTexture(context, path,
-                                                      rec,
-                                                      resultBounds,
-                                                      doAA, NULL));
-    if (NULL == texture) {
-        return false;
-    }
-
-    // The ClipMaskManager accumulates the clip mask in the UL corner
-    GrIRect rect = GrIRect::MakeWH(resultBounds.width(), resultBounds.height());
-
-    GrSWMaskHelper::DrawToTargetWithPathMask(texture, gpu, rect);
-
-    GrAssert(!path.isInverseFillType());
-    return true;
-}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -631,8 +606,6 @@ bool GrClipMaskManager::createStencilClipMask(InitialState initialState,
         int clipBit = stencilBuffer->bits();
         SkASSERT((clipBit <= 16) && "Ganesh only handles 16b or smaller stencil buffers");
         clipBit = (1 << (clipBit-1));
-
-        GrIRect devRTRect = GrIRect::MakeWH(rt->width(), rt->height());
 
         fGpu->clearStencilClip(stencilSpaceIBounds, kAllIn_InitialState == initialState);
 

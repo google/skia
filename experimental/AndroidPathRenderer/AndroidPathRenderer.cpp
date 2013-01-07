@@ -46,7 +46,7 @@ SkRect PathRenderer::ComputePathBounds(const SkPath& path, const SkPaint* paint)
     return bounds;
 }
 
-void computeInverseScales(const SkMatrix* transform, float &inverseScaleX, float& inverseScaleY) {
+inline void computeInverseScales(const SkMatrix* transform, float &inverseScaleX, float& inverseScaleY) {
     if (transform && transform->getType() & (SkMatrix::kScale_Mask|SkMatrix::kAffine_Mask|SkMatrix::kPerspective_Mask)) {
         float m00 = transform->getScaleX();
         float m01 = transform->getSkewY();
@@ -97,7 +97,7 @@ inline void scaleOffsetForStrokeWidth(SkVector& offset, float halfStrokeWidth,
     }
 }
 
-void getFillVerticesFromPerimeter(const SkTArray<Vertex, true>& perimeter, VertexBuffer* vertexBuffer) {
+static void getFillVerticesFromPerimeter(const SkTArray<Vertex, true>& perimeter, VertexBuffer* vertexBuffer) {
     Vertex* buffer = vertexBuffer->alloc<Vertex>(perimeter.count());
 
     int currentIndex = 0;
@@ -114,7 +114,7 @@ void getFillVerticesFromPerimeter(const SkTArray<Vertex, true>& perimeter, Verte
     }
 }
 
-void getStrokeVerticesFromPerimeter(const SkTArray<Vertex, true>& perimeter, float halfStrokeWidth,
+static void getStrokeVerticesFromPerimeter(const SkTArray<Vertex, true>& perimeter, float halfStrokeWidth,
         VertexBuffer* vertexBuffer, float inverseScaleX, float inverseScaleY) {
     Vertex* buffer = vertexBuffer->alloc<Vertex>(perimeter.count() * 2 + 2);
 
@@ -153,7 +153,7 @@ void getStrokeVerticesFromPerimeter(const SkTArray<Vertex, true>& perimeter, flo
     copyVertex(&buffer[currentIndex++], &buffer[1]);
 }
 
-void getStrokeVerticesFromUnclosedVertices(const SkTArray<Vertex, true>& vertices, float halfStrokeWidth,
+static void getStrokeVerticesFromUnclosedVertices(const SkTArray<Vertex, true>& vertices, float halfStrokeWidth,
         VertexBuffer* vertexBuffer, float inverseScaleX, float inverseScaleY) {
     Vertex* buffer = vertexBuffer->alloc<Vertex>(vertices.count() * 2);
 
@@ -203,7 +203,7 @@ void getStrokeVerticesFromUnclosedVertices(const SkTArray<Vertex, true>& vertice
 #endif
 }
 
-void getFillVerticesFromPerimeterAA(const SkTArray<Vertex, true>& perimeter, VertexBuffer* vertexBuffer,
+static void getFillVerticesFromPerimeterAA(const SkTArray<Vertex, true>& perimeter, VertexBuffer* vertexBuffer,
          float inverseScaleX, float inverseScaleY) {
     AlphaVertex* buffer = vertexBuffer->alloc<AlphaVertex>(perimeter.count() * 3 + 2);
 
@@ -268,7 +268,7 @@ void getFillVerticesFromPerimeterAA(const SkTArray<Vertex, true>& perimeter, Ver
 }
 
 
-void getStrokeVerticesFromUnclosedVerticesAA(const SkTArray<Vertex, true>& vertices, float halfStrokeWidth,
+static void getStrokeVerticesFromUnclosedVerticesAA(const SkTArray<Vertex, true>& vertices, float halfStrokeWidth,
         VertexBuffer* vertexBuffer, float inverseScaleX, float inverseScaleY) {
     AlphaVertex* buffer = vertexBuffer->alloc<AlphaVertex>(6 * vertices.count() + 2);
 
@@ -427,7 +427,7 @@ void getStrokeVerticesFromUnclosedVerticesAA(const SkTArray<Vertex, true>& verti
 }
 
 
-void getStrokeVerticesFromPerimeterAA(const SkTArray<Vertex, true>& perimeter, float halfStrokeWidth,
+static void getStrokeVerticesFromPerimeterAA(const SkTArray<Vertex, true>& perimeter, float halfStrokeWidth,
         VertexBuffer* vertexBuffer, float inverseScaleX, float inverseScaleY) {
     AlphaVertex* buffer = vertexBuffer->alloc<AlphaVertex>(6 * perimeter.count() + 8);
 
@@ -590,7 +590,7 @@ void PathRenderer::ConvexPathVertices(const SkPath &path, const SkPaint* paint,
 }
 
 
-void pushToVector(SkTArray<Vertex, true>* vertices, float x, float y) {
+static void pushToVector(SkTArray<Vertex, true>* vertices, float x, float y) {
     // TODO: make this not yuck
     vertices->push_back();
     Vertex* newVertex = &((*vertices)[vertices->count() - 1]);
@@ -607,7 +607,7 @@ bool PathRenderer::ConvexPathPerimeterVertices(const SkPath& path, bool forceClo
     SkPath::Iter iter(path, forceClose);
     SkPoint pts[4];
     SkPath::Verb v;
-    Vertex* newVertex = 0;
+
     while (SkPath::kDone_Verb != (v = iter.next(pts))) {
             switch (v) {
                 case SkPath::kMove_Verb:

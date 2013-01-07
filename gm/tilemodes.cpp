@@ -174,14 +174,6 @@ static SkShader* make_grad(SkShader::TileMode tx, SkShader::TileMode ty) {
     return NULL;
 }
 
-static SkShader* make_radial(SkShader::TileMode tx, SkShader::TileMode ty) {
-    SkPoint center = { SkIntToScalar(gWidth)/2, SkIntToScalar(gHeight)/2 };
-    SkScalar rad = SkIntToScalar(gWidth)/2;
-    SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
-
-    return SkGradientShader::CreateRadial(center, rad, colors, NULL, SK_ARRAY_COUNT(colors), tx);
-}
-
 typedef SkShader* (*ShaderProc)(SkShader::TileMode, SkShader::TileMode);
 
 class Tiling2GM : public skiagm::GM {
