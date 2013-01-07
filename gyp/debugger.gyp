@@ -81,6 +81,7 @@
         '../debugger',      # To pull SkDebugger.h
         '../debugger/QT',   # For all the QT UI Goodies
         '../src/gpu',       # To pull gl/GrGLUtil.h
+        '../src/ports',     # To pull SkFontDescriptor.h
         '../bench',
         '../tools',
         '<@(qt_includes)',
