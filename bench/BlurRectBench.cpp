@@ -1,10 +1,10 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SkBenchmark.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
@@ -36,7 +36,7 @@ protected:
         return fRadius;
     }
 
-    void setName( SkString name ) {
+    void setName(const SkString& name) {
         fName = name;
     }
 
@@ -46,8 +46,8 @@ protected:
 
         paint.setAntiAlias(true);
 
-        int pad = fRadius * 1.5 + 1;
-        SkRect r = SkRect::MakeWH(2 * pad + 1, 2 * pad + 1);
+        SkScalar pad = fRadius*3/2 + SK_Scalar1;
+        SkRect r = SkRect::MakeWH(2 * pad + SK_Scalar1, 2 * pad + SK_Scalar1);
 
         int loop_count;
 
@@ -59,15 +59,15 @@ protected:
           loop_count = 10000;
         }
 
-        preBenchSetup( r );
+        preBenchSetup(r);
 
         for (int i = 0; i < SkBENCHLOOP(loop_count); i++) {
-            makeBlurryRect( r );
+            makeBlurryRect(r);
         }
     }
 
-    virtual void makeBlurryRect( SkRect &r ) = 0;
-    virtual void preBenchSetup( SkRect &r ) {}
+    virtual void makeBlurryRect(const SkRect&) = 0;
+    virtual void preBenchSetup(const SkRect&) {}
 private:
     typedef SkBenchmark INHERITED;
 };
@@ -75,7 +75,7 @@ private:
 
 class BlurRectDirectBench: public BlurRectBench {
  public:
-    BlurRectDirectBench( void *param, SkScalar rad ) : BlurRectBench( param, rad ) {
+    BlurRectDirectBench(void *param, SkScalar rad) : BlurRectBench(param, rad) {
         SkString name;
 
         if (SkScalarFraction(rad) != 0) {
@@ -84,19 +84,20 @@ class BlurRectDirectBench: public BlurRectBench {
             name.printf("blurrect_direct_%d", SkScalarRound(rad));
         }
 
-        setName( name );
+        setName(name);
     }
 protected:
-    virtual void makeBlurryRect( SkRect &r ) {
+    virtual void makeBlurryRect(const SkRect& r) SK_OVERRIDE {
         SkMask mask;
-        SkBlurMask::BlurRect( &mask, r, radius(), SkBlurMask::kNormal_Style, SkBlurMask::kHigh_Quality );
+        SkBlurMask::BlurRect(&mask, r, radius(), SkBlurMask::kNormal_Style,
+                             SkBlurMask::kHigh_Quality);
     }
 };
 
 class BlurRectSeparableBench: public BlurRectBench {
     SkMask fSrcMask;
 public:
-    BlurRectSeparableBench(void *param, SkScalar rad) : BlurRectBench( param, rad ) {
+    BlurRectSeparableBench(void *param, SkScalar rad) : BlurRectBench(param, rad) {
         SkString name;
         if (SkScalarFraction(rad) != 0) {
             name.printf("blurrect_separable_%.2f", SkScalarToFloat(rad));
@@ -104,22 +105,24 @@ public:
             name.printf("blurrect_separable_%d", SkScalarRound(rad));
         }
 
-        setName( name );
+        setName(name);
     }
 
 protected:
-    virtual void preBenchSetup( SkRect &r ) {
+    virtual void preBenchSetup(const SkRect& r) SK_OVERRIDE {
+        r.roundOut(&fSrcMask.fBounds);
         fSrcMask.fFormat = SkMask::kA8_Format;
-        fSrcMask.fRowBytes = r.width();
-        fSrcMask.fBounds = SkIRect::MakeWH(r.width(), r.height());
-        fSrcMask.fImage = SkMask::AllocImage( fSrcMask.computeTotalImageSize() );
+        fSrcMask.fRowBytes = fSrcMask.fBounds.width();
+        fSrcMask.fImage = SkMask::AllocImage(fSrcMask.computeTotalImageSize());
 
-        memset( fSrcMask.fImage, 0xff, fSrcMask.computeTotalImageSize() );
+        memset(fSrcMask.fImage, 0xff, fSrcMask.computeTotalImageSize());
     }
 
-    virtual void makeBlurryRect( SkRect &r ) {
+    virtual void makeBlurryRect(const SkRect& r) SK_OVERRIDE {
         SkMask mask;
-        SkBlurMask::BlurSeparable( &mask, fSrcMask, radius(), SkBlurMask::kNormal_Style, SkBlurMask::kHigh_Quality );
+        SkBlurMask::BlurSeparable(&mask, fSrcMask, radius(),
+                                  SkBlurMask::kNormal_Style,
+                                  SkBlurMask::kHigh_Quality);
     }
 };
 
