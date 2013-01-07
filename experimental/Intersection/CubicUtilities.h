@@ -11,7 +11,8 @@
 #include "SkTDArray.h"
 
 double cube_root(double x);
-int cubic_to_quadratics(const Cubic& cubic, SkTDArray<Quadratic>& quadratics);
+int cubic_to_quadratics(const Cubic& cubic, double precision,
+        SkTDArray<Quadratic>& quadratics);
 void coefficients(const double* cubic, double& A, double& B, double& C, double& D);
 int cubicRoots(double A, double B, double C, double D, double t[3]);
 double derivativeAtT(const double* cubic, double t);
