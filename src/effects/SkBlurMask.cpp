@@ -1060,13 +1060,13 @@ static float gaussian_integral( float x ) {
     float x2 = x*x;
     float x3 = x2*x;
 
-    if ( x > 0.5 ) {
-        return .5625 - ( x3 / 6 - 3 * x2 / 4 + 1.125 * x);
+    if ( x > 0.5f ) {
+        return 0.5625f - ( x3 / 6.0f - 3.0f * x2 * 0.25f + 1.125f * x);
     }
-    if ( x > -0.5 ) {
-        return 0.5 - (0.75 * x - x3 / 3);
+    if ( x > -0.5f ) {
+        return 0.5f - (0.75f * x - x3 / 3.0f);
     }
-    return 0.4375 + (-x3 / 6 - 3 * x2 / 4 - 1.125 * x);
+    return 0.4375f + (-x3 / 6.0f - 3.0f * x2 * 0.25f - 1.125f * x);
 }
 
 /*
@@ -1083,7 +1083,7 @@ static float gaussian_integral( float x ) {
 */
 
 static int compute_profile( SkScalar radius, unsigned int **profile_out ) {
-    int size = radius * 3 + 1;
+    int size = SkScalarFloorToInt(radius * 3 + 1);
     int center = size >> 1;
 
     unsigned int *profile = new unsigned int [size];
@@ -1123,7 +1123,7 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
     if (margin) {
         margin->set( pad, pad );
     }
-    dst->fBounds = SkIRect::MakeWH(src.width(), src.height());
+    dst->fBounds = SkIRect::MakeWH(SkScalarFloorToInt(src.width()), SkScalarFloorToInt(src.height()));
     dst->fBounds.outset(pad, pad);
 
     dst->fRowBytes = dst->fBounds.width();
@@ -1135,8 +1135,8 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
         return false;   // too big to allocate, abort
     }
 
-    int             sw = src.width();
-    int             sh = src.height();
+    int             sw = SkScalarFloorToInt(src.width());
+    int             sh = SkScalarFloorToInt(src.height());
 
     uint8_t*        dp = SkMask::AllocImage(dstSize);
 
