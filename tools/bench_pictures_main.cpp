@@ -450,7 +450,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 gLogger.logError("Missing scaleFactor for --scale\n");
                 PRINT_USAGE_AND_EXIT;
             }
-            scaleFactor = atof(*argv);
+            scaleFactor = SkDoubleToScalar(atof(*argv));
         } else if (0 == strcmp(*argv, "--tiles")) {
             ++argv;
             if (argv >= stop) {
