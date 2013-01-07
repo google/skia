@@ -30,7 +30,7 @@ SkMesaGLContext::AutoContextRestore::~AutoContextRestore() {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkMesaGLContext::SkMesaGLContext()
-    : fContext(NULL)
+    : fContext(static_cast<Context>(NULL))
     , fImage(NULL) {
     GR_STATIC_ASSERT(sizeof(Context) == sizeof(OSMesaContext));
 }
