@@ -188,6 +188,7 @@ public:
     /** if copyData is true, the stream makes a private copy of the data
     */
     SkMemoryStream(const void* data, size_t length, bool copyData = false);
+    SkMemoryStream(SkData *data);
     virtual ~SkMemoryStream();
 
     /** Resets the stream to the specified data and length,

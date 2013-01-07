@@ -8,6 +8,10 @@
 
 #include "SkObjectParser.h"
 #include "SkRRect.h"
+#include "SkTypeface.h"
+#include "SkStream.h"
+#include "SkData.h"
+#include "SkFontDescriptor.h"
 
 /* TODO(chudy): Replace all std::strings with char */
 
@@ -98,8 +102,29 @@ SkString* SkObjectParser::MatrixToString(const SkMatrix& matrix) {
 
 SkString* SkObjectParser::PaintToString(const SkPaint& paint) {
     SkColor color = paint.getColor();
-    SkString* mPaint = new SkString("SkPaint: Color: 0x");
+    SkString* mPaint = new SkString("<dl><dt>SkPaint:</dt><dd><dl><dt>Color:</dt><dd>0x");
     mPaint->appendHex(color);
+    mPaint->append("</dd>");
+    
+    SkTypeface *typeface = paint.getTypeface();
+    if (typeface) {
+        SkDynamicMemoryWStream ostream;
+        typeface->serialize(&ostream);
+        SkData *data = SkAutoTUnref<SkData>(ostream.copyToData());
+    
+        SkMemoryStream stream(data);
+        SkFontDescriptor descriptor(&stream);
+    
+        mPaint->append("<dt>Font Family Name:</dt><dd>");
+        mPaint->append(descriptor.getFamilyName());
+        mPaint->append("</dd><dt>Font Full Name:</dt><dd>");
+        mPaint->append(descriptor.getFullName());
+        mPaint->append("</dd><dt>Font PS Name:</dt><dd>");
+        mPaint->append(descriptor.getPostscriptName());
+        mPaint->append("</dd><dt>Font File Name:</dt><dd>");
+        mPaint->append(descriptor.getFontFileName());
+        mPaint->append("</dd></dl></dl>");
+    }
 
     return mPaint;
 }
