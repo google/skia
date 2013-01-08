@@ -30,13 +30,13 @@ IntersectionType intersection(const SkPoint& p1, const SkPoint& p2,
     // equations-to-code conversion
     SkScalar x1 = p1.x(), x2 = p2.x(), x3 = p3.x(), x4 = p4.x();
     SkScalar y1 = p1.y(), y2 = p2.y(), y3 = p3.y(), y4 = p4.y();
- 
+
     SkScalar d = SkScalarMul(x1 - x2, y3 - y4) - SkScalarMul(y1 - y2, x3 - x4);
     // If d is zero, there is no intersection
     if (SkScalarNearlyZero(d)) {
         return kNone_IntersectionType;
     }
- 
+
     // Get the x and y
     SkScalar pre  = SkScalarMul(x1, y2) - SkScalarMul(y1, x2),
              post = SkScalarMul(x3, y4) - SkScalarMul(y3, x4);
@@ -72,7 +72,7 @@ bool GrStrokePathRenderer::canDrawPath(const SkPath& path,
     // Indices being stored in uint16, we don't want to overflow the indices capacity
     static const int maxVBSize = 1 << 16;
     const int maxNbVerts = (path.countPoints() + 1) * 5;
-    
+
     // Check that the path contains no curved lines, only straight lines
     static const uint32_t unsupportedMask = SkPath::kQuad_SegmentMask | SkPath::kCubic_SegmentMask;
 
