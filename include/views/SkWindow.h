@@ -45,7 +45,7 @@ public:
     // return the bounds of the dirty/inval rgn, or [0,0,0,0] if none
     const SkIRect& getDirtyBounds() const { return fDirtyRgn.getBounds(); }
 
-    bool    handleClick(int x, int y, Click::State, void* owner = NULL);
+    bool    handleClick(int x, int y, Click::State, void* owner, unsigned modi = 0);
     bool    handleChar(SkUnichar);
     bool    handleKey(SkKey);
     bool    handleKeyUp(SkKey);
@@ -67,7 +67,7 @@ public:
         const char path[]) {}
 protected:
     virtual bool onEvent(const SkEvent&);
-    virtual bool onDispatchClick(int x, int y, Click::State, void* owner);
+    virtual bool onDispatchClick(int x, int y, Click::State, void* owner, unsigned modi);
     // called if part of our bitmap is invalidated
     virtual void onHandleInval(const SkIRect&);
     virtual bool onHandleChar(SkUnichar);

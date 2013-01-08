@@ -150,6 +150,11 @@ void SkOSWindow::post_linuxevent() {
     XFlush(fUnixWindow.fDisplay);
 }
 
+static unsigned getModifierKeys(const XEvent& evt) {
+//    unsigned xmod = evt.xkey.state;
+    return 0;   // TODO
+}
+
 void SkOSWindow::loop() {
     Display* dsp = fUnixWindow.fDisplay;
     if (NULL == dsp) {
@@ -171,14 +176,17 @@ void SkOSWindow::loop() {
                 break;
             case ButtonPress:
                 if (evt.xbutton.button == Button1)
-                    this->handleClick(evt.xbutton.x, evt.xbutton.y, SkView::Click::kDown_State);
+                    this->handleClick(evt.xbutton.x, evt.xbutton.y,
+                              SkView::Click::kDown_State, getModifierKeys(evt));
                 break;
             case ButtonRelease:
                 if (evt.xbutton.button == Button1)
-                    this->handleClick(evt.xbutton.x, evt.xbutton.y, SkView::Click::kUp_State);
+                    this->handleClick(evt.xbutton.x, evt.xbutton.y,
+                                  SkView::Click::kUp_State, getModifierKeys(evt));
                 break;
             case MotionNotify:
-                this->handleClick(evt.xmotion.x, evt.xmotion.y, SkView::Click::kMoved_State);
+                this->handleClick(evt.xmotion.x, evt.xmotion.y,
+                              SkView::Click::kMoved_State, getModifierKeys(evt));
                 break;
             case KeyPress: {
                 KeySym keysym = XkbKeycodeToKeysym(dsp, evt.xkey.keycode, 0, 0);

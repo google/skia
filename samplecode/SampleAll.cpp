@@ -530,10 +530,10 @@ protected:
 SkCornerPathEffect.h:28:class SkCornerPathEffect : public SkPathEffect {
 */
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
+    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) {
         fClickPt.set(x, y);
         this->inval(NULL);
-        return this->INHERITED::onFindClickHandler(x, y);
+        return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 
     SkPathEffect* pathEffectTest() {

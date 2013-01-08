@@ -119,22 +119,24 @@ public:
     DeviceType getDeviceType() const { return fDeviceType; }
 
 protected:
-    virtual void onDraw(SkCanvas* canvas);
-    virtual bool onHandleKey(SkKey key);
-    virtual bool onHandleChar(SkUnichar);
-    virtual void onSizeChange();
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE;
+    virtual bool onHandleKey(SkKey key) SK_OVERRIDE;
+    virtual bool onHandleChar(SkUnichar) SK_OVERRIDE;
+    virtual void onSizeChange() SK_OVERRIDE;
 
-    virtual SkCanvas* beforeChildren(SkCanvas*);
-    virtual void afterChildren(SkCanvas*);
-    virtual void beforeChild(SkView* child, SkCanvas* canvas);
-    virtual void afterChild(SkView* child, SkCanvas* canvas);
+    virtual SkCanvas* beforeChildren(SkCanvas*) SK_OVERRIDE;
+    virtual void afterChildren(SkCanvas*) SK_OVERRIDE;
+    virtual void beforeChild(SkView* child, SkCanvas* canvas) SK_OVERRIDE;
+    virtual void afterChild(SkView* child, SkCanvas* canvas) SK_OVERRIDE;
 
-    virtual bool onEvent(const SkEvent& evt);
-    virtual bool onQuery(SkEvent* evt);
+    virtual bool onEvent(const SkEvent& evt) SK_OVERRIDE;
+    virtual bool onQuery(SkEvent* evt) SK_OVERRIDE;
 
-    virtual bool onDispatchClick(int x, int y, Click::State, void* owner);
-    virtual bool onClick(Click* click);
-    virtual Click* onFindClickHandler(SkScalar x, SkScalar y);
+    virtual bool onDispatchClick(int x, int y, Click::State, void* owner,
+                                 unsigned modi) SK_OVERRIDE;
+    virtual bool onClick(Click* click) SK_OVERRIDE;
+    virtual Click* onFindClickHandler(SkScalar x, SkScalar y,
+                                      unsigned modi) SK_OVERRIDE;
 
     void registerPictFileSamples(char** argv, int argc);
     void registerPictFileSample(char** argv, int argc);

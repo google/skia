@@ -18,7 +18,7 @@ public:
     void*   getHWND() const { return fHWND; }
 
     virtual bool onDispatchClick(int x, int y, Click::State state,
-                                 void* owner);
+                                 void* owner, unsigned modi);
     enum SkBackEndTypes {
         kNone_BackEndType,
 #if SK_SUPPORT_GPU

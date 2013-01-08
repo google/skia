@@ -372,13 +372,12 @@ void SkView::Click::copyType(const char type[])
     }
 }
 
-SkView::Click* SkView::findClickHandler(SkScalar x, SkScalar y)
-{
+SkView::Click* SkView::findClickHandler(SkScalar x, SkScalar y, unsigned modi) {
     if (x < 0 || y < 0 || x >= fWidth || y >= fHeight) {
         return NULL;
     }
 
-    if (this->onSendClickToChildren(x, y)) {
+    if (this->onSendClickToChildren(x, y, modi)) {
         F2BIter    iter(this);
         SkView*    child;
 
@@ -389,7 +388,7 @@ SkView::Click* SkView::findClickHandler(SkScalar x, SkScalar y)
                 continue;
             }
 
-            Click* click = child->findClickHandler(p.fX, p.fY);
+            Click* click = child->findClickHandler(p.fX, p.fY, modi);
 
             if (click) {
                 return click;
@@ -397,10 +396,10 @@ SkView::Click* SkView::findClickHandler(SkScalar x, SkScalar y)
         }
     }
 
-    return this->onFindClickHandler(x, y);
+    return this->onFindClickHandler(x, y, modi);
 }
 
-void SkView::DoClickDown(Click* click, int x, int y)
+void SkView::DoClickDown(Click* click, int x, int y, unsigned modi)
 {
     SkASSERT(click);
 
@@ -420,10 +419,11 @@ void SkView::DoClickDown(Click* click, int x, int y)
     click->fPrev = click->fCurr = click->fOrig;
 
     click->fState = Click::kDown_State;
+    click->fModifierKeys = modi;
     target->onClick(click);
 }
 
-void SkView::DoClickMoved(Click* click, int x, int y)
+void SkView::DoClickMoved(Click* click, int x, int y, unsigned modi)
 {
     SkASSERT(click);
 
@@ -443,10 +443,11 @@ void SkView::DoClickMoved(Click* click, int x, int y)
     }
 
     click->fState = Click::kMoved_State;
+    click->fModifierKeys = modi;
     target->onClick(click);
 }
 
-void SkView::DoClickUp(Click* click, int x, int y)
+void SkView::DoClickUp(Click* click, int x, int y, unsigned modi)
 {
     SkASSERT(click);
 
@@ -466,6 +467,7 @@ void SkView::DoClickUp(Click* click, int x, int y)
     }
 
     click->fState = Click::kUp_State;
+    click->fModifierKeys = modi;
     target->onClick(click);
 }
 
@@ -489,11 +491,11 @@ void SkView::onDraw(SkCanvas* canvas) {
 
 void SkView::onSizeChange() {}
 
-bool SkView::onSendClickToChildren(SkScalar x, SkScalar y) {
+bool SkView::onSendClickToChildren(SkScalar x, SkScalar y, unsigned modi) {
     return true;
 }
 
-SkView::Click* SkView::onFindClickHandler(SkScalar x, SkScalar y) {
+SkView::Click* SkView::onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) {
     return NULL;
 }
 

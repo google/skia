@@ -192,35 +192,68 @@ static SkKey raw2key(UInt32 raw)
  //     unichar c = [[event characters] characterAtIndex:0];
 }
 
+static const struct {
+    unsigned    fNSModifierMask;
+    unsigned    fSkModifierMask;
+} gModifierMasks[] = {
+    { NSAlphaShiftKeyMask,  kShift_SkModifierKey },
+    { NSShiftKeyMask,       kShift_SkModifierKey },
+    { NSControlKeyMask,     kControl_SkModifierKey },
+    { NSAlternateKeyMask,   kOption_SkModifierKey },
+    { NSCommandKeyMask,     kCommand_SkModifierKey },
+};
+
+static unsigned convertNSModifiersToSk(NSUInteger nsModi) {
+    unsigned skModi = 0;
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gModifierMasks); ++i) {
+        if (nsModi & gModifierMasks[i].fNSModifierMask) {
+            skModi |= gModifierMasks[i].fSkModifierMask;
+        }
+    }
+    return skModi;
+}
+
 - (void)mouseDown:(NSEvent *)event {
     NSPoint p = [event locationInWindow];
+    unsigned modi = convertNSModifiersToSk([event modifierFlags]);
+
     if ([self mouse:p inRect:[self bounds]] && NULL != fWind) {
         NSPoint loc = [self convertPoint:p fromView:nil];
-        fWind->handleClick((int) loc.x, (int) loc.y, SkView::Click::kDown_State, self);
+        fWind->handleClick((int) loc.x, (int) loc.y,
+                           SkView::Click::kDown_State, self, modi);
     }
 }
 
 - (void)mouseDragged:(NSEvent *)event {
     NSPoint p = [event locationInWindow];
+    unsigned modi = convertNSModifiersToSk([event modifierFlags]);
+
     if ([self mouse:p inRect:[self bounds]] && NULL != fWind) {
         NSPoint loc = [self convertPoint:p fromView:nil];
-        fWind->handleClick((int) loc.x, (int) loc.y, SkView::Click::kMoved_State, self);
+        fWind->handleClick((int) loc.x, (int) loc.y,
+                           SkView::Click::kMoved_State, self, modi);
     }
 }
 
 - (void)mouseMoved:(NSEvent *)event {
     NSPoint p = [event locationInWindow];
+    unsigned modi = convertNSModifiersToSk([event modifierFlags]);
+    
     if ([self mouse:p inRect:[self bounds]] && NULL != fWind) {
         NSPoint loc = [self convertPoint:p fromView:nil];
-        fWind->handleClick((int) loc.x, (int) loc.y, SkView::Click::kMoved_State, self);
+        fWind->handleClick((int) loc.x, (int) loc.y,
+                           SkView::Click::kMoved_State, self, modi);
     }
 }
 
 - (void)mouseUp:(NSEvent *)event {
     NSPoint p = [event locationInWindow];
+    unsigned modi = convertNSModifiersToSk([event modifierFlags]);
+    
     if ([self mouse:p inRect:[self bounds]] && NULL != fWind) {
         NSPoint loc = [self convertPoint:p fromView:nil];
-        fWind->handleClick((int) loc.x, (int) loc.y, SkView::Click::kUp_State, self);
+        fWind->handleClick((int) loc.x, (int) loc.y,
+                           SkView::Click::kUp_State, self, modi);
     }
 }
 

@@ -156,6 +156,7 @@ public:
         SkIPoint    fIOrig, fIPrev, fICurr;
         State       fState;
         void*       fOwner;
+        unsigned    fModifierKeys;
 
         SkMetaData  fMeta;
     private:
@@ -167,11 +168,11 @@ public:
 
         friend class SkView;
     };
-    Click*  findClickHandler(SkScalar x, SkScalar y);
+    Click*  findClickHandler(SkScalar x, SkScalar y, unsigned modifierKeys);
 
-    static void DoClickDown(Click*, int x, int y);
-    static void DoClickMoved(Click*, int x, int y);
-    static void DoClickUp(Click*, int x, int y);
+    static void DoClickDown(Click*, int x, int y, unsigned modi);
+    static void DoClickMoved(Click*, int x, int y, unsigned modi);
+    static void DoClickUp(Click*, int x, int y, unsigned modi);
 
     /** Send the event to the view's parent, and its parent etc. until one of them
         returns true from its onEvent call. This view is returned. If no parent handles
@@ -345,13 +346,13 @@ protected:
 
     /** Override this if you might handle the click
     */
-    virtual Click* onFindClickHandler(SkScalar x, SkScalar y);
+    virtual Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi);
     /** Override this to decide if your children are targets for a click.
         The default returns true, in which case your children views will be
         candidates for onFindClickHandler. Returning false wil skip the children
         and just call your onFindClickHandler.
      */
-    virtual bool onSendClickToChildren(SkScalar x, SkScalar y);
+    virtual bool onSendClickToChildren(SkScalar x, SkScalar y, unsigned modi);
     /** Override this to track clicks, returning true as long as you want to track
         the pen/mouse.
     */
