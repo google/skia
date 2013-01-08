@@ -96,12 +96,30 @@
             },
           }],
           ['skia_arch_width == 32', {
-            'msvs_configuration_platform': 'Win32',
-            'msvs_settings': {
-              'VCCLCompilerTool': {
-                'WarnAsError': 'true',
-              },
+            # This gypi file will be included directly into the gyp(i) files in the angle repo by
+            # our gyp_skia script. We don't want force WarnAsError on angle. So angle.gyp defines
+            # skia_building_angle=1 and here we select whether to enable WarnAsError based on that
+            # var's value. Here it defaults to 0.
+            'variables' : {
+              'skia_building_angle%': 0,
             },
+            'conditions' : [
+              ['skia_building_angle', {
+                'msvs_configuration_platform': 'Win32',
+                'msvs_settings': {
+                  'VCCLCompilerTool': {
+                    'WarnAsError': 'false',
+                  },
+                },
+              },{ # not angle
+                'msvs_configuration_platform': 'Win32',
+                'msvs_settings': {
+                  'VCCLCompilerTool': {
+                    'WarnAsError': 'true',
+                  },
+                },
+              }],
+            ],
           }],
         ],
       },
