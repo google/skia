@@ -46,12 +46,12 @@ void gen_mask_arrays(GrVertexLayout* stageTexCoordMasks,
 }
 
 /**
- * Uncomment and run the gen_globals function to generate 
+ * Uncomment and run the gen_globals function to generate
  * the code that declares the global masks.
  *
  * #if 0'ed out to avoid unused function warning.
  */
- 
+
 #if 0
 void gen_globals() {
     GrVertexLayout stageTexCoordMasks[GrDrawState::kNumStages];

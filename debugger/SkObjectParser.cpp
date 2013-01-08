@@ -105,16 +105,16 @@ SkString* SkObjectParser::PaintToString(const SkPaint& paint) {
     SkString* mPaint = new SkString("<dl><dt>SkPaint:</dt><dd><dl><dt>Color:</dt><dd>0x");
     mPaint->appendHex(color);
     mPaint->append("</dd>");
-    
+
     SkTypeface *typeface = paint.getTypeface();
     if (typeface) {
         SkDynamicMemoryWStream ostream;
         typeface->serialize(&ostream);
         SkData *data = SkAutoTUnref<SkData>(ostream.copyToData());
-    
+
         SkMemoryStream stream(data);
         SkFontDescriptor descriptor(&stream);
-    
+
         mPaint->append("<dt>Font Family Name:</dt><dd>");
         mPaint->append(descriptor.getFamilyName());
         mPaint->append("</dd><dt>Font Full Name:</dt><dd>");
