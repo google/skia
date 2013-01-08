@@ -133,7 +133,7 @@ static void gather_from_colors(const SkBitmap& bm, SkPixelRef* const refs[],
                 uint32_t index = SkGetPackedR32(pmc);
                 SkASSERT(SkGetPackedG32(pmc) == index);
                 SkASSERT(SkGetPackedB32(pmc) == index);
-                SkASSERT(index < count);
+                SkASSERT(static_cast<int>(index) < count);
                 bitarray |= 1 << index;
             }
         }
