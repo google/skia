@@ -130,7 +130,7 @@ static void gather_from_colors(const SkBitmap& bm, SkPixelRef* const refs[],
             // the color is transparent, meaning no bitmap was drawn in that
             // pixel.
             if (pmc) {
-                int index = SkGetPackedR32(pmc);
+                uint32_t index = SkGetPackedR32(pmc);
                 SkASSERT(SkGetPackedG32(pmc) == index);
                 SkASSERT(SkGetPackedB32(pmc) == index);
                 SkASSERT(index < count);
