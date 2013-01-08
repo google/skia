@@ -164,11 +164,11 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
       SkRect r;
-      r.setWH( fRectWidth, fRectHeight );
+      r.setWH(SkIntToScalar(fRectWidth), SkIntToScalar(fRectHeight));
 
       SkMask mask;
 
-      makeMask( &mask, r );
+      makeMask(&mask, r);
 
       SkBitmap bm;
       bm.setConfig(SkBitmap::kA8_Config, mask.fBounds.width(), mask.fBounds.height());

@@ -7,11 +7,21 @@
  */
 
 
-#include <iostream>
 #include "SkDebugCanvas.h"
 #include "SkDrawCommand.h"
 #include "SkDevice.h"
 #include "SkImageWidget.h"
+
+#ifdef SK_BUILD_FOR_WIN
+    // iostream includes xlocale which generates warning 4530 because we're compiling without
+    // exceptions
+    #pragma warning(push)
+    #pragma warning(disable : 4530)
+#endif
+#include <iostream>
+#ifdef SK_BUILD_FOR_WIN
+    #pragma warning(pop)
+#endif
 
 static SkBitmap make_noconfig_bm(int width, int height) {
     SkBitmap bm;

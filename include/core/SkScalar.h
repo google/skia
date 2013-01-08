@@ -39,6 +39,9 @@
     /** SK_ScalarInfinity is defined to be infinity as an SkScalar
     */
     #define SK_ScalarInfinity       SK_FloatInfinity
+    /** SK_ScalarNegativeInfinity is defined to be negative infinity as an SkScalar
+    */
+    #define SK_ScalarNegativeInfinity       SK_FloatNegativeInfinity
     /** SK_ScalarMax is defined to be the largest value representable as an SkScalar
     */
     #define SK_ScalarMax            (3.402823466e+38f)
@@ -220,7 +223,8 @@
 
     #define SK_Scalar1              SK_Fixed1
     #define SK_ScalarHalf           SK_FixedHalf
-    #define SK_ScalarInfinity   SK_FixedMax
+    #define SK_ScalarInfinity           SK_FixedMax
+    #define SK_ScalarNegativeInfinity   SK_FixedMin
     #define SK_ScalarMax            SK_FixedMax
     #define SK_ScalarMin            SK_FixedMin
     #define SK_ScalarNaN            SK_FixedNaN

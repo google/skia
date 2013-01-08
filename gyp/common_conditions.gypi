@@ -30,7 +30,7 @@
         'msvs_settings': {
           'VCCLCompilerTool': {
             'WarningLevel': '1',
-            'WarnAsError': 'false',
+            'WarnAsError': 'true',
             'DebugInformationFormat': '3',
             'AdditionalOptions': [ '/MP' ],
           },

@@ -53,6 +53,13 @@
             ]
           },
         }],
+        [ 'skia_os == "win"', {
+          'msvs_settings': {
+            'VCCLCompilerTool': {
+              'WarnAsError': 'false',
+            },
+          },
+        }],
       ],
     },
   ],

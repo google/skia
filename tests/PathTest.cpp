@@ -239,6 +239,7 @@ static void test_rect_isfinite(skiatest::Reporter* reporter) {
 
 static void test_path_isfinite(skiatest::Reporter* reporter) {
     const SkScalar inf = SK_ScalarInfinity;
+    const SkScalar negInf = SK_ScalarNegativeInfinity;
     const SkScalar nan = SK_ScalarNaN;
 
     SkPath path;
@@ -252,7 +253,7 @@ static void test_path_isfinite(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, path.isFinite());
 
     path.reset();
-    path.moveTo(inf, -inf);
+    path.moveTo(inf, negInf);
     REPORTER_ASSERT(reporter, !path.isFinite());
 
     path.reset();
