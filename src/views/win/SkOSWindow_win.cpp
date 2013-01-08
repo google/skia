@@ -103,6 +103,10 @@ static SkKey winToskKey(WPARAM vk) {
     return kNONE_SkKey;
 }
 
+static unsigned getModifiers(UINT message) {
+    return 0;   // TODO
+}
+
 bool SkOSWindow::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
         case WM_KEYDOWN: {
@@ -146,15 +150,18 @@ bool SkOSWindow::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         } break;
 
         case WM_LBUTTONDOWN:
-            this->handleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), Click::kDown_State);
+            this->handleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam),
+                              Click::kDown_State, getModifiers(message));
             return true;
 
         case WM_MOUSEMOVE:
-            this->handleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), Click::kMoved_State);
+            this->handleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam),
+                              Click::kMoved_State, getModifiers(message));
             return true;
 
         case WM_LBUTTONUP:
-            this->handleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), Click::kUp_State);
+            this->handleClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam),
+                              Click::kUp_State, getModifiers(message));
             return true;
 
         case WM_EVENT_CALLBACK:

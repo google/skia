@@ -1955,7 +1955,7 @@ bool SampleWindow::onHandleKey(SkKey key) {
 static const char gGestureClickType[] = "GestureClickType";
 
 bool SampleWindow::onDispatchClick(int x, int y, Click::State state,
-        void* owner) {
+        void* owner, unsigned modi) {
     if (Click::kMoved_State == state) {
         updatePointer(x, y);
     }
@@ -1970,9 +1970,19 @@ bool SampleWindow::onDispatchClick(int x, int y, Click::State state,
         //it's only necessary to update the drawing if there's a click
         this->inval(NULL);
         return false; //prevent dragging while magnify is enabled
-    }
-    else {
-        return this->INHERITED::onDispatchClick(x, y, state, owner);
+    } else {
+        // capture control+option, and trigger debugger
+        if ((modi & kControl_SkModifierKey) && (modi & kOption_SkModifierKey)) {
+            if (Click::kDown_State == state) {
+                SkEvent evt("debug-hit-test");
+                evt.setS32("debug-hit-test-x", x);
+                evt.setS32("debug-hit-test-y", y);
+                curr_view(this)->doEvent(evt);
+            }
+            return true;
+        } else {
+            return this->INHERITED::onDispatchClick(x, y, state, owner, modi);
+        }
     }
 }
 
@@ -1987,7 +1997,8 @@ public:
     }
 };
 
-SkView::Click* SampleWindow::onFindClickHandler(SkScalar x, SkScalar y) {
+SkView::Click* SampleWindow::onFindClickHandler(SkScalar x, SkScalar y,
+                                                unsigned modi) {
     return new GestureClick(this);
 }
 
@@ -2234,11 +2245,21 @@ bool SampleView::onEvent(const SkEvent& evt) {
         fRepeatCount = evt.getFast32();
         return true;
     }
+
     int32_t pipeHolder;
     if (evt.findS32(set_use_pipe_tag, &pipeHolder)) {
         fPipeState = static_cast<SkOSMenu::TriState>(pipeHolder);
         return true;
     }
+
+    if (evt.isType("debug-hit-test")) {
+        fDebugHitTest = true;
+        evt.findS32("debug-hit-test-x", &fDebugHitTestLoc.fX);
+        evt.findS32("debug-hit-test-y", &fDebugHitTestLoc.fY);
+        this->inval(NULL);
+        return true;
+    }
+
     return this->INHERITED::onEvent(evt);
 }
 
@@ -2347,13 +2368,46 @@ void SampleView::draw(SkCanvas* canvas) {
         writer.endRecording();
     }
 }
+
+#include "SkBounder.h"
+
+class DebugHitTestBounder : public SkBounder {
+public:
+    DebugHitTestBounder(int x, int y) {
+        fLoc.set(x, y);
+    }
+
+    virtual bool onIRect(const SkIRect& bounds) SK_OVERRIDE {
+        if (bounds.contains(fLoc.x(), fLoc.y())) {
+            //
+            // Set a break-point here to see what was being drawn under
+            // the click point (just needed a line of code to stop the debugger)
+            //
+            bounds.centerX();
+        }
+        return true;
+    }
+
+private:
+    SkIPoint fLoc;
+    typedef SkBounder INHERITED;
+};
+
 void SampleView::onDraw(SkCanvas* canvas) {
     this->onDrawBackground(canvas);
+
+    DebugHitTestBounder bounder(fDebugHitTestLoc.x(), fDebugHitTestLoc.y());
+    if (fDebugHitTest) {
+        canvas->setBounder(&bounder);
+    }
 
     for (int i = 0; i < fRepeatCount; i++) {
         SkAutoCanvasRestore acr(canvas, true);
         this->onDrawContent(canvas);
     }
+
+    fDebugHitTest = false;
+    canvas->setBounder(NULL);
 }
 
 void SampleView::onDrawBackground(SkCanvas* canvas) {

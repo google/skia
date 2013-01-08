@@ -107,8 +107,11 @@ private:
 
 class SampleView : public SkView {
 public:
-    SampleView() : fPipeState(SkOSMenu::kOffState),
-            fBGColor(SK_ColorWHITE), fRepeatCount(1) {
+    SampleView()
+        : fPipeState(SkOSMenu::kOffState)
+        , fBGColor(SK_ColorWHITE)
+        , fRepeatCount(1)
+        , fDebugHitTest(false) {
     }
 
     void setBGColor(SkColor color) { fBGColor = color; }
@@ -141,6 +144,9 @@ protected:
 
 private:
     int fRepeatCount;
+
+    bool fDebugHitTest;
+    SkIPoint fDebugHitTestLoc;
 
     typedef SkView INHERITED;
 };

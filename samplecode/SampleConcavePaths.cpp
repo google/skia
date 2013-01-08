@@ -137,9 +137,10 @@ protected:
         }
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
+    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y,
+                                              unsigned modi) {
         this->inval(NULL);
-        return this->INHERITED::onFindClickHandler(x, y);
+        return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 
 private:
