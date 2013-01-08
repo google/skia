@@ -1,6 +1,5 @@
 reading from gm/tests/inputs/identical-pixels
 writing to gm/tests/outputs/compared-against-identical-pixels/output-actual/images
 drawing... dashing2 [640 480]
------  max pixel mismatch for 8888/dashing2 is 64
 Ran 1 tests: 0 passed, 1 failed, 0 missing reference images
-		8888/dashing2 pixel_error 64
+		8888/dashing2 pixel_error
