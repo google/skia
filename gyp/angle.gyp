@@ -10,6 +10,7 @@
       },
       'variables': {
         'component': 'static_library',
+            'skia_building_angle': 1, # See comment in common_conditions.gypi.
       },
       'includes': [
         '../third_party/externals/angle/src/build_angle.gypi',
