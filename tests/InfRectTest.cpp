@@ -15,22 +15,24 @@ static float make_zero() {
 }
 #endif
 
+struct RectCenter {
+    SkIRect  fRect;
+    SkIPoint fCenter;
+};
+
 static void test_center(skiatest::Reporter* reporter) {
-    static const struct {
-        SkIRect  fRect;
-        SkIPoint fCenter;
-    } data[] = {
+    static const RectCenter gData[] = {
         { { 0, 0, 0, 0 }, { 0, 0 } },
         { { 0, 0, 1, 1 }, { 0, 0 } },
         { { -1, -1, 0, 0 }, { -1, -1 } },
         { { 0, 0, 10, 7 }, { 5, 3 } },
         { { 0, 0, 11, 6 }, { 5, 3 } },
     };
-    for (size_t index = 0; index < SK_ARRAY_COUNT(data); ++index) {
+    for (size_t index = 0; index < SK_ARRAY_COUNT(gData); ++index) {
         REPORTER_ASSERT(reporter,
-                        data[index].fRect.centerX() == data[index].fCenter.x());
+                        gData[index].fRect.centerX() == gData[index].fCenter.x());
         REPORTER_ASSERT(reporter,
-                        data[index].fRect.centerY() == data[index].fCenter.y());
+                        gData[index].fRect.centerY() == gData[index].fCenter.y());
     }
 
     SkRandom rand;

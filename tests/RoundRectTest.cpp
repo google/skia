@@ -35,7 +35,7 @@ static void test_inset(skiatest::Reporter* reporter) {
 // Test out the basic API entry points
 static void test_round_rect_basic(skiatest::Reporter* reporter) {
     // Test out initialization methods
-    SkPoint zeroPt = { 0.0, 0.0 };
+    SkPoint zeroPt = { 0, 0 };
     SkRRect empty;
 
     empty.setEmpty();

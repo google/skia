@@ -25,7 +25,7 @@ static bool nearly_equal_scalar(SkMScalar a, SkMScalar b) {
     const SkScalar tolerance = SK_Scalar1 / 1024;
 #endif
 
-    return SkScalarAbs(a - b) <= tolerance;
+    return SkTAbs<SkMScalar>(a - b) <= tolerance;
 }
 
 template <typename T> void assert16(skiatest::Reporter* reporter, const T data[],

@@ -400,7 +400,7 @@ static void TestDeferredCanvasBitmapShaderNoLeak(skiatest::Reporter* reporter) {
         }
     }
     // All cached resources should be evictable since last canvas call was flush()
-    canvas.freeMemoryIfPossible(~0);
+    canvas.freeMemoryIfPossible(~0U);
     REPORTER_ASSERT(reporter, 0 == canvas.storageAllocatedForRecording());
 }
 
