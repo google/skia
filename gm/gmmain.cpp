@@ -33,7 +33,16 @@
 #include "SkTileGridPicture.h"
 #include "SamplePipeControllers.h"
 
+#ifdef SK_BUILD_FOR_WIN
+    // json includes xlocale which generates warning 4530 because we're compiling without
+    // exceptions
+    #pragma warning(push)
+    #pragma warning(disable : 4530)
+#endif
 #include "json/value.h"
+#ifdef SK_BUILD_FOR_WIN
+    #pragma warning(pop)
+#endif
 
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
