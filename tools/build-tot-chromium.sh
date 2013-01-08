@@ -55,5 +55,5 @@ END_TIME=$SECONDS
 echo -e "\n\n========ninja build took $((END_TIME - START_TIME)) seconds========\n\n"
 
 SVN_VERSION=`svnversion .`
-echo -e "\n\n========The Chromium & Skia versions are $(SVN_VERSION)========\n\n"
+echo -e "\n\n========The Chromium & Skia versions are $SVN_VERSION========\n\n"
 
