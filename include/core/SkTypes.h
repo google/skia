@@ -283,6 +283,13 @@ static inline int32_t SkAbs32(int32_t value) {
 #endif
 }
 
+template <typename T> inline T SkTAbs(T value) {
+    if (value < 0) {
+        value = -value;
+    }
+    return value;
+}
+
 static inline int32_t SkMax32(int32_t a, int32_t b) {
     if (a < b)
         a = b;
