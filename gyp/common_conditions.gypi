@@ -30,7 +30,6 @@
         'msvs_settings': {
           'VCCLCompilerTool': {
             'WarningLevel': '1',
-            'WarnAsError': 'true',
             'DebugInformationFormat': '3',
             'AdditionalOptions': [ '/MP' ],
           },
@@ -89,10 +88,20 @@
         },
         'conditions' : [
           ['skia_arch_width == 64', {
-            'msvs_configuration_platform': 'x64'
+            'msvs_configuration_platform': 'x64',
+            'msvs_settings': {
+              'VCCLCompilerTool': {
+                'WarnAsError': 'false',
+              },
+            },
           }],
           ['skia_arch_width == 32', {
             'msvs_configuration_platform': 'Win32',
+            'msvs_settings': {
+              'VCCLCompilerTool': {
+                'WarnAsError': 'true',
+              },
+            },
           }],
         ],
       },
