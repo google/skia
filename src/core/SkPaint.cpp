@@ -1690,7 +1690,7 @@ void SkScalerContext::PostMakeRec(const SkPaint& paint, SkScalerContext::Rec* re
         case SkMask::kLCD32_Format: {
             // filter down the luminance color to a finite number of bits
             SkColor color = rec->getLuminanceColor();
-            rec->setLuminanceColor(SkMaskGamma::CannonicalColor(color));
+            rec->setLuminanceColor(SkMaskGamma::CanonicalColor(color));
             break;
         }
         case SkMask::kA8_Format: {
@@ -1707,7 +1707,7 @@ void SkScalerContext::PostMakeRec(const SkPaint& paint, SkScalerContext::Rec* re
 
             // reduce to our finite number of bits
             color = SkColorSetRGB(lum, lum, lum);
-            rec->setLuminanceColor(SkMaskGamma::CannonicalColor(color));
+            rec->setLuminanceColor(SkMaskGamma::CanonicalColor(color));
             break;
         }
         case SkMask::kBW_Format:
