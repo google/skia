@@ -151,8 +151,23 @@ void SkOSWindow::post_linuxevent() {
 }
 
 static unsigned getModi(const XEvent& evt) {
-//    unsigned xmod = evt.xkey.state;
-    return 0;   // TODO
+    static const struct {
+        unsigned    fXMask;
+        unsigned    fSkMask;
+    } gModi[] = {
+        // X values found by experiment. Is there a better way?
+        { 1,    kShift_SkModifierKey },
+        { 4,    kControl_SkModifierKey },
+        { 8,    kOption_SkModifierKey },
+    };
+    
+    unsigned modi = 0;
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gModi); ++i) {
+        if (evt.xkey.state & gModi[i].fXMask) {
+            modi |= gModi[i].fSkMask;
+        }
+    }
+    return modi;
 }
 
 void SkOSWindow::loop() {
