@@ -49,11 +49,11 @@ protected:
 
     virtual SkCanvas* beforeChildren(SkCanvas*) SK_OVERRIDE;
 
-    virtual bool onSendClickToChildren(SkScalar x, SkScalar y) SK_OVERRIDE {
+    virtual bool onSendClickToChildren(SkScalar x, SkScalar y, unsigned modi) SK_OVERRIDE {
         return false;
     }
 
-    virtual Click* onFindClickHandler(SkScalar x, SkScalar y) SK_OVERRIDE {
+    virtual Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) SK_OVERRIDE {
         int ix = (int)(SkScalarDiv(x * N, kWidth));
         int iy = (int)(SkScalarDiv(y * N, kHeight));
         if (ix >= 0 && iy >= 0) {
