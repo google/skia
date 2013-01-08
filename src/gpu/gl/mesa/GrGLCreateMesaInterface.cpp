@@ -11,7 +11,7 @@
 #include "../GrGLUtil.h"
 
 #define GL_GLEXT_PROTOTYPES
-#include <GL/osmesa.h>
+#include "osmesa_wrapper.h"
 
 #define GR_GL_GET_PROC(F) interface->f ## F = (GrGL ## F ## Proc) \
         OSMesaGetProcAddress("gl" #F);
