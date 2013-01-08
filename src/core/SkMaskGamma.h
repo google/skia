@@ -118,8 +118,8 @@ public:
         }
     }
 
-    /** Given a color, returns the closest cannonical color. */
-    static SkColor CannonicalColor(SkColor color) {
+    /** Given a color, returns the closest canonical color. */
+    static SkColor CanonicalColor(SkColor color) {
         return SkColorSetRGB(
                    sk_t_scale255<R_LUM_BITS>(SkColorGetR(color) >> (8 - R_LUM_BITS)),
                    sk_t_scale255<G_LUM_BITS>(SkColorGetG(color) >> (8 - G_LUM_BITS)),
