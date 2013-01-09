@@ -887,6 +887,7 @@ int tool_main(int argc, char** argv) {
             if (outDir.size() > 0) {
                 saveFile(bench->getName(), configName, outDir.c_str(),
                          device->accessBitmap(false));
+                canvas->clear(SK_ColorWHITE);
             }
         }
         logger.logProgress(SkString("\n"));
