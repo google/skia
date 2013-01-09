@@ -12,7 +12,7 @@
 #define VERTEX_DEBUG 0
 
 #include <SkPath.h>
-#include <SkPaint.h>
+#include <SkStrokeRec.h>
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -520,12 +520,11 @@ static void getStrokeVerticesFromPerimeterAA(const SkTArray<Vertex, true>& perim
 #endif
 }
 
-void PathRenderer::ConvexPathVertices(const SkPath &path, const SkPaint* paint,
+void PathRenderer::ConvexPathVertices(const SkPath &path, const SkStrokeRec& stroke, bool isAA,
         const SkMatrix* transform, VertexBuffer* vertexBuffer) {
     SK_TRACE_EVENT0("PathRenderer::convexPathVertices");
 
-    SkPaint::Style style = paint->getStyle();
-    bool isAA = paint->isAntiAlias();
+    SkStrokeRec::Style style = stroke.getStyle();
 
     float inverseScaleX, inverseScaleY;
     computeInverseScales(transform, inverseScaleX, inverseScaleY);
@@ -533,18 +532,18 @@ void PathRenderer::ConvexPathVertices(const SkPath &path, const SkPaint* paint,
     SkTArray<Vertex, true> tempVertices;
     float threshInvScaleX = inverseScaleX;
     float threshInvScaleY = inverseScaleY;
-    if (style == SkPaint::kStroke_Style) {
+    if (style == SkStrokeRec::kStroke_Style) {
         // alter the bezier recursion threshold values we calculate in order to compensate for
         // expansion done after the path vertices are found
         SkRect bounds = path.getBounds();
         if (!bounds.isEmpty()) {
-            threshInvScaleX *= bounds.width() / (bounds.width() + paint->getStrokeWidth());
-            threshInvScaleY *= bounds.height() / (bounds.height() + paint->getStrokeWidth());
+            threshInvScaleX *= bounds.width() / (bounds.width() + stroke.getWidth());
+            threshInvScaleY *= bounds.height() / (bounds.height() + stroke.getWidth());
         }
     }
 
     // force close if we're filling the path, since fill path expects closed perimeter.
-    bool forceClose = style != SkPaint::kStroke_Style;
+    bool forceClose = style != SkStrokeRec::kStroke_Style;
     bool wasClosed = ConvexPathPerimeterVertices(path, forceClose, threshInvScaleX * threshInvScaleX,
             threshInvScaleY * threshInvScaleY, &tempVertices);
 
@@ -559,8 +558,8 @@ void PathRenderer::ConvexPathVertices(const SkPath &path, const SkPaint* paint,
     }
 #endif
 
-    if (style == SkPaint::kStroke_Style) {
-        float halfStrokeWidth = paint->getStrokeWidth() * 0.5f;
+    if (style == SkStrokeRec::kStroke_Style) {
+        float halfStrokeWidth = stroke.getWidth() * 0.5f;
         if (!isAA) {
             if (wasClosed) {
                 getStrokeVerticesFromPerimeter(tempVertices, halfStrokeWidth, vertexBuffer,

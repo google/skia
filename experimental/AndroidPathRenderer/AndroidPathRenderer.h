@@ -57,7 +57,7 @@ class PathRenderer {
 public:
     static SkRect ComputePathBounds(const SkPath& path, const SkPaint* paint);
 
-    static void ConvexPathVertices(const SkPath& path, const SkPaint* paint,
+    static void ConvexPathVertices(const SkPath& path, const SkStrokeRec& stroke, bool isAA,
             const SkMatrix* transform, VertexBuffer* vertexBuffer);
 
 private:

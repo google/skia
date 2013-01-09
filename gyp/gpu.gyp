@@ -214,6 +214,18 @@
             'GR_STROKE_PATH_RENDERING=1',
           ],
         }],
+        [ 'skia_android_path_rendering', {
+          'sources': [
+            '../experimental/AndroidPathRenderer/GrAndroidPathRenderer.cpp',
+            '../experimental/AndroidPathRenderer/GrAndroidPathRenderer.h',
+            '../experimental/AndroidPathRenderer/AndroidPathRenderer.cpp',
+            '../experimental/AndroidPathRenderer/AndroidPathRenderer.h',
+            '../experimental/AndroidPathRenderer/Vertex.h',
+          ],
+          'defines': [
+            'GR_ANDROID_PATH_RENDERING=1',
+          ],
+        }],
         [ 'skia_os == "linux"', {
           'sources!': [
             '../src/gpu/gl/GrGLDefaultInterface_none.cpp',
