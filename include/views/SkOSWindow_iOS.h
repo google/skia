@@ -16,9 +16,6 @@ public:
     ~SkOSWindow();
     void*   getHWND() const { return fHWND; }
 
-    virtual bool onDispatchClick(int x, int y, Click::State state,
-                                 void* owner, unsigned modi);
-
     enum SkBackEndTypes {
         kNone_BackEndType,
         kNativeGL_BackEndType,
