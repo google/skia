@@ -862,7 +862,7 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
     // below here we may bind the FBO
     fHWBoundRenderTarget = NULL;
     if (desc->fRTFBOID != desc->fTexFBOID) {
-        GrAssert(desc->fSampleCnt > 1);
+        GrAssert(desc->fSampleCnt > 0);
         GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER,
                                desc->fMSColorRenderbufferID));
         if (!renderbuffer_storage_msaa(fGLContextInfo,
