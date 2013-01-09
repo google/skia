@@ -51,8 +51,8 @@ protected:
 
         int loop_count;
 
-        if (fRadius > SkIntToScalar(50)) {
-          loop_count = 10;
+        if (fRadius > SkIntToScalar(25)) {
+          loop_count = 100;
         } else if (fRadius > SkIntToScalar(5)) {
           loop_count = 1000;
         } else {
