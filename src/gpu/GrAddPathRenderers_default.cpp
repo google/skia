@@ -13,10 +13,16 @@
 #if GR_STROKE_PATH_RENDERING
 #include "../../experimental/StrokePathRenderer/GrStrokePathRenderer.h"
 #endif
+#if GR_ANDROID_PATH_RENDERING
+#include "../../experimental/AndroidPathRenderer/GrAndroidPathRenderer.h"
+#endif
 
 void GrPathRenderer::AddPathRenderers(GrContext* ctx, GrPathRendererChain* chain) {
 #if GR_STROKE_PATH_RENDERING
     chain->addPathRenderer(SkNEW(GrStrokePathRenderer))->unref();
+#endif
+#if GR_ANDROID_PATH_RENDERING
+    chain->addPathRenderer(SkNEW(GrAndroidPathRenderer))->unref();
 #endif
     if (GrPathRenderer* pr = GrStencilAndCoverPathRenderer::Create(ctx)) {
         chain->addPathRenderer(pr)->unref();

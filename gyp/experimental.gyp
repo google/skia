@@ -6,13 +6,11 @@
       'include_dirs': [
         '../include/config',
         '../include/core',
-        '../experimental/AndroidPathRenderer',
       ],
       'sources': [
         '../experimental/SkSetPoly3To3.cpp',
         '../experimental/SkSetPoly3To3_A.cpp',
         '../experimental/SkSetPoly3To3_D.cpp',
-        '../experimental/AndroidPathRenderer/AndroidPathRenderer.cpp',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
