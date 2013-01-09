@@ -299,9 +299,13 @@ SkMemoryStream::SkMemoryStream(const void* src, size_t size, bool copyData) {
     fOffset = 0;
 }
 
-SkMemoryStream::SkMemoryStream(SkData *data) {
-    fData = SkSafeRef(data);
-    fOffset = 0;
+SkMemoryStream::SkMemoryStream(SkData* data) {
+    if (NULL == data) {
+        fData = SkData::NewEmpty();
+    } else {
+        fData = data;
+        fData->ref();
+    }
 }
 
 SkMemoryStream::~SkMemoryStream() {
@@ -326,7 +330,13 @@ SkData* SkMemoryStream::copyToData() const {
 }
 
 SkData* SkMemoryStream::setData(SkData* data) {
-    SkRefCnt_SafeAssign(fData, data);
+    fData->unref();
+    if (NULL == data) {
+        fData = SkData::NewEmpty();
+    } else {
+        fData = data;
+        fData->ref();
+    }
     return data;
 }
 
