@@ -160,7 +160,7 @@ static unsigned getModi(const XEvent& evt) {
         { 4,    kControl_SkModifierKey },
         { 8,    kOption_SkModifierKey },
     };
-    
+
     unsigned modi = 0;
     for (size_t i = 0; i < SK_ARRAY_COUNT(gModi); ++i) {
         if (evt.xkey.state & gModi[i].fXMask) {

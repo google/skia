@@ -1200,7 +1200,7 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
 
     GrPaint grPaint;
     SkAutoCachedTexture colorLutTexture;
-    
+
     bool alphaOnly = !(SkBitmap::kA8_Config == bitmap.config());
     if (!skPaint2GrPaintNoShader(this, paint, alphaOnly, false, &colorLutTexture, &grPaint)) {
         return;
