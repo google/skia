@@ -130,10 +130,29 @@ static void TestPackedUInt(skiatest::Reporter* reporter) {
     }
 }
 
+// Test that setting an SkMemoryStream to a NULL data does not result in a crash when calling
+// methods that access fData.
+static void TestDereferencingData(SkMemoryStream* memStream) {
+    memStream->read(NULL, 0);
+    memStream->getMemoryBase();
+    SkAutoDataUnref data(memStream->copyToData());
+}
+
+static void TestNullData() {
+    SkData* nullData = NULL;
+    SkMemoryStream memStream(nullData);
+    TestDereferencingData(&memStream);
+
+    memStream.setData(nullData);
+    TestDereferencingData(&memStream);
+
+}
+
 static void TestStreams(skiatest::Reporter* reporter) {
     TestRStream(reporter);
     TestWStream(reporter);
     TestPackedUInt(reporter);
+    TestNullData();
 }
 
 #include "TestClassDef.h"
