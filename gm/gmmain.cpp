@@ -1432,10 +1432,10 @@ int tool_main(int argc, char** argv) {
         // want to also tabulate pixel mismatches vs dimension mistmatches
         // (or whatever else), we can do so.
         testsRun++;
-        if (ERROR_NONE == testErrors) {
-            testsPassed++;
-        } else if (ERROR_READING_REFERENCE_IMAGE & testErrors) {
+        if (!readPath || (ERROR_READING_REFERENCE_IMAGE & testErrors)) {
             testsMissingReferenceImages++;
+        } else if (ERROR_NONE == testErrors) {
+            testsPassed++;
         } else {
             testsFailed++;
         }
