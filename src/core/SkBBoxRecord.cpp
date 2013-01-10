@@ -274,7 +274,7 @@ bool SkBBoxRecord::transformBounds(const SkRect& bounds, const SkPaint* paint) {
         }
     }
 
-    if (!this->quickReject(outBounds)) {
+    if (!outBounds.isEmpty() && !this->quickReject(outBounds)) {
         this->getTotalMatrix().mapRect(&outBounds);
         this->handleBBox(outBounds);
         return true;
