@@ -1,5 +1,4 @@
 reading from gm/tests/inputs/identical-bytes
 writing to gm/tests/outputs/compared-against-identical-bytes/output-actual/images
 drawing... dashing2 [640 480]
-Ran 1 tests: 0 passed, 1 failed, 0 missing reference images
-		8888/dashing2 pixel_error
+Ran 1 tests: 1 passed, 0 failed, 0 missing reference images
