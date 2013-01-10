@@ -551,12 +551,6 @@ void GrInOrderDrawBuffer::reset() {
     fClipSet = true;
 
     this->resetDrawTracking();
-
-    // we start off with a default clip and state so that we don't have
-    // to do count checks on fClips, fStates, or fCmds before checking their
-    // last entry.
-    this->recordDefaultState();
-    this->recordDefaultClip();
 }
 
 bool GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
@@ -567,10 +561,7 @@ bool GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
     GrAssert(target != this); // not considered and why?
 
     int numCmds = fCmds.count();
-    GrAssert(numCmds >= 2);
-    if (2 == numCmds) {
-        GrAssert(kSetState_Cmd == fCmds[0]);
-        GrAssert(kSetClip_Cmd  == fCmds[1]);
+    if (0 == numCmds) {
         return false;
     }
 
@@ -868,15 +859,15 @@ void GrInOrderDrawBuffer::geometrySourceWillPop(
 }
 
 bool GrInOrderDrawBuffer::needsNewState() const {
-    // we should have recorded a default state in reset()
-    GrAssert(!fStates.empty());
-    return fStates.back() != this->getDrawState();
+    return fStates.empty() || fStates.back() != this->getDrawState();
 }
 
 bool GrInOrderDrawBuffer::needsNewClip() const {
-   if (this->getDrawState().isClipState()) {
+    GrAssert(fClips.count() == fClipOrigins.count());
+    if (this->getDrawState().isClipState()) {
        if (fClipSet &&
-           (fClips.back() != *fClip->fClipStack ||
+           (fClips.empty() ||
+            fClips.back() != *fClip->fClipStack ||
             fClipOrigins.back() != fClip->fOrigin)) {
            return true;
        }
