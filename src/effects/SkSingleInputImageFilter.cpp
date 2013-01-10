@@ -46,8 +46,8 @@ GrTexture* SkSingleInputImageFilter::getInputResultAsTexture(Proxy* proxy,
     if (!input) {
         resultTex = src;
     } else if (input->canFilterImageGPU()) {
-        // onFilterImageGPU() already refs the result, so just return it here.
-        return input->onFilterImageGPU(proxy, src, rect);
+        // filterImageGPU() already refs the result, so just return it here.
+        return input->filterImageGPU(proxy, src, rect);
     } else {
         SkBitmap srcBitmap, result;
         srcBitmap.setConfig(SkBitmap::kARGB_8888_Config, src->width(), src->height());

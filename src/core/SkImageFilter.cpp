@@ -107,7 +107,7 @@ bool SkImageFilter::canFilterImageGPU() const {
     return false;
 }
 
-GrTexture* SkImageFilter::onFilterImageGPU(Proxy* proxy, GrTexture* texture, const SkRect& rect) {
+GrTexture* SkImageFilter::filterImageGPU(Proxy* proxy, GrTexture* texture, const SkRect& rect) {
     return NULL;
 }
 

@@ -172,8 +172,8 @@ static GrTexture* getInputResultAsTexture(SkImageFilter::Proxy* proxy,
     if (!input) {
         resultTex = src;
     } else if (input->canFilterImageGPU()) {
-        // onFilterImageGPU() already refs the result, so just return it here.
-        return input->onFilterImageGPU(proxy, src, rect);
+        // filterImageGPU() already refs the result, so just return it here.
+        return input->filterImageGPU(proxy, src, rect);
     } else {
         SkBitmap srcBitmap, result;
         srcBitmap.setConfig(SkBitmap::kARGB_8888_Config, src->width(), src->height());
@@ -196,7 +196,7 @@ static GrTexture* getInputResultAsTexture(SkImageFilter::Proxy* proxy,
     return resultTex;
 }
 
-GrTexture* SkBlendImageFilter::onFilterImageGPU(Proxy* proxy, GrTexture* src, const SkRect& rect) {
+GrTexture* SkBlendImageFilter::filterImageGPU(Proxy* proxy, GrTexture* src, const SkRect& rect) {
     SkAutoTUnref<GrTexture> background(getInputResultAsTexture(proxy, getBackgroundInput(), src, rect));
     SkAutoTUnref<GrTexture> foreground(getInputResultAsTexture(proxy, getForegroundInput(), src, rect));
     GrContext* context = src->getContext();

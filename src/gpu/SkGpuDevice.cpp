@@ -1448,7 +1448,7 @@ static GrTexture* filter_texture(SkDevice* device, GrContext* context,
         // Save the render target and set it to NULL, so we don't accidentally draw to it in the
         // filter.  Also set the clip wide open and the matrix to identity.
         GrContext::AutoWideOpenIdentityDraw awo(context, NULL);
-        texture = filter->onFilterImageGPU(&proxy, texture, rect);
+        texture = filter->filterImageGPU(&proxy, texture, rect);
     } else if (filter->asNewEffect(&effect, texture)) {
         GrAutoScratchTexture dst(context, desc);
         apply_effect(context, texture, dst.texture(), rect, effect);
