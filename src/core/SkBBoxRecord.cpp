@@ -274,9 +274,7 @@ bool SkBBoxRecord::transformBounds(const SkRect& bounds, const SkPaint* paint) {
         }
     }
 
-    SkRect clip;
-
-    if (this->getClipBounds(&clip) && outBounds.intersect(clip)) {
+    if (!this->quickReject(outBounds)) {
         this->getTotalMatrix().mapRect(&outBounds);
         this->handleBBox(outBounds);
         return true;
