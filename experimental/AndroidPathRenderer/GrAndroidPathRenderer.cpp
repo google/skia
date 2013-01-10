@@ -17,7 +17,7 @@ bool GrAndroidPathRenderer::canDrawPath(const SkPath& path,
                                         const SkStrokeRec& stroke,
                                         const GrDrawTarget* target,
                                         bool antiAlias) const {
-    return ((stroke.isFillStyle() || stroke.getStyle() == SkStrokeRec::kStroke_Style) 
+    return ((stroke.isFillStyle() || stroke.getStyle() == SkStrokeRec::kStroke_Style)
              && !path.isInverseFillType() && path.isConvex());
 }
 
@@ -33,9 +33,9 @@ bool GrAndroidPathRenderer::onDrawPath(const SkPath& origPath,
 
     // generate verts using Android algorithm
     android::uirenderer::VertexBuffer vertices;
-    android::uirenderer::PathRenderer::ConvexPathVertices(origPath, stroke, antiAlias, NULL, 
+    android::uirenderer::PathRenderer::ConvexPathVertices(origPath, stroke, antiAlias, NULL,
                                                           &vertices);
- 
+
     // set vertex layout depending on anti-alias
     GrVertexLayout layout = antiAlias ? GrDrawTarget::kCoverage_VertexLayoutBit : 0;
 
@@ -50,7 +50,7 @@ bool GrAndroidPathRenderer::onDrawPath(const SkPath& origPath,
     // copy android verts to our vertex buffer
     if (antiAlias) {
         ColorVertex* outVert = reinterpret_cast<ColorVertex*>(geo.vertices());
-        android::uirenderer::AlphaVertex* inVert = 
+        android::uirenderer::AlphaVertex* inVert =
             reinterpret_cast<android::uirenderer::AlphaVertex*>(vertices.getBuffer());
 
         for (int i = 0; i < vertCount; ++i) {
@@ -67,7 +67,7 @@ bool GrAndroidPathRenderer::onDrawPath(const SkPath& origPath,
        size_t copySize = vsize*vertCount;
        memcpy(geo.vertices(), vertices.getBuffer(), copySize);
     }
-    
+
     // render it
     target->drawNonIndexed(kTriangleStrip_GrPrimitiveType, 0, vertCount);
 
