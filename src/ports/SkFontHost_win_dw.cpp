@@ -769,9 +769,7 @@ void SkScalerContext_Windows::generateAdvance(SkGlyph* glyph) {
 
     SkVector vecs[1] = { { advanceX, 0 } };
     SkMatrix mat;
-    mat.setAll(fRec.fPost2x2[0][0], fRec.fPost2x2[0][1], 0,
-               fRec.fPost2x2[1][0], fRec.fPost2x2[1][1], 0,
-               0, 0, SkScalarToPersp(SK_Scalar1));
+    fRec.getMatrixFrom2x2(&mat);
     mat.mapVectors(vecs, SK_ARRAY_COUNT(vecs));
 
     glyph->fAdvanceX = SkScalarToFixed(vecs[0].fX);
@@ -1037,6 +1035,10 @@ void SkScalerContext_Windows::generatePath(const SkGlyph& glyph, SkPath* path) {
                                        FALSE, //rtl
                                        geometryToPath.get()),
          "Could not create glyph outline.");
+
+    SkMatrix mat;
+    fRec.getMatrixFrom2x2(&mat);
+    path->transform(mat);
 }
 
 void SkFontHost::Serialize(const SkTypeface* rawFace, SkWStream* stream) {
