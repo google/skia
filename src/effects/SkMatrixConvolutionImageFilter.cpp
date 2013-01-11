@@ -257,6 +257,12 @@ public:
                               bool convolveAlpha);
     virtual ~GrMatrixConvolutionEffect();
 
+    virtual void getConstantColorComponents(GrColor* color,
+                                            uint32_t* validFlags) const SK_OVERRIDE {
+        // TODO: Try to do better?
+        *validFlags = 0;
+    }
+
     static const char* Name() { return "MatrixConvolution"; }
     const SkISize& kernelSize() const { return fKernelSize; }
     const float* target() const { return fTarget; }
@@ -267,6 +273,8 @@ public:
     bool convolveAlpha() const { return fConvolveAlpha; }
 
     typedef GrGLMatrixConvolutionEffect GLEffect;
+
+
 
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
     virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
