@@ -225,11 +225,11 @@ SkString* SkObjectParser::PaintToString(const SkPaint& paint) {
         add_flag_to_string(mPaint, paint.isSubpixelText(), "SubpixelText", &needSeparator);
         add_flag_to_string(mPaint, paint.isDevKernText(), "DevKernText", &needSeparator);
         add_flag_to_string(mPaint, paint.isLCDRenderText(), "LCDRenderText", &needSeparator);
-        add_flag_to_string(mPaint, paint.isEmbeddedBitmapText(), 
+        add_flag_to_string(mPaint, paint.isEmbeddedBitmapText(),
                            "EmbeddedBitmapText", &needSeparator);
         add_flag_to_string(mPaint, paint.isAutohinted(), "Autohinted", &needSeparator);
         add_flag_to_string(mPaint, paint.isVerticalText(), "VerticalText", &needSeparator);
-        add_flag_to_string(mPaint, SkToBool(paint.getFlags() & SkPaint::kGenA8FromLCD_Flag), 
+        add_flag_to_string(mPaint, SkToBool(paint.getFlags() & SkPaint::kGenA8FromLCD_Flag),
                            "GenA8FromLCD", &needSeparator);
     } else {
         mPaint->append("None");
