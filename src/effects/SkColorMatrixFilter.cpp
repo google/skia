@@ -327,7 +327,7 @@ class ColorMatrixEffect : public GrEffect {
 public:
     static const char* Name() { return "Color Matrix"; }
 
-    ColorMatrixEffect(const SkColorMatrix& matrix) : GrEffect(0), fMatrix(matrix) {}
+    ColorMatrixEffect(const SkColorMatrix& matrix) : fMatrix(matrix) {}
 
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
         return GrTBackendEffectFactory<ColorMatrixEffect>::getInstance();

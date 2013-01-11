@@ -58,12 +58,7 @@ private:
 
 int32_t GrBackendEffectFactory::fCurrEffectClassID = GrBackendEffectFactory::kIllegalEffectClassID;
 
-GrEffect::GrEffect(int numTextures)
-    : fNumTextures(numTextures) {
-}
-
 GrEffect::~GrEffect() {
-
 }
 
 bool GrEffect::isOpaque(bool inputTextureIsOpaque) const {
@@ -73,7 +68,6 @@ bool GrEffect::isOpaque(bool inputTextureIsOpaque) const {
 const char* GrEffect::name() const {
     return this->getFactory().name();
 }
-
 
 bool GrEffect::isEqual(const GrEffect& s) const {
     if (this->numTextures() != s.numTextures()) {
@@ -87,10 +81,8 @@ bool GrEffect::isEqual(const GrEffect& s) const {
     return true;
 }
 
-const GrTextureAccess& GrEffect::textureAccess(int index) const {
-    GrCrash("We shouldn't be calling this function on the base class.");
-    static GrTextureAccess kDummy;
-    return kDummy;
+void GrEffect::addTextureAccess(const GrTextureAccess* access) {
+    fTextureAccesses.push_back(access);
 }
 
 void * GrEffect::operator new(size_t size) {

@@ -233,8 +233,6 @@ public:
 
     virtual ~GrGradientEffect();
 
-    virtual const GrTextureAccess& textureAccess(int index) const SK_OVERRIDE;
-
     bool useAtlas() const { return SkToBool(-1 != fRow); }
     SkScalar getYCoord() const { return fYCoord; };
     const SkMatrix& getMatrix() const { return fMatrix;}

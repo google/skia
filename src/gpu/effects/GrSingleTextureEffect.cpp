@@ -58,49 +58,44 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture)
-    : INHERITED(1)
-    , fTextureAccess(texture) {
+    : fTextureAccess(texture) {
     fMatrix.reset();
+    this->addTextureAccess(&fTextureAccess);
 }
 
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture, bool bilerp)
-    : INHERITED(1)
-    , fTextureAccess(texture, bilerp) {
+    : fTextureAccess(texture, bilerp) {
     fMatrix.reset();
+    this->addTextureAccess(&fTextureAccess);
 }
 
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture, const GrTextureParams& params)
-    : INHERITED(1)
-    , fTextureAccess(texture, params) {
+    : fTextureAccess(texture, params) {
     fMatrix.reset();
+    this->addTextureAccess(&fTextureAccess);
 }
 
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture, const SkMatrix& m)
-    : INHERITED(1)
-    , fTextureAccess(texture)
+    : fTextureAccess(texture)
     , fMatrix(m) {
+    this->addTextureAccess(&fTextureAccess);
 }
 
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture, const SkMatrix& m, bool bilerp)
-    : INHERITED(1)
-    , fTextureAccess(texture, bilerp)
+    : fTextureAccess(texture, bilerp)
     , fMatrix(m) {
+    this->addTextureAccess(&fTextureAccess);
 }
 
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
                                              const SkMatrix& m,
                                              const GrTextureParams& params)
-    : INHERITED(1)
-    , fTextureAccess(texture, params)
+    : fTextureAccess(texture, params)
     , fMatrix(m) {
+    this->addTextureAccess(&fTextureAccess);
 }
 
 GrSingleTextureEffect::~GrSingleTextureEffect() {
-}
-
-const GrTextureAccess& GrSingleTextureEffect::textureAccess(int index) const {
-    GrAssert(0 == index);
-    return fTextureAccess;
 }
 
 const GrBackendEffectFactory& GrSingleTextureEffect::getFactory() const {

@@ -33,8 +33,6 @@ public:
 
     virtual ~GrSingleTextureEffect();
 
-    virtual const GrTextureAccess& textureAccess(int index) const SK_OVERRIDE;
-
     static const char* Name() { return "Single Texture"; }
 
     const SkMatrix& getMatrix() const { return fMatrix; }
