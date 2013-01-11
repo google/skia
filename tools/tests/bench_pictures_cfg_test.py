@@ -39,7 +39,7 @@ def Main(argv):
         if type(value).__name__ == 'list':
           for item in value:
             ThrowIfNotAString(item)
-        else:
+        elif not value is True:
           ThrowIfNotAString(value)
 
 if __name__ == '__main__':
