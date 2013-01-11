@@ -742,8 +742,7 @@ void GrGLGradientEffect::emitColorLookup(GrGLShaderBuilder* builder,
 GrGradientEffect::GrGradientEffect(GrContext* ctx,
                                    const SkGradientShaderBase& shader,
                                    const SkMatrix& matrix,
-                                   SkShader::TileMode tileMode)
-    : INHERITED(1) {
+                                   SkShader::TileMode tileMode) {
     // TODO: check for simple cases where we don't need a texture:
     //GradientInfo info;
     //shader.asAGradient(&info);
@@ -783,17 +782,13 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
         // the cache, but it'll still be ref'd until it's no longer being used.
         GrUnlockCachedBitmapTexture(texture);
     }
+    this->addTextureAccess(&fTextureAccess);
 }
 
 GrGradientEffect::~GrGradientEffect() {
     if (this->useAtlas()) {
         fAtlas->unlockRow(fRow);
     }
-}
-
-const GrTextureAccess& GrGradientEffect::textureAccess(int index) const {
-    GrAssert(0 == index);
-    return fTextureAccess;
 }
 
 int GrGradientEffect::RandomGradientParams(SkRandom* random,

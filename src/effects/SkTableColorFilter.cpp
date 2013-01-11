@@ -233,8 +233,6 @@ public:
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
     virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
 
-    virtual const GrTextureAccess& textureAccess(int index) const SK_OVERRIDE;
-
     typedef GLColorTableEffect GLEffect;
 
 private:
@@ -324,8 +322,8 @@ GrGLEffect::EffectKey GLColorTableEffect::GenKey(const GrEffectStage&, const GrG
 ///////////////////////////////////////////////////////////////////////////////
 
 ColorTableEffect::ColorTableEffect(GrTexture* texture)
-    : INHERITED(1)
-    , fTextureAccess(texture, "a") {
+    : fTextureAccess(texture, "a") {
+    this->addTextureAccess(&fTextureAccess);
 }
 
 ColorTableEffect::~ColorTableEffect() {
@@ -337,11 +335,6 @@ const GrBackendEffectFactory&  ColorTableEffect::getFactory() const {
 
 bool ColorTableEffect::isEqual(const GrEffect& sBase) const {
     return INHERITED::isEqual(sBase);
-}
-
-const GrTextureAccess& ColorTableEffect::textureAccess(int index) const {
-    GrAssert(0 == index);
-    return fTextureAccess;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

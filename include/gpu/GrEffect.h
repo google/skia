@@ -18,26 +18,21 @@ class GrBackendEffectFactory;
 class GrContext;
 class SkString;
 
-/** Provides custom vertex shader, fragment shader, uniform data for a
-    particular stage of the Ganesh shading pipeline.
+/** Provides custom vertex shader, fragment shader, uniform data for a particular stage of the
+    Ganesh shading pipeline.
     Subclasses must have a function that produces a human-readable name:
         static const char* Name();
-    GrEffect objects *must* be immutable: after being constructed,
-    their fields may not change.  (Immutability isn't actually required
-    until they've been used in a draw call, but supporting that would require
-    setters and getters that could fail, copy-on-write, or deep copying of these
-    objects when they're stored by a GrGLEffect.)
+    GrEffect objects *must* be immutable: after being constructed, their fields may not change.
   */
 class GrEffect : public GrRefCnt {
-
 public:
     SK_DECLARE_INST_COUNT(GrEffect)
 
-    explicit GrEffect(int numTextures);
+    GrEffect() {};
     virtual ~GrEffect();
 
-    /** If given an input texture that is/is not opaque, is this
-        effect guaranteed to produce an opaque output? */
+    /** If given an input texture that is/is not opaque, is this effect guaranteed to produce an
+        opaque output? */
     virtual bool isOpaque(bool inputTextureIsOpaque) const;
 
     /** This object, besides creating back-end-specific helper objects, is used for run-time-type-
@@ -77,11 +72,11 @@ public:
         in generated shader code. */
     const char* name() const;
 
-    int numTextures() const { return fNumTextures; }
+    int numTextures() const { return fTextureAccesses.count(); }
 
     /** Returns the access pattern for the texture at index. index must be valid according to
         numTextures(). */
-    virtual const GrTextureAccess& textureAccess(int index) const;
+    const GrTextureAccess& textureAccess(int index) const { return *fTextureAccesses[index]; }
 
     /** Shortcut for textureAccess(index).texture(); */
     GrTexture* texture(int index) const { return this->textureAccess(index).getTexture(); }
@@ -98,8 +93,16 @@ public:
     void* operator new(size_t size);
     void operator delete(void* target);
 
+protected:
+    /**
+     * Subclasses call this from their constructor to register GrTextureAcceses. The effect subclass
+     * manages the lifetime of the accesses (this function only stores a pointer). This must only be
+     * called from the constructor because GrEffects are supposed to be immutable.
+     */
+    void addTextureAccess(const GrTextureAccess* textureAccess);
+
 private:
-    int fNumTextures;
+    SkSTArray<4, const GrTextureAccess*, true> fTextureAccesses;
     typedef GrRefCnt INHERITED;
 };
 

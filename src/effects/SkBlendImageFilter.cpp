@@ -153,8 +153,6 @@ public:
     typedef GrGLBlendEffect GLEffect;
     static const char* Name() { return "Blend"; }
 
-    virtual const GrTextureAccess& textureAccess(int index) const SK_OVERRIDE;
-
 private:
     GrTextureAccess             fForegroundAccess;
     GrTextureAccess             fBackgroundAccess;
@@ -228,10 +226,11 @@ GrTexture* SkBlendImageFilter::filterImageGPU(Proxy* proxy, GrTexture* src, cons
 GrBlendEffect::GrBlendEffect(SkBlendImageFilter::Mode mode,
                              GrTexture* foreground,
                              GrTexture* background)
-    : INHERITED(2)
-    , fForegroundAccess(foreground)
+    : fForegroundAccess(foreground)
     , fBackgroundAccess(background)
     , fMode(mode) {
+    this->addTextureAccess(&fForegroundAccess);
+    this->addTextureAccess(&fBackgroundAccess);
 }
 
 GrBlendEffect::~GrBlendEffect() {
@@ -244,11 +243,6 @@ bool GrBlendEffect::isEqual(const GrEffect& sBase) const {
 
 const GrBackendEffectFactory& GrBlendEffect::getFactory() const {
     return GrTBackendEffectFactory<GrBlendEffect>::getInstance();
-}
-
-const GrTextureAccess& GrBlendEffect::textureAccess(int index) const {
-    SkASSERT(index >= 0 && index < 2);
-    return (0 == index) ? fForegroundAccess : fBackgroundAccess;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
