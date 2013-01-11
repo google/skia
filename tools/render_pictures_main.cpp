@@ -224,7 +224,7 @@ static bool render_picture(const SkString& inputPath, const SkString* outputDir,
                 if (*referenceBitmap->getAddr32(x, y) != *bitmap->getAddr32(x, y)) {
                     SkDebugf("Expected pixel at (%i %i): 0x%x, actual 0x%x\n",
                              x, y,
-                             referenceBitmap->getAddr32(x, y),
+                             *referenceBitmap->getAddr32(x, y),
                              *bitmap->getAddr32(x, y));
                     SkDELETE(bitmap);
                     SkDELETE(referenceBitmap);
