@@ -201,6 +201,7 @@ public:
         // may override.
         fNotifyMissingReadReference = true;
         fUseFileHierarchy = false;
+        fMismatchPath = NULL;
     }
 
     SkString make_name(const char shortName[], const char configName[]) {
@@ -216,15 +217,15 @@ public:
     }
 
     static SkString make_filename(const char path[],
-                                  const char pathSuffix[],
+                                  const char renderModeDescriptor[],
                                   const SkString& name,
                                   const char suffix[]) {
         SkString filename(path);
         if (filename.endsWith(SkPATH_SEPARATOR)) {
             filename.remove(filename.size() - 1, 1);
         }
-        filename.appendf("%s%c%s.%s", pathSuffix, SkPATH_SEPARATOR,
-                         name.c_str(), suffix);
+        filename.appendf("%c%s%s.%s", SkPATH_SEPARATOR,
+                         name.c_str(), renderModeDescriptor, suffix);
         return filename;
     }
 
@@ -528,6 +529,10 @@ public:
                 SkBitmapChecksummer::Compute64(referenceBitmap)));
             retval = compare(bitmap, referenceBitmap, name,
                              renderModeDescriptor);
+            if (fMismatchPath && (retval & ERROR_IMAGE_MISMATCH)) {
+                SkString path = make_filename(fMismatchPath, renderModeDescriptor, name, "png");
+                write_bitmap(path, bitmap);
+            }
         } else {
             if (fNotifyMissingReadReference) {
                 fprintf(stderr, "FAILED to read %s\n", path.c_str());
@@ -601,8 +606,13 @@ public:
                                             name, bitmap, pdf);
         }
         if (referenceBitmap) {
-            retval |= compare(bitmap, *referenceBitmap, name,
-                              renderModeDescriptor);
+            ErrorBitfield compareResult = compare(bitmap, *referenceBitmap, name,
+                                                  renderModeDescriptor);
+            if (fMismatchPath && (compareResult & ERROR_IMAGE_MISMATCH)) {
+                SkString path = make_filename(fMismatchPath, renderModeDescriptor, name, "png");
+                write_bitmap(path, bitmap);
+            }
+            retval |= compareResult;
         }
         return retval;
     }
@@ -770,6 +780,8 @@ public:
 
     bool fUseFileHierarchy;
 
+    const char* fMismatchPath;
+
     // information about all failed tests we have encountered so far
     SkTArray<FailRec> fFailedTests;
 
@@ -849,6 +861,8 @@ static void usage(const char * argv0) {
 "    [--hierarchy|--nohierarchy]: whether to use multilevel directory structure\n"
 "        when reading/writing files; default is no\n"
 "    [--match <substring>]: only run tests whose name includes this substring\n"
+"    [--mismatchPath <path>]: write images for tests that failed due to\n"
+"        pixel mismatched into this directory"
 "    [--modulo <remainder> <divisor>]: only run tests for which \n"
 "        testIndex %% divisor == remainder\n"
 "    [--nopdf]: skip the pdf rendering test pass\n"
@@ -1027,6 +1041,11 @@ int tool_main(int argc, char** argv) {
             doDeferred = false;
         } else if (strcmp(*argv, "--disable-missing-warning") == 0) {
             gmmain.fNotifyMissingReadReference = false;
+        } else if (strcmp(*argv, "--mismatchPath") == 0) {
+            argv++;
+            if (argv < stop && **argv) {
+                gmmain.fMismatchPath = *argv;
+            }
         } else if (strcmp(*argv, "--nortree") == 0) {
             doRTree = false;
         } else if (strcmp(*argv, "--notileGrid") == 0) {
