@@ -153,6 +153,8 @@ public:
     typedef GrGLBlendEffect GLEffect;
     static const char* Name() { return "Blend"; }
 
+    void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
+
 private:
     GrTextureAccess             fForegroundAccess;
     GrTextureAccess             fBackgroundAccess;
@@ -243,6 +245,19 @@ bool GrBlendEffect::isEqual(const GrEffect& sBase) const {
 
 const GrBackendEffectFactory& GrBlendEffect::getFactory() const {
     return GrTBackendEffectFactory<GrBlendEffect>::getInstance();
+}
+
+void GrBlendEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
+    // The output alpha is always 1 - (1 - FGa) * (1 - BGa). So if either FGa or BGa is known to
+    // be one then the output alpha is one. (This effect ignores its input. We should have a way to
+    // communicate this.)
+    if (GrPixelConfigIsOpaque(fForegroundAccess.getTexture()->config()) ||
+        GrPixelConfigIsOpaque(fBackgroundAccess.getTexture()->config())) {
+        *validFlags = kA_ValidComponentFlag;
+        *color = GrColorPackRGBA(0, 0, 0, 0xff);
+    } else {
+        *validFlags = 0;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

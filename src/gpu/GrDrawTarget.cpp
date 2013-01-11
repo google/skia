@@ -827,40 +827,52 @@ bool GrDrawTarget::canTweakAlphaForCoverage() const {
 bool GrDrawTarget::srcAlphaWillBeOne(GrVertexLayout layout) const {
     const GrDrawState& drawState = this->getDrawState();
 
+    uint32_t validComponentFlags;
+    GrColor  color;
     // Check if per-vertex or constant color may have partial alpha
-    if ((layout & kColor_VertexLayoutBit) ||
-        0xff != GrColorUnpackA(drawState.getColor())) {
-        return false;
-    }
-    // Check if color filter could introduce an alpha
-    // (TODO: Consider being more aggressive with regards to detecting 0xff
-    // final alpha from color filter).
-    if (SkXfermode::kDst_Mode != drawState.getColorFilterMode()) {
-        return false;
-    }
-    int stageCnt;
-    // Check whether coverage is treated as color
-    if (drawState.isCoverageDrawing()) {
-        if (0xff != GrColorUnpackA(drawState.getCoverage())) {
-            return false;
-        }
-        stageCnt = GrDrawState::kNumStages;
+    if (layout & kColor_VertexLayoutBit) {
+        validComponentFlags = 0;
     } else {
-        stageCnt = drawState.getFirstCoverageStage();
+        validComponentFlags = GrEffect::kAll_ValidComponentFlags;
+        color = drawState.getColor();
     }
-    // Check if a color stage could create a partial alpha
+
+    // Run through the color stages
+    int stageCnt = drawState.getFirstCoverageStage();
     for (int s = 0; s < stageCnt; ++s) {
         const GrEffect* effect = drawState.getStage(s).getEffect();
         if (NULL != effect) {
-            // FIXME: The param indicates whether the texture is opaque or not. However, the effect
-            // already controls its textures. It really needs to know whether the incoming color
-            // (from a uni, per-vertex colors, or previous stage) is opaque or not.
-            if (!effect->isOpaque(true)) {
-                return false;
+            effect->getConstantColorComponents(&color, &validComponentFlags);
+        }
+    }
+
+    // Check if the color filter could introduce an alpha.
+    // We could skip the above work when this is true, but it is rare and the right fix is to make
+    // the color filter a GrEffect and implement getConstantColorComponents() for it.
+    if (SkXfermode::kDst_Mode != drawState.getColorFilterMode()) {
+        validComponentFlags = 0;
+    }
+
+    // Check whether coverage is treated as color. If so we run through the coverage computation.
+    if (drawState.isCoverageDrawing()) {
+        GrColor coverageColor = drawState.getCoverage();
+        GrColor oldColor = color;
+        color = 0;
+        for (int c = 0; c < 4; ++c) {
+            if (validComponentFlags & (1 << c)) {
+                U8CPU a = (oldColor >> (c * 8)) & 0xff;
+                U8CPU b = (coverageColor >> (c * 8)) & 0xff;
+                color |= (SkMulDiv255Round(a, b) << (c * 8));
+            }
+        }
+        for (int s = drawState.getFirstCoverageStage(); s < GrDrawState::kNumStages; ++s) {
+            const GrEffect* effect = drawState.getStage(s).getEffect();
+            if (NULL != effect) {
+                effect->getConstantColorComponents(&color, &validComponentFlags);
             }
         }
     }
-    return true;
+    return (GrEffect::kA_ValidComponentFlag & validComponentFlags) && 0xff == GrColorUnpackA(color);
 }
 
 namespace {

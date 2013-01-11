@@ -98,6 +98,17 @@ GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
 GrSingleTextureEffect::~GrSingleTextureEffect() {
 }
 
+void GrSingleTextureEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
+    // If the input alpha is 0xff and the texture has no alpha channel, then the output alpha is
+    // 0xff
+    if ((*validFlags & kA_ValidComponentFlag) && 0xFF == GrColorUnpackA(*color) &&
+        GrPixelConfigIsOpaque(fTextureAccess.getTexture()->config())) {
+        *validFlags = kA_ValidComponentFlag;
+    } else {
+        *validFlags = 0;
+    }
+}
+
 const GrBackendEffectFactory& GrSingleTextureEffect::getFactory() const {
     return GrTBackendEffectFactory<GrSingleTextureEffect>::getInstance();
 }

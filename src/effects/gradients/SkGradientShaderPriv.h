@@ -243,6 +243,15 @@ public:
                fYCoord == s.getYCoord() && fMatrix.cheapEqualTo(s.getMatrix());
     }
 
+    virtual void getConstantColorComponents(GrColor* color,
+                                            uint32_t* validFlags) const SK_OVERRIDE {
+        if (fIsOpaque && (kA_ValidComponentFlag & *validFlags) && 0xff == GrColorUnpackA(*color)) {
+            *validFlags = kA_ValidComponentFlag;
+        } else {
+            *validFlags = 0;
+        }
+    }
+
 protected:
 
     /** Populates a pair of arrays with colors and stop info to construct a random gradient.
@@ -264,6 +273,7 @@ private:
     GrTextureStripAtlas* fAtlas;
     int fRow;
     SkMatrix fMatrix;
+    bool fIsOpaque;
 
     typedef GrEffect INHERITED;
 
