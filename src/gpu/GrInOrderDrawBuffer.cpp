@@ -553,7 +553,7 @@ void GrInOrderDrawBuffer::reset() {
     this->resetDrawTracking();
 }
 
-bool GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
+bool GrInOrderDrawBuffer::flushTo(GrDrawTarget* target) {
     GrAssert(kReserved_GeometrySrcType != this->getGeomSrc().fVertexSrc);
     GrAssert(kReserved_GeometrySrcType != this->getGeomSrc().fIndexSrc);
 
@@ -637,6 +637,7 @@ bool GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
 
     target->setDrawState(prevDrawState);
     prevDrawState->unref();
+    this->reset();
     return true;
 }
 
