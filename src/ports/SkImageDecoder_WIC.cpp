@@ -19,6 +19,15 @@
 #include "SkTScopedComPtr.h"
 #include "SkUnPreMultiply.h"
 
+//All Windows SDKs back to XPSP2 export the CLSID_WICImagingFactory symbol.
+//In the Windows8 SDK the CLSID_WICImagingFactory symbol is still exported
+//but CLSID_WICImagingFactory is then #defined to CLSID_WICImagingFactory2.
+//Undo this #define if it has been done so that we link against the symbols
+//we intended to link against on all SDKs.
+#if defined(CLSID_WICImagingFactory)
+#undef CLSID_WICImagingFactory
+#endif
+
 class SkImageDecoder_WIC : public SkImageDecoder {
 protected:
     virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode mode);
