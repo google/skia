@@ -852,7 +852,7 @@ static void clamp_with_orig(uint8_t dst[], int dstRowBytes,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// we use a local funciton to wrap the class static method to work around
+// we use a local function to wrap the class static method to work around
 // a bug in gcc98
 void SkMask_FreeImage(uint8_t* image);
 void SkMask_FreeImage(uint8_t* image) {
@@ -1086,7 +1086,7 @@ static int compute_profile( SkScalar radius, unsigned int **profile_out ) {
     int size = SkScalarFloorToInt(radius * 3 + 1);
     int center = size >> 1;
 
-    unsigned int *profile = new unsigned int [size];
+    unsigned int *profile = SkNEW_ARRAY(unsigned int, size);
 
     float invr = 1.0f/radius;
 
@@ -1118,6 +1118,7 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
     float radius = SkScalarToFloat( SkScalarMul( provided_radius, kBlurRadiusFudgeFactor ) );
 
     profile_size = compute_profile( radius, &profile );
+    SkAutoTDeleteArray<unsigned int> ada(profile);
 
     int pad = (int) (radius * 1.5f + 1);
     if (margin) {
@@ -1141,8 +1142,6 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
     uint8_t*        dp = SkMask::AllocImage(dstSize);
 
     dst->fImage = dp;
-
-    SkAutoTCallVProc<uint8_t, SkMask_FreeImage> autoCall(dp);
 
     int dst_height = dst->fBounds.height();
     int dst_width = dst->fBounds.width();

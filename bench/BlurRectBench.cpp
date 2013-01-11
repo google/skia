@@ -91,6 +91,7 @@ protected:
         SkMask mask;
         SkBlurMask::BlurRect(&mask, r, radius(), SkBlurMask::kNormal_Style,
                              SkBlurMask::kHigh_Quality);
+        SkMask::FreeImage(mask.fImage);
     }
 };
 
@@ -104,12 +105,18 @@ public:
         } else {
             name.printf("blurrect_separable_%d", SkScalarRound(rad));
         }
-
         setName(name);
+        fSrcMask.fImage = NULL;
+    }
+
+    ~BlurRectSeparableBench() {
+        SkMask::FreeImage(fSrcMask.fImage);
     }
 
 protected:
     virtual void preBenchSetup(const SkRect& r) SK_OVERRIDE {
+        SkMask::FreeImage(fSrcMask.fImage);
+
         r.roundOut(&fSrcMask.fBounds);
         fSrcMask.fFormat = SkMask::kA8_Format;
         fSrcMask.fRowBytes = fSrcMask.fBounds.width();
@@ -123,6 +130,7 @@ protected:
         SkBlurMask::BlurSeparable(&mask, fSrcMask, radius(),
                                   SkBlurMask::kNormal_Style,
                                   SkBlurMask::kHigh_Quality);
+        SkMask::FreeImage(mask.fImage);
     }
 };
 
