@@ -48,15 +48,10 @@ void PdfRenderer::end() {
     }
 }
 
-bool PdfRenderer::write(const SkString& path) const {
+void PdfRenderer::write(SkWStream* stream) const {
     SkPDFDocument doc;
     doc.appendPage(fPDFDevice);
-    SkFILEWStream stream(path.c_str());
-    if (stream.isValid()) {
-        doc.emitPDF(&stream);
-        return true;
-    }
-    return false;
+    doc.emitPDF(stream);
 }
 
 void SimplePdfRenderer::render() {

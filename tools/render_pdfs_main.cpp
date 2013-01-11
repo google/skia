@@ -33,7 +33,7 @@ static void usage(const char* argv0) {
     SkDebugf("SKP to PDF rendering tool\n");
     SkDebugf("\n"
 "Usage: \n"
-"     %s <input>... <outputDir> \n"
+"     %s <input>... -w <outputDir> \n"
 , argv0);
     SkDebugf("\n\n");
     SkDebugf(
@@ -89,15 +89,25 @@ static bool make_output_filepath(SkString* path, const SkString& dir,
 static bool write_output(const SkString& outputDir,
                          const SkString& inputFilename,
                          const sk_tools::PdfRenderer& renderer) {
+    if (outputDir.isEmpty()) {
+        SkDynamicMemoryWStream stream;
+        renderer.write(&stream);
+        return true;
+    }
+
     SkString outputPath;
     if (!make_output_filepath(&outputPath, outputDir, inputFilename)) {
         return false;
     }
-    bool isWritten = renderer.write(outputPath);
-    if (!isWritten) {
+
+    SkFILEWStream stream(outputPath.c_str());
+    if (!stream.isValid()) {
         SkDebugf("Could not write to file %s\n", outputPath.c_str());
+        return false;
     }
-    return isWritten;
+    renderer.write(&stream);
+
+    return true;
 }
 
 /** Reads an skp file, renders it to pdf and writes the output to a pdf file
@@ -168,7 +178,8 @@ static int process_input(const SkString& input, const SkString& outputDir,
 }
 
 static void parse_commandline(int argc, char* const argv[],
-                              SkTArray<SkString>* inputs) {
+                              SkTArray<SkString>* inputs,
+                              SkString* outputDir) {
     const char* argv0 = argv[0];
     char* const* stop = argv + argc;
 
@@ -176,12 +187,20 @@ static void parse_commandline(int argc, char* const argv[],
         if ((0 == strcmp(*argv, "-h")) || (0 == strcmp(*argv, "--help"))) {
             usage(argv0);
             exit(-1);
+        } else if (0 == strcmp(*argv, "-w")) {
+            ++argv;
+            if (argv >= stop) {
+                SkDebugf("Missing outputDir for -w\n");
+                usage(argv0);
+                exit(-1);
+            }
+            *outputDir = SkString(*argv);
         } else {
             inputs->push_back(SkString(*argv));
         }
     }
 
-    if (inputs->count() < 2) {
+    if (inputs->count() < 1) {
         usage(argv0);
         exit(-1);
     }
@@ -197,11 +216,11 @@ int tool_main(int argc, char** argv) {
         renderer(SkNEW(sk_tools::SimplePdfRenderer));
     SkASSERT(renderer.get());
 
-    parse_commandline(argc, argv, &inputs);
-    SkString outputDir = inputs[inputs.count() - 1];
+    SkString outputDir;
+    parse_commandline(argc, argv, &inputs, &outputDir);
 
     int failures = 0;
-    for (int i = 0; i < inputs.count() - 1; i ++) {
+    for (int i = 0; i < inputs.count(); i ++) {
         failures += process_input(inputs[i], outputDir, *renderer);
     }
 
