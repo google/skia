@@ -49,6 +49,13 @@ public:
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTable_ColorFilter)
 
+    enum {
+        kA_Flag = 1 << 0,
+        kR_Flag = 1 << 1,
+        kG_Flag = 1 << 2,
+        kB_Flag = 1 << 3,
+    };
+
 protected:
     SkTable_ColorFilter(SkFlattenableReadBuffer& buffer);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
@@ -56,12 +63,6 @@ protected:
 private:
     mutable const SkBitmap* fBitmap; // lazily allocated
 
-    enum {
-        kA_Flag = 1 << 0,
-        kR_Flag = 1 << 1,
-        kG_Flag = 1 << 2,
-        kB_Flag = 1 << 3,
-    };
     uint8_t fStorage[256 * 4];
     unsigned fFlags;
 
@@ -226,12 +227,14 @@ class GLColorTableEffect;
 class ColorTableEffect : public GrEffect {
 public:
 
-    explicit ColorTableEffect(GrTexture* texture);
+    explicit ColorTableEffect(GrTexture* texture, unsigned flags);
     virtual ~ColorTableEffect();
 
     static const char* Name() { return "ColorTable"; }
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
     virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
+
+    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
     typedef GLColorTableEffect GLEffect;
 
@@ -239,6 +242,8 @@ private:
     GR_DECLARE_EFFECT_TEST;
 
     GrTextureAccess fTextureAccess;
+    unsigned        fFlags; // currently not used in shader code, just to assist
+                            // getConstantColorComponents().
 
     typedef GrEffect INHERITED;
 };
@@ -321,8 +326,9 @@ GrGLEffect::EffectKey GLColorTableEffect::GenKey(const GrEffectStage&, const GrG
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ColorTableEffect::ColorTableEffect(GrTexture* texture)
-    : fTextureAccess(texture, "a") {
+ColorTableEffect::ColorTableEffect(GrTexture* texture, unsigned flags)
+    : fTextureAccess(texture, "a")
+    , fFlags(flags) {
     this->addTextureAccess(&fTextureAccess);
 }
 
@@ -337,6 +343,24 @@ bool ColorTableEffect::isEqual(const GrEffect& sBase) const {
     return INHERITED::isEqual(sBase);
 }
 
+void ColorTableEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
+    // If we kept the table in the effect then we could actually run known inputs through the
+    // table.
+    if (fFlags & SkTable_ColorFilter::kR_Flag) {
+        *validFlags = ~kR_ValidComponentFlag;
+    }
+    if (fFlags & SkTable_ColorFilter::kG_Flag) {
+        *validFlags &= ~kG_ValidComponentFlag;
+    }
+    if (fFlags & SkTable_ColorFilter::kB_Flag) {
+        *validFlags &= ~kB_ValidComponentFlag;
+    }
+    if (fFlags & SkTable_ColorFilter::kA_Flag) {
+        *validFlags &= ~kA_ValidComponentFlag;
+    }
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 
 GR_DEFINE_EFFECT_TEST(ColorTableEffect);
@@ -344,7 +368,9 @@ GR_DEFINE_EFFECT_TEST(ColorTableEffect);
 GrEffect* ColorTableEffect::TestCreate(SkRandom* random,
                                        GrContext* context,
                                        GrTexture* textures[]) {
-    return SkNEW_ARGS(ColorTableEffect, (textures[GrEffectUnitTest::kAlphaTextureIdx]));
+    static unsigned kAllFlags = SkTable_ColorFilter::kR_Flag | SkTable_ColorFilter::kG_Flag |
+                                SkTable_ColorFilter::kB_Flag | SkTable_ColorFilter::kA_Flag;
+    return SkNEW_ARGS(ColorTableEffect, (textures[GrEffectUnitTest::kAlphaTextureIdx], kAllFlags));
 }
 
 GrEffect* SkTable_ColorFilter::asNewEffect(GrContext* context) const {
@@ -352,7 +378,7 @@ GrEffect* SkTable_ColorFilter::asNewEffect(GrContext* context) const {
     this->asComponentTable(&bitmap);
     // passing NULL because this effect does no tiling or filtering.
     GrTexture* texture = GrLockCachedBitmapTexture(context, bitmap, NULL);
-    GrEffect* effect = SkNEW_ARGS(ColorTableEffect, (texture));
+    GrEffect* effect = SkNEW_ARGS(ColorTableEffect, (texture, fFlags));
 
     // Unlock immediately, this is not great, but we don't have a way of
     // knowing when else to unlock it currently. TODO: Remove this when

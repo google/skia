@@ -311,6 +311,13 @@ public:
 
     const SkLight* light() const { return fLight; }
     SkScalar surfaceScale() const { return fSurfaceScale; }
+
+    virtual void getConstantColorComponents(GrColor* color,
+                                            uint32_t* validFlags) const SK_OVERRIDE {
+        // lighting shaders are complicated. We just throw up our hands.
+        *validFlags = 0;
+    }
+
 private:
     typedef GrSingleTextureEffect INHERITED;
     const SkLight* fLight;

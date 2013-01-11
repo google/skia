@@ -753,6 +753,8 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
     SkBitmap bitmap;
     shader.getGradientTableBitmap(&bitmap);
 
+    fIsOpaque = shader.isOpaque();
+
     GrTextureStripAtlas::Desc desc;
     desc.fWidth  = bitmap.width();
     desc.fHeight = 32;

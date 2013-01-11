@@ -61,10 +61,6 @@ int32_t GrBackendEffectFactory::fCurrEffectClassID = GrBackendEffectFactory::kIl
 GrEffect::~GrEffect() {
 }
 
-bool GrEffect::isOpaque(bool inputTextureIsOpaque) const {
-    return false;
-}
-
 const char* GrEffect::name() const {
     return this->getFactory().name();
 }
