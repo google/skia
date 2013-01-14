@@ -574,7 +574,7 @@ GrEffect* SkRadialGradient::asNewEffect(GrContext* context, const SkPaint&) cons
 
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
-        return false;
+        return NULL;
     }
     matrix.postConcat(fPtsToUnit);
     return SkNEW_ARGS(GrRadialGradient, (context, *this, matrix, fTileMode));

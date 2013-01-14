@@ -550,7 +550,7 @@ GrEffect* SkLinearGradient::asNewEffect(GrContext* context, const SkPaint&) cons
     SkASSERT(NULL != context);
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
-        return false;
+        return NULL;
     }
     matrix.postConcat(fPtsToUnit);
     return SkNEW_ARGS(GrLinearGradient, (context, *this, matrix, fTileMode));

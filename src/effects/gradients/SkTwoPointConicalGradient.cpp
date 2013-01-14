@@ -690,7 +690,7 @@ GrEffect* SkTwoPointConicalGradient::asNewEffect(GrContext* context, const SkPai
     // invert the localM, translate to center1, rotate so center2 is on x axis.
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
-        return false;
+        return NULL;
     }
     matrix.postTranslate(-fCenter1.fX, -fCenter1.fY);
 

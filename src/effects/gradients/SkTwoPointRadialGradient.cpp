@@ -662,7 +662,7 @@ GrEffect* SkTwoPointRadialGradient::asNewEffect(GrContext* context, const SkPain
     // invert the localM, translate to center1 (fPtsToUni), rotate so center2 is on x axis.
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
-        return false;
+        return NULL;
     }
     matrix.postConcat(fPtsToUnit);
 
