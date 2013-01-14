@@ -17,6 +17,7 @@
         '../include/core',
         '../include/pipe',
         '../include/ports',
+        '../include/utils',
         '../include/xml',
         '../src/core',
         '../src/image',

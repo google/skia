@@ -127,6 +127,7 @@
       'include_dirs': [
         '../include/config',
         '../include/core',
+        '../include/utils',
         '../src/core',
         '../include/gpu',
         '../src/gpu',
@@ -177,6 +178,7 @@
      'include_dirs': [
         '../include/core',
         '../include/config',
+        '../include/utils',
         '../include/gpu',
         '../src/core', # SkRasterClip.h
         '../src/gpu'

@@ -16,12 +16,14 @@
 #include "SkTrace.h"
 #include "SkXfermode.h"
 
+#include "SkRTConf.h"
+
 SK_DEFINE_INST_COUNT(GrGLProgram)
 
 #define GL_CALL(X) GR_GL_CALL(fContextInfo.interface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(fContextInfo.interface(), R, X)
 
-#define PRINT_SHADERS 0
+SK_CONF_DECLARE(bool, c_PrintShaders, "gpu.printShaders", false, "Print the source code for all shaders generated.");
 
 #define COL_ATTR_NAME "aColor"
 #define COV_ATTR_NAME "aCoverage"
@@ -457,20 +459,21 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
     SkString shader;
 
     builder.getShader(GrGLShaderBuilder::kVertex_ShaderType, &shader);
-#if PRINT_SHADERS
-    GrPrintf(shader.c_str());
-    GrPrintf("\n");
-#endif
+    if (c_PrintShaders) {
+        GrPrintf(shader.c_str());
+        GrPrintf("\n");
+    }
+    
     if (!(fVShaderID = compile_shader(fContextInfo, GR_GL_VERTEX_SHADER, shader))) {
         return false;
     }
 
     if (builder.fUsesGS) {
         builder.getShader(GrGLShaderBuilder::kGeometry_ShaderType, &shader);
-#if PRINT_SHADERS
-        GrPrintf(shader.c_str());
-        GrPrintf("\n");
-#endif
+        if (c_PrintShaders) {
+            GrPrintf(shader.c_str());
+            GrPrintf("\n");
+        }
         if (!(fGShaderID = compile_shader(fContextInfo, GR_GL_GEOMETRY_SHADER, shader))) {
             return false;
         }
@@ -479,10 +482,10 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
     }
 
     builder.getShader(GrGLShaderBuilder::kFragment_ShaderType, &shader);
-#if PRINT_SHADERS
-    GrPrintf(shader.c_str());
-    GrPrintf("\n");
-#endif
+    if (c_PrintShaders) {
+        GrPrintf(shader.c_str());
+        GrPrintf("\n");
+    }
     if (!(fFShaderID = compile_shader(fContextInfo, GR_GL_FRAGMENT_SHADER, shader))) {
         return false;
     }

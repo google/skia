@@ -18,6 +18,8 @@
     #include <dirent.h>
 #endif
 
+#include <stddef.h> // ptrdiff_t
+
 struct SkFILE;
 
 enum SkFILE_Flags {
@@ -43,14 +45,24 @@ size_t  sk_fread(void* buffer, size_t byteCount, SkFILE*);
 size_t  sk_fwrite(const void* buffer, size_t byteCount, SkFILE*);
 void    sk_fflush(SkFILE*);
 
-int     sk_fseek( SkFILE*, size_t, int );
-size_t  sk_ftell( SkFILE* );
+int     sk_fseek(SkFILE*, size_t, int);
+size_t  sk_ftell(SkFILE*);
 
 // Returns true if something (file, directory, ???) exists at this path.
 bool    sk_exists(const char *path);
 
 // Returns true if a directory exists at this path.
 bool    sk_isdir(const char *path);
+
+// Get a single line of input from a file.  Returns -1 on failure.
+// passing NULL for lineptr will allocate memory for the line with
+// sk_malloc; make sure to use sk_free to get rid of it when you're
+// done.
+ptrdiff_t sk_getline(char **lineptr, size_t *n, SkFILE *stream);
+
+// Have we reached the end of the file?
+int sk_feof(SkFILE *);
+
 
 // Create a new directory at this path; returns true if successful.
 // If the directory already existed, this will return true.
