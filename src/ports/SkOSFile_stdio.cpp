@@ -47,7 +47,8 @@ char* sk_fgets(char* str, int size, SkFILE* f) {
 
 
 int sk_feof(SkFILE *f) {
-    return ::feof((FILE *)f);
+    // no :: namespace qualifier because it breaks android
+    return feof((FILE *)f);
 }
 
 size_t sk_fgetsize(SkFILE* f)
