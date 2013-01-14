@@ -1882,13 +1882,9 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
 
                 tmsProc(tms, pos);
 
-#ifdef SK_DRAW_POS_TEXT_IGNORE_SUBPIXEL_LEFT_ALIGN_FIX
-                SkFixed fx = SkScalarToFixed(tms.fLoc.fX);
-                SkFixed fy = SkScalarToFixed(tms.fLoc.fY);
-#else
                 SkFixed fx = SkScalarToFixed(tms.fLoc.fX) + (SK_FixedHalf >> SkGlyph::kSubBits);
                 SkFixed fy = SkScalarToFixed(tms.fLoc.fY) + (SK_FixedHalf >> SkGlyph::kSubBits);
-#endif
+
                 SkFixed fxMask = ~0;
                 SkFixed fyMask = ~0;
 
