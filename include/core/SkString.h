@@ -30,15 +30,32 @@ bool SkStrEndsWith(const char string[], const char suffixChar);
 
 int SkStrStartsWithOneOf(const char string[], const char prefixes[]);
 
+static int SkStrFind(const char string[], const char substring[]) {
+    char *first = strstr(string, substring);
+    if (NULL == first) return -1;
+    return first - &(string[0]);
+}
+
 static bool SkStrContains(const char string[], const char substring[]) {
     SkASSERT(string);
     SkASSERT(substring);
-    return (NULL != strstr(string, substring));
+    return (-1 != SkStrFind(string, substring));
 }
 static bool SkStrContains(const char string[], const char subchar) {
     SkASSERT(string);
-    return (NULL != strchr(string, subchar));
+    char tmp[2];
+    tmp[0] = subchar;
+    tmp[1] = '\0';
+    return (-1 != SkStrFind(string, tmp));
 }
+
+static inline char *SkStrDup(const char string[]) {
+    char *ret = (char *) sk_malloc_throw(strlen(string)+1);
+    memcpy(ret,string,strlen(string));
+    return ret;
+}
+
+
 
 #define SkStrAppendS32_MaxSize  11
 char*   SkStrAppendS32(char buffer[], int32_t);
@@ -111,6 +128,9 @@ public:
     }
     bool contains(const char subchar) const {
         return SkStrContains(fRec->data(), subchar);
+    }
+    int find(const char substring[]) const {
+        return SkStrFind(fRec->data(), substring);
     }
 
     friend bool operator==(const SkString& a, const SkString& b) {
