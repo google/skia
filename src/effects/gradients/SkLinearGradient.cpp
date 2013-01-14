@@ -547,7 +547,7 @@ void GrGLLinearGradient::emitCode(GrGLShaderBuilder* builder,
 /////////////////////////////////////////////////////////////////////
 
 GrEffect* SkLinearGradient::asNewEffect(GrContext* context, const SkPaint&) const {
-    SkASSERT(NULL != context && NULL != stage);
+    SkASSERT(NULL != context);
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
         return false;

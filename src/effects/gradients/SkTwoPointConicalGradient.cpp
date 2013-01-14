@@ -685,7 +685,7 @@ GrGLEffect::EffectKey GrGLConical2Gradient::GenKey(const GrEffectStage& s, const
 /////////////////////////////////////////////////////////////////////
 
 GrEffect* SkTwoPointConicalGradient::asNewEffect(GrContext* context, const SkPaint&) const {
-    SkASSERT(NULL != context && NULL != stage);
+    SkASSERT(NULL != context);
     SkASSERT(fPtsToUnit.isIdentity());
     // invert the localM, translate to center1, rotate so center2 is on x axis.
     SkMatrix matrix;

@@ -658,7 +658,7 @@ GrGLEffect::EffectKey GrGLRadial2Gradient::GenKey(const GrEffectStage& s, const 
 /////////////////////////////////////////////////////////////////////
 
 GrEffect* SkTwoPointRadialGradient::asNewEffect(GrContext* context, const SkPaint&) const {
-    SkASSERT(NULL != context && NULL != stage);
+    SkASSERT(NULL != context);
     // invert the localM, translate to center1 (fPtsToUni), rotate so center2 is on x axis.
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
