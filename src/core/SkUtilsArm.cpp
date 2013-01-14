@@ -16,6 +16,20 @@
 #include <string.h>
 #include <pthread.h>
 
+// Set USE_ANDROID_NDK_CPU_FEATURES to use the Android NDK's
+// cpu-features helper library to detect NEON at runtime. See
+// http://crbug.com/164154 to see why this is needed in Chromium
+// for Android.
+#if defined(SK_BUILD_FOR_ANDROID) && defined(SK_BUILD_FOR_CHROMIUM)
+#  define USE_ANDROID_NDK_CPU_FEATURES 1
+#else
+#  define USE_ANDROID_NDK_CPU_FEATURES 0
+#endif
+
+#if USE_ANDROID_NDK_CPU_FEATURES
+#  include <cpu-features.h>
+#endif
+
 // Set NEON_DEBUG to 1 to allow debugging of the CPU features probing.
 // For now, we always set it for SK_DEBUG builds.
 #ifdef SK_DEBUG
@@ -61,6 +75,12 @@ static bool sk_cpu_arm_check_neon(void) {
     }
     SkDebugf("Running dynamic CPU feature detection\n");
 #endif
+
+#if USE_ANDROID_NDK_CPU_FEATURES
+
+  result = (android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON) != 0;
+
+#else  // USE_ANDROID_NDK_CPU_FEATURES
 
     // There is no user-accessible CPUID instruction on ARM that we can use.
     // Instead, we must parse /proc/cpuinfo and look for the 'neon' feature.
@@ -150,6 +170,8 @@ static bool sk_cpu_arm_check_neon(void) {
         result = true;
 
     } while (0);
+
+#endif  // USE_ANDROID_NDK_CPU_FEATURES
 
     if (result) {
         SkDebugf("Device supports ARM NEON instructions!\n");
