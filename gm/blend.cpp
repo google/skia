@@ -63,6 +63,14 @@ protected:
         return make_isize(500, 100);
     }
 
+    void drawClippedBitmap(SkCanvas* canvas, const SkPaint& paint, int x) {
+        canvas->save();
+        canvas->clipRect(SkRect::MakeXYWH(SkIntToScalar(x), 0,
+            SkIntToScalar(fBitmap.width()), SkIntToScalar(fBitmap.height())));
+        canvas->drawBitmap(fBitmap, SkIntToScalar(x), 0, &paint);
+        canvas->restore();
+    }
+
     virtual void onDraw(SkCanvas* canvas) {
         if (!fInitialized) {
             make_bitmap();
@@ -73,15 +81,15 @@ protected:
         SkPaint paint;
         SkAutoTUnref<SkImageFilter> background(SkNEW_ARGS(SkBitmapSource, (fCheckerboard)));
         paint.setImageFilter(SkNEW_ARGS(SkBlendImageFilter, (SkBlendImageFilter::kNormal_Mode, background)))->unref();
-        canvas->drawSprite(fBitmap, 0, 0, &paint);
+        drawClippedBitmap(canvas, paint, 0);
         paint.setImageFilter(SkNEW_ARGS(SkBlendImageFilter, (SkBlendImageFilter::kMultiply_Mode, background)))->unref();
-        canvas->drawSprite(fBitmap, 100, 0, &paint);
+        drawClippedBitmap(canvas, paint, 100);
         paint.setImageFilter(SkNEW_ARGS(SkBlendImageFilter, (SkBlendImageFilter::kScreen_Mode, background)))->unref();
-        canvas->drawSprite(fBitmap, 200, 0, &paint);
+        drawClippedBitmap(canvas, paint, 200);
         paint.setImageFilter(SkNEW_ARGS(SkBlendImageFilter, (SkBlendImageFilter::kDarken_Mode, background)))->unref();
-        canvas->drawSprite(fBitmap, 300, 0, &paint);
+        drawClippedBitmap(canvas, paint, 300);
         paint.setImageFilter(SkNEW_ARGS(SkBlendImageFilter, (SkBlendImageFilter::kLighten_Mode, background)))->unref();
-        canvas->drawSprite(fBitmap, 400, 0, &paint);
+        drawClippedBitmap(canvas, paint, 400);
     }
 
 private:

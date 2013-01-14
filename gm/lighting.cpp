@@ -42,6 +42,14 @@ protected:
         return make_isize(WIDTH, HEIGHT);
     }
 
+    void drawClippedBitmap(SkCanvas* canvas, const SkPaint& paint, int x, int y) {
+        canvas->save();
+        canvas->clipRect(SkRect::MakeXYWH(SkIntToScalar(x), SkIntToScalar(y),
+            SkIntToScalar(fBitmap.width()), SkIntToScalar(fBitmap.height())));
+        canvas->drawBitmap(fBitmap, SkIntToScalar(x), SkIntToScalar(y), &paint);
+        canvas->restore();
+    }
+
     virtual void onDraw(SkCanvas* canvas) {
         if (!fInitialized) {
             make_bitmap();
@@ -76,17 +84,17 @@ protected:
         SkColor white(0xFFFFFFFF);
         SkPaint paint;
         paint.setImageFilter(SkLightingImageFilter::CreatePointLitDiffuse(pointLocation, white, surfaceScale, kd))->unref();
-        canvas->drawSprite(fBitmap, 0, 0, &paint);
+        drawClippedBitmap(canvas, paint, 0, 0);
         paint.setImageFilter(SkLightingImageFilter::CreateDistantLitDiffuse(distantDirection, white, surfaceScale, kd))->unref();
-        canvas->drawSprite(fBitmap, 110, 0, &paint);
+        drawClippedBitmap(canvas, paint, 110, 0);
         paint.setImageFilter(SkLightingImageFilter::CreateSpotLitDiffuse(spotLocation, spotTarget, spotExponent, cutoffAngle, white, surfaceScale, kd))->unref();
-        canvas->drawSprite(fBitmap, 220, 0, &paint);
+        drawClippedBitmap(canvas, paint, 220, 0);
         paint.setImageFilter(SkLightingImageFilter::CreatePointLitSpecular(pointLocation, white, surfaceScale, ks, shininess))->unref();
-        canvas->drawSprite(fBitmap, 0, 110, &paint);
+        drawClippedBitmap(canvas, paint, 0, 110);
         paint.setImageFilter(SkLightingImageFilter::CreateDistantLitSpecular(distantDirection, white, surfaceScale, ks, shininess))->unref();
-        canvas->drawSprite(fBitmap, 110, 110, &paint);
+        drawClippedBitmap(canvas, paint, 110, 110);
         paint.setImageFilter(SkLightingImageFilter::CreateSpotLitSpecular(spotLocation, spotTarget, spotExponent, cutoffAngle, white, surfaceScale, ks, shininess))->unref();
-        canvas->drawSprite(fBitmap, 220, 110, &paint);
+        drawClippedBitmap(canvas, paint, 220, 110);
     }
 
 private:
