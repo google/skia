@@ -122,6 +122,42 @@ void SkRTConf<T>::doPrint(char *s) const {
     sprintf(s, "%-30.30s", "How do I print myself??");
 }
 
+template<> inline void SkRTConf<bool>::doPrint(char *s) const {
+    char tmp[30];
+    sprintf(tmp, "%s # [%s]", fValue ? "true" : "false", fDefault ? "true" : "false");
+    sprintf(s, "%-30.30s", tmp);
+}
+
+template<> inline void SkRTConf<int>::doPrint(char *s) const {
+    char tmp[30];
+    sprintf(tmp, "%d # [%d]", fValue, fDefault);
+    sprintf(s, "%-30.30s", tmp);
+}
+
+template<> inline void SkRTConf<unsigned int>::doPrint(char *s) const {
+    char tmp[30];
+    sprintf(tmp, "%u # [%u]", fValue, fDefault);
+    sprintf(s, "%-30.30s", tmp);
+}
+
+template<> inline void SkRTConf<float>::doPrint(char *s) const {
+    char tmp[30];
+    sprintf(tmp, "%6.6f # [%6.6f]", fValue, fDefault);
+    sprintf(s, "%-30.30s", tmp);
+}
+
+template<> inline void SkRTConf<double>::doPrint(char *s) const {
+    char tmp[30];
+    sprintf(tmp, "%6.6f # [%6.6f]", fValue, fDefault);
+    sprintf(s, "%-30.30s", tmp);
+}
+
+template<> inline void SkRTConf<const char *>::doPrint(char *s) const {
+    char tmp[30];
+    sprintf(tmp, "%s # [%s]", fValue, fDefault);
+    sprintf(s, "%-30.30s", tmp);
+}
+
 template<typename T>
 bool SkRTConf<T>::equals(const SkRTConfBase *conf) const {
     // static_cast here is okay because there's only one kind of child class.

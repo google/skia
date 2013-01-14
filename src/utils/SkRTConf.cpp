@@ -76,7 +76,7 @@ void SkRTConfRegistry::possiblyDumpFile() const {
 // declared a correponding configuration object somewhere.
 void SkRTConfRegistry::validate() const {
     for (int i = 0 ; i < fConfigFileKeys.count() ; i++) {
-        if (fConfs.find(fConfigFileKeys[i]->c_str()) == -1) {
+        if (fConfs.find(fConfigFileKeys[i]->c_str())) {
             SkDebugf("WARNING: You have config value %s in your configuration file, but I've never heard of that.\n", fConfigFileKeys[i]->c_str());
         }
     }
@@ -262,7 +262,7 @@ template <typename T> void SkRTConfRegistry::set(const char *name, T value) {
     
     for (SkRTConfBase **confBase = confArray->begin(); confBase != confArray->end(); confBase++) {
         // static_cast here is okay because there's only one kind of child class.
-        SkRTConf<bool> *concrete = static_cast<SkRTConf<bool> *>(*confBase);
+        SkRTConf<T> *concrete = static_cast<SkRTConf<T> *>(*confBase);
         
         if (concrete) {
             concrete->set(value);
@@ -276,42 +276,6 @@ template void SkRTConfRegistry::set(const char *name, unsigned int value);
 template void SkRTConfRegistry::set(const char *name, float value);
 template void SkRTConfRegistry::set(const char *name, double value);
 template void SkRTConfRegistry::set(const char *name, char * value);
-
-template<> void SkRTConf<bool>::doPrint(char *s) const {
-    char tmp[30];
-    sprintf(tmp, "%s # [%s]", fValue ? "true" : "false", fDefault ? "true" : "false");
-    sprintf(s, "%-30.30s", tmp);
-}
-
-template<> void SkRTConf<int>::doPrint(char *s) const {
-    char tmp[30];
-    sprintf(tmp, "%d # [%d]", fValue, fDefault);
-    sprintf(s, "%-30.30s", tmp);
-}
-
-template<> void SkRTConf<unsigned int>::doPrint(char *s) const {
-    char tmp[30];
-    sprintf(tmp, "%u # [%u]", fValue, fDefault);
-    sprintf(s, "%-30.30s", tmp);
-}
-
-template<> void SkRTConf<float>::doPrint(char *s) const {
-    char tmp[30];
-    sprintf(tmp, "%6.6f # [%6.6f]", fValue, fDefault);
-    sprintf(s, "%-30.30s", tmp);
-}
-
-template<> void SkRTConf<double>::doPrint(char *s) const {
-    char tmp[30];
-    sprintf(tmp, "%6.6f # [%6.6f]", fValue, fDefault);
-    sprintf(s, "%-30.30s", tmp);
-}
-
-template<> void SkRTConf<const char *>::doPrint(char *s) const {
-    char tmp[30];
-    sprintf(tmp, "%s # [%s]", fValue, fDefault);
-    sprintf(s, "%-30.30s", tmp);
-}
 
 SkRTConfRegistry &skRTConfRegistry() {
     static SkRTConfRegistry r;
