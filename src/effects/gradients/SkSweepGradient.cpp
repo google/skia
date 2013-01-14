@@ -475,7 +475,7 @@ void GrGLSweepGradient::emitCode(GrGLShaderBuilder* builder,
 GrEffect* SkSweepGradient::asNewEffect(GrContext* context, const SkPaint&) const {
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
-        return false;
+        return NULL;
     }
     matrix.postConcat(fPtsToUnit);
     return SkNEW_ARGS(GrSweepGradient, (context, *this, matrix));
