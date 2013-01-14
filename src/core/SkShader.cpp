@@ -174,7 +174,7 @@ SkShader::GradientType SkShader::asAGradient(GradientInfo* info) const {
 }
 
 GrEffect* SkShader::asNewEffect(GrContext*, const SkPaint&) const {
-    return false;
+    return NULL;
 }
 
 SkShader* SkShader::CreateBitmapShader(const SkBitmap& src,
