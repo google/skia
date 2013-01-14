@@ -117,7 +117,7 @@ SkString* SkObjectParser::PaintToString(const SkPaint& paint) {
     if (NULL != typeface) {
         SkDynamicMemoryWStream ostream;
         typeface->serialize(&ostream);
-        SkData *data = SkAutoTUnref<SkData>(ostream.copyToData());
+        SkAutoTUnref<SkData> data(ostream.copyToData());
 
         SkMemoryStream stream(data);
         SkFontDescriptor descriptor(&stream);
