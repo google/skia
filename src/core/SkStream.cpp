@@ -306,6 +306,7 @@ SkMemoryStream::SkMemoryStream(SkData* data) {
         fData = data;
         fData->ref();
     }
+    fOffset = 0;
 }
 
 SkMemoryStream::~SkMemoryStream() {
