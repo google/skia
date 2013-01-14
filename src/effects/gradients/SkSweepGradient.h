@@ -24,7 +24,7 @@ public:
 
     virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE;
 
-    virtual bool asNewEffect(GrContext* context, GrEffectStage* stage) const SK_OVERRIDE;
+    virtual GrEffect* asNewEffect(GrContext* context, const SkPaint&) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSweepGradient)
 

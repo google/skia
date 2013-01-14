@@ -93,6 +93,12 @@
             '../src/core/SkUtilsArm.h',
           ],
         }],
+        ['skia_gpu == 1', {
+          'include_dirs': [
+              '../include/gpu',
+              '../src/gpu',
+          ],
+        }],
       ],
       'direct_dependent_settings': {
         'include_dirs': [

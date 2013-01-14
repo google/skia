@@ -173,7 +173,7 @@ SkShader::GradientType SkShader::asAGradient(GradientInfo* info) const {
     return kNone_GradientType;
 }
 
-bool SkShader::asNewEffect(GrContext*, GrEffectStage*) const {
+GrEffect* SkShader::asNewEffect(GrContext*, const SkPaint&) const {
     return false;
 }
 

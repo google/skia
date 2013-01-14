@@ -33,6 +33,10 @@ public:
     virtual bool toDumpString(SkString* str) const;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBitmapProcShader)
 
+#if SK_SUPPORT_GPU
+    GrEffect* asNewEffect(GrContext*, const SkPaint&) const SK_OVERRIDE;
+#endif
+
 protected:
     SkBitmapProcShader(SkFlattenableReadBuffer& );
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;

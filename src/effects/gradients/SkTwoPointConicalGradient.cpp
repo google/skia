@@ -440,12 +440,8 @@ GrEffect* GrConical2Gradient::TestCreate(SkRandom* random,
                                                                           center2, radius2,
                                                                           colors, stops, colorCount,
                                                                           tm));
-    GrEffectStage stage;
-    shader->asNewEffect(context, &stage);
-    GrAssert(NULL != stage.getEffect());
-    // const_cast and ref is a hack! Will remove when asNewEffect returns GrEffect*
-    stage.getEffect()->ref();
-    return const_cast<GrEffect*>(stage.getEffect());
+    SkPaint paint;
+    return shader->asNewEffect(context, paint);
 }
 
 
@@ -688,8 +684,7 @@ GrGLEffect::EffectKey GrGLConical2Gradient::GenKey(const GrEffectStage& s, const
 
 /////////////////////////////////////////////////////////////////////
 
-bool SkTwoPointConicalGradient::asNewEffect(GrContext* context,
-                                            GrEffectStage* stage) const {
+GrEffect* SkTwoPointConicalGradient::asNewEffect(GrContext* context, const SkPaint&) const {
     SkASSERT(NULL != context && NULL != stage);
     SkASSERT(fPtsToUnit.isIdentity());
     // invert the localM, translate to center1, rotate so center2 is on x axis.
@@ -709,16 +704,14 @@ bool SkTwoPointConicalGradient::asNewEffect(GrContext* context,
         matrix.postConcat(rot);
     }
 
-    stage->setEffect(SkNEW_ARGS(GrConical2Gradient, (context, *this, matrix, fTileMode)))->unref();
-
-    return true;
+    return SkNEW_ARGS(GrConical2Gradient, (context, *this, matrix, fTileMode));
 }
 
 #else
 
-bool SkTwoPointConicalGradient::asNewEffect(GrContext*, GrEffectStage*) const {
+GrEffect* SkTwoPointConicalGradient::asNewEffect(GrContext* context, const SkPaint&) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
-    return false;
+    return NULL;
 }
 
 #endif

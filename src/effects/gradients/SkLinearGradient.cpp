@@ -522,12 +522,8 @@ GrEffect* GrLinearGradient::TestCreate(SkRandom* random,
     SkAutoTUnref<SkShader> shader(SkGradientShader::CreateLinear(points,
                                                                  colors, stops, colorCount,
                                                                  tm));
-    GrEffectStage stage;
-    shader->asNewEffect(context, &stage);
-    GrAssert(NULL != stage.getEffect());
-    // const_cast and ref is a hack! Will remove when asNewEffect returns GrEffect*
-    stage.getEffect()->ref();
-    return const_cast<GrEffect*>(stage.getEffect());
+    SkPaint paint;
+    return shader->asNewEffect(context, paint);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -550,22 +546,21 @@ void GrGLLinearGradient::emitCode(GrGLShaderBuilder* builder,
 
 /////////////////////////////////////////////////////////////////////
 
-bool SkLinearGradient::asNewEffect(GrContext* context, GrEffectStage* stage) const {
+GrEffect* SkLinearGradient::asNewEffect(GrContext* context, const SkPaint&) const {
     SkASSERT(NULL != context && NULL != stage);
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
         return false;
     }
     matrix.postConcat(fPtsToUnit);
-    stage->setEffect(SkNEW_ARGS(GrLinearGradient, (context, *this, matrix, fTileMode)))->unref();
-    return true;
+    return SkNEW_ARGS(GrLinearGradient, (context, *this, matrix, fTileMode));
 }
 
 #else
 
-bool SkLinearGradient::asNewEffect(GrContext*, GrEffectStage*) const {
+GrEffect* SkLinearGradient::asNewEffect(GrContext* context, const SkPaint&) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
-    return false;
+    return NULL;
 }
 
 #endif
