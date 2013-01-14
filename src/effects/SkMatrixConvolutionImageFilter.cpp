@@ -455,8 +455,9 @@ void GrGLMatrixConvolutionEffect::setData(const GrGLUniformManager& uman,
     GrAssert(effect.kernelSize() == fKernelSize);
     GrAssert(effect.tileMode() == fTileMode);
     float imageIncrement[2];
+    float ySign = texture.origin() == GrSurface::kTopLeft_Origin ? 1.0f : -1.0f;
     imageIncrement[0] = 1.0f / texture.width();
-    imageIncrement[1] = 1.0f / texture.height();
+    imageIncrement[1] = ySign / texture.height();
     uman.set2fv(fImageIncrementUni, 0, 1, imageIncrement);
     uman.set2fv(fTargetUni, 0, 1, effect.target());
     uman.set1fv(fKernelUni, 0, fKernelSize.width() * fKernelSize.height(), effect.kernel());
