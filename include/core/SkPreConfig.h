@@ -55,6 +55,12 @@
     #define SK_BUILD_FOR_ANDROID
 #endif
 
+// USE_CHROMIUM_SKIA is defined when building Skia for the Chromium
+// browser.
+#if defined(USE_CHROMIUM_SKIA)
+    #define SK_BUILD_FOR_CHROMIUM
+#endif
+
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(SK_DEBUG) && !defined(SK_RELEASE)
