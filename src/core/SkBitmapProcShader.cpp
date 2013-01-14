@@ -351,7 +351,7 @@ GrEffect* SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& pai
     if (this->hasLocalMatrix()) {
         SkMatrix inverse;
         if (!this->getLocalMatrix().invert(&inverse)) {
-            return false;
+            return NULL;
         }
         matrix.preConcat(inverse);
     }
