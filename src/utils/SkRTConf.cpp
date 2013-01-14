@@ -267,8 +267,8 @@ template <typename T> void SkRTConfRegistry::set(const char *name, T value) {
     }
     
     for (SkRTConfBase **confBase = confArray->begin(); confBase != confArray->end(); confBase++) {
-        
-        SkRTConf<bool> *concrete = dynamic_cast<SkRTConf<bool> *>(*confBase);
+        // static_cast here is okay because there's only one kind of child class.
+        SkRTConf<bool> *concrete = static_cast<SkRTConf<bool> *>(*confBase);
         
         if (concrete) {
             concrete->set(value);

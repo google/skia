@@ -124,7 +124,8 @@ void SkRTConf<T>::doPrint(char *s) const {
 
 template<typename T>
 bool SkRTConf<T>::equals(const SkRTConfBase *conf) const {
-    const SkRTConf<T> *child_pointer = dynamic_cast<const SkRTConf<T> *>(conf);
+    // static_cast here is okay because there's only one kind of child class.
+    const SkRTConf<T> *child_pointer = static_cast<const SkRTConf<T> *>(conf);
     return child_pointer && 
            fName == child_pointer->fName &&
            fDescription == child_pointer->fDescription &&
