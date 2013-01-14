@@ -16,29 +16,23 @@ SkRTConfRegistry::SkRTConfRegistry(): fConfs(100) {
         return;
     }
     
-    char *line = NULL;
-    size_t n = 0;
+    char line[1024];
     
     while (!sk_feof(fp)) {
-        if (line) {
-            sk_free(line);
-        }
-        line = NULL;
         
-        if (sk_getline(&line, &n, fp) == -1) break;
+        if (!sk_fgets(line, sizeof(line), fp)) {
+            break;
+        }
                 
         char *commentptr = strchr(line, '#');
         if (commentptr == line) {
             continue;
         }
         if (NULL != commentptr) {
-            char *tmp = (char *) sk_malloc_throw(commentptr-line+1);
-            strncpy(tmp, line, commentptr-line);
-            sk_free(line);
-            line = tmp;
+            *commentptr = '\0';
         }
         
-        char sep[] = " \t";
+        char sep[] = " \t\r\n";
         
         char *keyptr = strtok(line, sep);
         if (!keyptr) {

@@ -41,18 +41,10 @@ SkFILE* sk_fopen(const char path[], SkFILE_Flags flags)
     return f;
 }
 
-ptrdiff_t sk_getline(char **lineptr, size_t *n, SkFILE *f) {
-    bool make_private_copy = (NULL == *lineptr);
-
-    ptrdiff_t ret = ::getline(lineptr, n, (FILE *) f);
-    if (make_private_copy) {
-        char *local_copy = (char *) sk_malloc_throw(strlen(*lineptr) + 1);
-        ::memcpy(local_copy, *lineptr, strlen(*lineptr));
-        ::free(*lineptr);
-        *lineptr = local_copy;
-    }
-    return ret;
+char* sk_fgets(char* str, int size, SkFILE* f) {
+    return ::fgets(str, size, (FILE *)f);
 }
+
 
 int sk_feof(SkFILE *f) {
     return ::feof((FILE *)f);
