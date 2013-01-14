@@ -319,11 +319,10 @@ public:
 
     /**
      *  If the shader subclass has a GrEffect implementation, this installs an effect on the stage.
-     *  A GrContext pointer is required since effects may need to create textures. The stage
-     *  parameter is necessary to set a texture matrix. It will eventually be removed and this
-     *  function will operate as a GrEffect factory.
+     *  The GrContext may be used by the effect to create textures. The GPU device does not call
+     *  setContext. Instead we pass the paint here in case the shader needs paint info.
      */
-    virtual bool asNewEffect(GrContext* context, GrEffectStage* stage) const;
+    virtual GrEffect* asNewEffect(GrContext* context, const SkPaint& paint) const;
 
     //////////////////////////////////////////////////////////////////////////
     //  Factory methods for stock shaders

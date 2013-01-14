@@ -336,4 +336,41 @@ bool SkBitmapProcShader::toDumpString(SkString* str) const {
                  gTileModeName[fState.fTileModeY]);
     return true;
 }
+///////////////////////////////////////////////////////////////////////////////
 
+#if SK_SUPPORT_GPU
+
+#include "GrTextureAccess.h"
+#include "effects/GrSingleTextureEffect.h"
+#include "SkGr.h"
+
+GrEffect* SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& paint) const {
+    SkMatrix matrix;
+    matrix.setIDiv(fRawBitmap.width(), fRawBitmap.height());
+
+    if (this->hasLocalMatrix()) {
+        SkMatrix inverse;
+        if (!this->getLocalMatrix().invert(&inverse)) {
+            return false;
+        }
+        matrix.preConcat(inverse);
+    }
+    SkShader::TileMode tm[] = {
+        (TileMode)fState.fTileModeX,
+        (TileMode)fState.fTileModeY,
+    };
+
+    // Must set wrap and filter on the sampler before requesting a texture.
+    GrTextureParams params(tm, paint.isFilterBitmap());
+    GrTexture* texture = GrLockCachedBitmapTexture(context, fRawBitmap, &params);
+
+    if (NULL == texture) {
+        SkDebugf("Couldn't convert bitmap to texture.\n");
+        return NULL;
+    }
+
+    GrEffect* effect = SkNEW_ARGS(GrSingleTextureEffect, (texture, matrix, params));
+    GrUnlockCachedBitmapTexture(texture);
+    return effect;
+}
+#endif

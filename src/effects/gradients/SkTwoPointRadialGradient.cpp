@@ -463,7 +463,7 @@ GrEffect* GrRadial2Gradient::TestCreate(SkRandom* random,
     do {
         center2.set(random->nextUScalar1(), random->nextUScalar1());
         radius2 = random->nextUScalar1 ();
-        // There is a bug in two point radial gradients with idenitical radii
+        // There is a bug in two point radial gradients with identical radii
     } while (radius1 == radius2);
 
     SkColor colors[kMaxRandomGradientColors];
@@ -475,12 +475,8 @@ GrEffect* GrRadial2Gradient::TestCreate(SkRandom* random,
                                                                          center2, radius2,
                                                                          colors, stops, colorCount,
                                                                          tm));
-    GrEffectStage stage;
-    shader->asNewEffect(context, &stage);
-    GrAssert(NULL != stage.getEffect());
-    // const_cast and ref is a hack! Will remove when asNewEffect returns GrEffect*
-    stage.getEffect()->ref();
-    return const_cast<GrEffect*>(stage.getEffect());
+    SkPaint paint;
+    return shader->asNewEffect(context, paint);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -661,8 +657,7 @@ GrGLEffect::EffectKey GrGLRadial2Gradient::GenKey(const GrEffectStage& s, const 
 
 /////////////////////////////////////////////////////////////////////
 
-bool SkTwoPointRadialGradient::asNewEffect(GrContext* context,
-                                           GrEffectStage* stage) const {
+GrEffect* SkTwoPointRadialGradient::asNewEffect(GrContext* context, const SkPaint&) const {
     SkASSERT(NULL != context && NULL != stage);
     // invert the localM, translate to center1 (fPtsToUni), rotate so center2 is on x axis.
     SkMatrix matrix;
@@ -680,15 +675,14 @@ bool SkTwoPointRadialGradient::asNewEffect(GrContext* context,
         matrix.postConcat(rot);
     }
 
-    stage->setEffect(SkNEW_ARGS(GrRadial2Gradient, (context, *this, matrix, fTileMode)))->unref();
-    return true;
+    return SkNEW_ARGS(GrRadial2Gradient, (context, *this, matrix, fTileMode));
 }
 
 #else
 
-bool SkTwoPointRadialGradient::asNewEffect(GrContext*, GrEffectStage*) const {
+GrEffect* SkTwoPointRadialGradient::asNewEffect(GrContext* context, const SkPaint&) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
-    return false;
+    return NULL;
 }
 
 #endif

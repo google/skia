@@ -449,12 +449,8 @@ GrEffect* GrSweepGradient::TestCreate(SkRandom* random,
     int colorCount = RandomGradientParams(random, colors, &stops, &tmIgnored);
     SkAutoTUnref<SkShader> shader(SkGradientShader::CreateSweep(center.fX, center.fY,
                                                                 colors, stops, colorCount));
-    GrEffectStage stage;
-    shader->asNewEffect(context, &stage);
-    GrAssert(NULL != stage.getEffect());
-    // const_cast and ref is a hack! Will remove when asNewEffect returns GrEffect*
-    stage.getEffect()->ref();
-    return const_cast<GrEffect*>(stage.getEffect());
+    SkPaint paint;
+    return shader->asNewEffect(context, paint);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -476,21 +472,20 @@ void GrGLSweepGradient::emitCode(GrGLShaderBuilder* builder,
 
 /////////////////////////////////////////////////////////////////////
 
-bool SkSweepGradient::asNewEffect(GrContext* context, GrEffectStage* stage) const {
+GrEffect* SkSweepGradient::asNewEffect(GrContext* context, const SkPaint&) const {
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
         return false;
     }
     matrix.postConcat(fPtsToUnit);
-    stage->setEffect(SkNEW_ARGS(GrSweepGradient, (context, *this, matrix)))->unref();
-    return true;
+    return SkNEW_ARGS(GrSweepGradient, (context, *this, matrix));
 }
 
 #else
 
-bool SkSweepGradient::asNewEffect(GrContext*, GrEffectStage*) const {
+GrEffect* SkSweepGradient::asNewEffect(GrContext* context, const SkPaint&) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
-    return false;
+    return NULL;
 }
 
 #endif
