@@ -58,7 +58,11 @@ protected:
         SkPaint paint;
         SkAutoTUnref<SkImageFilter> filter(SkNEW_ARGS(SkMatrixConvolutionImageFilter, (kernelSize, kernel, gain, bias, target, tileMode, convolveAlpha)));
         paint.setImageFilter(filter);
-        canvas->drawSprite(fBitmap, x, y, &paint);
+        canvas->save();
+        canvas->clipRect(SkRect::MakeXYWH(SkIntToScalar(x), SkIntToScalar(y),
+            SkIntToScalar(fBitmap.width()), SkIntToScalar(fBitmap.height())));
+        canvas->drawBitmap(fBitmap, SkIntToScalar(x), SkIntToScalar(y), &paint);
+        canvas->restore();
     }
 
     virtual void onDraw(SkCanvas* canvas) {

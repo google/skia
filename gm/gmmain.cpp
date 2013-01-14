@@ -1402,6 +1402,8 @@ int tool_main(int argc, char** argv) {
         if (!(gmFlags & GM::kSkipPicture_Flag) && doTileGrid) {
             for(int scaleIndex = 0; scaleIndex < tileGridReplayScales.count(); ++scaleIndex) {
                 SkScalar replayScale = tileGridReplayScales[scaleIndex];
+                if ((gmFlags & GM::kSkipScaledReplay_Flag) && replayScale != 1)
+                    continue;
                 // We record with the reciprocal scale to obtain a replay
                 // result that can be validated against comparisonBitmap.
                 SkScalar recordScale = SkScalarInvert(replayScale);

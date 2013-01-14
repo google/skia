@@ -34,11 +34,12 @@ namespace skiagm {
         virtual ~GM();
 
         enum Flags {
-            kSkipPDF_Flag       = 1 << 0,
-            kSkipPicture_Flag   = 1 << 1,
-            kSkipPipe_Flag      = 1 << 2,
-            kSkipTiled_Flag     = 1 << 3,
-            kSkip565_Flag       = 1 << 4,
+            kSkipPDF_Flag           = 1 << 0,
+            kSkipPicture_Flag       = 1 << 1,
+            kSkipPipe_Flag          = 1 << 2,
+            kSkipTiled_Flag         = 1 << 3,
+            kSkip565_Flag           = 1 << 4,
+            kSkipScaledReplay_Flag  = 1 << 5,
         };
 
         void draw(SkCanvas*);
