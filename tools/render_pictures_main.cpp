@@ -21,6 +21,10 @@
 #include "PictureRenderer.h"
 #include "picture_utils.h"
 
+// Define this if validation failures should cause the tool to return failure
+// If not, it will still printf the messages.
+//#define VALIDATE_FAILURE_IS_A_TOOL_FAILURE
+
 static void usage(const char* argv0) {
     SkDebugf("SkPicture rendering tool\n");
     SkDebugf("\n"
@@ -226,12 +230,17 @@ static bool render_picture(const SkString& inputPath, const SkString* outputDir,
                              x, y,
                              *referenceBitmap->getAddr32(x, y),
                              *bitmap->getAddr32(x, y));
+#ifdef VALIDATE_FAILURE_IS_A_TOOL_FAILURE
                     SkDELETE(bitmap);
                     SkDELETE(referenceBitmap);
                     return false;
+#else
+                    goto DONE;
+#endif
                 }
             }
         }
+    DONE:
         SkDELETE(referenceBitmap);
     }
 
