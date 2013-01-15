@@ -277,20 +277,23 @@ void GrGLBlendEffect::emitCode(GrGLShaderBuilder* builder,
                                const char* outputColor,
                                const char* inputColor,
                                const TextureSamplerArray& samplers) {
-    const char* coords;
-    GrSLType fgCoordsType =  fForegroundEffectMatrix.emitCode(builder, key, vertexCoords, &coords, NULL, "FG");
-    GrSLType bgCoordsType =  fBackgroundEffectMatrix.emitCode(builder, key, vertexCoords, &coords, NULL, "BG");
+    const char* fgCoords;
+    const char* bgCoords;
+    GrSLType fgCoordsType =  fForegroundEffectMatrix.emitCode(
+        builder, key, vertexCoords, &fgCoords, NULL, "FG");
+    GrSLType bgCoordsType =  fBackgroundEffectMatrix.emitCode(
+        builder, key, vertexCoords, &bgCoords, NULL, "BG");
 
     SkString* code = &builder->fFSCode;
     const char* bgColor = "bgColor";
     const char* fgColor = "fgColor";
 
     code->appendf("\t\tvec4 %s = ", fgColor);
-    builder->appendTextureLookup(code, samplers[0], coords, fgCoordsType);
+    builder->appendTextureLookup(code, samplers[0], fgCoords, fgCoordsType);
     code->append(";\n");
 
     code->appendf("\t\tvec4 %s = ", bgColor);
-    builder->appendTextureLookup(code, samplers[1], coords, bgCoordsType);
+    builder->appendTextureLookup(code, samplers[1], bgCoords, bgCoordsType);
     code->append(";\n");
 
     code->appendf("\t\t%s.a = 1.0 - (1.0 - %s.a) * (1.0 - %s.b);\n", outputColor, bgColor, fgColor);
