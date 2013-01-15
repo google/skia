@@ -52,6 +52,45 @@ static void test_addrect_isfinite(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, path.isFinite());
 }
 
+static void build_big_path(SkPath* path, bool reducedCase) {
+    if (reducedCase) {
+        path->moveTo(577330, 1971.72f);
+        path->cubicTo(10.7082f, -116.596f, 262.057f, 45.6468f, 294.694f, 1.96237f);
+    } else {
+        path->moveTo(60.1631f, 7.70567f);
+        path->quadTo(60.1631f, 7.70567f, 0.99474f, 0.901199f);
+        path->lineTo(577379, 1977.77f);
+        path->quadTo(577364, 1979.57f, 577325, 1980.26f);
+        path->quadTo(577286, 1980.95f, 577245, 1980.13f);
+        path->quadTo(577205, 1979.3f, 577187, 1977.45f);
+        path->quadTo(577168, 1975.6f, 577183, 1973.8f);
+        path->quadTo(577198, 1972, 577238, 1971.31f);
+        path->quadTo(577277, 1970.62f, 577317, 1971.45f);
+        path->quadTo(577330, 1971.72f, 577341, 1972.11f);
+        path->cubicTo(10.7082f, -116.596f, 262.057f, 45.6468f, 294.694f, 1.96237f);
+        path->moveTo(306.718f, -32.912f);
+        path->cubicTo(30.531f, 10.0005f, 1502.47f, 13.2804f, 84.3088f, 9.99601f);
+    }
+}
+
+static void test_clipped_cubic(skiatest::Reporter* reporter) {
+    SkAutoTUnref<SkSurface> surface(new_surface(640, 480));
+
+    // This path used to assert, because our cubic-chopping code incorrectly
+    // moved control points after the chop. This test should be run in SK_DEBUG
+    // mode to ensure that we no long assert.
+    SkPath path;
+    for (int doReducedCase = 0; doReducedCase <= 1; ++doReducedCase) {
+        build_big_path(&path, SkToBool(doReducedCase));
+        
+        SkPaint paint;
+        for (int doAA = 0; doAA <= 1; ++doAA) {
+            paint.setAntiAlias(SkToBool(doAA));
+            surface->getCanvas()->drawPath(path, paint);
+        }
+    }
+}
+
 // Inspired by http://ie.microsoft.com/testdrive/Performance/Chalkboard/
 // which triggered an assert, from a tricky cubic. This test replicates that
 // example, so we can ensure that we handle it (in SkEdge.cpp), and don't
@@ -2214,6 +2253,7 @@ static void TestPath(skiatest::Reporter* reporter) {
     test_arb_round_rect_is_convex(reporter);
     test_arb_zero_rad_round_rect_is_rect(reporter);
     test_addrect_isfinite(reporter);
+    test_clipped_cubic(reporter);
 }
 
 #include "TestClassDef.h"
