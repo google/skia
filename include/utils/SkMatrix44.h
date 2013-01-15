@@ -16,7 +16,6 @@
     #error "can't define MSCALAR both as DOUBLE and FLOAT"
 #endif
     typedef double SkMScalar;
-    typedef int64_t SkMIntScalar;
 
     static inline double SkFloatToMScalar(float x) {
         return static_cast<double>(x);
@@ -36,7 +35,6 @@
     #error "can't define MSCALAR both as DOUBLE and FLOAT"
 #endif
     typedef float SkMScalar;
-    typedef int32_t SkMIntScalar;
 
     static inline float SkFloatToMScalar(float x) {
         return x;
@@ -115,12 +113,19 @@ public:
     SkMatrix44(Identity_Constructor) { this->setIdentity(); }
 
     SkMatrix44() { this->setIdentity(); }
-    SkMatrix44(const SkMatrix44&);
-    SkMatrix44(const SkMatrix44& a, const SkMatrix44& b);
+
+    SkMatrix44(const SkMatrix44& src) {
+        memcpy(fMat, src.fMat, sizeof(fMat));
+        fTypeMask = src.fTypeMask;
+    }
+
+    SkMatrix44(const SkMatrix44& a, const SkMatrix44& b) {
+        this->setConcat(a, b);
+    }
 
     SkMatrix44& operator=(const SkMatrix44& src) {
-        SkASSERT(sizeof(src) == sizeof(fMat) + sizeof(SkMIntScalar));
-        memcpy(this, &src, sizeof(*this));
+        memcpy(fMat, src.fMat, sizeof(fMat));
+        fTypeMask = src.fTypeMask;
         return *this;
     }
 
@@ -353,11 +358,8 @@ public:
     double determinant() const;
 
 private:
-    SkMScalar               fMat[4][4];
-    // we use SkMIntScalar instead of just int, as we want to ensure that
-    // we are always packed with no extra bits, allowing us to call memcpy
-    // without fear of copying uninitialized bits.
-    mutable SkMIntScalar    fTypeMask;
+    SkMScalar           fMat[4][4];
+    mutable unsigned    fTypeMask;
 
     enum {
         kUnknown_Mask = 0x80,

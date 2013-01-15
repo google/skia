@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -6,17 +5,7 @@
  * found in the LICENSE file.
  */
 
-
-
 #include "SkMatrix44.h"
-
-SkMatrix44::SkMatrix44(const SkMatrix44& src) {
-    memcpy(this, &src, sizeof(src));
-}
-
-SkMatrix44::SkMatrix44(const SkMatrix44& a, const SkMatrix44& b) {
-    this->setConcat(a, b);
-}
 
 static inline bool eq4(const SkMScalar* SK_RESTRICT a,
                       const SkMScalar* SK_RESTRICT b) {
