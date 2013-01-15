@@ -12,7 +12,7 @@
    "expected-results" : {
       "8888/dashing2" : {
          "checksums" : null,
-         "ignore-failure" : false
+         "ignore-failure" : true
       }
    }
 }
