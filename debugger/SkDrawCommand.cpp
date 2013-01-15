@@ -316,6 +316,7 @@ DrawPoints::DrawPoints(SkCanvas::PointMode mode, size_t count,
     this->fInfo.push(SkObjectParser::ScalarToString(SkIntToScalar(count),
                                                     "Points: "));
     this->fInfo.push(SkObjectParser::PointModeToString(mode));
+    this->fInfo.push(SkObjectParser::PaintToString(paint));
 }
 
 void DrawPoints::execute(SkCanvas* canvas) {

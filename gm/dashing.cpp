@@ -248,6 +248,12 @@ protected:
             this->drawDashedLines(canvas, 99.5f, SK_ScalarHalf, SK_Scalar1, 1, false);
         canvas->restore();
 
+        // 255on/255off 1x1 squares with phase of 0 - rects fast path
+        canvas->save();
+            canvas->translate(446, 0);
+            this->drawDashedLines(canvas, 100, 0, SkIntToScalar(255), 1, false);
+        canvas->restore();
+
         // 1on/1off 3x3 squares with phase of 0 - points fast path
         canvas->save();
             canvas->translate(2, 110);
