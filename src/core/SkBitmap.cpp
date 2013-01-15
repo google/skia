@@ -1638,3 +1638,44 @@ void SkBitmap::validate() const {
 #endif
 }
 #endif
+
+#ifdef SK_DEVELOPER
+void SkBitmap::toString(SkString* str) const {
+
+    static const char* gConfigNames[kConfigCount] = {
+        "NONE", "A1", "A8", "INDEX8", "565", "4444", "8888", "RLE"
+    };
+
+    str->appendf("bitmap: ((%d, %d) %s", this->width(), this->height(),
+                 gConfigNames[this->config()]);
+
+    str->append(" (");
+    if (this->isOpaque()) {
+        str->append("opaque");
+    } else {
+        str->append("transparent");
+    }
+    if (this->isImmutable()) {
+        str->append(", immutable");
+    } else {
+        str->append(", not-immutable");
+    }
+    str->append(")");
+
+    SkPixelRef* pr = this->pixelRef();
+    if (NULL == pr) {
+        // show null or the explicit pixel address (rare)
+        str->appendf(" pixels:%p", this->getPixels());
+    } else {
+        const char* uri = pr->getURI();
+        if (NULL != uri) {
+            str->appendf(" uri:\"%s\"", uri);
+        } else {
+            str->appendf(" pixelref:%p", pr);
+        }
+    }
+
+    str->append(")");
+}
+#endif
+

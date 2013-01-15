@@ -1820,14 +1820,15 @@ uint32_t SkMatrix::readFromMemory(const void* buffer) {
     return 9 * sizeof(SkScalar);
 }
 
+#ifdef SK_DEVELOPER
 void SkMatrix::dump() const {
     SkString str;
-    this->toDumpString(&str);
+    this->toString(&str);
     SkDebugf("%s\n", str.c_str());
 }
 
-void SkMatrix::toDumpString(SkString* str) const {
-    str->printf("[%8.4f %8.4f %8.4f][%8.4f %8.4f %8.4f][%8.4f %8.4f %8.4f]",
+void SkMatrix::toString(SkString* str) const {
+    str->appendf("[%8.4f %8.4f %8.4f][%8.4f %8.4f %8.4f][%8.4f %8.4f %8.4f]",
 #ifdef SK_SCALAR_IS_FLOAT
              fMat[0], fMat[1], fMat[2], fMat[3], fMat[4], fMat[5],
              fMat[6], fMat[7], fMat[8]);
@@ -1837,6 +1838,7 @@ void SkMatrix::toDumpString(SkString* str) const {
     SkFractToFloat(fMat[6]), SkFractToFloat(fMat[7]), SkFractToFloat(fMat[8]));
 #endif
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

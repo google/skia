@@ -19,6 +19,7 @@
 #include "SkTLazy.h"
 #include "SkUtils.h"
 #include "SkXfermode.h"
+#include "SkString.h"
 
 SkBlitter::~SkBlitter() {}
 
@@ -662,6 +663,21 @@ public:
             }
         }
     }
+
+#ifdef SK_DEVELOPER
+    virtual void toString(SkString* str) const SK_OVERRIDE {
+        str->append("Sk3DShader: (");
+
+        if (NULL != fProxy) {
+            str->append("Proxy: ");
+            fProxy->toString(str);
+        }
+
+        this->INHERITED::toString(str);
+
+        str->append(")");
+    }
+#endif
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Sk3DShader)
 

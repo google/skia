@@ -9,6 +9,7 @@
 
 #include "SkTransparentShader.h"
 #include "SkColorPriv.h"
+#include "SkString.h"
 
 bool SkTransparentShader::setContext(const SkBitmap& device,
                                      const SkPaint& paint,
@@ -125,3 +126,13 @@ void SkTransparentShader::shadeSpan16(int x, int y, uint16_t span[], int count) 
         memcpy(span, src, count << 1);
     }
 }
+
+#ifdef SK_DEVELOPER
+void SkTransparentShader::toString(SkString* str) const {
+    str->append("SkTransparentShader: (");
+    
+    this->INHERITED::toString(str);
+
+    str->append(")");
+}
+#endif

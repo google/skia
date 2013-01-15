@@ -8,6 +8,7 @@
 
 #include "SkObjectParser.h"
 #include "SkRRect.h"
+#include "SkShader.h"
 #include "SkTypeface.h"
 #include "SkStream.h"
 #include "SkData.h"
@@ -154,6 +155,7 @@ SkString* SkObjectParser::PaintToString(const SkPaint& paint) {
     SkShader* shader = paint.getShader();
     if (NULL != shader) {
         mPaint->append("<dt>Shader:</dt><dd>");
+        SkDEVCODE(shader->toString(mPaint);)
         mPaint->append("</dd>");
     }
 

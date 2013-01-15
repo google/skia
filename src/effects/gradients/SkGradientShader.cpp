@@ -546,16 +546,16 @@ void SkGradientShaderBase::commonAsAGradient(GradientInfo* info) const {
     if (info) {
         if (info->fColorCount >= fColorCount) {
             if (info->fColors) {
-                memcpy(info->fColors, fOrigColors,
-                       fColorCount * sizeof(SkColor));
+                memcpy(info->fColors, fOrigColors, fColorCount * sizeof(SkColor));
             }
             if (info->fColorOffsets) {
                 if (fColorCount == 2) {
                     info->fColorOffsets[0] = 0;
                     info->fColorOffsets[1] = SK_Scalar1;
                 } else if (fColorCount > 2) {
-                    for (int i = 0; i < fColorCount; i++)
+                    for (int i = 0; i < fColorCount; ++i) {
                         info->fColorOffsets[i] = SkFixedToScalar(fRecs[i].fPos);
+                    }
                 }
             }
         }
@@ -563,6 +563,42 @@ void SkGradientShaderBase::commonAsAGradient(GradientInfo* info) const {
         info->fTileMode = fTileMode;
     }
 }
+
+#ifdef SK_DEVELOPER
+void SkGradientShaderBase::toString(SkString* str) const {
+
+    str->appendf("%d colors: ", fColorCount);
+
+    for (int i = 0; i < fColorCount; ++i) {
+        str->appendHex(fOrigColors[i]);
+        if (i < fColorCount-1) {
+            str->append(", ");
+        }
+    }
+
+    if (fColorCount > 2) {
+        str->append(" points: (");
+        for (int i = 0; i < fColorCount; ++i) {
+            str->appendScalar(SkFixedToScalar(fRecs[i].fPos));
+            if (i < fColorCount-1) {
+                str->append(", ");
+            }
+        }
+        str->append(")");
+    }
+
+    static const char* gTileModeName[SkShader::kTileModeCount] = {
+        "clamp", "repeat", "mirror"
+    };
+
+    str->append(" ");
+    str->append(gTileModeName[fTileMode]);
+
+    // TODO: add "fMapper->toString(str);" when SkUnitMapper::toString is added
+
+    this->INHERITED::toString(str);
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////

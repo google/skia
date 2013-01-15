@@ -56,7 +56,7 @@ static void test_33(const SkMatrix44& mat,
     if (dst[0] != x0 || dst[1] != x1 || dst[2] != x2 ||
         dst[3] != y0 || dst[4] != y1 || dst[5] != y2) {
         SkString str;
-        dst.toDumpString(&str);
+        dst.toString(&str);
         SkDebugf("3x3: expected 3x3 [%g %g %g] [%g %g %g] bug got %s\n",
                  x0, x1, x2, y0, y1, y2, str.c_str());
     }
@@ -116,7 +116,7 @@ static void dump_layers(const SkLayer* layer, int tab = 0) {
     SkString matrixStr;
 
     layer->getLocalTransform(&matrix);
-    matrix.toDumpString(&matrixStr);
+    matrix.toString(&matrixStr);
 
     for (int j = 0; j < tab; j++) {
         SkDebugf(" ");

@@ -341,6 +341,8 @@ public:
     static SkShader* CreateBitmapShader(const SkBitmap& src,
                                         TileMode tmx, TileMode tmy);
 
+    SkDEVCODE(virtual void toString(SkString* str) const;)
+
 protected:
     enum MatrixClass {
         kLinear_MatrixClass,            // no perspective

@@ -20,6 +20,7 @@
 #include "SkRasterizer.h"
 #include "SkScan.h"
 #include "SkShader.h"
+#include "SkString.h"
 #include "SkStroke.h"
 #include "SkTemplatesPriv.h"
 #include "SkTLazy.h"
@@ -2331,6 +2332,7 @@ public:
 
     virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
 
+    SK_DEVELOPER_TO_STRING()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTriColorShader)
 
 protected:
@@ -2402,6 +2404,16 @@ void SkTriColorShader::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
         SkAlphaMulQ(fColors[2], scale2);
     }
 }
+
+#ifdef SK_DEVELOPER
+void SkTriColorShader::toString(SkString* str) const {
+    str->append("SkTriColorShader: (");
+
+    this->INHERITED::toString(str);
+
+    str->append(")");
+}
+#endif
 
 void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
                           const SkPoint vertices[], const SkPoint textures[],

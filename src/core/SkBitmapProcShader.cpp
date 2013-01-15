@@ -127,7 +127,7 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
         flags &= ~kHasSpan16_Flag;
     }
 
-    // if we're only 1-pixel heigh, and we don't rotate, then we can claim this
+    // if we're only 1-pixel high, and we don't rotate, then we can claim this
     if (1 == bitmap.height() &&
             only_scale_and_translate(this->getTotalInverse())) {
         flags |= kConstInY32_Flag;
@@ -306,38 +306,27 @@ SkShader* SkShader::CreateBitmapShader(const SkBitmap& src,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static const char* gTileModeName[] = {
-    "clamp", "repeat", "mirror"
-};
+#ifdef SK_DEVELOPER
+void SkBitmapProcShader::toString(SkString* str) const {
+    static const char* gTileModeName[SkShader::kTileModeCount] = {
+        "clamp", "repeat", "mirror"
+    };
 
-bool SkBitmapProcShader::toDumpString(SkString* str) const {
-    str->printf("BitmapShader: [%d %d %d",
-                fRawBitmap.width(), fRawBitmap.height(),
-                fRawBitmap.bytesPerPixel());
+    str->append("BitmapShader: (");
 
-    // add the pixelref
-    SkPixelRef* pr = fRawBitmap.pixelRef();
-    if (pr) {
-        const char* uri = pr->getURI();
-        if (uri) {
-            str->appendf(" \"%s\"", uri);
-        }
-    }
-
-    // add the (optional) matrix
-    {
-        if (this->hasLocalMatrix()) {
-            SkString info;
-            this->getLocalMatrix().toDumpString(&info);
-            str->appendf(" %s", info.c_str());
-        }
-    }
-
-    str->appendf(" [%s %s]]",
+    str->appendf("(%s, %s)",
                  gTileModeName[fState.fTileModeX],
                  gTileModeName[fState.fTileModeY]);
-    return true;
+
+    str->append(" ");
+    fRawBitmap.toString(str);
+
+    this->INHERITED::toString(str);
+
+    str->append(")");
 }
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU

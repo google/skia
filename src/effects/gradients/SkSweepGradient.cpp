@@ -489,3 +489,19 @@ GrEffect* SkSweepGradient::asNewEffect(GrContext* context, const SkPaint&) const
 }
 
 #endif
+
+#ifdef SK_DEVELOPER
+void SkSweepGradient::toString(SkString* str) const {
+    str->append("SkSweepGradient: (");
+
+    str->append("center: (");
+    str->appendScalar(fCenter.fX);
+    str->append(", ");
+    str->appendScalar(fCenter.fY);
+    str->append(") ");
+
+    this->INHERITED::toString(str);
+
+    str->append(")");
+}
+#endif
