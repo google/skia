@@ -420,7 +420,6 @@ void GrGLDisplacementMapEffect::emitCode(GrGLShaderBuilder* builder,
 
     SkString* code = &builder->fFSCode;
     const char* dColor = "dColor";
-    const char* dCoords = "dCoords";
     const char* cCoords = "cCoords";
     const char* nearZero = "1e-6"; // Since 6.10352e−5 is the smallest half float, use
                                    // a number smaller than that to approximate 0, but
