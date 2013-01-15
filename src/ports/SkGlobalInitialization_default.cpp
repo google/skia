@@ -31,6 +31,7 @@
 #include "SkCornerPathEffect.h"
 #include "SkDashPathEffect.h"
 #include "SkDiscretePathEffect.h"
+#include "SkDisplacementMapEffect.h"
 #include "SkEmptyShader.h"
 #include "SkEmbossMaskFilter.h"
 #include "SkFlattenable.h"
@@ -66,6 +67,7 @@ void SkFlattenable::InitializeFlattenables() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDashPathEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDilateImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDiscretePathEffect)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDisplacementMapEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmbossMaskFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmptyShader)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkErodeImageFilter)
