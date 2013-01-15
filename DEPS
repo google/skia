@@ -13,9 +13,8 @@ deps = {
   "third_party/externals/freetype" : "https://android.googlesource.com/platform/external/freetype.git",
   "third_party/externals/gyp" : "http://gyp.googlecode.com/svn/trunk@1517",
   "third_party/externals/libjpeg" : "http://src.chromium.org/svn/trunk/src/third_party/libjpeg@125399",
-  "third_party/externals/jsoncpp" : "http://src.chromium.org/svn/trunk/src/third_party/jsoncpp@125399",
-  "third_party/externals/jsoncpp/source/include" : "http://jsoncpp.svn.sourceforge.net/svnroot/jsoncpp/trunk/jsoncpp/include@248",
-  "third_party/externals/jsoncpp/source/src/lib_json" : "http://jsoncpp.svn.sourceforge.net/svnroot/jsoncpp/trunk/jsoncpp/src/lib_json@248",
+  "third_party/externals/jsoncpp" : "http://jsoncpp.svn.sourceforge.net/svnroot/jsoncpp/trunk/jsoncpp@248",
+  "third_party/externals/jsoncpp-chromium" : "http://src.chromium.org/svn/trunk/src/third_party/jsoncpp@125399",
 }
 
 #hooks = [
