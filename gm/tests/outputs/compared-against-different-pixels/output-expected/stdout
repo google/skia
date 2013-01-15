@@ -1,3 +1,4 @@
+Non-default runtime configuration options:
 reading from gm/tests/inputs/different-pixels
 writing to gm/tests/outputs/compared-against-different-pixels/output-actual/images
 drawing... dashing2 [640 480]
