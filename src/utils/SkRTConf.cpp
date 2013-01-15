@@ -9,21 +9,21 @@
 #include "SkOSFile.h"
 
 SkRTConfRegistry::SkRTConfRegistry(): fConfs(100) {
-    
+
     SkFILE *fp = sk_fopen(configFileLocation(), kRead_SkFILE_Flag);
 
     if (!fp) {
         return;
     }
-    
+
     char line[1024];
-    
+
     while (!sk_feof(fp)) {
-        
+
         if (!sk_fgets(line, sizeof(line), fp)) {
             break;
         }
-                
+
         char *commentptr = strchr(line, '#');
         if (commentptr == line) {
             continue;
@@ -31,9 +31,9 @@ SkRTConfRegistry::SkRTConfRegistry(): fConfs(100) {
         if (NULL != commentptr) {
             *commentptr = '\0';
         }
-        
+
         char sep[] = " \t\r\n";
-        
+
         char *keyptr = strtok(line, sep);
         if (!keyptr) {
             continue;
@@ -43,7 +43,7 @@ SkRTConfRegistry::SkRTConfRegistry(): fConfs(100) {
         if (!valptr) {
             continue;
         }
-                
+
         SkString* key = new SkString(keyptr);
         SkString* val = new SkString(valptr);
 
@@ -84,16 +84,16 @@ void SkRTConfRegistry::validate() const {
 
 void SkRTConfRegistry::printAll(const char *fname) const {
     SkWStream *o;
-    
+
     if (NULL != fname) {
         o = new SkFILEWStream(fname);
     } else {
         o = new SkDebugWStream();
     }
-    
+
     ConfMap::Iter iter(fConfs);
     SkTDArray<SkRTConfBase *> *confArray;
-    
+
     while (iter.next(&confArray)) {
         if (confArray->getAt(0)->isDefault()) {
             o->writeText("# ");
@@ -101,28 +101,28 @@ void SkRTConfRegistry::printAll(const char *fname) const {
         confArray->getAt(0)->print(o);
         o->newline();
     }
-    
+
     delete o;
 }
 
 void SkRTConfRegistry::printNonDefault(const char *fname) const {
     SkWStream *o;
-    
+
     if (NULL != fname) {
         o = new SkFILEWStream(fname);
     } else {
         o = new SkDebugWStream();
-    }    
+    }
     ConfMap::Iter iter(fConfs);
     SkTDArray<SkRTConfBase *> *confArray;
-    
+
     while (iter.next(&confArray)) {
         if (!confArray->getAt(0)->isDefault()) {
             confArray->getAt(0)->print(o);
             o->newline();
         }
     }
-    
+
     delete o;
 }
 
@@ -149,7 +149,7 @@ template <typename T> T doParse(const char *s, bool *success ) {
     SkDebugf("WARNING: Invoked non-specialized doParse function...\n");
     if (success) {
         *success = false;
-    } 
+    }
     return (T) 0;
 }
 
@@ -208,15 +208,15 @@ template<typename T> bool SkRTConfRegistry::parse(const char *name, T* value) {
             str = fConfigFileValues[i];
         }
     }
-    
+
     SkString environment_variable("skia.");
     environment_variable.append(name);
-    
+
     const char *environment_value = getenv(environment_variable.c_str());
     if (environment_value) {
         str->set(environment_value);
     } else {
-        // apparently my shell doesn't let me have environment variables that 
+        // apparently my shell doesn't let me have environment variables that
         // have periods in them, so also let the user substitute underscores.
         SkString underscore_environment_variable("skia_");
         char *underscore_name = SkStrDup(name);
@@ -228,11 +228,11 @@ template<typename T> bool SkRTConfRegistry::parse(const char *name, T* value) {
             str->set(environment_value);
         }
     }
-    
+
     if (!str) {
         return false;
     }
-    
+
     bool success;
     T new_value = doParse<T>(str->c_str(),&success);
     if (success) {
@@ -253,17 +253,17 @@ template bool SkRTConfRegistry::parse(const char *name, double *value);
 template bool SkRTConfRegistry::parse(const char *name, const char **value);
 
 template <typename T> void SkRTConfRegistry::set(const char *name, T value) {
-    
+
     SkTDArray<SkRTConfBase *> *confArray;
     if (!fConfs.find(name, &confArray)) {
         SkDebugf("WARNING: Attempting to set configuration value \"%s\", but I've never heard of that.\n", name);
         return;
     }
-    
+
     for (SkRTConfBase **confBase = confArray->begin(); confBase != confArray->end(); confBase++) {
         // static_cast here is okay because there's only one kind of child class.
         SkRTConf<T> *concrete = static_cast<SkRTConf<T> *>(*confBase);
-        
+
         if (concrete) {
             concrete->set(value);
         }

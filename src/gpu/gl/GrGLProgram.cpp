@@ -463,7 +463,7 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
         GrPrintf(shader.c_str());
         GrPrintf("\n");
     }
-    
+
     if (!(fVShaderID = compile_shader(fContextInfo, GR_GL_VERTEX_SHADER, shader))) {
         return false;
     }
