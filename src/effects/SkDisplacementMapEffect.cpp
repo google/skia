@@ -8,6 +8,7 @@
 #include "SkDisplacementMapEffect.h"
 #include "SkFlattenableBuffers.h"
 #include "SkUnPreMultiply.h"
+#include "SkColorPriv.h"
 #if SK_SUPPORT_GPU
 #include "SkGr.h"
 #include "SkGrPixelRef.h"
