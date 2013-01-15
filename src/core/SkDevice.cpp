@@ -441,8 +441,29 @@ void SkDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
         if (dx || dy) {
             matrix.preTranslate(dx, dy);
         }
-    }
 
+#ifndef SK_IGNORE_DRAWBITMAPRECT_AS_DRAWBITMAP
+        SkRect extractedBitmapBounds;
+        extractedBitmapBounds.set(0, 0,
+                                  SkIntToScalar(bitmapPtr->width()),
+                                  SkIntToScalar(bitmapPtr->height()));
+        if (extractedBitmapBounds == tmpSrc) {
+            // no fractional part in src, we can just call drawBitmap
+            goto USE_DRAWBITMAP;
+        }
+#endif
+    }
+#ifndef SK_IGNORE_DRAWBITMAPRECT_AS_DRAWBITMAP
+    else {
+    USE_DRAWBITMAP:
+        // We can go faster by just calling drawBitmap, which will concat the
+        // matrix with the CTM, and try to call drawSprite if it can. If not,
+        // it will make a shader and call drawRect, as we do below.
+        this->drawBitmap(draw, *bitmapPtr, NULL, matrix, paint);
+        return;
+    }
+#endif
+    
     // construct a shader, so we can call drawRect with the dst
     SkShader* s = SkShader::CreateBitmapShader(*bitmapPtr,
                                                SkShader::kClamp_TileMode,
