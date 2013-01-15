@@ -50,7 +50,7 @@ public:
     static A* Create(SkRandom* r);
 
     static void SetAllocator(size_t preallocSize, size_t minAllocSize) {
-#ifdef SK_ENABLE_INST_COUNT
+#if SK_ENABLE_INST_COUNT
         SkASSERT(0 == GetInstanceCount());
 #endif
         GrMemoryPool* pool = new GrMemoryPool(preallocSize, minAllocSize);
@@ -58,7 +58,7 @@ public:
     }
 
     static void ResetAllocator() {
-#ifdef SK_ENABLE_INST_COUNT
+#if SK_ENABLE_INST_COUNT
         SkASSERT(0 == GetInstanceCount());
 #endif
         gPool.reset(NULL);
@@ -233,7 +233,7 @@ static void test_memory_pool(skiatest::Reporter* reporter) {
                 REPORTER_ASSERT(reporter, rec.fInstance->checkValues(rec.fValue));
                 delete rec.fInstance;
             }
-#ifdef SK_ENABLE_INST_COUNT
+#if SK_ENABLE_INST_COUNT
             REPORTER_ASSERT(reporter, !A::GetInstanceCount());
 #endif
         }
