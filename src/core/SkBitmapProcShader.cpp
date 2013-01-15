@@ -86,11 +86,13 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
     fState.fOrigBitmap.lockPixels();
     if (!fState.fOrigBitmap.getTexture() && !fState.fOrigBitmap.readyToDraw()) {
         fState.fOrigBitmap.unlockPixels();
+        this->INHERITED::endContext();
         return false;
     }
 
     if (!fState.chooseProcs(this->getTotalInverse(), paint)) {
         fState.fOrigBitmap.unlockPixels();
+        this->INHERITED::endContext();
         return false;
     }
 
