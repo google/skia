@@ -320,6 +320,7 @@ bool SkDashPathEffect::asPoints(PointData* results,
 
     if (NULL != results) {
         results->fFlags = 0;
+        SkScalar clampedInitialDashLength = SkMinScalar(length, fInitialDashLength);
 
         if (SkPaint::kRound_Cap == rec.getCap()) {
             results->fFlags |= PointData::kCircles_PointFlag;
@@ -328,22 +329,22 @@ bool SkDashPathEffect::asPoints(PointData* results,
         results->fNumPoints = 0;
         SkScalar len2 = length;
         bool partialFirst = false;
-        if (fInitialDashLength > 0 || 0 == fInitialDashIndex) {
-            SkASSERT(len2 >= fInitialDashLength);
+        if (clampedInitialDashLength > 0 || 0 == fInitialDashIndex) {
+            SkASSERT(len2 >= clampedInitialDashLength);
             if (0 == fInitialDashIndex) {
-                if (fInitialDashLength > 0) {
+                if (clampedInitialDashLength > 0) {
                     partialFirst = true;
-                    if (fInitialDashLength >= fIntervals[0]) {
+                    if (clampedInitialDashLength >= fIntervals[0]) {
                         ++results->fNumPoints;  // partial first dash
                     }
-                    len2 -= fInitialDashLength;
+                    len2 -= clampedInitialDashLength;
                 }
                 len2 -= fIntervals[1];  // also skip first space
                 if (len2 < 0) {
                     len2 = 0;
                 }
             } else {
-                len2 -= fInitialDashLength; // skip initial partial empty
+                len2 -= clampedInitialDashLength; // skip initial partial empty
             }
         }
         int numMidPoints = SkScalarFloorToInt(SkScalarDiv(len2, fIntervalLength));
@@ -364,24 +365,24 @@ bool SkDashPathEffect::asPoints(PointData* results,
         SkScalar    distance = 0;
         int         curPt = 0;
 
-        if (fInitialDashLength > 0 || 0 == fInitialDashIndex) {
-            SkASSERT(fInitialDashLength <= length);
+        if (clampedInitialDashLength > 0 || 0 == fInitialDashIndex) {
+            SkASSERT(clampedInitialDashLength <= length);
 
             if (0 == fInitialDashIndex) {
-                if (fInitialDashLength > 0) {
+                if (clampedInitialDashLength > 0) {
                     // partial first block
                     SkASSERT(SkPaint::kRound_Cap != rec.getCap()); // can't handle partial circles
-                    SkScalar x = pts[0].fX + SkScalarMul(tangent.fX, SkScalarHalf(fInitialDashLength));
-                    SkScalar y = pts[0].fY + SkScalarMul(tangent.fY, SkScalarHalf(fInitialDashLength));
+                    SkScalar x = pts[0].fX + SkScalarMul(tangent.fX, SkScalarHalf(clampedInitialDashLength));
+                    SkScalar y = pts[0].fY + SkScalarMul(tangent.fY, SkScalarHalf(clampedInitialDashLength));
                     SkScalar halfWidth, halfHeight;
                     if (isXAxis) {
-                        halfWidth = SkScalarHalf(fInitialDashLength);
+                        halfWidth = SkScalarHalf(clampedInitialDashLength);
                         halfHeight = SkScalarHalf(rec.getWidth());
                     } else {
                         halfWidth = SkScalarHalf(rec.getWidth());
-                        halfHeight = SkScalarHalf(fInitialDashLength);
+                        halfHeight = SkScalarHalf(clampedInitialDashLength);
                     }
-                    if (fInitialDashLength < fIntervals[0]) {
+                    if (clampedInitialDashLength < fIntervals[0]) {
                         // This one will not be like the others
                         results->fFirst.addRect(x - halfWidth, y - halfHeight,
                                                 x + halfWidth, y + halfHeight);
@@ -391,12 +392,12 @@ bool SkDashPathEffect::asPoints(PointData* results,
                         ++curPt;
                     }
 
-                    distance += fInitialDashLength;
+                    distance += clampedInitialDashLength;
                 }
 
                 distance += fIntervals[1];  // skip over the next blank block too
             } else {
-                distance += fInitialDashLength;
+                distance += clampedInitialDashLength;
             }
         }
 
