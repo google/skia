@@ -59,7 +59,7 @@ void SkGraphics::Init() {
     SkDebugf("Non-default runtime configuration options:\n");
     skRTConfRegistry().printNonDefault( );
 #endif
-        
+
     SkFlattenable::InitializeFlattenables();
 #ifdef BUILD_EMBOSS_TABLE
     SkEmbossMask_BuildTable();

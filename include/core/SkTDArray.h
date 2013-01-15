@@ -108,7 +108,7 @@ public:
         SkASSERT((unsigned)index < fCount);
         return fArray[index];
     }
-    
+
     T&  getAt(int index) const {
         return (*this)[index];
     }

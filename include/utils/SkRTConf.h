@@ -44,10 +44,10 @@ public:
     void set(const T& value) { fValue = value; }
 protected:
     void doPrint(char *s) const;
-    
+
     SkString fDescription;
     T           fDefault;
-    T           fValue; 
+    T           fValue;
 };
 
 #ifdef SK_DEVELOPER
@@ -75,10 +75,10 @@ public:
     template <typename T> void set(const char *confname, T value);
 private:
     template<typename T> friend class SkRTConf;
-    
+
     void registerConf(SkRTConfBase *conf);
     template <typename T> bool parse(const char *name, T* value);
-        
+
     SkTDArray<SkString *> fConfigFileKeys, fConfigFileValues;
     typedef SkTDict< SkTDArray<SkRTConfBase *> * > ConfMap;
     ConfMap fConfs;
@@ -94,7 +94,7 @@ SkRTConf<T>::SkRTConf(const char *name, const T &defaultValue, const char *descr
     , fValue(defaultValue)
     , fDefault(defaultValue)
     , fDescription(description) {
-    
+
     T value;
     if (skRTConfRegistry().parse(fName.c_str(), &value)) {
         fValue = value;
@@ -162,7 +162,7 @@ template<typename T>
 bool SkRTConf<T>::equals(const SkRTConfBase *conf) const {
     // static_cast here is okay because there's only one kind of child class.
     const SkRTConf<T> *child_pointer = static_cast<const SkRTConf<T> *>(conf);
-    return child_pointer && 
+    return child_pointer &&
            fName == child_pointer->fName &&
            fDescription == child_pointer->fDescription &&
            fValue == child_pointer->fValue &&
