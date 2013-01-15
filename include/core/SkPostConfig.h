@@ -112,6 +112,17 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// SK_ENABLE_INST_COUNT defaults to 1 in DEBUG and 0 in RELEASE
+#ifndef SK_ENABLE_INST_COUNT
+    #ifdef SK_DEBUG
+        #define SK_ENABLE_INST_COUNT 1
+    #else
+        #define SK_ENABLE_INST_COUNT 0
+    #endif
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+
 #if defined(SK_SOFTWARE_FLOAT) && defined(SK_SCALAR_IS_FLOAT)
     // if this is defined, we convert floats to 2scompliment ints for compares
     #ifndef SK_SCALAR_SLOW_COMPARES

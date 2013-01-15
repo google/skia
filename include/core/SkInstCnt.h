@@ -18,12 +18,9 @@
  * At the end of an application a call to all the "root" objects'
  * CheckInstanceCount methods should be made
  */
-//#if defined SK_DEBUG && !defined SK_ENABLE_INST_COUNT
-//#define SK_ENABLE_INST_COUNT
-//#endif
+#include "SkTypes.h"
 
-#ifdef SK_ENABLE_INST_COUNT
-#include <stdlib.h>
+#if SK_ENABLE_INST_COUNT
 #include "SkTArray.h"
 #include "SkThread_platform.h"
 

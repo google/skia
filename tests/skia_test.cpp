@@ -84,7 +84,7 @@ private:
 
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
-#ifdef SK_ENABLE_INST_COUNT
+#if SK_ENABLE_INST_COUNT
     gPrintInstCount = true;
 #endif
     SkGraphics::Init();

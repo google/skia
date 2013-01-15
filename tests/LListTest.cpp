@@ -16,7 +16,7 @@ public:
     }
     bool operator== (const ListElement& other) { return fID == other.fID; }
 
-#ifdef SK_ENABLE_INST_COUNT
+#if SK_ENABLE_INST_COUNT
     // Make the instance count available publicly.
     static int InstanceCount() { return GetInstanceCount(); }
 #endif
@@ -135,7 +135,7 @@ static void TestTLList(skiatest::Reporter* reporter) {
         Iter iter3;
         Iter iter4;
 
-#ifdef SK_ENABLE_INST_COUNT
+#if SK_ENABLE_INST_COUNT
         SkASSERT(0 == ListElement::InstanceCount());
 #endif
 
@@ -151,7 +151,7 @@ static void TestTLList(skiatest::Reporter* reporter) {
         // Create two identical lists, one by appending to head and the other to the tail.
         list1.addToHead(ListElement(1));
         list2.addToTail(ListElement(1));
-#ifdef SK_ENABLE_INST_COUNT
+#if SK_ENABLE_INST_COUNT
         SkASSERT(2 == ListElement::InstanceCount());
 #endif
         iter1.init(list1, Iter::kHead_IterStart);
@@ -178,7 +178,7 @@ static void TestTLList(skiatest::Reporter* reporter) {
         iter4.init(list2, Iter::kTail_IterStart);
         list2.addToHead(ListElement(2));
 
-#ifdef SK_ENABLE_INST_COUNT
+#if SK_ENABLE_INST_COUNT
         SkASSERT(3 == ListElement::InstanceCount());
 #endif
 
@@ -189,14 +189,14 @@ static void TestTLList(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, list1 != list2);
         list1.addToHead(ListElement(2));
         REPORTER_ASSERT(reporter, list1 == list2);
-#ifdef SK_ENABLE_INST_COUNT
+#if SK_ENABLE_INST_COUNT
         SkASSERT(4 == ListElement::InstanceCount());
 #endif
         REPORTER_ASSERT(reporter, !list1.isEmpty());
 
         list1.reset();
         list2.reset();
-#ifdef SK_ENABLE_INST_COUNT
+#if SK_ENABLE_INST_COUNT
         SkASSERT(0 == ListElement::InstanceCount());
 #endif
         REPORTER_ASSERT(reporter, list1.isEmpty() && list2.isEmpty());
@@ -301,12 +301,12 @@ static void TestTLList(skiatest::Reporter* reporter) {
                 --count;
             }
             REPORTER_ASSERT(reporter, count == list1.count());
-#ifdef SK_ENABLE_INST_COUNT
+#if SK_ENABLE_INST_COUNT
             SkASSERT(count == ListElement::InstanceCount());
 #endif
         }
         list1.reset();
-#ifdef SK_ENABLE_INST_COUNT
+#if SK_ENABLE_INST_COUNT
         SkASSERT(0 == ListElement::InstanceCount());
 #endif
     }
