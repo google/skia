@@ -44,10 +44,10 @@ public:
     void set(const T& value) { fValue = value; }
 protected:
     void doPrint(char *s) const;
-
+    
+    T        fValue; 
+    T        fDefault;
     SkString fDescription;
-    T           fDefault;
-    T           fValue;
 };
 
 #ifdef SK_DEVELOPER
