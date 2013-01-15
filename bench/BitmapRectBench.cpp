@@ -41,14 +41,16 @@ static void drawIntoBitmap(const SkBitmap& bm) {
 class BitmapRectBench : public SkBenchmark {
     SkBitmap    fBitmap;
     bool        fDoFilter;
+    bool        fSlightMatrix;
     uint8_t     fAlpha;
     SkString    fName;
     SkRect      fSrcR, fDstR;
     enum { N = SkBENCHLOOP(300) };
 public:
-    BitmapRectBench(void* param, U8CPU alpha, bool doFilter) : INHERITED(param) {
+    BitmapRectBench(void* param, U8CPU alpha, bool doFilter, bool slightMatrix) : INHERITED(param) {
         fAlpha = SkToU8(alpha);
         fDoFilter = doFilter;
+        fSlightMatrix = slightMatrix;
 
         const int w = 128;
         const int h = 128;
@@ -61,11 +63,22 @@ public:
 
         fSrcR.iset(0, 0, w, h);
         fDstR.iset(0, 0, w, h);
+
+        if (slightMatrix) {
+            // want fractional translate
+            fDstR.offset(SK_Scalar1 / 3, SK_Scalar1 * 5 / 7);
+            // want enough to create a scale matrix, but not enough to scare
+            // off our sniffer which tries to see if the matrix is "effectively"
+            // translate-only.
+            fDstR.fRight += SK_Scalar1 / (w * 60);
+        }
     }
 
 protected:
     virtual const char* onGetName() {
-        fName.printf("bitmaprect_%02X_%sfilter", fAlpha, fDoFilter ? "" : "no");
+        fName.printf("bitmaprect_%02X_%sfilter_%s",
+                     fAlpha, fDoFilter ? "" : "no",
+                     fSlightMatrix ? "trans" : "identity");
         return fName.c_str();
     }
 
@@ -86,8 +99,11 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-DEF_BENCH(return new BitmapRectBench(p, 0xFF, false))
-DEF_BENCH(return new BitmapRectBench(p, 0x80, false))
-DEF_BENCH(return new BitmapRectBench(p, 0xFF, true))
-DEF_BENCH(return new BitmapRectBench(p, 0x80, true))
+DEF_BENCH(return new BitmapRectBench(p, 0xFF, false, false))
+DEF_BENCH(return new BitmapRectBench(p, 0x80, false, false))
+DEF_BENCH(return new BitmapRectBench(p, 0xFF, true, false))
+DEF_BENCH(return new BitmapRectBench(p, 0x80, true, false))
+
+DEF_BENCH(return new BitmapRectBench(p, 0xFF, false, true))
+DEF_BENCH(return new BitmapRectBench(p, 0xFF, true, true))
 
