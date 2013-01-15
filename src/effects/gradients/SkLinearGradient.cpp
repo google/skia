@@ -564,3 +564,16 @@ GrEffect* SkLinearGradient::asNewEffect(GrContext* context, const SkPaint&) cons
 }
 
 #endif
+
+#ifdef SK_DEVELOPER
+void SkLinearGradient::toString(SkString* str) const {
+    str->append("SkLinearGradient (");
+
+    str->appendf("start: (%f, %f)", fStart.fX, fStart.fY);
+    str->appendf(" end: (%f, %f) ", fEnd.fX, fEnd.fY);
+
+    this->INHERITED::toString(str);
+
+    str->append(")");
+}
+#endif

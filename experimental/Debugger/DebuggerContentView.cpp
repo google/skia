@@ -1,3 +1,6 @@
+
+#ifdef SK_DEVELOPER
+
 #include "SampleCode.h"
 #include "SkOSMenu.h"
 
@@ -271,3 +274,5 @@ bool is_debugger(SkView* view) {
     SkEvent isDebugger(gIsDebuggerQuery);
     return view->doQuery(&isDebugger);
 }
+
+#endif

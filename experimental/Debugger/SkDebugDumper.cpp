@@ -6,6 +6,9 @@
  * found in the LICENSE file.
  */
 #include "SkDebugDumper.h"
+
+#ifdef SK_DEVELOPER
+
 #include "SkString.h"
 #include "SkPaint.h"
 #include "SkShader.h"
@@ -146,3 +149,5 @@ void SkDebugDumper::dump(SkDumpCanvas* canvas, SkDumpCanvas::Verb verb,
         }
     }
 }
+
+#endif

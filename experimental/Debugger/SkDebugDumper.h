@@ -7,6 +7,9 @@
  */
 #ifndef SkDebugDumper_DEFINED
 #define SkDebugDumper_DEFINED
+
+#ifdef SK_DEVELOPER
+
 #include "SkDumpCanvas.h"
 #include "SkEvent.h"
 
@@ -35,4 +38,7 @@ private:
 
     typedef SkDumpCanvas::Dumper INHERITED;
 };
+
+#endif
+
 #endif

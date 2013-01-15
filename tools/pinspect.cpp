@@ -39,9 +39,13 @@ static SkPicture* inspect(const char path[]) {
 }
 
 static void dumpOps(SkPicture* pic) {
+#ifdef SK_DEVELOPER
     SkDebugfDumper dumper;
     SkDumpCanvas canvas(&dumper);
     canvas.drawPicture(*pic);
+#else
+    printf("SK_DEVELOPER mode not enabled\n");
+#endif
 }
 
 int tool_main(int argc, char** argv);

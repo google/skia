@@ -527,8 +527,8 @@ public:
     // return the number of bytes read
     uint32_t readFromMemory(const void* buffer);
 
-    void dump() const;
-    void toDumpString(SkString*) const;
+    SkDEVCODE(void dump() const;)
+    SkDEVCODE(void toString(SkString*) const;)
 
     /**
      * Calculates the maximum stretching factor of the matrix. If the matrix has

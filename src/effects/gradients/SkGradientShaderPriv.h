@@ -139,6 +139,7 @@ public:
 protected:
     SkGradientShaderBase(SkFlattenableReadBuffer& );
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+    SK_DEVELOPER_TO_STRING()
 
     SkUnitMapper* fMapper;
     SkMatrix    fPtsToUnit;     // set by subclass

@@ -10,6 +10,7 @@
 #include "SkFlattenableBuffers.h"
 #include "SkShader.h"
 #include "SkUnPreMultiply.h"
+#include "SkString.h"
 
 SK_DEFINE_INST_COUNT(SkColorFilter)
 
@@ -117,3 +118,17 @@ void SkFilterShader::shadeSpan16(int x, int y, uint16_t result[], int count) {
     fFilter->filterSpan16(result, count, result);
 }
 
+#ifdef SK_DEVELOPER
+void SkFilterShader::toString(SkString* str) const {
+    str->append("SkFilterShader: (");
+
+    str->append("Shader: ");
+    fShader->toString(str);
+    str->append(" Filter: ");
+    // TODO: add "fFilter->toString(str);" once SkColorFilter::toString is added
+
+    this->INHERITED::toString(str);
+
+    str->append(")");
+}
+#endif

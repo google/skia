@@ -112,6 +112,16 @@ inline void operator delete(void* p) {
     #define SkAssertResult(cond)        cond
 #endif
 
+#ifdef SK_DEVELOPER
+    #define SkDEVCODE(code)             code
+    // the 'toString' helper functions convert Sk* objects to human-readable
+    // form in developer mode
+    #define SK_DEVELOPER_TO_STRING()    virtual void toString(SkString* str) const SK_OVERRIDE;
+#else
+    #define SkDEVCODE(code)
+    #define SK_DEVELOPER_TO_STRING()
+#endif
+
 template <bool>
 struct SkCompileAssert {
 };

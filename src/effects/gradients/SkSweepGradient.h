@@ -26,6 +26,7 @@ public:
 
     virtual GrEffect* asNewEffect(GrContext* context, const SkPaint&) const SK_OVERRIDE;
 
+    SK_DEVELOPER_TO_STRING()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSweepGradient)
 
 protected:

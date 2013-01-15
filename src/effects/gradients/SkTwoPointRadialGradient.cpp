@@ -309,6 +309,32 @@ bool SkTwoPointRadialGradient::setContext( const SkBitmap& device,
     return true;
 }
 
+#ifdef SK_DEVELOPER
+void SkTwoPointRadialGradient::toString(SkString* str) const {
+    str->append("SkTwoPointRadialGradient: (");
+
+    str->append("center1: (");
+    str->appendScalar(fCenter1.fX);
+    str->append(", ");
+    str->appendScalar(fCenter1.fY);
+    str->append(") radius1: ");
+    str->appendScalar(fRadius1);
+    str->append(" ");
+
+    str->append("center2: (");
+    str->appendScalar(fCenter2.fX);
+    str->append(", ");
+    str->appendScalar(fCenter2.fY);
+    str->append(") radius2: ");
+    str->appendScalar(fRadius2);
+    str->append(" ");
+
+    this->INHERITED::toString(str);
+
+    str->append(")");
+}
+#endif
+
 SkTwoPointRadialGradient::SkTwoPointRadialGradient(
     SkFlattenableReadBuffer& buffer)
     : INHERITED(buffer),

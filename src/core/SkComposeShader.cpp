@@ -13,6 +13,7 @@
 #include "SkColorShader.h"
 #include "SkFlattenableBuffers.h"
 #include "SkXfermode.h"
+#include "SkString.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -172,3 +173,20 @@ void SkComposeShader::shadeSpan(int x, int y, SkPMColor result[], int count) {
         } while (count > 0);
     }
 }
+
+#ifdef SK_DEVELOPER
+void SkComposeShader::toString(SkString* str) const {
+    str->append("SkComposeShader: (");
+
+    str->append("ShaderA: ");
+    fShaderA->toString(str);
+    str->append(" ShaderB: ");
+    fShaderB->toString(str);
+    str->append(" Xfermode: ");
+    // TODO: add "fMode->toString(str);" once SkXfermode::toString is added
+
+    this->INHERITED::toString(str);
+
+    str->append(")");
+}
+#endif

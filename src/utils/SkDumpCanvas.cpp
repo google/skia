@@ -5,7 +5,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SkDumpCanvas.h"
+
+#ifdef SK_DEVELOPER
 #include "SkPicture.h"
 #include "SkPixelRef.h"
 #include "SkRRect.h"
@@ -130,31 +133,6 @@ static const char* toString(SkCanvas::PointMode pm) {
     return gPMNames[pm];
 }
 
-static const char* toString(SkBitmap::Config config) {
-    static const char* gConfigNames[] = {
-        "NONE", "A1", "A8", "INDEX8", "565", "4444", "8888", "RLE"
-    };
-    return gConfigNames[config];
-}
-
-static void toString(const SkBitmap& bm, SkString* str) {
-    str->appendf("bitmap:[%d %d] %s", bm.width(), bm.height(),
-                toString(bm.config()));
-
-    SkPixelRef* pr = bm.pixelRef();
-    if (NULL == pr) {
-        // show null or the explicit pixel address (rare)
-        str->appendf(" pixels:%p", bm.getPixels());
-    } else {
-        const char* uri = pr->getURI();
-        if (uri) {
-            str->appendf(" uri:\"%s\"", uri);
-        } else {
-            str->appendf(" pixelref:%p", pr);
-        }
-    }
-}
-
 static void toString(const void* text, size_t byteLen, SkPaint::TextEncoding enc,
                      SkString* str) {
     // FIXME: this code appears to be untested - and probably unused - and probably wrong
@@ -273,14 +251,14 @@ bool SkDumpCanvas::skew(SkScalar sx, SkScalar sy) {
 
 bool SkDumpCanvas::concat(const SkMatrix& matrix) {
     SkString str;
-    matrix.toDumpString(&str);
+    matrix.toString(&str);
     this->dump(kMatrix_Verb, NULL, "concat(%s)", str.c_str());
     return this->INHERITED::concat(matrix);
 }
 
 void SkDumpCanvas::setMatrix(const SkMatrix& matrix) {
     SkString str;
-    matrix.toDumpString(&str);
+    matrix.toString(&str);
     this->dump(kMatrix_Verb, NULL, "setMatrix(%s)", str.c_str());
     this->INHERITED::setMatrix(matrix);
 }
@@ -362,7 +340,7 @@ void SkDumpCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
 void SkDumpCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
                                const SkPaint* paint) {
     SkString str;
-    toString(bitmap, &str);
+    bitmap.toString(&str);
     this->dump(kDrawBitmap_Verb, paint, "drawBitmap(%s %g %g)", str.c_str(),
                SkScalarToFloat(x), SkScalarToFloat(y));
 }
@@ -370,7 +348,7 @@ void SkDumpCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
 void SkDumpCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
                                         const SkRect& dst, const SkPaint* paint) {
     SkString bs, rs;
-    toString(bitmap, &bs);
+    bitmap.toString(&bs);
     toString(dst, &rs);
     // show the src-rect only if its not everything
     if (src && (src->fLeft > 0 || src->fTop > 0 ||
@@ -388,8 +366,8 @@ void SkDumpCanvas::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* sr
 void SkDumpCanvas::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& m,
                                      const SkPaint* paint) {
     SkString bs, ms;
-    toString(bitmap, &bs);
-    m.toDumpString(&ms);
+    bitmap.toString(&bs);
+    m.toString(&ms);
     this->dump(kDrawBitmap_Verb, paint, "drawBitmapMatrix(%s %s)",
                bs.c_str(), ms.c_str());
 }
@@ -397,7 +375,7 @@ void SkDumpCanvas::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& m,
 void SkDumpCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
                                const SkPaint* paint) {
     SkString str;
-    toString(bitmap, &str);
+    bitmap.toString(&str);
     this->dump(kDrawBitmap_Verb, paint, "drawSprite(%s %d %d)", str.c_str(),
                x, y);
 }
@@ -525,4 +503,4 @@ static void dumpToDebugf(const char text[], void*) {
 
 SkDebugfDumper::SkDebugfDumper() : INHERITED(dumpToDebugf, NULL) {}
 
-
+#endif
