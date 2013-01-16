@@ -82,7 +82,7 @@ static void test_clipped_cubic(skiatest::Reporter* reporter) {
     SkPath path;
     for (int doReducedCase = 0; doReducedCase <= 1; ++doReducedCase) {
         build_big_path(&path, SkToBool(doReducedCase));
-        
+
         SkPaint paint;
         for (int doAA = 0; doAA <= 1; ++doAA) {
             paint.setAntiAlias(SkToBool(doAA));

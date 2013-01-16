@@ -130,7 +130,7 @@ void SkTransparentShader::shadeSpan16(int x, int y, uint16_t span[], int count) 
 #ifdef SK_DEVELOPER
 void SkTransparentShader::toString(SkString* str) const {
     str->append("SkTransparentShader: (");
-    
+
     this->INHERITED::toString(str);
 
     str->append(")");
