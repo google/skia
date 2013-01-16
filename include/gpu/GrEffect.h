@@ -38,7 +38,7 @@ public:
     void operator delete(void* target);
 
 private:
-    friend GrEffect; // to construct these
+    friend class GrEffect; // to construct these
 
     explicit GrEffectRef(GrEffect* effect);
 
@@ -171,7 +171,7 @@ private:
         fEffectPtr = NULL;
     }
 
-    friend GrEffectRef; // to call GrEffectRef destroyed
+    friend class GrEffectRef; // to call GrEffectRef destroyed
 
     SkSTArray<4, const GrTextureAccess*, true>  fTextureAccesses;
     GrEffectRef*                                fEffectPtr;
