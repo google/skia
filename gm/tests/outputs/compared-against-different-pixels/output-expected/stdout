@@ -4,3 +4,9 @@ writing to gm/tests/outputs/compared-against-different-pixels/output-actual/imag
 drawing... dashing2 [640 480]
 Ran 1 tests: 0 passed, 1 failed, 0 missing reference images
 		8888/dashing2 pixel_error
+  Leaked SkRefCnt: 190
+     Leaked SkFlattenable: 1
+         Leaked SkData: 1
+     Leaked SkPathRef: 1
+     Leaked SkWeakRefCnt: 188
+         Leaked SkTypeface: 188
