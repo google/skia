@@ -4,3 +4,9 @@ writing to gm/tests/outputs/compared-against-empty-dir/output-actual/images
 drawing... dashing2 [640 480]
 FAILED to read gm/tests/inputs/empty-dir/8888/dashing2.png
 Ran 1 tests: 0 passed, 0 failed, 1 missing reference images
+  Leaked SkRefCnt: 190
+     Leaked SkFlattenable: 1
+         Leaked SkData: 1
+     Leaked SkPathRef: 1
+     Leaked SkWeakRefCnt: 188
+         Leaked SkTypeface: 188
