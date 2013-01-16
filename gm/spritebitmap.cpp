@@ -26,7 +26,9 @@ static void draw_2_bitmaps(SkCanvas* canvas, const SkBitmap& bm, bool doClip,
     SkAutoCanvasRestore acr(canvas, true);
     SkPaint paint;
 
-    SkRect clipR = SkRect::MakeXYWH(dx, dy, bm.width(), bm.height());
+    SkRect clipR = SkRect::MakeXYWH(dx, dy,
+                                    SkIntToScalar(bm.width()),
+                                    SkIntToScalar(bm.height()));
 
     paint.setImageFilter(filter);
     clipR.inset(5, 5);
@@ -40,13 +42,13 @@ static void draw_2_bitmaps(SkCanvas* canvas, const SkBitmap& bm, bool doClip,
         canvas->restore();
     }
 
-    canvas->translate(bm.width() + 20, 0);
+    canvas->translate(SkIntToScalar(bm.width() + 20), 0);
 
     if (doClip) {
         canvas->save();
         canvas->clipRect(clipR);
     }
-    canvas->drawBitmap(bm, dx, dy, &paint);
+    canvas->drawBitmap(bm, SkIntToScalar(dx), SkIntToScalar(dy), &paint);
     if (doClip) {
         canvas->restore();
     }
