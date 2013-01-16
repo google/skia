@@ -232,9 +232,17 @@ private:
 
 class GrDisplacementMapEffect : public GrEffect {
 public:
-    GrDisplacementMapEffect(SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
-                            SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
-                            SkScalar scale, GrTexture* displacement, GrTexture* color);
+    static GrEffectRef* Create(SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
+                               SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
+                               SkScalar scale, GrTexture* displacement, GrTexture* color) {
+        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrDisplacementMapEffect, (xChannelSelector,
+                                                                           yChannelSelector,
+                                                                           scale,
+                                                                           displacement,
+                                                                           color)));
+        return CreateEffectPtr(effect);
+    }
+
     virtual ~GrDisplacementMapEffect();
 
     virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
@@ -251,6 +259,10 @@ public:
     void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
 private:
+    GrDisplacementMapEffect(SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
+                            SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
+                            SkScalar scale, GrTexture* displacement, GrTexture* color);
+
     GR_DECLARE_EFFECT_TEST;
 
     GrTextureAccess             fDisplacementAccess;
@@ -319,8 +331,11 @@ GrTexture* SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, GrTexture* src,
 
     GrPaint paint;
     paint.colorStage(0)->setEffect(
-        SkNEW_ARGS(GrDisplacementMapEffect, (fXChannelSelector, fYChannelSelector, fScale,
-                                             displacement.get(), color.get())))->unref();
+        GrDisplacementMapEffect::Create(fXChannelSelector,
+                                        fYChannelSelector,
+                                        fScale,
+                                        displacement.get(),
+                                        color.get()))->unref();
     context->drawRect(paint, rect);
     return dst;
 }
@@ -369,9 +384,9 @@ void GrDisplacementMapEffect::getConstantColorComponents(GrColor* color,
 
 GR_DEFINE_EFFECT_TEST(GrDisplacementMapEffect);
 
-GrEffect* GrDisplacementMapEffect::TestCreate(SkRandom* random,
-                                              GrContext* context,
-                                              GrTexture* textures[]) {
+GrEffectRef* GrDisplacementMapEffect::TestCreate(SkRandom* random,
+                                                 GrContext* context,
+                                                 GrTexture* textures[]) {
     int texIdxDispl = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :
                                            GrEffectUnitTest::kAlphaTextureIdx;
     int texIdxColor = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :
@@ -385,8 +400,8 @@ GrEffect* GrDisplacementMapEffect::TestCreate(SkRandom* random,
         random->nextRangeU(1, kMaxComponent));
     SkScalar scale = random->nextUScalar1();
 
-    return SkNEW_ARGS(GrDisplacementMapEffect, (xChannelSelector, yChannelSelector, scale,
-                                                textures[texIdxDispl], textures[texIdxColor]));
+    return GrDisplacementMapEffect::Create(xChannelSelector, yChannelSelector, scale,
+                                           textures[texIdxDispl], textures[texIdxColor]);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

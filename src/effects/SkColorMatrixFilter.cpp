@@ -325,9 +325,12 @@ bool SkColorMatrixFilter::asColorMatrix(SkScalar matrix[20]) const {
 
 class ColorMatrixEffect : public GrEffect {
 public:
-    static const char* Name() { return "Color Matrix"; }
+    static GrEffectRef* Create(const SkColorMatrix& matrix) {
+        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(ColorMatrixEffect, (matrix)));
+        return CreateEffectPtr(effect);
+    }
 
-    ColorMatrixEffect(const SkColorMatrix& matrix) : fMatrix(matrix) {}
+    static const char* Name() { return "Color Matrix"; }
 
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
         return GrTBackendEffectFactory<ColorMatrixEffect>::getInstance();
@@ -451,6 +454,8 @@ public:
     };
 
 private:
+    ColorMatrixEffect(const SkColorMatrix& matrix) : fMatrix(matrix) {}
+
     SkColorMatrix fMatrix;
 
     typedef GrGLEffect INHERITED;
@@ -458,18 +463,18 @@ private:
 
 GR_DEFINE_EFFECT_TEST(ColorMatrixEffect);
 
-GrEffect* ColorMatrixEffect::TestCreate(SkRandom* random,
-                                        GrContext*,
-                                        GrTexture* dummyTextures[2]) {
+GrEffectRef* ColorMatrixEffect::TestCreate(SkRandom* random,
+                                           GrContext*,
+                                           GrTexture* dummyTextures[2]) {
     SkColorMatrix colorMatrix;
     for (size_t i = 0; i < SK_ARRAY_COUNT(colorMatrix.fMat); ++i) {
         colorMatrix.fMat[i] = random->nextSScalar1();
     }
-    return SkNEW_ARGS(ColorMatrixEffect, (colorMatrix));
+    return ColorMatrixEffect::Create(colorMatrix);
 }
 
-GrEffect* SkColorMatrixFilter::asNewEffect(GrContext*) const {
-    return SkNEW_ARGS(ColorMatrixEffect, (fMatrix));
+GrEffectRef* SkColorMatrixFilter::asNewEffect(GrContext*) const {
+    return ColorMatrixEffect::Create(fMatrix);
 }
 
 #endif

@@ -18,8 +18,7 @@
 
 class SkPath;
 class GrContext;
-class GrEffect;
-class GrEffectStage;
+class GrEffectRef;
 
 /** \class SkShader
  *
@@ -322,7 +321,7 @@ public:
      *  The GrContext may be used by the effect to create textures. The GPU device does not call
      *  setContext. Instead we pass the paint here in case the shader needs paint info.
      */
-    virtual GrEffect* asNewEffect(GrContext* context, const SkPaint& paint) const;
+    virtual GrEffectRef* asNewEffect(GrContext* context, const SkPaint& paint) const;
 
     //////////////////////////////////////////////////////////////////////////
     //  Factory methods for stock shaders

@@ -413,11 +413,12 @@ private:
 
 class GrSweepGradient : public GrGradientEffect {
 public:
-
-    GrSweepGradient(GrContext* ctx,
-                    const SkSweepGradient& shader,
-                    const SkMatrix& matrix)
-    : INHERITED(ctx, shader, matrix, SkShader::kClamp_TileMode) { }
+    static GrEffectRef* Create(GrContext* ctx,
+                               const SkSweepGradient& shader,
+                               const SkMatrix& matrix) {
+        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrSweepGradient, (ctx, shader, matrix)));
+        return CreateEffectPtr(effect);
+    }
     virtual ~GrSweepGradient() { }
 
     static const char* Name() { return "Sweep Gradient"; }
@@ -428,6 +429,10 @@ public:
     typedef GrGLSweepGradient GLEffect;
 
 private:
+    GrSweepGradient(GrContext* ctx,
+                    const SkSweepGradient& shader,
+                    const SkMatrix& matrix)
+    : INHERITED(ctx, shader, matrix, SkShader::kClamp_TileMode) { }
     GR_DECLARE_EFFECT_TEST;
 
     typedef GrGradientEffect INHERITED;
@@ -437,9 +442,9 @@ private:
 
 GR_DEFINE_EFFECT_TEST(GrSweepGradient);
 
-GrEffect* GrSweepGradient::TestCreate(SkRandom* random,
-                                      GrContext* context,
-                                      GrTexture**) {
+GrEffectRef* GrSweepGradient::TestCreate(SkRandom* random,
+                                         GrContext* context,
+                                         GrTexture**) {
     SkPoint center = {random->nextUScalar1(), random->nextUScalar1()};
 
     SkColor colors[kMaxRandomGradientColors];
@@ -472,13 +477,13 @@ void GrGLSweepGradient::emitCode(GrGLShaderBuilder* builder,
 
 /////////////////////////////////////////////////////////////////////
 
-GrEffect* SkSweepGradient::asNewEffect(GrContext* context, const SkPaint&) const {
+GrEffectRef* SkSweepGradient::asNewEffect(GrContext* context, const SkPaint&) const {
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
         return NULL;
     }
     matrix.postConcat(fPtsToUnit);
-    return SkNEW_ARGS(GrSweepGradient, (context, *this, matrix));
+    return GrSweepGradient::Create(context, *this, matrix);
 }
 
 #else

@@ -117,7 +117,7 @@ bool SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
     return true;
 }
 
-bool SkImageFilter::asNewEffect(GrEffect**, GrTexture*) const {
+bool SkImageFilter::asNewEffect(GrEffectRef**, GrTexture*) const {
     return false;
 }
 

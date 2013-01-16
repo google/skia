@@ -200,9 +200,10 @@ void convolve_gaussian(GrDrawTarget* target,
     GrDrawTarget::AutoStateRestore asr(target, GrDrawTarget::kReset_ASRInit);
     GrDrawState* drawState = target->drawState();
     drawState->setRenderTarget(rt);
-    SkAutoTUnref<GrConvolutionEffect> conv(SkNEW_ARGS(GrConvolutionEffect,
-                                                      (texture, direction, radius,
-                                                       sigma)));
+    SkAutoTUnref<GrEffectRef> conv(GrConvolutionEffect::Create(texture,
+                                                               direction,
+                                                               radius,
+                                                               sigma));
     drawState->stage(0)->setEffect(conv);
     target->drawSimpleRect(rect, NULL);
 }
@@ -1859,8 +1860,9 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         scale_rect(&dstRect, i < scaleFactorX ? 0.5f : 1.0f,
                              i < scaleFactorY ? 0.5f : 1.0f);
 
-        paint.colorStage(0)->setEffect(SkNEW_ARGS(GrSingleTextureEffect,
-                                                  (srcTexture, matrix, true)))->unref();
+        paint.colorStage(0)->setEffect(GrSingleTextureEffect::Create(srcTexture,
+                                                                     matrix,
+                                                                     true))->unref();
         this->drawRectToRect(paint, dstRect, srcRect);
         srcRect = dstRect;
         srcTexture = dstTexture;
@@ -1917,8 +1919,9 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         // FIXME:  This should be mitchell, not bilinear.
         matrix.setIDiv(srcTexture->width(), srcTexture->height());
         this->setRenderTarget(dstTexture->asRenderTarget());
-        paint.colorStage(0)->setEffect(SkNEW_ARGS(GrSingleTextureEffect,(srcTexture,
-                                                                         matrix, true)))->unref();
+        paint.colorStage(0)->setEffect(GrSingleTextureEffect::Create(srcTexture,
+                                                                     matrix,
+                                                                     true))->unref();
         SkRect dstRect(srcRect);
         scale_rect(&dstRect, (float) scaleFactorX, (float) scaleFactorY);
         this->drawRectToRect(paint, dstRect, srcRect);

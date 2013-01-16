@@ -58,7 +58,28 @@ private:
 
 int32_t GrBackendEffectFactory::fCurrEffectClassID = GrBackendEffectFactory::kIllegalEffectClassID;
 
+///////////////////////////////////////////////////////////////////////////////
+
+SK_DEFINE_INST_COUNT(GrEffectRef)
+
+GrEffectRef::~GrEffectRef() {
+    GrAssert(1 == this->getRefCnt());
+    fEffect->effectPtrDestroyed();
+    fEffect->unref();
+}
+
+void* GrEffectRef::operator new(size_t size) {
+    return GrEffect_Globals::GetTLS()->allocate(size);
+}
+
+void GrEffectRef::operator delete(void* target) {
+    GrEffect_Globals::GetTLS()->release(target);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 GrEffect::~GrEffect() {
+    GrAssert(NULL == fEffectPtr);
 }
 
 const char* GrEffect::name() const {
@@ -81,7 +102,7 @@ void GrEffect::addTextureAccess(const GrTextureAccess* access) {
     fTextureAccesses.push_back(access);
 }
 
-void * GrEffect::operator new(size_t size) {
+void* GrEffect::operator new(size_t size) {
     return GrEffect_Globals::GetTLS()->allocate(size);
 }
 

@@ -26,20 +26,22 @@ class GrGLMagnifierEffect;
 class GrMagnifierEffect : public GrSingleTextureEffect {
 
 public:
-    GrMagnifierEffect(GrTexture* texture,
-                      float xOffset,
-                      float yOffset,
-                      float xZoom,
-                      float yZoom,
-                      float xInset,
-                      float yInset)
-        : GrSingleTextureEffect(texture, MakeDivByTextureWHMatrix(texture))
-        , fXOffset(xOffset)
-        , fYOffset(yOffset)
-        , fXZoom(xZoom)
-        , fYZoom(yZoom)
-        , fXInset(xInset)
-        , fYInset(yInset) {}
+    static GrEffectRef* Create(GrTexture* texture,
+                               float xOffset,
+                               float yOffset,
+                               float xZoom,
+                               float yZoom,
+                               float xInset,
+                               float yInset) {
+        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrMagnifierEffect, (texture,
+                                                                     xOffset,
+                                                                     yOffset,
+                                                                     xZoom,
+                                                                     yZoom,
+                                                                     xInset,
+                                                                     yInset)));
+        return CreateEffectPtr(effect);
+    }
 
     virtual ~GrMagnifierEffect() {};
 
@@ -58,6 +60,21 @@ public:
     typedef GrGLMagnifierEffect GLEffect;
 
 private:
+    GrMagnifierEffect(GrTexture* texture,
+                      float xOffset,
+                      float yOffset,
+                      float xZoom,
+                      float yZoom,
+                      float xInset,
+                      float yInset)
+        : GrSingleTextureEffect(texture, MakeDivByTextureWHMatrix(texture))
+        , fXOffset(xOffset)
+        , fYOffset(yOffset)
+        , fXZoom(xZoom)
+        , fYZoom(yZoom)
+        , fXInset(xInset)
+        , fYInset(yInset) {}
+
     GR_DECLARE_EFFECT_TEST;
 
     float fXOffset;
@@ -184,9 +201,9 @@ GrGLEffect::EffectKey GrGLMagnifierEffect::GenKey(const GrEffectStage& stage, co
 
 GR_DEFINE_EFFECT_TEST(GrMagnifierEffect);
 
-GrEffect* GrMagnifierEffect::TestCreate(SkRandom* random,
-                                        GrContext* context,
-                                        GrTexture** textures) {
+GrEffectRef* GrMagnifierEffect::TestCreate(SkRandom* random,
+                                           GrContext* context,
+                                           GrTexture** textures) {
     const int kMaxWidth = 200;
     const int kMaxHeight = 200;
     const int kMaxInset = 20;
@@ -201,7 +218,7 @@ GrEffect* GrMagnifierEffect::TestCreate(SkRandom* random,
                 SkRect::MakeXYWH(SkIntToScalar(x), SkIntToScalar(y),
                                  SkIntToScalar(width), SkIntToScalar(height)),
                 inset));
-    GrEffect* effect;
+    GrEffectRef* effect;
     filter->asNewEffect(&effect, textures[0]);
     GrAssert(NULL != effect);
     return effect;
@@ -243,17 +260,16 @@ SkMagnifierImageFilter::SkMagnifierImageFilter(SkRect srcRect, SkScalar inset)
     SkASSERT(srcRect.x() >= 0 && srcRect.y() >= 0 && inset >= 0);
 }
 
-bool SkMagnifierImageFilter::asNewEffect(GrEffect** effect,
-                                         GrTexture* texture) const {
+bool SkMagnifierImageFilter::asNewEffect(GrEffectRef** effect, GrTexture* texture) const {
 #if SK_SUPPORT_GPU
     if (effect) {
-      *effect = SkNEW_ARGS(GrMagnifierEffect, (texture,
-                                               fSrcRect.x() / texture->width(),
-                                               fSrcRect.y() / texture->height(),
-                                               texture->width() / fSrcRect.width(),
-                                               texture->height() / fSrcRect.height(),
-                                               fInset / texture->width(),
-                                               fInset / texture->height()));
+      *effect = GrMagnifierEffect::Create(texture,
+                                          fSrcRect.x() / texture->width(),
+                                          fSrcRect.y() / texture->height(),
+                                          texture->width() / fSrcRect.width(),
+                                          texture->height() / fSrcRect.height(),
+                                          fInset / texture->width(),
+                                          fInset / texture->height());
     }
     return true;
 #else

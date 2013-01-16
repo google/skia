@@ -484,11 +484,14 @@ private:
 class GrLinearGradient : public GrGradientEffect {
 public:
 
-    GrLinearGradient(GrContext* ctx,
-                     const SkLinearGradient& shader,
-                     const SkMatrix& matrix,
-                     SkShader::TileMode tm)
-        : INHERITED(ctx, shader, matrix, tm) { }
+    static GrEffectRef* Create(GrContext* ctx,
+                               const SkLinearGradient& shader,
+                               const SkMatrix& matrix,
+                               SkShader::TileMode tm) {
+        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrLinearGradient, (ctx, shader, matrix, tm)));
+        return CreateEffectPtr(effect);
+    }
+
     virtual ~GrLinearGradient() { }
 
     static const char* Name() { return "Linear Gradient"; }
@@ -499,6 +502,11 @@ public:
     typedef GrGLLinearGradient GLEffect;
 
 private:
+    GrLinearGradient(GrContext* ctx,
+                     const SkLinearGradient& shader,
+                     const SkMatrix& matrix,
+                     SkShader::TileMode tm)
+        : INHERITED(ctx, shader, matrix, tm) { }
     GR_DECLARE_EFFECT_TEST;
 
     typedef GrGradientEffect INHERITED;
@@ -508,9 +516,9 @@ private:
 
 GR_DEFINE_EFFECT_TEST(GrLinearGradient);
 
-GrEffect* GrLinearGradient::TestCreate(SkRandom* random,
-                                       GrContext* context,
-                                       GrTexture**) {
+GrEffectRef* GrLinearGradient::TestCreate(SkRandom* random,
+                                          GrContext* context,
+                                          GrTexture**) {
     SkPoint points[] = {{random->nextUScalar1(), random->nextUScalar1()},
                         {random->nextUScalar1(), random->nextUScalar1()}};
 
@@ -546,14 +554,14 @@ void GrGLLinearGradient::emitCode(GrGLShaderBuilder* builder,
 
 /////////////////////////////////////////////////////////////////////
 
-GrEffect* SkLinearGradient::asNewEffect(GrContext* context, const SkPaint&) const {
+GrEffectRef* SkLinearGradient::asNewEffect(GrContext* context, const SkPaint&) const {
     SkASSERT(NULL != context);
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
         return NULL;
     }
     matrix.postConcat(fPtsToUnit);
-    return SkNEW_ARGS(GrLinearGradient, (context, *this, matrix, fTileMode));
+    return GrLinearGradient::Create(context, *this, matrix, fTileMode);
 }
 
 #else

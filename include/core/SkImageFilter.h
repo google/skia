@@ -17,7 +17,7 @@ class SkMatrix;
 struct SkIPoint;
 struct SkIRect;
 struct SkRect;
-class GrEffect;
+class GrEffectRef;
 class GrTexture;
 
 /**
@@ -93,7 +93,7 @@ public:
      *  The effect can assume its vertexCoords space maps 1-to-1 with texels
      *  in the texture.
      */
-    virtual bool asNewEffect(GrEffect** effect, GrTexture*) const;
+    virtual bool asNewEffect(GrEffectRef** effect, GrTexture*) const;
 
     /**
      *  Returns true if the filter can be processed on the GPU.  This is most

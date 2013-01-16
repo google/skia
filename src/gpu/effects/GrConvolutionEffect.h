@@ -22,13 +22,26 @@ class GrConvolutionEffect : public Gr1DKernelEffect {
 public:
 
     /// Convolve with an arbitrary user-specified kernel
-    GrConvolutionEffect(GrTexture*, Direction,
-                        int halfWidth, const float* kernel);
+    static GrEffectRef* Create(GrTexture* tex, Direction dir, int halfWidth, const float* kernel) {
+        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrConvolutionEffect, (tex,
+                                                                       dir,
+                                                                       halfWidth,
+                                                                       kernel)));
+        return CreateEffectPtr(effect);
+    }
 
     /// Convolve with a Gaussian kernel
-    GrConvolutionEffect(GrTexture*, Direction,
-                        int halfWidth,
-                        float gaussianSigma);
+    static GrEffectRef* Create(GrTexture* tex,
+                               Direction dir,
+                               int halfWidth,
+                               float gaussianSigma) {
+        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrConvolutionEffect, (tex,
+                                                                       dir,
+                                                                       halfWidth,
+                                                                       gaussianSigma)));
+        return CreateEffectPtr(effect);
+    }
+
     virtual ~GrConvolutionEffect();
 
     const float* kernel() const { return fKernel; }
@@ -56,6 +69,14 @@ protected:
     float fKernel[kMaxKernelWidth];
 
 private:
+    GrConvolutionEffect(GrTexture*, Direction,
+                        int halfWidth, const float* kernel);
+
+    /// Convolve with a Gaussian kernel
+    GrConvolutionEffect(GrTexture*, Direction,
+                        int halfWidth,
+                        float gaussianSigma);
+
     GR_DECLARE_EFFECT_TEST;
 
     typedef Gr1DKernelEffect INHERITED;

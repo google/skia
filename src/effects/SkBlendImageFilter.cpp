@@ -143,7 +143,13 @@ private:
 
 class GrBlendEffect : public GrEffect {
 public:
-    GrBlendEffect(SkBlendImageFilter::Mode mode, GrTexture* foreground, GrTexture* background);
+    static GrEffectRef* Create(SkBlendImageFilter::Mode mode,
+                               GrTexture* foreground,
+                               GrTexture* background) {
+        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrBlendEffect, (mode, foreground, background)));
+        return CreateEffectPtr(effect);
+    }
+
     virtual ~GrBlendEffect();
 
     virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
@@ -156,6 +162,7 @@ public:
     void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
 private:
+    GrBlendEffect(SkBlendImageFilter::Mode mode, GrTexture* foreground, GrTexture* background);
     GrTextureAccess             fForegroundAccess;
     GrTextureAccess             fBackgroundAccess;
     SkBlendImageFilter::Mode    fMode;
@@ -218,7 +225,7 @@ GrTexture* SkBlendImageFilter::filterImageGPU(Proxy* proxy, GrTexture* src, cons
 
     GrPaint paint;
     paint.colorStage(0)->setEffect(
-        SkNEW_ARGS(GrBlendEffect, (fMode, foreground.get(), background.get())))->unref();
+        GrBlendEffect::Create(fMode, foreground.get(), background.get()))->unref();
     context->drawRect(paint, rect);
     return dst;
 }

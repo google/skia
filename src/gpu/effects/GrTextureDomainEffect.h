@@ -34,11 +34,11 @@ public:
         kDecal_WrapMode,
     };
 
-    static GrEffect* Create(GrTexture*,
-                            const SkMatrix&,
-                            const SkRect& domain,
-                            WrapMode,
-                            bool bilerp = false);
+    static GrEffectRef* Create(GrTexture*,
+                               const SkMatrix&,
+                               const SkRect& domain,
+                               WrapMode,
+                               bool bilerp = false);
 
     virtual ~GrTextureDomainEffect();
 

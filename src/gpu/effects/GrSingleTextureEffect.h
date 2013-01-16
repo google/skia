@@ -19,17 +19,23 @@ class GrTexture;
  * output color is the texture color is modulated against the input color.
  */
 class GrSingleTextureEffect : public GrEffect {
-
 public:
-    /** These three constructors assume an identity matrix. TODO: Remove these.*/
-    GrSingleTextureEffect(GrTexture* texture); /* unfiltered, clamp mode */
-    GrSingleTextureEffect(GrTexture* texture, bool bilerp); /* clamp mode */
-    GrSingleTextureEffect(GrTexture* texture, const GrTextureParams&);
+    /* unfiltered, clamp mode */
+    static GrEffectRef* Create(GrTexture* tex, const SkMatrix& matrix) {
+        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrSingleTextureEffect, (tex, matrix)));
+        return CreateEffectPtr(effect);
+    }
 
-    /** These three constructors take an explicit matrix */
-    GrSingleTextureEffect(GrTexture*, const SkMatrix&); /* unfiltered, clamp mode */
-    GrSingleTextureEffect(GrTexture*, const SkMatrix&, bool bilerp); /* clamp mode */
-    GrSingleTextureEffect(GrTexture*, const SkMatrix&, const GrTextureParams&);
+    /* clamp mode */
+    static GrEffectRef* Create(GrTexture* tex, const SkMatrix& matrix, bool bilerp) {
+        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrSingleTextureEffect, (tex, matrix, bilerp)));
+        return CreateEffectPtr(effect);
+    }
+
+    static GrEffectRef* Create(GrTexture* tex, const SkMatrix& matrix, const GrTextureParams& p) {
+        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrSingleTextureEffect, (tex, matrix, p)));
+        return CreateEffectPtr(effect);
+    }
 
     virtual ~GrSingleTextureEffect();
 
@@ -50,7 +56,13 @@ public:
         return INHERITED::isEqual(effect) && fMatrix.cheapEqualTo(ste.getMatrix());
     }
 
+protected:
+    GrSingleTextureEffect(GrTexture*, const SkMatrix&); /* unfiltered, clamp mode */
+    GrSingleTextureEffect(GrTexture*, const SkMatrix&, bool bilerp); /* clamp mode */
+    GrSingleTextureEffect(GrTexture*, const SkMatrix&, const GrTextureParams&);
+
 private:
+
     GR_DECLARE_EFFECT_TEST;
 
     GrTextureAccess fTextureAccess;
