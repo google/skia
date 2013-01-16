@@ -18,7 +18,7 @@
  * primitives for arbitrary query rectangles. It is most effective for
  * tiled playback when the tile structure is known at record time.
  */
-class SkTileGridPicture : public SkPicture {
+class SK_API SkTileGridPicture : public SkPicture {
 public:
     SkTileGridPicture(int tileWidth, int tileHeight, int width, int height);
     virtual SkBBoxHierarchy* createBBoxHierarchy() const SK_OVERRIDE;
