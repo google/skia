@@ -352,51 +352,11 @@ void SkDevice::drawBitmap(const SkDraw& draw, const SkBitmap& bitmap,
 void SkDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
                               const SkRect* src, const SkRect& dst,
                               const SkPaint& paint) {
-#ifdef SK_SUPPORT_INT_SRCRECT_DRAWBITMAPRECT
-    SkMatrix matrix;
-    // Compute matrix from the two rectangles
-    {
-        SkRect tmpSrc;
-        if (src) {
-            tmpSrc = *src;
-            // if the extract process clipped off the top or left of the
-            // original, we adjust for that here to get the position right.
-            if (tmpSrc.fLeft > 0) {
-                tmpSrc.fRight -= tmpSrc.fLeft;
-                tmpSrc.fLeft = 0;
-            }
-            if (tmpSrc.fTop > 0) {
-                tmpSrc.fBottom -= tmpSrc.fTop;
-                tmpSrc.fTop = 0;
-            }
-        } else {
-            tmpSrc.set(0, 0, SkIntToScalar(bitmap.width()),
-                       SkIntToScalar(bitmap.height()));
-        }
-        matrix.setRectToRect(tmpSrc, dst, SkMatrix::kFill_ScaleToFit);
-    }
-
-    // ensure that src is "valid" before we pass it to our internal routines
-    // and to SkDevice. i.e. sure it is contained inside the original bitmap.
-    SkIRect isrcStorage;
-    SkIRect* isrcPtr = NULL;
-    if (src) {
-        src->roundOut(&isrcStorage);
-        if (!isrcStorage.intersect(0, 0, bitmap.width(), bitmap.height())) {
-            return;
-        }
-        isrcPtr = &isrcStorage;
-    }
-
-    this->drawBitmap(draw, bitmap, isrcPtr, matrix, paint);
-#else
     SkMatrix    matrix;
     SkRect      bitmapBounds, tmpSrc, tmpDst;
     SkBitmap    tmpBitmap;
 
-    bitmapBounds.set(0, 0,
-                     SkIntToScalar(bitmap.width()),
-                     SkIntToScalar(bitmap.height()));
+    bitmapBounds.isetWH(bitmap.width(), bitmap.height());
 
     // Compute matrix from the two rectangles
     if (src) {
@@ -442,27 +402,20 @@ void SkDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
             matrix.preTranslate(dx, dy);
         }
 
-#ifndef SK_IGNORE_DRAWBITMAPRECT_AS_DRAWBITMAP
         SkRect extractedBitmapBounds;
-        extractedBitmapBounds.set(0, 0,
-                                  SkIntToScalar(bitmapPtr->width()),
-                                  SkIntToScalar(bitmapPtr->height()));
+        extractedBitmapBounds.isetWH(bitmapPtr->width(), bitmapPtr->height());
         if (extractedBitmapBounds == tmpSrc) {
             // no fractional part in src, we can just call drawBitmap
             goto USE_DRAWBITMAP;
         }
-#endif
-    }
-#ifndef SK_IGNORE_DRAWBITMAPRECT_AS_DRAWBITMAP
-    else {
-    USE_DRAWBITMAP:
+    } else {
+        USE_DRAWBITMAP:
         // We can go faster by just calling drawBitmap, which will concat the
         // matrix with the CTM, and try to call drawSprite if it can. If not,
         // it will make a shader and call drawRect, as we do below.
         this->drawBitmap(draw, *bitmapPtr, NULL, matrix, paint);
         return;
     }
-#endif
 
     // construct a shader, so we can call drawRect with the dst
     SkShader* s = SkShader::CreateBitmapShader(*bitmapPtr,
@@ -480,7 +433,6 @@ void SkDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
     // Call ourself, in case the subclass wanted to share this setup code
     // but handle the drawRect code themselves.
     this->drawRect(draw, *dstPtr, paintWithShader);
-#endif
 }
 
 void SkDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
