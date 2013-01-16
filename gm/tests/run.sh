@@ -60,6 +60,12 @@ function gm_test {
   $COMMAND &>$ACTUAL_OUTPUT_DIR/stdout
   echo $? >$ACTUAL_OUTPUT_DIR/return_value
 
+  # Temporary hack to alleviate
+  # http://code.google.com/p/skia/issues/detail?id=1068 ('GM self-test failures')
+  # (Remove instance-counting lines from the Debug output)
+  grep -v Leaked $ACTUAL_OUTPUT_DIR/stdout >$ACTUAL_OUTPUT_DIR/stdout-tmp
+  mv $ACTUAL_OUTPUT_DIR/stdout-tmp $ACTUAL_OUTPUT_DIR/stdout
+
   compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
 }
 
