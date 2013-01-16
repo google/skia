@@ -617,7 +617,8 @@ public:
         return retval;
     }
 
-    static SkPicture* generate_new_picture(GM* gm, BbhType bbhType, SkScalar scale = SK_Scalar1) {
+    static SkPicture* generate_new_picture(GM* gm, BbhType bbhType, uint32_t recordFlags,
+                                           SkScalar scale = SK_Scalar1) {
         // Pictures are refcounted so must be on heap
         SkPicture* pict;
         int width = SkScalarCeilToInt(SkScalarMul(SkIntToScalar(gm->getISize().width()), scale));
@@ -628,8 +629,9 @@ public:
         } else {
             pict = new SkPicture;
         }
-        uint32_t recordFlags = (kNone_BbhType == bbhType) ?
-            0 : SkPicture::kOptimizeForClippedPlayback_RecordingFlag;
+        if (kNone_BbhType != bbhType) {
+            recordFlags |= SkPicture::kOptimizeForClippedPlayback_RecordingFlag;
+        }
         SkCanvas* cv = pict->beginRecording(width, height, recordFlags);
         cv->scale(scale, scale);
         invokeGM(gm, cv, false, false);
@@ -1344,7 +1346,7 @@ int tool_main(int argc, char** argv) {
             ErrorBitfield pictErrors = ERROR_NONE;
 
             //SkAutoTUnref<SkPicture> pict(generate_new_picture(gm));
-            SkPicture* pict = gmmain.generate_new_picture(gm, kNone_BbhType);
+            SkPicture* pict = gmmain.generate_new_picture(gm, kNone_BbhType, 0);
             SkAutoUnref aur(pict);
 
             if ((ERROR_NONE == testErrors) && doReplay) {
@@ -1387,7 +1389,8 @@ int tool_main(int argc, char** argv) {
         }
 
         if (!(gmFlags & GM::kSkipPicture_Flag) && doRTree) {
-            SkPicture* pict = gmmain.generate_new_picture(gm, kRTree_BbhType);
+            SkPicture* pict = gmmain.generate_new_picture(gm, kRTree_BbhType,
+                SkPicture::kUsePathBoundsForClip_RecordingFlag);
             SkAutoUnref aur(pict);
             SkBitmap bitmap;
             gmmain.generate_image_from_picture(gm, compareConfig, pict,
@@ -1407,7 +1410,8 @@ int tool_main(int argc, char** argv) {
                 // We record with the reciprocal scale to obtain a replay
                 // result that can be validated against comparisonBitmap.
                 SkScalar recordScale = SkScalarInvert(replayScale);
-                SkPicture* pict = gmmain.generate_new_picture(gm, kTileGrid_BbhType, recordScale);
+                SkPicture* pict = gmmain.generate_new_picture(gm, kTileGrid_BbhType,
+                    SkPicture::kUsePathBoundsForClip_RecordingFlag, recordScale);
                 SkAutoUnref aur(pict);
                 SkBitmap bitmap;
                 gmmain.generate_image_from_picture(gm, compareConfig, pict,

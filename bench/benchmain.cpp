@@ -775,7 +775,8 @@ int tool_main(int argc, char** argv) {
                     canvas = new SkDeferredCanvas(device);
                     break;
                 case kRecord_benchModes:
-                    canvas = pictureRecordTo.beginRecording(dim.fX, dim.fY);
+                    canvas = pictureRecordTo.beginRecording(dim.fX, dim.fY,
+                        SkPicture::kUsePathBoundsForClip_RecordingFlag);
                     canvas->ref();
                     break;
                 case kPictureRecord_benchModes: {
@@ -784,10 +785,12 @@ int tool_main(int argc, char** argv) {
                     // pictureRecordFrom. As the benchmark, we will time how
                     // long it takes to playback pictureRecordFrom into
                     // pictureRecordTo.
-                    SkCanvas* tempCanvas = pictureRecordFrom.beginRecording(dim.fX, dim.fY);
+                    SkCanvas* tempCanvas = pictureRecordFrom.beginRecording(dim.fX, dim.fY,
+                        SkPicture::kUsePathBoundsForClip_RecordingFlag);
                     bench->draw(tempCanvas);
                     pictureRecordFrom.endRecording();
-                    canvas = pictureRecordTo.beginRecording(dim.fX, dim.fY);
+                    canvas = pictureRecordTo.beginRecording(dim.fX, dim.fY,
+                        SkPicture::kUsePathBoundsForClip_RecordingFlag);
                     canvas->ref();
                     break;
                 }
@@ -845,7 +848,8 @@ int tool_main(int argc, char** argv) {
                      || benchMode == kPictureRecord_benchModes)) {
                     // This will clear the recorded commands so that they do not
                     // acculmulate.
-                    canvas = pictureRecordTo.beginRecording(dim.fX, dim.fY);
+                    canvas = pictureRecordTo.beginRecording(dim.fX, dim.fY,
+                        SkPicture::kUsePathBoundsForClip_RecordingFlag);
                 }
 
                 timer.start();

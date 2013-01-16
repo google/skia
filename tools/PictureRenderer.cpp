@@ -190,8 +190,9 @@ void PictureRenderer::resetState() {
 }
 
 uint32_t PictureRenderer::recordFlags() {
-    return kNone_BBoxHierarchyType == fBBoxHierarchyType ? 0 :
-        SkPicture::kOptimizeForClippedPlayback_RecordingFlag;
+    return kNone_BBoxHierarchyType == (fBBoxHierarchyType ? 0 :
+        SkPicture::kOptimizeForClippedPlayback_RecordingFlag) |
+        SkPicture::kUsePathBoundsForClip_RecordingFlag;
 }
 
 /**
