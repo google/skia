@@ -463,7 +463,7 @@ void SkDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
         return;
     }
 #endif
-    
+
     // construct a shader, so we can call drawRect with the dst
     SkShader* s = SkShader::CreateBitmapShader(*bitmapPtr,
                                                SkShader::kClamp_TileMode,

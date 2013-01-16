@@ -68,7 +68,7 @@ void computeDisplacement(SkScalar scale, SkBitmap* dst, SkBitmap* displ, SkBitma
                 SkScalarMul(scaleY, SkIntToScalar(getValue<typeY>(*displPtr, table))-Half8bit);
             const int coordX = x + SkScalarRoundToInt(displX);
             const int coordY = y + SkScalarRoundToInt(displY);
-            *dstPtr = ((coordX < 0) || (coordX >= srcW) || (coordY < 0) || (coordY >= srcH)) ? 
+            *dstPtr = ((coordX < 0) || (coordX >= srcW) || (coordY < 0) || (coordY >= srcH)) ?
                       0 : *(src->getAddr32(coordX, coordY));
         }
     }
@@ -319,7 +319,7 @@ GrTexture* SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, GrTexture* src,
 
     GrPaint paint;
     paint.colorStage(0)->setEffect(
-        SkNEW_ARGS(GrDisplacementMapEffect, (fXChannelSelector, fYChannelSelector, fScale, 
+        SkNEW_ARGS(GrDisplacementMapEffect, (fXChannelSelector, fYChannelSelector, fScale,
                                              displacement.get(), color.get())))->unref();
     context->drawRect(paint, rect);
     return dst;
@@ -355,11 +355,11 @@ const GrBackendEffectFactory& GrDisplacementMapEffect::getFactory() const {
     return GrTBackendEffectFactory<GrDisplacementMapEffect>::getInstance();
 }
 
-void GrDisplacementMapEffect::getConstantColorComponents(GrColor* color, 
+void GrDisplacementMapEffect::getConstantColorComponents(GrColor* color,
                                                          uint32_t* validFlags) const {
     // Any displacement offset bringing a pixel out of bounds will output a color of (0,0,0,0),
     // so the only way we'd get a constant alpha is if the input color image has a constant alpha
-    // and no displacement offset push any texture coordinates out of bounds OR if the constant    
+    // and no displacement offset push any texture coordinates out of bounds OR if the constant
     // alpha is 0. Since this isn't trivial to compute at this point, let's assume the output is
     // not of constant color when a displacement effect is applied.
     *validFlags = 0;
@@ -494,9 +494,9 @@ void GrGLDisplacementMapEffect::setData(const GrGLUniformManager& uman, const Gr
                                GrEffect::MakeDivByTextureWHMatrix(colorTex),
                                stage.getCoordChangeMatrix(),
                                colorTex);
-    
+
     uman.set2f(fScaleUni, SkScalarToFloat(displacementMap.scale()),
-                colorTex->origin() == GrSurface::kTopLeft_Origin ? 
+                colorTex->origin() == GrSurface::kTopLeft_Origin ?
                 SkScalarToFloat(displacementMap.scale()) :
                 SkScalarToFloat(-displacementMap.scale()));
 }
@@ -516,7 +516,7 @@ GrGLEffect::EffectKey GrGLDisplacementMapEffect::GenKey(const GrEffectStage& sta
     EffectKey colorKey = GrGLEffectMatrix::GenKey(GrEffect::MakeDivByTextureWHMatrix(colorTex),
                                                   stage.getCoordChangeMatrix(),
                                                   colorTex);
-    
+
     colorKey <<= GrGLEffectMatrix::kKeyBits;
     EffectKey xKey = displacementMap.xChannelSelector() << (2 * GrGLEffectMatrix::kKeyBits);
     EffectKey yKey = displacementMap.yChannelSelector() << (2 * GrGLEffectMatrix::kKeyBits +
