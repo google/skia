@@ -245,7 +245,7 @@ public:
 
     static GrEffectRef* Create(GrTexture* tex, Direction dir, int radius, MorphologyType type) {
         SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrMorphologyEffect, (tex, dir, radius, type)));
-        return CreateEffectPtr(effect);
+        return CreateEffectRef(effect);
     }
 
     virtual ~GrMorphologyEffect();

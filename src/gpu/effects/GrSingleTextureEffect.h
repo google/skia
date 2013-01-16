@@ -23,18 +23,18 @@ public:
     /* unfiltered, clamp mode */
     static GrEffectRef* Create(GrTexture* tex, const SkMatrix& matrix) {
         SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrSingleTextureEffect, (tex, matrix)));
-        return CreateEffectPtr(effect);
+        return CreateEffectRef(effect);
     }
 
     /* clamp mode */
     static GrEffectRef* Create(GrTexture* tex, const SkMatrix& matrix, bool bilerp) {
         SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrSingleTextureEffect, (tex, matrix, bilerp)));
-        return CreateEffectPtr(effect);
+        return CreateEffectRef(effect);
     }
 
     static GrEffectRef* Create(GrTexture* tex, const SkMatrix& matrix, const GrTextureParams& p) {
         SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrSingleTextureEffect, (tex, matrix, p)));
-        return CreateEffectPtr(effect);
+        return CreateEffectRef(effect);
     }
 
     virtual ~GrSingleTextureEffect();

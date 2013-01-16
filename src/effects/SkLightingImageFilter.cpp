@@ -334,7 +334,7 @@ public:
                                                                            light,
                                                                            surfaceScale,
                                                                            kd)));
-        return CreateEffectPtr(effect);
+        return CreateEffectRef(effect);
     }
 
     static const char* Name() { return "DiffuseLighting"; }
@@ -367,7 +367,7 @@ public:
                                                                             surfaceScale,
                                                                             ks,
                                                                             shininess)));
-        return CreateEffectPtr(effect);
+        return CreateEffectRef(effect);
     }
     static const char* Name() { return "SpecularLighting"; }
 

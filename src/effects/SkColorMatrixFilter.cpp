@@ -327,7 +327,7 @@ class ColorMatrixEffect : public GrEffect {
 public:
     static GrEffectRef* Create(const SkColorMatrix& matrix) {
         SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(ColorMatrixEffect, (matrix)));
-        return CreateEffectPtr(effect);
+        return CreateEffectRef(effect);
     }
 
     static const char* Name() { return "Color Matrix"; }

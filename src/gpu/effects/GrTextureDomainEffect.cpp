@@ -148,7 +148,7 @@ GrEffectRef* GrTextureDomainEffect::Create(GrTexture* texture,
                                                                          clippedDomain,
                                                                          wrapMode,
                                                                          bilerp)));
-        return CreateEffectPtr(effect);
+        return CreateEffectRef(effect);
 
     }
 }

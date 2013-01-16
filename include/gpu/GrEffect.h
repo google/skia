@@ -153,28 +153,28 @@ protected:
      */
     void addTextureAccess(const GrTextureAccess* textureAccess);
 
-    GrEffect() : fEffectPtr(NULL) {};
+    GrEffect() : fEffectRef(NULL) {};
 
     /** This should be called by GrEffect subclass factories */
-    static GrEffectRef* CreateEffectPtr(GrEffect* effect) {
-        if (NULL == effect->fEffectPtr) {
-            effect->fEffectPtr = SkNEW_ARGS(GrEffectRef, (effect));
+    static GrEffectRef* CreateEffectRef(GrEffect* effect) {
+        if (NULL == effect->fEffectRef) {
+            effect->fEffectRef = SkNEW_ARGS(GrEffectRef, (effect));
         } else {
-            effect->fEffectPtr->ref();
+            effect->fEffectRef->ref();
             GrCrash("This function should only be called once per effect currently.");
         }
-        return effect->fEffectPtr;
+        return effect->fEffectRef;
     }
 
 private:
-    void effectPtrDestroyed() {
-        fEffectPtr = NULL;
+    void EffectRefDestroyed() {
+        fEffectRef = NULL;
     }
 
     friend class GrEffectRef; // to call GrEffectRef destroyed
 
     SkSTArray<4, const GrTextureAccess*, true>  fTextureAccesses;
-    GrEffectRef*                                fEffectPtr;
+    GrEffectRef*                                fEffectRef;
 
     typedef GrRefCnt INHERITED;
 };
