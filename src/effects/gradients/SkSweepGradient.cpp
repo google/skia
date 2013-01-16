@@ -488,7 +488,7 @@ GrEffectRef* SkSweepGradient::asNewEffect(GrContext* context, const SkPaint&) co
 
 #else
 
-GrEffect* SkSweepGradient::asNewEffect(GrContext* context, const SkPaint&) const {
+GrEffectRef* SkSweepGradient::asNewEffect(GrContext*, const SkPaint&) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return NULL;
 }
