@@ -433,7 +433,7 @@ public:
                                const SkMatrix& matrix,
                                SkShader::TileMode tm) {
         SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrRadial2Gradient, (ctx, shader, matrix, tm)));
-        return CreateEffectPtr(effect);
+        return CreateEffectRef(effect);
     }
 
     virtual ~GrRadial2Gradient() { }

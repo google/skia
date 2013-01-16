@@ -263,7 +263,7 @@ public:
                                                                              target,
                                                                              tileMode,
                                                                              convolveAlpha)));
-        return CreateEffectPtr(effect);
+        return CreateEffectRef(effect);
     }
     virtual ~GrMatrixConvolutionEffect();
 

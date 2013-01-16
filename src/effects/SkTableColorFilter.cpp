@@ -228,7 +228,7 @@ class ColorTableEffect : public GrEffect {
 public:
     static GrEffectRef* Create(GrTexture* texture, unsigned flags) {
         SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(ColorTableEffect, (texture, flags)));
-        return CreateEffectPtr(effect);
+        return CreateEffectRef(effect);
     }
 
     virtual ~ColorTableEffect();

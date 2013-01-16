@@ -417,7 +417,7 @@ public:
                                const SkSweepGradient& shader,
                                const SkMatrix& matrix) {
         SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrSweepGradient, (ctx, shader, matrix)));
-        return CreateEffectPtr(effect);
+        return CreateEffectRef(effect);
     }
     virtual ~GrSweepGradient() { }
 

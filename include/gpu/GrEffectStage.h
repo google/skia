@@ -22,20 +22,20 @@ class GrEffectStage {
 public:
 
     GrEffectStage()
-    : fEffectPtr (NULL) {
+    : fEffectRef (NULL) {
         GR_DEBUGCODE(fSavedCoordChangeCnt = 0;)
     }
 
     ~GrEffectStage() {
-        GrSafeUnref(fEffectPtr);
+        GrSafeUnref(fEffectRef);
         GrAssert(0 == fSavedCoordChangeCnt);
     }
 
     bool operator ==(const GrEffectStage& other) const {
         // first handle cases where one or the other has no effect
-        if (NULL == fEffectPtr) {
-            return NULL == other.fEffectPtr;
-        } else if (NULL == other.fEffectPtr) {
+        if (NULL == fEffectRef) {
+            return NULL == other.fEffectRef;
+        } else if (NULL == other.fEffectRef) {
             return false;
         }
 
@@ -53,8 +53,8 @@ public:
     bool operator !=(const GrEffectStage& s) const { return !(*this == s); }
 
     GrEffectStage& operator =(const GrEffectStage& other) {
-        GrSafeAssign(fEffectPtr, other.fEffectPtr);
-        if (NULL != fEffectPtr) {
+        GrSafeAssign(fEffectRef, other.fEffectRef);
+        if (NULL != fEffectRef) {
             fCoordChangeMatrix = other.fCoordChangeMatrix;
         }
         return *this;
@@ -70,7 +70,7 @@ public:
     class SavedCoordChange {
     private:
         SkMatrix fCoordChangeMatrix;
-        GR_DEBUGCODE(mutable SkAutoTUnref<const GrEffectRef> fEffectPtr;)
+        GR_DEBUGCODE(mutable SkAutoTUnref<const GrEffectRef> fEffectRef;)
 
         friend class GrEffectStage;
     };
@@ -83,9 +83,9 @@ public:
      */
     void saveCoordChange(SavedCoordChange* savedCoordChange) const {
         savedCoordChange->fCoordChangeMatrix = fCoordChangeMatrix;
-        GrAssert(NULL == savedCoordChange->fEffectPtr.get());
-        GR_DEBUGCODE(GrSafeRef(fEffectPtr);)
-        GR_DEBUGCODE(savedCoordChange->fEffectPtr.reset(fEffectPtr);)
+        GrAssert(NULL == savedCoordChange->fEffectRef.get());
+        GR_DEBUGCODE(GrSafeRef(fEffectRef);)
+        GR_DEBUGCODE(savedCoordChange->fEffectRef.reset(fEffectRef);)
         GR_DEBUGCODE(++fSavedCoordChangeCnt);
     }
 
@@ -94,9 +94,9 @@ public:
      */
     void restoreCoordChange(const SavedCoordChange& savedCoordChange) {
         fCoordChangeMatrix = savedCoordChange.fCoordChangeMatrix;
-        GrAssert(savedCoordChange.fEffectPtr.get() == fEffectPtr);
+        GrAssert(savedCoordChange.fEffectRef.get() == fEffectRef);
         GR_DEBUGCODE(--fSavedCoordChangeCnt);
-        GR_DEBUGCODE(savedCoordChange.fEffectPtr.reset(NULL);)
+        GR_DEBUGCODE(savedCoordChange.fEffectRef.reset(NULL);)
     }
 
     /**
@@ -106,20 +106,20 @@ public:
     const SkMatrix& getCoordChangeMatrix() const { return fCoordChangeMatrix; }
 
     void reset() {
-        GrSafeSetNull(fEffectPtr);
+        GrSafeSetNull(fEffectRef);
     }
 
-    const GrEffectRef* setEffect(const GrEffectRef* effectPtr) {
+    const GrEffectRef* setEffect(const GrEffectRef* EffectRef) {
         GrAssert(0 == fSavedCoordChangeCnt);
-        GrSafeAssign(fEffectPtr, effectPtr);
+        GrSafeAssign(fEffectRef, EffectRef);
         fCoordChangeMatrix.reset();
-        return effectPtr;
+        return EffectRef;
     }
 
     // TODO: Push GrEffectRef deeper and make this getter return it rather than GrEffect.
     const GrEffect* getEffect() const {
-        if (NULL != fEffectPtr) {
-            return fEffectPtr->get();
+        if (NULL != fEffectRef) {
+            return fEffectRef->get();
         } else {
             return NULL;
         }
@@ -127,7 +127,7 @@ public:
 
 private:
     SkMatrix            fCoordChangeMatrix;
-    const GrEffectRef*  fEffectPtr;
+    const GrEffectRef*  fEffectRef;
 
     GR_DEBUGCODE(mutable int fSavedCoordChangeCnt;)
 };

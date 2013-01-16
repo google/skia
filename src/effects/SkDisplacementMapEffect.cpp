@@ -240,7 +240,7 @@ public:
                                                                            scale,
                                                                            displacement,
                                                                            color)));
-        return CreateEffectPtr(effect);
+        return CreateEffectRef(effect);
     }
 
     virtual ~GrDisplacementMapEffect();

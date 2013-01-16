@@ -64,7 +64,7 @@ SK_DEFINE_INST_COUNT(GrEffectRef)
 
 GrEffectRef::~GrEffectRef() {
     GrAssert(1 == this->getRefCnt());
-    fEffect->effectPtrDestroyed();
+    fEffect->EffectRefDestroyed();
     fEffect->unref();
 }
 
@@ -79,7 +79,7 @@ void GrEffectRef::operator delete(void* target) {
 ///////////////////////////////////////////////////////////////////////////////
 
 GrEffect::~GrEffect() {
-    GrAssert(NULL == fEffectPtr);
+    GrAssert(NULL == fEffectRef);
 }
 
 const char* GrEffect::name() const {

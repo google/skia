@@ -27,7 +27,7 @@ public:
                                                                        dir,
                                                                        halfWidth,
                                                                        kernel)));
-        return CreateEffectPtr(effect);
+        return CreateEffectRef(effect);
     }
 
     /// Convolve with a Gaussian kernel
@@ -39,7 +39,7 @@ public:
                                                                        dir,
                                                                        halfWidth,
                                                                        gaussianSigma)));
-        return CreateEffectPtr(effect);
+        return CreateEffectRef(effect);
     }
 
     virtual ~GrConvolutionEffect();

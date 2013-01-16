@@ -139,7 +139,7 @@ GrEffectRef* GrConfigConversionEffect::TestCreate(SkRandom* random,
                                               swapRB,
                                               pmConv,
                                               GrEffectUnitTest::TestMatrix(random))));
-    return CreateEffectPtr(effect);
+    return CreateEffectRef(effect);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -219,9 +219,9 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
                                                                               *pmToUPMRule,
                                                                               SkMatrix::I())));
 
-        SkAutoTUnref<GrEffectRef> pmToUPMEffect1(CreateEffectPtr(pmToUPM1));
-        SkAutoTUnref<GrEffectRef> upmToPMEffect(CreateEffectPtr(upmToPM));
-        SkAutoTUnref<GrEffectRef> pmToUPMEffect2(CreateEffectPtr(pmToUPM2));
+        SkAutoTUnref<GrEffectRef> pmToUPMEffect1(CreateEffectRef(pmToUPM1));
+        SkAutoTUnref<GrEffectRef> upmToPMEffect(CreateEffectRef(upmToPM));
+        SkAutoTUnref<GrEffectRef> pmToUPMEffect2(CreateEffectRef(pmToUPM2));
 
         context->setRenderTarget(readTex->asRenderTarget());
         paint.colorStage(0)->setEffect(pmToUPMEffect1);
@@ -276,7 +276,7 @@ bool GrConfigConversionEffect::InstallEffect(GrTexture* texture,
                                                                             swapRedAndBlue,
                                                                             pmConversion,
                                                                             matrix)));
-        stage->setEffect(CreateEffectPtr(effect))->unref();
+        stage->setEffect(CreateEffectRef(effect))->unref();
         return true;
     }
 }

@@ -40,7 +40,7 @@ public:
                                                                      yZoom,
                                                                      xInset,
                                                                      yInset)));
-        return CreateEffectPtr(effect);
+        return CreateEffectRef(effect);
     }
 
     virtual ~GrMagnifierEffect() {};

@@ -147,7 +147,7 @@ public:
                                GrTexture* foreground,
                                GrTexture* background) {
         SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrBlendEffect, (mode, foreground, background)));
-        return CreateEffectPtr(effect);
+        return CreateEffectRef(effect);
     }
 
     virtual ~GrBlendEffect();
