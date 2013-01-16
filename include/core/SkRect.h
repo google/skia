@@ -371,7 +371,7 @@ struct SK_API SkRect {
         r.set(0, 0, size.width(), size.height());
         return r;
     }
-
+    
     static SkRect SK_WARN_UNUSED_RESULT MakeLTRB(SkScalar l, SkScalar t, SkScalar r, SkScalar b) {
         SkRect rect;
         rect.set(l, t, r, b);
@@ -481,6 +481,16 @@ struct SK_API SkRect {
         fBottom = SkIntToScalar(bottom);
     }
 
+    /**
+     *  Set this rectangle to be left/top at 0,0, and have the specified width
+     *  and height (automatically converted to SkScalar).
+     */
+    void isetWH(int width, int height) {
+        fLeft = fTop = 0;
+        fRight = SkIntToScalar(width);
+        fBottom = SkIntToScalar(height);
+    }
+    
     /** Set this rectangle to be the bounds of the array of points.
         If the array is empty (count == 0), then set this rectangle
         to the empty rectangle (0,0,0,0)
