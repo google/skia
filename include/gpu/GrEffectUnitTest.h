@@ -80,7 +80,7 @@ private:
 // The unit test relies on static initializers. Just declare the TestCreate function so that
 // its definitions will compile.
 #define GR_DECLARE_EFFECT_TEST \
-    static GrEffect* TestCreate(SkRandom*, GrContext*, GrTexture* dummyTextures[2])
+    static GrEffectRef* TestCreate(SkRandom*, GrContext*, GrTexture* dummyTextures[2])
 #define GR_DEFINE_EFFECT_TEST(X)
 
 #endif // !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
