@@ -72,6 +72,7 @@
     '../gm/shadertext3.cpp',
     '../gm/shadows.cpp',
     '../gm/simpleaaclip.cpp',
+    '../gm/spritebitmap.cpp',
     '../gm/srcmode.cpp',
     '../gm/strokefill.cpp',
     '../gm/strokerect.cpp',
