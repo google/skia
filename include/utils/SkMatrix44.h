@@ -112,6 +112,7 @@ public:
     SkMatrix44(Uninitialized_Constructor) { }
     SkMatrix44(Identity_Constructor) { this->setIdentity(); }
 
+    // DEPRECATED: use the constructors that take an enum
     SkMatrix44() { this->setIdentity(); }
 
     SkMatrix44(const SkMatrix44& src) {
