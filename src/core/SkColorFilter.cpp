@@ -41,7 +41,7 @@ SkColor SkColorFilter::filterColor(SkColor c) const {
     return SkUnPreMultiply::PMColorToColor(dst);
 }
 
-GrEffect* SkColorFilter::asNewEffect(GrContext*) const {
+GrEffectRef* SkColorFilter::asNewEffect(GrContext*) const {
     return NULL;
 }
 

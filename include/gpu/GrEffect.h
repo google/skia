@@ -17,19 +17,52 @@
 
 class GrBackendEffectFactory;
 class GrContext;
+class GrEffect;
 class SkString;
+
+/**
+ * A Wrapper class for GrEffect. Its ref-count will track owners that may use effects to enqueue
+ * new draw operations separately from ownership within a deferred drawing queue. When the
+ * GrEffectRef ref count reaches zero the scratch GrResources owned by the effect can be recycled
+ * in service of later draws. However, the deferred draw queue may still own direct references to
+ * the underlying GrEffect.
+ */
+class GrEffectRef : public SkRefCnt {
+public:
+    SK_DECLARE_INST_COUNT(GrEffectRef);
+
+    GrEffect* get() { return fEffect; }
+    const GrEffect* get() const { return fEffect; }
+
+    void* operator new(size_t size);
+    void operator delete(void* target);
+
+private:
+    friend GrEffect; // to construct these
+
+    explicit GrEffectRef(GrEffect* effect);
+
+    virtual ~GrEffectRef();
+
+    GrEffect* fEffect;
+
+    typedef SkRefCnt INHERITED;
+};
 
 /** Provides custom vertex shader, fragment shader, uniform data for a particular stage of the
     Ganesh shading pipeline.
     Subclasses must have a function that produces a human-readable name:
         static const char* Name();
     GrEffect objects *must* be immutable: after being constructed, their fields may not change.
+
+    GrEffect subclass objects should be created by factory functions that return GrEffectRef.
+    There is no public way to wrap a GrEffect in a GrEffectRef. Thus, a factory should be a static
+    member function of a GrEffect subclass.
   */
 class GrEffect : public GrRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrEffect)
 
-    GrEffect() {};
     virtual ~GrEffect();
 
     /**
@@ -120,9 +153,36 @@ protected:
      */
     void addTextureAccess(const GrTextureAccess* textureAccess);
 
+    GrEffect() : fEffectPtr(NULL) {};
+
+    /** This should be called by GrEffect subclass factories */
+    static GrEffectRef* CreateEffectPtr(GrEffect* effect) {
+        if (NULL == effect->fEffectPtr) {
+            effect->fEffectPtr = SkNEW_ARGS(GrEffectRef, (effect));
+        } else {
+            effect->fEffectPtr->ref();
+            GrCrash("This function should only be called once per effect currently.");
+        }
+        return effect->fEffectPtr;
+    }
+
 private:
-    SkSTArray<4, const GrTextureAccess*, true> fTextureAccesses;
+    void effectPtrDestroyed() {
+        fEffectPtr = NULL;
+    }
+
+    friend GrEffectRef; // to call GrEffectRef destroyed
+
+    SkSTArray<4, const GrTextureAccess*, true>  fTextureAccesses;
+    GrEffectRef*                                fEffectPtr;
+
     typedef GrRefCnt INHERITED;
 };
+
+inline GrEffectRef::GrEffectRef(GrEffect* effect) {
+    GrAssert(NULL != effect);
+    effect->ref();
+    fEffect = effect;
+}
 
 #endif

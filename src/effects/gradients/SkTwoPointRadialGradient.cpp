@@ -428,15 +428,14 @@ private:
 
 class GrRadial2Gradient : public GrGradientEffect {
 public:
+    static GrEffectRef* Create(GrContext* ctx,
+                               const SkTwoPointRadialGradient& shader,
+                               const SkMatrix& matrix,
+                               SkShader::TileMode tm) {
+        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrRadial2Gradient, (ctx, shader, matrix, tm)));
+        return CreateEffectPtr(effect);
+    }
 
-    GrRadial2Gradient(GrContext* ctx,
-                      const SkTwoPointRadialGradient& shader,
-                      const SkMatrix& matrix,
-                      SkShader::TileMode tm)
-        : INHERITED(ctx, shader, matrix, tm)
-        , fCenterX1(shader.getCenterX1())
-        , fRadius0(shader.getStartRadius())
-        , fPosRoot(shader.getDiffRadius() < 0) { }
     virtual ~GrRadial2Gradient() { }
 
     static const char* Name() { return "Two-Point Radial Gradient"; }
@@ -460,6 +459,15 @@ public:
     typedef GrGLRadial2Gradient GLEffect;
 
 private:
+    GrRadial2Gradient(GrContext* ctx,
+                      const SkTwoPointRadialGradient& shader,
+                      const SkMatrix& matrix,
+                      SkShader::TileMode tm)
+        : INHERITED(ctx, shader, matrix, tm)
+        , fCenterX1(shader.getCenterX1())
+        , fRadius0(shader.getStartRadius())
+        , fPosRoot(shader.getDiffRadius() < 0) { }
+
     GR_DECLARE_EFFECT_TEST;
 
     // @{
@@ -479,9 +487,9 @@ private:
 
 GR_DEFINE_EFFECT_TEST(GrRadial2Gradient);
 
-GrEffect* GrRadial2Gradient::TestCreate(SkRandom* random,
-                                        GrContext* context,
-                                        GrTexture**) {
+GrEffectRef* GrRadial2Gradient::TestCreate(SkRandom* random,
+                                           GrContext* context,
+                                           GrTexture**) {
     SkPoint center1 = {random->nextUScalar1(), random->nextUScalar1()};
     SkScalar radius1 = random->nextUScalar1();
     SkPoint center2;
@@ -683,7 +691,7 @@ GrGLEffect::EffectKey GrGLRadial2Gradient::GenKey(const GrEffectStage& s, const 
 
 /////////////////////////////////////////////////////////////////////
 
-GrEffect* SkTwoPointRadialGradient::asNewEffect(GrContext* context, const SkPaint&) const {
+GrEffectRef* SkTwoPointRadialGradient::asNewEffect(GrContext* context, const SkPaint&) const {
     SkASSERT(NULL != context);
     // invert the localM, translate to center1 (fPtsToUni), rotate so center2 is on x axis.
     SkMatrix matrix;
@@ -701,7 +709,7 @@ GrEffect* SkTwoPointRadialGradient::asNewEffect(GrContext* context, const SkPain
         matrix.postConcat(rot);
     }
 
-    return SkNEW_ARGS(GrRadial2Gradient, (context, *this, matrix, fTileMode));
+    return GrRadial2Gradient::Create(context, *this, matrix, fTileMode);
 }
 
 #else

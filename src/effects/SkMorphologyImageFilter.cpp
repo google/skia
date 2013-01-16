@@ -243,7 +243,11 @@ public:
         kDilate_MorphologyType,
     };
 
-    GrMorphologyEffect(GrTexture*, Direction, int radius, MorphologyType);
+    static GrEffectRef* Create(GrTexture* tex, Direction dir, int radius, MorphologyType type) {
+        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrMorphologyEffect, (tex, dir, radius, type)));
+        return CreateEffectPtr(effect);
+    }
+
     virtual ~GrMorphologyEffect();
 
     MorphologyType type() const { return fType; }
@@ -260,6 +264,8 @@ protected:
     MorphologyType fType;
 
 private:
+    GrMorphologyEffect(GrTexture*, Direction, int radius, MorphologyType);
+
     GR_DECLARE_EFFECT_TEST;
 
     typedef Gr1DKernelEffect INHERITED;
@@ -406,9 +412,9 @@ bool GrMorphologyEffect::isEqual(const GrEffect& sBase) const {
 
 GR_DEFINE_EFFECT_TEST(GrMorphologyEffect);
 
-GrEffect* GrMorphologyEffect::TestCreate(SkRandom* random,
-                                         GrContext* context,
-                                         GrTexture* textures[]) {
+GrEffectRef* GrMorphologyEffect::TestCreate(SkRandom* random,
+                                            GrContext* context,
+                                            GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :
                                       GrEffectUnitTest::kAlphaTextureIdx;
     Direction dir = random->nextBool() ? kX_Direction : kY_Direction;
@@ -417,7 +423,7 @@ GrEffect* GrMorphologyEffect::TestCreate(SkRandom* random,
     MorphologyType type = random->nextBool() ? GrMorphologyEffect::kErode_MorphologyType :
                                                GrMorphologyEffect::kDilate_MorphologyType;
 
-    return SkNEW_ARGS(GrMorphologyEffect, (textures[texIdx], dir, radius, type));
+    return GrMorphologyEffect::Create(textures[texIdx], dir, radius, type);
 }
 
 namespace {
@@ -429,10 +435,10 @@ void apply_morphology_pass(GrContext* context,
                            GrMorphologyEffect::MorphologyType morphType,
                            Gr1DKernelEffect::Direction direction) {
     GrPaint paint;
-    paint.colorStage(0)->setEffect(SkNEW_ARGS(GrMorphologyEffect, (texture,
-                                                                   direction,
-                                                                   radius,
-                                                                   morphType)))->unref();
+    paint.colorStage(0)->setEffect(GrMorphologyEffect::Create(texture,
+                                                              direction,
+                                                              radius,
+                                                              morphType))->unref();
     context->drawRect(paint, rect);
 }
 

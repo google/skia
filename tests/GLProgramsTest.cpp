@@ -31,13 +31,13 @@ bool random_bool(SkRandom* r) {
     return r->nextF() > .5f;
 }
 
-const GrEffect* create_random_effect(SkRandom* random,
-                                     GrContext* context,
-                                     GrTexture* dummyTextures[]) {
+const GrEffectRef* create_random_effect(SkRandom* random,
+                                        GrContext* context,
+                                        GrTexture* dummyTextures[]) {
 
     SkRandom sk_random;
     sk_random.setSeed(random->nextU());
-    GrEffect* effect = GrEffectTestFactory::CreateStage(&sk_random, context, dummyTextures);
+    GrEffectRef* effect = GrEffectTestFactory::CreateStage(&sk_random, context, dummyTextures);
     GrAssert(effect);
     return effect;
 }
@@ -122,7 +122,7 @@ bool GrGpuGL::programUnitTest() {
                 }
 
                 GrTexture* dummyTextures[] = {dummyTexture1.get(), dummyTexture2.get()};
-                SkAutoTUnref<const GrEffect> effect(create_random_effect(&random,
+                SkAutoTUnref<const GrEffectRef> effect(create_random_effect(&random,
                                                                             getContext(),
                                                                             dummyTextures));
                 stages[s].setEffect(effect.get());

@@ -124,9 +124,9 @@ bool GrConfigConversionEffect::isEqual(const GrEffect& s) const {
 
 GR_DEFINE_EFFECT_TEST(GrConfigConversionEffect);
 
-GrEffect* GrConfigConversionEffect::TestCreate(SkRandom* random,
-                                               GrContext* context,
-                                               GrTexture* textures[]) {
+GrEffectRef* GrConfigConversionEffect::TestCreate(SkRandom* random,
+                                                  GrContext* context,
+                                                  GrTexture* textures[]) {
     PMConversion pmConv = static_cast<PMConversion>(random->nextULessThan(kPMConversionCnt));
     bool swapRB;
     if (kNone_PMConversion == pmConv) {
@@ -134,10 +134,12 @@ GrEffect* GrConfigConversionEffect::TestCreate(SkRandom* random,
     } else {
         swapRB = random->nextBool();
     }
-    return SkNEW_ARGS(GrConfigConversionEffect, (textures[GrEffectUnitTest::kSkiaPMTextureIdx],
-                                                 swapRB,
-                                                 pmConv,
-                                                 GrEffectUnitTest::TestMatrix(random)));
+    SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrConfigConversionEffect,
+                                             (textures[GrEffectUnitTest::kSkiaPMTextureIdx],
+                                              swapRB,
+                                              pmConv,
+                                              GrEffectUnitTest::TestMatrix(random))));
+    return CreateEffectPtr(effect);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -204,21 +206,22 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         // We then verify that two reads produced the same values.
 
         GrPaint paint;
-        SkAutoTUnref<GrEffect> pmToUPMEffect1(SkNEW_ARGS(GrConfigConversionEffect,
-                                                        (dataTex,
-                                                         false,
-                                                         *pmToUPMRule,
-                                                         SkMatrix::I())));
-        SkAutoTUnref<GrEffect> upmToPMEffect(SkNEW_ARGS(GrConfigConversionEffect,
-                                                       (readTex,
-                                                        false,
-                                                        *upmToPMRule,
-                                                        SkMatrix::I())));
-        SkAutoTUnref<GrEffect> pmToUPMEffect2(SkNEW_ARGS(GrConfigConversionEffect,
-                                                        (tempTex,
-                                                         false,
-                                                         *pmToUPMRule,
-                                                         SkMatrix::I())));
+        SkAutoTUnref<GrEffect> pmToUPM1(SkNEW_ARGS(GrConfigConversionEffect, (dataTex,
+                                                                              false,
+                                                                              *pmToUPMRule,
+                                                                              SkMatrix::I())));
+        SkAutoTUnref<GrEffect> upmToPM(SkNEW_ARGS(GrConfigConversionEffect, (readTex,
+                                                                             false,
+                                                                             *upmToPMRule,
+                                                                             SkMatrix::I())));
+        SkAutoTUnref<GrEffect> pmToUPM2(SkNEW_ARGS(GrConfigConversionEffect, (tempTex,
+                                                                              false,
+                                                                              *pmToUPMRule,
+                                                                              SkMatrix::I())));
+
+        SkAutoTUnref<GrEffectRef> pmToUPMEffect1(CreateEffectPtr(pmToUPM1));
+        SkAutoTUnref<GrEffectRef> upmToPMEffect(CreateEffectPtr(upmToPM));
+        SkAutoTUnref<GrEffectRef> pmToUPMEffect2(CreateEffectPtr(pmToUPM2));
 
         context->setRenderTarget(readTex->asRenderTarget());
         paint.colorStage(0)->setEffect(pmToUPMEffect1);
@@ -260,7 +263,7 @@ bool GrConfigConversionEffect::InstallEffect(GrTexture* texture,
         // If we returned a GrConfigConversionEffect that was equivalent to a GrSingleTextureEffect
         // then we may pollute our texture cache with redundant shaders. So in the case that no
         // conversions were requested we instead return a GrSingleTextureEffect.
-        stage->setEffect(SkNEW_ARGS(GrSingleTextureEffect, (texture, matrix)))->unref();
+        stage->setEffect(GrSingleTextureEffect::Create(texture, matrix))->unref();
         return true;
     } else {
         if (kRGBA_8888_GrPixelConfig != texture->config() &&
@@ -269,9 +272,11 @@ bool GrConfigConversionEffect::InstallEffect(GrTexture* texture,
             // The PM conversions assume colors are 0..255
             return false;
         }
-        stage->setEffect(SkNEW_ARGS(GrConfigConversionEffect, (texture,
-                                                               swapRedAndBlue,
-                                                               pmConversion, matrix)))->unref();
+        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrConfigConversionEffect, (texture,
+                                                                            swapRedAndBlue,
+                                                                            pmConversion,
+                                                                            matrix)));
+        stage->setEffect(CreateEffectPtr(effect))->unref();
         return true;
     }
 }

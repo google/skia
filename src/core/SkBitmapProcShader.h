@@ -33,7 +33,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBitmapProcShader)
 
 #if SK_SUPPORT_GPU
-    GrEffect* asNewEffect(GrContext*, const SkPaint&) const SK_OVERRIDE;
+    GrEffectRef* asNewEffect(GrContext*, const SkPaint&) const SK_OVERRIDE;
 #endif
 
 protected:

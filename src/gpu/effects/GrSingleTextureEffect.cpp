@@ -57,24 +57,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture)
-    : fTextureAccess(texture) {
-    fMatrix.reset();
-    this->addTextureAccess(&fTextureAccess);
-}
-
-GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture, bool bilerp)
-    : fTextureAccess(texture, bilerp) {
-    fMatrix.reset();
-    this->addTextureAccess(&fTextureAccess);
-}
-
-GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture, const GrTextureParams& params)
-    : fTextureAccess(texture, params) {
-    fMatrix.reset();
-    this->addTextureAccess(&fTextureAccess);
-}
-
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture, const SkMatrix& m)
     : fTextureAccess(texture)
     , fMatrix(m) {
@@ -117,11 +99,11 @@ const GrBackendEffectFactory& GrSingleTextureEffect::getFactory() const {
 
 GR_DEFINE_EFFECT_TEST(GrSingleTextureEffect);
 
-GrEffect* GrSingleTextureEffect::TestCreate(SkRandom* random,
-                                            GrContext* context,
-                                            GrTexture* textures[]) {
+GrEffectRef* GrSingleTextureEffect::TestCreate(SkRandom* random,
+                                               GrContext* context,
+                                               GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :
                                       GrEffectUnitTest::kAlphaTextureIdx;
     const SkMatrix& matrix = GrEffectUnitTest::TestMatrix(random);
-    return SkNEW_ARGS(GrSingleTextureEffect, (textures[texIdx], matrix));
+    return GrSingleTextureEffect::Create(textures[texIdx], matrix);
 }

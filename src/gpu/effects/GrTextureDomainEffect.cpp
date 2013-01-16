@@ -121,14 +121,14 @@ GrGLEffect::EffectKey GrGLTextureDomainEffect::GenKey(const GrEffectStage& stage
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrEffect* GrTextureDomainEffect::Create(GrTexture* texture,
-                                        const SkMatrix& matrix,
-                                        const GrRect& domain,
-                                        WrapMode wrapMode,
-                                        bool bilerp) {
+GrEffectRef* GrTextureDomainEffect::Create(GrTexture* texture,
+                                           const SkMatrix& matrix,
+                                           const GrRect& domain,
+                                           WrapMode wrapMode,
+                                           bool bilerp) {
     static const SkRect kFullRect = {0, 0, SK_Scalar1, SK_Scalar1};
     if (kClamp_WrapMode == wrapMode && domain.contains(kFullRect)) {
-        return SkNEW_ARGS(GrSingleTextureEffect, (texture, matrix, bilerp));
+        return GrSingleTextureEffect::Create(texture, matrix, bilerp);
     } else {
         SkRect clippedDomain;
         // We don't currently handle domains that are empty or don't intersect the texture.
@@ -142,8 +142,14 @@ GrEffect* GrTextureDomainEffect::Create(GrTexture* texture,
         clippedDomain.fBottom = SkMinScalar(domain.fBottom, kFullRect.fBottom);
         GrAssert(clippedDomain.fLeft <= clippedDomain.fRight);
         GrAssert(clippedDomain.fTop <= clippedDomain.fBottom);
-        return SkNEW_ARGS(GrTextureDomainEffect,
-                          (texture, matrix, clippedDomain, wrapMode, bilerp));
+
+        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrTextureDomainEffect, (texture,
+                                                                         matrix,
+                                                                         clippedDomain,
+                                                                         wrapMode,
+                                                                         bilerp)));
+        return CreateEffectPtr(effect);
+
     }
 }
 
@@ -174,9 +180,9 @@ bool GrTextureDomainEffect::isEqual(const GrEffect& sBase) const {
 
 GR_DEFINE_EFFECT_TEST(GrTextureDomainEffect);
 
-GrEffect* GrTextureDomainEffect::TestCreate(SkRandom* random,
-                                            GrContext* context,
-                                            GrTexture* textures[]) {
+GrEffectRef* GrTextureDomainEffect::TestCreate(SkRandom* random,
+                                               GrContext* context,
+                                               GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :
                                       GrEffectUnitTest::kAlphaTextureIdx;
     GrRect domain;

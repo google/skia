@@ -443,7 +443,7 @@ bool SkGpuDevice::bindDeviceAsTexture(GrPaint* paint) {
     GrTexture* texture = fRenderTarget->asTexture();
     if (NULL != texture) {
         paint->colorStage(kBitmapTextureIdx)->setEffect(
-            SkNEW_ARGS(GrSingleTextureEffect, (texture)))->unref();
+            GrSingleTextureEffect::Create(texture, SkMatrix::I()))->unref();
         return true;
     }
     return false;
@@ -512,7 +512,7 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
             SkColor filtered = colorFilter->filterColor(skPaint.getColor());
             grPaint->setColor(SkColor2GrColor(filtered));
         } else {
-            SkAutoTUnref<GrEffect> effect(colorFilter->asNewEffect(dev->context()));
+            SkAutoTUnref<GrEffectRef> effect(colorFilter->asNewEffect(dev->context()));
             if (NULL != effect.get()) {
                 grPaint->colorStage(kColorFilterTextureIdx)->setEffect(effect);
             } else {
@@ -544,7 +544,7 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
         return false;
     }
 
-    SkAutoTUnref<GrEffect> effect(shader->asNewEffect(dev->context(), skPaint));
+    SkAutoTUnref<GrEffectRef> effect(shader->asNewEffect(dev->context(), skPaint));
     if (NULL != effect.get()) {
         grPaint->colorStage(kShaderTextureIdx)->setEffect(effect);
         return true;
@@ -796,7 +796,8 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& devPath, const SkSt
             matrix.setIDiv(pathTexture->width(), pathTexture->height());
             // Blend pathTexture over blurTexture.
             context->setRenderTarget(blurTexture->asRenderTarget());
-            paint.colorStage(0)->setEffect(SkNEW_ARGS(GrSingleTextureEffect, (pathTexture, matrix)))->unref();
+            paint.colorStage(0)->setEffect(
+                GrSingleTextureEffect::Create(pathTexture, matrix))->unref();
             if (SkMaskFilter::kInner_BlurType == blurType) {
                 // inner:  dst = dst * src
                 paint.setBlendFunc(kDC_GrBlendCoeff, kZero_GrBlendCoeff);
@@ -827,7 +828,8 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& devPath, const SkSt
     matrix.postIDiv(blurTexture->width(), blurTexture->height());
 
     grp->coverageStage(MASK_IDX)->reset();
-    grp->coverageStage(MASK_IDX)->setEffect(SkNEW_ARGS(GrSingleTextureEffect, (blurTexture, matrix)))->unref();
+    grp->coverageStage(MASK_IDX)->setEffect(
+        GrSingleTextureEffect::Create(blurTexture, matrix))->unref();
     context->drawRect(*grp, finalRect);
     return true;
 }
@@ -883,7 +885,7 @@ bool drawWithMaskFilter(GrContext* context, const SkPath& devPath,
     m.setTranslate(-dstM.fBounds.fLeft*SK_Scalar1, -dstM.fBounds.fTop*SK_Scalar1);
     m.postIDiv(texture->width(), texture->height());
 
-    grp->coverageStage(MASK_IDX)->setEffect(SkNEW_ARGS(GrSingleTextureEffect, (texture, m)))->unref();
+    grp->coverageStage(MASK_IDX)->setEffect(GrSingleTextureEffect::Create(texture, m))->unref();
     GrRect d;
     d.setLTRB(SkIntToScalar(dstM.fBounds.fLeft),
               SkIntToScalar(dstM.fBounds.fTop),
@@ -1313,7 +1315,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
     }
 
     GrRect textureDomain = GrRect::MakeEmpty();
-    SkAutoTUnref<GrEffect> effect;
+    SkAutoTUnref<GrEffectRef> effect;
     if (needsTextureDomain) {
         // Use a constrained texture domain to avoid color bleeding
         SkScalar left, top, right, bottom;
@@ -1338,7 +1340,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                                                    GrTextureDomainEffect::kClamp_WrapMode,
                                                    params.isBilerp()));
     } else {
-        effect.reset(SkNEW_ARGS(GrSingleTextureEffect, (texture, params)));
+        effect.reset(GrSingleTextureEffect::Create(texture, SkMatrix::I(), params));
     }
     grPaint->colorStage(kBitmapTextureIdx)->setEffect(effect);
     fContext->drawRectToRect(*grPaint, dstRect, paintRect, &m);
@@ -1350,7 +1352,7 @@ void apply_effect(GrContext* context,
                   GrTexture* srcTexture,
                   GrTexture* dstTexture,
                   const GrRect& rect,
-                  GrEffect* effect) {
+                  GrEffectRef* effect) {
     SkASSERT(srcTexture && srcTexture->getContext() == context);
     GrContext::AutoMatrix am;
     am.setIdentity(context);
@@ -1375,7 +1377,7 @@ static GrTexture* filter_texture(SkDevice* device, GrContext* context,
     desc.fWidth = SkScalarCeilToInt(rect.width());
     desc.fHeight = SkScalarCeilToInt(rect.height());
     desc.fConfig = kRGBA_8888_GrPixelConfig;
-    GrEffect* effect;
+    GrEffectRef* effect;
 
     if (filter->canFilterImageGPU()) {
         // Save the render target and set it to NULL, so we don't accidentally draw to it in the
@@ -1415,16 +1417,16 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     stage->reset();
     // draw sprite uses the default texture params
     SkAutoCachedTexture act(this, bitmap, NULL, &texture);
-    grPaint.colorStage(kBitmapTextureIdx)->setEffect(SkNEW_ARGS
-        (GrSingleTextureEffect, (texture)))->unref();
+    grPaint.colorStage(kBitmapTextureIdx)->setEffect(
+        GrSingleTextureEffect::Create(texture, SkMatrix::I()))->unref();
 
     SkImageFilter* filter = paint.getImageFilter();
     if (NULL != filter) {
         GrTexture* filteredTexture = filter_texture(this, fContext, texture, filter,
                  GrRect::MakeWH(SkIntToScalar(w), SkIntToScalar(h)));
         if (filteredTexture) {
-            grPaint.colorStage(kBitmapTextureIdx)->setEffect(SkNEW_ARGS
-                (GrSingleTextureEffect, (filteredTexture)))->unref();
+            grPaint.colorStage(kBitmapTextureIdx)->setEffect(
+                GrSingleTextureEffect::Create(filteredTexture, SkMatrix::I()))->unref();
             texture = filteredTexture;
             filteredTexture->unref();
         }
@@ -1497,8 +1499,8 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
                                      SkIntToScalar(devTex->height()));
         GrTexture* filteredTexture = filter_texture(this, fContext, devTex, filter, rect);
         if (filteredTexture) {
-            grPaint.colorStage(kBitmapTextureIdx)->setEffect(SkNEW_ARGS
-                (GrSingleTextureEffect, (filteredTexture)))->unref();
+            grPaint.colorStage(kBitmapTextureIdx)->setEffect(
+                GrSingleTextureEffect::Create(filteredTexture, SkMatrix::I()))->unref();
             devTex = filteredTexture;
             filteredTexture->unref();
         }

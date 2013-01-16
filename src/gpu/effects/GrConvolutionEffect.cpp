@@ -180,9 +180,9 @@ bool GrConvolutionEffect::isEqual(const GrEffect& sBase) const {
 
 GR_DEFINE_EFFECT_TEST(GrConvolutionEffect);
 
-GrEffect* GrConvolutionEffect::TestCreate(SkRandom* random,
-                                          GrContext* context,
-                                          GrTexture* textures[]) {
+GrEffectRef* GrConvolutionEffect::TestCreate(SkRandom* random,
+                                             GrContext* context,
+                                             GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :
                                       GrEffectUnitTest::kAlphaTextureIdx;
     Direction dir = random->nextBool() ? kX_Direction : kY_Direction;
@@ -192,6 +192,6 @@ GrEffect* GrConvolutionEffect::TestCreate(SkRandom* random,
         kernel[i] = random->nextSScalar1();
     }
 
-    return SkNEW_ARGS(GrConvolutionEffect, (textures[texIdx], dir, radius, kernel));
+    return GrConvolutionEffect::Create(textures[texIdx], dir, radius,kernel);
 }
 

@@ -504,12 +504,12 @@ private:
 
 class GrRadialGradient : public GrGradientEffect {
 public:
-
-    GrRadialGradient(GrContext* ctx,
-                     const SkRadialGradient& shader,
-                     const SkMatrix& matrix,
-                     SkShader::TileMode tm)
-        : INHERITED(ctx, shader, matrix, tm) {
+    static GrEffectRef* Create(GrContext* ctx,
+                               const SkRadialGradient& shader,
+                               const SkMatrix& matrix,
+                               SkShader::TileMode tm) {
+        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrRadialGradient, (ctx, shader, matrix, tm)));
+        return CreateEffectPtr(effect);
     }
 
     virtual ~GrRadialGradient() { }
@@ -522,6 +522,13 @@ public:
     typedef GrGLRadialGradient GLEffect;
 
 private:
+    GrRadialGradient(GrContext* ctx,
+                     const SkRadialGradient& shader,
+                     const SkMatrix& matrix,
+                     SkShader::TileMode tm)
+        : INHERITED(ctx, shader, matrix, tm) {
+    }
+
     GR_DECLARE_EFFECT_TEST;
 
     typedef GrGradientEffect INHERITED;
@@ -531,9 +538,9 @@ private:
 
 GR_DEFINE_EFFECT_TEST(GrRadialGradient);
 
-GrEffect* GrRadialGradient::TestCreate(SkRandom* random,
-                                       GrContext* context,
-                                       GrTexture**) {
+GrEffectRef* GrRadialGradient::TestCreate(SkRandom* random,
+                                          GrContext* context,
+                                          GrTexture**) {
     SkPoint center = {random->nextUScalar1(), random->nextUScalar1()};
     SkScalar radius = random->nextUScalar1();
 
@@ -569,7 +576,7 @@ void GrGLRadialGradient::emitCode(GrGLShaderBuilder* builder,
 
 /////////////////////////////////////////////////////////////////////
 
-GrEffect* SkRadialGradient::asNewEffect(GrContext* context, const SkPaint&) const {
+GrEffectRef* SkRadialGradient::asNewEffect(GrContext* context, const SkPaint&) const {
     SkASSERT(NULL != context);
 
     SkMatrix matrix;
@@ -577,7 +584,7 @@ GrEffect* SkRadialGradient::asNewEffect(GrContext* context, const SkPaint&) cons
         return NULL;
     }
     matrix.postConcat(fPtsToUnit);
-    return SkNEW_ARGS(GrRadialGradient, (context, *this, matrix, fTileMode));
+    return GrRadialGradient::Create(context, *this, matrix, fTileMode);
 }
 
 #else

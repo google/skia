@@ -247,14 +247,24 @@ class GrGLMatrixConvolutionEffect;
 class GrMatrixConvolutionEffect : public GrSingleTextureEffect {
 public:
     typedef SkMatrixConvolutionImageFilter::TileMode TileMode;
-    GrMatrixConvolutionEffect(GrTexture*,
-                              const SkISize& kernelSize,
-                              const SkScalar* kernel,
-                              SkScalar gain,
-                              SkScalar bias,
-                              const SkIPoint& target,
-                              TileMode tileMode,
-                              bool convolveAlpha);
+    static GrEffectRef* Create(GrTexture* texture,
+                               const SkISize& kernelSize,
+                               const SkScalar* kernel,
+                               SkScalar gain,
+                               SkScalar bias,
+                               const SkIPoint& target,
+                               TileMode tileMode,
+                               bool convolveAlpha) {
+        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrMatrixConvolutionEffect, (texture,
+                                                                             kernelSize,
+                                                                             kernel,
+                                                                             gain,
+                                                                             bias,
+                                                                             target,
+                                                                             tileMode,
+                                                                             convolveAlpha)));
+        return CreateEffectPtr(effect);
+    }
     virtual ~GrMatrixConvolutionEffect();
 
     virtual void getConstantColorComponents(GrColor* color,
@@ -280,6 +290,15 @@ public:
     virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
 
 private:
+    GrMatrixConvolutionEffect(GrTexture*,
+                              const SkISize& kernelSize,
+                              const SkScalar* kernel,
+                              SkScalar gain,
+                              SkScalar bias,
+                              const SkIPoint& target,
+                              TileMode tileMode,
+                              bool convolveAlpha);
+
     SkISize  fKernelSize;
     float   *fKernel;
     float    fGain;
@@ -518,9 +537,9 @@ GR_DEFINE_EFFECT_TEST(GrMatrixConvolutionEffect);
 // Allows for a 5x5 kernel (or 25x1, for that matter).
 #define MAX_KERNEL_SIZE 25
 
-GrEffect* GrMatrixConvolutionEffect::TestCreate(SkRandom* random,
-                                                GrContext* context,
-                                                GrTexture* textures[]) {
+GrEffectRef* GrMatrixConvolutionEffect::TestCreate(SkRandom* random,
+                                                   GrContext* context,
+                                                   GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :
                                       GrEffectUnitTest::kAlphaTextureIdx;
     int width = random->nextRangeU(1, MAX_KERNEL_SIZE);
@@ -536,29 +555,29 @@ GrEffect* GrMatrixConvolutionEffect::TestCreate(SkRandom* random,
                                      random->nextRangeU(0, kernelSize.height()));
     TileMode tileMode = static_cast<TileMode>(random->nextRangeU(0, 2));
     bool convolveAlpha = random->nextBool();
-    return SkNEW_ARGS(GrMatrixConvolutionEffect, (textures[texIdx],
-                                                  kernelSize,
-                                                  kernel,
-                                                  gain,
-                                                  bias,
-                                                  target,
-                                                  tileMode,
-                                                  convolveAlpha));
+    return GrMatrixConvolutionEffect::Create(textures[texIdx],
+                                             kernelSize,
+                                             kernel,
+                                             gain,
+                                             bias,
+                                             target,
+                                             tileMode,
+                                             convolveAlpha);
 
 }
 
-bool SkMatrixConvolutionImageFilter::asNewEffect(GrEffect** effect,
+bool SkMatrixConvolutionImageFilter::asNewEffect(GrEffectRef** effect,
                                                  GrTexture* texture) const {
     bool ok = fKernelSize.width() * fKernelSize.height() <= MAX_KERNEL_SIZE;
     if (ok && effect) {
-        *effect = SkNEW_ARGS(GrMatrixConvolutionEffect, (texture,
-                                                         fKernelSize,
-                                                         fKernel,
-                                                         fGain,
-                                                         fBias,
-                                                         fTarget,
-                                                         fTileMode,
-                                                         fConvolveAlpha));
+        *effect = GrMatrixConvolutionEffect::Create(texture,
+                                                    fKernelSize,
+                                                    fKernel,
+                                                    fGain,
+                                                    fBias,
+                                                     fTarget,
+                                                     fTileMode,
+                                                     fConvolveAlpha);
     }
     return ok;
 }
