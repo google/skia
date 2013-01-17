@@ -538,9 +538,9 @@ static void computeFontMetricsTopBottom(const SkPaint& paint, SkScalar topbot[2]
 void SkPictureRecord::addFontMetricsTopBottom(const SkPaint& paint, int index,
                                               SkScalar minY, SkScalar maxY) {
     SkFlatData* flat = fPaints.writableFlatData(index);
-    if (!flat->isTopBotValid()) {
+    if (!flat->isTopBotWritten()) {
         computeFontMetricsTopBottom(paint, flat->writableTopBot());
-        SkASSERT(flat->isTopBotValid());
+        SkASSERT(flat->isTopBotWritten());
     }
     addScalar(flat->topBot()[0] + minY);
     addScalar(flat->topBot()[1] + maxY);

@@ -94,7 +94,7 @@ static void test_fontHostStream(skiatest::Reporter* reporter) {
         const SkFontID typefaceID = SkTypeface::UniqueID(origTypeface);
         SkStream* fontData = SkFontHost::OpenStream(typefaceID);
         SkTypeface* streamTypeface = SkTypeface::CreateFromStream(fontData);
-        paint.setTypeface(streamTypeface)->unref();
+        SkSafeUnref(paint.setTypeface(streamTypeface));
         drawBG(&streamCanvas);
         streamCanvas.drawPosText("A", 1, &point, paint);
 
