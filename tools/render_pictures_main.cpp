@@ -238,7 +238,7 @@ static bool render_picture(const SkString& inputPath, const SkString* outputDir,
                                        *bitmap->getAddr32(x, y));
                 SkASSERT(diff >= 0 && diff <= 255);
                 diffs[diff]++;
-                
+
                 if (diff > maxComponentDiff) {
                     SkDebugf("Expected pixel at (%i %i) exceedds maximum "
                                  "component diff of %i: 0x%x, actual 0x%x\n",
@@ -559,7 +559,7 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 SkDebugf("maxComponentDiff: 0 - 256.\n");
                 usage(argv0);
                 exit(-1);
-            } 
+            }
         } else if (0 == strcmp(*argv, "--writeWholeImage")) {
             *writeWholeImage = true;
         } else {
