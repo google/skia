@@ -14,6 +14,7 @@
  */
 
 #include "gm.h"
+#include "gm_expectations.h"
 #include "system_preferences.h"
 #include "SkBitmapChecksummer.h"
 #include "SkColorPriv.h"
@@ -35,7 +36,7 @@
 
 #ifdef SK_BUILD_FOR_WIN
     // json includes xlocale which generates warning 4530 because we're compiling without
-    // exceptions
+    // exceptions; see https://code.google.com/p/skia/issues/detail?id=1067
     #pragma warning(push)
     #pragma warning(disable : 4530)
 #endif
@@ -199,7 +200,6 @@ public:
     GMMain() {
         // Set default values of member variables, which tool_main()
         // may override.
-        fNotifyMissingReadReference = true;
         fUseFileHierarchy = false;
         fMismatchPath = NULL;
     }
@@ -214,19 +214,6 @@ public:
             name.appendf("%s_%s", shortName, configName);
         }
         return name;
-    }
-
-    static SkString make_filename(const char path[],
-                                  const char renderModeDescriptor[],
-                                  const SkString& name,
-                                  const char suffix[]) {
-        SkString filename(path);
-        if (filename.endsWith(SkPATH_SEPARATOR)) {
-            filename.remove(filename.size() - 1, 1);
-        }
-        filename.appendf("%c%s%s.%s", SkPATH_SEPARATOR,
-                         name.c_str(), renderModeDescriptor, suffix);
-        return filename;
     }
 
     /* since PNG insists on unpremultiplying our alpha, we take no
@@ -282,51 +269,6 @@ public:
                 SkDebugf("\t\t%s\n", fFailedTests[i].fName.c_str());
             }
         }
-    }
-
-    // Compares "target" and "base" bitmaps, returning the result
-    // (ERROR_NONE if the two bitmaps are identical).
-    ErrorBitfield compare(const SkBitmap& target, const SkBitmap& base,
-                          const SkString& name,
-                          const char* renderModeDescriptor) {
-        SkBitmap copy;
-        const SkBitmap* bm = &target;
-        if (target.config() != SkBitmap::kARGB_8888_Config) {
-            target.copyTo(&copy, SkBitmap::kARGB_8888_Config);
-            bm = &copy;
-        }
-        SkBitmap baseCopy;
-        const SkBitmap* bp = &base;
-        if (base.config() != SkBitmap::kARGB_8888_Config) {
-            base.copyTo(&baseCopy, SkBitmap::kARGB_8888_Config);
-            bp = &baseCopy;
-        }
-
-        force_all_opaque(*bm);
-        force_all_opaque(*bp);
-
-        const int w = bm->width();
-        const int h = bm->height();
-        if (w != bp->width() || h != bp->height()) {
-            RecordError(ERROR_IMAGE_MISMATCH, name, renderModeDescriptor);
-            return ERROR_IMAGE_MISMATCH;
-        }
-
-        SkAutoLockPixels bmLock(*bm);
-        SkAutoLockPixels baseLock(*bp);
-
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
-                SkPMColor c0 = *bp->getAddr32(x, y);
-                SkPMColor c1 = *bm->getAddr32(x, y);
-                if (c0 != c1) {
-                    RecordError(ERROR_IMAGE_MISMATCH, name,
-                                renderModeDescriptor);
-                    return ERROR_IMAGE_MISMATCH;
-                }
-            }
-        }
-        return ERROR_NONE;
     }
 
     static bool write_document(const SkString& path,
@@ -485,15 +427,18 @@ public:
             gRec.fBackend == kGPU_Backend ||
             (gRec.fBackend == kPDF_Backend && CAN_IMAGE_PDF)) {
 
-            path = make_filename(writePath, renderModeDescriptor, name, "png");
+            path = make_filename(writePath, renderModeDescriptor, name.c_str(),
+                                 "png");
             success = write_bitmap(path, bitmap);
         }
         if (kPDF_Backend == gRec.fBackend) {
-            path = make_filename(writePath, renderModeDescriptor, name, "pdf");
+            path = make_filename(writePath, renderModeDescriptor, name.c_str(),
+                                 "pdf");
             success = write_document(path, *document);
         }
         if (kXPS_Backend == gRec.fBackend) {
-            path = make_filename(writePath, renderModeDescriptor, name, "xps");
+            path = make_filename(writePath, renderModeDescriptor, name.c_str(),
+                                 "xps");
             success = write_document(path, *document);
         }
         if (success) {
@@ -506,115 +451,195 @@ public:
         }
     }
 
-    // Compares bitmap "bitmap" to a reference bitmap read from disk.
-    //
-    // Returns a description of the difference between "bitmap" and
-    // the reference bitmap, or ERROR_READING_REFERENCE_IMAGE if
-    // unable to read the reference bitmap from disk.
-    ErrorBitfield compare_to_reference_image_on_disk(
-      const char readPath [], const SkString& name, SkBitmap &bitmap,
-      const char renderModeDescriptor []) {
+    /**
+     * Compares actual checksum to expectations.
+     * Returns ERROR_NONE if they match, or some particular error code otherwise
+     *
+     * If fMismatchPath has been set, and there are pixel diffs, then the
+     * actual bitmap will be written out to a file within fMismatchPath.
+     *
+     * @param expectations what expectations to compare actualBitmap against
+     * @param actualBitmap the image we actually generated
+     * @param baseNameString name of test without renderModeDescriptor added
+     * @param renderModeDescriptor e.g., "-rtree", "-deferred"
+     * @param addToJsonSummary whether to add these results (both actual and
+     *        expected) to the JSON summary
+     *
+     * TODO: For now, addToJsonSummary is only set to true within
+     * compare_test_results_to_stored_expectations(), so results of our
+     * in-memory comparisons (Rtree vs regular, etc.) are not written to the
+     * JSON summary.  We may wish to change that.
+     */
+    ErrorBitfield compare_to_expectations(Expectations expectations,
+                                          const SkBitmap& actualBitmap,
+                                          const SkString& baseNameString,
+                                          const char renderModeDescriptor[],
+                                          bool addToJsonSummary=false) {
         ErrorBitfield retval;
-        SkString path = make_filename(readPath, "", name, "png");
-        SkBitmap referenceBitmap;
-        Json::Value expectedChecksumsArray;
+        Checksum actualChecksum = SkBitmapChecksummer::Compute64(actualBitmap);
+        SkString completeNameString = baseNameString;
+        completeNameString.append(renderModeDescriptor);
+        const char* completeName = completeNameString.c_str();
 
-        bool decodedReferenceBitmap =
-            SkImageDecoder::DecodeFile(path.c_str(), &referenceBitmap,
-                                       SkBitmap::kARGB_8888_Config,
-                                       SkImageDecoder::kDecodePixels_Mode,
-                                       NULL);
-        if (decodedReferenceBitmap) {
-            expectedChecksumsArray.append(Json::UInt64(
-                SkBitmapChecksummer::Compute64(referenceBitmap)));
-            retval = compare(bitmap, referenceBitmap, name,
-                             renderModeDescriptor);
-            if (fMismatchPath && (retval & ERROR_IMAGE_MISMATCH)) {
-                SkString path = make_filename(fMismatchPath, renderModeDescriptor, name, "png");
-                write_bitmap(path, bitmap);
-            }
-        } else {
-            if (fNotifyMissingReadReference) {
-                fprintf(stderr, "FAILED to read %s\n", path.c_str());
-            }
-            RecordError(ERROR_READING_REFERENCE_IMAGE, name,
-                        renderModeDescriptor);
+        if (expectations.empty()) {
             retval = ERROR_READING_REFERENCE_IMAGE;
-        }
-
-        // Add this result to the appropriate JSON collection of actual results,
-        // depending on status.
-        Json::Value actualResults;
-        actualResults[kJsonKey_ActualResults_AnyStatus_Checksum] = Json::UInt64(
-            SkBitmapChecksummer::Compute64(bitmap));
-        if (decodedReferenceBitmap) {
-            if (ERROR_NONE == retval) {
-                fJsonActualResults_Succeeded[name.c_str()] = actualResults;
-            } else {
-                fJsonActualResults_Failed[name.c_str()] = actualResults;
-            }
+        } else if (expectations.match(actualChecksum)) {
+            retval = ERROR_NONE;
         } else {
-            fJsonActualResults_NoComparison[name.c_str()] = actualResults;
+            retval = ERROR_IMAGE_MISMATCH;
+            if (fMismatchPath) {
+                SkString path =
+                    make_filename(fMismatchPath, renderModeDescriptor,
+                                  baseNameString.c_str(), "png");
+                write_bitmap(path, actualBitmap);
+            }
         }
+        RecordError(retval, baseNameString, renderModeDescriptor);
 
-        // Add this test to the JSON collection of expected results.
-        // For now, we assume that this collection starts out empty and we
-        // just fill it in as we go; once gm accepts a JSON file as input,
-        // we'll have to change that.
-        Json::Value expectedResults;
-        expectedResults[kJsonKey_ExpectedResults_Checksums] = expectedChecksumsArray;
-        expectedResults[kJsonKey_ExpectedResults_IgnoreFailure] = !decodedReferenceBitmap;
-        fJsonExpectedResults[name.c_str()] = expectedResults;
+        if (addToJsonSummary) {
+            add_actual_results_to_json_summary(completeName, actualChecksum,
+                                               retval,
+                                               expectations.ignoreFailure());
+            add_expected_results_to_json_summary(completeName, expectations);
+        }
 
         return retval;
     }
 
-    // NOTE: As far as I can tell, this function is NEVER called with a
-    // non-blank renderModeDescriptor, EXCEPT when readPath and writePath are
-    // both NULL (and thus no images are read from or written to disk).
-    // So I don't trust that the renderModeDescriptor is being used for
-    // anything other than debug output these days.
-    ErrorBitfield handle_test_results(GM* gm,
-                                      const ConfigData& gRec,
-                                      const char writePath [],
-                                      const char readPath [],
-                                      const char renderModeDescriptor [],
-                                      SkBitmap& bitmap,
-                                      SkDynamicMemoryWStream* pdf,
-                                      const SkBitmap* referenceBitmap) {
+    /**
+     * Add this result to the appropriate JSON collection of actual results,
+     * depending on status.
+     */
+    void add_actual_results_to_json_summary(const char testName[],
+                                            Checksum actualChecksum,
+                                            ErrorBitfield result,
+                                            bool ignoreFailure) {
+        Json::Value actualResults;
+        actualResults[kJsonKey_ActualResults_AnyStatus_Checksum] =
+            asJsonValue(actualChecksum);
+        if (ERROR_NONE == result) {
+            this->fJsonActualResults_Succeeded[testName] = actualResults;
+        } else {
+            if (ignoreFailure) {
+                // TODO: Once we have added the ability to compare
+                // actual results against expectations in a JSON file
+                // (where we can set ignore-failure to either true or
+                // false), add tests cases that exercise ignored
+                // failures (both for ERROR_READING_REFERENCE_IMAGE
+                // and ERROR_IMAGE_MISMATCH).
+                this->fJsonActualResults_FailureIgnored[testName] =
+                    actualResults;
+            } else {
+                switch(result) {
+                case ERROR_READING_REFERENCE_IMAGE:
+                    // TODO: What about the case where there IS an
+                    // expected image checksum, but that gm test
+                    // doesn't actually run?  For now, those cases
+                    // will always be ignored, because gm only looks
+                    // at expectations that correspond to gm tests
+                    // that were actually run.
+                    //
+                    // Once we have the ability to express
+                    // expectations as a JSON file, we should fix this
+                    // (and add a test case for which an expectation
+                    // is given but the test is never run).
+                    this->fJsonActualResults_NoComparison[testName] =
+                        actualResults;
+                    break;
+                case ERROR_IMAGE_MISMATCH:
+                    this->fJsonActualResults_Failed[testName] = actualResults;
+                    break;
+                default:
+                    fprintf(stderr, "encountered unexpected result %d\n",
+                            result);
+                    SkDEBUGFAIL("encountered unexpected result");
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Add this test to the JSON collection of expected results.
+     */
+    void add_expected_results_to_json_summary(const char testName[],
+                                              Expectations expectations) {
+        // For now, we assume that this collection starts out empty and we
+        // just fill it in as we go; once gm accepts a JSON file as input,
+        // we'll have to change that.
+        Json::Value expectedResults;
+        expectedResults[kJsonKey_ExpectedResults_Checksums] =
+            expectations.allowedChecksumsAsJson();
+        expectedResults[kJsonKey_ExpectedResults_IgnoreFailure] =
+            expectations.ignoreFailure();
+        this->fJsonExpectedResults[testName] = expectedResults;
+    }
+
+    /**
+     * Compare actualBitmap to expectations stored in this->fExpectationsSource.
+     *
+     * @param gm which test generated the actualBitmap
+     * @param gRec
+     * @param writePath unless this is NULL, write out actual images into this
+     *        directory
+     * @param actualBitmap bitmap generated by this run
+     * @param pdf
+     */
+    ErrorBitfield compare_test_results_to_stored_expectations(
+        GM* gm, const ConfigData& gRec, const char writePath[],
+        SkBitmap& actualBitmap, SkDynamicMemoryWStream* pdf) {
+
         SkString name = make_name(gm->shortName(), gRec.fName);
         ErrorBitfield retval = ERROR_NONE;
 
-        if (readPath && (gRec.fFlags & kRead_ConfigFlag)) {
-            retval |= compare_to_reference_image_on_disk(readPath, name, bitmap,
-                                                         renderModeDescriptor);
-        } else if (NULL == referenceBitmap) {
-            // If we are running without "--readPath", we still want to
+        ExpectationsSource *expectationsSource =
+            this->fExpectationsSource.get();
+        if (expectationsSource && (gRec.fFlags & kRead_ConfigFlag)) {
+            Expectations expectations = expectationsSource->get(name.c_str());
+            retval |= compare_to_expectations(expectations, actualBitmap,
+                                              name, "", true);
+        } else {
+            // If we are running without expectations, we still want to
             // record the actual results.
-            //
-            // For now, though, we don't record results of comparisons against
-            // different in-memory representations (hence the referenceBitmap
-            // NULL check).
-            Json::Value actualResults;
-            actualResults[kJsonKey_ActualResults_AnyStatus_Checksum] =
-                Json::UInt64(SkBitmapChecksummer::Compute64(bitmap));
-            fJsonActualResults_NoComparison[name.c_str()] = actualResults;
+            Checksum actualChecksum =
+                SkBitmapChecksummer::Compute64(actualBitmap);
+            add_actual_results_to_json_summary(name.c_str(), actualChecksum,
+                                               ERROR_READING_REFERENCE_IMAGE,
+                                               false);
         }
+
+        // TODO: Consider moving this into compare_to_expectations(),
+        // similar to fMismatchPath... for now, we don't do that, because
+        // we don't want to write out the actual bitmaps for all
+        // renderModes of all tests!  That would be a lot of files.
         if (writePath && (gRec.fFlags & kWrite_ConfigFlag)) {
-            retval |= write_reference_image(gRec, writePath,
-                                            renderModeDescriptor,
-                                            name, bitmap, pdf);
+            retval |= write_reference_image(gRec, writePath, "",
+                                            name, actualBitmap, pdf);
         }
-        if (referenceBitmap) {
-            ErrorBitfield compareResult = compare(bitmap, *referenceBitmap, name,
-                                                  renderModeDescriptor);
-            if (fMismatchPath && (compareResult & ERROR_IMAGE_MISMATCH)) {
-                SkString path = make_filename(fMismatchPath, renderModeDescriptor, name, "png");
-                write_bitmap(path, bitmap);
-            }
-            retval |= compareResult;
-        }
+
         return retval;
+    }
+
+    /**
+     * Compare actualBitmap to referenceBitmap.
+     *
+     * @param gm which test generated the bitmap
+     * @param gRec
+     * @param renderModeDescriptor
+     * @param actualBitmap actual bitmap generated by this run
+     * @param referenceBitmap bitmap we expected to be generated
+     */
+    ErrorBitfield compare_test_results_to_reference_bitmap(
+        GM* gm, const ConfigData& gRec, const char renderModeDescriptor [],
+        SkBitmap& actualBitmap, const SkBitmap* referenceBitmap) {
+
+        SkASSERT(referenceBitmap);
+        SkString name = make_name(gm->shortName(), gRec.fName);
+        Checksum referenceChecksum =
+            SkBitmapChecksummer::Compute64(*referenceBitmap);
+        Expectations expectations(referenceChecksum);
+        return compare_to_expectations(expectations, actualBitmap,
+                                       name, renderModeDescriptor);
     }
 
     static SkPicture* generate_new_picture(GM* gm, BbhType bbhType, uint32_t recordFlags,
@@ -667,7 +692,6 @@ public:
     ErrorBitfield test_drawing(GM* gm,
                                const ConfigData& gRec,
                                const char writePath [],
-                               const char readPath [],
                                GrContext* context,
                                GrRenderTarget* rt,
                                SkBitmap* bitmap) {
@@ -679,6 +703,9 @@ public:
             ErrorBitfield errors = generate_image(gm, gRec, context, rt, bitmap,
                                                   false);
             if (ERROR_NONE != errors) {
+                // TODO: Add a test to exercise what the stdout and
+                // JSON look like if we get an "early error" while
+                // trying to generate the image.
                 return errors;
             }
         } else if (gRec.fBackend == kPDF_Backend) {
@@ -691,8 +718,8 @@ public:
         } else if (gRec.fBackend == kXPS_Backend) {
             generate_xps(gm, document);
         }
-        return handle_test_results(gm, gRec, writePath, readPath,
-                                   "", *bitmap, &document, NULL);
+        return compare_test_results_to_stored_expectations(
+            gm, gRec, writePath, *bitmap, &document);
     }
 
     ErrorBitfield test_deferred_drawing(GM* gm,
@@ -710,17 +737,15 @@ public:
             if (!generate_image(gm, gRec, context, rt, &bitmap, true)) {
                 return ERROR_NONE;
             }
-            return handle_test_results(gm, gRec, NULL, NULL,
-                                       "-deferred", bitmap, NULL,
-                                       &referenceBitmap);
+            return compare_test_results_to_reference_bitmap(
+                gm, gRec, "-deferred", bitmap, &referenceBitmap);
         }
         return ERROR_NONE;
     }
 
     ErrorBitfield test_pipe_playback(GM* gm,
                                      const ConfigData& gRec,
-                                     const SkBitmap& referenceBitmap,
-                                     const char readPath []) {
+                                     const SkBitmap& referenceBitmap) {
         ErrorBitfield errors = ERROR_NONE;
         for (size_t i = 0; i < SK_ARRAY_COUNT(gPipeWritingFlagCombos); ++i) {
             SkBitmap bitmap;
@@ -735,9 +760,8 @@ public:
             writer.endRecording();
             SkString string("-pipe");
             string.append(gPipeWritingFlagCombos[i].name);
-            errors |= handle_test_results(gm, gRec, NULL, NULL,
-                                          string.c_str(), bitmap, NULL,
-                                          &referenceBitmap);
+            errors |= compare_test_results_to_reference_bitmap(
+                gm, gRec, string.c_str(), bitmap, &referenceBitmap);
             if (errors != ERROR_NONE) {
                 break;
             }
@@ -746,8 +770,7 @@ public:
     }
 
     ErrorBitfield test_tiled_pipe_playback(
-      GM* gm, const ConfigData& gRec, const SkBitmap& referenceBitmap,
-      const char readPath []) {
+      GM* gm, const ConfigData& gRec, const SkBitmap& referenceBitmap) {
         ErrorBitfield errors = ERROR_NONE;
         for (size_t i = 0; i < SK_ARRAY_COUNT(gPipeWritingFlagCombos); ++i) {
             SkBitmap bitmap;
@@ -762,9 +785,8 @@ public:
             writer.endRecording();
             SkString string("-tiled pipe");
             string.append(gPipeWritingFlagCombos[i].name);
-            errors |= handle_test_results(gm, gRec, NULL, NULL,
-                                          string.c_str(), bitmap, NULL,
-                                          &referenceBitmap);
+            errors |= compare_test_results_to_reference_bitmap(
+                gm, gRec, string.c_str(), bitmap, &referenceBitmap);
             if (errors != ERROR_NONE) {
                 break;
             }
@@ -777,9 +799,6 @@ public:
     // They are public for now, to allow easier setting by tool_main().
     //
 
-    // if true, emit a message when we can't find a reference image to compare
-    bool fNotifyMissingReadReference;
-
     bool fUseFileHierarchy;
 
     const char* fMismatchPath;
@@ -787,6 +806,11 @@ public:
     // information about all failed tests we have encountered so far
     SkTArray<FailRec> fFailedTests;
 
+    // Where to read expectations (expected image checksums, etc.) from.
+    // If unset, we don't do comparisons.
+    SkAutoTUnref<ExpectationsSource> fExpectationsSource;
+
+    // JSON summaries that we generate as we go (just for output).
     Json::Value fJsonExpectedResults;
     Json::Value fJsonActualResults_Failed;
     Json::Value fJsonActualResults_FailureIgnored;
@@ -978,6 +1002,9 @@ int tool_main(int argc, char** argv) {
     const char* readPath = NULL;    // if non-null, were we read from to compare
     const char* resourcePath = NULL;// if non-null, where we read from for image resources
 
+    // if true, emit a message when we can't find a reference image to compare
+    bool notifyMissingReadReference = true;
+
     SkTDArray<const char*> fMatches;
 
     bool doPDF = true;
@@ -1042,7 +1069,7 @@ int tool_main(int argc, char** argv) {
         } else if (strcmp(*argv, "--nodeferred") == 0) {
             doDeferred = false;
         } else if (strcmp(*argv, "--disable-missing-warning") == 0) {
-            gmmain.fNotifyMissingReadReference = false;
+            notifyMissingReadReference = false;
         } else if (strcmp(*argv, "--mismatchPath") == 0) {
             argv++;
             if (argv < stop && **argv) {
@@ -1071,7 +1098,7 @@ int tool_main(int argc, char** argv) {
                 return -1;
             }
         } else if (strcmp(*argv, "--enable-missing-warning") == 0) {
-            gmmain.fNotifyMissingReadReference = true;
+            notifyMissingReadReference = true;
         } else if (strcmp(*argv, "--forceBWtext") == 0) {
             gForceBWtext = true;
         } else if (strcmp(*argv, "--help") == 0 || strcmp(*argv, "-h") == 0) {
@@ -1186,7 +1213,21 @@ int tool_main(int argc, char** argv) {
     GM::SetResourcePath(resourcePath);
 
     if (readPath) {
-        fprintf(stderr, "reading from %s\n", readPath);
+        if (!sk_exists(readPath)) {
+            fprintf(stderr, "readPath %s does not exist!\n", readPath);
+            return -1;
+        }
+        if (sk_isdir(readPath)) {
+            fprintf(stderr, "reading from %s\n", readPath);
+            gmmain.fExpectationsSource.reset(SkNEW_ARGS(
+                IndividualImageExpectationsSource,
+                (readPath, notifyMissingReadReference)));
+        } else {
+            fprintf(stderr, "reading expectations from JSON summary file %s ",
+                    readPath);
+            fprintf(stderr, "BUT WE DON'T KNOW HOW TO DO THIS YET!\n");
+            return -1;
+        }
     }
     if (writePath) {
         fprintf(stderr, "writing to %s\n", writePath);
@@ -1318,7 +1359,7 @@ int tool_main(int argc, char** argv) {
 
             if (ERROR_NONE == renderErrors) {
                 renderErrors |= gmmain.test_drawing(gm, config, writePath,
-                                                    readPath, GetGr(),
+                                                    GetGr(),
                                                     renderTarget,
                                                     &comparisonBitmap);
             }
@@ -1353,11 +1394,8 @@ int tool_main(int argc, char** argv) {
                 SkBitmap bitmap;
                 gmmain.generate_image_from_picture(gm, compareConfig, pict,
                                                    &bitmap);
-                pictErrors |= gmmain.handle_test_results(gm, compareConfig,
-                                                         NULL, NULL,
-                                                         "-replay", bitmap,
-                                                         NULL,
-                                                         &comparisonBitmap);
+                pictErrors |= gmmain.compare_test_results_to_reference_bitmap(
+                    gm, compareConfig, "-replay", bitmap, &comparisonBitmap);
             }
 
             if ((ERROR_NONE == testErrors) &&
@@ -1369,18 +1407,15 @@ int tool_main(int argc, char** argv) {
                 SkBitmap bitmap;
                 gmmain.generate_image_from_picture(gm, compareConfig, repict,
                                                    &bitmap);
-                pictErrors |= gmmain.handle_test_results(gm, compareConfig,
-                                                         NULL, NULL,
-                                                         "-serialize", bitmap,
-                                                         NULL,
-                                                         &comparisonBitmap);
+                pictErrors |= gmmain.compare_test_results_to_reference_bitmap(
+                    gm, compareConfig, "-serialize", bitmap, &comparisonBitmap);
             }
 
             if (writePicturePath) {
                 const char* pictureSuffix = "skp";
-                SkString path = gmmain.make_filename(writePicturePath, "",
-                                                     SkString(gm->shortName()),
-                                                     pictureSuffix);
+                SkString path = make_filename(writePicturePath, "",
+                                              gm->shortName(),
+                                              pictureSuffix);
                 SkFILEWStream stream(path.c_str());
                 pict->serialize(&stream);
             }
@@ -1388,18 +1423,19 @@ int tool_main(int argc, char** argv) {
             testErrors |= pictErrors;
         }
 
+        // TODO: add a test in which the RTree rendering results in a
+        // different bitmap than the standard rendering.  It should
+        // show up as failed in the JSON summary, and should be listed
+        // in the stdout also.
         if (!(gmFlags & GM::kSkipPicture_Flag) && doRTree) {
-            SkPicture* pict = gmmain.generate_new_picture(gm, kRTree_BbhType,
-                SkPicture::kUsePathBoundsForClip_RecordingFlag);
+            SkPicture* pict = gmmain.generate_new_picture(
+                gm, kRTree_BbhType, SkPicture::kUsePathBoundsForClip_RecordingFlag);
             SkAutoUnref aur(pict);
             SkBitmap bitmap;
             gmmain.generate_image_from_picture(gm, compareConfig, pict,
                                                &bitmap);
-            testErrors |= gmmain.handle_test_results(gm, compareConfig,
-                                                     NULL, NULL,
-                                                     "-rtree", bitmap,
-                                                     NULL,
-                                                     &comparisonBitmap);
+            testErrors |= gmmain.compare_test_results_to_reference_bitmap(
+                gm, compareConfig, "-rtree", bitmap, &comparisonBitmap);
         }
 
         if (!(gmFlags & GM::kSkipPicture_Flag) && doTileGrid) {
@@ -1410,8 +1446,9 @@ int tool_main(int argc, char** argv) {
                 // We record with the reciprocal scale to obtain a replay
                 // result that can be validated against comparisonBitmap.
                 SkScalar recordScale = SkScalarInvert(replayScale);
-                SkPicture* pict = gmmain.generate_new_picture(gm, kTileGrid_BbhType,
-                    SkPicture::kUsePathBoundsForClip_RecordingFlag, recordScale);
+                SkPicture* pict = gmmain.generate_new_picture(
+                    gm, kTileGrid_BbhType, SkPicture::kUsePathBoundsForClip_RecordingFlag,
+                    recordScale);
                 SkAutoUnref aur(pict);
                 SkBitmap bitmap;
                 gmmain.generate_image_from_picture(gm, compareConfig, pict,
@@ -1421,11 +1458,9 @@ int tool_main(int argc, char** argv) {
                     suffix += "-scale-";
                     suffix.appendScalar(replayScale);
                 }
-                testErrors |= gmmain.handle_test_results(gm, compareConfig,
-                                                         NULL, NULL,
-                                                         suffix.c_str(), bitmap,
-                                                         NULL,
-                                                         &comparisonBitmap);
+                testErrors |= gmmain.compare_test_results_to_reference_bitmap(
+                    gm, compareConfig, suffix.c_str(), bitmap,
+                    &comparisonBitmap);
             }
         }
 
@@ -1436,16 +1471,14 @@ int tool_main(int argc, char** argv) {
 
             if ((ERROR_NONE == testErrors) && doPipe) {
                 pipeErrors |= gmmain.test_pipe_playback(gm, compareConfig,
-                                                        comparisonBitmap,
-                                                        readPath);
+                                                        comparisonBitmap);
             }
 
             if ((ERROR_NONE == testErrors) &&
                 (ERROR_NONE == pipeErrors) &&
                 doTiledPipe && !(gmFlags & GM::kSkipTiled_Flag)) {
                 pipeErrors |= gmmain.test_tiled_pipe_playback(gm, compareConfig,
-                                                              comparisonBitmap,
-                                                              readPath);
+                                                              comparisonBitmap);
             }
 
             testErrors |= pipeErrors;
@@ -1454,10 +1487,10 @@ int tool_main(int argc, char** argv) {
         // Update overall results.
         // We only tabulate the particular error types that we currently
         // care about (e.g., missing reference images). Later on, if we
-        // want to also tabulate pixel mismatches vs dimension mistmatches
-        // (or whatever else), we can do so.
+        // want to also tabulate other error types, we can do so.
         testsRun++;
-        if (!readPath || (ERROR_READING_REFERENCE_IMAGE & testErrors)) {
+        if (!gmmain.fExpectationsSource.get() ||
+            (ERROR_READING_REFERENCE_IMAGE & testErrors)) {
             testsMissingReferenceImages++;
         } else if (ERROR_NONE == testErrors) {
             testsPassed++;
