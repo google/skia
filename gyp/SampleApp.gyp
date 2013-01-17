@@ -118,14 +118,6 @@
         #'../experimental/Networking/SkSockets.cpp',
         #'../experimental/Networking/SkSockets.h',
 
-        # Debugger
-        '../experimental/Debugger/DebuggerViews.h',
-        '../experimental/Debugger/DebuggerContentView.cpp',
-        '../experimental/Debugger/DebuggerCommandsView.cpp',
-        '../experimental/Debugger/DebuggerStateView.cpp',
-        '../experimental/Debugger/SkDebugDumper.cpp',
-        '../experimental/Debugger/SkDebugDumper.h',
-
         # TiledPipeController
         '../src/pipe/utils/SamplePipeControllers.h',
         '../src/pipe/utils/SamplePipeControllers.cpp',

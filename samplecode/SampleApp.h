@@ -179,7 +179,6 @@ private:
                                     // On uses a normal pipe
                                     // Off uses no pipe
     int  fUsePipeMenuItemID;
-    bool fDebugger;
 
     // The following are for the 'fatbits' drawing
     // Latest position of the mouse.
