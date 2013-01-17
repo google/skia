@@ -98,12 +98,12 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     connect(&fActionSaveAs, SIGNAL(triggered()), this, SLOT(actionSaveAs()));
     connect(&fActionSave, SIGNAL(triggered()), this, SLOT(actionSave()));
 
-    fMapper.setMapping(&fActionZoomIn, 1);
-    fMapper.setMapping(&fActionZoomOut, -1);
+    fMapper.setMapping(&fActionZoomIn, SkCanvasWidget::kIn_ZoomCommand);
+    fMapper.setMapping(&fActionZoomOut, SkCanvasWidget::kOut_ZoomCommand);
 
     connect(&fActionZoomIn, SIGNAL(triggered()), &fMapper, SLOT(map()));
     connect(&fActionZoomOut, SIGNAL(triggered()), &fMapper, SLOT(map()));
-    connect(&fMapper, SIGNAL(mapped(int)), &fCanvasWidget, SLOT(keyZoom(int)));
+    connect(&fMapper, SIGNAL(mapped(int)), &fCanvasWidget, SLOT(zoom(int)));
 
     fInspectorWidget.setDisabled(true);
     fMenuEdit.setDisabled(true);
@@ -144,10 +144,10 @@ public:
                            const SkTDArray<size_t>& offsets,
                            const SkTDArray<bool>& deletedCommands)
         : INHERITED(stream, info, isValid, decoder)
-        , fTot(0.0)
-        , fCurCommand(0)
         , fOffsets(offsets)
-        , fSkipCommands(deletedCommands) {
+        , fSkipCommands(deletedCommands)
+        , fTot(0.0)
+        , fCurCommand(0) {
         fTimes.setCount(fOffsets.count());
         fTypeTimes.setCount(LAST_DRAWTYPE_ENUM+1);
         this->resetTimes();

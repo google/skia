@@ -151,12 +151,6 @@ QRadioButton* SkSettingsWidget::getVisibilityButton() {
     return &fVisibleOn;
 }
 
-void SkSettingsWidget::setZoomText(int scaleFactor) {
-    if(scaleFactor == 1 || scaleFactor == -1) {
-        fZoomBox.setText("100%");
-    } else if (scaleFactor > 1) {
-        fZoomBox.setText(QString::number(scaleFactor*100).append("%"));
-    } else if (scaleFactor < -1) {
-        fZoomBox.setText(QString::number(100 / pow(2.0f, (-scaleFactor - 1))).append("%"));
-    }
+void SkSettingsWidget::setZoomText(float scale) {
+    fZoomBox.setText(QString::number(scale*100, 'f', 0).append("%"));
 }
