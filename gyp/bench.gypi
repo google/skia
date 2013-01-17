@@ -42,6 +42,7 @@
     '../bench/ShaderMaskBench.cpp',
     '../bench/TableBench.cpp',
     '../bench/TextBench.cpp',
+    '../bench/TileBench.cpp',
     '../bench/VertBench.cpp',
     '../bench/WriterBench.cpp',
 
