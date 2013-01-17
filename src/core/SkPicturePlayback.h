@@ -79,7 +79,7 @@ public:
     void abort();
 
 protected:
-#ifdef SK_PICTURE_PROFILING_STUBS
+#ifdef SK_DEVELOPER
     virtual size_t preDraw(size_t offset, int type);
     virtual void postDraw(size_t offset);
 #endif

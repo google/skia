@@ -619,7 +619,7 @@ struct SkipClipRec {
 };
 #endif
 
-#ifdef SK_PICTURE_PROFILING_STUBS
+#ifdef SK_DEVELOPER
 size_t SkPicturePlayback::preDraw(size_t offset, int type) {
     return 0;
 }
@@ -680,11 +680,11 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
     SkMatrix initialMatrix = canvas.getTotalMatrix();
 
     while (!reader.eof()) {
-#ifdef SK_PICTURE_PROFILING_STUBS
+#ifdef SK_DEVELOPER
         size_t curOffset = reader.offset();
 #endif
         int type = reader.readInt();
-#ifdef SK_PICTURE_PROFILING_STUBS
+#ifdef SK_DEVELOPER
         size_t skipTo = this->preDraw(curOffset, type);
         if (0 != skipTo) {
             if (kDrawComplete == skipTo) {
@@ -962,7 +962,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 SkASSERT(0);
         }
 
-#ifdef SK_PICTURE_PROFILING_STUBS
+#ifdef SK_DEVELOPER
         this->postDraw(curOffset);
 #endif
 
