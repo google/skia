@@ -26,7 +26,8 @@ bool bezier_clip(const Cubic& cubic1, const Cubic& cubic2, double& minT, double&
     }
 
     double distance[2];
-    endLine.controlPtDistance(cubic1, distance);
+    distance[0] = endLine.controlPtDistance(cubic1, 1);
+    distance[1] = endLine.controlPtDistance(cubic1, 2);
 
     // find fat line
     double top = distance[0];
@@ -87,4 +88,3 @@ bool bezier_clip(const Cubic& cubic1, const Cubic& cubic2, double& minT, double&
 
     return minT < maxT; // returns false if distance shows no intersection
 }
-

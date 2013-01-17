@@ -3510,12 +3510,40 @@ static void testLine85() {
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = testLine85;
+static void testQuadralateral1() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(3, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(2, 1);
+    path.lineTo(2, 2);
+    path.lineTo(2, 3);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void testCubic1() {
+    SkPath path;
+    path.moveTo(0, 0);
+    path.cubicTo(0, 1, 1, 1, 1, 0);
+    path.close();
+    path.moveTo(1, 0);
+    path.cubicTo(0, 0, 0, 1, 1, 1);
+    path.close();
+    testSimplifyx(path);
+}
+
+static void (*firstTest)() = 0;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(testCubic1),
+    TEST(testQuadralateral1),
     TEST(testLine85),
     TEST(testLine84),
     TEST(testLine84x),
@@ -3997,12 +4025,22 @@ static void testOp2u() {
     testShapeOp(path, pathB, kUnion_Op);
 }
 
+static void testOp8d() {
+    SkPath path, pathB;
+    path.addRect(0, 0, 640, 480);
+    pathB.moveTo(577330, 1971.72f);
+    pathB.cubicTo(10.7082f, -116.596f, 262.057f, 45.6468f, 294.694f, 1.96237f);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}    
+
 static const size_t testCount = sizeof(tests) / sizeof(tests[0]);
 
 static struct {
     void (*fun)();
     const char* str;
 } subTests[] = {
+    TEST(testOp8d),
     TEST(testDiff1),
     TEST(testIntersect1),
     TEST(testUnion1),
@@ -4024,10 +4062,10 @@ static struct {
 
 static const size_t subTestCount = sizeof(subTests) / sizeof(subTests[0]);
 
-static void (*firstBinaryTest)() = 0;
+static void (*firstBinaryTest)() = testOp8d;
 
 static bool skipAll = false;
-static bool runBinaryTestsFirst = false;
+static bool runBinaryTestsFirst = true;
 static bool runReverse = false;
 static void (*stopTest)() = 0;
 

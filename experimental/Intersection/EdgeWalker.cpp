@@ -80,7 +80,7 @@ static int CubicLineIntersect(const SkPoint a[2], const SkPoint b[3],
     const Cubic aCubic = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY}, {a[2].fX, a[2].fY},
             {a[3].fX, a[3].fY}};
     const _Line bLine = {{b[0].fX, b[0].fY}, {b[1].fX, b[1].fY}};
-    return intersect(aCubic, bLine, intersections.fT[0], intersections.fT[1]);
+    return intersect(aCubic, bLine, intersections);
 }
 
 static int QuadIntersect(const SkPoint a[3], const SkPoint b[3],

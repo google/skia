@@ -7,6 +7,14 @@
 #include "CubicUtilities.h"
 #include "QuadraticUtilities.h"
 
+double calcPrecision(const Cubic& cubic) {
+    _Rect dRect;
+    dRect.setBounds(cubic);
+    double width = dRect.right - dRect.left;
+    double height = dRect.bottom - dRect.top;
+    return (width > height ? width : height) / 256;
+}
+
 void coefficients(const double* cubic, double& A, double& B, double& C, double& D) {
     A = cubic[6]; // d
     B = cubic[4] * 3; // 3*c
@@ -93,15 +101,6 @@ double derivativeAtT(const double* cubic, double t) {
     return (b - a) * one_t * one_t + 2 * (c - b) * t * one_t + (d - c) * t * t;
 }
 
-// same as derivativeAtT
-// which is more accurate? which is faster?
-double derivativeAtT_2(const double* cubic, double t) {
-    double a = cubic[2] - cubic[0];
-    double b = cubic[4] - 2 * cubic[2] + cubic[0];
-    double c = cubic[6] + 3 * (cubic[2] - cubic[4]) - cubic[0];
-    return c * c * t * t + 2 * b * t + a;
-}
-
 void dxdy_at_t(const Cubic& cubic, double t, double& dx, double& dy) {
     if (&dx) {
         dx = derivativeAtT(&cubic[0].x, t);
@@ -109,6 +108,17 @@ void dxdy_at_t(const Cubic& cubic, double t, double& dx, double& dy) {
     if (&dy) {
         dy = derivativeAtT(&cubic[0].y, t);
     }
+}
+
+int find_cubic_inflections(const Cubic& src, double tValues[])
+{
+    double Ax = src[1].x - src[0].x;
+    double Ay = src[1].y - src[0].y;
+    double Bx = src[2].x - 2 * src[1].x + src[0].x;
+    double By = src[2].y - 2 * src[1].y + src[0].y;
+    double Cx = src[3].x + 3 * (src[1].x - src[2].x) - src[0].x;
+    double Cy = src[3].y + 3 * (src[1].y - src[2].y) - src[0].y;
+    return quadraticRoots(Bx * Cy - By * Cx, (Ax * Cy - Ay * Cx) / 2, Ax * By - Ay * Bx, tValues);
 }
 
 bool rotate(const Cubic& cubic, int zero, int index, Cubic& rotPath) {

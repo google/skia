@@ -15,9 +15,12 @@ void cubecode_test(int test);
 void Intersection_Tests() {
     int testsRun = 0;
 
+    QuadraticIntersection_Test();
+    CubicIntersection_OneOffTest();
+    CubicIntersection_RandTest();
+    SimplifyNew_Test();
     CubicsToQuadratics_RandTest();
     CubicToQuadratics_Test();
-    SimplifyNew_Test();
     Simplify4x4RectsThreaded_Test(testsRun);
     Simplify4x4QuadraticsThreaded_Test(testsRun);
     QuadLineIntersectThreaded_Test(testsRun);
@@ -26,7 +29,6 @@ void Intersection_Tests() {
     Simplify4x4QuadralateralsThreaded_Test(testsRun);
     ShapeOps4x4RectsThreaded_Test(testsRun);
     SkDebugf("%s total testsRun=%d\n", __FUNCTION__, testsRun);
-    QuadraticIntersection_Test();
     LineQuadraticIntersection_Test();
     MiniSimplify_Test();
     SimplifyAngle_Test();

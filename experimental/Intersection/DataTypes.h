@@ -23,13 +23,9 @@ inline bool AlmostEqualUlps(double A, double B) { return AlmostEqualUlps((float)
 
 // FIXME: delete
 int UlpsDiff(float A, float B);
-int FloatAsInt(float A);
 
-#if defined(IN_TEST)
-// FIXME: move to test-only header
-const double PointEpsilon = 0.000001;
-const double SquaredEpsilon = PointEpsilon * PointEpsilon;
-#endif
+const double FLT_EPSILON_SQUARED = FLT_EPSILON * FLT_EPSILON;
+const double FLT_EPSILON_SQRT = sqrt(FLT_EPSILON);
 
 inline bool approximately_zero(double x) {
 
@@ -47,7 +43,11 @@ inline bool approximately_zero(float x) {
 }
 
 inline bool approximately_zero_squared(double x) {
-    return fabs(x) < FLT_EPSILON * FLT_EPSILON;
+    return fabs(x) < FLT_EPSILON_SQUARED;
+}
+
+inline bool approximately_zero_sqrt(double x) {
+    return fabs(x) < FLT_EPSILON_SQRT;
 }
 
 inline bool approximately_equal(double x, double y) {
@@ -107,7 +107,7 @@ inline bool approximately_positive(double x) {
 }
 
 inline bool approximately_positive_squared(double x) {
-    return x > -(FLT_EPSILON * FLT_EPSILON);
+    return x > -(FLT_EPSILON_SQUARED);
 }
 
 inline bool approximately_zero_or_more(double x) {
@@ -130,6 +130,11 @@ struct _Point {
     double x;
     double y;
 
+    friend _Point operator-(const _Point& a, const _Point& b) {
+        _Point v = {a.x - b.x, a.y - b.y};
+        return v;
+    }
+
     void operator-=(const _Point& v) {
         x -= v.x;
         y -= v.y;
@@ -150,7 +155,10 @@ struct _Point {
         return AlmostEqualUlps((float) x, (float) a.x)
                 && AlmostEqualUlps((float) y, (float) a.y);
     }
-
+    
+    double dot(const _Point& a) {
+        return x * a.x + y * a.y;
+    }
 };
 
 typedef _Point _Line[2];

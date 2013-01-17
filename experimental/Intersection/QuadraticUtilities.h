@@ -4,6 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+ 
+#if !defined QUADRATIC_UTILITIES_H
+#define QUADRATIC_UTILITIES_H
+
 #include "DataTypes.h"
 
 void dxdy_at_t(const Quadratic& , double t, double& x, double& y);
@@ -24,5 +28,7 @@ inline void set_abc(const double* quad, double& a, double& b, double& c) {
 }
 
 int quadraticRoots(double A, double B, double C, double t[2]);
-
+int quadraticRootsX(const double A, const double B, const double C, double s[2]);
 void xy_at_t(const Quadratic& , double t, double& x, double& y);
+
+#endif

@@ -77,160 +77,213 @@ So the cubic coefficients are:
 
  */
 
-class LineCubicIntersections : public Intersections {
+class LineCubicIntersections {
 public:
 
-LineCubicIntersections(const Cubic& c, const _Line& l, double r[3])
+LineCubicIntersections(const Cubic& c, const _Line& l, Intersections& i)
     : cubic(c)
     , line(l)
-    , range(r) {
+    , intersections(i) {
+}
+
+// see parallel routine in line quadratic intersections
+int intersectRay(double roots[3]) {
+    double adj = line[1].x - line[0].x;
+    double opp = line[1].y - line[0].y;
+    Cubic r;
+    for (int n = 0; n < 4; ++n) {
+        r[n].x = (cubic[n].y - line[0].y) * adj - (cubic[n].x - line[0].x) * opp;
+    }
+    double A, B, C, D;
+    coefficients(&r[0].x, A, B, C, D);
+    return cubicRoots(A, B, C, D, roots);
 }
 
 int intersect() {
-    double slope;
-    double axisIntercept;
-    moreHorizontal = implicitLine(line, slope, axisIntercept);
-    double A, B, C, D;
-    coefficients(&cubic[0].x, A, B, C, D);
-    double E, F, G, H;
-    coefficients(&cubic[0].y, E, F, G, H);
-    if (moreHorizontal) {
-        A = A * slope - E;
-        B = B * slope - F;
-        C = C * slope - G;
-        D = D * slope - H + axisIntercept;
-    } else {
-        A = A - E * slope;
-        B = B - F * slope;
-        C = C - G * slope;
-        D = D - H * slope - axisIntercept;
+    addEndPoints();
+    double rootVals[3];
+    int roots = intersectRay(rootVals);
+    for (int index = 0; index < roots; ++index) {
+        double cubicT = rootVals[index];
+        double lineT = findLineT(cubicT);
+        if (pinTs(cubicT, lineT)) {
+            intersections.insert(cubicT, lineT);
+        }
     }
-    return cubicRoots(A, B, C, D, range);
+    return intersections.fUsed;
 }
 
-int horizontalIntersect(double axisIntercept) {
+int horizontalIntersect(double axisIntercept, double roots[3]) {
     double A, B, C, D;
     coefficients(&cubic[0].y, A, B, C, D);
     D -= axisIntercept;
-    return cubicRoots(A, B, C, D, range);
+    return cubicRoots(A, B, C, D, roots);
 }
 
-int verticalIntersect(double axisIntercept) {
+int horizontalIntersect(double axisIntercept, double left, double right, bool flipped) {
+    addHorizontalEndPoints(left, right, axisIntercept);
+    double rootVals[3];
+    int roots = horizontalIntersect(axisIntercept, rootVals);
+    for (int index = 0; index < roots; ++index) {
+        double x;
+        double cubicT = rootVals[index];
+        xy_at_t(cubic, cubicT, x, *(double*) NULL);
+        double lineT = (x - left) / (right - left);
+        if (pinTs(cubicT, lineT)) {
+            intersections.insert(cubicT, lineT);
+        }
+    }
+    if (flipped) {
+        flip();
+    }
+    return intersections.fUsed;
+}
+
+int verticalIntersect(double axisIntercept, double roots[3]) {
     double A, B, C, D;
     coefficients(&cubic[0].x, A, B, C, D);
     D -= axisIntercept;
-    return cubicRoots(A, B, C, D, range);
+    return cubicRoots(A, B, C, D, roots);
+}
+
+int verticalIntersect(double axisIntercept, double top, double bottom, bool flipped) {
+    addVerticalEndPoints(top, bottom, axisIntercept);
+    double rootVals[3];
+    int roots = verticalIntersect(axisIntercept, rootVals);
+    for (int index = 0; index < roots; ++index) {
+        double y;
+        double cubicT = rootVals[index];
+        xy_at_t(cubic, cubicT, *(double*) NULL, y);
+        double lineT = (y - top) / (bottom - top);
+        if (pinTs(cubicT, lineT)) {
+            intersections.insert(cubicT, lineT);
+        }
+    }
+    if (flipped) {
+        flip();
+    }
+    return intersections.fUsed;
+}
+
+protected:
+
+void addEndPoints()
+{
+    for (int cIndex = 0; cIndex < 4; cIndex += 3) {
+        for (int lIndex = 0; lIndex < 2; lIndex++) {
+            if (cubic[cIndex] == line[lIndex]) {
+                intersections.insert(cIndex >> 1, lIndex);
+            }
+        }
+    }
+}
+
+void addHorizontalEndPoints(double left, double right, double y)
+{
+    for (int cIndex = 0; cIndex < 4; cIndex += 3) {
+        if (cubic[cIndex].y != y) {
+            continue;
+        }
+        if (cubic[cIndex].x == left) {
+            intersections.insert(cIndex >> 1, 0);
+        }
+        if (cubic[cIndex].x == right) {
+            intersections.insert(cIndex >> 1, 1);
+        }
+    }
+}
+
+void addVerticalEndPoints(double top, double bottom, double x)
+{
+    for (int cIndex = 0; cIndex < 4; cIndex += 3) {
+        if (cubic[cIndex].x != x) {
+            continue;
+        }
+        if (cubic[cIndex].y == top) {
+            intersections.insert(cIndex >> 1, 0);
+        }
+        if (cubic[cIndex].y == bottom) {
+            intersections.insert(cIndex >> 1, 1);
+        }
+    }
 }
 
 double findLineT(double t) {
-    const double* cPtr;
-    const double* lPtr;
-    if (moreHorizontal) {
-        cPtr = &cubic[0].x;
-        lPtr = &line[0].x;
-    } else {
-        cPtr = &cubic[0].y;
-        lPtr = &line[0].y;
+    double x, y;
+    xy_at_t(cubic, t, x, y);
+    double dx = line[1].x - line[0].x;
+    double dy = line[1].y - line[0].y;
+    if (fabs(dx) > fabs(dy)) {
+        return (x - line[0].x) / dx;
     }
-    // FIXME: should fold the following in with TestUtilities.cpp xy_at_t()
-    double s = 1 - t;
-    double cubicVal = cPtr[0] * s * s * s + 3 * cPtr[2] * s * s * t
-                + 3 * cPtr[4] * s * t * t + cPtr[6] * t * t * t;
-    return (cubicVal - lPtr[0]) / (lPtr[2] - lPtr[0]);
+    return (y - line[0].y) / dy;
+}
+
+void flip() {
+    // OPTIMIZATION: instead of swapping, pass original line, use [1].y - [0].y
+    int roots = intersections.fUsed;
+    for (int index = 0; index < roots; ++index) {
+        intersections.fT[1][index] = 1 - intersections.fT[1][index];
+    }
+}
+
+bool pinTs(double& cubicT, double& lineT) {
+    if (!approximately_one_or_less(lineT)) {
+        return false;
+    }
+    if (!approximately_zero_or_more(lineT)) {
+        return false;
+    }
+    if (cubicT < 0) {
+        cubicT = 0;
+    } else if (cubicT > 1) {
+        cubicT = 1;
+    }
+    if (lineT < 0) {
+        lineT = 0;
+    } else if (lineT > 1) {
+        lineT = 1;
+    }
+    return true;
 }
 
 private:
 
 const Cubic& cubic;
 const _Line& line;
-double* range;
-bool moreHorizontal;
-
+Intersections& intersections;
 };
-
-int horizontalIntersect(const Cubic& cubic, double y, double tRange[3]) {
-    LineCubicIntersections c(cubic, *((_Line*) 0), tRange);
-    return c.horizontalIntersect(y);
-}
 
 int horizontalIntersect(const Cubic& cubic, double left, double right, double y,
         double tRange[3]) {
-    LineCubicIntersections c(cubic, *((_Line*) 0), tRange);
-    int result = c.horizontalIntersect(y);
-    for (int index = 0; index < result; ) {
+    LineCubicIntersections c(cubic, *((_Line*) 0), *((Intersections*) 0));
+    double rootVals[3];
+    int result = c.horizontalIntersect(y, rootVals);
+    int tCount = 0;
+    for (int index = 0; index < result; ++index) {
         double x, y;
-        xy_at_t(cubic, tRange[index], x, y);
+        xy_at_t(cubic, rootVals[index], x, y);
         if (x < left || x > right) {
-            if (--result > index) {
-                tRange[index] = tRange[result];
-            }
             continue;
         }
-        ++index;
+        tRange[tCount++] = rootVals[index];
     }
     return result;
 }
 
 int horizontalIntersect(const Cubic& cubic, double left, double right, double y,
         bool flipped, Intersections& intersections) {
-    LineCubicIntersections c(cubic, *((_Line*) 0), intersections.fT[0]);
-    int result = c.horizontalIntersect(y);
-    for (int index = 0; index < result; ) {
-        double x, y;
-        xy_at_t(cubic, intersections.fT[0][index], x, y);
-        if (x < left || x > right) {
-            if (--result > index) {
-                intersections.fT[0][index] = intersections.fT[0][result];
-            }
-            continue;
-        }
-        intersections.fT[1][index] = (x - left) / (right - left);
-        ++index;
-    }
-    if (flipped) {
-        // OPTIMIZATION: instead of swapping, pass original line, use [1].x - [0].x
-        for (int index = 0; index < result; ++index) {
-            intersections.fT[1][index] = 1 - intersections.fT[1][index];
-        }
-    }
-    return result;
+    LineCubicIntersections c(cubic, *((_Line*) 0), intersections);
+    return c.horizontalIntersect(y, left, right, flipped);
 }
 
 int verticalIntersect(const Cubic& cubic, double top, double bottom, double x,
         bool flipped, Intersections& intersections) {
-    LineCubicIntersections c(cubic, *((_Line*) 0), intersections.fT[0]);
-    int result = c.verticalIntersect(x);
-    for (int index = 0; index < result; ) {
-        double x, y;
-        xy_at_t(cubic, intersections.fT[0][index], x, y);
-        if (y < top || y > bottom) {
-            if (--result > index) {
-                intersections.fT[1][index] = intersections.fT[0][result];
-            }
-            continue;
-        }
-        intersections.fT[0][index] = (y - top) / (bottom - top);
-        ++index;
-    }
-    if (flipped) {
-        // OPTIMIZATION: instead of swapping, pass original line, use [1].x - [0].x
-        for (int index = 0; index < result; ++index) {
-            intersections.fT[1][index] = 1 - intersections.fT[1][index];
-        }
-    }
-    return result;
+    LineCubicIntersections c(cubic, *((_Line*) 0), intersections);
+    return c.verticalIntersect(x, top, bottom, flipped);
 }
 
-int intersect(const Cubic& cubic, const _Line& line, double cRange[3], double lRange[3]) {
-    LineCubicIntersections c(cubic, line, cRange);
-    int roots;
-    if (AlmostEqualUlps(line[0].y, line[1].y)) {
-        roots = c.horizontalIntersect(line[0].y);
-    } else {
-        roots = c.intersect();
-    }
-    for (int index = 0; index < roots; ++index) {
-        lRange[index] = c.findLineT(cRange[index]);
-    }
-    return roots;
+int intersect(const Cubic& cubic, const _Line& line, Intersections& i) {
+    LineCubicIntersections c(cubic, line, i);
+    return c.intersect();
 }

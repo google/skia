@@ -3,21 +3,14 @@
 #include "Intersection_Tests.h"
 #include "QuadraticIntersection_TestData.h"
 #include "TestUtilities.h"
+#include "SkGeometry.h"
 
-static double calcPrecision(const Cubic& cubic) {
-    _Rect dRect;
-    dRect.setBounds(cubic);
-    double width = dRect.right - dRect.left;
-    double height = dRect.bottom - dRect.top;
-    return (width > height ? width : height) / 256;
-}
-
-static void test(const Cubic(& cubics)[], const char* name, int firstTest, size_t testCount) {
+static void test(const Cubic* cubics, const char* name, int firstTest, size_t testCount) {
     SkTDArray<Quadratic> quads;
     for (size_t index = firstTest; index < testCount; ++index) {
         const Cubic& cubic = cubics[index];
         double precision = calcPrecision(cubic);
-        cubic_to_quadratics(cubic, precision, quads);
+        (void) cubic_to_quadratics(cubic, precision, quads);
         if (quads.count() != 1) {
             printf("%s [%d] cubic to quadratics failed count=%d\n", name, (int) index,
                     quads.count());
@@ -25,14 +18,14 @@ static void test(const Cubic(& cubics)[], const char* name, int firstTest, size_
     }
 }
 
-static void test(const Quadratic(& quadTests)[], const char* name, int firstTest, size_t testCount) {
+static void test(const Quadratic* quadTests, const char* name, int firstTest, size_t testCount) {
     SkTDArray<Quadratic> quads;
     for (size_t index = firstTest; index < testCount; ++index) {
         const Quadratic& quad = quadTests[index];
         Cubic cubic;
         quad_to_cubic(quad, cubic);
         double precision = calcPrecision(cubic);
-        cubic_to_quadratics(cubic, precision, quads);
+        (void) cubic_to_quadratics(cubic, precision, quads);
         if (quads.count() != 1) {
             printf("%s [%d] cubic to quadratics failed count=%d\n", name, (int) index,
                     quads.count());
@@ -40,7 +33,7 @@ static void test(const Quadratic(& quadTests)[], const char* name, int firstTest
     }
 }
 
-static void testC(const Cubic(& cubics)[], const char* name, int firstTest, size_t testCount) {
+static void testC(const Cubic* cubics, const char* name, int firstTest, size_t testCount) {
     SkTDArray<Quadratic> quads;
     // test if computed line end points are valid
     for (size_t index = firstTest; index < testCount; ++index) {
@@ -63,15 +56,15 @@ static void testC(const Cubic(& cubics)[], const char* name, int firstTest, size
     }
 }
 
-static void testC(const Cubic(& cubics)[][2], const char* name, int firstTest, size_t testCount) {
+static void testC(const Cubic(* cubics)[2], const char* name, int firstTest, size_t testCount) {
     SkTDArray<Quadratic> quads;
     for (size_t index = firstTest; index < testCount; ++index) {
         for (int idx2 = 0; idx2 < 2; ++idx2) {
             const Cubic& cubic = cubics[index][idx2];
             double precision = calcPrecision(cubic);
             int order = cubic_to_quadratics(cubic, precision, quads);
-            assert(order != 4);
-            if (order < 3) {
+        assert(order != 4);
+        if (order < 3) {
                 continue;
             }
             if (!AlmostEqualUlps(cubic[0].x, quads[0][0].x)
@@ -136,6 +129,8 @@ void CubicToQuadratics_Test() {
 }
 
 static Cubic locals[] = {
+ {{14.5975863, 41.632436}, {16.3518929, 26.2639684}, {18.5165519, 7.68775139}, {8.03767257, 89.1628526}},
+ {{69.7292014, 38.6877352}, {24.7648688, 23.1501713}, {84.9283191, 90.2588441}, {80.392774, 61.3533852}},
  {{
     60.776536520932126,
     71.249307306133829
@@ -148,39 +143,113 @@ static Cubic locals[] = {
   }, {
     45.261946574441133,
     17.536076632112298
-  }}
+  }},
 };
 
 static size_t localsCount = sizeof(locals) / sizeof(locals[0]);
 
+#define DEBUG_CRASH 0
+#define TEST_AVERAGE_END_POINTS 0 // must take const off to test
+extern const bool AVERAGE_END_POINTS;
+
 void CubicsToQuadratics_RandTest() {
     for (size_t x = 0; x < localsCount; ++x) {
         const Cubic& cubic = locals[x];
+        const SkPoint skcubic[4] = {{(float) cubic[0].x, (float) cubic[0].y},
+                {(float) cubic[1].x, (float) cubic[1].y}, {(float) cubic[2].x, (float) cubic[2].y},
+                {(float) cubic[3].x, (float) cubic[3].y}};
+        SkScalar skinflect[2];
+        int skin = SkFindCubicInflections(skcubic, skinflect);
+        SkDebugf("%s %d %1.9g\n", __FUNCTION__, skin, skinflect[0]);
         SkTDArray<Quadratic> quads;
         double precision = calcPrecision(cubic);
-        cubic_to_quadratics(cubic, precision, quads);
+        (void) cubic_to_quadratics(cubic, precision, quads);
+        SkDebugf("%s quads=%d\n", __FUNCTION__, quads.count());
     }
     srand(0);
-    const int arrayMax = 1000;
-    const int tests = 1000000;
+    const int arrayMax = 8;
+    const int sampleMax = 10;
+    const int tests = 1000000; // 10000000;
     int quadDist[arrayMax];
     bzero(quadDist, sizeof(quadDist));
+    Cubic samples[arrayMax][sampleMax];
+    int sampleCount[arrayMax];
+    bzero(sampleCount, sizeof(sampleCount));
     for (int x = 0; x < tests; ++x) {
         Cubic cubic;
         for (int i = 0; i < 4; ++i) {
             cubic[i].x = (double) rand() / RAND_MAX * 100;
             cubic[i].y = (double) rand() / RAND_MAX * 100;
         }
+    #if DEBUG_CRASH
+        char str[1024];
+        sprintf(str, "{{%1.9g, %1.9g}, {%1.9g, %1.9g}, {%1.9g, %1.9g}, {%1.9g, %1.9g}},\n",
+                cubic[0].x, cubic[0].y,  cubic[1].x, cubic[1].y, cubic[2].x, cubic[2].y,
+                cubic[3].x, cubic[3].y);
+    #endif
         SkTDArray<Quadratic> quads;
         double precision = calcPrecision(cubic);
-        cubic_to_quadratics(cubic, precision, quads);
-        assert(quads.count() < arrayMax);
-        quadDist[quads.count()]++;
+        (void) cubic_to_quadratics(cubic, precision, quads);
+        int count = quads.count();
+        assert(count > 0);
+        assert(--count < arrayMax);
+        quadDist[count]++;
+        int sCount = sampleCount[count];
+        if (sCount < sampleMax) {
+            memcpy(samples[count][sCount], cubic, sizeof(Cubic));
+            sampleCount[count]++;
+        }
     }
     for (int x = 0; x < arrayMax; ++x) {
         if (!quadDist[x]) {
             continue;
         }
-        printf("%d 1.9%g%%\n", x, (double) quadDist[x] / tests * 100);
+        SkDebugf("%d %1.9g%%\n", x + 1, (double) quadDist[x] / tests * 100);
     }
+    SkDebugf("\n");
+    for (int x = 0; x < arrayMax; ++x) {
+        for (int y = 0; y < sampleCount[x]; ++y) {
+#if TEST_AVERAGE_END_POINTS
+            for (int w = 0; w < 2; ++w) {
+                AVERAGE_END_POINTS = w;
+#else
+                int w = 0;
+#endif
+                SkDebugf("<div id=\"cubic%dx%d%s\">\n", x + 1, y, w ? "x" : "");
+                const Cubic& cubic = samples[x][y];
+                SkDebugf("{{%1.9g, %1.9g}, {%1.9g, %1.9g}, {%1.9g, %1.9g}, {%1.9g, %1.9g}},\n",
+                    cubic[0].x, cubic[0].y,  cubic[1].x, cubic[1].y, cubic[2].x, cubic[2].y,
+                    cubic[3].x, cubic[3].y);
+                SkTDArray<Quadratic> quads;
+                double precision = calcPrecision(cubic);
+                (void) cubic_to_quadratics(cubic, precision, quads);
+                for (int z = 0; z < quads.count(); ++z) {
+                    const Quadratic& quad = quads[z];
+                    SkDebugf("{{%1.9g, %1.9g}, {%1.9g, %1.9g}, {%1.9g, %1.9g}},\n",
+                        quad[0].x, quad[0].y,  quad[1].x, quad[1].y, quad[2].x, quad[2].y);
+                }
+                SkDebugf("</div>\n\n");
+#if TEST_AVERAGE_END_POINTS
+            }
+#endif
+        }
+    }
+    SkDebugf("</div>\n\n");
+    SkDebugf("<script type=\"text/javascript\">\n\n");
+    SkDebugf("var testDivs = [\n");
+    for (int x = 0; x < arrayMax; ++x) {
+        for (int y = 0; y < sampleCount[x]; ++y) {
+#if TEST_AVERAGE_END_POINTS
+            for (int w = 0; w < 2; ++w) {
+#else
+            int w = 0;
+#endif
+                SkDebugf("    cubic%dx%d%s,\n", x + 1, y, w ? "x" : "");
+#if TEST_AVERAGE_END_POINTS
+            }
+#endif
+        }
+    }
+    SkDebugf("\n\n\n");
+    SkDebugf("%s end\n", __FUNCTION__);
 }

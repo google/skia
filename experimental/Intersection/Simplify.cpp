@@ -28,9 +28,10 @@ int gDebugMaxWindValue = SK_MaxS32;
 #define PIN_ADD_T 0
 #define TRY_ROTATE 1
 #define ONE_PASS_COINCIDENCE_CHECK 0
+#define APPROXIMATE_CUBICS 1
 
 #define DEBUG_UNUSED 0 // set to expose unused functions
-#define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging
+#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging
 
 #if FORCE_RELEASE || defined SK_RELEASE
 
@@ -118,7 +119,7 @@ static int CubicLineIntersect(const SkPoint a[4], const SkPoint b[2],
         Intersections& intersections) {
     MAKE_CONST_CUBIC(aCubic, a);
     MAKE_CONST_LINE(bLine, b);
-    return intersect(aCubic, bLine, intersections.fT[0], intersections.fT[1]);
+    return intersect(aCubic, bLine, intersections);
 }
 
 static int QuadIntersect(const SkPoint a[3], const SkPoint b[3],
@@ -134,11 +135,23 @@ static int QuadIntersect(const SkPoint a[3], const SkPoint b[3],
     return intersections.fUsed ? intersections.fUsed : intersections.fCoincidentUsed;
 }
 
-static int CubicIntersect(const SkPoint a[4], const SkPoint b[4],
+#if APPROXIMATE_CUBICS
+static int CubicQuadIntersect(const SkPoint a[4], const SkPoint b[3],
         Intersections& intersections) {
     MAKE_CONST_CUBIC(aCubic, a);
+    MAKE_CONST_QUAD(bQuad, b);
+    return intersect(aCubic, bQuad, intersections);
+}
+#endif
+
+static int CubicIntersect(const SkPoint a[4], const SkPoint b[4], Intersections& intersections) {
+    MAKE_CONST_CUBIC(aCubic, a);
     MAKE_CONST_CUBIC(bCubic, b);
+#if APPROXIMATE_CUBICS
+    intersect2(aCubic, bCubic, intersections);
+#else
     intersect(aCubic, bCubic, intersections);
+#endif
     return intersections.fUsed;
 }
 
@@ -1665,6 +1678,23 @@ public:
             other.addCancelOutsides(tStart, oStart, *this, endT);
         }
     }
+    
+    int addUnsortableT(double newT, Segment* other, bool start) {
+        int result = addT(newT, other);
+        Span* span = &fTs[result];
+        if (start) {
+            if (result > 0) {
+                span[result - 1].fUnsortableEnd = true;
+            }
+            span[result].fUnsortableStart = true;
+        } else {
+            span[result].fUnsortableEnd = true;
+            if (result + 1 < fTs.count()) {
+                span[result + 1].fUnsortableStart = true;
+            }
+        }
+        return result;
+    }
 
     int bumpCoincidentThis(const Span* oTest, bool opp, int index,
             SkTDArray<double>& outsideTs) {
@@ -2722,6 +2752,8 @@ public:
         int local = spanSign(start, end);
         int oppLocal = oppSign(start, end);
         (void) markAndChaseWinding(start, end, local, oppLocal);
+        // OPTIMIZATION: the reverse mark and chase could skip the first marking
+        (void) markAndChaseWinding(end, start, local, oppLocal);
     }
 
     void initWinding(int start, int end, int winding, int oppWinding) {
@@ -4138,6 +4170,10 @@ public:
         return fSegments[segIndex].addT(newT, &other->fSegments[otherIndex]);
     }
 
+    int addUnsortableT(int segIndex, double newT, Contour* other, int otherIndex, bool start) {
+        return fSegments[segIndex].addUnsortableT(newT, &other->fSegments[otherIndex], start);
+    }
+
     const Bounds& bounds() const {
         return fBounds;
     }
@@ -4820,6 +4856,10 @@ public:
         return fContour->addT(fIndex, newT, other.fContour, other.fIndex);
     }
 
+    int addUnsortableT(double newT, const Work& other, bool start) {
+        return fContour->addUnsortableT(fIndex, newT, other.fContour, other.fIndex, start);
+    }
+
     bool advance() {
         return ++fIndex < fLast;
     }
@@ -4832,9 +4872,11 @@ public:
         return fContour->segments()[fIndex].bounds();
     }
 
+#if !APPROXIMATE_CUBICS
     const SkPoint* cubic() const {
         return fCubic;
     }
+#endif
 
     void init(Contour* contour) {
         fContour = contour;
@@ -4855,6 +4897,7 @@ public:
         return bounds().fLeft;
     }
 
+#if !APPROXIMATE_CUBICS
     void promoteToCubic() {
         fCubic[0] = pts()[0];
         fCubic[2] = pts()[1];
@@ -4864,6 +4907,7 @@ public:
         fCubic[2].fX = (fCubic[3].fX + fCubic[2].fX * 2) / 3;
         fCubic[2].fY = (fCubic[3].fY + fCubic[2].fY * 2) / 3;
     }
+#endif
 
     const SkPoint* pts() const {
         return fContour->segments()[fIndex].pts();
@@ -4923,7 +4967,9 @@ public:
 
 protected:
     Contour* fContour;
+#if !APPROXIMATE_CUBICS
     SkPoint fCubic[4];
+#endif
     int fIndex;
     int fLast;
 };
@@ -4990,6 +5036,7 @@ static void debugShowQuadLineIntersection(int pts, const Work& wt,
     SkDebugf("\n");
 }
 
+// FIXME: show more than two intersection points
 static void debugShowQuadIntersection(int pts, const Work& wt,
         const Work& wn, const double wtTs[2], const double wnTs[2]) {
     if (!pts) {
@@ -5021,6 +5068,106 @@ static void debugShowQuadIntersection(int pts, const Work& wt,
     }
     SkDebugf("\n");
 }
+
+static void debugShowCubicLineIntersection(int pts, const Work& wt,
+        const Work& wn, const double wtTs[2], const double wnTs[2]) {
+    if (!pts) {
+        SkDebugf("%s no intersect (%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)"
+                " (%1.9g,%1.9g %1.9g,%1.9g)\n",
+                __FUNCTION__, wt.pts()[0].fX, wt.pts()[0].fY, wt.pts()[1].fX, wt.pts()[1].fY,
+                wt.pts()[2].fX, wt.pts()[2].fY, wt.pts()[3].fX, wt.pts()[3].fY,
+                wn.pts()[0].fX, wn.pts()[0].fY, wn.pts()[1].fX, wn.pts()[1].fY);
+        return;
+    }
+    SkPoint wtOutPt, wnOutPt;
+    CubicXYAtT(wt.pts(), wtTs[0], &wtOutPt);
+    LineXYAtT(wn.pts(), wnTs[0], &wnOutPt);
+    SkDebugf("%s wtTs[0]=%1.9g (%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g) (%1.9g,%1.9g)",
+            __FUNCTION__,
+            wtTs[0], wt.pts()[0].fX, wt.pts()[0].fY, wt.pts()[1].fX, wt.pts()[1].fY,
+            wt.pts()[2].fX, wt.pts()[2].fY, wt.pts()[3].fX, wt.pts()[3].fY,
+            wtOutPt.fX, wtOutPt.fY);
+    if (pts == 2) {
+        CubicXYAtT(wt.pts(), wtTs[1], &wtOutPt);
+        SkDebugf(" wtTs[1]=%1.9g (%1.9g,%1.9g)", wtTs[1], wtOutPt.fX, wtOutPt.fY);
+    }
+    SkDebugf(" wnTs[0]=%g (%1.9g,%1.9g %1.9g,%1.9g) (%1.9g,%1.9g)",
+            wtTs[0], wn.pts()[0].fX, wn.pts()[0].fY, wn.pts()[1].fX, wn.pts()[1].fY,
+            wnOutPt.fX, wnOutPt.fY);
+    if (pts == 2) {
+        LineXYAtT(wn.pts(), wnTs[1], &wnOutPt);
+        SkDebugf(" wnTs[1]=%1.9g (%1.9g,%1.9g)", wnTs[1], wnOutPt.fX, wnOutPt.fY);
+    }
+    SkDebugf("\n");
+}
+
+#if APPROXIMATE_CUBICS
+// FIXME: show more than two intersection points
+static void debugShowCubicQuadIntersection(int pts, const Work& wt,
+        const Work& wn, const double wtTs[2], const double wnTs[2]) {
+    if (!pts) {
+        SkDebugf("%s no intersect (%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)"
+                " (%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)\n",
+                __FUNCTION__, wt.pts()[0].fX, wt.pts()[0].fY, wt.pts()[1].fX, wt.pts()[1].fY,
+                wt.pts()[2].fX, wt.pts()[2].fY, wt.pts()[3].fX, wt.pts()[3].fY,
+                wn.pts()[0].fX, wn.pts()[0].fY, wn.pts()[1].fX, wn.pts()[1].fY,
+                wn.pts()[2].fX, wn.pts()[2].fY );
+        return;
+    }
+    SkPoint wtOutPt, wnOutPt;
+    CubicXYAtT(wt.pts(), wtTs[0], &wtOutPt);
+    CubicXYAtT(wn.pts(), wnTs[0], &wnOutPt);
+    SkDebugf("%s wtTs[0]=%1.9g (%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g) (%1.9g,%1.9g)",
+            __FUNCTION__,
+            wtTs[0], wt.pts()[0].fX, wt.pts()[0].fY, wt.pts()[1].fX, wt.pts()[1].fY,
+            wt.pts()[2].fX, wt.pts()[2].fY, wt.pts()[3].fX, wt.pts()[3].fY,
+            wtOutPt.fX, wtOutPt.fY);
+    if (pts == 2) {
+        SkDebugf(" wtTs[1]=%1.9g", wtTs[1]);
+    }
+    SkDebugf(" wnTs[0]=%g (%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g) (%1.9g,%1.9g)",
+            wnTs[0], wn.pts()[0].fX, wn.pts()[0].fY, wn.pts()[1].fX, wn.pts()[1].fY,
+            wn.pts()[2].fX, wn.pts()[2].fY,
+            wnOutPt.fX, wnOutPt.fY);
+    if (pts == 2) {
+        SkDebugf(" wnTs[1]=%1.9g", wnTs[1]);
+    }
+    SkDebugf("\n");
+}
+
+// FIXME: show more than two intersection points
+static void debugShowCubicIntersection(int pts, const Work& wt,
+        const Work& wn, const double wtTs[2], const double wnTs[2]) {
+    if (!pts) {
+        SkDebugf("%s no intersect (%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)"
+                " (%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)\n",
+                __FUNCTION__, wt.pts()[0].fX, wt.pts()[0].fY, wt.pts()[1].fX, wt.pts()[1].fY,
+                wt.pts()[2].fX, wt.pts()[2].fY, wt.pts()[3].fX, wt.pts()[3].fY,
+                wn.pts()[0].fX, wn.pts()[0].fY, wn.pts()[1].fX, wn.pts()[1].fY,
+                wn.pts()[2].fX, wn.pts()[2].fY, wn.pts()[3].fX, wn.pts()[3].fY );
+        return;
+    }
+    SkPoint wtOutPt, wnOutPt;
+    CubicXYAtT(wt.pts(), wtTs[0], &wtOutPt);
+    CubicXYAtT(wn.pts(), wnTs[0], &wnOutPt);
+    SkDebugf("%s wtTs[0]=%1.9g (%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g) (%1.9g,%1.9g)",
+            __FUNCTION__,
+            wtTs[0], wt.pts()[0].fX, wt.pts()[0].fY, wt.pts()[1].fX, wt.pts()[1].fY,
+            wt.pts()[2].fX, wt.pts()[2].fY, wt.pts()[3].fX, wt.pts()[3].fY,
+            wtOutPt.fX, wtOutPt.fY);
+    if (pts == 2) {
+        SkDebugf(" wtTs[1]=%1.9g", wtTs[1]);
+    }
+    SkDebugf(" wnTs[0]=%g (%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g) (%1.9g,%1.9g)",
+            wnTs[0], wn.pts()[0].fX, wn.pts()[0].fY, wn.pts()[1].fX, wn.pts()[1].fY,
+            wn.pts()[2].fX, wn.pts()[2].fY, wn.pts()[3].fX, wn.pts()[3].fY,
+            wnOutPt.fX, wnOutPt.fY);
+    if (pts == 2) {
+        SkDebugf(" wnTs[1]=%1.9g", wnTs[1]);
+    }
+    SkDebugf("\n");
+}
+#endif
 #else
 static void debugShowLineIntersection(int , const Work& ,
         const Work& , const double [2], const double [2]) {
@@ -5033,6 +5180,20 @@ static void debugShowQuadLineIntersection(int , const Work& ,
 static void debugShowQuadIntersection(int , const Work& ,
         const Work& , const double [2], const double [2]) {
 }
+
+static void debugShowCubicLineIntersection(int , const Work& ,
+        const Work& , const double [2], const double [2]) {
+}
+
+#if APPROXIMATE_CUBICS
+static void debugShowCubicQuadIntersection(int , const Work& ,
+        const Work& , const double [2], const double [2]) {
+}
+
+static void debugShowCubicIntersection(int , const Work& ,
+        const Work& , const double [2], const double [2]) {
+}
+#endif
 #endif
 
 static bool addIntersectTs(Contour* test, Contour* next) {
@@ -5082,6 +5243,7 @@ static bool addIntersectTs(Contour* test, Contour* next) {
                         case Work::kCubic_Segment: {
                             pts = HCubicIntersect(wn.pts(), wt.left(),
                                     wt.right(), wt.y(), wt.xFlipped(), ts);
+                            debugShowCubicLineIntersection(pts, wn, wt, ts.fT[0], ts.fT[1]);
                             break;
                         }
                         default:
@@ -5108,6 +5270,7 @@ static bool addIntersectTs(Contour* test, Contour* next) {
                         case Work::kCubic_Segment: {
                             pts = VCubicIntersect(wn.pts(), wt.top(),
                                     wt.bottom(), wt.x(), wt.yFlipped(), ts);
+                            debugShowCubicLineIntersection(pts, wn, wt, ts.fT[0], ts.fT[1]);
                             break;
                         }
                         default:
@@ -5144,6 +5307,7 @@ static bool addIntersectTs(Contour* test, Contour* next) {
                         case Work::kCubic_Segment: {
                             swap = true;
                             pts = CubicLineIntersect(wn.pts(), wt.pts(), ts);
+                            debugShowCubicLineIntersection(pts, wn, wt, ts.fT[0], ts.fT[1]);
                             break;
                         }
                         default:
@@ -5173,8 +5337,14 @@ static bool addIntersectTs(Contour* test, Contour* next) {
                             break;
                         }
                         case Work::kCubic_Segment: {
+                    #if APPROXIMATE_CUBICS
+                            swap = true;
+                            pts = CubicQuadIntersect(wn.pts(), wt.pts(), ts);
+                            debugShowCubicQuadIntersection(pts, wn, wt, ts.fT[0], ts.fT[1]);
+                    #else
                             wt.promoteToCubic();
                             pts = CubicIntersect(wt.cubic(), wn.pts(), ts);
+                    #endif
                             break;
                         }
                         default:
@@ -5190,18 +5360,30 @@ static bool addIntersectTs(Contour* test, Contour* next) {
                         case Work::kVerticalLine_Segment:
                             pts = VCubicIntersect(wt.pts(), wn.top(),
                                     wn.bottom(), wn.x(), wn.yFlipped(), ts);
+                            debugShowCubicLineIntersection(pts, wt, wn, ts.fT[0], ts.fT[1]);
                             break;
                         case Work::kLine_Segment: {
                             pts = CubicLineIntersect(wt.pts(), wn.pts(), ts);
+                            debugShowCubicLineIntersection(pts, wt, wn, ts.fT[0], ts.fT[1]);
                             break;
                         }
                         case Work::kQuad_Segment: {
+                    #if APPROXIMATE_CUBICS
+                            pts = CubicQuadIntersect(wt.pts(), wn.pts(), ts);
+                            debugShowCubicQuadIntersection(pts, wt, wn, ts.fT[0], ts.fT[1]);
+                    #else
                             wn.promoteToCubic();
                             pts = CubicIntersect(wt.pts(), wn.cubic(), ts);
+                    #endif
                             break;
                         }
                         case Work::kCubic_Segment: {
+                    #if APPROXIMATE_CUBICS
                             pts = CubicIntersect(wt.pts(), wn.pts(), ts);
+                            debugShowCubicIntersection(pts, wt, wn, ts.fT[0], ts.fT[1]);
+                    #else
+                            pts = CubicIntersect(wt.pts(), wn.pts(), ts);
+                    #endif
                             break;
                         }
                         default:
@@ -5217,6 +5399,19 @@ static bool addIntersectTs(Contour* test, Contour* next) {
                 foundCommonContour = true;
             }
             // in addition to recording T values, record matching segment
+            if (ts.unsortable()) {
+                bool start = true;
+                for (int pt = 0; pt < ts.used(); ++pt) {
+                    // FIXME: if unsortable, the other points to the original. This logic is
+                    // untested downstream.
+                    int testTAt = wt.addUnsortableT(ts.fT[swap][pt], wt, start);
+                    wt.addOtherT(testTAt, ts.fT[swap][pt], testTAt);
+                    testTAt = wn.addUnsortableT(ts.fT[!swap][pt], wn, start ^ ts.fFlip);
+                    wn.addOtherT(testTAt, ts.fT[!swap][pt], testTAt);
+                    start ^= true;
+                }
+                continue;
+            }
             if (pts == 2) {
                 if (wn.segmentType() <= Work::kLine_Segment
                         && wt.segmentType() <= Work::kLine_Segment) {
@@ -6047,4 +6242,3 @@ void simplifyx(const SkPath& path, SkPath& result) {
         result = *assembled.nativePath();
     }
 }
-

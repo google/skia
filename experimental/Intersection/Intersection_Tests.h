@@ -4,16 +4,16 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#if !defined(IN_TEST)
-    #define IN_TEST 1
-#endif
+#include "DataTypes_Test.h"
 
 void ActiveEdge_Test();
 void ConvexHull_Test();
 void ConvexHull_X_Test();
 void CubicBezierClip_Test();
 void CubicCoincidence_Test();
+void CubicIntersection_OneOffTest();
 void CubicIntersection_Test();
+void CubicIntersection_RandTest();
 void CubicParameterization_Test();
 void CubicReduceOrder_Test();
 void CubicsToQuadratics_RandTest();
