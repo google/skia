@@ -2106,6 +2106,34 @@ uint32_t SkPath::readFromMemory(const void* storage) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "SkString.h"
+
+static void append_scalar(SkString* str, SkScalar value) {
+    SkString tmp;
+    tmp.printf("%g", value);
+    if (tmp.contains('.')) {
+        tmp.appendUnichar('f');
+    }
+    str->append(tmp);
+}
+
+static void append_params(SkString* str, const char label[], const SkPoint pts[],
+                          int count) {
+    str->append(label);
+    str->append("(");
+    
+    const SkScalar* values = &pts[0].fX;
+    count *= 2;
+
+    for (int i = 0; i < count; ++i) {
+        append_scalar(str, values[i]);
+        if (i < count - 1) {
+            str->append(", ");
+        }
+    }
+    str->append(");\n");
+}
+
 void SkPath::dump(bool forceClose, const char title[]) const {
     Iter    iter(*this, forceClose);
     SkPoint pts[4];
@@ -2114,29 +2142,25 @@ void SkPath::dump(bool forceClose, const char title[]) const {
     SkDebugf("path: forceClose=%s %s\n", forceClose ? "true" : "false",
              title ? title : "");
 
+    SkString builder;
+
     while ((verb = iter.next(pts, false)) != kDone_Verb) {
         switch (verb) {
             case kMove_Verb:
-                SkDebugf("  path: moveTo [%g %g]\n",
-                        SkScalarToFloat(pts[0].fX), SkScalarToFloat(pts[0].fY));
+                append_params(&builder, "path.moveTo", &pts[0], 1);
                 break;
             case kLine_Verb:
-                SkDebugf("  path: lineTo [%g %g]\n",
-                        SkScalarToFloat(pts[1].fX), SkScalarToFloat(pts[1].fY));
+                append_params(&builder, "path.lineTo", &pts[1], 1);
+                append_params(&builder, "path.lineTo", &pts[1], 1);
                 break;
             case kQuad_Verb:
-                SkDebugf("  path: quadTo [%g %g] [%g %g]\n",
-                        SkScalarToFloat(pts[1].fX), SkScalarToFloat(pts[1].fY),
-                        SkScalarToFloat(pts[2].fX), SkScalarToFloat(pts[2].fY));
+                append_params(&builder, "path.quadTo", &pts[1], 2);
                 break;
             case kCubic_Verb:
-                SkDebugf("  path: cubeTo [%g %g] [%g %g] [%g %g]\n",
-                        SkScalarToFloat(pts[1].fX), SkScalarToFloat(pts[1].fY),
-                        SkScalarToFloat(pts[2].fX), SkScalarToFloat(pts[2].fY),
-                        SkScalarToFloat(pts[3].fX), SkScalarToFloat(pts[3].fY));
+                append_params(&builder, "path.cubicTo", &pts[1], 3);
                 break;
             case kClose_Verb:
-                SkDebugf("  path: close\n");
+                builder.append("path.close();");
                 break;
             default:
                 SkDebugf("  path: UNKNOWN VERB %d, aborting dump...\n", verb);
@@ -2144,7 +2168,7 @@ void SkPath::dump(bool forceClose, const char title[]) const {
                 break;
         }
     }
-    SkDebugf("path: done %s\n", title ? title : "");
+    SkDebugf("%s\n", builder.c_str());
 }
 
 void SkPath::dump() const {
