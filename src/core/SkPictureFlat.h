@@ -333,20 +333,20 @@ public:
     }
 
     // returns true if fTopBot[] has been recorded
-    bool isTopBotValid() const {
-        return fTopBot[0] < fTopBot[1];
+    bool isTopBotWritten() const {
+        return !SkScalarIsNaN(fTopBot[0]);
     }
 
     // Returns fTopBot array, so it can be passed to a routine to compute them.
     // For efficiency, we assert that fTopBot have not been recorded yet.
     SkScalar* writableTopBot() {
-        SkASSERT(!this->isTopBotValid());
+        SkASSERT(!this->isTopBotWritten());
         return fTopBot;
     }
 
     // return the topbot[] after it has been recorded
     const SkScalar* topBot() const {
-        SkASSERT(this->isTopBotValid());
+        SkASSERT(this->isTopBotWritten());
         return fTopBot;
     }
 
@@ -359,6 +359,11 @@ private:
     //
     // This is *not* part of the key for search/sort
     SkScalar fTopBot[2];
+
+    // marks fTopBot[] as unrecorded
+    void setTopBotUnwritten() {
+        this->fTopBot[0] = this->fTopBot[1] = SK_ScalarNaN; // initial to sentinel values
+    }
 
     // From here down is the data we look at in the search/sort. We always begin
     // with the checksum and then length.
