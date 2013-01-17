@@ -125,12 +125,34 @@ private:
     typedef Matrix44Bench INHERITED;
 };
 
+class SetConcatMatrix44BenchSpecialCase : public Matrix44Bench {
+public:
+    SetConcatMatrix44BenchSpecialCase(void* param) : INHERITED(param, "setconcat_special") {
+        fX = fY = fZ = SkDoubleToMScalar(1.5);
+        fM1.setScale(fX, fY, fZ);
+        fM2.setTranslate(fX, fY, fZ);
+    }
+protected:
+    virtual void performTest() {
+        fM0.reset();    // just to normalize this test with prescale/postscale
+        for (int i = 0; i < 10; ++i) {
+            fM0.setConcat(fM1, fM2);
+        }
+    }
+private:
+    SkMatrix44 fM0, fM1, fM2;
+    SkMScalar  fX, fY, fZ;
+    typedef Matrix44Bench INHERITED;
+};
+
 class SetConcatMatrix44Bench : public Matrix44Bench {
 public:
     SetConcatMatrix44Bench(void* param) : INHERITED(param, "setconcat") {
         fX = fY = fZ = SkDoubleToMScalar(1.5);
         fM1.setScale(fX, fY, fZ);
+        fM1.set(2, 0, 3.0f);
         fM2.setTranslate(fX, fY, fZ);
+        fM2.set(2, 0, 3.0f);
     }
 protected:
     virtual void performTest() {
@@ -167,6 +189,7 @@ DEF_BENCH( return new EqualsMatrix44Bench(p); )
 DEF_BENCH( return new PreScaleMatrix44Bench(p); )
 DEF_BENCH( return new PostScaleMatrix44Bench(p); )
 DEF_BENCH( return new InvertMatrix44Bench(p); )
+DEF_BENCH( return new SetConcatMatrix44BenchSpecialCase(p); )
 DEF_BENCH( return new SetConcatMatrix44Bench(p); )
 DEF_BENCH( return new GetTypeMatrix44Bench(p); )
 
