@@ -360,11 +360,14 @@ void SkMatrix44::setConcat(const SkMatrix44& a, const SkMatrix44& b) {
     SkMScalar storage[16];
     SkMScalar* result = useStorage ? storage : &fMat[0][0];
 
+    // Both matrices are at most scale+translate
     if (bits_isonly(a_mask | b_mask, kScale_Mask | kTranslate_Mask)) {
-        sk_bzero(result, sizeof(storage));
         result[0] = a.fMat[0][0] * b.fMat[0][0];
+        result[1] = result[2] = result[3] = result[4] = 0;
         result[5] = a.fMat[1][1] * b.fMat[1][1];
+        result[6] = result[7] = result[8] = result[9] = 0;
         result[10] = a.fMat[2][2] * b.fMat[2][2];
+        result[11] = 0;
         result[12] = a.fMat[0][0] * b.fMat[3][0] + a.fMat[3][0];
         result[13] = a.fMat[1][1] * b.fMat[3][1] + a.fMat[3][1];
         result[14] = a.fMat[2][2] * b.fMat[3][2] + a.fMat[3][2];
