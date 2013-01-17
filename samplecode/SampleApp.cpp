@@ -64,14 +64,6 @@ public:
 SkTCPServer gServer;
 #endif
 
-#define DEBUGGERx
-#ifdef  DEBUGGER
-extern SkView* create_debugger(const char* data, size_t size);
-extern bool is_debugger(SkView* view);
-SkTDArray<char> gTempDataStore;
-#endif
-
-
 #define USE_ARROWS_FOR_ZOOM true
 
 #if SK_ANGLE
@@ -811,7 +803,6 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fZoomScale = SK_Scalar1;
 
     fMagnify = false;
-    fDebugger = false;
 
     fSaveToPdf = false;
     fPdfCanvas = NULL;
@@ -847,10 +838,6 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     itemID = fAppMenu->appendTriState("Tiling", "Tiling", sinkID, fTilingState);
     fAppMenu->assignKeyEquivalentToItem(itemID, 't');
 
-#ifdef DEBUGGER
-    itemID = fAppMenu->appendSwitch("Debugger", "Debugger", sinkID, fDebugger);
-    fAppMenu->assignKeyEquivalentToItem(itemID, 'q');
-#endif
     itemID = fAppMenu->appendSwitch("Slide Show", "Slide Show" , sinkID, false);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'a');
     itemID = fAppMenu->appendSwitch("Clip", "Clip" , sinkID, fUseClip);
@@ -1421,25 +1408,6 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
         bm.scrollRect(&r, dx, dy, &inval);
         paint_rgn(bm, r, inval);
     }
-#ifdef DEBUGGER
-    SkView* curr = curr_view(this);
-    if (fDebugger && !is_debugger(curr) && !is_transition(curr) && !is_overview(curr)) {
-        //Stop Pipe when fDebugger is active
-        if (fPipeState != SkOSMenu::kOffState) {
-            fPipeState = SkOSMenu::kOffState;
-            (void)SampleView::SetUsePipe(curr, fPipeState);
-            fAppMenu->getItemByID(fUsePipeMenuItemID)->setTriState(fPipeState);
-            this->onUpdateMenu(fAppMenu);
-        }
-
-        //Reset any transformations
-        fGesture.stop();
-        fGesture.reset();
-
-        this->loadView(create_debugger(gTempDataStore.begin(),
-                                       gTempDataStore.count()));
-    }
-#endif
 }
 
 void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
@@ -1686,18 +1654,6 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         this->saveToPdf();
         return true;
     }
-#ifdef DEBUGGER
-    if (SkOSMenu::FindSwitchState(evt, "Debugger", &fDebugger)) {
-        if (fDebugger) {
-            fPipeState = SkOSMenu::kOnState;
-            (void)SampleView::SetUsePipe(curr_view(this), fPipeState);
-        } else {
-            this->loadView((*fSamples[fCurrIndex])());
-        }
-        this->inval(NULL);
-        return true;
-    }
-#endif
     return this->INHERITED::onEvent(evt);
 }
 
@@ -2041,12 +1997,7 @@ void SampleWindow::loadView(SkView* view) {
 
     //repopulate the slide menu when a view is loaded
     fSlideMenu->reset();
-#ifdef DEBUGGER
-    if (!is_debugger(view) && !is_overview(view) && !is_transition(view) && fDebugger) {
-        //Force Pipe to be on if using debugger
-        fPipeState = SkOSMenu::kOnState;
-    }
-#endif
+
     (void)SampleView::SetUsePipe(view, fPipeState);
     if (SampleView::IsSampleView(view))
         ((SampleView*)view)->requestMenu(fSlideMenu);
@@ -2315,10 +2266,6 @@ SimplePC::~SimplePC() {
             gServer.acceptConnections();
             gServer.writePacket(fBlock, fTotalWritten);
         }
-#endif
-#ifdef  DEBUGGER
-        gTempDataStore.reset();
-        gTempDataStore.append(fTotalWritten, (const char*)fBlock);
 #endif
     }
     sk_free(fBlock);
