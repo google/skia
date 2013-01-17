@@ -343,21 +343,6 @@ static bool bits_isonly(int value, int mask) {
     return 0 == (value & ~mask);
 }
 
-#if defined(SK_MATRIX44_USE_SSE2)
-#include <emmintrin.h>
-struct MatrixD {
-	__m128d x_xy, x_zw;
-	__m128d y_xy, y_zw;
-	__m128d z_xy, z_zw;
-	__m128d w_xy, w_zw;
-};
-
-#if defined(_MSC_VER)
-inline __m128d operator +(__m128d a, __m128d b) { return _mm_add_pd(a, b); }
-inline __m128d operator *(__m128d a, __m128d b) { return _mm_mul_pd(a, b); }
-#endif
-#endif
-
 void SkMatrix44::setConcat(const SkMatrix44& a, const SkMatrix44& b) {
     const SkMatrix44::TypeMask a_mask = a.getType();
     const SkMatrix44::TypeMask b_mask = b.getType();
@@ -372,70 +357,19 @@ void SkMatrix44::setConcat(const SkMatrix44& a, const SkMatrix44& b) {
     }
 
     bool useStorage = (this == &a || this == &b);
-#if defined(SK_MATRIX44_USE_SSE2)
-    MatrixD storage;
-    SkMScalar* result = useStorage ? (SkMScalar*)&storage : &fMat[0][0];
-#else
     SkMScalar storage[16];
     SkMScalar* result = useStorage ? storage : &fMat[0][0];
-#endif
 
     if (bits_isonly(a_mask | b_mask, kScale_Mask | kTranslate_Mask)) {
+        sk_bzero(result, sizeof(storage));
         result[0] = a.fMat[0][0] * b.fMat[0][0];
-        result[1] = 0.0;
-        result[2] = 0.0;
-        result[3] = 0.0;
-        result[4] = 0.0;
         result[5] = a.fMat[1][1] * b.fMat[1][1];
-        result[6] = 0.0;
-        result[7] = 0.0;
-        result[8] = 0.0;
-        result[9] = 0.0;
         result[10] = a.fMat[2][2] * b.fMat[2][2];
-        result[11] = 0.0;
         result[12] = a.fMat[0][0] * b.fMat[3][0] + a.fMat[3][0];
         result[13] = a.fMat[1][1] * b.fMat[3][1] + a.fMat[3][1];
         result[14] = a.fMat[2][2] * b.fMat[3][2] + a.fMat[3][2];
         result[15] = 1;
     } else {
-#if defined(SK_MATRIX44_USE_SSE2)
-        MatrixD* p = (MatrixD*)result;
-        const MatrixD* pa = (const MatrixD*)a.fMat;
-        const MatrixD* pb = (const MatrixD*)b.fMat;
-        __m128d x_xy = pa->x_xy;
-        __m128d x_zw = pa->x_zw;
-        __m128d y_xy = pa->y_xy;
-        __m128d y_zw = pa->y_zw;
-        __m128d z_xy = pa->z_xy;
-        __m128d z_zw = pa->z_zw;
-        __m128d w_xy = pa->w_xy;
-        __m128d w_zw = pa->w_zw;
-        __m128d b0, b1, b2, b3;
-        b0 = _mm_set1_pd(((double*)&pb->x_xy)[0]);
-        b1 = _mm_set1_pd(((double*)&pb->x_xy)[1]);
-        b2 = _mm_set1_pd(((double*)&pb->x_zw)[0]);
-        b3 = _mm_set1_pd(((double*)&pb->x_zw)[1]);
-        p->x_xy = b0 * x_xy + b1 * y_xy + b2 * z_xy + b3 * w_xy;
-        p->x_zw = b0 * x_zw + b1 * y_zw + b2 * z_zw + b3 * w_zw;
-        b0 = _mm_set1_pd(((double*)&pb->y_xy)[0]);
-        b1 = _mm_set1_pd(((double*)&pb->y_xy)[1]);
-        b2 = _mm_set1_pd(((double*)&pb->y_zw)[0]);
-        b3 = _mm_set1_pd(((double*)&pb->y_zw)[1]);
-        p->y_xy = b0 * x_xy + b1 * y_xy + b2 * z_xy + b3 * w_xy;
-        p->y_zw = b0 * x_zw + b1 * y_zw + b2 * z_zw + b3 * w_zw;
-        b0 = _mm_set1_pd(((double*)&pb->z_xy)[0]);
-        b1 = _mm_set1_pd(((double*)&pb->z_xy)[1]);
-        b2 = _mm_set1_pd(((double*)&pb->z_zw)[0]);
-        b3 = _mm_set1_pd(((double*)&pb->z_zw)[1]);
-        p->z_xy = b0 * x_xy + b1 * y_xy + b2 * z_xy + b3 * w_xy;
-        p->z_zw = b0 * x_zw + b1 * y_zw + b2 * z_zw + b3 * w_zw;
-        b0 = _mm_set1_pd(((double*)&pb->w_xy)[0]);
-        b1 = _mm_set1_pd(((double*)&pb->w_xy)[1]);
-        b2 = _mm_set1_pd(((double*)&pb->w_zw)[0]);
-        b3 = _mm_set1_pd(((double*)&pb->w_zw)[1]);
-        p->w_xy = b0 * x_xy + b1 * y_xy + b2 * z_xy + b3 * w_xy;
-        p->w_zw = b0 * x_zw + b1 * y_zw + b2 * z_zw + b3 * w_zw;
-#else
         for (int j = 0; j < 4; j++) {
             for (int i = 0; i < 4; i++) {
                 double value = 0;
@@ -445,11 +379,10 @@ void SkMatrix44::setConcat(const SkMatrix44& a, const SkMatrix44& b) {
                 *result++ = SkDoubleToMScalar(value);
             }
         }
-#endif
     }
 
     if (useStorage) {
-        memcpy(fMat, result, sizeof(storage));
+        memcpy(fMat, storage, sizeof(storage));
     }
     this->dirtyTypeMask();
 }

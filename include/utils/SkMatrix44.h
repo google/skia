@@ -51,11 +51,6 @@
     static const SkMScalar SK_MScalarPI = 3.14159265f;
 #endif
 
-#if (defined(__x86_64__) || defined(_M_X64) || defined(__SSE2__)) && \
-defined(SK_MSCALAR_IS_DOUBLE)
-#define SK_MATRIX44_USE_SSE2
-#endif
-
 #define SkMScalarToScalar SkMScalarToFloat
 #define SkScalarToMScalar SkFloatToMScalar
 
@@ -104,11 +99,7 @@ struct SkVector4 {
     }
 };
 
-class
-#if defined(SK_MATRIX44_USE_SSE2) && defined(_MSC_VER)
-__declspec(align(16))
-#endif
-SK_API SkMatrix44 {
+class SK_API SkMatrix44 {
 public:
 
     enum Uninitialized_Constructor {
@@ -407,10 +398,6 @@ private:
     inline bool isTriviallyIdentity() const {
         return 0 == fTypeMask;
     }
-}
-#if defined(SK_MATRIX44_USE_SSE2) && !defined(_MSC_VER)
-__attribute__ ((aligned (16)))
-#endif
-;
+};
 
 #endif
