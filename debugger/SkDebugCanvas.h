@@ -110,12 +110,8 @@ public:
         fHeight = height;
     }
 
-    void setUserOffset(SkIPoint offset) {
-        fUserOffset = offset;
-    }
-
-    void setUserScale(float scale) {
-        fUserScale = scale;
+    void setUserMatrix(SkMatrix matrix) {
+        fUserMatrix = matrix;
     }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -212,8 +208,7 @@ private:
     SkBitmap fBm;
     bool fFilter;
     int fIndex;
-    SkIPoint fUserOffset;
-    float fUserScale;
+    SkMatrix fUserMatrix;
     SkMatrix fMatrix;
     SkIRect fClip;
 

@@ -39,8 +39,7 @@ SkDebugCanvas::SkDebugCanvas(int width, int height)
     fBm.setConfig(SkBitmap::kNo_Config, fWidth, fHeight);
     fFilter = false;
     fIndex = 0;
-    fUserOffset.set(0,0);
-    fUserScale = 1.0;
+    fUserMatrix.reset();
 }
 
 SkDebugCanvas::~SkDebugCanvas() {
@@ -63,13 +62,7 @@ void SkDebugCanvas::draw(SkCanvas* canvas) {
 }
 
 void SkDebugCanvas::applyUserTransform(SkCanvas* canvas) {
-    canvas->translate(SkIntToScalar(fUserOffset.fX),
-                      SkIntToScalar(fUserOffset.fY));
-    if (fUserScale < 0) {
-        canvas->scale((1.0f / -fUserScale), (1.0f / -fUserScale));
-    } else if (fUserScale > 0) {
-        canvas->scale(fUserScale, fUserScale);
-    }
+    canvas->concat(fUserMatrix);
 }
 
 int SkDebugCanvas::getCommandAtPoint(int x, int y, int index) {

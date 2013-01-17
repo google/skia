@@ -34,19 +34,26 @@ public:
 
     void setWidgetVisibility(WidgetType type, bool isHidden);
 
-    void zoom(float zoomIncrement);
+    /** Zooms the canvas by scale with the transformation centered at the widget point (px, py). */
+    void zoom(float scale, int px, int py);
 
     void resetWidgetTransform();
+
+    enum ZoomCommandTypes {
+        kIn_ZoomCommand,
+        kOut_ZoomCommand,
+    };
+public slots:
+    /**
+     *  Zooms in or out (see ZoomCommandTypes) by the standard zoom factor
+     *  with the transformation centered in the middle of the widget.
+     */
+    void zoom(int zoomCommand);
 
 signals:
     void scaleFactorChanged(float newScaleFactor);
     void commandChanged(int newCommand);
     void hitChanged(int hit);
-
-private slots:
-    void keyZoom(int zoomIncrement) {
-        zoom(zoomIncrement);
-    }
 
 private:
     QHBoxLayout fHorizontalLayout;
@@ -54,8 +61,7 @@ private:
     SkGLWidget fGLWidget;
     SkDebugger* fDebugger;
     SkIPoint fPreviousPoint;
-    SkIPoint fUserOffset;
-    float fUserScaleFactor;
+    SkMatrix fUserMatrix;
 
     void mouseMoveEvent(QMouseEvent* event);
 
@@ -63,9 +69,9 @@ private:
 
     void mouseDoubleClickEvent(QMouseEvent* event);
 
-    void wheelEvent(QWheelEvent* event) {
-        zoom(event->delta()/120);
-    }
+    void wheelEvent(QWheelEvent* event);
+
+    void snapWidgetTransform();
 };
 
 

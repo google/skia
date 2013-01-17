@@ -34,7 +34,8 @@ public:
      */
     SkSettingsWidget();
 
-    void setZoomText(int scaleFactor);
+    /** Sets the displayed user zoom level. A scale of 1.0 represents no zoom. */
+    void setZoomText(float scale);
 
     QRadioButton* getVisibilityButton();
 
