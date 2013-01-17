@@ -3295,11 +3295,35 @@ path.addRect(4, 13, 13, 16, SkPath::kCCW_Direction);
     path.addRect(32, 0, 36, 41, SkPath::kCCW_Direction);
 </div>
 
+<div id="testQuadralateral1">
+    path.moveTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(0, 0);
+    path.lineTo(3, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(2, 1);
+    path.lineTo(2, 2);
+    path.lineTo(2, 3);
+    path.close();
+</div>
+
+<div id="testCubic1">
+    path.moveTo(0, 0);
+    path.cubicTo(0, 1, 1, 1, 1, 0);
+    path.close();
+    path.moveTo(1, 0);
+    path.cubicTo(0, 0, 0, 1, 1, 1);
+    path.close();
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    testCubic1,
+    testQuadralateral1,
     testLine85,
     testLine84x,
     testLine83,
@@ -3763,9 +3787,8 @@ function draw(test, title, _at_x, _at_y, scale) {
         }
         ctx.closePath();
     }
-    if (hasXor) {
-        ctx.fillType=xor; // how is this done?
-    }
+  // uncomment if ever part of the standard
+  //  ctx.fillRule=hasXor ? evenodd : nonzero;
     ctx.stroke();
     ctx.fillStyle="rgba(192,192,255, 0.3)";
     ctx.fill();

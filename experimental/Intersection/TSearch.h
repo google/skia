@@ -12,6 +12,35 @@
 // FIXME: Move this templated version into SKTSearch.h
 
 template <typename T>
+static T* QSort_Partition(T* left, T* right, T* pivot)
+{
+    T pivotValue = *pivot;
+    SkTSwap(*pivot, *right);
+    T* newPivot = left;
+    while (left < right) {
+        if (*left < pivotValue) {
+            SkTSwap(*left, *newPivot);
+            newPivot += 1;
+        }
+        left += 1;
+    }
+    SkTSwap(*newPivot, *right);
+    return newPivot;
+}
+
+template <typename T>
+void QSort(T* left, T* right)
+{
+    if (left >= right) {
+        return;
+    }
+    T* pivot = left + (right - left >> 1);
+    pivot = QSort_Partition(left, right, pivot);
+    QSort(left, pivot - 1);
+    QSort(pivot + 1, right);
+}
+
+template <typename T>
 static T** QSort_Partition(T** left, T** right, T** pivot)
 {
     T* pivotValue = *pivot;

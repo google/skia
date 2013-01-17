@@ -36,8 +36,10 @@ void LineCubicIntersection_Test() {
             printf("[%d] line order=%d\n", (int) index, order2);
         }
         if (order1 == 4 && order2 == 2) {
-            double range1[2], range2[2];
-            int roots = intersect(reduce1, reduce2, range1, range2);
+            Intersections i;
+            double* range1 = i.fT[0];
+            double* range2 = i.fT[1];
+            int roots = intersect(reduce1, reduce2, i);
             for (int pt = 0; pt < roots; ++pt) {
                 double tt1 = range1[pt];
                 double tx1, ty1;

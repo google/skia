@@ -50,7 +50,11 @@ int horizontalIntersect(const Quadratic& quad, double left, double right,
 int horizontalIntersect(const Quadratic& quad, double left, double right,
         double y, bool flipped, Intersections& );
 bool intersect(const Cubic& cubic1, const Cubic& cubic2, Intersections& );
-int intersect(const Cubic& cubic, const _Line& line, double cRange[3], double lRange[3]);
+// the following flavor uses quadratic approximation instead of convex hulls
+bool intersect2(const Cubic& cubic1, const Cubic& cubic2, Intersections& );
+bool intersect(const Cubic& cubic, Intersections& i); // return true if cubic self-intersects
+int intersect(const Cubic& cubic, const Quadratic& quad, Intersections& );
+int intersect(const Cubic& cubic, const _Line& line, Intersections& );
 bool intersect(const Quadratic& q1, const Quadratic& q2, Intersections& );
 int intersect(const Quadratic& quad, const _Line& line, Intersections& );
 // the following flavor uses the implicit form instead of convex hulls

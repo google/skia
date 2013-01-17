@@ -40,11 +40,18 @@ Tdiv>=1 - the entire cubic can be approximated by the mid-point approximation
 
 confirmed by (maybe stolen from)
 http://www.caffeineowl.com/graphics/2d/vectorial/cubic2quad01.html
+// maybe in turn derived from  http://www.cccg.ca/proceedings/2004/36.pdf
+// also stored at http://www.cis.usouthal.edu/~hain/general/Publications/Bezier/bezier%20cccg04%20paper.pdf
 
 */
 
 #include "CubicUtilities.h"
 #include "CurveIntersection.h"
+#include "LineIntersection.h"
+
+const bool AVERAGE_END_POINTS = true; // results in better fitting curves
+
+#define USE_CUBIC_END_POINTS 1
 
 static double calcTDiv(const Cubic& cubic, double precision, double start) {
     const double adjust = sqrt(3) / 36;
@@ -62,54 +69,105 @@ static double calcTDiv(const Cubic& cubic, double precision, double start) {
     double dy = c[3].y - 3 * (c[2].y - c[1].y) - c[0].y;
     double dist = sqrt(dx * dx + dy * dy);
     double tDiv3 = precision / (adjust * dist);
-    return cube_root(tDiv3);
+    double t = cube_root(tDiv3);
+    if (start > 0) {
+        t = start + (1 - start) * t;
+    }
+    return t;
 }
 
-static void demote(const Cubic& cubic, Quadratic& quad) {
+void demote_cubic_to_quad(const Cubic& cubic, Quadratic& quad) {
     quad[0] = cubic[0];
-    quad[1].x = (cubic[3].x - 3 * (cubic[2].x - cubic[1].x) - cubic[0].x) / 4;
-    quad[1].y = (cubic[3].y - 3 * (cubic[2].y - cubic[1].y) - cubic[0].y) / 4;
+if (AVERAGE_END_POINTS) {
+    const _Point fromC1 = { (3 * cubic[1].x - cubic[0].x) / 2, (3 * cubic[1].y - cubic[0].y) / 2 };
+    const _Point fromC2 = { (3 * cubic[2].x - cubic[3].x) / 2, (3 * cubic[2].y - cubic[3].y) / 2 };
+    quad[1].x = (fromC1.x + fromC2.x) / 2;
+    quad[1].y = (fromC1.y + fromC2.y) / 2;
+} else {
+    lineIntersect((const _Line&) cubic[0], (const _Line&) cubic[2], quad[1]);
+}
     quad[2] = cubic[3];
 }
 
 int cubic_to_quadratics(const Cubic& cubic, double precision, SkTDArray<Quadratic>& quadratics) {
-    quadratics.setCount(1); // FIXME: every place I have setCount(), I also want setReserve()
+    SkTDArray<double> ts;
+    cubic_to_quadratics(cubic, precision, ts);
+    int tsCount = ts.count();
+    double t1Start = 0;
+    int order = 0;
+    for (int idx = 0; idx <= tsCount; ++idx) {
+        double t1 = idx < tsCount ? ts[idx] : 1;
+        Cubic part;
+        sub_divide(cubic, t1Start, t1, part);
+        Quadratic q1;
+        demote_cubic_to_quad(part, q1);
+        Quadratic s1;
+        int o1 = reduceOrder(q1, s1);
+        if (order < o1) {
+            order = o1;
+        }
+        memcpy(quadratics.append(), o1 < 2 ? s1 : q1, sizeof(Quadratic));
+        t1Start = t1;
+    }
+    return order;
+}
+
+static bool addSimpleTs(const Cubic& cubic, double precision, SkTDArray<double>& ts) {
+    double tDiv = calcTDiv(cubic, precision, 0);
+    if (tDiv >= 1) {
+        return true;
+    }
+    if (tDiv >= 0.5) {
+        *ts.append() = 0.5;
+        return true;
+    }
+    return false;
+}
+
+static void addTs(const Cubic& cubic, double precision, double start, double end,
+        SkTDArray<double>& ts) {
+    double tDiv = calcTDiv(cubic, precision, 0);
+    double parts = ceil(1.0 / tDiv);
+    for (double index = 0; index < parts; ++index) {
+        double newT = start + (index / parts) * (end - start);
+        if (newT > 0 && newT < 1) {
+            *ts.append() = newT;
+        }
+    }
+}
+
+// flavor that returns T values only, deferring computing the quads until they are needed
+void cubic_to_quadratics(const Cubic& cubic, double precision, SkTDArray<double>& ts) {
     Cubic reduced;
     int order = reduceOrder(cubic, reduced, kReduceOrder_QuadraticsAllowed);
     if (order < 3) {
-        memcpy(quadratics[0], reduced, order * sizeof(_Point));
-        return order;
+        return;
     }
-    double tDiv = calcTDiv(cubic, precision, 0);
-    if (approximately_greater_than_one(tDiv)) {
-        demote(cubic, quadratics[0]);
-        return 3;
+    double inflectT[2];
+    int inflections = find_cubic_inflections(cubic, inflectT);
+    SkASSERT(inflections <= 2);
+    if (inflections == 0 && addSimpleTs(cubic, precision, ts)) {
+        return;
     }
-    if (tDiv >= 0.5) {
+    if (inflections == 1) {
         CubicPair pair;
-        chop_at(cubic, pair, 0.5);
-        quadratics.setCount(2);
-        demote(pair.first(), quadratics[0]);
-        demote(pair.second(), quadratics[1]);
-        return 3;
+        chop_at(cubic, pair, inflectT[0]);
+        addTs(pair.first(), precision, 0, inflectT[0], ts);
+        addTs(pair.second(), precision, inflectT[0], 1, ts);
+        return;
     }
-    double start = 0;
-    int index = -1;
-    // if we iterate but make little progress, check to see if the curve is flat
-    // or if the control points are tangent to each other
-    do {
+    if (inflections == 2) {
+        if (inflectT[0] > inflectT[1]) {
+            SkTSwap(inflectT[0], inflectT[1]);
+        }
         Cubic part;
-        sub_divide(cubic, start, tDiv, part);
-        quadratics.append();
-        demote(part, quadratics[++index]);
-        if (tDiv == 1) {
-            break;
-        }
-        start = tDiv;
-        tDiv = calcTDiv(cubic, precision, start);
-        if (tDiv > 1) {
-            tDiv = 1;
-        }
-    } while (true);
-    return 3;
+        sub_divide(cubic, 0, inflectT[0], part);
+        addTs(part, precision, 0, inflectT[0], ts);
+        sub_divide(cubic, inflectT[0], inflectT[1], part);
+        addTs(part, precision, inflectT[0], inflectT[1], ts);
+        sub_divide(cubic, inflectT[1], 1, part);
+        addTs(part, precision, inflectT[1], 1, ts);
+        return;
+    }
+    addTs(cubic, precision, 0, 1, ts);
 }

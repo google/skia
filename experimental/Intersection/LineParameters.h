@@ -80,15 +80,9 @@ public:
         }
     }
 
-    void controlPtDistance(const Cubic& pts, double distance[2]) const {
-        for (int index = 0; index < 2; ++index) {
-            distance[index] = a * pts[index + 1].x + b * pts[index + 1].y + c;
-        }
-    }
-
-    void controlPtDistance(const Cubic& pts, int i, int j, double distance[2]) const {
-        distance[0] = a * pts[i].x + b * pts[i].y + c;
-        distance[1] = a * pts[j].x + b * pts[j].y + c;
+    double controlPtDistance(const Cubic& pts, int index) const {
+        assert(index == 1 || index == 2);
+        return a * pts[index].x + b * pts[index].y + c;
     }
 
     double controlPtDistance(const Quadratic& pts) const {

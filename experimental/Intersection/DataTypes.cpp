@@ -74,11 +74,4 @@ int UlpsDiff(float A, float B)
 
     return abs(uA.i - uB.i);
 }
-
-int FloatAsInt(float A)
-{
-    Float_t uA(A);
-    return uA.i;
-}
 #endif
-

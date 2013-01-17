@@ -149,22 +149,17 @@ static int check_linear(const Cubic& cubic, Cubic& reduction,
 bool isLinear(const Cubic& cubic, int startIndex, int endIndex) {
     LineParameters lineParameters;
     lineParameters.cubicEndPoints(cubic, startIndex, endIndex);
-    double normalSquared = lineParameters.normalSquared();
-    double distance[2]; // distance is not normalized
+    // FIXME: maybe it's possible to avoid this and compare non-normalized
+    lineParameters.normalize();
     int mask = other_two(startIndex, endIndex);
     int inner1 = startIndex ^ mask;
     int inner2 = endIndex ^ mask;
-    lineParameters.controlPtDistance(cubic, inner1, inner2, distance);
-    double limit = normalSquared;
-    int index;
-    for (index = 0; index < 2; ++index) {
-        double distSq = distance[index];
-        distSq *= distSq;
-        if (approximately_greater(distSq, limit)) {
-            return false;
-        }
+    double distance = lineParameters.controlPtDistance(cubic, inner1);
+    if (!approximately_zero(distance)) {
+        return false;
     }
-    return true;
+    distance = lineParameters.controlPtDistance(cubic, inner2);
+    return approximately_zero(distance);
 }
 
 /* food for thought:

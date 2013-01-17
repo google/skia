@@ -9,12 +9,28 @@
 #include "LineIntersection.h"
 #include <algorithm> // used for std::swap
 
+/* Determine the intersection point of two lines. This assumes the lines are not parallel,
+   and that that the lines are infinite.
+   From http://en.wikipedia.org/wiki/Line-line_intersection
+ */
+void lineIntersect(const _Line& a, const _Line& b, _Point& p) {
+    double axLen = a[1].x - a[0].x;
+    double ayLen = a[1].y - a[0].y;
+    double bxLen = b[1].x - b[0].x;
+    double byLen = b[1].y - b[0].y;
+    double denom = byLen * axLen - ayLen * bxLen;
+    assert(denom);
+    double term1 = a[1].x * a[0].y - a[1].y * a[0].x;
+    double term2 = b[1].x * b[0].y - b[1].y * b[0].x;
+    p.x = (term1 * bxLen - axLen * term2) / denom;
+    p.y = (term1 * byLen - ayLen * term2) / denom;
+}
 
 /*
    Determine the intersection point of two line segments
    Return FALSE if the lines don't intersect
    from: http://paulbourke.net/geometry/lineline2d/
-*/
+ */
 
 int intersect(const _Line& a, const _Line& b, double aRange[2], double bRange[2]) {
     double axLen = a[1].x - a[0].x;
@@ -27,7 +43,7 @@ int intersect(const _Line& a, const _Line& b, double aRange[2], double bRange[2]
              byLen  * axLen         ==  ayLen          * bxLen
              byLen  * axLen         -   ayLen          * bxLen == 0 ( == denom )
      */
-    double denom  = byLen * axLen - ayLen * bxLen;
+    double denom = byLen * axLen - ayLen * bxLen;
     if (approximately_zero(denom)) {
        /* See if the axis intercepts match:
                   ay - ax * ayLen / axLen  ==          by - bx * ayLen / axLen

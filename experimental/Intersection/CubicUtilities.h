@@ -10,15 +10,18 @@
 #include "DataTypes.h"
 #include "SkTDArray.h"
 
+double calcPrecision(const Cubic& cubic);
 double cube_root(double x);
 int cubic_to_quadratics(const Cubic& cubic, double precision,
         SkTDArray<Quadratic>& quadratics);
+void cubic_to_quadratics(const Cubic& cubic, double precision, SkTDArray<double>& ts);
 void coefficients(const double* cubic, double& A, double& B, double& C, double& D);
 int cubicRoots(double A, double B, double C, double D, double t[3]);
+int cubicRootsX(double A, double B, double C, double D, double s[3]);
+void demote_cubic_to_quad(const Cubic& cubic, Quadratic& quad);
 double derivativeAtT(const double* cubic, double t);
-// competing version that should produce same results
-double derivativeAtT_2(const double* cubic, double t);
 void dxdy_at_t(const Cubic& , double t, double& x, double& y);
+int find_cubic_inflections(const Cubic& src, double tValues[]);
 bool rotate(const Cubic& cubic, int zero, int index, Cubic& rotPath);
 double secondDerivativeAtT(const double* cubic, double t);
 void xy_at_t(const Cubic& , double t, double& x, double& y);

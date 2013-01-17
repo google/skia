@@ -2,12 +2,8 @@
 #include <math.h>
 #include "CubicUtilities.h"
 #include "Intersection_Tests.h"
-
-namespace QuarticRootTest {
-
-#include "QuarticRoot.cpp"
-
-}
+#include "QuadraticUtilities.h"
+#include "QuarticRoot.h"
 
 double mulA[] = {-3, -1, 1, 3};
 size_t mulACount = sizeof(mulA) / sizeof(mulA[0]);
@@ -20,6 +16,7 @@ size_t rootDCount = sizeof(rootD) / sizeof(rootD[0]);
 double rootE[] = {-5, -1, 0, 1, 7};
 size_t rootECount = sizeof(rootE) / sizeof(rootE[0]);
 
+
 static void quadraticTest() {
     // (x - a)(x - b) == x^2 - (a + b)x + ab
     for (size_t aIndex = 0; aIndex < mulACount; ++aIndex) {
@@ -31,7 +28,7 @@ static void quadraticTest() {
                 const double b = A * (B + C);
                 const double c = A * B * C;
                 double roots[2];
-                const int rootCount = QuarticRootTest::quadraticRootsX(A, b, c, roots);
+                const int rootCount = quadraticRootsX(A, b, c, roots);
                 const int expected = 1 + (B != C);
                 assert(rootCount == expected);
                 assert(approximately_equal(roots[0], -B)
@@ -60,7 +57,7 @@ static void cubicTest() {
                     const double c = A * (B * C + C * D + B * D);
                     const double d = A * B * C * D;
                     double roots[3];
-                    const int rootCount = QuarticRootTest::cubicRootsX(A, b, c, d, roots);
+                    const int rootCount = cubicRootsX(A, b, c, d, roots);
                     const int expected = 1 + (B != C) + (B != D && C != D);
                     assert(rootCount == expected);
                     assert(approximately_equal(roots[0], -B)
@@ -103,7 +100,7 @@ static void quarticTest() {
                         const double d = A * (B * C * D + B * C * E + B * D * E + C * D * E);
                         const double e = A * B * C * D * E;
                         double roots[4];
-                        const int rootCount = QuarticRootTest::quarticRoots(A, b, c, d, e, roots);
+                        const int rootCount = quarticRoots(A, b, c, d, e, roots);
                         const int expected = 1 + (B != C) + (B != D && C != D) + (B != E && C != E && D != E);
                         assert(rootCount == expected);
                         assert(approximately_equal(roots[0], -B)
