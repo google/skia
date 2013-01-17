@@ -26,7 +26,7 @@ static void draw_2_bitmaps(SkCanvas* canvas, const SkBitmap& bm, bool doClip,
     SkAutoCanvasRestore acr(canvas, true);
     SkPaint paint;
 
-    SkRect clipR = SkRect::MakeXYWH(SkIntToScalar(dx), 
+    SkRect clipR = SkRect::MakeXYWH(SkIntToScalar(dx),
                                     SkIntToScalar(dy),
                                     SkIntToScalar(bm.width()),
                                     SkIntToScalar(bm.height()));
