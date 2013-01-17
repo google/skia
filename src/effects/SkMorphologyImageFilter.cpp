@@ -257,13 +257,15 @@ public:
     typedef GrGLMorphologyEffect GLEffect;
 
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
-    virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
+    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
 protected:
 
     MorphologyType fType;
 
 private:
+    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
+
     GrMorphologyEffect(GrTexture*, Direction, int radius, MorphologyType);
 
     GR_DECLARE_EFFECT_TEST;
@@ -399,13 +401,19 @@ const GrBackendEffectFactory& GrMorphologyEffect::getFactory() const {
     return GrTBackendEffectFactory<GrMorphologyEffect>::getInstance();
 }
 
-bool GrMorphologyEffect::isEqual(const GrEffect& sBase) const {
+bool GrMorphologyEffect::onIsEqual(const GrEffect& sBase) const {
     const GrMorphologyEffect& s =
         static_cast<const GrMorphologyEffect&>(sBase);
-    return (INHERITED::isEqual(sBase) &&
+    return (this->texture(0) == s.texture(0) &&
             this->radius() == s.radius() &&
             this->direction() == s.direction() &&
             this->type() == s.type());
+}
+
+void GrMorphologyEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
+    // This is valid because the color components of the result of the kernel all come
+    // exactly from existing values in the source texture.
+    this->updateConstantColorComponentsForModulation(color, validFlags);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

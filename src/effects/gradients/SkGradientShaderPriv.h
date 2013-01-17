@@ -238,20 +238,7 @@ public:
     SkScalar getYCoord() const { return fYCoord; };
     const SkMatrix& getMatrix() const { return fMatrix;}
 
-    virtual bool isEqual(const GrEffect& effect) const SK_OVERRIDE {
-        const GrGradientEffect& s = static_cast<const GrGradientEffect&>(effect);
-        return INHERITED::isEqual(effect) && this->useAtlas() == s.useAtlas() &&
-               fYCoord == s.getYCoord() && fMatrix.cheapEqualTo(s.getMatrix());
-    }
-
-    virtual void getConstantColorComponents(GrColor* color,
-                                            uint32_t* validFlags) const SK_OVERRIDE {
-        if (fIsOpaque && (kA_ValidComponentFlag & *validFlags) && 0xff == GrColorUnpackA(*color)) {
-            *validFlags = kA_ValidComponentFlag;
-        } else {
-            *validFlags = 0;
-        }
-    }
+    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
 protected:
 
@@ -268,7 +255,10 @@ protected:
                                     SkScalar** stops,
                                     SkShader::TileMode* tm);
 
+    virtual bool onIsEqual(const GrEffect& effect) const SK_OVERRIDE;
+
 private:
+
     GrTextureAccess fTextureAccess;
     SkScalar fYCoord;
     GrTextureStripAtlas* fAtlas;

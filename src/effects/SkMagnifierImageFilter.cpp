@@ -48,7 +48,7 @@ public:
     static const char* Name() { return "Magnifier"; }
 
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
-    virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
+    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
     float x_offset() const { return fXOffset; }
     float y_offset() const { return fYOffset; }
@@ -74,6 +74,8 @@ private:
         , fYZoom(yZoom)
         , fXInset(xInset)
         , fYInset(yInset) {}
+
+    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
 
     GR_DECLARE_EFFECT_TEST;
 
@@ -230,15 +232,19 @@ const GrBackendEffectFactory& GrMagnifierEffect::getFactory() const {
     return GrTBackendEffectFactory<GrMagnifierEffect>::getInstance();
 }
 
-bool GrMagnifierEffect::isEqual(const GrEffect& sBase) const {
-     const GrMagnifierEffect& s =
-        static_cast<const GrMagnifierEffect&>(sBase);
-    return (this->fXOffset == s.fXOffset &&
+bool GrMagnifierEffect::onIsEqual(const GrEffect& sBase) const {
+     const GrMagnifierEffect& s = static_cast<const GrMagnifierEffect&>(sBase);
+    return (this->texture(0) == s.texture(0) &&
+            this->fXOffset == s.fXOffset &&
             this->fYOffset == s.fYOffset &&
             this->fXZoom == s.fXZoom &&
             this->fYZoom == s.fYZoom &&
             this->fXInset == s.fXInset &&
             this->fYInset == s.fYInset);
+}
+
+void GrMagnifierEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
+    this->updateConstantColorComponentsForModulation(color, validFlags);
 }
 
 #endif

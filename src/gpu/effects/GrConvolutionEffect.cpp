@@ -167,10 +167,9 @@ const GrBackendEffectFactory& GrConvolutionEffect::getFactory() const {
     return GrTBackendEffectFactory<GrConvolutionEffect>::getInstance();
 }
 
-bool GrConvolutionEffect::isEqual(const GrEffect& sBase) const {
-     const GrConvolutionEffect& s =
-        static_cast<const GrConvolutionEffect&>(sBase);
-    return (INHERITED::isEqual(sBase) &&
+bool GrConvolutionEffect::onIsEqual(const GrEffect& sBase) const {
+     const GrConvolutionEffect& s = static_cast<const GrConvolutionEffect&>(sBase);
+    return (this->texture(0) == s.texture(0) &&
             this->radius() == s.radius() &&
             this->direction() == s.direction() &&
             0 == memcmp(fKernel, s.fKernel, this->width() * sizeof(float)));

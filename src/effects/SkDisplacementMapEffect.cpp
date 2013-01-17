@@ -245,7 +245,6 @@ public:
 
     virtual ~GrDisplacementMapEffect();
 
-    virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
     const GrBackendEffectFactory& getFactory() const;
     SkDisplacementMapEffect::ChannelSelectorType xChannelSelector() const
         { return fXChannelSelector; }
@@ -259,6 +258,8 @@ public:
     void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
 private:
+    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
+
     GrDisplacementMapEffect(SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
                             SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
                             SkScalar scale, GrTexture* displacement, GrTexture* color);
@@ -360,10 +361,13 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
 GrDisplacementMapEffect::~GrDisplacementMapEffect() {
 }
 
-bool GrDisplacementMapEffect::isEqual(const GrEffect& sBase) const {
+bool GrDisplacementMapEffect::onIsEqual(const GrEffect& sBase) const {
     const GrDisplacementMapEffect& s = static_cast<const GrDisplacementMapEffect&>(sBase);
-    return INHERITED::isEqual(sBase) && fXChannelSelector == s.fXChannelSelector &&
-           fYChannelSelector == s.fYChannelSelector && fScale == s.fScale;
+    return fDisplacementAccess.getTexture() == s.fDisplacementAccess.getTexture() &&
+           fColorAccess.getTexture() == s.fColorAccess.getTexture() &&
+           fXChannelSelector == s.fXChannelSelector &&
+           fYChannelSelector == s.fYChannelSelector &&
+           fScale == s.fScale;
 }
 
 const GrBackendEffectFactory& GrDisplacementMapEffect::getFactory() const {

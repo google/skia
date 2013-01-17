@@ -104,21 +104,30 @@ public:
      */
     virtual const GrBackendEffectFactory& getFactory() const = 0;
 
-    /** Returns true if the other effect will generate identical output.
-        Must only be called if the two are already known to be of the
-        same type (i.e.  they return the same value from getFactory()).
+    /** Returns true if this and other effect conservatively draw identically. It can only return
+        true when the two effects are of the same subclass (i.e. they return the same object from
+        from getFactory()).
 
-        Equality is not the same thing as equivalence.
-        To test for equivalence (that they will generate the same
-        shader code, but may have different uniforms), check equality
-        of the EffectKey produced by the GrBackendEffectFactory:
-        a.getFactory().glEffectKey(a) == b.getFactory().glEffectKey(b).
-
-        The default implementation of this function returns true iff
-        the two stages have the same return value for numTextures() and
-        for texture() over all valid indices.
+        A return value of true from isEqual() should not be used to test whether the effects would
+        generate the same shader code. To test for identical code generation use the EffectKey
+        computed by the GrBackendEffectFactory:
+            effectA.getFactory().glEffectKey(effectA) == effectB.getFactory().glEffectKey(effectB).
      */
-    virtual bool isEqual(const GrEffect&) const;
+    bool isEqual(const GrEffect& other) const {
+        if (&this->getFactory() != &other.getFactory()) {
+            return false;
+        }
+        bool result = this->onIsEqual(other);
+#if GR_DEBUG
+        if (result) {
+            GrAssert(this->numTextures() == other.numTextures());
+            for (int i = 0; i < this->numTextures(); ++i) {
+                GrAssert(*fTextureAccesses[i] == *other.fTextureAccesses[i]);
+            }
+        }
+#endif
+        return result;
+    }
 
     /** Human-meaningful string to identify this effect; may be embedded
         in generated shader code. */
@@ -167,6 +176,12 @@ protected:
     }
 
 private:
+
+    /** Subclass implements this to support isEqual(). It will only be called if it is known that
+        the two effects are of the same subclass (i.e. they return the same object
+        from getFactory()).*/
+    virtual bool onIsEqual(const GrEffect& other) const = 0;
+
     void EffectRefDestroyed() {
         fEffectRef = NULL;
     }

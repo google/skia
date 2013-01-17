@@ -383,13 +383,6 @@ public:
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
         return GrTBackendEffectFactory<GrConical2Gradient>::getInstance();
     }
-    virtual bool isEqual(const GrEffect& sBase) const SK_OVERRIDE {
-        const GrConical2Gradient& s = static_cast<const GrConical2Gradient&>(sBase);
-        return (INHERITED::isEqual(sBase) &&
-                this->fCenterX1 == s.fCenterX1 &&
-                this->fRadius0 == s.fRadius0 &&
-                this->fDiffRadius == s.fDiffRadius);
-    }
 
     // The radial gradient parameters can collapse to a linear (instead of quadratic) equation.
     bool isDegenerate() const { return SkScalarAbs(fDiffRadius) == SkScalarAbs(fCenterX1); }
@@ -400,6 +393,14 @@ public:
     typedef GrGLConical2Gradient GLEffect;
 
 private:
+    virtual bool onIsEqual(const GrEffect& sBase) const SK_OVERRIDE {
+        const GrConical2Gradient& s = static_cast<const GrConical2Gradient&>(sBase);
+        return (INHERITED::onIsEqual(sBase) &&
+                this->fCenterX1 == s.fCenterX1 &&
+                this->fRadius0 == s.fRadius0 &&
+                this->fDiffRadius == s.fDiffRadius);
+    }
+
     GrConical2Gradient(GrContext* ctx,
                        const SkTwoPointConicalGradient& shader,
                        const SkMatrix& matrix,

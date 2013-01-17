@@ -307,8 +307,6 @@ public:
     GrLightingEffect(GrTexture* texture, const SkLight* light, SkScalar surfaceScale);
     virtual ~GrLightingEffect();
 
-    virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
-
     const SkLight* light() const { return fLight; }
     SkScalar surfaceScale() const { return fSurfaceScale; }
 
@@ -317,6 +315,9 @@ public:
         // lighting shaders are complicated. We just throw up our hands.
         *validFlags = 0;
     }
+
+protected:
+    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
 
 private:
     typedef GrSingleTextureEffect INHERITED;
@@ -342,9 +343,11 @@ public:
     typedef GrGLDiffuseLightingEffect GLEffect;
 
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
-    virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
     SkScalar kd() const { return fKD; }
+
 private:
+    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
+
     GrDiffuseLightingEffect(GrTexture* texture,
                             const SkLight* light,
                             SkScalar surfaceScale,
@@ -374,11 +377,12 @@ public:
     typedef GrGLSpecularLightingEffect GLEffect;
 
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
-    virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
     SkScalar ks() const { return fKS; }
     SkScalar shininess() const { return fShininess; }
 
 private:
+    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
+
     GrSpecularLightingEffect(GrTexture* texture,
                              const SkLight* light,
                              SkScalar surfaceScale,
@@ -1050,10 +1054,9 @@ GrLightingEffect::~GrLightingEffect() {
     fLight->unref();
 }
 
-bool GrLightingEffect::isEqual(const GrEffect& sBase) const {
-    const GrLightingEffect& s =
-        static_cast<const GrLightingEffect&>(sBase);
-    return INHERITED::isEqual(sBase) &&
+bool GrLightingEffect::onIsEqual(const GrEffect& sBase) const {
+    const GrLightingEffect& s = static_cast<const GrLightingEffect&>(sBase);
+    return this->texture(0) == s.texture(0) &&
            fLight->isEqual(*s.fLight) &&
            fSurfaceScale == s.fSurfaceScale;
 }
@@ -1068,10 +1071,10 @@ const GrBackendEffectFactory& GrDiffuseLightingEffect::getFactory() const {
     return GrTBackendEffectFactory<GrDiffuseLightingEffect>::getInstance();
 }
 
-bool GrDiffuseLightingEffect::isEqual(const GrEffect& sBase) const {
+bool GrDiffuseLightingEffect::onIsEqual(const GrEffect& sBase) const {
     const GrDiffuseLightingEffect& s =
         static_cast<const GrDiffuseLightingEffect&>(sBase);
-    return INHERITED::isEqual(sBase) &&
+    return INHERITED::onIsEqual(sBase) &&
             this->kd() == s.kd();
 }
 
@@ -1280,10 +1283,10 @@ const GrBackendEffectFactory& GrSpecularLightingEffect::getFactory() const {
     return GrTBackendEffectFactory<GrSpecularLightingEffect>::getInstance();
 }
 
-bool GrSpecularLightingEffect::isEqual(const GrEffect& sBase) const {
+bool GrSpecularLightingEffect::onIsEqual(const GrEffect& sBase) const {
     const GrSpecularLightingEffect& s =
         static_cast<const GrSpecularLightingEffect&>(sBase);
-    return INHERITED::isEqual(sBase) &&
+    return INHERITED::onIsEqual(sBase) &&
            this->ks() == s.ks() &&
            this->shininess() == s.shininess();
 }

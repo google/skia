@@ -86,18 +86,6 @@ const char* GrEffect::name() const {
     return this->getFactory().name();
 }
 
-bool GrEffect::isEqual(const GrEffect& s) const {
-    if (this->numTextures() != s.numTextures()) {
-        return false;
-    }
-    for (int i = 0; i < this->numTextures(); ++i) {
-        if (this->textureAccess(i) != s.textureAccess(i)) {
-            return false;
-        }
-    }
-    return true;
-}
-
 void GrEffect::addTextureAccess(const GrTextureAccess* access) {
     fTextureAccesses.push_back(access);
 }

@@ -235,13 +235,14 @@ public:
 
     static const char* Name() { return "ColorTable"; }
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
-    virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
 
     virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
     typedef GLColorTableEffect GLEffect;
 
 private:
+    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
+
     explicit ColorTableEffect(GrTexture* texture, unsigned flags);
 
     GR_DECLARE_EFFECT_TEST;
@@ -344,8 +345,8 @@ const GrBackendEffectFactory&  ColorTableEffect::getFactory() const {
     return GrTBackendEffectFactory<ColorTableEffect>::getInstance();
 }
 
-bool ColorTableEffect::isEqual(const GrEffect& sBase) const {
-    return INHERITED::isEqual(sBase);
+bool ColorTableEffect::onIsEqual(const GrEffect& sBase) const {
+    return this->texture(0) == sBase.texture(0);
 }
 
 void ColorTableEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
