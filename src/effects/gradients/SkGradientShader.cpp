@@ -829,6 +829,24 @@ GrGradientEffect::~GrGradientEffect() {
     }
 }
 
+bool GrGradientEffect::onIsEqual(const GrEffect& effect) const {
+    const GrGradientEffect& s = static_cast<const GrGradientEffect&>(effect);
+    return fTextureAccess.getTexture() == s.fTextureAccess.getTexture()  &&
+           fTextureAccess.getParams().getTileModeX() ==
+                s.fTextureAccess.getParams().getTileModeX() &&
+           this->useAtlas() == s.useAtlas() &&
+           fYCoord == s.getYCoord() &&
+           fMatrix.cheapEqualTo(s.getMatrix());
+}
+
+void GrGradientEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
+    if (fIsOpaque && (kA_ValidComponentFlag & *validFlags) && 0xff == GrColorUnpackA(*color)) {
+        *validFlags = kA_ValidComponentFlag;
+    } else {
+        *validFlags = 0;
+    }
+}
+
 int GrGradientEffect::RandomGradientParams(SkRandom* random,
                                            SkColor colors[],
                                            SkScalar** stops,

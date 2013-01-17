@@ -51,7 +51,12 @@ public:
     typedef GrGLConvolutionEffect GLEffect;
 
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
-    virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
+
+    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
+        // If the texture was opaque we could know that the output color if we knew the sum of the
+        // kernel values.
+        *validFlags = 0;
+    }
 
     enum {
         // This was decided based on the min allowed value for the max texture
@@ -76,6 +81,8 @@ private:
     GrConvolutionEffect(GrTexture*, Direction,
                         int halfWidth,
                         float gaussianSigma);
+
+    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
 
     GR_DECLARE_EFFECT_TEST;
 

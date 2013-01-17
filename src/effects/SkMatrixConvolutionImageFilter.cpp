@@ -287,7 +287,6 @@ public:
 
 
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
-    virtual bool isEqual(const GrEffect&) const SK_OVERRIDE;
 
 private:
     GrMatrixConvolutionEffect(GrTexture*,
@@ -298,6 +297,8 @@ private:
                               const SkIPoint& target,
                               TileMode tileMode,
                               bool convolveAlpha);
+
+    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
 
     SkISize  fKernelSize;
     float   *fKernel;
@@ -518,10 +519,10 @@ const GrBackendEffectFactory& GrMatrixConvolutionEffect::getFactory() const {
     return GrTBackendEffectFactory<GrMatrixConvolutionEffect>::getInstance();
 }
 
-bool GrMatrixConvolutionEffect::isEqual(const GrEffect& sBase) const {
+bool GrMatrixConvolutionEffect::onIsEqual(const GrEffect& sBase) const {
     const GrMatrixConvolutionEffect& s =
         static_cast<const GrMatrixConvolutionEffect&>(sBase);
-    return INHERITED::isEqual(sBase) &&
+    return this->texture(0) == s.texture(0) &&
            fKernelSize == s.kernelSize() &&
            !memcmp(fKernel, s.kernel(), fKernelSize.width() * fKernelSize.height() * sizeof(float)) &&
            fGain == s.gain() &&

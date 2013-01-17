@@ -336,11 +336,6 @@ public:
         return GrTBackendEffectFactory<ColorMatrixEffect>::getInstance();
     }
 
-    virtual bool isEqual(const GrEffect& s) const {
-        const ColorMatrixEffect& cme = static_cast<const ColorMatrixEffect&>(s);
-        return cme.fMatrix == fMatrix;
-    }
-
     virtual void getConstantColorComponents(GrColor* color,
                                             uint32_t* validFlags) const SK_OVERRIDE {
         // We only bother to check whether the alpha channel will be constant. If SkColorMatrix had
@@ -455,6 +450,11 @@ public:
 
 private:
     ColorMatrixEffect(const SkColorMatrix& matrix) : fMatrix(matrix) {}
+
+    virtual bool onIsEqual(const GrEffect& s) const {
+        const ColorMatrixEffect& cme = static_cast<const ColorMatrixEffect&>(s);
+        return cme.fMatrix == fMatrix;
+    }
 
     SkColorMatrix fMatrix;
 

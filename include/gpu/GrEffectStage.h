@@ -39,10 +39,6 @@ public:
             return false;
         }
 
-        if (this->getEffect()->getFactory() != other.getEffect()->getFactory()) {
-            return false;
-        }
-
         if (!this->getEffect()->isEqual(*other.getEffect())) {
             return false;
         }

@@ -332,7 +332,7 @@ void SkBitmapProcShader::toString(SkString* str) const {
 #if SK_SUPPORT_GPU
 
 #include "GrTextureAccess.h"
-#include "effects/GrSingleTextureEffect.h"
+#include "effects/GrSimpleTextureEffect.h"
 #include "SkGr.h"
 
 GrEffectRef* SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& paint) const {
@@ -360,7 +360,7 @@ GrEffectRef* SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& 
         return NULL;
     }
 
-    GrEffectRef* effect = GrSingleTextureEffect::Create(texture, matrix, params);
+    GrEffectRef* effect = GrSimpleTextureEffect::Create(texture, matrix, params);
     GrUnlockCachedBitmapTexture(texture);
     return effect;
 }

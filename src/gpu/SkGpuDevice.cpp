@@ -8,6 +8,7 @@
 #include "SkGpuDevice.h"
 
 #include "effects/GrTextureDomainEffect.h"
+#include "effects/GrSimpleTextureEffect.h"
 
 #include "GrContext.h"
 #include "GrTextContext.h"
@@ -443,7 +444,7 @@ bool SkGpuDevice::bindDeviceAsTexture(GrPaint* paint) {
     GrTexture* texture = fRenderTarget->asTexture();
     if (NULL != texture) {
         paint->colorStage(kBitmapTextureIdx)->setEffect(
-            GrSingleTextureEffect::Create(texture, SkMatrix::I()))->unref();
+            GrSimpleTextureEffect::Create(texture, SkMatrix::I()))->unref();
         return true;
     }
     return false;
@@ -797,7 +798,7 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& devPath, const SkSt
             // Blend pathTexture over blurTexture.
             context->setRenderTarget(blurTexture->asRenderTarget());
             paint.colorStage(0)->setEffect(
-                GrSingleTextureEffect::Create(pathTexture, matrix))->unref();
+                GrSimpleTextureEffect::Create(pathTexture, matrix))->unref();
             if (SkMaskFilter::kInner_BlurType == blurType) {
                 // inner:  dst = dst * src
                 paint.setBlendFunc(kDC_GrBlendCoeff, kZero_GrBlendCoeff);
@@ -829,7 +830,7 @@ bool drawWithGPUMaskFilter(GrContext* context, const SkPath& devPath, const SkSt
 
     grp->coverageStage(MASK_IDX)->reset();
     grp->coverageStage(MASK_IDX)->setEffect(
-        GrSingleTextureEffect::Create(blurTexture, matrix))->unref();
+        GrSimpleTextureEffect::Create(blurTexture, matrix))->unref();
     context->drawRect(*grp, finalRect);
     return true;
 }
@@ -885,7 +886,7 @@ bool drawWithMaskFilter(GrContext* context, const SkPath& devPath,
     m.setTranslate(-dstM.fBounds.fLeft*SK_Scalar1, -dstM.fBounds.fTop*SK_Scalar1);
     m.postIDiv(texture->width(), texture->height());
 
-    grp->coverageStage(MASK_IDX)->setEffect(GrSingleTextureEffect::Create(texture, m))->unref();
+    grp->coverageStage(MASK_IDX)->setEffect(GrSimpleTextureEffect::Create(texture, m))->unref();
     GrRect d;
     d.setLTRB(SkIntToScalar(dstM.fBounds.fLeft),
               SkIntToScalar(dstM.fBounds.fTop),
@@ -1340,7 +1341,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                                                    GrTextureDomainEffect::kClamp_WrapMode,
                                                    params.isBilerp()));
     } else {
-        effect.reset(GrSingleTextureEffect::Create(texture, SkMatrix::I(), params));
+        effect.reset(GrSimpleTextureEffect::Create(texture, SkMatrix::I(), params));
     }
     grPaint->colorStage(kBitmapTextureIdx)->setEffect(effect);
     fContext->drawRectToRect(*grPaint, dstRect, paintRect, &m);
@@ -1418,7 +1419,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     // draw sprite uses the default texture params
     SkAutoCachedTexture act(this, bitmap, NULL, &texture);
     grPaint.colorStage(kBitmapTextureIdx)->setEffect(
-        GrSingleTextureEffect::Create(texture, SkMatrix::I()))->unref();
+        GrSimpleTextureEffect::Create(texture, SkMatrix::I()))->unref();
 
     SkImageFilter* filter = paint.getImageFilter();
     if (NULL != filter) {
@@ -1426,7 +1427,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
                  GrRect::MakeWH(SkIntToScalar(w), SkIntToScalar(h)));
         if (filteredTexture) {
             grPaint.colorStage(kBitmapTextureIdx)->setEffect(
-                GrSingleTextureEffect::Create(filteredTexture, SkMatrix::I()))->unref();
+                GrSimpleTextureEffect::Create(filteredTexture, SkMatrix::I()))->unref();
             texture = filteredTexture;
             filteredTexture->unref();
         }
@@ -1500,7 +1501,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
         GrTexture* filteredTexture = filter_texture(this, fContext, devTex, filter, rect);
         if (filteredTexture) {
             grPaint.colorStage(kBitmapTextureIdx)->setEffect(
-                GrSingleTextureEffect::Create(filteredTexture, SkMatrix::I()))->unref();
+                GrSimpleTextureEffect::Create(filteredTexture, SkMatrix::I()))->unref();
             devTex = filteredTexture;
             filteredTexture->unref();
         }

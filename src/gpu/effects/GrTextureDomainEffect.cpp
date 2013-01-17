@@ -6,6 +6,7 @@
  */
 
 #include "GrTextureDomainEffect.h"
+#include "GrSimpleTextureEffect.h"
 #include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLEffectMatrix.h"
@@ -128,7 +129,7 @@ GrEffectRef* GrTextureDomainEffect::Create(GrTexture* texture,
                                            bool bilerp) {
     static const SkRect kFullRect = {0, 0, SK_Scalar1, SK_Scalar1};
     if (kClamp_WrapMode == wrapMode && domain.contains(kFullRect)) {
-        return GrSingleTextureEffect::Create(texture, matrix, bilerp);
+        return GrSimpleTextureEffect::Create(texture, matrix, bilerp);
     } else {
         SkRect clippedDomain;
         // We don't currently handle domains that are empty or don't intersect the texture.
@@ -171,9 +172,17 @@ const GrBackendEffectFactory& GrTextureDomainEffect::getFactory() const {
     return GrTBackendEffectFactory<GrTextureDomainEffect>::getInstance();
 }
 
-bool GrTextureDomainEffect::isEqual(const GrEffect& sBase) const {
+bool GrTextureDomainEffect::onIsEqual(const GrEffect& sBase) const {
     const GrTextureDomainEffect& s = static_cast<const GrTextureDomainEffect&>(sBase);
-    return (INHERITED::isEqual(sBase) && this->fTextureDomain == s.fTextureDomain);
+    return this->hasSameTextureParamsAndMatrix(s) && this->fTextureDomain == s.fTextureDomain;
+}
+
+void GrTextureDomainEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
+    if (kDecal_WrapMode == fWrapMode) {
+        *validFlags = 0;
+    } else {
+        this->updateConstantColorComponentsForModulation(color, validFlags);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

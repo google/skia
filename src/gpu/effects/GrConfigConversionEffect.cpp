@@ -8,6 +8,7 @@
 #include "GrConfigConversionEffect.h"
 #include "GrContext.h"
 #include "GrTBackendEffectFactory.h"
+#include "GrSimpleTextureEffect.h"
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLEffectMatrix.h"
 #include "SkMatrix.h"
@@ -115,9 +116,16 @@ const GrBackendEffectFactory& GrConfigConversionEffect::getFactory() const {
     return GrTBackendEffectFactory<GrConfigConversionEffect>::getInstance();
 }
 
-bool GrConfigConversionEffect::isEqual(const GrEffect& s) const {
+bool GrConfigConversionEffect::onIsEqual(const GrEffect& s) const {
     const GrConfigConversionEffect& other = static_cast<const GrConfigConversionEffect&>(s);
-    return other.fSwapRedAndBlue == fSwapRedAndBlue && other.fPMConversion == fPMConversion;
+    return this->texture(0) == s.texture(0) &&
+           other.fSwapRedAndBlue == fSwapRedAndBlue &&
+           other.fPMConversion == fPMConversion;
+}
+
+void GrConfigConversionEffect::getConstantColorComponents(GrColor* color,
+                                                          uint32_t* validFlags) const {
+    this->updateConstantColorComponentsForModulation(color, validFlags);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -263,7 +271,7 @@ bool GrConfigConversionEffect::InstallEffect(GrTexture* texture,
         // If we returned a GrConfigConversionEffect that was equivalent to a GrSingleTextureEffect
         // then we may pollute our texture cache with redundant shaders. So in the case that no
         // conversions were requested we instead return a GrSingleTextureEffect.
-        stage->setEffect(GrSingleTextureEffect::Create(texture, matrix))->unref();
+        stage->setEffect(GrSimpleTextureEffect::Create(texture, matrix))->unref();
         return true;
     } else {
         if (kRGBA_8888_GrPixelConfig != texture->config() &&

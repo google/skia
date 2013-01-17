@@ -128,6 +128,8 @@
       '<(skia_src_path)/gpu/effects/GrConfigConversionEffect.h',
       '<(skia_src_path)/gpu/effects/GrConvolutionEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrConvolutionEffect.h',
+      '<(skia_src_path)/gpu/effects/GrSimpleTextureEffect.cpp',
+      '<(skia_src_path)/gpu/effects/GrSimpleTextureEffect.h',
       '<(skia_src_path)/gpu/effects/GrSingleTextureEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrSingleTextureEffect.h',
       '<(skia_src_path)/gpu/effects/GrTextureDomainEffect.cpp',

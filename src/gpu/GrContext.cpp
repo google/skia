@@ -1860,7 +1860,7 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         scale_rect(&dstRect, i < scaleFactorX ? 0.5f : 1.0f,
                              i < scaleFactorY ? 0.5f : 1.0f);
 
-        paint.colorStage(0)->setEffect(GrSingleTextureEffect::Create(srcTexture,
+        paint.colorStage(0)->setEffect(GrSimpleTextureEffect::Create(srcTexture,
                                                                      matrix,
                                                                      true))->unref();
         this->drawRectToRect(paint, dstRect, srcRect);
@@ -1919,7 +1919,7 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         // FIXME:  This should be mitchell, not bilinear.
         matrix.setIDiv(srcTexture->width(), srcTexture->height());
         this->setRenderTarget(dstTexture->asRenderTarget());
-        paint.colorStage(0)->setEffect(GrSingleTextureEffect::Create(srcTexture,
+        paint.colorStage(0)->setEffect(GrSimpleTextureEffect::Create(srcTexture,
                                                                      matrix,
                                                                      true))->unref();
         SkRect dstRect(srcRect);
