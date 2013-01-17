@@ -127,7 +127,7 @@ void ClipRect::execute(SkCanvas* canvas) {
 }
 
 ClipRRect::ClipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
-    this->fRRect = &rrect;
+    this->fRRect = rrect;
     this->fOp = op;
     this->fDoAA = doAA;
     this->fDrawType = CLIP_RRECT;
@@ -138,7 +138,7 @@ ClipRRect::ClipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
 }
 
 void ClipRRect::execute(SkCanvas* canvas) {
-    canvas->clipRRect(*this->fRRect, this->fOp, this->fDoAA);
+    canvas->clipRRect(this->fRRect, this->fOp, this->fDoAA);
 }
 
 Concat::Concat(const SkMatrix& matrix) {

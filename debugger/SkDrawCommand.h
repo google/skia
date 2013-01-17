@@ -103,7 +103,7 @@ public:
     ClipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
 private:
-    const SkRRect* fRRect;
+    SkRRect fRRect;
     SkRegion::Op fOp;
     bool fDoAA;
 };
