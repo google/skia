@@ -454,7 +454,7 @@ public:
 private:
     virtual bool onIsEqual(const GrEffect& sBase) const SK_OVERRIDE {
         const GrRadial2Gradient& s = static_cast<const GrRadial2Gradient&>(sBase);
-        return (INHERITED::isEqual(sBase) &&
+        return (INHERITED::onIsEqual(sBase) &&
                 this->fCenterX1 == s.fCenterX1 &&
                 this->fRadius0 == s.fRadius0 &&
                 this->fPosRoot == s.fPosRoot);
