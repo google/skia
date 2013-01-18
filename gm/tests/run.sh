@@ -20,6 +20,9 @@ cd $(dirname $0)/../..
 # TODO(epoger): make it look in Release and/or Debug
 GM_BINARY=out/Debug/gm
 
+OUTPUT_ACTUAL_SUBDIR=output-actual
+OUTPUT_EXPECTED_SUBDIR=output-expected
+
 # Compare contents of all files within directories $1 and $2,
 # EXCEPT for any dotfiles.
 # If there are any differences, a description is written to stdout and
@@ -39,39 +42,88 @@ function compare_directories {
 
 # Run gm...
 # - with the arguments in $1
-# - writing resulting images into $2/output-actual/images
-# - writing stdout into $2/output-actual/stdout
-# - writing json summary into $2/output-actual/json-summary.txt
-# - writing return value into $2/output-actual/return_value
-# Then compare all of those against $2/output-expected .
+# - writing resulting images into $2/$OUTPUT_ACTUAL_SUBDIR/images
+# - writing stdout into $2/$OUTPUT_ACTUAL_SUBDIR/stdout
+# - writing json summary into $2/$OUTPUT_ACTUAL_SUBDIR/json-summary.txt
+# - writing return value into $2/$OUTPUT_ACTUAL_SUBDIR/return_value
+# Then compare all of those against $2/$OUTPUT_EXPECTED_SUBDIR .
 function gm_test {
   if [ $# != 2 ]; then
     echo "gm_test requires exactly 2 parameters, got $#"
     exit 1
   fi
   GM_ARGS="$1"
-  ACTUAL_OUTPUT_DIR="$2/output-actual"
-  EXPECTED_OUTPUT_DIR="$2/output-expected"
+  ACTUAL_OUTPUT_DIR="$2/$OUTPUT_ACTUAL_SUBDIR"
+  EXPECTED_OUTPUT_DIR="$2/$OUTPUT_EXPECTED_SUBDIR"
+  JSON_SUMMARY_FILE="$ACTUAL_OUTPUT_DIR/json-summary.txt"
 
   rm -rf $ACTUAL_OUTPUT_DIR
   mkdir -p $ACTUAL_OUTPUT_DIR
-  COMMAND="$GM_BINARY $GM_ARGS --writeJsonSummary $ACTUAL_OUTPUT_DIR/json-summary.txt -w $ACTUAL_OUTPUT_DIR/images"
+  COMMAND="$GM_BINARY $GM_ARGS --writeJsonSummary $JSON_SUMMARY_FILE -w $ACTUAL_OUTPUT_DIR/images"
   echo "$COMMAND" >$ACTUAL_OUTPUT_DIR/command_line
   $COMMAND &>$ACTUAL_OUTPUT_DIR/stdout
   echo $? >$ACTUAL_OUTPUT_DIR/return_value
 
-  # Temporary hack to alleviate
-  # http://code.google.com/p/skia/issues/detail?id=1068 ('GM self-test failures')
-  # (Remove instance-counting lines from the Debug output)
-  grep -v Leaked $ACTUAL_OUTPUT_DIR/stdout >$ACTUAL_OUTPUT_DIR/stdout-tmp
+  # Only compare selected lines in the output, to ignore any spurious lines
+  # as noted in http://code.google.com/p/skia/issues/detail?id=1068 .
+  #
+  # TODO(epoger): This is still hacky... we need to rewrite this script in
+  # Python soon, and make stuff like this more maintainable.
+  grep --regexp=^reading --regexp=^writing --regexp=^drawing \
+    --regexp=^FAILED --regexp=^Ran $ACTUAL_OUTPUT_DIR/stdout \
+    >$ACTUAL_OUTPUT_DIR/stdout-tmp
   mv $ACTUAL_OUTPUT_DIR/stdout-tmp $ACTUAL_OUTPUT_DIR/stdout
 
+  # Replace particular checksums in json output with a placeholder, so
+  # we don't need to rebaseline these json files when our drawing routines
+  # change.
+  sed -e 's/"checksum" : [0-9]*/"checksum" : FAKE/g' \
+    --in-place $JSON_SUMMARY_FILE
+  sed -e 's/"checksums" : \[ [0-9]* \]/"checksums" : [ FAKE ]/g' \
+    --in-place $JSON_SUMMARY_FILE
+
   compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
+}
+
+# Create input dir (at path $1) with images that match or mismatch
+# as appropriate.
+#
+# We used to check these files into SVN, but then we needed to rebasline them
+# when our drawing changed at all... so, as proposed in
+# http://code.google.com/p/skia/issues/detail?id=1068 , we generate them
+# new each time.
+function create_inputs_dir {
+  if [ $# != 1 ]; then
+    echo "create_inputs_dir requires exactly 1 parameter, got $#"
+    exit 1
+  fi
+  INPUTS_DIR="$1"
+  mkdir -p $INPUTS_DIR
+
+  mkdir -p $INPUTS_DIR/identical-bytes
+  $GM_BINARY --hierarchy --match dashing2 --config 8888 \
+    -w $INPUTS_DIR/identical-bytes
+
+  mkdir -p $INPUTS_DIR/identical-pixels
+  $GM_BINARY --hierarchy --match dashing2 --config 8888 \
+    -w $INPUTS_DIR/identical-pixels
+  echo "more bytes that do not change the image pixels" \
+    >> $INPUTS_DIR/identical-pixels/8888/dashing2.png
+
+  mkdir -p $INPUTS_DIR/different-pixels
+  $GM_BINARY --hierarchy --match dashing3 --config 8888 \
+    -w $INPUTS_DIR/different-pixels
+  mv $INPUTS_DIR/different-pixels/8888/dashing3.png \
+    $INPUTS_DIR/different-pixels/8888/dashing2.png
+
+  mkdir -p $INPUTS_DIR/empty-dir
 }
 
 GM_TESTDIR=gm/tests
 GM_INPUTS=$GM_TESTDIR/inputs
 GM_OUTPUTS=$GM_TESTDIR/outputs
+
+create_inputs_dir $GM_INPUTS
 
 # Compare generated image against an input image file with identical bytes.
 gm_test "--hierarchy --match dashing2 --config 8888 -r $GM_INPUTS/identical-bytes" "$GM_OUTPUTS/compared-against-identical-bytes"

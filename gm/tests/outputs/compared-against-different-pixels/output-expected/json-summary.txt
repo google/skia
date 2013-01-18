@@ -2,7 +2,7 @@
    "actual-results" : {
       "failed" : {
          "8888/dashing2" : {
-            "checksum" : 16595425910463109922
+            "checksum" : FAKE
          }
       },
       "failure-ignored" : null,
@@ -11,7 +11,7 @@
    },
    "expected-results" : {
       "8888/dashing2" : {
-         "checksums" : [ 15161495552186645995 ],
+         "checksums" : [ FAKE ],
          "ignore-failure" : false
       }
    }

@@ -5,13 +5,13 @@
       "no-comparison" : null,
       "succeeded" : {
          "8888/dashing2" : {
-            "checksum" : 16595425910463109922
+            "checksum" : FAKE
          }
       }
    },
    "expected-results" : {
       "8888/dashing2" : {
-         "checksums" : [ 16595425910463109922 ],
+         "checksums" : [ FAKE ],
          "ignore-failure" : false
       }
    }
