@@ -38,11 +38,11 @@ class ConstXTileBench : public SkBenchmark {
     static const int kHeight = 300;
 
 public:
-    ConstXTileBench(void* param, 
+    ConstXTileBench(void* param,
                     SkShader::TileMode xTile,
                     SkShader::TileMode yTile,
                     bool doFilter,
-                    bool doTrans) 
+                    bool doTrans)
         : INHERITED(param)
         , fDoFilter(doFilter)
         , fDoTrans(doTrans) {

@@ -62,7 +62,7 @@ static void oneOff(const Cubic& cubic1, const Cubic& cubic2) {
     cubic_to_quadratics(cubic1, calcPrecision(cubic1), quads1);
     for (int index = 0; index < quads1.count(); ++index) {
         const Quadratic& q = quads1[index];
-        SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", q[0].x, q[0].y, 
+        SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", q[0].x, q[0].y,
                  q[1].x, q[1].y,  q[2].x, q[2].y);
     }
     SkDebugf("\n");
@@ -70,7 +70,7 @@ static void oneOff(const Cubic& cubic1, const Cubic& cubic2) {
     cubic_to_quadratics(cubic2, calcPrecision(cubic2), quads2);
     for (int index = 0; index < quads2.count(); ++index) {
         const Quadratic& q = quads2[index];
-        SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", q[0].x, q[0].y, 
+        SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", q[0].x, q[0].y,
                  q[1].x, q[1].y,  q[2].x, q[2].y);
     }
     SkDebugf("\n");

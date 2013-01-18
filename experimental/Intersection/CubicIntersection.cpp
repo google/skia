@@ -164,7 +164,7 @@ bool intersect(const Cubic& c1, const Cubic& c2, Intersections& i) {
 // this flavor approximates the cubics with quads to find the intersecting ts
 // OPTIMIZE: if this strategy proves successful, the quad approximations, or the ts used
 // to create the approximations, could be stored in the cubic segment
-// fixme: this strategy needs to add short line segments on either end, or similarly extend the 
+// fixme: this strategy needs to add short line segments on either end, or similarly extend the
 // initial and final quadratics
 bool intersect2(const Cubic& c1, const Cubic& c2, Intersections& i) {
     SkTDArray<double> ts1;

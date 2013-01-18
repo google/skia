@@ -1678,7 +1678,7 @@ public:
             other.addCancelOutsides(tStart, oStart, *this, endT);
         }
     }
-    
+
     int addUnsortableT(double newT, Segment* other, bool start) {
         int result = addT(newT, other);
         Span* span = &fTs[result];

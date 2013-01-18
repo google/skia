@@ -4032,7 +4032,7 @@ static void testOp8d() {
     pathB.cubicTo(10.7082f, -116.596f, 262.057f, 45.6468f, 294.694f, 1.96237f);
     pathB.close();
     testShapeOp(path, pathB, kDifference_Op);
-}    
+}
 
 static const size_t testCount = sizeof(tests) / sizeof(tests[0]);
 

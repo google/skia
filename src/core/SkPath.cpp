@@ -2121,7 +2121,7 @@ static void append_params(SkString* str, const char label[], const SkPoint pts[]
                           int count) {
     str->append(label);
     str->append("(");
-    
+
     const SkScalar* values = &pts[0].fX;
     count *= 2;
 
