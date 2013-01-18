@@ -211,7 +211,6 @@ GrGLBicubicEffect::GrGLBicubicEffect(const GrBackendEffectFactory& factory,
     : INHERITED(factory)
     , fCoefficientsUni(GrGLUniformManager::kInvalidUniformHandle)
     , fImageIncrementUni(GrGLUniformManager::kInvalidUniformHandle) {
-    const GrBicubicEffect& m = static_cast<const GrBicubicEffect&>(effect);
 }
 
 void GrGLBicubicEffect::emitCode(GrGLShaderBuilder* builder,
