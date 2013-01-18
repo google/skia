@@ -8,7 +8,7 @@
       'utils.gyp:utils',
     ],
     'conditions': [
-      [ 'skia_arch_type == "x86"', {
+      [ 'skia_arch_type == "x86" and skia_os != "android"', {
         'component_libs': [
           'opts.gyp:opts_ssse3',
         ],
