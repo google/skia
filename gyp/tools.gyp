@@ -19,6 +19,7 @@
         'skhello',
         'skimage',
         'render_pictures',
+        'render_pdfs',
         'bench_pictures',
         'pinspect',
         'filter',
