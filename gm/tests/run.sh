@@ -59,12 +59,12 @@ function gm_test {
 
   rm -rf $ACTUAL_OUTPUT_DIR
   mkdir -p $ACTUAL_OUTPUT_DIR
-  COMMAND="$GM_BINARY $GM_ARGS --writeJsonSummary $JSON_SUMMARY_FILE -w $ACTUAL_OUTPUT_DIR/images"
+  COMMAND="$GM_BINARY $GM_ARGS --writeJsonSummary $JSON_SUMMARY_FILE"
   echo "$COMMAND" >$ACTUAL_OUTPUT_DIR/command_line
   $COMMAND &>$ACTUAL_OUTPUT_DIR/stdout
   echo $? >$ACTUAL_OUTPUT_DIR/return_value
 
-  # Only compare selected lines in the output, to ignore any spurious lines
+  # Only compare selected lines in the stdout, to ignore any spurious lines
   # as noted in http://code.google.com/p/skia/issues/detail?id=1068 .
   #
   # TODO(epoger): This is still hacky... we need to rewrite this script in
@@ -74,7 +74,7 @@ function gm_test {
     >$ACTUAL_OUTPUT_DIR/stdout-tmp
   mv $ACTUAL_OUTPUT_DIR/stdout-tmp $ACTUAL_OUTPUT_DIR/stdout
 
-  # Replace particular checksums in json output with a placeholder, so
+  # Replace particular checksums in json summary with a placeholder, so
   # we don't need to rebaseline these json files when our drawing routines
   # change.
   sed -e 's/"checksum" : [0-9]*/"checksum" : FAKE/g' \
