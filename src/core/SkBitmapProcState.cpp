@@ -24,11 +24,9 @@ extern void  SI8_opaque_D32_filter_DX_shaderproc_neon(const SkBitmapProcState&, 
 extern void  Clamp_SI8_opaque_D32_filter_DX_shaderproc_neon(const SkBitmapProcState&, int, int, uint32_t*, int);
 #endif
 
-#if !SK_ARM_NEON_IS_ALWAYS
 #define   NAME_WRAP(x)  x
 #include "SkBitmapProcState_filter.h"
 #include "SkBitmapProcState_procs.h"
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
