@@ -37,6 +37,11 @@
                 '-msse2',
               ],
             }],
+            [ 'skia_os != "android"', {
+              'dependencies': [
+                'opts_ssse3',
+              ],
+            }],
           ],
           'sources': [
             '../src/opts/opts_check_SSE2.cpp',
@@ -44,9 +49,6 @@
             '../src/opts/SkBlitRow_opts_SSE2.cpp',
             '../src/opts/SkBlitRect_opts_SSE2.cpp',
             '../src/opts/SkUtils_opts_SSE2.cpp',
-          ],
-          'dependencies': [
-            'opts_ssse3',
           ],
         }],
         [ 'skia_arch_type == "arm" and armv7 == 1', {
