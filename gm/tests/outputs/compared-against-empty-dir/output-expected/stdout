@@ -1,4 +1,3 @@
-Non-default runtime configuration options:
 reading from gm/tests/inputs/empty-dir
 writing to gm/tests/outputs/compared-against-empty-dir/output-actual/images
 drawing... dashing2 [640 480]

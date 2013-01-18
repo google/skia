@@ -4,7 +4,7 @@
       "failure-ignored" : null,
       "no-comparison" : {
          "8888/dashing2" : {
-            "checksum" : 16595425910463109922
+            "checksum" : FAKE
          }
       },
       "succeeded" : null
