@@ -79,3 +79,47 @@ static inline void Filter_32_alpha(unsigned x, unsigned y,
     *dstColor = ((lo >> 8) & mask) | (hi & ~mask);
 }
 
+// Two color version, where we filter only along 1 axis
+static inline void Filter_32_opaque(unsigned t,
+                                    SkPMColor color0,
+                                    SkPMColor color1,
+                                    SkPMColor* dstColor) {
+    SkASSERT((unsigned)t <= 0xF);
+
+    static const uint32_t mask = gMask_00FF00FF; //0x00FF00FF;
+
+    int scale = 256 - 16*t;
+    uint32_t lo = (color0 & mask) * scale;
+    uint32_t hi = ((color0 >> 8) & mask) * scale;
+
+    scale = 16*t;
+    lo += (color1 & mask) * scale;
+    hi += ((color1 >> 8) & mask) * scale;
+
+    *dstColor = ((lo >> 8) & mask) | (hi & ~mask);
+}
+
+// Two color version, where we filter only along 1 axis
+static inline void Filter_32_alpha(unsigned t,
+                                   SkPMColor color0,
+                                   SkPMColor color1,
+                                   SkPMColor* dstColor,
+                                   unsigned alphaScale) {
+    SkASSERT((unsigned)t <= 0xF);
+    SkASSERT(alphaScale <= 256);
+
+    static const uint32_t mask = gMask_00FF00FF; //0x00FF00FF;
+
+    int scale = 256 - 16*t;
+    uint32_t lo = (color0 & mask) * scale;
+    uint32_t hi = ((color0 >> 8) & mask) * scale;
+
+    scale = 16*t;
+    lo += (color1 & mask) * scale;
+    hi += ((color1 >> 8) & mask) * scale;
+
+    lo = ((lo >> 8) & mask) * alphaScale;
+    hi = ((hi >> 8) & mask) * alphaScale;
+
+    *dstColor = ((lo >> 8) & mask) | (hi & ~mask);
+}
