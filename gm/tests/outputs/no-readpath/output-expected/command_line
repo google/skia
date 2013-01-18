@@ -1,1 +1,1 @@
-out/Debug/gm --hierarchy --match dashing2 --config 8888 --writeJsonSummary gm/tests/outputs/no-readpath/output-actual/json-summary.txt -w gm/tests/outputs/no-readpath/output-actual/images
+out/Debug/gm --hierarchy --match dashing2 --config 8888 --writeJsonSummary gm/tests/outputs/no-readpath/output-actual/json-summary.txt
