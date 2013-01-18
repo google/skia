@@ -85,7 +85,7 @@ public:
     void swap() {
         fSwap ^= true;
     }
-    
+
     void swapPts() {
         int index;
         for (index = 0; index < fUsed; ++index) {

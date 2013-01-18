@@ -21,7 +21,7 @@
  * then
  * 0 = A(at^2+bt+c)(at^2+bt+c)+B(at^2+bt+c)(dt^2+et+f)+C(dt^2+et+f)(dt^2+et+f)+D(at^2+bt+c)+E(dt^2+et+f)+F
  */
- 
+
 #if SK_DEBUG
 #define QUARTIC_DEBUG 1
 #else
@@ -160,7 +160,7 @@ static bool pointInTriangle(const _Point& pt, const _Line* testLines[]) {
     const _Point& B = (*testLines[1])[0];
     const _Point& C = (*testLines[2])[0];
 
-// Compute vectors        
+// Compute vectors
     _Point v0 = C - A;
     _Point v1 = B - A;
     _Point v2 = pt - A;
@@ -243,7 +243,7 @@ static bool isLinearInner(const Quadratic& q1, double t1s, double t1e, const Qua
     bool startInTriangle = pointInTriangle(end, testLines);
     if (startInTriangle) {
         tMin = t2s;
-    } 
+    }
     xy_at_t(q2, t2e, end.x, end.y);
     bool endInTriangle = pointInTriangle(end, testLines);
     if (endInTriangle) {
@@ -261,7 +261,7 @@ static bool isLinearInner(const Quadratic& q1, double t1s, double t1e, const Qua
                 break;
             }
         }
-        
+
     }
     if (split == 0) { // there's one point
         if (addIntercept(q1, q2, tMin, tMax, i)) {

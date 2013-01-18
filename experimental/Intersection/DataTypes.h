@@ -155,7 +155,7 @@ struct _Point {
         return AlmostEqualUlps((float) x, (float) a.x)
                 && AlmostEqualUlps((float) y, (float) a.y);
     }
-    
+
     double dot(const _Point& a) {
         return x * a.x + y * a.y;
     }
