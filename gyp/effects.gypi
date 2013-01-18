@@ -11,6 +11,7 @@
     '<(skia_src_path)/effects/Sk2DPathEffect.cpp',
     '<(skia_src_path)/effects/SkAvoidXfermode.cpp',
     '<(skia_src_path)/effects/SkArithmeticMode.cpp',
+    '<(skia_src_path)/effects/SkBicubicImageFilter.cpp',
     '<(skia_src_path)/effects/SkBitmapSource.cpp',
     '<(skia_src_path)/effects/SkBlendImageFilter.cpp',
     '<(skia_src_path)/effects/SkBlurDrawLooper.cpp',
