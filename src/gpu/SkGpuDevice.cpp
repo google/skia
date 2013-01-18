@@ -1428,8 +1428,6 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
         if (filteredTexture) {
             grPaint.colorStage(kBitmapTextureIdx)->setEffect(
                 GrSimpleTextureEffect::Create(filteredTexture, SkMatrix::I()))->unref();
-            w = filteredTexture->width();
-            h = filteredTexture->height();
             texture = filteredTexture;
             filteredTexture->unref();
         }
@@ -1493,10 +1491,6 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
         return;
     }
 
-    const SkBitmap& bm = dev->accessBitmap(false);
-    int w = bm.width();
-    int h = bm.height();
-
     GrTexture* devTex = grPaint.getColorStage(kBitmapTextureIdx).getEffect()->texture(0);
     SkASSERT(NULL != devTex);
 
@@ -1509,11 +1503,13 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
             grPaint.colorStage(kBitmapTextureIdx)->setEffect(
                 GrSimpleTextureEffect::Create(filteredTexture, SkMatrix::I()))->unref();
             devTex = filteredTexture;
-            w = devTex->width();
-            h = devTex->height();
             filteredTexture->unref();
         }
     }
+
+    const SkBitmap& bm = dev->accessBitmap(false);
+    int w = bm.width();
+    int h = bm.height();
 
     GrRect dstRect = GrRect::MakeXYWH(SkIntToScalar(x),
                                       SkIntToScalar(y),

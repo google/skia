@@ -4,7 +4,6 @@
     '../gm/aaclip.cpp',
     '../gm/aarectmodes.cpp',
     '../gm/arithmode.cpp',
-    '../gm/bicubicfilter.cpp',
     '../gm/bigmatrix.cpp',
     '../gm/bitmapcopy.cpp',
     '../gm/bitmapmatrix.cpp',
