@@ -2160,7 +2160,7 @@ void SkPath::dump(bool forceClose, const char title[]) const {
                 append_params(&builder, "path.cubicTo", &pts[1], 3);
                 break;
             case kClose_Verb:
-                builder.append("path.close();");
+                builder.append("path.close();\n");
                 break;
             default:
                 SkDebugf("  path: UNKNOWN VERB %d, aborting dump...\n", verb);
