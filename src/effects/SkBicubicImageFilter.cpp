@@ -9,6 +9,7 @@
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
 #include "SkFlattenableBuffers.h"
+#include "SkMatrix.h"
 #include "SkRect.h"
 #include "SkUnPreMultiply.h"
 
@@ -146,6 +147,8 @@ bool SkBicubicImageFilter::onFilterImage(Proxy* proxy,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+#if SK_SUPPORT_GPU
 
 class GrGLBicubicEffect;
 
@@ -333,7 +336,6 @@ GrEffectRef* GrBicubicEffect::TestCreate(SkRandom* random,
     return GrBicubicEffect::Create(textures[texIdx], coefficients);
 }
 
-#if SK_SUPPORT_GPU
 GrTexture* SkBicubicImageFilter::filterImageGPU(Proxy* proxy, GrTexture* src, const SkRect& rect) {
     SkAutoTUnref<GrTexture> srcTexture(this->getInputResultAsTexture(proxy, src, rect));
     GrContext* context = srcTexture->getContext();
