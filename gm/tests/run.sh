@@ -142,7 +142,8 @@ gm_test "--hierarchy --match dashing2 --config 8888 -r $GM_INPUTS/empty-dir" "$G
 # section should be empty.
 gm_test "--hierarchy --match dashing2 --config 8888" "$GM_OUTPUTS/no-readpath"
 
-# Write out a handful of test images and read them back in.
+# Run a test which generates partially transparent images, write out those
+# images, and read them back in.
 #
 # This test would have caught
 # http://code.google.com/p/skia/issues/detail?id=1079 ('gm generating
@@ -150,7 +151,7 @@ gm_test "--hierarchy --match dashing2 --config 8888" "$GM_OUTPUTS/no-readpath"
 IMAGEDIR=$GM_TEMPFILES/aaclip-images
 rm -rf $IMAGEDIR
 mkdir -p $IMAGEDIR
-gm_test "--match aaclip --config 8888 -w $IMAGEDIR" "$GM_OUTPUTS/aaclip-write"
-gm_test "--match aaclip --config 8888 -r $IMAGEDIR" "$GM_OUTPUTS/aaclip-readback"
+gm_test "--match simpleaaclip_path --config 8888 -w $IMAGEDIR" "$GM_OUTPUTS/aaclip-write"
+gm_test "--match simpleaaclip_path --config 8888 -r $IMAGEDIR" "$GM_OUTPUTS/aaclip-readback"
 
 echo "All tests passed."

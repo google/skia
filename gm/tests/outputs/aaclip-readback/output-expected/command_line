@@ -1,1 +1,1 @@
-out/Debug/gm --match aaclip --config 8888 -r gm/tests/tempfiles/aaclip-images --writeJsonSummary gm/tests/outputs/aaclip-readback/output-actual/json-summary.txt
+out/Debug/gm --match simpleaaclip_path --config 8888 -r gm/tests/tempfiles/aaclip-images --writeJsonSummary gm/tests/outputs/aaclip-readback/output-actual/json-summary.txt
