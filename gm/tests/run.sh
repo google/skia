@@ -42,7 +42,6 @@ function compare_directories {
 
 # Run gm...
 # - with the arguments in $1
-# - writing resulting images into $2/$OUTPUT_ACTUAL_SUBDIR/images
 # - writing stdout into $2/$OUTPUT_ACTUAL_SUBDIR/stdout
 # - writing json summary into $2/$OUTPUT_ACTUAL_SUBDIR/json-summary.txt
 # - writing return value into $2/$OUTPUT_ACTUAL_SUBDIR/return_value
@@ -122,6 +121,7 @@ function create_inputs_dir {
 GM_TESTDIR=gm/tests
 GM_INPUTS=$GM_TESTDIR/inputs
 GM_OUTPUTS=$GM_TESTDIR/outputs
+GM_TEMPFILES=$GM_TESTDIR/tempfiles
 
 create_inputs_dir $GM_INPUTS
 
@@ -141,5 +141,16 @@ gm_test "--hierarchy --match dashing2 --config 8888 -r $GM_INPUTS/empty-dir" "$G
 # actual checksums marked as "failure-ignored", but the "expected-results"
 # section should be empty.
 gm_test "--hierarchy --match dashing2 --config 8888" "$GM_OUTPUTS/no-readpath"
+
+# Write out a handful of test images and read them back in.
+#
+# This test would have caught
+# http://code.google.com/p/skia/issues/detail?id=1079 ('gm generating
+# spurious pixel_error messages as of r7258').
+IMAGEDIR=$GM_TEMPFILES/aaclip-images
+rm -rf $IMAGEDIR
+mkdir -p $IMAGEDIR
+gm_test "--match aaclip --config 8888 -w $IMAGEDIR" "$GM_OUTPUTS/aaclip-write"
+gm_test "--match aaclip --config 8888 -r $IMAGEDIR" "$GM_OUTPUTS/aaclip-readback"
 
 echo "All tests passed."
