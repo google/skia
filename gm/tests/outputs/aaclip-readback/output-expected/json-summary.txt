@@ -1,0 +1,39 @@
+{
+   "actual-results" : {
+      "failed" : null,
+      "failure-ignored" : null,
+      "no-comparison" : null,
+      "succeeded" : {
+         "aaclip_8888" : {
+            "checksum" : FAKE
+         },
+         "simpleaaclip_aaclip_8888" : {
+            "checksum" : FAKE
+         },
+         "simpleaaclip_path_8888" : {
+            "checksum" : FAKE
+         },
+         "simpleaaclip_rect_8888" : {
+            "checksum" : FAKE
+         }
+      }
+   },
+   "expected-results" : {
+      "aaclip_8888" : {
+         "checksums" : [ FAKE ],
+         "ignore-failure" : false
+      },
+      "simpleaaclip_aaclip_8888" : {
+         "checksums" : [ FAKE ],
+         "ignore-failure" : false
+      },
+      "simpleaaclip_path_8888" : {
+         "checksums" : [ FAKE ],
+         "ignore-failure" : false
+      },
+      "simpleaaclip_rect_8888" : {
+         "checksums" : [ FAKE ],
+         "ignore-failure" : false
+      }
+   }
+}
