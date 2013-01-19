@@ -9,8 +9,9 @@
 #define QUADRATIC_UTILITIES_H
 
 #include "DataTypes.h"
-
-void dxdy_at_t(const Quadratic& , double t, double& x, double& y);
+double dx_at_t(const Quadratic& , double t);
+double dy_at_t(const Quadratic& , double t);
+void dxdy_at_t(const Quadratic& , double t, _Point& xy);
 
 /* Parameterization form, given A*t*t + 2*B*t*(1-t) + C*(1-t)*(1-t)
  *

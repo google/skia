@@ -7,12 +7,15 @@
 #include "CubicUtilities.h"
 #include "QuadraticUtilities.h"
 
+const int precisionUnit = 256; // FIXME: arbitrary -- should try different values in test framework
+
+// FIXME: cache keep the bounds and/or precision with the caller?
 double calcPrecision(const Cubic& cubic) {
     _Rect dRect;
-    dRect.setBounds(cubic);
+    dRect.setBounds(cubic); // OPTIMIZATION: just use setRawBounds ?
     double width = dRect.right - dRect.left;
     double height = dRect.bottom - dRect.top;
-    return (width > height ? width : height) / 256;
+    return (width > height ? width : height) / precisionUnit;
 }
 
 void coefficients(const double* cubic, double& A, double& B, double& C, double& D) {
@@ -92,23 +95,29 @@ int cubicRoots(double A, double B, double C, double D, double t[3]) {
 // c(t)  = a(1-t)^3 + 3bt(1-t)^2 + 3c(1-t)t^2 + dt^3
 // c'(t) = -3a(1-t)^2 + 3b((1-t)^2 - 2t(1-t)) + 3c(2t(1-t) - t^2) + 3dt^2
 //       = 3(b-a)(1-t)^2 + 6(c-b)t(1-t) + 3(d-c)t^2
-double derivativeAtT(const double* cubic, double t) {
+static double derivativeAtT(const double* cubic, double t) {
     double one_t = 1 - t;
     double a = cubic[0];
     double b = cubic[2];
     double c = cubic[4];
     double d = cubic[6];
-    return (b - a) * one_t * one_t + 2 * (c - b) * t * one_t + (d - c) * t * t;
+    return 3 * ((b - a) * one_t * one_t + 2 * (c - b) * t * one_t + (d - c) * t * t);
 }
 
-void dxdy_at_t(const Cubic& cubic, double t, double& dx, double& dy) {
-    if (&dx) {
-        dx = derivativeAtT(&cubic[0].x, t);
-    }
-    if (&dy) {
-        dy = derivativeAtT(&cubic[0].y, t);
-    }
+double dx_at_t(const Cubic& cubic, double t) {
+    return derivativeAtT(&cubic[0].x, t);
 }
+
+double dy_at_t(const Cubic& cubic, double t) {
+    return derivativeAtT(&cubic[0].y, t);
+}
+
+// OPTIMIZE? compute t^2, t(1-t), and (1-t)^2 and pass them to another version of derivative at t?
+void dxdy_at_t(const Cubic& cubic, double t, _Point& dxdy) {
+    dxdy.x = derivativeAtT(&cubic[0].x, t);
+    dxdy.y = derivativeAtT(&cubic[0].y, t);
+}
+
 
 int find_cubic_inflections(const Cubic& src, double tValues[])
 {
@@ -138,6 +147,7 @@ bool rotate(const Cubic& cubic, int zero, int index, Cubic& rotPath) {
     return true;
 }
 
+#if 0 // unused for now
 double secondDerivativeAtT(const double* cubic, double t) {
     double a = cubic[0];
     double b = cubic[2];
@@ -145,6 +155,7 @@ double secondDerivativeAtT(const double* cubic, double t) {
     double d = cubic[6];
     return (c - 2 * b + a) * (1 - t) + (d - 2 * c + b) * t;
 }
+#endif
 
 void xy_at_t(const Cubic& cubic, double t, double& x, double& y) {
     double one_t = 1 - t;

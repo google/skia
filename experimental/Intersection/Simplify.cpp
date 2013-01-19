@@ -305,15 +305,13 @@ static SkScalar LineDXAtT(const SkPoint a[2], double ) {
 
 static SkScalar QuadDXAtT(const SkPoint a[3], double t) {
     MAKE_CONST_QUAD(quad, a);
-    double x;
-    dxdy_at_t(quad, t, x, *(double*) 0);
+    double x = dx_at_t(quad, t);
     return SkDoubleToScalar(x);
 }
 
 static SkScalar CubicDXAtT(const SkPoint a[4], double t) {
     MAKE_CONST_CUBIC(cubic, a);
-    double x;
-    dxdy_at_t(cubic, t, x, *(double*) 0);
+    double x = dx_at_t(cubic, t);
     return SkDoubleToScalar(x);
 }
 
@@ -330,15 +328,13 @@ static SkScalar LineDYAtT(const SkPoint a[2], double ) {
 
 static SkScalar QuadDYAtT(const SkPoint a[3], double t) {
     MAKE_CONST_QUAD(quad, a);
-    double y;
-    dxdy_at_t(quad, t, *(double*) 0, y);
+    double y = dy_at_t(quad, t);
     return SkDoubleToScalar(y);
 }
 
 static SkScalar CubicDYAtT(const SkPoint a[4], double t) {
     MAKE_CONST_CUBIC(cubic, a);
-    double y;
-    dxdy_at_t(cubic, t, *(double*) 0, y);
+    double y = dy_at_t(cubic, t);
     return SkDoubleToScalar(y);
 }
 

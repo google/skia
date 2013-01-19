@@ -12,17 +12,14 @@
 
 class Intersections {
 public:
-    Intersections()
-        : fUsed(0)
-        , fUsed2(0)
-        , fCoincidentUsed(0)
-        , fFlip(false)
-        , fUnsortable(false)
+    Intersections() 
+        : fFlip(0)
         , fSwap(0)
     {
         // OPTIMIZE: don't need to be initialized in release
         bzero(fT, sizeof(fT));
         bzero(fCoincidentT, sizeof(fCoincidentT));
+        reset();
     }
 
     void add(double one, double two) {
@@ -80,6 +77,12 @@ public:
 
     bool insertBalanced() const {
         return fUsed == fUsed2;
+    }
+
+    // leaves flip, swap alone
+    void reset() {
+        fUsed = fUsed2 = fCoincidentUsed = 0;
+        fUnsortable = false;
     }
 
     void swap() {

@@ -78,14 +78,14 @@ static void oneOff(const Cubic& cubic1, const Cubic& cubic2) {
     intersect2(cubic1, cubic2, intersections2);
     for (int pt = 0; pt < intersections2.used(); ++pt) {
         double tt1 = intersections2.fT[0][pt];
-        double tx1, ty1;
-        xy_at_t(cubic1, tt1, tx1, ty1);
+        _Point xy1, xy2;
+        xy_at_t(cubic1, tt1, xy1.x, xy1.y);
         int pt2 = intersections2.fFlip ? intersections2.used() - pt - 1 : pt;
         double tt2 = intersections2.fT[1][pt2];
-        double tx2, ty2;
-        xy_at_t(cubic2, tt2, tx2, ty2);
+        xy_at_t(cubic2, tt2, xy2.x, xy2.y);
         SkDebugf("%s t1=%1.9g (%1.9g, %1.9g) (%1.9g, %1.9g) t2=%1.9g\n", __FUNCTION__,
-            tt1, tx1, ty1, tx2, ty2, tt2);
+            tt1, xy1.x, xy1.y, xy2.x, xy2.y, tt2);
+        assert(xy1.approximatelyEqual(xy2));
     }
 }
 
@@ -168,7 +168,7 @@ int depth;
 
 #define TRY_OLD 0 // old way fails on test == 1
 
-void CubicIntersection_RandTest() {
+void CubicIntersection_RandTestOld() {
     srand(0);
     const int tests = 1000000; // 10000000;
     double largestFactor = DBL_MAX;
@@ -262,6 +262,58 @@ void CubicIntersection_RandTest() {
             SkDebugf("%s\n", str);
             oneOff(cubic1, cubic2);
             largestFactor = factor2;
+        }
+    }
+}
+
+void CubicIntersection_RandTest() {
+    srand(0);
+    const int tests = 1000000; // 10000000;
+ //   double largestFactor = DBL_MAX;
+    for (int test = 0; test < tests; ++test) {
+        Cubic cubic1, cubic2;
+        for (int i = 0; i < 4; ++i) {
+            cubic1[i].x = (double) rand() / RAND_MAX * 100;
+            cubic1[i].y = (double) rand() / RAND_MAX * 100;
+            cubic2[i].x = (double) rand() / RAND_MAX * 100;
+            cubic2[i].y = (double) rand() / RAND_MAX * 100;
+        }
+    #if DEBUG_CRASH
+        char str[1024];
+        sprintf(str, "{{%1.9g, %1.9g}, {%1.9g, %1.9g}, {%1.9g, %1.9g}, {%1.9g, %1.9g}},\n"
+            "{{%1.9g, %1.9g}, {%1.9g, %1.9g}, {%1.9g, %1.9g}, {%1.9g, %1.9g}},\n",
+                cubic1[0].x, cubic1[0].y,  cubic1[1].x, cubic1[1].y, cubic1[2].x, cubic1[2].y,
+                cubic1[3].x, cubic1[3].y,
+                cubic2[0].x, cubic2[0].y,  cubic2[1].x, cubic2[1].y, cubic2[2].x, cubic2[2].y,
+                cubic2[3].x, cubic2[3].y);
+    #endif
+        _Rect rect1, rect2;
+        rect1.setBounds(cubic1);
+        rect2.setBounds(cubic2);
+        bool boundsIntersect = rect1.left <= rect2.right && rect2.left <= rect2.right
+                && rect1.top <= rect2.bottom && rect2.top <= rect1.bottom;
+        Intersections i1, i2;
+        if (test == -1) {
+            SkDebugf("ready...\n");
+        }
+        Intersections intersections2;
+        bool newIntersects = intersect2(cubic1, cubic2, intersections2);
+        if (!boundsIntersect && newIntersects) {
+            SkDebugf("%s %d unexpected intersection boundsIntersect=%d "
+                    " newIntersects=%d\n%s %s\n", __FUNCTION__, test, boundsIntersect,
+                    newIntersects, __FUNCTION__, str);
+            assert(0);
+        }
+        for (int pt = 0; pt < intersections2.used(); ++pt) {
+            double tt1 = intersections2.fT[0][pt];
+            _Point xy1, xy2;
+            xy_at_t(cubic1, tt1, xy1.x, xy1.y);
+            int pt2 = intersections2.fFlip ? intersections2.used() - pt - 1 : pt;
+            double tt2 = intersections2.fT[1][pt2];
+            xy_at_t(cubic2, tt2, xy2.x, xy2.y);
+            SkDebugf("%s t1=%1.9g (%1.9g, %1.9g) (%1.9g, %1.9g) t2=%1.9g\n", __FUNCTION__,
+                tt1, xy1.x, xy1.y, xy2.x, xy2.y, tt2);
+            assert(xy1.approximatelyEqual(xy2));
         }
     }
 }

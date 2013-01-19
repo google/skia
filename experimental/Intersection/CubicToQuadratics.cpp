@@ -137,6 +137,9 @@ static void addTs(const Cubic& cubic, double precision, double start, double end
 }
 
 // flavor that returns T values only, deferring computing the quads until they are needed
+// FIXME: when called from recursive intersect 2, this could take the original cubic
+// and do a more precise job when calling chop at and sub divide by computing the fractional ts.
+// it would still take the prechopped cubic for reduce order and find cubic inflections
 void cubic_to_quadratics(const Cubic& cubic, double precision, SkTDArray<double>& ts) {
     Cubic reduced;
     int order = reduceOrder(cubic, reduced, kReduceOrder_QuadraticsAllowed);
