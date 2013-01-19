@@ -68,6 +68,7 @@ void Intersections::cleanUp() {
 
 }
 
+// FIXME: this doesn't respect swap, but add coincident does -- seems inconsistent
 void Intersections::insert(double one, double two) {
     assert(fUsed <= 1 || fT[0][0] < fT[0][1]);
     int index;

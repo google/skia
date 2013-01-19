@@ -14,6 +14,7 @@ void CubicCoincidence_Test();
 void CubicIntersection_OneOffTest();
 void CubicIntersection_Test();
 void CubicIntersection_RandTest();
+void CubicIntersection_RandTestOld();
 void CubicParameterization_Test();
 void CubicReduceOrder_Test();
 void CubicsToQuadratics_RandTest();

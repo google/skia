@@ -64,16 +64,27 @@ int quadraticRoots(double A, double B, double C, double t[2]) {
     return foundRoots;
 }
 
-void dxdy_at_t(const Quadratic& quad, double t, double& x, double& y) {
+static double derivativeAtT(const double* quad, double t) {
     double a = t - 1;
     double b = 1 - 2 * t;
     double c = t;
-    if (&x) {
-        x = a * quad[0].x + b * quad[1].x + c * quad[2].x;
-    }
-    if (&y) {
-        y = a * quad[0].y + b * quad[1].y + c * quad[2].y;
-    }
+    return a * quad[0] + b * quad[2] + c * quad[4];
+}
+
+double dx_at_t(const Quadratic& quad, double t) {
+    return derivativeAtT(&quad[0].x, t);
+}
+
+double dy_at_t(const Quadratic& quad, double t) {
+    return derivativeAtT(&quad[0].y, t);
+}
+
+void dxdy_at_t(const Quadratic& quad, double t, _Point& dxy) {
+    double a = t - 1;
+    double b = 1 - 2 * t;
+    double c = t;
+    dxy.x = a * quad[0].x + b * quad[1].x + c * quad[2].x;
+    dxy.y = a * quad[0].y + b * quad[1].y + c * quad[2].y;
 }
 
 void xy_at_t(const Quadratic& quad, double t, double& x, double& y) {

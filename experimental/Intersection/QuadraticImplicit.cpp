@@ -188,12 +188,12 @@ static bool addIntercept(const Quadratic& q1, const Quadratic& q2, double tMin, 
     xy_at_t(q2, tMid, mid.x, mid.y);
     _Line line;
     line[0] = line[1] = mid;
-    double dx, dy;
-    dxdy_at_t(q2, tMid, dx, dy);
-    line[0].x -= dx;
-    line[0].y -= dy;
-    line[1].x += dx;
-    line[1].y += dy;
+    _Point dxdy;
+    dxdy_at_t(q2, tMid, dxdy);
+    line[0].x -= dxdy.x;
+    line[0].y -= dxdy.y;
+    line[1].x += dxdy.x;
+    line[1].y += dxdy.y;
     Intersections rootTs;
     int roots = intersect(q1, line, rootTs);
     assert(roots == 1);
@@ -251,10 +251,10 @@ static bool isLinearInner(const Quadratic& q1, double t1s, double t1e, const Qua
     }
     int split = 0;
     if (tMin != tMax || tCount > 2) {
-        dxdy_at_t(q2, tMin, dxy2.x, dxy2.y);
+        dxdy_at_t(q2, tMin, dxy2);
         for (int index = 1; index < tCount; ++index) {
             dxy1 = dxy2;
-            dxdy_at_t(q2, tsFound[index], dxy2.x, dxy2.y);
+            dxdy_at_t(q2, tsFound[index], dxy2);
             double dot = dxy1.dot(dxy2);
             if (dot < 0) {
                 split = index - 1;
@@ -309,6 +309,7 @@ static bool isLinear(const Quadratic& q1, const Quadratic& q2, Intersections& i)
 static bool relaxedIsLinear(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
     double m1 = flatMeasure(q1);
     double m2 = flatMeasure(q2);
+    i.reset();
     if (fabs(m1) < fabs(m2)) {
         isLinearInner(q1, 0, 1, q2, 0, 1, i);
         return false;
@@ -329,7 +330,7 @@ static void unsortableExpanse(const Quadratic& q1, const Quadratic& q2, Intersec
     for (int qIdx = 0; qIdx < 2; qIdx++) {
         for (int t = 0; t < 2; t++) {
             _Point dxdy;
-            dxdy_at_t(*qs[qIdx], t, dxdy.x, dxdy.y);
+            dxdy_at_t(*qs[qIdx], t, dxdy);
             _Line perp;
             perp[0] = perp[1] = (*qs[qIdx])[t == 0 ? 0 : 2];
             perp[0].x += dxdy.y;
@@ -342,7 +343,7 @@ static void unsortableExpanse(const Quadratic& q1, const Quadratic& q2, Intersec
             if (hits) {
                 if (flip < 0) {
                     _Point dxdy2;
-                    dxdy_at_t(*qs[qIdx ^ 1], hitData.fT[0][0], dxdy2.x, dxdy2.y);
+                    dxdy_at_t(*qs[qIdx ^ 1], hitData.fT[0][0], dxdy2);
                     double dot = dxdy.dot(dxdy2);
                     flip = dot < 0;
                     i.fT[1][0] = flip;

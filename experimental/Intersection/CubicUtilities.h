@@ -19,11 +19,12 @@ void coefficients(const double* cubic, double& A, double& B, double& C, double& 
 int cubicRoots(double A, double B, double C, double D, double t[3]);
 int cubicRootsX(double A, double B, double C, double D, double s[3]);
 void demote_cubic_to_quad(const Cubic& cubic, Quadratic& quad);
-double derivativeAtT(const double* cubic, double t);
-void dxdy_at_t(const Cubic& , double t, double& x, double& y);
+double dx_at_t(const Cubic& , double t);
+double dy_at_t(const Cubic& , double t);
+void dxdy_at_t(const Cubic& , double t, _Point& y);
 int find_cubic_inflections(const Cubic& src, double tValues[]);
 bool rotate(const Cubic& cubic, int zero, int index, Cubic& rotPath);
-double secondDerivativeAtT(const double* cubic, double t);
 void xy_at_t(const Cubic& , double t, double& x, double& y);
 
+extern const int precisionUnit;
 #endif

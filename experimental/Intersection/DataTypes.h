@@ -135,9 +135,24 @@ struct _Point {
         return v;
     }
 
+    void operator+=(const _Point& v) {
+        x += v.x;
+        y += v.y;
+    }
+
     void operator-=(const _Point& v) {
         x -= v.x;
         y -= v.y;
+    }
+
+    void operator/=(const double s) {
+        x /= s;
+        y /= s;
+    }
+
+    void operator*=(const double s) {
+        x *= s;
+        y *= s;
     }
 
     friend bool operator==(const _Point& a, const _Point& b) {
@@ -187,9 +202,17 @@ struct _Rect {
     }
 
     // FIXME: used by debugging only ?
-    bool contains(const _Point& pt) {
+    bool contains(const _Point& pt) const {
         return approximately_between(left, pt.x, right)
                 && approximately_between(top, pt.y, bottom);
+    }
+
+    bool intersects(_Rect& r) const {
+        assert(left < right);
+        assert(top < bottom);
+        assert(r.left < r.right);
+        assert(r.top < r.bottom);
+        return r.left < right && left < r.right && r.top < bottom && top < r.bottom;
     }
 
     void set(const _Point& pt) {
