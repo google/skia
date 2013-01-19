@@ -125,10 +125,10 @@ static void test_crbug_170666(skiatest::Reporter* reporter) {
     paint.setAntiAlias(true);
 
     SkAutoTUnref<SkSurface> surface(new_surface(1000, 1000));
-    
+
     build_path_simple_170666(path);
     surface->getCanvas()->drawPath(path, paint);
-    
+
     build_path_170666(path);
     surface->getCanvas()->drawPath(path, paint);
 }

@@ -32,10 +32,10 @@ SkBicubicImageFilter::SkBicubicImageFilter(const SkSize& scale, const SkScalar c
 SkBicubicImageFilter* SkBicubicImageFilter::CreateMitchell(const SkSize& scale,
                                                            SkImageFilter* input) {
     static const SkScalar coefficients[16] = {
-        DS( 1.0 / 18.0), DS(-9.0 / 18.0), DS( 15.0 / 18.0), DS( -7.0 / 18.0), 
-        DS(16.0 / 18.0), DS( 0.0 / 18.0), DS(-36.0 / 18.0), DS( 21.0 / 18.0), 
-        DS( 1.0 / 18.0), DS( 9.0 / 18.0), DS( 27.0 / 18.0), DS(-21.0 / 18.0), 
-        DS( 0.0 / 18.0), DS( 0.0 / 18.0), DS( -6.0 / 18.0), DS(  7.0 / 18.0), 
+        DS( 1.0 / 18.0), DS(-9.0 / 18.0), DS( 15.0 / 18.0), DS( -7.0 / 18.0),
+        DS(16.0 / 18.0), DS( 0.0 / 18.0), DS(-36.0 / 18.0), DS( 21.0 / 18.0),
+        DS( 1.0 / 18.0), DS( 9.0 / 18.0), DS( 27.0 / 18.0), DS(-21.0 / 18.0),
+        DS( 0.0 / 18.0), DS( 0.0 / 18.0), DS( -6.0 / 18.0), DS(  7.0 / 18.0),
     };
     return SkNEW_ARGS(SkBicubicImageFilter, (scale, coefficients, input));
 }

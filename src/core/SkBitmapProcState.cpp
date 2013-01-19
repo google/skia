@@ -451,9 +451,9 @@ static void S32_D32_constX_shaderproc(const SkBitmapProcState& s,
 
         if (s.fInvType > SkMatrix::kTranslate_Mask) {
             SkPoint pt;
-            s.fInvProc(*s.fInvMatrix, 
+            s.fInvProc(*s.fInvMatrix,
                        SkIntToScalar(x) + SK_ScalarHalf,
-                       SkIntToScalar(y) + SK_ScalarHalf, 
+                       SkIntToScalar(y) + SK_ScalarHalf,
                        &pt);
             yTemp = SkScalarFloorToInt(pt.fY);
         } else {
@@ -477,9 +477,9 @@ static void S32_D32_constX_shaderproc(const SkBitmapProcState& s,
 #ifdef SK_DEBUG
         {
             SkPoint pt;
-            s.fInvProc(*s.fInvMatrix, 
+            s.fInvProc(*s.fInvMatrix,
                        SkIntToScalar(x) + SK_ScalarHalf,
-                       SkIntToScalar(y) + SK_ScalarHalf, 
+                       SkIntToScalar(y) + SK_ScalarHalf,
                        &pt);
             int iY2;
 
