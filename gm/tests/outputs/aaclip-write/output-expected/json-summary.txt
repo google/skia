@@ -3,16 +3,7 @@
       "failed" : null,
       "failure-ignored" : null,
       "no-comparison" : {
-         "aaclip_8888" : {
-            "checksum" : FAKE
-         },
-         "simpleaaclip_aaclip_8888" : {
-            "checksum" : FAKE
-         },
          "simpleaaclip_path_8888" : {
-            "checksum" : FAKE
-         },
-         "simpleaaclip_rect_8888" : {
             "checksum" : FAKE
          }
       },

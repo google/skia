@@ -274,8 +274,14 @@ public:
      *    CON: Can't do this with checksums.
      */
     static Checksum get_checksum(const SkBitmap& bitmap) {
-        force_all_opaque(bitmap);
-        return SkBitmapChecksummer::Compute64(bitmap);
+        SkBitmap copy;
+        const SkBitmap* bm = &bitmap;
+        if (bitmap.config() != SkBitmap::kARGB_8888_Config) {
+            bitmap.copyTo(&copy, SkBitmap::kARGB_8888_Config);
+            bm = &copy;
+        }
+        force_all_opaque(*bm);
+        return SkBitmapChecksummer::Compute64(*bm);
     }
 
     /* since PNG insists on unpremultiplying our alpha, we take no

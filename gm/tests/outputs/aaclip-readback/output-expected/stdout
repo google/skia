@@ -1,6 +1,3 @@
 reading from gm/tests/tempfiles/aaclip-images
-drawing... aaclip [640 480]
-drawing... simpleaaclip_aaclip [640 480]
 drawing... simpleaaclip_path [640 480]
-drawing... simpleaaclip_rect [640 480]
-Ran 4 tests: 4 passed, 0 failed, 0 missing reference images
+Ran 1 tests: 1 passed, 0 failed, 0 missing reference images
