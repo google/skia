@@ -12,7 +12,7 @@
 
 class Intersections {
 public:
-    Intersections() 
+    Intersections()
         : fFlip(0)
         , fSwap(0)
     {
