@@ -557,6 +557,7 @@ SkBitmapProcState::ShaderProc32 SkBitmapProcState::chooseShaderProc32() {
         return NULL;
     }
 
+#ifndef SK_IGNORE_1XN_BITMAP_OPT
     static const unsigned kMask = SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask;
 
     if (1 == fBitmap->width() && 0 == (fInvType & ~kMask)) {
@@ -565,6 +566,7 @@ SkBitmapProcState::ShaderProc32 SkBitmapProcState::chooseShaderProc32() {
         }
         return S32_D32_constX_shaderproc;
     }
+#endif
 
     if (fAlphaScale < 256) {
         return NULL;
