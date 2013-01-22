@@ -7,6 +7,7 @@
 #include "CurveIntersection.h"
 #include "Intersection_Tests.h"
 #include "Parameterization_Test.h"
+#include "QuadraticUtilities.h"
 
 const Quadratic quadratics[] = {
     {{0, 0}, {1, 0}, {1, 1}},

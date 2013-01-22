@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+#include "CubicUtilities.h"
 #include "CurveIntersection.h"
 #include "Intersections.h"
 #include "IntersectionUtilities.h"
@@ -162,10 +164,12 @@ bool intersect(const Cubic& c1, const Cubic& c2, Intersections& i) {
 #include "CubicUtilities.h"
 
 // FIXME: ? if needed, compute the error term from the tangent length
+start here;
+// need better delta computation -- assert fails
 static double computeDelta(const Cubic& cubic, double t, double scale) {
-    double attempt = scale / precisionUnit;
+    double attempt = scale / precisionUnit * 2;
 #if SK_DEBUG
-    double precision = calcPrecision(cubic);
+    double precision = calcPrecision(cubic, t, scale);
     _Point dxy;
     dxdy_at_t(cubic, t, dxy);
     _Point p1, p2;

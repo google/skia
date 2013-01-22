@@ -9,6 +9,8 @@
 #define QUADRATIC_UTILITIES_H
 
 #include "DataTypes.h"
+
+void chop_at(const Quadratic& src, QuadraticPair& dst, double t);
 double dx_at_t(const Quadratic& , double t);
 double dy_at_t(const Quadratic& , double t);
 void dxdy_at_t(const Quadratic& , double t, _Point& xy);
@@ -30,6 +32,7 @@ inline void set_abc(const double* quad, double& a, double& b, double& c) {
 
 int quadraticRoots(double A, double B, double C, double t[2]);
 int quadraticRootsX(const double A, const double B, const double C, double s[2]);
+void sub_divide(const Quadratic& src, double t1, double t2, Quadratic& dst);
 void xy_at_t(const Quadratic& , double t, double& x, double& y);
 
 #endif

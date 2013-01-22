@@ -6,6 +6,7 @@
  */
 #include "CurveIntersection.h"
 #include "IntersectionUtilities.h"
+#include "QuadraticUtilities.h"
 
 /*
 Given a quadratic q, t1, and t2, find a small quadratic segment.
