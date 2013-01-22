@@ -384,8 +384,7 @@ class GrGLRadial2Gradient : public GrGLGradientEffect {
 
 public:
 
-    GrGLRadial2Gradient(const GrBackendEffectFactory& factory,
-                        const GrEffect&);
+    GrGLRadial2Gradient(const GrBackendEffectFactory& factory, const GrEffectRef&);
     virtual ~GrGLRadial2Gradient() { }
 
     virtual void emitCode(GrGLShaderBuilder*,
@@ -432,7 +431,7 @@ public:
                                const SkTwoPointRadialGradient& shader,
                                const SkMatrix& matrix,
                                SkShader::TileMode tm) {
-        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrRadial2Gradient, (ctx, shader, matrix, tm)));
+        AutoEffectUnref effect(SkNEW_ARGS(GrRadial2Gradient, (ctx, shader, matrix, tm)));
         return CreateEffectRef(effect);
     }
 
@@ -452,8 +451,8 @@ public:
     typedef GrGLRadial2Gradient GLEffect;
 
 private:
-    virtual bool onIsEqual(const GrEffect& sBase) const SK_OVERRIDE {
-        const GrRadial2Gradient& s = static_cast<const GrRadial2Gradient&>(sBase);
+    virtual bool onIsEqual(const GrEffectRef& sBase) const SK_OVERRIDE {
+        const GrRadial2Gradient& s = CastEffect<GrRadial2Gradient>(sBase);
         return (INHERITED::onIsEqual(sBase) &&
                 this->fCenterX1 == s.fCenterX1 &&
                 this->fRadius0 == s.fRadius0 &&
@@ -516,9 +515,8 @@ GrEffectRef* GrRadial2Gradient::TestCreate(SkRandom* random,
 
 /////////////////////////////////////////////////////////////////////
 
-GrGLRadial2Gradient::GrGLRadial2Gradient(
-        const GrBackendEffectFactory& factory,
-        const GrEffect& baseData)
+GrGLRadial2Gradient::GrGLRadial2Gradient(const GrBackendEffectFactory& factory,
+                                         const GrEffectRef& baseData)
     : INHERITED(factory)
     , fVSParamUni(kInvalidUniformHandle)
     , fFSParamUni(kInvalidUniformHandle)
@@ -528,8 +526,7 @@ GrGLRadial2Gradient::GrGLRadial2Gradient(
     , fCachedRadius(-SK_ScalarMax)
     , fCachedPosRoot(0) {
 
-    const GrRadial2Gradient& data =
-        static_cast<const GrRadial2Gradient&>(baseData);
+    const GrRadial2Gradient& data = CastEffect<GrRadial2Gradient>(baseData);
     fIsDegenerate = data.isDegenerate();
 }
 
@@ -646,7 +643,7 @@ void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
 
 void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
     INHERITED::setData(uman, stage);
-    const GrRadial2Gradient& data = static_cast<const GrRadial2Gradient&>(*stage.getEffect());
+    const GrRadial2Gradient& data = GetEffectFromStage<GrRadial2Gradient>(stage);
     GrAssert(data.isDegenerate() == fIsDegenerate);
     SkScalar centerX1 = data.center();
     SkScalar radius0 = data.radius();
@@ -684,7 +681,7 @@ GrGLEffect::EffectKey GrGLRadial2Gradient::GenKey(const GrEffectStage& s, const 
     };
 
     EffectKey key = GenMatrixKey(s);
-    if (static_cast<const GrRadial2Gradient&>(*s.getEffect()).isDegenerate()) {
+    if (GetEffectFromStage<GrRadial2Gradient>(s).isDegenerate()) {
         key |= kIsDegenerate;
     }
     return key;

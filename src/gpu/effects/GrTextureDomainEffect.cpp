@@ -14,7 +14,7 @@
 
 class GrGLTextureDomainEffect : public GrGLEffect {
 public:
-    GrGLTextureDomainEffect(const GrBackendEffectFactory&, const GrEffect&);
+    GrGLTextureDomainEffect(const GrBackendEffectFactory&, const GrEffectRef&);
 
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrEffectStage&,
@@ -37,7 +37,7 @@ private:
 };
 
 GrGLTextureDomainEffect::GrGLTextureDomainEffect(const GrBackendEffectFactory& factory,
-                                                 const GrEffect&)
+                                                 const GrEffectRef&)
     : INHERITED(factory)
     , fNameUni(GrGLUniformManager::kInvalidUniformHandle) {
     fPrevDomain[0] = SK_FloatNaN;
@@ -50,8 +50,7 @@ void GrGLTextureDomainEffect::emitCode(GrGLShaderBuilder* builder,
                                        const char* outputColor,
                                        const char* inputColor,
                                        const TextureSamplerArray& samplers) {
-    const GrTextureDomainEffect& effect =
-        static_cast<const GrTextureDomainEffect&>(*stage.getEffect());
+    const GrTextureDomainEffect& effect = GetEffectFromStage<GrTextureDomainEffect>(stage);
 
     const char* coords;
     fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, vertexCoords, &coords);
@@ -81,8 +80,7 @@ void GrGLTextureDomainEffect::emitCode(GrGLShaderBuilder* builder,
 }
 
 void GrGLTextureDomainEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
-    const GrTextureDomainEffect& effect =
-        static_cast<const GrTextureDomainEffect&>(*stage.getEffect());
+    const GrTextureDomainEffect& effect = GetEffectFromStage<GrTextureDomainEffect>(stage);
     const GrRect& domain = effect.domain();
 
     float values[4] = {
@@ -109,8 +107,7 @@ void GrGLTextureDomainEffect::setData(const GrGLUniformManager& uman, const GrEf
 }
 
 GrGLEffect::EffectKey GrGLTextureDomainEffect::GenKey(const GrEffectStage& stage, const GrGLCaps&) {
-    const GrTextureDomainEffect& effect =
-        static_cast<const GrTextureDomainEffect&>(*stage.getEffect());
+    const GrTextureDomainEffect& effect = GetEffectFromStage<GrTextureDomainEffect>(stage);
     EffectKey key = effect.wrapMode();
     key <<= GrGLEffectMatrix::kKeyBits;
     EffectKey matrixKey = GrGLEffectMatrix::GenKey(effect.getMatrix(),
@@ -144,11 +141,11 @@ GrEffectRef* GrTextureDomainEffect::Create(GrTexture* texture,
         GrAssert(clippedDomain.fLeft <= clippedDomain.fRight);
         GrAssert(clippedDomain.fTop <= clippedDomain.fBottom);
 
-        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrTextureDomainEffect, (texture,
-                                                                         matrix,
-                                                                         clippedDomain,
-                                                                         wrapMode,
-                                                                         bilerp)));
+        AutoEffectUnref effect(SkNEW_ARGS(GrTextureDomainEffect, (texture,
+                                                                  matrix,
+                                                                  clippedDomain,
+                                                                  wrapMode,
+                                                                  bilerp)));
         return CreateEffectRef(effect);
 
     }
@@ -172,8 +169,8 @@ const GrBackendEffectFactory& GrTextureDomainEffect::getFactory() const {
     return GrTBackendEffectFactory<GrTextureDomainEffect>::getInstance();
 }
 
-bool GrTextureDomainEffect::onIsEqual(const GrEffect& sBase) const {
-    const GrTextureDomainEffect& s = static_cast<const GrTextureDomainEffect&>(sBase);
+bool GrTextureDomainEffect::onIsEqual(const GrEffectRef& sBase) const {
+    const GrTextureDomainEffect& s = CastEffect<GrTextureDomainEffect>(sBase);
     return this->hasSameTextureParamsAndMatrix(s) && this->fTextureDomain == s.fTextureDomain;
 }
 

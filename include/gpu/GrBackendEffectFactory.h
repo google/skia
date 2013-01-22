@@ -23,7 +23,7 @@
     of GrGLEffect.
  */
 
-class GrEffect;
+class GrEffectRef;
 class GrEffectStage;
 class GrGLEffect;
 class GrGLCaps;
@@ -44,7 +44,7 @@ public:
     };
 
     virtual EffectKey glEffectKey(const GrEffectStage&, const GrGLCaps&) const = 0;
-    virtual GrGLEffect* createGLInstance(const GrEffect&) const = 0;
+    virtual GrGLEffect* createGLInstance(const GrEffectRef&) const = 0;
 
     bool operator ==(const GrBackendEffectFactory& b) const {
         return fEffectClassID == b.fEffectClassID;

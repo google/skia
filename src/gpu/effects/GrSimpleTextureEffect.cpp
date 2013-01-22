@@ -15,7 +15,7 @@
 
 class GrGLSimpleTextureEffect : public GrGLEffect {
 public:
-    GrGLSimpleTextureEffect(const GrBackendEffectFactory& factory, const GrEffect&)
+    GrGLSimpleTextureEffect(const GrBackendEffectFactory& factory, const GrEffectRef&)
     : INHERITED (factory) {}
 
     virtual void emitCode(GrGLShaderBuilder* builder,
@@ -37,16 +37,14 @@ public:
     }
 
     static inline EffectKey GenKey(const GrEffectStage& stage, const GrGLCaps&) {
-        const GrSimpleTextureEffect& ste =
-            static_cast<const GrSimpleTextureEffect&>(*stage.getEffect());
+        const GrSimpleTextureEffect& ste = GetEffectFromStage<GrSimpleTextureEffect>(stage);
         return GrGLEffectMatrix::GenKey(ste.getMatrix(),
                                         stage.getCoordChangeMatrix(),
                                         ste.texture(0));
     }
 
     virtual void setData(const GrGLUniformManager& uman, const GrEffectStage& stage) SK_OVERRIDE {
-        const GrSimpleTextureEffect& ste =
-            static_cast<const GrSimpleTextureEffect&>(*stage.getEffect());
+        const GrSimpleTextureEffect& ste = GetEffectFromStage<GrSimpleTextureEffect>(stage);
         fEffectMatrix.setData(uman, ste.getMatrix(), stage.getCoordChangeMatrix(), ste.texture(0));
     }
 

@@ -116,7 +116,7 @@ bool SkBlendImageFilter::onFilterImage(Proxy* proxy,
 class GrGLBlendEffect : public GrGLEffect {
 public:
     GrGLBlendEffect(const GrBackendEffectFactory& factory,
-                    const GrEffect& effect);
+                    const GrEffectRef& effect);
     virtual ~GrGLBlendEffect();
 
     virtual void emitCode(GrGLShaderBuilder*,
@@ -146,7 +146,7 @@ public:
     static GrEffectRef* Create(SkBlendImageFilter::Mode mode,
                                GrTexture* foreground,
                                GrTexture* background) {
-        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrBlendEffect, (mode, foreground, background)));
+        AutoEffectUnref effect(SkNEW_ARGS(GrBlendEffect, (mode, foreground, background)));
         return CreateEffectRef(effect);
     }
 
@@ -161,7 +161,7 @@ public:
     void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
 private:
-    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrEffectRef&) const SK_OVERRIDE;
 
     GrBlendEffect(SkBlendImageFilter::Mode mode, GrTexture* foreground, GrTexture* background);
     GrTextureAccess             fForegroundAccess;
@@ -246,8 +246,8 @@ GrBlendEffect::GrBlendEffect(SkBlendImageFilter::Mode mode,
 GrBlendEffect::~GrBlendEffect() {
 }
 
-bool GrBlendEffect::onIsEqual(const GrEffect& sBase) const {
-    const GrBlendEffect& s = static_cast<const GrBlendEffect&>(sBase);
+bool GrBlendEffect::onIsEqual(const GrEffectRef& sBase) const {
+    const GrBlendEffect& s = CastEffect<GrBlendEffect>(sBase);
     return fForegroundAccess.getTexture() == s.fForegroundAccess.getTexture() &&
            fBackgroundAccess.getTexture() == s.fBackgroundAccess.getTexture() &&
            fMode == s.fMode;
@@ -272,9 +272,9 @@ void GrBlendEffect::getConstantColorComponents(GrColor* color, uint32_t* validFl
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrGLBlendEffect::GrGLBlendEffect(const GrBackendEffectFactory& factory, const GrEffect& effect)
+GrGLBlendEffect::GrGLBlendEffect(const GrBackendEffectFactory& factory, const GrEffectRef& effect)
     : INHERITED(factory),
-      fMode(static_cast<const GrBlendEffect&>(effect).mode()) {
+      fMode(CastEffect<GrBlendEffect>(effect).mode()) {
 }
 
 GrGLBlendEffect::~GrGLBlendEffect() {
@@ -327,7 +327,7 @@ void GrGLBlendEffect::emitCode(GrGLShaderBuilder* builder,
 }
 
 void GrGLBlendEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
-    const GrBlendEffect& blend = static_cast<const GrBlendEffect&>(*stage.getEffect());
+    const GrBlendEffect& blend = GetEffectFromStage<GrBlendEffect>(stage);
     GrTexture* fgTex = blend.texture(0);
     GrTexture* bgTex = blend.texture(1);
     fForegroundEffectMatrix.setData(uman,
@@ -342,7 +342,7 @@ void GrGLBlendEffect::setData(const GrGLUniformManager& uman, const GrEffectStag
 }
 
 GrGLEffect::EffectKey GrGLBlendEffect::GenKey(const GrEffectStage& stage, const GrGLCaps&) {
-    const GrBlendEffect& blend = static_cast<const GrBlendEffect&>(*stage.getEffect());
+    const GrBlendEffect& blend = GetEffectFromStage<GrBlendEffect>(stage);
 
     GrTexture* fgTex = blend.texture(0);
     GrTexture* bgTex = blend.texture(1);

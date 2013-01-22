@@ -388,7 +388,7 @@ class GrGLSweepGradient : public GrGLGradientEffect {
 public:
 
     GrGLSweepGradient(const GrBackendEffectFactory& factory,
-                      const GrEffect&) : INHERITED (factory) { }
+                      const GrEffectRef&) : INHERITED (factory) { }
     virtual ~GrGLSweepGradient() { }
 
     virtual void emitCode(GrGLShaderBuilder*,
@@ -416,7 +416,7 @@ public:
     static GrEffectRef* Create(GrContext* ctx,
                                const SkSweepGradient& shader,
                                const SkMatrix& matrix) {
-        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrSweepGradient, (ctx, shader, matrix)));
+        AutoEffectUnref effect(SkNEW_ARGS(GrSweepGradient, (ctx, shader, matrix)));
         return CreateEffectRef(effect);
     }
     virtual ~GrSweepGradient() { }

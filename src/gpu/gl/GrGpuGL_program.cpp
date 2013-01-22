@@ -563,7 +563,7 @@ void GrGpuGL::buildProgram(bool isPoints,
         bool skip = s < drawState.getFirstCoverageStage() ? skipColor : skipCoverage;
         if (!skip && drawState.isStageEnabled(s)) {
             lastEnabledStage = s;
-            const GrEffect* effect = drawState.getStage(s).getEffect();
+            const GrEffectRef& effect = *drawState.getStage(s).getEffect();
             const GrBackendEffectFactory& factory = effect->getFactory();
             desc->fEffectKeys[s] = factory.glEffectKey(drawState.getStage(s), this->glCaps());
         } else {

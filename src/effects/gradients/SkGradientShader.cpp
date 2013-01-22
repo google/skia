@@ -727,7 +727,7 @@ void GrGLGradientEffect::emitYCoordUniform(GrGLShaderBuilder* builder) {
 }
 
 void GrGLGradientEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
-    const GrGradientEffect& e = static_cast<const GrGradientEffect&>(*stage.getEffect());
+    const GrGradientEffect& e = GetEffectFromStage<GrGradientEffect>(stage);
     const GrTexture* texture = e.texture(0);
     fEffectMatrix.setData(uman, e.getMatrix(), stage.getCoordChangeMatrix(), texture);
 
@@ -739,7 +739,7 @@ void GrGLGradientEffect::setData(const GrGLUniformManager& uman, const GrEffectS
 }
 
 GrGLEffect::EffectKey GrGLGradientEffect::GenMatrixKey(const GrEffectStage& s) {
-    const GrGradientEffect& e = static_cast<const GrGradientEffect&>(*s.getEffect());
+    const GrGradientEffect& e = GetEffectFromStage<GrGradientEffect>(s);
     const GrTexture* texture = e.texture(0);
     return GrGLEffectMatrix::GenKey(e.getMatrix(), s.getCoordChangeMatrix(), texture);
 }
@@ -829,8 +829,8 @@ GrGradientEffect::~GrGradientEffect() {
     }
 }
 
-bool GrGradientEffect::onIsEqual(const GrEffect& effect) const {
-    const GrGradientEffect& s = static_cast<const GrGradientEffect&>(effect);
+bool GrGradientEffect::onIsEqual(const GrEffectRef& effect) const {
+    const GrGradientEffect& s = CastEffect<GrGradientEffect>(effect);
     return fTextureAccess.getTexture() == s.fTextureAccess.getTexture()  &&
            fTextureAccess.getParams().getTileModeX() ==
                 s.fTextureAccess.getParams().getTileModeX() &&

@@ -325,7 +325,7 @@ class GrGLConical2Gradient : public GrGLGradientEffect {
 public:
 
     GrGLConical2Gradient(const GrBackendEffectFactory& factory,
-                         const GrEffect&);
+                         const GrEffectRef&);
     virtual ~GrGLConical2Gradient() { }
 
     virtual void emitCode(GrGLShaderBuilder*,
@@ -373,7 +373,7 @@ public:
                                const SkTwoPointConicalGradient& shader,
                                const SkMatrix& matrix,
                                SkShader::TileMode tm) {
-        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrConical2Gradient, (ctx, shader, matrix, tm)));
+        AutoEffectUnref effect(SkNEW_ARGS(GrConical2Gradient, (ctx, shader, matrix, tm)));
         return CreateEffectRef(effect);
     }
 
@@ -393,8 +393,8 @@ public:
     typedef GrGLConical2Gradient GLEffect;
 
 private:
-    virtual bool onIsEqual(const GrEffect& sBase) const SK_OVERRIDE {
-        const GrConical2Gradient& s = static_cast<const GrConical2Gradient&>(sBase);
+    virtual bool onIsEqual(const GrEffectRef& sBase) const SK_OVERRIDE {
+        const GrConical2Gradient& s = CastEffect<GrConical2Gradient>(sBase);
         return (INHERITED::onIsEqual(sBase) &&
                 this->fCenterX1 == s.fCenterX1 &&
                 this->fRadius0 == s.fRadius0 &&
@@ -456,9 +456,8 @@ GrEffectRef* GrConical2Gradient::TestCreate(SkRandom* random,
 
 /////////////////////////////////////////////////////////////////////
 
-GrGLConical2Gradient::GrGLConical2Gradient(
-        const GrBackendEffectFactory& factory,
-        const GrEffect& baseData)
+GrGLConical2Gradient::GrGLConical2Gradient(const GrBackendEffectFactory& factory,
+                                           const GrEffectRef& baseData)
     : INHERITED(factory)
     , fVSParamUni(kInvalidUniformHandle)
     , fFSParamUni(kInvalidUniformHandle)
@@ -468,8 +467,7 @@ GrGLConical2Gradient::GrGLConical2Gradient(
     , fCachedRadius(-SK_ScalarMax)
     , fCachedDiffRadius(-SK_ScalarMax) {
 
-    const GrConical2Gradient& data =
-        static_cast<const GrConical2Gradient&>(baseData);
+    const GrConical2Gradient& data = CastEffect<GrConical2Gradient>(baseData);
     fIsDegenerate = data.isDegenerate();
 }
 
@@ -645,7 +643,7 @@ void GrGLConical2Gradient::emitCode(GrGLShaderBuilder* builder,
 
 void GrGLConical2Gradient::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
     INHERITED::setData(uman, stage);
-    const GrConical2Gradient& data = static_cast<const GrConical2Gradient&>(*stage.getEffect());
+    const GrConical2Gradient& data = GetEffectFromStage<GrConical2Gradient>(stage);
     GrAssert(data.isDegenerate() == fIsDegenerate);
     SkScalar centerX1 = data.center();
     SkScalar radius0 = data.radius();
@@ -685,7 +683,7 @@ GrGLEffect::EffectKey GrGLConical2Gradient::GenKey(const GrEffectStage& s, const
     };
 
     EffectKey key = GenMatrixKey(s);
-    if (static_cast<const GrConical2Gradient&>(*s.getEffect()).isDegenerate()) {
+    if (GetEffectFromStage<GrConical2Gradient>(s).isDegenerate()) {
         key |= kIsDegenerate;
     }
     return key;

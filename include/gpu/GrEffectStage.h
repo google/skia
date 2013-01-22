@@ -39,7 +39,7 @@ public:
             return false;
         }
 
-        if (!this->getEffect()->isEqual(*other.getEffect())) {
+        if (!(*this->getEffect())->isEqual(*other.getEffect())) {
             return false;
         }
 
@@ -112,14 +112,7 @@ public:
         return EffectRef;
     }
 
-    // TODO: Push GrEffectRef deeper and make this getter return it rather than GrEffect.
-    const GrEffect* getEffect() const {
-        if (NULL != fEffectRef) {
-            return fEffectRef->get();
-        } else {
-            return NULL;
-        }
-    }
+    const GrEffectRef* getEffect() const { return fEffectRef; }
 
 private:
     SkMatrix            fCoordChangeMatrix;
@@ -129,4 +122,3 @@ private:
 };
 
 #endif
-

@@ -255,14 +255,14 @@ public:
                                const SkIPoint& target,
                                TileMode tileMode,
                                bool convolveAlpha) {
-        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrMatrixConvolutionEffect, (texture,
-                                                                             kernelSize,
-                                                                             kernel,
-                                                                             gain,
-                                                                             bias,
-                                                                             target,
-                                                                             tileMode,
-                                                                             convolveAlpha)));
+        AutoEffectUnref effect(SkNEW_ARGS(GrMatrixConvolutionEffect, (texture,
+                                                                      kernelSize,
+                                                                      kernel,
+                                                                      gain,
+                                                                      bias,
+                                                                      target,
+                                                                      tileMode,
+                                                                      convolveAlpha)));
         return CreateEffectRef(effect);
     }
     virtual ~GrMatrixConvolutionEffect();
@@ -298,7 +298,7 @@ private:
                               TileMode tileMode,
                               bool convolveAlpha);
 
-    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrEffectRef&) const SK_OVERRIDE;
 
     SkISize  fKernelSize;
     float   *fKernel;
@@ -316,7 +316,7 @@ private:
 class GrGLMatrixConvolutionEffect : public GrGLEffect {
 public:
     GrGLMatrixConvolutionEffect(const GrBackendEffectFactory& factory,
-                                const GrEffect& effect);
+                                const GrEffectRef& effect);
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrEffectStage&,
                           EffectKey,
@@ -348,14 +348,14 @@ private:
 };
 
 GrGLMatrixConvolutionEffect::GrGLMatrixConvolutionEffect(const GrBackendEffectFactory& factory,
-                                                         const GrEffect& effect)
+                                                         const GrEffectRef& effect)
     : INHERITED(factory)
     , fKernelUni(GrGLUniformManager::kInvalidUniformHandle)
     , fImageIncrementUni(GrGLUniformManager::kInvalidUniformHandle)
     , fTargetUni(GrGLUniformManager::kInvalidUniformHandle)
     , fGainUni(GrGLUniformManager::kInvalidUniformHandle)
     , fBiasUni(GrGLUniformManager::kInvalidUniformHandle) {
-    const GrMatrixConvolutionEffect& m = static_cast<const GrMatrixConvolutionEffect&>(effect);
+    const GrMatrixConvolutionEffect& m = CastEffect<GrMatrixConvolutionEffect>(effect);
     fKernelSize = m.kernelSize();
     fTileMode = m.tileMode();
     fConvolveAlpha = m.convolveAlpha();
@@ -454,8 +454,7 @@ int encodeXY(int x, int y) {
 };
 
 GrGLEffect::EffectKey GrGLMatrixConvolutionEffect::GenKey(const GrEffectStage& s, const GrGLCaps&) {
-    const GrMatrixConvolutionEffect& m =
-        static_cast<const GrMatrixConvolutionEffect&>(*s.getEffect());
+    const GrMatrixConvolutionEffect& m = GetEffectFromStage<GrMatrixConvolutionEffect>(s);
     EffectKey key = encodeXY(m.kernelSize().width(), m.kernelSize().height());
     key |= m.tileMode() << 7;
     key |= m.convolveAlpha() ? 1 << 9 : 0;
@@ -468,8 +467,7 @@ GrGLEffect::EffectKey GrGLMatrixConvolutionEffect::GenKey(const GrEffectStage& s
 
 void GrGLMatrixConvolutionEffect::setData(const GrGLUniformManager& uman,
                                           const GrEffectStage& stage) {
-    const GrMatrixConvolutionEffect& effect =
-        static_cast<const GrMatrixConvolutionEffect&>(*stage.getEffect());
+    const GrMatrixConvolutionEffect& effect = GetEffectFromStage<GrMatrixConvolutionEffect>(stage);
     GrTexture& texture = *effect.texture(0);
     // the code we generated was for a specific kernel size
     GrAssert(effect.kernelSize() == fKernelSize);
@@ -519,9 +517,8 @@ const GrBackendEffectFactory& GrMatrixConvolutionEffect::getFactory() const {
     return GrTBackendEffectFactory<GrMatrixConvolutionEffect>::getInstance();
 }
 
-bool GrMatrixConvolutionEffect::onIsEqual(const GrEffect& sBase) const {
-    const GrMatrixConvolutionEffect& s =
-        static_cast<const GrMatrixConvolutionEffect&>(sBase);
+bool GrMatrixConvolutionEffect::onIsEqual(const GrEffectRef& sBase) const {
+    const GrMatrixConvolutionEffect& s = CastEffect<GrMatrixConvolutionEffect>(sBase);
     return this->texture(0) == s.texture(0) &&
            fKernelSize == s.kernelSize() &&
            !memcmp(fKernel, s.kernel(), fKernelSize.width() * fKernelSize.height() * sizeof(float)) &&

@@ -201,7 +201,7 @@ bool SkDisplacementMapEffect::onFilterImage(Proxy* proxy,
 class GrGLDisplacementMapEffect : public GrGLEffect {
 public:
     GrGLDisplacementMapEffect(const GrBackendEffectFactory& factory,
-                              const GrEffect& effect);
+                              const GrEffectRef& effect);
     virtual ~GrGLDisplacementMapEffect();
 
     virtual void emitCode(GrGLShaderBuilder*,
@@ -235,11 +235,11 @@ public:
     static GrEffectRef* Create(SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
                                SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
                                SkScalar scale, GrTexture* displacement, GrTexture* color) {
-        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrDisplacementMapEffect, (xChannelSelector,
-                                                                           yChannelSelector,
-                                                                           scale,
-                                                                           displacement,
-                                                                           color)));
+        AutoEffectUnref effect(SkNEW_ARGS(GrDisplacementMapEffect, (xChannelSelector,
+                                                                    yChannelSelector,
+                                                                    scale,
+                                                                    displacement,
+                                                                    color)));
         return CreateEffectRef(effect);
     }
 
@@ -258,7 +258,7 @@ public:
     void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
 private:
-    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrEffectRef&) const SK_OVERRIDE;
 
     GrDisplacementMapEffect(SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
                             SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
@@ -361,8 +361,8 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
 GrDisplacementMapEffect::~GrDisplacementMapEffect() {
 }
 
-bool GrDisplacementMapEffect::onIsEqual(const GrEffect& sBase) const {
-    const GrDisplacementMapEffect& s = static_cast<const GrDisplacementMapEffect&>(sBase);
+bool GrDisplacementMapEffect::onIsEqual(const GrEffectRef& sBase) const {
+    const GrDisplacementMapEffect& s = CastEffect<GrDisplacementMapEffect>(sBase);
     return fDisplacementAccess.getTexture() == s.fDisplacementAccess.getTexture() &&
            fColorAccess.getTexture() == s.fColorAccess.getTexture() &&
            fXChannelSelector == s.fXChannelSelector &&
@@ -410,10 +410,11 @@ GrEffectRef* GrDisplacementMapEffect::TestCreate(SkRandom* random,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrGLDisplacementMapEffect::GrGLDisplacementMapEffect(const GrBackendEffectFactory& factory, const GrEffect& effect)
+GrGLDisplacementMapEffect::GrGLDisplacementMapEffect(const GrBackendEffectFactory& factory,
+                                                     const GrEffectRef& effect)
     : INHERITED(factory)
-    , fXChannelSelector(static_cast<const GrDisplacementMapEffect&>(effect).xChannelSelector())
-    , fYChannelSelector(static_cast<const GrDisplacementMapEffect&>(effect).yChannelSelector()) {
+    , fXChannelSelector(CastEffect<GrDisplacementMapEffect>(effect).xChannelSelector())
+    , fYChannelSelector(CastEffect<GrDisplacementMapEffect>(effect).yChannelSelector()) {
 }
 
 GrGLDisplacementMapEffect::~GrGLDisplacementMapEffect() {
@@ -502,7 +503,7 @@ void GrGLDisplacementMapEffect::emitCode(GrGLShaderBuilder* builder,
 }
 
 void GrGLDisplacementMapEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
-    const GrDisplacementMapEffect& displacementMap = static_cast<const GrDisplacementMapEffect&>(*stage.getEffect());
+    const GrDisplacementMapEffect& displacementMap = GetEffectFromStage<GrDisplacementMapEffect>(stage);
     GrTexture* displTex = displacementMap.texture(0);
     GrTexture* colorTex = displacementMap.texture(1);
     fDisplacementEffectMatrix.setData(uman,
@@ -523,7 +524,7 @@ void GrGLDisplacementMapEffect::setData(const GrGLUniformManager& uman, const Gr
 GrGLEffect::EffectKey GrGLDisplacementMapEffect::GenKey(const GrEffectStage& stage,
                                                         const GrGLCaps&) {
     const GrDisplacementMapEffect& displacementMap =
-        static_cast<const GrDisplacementMapEffect&>(*stage.getEffect());
+        GetEffectFromStage<GrDisplacementMapEffect>(stage);
 
     GrTexture* displTex = displacementMap.texture(0);
     GrTexture* colorTex = displacementMap.texture(1);
