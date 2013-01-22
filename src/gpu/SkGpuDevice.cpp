@@ -674,6 +674,35 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
     fContext->drawRect(grPaint, rect, doStroke ? width : -1);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval,
+                           const SkPaint& paint) {
+    CHECK_FOR_NODRAW_ANNOTATION(paint);
+    CHECK_SHOULD_DRAW(draw, false);
+
+    bool usePath = false;
+    // some basic reasons we might need to call drawPath...
+    if (paint.getMaskFilter() || paint.getPathEffect()) {
+        usePath = true;
+    }
+
+    if (usePath) {
+        SkPath path;
+        path.addOval(oval);
+        this->drawPath(draw, path, paint, NULL, true);
+        return;
+    }
+
+    GrPaint grPaint;
+    if (!skPaint2GrPaintShader(this, paint, true, &grPaint)) {
+        return;
+    }
+    SkStrokeRec stroke(paint);
+
+    fContext->drawOval(grPaint, oval, stroke);
+}
+
 #include "SkMaskFilter.h"
 #include "SkBounder.h"
 
@@ -912,7 +941,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
         return;
     }
 
-    // can we cheat, and threat a thin stroke as a hairline w/ coverage
+    // can we cheat, and treat a thin stroke as a hairline w/ coverage
     // if we can, we draw lots faster (raster device does this same test)
     SkScalar hairlineCoverage;
     bool doHairLine = SkDrawTreatAsHairline(paint, fContext->getMatrix(), &hairlineCoverage);

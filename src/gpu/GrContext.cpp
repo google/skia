@@ -935,59 +935,62 @@ struct CircleVertex {
     SkScalar fInnerRadius;
 };
 
-/* Returns true if will map a circle to another circle. This can be true
- * if the matrix only includes square-scale, rotation, translation.
- */
-inline bool isSimilarityTransformation(const SkMatrix& matrix,
-                                       SkScalar tol = SK_ScalarNearlyZero) {
-    if (matrix.isIdentity() || matrix.getType() == SkMatrix::kTranslate_Mask) {
-        return true;
-    }
-    if (matrix.hasPerspective()) {
-        return false;
-    }
-
-    SkScalar mx = matrix.get(SkMatrix::kMScaleX);
-    SkScalar sx = matrix.get(SkMatrix::kMSkewX);
-    SkScalar my = matrix.get(SkMatrix::kMScaleY);
-    SkScalar sy = matrix.get(SkMatrix::kMSkewY);
-
-    if (mx == 0 && sx == 0 && my == 0 && sy == 0) {
-        return false;
-    }
-
-    // it has scales or skews, but it could also be rotation, check it out.
-    SkVector vec[2];
-    vec[0].set(mx, sx);
-    vec[1].set(sy, my);
-
-    return SkScalarNearlyZero(vec[0].dot(vec[1]), SkScalarSquare(tol)) &&
-           SkScalarNearlyEqual(vec[0].lengthSqd(), vec[1].lengthSqd(),
-                SkScalarSquare(tol));
+inline bool circleStaysCircle(const SkMatrix& m) {
+    return m.isSimilarity();
 }
 
 }
 
-// TODO: strokeWidth can't be larger than zero right now.
-// It will be fixed when drawPath() can handle strokes.
 void GrContext::drawOval(const GrPaint& paint,
-                         const GrRect& rect,
-                         SkScalar strokeWidth) {
-    GrAssert(strokeWidth <= 0);
-    if (!isSimilarityTransformation(this->getMatrix()) ||
-        !paint.isAntiAlias() ||
-        rect.height() != rect.width()) {
+                         const GrRect& oval,
+                         const SkStrokeRec& stroke) {
+
+    if (!canDrawOval(paint, oval, stroke)) {
         SkPath path;
-        path.addOval(rect);
-        path.setFillType(SkPath::kWinding_FillType);
-        SkStrokeRec stroke(0 == strokeWidth ? SkStrokeRec::kHairline_InitStyle :
-                                           SkStrokeRec::kFill_InitStyle);
-        if (strokeWidth > 0) {
-            stroke.setStrokeStyle(strokeWidth, true);
-        }
-        this->internalDrawPath(paint, path, stroke);
+        path.addOval(oval);
+        this->drawPath(paint, path, stroke);
         return;
+    } 
+
+    internalDrawOval(paint, oval, stroke);
+}
+
+bool GrContext::canDrawOval(const GrPaint& paint, const GrRect& oval, const SkStrokeRec& stroke) const {
+
+    if (!paint.isAntiAlias()) {
+        return false;
     }
+ 
+    // we can draw circles in any style
+    bool isCircle = SkScalarNearlyEqual(oval.width(), oval.height()) 
+                    && circleStaysCircle(this->getMatrix()); 
+    // and for now, axis-aligned ellipses only with fill or stroke-and-fill
+    SkStrokeRec::Style style = stroke.getStyle();
+    bool isStroke = (style == SkStrokeRec::kStroke_Style || style == SkStrokeRec::kHairline_Style);
+    bool isFilledAxisAlignedEllipse = this->getMatrix().rectStaysRect() && !isStroke;
+
+    return isCircle || isFilledAxisAlignedEllipse;
+}
+
+void GrContext::internalDrawOval(const GrPaint& paint,
+                                 const GrRect& oval,
+                                 const SkStrokeRec& stroke) {
+
+    SkScalar xRadius = SkScalarHalf(oval.width());
+    SkScalar yRadius = SkScalarHalf(oval.height());
+   
+    SkScalar strokeWidth = stroke.getWidth();
+    SkStrokeRec::Style style = stroke.getStyle();
+
+    bool isCircle = SkScalarNearlyEqual(xRadius, yRadius) && circleStaysCircle(this->getMatrix()); 
+#ifdef SK_DEBUG
+    {
+        // we should have checked for this previously
+        bool isStroke = (style == SkStrokeRec::kStroke_Style || style == SkStrokeRec::kHairline_Style);
+        bool isFilledAxisAlignedEllipse = this->getMatrix().rectStaysRect() && !isStroke;
+        SkASSERT(paint.isAntiAlias() && (isCircle || isFilledAxisAlignedEllipse));
+    }
+#endif
 
     GrDrawTarget* target = this->prepareToDraw(&paint, DEFAULT_BUFFERING);
 
@@ -1008,22 +1011,6 @@ void GrContext::drawOval(const GrPaint& paint,
     GrVertexLayout layout = GrDrawTarget::kEdge_VertexLayoutBit;
     GrAssert(sizeof(CircleVertex) == GrDrawTarget::VertexSize(layout));
 
-    GrPoint center = GrPoint::Make(rect.centerX(), rect.centerY());
-    SkScalar radius = SkScalarHalf(rect.width());
-
-    vm.mapPoints(&center, 1);
-    radius = vm.mapRadius(radius);
-
-    SkScalar outerRadius = radius;
-    SkScalar innerRadius = 0;
-    SkScalar halfWidth = 0;
-    if (strokeWidth == 0) {
-        halfWidth = SkScalarHalf(SK_Scalar1);
-
-        outerRadius += halfWidth;
-        innerRadius = SkMaxScalar(0, radius - halfWidth);
-    }
-
     GrDrawTarget::AutoReleaseGeometry geo(target, layout, 4, 0);
     if (!geo.succeeded()) {
         GrPrintf("Failed to get space for vertices!\n");
@@ -1032,26 +1019,93 @@ void GrContext::drawOval(const GrPaint& paint,
 
     CircleVertex* verts = reinterpret_cast<CircleVertex*>(geo.vertices());
 
+    GrPoint center = GrPoint::Make(oval.centerX(), oval.centerY());
+    vm.mapPoints(&center, 1);
+
+    SkScalar L;
+    SkScalar R;
+    SkScalar T;
+    SkScalar B;
+
+    if (isCircle) {
+        drawState->setVertexEdgeType(GrDrawState::kCircle_EdgeType);
+
+        xRadius = vm.mapRadius(xRadius);
+
+        SkScalar outerRadius = xRadius;
+        SkScalar innerRadius = 0;
+        SkScalar halfWidth = 0;
+        if (style != SkStrokeRec::kFill_Style) {
+            strokeWidth = vm.mapRadius(strokeWidth);
+            if (SkScalarNearlyZero(strokeWidth)) {
+                halfWidth = SK_ScalarHalf;
+            } else {
+                halfWidth = SkScalarHalf(strokeWidth);
+            }
+
+            outerRadius += halfWidth;
+            if (style == SkStrokeRec::kStroke_Style || style == SkStrokeRec::kHairline_Style) {
+                innerRadius = SkMaxScalar(0, xRadius - halfWidth);
+            }
+        }
+
+        for (int i = 0; i < 4; ++i) {
+            verts[i].fCenter = center;
+            verts[i].fOuterRadius = outerRadius;
+            verts[i].fInnerRadius = innerRadius;
+        }
+
+        L = -outerRadius;
+        R = +outerRadius;
+        T = -outerRadius;
+        B = +outerRadius;
+    } else {  // is axis-aligned ellipse
+        drawState->setVertexEdgeType(GrDrawState::kEllipse_EdgeType);
+
+        SkRect xformedRect;
+        vm.mapRect(&xformedRect, oval);
+
+        xRadius = SkScalarHalf(xformedRect.width());
+        yRadius = SkScalarHalf(xformedRect.height());
+
+        if (style == SkStrokeRec::kStrokeAndFill_Style && strokeWidth > 0.0f) {
+            SkScalar halfWidth = SkScalarHalf(strokeWidth);
+            // do (potentially) anisotropic mapping
+            SkVector scaledStroke;
+            scaledStroke.set(halfWidth, halfWidth);
+            vm.mapVectors(&scaledStroke, 1);
+            // this is legit only if scale & translation (which should be the case at the moment)
+            xRadius += scaledStroke.fX;
+            yRadius += scaledStroke.fY;
+        }
+
+        SkScalar ratio = SkScalarDiv(xRadius, yRadius);
+       
+        for (int i = 0; i < 4; ++i) {
+            verts[i].fCenter = center;
+            verts[i].fOuterRadius = xRadius;
+            verts[i].fInnerRadius = ratio;
+        }
+
+        L = -xRadius;
+        R = +xRadius;
+        T = -yRadius;
+        B = +yRadius;
+    }
+
     // The fragment shader will extend the radius out half a pixel
     // to antialias. Expand the drawn rect here so all the pixels
     // will be captured.
-    SkScalar L = center.fX - outerRadius - SkFloatToScalar(0.5f);
-    SkScalar R = center.fX + outerRadius + SkFloatToScalar(0.5f);
-    SkScalar T = center.fY - outerRadius - SkFloatToScalar(0.5f);
-    SkScalar B = center.fY + outerRadius + SkFloatToScalar(0.5f);
+    L += center.fX - SK_ScalarHalf;
+    R += center.fX + SK_ScalarHalf;
+    T += center.fY - SK_ScalarHalf;
+    B += center.fY + SK_ScalarHalf;
 
     verts[0].fPos = SkPoint::Make(L, T);
     verts[1].fPos = SkPoint::Make(R, T);
     verts[2].fPos = SkPoint::Make(L, B);
     verts[3].fPos = SkPoint::Make(R, B);
 
-    for (int i = 0; i < 4; ++i) {
-        verts[i].fCenter = center;
-        verts[i].fOuterRadius = outerRadius;
-        verts[i].fInnerRadius = innerRadius;
-    }
-
-    drawState->setVertexEdgeType(GrDrawState::kCircle_EdgeType);
     target->drawNonIndexed(kTriangleStrip_GrPrimitiveType, 0, 4);
 }
 
@@ -1065,10 +1119,10 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const SkStrok
     }
 
     SkRect ovalRect;
-    if ((stroke.isHairlineStyle() || stroke.isFillStyle()) && !path.isInverseFillType() &&
-        path.isOval(&ovalRect)) {
-        SkScalar width = stroke.isHairlineStyle() ? 0 : -SK_Scalar1;
-        this->drawOval(paint, ovalRect, width);
+    bool isOval = path.isOval(&ovalRect);
+
+    if (isOval && !path.isInverseFillType() && this->canDrawOval(paint, ovalRect, stroke)) {
+        this->drawOval(paint, ovalRect, stroke);
         return;
     }
 

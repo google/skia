@@ -226,6 +226,8 @@ protected:
                             const SkPoint[], const SkPaint& paint);
     virtual void drawRect(const SkDraw&, const SkRect& r,
                           const SkPaint& paint);
+    virtual void drawOval(const SkDraw&, const SkRect& oval,
+                          const SkPaint& paint);
     /**
      *  If pathIsMutable, then the implementation is allowed to cast path to a
      *  non-const pointer and modify it in place (as an optimization). Canvas

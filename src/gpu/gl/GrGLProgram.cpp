@@ -276,6 +276,13 @@ bool GrGLProgram::genEdgeCoverage(SkString* coverageVar,
             builder->fFSCode.appendf("\tfloat innerAlpha = %s.w == 0.0 ? 1.0 : smoothstep(%s.w - 0.5, %s.w + 0.5, d);\n", fsName, fsName, fsName);
             builder->fFSCode.append("\tedgeAlpha = outerAlpha * innerAlpha;\n");
             break;
+        case GrDrawState::kEllipse_EdgeType:
+            builder->fFSCode.append("\tfloat edgeAlpha;\n");
+            builder->fFSCode.appendf("\tvec2 offset = (%s.xy - %s.xy);\n", builder->fragmentPosition(), fsName);
+            builder->fFSCode.appendf("\toffset.y *= %s.w;\n", fsName);
+            builder->fFSCode.append("\tfloat d = length(offset);\n");
+            builder->fFSCode.appendf("\tedgeAlpha = smoothstep(d - 0.5, d + 0.5, %s.z);\n", fsName);
+            break;
         default:
             GrCrash("Unknown Edge Type!");
             break;

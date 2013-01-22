@@ -442,15 +442,12 @@ public:
      * Draws an oval.
      *
      * @param paint         describes how to color pixels.
-     * @param rect          the bounding rect of the oval.
-     * @param strokeWidth   if strokeWidth < 0, then the oval is filled, else
-     *                      the rect is stroked based on strokeWidth. If
-     *                      strokeWidth == 0, then the stroke is always a single
-     *                      pixel thick.
+     * @param oval          the bounding rect of the oval.
+     * @param stroke        the stroke information (width, style)
      */
     void drawOval(const GrPaint& paint,
-                  const GrRect& rect,
-                  SkScalar strokeWidth);
+                  const GrRect& oval,
+                  const SkStrokeRec& stroke);
 
     ///////////////////////////////////////////////////////////////////////////
     // Misc.
@@ -909,6 +906,9 @@ private:
     GrDrawTarget* prepareToDraw(const GrPaint*, BufferedDraw);
 
     void internalDrawPath(const GrPaint& paint, const SkPath& path, const SkStrokeRec& stroke);
+
+    void internalDrawOval(const GrPaint& paint, const GrRect& oval, const SkStrokeRec& stroke);
+    bool canDrawOval(const GrPaint& paint, const GrRect& oval, const SkStrokeRec& stroke) const;
 
     GrTexture* createResizedTexture(const GrTextureDesc& desc,
                                     const GrCacheID& cacheID,

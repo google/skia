@@ -1542,10 +1542,13 @@ void SkCanvas::drawOval(const SkRect& oval, const SkPaint& paint) {
         }
     }
 
-    SkPath  path;
-    path.addOval(oval);
-    // call the non-virtual version
-    this->SkCanvas::drawPath(path, paint);
+    LOOPER_BEGIN(paint, SkDrawFilter::kOval_Type)
+
+    while (iter.next()) {
+        iter.fDevice->drawOval(iter, oval, looper.paint());
+    }
+
+    LOOPER_END
 }
 
 void SkCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
