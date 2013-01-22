@@ -681,6 +681,9 @@ public:
         /* Circle specified as center_x, center_y, outer_radius, inner_radius
            all in window space (y-down). */
         kCircle_EdgeType,
+        /* Axis-aligned ellipse specified as center_x, center_y, x_radius, x_radius/y_radius
+           all in window space (y-down). */
+        kEllipse_EdgeType,
 
         kVertexEdgeTypeCnt
     };

@@ -317,14 +317,22 @@ void SkDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
 }
 
 void SkDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode, size_t count,
-                              const SkPoint pts[], const SkPaint& paint) {
+                          const SkPoint pts[], const SkPaint& paint) {
     draw.drawPoints(mode, count, pts, paint);
 }
 
-void SkDevice::drawRect(const SkDraw& draw, const SkRect& r,
-                            const SkPaint& paint) {
+void SkDevice::drawRect(const SkDraw& draw, const SkRect& r, const SkPaint& paint) {
     CHECK_FOR_NODRAW_ANNOTATION(paint);
     draw.drawRect(r, paint);
+}
+
+void SkDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint& paint) {
+    CHECK_FOR_NODRAW_ANNOTATION(paint);
+
+    SkPath path;
+    path.addOval(oval);
+    // call the non-virtual version
+    this->SkDevice::drawPath(draw, path, paint, NULL, true);
 }
 
 void SkDevice::drawPath(const SkDraw& draw, const SkPath& path,

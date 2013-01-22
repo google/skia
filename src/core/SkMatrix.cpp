@@ -170,6 +170,43 @@ bool operator==(const SkMatrix& a, const SkMatrix& b) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+bool SkMatrix::isSimilarity(SkScalar tol) const {
+    // if identity or translate matrix
+    TypeMask mask = this->getType();
+    if (mask <= kTranslate_Mask) {
+        return true;
+    }
+    if (mask & kPerspective_Mask) {
+        return false;
+    }
+
+    SkScalar mx = fMat[kMScaleX];
+    SkScalar my = fMat[kMScaleY];
+    // if no skew, can just compare scale factors
+    if (!(mask & kAffine_Mask)) {
+        return !SkScalarNearlyZero(mx) && SkScalarNearlyEqual(SkScalarAbs(mx), SkScalarAbs(my));
+    }
+    SkScalar sx = fMat[kMSkewX];
+    SkScalar sy = fMat[kMSkewY];
+
+    // degenerate matrix, non-similarity
+    if (SkScalarNearlyZero(mx) && SkScalarNearlyZero(my)
+        && SkScalarNearlyZero(sx) && SkScalarNearlyZero(sy)) {
+        return false;
+    }
+
+    // it has scales and skews, but it could also be rotation, check it out.
+    SkVector vec[2];
+    vec[0].set(mx, sx);
+    vec[1].set(sy, my);
+
+    return SkScalarNearlyZero(vec[0].dot(vec[1]), SkScalarSquare(tol)) &&
+           SkScalarNearlyEqual(vec[0].lengthSqd(), vec[1].lengthSqd(),
+                SkScalarSquare(tol));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void SkMatrix::setTranslate(SkScalar dx, SkScalar dy) {
     if (SkScalarToCompareType(dx) || SkScalarToCompareType(dy)) {
         fMat[kMTransX] = dx;

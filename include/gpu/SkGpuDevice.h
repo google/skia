@@ -64,6 +64,8 @@ public:
                             const SkPoint[], const SkPaint& paint) SK_OVERRIDE;
     virtual void drawRect(const SkDraw&, const SkRect& r,
                           const SkPaint& paint) SK_OVERRIDE;
+    virtual void drawOval(const SkDraw&, const SkRect& oval,
+                          const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPath(const SkDraw&, const SkPath& path,
                           const SkPaint& paint, const SkMatrix* prePathMatrix,
                           bool pathIsMutable) SK_OVERRIDE;
