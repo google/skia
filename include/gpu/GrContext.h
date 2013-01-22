@@ -618,22 +618,6 @@ public:
                              const SkRect& rect,
                              float sigmaX, float sigmaY);
 
-    /**
-     * Zooms a subset of the texture to a larger size with a nice edge.
-     * The inner rectangle is a simple scaling of the texture by a factor of
-     * |zoom|.  The outer |inset| pixels transition from the background texture
-     * to the zoomed coordinate system at a rate of
-     * (distance_to_edge / inset) ^2, producing a rounded lens effect.
-     * @param srcTexture      The source texture to be zoomed.
-     * @param dstRect         The destination rectangle.
-     * @param srcRect         The source rectangle.  Must be smaller than
-     *                        dstRect
-     * @param inset           Number of pixels to blend along the edges.
-     * @return the zoomed texture, which is dstTexture.
-     */
-     GrTexture* zoom(GrTexture* srcTexture,
-                     const SkRect& dstRect, const SkRect& srcRect, float inset);
-
     ///////////////////////////////////////////////////////////////////////////
     // Helpers
 
