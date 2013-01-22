@@ -14,6 +14,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
+#include "SkDeviceProperties.h"
 
 class SkClipStack;
 class SkDraw;
@@ -37,6 +38,13 @@ public:
     SkDevice(const SkBitmap& bitmap);
 
     /**
+     *  Construct a new device with the specified bitmap as its backend. It is
+     *  valid for the bitmap to have no pixels associated with it. In that case,
+     *  any drawing to this device will have no effect.
+    */
+    SkDevice(const SkBitmap& bitmap, const SkDeviceProperties& deviceProperties);
+
+    /**
      *  Create a new raster device and have the pixels be automatically
      *  allocated. The rowBytes of the device will be computed automatically
      *  based on the config and the width.
@@ -50,6 +58,23 @@ public:
      *                  these pixels to another device.
      */
     SkDevice(SkBitmap::Config config, int width, int height, bool isOpaque = false);
+
+    /**
+     *  Create a new raster device and have the pixels be automatically
+     *  allocated. The rowBytes of the device will be computed automatically
+     *  based on the config and the width.
+     *
+     *  @param config   The desired config for the pixels. If the request cannot
+     *                  be met, the closest matching support config will be used.
+     *  @param width    width (in pixels) of the device
+     *  @param height   height (in pixels) of the device
+     *  @param isOpaque Set to true if it is known that all of the pixels will
+     *                  be drawn to opaquely. Used as an accelerator when drawing
+     *                  these pixels to another device.
+     *  @param deviceProperties Properties which affect compositing.
+     */
+    SkDevice(SkBitmap::Config config, int width, int height, bool isOpaque,
+             const SkDeviceProperties& deviceProperties);
 
     virtual ~SkDevice();
 
@@ -83,6 +108,12 @@ public:
     /** Return the height of the device (in pixels).
     */
     virtual int height() const { return fBitmap.height(); }
+
+    /** Return the image properties of the device. */
+    virtual const SkDeviceProperties& getDeviceProperties() const {
+        //Currently, all the properties are leaky.
+        return fLeakyProperties;
+    }
 
     /**
      *  Return the bounds of the device in the coordinate space of the root
@@ -418,6 +449,13 @@ private:
     SkBitmap    fBitmap;
     SkIPoint    fOrigin;
     SkMetaData* fMetaData;
+    /**
+     *  Leaky properties are those which the device should be applying but it isn't.
+     *  These properties will be applied by the draw, when and as it can.
+     *  If the device does handle a property, that property should be set to the identity value
+     *  for that property, effectively making it non-leaky.
+     */
+    SkDeviceProperties fLeakyProperties;
 
 #ifdef SK_DEBUG
     bool        fAttachedToCanvas;

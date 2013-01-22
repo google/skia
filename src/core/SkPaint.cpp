@@ -9,6 +9,7 @@
 #include "SkPaint.h"
 #include "SkAnnotation.h"
 #include "SkColorFilter.h"
+#include "SkDeviceProperties.h"
 #include "SkFontHost.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
@@ -476,7 +477,7 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength,
         return byteLength >> 1;
     }
 
-    SkAutoGlyphCache autoCache(*this, NULL);
+    SkAutoGlyphCache autoCache(*this, NULL, NULL);
     SkGlyphCache*    cache = autoCache.getCache();
 
     const char* text = (const char*)textData;
@@ -530,7 +531,7 @@ bool SkPaint::containsText(const void* textData, size_t byteLength) const {
         return true;
     }
 
-    SkAutoGlyphCache autoCache(*this, NULL);
+    SkAutoGlyphCache autoCache(*this, NULL, NULL);
     SkGlyphCache*    cache = autoCache.getCache();
 
     switch (this->getTextEncoding()) {
@@ -580,7 +581,7 @@ void SkPaint::glyphsToUnichars(const uint16_t glyphs[], int count,
     SkASSERT(glyphs != NULL);
     SkASSERT(textData != NULL);
 
-    SkAutoGlyphCache autoCache(*this, NULL);
+    SkAutoGlyphCache autoCache(*this, NULL, NULL);
     SkGlyphCache*    cache = autoCache.getCache();
 
     for (int index = 0; index < count; index++) {
@@ -1048,7 +1049,7 @@ SkScalar SkPaint::measureText(const void* textData, size_t length,
         zoomPtr = &zoomMatrix;
     }
 
-    SkAutoGlyphCache    autoCache(*this, zoomPtr);
+    SkAutoGlyphCache    autoCache(*this, NULL, zoomPtr);
     SkGlyphCache*       cache = autoCache.getCache();
 
     SkScalar width = 0;
@@ -1124,7 +1125,7 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
         ((SkPaint*)this)->setTextSize(SkIntToScalar(kCanonicalTextSizeForPaths));
     }
 
-    SkAutoGlyphCache    autoCache(*this, NULL);
+    SkAutoGlyphCache    autoCache(*this, NULL, NULL);
     SkGlyphCache*       cache = autoCache.getCache();
 
     SkMeasureCacheProc glyphCacheProc = this->getMeasureCacheProc(tbd, false);
@@ -1212,7 +1213,7 @@ SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const {
         metrics = &storage;
     }
 
-    this->descriptorProc(zoomPtr, FontMetricsDescProc, metrics, true);
+    this->descriptorProc(NULL, zoomPtr, FontMetricsDescProc, metrics, true);
 
     if (scale) {
         metrics->fTop = SkScalarMul(metrics->fTop, scale);
@@ -1254,7 +1255,7 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
         ((SkPaint*)this)->setTextSize(SkIntToScalar(kCanonicalTextSizeForPaths));
     }
 
-    SkAutoGlyphCache    autoCache(*this, NULL);
+    SkAutoGlyphCache    autoCache(*this, NULL, NULL);
     SkGlyphCache*       cache = autoCache.getCache();
     SkMeasureCacheProc  glyphCacheProc;
     glyphCacheProc = this->getMeasureCacheProc(kForward_TextBufferDirection,
@@ -1487,22 +1488,10 @@ static SkScalar sk_relax(SkScalar x) {
 #endif
 }
 
-//#define SK_GAMMA_SRGB
-#ifndef SK_GAMMA_CONTRAST
-    /**
-     * A value of 0.5 for SK_GAMMA_CONTRAST appears to be a good compromise.
-     * With lower values small text appears washed out (though correctly so).
-     * With higher values lcd fringing is worse and the smoothing effect of
-     * partial coverage is diminished.
-     */
-    #define SK_GAMMA_CONTRAST (0.5f)
-#endif
-#ifndef SK_GAMMA_EXPONENT
-    #define SK_GAMMA_EXPONENT (2.2f)
-#endif
-
 void SkScalerContext::MakeRec(const SkPaint& paint,
-                              const SkMatrix* deviceMatrix, Rec* rec) {
+                              const SkDeviceProperties* deviceProperties,
+                              const SkMatrix* deviceMatrix,
+                              Rec* rec) {
     SkASSERT(deviceMatrix == NULL || !deviceMatrix->hasPerspective());
 
     SkTypeface* typeface = paint.getTypeface();
@@ -1572,19 +1561,18 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
 
     rec->fMaskFormat = SkToU8(computeMaskFormat(paint));
 
-    if (SkMask::kLCD16_Format == rec->fMaskFormat ||
-        SkMask::kLCD32_Format == rec->fMaskFormat)
-    {
-        SkFontHost::LCDOrder order = SkFontHost::GetSubpixelOrder();
-        SkFontHost::LCDOrientation orient = SkFontHost::GetSubpixelOrientation();
-        if (SkFontHost::kNONE_LCDOrder == order || tooBigForLCD(*rec)) {
+    SkDeviceProperties::Geometry geometry = deviceProperties
+                                          ? deviceProperties->fGeometry
+                                          : SkDeviceProperties::Geometry::MakeDefault();
+    if (SkMask::kLCD16_Format == rec->fMaskFormat || SkMask::kLCD32_Format == rec->fMaskFormat) {
+        if (!geometry.isOrientationKnown() || !geometry.isLayoutKnown() || tooBigForLCD(*rec)) {
             // eeek, can't support LCD
             rec->fMaskFormat = SkMask::kA8_Format;
         } else {
-            if (SkFontHost::kVertical_LCDOrientation == orient) {
+            if (SkDeviceProperties::Geometry::kVertical_Orientation == geometry.getOrientation()) {
                 flags |= SkScalerContext::kLCD_Vertical_Flag;
             }
-            if (SkFontHost::kBGR_LCDOrder == order) {
+            if (SkDeviceProperties::Geometry::kBGR_Layout == geometry.getLayout()) {
                 flags |= SkScalerContext::kLCD_BGROrder_Flag;
             }
         }
@@ -1611,14 +1599,32 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
     rec->setHinting(computeHinting(paint));
 
     rec->setLuminanceColor(computeLuminanceColor(paint));
-#ifdef SK_GAMMA_SRGB
-    rec->setDeviceGamma(0);
-    rec->setPaintGamma(0);
+
+    if (NULL == deviceProperties) {
+        rec->setDeviceGamma(SK_GAMMA_EXPONENT);
+        rec->setPaintGamma(SK_GAMMA_EXPONENT);
+    } else {
+        rec->setDeviceGamma(deviceProperties->fGamma);
+
+        //For now always set the paint gamma equal to the device gamma.
+        //The math in SkMaskGamma can handle them being different,
+        //but it requires superluminous masks when
+        //Ex : deviceGamma(x) < paintGamma(x) and x is sufficiently large.
+        rec->setPaintGamma(deviceProperties->fGamma);
+    }
+
+#ifdef SK_GAMMA_CONTRAST
+    rec->setContrast(SK_GAMMA_CONTRAST);
 #else
-    rec->setDeviceGamma(SkFloatToScalar(SK_GAMMA_EXPONENT));
-    rec->setPaintGamma(SkFloatToScalar(SK_GAMMA_EXPONENT));
+    /**
+     * A value of 0.5 for SK_GAMMA_CONTRAST appears to be a good compromise.
+     * With lower values small text appears washed out (though correctly so).
+     * With higher values lcd fringing is worse and the smoothing effect of
+     * partial coverage is diminished.
+     */
+    rec->setContrast(SkFloatToScalar(0.5f));
 #endif
-    rec->setContrast(SkFloatToScalar(SK_GAMMA_CONTRAST));
+
     rec->fReservedAlign = 0;
 
     /*  Allow the fonthost to modify our rec before we use it as a key into the
@@ -1712,7 +1718,7 @@ void SkScalerContext::PostMakeRec(const SkPaint& paint, SkScalerContext::Rec* re
         }
         case SkMask::kBW_Format:
             // No need to differentiate gamma if we're BW
-            rec->setLuminanceColor(0);
+            rec->ignorePreBlend();
             break;
     }
 }
@@ -1730,12 +1736,13 @@ void SkScalerContext::PostMakeRec(const SkPaint& paint, SkScalerContext::Rec* re
  *  would be for the fontcache lookup to know to ignore the luminance field
  *  entirely, but not sure how to do that and keep it fast.
  */
-void SkPaint::descriptorProc(const SkMatrix* deviceMatrix,
+void SkPaint::descriptorProc(const SkDeviceProperties* deviceProperties,
+                             const SkMatrix* deviceMatrix,
                              void (*proc)(const SkDescriptor*, void*),
                              void* context, bool ignoreGamma) const {
     SkScalerContext::Rec    rec;
 
-    SkScalerContext::MakeRec(*this, deviceMatrix, &rec);
+    SkScalerContext::MakeRec(*this, deviceProperties, deviceMatrix, &rec);
     if (ignoreGamma) {
         rec.setLuminanceColor(0);
     }
@@ -1846,9 +1853,10 @@ void SkPaint::descriptorProc(const SkMatrix* deviceMatrix,
     proc(desc, context);
 }
 
-SkGlyphCache* SkPaint::detachCache(const SkMatrix* deviceMatrix) const {
+SkGlyphCache* SkPaint::detachCache(const SkDeviceProperties* deviceProperties,
+                                   const SkMatrix* deviceMatrix) const {
     SkGlyphCache* cache;
-    this->descriptorProc(deviceMatrix, DetachDescProc, &cache);
+    this->descriptorProc(deviceProperties, deviceMatrix, DetachDescProc, &cache, false);
     return cache;
 }
 
@@ -2241,7 +2249,7 @@ SkTextToPathIter::SkTextToPathIter( const char text[], size_t length,
         fPaint.setPathEffect(NULL);
     }
 
-    fCache = fPaint.detachCache(NULL);
+    fCache = fPaint.detachCache(NULL, NULL);
 
     SkPaint::Style  style = SkPaint::kFill_Style;
     SkPathEffect*   pe = NULL;
