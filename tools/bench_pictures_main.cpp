@@ -27,6 +27,7 @@ static char const * const gFilterTypes[] = {
     "line",
     "bitmap",
     "rect",
+    "oval",
     "path",
     "text",
     "all",
