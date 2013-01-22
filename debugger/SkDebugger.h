@@ -60,7 +60,7 @@ public:
 
     void loadPicture(SkPicture* picture);
 
-    SkPicture* makePicture();
+    SkPicture* copyPicture();
 
     int getSize() {
         return fDebugCanvas->getSize();
