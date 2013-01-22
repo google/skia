@@ -2141,7 +2141,7 @@ void SkDraw::drawPosTextOnPath(const char text[], size_t byteLength,
     // End copied from SkTextToPathIter constructor
 
     // detach cache
-    SkGlyphCache* cache = tempPaint.detachCache(NULL);
+    SkGlyphCache* cache = tempPaint.detachCache(NULL, NULL);
 
     // Must set scale, even if 1
     SkScalar scale = SK_Scalar1;
