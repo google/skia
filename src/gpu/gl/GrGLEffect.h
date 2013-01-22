@@ -12,8 +12,8 @@
 #include "GrGLShaderBuilder.h"
 #include "GrGLShaderVar.h"
 #include "GrGLSL.h"
+#include "GrEffectStage.h"
 
-class GrEffectStage;
 class GrGLTexture;
 
 /** @file
