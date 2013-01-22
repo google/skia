@@ -914,7 +914,7 @@ void GrGLProgram::setData(GrGpuGL* gpu) {
             for (int u = 0; u < numSamplers; ++u) {
                 UniformHandle handle = fUniformHandles.fSamplerUnis[s][u];
                 if (GrGLUniformManager::kInvalidUniformHandle != handle) {
-                    const GrTextureAccess& access = stage.getEffect()->textureAccess(u);
+                    const GrTextureAccess& access = (*stage.getEffect())->textureAccess(u);
                     GrGLTexture* texture = static_cast<GrGLTexture*>(access.getTexture());
                     gpu->bindTexture(texUnitIdx, access.getParams(), texture);
                     ++texUnitIdx;

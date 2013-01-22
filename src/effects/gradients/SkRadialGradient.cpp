@@ -479,7 +479,7 @@ class GrGLRadialGradient : public GrGLGradientEffect {
 public:
 
     GrGLRadialGradient(const GrBackendEffectFactory& factory,
-                       const GrEffect&) : INHERITED (factory) { }
+                       const GrEffectRef&) : INHERITED (factory) { }
     virtual ~GrGLRadialGradient() { }
 
     virtual void emitCode(GrGLShaderBuilder*,
@@ -508,7 +508,7 @@ public:
                                const SkRadialGradient& shader,
                                const SkMatrix& matrix,
                                SkShader::TileMode tm) {
-        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrRadialGradient, (ctx, shader, matrix, tm)));
+        AutoEffectUnref effect(SkNEW_ARGS(GrRadialGradient, (ctx, shader, matrix, tm)));
         return CreateEffectRef(effect);
     }
 

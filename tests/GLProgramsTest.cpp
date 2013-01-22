@@ -128,7 +128,8 @@ bool GrGpuGL::programUnitTest() {
                 stages[s].setEffect(effect.get());
                 if (NULL != stages[s].getEffect()) {
                     pdesc.fEffectKeys[s] =
-                        stages[s].getEffect()->getFactory().glEffectKey(stages[s], this->glCaps());
+                        (*stages[s].getEffect())->getFactory().glEffectKey(stages[s],
+                                                                           this->glCaps());
                 }
             }
         }

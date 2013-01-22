@@ -161,16 +161,16 @@ public:
     typedef GrGLBicubicEffect GLEffect;
 
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
-    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
     virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
     static GrEffectRef* Create(GrTexture* tex, const SkScalar coefficients[16]) {
-        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrBicubicEffect, (tex, coefficients)));
+        AutoEffectUnref effect(SkNEW_ARGS(GrBicubicEffect, (tex, coefficients)));
         return CreateEffectRef(effect);
     }
 
 private:
     GrBicubicEffect(GrTexture*, const SkScalar coefficients[16]);
+    virtual bool onIsEqual(const GrEffectRef&) const SK_OVERRIDE;
     float    fCoefficients[16];
 
     GR_DECLARE_EFFECT_TEST;
@@ -181,7 +181,7 @@ private:
 class GrGLBicubicEffect : public GrGLEffect {
 public:
     GrGLBicubicEffect(const GrBackendEffectFactory& factory,
-                                const GrEffect& effect);
+                      const GrEffectRef& effect);
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrEffectStage&,
                           EffectKey,
@@ -206,7 +206,7 @@ private:
 };
 
 GrGLBicubicEffect::GrGLBicubicEffect(const GrBackendEffectFactory& factory,
-                                     const GrEffect& effect)
+                                     const GrEffectRef& effect)
     : INHERITED(factory)
     , fCoefficientsUni(GrGLUniformManager::kInvalidUniformHandle)
     , fImageIncrementUni(GrGLUniformManager::kInvalidUniformHandle) {
@@ -265,8 +265,7 @@ void GrGLBicubicEffect::emitCode(GrGLShaderBuilder* builder,
 }
 
 GrGLEffect::EffectKey GrGLBicubicEffect::GenKey(const GrEffectStage& s, const GrGLCaps&) {
-    const GrBicubicEffect& m =
-        static_cast<const GrBicubicEffect&>(*s.getEffect());
+    const GrBicubicEffect& m = GetEffectFromStage<GrBicubicEffect>(s);
     EffectKey matrixKey = GrGLEffectMatrix::GenKey(m.getMatrix(),
                                                    s.getCoordChangeMatrix(),
                                                    m.texture(0));
@@ -275,8 +274,7 @@ GrGLEffect::EffectKey GrGLBicubicEffect::GenKey(const GrEffectStage& s, const Gr
 
 void GrGLBicubicEffect::setData(const GrGLUniformManager& uman,
                                 const GrEffectStage& stage) {
-    const GrBicubicEffect& effect =
-        static_cast<const GrBicubicEffect&>(*stage.getEffect());
+    const GrBicubicEffect& effect = GetEffectFromStage<GrBicubicEffect>(stage);
     GrTexture& texture = *effect.texture(0);
     float imageIncrement[2];
     imageIncrement[0] = 1.0f / texture.width();
@@ -307,9 +305,8 @@ const GrBackendEffectFactory& GrBicubicEffect::getFactory() const {
     return GrTBackendEffectFactory<GrBicubicEffect>::getInstance();
 }
 
-bool GrBicubicEffect::onIsEqual(const GrEffect& sBase) const {
-    const GrBicubicEffect& s =
-        static_cast<const GrBicubicEffect&>(sBase);
+bool GrBicubicEffect::onIsEqual(const GrEffectRef& sBase) const {
+    const GrBicubicEffect& s = CastEffect<GrBicubicEffect>(sBase);
     return this->texture(0) == s.texture(0) &&
            !memcmp(fCoefficients, s.coefficients(), 16);
 }

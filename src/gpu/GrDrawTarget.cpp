@@ -757,7 +757,7 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
     GrAssert(NULL != drawState.getRenderTarget());
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (drawState.isStageEnabled(s)) {
-            const GrEffect* effect = drawState.getStage(s).getEffect();
+            const GrEffectRef& effect = *drawState.getStage(s).getEffect();
             int numTextures = effect->numTextures();
             for (int t = 0; t < numTextures; ++t) {
                 GrTexture* texture = effect->texture(t);
@@ -840,9 +840,9 @@ bool GrDrawTarget::srcAlphaWillBeOne(GrVertexLayout layout) const {
     // Run through the color stages
     int stageCnt = drawState.getFirstCoverageStage();
     for (int s = 0; s < stageCnt; ++s) {
-        const GrEffect* effect = drawState.getStage(s).getEffect();
+        const GrEffectRef* effect = drawState.getStage(s).getEffect();
         if (NULL != effect) {
-            effect->getConstantColorComponents(&color, &validComponentFlags);
+            (*effect)->getConstantColorComponents(&color, &validComponentFlags);
         }
     }
 
@@ -866,9 +866,9 @@ bool GrDrawTarget::srcAlphaWillBeOne(GrVertexLayout layout) const {
             }
         }
         for (int s = drawState.getFirstCoverageStage(); s < GrDrawState::kNumStages; ++s) {
-            const GrEffect* effect = drawState.getStage(s).getEffect();
+            const GrEffectRef* effect = drawState.getStage(s).getEffect();
             if (NULL != effect) {
-                effect->getConstantColorComponents(&color, &validComponentFlags);
+                (*effect)->getConstantColorComponents(&color, &validComponentFlags);
             }
         }
     }

@@ -86,7 +86,28 @@ public:
 
     const char* name() const { return fFactory.name(); }
 
-    static EffectKey GenTextureKey(const GrEffect&, const GrGLCaps&);
+    static EffectKey GenTextureKey(const GrEffectRef*, const GrGLCaps&);
+
+   /**
+    * GrGLEffect subclasses get passed a GrEffectStage in their emitCode and setData functions.
+    * The GrGLEffect usually needs to cast the stage's effect to the GrEffect subclass that
+    * generated the GrGLEffect. This helper does just that.
+    */
+    template <typename T>
+    static const T& GetEffectFromStage(const GrEffectStage& effectStage) {
+        GrAssert(NULL != effectStage.getEffect());
+        return CastEffect<T>(*effectStage.getEffect());
+    }
+
+   /**
+    * Extracts the GrEffect from a GrEffectRef and down-casts to a GrEffect subclass. Usually used
+    * in a GrGLEffect subclass's constructor (which takes const GrEffectRef&).
+    */
+    template <typename T>
+    static const T& CastEffect(const GrEffectRef& effectRef) {
+        GrAssert(NULL != effectRef.get());
+        return *static_cast<const T*>(effectRef.get());
+    }
 
 protected:
     const GrBackendEffectFactory& fFactory;

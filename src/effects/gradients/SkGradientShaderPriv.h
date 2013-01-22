@@ -255,7 +255,7 @@ protected:
                                     SkScalar** stops,
                                     SkShader::TileMode* tm);
 
-    virtual bool onIsEqual(const GrEffect& effect) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrEffectRef& effect) const SK_OVERRIDE;
 
 private:
 
@@ -335,4 +335,3 @@ private:
 #endif
 
 #endif
-

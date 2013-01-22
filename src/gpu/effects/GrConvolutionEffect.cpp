@@ -18,7 +18,7 @@ static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidU
 
 class GrGLConvolutionEffect : public GrGLEffect {
 public:
-    GrGLConvolutionEffect(const GrBackendEffectFactory&, const GrEffect&);
+    GrGLConvolutionEffect(const GrBackendEffectFactory&, const GrEffectRef&);
 
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrEffectStage&,
@@ -44,12 +44,11 @@ private:
 };
 
 GrGLConvolutionEffect::GrGLConvolutionEffect(const GrBackendEffectFactory& factory,
-                                             const GrEffect& effect)
+                                             const GrEffectRef& effect)
     : INHERITED(factory)
     , fKernelUni(kInvalidUniformHandle)
     , fImageIncrementUni(kInvalidUniformHandle) {
-    const GrConvolutionEffect& c =
-        static_cast<const GrConvolutionEffect&>(effect);
+    const GrConvolutionEffect& c = CastEffect<GrConvolutionEffect>(effect);
     fRadius = c.radius();
 }
 
@@ -91,7 +90,7 @@ void GrGLConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
 }
 
 void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
-    const GrConvolutionEffect& conv = static_cast<const GrConvolutionEffect&>(*stage.getEffect());
+    const GrConvolutionEffect& conv = GetEffectFromStage<GrConvolutionEffect>(stage);
     GrTexture& texture = *conv.texture(0);
     // the code we generated was for a specific kernel radius
     GrAssert(conv.radius() == fRadius);
@@ -112,8 +111,8 @@ void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman, const GrEffe
 }
 
 GrGLEffect::EffectKey GrGLConvolutionEffect::GenKey(const GrEffectStage& s, const GrGLCaps&) {
-    const GrConvolutionEffect& conv = static_cast<const GrConvolutionEffect&>(*s.getEffect());
-    EffectKey key = static_cast<const GrConvolutionEffect&>(*s.getEffect()).radius();
+    const GrConvolutionEffect& conv = GetEffectFromStage<GrConvolutionEffect>(s);
+    EffectKey key = conv.radius();
     key <<= GrGLEffectMatrix::kKeyBits;
     EffectKey matrixKey = GrGLEffectMatrix::GenKey(conv.getMatrix(),
                                                    s.getCoordChangeMatrix(),
@@ -167,8 +166,8 @@ const GrBackendEffectFactory& GrConvolutionEffect::getFactory() const {
     return GrTBackendEffectFactory<GrConvolutionEffect>::getInstance();
 }
 
-bool GrConvolutionEffect::onIsEqual(const GrEffect& sBase) const {
-     const GrConvolutionEffect& s = static_cast<const GrConvolutionEffect&>(sBase);
+bool GrConvolutionEffect::onIsEqual(const GrEffectRef& sBase) const {
+    const GrConvolutionEffect& s = CastEffect<GrConvolutionEffect>(sBase);
     return (this->texture(0) == s.texture(0) &&
             this->radius() == s.radius() &&
             this->direction() == s.direction() &&
@@ -193,4 +192,3 @@ GrEffectRef* GrConvolutionEffect::TestCreate(SkRandom* random,
 
     return GrConvolutionEffect::Create(textures[texIdx], dir, radius,kernel);
 }
-

@@ -422,16 +422,16 @@ GrGLEffect* GrGLShaderBuilder::createAndEmitGLEffect(
                                 SkTArray<GrGLUniformManager::UniformHandle, true>* samplerHandles) {
     GrAssert(NULL != stage.getEffect());
 
-    const GrEffect& effect = *stage.getEffect();
-    int numTextures = effect.numTextures();
+    const GrEffectRef& effect = *stage.getEffect();
+    int numTextures = effect->numTextures();
     SkSTArray<8, GrGLShaderBuilder::TextureSampler> textureSamplers;
     textureSamplers.push_back_n(numTextures);
     for (int i = 0; i < numTextures; ++i) {
-        textureSamplers[i].init(this, &effect.textureAccess(i), i);
+        textureSamplers[i].init(this, &effect->textureAccess(i), i);
         samplerHandles->push_back(textureSamplers[i].fSamplerUniform);
     }
 
-    GrGLEffect* glEffect = effect.getFactory().createGLInstance(effect);
+    GrGLEffect* glEffect = effect->getFactory().createGLInstance(effect);
 
     // Enclose custom code in a block to avoid namespace conflicts
     this->fVSCode.appendf("\t{ // %s\n", glEffect->name());

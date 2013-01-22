@@ -244,7 +244,7 @@ public:
     };
 
     static GrEffectRef* Create(GrTexture* tex, Direction dir, int radius, MorphologyType type) {
-        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrMorphologyEffect, (tex, dir, radius, type)));
+        AutoEffectUnref effect(SkNEW_ARGS(GrMorphologyEffect, (tex, dir, radius, type)));
         return CreateEffectRef(effect);
     }
 
@@ -264,7 +264,7 @@ protected:
     MorphologyType fType;
 
 private:
-    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrEffectRef&) const SK_OVERRIDE;
 
     GrMorphologyEffect(GrTexture*, Direction, int radius, MorphologyType);
 
@@ -277,8 +277,7 @@ private:
 
 class GrGLMorphologyEffect  : public GrGLEffect {
 public:
-    GrGLMorphologyEffect (const GrBackendEffectFactory& factory,
-                          const GrEffect& effect);
+    GrGLMorphologyEffect (const GrBackendEffectFactory&, const GrEffectRef&);
 
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrEffectStage&,
@@ -304,10 +303,10 @@ private:
 };
 
 GrGLMorphologyEffect::GrGLMorphologyEffect(const GrBackendEffectFactory& factory,
-                                           const GrEffect& effect)
+                                           const GrEffectRef& effect)
     : INHERITED(factory)
     , fImageIncrementUni(GrGLUniformManager::kInvalidUniformHandle) {
-    const GrMorphologyEffect& m = static_cast<const GrMorphologyEffect&>(effect);
+    const GrMorphologyEffect& m = CastEffect<GrMorphologyEffect>(effect);
     fRadius = m.radius();
     fType = m.type();
 }
@@ -354,7 +353,7 @@ void GrGLMorphologyEffect::emitCode(GrGLShaderBuilder* builder,
 }
 
 GrGLEffect::EffectKey GrGLMorphologyEffect::GenKey(const GrEffectStage& s, const GrGLCaps&) {
-    const GrMorphologyEffect& m = static_cast<const GrMorphologyEffect&>(*s.getEffect());
+    const GrMorphologyEffect& m = GetEffectFromStage<GrMorphologyEffect>(s);
     EffectKey key = static_cast<EffectKey>(m.radius());
     key |= (m.type() << 8);
     key <<= GrGLEffectMatrix::kKeyBits;
@@ -365,7 +364,7 @@ GrGLEffect::EffectKey GrGLMorphologyEffect::GenKey(const GrEffectStage& s, const
 }
 
 void GrGLMorphologyEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
-    const Gr1DKernelEffect& kern = static_cast<const Gr1DKernelEffect&>(*stage.getEffect());
+    const Gr1DKernelEffect& kern = GetEffectFromStage<Gr1DKernelEffect>(stage);
     GrTexture& texture = *kern.texture(0);
     // the code we generated was for a specific kernel radius
     GrAssert(kern.radius() == fRadius);
@@ -401,9 +400,8 @@ const GrBackendEffectFactory& GrMorphologyEffect::getFactory() const {
     return GrTBackendEffectFactory<GrMorphologyEffect>::getInstance();
 }
 
-bool GrMorphologyEffect::onIsEqual(const GrEffect& sBase) const {
-    const GrMorphologyEffect& s =
-        static_cast<const GrMorphologyEffect&>(sBase);
+bool GrMorphologyEffect::onIsEqual(const GrEffectRef& sBase) const {
+    const GrMorphologyEffect& s = CastEffect<GrMorphologyEffect>(sBase);
     return (this->texture(0) == s.texture(0) &&
             this->radius() == s.radius() &&
             this->direction() == s.direction() &&

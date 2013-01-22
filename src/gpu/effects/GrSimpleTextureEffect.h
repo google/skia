@@ -21,18 +21,18 @@ class GrSimpleTextureEffect : public GrSingleTextureEffect {
 public:
     /* unfiltered, clamp mode */
     static GrEffectRef* Create(GrTexture* tex, const SkMatrix& matrix) {
-        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix)));
+        AutoEffectUnref effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix)));
         return CreateEffectRef(effect);
     }
 
     /* clamp mode */
     static GrEffectRef* Create(GrTexture* tex, const SkMatrix& matrix, bool bilerp) {
-        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, bilerp)));
+        AutoEffectUnref effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, bilerp)));
         return CreateEffectRef(effect);
     }
 
     static GrEffectRef* Create(GrTexture* tex, const SkMatrix& matrix, const GrTextureParams& p) {
-        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, p)));
+        AutoEffectUnref effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, p)));
         return CreateEffectRef(effect);
     }
 
@@ -54,8 +54,8 @@ private:
     GrSimpleTextureEffect(GrTexture* texture, const SkMatrix& matrix, const GrTextureParams& params)
         : GrSingleTextureEffect(texture, matrix, params) {}
 
-    virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
-        const GrSimpleTextureEffect& ste = static_cast<const GrSimpleTextureEffect&>(other);
+    virtual bool onIsEqual(const GrEffectRef& other) const SK_OVERRIDE {
+        const GrSimpleTextureEffect& ste = CastEffect<GrSimpleTextureEffect>(other);
         return this->hasSameTextureParamsAndMatrix(ste);
     }
 

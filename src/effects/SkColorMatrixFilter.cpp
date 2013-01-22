@@ -326,7 +326,7 @@ bool SkColorMatrixFilter::asColorMatrix(SkScalar matrix[20]) const {
 class ColorMatrixEffect : public GrEffect {
 public:
     static GrEffectRef* Create(const SkColorMatrix& matrix) {
-        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(ColorMatrixEffect, (matrix)));
+        AutoEffectUnref effect(SkNEW_ARGS(ColorMatrixEffect, (matrix)));
         return CreateEffectRef(effect);
     }
 
@@ -389,7 +389,7 @@ public:
         static EffectKey GenKey(const GrEffectStage&, const GrGLCaps&) { return 0; }
 
         GLEffect(const GrBackendEffectFactory& factory,
-                 const GrEffect& effect)
+                 const GrEffectRef& effect)
         : INHERITED(factory)
         , fMatrixHandle(GrGLUniformManager::kInvalidUniformHandle)
         , fVectorHandle(GrGLUniformManager::kInvalidUniformHandle) {}
@@ -425,8 +425,7 @@ public:
 
         virtual void setData(const GrGLUniformManager& uniManager,
                              const GrEffectStage& stage) SK_OVERRIDE {
-            const ColorMatrixEffect& cme =
-                static_cast<const ColorMatrixEffect&>(*stage.getEffect());
+            const ColorMatrixEffect& cme = GetEffectFromStage<ColorMatrixEffect>(stage);
             const float* m = cme.fMatrix.fMat;
             // The GL matrix is transposed from SkColorMatrix.
             GrGLfloat mt[]  = {
@@ -451,8 +450,8 @@ public:
 private:
     ColorMatrixEffect(const SkColorMatrix& matrix) : fMatrix(matrix) {}
 
-    virtual bool onIsEqual(const GrEffect& s) const {
-        const ColorMatrixEffect& cme = static_cast<const ColorMatrixEffect&>(s);
+    virtual bool onIsEqual(const GrEffectRef& s) const {
+        const ColorMatrixEffect& cme = CastEffect<ColorMatrixEffect>(s);
         return cme.fMatrix == fMatrix;
     }
 

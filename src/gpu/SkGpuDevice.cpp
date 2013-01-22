@@ -1520,7 +1520,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
         return;
     }
 
-    GrTexture* devTex = grPaint.getColorStage(kBitmapTextureIdx).getEffect()->texture(0);
+    GrTexture* devTex = (*grPaint.getColorStage(kBitmapTextureIdx).getEffect())->texture(0);
     SkASSERT(NULL != devTex);
 
     SkImageFilter* filter = paint.getImageFilter();

@@ -33,13 +33,13 @@ public:
                                float yZoom,
                                float xInset,
                                float yInset) {
-        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrMagnifierEffect, (texture,
-                                                                     xOffset,
-                                                                     yOffset,
-                                                                     xZoom,
-                                                                     yZoom,
-                                                                     xInset,
-                                                                     yInset)));
+        AutoEffectUnref effect(SkNEW_ARGS(GrMagnifierEffect, (texture,
+                                                              xOffset,
+                                                              yOffset,
+                                                              xZoom,
+                                                              yZoom,
+                                                              xInset,
+                                                              yInset)));
         return CreateEffectRef(effect);
     }
 
@@ -75,7 +75,7 @@ private:
         , fXInset(xInset)
         , fYInset(yInset) {}
 
-    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrEffectRef&) const SK_OVERRIDE;
 
     GR_DECLARE_EFFECT_TEST;
 
@@ -94,8 +94,7 @@ typedef GrGLUniformManager::UniformHandle UniformHandle;
 
 class GrGLMagnifierEffect : public GrGLEffect {
 public:
-    GrGLMagnifierEffect(const GrBackendEffectFactory& factory,
-                        const GrEffect& effect);
+    GrGLMagnifierEffect(const GrBackendEffectFactory& factory, const GrEffectRef& effect);
 
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrEffectStage&,
@@ -120,8 +119,7 @@ private:
     typedef GrGLEffect INHERITED;
 };
 
-GrGLMagnifierEffect::GrGLMagnifierEffect(const GrBackendEffectFactory& factory,
-                                         const GrEffect& effect)
+GrGLMagnifierEffect::GrGLMagnifierEffect(const GrBackendEffectFactory& factory, const GrEffectRef&)
     : INHERITED(factory)
     , fOffsetVar(GrGLUniformManager::kInvalidUniformHandle)
     , fZoomVar(GrGLUniformManager::kInvalidUniformHandle)
@@ -184,8 +182,7 @@ void GrGLMagnifierEffect::emitCode(GrGLShaderBuilder* builder,
 
 void GrGLMagnifierEffect::setData(const GrGLUniformManager& uman,
                                   const GrEffectStage& stage) {
-    const GrMagnifierEffect& zoom = static_cast<const GrMagnifierEffect&>(*stage.getEffect());
-
+    const GrMagnifierEffect& zoom = GetEffectFromStage<GrMagnifierEffect>(stage);
     uman.set2f(fOffsetVar, zoom.x_offset(), zoom.y_offset());
     uman.set2f(fZoomVar, zoom.x_zoom(), zoom.y_zoom());
     uman.set2f(fInsetVar, zoom.x_inset(), zoom.y_inset());
@@ -193,7 +190,7 @@ void GrGLMagnifierEffect::setData(const GrGLUniformManager& uman,
 }
 
 GrGLEffect::EffectKey GrGLMagnifierEffect::GenKey(const GrEffectStage& stage, const GrGLCaps&) {
-    const GrMagnifierEffect& zoom = static_cast<const GrMagnifierEffect&>(*stage.getEffect());
+    const GrMagnifierEffect& zoom = GetEffectFromStage<GrMagnifierEffect>(stage);
     return GrGLEffectMatrix::GenKey(zoom.getMatrix(),
                                     stage.getCoordChangeMatrix(),
                                     zoom.texture(0));
@@ -232,8 +229,8 @@ const GrBackendEffectFactory& GrMagnifierEffect::getFactory() const {
     return GrTBackendEffectFactory<GrMagnifierEffect>::getInstance();
 }
 
-bool GrMagnifierEffect::onIsEqual(const GrEffect& sBase) const {
-     const GrMagnifierEffect& s = static_cast<const GrMagnifierEffect&>(sBase);
+bool GrMagnifierEffect::onIsEqual(const GrEffectRef& sBase) const {
+    const GrMagnifierEffect& s = CastEffect<GrMagnifierEffect>(sBase);
     return (this->texture(0) == s.texture(0) &&
             this->fXOffset == s.fXOffset &&
             this->fYOffset == s.fYOffset &&

@@ -34,6 +34,9 @@ public:
     GrEffect* get() { return fEffect; }
     const GrEffect* get() const { return fEffect; }
 
+    const GrEffect* operator-> () { return fEffect; }
+    const GrEffect* operator-> () const { return fEffect; }
+
     void* operator new(size_t size);
     void operator delete(void* target);
 
@@ -58,8 +61,11 @@ private:
     GrEffect subclass objects should be created by factory functions that return GrEffectRef.
     There is no public way to wrap a GrEffect in a GrEffectRef. Thus, a factory should be a static
     member function of a GrEffect subclass.
+
+    Because almost no code should ever handle a GrEffect outside of a GrEffectRef, we privately
+    inherit from GrRefCnt to help prevent accidental direct ref'ing/unref'ing of effects.
   */
-class GrEffect : public GrRefCnt {
+class GrEffect : private GrRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrEffect)
 
@@ -113,16 +119,16 @@ public:
         computed by the GrBackendEffectFactory:
             effectA.getFactory().glEffectKey(effectA) == effectB.getFactory().glEffectKey(effectB).
      */
-    bool isEqual(const GrEffect& other) const {
-        if (&this->getFactory() != &other.getFactory()) {
+    bool isEqual(const GrEffectRef& other) const {
+        if (&this->getFactory() != &other->getFactory()) {
             return false;
         }
         bool result = this->onIsEqual(other);
 #if GR_DEBUG
         if (result) {
-            GrAssert(this->numTextures() == other.numTextures());
+            GrAssert(this->numTextures() == other->numTextures());
             for (int i = 0; i < this->numTextures(); ++i) {
-                GrAssert(*fTextureAccesses[i] == *other.fTextureAccesses[i]);
+                GrAssert(*fTextureAccesses[i] == *other->fTextureAccesses[i]);
             }
         }
 #endif
@@ -154,6 +160,11 @@ public:
     void* operator new(size_t size);
     void operator delete(void* target);
 
+    /** These use non-standard names because GrEffects should only be ref'ed an unref'ed deep in
+        the bowels. Rendering code should use GrEffectRef. */
+    void addRef() { this->ref(); }
+    void subRef() { this->unref(); }
+
 protected:
     /**
      * Subclasses call this from their constructor to register GrTextureAcceses. The effect subclass
@@ -164,7 +175,8 @@ protected:
 
     GrEffect() : fEffectRef(NULL) {};
 
-    /** This should be called by GrEffect subclass factories */
+    /** This should be called by GrEffect subclass factories. See the comment on AutoEffectUnref for
+        an example factory function. */
     static GrEffectRef* CreateEffectRef(GrEffect* effect) {
         if (NULL == effect->fEffectRef) {
             effect->fEffectRef = SkNEW_ARGS(GrEffectRef, (effect));
@@ -175,16 +187,41 @@ protected:
         return effect->fEffectRef;
     }
 
+    /** Helper used in subclass factory functions to unref the effect after it has been wrapped in a
+        GrEffectRef. E.g.:
+
+        class EffectSubclass : public GrEffect {
+        public:
+            GrEffectRef* Create(ParamType1 param1, ParamType2 param2, ...) {
+                AutoEffectUnref effect(SkNEW_ARGS(EffectSubclass, (param1, param2, ...)));
+                return CreateEffectRef(effect);
+            }
+     */
+    class AutoEffectUnref {
+    public:
+        AutoEffectUnref(GrEffect* effect) : fEffect(effect) { }
+        ~AutoEffectUnref() { fEffect->subRef(); }
+        operator GrEffect*() { return fEffect; }
+    private:
+        GrEffect* fEffect;
+    };
+
+    /** Helper for getting the GrEffect out of a GrEffectRef and down-casting to a GrEffect subclass
+      */
+    template <typename T>
+    static const T& CastEffect(const GrEffectRef& effectRef) {
+        GrAssert(NULL != effectRef.get());
+        return *static_cast<const T*>(effectRef.get());
+    }
+
 private:
 
     /** Subclass implements this to support isEqual(). It will only be called if it is known that
-        the two effects are of the same subclass (i.e. they return the same object
-        from getFactory()).*/
-    virtual bool onIsEqual(const GrEffect& other) const = 0;
+        the two effects are of the same subclass (i.e. they return the same object from
+        getFactory()).*/
+    virtual bool onIsEqual(const GrEffectRef& other) const = 0;
 
-    void EffectRefDestroyed() {
-        fEffectRef = NULL;
-    }
+    void EffectRefDestroyed() { fEffectRef = NULL; }
 
     friend class GrEffectRef; // to call GrEffectRef destroyed
 

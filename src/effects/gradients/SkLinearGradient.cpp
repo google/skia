@@ -456,8 +456,7 @@ void SkLinearGradient::shadeSpan16(int x, int y,
 class GrGLLinearGradient : public GrGLGradientEffect {
 public:
 
-    GrGLLinearGradient(const GrBackendEffectFactory& factory,
-                       const GrEffect&)
+    GrGLLinearGradient(const GrBackendEffectFactory& factory, const GrEffectRef&)
                        : INHERITED (factory) { }
 
     virtual ~GrGLLinearGradient() { }
@@ -488,7 +487,7 @@ public:
                                const SkLinearGradient& shader,
                                const SkMatrix& matrix,
                                SkShader::TileMode tm) {
-        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(GrLinearGradient, (ctx, shader, matrix, tm)));
+        AutoEffectUnref effect(SkNEW_ARGS(GrLinearGradient, (ctx, shader, matrix, tm)));
         return CreateEffectRef(effect);
     }
 

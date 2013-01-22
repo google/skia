@@ -34,7 +34,7 @@ public:
                                   const GrGLCaps& caps) const SK_OVERRIDE {
         GrAssert(kIllegalEffectClassID != fEffectClassID);
         EffectKey effectKey = GLEffect::GenKey(stage, caps);
-        EffectKey textureKey = GLEffect::GenTextureKey(*stage.getEffect(), caps);
+        EffectKey textureKey = GLEffect::GenTextureKey(stage.getEffect(), caps);
 #if GR_DEBUG
         static const EffectKey kIllegalIDMask = (uint16_t) (~((1U << kEffectKeyBits) - 1));
         GrAssert(!(kIllegalIDMask & effectKey));
@@ -48,7 +48,7 @@ public:
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrEffect; caller is responsible for deleting
         the object. */
-    virtual GLEffect* createGLInstance(const GrEffect& effect) const SK_OVERRIDE {
+    virtual GLEffect* createGLInstance(const GrEffectRef& effect) const SK_OVERRIDE {
         return SkNEW_ARGS(GLEffect, (*this, effect));
     }
 

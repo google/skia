@@ -227,7 +227,7 @@ class GLColorTableEffect;
 class ColorTableEffect : public GrEffect {
 public:
     static GrEffectRef* Create(GrTexture* texture, unsigned flags) {
-        SkAutoTUnref<GrEffect> effect(SkNEW_ARGS(ColorTableEffect, (texture, flags)));
+        AutoEffectUnref effect(SkNEW_ARGS(ColorTableEffect, (texture, flags)));
         return CreateEffectRef(effect);
     }
 
@@ -241,7 +241,7 @@ public:
     typedef GLColorTableEffect GLEffect;
 
 private:
-    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrEffectRef&) const SK_OVERRIDE;
 
     explicit ColorTableEffect(GrTexture* texture, unsigned flags);
 
@@ -256,8 +256,7 @@ private:
 
 class GLColorTableEffect : public GrGLEffect {
 public:
-    GLColorTableEffect(const GrBackendEffectFactory& factory,
-                         const GrEffect& effect);
+    GLColorTableEffect(const GrBackendEffectFactory&, const GrEffectRef&);
 
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrEffectStage&,
@@ -276,8 +275,7 @@ private:
     typedef GrGLEffect INHERITED;
 };
 
-GLColorTableEffect::GLColorTableEffect(
-    const GrBackendEffectFactory& factory, const GrEffect& effect)
+GLColorTableEffect::GLColorTableEffect(const GrBackendEffectFactory& factory, const GrEffectRef&)
     : INHERITED(factory) {
  }
 
@@ -345,8 +343,8 @@ const GrBackendEffectFactory&  ColorTableEffect::getFactory() const {
     return GrTBackendEffectFactory<ColorTableEffect>::getInstance();
 }
 
-bool ColorTableEffect::onIsEqual(const GrEffect& sBase) const {
-    return this->texture(0) == sBase.texture(0);
+bool ColorTableEffect::onIsEqual(const GrEffectRef& sBase) const {
+    return this->texture(0) == sBase->texture(0);
 }
 
 void ColorTableEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
