@@ -555,7 +555,9 @@ void SkDebuggerGUI::drawComplete() {
 
 void SkDebuggerGUI::saveToFile(const SkString& filename) {
     SkFILEWStream file(filename.c_str());
-    fDebugger.makePicture()->serialize(&file);
+    SkAutoTUnref<SkPicture> copy(fDebugger.copyPicture());
+
+    copy->serialize(&file);
 }
 
 void SkDebuggerGUI::loadFile(QListWidgetItem *item) {

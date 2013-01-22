@@ -34,11 +34,12 @@ void SkDebugger::loadPicture(SkPicture* picture) {
     SkRefCnt_SafeAssign(fPicture, picture);
 }
 
-SkPicture* SkDebugger::makePicture() {
-    SkSafeUnref(fPicture);
-    fPicture = new SkPicture();
-    SkCanvas* canvas = fPicture->beginRecording(fPictureWidth, fPictureHeight);
+SkPicture* SkDebugger::copyPicture() {
+    // We can't just call clone here since we want to removed the "deleted"
+    // commands. Playing back will strip those out.
+    SkPicture* newPicture = new SkPicture;
+    SkCanvas* canvas = newPicture->beginRecording(fPictureWidth, fPictureHeight);
     fDebugCanvas->draw(canvas);
-    fPicture->endRecording();
-    return fPicture;
+    newPicture->endRecording();
+    return newPicture;
 }
