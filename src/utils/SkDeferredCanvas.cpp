@@ -320,8 +320,10 @@ private:
 
 DeferredDevice::DeferredDevice(
     SkDevice* immediateDevice, SkDeferredCanvas::NotificationClient* notificationClient) :
-    SkDevice(SkBitmap::kNo_Config, immediateDevice->width(),
-             immediateDevice->height(), immediateDevice->isOpaque())
+    SkDevice(SkBitmap::kNo_Config,
+             immediateDevice->width(), immediateDevice->height(),
+             immediateDevice->isOpaque(),
+             immediateDevice->getDeviceProperties())
     , fRecordingCanvas(NULL)
     , fFreshFrame(true)
     , fPreviousStorageAllocated(0)

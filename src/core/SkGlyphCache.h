@@ -18,6 +18,7 @@
 #include "SkTemplates.h"
 #include "SkTDArray.h"
 
+struct SkDeviceProperties;
 class SkPaint;
 
 class SkGlyphCache_Globals;
@@ -275,8 +276,10 @@ public:
     SkAutoGlyphCache(const SkDescriptor* desc) {
         fCache = SkGlyphCache::DetachCache(desc);
     }
-    SkAutoGlyphCache(const SkPaint& paint, const SkMatrix* matrix) {
-        fCache = paint.detachCache(matrix);
+    SkAutoGlyphCache(const SkPaint& paint,
+                     const SkDeviceProperties* deviceProperties,
+                     const SkMatrix* matrix) {
+        fCache = paint.detachCache(deviceProperties, matrix);
     }
     ~SkAutoGlyphCache() {
         if (fCache) {

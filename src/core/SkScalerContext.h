@@ -202,7 +202,8 @@ public:
     }
 #endif
 
-    static inline void MakeRec(const SkPaint&, const SkMatrix*, Rec* rec);
+    static inline void MakeRec(const SkPaint&, const SkDeviceProperties* deviceProperties,
+                               const SkMatrix*, Rec* rec);
     static inline void PostMakeRec(const SkPaint&, Rec*);
 
     static SkScalerContext* Create(const SkDescriptor*);

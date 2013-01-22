@@ -236,13 +236,17 @@ public:
 
         Note, if you change this after startup, you'll need to flush the glyph
         cache because it'll have the wrong type of masks cached.
+
+        @deprecated use SkPixelGeometry instead.
     */
     enum LCDOrientation {
         kHorizontal_LCDOrientation = 0,    //!< this is the default
         kVertical_LCDOrientation   = 1
     };
 
+    /** @deprecated set on Device creation. */
     static void SetSubpixelOrientation(LCDOrientation orientation);
+    /** @deprecated get from Device. */
     static LCDOrientation GetSubpixelOrientation();
 
     /** LCD color elements can vary in order. For subpixel text we need to know
@@ -254,6 +258,8 @@ public:
 
         kNONE_LCDOrder means that the subpixel elements are not spatially
         separated in any usable fashion.
+
+        @deprecated use SkPixelGeometry instead.
      */
     enum LCDOrder {
         kRGB_LCDOrder = 0,    //!< this is the default
@@ -261,7 +267,9 @@ public:
         kNONE_LCDOrder = 2
     };
 
+    /** @deprecated set on Device creation. */
     static void SetSubpixelOrder(LCDOrder order);
+    /** @deprecated get from Device. */
     static LCDOrder GetSubpixelOrder();
 
 #ifdef SK_BUILD_FOR_ANDROID
