@@ -75,7 +75,7 @@ public:
     virtual void drawData(const void*, size_t) SK_OVERRIDE;
     virtual bool isDrawingToLayer() const SK_OVERRIDE;
 
-    void addFontMetricsTopBottom(const SkPaint& paint, const SkFlatData*,
+    void addFontMetricsTopBottom(const SkPaint& paint, const SkFlatData&,
                                  SkScalar minY, SkScalar maxY);
 
     const SkTDArray<SkPicture* >& getPictureRefs() const {
