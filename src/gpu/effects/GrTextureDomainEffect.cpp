@@ -169,7 +169,7 @@ const GrBackendEffectFactory& GrTextureDomainEffect::getFactory() const {
     return GrTBackendEffectFactory<GrTextureDomainEffect>::getInstance();
 }
 
-bool GrTextureDomainEffect::onIsEqual(const GrEffectRef& sBase) const {
+bool GrTextureDomainEffect::onIsEqual(const GrEffect& sBase) const {
     const GrTextureDomainEffect& s = CastEffect<GrTextureDomainEffect>(sBase);
     return this->hasSameTextureParamsAndMatrix(s) && this->fTextureDomain == s.fTextureDomain;
 }

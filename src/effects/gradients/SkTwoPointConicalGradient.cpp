@@ -393,7 +393,7 @@ public:
     typedef GrGLConical2Gradient GLEffect;
 
 private:
-    virtual bool onIsEqual(const GrEffectRef& sBase) const SK_OVERRIDE {
+    virtual bool onIsEqual(const GrEffect& sBase) const SK_OVERRIDE {
         const GrConical2Gradient& s = CastEffect<GrConical2Gradient>(sBase);
         return (INHERITED::onIsEqual(sBase) &&
                 this->fCenterX1 == s.fCenterX1 &&

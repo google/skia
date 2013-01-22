@@ -82,7 +82,7 @@ private:
                         int halfWidth,
                         float gaussianSigma);
 
-    virtual bool onIsEqual(const GrEffectRef&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
 
     GR_DECLARE_EFFECT_TEST;
 

@@ -170,7 +170,7 @@ public:
 
 private:
     GrBicubicEffect(GrTexture*, const SkScalar coefficients[16]);
-    virtual bool onIsEqual(const GrEffectRef&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
     float    fCoefficients[16];
 
     GR_DECLARE_EFFECT_TEST;
@@ -305,7 +305,7 @@ const GrBackendEffectFactory& GrBicubicEffect::getFactory() const {
     return GrTBackendEffectFactory<GrBicubicEffect>::getInstance();
 }
 
-bool GrBicubicEffect::onIsEqual(const GrEffectRef& sBase) const {
+bool GrBicubicEffect::onIsEqual(const GrEffect& sBase) const {
     const GrBicubicEffect& s = CastEffect<GrBicubicEffect>(sBase);
     return this->texture(0) == s.texture(0) &&
            !memcmp(fCoefficients, s.coefficients(), 16);

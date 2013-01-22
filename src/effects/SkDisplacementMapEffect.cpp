@@ -258,7 +258,7 @@ public:
     void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
 private:
-    virtual bool onIsEqual(const GrEffectRef&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
 
     GrDisplacementMapEffect(SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
                             SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
@@ -361,7 +361,7 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
 GrDisplacementMapEffect::~GrDisplacementMapEffect() {
 }
 
-bool GrDisplacementMapEffect::onIsEqual(const GrEffectRef& sBase) const {
+bool GrDisplacementMapEffect::onIsEqual(const GrEffect& sBase) const {
     const GrDisplacementMapEffect& s = CastEffect<GrDisplacementMapEffect>(sBase);
     return fDisplacementAccess.getTexture() == s.fDisplacementAccess.getTexture() &&
            fColorAccess.getTexture() == s.fColorAccess.getTexture() &&

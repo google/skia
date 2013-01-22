@@ -115,9 +115,9 @@ const GrBackendEffectFactory& GrConfigConversionEffect::getFactory() const {
     return GrTBackendEffectFactory<GrConfigConversionEffect>::getInstance();
 }
 
-bool GrConfigConversionEffect::onIsEqual(const GrEffectRef& s) const {
+bool GrConfigConversionEffect::onIsEqual(const GrEffect& s) const {
     const GrConfigConversionEffect& other = CastEffect<GrConfigConversionEffect>(s);
-    return this->texture(0) == s->texture(0) &&
+    return this->texture(0) == s.texture(0) &&
            other.fSwapRedAndBlue == fSwapRedAndBlue &&
            other.fPMConversion == fPMConversion;
 }

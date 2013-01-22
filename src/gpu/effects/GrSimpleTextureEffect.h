@@ -54,7 +54,7 @@ private:
     GrSimpleTextureEffect(GrTexture* texture, const SkMatrix& matrix, const GrTextureParams& params)
         : GrSingleTextureEffect(texture, matrix, params) {}
 
-    virtual bool onIsEqual(const GrEffectRef& other) const SK_OVERRIDE {
+    virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
         const GrSimpleTextureEffect& ste = CastEffect<GrSimpleTextureEffect>(other);
         return this->hasSameTextureParamsAndMatrix(ste);
     }
