@@ -269,7 +269,6 @@ void CubicIntersection_RandTestOld() {
 void CubicIntersection_RandTest() {
     srand(0);
     const int tests = 1000000; // 10000000;
- //   double largestFactor = DBL_MAX;
     for (int test = 0; test < tests; ++test) {
         Cubic cubic1, cubic2;
         for (int i = 0; i < 4; ++i) {
@@ -292,7 +291,6 @@ void CubicIntersection_RandTest() {
         rect2.setBounds(cubic2);
         bool boundsIntersect = rect1.left <= rect2.right && rect2.left <= rect2.right
                 && rect1.top <= rect2.bottom && rect2.top <= rect1.bottom;
-        Intersections i1, i2;
         if (test == -1) {
             SkDebugf("ready...\n");
         }

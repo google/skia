@@ -18,6 +18,15 @@ double calcPrecision(const Cubic& cubic) {
     return (width > height ? width : height) / precisionUnit;
 }
 
+#if SK_DEBUG
+double calcPrecision(const Cubic& cubic, double t, double scale) {
+    Cubic part;
+    sub_divide(cubic, SkMax32(0, t - scale), SkMin32(1, t + scale), part);
+    return calcPrecision(part);
+}
+#endif
+
+
 void coefficients(const double* cubic, double& A, double& B, double& C, double& D) {
     A = cubic[6]; // d
     B = cubic[4] * 3; // 3*c

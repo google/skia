@@ -11,6 +11,10 @@
 #include "SkTDArray.h"
 
 double calcPrecision(const Cubic& cubic);
+#if SK_DEBUG
+double calcPrecision(const Cubic& cubic, double t, double scale);
+#endif
+void chop_at(const Cubic& src, CubicPair& dst, double t);
 double cube_root(double x);
 int cubic_to_quadratics(const Cubic& cubic, double precision,
         SkTDArray<Quadratic>& quadratics);
@@ -24,6 +28,7 @@ double dy_at_t(const Cubic& , double t);
 void dxdy_at_t(const Cubic& , double t, _Point& y);
 int find_cubic_inflections(const Cubic& src, double tValues[]);
 bool rotate(const Cubic& cubic, int zero, int index, Cubic& rotPath);
+void sub_divide(const Cubic& src, double t1, double t2, Cubic& dst);
 void xy_at_t(const Cubic& , double t, double& x, double& y);
 
 extern const int precisionUnit;
