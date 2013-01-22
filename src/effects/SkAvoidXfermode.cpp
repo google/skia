@@ -8,6 +8,7 @@
 #include "SkAvoidXfermode.h"
 #include "SkColorPriv.h"
 #include "SkFlattenableBuffers.h"
+#include "SkString.h"
 
 SkAvoidXfermode::SkAvoidXfermode(SkColor opColor, U8CPU tolerance, Mode mode) {
     if (tolerance > 255) {
@@ -217,3 +218,15 @@ void SkAvoidXfermode::xferA8(SkAlpha dst[], const SkPMColor src[], int count,
                              const SkAlpha aa[]) const {
     // override in subclass
 }
+
+#ifdef SK_DEVELOPER
+void SkAvoidXfermode::toString(SkString* str) const {
+    str->append("SkAvoidXfermode: opColor: ");
+    str->appendHex(fOpColor);
+    str->appendf("distMul: %d ", fDistMul);
+
+    static const char* gModeStrings[] = { "Avoid", "Target" };
+
+    str->appendf("mode: %s", gModeStrings[fMode]);
+}
+#endif

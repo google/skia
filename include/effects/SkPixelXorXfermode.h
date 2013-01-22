@@ -19,6 +19,7 @@ class SK_API SkPixelXorXfermode : public SkXfermode {
 public:
     SkPixelXorXfermode(SkColor opColor) : fOpColor(opColor) {}
 
+    SK_DEVELOPER_TO_STRING()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPixelXorXfermode)
 
 protected:

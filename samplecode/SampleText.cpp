@@ -124,6 +124,7 @@ public:
 
     typedef SkFlattenable* (*Factory)(SkFlattenableReadBuffer&);
 
+    SK_DEVELOPER_TO_STRING()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPowerMode)
 
 private:
@@ -172,6 +173,13 @@ void SkPowerMode::xfer16(uint16_t dst[], const SkPMColor src[], int count,
         dst[i] = SkPack888ToRGB16(r, g, b);
     }
 }
+
+#ifdef SK_DEVELOPER
+void SkPowerMode::toString(SkString* str) const {
+    str->append("SkPowerMode: exponent ");
+    str->appendScalar(fExp);
+}
+#endif
 
 static const struct {
     const char* fName;
