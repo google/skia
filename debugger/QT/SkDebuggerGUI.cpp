@@ -66,6 +66,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     , fLoading(false)
 {
     setupUi(this);
+    fListWidget.setSelectionMode(QAbstractItemView::ExtendedSelection);
     connect(&fListWidget, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this, SLOT(registerListClick(QListWidgetItem *)));
     connect(&fActionOpen, SIGNAL(triggered()), this, SLOT(openFile()));
     connect(&fActionDirectory, SIGNAL(triggered()), this, SLOT(toggleDirectory()));
@@ -448,18 +449,26 @@ void SkDebuggerGUI::actionClose() {
 }
 
 void SkDebuggerGUI::actionDelete() {
-    int currentRow = fListWidget.currentRow();
-    QListWidgetItem* item = fListWidget.currentItem();
 
-    if (fDebugger.isCommandVisible(currentRow)) {
-        item->setData(Qt::UserRole + 2, QPixmap(":/delete.png"));
-        fDebugger.setCommandVisible(currentRow, false);
-        fSkipCommands[currentRow] = true;
-    } else {
-        item->setData(Qt::UserRole + 2, QPixmap(":/blank.png"));
-        fDebugger.setCommandVisible(currentRow, true);
-        fSkipCommands[currentRow] = false;
+    for (int row = 0; row < fListWidget.count(); ++row) {
+        QListWidgetItem* item = fListWidget.item(row);
+
+        if (!item->isSelected()) {
+            continue;
+        }
+
+        if (fDebugger.isCommandVisible(row)) {
+            item->setData(Qt::UserRole + 2, QPixmap(":/delete.png"));
+            fDebugger.setCommandVisible(row, false);
+            fSkipCommands[row] = true;
+        } else {
+            item->setData(Qt::UserRole + 2, QPixmap(":/blank.png"));
+            fDebugger.setCommandVisible(row, true);
+            fSkipCommands[row] = false;
+        }
     }
+
+    int currentRow = fListWidget.currentRow();
 
     if (fPause) {
         fCanvasWidget.drawTo(fPausedRow);
