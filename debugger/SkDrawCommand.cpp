@@ -164,6 +164,9 @@ DrawBitmap::DrawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
     this->fInfo.push(SkObjectParser::BitmapToString(bitmap));
     this->fInfo.push(SkObjectParser::ScalarToString(left, "SkScalar left: "));
     this->fInfo.push(SkObjectParser::ScalarToString(top, "SkScalar top: "));
+    if (NULL != paint) {
+        this->fInfo.push(SkObjectParser::PaintToString(*paint));
+    }
 }
 
 void DrawBitmap::execute(SkCanvas* canvas) {
@@ -184,7 +187,9 @@ DrawBitmapMatrix::DrawBitmapMatrix(const SkBitmap& bitmap,
 
     this->fInfo.push(SkObjectParser::BitmapToString(bitmap));
     this->fInfo.push(SkObjectParser::MatrixToString(matrix));
-    if (paint) this->fInfo.push(SkObjectParser::PaintToString(*paint));
+    if (NULL != paint) {
+        this->fInfo.push(SkObjectParser::PaintToString(*paint));
+    }
 }
 
 void DrawBitmapMatrix::execute(SkCanvas* canvas) {
@@ -207,7 +212,9 @@ DrawBitmapNine::DrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
     this->fInfo.push(SkObjectParser::BitmapToString(bitmap));
     this->fInfo.push(SkObjectParser::IRectToString(center));
     this->fInfo.push(SkObjectParser::RectToString(dst, "Dst: "));
-    if (paint) this->fInfo.push(SkObjectParser::PaintToString(*paint));
+    if (NULL != paint) {
+        this->fInfo.push(SkObjectParser::PaintToString(*paint));
+    }
 }
 
 void DrawBitmapNine::execute(SkCanvas* canvas) {
@@ -228,9 +235,13 @@ DrawBitmapRect::DrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
     this->fResizedBitmap = resizedBitmap;
 
     this->fInfo.push(SkObjectParser::BitmapToString(bitmap));
-    if (src) this->fInfo.push(SkObjectParser::RectToString(*src, "Src: "));
+    if (NULL != src) {
+        this->fInfo.push(SkObjectParser::RectToString(*src, "Src: "));
+    }
     this->fInfo.push(SkObjectParser::RectToString(dst, "Dst: "));
-    if (paint) this->fInfo.push(SkObjectParser::PaintToString(*paint));
+    if (NULL != paint) {
+        this->fInfo.push(SkObjectParser::PaintToString(*paint));
+    }
 }
 
 void DrawBitmapRect::execute(SkCanvas* canvas) {

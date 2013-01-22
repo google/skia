@@ -24,6 +24,9 @@ public:
      */
     static SkXfermode* Create(SkScalar k1, SkScalar k2,
                               SkScalar k3, SkScalar k4);
+
+private:
+    typedef SkXfermode INHERITED;    
 };
 
 #endif

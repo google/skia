@@ -11,6 +11,7 @@
 #include "SkColorPriv.h"
 #include "SkFlattenableBuffers.h"
 #include "SkMathPriv.h"
+#include "SkString.h"
 
 SK_DEFINE_INST_COUNT(SkXfermode)
 
@@ -696,6 +697,12 @@ void SkProcXfermode::flatten(SkFlattenableWriteBuffer& buffer) const {
     }
 }
 
+#ifdef SK_DEVELOPER
+void SkProcXfermode::toString(SkString* str) const {
+    str->appendf("SkProcXfermode: %p", fProc);
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -730,6 +737,7 @@ public:
         return true;
     }
 
+    SK_DEVELOPER_TO_STRING()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkProcCoeffXfermode)
 
 protected:
@@ -753,9 +761,42 @@ private:
     Mode    fMode;
     Coeff   fSrcCoeff, fDstCoeff;
 
-
     typedef SkProcXfermode INHERITED;
 };
+
+#ifdef SK_DEVELOPER
+void SkProcCoeffXfermode::toString(SkString* str) const {
+    str->append("SkProcCoeffXfermode: ");
+
+    const char *gModeStrings[kLastMode+1] = {
+        "Clear", "Src", "Dst", "SrcOver", "DstOver", "SrcIn", "DstIn",
+        "SrcOut", "DstOut", "SrcATop", "DstATop", "Xor", "Plus",
+        "Multiply", "Screen", "Overlay", "Darken", "Lighten", "ColorDodge",
+        "ColorBurn", "HardLight", "SoftLight", "Difference", "Exclusion"
+    };
+
+    str->append("mode: ");
+    str->append(gModeStrings[fMode]);
+
+    static const char* gCoeffStrings[kCoeffCount] = {
+        "Zero", "One", "SC", "ISC", "DC", "IDC", "SA", "ISA", "DA", "IDA" 
+    };
+
+    str->append(" src: ");
+    if (CANNOT_USE_COEFF == fSrcCoeff) {
+        str->append("can't use");
+    } else {
+        str->append(gCoeffStrings[fSrcCoeff]);
+    }
+
+    str->append(" dst: ");
+    if (CANNOT_USE_COEFF == fDstCoeff) {
+        str->append("can't use");
+    } else {
+        str->append(gCoeffStrings[fDstCoeff]);
+    }
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -766,12 +807,14 @@ public:
     virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
     virtual void xferA8(SkAlpha*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
 
+    SK_DEVELOPER_TO_STRING()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkClearXfermode)
 
 private:
     SkClearXfermode(SkFlattenableReadBuffer& buffer)
         : SkProcCoeffXfermode(buffer) {}
 
+    typedef SkProcCoeffXfermode INHERITED;
 };
 
 void SkClearXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
@@ -811,6 +854,12 @@ void SkClearXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
     }
 }
 
+#ifdef SK_DEVELOPER
+void SkClearXfermode::toString(SkString* str) const {
+    this->INHERITED::toString(str);
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class SkSrcXfermode : public SkProcCoeffXfermode {
@@ -820,12 +869,14 @@ public:
     virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
     virtual void xferA8(SkAlpha*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
 
+    SK_DEVELOPER_TO_STRING()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSrcXfermode)
 
 private:
     SkSrcXfermode(SkFlattenableReadBuffer& buffer)
         : SkProcCoeffXfermode(buffer) {}
 
+    typedef SkProcCoeffXfermode INHERITED;
 };
 
 void SkSrcXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
@@ -870,6 +921,11 @@ void SkSrcXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
         }
     }
 }
+#ifdef SK_DEVELOPER
+void SkSrcXfermode::toString(SkString* str) const {
+    this->INHERITED::toString(str);
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -879,6 +935,7 @@ public:
 
     virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
 
+    SK_DEVELOPER_TO_STRING()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDstInXfermode)
 
 private:
@@ -907,6 +964,12 @@ void SkDstInXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
     } while (--count != 0);
 }
 
+#ifdef SK_DEVELOPER
+void SkDstInXfermode::toString(SkString* str) const {
+    this->INHERITED::toString(str);
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class SkDstOutXfermode : public SkProcCoeffXfermode {
@@ -915,6 +978,7 @@ public:
 
     virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
 
+    SK_DEVELOPER_TO_STRING()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDstOutXfermode)
 
 private:
@@ -943,6 +1007,12 @@ void SkDstOutXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
         src++;
     } while (--count != 0);
 }
+
+#ifdef SK_DEVELOPER
+void SkDstOutXfermode::toString(SkString* str) const {
+    this->INHERITED::toString(str);
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

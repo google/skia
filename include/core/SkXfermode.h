@@ -13,6 +13,8 @@
 #include "SkFlattenable.h"
 #include "SkColor.h"
 
+class SkString;
+
 /** \class SkXfermode
 
     SkXfermode is the base class for objects that are called to implement custom
@@ -174,6 +176,7 @@ public:
         return AsMode(xfer, mode);
     }
 
+    SkDEVCODE(virtual void toString(SkString* str) const = 0;)
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 protected:
     SkXfermode(SkFlattenableReadBuffer& rb) : SkFlattenable(rb) {}
@@ -216,6 +219,7 @@ public:
     virtual void xferA8(SkAlpha dst[], const SkPMColor src[], int count,
                         const SkAlpha aa[]) const SK_OVERRIDE;
 
+    SK_DEVELOPER_TO_STRING()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkProcXfermode)
 
 protected:

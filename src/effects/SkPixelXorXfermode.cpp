@@ -10,6 +10,7 @@
 #include "SkPixelXorXfermode.h"
 #include "SkColorPriv.h"
 #include "SkFlattenableBuffers.h"
+#include "SkString.h"
 
 // we always return an opaque color, 'cause I don't know what to do with
 // the alpha-component and still return a valid premultiplied color.
@@ -28,3 +29,10 @@ SkPixelXorXfermode::SkPixelXorXfermode(SkFlattenableReadBuffer& rb)
         : INHERITED(rb) {
     fOpColor = rb.readColor();
 }
+
+#ifdef SK_DEVELOPER
+void SkPixelXorXfermode::toString(SkString* str) const {
+    str->append("SkPixelXorXfermode: ");
+    str->appendHex(fOpColor);
+}
+#endif

@@ -162,6 +162,7 @@ SkString* SkObjectParser::PaintToString(const SkPaint& paint) {
     SkXfermode* xfer = paint.getXfermode();
     if (NULL != xfer) {
         mPaint->append("<dt>Xfermode:</dt><dd>");
+        SkDEVCODE(xfer->toString(mPaint);)
         mPaint->append("</dd>");
     }
 
