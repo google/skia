@@ -176,7 +176,7 @@ uint32_t SkPaint::getGenerationID() const {
 
 #ifdef SK_BUILD_FOR_ANDROID
 unsigned SkPaint::getBaseGlyphCount(SkUnichar text) const {
-    SkAutoGlyphCache autoCache(*this, NULL);
+    SkAutoGlyphCache autoCache(*this, NULL, NULL);
     SkGlyphCache* cache = autoCache.getCache();
     return cache->getBaseGlyphCount(text);
 }
@@ -413,7 +413,7 @@ static void DetachDescProc(const SkDescriptor* desc, void* context) {
 #ifdef SK_BUILD_FOR_ANDROID
 const SkGlyph& SkPaint::getUnicharMetrics(SkUnichar text) {
     SkGlyphCache* cache;
-    descriptorProc(NULL, DetachDescProc, &cache, true);
+    descriptorProc(NULL, NULL, DetachDescProc, &cache, true);
 
     const SkGlyph& glyph = cache->getUnicharMetrics(text);
 
@@ -423,7 +423,7 @@ const SkGlyph& SkPaint::getUnicharMetrics(SkUnichar text) {
 
 const SkGlyph& SkPaint::getGlyphMetrics(uint16_t glyphId) {
     SkGlyphCache* cache;
-    descriptorProc(NULL, DetachDescProc, &cache, true);
+    descriptorProc(NULL, NULL, DetachDescProc, &cache, true);
 
     const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphId);
 
@@ -434,7 +434,7 @@ const SkGlyph& SkPaint::getGlyphMetrics(uint16_t glyphId) {
 const void* SkPaint::findImage(const SkGlyph& glyph) {
     // See ::detachCache()
     SkGlyphCache* cache;
-    descriptorProc(NULL, DetachDescProc, &cache, true);
+    descriptorProc(NULL, NULL, DetachDescProc, &cache, true);
 
     const void* image = cache->findImage(glyph);
 

@@ -53,10 +53,10 @@ struct SkDeviceProperties {
         }
 
         bool isOrientationKnown() {
-            return fGeometry & kKnown_Orientation;
+            return SkToBool(fGeometry & kKnown_Orientation);
         }
         bool isLayoutKnown() {
-            return fGeometry & kKnown_Layout;
+            return SkToBool(fGeometry & kKnown_Layout);
         }
 
     private:
