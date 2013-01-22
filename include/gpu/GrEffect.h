@@ -123,7 +123,7 @@ public:
         if (&this->getFactory() != &other->getFactory()) {
             return false;
         }
-        bool result = this->onIsEqual(other);
+        bool result = this->onIsEqual(*other.get());
 #if GR_DEBUG
         if (result) {
             GrAssert(this->numTextures() == other->numTextures());
@@ -209,9 +209,8 @@ protected:
     /** Helper for getting the GrEffect out of a GrEffectRef and down-casting to a GrEffect subclass
       */
     template <typename T>
-    static const T& CastEffect(const GrEffectRef& effectRef) {
-        GrAssert(NULL != effectRef.get());
-        return *static_cast<const T*>(effectRef.get());
+    static const T& CastEffect(const GrEffect& effectRef) {
+        return *static_cast<const T*>(&effectRef);
     }
 
 private:
@@ -219,7 +218,7 @@ private:
     /** Subclass implements this to support isEqual(). It will only be called if it is known that
         the two effects are of the same subclass (i.e. they return the same object from
         getFactory()).*/
-    virtual bool onIsEqual(const GrEffectRef& other) const = 0;
+    virtual bool onIsEqual(const GrEffect& other) const = 0;
 
     void EffectRefDestroyed() { fEffectRef = NULL; }
 

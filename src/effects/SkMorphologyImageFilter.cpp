@@ -264,7 +264,7 @@ protected:
     MorphologyType fType;
 
 private:
-    virtual bool onIsEqual(const GrEffectRef&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
 
     GrMorphologyEffect(GrTexture*, Direction, int radius, MorphologyType);
 
@@ -400,7 +400,7 @@ const GrBackendEffectFactory& GrMorphologyEffect::getFactory() const {
     return GrTBackendEffectFactory<GrMorphologyEffect>::getInstance();
 }
 
-bool GrMorphologyEffect::onIsEqual(const GrEffectRef& sBase) const {
+bool GrMorphologyEffect::onIsEqual(const GrEffect& sBase) const {
     const GrMorphologyEffect& s = CastEffect<GrMorphologyEffect>(sBase);
     return (this->texture(0) == s.texture(0) &&
             this->radius() == s.radius() &&

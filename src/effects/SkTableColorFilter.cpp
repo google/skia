@@ -241,7 +241,7 @@ public:
     typedef GLColorTableEffect GLEffect;
 
 private:
-    virtual bool onIsEqual(const GrEffectRef&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
 
     explicit ColorTableEffect(GrTexture* texture, unsigned flags);
 
@@ -343,8 +343,8 @@ const GrBackendEffectFactory&  ColorTableEffect::getFactory() const {
     return GrTBackendEffectFactory<ColorTableEffect>::getInstance();
 }
 
-bool ColorTableEffect::onIsEqual(const GrEffectRef& sBase) const {
-    return this->texture(0) == sBase->texture(0);
+bool ColorTableEffect::onIsEqual(const GrEffect& sBase) const {
+    return this->texture(0) == sBase.texture(0);
 }
 
 void ColorTableEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {

@@ -450,7 +450,7 @@ public:
 private:
     ColorMatrixEffect(const SkColorMatrix& matrix) : fMatrix(matrix) {}
 
-    virtual bool onIsEqual(const GrEffectRef& s) const {
+    virtual bool onIsEqual(const GrEffect& s) const {
         const ColorMatrixEffect& cme = CastEffect<ColorMatrixEffect>(s);
         return cme.fMatrix == fMatrix;
     }

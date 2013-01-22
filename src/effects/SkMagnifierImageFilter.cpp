@@ -75,7 +75,7 @@ private:
         , fXInset(xInset)
         , fYInset(yInset) {}
 
-    virtual bool onIsEqual(const GrEffectRef&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
 
     GR_DECLARE_EFFECT_TEST;
 
@@ -229,7 +229,7 @@ const GrBackendEffectFactory& GrMagnifierEffect::getFactory() const {
     return GrTBackendEffectFactory<GrMagnifierEffect>::getInstance();
 }
 
-bool GrMagnifierEffect::onIsEqual(const GrEffectRef& sBase) const {
+bool GrMagnifierEffect::onIsEqual(const GrEffect& sBase) const {
     const GrMagnifierEffect& s = CastEffect<GrMagnifierEffect>(sBase);
     return (this->texture(0) == s.texture(0) &&
             this->fXOffset == s.fXOffset &&

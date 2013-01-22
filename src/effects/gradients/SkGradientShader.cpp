@@ -829,7 +829,7 @@ GrGradientEffect::~GrGradientEffect() {
     }
 }
 
-bool GrGradientEffect::onIsEqual(const GrEffectRef& effect) const {
+bool GrGradientEffect::onIsEqual(const GrEffect& effect) const {
     const GrGradientEffect& s = CastEffect<GrGradientEffect>(effect);
     return fTextureAccess.getTexture() == s.fTextureAccess.getTexture()  &&
            fTextureAccess.getParams().getTileModeX() ==

@@ -166,7 +166,7 @@ const GrBackendEffectFactory& GrConvolutionEffect::getFactory() const {
     return GrTBackendEffectFactory<GrConvolutionEffect>::getInstance();
 }
 
-bool GrConvolutionEffect::onIsEqual(const GrEffectRef& sBase) const {
+bool GrConvolutionEffect::onIsEqual(const GrEffect& sBase) const {
     const GrConvolutionEffect& s = CastEffect<GrConvolutionEffect>(sBase);
     return (this->texture(0) == s.texture(0) &&
             this->radius() == s.radius() &&

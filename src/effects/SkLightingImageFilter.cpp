@@ -317,7 +317,7 @@ public:
     }
 
 protected:
-    virtual bool onIsEqual(const GrEffectRef&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
 
 private:
     typedef GrSingleTextureEffect INHERITED;
@@ -346,7 +346,7 @@ public:
     SkScalar kd() const { return fKD; }
 
 private:
-    virtual bool onIsEqual(const GrEffectRef&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
 
     GrDiffuseLightingEffect(GrTexture* texture,
                             const SkLight* light,
@@ -381,7 +381,7 @@ public:
     SkScalar shininess() const { return fShininess; }
 
 private:
-    virtual bool onIsEqual(const GrEffectRef&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
 
     GrSpecularLightingEffect(GrTexture* texture,
                              const SkLight* light,
@@ -1054,7 +1054,7 @@ GrLightingEffect::~GrLightingEffect() {
     fLight->unref();
 }
 
-bool GrLightingEffect::onIsEqual(const GrEffectRef& sBase) const {
+bool GrLightingEffect::onIsEqual(const GrEffect& sBase) const {
     const GrLightingEffect& s = CastEffect<GrLightingEffect>(sBase);
     return this->texture(0) == s.texture(0) &&
            fLight->isEqual(*s.fLight) &&
@@ -1071,7 +1071,7 @@ const GrBackendEffectFactory& GrDiffuseLightingEffect::getFactory() const {
     return GrTBackendEffectFactory<GrDiffuseLightingEffect>::getInstance();
 }
 
-bool GrDiffuseLightingEffect::onIsEqual(const GrEffectRef& sBase) const {
+bool GrDiffuseLightingEffect::onIsEqual(const GrEffect& sBase) const {
     const GrDiffuseLightingEffect& s = CastEffect<GrDiffuseLightingEffect>(sBase);
     return INHERITED::onIsEqual(sBase) &&
             this->kd() == s.kd();
@@ -1281,7 +1281,7 @@ const GrBackendEffectFactory& GrSpecularLightingEffect::getFactory() const {
     return GrTBackendEffectFactory<GrSpecularLightingEffect>::getInstance();
 }
 
-bool GrSpecularLightingEffect::onIsEqual(const GrEffectRef& sBase) const {
+bool GrSpecularLightingEffect::onIsEqual(const GrEffect& sBase) const {
     const GrSpecularLightingEffect& s = CastEffect<GrSpecularLightingEffect>(sBase);
     return INHERITED::onIsEqual(sBase) &&
            this->ks() == s.ks() &&

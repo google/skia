@@ -161,7 +161,7 @@ public:
     void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
 private:
-    virtual bool onIsEqual(const GrEffectRef&) const SK_OVERRIDE;
+    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
 
     GrBlendEffect(SkBlendImageFilter::Mode mode, GrTexture* foreground, GrTexture* background);
     GrTextureAccess             fForegroundAccess;
@@ -246,7 +246,7 @@ GrBlendEffect::GrBlendEffect(SkBlendImageFilter::Mode mode,
 GrBlendEffect::~GrBlendEffect() {
 }
 
-bool GrBlendEffect::onIsEqual(const GrEffectRef& sBase) const {
+bool GrBlendEffect::onIsEqual(const GrEffect& sBase) const {
     const GrBlendEffect& s = CastEffect<GrBlendEffect>(sBase);
     return fForegroundAccess.getTexture() == s.fForegroundAccess.getTexture() &&
            fBackgroundAccess.getTexture() == s.fBackgroundAccess.getTexture() &&
