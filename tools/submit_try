@@ -1,0 +1,205 @@
+#!/usr/bin/python
+
+# Copyright (c) 2013 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+
+"""
+submit_try: Submit a try request.
+
+This is a thin wrapper around the try request utilities in depot_tools which
+adds some validation and supports both git and svn.
+"""
+
+
+import argparse
+import httplib
+import json
+import os
+import subprocess
+import sys
+
+
+# Alias which can be used to run a try on every builder.
+ALL_BUILDERS = 'all'
+
+# Contact information for the build master.
+# TODO(borenet): Share this information from a single location. Filed bug:
+# http://code.google.com/p/skia/issues/detail?id=1081
+SKIA_BUILD_MASTER_HOST = '70.32.156.51'
+SKIA_BUILD_MASTER_PORT = '10117'
+
+# All try builders have this suffix.
+TRYBOT_SUFFIX = '_Trybot'
+
+# Location of the codereview.settings file in the Skia repo.
+SKIA_URL = 'skia.googlecode.com'
+CODEREVIEW_SETTINGS = '/svn/codereview.settings'
+
+# String for matching the svn url of the try server inside codereview.settings.
+TRYSERVER_SVN_URL = 'TRYSERVER_SVN_URL: '
+
+# Strings used for matching svn config properties.
+URL_STR = 'URL: '
+REPO_ROOT_STR = 'Repository Root: '
+
+
+def FindDepotTools():
+  """ Find depot_tools on the local machine and return its location. """
+  which_cmd = 'where' if os.name == 'nt' else 'which'
+  cmd = [which_cmd, 'gcl']
+  proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+  if proc.wait() != 0:
+    raise Exception('Couldn\'t find depot_tools in PATH!')
+  gcl = proc.communicate()[0]
+  depot_tools_dir = os.path.dirname(gcl)
+  return depot_tools_dir
+
+
+def GetCheckoutRoot(is_svn=True):
+  """ Determine where the local checkout is rooted.
+
+  is_svn: boolean; whether we're in an SVN checkout. If False, assume we're in
+      a git checkout.
+  """
+  if is_svn:
+    cmd = ['svn', 'info']
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT)
+    if proc.wait() != 0:
+      raise Exception('Couldn\'t find checkout root!')
+    output = proc.communicate()[0].split('\n')
+    url = None
+    repo_root = None
+    for line in output:
+      if line.startswith(REPO_ROOT_STR):
+        repo_root = line[len(REPO_ROOT_STR):].rstrip()
+      elif line.startswith(URL_STR):
+        url = line[len(URL_STR):].rstrip()
+    if not url or not repo_root:
+      raise Exception('Couldn\'t find checkout root!')
+    if url == repo_root:
+      return 'svn'
+    return url[len(repo_root)+1:]
+  else:
+    cmd = ['git', 'rev-parse', '--show-toplevel']
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT)
+    if proc.wait() != 0:
+      raise Exception('Couldn\'t find checkout root!')
+    return os.path.basename(proc.communicate()[0])
+
+
+def GetTryRepo():
+  """ Determine the TRYSERVER_SVN_URL from the codereview.settings file in the
+  Skia repo. """
+  connection = httplib.HTTPConnection(SKIA_URL)
+  connection.request('GET', CODEREVIEW_SETTINGS)
+  content = connection.getresponse().read()
+  for line in content.split('\n'):
+    if line.startswith(TRYSERVER_SVN_URL):
+      return line[len(TRYSERVER_SVN_URL):].rstrip()
+  raise Exception('Couldn\'t determine the TRYSERVER_SVN_URL. Make sure it is '
+                  'defined in the %s file.' % CODEREVIEW_SETTINGS)
+
+
+def RetrieveTrybotList():
+  """ Retrieve the list of known trybots from the build master, stripping
+  TRYBOT_SUFFIX from the name. """
+  trybots = []
+  connection = httplib.HTTPConnection(SKIA_BUILD_MASTER_HOST,  
+                                      SKIA_BUILD_MASTER_PORT)  
+  connection.request('GET', '/json/builders')  
+  response = connection.getresponse()  
+  builders = json.load(response)
+
+  for builder in builders:
+    if builder.endswith(TRYBOT_SUFFIX):
+      trybots.append(builder[:-len(TRYBOT_SUFFIX)])
+  return trybots
+
+
+def ValidateArgs(trybots, is_svn=True):
+  """ Parse and validate command-line arguments. If the arguments are valid,
+  returns a tuple of (<changelist name>, <list of trybots>).
+
+  trybots: A list of the known try builders.
+  """
+  if is_svn:
+    parser = argparse.ArgumentParser(
+        prog=os.path.basename(__file__),
+        description='%(prog)s: Submit a try request.',
+        usage=('%(prog)s [-h] <changelist> --bot <buildername> '
+               '[<buildername ...]'))
+    parser.add_argument('changelist', metavar='<changelist>',
+                        help='Changelist to try.')
+  else:
+    parser = argparse.ArgumentParser(
+        prog=os.path.basename(__file__),
+        description='%(prog)s: Submit a try request.')
+
+  parser.add_argument('-r', '--revision', metavar='<revision#>', nargs=1,
+                      type=int, help='Revision from which to try the change.')
+  parser.add_argument('--bot', metavar='<buildername>', nargs='+',
+                      help='Builder(s) on which to try the change. One of: %s'
+                               % ', '.join(trybots),
+                      choices=trybots + [ALL_BUILDERS], required=True)
+  args = parser.parse_args()
+  if args.bot == [ALL_BUILDERS]:
+    args.bot = trybots
+  return args
+
+
+def SubmitTryRequest(args, is_svn=True):
+  """ Submits a try request for the given changelist on the given list of
+  trybots.
+
+  args: Object whose properties are derived from command-line arguments. If
+      is_svn is True, it should contain:
+      - changelist: string; the name of the changelist to try.
+      - bot: list of strings; the names of the try builders to run.
+      - revision: optional, int; the revision number from which to run the try.
+      If is_svn is False, it should contain:
+      - bot: list of strings; the names of the try builders to run.
+      - revision: optional, int; the revision number from which to run the try. 
+  is_svn: boolean; are we in an SVN repo?
+  """
+  # First, find depot_tools. This is needed for the imports below.
+  sys.path.append(FindDepotTools())
+
+  botlist = ','.join(['%s%s' % (bot, TRYBOT_SUFFIX) for bot in args.bot])
+  if is_svn:
+    import gcl
+    try_args = [args.changelist, '--root', GetCheckoutRoot(is_svn),
+                '--bot', botlist]
+    if args.revision:
+      try_args.extend(['-r', args.revision])
+    gcl.CMDtry(try_args)
+  else:
+    import trychange
+    try_args = ['--use_svn',
+                '--svn_repo', GetTryRepo(),
+                '--root', GetCheckoutRoot(is_svn),
+                '--bot', botlist]
+    if args.revision:
+      try_args.extend(['-r', args.revision])
+    trychange.TryChange(try_args, None, False)
+
+
+def main():
+  # Retrieve the list of active try builders from the build master.
+  trybots = RetrieveTrybotList()
+
+  # Determine if we're in an SVN checkout.
+  is_svn = os.path.isdir('.svn')
+
+  # Parse and validate the command-line arguments.
+  args = ValidateArgs(trybots=trybots, is_svn=is_svn)
+
+  # Submit the try request.
+  SubmitTryRequest(args, is_svn=is_svn)
+
+
+if __name__ == '__main__':
+  sys.exit(main())
