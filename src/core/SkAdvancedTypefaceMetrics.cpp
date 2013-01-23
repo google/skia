@@ -174,7 +174,9 @@ SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
             if (!subsetGlyphIDs ||
                 (subsetIndex < subsetGlyphIDsLength &&
                  static_cast<uint32_t>(gId) == subsetGlyphIDs[subsetIndex])) {
-                SkAssertResult(getAdvance(fontHandle, gId, &advance));
+                if (!getAdvance(fontHandle, gId, &advance)) {
+                    advance = kDontCareAdvance;
+                }
                 ++subsetIndex;
             } else {
                 advance = kDontCareAdvance;
