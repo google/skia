@@ -148,10 +148,23 @@ public:
     void* operator new(size_t size);
     void operator delete(void* target);
 
-    /** These use non-standard names because GrEffects should only be ref'ed an unref'ed deep in
-        the bowels. Rendering code should use GrEffectRef. */
-    void addRef() const { this->ref(); }
-    void subRef() const { this->unref(); }
+    /** These functions are used when recording effects into a deferred drawing queue. The inc call
+        keeps the effect alive outside of GrEffectRef while allowing any resources owned by the
+        effect to be returned to the cache for reuse. The dec call must balance the inc call. */
+    void incDeferredRefCounts() const {
+        this->ref();
+        int count = fTextureAccesses.count();
+        for (int t = 0; t < count; ++t) {
+            fTextureAccesses[t]->getTexture()->incDeferredRefCount();
+        }
+    }
+    void decDeferredRefCounts() const {
+        int count = fTextureAccesses.count();
+        for (int t = 0; t < count; ++t) {
+            fTextureAccesses[t]->getTexture()->decDeferredRefCount();
+        }
+        this->unref();
+    }
 
 protected:
     /**
@@ -191,7 +204,7 @@ protected:
     class AutoEffectUnref {
     public:
         AutoEffectUnref(GrEffect* effect) : fEffect(effect) { }
-        ~AutoEffectUnref() { fEffect->subRef(); }
+        ~AutoEffectUnref() { fEffect->unref(); }
         operator GrEffect*() { return fEffect; }
     private:
         GrEffect* fEffect;
@@ -228,9 +241,10 @@ private:
 
     void EffectRefDestroyed() { fEffectRef = NULL; }
 
-    friend class GrEffectRef; // to call GrEffectRef destroyed
+    friend class GrEffectRef;   // to call EffectRefDestroyed()
     friend class GrEffectStage; // to rewrap GrEffect in GrEffectRef when restoring an effect-stage
-                                // from deferred state. And to call isEqual on naked GrEffects.
+                                // from deferred state, to call isEqual on naked GrEffects, and
+                                // to inc/dec deferred ref counts.
 
     SkSTArray<4, const GrTextureAccess*, true>  fTextureAccesses;
     GrEffectRef*                                fEffectRef;

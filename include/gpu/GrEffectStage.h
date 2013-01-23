@@ -104,10 +104,16 @@ public:
             SkDEBUGCODE(fInitialized = false;)
         }
 
+        ~DeferredStage() {
+            if (NULL != fEffect) {
+                fEffect->decDeferredRefCounts();
+            }
+        }
+
         void saveFrom(const GrEffectStage& stage) {
             GrAssert(!fInitialized);
             if (NULL != stage.fEffectRef) {
-                stage.fEffectRef->get()->addRef();
+                stage.fEffectRef->get()->incDeferredRefCounts();
                 fEffect = stage.fEffectRef->get();
                 fCoordChangeMatrix = stage.fCoordChangeMatrix;
             }
@@ -140,11 +146,6 @@ public:
             return fCoordChangeMatrix == stage.fCoordChangeMatrix;
         }
 
-        ~DeferredStage() {
-            if (NULL != fEffect) {
-                fEffect->subRef();
-            }
-        }
     private:
         const GrEffect*               fEffect;
         SkMatrix                      fCoordChangeMatrix;

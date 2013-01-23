@@ -57,17 +57,20 @@ public:
      */
     virtual size_t sizeInBytes() const = 0;
 
-     /**
-      * Retrieves the context that owns the resource. Note that it is possible
-      * for this to return NULL. When resources have been release()ed or
-      * abandon()ed they no longer have an owning context. Destroying a
-      * GrContext automatically releases all its resources.
-      */
+    /**
+     * Retrieves the context that owns the resource. Note that it is possible
+     * for this to return NULL. When resources have been release()ed or
+     * abandon()ed they no longer have an owning context. Destroying a
+     * GrContext automatically releases all its resources.
+     */
     const GrContext* getContext() const;
     GrContext* getContext();
 
     void setCacheEntry(GrResourceEntry* cacheEntry) { fCacheEntry = cacheEntry; }
     GrResourceEntry* getCacheEntry() { return fCacheEntry; }
+
+    void incDeferredRefCount() const { GrAssert(fDeferredRefCount >= 0); ++fDeferredRefCount; }
+    void decDeferredRefCount() const { GrAssert(fDeferredRefCount > 0); --fDeferredRefCount; }
 
 protected:
     /**
@@ -93,15 +96,15 @@ private:
     friend class GrGpu; // for assert in GrGpu to access getGpu
 #endif
 
-    GrGpu*      fGpu;       // not reffed. The GrGpu can be deleted while there
-                            // are still live GrResources. It will call
-                            // release() on all such resources in its
-                            // destructor.
-
     // We're in an internal doubly linked list
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrResource);
 
-    GrResourceEntry* fCacheEntry;  // NULL if not in cache
+    GrGpu*              fGpu;               // not reffed. The GrGpu can be deleted while there
+                                            // are still live GrResources. It will call
+                                            // release() on all such resources in its
+                                            // destructor.
+    GrResourceEntry*    fCacheEntry;        // NULL if not in cache
+    mutable int         fDeferredRefCount;  // How many references in deferred drawing buffers.
 
     enum Flags {
         kWrapped_Flag = 0x1,
