@@ -158,6 +158,10 @@
         '-mfpu=neon',
         '-fomit-frame-pointer',
       ],
+      'ldflags': [
+        '-march=armv7-a',
+        '-Wl,--fix-cortex-a8',
+      ],
       'sources': [
         '../src/opts/memset16_neon.S',
         '../src/opts/memset32_neon.S',
