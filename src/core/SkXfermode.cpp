@@ -779,7 +779,7 @@ void SkProcCoeffXfermode::toString(SkString* str) const {
     str->append(gModeStrings[fMode]);
 
     static const char* gCoeffStrings[kCoeffCount] = {
-        "Zero", "One", "SC", "ISC", "DC", "IDC", "SA", "ISA", "DA", "IDA" 
+        "Zero", "One", "SC", "ISC", "DC", "IDC", "SA", "ISA", "DA", "IDA"
     };
 
     str->append(" src: ");

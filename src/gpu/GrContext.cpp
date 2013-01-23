@@ -950,7 +950,7 @@ void GrContext::drawOval(const GrPaint& paint,
         path.addOval(oval);
         this->drawPath(paint, path, stroke);
         return;
-    } 
+    }
 
     internalDrawOval(paint, oval, stroke);
 }
@@ -960,10 +960,10 @@ bool GrContext::canDrawOval(const GrPaint& paint, const GrRect& oval, const SkSt
     if (!paint.isAntiAlias()) {
         return false;
     }
- 
+
     // we can draw circles in any style
-    bool isCircle = SkScalarNearlyEqual(oval.width(), oval.height()) 
-                    && circleStaysCircle(this->getMatrix()); 
+    bool isCircle = SkScalarNearlyEqual(oval.width(), oval.height())
+                    && circleStaysCircle(this->getMatrix());
     // and for now, axis-aligned ellipses only with fill or stroke-and-fill
     SkStrokeRec::Style style = stroke.getStyle();
     bool isStroke = (style == SkStrokeRec::kStroke_Style || style == SkStrokeRec::kHairline_Style);
@@ -978,11 +978,11 @@ void GrContext::internalDrawOval(const GrPaint& paint,
 
     SkScalar xRadius = SkScalarHalf(oval.width());
     SkScalar yRadius = SkScalarHalf(oval.height());
-   
+
     SkScalar strokeWidth = stroke.getWidth();
     SkStrokeRec::Style style = stroke.getStyle();
 
-    bool isCircle = SkScalarNearlyEqual(xRadius, yRadius) && circleStaysCircle(this->getMatrix()); 
+    bool isCircle = SkScalarNearlyEqual(xRadius, yRadius) && circleStaysCircle(this->getMatrix());
 #ifdef SK_DEBUG
     {
         // we should have checked for this previously
@@ -1080,7 +1080,7 @@ void GrContext::internalDrawOval(const GrPaint& paint,
         }
 
         SkScalar ratio = SkScalarDiv(xRadius, yRadius);
-       
+
         for (int i = 0; i < 4; ++i) {
             verts[i].fCenter = center;
             verts[i].fOuterRadius = xRadius;
