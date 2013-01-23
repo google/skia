@@ -15,17 +15,17 @@
 
 class GrIndexBuffer : public GrGeometryBuffer {
 public:
-        /**
-         * Retrieves the maximum number of quads that could be rendered
-         * from the index buffer (using kTriangles_GrPrimitiveType).
-         * @return the maximum number of quads using full size of index buffer.
-         */
-        int maxQuads() const {
-            return this->sizeInBytes() / (sizeof(uint16_t) * 6);
-        }
+    /**
+     * Retrieves the maximum number of quads that could be rendered
+     * from the index buffer (using kTriangles_GrPrimitiveType).
+     * @return the maximum number of quads using full size of index buffer.
+     */
+    int maxQuads() const {
+        return this->sizeInBytes() / (sizeof(uint16_t) * 6);
+    }
 protected:
-    GrIndexBuffer(GrGpu* gpu, size_t sizeInBytes, bool dynamic)
-        : INHERITED(gpu, sizeInBytes, dynamic) {}
+    GrIndexBuffer(GrGpu* gpu, bool isWrapped, size_t sizeInBytes, bool dynamic)
+        : INHERITED(gpu, isWrapped, sizeInBytes, dynamic) {}
 private:
     typedef GrGeometryBuffer INHERITED;
 };

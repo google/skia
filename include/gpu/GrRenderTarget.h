@@ -139,10 +139,11 @@ public:
 
 protected:
     GrRenderTarget(GrGpu* gpu,
+                   bool isWrapped,
                    GrTexture* texture,
                    const GrTextureDesc& desc,
                    Origin origin)
-        : INHERITED(gpu, desc, origin)
+        : INHERITED(gpu, isWrapped, desc, origin)
         , fStencilBuffer(NULL)
         , fTexture(texture) {
         fResolveRect.setLargestInverted();

@@ -16,7 +16,7 @@ class GrPath : public GrResource {
 public:
     SK_DECLARE_INST_COUNT(GrPath);
 
-    GrPath(GrGpu* gpu) : INHERITED(gpu) {}
+    GrPath(GrGpu* gpu, bool isWrapped) : INHERITED(gpu, isWrapped) {}
 
     const GrRect& getBounds() const { return fBounds; }
 

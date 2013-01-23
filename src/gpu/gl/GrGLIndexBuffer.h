@@ -32,6 +32,7 @@ public:
 
 protected:
     GrGLIndexBuffer(GrGpuGL* gpu,
+                    bool isWrapped,
                     GrGLuint id,
                     size_t sizeInBytes,
                     bool dynamic);

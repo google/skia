@@ -22,7 +22,7 @@ size_t GrGLStencilBuffer::sizeInBytes() const {
 }
 
 void GrGLStencilBuffer::onRelease() {
-    if (0 != fRenderbufferID) {
+    if (0 != fRenderbufferID && !this->isWrapped()) {
         GrGpuGL* gpuGL = (GrGpuGL*) this->getGpu();
         const GrGLInterface* gl = gpuGL->glInterface();
         GR_GL_CALL(gl, DeleteRenderbuffers(1, &fRenderbufferID));
@@ -37,5 +37,3 @@ void GrGLStencilBuffer::onAbandon() {
 
     INHERITED::onAbandon();
 }
-
-
