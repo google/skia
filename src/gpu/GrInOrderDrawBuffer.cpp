@@ -570,11 +570,8 @@ bool GrInOrderDrawBuffer::flushTo(GrDrawTarget* target) {
 
     GrDrawTarget::AutoClipRestore acr(target);
     AutoGeometryPush agp(target);
-
-    GrDrawState playbackState;
     GrDrawState* prevDrawState = target->drawState();
     prevDrawState->ref();
-    target->setDrawState(&playbackState);
 
     GrClipData clipData;
 
@@ -583,7 +580,6 @@ bool GrInOrderDrawBuffer::flushTo(GrDrawTarget* target) {
     int currClear       = 0;
     int currDraw        = 0;
     int currStencilPath = 0;
-
 
     for (int c = 0; c < numCmds; ++c) {
         switch (fCmds[c]) {
@@ -615,7 +611,7 @@ bool GrInOrderDrawBuffer::flushTo(GrDrawTarget* target) {
                 break;
             }
             case kSetState_Cmd:
-                fStates[currState].restoreTo(&playbackState);
+                target->setDrawState(&fStates[currState]);
                 ++currState;
                 break;
             case kSetClip_Cmd:
@@ -864,7 +860,7 @@ void GrInOrderDrawBuffer::geometrySourceWillPop(
 }
 
 bool GrInOrderDrawBuffer::needsNewState() const {
-    return fStates.empty() || fStates.back().isEqual(this->getDrawState());
+    return fStates.empty() || fStates.back() != this->getDrawState();
 }
 
 bool GrInOrderDrawBuffer::needsNewClip() const {
@@ -887,8 +883,19 @@ void GrInOrderDrawBuffer::recordClip() {
     fCmds.push_back(kSetClip_Cmd);
 }
 
+void GrInOrderDrawBuffer::recordDefaultClip() {
+    fClips.push_back() = SkClipStack();
+    fClipOrigins.push_back() = SkIPoint::Make(0, 0);
+    fCmds.push_back(kSetClip_Cmd);
+}
+
 void GrInOrderDrawBuffer::recordState() {
-    fStates.push_back().saveFrom(this->getDrawState());
+    fStates.push_back(this->getDrawState());
+    fCmds.push_back(kSetState_Cmd);
+}
+
+void GrInOrderDrawBuffer::recordDefaultState() {
+    fStates.push_back(GrDrawState());
     fCmds.push_back(kSetState_Cmd);
 }
 

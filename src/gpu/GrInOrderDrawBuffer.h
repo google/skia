@@ -184,7 +184,9 @@ private:
 
     // these functions record a command
     void            recordState();
+    void            recordDefaultState();
     void            recordClip();
+    void            recordDefaultClip();
     Draw*           recordDraw();
     StencilPath*    recordStencilPath();
     Clear*          recordClear();
@@ -203,11 +205,11 @@ private:
         kGeoPoolStatePreAllocCnt = 4,
     };
 
-    SkSTArray<kCmdPreallocCnt, uint8_t, true>                          fCmds;
-    GrSTAllocator<kDrawPreallocCnt, Draw>                              fDraws;
-    GrSTAllocator<kStatePreallocCnt, StencilPath>                      fStencilPaths;
-    GrSTAllocator<kStatePreallocCnt, GrDrawState::DeferredState>       fStates;
-    GrSTAllocator<kClearPreallocCnt, Clear>                            fClears;
+    SkSTArray<kCmdPreallocCnt, uint8_t, true>           fCmds;
+    GrSTAllocator<kDrawPreallocCnt, Draw>               fDraws;
+    GrSTAllocator<kStatePreallocCnt, StencilPath>       fStencilPaths;
+    GrSTAllocator<kStatePreallocCnt, GrDrawState>       fStates;
+    GrSTAllocator<kClearPreallocCnt, Clear>             fClears;
 
     GrSTAllocator<kClipPreallocCnt, SkClipStack>        fClips;
     GrSTAllocator<kClipPreallocCnt, SkIPoint>           fClipOrigins;
