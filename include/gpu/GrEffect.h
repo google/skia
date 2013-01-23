@@ -120,7 +120,19 @@ public:
             effectA.getFactory().glEffectKey(effectA) == effectB.getFactory().glEffectKey(effectB).
      */
     bool isEqual(const GrEffectRef& other) const {
-        return this->isEqual(*other.get());
+        if (&this->getFactory() != &other->getFactory()) {
+            return false;
+        }
+        bool result = this->onIsEqual(*other.get());
+#if GR_DEBUG
+        if (result) {
+            GrAssert(this->numTextures() == other->numTextures());
+            for (int i = 0; i < this->numTextures(); ++i) {
+                GrAssert(*fTextureAccesses[i] == *other->fTextureAccesses[i]);
+            }
+        }
+#endif
+        return result;
     }
 
     /** Human-meaningful string to identify this effect; may be embedded
@@ -150,8 +162,8 @@ public:
 
     /** These use non-standard names because GrEffects should only be ref'ed an unref'ed deep in
         the bowels. Rendering code should use GrEffectRef. */
-    void addRef() const { this->ref(); }
-    void subRef() const { this->unref(); }
+    void addRef() { this->ref(); }
+    void subRef() { this->unref(); }
 
 protected:
     /**
@@ -173,10 +185,6 @@ protected:
             GrCrash("This function should only be called once per effect currently.");
         }
         return effect->fEffectRef;
-    }
-
-    static const GrEffectRef* CreateEffectRef(const GrEffect* effect) {
-        return CreateEffectRef(const_cast<GrEffect*>(effect));
     }
 
     /** Helper used in subclass factory functions to unref the effect after it has been wrapped in a
@@ -206,21 +214,6 @@ protected:
     }
 
 private:
-    bool isEqual(const GrEffect& other) const {
-        if (&this->getFactory() != &other.getFactory()) {
-            return false;
-        }
-        bool result = this->onIsEqual(other);
-#if GR_DEBUG
-        if (result) {
-            GrAssert(this->numTextures() == other.numTextures());
-            for (int i = 0; i < this->numTextures(); ++i) {
-                GrAssert(*fTextureAccesses[i] == *other.fTextureAccesses[i]);
-            }
-        }
-#endif
-        return result;
-    }
 
     /** Subclass implements this to support isEqual(). It will only be called if it is known that
         the two effects are of the same subclass (i.e. they return the same object from
@@ -230,8 +223,6 @@ private:
     void EffectRefDestroyed() { fEffectRef = NULL; }
 
     friend class GrEffectRef; // to call GrEffectRef destroyed
-    friend class GrEffectStage; // to rewrap GrEffect in GrEffectRef when restoring an effect-stage
-                                // from deferred state. And to call isEqual on naked GrEffects.
 
     SkSTArray<4, const GrTextureAccess*, true>  fTextureAccesses;
     GrEffectRef*                                fEffectRef;
