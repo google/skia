@@ -26,7 +26,7 @@ public:
                               SkScalar k3, SkScalar k4);
 
 private:
-    typedef SkXfermode INHERITED;    
+    typedef SkXfermode INHERITED;
 };
 
 #endif

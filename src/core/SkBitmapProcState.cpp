@@ -456,7 +456,7 @@ static void S32_D32_constX_shaderproc(const SkBitmapProcState& s,
                        SkIntToScalar(y) + SK_ScalarHalf,
                        &pt);
             // When the matrix has a scale component the setup code in
-            // chooseProcs multiples the inverse matrix by the inverse of the 
+            // chooseProcs multiples the inverse matrix by the inverse of the
             // bitmap's width and height. Since this method is going to do
             // its own tiling and sampling we need to undo that here.
             if (SkShader::kClamp_TileMode != s.fTileModeX ||

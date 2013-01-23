@@ -28,7 +28,7 @@ public:
 private:
     SkScalar fK[4];
 
-    typedef SkXfermode INHERITED;    
+    typedef SkXfermode INHERITED;
 };
 
 static int pinToByte(int value) {
