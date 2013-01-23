@@ -10,10 +10,20 @@
 #include "SkTSort.h"
 #include "SkString.h"
 
+static const int N = 1000;
+
 static void rand_proc(int array[], int count) {
     SkRandom rand;
     for (int i = 0; i < count; ++i) {
         array[i] = rand.nextS();
+    }
+}
+
+static void randN_proc(int array[], int count) {
+    SkRandom rand;
+    int mod = N / 10;
+    for (int i = 0; i < count; ++i) {
+        array[i] = rand.nextU() % mod;
     }
 }
 
@@ -38,14 +48,15 @@ static void same_proc(int array[], int count) {
 typedef void (*SortProc)(int array[], int count);
 
 enum Type {
-    kRand, kFore, kBack, kSame
+    kRand, kRandN, kFore, kBack, kSame
 };
 
 static const struct {
     const char* fName;
     SortProc    fProc;
 } gRec[] = {
-    { "random", rand_proc },
+    { "rand", rand_proc },
+    { "rand10", randN_proc },
     { "forward", forward_proc },
     { "backward", backward_proc },
     { "repeated", same_proc },
@@ -93,13 +104,13 @@ class SortBench : public SkBenchmark {
     SortProc    fSortProc;
 
 public:
-    SortBench(void* param, Type t, int N, SortType s) : INHERITED(param) {
-        if (N > MAX) {
-            N = MAX;
+    SortBench(void* param, Type t, int n, SortType s) : INHERITED(param) {
+        if (n > MAX) {
+            n = MAX;
         }
         fName.printf("sort_%s_%s", gSorts[s].fName, gRec[t].fName);
-        fCount = N;
-        gRec[t].fProc(fUnsorted, N);
+        fCount = n;
+        gRec[t].fProc(fUnsorted, n);
         fSortProc = gSorts[s].fProc;
         fIsRendering = false;
     }
@@ -110,7 +121,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        int n = SkBENCHLOOP(20);
+        int n = SkBENCHLOOP(200);
         for (int i = 0; i < n; i++) {
             memcpy(fSorted, fUnsorted, fCount * sizeof(int));
             fSortProc(fSorted, fCount);
@@ -128,32 +139,33 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define N   10*1000
-
 static SkBenchmark* NewSkQSort(void* param, Type t) {
     return new SortBench(param, t, N, kSKQSort);
 }
-
-DEF_BENCH( return NewSkQSort(p, kRand); )
-DEF_BENCH( return NewSkQSort(p, kFore); )
-DEF_BENCH( return NewSkQSort(p, kBack); )
-DEF_BENCH( return NewSkQSort(p, kSame); )
-
 static SkBenchmark* NewSkHeap(void* param, Type t) {
     return new SortBench(param, t, N, kSKHeap);
 }
-
-DEF_BENCH( return NewSkHeap(p, kRand); )
-DEF_BENCH( return NewSkHeap(p, kFore); )
-DEF_BENCH( return NewSkHeap(p, kBack); )
-DEF_BENCH( return NewSkHeap(p, kSame); )
-
 static SkBenchmark* NewQSort(void* param, Type t) {
     return new SortBench(param, t, N, kQSort);
 }
 
+DEF_BENCH( return NewSkQSort(p, kRand); )
+DEF_BENCH( return NewSkHeap(p, kRand); )
 DEF_BENCH( return NewQSort(p, kRand); )
+
+DEF_BENCH( return NewSkQSort(p, kRandN); )
+DEF_BENCH( return NewSkHeap(p, kRandN); )
+DEF_BENCH( return NewQSort(p, kRandN); )
+
+DEF_BENCH( return NewSkQSort(p, kFore); )
+DEF_BENCH( return NewSkHeap(p, kFore); )
 DEF_BENCH( return NewQSort(p, kFore); )
+
+DEF_BENCH( return NewSkQSort(p, kBack); )
+DEF_BENCH( return NewSkHeap(p, kBack); )
 DEF_BENCH( return NewQSort(p, kBack); )
+
+DEF_BENCH( return NewSkQSort(p, kSame); )
+DEF_BENCH( return NewSkHeap(p, kSame); )
 DEF_BENCH( return NewQSort(p, kSame); )
 
