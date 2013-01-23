@@ -104,7 +104,7 @@ private:
     GrResourceEntry* fCacheEntry;  // NULL if not in cache
 
     enum Flags {
-        kWrapped_Flag,
+        kWrapped_Flag = 0x1,
     };
     uint32_t         fFlags;
 

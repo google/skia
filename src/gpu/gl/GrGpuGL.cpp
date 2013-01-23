@@ -507,7 +507,6 @@ GrTexture* GrGpuGL::onWrapBackendTexture(const GrBackendTextureDesc& desc) {
         glRTDesc.fRTFBOID = 0;
         glRTDesc.fTexFBOID = 0;
         glRTDesc.fMSColorRenderbufferID = 0;
-        glRTDesc.fIsWrapped = false;
         glRTDesc.fConfig = desc.fConfig;
         glRTDesc.fSampleCnt = desc.fSampleCnt;
         if (!this->createRenderTargetObjects(glTexDesc.fWidth,
@@ -550,10 +549,10 @@ GrRenderTarget* GrGpuGL::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
         format.fPacked = false;
         format.fStencilBits = desc.fStencilBits;
         format.fTotalBits = desc.fStencilBits;
-        static const bool kIsWrapped = false;
+        static const bool kIsSBWrapped = false;
         GrGLStencilBuffer* sb = SkNEW_ARGS(GrGLStencilBuffer,
                                            (this,
-                                            kIsWrapped,
+                                            kIsSBWrapped,
                                             0,
                                             desc.fWidth,
                                             desc.fHeight,
@@ -943,7 +942,6 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     glTexDesc.fHeight = desc.fHeight;
     glTexDesc.fConfig = desc.fConfig;
     glTexDesc.fSampleCnt = desc.fSampleCnt;
-
     glTexDesc.fIsWrapped = false;
 
     glRTDesc.fMSColorRenderbufferID = 0;
