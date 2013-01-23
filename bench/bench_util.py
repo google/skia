@@ -118,9 +118,11 @@ def parse(settings, lines, representation=None):
     time_re = '(?:(\w*)msecs = )?\s*((?:\d+\.\d+)(?:,\d+\.\d+)*)'
     # non-per-tile benches have configs that don't end with ']'
     config_re = '(\S+[^\]]): ((?:' + time_re + '\s+)+)'
-    # per-tile bench lines are in the following format
-    tile_re = ('  tile_(\S+): tile \[\d+,\d+\] out of \[\d+,\d+\]: ((?:' +
-               time_re + '\s+)+)')
+    # per-tile bench lines are in the following format. Note that there are
+    # non-averaged bench numbers in separate lines, which we ignore now due to
+    # their inaccuracy.
+    tile_re = ('  tile_(\S+): tile \[\d+,\d+\] out of \[\d+,\d+\] <averaged>:'
+               ' ((?:' + time_re + '\s+)+)')
 
     for line in lines:
 
