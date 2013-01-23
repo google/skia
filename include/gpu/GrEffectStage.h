@@ -20,7 +20,6 @@
 
 class GrEffectStage {
 public:
-
     GrEffectStage()
     : fEffectRef (NULL) {
         GR_DEBUGCODE(fSavedCoordChangeCnt = 0;)
@@ -94,6 +93,63 @@ public:
         GR_DEBUGCODE(--fSavedCoordChangeCnt);
         GR_DEBUGCODE(savedCoordChange.fEffectRef.reset(NULL);)
     }
+
+    /**
+     * Used when storing a deferred GrDrawState. The DeferredStage allows resources owned by its
+     * GrEffect to be recycled through the cache.
+     */
+    class DeferredStage {
+    public:
+        DeferredStage() : fEffect(NULL) {
+            SkDEBUGCODE(fInitialized = false;)
+        }
+
+        void saveFrom(const GrEffectStage& stage) {
+            GrAssert(!fInitialized);
+            if (NULL != stage.fEffectRef) {
+                stage.fEffectRef->get()->addRef();
+                fEffect = stage.fEffectRef->get();
+                fCoordChangeMatrix = stage.fCoordChangeMatrix;
+            }
+            SkDEBUGCODE(fInitialized = true;)
+        }
+
+        void restoreTo(GrEffectStage* stage) {
+            GrAssert(fInitialized);
+            const GrEffectRef* oldEffectRef = stage->fEffectRef;
+            if (NULL != fEffect) {
+                stage->fEffectRef = GrEffect::CreateEffectRef(fEffect);
+                stage->fCoordChangeMatrix = fCoordChangeMatrix;
+            } else {
+                stage->fEffectRef = NULL;
+            }
+            SkSafeUnref(oldEffectRef);
+        }
+
+        bool isEqual(const GrEffectStage& stage) const {
+            if (NULL == stage.fEffectRef) {
+                return NULL == fEffect;
+            } else if (NULL == fEffect) {
+                return false;
+            }
+
+            if (!(*stage.getEffect())->isEqual(*fEffect)) {
+                return false;
+            }
+
+            return fCoordChangeMatrix == stage.fCoordChangeMatrix;
+        }
+
+        ~DeferredStage() {
+            if (NULL != fEffect) {
+                fEffect->subRef();
+            }
+        }
+    private:
+        const GrEffect*               fEffect;
+        SkMatrix                      fCoordChangeMatrix;
+        SkDEBUGCODE(bool fInitialized;)
+    };
 
     /**
      * Gets the matrix representing all changes of coordinate system since the GrEffect was
