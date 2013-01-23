@@ -8,11 +8,9 @@
 
 
 #include "Test.h"
-#include "SkCanvas.h"
 #include "SkData.h"
 #include "SkFlate.h"
 #include "SkPDFCatalog.h"
-#include "SkPDFDevice.h"
 #include "SkPDFStream.h"
 #include "SkPDFTypes.h"
 #include "SkScalar.h"
@@ -219,28 +217,6 @@ static void TestSubstitute(skiatest::Reporter* reporter) {
                                             buffer.getOffset()));
 }
 
-// This test used to assert without the fix submitted for
-// http://code.google.com/p/skia/issues/detail?id=1083.
-// SKP files might have invalid glyph ids. This test ensures they are ignored,
-// and there is no assert on input data in Debug mode.
-static void test_issue1083(skiatest::Reporter* reporter) {
-    SkISize pageSize = SkISize::Make(100, 100);
-    SkPDFDevice* dev = new SkPDFDevice(pageSize, pageSize, SkMatrix::I());
-
-    SkCanvas c(dev);
-    SkPaint paint;
-    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-
-    uint16_t glyphID = 65000;
-    c.drawText(&glyphID, 2, 0, 0, paint);
-
-    SkPDFDocument doc;
-    doc.appendPage(dev);
-
-    SkDynamicMemoryWStream stream;
-    doc.emitPDF(&stream);
-}
-
 static void TestPDFPrimitives(skiatest::Reporter* reporter) {
     SkAutoTUnref<SkPDFInt> int42(new SkPDFInt(42));
     SimpleCheckObjectOutput(reporter, int42.get(), "42");
@@ -322,8 +298,6 @@ static void TestPDFPrimitives(skiatest::Reporter* reporter) {
     TestObjectRef(reporter);
 
     TestSubstitute(reporter);
-
-    test_issue1083(reporter);
 }
 
 #include "TestClassDef.h"
