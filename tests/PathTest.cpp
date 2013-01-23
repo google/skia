@@ -308,7 +308,7 @@ static void test_arb_round_rect_is_convex(skiatest::Reporter* reporter) {
 
         make_arb_round_rect(&temp, r, r.width() / 10, r.height() / 15);
 
-#ifdef SK_REDEFINE_ROOT2OVER2_TO_MAKE_ARCTOS_CONVEX
+#ifndef SK_IGNORE_CONVEX_QUAD_OPT
         REPORTER_ASSERT(reporter, temp.isConvex());
 #endif
     }
@@ -337,7 +337,7 @@ static void test_arb_zero_rad_round_rect_is_rect(skiatest::Reporter* reporter) {
 
         make_arb_round_rect(&temp, r, 0, 0);
 
-#ifdef SK_REDEFINE_ROOT2OVER2_TO_MAKE_ARCTOS_CONVEX
+#ifndef SK_IGNORE_CONVEX_QUAD_OPT
         SkRect result;
         REPORTER_ASSERT(reporter, temp.isRect(&result));
         REPORTER_ASSERT(reporter, r == result);

@@ -745,7 +745,7 @@ protected:
         add_corner_arc(path, r, xCorner, yCorner, 180);
         path->close();
 
-#ifdef SK_REDEFINE_ROOT2OVER2_TO_MAKE_ARCTOS_CONVEX
+#ifndef SK_IGNORE_CONVEX_QUAD_OPT
         SkASSERT(path->isConvex());
 #endif
     }

@@ -4,7 +4,6 @@
   'defines': [
     'SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=<(skia_static_initializers)',
 #    'SK_SUPPORT_HINTING_SCALE_FACTOR',
-     'SK_REDEFINE_ROOT2OVER2_TO_MAKE_ARCTOS_CONVEX',
   ],
   'conditions' : [
     ['skia_gpu == 1',
