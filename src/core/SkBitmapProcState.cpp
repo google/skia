@@ -459,7 +459,12 @@ static void S32_D32_constX_shaderproc(const SkBitmapProcState& s,
             // chooseProcs multiples the inverse matrix by the inverse of the 
             // bitmap's width and height. Since this method is going to do
             // its own tiling and sampling we need to undo that here.
-            yTemp = SkScalarFloorToInt(pt.fY * s.fBitmap->height());
+            if (SkShader::kClamp_TileMode != s.fTileModeX ||
+                SkShader::kClamp_TileMode != s.fTileModeY) {
+                yTemp = SkScalarFloorToInt(pt.fY * s.fBitmap->height());
+            } else {
+                yTemp = SkScalarFloorToInt(pt.fY);
+            }
         } else {
             yTemp = s.fFilterOneY + y;
         }
@@ -485,7 +490,9 @@ static void S32_D32_constX_shaderproc(const SkBitmapProcState& s,
                        SkIntToScalar(x) + SK_ScalarHalf,
                        SkIntToScalar(y) + SK_ScalarHalf,
                        &pt);
-            if (s.fInvType > SkMatrix::kTranslate_Mask) {
+            if (s.fInvType > SkMatrix::kTranslate_Mask &&
+                (SkShader::kClamp_TileMode != s.fTileModeX ||
+                 SkShader::kClamp_TileMode != s.fTileModeY)) {
                 pt.fY *= s.fBitmap->height();
             }
             int iY2;
