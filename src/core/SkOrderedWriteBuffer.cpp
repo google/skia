@@ -132,7 +132,12 @@ void SkOrderedWriteBuffer::writePath(const SkPath& path) {
 }
 
 size_t SkOrderedWriteBuffer::writeStream(SkStream* stream, size_t length) {
-    return fWriter.readFromStream(stream, length);
+    fWriter.write32(length);
+    size_t bytesWritten = fWriter.readFromStream(stream, length);
+    if (bytesWritten < length) {
+        fWriter.reservePad(length - bytesWritten);
+    }
+    return bytesWritten;
 }
 
 bool SkOrderedWriteBuffer::writeToStream(SkWStream* stream) {
