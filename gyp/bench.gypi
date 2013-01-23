@@ -40,6 +40,7 @@
     '../bench/RTreeBench.cpp',
     '../bench/ScalarBench.cpp',
     '../bench/ShaderMaskBench.cpp',
+    '../bench/SortBench.cpp',
     '../bench/TableBench.cpp',
     '../bench/TextBench.cpp',
     '../bench/TileBench.cpp',
