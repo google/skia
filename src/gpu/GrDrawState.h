@@ -57,21 +57,16 @@ public:
         kMaxTexCoords = kNumStages
     };
 
-    GrDrawState()
-        : fRenderTarget(NULL) {
-
+    GrDrawState() {
         this->reset();
     }
 
-    GrDrawState(const GrDrawState& state)
-        : fRenderTarget(NULL) {
-
+    GrDrawState(const GrDrawState& state) {
         *this = state;
     }
 
     virtual ~GrDrawState() {
         this->disableStages();
-        GrSafeSetNull(fRenderTarget);
     }
 
     /**
@@ -82,20 +77,21 @@ public:
 
         this->disableStages();
 
-        fColor = 0xffffffff;
-        fViewMatrix.reset();
-        GrSafeSetNull(fRenderTarget);
-        fSrcBlend = kOne_GrBlendCoeff;
-        fDstBlend = kZero_GrBlendCoeff;
-        fBlendConstant = 0x0;
-        fFlagBits = 0x0;
-        fVertexEdgeType = kHairLine_EdgeType;
-        fStencilSettings.setDisabled();
-        fFirstCoverageStage = kNumStages;
-        fCoverage = 0xffffffff;
-        fColorFilterMode = SkXfermode::kDst_Mode;
-        fColorFilterColor = 0x0;
-        fDrawFace = kBoth_DrawFace;
+        fRenderTarget.reset(NULL);
+
+        fCommon.fColor = 0xffffffff;
+        fCommon.fViewMatrix.reset();
+        fCommon.fSrcBlend = kOne_GrBlendCoeff;
+        fCommon.fDstBlend = kZero_GrBlendCoeff;
+        fCommon.fBlendConstant = 0x0;
+        fCommon.fFlagBits = 0x0;
+        fCommon.fVertexEdgeType = kHairLine_EdgeType;
+        fCommon.fStencilSettings.setDisabled();
+        fCommon.fFirstCoverageStage = kNumStages;
+        fCommon.fCoverage = 0xffffffff;
+        fCommon.fColorFilterMode = SkXfermode::kDst_Mode;
+        fCommon.fColorFilterColor = 0x0;
+        fCommon.fDrawFace = kBoth_DrawFace;
     }
 
     /**
@@ -115,9 +111,9 @@ public:
      *
      *  @param color    the color to set.
      */
-    void setColor(GrColor color) { fColor = color; }
+    void setColor(GrColor color) { fCommon.fColor = color; }
 
-    GrColor getColor() const { return fColor; }
+    GrColor getColor() const { return fCommon.fColor; }
 
     /**
      *  Sets the color to be used for the next draw to be
@@ -134,12 +130,12 @@ public:
      * after color-computing texture stages.
      */
     void setColorFilter(GrColor c, SkXfermode::Mode mode) {
-        fColorFilterColor = c;
-        fColorFilterMode = mode;
+        fCommon.fColorFilterColor = c;
+        fCommon.fColorFilterMode = mode;
     }
 
-    GrColor getColorFilterColor() const { return fColorFilterColor; }
-    SkXfermode::Mode getColorFilterMode() const { return fColorFilterMode; }
+    GrColor getColorFilterColor() const { return fCommon.fColorFilterColor; }
+    SkXfermode::Mode getColorFilterMode() const { return fCommon.fColorFilterMode; }
 
     /**
      * Constructor sets the color to be 'color' which is undone by the destructor.
@@ -171,7 +167,7 @@ public:
      * coverage is ignored when per-vertex coverage is provided.
      */
     void setCoverage(uint8_t coverage) {
-        fCoverage = GrColorPackRGBA(coverage, coverage, coverage, coverage);
+        fCommon.fCoverage = GrColorPackRGBA(coverage, coverage, coverage, coverage);
     }
 
     /**
@@ -179,11 +175,11 @@ public:
      * should be premultiplied.
      */
     void setCoverage4(GrColor coverage) {
-        fCoverage = coverage;
+        fCommon.fCoverage = coverage;
     }
 
     GrColor getCoverage() const {
-        return fCoverage;
+        return fCommon.fCoverage;
     }
 
     /// @}
@@ -315,14 +311,14 @@ public:
      */
     void setFirstCoverageStage(int firstCoverageStage) {
         GrAssert((unsigned)firstCoverageStage <= kNumStages);
-        fFirstCoverageStage = firstCoverageStage;
+        fCommon.fFirstCoverageStage = firstCoverageStage;
     }
 
     /**
      * Gets the index of the first coverage-computing stage.
      */
     int getFirstCoverageStage() const {
-        return fFirstCoverageStage;
+        return fCommon.fFirstCoverageStage;
     }
 
     ///@}
@@ -345,8 +341,8 @@ public:
      * @param dstCoef coefficient applied to the dst color.
      */
     void setBlendFunc(GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff) {
-        fSrcBlend = srcCoeff;
-        fDstBlend = dstCoeff;
+        fCommon.fSrcBlend = srcCoeff;
+        fCommon.fDstBlend = dstCoeff;
     #if GR_DEBUG
         switch (dstCoeff) {
         case kDC_GrBlendCoeff:
@@ -373,13 +369,13 @@ public:
     #endif
     }
 
-    GrBlendCoeff getSrcBlendCoeff() const { return fSrcBlend; }
-    GrBlendCoeff getDstBlendCoeff() const { return fDstBlend; }
+    GrBlendCoeff getSrcBlendCoeff() const { return fCommon.fSrcBlend; }
+    GrBlendCoeff getDstBlendCoeff() const { return fCommon.fDstBlend; }
 
     void getDstBlendCoeff(GrBlendCoeff* srcBlendCoeff,
                           GrBlendCoeff* dstBlendCoeff) const {
-        *srcBlendCoeff = fSrcBlend;
-        *dstBlendCoeff = fDstBlend;
+        *srcBlendCoeff = fCommon.fSrcBlend;
+        *dstBlendCoeff = fCommon.fDstBlend;
     }
 
     /**
@@ -392,13 +388,13 @@ public:
      *
      * @param constant the constant to set
      */
-    void setBlendConstant(GrColor constant) { fBlendConstant = constant; }
+    void setBlendConstant(GrColor constant) { fCommon.fBlendConstant = constant; }
 
     /**
      * Retrieves the last value set by setBlendConstant()
      * @return the blending constant value
      */
-    GrColor getBlendConstant() const { return fBlendConstant; }
+    GrColor getBlendConstant() const { return fCommon.fBlendConstant; }
 
     /// @}
 
@@ -411,14 +407,14 @@ public:
      *
      * In the post-view-matrix space the rectangle [0,w]x[0,h]
      * fully covers the render target. (w and h are the width and height of the
-     * the rendertarget.)
+     * the render-target.)
      */
-    void setViewMatrix(const SkMatrix& m) { fViewMatrix = m; }
+    void setViewMatrix(const SkMatrix& m) { fCommon.fViewMatrix = m; }
 
     /**
      * Gets a writable pointer to the view matrix.
      */
-    SkMatrix* viewMatrix() { return &fViewMatrix; }
+    SkMatrix* viewMatrix() { return &fCommon.fViewMatrix; }
 
     /**
      *  Multiplies the current view matrix by a matrix
@@ -430,7 +426,7 @@ public:
      *
      *  @param m the matrix used to modify the view matrix.
      */
-    void preConcatViewMatrix(const SkMatrix& m) { fViewMatrix.preConcat(m); }
+    void preConcatViewMatrix(const SkMatrix& m) { fCommon.fViewMatrix.preConcat(m); }
 
     /**
      *  Multiplies the current view matrix by a matrix
@@ -442,13 +438,13 @@ public:
      *
      *  @param m the matrix used to modify the view matrix.
      */
-    void postConcatViewMatrix(const SkMatrix& m) { fViewMatrix.postConcat(m); }
+    void postConcatViewMatrix(const SkMatrix& m) { fCommon.fViewMatrix.postConcat(m); }
 
     /**
      * Retrieves the current view matrix
      * @return the current view matrix.
      */
-    const SkMatrix& getViewMatrix() const { return fViewMatrix; }
+    const SkMatrix& getViewMatrix() const { return fCommon.fViewMatrix; }
 
     /**
      *  Retrieves the inverse of the current view matrix.
@@ -463,7 +459,7 @@ public:
         // TODO: determine whether we really need to leave matrix unmodified
         // at call sites when inversion fails.
         SkMatrix inverse;
-        if (fViewMatrix.invert(&inverse)) {
+        if (fCommon.fViewMatrix.invert(&inverse)) {
             if (matrix) {
                 *matrix = inverse;
             }
@@ -570,21 +566,21 @@ public:
     ////
 
     /**
-     * Sets the rendertarget used at the next drawing call
+     * Sets the render-target used at the next drawing call
      *
      * @param target  The render target to set.
      */
     void setRenderTarget(GrRenderTarget* target) {
-        GrSafeAssign(fRenderTarget, target);
+        fRenderTarget.reset(SkSafeRef(target));
     }
 
     /**
-     * Retrieves the currently set rendertarget.
+     * Retrieves the currently set render-target.
      *
      * @return    The currently set render target.
      */
-    const GrRenderTarget* getRenderTarget() const { return fRenderTarget; }
-    GrRenderTarget* getRenderTarget() { return fRenderTarget; }
+    const GrRenderTarget* getRenderTarget() const { return fRenderTarget.get(); }
+    GrRenderTarget* getRenderTarget() { return fRenderTarget.get(); }
 
     class AutoRenderTargetRestore : public ::GrNoncopyable {
     public:
@@ -634,19 +630,19 @@ public:
      * @param settings  the stencil settings to use.
      */
     void setStencil(const GrStencilSettings& settings) {
-        fStencilSettings = settings;
+        fCommon.fStencilSettings = settings;
     }
 
     /**
      * Shortcut to disable stencil testing and ops.
      */
     void disableStencil() {
-        fStencilSettings.setDisabled();
+        fCommon.fStencilSettings.setDisabled();
     }
 
-    const GrStencilSettings& getStencil() const { return fStencilSettings; }
+    const GrStencilSettings& getStencil() const { return fCommon.fStencilSettings; }
 
-    GrStencilSettings* stencil() { return &fStencilSettings; }
+    GrStencilSettings* stencil() { return &fCommon.fStencilSettings; }
 
     /// @}
 
@@ -695,10 +691,10 @@ public:
      */
     void setVertexEdgeType(VertexEdgeType type) {
         GrAssert(type >=0 && type < kVertexEdgeTypeCnt);
-        fVertexEdgeType = type;
+        fCommon.fVertexEdgeType = type;
     }
 
-    VertexEdgeType getVertexEdgeType() const { return fVertexEdgeType; }
+    VertexEdgeType getVertexEdgeType() const { return fCommon.fVertexEdgeType; }
 
     /// @}
 
@@ -747,7 +743,7 @@ public:
     };
 
     void resetStateFlags() {
-        fFlagBits = 0;
+        fCommon.fFlagBits = 0;
     }
 
     /**
@@ -756,7 +752,7 @@ public:
      * @param stateBits bitfield of StateBits specifying the states to enable
      */
     void enableState(uint32_t stateBits) {
-        fFlagBits |= stateBits;
+        fCommon.fFlagBits |= stateBits;
     }
 
     /**
@@ -765,7 +761,7 @@ public:
      * @param stateBits bitfield of StateBits specifying the states to disable
      */
     void disableState(uint32_t stateBits) {
-        fFlagBits &= ~(stateBits);
+        fCommon.fFlagBits &= ~(stateBits);
     }
 
     /**
@@ -783,27 +779,27 @@ public:
     }
 
     bool isDitherState() const {
-        return 0 != (fFlagBits & kDither_StateBit);
+        return 0 != (fCommon.fFlagBits & kDither_StateBit);
     }
 
     bool isHWAntialiasState() const {
-        return 0 != (fFlagBits & kHWAntialias_StateBit);
+        return 0 != (fCommon.fFlagBits & kHWAntialias_StateBit);
     }
 
     bool isClipState() const {
-        return 0 != (fFlagBits & kClip_StateBit);
+        return 0 != (fCommon.fFlagBits & kClip_StateBit);
     }
 
     bool isColorWriteDisabled() const {
-        return 0 != (fFlagBits & kNoColorWrites_StateBit);
+        return 0 != (fCommon.fFlagBits & kNoColorWrites_StateBit);
     }
 
     bool isCoverageDrawing() const {
-        return 0 != (fFlagBits & kCoverageDrawing_StateBit);
+        return 0 != (fCommon.fFlagBits & kCoverageDrawing_StateBit);
     }
 
     bool isStateFlagEnabled(uint32_t stateBit) const {
-        return 0 != (stateBit & fFlagBits);
+        return 0 != (stateBit & fCommon.fFlagBits);
     }
 
     /// @}
@@ -826,7 +822,7 @@ public:
      */
     void setDrawFace(DrawFace face) {
         GrAssert(kInvalid_DrawFace != face);
-        fDrawFace = face;
+        fCommon.fDrawFace = face;
     }
 
     /**
@@ -834,7 +830,7 @@ public:
      * or both faces.
      * @return the current draw face(s).
      */
-    DrawFace getDrawFace() const { return fDrawFace; }
+    DrawFace getDrawFace() const { return fCommon.fDrawFace; }
 
     /// @}
 
@@ -848,20 +844,7 @@ public:
     // Most stages are usually not used, so conditionals here
     // reduce the expected number of bytes touched by 50%.
     bool operator ==(const GrDrawState& s) const {
-        if (fColor != s.fColor ||
-            !s.fViewMatrix.cheapEqualTo(fViewMatrix) ||
-            fRenderTarget != s.fRenderTarget ||
-            fSrcBlend != s.fSrcBlend ||
-            fDstBlend != s.fDstBlend ||
-            fBlendConstant != s.fBlendConstant ||
-            fFlagBits != s.fFlagBits ||
-            fVertexEdgeType != s.fVertexEdgeType ||
-            fStencilSettings != s.fStencilSettings ||
-            fFirstCoverageStage != s.fFirstCoverageStage ||
-            fCoverage != s.fCoverage ||
-            fColorFilterMode != s.fColorFilterMode ||
-            fColorFilterColor != s.fColorFilterColor ||
-            fDrawFace != s.fDrawFace) {
+        if (fRenderTarget.get() != s.fRenderTarget.get() || fCommon != s.fCommon) {
             return false;
         }
 
@@ -878,54 +861,123 @@ public:
     }
     bool operator !=(const GrDrawState& s) const { return !(*this == s); }
 
-    // Most stages are usually not used, so conditionals here
-    // reduce the expected number of bytes touched by 50%.
-    GrDrawState& operator =(const GrDrawState& s) {
-        fColor = s.fColor;
-        fViewMatrix = s.fViewMatrix;
-        SkRefCnt_SafeAssign(fRenderTarget, s.fRenderTarget);
-        fSrcBlend = s.fSrcBlend;
-        fDstBlend = s.fDstBlend;
-        fBlendConstant = s.fBlendConstant;
-        fFlagBits = s.fFlagBits;
-        fVertexEdgeType = s.fVertexEdgeType;
-        fStencilSettings = s.fStencilSettings;
-        fFirstCoverageStage = s.fFirstCoverageStage;
-        fCoverage = s.fCoverage;
-        fColorFilterMode = s.fColorFilterMode;
-        fColorFilterColor = s.fColorFilterColor;
-        fDrawFace = s.fDrawFace;
-
+    GrDrawState& operator= (const GrDrawState& s) {
+        this->setRenderTarget(s.fRenderTarget.get());
+        fCommon = s.fCommon;
         for (int i = 0; i < kNumStages; i++) {
             if (s.isStageEnabled(i)) {
                 this->fStages[i] = s.fStages[i];
             }
         }
-
         return *this;
     }
 
 private:
 
-    // These fields are roughly sorted by decreasing likelihood of being different in op==
-    GrColor             fColor;
-    SkMatrix            fViewMatrix;
-    GrRenderTarget*     fRenderTarget;
-    GrBlendCoeff        fSrcBlend;
-    GrBlendCoeff        fDstBlend;
-    GrColor             fBlendConstant;
-    uint32_t            fFlagBits;
-    VertexEdgeType      fVertexEdgeType;
-    GrStencilSettings   fStencilSettings;
-    int                 fFirstCoverageStage;
-    GrColor             fCoverage;
-    SkXfermode::Mode    fColorFilterMode;
-    GrColor             fColorFilterColor;
-    DrawFace            fDrawFace;
+    /** Fields that are identical in GrDrawState and GrDrawState::DeferredState. */
+    struct CommonState {
+        // These fields are roughly sorted by decreasing likelihood of being different in op==
+        GrColor                         fColor;
+        SkMatrix                        fViewMatrix;
+        GrBlendCoeff                    fSrcBlend;
+        GrBlendCoeff                    fDstBlend;
+        GrColor                         fBlendConstant;
+        uint32_t                        fFlagBits;
+        VertexEdgeType                  fVertexEdgeType;
+        GrStencilSettings               fStencilSettings;
+        int                             fFirstCoverageStage;
+        GrColor                         fCoverage;
+        SkXfermode::Mode                fColorFilterMode;
+        GrColor                         fColorFilterColor;
+        DrawFace                        fDrawFace;
+        bool operator== (const CommonState& other) const {
+            return fColor == other.fColor &&
+                   fViewMatrix.cheapEqualTo(other.fViewMatrix) &&
+                   fSrcBlend == other.fSrcBlend &&
+                   fDstBlend == other.fDstBlend &&
+                   fBlendConstant == other.fBlendConstant &&
+                   fFlagBits == other.fFlagBits &&
+                   fVertexEdgeType == other.fVertexEdgeType &&
+                   fStencilSettings == other.fStencilSettings &&
+                   fFirstCoverageStage == other.fFirstCoverageStage &&
+                   fCoverage == other.fCoverage &&
+                   fColorFilterMode == other.fColorFilterMode &&
+                   fColorFilterColor == other.fColorFilterColor &&
+                   fDrawFace == other.fDrawFace;
+        }
+        bool operator!= (const CommonState& other) const { return !(*this == other); }
+    };
 
-    // This field must be last; it will not be copied or compared
-    // if the corresponding fTexture[] is NULL.
-    GrEffectStage       fStages[kNumStages];
+    /** GrDrawState uses GrEffectStages to hold stage state which holds a ref on GrEffectRef.
+        DeferredState must directly reference GrEffects, however. */
+    struct SavedEffectStage {
+        SavedEffectStage() : fEffect(NULL) {}
+        const GrEffect*                    fEffect;
+        GrEffectStage::SavedCoordChange    fCoordChange;
+    };
+
+public:
+    /**
+     * DeferredState contains all of the data of a GrDrawState but does not hold refs on GrResource
+     * objects. Resources are allowed to hit zero ref count while in DeferredStates. Their internal
+     * dispose mechanism returns them to the cache. This allows recycling resources through the
+     * the cache while they are in a deferred draw queue.
+     */
+    class DeferredState {
+    public:
+        DeferredState() : fRenderTarget(NULL) {
+            GR_DEBUGCODE(fInitialized = false;)
+        }
+        // TODO: Remove this when DeferredState no longer holds a ref to the RT
+        ~DeferredState() { SkSafeUnref(fRenderTarget); }
+
+        void saveFrom(const GrDrawState& drawState) {
+            fCommon = drawState.fCommon;
+            // TODO: Here we will copy the GrRenderTarget pointer without taking a ref.
+            fRenderTarget = drawState.fRenderTarget.get();
+            SkSafeRef(fRenderTarget);
+            // Here we ref the effects directly rather than the effect-refs. TODO: When the effect-
+            // ref gets fully unref'ed it will cause the underlying effect to unref its resources
+            // and recycle them to the cache (if no one else is holding a ref to the resources).
+            for (int i = 0; i < kNumStages; ++i) {
+                fStages[i].saveFrom(drawState.fStages[i]);
+            }
+            GR_DEBUGCODE(fInitialized = true;)
+        }
+
+        void restoreTo(GrDrawState* drawState) {
+            GrAssert(fInitialized);
+            drawState->fCommon = fCommon;
+            drawState->setRenderTarget(fRenderTarget);
+            for (int i = 0; i < kNumStages; ++i) {
+                fStages[i].restoreTo(&drawState->fStages[i]);
+            }
+        }
+
+        bool isEqual(const GrDrawState& state) const {
+            if (fRenderTarget != state.fRenderTarget.get() || fCommon != state.fCommon) {
+                return false;
+            }
+            for (int i = 0; i < kNumStages; ++i) {
+                if (fStages[i].isEqual(state.fStages[i])) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+    private:
+        GrRenderTarget*                 fRenderTarget;
+        CommonState                     fCommon;
+        GrEffectStage::DeferredStage    fStages[kNumStages];
+
+        GR_DEBUGCODE(bool fInitialized;)
+    };
+
+private:
+    SkAutoTUnref<GrRenderTarget>    fRenderTarget;
+    CommonState                     fCommon;
+    GrEffectStage                   fStages[kNumStages];
 
     typedef GrRefCnt INHERITED;
 };
