@@ -1267,7 +1267,7 @@ static bool quad_pt2OffCurve(const SkPoint quad[3], SkScalar x, SkScalar y, SkPo
 //    Switch over to using cubics rather then quads
 //    Use a different method to create the mid-point (e.g., compute
 //             the two side points, average them, then move it out as needed
-#ifdef SK_REDEFINE_ROOT2OVER2_TO_MAKE_ARCTOS_CONVEX
+#ifndef SK_IGNORE_CONVEX_QUAD_OPT
     #define SK_ScalarRoot2Over2_QuadCircle    0.7072f
 #else
     #define SK_ScalarRoot2Over2_QuadCircle    SK_ScalarRoot2Over2
