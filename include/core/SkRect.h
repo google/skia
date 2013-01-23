@@ -384,6 +384,7 @@ struct SK_API SkRect {
         return r;
     }
 
+    // DEPRECATED: call Make(r)
     static SkRect SK_WARN_UNUSED_RESULT MakeFromIRect(const SkIRect& irect) {
         SkRect r;
         r.set(SkIntToScalar(irect.fLeft),
@@ -392,7 +393,16 @@ struct SK_API SkRect {
               SkIntToScalar(irect.fBottom));
         return r;
     }
-
+    
+    static SkRect SK_WARN_UNUSED_RESULT Make(const SkIRect& irect) {
+        SkRect r;
+        r.set(SkIntToScalar(irect.fLeft),
+              SkIntToScalar(irect.fTop),
+              SkIntToScalar(irect.fRight),
+              SkIntToScalar(irect.fBottom));
+        return r;
+    }
+    
     /**
      *  Return true if the rectangle's width or height are <= 0
      */
