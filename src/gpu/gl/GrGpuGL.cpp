@@ -498,7 +498,7 @@ GrTexture* GrGpuGL::onWrapBackendTexture(const GrBackendTextureDesc& desc) {
     glTexDesc.fConfig = desc.fConfig;
     glTexDesc.fSampleCnt = desc.fSampleCnt;
     glTexDesc.fTextureID = static_cast<GrGLuint>(desc.fTextureHandle);
-    glTexDesc.fOwnsID = false;
+    glTexDesc.fIsWrapped = true;
     glTexDesc.fOrigin = GrSurface::kBottomLeft_Origin;
 
     GrGLTexture* texture = NULL;
@@ -507,7 +507,7 @@ GrTexture* GrGpuGL::onWrapBackendTexture(const GrBackendTextureDesc& desc) {
         glRTDesc.fRTFBOID = 0;
         glRTDesc.fTexFBOID = 0;
         glRTDesc.fMSColorRenderbufferID = 0;
-        glRTDesc.fOwnIDs = true;
+        glRTDesc.fIsWrapped = false;
         glRTDesc.fConfig = desc.fConfig;
         glRTDesc.fSampleCnt = desc.fSampleCnt;
         if (!this->createRenderTargetObjects(glTexDesc.fWidth,
@@ -535,7 +535,7 @@ GrRenderTarget* GrGpuGL::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
     glDesc.fMSColorRenderbufferID = 0;
     glDesc.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
     glDesc.fSampleCnt = desc.fSampleCnt;
-    glDesc.fOwnIDs = false;
+    glDesc.fIsWrapped = true;
     GrGLIRect viewport;
     viewport.fLeft   = 0;
     viewport.fBottom = 0;
@@ -550,8 +550,10 @@ GrRenderTarget* GrGpuGL::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
         format.fPacked = false;
         format.fStencilBits = desc.fStencilBits;
         format.fTotalBits = desc.fStencilBits;
+        static const bool kIsWrapped = false;
         GrGLStencilBuffer* sb = SkNEW_ARGS(GrGLStencilBuffer,
                                            (this,
+                                            kIsWrapped,
                                             0,
                                             desc.fWidth,
                                             desc.fHeight,
@@ -827,7 +829,7 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
     desc->fMSColorRenderbufferID = 0;
     desc->fRTFBOID = 0;
     desc->fTexFBOID = 0;
-    desc->fOwnIDs = true;
+    desc->fIsWrapped = false;
 
     GrGLenum status;
 
@@ -942,12 +944,12 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     glTexDesc.fConfig = desc.fConfig;
     glTexDesc.fSampleCnt = desc.fSampleCnt;
 
-    glTexDesc.fOwnsID = true;
+    glTexDesc.fIsWrapped = false;
 
     glRTDesc.fMSColorRenderbufferID = 0;
     glRTDesc.fRTFBOID = 0;
     glRTDesc.fTexFBOID = 0;
-    glRTDesc.fOwnIDs = true;
+    glRTDesc.fIsWrapped = false;
     glRTDesc.fConfig = glTexDesc.fConfig;
 
     bool renderTarget = 0 != (desc.fFlags & kRenderTarget_GrTextureFlagBit);
@@ -1112,8 +1114,9 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
             // whatever sizes GL gives us. In that case we query for the size.
             GrGLStencilBuffer::Format format = sFmt;
             get_stencil_rb_sizes(this->glInterface(), sbID, &format);
+            static const bool kIsWrapped = false;
             SkAutoTUnref<GrStencilBuffer> sb(SkNEW_ARGS(GrGLStencilBuffer,
-                                                  (this, sbID, width, height,
+                                                  (this, kIsWrapped, sbID, width, height,
                                                   samples, format)));
             if (this->attachStencilBufferToRenderTarget(sb, rt)) {
                 fLastSuccessfulStencilFmtIdx = sIdx;
@@ -1214,8 +1217,9 @@ GrVertexBuffer* GrGpuGL::onCreateVertexBuffer(uint32_t size, bool dynamic) {
             fHWGeometryState.fVertexBuffer = NULL;
             return NULL;
         }
+        static const bool kIsWrapped = false;
         GrGLVertexBuffer* vertexBuffer = SkNEW_ARGS(GrGLVertexBuffer,
-                                                    (this, id,
+                                                    (this, kIsWrapped, id,
                                                      size, dynamic));
         fHWGeometryState.fVertexBuffer = vertexBuffer;
         return vertexBuffer;
@@ -1242,8 +1246,9 @@ GrIndexBuffer* GrGpuGL::onCreateIndexBuffer(uint32_t size, bool dynamic) {
             fHWGeometryState.fIndexBuffer = NULL;
             return NULL;
         }
+        static const bool kIsWrapped = false;
         GrIndexBuffer* indexBuffer = SkNEW_ARGS(GrGLIndexBuffer,
-                                                (this, id, size, dynamic));
+                                                (this, kIsWrapped, id, size, dynamic));
         fHWGeometryState.fIndexBuffer = indexBuffer;
         return indexBuffer;
     }
@@ -2363,4 +2368,3 @@ void GrGpuGL::setBuffers(bool indexed,
         }
     }
 }
-

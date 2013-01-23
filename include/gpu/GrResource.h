@@ -70,7 +70,12 @@ public:
     GrResourceEntry* getCacheEntry() { return fCacheEntry; }
 
 protected:
-    explicit GrResource(GrGpu* gpu);
+    /**
+     * isWrapped indicates we have wrapped a client-created backend resource in a GrResource. If it
+     * is true then the client is responsible for the lifetime of the underlying backend resource.
+     * Otherwise, our onRelease() should free the resource.
+     */
+    GrResource(GrGpu* gpu, bool isWrapped);
     virtual ~GrResource();
 
     GrGpu* getGpu() const { return fGpu; }
@@ -81,9 +86,9 @@ protected:
     virtual void onAbandon() {};
 
     bool isInCache() const { return NULL != fCacheEntry; }
+    bool isWrapped() const { return kWrapped_Flag & fFlags; }
 
 private:
-
 #if GR_DEBUG
     friend class GrGpu; // for assert in GrGpu to access getGpu
 #endif
@@ -97,6 +102,11 @@ private:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrResource);
 
     GrResourceEntry* fCacheEntry;  // NULL if not in cache
+
+    enum Flags {
+        kWrapped_Flag,
+    };
+    uint32_t         fFlags;
 
     typedef GrRefCnt INHERITED;
 };

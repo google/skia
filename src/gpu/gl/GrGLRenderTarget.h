@@ -28,7 +28,7 @@ public:
         GrGLuint      fRTFBOID;
         GrGLuint      fTexFBOID;
         GrGLuint      fMSColorRenderbufferID;
-        bool          fOwnIDs;
+        bool          fIsWrapped;
         GrPixelConfig fConfig;
         int           fSampleCnt;
     };
@@ -88,10 +88,6 @@ private:
     GrGLuint      fTexFBOID;
 
     GrGLuint      fMSColorRenderbufferID;
-
-    // Should this object delete IDs when it is destroyed or does someone
-    // else own them.
-    bool        fOwnIDs;
 
     // when we switch to this render target we want to set the viewport to
     // only render to to content area (as opposed to the whole allocation) and

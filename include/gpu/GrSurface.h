@@ -115,8 +115,8 @@ public:
                              uint32_t pixelOpsFlags = 0) = 0;
 
 protected:
-    GrSurface(GrGpu* gpu, const GrTextureDesc& desc, Origin origin)
-    : INHERITED(gpu)
+    GrSurface(GrGpu* gpu, bool isWrapped, const GrTextureDesc& desc, Origin origin)
+    : INHERITED(gpu, isWrapped)
     , fDesc(desc)
     , fOrigin(origin) {
     }

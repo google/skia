@@ -19,14 +19,14 @@ class GrGLTexID : public GrRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrGLTexID)
 
-    GrGLTexID(const GrGLInterface* gl, GrGLuint texID, bool ownsID)
+    GrGLTexID(const GrGLInterface* gl, GrGLuint texID, bool isWrapped)
         : fGL(gl)
         , fTexID(texID)
-        , fOwnsID(ownsID) {
+        , fIsWrapped(isWrapped) {
     }
 
     virtual ~GrGLTexID() {
-        if (0 != fTexID && fOwnsID) {
+        if (0 != fTexID && !fIsWrapped) {
             GR_GL_CALL(fGL, DeleteTextures(1, &fTexID));
         }
     }
@@ -37,7 +37,7 @@ public:
 private:
     const GrGLInterface* fGL;
     GrGLuint             fTexID;
-    bool                 fOwnsID;
+    bool                 fIsWrapped;
 
     typedef GrRefCnt INHERITED;
 };
@@ -58,7 +58,7 @@ public:
 
     struct Desc : public GrTextureDesc {
         GrGLuint        fTextureID;
-        bool            fOwnsID;
+        bool            fIsWrapped;
         Origin          fOrigin;
     };
 

@@ -15,17 +15,18 @@
 #define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X)
 
 GrGLVertexBuffer::GrGLVertexBuffer(GrGpuGL* gpu,
+                                   bool isWrapped,
                                    GrGLuint id,
                                    size_t sizeInBytes,
                                    bool dynamic)
-    : INHERITED(gpu, sizeInBytes, dynamic)
+    : INHERITED(gpu, isWrapped, sizeInBytes, dynamic)
     , fBufferID(id)
     , fLockPtr(NULL) {
 }
 
 void GrGLVertexBuffer::onRelease() {
     // make sure we've not been abandoned
-    if (fBufferID) {
+    if (fBufferID && !this->isWrapped()) {
         GPUGL->notifyVertexBufferDelete(this);
         GL_CALL(DeleteBuffers(1, &fBufferID));
         fBufferID = 0;
@@ -146,4 +147,3 @@ bool GrGLVertexBuffer::updateData(const void* src, size_t srcSizeInBytes) {
 #endif
     return true;
 }
-

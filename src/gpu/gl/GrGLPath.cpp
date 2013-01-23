@@ -54,7 +54,9 @@ inline int num_pts(const SkPath::Verb verb) {
 #endif
 }
 
-GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path) : INHERITED(gpu) {
+static const bool kIsWrapped = false; // The constructor creates the GL path object.
+
+GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path) : INHERITED(gpu, kIsWrapped) {
     GL_CALL_RET(fPathID, GenPaths(1));
     SkPath::Iter iter(path, true);
 
@@ -92,7 +94,7 @@ GrGLPath::~GrGLPath() {
 }
 
 void GrGLPath::onRelease() {
-    if (0 != fPathID) {
+    if (0 != fPathID && !this->isWrapped()) {
         GL_CALL(DeletePaths(fPathID, 1));
         fPathID = 0;
     }
@@ -105,4 +107,3 @@ void GrGLPath::onAbandon() {
 
     INHERITED::onAbandon();
 }
-
