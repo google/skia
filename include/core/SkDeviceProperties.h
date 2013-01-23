@@ -79,12 +79,12 @@ struct SkDeviceProperties {
         static Geometry MakeDefault() {
             Orientation orientation = fromOldOrientation(SkFontHost::GetSubpixelOrientation()); //kHorizontal_Orientation
             Layout layout = fromOldLayout(SkFontHost::GetSubpixelOrder()); //kRGB_Layout
-            Geometry ret = { orientation | layout };
+            Geometry ret = { uint8_t(orientation | layout) };
             return ret;
         }
 
         static Geometry Make(Orientation orientation, Layout layout) {
-            Geometry ret = { orientation | layout };
+            Geometry ret = { uint8_t(orientation | layout) };
             return ret;
         }
 
