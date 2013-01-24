@@ -17,7 +17,7 @@ class SkPathMeasure;
 class SK_API Sk1DPathEffect : public SkPathEffect {
 public:
     virtual bool filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec*) const SK_OVERRIDE;
+                            SkStrokeRec*, const SkRect*) const SK_OVERRIDE;
 
 protected:
     /** Called at the start of each contour, returns the initial offset
@@ -55,7 +55,7 @@ public:
     SkPath1DPathEffect(const SkPath& path, SkScalar advance, SkScalar phase, Style);
 
     virtual bool filterPath(SkPath*, const SkPath&,
-                            SkStrokeRec*) const SK_OVERRIDE;
+                            SkStrokeRec*, const SkRect*) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPath1DPathEffect)
 

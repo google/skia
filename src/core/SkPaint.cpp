@@ -2145,13 +2145,14 @@ SkMaskFilter* SkPaint::setMaskFilter(SkMaskFilter* filter) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkPaint::getFillPath(const SkPath& src, SkPath* dst) const {
+bool SkPaint::getFillPath(const SkPath& src, SkPath* dst,
+                          const SkRect* cullRect) const {
     SkStrokeRec rec(*this);
 
     const SkPath* srcPtr = &src;
     SkPath tmpPath;
 
-    if (fPathEffect && fPathEffect->filterPath(&tmpPath, src, &rec)) {
+    if (fPathEffect && fPathEffect->filterPath(&tmpPath, src, &rec, cullRect)) {
         srcPtr = &tmpPath;
     }
 

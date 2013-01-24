@@ -23,7 +23,7 @@ public:
     SkDiscretePathEffect(SkScalar segLength, SkScalar deviation);
 
     virtual bool filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec*) const SK_OVERRIDE;
+                            SkStrokeRec*, const SkRect*) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDiscretePathEffect)
 

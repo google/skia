@@ -49,7 +49,7 @@ public:
      *  resulting stroke-rec to dst and then draw.
      */
     virtual bool filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec*) const = 0;
+                            SkStrokeRec*, const SkRect* cullR) const = 0;
 
     /**
      *  Compute a conservative bounds for its effect, given the src bounds.
@@ -103,7 +103,8 @@ public:
      *  optionally return the points in 'results'.
      */
     virtual bool asPoints(PointData* results, const SkPath& src,
-                          const SkStrokeRec&, const SkMatrix&) const;
+                          const SkStrokeRec&, const SkMatrix&,
+                          const SkRect* cullR) const;
 
 protected:
     SkPathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
@@ -154,7 +155,7 @@ public:
         : INHERITED(outer, inner) {}
 
     virtual bool filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec*) const SK_OVERRIDE;
+                            SkStrokeRec*, const SkRect*) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposePathEffect)
 
@@ -185,7 +186,7 @@ public:
         : INHERITED(first, second) {}
 
     virtual bool filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec*) const SK_OVERRIDE;
+                            SkStrokeRec*, const SkRect*) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSumPathEffect)
 

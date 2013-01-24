@@ -26,7 +26,7 @@ SkDiscretePathEffect::SkDiscretePathEffect(SkScalar segLength, SkScalar deviatio
 }
 
 bool SkDiscretePathEffect::filterPath(SkPath* dst, const SkPath& src,
-                                      SkStrokeRec* rec) const {
+                                      SkStrokeRec* rec, const SkRect*) const {
     bool doFill = rec->isFillStyle();
 
     SkPathMeasure   meas(src, doFill);

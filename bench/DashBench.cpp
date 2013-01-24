@@ -206,7 +206,7 @@ protected:
         for (int i = 0; i < N; ++i) {
             SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
 
-            fPE->filterPath(&dst, fPath, &rec);
+            fPE->filterPath(&dst, fPath, &rec, NULL);
             dst.rewind();
         }
     }
@@ -419,6 +419,6 @@ DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kDiag_LineType, 0); )
 // pass 2 to explicitly avoid any 1-is-the-same-as-hairline special casing
 
 // hori_2 is just too slow to enable at the moment
-//DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kHori_LineType, 2); )
+DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kHori_LineType, 2); )
 DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kVert_LineType, 2); )
 DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kDiag_LineType, 2); )

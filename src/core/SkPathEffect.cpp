@@ -19,7 +19,7 @@ void SkPathEffect::computeFastBounds(SkRect* dst, const SkRect& src) const {
 }
 
 bool SkPathEffect::asPoints(PointData* results, const SkPath& src,
-                            const SkStrokeRec&, const SkMatrix&) const {
+                    const SkStrokeRec&, const SkMatrix&, const SkRect*) const {
     return false;
 }
 
@@ -56,7 +56,7 @@ SkPairPathEffect::SkPairPathEffect(SkFlattenableReadBuffer& buffer) {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkComposePathEffect::filterPath(SkPath* dst, const SkPath& src,
-                                     SkStrokeRec* rec) const {
+                             SkStrokeRec* rec, const SkRect* cullRect) const {
     // we may have failed to unflatten these, so we have to check
     if (!fPE0 || !fPE1) {
         return false;
@@ -65,16 +65,18 @@ bool SkComposePathEffect::filterPath(SkPath* dst, const SkPath& src,
     SkPath          tmp;
     const SkPath*   ptr = &src;
 
-    if (fPE1->filterPath(&tmp, src, rec)) {
+    if (fPE1->filterPath(&tmp, src, rec, cullRect)) {
         ptr = &tmp;
     }
-    return fPE0->filterPath(dst, *ptr, rec);
+    return fPE0->filterPath(dst, *ptr, rec, cullRect);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkSumPathEffect::filterPath(SkPath* dst, const SkPath& src,
-                                 SkStrokeRec* rec) const {
+                             SkStrokeRec* rec, const SkRect* cullRect) const {
     // use bit-or so that we always call both, even if the first one succeeds
-    return fPE0->filterPath(dst, src, rec) | fPE1->filterPath(dst, src, rec);
+    return fPE0->filterPath(dst, src, rec, cullRect) |
+           fPE1->filterPath(dst, src, rec, cullRect);
 }
+
