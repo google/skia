@@ -10,6 +10,7 @@
 
 #include "DataTypes.h"
 
+int add_valid_ts(double s[], int realRoots, double* t);
 void chop_at(const Quadratic& src, QuadraticPair& dst, double t);
 double dx_at_t(const Quadratic& , double t);
 double dy_at_t(const Quadratic& , double t);
@@ -30,8 +31,8 @@ inline void set_abc(const double* quad, double& a, double& b, double& c) {
     b -= c;          // b =     2*B - 2*C
 }
 
-int quadraticRoots(double A, double B, double C, double t[2]);
-int quadraticRootsX(const double A, const double B, const double C, double s[2]);
+int quadraticRootsReal(double A, double B, double C, double t[2]);
+int quadraticRootsValidT(const double A, const double B, const double C, double s[2]);
 void sub_divide(const Quadratic& src, double t1, double t2, Quadratic& dst);
 void xy_at_t(const Quadratic& , double t, double& x, double& y);
 

@@ -15,13 +15,16 @@ double calcPrecision(const Cubic& cubic);
 double calcPrecision(const Cubic& cubic, double t, double scale);
 #endif
 void chop_at(const Cubic& src, CubicPair& dst, double t);
+// FIXME: should be private static but public here for testing
+void computeDelta(const Cubic& c1, double t1, double scale1, const Cubic& c2, double t2,
+    double scale2, double& delta1, double& delta2);
 double cube_root(double x);
 int cubic_to_quadratics(const Cubic& cubic, double precision,
         SkTDArray<Quadratic>& quadratics);
 void cubic_to_quadratics(const Cubic& cubic, double precision, SkTDArray<double>& ts);
 void coefficients(const double* cubic, double& A, double& B, double& C, double& D);
-int cubicRoots(double A, double B, double C, double D, double t[3]);
-int cubicRootsX(double A, double B, double C, double D, double s[3]);
+int cubicRootsValidT(double A, double B, double C, double D, double t[3]);
+int cubicRootsReal(double A, double B, double C, double D, double s[3]);
 void demote_cubic_to_quad(const Cubic& cubic, Quadratic& quad);
 double dx_at_t(const Cubic& , double t);
 double dy_at_t(const Cubic& , double t);

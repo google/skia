@@ -10,6 +10,7 @@
 #include "Intersections.h"
 #include "IntersectionUtilities.h"
 #include "LineIntersection.h"
+#include "LineUtilities.h"
 
 static const double tClipLimit = 0.8; // http://cagd.cs.byu.edu/~tom/papers/bezclip.pdf see Multiple intersections
 
@@ -163,27 +164,49 @@ bool intersect(const Cubic& c1, const Cubic& c2, Intersections& i) {
 
 #include "CubicUtilities.h"
 
-// FIXME: ? if needed, compute the error term from the tangent length
-start here;
-// need better delta computation -- assert fails
-static double computeDelta(const Cubic& cubic, double t, double scale) {
-    double attempt = scale / precisionUnit * 2;
-#if SK_DEBUG
-    double precision = calcPrecision(cubic, t, scale);
-    _Point dxy;
+static void cubicTangent(const Cubic& cubic, double t, _Line& tangent, _Point& pt, _Point& dxy) {
+    xy_at_t(cubic, t, tangent[0].x, tangent[0].y);
+    pt = tangent[1] = tangent[0];
     dxdy_at_t(cubic, t, dxy);
-    _Point p1, p2;
-    xy_at_t(cubic, std::max(t - attempt, 0.), p1.x, p1.y);
-    xy_at_t(cubic, std::min(t + attempt, 1.), p2.x, p2.y);
-    double dx = p1.x - p2.x;
-    double dy = p1.y - p2.y;
-    double distSq = dx * dx + dy * dy;
-    double dist = sqrt(distSq);
-    assert(dist > precision);
-#endif
-    return attempt;
+    tangent[0] -= dxy;
+    tangent[1] += dxy;
 }
 
+static double cubicDelta(const _Point& dxy, _Line& tangent, double scale)  {
+    double tangentLen = dxy.length();
+    tangent[0] -= tangent[1];
+    double intersectLen = tangent[0].length();
+    double result = intersectLen / tangentLen + scale;
+    return result;
+}
+
+// FIXME: after testing, make this static
+void computeDelta(const Cubic& c1, double t1, double scale1, const Cubic& c2, double t2,
+        double scale2, double& delta1, double& delta2) {
+    _Line tangent1, tangent2, line1, line2;
+    _Point dxy1, dxy2;
+    cubicTangent(c1, t1, line1, tangent1[0], dxy1);
+    cubicTangent(c2, t2, line2, tangent2[0], dxy2);
+    double range1[2], range2[2];
+    int found = intersect(line1, line2, range1, range2);
+    if (found == 0) {
+        range1[0] = 0.5;
+    } else {
+        SkASSERT(found == 1);
+    }
+    xy_at_t(line1, range1[0], tangent1[1].x, tangent1[1].y);
+#if SK_DEBUG
+    if (found == 1) {
+        xy_at_t(line2, range2[0], tangent2[1].x, tangent2[1].y);
+        SkASSERT(tangent2[1].approximatelyEqual(tangent1[1]));
+    }
+#endif
+    tangent2[1] = tangent1[1];
+    delta1 = cubicDelta(dxy1, tangent1, scale1 / precisionUnit);
+    delta2 = cubicDelta(dxy2, tangent2, scale2 / precisionUnit);
+}
+
+int debugDepth;
 // this flavor approximates the cubics with quads to find the intersecting ts
 // OPTIMIZE: if this strategy proves successful, the quad approximations, or the ts used
 // to create the approximations, could be stored in the cubic segment
@@ -252,12 +275,16 @@ static bool intersect2(const Cubic& cubic1, double t1s, double t1e, const Cubic&
                 if (p1.approximatelyEqual(p2)) {
                     i.insert(i.swapped() ? to2 : to1, i.swapped() ? to1 : to2);
                 } else {
-                    double dt1 = computeDelta(cubic1, to1, t1e - t1s);
-                    double dt2 = computeDelta(cubic2, to2, t2e - t2s);
+                    double dt1, dt2;
+                    computeDelta(cubic1, to1, (t1e - t1s), cubic2, to2, (t2e - t2s), dt1, dt2);
+                    ++debugDepth;
+                    assert(debugDepth < 10);
                     i.swap();
-                    intersect2(cubic2, std::max(to2 - dt2, 0.), std::min(to2 + dt2, 1.),
-                            cubic1, std::max(to1 - dt1, 0.), std::min(to1 + dt1, 1.), i);
+                    intersect2(cubic2, SkTMax(to2 - dt2, 0.), SkTMin(to2 + dt2, 1.),
+                            cubic1, SkTMax(to1 - dt1, 0.), SkTMin(to1 + dt1, 1.), i);
                     i.swap();
+                    --debugDepth;
+                    
                 }
             }
             t2Start = t2;
@@ -309,6 +336,7 @@ static bool intersectEnd(const Cubic& cubic1, bool start, const Cubic& cubic2, c
         tMin = std::min(tMin, local2.fT[0][index]);
         tMax = std::max(tMax, local2.fT[0][index]);
     }
+    debugDepth = 0;
     return intersect2(cubic1, start ? 0 : 1, start ? 1.0 / precisionUnit : 1 - 1.0 / precisionUnit,
             cubic2, tMin, tMax, i);
 }
@@ -318,6 +346,7 @@ static bool intersectEnd(const Cubic& cubic1, bool start, const Cubic& cubic2, c
 // line segments intersect the cubic, then use the intersections to construct a subdivision for
 // quadratic curve fitting.
 bool intersect2(const Cubic& c1, const Cubic& c2, Intersections& i) {
+    debugDepth = 0;
     bool result = intersect2(c1, 0, 1, c2, 0, 1, i);
     // FIXME: pass in cached bounds from caller
     _Rect c1Bounds, c2Bounds;

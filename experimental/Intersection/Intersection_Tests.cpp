@@ -15,9 +15,10 @@ void cubecode_test(int test);
 void Intersection_Tests() {
     int testsRun = 0;
 
-    CubicIntersection_RandTest();
     QuadraticIntersection_Test();
     CubicIntersection_OneOffTest();
+    QuarticRoot_Test();
+    CubicIntersection_RandTest();
     SimplifyNew_Test();
     CubicsToQuadratics_RandTest();
     CubicToQuadratics_Test();
@@ -32,7 +33,6 @@ void Intersection_Tests() {
     LineQuadraticIntersection_Test();
     MiniSimplify_Test();
     SimplifyAngle_Test();
-    QuarticRoot_Test();
     QuadraticBezierClip_Test();
     SimplifyFindNext_Test();
     SimplifyFindTop_Test();

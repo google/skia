@@ -17,23 +17,37 @@ double rootE[] = {-5, -1, 0, 1, 7};
 size_t rootECount = sizeof(rootE) / sizeof(rootE[0]);
 
 
-static void quadraticTest() {
+static void quadraticTest(bool limit) {
     // (x - a)(x - b) == x^2 - (a + b)x + ab
     for (size_t aIndex = 0; aIndex < mulACount; ++aIndex) {
         for (size_t bIndex = 0; bIndex < rootBCount; ++bIndex) {
             for (size_t cIndex = 0; cIndex < rootCCount; ++cIndex) {
                 const double A = mulA[aIndex];
-                const double B = rootB[bIndex];
-                const double C = rootC[cIndex];
+                double B = rootB[bIndex];
+                double C = rootC[cIndex];
+                if (limit) {
+                    B = (B - 6) / 12;
+                    C = (C - 6) / 12;
+                }
                 const double b = A * (B + C);
                 const double c = A * B * C;
                 double roots[2];
-                const int rootCount = quadraticRootsX(A, b, c, roots);
-                const int expected = 1 + (B != C);
+                const int rootCount = limit ? quadraticRootsValidT(A, b, c, roots)
+                    : quadraticRootsReal(A, b, c, roots);
+                int expected;
+                if (limit) {
+                    expected = B <= 0 && B >= -1;
+                    expected += B != C && C <= 0 && C >= -1;
+                } else {
+                    expected = 1 + (B != C);
+                }
                 assert(rootCount == expected);
+                if (!rootCount) {
+                    continue;
+                }
                 assert(approximately_equal(roots[0], -B)
                         || approximately_equal(roots[0], -C));
-                if (B != C) {
+                if (expected > 1) {
                     assert(!approximately_equal(roots[0], roots[1]));
                     assert(approximately_equal(roots[1], -B)
                             || approximately_equal(roots[1], -C));
@@ -43,43 +57,117 @@ static void quadraticTest() {
     }
 }
 
-static void cubicTest() {
+static void testOneCubic(bool limit, size_t aIndex, size_t bIndex, size_t cIndex, size_t dIndex) {
+    const double A = mulA[aIndex];
+    double B = rootB[bIndex];
+    double C = rootC[cIndex];
+    double D = rootD[dIndex];
+    if (limit) {
+        B = (B - 6) / 12;
+        C = (C - 6) / 12;
+        D = (C - 2) / 6;
+    }
+    const double b = A * (B + C + D);
+    const double c = A * (B * C + C * D + B * D);
+    const double d = A * B * C * D;
+    double roots[3];
+    const int rootCount = limit ? cubicRootsValidT(A, b, c, d, roots)
+            : cubicRootsReal(A, b, c, d, roots);
+    int expected;
+    if (limit) {
+        expected = B <= 0 && B >= -1;
+        expected += B != C && C <= 0 && C >= -1;
+        expected += B != D && C != D && D <= 0 && D >= -1;
+    } else {
+        expected = 1 + (B != C) + (B != D && C != D);
+    }
+    assert(rootCount == expected);
+    if (!rootCount) {
+        return;
+    }
+    assert(approximately_equal(roots[0], -B)
+            || approximately_equal(roots[0], -C)
+            || approximately_equal(roots[0], -D));
+    if (expected <= 1) {
+        return;
+    }
+    assert(!approximately_equal(roots[0], roots[1]));
+    assert(approximately_equal(roots[1], -B)
+            || approximately_equal(roots[1], -C)
+            || approximately_equal(roots[1], -D));
+    if (expected <= 2) {
+        return;
+    }
+    assert(!approximately_equal(roots[0], roots[2])
+            && !approximately_equal(roots[1], roots[2]));
+    assert(approximately_equal(roots[2], -B)
+            || approximately_equal(roots[2], -C)
+            || approximately_equal(roots[2], -D));
+}
+
+static void cubicTest(bool limit) {
     // (x - a)(x - b)(x - c) == x^3 - (a + b + c)x^2 + (ab + bc + ac)x - abc
     for (size_t aIndex = 0; aIndex < mulACount; ++aIndex) {
         for (size_t bIndex = 0; bIndex < rootBCount; ++bIndex) {
             for (size_t cIndex = 0; cIndex < rootCCount; ++cIndex) {
                 for (size_t dIndex = 0; dIndex < rootDCount; ++dIndex) {
-                    const double A = mulA[aIndex];
-                    const double B = rootB[bIndex];
-                    const double C = rootC[cIndex];
-                    const double D = rootD[dIndex];
-                    const double b = A * (B + C + D);
-                    const double c = A * (B * C + C * D + B * D);
-                    const double d = A * B * C * D;
-                    double roots[3];
-                    const int rootCount = cubicRootsX(A, b, c, d, roots);
-                    const int expected = 1 + (B != C) + (B != D && C != D);
-                    assert(rootCount == expected);
-                    assert(approximately_equal(roots[0], -B)
-                            || approximately_equal(roots[0], -C)
-                            || approximately_equal(roots[0], -D));
-                    if (expected > 1) {
-                        assert(!approximately_equal(roots[0], roots[1]));
-                        assert(approximately_equal(roots[1], -B)
-                                || approximately_equal(roots[1], -C)
-                                || approximately_equal(roots[1], -D));
-                        if (expected > 2) {
-                            assert(!approximately_equal(roots[0], roots[2])
-                                    && !approximately_equal(roots[1], roots[2]));
-                            assert(approximately_equal(roots[2], -B)
-                                    || approximately_equal(roots[2], -C)
-                                    || approximately_equal(roots[2], -D));
-                        }
-                    }
+                    testOneCubic(limit, aIndex, bIndex, cIndex, dIndex);
                 }
             }
         }
     }
+}
+
+static void testOneQuartic(size_t aIndex, size_t bIndex, size_t cIndex, size_t dIndex,
+        size_t eIndex) {
+    const double A = mulA[aIndex];
+    const double B = rootB[bIndex];
+    const double C = rootC[cIndex];
+    const double D = rootD[dIndex];
+    const double E = rootE[eIndex];
+    const double b = A * (B + C + D + E);
+    const double c = A * (B * C + C * D + B * D + B * E + C * E + D * E);
+    const double d = A * (B * C * D + B * C * E + B * D * E + C * D * E);
+    const double e = A * B * C * D * E;
+    double roots[4];
+    bool oneHint = approximately_zero(A + b + c + d + e);
+    int rootCount = reducedQuarticRoots(A, b, c, d, e, oneHint, roots);
+    if (rootCount < 0) {
+        rootCount = quarticRootsReal(A, b, c, d, e, roots);
+    }
+    const int expected = 1 + (B != C) + (B != D && C != D) + (B != E && C != E && D != E);
+    assert(rootCount == expected);
+    assert(AlmostEqualUlps(roots[0], -B)
+            || AlmostEqualUlps(roots[0], -C)
+            || AlmostEqualUlps(roots[0], -D)
+            || AlmostEqualUlps(roots[0], -E));
+    if (expected <= 1) {
+        return;
+    }
+    assert(!AlmostEqualUlps(roots[0], roots[1]));
+    assert(AlmostEqualUlps(roots[1], -B)
+            || AlmostEqualUlps(roots[1], -C)
+            || AlmostEqualUlps(roots[1], -D)
+            || AlmostEqualUlps(roots[1], -E));
+    if (expected <= 2) {
+        return;
+    }
+    assert(!AlmostEqualUlps(roots[0], roots[2])
+            && !AlmostEqualUlps(roots[1], roots[2]));
+    assert(AlmostEqualUlps(roots[2], -B)
+            || AlmostEqualUlps(roots[2], -C)
+            || AlmostEqualUlps(roots[2], -D)
+            || AlmostEqualUlps(roots[2], -E));
+    if (expected <= 3) {
+        return;
+    }
+    assert(!AlmostEqualUlps(roots[0], roots[3])
+            && !AlmostEqualUlps(roots[1], roots[3])
+            && !AlmostEqualUlps(roots[2], roots[3]));
+    assert(AlmostEqualUlps(roots[3], -B)
+            || AlmostEqualUlps(roots[3], -C)
+            || AlmostEqualUlps(roots[3], -D)
+            || AlmostEqualUlps(roots[3], -E));
 }
 
 static void quarticTest() {
@@ -90,47 +178,7 @@ static void quarticTest() {
             for (size_t cIndex = 0; cIndex < rootCCount; ++cIndex) {
                 for (size_t dIndex = 0; dIndex < rootDCount; ++dIndex) {
                     for (size_t eIndex = 0; eIndex < rootECount; ++eIndex) {
-                        const double A = mulA[aIndex];
-                        const double B = rootB[bIndex];
-                        const double C = rootC[cIndex];
-                        const double D = rootD[dIndex];
-                        const double E = rootE[eIndex];
-                        const double b = A * (B + C + D + E);
-                        const double c = A * (B * C + C * D + B * D + B * E + C * E + D * E);
-                        const double d = A * (B * C * D + B * C * E + B * D * E + C * D * E);
-                        const double e = A * B * C * D * E;
-                        double roots[4];
-                        const int rootCount = quarticRoots(A, b, c, d, e, roots);
-                        const int expected = 1 + (B != C) + (B != D && C != D) + (B != E && C != E && D != E);
-                        assert(rootCount == expected);
-                        assert(approximately_equal(roots[0], -B)
-                                || approximately_equal(roots[0], -C)
-                                || approximately_equal(roots[0], -D)
-                                || approximately_equal(roots[0], -E));
-                        if (expected > 1) {
-                            assert(!approximately_equal(roots[0], roots[1]));
-                            assert(approximately_equal(roots[1], -B)
-                                    || approximately_equal(roots[1], -C)
-                                    || approximately_equal(roots[1], -D)
-                                    || approximately_equal(roots[1], -E));
-                            if (expected > 2) {
-                                assert(!approximately_equal(roots[0], roots[2])
-                                        && !approximately_equal(roots[1], roots[2]));
-                                assert(approximately_equal(roots[2], -B)
-                                        || approximately_equal(roots[2], -C)
-                                        || approximately_equal(roots[2], -D)
-                                        || approximately_equal(roots[2], -E));
-                                if (expected > 3) {
-                                    assert(!approximately_equal(roots[0], roots[3])
-                                            && !approximately_equal(roots[1], roots[3])
-                                            && !approximately_equal(roots[2], roots[3]));
-                                    assert(approximately_equal(roots[3], -B)
-                                            || approximately_equal(roots[3], -C)
-                                            || approximately_equal(roots[3], -D)
-                                            || approximately_equal(roots[3], -E));
-                                }
-                            }
-                        }
+                        testOneQuartic(aIndex, bIndex, cIndex, dIndex, eIndex);
                     }
                 }
             }
@@ -139,7 +187,11 @@ static void quarticTest() {
 }
 
 void QuarticRoot_Test() {
-    quadraticTest();
-    cubicTest();
+    testOneCubic(false, 0, 5, 5, 4);
+    testOneQuartic(0, 0, 2, 4, 3);
+    quadraticTest(true);
+    quadraticTest(false);
+    cubicTest(true);
+    cubicTest(false);
     quarticTest();
 }

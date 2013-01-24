@@ -57,23 +57,29 @@ void CubicIntersection_Test() {
     }
 }
 
+#define ONE_OFF_DEBUG 1
+
 static void oneOff(const Cubic& cubic1, const Cubic& cubic2) {
     SkTDArray<Quadratic> quads1;
     cubic_to_quadratics(cubic1, calcPrecision(cubic1), quads1);
+#if ONE_OFF_DEBUG
     for (int index = 0; index < quads1.count(); ++index) {
         const Quadratic& q = quads1[index];
-        SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", q[0].x, q[0].y,
+        SkDebugf("  {{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", q[0].x, q[0].y,
                  q[1].x, q[1].y,  q[2].x, q[2].y);
     }
     SkDebugf("\n");
+#endif
     SkTDArray<Quadratic> quads2;
     cubic_to_quadratics(cubic2, calcPrecision(cubic2), quads2);
+#if ONE_OFF_DEBUG
     for (int index = 0; index < quads2.count(); ++index) {
         const Quadratic& q = quads2[index];
-        SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", q[0].x, q[0].y,
+        SkDebugf("  {{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", q[0].x, q[0].y,
                  q[1].x, q[1].y,  q[2].x, q[2].y);
     }
     SkDebugf("\n");
+#endif
     Intersections intersections2;
     intersect2(cubic1, cubic2, intersections2);
     for (int pt = 0; pt < intersections2.used(); ++pt) {
@@ -83,13 +89,30 @@ static void oneOff(const Cubic& cubic1, const Cubic& cubic2) {
         int pt2 = intersections2.fFlip ? intersections2.used() - pt - 1 : pt;
         double tt2 = intersections2.fT[1][pt2];
         xy_at_t(cubic2, tt2, xy2.x, xy2.y);
+#if ONE_OFF_DEBUG
         SkDebugf("%s t1=%1.9g (%1.9g, %1.9g) (%1.9g, %1.9g) t2=%1.9g\n", __FUNCTION__,
             tt1, xy1.x, xy1.y, xy2.x, xy2.y, tt2);
+#endif
         assert(xy1.approximatelyEqual(xy2));
     }
 }
 
 static const Cubic testSet[] = {
+{{65.454505973241524, 93.881892270353575}, {45.867360264932437, 92.723972719499827}, {2.1464054482739447, 74.636369140183717}, {33.774068594804994, 40.770872887582925}},
+{{72.963387832494163, 95.659300729473728}, {11.809496633619768, 82.209921247423594}, {13.456139067865974, 57.329313623406605}, {36.060621606214262, 70.867335643091849}},
+
+{{32.484981432782945, 75.082940782924624}, {42.467313093350882, 48.131159948246157}, {3.5963115764764657, 43.208665839959245}, {79.442476890721579, 89.709102357602262}},
+{{18.98573861410177, 93.308887208490106}, {40.405250173250792, 91.039661826118675}, {8.0467721950480584, 42.100282172719147}, {40.883324221187891, 26.030185504830527}},
+
+{{7.5374809128872498, 82.441702896003477}, {22.444346930107265, 22.138854312775123}, {66.76091829629658, 50.753805856571446}, {78.193478508942519, 97.7932997968948}},
+{{97.700573130371311, 53.53260215070685}, {87.72443481149358, 84.575876772671876}, {19.215031396232092, 47.032676472809484}, {11.989686410869325, 10.659507480757082}},
+
+{{26.192053931854691, 9.8504326817814416}, {10.174241480498686, 98.476562741434464}, {21.177712558385782, 33.814968789841501}, {75.329030899018534, 55.02231980442177}},
+{{56.222082700683771, 24.54395039218662}, {95.589995289030483, 81.050822735322086}, {28.180450866082897, 28.837706255185282}, {60.128952916771617, 87.311672180570511}},
+
+{{42.449716172390481, 52.379709366885805}, {27.896043159019225, 48.797373636065686}, {92.770268299044233, 89.899302036454571}, {12.102066544863426, 99.43241951960718}},
+{{45.77532924980639, 45.958701495993274}, {37.458701356062065, 68.393691335056758}, {37.569326692060258, 27.673713456687381}, {60.674866037757539, 62.47349659096146}},
+
 {{67.426548091427676, 37.993772624988935}, {23.483695892376684, 90.476863174921306}, {35.597065061143162, 79.872482633158796}, {75.38634169631932, 18.244890038969412}},
 {{61.336508189019057, 82.693132843213675}, {44.639380902349664, 54.074825790745592}, {16.815615499771951, 20.049704667203923}, {41.866884958868326, 56.735503699973002}},
 
@@ -104,10 +127,14 @@ const size_t testSetCount = sizeof(testSet) / sizeof(testSet[0]);
 
 void CubicIntersection_OneOffTest() {
     for (size_t outer = 0; outer < testSetCount - 1; ++outer) {
+#if ONE_OFF_DEBUG
         SkDebugf("%s quads1[%d]\n", __FUNCTION__, outer);
+#endif
         const Cubic& cubic1 = testSet[outer];
         for (size_t inner = outer + 1; inner < testSetCount; ++inner) {
+#if ONE_OFF_DEBUG
         SkDebugf("%s quads2[%d]\n", __FUNCTION__, inner);
+#endif
             const Cubic& cubic2 = testSet[inner];
             oneOff(cubic1, cubic2);
         }
@@ -309,9 +336,56 @@ void CubicIntersection_RandTest() {
             int pt2 = intersections2.fFlip ? intersections2.used() - pt - 1 : pt;
             double tt2 = intersections2.fT[1][pt2];
             xy_at_t(cubic2, tt2, xy2.x, xy2.y);
+        #if 0
             SkDebugf("%s t1=%1.9g (%1.9g, %1.9g) (%1.9g, %1.9g) t2=%1.9g\n", __FUNCTION__,
                 tt1, xy1.x, xy1.y, xy2.x, xy2.y, tt2);
+        #endif
             assert(xy1.approximatelyEqual(xy2));
         }
+    }
+}
+
+static Cubic deltaTestSet[] = {
+  {{1, 4}, {1, 4.*2/3}, {1, 4.*1/3}, {1, 0}},
+  {{0, 3}, {1, 2}, {2, 1}, {3, 0}},
+  {{1, 4}, {1, 4.*2/3}, {1, 4.*1/3}, {1, 0}},
+  {{3.5, 1}, {2.5, 2}, {1.5, 3}, {0.5, 4}}
+};
+
+size_t deltaTestSetLen = sizeof(deltaTestSet) / sizeof(deltaTestSet[0]);
+
+static double deltaTestSetT[] = {
+    3./8,
+    5./12,
+    6./8,
+    9./12
+};
+
+size_t deltaTestSetTLen = sizeof(deltaTestSetT) / sizeof(deltaTestSetT[0]);
+
+static double expectedT[] = {
+    0.5,
+    1./3,
+    1./8,
+    5./6
+};
+
+size_t expectedTLen = sizeof(expectedT) / sizeof(expectedT[0]);
+
+// FIXME: this test no longer valid -- does not take minimum scale contribution into account
+void CubicIntersection_ComputeDeltaTest() {
+    SkASSERT(deltaTestSetLen == deltaTestSetTLen);
+    SkASSERT(expectedTLen == deltaTestSetTLen);
+    for (size_t index = 0; index < deltaTestSetLen; index += 2) {
+        const Cubic& c1 = deltaTestSet[index];
+        const Cubic& c2 = deltaTestSet[index + 1];
+        double t1 = deltaTestSetT[index];
+        double t2 = deltaTestSetT[index + 1];
+        double d1, d2;
+        computeDelta(c1, t1, 1, c2, t2, 1, d1, d2);
+        SkASSERT(approximately_equal(t1 + d1, expectedT[index])
+            || approximately_equal(t1 - d1, expectedT[index]));
+        SkASSERT(approximately_equal(t2 + d2, expectedT[index + 1])
+            || approximately_equal(t2 - d2, expectedT[index + 1]));
     }
 }

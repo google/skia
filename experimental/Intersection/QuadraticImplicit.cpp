@@ -13,8 +13,6 @@
 #include "QuadraticUtilities.h"
 #include "TSearch.h"
 
-#include <algorithm> // for std::min, max
-
 /* given the implicit form 0 = Ax^2 + Bxy + Cy^2 + Dx + Ey + F
  * and given x = at^2 + bt + c  (the parameterized form)
  *           y = dt^2 + et + f
@@ -22,14 +20,8 @@
  * 0 = A(at^2+bt+c)(at^2+bt+c)+B(at^2+bt+c)(dt^2+et+f)+C(dt^2+et+f)(dt^2+et+f)+D(at^2+bt+c)+E(dt^2+et+f)+F
  */
 
-#if SK_DEBUG
-#define QUARTIC_DEBUG 1
-#else
-#define QUARTIC_DEBUG 0
-#endif
-
 static int findRoots(const QuadImplicitForm& i, const Quadratic& q2, double roots[4],
-        bool useCubic, bool& disregardCount) {
+        bool oneHint) {
     double a, b, c;
     set_abc(&q2[0].x, a, b, c);
     double d, e, f;
@@ -56,43 +48,11 @@ static int findRoots(const QuadImplicitForm& i, const Quadratic& q2, double root
                     +     i.x()  *  c
                     +     i.y()  *  f
                     +     i.c();
-#if QUARTIC_DEBUG
-    // create a string mathematica understands
-    char str[1024];
-    bzero(str, sizeof(str));
-    sprintf(str, "Solve[%1.19g x^4 + %1.19g x^3 + %1.19g x^2 + %1.19g x + %1.19g == 0, x]",
-        t4, t3, t2, t1, t0);
-#endif
-    if (approximately_zero(t4)) {
-        disregardCount = true;
-        if (approximately_zero(t3)) {
-            return quadraticRootsX(t2, t1, t0, roots);
-        }
-        return cubicRootsX(t3, t2, t1, t0, roots);
+    int rootCount = reducedQuarticRoots(t4, t3, t2, t1, t0, oneHint, roots);
+    if (rootCount >= 0) {
+        return rootCount;
     }
-    if (approximately_zero(t0)) { // 0 is one root
-        disregardCount = true;
-        int num = cubicRootsX(t4, t3, t2, t1, roots);
-        for (int i = 0; i < num; ++i) {
-            if (approximately_zero(roots[i])) {
-                return num;
-            }
-        }
-        roots[num++] = 0;
-        return num;
-    }
-    if (useCubic) {
-        assert(approximately_zero(t4 + t3 + t2 + t1 + t0)); // 1 is one root
-        int num = cubicRootsX(t4, t4 + t3, -(t1 + t0), -t0, roots); // note that -C==A+B+D+E
-        for (int i = 0; i < num; ++i) {
-            if (approximately_equal(roots[i], 1)) {
-                return num;
-            }
-        }
-        roots[num++] = 1;
-        return num;
-    }
-    return quarticRoots(t4, t3, t2, t1, t0, roots);
+    return quarticRootsReal(t4, t3, t2, t1, t0, roots);
 }
 
 static void addValidRoots(const double roots[4], const int count, const int side, Intersections& i) {
@@ -196,7 +156,10 @@ static bool addIntercept(const Quadratic& q1, const Quadratic& q2, double tMin, 
     line[1].y += dxdy.y;
     Intersections rootTs;
     int roots = intersect(q1, line, rootTs);
-    assert(roots == 1);
+    if (roots == 2) {
+        return false;
+    }
+    SkASSERT(roots == 1);
     _Point pt2;
     xy_at_t(q1, rootTs.fT[0][0], pt2.x, pt2.y);
     if (!pt2.approximatelyEqual(mid)) {
@@ -288,12 +251,12 @@ static bool isLinearInner(const Quadratic& q1, double t1s, double t1e, const Qua
 }
 
 static double flatMeasure(const Quadratic& q) {
-    _Point mid;
-    xy_at_t(q, 0.5, mid.x, mid.y);
-    double dx = q[2].x - q[0].x;
-    double dy = q[2].y - q[0].y;
-    double length = sqrt(dx * dx + dy * dy); // OPTIMIZE: get rid of sqrt
-    return ((mid.x - q[0].x) * dy - (mid.y - q[0].y) * dx) / length;
+    _Point mid = q[1];
+    mid -= q[0];
+    _Point dxy = q[2];
+    dxy -= q[0];
+    double length = dxy.length(); // OPTIMIZE: get rid of sqrt
+    return fabs(mid.cross(dxy) / length);
 }
 
 // FIXME ? should this measure both and then use the quad that is the flattest as the line?
@@ -306,11 +269,18 @@ static bool isLinear(const Quadratic& q1, const Quadratic& q2, Intersections& i)
     return isLinearInner(q1, 0, 1, q2, 0, 1, i);
 }
 
+// FIXME: if flat measure is sufficiently large, then probably the quartic solution failed
 static bool relaxedIsLinear(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
     double m1 = flatMeasure(q1);
     double m2 = flatMeasure(q2);
+#if SK_DEBUG
+    double min = SkTMin(m1, m2);
+    if (min > 5) {
+        SkDebugf("%s maybe not flat enough.. %1.9g\n", __FUNCTION__, min);
+    }
+#endif
     i.reset();
-    if (fabs(m1) < fabs(m2)) {
+    if (m1 < m2) {
         isLinearInner(q1, 0, 1, q2, 0, 1, i);
         return false;
     } else {
@@ -400,18 +370,10 @@ bool intersect2(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
         return i.fCoincidentUsed > 0;
     }
     double roots1[4], roots2[4];
-    bool disregardCount1 = false;
-    bool disregardCount2 = false;
     bool useCubic = q1[0] == q2[0] || q1[0] == q2[2] || q1[2] == q2[0];
-    int rootCount = findRoots(i2, q1, roots1, useCubic, disregardCount1);
+    int rootCount = findRoots(i2, q1, roots1, useCubic);
     // OPTIMIZATION: could short circuit here if all roots are < 0 or > 1
-    int rootCount2 = findRoots(i1, q2, roots2, useCubic, disregardCount2);
- #if 0
-    if (rootCount != rootCount2 && !disregardCount1 && !disregardCount2) {
-        unsortableExpanse(q1, q2, i);
-        return false;
-    }
- #endif
+    int rootCount2 = findRoots(i1, q2, roots2, useCubic);
     addValidRoots(roots1, rootCount, 0, i);
     addValidRoots(roots2, rootCount2, 1, i);
     if (i.insertBalanced() && i.fUsed <= 1) {
