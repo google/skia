@@ -11,6 +11,7 @@
 #include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkRandom.h"
+#include "SkRRect.h"
 #include "SkShader.h"
 #include "SkStream.h"
 
@@ -54,6 +55,10 @@ static void drawshader_proc(SkCanvas* canvas, const SkBitmap& bm,
     SkPaint paint;
     paint.setShader(s)->unref();
     canvas->drawRect(r, paint);
+    canvas->drawOval(r, paint);
+    SkRRect rr;
+    rr.setRectXY(r, 10, 10);
+    canvas->drawRRect(rr, paint);
 }
 
 // Return a picture with the bitmaps drawn at the specified positions.
