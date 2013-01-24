@@ -92,10 +92,6 @@ public:
                           const SkPaint& paint) SK_OVERRIDE {
         this->addBitmapFromPaint(paint);
     }
-    virtual void drawRRect(const SkDraw&, const SkRRect&,
-                          const SkPaint& paint) SK_OVERRIDE {
-        this->addBitmapFromPaint(paint);
-    }
     virtual void drawPath(const SkDraw&, const SkPath& path,
                           const SkPaint& paint, const SkMatrix* prePathMatrix,
                           bool pathIsMutable) SK_OVERRIDE {
