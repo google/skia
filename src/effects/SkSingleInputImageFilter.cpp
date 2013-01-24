@@ -57,9 +57,9 @@ GrTexture* SkSingleInputImageFilter::getInputResultAsTexture(Proxy* proxy,
             if (result.getTexture()) {
                 resultTex = (GrTexture*) result.getTexture();
             } else {
-                resultTex = GrLockCachedBitmapTexture(src->getContext(), result, NULL);
-                SkSafeRef(resultTex);
-                GrUnlockCachedBitmapTexture(resultTex);
+                resultTex = GrLockAndRefCachedBitmapTexture(src->getContext(), result, NULL);
+                SkSafeRef(resultTex); // for the caller
+                GrUnlockAndUnrefCachedBitmapTexture(resultTex);
                 return resultTex;
             }
         } else {

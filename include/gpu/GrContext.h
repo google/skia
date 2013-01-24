@@ -118,7 +118,8 @@ public:
     // Textures
 
     /**
-     * Create a new entry, based on the specified key and texture and return it.
+     * Creates a new entry, based on the specified key and texture and returns it. The caller owns a
+     * ref on the returned texture which must be balanced by a call to unref.
      *
      * @param params    The texture params used to draw a texture may help determine
      *                  the cache entry used. (e.g. different versions may exist
@@ -136,8 +137,8 @@ public:
                              void* srcData, size_t rowBytes);
 
     /**
-     *  Search for an entry based on key and dimensions. If found,
-     *  return it. The return value will be NULL if not found.
+     * Search for an entry based on key and dimensions. If found, ref it and return it. The return
+     * value will be NULL if not found. The caller must balance with a call to unref.
      *
      *  @param desc     Description of the texture properties.
      *  @param cacheID Cache-specific properties (e.g., texture gen ID)
@@ -146,9 +147,9 @@ public:
      *                  for different wrap modes on GPUs with limited NPOT
      *                  texture support). NULL implies clamp wrap modes.
      */
-    GrTexture* findTexture(const GrTextureDesc& desc,
-                           const GrCacheID& cacheID,
-                           const GrTextureParams* params);
+    GrTexture* findAndRefTexture(const GrTextureDesc& desc,
+                                 const GrCacheID& cacheID,
+                                 const GrTextureParams* params);
     /**
      * Determines whether a texture is in the cache. If the texture is found it
      * will not be locked or returned. This call does not affect the priority of
@@ -182,7 +183,8 @@ public:
      * Returns a texture matching the desc. It's contents are unknown. Subsequent
      * requests with the same descriptor are not guaranteed to return the same
      * texture. The same texture is guaranteed not be returned again until it is
-     * unlocked. Call must be balanced with an unlockTexture() call.
+     * unlocked. Call must be balanced with an unlockTexture() call. The caller
+     * owns a ref on the returned texture and must balance with a call to unref.
      *
      * Textures created by createAndLockTexture() hide the complications of
      * tiling non-power-of-two textures on APIs that don't support this (e.g.
@@ -190,11 +192,11 @@ public:
      * such an API will create gaps in the tiling pattern. This includes clamp
      * mode. (This may be addressed in a future update.)
      */
-    GrTexture* lockScratchTexture(const GrTextureDesc&, ScratchTexMatch match);
+    GrTexture* lockAndRefScratchTexture(const GrTextureDesc&, ScratchTexMatch match);
 
     /**
      *  When done with an entry, call unlockScratchTexture(entry) on it, which returns
-     *  it to the cache, where it may be purged.
+     *  it to the cache, where it may be purged. This does not unref the texture.
      */
     void unlockScratchTexture(GrTexture* texture);
 
@@ -946,6 +948,7 @@ public:
     void reset() {
         if (NULL != fContext && NULL != fTexture) {
             fContext->unlockScratchTexture(fTexture);
+            fTexture->unref();
             fTexture = NULL;
         }
     }
@@ -956,23 +959,26 @@ public:
      * "locked" in the texture cache until it is freed and recycled in
      * GrTexture::internal_dispose. In reality, the texture has been removed
      * from the cache (because this is in AutoScratchTexture) and by not
-     * calling unlockTexture we simply don't re-add it. It will be reattached
-     * in GrTexture::internal_dispose.
+     * calling unlockScratchTexture we simply don't re-add it. It will be
+     * reattached in GrTexture::internal_dispose.
      *
      * Note that the caller is assumed to accept and manage the ref to the
      * returned texture.
      */
     GrTexture* detach() {
-        GrTexture* temp = fTexture;
-
-        // Conceptually the texture's cache entry loses its ref to the
-        // texture while the caller of this method gets a ref.
-        GrAssert(NULL != temp->getCacheEntry());
-
+        GrTexture* texture = fTexture;
         fTexture = NULL;
 
-        temp->setFlag((GrTextureFlags) GrTexture::kReturnToCache_FlagBit);
-        return temp;
+        // This GrAutoScratchTexture has a ref from lockAndRefScratchTexture, which we give up now.
+        // The cache also has a ref which we are lending to the caller of detach(). When the caller
+        // lets go of the ref and the ref count goes to 0 internal_dispose will see this flag is
+        // set and re-ref the texture, thereby restoring the cache's ref.
+        GrAssert(texture->getRefCnt() > 1);
+        texture->setFlag((GrTextureFlags) GrTexture::kReturnToCache_FlagBit);
+        texture->unref();
+        GrAssert(NULL != texture->getCacheEntry());
+
+        return texture;
     }
 
     GrTexture* set(GrContext* context,
@@ -982,7 +988,7 @@ public:
 
         fContext = context;
         if (NULL != fContext) {
-            fTexture = fContext->lockScratchTexture(desc, match);
+            fTexture = fContext->lockAndRefScratchTexture(desc, match);
             if (NULL == fTexture) {
                 fContext = NULL;
             }

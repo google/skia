@@ -212,11 +212,12 @@ void convolve_gaussian(GrDrawTarget* target,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrTexture* GrContext::findTexture(const GrTextureDesc& desc,
-                                  const GrCacheID& cacheID,
-                                  const GrTextureParams* params) {
+GrTexture* GrContext::findAndRefTexture(const GrTextureDesc& desc,
+                                        const GrCacheID& cacheID,
+                                        const GrTextureParams* params) {
     GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, cacheID);
     GrResource* resource = fTextureCache->find(resourceKey);
+    SkSafeRef(resource);
     return static_cast<GrTexture*>(resource);
 }
 
@@ -279,16 +280,14 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
                                            void* srcData,
                                            size_t rowBytes,
                                            bool needsFiltering) {
-    GrTexture* clampedTexture = this->findTexture(desc, cacheID, NULL);
+    SkAutoTUnref<GrTexture> clampedTexture(this->findAndRefTexture(desc, cacheID, NULL));
     if (NULL == clampedTexture) {
-        clampedTexture = this->createTexture(NULL, desc, cacheID, srcData, rowBytes);
+        clampedTexture.reset(this->createTexture(NULL, desc, cacheID, srcData, rowBytes));
 
         if (NULL == clampedTexture) {
             return NULL;
         }
     }
-
-    clampedTexture->ref();
 
     GrTextureDesc rtDesc = desc;
     rtDesc.fFlags =  rtDesc.fFlags |
@@ -310,19 +309,14 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
         GrTextureParams params(SkShader::kClamp_TileMode, needsFiltering);
         drawState->createTextureEffect(0, clampedTexture, SkMatrix::I(), params);
 
-        static const GrVertexLayout layout =
-                            GrDrawTarget::StageTexCoordVertexLayoutBit(0,0);
+        static const GrVertexLayout layout = GrDrawTarget::StageTexCoordVertexLayoutBit(0,0);
         GrDrawTarget::AutoReleaseGeometry arg(fGpu, layout, 4, 0);
 
         if (arg.succeeded()) {
             GrPoint* verts = (GrPoint*) arg.vertices();
-            verts[0].setIRectFan(0, 0,
-                                    texture->width(),
-                                    texture->height(),
-                                    2*sizeof(GrPoint));
-            verts[1].setIRectFan(0, 0, 1, 1, 2*sizeof(GrPoint));
-            fGpu->drawNonIndexed(kTriangleFan_GrPrimitiveType,
-                                    0, 4);
+            verts[0].setIRectFan(0, 0, texture->width(), texture->height(), 2 * sizeof(GrPoint));
+            verts[1].setIRectFan(0, 0, 1, 1, 2 * sizeof(GrPoint));
+            fGpu->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
         }
         texture->releaseRenderTarget();
     } else {
@@ -346,16 +340,14 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
         GrAssert(NULL != texture);
     }
 
-    clampedTexture->unref();
     return texture;
 }
 
-GrTexture* GrContext::createTexture(
-        const GrTextureParams* params,
-        const GrTextureDesc& desc,
-        const GrCacheID& cacheID,
-        void* srcData,
-        size_t rowBytes) {
+GrTexture* GrContext::createTexture(const GrTextureParams* params,
+                                    const GrTextureDesc& desc,
+                                    const GrCacheID& cacheID,
+                                    void* srcData,
+                                    size_t rowBytes) {
     SK_TRACE_EVENT0("GrContext::createTexture");
 
 #if GR_DUMP_TEXTURE_UPLOAD
@@ -364,13 +356,13 @@ GrTexture* GrContext::createTexture(
 
     GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, cacheID);
 
-    SkAutoTUnref<GrTexture> texture;
+    GrTexture* texture;
     if (GrTexture::NeedsResizing(resourceKey)) {
-        texture.reset(this->createResizedTexture(desc, cacheID,
-                                                 srcData, rowBytes,
-                                                 GrTexture::NeedsFiltering(resourceKey)));
+        texture = this->createResizedTexture(desc, cacheID,
+                                             srcData, rowBytes,
+                                             GrTexture::NeedsFiltering(resourceKey));
     } else {
-        texture.reset(fGpu->createTexture(desc, srcData, rowBytes));
+        texture= fGpu->createTexture(desc, srcData, rowBytes);
     }
 
     if (NULL != texture) {
@@ -380,7 +372,7 @@ GrTexture* GrContext::createTexture(
     return texture;
 }
 
-GrTexture* GrContext::lockScratchTexture(const GrTextureDesc& inDesc, ScratchTexMatch match) {
+GrTexture* GrContext::lockAndRefScratchTexture(const GrTextureDesc& inDesc, ScratchTexMatch match) {
     GrTextureDesc desc = inDesc;
 
     GrAssert((desc.fFlags & kRenderTarget_GrTextureFlagBit) ||
@@ -403,11 +395,16 @@ GrTexture* GrContext::lockScratchTexture(const GrTextureDesc& inDesc, ScratchTex
         GrResourceKey key = GrTexture::ComputeScratchKey(desc);
         // Ensure we have exclusive access to the texture so future 'find' calls don't return it
         resource = fTextureCache->find(key, GrResourceCache::kHide_OwnershipFlag);
-        // if we miss, relax the fit of the flags...
-        // then try doubling width... then height.
-        if (NULL != resource || kExact_ScratchTexMatch == match) {
+        if (NULL != resource) {
+            resource->ref();
             break;
         }
+        if (kExact_ScratchTexMatch == match) {
+            break;
+        }
+        // We had a cache miss and we are in approx mode, relax the fit of the flags... then try
+        // doubling width... then the height.
+
         // We no longer try to reuse textures that were previously used as render targets in
         // situations where no RT is needed; doing otherwise can confuse the video driver and
         // cause significant performance problems in some cases.
@@ -432,7 +429,7 @@ GrTexture* GrContext::lockScratchTexture(const GrTextureDesc& inDesc, ScratchTex
         desc.fFlags = inDesc.fFlags;
         desc.fWidth = origWidth;
         desc.fHeight = origHeight;
-        SkAutoTUnref<GrTexture> texture(fGpu->createTexture(desc, NULL, 0));
+        GrTexture* texture = fGpu->createTexture(desc, NULL, 0);
         if (NULL != texture) {
             GrResourceKey key = GrTexture::ComputeScratchKey(texture->desc());
             // Make the resource exclusive so future 'find' calls don't return it

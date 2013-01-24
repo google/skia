@@ -381,13 +381,13 @@ GrEffectRef* SkTable_ColorFilter::asNewEffect(GrContext* context) const {
     SkBitmap bitmap;
     this->asComponentTable(&bitmap);
     // passing NULL because this effect does no tiling or filtering.
-    GrTexture* texture = GrLockCachedBitmapTexture(context, bitmap, NULL);
+    GrTexture* texture = GrLockAndRefCachedBitmapTexture(context, bitmap, NULL);
     GrEffectRef* effect = ColorTableEffect::Create(texture, fFlags);
 
     // Unlock immediately, this is not great, but we don't have a way of
     // knowing when else to unlock it currently. TODO: Remove this when
     // unref becomes the unlock replacement for all types of textures.
-    GrUnlockCachedBitmapTexture(texture);
+    GrUnlockAndUnrefCachedBitmapTexture(texture);
     return effect;
 }
 

@@ -202,7 +202,7 @@ void GrTextureStripAtlas::lockTexture() {
     memset(key.fData32 + 1, 0, sizeof(key) - sizeof(uint32_t));
     GrCacheID cacheID(gTextureStripAtlasDomain, key);
 
-    fTexture = fDesc.fContext->findTexture(texDesc, cacheID, &params);
+    fTexture = fDesc.fContext->findAndRefTexture(texDesc, cacheID, &params);
     if (NULL == fTexture) {
         fTexture = fDesc.fContext->createTexture(&params, texDesc, cacheID, NULL, 0);
         // This is a new texture, so all of our cache info is now invalid
@@ -210,7 +210,6 @@ void GrTextureStripAtlas::lockTexture() {
         fKeyTable.rewind();
     }
     GrAssert(NULL != fTexture);
-    fTexture->ref();
 }
 
 void GrTextureStripAtlas::unlockTexture() {
@@ -345,4 +344,3 @@ void GrTextureStripAtlas::validate() {
     }
 }
 #endif
-

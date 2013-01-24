@@ -155,14 +155,14 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 
     // check that the set took
     check_state(reporter, cache, clip1, texture1, bound1);
-    REPORTER_ASSERT(reporter, 1 == texture1->getRefCnt());
+    REPORTER_ASSERT(reporter, texture1->getRefCnt());
 
     // push the state
     cache.push();
 
     // verify that the pushed state is initially empty
     check_state(reporter, cache, emptyClip, NULL, emptyBound);
-    REPORTER_ASSERT(reporter, 1 == texture1->getRefCnt());
+    REPORTER_ASSERT(reporter, texture1->getRefCnt());
 
     // modify the new state
     GrIRect bound2;
@@ -180,8 +180,8 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 
     // check that the changes took
     check_state(reporter, cache, clip2, texture2, bound2);
-    REPORTER_ASSERT(reporter, 1 == texture1->getRefCnt());
-    REPORTER_ASSERT(reporter, 1 == texture2->getRefCnt());
+    REPORTER_ASSERT(reporter, texture1->getRefCnt());
+    REPORTER_ASSERT(reporter, texture2->getRefCnt());
 
     // check to make sure canReuse works
     REPORTER_ASSERT(reporter, cache.canReuse(clip2.getTopmostGenID(), bound2));
@@ -192,16 +192,16 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 
     // verify that the old state is restored
     check_state(reporter, cache, clip1, texture1, bound1);
-    REPORTER_ASSERT(reporter, 1 == texture1->getRefCnt());
-    REPORTER_ASSERT(reporter, 1 == texture2->getRefCnt());
+    REPORTER_ASSERT(reporter, texture1->getRefCnt());
+    REPORTER_ASSERT(reporter, texture2->getRefCnt());
 
     // manually clear the state
     cache.reset();
 
     // verify it is now empty
     check_state(reporter, cache, emptyClip, NULL, emptyBound);
-    REPORTER_ASSERT(reporter, 1 == texture1->getRefCnt());
-    REPORTER_ASSERT(reporter, 1 == texture2->getRefCnt());
+    REPORTER_ASSERT(reporter, texture1->getRefCnt());
+    REPORTER_ASSERT(reporter, texture2->getRefCnt());
 
     // pop again - so there is no state
     cache.pop();
@@ -211,8 +211,8 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
     // only do in release since it generates asserts in debug
     check_state(reporter, cache, emptyClip, NULL, emptyBound);
 #endif
-    REPORTER_ASSERT(reporter, 1 == texture1->getRefCnt());
-    REPORTER_ASSERT(reporter, 1 == texture2->getRefCnt());
+    REPORTER_ASSERT(reporter, texture1->getRefCnt());
+    REPORTER_ASSERT(reporter, texture2->getRefCnt());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
