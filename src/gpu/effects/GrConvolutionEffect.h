@@ -31,7 +31,7 @@ public:
     }
 
     /// Convolve with a Gaussian kernel
-    static GrEffectRef* CreateGuassian(GrTexture* tex,
+    static GrEffectRef* CreateGaussian(GrTexture* tex,
                                        Direction dir,
                                        int halfWidth,
                                        float gaussianSigma) {
