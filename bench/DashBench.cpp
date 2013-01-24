@@ -317,44 +317,23 @@ static const SkScalar gDots[] = { SK_Scalar1, SK_Scalar1 };
 
 #define PARAM(array)    array, SK_ARRAY_COUNT(array)
 
-static SkBenchmark* gF0(void* p) { return new DashBench(p, PARAM(gDots), 0); }
-static SkBenchmark* gF1(void* p) { return new DashBench(p, PARAM(gDots), 1); }
-static SkBenchmark* gF2(void* p) { return new DashBench(p, PARAM(gDots), 1, true); }
-static SkBenchmark* gF3(void* p) { return new DashBench(p, PARAM(gDots), 4); }
-static SkBenchmark* gF4(void* p) { return new MakeDashBench(p, make_poly, "poly"); }
-static SkBenchmark* gF5(void* p) { return new MakeDashBench(p, make_quad, "quad"); }
-static SkBenchmark* gF6(void* p) { return new MakeDashBench(p, make_cubic, "cubic"); }
-static SkBenchmark* gF700(void* p) { return new DashLineBench(p, 0, false); }
-static SkBenchmark* gF710(void* p) { return new DashLineBench(p, SK_Scalar1, false); }
-static SkBenchmark* gF720(void* p) { return new DashLineBench(p, 2 * SK_Scalar1, false); }
-static SkBenchmark* gF701(void* p) { return new DashLineBench(p, 0, true); }
-static SkBenchmark* gF711(void* p) { return new DashLineBench(p, SK_Scalar1, true); }
-static SkBenchmark* gF721(void* p) { return new DashLineBench(p, 2 * SK_Scalar1, true); }
+DEF_BENCH( return new DashBench(p, PARAM(gDots), 0); )
+DEF_BENCH( return new DashBench(p, PARAM(gDots), 1); )
+DEF_BENCH( return new DashBench(p, PARAM(gDots), 1, true); )
+DEF_BENCH( return new DashBench(p, PARAM(gDots), 4); )
+DEF_BENCH( return new MakeDashBench(p, make_poly, "poly"); )
+DEF_BENCH( return new MakeDashBench(p, make_quad, "quad"); )
+DEF_BENCH( return new MakeDashBench(p, make_cubic, "cubic"); )
+DEF_BENCH( return new DashLineBench(p, 0, false); )
+DEF_BENCH( return new DashLineBench(p, SK_Scalar1, false); )
+DEF_BENCH( return new DashLineBench(p, 2 * SK_Scalar1, false); )
+DEF_BENCH( return new DashLineBench(p, 0, true); )
+DEF_BENCH( return new DashLineBench(p, SK_Scalar1, true); )
+DEF_BENCH( return new DashLineBench(p, 2 * SK_Scalar1, true); )
 
-static SkBenchmark* gF8(void* p) { return new DrawPointsDashingBench(p, 1, 1, false); }
-static SkBenchmark* gF9(void* p) { return new DrawPointsDashingBench(p, 1, 1, true); }
-static SkBenchmark* gF10(void* p) { return new DrawPointsDashingBench(p, 3, 1, false); }
-static SkBenchmark* gF11(void* p) { return new DrawPointsDashingBench(p, 3, 1, true); }
-static SkBenchmark* gF12(void* p) { return new DrawPointsDashingBench(p, 5, 5, false); }
-static SkBenchmark* gF13(void* p) { return new DrawPointsDashingBench(p, 5, 5, true); }
-
-static BenchRegistry gR0(gF0);
-static BenchRegistry gR1(gF1);
-static BenchRegistry gR2(gF2);
-static BenchRegistry gR3(gF3);
-static BenchRegistry gR4(gF4);
-static BenchRegistry gR5(gF5);
-static BenchRegistry gR6(gF6);
-static BenchRegistry gR700(gF700);
-static BenchRegistry gR710(gF710);
-static BenchRegistry gR720(gF720);
-static BenchRegistry gR701(gF701);
-static BenchRegistry gR711(gF711);
-static BenchRegistry gR721(gF721);
-
-static BenchRegistry gR8(gF8);
-static BenchRegistry gR9(gF9);
-static BenchRegistry gR10(gF10);
-static BenchRegistry gR11(gF11);
-static BenchRegistry gR12(gF12);
-static BenchRegistry gR13(gF13);
+DEF_BENCH( return new DrawPointsDashingBench(p, 1, 1, false); )
+DEF_BENCH( return new DrawPointsDashingBench(p, 1, 1, true); )
+DEF_BENCH( return new DrawPointsDashingBench(p, 3, 1, false); )
+DEF_BENCH( return new DrawPointsDashingBench(p, 3, 1, true); )
+DEF_BENCH( return new DrawPointsDashingBench(p, 5, 5, false); )
+DEF_BENCH( return new DrawPointsDashingBench(p, 5, 5, true); )
