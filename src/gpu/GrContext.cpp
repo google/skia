@@ -200,7 +200,7 @@ void convolve_gaussian(GrDrawTarget* target,
     GrDrawTarget::AutoStateRestore asr(target, GrDrawTarget::kReset_ASRInit);
     GrDrawState* drawState = target->drawState();
     drawState->setRenderTarget(rt);
-    SkAutoTUnref<GrEffectRef> conv(GrConvolutionEffect::CreateGuassian(texture,
+    SkAutoTUnref<GrEffectRef> conv(GrConvolutionEffect::CreateGaussian(texture,
                                                                        direction,
                                                                        radius,
                                                                        sigma));
