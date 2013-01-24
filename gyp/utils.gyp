@@ -18,6 +18,7 @@
         '../include/utils/unix',
         '../include/utils/win',
         '../include/xml',
+        '../src/core',
         '../src/utils',
       ],
       'sources': [
