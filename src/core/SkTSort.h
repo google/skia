@@ -11,31 +11,81 @@
 #define SkTSort_DEFINED
 
 #include "SkTypes.h"
-
-template <typename T>
-void SkTHeapSort_SiftDown(T array[], int root, int bottom) {
-    while (root*2 + 1 <= bottom) {
-        int child = root * 2 + 1;
-        if (child+1 <= bottom && array[child] < array[child+1]) {
-            child += 1;
+/**
+ *  Sifts a broken heap. The input array is a heap from root to bottom
+ *  except that the root entry may be out of place.
+ *
+ *  Sinks a hole from array[root] to leaf and then sifts the original array[root] element
+ *  from the leaf level up.
+ *
+ *  This version does extra work, in that it copies child to parent on the way down,
+ *  then copies parent to child on the way back up. When copies are inexpensive,
+ *  this is an optimization as this sift variant should only be used when
+ *  the potentially out of place root entry value is expected to be small.
+ *
+ *  @param root the one based index into array of the out-of-place root of the heap.
+ *  @param bottom the one based index in the array of the last entry in the heap.
+ */
+template <typename T> void SkTHeapSort_SiftUp(T array[], size_t root, size_t bottom) {
+    T x = array[root-1];
+    size_t start = root;
+    size_t j = root << 1;
+    while (j <= bottom) {
+        if (j < bottom && array[j-1] < array[j]) {
+            ++j;
         }
-        if (array[root] < array[child]) {
-            SkTSwap<T>(array[root], array[child]);
-            root = child;
+        array[root-1] = array[j-1];
+        root = j;
+        j = root << 1;
+    }
+    j = root >> 1;
+    while (j >= start) {
+        if (array[j-1] < x) {
+            array[root-1] = array[j-1];
+            root = j;
+            j = root >> 1;
         } else {
             break;
         }
     }
+    array[root-1] = x;
 }
 
-template <typename T> void SkTHeapSort(T array[], int count) {
-    int i;
-    for (i = count/2 - 1; i >= 0; --i) {
-        SkTHeapSort_SiftDown<T>(array, i, count-1);
+/**
+ *  Sifts a broken heap. The input array is a heap from root to bottom
+ *  except that the root entry may be out of place.
+ *
+ *  Sifts the array[root] element from the root down.
+ *
+ *  @param root the one based index into array of the out-of-place root of the heap.
+ *  @param bottom the one based index in the array of the last entry in the heap.
+ */
+template <typename T> void SkTHeapSort_SiftDown(T array[], size_t root, size_t bottom) {
+    T x = array[root-1];
+    size_t child = root << 1;
+    while (child <= bottom) {
+        if (child < bottom && array[child-1] < array[child]) {
+            ++child;
+        }
+        if (x < array[child-1]) {
+            array[root-1] = array[child-1];
+            root = child;
+            child = root << 1;
+        } else {
+            break;
+        }
     }
-    for (i = count - 1; i > 0; --i) {
+    array[root-1] = x;
+}
+
+template <typename T> void SkTHeapSort(T array[], size_t count) {
+    for (size_t i = count >> 1; i > 0; --i) {
+        SkTHeapSort_SiftDown<T>(array, i, count);
+    }
+
+    for (size_t i = count - 1; i > 0; --i) {
         SkTSwap<T>(array[0], array[i]);
-        SkTHeapSort_SiftDown<T>(array, 0, i-1);
+        SkTHeapSort_SiftUp(array, 1, i);
     }
 }
 
