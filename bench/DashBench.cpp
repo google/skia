@@ -312,16 +312,13 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-
+// Want to test how we handle dashing when 99% of the dash is clipped out
 class GiantDashBench : public SkBenchmark {
     SkString fName;
+    SkScalar fStrokeWidth;
     SkPoint  fPts[2];
     SkAutoTUnref<SkPathEffect> fPathEffect;
     
-    enum {
-        N = SkBENCHLOOP(10)
-    };
-
 public:
     enum LineType {
         kHori_LineType,
@@ -335,9 +332,10 @@ public:
         return gNames[lt];
     }
 
-    GiantDashBench(void* param, LineType lt) : INHERITED(param) {
-        fName.printf("giantdashline_%s", LineTypeName(lt));
-        
+    GiantDashBench(void* param, LineType lt, SkScalar width) : INHERITED(param) {
+        fName.printf("giantdashline_%s_%g", LineTypeName(lt), width);
+        fStrokeWidth = width;
+
         // deliberately pick intervals that won't be caught by asPoints(), so
         // we can test the filterPath code-path.
         const SkScalar intervals[] = { 2, 1 };
@@ -360,7 +358,7 @@ public:
                 break;
         }
         
-        const SkScalar overshoot = 10*1000;
+        const SkScalar overshoot = 100*1000;
         const SkPoint pts[2] = {
             { -overshoot, cy }, { 640 + overshoot, cy }
         };
@@ -376,12 +374,10 @@ protected:
         SkPaint p;
         this->setupPaint(&p);
         p.setStyle(SkPaint::kStroke_Style);
-        p.setStrokeWidth(1);
+        p.setStrokeWidth(fStrokeWidth);
         p.setPathEffect(fPathEffect);
 
-        for (int i = 0; i < N; ++i) {
-            canvas->drawPoints(SkCanvas::kLines_PointMode, 2, fPts, p);
-        }
+        canvas->drawPoints(SkCanvas::kLines_PointMode, 2, fPts, p);
     }
     
 private:
@@ -416,6 +412,13 @@ DEF_BENCH( return new DrawPointsDashingBench(p, 3, 1, true); )
 DEF_BENCH( return new DrawPointsDashingBench(p, 5, 5, false); )
 DEF_BENCH( return new DrawPointsDashingBench(p, 5, 5, true); )
 
-DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kHori_LineType); )
-DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kVert_LineType); )
-DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kDiag_LineType); )
+DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kHori_LineType, 0); )
+DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kVert_LineType, 0); )
+DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kDiag_LineType, 0); )
+
+// pass 2 to explicitly avoid any 1-is-the-same-as-hairline special casing
+
+// hori_2 is just too slow to enable at the moment
+//DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kHori_LineType, 2); )
+DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kVert_LineType, 2); )
+DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kDiag_LineType, 2); )
