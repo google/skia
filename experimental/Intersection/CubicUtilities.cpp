@@ -21,7 +21,7 @@ double calcPrecision(const Cubic& cubic) {
 #if SK_DEBUG
 double calcPrecision(const Cubic& cubic, double t, double scale) {
     Cubic part;
-    sub_divide(cubic, SkMax32(0, t - scale), SkMin32(1, t + scale), part);
+    sub_divide(cubic, SkTMax(0., t - scale), SkTMin(1., t + scale), part);
     return calcPrecision(part);
 }
 #endif
@@ -41,14 +41,11 @@ void coefficients(const double* cubic, double& A, double& B, double& C, double& 
 
 const double PI = 4 * atan(1);
 
-static bool is_unit_interval(double x) {
-    return x > 0 && x < 1;
-}
-
 // from SkGeometry.cpp (and Numeric Solutions, 5.6)
-int cubicRoots(double A, double B, double C, double D, double t[3]) {
+int cubicRootsValidT(double A, double B, double C, double D, double t[3]) {
+#if 0
     if (approximately_zero(A)) {  // we're just a quadratic
-        return quadraticRoots(B, C, D, t);
+        return quadraticRootsValidT(B, C, D, t);
     }
     double a, b, c;
     {
@@ -98,6 +95,113 @@ int cubicRoots(double A, double B, double C, double D, double t[3]) {
             *roots++ = r;
     }
     return (int)(roots - t);
+#else
+    double s[3];
+    int realRoots = cubicRootsReal(A, B, C, D, s);
+    int foundRoots = add_valid_ts(s, realRoots, t);
+    return foundRoots;
+#endif
+}
+
+int cubicRootsReal(double A, double B, double C, double D, double s[3]) {
+#if SK_DEBUG
+    // create a string mathematica understands
+    // GDB set print repe 15 # if repeated digits is a bother
+    //     set print elements 400 # if line doesn't fit
+    char str[1024];
+    bzero(str, sizeof(str));
+    sprintf(str, "Solve[%1.19g x^3 + %1.19g x^2 + %1.19g x + %1.19g == 0, x]", A, B, C, D);
+#endif
+    if (approximately_zero(A)) {  // we're just a quadratic
+        return quadraticRootsReal(B, C, D, s);
+    }
+    if (approximately_zero(D)) { // 0 is one root
+        int num = quadraticRootsReal(A, B, C, s);
+        for (int i = 0; i < num; ++i) {
+            if (approximately_zero(s[i])) {
+                return num;
+            }
+        }
+        s[num++] = 0;
+        return num;
+    }
+    if (approximately_zero(A + B + C + D)) { // 1 is one root
+        int num = quadraticRootsReal(A, A + B, -D, s);
+        for (int i = 0; i < num; ++i) {
+            if (AlmostEqualUlps(s[i], 1)) {
+                return num;
+            }
+        }
+        s[num++] = 1;
+        return num;
+    }
+    double a, b, c;
+    {
+        double invA = 1 / A;
+        a = B * invA;
+        b = C * invA;
+        c = D * invA;
+    }
+    double a2 = a * a;
+    double Q = (a2 - b * 3) / 9;
+    double R = (2 * a2 * a - 9 * a * b + 27 * c) / 54;
+    double R2 = R * R;
+    double Q3 = Q * Q * Q;
+    double R2MinusQ3 = R2 - Q3;
+    double adiv3 = a / 3;
+    double r;
+    double* roots = s;
+#if 0
+    if (approximately_zero_squared(R2MinusQ3) && AlmostEqualUlps(R2, Q3)) {
+        if (approximately_zero_squared(R)) {/* one triple solution */
+            *roots++ = -adiv3;
+        } else { /* one single and one double solution */
+
+            double u = cube_root(-R);
+            *roots++ = 2 * u - adiv3;
+            *roots++ = -u - adiv3;
+        }
+    }
+    else 
+#endif
+    if (R2MinusQ3 < 0)   // we have 3 real roots
+    {
+        double theta = acos(R / sqrt(Q3));
+        double neg2RootQ = -2 * sqrt(Q);
+
+        r = neg2RootQ * cos(theta / 3) - adiv3;
+        *roots++ = r;
+
+        r = neg2RootQ * cos((theta + 2 * PI) / 3) - adiv3;
+        if (!AlmostEqualUlps(s[0], r)) {
+            *roots++ = r;
+        }
+        r = neg2RootQ * cos((theta - 2 * PI) / 3) - adiv3;
+        if (!AlmostEqualUlps(s[0], r) && (roots - s == 1 || !AlmostEqualUlps(s[1], r))) {
+            *roots++ = r;
+        }
+    }
+    else                // we have 1 real root
+    {
+        double sqrtR2MinusQ3 = sqrt(R2MinusQ3);
+        double A = fabs(R) + sqrtR2MinusQ3;
+        A = cube_root(A);
+        if (R > 0) {
+            A = -A;
+        }
+        if (A != 0) {
+            A += Q / A;
+        }
+        r = A - adiv3;
+        *roots++ = r;
+        if (AlmostEqualUlps(R2, Q3)) {
+            r = -A / 2 - adiv3;
+            if (!AlmostEqualUlps(s[0], r)) {
+                *roots++ = r;
+            }
+        }
+    }
+    return (int)(roots - s);
 }
 
 // from http://www.cs.sunysb.edu/~qin/courses/geometry/4.pdf
@@ -136,14 +240,14 @@ int find_cubic_inflections(const Cubic& src, double tValues[])
     double By = src[2].y - 2 * src[1].y + src[0].y;
     double Cx = src[3].x + 3 * (src[1].x - src[2].x) - src[0].x;
     double Cy = src[3].y + 3 * (src[1].y - src[2].y) - src[0].y;
-    return quadraticRoots(Bx * Cy - By * Cx, (Ax * Cy - Ay * Cx) / 2, Ax * By - Ay * Bx, tValues);
+    return quadraticRootsValidT(Bx * Cy - By * Cx, (Ax * Cy - Ay * Cx), Ax * By - Ay * Bx, tValues);
 }
 
 bool rotate(const Cubic& cubic, int zero, int index, Cubic& rotPath) {
     double dy = cubic[index].y - cubic[zero].y;
     double dx = cubic[index].x - cubic[zero].x;
-    if (approximately_equal(dy, 0)) {
-        if (approximately_equal(dx, 0)) {
+    if (approximately_zero(dy)) {
+        if (approximately_zero(dx)) {
             return false;
         }
         memcpy(rotPath, cubic, sizeof(Cubic));

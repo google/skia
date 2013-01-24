@@ -92,7 +92,7 @@ static int check_linear(const Quadratic& quad, Quadratic& reduction,
     if (root) {
         _Point extrema;
         extrema.x = interp_quad_coords(quad[0].x, quad[1].x, quad[2].x, tValue);
-        extrema.y = interp_quad_coords(quad[0].x, quad[1].x, quad[2].x, tValue);
+        extrema.y = interp_quad_coords(quad[0].y, quad[1].y, quad[2].y, tValue);
         // sameSide > 0 means mid is smaller than either [0] or [2], so replace smaller
         int replace;
         if (useX) {

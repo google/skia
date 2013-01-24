@@ -124,7 +124,7 @@ int intersectRay(double roots[2]) {
     double C = r[0];
     A += C - 2 * B; // A = a - 2*b + c
     B -= C; // B = -(b - c)
-    return quadraticRoots(A, B, C, roots);
+    return quadraticRootsValidT(A, 2 * B, C, roots);
 }
 
 int intersect() {
@@ -148,7 +148,7 @@ int horizontalIntersect(double axisIntercept, double roots[2]) {
     D += F - 2 * E; // D = d - 2*e + f
     E -= F; // E = -(d - e)
     F -= axisIntercept;
-    return quadraticRoots(D, E, F, roots);
+    return quadraticRootsValidT(D, 2 * E, F, roots);
 }
 
 int horizontalIntersect(double axisIntercept, double left, double right, bool flipped) {
@@ -177,7 +177,7 @@ int verticalIntersect(double axisIntercept, double roots[2]) {
     D += F - 2 * E; // D = d - 2*e + f
     E -= F; // E = -(d - e)
     F -= axisIntercept;
-    return quadraticRoots(D, E, F, roots);
+    return quadraticRootsValidT(D, 2 * E, F, roots);
 }
 
 int verticalIntersect(double axisIntercept, double top, double bottom, bool flipped) {

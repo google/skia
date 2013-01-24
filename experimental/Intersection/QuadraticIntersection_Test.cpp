@@ -59,6 +59,21 @@ static void standardTestCases() {
 }
 
 static const Quadratic testSet[] = {
+  {{41.5072916,87.1234036}, {28.2747836,80.9545395}, {23.5780771,69.3344126}},
+  {{72.9633878,95.6593007}, {42.7738746,88.4730382}, {31.1932785,80.2458029}},
+
+  {{31.1663962,54.7302484}, {31.1662882,54.7301074}, {31.1663969,54.7302485}},
+  {{26.0404936,45.4260361}, {27.7887523,33.1863051}, {40.8833242,26.0301855}},
+
+  {{29.9404074,49.1672596}, {44.3131071,45.3915253}, {58.1067559,59.5061814}},
+  {{72.6510251,64.2972928}, {53.6989659,60.1862397}, {35.2053722,44.8391126}},
+
+{{52.14807018377202, 65.012420045148644}, {44.778669050208237, 66.315562705604378}, {51.619118408823567, 63.787827046262684}},
+{{30.004993234763383, 93.921296668202288}, {53.384822003076991, 60.732180341802753}, {58.652998934338584, 43.111073088306185}},
+
+{{80.897794748143198, 49.236332042718459}, {81.082078218891212, 64.066749904488631}, {69.972305057149981, 72.968595519850993}},
+{{72.503745601281395, 32.952320736577882}, {88.030880716061645, 38.137194847810164}, {73.193774825517906, 67.773492479591397}},
+
 {{67.426548091427676, 37.993772624988935}, {51.129513170665035, 57.542281234563646}, {44.594748190899189, 65.644267382683879}},
 {{61.336508189019057, 82.693132843213675}, {54.825078921449354, 71.663932799212432}, {47.727444217558926, 61.4049645128392}},
 
@@ -119,37 +134,47 @@ static const Quadratic testSet[] = {
 
 const size_t testSetCount = sizeof(testSet) / sizeof(testSet[0]);
 
+#define ONE_OFF_DEBUG 0
+
+static void oneOffTest1(size_t outer, size_t inner) {
+    const Quadratic& quad1 = testSet[outer];
+    const Quadratic& quad2 = testSet[inner];
+    Intersections intersections2;
+    intersect2(quad1, quad2, intersections2);
+    if (intersections2.fUnsortable) {
+        SkASSERT(0);
+        return;
+    }
+    for (int pt = 0; pt < intersections2.used(); ++pt) {
+        double tt1 = intersections2.fT[0][pt];
+        double tx1, ty1;
+        xy_at_t(quad1, tt1, tx1, ty1);
+        int pt2 = intersections2.fFlip ? intersections2.used() - pt - 1 : pt;
+        double tt2 = intersections2.fT[1][pt2];
+        double tx2, ty2;
+        xy_at_t(quad2, tt2, tx2, ty2);
+        if (!AlmostEqualUlps(tx1, tx2)) {
+            SkDebugf("%s [%d,%d] x!= t1=%g (%g,%g) t2=%g (%g,%g)\n",
+                __FUNCTION__, (int)outer, (int)inner, tt1, tx1, ty1, tt2, tx2, ty2);
+            SkASSERT(0);
+        }
+        if (!AlmostEqualUlps(ty1, ty2)) {
+            SkDebugf("%s [%d,%d] y!= t1=%g (%g,%g) t2=%g (%g,%g)\n",
+                __FUNCTION__, (int)outer, (int)inner, tt1, tx1, ty1, tt2, tx2, ty2);
+            SkASSERT(0);
+        }
+#if ONE_OFF_DEBUG
+        SkDebugf("%s [%d][%d] t1=%1.9g (%1.9g, %1.9g) t2=%1.9g\n", __FUNCTION__,
+            outer, inner, tt1, tx1, tx2, tt2);
+#endif
+    }
+}
+
 static void oneOffTest() {
+//    oneOffTest1(0, 1);
     for (size_t outer = 0; outer < testSetCount - 1; ++outer) {
         for (size_t inner = outer + 1; inner < testSetCount; ++inner) {
-            const Quadratic& quad1 = testSet[outer];
-            const Quadratic& quad2 = testSet[inner];
-            Intersections intersections2;
-            intersect2(quad1, quad2, intersections2);
-            if (intersections2.fUnsortable) {
-                continue;
-            }
-            for (int pt = 0; pt < intersections2.used(); ++pt) {
-                double tt1 = intersections2.fT[0][pt];
-                double tx1, ty1;
-                xy_at_t(quad1, tt1, tx1, ty1);
-                int pt2 = intersections2.fFlip ? intersections2.used() - pt - 1 : pt;
-                double tt2 = intersections2.fT[1][pt2];
-                double tx2, ty2;
-                xy_at_t(quad2, tt2, tx2, ty2);
-                if (!AlmostEqualUlps(tx1, tx2)) {
-                    SkDebugf("%s [%d,%d] x!= t1=%g (%g,%g) t2=%g (%g,%g)\n",
-                        __FUNCTION__, (int)outer, (int)inner, tt1, tx1, ty1, tt2, tx2, ty2);
-                    SkASSERT(0);
-                }
-                if (!AlmostEqualUlps(ty1, ty2)) {
-                    SkDebugf("%s [%d,%d] y!= t1=%g (%g,%g) t2=%g (%g,%g)\n",
-                        __FUNCTION__, (int)outer, (int)inner, tt1, tx1, ty1, tt2, tx2, ty2);
-                    SkASSERT(0);
-                }
-                SkDebugf("%s [%d][%d] t1=%1.9g (%1.9g, %1.9g) t2=%1.9g\n", __FUNCTION__,
-                    outer, inner, tt1, tx1, tx2, tt2);
-            }
+            oneOffTest1(outer, inner);
         }
     }
 }

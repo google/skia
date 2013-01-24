@@ -63,4 +63,3 @@ bool controls_inside(const Cubic& cubic) {
      && ((cubic[0].y <= cubic[1].y && cubic[0].y <= cubic[2].y && cubic[1].y <= cubic[3].y && cubic[2].y <= cubic[3].y)
      ||  (cubic[0].y >= cubic[1].y && cubic[0].y >= cubic[2].y && cubic[1].y >= cubic[3].y && cubic[2].x >= cubic[3].y));
 }
-

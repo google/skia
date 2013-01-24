@@ -24,6 +24,8 @@ inline bool AlmostEqualUlps(double A, double B) { return AlmostEqualUlps((float)
 // FIXME: delete
 int UlpsDiff(float A, float B);
 
+// FLT_EPSILON == 1.19209290E-07 == 1 / (2 ^ 23)
+const double FLT_EPSILON_CUBED = FLT_EPSILON * FLT_EPSILON * FLT_EPSILON;
 const double FLT_EPSILON_SQUARED = FLT_EPSILON * FLT_EPSILON;
 const double FLT_EPSILON_SQRT = sqrt(FLT_EPSILON);
 
@@ -42,6 +44,10 @@ inline bool approximately_zero(float x) {
     return fabs(x) < FLT_EPSILON;
 }
 
+inline bool approximately_zero_cubed(double x) {
+    return fabs(x) < FLT_EPSILON_CUBED;
+}
+
 inline bool approximately_zero_squared(double x) {
     return fabs(x) < FLT_EPSILON_SQUARED;
 }
@@ -50,8 +56,28 @@ inline bool approximately_zero_sqrt(double x) {
     return fabs(x) < FLT_EPSILON_SQRT;
 }
 
+// Use this for comparing Ts in the range of 0 to 1. For general numbers (larger and smaller) use
+// AlmostEqualUlps instead.
 inline bool approximately_equal(double x, double y) {
+#if 1
     return approximately_zero(x - y);
+#else
+// see http://visualstudiomagazine.com/blogs/tool-tracker/2011/11/compare-floating-point-numbers.aspx
+// this allows very small (e.g. degenerate) values to compare unequally, but in this case, 
+// AlmostEqualUlps should be used instead.
+    if (x == y) {
+        return true;
+    }
+    double absY = fabs(y);
+    if (x == 0) {
+        return absY < FLT_EPSILON;
+    }
+    double absX = fabs(x);
+    if (y == 0) {
+        return absX < FLT_EPSILON;
+    }
+    return fabs(x - y) < (absX > absY ? absX : absY) * FLT_EPSILON;
+#endif
 }
 
 inline bool approximately_equal_squared(double x, double y) {
@@ -160,7 +186,7 @@ struct _Point {
     }
 
     friend bool operator!=(const _Point& a, const _Point& b) {
-        return a.x!= b.x || a.y != b.y;
+        return a.x != b.x || a.y != b.y;
     }
 
     // note: this can not be implemented with
@@ -171,9 +197,22 @@ struct _Point {
                 && AlmostEqualUlps((float) y, (float) a.y);
     }
 
-    double dot(const _Point& a) {
+    double cross(const _Point& a) const {
+        return x * a.y - y * a.x;
+    }
+
+    double dot(const _Point& a) const {
         return x * a.x + y * a.y;
     }
+
+    double length() const {
+        return sqrt(lengthSquared());
+    }
+
+    double lengthSquared() const {
+        return x * x + y * y;
+    }
+
 };
 
 typedef _Point _Line[2];
@@ -242,5 +281,18 @@ struct QuadraticPair {
     const Quadratic& second() const { return (const Quadratic&) pts[2]; }
     _Point pts[5];
 };
+
+// FIXME: move these into SkTypes.h
+template <typename T> inline T SkTMax(T a, T b) {
+    if (a < b)
+        a = b;
+    return a;
+}
+
+template <typename T> inline T SkTMin(T a, T b) {
+    if (a > b)
+        a = b;
+    return a;
+}
 
 #endif // __DataTypes_h__

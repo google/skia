@@ -96,7 +96,7 @@ int intersectRay(double roots[3]) {
     }
     double A, B, C, D;
     coefficients(&r[0].x, A, B, C, D);
-    return cubicRoots(A, B, C, D, roots);
+    return cubicRootsValidT(A, B, C, D, roots);
 }
 
 int intersect() {
@@ -117,7 +117,7 @@ int horizontalIntersect(double axisIntercept, double roots[3]) {
     double A, B, C, D;
     coefficients(&cubic[0].y, A, B, C, D);
     D -= axisIntercept;
-    return cubicRoots(A, B, C, D, roots);
+    return cubicRootsValidT(A, B, C, D, roots);
 }
 
 int horizontalIntersect(double axisIntercept, double left, double right, bool flipped) {
@@ -143,7 +143,7 @@ int verticalIntersect(double axisIntercept, double roots[3]) {
     double A, B, C, D;
     coefficients(&cubic[0].x, A, B, C, D);
     D -= axisIntercept;
-    return cubicRoots(A, B, C, D, roots);
+    return cubicRootsValidT(A, B, C, D, roots);
 }
 
 int verticalIntersect(double axisIntercept, double top, double bottom, bool flipped) {

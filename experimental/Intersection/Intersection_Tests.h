@@ -11,6 +11,7 @@ void ConvexHull_Test();
 void ConvexHull_X_Test();
 void CubicBezierClip_Test();
 void CubicCoincidence_Test();
+void CubicIntersection_ComputeDeltaTest();
 void CubicIntersection_OneOffTest();
 void CubicIntersection_Test();
 void CubicIntersection_RandTest();
