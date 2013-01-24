@@ -177,6 +177,7 @@ GrAtlas* GrAtlasMgr::addToAtlas(GrAtlas* atlas,
     GrAssert(0 == kA8_GrMaskFormat);
     GrAssert(1 == kA565_GrMaskFormat);
     if (NULL == fTexture[format]) {
+        // TODO: Update this to use the cache rather than directly creating a texture.
         GrTextureDesc desc;
         desc.fFlags = kDynamicUpdate_GrTextureFlagBit;
         desc.fWidth = GR_ATLAS_TEXTURE_WIDTH;
@@ -203,5 +204,3 @@ void GrAtlasMgr::freePlot(int x, int y) {
     GrAssert(fPlotMgr->isBusy(x, y));
     fPlotMgr->freePlot(x, y);
 }
-
-

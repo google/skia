@@ -353,7 +353,7 @@ GrEffectRef* SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& 
 
     // Must set wrap and filter on the sampler before requesting a texture.
     GrTextureParams params(tm, paint.isFilterBitmap());
-    GrTexture* texture = GrLockCachedBitmapTexture(context, fRawBitmap, &params);
+    GrTexture* texture = GrLockAndRefCachedBitmapTexture(context, fRawBitmap, &params);
 
     if (NULL == texture) {
         SkDebugf("Couldn't convert bitmap to texture.\n");
@@ -361,7 +361,7 @@ GrEffectRef* SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& 
     }
 
     GrEffectRef* effect = GrSimpleTextureEffect::Create(texture, matrix, params);
-    GrUnlockCachedBitmapTexture(texture);
+    GrUnlockAndUnrefCachedBitmapTexture(texture);
     return effect;
 }
 #endif

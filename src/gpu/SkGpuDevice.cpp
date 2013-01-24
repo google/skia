@@ -96,7 +96,7 @@ public:
 
     ~SkAutoCachedTexture() {
         if (NULL != fTexture) {
-            GrUnlockCachedBitmapTexture(fTexture);
+            GrUnlockAndUnrefCachedBitmapTexture(fTexture);
         }
     }
 
@@ -104,14 +104,14 @@ public:
                    const SkBitmap& bitmap,
                    const GrTextureParams* params) {
         if (NULL != fTexture) {
-            GrUnlockCachedBitmapTexture(fTexture);
+            GrUnlockAndUnrefCachedBitmapTexture(fTexture);
             fTexture = NULL;
         }
         fDevice = device;
         GrTexture* result = (GrTexture*)bitmap.getTexture();
         if (NULL == result) {
             // Cannot return the native texture so look it up in our cache
-            fTexture = GrLockCachedBitmapTexture(device->context(), bitmap, params);
+            fTexture = GrLockAndRefCachedBitmapTexture(device->context(), bitmap, params);
             result = fTexture;
         }
         return result;
@@ -1801,8 +1801,7 @@ SkDevice* SkGpuDevice::onCreateCompatibleDevice(SkBitmap::Config config,
     desc.fHeight = height;
     desc.fSampleCnt = fRenderTarget->numSamples();
 
-    GrTexture* texture;
-    SkAutoTUnref<GrTexture> tunref;
+    SkAutoTUnref<GrTexture> texture;
     // Skia's convention is to only clear a device if it is non-opaque.
     bool needClear = !isOpaque;
 
@@ -1812,18 +1811,14 @@ SkDevice* SkGpuDevice::onCreateCompatibleDevice(SkBitmap::Config config,
     const GrContext::ScratchTexMatch match = (kSaveLayer_Usage == usage) ?
                                                 GrContext::kApprox_ScratchTexMatch :
                                                 GrContext::kExact_ScratchTexMatch;
-    texture = fContext->lockScratchTexture(desc, match);
+    texture.reset(fContext->lockAndRefScratchTexture(desc, match));
 #else
-    tunref.reset(fContext->createUncachedTexture(desc, NULL, 0));
-    texture = tunref.get();
+    texture.reset(fContext->createUncachedTexture(desc, NULL, 0));
 #endif
-    if (texture) {
-        return SkNEW_ARGS(SkGpuDevice,(fContext,
-                                       texture,
-                                       needClear));
+    if (NULL != texture.get()) {
+        return SkNEW_ARGS(SkGpuDevice,(fContext, texture, needClear));
     } else {
-        GrPrintf("---- failed to create compatible device texture [%d %d]\n",
-                    width, height);
+        GrPrintf("---- failed to create compatible device texture [%d %d]\n", width, height);
         return NULL;
     }
 }
