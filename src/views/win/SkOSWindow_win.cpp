@@ -538,7 +538,7 @@ bool SkOSWindow::attachANGLE(int msaaSampleCount) {
         if (false == bResult) {
             return false;
         }
-        const GrGLInterface* intf = GrGLCreateANGLEInterface();
+        SkAutoTUnref<const GrGLInterface> intf(GrGLCreateANGLEInterface());
 
         if (intf) {
             ANGLE_GL_CALL(intf, ClearStencil(0));
@@ -548,7 +548,7 @@ bool SkOSWindow::attachANGLE(int msaaSampleCount) {
         }
     }
     if (eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
-        const GrGLInterface* intf = GrGLCreateANGLEInterface();
+        SkAutoTUnref<const GrGLInterface> intf(GrGLCreateANGLEInterface());
 
         if (intf ) {
             ANGLE_GL_CALL(intf, Viewport(0, 0, SkScalarRound(this->width()),
@@ -573,7 +573,7 @@ void SkOSWindow::detachANGLE() {
 }
 
 void SkOSWindow::presentANGLE() {
-    const GrGLInterface* intf = GrGLCreateANGLEInterface();
+    SkAutoTUnref<const GrGLInterface> intf(GrGLCreateANGLEInterface());
 
     if (intf) {
         ANGLE_GL_CALL(intf, Flush());

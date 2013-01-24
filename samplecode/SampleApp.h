@@ -41,6 +41,21 @@ public:
 
         kDeviceTypeCnt
     };
+
+    static bool IsGpuDeviceType(DeviceType devType) {
+    #if SK_SUPPORT_GPU
+        switch (devType) {
+            case kGPU_DeviceType:
+    #if SK_ANGLE
+            case kANGLE_DeviceType:
+    #endif // SK_ANGLE
+            case kNullGPU_DeviceType:
+                return true;
+        }
+    #endif // SK_SUPPORT_GPU
+        return false;
+    }
+
     /**
      * SampleApp ports can subclass this manager class if they want to:
      *      * filter the types of devices supported
