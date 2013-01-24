@@ -51,6 +51,8 @@ public:
     #endif // SK_ANGLE
             case kNullGPU_DeviceType:
                 return true;
+            default:
+                return false;
         }
     #endif // SK_SUPPORT_GPU
         return false;
