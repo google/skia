@@ -107,6 +107,8 @@
         '<(skia_src_path)/core/SkOrderedWriteBuffer.cpp',
         '<(skia_src_path)/core/SkPackBits.cpp',
         '<(skia_src_path)/core/SkPaint.cpp',
+        '<(skia_src_path)/core/SkPaintPriv.cpp',
+        '<(skia_src_path)/core/SkPaintPriv.h',
         '<(skia_src_path)/core/SkPath.cpp',
         '<(skia_src_path)/core/SkPathEffect.cpp',
         '<(skia_src_path)/core/SkPathHeap.cpp',
