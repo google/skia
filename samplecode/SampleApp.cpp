@@ -252,32 +252,15 @@ public:
 
     virtual SkCanvas* createCanvas(SampleWindow::DeviceType dType,
                                    SampleWindow* win) {
-        switch (dType) {
-            case kRaster_DeviceType:
-                // fallthrough
-            case kPicture_DeviceType:
-                // fallthrough
-#if SK_ANGLE
-            case kANGLE_DeviceType:
-#endif
-                break;
 #if SK_SUPPORT_GPU
-            case kGPU_DeviceType:
-            case kNullGPU_DeviceType:
-                if (fCurContext) {
-                    SkAutoTUnref<SkDevice> device(new SkGpuDevice(fCurContext,
-                                                                  fCurRenderTarget));
-                    return new SkCanvas(device);
-                } else {
-                    return NULL;
-                }
-                break;
+        if (IsGpuDeviceType(dType) && NULL != fCurContext) {
+            SkAutoTUnref<SkDevice> device(new SkGpuDevice(fCurContext, fCurRenderTarget));
+            return new SkCanvas(device);
+        } else
 #endif
-            default:
-                SkASSERT(false);
-                return NULL;
+        {
+            return NULL;
         }
-        return NULL;
     }
 
     virtual void publishCanvas(SampleWindow::DeviceType dType,
@@ -288,7 +271,7 @@ public:
             // in case we have queued drawing calls
             fCurContext->flush();
 
-            if (kGPU_DeviceType != dType && kNullGPU_DeviceType != dType) {
+            if (!IsGpuDeviceType(dType)) {
                 // need to send the raster bits to the (gpu) window
                 fCurContext->setRenderTarget(fCurRenderTarget);
                 const SkBitmap& bm = win->getBitmap();
@@ -1273,30 +1256,15 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
         fPdfCanvas = new SkCanvas(pdfDevice);
         pdfDevice->unref();
         canvas = fPdfCanvas;
+    } else if (kPicture_DeviceType == fDeviceType) {
+        fPicture = new SkPicture;
+        canvas = fPicture->beginRecording(9999, 9999);
     } else {
-        switch (fDeviceType) {
-            case kRaster_DeviceType:
-                // fallthrough
 #if SK_SUPPORT_GPU
-            case kGPU_DeviceType:
-                // fallthrough
-#if SK_ANGLE
-            case kANGLE_DeviceType:
-#endif // SK_ANGLE
-#endif // SK_SUPPORT_GPU
-                canvas = this->INHERITED::beforeChildren(canvas);
-                break;
-            case kPicture_DeviceType:
-                fPicture = new SkPicture;
-                canvas = fPicture->beginRecording(9999, 9999);
-                break;
-#if SK_SUPPORT_GPU
-            case kNullGPU_DeviceType:
-                break;
+        if (kNullGPU_DeviceType != fDeviceType)
 #endif
-            default:
-                SkASSERT(false);
-                break;
+        {
+            canvas = this->INHERITED::beforeChildren(canvas);
         }
     }
 
@@ -2033,21 +2001,6 @@ static const char* gDeviceTypePrefix[] = {
 SK_COMPILE_ASSERT(SK_ARRAY_COUNT(gDeviceTypePrefix) == SampleWindow::kDeviceTypeCnt,
                   array_size_mismatch);
 
-static const bool gDeviceTypeIsGPU[] = {
-    false,
-    false,
-#if SK_SUPPORT_GPU
-    true,
-#if SK_ANGLE
-    true,
-#endif // SK_ANGLE
-    true
-#endif // SK_SUPPORT_GPU
-};
-SK_COMPILE_ASSERT(SK_ARRAY_COUNT(gDeviceTypeIsGPU) == SampleWindow::kDeviceTypeCnt,
-                  array_size_mismatch);
-
-
 static const char* trystate_str(SkOSMenu::TriState state,
                                 const char trueStr[], const char falseStr[]) {
     if (SkOSMenu::kOnState == state) {
@@ -2116,8 +2069,9 @@ void SampleWindow::updateTitle() {
     }
 
 #if SK_SUPPORT_GPU
-    if (gDeviceTypeIsGPU[fDeviceType] &&
+    if (IsGpuDeviceType(fDeviceType) &&
         NULL != fDevManager &&
+        fDevManager->getGrRenderTarget() &&
         fDevManager->getGrRenderTarget()->numSamples() > 0) {
         title.appendf(" [MSAA: %d]",
                        fDevManager->getGrRenderTarget()->numSamples());
