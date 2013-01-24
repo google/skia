@@ -959,7 +959,7 @@ public:
                 return false;
             }
             for (int i = 0; i < kNumStages; ++i) {
-                if (fStages[i].isEqual(state.fStages[i])) {
+                if (!fStages[i].isEqual(state.fStages[i])) {
                     return false;
                 }
             }
