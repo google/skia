@@ -122,7 +122,7 @@ public:
         name->append("oval");
     }
     virtual void makePath(SkPath* path) SK_OVERRIDE {
-        SkRect r = { 10, 10, 30, 20 };
+        SkRect r = { 10, 10, 23, 20 };
         path->addOval(r);
     }
 private:
