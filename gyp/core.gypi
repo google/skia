@@ -57,8 +57,6 @@
         '<(skia_src_path)/core/SkColorFilter.cpp',
         '<(skia_src_path)/core/SkColorTable.cpp',
         '<(skia_src_path)/core/SkComposeShader.cpp',
-        '<(skia_src_path)/core/SkConcaveToTriangles.cpp',
-        '<(skia_src_path)/core/SkConcaveToTriangles.h',
         '<(skia_src_path)/core/SkConfig8888.cpp',
         '<(skia_src_path)/core/SkConfig8888.h',
         '<(skia_src_path)/core/SkCordic.cpp',

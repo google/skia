@@ -5,7 +5,7 @@
       'type': 'executable',
       'mac_bundle' : 1,
       'include_dirs' : [
-        '../src/core', # needed to get SkConcaveToTriangle, maybe this should be moved to include dir?
+        '../src/core', 
         '../src/effects', #needed for BlurMask.h
         '../gm',       # needed to pull gm.h
         '../samplecode', # To pull SampleApp.h and SampleCode.h
@@ -97,7 +97,6 @@
         '../samplecode/SampleTextureDomain.cpp',
         '../samplecode/SampleTiling.cpp',
         '../samplecode/SampleTinyBitmap.cpp',
-        '../samplecode/SampleTriangles.cpp',
         '../samplecode/SampleTypeface.cpp',
         '../samplecode/SampleUnitMapper.cpp',
         '../samplecode/SampleVertices.cpp',
