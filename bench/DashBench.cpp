@@ -311,6 +311,84 @@ protected:
 private:
     typedef SkBenchmark INHERITED;
 };
+
+
+class GiantDashBench : public SkBenchmark {
+    SkString fName;
+    SkPoint  fPts[2];
+    SkAutoTUnref<SkPathEffect> fPathEffect;
+    
+    enum {
+        N = SkBENCHLOOP(10)
+    };
+
+public:
+    enum LineType {
+        kHori_LineType,
+        kVert_LineType,
+        kDiag_LineType
+    };
+
+    static const char* LineTypeName(LineType lt) {
+        static const char* gNames[] = { "hori", "vert", "diag" };
+        SkASSERT((size_t)lt <= SK_ARRAY_COUNT(gNames));
+        return gNames[lt];
+    }
+
+    GiantDashBench(void* param, LineType lt) : INHERITED(param) {
+        fName.printf("giantdashline_%s", LineTypeName(lt));
+        
+        // deliberately pick intervals that won't be caught by asPoints(), so
+        // we can test the filterPath code-path.
+        const SkScalar intervals[] = { 2, 1 };
+        fPathEffect.reset(new SkDashPathEffect(intervals,
+                                               SK_ARRAY_COUNT(intervals), 0));
+
+        SkScalar cx = 640 / 2;  // center X
+        SkScalar cy = 480 / 2;  // center Y
+        SkMatrix matrix;
+    
+        switch (lt) {
+            case kHori_LineType:
+                matrix.setIdentity();
+                break;
+            case kVert_LineType:
+                matrix.setRotate(90, cx, cy);
+                break;
+            case kDiag_LineType:
+                matrix.setRotate(45, cx, cy);
+                break;
+        }
+        
+        const SkScalar overshoot = 10*1000;
+        const SkPoint pts[2] = {
+            { -overshoot, cy }, { 640 + overshoot, cy }
+        };
+        matrix.mapPoints(fPts, pts, 2);
+    }
+    
+protected:
+    virtual const char* onGetName() SK_OVERRIDE {
+        return fName.c_str();
+    }
+    
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        SkPaint p;
+        this->setupPaint(&p);
+        p.setStyle(SkPaint::kStroke_Style);
+        p.setStrokeWidth(1);
+        p.setPathEffect(fPathEffect);
+
+        for (int i = 0; i < N; ++i) {
+            canvas->drawPoints(SkCanvas::kLines_PointMode, 2, fPts, p);
+        }
+    }
+    
+private:
+    typedef SkBenchmark INHERITED;
+};
+
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static const SkScalar gDots[] = { SK_Scalar1, SK_Scalar1 };
@@ -337,3 +415,7 @@ DEF_BENCH( return new DrawPointsDashingBench(p, 3, 1, false); )
 DEF_BENCH( return new DrawPointsDashingBench(p, 3, 1, true); )
 DEF_BENCH( return new DrawPointsDashingBench(p, 5, 5, false); )
 DEF_BENCH( return new DrawPointsDashingBench(p, 5, 5, true); )
+
+DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kHori_LineType); )
+DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kVert_LineType); )
+DEF_BENCH( return new GiantDashBench(p, GiantDashBench::kDiag_LineType); )
