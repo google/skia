@@ -972,7 +972,9 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
 
     SkStrokeRec stroke(paint);
     SkPathEffect* pathEffect = paint.getPathEffect();
-    if (pathEffect && pathEffect->filterPath(&effectPath, *pathPtr, &stroke)) {
+    const SkRect* cullRect = NULL;  // TODO: what is our bounds?
+    if (pathEffect && pathEffect->filterPath(&effectPath, *pathPtr, &stroke,
+                                             cullRect)) {
         pathPtr = &effectPath;
     }
 

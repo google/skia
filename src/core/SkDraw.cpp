@@ -122,6 +122,23 @@ SkDraw::SkDraw(const SkDraw& src) {
     memcpy(this, &src, sizeof(*this));
 }
 
+bool SkDraw::computeConservativeLocalClipBounds(SkRect* localBounds) const {
+    if (fRC->isEmpty()) {
+        return false;
+    }
+
+    SkMatrix inverse;
+    if (!fMatrix->invert(&inverse)) {
+        return false;
+    }
+
+    SkIRect devBounds = fRC->getBounds();
+    // outset to have slop for antialasing and hairlines
+    devBounds.outset(1, 1);
+    inverse.mapRect(localBounds, SkRect::Make(devBounds));
+    return true;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 typedef void (*BitmapXferProc)(void* pixels, size_t bytes, uint32_t data);
@@ -668,7 +685,10 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                     path.moveTo(pts[0]);
                     path.lineTo(pts[1]);
 
-                    if (paint.getPathEffect()->asPoints(&pointData, path, rec, *fMatrix)) {
+                    SkRect cullRect = SkRect::Make(fRC->getBounds());
+                    
+                    if (paint.getPathEffect()->asPoints(&pointData, path, rec,
+                                                        *fMatrix, &cullRect)) {
                         // 'asPoints' managed to find some fast path
 
                         SkPaint newP(paint);
@@ -1057,7 +1077,12 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
     }
 
     if (paint->getPathEffect() || paint->getStyle() != SkPaint::kFill_Style) {
-        doFill = paint->getFillPath(*pathPtr, &tmpPath);
+        SkRect cullRect;
+        const SkRect* cullRectPtr = NULL;
+        if (this->computeConservativeLocalClipBounds(&cullRect)) {
+            cullRectPtr = &cullRect;
+        }
+        doFill = paint->getFillPath(*pathPtr, &tmpPath, cullRectPtr);
         pathPtr = &tmpPath;
     }
 
@@ -2765,3 +2790,4 @@ bool SkDraw::DrawToMask(const SkPath& devPath, const SkIRect* clipBounds,
 
     return true;
 }
+

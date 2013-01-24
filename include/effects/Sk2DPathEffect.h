@@ -17,7 +17,7 @@ public:
     Sk2DPathEffect(const SkMatrix& mat);
 
     virtual bool filterPath(SkPath*, const SkPath&,
-                            SkStrokeRec*) const SK_OVERRIDE;
+                            SkStrokeRec*, const SkRect*) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Sk2DPathEffect)
 
@@ -62,7 +62,7 @@ public:
     : Sk2DPathEffect(matrix), fWidth(width) {}
 
     virtual bool filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec*) const SK_OVERRIDE;
+                            SkStrokeRec*, const SkRect*) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLine2DPathEffect)
 

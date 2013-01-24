@@ -41,10 +41,11 @@ public:
     virtual ~SkDashPathEffect();
 
     virtual bool filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec*) const SK_OVERRIDE;
+                            SkStrokeRec*, const SkRect*) const SK_OVERRIDE;
 
     virtual bool asPoints(PointData* results, const SkPath& src,
-                          const SkStrokeRec&, const SkMatrix&) const SK_OVERRIDE;
+                          const SkStrokeRec&, const SkMatrix&,
+                          const SkRect*) const SK_OVERRIDE;
 
     virtual Factory getFactory() SK_OVERRIDE;
 
