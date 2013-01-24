@@ -338,7 +338,7 @@ public:
 
         // deliberately pick intervals that won't be caught by asPoints(), so
         // we can test the filterPath code-path.
-        const SkScalar intervals[] = { 2, 1 };
+        const SkScalar intervals[] = { 2, 1, 1, 1 };
         fPathEffect.reset(new SkDashPathEffect(intervals,
                                                SK_ARRAY_COUNT(intervals), 0));
 
