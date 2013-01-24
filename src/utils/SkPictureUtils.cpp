@@ -84,7 +84,15 @@ public:
                             const SkPoint[], const SkPaint& paint) SK_OVERRIDE {
         this->addBitmapFromPaint(paint);
     }
-    virtual void drawRect(const SkDraw&, const SkRect& r,
+    virtual void drawRect(const SkDraw&, const SkRect&,
+                          const SkPaint& paint) SK_OVERRIDE {
+        this->addBitmapFromPaint(paint);
+    }
+    virtual void drawOval(const SkDraw&, const SkRect&,
+                          const SkPaint& paint) SK_OVERRIDE {
+        this->addBitmapFromPaint(paint);
+    }
+    virtual void drawRRect(const SkDraw&, const SkRRect&,
                           const SkPaint& paint) SK_OVERRIDE {
         this->addBitmapFromPaint(paint);
     }
