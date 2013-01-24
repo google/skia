@@ -84,24 +84,16 @@ public:
         return head;
     }
 
-    bool isComplex() const {
-        return this != SkRegion_gEmptyRunHeadPtr && this != SkRegion_gRectRunHeadPtr;
-    }
-
     SkRegion::RunType* writable_runs() {
-        SkASSERT(this->isComplex());
         SkASSERT(fRefCnt == 1);
         return (SkRegion::RunType*)(this + 1);
     }
 
     const SkRegion::RunType* readonly_runs() const {
-        SkASSERT(this->isComplex());
         return (const SkRegion::RunType*)(this + 1);
     }
 
     RunHead* ensureWritable() {
-        SkASSERT(this->isComplex());
-
         RunHead* writable = this;
         if (fRefCnt > 1) {
             // We need to alloc & copy the current region before we call
