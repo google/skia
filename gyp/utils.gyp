@@ -48,6 +48,7 @@
         '../include/utils/SkParsePaint.h',
         '../include/utils/SkParsePath.h',
         '../include/utils/SkPictureUtils.h',
+        '../include/utils/SkRandom.h',
         '../include/utils/SkRTConf.h',
         '../include/utils/SkProxyCanvas.h',
         '../include/utils/SkUnitMappers.h',
