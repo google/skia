@@ -21,7 +21,7 @@ and using the roots
 
 */
 
-    
+
 int add_valid_ts(double s[], int realRoots, double* t) {
     int foundRoots = 0;
     for (int index = 0; index < realRoots; ++index) {

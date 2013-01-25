@@ -162,7 +162,7 @@ int cubicRootsReal(double A, double B, double C, double D, double s[3]) {
             *roots++ = -u - adiv3;
         }
     }
-    else 
+    else
 #endif
     if (R2MinusQ3 < 0)   // we have 3 real roots
     {

@@ -686,7 +686,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                     path.lineTo(pts[1]);
 
                     SkRect cullRect = SkRect::Make(fRC->getBounds());
-                    
+
                     if (paint.getPathEffect()->asPoints(&pointData, path, rec,
                                                         *fMatrix, &cullRect)) {
                         // 'asPoints' managed to find some fast path

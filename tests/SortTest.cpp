@@ -45,7 +45,7 @@ static void TestSort(skiatest::Reporter* reporter) {
     for (int i = 0; i < 10000; i++) {
         int count = rand.nextRangeU(1, SK_ARRAY_COUNT(randomArray));
         rand_array(rand, randomArray, count);
- 
+
         // Use qsort as the reference sort.
         memcpy(sortedArray, randomArray, sizeof(randomArray));
         qsort(sortedArray, count, sizeof(sortedArray[0]), compare_int);

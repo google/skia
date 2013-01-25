@@ -63,7 +63,7 @@ inline bool approximately_equal(double x, double y) {
     return approximately_zero(x - y);
 #else
 // see http://visualstudiomagazine.com/blogs/tool-tracker/2011/11/compare-floating-point-numbers.aspx
-// this allows very small (e.g. degenerate) values to compare unequally, but in this case, 
+// this allows very small (e.g. degenerate) values to compare unequally, but in this case,
 // AlmostEqualUlps should be used instead.
     if (x == y) {
         return true;
