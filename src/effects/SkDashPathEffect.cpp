@@ -250,7 +250,7 @@ bool SkDashPathEffect::filterPath(SkPath* dst, const SkPath& src,
     }
 
     SpecialLineRec lineRec;
-    bool specialLine = lineRec.init(src, dst, rec, fCount >> 1, fIntervalLength);
+    bool specialLine = lineRec.init(*srcPtr, dst, rec, fCount >> 1, fIntervalLength);
 
     SkPathMeasure   meas(*srcPtr, false);
 
