@@ -10,6 +10,22 @@ for more details about the presubmit API built into gcl.
 """
 
 
+def _CheckChangeHasEol(input_api, output_api, source_file_filter=None):
+  """Checks that files end with atleast one \n (LF)."""
+  eof_files = []
+  for f in input_api.AffectedSourceFiles(source_file_filter):
+    contents = input_api.ReadFile(f, 'rb')
+    # Check that the file ends in atleast one newline character.
+    if len(contents) > 1 and contents[-1:] != '\n':
+      eof_files.append(f.LocalPath())
+
+  if eof_files:
+    return [output_api.PresubmitPromptWarning(
+      'These files should end in a newline character:',
+      items=eof_files)]
+  return []
+
+
 def _CommonChecks(input_api, output_api):
   """Presubmit checks common to upload and commit."""
   results = []
@@ -20,7 +36,7 @@ def _CommonChecks(input_api, output_api):
                        x.LocalPath().endswith('.sh') or
                        x.LocalPath().endswith('.cpp'))
   results.extend(
-      input_api.canned_checks.CheckChangeHasOnlyOneEol(
+      _CheckChangeHasEol(
           input_api, output_api, source_file_filter=sources))
   return results
 
