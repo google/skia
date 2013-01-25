@@ -108,13 +108,18 @@ static T** SkTQSort_Partition(T** left, T** right, T** pivot) {
 }
 
 template <typename T> void SkTQSort(T** left, T** right) {
-    if (left >= right) {
-        return;
+    while (left < right) {
+        T** pivot = left + ((right - left) >> 1);
+        pivot = SkTQSort_Partition(left, right, pivot);
+
+        if (right - pivot > pivot - left) {
+            SkTQSort(left, pivot - 1);
+            left = pivot + 1;
+        } else {
+            SkTQSort(pivot + 1, right);
+            right = pivot - 1;
+        }
     }
-    T** pivot = left + ((right - left) >> 1);
-    pivot = SkTQSort_Partition(left, right, pivot);
-    SkTQSort(left, pivot - 1);
-    SkTQSort(pivot + 1, right);
 }
 
 template <typename T>
