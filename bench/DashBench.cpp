@@ -318,7 +318,7 @@ class GiantDashBench : public SkBenchmark {
     SkScalar fStrokeWidth;
     SkPoint  fPts[2];
     SkAutoTUnref<SkPathEffect> fPathEffect;
-    
+
 public:
     enum LineType {
         kHori_LineType,
@@ -345,7 +345,7 @@ public:
         SkScalar cx = 640 / 2;  // center X
         SkScalar cy = 480 / 2;  // center Y
         SkMatrix matrix;
-    
+
         switch (lt) {
             case kHori_LineType:
                 matrix.setIdentity();
@@ -357,19 +357,19 @@ public:
                 matrix.setRotate(45, cx, cy);
                 break;
         }
-        
+
         const SkScalar overshoot = 100*1000;
         const SkPoint pts[2] = {
             { -overshoot, cy }, { 640 + overshoot, cy }
         };
         matrix.mapPoints(fPts, pts, 2);
     }
-    
+
 protected:
     virtual const char* onGetName() SK_OVERRIDE {
         return fName.c_str();
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint p;
         this->setupPaint(&p);
@@ -379,7 +379,7 @@ protected:
 
         canvas->drawPoints(SkCanvas::kLines_PointMode, 2, fPts, p);
     }
-    
+
 private:
     typedef SkBenchmark INHERITED;
 };

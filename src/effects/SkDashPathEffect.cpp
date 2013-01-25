@@ -118,7 +118,7 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
 
     SkScalar dx = pts[1].x() - pts[0].x();
     SkScalar dy = pts[1].y() - pts[0].y();
-    
+
     // just do horizontal lines for now (lazy)
     if (dy) {
         return false;
@@ -126,11 +126,11 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
 
     SkScalar minX = pts[0].fX;
     SkScalar maxX = pts[1].fX;
-    
+
     if (maxX < bounds.fLeft || minX > bounds.fRight) {
         return false;
     }
-    
+
     if (dx < 0) {
         SkTSwap(minX, maxX);
     }
@@ -147,14 +147,14 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
         maxX = bounds.fRight + SkScalarMod(maxX - bounds.fRight,
                                            intervalLength);
     }
-    
+
     SkASSERT(maxX > minX);
     if (dx < 0) {
         SkTSwap(minX, maxX);
     }
     pts[0].fX = minX;
     pts[1].fX = maxX;
-    
+
     dstPath->moveTo(pts[0]);
     dstPath->lineTo(pts[1]);
     return true;
@@ -243,7 +243,7 @@ bool SkDashPathEffect::filterPath(SkPath* dst, const SkPath& src,
     if (cull_path(src, *rec, cullRect, fIntervalLength, &cullPathStorage)) {
         srcPtr = &cullPathStorage;
     }
-    
+
     SpecialLineRec lineRec;
     bool specialLine = lineRec.init(src, dst, rec, fCount >> 1, fIntervalLength);
 

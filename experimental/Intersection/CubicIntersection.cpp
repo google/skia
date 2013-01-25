@@ -284,7 +284,7 @@ static bool intersect2(const Cubic& cubic1, double t1s, double t1e, const Cubic&
                             cubic1, SkTMax(to1 - dt1, 0.), SkTMin(to1 + dt1, 1.), i);
                     i.swap();
                     --debugDepth;
-                    
+
                 }
             }
             t2Start = t2;
