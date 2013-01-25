@@ -23,7 +23,7 @@ def SanitizeFilesWithModifiers(directory, file_modifiers, line_modifiers):
     directory: string - The directory which will be recursively traversed to
         find source files to apply modifiers to.
     file_modifiers: list - file-modification methods which should be applied to
-        the complete file content (Eg: EOFNewlineAdder).
+        the complete file content (Eg: EOFOneAndOnlyOneNewlineAdder).
     line_modifiers: list - line-modification methods which should be applied to
         lines in a file (Eg: TabReplacer).
   """
@@ -114,11 +114,12 @@ def CopywriteChecker(file_content, unused_file_path):
   return file_content
 
 
-def EOFNewlineAdder(file_content, file_path):
-  """Adds a LF at the end of the file if it does not have one."""
-  if file_content and file_content[-1] != '\n':
+def EOFOneAndOnlyOneNewlineAdder(file_content, file_path):
+  """Adds one and only one LF at the end of the file."""
+  if file_content and (file_content[-1] != '\n' or file_content[-2:-1] == '\n'):
+    file_content = file_content.rstrip()
     file_content += '\n'
-    print 'Added newline to %s' % file_path
+    print 'Added exactly one newline to %s' % file_path
   return file_content
 
 
@@ -140,7 +141,7 @@ if '__main__' == __name__:
       os.getcwd(),
       file_modifiers=[
           CopywriteChecker,
-          EOFNewlineAdder,
+          EOFOneAndOnlyOneNewlineAdder,
           SvnEOLChecker,
       ],
       line_modifiers=[
@@ -149,4 +150,3 @@ if '__main__' == __name__:
           TrailingWhitespaceRemover,
       ],
   ))
-
