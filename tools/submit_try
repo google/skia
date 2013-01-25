@@ -13,7 +13,6 @@ adds some validation and supports both git and svn.
 """
 
 
-import argparse
 import httplib
 import json
 import os
@@ -121,35 +120,90 @@ def RetrieveTrybotList():
   return trybots
 
 
-def ValidateArgs(trybots, is_svn=True):
+def ValidateArgs(argv, trybots, is_svn=True):
   """ Parse and validate command-line arguments. If the arguments are valid,
   returns a tuple of (<changelist name>, <list of trybots>).
 
   trybots: A list of the known try builders.
   """
-  if is_svn:
-    parser = argparse.ArgumentParser(
-        prog=os.path.basename(__file__),
-        description='%(prog)s: Submit a try request.',
-        usage=('%(prog)s [-h] <changelist> --bot <buildername> '
-               '[<buildername ...]'))
-    parser.add_argument('changelist', metavar='<changelist>',
-                        help='Changelist to try.')
-  else:
-    parser = argparse.ArgumentParser(
-        prog=os.path.basename(__file__),
-        description='%(prog)s: Submit a try request.')
 
-  parser.add_argument('-r', '--revision', metavar='<revision#>', nargs=1,
-                      type=int, help='Revision from which to try the change.')
-  parser.add_argument('--bot', metavar='<buildername>', nargs='+',
-                      help='Builder(s) on which to try the change. One of: %s'
-                               % ', '.join(trybots),
-                      choices=trybots + [ALL_BUILDERS], required=True)
-  args = parser.parse_args()
-  if args.bot == [ALL_BUILDERS]:
-    args.bot = trybots
-  return args
+  class CollectedArgs(object):
+    def __init__(self, bots, changelist, revision):
+      self._bots = bots
+      self._changelist = changelist
+      self._revision = revision
+
+    @property
+    def bots(self):
+      for bot in self._bots:
+        yield bot
+
+    @property
+    def changelist(self):
+      return self._changelist
+
+    @property
+    def revision(self):
+      return self._revision
+
+  usage = (
+"""submit_try: Submit a try request.
+submit_try %s--bot <buildername> [<buildername> ...]
+
+--bot               Builder on which to run the try. Required.
+-h, --help          Show this message.
+-r <revision#>      Revision from which to run the try.
+-l, --list_bots     List the available try builders and exit.
+""" % ('<changelist> ' if is_svn else ''))
+
+  def Error(msg=None):
+    if msg:
+      print msg
+    print usage
+    sys.exit(1)
+
+  using_bots = None
+  changelist = None
+  revision = None
+
+  while argv:
+    arg = argv.pop(0)
+    if arg == '-h' or arg == '--help':
+      Error()
+    elif arg == '-l' or arg == '--list_bots':
+      print 'submit_try: Available builders:\n  %s' % '\n  '.join(trybots)
+      sys.exit(0)
+    elif arg == '--bot':
+      if using_bots:
+        Error('--bot specified multiple times.')
+      if len(argv) < 1:
+        Error('You must specify a builder with "--bot".')
+      using_bots = []
+      while argv and not argv[0].startswith('-'):
+        bot = argv.pop(0)
+        if bot == ALL_BUILDERS:
+          if using_bots:
+            Error('Cannot specify "all" with additional builder names.')
+          using_bots = trybots
+          break
+        else:
+          if not bot in trybots:
+            Error('Unrecognized builder: %s' % bot)
+          using_bots.append(bot)
+    elif arg == '-r':
+      if len(argv) < 1:
+        Error('You must specify a revision with "-r".')
+      revision = argv.pop(0)
+    else:
+      if changelist or not is_svn:
+        Error('Unknown argument: %s' % arg)
+      changelist = arg
+  if is_svn and not changelist:
+    Error('You must specify a changelist name.')
+  if not using_bots:
+    Error('You must specify one or more builders using --bot.')
+  return CollectedArgs(bots=using_bots, changelist=changelist,
+                       revision=revision)
 
 
 def SubmitTryRequest(args, is_svn=True):
@@ -166,7 +220,7 @@ def SubmitTryRequest(args, is_svn=True):
       - revision: optional, int; the revision number from which to run the try. 
   is_svn: boolean; are we in an SVN repo?
   """
-  botlist = ','.join(['%s%s' % (bot, TRYBOT_SUFFIX) for bot in args.bot])
+  botlist = ','.join(['%s%s' % (bot, TRYBOT_SUFFIX) for bot in args.bots])
   if is_svn:
     gcl_cmd = 'gcl.bat' if os.name == 'nt' else 'gcl'
     try_args = [gcl_cmd, 'try', args.changelist,
@@ -202,7 +256,7 @@ def main():
   is_svn = os.path.isdir('.svn')
 
   # Parse and validate the command-line arguments.
-  args = ValidateArgs(trybots=trybots, is_svn=is_svn)
+  args = ValidateArgs(sys.argv[1:], trybots=trybots, is_svn=is_svn)
 
   # Submit the try request.
   SubmitTryRequest(args, is_svn=is_svn)
