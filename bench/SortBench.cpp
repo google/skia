@@ -10,7 +10,15 @@
 #include "SkTSort.h"
 #include "SkString.h"
 
+#ifdef SK_DEBUG
+// Windows-debug builds (at least) don't implement tail-recursion, and we have
+// a bench that triggers a worst-case behavior in SkTQSort (w/ repeated keys)
+// which can overflow the stack if N is too big. So we reduce it for debug
+// builds (for which we don't care about sorting performance anyways).
+static const int N = 100;
+#else
 static const int N = 1000;
+#endif
 
 static void rand_proc(int array[], int count) {
     SkRandom rand;
