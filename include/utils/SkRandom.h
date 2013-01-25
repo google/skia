@@ -69,7 +69,12 @@ public:
     */
     uint32_t nextRangeU(uint32_t min, uint32_t max) {
         SkASSERT(min <= max);
-        return min + this->nextU() % (max - min + 1);
+        uint32_t range = max - min + 1;
+        if (0 == range) {
+            return this->nextU();
+        } else {
+            return min + this->nextU() % range;
+        }
     }
 
     /** Return the next pseudo random unsigned number, mapped to lie within
