@@ -147,5 +147,3 @@ void SkOperandInterpolator::UnitTest()
 }
 
 #endif
-
-

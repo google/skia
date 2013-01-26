@@ -227,4 +227,3 @@ bool SkOSFile::Iter::next(SkString* name, bool getDir)
 }
 
 #endif
-

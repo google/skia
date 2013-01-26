@@ -162,4 +162,3 @@ private:
 
 static SkView* MyFactory() { return new ClipView; }
 static SkViewRegister reg(MyFactory);
-

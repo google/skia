@@ -126,4 +126,3 @@ void SkTableMaskFilter::MakeClipTable(uint8_t table[256], uint8_t min,
     SkDebugf("\n\n");
 #endif
 }
-

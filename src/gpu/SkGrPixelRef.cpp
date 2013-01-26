@@ -177,4 +177,3 @@ bool SkGrPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
                                 kSkia8888_PM_GrPixelConfig,
                                 buffer, dst->rowBytes());
 }
-

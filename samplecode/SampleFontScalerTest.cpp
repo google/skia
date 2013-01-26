@@ -138,4 +138,3 @@ private:
 
 static SkView* MyFactory() { return new FontScalerTestView; }
 static SkViewRegister reg(MyFactory);
-

@@ -600,4 +600,3 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
     stream->unref();
     return face;
 }
-

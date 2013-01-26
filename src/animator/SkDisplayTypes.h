@@ -104,4 +104,3 @@ private:
 };
 
 #endif // SkDisplayTypes_DEFINED
-

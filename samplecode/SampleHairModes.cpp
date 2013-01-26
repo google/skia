@@ -135,4 +135,3 @@ private:
 
 static SkView* MyFactory() { return new HairModesView; }
 static SkViewRegister reg(MyFactory);
-

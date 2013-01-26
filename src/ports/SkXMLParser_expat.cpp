@@ -138,4 +138,3 @@ void SkXMLParser::GetNativeErrorString(int error, SkString* str)
     if (str)
         str->set(XML_ErrorString((XML_Error) error));
 }
-

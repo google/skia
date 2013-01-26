@@ -222,4 +222,3 @@ private:
 
 static SkView* MyFactory() { return new StrokePathView; }
 static SkViewRegister reg(MyFactory);
-

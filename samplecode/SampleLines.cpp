@@ -113,4 +113,3 @@ private:
 
 static SkView* MyFactory() { return new LinesView; }
 static SkViewRegister reg(MyFactory);
-

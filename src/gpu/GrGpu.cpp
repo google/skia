@@ -557,4 +557,3 @@ void GrGpu::releaseIndexArray() {
     fIndexPool->putBack(bytes);
     --fIndexPoolUseCnt;
 }
-

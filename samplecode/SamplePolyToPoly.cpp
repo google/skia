@@ -167,4 +167,3 @@ private:
 
 static SkView* MyFactory() { return new PolyToPolyView; }
 static SkViewRegister reg(MyFactory);
-

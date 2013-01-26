@@ -359,4 +359,3 @@ static SkView* F1() { return new TestCirclesView; }
 static SkViewRegister gR1(F1);
 static SkView* F2() { return new TestStrokeView; }
 static SkViewRegister gR2(F2);
-

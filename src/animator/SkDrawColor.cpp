@@ -267,4 +267,3 @@ bool SkDrawColor::setProperty(int index, SkScriptValue& value) {
     }
     return true;
 }
-

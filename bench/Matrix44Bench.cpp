@@ -169,4 +169,3 @@ DEF_BENCH( return new PostScaleMatrix44Bench(p); )
 DEF_BENCH( return new InvertMatrix44Bench(p); )
 DEF_BENCH( return new SetConcatMatrix44Bench(p); )
 DEF_BENCH( return new GetTypeMatrix44Bench(p); )
-

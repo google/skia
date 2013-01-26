@@ -36,4 +36,3 @@ private:
 };
 
 #endif // SkDrawTextBox_DEFINED
-

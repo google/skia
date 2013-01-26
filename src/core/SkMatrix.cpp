@@ -1928,4 +1928,3 @@ bool SkTreatAsSprite(const SkMatrix& mat, int width, int height,
     dst.round(&idst);
     return isrc == idst;
 }
-

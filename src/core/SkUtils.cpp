@@ -428,4 +428,3 @@ SkAutoMemoryUsageProbe::~SkAutoMemoryUsageProbe() {
             round_to_K(mi.uordblks));
 #endif
 }
-

@@ -276,4 +276,3 @@ private:
 
 static SkView* MyFactory() { return new DrawingClientView; }
 static SkViewRegister reg(MyFactory);
-

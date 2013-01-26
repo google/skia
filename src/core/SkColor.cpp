@@ -111,4 +111,3 @@ SkColor SkHSVToColor(U8CPU a, const SkScalar hsv[3]) {
     }
     return SkColorSetARGB(a, r, g, b);
 }
-

@@ -22,4 +22,3 @@ void SkDebugf(const char format[], ...) {
     va_end(args);
     fprintf(stderr, "%s", buffer);
 }
-

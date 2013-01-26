@@ -1079,4 +1079,3 @@ void SkAntiEdge_Test() {
     test_horz();
     test_vert();
 }
-

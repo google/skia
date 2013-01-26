@@ -65,4 +65,3 @@ SkScalar SkEvalCubicInterval(SkScalar x1, SkScalar y1,
     y2 *= 3;
     return eval_cubic(y1, y2 - 2*y1, y1 - y2 + SK_Scalar1, t);
 }
-

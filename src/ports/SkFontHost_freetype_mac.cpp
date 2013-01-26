@@ -103,4 +103,3 @@ SkTypeface* SkCreateTypefaceFromCTFont(CTFontRef fontRef) {
     SkDEBUGFAIL("Not supported");
     return NULL;
 }
-

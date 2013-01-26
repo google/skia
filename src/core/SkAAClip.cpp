@@ -2176,4 +2176,3 @@ void SkAAClipBlitter::blitMask(const SkMask& origMask, const SkIRect& clip) {
 const SkBitmap* SkAAClipBlitter::justAnOpaqueColor(uint32_t* value) {
     return NULL;
 }
-

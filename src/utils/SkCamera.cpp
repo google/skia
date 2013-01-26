@@ -423,4 +423,3 @@ void Sk3DView::applyToCanvas(SkCanvas* canvas) const {
     this->getMatrix(&matrix);
     canvas->concat(matrix);
 }
-

@@ -311,5 +311,3 @@ SkDrawFilter* SkNWayCanvas::setDrawFilter(SkDrawFilter* filter) {
     }
     return this->INHERITED::setDrawFilter(filter);
 }
-
-

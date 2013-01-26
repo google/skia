@@ -40,4 +40,3 @@ private:
 };
 
 #endif // SkDisplayEvents_DEFINED
-

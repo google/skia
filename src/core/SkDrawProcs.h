@@ -43,4 +43,3 @@ struct SkDrawProcs {
 bool SkDrawTreatAsHairline(const SkPaint&, const SkMatrix&, SkScalar* coverage);
 
 #endif
-

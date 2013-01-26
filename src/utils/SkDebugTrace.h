@@ -22,5 +22,3 @@
   SkDebugf("Trace: %s (%s=%s, %s=%s)\n", event, name1, value1, name2, value2)
 
 #endif
-
-

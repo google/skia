@@ -94,4 +94,3 @@ struct GrGpuTextVertex {
 };
 
 #endif
-

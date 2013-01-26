@@ -727,4 +727,3 @@ void SkScan::FillTriangle(const SkPoint pts[], const SkRasterClip& clip,
         sk_fill_triangle(pts, clipper.getClipRect(), blitter, ir);
     }
 }
-

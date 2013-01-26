@@ -115,6 +115,3 @@ static GM* MyFactory(void*) { return new NinePatchStretchGM; }
 static GMRegistry reg(MyFactory);
 
 }
-
-
-

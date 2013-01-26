@@ -94,4 +94,3 @@ private:
 
 static SkView* MyFactory() { return new FillTypeView; }
 static SkViewRegister reg(MyFactory);
-

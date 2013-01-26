@@ -277,4 +277,3 @@ private:
 
 static SkView* MyFactory() { return new HairlineView; }
 static SkViewRegister reg(MyFactory);
-

@@ -29,4 +29,3 @@ private:
 };
 
 #endif // SkDisplayMath_DEFINED
-

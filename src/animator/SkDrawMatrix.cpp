@@ -266,4 +266,3 @@ bool SkDrawMatrix::setProperty(int index, SkScriptValue& scriptValue) {
     fConcat = fMatrix;
     return true;
 }
-

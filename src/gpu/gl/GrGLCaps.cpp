@@ -426,4 +426,3 @@ void GrGLCaps::print() const {
     GrPrintf("Two Format Limit: %s\n", (fTwoFormatLimit ? "YES": "NO"));
     GrPrintf("Fragment coord conventions support: %s\n", (fFragCoordsConventionSupport ? "YES": "NO"));
 }
-

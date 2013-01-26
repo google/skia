@@ -53,4 +53,3 @@ bool SkText::getProperty(int index, SkScriptValue* value) const {
     value->fOperand.fS32 = (int32_t) text.size();
     return true;
 }
-

@@ -24,5 +24,3 @@ void GrFree(void* ptr) {
         ::free(ptr);
     }
 }
-
-

@@ -28,4 +28,3 @@ struct GrIPoint16 {
 };
 
 #endif
-

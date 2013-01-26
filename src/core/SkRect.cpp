@@ -181,4 +181,3 @@ void SkRect::join(SkScalar left, SkScalar top, SkScalar right,
         if (bottom > fBottom) fBottom = bottom;
     }
 }
-

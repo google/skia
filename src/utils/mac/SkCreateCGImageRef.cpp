@@ -238,4 +238,3 @@ bool SkPDFDocumentToBitmap(SkStream* stream, SkBitmap* output) {
     output->swap(bitmap);
     return true;
 }
-

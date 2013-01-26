@@ -534,4 +534,3 @@ SkFixed SkFixedACos(SkFixed x) { return SkCordicACos(x); }
 SkFixed SkFixedATan2(SkFixed y, SkFixed x) { return SkCordicATan2(y, x); }
 SkFixed SkFixedExp(SkFixed x) { return SkCordicExp(x); }
 SkFixed SkFixedLog(SkFixed x) { return SkCordicLog(x); }
-

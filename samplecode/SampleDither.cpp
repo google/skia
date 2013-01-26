@@ -182,4 +182,3 @@ private:
 
 static SkView* MyFactory() { return new DitherView; }
 static SkViewRegister reg(MyFactory);
-

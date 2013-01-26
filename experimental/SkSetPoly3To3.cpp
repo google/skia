@@ -67,4 +67,3 @@ bool SkSetPoly3To3(SkMatrix* matrix, const SkPoint src[3], const SkPoint dst[3])
                                     matrix->getSkewY(), matrix->getScaleY()));
     return true;
 }
-

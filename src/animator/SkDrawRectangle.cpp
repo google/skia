@@ -140,6 +140,3 @@ void SkRoundRect::dump(SkAnimateMaker* maker) {
             SkScalarToFloat(fRect.fBottom), SkScalarToFloat(rx), SkScalarToFloat(ry));
 }
 #endif
-
-
-

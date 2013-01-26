@@ -379,4 +379,3 @@ private:
 
 static SkView* MyFactory() { return new FuzzView; }
 static SkViewRegister reg(MyFactory);
-

@@ -117,4 +117,3 @@ SkKernel33MaskFilter::SkKernel33MaskFilter(SkFlattenableReadBuffer& rb)
     SkASSERT(9 == count);
     fShift = rb.readInt();
 }
-

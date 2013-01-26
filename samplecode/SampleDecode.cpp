@@ -74,4 +74,3 @@ private:
 
 static SkView* MyFactory() { return new DecodeView; }
 static SkViewRegister reg(MyFactory);
-

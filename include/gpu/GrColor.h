@@ -68,4 +68,3 @@ static inline void GrColorToRGBAFloat(GrColor color, float rgba[4]) {
 }
 
 #endif
-

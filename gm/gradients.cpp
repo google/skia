@@ -367,5 +367,3 @@ static GMRegistry reg5(MyFactory5);
 static GM* MyFactory6(void*) { return new GradientsViewPerspectiveGM; }
 static GMRegistry reg6(MyFactory6);
 }
-
-

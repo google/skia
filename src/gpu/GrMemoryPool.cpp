@@ -159,4 +159,3 @@ void GrMemoryPool::validate() {
     GrAssert(prev == fTail);
 #endif
 }
-

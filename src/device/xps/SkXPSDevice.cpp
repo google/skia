@@ -2422,4 +2422,3 @@ SkXPSDevice::SkXPSDevice(IXpsOMObjectFactory* xpsFactory)
 bool SkXPSDevice::allowImageFilter(SkImageFilter*) {
     return false;
 }
-

@@ -85,4 +85,3 @@ void SkXMLParser::GetNativeErrorString(int error, SkString* str)
     if (str)
         str->set("GetNativeErrorString not implemented for TinyXml");
 }
-

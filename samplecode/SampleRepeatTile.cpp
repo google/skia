@@ -90,4 +90,3 @@ private:
 
 static SkView* MyFactory() { return new RepeatTileView; }
 static SkViewRegister reg(MyFactory);
-

@@ -282,4 +282,3 @@ bool SkBBoxRecord::transformBounds(const SkRect& bounds, const SkPaint* paint) {
 
     return false;
 }
-

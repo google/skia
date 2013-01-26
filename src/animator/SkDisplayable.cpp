@@ -538,5 +538,3 @@ void SkDisplayable::setReference(const SkMemberInfo* info, SkDisplayable* displa
 void SkDisplayable::validate() {
 }
 #endif
-
-

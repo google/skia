@@ -26,4 +26,3 @@ void SkDebugf(const char format[], ...) {
     OutputDebugStringA(buffer);
     printf(buffer);
 }
-

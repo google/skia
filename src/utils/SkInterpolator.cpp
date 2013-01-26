@@ -329,4 +329,3 @@ void SkInterpolator::UnitTest() {
 }
 
 #endif
-

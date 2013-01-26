@@ -105,4 +105,3 @@ static BenchRegistry gReg10(Fact10);
 static BenchRegistry gReg11(Fact11);
 static BenchRegistry gReg20(Fact20);
 static BenchRegistry gReg21(Fact21);
-

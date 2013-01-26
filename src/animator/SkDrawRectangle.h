@@ -53,4 +53,3 @@ private:
 };
 
 #endif // SkDrawRectangle_DEFINED
-

@@ -175,4 +175,3 @@ uint32_t SkPictureStateTree::Iterator::draw() {
     ++fPlaybackIndex;
     return draw->fOffset;
 }
-

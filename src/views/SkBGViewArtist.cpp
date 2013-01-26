@@ -28,4 +28,3 @@ void SkBGViewArtist::onInflate(const SkDOM& dom, const SkDOM::Node* node)
 {
     SkPaint_Inflate(&fPaint, dom, node);
 }
-

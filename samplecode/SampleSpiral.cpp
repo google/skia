@@ -61,4 +61,3 @@ private:
 
 static SkView* MyFactory() { return new SpiralView; }
 static SkViewRegister reg(MyFactory);
-

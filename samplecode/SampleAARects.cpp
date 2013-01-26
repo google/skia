@@ -195,4 +195,3 @@ private:
 
 static SkView* MyFactory() { return new AARectView; }
 static SkViewRegister reg(MyFactory);
-

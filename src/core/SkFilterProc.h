@@ -133,5 +133,3 @@ inline SkFilterPtrProc SkGetBilinearFilterPtrXProc(const SkFilterPtrProc* table,
 }
 
 #endif
-
-

@@ -220,4 +220,3 @@ static skiagm::GMRegistry reg(MyFactory);
 
 static skiagm::GM* F1(void*) { return new PathInverseFillGM; }
 static skiagm::GMRegistry gR1(F1);
-

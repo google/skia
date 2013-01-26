@@ -245,4 +245,3 @@ static SkView* F0() { return new BitmapRectView; }
 static SkView* F1() { return new BitmapRectView2; }
 static SkViewRegister gR0(F0);
 static SkViewRegister gR1(F1);
-

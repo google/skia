@@ -107,4 +107,3 @@ static GM* MyFactory(void*) { return new BlursGM; }
 static GMRegistry reg(MyFactory);
 
 }
-

@@ -145,4 +145,3 @@ void SkTypefaceCache::Dump() {
     (void)Get().findByProcAndRef(DumpProc, NULL);
 #endif
 }
-

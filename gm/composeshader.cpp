@@ -80,4 +80,3 @@ static GM* MyFactory(void*) { return new ShaderGM; }
 static GMRegistry reg(MyFactory);
 
 } // namespace
-

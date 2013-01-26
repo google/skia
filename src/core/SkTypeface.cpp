@@ -134,4 +134,3 @@ int SkTypeface::getUnitsPerEm() const {
 #endif
     return upem;
 }
-

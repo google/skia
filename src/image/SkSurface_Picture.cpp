@@ -91,4 +91,3 @@ SkSurface* SkSurface::NewPicture(int width, int height) {
 
     return SkNEW_ARGS(SkSurface_Picture, (width, height));
 }
-

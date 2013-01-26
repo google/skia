@@ -70,4 +70,3 @@ private:
 
 static SkView* MyFactory() { return new EmbossView; }
 static SkViewRegister reg(MyFactory);
-

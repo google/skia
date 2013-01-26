@@ -139,4 +139,3 @@ private:
 
 static SkView* MyFactory() { return new ShaderView; }
 static SkViewRegister reg(MyFactory);
-

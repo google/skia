@@ -290,5 +290,3 @@ const SkMemberInfo* SkPolyToPoly::preferredChild(SkDisplayTypes ) {
         return getMember("destination");
     }
 }
-
-

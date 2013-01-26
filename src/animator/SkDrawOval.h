@@ -20,4 +20,3 @@ private:
 };
 
 #endif // SkDrawOval_DEFINED
-

@@ -111,4 +111,3 @@ private:
 
 static SkView* MyFactory() { return new TextureDomainView; }
 static SkViewRegister reg(MyFactory);
-

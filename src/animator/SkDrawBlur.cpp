@@ -29,4 +29,3 @@ SkMaskFilter* SkDrawBlur::getMaskFilter() {
         return NULL;
     return SkBlurMaskFilter::Create(radius, (SkBlurMaskFilter::BlurStyle) blurStyle);
 }
-

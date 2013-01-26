@@ -60,4 +60,3 @@ void SkTagList::DeleteAll(SkTagList* rec)
         rec = next;
     }
 }
-

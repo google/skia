@@ -18,4 +18,3 @@ bool SkPaintFlagsDrawFilter::filter(SkPaint* paint, Type) {
     paint->setFlags((paint->getFlags() & ~fClearFlags) | fSetFlags);
     return true;
 }
-

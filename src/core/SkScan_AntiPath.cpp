@@ -744,4 +744,3 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRasterClip& clip,
         SkScan::AntiFillPath(path, tmp, &aaBlitter, true);
     }
 }
-

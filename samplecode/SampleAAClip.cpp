@@ -125,4 +125,3 @@ private:
 
 static SkView* MyFactory() { return new AAClipView; }
 static SkViewRegister reg(MyFactory);
-

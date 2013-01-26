@@ -188,4 +188,3 @@ private:
 
 static SkView* MyFactory() { return new PathEffectView; }
 static SkViewRegister reg(MyFactory);
-

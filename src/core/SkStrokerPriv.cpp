@@ -262,6 +262,3 @@ SkStrokerPriv::JoinProc SkStrokerPriv::JoinFactory(SkPaint::Join join)
     SkASSERT((unsigned)join < SkPaint::kJoinCount);
     return gJoiners[join];
 }
-
-
-

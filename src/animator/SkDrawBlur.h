@@ -23,4 +23,3 @@ protected:
 };
 
 #endif // SkDrawBlur_DEFINED
-

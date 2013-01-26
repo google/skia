@@ -31,4 +31,3 @@ SkMaskFilter* SkDrawEmboss::getMaskFilter() {
         return NULL;
     return SkBlurMaskFilter::CreateEmboss(direction.begin(), ambient, specular, radius);
 }
-

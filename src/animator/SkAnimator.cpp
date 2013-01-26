@@ -700,6 +700,3 @@ void SkAnimator::Init(bool runUnitTests) {
 
 void SkAnimator::Term() {
 }
-
-
-

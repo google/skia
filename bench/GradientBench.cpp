@@ -287,4 +287,3 @@ static BenchRegistry gReg31(Fact31);
 static BenchRegistry gReg5(Fact5);
 
 static BenchRegistry gReg4(Fact4);
-

@@ -38,4 +38,3 @@ bool SkImageEncoder::EncodeStream(SkWStream* stream, const SkBitmap& bm, Type t,
     SkAutoTDelete<SkImageEncoder> enc(SkImageEncoder::Create(t));
     return enc.get() && enc.get()->encodeStream(stream, bm, quality);
 }
-

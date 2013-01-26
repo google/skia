@@ -772,4 +772,3 @@ struct SK_API SkRect {
 };
 
 #endif
-

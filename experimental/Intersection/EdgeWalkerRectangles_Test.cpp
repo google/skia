@@ -467,4 +467,3 @@ void SimplifyRectangularPaths_Test() {
         (*simplifyTests[index])();
     }
 }
-

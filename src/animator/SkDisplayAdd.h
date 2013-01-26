@@ -69,5 +69,3 @@ private:
 };
 
 #endif // SkDisplayAdd_DEFINED
-
-

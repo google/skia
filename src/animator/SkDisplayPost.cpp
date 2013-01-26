@@ -296,4 +296,3 @@ bool SkPost::setProperty(int index, SkScriptValue& value) {
     }
     return true;
 }
-

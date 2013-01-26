@@ -159,4 +159,3 @@ SkImage* SkNewImageFromPixelRef(const SkImage::Info& info, SkPixelRef* pr,
 SkPixelRef* SkBitmapImageGetPixelRef(SkImage* image) {
     return ((SkImage_Raster*)image)->getPixelRef();
 }
-

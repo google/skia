@@ -1678,4 +1678,3 @@ void SkBitmap::toString(SkString* str) const {
     str->append(")");
 }
 #endif
-

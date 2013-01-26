@@ -84,5 +84,3 @@ void SkSVGElement::setIsDef() {
 void SkSVGElement::write(SkSVGParser& , SkString& ) {
     SkASSERT(0);
 }
-
-

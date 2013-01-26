@@ -495,6 +495,3 @@ int SkCubicEdge::updateCubic()
     fCurveCount = SkToS8(count);
     return success;
 }
-
-
-

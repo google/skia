@@ -160,4 +160,3 @@ bool SkCubicClipper::clipCubic(const SkPoint srcPts[4], SkPoint dst[4]) {
     }
     return true;
 }
-

@@ -72,4 +72,3 @@ const SkMemberInfo* SkHitTest::preferredChild(SkDisplayTypes type) {
         return getMember("bullets");
     return getMember("targets"); // !!! cwap! need to refer to member through enum like kScope instead
 }
-

@@ -398,4 +398,3 @@ void ReadPixelsTest(skiatest::Reporter* reporter, GrContext* context) {
 
 #include "TestClassDef.h"
 DEFINE_GPUTESTCLASS("ReadPixels", ReadPixelsTestClass, ReadPixelsTest)
-

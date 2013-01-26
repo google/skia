@@ -741,4 +741,3 @@ void SkGraphics::SetTLSFontCacheLimit(size_t bytes) {
         SkGlyphCache_Globals::GetTLS().setFontCacheLimit(bytes);
     }
 }
-

@@ -62,4 +62,3 @@ void SkAnnotateRectWithURL(SkCanvas* canvas, const SkRect& rect, SkData* value) 
 
     canvas->drawRect(rect, paint);
 }
-

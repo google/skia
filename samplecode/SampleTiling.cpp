@@ -171,4 +171,3 @@ private:
 
 static SkView* MyFactory() { return new TilingView; }
 static SkViewRegister reg(MyFactory);
-

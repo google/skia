@@ -308,4 +308,3 @@ DEF_BENCH( return SkNEW_ARGS(BlitMaskBench,
                      (p, SkCanvas::kPoints_PointMode,
                      BlitMaskBench::KMaskShader, "maskshader")
                      ); )
-

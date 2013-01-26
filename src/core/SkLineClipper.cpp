@@ -295,4 +295,3 @@ int SkLineClipper::ClipLine(const SkPoint pts[], const SkRect& clip,
     }
     return lineCount;
 }
-

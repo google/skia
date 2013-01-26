@@ -144,4 +144,3 @@ static SkBenchmark* Fact2(void* p) { return new PosTextPlaybackBench(p, false); 
 static BenchRegistry gReg0(Fact0);
 static BenchRegistry gReg1(Fact1);
 static BenchRegistry gReg2(Fact2);
-

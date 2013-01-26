@@ -107,4 +107,3 @@ void SkPaint_Inflate(SkPaint* paint, const SkDOM& dom, const SkDOM::Node* node)
     if (shader)
         paint->setShader(shader)->unref();
 }
-

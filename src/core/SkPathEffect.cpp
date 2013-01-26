@@ -79,4 +79,3 @@ bool SkSumPathEffect::filterPath(SkPath* dst, const SkPath& src,
     return fPE0->filterPath(dst, src, rec, cullRect) |
            fPE1->filterPath(dst, src, rec, cullRect);
 }
-

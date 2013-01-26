@@ -251,4 +251,3 @@ SkBlitRow::Proc SkBlitRow::Factory(unsigned flags, SkBitmap::Config config) {
     }
     return proc;
 }
-

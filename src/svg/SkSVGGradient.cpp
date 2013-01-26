@@ -112,4 +112,3 @@ void SkSVGGradient::write(SkSVGParser& parser, SkString& baseColor) {
     parser.fSuppressPaint = false;
     parser.fHead = saveHead;
 }
-

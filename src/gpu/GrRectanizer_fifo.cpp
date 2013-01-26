@@ -119,5 +119,3 @@ bool GrRectanizerFIFO::addRect(int width, int height, GrIPoint16* loc) {
 GrRectanizer* GrRectanizer::Factory(int width, int height) {
     return SkNEW_ARGS(GrRectanizerFIFO, (width, height));
 }
-
-

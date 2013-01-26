@@ -459,4 +459,3 @@ void ForthParser::addStdWords() {
     this->add("f>", 2, new fgt_ForthWord);
     this->add("f>=", 3, new fge_ForthWord);
 }
-

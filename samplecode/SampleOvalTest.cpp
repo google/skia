@@ -114,4 +114,3 @@ private:
 
 static SkView* MyFactory() { return new OvalTestView; }
 static SkViewRegister reg(MyFactory);
-

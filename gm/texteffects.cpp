@@ -215,4 +215,3 @@ private:
 
 static skiagm::GM* MyFactory(void*) { return new TextEffectsGM; }
 static skiagm::GMRegistry reg(MyFactory);
-

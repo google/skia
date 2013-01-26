@@ -45,6 +45,3 @@ private:
 };
 
 #endif
-
-
-

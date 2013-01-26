@@ -21,5 +21,3 @@ SkMemset32Proc SkMemset32GetPlatformProc() {
 SkBlitRow::ColorRectProc PlatformColorRectProcFactory() {
     return NULL;
 }
-
-

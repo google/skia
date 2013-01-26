@@ -92,5 +92,3 @@ private:
 
 static skiagm::GM* MyFactory(void*) { return new ImageFiltersGraphGM; }
 static skiagm::GMRegistry reg(MyFactory);
-
-

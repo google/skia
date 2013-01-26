@@ -193,4 +193,3 @@ private:
 
 static SkView* MyFactory() { return new CullView; }
 static SkViewRegister reg(MyFactory);
-

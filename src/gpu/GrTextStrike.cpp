@@ -207,5 +207,3 @@ bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
     glyph->fAtlas = fAtlas = atlas;
     return true;
 }
-
-

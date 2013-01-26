@@ -149,4 +149,3 @@ static inline void SkEndianSwap32s(uint32_t array[], int count) {
 #endif
 
 #endif
-

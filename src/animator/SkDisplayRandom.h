@@ -38,4 +38,3 @@ private:
 };
 
 #endif // SkDisplayRandom_DEFINED
-

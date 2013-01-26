@@ -48,4 +48,3 @@ void SkA1_Blitter::blitH(int x, int y, int width) {
         *dst |= rite_mask;
     }
 }
-

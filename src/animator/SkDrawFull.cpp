@@ -16,4 +16,3 @@ bool SkFull::draw(SkAnimateMaker& maker) {
     maker.fCanvas->drawPaint(*maker.fPaint);
     return false;
 }
-

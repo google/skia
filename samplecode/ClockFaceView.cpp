@@ -250,4 +250,3 @@ private:
 
 static SkView* MyFactory() { return new ClockFaceView; }
 static SkViewRegister reg(MyFactory);
-

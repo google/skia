@@ -103,4 +103,3 @@ private:
 
 static SkView* MyFactory() { return new CameraView; }
 static SkViewRegister reg(MyFactory);
-

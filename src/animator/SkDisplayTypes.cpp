@@ -212,6 +212,3 @@ bool SkDisplayArray::getProperty(int index, SkScriptValue* value) const {
     }
     return true;
 }
-
-
-

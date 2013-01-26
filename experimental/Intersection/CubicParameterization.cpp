@@ -516,5 +516,3 @@ void tangent(const Cubic& cubic, double t, _Point& result) {
 
 // unit test to return and validate parametric coefficients
 #include "CubicParameterization_TestUtility.cpp"
-
-

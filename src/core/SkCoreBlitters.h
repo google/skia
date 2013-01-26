@@ -189,4 +189,3 @@ extern SkBlitter* SkBlitter_ChooseD565(const SkBitmap& device,
                                        void* storage, size_t storageSize);
 
 #endif
-

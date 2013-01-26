@@ -133,4 +133,3 @@ const SkScalar CircleView::ANIM_RAD(SK_Scalar1 / 19);
 
 static SkView* MyFactory() { return new CircleView; }
 static SkViewRegister reg(MyFactory);
-

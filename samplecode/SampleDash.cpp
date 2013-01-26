@@ -92,4 +92,3 @@ private:
 
 static SkView* MyFactory() { return new DashView; }
 static SkViewRegister reg(MyFactory);
-

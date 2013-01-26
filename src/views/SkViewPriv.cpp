@@ -101,4 +101,3 @@ SkView::Layout* SkView::setLayout(Layout* obj, bool invokeLayoutNow)
 
     return obj;
 }
-

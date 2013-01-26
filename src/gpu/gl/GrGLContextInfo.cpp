@@ -83,4 +83,3 @@ bool GrGLContextInfo::initialize(const GrGLInterface* interface) {
 bool GrGLContextInfo::isInitialized() const {
     return kNone_GrGLBinding != fBindingInUse;
 }
-

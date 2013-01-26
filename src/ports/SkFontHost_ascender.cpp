@@ -227,4 +227,3 @@ SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc)
 {
     return SkNEW_ARGS(SkScalerContext_Ascender, (desc));
 }
-

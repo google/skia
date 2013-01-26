@@ -471,4 +471,3 @@ private:
 
 static SkView* MyFactory() { return new WarpView; }
 static SkViewRegister reg(MyFactory);
-

@@ -788,4 +788,3 @@ void SimplifyPolygonPaths_Test() {
         firstTestComplete = true;
     }
 }
-

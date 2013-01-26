@@ -226,4 +226,3 @@ void SkJS::Test(void* hwnd) {
     SkASSERT(success);
 }
 #endifASSERT(success);
-

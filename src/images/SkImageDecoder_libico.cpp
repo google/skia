@@ -390,4 +390,3 @@ static SkImageDecoder* sk_libico_dfactory(SkStream* stream) {
 }
 
 static SkTRegistry<SkImageDecoder*, SkStream*> gReg(sk_libico_dfactory);
-

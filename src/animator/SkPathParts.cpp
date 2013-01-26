@@ -316,5 +316,3 @@ bool SkAddPath::add() {
         fPath->fPath.addPath(path->fPath);
     return false;
 }
-
-

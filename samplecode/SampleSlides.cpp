@@ -732,4 +732,3 @@ private:
 
 static SkView* MyFactory() { return new SlideView; }
 static SkViewRegister reg(MyFactory);
-

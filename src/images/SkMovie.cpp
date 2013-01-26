@@ -107,4 +107,3 @@ SkMovie* SkMovie::DecodeFile(const char path[])
 
     return movie;
 }
-

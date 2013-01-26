@@ -29,4 +29,3 @@ private:
 };
 
 #endif // SkTextToPath_DEFINED
-

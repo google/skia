@@ -130,4 +130,3 @@ void SkProgressView::onInflate(const SkDOM& dom, const SkDOM::Node* node)
         fOffShader = inflate_shader(s);
     (void)dom.findBool(node, "do-interp", &fDoInterp);
 }
-

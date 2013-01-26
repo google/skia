@@ -519,4 +519,3 @@ SkBitmapProcState::chooseMatrixProc(bool trivial_matrix) {
     fTileLowBitsProcY = choose_tile_lowbits_proc(fTileModeY);
     return GeneralXY_Procs[index];
 }
-

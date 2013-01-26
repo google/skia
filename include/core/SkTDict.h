@@ -159,4 +159,3 @@ private:
 };
 
 #endif
-

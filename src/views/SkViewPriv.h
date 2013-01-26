@@ -42,4 +42,3 @@ struct Artist_SkTagList : SkTagList {
 };
 
 #endif
-

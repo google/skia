@@ -248,5 +248,3 @@ static skiagm::GM* F2(void*) { return new Strokes3GM; }
 static skiagm::GMRegistry R0(F0);
 static skiagm::GMRegistry R1(F1);
 static skiagm::GMRegistry R2(F2);
-
-

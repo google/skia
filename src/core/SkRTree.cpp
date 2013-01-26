@@ -473,4 +473,3 @@ static inline void join_no_empty_check(const SkIRect& joinWith, SkIRect* out) {
     if (joinWith.fRight > out->fRight) { out->fRight = joinWith.fRight; }
     if (joinWith.fBottom > out->fBottom) { out->fBottom = joinWith.fBottom; }
 }
-

@@ -126,5 +126,3 @@ void SkDisplayMovie::onEndElement(SkAnimateMaker& maker) {
     buildMovie();
     *maker.fMovies.append() = this;
 }
-
-

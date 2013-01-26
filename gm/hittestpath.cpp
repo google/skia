@@ -73,5 +73,3 @@ private:
 
 static skiagm::GM* MyFactory(void*) { return new HitTestPathGM; }
 static skiagm::GMRegistry reg(MyFactory);
-
-

@@ -257,5 +257,3 @@ static skiagm::GMRegistry reg2(MyFactory2);
 
 static skiagm::GM* MyFactory3(void*) { return new Tiling2GM(make_grad, "gradient"); }
 static skiagm::GMRegistry reg3(MyFactory3);
-
-

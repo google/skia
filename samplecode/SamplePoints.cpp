@@ -82,4 +82,3 @@ private:
 
 static SkView* MyFactory() { return new PointsView; }
 static SkViewRegister reg(MyFactory);
-

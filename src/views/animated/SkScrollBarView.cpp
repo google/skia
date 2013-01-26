@@ -143,4 +143,3 @@ void SkScrollBarView::adjust()
 //    e.setS32("hideBar", hideBar);
     fAnim.doUserEvent(e);
 }
-

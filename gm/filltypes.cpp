@@ -93,4 +93,3 @@ static GM* MyFactory(void*) { return new FillTypeGM; }
 static GMRegistry reg(MyFactory);
 
 }
-

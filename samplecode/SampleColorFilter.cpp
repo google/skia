@@ -219,4 +219,3 @@ private:
 
 static SkView* MyFactory() { return new ColorFilterView; }
 static SkViewRegister reg(MyFactory);
-

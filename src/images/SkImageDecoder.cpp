@@ -191,4 +191,3 @@ bool SkImageDecoder::DecodeStream(SkStream* stream, SkBitmap* bm,
     }
     return success;
 }
-

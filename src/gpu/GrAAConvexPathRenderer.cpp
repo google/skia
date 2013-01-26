@@ -501,4 +501,3 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
 
     return true;
 }
-

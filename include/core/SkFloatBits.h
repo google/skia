@@ -136,4 +136,3 @@ static inline int32_t SkFloatToIntCeil(float x) {
 #endif
 
 #endif
-

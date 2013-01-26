@@ -456,4 +456,3 @@ private:
 
 static SkView* MyFactory() { return new DrawLineView; }
 static SkViewRegister reg(MyFactory);
-

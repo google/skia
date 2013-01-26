@@ -74,4 +74,3 @@ void* SkMask::getAddr(int x, int y) const {
     addr += (x - fBounds.fLeft) << maskFormatToShift(fFormat);
     return addr;
 }
-

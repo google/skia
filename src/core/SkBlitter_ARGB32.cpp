@@ -636,4 +636,3 @@ void SkARGB32_Shader_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
         }
     }
 }
-

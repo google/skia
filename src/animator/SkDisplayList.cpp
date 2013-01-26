@@ -156,5 +156,3 @@ void SkDisplayList::validate() {
     }
 }
 #endif
-
-

@@ -120,4 +120,3 @@ private:
 
 static SkView* MyFactory() { return new TextAlphaView; }
 static SkViewRegister reg(MyFactory);
-

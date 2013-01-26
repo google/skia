@@ -23,4 +23,3 @@ protected:
 };
 
 #endif // SkDisplayInclude_DEFINED
-

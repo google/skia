@@ -53,4 +53,3 @@ void SkDrawTo::dump(SkAnimateMaker* maker) {
     dumpDrawables(maker);
 }
 #endif
-

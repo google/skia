@@ -40,4 +40,3 @@ private:
 static SkBenchmark* Fact(void* p) { return new MutexBench(p); }
 
 static BenchRegistry gReg01(Fact);
-

@@ -48,4 +48,3 @@ private:
 };
 
 #endif // SkDraw3D_DEFINED
-

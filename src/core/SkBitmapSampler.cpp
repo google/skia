@@ -414,4 +414,3 @@ SkBitmapSampler* SkBitmapSampler::Create(const SkBitmap& bm, bool doFilter,
     }
     return SkNEW_ARGS(SkNullBitmapSampler, (bm, doFilter, tmx, tmy));
 }
-

@@ -74,5 +74,3 @@ SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {
 SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
     return 0;
 }
-
-

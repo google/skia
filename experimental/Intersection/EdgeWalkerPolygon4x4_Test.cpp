@@ -288,4 +288,3 @@ void SimplifyDegenerate4x4TrianglesThreaded_Test(int& testsRun) {
     testsRun += waitForCompletion();
     SkDebugf("%s tests=%d total=%d\n", __FUNCTION__, testsRun - testsStart, testsRun);
 }
-

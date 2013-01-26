@@ -103,4 +103,3 @@ GrGlyph* GrTextStrike::getGlyph(GrGlyph::PackedID packed,
 }
 
 #endif
-

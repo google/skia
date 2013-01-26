@@ -263,4 +263,3 @@ HAS_ATLAS:
 #endif
     fCurrVertex += 4;
 }
-

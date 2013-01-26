@@ -53,6 +53,3 @@ typedef SkLongArray(SkOperand) SkTDOperandArray;
 typedef SkLongArray(SkOperand*) SkTDOperandPtrArray;
 
 #endif // SkIntArray_DEFINED
-
-
-

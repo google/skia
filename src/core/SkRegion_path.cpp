@@ -488,4 +488,3 @@ bool SkRegion::getBoundaryPath(SkPath* path) const {
 
     return true;
 }
-

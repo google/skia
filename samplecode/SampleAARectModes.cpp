@@ -137,4 +137,3 @@ private:
 
 static SkView* MyFactory() { return new AARectsModesView; }
 static SkViewRegister reg(MyFactory);
-

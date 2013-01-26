@@ -37,4 +37,3 @@ protected:
     JSContext *fContext;
     JSObject *fGlobal;
 };
-

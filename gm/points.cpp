@@ -71,4 +71,3 @@ static GM* MyFactory(void*) { return new PointsGM; }
 static GMRegistry reg(MyFactory);
 
 }
-

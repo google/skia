@@ -1018,4 +1018,3 @@ SkShaderBlitter::~SkShaderBlitter() {
     fShader->endContext();
     fShader->unref();
 }
-

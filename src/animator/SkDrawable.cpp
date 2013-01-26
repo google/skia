@@ -22,4 +22,3 @@ void SkDrawable::initialize() {
 
 void SkDrawable::setSteps(int steps) {
 }
-

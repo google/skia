@@ -121,4 +121,3 @@ void SkTLS::Delete(CreateProc createProc) {
         curr = next;
     }
 }
-

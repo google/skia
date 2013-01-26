@@ -81,4 +81,3 @@ static GM* MyFactory(void*) { return new StrokeRectGM; }
 static GMRegistry reg(MyFactory);
 
 }
-

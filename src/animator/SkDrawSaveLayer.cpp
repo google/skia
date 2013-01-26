@@ -74,5 +74,3 @@ void SkSaveLayer::onEndElement(SkAnimateMaker& maker)
         maker.setErrorCode(SkDisplayXMLParserError::kSaveLayerNeedsBounds);
     INHERITED::onEndElement(maker);
 }
-
-

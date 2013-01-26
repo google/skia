@@ -132,4 +132,3 @@ private:
 
 static SkView* MyFactory() { return new TypefaceView; }
 static SkViewRegister reg(MyFactory);
-

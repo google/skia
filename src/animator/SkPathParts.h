@@ -162,4 +162,3 @@ private:
 };
 
 #endif // SkPathParts_DEFINED
-

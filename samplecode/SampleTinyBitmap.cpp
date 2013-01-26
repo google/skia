@@ -80,4 +80,3 @@ private:
 
 static SkView* MyFactory() { return new TinyBitmapView; }
 static SkViewRegister reg(MyFactory);
-

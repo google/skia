@@ -277,5 +277,3 @@ void SkMaskFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
         dst->set(srcM.fBounds);
     }
 }
-
-

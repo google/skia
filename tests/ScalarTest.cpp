@@ -193,4 +193,3 @@ static void TestScalar(skiatest::Reporter* reporter) {
 
 #include "TestClassDef.h"
 DEFINE_TESTCLASS("Scalar", TestScalarClass, TestScalar)
-

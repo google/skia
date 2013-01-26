@@ -499,4 +499,3 @@ void ForthEnv::run(const char text[], ForthOutput* output) {
     }
 }
 #endif
-
