@@ -265,4 +265,3 @@ void* sk_malloc_flags(size_t size, unsigned flags)
     ValidateHeap();
     return p;
 }
-

@@ -2383,4 +2383,3 @@ void SkDrawLooper::computeFastBounds(const SkPaint& paint, const SkRect& src,
         }
     }
 }
-

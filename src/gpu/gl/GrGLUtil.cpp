@@ -205,4 +205,3 @@ GrGLVendor GrGLGetVendor(const GrGLInterface* gl) {
     GR_GL_CALL_RET(gl, v, GetString(GR_GL_VENDOR));
     return GrGLGetVendorFromString((const char*) v);
 }
-

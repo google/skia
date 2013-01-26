@@ -34,4 +34,3 @@ public:
 };
 
 #endif
-

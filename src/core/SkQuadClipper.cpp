@@ -126,4 +126,3 @@ bool SkQuadClipper::clipQuad(const SkPoint srcPts[3], SkPoint dst[3]) {
     }
     return true;
 }
-

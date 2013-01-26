@@ -1062,4 +1062,3 @@ void SkScan::AntiFrameRect(const SkRect& r, const SkPoint& strokeSize,
         AntiFrameRect(r, strokeSize, &wrap.getRgn(), wrap.getBlitter());
     }
 }
-

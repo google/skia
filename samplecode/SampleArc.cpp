@@ -189,4 +189,3 @@ private:
 
 static SkView* MyFactory() { return new ArcsView; }
 static SkViewRegister reg(MyFactory);
-

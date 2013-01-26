@@ -131,6 +131,3 @@ static GM* MyFactory(void*) { return new FilterGM; }
 static GMRegistry reg(MyFactory);
 
 }
-
-
-

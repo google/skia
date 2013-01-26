@@ -71,4 +71,3 @@ private:
 
 static skiagm::GM* MyFactory(void*) { return new DashCubicsGM; }
 static skiagm::GMRegistry reg(MyFactory);
-

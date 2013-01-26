@@ -170,4 +170,3 @@ private:
 
 static SkView* MyFactory() { return new UnitMapperView; }
 static SkViewRegister reg(MyFactory);
-

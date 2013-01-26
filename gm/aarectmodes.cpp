@@ -187,4 +187,3 @@ namespace skiagm {
     static GMRegistry reg(MyFactory);
 
 }
-

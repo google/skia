@@ -243,4 +243,3 @@ bool GrTHashTable<T, Key, kHashBits>::contains(T* elem) const {
 #endif
 
 #endif
-

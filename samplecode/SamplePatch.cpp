@@ -334,4 +334,3 @@ private:
 
 static SkView* MyFactory() { return new PatchView; }
 static SkViewRegister reg(MyFactory);
-

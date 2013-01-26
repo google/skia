@@ -26,4 +26,3 @@ private:
 };
 
 #endif // SkDrawLine_DEFINED
-

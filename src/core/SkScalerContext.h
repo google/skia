@@ -294,4 +294,3 @@ void SkScalerContextRec::setHinting(SkPaint::Hinting hinting) {
 
 
 #endif
-

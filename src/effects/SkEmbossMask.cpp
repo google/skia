@@ -161,5 +161,3 @@ void SkEmbossMask::Emboss(SkMask* mask, const SkEmbossMaskFilter::Light& light) 
         prev_row = rowBytes;
     }
 }
-
-

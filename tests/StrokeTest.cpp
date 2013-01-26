@@ -61,4 +61,3 @@ static void TestStroke(skiatest::Reporter* reporter) {
 
 #include "TestClassDef.h"
 DEFINE_TESTCLASS("Stroke", TestStrokeClass, TestStroke)
-

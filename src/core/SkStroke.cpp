@@ -804,4 +804,3 @@ void SkStroke::strokeRect(const SkRect& origRect, SkPath* dst,
         dst->addRect(r, reverse_direction(dir));
     }
 }
-

@@ -73,4 +73,3 @@ public:
 };
 
 #endif // SkAnimatorScript_DEFINED
-

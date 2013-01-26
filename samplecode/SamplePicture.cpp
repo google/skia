@@ -196,4 +196,3 @@ private:
 
 static SkView* MyFactory() { return new PictureView; }
 static SkViewRegister reg(MyFactory);
-

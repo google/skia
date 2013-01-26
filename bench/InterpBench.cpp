@@ -164,4 +164,3 @@ static BenchRegistry gReg1(M1);
 static BenchRegistry gReg2(M2);
 static BenchRegistry gReg3(M3);
 static BenchRegistry gReg4(M4);
-

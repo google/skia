@@ -263,4 +263,3 @@ static GM* MyFactory(void*) { return new ConvexPathsGM; }
 static GMRegistry reg(MyFactory);
 
 }
-

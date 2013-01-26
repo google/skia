@@ -130,4 +130,3 @@ void ColorRect32_SSE2(SkPMColor* destination,
         SkBlitRow::ColorRect32(destination, width, height, rowBytes, color);
     }
 }
-

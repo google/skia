@@ -106,4 +106,3 @@ DEF_BENCH(return new BitmapRectBench(p, 0x80, true, false))
 
 DEF_BENCH(return new BitmapRectBench(p, 0xFF, false, true))
 DEF_BENCH(return new BitmapRectBench(p, 0xFF, true, true))
-

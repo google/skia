@@ -123,5 +123,3 @@ float GrAnimateFloat::evaluate() {
     }
     return fValue0 + t * (fValue1 - fValue0);
 }
-
-

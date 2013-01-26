@@ -336,4 +336,3 @@ private:
 
 static SkView* MyFactory() { return new TextSpeedView; }
 static SkViewRegister reg(MyFactory);
-

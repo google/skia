@@ -24,4 +24,3 @@ protected:
 };
 
 #endif
-

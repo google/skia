@@ -219,4 +219,3 @@ SkImageEncoder* SkImageEncoder::Create(Type t) {
     }
     return SkNEW_ARGS(SkImageEncoder_CG, (t));
 }
-

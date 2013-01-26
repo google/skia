@@ -65,4 +65,3 @@ private:
 
 static SkView* MyFactory() { return new AnimGifView; }
 static SkViewRegister reg(MyFactory);
-

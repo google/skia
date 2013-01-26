@@ -158,4 +158,3 @@ private:
 };
 
 #endif // SkAnimateMaker_DEFINED
-

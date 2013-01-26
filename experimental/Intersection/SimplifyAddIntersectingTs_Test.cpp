@@ -133,4 +133,3 @@ void SimplifyAddIntersectingTs_Test() {
         }
     }
 }
-

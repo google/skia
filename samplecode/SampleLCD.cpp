@@ -65,4 +65,3 @@ private:
 
 static SkView* MyFactory() { return new LCDView; }
 static SkViewRegister reg(MyFactory);
-

@@ -48,4 +48,3 @@ void SkNetPipeController::notifyWritten(size_t bytes) {
 
     fAtomsWritten += 1;
 }
-

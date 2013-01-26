@@ -30,4 +30,3 @@ void SkCountdown::wait() {
     }
     fReady.unlock();
 }
-

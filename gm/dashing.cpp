@@ -308,4 +308,3 @@ static skiagm::GM* F2(void*) { return new Dashing3GM; }
 static skiagm::GMRegistry gR0(F0);
 static skiagm::GMRegistry gR1(F1);
 static skiagm::GMRegistry gR2(F2);
-

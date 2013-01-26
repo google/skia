@@ -171,4 +171,3 @@ SkSurface* SkSurface::NewRaster(const SkImage::Info& info) {
     SkAutoTUnref<SkPixelRef> pr(SkNEW_ARGS(SkMallocPixelRef, (pixels, size, NULL, true)));
     return SkNEW_ARGS(SkSurface_Raster, (info, pr, rowBytes));
 }
-

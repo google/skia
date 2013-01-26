@@ -224,4 +224,3 @@ void SkEvent::SignalQueueTimer(SkMSec delay)
         SDL_SetTimer(delay, timer_callback);
     }
 }
-

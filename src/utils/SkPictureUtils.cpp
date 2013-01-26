@@ -214,4 +214,3 @@ SkData* SkPictureUtils::GatherPixelRefs(SkPicture* pict, const SkRect& area) {
     }
     return data;
 }
-

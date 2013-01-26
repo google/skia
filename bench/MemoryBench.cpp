@@ -59,4 +59,3 @@ static SkBenchmark* F1(void* p) { return new ChunkAllocBench(p, 8*1024); }
 
 static BenchRegistry gR0(F0);
 static BenchRegistry gR1(F1);
-

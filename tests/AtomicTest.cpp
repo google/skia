@@ -58,4 +58,3 @@ static void test_atomicAddTests(skiatest::Reporter* reporter) {
 
 #include "TestClassDef.h"
 DEFINE_TESTCLASS("AtomicAdd", AtomicAddTestClass, test_atomicAddTests)
-

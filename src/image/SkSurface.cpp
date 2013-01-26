@@ -131,4 +131,3 @@ void SkSurface::draw(SkCanvas* canvas, SkScalar x, SkScalar y,
                      const SkPaint* paint) {
     return asSB(this)->onDraw(canvas, x, y, paint);
 }
-

@@ -73,4 +73,3 @@ private:
 
 static SkView* MyFactory() { return new StrokeRectSample; }
 static SkViewRegister reg(MyFactory);
-

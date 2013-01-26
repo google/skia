@@ -415,4 +415,3 @@ private:
 
 static SkView* MyFactory() { return new RegionView; }
 static SkViewRegister reg(MyFactory);
-

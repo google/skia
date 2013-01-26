@@ -127,4 +127,3 @@ private:
 
 static SkView* MyFactory() { return new NetPipeReaderView; }
 static SkViewRegister reg(MyFactory);
-

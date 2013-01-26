@@ -594,4 +594,3 @@ SkBlitMask::RowProc SkBlitMask::RowFactory(SkBitmap::Config config,
     }
     return NULL;
 }
-

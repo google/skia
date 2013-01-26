@@ -21,5 +21,3 @@
 
 // empty implementation just uses default supplied function pointers
 void SkBitmapProcState::platformProcs() {}
-
-

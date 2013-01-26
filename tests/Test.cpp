@@ -114,4 +114,3 @@ GrContext* GpuTest::GetContext() {
     return NULL;
 #endif
 }
-

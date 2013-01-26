@@ -103,4 +103,3 @@ static SkView* MyFactory() {
 }
 
 static SkViewRegister reg(MyFactory);
-

@@ -413,4 +413,3 @@ bool SkWindow::onDispatchClick(int x, int y, Click::State state,
     }
     return handled;
 }
-

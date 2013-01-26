@@ -145,4 +145,3 @@ private:
 
 static SkView* MyFactory() { return new DitherBitmapView; }
 static SkViewRegister reg(MyFactory);
-

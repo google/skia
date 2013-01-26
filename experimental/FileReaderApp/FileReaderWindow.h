@@ -12,4 +12,3 @@
     ReaderView* fReaderView;
 }
 @end
-

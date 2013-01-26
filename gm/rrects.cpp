@@ -146,5 +146,3 @@ DEF_GM( return new RRectGM(false, true); )
 DEF_GM( return new RRectGM(true, true); )
 
 }
-
-

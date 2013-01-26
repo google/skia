@@ -73,4 +73,3 @@ void ReaderView::draw(SkCanvas* canvas) {
     canvas->drawBitmap(fBufferBitmaps[fFront], 0, 0, NULL);
     this->inval(NULL);
 }
-

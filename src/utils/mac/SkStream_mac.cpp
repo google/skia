@@ -55,5 +55,3 @@ CGDataProviderRef SkCreateDataProviderFromStream(SkStream* stream) {
     rec.releaseInfo = release_info_proc;
     return CGDataProviderCreateSequential(stream, &rec);
 }
-
-

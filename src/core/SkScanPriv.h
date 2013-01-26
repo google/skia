@@ -38,4 +38,3 @@ void sk_blit_above(SkBlitter*, const SkIRect& avoid, const SkRegion& clip);
 void sk_blit_below(SkBlitter*, const SkIRect& avoid, const SkRegion& clip);
 
 #endif
-

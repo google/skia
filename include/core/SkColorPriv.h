@@ -861,4 +861,3 @@ static inline void SkBlitLCD16OpaqueRow(SkPMColor dst[], const uint16_t src[],
 }
 
 #endif
-

@@ -191,5 +191,3 @@ SkXfermode* SkArithmeticMode::Create(SkScalar k1, SkScalar k2,
     }
     return SkNEW_ARGS(SkArithmeticMode_scalar, (k1, k2, k3, k4));
 }
-
-

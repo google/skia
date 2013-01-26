@@ -35,5 +35,3 @@
 #else
     #include "SkFontHost_mac_atsui.cpp"
 #endif
-
-

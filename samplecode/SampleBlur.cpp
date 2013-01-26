@@ -138,4 +138,3 @@ private:
 
 static SkView* MyFactory() { return new BlurView; }
 static SkViewRegister reg(MyFactory);
-

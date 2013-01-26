@@ -60,4 +60,3 @@ enum SkModifierKeys {
 };
 
 #endif
-

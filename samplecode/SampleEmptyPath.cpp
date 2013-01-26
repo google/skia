@@ -127,4 +127,3 @@ private:
 
 static SkView* MyFactory() { return new EmptyPathView; }
 static SkViewRegister reg(MyFactory);
-

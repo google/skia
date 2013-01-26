@@ -88,4 +88,3 @@ private:
 
 static SkView* MyFactory() { return new PathClipView; }
 static SkViewRegister reg(MyFactory);
-

@@ -78,5 +78,3 @@ bool SkDrawTextBox::draw(SkAnimateMaker& maker)
     box.draw(maker.fCanvas, fText.c_str(), fText.size(), *maker.fPaint);
     return false;
 }
-
-

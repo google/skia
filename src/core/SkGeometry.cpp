@@ -1383,4 +1383,3 @@ int SkBuildQuadArc(const SkVector& uStart, const SkVector& uStop,
     matrix.mapPoints(quadPoints, pointCount);
     return pointCount;
 }
-

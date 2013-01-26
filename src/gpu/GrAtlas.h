@@ -79,5 +79,3 @@ private:
 };
 
 #endif
-
-

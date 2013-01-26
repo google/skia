@@ -349,4 +349,3 @@ void SkScriptRuntime::untrack(SkString* string) {
     SkASSERT(index >= 0);
     fTrackString.begin()[index] = NULL;
 }
-

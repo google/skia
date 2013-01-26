@@ -837,5 +837,3 @@ SkGPipeReader::Status SkGPipeReader::playback(const void* data, size_t length,
     }
     return status;
 }
-
-

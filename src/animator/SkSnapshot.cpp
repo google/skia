@@ -61,4 +61,3 @@ bool SkSnapshot::draw(SkAnimateMaker& maker) {
                         SkScalarFloor(quality));
     return false;
 }
-

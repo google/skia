@@ -223,5 +223,3 @@ private:
 
 static skiagm::GM* MyFactory(void*) { return new ImageFiltersBaseGM; }
 static skiagm::GMRegistry reg(MyFactory);
-
-

@@ -542,4 +542,3 @@ bool SkDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
     // we're cool with the paint as is
     return false;
 }
-

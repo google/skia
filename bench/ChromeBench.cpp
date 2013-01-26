@@ -498,4 +498,3 @@ static inline SkBenchmark* ScrollGmailFactory(void* p) {
 // Disabled this benchmark: it takes 15x longer than any other benchmark
 // and is probably not giving us important information.
 //static BenchRegistry gScrollGmailReg(ScrollGmailFactory);
-

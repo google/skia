@@ -231,4 +231,3 @@ private:
 
 static SkView* MyFactory() { return new VerticesView; }
 static SkViewRegister reg(MyFactory);
-

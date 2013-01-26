@@ -71,4 +71,3 @@ protected:
 
 static skiagm::GM* F(void*) { return new GetPosTextPathGM; }
 static skiagm::GMRegistry gR(F);
-

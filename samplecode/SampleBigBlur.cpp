@@ -47,4 +47,3 @@ private:
 
 static SkView* MyFactory() { return new BigBlurView; }
 static SkViewRegister reg(MyFactory);
-

@@ -44,4 +44,3 @@ class SkEvent;
 - (void)postInvalWithRect:(const SkIRect*)rectOrNil;
 - (BOOL)onHandleEvent:(const SkEvent&)event;
 @end
-

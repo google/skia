@@ -152,4 +152,3 @@ static skiagm::GMRegistry reg201(G201);
 static skiagm::GMRegistry reg011(G011);
 static skiagm::GMRegistry reg111(G111);
 static skiagm::GMRegistry reg211(G211);
-

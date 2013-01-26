@@ -294,5 +294,3 @@ size_t SkWriter32::WriteStringSize(const char* str, size_t len) {
     // add 1 since we also write a terminating 0
     return SkAlign4(lenBytes + len + 1);
 }
-
-

@@ -151,4 +151,3 @@ private:
 
 static SkView* MyFactory() { return new ConcavePathView; }
 static SkViewRegister reg(MyFactory);
-

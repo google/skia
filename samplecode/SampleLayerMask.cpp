@@ -72,4 +72,3 @@ private:
 
 static SkView* MyFactory() { return new LayerMaskView; }
 static SkViewRegister reg(MyFactory);
-

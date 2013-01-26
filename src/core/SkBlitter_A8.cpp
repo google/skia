@@ -343,4 +343,3 @@ void SkA8_Shader_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
         alpha += mask.fRowBytes;
     }
 }
-

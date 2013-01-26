@@ -130,5 +130,3 @@ private:
 
 static skiagm::GM* MyFactory(void*) { return new ColorFilterImageFilterGM; }
 static skiagm::GMRegistry reg(MyFactory);
-
-

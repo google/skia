@@ -350,4 +350,3 @@ private:
 };
 
 #endif
-

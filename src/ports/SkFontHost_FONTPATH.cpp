@@ -320,4 +320,3 @@ SkScalerContext* SkFontHost::CreateFallbackScalerContext(
 
     return SkFontHost::CreateScalerContext(desc);
 }
-

@@ -502,5 +502,3 @@ SkMSec SkActive::SkState::getRelativeTime(SkMSec time) {
     }
     return result;
 }
-
-

@@ -1366,4 +1366,3 @@ bool find_name_and_attributes(SkStream* stream, SkString* name,
     FT_Done_FreeType(library);
     return true;
 }
-

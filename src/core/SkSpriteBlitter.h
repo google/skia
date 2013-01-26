@@ -44,4 +44,3 @@ protected:
 };
 
 #endif
-

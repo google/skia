@@ -104,6 +104,3 @@ void Sk3D_Patch::executeFunction(SkDisplayable* target, int index,
 const SkFunctionParamType* Sk3D_Patch::getFunctionsParameters() {
     return fFunctionParameters;
 }
-
-
-

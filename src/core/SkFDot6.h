@@ -58,4 +58,3 @@ inline SkFixed SkFDot6Div(SkFDot6 a, SkFDot6 b) {
 }
 
 #endif
-

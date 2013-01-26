@@ -280,5 +280,3 @@ void SkDisplayType::BuildCondensedInfo(SkAnimateMaker* maker) {
 #include "SkDisplayType.h"
 void SkDisplayType::BuildCondensedInfo(SkAnimateMaker* ) {}
 #endif
-
-

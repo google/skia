@@ -218,4 +218,3 @@ void SkPolygon::onEndElement(SkAnimateMaker& maker) {
     INHERITED::onEndElement(maker);
     fPath.close();
 }
-

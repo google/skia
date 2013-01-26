@@ -37,4 +37,3 @@ void sk_free(void* p) {
 void* sk_malloc_flags(size_t size, unsigned flags) {
     return (flags & SK_MALLOC_THROW) ? moz_xmalloc(size) : moz_malloc(size);
 }
-

@@ -76,5 +76,3 @@ void SkDeviceProfile::SetGlobal(SkDeviceProfile* profile) {
 
     SkRefCnt_SafeAssign(gGlobalProfile, profile);
 }
-
-

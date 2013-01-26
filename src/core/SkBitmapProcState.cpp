@@ -727,4 +727,3 @@ int SkBitmapProcState::maxCountForBufferSize(size_t bufferSize) const {
 
     return size;
 }
-

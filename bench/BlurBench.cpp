@@ -103,4 +103,3 @@ DEF_BENCH(return new BlurBench(p, REALBIG, SkBlurMaskFilter::kNormal_BlurStyle, 
 DEF_BENCH(return new BlurBench(p, REAL, SkBlurMaskFilter::kNormal_BlurStyle, SkBlurMaskFilter::kHighQuality_BlurFlag);)
 
 DEF_BENCH(return new BlurBench(p, 0, SkBlurMaskFilter::kNormal_BlurStyle);)
-

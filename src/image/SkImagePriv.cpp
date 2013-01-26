@@ -141,4 +141,3 @@ void SkImagePrivDrawPicture(SkCanvas* canvas, SkPicture* picture,
     canvas->drawPicture(*picture);
     canvas->restoreToCount(saveCount);
 }
-

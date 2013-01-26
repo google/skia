@@ -64,4 +64,3 @@ private:
 };
 
 #endif // SkDisplayEvent_DEFINED
-

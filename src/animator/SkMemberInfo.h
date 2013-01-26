@@ -268,4 +268,3 @@ public: \
 #endif
 
 #endif // SkMemberInfo_DEFINED
-

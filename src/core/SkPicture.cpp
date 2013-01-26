@@ -327,5 +327,3 @@ void SkPicture::abortPlayback() {
     }
     fPlayback->abort();
 }
-
-

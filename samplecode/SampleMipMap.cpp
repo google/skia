@@ -158,4 +158,3 @@ private:
 
 static SkView* MyFactory() { return new MipMapView; }
 static SkViewRegister reg(MyFactory);
-

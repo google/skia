@@ -238,4 +238,3 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip,
     fEdgeList = fList.begin();
     return fList.count();
 }
-

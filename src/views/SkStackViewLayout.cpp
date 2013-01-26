@@ -271,4 +271,3 @@ void SkFillViewLayout::onInflate(const SkDOM& dom, const SkDOM::Node* node)
     this->INHERITED::onInflate(dom, node);
     (void)dom.findScalars(node, "margin", (SkScalar*)&fMargin, 4);
 }
-

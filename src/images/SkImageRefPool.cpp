@@ -190,4 +190,3 @@ void SkImageRefPool::dump() const {
     }
 #endif
 }
-

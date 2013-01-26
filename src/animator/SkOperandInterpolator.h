@@ -45,4 +45,3 @@ private:
 };
 
 #endif // SkOperandInterpolator_DEFINED
-

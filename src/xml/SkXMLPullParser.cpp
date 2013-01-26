@@ -136,4 +136,3 @@ bool SkXMLPullParser::onEntityReplacement(const char name[],
     // TODO: std 5 entities here
     return false;
 }
-

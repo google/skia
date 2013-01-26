@@ -319,5 +319,3 @@ bool SkSave::draw(SkAnimateMaker& maker) {
     maker.fCanvas->restore();
     return result;
 }
-
-

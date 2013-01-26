@@ -189,4 +189,3 @@ static GM* MyFactory(void*) { return new DrawBitmapRectGM; }
 static GMRegistry reg(MyFactory);
 #endif
 }
-

@@ -36,4 +36,3 @@ void SkDebugf(const char format[], ...) {
         gPluginInstance->PostMessage(msg);
     }
 }
-

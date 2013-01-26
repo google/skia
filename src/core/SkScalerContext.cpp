@@ -766,4 +766,3 @@ SkScalerContext* SkScalerContext::Create(const SkDescriptor* desc) {
     }
     return c;
 }
-

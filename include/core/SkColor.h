@@ -164,4 +164,3 @@ typedef SkPMColor (*SkXfermodeProc)(SkPMColor src, SkPMColor dst);
 typedef uint16_t (*SkXfermodeProc16)(SkPMColor src, uint16_t dst);
 
 #endif
-

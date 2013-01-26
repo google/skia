@@ -302,4 +302,3 @@ bool GrStrokePathRenderer::onDrawPath(const SkPath& origPath,
 
     return true;
 }
-

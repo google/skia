@@ -341,4 +341,3 @@ static inline U8CPU Filter_8(unsigned x, unsigned y,
 #include "SkBitmapProcState_shaderproc.h"
 
 #undef NAME_WRAP
-

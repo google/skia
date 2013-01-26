@@ -182,4 +182,3 @@ private:
 
 static SkView* MyFactory() { return new GradientsView; }
 static SkViewRegister reg(MyFactory);
-

@@ -644,4 +644,3 @@ private:
 
 static SkView* MyFactory() { return new DemoView; }
 static SkViewRegister reg(MyFactory);
-

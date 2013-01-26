@@ -198,4 +198,3 @@ void Simplify4x4RectsThreaded_Test(int& testsRun)
     testsRun += waitForCompletion();
     SkDebugf("%s tests=%d total=%d\n", __FUNCTION__, testsRun - testsStart, testsRun);
 }
-

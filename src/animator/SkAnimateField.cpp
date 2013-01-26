@@ -109,4 +109,3 @@ void SkAnimate::onEndElement(SkAnimateMaker& maker) {
     fFieldInfo->setValue(maker, &fValues, fFieldOffset, max, this, outType, from);
     fFieldInfo->setValue(maker, &fValues, fComponents + fFieldOffset, max, this, outType, to);
 }
-

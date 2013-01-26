@@ -334,4 +334,3 @@ SkMetaData::Rec* SkMetaData::Rec::Alloc(size_t size) {
 void SkMetaData::Rec::Free(Rec* rec) {
     sk_free(rec);
 }
-

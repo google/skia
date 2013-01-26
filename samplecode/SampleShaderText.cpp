@@ -213,4 +213,3 @@ private:
 
 static SkView* MyFactory() { return new ShaderTextView; }
 static SkViewRegister reg(MyFactory);
-

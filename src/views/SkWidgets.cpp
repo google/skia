@@ -558,4 +558,3 @@ void SkBitmapView::onInflate(const SkDOM& dom, const SkDOM::Node* node)
 }
 
 #endif
-

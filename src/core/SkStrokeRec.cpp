@@ -103,4 +103,3 @@ bool SkStrokeRec::applyToPath(SkPath* dst, const SkPath& src) const {
     stroker.strokePath(src, dst);
     return true;
 }
-

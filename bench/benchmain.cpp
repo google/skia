@@ -918,4 +918,3 @@ int main(int argc, char * const argv[]) {
     return tool_main(argc, (char**) argv);
 }
 #endif
-

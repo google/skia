@@ -81,7 +81,3 @@ void ActiveEdge_Test() {
         SkASSERT(!operator_less_than(right, left));
     }
 }
-
-
-
-

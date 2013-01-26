@@ -146,4 +146,3 @@ private:
 
 static SkView* MyFactory() { return new StrokeTextView; }
 static SkViewRegister reg(MyFactory);
-

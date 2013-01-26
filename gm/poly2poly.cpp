@@ -106,4 +106,3 @@ static GM* MyFactory(void*) { return new Poly2PolyGM; }
 static GMRegistry reg(MyFactory);
 
 }
-

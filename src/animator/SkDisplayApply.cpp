@@ -802,6 +802,3 @@ void SkApply::validate() {
         fActive->validate();
 }
 #endif
-
-
-

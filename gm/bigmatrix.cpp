@@ -96,4 +96,3 @@ static GM* MyFactory(void*) { return new BigMatrixGM; }
 static GMRegistry reg(MyFactory);
 
 }
-

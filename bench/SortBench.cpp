@@ -176,4 +176,3 @@ DEF_BENCH( return NewQSort(p, kBack); )
 DEF_BENCH( return NewSkQSort(p, kSame); )
 DEF_BENCH( return NewSkHeap(p, kSame); )
 DEF_BENCH( return NewQSort(p, kSame); )
-

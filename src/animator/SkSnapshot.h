@@ -28,4 +28,3 @@ class SkSnapshot: public SkDrawable {
 };
 
 #endif // SkSnapShot_DEFINED
-

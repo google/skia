@@ -114,4 +114,3 @@ static BenchRegistry gReg21(Fact21);
 static BenchRegistry gRegNone(FactNone);
 
 #endif
-

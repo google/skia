@@ -204,4 +204,3 @@ float SkIntToFloatCast_NoOverflowCheck(int32_t value) {
     data.fSignBitInt = (sign << 31) | (shift << 23) | (value & ~MATISSA_MAGIC_BIG);
     return data.fFloat;
 }
-

@@ -142,4 +142,3 @@ private:
 
 static SkView* MyFactory() { return new FilterView; }
 static SkViewRegister reg(MyFactory);
-

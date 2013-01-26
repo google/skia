@@ -138,4 +138,3 @@ bool SkFlate::Inflate(SkStream* src, SkWStream* dst) {
 }
 
 #endif
-

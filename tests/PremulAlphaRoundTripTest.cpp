@@ -110,4 +110,3 @@ void PremulAlphaRoundTripTest(skiatest::Reporter* reporter,
 
 #include "TestClassDef.h"
 DEFINE_GPUTESTCLASS("PremulAlphaRoundTripTest", PremulAlphaRoundTripTestClass, PremulAlphaRoundTripTest)
-

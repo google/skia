@@ -159,4 +159,3 @@ static inline U8CPU SkMulDiv255Round(U8CPU a, U8CPU b) {
 }
 
 #endif
-

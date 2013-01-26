@@ -314,5 +314,3 @@ rectNext:
         return lastResort;
     return NULL;
 }
-
-

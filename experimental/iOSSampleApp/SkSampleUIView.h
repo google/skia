@@ -44,4 +44,3 @@ struct FPSState;
 - (void)setSkTitle:(const char*)title;
 - (void)postInvalWithRect:(const SkIRect*)rectOrNil;
 @end
-

@@ -31,4 +31,3 @@ static inline void GrSafeSetNull(T*& obj) {
 }
 
 #endif
-

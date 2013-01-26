@@ -139,4 +139,3 @@ private:
 
 static SkView* MyFactory() { return new FontCacheView; }
 static SkViewRegister reg(MyFactory);
-

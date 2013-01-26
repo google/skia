@@ -65,4 +65,3 @@ private:
 };
 
 #endif // SkDrawGradient_DEFINED
-

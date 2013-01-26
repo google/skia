@@ -27,4 +27,3 @@ private:
     SkBitmap fBufferBitmaps[2];
     typedef SkView INHERITED;
 };
-

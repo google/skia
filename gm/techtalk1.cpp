@@ -395,5 +395,3 @@ ADD_GM(TalkGM, (4, true))
 
 //static GM* MyFactory(void*) { return new TalkGM(0, false); }
 //static GMRegistry reg(MyFactory);
-
-

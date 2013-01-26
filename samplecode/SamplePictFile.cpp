@@ -139,4 +139,3 @@ SampleView* CreateSamplePictFileView(const char filename[]) {
 static SkView* MyFactory() { return new PictFileView; }
 static SkViewRegister reg(MyFactory);
 #endif
-

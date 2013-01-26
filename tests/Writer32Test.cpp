@@ -229,4 +229,3 @@ static void Tests(skiatest::Reporter* reporter) {
 
 #include "TestClassDef.h"
 DEFINE_TESTCLASS("Writer32", Writer32Class, Tests)
-

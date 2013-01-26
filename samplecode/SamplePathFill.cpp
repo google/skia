@@ -144,4 +144,3 @@ private:
 
 static SkView* MyFactory() { return new PathFillView; }
 static SkViewRegister reg(MyFactory);
-

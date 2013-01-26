@@ -61,4 +61,3 @@ void SkPathHeap::flatten(SkFlattenableWriteBuffer& buffer) const {
         iter++;
     }
 }
-

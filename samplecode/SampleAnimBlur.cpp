@@ -67,4 +67,3 @@ private:
 
 static SkView* MyFactory() { return new AnimBlurView; }
 static SkViewRegister reg(MyFactory);
-

@@ -25,4 +25,3 @@ private:
 };
 
 #endif // SkSVGFilter_DEFINEDRITED;
-

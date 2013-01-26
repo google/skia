@@ -346,4 +346,3 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
 
     return true;
 }
-

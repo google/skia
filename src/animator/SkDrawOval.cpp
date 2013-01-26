@@ -26,4 +26,3 @@ bool SkOval::draw(SkAnimateMaker& maker) {
     maker.fCanvas->drawOval(fRect, *maker.fPaint);
     return false;
 }
-

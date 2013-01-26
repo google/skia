@@ -67,4 +67,3 @@ private:
 
 static SkView* MyFactory() { return new WritePixelsView; }
 static SkViewRegister reg(MyFactory);
-

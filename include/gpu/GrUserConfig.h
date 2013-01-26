@@ -68,5 +68,3 @@
 #define GR_TEXT_SCALAR_IS_FLOAT     1
 
 #endif
-
-

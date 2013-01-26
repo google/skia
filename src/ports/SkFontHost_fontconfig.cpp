@@ -249,4 +249,3 @@ SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
     // We don't handle font fallback, WebKit does.
     return 0;
 }
-

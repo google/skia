@@ -40,4 +40,3 @@ class SkDump : public SkDisplayable {
 
 
 #endif // SkDump_DEFINED
-

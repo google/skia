@@ -21,4 +21,3 @@ enum x_at_flags {
 
 void x_at(const _Point& p1, const _Point& p2, double minY, double maxY,
         int flags, double& tMin, double& tMax);
-

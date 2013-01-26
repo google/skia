@@ -624,4 +624,3 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
     drawState->setVertexEdgeType(oldEdgeType);
     return true;
 }
-

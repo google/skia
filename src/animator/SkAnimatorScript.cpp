@@ -592,5 +592,3 @@ void SkAnimatorScript::UnitTest() {
 }
 
 #endif
-
-

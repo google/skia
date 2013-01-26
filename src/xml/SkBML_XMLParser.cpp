@@ -179,6 +179,3 @@ void BML_XMLParser::Read(SkStream& s, SkXMLParser& output)
     SkXMLParserWriter writer(&output);
     Read(s, writer);
 }
-
-
-

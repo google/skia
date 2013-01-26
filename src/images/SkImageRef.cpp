@@ -198,4 +198,3 @@ void SkImageRef::flatten(SkFlattenableWriteBuffer& buffer) const {
     fStream->rewind();
     buffer.writeStream(fStream, fStream->getLength());
 }
-

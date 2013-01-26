@@ -405,4 +405,3 @@ void Forth_test_stdwords(bool verbose) {
         SkDebugf("--- %d failures\n", reporter.fFailureCount);
     }
 }
-

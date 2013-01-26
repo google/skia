@@ -165,4 +165,3 @@ SkBounder* SkProxyCanvas::setBounder(SkBounder* bounder) {
 SkDrawFilter* SkProxyCanvas::setDrawFilter(SkDrawFilter* filter) {
     return fProxy->setDrawFilter(filter);
 }
-

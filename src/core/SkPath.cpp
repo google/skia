@@ -2952,4 +2952,3 @@ bool SkPath::contains(SkScalar x, SkScalar y) const {
     }
     return SkToBool(w);
 }
-

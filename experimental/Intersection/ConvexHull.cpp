@@ -141,4 +141,3 @@ bool convex_x_hull(const Cubic& cubic, char connectTo0[2], char connectTo3[2]) {
     return (1 << lower0Index | 1 << upper0Index
             | 1 << lower3Index | 1 << upper3Index) == 0x0F;
 }
-

@@ -89,4 +89,3 @@ size_t SkFDStream::read(void* buffer, size_t size) {
     }
     return 0;
 }
-

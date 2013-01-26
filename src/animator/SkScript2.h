@@ -289,4 +289,3 @@ struct SkScriptNAnswer2 {
 
 
 #endif // SkScript2_DEFINED
-

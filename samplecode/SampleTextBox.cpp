@@ -113,4 +113,3 @@ private:
 
 static SkView* MyFactory() { return new TextBoxView; }
 static SkViewRegister reg(MyFactory);
-

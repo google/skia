@@ -47,4 +47,3 @@ private:
 
 static SkView* MyFactory() { return new BigGradientView; }
 static SkViewRegister reg(MyFactory);
-

@@ -229,4 +229,3 @@ private:
 
 static SkView* MyFactory() { return new EncodeView; }
 static SkViewRegister reg(MyFactory);
-

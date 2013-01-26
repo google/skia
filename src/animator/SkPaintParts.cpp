@@ -99,5 +99,3 @@ void SkDrawTypeface::dump(SkAnimateMaker* maker) {
     SkDebugf("style=\"%s\" />\n", string.c_str());
 }
 #endif
-
-

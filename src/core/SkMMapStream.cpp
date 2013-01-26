@@ -75,4 +75,3 @@ void SkMMAPStream::closeMMap()
         fAddr = NULL;
     }
 }
-

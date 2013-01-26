@@ -109,4 +109,3 @@ protected:
 static skiagm::GM* F(void*) { return new TwoPointRadialGM; }
 
 static skiagm::GMRegistry gR(F);
-

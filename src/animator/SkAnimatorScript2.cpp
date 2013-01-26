@@ -620,4 +620,3 @@ void SkAnimatorScript2::UnitTest() {
 }
 
 #endif
-

@@ -679,4 +679,3 @@ static SkImageEncoder* sk_libjpeg_efactory(SkImageEncoder::Type t) {
 
 static SkTRegistry<SkImageDecoder*, SkStream*> gDReg(sk_libjpeg_dfactory);
 static SkTRegistry<SkImageEncoder*, SkImageEncoder::Type> gEReg(sk_libjpeg_efactory);
-

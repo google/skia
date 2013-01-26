@@ -119,4 +119,3 @@ private:
 
 static SkView* MyFactory() { return new MeasureView; }
 static SkViewRegister reg(MyFactory);
-

@@ -13,4 +13,3 @@
 SkShader* SkDrawTransparentShader::getShader() {
     return new SkTransparentShader();
 }
-

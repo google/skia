@@ -164,4 +164,3 @@ static GMRegistry reg(MyFactory);
 static GMRegistry Creg(CMyFactory);
 static GMRegistry Creg2(CMyFactory2);
 }
-

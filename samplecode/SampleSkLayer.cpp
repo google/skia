@@ -243,4 +243,3 @@ private:
 
 static SkView* MyFactory() { return new SkLayerView; }
 static SkViewRegister reg(MyFactory);
-

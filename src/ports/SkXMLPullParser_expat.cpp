@@ -211,4 +211,3 @@ CHECK_STATUS:
     }
     return fCurr.fEventType;
 }
-

@@ -79,4 +79,3 @@ SkPoint SkCubicBoundary::eval(Edge e, SkScalar t) {
     SkEvalCubicAt(&fPts[e * 3], t, &loc, NULL, NULL);
     return loc;
 }
-

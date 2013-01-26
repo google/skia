@@ -31,4 +31,3 @@ void SkImage::draw(SkCanvas* canvas, SkScalar x, SkScalar y,
                    const SkPaint* paint) {
     asIB(this)->onDraw(canvas, x, y, paint);
 }
-

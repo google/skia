@@ -136,4 +136,3 @@ bool SkChunkAlloc::contains(const void* addr) const {
     }
     return false;
 }
-
