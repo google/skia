@@ -1218,7 +1218,7 @@ GrGLEffect::EffectKey GrGLLightingEffect::GenKey(const GrEffectStage& s,
 void GrGLLightingEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
     const GrLightingEffect& effect = GetEffectFromStage<GrLightingEffect>(stage);
     GrTexture* texture = effect.texture(0);
-    float ySign = texture->origin() == GrSurface::kTopLeft_Origin ? -1.0f : 1.0f;
+    float ySign = texture->origin() == kTopLeft_GrSurfaceOrigin ? -1.0f : 1.0f;
     uman.set2f(fImageIncrementUni, 1.0f / texture->width(), ySign / texture->height());
     uman.set1f(fSurfaceScaleUni, effect.surfaceScale());
     fLight->setData(uman, effect.light());

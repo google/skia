@@ -19,7 +19,7 @@ GrGLEffect::EffectKey GrGLEffectMatrix::GenKey(const SkMatrix& effectMatrix,
                                      SkMatrix::kPerspective_Mask;
     int combinedTypes = type0 | type1;
 
-    bool reverseY = (NULL != texture) && GrSurface::kBottomLeft_Origin == texture->origin();
+    bool reverseY = (NULL != texture) && kBottomLeft_GrSurfaceOrigin == texture->origin();
 
     if (SkMatrix::kPerspective_Mask & combinedTypes) {
         return kGeneral_Key;
@@ -173,11 +173,11 @@ void GrGLEffectMatrix::setData(const GrGLUniformManager& uniformManager,
         case kVoid_GrSLType:
             GrAssert(matrix.isIdentity());
             GrAssert(coordChangeMatrix.isIdentity());
-            GrAssert(NULL == texture || GrSurface::kTopLeft_Origin == texture->origin());
+            GrAssert(NULL == texture || kTopLeft_GrSurfaceOrigin == texture->origin());
             return;
         case kVec2f_GrSLType: {
             GrAssert(SkMatrix::kTranslate_Mask == (matrix.getType() | coordChangeMatrix.getType()));
-            GrAssert(NULL == texture || GrSurface::kTopLeft_Origin == texture->origin());
+            GrAssert(NULL == texture || kTopLeft_GrSurfaceOrigin == texture->origin());
             SkScalar tx = matrix[SkMatrix::kMTransX] + coordChangeMatrix[SkMatrix::kMTransX];
             SkScalar ty = matrix[SkMatrix::kMTransY] + coordChangeMatrix[SkMatrix::kMTransY];
             if (fPrevMatrix.get(SkMatrix::kMTransX) != tx ||
@@ -191,7 +191,7 @@ void GrGLEffectMatrix::setData(const GrGLUniformManager& uniformManager,
         case kMat33f_GrSLType: {
             SkMatrix combined;
             combined.setConcat(matrix, coordChangeMatrix);
-            if (NULL != texture && GrSurface::kBottomLeft_Origin == texture->origin()) {
+            if (NULL != texture && kBottomLeft_GrSurfaceOrigin == texture->origin()) {
                 // combined.postScale(1,-1);
                 // combined.postTranslate(0,1);
                 combined.set(SkMatrix::kMSkewY,

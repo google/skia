@@ -485,6 +485,12 @@ GrTexture* GrGpuGL::onWrapBackendTexture(const GrBackendTextureDesc& desc) {
         return NULL;
     }
 
+    // FIXME:  add support for TopLeft RT's by flipping all draws.
+    if (desc.fFlags & kRenderTarget_GrBackendTextureFlag &&
+        kBottomLeft_GrSurfaceOrigin != desc.fOrigin) {
+        return NULL;
+    }
+
     int maxSize = this->getCaps().maxTextureSize();
     if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
         return NULL;
@@ -499,7 +505,7 @@ GrTexture* GrGpuGL::onWrapBackendTexture(const GrBackendTextureDesc& desc) {
     glTexDesc.fSampleCnt = desc.fSampleCnt;
     glTexDesc.fTextureID = static_cast<GrGLuint>(desc.fTextureHandle);
     glTexDesc.fIsWrapped = true;
-    glTexDesc.fOrigin = GrSurface::kBottomLeft_Origin;
+    glTexDesc.fOrigin = desc.fOrigin;
 
     GrGLTexture* texture = NULL;
     if (desc.fFlags & kRenderTarget_GrBackendTextureFlag) {
@@ -675,7 +681,7 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     bool swFlipY = false;
     bool glFlipY = false;
     if (NULL != data) {
-        if (GrSurface::kBottomLeft_Origin == desc.fOrigin) {
+        if (kBottomLeft_GrSurfaceOrigin == desc.fOrigin) {
             if (this->glCaps().unpackFlipYSupport()) {
                 glFlipY = true;
             } else {
@@ -957,7 +963,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     // We keep GrRenderTargets in GL's normal orientation so that they
     // can be drawn to by the outside world without the client having
     // to render upside down.
-    glTexDesc.fOrigin = renderTarget ? GrSurface::kBottomLeft_Origin : GrSurface::kTopLeft_Origin;
+    glTexDesc.fOrigin = renderTarget ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
 
     glRTDesc.fSampleCnt = desc.fSampleCnt;
     if (GrGLCaps::kNone_MSFBOType == this->glCaps().msFBOType() &&

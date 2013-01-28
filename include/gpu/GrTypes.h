@@ -425,6 +425,17 @@ enum {
     kGrColorTableSize = 256 * 4 //sizeof(GrColor)
 };
 
+/**
+ * Some textures will be stored such that the upper and left edges of the content meet at the
+ * the origin (in texture coord space) and for other textures the lower and left edges meet at
+ * the origin. Render-targets are always consistent with the convention of the underlying
+ * backend API to make it easier to mix native backend rendering with Skia rendering.
+ */
+
+enum GrSurfaceOrigin {
+    kBottomLeft_GrSurfaceOrigin,
+    kTopLeft_GrSurfaceOrigin,
+};
 
 /**
  * Describes a texture to be created.
@@ -596,6 +607,7 @@ GR_MAKE_BITFIELD_OPS(GrBackendTextureFlags)
 struct GrBackendTextureDesc {
     GrBackendTextureDesc() { memset(this, 0, sizeof(*this)); }
     GrBackendTextureFlags           fFlags;
+    GrSurfaceOrigin                 fOrigin;
     int                             fWidth;         //<! width in pixels
     int                             fHeight;        //<! height in pixels
     GrPixelConfig                   fConfig;        //<! color format

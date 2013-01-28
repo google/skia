@@ -516,7 +516,7 @@ void GrGLDisplacementMapEffect::setData(const GrGLUniformManager& uman, const Gr
                                colorTex);
 
     uman.set2f(fScaleUni, SkScalarToFloat(displacementMap.scale()),
-                colorTex->origin() == GrSurface::kTopLeft_Origin ?
+                colorTex->origin() == kTopLeft_GrSurfaceOrigin ?
                 SkScalarToFloat(displacementMap.scale()) :
                 SkScalarToFloat(-displacementMap.scale()));
 }

@@ -90,7 +90,7 @@ void GrGLTextureDomainEffect::setData(const GrGLUniformManager& uman, const GrEf
         SkScalarToFloat(domain.bottom())
     };
     // vertical flip if necessary
-    if (GrSurface::kBottomLeft_Origin == effect.texture(0)->origin()) {
+    if (kBottomLeft_GrSurfaceOrigin == effect.texture(0)->origin()) {
         values[1] = 1.0f - values[1];
         values[3] = 1.0f - values[3];
         // The top and bottom were just flipped, so correct the ordering
