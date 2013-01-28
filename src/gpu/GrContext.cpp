@@ -837,7 +837,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
         m.postConcat(*srcMatrix);
     }
 
-    drawState->stage(GrPaint::kFirstColorStage)->preConcatCoordChange(m);
+    drawState->preConcatStageMatrices(kExplicitCoordMask, m);
 
     const GrVertexBuffer* sqVB = fGpu->getUnitSquareVertexBuffer();
     if (NULL == sqVB) {
