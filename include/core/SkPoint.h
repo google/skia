@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkPoint_DEFINED
 #define SkPoint_DEFINED
@@ -337,9 +335,12 @@ struct SK_API SkPoint {
 #endif
     }
 
-    /** Returns true if the point's coordinates equal (x,y)
-    */
-    bool equals(SkScalar x, SkScalar y) const { return fX == x && fY == y; }
+    /**
+     *  Returns true if the point's coordinates equal (x,y)
+     */
+    bool equals(SkScalar x, SkScalar y) const {
+        return fX == x && fY == y;
+    }
 
     friend bool operator==(const SkPoint& a, const SkPoint& b) {
         return a.fX == b.fX && a.fY == b.fY;
