@@ -148,7 +148,7 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
                                            intervalLength);
     }
 
-    SkASSERT(maxX > minX);
+    SkASSERT(maxX >= minX);
     if (dx < 0) {
         SkTSwap(minX, maxX);
     }
