@@ -255,8 +255,14 @@ public:
      * old coord system to the new coord system.
      */
     void preConcatStageMatrices(const SkMatrix& preConcat) {
+        this->preConcatStageMatrices(~0U, preConcat);
+    }
+    /**
+     * Version of above that applies the update matrix selectively to stages via a mask.
+     */
+    void preConcatStageMatrices(uint32_t stageMask, const SkMatrix& preConcat) {
         for (int i = 0; i < kNumStages; ++i) {
-            if (this->isStageEnabled(i)) {
+            if (((1 << i) & stageMask) && this->isStageEnabled(i)) {
                 fStages[i].preConcatCoordChange(preConcat);
             }
         }
