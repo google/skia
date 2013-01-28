@@ -34,7 +34,7 @@ public:
     int height() const { return fDesc.fHeight; }
 
     GrSurfaceOrigin origin() const {
-        GrAssert(kTopLeft_SurfaceOrigin == fOrigin || kBottomLeft_SurfaceOrigin == fOrigin);
+        GrAssert(kTopLeft_GrSurfaceOrigin == fOrigin || kBottomLeft_GrSurfaceOrigin == fOrigin);
         return fOrigin;
     }
 
