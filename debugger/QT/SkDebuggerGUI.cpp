@@ -514,9 +514,9 @@ void SkDebuggerGUI::actionRewind() {
 }
 
 void SkDebuggerGUI::actionSave() {
-    fFileName = fPath.toAscii();
+    fFileName = fPath.toAscii().data();
     fFileName.append("/");
-    fFileName.append(fDirectoryWidget.currentItem()->text().toAscii());
+    fFileName.append(fDirectoryWidget.currentItem()->text().toAscii().data());
     saveToFile(fFileName);
 }
 
@@ -571,9 +571,9 @@ void SkDebuggerGUI::saveToFile(const SkString& filename) {
 
 void SkDebuggerGUI::loadFile(QListWidgetItem *item) {
     if (fDirectoryWidgetActive) {
-        fFileName = fPath.toAscii();
+        fFileName = fPath.toAscii().data();
         fFileName.append("/");
-        fFileName.append(item->text().toAscii());
+        fFileName.append(item->text().toAscii().data());
         loadPicture(fFileName);
     }
 }
