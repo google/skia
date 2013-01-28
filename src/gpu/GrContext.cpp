@@ -1006,7 +1006,7 @@ void GrContext::internalDrawOval(const GrPaint& paint,
     }
 
     GrVertexLayout layout = GrDrawState::kEdge_VertexLayoutBit;
-    GrAssert(sizeof(CircleVertex) == GrDrawTarget::VertexSize(layout));
+    GrAssert(sizeof(CircleVertex) == GrDrawState::VertexSize(layout));
 
     GrDrawTarget::AutoReleaseGeometry geo(target, layout, 4, 0);
     if (!geo.succeeded()) {
