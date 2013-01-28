@@ -23,9 +23,6 @@ SK_DEFINE_INST_COUNT(GrDrawTarget)
 #define DEBUG_INVAL_START_IDX -1
 
 GrDrawTarget::GrDrawTarget() : fClip(NULL) {
-#if GR_DEBUG
-    VertexLayoutUnitTest();
-#endif
     fDrawState = &fDefaultDrawState;
     // We assume that fDrawState always owns a ref to the object it points at.
     fDefaultDrawState.ref();
@@ -298,7 +295,7 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
             maxValidVertex = geoSrc.fVertexCount;
             break;
         case kBuffer_GeometrySrcType:
-            maxValidVertex = geoSrc.fVertexBuffer->sizeInBytes() / VertexSize(geoSrc.fVertexLayout);
+            maxValidVertex = geoSrc.fVertexBuffer->sizeInBytes() / GrDrawState::VertexSize(geoSrc.fVertexLayout);
             break;
     }
     if (maxVertex > maxValidVertex) {
@@ -620,7 +617,7 @@ void GrDrawTarget::SetRectVertices(const GrRect& rect,
 #if GR_DEBUG
     // check that the layout and srcRects agree
     for (int i = 0; i < GrDrawState::kNumStages; ++i) {
-        if (VertexTexCoordsForStage(i, layout) >= 0) {
+        if (GrDrawState::VertexTexCoordsForStage(i, layout) >= 0) {
             GR_DEBUGASSERT(NULL != srcRects && NULL != srcRects[i]);
         } else {
             GR_DEBUGASSERT(NULL == srcRects || NULL == srcRects[i]);

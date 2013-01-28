@@ -59,6 +59,9 @@ public:
     };
 
     GrDrawState() {
+#if GR_DEBUG
+        VertexLayoutUnitTest();
+#endif
         this->reset();
     }
 
