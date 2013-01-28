@@ -1409,7 +1409,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
                 GrDrawTarget::AutoStateRestore asr(fGpu, GrDrawTarget::kReset_ASRInit);
                 GrDrawState* drawState = fGpu->drawState();
                 GrAssert(effect);
-                *drawState->setEffect(0, effect);
+                drawState->setEffect(0, effect);
 
                 drawState->setRenderTarget(texture->asRenderTarget());
                 GrRect rect = GrRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
@@ -1627,7 +1627,7 @@ void GrContext::writeRenderTargetPixels(GrRenderTarget* target,
     GrDrawTarget::AutoStateRestore  asr(fGpu, GrDrawTarget::kReset_ASRInit);
     GrDrawState* drawState = fGpu->drawState();
     GrAssert(effect);
-    *drawState->setEffect(0, effect);
+    drawState->setEffect(0, effect);
 
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
