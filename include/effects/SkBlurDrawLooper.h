@@ -43,6 +43,7 @@ public:
     virtual void init(SkCanvas*);
     virtual bool next(SkCanvas*, SkPaint* paint);
 
+    SK_DEVELOPER_TO_STRING()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurDrawLooper)
 
 protected:

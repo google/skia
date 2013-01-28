@@ -15,6 +15,7 @@
 class SkCanvas;
 class SkPaint;
 struct SkRect;
+class SkString;
 
 /** \class SkDrawLooper
     Subclasses of SkDrawLooper can be attached to a SkPaint. Where they are,
@@ -61,6 +62,8 @@ public:
     virtual bool canComputeFastBounds(const SkPaint& paint);
     virtual void computeFastBounds(const SkPaint& paint,
                                    const SkRect& src, SkRect* dst);
+
+    SkDEVCODE(virtual void toString(SkString* str) const = 0;)
 
 protected:
     SkDrawLooper() {}
