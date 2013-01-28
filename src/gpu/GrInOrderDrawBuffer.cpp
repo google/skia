@@ -167,13 +167,13 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
 
             GrRect devClipRect;
             bool isIntersectionOfRects = false;
-
-            fClip->fClipStack->getConservativeBounds(-fClip->fOrigin.fX,
-                                                     -fClip->fOrigin.fY,
-                                                     drawState->getRenderTarget()->width(),
-                                                     drawState->getRenderTarget()->height(),
-                                                     &devClipRect,
-                                                     &isIntersectionOfRects);
+            const GrClipData* clip = this->getClip();
+            clip->fClipStack->getConservativeBounds(-clip->fOrigin.fX,
+                                                    -clip->fOrigin.fY,
+                                                    drawState->getRenderTarget()->width(),
+                                                    drawState->getRenderTarget()->height(),
+                                                    &devClipRect,
+                                                    &isIntersectionOfRects);
 
             if (isIntersectionOfRects) {
                 // If the clip rect touches the edge of the viewport, extended it
@@ -872,8 +872,8 @@ bool GrInOrderDrawBuffer::needsNewClip() const {
     if (this->getDrawState().isClipState()) {
        if (fClipSet &&
            (fClips.empty() ||
-            fClips.back() != *fClip->fClipStack ||
-            fClipOrigins.back() != fClip->fOrigin)) {
+            fClips.back() != *this->getClip()->fClipStack ||
+            fClipOrigins.back() != this->getClip()->fOrigin)) {
            return true;
        }
     }
@@ -881,8 +881,8 @@ bool GrInOrderDrawBuffer::needsNewClip() const {
 }
 
 void GrInOrderDrawBuffer::recordClip() {
-    fClips.push_back() = *fClip->fClipStack;
-    fClipOrigins.push_back() = fClip->fOrigin;
+    fClips.push_back() = *this->getClip()->fClipStack;
+    fClipOrigins.push_back() = this->getClip()->fOrigin;
     fClipSet = false;
     fCmds.push_back(kSetClip_Cmd);
 }

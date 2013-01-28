@@ -331,7 +331,7 @@ const GrVertexBuffer* GrGpu::getUnitSquareVertexBuffer() const {
 
 bool GrGpu::setupClipAndFlushState(DrawType type) {
 
-    if (!fClipMaskManager.setupClipping(fClip)) {
+    if (!fClipMaskManager.setupClipping(this->getClip())) {
         return false;
     }
 

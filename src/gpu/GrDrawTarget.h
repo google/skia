@@ -952,35 +952,58 @@ protected:
         }
     }
 
-    bool isStageEnabled(int stageIdx) const {
-        return this->getDrawState().isStageEnabled(stageIdx);
+    // allows derived class to set the caps
+    CapsInternals* capsInternals() { return &fCaps.fInternals; }
+
+    // A subclass may override this function if it wishes to be notified when the clip is changed.
+    // The override should call INHERITED::clipWillBeSet().
+    virtual void clipWillBeSet(const GrClipData* clipData);
+
+    // subclasses must call this in their destructors to ensure all vertex
+    // and index sources have been released (including those held by
+    // pushGeometrySource())
+    void releaseGeometry();
+
+    // accessors for derived classes
+    const GeometrySrcState& getGeomSrc() const { return fGeoSrcStateStack.back(); }
+    // it is preferable to call this rather than getGeomSrc()->fVertexLayout because of the assert.
+    GrVertexLayout getVertexLayout() const {
+        // the vertex layout is only valid if a vertex source has been specified.
+        GrAssert(this->getGeomSrc().fVertexSrc != kNone_GeometrySrcType);
+        return this->getGeomSrc().fVertexLayout;
     }
 
-    // A sublcass can optionally overload this function to be notified before
-    // vertex and index space is reserved.
-    virtual void willReserveVertexAndIndexSpace(GrVertexLayout vertexLayout,
-                                                int vertexCount,
-                                                int indexCount) {}
+    // Helpers for drawRect, protected so subclasses that override drawRect can use them.
+    static GrVertexLayout GetRectVertexLayout(const GrRect* srcRects[]);
 
+    static void SetRectVertices(const GrRect& rect,
+                                const SkMatrix* matrix,
+                                const GrRect* srcRects[],
+                                const SkMatrix* srcMatrices[],
+                                GrColor color,
+                                GrVertexLayout layout,
+                                void* vertices);
+
+    Caps fCaps;
+
+private:
+    // A subclass can optionally overload this function to be notified before
+    // vertex and index space is reserved.
+    virtual void willReserveVertexAndIndexSpace(GrVertexLayout,int vertexCount, int indexCount) {}
 
     // implemented by subclass to allocate space for reserved geom
-    virtual bool onReserveVertexSpace(GrVertexLayout vertexLayout,
-                                      int vertexCount,
-                                      void** vertices) = 0;
+    virtual bool onReserveVertexSpace(GrVertexLayout, int vertexCount, void** vertices) = 0;
     virtual bool onReserveIndexSpace(int indexCount, void** indices) = 0;
     // implemented by subclass to handle release of reserved geom space
     virtual void releaseReservedVertexSpace() = 0;
     virtual void releaseReservedIndexSpace() = 0;
     // subclass must consume array contents when set
-    virtual void onSetVertexSourceToArray(const void* vertexArray,
-                                          int vertexCount) = 0;
-    virtual void onSetIndexSourceToArray(const void* indexArray,
-                                         int indexCount) = 0;
+    virtual void onSetVertexSourceToArray(const void* vertexArray, int vertexCount) = 0;
+    virtual void onSetIndexSourceToArray(const void* indexArray, int indexCount) = 0;
     // subclass is notified that geom source will be set away from an array
     virtual void releaseVertexArray() = 0;
     virtual void releaseIndexArray() = 0;
-    // subclass overrides to be notified just before geo src state
-    // is pushed/popped.
+    // subclass overrides to be notified just before geo src state is pushed/popped.
     virtual void geometrySourceWillPush() = 0;
     virtual void geometrySourceWillPop(const GeometrySrcState& restoredState) = 0;
     // subclass called to perform drawing
@@ -994,51 +1017,6 @@ protected:
                                   int vertexCount) = 0;
     virtual void onStencilPath(const GrPath*, const SkStrokeRec& stroke, SkPath::FillType fill) = 0;
 
-    // subclass overrides to be notified when clip is set. Must call
-    // INHERITED::clipwillBeSet
-    virtual void clipWillBeSet(const GrClipData* clipData) {}
-
-    // Helpers for drawRect, protected so subclasses that override drawRect
-    // can use them.
-    static GrVertexLayout GetRectVertexLayout(const GrRect* srcRects[]);
-
-    static void SetRectVertices(const GrRect& rect,
-                                const SkMatrix* matrix,
-                                const GrRect* srcRects[],
-                                const SkMatrix* srcMatrices[],
-                                GrColor color,
-                                GrVertexLayout layout,
-                                void* vertices);
-
-    // accessors for derived classes
-    const GeometrySrcState& getGeomSrc() const {
-        return fGeoSrcStateStack.back();
-    }
-    // it is prefereable to call this rather than getGeomSrc()->fVertexLayout
-    // because of the assert.
-    GrVertexLayout getVertexLayout() const {
-        // the vertex layout is only valid if a vertex source has been
-        // specified.
-        GrAssert(this->getGeomSrc().fVertexSrc != kNone_GeometrySrcType);
-        return this->getGeomSrc().fVertexLayout;
-    }
-
-    // allows derived class to set the caps
-    CapsInternals* capsInternals() { return &fCaps.fInternals; }
-
-    const GrClipData* fClip;
-
-    GrDrawState* fDrawState;
-    GrDrawState fDefaultDrawState;
-
-    Caps fCaps;
-
-    // subclasses must call this in their destructors to ensure all vertex
-    // and index sources have been released (including those held by
-    // pushGeometrySource())
-    void releaseGeometry();
-
-private:
     // helpers for reserving vertex and index space.
     bool reserveVertexSpace(GrVertexLayout vertexLayout,
                             int vertexCount,
@@ -1057,8 +1035,10 @@ private:
     enum {
         kPreallocGeoSrcStateStackCnt = 4,
     };
-    SkSTArray<kPreallocGeoSrcStateStackCnt,
-              GeometrySrcState, true>           fGeoSrcStateStack;
+    SkSTArray<kPreallocGeoSrcStateStackCnt, GeometrySrcState, true> fGeoSrcStateStack;
+    const GrClipData*                                               fClip;
+    GrDrawState*                                                    fDrawState;
+    GrDrawState                                                     fDefaultDrawState;
 
     typedef GrRefCnt INHERITED;
 };

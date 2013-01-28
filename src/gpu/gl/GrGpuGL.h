@@ -56,7 +56,7 @@ public:
 
     virtual void abandonResources() SK_OVERRIDE;
 
-protected:
+private:
     // GrGpu overrides
     virtual void onResetContext() SK_OVERRIDE;
 
@@ -120,8 +120,6 @@ protected:
                                int vertexCount,
                                int indexCount) SK_OVERRIDE;
 
-private:
-
     const GrGLCaps& glCaps() const { return fGLContextInfo.caps(); }
 
     // binds texture unit in GL
@@ -129,17 +127,13 @@ private:
 
     // binds appropriate vertex and index buffers, also returns any extra
     // extra verts or indices to offset by.
-    void setBuffers(bool indexed,
-                    int* extraVertexOffset,
-                    int* extraIndexOffset);
+    void setBuffers(bool indexed, int* extraVertexOffset, int* extraIndexOffset);
 
     // Subclasses should call this to flush the blend state.
     // The params should be the final coeffecients to apply
     // (after any blending optimizations or dual source blending considerations
     // have been accounted for).
-    void flushBlend(bool isLines,
-                    GrBlendCoeff srcCoeff,
-                    GrBlendCoeff dstCoeff);
+    void flushBlend(bool isLines, GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff);
 
     bool hasExtension(const char* ext) const {
         return fGLContextInfo.hasExtension(ext);
