@@ -942,7 +942,7 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
     for (int s = drawState.getFirstCoverageStage();
          !hasCoverage && s < GrDrawState::kNumStages;
          ++s) {
-        if (this->isStageEnabled(s)) {
+        if (drawState.isStageEnabled(s)) {
             hasCoverage = true;
         }
     }
@@ -1143,6 +1143,9 @@ void GrDrawTarget::SetRectVertices(const GrRect& rect,
             vertCol = (GrColor*) ((intptr_t) vertCol + vsize);
         }
     }
+}
+
+void GrDrawTarget::clipWillBeSet(const GrClipData* clipData) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -109,9 +109,8 @@ public:
                        GrRenderTarget* renderTarget = NULL) SK_OVERRIDE;
 
 protected:
-    virtual void willReserveVertexAndIndexSpace(GrVertexLayout vertexLayout,
-                                                int vertexCount,
-                                                int indexCount) SK_OVERRIDE;
+    virtual void clipWillBeSet(const GrClipData* newClip) SK_OVERRIDE;
+
 private:
     enum Cmd {
         kDraw_Cmd           = 1,
@@ -173,9 +172,11 @@ private:
     virtual void releaseVertexArray() SK_OVERRIDE;
     virtual void releaseIndexArray() SK_OVERRIDE;
     virtual void geometrySourceWillPush() SK_OVERRIDE;
-    virtual void geometrySourceWillPop(
-        const GeometrySrcState& restoredState) SK_OVERRIDE;
-    virtual void clipWillBeSet(const GrClipData* newClip) SK_OVERRIDE;
+    virtual void geometrySourceWillPop(const GeometrySrcState& restoredState) SK_OVERRIDE;
+    virtual void willReserveVertexAndIndexSpace(GrVertexLayout vertexLayout,
+                                                int vertexCount,
+                                                int indexCount) SK_OVERRIDE;
+
 
     // we lazily record state and clip changes in order to skip clips and states
     // that have no effect.

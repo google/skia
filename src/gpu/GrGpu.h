@@ -417,32 +417,27 @@ protected:
     // constructors
     bool    fConfigRenderSupport[kGrPixelConfigCount];
 
-    // GrDrawTarget overrides
-    virtual bool onReserveVertexSpace(GrVertexLayout vertexLayout,
-                                      int vertexCount,
-                                      void** vertices) SK_OVERRIDE;
-    virtual bool onReserveIndexSpace(int indexCount,
-                                     void** indices) SK_OVERRIDE;
-    virtual void releaseReservedVertexSpace() SK_OVERRIDE;
-    virtual void releaseReservedIndexSpace() SK_OVERRIDE;
-    virtual void onSetVertexSourceToArray(const void* vertexArray,
-                                          int vertexCount) SK_OVERRIDE;
-    virtual void onSetIndexSourceToArray(const void* indexArray,
-                                         int indexCount) SK_OVERRIDE;
-    virtual void releaseVertexArray() SK_OVERRIDE;
-    virtual void releaseIndexArray() SK_OVERRIDE;
-    virtual void geometrySourceWillPush() SK_OVERRIDE;
-    virtual void geometrySourceWillPop(
-        const GeometrySrcState& restoredState) SK_OVERRIDE;
-
     // Helpers for setting up geometry state
     void finalizeReservedVertices();
     void finalizeReservedIndices();
 
+private:
+    // GrDrawTarget overrides
+    virtual bool onReserveVertexSpace(GrVertexLayout, int vertexCount, void** vertices) SK_OVERRIDE;
+    virtual bool onReserveIndexSpace(int indexCount, void** indices) SK_OVERRIDE;
+    virtual void releaseReservedVertexSpace() SK_OVERRIDE;
+    virtual void releaseReservedIndexSpace() SK_OVERRIDE;
+    virtual void onSetVertexSourceToArray(const void* vertexArray, int vertexCount) SK_OVERRIDE;
+    virtual void onSetIndexSourceToArray(const void* indexArray, int indexCount) SK_OVERRIDE;
+    virtual void releaseVertexArray() SK_OVERRIDE;
+    virtual void releaseIndexArray() SK_OVERRIDE;
+    virtual void geometrySourceWillPush() SK_OVERRIDE;
+    virtual void geometrySourceWillPop(const GeometrySrcState& restoredState) SK_OVERRIDE;
+
+
     // called when the 3D context state is unknown. Subclass should emit any
     // assumed 3D context state and dirty any state cache.
     virtual void onResetContext() = 0;
-
 
     // overridden by backend-specific derived class to create objects.
     virtual GrTexture* onCreateTexture(const GrTextureDesc& desc,
@@ -450,10 +445,8 @@ protected:
                                        size_t rowBytes) = 0;
     virtual GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&) = 0;
     virtual GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) = 0;
-    virtual GrVertexBuffer* onCreateVertexBuffer(uint32_t size,
-                                                 bool dynamic) = 0;
-    virtual GrIndexBuffer* onCreateIndexBuffer(uint32_t size,
-                                               bool dynamic) = 0;
+    virtual GrVertexBuffer* onCreateVertexBuffer(uint32_t size, bool dynamic) = 0;
+    virtual GrIndexBuffer* onCreateIndexBuffer(uint32_t size, bool dynamic) = 0;
     virtual GrPath* onCreatePath(const SkPath& path) = 0;
 
     // overridden by backend-specific derived class to perform the clear and
@@ -528,36 +521,6 @@ protected:
     // clears the entire stencil buffer to 0
     virtual void clearStencil() = 0;
 
-private:
-    GrContext*                  fContext; // not reffed (context refs gpu)
-
-    ResetTimestamp              fResetTimestamp;
-
-    GrVertexBufferAllocPool*    fVertexPool;
-
-    GrIndexBufferAllocPool*     fIndexPool;
-
-    // counts number of uses of vertex/index pool in the geometry stack
-    int                         fVertexPoolUseCnt;
-    int                         fIndexPoolUseCnt;
-
-    enum {
-        kPreallocGeomPoolStateStackCnt = 4,
-    };
-    SkSTArray<kPreallocGeomPoolStateStackCnt,
-              GeometryPoolState, true>              fGeomPoolStateStack;
-
-    mutable GrIndexBuffer*      fQuadIndexBuffer; // mutable so it can be
-                                                  // created on-demand
-
-    mutable GrVertexBuffer*     fUnitSquareVertexBuffer; // mutable so it can be
-                                                         // created on-demand
-
-    bool                        fContextIsDirty;
-
-    typedef SkTInternalLList<GrResource> ResourceList;
-    ResourceList                fResourceList;
-
     // Given a rt, find or create a stencil buffer and attach it
     bool attachStencilBufferToRenderTarget(GrRenderTarget* target);
 
@@ -592,6 +555,24 @@ private:
             fContextIsDirty = false;
         }
     }
+
+    enum {
+        kPreallocGeomPoolStateStackCnt = 4,
+    };
+    typedef SkTInternalLList<GrResource> ResourceList;
+    SkSTArray<kPreallocGeomPoolStateStackCnt, GeometryPoolState, true>  fGeomPoolStateStack;
+    GrContext*                                                          fContext; // not reffed
+    ResetTimestamp                                                      fResetTimestamp;
+    GrVertexBufferAllocPool*                                            fVertexPool;
+    GrIndexBufferAllocPool*                                             fIndexPool;
+    // counts number of uses of vertex/index pool in the geometry stack
+    int                                                                 fVertexPoolUseCnt;
+    int                                                                 fIndexPoolUseCnt;
+    // these are mutable so they can be created on-demand   
+    mutable GrVertexBuffer*                                             fUnitSquareVertexBuffer; 
+    mutable GrIndexBuffer*                                              fQuadIndexBuffer;
+    bool                                                                fContextIsDirty;
+    ResourceList                                                        fResourceList;
 
     typedef GrDrawTarget INHERITED;
 };
