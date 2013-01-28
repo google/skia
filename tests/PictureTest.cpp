@@ -395,6 +395,28 @@ static void test_bitmap_with_encoded_data(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, picture1->equals(picture2));
 }
 
+static void test_clone_empty(skiatest::Reporter* reporter) {
+    // This is a regression test for crbug.com/172062
+    // Before the fix, we used to crash accessing a null pointer when we
+    // had a picture with no paints. This test passes by not crashing.
+    {
+        SkPicture picture;
+        picture.beginRecording(1, 1);
+        picture.endRecording();
+        SkPicture* destPicture = picture.clone();
+        REPORTER_ASSERT(reporter, NULL != destPicture);
+        destPicture->unref();
+    }
+    {
+        // Test without call to endRecording
+        SkPicture picture;
+        picture.beginRecording(1, 1);
+        SkPicture* destPicture = picture.clone();
+        REPORTER_ASSERT(reporter, NULL != destPicture);
+        destPicture->unref();
+    }
+}
+
 static void TestPicture(skiatest::Reporter* reporter) {
 #ifdef SK_DEBUG
     test_deleting_empty_playback();
@@ -405,6 +427,7 @@ static void TestPicture(skiatest::Reporter* reporter) {
     test_peephole(reporter);
     test_gatherpixelrefs(reporter);
     test_bitmap_with_encoded_data(reporter);
+    test_clone_empty(reporter);
 }
 
 #include "TestClassDef.h"
