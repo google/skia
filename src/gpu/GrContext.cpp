@@ -309,7 +309,7 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
         GrTextureParams params(SkShader::kClamp_TileMode, needsFiltering);
         drawState->createTextureEffect(0, clampedTexture, SkMatrix::I(), params);
 
-        static const GrVertexLayout layout = GrDrawTarget::StageTexCoordVertexLayoutBit(0,0);
+        static const GrVertexLayout layout = GrDrawState::StageTexCoordVertexLayoutBit(0,0);
         GrDrawTarget::AutoReleaseGeometry arg(fGpu, layout, 4, 0);
 
         if (arg.succeeded()) {
@@ -875,12 +875,12 @@ void GrContext::drawVertices(const GrPaint& paint,
 
     GrVertexLayout layout = 0;
     if (NULL != texCoords) {
-        layout |= GrDrawTarget::StageTexCoordVertexLayoutBit(0, 0);
+        layout |= GrDrawState::StageTexCoordVertexLayoutBit(0, 0);
     }
     if (NULL != colors) {
-        layout |= GrDrawTarget::kColor_VertexLayoutBit;
+        layout |= GrDrawState::kColor_VertexLayoutBit;
     }
-    int vertexSize = GrDrawTarget::VertexSize(layout);
+    int vertexSize = GrDrawState::VertexSize(layout);
 
     if (sizeof(GrPoint) != vertexSize) {
         if (!geo.set(target, layout, vertexCount, 0)) {
@@ -889,7 +889,7 @@ void GrContext::drawVertices(const GrPaint& paint,
         }
         int texOffsets[GrDrawState::kMaxTexCoords];
         int colorOffset;
-        GrDrawTarget::VertexSizeAndOffsetsByIdx(layout,
+        GrDrawState::VertexSizeAndOffsetsByIdx(layout,
                                                 texOffsets,
                                                 &colorOffset,
                                                 NULL,
@@ -1005,7 +1005,7 @@ void GrContext::internalDrawOval(const GrPaint& paint,
         return;
     }
 
-    GrVertexLayout layout = GrDrawTarget::kEdge_VertexLayoutBit;
+    GrVertexLayout layout = GrDrawState::kEdge_VertexLayoutBit;
     GrAssert(sizeof(CircleVertex) == GrDrawTarget::VertexSize(layout));
 
     GrDrawTarget::AutoReleaseGeometry geo(target, layout, 4, 0);

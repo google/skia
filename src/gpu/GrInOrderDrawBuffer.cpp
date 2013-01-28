@@ -118,7 +118,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         }
 
         if (batchAcrossColors) {
-            layout |= kColor_VertexLayoutBit;
+            layout |= GrDrawState::kColor_VertexLayoutBit;
         }
 
         AutoReleaseGeometry geo(this, layout, 4, 0);
@@ -193,10 +193,10 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
                 if (target->height() <= devClipRect.fBottom) {
                     devClipRect.fBottom = SK_ScalarMax;
                 }
-                int stride = VertexSize(layout);
+                int stride = GrDrawState::VertexSize(layout);
                 bool insideClip = true;
                 for (int v = 0; v < 4; ++v) {
-                    const GrPoint& p = *GetVertexPoint(geo.vertices(), v, stride);
+                    const GrPoint& p = *GrDrawState::GetVertexPoint(geo.vertices(), v, stride);
                     if (!devClipRect.contains(p)) {
                         insideClip = false;
                         break;
@@ -215,7 +215,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
             fCurrQuad < fMaxQuads &&
             layout == fLastRectVertexLayout) {
 
-            int vsize = VertexSize(layout);
+            int vsize = GrDrawState::VertexSize(layout);
 
             Draw& lastDraw = fDraws.back();
 
@@ -335,7 +335,7 @@ void GrInOrderDrawBuffer::drawIndexedInstances(GrPrimitiveType type,
 
         // update the amount of reserved data actually referenced in draws
         size_t vertexBytes = instanceCount * verticesPerInstance *
-                             VertexSize(draw->fVertexLayout);
+                             GrDrawState::VertexSize(draw->fVertexLayout);
         poolState.fUsedPoolVertexBytes =
                             GrMax(poolState.fUsedPoolVertexBytes, vertexBytes);
 
@@ -411,7 +411,7 @@ void GrInOrderDrawBuffer::onDrawIndexed(GrPrimitiveType primitiveType,
     case kReserved_GeometrySrcType: // fallthrough
     case kArray_GeometrySrcType: {
         size_t vertexBytes = (vertexCount + startVertex) *
-                             VertexSize(draw->fVertexLayout);
+                             GrDrawState::VertexSize(draw->fVertexLayout);
         poolState.fUsedPoolVertexBytes =
                             GrMax(poolState.fUsedPoolVertexBytes, vertexBytes);
         draw->fVertexBuffer = poolState.fPoolVertexBuffer;
@@ -474,7 +474,7 @@ void GrInOrderDrawBuffer::onDrawNonIndexed(GrPrimitiveType primitiveType,
     case kReserved_GeometrySrcType: // fallthrough
     case kArray_GeometrySrcType: {
         size_t vertexBytes = (vertexCount + startVertex) *
-                             VertexSize(draw->fVertexLayout);
+                             GrDrawState::VertexSize(draw->fVertexLayout);
         poolState.fUsedPoolVertexBytes =
                             GrMax(poolState.fUsedPoolVertexBytes, vertexBytes);
         draw->fVertexBuffer = poolState.fPoolVertexBuffer;
@@ -759,7 +759,7 @@ void GrInOrderDrawBuffer::releaseReservedVertexSpace() {
     // provided by the vertex buffer pool. At each draw we tracked the largest
     // offset into the pool's pointer that was referenced. Now we return to the
     // pool any portion at the tail of the allocation that no draw referenced.
-    size_t reservedVertexBytes = VertexSize(geoSrc.fVertexLayout) *
+    size_t reservedVertexBytes = GrDrawState::VertexSize(geoSrc.fVertexLayout) *
                                  geoSrc.fVertexCount;
     fVertexPool.putBack(reservedVertexBytes -
                         poolState.fUsedPoolVertexBytes);
@@ -852,7 +852,7 @@ void GrInOrderDrawBuffer::geometrySourceWillPop(
     if (kReserved_GeometrySrcType == restoredState.fVertexSrc ||
         kArray_GeometrySrcType == restoredState.fVertexSrc) {
         poolState.fUsedPoolVertexBytes =
-            VertexSize(restoredState.fVertexLayout) *
+            GrDrawState::VertexSize(restoredState.fVertexLayout) *
             restoredState.fVertexCount;
     }
     if (kReserved_GeometrySrcType == restoredState.fIndexSrc ||

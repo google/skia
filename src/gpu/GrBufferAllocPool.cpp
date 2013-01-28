@@ -382,7 +382,7 @@ void* GrVertexBufferAllocPool::makeSpace(GrVertexLayout layout,
     GrAssert(NULL != buffer);
     GrAssert(NULL != startVertex);
 
-    size_t vSize = GrDrawTarget::VertexSize(layout);
+    size_t vSize = GrDrawState::VertexSize(layout);
     size_t offset = 0; // assign to suppress warning
     const GrGeometryBuffer* geomBuffer = NULL; // assign to suppress warning
     void* ptr = INHERITED::makeSpace(vSize * vertexCount,
@@ -405,7 +405,7 @@ bool GrVertexBufferAllocPool::appendVertices(GrVertexLayout layout,
     if (NULL != space) {
         memcpy(space,
                vertices,
-               GrDrawTarget::VertexSize(layout) * vertexCount);
+               GrDrawState::VertexSize(layout) * vertexCount);
         return true;
     } else {
         return false;
@@ -414,11 +414,11 @@ bool GrVertexBufferAllocPool::appendVertices(GrVertexLayout layout,
 
 int GrVertexBufferAllocPool::preallocatedBufferVertices(GrVertexLayout layout) const {
     return INHERITED::preallocatedBufferSize() /
-            GrDrawTarget::VertexSize(layout);
+            GrDrawState::VertexSize(layout);
 }
 
 int GrVertexBufferAllocPool::currentBufferVertices(GrVertexLayout layout) const {
-    return currentBufferItems(GrDrawTarget::VertexSize(layout));
+    return currentBufferItems(GrDrawState::VertexSize(layout));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

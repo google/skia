@@ -454,7 +454,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     const SkMatrix* vm = &adcd.getOriginalMatrix();
 
     GrVertexLayout layout = 0;
-    layout |= GrDrawTarget::kEdge_VertexLayoutBit;
+    layout |= GrDrawState::kEdge_VertexLayoutBit;
 
     // We use the fact that SkPath::transform path does subdivision based on
     // perspective. Otherwise, we apply the view matrix when copying to the
