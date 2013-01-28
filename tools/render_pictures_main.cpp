@@ -168,8 +168,6 @@ static bool render_picture(const SkString& inputPath, const SkString* outputDir,
         SkDELETE(outputPath);
     }
 
-    renderer.resetState();
-
     renderer.end();
 
     SkDELETE(picture);

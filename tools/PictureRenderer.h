@@ -110,7 +110,12 @@ public:
      */
     virtual TiledPictureRenderer* getTiledRenderer() { return NULL; }
 
-    void resetState();
+    /**
+     * Resets the GPU's state. Does nothing if the backing is raster. For a GPU renderer, calls
+     * flush, and calls finish if callFinish is true.
+     * @param callFinish Whether to call finish.
+     */
+    void resetState(bool callFinish);
 
     void setDeviceType(SkDeviceTypes deviceType) {
         fDeviceType = deviceType;

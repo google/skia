@@ -131,7 +131,7 @@ void PictureRenderer::scaleToScaleFactor(SkCanvas* canvas) {
 }
 
 void PictureRenderer::end() {
-    this->resetState();
+    this->resetState(true);
     SkSafeUnref(fPicture);
     fPicture = NULL;
     fCanvas.reset(NULL);
@@ -172,7 +172,7 @@ void PictureRenderer::buildBBoxHierarchy() {
     }
 }
 
-void PictureRenderer::resetState() {
+void PictureRenderer::resetState(bool callFinish) {
 #if SK_SUPPORT_GPU
     if (this->isUsingGpuDevice()) {
         SkGLContext* glContext = fGrContextFactory.getGLContext(
@@ -184,7 +184,9 @@ void PictureRenderer::resetState() {
         }
 
         fGrContext->flush();
-        SK_GL(*glContext, Finish());
+        if (callFinish) {
+            SK_GL(*glContext, Finish());
+        }
     }
 #endif
 }
