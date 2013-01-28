@@ -206,7 +206,10 @@ void computeDelta(const Cubic& c1, double t1, double scale1, const Cubic& c2, do
     delta2 = cubicDelta(dxy2, tangent2, scale2 / precisionUnit);
 }
 
+#if SK_DEBUG
 int debugDepth;
+#endif
+
 // this flavor approximates the cubics with quads to find the intersecting ts
 // OPTIMIZE: if this strategy proves successful, the quad approximations, or the ts used
 // to create the approximations, could be stored in the cubic segment
@@ -217,14 +220,14 @@ int debugDepth;
 // t range ala is linear inner. The range can be figured by taking the dx/dy and determining
 // the fraction that matches the precision. That fraction is the change in t for the smaller cubic.
 static bool intersect2(const Cubic& cubic1, double t1s, double t1e, const Cubic& cubic2,
-        double t2s, double t2e, Intersections& i) {
+        double t2s, double t2e, double precisionScale, Intersections& i) {
     Cubic c1, c2;
     sub_divide(cubic1, t1s, t1e, c1);
     sub_divide(cubic2, t2s, t2e, c2);
     SkTDArray<double> ts1;
-    cubic_to_quadratics(c1, calcPrecision(c1), ts1);
+    cubic_to_quadratics(c1, calcPrecision(c1) * precisionScale, ts1);
     SkTDArray<double> ts2;
-    cubic_to_quadratics(c2, calcPrecision(c2), ts2);
+    cubic_to_quadratics(c2, calcPrecision(c2) * precisionScale, ts2);
     double t1Start = t1s;
     int ts1Count = ts1.count();
     for (int i1 = 0; i1 <= ts1Count; ++i1) {
@@ -277,14 +280,22 @@ static bool intersect2(const Cubic& cubic1, double t1s, double t1e, const Cubic&
                 } else {
                     double dt1, dt2;
                     computeDelta(cubic1, to1, (t1e - t1s), cubic2, to2, (t2e - t2s), dt1, dt2);
+                    double scale = precisionScale;
+                    if (dt1 > 0.125 || dt2 > 0.125) {
+                        scale /= 2;
+                        SkDebugf("%s scale=%1.9g\n", __FUNCTION__, scale);
+                    }
+#if SK_DEBUG
                     ++debugDepth;
                     assert(debugDepth < 10);
+#endif
                     i.swap();
                     intersect2(cubic2, SkTMax(to2 - dt2, 0.), SkTMin(to2 + dt2, 1.),
-                            cubic1, SkTMax(to1 - dt1, 0.), SkTMin(to1 + dt1, 1.), i);
+                            cubic1, SkTMax(to1 - dt1, 0.), SkTMin(to1 + dt1, 1.), scale, i);
                     i.swap();
+#if SK_DEBUG
                     --debugDepth;
-
+#endif
                 }
             }
             t2Start = t2;
@@ -336,9 +347,11 @@ static bool intersectEnd(const Cubic& cubic1, bool start, const Cubic& cubic2, c
         tMin = std::min(tMin, local2.fT[0][index]);
         tMax = std::max(tMax, local2.fT[0][index]);
     }
+#if SK_DEBUG
     debugDepth = 0;
+#endif
     return intersect2(cubic1, start ? 0 : 1, start ? 1.0 / precisionUnit : 1 - 1.0 / precisionUnit,
-            cubic2, tMin, tMax, i);
+            cubic2, tMin, tMax, 1, i);
 }
 
 // FIXME: add intersection of convex null on cubics' ends with the opposite cubic. The hull line
@@ -346,16 +359,20 @@ static bool intersectEnd(const Cubic& cubic1, bool start, const Cubic& cubic2, c
 // line segments intersect the cubic, then use the intersections to construct a subdivision for
 // quadratic curve fitting.
 bool intersect2(const Cubic& c1, const Cubic& c2, Intersections& i) {
+#if SK_DEBUG
     debugDepth = 0;
-    bool result = intersect2(c1, 0, 1, c2, 0, 1, i);
+#endif
+    bool result = intersect2(c1, 0, 1, c2, 0, 1, 1, i);
     // FIXME: pass in cached bounds from caller
     _Rect c1Bounds, c2Bounds;
     c1Bounds.setBounds(c1); // OPTIMIZE use setRawBounds ?
     c2Bounds.setBounds(c2);
     result |= intersectEnd(c1, false, c2, c2Bounds, i);
     result |= intersectEnd(c1, true, c2, c2Bounds, i);
+    i.swap();
     result |= intersectEnd(c2, false, c1, c1Bounds, i);
     result |= intersectEnd(c2, true, c1, c1Bounds, i);
+    i.swap();
     return result;
 }
 

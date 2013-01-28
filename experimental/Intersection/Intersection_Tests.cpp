@@ -15,13 +15,13 @@ void cubecode_test(int test);
 void Intersection_Tests() {
     int testsRun = 0;
 
-    QuadraticIntersection_Test();
+    SimplifyNew_Test();
+    CubicToQuadratics_Test();
     CubicIntersection_OneOffTest();
+    QuadraticIntersection_Test();
     QuarticRoot_Test();
     CubicIntersection_RandTest();
-    SimplifyNew_Test();
     CubicsToQuadratics_RandTest();
-    CubicToQuadratics_Test();
     Simplify4x4RectsThreaded_Test(testsRun);
     Simplify4x4QuadraticsThreaded_Test(testsRun);
     QuadLineIntersectThreaded_Test(testsRun);

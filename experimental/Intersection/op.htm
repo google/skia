@@ -3317,11 +3317,23 @@ path.addRect(4, 13, 13, 16, SkPath::kCCW_Direction);
     path.close();
 </div>
 
+<div id="testQuadratic93">
+    path.moveTo(3, 0);
+    path.quadTo(0, 1, 3, 2);
+    path.lineTo(0, 3);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(2, 0);
+    path.quadTo(1, 1, 2, 2);
+    path.close();
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    testQuadratic93,
     testCubic1,
     testQuadralateral1,
     testLine85,

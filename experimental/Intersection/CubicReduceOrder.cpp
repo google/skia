@@ -151,14 +151,11 @@ bool isLinear(const Cubic& cubic, int startIndex, int endIndex) {
     lineParameters.cubicEndPoints(cubic, startIndex, endIndex);
     // FIXME: maybe it's possible to avoid this and compare non-normalized
     lineParameters.normalize();
-    int mask = other_two(startIndex, endIndex);
-    int inner1 = startIndex ^ mask;
-    int inner2 = endIndex ^ mask;
-    double distance = lineParameters.controlPtDistance(cubic, inner1);
+    double distance = lineParameters.controlPtDistance(cubic, 1);
     if (!approximately_zero(distance)) {
         return false;
     }
-    distance = lineParameters.controlPtDistance(cubic, inner2);
+    distance = lineParameters.controlPtDistance(cubic, 2);
     return approximately_zero(distance);
 }
 
