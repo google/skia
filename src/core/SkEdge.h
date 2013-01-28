@@ -14,8 +14,7 @@
 #include "SkFDot6.h"
 #include "SkMath.h"
 
-//#ifdef SK_IGNORE_SETLINE_FIX
-#if 1
+#ifdef SK_IGNORE_SETLINE_FIX
     #define SkEdge_Compute_DY(top, y0)  ((32 - (y0)) & 63)
 #else
     // This is correct, as it favors the lower-pixel when y0 is on a 1/2 pixel
