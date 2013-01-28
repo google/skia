@@ -13,7 +13,9 @@ void GrDrawState::setFromPaint(const GrPaint& paint) {
     for (int i = 0; i < GrPaint::kMaxColorStages; ++i) {
         int s = i + GrPaint::kFirstColorStage;
         if (paint.isColorStageEnabled(i)) {
-            *this->stage(s) = paint.getColorStage(i);
+            fStages[s] = paint.getColorStage(i);
+        } else {
+            fStages[s].setEffect(NULL);
         }
     }
 
@@ -22,7 +24,9 @@ void GrDrawState::setFromPaint(const GrPaint& paint) {
     for (int i = 0; i < GrPaint::kMaxCoverageStages; ++i) {
         int s = i + GrPaint::kFirstCoverageStage;
         if (paint.isCoverageStageEnabled(i)) {
-            *this->stage(s) = paint.getCoverageStage(i);
+            fStages[s] = paint.getCoverageStage(i);
+        } else {
+            fStages[s].setEffect(NULL);
         }
     }
 
@@ -48,7 +52,7 @@ void GrDrawState::AutoViewMatrixRestore::restore() {
         fDrawState->setViewMatrix(fViewMatrix);
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
             if (fRestoreMask & (1 << s)) {
-                fDrawState->stage(s)->restoreCoordChange(fSavedCoordChanges[s]);
+                fDrawState->fStages[s].restoreCoordChange(fSavedCoordChanges[s]);
             }
         }
     }
@@ -71,8 +75,8 @@ void GrDrawState::AutoViewMatrixRestore::set(GrDrawState* drawState,
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (!(explicitCoordStageMask & (1 << s)) && drawState->isStageEnabled(s)) {
             fRestoreMask |= (1 << s);
-            fDrawState->stage(s)->saveCoordChange(&fSavedCoordChanges[s]);
-            drawState->stage(s)->preConcatCoordChange(preconcatMatrix);
+            fDrawState->fStages[s].saveCoordChange(&fSavedCoordChanges[s]);
+            drawState->fStages[s].preConcatCoordChange(preconcatMatrix);
         }
     }
 }
@@ -84,7 +88,7 @@ void GrDrawState::AutoDeviceCoordDraw::restore() {
         fDrawState->setViewMatrix(fViewMatrix);
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
             if (fRestoreMask & (1 << s)) {
-                fDrawState->stage(s)->restoreCoordChange(fSavedCoordChanges[s]);
+                fDrawState->fStages[s].restoreCoordChange(fSavedCoordChanges[s]);
             }
         }
     }
@@ -117,7 +121,7 @@ bool GrDrawState::AutoDeviceCoordDraw::set(GrDrawState* drawState,
                 inverted = true;
             }
             fRestoreMask |= (1 << s);
-            GrEffectStage* stage = drawState->stage(s);
+            GrEffectStage* stage = drawState->fStages + s;
             stage->saveCoordChange(&fSavedCoordChanges[s]);
             stage->preConcatCoordChange(invVM);
         }
