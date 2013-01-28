@@ -120,7 +120,6 @@ private:
                 break;
             case kStroke_Style:
                 paint->setStrokeWidth(SK_Scalar1);
-//                paint->setStrokeWidth(SK_Scalar1 + SK_Scalar1/500);
                 break;
         }
         paint->setAntiAlias(aa);
@@ -421,7 +420,8 @@ protected:
         }
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
+    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y,
+                                              unsigned modi) SK_OVERRIDE {
         SkPoint pt = { x, y };
         int index = -1;
         SkScalar tol = 12;
@@ -433,7 +433,7 @@ protected:
         return new IndexClick(this, index);
     }
 
-    virtual bool onClick(Click* click) {
+    virtual bool onClick(Click* click) SK_OVERRIDE {
         int index = IndexClick::GetIndex(click);
         if (index >= 0 && index <= 1) {
             fPts[index] = click->fCurr;
