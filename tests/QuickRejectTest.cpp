@@ -29,6 +29,12 @@ public:
         return false;
     }
 
+#ifdef SK_DEVELOPER
+    virtual void toString(SkString* str) const SK_OVERRIDE {
+        str->append("TestLooper:");
+    }
+#endif
+
     SK_DECLARE_UNFLATTENABLE_OBJECT()
 };
 

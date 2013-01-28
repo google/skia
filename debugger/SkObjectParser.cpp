@@ -7,12 +7,13 @@
  */
 
 #include "SkObjectParser.h"
-#include "SkRRect.h"
-#include "SkShader.h"
-#include "SkTypeface.h"
-#include "SkStream.h"
 #include "SkData.h"
 #include "SkFontDescriptor.h"
+#include "SkRRect.h"
+#include "SkShader.h"
+#include "SkStream.h"
+#include "SkStringUtils.h"
+#include "SkTypeface.h"
 
 /* TODO(chudy): Replace all std::strings with char */
 
@@ -101,16 +102,6 @@ SkString* SkObjectParser::MatrixToString(const SkMatrix& matrix) {
     return mMatrix;
 }
 
-static void add_flag_to_string(SkString* string, bool flag, const char* flagStr, bool* needSeparator) {
-    if (flag) {
-        if (*needSeparator) {
-            string->append("|");
-        }
-        string->append(flagStr);
-        *needSeparator = true;
-    }
-}
-
 SkString* SkObjectParser::PaintToString(const SkPaint& paint) {
     SkString* mPaint = new SkString("<dl><dt>SkPaint:</dt><dd><dl>");
 
@@ -187,6 +178,7 @@ SkString* SkObjectParser::PaintToString(const SkPaint& paint) {
     SkDrawLooper* looper = paint.getLooper();
     if (NULL != looper) {
         mPaint->append("<dt>DrawLooper:</dt><dd>");
+        SkDEVCODE(looper->toString(mPaint);)
         mPaint->append("</dd>");
     }
 
@@ -218,22 +210,22 @@ SkString* SkObjectParser::PaintToString(const SkPaint& paint) {
     mPaint->append("<dt>Flags:</dt><dd>(");
     if (paint.getFlags()) {
         bool needSeparator = false;
-        add_flag_to_string(mPaint, paint.isAntiAlias(), "AntiAlias", &needSeparator);
-        add_flag_to_string(mPaint, paint.isFilterBitmap(), "FilterBitmap", &needSeparator);
-        add_flag_to_string(mPaint, paint.isDither(), "Dither", &needSeparator);
-        add_flag_to_string(mPaint, paint.isUnderlineText(), "UnderlineText", &needSeparator);
-        add_flag_to_string(mPaint, paint.isStrikeThruText(), "StrikeThruText", &needSeparator);
-        add_flag_to_string(mPaint, paint.isFakeBoldText(), "FakeBoldText", &needSeparator);
-        add_flag_to_string(mPaint, paint.isLinearText(), "LinearText", &needSeparator);
-        add_flag_to_string(mPaint, paint.isSubpixelText(), "SubpixelText", &needSeparator);
-        add_flag_to_string(mPaint, paint.isDevKernText(), "DevKernText", &needSeparator);
-        add_flag_to_string(mPaint, paint.isLCDRenderText(), "LCDRenderText", &needSeparator);
-        add_flag_to_string(mPaint, paint.isEmbeddedBitmapText(),
-                           "EmbeddedBitmapText", &needSeparator);
-        add_flag_to_string(mPaint, paint.isAutohinted(), "Autohinted", &needSeparator);
-        add_flag_to_string(mPaint, paint.isVerticalText(), "VerticalText", &needSeparator);
-        add_flag_to_string(mPaint, SkToBool(paint.getFlags() & SkPaint::kGenA8FromLCD_Flag),
-                           "GenA8FromLCD", &needSeparator);
+        SkAddFlagToString(mPaint, paint.isAntiAlias(), "AntiAlias", &needSeparator);
+        SkAddFlagToString(mPaint, paint.isFilterBitmap(), "FilterBitmap", &needSeparator);
+        SkAddFlagToString(mPaint, paint.isDither(), "Dither", &needSeparator);
+        SkAddFlagToString(mPaint, paint.isUnderlineText(), "UnderlineText", &needSeparator);
+        SkAddFlagToString(mPaint, paint.isStrikeThruText(), "StrikeThruText", &needSeparator);
+        SkAddFlagToString(mPaint, paint.isFakeBoldText(), "FakeBoldText", &needSeparator);
+        SkAddFlagToString(mPaint, paint.isLinearText(), "LinearText", &needSeparator);
+        SkAddFlagToString(mPaint, paint.isSubpixelText(), "SubpixelText", &needSeparator);
+        SkAddFlagToString(mPaint, paint.isDevKernText(), "DevKernText", &needSeparator);
+        SkAddFlagToString(mPaint, paint.isLCDRenderText(), "LCDRenderText", &needSeparator);
+        SkAddFlagToString(mPaint, paint.isEmbeddedBitmapText(),
+                          "EmbeddedBitmapText", &needSeparator);
+        SkAddFlagToString(mPaint, paint.isAutohinted(), "Autohinted", &needSeparator);
+        SkAddFlagToString(mPaint, paint.isVerticalText(), "VerticalText", &needSeparator);
+        SkAddFlagToString(mPaint, SkToBool(paint.getFlags() & SkPaint::kGenA8FromLCD_Flag),
+                          "GenA8FromLCD", &needSeparator);
     } else {
         mPaint->append("None");
     }
