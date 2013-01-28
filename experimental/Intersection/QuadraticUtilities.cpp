@@ -97,7 +97,9 @@ int quadraticRootsValidT(double A, double B, double C, double t[2]) {
 
 // unlike quadratic roots, this does not discard real roots <= 0 or >= 1
 int quadraticRootsReal(const double A, const double B, const double C, double s[2]) {
-    if (approximately_zero(A)) {
+    const double p = B / (2 * A);
+    const double q = C / A;
+    if (approximately_zero(A) && (approximately_zero_inverse(p) || approximately_zero_inverse(q))) {
         if (approximately_zero(B)) {
             s[0] = 0;
             return C == 0;
@@ -106,8 +108,6 @@ int quadraticRootsReal(const double A, const double B, const double C, double s[
         return 1;
     }
     /* normal form: x^2 + px + q = 0 */
-    const double p = B / (2 * A);
-    const double q = C / A;
     const double p2 = p * p;
 #if 0
     double D = AlmostEqualUlps(p2, q) ? 0 : p2 - q;

@@ -3536,12 +3536,26 @@ static void testCubic1() {
     testSimplifyx(path);
 }
 
+static void testQuadratic93() {
+    SkPath path;
+    path.moveTo(3, 0);
+    path.quadTo(0, 1, 3, 2);
+    path.lineTo(0, 3);
+    path.close();
+    path.moveTo(1, 0);
+    path.lineTo(2, 0);
+    path.quadTo(1, 1, 2, 2);
+    path.close();
+    testSimplifyx(path);
+}
+
 static void (*firstTest)() = 0;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(testQuadratic93),
     TEST(testCubic1),
     TEST(testQuadralateral1),
     TEST(testLine85),
@@ -3870,6 +3884,8 @@ static struct {
     TEST(testLine1),
 };
 
+static const size_t testCount = sizeof(tests) / sizeof(tests[0]);
+
 static void testIntersect1() {
     SkPath one, two;
     one.addRect(0, 0, 6, 6, SkPath::kCW_Direction);
@@ -4034,8 +4050,6 @@ static void testOp8d() {
     testShapeOp(path, pathB, kDifference_Op);
 }
 
-static const size_t testCount = sizeof(tests) / sizeof(tests[0]);
-
 static struct {
     void (*fun)();
     const char* str;
@@ -4065,7 +4079,7 @@ static const size_t subTestCount = sizeof(subTests) / sizeof(subTests[0]);
 static void (*firstBinaryTest)() = testOp8d;
 
 static bool skipAll = false;
-static bool runBinaryTestsFirst = true;
+static bool runBinaryTestsFirst = false;
 static bool runReverse = false;
 static void (*stopTest)() = 0;
 

@@ -28,6 +28,7 @@ int UlpsDiff(float A, float B);
 const double FLT_EPSILON_CUBED = FLT_EPSILON * FLT_EPSILON * FLT_EPSILON;
 const double FLT_EPSILON_SQUARED = FLT_EPSILON * FLT_EPSILON;
 const double FLT_EPSILON_SQRT = sqrt(FLT_EPSILON);
+const double FLT_EPSILON_INVERSE = 1 / FLT_EPSILON;
 
 inline bool approximately_zero(double x) {
 
@@ -54,6 +55,10 @@ inline bool approximately_zero_squared(double x) {
 
 inline bool approximately_zero_sqrt(double x) {
     return fabs(x) < FLT_EPSILON_SQRT;
+}
+
+inline bool approximately_zero_inverse(double x) {
+    return fabs(x) > FLT_EPSILON_INVERSE;
 }
 
 // Use this for comparing Ts in the range of 0 to 1. For general numbers (larger and smaller) use
@@ -247,11 +252,11 @@ struct _Rect {
     }
 
     bool intersects(_Rect& r) const {
-        assert(left < right);
-        assert(top < bottom);
-        assert(r.left < r.right);
-        assert(r.top < r.bottom);
-        return r.left < right && left < r.right && r.top < bottom && top < r.bottom;
+        assert(left <= right);
+        assert(top <= bottom);
+        assert(r.left <= r.right);
+        assert(r.top <= r.bottom);
+        return r.left <= right && left <= r.right && r.top <= bottom && top <= r.bottom;
     }
 
     void set(const _Point& pt) {

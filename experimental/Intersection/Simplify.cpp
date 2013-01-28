@@ -1017,12 +1017,14 @@ public:
     void cubicTo(const SkPoint& pt1, const SkPoint& pt2, const SkPoint& pt3) {
         lineTo();
         moveTo();
+        fDefer[1] = pt3;
+        nudge();
+        fDefer[0] = fDefer[1];
 #if DEBUG_PATH_CONSTRUCTION
         SkDebugf("path.cubicTo(%1.9g,%1.9g, %1.9g,%1.9g, %1.9g,%1.9g);\n",
-                pt1.fX, pt1.fY, pt2.fX, pt2.fY, pt3.fX, pt3.fY);
+                pt1.fX, pt1.fY, pt2.fX, pt2.fY, fDefer[1].fX, fDefer[1].fY);
 #endif
-        fPathPtr->cubicTo(pt1.fX, pt1.fY, pt2.fX, pt2.fY, pt3.fX, pt3.fY);
-        fDefer[0] = fDefer[1] = pt3;
+        fPathPtr->cubicTo(pt1.fX, pt1.fY, pt2.fX, pt2.fY, fDefer[1].fX, fDefer[1].fY);
         fEmpty = false;
     }
 
@@ -1070,6 +1072,7 @@ public:
             return;
         }
         moveTo();
+        nudge();
         fEmpty = false;
 #if DEBUG_PATH_CONSTRUCTION
         SkDebugf("path.lineTo(%1.9g,%1.9g);\n", fDefer[1].fX, fDefer[1].fY);
@@ -1081,16 +1084,26 @@ public:
     const SkPath* nativePath() const {
         return fPathPtr;
     }
+    
+    void nudge() {
+        if (fEmpty || !AlmostEqualUlps(fDefer[1].fX, fFirstPt.fX)
+                || !AlmostEqualUlps(fDefer[1].fY, fFirstPt.fY)) {
+            return;
+        }
+        fDefer[1] = fFirstPt;
+    }
 
     void quadTo(const SkPoint& pt1, const SkPoint& pt2) {
         lineTo();
         moveTo();
+        fDefer[1] = pt2;
+        nudge();
+        fDefer[0] = fDefer[1];
 #if DEBUG_PATH_CONSTRUCTION
         SkDebugf("path.quadTo(%1.9g,%1.9g, %1.9g,%1.9g);\n",
-                pt1.fX, pt1.fY, pt2.fX, pt2.fY);
+                pt1.fX, pt1.fY, fDefer[1].fX, fDefer[1].fY);
 #endif
-        fPathPtr->quadTo(pt1.fX, pt1.fY, pt2.fX, pt2.fY);
-        fDefer[0] = fDefer[1] = pt2;
+        fPathPtr->quadTo(pt1.fX, pt1.fY, fDefer[1].fX, fDefer[1].fY);
         fEmpty = false;
     }
 
@@ -5097,7 +5110,6 @@ static void debugShowCubicLineIntersection(int pts, const Work& wt,
     SkDebugf("\n");
 }
 
-#if APPROXIMATE_CUBICS
 // FIXME: show more than two intersection points
 static void debugShowCubicQuadIntersection(int pts, const Work& wt,
         const Work& wn, const double wtTs[2], const double wnTs[2]) {
@@ -5112,7 +5124,7 @@ static void debugShowCubicQuadIntersection(int pts, const Work& wt,
     }
     SkPoint wtOutPt, wnOutPt;
     CubicXYAtT(wt.pts(), wtTs[0], &wtOutPt);
-    CubicXYAtT(wn.pts(), wnTs[0], &wnOutPt);
+    QuadXYAtT(wn.pts(), wnTs[0], &wnOutPt);
     SkDebugf("%s wtTs[0]=%1.9g (%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g) (%1.9g,%1.9g)",
             __FUNCTION__,
             wtTs[0], wt.pts()[0].fX, wt.pts()[0].fY, wt.pts()[1].fX, wt.pts()[1].fY,
@@ -5163,7 +5175,7 @@ static void debugShowCubicIntersection(int pts, const Work& wt,
     }
     SkDebugf("\n");
 }
-#endif
+
 #else
 static void debugShowLineIntersection(int , const Work& ,
         const Work& , const double [2], const double [2]) {
@@ -5181,7 +5193,6 @@ static void debugShowCubicLineIntersection(int , const Work& ,
         const Work& , const double [2], const double [2]) {
 }
 
-#if APPROXIMATE_CUBICS
 static void debugShowCubicQuadIntersection(int , const Work& ,
         const Work& , const double [2], const double [2]) {
 }
@@ -5189,7 +5200,6 @@ static void debugShowCubicQuadIntersection(int , const Work& ,
 static void debugShowCubicIntersection(int , const Work& ,
         const Work& , const double [2], const double [2]) {
 }
-#endif
 #endif
 
 static bool addIntersectTs(Contour* test, Contour* next) {
@@ -5340,6 +5350,7 @@ static bool addIntersectTs(Contour* test, Contour* next) {
                     #else
                             wt.promoteToCubic();
                             pts = CubicIntersect(wt.cubic(), wn.pts(), ts);
+                            debugShowCubicIntersection(pts, wt, wn, ts.fT[0], ts.fT[1]);
                     #endif
                             break;
                         }
@@ -5370,16 +5381,13 @@ static bool addIntersectTs(Contour* test, Contour* next) {
                     #else
                             wn.promoteToCubic();
                             pts = CubicIntersect(wt.pts(), wn.cubic(), ts);
+                            debugShowCubicIntersection(pts, wt, wn, ts.fT[0], ts.fT[1]);
                     #endif
                             break;
                         }
                         case Work::kCubic_Segment: {
-                    #if APPROXIMATE_CUBICS
                             pts = CubicIntersect(wt.pts(), wn.pts(), ts);
                             debugShowCubicIntersection(pts, wt, wn, ts.fT[0], ts.fT[1]);
-                    #else
-                            pts = CubicIntersect(wt.pts(), wn.pts(), ts);
-                    #endif
                             break;
                         }
                         default:

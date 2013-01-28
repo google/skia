@@ -13,6 +13,10 @@
 #include "QuadraticUtilities.h"
 #include "TSearch.h"
 
+#if SK_DEBUG
+#include "LineUtilities.h"
+#endif
+
 /* given the implicit form 0 = Ax^2 + Bxy + Cy^2 + Dx + Ey + F
  * and given x = at^2 + bt + c  (the parameterized form)
  *           y = dt^2 + et + f
@@ -141,8 +145,11 @@ static bool pointInTriangle(const _Point& pt, const _Line* testLines[]) {
     return (u >= 0) && (v >= 0) && (u + v < 1);
 }
 
+// returns false if there's more than one intercept or the intercept doesn't match the point
+// returns true if the intercept was successfully added or if the 
+// original quads need to be subdivided
 static bool addIntercept(const Quadratic& q1, const Quadratic& q2, double tMin, double tMax,
-        Intersections& i) {
+        Intersections& i, bool* subDivide) {
     double tMid = (tMin + tMax) / 2;
     _Point mid;
     xy_at_t(q2, tMid, mid.x, mid.y);
@@ -156,10 +163,15 @@ static bool addIntercept(const Quadratic& q1, const Quadratic& q2, double tMin, 
     line[1].y += dxdy.y;
     Intersections rootTs;
     int roots = intersect(q1, line, rootTs);
+    if (roots == 0) {
+        if (subDivide) {
+            *subDivide = true;
+        }
+        return true;
+    }
     if (roots == 2) {
         return false;
     }
-    SkASSERT(roots == 1);
     _Point pt2;
     xy_at_t(q1, rootTs.fT[0][0], pt2.x, pt2.y);
     if (!pt2.approximatelyEqual(mid)) {
@@ -170,7 +182,7 @@ static bool addIntercept(const Quadratic& q1, const Quadratic& q2, double tMin, 
 }
 
 static bool isLinearInner(const Quadratic& q1, double t1s, double t1e, const Quadratic& q2,
-        double t2s, double t2e, Intersections& i) {
+        double t2s, double t2e, Intersections& i, bool* subDivide) {
     Quadratic hull;
     sub_divide(q1, t1s, t1e, hull);
     _Line line = {hull[2], hull[0]};
@@ -182,6 +194,12 @@ static bool isLinearInner(const Quadratic& q1, double t1s, double t1e, const Qua
         int roots = intersect(q2, *testLines[index], rootTs);
         for (int idx2 = 0; idx2 < roots; ++idx2) {
             double t = rootTs.fT[0][idx2];
+#if SK_DEBUG
+        _Point qPt, lPt;
+        xy_at_t(q2, t, qPt.x, qPt.y);
+        xy_at_t(*testLines[index], rootTs.fT[1][idx2], lPt.x, lPt.y);
+        SkASSERT(qPt.approximatelyEqual(lPt));
+#endif
             if (approximately_negative(t - t2s) || approximately_positive(t - t2e)) {
                 continue;
             }
@@ -227,25 +245,25 @@ static bool isLinearInner(const Quadratic& q1, double t1s, double t1e, const Qua
 
     }
     if (split == 0) { // there's one point
-        if (addIntercept(q1, q2, tMin, tMax, i)) {
+        if (addIntercept(q1, q2, tMin, tMax, i, subDivide)) {
             return true;
         }
         i.swap();
-        return isLinearInner(q2, tMin, tMax, q1, t1s, t1e, i);
+        return isLinearInner(q2, tMin, tMax, q1, t1s, t1e, i, subDivide);
     }
     // At this point, we have two ranges of t values -- treat each separately at the split
     bool result;
-    if (addIntercept(q1, q2, tMin, tsFound[split - 1], i)) {
+    if (addIntercept(q1, q2, tMin, tsFound[split - 1], i, subDivide)) {
         result = true;
     } else {
         i.swap();
-        result = isLinearInner(q2, tMin, tsFound[split - 1], q1, t1s, t1e, i);
+        result = isLinearInner(q2, tMin, tsFound[split - 1], q1, t1s, t1e, i, subDivide);
     }
-    if (addIntercept(q1, q2, tsFound[split], tMax, i)) {
+    if (addIntercept(q1, q2, tsFound[split], tMax, i, subDivide)) {
         result = true;
     } else {
         i.swap();
-        result |= isLinearInner(q2, tsFound[split], tMax, q1, t1s, t1e, i);
+        result |= isLinearInner(q2, tsFound[split], tMax, q1, t1s, t1e, i, subDivide);
     }
     return result;
 }
@@ -266,11 +284,11 @@ static bool isLinear(const Quadratic& q1, const Quadratic& q2, Intersections& i)
     if (!approximately_zero_sqrt(measure)) {
         return false;
     }
-    return isLinearInner(q1, 0, 1, q2, 0, 1, i);
+    return isLinearInner(q1, 0, 1, q2, 0, 1, i, NULL);
 }
 
 // FIXME: if flat measure is sufficiently large, then probably the quartic solution failed
-static bool relaxedIsLinear(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
+static void relaxedIsLinear(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
     double m1 = flatMeasure(q1);
     double m2 = flatMeasure(q2);
 #if SK_DEBUG
@@ -280,12 +298,25 @@ static bool relaxedIsLinear(const Quadratic& q1, const Quadratic& q2, Intersecti
     }
 #endif
     i.reset();
-    if (m1 < m2) {
-        isLinearInner(q1, 0, 1, q2, 0, 1, i);
-        return false;
-    } else {
-        isLinearInner(q2, 0, 1, q1, 0, 1, i);
-        return true;
+    const Quadratic& rounder = m2 < m1 ? q1 : q2;
+    const Quadratic& flatter = m2 < m1 ? q2 : q1;
+    bool subDivide = false;
+    isLinearInner(flatter, 0, 1, rounder, 0, 1, i, &subDivide);
+    if (subDivide) {
+        QuadraticPair pair;
+        chop_at(flatter, pair, 0.5);
+        Intersections firstI, secondI;
+        relaxedIsLinear(pair.first(), rounder, firstI);
+        for (int index = 0; index < firstI.used(); ++index) {
+            i.insert(firstI.fT[0][index] * 0.5, firstI.fT[1][index]);
+        }
+        relaxedIsLinear(pair.second(), rounder, secondI);
+        for (int index = 0; index < secondI.used(); ++index) {
+            i.insert(0.5 + secondI.fT[0][index] * 0.5, secondI.fT[1][index]);
+        }
+    }
+    if (m2 < m1) {
+        i.swapPts();
     }
 }
 
@@ -428,9 +459,7 @@ bool intersect2(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
         }
     }
     if (i.fUsed && i.fUsed2 && !foundSomething) {
-        if (relaxedIsLinear(q1, q2, i)) {
-            i.swapPts();
-        }
+        relaxedIsLinear(q1, q2, i);
         return i.intersected();
     }
     double roots1Copy[4], roots2Copy[4];
