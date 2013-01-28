@@ -16,9 +16,9 @@ namespace {
 static GrVertexLayout aa_rect_layout(bool useCoverage) {
     GrVertexLayout layout = 0;
     if (useCoverage) {
-        layout |= GrDrawTarget::kCoverage_VertexLayoutBit;
+        layout |= GrDrawState::kCoverage_VertexLayoutBit;
     } else {
-        layout |= GrDrawTarget::kColor_VertexLayoutBit;
+        layout |= GrDrawState::kColor_VertexLayoutBit;
     }
     return layout;
 }
@@ -127,7 +127,7 @@ void GrAARectRenderer::fillAARect(GrGpu* gpu,
                                   bool useVertexCoverage) {
     GrVertexLayout layout = aa_rect_layout(useVertexCoverage);
 
-    size_t vsize = GrDrawTarget::VertexSize(layout);
+    size_t vsize = GrDrawState::VertexSize(layout);
 
     GrDrawTarget::AutoReleaseGeometry geo(target, layout, 8, 0);
     if (!geo.succeeded()) {
@@ -196,7 +196,7 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
         return;
     }
     GrVertexLayout layout = aa_rect_layout(useVertexCoverage);
-    size_t vsize = GrDrawTarget::VertexSize(layout);
+    size_t vsize = GrDrawState::VertexSize(layout);
 
     GrDrawTarget::AutoReleaseGeometry geo(target, layout, 16, 0);
     if (!geo.succeeded()) {

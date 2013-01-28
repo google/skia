@@ -502,7 +502,7 @@ bool GrAAHairLinePathRenderer::createGeom(
     target->getClip()->getConservativeBounds(drawState.getRenderTarget(),
                                              &devClipBounds);
 
-    GrVertexLayout layout = GrDrawTarget::kEdge_VertexLayoutBit;
+    GrVertexLayout layout = GrDrawState::kEdge_VertexLayoutBit;
     SkMatrix viewM = drawState.getViewMatrix();
 
     PREALLOC_PTARRAY(128) lines;
@@ -514,7 +514,7 @@ bool GrAAHairLinePathRenderer::createGeom(
     *lineCnt = lines.count() / 2;
     int vertCnt = kVertsPerLineSeg * *lineCnt + kVertsPerQuad * *quadCnt;
 
-    GrAssert(sizeof(Vertex) == GrDrawTarget::VertexSize(layout));
+    GrAssert(sizeof(Vertex) == GrDrawState::VertexSize(layout));
 
     if (!arg->set(target, layout, vertCnt, 0)) {
         return false;

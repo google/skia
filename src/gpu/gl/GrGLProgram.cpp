@@ -225,7 +225,7 @@ void add_color_filter(SkString* fsCode, const char * outputVar,
 
 bool GrGLProgram::genEdgeCoverage(SkString* coverageVar,
                                   GrGLShaderBuilder* builder) const {
-    if (fDesc.fVertexLayout & GrDrawTarget::kEdge_VertexLayoutBit) {
+    if (fDesc.fVertexLayout & GrDrawState::kEdge_VertexLayoutBit) {
         const char *vsName, *fsName;
         builder->addVarying(kVec4f_GrSLType, "Edge", &vsName, &fsName);
         builder->fVSAttrs.push_back().set(kVec4f_GrSLType,
@@ -587,7 +587,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
     // add texture coordinates that are used to the list of vertex attr decls
     SkString texCoordAttrs[GrDrawState::kMaxTexCoords];
     for (int t = 0; t < GrDrawState::kMaxTexCoords; ++t) {
-        if (GrDrawTarget::VertexUsesTexCoordIdx(t, layout)) {
+        if (GrDrawState::VertexUsesTexCoordIdx(t, layout)) {
             tex_attr_name(t, texCoordAttrs + t);
             builder.fVSAttrs.push_back().set(kVec2f_GrSLType,
                 GrGLShaderVar::kAttribute_TypeModifier,
@@ -611,7 +611,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
 
                 const char* inCoords;
                 // figure out what our input coords are
-                int tcIdx = GrDrawTarget::VertexTexCoordsForStage(s, layout);
+                int tcIdx = GrDrawState::VertexTexCoordsForStage(s, layout);
                 if (tcIdx < 0) {
                     inCoords = builder.positionAttribute().c_str();
                 } else {
@@ -708,7 +708,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
                     const char* inCoords;
                     // figure out what our input coords are
                     int tcIdx =
-                        GrDrawTarget::VertexTexCoordsForStage(s, layout);
+                        GrDrawState::VertexTexCoordsForStage(s, layout);
                     if (tcIdx < 0) {
                         inCoords = builder.positionAttribute().c_str();
                     } else {

@@ -79,7 +79,7 @@ bool GrGpuGL::programUnitTest() {
         pdesc.fFirstCoverageStage = random_int(&random, GrDrawState::kNumStages);
 
         pdesc.fVertexLayout |= random_bool(&random) ?
-                                    GrDrawTarget::kCoverage_VertexLayoutBit :
+                                    GrDrawState::kCoverage_VertexLayoutBit :
                                     0;
 
 #if GR_GL_EXPERIMENTAL_GS
@@ -89,7 +89,7 @@ bool GrGpuGL::programUnitTest() {
 
         bool edgeAA = random_bool(&random);
         if (edgeAA) {
-            pdesc.fVertexLayout |= GrDrawTarget::kEdge_VertexLayoutBit;
+            pdesc.fVertexLayout |= GrDrawState::kEdge_VertexLayoutBit;
             if (this->getCaps().shaderDerivativeSupport()) {
                 pdesc.fVertexEdgeType = (GrDrawState::VertexEdgeType) random_int(&random, GrDrawState::kVertexEdgeTypeCnt);
                 pdesc.fDiscardIfOutsideEdge = random.nextBool();
@@ -114,11 +114,11 @@ bool GrGpuGL::programUnitTest() {
                 // use separate tex coords?
                 if (random_bool(&random)) {
                     int t = random_int(&random, GrDrawState::kMaxTexCoords);
-                    pdesc.fVertexLayout |= StageTexCoordVertexLayoutBit(s, t);
+                    pdesc.fVertexLayout |= GrDrawState::StageTexCoordVertexLayoutBit(s, t);
                 }
                 // use text-formatted verts?
                 if (random_bool(&random)) {
-                    pdesc.fVertexLayout |= kTextFormat_VertexLayoutBit;
+                    pdesc.fVertexLayout |= GrDrawState::kTextFormat_VertexLayoutBit;
                 }
 
                 GrTexture* dummyTextures[] = {dummyTexture1.get(), dummyTexture2.get()};

@@ -498,7 +498,7 @@ bool GrGpu::onReserveIndexSpace(int indexCount, void** indices) {
 void GrGpu::releaseReservedVertexSpace() {
     const GeometrySrcState& geoSrc = this->getGeomSrc();
     GrAssert(kReserved_GeometrySrcType == geoSrc.fVertexSrc);
-    size_t bytes = geoSrc.fVertexCount * VertexSize(geoSrc.fVertexLayout);
+    size_t bytes = geoSrc.fVertexCount * GrDrawState::VertexSize(geoSrc.fVertexLayout);
     fVertexPool->putBack(bytes);
     --fVertexPoolUseCnt;
 }
@@ -544,7 +544,7 @@ void GrGpu::releaseVertexArray() {
     // if vertex source was array, we stowed data in the pool
     const GeometrySrcState& geoSrc = this->getGeomSrc();
     GrAssert(kArray_GeometrySrcType == geoSrc.fVertexSrc);
-    size_t bytes = geoSrc.fVertexCount * VertexSize(geoSrc.fVertexLayout);
+    size_t bytes = geoSrc.fVertexCount * GrDrawState::VertexSize(geoSrc.fVertexLayout);
     fVertexPool->putBack(bytes);
     --fVertexPoolUseCnt;
 }

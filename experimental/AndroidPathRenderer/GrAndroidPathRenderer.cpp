@@ -37,7 +37,7 @@ bool GrAndroidPathRenderer::onDrawPath(const SkPath& origPath,
                                                           &vertices);
 
     // set vertex layout depending on anti-alias
-    GrVertexLayout layout = antiAlias ? GrDrawTarget::kCoverage_VertexLayoutBit : 0;
+    GrVertexLayout layout = antiAlias ? GrDrawState::kCoverage_VertexLayoutBit : 0;
 
     // allocate our vert buffer
     int vertCount = vertices.getSize();
@@ -63,7 +63,7 @@ bool GrAndroidPathRenderer::onDrawPath(const SkPath& origPath,
             ++inVert;
         }
     } else {
-       size_t vsize = GrDrawTarget::VertexSize(layout);
+       size_t vsize = GrDrawState::VertexSize(layout);
        size_t copySize = vsize*vertCount;
        memcpy(geo.vertices(), vertices.getBuffer(), copySize);
     }
