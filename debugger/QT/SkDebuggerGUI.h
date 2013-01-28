@@ -57,6 +57,17 @@ public:
 
     ~SkDebuggerGUI();
 
+    /**
+        Updates the directory widget with the latest directory path stored in
+        the global class variable fPath.
+     */
+    void setupDirectoryWidget(const QString& path);
+
+    /**
+        Loads the specified file.
+    */
+    void openFile(const QString& filename);
+
 signals:
     void commandChanged(int command);
 
@@ -169,7 +180,7 @@ private slots:
 
     /**
         Toggles a dialog with a file browser for navigating to a skpicture. Loads
-        the seleced file.
+        the selected file.
      */
     void openFile();
 
@@ -306,12 +317,6 @@ private:
         Fills in the overview pane with text
      */
     void setupOverviewText(const SkTDArray<double>* typeTimes, double totTime);
-
-    /**
-        Updates the directory widget with the latest directory path stored in
-        the global class variable fPath.
-     */
-    void setupDirectoryWidget();
 
     /**
         Render the supplied picture several times tracking the time consumed
