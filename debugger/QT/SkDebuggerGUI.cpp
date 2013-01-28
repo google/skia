@@ -581,12 +581,15 @@ void SkDebuggerGUI::loadFile(QListWidgetItem *item) {
 void SkDebuggerGUI::openFile() {
     QString temp = QFileDialog::getOpenFileName(this, tr("Open File"), "",
             tr("Files (*.*)"));
+    openFile(temp);
+}
+
+void SkDebuggerGUI::openFile(const QString &filename) {
     fDirectoryWidgetActive = false;
-    if (!temp.isEmpty()) {
-        QFileInfo pathInfo(temp);
-        fPath = pathInfo.path();
-        loadPicture(SkString(temp.toAscii().data()));
-        setupDirectoryWidget();
+    if (!filename.isEmpty()) {
+        QFileInfo pathInfo(filename);
+        loadPicture(SkString(filename.toAscii().data()));
+        setupDirectoryWidget(pathInfo.path());
     }
     fDirectoryWidgetActive = true;
 }
@@ -838,9 +841,8 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
 
     // TODO(chudy): Remove static call.
     fDirectoryWidgetActive = false;
-    fPath = "";
     fFileName = "";
-    setupDirectoryWidget();
+    setupDirectoryWidget("");
     fDirectoryWidgetActive = true;
 
     // Menu Bar
@@ -889,8 +891,9 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     QMetaObject::connectSlotsByName(SkDebuggerGUI);
 }
 
-void SkDebuggerGUI::setupDirectoryWidget() {
-    QDir dir(fPath);
+void SkDebuggerGUI::setupDirectoryWidget(const QString& path) {
+    fPath = path;
+    QDir dir(path);
     QRegExp r(".skp");
     fDirectoryWidget.clear();
     const QStringList files = dir.entryList();
