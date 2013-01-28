@@ -28,7 +28,7 @@ void GrGLTexture::init(GrGpuGL* gpu,
                                       textureDesc.fIsWrapped));
 
     if (NULL != rtDesc) {
-        GrAssert(kBottomLeft_Origin == textureDesc.fOrigin);
+        GrAssert(kBottomLeft_GrSurfaceOrigin == textureDesc.fSurfaceOrigin);
         GrGLIRect vp;
         vp.fLeft   = 0;
         vp.fWidth  = textureDesc.fWidth;

@@ -142,7 +142,7 @@ protected:
                    bool isWrapped,
                    GrTexture* texture,
                    const GrTextureDesc& desc,
-                   Origin origin)
+                   GrSurfaceOrigin origin)
         : INHERITED(gpu, isWrapped, desc, origin)
         , fStencilBuffer(NULL)
         , fTexture(texture) {

@@ -59,7 +59,7 @@ public:
     struct Desc : public GrTextureDesc {
         GrGLuint        fTextureID;
         bool            fIsWrapped;
-        Origin          fOrigin;
+        GrSurfaceOrigin fOrigin;
     };
 
     // creates a texture that is also an RT
