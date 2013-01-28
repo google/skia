@@ -261,29 +261,26 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     }
 }
 
-bool GrConfigConversionEffect::InstallEffect(GrTexture* texture,
-                                             bool swapRedAndBlue,
-                                             PMConversion pmConversion,
-                                             const SkMatrix& matrix,
-                                             GrEffectStage* stage) {
+const GrEffectRef* GrConfigConversionEffect::Create(GrTexture* texture,
+                                                    bool swapRedAndBlue,
+                                                    PMConversion pmConversion,
+                                                    const SkMatrix& matrix) {
     if (!swapRedAndBlue && kNone_PMConversion == pmConversion) {
-        // If we returned a GrConfigConversionEffect that was equivalent to a GrSingleTextureEffect
+        // If we returned a GrConfigConversionEffect that was equivalent to a GrSimpleTextureEffect
         // then we may pollute our texture cache with redundant shaders. So in the case that no
-        // conversions were requested we instead return a GrSingleTextureEffect.
-        stage->setEffect(GrSimpleTextureEffect::Create(texture, matrix))->unref();
-        return true;
+        // conversions were requested we instead return a GrSimpleTextureEffect.
+        return GrSimpleTextureEffect::Create(texture, matrix);
     } else {
         if (kRGBA_8888_GrPixelConfig != texture->config() &&
             kBGRA_8888_GrPixelConfig != texture->config() &&
             kNone_PMConversion != pmConversion) {
             // The PM conversions assume colors are 0..255
-            return false;
+            return NULL;
         }
         AutoEffectUnref effect(SkNEW_ARGS(GrConfigConversionEffect, (texture,
                                                                      swapRedAndBlue,
                                                                      pmConversion,
                                                                      matrix)));
-        stage->setEffect(CreateEffectRef(effect))->unref();
-        return true;
+        return CreateEffectRef(effect);
     }
 }

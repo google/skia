@@ -185,8 +185,13 @@ public:
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////
-    /// @name Textures
+    /// @name Effect Stages
     ////
+
+    const GrEffectRef* setEffect(int stageIdx, const GrEffectRef* effect) {
+        fStages[stageIdx].setEffect(effect);
+        return effect;
+    }
 
     /**
      * Creates a GrSimpleTextureEffect.
@@ -194,7 +199,7 @@ public:
     void createTextureEffect(int stageIdx, GrTexture* texture, const SkMatrix& matrix) {
         GrAssert(!this->getStage(stageIdx).getEffect());
         GrEffectRef* effect = GrSimpleTextureEffect::Create(texture, matrix);
-        this->stage(stageIdx)->setEffect(effect)->unref();
+        this->setEffect(stageIdx, effect)->unref();
     }
     void createTextureEffect(int stageIdx,
                              GrTexture* texture,
@@ -202,7 +207,7 @@ public:
                              const GrTextureParams& params) {
         GrAssert(!this->getStage(stageIdx).getEffect());
         GrEffectRef* effect = GrSimpleTextureEffect::Create(texture, matrix, params);
-        this->stage(stageIdx)->setEffect(effect)->unref();
+        this->setEffect(stageIdx, effect)->unref();
     }
 
     bool stagesDisabled() {
@@ -214,9 +219,7 @@ public:
         return true;
     }
 
-    void disableStage(int stageIdx) {
-        fStages[stageIdx].setEffect(NULL);
-    }
+    void disableStage(int stageIdx) { this->setEffect(stageIdx, NULL); }
 
     /**
      * Release all the GrEffects referred to by this draw state.
@@ -239,26 +242,12 @@ public:
         GrDrawState* fDrawState;
     };
 
-    /// @}
-
-    ///////////////////////////////////////////////////////////////////////////
-    /// @name Stages
-    ////
-
     /**
      * Returns the current stage by index.
      */
     const GrEffectStage& getStage(int stageIdx) const {
         GrAssert((unsigned)stageIdx < kNumStages);
         return fStages[stageIdx];
-    }
-
-    /**
-     * Writable pointer to a stage.
-     */
-    GrEffectStage* stage(int stageIdx) {
-        GrAssert((unsigned)stageIdx < kNumStages);
-        return fStages + stageIdx;
     }
 
     /**

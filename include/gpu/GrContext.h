@@ -910,14 +910,17 @@ private:
     // for use with textures released from an GrAutoScratchTexture.
     void addExistingTextureToCache(GrTexture* texture);
 
-    bool installPMToUPMEffect(GrTexture* texture,
-                              bool swapRAndB,
-                              const SkMatrix& matrix,
-                              GrEffectStage* stage);
-    bool installUPMToPMEffect(GrTexture* texture,
-                              bool swapRAndB,
-                              const SkMatrix& matrix,
-                              GrEffectStage* stage);
+    /** 
+     * These functions create premul <-> unpremul effects if it is possible to generate a pair
+     * of effects that make a readToUPM->writeToPM->readToUPM cycle invariant. Otherwise, they
+     * return NULL.
+     */
+    const GrEffectRef* createPMToUPMEffect(GrTexture* texture,
+                                           bool swapRAndB,
+                                           const SkMatrix& matrix);
+    const GrEffectRef* createUPMToPMEffect(GrTexture* texture,
+                                           bool swapRAndB,
+                                           const SkMatrix& matrix);
 
     typedef GrRefCnt INHERITED;
 };

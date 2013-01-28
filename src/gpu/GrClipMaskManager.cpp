@@ -45,12 +45,10 @@ void setup_drawstate_aaclip(GrGpu* gpu,
                      SkIntToScalar(-devBound.fTop));
     mat.preConcat(drawState->getViewMatrix());
 
-    drawState->stage(kMaskStage)->reset();
-
     SkIRect domainTexels = SkIRect::MakeWH(devBound.width(), devBound.height());
     // This could be a long-lived effect that is cached with the alpha-mask.
-    drawState->stage(kMaskStage)->setEffect(
-        GrTextureDomainEffect::Create(result,
+    drawState->setEffect(kMaskStage,
+                         GrTextureDomainEffect::Create(result,
                                       mat,
                                       GrTextureDomainEffect::MakeTexelDomain(result, domainTexels),
                                       GrTextureDomainEffect::kDecal_WrapMode))->unref();
@@ -352,7 +350,7 @@ void GrClipMaskManager::mergeMask(GrTexture* dstMask,
 
     SkMatrix sampleM;
     sampleM.setIDiv(srcMask->width(), srcMask->height());
-    drawState->stage(0)->setEffect(
+    drawState->setEffect(0,
         GrTextureDomainEffect::Create(srcMask,
                                       sampleM,
                                       GrTextureDomainEffect::MakeTexelDomain(srcMask, srcBound),
