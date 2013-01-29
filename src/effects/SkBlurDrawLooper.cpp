@@ -136,11 +136,11 @@ void SkBlurDrawLooper::toString(SkString* str) const {
         str->append("None");
     } else {
         bool needsSeparator = false;
-        SkAddFlagToString(str, SkToBool(kIgnoreTransform_BlurFlag & fBlurFlags), "IgnoreTransform", 
+        SkAddFlagToString(str, SkToBool(kIgnoreTransform_BlurFlag & fBlurFlags), "IgnoreTransform",
                           &needsSeparator);
         SkAddFlagToString(str, SkToBool(kOverrideColor_BlurFlag & fBlurFlags), "OverrideColor",
                           &needsSeparator);
-        SkAddFlagToString(str, SkToBool(kHighQuality_BlurFlag & fBlurFlags), "HighQuality", 
+        SkAddFlagToString(str, SkToBool(kHighQuality_BlurFlag & fBlurFlags), "HighQuality",
                           &needsSeparator);
     }
     str->append(")");

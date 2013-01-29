@@ -568,8 +568,8 @@ private:
     // counts number of uses of vertex/index pool in the geometry stack
     int                                                                 fVertexPoolUseCnt;
     int                                                                 fIndexPoolUseCnt;
-    // these are mutable so they can be created on-demand   
-    mutable GrVertexBuffer*                                             fUnitSquareVertexBuffer; 
+    // these are mutable so they can be created on-demand
+    mutable GrVertexBuffer*                                             fUnitSquareVertexBuffer;
     mutable GrIndexBuffer*                                              fQuadIndexBuffer;
     bool                                                                fContextIsDirty;
     ResourceList                                                        fResourceList;
