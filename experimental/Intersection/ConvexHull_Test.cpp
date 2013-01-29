@@ -146,17 +146,17 @@ static int rotate_to_hull(const Cubic& cubic, char order[4], size_t idx, size_t 
             int zeroes;
             zeroes = -1;
             bzero(sides, sizeof(sides));
-            if (debug_rotate_to_hull) printf("%s [%d,%d] [o=%d,i=%d] src=(%g,%g) rot=", __FUNCTION__,
+            if (debug_rotate_to_hull) SkDebugf("%s [%d,%d] [o=%d,i=%d] src=(%g,%g) rot=", __FUNCTION__,
                     (int)idx, (int)inr, (int)outer, (int)inner,
                     cubic[inner].x, cubic[inner].y);
             for (int index = 0; index < 4; ++index) {
-                if (debug_rotate_to_hull) printf("(%g,%g) ", rotPath[index].x, rotPath[index].y);
+                if (debug_rotate_to_hull) SkDebugf("(%g,%g) ", rotPath[index].x, rotPath[index].y);
                 sides[side(rotPath[index].y - rotPath[inner].y)]++;
                 if (index != outer && index != inner
                         && side(rotPath[index].y - rotPath[inner].y) == 1)
                     zeroes = index;
             }
-            if (debug_rotate_to_hull) printf("sides=(%d,%d,%d)\n", sides[0], sides[1], sides[2]);
+            if (debug_rotate_to_hull) SkDebugf("sides=(%d,%d,%d)\n", sides[0], sides[1], sides[2]);
             if (sides[0] && sides[2]) {
                 continue;
             }
@@ -165,25 +165,25 @@ static int rotate_to_hull(const Cubic& cubic, char order[4], size_t idx, size_t 
                 // if either of remaining two equals outer or equal, pick lower
                 if (rotPath[zeroes].approximatelyEqual(rotPath[inner])
                         && zeroes < inner) {
-                    if (debug_rotate_to_hull) printf("%s [%d,%d] [o=%d,i=%d] zeroes < inner\n",
+                    if (debug_rotate_to_hull) SkDebugf("%s [%d,%d] [o=%d,i=%d] zeroes < inner\n",
                         __FUNCTION__, (int)idx, (int)inr, (int)outer, (int)inner);
                     continue;
                 }
                  if (rotPath[zeroes].approximatelyEqual(rotPath[outer])
                         && zeroes < outer) {
-                    if (debug_rotate_to_hull) printf("%s [%d,%d] [o=%d,i=%d] zeroes < outer\n",
+                    if (debug_rotate_to_hull) SkDebugf("%s [%d,%d] [o=%d,i=%d] zeroes < outer\n",
                         __FUNCTION__, (int)idx, (int)inr, (int)outer, (int)inner);
                     continue;
                 }
                 if (rotPath[zeroes].x < rotPath[inner].x
                         && rotPath[zeroes].x < rotPath[outer].x) {
-                    if (debug_rotate_to_hull) printf("%s [%d,%d] [o=%d,i=%d] zeroes < inner && outer\n",
+                    if (debug_rotate_to_hull) SkDebugf("%s [%d,%d] [o=%d,i=%d] zeroes < inner && outer\n",
                         __FUNCTION__, (int)idx, (int)inr, (int)outer, (int)inner);
                     continue;
                 }
                 if (rotPath[zeroes].x > rotPath[inner].x
                         && rotPath[zeroes].x > rotPath[outer].x) {
-                    if (debug_rotate_to_hull) printf("%s [%d,%d] [o=%d,i=%d] zeroes > inner && outer\n",
+                    if (debug_rotate_to_hull) SkDebugf("%s [%d,%d] [o=%d,i=%d] zeroes > inner && outer\n",
                         __FUNCTION__, (int)idx, (int)inr, (int)outer, (int)inner);
                     continue;
                 }
@@ -192,7 +192,7 @@ static int rotate_to_hull(const Cubic& cubic, char order[4], size_t idx, size_t 
                 outsidePtSet[outer] = inner;
             } else {
                 if (outsidePtSet[inner] > 0) {
-                    if (debug_rotate_to_hull) printf("%s [%d,%d] [o=%d,i=%d] too many rays from one point\n",
+                    if (debug_rotate_to_hull) SkDebugf("%s [%d,%d] [o=%d,i=%d] too many rays from one point\n",
                         __FUNCTION__, (int)idx, (int)inr, (int)outer, (int)inner);
                 }
                 outsidePtSet[inner] = outer;
@@ -237,7 +237,7 @@ void ConvexHull_Test() {
             }
             int result = convex_hull(cubic, order);
             if (cmp != result) {
-                printf("%s [%d,%d] result=%d cmp=%d\n", __FUNCTION__,
+                SkDebugf("%s [%d,%d] result=%d cmp=%d\n", __FUNCTION__,
                     (int)index, (int)inner, result, cmp);
                 continue;
             }
@@ -247,23 +247,23 @@ void ConvexHull_Test() {
             int pt, bit;
             for (pt = 0; pt < cmp; ++pt) {
                 if (pts & 1 << order[pt]) {
-                    printf("%s [%d,%d] duplicate index in order: %d,%d,%d",
+                    SkDebugf("%s [%d,%d] duplicate index in order: %d,%d,%d",
                             __FUNCTION__, (int)index, (int)inner,
                             order[0], order[1], order[2]);
                     if (cmp == 4) {
-                        printf(",%d", order[3]);
+                        SkDebugf(",%d", order[3]);
                     }
-                    printf("\n");
+                    SkDebugf("\n");
                     goto next;
                 }
                 if (cmpPts & 1 << cmpOrder[pt]) {
-                    printf("%s [%d,%d] duplicate index in order: %d,%d,%d",
+                    SkDebugf("%s [%d,%d] duplicate index in order: %d,%d,%d",
                             __FUNCTION__, (int)index, (int)inner,
                             cmpOrder[0], cmpOrder[1], cmpOrder[2]);
                     if (cmp == 4) {
-                        printf(",%d", cmpOrder[3]);
+                        SkDebugf(",%d", cmpOrder[3]);
                     }
-                    printf("\n");
+                    SkDebugf("\n");
                     goto next;
                 }
                 pts |= 1 << order[pt];
@@ -296,17 +296,17 @@ void ConvexHull_Test() {
                 }
             }
             if (pts != cmpPts) {
-                printf("%s [%d,%d] mismatch indices: order=%d,%d,%d",
+                SkDebugf("%s [%d,%d] mismatch indices: order=%d,%d,%d",
                         __FUNCTION__, (int)index, (int)inner,
                         order[0], order[1], order[2]);
                 if (cmp == 4) {
-                    printf(",%d", order[3]);
+                    SkDebugf(",%d", order[3]);
                 }
-                printf(" cmpOrder=%d,%d,%d", cmpOrder[0], cmpOrder[1], cmpOrder[2]);
+                SkDebugf(" cmpOrder=%d,%d,%d", cmpOrder[0], cmpOrder[1], cmpOrder[2]);
                 if (cmp == 4) {
-                    printf(",%d", cmpOrder[3]);
+                    SkDebugf(",%d", cmpOrder[3]);
                 }
-                printf("\n");
+                SkDebugf("\n");
                 continue;
             }
             if (cmp == 4) { // check for bow ties
@@ -315,7 +315,7 @@ void ConvexHull_Test() {
                     ++match;
                 }
                 if (cmpOrder[match ^ 2] != order[2]) {
-                    printf("%s [%d,%d] bowtie mismatch: order=%d,%d,%d,%d"
+                    SkDebugf("%s [%d,%d] bowtie mismatch: order=%d,%d,%d,%d"
                             " cmpOrder=%d,%d,%d,%d\n",
                             __FUNCTION__, (int)index, (int)inner,
                             order[0], order[1], order[2], order[3],
@@ -365,12 +365,12 @@ void ConvexHull_X_Test() {
             if (connectTo0[idx] >= 1 && connectTo0[idx] < 4) {
                 continue;
             } else {
-                printf("%s connectTo0[idx]=%d", __FUNCTION__, connectTo0[idx]);
+                SkDebugf("%s connectTo0[idx]=%d", __FUNCTION__, connectTo0[idx]);
             }
             if (connectTo3[idx] >= 0 && connectTo3[idx] < 3) {
                 continue;
             } else {
-                printf("%s connectTo3[idx]=%d", __FUNCTION__, connectTo3[idx]);
+                SkDebugf("%s connectTo3[idx]=%d", __FUNCTION__, connectTo3[idx]);
             }
             goto nextTest;
         }
@@ -398,7 +398,7 @@ void ConvexHull_X_Test() {
         }
         if (connectTo0[0] != connectTo0[1]) {
             if (rOrder[0] == rOrder[1]) {
-                printf("%s [%d] (1) order=(%d,%d,%d,%d) r_order=(%d,%d,%d,%d)\n",
+                SkDebugf("%s [%d] (1) order=(%d,%d,%d,%d) r_order=(%d,%d,%d,%d)\n",
                     __FUNCTION__, (int)index, connectTo0[0], connectTo0[1],
                     connectTo3[0], connectTo3[1],
                     rOrder[0], rOrder[1], rOrder[2], rOrder[3]);
@@ -407,7 +407,7 @@ void ConvexHull_X_Test() {
             int unused = 6 - connectTo0[0] - connectTo0[1];
             int rUnused = 6 - rOrder[0] - rOrder[1];
             if (unused != rUnused) {
-                printf("%s [%d] (2) order=(%d,%d,%d,%d) r_order=(%d,%d,%d,%d)\n",
+                SkDebugf("%s [%d] (2) order=(%d,%d,%d,%d) r_order=(%d,%d,%d,%d)\n",
                     __FUNCTION__, (int)index, connectTo0[0], connectTo0[1],
                     connectTo3[0], connectTo3[1],
                     rOrder[0], rOrder[1], rOrder[2], rOrder[3]);
@@ -415,14 +415,14 @@ void ConvexHull_X_Test() {
             }
         } else {
             if (rOrder[0] != rOrder[1]) {
-                printf("%s [%d] (3) order=(%d,%d,%d,%d) r_order=(%d,%d,%d,%d)\n",
+                SkDebugf("%s [%d] (3) order=(%d,%d,%d,%d) r_order=(%d,%d,%d,%d)\n",
                     __FUNCTION__, (int)index, connectTo0[0], connectTo0[1],
                     connectTo3[0], connectTo3[1],
                     rOrder[0], rOrder[1], rOrder[2], rOrder[3]);
                 continue;
             }
             if (connectTo0[0] != rOrder[0]) {
-                printf("%s [%d] (4) order=(%d,%d,%d,%d) r_order=(%d,%d,%d,%d)\n",
+                SkDebugf("%s [%d] (4) order=(%d,%d,%d,%d) r_order=(%d,%d,%d,%d)\n",
                     __FUNCTION__, (int)index, connectTo0[0], connectTo0[1],
                     connectTo3[0], connectTo3[1],
                     rOrder[0], rOrder[1], rOrder[2], rOrder[3]);
@@ -431,7 +431,7 @@ void ConvexHull_X_Test() {
         }
         if (connectTo3[0] != connectTo3[1]) {
              if (rOrder[2] == rOrder[3]) {
-                printf("%s [%d] (5) order=(%d,%d,%d,%d) r_order=(%d,%d,%d,%d)\n",
+                SkDebugf("%s [%d] (5) order=(%d,%d,%d,%d) r_order=(%d,%d,%d,%d)\n",
                     __FUNCTION__, (int)index, connectTo0[0], connectTo0[1],
                     connectTo3[0], connectTo3[1],
                     rOrder[0], rOrder[1], rOrder[2], rOrder[3]);
@@ -440,7 +440,7 @@ void ConvexHull_X_Test() {
            int unused = 6 - connectTo3[0] - connectTo3[1];
            int rUnused = 6 - rOrder[2] - rOrder[3];
             if (unused != rUnused) {
-                printf("%s [%d] (6) order=(%d,%d,%d,%d) r_order=(%d,%d,%d,%d)\n",
+                SkDebugf("%s [%d] (6) order=(%d,%d,%d,%d) r_order=(%d,%d,%d,%d)\n",
                     __FUNCTION__, (int)index, connectTo0[0], connectTo0[1],
                     connectTo3[0], connectTo3[1],
                     rOrder[0], rOrder[1], rOrder[2], rOrder[3]);
@@ -448,14 +448,14 @@ void ConvexHull_X_Test() {
             }
         } else {
             if (rOrder[2] != rOrder[3]) {
-                printf("%s [%d] (7) order=(%d,%d,%d,%d) r_order=(%d,%d,%d,%d)\n",
+                SkDebugf("%s [%d] (7) order=(%d,%d,%d,%d) r_order=(%d,%d,%d,%d)\n",
                     __FUNCTION__, (int)index, connectTo0[0], connectTo0[1],
                     connectTo3[0], connectTo3[1],
                     rOrder[0], rOrder[1], rOrder[2], rOrder[3]);
                 continue;
             }
             if (connectTo3[1] != rOrder[3]) {
-                printf("%s [%d] (8) order=(%d,%d,%d,%d) r_order=(%d,%d,%d,%d)\n",
+                SkDebugf("%s [%d] (8) order=(%d,%d,%d,%d) r_order=(%d,%d,%d,%d)\n",
                     __FUNCTION__, (int)index, connectTo0[0], connectTo0[1],
                     connectTo3[0], connectTo3[1],
                     rOrder[0], rOrder[1], rOrder[2], rOrder[3]);

@@ -7,7 +7,6 @@
 #include "CurveIntersection.h"
 #include "CurveUtilities.h"
 #include "LineParameters.h"
-#include <algorithm> // used for std::swap
 
 // return false if unable to clip (e.g., unable to create implicit line)
 // caller should subdivide, or create degenerate if the values are too small
@@ -33,7 +32,7 @@ bool bezier_clip(const Cubic& cubic1, const Cubic& cubic2, double& minT, double&
     double top = distance[0];
     double bottom = distance[1];
     if (top > bottom) {
-        std::swap(top, bottom);
+        SkTSwap(top, bottom);
     }
     if (top * bottom >= 0) {
         const double scale = 3/4.0; // http://cagd.cs.byu.edu/~tom/papers/bezclip.pdf (13)

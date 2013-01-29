@@ -7,8 +7,6 @@
 #ifndef TSearch_DEFINED
 #define TSearch_DEFINED
 
-#include "SkTypes.h"
-
 // FIXME: Move this templated version into SKTSearch.h
 
 template <typename T>

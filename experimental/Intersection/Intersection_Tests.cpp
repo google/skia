@@ -6,7 +6,6 @@
  */
 #include "CubicIntersection_TestData.h"
 #include "Intersection_Tests.h"
-#include "SkTypes.h"
 
 void cubecode_test(int test);
 
@@ -16,8 +15,9 @@ void Intersection_Tests() {
     int testsRun = 0;
 
     SimplifyNew_Test();
-    CubicToQuadratics_Test();
     CubicIntersection_OneOffTest();
+    ShapeOps4x4CubicsThreaded_Test(testsRun);
+    CubicToQuadratics_Test();
     QuadraticIntersection_Test();
     QuarticRoot_Test();
     CubicIntersection_RandTest();

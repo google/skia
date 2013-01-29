@@ -76,7 +76,7 @@ bool intersect(double minT1, double maxT1, double minT2, double maxT2) {
                     smallT = minT1;
                 } else {
                     xy_at_t(quad1, maxT1, q1pt.x, q1pt.y); // FIXME: debug code
-                    assert(AlmostEqualUlps(q2pt.x, q1pt.x) && AlmostEqualUlps(q2pt.y, q1pt.y));
+                    SkASSERT(AlmostEqualUlps(q2pt.x, q1pt.x) && AlmostEqualUlps(q2pt.y, q1pt.y));
                     smallT = maxT1;
                 }
             } else {
@@ -87,7 +87,7 @@ bool intersect(double minT1, double maxT1, double minT2, double maxT2) {
                     largeT = minT2;
                 } else {
                     xy_at_t(quad2, maxT2, q2pt.x, q2pt.y); // FIXME: debug code
-                    assert(AlmostEqualUlps(q2pt.x, q1pt.x) && AlmostEqualUlps(q2pt.y, q1pt.y));
+                    SkASSERT(AlmostEqualUlps(q2pt.x, q1pt.x) && AlmostEqualUlps(q2pt.y, q1pt.y));
                     largeT = maxT2;
                 }
             }
@@ -127,9 +127,9 @@ bool intersectAsLine(double minT1, double maxT1, double minT2, double maxT2,
 {
     _Line line1, line2;
     if (intersections.swapped()) {
-        std::swap(treat1AsLine, treat2AsLine);
-        std::swap(minT1, minT2);
-        std::swap(maxT1, maxT2);
+        SkTSwap(treat1AsLine, treat2AsLine);
+        SkTSwap(minT1, minT2);
+        SkTSwap(maxT1, maxT2);
     }
     if (coinMinT1 >= 0) {
         bool earlyExit;
@@ -388,7 +388,7 @@ bool intersect(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
         if ((t = axialIntersect(q2, q1[2], useVertical)) >= 0) {
             i.addCoincident(1, t);
         }
-        assert(i.fCoincidentUsed <= 2);
+        SkASSERT(i.fCoincidentUsed <= 2);
         return i.fCoincidentUsed > 0;
     }
     QuadraticIntersections q(q1, q2, i);

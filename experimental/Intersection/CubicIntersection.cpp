@@ -287,7 +287,7 @@ static bool intersect2(const Cubic& cubic1, double t1s, double t1e, const Cubic&
                     }
 #if SK_DEBUG
                     ++debugDepth;
-                    assert(debugDepth < 10);
+                    SkASSERT(debugDepth < 10);
 #endif
                     i.swap();
                     intersect2(cubic2, SkTMax(to2 - dt2, 0.), SkTMin(to2 + dt2, 1.),
@@ -340,12 +340,12 @@ static bool intersectEnd(const Cubic& cubic1, bool start, const Cubic& cubic2, c
     double tMin, tMax;
     tMin = tMax = local1.fT[0][0];
     for (int index = 1; index < local1.fUsed; ++index) {
-        tMin = std::min(tMin, local1.fT[0][index]);
-        tMax = std::max(tMax, local1.fT[0][index]);
+        tMin = SkTMin(tMin, local1.fT[0][index]);
+        tMax = SkTMax(tMax, local1.fT[0][index]);
     }
     for (int index = 1; index < local2.fUsed; ++index) {
-        tMin = std::min(tMin, local2.fT[0][index]);
-        tMax = std::max(tMax, local2.fT[0][index]);
+        tMin = SkTMin(tMin, local2.fT[0][index]);
+        tMax = SkTMax(tMax, local2.fT[0][index]);
     }
 #if SK_DEBUG
     debugDepth = 0;

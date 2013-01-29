@@ -40,7 +40,7 @@ static void testC(const Cubic* cubics, const char* name, int firstTest, size_t t
         const Cubic& cubic = cubics[index];
         double precision = calcPrecision(cubic);
         int order = cubic_to_quadratics(cubic, precision, quads);
-        assert(order != 4);
+        SkASSERT(order != 4);
         if (order < 3) {
             continue;
         }
@@ -63,7 +63,7 @@ static void testC(const Cubic(* cubics)[2], const char* name, int firstTest, siz
             const Cubic& cubic = cubics[index][idx2];
             double precision = calcPrecision(cubic);
             int order = cubic_to_quadratics(cubic, precision, quads);
-        assert(order != 4);
+        SkASSERT(order != 4);
         if (order < 3) {
                 continue;
             }
@@ -101,17 +101,17 @@ void CubicToQuadratics_Test() {
     run = RunComputedLines;
     firstTestIndex = 18;
 #endif
-    int firstPointDegeneratesTest = run == RunAll ? 0 : run == RunPointDegenerates ? firstTestIndex : INT_MAX;
-    int firstNotPointDegeneratesTest = run == RunAll ? 0 : run == RunNotPointDegenerates ? firstTestIndex : INT_MAX;
-    int firstLinesTest = run == RunAll ? 0 : run == RunLines ? firstTestIndex : INT_MAX;
-    int firstNotLinesTest = run == RunAll ? 0 : run == RunNotLines ? firstTestIndex : INT_MAX;
-    int firstModEpsilonTest = run == RunAll ? 0 : run == RunModEpsilonLines ? firstTestIndex : INT_MAX;
-    int firstLessEpsilonTest = run == RunAll ? 0 : run == RunLessEpsilonLines ? firstTestIndex : INT_MAX;
-    int firstNegEpsilonTest = run == RunAll ? 0 : run == RunNegEpsilonLines ? firstTestIndex : INT_MAX;
-    int firstQuadraticLineTest = run == RunAll ? 0 : run == RunQuadraticLines ? firstTestIndex : INT_MAX;
-    int firstQuadraticModLineTest = run == RunAll ? 0 : run == RunQuadraticModLines ? firstTestIndex : INT_MAX;
-    int firstComputedLinesTest = run == RunAll ? 0 : run == RunComputedLines ? firstTestIndex : INT_MAX;
-    int firstComputedCubicsTest = run == RunAll ? 0 : run == RunComputedTests ? firstTestIndex : INT_MAX;
+    int firstPointDegeneratesTest = run == RunAll ? 0 : run == RunPointDegenerates ? firstTestIndex : SK_MaxS32;
+    int firstNotPointDegeneratesTest = run == RunAll ? 0 : run == RunNotPointDegenerates ? firstTestIndex : SK_MaxS32;
+    int firstLinesTest = run == RunAll ? 0 : run == RunLines ? firstTestIndex : SK_MaxS32;
+    int firstNotLinesTest = run == RunAll ? 0 : run == RunNotLines ? firstTestIndex : SK_MaxS32;
+    int firstModEpsilonTest = run == RunAll ? 0 : run == RunModEpsilonLines ? firstTestIndex : SK_MaxS32;
+    int firstLessEpsilonTest = run == RunAll ? 0 : run == RunLessEpsilonLines ? firstTestIndex : SK_MaxS32;
+    int firstNegEpsilonTest = run == RunAll ? 0 : run == RunNegEpsilonLines ? firstTestIndex : SK_MaxS32;
+    int firstQuadraticLineTest = run == RunAll ? 0 : run == RunQuadraticLines ? firstTestIndex : SK_MaxS32;
+    int firstQuadraticModLineTest = run == RunAll ? 0 : run == RunQuadraticModLines ? firstTestIndex : SK_MaxS32;
+    int firstComputedLinesTest = run == RunAll ? 0 : run == RunComputedLines ? firstTestIndex : SK_MaxS32;
+    int firstComputedCubicsTest = run == RunAll ? 0 : run == RunComputedTests ? firstTestIndex : SK_MaxS32;
 
     test(pointDegenerates, "pointDegenerates", firstPointDegeneratesTest, pointDegenerates_count);
     test(notPointDegenerates, "notPointDegenerates", firstNotPointDegeneratesTest, notPointDegenerates_count);
@@ -191,8 +191,8 @@ void CubicsToQuadratics_RandTest() {
         double precision = calcPrecision(cubic);
         (void) cubic_to_quadratics(cubic, precision, quads);
         int count = quads.count();
-        assert(count > 0);
-        assert(--count < arrayMax);
+        SkASSERT(count > 0);
+        SkASSERT(--count < arrayMax);
         quadDist[count]++;
         int sCount = sampleCount[count];
         if (sCount < sampleMax) {

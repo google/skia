@@ -63,7 +63,7 @@ static int check_linear(const Quadratic& quad, Quadratic& reduction,
         --endIndex;
         if (endIndex == 0) {
             printf("%s shouldn't get here if all four points are about equal", __FUNCTION__);
-            assert(0);
+            SkASSERT(0);
         }
     }
     if (!isLinear(quad, startIndex, endIndex)) {

@@ -110,7 +110,7 @@ static bool onlyEndPtsInCommon(const Quadratic& q1, const Quadratic& q2, Interse
                 }
             }
         }
-        assert(i.fUsed < 3);
+        SkASSERT(i.fUsed < 3);
         return true;
 tryNextHalfPlane:
         ;
@@ -340,7 +340,7 @@ static void unsortableExpanse(const Quadratic& q1, const Quadratic& q2, Intersec
             perp[1].y += dxdy.x;
             Intersections hitData;
             int hits = intersectRay(*qs[qIdx ^ 1], perp, hitData);
-            assert(hits <= 1);
+            SkASSERT(hits <= 1);
             if (hits) {
                 if (flip < 0) {
                     _Point dxdy2;
@@ -397,7 +397,7 @@ bool intersect2(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
         if ((t = axialIntersect(q2, q1[2], useVertical)) >= 0) {
             i.addCoincident(1, t);
         }
-        assert(i.fCoincidentUsed <= 2);
+        SkASSERT(i.fCoincidentUsed <= 2);
         return i.fCoincidentUsed > 0;
     }
     double roots1[4], roots2[4];

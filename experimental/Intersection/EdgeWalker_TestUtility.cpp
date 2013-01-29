@@ -12,7 +12,6 @@
 #include "SkStream.h"
 
 #include <algorithm>
-#include <assert.h>
 #include <errno.h>
 #include <pthread.h>
 #include <unistd.h>
@@ -581,7 +580,11 @@ void outputToStream(const State4& state, const char* pathStr, const char* pathPr
 
     outFile.writeText("static void ");
     writeTestName(nameSuffix, outFile);
-    outFile.writeText("() {\n    SkPath path;\n");
+    outFile.writeText("() {\n    SkPath path");
+    if (!pathPrefix) {
+        outFile.writeText(", pathB");
+    }
+    outFile.writeText(";\n");
     if (pathPrefix) {
         outFile.writeText(pathPrefix);
     }

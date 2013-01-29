@@ -93,7 +93,7 @@ static int check_linear(const Cubic& cubic, Cubic& reduction,
         --endIndex;
         if (endIndex == 0) {
             printf("%s shouldn't get here if all four points are about equal\n", __FUNCTION__);
-            assert(0);
+            SkASSERT(0);
         }
     }
     if (!isLinear(cubic, startIndex, endIndex)) {

@@ -75,6 +75,7 @@
         '../experimental/Intersection/QuarticRoot.cpp',
         '../experimental/Intersection/QuarticRoot_Test.cpp',
         '../experimental/Intersection/ShapeOps.cpp',
+        '../experimental/Intersection/ShapeOpCubic4x4_Test.cpp',
         '../experimental/Intersection/ShapeOpRect4x4_Test.cpp',
         '../experimental/Intersection/Simplify.cpp',
         '../experimental/Intersection/SimplifyAddIntersectingTs_Test.cpp',

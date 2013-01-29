@@ -8,7 +8,6 @@
 #include "Intersection_Tests.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include <assert.h>
 
 
 static void* testSimplify4x4QuadraticsMain(void* data)

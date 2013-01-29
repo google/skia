@@ -392,34 +392,19 @@ static void (* const SegmentSubDivide[])(const SkPoint [], double , double ,
     CubicSubDivide
 };
 
-static void LineSubDivideHD(const SkPoint a[2], double startT, double endT,
-        _Line sub) {
+static void LineSubDivideHD(const SkPoint a[2], double startT, double endT, _Line& dst) {
     MAKE_CONST_LINE(aLine, a);
-    _Line dst;
     sub_divide(aLine, startT, endT, dst);
-    sub[0] = dst[0];
-    sub[1] = dst[1];
 }
 
-static void QuadSubDivideHD(const SkPoint a[3], double startT, double endT,
-        Quadratic sub) {
+static void QuadSubDivideHD(const SkPoint a[3], double startT, double endT, Quadratic& dst) {
     MAKE_CONST_QUAD(aQuad, a);
-    Quadratic dst;
     sub_divide(aQuad, startT, endT, dst);
-    sub[0] = dst[0];
-    sub[1] = dst[1];
-    sub[2] = dst[2];
 }
 
-static void CubicSubDivideHD(const SkPoint a[4], double startT, double endT,
-        Cubic sub) {
+static void CubicSubDivideHD(const SkPoint a[4], double startT, double endT, Cubic& dst) {
     MAKE_CONST_CUBIC(aCubic, a);
-    Cubic dst;
     sub_divide(aCubic, startT, endT, dst);
-    sub[0] = dst[0];
-    sub[1] = dst[1];
-    sub[2] = dst[2];
-    sub[3] = dst[3];
 }
 
 #if DEBUG_UNUSED
@@ -780,12 +765,27 @@ public:
         case SkPath::kQuad_Verb:
             QuadSubDivideHD(fPts, startT, endT, fQ);
             fTangent1.quadEndPoints(fQ, 0, 1);
+        #if 1 // FIXME: try enabling this and see if a) it's called and b) does it break anything
+            if (dx() == 0 && dy() == 0) {
+                SkDebugf("*** %s quad is line\n");
+                fTangent1.quadEndPoints(fQ);
+            }
+        #endif
             fSide = -fTangent1.pointDistance(fQ[2]); // not normalized -- compare sign only
             break;
         case SkPath::kCubic_Verb:
             Cubic c;
             CubicSubDivideHD(fPts, startT, endT, c);
             fTangent1.cubicEndPoints(c, 0, 1);
+            if (dx() == 0 && dy() == 0) {
+                fTangent1.cubicEndPoints(c, 0, 2);
+        #if 1 // FIXME: try enabling this and see if a) it's called and b) does it break anything
+                if (dx() == 0 && dy() == 0) {
+                    SkDebugf("*** %s cubic is line\n");
+                    fTangent1.cubicEndPoints(c, 0, 3);
+                }
+        #endif
+            }
             fSide = -fTangent1.pointDistance(c[2]); // not normalized -- compare sign only
             break;
         default:
@@ -1792,7 +1792,7 @@ public:
     }
 
     // FIXME: this doesn't prevent the same span from being added twice
-    // fix in caller, assert here?
+    // fix in caller, SkASSERT here?
     void addTPair(double t, Segment& other, double otherT, bool borrowWind) {
         int tCount = fTs.count();
         for (int tIndex = 0; tIndex < tCount; ++tIndex) {
@@ -3346,7 +3346,9 @@ the same winding is shared by both.
         const Span& endSpan = fTs[end];
         Segment* other = endSpan.fOther;
         index = endSpan.fOtherIndex;
+        SkASSERT(index >= 0);
         int otherEnd = other->nextExactSpan(index, step);
+        SkASSERT(otherEnd >= 0);
         min = SkMin32(index, otherEnd);
         return other;
     }
@@ -3765,7 +3767,7 @@ the same winding is shared by both.
 #endif
 
 #if DEBUG_CONCIDENT
-    // assert if pair has not already been added
+    // SkASSERT if pair has not already been added
      void debugAddTPair(double t, const Segment& other, double otherT) const {
         for (int i = 0; i < fTs.count(); ++i) {
             if (fTs[i].fT == t && fTs[i].fOther == &other && fTs[i].fOtherT == otherT) {
@@ -6051,7 +6053,7 @@ static void assemble(const PathWrapper& path, PathWrapper& simple) {
     eLink.setCount(count);
     int rIndex, iIndex;
     for (rIndex = 0; rIndex < count; ++rIndex) {
-        sLink[rIndex] = eLink[rIndex] = INT_MAX;
+        sLink[rIndex] = eLink[rIndex] = SK_MaxS32;
     }
     SkTDArray<double> distances;
     const int ends = count * 2; // all starts and ends
@@ -6088,14 +6090,14 @@ static void assemble(const PathWrapper& path, PathWrapper& simple) {
         int ndxOne = thingOne >> 1;
         bool endOne = thingOne & 1;
         int* linkOne = endOne ? eLink.begin() : sLink.begin();
-        if (linkOne[ndxOne] != INT_MAX) {
+        if (linkOne[ndxOne] != SK_MaxS32) {
             continue;
         }
         int thingTwo = row < col ? col : ends - row + col - 1;
         int ndxTwo = thingTwo >> 1;
         bool endTwo = thingTwo & 1;
         int* linkTwo = endTwo ? eLink.begin() : sLink.begin();
-        if (linkTwo[ndxTwo] != INT_MAX) {
+        if (linkTwo[ndxTwo] != SK_MaxS32) {
             continue;
         }
         SkASSERT(&linkOne[ndxOne] != &linkTwo[ndxTwo]);
@@ -6120,17 +6122,17 @@ static void assemble(const PathWrapper& path, PathWrapper& simple) {
         bool forward = true;
         bool first = true;
         int sIndex = sLink[rIndex];
-        SkASSERT(sIndex != INT_MAX);
-        sLink[rIndex] = INT_MAX;
+        SkASSERT(sIndex != SK_MaxS32);
+        sLink[rIndex] = SK_MaxS32;
         int eIndex;
         if (sIndex < 0) {
             eIndex = sLink[~sIndex];
-            sLink[~sIndex] = INT_MAX;
+            sLink[~sIndex] = SK_MaxS32;
         } else {
             eIndex = eLink[sIndex];
-            eLink[sIndex] = INT_MAX;
+            eLink[sIndex] = SK_MaxS32;
         }
-        SkASSERT(eIndex != INT_MAX);
+        SkASSERT(eIndex != SK_MaxS32);
 #if DEBUG_ASSEMBLE
         SkDebugf("%s sIndex=%c%d eIndex=%c%d\n", __FUNCTION__, sIndex < 0 ? 's' : 'e',
                     sIndex < 0 ? ~sIndex : sIndex, eIndex < 0 ? 's' : 'e',
@@ -6160,25 +6162,25 @@ static void assemble(const PathWrapper& path, PathWrapper& simple) {
             }
             if (forward) {
                 eIndex = eLink[rIndex];
-                SkASSERT(eIndex != INT_MAX);
-                eLink[rIndex] = INT_MAX;
+                SkASSERT(eIndex != SK_MaxS32);
+                eLink[rIndex] = SK_MaxS32;
                 if (eIndex >= 0) {
                     SkASSERT(sLink[eIndex] == rIndex);
-                    sLink[eIndex] = INT_MAX;
+                    sLink[eIndex] = SK_MaxS32;
                 } else {
                     SkASSERT(eLink[~eIndex] == ~rIndex);
-                    eLink[~eIndex] = INT_MAX;
+                    eLink[~eIndex] = SK_MaxS32;
                 }
             } else {
                 eIndex = sLink[rIndex];
-                SkASSERT(eIndex != INT_MAX);
-                sLink[rIndex] = INT_MAX;
+                SkASSERT(eIndex != SK_MaxS32);
+                sLink[rIndex] = SK_MaxS32;
                 if (eIndex >= 0) {
                     SkASSERT(eLink[eIndex] == rIndex);
-                    eLink[eIndex] = INT_MAX;
+                    eLink[eIndex] = SK_MaxS32;
                 } else {
                     SkASSERT(sLink[~eIndex] == ~rIndex);
-                    sLink[~eIndex] = INT_MAX;
+                    sLink[~eIndex] = SK_MaxS32;
                 }
             }
             rIndex = eIndex;
@@ -6188,15 +6190,15 @@ static void assemble(const PathWrapper& path, PathWrapper& simple) {
             }
         } while (true);
         for (rIndex = 0; rIndex < count; ++rIndex) {
-            if (sLink[rIndex] != INT_MAX) {
+            if (sLink[rIndex] != SK_MaxS32) {
                 break;
             }
         }
     } while (rIndex < count);
 #if DEBUG_ASSEMBLE
     for (rIndex = 0; rIndex < count; ++rIndex) {
-       SkASSERT(sLink[rIndex] == INT_MAX);
-       SkASSERT(eLink[rIndex] == INT_MAX);
+       SkASSERT(sLink[rIndex] == SK_MaxS32);
+       SkASSERT(eLink[rIndex] == SK_MaxS32);
     }
 #endif
 }

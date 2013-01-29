@@ -7,7 +7,6 @@
 #include "CurveIntersection.h"
 #include "CurveUtilities.h"
 #include "LineParameters.h"
-#include <algorithm> // used for std::swap
 
 #define DEBUG_BEZIER_CLIP 1
 
@@ -24,7 +23,7 @@ bool bezier_clip(const Quadratic& q1, const Quadratic& q2, double& minT, double&
     endLine.quadEndPoints(q1);
     if (!endLine.normalize()) {
         printf("line cannot be normalized: need more code here\n");
-        assert(0);
+        SkASSERT(0);
         return false;
     }
 
@@ -34,7 +33,7 @@ bool bezier_clip(const Quadratic& q1, const Quadratic& q2, double& minT, double&
     double top = 0;
     double bottom = distance / 2; // http://students.cs.byu.edu/~tom/557/text/cic.pdf (7.6)
     if (top > bottom) {
-        std::swap(top, bottom);
+        SkTSwap(top, bottom);
     }
 
     // compute intersecting candidate distance

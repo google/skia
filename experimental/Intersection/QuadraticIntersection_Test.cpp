@@ -10,7 +10,6 @@
 #include "Intersections.h"
 #include "QuadraticIntersection_TestData.h"
 #include "TestUtilities.h"
-#include "SkTypes.h"
 
 const int firstQuadIntersectionTest = 9;
 

@@ -3328,11 +3328,23 @@ path.addRect(4, 13, 13, 16, SkPath::kCCW_Direction);
     path.close();
 </div>
 
+<div id="cubicOp1d">
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(0,2, 1,0, 1,0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,1);
+    pathB.cubicTo(0,1, 1,0, 2,0);
+    pathB.close();
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    cubicOp1d,
     testQuadratic93,
     testCubic1,
     testQuadralateral1,

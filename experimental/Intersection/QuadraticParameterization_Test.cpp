@@ -34,12 +34,12 @@ void QuadraticCoincidence_Test() {
             for (size_t two = 0; two < quadsCount; ++two) {
                 for (size_t inner = 0; inner < 3; inner += 2) {
                     if (!point_on_parameterized_curve(*quads[one], (*quads[two])[inner])) {
-                            printf("%s %zu [%zu,%zu] %zu parameterization failed\n",
+                            SkDebugf("%s %zu [%zu,%zu] %zu parameterization failed\n",
                                 __FUNCTION__, index, one, two, inner);
                     }
                 }
                 if (!implicit_matches(*quads[one], *quads[two])) {
-                    printf("%s %zu [%zu,%zu] coincidence failed\n", __FUNCTION__,
+                    SkDebugf("%s %zu [%zu,%zu] coincidence failed\n", __FUNCTION__,
                             index, one, two);
                 }
             }
