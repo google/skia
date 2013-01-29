@@ -7,9 +7,6 @@
 #ifndef Intersections_DEFINE
 #define Intersections_DEFINE
 
-#include <algorithm> // for std::min -- Skia doesn't have a SkMinDouble
-#include "SkTypes.h"
-
 class Intersections {
 public:
     Intersections()
@@ -29,7 +26,7 @@ public:
                 return;
             }
         }
-        assert(fUsed < 9);
+        SkASSERT(fUsed < 9);
         fT[fSwap][fUsed] = one;
         fT[fSwap ^ 1][fUsed] = two;
         ++fUsed;
@@ -43,7 +40,7 @@ public:
                 return;
             }
         }
-        assert(fCoincidentUsed < 9);
+        SkASSERT(fCoincidentUsed < 9);
         fCoincidentT[fSwap][fCoincidentUsed] = one;
         fCoincidentT[fSwap ^ 1][fCoincidentUsed] = two;
         ++fCoincidentUsed;

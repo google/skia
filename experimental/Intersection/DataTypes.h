@@ -7,16 +7,10 @@
 #ifndef __DataTypes_h__
 #define __DataTypes_h__
 
-#include <assert.h>
-#include <float.h>
-#include <limits.h>
-#include <math.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <strings.h>
-#include <sys/types.h>
+#include <float.h> // for FLT_EPSILON
+#include <math.h> // for fabs, sqrt
+
+#include "SkTypes.h"
 
 extern bool AlmostEqualUlps(float A, float B);
 inline bool AlmostEqualUlps(double A, double B) { return AlmostEqualUlps((float) A, (float) B); }
@@ -146,14 +140,14 @@ inline bool approximately_zero_or_more(double x) {
 }
 
 inline bool approximately_between(double a, double b, double c) {
-    assert(a <= c);
+    SkASSERT(a <= c);
     return a <= c ? approximately_negative(a - b) && approximately_negative(b - c)
             : approximately_negative(b - a) && approximately_negative(c - b);
 }
 
 // returns true if (a <= b <= c) || (a >= b >= c)
 inline bool between(double a, double b, double c) {
-    assert(((a <= b && b <= c) || (a >= b && b >= c)) == ((a - b) * (c - b) <= 0));
+    SkASSERT(((a <= b && b <= c) || (a >= b && b >= c)) == ((a - b) * (c - b) <= 0));
     return (a - b) * (c - b) <= 0;
 }
 
@@ -252,10 +246,10 @@ struct _Rect {
     }
 
     bool intersects(_Rect& r) const {
-        assert(left <= right);
-        assert(top <= bottom);
-        assert(r.left <= r.right);
-        assert(r.top <= r.bottom);
+        SkASSERT(left <= right);
+        SkASSERT(top <= bottom);
+        SkASSERT(r.left <= r.right);
+        SkASSERT(r.top <= r.bottom);
         return r.left <= right && left <= r.right && r.top <= bottom && top <= r.bottom;
     }
 

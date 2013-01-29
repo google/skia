@@ -8,7 +8,6 @@
 #include "Intersection_Tests.h"
 #include "QuadraticIntersection_TestData.h"
 #include "TestUtilities.h"
-#include "SkTypes.h"
 
 static const Quadratic testSet[] = {
     {{1, 1}, {2, 2}, {1, 1.000003}},
@@ -43,8 +42,8 @@ static void standardTestCases() {
     run = RunQuadraticLines;
     firstTestIndex = 1;
 #endif
-    int firstQuadraticLineTest = run == RunAll ? 0 : run == RunQuadraticLines ? firstTestIndex : INT_MAX;
-    int firstQuadraticModLineTest = run == RunAll ? 0 : run == RunQuadraticModLines ? firstTestIndex : INT_MAX;
+    int firstQuadraticLineTest = run == RunAll ? 0 : run == RunQuadraticLines ? firstTestIndex : SK_MaxS32;
+    int firstQuadraticModLineTest = run == RunAll ? 0 : run == RunQuadraticModLines ? firstTestIndex : SK_MaxS32;
 
     for (index = firstQuadraticLineTest; index < quadraticLines_count; ++index) {
         const Quadratic& quad = quadraticLines[index];

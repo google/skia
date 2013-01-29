@@ -12,7 +12,7 @@ static void assert_that(int x, int y, const char* s) {
     if (x == y) {
         return;
     }
-    printf("result=%d expected=%d %s\n", x, y, s);
+    SkDebugf("result=%d expected=%d %s\n", x, y, s);
 }
 
 static void side_test() {
@@ -41,7 +41,7 @@ static void other_two_test() {
             if (all == 0x0F) {
                 continue;
             }
-            printf("[%d,%d] other_two failed mask=%d [%d,%d]\n",
+            SkDebugf("[%d,%d] other_two failed mask=%d [%d,%d]\n",
                 x, y, mask, x ^ mask, y ^ mask);
         }
     }

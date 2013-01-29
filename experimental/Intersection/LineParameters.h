@@ -81,7 +81,7 @@ public:
     }
 
     double controlPtDistance(const Cubic& pts, int index) const {
-        assert(index == 1 || index == 2);
+        SkASSERT(index == 1 || index == 2);
         return a * pts[index].x + b * pts[index].y + c;
     }
 

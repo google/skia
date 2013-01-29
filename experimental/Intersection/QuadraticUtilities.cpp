@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 #include "QuadraticUtilities.h"
-#include "SkTypes.h"
 #include <math.h>
 
 /*

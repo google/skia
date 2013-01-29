@@ -80,7 +80,7 @@ static void testOneOffs() {
             double lineT = intersections.fT[1][inner];
             double lineX, lineY;
             xy_at_t(line, lineT, lineX, lineY);
-            assert(AlmostEqualUlps(quadX, lineX)
+            SkASSERT(AlmostEqualUlps(quadX, lineX)
                     && AlmostEqualUlps(quadY, lineY));
         }
     }

@@ -9,7 +9,7 @@
 #include "Intersections.h"
 
 void Intersections::addCoincident(double s1, double e1, double s2, double e2) {
-    assert((fCoincidentUsed & 1) != 1);
+    SkASSERT((fCoincidentUsed & 1) != 1);
     for (int index = 0; index < fCoincidentUsed; index += 2) {
         double cs1 = fCoincidentT[fSwap][index];
         double ce1 = fCoincidentT[fSwap][index + 1];
@@ -20,7 +20,7 @@ void Intersections::addCoincident(double s1, double e1, double s2, double e2) {
         bool s2in = approximately_between(cs2, s2, ce2);
         bool e2in = approximately_between(cs2, e2, ce2);
         if ((s1in | e1in) & (s2in | e2in)) {
-            double lesser1 = std::min(cs1, ce1);
+            double lesser1 = SkTMin(cs1, ce1);
             index += cs1 > ce1;
             if (s1in < lesser1) {
                 fCoincidentT[fSwap][index] = s1in;
@@ -35,7 +35,7 @@ void Intersections::addCoincident(double s1, double e1, double s2, double e2) {
                 fCoincidentT[fSwap][index] = e1in;
             }
             index &= ~1;
-            double lesser2 = std::min(cs2, ce2);
+            double lesser2 = SkTMin(cs2, ce2);
             index += cs2 > ce2;
             if (s2in < lesser2) {
                 fCoincidentT[fSwap ^ 1][index] = s2in;
@@ -52,7 +52,7 @@ void Intersections::addCoincident(double s1, double e1, double s2, double e2) {
             return;
         }
     }
-    assert(fCoincidentUsed < 9);
+    SkASSERT(fCoincidentUsed < 9);
     fCoincidentT[fSwap][fCoincidentUsed] = s1;
     fCoincidentT[fSwap ^ 1][fCoincidentUsed] = s2;
     ++fCoincidentUsed;
@@ -62,15 +62,15 @@ void Intersections::addCoincident(double s1, double e1, double s2, double e2) {
 }
 
 void Intersections::cleanUp() {
-    assert(fCoincidentUsed);
-    assert(fUsed);
+    SkASSERT(fCoincidentUsed);
+    SkASSERT(fUsed);
     // find any entries in fT that could be part of the coincident range
 
 }
 
 // FIXME: this doesn't respect swap, but add coincident does -- seems inconsistent
 void Intersections::insert(double one, double two) {
-    assert(fUsed <= 1 || fT[0][0] < fT[0][1]);
+    SkASSERT(fUsed <= 1 || fT[0][0] < fT[0][1]);
     int index;
     for (index = 0; index < fUsed; ++index) {
         if (approximately_equal(fT[0][index], one)
@@ -81,7 +81,7 @@ void Intersections::insert(double one, double two) {
             break;
         }
     }
-    assert(fUsed < 9);
+    SkASSERT(fUsed < 9);
     int remaining = fUsed - index;
     if (remaining > 0) {
         memmove(&fT[0][index + 1], &fT[0][index], sizeof(fT[0][0]) * remaining);
@@ -96,7 +96,7 @@ void Intersections::insert(double one, double two) {
 // if two separate callers differ on whether ts are equal or not
 void Intersections::insertOne(double t, int side) {
     int used = side ? fUsed2 : fUsed;
-    assert(used <= 1 || fT[side][0] < fT[side][1]);
+    SkASSERT(used <= 1 || fT[side][0] < fT[side][1]);
     int index;
     for (index = 0; index < used; ++index) {
         if (approximately_equal(fT[side][index], t)) {
@@ -106,7 +106,7 @@ void Intersections::insertOne(double t, int side) {
             break;
         }
     }
-    assert(used < 9);
+    SkASSERT(used < 9);
     int remaining = used - index;
     if (remaining > 0) {
         memmove(&fT[side][index + 1], &fT[side][index], sizeof(fT[side][0]) * remaining);

@@ -15,4 +15,3 @@
 #include "SkTDArray.h"
 #include "ShapeOps.h"
 #include "TSearch.h"
-#include <algorithm> // used for std::min

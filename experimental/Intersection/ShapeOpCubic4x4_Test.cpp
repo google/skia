@@ -15,7 +15,7 @@
 // not included, square, tall, wide (2 bits)
 // cw or ccw (1 bit)
 
-static void* testShapeOps4x4RectsMain(void* data)
+static void* testShapeOps4x4CubicsMain(void* data)
 {
     SkASSERT(data);
     State4& state = *(State4*) data;
@@ -34,24 +34,24 @@ static void* testShapeOps4x4RectsMain(void* data)
             str += sprintf(str, "    path.setFillType(SkPath::k%s_FillType);\n",
                     e == SkPath::kWinding_FillType ? "Winding" : e == SkPath::kEvenOdd_FillType
                     ? "EvenOdd" : "?UNDEFINED");
-            pathA.addRect(state.a, state.a, state.b, state.b, SkPath::kCW_Direction);
-            str += sprintf(str, "    path.addRect(%d, %d, %d, %d,"
-                    " SkPath::kCW_Direction);\n", state.a, state.a, state.b, state.b);
-            pathA.addRect(state.c, state.c, state.d, state.d, SkPath::kCW_Direction);
-            str += sprintf(str, "    path.addRect(%d, %d, %d, %d,"
-                    " SkPath::kCW_Direction);\n", state.c, state.c, state.d, state.d);
+            pathA.moveTo(state.a, state.b);
+            str += sprintf(str, "    path.moveTo(%d,%d);\n", state.a, state.b);
+            pathA.cubicTo(state.c, state.d, b, a, d, c);
+            str += sprintf(str, "    path.cubicTo(%d,%d, %d,%d, %d,%d);\n", state.c, state.d,
+                    b, a, d, c);
             pathA.close();
+            str += sprintf(str, "    path.close();\n");
             pathB.setFillType((SkPath::FillType) f);
             str += sprintf(str, "    pathB.setFillType(SkPath::k%s_FillType);\n",
                     f == SkPath::kWinding_FillType ? "Winding" : f == SkPath::kEvenOdd_FillType
                     ? "EvenOdd" : "?UNDEFINED");
-            pathB.addRect(a, a, b, b, SkPath::kCW_Direction);
-            str += sprintf(str, "    pathB.addRect(%d, %d, %d, %d,"
-                    " SkPath::kCW_Direction);\n", a, a, b, b);
-            pathB.addRect(c, c, d, d, SkPath::kCW_Direction);
-            str += sprintf(str, "    pathB.addRect(%d, %d, %d, %d,"
-                    " SkPath::kCW_Direction);\n", c, c, d, d);
+            pathB.moveTo(a, b);
+            str += sprintf(str, "    pathB.moveTo(%d,%d);\n", a, b);
+            pathB.cubicTo(c, d, state.b, state.a, state.d, state.c);
+            str += sprintf(str, "    pathB.cubicTo(%d,%d, %d,%d, %d,%d);\n", c, d, 
+                    state.b, state.a, state.d, state.c);
             pathB.close();
+            str += sprintf(str, "    pathB.close();\n");
             for (int op = 0 ; op < kShapeOp_Count; ++op)    {
                 outputProgress(state, pathStr, (ShapeOp) op);
                 testShapeOp(pathA, pathB, (ShapeOp) op);
@@ -67,21 +67,21 @@ static void* testShapeOps4x4RectsMain(void* data)
     return NULL;
 }
 
-void ShapeOps4x4RectsThreaded_Test(int& testsRun)
+void ShapeOps4x4CubicsThreaded_Test(int& testsRun)
 {
     SkDebugf("%s\n", __FUNCTION__);
 #ifdef SK_DEBUG
     gDebugMaxWindSum = 4;
     gDebugMaxWindValue = 4;
 #endif
-    const char testLineStr[] = "testOp";
+    const char testLineStr[] = "cubicOp";
     initializeTests(testLineStr, sizeof(testLineStr));
     int testsStart = testsRun;
     for (int a = 0; a < 6; ++a) { // outermost
         for (int b = a + 1; b < 7; ++b) {
             for (int c = 0 ; c < 6; ++c) {
                 for (int d = c + 1; d < 7; ++d) {
-                    testsRun += dispatchTest4(testShapeOps4x4RectsMain, a, b, c, d);
+                    testsRun += dispatchTest4(testShapeOps4x4CubicsMain, a, b, c, d);
                 }
                 if (!gRunTestsInOneThread) SkDebugf(".");
             }

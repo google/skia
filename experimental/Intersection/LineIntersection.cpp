@@ -7,7 +7,6 @@
 #include "CurveIntersection.h"
 #include "Intersections.h"
 #include "LineIntersection.h"
-#include <algorithm> // used for std::swap
 
 /* Determine the intersection point of two lines. This assumes the lines are not parallel,
    and that that the lines are infinite.
@@ -19,7 +18,7 @@ void lineIntersect(const _Line& a, const _Line& b, _Point& p) {
     double bxLen = b[1].x - b[0].x;
     double byLen = b[1].y - b[0].y;
     double denom = byLen * axLen - ayLen * bxLen;
-    assert(denom);
+    SkASSERT(denom);
     double term1 = a[1].x * a[0].y - a[1].y * a[0].x;
     double term2 = b[1].x * b[0].y - b[1].y * b[0].x;
     p.x = (term1 * bxLen - axLen * term2) / denom;
@@ -68,10 +67,10 @@ int intersect(const _Line& a, const _Line& b, double aRange[2], double bRange[2]
             double bMin = bPtr[0];
             double bMax = bPtr[2];
             if (aMin > aMax) {
-                std::swap(aMin, aMax);
+                SkTSwap(aMin, aMax);
             }
             if (bMin > bMax) {
-                std::swap(bMin, bMax);
+                SkTSwap(bMin, bMax);
             }
             if (aMax < bMin || bMax < aMin) {
                 return 0;
@@ -87,8 +86,8 @@ int intersect(const _Line& a, const _Line& b, double aRange[2], double bRange[2]
             }
             return 1 + ((aRange[0] != aRange[1]) || (bRange[0] != bRange[1]));
         #else
-            assert(aRange);
-            assert(bRange);
+            SkASSERT(aRange);
+            SkASSERT(bRange);
             double a0 = aPtr[0];
             double a1 = aPtr[2];
             double b0 = bPtr[0];
@@ -101,13 +100,18 @@ int intersect(const _Line& a, const _Line& b, double aRange[2], double bRange[2]
             if ((at0 < 0 && at1 < 0) || (at0 > 1 && at1 > 1)) {
                 return 0;
             }
-            aRange[0] = std::max(std::min(at0, 1.0), 0.0);
-            aRange[1] = std::max(std::min(at1, 1.0), 0.0);
+            aRange[0] = SkTMax(SkTMin(at0, 1.0), 0.0);
+            aRange[1] = SkTMax(SkTMin(at1, 1.0), 0.0);
             int bIn = (a0 - a1) * (b0 - b1) < 0;
-            bRange[bIn] = std::max(std::min((b0 - a0) / (b0 - b1), 1.0), 0.0);
-            bRange[!bIn] = std::max(std::min((b0 - a1) / (b0 - b1), 1.0), 0.0);
+            double bDenom = b0 - b1;
+            if (approximately_zero(bDenom)) {
+                bRange[0] = bRange[1] = 0;
+            } else {
+                bRange[bIn] = SkTMax(SkTMin((b0 - a0) / bDenom, 1.0), 0.0);
+                bRange[!bIn] = SkTMax(SkTMin((b0 - a1) / bDenom, 1.0), 0.0);
+            }
             bool second = fabs(aRange[0] - aRange[1]) > FLT_EPSILON;
-            assert((fabs(bRange[0] - bRange[1]) <= FLT_EPSILON) ^ second);
+            SkASSERT((fabs(bRange[0] - bRange[1]) <= FLT_EPSILON) ^ second);
             return 1 + second;
         #endif
         }
@@ -136,7 +140,7 @@ int horizontalIntersect(const _Line& line, double y, double tRange[2]) {
     double min = line[0].y;
     double max = line[1].y;
     if (min > max) {
-        std::swap(min, max);
+        SkTSwap(min, max);
     }
     if (min > y || max < y) {
         return 0;
@@ -192,10 +196,10 @@ int horizontalIntersect(const _Line& line, double left, double right,
             double lineL = line[0].x;
             double lineR = line[1].x;
             if (lineL > lineR) {
-                std::swap(lineL, lineR);
+                SkTSwap(lineL, lineR);
             }
-            double overlapL = std::max(left, lineL);
-            double overlapR = std::min(right, lineR);
+            double overlapL = SkTMax(left, lineL);
+            double overlapR = SkTMin(right, lineR);
             if (overlapL > overlapR) {
                 return 0;
             }
@@ -219,16 +223,16 @@ int horizontalIntersect(const _Line& line, double left, double right,
             if ((at0 < 0 && at1 < 0) || (at0 > 1 && at1 > 1)) {
                 return 0;
             }
-            intersections.fT[0][0] = std::max(std::min(at0, 1.0), 0.0);
-            intersections.fT[0][1] = std::max(std::min(at1, 1.0), 0.0);
+            intersections.fT[0][0] = SkTMax(SkTMin(at0, 1.0), 0.0);
+            intersections.fT[0][1] = SkTMax(SkTMin(at1, 1.0), 0.0);
             int bIn = (a0 - a1) * (b0 - b1) < 0;
-            intersections.fT[1][bIn] = std::max(std::min((b0 - a0) / (b0 - b1),
+            intersections.fT[1][bIn] = SkTMax(SkTMin((b0 - a0) / (b0 - b1),
                     1.0), 0.0);
-            intersections.fT[1][!bIn] = std::max(std::min((b0 - a1) / (b0 - b1),
+            intersections.fT[1][!bIn] = SkTMax(SkTMin((b0 - a1) / (b0 - b1),
                     1.0), 0.0);
             bool second = fabs(intersections.fT[0][0] - intersections.fT[0][1])
                     > FLT_EPSILON;
-            assert((fabs(intersections.fT[1][0] - intersections.fT[1][1])
+            SkASSERT((fabs(intersections.fT[1][0] - intersections.fT[1][1])
                     <= FLT_EPSILON) ^ second);
             return 1 + second;
         #endif
@@ -247,7 +251,7 @@ static int verticalIntersect(const _Line& line, double x, double tRange[2]) {
     double min = line[0].x;
     double max = line[1].x;
     if (min > max) {
-        std::swap(min, max);
+        SkTSwap(min, max);
     }
     if (min > x || max < x) {
         return 0;
@@ -281,10 +285,10 @@ int verticalIntersect(const _Line& line, double top, double bottom,
             double lineT = line[0].y;
             double lineB = line[1].y;
             if (lineT > lineB) {
-                std::swap(lineT, lineB);
+                SkTSwap(lineT, lineB);
             }
-            double overlapT = std::max(top, lineT);
-            double overlapB = std::min(bottom, lineB);
+            double overlapT = SkTMax(top, lineT);
+            double overlapB = SkTMin(bottom, lineB);
             if (overlapT > overlapB) {
                 return 0;
             }
@@ -308,16 +312,16 @@ int verticalIntersect(const _Line& line, double top, double bottom,
             if ((at0 < 0 && at1 < 0) || (at0 > 1 && at1 > 1)) {
                 return 0;
             }
-            intersections.fT[0][0] = std::max(std::min(at0, 1.0), 0.0);
-            intersections.fT[0][1] = std::max(std::min(at1, 1.0), 0.0);
+            intersections.fT[0][0] = SkTMax(SkTMin(at0, 1.0), 0.0);
+            intersections.fT[0][1] = SkTMax(SkTMin(at1, 1.0), 0.0);
             int bIn = (a0 - a1) * (b0 - b1) < 0;
-            intersections.fT[1][bIn] = std::max(std::min((b0 - a0) / (b0 - b1),
+            intersections.fT[1][bIn] = SkTMax(SkTMin((b0 - a0) / (b0 - b1),
                     1.0), 0.0);
-            intersections.fT[1][!bIn] = std::max(std::min((b0 - a1) / (b0 - b1),
+            intersections.fT[1][!bIn] = SkTMax(SkTMin((b0 - a1) / (b0 - b1),
                     1.0), 0.0);
             bool second = fabs(intersections.fT[0][0] - intersections.fT[0][1])
                     > FLT_EPSILON;
-            assert((fabs(intersections.fT[1][0] - intersections.fT[1][1])
+            SkASSERT((fabs(intersections.fT[1][0] - intersections.fT[1][1])
                     <= FLT_EPSILON) ^ second);
             return 1 + second;
         #endif

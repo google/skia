@@ -93,11 +93,14 @@ static void oneOff(const Cubic& cubic1, const Cubic& cubic2) {
         SkDebugf("%s t1=%1.9g (%1.9g, %1.9g) (%1.9g, %1.9g) t2=%1.9g\n", __FUNCTION__,
             tt1, xy1.x, xy1.y, xy2.x, xy2.y, tt2);
 #endif
-        assert(xy1.approximatelyEqual(xy2));
+        SkASSERT(xy1.approximatelyEqual(xy2));
     }
 }
 
 static const Cubic testSet[] = {
+{{0, 1}, {0, 2}, {1, 0}, {1, 0}},
+{{0, 1}, {0, 1}, {1, 0}, {2, 0}},
+
 {{0, 0}, {0, 1}, {1, 1}, {1, 0}},
 {{1, 0}, {0, 0}, {0, 1}, {1, 1}},
 
@@ -250,12 +253,12 @@ void CubicIntersection_RandTestOld() {
             SkDebugf("%s %d unexpected intersection boundsIntersect=%d oldIntersects=%d"
                     " newIntersects=%d\n%s %s\n", __FUNCTION__, test, boundsIntersect,
                     oldIntersects, newIntersects, __FUNCTION__, str);
-            assert(0);
+            SkASSERT(0);
         }
         if (oldIntersects && !newIntersects) {
             SkDebugf("%s %d missing intersection oldIntersects=%d newIntersects=%d\n%s %s\n",
                     __FUNCTION__, test, oldIntersects, newIntersects, __FUNCTION__, str);
-            assert(0);
+            SkASSERT(0);
         }
         if (!oldIntersects && !newIntersects) {
             continue;
@@ -336,7 +339,7 @@ void CubicIntersection_RandTest() {
             SkDebugf("%s %d unexpected intersection boundsIntersect=%d "
                     " newIntersects=%d\n%s %s\n", __FUNCTION__, test, boundsIntersect,
                     newIntersects, __FUNCTION__, str);
-            assert(0);
+            SkASSERT(0);
         }
         for (int pt = 0; pt < intersections2.used(); ++pt) {
             double tt1 = intersections2.fT[0][pt];
@@ -349,7 +352,7 @@ void CubicIntersection_RandTest() {
             SkDebugf("%s t1=%1.9g (%1.9g, %1.9g) (%1.9g, %1.9g) t2=%1.9g\n", __FUNCTION__,
                 tt1, xy1.x, xy1.y, xy2.x, xy2.y, tt2);
         #endif
-            assert(xy1.approximatelyEqual(xy2));
+            SkASSERT(xy1.approximatelyEqual(xy2));
         }
     }
 }

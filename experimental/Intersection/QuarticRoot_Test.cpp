@@ -1,5 +1,3 @@
-#include <assert.h>
-#include <math.h>
 #include "CubicUtilities.h"
 #include "Intersection_Tests.h"
 #include "QuadraticUtilities.h"
@@ -41,15 +39,15 @@ static void quadraticTest(bool limit) {
                 } else {
                     expected = 1 + (B != C);
                 }
-                assert(rootCount == expected);
+                SkASSERT(rootCount == expected);
                 if (!rootCount) {
                     continue;
                 }
-                assert(approximately_equal(roots[0], -B)
+                SkASSERT(approximately_equal(roots[0], -B)
                         || approximately_equal(roots[0], -C));
                 if (expected > 1) {
-                    assert(!approximately_equal(roots[0], roots[1]));
-                    assert(approximately_equal(roots[1], -B)
+                    SkASSERT(!approximately_equal(roots[0], roots[1]));
+                    SkASSERT(approximately_equal(roots[1], -B)
                             || approximately_equal(roots[1], -C));
                 }
             }
@@ -81,26 +79,26 @@ static void testOneCubic(bool limit, size_t aIndex, size_t bIndex, size_t cIndex
     } else {
         expected = 1 + (B != C) + (B != D && C != D);
     }
-    assert(rootCount == expected);
+    SkASSERT(rootCount == expected);
     if (!rootCount) {
         return;
     }
-    assert(approximately_equal(roots[0], -B)
+    SkASSERT(approximately_equal(roots[0], -B)
             || approximately_equal(roots[0], -C)
             || approximately_equal(roots[0], -D));
     if (expected <= 1) {
         return;
     }
-    assert(!approximately_equal(roots[0], roots[1]));
-    assert(approximately_equal(roots[1], -B)
+    SkASSERT(!approximately_equal(roots[0], roots[1]));
+    SkASSERT(approximately_equal(roots[1], -B)
             || approximately_equal(roots[1], -C)
             || approximately_equal(roots[1], -D));
     if (expected <= 2) {
         return;
     }
-    assert(!approximately_equal(roots[0], roots[2])
+    SkASSERT(!approximately_equal(roots[0], roots[2])
             && !approximately_equal(roots[1], roots[2]));
-    assert(approximately_equal(roots[2], -B)
+    SkASSERT(approximately_equal(roots[2], -B)
             || approximately_equal(roots[2], -C)
             || approximately_equal(roots[2], -D));
 }
@@ -136,35 +134,35 @@ static void testOneQuartic(size_t aIndex, size_t bIndex, size_t cIndex, size_t d
         rootCount = quarticRootsReal(A, b, c, d, e, roots);
     }
     const int expected = 1 + (B != C) + (B != D && C != D) + (B != E && C != E && D != E);
-    assert(rootCount == expected);
-    assert(AlmostEqualUlps(roots[0], -B)
+    SkASSERT(rootCount == expected);
+    SkASSERT(AlmostEqualUlps(roots[0], -B)
             || AlmostEqualUlps(roots[0], -C)
             || AlmostEqualUlps(roots[0], -D)
             || AlmostEqualUlps(roots[0], -E));
     if (expected <= 1) {
         return;
     }
-    assert(!AlmostEqualUlps(roots[0], roots[1]));
-    assert(AlmostEqualUlps(roots[1], -B)
+    SkASSERT(!AlmostEqualUlps(roots[0], roots[1]));
+    SkASSERT(AlmostEqualUlps(roots[1], -B)
             || AlmostEqualUlps(roots[1], -C)
             || AlmostEqualUlps(roots[1], -D)
             || AlmostEqualUlps(roots[1], -E));
     if (expected <= 2) {
         return;
     }
-    assert(!AlmostEqualUlps(roots[0], roots[2])
+    SkASSERT(!AlmostEqualUlps(roots[0], roots[2])
             && !AlmostEqualUlps(roots[1], roots[2]));
-    assert(AlmostEqualUlps(roots[2], -B)
+    SkASSERT(AlmostEqualUlps(roots[2], -B)
             || AlmostEqualUlps(roots[2], -C)
             || AlmostEqualUlps(roots[2], -D)
             || AlmostEqualUlps(roots[2], -E));
     if (expected <= 3) {
         return;
     }
-    assert(!AlmostEqualUlps(roots[0], roots[3])
+    SkASSERT(!AlmostEqualUlps(roots[0], roots[3])
             && !AlmostEqualUlps(roots[1], roots[3])
             && !AlmostEqualUlps(roots[2], roots[3]));
-    assert(AlmostEqualUlps(roots[3], -B)
+    SkASSERT(AlmostEqualUlps(roots[3], -B)
             || AlmostEqualUlps(roots[3], -C)
             || AlmostEqualUlps(roots[3], -D)
             || AlmostEqualUlps(roots[3], -E));

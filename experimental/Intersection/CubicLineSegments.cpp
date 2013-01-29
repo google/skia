@@ -6,7 +6,6 @@
  */
 #include "CubicLineSegments.h"
 #include "QuadraticLineSegments.h"
-#include <algorithm> // used for std::max
 
 // http://cagd.cs.byu.edu/~557/text/cagd.pdf 2.7
 // A hodograph is the first derivative curve
@@ -31,8 +30,8 @@ void secondHodograph(const Cubic& cubic, _Line& hodo2) {
 double subDivisions(const Cubic& cubic) {
     _Line hodo2;
     secondHodograph(cubic, hodo2);
-    double maxX = std::max(hodo2[1].x, hodo2[1].x);
-    double maxY = std::max(hodo2[1].y, hodo2[1].y);
+    double maxX = SkTMax(hodo2[1].x, hodo2[1].x);
+    double maxY = SkTMax(hodo2[1].y, hodo2[1].y);
     double dist = sqrt(maxX * maxX + maxY * maxY);
     double segments = sqrt(dist / (8 * FLT_EPSILON));
     return segments;
