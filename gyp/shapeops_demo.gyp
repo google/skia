@@ -19,6 +19,7 @@
         '../experimental/Intersection/CubicIntersection.cpp',
         '../experimental/Intersection/CubicReduceOrder.cpp',
         '../experimental/Intersection/CubicSubDivide.cpp',
+        '../experimental/Intersection/CubicToQuadratics.cpp',
         '../experimental/Intersection/CubicUtilities.cpp',
         '../experimental/Intersection/DataTypes.cpp',
         '../experimental/Intersection/EdgeDemo.cpp',
@@ -26,6 +27,7 @@
         '../experimental/Intersection/EdgeWalker.cpp',
         '../experimental/Intersection/EdgeWalker_TestUtility.cpp',
         '../experimental/Intersection/Extrema.cpp',
+        '../experimental/Intersection/Intersections.cpp',
         '../experimental/Intersection/LineCubicIntersection.cpp',
         '../experimental/Intersection/LineIntersection.cpp',
         '../experimental/Intersection/LineParameterization.cpp',
@@ -69,11 +71,7 @@
         'effects.gyp:effects',
         'images.gyp:images',
         'views.gyp:views',
-        'animator.gyp:animator',
         'xml.gyp:xml',
-        'svg.gyp:svg',
-        'experimental.gyp:experimental',
-        'pdf.gyp:pdf',
       ],
       'conditions' : [
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {

@@ -113,9 +113,7 @@
       'dependencies': [
         'skia_base_libs.gyp:skia_base_libs',
         'effects.gyp:effects',
-        'experimental.gyp:experimental',
         'images.gyp:images',
-        'pdf.gyp:pdf',
       ],
       'conditions': [
         [ 'skia_gpu == 1', {
