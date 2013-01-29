@@ -261,31 +261,31 @@ void SkLayerDrawLooper::toString(SkString* str) const {
             str->append("None");
         } else {
             bool needSeparator = false;
-            SkAddFlagToString(str, SkToBool(SkPaint::kAntiAlias_Flag & rec->fInfo.fFlagsMask), 
+            SkAddFlagToString(str, SkToBool(SkPaint::kAntiAlias_Flag & rec->fInfo.fFlagsMask),
                               "AntiAlias", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kFilterBitmap_Flag & rec->fInfo.fFlagsMask), 
+            SkAddFlagToString(str, SkToBool(SkPaint::kFilterBitmap_Flag & rec->fInfo.fFlagsMask),
                               "FilterBitmap", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kDither_Flag & rec->fInfo.fFlagsMask), 
+            SkAddFlagToString(str, SkToBool(SkPaint::kDither_Flag & rec->fInfo.fFlagsMask),
                               "Dither", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kUnderlineText_Flag & rec->fInfo.fFlagsMask), 
+            SkAddFlagToString(str, SkToBool(SkPaint::kUnderlineText_Flag & rec->fInfo.fFlagsMask),
                               "UnderlineText", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kStrikeThruText_Flag & rec->fInfo.fFlagsMask), 
+            SkAddFlagToString(str, SkToBool(SkPaint::kStrikeThruText_Flag & rec->fInfo.fFlagsMask),
                               "StrikeThruText", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kFakeBoldText_Flag & rec->fInfo.fFlagsMask), 
+            SkAddFlagToString(str, SkToBool(SkPaint::kFakeBoldText_Flag & rec->fInfo.fFlagsMask),
                               "FakeBoldText", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kLinearText_Flag & rec->fInfo.fFlagsMask), 
+            SkAddFlagToString(str, SkToBool(SkPaint::kLinearText_Flag & rec->fInfo.fFlagsMask),
                               "LinearText", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kSubpixelText_Flag & rec->fInfo.fFlagsMask), 
+            SkAddFlagToString(str, SkToBool(SkPaint::kSubpixelText_Flag & rec->fInfo.fFlagsMask),
                               "SubpixelText", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kDevKernText_Flag & rec->fInfo.fFlagsMask), 
+            SkAddFlagToString(str, SkToBool(SkPaint::kDevKernText_Flag & rec->fInfo.fFlagsMask),
                               "DevKernText", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kLCDRenderText_Flag & rec->fInfo.fFlagsMask), 
+            SkAddFlagToString(str, SkToBool(SkPaint::kLCDRenderText_Flag & rec->fInfo.fFlagsMask),
                               "LCDRenderText", &needSeparator);
             SkAddFlagToString(str, SkToBool(SkPaint::kEmbeddedBitmapText_Flag & rec->fInfo.fFlagsMask),
                               "EmbeddedBitmapText", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kAutoHinting_Flag & rec->fInfo.fFlagsMask), 
+            SkAddFlagToString(str, SkToBool(SkPaint::kAutoHinting_Flag & rec->fInfo.fFlagsMask),
                               "Autohinted", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kVerticalText_Flag & rec->fInfo.fFlagsMask), 
+            SkAddFlagToString(str, SkToBool(SkPaint::kVerticalText_Flag & rec->fInfo.fFlagsMask),
                               "VerticalText", &needSeparator);
             SkAddFlagToString(str, SkToBool(SkPaint::kGenA8FromLCD_Flag & rec->fInfo.fFlagsMask),
                               "GenA8FromLCD", &needSeparator);
@@ -301,17 +301,17 @@ void SkLayerDrawLooper::toString(SkString* str) const {
             bool needSeparator = false;
             SkAddFlagToString(str, SkToBool(kStyle_Bit & rec->fInfo.fPaintBits), "Style",
                               &needSeparator);
-            SkAddFlagToString(str, SkToBool(kTextSkewX_Bit & rec->fInfo.fPaintBits), "TextSkewX", 
+            SkAddFlagToString(str, SkToBool(kTextSkewX_Bit & rec->fInfo.fPaintBits), "TextSkewX",
                               &needSeparator);
             SkAddFlagToString(str, SkToBool(kPathEffect_Bit & rec->fInfo.fPaintBits), "PathEffect",
                               &needSeparator);
             SkAddFlagToString(str, SkToBool(kMaskFilter_Bit & rec->fInfo.fPaintBits), "MaskFilter",
                               &needSeparator);
-            SkAddFlagToString(str, SkToBool(kShader_Bit & rec->fInfo.fPaintBits), "Shader", 
+            SkAddFlagToString(str, SkToBool(kShader_Bit & rec->fInfo.fPaintBits), "Shader",
                               &needSeparator);
-            SkAddFlagToString(str, SkToBool(kColorFilter_Bit & rec->fInfo.fPaintBits), "ColorFilter", 
+            SkAddFlagToString(str, SkToBool(kColorFilter_Bit & rec->fInfo.fPaintBits), "ColorFilter",
                               &needSeparator);
-            SkAddFlagToString(str, SkToBool(kXfermode_Bit & rec->fInfo.fPaintBits), "Xfermode", 
+            SkAddFlagToString(str, SkToBool(kXfermode_Bit & rec->fInfo.fPaintBits), "Xfermode",
                               &needSeparator);
         }
         str->append(") ");

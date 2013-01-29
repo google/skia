@@ -146,7 +146,7 @@ static bool pointInTriangle(const _Point& pt, const _Line* testLines[]) {
 }
 
 // returns false if there's more than one intercept or the intercept doesn't match the point
-// returns true if the intercept was successfully added or if the 
+// returns true if the intercept was successfully added or if the
 // original quads need to be subdivided
 static bool addIntercept(const Quadratic& q1, const Quadratic& q2, double tMin, double tMax,
         Intersections& i, bool* subDivide) {

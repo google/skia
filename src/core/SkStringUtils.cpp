@@ -17,4 +17,3 @@ void SkAddFlagToString(SkString* string, bool flag, const char* flagStr, bool* n
         *needSeparator = true;
     }
 }
-

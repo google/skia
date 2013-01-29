@@ -1084,7 +1084,7 @@ public:
     const SkPath* nativePath() const {
         return fPathPtr;
     }
-    
+
     void nudge() {
         if (fEmpty || !AlmostEqualUlps(fDefer[1].fX, fFirstPt.fX)
                 || !AlmostEqualUlps(fDefer[1].fY, fFirstPt.fY)) {

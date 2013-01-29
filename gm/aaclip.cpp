@@ -16,7 +16,7 @@ static void test_giant_dash(SkCanvas* canvas) {
 
     paint.setStrokeWidth(2);
     paint.setPathEffect(new SkDashPathEffect(intervals, 2, 0))->unref();
-    
+
     SkScalar big = 500 * 1000;
 
     canvas->drawLine(10, 10, big, 10, paint);
@@ -207,7 +207,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         if (false) {
-            test_giant_dash(canvas); return; 
+            test_giant_dash(canvas); return;
         }
         if (false) {
             test_grad(canvas); return;

@@ -148,7 +148,7 @@ public:
     }
 
     static bool StageUsesTexCoords(GrVertexLayout layout, int stageIdx);
-    
+
 private:
     // non-stage bits start at this index.
     static const int STAGE_BIT_CNT = kNumStages * kMaxTexCoords;
