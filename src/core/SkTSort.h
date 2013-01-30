@@ -192,7 +192,7 @@ template <typename T, typename C> void SkTIntroSort(int depth, T* left, T* right
  */
 template <typename T, typename C> void SkTQSort(T* left, T* right, C lessThan) {
     ptrdiff_t size = right - left;
-    int depth = SkNextLog2(SkToU32(size));
+    int depth = SkNextLog2(SkToU32(size + 1));
     SkTIntroSort(depth * 2, left, right, lessThan);
 }
 
