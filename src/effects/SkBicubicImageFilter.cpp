@@ -19,6 +19,7 @@
 #include "GrTBackendEffectFactory.h"
 #include "GrContext.h"
 #include "GrTexture.h"
+#include "SkImageFilterUtils.h"
 #endif
 
 SkBicubicImageFilter::SkBicubicImageFilter(const SkSize& scale, const SkScalar coefficients[16], SkImageFilter* input)
@@ -331,28 +332,35 @@ GrEffectRef* GrBicubicEffect::TestCreate(SkRandom* random,
     return GrBicubicEffect::Create(textures[texIdx], coefficients);
 }
 
-GrTexture* SkBicubicImageFilter::filterImageGPU(Proxy* proxy, GrTexture* src, const SkRect& rect) {
-    SkAutoTUnref<GrTexture> srcTexture(this->getInputResultAsTexture(proxy, src, rect));
+bool SkBicubicImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result) {
+    SkBitmap srcBM;
+    if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, &srcBM)) {
+        return false;
+    }
+    GrTexture* srcTexture = (GrTexture*) srcBM.getTexture();
     GrContext* context = srcTexture->getContext();
 
-    SkRect dstRect = SkRect::MakeWH(rect.width() * fScale.fWidth,
-                                    rect.height() * fScale.fHeight);
+    SkRect dstRect = SkRect::MakeWH(srcBM.width() * fScale.fWidth,
+                                    srcBM.height() * fScale.fHeight);
 
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
     desc.fWidth = SkScalarCeilToInt(dstRect.width());
     desc.fHeight = SkScalarCeilToInt(dstRect.height());
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
+    desc.fConfig = kSkia8888_GrPixelConfig;
 
     GrAutoScratchTexture ast(context, desc);
-    if (!ast.texture()) {
-        return NULL;
+    SkAutoTUnref<GrTexture> dst(ast.detach());
+    if (!dst) {
+        return false;
     }
-    GrContext::AutoRenderTarget art(context, ast.texture()->asRenderTarget());
+    GrContext::AutoRenderTarget art(context, dst->asRenderTarget());
     GrPaint paint;
     paint.colorStage(0)->setEffect(GrBicubicEffect::Create(srcTexture, fCoefficients))->unref();
-    context->drawRectToRect(paint, dstRect, rect);
-    return ast.detach();
+    SkRect srcRect;
+    srcBM.getBounds(&srcRect);
+    context->drawRectToRect(paint, dstRect, srcRect);
+    return SkImageFilterUtils::WrapTexture(dst, desc.fWidth, desc.fHeight, result);
 }
 #endif
 

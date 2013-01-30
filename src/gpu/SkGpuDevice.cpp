@@ -1399,16 +1399,25 @@ void apply_effect(GrContext* context,
 
 };
 
-static GrTexture* filter_texture(SkDevice* device, GrContext* context,
-                                 GrTexture* texture, SkImageFilter* filter,
-                                 const GrRect& rect) {
+static SkBitmap wrap_texture(GrTexture* texture) {
+    SkBitmap result;
+    bool dummy;
+    SkBitmap::Config config = grConfig2skConfig(texture->config(), &dummy);
+    result.setConfig(config, texture->width(), texture->height());
+    result.setPixelRef(SkNEW_ARGS(SkGrPixelRef, (texture)))->unref();
+    return result;
+}
+
+static bool filter_texture(SkDevice* device, GrContext* context,
+                           GrTexture* texture, SkImageFilter* filter,
+                           int w, int h, SkBitmap* result) {
     GrAssert(filter);
     SkDeviceImageFilterProxy proxy(device);
 
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit,
-    desc.fWidth = SkScalarCeilToInt(rect.width());
-    desc.fHeight = SkScalarCeilToInt(rect.height());
+    desc.fWidth = w;
+    desc.fHeight = h;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     GrEffectRef* effect;
 
@@ -1416,14 +1425,18 @@ static GrTexture* filter_texture(SkDevice* device, GrContext* context,
         // Save the render target and set it to NULL, so we don't accidentally draw to it in the
         // filter.  Also set the clip wide open and the matrix to identity.
         GrContext::AutoWideOpenIdentityDraw awo(context, NULL);
-        texture = filter->filterImageGPU(&proxy, texture, rect);
+        return filter->filterImageGPU(&proxy, wrap_texture(texture), result);
     } else if (filter->asNewEffect(&effect, texture)) {
         GrAutoScratchTexture dst(context, desc);
-        apply_effect(context, texture, dst.texture(), rect, effect);
-        texture = dst.detach();
+        SkRect r = SkRect::MakeWH(SkIntToScalar(w), SkIntToScalar(h));
+        apply_effect(context, texture, dst.texture(), r, effect);
+        SkAutoTUnref<GrTexture> resultTex(dst.detach());
         effect->unref();
+        *result = wrap_texture(resultTex.get());
+        return true;
+    } else {
+        return false;
     }
-    return texture;
 }
 
 void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
@@ -1455,13 +1468,13 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 
     SkImageFilter* filter = paint.getImageFilter();
     if (NULL != filter) {
-        GrTexture* filteredTexture = filter_texture(this, fContext, texture, filter,
-                 GrRect::MakeWH(SkIntToScalar(w), SkIntToScalar(h)));
-        if (filteredTexture) {
+        SkBitmap filterBitmap;
+        if (filter_texture(this, fContext, texture, filter, w, h, &filterBitmap)) {
             grPaint.colorStage(kBitmapTextureIdx)->setEffect(
-                GrSimpleTextureEffect::Create(filteredTexture, SkMatrix::I()))->unref();
-            texture = filteredTexture;
-            filteredTexture->unref();
+                GrSimpleTextureEffect::Create((GrTexture*) filterBitmap.getTexture(), SkMatrix::I()))->unref();
+            texture = (GrTexture*) filterBitmap.getTexture();
+            w = filterBitmap.width();
+            h = filterBitmap.height();
         }
     }
 
@@ -1526,22 +1539,21 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* device,
     GrTexture* devTex = (*grPaint.getColorStage(kBitmapTextureIdx).getEffect())->texture(0);
     SkASSERT(NULL != devTex);
 
-    SkImageFilter* filter = paint.getImageFilter();
-    if (NULL != filter) {
-        GrRect rect = GrRect::MakeWH(SkIntToScalar(devTex->width()),
-                                     SkIntToScalar(devTex->height()));
-        GrTexture* filteredTexture = filter_texture(this, fContext, devTex, filter, rect);
-        if (filteredTexture) {
-            grPaint.colorStage(kBitmapTextureIdx)->setEffect(
-                GrSimpleTextureEffect::Create(filteredTexture, SkMatrix::I()))->unref();
-            devTex = filteredTexture;
-            filteredTexture->unref();
-        }
-    }
-
     const SkBitmap& bm = dev->accessBitmap(false);
     int w = bm.width();
     int h = bm.height();
+
+    SkImageFilter* filter = paint.getImageFilter();
+    if (NULL != filter) {
+        SkBitmap filterBitmap;
+        if (filter_texture(this, fContext, devTex, filter, w, h, &filterBitmap)) {
+            grPaint.colorStage(kBitmapTextureIdx)->setEffect(
+                GrSimpleTextureEffect::Create((GrTexture*) filterBitmap.getTexture(), SkMatrix::I()))->unref();
+            devTex = (GrTexture*) filterBitmap.getTexture();
+            w = filterBitmap.width();
+            h = filterBitmap.height();
+        }
+    }
 
     GrRect dstRect = GrRect::MakeXYWH(SkIntToScalar(x),
                                       SkIntToScalar(y),
@@ -1584,16 +1596,7 @@ bool SkGpuDevice::filterImage(SkImageFilter* filter, const SkBitmap& src,
     // must be pushed upstack.
     SkAutoCachedTexture act(this, src, NULL, &texture);
 
-    result->setConfig(src.config(), src.width(), src.height());
-    GrRect rect = GrRect::MakeWH(SkIntToScalar(src.width()),
-                                 SkIntToScalar(src.height()));
-    GrTexture* resultTexture = filter_texture(this, fContext, texture, filter, rect);
-    if (resultTexture) {
-        result->setPixelRef(SkNEW_ARGS(SkGrTexturePixelRef,
-                                       (resultTexture)))->unref();
-        resultTexture->unref();
-    }
-    return true;
+    return filter_texture(this, fContext, texture, filter, src.width(), src.height(), result);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

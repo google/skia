@@ -16,7 +16,6 @@ class SkDevice;
 class SkMatrix;
 struct SkIPoint;
 struct SkIRect;
-struct SkRect;
 class GrEffectRef;
 class GrTexture;
 
@@ -104,13 +103,13 @@ public:
     virtual bool canFilterImageGPU() const;
 
     /**
-     *  Process this image filter on the GPU.  texture is the source texture
-     *  for processing, and rect is the effect region to process.  The
-     *  function must allocate a new texture of at least rect width/height
-     *  size, and return it to the caller.  The default implementation returns
-     *  NULL.
+     *  Process this image filter on the GPU.  src is the source image for
+     *  processing, as a texture-backed bitmap.  result is the destination
+     *  bitmap, which should contain a texture-backed pixelref on success.
+     *  The default implementation returns returns false and ignores the
+     *  result parameter.
      */
-    virtual GrTexture* filterImageGPU(Proxy*, GrTexture* texture, const SkRect& rect);
+    virtual bool filterImageGPU(Proxy*, const SkBitmap& src, SkBitmap* result);
 
     /**
      *  Returns this image filter as a color filter if possible,

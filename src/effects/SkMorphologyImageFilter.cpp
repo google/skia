@@ -17,6 +17,7 @@
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLEffectMatrix.h"
 #include "effects/Gr1DKernelEffect.h"
+#include "SkImageFilterUtils.h"
 #endif
 
 SkMorphologyImageFilter::SkMorphologyImageFilter(SkFlattenableReadBuffer& buffer)
@@ -275,7 +276,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GrGLMorphologyEffect  : public GrGLEffect {
+class GrGLMorphologyEffect : public GrGLEffect {
 public:
     GrGLMorphologyEffect (const GrBackendEffectFactory&, const GrEffectRef&);
 
@@ -436,7 +437,7 @@ namespace {
 
 void apply_morphology_pass(GrContext* context,
                            GrTexture* texture,
-                           const SkRect& rect,
+                           const SkIRect& rect,
                            int radius,
                            GrMorphologyEffect::MorphologyType morphType,
                            Gr1DKernelEffect::Direction direction) {
@@ -445,11 +446,11 @@ void apply_morphology_pass(GrContext* context,
                                                               direction,
                                                               radius,
                                                               morphType))->unref();
-    context->drawRect(paint, rect);
+    context->drawRect(paint, SkRect::MakeFromIRect(rect));
 }
 
 GrTexture* apply_morphology(GrTexture* srcTexture,
-                            const GrRect& rect,
+                            const SkIRect& rect,
                             GrMorphologyEffect::MorphologyType morphType,
                             SkISize radius) {
     GrContext* context = srcTexture->getContext();
@@ -463,20 +464,17 @@ GrTexture* apply_morphology(GrTexture* srcTexture,
 
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
-    desc.fWidth = SkScalarCeilToInt(rect.width());
-    desc.fHeight = SkScalarCeilToInt(rect.height());
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
+    desc.fWidth = rect.width();
+    desc.fHeight = rect.height();
+    desc.fConfig = kSkia8888_GrPixelConfig;
 
     if (radius.fWidth > 0) {
         GrAutoScratchTexture ast(context, desc);
         GrContext::AutoRenderTarget art(context, ast.texture()->asRenderTarget());
         apply_morphology_pass(context, srcTexture, rect, radius.fWidth,
                               morphType, Gr1DKernelEffect::kX_Direction);
-        SkIRect clearRect = SkIRect::MakeXYWH(
-                    SkScalarFloorToInt(rect.fLeft),
-                    SkScalarFloorToInt(rect.fBottom),
-                    SkScalarFloorToInt(rect.width()),
-                    radius.fHeight);
+        SkIRect clearRect = SkIRect::MakeXYWH(rect.fLeft, rect.fBottom,
+                                              rect.width(), radius.fHeight);
         context->clear(&clearRect, 0x0);
         srcTexture->unref();
         srcTexture = ast.detach();
@@ -494,14 +492,30 @@ GrTexture* apply_morphology(GrTexture* srcTexture,
 
 };
 
-GrTexture* SkDilateImageFilter::filterImageGPU(Proxy* proxy, GrTexture* src, const SkRect& rect) {
-    SkAutoTUnref<GrTexture> input(this->getInputResultAsTexture(proxy, src, rect));
-    return apply_morphology(input, rect, GrMorphologyEffect::kDilate_MorphologyType, radius());
+bool SkDilateImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result) {
+    SkBitmap inputBM;
+    if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, &inputBM)) {
+        return false;
+    }
+    GrTexture* input = (GrTexture*) inputBM.getTexture();
+    SkIRect bounds;
+    src.getBounds(&bounds);
+    SkAutoTUnref<GrTexture> resultTex(apply_morphology(input, bounds,
+        GrMorphologyEffect::kDilate_MorphologyType, radius()));
+    return SkImageFilterUtils::WrapTexture(resultTex, src.width(), src.height(), result);
 }
 
-GrTexture* SkErodeImageFilter::filterImageGPU(Proxy* proxy, GrTexture* src, const SkRect& rect) {
-    SkAutoTUnref<GrTexture> input(this->getInputResultAsTexture(proxy, src, rect));
-    return apply_morphology(input, rect, GrMorphologyEffect::kErode_MorphologyType, radius());
+bool SkErodeImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result) {
+    SkBitmap inputBM;
+    if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, &inputBM)) {
+        return false;
+    }
+    GrTexture* input = (GrTexture*) inputBM.getTexture();
+    SkIRect bounds;
+    src.getBounds(&bounds);
+    SkAutoTUnref<GrTexture> resultTex(apply_morphology(input, bounds,
+        GrMorphologyEffect::kErode_MorphologyType, radius()));
+    return SkImageFilterUtils::WrapTexture(resultTex, src.width(), src.height(), result);
 }
 
 #endif
