@@ -890,6 +890,7 @@ bool SkMatrix::invertNonIdentity(SkMatrix* inv) const {
 
 #ifndef SK_IGNORE_FAST_SCALEMATRIX_INVERT
     if (0 == (mask & ~(kScale_Mask | kTranslate_Mask))) {
+        bool invertible = true;
         if (inv) {
             if (mask & kScale_Mask) {
                 SkScalar invX = fMat[kMScaleX];
@@ -917,8 +918,12 @@ bool SkMatrix::invertNonIdentity(SkMatrix* inv) const {
                 // translate only
                 inv->setTranslate(-fMat[kMTransX], -fMat[kMTransY]);
             }
+        } else {    // inv is NULL, just check if we're invertible
+            if (!fMat[kMScaleX] || !fMat[kMScaleY]) {
+                invertible = false;
+            }
         }
-        return true;
+        return invertible;
     }
 #endif
 
