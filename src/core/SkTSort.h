@@ -11,8 +11,22 @@
 #define SkTSort_DEFINED
 
 #include "SkTypes.h"
-/**
- *  Sifts a broken heap. The input array is a heap from root to bottom
+#include "SkMath.h"
+#include <stddef.h>
+
+/* A comparison functor which performs the comparison 'a < b'. */
+template <typename T> struct SkTCompareLT {
+    bool operator()(const T a, const T b) const { return a < b; }
+};
+
+/* A comparison functor which performs the comparison '*a < *b'. */
+template <typename T> struct SkTPointerCompareLT {
+    bool operator()(const T* a, const T* b) const { return *a < *b; }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+/*  Sifts a broken heap. The input array is a heap from root to bottom
  *  except that the root entry may be out of place.
  *
  *  Sinks a hole from array[root] to leaf and then sifts the original array[root] element
@@ -26,12 +40,13 @@
  *  @param root the one based index into array of the out-of-place root of the heap.
  *  @param bottom the one based index in the array of the last entry in the heap.
  */
-template <typename T> void SkTHeapSort_SiftUp(T array[], size_t root, size_t bottom) {
+template <typename T, typename C>
+void SkTHeapSort_SiftUp(T array[], size_t root, size_t bottom, C lessThan) {
     T x = array[root-1];
     size_t start = root;
     size_t j = root << 1;
     while (j <= bottom) {
-        if (j < bottom && array[j-1] < array[j]) {
+        if (j < bottom && lessThan(array[j-1], array[j])) {
             ++j;
         }
         array[root-1] = array[j-1];
@@ -40,7 +55,7 @@ template <typename T> void SkTHeapSort_SiftUp(T array[], size_t root, size_t bot
     }
     j = root >> 1;
     while (j >= start) {
-        if (array[j-1] < x) {
+        if (lessThan(array[j-1], x)) {
             array[root-1] = array[j-1];
             root = j;
             j = root >> 1;
@@ -51,8 +66,7 @@ template <typename T> void SkTHeapSort_SiftUp(T array[], size_t root, size_t bot
     array[root-1] = x;
 }
 
-/**
- *  Sifts a broken heap. The input array is a heap from root to bottom
+/*  Sifts a broken heap. The input array is a heap from root to bottom
  *  except that the root entry may be out of place.
  *
  *  Sifts the array[root] element from the root down.
@@ -60,14 +74,15 @@ template <typename T> void SkTHeapSort_SiftUp(T array[], size_t root, size_t bot
  *  @param root the one based index into array of the out-of-place root of the heap.
  *  @param bottom the one based index in the array of the last entry in the heap.
  */
-template <typename T> void SkTHeapSort_SiftDown(T array[], size_t root, size_t bottom) {
+template <typename T, typename C>
+void SkTHeapSort_SiftDown(T array[], size_t root, size_t bottom, C lessThan) {
     T x = array[root-1];
     size_t child = root << 1;
     while (child <= bottom) {
-        if (child < bottom && array[child-1] < array[child]) {
+        if (child < bottom && lessThan(array[child-1], array[child])) {
             ++child;
         }
-        if (x < array[child-1]) {
+        if (lessThan(x, array[child-1])) {
             array[root-1] = array[child-1];
             root = child;
             child = root << 1;
@@ -78,26 +93,52 @@ template <typename T> void SkTHeapSort_SiftDown(T array[], size_t root, size_t b
     array[root-1] = x;
 }
 
-template <typename T> void SkTHeapSort(T array[], size_t count) {
+/** Sorts the array of size count using comparator lessThan using a Heap Sort algorithm
+ *
+ *  @param array the array to be sorted.
+ *  @param count the number of elements in the array.
+ *  @param lessThan a functor with bool operator()(T a, T b) which returns true if a comes before b.
+ */
+template <typename T, typename C> void SkTHeapSort(T array[], size_t count, C lessThan) {
     for (size_t i = count >> 1; i > 0; --i) {
-        SkTHeapSort_SiftDown<T>(array, i, count);
+        SkTHeapSort_SiftDown(array, i, count, lessThan);
     }
 
     for (size_t i = count - 1; i > 0; --i) {
         SkTSwap<T>(array[0], array[i]);
-        SkTHeapSort_SiftUp(array, 1, i);
+        SkTHeapSort_SiftUp(array, 1, i, lessThan);
+    }
+}
+
+/** Sorts the array of size count using comparator '<' using a Heap Sort algorithm. */
+template <typename T> void SkTHeapSort(T array[], size_t count) {
+    SkTHeapSort(array, count, SkTCompareLT<T>());
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+/** Sorts the array of size count using comparator lessThan using an Insertion Sort algorithm. */
+template <typename T, typename C> static void SkTInsertionSort(T* left, T* right, C lessThan) {
+    for (T* next = left + 1; next <= right; ++next) {
+        T insert = *next;
+        T* hole = next;
+        while (left < hole && lessThan(insert, *(hole - 1))) {
+            *hole = *(hole - 1);
+            --hole;
+        }
+        *hole = insert;
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-template <typename T>
-static T** SkTQSort_Partition(T** left, T** right, T** pivot) {
-    T* pivotValue = *pivot;
+template <typename T, typename C>
+static T* SkTQSort_Partition(T* left, T* right, T* pivot, C lessThan) {
+    T pivotValue = *pivot;
     SkTSwap(*pivot, *right);
-    T** newPivot = left;
+    T* newPivot = left;
     while (left < right) {
-        if (**left < *pivotValue) {
+        if (lessThan(*left, pivotValue)) {
             SkTSwap(*left, *newPivot);
             newPivot += 1;
         }
@@ -107,74 +148,62 @@ static T** SkTQSort_Partition(T** left, T** right, T** pivot) {
     return newPivot;
 }
 
-template <typename T> void SkTQSort(T** left, T** right) {
+/*  Intro Sort is a modified Quick Sort.
+ *  It recurses on the smaller region after pivoting and loops on the larger.
+ *  When the region to be sorted is a small constant size it uses Insertion Sort.
+ *  When depth becomes zero, it switches over to Heap Sort.
+ */
+template <typename T, typename C> void SkTIntroSort(int depth, T* left, T* right, C lessThan) {
     while (left < right) {
-        T** pivot = left + ((right - left) >> 1);
-        pivot = SkTQSort_Partition(left, right, pivot);
+        if (depth == 0) {
+            SkTHeapSort<T>(left, right - left + 1, lessThan);
+            return;
+        }
+        --depth;
 
-        if (right - pivot > pivot - left) {
-            SkTQSort(left, pivot - 1);
+        T* pivot = left + ((right - left) >> 1);
+        pivot = SkTQSort_Partition(left, right, pivot, lessThan);
+
+        ptrdiff_t leftSize = pivot - left;
+        ptrdiff_t rightSize = right - pivot;
+        if (leftSize < rightSize) {
+            if (leftSize < 8) {
+                SkTInsertionSort(left, pivot - 1, lessThan);
+            } else {
+                SkTIntroSort(depth, left, pivot - 1, lessThan);
+            }
             left = pivot + 1;
         } else {
-            SkTQSort(pivot + 1, right);
+            if (rightSize < 8) {
+                SkTInsertionSort(pivot + 1, right, lessThan);
+            } else {
+                SkTIntroSort(depth, pivot + 1, right, lessThan);
+            }
             right = pivot - 1;
         }
     }
 }
 
-template <typename T>
-static T* SkTQSort_Partition(T* left, T* right, T* pivot) {
-    T pivotValue = *pivot;
-    SkTSwap(*pivot, *right);
-    T* newPivot = left;
-    while (left < right) {
-        if (*left < pivotValue) {
-            SkTSwap(*left, *newPivot);
-            newPivot += 1;
-        }
-        left += 1;
-    }
-    SkTSwap(*newPivot, *right);
-    return newPivot;
+/** Sorts the region from left to right using comparator lessThan using a Quick Sort algorithm.
+ *
+ *  @param left the beginning of the region to be sorted.
+ *  @param right the end of the region to be sorted (inclusive).
+ *  @param lessThan a functor with bool operator()(T a, T b) which returns true if a comes before b.
+ */
+template <typename T, typename C> void SkTQSort(T* left, T* right, C lessThan) {
+    ptrdiff_t size = right - left;
+    int depth = SkNextLog2(SkToU32(size));
+    SkTIntroSort(depth * 2, left, right, lessThan);
 }
 
+/** Sorts the region from left to right using comparator '<' using a Quick Sort algorithm. */
 template <typename T> void SkTQSort(T* left, T* right) {
-    if (left >= right) {
-        return;
-    }
-    T* pivot = left + ((right - left) >> 1);
-    pivot = SkTQSort_Partition(left, right, pivot);
-    SkTQSort(left, pivot - 1);
-    SkTQSort(pivot + 1, right);
+    SkTQSort(left, right, SkTCompareLT<T>());
 }
 
-template <typename S, typename T>
-static T* SkTQSort_Partition(S& context, T* left, T* right, T* pivot,
-                             bool (*lessThan)(S&, const T, const T)) {
-    T pivotValue = *pivot;
-    SkTSwap(*pivot, *right);
-    T* newPivot = left;
-    while (left < right) {
-        if (lessThan(context, *left, pivotValue)) {
-            SkTSwap(*left, *newPivot);
-            newPivot += 1;
-        }
-        left += 1;
-    }
-    SkTSwap(*newPivot, *right);
-    return newPivot;
-}
-
-template <typename S, typename T>
-void SkQSort(S& context, T* left, T* right,
-             bool (*lessThan)(S& , const T, const T)) {
-    if (left >= right) {
-        return;
-    }
-    T* pivot = left + ((right - left) >> 1);
-    pivot = SkTQSort_Partition(context, left, right, pivot, lessThan);
-    SkQSort(context, left, pivot - 1, lessThan);
-    SkQSort(context, pivot + 1, right, lessThan);
+/** Sorts the region from left to right using comparator '* < *' using a Quick Sort algorithm. */
+template <typename T> void SkTQSort(T** left, T** right) {
+    SkTQSort(left, right, SkTPointerCompareLT<T>());
 }
 
 #endif

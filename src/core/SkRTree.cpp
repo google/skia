@@ -261,8 +261,7 @@ int SkRTree::distributeChildren(Branch* children) {
 
         // Evaluate each sort
         for (int j = 0; j < 2; ++j) {
-
-            SkQSort(sorts[i][j], children, children + fMaxChildren, &RectLessThan);
+            SkTQSort(children, children + fMaxChildren, RectLessThan(sorts[i][j]));
 
             // Evaluate each split index
             for (int32_t k = 1; k <= fMaxChildren - 2 * fMinChildren + 2; ++k) {
@@ -299,7 +298,7 @@ int SkRTree::distributeChildren(Branch* children) {
     // replicate the sort of the winning distribution, (we can skip this if the last
     // sort ended up being best)
     if (!(axis == 1 && sortSide == 1)) {
-        SkQSort(sorts[axis][sortSide], children, children + fMaxChildren, &RectLessThan);
+        SkTQSort(children, children + fMaxChildren, RectLessThan(sorts[axis][sortSide]));
     }
 
     return fMinChildren - 1 + k;
@@ -325,7 +324,7 @@ SkRTree::Branch SkRTree::bulkLoad(SkTDArray<Branch>* branches, int level) {
         return out;
     } else {
         // First we sort the whole list by y coordinates
-        SkQSort<int, Branch>(level, branches->begin(), branches->end() - 1, &RectLessY);
+        SkTQSort(branches->begin(), branches->end() - 1, RectLessY());
 
         int numBranches = branches->count() / fMaxChildren;
         int remainder = branches->count() % fMaxChildren;
@@ -357,8 +356,7 @@ SkRTree::Branch SkRTree::bulkLoad(SkTDArray<Branch>* branches, int level) {
             }
 
             // Now we sort horizontal strips of rectangles by their x coords
-            SkQSort<int, Branch>(level, branches->begin() + begin, branches->begin() + end - 1,
-                                 &RectLessX);
+            SkTQSort(branches->begin() + begin, branches->begin() + end - 1, RectLessX());
 
             for (int j = 0; j < numTiles && currentBranch < branches->count(); ++j) {
                 int incrementBy = fMaxChildren;
