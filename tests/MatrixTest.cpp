@@ -378,8 +378,10 @@ static void TestMatrix(skiatest::Reporter* reporter) {
     test_flatten(reporter, iden2);
 
     mat.setScale(0, SK_Scalar1);
+    REPORTER_ASSERT(reporter, !mat.invert(NULL));
     REPORTER_ASSERT(reporter, !mat.invert(&inverse));
     mat.setScale(SK_Scalar1, 0);
+    REPORTER_ASSERT(reporter, !mat.invert(NULL));
     REPORTER_ASSERT(reporter, !mat.invert(&inverse));
 
     // rectStaysRect test
