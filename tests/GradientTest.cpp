@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 #include "Test.h"
+#include "SkDevice.h"
 #include "SkTemplates.h"
 #include "SkShader.h"
 #include "SkColorShader.h"
@@ -126,9 +127,39 @@ static void conical_gradproc(skiatest::Reporter* reporter, const GradRec& rec) {
     REPORTER_ASSERT(reporter, !memcmp(info.fRadius, rec.fRadius, 2 * sizeof(SkScalar)));
 }
 
+// Ensure that repeated color gradients behave like drawing a single color
+static void TestConstantGradient(skiatest::Reporter* reporter) {
+    const SkPoint pts[] = {
+        { 0, 0 },
+        { SkIntToScalar(10), 0 }
+    };
+    SkColor colors[] = { SK_ColorBLUE, SK_ColorBLUE };
+    const SkScalar pos[] = { 0, SK_Scalar1 };
+    SkAutoTUnref<SkShader> s(SkGradientShader::CreateLinear(pts,
+                                                            colors,
+                                                            pos,
+                                                            2,
+                                                            SkShader::kClamp_TileMode));
+    SkBitmap outBitmap;
+    outBitmap.setConfig(SkBitmap::kARGB_8888_Config, 10, 1);
+    outBitmap.allocPixels();
+    SkPaint paint;
+    paint.setShader(s.get());
+    SkDevice device(outBitmap);
+    SkCanvas canvas(&device);
+    canvas.drawPaint(paint);
+    SkAutoLockPixels alp(outBitmap);
+    for (int i = 0; i < 10; i++) {
+        // The following is commented out because it currently fails
+        // Related bug: https://code.google.com/p/skia/issues/detail?id=1098
+
+        // REPORTER_ASSERT(reporter, SK_ColorBLUE == outBitmap.getColor(i, 0));
+    }
+}
+
 typedef void (*GradProc)(skiatest::Reporter* reporter, const GradRec&);
 
-static void TestGradients(skiatest::Reporter* reporter) {
+static void TestGradientShaders(skiatest::Reporter* reporter) {
     static const SkColor gColors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
     static const SkScalar gPos[] = { 0, SK_ScalarHalf, SK_Scalar1 };
     static const SkPoint gPts[] = {
@@ -160,5 +191,9 @@ static void TestGradients(skiatest::Reporter* reporter) {
     }
 }
 
+static void TestGradients(skiatest::Reporter* reporter) {
+    TestGradientShaders(reporter);
+    TestConstantGradient(reporter);
+}
 #include "TestClassDef.h"
 DEFINE_TESTCLASS("Gradients", TestGradientsClass, TestGradients)
