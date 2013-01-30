@@ -386,6 +386,13 @@ void SkDebuggerGUI::actionProfile() {
     sk_tools::SimplePictureRenderer* renderer = NULL;
 
     renderer = SkNEW(sk_tools::SimplePictureRenderer);
+
+#if SK_SUPPORT_GPU
+    if (Qt::Checked == fSettingsWidget.getGLCheckBox()->checkState()) {
+        renderer->setDeviceType(sk_tools::PictureRenderer::kGPU_DeviceType);
+    }
+#endif
+
 #endif
 
     static const int kNumRepeats = 10;
