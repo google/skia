@@ -57,7 +57,7 @@ void CubicIntersection_Test() {
     }
 }
 
-#define ONE_OFF_DEBUG 1
+#define ONE_OFF_DEBUG 0
 
 static void oneOff(const Cubic& cubic1, const Cubic& cubic2) {
     SkTDArray<Quadratic> quads1;
