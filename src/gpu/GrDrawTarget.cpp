@@ -341,20 +341,28 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
 void GrDrawTarget::drawIndexed(GrPrimitiveType type, int startVertex,
                                int startIndex, int vertexCount,
                                int indexCount) {
-    if (indexCount > 0 &&
-        this->checkDraw(type, startVertex, startIndex,
-                        vertexCount, indexCount)) {
-        this->onDrawIndexed(type, startVertex, startIndex,
-                            vertexCount, indexCount);
+    if (indexCount > 0 && this->checkDraw(type, startVertex, startIndex, vertexCount, indexCount)) {
+        DrawInfo info;
+        info.fPrimitiveType = type;
+        info.fStartVertex   = startVertex;
+        info.fStartIndex    = startIndex;
+        info.fVertexCount   = vertexCount;
+        info.fIndexCount    = indexCount;
+        this->onDraw(info);
     }
 }
 
 void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
                                   int startVertex,
                                   int vertexCount) {
-    if (vertexCount > 0 &&
-        this->checkDraw(type, startVertex, -1, vertexCount, -1)) {
-        this->onDrawNonIndexed(type, startVertex, vertexCount);
+    if (vertexCount > 0 && this->checkDraw(type, startVertex, -1, vertexCount, -1)) {
+        DrawInfo info;
+        info.fPrimitiveType = type;
+        info.fStartVertex   = startVertex;
+        info.fStartIndex    = 0;
+        info.fVertexCount   = vertexCount;
+        info.fIndexCount    = 0;
+        this->onDraw(info);
     }
 }
 

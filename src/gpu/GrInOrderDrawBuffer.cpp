@@ -217,7 +217,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
 
             int vsize = GrDrawState::VertexSize(layout);
 
-            Draw& lastDraw = fDraws.back();
+            DrawRecord& lastDraw = fDraws.back();
 
             GrAssert(lastDraw.fIndexBuffer == fQuadIndexBuffer);
             GrAssert(kTriangles_GrPrimitiveType == lastDraw.fPrimitiveType);
@@ -227,10 +227,10 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
 
             GeometryPoolState& poolState = fGeoPoolStateStack.back();
 
-            appendToPreviousDraw =
-                kDraw_Cmd == fCmds.back() &&
-                lastDraw.fVertexBuffer == poolState.fPoolVertexBuffer &&
-                (fCurrQuad * 4 + lastDraw.fStartVertex) == poolState.fPoolStartVertex;
+            appendToPreviousDraw = kDraw_Cmd == fCmds.back() &&
+                                   lastDraw.fVertexBuffer == poolState.fPoolVertexBuffer &&
+                                   (fCurrQuad * 4 + lastDraw.fStartVertex) ==
+                                   poolState.fPoolStartVertex;
 
             if (appendToPreviousDraw) {
                 lastDraw.fVertexCount += 4;
@@ -279,7 +279,7 @@ void GrInOrderDrawBuffer::drawIndexedInstances(GrPrimitiveType type,
             this->recordState();
         }
 
-        Draw* draw = NULL;
+        DrawRecord* draw = NULL;
         // if the last draw used the same indices/vertices per shape then we
         // may be able to append to it.
         if (kDraw_Cmd == fCmds.back() &&
@@ -371,18 +371,9 @@ void GrInOrderDrawBuffer::drawIndexedInstances(GrPrimitiveType type,
                                               verticesPerInstance,
                                               indicesPerInstance);
     }
-
 }
 
-void GrInOrderDrawBuffer::onDrawIndexed(GrPrimitiveType primitiveType,
-                                        int startVertex,
-                                        int startIndex,
-                                        int vertexCount,
-                                        int indexCount) {
-
-    if (!vertexCount || !indexCount) {
-        return;
-    }
+void GrInOrderDrawBuffer::onDraw(const DrawInfo& info) {
 
     this->resetDrawTracking();
 
@@ -395,98 +386,49 @@ void GrInOrderDrawBuffer::onDrawIndexed(GrPrimitiveType primitiveType,
         this->recordState();
     }
 
-    Draw* draw = this->recordDraw();
-
-    draw->fPrimitiveType = primitiveType;
-    draw->fStartVertex   = startVertex;
-    draw->fStartIndex    = startIndex;
-    draw->fVertexCount   = vertexCount;
-    draw->fIndexCount    = indexCount;
-
+    DrawRecord* draw = this->recordDraw(info);
     draw->fVertexLayout = this->getVertexLayout();
+
     switch (this->getGeomSrc().fVertexSrc) {
-    case kBuffer_GeometrySrcType:
-        draw->fVertexBuffer = this->getGeomSrc().fVertexBuffer;
-        break;
-    case kReserved_GeometrySrcType: // fallthrough
-    case kArray_GeometrySrcType: {
-        size_t vertexBytes = (vertexCount + startVertex) *
-                             GrDrawState::VertexSize(draw->fVertexLayout);
-        poolState.fUsedPoolVertexBytes =
-                            GrMax(poolState.fUsedPoolVertexBytes, vertexBytes);
-        draw->fVertexBuffer = poolState.fPoolVertexBuffer;
-        draw->fStartVertex += poolState.fPoolStartVertex;
-        break;
-    }
-    default:
-        GrCrash("unknown geom src type");
+        case kBuffer_GeometrySrcType:
+            draw->fVertexBuffer = this->getGeomSrc().fVertexBuffer;
+            break;
+        case kReserved_GeometrySrcType: // fallthrough
+        case kArray_GeometrySrcType: {
+            size_t vertexBytes = (info.vertexCount() + info.startVertex()) *
+                                 GrDrawState::VertexSize(draw->fVertexLayout);
+            poolState.fUsedPoolVertexBytes = GrMax(poolState.fUsedPoolVertexBytes, vertexBytes);
+            draw->fVertexBuffer = poolState.fPoolVertexBuffer;
+            draw->fStartVertex += poolState.fPoolStartVertex;
+            break;
+        }
+        default:
+            GrCrash("unknown geom src type");
     }
     draw->fVertexBuffer->ref();
 
-    switch (this->getGeomSrc().fIndexSrc) {
-    case kBuffer_GeometrySrcType:
-        draw->fIndexBuffer = this->getGeomSrc().fIndexBuffer;
-        break;
-    case kReserved_GeometrySrcType: // fallthrough
-    case kArray_GeometrySrcType: {
-        size_t indexBytes = (indexCount + startIndex) * sizeof(uint16_t);
-        poolState.fUsedPoolIndexBytes =
-                            GrMax(poolState.fUsedPoolIndexBytes, indexBytes);
-        draw->fIndexBuffer = poolState.fPoolIndexBuffer;
-        draw->fStartIndex += poolState.fPoolStartIndex;
-        break;
+    if (info.isIndexed()) {
+        switch (this->getGeomSrc().fIndexSrc) {
+            case kBuffer_GeometrySrcType:
+                draw->fIndexBuffer = this->getGeomSrc().fIndexBuffer;
+                break;
+            case kReserved_GeometrySrcType: // fallthrough
+            case kArray_GeometrySrcType: {
+                size_t indexBytes = (info.indexCount() + info.startIndex()) * sizeof(uint16_t);
+                poolState.fUsedPoolIndexBytes = GrMax(poolState.fUsedPoolIndexBytes, indexBytes);
+                draw->fIndexBuffer = poolState.fPoolIndexBuffer;
+                draw->fStartIndex += poolState.fPoolStartIndex;
+                break;
+            }
+            default:
+                GrCrash("unknown geom src type");
+        }
+        draw->fIndexBuffer->ref();
+    } else {
+        draw->fIndexBuffer = NULL;
     }
-    default:
-        GrCrash("unknown geom src type");
-    }
-    draw->fIndexBuffer->ref();
 }
 
-void GrInOrderDrawBuffer::onDrawNonIndexed(GrPrimitiveType primitiveType,
-                                           int startVertex,
-                                           int vertexCount) {
-    if (!vertexCount) {
-        return;
-    }
-
-    this->resetDrawTracking();
-
-    GeometryPoolState& poolState = fGeoPoolStateStack.back();
-    if (this->needsNewClip()) {
-        this->recordClip();
-    }
-    if (this->needsNewState()) {
-        this->recordState();
-    }
-
-    Draw* draw = this->recordDraw();
-    draw->fPrimitiveType = primitiveType;
-    draw->fStartVertex   = startVertex;
-    draw->fStartIndex    = 0;
-    draw->fVertexCount   = vertexCount;
-    draw->fIndexCount    = 0;
-
-    draw->fVertexLayout = this->getVertexLayout();
-    switch (this->getGeomSrc().fVertexSrc) {
-    case kBuffer_GeometrySrcType:
-        draw->fVertexBuffer = this->getGeomSrc().fVertexBuffer;
-        break;
-    case kReserved_GeometrySrcType: // fallthrough
-    case kArray_GeometrySrcType: {
-        size_t vertexBytes = (vertexCount + startVertex) *
-                             GrDrawState::VertexSize(draw->fVertexLayout);
-        poolState.fUsedPoolVertexBytes =
-                            GrMax(poolState.fUsedPoolVertexBytes, vertexBytes);
-        draw->fVertexBuffer = poolState.fPoolVertexBuffer;
-        draw->fStartVertex += poolState.fPoolStartVertex;
-        break;
-    }
-    default:
-        GrCrash("unknown geom src type");
-    }
-    draw->fVertexBuffer->ref();
-    draw->fIndexBuffer = NULL;
-}
 
 GrInOrderDrawBuffer::StencilPath::StencilPath() : fStroke(SkStrokeRec::kFill_InitStyle) {}
 
@@ -588,7 +530,7 @@ bool GrInOrderDrawBuffer::flushTo(GrDrawTarget* target) {
     for (int c = 0; c < numCmds; ++c) {
         switch (fCmds[c]) {
             case kDraw_Cmd: {
-                const Draw& draw = fDraws[currDraw];
+                const DrawRecord& draw = fDraws[currDraw];
                 target->setVertexSourceToBuffer(draw.fVertexLayout, draw.fVertexBuffer);
                 if (draw.fIndexCount) {
                     target->setIndexSourceToBuffer(draw.fIndexBuffer);
@@ -892,9 +834,19 @@ void GrInOrderDrawBuffer::recordState() {
     fCmds.push_back(kSetState_Cmd);
 }
 
-GrInOrderDrawBuffer::Draw* GrInOrderDrawBuffer::recordDraw() {
+GrInOrderDrawBuffer::DrawRecord* GrInOrderDrawBuffer::recordDraw() {
     fCmds.push_back(kDraw_Cmd);
     return &fDraws.push_back();
+}
+
+GrInOrderDrawBuffer::DrawRecord* GrInOrderDrawBuffer::recordDraw(const DrawInfo& info) {
+    DrawRecord* record = this->recordDraw();
+    record->fPrimitiveType  = info.primitiveType();
+    record->fStartVertex    = info.startVertex();
+    record->fVertexCount    = info.vertexCount();
+    record->fStartIndex     = info.startIndex();
+    record->fIndexCount     = info.indexCount();
+    return record;
 }
 
 GrInOrderDrawBuffer::StencilPath* GrInOrderDrawBuffer::recordStencilPath() {

@@ -317,7 +317,7 @@ public:
 
     /**
      * These methods are called by the clip manager's setupClipping function
-     * which (called as part of GrGpu's implementation of onDraw* and
+     * which (called as part of GrGpu's implementation of onDraw and
      * onStencilPath member functions.) The GrGpu subclass should flush the
      * stencil state to the 3D API in its implementation of flushGraphicsState.
      */
@@ -454,15 +454,7 @@ private:
     virtual void onClear(const GrIRect* rect, GrColor color) = 0;
 
     // overridden by backend-specific derived class to perform the draw call.
-    virtual void onGpuDrawIndexed(GrPrimitiveType type,
-                                  uint32_t startVertex,
-                                  uint32_t startIndex,
-                                  uint32_t vertexCount,
-                                  uint32_t indexCount) = 0;
-
-    virtual void onGpuDrawNonIndexed(GrPrimitiveType type,
-                                     uint32_t vertexCount,
-                                     uint32_t numVertices) = 0;
+    virtual void onGpuDraw(const DrawInfo&) = 0;
     // when GrDrawTarget::stencilPath is called the draw state's current stencil
     // settings are ignored. Instead the GrGpu decides the stencil rules
     // necessary to stencil the path. These are still subject to filtering by
@@ -493,24 +485,13 @@ private:
     // overridden by backend-specific derived class to perform the resolve
     virtual void onResolveRenderTarget(GrRenderTarget* target) = 0;
 
-    // called to program the vertex data, indexCount will be 0 if drawing non-
-    // indexed geometry. The subclass may adjust the startVertex and/or
-    // startIndex since it may have already accounted for these in the setup.
-    virtual void setupGeometry(int* startVertex,
-                               int* startIndex,
-                               int vertexCount,
-                               int indexCount) = 0;
-
     // width and height may be larger than rt (if underlying API allows it).
     // Should attach the SB to the RT. Returns false if compatible sb could
     // not be created.
-    virtual bool createStencilBufferForRenderTarget(GrRenderTarget* rt,
-                                                    int width,
-                                                    int height) = 0;
+    virtual bool createStencilBufferForRenderTarget(GrRenderTarget*, int width, int height) = 0;
 
     // attaches an existing SB to an existing RT.
-    virtual bool attachStencilBufferToRenderTarget(GrStencilBuffer* sb,
-                                                   GrRenderTarget* rt) = 0;
+    virtual bool attachStencilBufferToRenderTarget(GrStencilBuffer*, GrRenderTarget*) = 0;
 
     // The GrGpu typically records the clients requested state and then flushes
     // deltas from previous state at draw time. This function does the
@@ -525,14 +506,7 @@ private:
     bool attachStencilBufferToRenderTarget(GrRenderTarget* target);
 
     // GrDrawTarget overrides
-    virtual void onDrawIndexed(GrPrimitiveType type,
-                               int startVertex,
-                               int startIndex,
-                               int vertexCount,
-                               int indexCount) SK_OVERRIDE;
-    virtual void onDrawNonIndexed(GrPrimitiveType type,
-                                  int startVertex,
-                                  int vertexCount) SK_OVERRIDE;
+    virtual void onDraw(const DrawInfo&) SK_OVERRIDE;
     virtual void onStencilPath(const GrPath* path, const SkStrokeRec& stroke,
                                SkPath::FillType) SK_OVERRIDE;
 

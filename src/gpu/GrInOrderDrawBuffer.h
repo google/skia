@@ -120,7 +120,8 @@ private:
         kClear_Cmd          = 5,
     };
 
-    struct Draw {
+    // TODO: Make this derive from DrawInfo
+    struct DrawRecord {
         GrPrimitiveType         fPrimitiveType;
         int                     fStartVertex;
         int                     fStartIndex;
@@ -149,14 +150,7 @@ private:
     };
 
     // overrides from GrDrawTarget
-    virtual void onDrawIndexed(GrPrimitiveType primitiveType,
-                               int startVertex,
-                               int startIndex,
-                               int vertexCount,
-                               int indexCount) SK_OVERRIDE;
-    virtual void onDrawNonIndexed(GrPrimitiveType primitiveType,
-                                  int startVertex,
-                                  int vertexCount) SK_OVERRIDE;
+    virtual void onDraw(const DrawInfo&) SK_OVERRIDE;
     virtual void onStencilPath(const GrPath*, const SkStrokeRec& stroke, SkPath::FillType) SK_OVERRIDE;
     virtual bool onReserveVertexSpace(GrVertexLayout layout,
                                       int vertexCount,
@@ -186,7 +180,8 @@ private:
     // these functions record a command
     void            recordState();
     void            recordClip();
-    Draw*           recordDraw();
+    DrawRecord*     recordDraw();
+    DrawRecord*     recordDraw(const DrawInfo&);
     StencilPath*    recordStencilPath();
     Clear*          recordClear();
 
@@ -205,7 +200,7 @@ private:
     };
 
     SkSTArray<kCmdPreallocCnt, uint8_t, true>                          fCmds;
-    GrSTAllocator<kDrawPreallocCnt, Draw>                              fDraws;
+    GrSTAllocator<kDrawPreallocCnt, DrawRecord>                        fDraws;
     GrSTAllocator<kStatePreallocCnt, StencilPath>                      fStencilPaths;
     GrSTAllocator<kStatePreallocCnt, GrDrawState::DeferredState>       fStates;
     GrSTAllocator<kClearPreallocCnt, Clear>                            fClears;
