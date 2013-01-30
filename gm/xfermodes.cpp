@@ -102,7 +102,7 @@ protected:
             { SkXfermode::kXor_Mode,      "Xor"       },
 
             { SkXfermode::kPlus_Mode,         "Plus"          },
-            { SkXfermode::kMultiply_Mode,     "Multiply"      },
+            { SkXfermode::kModulate_Mode,     "Modulate"      },
             { SkXfermode::kScreen_Mode,       "Screen"        },
             { SkXfermode::kOverlay_Mode,      "Overlay"       },
             { SkXfermode::kDarken_Mode,       "Darken"        },

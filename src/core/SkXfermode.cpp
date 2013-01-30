@@ -182,8 +182,8 @@ static SkPMColor plus_modeproc(SkPMColor src, SkPMColor dst) {
     return SkPackARGB32(a, r, g, b);
 }
 
-// kMultiply_Mode
-static SkPMColor multiply_modeproc(SkPMColor src, SkPMColor dst) {
+// kModulate_Mode
+static SkPMColor modulate_modeproc(SkPMColor src, SkPMColor dst) {
     int a = SkAlphaMulAlpha(SkGetPackedA32(src), SkGetPackedA32(dst));
     int r = SkAlphaMulAlpha(SkGetPackedR32(src), SkGetPackedR32(dst));
     int g = SkAlphaMulAlpha(SkGetPackedG32(src), SkGetPackedG32(dst));
@@ -436,7 +436,7 @@ static const ProcCoeff gProcCoeffs[] = {
     { xor_modeproc,     SkXfermode::kIDA_Coeff,     SkXfermode::kISA_Coeff },
 
     { plus_modeproc,    SkXfermode::kOne_Coeff,     SkXfermode::kOne_Coeff },
-    { multiply_modeproc,SkXfermode::kZero_Coeff,    SkXfermode::kSC_Coeff },
+    { modulate_modeproc,SkXfermode::kZero_Coeff,    SkXfermode::kSC_Coeff },
     { screen_modeproc,      CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
     { overlay_modeproc,     CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
     { darken_modeproc,      CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
@@ -771,7 +771,7 @@ void SkProcCoeffXfermode::toString(SkString* str) const {
     const char *gModeStrings[kLastMode+1] = {
         "Clear", "Src", "Dst", "SrcOver", "DstOver", "SrcIn", "DstIn",
         "SrcOut", "DstOut", "SrcATop", "DstATop", "Xor", "Plus",
-        "Multiply", "Screen", "Overlay", "Darken", "Lighten", "ColorDodge",
+        "Modulate", "Screen", "Overlay", "Darken", "Lighten", "ColorDodge",
         "ColorBurn", "HardLight", "SoftLight", "Difference", "Exclusion"
     };
 
@@ -1234,7 +1234,7 @@ static const Proc16Rec gModeProcs16[] = {
     { NULL,                 NULL,                   NULL            }, // XOR
 
     { NULL,                 NULL,                   NULL            }, // plus
-    { NULL,                 NULL,                   NULL            }, // multiply
+    { NULL,                 NULL,                   NULL            }, // modulate
     { NULL,                 NULL,                   NULL            }, // screen
     { NULL,                 NULL,                   NULL            }, // overlay
     { darken_modeproc16_0,  darken_modeproc16_255,  NULL            }, // darken
