@@ -96,14 +96,7 @@ private:
 
     virtual void onResolveRenderTarget(GrRenderTarget* target) SK_OVERRIDE;
 
-    virtual void onGpuDrawIndexed(GrPrimitiveType type,
-                                  uint32_t startVertex,
-                                  uint32_t startIndex,
-                                  uint32_t vertexCount,
-                                  uint32_t indexCount) SK_OVERRIDE;
-    virtual void onGpuDrawNonIndexed(GrPrimitiveType type,
-                                     uint32_t vertexCount,
-                                     uint32_t numVertices) SK_OVERRIDE;
+    virtual void onGpuDraw(const DrawInfo&) SK_OVERRIDE;
 
     virtual void setStencilPathSettings(const GrPath&,
                                         SkPath::FillType,
@@ -115,22 +108,23 @@ private:
     virtual void clearStencilClip(const GrIRect& rect,
                                   bool insideClip) SK_OVERRIDE;
     virtual bool flushGraphicsState(DrawType) SK_OVERRIDE;
-    virtual void setupGeometry(int* startVertex,
-                               int* startIndex,
-                               int vertexCount,
-                               int indexCount) SK_OVERRIDE;
 
     const GrGLCaps& glCaps() const { return fGLContextInfo.caps(); }
 
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
 
-    // binds appropriate vertex and index buffers, also returns any extra
-    // extra verts or indices to offset by.
+    // Sets up vertex attribute pointers and strides. On return startIndexOffset specifies an
+    // offset into the index buffer to the first index to be read (in addition to
+    // info.startIndex()). It accounts for the fact that index buffer pool may have provided space
+    // in the middle of a larger index buffer.
+    void setupGeometry(const DrawInfo& info, int* startIndexOffset);
+    // binds appropriate vertex and index buffers, also returns any extra verts or indices to
+    // offset by based on how space was allocated in pool VB/IBs.
     void setBuffers(bool indexed, int* extraVertexOffset, int* extraIndexOffset);
 
     // Subclasses should call this to flush the blend state.
-    // The params should be the final coeffecients to apply
+    // The params should be the final coefficients to apply
     // (after any blending optimizations or dual source blending considerations
     // have been accounted for).
     void flushBlend(bool isLines, GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff);

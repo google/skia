@@ -371,45 +371,18 @@ void GrGpu::geometrySourceWillPop(const GeometrySrcState& restoredState) {
     fGeomPoolStateStack.pop_back();
 }
 
-void GrGpu::onDrawIndexed(GrPrimitiveType type,
-                          int startVertex,
-                          int startIndex,
-                          int vertexCount,
-                          int indexCount) {
-
+void GrGpu::onDraw(const DrawInfo& info) {
     this->handleDirtyContext();
-
-    if (!this->setupClipAndFlushState(PrimTypeToDrawType(type))) {
+    if (!this->setupClipAndFlushState(PrimTypeToDrawType(info.primitiveType()))) {
         return;
     }
-
-    int sVertex = startVertex;
-    int sIndex = startIndex;
-    setupGeometry(&sVertex, &sIndex, vertexCount, indexCount);
-
-    this->onGpuDrawIndexed(type, sVertex, sIndex,
-                           vertexCount, indexCount);
-}
-
-void GrGpu::onDrawNonIndexed(GrPrimitiveType type,
-                             int startVertex,
-                             int vertexCount) {
-    this->handleDirtyContext();
-
-    if (!this->setupClipAndFlushState(PrimTypeToDrawType(type))) {
-        return;
-    }
-
-    int sVertex = startVertex;
-    setupGeometry(&sVertex, NULL, vertexCount, 0);
-
-    this->onGpuDrawNonIndexed(type, sVertex, vertexCount);
+    this->onGpuDraw(info);
 }
 
 void GrGpu::onStencilPath(const GrPath* path, const SkStrokeRec&, SkPath::FillType fill) {
     this->handleDirtyContext();
 
-    // TODO: make this more effecient (don't copy and copy back)
+    // TODO: make this more efficient (don't copy and copy back)
     GrAutoTRestore<GrStencilSettings> asr(this->drawState()->stencil());
 
     this->setStencilPathSettings(*path, fill, this->drawState()->stencil());

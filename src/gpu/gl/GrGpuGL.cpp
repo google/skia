@@ -1606,53 +1606,28 @@ GrGLenum gPrimitiveType2GLMode[] = {
     #endif
 #endif
 
-void GrGpuGL::onGpuDrawIndexed(GrPrimitiveType type,
-                               uint32_t startVertex,
-                               uint32_t startIndex,
-                               uint32_t vertexCount,
-                               uint32_t indexCount) {
-    GrAssert((size_t)type < GR_ARRAY_COUNT(gPrimitiveType2GLMode));
+void GrGpuGL::onGpuDraw(const DrawInfo& info) {
+    int extraStartIndexOffset;
+    this->setupGeometry(info, &extraStartIndexOffset);
 
-    GrGLvoid* indices = (GrGLvoid*)(sizeof(uint16_t) * startIndex);
-
-    GrAssert(NULL != fHWGeometryState.fIndexBuffer);
+    GrAssert((size_t)info.primitiveType() < GR_ARRAY_COUNT(gPrimitiveType2GLMode));
     GrAssert(NULL != fHWGeometryState.fVertexBuffer);
 
-    // our setupGeometry better have adjusted this to zero since
-    // DrawElements always draws from the begining of the arrays for idx 0.
-    GrAssert(0 == startVertex);
-
-    GL_CALL(DrawElements(gPrimitiveType2GLMode[type], indexCount,
-                         GR_GL_UNSIGNED_SHORT, indices));
-#if SWAP_PER_DRAW
-    glFlush();
-    #if GR_MAC_BUILD
-        aglSwapBuffers(aglGetCurrentContext());
-        int set_a_break_pt_here = 9;
-        aglSwapBuffers(aglGetCurrentContext());
-    #elif GR_WIN32_BUILD
-        SwapBuf();
-        int set_a_break_pt_here = 9;
-        SwapBuf();
-    #endif
-#endif
-}
-
-void GrGpuGL::onGpuDrawNonIndexed(GrPrimitiveType type,
-                                  uint32_t startVertex,
-                                  uint32_t vertexCount) {
-    GrAssert((size_t)type < GR_ARRAY_COUNT(gPrimitiveType2GLMode));
-
-    GrAssert(NULL != fHWGeometryState.fVertexBuffer);
-
-    // our setupGeometry better have adjusted this to zero.
-    // DrawElements doesn't take an offset so we always adjus the startVertex.
-    GrAssert(0 == startVertex);
-
-    // pass 0 for parameter first. We have to adjust gl*Pointer() to
-    // account for startVertex in the DrawElements case. So we always
-    // rely on setupGeometry to have accounted for startVertex.
-    GL_CALL(DrawArrays(gPrimitiveType2GLMode[type], 0, vertexCount));
+    if (info.isIndexed()) {
+        GrAssert(NULL != fHWGeometryState.fIndexBuffer);
+        GrGLvoid* indices = (GrGLvoid*)(sizeof(uint16_t) * (info.startIndex() +
+                                                            extraStartIndexOffset));
+        // info.startVertex() was accounted for by setupGeometry.
+        GL_CALL(DrawElements(gPrimitiveType2GLMode[info.primitiveType()],
+                             info.indexCount(),
+                             GR_GL_UNSIGNED_SHORT,
+                             indices));
+    } else {
+        // Pass 0 for parameter first. We have to adjust glVertexAttribPointer() to account for
+        // startVertex in the DrawElements case. So we always rely on setupGeometry to have
+        // accounted for startVertex.
+        GL_CALL(DrawArrays(gPrimitiveType2GLMode[info.primitiveType()], 0, info.vertexCount()));
+    }
 #if SWAP_PER_DRAW
     glFlush();
     #if GR_MAC_BUILD
@@ -1687,7 +1662,6 @@ const GrStencilSettings& even_odd_nv_path_stencil_settings() {
     return *GR_CONST_STENCIL_SETTINGS_PTR_FROM_STRUCT_PTR(&gSettings);
 }
 }
-
 
 void GrGpuGL::setStencilPathSettings(const GrPath&,
                                      SkPath::FillType fill,

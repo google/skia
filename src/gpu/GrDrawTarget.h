@@ -727,6 +727,37 @@ protected:
 
     Caps fCaps;
 
+    class DrawInfo {
+    public:
+        DrawInfo(const DrawInfo& di) { (*this) = di; }
+        DrawInfo& operator =(const DrawInfo& di) {
+            fPrimitiveType  = di.fPrimitiveType;
+            fStartVertex    = di.fStartVertex;
+            fStartIndex     = di.fStartIndex;
+            fVertexCount    = di.fVertexCount;
+            fIndexCount     = di.fIndexCount;
+            return *this;
+        }
+
+        GrPrimitiveType primitiveType() const { return fPrimitiveType; }
+        int startVertex() const { return fStartVertex; }
+        int startIndex() const { return fStartIndex; }
+        int vertexCount() const { return fVertexCount; }
+        int indexCount() const { return fIndexCount; }
+
+        bool isIndexed() const { return fIndexCount > 0; }
+
+    private:
+        DrawInfo() {}
+        friend class GrDrawTarget;
+        GrPrimitiveType fPrimitiveType;
+
+        int             fStartVertex;
+        int             fStartIndex;
+        int             fVertexCount;
+        int             fIndexCount;
+    };
+
 private:
     // A subclass can optionally overload this function to be notified before
     // vertex and index space is reserved.
@@ -748,14 +779,7 @@ private:
     virtual void geometrySourceWillPush() = 0;
     virtual void geometrySourceWillPop(const GeometrySrcState& restoredState) = 0;
     // subclass called to perform drawing
-    virtual void onDrawIndexed(GrPrimitiveType type,
-                               int startVertex,
-                               int startIndex,
-                               int vertexCount,
-                               int indexCount) = 0;
-    virtual void onDrawNonIndexed(GrPrimitiveType type,
-                                  int startVertex,
-                                  int vertexCount) = 0;
+    virtual void onDraw(const DrawInfo&) = 0;
     virtual void onStencilPath(const GrPath*, const SkStrokeRec& stroke, SkPath::FillType fill) = 0;
 
     // helpers for reserving vertex and index space.

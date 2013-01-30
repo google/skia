@@ -340,10 +340,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
     #error "unknown GR_TEXT_SCALAR type"
 #endif
 
-void GrGpuGL::setupGeometry(int* startVertex,
-                            int* startIndex,
-                            int vertexCount,
-                            int indexCount) {
+void GrGpuGL::setupGeometry(const DrawInfo& info, int* startIndexOffset) {
 
     int newColorOffset;
     int newCoverageOffset;
@@ -352,28 +349,24 @@ void GrGpuGL::setupGeometry(int* startVertex,
 
     GrVertexLayout currLayout = this->getVertexLayout();
 
-    GrGLsizei newStride = GrDrawState::VertexSizeAndOffsetsByIdx(
-                                            currLayout,
-                                            newTexCoordOffsets,
-                                            &newColorOffset,
-                                            &newCoverageOffset,
-                                            &newEdgeOffset);
+    GrGLsizei newStride = GrDrawState::VertexSizeAndOffsetsByIdx(currLayout,
+                                                                 newTexCoordOffsets,
+                                                                 &newColorOffset,
+                                                                 &newCoverageOffset,
+                                                                 &newEdgeOffset);
     int oldColorOffset;
     int oldCoverageOffset;
     int oldTexCoordOffsets[GrDrawState::kMaxTexCoords];
     int oldEdgeOffset;
 
-    GrGLsizei oldStride = GrDrawState::VertexSizeAndOffsetsByIdx(
-                                            fHWGeometryState.fVertexLayout,
-                                            oldTexCoordOffsets,
-                                            &oldColorOffset,
-                                            &oldCoverageOffset,
-                                            &oldEdgeOffset);
-    bool indexed = NULL != startIndex;
+    GrGLsizei oldStride = GrDrawState::VertexSizeAndOffsetsByIdx(fHWGeometryState.fVertexLayout,
+                                                                 oldTexCoordOffsets,
+                                                                 &oldColorOffset,
+                                                                 &oldCoverageOffset,
+                                                                 &oldEdgeOffset);
 
     int extraVertexOffset;
-    int extraIndexOffset;
-    this->setBuffers(indexed, &extraVertexOffset, &extraIndexOffset);
+    this->setBuffers(info.isIndexed(), &extraVertexOffset, startIndexOffset);
 
     GrGLenum scalarType;
     bool texCoordNorm;
@@ -381,16 +374,11 @@ void GrGpuGL::setupGeometry(int* startVertex,
         scalarType = TEXT_COORDS_GL_TYPE;
         texCoordNorm = SkToBool(TEXT_COORDS_ARE_NORMALIZED);
     } else {
-//        GR_STATIC_ASSERT(SK_SCALAR_IS_FLOAT);
         scalarType = GR_GL_FLOAT;
         texCoordNorm = false;
     }
 
-    size_t vertexOffset = (*startVertex + extraVertexOffset) * newStride;
-    *startVertex = 0;
-    if (indexed) {
-        *startIndex += extraIndexOffset;
-    }
+    size_t vertexOffset = (info.startVertex() + extraVertexOffset) * newStride;
 
     // all the Pointers must be set if any of these are true
     bool allOffsetsChange =  fHWGeometryState.fArrayPtrsDirty ||
