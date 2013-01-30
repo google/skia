@@ -116,7 +116,7 @@ protected:
             SkXfermode::kDstATop_Mode,
             SkXfermode::kXor_Mode,
             SkXfermode::kPlus_Mode,
-            SkXfermode::kMultiply_Mode,
+            SkXfermode::kModulate_Mode,
         };
 
         SkPaint paint;

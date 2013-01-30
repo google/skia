@@ -16,7 +16,7 @@
 static const char* blend_mode_from_xfermode(SkXfermode::Mode mode) {
     switch (mode) {
         case SkXfermode::kSrcOver_Mode:    return "Normal";
-        case SkXfermode::kMultiply_Mode:   return "Multiply";
+        case SkXfermode::kModulate_Mode:   return "Multiply";
         case SkXfermode::kScreen_Mode:     return "Screen";
         case SkXfermode::kOverlay_Mode:    return "Overlay";
         case SkXfermode::kDarken_Mode:     return "Darken";
