@@ -413,12 +413,10 @@ bool SkDashPathEffect::asPoints(PointData* results,
 
         results->fNumPoints = 0;
         SkScalar len2 = length;
-        bool partialFirst = false;
         if (clampedInitialDashLength > 0 || 0 == fInitialDashIndex) {
             SkASSERT(len2 >= clampedInitialDashLength);
             if (0 == fInitialDashIndex) {
                 if (clampedInitialDashLength > 0) {
-                    partialFirst = true;
                     if (clampedInitialDashLength >= fIntervals[0]) {
                         ++results->fNumPoints;  // partial first dash
                     }

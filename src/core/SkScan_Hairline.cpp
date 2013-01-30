@@ -278,7 +278,6 @@ static void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* 
     }
 
     SkAAClipBlitterWrapper wrap;
-    const SkIRect* clipR = NULL;
     const SkRegion* clip = NULL;
 
     {
@@ -290,7 +289,6 @@ static void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* 
             return;
         }
         if (!rclip.quickContains(ibounds)) {
-            clipR = &rclip.getBounds();
             if (rclip.isBW()) {
                 clip = &rclip.bwRgn();
             } else {

@@ -848,7 +848,6 @@ static int operate(const SkRegion::RunType a_runs[],
 
     RgnOper oper(SkMin32(a_top, b_top), dst, op);
 
-    bool firstInterval = true;
     int prevBot = SkRegion::kRunTypeSentinel; // so we fail the first test
 
     while (a_bot < SkRegion::kRunTypeSentinel ||
@@ -895,7 +894,6 @@ static int operate(const SkRegion::RunType a_runs[],
             oper.addSpan(top, gSentinel, gSentinel);
         }
         oper.addSpan(bot, run0, run1);
-        firstInterval = false;
 
         if (quickExit && !oper.isEmpty()) {
             return QUICK_EXIT_TRUE_COUNT;

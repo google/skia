@@ -36,9 +36,7 @@ void SkRRect::setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad) {
     fType = kSimple_Type;
     if (xRad >= SkScalarHalf(fRect.width()) && yRad >= SkScalarHalf(fRect.height())) {
         fType = kOval_Type;
-        // TODO: try asserting they are already W/2 & H/2 already
-        xRad = SkScalarHalf(fRect.width());
-        yRad = SkScalarHalf(fRect.height());
+        // TODO: assert that all the x&y radii are already W/2 & H/2
     }
 
     SkDEBUGCODE(this->validate();)

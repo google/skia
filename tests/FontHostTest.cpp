@@ -41,8 +41,8 @@ static void test_unitsPerEm(skiatest::Reporter* reporter, SkTypeface* face) {
 }
 
 static void test_tables(skiatest::Reporter* reporter, SkTypeface* face) {
-    SkFontID fontID = face->uniqueID();
     if (false) { // avoid bit rot, suppress warning
+        SkFontID fontID = face->uniqueID();
         REPORTER_ASSERT(reporter, fontID);
     }
 
