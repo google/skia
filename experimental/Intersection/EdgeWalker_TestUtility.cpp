@@ -104,15 +104,10 @@ void showPath(const SkPath& path, const char* str) {
     showPathContour(iter);
 }
 
-static int pathsDrawTheSame(const SkPath& one, const SkPath& two,
-        SkBitmap& bits, SkPath& scaledOne, SkPath& scaledTwo, int& error2x2) {
     const int bitWidth = 64;
     const int bitHeight = 64;
-    if (bits.width() == 0) {
-        bits.setConfig(SkBitmap::kARGB_8888_Config, bitWidth * 2, bitHeight);
-        bits.allocPixels();
-    }
 
+static void scaleMatrix(const SkPath& one, const SkPath& two, SkMatrix& scale) {
     SkRect larger = one.getBounds();
     larger.join(two.getBounds());
     SkScalar largerWidth = larger.width();
@@ -125,17 +120,21 @@ static int pathsDrawTheSame(const SkPath& one, const SkPath& two,
     }
     SkScalar hScale = (bitWidth - 2) / largerWidth;
     SkScalar vScale = (bitHeight - 2) / largerHeight;
-    SkMatrix scale;
     scale.reset();
     scale.preScale(hScale, vScale);
-    one.transform(scale, &scaledOne);
-    two.transform(scale, &scaledTwo);
-    const SkRect& bounds1 = scaledOne.getBounds();
+}
 
+static int pathsDrawTheSame(SkBitmap& bits, const SkPath& scaledOne, const SkPath& scaledTwo,
+        int& error2x2) {
+    if (bits.width() == 0) {
+        bits.setConfig(SkBitmap::kARGB_8888_Config, bitWidth * 2, bitHeight);
+        bits.allocPixels();
+    }
     SkCanvas canvas(bits);
     canvas.drawColor(SK_ColorWHITE);
     SkPaint paint;
     canvas.save();
+    const SkRect& bounds1 = scaledOne.getBounds();
     canvas.translate(-bounds1.fLeft + 1, -bounds1.fTop + 1);
     canvas.drawPath(scaledOne, paint);
     canvas.restore();
@@ -165,6 +164,15 @@ static int pathsDrawTheSame(const SkPath& one, const SkPath& two,
     }
     error2x2 = errors2;
     return errors;
+}
+
+static int pathsDrawTheSame(const SkPath& one, const SkPath& two, SkBitmap& bits, SkPath& scaledOne,
+        SkPath& scaledTwo, int& error2x2) {
+    SkMatrix scale;
+    scaleMatrix(one, two, scale);
+    one.transform(scale, &scaledOne);
+    two.transform(scale, &scaledTwo);
+    return pathsDrawTheSame(bits, scaledOne, scaledTwo, error2x2);
 }
 
 bool drawAsciiPaths(const SkPath& one, const SkPath& two, bool drawPaths) {
@@ -252,11 +260,11 @@ static void showShapeOpPath(const SkPath& one, const SkPath& two, const SkPath& 
     drawAsciiPaths(scaledOne, scaledTwo, true);
 }
 
-int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap,
-        const SkPath& a, const SkPath& b, const ShapeOp shapeOp) {
+int comparePaths(const SkPath& one, const SkPath& scaledOne, const SkPath& two,
+        const SkPath& scaledTwo,
+        SkBitmap& bitmap, const SkPath& a, const SkPath& b, const ShapeOp shapeOp) {
     int errors2x2;
-    SkPath scaledOne, scaledTwo;
-    int errors = pathsDrawTheSame(one, two, bitmap, scaledOne, scaledTwo, errors2x2);
+    int errors = pathsDrawTheSame(bitmap, scaledOne, scaledTwo, errors2x2);
     if (errors2x2 == 0) {
         return 0;
     }
@@ -359,15 +367,31 @@ bool testSimplifyx(const SkPath& path) {
 bool testShapeOp(const SkPath& a, const SkPath& b, const ShapeOp shapeOp) {
     SkPath out;
     operate(a, b, shapeOp, out);
-    SkPath pathOut;
+    SkPath pathOut, scaledPathOut;
     SkRegion rgnA, rgnB, openClip, rgnOut;
     openClip.setRect(-16000, -16000, 16000, 16000);
     rgnA.setPath(a, openClip);
     rgnB.setPath(b, openClip);
     rgnOut.op(rgnA, rgnB, (SkRegion::Op) shapeOp);
     rgnOut.getBoundaryPath(&pathOut);
+
+    SkMatrix scale;
+    scaleMatrix(a, b, scale);
+    SkRegion scaledRgnA, scaledRgnB, scaledRgnOut;
+    SkPath scaledA, scaledB;
+    scaledA.addPath(a, scale);
+    scaledA.setFillType(a.getFillType());
+    scaledB.addPath(b, scale);
+    scaledB.setFillType(b.getFillType());
+    scaledRgnA.setPath(scaledA, openClip);
+    scaledRgnB.setPath(scaledB, openClip);
+    scaledRgnOut.op(scaledRgnA, scaledRgnB, (SkRegion::Op) shapeOp);
+    scaledRgnOut.getBoundaryPath(&scaledPathOut);
     SkBitmap bitmap;
-    int result = comparePaths(pathOut, out, bitmap, a, b, shapeOp);
+    SkPath scaledOut;
+    scaledOut.addPath(out, scale);
+    scaledOut.setFillType(out.getFillType());
+    int result = comparePaths(pathOut, scaledPathOut, out, scaledOut, bitmap, a, b, shapeOp);
     if (result && gPathStrAssert) {
         SkASSERT(0);
     }

@@ -31,7 +31,7 @@ int gDebugMaxWindValue = SK_MaxS32;
 #define APPROXIMATE_CUBICS 1
 
 #define DEBUG_UNUSED 0 // set to expose unused functions
-#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging
+#define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging
 
 #if FORCE_RELEASE || defined SK_RELEASE
 
@@ -601,6 +601,7 @@ public:
             return cmp < 0;
         }
         // at this point, the initial tangent line is coincident
+        // see if edges curl away from each other
         if (fSide * rh.fSide <= 0 && (!approximately_zero(fSide)
                 || !approximately_zero(rh.fSide))) {
             // FIXME: running demo will trigger this assertion
@@ -767,18 +768,20 @@ public:
             fTangent1.quadEndPoints(fQ, 0, 1);
         #if 1 // FIXME: try enabling this and see if a) it's called and b) does it break anything
             if (dx() == 0 && dy() == 0) {
-                SkDebugf("*** %s quad is line\n");
+                SkDebugf("*** %s quad is line\n", __FUNCTION__);
                 fTangent1.quadEndPoints(fQ);
             }
         #endif
             fSide = -fTangent1.pointDistance(fQ[2]); // not normalized -- compare sign only
             break;
-        case SkPath::kCubic_Verb:
+        case SkPath::kCubic_Verb: {
             Cubic c;
+            int nextC = 2;
             CubicSubDivideHD(fPts, startT, endT, c);
             fTangent1.cubicEndPoints(c, 0, 1);
             if (dx() == 0 && dy() == 0) {
                 fTangent1.cubicEndPoints(c, 0, 2);
+                nextC = 3;
         #if 1 // FIXME: try enabling this and see if a) it's called and b) does it break anything
                 if (dx() == 0 && dy() == 0) {
                     SkDebugf("*** %s cubic is line\n");
@@ -786,8 +789,11 @@ public:
                 }
         #endif
             }
-            fSide = -fTangent1.pointDistance(c[2]); // not normalized -- compare sign only
-            break;
+            fSide = -fTangent1.pointDistance(c[nextC]); // not normalized -- compare sign only
+            if (nextC == 2 && approximately_zero(fSide)) {
+                fSide = -fTangent1.pointDistance(c[3]);
+            }
+            } break;
         default:
             SkASSERT(0);
         }
