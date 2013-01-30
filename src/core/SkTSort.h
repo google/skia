@@ -191,8 +191,11 @@ template <typename T, typename C> void SkTIntroSort(int depth, T* left, T* right
  *  @param lessThan a functor with bool operator()(T a, T b) which returns true if a comes before b.
  */
 template <typename T, typename C> void SkTQSort(T* left, T* right, C lessThan) {
+    if (left >= right) {
+        return;
+    }
     ptrdiff_t size = right - left;
-    int depth = SkNextLog2(SkToU32(size + 1));
+    int depth = SkNextLog2(SkToU32(size));
     SkTIntroSort(depth * 2, left, right, lessThan);
 }
 
