@@ -10,11 +10,11 @@
 #include "SkUnPreMultiply.h"
 #include "SkColorPriv.h"
 #if SK_SUPPORT_GPU
-#include "SkGr.h"
-#include "SkGrPixelRef.h"
+#include "GrContext.h"
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLEffectMatrix.h"
 #include "GrTBackendEffectFactory.h"
+#include "SkImageFilterUtils.h"
 #endif
 
 namespace {
@@ -275,70 +275,41 @@ private:
     typedef GrEffect INHERITED;
 };
 
-// FIXME:  This should be refactored with SkSingleInputImageFilter's version.
-static GrTexture* getInputResultAsTexture(SkImageFilter::Proxy* proxy,
-                                          SkImageFilter* input,
-                                          GrTexture* src,
-                                          const SkRect& rect) {
-    GrTexture* resultTex = NULL;
-    if (!input) {
-        resultTex = src;
-    } else if (input->canFilterImageGPU()) {
-        // filterImageGPU() already refs the result, so just return it here.
-        return input->filterImageGPU(proxy, src, rect);
-    } else {
-        SkBitmap srcBitmap, result;
-        srcBitmap.setConfig(SkBitmap::kARGB_8888_Config, src->width(), src->height());
-        srcBitmap.setPixelRef(new SkGrPixelRef(src))->unref();
-        SkIPoint offset;
-        if (input->filterImage(proxy, srcBitmap, SkMatrix(), &result, &offset)) {
-            if (result.getTexture()) {
-                resultTex = (GrTexture*) result.getTexture();
-            } else {
-                resultTex = GrLockAndRefCachedBitmapTexture(src->getContext(), result, NULL);
-                SkSafeRef(resultTex); // for the caller
-                GrUnlockAndUnrefCachedBitmapTexture(resultTex);
-                return resultTex;
-            }
-        } else {
-            resultTex = src;
-        }
+bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result) {
+    SkBitmap colorBM;
+    if (!SkImageFilterUtils::GetInputResultGPU(getColorInput(), proxy, src, &colorBM)) {
+        return false;
     }
-    SkSafeRef(resultTex);
-    return resultTex;
-}
-
-GrTexture* SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, GrTexture* src,
-                                                   const SkRect& rect) {
-    SkAutoTUnref<GrTexture> color(getInputResultAsTexture(proxy, getColorInput(), src, rect));
-    SkAutoTUnref<GrTexture> displacement(getInputResultAsTexture(proxy, getDisplacementInput(),
-                                                                 src, rect));
-    GrContext* context = src->getContext();
+    GrTexture* color = (GrTexture*) colorBM.getTexture();
+    SkBitmap displacementBM;
+    if (!SkImageFilterUtils::GetInputResultGPU(getDisplacementInput(), proxy, src, &displacementBM)) {
+        return false;
+    }
+    GrTexture* displacement = (GrTexture*) displacementBM.getTexture();
+    GrContext* context = color->getContext();
 
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
-    desc.fWidth = SkScalarCeilToInt(rect.width());
-    desc.fHeight = SkScalarCeilToInt(rect.height());
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
+    desc.fWidth = src.width();
+    desc.fHeight = src.height();
+    desc.fConfig = kSkia8888_GrPixelConfig;
 
     GrAutoScratchTexture ast(context, desc);
-    GrTexture* dst = ast.detach();
-
-    GrContext::AutoMatrix am;
-    am.setIdentity(context);
+    SkAutoTUnref<GrTexture> dst(ast.detach());
 
     GrContext::AutoRenderTarget art(context, dst->asRenderTarget());
-    GrContext::AutoClip ac(context, rect);
 
     GrPaint paint;
     paint.colorStage(0)->setEffect(
         GrDisplacementMapEffect::Create(fXChannelSelector,
                                         fYChannelSelector,
                                         fScale,
-                                        displacement.get(),
-                                        color.get()))->unref();
-    context->drawRect(paint, rect);
-    return dst;
+                                        displacement,
+                                        color))->unref();
+    SkRect srcRect;
+    src.getBounds(&srcRect);
+    context->drawRect(paint, srcRect);
+    return SkImageFilterUtils::WrapTexture(dst, src.width(), src.height(), result);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

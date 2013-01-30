@@ -29,12 +29,6 @@ protected:
     SkBitmap getInputResult(Proxy*, const SkBitmap& src, const SkMatrix&,
                             SkIPoint* offset);
 
-#if SK_SUPPORT_GPU
-    // Recurses on input (if non-NULL), and returns the processed result as
-    // a texture, otherwise returns src.
-    GrTexture* getInputResultAsTexture(Proxy* proxy, GrTexture* src, const SkRect& rect);
-#endif
-
     SkImageFilter* input() const { return getInput(0); }
 private:
     typedef SkImageFilter INHERITED;

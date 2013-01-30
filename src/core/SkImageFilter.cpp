@@ -107,8 +107,9 @@ bool SkImageFilter::canFilterImageGPU() const {
     return false;
 }
 
-GrTexture* SkImageFilter::filterImageGPU(Proxy* proxy, GrTexture* texture, const SkRect& rect) {
-    return NULL;
+bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result) {
+    SkASSERT(false);  // Should never be called, since canFilterImageGPU() returned false.
+    return false;
 }
 
 bool SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,

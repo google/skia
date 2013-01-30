@@ -42,8 +42,7 @@ protected:
 
 #if SK_SUPPORT_GPU
     virtual bool canFilterImageGPU() const SK_OVERRIDE { return true; }
-    virtual GrTexture* filterImageGPU(Proxy* proxy, GrTexture* src,
-                                      const SkRect& rect) SK_OVERRIDE;
+    virtual bool filterImageGPU(Proxy* proxy, const SkBitmap& src, SkBitmap* result) SK_OVERRIDE;
 #endif
 
 private:
