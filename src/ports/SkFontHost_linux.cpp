@@ -504,7 +504,6 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
 
     SkFontDescriptor descriptor(stream);
     const char* familyName = descriptor.getFamilyName();
-    const char* typefaceName = descriptor.getFontFileName();
     const SkTypeface::Style style = descriptor.getStyle();
 
     const uint32_t customFontDataLength = stream->readPackedUInt();

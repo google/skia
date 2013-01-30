@@ -611,7 +611,6 @@ bool GrClipMaskManager::createStencilClipMask(InitialState initialState,
         // with the existing clip.
         for (ElementList::Iter iter(elements.headIter()); NULL != iter.get(); iter.next()) {
             const Element* element = iter.get();
-            SkPath::FillType fill;
             bool fillInverted = false;
             // enabled at bottom of loop
             drawState->disableState(GrGpu::kModifyStencilClip_StateBit);
@@ -632,16 +631,13 @@ bool GrClipMaskManager::createStencilClipMask(InitialState initialState,
             SkTCopyOnFirstWrite<SkPath> clipPath;
             if (Element::kRect_Type == element->getType()) {
                 stencilSupport = GrPathRenderer::kNoRestriction_StencilSupport;
-                fill = SkPath::kEvenOdd_FillType;
                 fillInverted = false;
             } else {
                 GrAssert(Element::kPath_Type == element->getType());
                 clipPath.init(element->getPath());
-                fill = clipPath->getFillType();
                 fillInverted = clipPath->isInverseFillType();
                 if (fillInverted) {
                     clipPath.writable()->toggleInverseFillType();
-                    fill = clipPath->getFillType();
                 }
                 pr = this->getContext()->getPathRenderer(*clipPath,
                                                          stroke,
