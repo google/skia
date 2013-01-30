@@ -223,12 +223,10 @@ DEF_GM(return new BlurRectGM("blurrect", NULL, 0xFF, SkBlurMaskFilter::kSolid_Bl
 DEF_GM(return new BlurRectGM("blurrect", NULL, 0xFF, SkBlurMaskFilter::kOuter_BlurStyle);)
 DEF_GM(return new BlurRectGM("blurrect", NULL, 0xFF, SkBlurMaskFilter::kInner_BlurStyle);)
 
-#if 0   // disable while we debug an rtree failure
 DEF_GM(return new BlurRectFastGM("blurrect_fast_100_100_10", 100, 100, 10);)
 DEF_GM(return new BlurRectFastGM("blurrect_fast_100_100_2", 100, 100, 2);)
 DEF_GM(return new BlurRectFastGM("blurrect_fast_10_10_100", 10, 10, 100);)
 DEF_GM(return new BlurRectFastGM("blurrect_fast_10_100_10", 10, 100, 10);)
-#endif
 
 DEF_GM(return new BlurRectSlowGM("blurrect_slow_100_100_10", 100, 100, 10);)
 DEF_GM(return new BlurRectSlowGM("blurrect_slow_100_100_2", 100, 100, 2);)
