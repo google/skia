@@ -112,12 +112,19 @@ void SkPDFPage::GeneratePageTree(const SkTDArray<SkPDFPage*>& pages,
                 }
             }
 
-            newNode->insert(kidsName.get(), kids.get());
+            // treeCapacity is the number of leaf nodes possible for the
+            // current set of subtrees being generated. (i.e. 8, 64, 512, ...).
+            // It is hard to count the number of leaf nodes in the current
+            // subtree. However, by construction, we know that unless it's the
+            // last subtree for the current depth, the leaf count will be
+            // treeCapacity, otherwise it's what ever is left over after
+            // consuming treeCapacity chunks.
             int pageCount = treeCapacity;
-            if (count < kNodeSize) {
-                pageCount = pages.count() % treeCapacity;
+            if (i == curNodes.count()) {
+                pageCount = ((pages.count() - 1) % treeCapacity) + 1;
             }
             newNode->insert(countName.get(), new SkPDFInt(pageCount))->unref();
+            newNode->insert(kidsName.get(), kids.get());
             nextRoundNodes.push(newNode);  // Transfer reference.
         }
 
