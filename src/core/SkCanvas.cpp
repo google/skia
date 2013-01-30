@@ -58,6 +58,22 @@ SK_DEFINE_INST_COUNT(SkDrawFilter)
 #ifdef SK_DEBUG
 #include "SkPixelRef.h"
 
+/*
+ *  Some pixelref subclasses can support being "locked" from another thread
+ *  during the lock-scope of skia calling them. In these instances, this balance
+ *  check will fail, but may not be indicative of a problem, so we allow a build
+ *  flag to disable this check.
+ *
+ *  Potentially another fix would be to have a (debug-only) virtual or flag on
+ *  pixelref, which could tell us at runtime if this check is valid. That would
+ *  eliminate the need for this heavy-handed build check.
+ */
+#ifdef SK_DISABLE_PIXELREF_LOCKCOUNT_BALANCE_CHECK
+class AutoCheckLockCountBalance {
+public:
+    AutoCheckLockCountBalance(const SkBitmap&) { /* do nothing */ }
+};
+#else
 class AutoCheckLockCountBalance {
 public:
     AutoCheckLockCountBalance(const SkBitmap& bm) : fPixelRef(bm.pixelRef()) {
@@ -72,6 +88,7 @@ private:
     const SkPixelRef* fPixelRef;
     int               fLockCount;
 };
+#endif
 
 class AutoCheckNoSetContext {
 public:
