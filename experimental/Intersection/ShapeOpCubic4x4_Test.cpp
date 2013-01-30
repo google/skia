@@ -48,7 +48,7 @@ static void* testShapeOps4x4CubicsMain(void* data)
             pathB.moveTo(a, b);
             str += sprintf(str, "    pathB.moveTo(%d,%d);\n", a, b);
             pathB.cubicTo(c, d, state.b, state.a, state.d, state.c);
-            str += sprintf(str, "    pathB.cubicTo(%d,%d, %d,%d, %d,%d);\n", c, d, 
+            str += sprintf(str, "    pathB.cubicTo(%d,%d, %d,%d, %d,%d);\n", c, d,
                     state.b, state.a, state.d, state.c);
             pathB.close();
             str += sprintf(str, "    pathB.close();\n");
