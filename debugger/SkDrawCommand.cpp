@@ -230,7 +230,12 @@ DrawBitmapRect::DrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
     this->fBitmap = &bitmap;
     this->fSrc = src;
     this->fDst = &dst;
-    this->fPaint = paint;
+    if (NULL != paint) {
+        this->fPaint = *paint;
+        this->fPaintPtr = &this->fPaint;
+    } else {
+        this->fPaintPtr = NULL;
+    }
     this->fDrawType = DRAW_BITMAP_RECT_TO_RECT;
     this->fResizedBitmap = resizedBitmap;
 
@@ -245,7 +250,7 @@ DrawBitmapRect::DrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
 }
 
 void DrawBitmapRect::execute(SkCanvas* canvas) {
-    canvas->drawBitmapRectToRect(*this->fBitmap, this->fSrc, *this->fDst, this->fPaint);
+    canvas->drawBitmapRectToRect(*this->fBitmap, this->fSrc, *this->fDst, this->fPaintPtr);
 }
 
 const SkBitmap* DrawBitmapRect::getBitmap() const {

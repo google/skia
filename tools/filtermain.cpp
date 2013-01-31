@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkDebugCanvas.h"
 #include "SkDevice.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
@@ -19,125 +20,27 @@
 
 static void usage() {
     SkDebugf("Usage: filter -i inFile [-o outFile] [--input-dir path] [--output-dir path]\n");
-    SkDebugf("                        [-p pathFile] [-t textureDir] [-h|--help]\n\n");
+    SkDebugf("                        [-h|--help]\n\n");
     SkDebugf("    -i inFile  : file to file.\n");
     SkDebugf("    -o outFile : result of filtering.\n");
     SkDebugf("    --input-dir : process all files in dir with .skp extension.\n");
     SkDebugf("    --output-dir : results of filtering the input dir.\n");
-    SkDebugf("    -p pathFile : file in which to place compileable path data.\n");
-    SkDebugf("    -t textureDir : directory in which to place textures. (only available w/ single file)\n");
     SkDebugf("    -h|--help  : Show this help message.\n");
 }
 
-// SkFilterRecord allows the filter to manipulate the read in SkPicture
-class SkFilterRecord : public SkPictureRecord {
-public:
-    SkFilterRecord(uint32_t recordFlags, SkDevice* device, SkFILEWStream* pathStream)
-        : INHERITED(recordFlags, device)
-        , fTransSkipped(0)
-        , fTransTot(0)
-        , fScalesSkipped(0)
-        , fScalesTot(0)
-        , fPathStream(pathStream) {
-    }
+// Is the supplied paint simply a color?
+static bool is_simple(const SkPaint& p) {
+    return NULL == p.getPathEffect() &&
+           NULL == p.getShader() &&
+           NULL == p.getXfermode() &&
+           NULL == p.getMaskFilter() &&
+           NULL == p.getColorFilter() &&
+           NULL == p.getRasterizer() &&
+           NULL == p.getLooper() &&
+           NULL == p.getImageFilter();
+}
 
-    virtual ~SkFilterRecord() {
-    }
-
-    virtual bool clipPath(const SkPath& path, SkRegion::Op op, bool doAntiAlias) SK_OVERRIDE {
-        if (!path.isRect(NULL) && 4 < path.countPoints()) {
-            sk_tools::dump_path(fPathStream, path);
-        }
-        return INHERITED::clipPath(path, op, doAntiAlias);
-    }
-
-    virtual void drawPath(const SkPath& path, const SkPaint& p) SK_OVERRIDE {
-        if (!path.isRect(NULL) && 4 < path.countPoints()) {
-            sk_tools::dump_path(fPathStream, path);
-        }
-        INHERITED::drawPath(path, p);
-    }
-
-    virtual bool translate(SkScalar dx, SkScalar dy) SK_OVERRIDE {
-        ++fTransTot;
-
-#if 0
-        if (0 == dx && 0 == dy) {
-            ++fTransSkipped;
-            return true;
-        }
-#endif
-
-        return INHERITED::translate(dx, dy);
-    }
-
-    virtual bool scale(SkScalar sx, SkScalar sy) SK_OVERRIDE {
-        ++fScalesTot;
-
-#if 0
-        if (SK_Scalar1 == sx && SK_Scalar1 == sy) {
-            ++fScalesSkipped;
-            return true;
-        }
-#endif
-
-        return INHERITED::scale(sx, sy);
-    }
-
-    void saveImages(const SkString& path) {
-        SkTRefArray<SkBitmap>* bitmaps = fBitmapHeap->extractBitmaps();
-
-        if (NULL != bitmaps) {
-            for (int i = 0; i < bitmaps->count(); ++i) {
-                SkString filename(path);
-                if (!path.endsWith("\\")) {
-                    filename.append("\\");
-                }
-                filename.append("image");
-                filename.appendS32(i);
-                filename.append(".png");
-
-                SkImageEncoder::EncodeFile(filename.c_str(), (*bitmaps)[i],
-                                           SkImageEncoder::kPNG_Type, 0);
-            }
-        }
-
-        bitmaps->unref();
-    }
-
-    void report() {
-        SkDebugf("%d Trans skipped (out of %d)\n", fTransSkipped, fTransTot);
-        SkDebugf("%d Scales skipped (out of %d)\n", fScalesSkipped, fScalesTot);
-    }
-
-protected:
-    int fTransSkipped;
-    int fTransTot;
-
-    int fScalesSkipped;
-    int fScalesTot;
-
-    SkFILEWStream* fPathStream;
-private:
-    typedef SkPictureRecord INHERITED;
-};
-
-// Wrap SkPicture to allow installation of a SkFilterRecord object
-class SkFilterPicture : public SkPicture {
-public:
-    SkFilterPicture(int width, int height, SkPictureRecord* record) {
-        fWidth = width;
-        fHeight = height;
-        fRecord = record;
-        SkSafeRef(fRecord);
-    }
-
-private:
-    typedef SkPicture INHERITED;
-};
-
-static int filter_picture(const SkString& inFile, const SkString& outFile,
-                   const SkString& textureDir, SkFILEWStream *pathStream) {
+static int filter_picture(const SkString& inFile, const SkString& outFile) {
     SkPicture* inPicture = NULL;
 
     SkFILEStream inStream(inFile.c_str());
@@ -150,28 +53,58 @@ static int filter_picture(const SkString& inFile, const SkString& outFile,
         return -1;
     }
 
-    SkBitmap bm;
-    bm.setConfig(SkBitmap::kNo_Config, inPicture->width(), inPicture->height());
-    SkAutoTUnref<SkDevice> dev(SkNEW_ARGS(SkDevice, (bm)));
+    SkDebugCanvas debugCanvas(inPicture->width(), inPicture->height());
+    debugCanvas.setBounds(inPicture->width(), inPicture->height());
+    inPicture->draw(&debugCanvas);
 
-    SkAutoTUnref<SkFilterRecord> filterRecord(SkNEW_ARGS(SkFilterRecord, (0, dev, pathStream)));
+    const SkTDArray<SkDrawCommand*>& commands = debugCanvas.getDrawCommands();
 
-    // Playback the read in picture to the SkFilterRecorder to allow filtering
-    filterRecord->beginRecording();
-    inPicture->draw(filterRecord);
-    filterRecord->endRecording();
+    for (int i = 0; i < commands.count(); ++i) {
+        // Check for:
+        //    SAVE_LAYER
+        //      DRAW_BITMAP_RECT_TO_RECT
+        //    RESTORE
+        // where the saveLayer's color can be moved into the drawBitmapRect
+        if (SAVE_LAYER == commands[i]->getType() && commands.count() > i+2) {
+            if (DRAW_BITMAP_RECT_TO_RECT == commands[i+1]->getType() &&
+                RESTORE == commands[i+2]->getType()) {
+                SaveLayer* sl = (SaveLayer*) commands[i];
+                DrawBitmapRect* dbmr = (DrawBitmapRect*) commands[i+1];
 
-    filterRecord->report();
+                const SkPaint* p0 = sl->paint();
+                SkPaint* p1 = dbmr->paint();
+
+                if (NULL == p0) {
+                    commands[i]->setVisible(false);
+                    commands[i+2]->setVisible(false);
+                } else if (NULL == p1) {
+                    commands[i]->setVisible(false);
+                    dbmr->setPaint(*p0);
+                    commands[i+2]->setVisible(false);
+                } else if (is_simple(*p0) &&
+                           (SkColorGetR(p0->getColor()) == SkColorGetR(p1->getColor())) &&
+                           (SkColorGetG(p0->getColor()) == SkColorGetG(p1->getColor())) &&
+                           (SkColorGetB(p0->getColor()) == SkColorGetB(p1->getColor()))) {
+                    commands[i]->setVisible(false);
+                    SkColor newColor = SkColorSetA(p1->getColor(), 
+                                                   SkColorGetA(p0->getColor()));
+                    p1->setColor(newColor);
+                    commands[i+2]->setVisible(false);
+                }
+            }
+        }
+    }
 
     if (!outFile.isEmpty()) {
-        SkFilterPicture outPicture(inPicture->width(), inPicture->height(), filterRecord);
+        SkPicture outPicture;
+
+        SkCanvas* canvas = outPicture.beginRecording(inPicture->width(), inPicture->height());
+        debugCanvas.draw(canvas);
+        outPicture.endRecording();
+
         SkFILEWStream outStream(outFile.c_str());
 
         outPicture.serialize(&outStream);
-    }
-
-    if (!textureDir.isEmpty()) {
-        filterRecord->saveImages(textureDir);
     }
 
     return 0;
@@ -189,7 +122,7 @@ int tool_main(int argc, char** argv) {
         return -1;
     }
 
-    SkString inFile, outFile, inDir, outDir, textureDir, pathFile;
+    SkString inFile, outFile, inDir, outDir;
 
     char* const* stop = argv + argc;
     for (++argv; argv < stop; ++argv) {
@@ -229,24 +162,6 @@ int tool_main(int argc, char** argv) {
                 usage();
                 return -1;
             }
-        } else if (strcmp(*argv, "-p") == 0) {
-            argv++;
-            if (argv < stop && **argv) {
-                pathFile.set(*argv);
-            } else {
-                SkDebugf("missing arg for -p\n");
-                usage();
-                return -1;
-            }
-        } else if (strcmp(*argv, "-t") == 0) {
-            argv++;
-            if (argv < stop && **argv) {
-                textureDir.set(*argv);
-            } else {
-                SkDebugf("missing arg for -t\n");
-                usage();
-                return -1;
-            }
         } else if (strcmp(*argv, "--help") == 0 || strcmp(*argv, "-h") == 0) {
             usage();
             return 0;
@@ -255,25 +170,6 @@ int tool_main(int argc, char** argv) {
             usage();
             return -1;
         }
-    }
-
-    if(!inDir.isEmpty() && !textureDir.isEmpty()) {
-        SkDebugf("ERROR: The textureDir option is not permitted when passing an input directory.\n");
-        usage();
-        return -1;
-    }
-
-    SkFILEWStream *pathStream = NULL;
-
-    if (!pathFile.isEmpty()) {
-        pathStream = new SkFILEWStream(pathFile.c_str());
-        if (!pathStream->isValid()) {
-            SkDebugf("Could open path file %s\n", pathFile.c_str());
-            delete pathStream;
-            return -1;
-        }
-
-        sk_tools::dump_path_prefix(pathStream);
     }
 
     SkOSFile::Iter iter(inDir.c_str(), "skp");
@@ -287,24 +183,14 @@ int tool_main(int argc, char** argv) {
                 sk_tools::make_filepath(&outFile, outDir, inputFilename);
             }
             SkDebugf("Executing %s\n", inputFilename.c_str());
-            filter_picture(inFile, outFile, textureDir, pathStream);
+            filter_picture(inFile, outFile);
         } while(iter.next(&inputFilename));
 
     } else if (!inFile.isEmpty()) {
-        filter_picture(inFile, outFile, textureDir, pathStream);
+        filter_picture(inFile, outFile);
     } else {
         usage();
-        if (NULL != pathStream) {
-            delete pathStream;
-            pathStream = NULL;
-        }
         return -1;
-    }
-
-    if (NULL != pathStream) {
-        sk_tools::dump_path_suffix(pathStream);
-        delete pathStream;
-        pathStream = NULL;
     }
 
     SkGraphics::Term();

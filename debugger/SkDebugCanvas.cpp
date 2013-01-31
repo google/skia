@@ -10,7 +10,6 @@
 #include "SkDebugCanvas.h"
 #include "SkDrawCommand.h"
 #include "SkDevice.h"
-#include "SkImageWidget.h"
 
 #ifdef SK_BUILD_FOR_WIN
     // iostream includes xlocale which generates warning 4530 because we're compiling without
@@ -179,8 +178,8 @@ void SkDebugCanvas::clear(SkColor color) {
 static SkBitmap createBitmap(const SkPath& path) {
     SkBitmap bitmap;
     bitmap.setConfig(SkBitmap::kARGB_8888_Config,
-                     SkImageWidget::kImageWidgetWidth,
-                     SkImageWidget::kImageWidgetHeight);
+                     SkDebugCanvas::kVizImageWidth,
+                     SkDebugCanvas::kVizImageHeight);
     bitmap.allocPixels();
     bitmap.eraseColor(SK_ColorWHITE);
     SkDevice* device = new SkDevice(bitmap);
@@ -191,11 +190,11 @@ static SkBitmap createBitmap(const SkPath& path) {
     const SkRect& bounds = path.getBounds();
 
     if (bounds.width() > bounds.height()) {
-        canvas.scale(SkDoubleToScalar((0.9*SkImageWidget::kImageWidgetWidth)/bounds.width()),
-                     SkDoubleToScalar((0.9*SkImageWidget::kImageWidgetHeight)/bounds.width()));
+        canvas.scale(SkDoubleToScalar((0.9*SkDebugCanvas::kVizImageWidth)/bounds.width()),
+                     SkDoubleToScalar((0.9*SkDebugCanvas::kVizImageHeight)/bounds.width()));
     } else {
-        canvas.scale(SkDoubleToScalar((0.9*SkImageWidget::kImageWidgetWidth)/bounds.height()),
-                     SkDoubleToScalar((0.9*SkImageWidget::kImageWidgetHeight)/bounds.height()));
+        canvas.scale(SkDoubleToScalar((0.9*SkDebugCanvas::kVizImageWidth)/bounds.height()),
+                     SkDoubleToScalar((0.9*SkDebugCanvas::kVizImageHeight)/bounds.height()));
     }
     canvas.translate(-bounds.fLeft+2, -bounds.fTop+2);
 
@@ -211,8 +210,8 @@ static SkBitmap createBitmap(const SkPath& path) {
 static SkBitmap createBitmap(const SkBitmap& input, const SkRect* srcRect) {
     SkBitmap bitmap;
     bitmap.setConfig(SkBitmap::kARGB_8888_Config,
-                     SkImageWidget::kImageWidgetWidth,
-                     SkImageWidget::kImageWidgetHeight);
+                     SkDebugCanvas::kVizImageWidth,
+                     SkDebugCanvas::kVizImageHeight);
     bitmap.allocPixels();
     bitmap.eraseColor(SK_ColorLTGRAY);
     SkDevice* device = new SkDevice(bitmap);
@@ -220,8 +219,8 @@ static SkBitmap createBitmap(const SkBitmap& input, const SkRect* srcRect) {
     SkCanvas canvas(device);
     device->unref();
 
-    SkScalar xScale = (SkImageWidget::kImageWidgetWidth-2.0) / input.width();
-    SkScalar yScale = (SkImageWidget::kImageWidgetHeight-2.0) / input.height();
+    SkScalar xScale = SkIntToScalar(SkDebugCanvas::kVizImageWidth-2) / input.width();
+    SkScalar yScale = SkIntToScalar(SkDebugCanvas::kVizImageHeight-2) / input.height();
 
     if (input.width() > input.height()) {
         yScale *= input.height() / (float) input.width();

@@ -200,8 +200,10 @@ public:
 
     virtual bool translate(SkScalar dx, SkScalar dy) SK_OVERRIDE;
 
+    static const int kVizImageHeight = 256;
+    static const int kVizImageWidth = 256;
+
 private:
-    typedef SkCanvas INHERITED;
     SkTDArray<SkDrawCommand*> fCommandVector;
     int fHeight;
     int fWidth;
@@ -231,6 +233,8 @@ private:
         drawing anything else into the canvas.
      */
     void applyUserTransform(SkCanvas* canvas);
+
+    typedef SkCanvas INHERITED;
 };
 
 #endif
