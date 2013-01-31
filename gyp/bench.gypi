@@ -36,6 +36,7 @@
     '../bench/RectBench.cpp',
     '../bench/RefCntBench.cpp',
     '../bench/RegionBench.cpp',
+    '../bench/RegionContainBench.cpp',
     '../bench/RepeatTileBench.cpp',
     '../bench/RTreeBench.cpp',
     '../bench/ScalarBench.cpp',
