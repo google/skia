@@ -373,7 +373,7 @@ GrVertexBufferAllocPool::GrVertexBufferAllocPool(GrGpu* gpu,
                     preallocBufferCnt) {
 }
 
-void* GrVertexBufferAllocPool::makeSpace(size_t vertexSize,
+void* GrVertexBufferAllocPool::makeSpace(GrVertexLayout layout,
                                          int vertexCount,
                                          const GrVertexBuffer** buffer,
                                          int* startVertex) {
@@ -382,41 +382,43 @@ void* GrVertexBufferAllocPool::makeSpace(size_t vertexSize,
     GrAssert(NULL != buffer);
     GrAssert(NULL != startVertex);
 
+    size_t vSize = GrDrawState::VertexSize(layout);
     size_t offset = 0; // assign to suppress warning
     const GrGeometryBuffer* geomBuffer = NULL; // assign to suppress warning
-    void* ptr = INHERITED::makeSpace(vertexSize * vertexCount,
-                                     vertexSize,
+    void* ptr = INHERITED::makeSpace(vSize * vertexCount,
+                                     vSize,
                                      &geomBuffer,
                                      &offset);
 
     *buffer = (const GrVertexBuffer*) geomBuffer;
-    GrAssert(0 == offset % vertexSize);
-    *startVertex = offset / vertexSize;
+    GrAssert(0 == offset % vSize);
+    *startVertex = offset / vSize;
     return ptr;
 }
 
-bool GrVertexBufferAllocPool::appendVertices(size_t vertexSize,
+bool GrVertexBufferAllocPool::appendVertices(GrVertexLayout layout,
                                              int vertexCount,
                                              const void* vertices,
                                              const GrVertexBuffer** buffer,
                                              int* startVertex) {
-    void* space = makeSpace(vertexSize, vertexCount, buffer, startVertex);
+    void* space = makeSpace(layout, vertexCount, buffer, startVertex);
     if (NULL != space) {
         memcpy(space,
                vertices,
-               vertexSize * vertexCount);
+               GrDrawState::VertexSize(layout) * vertexCount);
         return true;
     } else {
         return false;
     }
 }
 
-int GrVertexBufferAllocPool::preallocatedBufferVertices(size_t vertexSize) const {
-    return INHERITED::preallocatedBufferSize() / vertexSize;
+int GrVertexBufferAllocPool::preallocatedBufferVertices(GrVertexLayout layout) const {
+    return INHERITED::preallocatedBufferSize() /
+            GrDrawState::VertexSize(layout);
 }
 
-int GrVertexBufferAllocPool::currentBufferVertices(size_t vertexSize) const {
-    return currentBufferItems(vertexSize);
+int GrVertexBufferAllocPool::currentBufferVertices(GrVertexLayout layout) const {
+    return currentBufferItems(GrDrawState::VertexSize(layout));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

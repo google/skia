@@ -429,7 +429,7 @@ void GrGpu::prepareIndexPool() {
     }
 }
 
-bool GrGpu::onReserveVertexSpace(size_t vertexSize,
+bool GrGpu::onReserveVertexSpace(GrVertexLayout vertexLayout,
                                  int vertexCount,
                                  void** vertices) {
     GeometryPoolState& geomPoolState = fGeomPoolStateStack.back();
@@ -439,7 +439,7 @@ bool GrGpu::onReserveVertexSpace(size_t vertexSize,
 
     this->prepareVertexPool();
 
-    *vertices = fVertexPool->makeSpace(vertexSize,
+    *vertices = fVertexPool->makeSpace(vertexLayout,
                                        vertexCount,
                                        &geomPoolState.fPoolVertexBuffer,
                                        &geomPoolState.fPoolStartVertex);
@@ -490,7 +490,7 @@ void GrGpu::onSetVertexSourceToArray(const void* vertexArray, int vertexCount) {
 #if GR_DEBUG
     bool success =
 #endif
-    fVertexPool->appendVertices(GrDrawState::VertexSize(this->getVertexLayout()),
+    fVertexPool->appendVertices(this->getVertexLayout(),
                                 vertexCount,
                                 vertexArray,
                                 &geomPoolState.fPoolVertexBuffer,

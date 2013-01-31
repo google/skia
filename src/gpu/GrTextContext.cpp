@@ -204,7 +204,7 @@ HAS_ATLAS:
         // a number of verts to reserve and whether to perform a flush.
         fMaxVertices = kMinRequestedVerts;
         bool flush = (NULL != fDrawTarget) &&
-                     fDrawTarget->geometryHints(GrDrawState::VertexSize(fVertexLayout),
+                     fDrawTarget->geometryHints(fVertexLayout,
                                                 &fMaxVertices,
                                                 NULL);
         if (flush) {
@@ -214,7 +214,7 @@ HAS_ATLAS:
         fDrawTarget = fContext->getTextTarget(fPaint);
         fMaxVertices = kDefaultRequestedVerts;
         // ignore return, no point in flushing again.
-        fDrawTarget->geometryHints(GrDrawState::VertexSize(fVertexLayout),
+        fDrawTarget->geometryHints(fVertexLayout,
                                    &fMaxVertices,
                                    NULL);
 

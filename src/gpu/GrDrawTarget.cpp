@@ -86,7 +86,7 @@ bool GrDrawTarget::reserveVertexSpace(GrVertexLayout vertexLayout,
         this->releasePreviousVertexSource();
         geoSrc.fVertexSrc = kNone_GeometrySrcType;
 
-        acquired = this->onReserveVertexSpace(GrDrawState::VertexSize(vertexLayout),
+        acquired = this->onReserveVertexSpace(vertexLayout,
                                               vertexCount,
                                               vertices);
     }
@@ -126,7 +126,7 @@ bool GrDrawTarget::reserveVertexAndIndexSpace(GrVertexLayout vertexLayout,
                                               int indexCount,
                                               void** vertices,
                                               void** indices) {
-    this->willReserveVertexAndIndexSpace(GrDrawState::VertexSize(vertexLayout), vertexCount, indexCount);
+    this->willReserveVertexAndIndexSpace(vertexLayout, vertexCount, indexCount);
     if (vertexCount) {
         if (!this->reserveVertexSpace(vertexLayout, vertexCount, vertices)) {
             if (indexCount) {
@@ -146,7 +146,7 @@ bool GrDrawTarget::reserveVertexAndIndexSpace(GrVertexLayout vertexLayout,
     return true;
 }
 
-bool GrDrawTarget::geometryHints(size_t vertexSize,
+bool GrDrawTarget::geometryHints(GrVertexLayout vertexLayout,
                                  int32_t* vertexCount,
                                  int32_t* indexCount) const {
     if (NULL != vertexCount) {

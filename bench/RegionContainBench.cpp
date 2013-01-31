@@ -66,4 +66,3 @@ private:
 static SkBenchmark* gF0(void* p) { return SkNEW_ARGS(RegionContainBench, (p, sect_proc, "sect")); }
 
 static BenchRegistry gR0(gF0);
-

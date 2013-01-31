@@ -254,7 +254,7 @@ public:
      * Also may hint whether the draw target should be flushed first. This is
      * useful for deferred targets.
      *
-     * @param vertexSize   size of vertices caller would like to reserve
+     * @param vertexLayout layout of vertices caller would like to reserve
      * @param vertexCount  in: hint about how many vertices the caller would
      *                     like to allocate.
      *                     out: a hint about the number of vertices that can be
@@ -268,7 +268,7 @@ public:
      *
      * @return  true if target should be flushed based on the input values.
      */
-    virtual bool geometryHints(size_t vertexSize,
+    virtual bool geometryHints(GrVertexLayout vertexLayout,
                                int* vertexCount,
                                int* indexCount) const;
 
@@ -761,10 +761,10 @@ protected:
 private:
     // A subclass can optionally overload this function to be notified before
     // vertex and index space is reserved.
-    virtual void willReserveVertexAndIndexSpace(size_t vertexSize, int vertexCount, int indexCount) {}
+    virtual void willReserveVertexAndIndexSpace(GrVertexLayout,int vertexCount, int indexCount) {}
 
     // implemented by subclass to allocate space for reserved geom
-    virtual bool onReserveVertexSpace(size_t vertexSize, int vertexCount, void** vertices) = 0;
+    virtual bool onReserveVertexSpace(GrVertexLayout, int vertexCount, void** vertices) = 0;
     virtual bool onReserveIndexSpace(int indexCount, void** indices) = 0;
     // implemented by subclass to handle release of reserved geom space
     virtual void releaseReservedVertexSpace() = 0;
