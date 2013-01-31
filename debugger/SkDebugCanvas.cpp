@@ -88,7 +88,6 @@ int SkDebugCanvas::getCommandAtPoint(int x, int y, int index) {
 }
 
 void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
-    int counter = 0;
     SkASSERT(!fCommandVector.isEmpty());
     SkASSERT(index < fCommandVector.count());
     int i;
