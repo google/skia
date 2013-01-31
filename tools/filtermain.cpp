@@ -86,7 +86,7 @@ static int filter_picture(const SkString& inFile, const SkString& outFile) {
                            (SkColorGetG(p0->getColor()) == SkColorGetG(p1->getColor())) &&
                            (SkColorGetB(p0->getColor()) == SkColorGetB(p1->getColor()))) {
                     commands[i]->setVisible(false);
-                    SkColor newColor = SkColorSetA(p1->getColor(), 
+                    SkColor newColor = SkColorSetA(p1->getColor(),
                                                    SkColorGetA(p0->getColor()));
                     p1->setColor(newColor);
                     commands[i+2]->setVisible(false);

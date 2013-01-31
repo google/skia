@@ -100,7 +100,7 @@ public:
                                       int indicesPerInstance)
                                       SK_OVERRIDE;
 
-    virtual bool geometryHints(size_t vertexSize,
+    virtual bool geometryHints(GrVertexLayout vertexLayout,
                                int* vertexCount,
                                int* indexCount) const SK_OVERRIDE;
 
@@ -152,7 +152,7 @@ private:
     // overrides from GrDrawTarget
     virtual void onDraw(const DrawInfo&) SK_OVERRIDE;
     virtual void onStencilPath(const GrPath*, const SkStrokeRec& stroke, SkPath::FillType) SK_OVERRIDE;
-    virtual bool onReserveVertexSpace(size_t vertexSize,
+    virtual bool onReserveVertexSpace(GrVertexLayout layout,
                                       int vertexCount,
                                       void** vertices) SK_OVERRIDE;
     virtual bool onReserveIndexSpace(int indexCount,
@@ -167,7 +167,7 @@ private:
     virtual void releaseIndexArray() SK_OVERRIDE;
     virtual void geometrySourceWillPush() SK_OVERRIDE;
     virtual void geometrySourceWillPop(const GeometrySrcState& restoredState) SK_OVERRIDE;
-    virtual void willReserveVertexAndIndexSpace(size_t vertexSize,
+    virtual void willReserveVertexAndIndexSpace(GrVertexLayout vertexLayout,
                                                 int vertexCount,
                                                 int indexCount) SK_OVERRIDE;
 

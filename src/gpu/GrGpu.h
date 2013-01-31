@@ -423,7 +423,7 @@ protected:
 
 private:
     // GrDrawTarget overrides
-    virtual bool onReserveVertexSpace(size_t vSize, int vertexCount, void** vertices) SK_OVERRIDE;
+    virtual bool onReserveVertexSpace(GrVertexLayout, int vertexCount, void** vertices) SK_OVERRIDE;
     virtual bool onReserveIndexSpace(int indexCount, void** indices) SK_OVERRIDE;
     virtual void releaseReservedVertexSpace() SK_OVERRIDE;
     virtual void releaseReservedIndexSpace() SK_OVERRIDE;

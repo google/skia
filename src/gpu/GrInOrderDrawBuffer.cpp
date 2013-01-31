@@ -592,7 +592,7 @@ void GrInOrderDrawBuffer::setAutoFlushTarget(GrDrawTarget* target) {
 }
 
 void GrInOrderDrawBuffer::willReserveVertexAndIndexSpace(
-                                size_t vertexSize,
+                                GrVertexLayout vertexLayout,
                                 int vertexCount,
                                 int indexCount) {
     if (NULL != fAutoFlushTarget) {
@@ -624,14 +624,14 @@ void GrInOrderDrawBuffer::willReserveVertexAndIndexSpace(
             !unreleasedVertexSpace &&
             !unreleasedIndexSpace &&
             !targetHasReservedGeom &&
-            this->geometryHints(vertexSize, &vcount, &icount)) {
+            this->geometryHints(vertexLayout, &vcount, &icount)) {
 
             this->flushTo(fAutoFlushTarget);
         }
     }
 }
 
-bool GrInOrderDrawBuffer::geometryHints(size_t vertexSize,
+bool GrInOrderDrawBuffer::geometryHints(GrVertexLayout vertexLayout,
                                         int* vertexCount,
                                         int* indexCount) const {
     // we will recommend a flush if the data could fit in a single
@@ -649,10 +649,10 @@ bool GrInOrderDrawBuffer::geometryHints(size_t vertexSize,
         *indexCount = currIndices;
     }
     if (NULL != vertexCount) {
-        int32_t currVertices = fVertexPool.currentBufferVertices(vertexSize);
+        int32_t currVertices = fVertexPool.currentBufferVertices(vertexLayout);
         if (*vertexCount > currVertices &&
             (!fVertexPool.preallocatedBuffersRemaining() &&
-             *vertexCount <= fVertexPool.preallocatedBufferVertices(vertexSize))) {
+             *vertexCount <= fVertexPool.preallocatedBufferVertices(vertexLayout))) {
 
             flush = true;
         }
@@ -661,7 +661,7 @@ bool GrInOrderDrawBuffer::geometryHints(size_t vertexSize,
     return flush;
 }
 
-bool GrInOrderDrawBuffer::onReserveVertexSpace(size_t vertexSize,
+bool GrInOrderDrawBuffer::onReserveVertexSpace(GrVertexLayout vertexLayout,
                                                int vertexCount,
                                                void** vertices) {
     GeometryPoolState& poolState = fGeoPoolStateStack.back();
@@ -669,7 +669,7 @@ bool GrInOrderDrawBuffer::onReserveVertexSpace(size_t vertexSize,
     GrAssert(NULL != vertices);
     GrAssert(0 == poolState.fUsedPoolVertexBytes);
 
-    *vertices = fVertexPool.makeSpace(vertexSize,
+    *vertices = fVertexPool.makeSpace(vertexLayout,
                                       vertexCount,
                                       &poolState.fPoolVertexBuffer,
                                       &poolState.fPoolStartVertex);
@@ -736,7 +736,7 @@ void GrInOrderDrawBuffer::onSetVertexSourceToArray(const void* vertexArray,
 #if GR_DEBUG
     bool success =
 #endif
-    fVertexPool.appendVertices(GrDrawState::VertexSize(this->getVertexLayout()),
+    fVertexPool.appendVertices(this->getVertexLayout(),
                                vertexCount,
                                vertexArray,
                                &poolState.fPoolVertexBuffer,

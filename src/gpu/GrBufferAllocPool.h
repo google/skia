@@ -222,7 +222,7 @@ public:
      * the buffer at the offset indicated by startVertex. Until that time they
      * may be in temporary storage and/or the buffer may be locked.
      *
-     * @param vertexSize   specifies size of a vertex to allocate space for
+     * @param layout       specifies type of vertices to allocate space for
      * @param vertexCount  number of vertices to allocate space for
      * @param buffer       returns the vertex buffer that will hold the
      *                     vertices.
@@ -230,7 +230,7 @@ public:
      *                     In units of the size of a vertex from layout param.
      * @return pointer to first vertex.
      */
-    void* makeSpace(size_t vertexSize,
+    void* makeSpace(GrVertexLayout layout,
                     int vertexCount,
                     const GrVertexBuffer** buffer,
                     int* startVertex);
@@ -238,7 +238,7 @@ public:
     /**
      * Shortcut to make space and then write verts into the made space.
      */
-    bool appendVertices(size_t vertexSize,
+    bool appendVertices(GrVertexLayout layout,
                         int vertexCount,
                         const void* vertices,
                         const GrVertexBuffer** buffer,
@@ -251,21 +251,21 @@ public:
      * would fit in the next available preallocated buffer. If any makeSpace
      * would force a new VB to be created the return value will be zero.
      *
-     * @param   the size of a vertex to compute space for.
+     * @param   the format of vertices to compute space for.
      * @return the number of vertices that would fit in the current buffer.
      */
-    int currentBufferVertices(size_t vertexSize) const;
+    int currentBufferVertices(GrVertexLayout layout) const;
 
     /**
      * Gets the number of vertices that can fit in a  preallocated vertex buffer.
      * Zero if no preallocated buffers.
      *
-     * @param   the size of a vertex to compute space for.
+     * @param   the format of vertices to compute space for.
      *
      * @return number of vertices that fit in one of the preallocated vertex
      *         buffers.
      */
-    int preallocatedBufferVertices(size_t vertexSize) const;
+    int preallocatedBufferVertices(GrVertexLayout layout) const;
 
 private:
     typedef GrBufferAllocPool INHERITED;
