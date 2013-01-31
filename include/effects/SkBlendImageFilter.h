@@ -16,6 +16,7 @@ public:
     enum Mode {
       kNormal_Mode,
       kModulate_Mode, // TODO: replace this with the (soon to be) SkXfermode version of kMultiply_Mode
+      kMultiply_Mode = kModulate_Mode,
       kScreen_Mode,
       kDarken_Mode,
       kLighten_Mode,
