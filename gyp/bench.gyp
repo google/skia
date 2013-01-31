@@ -11,6 +11,7 @@
       'include_dirs' : [
         '../src/core',
         '../src/effects',
+        '../src/utils',
       ],
       'includes': [
         'bench.gypi'
