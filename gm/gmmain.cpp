@@ -16,6 +16,7 @@
 #include "gm.h"
 #include "gm_expectations.h"
 #include "system_preferences.h"
+#include "SkBitmap.h"
 #include "SkBitmapChecksummer.h"
 #include "SkColorPriv.h"
 #include "SkData.h"
@@ -216,10 +217,106 @@ public:
         return name;
     }
 
+    /* since PNG insists on unpremultiplying our alpha, we take no
+       precision chances and force all pixels to be 100% opaque,
+       otherwise on compare we may not get a perfect match.
+    */
+    static void force_all_opaque(const SkBitmap& bitmap) {
+        SkBitmap::Config config = bitmap.config();
+        switch (config) {
+        case SkBitmap::kARGB_8888_Config:
+            force_all_opaque_8888(bitmap);
+            break;
+        case SkBitmap::kRGB_565_Config:
+            // nothing to do here; 565 bitmaps are inherently opaque
+            break;
+        default:
+            fprintf(stderr, "unsupported bitmap config %d\n", config);
+            SkDEBUGFAIL("unsupported bitmap config");
+        }
+    }
+
+    static void force_all_opaque_8888(const SkBitmap& bitmap) {
+        SkAutoLockPixels lock(bitmap);
+        for (int y = 0; y < bitmap.height(); y++) {
+            for (int x = 0; x < bitmap.width(); x++) {
+                *bitmap.getAddr32(x, y) |= (SK_A32_MASK << SK_A32_SHIFT);
+            }
+        }
+    }
+
+    static bool write_bitmap(const SkString& path, const SkBitmap& bitmap) {
+        // TODO(epoger): Now that we have removed force_all_opaque()
+        // from this method, we should be able to get rid of the
+        // transformation to 8888 format also.
+        SkBitmap copy;
+        bitmap.copyTo(&copy, SkBitmap::kARGB_8888_Config);
+        return SkImageEncoder::EncodeFile(path.c_str(), copy,
+                                          SkImageEncoder::kPNG_Type, 100);
+    }
+
+    // Records an error in fFailedTests, if we want to record errors
+    // of this type.
+    void RecordError(ErrorBitfield errorType, const SkString& name,
+                     const char renderModeDescriptor []) {
+        bool isPixelError = false;
+        switch (errorType) {
+        case ERROR_NONE:
+            return;
+        case ERROR_READING_REFERENCE_IMAGE:
+            return;
+        case ERROR_IMAGE_MISMATCH:
+            isPixelError = true;
+            break;
+        default:
+            isPixelError = false;
+            break;
+        }
+
+        FailRec& rec = fFailedTests.push_back(make_name(
+            name.c_str(), renderModeDescriptor));
+        rec.fIsPixelError = isPixelError;
+    }
+
+    // List contents of fFailedTests via SkDebug.
+    void ListErrors() {
+        for (int i = 0; i < fFailedTests.count(); ++i) {
+            if (fFailedTests[i].fIsPixelError) {
+                SkDebugf("\t\t%s pixel_error\n", fFailedTests[i].fName.c_str());
+            } else {
+                SkDebugf("\t\t%s\n", fFailedTests[i].fName.c_str());
+            }
+        }
+    }
+
+    static bool write_document(const SkString& path,
+                               const SkDynamicMemoryWStream& document) {
+        SkFILEWStream stream(path.c_str());
+        SkAutoDataUnref data(document.copyToData());
+        return stream.writeData(data.get());
+    }
+
     /**
-     * All calls to get bitmap checksums must go through this
-     * wrapper, so that we can call force_all_opaque() first.
-     * THIS WILL MODIFY THE BITMAP IN-PLACE!
+     * Prepare an SkBitmap to render a GM into.
+     *
+     * After you've rendered the GM into the SkBitmap, you must call
+     * complete_bitmap()!
+     *
+     * @todo thudson 22 April 2011 - could refactor this to take in
+     * a factory to generate the context, always call readPixels()
+     * (logically a noop for rasters, if wasted time), and thus collapse the
+     * GPU special case and also let this be used for SkPicture testing.
+     */
+    static void setup_bitmap(const ConfigData& gRec, SkISize& size,
+                             SkBitmap* bitmap) {
+        bitmap->setConfig(gRec.fConfig, size.width(), size.height());
+        bitmap->allocPixels();
+        bitmap->eraseColor(SK_ColorTRANSPARENT);
+    }
+
+    /**
+     * Any finalization steps we need to perform on the SkBitmap after
+     * we have rendered the GM into it.
      *
      * It's too bad that we are throwing away alpha channel data
      * we could otherwise be examining, but this had always been happening
@@ -273,90 +370,8 @@ public:
      *    channel), rather than demanding absolute equality.
      *    CON: Can't do this with checksums.
      */
-    static Checksum get_checksum(const SkBitmap& bitmap) {
-        SkBitmap copy;
-        const SkBitmap* bm = &bitmap;
-        if (bitmap.config() != SkBitmap::kARGB_8888_Config) {
-            bitmap.copyTo(&copy, SkBitmap::kARGB_8888_Config);
-            bm = &copy;
-        }
-        force_all_opaque(*bm);
-        return SkBitmapChecksummer::Compute64(*bm);
-    }
-
-    /* since PNG insists on unpremultiplying our alpha, we take no
-       precision chances and force all pixels to be 100% opaque,
-       otherwise on compare we may not get a perfect match.
-    */
-    static void force_all_opaque(const SkBitmap& bitmap) {
-        SkAutoLockPixels lock(bitmap);
-        for (int y = 0; y < bitmap.height(); y++) {
-            for (int x = 0; x < bitmap.width(); x++) {
-                *bitmap.getAddr32(x, y) |= (SK_A32_MASK << SK_A32_SHIFT);
-            }
-        }
-    }
-
-    static bool write_bitmap(const SkString& path, const SkBitmap& bitmap) {
-        SkBitmap copy;
-        bitmap.copyTo(&copy, SkBitmap::kARGB_8888_Config);
-        force_all_opaque(copy);
-        return SkImageEncoder::EncodeFile(path.c_str(), copy,
-                                          SkImageEncoder::kPNG_Type, 100);
-    }
-
-    // Records an error in fFailedTests, if we want to record errors
-    // of this type.
-    void RecordError(ErrorBitfield errorType, const SkString& name,
-                     const char renderModeDescriptor []) {
-        bool isPixelError = false;
-        switch (errorType) {
-        case ERROR_NONE:
-            return;
-        case ERROR_READING_REFERENCE_IMAGE:
-            return;
-        case ERROR_IMAGE_MISMATCH:
-            isPixelError = true;
-            break;
-        default:
-            isPixelError = false;
-            break;
-        }
-
-        FailRec& rec = fFailedTests.push_back(make_name(
-            name.c_str(), renderModeDescriptor));
-        rec.fIsPixelError = isPixelError;
-    }
-
-    // List contents of fFailedTests via SkDebug.
-    void ListErrors() {
-        for (int i = 0; i < fFailedTests.count(); ++i) {
-            if (fFailedTests[i].fIsPixelError) {
-                SkDebugf("\t\t%s pixel_error\n", fFailedTests[i].fName.c_str());
-            } else {
-                SkDebugf("\t\t%s\n", fFailedTests[i].fName.c_str());
-            }
-        }
-    }
-
-    static bool write_document(const SkString& path,
-                               const SkDynamicMemoryWStream& document) {
-        SkFILEWStream stream(path.c_str());
-        SkAutoDataUnref data(document.copyToData());
-        return stream.writeData(data.get());
-    }
-
-    /// Returns true if processing should continue, false to skip the
-    /// remainder of this config for this GM.
-    //@todo thudson 22 April 2011 - could refactor this to take in
-    // a factory to generate the context, always call readPixels()
-    // (logically a noop for rasters, if wasted time), and thus collapse the
-    // GPU special case and also let this be used for SkPicture testing.
-    static void setup_bitmap(const ConfigData& gRec, SkISize& size,
-                             SkBitmap* bitmap) {
-        bitmap->setConfig(gRec.fConfig, size.width(), size.height());
-        bitmap->allocPixels();
-        bitmap->eraseColor(SK_ColorTRANSPARENT);
+    static void complete_bitmap(SkBitmap* bitmap) {
+        force_all_opaque(*bitmap);
     }
 
     static void installFilter(SkCanvas* canvas) {
@@ -417,6 +432,7 @@ public:
             canvas->readPixels(bitmap, 0, 0);
         }
 #endif
+        complete_bitmap(bitmap);
         return ERROR_NONE;
     }
 
@@ -429,6 +445,7 @@ public:
         installFilter(&canvas);
         canvas.scale(scale, scale);
         canvas.drawPicture(*pict);
+        complete_bitmap(bitmap);
     }
 
     static void generate_pdf(GM* gm, SkDynamicMemoryWStream& pdf) {
@@ -544,7 +561,7 @@ public:
                                           const char renderModeDescriptor[],
                                           bool addToJsonSummary=false) {
         ErrorBitfield retval;
-        Checksum actualChecksum = get_checksum(actualBitmap);
+        Checksum actualChecksum = SkBitmapChecksummer::Compute64(actualBitmap);
         SkString completeNameString = baseNameString;
         completeNameString.append(renderModeDescriptor);
         const char* completeName = completeNameString.c_str();
@@ -674,7 +691,7 @@ public:
              * not, the checksum returned here may not match the
              * checksum of actualBitmap, which *has* been run through
              * force_all_opaque().
-             * See comments above get_checksum() for more detail.
+             * See comments above complete_bitmap() for more detail.
              */
             Expectations expectations = expectationsSource->get(name.c_str());
             retval |= compare_to_expectations(expectations, actualBitmap,
@@ -682,7 +699,8 @@ public:
         } else {
             // If we are running without expectations, we still want to
             // record the actual results.
-            Checksum actualChecksum = get_checksum(actualBitmap);
+            Checksum actualChecksum =
+                SkBitmapChecksummer::Compute64(actualBitmap);
             add_actual_results_to_json_summary(name.c_str(), actualChecksum,
                                                ERROR_READING_REFERENCE_IMAGE,
                                                false);
@@ -715,7 +733,8 @@ public:
 
         SkASSERT(referenceBitmap);
         SkString name = make_name(gm->shortName(), gRec.fName);
-        Checksum referenceChecksum = get_checksum(*referenceBitmap);
+        Checksum referenceChecksum =
+            SkBitmapChecksummer::Compute64(*referenceBitmap);
         Expectations expectations(referenceChecksum);
         return compare_to_expectations(expectations, actualBitmap,
                                        name, renderModeDescriptor);
@@ -836,6 +855,7 @@ public:
             SkCanvas* pipeCanvas = writer.startRecording(
               &pipeController, gPipeWritingFlagCombos[i].flags);
             invokeGM(gm, pipeCanvas, false, false);
+            complete_bitmap(&bitmap);
             writer.endRecording();
             SkString string("-pipe");
             string.append(gPipeWritingFlagCombos[i].name);
@@ -861,6 +881,7 @@ public:
             SkCanvas* pipeCanvas = writer.startRecording(
               &pipeController, gPipeWritingFlagCombos[i].flags);
             invokeGM(gm, pipeCanvas, false, false);
+            complete_bitmap(&bitmap);
             writer.endRecording();
             SkString string("-tiled pipe");
             string.append(gPipeWritingFlagCombos[i].name);
