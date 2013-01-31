@@ -5,11 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "SkMatrix.h"
+
 #if SK_SUPPORT_GPU
 #include "GrTexture.h"
 #include "SkImageFilterUtils.h"
 #include "SkBitmap.h"
-#include "SkMatrix.h"
 #include "SkGrPixelRef.h"
 #include "SkGr.h"
 
