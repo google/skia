@@ -22,6 +22,7 @@ GM_BINARY=out/Debug/gm
 
 OUTPUT_ACTUAL_SUBDIR=output-actual
 OUTPUT_EXPECTED_SUBDIR=output-expected
+CONFIGS="--config 8888 --config 565"
 
 # Compare contents of all files within directories $1 and $2,
 # EXCEPT for any dotfiles.
@@ -100,20 +101,24 @@ function create_inputs_dir {
   mkdir -p $INPUTS_DIR
 
   mkdir -p $INPUTS_DIR/identical-bytes
-  $GM_BINARY --hierarchy --match dashing2 --config 8888 \
+  $GM_BINARY --hierarchy --match dashing2 $CONFIGS \
     -w $INPUTS_DIR/identical-bytes
 
   mkdir -p $INPUTS_DIR/identical-pixels
-  $GM_BINARY --hierarchy --match dashing2 --config 8888 \
+  $GM_BINARY --hierarchy --match dashing2 $CONFIGS \
     -w $INPUTS_DIR/identical-pixels
   echo "more bytes that do not change the image pixels" \
     >> $INPUTS_DIR/identical-pixels/8888/dashing2.png
+  echo "more bytes that do not change the image pixels" \
+    >> $INPUTS_DIR/identical-pixels/565/dashing2.png
 
   mkdir -p $INPUTS_DIR/different-pixels
-  $GM_BINARY --hierarchy --match dashing3 --config 8888 \
+  $GM_BINARY --hierarchy --match dashing3 $CONFIGS \
     -w $INPUTS_DIR/different-pixels
   mv $INPUTS_DIR/different-pixels/8888/dashing3.png \
     $INPUTS_DIR/different-pixels/8888/dashing2.png
+  mv $INPUTS_DIR/different-pixels/565/dashing3.png \
+    $INPUTS_DIR/different-pixels/565/dashing2.png
 
   mkdir -p $INPUTS_DIR/empty-dir
 }
@@ -126,21 +131,21 @@ GM_TEMPFILES=$GM_TESTDIR/tempfiles
 create_inputs_dir $GM_INPUTS
 
 # Compare generated image against an input image file with identical bytes.
-gm_test "--hierarchy --match dashing2 --config 8888 -r $GM_INPUTS/identical-bytes" "$GM_OUTPUTS/compared-against-identical-bytes"
+gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/identical-bytes" "$GM_OUTPUTS/compared-against-identical-bytes"
 
 # Compare generated image against an input image file with identical pixels but different PNG encoding.
-gm_test "--hierarchy --match dashing2 --config 8888 -r $GM_INPUTS/identical-pixels" "$GM_OUTPUTS/compared-against-identical-pixels"
+gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/identical-pixels" "$GM_OUTPUTS/compared-against-identical-pixels"
 
 # Compare generated image against an input image file with different pixels.
-gm_test "--hierarchy --match dashing2 --config 8888 -r $GM_INPUTS/different-pixels" "$GM_OUTPUTS/compared-against-different-pixels"
+gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/different-pixels" "$GM_OUTPUTS/compared-against-different-pixels"
 
 # Compare generated image against an empty "expected image" dir.
-gm_test "--hierarchy --match dashing2 --config 8888 -r $GM_INPUTS/empty-dir" "$GM_OUTPUTS/compared-against-empty-dir"
+gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/empty-dir" "$GM_OUTPUTS/compared-against-empty-dir"
 
 # If run without "-r", the JSON's "actual-results" section should contain
 # actual checksums marked as "failure-ignored", but the "expected-results"
 # section should be empty.
-gm_test "--hierarchy --match dashing2 --config 8888" "$GM_OUTPUTS/no-readpath"
+gm_test "--hierarchy --match dashing2 $CONFIGS" "$GM_OUTPUTS/no-readpath"
 
 # Run a test which generates partially transparent images, write out those
 # images, and read them back in.
@@ -151,7 +156,7 @@ gm_test "--hierarchy --match dashing2 --config 8888" "$GM_OUTPUTS/no-readpath"
 IMAGEDIR=$GM_TEMPFILES/aaclip-images
 rm -rf $IMAGEDIR
 mkdir -p $IMAGEDIR
-gm_test "--match simpleaaclip_path --config 8888 -w $IMAGEDIR" "$GM_OUTPUTS/aaclip-write"
-gm_test "--match simpleaaclip_path --config 8888 -r $IMAGEDIR" "$GM_OUTPUTS/aaclip-readback"
+gm_test "--match simpleaaclip_path $CONFIGS -w $IMAGEDIR" "$GM_OUTPUTS/aaclip-write"
+gm_test "--match simpleaaclip_path $CONFIGS -r $IMAGEDIR" "$GM_OUTPUTS/aaclip-readback"
 
 echo "All tests passed."

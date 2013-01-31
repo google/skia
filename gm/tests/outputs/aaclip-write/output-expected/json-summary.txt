@@ -3,6 +3,9 @@
       "failed" : null,
       "failure-ignored" : null,
       "no-comparison" : {
+         "simpleaaclip_path_565" : {
+            "checksum" : FAKE
+         },
          "simpleaaclip_path_8888" : {
             "checksum" : FAKE
          }
