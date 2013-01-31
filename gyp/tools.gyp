@@ -197,11 +197,18 @@
       'type': 'executable',
       'include_dirs' : [
         '../src/core',
+        '../debugger',
       ],
       'sources': [
         '../tools/filtermain.cpp',
-        '../tools/path_utils.cpp',
         '../tools/path_utils.h',
+        '../tools/path_utils.cpp',
+        '../debugger/SkDrawCommand.h',
+        '../debugger/SkDrawCommand.cpp',
+        '../debugger/SkDebugCanvas.h',
+        '../debugger/SkDebugCanvas.cpp',
+        '../debugger/SkObjectParser.h',
+        '../debugger/SkObjectParser.cpp',
       ],
       'dependencies': [
         'skia_base_libs.gyp:skia_base_libs',
