@@ -88,6 +88,7 @@
     '<(skia_include_path)/effects/SkDrawExtraPathEffect.h',
     '<(skia_include_path)/effects/SkEmbossMaskFilter.h',
     '<(skia_include_path)/effects/SkGradientShader.h',
+    '<(skia_include_path)/effects/SkImageFilterUtils.h',
     '<(skia_include_path)/effects/SkKernel33MaskFilter.h',
     '<(skia_include_path)/effects/SkLayerDrawLooper.h',
     '<(skia_include_path)/effects/SkLayerRasterizer.h',
