@@ -1019,6 +1019,12 @@ bool SkRegion::Oper(const SkRegion& rgnaOrig, const SkRegion& rgnbOrig, Op op,
         if (a_rect & b_rect) {
             return setRectCheck(result, bounds);
         }
+        if (a_rect && rgna->fBounds.contains(rgnb->fBounds)) {
+            return setRegionCheck(result, *rgnb);
+        }
+        if (b_rect && rgnb->fBounds.contains(rgna->fBounds)) {
+            return setRegionCheck(result, *rgna);
+        }
         break;
 
     case kUnion_Op:
