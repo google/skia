@@ -12,6 +12,8 @@
 #include "SkRandom.h"
 #include "SkSHA1.h"
 
+template<typename T> inline void sk_ignore_unused(const T&) { }
+
 enum ChecksumType {
     kChecksum_ChecksumType,
     kMD5_ChecksumType,
@@ -55,6 +57,7 @@ protected:
             case kChecksum_ChecksumType: {
                 for (int i = 0; i < N; i++) {
                     volatile uint32_t result = SkChecksum::Compute(fData, sizeof(fData));
+                    sk_ignore_unused(result);
                 }
             } break;
             case kMD5_ChecksumType: {
@@ -63,6 +66,7 @@ protected:
                     md5.update(reinterpret_cast<uint8_t*>(fData), sizeof(fData));
                     SkMD5::Digest digest;
                     md5.finish(digest);
+                    sk_ignore_unused(digest);
                 }
             } break;
             case kSHA1_ChecksumType: {
@@ -71,16 +75,19 @@ protected:
                     sha1.update(reinterpret_cast<uint8_t*>(fData), sizeof(fData));
                     SkSHA1::Digest digest;
                     sha1.finish(digest);
+                    sk_ignore_unused(digest);
                 }
             } break;
             case kCityHash32: {
                 for (int i = 0; i < N; i++) {
                     volatile uint32_t result = SkCityHash::Compute32(reinterpret_cast<char*>(fData), sizeof(fData));
+                    sk_ignore_unused(result);
                 }
             } break;
             case kCityHash64: {
                 for (int i = 0; i < N; i++) {
                     volatile uint64_t result = SkCityHash::Compute64(reinterpret_cast<char*>(fData), sizeof(fData));
+                    sk_ignore_unused(result);
                 }
             } break;
         }
