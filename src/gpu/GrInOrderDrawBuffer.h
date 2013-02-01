@@ -55,13 +55,6 @@ public:
     virtual ~GrInOrderDrawBuffer();
 
     /**
-     * Provides the buffer with an index buffer that can be used for quad rendering.
-     * The buffer may be able to batch consecutive drawRects if this is provided.
-     * @param indexBuffer   index buffer with quad indices.
-     */
-    void setQuadIndexBuffer(const GrIndexBuffer* indexBuffer);
-
-    /**
      * Empties the draw buffer of any queued up draws. This must not be called while inside an
      * unbalanced pushGeometrySource(). The current draw state and clip are preserved.
      */
@@ -89,24 +82,16 @@ public:
     void setAutoFlushTarget(GrDrawTarget* target);
 
     // overrides from GrDrawTarget
-    virtual void drawRect(const GrRect& rect,
-                          const SkMatrix* matrix = NULL,
-                          const GrRect* srcRects[] = NULL,
-                          const SkMatrix* srcMatrices[] = NULL) SK_OVERRIDE;
-
-    virtual void drawIndexedInstances(GrPrimitiveType type,
-                                      int instanceCount,
-                                      int verticesPerInstance,
-                                      int indicesPerInstance)
-                                      SK_OVERRIDE;
-
     virtual bool geometryHints(size_t vertexSize,
                                int* vertexCount,
                                int* indexCount) const SK_OVERRIDE;
-
     virtual void clear(const GrIRect* rect,
                        GrColor color,
                        GrRenderTarget* renderTarget = NULL) SK_OVERRIDE;
+    virtual void drawRect(const GrRect& rect,
+                          const SkMatrix* matrix,
+                          const GrRect* srcRects[],
+                          const SkMatrix* srcMatrices[]) SK_OVERRIDE;
 
 protected:
     virtual void clipWillBeSet(const GrClipData* newClip) SK_OVERRIDE;
@@ -120,13 +105,9 @@ private:
         kClear_Cmd          = 5,
     };
 
-    // TODO: Make this derive from DrawInfo
-    struct DrawRecord {
-        GrPrimitiveType         fPrimitiveType;
-        int                     fStartVertex;
-        int                     fStartIndex;
-        int                     fVertexCount;
-        int                     fIndexCount;
+    class DrawRecord : public DrawInfo {
+    public:
+        DrawRecord(const DrawInfo& info) : DrawInfo(info) {}
         GrVertexLayout          fVertexLayout;
         const GrVertexBuffer*   fVertexBuffer;
         const GrIndexBuffer*    fIndexBuffer;
@@ -170,24 +151,23 @@ private:
     virtual void willReserveVertexAndIndexSpace(size_t vertexSize,
                                                 int vertexCount,
                                                 int indexCount) SK_OVERRIDE;
+    bool quickInsideClip(const SkRect& devBounds);
 
+    // Attempts to concat instances from info onto the previous draw. info must represent an
+    // instanced draw. The caller must have already recorded a new draw state and clip if necessary.
+    int concatInstancedDraw(const DrawInfo& info);
 
-    // we lazily record state and clip changes in order to skip clips and states
-    // that have no effect.
+    // we lazily record state and clip changes in order to skip clips and states that have no
+    // effect.
     bool needsNewState() const;
     bool needsNewClip() const;
 
     // these functions record a command
     void            recordState();
     void            recordClip();
-    DrawRecord*     recordDraw();
     DrawRecord*     recordDraw(const DrawInfo&);
     StencilPath*    recordStencilPath();
     Clear*          recordClear();
-
-    // call this to invalidate the tracking data that is used to concatenate
-    // multiple draws into a single draw.
-    void resetDrawTracking();
 
     enum {
         kCmdPreallocCnt          = 32,
@@ -198,6 +178,8 @@ private:
         kClearPreallocCnt        = 4,
         kGeoPoolStatePreAllocCnt = 4,
     };
+
+    SkAutoTUnref<const GrGpu> fGpu;
 
     SkSTArray<kCmdPreallocCnt, uint8_t, true>                          fCmds;
     GrSTAllocator<kDrawPreallocCnt, DrawRecord>                        fDraws;
@@ -212,25 +194,17 @@ private:
 
     bool                            fClipSet;
 
+    enum ClipProxyState {
+        kUnknown_ClipProxyState,
+        kValid_ClipProxyState,
+        kInvalid_ClipProxyState
+    };
+    ClipProxyState                  fClipProxyState;
+    SkRect                          fClipProxy;
+
     GrVertexBufferAllocPool&        fVertexPool;
 
     GrIndexBufferAllocPool&         fIndexPool;
-
-    // these are used to attempt to concatenate drawRect calls
-    GrVertexLayout                  fLastRectVertexLayout;
-    const GrIndexBuffer*            fQuadIndexBuffer;
-    int                             fMaxQuads;
-    int                             fCurrQuad;
-
-    // bookkeeping to attempt to concatenate drawIndexedInstances calls
-    struct {
-        int            fVerticesPerInstance;
-        int            fIndicesPerInstance;
-        void reset() {
-            fVerticesPerInstance = 0;
-            fIndicesPerInstance = 0;
-        }
-    } fInstancedDrawTracker;
 
     struct GeometryPoolState {
         const GrVertexBuffer*           fPoolVertexBuffer;

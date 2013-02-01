@@ -1791,7 +1791,6 @@ void GrContext::setupDrawBuffer() {
                                           fDrawBufferVBAllocPool,
                                           fDrawBufferIBAllocPool));
 
-    fDrawBuffer->setQuadIndexBuffer(this->getQuadIndexBuffer());
     if (fDrawBuffer) {
         fDrawBuffer->setAutoFlushTarget(fGpu);
         fDrawBuffer->setDrawState(fDrawState);

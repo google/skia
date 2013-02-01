@@ -26,7 +26,6 @@
 class GrClipData;
 class GrPath;
 class GrVertexBuffer;
-
 class SkStrokeRec;
 
 class GrDrawTarget : public GrRefCnt {
@@ -49,6 +48,8 @@ protected:
         int fMaxRenderTargetSize;
         int fMaxTextureSize;
     };
+
+    class DrawInfo;
 
 public:
     SK_DECLARE_INST_COUNT(GrDrawTarget)
@@ -361,12 +362,15 @@ public:
      * @param indexCount   the number of index elements to read. The index count
      *                     is effectively trimmed to the last completely
      *                     specified primitive.
+     * @param devBounds    optional bounds hint. This is a promise from the caller,
+     *                     not a request for clipping.
      */
     void drawIndexed(GrPrimitiveType type,
                      int startVertex,
                      int startIndex,
                      int vertexCount,
-                     int indexCount);
+                     int indexCount,
+                     const SkRect* devBounds = NULL);
 
     /**
      * Draws non-indexed geometry using the current state and current vertex
@@ -376,10 +380,13 @@ public:
      * @param startVertex  the vertex in the vertex array/buffer corresponding
      *                     to index 0
      * @param vertexCount  one greater than the max index.
+     * @param devBounds    optional bounds hint. This is a promise from the caller,
+     *                     not a request for clipping.
      */
     void drawNonIndexed(GrPrimitiveType type,
                         int startVertex,
-                        int vertexCount);
+                        int vertexCount,
+                        const SkRect* devBounds = NULL);
 
     /**
      * Draws path into the stencil buffer. The fill must be either even/odd or
@@ -393,9 +400,13 @@ public:
      * and vertex sources. After returning, the vertex and index sources may
      * have changed. They should be reestablished before the next drawIndexed
      * or drawNonIndexed. This cannot be called between reserving and releasing
-     * geometry. The GrDrawTarget subclass may be able to perform additional
-     * optimizations if drawRect is used rather than drawIndexed or
-     * drawNonIndexed.
+     * geometry.
+     *
+     * A subclass may override this to perform more optimal rect rendering. Its
+     * draws should be funneled through one of the public GrDrawTarget draw methods
+     * (e.g. drawNonIndexed, drawIndexedInstances, ...). The base class draws a two
+     * triangle fan using drawNonIndexed from reserved vertex space.
+     *
      * @param rect      the rect to draw
      * @param matrix    optional matrix applied to rect (before viewMatrix)
      * @param srcRects  specifies rects for stages enabled by stageEnableMask.
@@ -425,7 +436,6 @@ public:
         this->drawRect(rect, matrix, NULL, NULL);
     }
 
-
     /**
      * This call is used to draw multiple instances of some geometry with a
      * given number of vertices (V) and indices (I) per-instance. The indices in
@@ -440,7 +450,7 @@ public:
      * source. The size of the index buffer limits the number of instances that
      * can be drawn by the GPU in a single draw. However, the caller may specify
      * any (positive) number for instanceCount and if necessary multiple GPU
-     * draws will be issued. Morever, when drawIndexedInstances is called
+     * draws will be issued. Moreover, when drawIndexedInstances is called
      * multiple times it may be possible for GrDrawTarget to group them into a
      * single GPU draw.
      *
@@ -453,11 +463,14 @@ public:
      *                              in the above description).
      * @param indicesPerInstance    The number of indices in each instance (I
      *                              in the above description).
+     * @param devBounds    optional bounds hint. This is a promise from the caller,
+     *                     not a request for clipping.
      */
-    virtual void drawIndexedInstances(GrPrimitiveType type,
-                                      int instanceCount,
-                                      int verticesPerInstance,
-                                      int indicesPerInstance);
+    void drawIndexedInstances(GrPrimitiveType type,
+                              int instanceCount,
+                              int verticesPerInstance,
+                              int indicesPerInstance,
+                              const SkRect* devBounds = NULL);
 
     /**
      * Clear the current render target if one isn't passed in. Ignores the
@@ -473,6 +486,11 @@ public:
      * is intended to give an application some recourse when resources are low.
      */
     virtual void purgeResources() {};
+
+    /**
+     * For subclass internal use to invoke a call to onDraw(). See DrawInfo below.
+     */
+    void executeDraw(const DrawInfo& info) { this->onDraw(info); }
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -714,48 +732,63 @@ protected:
         return this->getGeomSrc().fVertexLayout;
     }
 
-    // Helpers for drawRect, protected so subclasses that override drawRect can use them.
-    static GrVertexLayout GetRectVertexLayout(const GrRect* srcRects[]);
-
-    static void SetRectVertices(const GrRect& rect,
-                                const SkMatrix* matrix,
-                                const GrRect* srcRects[],
-                                const SkMatrix* srcMatrices[],
-                                GrColor color,
-                                GrVertexLayout layout,
-                                void* vertices);
-
     Caps fCaps;
 
+    /**
+     * Used to communicate draws to subclass's onDraw function.
+     */
     class DrawInfo {
     public:
         DrawInfo(const DrawInfo& di) { (*this) = di; }
-        DrawInfo& operator =(const DrawInfo& di) {
-            fPrimitiveType  = di.fPrimitiveType;
-            fStartVertex    = di.fStartVertex;
-            fStartIndex     = di.fStartIndex;
-            fVertexCount    = di.fVertexCount;
-            fIndexCount     = di.fIndexCount;
-            return *this;
-        }
+        DrawInfo& operator =(const DrawInfo& di);
 
         GrPrimitiveType primitiveType() const { return fPrimitiveType; }
         int startVertex() const { return fStartVertex; }
         int startIndex() const { return fStartIndex; }
         int vertexCount() const { return fVertexCount; }
         int indexCount() const { return fIndexCount; }
+        int verticesPerInstance() const { return fVerticesPerInstance; }
+        int indicesPerInstance() const { return fIndicesPerInstance; }
+        int instanceCount() const { return fInstanceCount; }
 
         bool isIndexed() const { return fIndexCount > 0; }
+#if GR_DEBUG
+        bool isInstanced() const; // this version is longer because of asserts
+#else
+        bool isInstanced() const { return fInstanceCount > 0; }
+#endif
+
+        // adds or remove instances
+        void adjustInstanceCount(int instanceOffset);
+        // shifts the start vertex
+        void adjustStartVertex(int vertexOffset);
+        // shifts the start index
+        void adjustStartIndex(int indexOffset);
+
+        void setDevBounds(const SkRect& bounds) {
+            fDevBoundsStorage = bounds;
+            fDevBounds = &fDevBoundsStorage;
+        }
+        const SkRect* getDevBounds() const { return fDevBounds; }
 
     private:
-        DrawInfo() {}
+        DrawInfo() { fDevBounds = NULL; }
+
         friend class GrDrawTarget;
+
         GrPrimitiveType fPrimitiveType;
 
         int             fStartVertex;
         int             fStartIndex;
         int             fVertexCount;
         int             fIndexCount;
+
+        int             fInstanceCount;
+        int             fVerticesPerInstance;
+        int             fIndicesPerInstance;
+
+        SkRect          fDevBoundsStorage;
+        SkRect*         fDevBounds;
     };
 
 private:

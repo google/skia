@@ -304,8 +304,15 @@ public:
                    int* coverageOffset,
                    int* edgeOffset);
 
-    // determine if src alpha is guaranteed to be one for all src pixels
-    bool srcAlphaWillBeOne(GrVertexLayout vertexLayout) const;
+    /**
+     * Determines whether src alpha is guaranteed to be one for all src pixels
+     */
+    bool srcAlphaWillBeOne(GrVertexLayout) const;
+
+    /**
+     * Determines whether the output coverage is guaranteed to be one for all pixels hit by a draw.
+     */
+    bool hasSolidCoverage(GrVertexLayout) const;
 
     /**
      * Accessing positions, texture coords, or colors, of a vertex within an
@@ -409,14 +416,28 @@ public:
      */
     class AutoColorRestore : public ::GrNoncopyable {
     public:
+        AutoColorRestore() : fDrawState(NULL) {}
+
         AutoColorRestore(GrDrawState* drawState, GrColor color) {
+            fDrawState = NULL;
+            this->set(drawState, color);
+        }
+
+        void reset() {
+            if (NULL != fDrawState) {
+                fDrawState->setColor(fOldColor);
+                fDrawState = NULL;
+            }
+        }
+
+        void set(GrDrawState* drawState, GrColor color) {
+            this->reset();
             fDrawState = drawState;
             fOldColor = fDrawState->getColor();
             fDrawState->setColor(color);
         }
-        ~AutoColorRestore() {
-            fDrawState->setColor(fOldColor);
-        }
+
+        ~AutoColorRestore() { this->reset(); }
     private:
         GrDrawState*    fDrawState;
         GrColor         fOldColor;
