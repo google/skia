@@ -36,8 +36,6 @@ protected:
 
     virtual void onDrawContent(SkCanvas* canvas) {
         SkISize dsize = canvas->getDeviceSize();
-        SkRect canvasRect = SkRect::MakeWH(SkIntToScalar(dsize.fWidth),
-                                           SkIntToScalar(dsize.fHeight));
         canvas->clear(0xFFF0E0F0);
 
         for (int i = 0; i < N; ++i) {
