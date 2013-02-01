@@ -131,16 +131,18 @@ void shadeSpan_linear_vertical_lerp(TileProc proc, SkFixed dx, SkFixed fx,
     // If colors change sharply across the gradient, dithering is
     // insufficient (it subsamples the color space) and we need to lerp.
     unsigned fullIndex = proc(fx);
-    unsigned fi = fullIndex >> (16 - SkGradientShaderBase::kCache32Bits);
-    unsigned remainder = fullIndex & SkGradientShaderBase::kLerpRemainderMask32;
-    SkPMColor lerp =
-        SkFastFourByteInterp(
-            cache[toggle + fi + 1],
-            cache[toggle + fi], remainder);
-    SkPMColor dlerp =
-        SkFastFourByteInterp(
-            cache[(toggle ^ SkGradientShaderBase::kDitherStride32) + fi + 1],
-            cache[(toggle ^ SkGradientShaderBase::kDitherStride32) + fi], remainder);
+    unsigned fi = fullIndex >> SkGradientShaderBase::kCache32Shift;
+    unsigned remainder = fullIndex & ((1 << SkGradientShaderBase::kCache32Shift) - 1);
+    
+    int index0 = fi + toggle;
+    int index1 = index0;
+    if (fi < SkGradientShaderBase::kCache32Count - 1) {
+        index1 += 1;
+    }
+    SkPMColor lerp = SkFastFourByteInterp(cache[index1], cache[index0], remainder);
+    index0 ^= SkGradientShaderBase::kDitherStride32;
+    index1 ^= SkGradientShaderBase::kDitherStride32;
+    SkPMColor dlerp = SkFastFourByteInterp(cache[index1], cache[index0], remainder);
     sk_memset32_dither(dstC, lerp, dlerp, count);
 }
 
@@ -149,7 +151,7 @@ void shadeSpan_linear_clamp(TileProc proc, SkFixed dx, SkFixed fx,
                             const SkPMColor* SK_RESTRICT cache,
                             int toggle, int count) {
     SkClampRange range;
-    range.init(fx, dx, count, 0, SkGradientShaderBase::kGradient32Length);
+    range.init(fx, dx, count, 0, SkGradientShaderBase::kCache32Count - 1);
 
     if ((count = range.fCount0) > 0) {
         sk_memset32_dither(dstC,
@@ -334,7 +336,7 @@ void shadeSpan16_linear_clamp(TileProc proc, SkFixed dx, SkFixed fx,
                               const uint16_t* SK_RESTRICT cache,
                               int toggle, int count) {
     SkClampRange range;
-    range.init(fx, dx, count, 0, SkGradientShaderBase::kGradient16Length);
+    range.init(fx, dx, count, 0, SkGradientShaderBase::kCache32Count - 1);
 
     if ((count = range.fCount0) > 0) {
         dither_memset16(dstC,

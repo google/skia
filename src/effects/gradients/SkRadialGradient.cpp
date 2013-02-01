@@ -227,8 +227,8 @@ SkShader::BitmapType SkRadialGradient::asABitmap(SkBitmap* bitmap,
         this->getGradientTableBitmap(bitmap);
     }
     if (matrix) {
-        matrix->setScale(SkIntToScalar(kGradient32Length),
-                         SkIntToScalar(kGradient32Length));
+        matrix->setScale(SkIntToScalar(kCache32Count),
+                         SkIntToScalar(kCache32Count));
         matrix->preConcat(fPtsToUnit);
     }
     if (xy) {
@@ -318,7 +318,7 @@ void shadeSpan_radial_clamp(SkScalar sfx, SkScalar sdx,
     SkFixed fy = SkScalarToFixed(sfy) >> 1;
     SkFixed dy = SkScalarToFixed(sdy) >> 1;
     if ((count > 4) && radial_completely_pinned(fx, dx, fy, dy)) {
-        unsigned fi = SkGradientShaderBase::kGradient32Length;
+        unsigned fi = SkGradientShaderBase::kCache32Count - 1;
         sk_memset32_dither(dstC,
             cache[toggle + fi],
             cache[(toggle ^ SkGradientShaderBase::kDitherStride32) + fi],
