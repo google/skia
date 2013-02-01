@@ -53,6 +53,13 @@ namespace skiagm {
             return this->onGetFlags();
         }
 
+        SkScalar width() {
+            return SkIntToScalar(this->getISize().width());
+        }
+        SkScalar height() {
+            return SkIntToScalar(this->getISize().width());
+        }
+
         // TODO(vandebo) Instead of exposing this, we should run all the GMs
         // with and without an initial transform.
         // Most GMs will return the identity matrix, but some PDFs tests
