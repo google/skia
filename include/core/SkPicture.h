@@ -142,11 +142,14 @@ public:
      */
     void serialize(SkWStream*, SkSerializationHelpers::EncodeBitmap encoder = NULL) const;
 
+#ifdef SK_BUILD_FOR_ANDROID
     /** Signals that the caller is prematurely done replaying the drawing
         commands. This can be called from a canvas virtual while the picture
         is drawing. Has no effect if the picture is not drawing.
+        @deprecated preserving for legacy purposes
     */
     void abortPlayback();
+#endif
 
 protected:
     // V2 : adds SkPixelRef's generation ID.

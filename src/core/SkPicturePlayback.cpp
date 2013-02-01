@@ -680,7 +680,17 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
     // Record this, so we can concat w/ it if we encounter a setMatrix()
     SkMatrix initialMatrix = canvas.getTotalMatrix();
 
+#ifdef SK_BUILD_FOR_ANDROID
+    fAbortCurrentPlayback = false;
+#endif
+
     while (!reader.eof()) {
+#ifdef SK_BUILD_FOR_ANDROID
+        if (fAbortCurrentPlayback) {
+            return;
+        }
+#endif
+
 #ifdef SK_DEVELOPER
         size_t curOffset = reader.offset();
 #endif
@@ -985,11 +995,6 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
     }
 #endif
 //    this->dumpSize();
-}
-
-void SkPicturePlayback::abort() {
-    SkASSERT(!"not supported");
-//    fReader.skip(fReader.size() - fReader.offset());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
