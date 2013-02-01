@@ -8,7 +8,6 @@
 #include "SkTypes.h"
 
 #include "SkBitmapProcShader.h"
-#include "SkImageRef_ashmem.h"
 #include "SkMallocPixelRef.h"
 #include "SkPathEffect.h"
 #include "SkPixelRef.h"

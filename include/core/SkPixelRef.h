@@ -216,13 +216,6 @@ protected:
     // Performance tweak to avoid those calls (esp. in multi-thread use case).
     void setPreLocked(void* pixels, SkColorTable* ctable);
 
-    /**
-     *  If a subclass passed a particular mutex to the base constructor, it can
-     *  override that to go back to the default mutex by calling this. However,
-     *  this should only be called from within the subclass' constructor.
-     */
-    void useDefaultMutex() { this->setMutex(NULL); }
-
 private:
 
     SkBaseMutex*    fMutex; // must remain in scope for the life of this object

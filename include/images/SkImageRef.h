@@ -34,7 +34,7 @@ public:
         @param config The preferred config of the decoded bitmap.
         @param sampleSize Requested sampleSize for decoding. Defaults to 1.
     */
-    SkImageRef(SkStream*, SkBitmap::Config config, int sampleSize = 1);
+    SkImageRef(SkStream*, SkBitmap::Config config, int sampleSize = 1, SkBaseMutex* mutex = NULL);
     virtual ~SkImageRef();
 
     /** this value is passed onto the decoder. Default is true
@@ -73,9 +73,9 @@ protected:
 
     virtual void* onLockPixels(SkColorTable**);
     // override this in your subclass to clean up when we're unlocking pixels
-    virtual void onUnlockPixels();
+    virtual void onUnlockPixels() {}
 
-    SkImageRef(SkFlattenableReadBuffer&);
+    SkImageRef(SkFlattenableReadBuffer&, SkBaseMutex* mutex = NULL);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
     SkBitmap fBitmap;
