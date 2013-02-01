@@ -321,9 +321,11 @@ void SkPicture::serialize(SkWStream* stream, SkSerializationHelpers::EncodeBitma
     }
 }
 
+#ifdef SK_BUILD_FOR_ANDROID
 void SkPicture::abortPlayback() {
     if (NULL == fPlayback) {
         return;
     }
     fPlayback->abort();
 }
+#endif
