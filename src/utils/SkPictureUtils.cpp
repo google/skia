@@ -58,7 +58,11 @@ private:
         SkShader* shader = paint.getShader();
         if (shader) {
             SkBitmap bm;
-            if (shader->asABitmap(&bm, NULL, NULL)) {
+            // Check whether the shader is a gradient in order to short-circuit
+            // call to asABitmap to prevent generation of bitmaps from
+            // gradient shaders, which implement asABitmap.
+            if (SkShader::kNone_GradientType == shader->asAGradient(NULL) &&
+                shader->asABitmap(&bm, NULL, NULL)) {
                 fPRSet->add(bm.pixelRef());
             }
         }
