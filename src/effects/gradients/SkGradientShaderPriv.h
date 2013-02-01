@@ -101,26 +101,14 @@ public:
         /// Seems like enough for visual accuracy. TODO: if pos[] deserves
         /// it, use a larger cache.
         kCache16Bits    = 8,
-        kGradient16Length = (1 << kCache16Bits),
-        /// Each cache gets 1 extra entry at the end so we don't have to
-        /// test for end-of-cache in lerps. This is also the value used
-        /// to stride *writes* into the dither cache; it must not be zero.
-        /// Total space for a cache is 2x kCache16Count entries: one
-        /// regular cache, one for dithering.
-        kCache16Count   = kGradient16Length + 1,
+        kCache16Count = (1 << kCache16Bits),
         kCache16Shift   = 16 - kCache16Bits,
         kSqrt16Shift    = 8 - kCache16Bits,
 
         /// Seems like enough for visual accuracy. TODO: if pos[] deserves
         /// it, use a larger cache.
         kCache32Bits    = 8,
-        kGradient32Length = (1 << kCache32Bits),
-        /// Each cache gets 1 extra entry at the end so we don't have to
-        /// test for end-of-cache in lerps. This is also the value used
-        /// to stride *writes* into the dither cache; it must not be zero.
-        /// Total space for a cache is 2x kCache32Count entries: one
-        /// regular cache, one for dithering.
-        kCache32Count   = kGradient32Length + 1,
+        kCache32Count = (1 << kCache32Bits),
         kCache32Shift   = 16 - kCache32Bits,
         kSqrt32Shift    = 8 - kCache32Bits,
 
@@ -132,7 +120,6 @@ public:
         kDitherStride32 = 0,
 #endif
         kDitherStride16 = kCache16Count,
-        kLerpRemainderMask32 = (1 << (16 - kCache32Bits)) - 1
     };
 
 
