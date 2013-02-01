@@ -82,7 +82,7 @@ protected:
         SkAutoTUnref<SkImageFilter> background(SkNEW_ARGS(SkBitmapSource, (fCheckerboard)));
         paint.setImageFilter(SkNEW_ARGS(SkBlendImageFilter, (SkBlendImageFilter::kNormal_Mode, background)))->unref();
         drawClippedBitmap(canvas, paint, 0);
-        paint.setImageFilter(SkNEW_ARGS(SkBlendImageFilter, (SkBlendImageFilter::kModulate_Mode, background)))->unref();
+        paint.setImageFilter(SkNEW_ARGS(SkBlendImageFilter, (SkBlendImageFilter::kMultiply_Mode, background)))->unref();
         drawClippedBitmap(canvas, paint, 100);
         paint.setImageFilter(SkNEW_ARGS(SkBlendImageFilter, (SkBlendImageFilter::kScreen_Mode, background)))->unref();
         drawClippedBitmap(canvas, paint, 200);
