@@ -11,6 +11,7 @@
 #include "SkDevice.h"
 #include "SkPixelRef.h"
 #include "SkShader.h"
+#include "SkRRect.h"
 
 class PixelRefSet {
 public:
@@ -180,6 +181,10 @@ public:
     virtual bool clipPath(const SkPath& path, SkRegion::Op op,
                           bool doAA) SK_OVERRIDE {
         return this->INHERITED::clipRect(path.getBounds(), op, false);
+    }
+    virtual bool clipRRect(const SkRRect& rrect, SkRegion::Op op,
+                           bool doAA) SK_OVERRIDE {
+        return this->INHERITED::clipRect(rrect.getBounds(), op, false);
     }
 
 private:
