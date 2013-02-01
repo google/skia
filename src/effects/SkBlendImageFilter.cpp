@@ -24,7 +24,7 @@ SkXfermode::Mode modeToXfermode(SkBlendImageFilter::Mode mode)
     switch (mode) {
       case SkBlendImageFilter::kNormal_Mode:
         return SkXfermode::kSrcOver_Mode;
-      case SkBlendImageFilter::kModulate_Mode:
+      case SkBlendImageFilter::kMultiply_Mode:
         return SkXfermode::kModulate_Mode;
       case SkBlendImageFilter::kScreen_Mode:
         return SkXfermode::kScreen_Mode;
@@ -100,7 +100,7 @@ bool SkBlendImageFilter::onFilterImage(Proxy* proxy,
     // FEBlend's multiply mode is (1 - Sa) * Da + (1 - Da) * Sc + Sc * Dc
     // Skia's is just Sc * Dc.  So we use a custom proc to implement FEBlend's
     // version.
-    if (fMode == SkBlendImageFilter::kModulate_Mode) {
+    if (fMode == SkBlendImageFilter::kMultiply_Mode) {
         paint.setXfermode(new SkProcXfermode(multiply_proc))->unref();
     } else {
         paint.setXfermodeMode(modeToXfermode(fMode));
@@ -283,7 +283,7 @@ void GrGLBlendEffect::emitCode(GrGLShaderBuilder* builder,
       case SkBlendImageFilter::kNormal_Mode:
         code->appendf("\t\t%s.rgb = (1.0 - %s.a) * %s.rgb + %s.rgb;\n", outputColor, fgColor, bgColor, fgColor);
         break;
-      case SkBlendImageFilter::kModulate_Mode:
+      case SkBlendImageFilter::kMultiply_Mode:
         code->appendf("\t\t%s.rgb = (1.0 - %s.a) * %s.rgb + (1.0 - %s.a) * %s.rgb + %s.rgb * %s.rgb;\n", outputColor, fgColor, bgColor, bgColor, fgColor, fgColor, bgColor);
         break;
       case SkBlendImageFilter::kScreen_Mode:
