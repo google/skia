@@ -19,6 +19,66 @@ SK_DEFINE_INST_COUNT(GrDrawTarget)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+GrDrawTarget::DrawInfo& GrDrawTarget::DrawInfo::operator =(const DrawInfo& di) {
+    fPrimitiveType  = di.fPrimitiveType;
+    fStartVertex    = di.fStartVertex;
+    fStartIndex     = di.fStartIndex;
+    fVertexCount    = di.fVertexCount;
+    fIndexCount     = di.fIndexCount;
+
+    fInstanceCount          = di.fInstanceCount;
+    fVerticesPerInstance    = di.fVerticesPerInstance;
+    fIndicesPerInstance     = di.fIndicesPerInstance;
+
+    if (NULL != di.fDevBounds) {
+        GrAssert(di.fDevBounds == &di.fDevBoundsStorage);
+        fDevBoundsStorage = di.fDevBoundsStorage;
+        fDevBounds = &fDevBoundsStorage;
+    } else {
+        fDevBounds = NULL;
+    }
+    return *this;
+}
+
+#if GR_DEBUG
+bool GrDrawTarget::DrawInfo::isInstanced() const {
+    if (fInstanceCount > 0) {
+        GrAssert(0 == fIndexCount % fIndicesPerInstance);
+        GrAssert(0 == fVertexCount % fVerticesPerInstance);
+        GrAssert(fIndexCount / fIndicesPerInstance == fInstanceCount);
+        GrAssert(fVertexCount / fVerticesPerInstance == fInstanceCount);
+        // there is no way to specify a non-zero start index to drawIndexedInstances().
+        GrAssert(0 == fStartIndex);
+        return true;
+    } else {
+        GrAssert(!fVerticesPerInstance);
+        GrAssert(!fIndicesPerInstance);
+        return false;
+    }
+}
+#endif
+
+void GrDrawTarget::DrawInfo::adjustInstanceCount(int instanceOffset) {
+    GrAssert(this->isInstanced());
+    GrAssert(instanceOffset + fInstanceCount >= 0);
+    fInstanceCount += instanceOffset;
+    fVertexCount = fVerticesPerInstance * fInstanceCount;
+    fIndexCount = fIndicesPerInstance * fInstanceCount;
+}
+
+void GrDrawTarget::DrawInfo::adjustStartVertex(int vertexOffset) {
+    fStartVertex += vertexOffset;
+    GrAssert(fStartVertex >= 0);
+}
+
+void GrDrawTarget::DrawInfo::adjustStartIndex(int indexOffset) {
+    GrAssert(this->isIndexed());
+    fStartIndex += indexOffset;
+    GrAssert(fStartIndex >= 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 #define DEBUG_INVAL_BUFFER 0xdeadcafe
 #define DEBUG_INVAL_START_IDX -1
 
@@ -338,9 +398,12 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
     return true;
 }
 
-void GrDrawTarget::drawIndexed(GrPrimitiveType type, int startVertex,
-                               int startIndex, int vertexCount,
-                               int indexCount) {
+void GrDrawTarget::drawIndexed(GrPrimitiveType type,
+                               int startVertex,
+                               int startIndex,
+                               int vertexCount,
+                               int indexCount,
+                               const SkRect* devBounds) {
     if (indexCount > 0 && this->checkDraw(type, startVertex, startIndex, vertexCount, indexCount)) {
         DrawInfo info;
         info.fPrimitiveType = type;
@@ -348,13 +411,22 @@ void GrDrawTarget::drawIndexed(GrPrimitiveType type, int startVertex,
         info.fStartIndex    = startIndex;
         info.fVertexCount   = vertexCount;
         info.fIndexCount    = indexCount;
+
+        info.fInstanceCount         = 0;
+        info.fVerticesPerInstance   = 0;
+        info.fIndicesPerInstance    = 0;
+
+        if (NULL != devBounds) {
+            info.setDevBounds(*devBounds);
+        }
         this->onDraw(info);
     }
 }
 
 void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
                                   int startVertex,
-                                  int vertexCount) {
+                                  int vertexCount,
+                                  const SkRect* devBounds) {
     if (vertexCount > 0 && this->checkDraw(type, startVertex, -1, vertexCount, -1)) {
         DrawInfo info;
         info.fPrimitiveType = type;
@@ -362,6 +434,14 @@ void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
         info.fStartIndex    = 0;
         info.fVertexCount   = vertexCount;
         info.fIndexCount    = 0;
+
+        info.fInstanceCount         = 0;
+        info.fVerticesPerInstance   = 0;
+        info.fIndicesPerInstance    = 0;
+
+        if (NULL != devBounds) {
+            info.setDevBounds(*devBounds);
+        }
         this->onDraw(info);
     }
 }
@@ -546,27 +626,43 @@ bool GrDrawTarget::canApplyCoverage() const {
 void GrDrawTarget::drawIndexedInstances(GrPrimitiveType type,
                                         int instanceCount,
                                         int verticesPerInstance,
-                                        int indicesPerInstance) {
+                                        int indicesPerInstance,
+                                        const SkRect* devBounds) {
     if (!verticesPerInstance || !indicesPerInstance) {
         return;
     }
 
-    int instancesPerDraw = this->indexCountInCurrentSource() /
-                           indicesPerInstance;
-    if (!instancesPerDraw) {
+    int maxInstancesPerDraw = this->indexCountInCurrentSource() / indicesPerInstance;
+    if (!maxInstancesPerDraw) {
         return;
     }
 
-    instancesPerDraw = GrMin(instanceCount, instancesPerDraw);
-    int startVertex = 0;
+    DrawInfo info;
+    info.fPrimitiveType = type;
+    info.fStartIndex = 0;
+    info.fStartVertex = 0;
+    info.fIndicesPerInstance = indicesPerInstance;
+    info.fVerticesPerInstance = verticesPerInstance;
+
+    // Set the same bounds for all the draws.
+    if (NULL != devBounds) {
+        info.setDevBounds(*devBounds);
+    }
+
     while (instanceCount) {
-        this->drawIndexed(type,
-                          startVertex,
-                          0,
-                          verticesPerInstance * instancesPerDraw,
-                          indicesPerInstance * instancesPerDraw);
-        startVertex += verticesPerInstance;
-        instanceCount -= instancesPerDraw;
+        info.fInstanceCount = GrMin(instanceCount, maxInstancesPerDraw);
+        info.fVertexCount = info.fInstanceCount * verticesPerInstance;
+        info.fIndexCount = info.fInstanceCount * indicesPerInstance;
+
+        if (this->checkDraw(type,
+                            info.fStartVertex,
+                            info.fStartIndex,
+                            info.fVertexCount,
+                            info.fIndexCount)) {
+            this->onDraw(info);
+        }
+        info.fStartVertex += info.fVertexCount;
+        instanceCount -= info.fInstanceCount;
     }
 }
 
@@ -576,7 +672,24 @@ void GrDrawTarget::drawRect(const GrRect& rect,
                             const SkMatrix* matrix,
                             const GrRect* srcRects[],
                             const SkMatrix* srcMatrices[]) {
-    GrVertexLayout layout = GetRectVertexLayout(srcRects);
+    GrVertexLayout layout = 0;
+    uint32_t explicitCoordMask = 0;
+
+    if (NULL != srcRects) {
+        for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+            int numTC = 0;
+            if (NULL != srcRects[s]) {
+                layout |= GrDrawState::StageTexCoordVertexLayoutBit(s, numTC);
+                explicitCoordMask |= (1 << s);
+                ++numTC;
+            }
+        }
+    }
+
+    GrDrawState::AutoViewMatrixRestore avmr;
+    if (NULL != matrix) {
+        avmr.set(this->drawState(), *matrix, explicitCoordMask);
+    }
 
     AutoReleaseGeometry geo(this, layout, 4, 0);
     if (!geo.succeeded()) {
@@ -584,69 +697,14 @@ void GrDrawTarget::drawRect(const GrRect& rect,
         return;
     }
 
-    SetRectVertices(rect, matrix, srcRects,
-                    srcMatrices, SK_ColorBLACK, layout, geo.vertices());
-
-    drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
-}
-
-GrVertexLayout GrDrawTarget::GetRectVertexLayout(const GrRect* srcRects[]) {
-    if (NULL == srcRects) {
-        return 0;
-    }
-
-    GrVertexLayout layout = 0;
-    for (int i = 0; i < GrDrawState::kNumStages; ++i) {
-        int numTC = 0;
-        if (NULL != srcRects[i]) {
-            layout |= GrDrawState::StageTexCoordVertexLayoutBit(i, numTC);
-            ++numTC;
-        }
-    }
-    return layout;
-}
-
-// This method fills int the four vertices for drawing 'rect'.
-//      matrix - is applied to each vertex
-//      srcRects - provide the uvs for each vertex
-//      srcMatrices - are applied to the corresponding 'srcRect'
-//      color - vertex color (replicated in each vertex)
-//      layout - specifies which uvs and/or color are present
-//      vertices - storage for the resulting vertices
-// Note: the color parameter will only be used when kColor_VertexLayoutBit
-// is present in 'layout'
-void GrDrawTarget::SetRectVertices(const GrRect& rect,
-                                   const SkMatrix* matrix,
-                                   const GrRect* srcRects[],
-                                   const SkMatrix* srcMatrices[],
-                                   GrColor color,
-                                   GrVertexLayout layout,
-                                   void* vertices) {
-#if GR_DEBUG
-    // check that the layout and srcRects agree
-    for (int i = 0; i < GrDrawState::kNumStages; ++i) {
-        if (GrDrawState::VertexTexCoordsForStage(i, layout) >= 0) {
-            GR_DEBUGASSERT(NULL != srcRects && NULL != srcRects[i]);
-        } else {
-            GR_DEBUGASSERT(NULL == srcRects || NULL == srcRects[i]);
-        }
-    }
-#endif
-
-    int stageOffsets[GrDrawState::kNumStages], colorOffset;
-    int vsize = GrDrawState::VertexSizeAndOffsetsByStage(layout, stageOffsets,
-                                                         &colorOffset, NULL, NULL);
-
-    GrTCast<GrPoint*>(vertices)->setRectFan(rect.fLeft, rect.fTop,
-                                            rect.fRight, rect.fBottom,
-                                            vsize);
-    if (NULL != matrix) {
-        matrix->mapPointsWithStride(GrTCast<GrPoint*>(vertices), vsize, 4);
-    }
+    int stageOffsets[GrDrawState::kNumStages];
+    int vsize = GrDrawState::VertexSizeAndOffsetsByStage(layout, stageOffsets,  NULL, NULL, NULL);
+    geo.positions()->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vsize);
 
     for (int i = 0; i < GrDrawState::kNumStages; ++i) {
-        if (stageOffsets[i] > 0) {
-            GrPoint* coords = GrTCast<GrPoint*>(GrTCast<intptr_t>(vertices) +
+        if (explicitCoordMask & (1 << i)) {
+            GrAssert(NULL != stageOffsets[i]);
+            GrPoint* coords = GrTCast<GrPoint*>(GrTCast<intptr_t>(geo.vertices()) +
                                                 stageOffsets[i]);
             coords->setRectFan(srcRects[i]->fLeft, srcRects[i]->fTop,
                                srcRects[i]->fRight, srcRects[i]->fBottom,
@@ -654,18 +712,12 @@ void GrDrawTarget::SetRectVertices(const GrRect& rect,
             if (NULL != srcMatrices && NULL != srcMatrices[i]) {
                 srcMatrices[i]->mapPointsWithStride(coords, vsize, 4);
             }
+        } else {
+            GrAssert(NULL == stageOffsets[i]);
         }
     }
 
-    if (colorOffset >= 0) {
-
-        GrColor* vertCol = GrTCast<GrColor*>(GrTCast<intptr_t>(vertices) + colorOffset);
-
-        for (int i = 0; i < 4; ++i) {
-            *vertCol = color;
-            vertCol = (GrColor*) ((intptr_t) vertCol + vsize);
-        }
-    }
+    this->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
 }
 
 void GrDrawTarget::clipWillBeSet(const GrClipData* clipData) {

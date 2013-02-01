@@ -530,6 +530,32 @@ bool GrDrawState::srcAlphaWillBeOne(GrVertexLayout layout) const {
     return (GrEffect::kA_ValidComponentFlag & validComponentFlags) && 0xff == GrColorUnpackA(color);
 }
 
+bool GrDrawState::hasSolidCoverage(GrVertexLayout layout) const {
+    // If we're drawing coverage directly then coverage is effectively treated as color.
+    if (this->isCoverageDrawing()) {
+        return true;
+    }
+
+    GrColor coverage;
+    uint32_t validComponentFlags;
+    // Initialize to an unknown starting coverage if per-vertex coverage is specified.
+    if (layout & kCoverage_VertexLayoutBit) {
+        validComponentFlags = 0;
+    } else {
+        coverage = fCommon.fCoverage;
+        validComponentFlags = GrEffect::kAll_ValidComponentFlags;
+    }
+
+    // Run through the coverage stages and see if the coverage will be all ones at the end.
+    for (int s = this->getFirstCoverageStage(); s < GrDrawState::kNumStages; ++s) {
+        const GrEffectRef* effect = this->getStage(s).getEffect();
+        if (NULL != effect) {
+            (*effect)->getConstantColorComponents(&coverage, &validComponentFlags);
+        }
+    }
+    return (GrEffect::kAll_ValidComponentFlags == validComponentFlags)  && (0xffffffff == coverage);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrDrawState::AutoViewMatrixRestore::restore() {

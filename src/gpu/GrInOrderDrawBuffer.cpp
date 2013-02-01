@@ -21,13 +21,12 @@ GrInOrderDrawBuffer::GrInOrderDrawBuffer(const GrGpu* gpu,
                                          GrIndexBufferAllocPool* indexPool)
     : fAutoFlushTarget(NULL)
     , fClipSet(true)
+    , fClipProxyState(kUnknown_ClipProxyState)
     , fVertexPool(*vertexPool)
     , fIndexPool(*indexPool)
-    , fLastRectVertexLayout(0)
-    , fQuadIndexBuffer(NULL)
-    , fMaxQuads(0)
     , fFlushing(false) {
 
+    fGpu.reset(SkRef(gpu));
     fCaps = gpu->getCaps();
 
     GrAssert(NULL != vertexPool);
@@ -49,29 +48,26 @@ GrInOrderDrawBuffer::~GrInOrderDrawBuffer() {
     this->reset();
     // This must be called by before the GrDrawTarget destructor
     this->releaseGeometry();
-    GrSafeUnref(fQuadIndexBuffer);
     GrSafeUnref(fAutoFlushTarget);
-}
-
-void GrInOrderDrawBuffer::setQuadIndexBuffer(const GrIndexBuffer* indexBuffer) {
-    bool newIdxBuffer = fQuadIndexBuffer != indexBuffer;
-    if (newIdxBuffer) {
-        GrSafeUnref(fQuadIndexBuffer);
-        fQuadIndexBuffer = indexBuffer;
-        GrSafeRef(fQuadIndexBuffer);
-        fCurrQuad = 0;
-        fMaxQuads = (NULL == indexBuffer) ? 0 : indexBuffer->maxQuads();
-    } else {
-        GrAssert((NULL == indexBuffer && 0 == fMaxQuads) ||
-                 (indexBuffer->maxQuads() == fMaxQuads));
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrInOrderDrawBuffer::resetDrawTracking() {
-    fCurrQuad = 0;
-    fInstancedDrawTracker.reset();
+namespace {
+void get_vertex_bounds(const void* vertices,
+                       size_t vertexSize,
+                       int vertexCount,
+                       SkRect* bounds) {
+    GrAssert(vertexSize >= sizeof(GrPoint));
+    GrAssert(vertexCount > 0);
+    const GrPoint* point = static_cast<const GrPoint*>(vertices);
+    bounds->fLeft = bounds->fRight = point->fX;
+    bounds->fTop = bounds->fBottom = point->fY;
+    for (int i = 1; i < vertexCount; ++i) {
+        point = reinterpret_cast<GrPoint*>(reinterpret_cast<intptr_t>(point) + vertexSize);
+        bounds->growToInclude(point->fX, point->fY);
+    }
+}
 }
 
 void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
@@ -79,305 +75,223 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
                                    const GrRect* srcRects[],
                                    const SkMatrix* srcMatrices[]) {
 
-    GrAssert(!(NULL == fQuadIndexBuffer && fCurrQuad));
-    GrAssert(!(fDraws.empty() && fCurrQuad));
-    GrAssert(!(0 != fMaxQuads && NULL == fQuadIndexBuffer));
+    GrVertexLayout layout = 0;
+    GrDrawState::AutoColorRestore acr;
+    GrColor color = this->drawState()->getColor();
 
-    GrDrawState* drawState = this->drawState();
-
-    // if we have a quad IB then either append to the previous run of
-    // rects or start a new run
-    if (fMaxQuads) {
-
-        bool appendToPreviousDraw = false;
-        GrVertexLayout layout = GetRectVertexLayout(srcRects);
-
-        // Batching across colors means we move the draw color into the
-        // rect's vertex colors to allow greater batching (a lot of rects
-        // in a row differing only in color is a common occurence in tables).
-        bool batchAcrossColors = true;
-        if (!this->getCaps().dualSourceBlendingSupport()) {
-            for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-                if (this->getDrawState().isStageEnabled(s)) {
-                    // We disable batching across colors when there is a texture
-                    // present because (by pushing the the color to the vertices)
-                    // Ganesh loses track of the rect's opacity. This, in turn, can
-                    // cause some of the blending optimizations to be disabled. This
-                    // becomes a huge problem on some of the smaller devices where
-                    // shader derivatives and dual source blending aren't supported.
-                    // In those cases paths are often drawn to a texture and then
-                    // drawn as a texture (using this method). Because dual source
-                    // blending is disabled (and the blend optimizations are short
-                    // circuited) some of the more esoteric blend modes can no longer
-                    // be supported.
-                    // TODO: add tracking of batchAcrossColors's opacity
-                    batchAcrossColors = false;
-                    break;
-                }
-            }
-        }
-
-        if (batchAcrossColors) {
-            layout |= GrDrawState::kColor_VertexLayoutBit;
-        }
-
-        AutoReleaseGeometry geo(this, layout, 4, 0);
-        if (!geo.succeeded()) {
-            GrPrintf("Failed to get space for vertices!\n");
-            return;
-        }
-        SkMatrix combinedMatrix = drawState->getViewMatrix();
-        // We go to device space so that matrix changes allow us to concat
-        // rect draws. When the caller has provided explicit source rects
-        // then we don't want to modify the stages' matrices. Otherwise
-        // we have to account for the view matrix change in the stage
-        // matrices.
-        uint32_t explicitCoordMask = 0;
-        if (srcRects) {
-            for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-                if (srcRects[s]) {
-                    explicitCoordMask |= (1 << s);
-                }
-            }
-        }
-        GrDrawState::AutoDeviceCoordDraw adcd(this->drawState(), explicitCoordMask);
-        if (!adcd.succeeded()) {
-            return;
-        }
-        if (NULL != matrix) {
-            combinedMatrix.preConcat(*matrix);
-        }
-
-        SetRectVertices(rect, &combinedMatrix, srcRects, srcMatrices,
-                        this->getDrawState().getColor(), layout, geo.vertices());
-
-        // Now that the paint's color is stored in the vertices set it to
-        // white so that the following code can batch all the rects regardless
-        // of paint color
-        GrDrawState::AutoColorRestore acr(this->drawState(),
-                                          batchAcrossColors ? SK_ColorWHITE
-                                                            : this->getDrawState().getColor());
-
-        // we don't want to miss an opportunity to batch rects together
-        // simply because the clip has changed if the clip doesn't affect
-        // the rect.
-        bool disabledClip = false;
-
-        if (drawState->isClipState()) {
-
-            GrRect devClipRect;
-            bool isIntersectionOfRects = false;
-            const GrClipData* clip = this->getClip();
-            clip->fClipStack->getConservativeBounds(-clip->fOrigin.fX,
-                                                    -clip->fOrigin.fY,
-                                                    drawState->getRenderTarget()->width(),
-                                                    drawState->getRenderTarget()->height(),
-                                                    &devClipRect,
-                                                    &isIntersectionOfRects);
-
-            if (isIntersectionOfRects) {
-                // If the clip rect touches the edge of the viewport, extended it
-                // out (close) to infinity to avoid bogus intersections.
-                // We might consider a more exact clip to viewport if this
-                // conservative test fails.
-                const GrRenderTarget* target = drawState->getRenderTarget();
-                if (0 >= devClipRect.fLeft) {
-                    devClipRect.fLeft = SK_ScalarMin;
-                }
-                if (target->width() <= devClipRect.fRight) {
-                    devClipRect.fRight = SK_ScalarMax;
-                }
-                if (0 >= devClipRect.top()) {
-                    devClipRect.fTop = SK_ScalarMin;
-                }
-                if (target->height() <= devClipRect.fBottom) {
-                    devClipRect.fBottom = SK_ScalarMax;
-                }
-                int stride = GrDrawState::VertexSize(layout);
-                bool insideClip = true;
-                for (int v = 0; v < 4; ++v) {
-                    const GrPoint& p = *GrDrawState::GetVertexPoint(geo.vertices(), v, stride);
-                    if (!devClipRect.contains(p)) {
-                        insideClip = false;
-                        break;
-                    }
-                }
-                if (insideClip) {
-                    drawState->disableState(GrDrawState::kClip_StateBit);
-                    disabledClip = true;
-                }
-            }
-        }
-
-        if (!this->needsNewClip() &&
-            !this->needsNewState() &&
-            fCurrQuad > 0 &&
-            fCurrQuad < fMaxQuads &&
-            layout == fLastRectVertexLayout) {
-
-            int vsize = GrDrawState::VertexSize(layout);
-
-            DrawRecord& lastDraw = fDraws.back();
-
-            GrAssert(lastDraw.fIndexBuffer == fQuadIndexBuffer);
-            GrAssert(kTriangles_GrPrimitiveType == lastDraw.fPrimitiveType);
-            GrAssert(0 == lastDraw.fVertexCount % 4);
-            GrAssert(0 == lastDraw.fIndexCount % 6);
-            GrAssert(0 == lastDraw.fStartIndex);
-
-            GeometryPoolState& poolState = fGeoPoolStateStack.back();
-
-            appendToPreviousDraw = kDraw_Cmd == fCmds.back() &&
-                                   lastDraw.fVertexBuffer == poolState.fPoolVertexBuffer &&
-                                   (fCurrQuad * 4 + lastDraw.fStartVertex) ==
-                                   poolState.fPoolStartVertex;
-
-            if (appendToPreviousDraw) {
-                lastDraw.fVertexCount += 4;
-                lastDraw.fIndexCount += 6;
-                fCurrQuad += 1;
-                // we reserved above, so we should be the first
-                // use of this vertex reservation.
-                GrAssert(0 == poolState.fUsedPoolVertexBytes);
-                poolState.fUsedPoolVertexBytes = 4 * vsize;
-            }
-        }
-        if (!appendToPreviousDraw) {
-            this->setIndexSourceToBuffer(fQuadIndexBuffer);
-            this->drawIndexed(kTriangles_GrPrimitiveType, 0, 0, 4, 6);
-            fCurrQuad = 1;
-            fLastRectVertexLayout = layout;
-        }
-        if (disabledClip) {
-            drawState->enableState(GrDrawState::kClip_StateBit);
-        }
-        fInstancedDrawTracker.reset();
-    } else {
-        INHERITED::drawRect(rect, matrix, srcRects, srcMatrices);
+    // Using per-vertex colors allows batching across colors. (A lot of rects in a row differing
+    // only in color is a common occurrence in tables). However, having per-vertex colors disables
+    // blending optimizations because we don't know if the color will be solid or not. These
+    // optimizations help determine whether coverage and color can be blended correctly when
+    // dual-source blending isn't available. This comes into play when there is coverage. If colors
+    // were a stage it could take a hint that every vertex's color will be opaque.
+    if (this->getCaps().dualSourceBlendingSupport() ||
+        this->getDrawState().hasSolidCoverage(this->getGeomSrc().fVertexLayout)) {
+        layout |= GrDrawState::kColor_VertexLayoutBit;;
+        // We set the draw state's color to white here. This is done so that any batching performed
+        // in our subclass's onDraw() won't get a false from GrDrawState::op== due to a color
+        // mismatch. TODO: Once vertex layout is owned by GrDrawState it should skip comparing the
+        // constant color in its op== when the kColor layout bit is set and then we can remove this.
+        acr.set(this->drawState(), 0xFFFFFFFF);
     }
-}
 
-void GrInOrderDrawBuffer::drawIndexedInstances(GrPrimitiveType type,
-                                               int instanceCount,
-                                               int verticesPerInstance,
-                                               int indicesPerInstance) {
-    if (!verticesPerInstance || !indicesPerInstance) {
+    uint32_t explicitCoordMask = 0;
+    if (NULL != srcRects) {
+        for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+            int numTC = 0;
+            if (NULL != srcRects[s]) {
+                layout |= GrDrawState::StageTexCoordVertexLayoutBit(s, numTC);
+                ++numTC;
+                explicitCoordMask |= (1 << s);
+            }
+        }
+    }
+
+    AutoReleaseGeometry geo(this, layout, 4, 0);
+    if (!geo.succeeded()) {
+        GrPrintf("Failed to get space for vertices!\n");
         return;
     }
 
+    // Go to device coords to allow batching across matrix changes
+    SkMatrix combinedMatrix;
+    if (NULL != matrix) {
+        combinedMatrix = *matrix;
+    } else {
+        combinedMatrix.reset();
+    }
+    combinedMatrix.postConcat(this->drawState()->getViewMatrix());
+    // When the caller has provided an explicit source rects for a stage then we don't want to
+    // modify that stage's matrix. Otherwise if the effect is generating its source rect from
+    // the vertex positions then we have to account for the view matrix change.
+    GrDrawState::AutoDeviceCoordDraw adcd(this->drawState(), explicitCoordMask);
+    if (!adcd.succeeded()) {
+        return;
+    }
+
+    int stageOffsets[GrDrawState::kNumStages], colorOffset;
+    int vsize = GrDrawState::VertexSizeAndOffsetsByStage(layout, stageOffsets,
+                                                         &colorOffset, NULL, NULL);
+
+    geo.positions()->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vsize);
+    combinedMatrix.mapPointsWithStride(geo.positions(), vsize, 4);
+
+    SkRect devBounds;
+    // since we already computed the dev verts, set the bounds hint. This will help us avoid
+    // unnecessary clipping in our onDraw().
+    get_vertex_bounds(geo.vertices(), vsize, 4, &devBounds);
+
+    for (int i = 0; i < GrDrawState::kNumStages; ++i) {
+        if (explicitCoordMask & (1 << i)) {
+            GrAssert(NULL != stageOffsets[i]);
+            GrPoint* coords = GrTCast<GrPoint*>(GrTCast<intptr_t>(geo.vertices()) +
+                                                stageOffsets[i]);
+            coords->setRectFan(srcRects[i]->fLeft, srcRects[i]->fTop,
+                               srcRects[i]->fRight, srcRects[i]->fBottom,
+                               vsize);
+            if (NULL != srcMatrices && NULL != srcMatrices[i]) {
+                srcMatrices[i]->mapPointsWithStride(coords, vsize, 4);
+            }
+        } else {
+            GrAssert(NULL == stageOffsets[i]);
+        }
+    }
+
+    if (colorOffset >= 0) {
+        GrColor* vertColor = GrTCast<GrColor*>(GrTCast<intptr_t>(geo.vertices()) + colorOffset);
+        for (int i = 0; i < 4; ++i) {
+            *vertColor = color;
+            vertColor = (GrColor*) ((intptr_t) vertColor + vsize);
+        }
+    }
+
+    this->setIndexSourceToBuffer(fGpu->getQuadIndexBuffer());
+    this->drawIndexedInstances(kTriangles_GrPrimitiveType, 1, 4, 6, &devBounds);
+}
+
+bool GrInOrderDrawBuffer::quickInsideClip(const SkRect& devBounds) {
+    if (!this->getDrawState().isClipState()) {
+        return true;
+    }
+    if (kUnknown_ClipProxyState == fClipProxyState) {
+        SkIRect rect;
+        bool iior;
+        this->getClip()->getConservativeBounds(this->getDrawState().getRenderTarget(), &rect, &iior);
+        if (iior) {
+            // The clip is a rect. We will remember that in fProxyClip. It is common for an edge (or
+            // all edges) of the clip to be at the edge of the RT. However, we get that clipping for
+            // free via the viewport. We don't want to think that clipping must be enabled in this
+            // case. So we extend the clip outward from the edge to avoid these false negatives.
+            fClipProxyState = kValid_ClipProxyState;
+            fClipProxy = SkRect::MakeFromIRect(rect);
+
+            if (fClipProxy.fLeft <= 0) {
+                fClipProxy.fLeft = SK_ScalarMin;
+            }
+            if (fClipProxy.fTop <= 0) {
+                fClipProxy.fTop = SK_ScalarMin;
+            }
+            if (fClipProxy.fRight >= this->getDrawState().getRenderTarget()->width()) {
+                fClipProxy.fRight = SK_ScalarMax;
+            }
+            if (fClipProxy.fBottom >= this->getDrawState().getRenderTarget()->height()) {
+                fClipProxy.fBottom = SK_ScalarMax;
+            }
+        } else {
+            fClipProxyState = kInvalid_ClipProxyState;
+        }
+    }
+    if (kValid_ClipProxyState == fClipProxyState) {
+        return fClipProxy.contains(devBounds);
+    }
+    SkPoint originOffset = {SkIntToScalar(this->getClip()->fOrigin.fX),
+                            SkIntToScalar(this->getClip()->fOrigin.fY)};
+    SkRect clipSpaceBounds = devBounds;
+    clipSpaceBounds.offset(originOffset);
+    return this->getClip()->fClipStack->quickContains(clipSpaceBounds);
+}
+
+int GrInOrderDrawBuffer::concatInstancedDraw(const DrawInfo& info) {
+    GrAssert(info.isInstanced());
+
     const GeometrySrcState& geomSrc = this->getGeomSrc();
 
-    // we only attempt to concat the case when reserved verts are used with
-    // an index buffer.
-    if (kReserved_GeometrySrcType == geomSrc.fVertexSrc &&
-        kBuffer_GeometrySrcType == geomSrc.fIndexSrc) {
-
-        if (this->needsNewClip()) {
-            this->recordClip();
-        }
-        if (this->needsNewState()) {
-            this->recordState();
-        }
-
-        DrawRecord* draw = NULL;
-        // if the last draw used the same indices/vertices per shape then we
-        // may be able to append to it.
-        if (kDraw_Cmd == fCmds.back() &&
-            verticesPerInstance == fInstancedDrawTracker.fVerticesPerInstance &&
-            indicesPerInstance == fInstancedDrawTracker.fIndicesPerInstance) {
-            GrAssert(fDraws.count());
-            draw = &fDraws.back();
-        }
-
-        GeometryPoolState& poolState = fGeoPoolStateStack.back();
-        const GrVertexBuffer* vertexBuffer = poolState.fPoolVertexBuffer;
-
-        // Check whether the draw is compatible with this draw in order to
-        // append
-        if (NULL == draw ||
-            draw->fIndexBuffer != geomSrc.fIndexBuffer ||
-            draw->fPrimitiveType != type ||
-            draw->fVertexBuffer != vertexBuffer) {
-
-            draw = this->recordDraw();
-            draw->fPrimitiveType = type;
-            draw->fStartVertex = poolState.fPoolStartVertex;
-            draw->fStartIndex = 0;
-            draw->fVertexCount = 0;
-            draw->fIndexCount = 0;
-            draw->fVertexLayout = geomSrc.fVertexLayout;
-            draw->fVertexBuffer = vertexBuffer;
-            vertexBuffer->ref();
-            draw->fIndexBuffer = geomSrc.fIndexBuffer;
-            geomSrc.fIndexBuffer->ref();
-        } else {
-            GrAssert(!(draw->fIndexCount % indicesPerInstance));
-            GrAssert(!(draw->fVertexCount % verticesPerInstance));
-            GrAssert(poolState.fPoolStartVertex == draw->fStartVertex +
-                                                   draw->fVertexCount);
-        }
-
-        // how many instances can be in a single draw
-        int maxInstancesPerDraw = this->indexCountInCurrentSource() /
-                                  indicesPerInstance;
-        if (!maxInstancesPerDraw) {
-            return;
-        }
-        // how many instances should be concat'ed onto draw
-        int instancesToConcat = maxInstancesPerDraw - draw->fVertexCount /
-                                                      verticesPerInstance;
-        if (maxInstancesPerDraw > instanceCount) {
-            maxInstancesPerDraw = instanceCount;
-            if (instancesToConcat > instanceCount) {
-                instancesToConcat = instanceCount;
-            }
-        }
-
-        // update the amount of reserved data actually referenced in draws
-        size_t vertexBytes = instanceCount * verticesPerInstance *
-                             GrDrawState::VertexSize(draw->fVertexLayout);
-        poolState.fUsedPoolVertexBytes =
-                            GrMax(poolState.fUsedPoolVertexBytes, vertexBytes);
-
-        while (instanceCount) {
-            if (!instancesToConcat) {
-                int startVertex = draw->fStartVertex + draw->fVertexCount;
-                draw = this->recordDraw();
-                draw->fPrimitiveType = type;
-                draw->fStartVertex = startVertex;
-                draw->fStartIndex = 0;
-                draw->fVertexCount = 0;
-                draw->fIndexCount = 0;
-                draw->fVertexLayout = geomSrc.fVertexLayout;
-                draw->fVertexBuffer = vertexBuffer;
-                vertexBuffer->ref();
-                draw->fIndexBuffer = geomSrc.fIndexBuffer;
-                geomSrc.fIndexBuffer->ref();
-                instancesToConcat = maxInstancesPerDraw;
-            }
-            draw->fVertexCount += instancesToConcat * verticesPerInstance;
-            draw->fIndexCount += instancesToConcat * indicesPerInstance;
-            instanceCount -= instancesToConcat;
-            instancesToConcat = 0;
-        }
-
-        // update draw tracking for next draw
-        fCurrQuad = 0;
-        fInstancedDrawTracker.fVerticesPerInstance = verticesPerInstance;
-        fInstancedDrawTracker.fIndicesPerInstance = indicesPerInstance;
-    } else {
-        this->INHERITED::drawIndexedInstances(type,
-                                              instanceCount,
-                                              verticesPerInstance,
-                                              indicesPerInstance);
+    // we only attempt to concat the case when reserved verts are used with a client-specified index
+    // buffer. To make this work with client-specified VBs we'd need to know if the VB was updated
+    // between draws.
+    if (kReserved_GeometrySrcType != geomSrc.fVertexSrc ||
+        kBuffer_GeometrySrcType != geomSrc.fIndexSrc) {
+        return 0;
     }
+    // Check if there is a draw info that is compatible that uses the same VB from the pool and
+    // the same IB
+    if (kDraw_Cmd != fCmds.back()) {
+        return 0;
+    }
+
+    DrawRecord* draw = &fDraws.back();
+    GeometryPoolState& poolState = fGeoPoolStateStack.back();
+    const GrVertexBuffer* vertexBuffer = poolState.fPoolVertexBuffer;
+
+    if (!draw->isInstanced() ||
+        draw->verticesPerInstance() != info.verticesPerInstance() ||
+        draw->indicesPerInstance() != info.indicesPerInstance() ||
+        draw->fVertexBuffer != vertexBuffer ||
+        draw->fIndexBuffer != geomSrc.fIndexBuffer ||
+        draw->fVertexLayout != geomSrc.fVertexLayout) {
+        return 0;
+    }
+    // info does not yet account for the offset from the start of the pool's VB while the previous
+    // draw record does.
+    int adjustedStartVertex = poolState.fPoolStartVertex + info.startVertex();
+    if (draw->startVertex() + draw->vertexCount() != adjustedStartVertex) {
+        return 0;
+    }
+
+    GrAssert(poolState.fPoolStartVertex == draw->startVertex() + draw->vertexCount());
+
+    // how many instances can be concat'ed onto draw given the size of the index buffer
+    int instancesToConcat = this->indexCountInCurrentSource() / info.indicesPerInstance();
+    instancesToConcat -= draw->instanceCount();
+    instancesToConcat = GrMin(instancesToConcat, info.instanceCount());
+
+    // update the amount of reserved vertex data actually referenced in draws
+    size_t vertexBytes = instancesToConcat * info.verticesPerInstance() *
+                         GrDrawState::VertexSize(draw->fVertexLayout);
+    poolState.fUsedPoolVertexBytes = GrMax(poolState.fUsedPoolVertexBytes, vertexBytes);
+
+    draw->adjustInstanceCount(instancesToConcat);
+    return instancesToConcat;
 }
+
+class AutoClipReenable {
+public:
+    AutoClipReenable() : fDrawState(NULL) {}
+    ~AutoClipReenable() {
+        if (NULL != fDrawState) {
+            fDrawState->enableState(GrDrawState::kClip_StateBit);
+        }
+    }
+    void set(GrDrawState* drawState) {
+        if (drawState->isClipState()) {
+            fDrawState = drawState;
+            drawState->disableState(GrDrawState::kClip_StateBit);
+        }
+    }
+private:
+    GrDrawState*    fDrawState;
+};
 
 void GrInOrderDrawBuffer::onDraw(const DrawInfo& info) {
 
-    this->resetDrawTracking();
-
     GeometryPoolState& poolState = fGeoPoolStateStack.back();
+    AutoClipReenable acr;
+
+    if (this->getDrawState().isClipState() &&
+        NULL != info.getDevBounds() &&
+        this->quickInsideClip(*info.getDevBounds())) {
+        acr.set(this->drawState());
+    }
 
     if (this->needsNewClip()) {
        this->recordClip();
@@ -386,7 +300,18 @@ void GrInOrderDrawBuffer::onDraw(const DrawInfo& info) {
         this->recordState();
     }
 
-    DrawRecord* draw = this->recordDraw(info);
+    DrawRecord* draw;
+    if (info.isInstanced()) {
+        int instancesConcated = this->concatInstancedDraw(info);
+        if (info.instanceCount() > instancesConcated) {
+            draw = this->recordDraw(info);
+            draw->adjustInstanceCount(-instancesConcated);
+        } else {
+            return;
+        }
+    } else {
+        draw = this->recordDraw(info);
+    }
     draw->fVertexLayout = this->getVertexLayout();
 
     switch (this->getGeomSrc().fVertexSrc) {
@@ -399,7 +324,7 @@ void GrInOrderDrawBuffer::onDraw(const DrawInfo& info) {
                                  GrDrawState::VertexSize(draw->fVertexLayout);
             poolState.fUsedPoolVertexBytes = GrMax(poolState.fUsedPoolVertexBytes, vertexBytes);
             draw->fVertexBuffer = poolState.fPoolVertexBuffer;
-            draw->fStartVertex += poolState.fPoolStartVertex;
+            draw->adjustStartVertex(poolState.fPoolStartVertex);
             break;
         }
         default:
@@ -417,7 +342,7 @@ void GrInOrderDrawBuffer::onDraw(const DrawInfo& info) {
                 size_t indexBytes = (info.indexCount() + info.startIndex()) * sizeof(uint16_t);
                 poolState.fUsedPoolIndexBytes = GrMax(poolState.fUsedPoolIndexBytes, indexBytes);
                 draw->fIndexBuffer = poolState.fPoolIndexBuffer;
-                draw->fStartIndex += poolState.fPoolStartIndex;
+                draw->adjustStartIndex(poolState.fPoolStartIndex);
                 break;
             }
             default:
@@ -428,7 +353,6 @@ void GrInOrderDrawBuffer::onDraw(const DrawInfo& info) {
         draw->fIndexBuffer = NULL;
     }
 }
-
 
 GrInOrderDrawBuffer::StencilPath::StencilPath() : fStroke(SkStrokeRec::kFill_InitStyle) {}
 
@@ -448,9 +372,7 @@ void GrInOrderDrawBuffer::onStencilPath(const GrPath* path, const SkStrokeRec& s
     sp->fStroke = stroke;
 }
 
-void GrInOrderDrawBuffer::clear(const GrIRect* rect,
-                                GrColor color,
-                                GrRenderTarget* renderTarget) {
+void GrInOrderDrawBuffer::clear(const GrIRect* rect, GrColor color, GrRenderTarget* renderTarget) {
     GrIRect r;
     if (NULL == renderTarget) {
         renderTarget = this->drawState()->getRenderTarget();
@@ -491,8 +413,6 @@ void GrInOrderDrawBuffer::reset() {
     fClips.reset();
     fClipOrigins.reset();
     fClipSet = true;
-
-    this->resetDrawTracking();
 }
 
 bool GrInOrderDrawBuffer::flushTo(GrDrawTarget* target) {
@@ -532,21 +452,11 @@ bool GrInOrderDrawBuffer::flushTo(GrDrawTarget* target) {
             case kDraw_Cmd: {
                 const DrawRecord& draw = fDraws[currDraw];
                 target->setVertexSourceToBuffer(draw.fVertexLayout, draw.fVertexBuffer);
-                if (draw.fIndexCount) {
+                if (draw.isIndexed()) {
                     target->setIndexSourceToBuffer(draw.fIndexBuffer);
                 }
+                target->executeDraw(draw);
 
-                if (draw.fIndexCount) {
-                    target->drawIndexed(draw.fPrimitiveType,
-                                        draw.fStartVertex,
-                                        draw.fStartIndex,
-                                        draw.fVertexCount,
-                                        draw.fIndexCount);
-                } else {
-                    target->drawNonIndexed(draw.fPrimitiveType,
-                                           draw.fStartVertex,
-                                           draw.fVertexCount);
-                }
                 ++currDraw;
                 break;
             }
@@ -774,7 +684,6 @@ void GrInOrderDrawBuffer::geometrySourceWillPush() {
     GeometryPoolState& poolState = fGeoPoolStateStack.push_back();
     poolState.fUsedPoolVertexBytes = 0;
     poolState.fUsedPoolIndexBytes = 0;
-    this->resetDrawTracking();
 #if GR_DEBUG
     poolState.fPoolVertexBuffer = (GrVertexBuffer*)~0;
     poolState.fPoolStartVertex = ~0;
@@ -802,7 +711,6 @@ void GrInOrderDrawBuffer::geometrySourceWillPop(
         poolState.fUsedPoolIndexBytes = sizeof(uint16_t) *
                                          restoredState.fIndexCount;
     }
-    this->resetDrawTracking();
 }
 
 bool GrInOrderDrawBuffer::needsNewState() const {
@@ -834,19 +742,9 @@ void GrInOrderDrawBuffer::recordState() {
     fCmds.push_back(kSetState_Cmd);
 }
 
-GrInOrderDrawBuffer::DrawRecord* GrInOrderDrawBuffer::recordDraw() {
-    fCmds.push_back(kDraw_Cmd);
-    return &fDraws.push_back();
-}
-
 GrInOrderDrawBuffer::DrawRecord* GrInOrderDrawBuffer::recordDraw(const DrawInfo& info) {
-    DrawRecord* record = this->recordDraw();
-    record->fPrimitiveType  = info.primitiveType();
-    record->fStartVertex    = info.startVertex();
-    record->fVertexCount    = info.vertexCount();
-    record->fStartIndex     = info.startIndex();
-    record->fIndexCount     = info.indexCount();
-    return record;
+    fCmds.push_back(kDraw_Cmd);
+    return &fDraws.push_back(info);
 }
 
 GrInOrderDrawBuffer::StencilPath* GrInOrderDrawBuffer::recordStencilPath() {
@@ -862,4 +760,5 @@ GrInOrderDrawBuffer::Clear* GrInOrderDrawBuffer::recordClear() {
 void GrInOrderDrawBuffer::clipWillBeSet(const GrClipData* newClipData) {
     INHERITED::clipWillBeSet(newClipData);
     fClipSet = true;
+    fClipProxyState = kUnknown_ClipProxyState;
 }
