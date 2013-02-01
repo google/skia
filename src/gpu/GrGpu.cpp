@@ -33,8 +33,8 @@ GrGpu::GrGpu()
     , fIndexPool(NULL)
     , fVertexPoolUseCnt(0)
     , fIndexPoolUseCnt(0)
-    , fQuadIndexBuffer(NULL)
     , fUnitSquareVertexBuffer(NULL)
+    , fQuadIndexBuffer(NULL)
     , fContextIsDirty(true) {
 
     fClipMaskManager.setGpu(this);
