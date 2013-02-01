@@ -143,7 +143,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
 
     for (int i = 0; i < GrDrawState::kNumStages; ++i) {
         if (explicitCoordMask & (1 << i)) {
-            GrAssert(NULL != stageOffsets[i]);
+            GrAssert(0 != stageOffsets[i]);
             GrPoint* coords = GrTCast<GrPoint*>(GrTCast<intptr_t>(geo.vertices()) +
                                                 stageOffsets[i]);
             coords->setRectFan(srcRects[i]->fLeft, srcRects[i]->fTop,
@@ -153,7 +153,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
                 srcMatrices[i]->mapPointsWithStride(coords, vsize, 4);
             }
         } else {
-            GrAssert(NULL == stageOffsets[i]);
+            GrAssert(0 == stageOffsets[i]);
         }
     }
 
