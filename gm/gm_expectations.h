@@ -8,6 +8,7 @@
 #define gm_expectations_DEFINED
 
 #include "gm.h"
+#include "SkBitmap.h"
 #include "SkBitmapChecksummer.h"
 #include "SkImageDecoder.h"
 #include "SkOSFile.h"
@@ -62,14 +63,15 @@ namespace skiagm {
         }
 
         /**
-         * Allow exactly one checksum (appropriate for the case when we
+         * Expect exactly one image (appropriate for the case when we
          * are comparing against a single PNG file).
          *
          * By default, DO NOT ignore failures.
          */
-        Expectations(Checksum singleChecksum, bool ignoreFailure=false) {
+        Expectations(const SkBitmap& bitmap, bool ignoreFailure=false) {
+            fBitmap = bitmap;
             fIgnoreFailure = ignoreFailure;
-            fAllowedChecksums.push_back() = singleChecksum;
+            fAllowedChecksums.push_back() = SkBitmapChecksummer::Compute64(bitmap);
         }
 
         /**
@@ -98,6 +100,16 @@ namespace skiagm {
         }
 
         /**
+         * If this Expectation is based on a single SkBitmap, return a
+         * pointer to that SkBitmap. Otherwise (if the Expectation is
+         * empty, or if it was based on a list of checksums rather
+         * than a single bitmap), returns NULL.
+         */
+        const SkBitmap *asBitmap() const {
+            return (SkBitmap::kNo_Config == fBitmap.config()) ? NULL : &fBitmap;
+        }
+
+        /**
          * Return a JSON representation of the allowed checksums.
          * This does NOT include any information about whether to
          * ignore failures.
@@ -116,6 +128,7 @@ namespace skiagm {
     private:
         SkTArray<Checksum> fAllowedChecksums;
         bool fIgnoreFailure;
+        SkBitmap fBitmap;
     };
 
     /**
@@ -154,9 +167,7 @@ namespace skiagm {
                                            SkImageDecoder::kDecodePixels_Mode,
                                            NULL);
             if (decodedReferenceBitmap) {
-                Checksum checksum = SkBitmapChecksummer::Compute64(
-                    referenceBitmap);
-                return Expectations(checksum);
+                return Expectations(referenceBitmap);
             } else {
                 if (fNotifyOfMissingFiles) {
                     fprintf(stderr, "FAILED to read %s\n", path.c_str());

@@ -80,6 +80,12 @@ extern bool gSkSuppressFontCachePurgeSpew;
     #define CAN_IMAGE_PDF   0
 #endif
 
+// TODO(epoger): We created this ErrorBitfield so that we could record
+// multiple error types for the same comparison. But in practice, we
+// process its final value in switch() statements, which inherently
+// assume that only one error type will be set.
+// I think we should probably change this to be an enum, and thus
+// constrain ourselves to a single error type per comparison.
 typedef int ErrorBitfield;
 const static ErrorBitfield ERROR_NONE                    = 0x00;
 const static ErrorBitfield ERROR_NO_GPU_CONTEXT          = 0x01;
@@ -259,7 +265,7 @@ public:
     // of this type.
     void RecordError(ErrorBitfield errorType, const SkString& name,
                      const char renderModeDescriptor []) {
-        bool isPixelError = false;
+        bool isPixelError;
         switch (errorType) {
         case ERROR_NONE:
             return;
@@ -537,6 +543,61 @@ public:
     }
 
     /**
+     * Log more detail about the mistmatch between expectedBitmap and
+     * actualBitmap.
+     */
+    void report_bitmap_diffs(const SkBitmap& expectedBitmap, const SkBitmap& actualBitmap,
+                             const char *testName) {
+        const int expectedWidth = expectedBitmap.width();
+        const int expectedHeight = expectedBitmap.height();
+        const int width = actualBitmap.width();
+        const int height = actualBitmap.height();
+        if ((expectedWidth != width) || (expectedHeight != height)) {
+            SkDebugf("---- %s: dimension mismatch -- expected [%d %d], actual [%d %d]\n",
+                     testName, expectedWidth, expectedHeight, width, height);
+            return;
+        }
+
+        if ((SkBitmap::kARGB_8888_Config != expectedBitmap.config()) ||
+            (SkBitmap::kARGB_8888_Config != actualBitmap.config())) {
+            SkDebugf("---- %s: not computing max per-channel pixel mismatch because non-8888\n",
+                     testName);
+            return;
+        }
+
+        SkAutoLockPixels alp0(expectedBitmap);
+        SkAutoLockPixels alp1(actualBitmap);
+        int errR = 0;
+        int errG = 0;
+        int errB = 0;
+        int errA = 0;
+        int differingPixels = 0;
+
+        for (int y = 0; y < height; ++y) {
+            const SkPMColor* expectedPixelPtr = expectedBitmap.getAddr32(0, y);
+            const SkPMColor* actualPixelPtr = actualBitmap.getAddr32(0, y);
+            for (int x = 0; x < width; ++x) {
+                SkPMColor expectedPixel = *expectedPixelPtr++;
+                SkPMColor actualPixel = *actualPixelPtr++;
+                if (expectedPixel != actualPixel) {
+                    differingPixels++;
+                    errR = SkMax32(errR, SkAbs32((int)SkGetPackedR32(expectedPixel) -
+                                                 (int)SkGetPackedR32(actualPixel)));
+                    errG = SkMax32(errG, SkAbs32((int)SkGetPackedG32(expectedPixel) -
+                                                 (int)SkGetPackedG32(actualPixel)));
+                    errB = SkMax32(errB, SkAbs32((int)SkGetPackedB32(expectedPixel) -
+                                                 (int)SkGetPackedB32(actualPixel)));
+                    errA = SkMax32(errA, SkAbs32((int)SkGetPackedA32(expectedPixel) -
+                                                 (int)SkGetPackedA32(actualPixel)));
+                }
+            }
+        }
+        SkDebugf("---- %s: %d (of %d) differing pixels, max per-channel mismatch"
+                 " R=%d G=%d B=%d A=%d\n",
+                 testName, differingPixels, width*height, errR, errG, errB, errA);
+    }
+
+    /**
      * Compares actual checksum to expectations.
      * Returns ERROR_NONE if they match, or some particular error code otherwise
      *
@@ -572,11 +633,21 @@ public:
             retval = ERROR_NONE;
         } else {
             retval = ERROR_IMAGE_MISMATCH;
+
+            // Write out the "actuals" for any mismatches, if we have
+            // been directed to do so.
             if (fMismatchPath) {
                 SkString path =
                     make_filename(fMismatchPath, renderModeDescriptor,
                                   baseNameString.c_str(), "png");
                 write_bitmap(path, actualBitmap);
+            }
+
+            // If we have access to a single expected bitmap, log more
+            // detail about the mismatch.
+            const SkBitmap *expectedBitmapPtr = expectations.asBitmap();
+            if (NULL != expectedBitmapPtr) {
+                report_bitmap_diffs(*expectedBitmapPtr, actualBitmap, completeName);
             }
         }
         RecordError(retval, baseNameString, renderModeDescriptor);
@@ -609,7 +680,7 @@ public:
                 // TODO: Once we have added the ability to compare
                 // actual results against expectations in a JSON file
                 // (where we can set ignore-failure to either true or
-                // false), add tests cases that exercise ignored
+                // false), add test cases that exercise ignored
                 // failures (both for ERROR_READING_REFERENCE_IMAGE
                 // and ERROR_IMAGE_MISMATCH).
                 this->fJsonActualResults_FailureIgnored[testName] =
@@ -733,9 +804,7 @@ public:
 
         SkASSERT(referenceBitmap);
         SkString name = make_name(gm->shortName(), gRec.fName);
-        Checksum referenceChecksum =
-            SkBitmapChecksummer::Compute64(*referenceBitmap);
-        Expectations expectations(referenceChecksum);
+        Expectations expectations(*referenceBitmap);
         return compare_to_expectations(expectations, actualBitmap,
                                        name, renderModeDescriptor);
     }
