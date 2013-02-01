@@ -44,6 +44,8 @@
         '../src/images/SkImageRef.cpp',
         '../src/images/SkImageRefPool.cpp',
         '../src/images/SkImageRefPool.h',
+        '../src/images/SkImageRef_ashmem.h',
+        '../src/images/SkImageRef_ashmem.cpp',
         '../src/images/SkImageRef_GlobalPool.cpp',
         '../src/images/SkImages.cpp',
         '../src/images/SkJpegUtility.cpp',
@@ -109,7 +111,8 @@
           # end libpng stuff
         }],
         [ 'skia_os == "android"', {
-          'sources!': [
+          'include_dirs': [
+             '../src/utils',
           ],
           'dependencies': [
              'android_deps.gyp:gif',
@@ -117,6 +120,11 @@
           ],
           'defines': [
             'SK_ENABLE_LIBPNG',
+          ],
+        },{ #else if skia_os != android
+          'sources!': [
+            '../src/images/SkImageRef_ashmem.h',
+            '../src/images/SkImageRef_ashmem.cpp',
           ],
         }],
         [ 'skia_os == "ios"', {

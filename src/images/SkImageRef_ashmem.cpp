@@ -42,8 +42,6 @@ SkImageRef_ashmem::SkImageRef_ashmem(SkStream* stream,
     fRec.fPinned = false;
 
     fCT = NULL;
-
-    this->useDefaultMutex();   // we don't need/want the shared imageref mutex
 }
 
 SkImageRef_ashmem::~SkImageRef_ashmem() {
@@ -230,5 +228,4 @@ SkImageRef_ashmem::SkImageRef_ashmem(SkFlattenableReadBuffer& buffer)
         setURI(uri);
         sk_free(uri);
     }
-    this->useDefaultMutex();   // we don't need/want the shared imageref mutex
 }

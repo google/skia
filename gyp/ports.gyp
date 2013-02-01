@@ -161,7 +161,6 @@
             '../src/ports/SkFontHost_FreeType.cpp',
             '../src/ports/SkFontHost_FreeType_common.cpp',
             '../src/ports/FontHostConfiguration_android.cpp',
-            '../src/ports/SkImageRef_ashmem.cpp',
           ],
           'dependencies': [
              'freetype.gyp:freetype',
