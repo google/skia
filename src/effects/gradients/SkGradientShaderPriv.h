@@ -175,6 +175,22 @@ private:
     typedef SkShader INHERITED;
 };
 
+static inline int init_dither_toggle(int x, int y) {
+    return ((x ^ y) & 1) * SkGradientShaderBase::kDitherStride32;
+}
+
+static inline int next_dither_toggle(int toggle) {
+    return toggle ^ SkGradientShaderBase::kDitherStride32;
+}
+
+static inline int init_dither_toggle16(int x, int y) {
+    return ((x ^ y) & 1) * SkGradientShaderBase::kDitherStride16;
+}
+
+static inline int next_dither_toggle16(int toggle) {
+    return toggle ^ SkGradientShaderBase::kDitherStride16;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU

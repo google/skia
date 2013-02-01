@@ -88,7 +88,7 @@ void shadeSpan16_radial_clamp(SkScalar sfx, SkScalar sdx,
             fx += dx;
             *dstC++ = cache[toggle +
                             (sqrt_table[fi] >> SkGradientShaderBase::kSqrt16Shift)];
-            toggle ^= SkGradientShaderBase::kDitherStride16;
+            toggle = next_dither_toggle16(toggle);
         } while (--count != 0);
     } else {
         do {
@@ -100,7 +100,7 @@ void shadeSpan16_radial_clamp(SkScalar sfx, SkScalar sdx,
             fy += dy;
             *dstC++ = cache[toggle +
                             (sqrt_table[fi] >> SkGradientShaderBase::kSqrt16Shift)];
-            toggle ^= SkGradientShaderBase::kDitherStride16;
+            toggle = next_dither_toggle16(toggle);
         } while (--count != 0);
     }
 }
@@ -123,7 +123,7 @@ void shadeSpan16_radial_mirror(SkScalar sfx, SkScalar sdx,
         unsigned fi = mirror_tileproc(dist);
         SkASSERT(fi <= 0xFFFF);
         *dstC++ = cache[toggle + (fi >> SkGradientShaderBase::kCache16Shift)];
-        toggle ^= SkGradientShaderBase::kDitherStride16;
+        toggle = next_dither_toggle16(toggle);
         sfx += sdx;
         sfy += sdy;
     } while (--count != 0);
@@ -144,7 +144,7 @@ void shadeSpan16_radial_repeat(SkScalar sfx, SkScalar sdx,
         fx += dx;
         fy += dy;
         *dstC++ = cache[toggle + (fi >> SkGradientShaderBase::kCache16Shift)];
-        toggle ^= SkGradientShaderBase::kDitherStride16;
+        toggle = next_dither_toggle16(toggle);
     } while (--count != 0);
 }
 
@@ -175,7 +175,7 @@ void SkRadialGradient::shadeSpan16(int x, int y, uint16_t* dstCParam,
     SkMatrix::MapXYProc dstProc = fDstToIndexProc;
     TileProc            proc = fTileProc;
     const uint16_t* SK_RESTRICT cache = this->getCache16();
-    int                 toggle = ((x ^ y) & 1) * kDitherStride16;
+    int                 toggle = init_dither_toggle16(x, y);
 
     if (fDstToIndexClass != kPerspective_MatrixClass) {
         dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
@@ -214,7 +214,7 @@ void SkRadialGradient::shadeSpan16(int x, int y, uint16_t* dstCParam,
 
             int index = fi >> (16 - kCache16Bits);
             *dstC++ = cache[toggle + index];
-            toggle ^= kDitherStride16;
+            toggle = next_dither_toggle16(toggle);
 
             dstX += SK_Scalar1;
         } while (--count != 0);
@@ -296,7 +296,7 @@ inline bool no_need_for_radial_pin(int fx, int dx,
     fi = (fx * fx + fy * fy) >> (14 + 16 - kSQRT_TABLE_BITS); \
     *dstC++ = cache[toggle + \
                     (sqrt_table[fi] >> SkGradientShaderBase::kSqrt32Shift)]; \
-    toggle ^= SkGradientShaderBase::kDitherStride32; \
+    toggle = next_dither_toggle(toggle); \
     fx += dx; \
     fy += dy;
 
@@ -321,7 +321,7 @@ void shadeSpan_radial_clamp(SkScalar sfx, SkScalar sdx,
         unsigned fi = SkGradientShaderBase::kCache32Count - 1;
         sk_memset32_dither(dstC,
             cache[toggle + fi],
-            cache[(toggle ^ SkGradientShaderBase::kDitherStride32) + fi],
+            cache[next_dither_toggle(toggle) + fi],
             count);
     } else if ((count > 4) &&
                no_need_for_radial_pin(fx, dx, fy, dy, count)) {
@@ -347,7 +347,7 @@ void shadeSpan_radial_clamp(SkScalar sfx, SkScalar sdx,
                 fi = SkFastMin32(fi, 0xFFFF >> (16 - kSQRT_TABLE_BITS));
                 *dstC++ = cache[toggle + (sqrt_table[fi] >>
                     SkGradientShaderBase::kSqrt32Shift)];
-                toggle ^= SkGradientShaderBase::kDitherStride32;
+                toggle = next_dither_toggle(toggle);
                 fx += dx;
             } while (--count != 0);
         } else {
@@ -358,7 +358,7 @@ void shadeSpan_radial_clamp(SkScalar sfx, SkScalar sdx,
                 fi = SkFastMin32(fi, 0xFFFF >> (16 - kSQRT_TABLE_BITS));
                 *dstC++ = cache[toggle + (sqrt_table[fi] >>
                     SkGradientShaderBase::kSqrt32Shift)];
-                toggle ^= SkGradientShaderBase::kDitherStride32;
+                toggle = next_dither_toggle(toggle);
                 fx += dx;
                 fy += dy;
             } while (--count != 0);
@@ -387,7 +387,7 @@ void shadeSpan_radial_mirror(SkScalar sfx, SkScalar sdx,
         unsigned fi = mirror_tileproc(dist);
         SkASSERT(fi <= 0xFFFF);
         *dstC++ = cache[toggle + (fi >> SkGradientShaderBase::kCache32Shift)];
-        toggle ^= SkGradientShaderBase::kDitherStride32;
+        toggle = next_dither_toggle(toggle);
         sfx += sdx;
         sfy += sdy;
     } while (--count != 0);
@@ -410,7 +410,7 @@ void shadeSpan_radial_repeat(SkScalar sfx, SkScalar sdx,
         unsigned fi = repeat_tileproc(dist);
         SkASSERT(fi <= 0xFFFF);
         *dstC++ = cache[toggle + (fi >> SkGradientShaderBase::kCache32Shift)];
-        toggle ^= SkGradientShaderBase::kDitherStride32;
+        toggle = next_dither_toggle(toggle);
         fx += dx;
         fy += dy;
     } while (--count != 0);
@@ -426,7 +426,7 @@ void SkRadialGradient::shadeSpan(int x, int y,
     TileProc            proc = fTileProc;
     const SkPMColor* SK_RESTRICT cache = this->getCache32();
 #ifdef USE_DITHER_32BIT_GRADIENT
-    int toggle = ((x ^ y) & 1) * SkGradientShaderBase::kDitherStride32;
+    int toggle = init_dither_toggle(x, y);
 #else
     int toggle = 0;
 #endif
