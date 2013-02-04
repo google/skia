@@ -286,7 +286,8 @@ bool checkWrite(skiatest::Reporter* reporter,
 enum DevType {
     kRaster_DevType,
 #if SK_SUPPORT_GPU
-    kGpu_DevType,
+    kGpu_BottomLeft_DevType,
+    kGpu_TopLeft_DevType,
 #endif
 };
 
@@ -299,7 +300,8 @@ static const CanvasConfig gCanvasConfigs[] = {
     {kRaster_DevType, true},
     {kRaster_DevType, false},
 #if SK_SUPPORT_GPU && defined(SK_SCALAR_IS_FLOAT)
-    {kGpu_DevType, true}, // row bytes has no meaning on gpu devices
+    {kGpu_BottomLeft_DevType, true}, // row bytes has no meaning on gpu devices
+    {kGpu_TopLeft_DevType, true}, // row bytes has no meaning on gpu devices
 #endif
 };
 
@@ -321,8 +323,18 @@ SkDevice* createDevice(const CanvasConfig& c, GrContext* grCtx) {
             return new SkDevice(bmp);
         }
 #if SK_SUPPORT_GPU
-        case kGpu_DevType:
-            return new SkGpuDevice(grCtx, SkBitmap::kARGB_8888_Config, DEV_W, DEV_H);
+        case kGpu_BottomLeft_DevType:
+        case kGpu_TopLeft_DevType:
+            GrTextureDesc desc;
+            desc.fFlags = kRenderTarget_GrTextureFlagBit;
+            desc.fWidth = DEV_W;
+            desc.fHeight = DEV_H;
+            desc.fConfig = kSkia8888_PM_GrPixelConfig;
+            desc.fOrigin = kGpu_TopLeft_DevType == c.fDevType ?
+                kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
+            GrAutoScratchTexture ast(grCtx, desc, GrContext::kExact_ScratchTexMatch);
+            SkAutoTUnref<GrTexture> tex(ast.detach());
+            return new SkGpuDevice(grCtx, tex);
 #endif
     }
     return NULL;
@@ -401,14 +413,16 @@ void WritePixelsTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(gCanvasConfigs); ++i) {
         int glCtxTypeCnt = 1;
 #if SK_SUPPORT_GPU
-        if (kGpu_DevType == gCanvasConfigs[i].fDevType)  {
+        bool isGPUDevice = kGpu_TopLeft_DevType == gCanvasConfigs[i].fDevType ||
+                           kGpu_BottomLeft_DevType == gCanvasConfigs[i].fDevType;
+        if (isGPUDevice) {
             glCtxTypeCnt = GrContextFactory::kGLContextTypeCnt;
         }
 #endif
         for (int glCtxType = 0; glCtxType < glCtxTypeCnt; ++glCtxType) {
             GrContext* context = NULL;
 #if SK_SUPPORT_GPU
-            if (kGpu_DevType == gCanvasConfigs[i].fDevType) {
+            if (isGPUDevice) {
                 GrContextFactory::GLContextType type =
                     static_cast<GrContextFactory::GLContextType>(glCtxType);
 #if SK_ANGLE // This test breaks ANGLE with GL errors in texsubimage2D. Disable until debugged.
