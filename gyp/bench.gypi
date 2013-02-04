@@ -42,6 +42,7 @@
     '../bench/ScalarBench.cpp',
     '../bench/ShaderMaskBench.cpp',
     '../bench/SortBench.cpp',
+    '../bench/StrokeBench.cpp',
     '../bench/TableBench.cpp',
     '../bench/TextBench.cpp',
     '../bench/TileBench.cpp',
