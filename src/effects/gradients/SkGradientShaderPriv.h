@@ -21,10 +21,6 @@
 
 #define SK_IGNORE_GRADIENT_DITHER_FIX
 
-#ifndef SK_DISABLE_DITHER_32BIT_GRADIENT
-    #define USE_DITHER_32BIT_GRADIENT
-#endif
-
 static inline void sk_memset32_dither(uint32_t dst[], uint32_t v0, uint32_t v1,
                                int count) {
     if (count > 0) {
@@ -115,11 +111,7 @@ public:
 
         /// This value is used to *read* the dither cache; it may be 0
         /// if dithering is disabled.
-#ifdef USE_DITHER_32BIT_GRADIENT
         kDitherStride32 = kCache32Count,
-#else
-        kDitherStride32 = 0,
-#endif
         kDitherStride16 = kCache16Count,
     };
 

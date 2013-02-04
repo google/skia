@@ -424,11 +424,7 @@ void SkRadialGradient::shadeSpan(int x, int y,
     SkMatrix::MapXYProc dstProc = fDstToIndexProc;
     TileProc            proc = fTileProc;
     const SkPMColor* SK_RESTRICT cache = this->getCache32();
-#ifdef USE_DITHER_32BIT_GRADIENT
     int toggle = init_dither_toggle(x, y);
-#else
-    int toggle = 0;
-#endif
 
     if (fDstToIndexClass != kPerspective_MatrixClass) {
         dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
