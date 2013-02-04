@@ -291,8 +291,9 @@ public:
         kFill_Style,            //!< fill the geometry
         kStroke_Style,          //!< stroke the geometry
         kStrokeAndFill_Style,   //!< fill and stroke the geometry
-
-        kStyleCount
+    };
+    enum {
+        kStyleCount = kStrokeAndFill_Style + 1
     };
 
     /** Return the paint's style, used for controlling how primitives'
