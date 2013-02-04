@@ -33,7 +33,7 @@ int SkStrStartsWithOneOf(const char string[], const char prefixes[]);
 static int SkStrFind(const char string[], const char substring[]) {
     const char *first = strstr(string, substring);
     if (NULL == first) return -1;
-    return first - &(string[0]);
+    return SkToS32(first - &string[0]);
 }
 
 static bool SkStrContains(const char string[], const char substring[]) {
