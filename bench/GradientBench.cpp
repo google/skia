@@ -221,12 +221,18 @@ private:
 };
 
 class Gradient2Bench : public SkBenchmark {
+    SkString fName;
+    bool     fHasAlpha;
+
 public:
-    Gradient2Bench(void* param) : INHERITED(param) {}
+    Gradient2Bench(void* param, bool hasAlpha) : INHERITED(param) {
+        fName.printf("gradient_create_%s", hasAlpha ? "alpha" : "opaque");
+        fHasAlpha = hasAlpha;
+    }
 
 protected:
     virtual const char* onGetName() {
-        return "gradient_create";
+        return fName.c_str();
     }
 
     virtual void onDraw(SkCanvas* canvas) {
@@ -240,10 +246,11 @@ protected:
         };
 
         for (int i = 0; i < SkBENCHLOOP(1000); i++) {
-            const int a = i % 256;
+            const int gray = i % 256;
+            const int alpha = fHasAlpha ? gray : 0xFF;
             SkColor colors[] = {
                 SK_ColorBLACK,
-                SkColorSetARGB(a, a, a, a),
+                SkColorSetARGB(alpha, gray, gray, gray),
                 SK_ColorWHITE };
             SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL,
                                                          SK_ARRAY_COUNT(colors),
@@ -274,4 +281,5 @@ DEF_BENCH( return new GradientBench(p, kRadial2_GradType); )
 DEF_BENCH( return new GradientBench(p, kRadial2_GradType, SkShader::kMirror_TileMode); )
 DEF_BENCH( return new GradientBench(p, kConical_GradType); )
 
-DEF_BENCH( return new Gradient2Bench(p); )
+DEF_BENCH( return new Gradient2Bench(p, false); )
+DEF_BENCH( return new Gradient2Bench(p, true); )
