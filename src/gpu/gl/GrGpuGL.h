@@ -39,7 +39,7 @@ public:
     // Used by GrGLProgram to bind necessary textures for GrGLEffects.
     void bindTexture(int unitIdx, const GrTextureParams& params, GrGLTexture* texture);
 
-    bool programUnitTest();
+    bool programUnitTest(int maxStages);
 
     // GrGpu overrides
     virtual GrPixelConfig preferredReadPixelsConfig(GrPixelConfig config)
