@@ -14,7 +14,7 @@ bool SkOffsetImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source,
                                         const SkMatrix& matrix,
                                         SkBitmap* result,
                                         SkIPoint* loc) {
-    SkBitmap src = this->getInputResult(proxy, source, matrix, loc);
+    SkBitmap src = this->getInputResult(0, proxy, source, matrix, loc);
     SkVector vec;
     matrix.mapVectors(&vec, &fOffset, 1);
 

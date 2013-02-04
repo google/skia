@@ -9,10 +9,10 @@
 #ifndef SkMorphologyImageFilter_DEFINED
 #define SkMorphologyImageFilter_DEFINED
 
-#include "SkSingleInputImageFilter.h"
+#include "SkImageFilter.h"
 #include "SkSize.h"
 
-class SK_API SkMorphologyImageFilter : public SkSingleInputImageFilter {
+class SK_API SkMorphologyImageFilter : public SkImageFilter {
 public:
     SkMorphologyImageFilter(int radiusX, int radiusY, SkImageFilter* input);
 
@@ -27,7 +27,7 @@ protected:
 
 private:
     SkISize    fRadius;
-    typedef SkSingleInputImageFilter INHERITED;
+    typedef SkImageFilter INHERITED;
 };
 
 class SK_API SkDilateImageFilter : public SkMorphologyImageFilter {

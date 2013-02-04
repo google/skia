@@ -173,7 +173,7 @@ void SkMatrixConvolutionImageFilter::filterBorderPixels(const SkBitmap& src, SkB
     }
 }
 
-// FIXME:  This should be refactored to SkSingleInputImageFilter for
+// FIXME:  This should be refactored to SkImageFilterUtils for
 // use by other filters.  For now, we assume the input is always
 // premultiplied and unpremultiply it
 static SkBitmap unpremultiplyBitmap(const SkBitmap& src)
@@ -203,7 +203,7 @@ bool SkMatrixConvolutionImageFilter::onFilterImage(Proxy* proxy,
                                                    const SkMatrix& matrix,
                                                    SkBitmap* result,
                                                    SkIPoint* loc) {
-    SkBitmap src = this->getInputResult(proxy, source, matrix, loc);
+    SkBitmap src = this->getInputResult(0, proxy, source, matrix, loc);
     if (src.config() != SkBitmap::kARGB_8888_Config) {
         return false;
     }

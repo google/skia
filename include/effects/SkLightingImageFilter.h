@@ -9,7 +9,7 @@
 #ifndef SkLightingImageFilter_DEFINED
 #define SkLightingImageFilter_DEFINED
 
-#include "SkSingleInputImageFilter.h"
+#include "SkImageFilter.h"
 #include "SkColor.h"
 
 class SK_API SkPoint3 {
@@ -47,7 +47,7 @@ public:
 
 class SkLight;
 
-class SK_API SkLightingImageFilter : public SkSingleInputImageFilter {
+class SK_API SkLightingImageFilter : public SkImageFilter {
 public:
     static SkImageFilter* CreateDistantLitDiffuse(const SkPoint3& direction,
         SkColor lightColor, SkScalar surfaceScale, SkScalar kd,
@@ -81,7 +81,7 @@ protected:
     SkScalar surfaceScale() const { return fSurfaceScale; }
 
 private:
-    typedef SkSingleInputImageFilter INHERITED;
+    typedef SkImageFilter INHERITED;
     SkLight* fLight;
     SkScalar fSurfaceScale;
 };
