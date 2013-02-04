@@ -9,6 +9,19 @@
 #include "SkCanvas.h"
 #include "SkPath.h"
 
+#include "SkGradientShader.h"
+static void test_shallow_gradient(SkCanvas* canvas, SkScalar width, SkScalar height) {
+    SkColor colors[] = { 0xFF7F7F7F, 0xFF7F7F7F, 0xFF000000 };
+    SkScalar pos[] = { 0, 0.35f, SK_Scalar1 };
+    SkPoint pts[] = { { 0, 0 }, { width, height } };
+    SkShader* s = SkGradientShader::CreateLinear(pts, colors, pos,
+                                                 SK_ARRAY_COUNT(colors),
+                                                 SkShader::kClamp_TileMode);
+    SkPaint paint;
+    paint.setShader(s)->unref();
+    canvas->drawPaint(paint);
+}
+
 #include "SkDashPathEffect.h"
 static void test_giant_dash(SkCanvas* canvas) {
     SkPaint paint;
@@ -36,6 +49,8 @@ static void test_giant_dash(SkCanvas* canvas) {
         canvas->translate(0, 4);
     }
 }
+
+
 
 // Reproduces bug found here: http://jsfiddle.net/R8Cu5/1/
 //
@@ -206,6 +221,11 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        if (false) {
+            SkRect bounds;
+            canvas->getClipBounds(&bounds);
+            test_shallow_gradient(canvas, bounds.width(), bounds.height()); return;
+        }
         if (false) {
             test_giant_dash(canvas); return;
         }
