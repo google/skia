@@ -335,8 +335,7 @@ void shadeSpan_radial_clamp(SkScalar sfx, SkScalar sdx,
         if (count) {
             UNPINNED_RADIAL_STEP;
         }
-    }
-    else  {
+    } else  {
         // Specializing for dy == 0 gains us 25% on Skia benchmarks
         if (dy == 0) {
             unsigned yy = SkPin32(fy, -0xFFFF >> 1, 0xFFFF >> 1);

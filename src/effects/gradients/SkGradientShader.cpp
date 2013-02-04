@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -327,18 +326,54 @@ void SkGradientShaderBase::Build32bitCache(SkPMColor cache[], SkColor c0, SkColo
     SkFixed dg = SkIntToFixed(SkColorGetG(c1) - g) / (count - 1);
     SkFixed db = SkIntToFixed(SkColorGetB(c1) - b) / (count - 1);
 
+#ifdef SK_IGNORE_GRADIENT_DITHER_FIX
     a = SkIntToFixed(a) + 0x8000;
     r = SkIntToFixed(r) + 0x8000;
     g = SkIntToFixed(g) + 0x8000;
     b = SkIntToFixed(b) + 0x8000;
+#else
+    a = SkIntToFixed(a);
+    r = SkIntToFixed(r);
+    g = SkIntToFixed(g);
+    b = SkIntToFixed(b);
+#endif
 
     do {
+#ifdef SK_IGNORE_GRADIENT_DITHER_FIX
         cache[0] = SkPremultiplyARGBInline(a >> 16, r >> 16, g >> 16, b >> 16);
         cache[kCache32Count] =
             SkPremultiplyARGBInline(dither_ceil_fixed_to_8(a),
                                     dither_fixed_to_8(r),
                                     dither_fixed_to_8(g),
                                     dither_fixed_to_8(b));
+#else
+        /*
+         *  Our dither-cell (spatially) is
+         *      0 2
+         *      3 1
+         *  Where
+         *      [0] -> [-1/8 ... 1/8 ) values near 0
+         *      [1] -> [ 1/8 ... 3/8 ) values near 1/4
+         *      [2] -> [ 3/8 ... 5/8 ) values near 1/2
+         *      [3] -> [ 5/8 ... 7/8 ) values near 3/4
+         */
+        cache[kCache32Count*0] = SkPremultiplyARGBInline((a + 0x2000) >> 16,
+                                                         (r + 0x2000) >> 16,
+                                                         (g + 0x2000) >> 16,
+                                                         (b + 0x2000) >> 16);
+        cache[kCache32Count*3] = SkPremultiplyARGBInline((a + 0x6000) >> 16,
+                                                         (r + 0x6000) >> 16,
+                                                         (g + 0x6000) >> 16,
+                                                         (b + 0x6000) >> 16);
+        cache[kCache32Count*1] = SkPremultiplyARGBInline((a + 0xA000) >> 16,
+                                                         (r + 0xA000) >> 16,
+                                                         (g + 0xA000) >> 16,
+                                                         (b + 0xA000) >> 16);
+        cache[kCache32Count*2] = SkPremultiplyARGBInline((a + 0xE000) >> 16,
+                                                         (r + 0xE000) >> 16,
+                                                         (g + 0xE000) >> 16,
+                                                         (b + 0xE000) >> 16);
+#endif
         cache += 1;
         a += da;
         r += dr;
@@ -410,7 +445,7 @@ const uint16_t* SkGradientShaderBase::getCache16() const {
 const SkPMColor* SkGradientShaderBase::getCache32() const {
     if (fCache32 == NULL) {
         // double the count for dither entries
-        const int entryCount = kCache32Count * 2;
+        const int entryCount = kCache32Count * 4;
         const size_t allocSize = sizeof(SkPMColor) * entryCount;
 
         if (NULL == fCache32PixelRef) {
@@ -446,6 +481,10 @@ const SkPMColor* SkGradientShaderBase::getCache32() const {
                 int index = map->mapUnit16((i << 8) | i) >> 8;
                 mapped[i] = linear[index];
                 mapped[i + kCache32Count] = linear[index + kCache32Count];
+#ifndef SK_IGNORE_GRADIENT_DITHER_FIX
+                mapped[i + kCache32Count*2] = linear[index + kCache32Count*2];
+                mapped[i + kCache32Count*3] = linear[index + kCache32Count*3];
+#endif
             }
             fCache32PixelRef->unref();
             fCache32PixelRef = newPR;
