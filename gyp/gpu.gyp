@@ -155,7 +155,7 @@
         }],
         [ 'skia_mesa and skia_os == "mac"', {
           'include_dirs': [
-             '$(SDKROOT)/usr/X11/include/',
+             '/opt/X11/include/',
           ],
         }],
         [ 'not skia_angle', {
@@ -269,11 +269,11 @@
         [ 'skia_mesa and skia_os == "mac"', {
           'link_settings': {
             'libraries': [
-              '$(SDKROOT)/usr/X11/lib/libOSMesa.dylib',
+              '/opt/X11/lib/libOSMesa.dylib',
             ],
           },
           'include_dirs': [
-             '$(SDKROOT)/usr/X11/include/',
+             '/opt/X11/include/',
           ],
         }],
         [ 'not skia_mesa', {
