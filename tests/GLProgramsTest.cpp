@@ -44,7 +44,9 @@ const GrEffectRef* create_random_effect(SkRandom* random,
 }
 }
 
-bool GrGpuGL::programUnitTest() {
+bool GrGpuGL::programUnitTest(int maxStages) {
+
+    maxStages = GrMin(maxStages, (int)GrDrawState::kNumStages);
 
     GrTextureDesc dummyDesc;
     dummyDesc.fConfig = kSkia8888_PM_GrPixelConfig;
@@ -152,8 +154,15 @@ static void GLProgramsTest(skiatest::Reporter* reporter, GrContextFactory* facto
     for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
         GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(type));
         if (NULL != context) {
-            GrGpuGL* shadersGpu = static_cast<GrGpuGL*>(context->getGpu());
-            REPORTER_ASSERT(reporter, shadersGpu->programUnitTest());
+            GrGpuGL* gpu = static_cast<GrGpuGL*>(context->getGpu());
+            int maxStages = GrDrawState::kNumStages;
+#if SK_ANGLE
+            // Some long shaders run out of temporary registers in the D3D compiler on ANGLE.
+            if (type == GrContextFactory::kANGLE_GLContextType) {
+                maxStages = 3;
+            }
+#endif
+            REPORTER_ASSERT(reporter, gpu->programUnitTest(maxStages));
         }
     }
 }
