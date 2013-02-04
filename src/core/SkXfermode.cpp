@@ -191,10 +191,28 @@ static SkPMColor modulate_modeproc(SkPMColor src, SkPMColor dst) {
     return SkPackARGB32(a, r, g, b);
 }
 
-// kScreen_Mode
 static inline int srcover_byte(int a, int b) {
     return a + b - SkAlphaMulAlpha(a, b);
 }
+
+// kMultiply_Mode
+// B(Cb, Cs) = Cb x Cs
+// multiply uses its own version of blendfunc_byte because sa and da are not needed
+static int blendfunc_multiply_byte(int sc, int dc, int sa, int da) {
+    return clamp_div255round(sc * (255 - da)  + dc * (255 - sa)  + sc * dc);
+}
+
+static SkPMColor multiply_modeproc(SkPMColor src, SkPMColor dst) {
+    int sa = SkGetPackedA32(src);
+    int da = SkGetPackedA32(dst);
+    int a = srcover_byte(sa, da);
+    int r = blendfunc_multiply_byte(SkGetPackedR32(src), SkGetPackedR32(dst), sa, da);
+    int g = blendfunc_multiply_byte(SkGetPackedG32(src), SkGetPackedG32(dst), sa, da);
+    int b = blendfunc_multiply_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
+    return SkPackARGB32(a, r, g, b);
+}
+
+// kScreen_Mode
 static SkPMColor screen_modeproc(SkPMColor src, SkPMColor dst) {
     int a = srcover_byte(SkGetPackedA32(src), SkGetPackedA32(dst));
     int r = srcover_byte(SkGetPackedR32(src), SkGetPackedR32(dst));
@@ -447,6 +465,7 @@ static const ProcCoeff gProcCoeffs[] = {
     { softlight_modeproc,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
     { difference_modeproc,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
     { exclusion_modeproc,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { multiply_modeproc,    CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
 };
 
 ///////////////////////////////////////////////////////////////////////////////

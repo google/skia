@@ -19,24 +19,24 @@
 
 namespace {
 
-SkXfermode::Mode modeToXfermode(SkBlendImageFilter::Mode mode)
-{
+SkXfermode::Mode modeToXfermode(SkBlendImageFilter::Mode mode) {
     switch (mode) {
-      case SkBlendImageFilter::kNormal_Mode:
-        return SkXfermode::kSrcOver_Mode;
-      case SkBlendImageFilter::kMultiply_Mode:
-        return SkXfermode::kModulate_Mode;
-      case SkBlendImageFilter::kScreen_Mode:
-        return SkXfermode::kScreen_Mode;
-      case SkBlendImageFilter::kDarken_Mode:
-        return SkXfermode::kDarken_Mode;
-      case SkBlendImageFilter::kLighten_Mode:
-        return SkXfermode::kLighten_Mode;
+        case SkBlendImageFilter::kNormal_Mode:
+            return SkXfermode::kSrcOver_Mode;
+        case SkBlendImageFilter::kMultiply_Mode:
+            return SkXfermode::kMultiply_Mode;
+        case SkBlendImageFilter::kScreen_Mode:
+            return SkXfermode::kScreen_Mode;
+        case SkBlendImageFilter::kDarken_Mode:
+            return SkXfermode::kDarken_Mode;
+        case SkBlendImageFilter::kLighten_Mode:
+            return SkXfermode::kLighten_Mode;
     }
     SkASSERT(0);
     return SkXfermode::kSrcOver_Mode;
 }
 
+#ifdef SK_IGNORE_MULTIPLY_XFERMODE_OPT
 SkPMColor multiply_proc(SkPMColor src, SkPMColor dst) {
     int omsa = 255 - SkGetPackedA32(src);
     int sr = SkGetPackedR32(src), sg = SkGetPackedG32(src), sb = SkGetPackedB32(src);
@@ -48,6 +48,7 @@ SkPMColor multiply_proc(SkPMColor src, SkPMColor dst) {
     int b = SkMulDiv255Round(omsa, db) + SkMulDiv255Round(omda, sb) + SkMulDiv255Round(sb, db);
     return SkPackARGB32(a, r, g, b);
 }
+#endif
 
 };
 
@@ -97,6 +98,7 @@ bool SkBlendImageFilter::onFilterImage(Proxy* proxy,
     SkPaint paint;
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
     canvas.drawBitmap(background, 0, 0, &paint);
+#ifdef SK_IGNORE_MULTIPLY_XFERMODE_OPT
     // FEBlend's multiply mode is (1 - Sa) * Da + (1 - Da) * Sc + Sc * Dc
     // Skia's is just Sc * Dc.  So we use a custom proc to implement FEBlend's
     // version.
@@ -105,6 +107,9 @@ bool SkBlendImageFilter::onFilterImage(Proxy* proxy,
     } else {
         paint.setXfermodeMode(modeToXfermode(fMode));
     }
+#else
+    paint.setXfermodeMode(modeToXfermode(fMode));
+#endif
     canvas.drawBitmap(foreground, 0, 0, &paint);
     return true;
 }
