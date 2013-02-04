@@ -12,7 +12,6 @@
 
 #include "SkTypes.h"
 #include "SkMath.h"
-#include <stddef.h>
 
 /* A comparison functor which performs the comparison 'a < b'. */
 template <typename T> struct SkTCompareLT {
@@ -149,12 +148,24 @@ static T* SkTQSort_Partition(T* left, T* right, T* pivot, C lessThan) {
 }
 
 /*  Intro Sort is a modified Quick Sort.
- *  It recurses on the smaller region after pivoting and loops on the larger.
  *  When the region to be sorted is a small constant size it uses Insertion Sort.
  *  When depth becomes zero, it switches over to Heap Sort.
+ *  This implementation recurses on the left region after pivoting and loops on the right,
+ *    we already limit the stack depth by switching to heap sort,
+ *    and cache locality on the data appears more important than saving a few stack frames.
+ *
+ *  @param depth at this recursion depth, switch to Heap Sort.
+ *  @param left the beginning of the region to be sorted.
+ *  @param right the end of the region to be sorted (inclusive).
+ *  @param lessThan a functor with bool operator()(T a, T b) which returns true if a comes before b.
  */
 template <typename T, typename C> void SkTIntroSort(int depth, T* left, T* right, C lessThan) {
-    while (left < right) {
+    while (true) {
+        if (right - left < 32) {
+            SkTInsertionSort(left, right, lessThan);
+            return;
+        }
+
         if (depth == 0) {
             SkTHeapSort<T>(left, right - left + 1, lessThan);
             return;
@@ -164,23 +175,8 @@ template <typename T, typename C> void SkTIntroSort(int depth, T* left, T* right
         T* pivot = left + ((right - left) >> 1);
         pivot = SkTQSort_Partition(left, right, pivot, lessThan);
 
-        ptrdiff_t leftSize = pivot - left;
-        ptrdiff_t rightSize = right - pivot;
-        if (leftSize < rightSize) {
-            if (leftSize < 8) {
-                SkTInsertionSort(left, pivot - 1, lessThan);
-            } else {
-                SkTIntroSort(depth, left, pivot - 1, lessThan);
-            }
-            left = pivot + 1;
-        } else {
-            if (rightSize < 8) {
-                SkTInsertionSort(pivot + 1, right, lessThan);
-            } else {
-                SkTIntroSort(depth, pivot + 1, right, lessThan);
-            }
-            right = pivot - 1;
-        }
+        SkTIntroSort(depth, left, pivot - 1, lessThan);
+        left = pivot + 1;
     }
 }
 
@@ -194,9 +190,9 @@ template <typename T, typename C> void SkTQSort(T* left, T* right, C lessThan) {
     if (left >= right) {
         return;
     }
-    ptrdiff_t size = right - left;
-    int depth = SkNextLog2(SkToU32(size));
-    SkTIntroSort(depth * 2, left, right, lessThan);
+    // Limit Intro Sort recursion depth to no more than 2 * ceil(log2(n)).
+    int depth = 2 * SkNextLog2(SkToU32(right - left));
+    SkTIntroSort(depth, left, right, lessThan);
 }
 
 /** Sorts the region from left to right using comparator '<' using a Quick Sort algorithm. */
