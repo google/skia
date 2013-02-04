@@ -118,8 +118,9 @@ public:
         kSoftLight_Mode,
         kDifference_Mode,
         kExclusion_Mode,
+        kMultiply_Mode,
 
-        kLastMode = kExclusion_Mode
+        kLastMode = kMultiply_Mode
     };
 
     /**
