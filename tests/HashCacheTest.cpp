@@ -63,7 +63,7 @@ protected:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-static void TestHashCache(skiatest::Reporter* reporter, GrContext* context) {
+static void TestHashCache(skiatest::Reporter* reporter) {
 
     GrTHashTable<HashElement, HashKey, 4> cache;
 
@@ -165,6 +165,6 @@ static void TestHashCache(skiatest::Reporter* reporter, GrContext* context) {
 
 ////////////////////////////////////////////////////////////////////////////////
 #include "TestClassDef.h"
-DEFINE_GPUTESTCLASS("HashCache", HashCacheTestClass, TestHashCache)
+DEFINE_TESTCLASS("HashCache", HashCacheTestClass, TestHashCache)
 
 #endif

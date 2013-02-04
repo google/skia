@@ -14,8 +14,10 @@
 #include "SkRegion.h"
 #if SK_SUPPORT_GPU
 #include "SkGpuDevice.h"
+#include "GrContextFactory.h"
 #else
 class GrContext;
+class GrContextFactory;
 #endif
 
 static const int DEV_W = 100, DEV_H = 100;
@@ -346,7 +348,7 @@ bool setupBitmap(SkBitmap* bitmap,
     return true;
 }
 
-void WritePixelsTest(skiatest::Reporter* reporter, GrContext* context) {
+void WritePixelsTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
     SkCanvas canvas;
 
     const SkIRect testRects[] = {
@@ -397,36 +399,64 @@ void WritePixelsTest(skiatest::Reporter* reporter, GrContext* context) {
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gCanvasConfigs); ++i) {
-        SkAutoTUnref<SkDevice> device(createDevice(gCanvasConfigs[i], context));
-        SkCanvas canvas(device);
+        int glCtxTypeCnt = 1;
+#if SK_SUPPORT_GPU
+        if (kGpu_DevType == gCanvasConfigs[i].fDevType)  {
+            glCtxTypeCnt = GrContextFactory::kGLContextTypeCnt;
+        }
+#endif
+        for (int glCtxType = 0; glCtxType < glCtxTypeCnt; ++glCtxType) {
+            GrContext* context = NULL;
+#if SK_SUPPORT_GPU
+            if (kGpu_DevType == gCanvasConfigs[i].fDevType) {
+                GrContextFactory::GLContextType type =
+                    static_cast<GrContextFactory::GLContextType>(glCtxType);
+#if SK_ANGLE // This test breaks ANGLE with GL errors in texsubimage2D. Disable until debugged.
+                if (type == GrContextFactory::kANGLE_GLContextType) {
+                    continue;
+                }
+#endif
+                if (!GrContextFactory::IsRenderingGLContext(type)) {
+                    continue;
+                }
+                context = factory->get(type);
+                if (NULL == context) {
+                    continue;
+                }
+            }
+#endif
 
-        static const SkCanvas::Config8888 gSrcConfigs[] = {
-            SkCanvas::kNative_Premul_Config8888,
-            SkCanvas::kNative_Unpremul_Config8888,
-            SkCanvas::kBGRA_Premul_Config8888,
-            SkCanvas::kBGRA_Unpremul_Config8888,
-            SkCanvas::kRGBA_Premul_Config8888,
-            SkCanvas::kRGBA_Unpremul_Config8888,
-        };
-        for (size_t r = 0; r < SK_ARRAY_COUNT(testRects); ++r) {
-            const SkIRect& rect = testRects[r];
-            for (int tightBmp = 0; tightBmp < 2; ++tightBmp) {
-                for (size_t c = 0; c < SK_ARRAY_COUNT(gSrcConfigs); ++c) {
-                    fillCanvas(&canvas);
-                    SkCanvas::Config8888 config8888 = gSrcConfigs[c];
-                    SkBitmap bmp;
-                    REPORTER_ASSERT(reporter, setupBitmap(&bmp, config8888, rect.width(), rect.height(), SkToBool(tightBmp)));
-                    uint32_t idBefore = canvas.getDevice()->accessBitmap(false).getGenerationID();
-                    canvas.writePixels(bmp, rect.fLeft, rect.fTop, config8888);
-                    uint32_t idAfter = canvas.getDevice()->accessBitmap(false).getGenerationID();
-                    REPORTER_ASSERT(reporter, checkWrite(reporter, &canvas, bmp, rect.fLeft, rect.fTop, config8888));
+            SkAutoTUnref<SkDevice> device(createDevice(gCanvasConfigs[i], context));
+            SkCanvas canvas(device);
 
-                    // we should change the genID iff pixels were actually written.
-                    SkIRect canvasRect = SkIRect::MakeSize(canvas.getDeviceSize());
-                    SkIRect writeRect = SkIRect::MakeXYWH(rect.fLeft, rect.fTop,
-                                                          bmp.width(), bmp.height());
-                    bool intersects = SkIRect::Intersects(canvasRect, writeRect) ;
-                    REPORTER_ASSERT(reporter, intersects == (idBefore != idAfter));
+            static const SkCanvas::Config8888 gSrcConfigs[] = {
+                SkCanvas::kNative_Premul_Config8888,
+                SkCanvas::kNative_Unpremul_Config8888,
+                SkCanvas::kBGRA_Premul_Config8888,
+                SkCanvas::kBGRA_Unpremul_Config8888,
+                SkCanvas::kRGBA_Premul_Config8888,
+                SkCanvas::kRGBA_Unpremul_Config8888,
+            };
+            for (size_t r = 0; r < SK_ARRAY_COUNT(testRects); ++r) {
+                const SkIRect& rect = testRects[r];
+                for (int tightBmp = 0; tightBmp < 2; ++tightBmp) {
+                    for (size_t c = 0; c < SK_ARRAY_COUNT(gSrcConfigs); ++c) {
+                        fillCanvas(&canvas);
+                        SkCanvas::Config8888 config8888 = gSrcConfigs[c];
+                        SkBitmap bmp;
+                        REPORTER_ASSERT(reporter, setupBitmap(&bmp, config8888, rect.width(), rect.height(), SkToBool(tightBmp)));
+                        uint32_t idBefore = canvas.getDevice()->accessBitmap(false).getGenerationID();
+                        canvas.writePixels(bmp, rect.fLeft, rect.fTop, config8888);
+                        uint32_t idAfter = canvas.getDevice()->accessBitmap(false).getGenerationID();
+                        REPORTER_ASSERT(reporter, checkWrite(reporter, &canvas, bmp, rect.fLeft, rect.fTop, config8888));
+
+                        // we should change the genID iff pixels were actually written.
+                        SkIRect canvasRect = SkIRect::MakeSize(canvas.getDeviceSize());
+                        SkIRect writeRect = SkIRect::MakeXYWH(rect.fLeft, rect.fTop,
+                                                              bmp.width(), bmp.height());
+                        bool intersects = SkIRect::Intersects(canvasRect, writeRect) ;
+                        REPORTER_ASSERT(reporter, intersects == (idBefore != idAfter));
+                    }
                 }
             }
         }

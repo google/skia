@@ -154,7 +154,7 @@ int tool_main(int argc, char** argv) {
 #endif
 
     SkGraphics::Term();
-    GpuTest::DestroyContext();
+    GpuTest::DestroyContexts();
 
     return (failCount == 0) ? 0 : 1;
 }

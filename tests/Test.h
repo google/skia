@@ -12,8 +12,7 @@
 #include "SkString.h"
 #include "SkTRegistry.h"
 
-class GrContext;
-class SkGLContext;
+class GrContextFactory;
 
 namespace skiatest {
 
@@ -100,13 +99,9 @@ namespace skiatest {
 
     class GpuTest : public Test{
     public:
-        GpuTest() : Test() {
-            fContext = GetContext();
-        }
-        static GrContext* GetContext();
-        static void DestroyContext();
-    protected:
-        GrContext* fContext;
+        GpuTest() : Test() {}
+        static GrContextFactory* GetGrContextFactory();
+        static void DestroyContexts();
     private:
     };
 

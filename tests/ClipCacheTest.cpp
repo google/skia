@@ -9,6 +9,7 @@
 #include "Test.h"
 // This is a GR test
 #if SK_SUPPORT_GPU
+#include "GrContextFactory.h"
 #include "SkGpuDevice.h"
 #include "../../src/gpu/GrClipMaskManager.h"
 
@@ -216,10 +217,20 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-static void TestClipCache(skiatest::Reporter* reporter, GrContext* context) {
+static void TestClipCache(skiatest::Reporter* reporter, GrContextFactory* factory) {
+    for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
+        GrContextFactory::GLContextType glType = static_cast<GrContextFactory::GLContextType>(type);
+        if (!GrContextFactory::IsRenderingGLContext(glType)) {
+            continue;
+        }
+        GrContext* context = factory->get(glType);
+        if (NULL == context) {
+            continue;
+        }
 
-    test_cache(reporter, context);
-    test_clip_bounds(reporter, context);
+        test_cache(reporter, context);
+        test_clip_bounds(reporter, context);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

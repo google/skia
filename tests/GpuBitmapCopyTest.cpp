@@ -9,6 +9,7 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
+#include "GrContextFactory.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
@@ -117,88 +118,106 @@ static void TestIndividualCopy(skiatest::Reporter* reporter, const SkBitmap::Con
 
 // Stripped down version of TestBitmapCopy that checks basic fields (width, height, config, genID)
 // to ensure that they were copied properly.
-static void TestGpuBitmapCopy(skiatest::Reporter* reporter, GrContext* grContext) {
+static void TestGpuBitmapCopy(skiatest::Reporter* reporter, GrContextFactory* factory) {
 #ifdef SK_BUILD_FOR_ANDROID // https://code.google.com/p/skia/issues/detail?id=753
     return;
 #endif
-    if (NULL == grContext) {
-        return;
-    }
-    static const Pair gPairs[] = {
-        { SkBitmap::kNo_Config,         "000"  },
-        { SkBitmap::kARGB_4444_Config,  "011"  },
-        { SkBitmap::kARGB_8888_Config,  "011"  },
-    };
+    for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
+        GrContextFactory::GLContextType glType = static_cast<GrContextFactory::GLContextType>(type);
+        if (!GrContextFactory::IsRenderingGLContext(glType)) {
+            continue;
+        }
+#if SK_ANGLE // This test breaks ANGLE: memcmps fail and readpixels return value is false.
+        if (type == GrContextFactory::kANGLE_GLContextType) {
+            continue;
+        }
+#endif
 
-    const int W = 20;
-    const int H = 33;
-
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gPairs); i++) {
-        SkBitmap src, dst;
-
-        SkGpuDevice* device = SkNEW_ARGS(SkGpuDevice, (grContext, gPairs[i].fConfig, W, H));
-        SkAutoUnref aur(device);
-        src = device->accessBitmap(false);
-        device->clear(SK_ColorWHITE);
-
-        // Draw something different to the same portion of the bitmap that we will extract as a
-        // subset, so that comparing the pixels of the subset will be meaningful.
-        SkIRect subsetRect = SkIRect::MakeLTRB(W/2, H/2, W, H);
-        SkCanvas drawingCanvas(device);
-        SkPaint paint;
-        paint.setColor(SK_ColorRED);
-        drawingCanvas.drawRect(SkRect::MakeFromIRect(subsetRect), paint);
-
-        // Extract a subset. If this succeeds we will test copying the subset.
-        SkBitmap subset;
-        const bool extracted = src.extractSubset(&subset, subsetRect);
-        if (extracted) {
-            TestSubsetHelpers(reporter, subset);
+        GrContext* grContext = factory->get(glType);
+        if (NULL == grContext) {
+            continue;
         }
 
-        for (size_t j = 0; j < SK_ARRAY_COUNT(gPairs); j++) {
-            dst.reset();
-            bool success = src.deepCopyTo(&dst, gPairs[j].fConfig);
-            bool expected = gPairs[i].fValid[j] != '0';
-            if (success != expected) {
-                SkString str;
-                str.printf("SkBitmap::deepCopyTo from %s to %s. expected %s returned %s",
-                           gConfigName[i], gConfigName[j], boolStr(expected),
-                           boolStr(success));
-                reporter->reportFailed(str);
-            }
 
-            bool canSucceed = src.canCopyTo(gPairs[j].fConfig);
-            if (success != canSucceed) {
-                SkString str;
-                str.printf("SkBitmap::deepCopyTo from %s to %s returned %s,"
-                           "but canCopyTo returned %s",
-                           gConfigName[i], gConfigName[j], boolStr(success),
-                           boolStr(canSucceed));
-                reporter->reportFailed(str);
-            }
+        if (NULL == grContext) {
+            return;
+        }
+        static const Pair gPairs[] = {
+            { SkBitmap::kNo_Config,         "000"  },
+            { SkBitmap::kARGB_4444_Config,  "011"  },
+            { SkBitmap::kARGB_8888_Config,  "011"  },
+        };
 
-            TestIndividualCopy(reporter, gPairs[j].fConfig, success, src, dst);
+        const int W = 20;
+        const int H = 33;
 
-            // Test copying the subset bitmap, using both copyTo and deepCopyTo.
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gPairs); i++) {
+            SkBitmap src, dst;
+
+            SkGpuDevice* device = SkNEW_ARGS(SkGpuDevice, (grContext, gPairs[i].fConfig, W, H));
+            SkAutoUnref aur(device);
+            src = device->accessBitmap(false);
+            device->clear(SK_ColorWHITE);
+
+            // Draw something different to the same portion of the bitmap that we will extract as a
+            // subset, so that comparing the pixels of the subset will be meaningful.
+            SkIRect subsetRect = SkIRect::MakeLTRB(W/2, H/2, W, H);
+            SkCanvas drawingCanvas(device);
+            SkPaint paint;
+            paint.setColor(SK_ColorRED);
+            drawingCanvas.drawRect(SkRect::MakeFromIRect(subsetRect), paint);
+
+            // Extract a subset. If this succeeds we will test copying the subset.
+            SkBitmap subset;
+            const bool extracted = src.extractSubset(&subset, subsetRect);
             if (extracted) {
-                SkBitmap subsetCopy;
-                success = subset.copyTo(&subsetCopy, gPairs[j].fConfig);
-                REPORTER_ASSERT(reporter, success == expected);
-                REPORTER_ASSERT(reporter, success == canSucceed);
-                TestIndividualCopy(reporter, gPairs[j].fConfig, success, subset, subsetCopy, false,
-                                   &subsetRect);
-
-                // Reset the bitmap so that a failed copyTo will leave it in the expected state.
-                subsetCopy.reset();
-                success = subset.deepCopyTo(&subsetCopy, gPairs[j].fConfig);
-                REPORTER_ASSERT(reporter, success == expected);
-                REPORTER_ASSERT(reporter, success == canSucceed);
-                TestIndividualCopy(reporter, gPairs[j].fConfig, success, subset, subsetCopy, true,
-                                   &subsetRect);
+                TestSubsetHelpers(reporter, subset);
             }
-        } // for (size_t j = ...
-    } // for (size_t i = ...
+
+            for (size_t j = 0; j < SK_ARRAY_COUNT(gPairs); j++) {
+                dst.reset();
+                bool success = src.deepCopyTo(&dst, gPairs[j].fConfig);
+                bool expected = gPairs[i].fValid[j] != '0';
+                if (success != expected) {
+                    SkString str;
+                    str.printf("SkBitmap::deepCopyTo from %s to %s. expected %s returned %s",
+                               gConfigName[i], gConfigName[j], boolStr(expected),
+                               boolStr(success));
+                    reporter->reportFailed(str);
+                }
+
+                bool canSucceed = src.canCopyTo(gPairs[j].fConfig);
+                if (success != canSucceed) {
+                    SkString str;
+                    str.printf("SkBitmap::deepCopyTo from %s to %s returned %s,"
+                               "but canCopyTo returned %s",
+                               gConfigName[i], gConfigName[j], boolStr(success),
+                               boolStr(canSucceed));
+                    reporter->reportFailed(str);
+                }
+
+                TestIndividualCopy(reporter, gPairs[j].fConfig, success, src, dst);
+
+                // Test copying the subset bitmap, using both copyTo and deepCopyTo.
+                if (extracted) {
+                    SkBitmap subsetCopy;
+                    success = subset.copyTo(&subsetCopy, gPairs[j].fConfig);
+                    REPORTER_ASSERT(reporter, success == expected);
+                    REPORTER_ASSERT(reporter, success == canSucceed);
+                    TestIndividualCopy(reporter, gPairs[j].fConfig, success, subset, subsetCopy, false,
+                                       &subsetRect);
+
+                    // Reset the bitmap so that a failed copyTo will leave it in the expected state.
+                    subsetCopy.reset();
+                    success = subset.deepCopyTo(&subsetCopy, gPairs[j].fConfig);
+                    REPORTER_ASSERT(reporter, success == expected);
+                    REPORTER_ASSERT(reporter, success == canSucceed);
+                    TestIndividualCopy(reporter, gPairs[j].fConfig, success, subset, subsetCopy, true,
+                                       &subsetRect);
+                }
+            } // for (size_t j = ...
+        } // for (size_t i = ...
+    } // GrContextFactory::GLContextType
 }
 
 #include "TestClassDef.h"
