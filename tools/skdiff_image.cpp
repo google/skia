@@ -292,7 +292,7 @@ int tool_main(int argc, char** argv) {
     //     However, diff will encode the filename as a cstring if the filename contains
     //         Any of <space> or <double quote>
     //         A char less than 32
-    //         Any escapable character \a, \b, \t, \n, \v, \f, \r, \\
+    //         Any escapable character \\, \a, \b, \t, \n, \v, \f, \r
     //
     // Patch decodes:
     //     If first <non-white-space> is <double quote>, parse filename from cstring.
