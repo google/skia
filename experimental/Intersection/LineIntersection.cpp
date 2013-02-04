@@ -43,97 +43,81 @@ int intersect(const _Line& a, const _Line& b, double aRange[2], double bRange[2]
              byLen  * axLen         -   ayLen          * bxLen == 0 ( == denom )
      */
     double denom = byLen * axLen - ayLen * bxLen;
-    if (approximately_zero(denom)) {
-       /* See if the axis intercepts match:
-                  ay - ax * ayLen / axLen  ==          by - bx * ayLen / axLen
-         axLen * (ay - ax * ayLen / axLen) == axLen * (by - bx * ayLen / axLen)
-         axLen *  ay - ax * ayLen          == axLen *  by - bx * ayLen
-        */
-        // FIXME: need to use AlmostEqualUlps variant instead
-        if (approximately_equal_squared(axLen * a[0].y - ayLen * a[0].x,
-                axLen * b[0].y - ayLen * b[0].x)) {
-            const double* aPtr;
-            const double* bPtr;
-            if (fabs(axLen) > fabs(ayLen) || fabs(bxLen) > fabs(byLen)) {
-                aPtr = &a[0].x;
-                bPtr = &b[0].x;
-            } else {
-                aPtr = &a[0].y;
-                bPtr = &b[0].y;
-            }
-        #if 0 // sorting edges fails to preserve original direction
-            double aMin = aPtr[0];
-            double aMax = aPtr[2];
-            double bMin = bPtr[0];
-            double bMax = bPtr[2];
-            if (aMin > aMax) {
-                SkTSwap(aMin, aMax);
-            }
-            if (bMin > bMax) {
-                SkTSwap(bMin, bMax);
-            }
-            if (aMax < bMin || bMax < aMin) {
-                return 0;
-            }
-            if (aRange) {
-                aRange[0] = bMin <= aMin ? 0 : (bMin - aMin) / (aMax - aMin);
-                aRange[1] = bMax >= aMax ? 1 : (bMax - aMin) / (aMax - aMin);
-            }
-            int bIn = (aPtr[0] - aPtr[2]) * (bPtr[0] - bPtr[2]) < 0;
-            if (bRange) {
-                bRange[bIn] = aMin <= bMin ? 0 : (aMin - bMin) / (bMax - bMin);
-                bRange[!bIn] = aMax >= bMax ? 1 : (aMax - bMin) / (bMax - bMin);
-            }
-            return 1 + ((aRange[0] != aRange[1]) || (bRange[0] != bRange[1]));
-        #else
-            SkASSERT(aRange);
-            SkASSERT(bRange);
-            double a0 = aPtr[0];
-            double a1 = aPtr[2];
-            double b0 = bPtr[0];
-            double b1 = bPtr[2];
-            // OPTIMIZATION: restructure to reject before the divide
-            // e.g., if ((a0 - b0) * (a0 - a1) < 0 || abs(a0 - b0) > abs(a0 - a1))
-            // (except efficient)
-            double at0 = (a0 - b0) / (a0 - a1);
-            double at1 = (a0 - b1) / (a0 - a1);
-            if ((at0 < 0 && at1 < 0) || (at0 > 1 && at1 > 1)) {
-                return 0;
-            }
-            aRange[0] = SkTMax(SkTMin(at0, 1.0), 0.0);
-            aRange[1] = SkTMax(SkTMin(at1, 1.0), 0.0);
-            int bIn = (a0 - a1) * (b0 - b1) < 0;
-            double bDenom = b0 - b1;
-            if (approximately_zero(bDenom)) {
-                bRange[0] = bRange[1] = 0;
-            } else {
-                bRange[bIn] = SkTMax(SkTMin((b0 - a0) / bDenom, 1.0), 0.0);
-                bRange[!bIn] = SkTMax(SkTMin((b0 - a1) / bDenom, 1.0), 0.0);
-            }
-            bool second = fabs(aRange[0] - aRange[1]) > FLT_EPSILON;
-            SkASSERT((fabs(bRange[0] - bRange[1]) <= FLT_EPSILON) ^ second);
-            return 1 + second;
-        #endif
-        }
-    }
     double ab0y = a[0].y - b[0].y;
     double ab0x = a[0].x - b[0].x;
     double numerA = ab0y * bxLen - byLen * ab0x;
-    if ((numerA < 0 && denom > numerA) || (numerA > 0 && denom < numerA)) {
-        return 0;
-    }
     double numerB = ab0y * axLen - ayLen * ab0x;
-    if ((numerB < 0 && denom > numerB) || (numerB > 0 && denom < numerB)) {
+    bool mayNotOverlap = (numerA < 0 && denom > numerA) || (numerA > 0 && denom < numerA)
+            || (numerB < 0 && denom > numerB) || (numerB > 0 && denom < numerB);
+    numerA /= denom;
+    numerB /= denom;
+    if (!approximately_zero(denom) || (!approximately_zero_inverse(numerA) &&
+            !approximately_zero_inverse(numerB))) {
+        if (mayNotOverlap) {
+            return 0;
+        }
+        if (aRange) {
+            aRange[0] = numerA;
+        }
+        if (bRange) {
+            bRange[0] = numerB;
+        }
+        return 1;
+    }
+   /* See if the axis intercepts match:
+              ay - ax * ayLen / axLen  ==          by - bx * ayLen / axLen
+     axLen * (ay - ax * ayLen / axLen) == axLen * (by - bx * ayLen / axLen)
+     axLen *  ay - ax * ayLen          == axLen *  by - bx * ayLen
+    */
+    // FIXME: need to use AlmostEqualUlps variant instead
+    if (!approximately_equal_squared(axLen * a[0].y - ayLen * a[0].x,
+            axLen * b[0].y - ayLen * b[0].x)) {
         return 0;
     }
-    /* Is the intersection along the the segments */
-    if (aRange) {
-        aRange[0] = numerA / denom;
+    const double* aPtr;
+    const double* bPtr;
+    if (fabs(axLen) > fabs(ayLen) || fabs(bxLen) > fabs(byLen)) {
+        aPtr = &a[0].x;
+        bPtr = &b[0].x;
+    } else {
+        aPtr = &a[0].y;
+        bPtr = &b[0].y;
     }
-    if (bRange) {
-        bRange[0] = numerB / denom;
+    SkASSERT(aRange);
+    SkASSERT(bRange);
+    double a0 = aPtr[0];
+    double a1 = aPtr[2];
+    double b0 = bPtr[0];
+    double b1 = bPtr[2];
+    // OPTIMIZATION: restructure to reject before the divide
+    // e.g., if ((a0 - b0) * (a0 - a1) < 0 || abs(a0 - b0) > abs(a0 - a1))
+    // (except efficient)
+    double aDenom = a0 - a1;
+    if (approximately_zero(aDenom)) {
+        if (!between(b0, a0, b1)) {
+            return 0;
+        }
+        aRange[0] = aRange[1] = 0;
+    } else {
+        double at0 = (a0 - b0) / aDenom;
+        double at1 = (a0 - b1) / aDenom;
+        if ((at0 < 0 && at1 < 0) || (at0 > 1 && at1 > 1)) {
+            return 0;
+        }
+        aRange[0] = SkTMax(SkTMin(at0, 1.0), 0.0);
+        aRange[1] = SkTMax(SkTMin(at1, 1.0), 0.0);
     }
-    return 1;
+    double bDenom = b0 - b1;
+    if (approximately_zero(bDenom)) {
+        bRange[0] = bRange[1] = 0;
+    } else {
+        int bIn = aDenom * bDenom < 0;
+        bRange[bIn] = SkTMax(SkTMin((b0 - a0) / bDenom, 1.0), 0.0);
+        bRange[!bIn] = SkTMax(SkTMin((b0 - a1) / bDenom, 1.0), 0.0);
+    }
+    bool second = fabs(aRange[0] - aRange[1]) > FLT_EPSILON;
+    SkASSERT((fabs(bRange[0] - bRange[1]) <= FLT_EPSILON) ^ second);
+    return 1 + second;
 }
 
 int horizontalIntersect(const _Line& line, double y, double tRange[2]) {

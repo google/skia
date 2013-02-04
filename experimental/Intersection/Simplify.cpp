@@ -31,7 +31,7 @@ int gDebugMaxWindValue = SK_MaxS32;
 #define APPROXIMATE_CUBICS 1
 
 #define DEBUG_UNUSED 0 // set to expose unused functions
-#define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging
+#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging
 
 #if FORCE_RELEASE || defined SK_RELEASE
 
@@ -215,6 +215,11 @@ static void LineXYAtT(const SkPoint a[2], double t, SkPoint* out) {
     out->fY = SkDoubleToScalar(y);
 }
 
+static void LineXYAtT(const SkPoint a[2], double t, _Point* out) {
+    MAKE_CONST_LINE(line, a);
+    xy_at_t(line, t, out->x, out->y);
+}
+
 static void QuadXYAtT(const SkPoint a[3], double t, SkPoint* out) {
     MAKE_CONST_QUAD(quad, a);
     double x, y;
@@ -236,7 +241,19 @@ static void CubicXYAtT(const SkPoint a[4], double t, SkPoint* out) {
     out->fY = SkDoubleToScalar(y);
 }
 
+static void CubicXYAtT(const SkPoint a[4], double t, _Point* out) {
+    MAKE_CONST_CUBIC(cubic, a);
+    xy_at_t(cubic, t, out->x, out->y);
+}
+
 static void (* const SegmentXYAtT[])(const SkPoint [], double , SkPoint* ) = {
+    NULL,
+    LineXYAtT,
+    QuadXYAtT,
+    CubicXYAtT
+};
+
+static void (* const SegmentXYAtT2[])(const SkPoint [], double , _Point* ) = {
     NULL,
     LineXYAtT,
     QuadXYAtT,
@@ -505,11 +522,24 @@ static int QuadRayIntersect(const SkPoint a[3], const SkPoint b[2],
 }
 #endif
 
-static int QuadRayIntersect(const SkPoint a[3], const _Line& bLine,
-        Intersections& intersections) {
+static int QuadRayIntersect(const SkPoint a[3], const _Line& bLine, Intersections& intersections) {
     MAKE_CONST_QUAD(aQuad, a);
     return intersectRay(aQuad, bLine, intersections);
 }
+
+static int CubicRayIntersect(const SkPoint a[3], const _Line& bLine, Intersections& intersections) {
+    MAKE_CONST_CUBIC(aCubic, a);
+    return intersectRay(aCubic, bLine, intersections);
+}
+
+static int (* const SegmentRayIntersect[])(const SkPoint [], const _Line& , Intersections&) = {
+    NULL,
+    NULL,
+    QuadRayIntersect,
+    CubicRayIntersect
+};
+
+
 
 static bool LineVertical(const SkPoint a[2], double startT, double endT) {
     MAKE_CONST_LINE(aLine, a);
@@ -642,8 +672,8 @@ public:
             rh.fUnsortable = true;
             return this < &rh; // even with no solution, return a stable sort
         }
-        SkASSERT(fVerb == SkPath::kQuad_Verb); // worry about cubics later
-        SkASSERT(rh.fVerb == SkPath::kQuad_Verb);
+        SkASSERT(fVerb >= SkPath::kQuad_Verb);
+        SkASSERT(rh.fVerb >= SkPath::kQuad_Verb);
         // FIXME: until I can think of something better, project a ray from the
         // end of the shorter tangent to midway between the end points
         // through both curves and use the resulting angle to sort
@@ -655,15 +685,16 @@ public:
         int roots, rroots;
         bool flip = false;
         do {
-            const Quadratic& q = (len < rlen) ^ flip ? fQ : rh.fQ;
-            double midX = (q[0].x + q[2].x) / 2;
-            double midY = (q[0].y + q[2].y) / 2;
-            ray[0] = q[1];
-            ray[1].x = midX;
-            ray[1].y = midY;
+            bool useThis = (len < rlen) ^ flip;
+            const Cubic& part = useThis ? fCurvePart : rh.fCurvePart;
+            SkPath::Verb partVerb = useThis ? fVerb : rh.fVerb;
+            ray[0] = partVerb == SkPath::kCubic_Verb && part[0].approximatelyEqual(part[1]) ?
+                part[2] : part[1];
+            ray[1].x = (part[0].x + part[partVerb].x) / 2;
+            ray[1].y = (part[0].y + part[partVerb].y) / 2;
             SkASSERT(ray[0] != ray[1]);
-            roots = QuadRayIntersect(fPts, ray, i);
-            rroots = QuadRayIntersect(rh.fPts, ray, ri);
+            roots = (*SegmentRayIntersect[fVerb])(fPts, ray, i);
+            rroots = (*SegmentRayIntersect[rh.fVerb])(rh.fPts, ray, ri);
         } while ((roots == 0 || rroots == 0) && (flip ^= true));
         if (roots == 0 || rroots == 0) {
             // FIXME: we don't have a solution in this case. The interim solution
@@ -678,7 +709,7 @@ public:
         double dx, dy, dist;
         int index;
         for (index = 0; index < roots; ++index) {
-            QuadXYAtT(fPts, i.fT[0][index], &loc);
+            (*SegmentXYAtT2[fVerb])(fPts, i.fT[0][index], &loc);
             dx = loc.x - ray[0].x;
             dy = loc.y - ray[0].y;
             dist = dx * dx + dy * dy;
@@ -687,7 +718,7 @@ public:
             }
         }
         for (index = 0; index < rroots; ++index) {
-            QuadXYAtT(rh.fPts, ri.fT[0][index], &loc);
+            (*SegmentXYAtT2[rh.fVerb])(rh.fPts, ri.fT[0][index], &loc);
             dx = loc.x - ray[0].x;
             dy = loc.y - ray[0].y;
             dist = dx * dx + dy * dy;
@@ -763,35 +794,35 @@ public:
             fTangent1.lineEndPoints(l);
             fSide = 0;
             break;
-        case SkPath::kQuad_Verb:
-            QuadSubDivideHD(fPts, startT, endT, fQ);
-            fTangent1.quadEndPoints(fQ, 0, 1);
+        case SkPath::kQuad_Verb: {
+            Quadratic& quad = (Quadratic&)fCurvePart;
+            QuadSubDivideHD(fPts, startT, endT, quad);
+            fTangent1.quadEndPoints(quad, 0, 1);
         #if 1 // FIXME: try enabling this and see if a) it's called and b) does it break anything
             if (dx() == 0 && dy() == 0) {
                 SkDebugf("*** %s quad is line\n", __FUNCTION__);
-                fTangent1.quadEndPoints(fQ);
+                fTangent1.quadEndPoints(quad);
             }
         #endif
-            fSide = -fTangent1.pointDistance(fQ[2]); // not normalized -- compare sign only
-            break;
+            fSide = -fTangent1.pointDistance(fCurvePart[2]); // not normalized -- compare sign only
+            } break;
         case SkPath::kCubic_Verb: {
-            Cubic c;
             int nextC = 2;
-            CubicSubDivideHD(fPts, startT, endT, c);
-            fTangent1.cubicEndPoints(c, 0, 1);
+            CubicSubDivideHD(fPts, startT, endT, fCurvePart);
+            fTangent1.cubicEndPoints(fCurvePart, 0, 1);
             if (dx() == 0 && dy() == 0) {
-                fTangent1.cubicEndPoints(c, 0, 2);
+                fTangent1.cubicEndPoints(fCurvePart, 0, 2);
                 nextC = 3;
         #if 1 // FIXME: try enabling this and see if a) it's called and b) does it break anything
                 if (dx() == 0 && dy() == 0) {
                     SkDebugf("*** %s cubic is line\n");
-                    fTangent1.cubicEndPoints(c, 0, 3);
+                    fTangent1.cubicEndPoints(fCurvePart, 0, 3);
                 }
         #endif
             }
-            fSide = -fTangent1.pointDistance(c[nextC]); // not normalized -- compare sign only
+            fSide = -fTangent1.pointDistance(fCurvePart[nextC]); // compare sign only
             if (nextC == 2 && approximately_zero(fSide)) {
-                fSide = -fTangent1.pointDistance(c[3]);
+                fSide = -fTangent1.pointDistance(fCurvePart[3]);
             }
             } break;
         default:
@@ -876,7 +907,7 @@ public:
 
 private:
     const SkPoint* fPts;
-    Quadratic fQ;
+    Cubic fCurvePart;
     SkPath::Verb fVerb;
     double fSide;
     LineParameters fTangent1;

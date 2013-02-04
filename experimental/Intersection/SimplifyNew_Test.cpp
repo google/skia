@@ -3564,7 +3564,7 @@ static void cubicOp1d() {
     testShapeOp(path, pathB, kDifference_Op);
 }
 
-static void (*firstTest)() = 0;
+static void (*firstTest)() = testCubic1;
 
 static struct {
     void (*fun)();

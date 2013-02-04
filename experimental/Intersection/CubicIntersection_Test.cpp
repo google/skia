@@ -98,11 +98,17 @@ static void oneOff(const Cubic& cubic1, const Cubic& cubic2) {
 }
 
 static const Cubic testSet[] = {
+{{0, 0}, {0, 1}, {1, 1}, {1, 0}},
+{{1, 0}, {0, 0}, {0, 1}, {1, 1}},
+
 {{0, 1}, {0, 2}, {1, 0}, {1, 0}},
 {{0, 1}, {0, 1}, {1, 0}, {2, 0}},
 
-{{0, 0}, {0, 1}, {1, 1}, {1, 0}},
-{{1, 0}, {0, 0}, {0, 1}, {1, 1}},
+{{0, 1}, {1, 6}, {1, 0}, {2, 0}},
+{{0, 1}, {0, 2}, {1, 0}, {6, 1}},
+
+{{0, 1}, {5, 6}, {1, 0}, {1, 0}},
+{{0, 1}, {0, 1}, {1, 0}, {6, 5}},
 
 {{95.837747722788592, 45.025976907939643}, {16.564570095652982, 0.72959763963222402}, {63.209855865319199, 68.047528419665767}, {57.640240647662544, 59.524565264361243}},
 {{51.593891741518817, 38.53849970667553}, {62.34752929878772, 74.924924725166022}, {74.810149322641152, 34.17966562983564}, {29.368398119401373, 94.66719277886078}},
@@ -153,7 +159,7 @@ void CubicIntersection_OneOffTest() {
     }
 }
 
-#define DEBUG_CRASH 1
+#define DEBUG_CRASH 0
 
 class CubicChopper {
 public:
@@ -250,14 +256,18 @@ void CubicIntersection_RandTestOld() {
         }
         bool newIntersects = intersect2(cubic1, cubic2, i2);
         if (!boundsIntersect && (oldIntersects || newIntersects)) {
+    #if DEBUG_CRASH
             SkDebugf("%s %d unexpected intersection boundsIntersect=%d oldIntersects=%d"
                     " newIntersects=%d\n%s %s\n", __FUNCTION__, test, boundsIntersect,
                     oldIntersects, newIntersects, __FUNCTION__, str);
+    #endif
             SkASSERT(0);
         }
         if (oldIntersects && !newIntersects) {
+    #if DEBUG_CRASH
             SkDebugf("%s %d missing intersection oldIntersects=%d newIntersects=%d\n%s %s\n",
                     __FUNCTION__, test, oldIntersects, newIntersects, __FUNCTION__, str);
+    #endif
             SkASSERT(0);
         }
         if (!oldIntersects && !newIntersects) {
@@ -292,13 +302,17 @@ void CubicIntersection_RandTestOld() {
                 calc1, delta1, factor1, calc2, delta2, factor2);
         if (factor1 < largestFactor) {
             SkDebugf("WE HAVE A WINNER! %1.9g\n", factor1);
+    #if DEBUG_CRASH
             SkDebugf("%s\n", str);
+    #endif
             oneOff(cubic1, cubic2);
             largestFactor = factor1;
         }
         if (factor2 < largestFactor) {
             SkDebugf("WE HAVE A WINNER! %1.9g\n", factor2);
+    #if DEBUG_CRASH
             SkDebugf("%s\n", str);
+    #endif
             oneOff(cubic1, cubic2);
             largestFactor = factor2;
         }
@@ -336,9 +350,11 @@ void CubicIntersection_RandTest() {
         Intersections intersections2;
         bool newIntersects = intersect2(cubic1, cubic2, intersections2);
         if (!boundsIntersect && newIntersects) {
+    #if DEBUG_CRASH
             SkDebugf("%s %d unexpected intersection boundsIntersect=%d "
                     " newIntersects=%d\n%s %s\n", __FUNCTION__, test, boundsIntersect,
                     newIntersects, __FUNCTION__, str);
+    #endif
             SkASSERT(0);
         }
         for (int pt = 0; pt < intersections2.used(); ++pt) {
@@ -357,47 +373,91 @@ void CubicIntersection_RandTest() {
     }
 }
 
-static Cubic deltaTestSet[] = {
-  {{1, 4}, {1, 4.*2/3}, {1, 4.*1/3}, {1, 0}},
-  {{0, 3}, {1, 2}, {2, 1}, {3, 0}},
-  {{1, 4}, {1, 4.*2/3}, {1, 4.*1/3}, {1, 0}},
-  {{3.5, 1}, {2.5, 2}, {1.5, 3}, {0.5, 4}}
-};
-
-size_t deltaTestSetLen = sizeof(deltaTestSet) / sizeof(deltaTestSet[0]);
-
-static double deltaTestSetT[] = {
-    3./8,
-    5./12,
-    6./8,
-    9./12
-};
-
-size_t deltaTestSetTLen = sizeof(deltaTestSetT) / sizeof(deltaTestSetT[0]);
-
-static double expectedT[] = {
-    0.5,
-    1./3,
-    1./8,
-    5./6
-};
-
-size_t expectedTLen = sizeof(expectedT) / sizeof(expectedT[0]);
-
-// FIXME: this test no longer valid -- does not take minimum scale contribution into account
-void CubicIntersection_ComputeDeltaTest() {
-    SkASSERT(deltaTestSetLen == deltaTestSetTLen);
-    SkASSERT(expectedTLen == deltaTestSetTLen);
-    for (size_t index = 0; index < deltaTestSetLen; index += 2) {
-        const Cubic& c1 = deltaTestSet[index];
-        const Cubic& c2 = deltaTestSet[index + 1];
-        double t1 = deltaTestSetT[index];
-        double t2 = deltaTestSetT[index + 1];
-        double d1, d2;
-        computeDelta(c1, t1, 1, c2, t2, 1, d1, d2);
-        SkASSERT(approximately_equal(t1 + d1, expectedT[index])
-            || approximately_equal(t1 - d1, expectedT[index]));
-        SkASSERT(approximately_equal(t2 + d2, expectedT[index + 1])
-            || approximately_equal(t2 - d2, expectedT[index + 1]));
+void CubicIntersection_IntersectionFinder() {
+    Cubic cubic1 = {{0, 1}, {0, 2}, {1, 0}, {1, 0}};
+    Cubic cubic2 = {{0, 1}, {0, 2}, {1, 0}, {6, 1}};
+    double t1Seed = 0.19923954998177532;
+    double t2Seed = 0.17140596934291233;
+    double t1Step = 0.00035501449125494022;
+    double t2Step = 0.00020896171344569892;
+    _Point t1[3], t2[3];
+    bool toggle = true;
+    do {
+        xy_at_t(cubic1, t1Seed - t1Step, t1[0].x, t1[0].y);
+        xy_at_t(cubic1, t1Seed,          t1[1].x, t1[1].y);
+        xy_at_t(cubic1, t1Seed + t1Step, t1[2].x, t1[2].y);
+        xy_at_t(cubic2, t2Seed - t2Step, t2[0].x, t2[0].y);
+        xy_at_t(cubic2, t2Seed,          t2[1].x, t2[1].y);
+        xy_at_t(cubic2, t2Seed + t2Step, t2[2].x, t2[2].y);
+        double dist[3][3];
+        dist[1][1] = t1[1].distance(t2[1]);
+        int best_i = 1, best_j = 1;
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                if (i == 1 && j == 1) {
+                    continue;
+                }
+                dist[i][j] = t1[i].distance(t2[j]);
+                if (dist[best_i][best_j] > dist[i][j]) {
+                    best_i = i;
+                    best_j = j;
+                }
+            }
+        }
+        if (best_i == 0) {
+            t1Seed -= t1Step;
+        } else if (best_i == 2) {
+            t1Seed += t1Step;
+        }
+        if (best_j == 0) {
+            t2Seed -= t2Step;
+        } else if (best_j == 2) {
+            t2Seed += t2Step;
+        }
+        if (best_i == 1 && best_j == 1) {
+            if ((toggle ^= true)) {
+                t1Step /= 2;
+            } else {
+                t2Step /= 2;
+            }
+        }
+    } while (!t1[1].approximatelyEqual(t2[1]));
+    t1Step = t2Step = 0.1;
+    double t10 = t1Seed - t1Step * 2;
+    double t12 = t1Seed + t1Step * 2;
+    double t20 = t2Seed - t2Step * 2;
+    double t22 = t2Seed + t2Step * 2;
+    _Point test;
+    while (!approximately_zero(t1Step)) {
+        xy_at_t(cubic1, t10, test.x, test.y);
+        t10 += t1[1].approximatelyEqual(test) ? -t1Step : t1Step;
+        t1Step /= 2;
     }
+    t1Step = 0.1;
+    while (!approximately_zero(t1Step)) {
+        xy_at_t(cubic1, t12, test.x, test.y);
+        t12 -= t1[1].approximatelyEqual(test) ? -t1Step : t1Step;
+        t1Step /= 2;
+    }
+    while (!approximately_zero(t2Step)) {
+        xy_at_t(cubic2, t20, test.x, test.y);
+        t20 += t2[1].approximatelyEqual(test) ? -t2Step : t2Step;
+        t2Step /= 2;
+    }
+    t2Step = 0.1;
+    while (!approximately_zero(t2Step)) {
+        xy_at_t(cubic2, t22, test.x, test.y);
+        t22 -= t2[1].approximatelyEqual(test) ? -t2Step : t2Step;
+        t2Step /= 2;
+    }
+    SkDebugf("%s t1=(%1.9g<%1.9g<%1.9g) t2=(%1.9g<%1.9g<%1.9g)\n", __FUNCTION__,
+        t10, t1Seed, t12, t20, t2Seed, t22);
 }
+
+#if 0
+void CubicIntersection_CoincidentTest() {
+    Cubic cubic1 = {{0, 1}, {0, 2}, {1, 0}, {1, 0}};
+    Cubic cubic2 = {{0, 1}, {0, 2}, {1, 0}, {6, 1}};
+    
+}
+#endif

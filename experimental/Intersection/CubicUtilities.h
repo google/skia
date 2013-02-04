@@ -15,9 +15,6 @@ double calcPrecision(const Cubic& cubic);
 double calcPrecision(const Cubic& cubic, double t, double scale);
 #endif
 void chop_at(const Cubic& src, CubicPair& dst, double t);
-// FIXME: should be private static but public here for testing
-void computeDelta(const Cubic& c1, double t1, double scale1, const Cubic& c2, double t2,
-    double scale2, double& delta1, double& delta2);
 double cube_root(double x);
 int cubic_to_quadratics(const Cubic& cubic, double precision,
         SkTDArray<Quadratic>& quadratics);

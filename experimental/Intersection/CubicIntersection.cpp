@@ -12,6 +12,9 @@
 #include "LineIntersection.h"
 #include "LineUtilities.h"
 
+#define DEBUG_COMPUTE_DELTA 1
+#define COMPUTE_DELTA 0
+
 static const double tClipLimit = 0.8; // http://cagd.cs.byu.edu/~tom/papers/bezclip.pdf see Multiple intersections
 
 class CubicIntersections : public Intersections {
@@ -162,27 +165,61 @@ bool intersect(const Cubic& c1, const Cubic& c2, Intersections& i) {
     return c.intersect();
 }
 
-#include "CubicUtilities.h"
-
+#if COMPUTE_DELTA
 static void cubicTangent(const Cubic& cubic, double t, _Line& tangent, _Point& pt, _Point& dxy) {
     xy_at_t(cubic, t, tangent[0].x, tangent[0].y);
     pt = tangent[1] = tangent[0];
     dxdy_at_t(cubic, t, dxy);
+    if (dxy.approximatelyZero()) {
+        if (approximately_zero(t)) {
+            SkASSERT(cubic[0].approximatelyEqual(cubic[1]));
+            dxy = cubic[2];
+            dxy -= cubic[0];
+        } else {
+            SkASSERT(approximately_equal(t, 1));
+            SkASSERT(cubic[3].approximatelyEqual(cubic[2]));
+            dxy = cubic[3];
+            dxy -= cubic[1];
+        }
+        SkASSERT(!dxy.approximatelyZero());
+    }
     tangent[0] -= dxy;
     tangent[1] += dxy;
+#if DEBUG_COMPUTE_DELTA
+    SkDebugf("%s t=%1.9g tangent=(%1.9g,%1.9g %1.9g,%1.9g)"
+            " pt=(%1.9g %1.9g) dxy=(%1.9g %1.9g)\n", __FUNCTION__, t,
+            tangent[0].x, tangent[0].y, tangent[1].x, tangent[1].y, pt.x, pt.y,
+            dxy.x, dxy.y);
+#endif
 }
+#endif
 
+#if COMPUTE_DELTA
 static double cubicDelta(const _Point& dxy, _Line& tangent, double scale)  {
     double tangentLen = dxy.length();
     tangent[0] -= tangent[1];
     double intersectLen = tangent[0].length();
     double result = intersectLen / tangentLen + scale;
+#if DEBUG_COMPUTE_DELTA
+    SkDebugf("%s tangent=(%1.9g,%1.9g %1.9g,%1.9g) intersectLen=%1.9g tangentLen=%1.9g scale=%1.9g"
+            " result=%1.9g\n", __FUNCTION__, tangent[0].x, tangent[0].y, tangent[1].x, tangent[1].y,
+            intersectLen, tangentLen, scale, result);
+#endif
     return result;
 }
+#endif
 
+#if COMPUTE_DELTA
 // FIXME: after testing, make this static
-void computeDelta(const Cubic& c1, double t1, double scale1, const Cubic& c2, double t2,
+static void computeDelta(const Cubic& c1, double t1, double scale1, const Cubic& c2, double t2,
         double scale2, double& delta1, double& delta2) {
+#if DEBUG_COMPUTE_DELTA
+    SkDebugf("%s c1=(%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g) t1=%1.9g scale1=%1.9g"
+            " c2=(%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g) t2=%1.9g scale2=%1.9g\n",
+            __FUNCTION__,
+            c1[0].x, c1[0].y, c1[1].x, c1[1].y, c1[2].x, c1[2].y, c1[3].x, c1[3].y, t1, scale1,
+            c2[0].x, c2[0].y, c2[1].x, c2[1].y, c2[2].x, c2[2].y, c2[3].x, c2[3].y, t2, scale2);
+#endif
     _Line tangent1, tangent2, line1, line2;
     _Point dxy1, dxy2;
     cubicTangent(c1, t1, line1, tangent1[0], dxy1);
@@ -209,6 +246,101 @@ void computeDelta(const Cubic& c1, double t1, double scale1, const Cubic& c2, do
 #if SK_DEBUG
 int debugDepth;
 #endif
+#endif
+
+static int quadPart(const Cubic& cubic, double tStart, double tEnd, Quadratic& simple) {
+    Cubic part;
+    sub_divide(cubic, tStart, tEnd, part);
+    Quadratic quad;
+    demote_cubic_to_quad(part, quad);
+    // FIXME: should reduceOrder be looser in this use case if quartic is going to blow up on an
+    // extremely shallow quadratic?
+    int order = reduceOrder(quad, simple);
+    return order;
+}
+
+static void intersectWithOrder(const Quadratic& simple1, int order1, const Quadratic& simple2,
+        int order2, Intersections& i) {
+    if (order1 == 3 && order2 == 3) {
+        intersect2(simple1, simple2, i);
+    } else if (order1 <= 2 && order2 <= 2) {
+        i.fUsed = intersect((const _Line&) simple1, (const _Line&) simple2, i.fT[0], i.fT[1]);
+    } else if (order1 == 3 && order2 <= 2) {
+        intersect(simple1, (const _Line&) simple2, i);
+    } else {
+        SkASSERT(order1 <= 2 && order2 == 3);
+        intersect(simple2, (const _Line&) simple1, i);
+        for (int s = 0; s < i.fUsed; ++s) {
+            SkTSwap(i.fT[0][s], i.fT[1][s]);
+        }
+    }
+}
+
+static void doIntersect(const Cubic& cubic1, double t1s, double t1m, double t1e,
+        const Cubic& cubic2, double t2s, double t2m, double t2e, Intersections& i) {
+    i.upDepth();
+    // divide the quadratics at the new t value and try again
+    double p1s = t1s;
+    double p1e = t1m;
+    for (int p1 = 0; p1 < 2; ++p1) {
+        Quadratic s1a;
+        int o1a = quadPart(cubic1, p1s, p1e, s1a);
+        double p2s = t2s;
+        double p2e = t2m;
+        for (int p2 = 0; p2 < 2; ++p2) {
+            Quadratic s2a;
+            int o2a = quadPart(cubic2, p2s, p2e, s2a);
+            Intersections locals;
+        #if 0 && SK_DEBUG
+            if (0.366025505 >= p1s && 0.366025887 <= p1e
+                    && 0.633974342 >= p2s && 0.633975487 <= p2e) {
+                SkDebugf("t1=(%1.9g,%1.9g) o1=%d t2=(%1.9g,%1.9g) o2=%d\n",
+                    p1s, p1e, o1a, p2s, p2e, o2a);
+                if (o1a == 2) {
+                    SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n",
+                            s1a[0].x, s1a[0].y, s1a[1].x, s1a[1].y);
+                } else {
+                    SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n",
+                            s1a[0].x, s1a[0].y, s1a[1].x, s1a[1].y, s1a[2].x, s1a[2].y);
+                }
+                if (o2a == 2) {
+                    SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n",
+                            s2a[0].x, s2a[0].y, s2a[1].x, s2a[1].y);
+                } else {
+                    SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n",
+                            s2a[0].x, s2a[0].y, s2a[1].x, s2a[1].y, s2a[2].x, s2a[2].y);
+                }
+                Intersections xlocals;
+                intersectWithOrder(s1a, o1a, s2a, o2a, xlocals);
+            } 
+        #endif
+            intersectWithOrder(s1a, o1a, s2a, o2a, locals);
+            for (int tIdx = 0; tIdx < locals.used(); ++tIdx) {
+                double to1 = p1s + (p1e - p1s) * locals.fT[0][tIdx];
+                double to2 = p2s + (p2e - p2s) * locals.fT[1][tIdx];
+    // if the computed t is not sufficiently precise, iterate
+                _Point p1, p2;
+                xy_at_t(cubic1, to1, p1.x, p1.y);
+                xy_at_t(cubic2, to2, p2.x, p2.y);
+        #if 0 && SK_DEBUG
+                SkDebugf("to1=%1.9g p1=(%1.9g,%1.9g) to2=%1.9g p2=(%1.9g,%1.9g) d=%1.9g\n",
+                    to1, p1.x, p1.y, to2, p2.x, p2.y, p1.distance(p2));
+                    
+        #endif
+                if (p1.approximatelyEqual(p2)) {
+                    i.insert(i.swapped() ? to2 : to1, i.swapped() ? to1 : to2);
+                } else {
+                    doIntersect(cubic1, p1s, to1, p1e, cubic2, p2s, to2, p2e, i);
+                }
+            }
+            p2s = p2e;
+            p2e = t2e;
+        }
+        p1s = p1e;
+        p1e = t1e;
+    }
+    i.downDepth();
+}
 
 // this flavor approximates the cubics with quads to find the intersecting ts
 // OPTIMIZE: if this strategy proves successful, the quad approximations, or the ts used
@@ -216,9 +348,6 @@ int debugDepth;
 // FIXME: this strategy needs to intersect the convex hull on either end with the opposite to
 // account for inset quadratics that cause the endpoint intersection to avoid detection
 // the segments can be very short -- the length of the maximum quadratic error (precision)
-// FIXME: this needs to recurse on itself, taking a range of T values and computing the new
-// t range ala is linear inner. The range can be figured by taking the dx/dy and determining
-// the fraction that matches the precision. That fraction is the change in t for the smaller cubic.
 static bool intersect2(const Cubic& cubic1, double t1s, double t1e, const Cubic& cubic2,
         double t2s, double t2e, double precisionScale, Intersections& i) {
     Cubic c1, c2;
@@ -233,41 +362,18 @@ static bool intersect2(const Cubic& cubic1, double t1s, double t1e, const Cubic&
     for (int i1 = 0; i1 <= ts1Count; ++i1) {
         const double tEnd1 = i1 < ts1Count ? ts1[i1] : 1;
         const double t1 = t1s + (t1e - t1s) * tEnd1;
-        Cubic part1;
-        sub_divide(cubic1, t1Start, t1, part1);
-        Quadratic q1;
-        demote_cubic_to_quad(part1, q1);
-  //      start here;
-        // should reduceOrder be looser in this use case if quartic is going to blow up on an
-        // extremely shallow quadratic?
         Quadratic s1;
-        int o1 = reduceOrder(q1, s1);
+        int o1 = quadPart(cubic1, t1Start, t1, s1);
         double t2Start = t2s;
         int ts2Count = ts2.count();
         for (int i2 = 0; i2 <= ts2Count; ++i2) {
             const double tEnd2 = i2 < ts2Count ? ts2[i2] : 1;
             const double t2 = t2s + (t2e - t2s) * tEnd2;
-            Cubic part2;
-            sub_divide(cubic2, t2Start, t2, part2);
-            Quadratic q2;
-            demote_cubic_to_quad(part2, q2);
             Quadratic s2;
-            double o2 = reduceOrder(q2, s2);
+            int o2 = quadPart(cubic2, t2Start, t2, s2);
             Intersections locals;
-            if (o1 == 3 && o2 == 3) {
-                intersect2(q1, q2, locals);
-            } else if (o1 <= 2 && o2 <= 2) {
-                locals.fUsed = intersect((const _Line&) s1, (const _Line&) s2, locals.fT[0],
-                        locals.fT[1]);
-            } else if (o1 == 3 && o2 <= 2) {
-                intersect(q1, (const _Line&) s2, locals);
-            } else {
-                SkASSERT(o1 <= 2 && o2 == 3);
-                intersect(q2, (const _Line&) s1, locals);
-                for (int s = 0; s < locals.fUsed; ++s) {
-                    SkTSwap(locals.fT[0][s], locals.fT[1][s]);
-                }
-            }
+            intersectWithOrder(s1, o1, s2, o2, locals);
+            
             for (int tIdx = 0; tIdx < locals.used(); ++tIdx) {
                 double to1 = t1Start + (t1 - t1Start) * locals.fT[0][tIdx];
                 double to2 = t2Start + (t2 - t2Start) * locals.fT[1][tIdx];
@@ -278,6 +384,7 @@ static bool intersect2(const Cubic& cubic1, double t1s, double t1e, const Cubic&
                 if (p1.approximatelyEqual(p2)) {
                     i.insert(i.swapped() ? to2 : to1, i.swapped() ? to1 : to2);
                 } else {
+            #if COMPUTE_DELTA
                     double dt1, dt2;
                     computeDelta(cubic1, to1, (t1e - t1s), cubic2, to2, (t2e - t2s), dt1, dt2);
                     double scale = precisionScale;
@@ -296,6 +403,9 @@ static bool intersect2(const Cubic& cubic1, double t1s, double t1e, const Cubic&
 #if SK_DEBUG
                     --debugDepth;
 #endif
+            #else
+                    doIntersect(cubic1, t1Start, to1, t1, cubic2, t2Start, to2, t2, i);
+            #endif
                 }
             }
             t2Start = t2;
@@ -308,8 +418,15 @@ static bool intersect2(const Cubic& cubic1, double t1s, double t1e, const Cubic&
 static bool intersectEnd(const Cubic& cubic1, bool start, const Cubic& cubic2, const _Rect& bounds2,
         Intersections& i) {
     _Line line1;
-    line1[0] = line1[1] = cubic1[start ? 0 : 3];
+    line1[1] = cubic1[start ? 0 : 3];
+    if (line1[1].approximatelyEqual(cubic2[0]) || line1[1].approximatelyEqual(cubic2[3])) {
+        return false;
+    }
+    line1[0] = line1[1];
     _Point dxy1 = line1[0] - cubic1[start ? 1 : 2];
+    if (dxy1.approximatelyZero()) {
+        dxy1 = line1[0] - cubic1[start ? 2 : 1];
+    }
     dxy1 /= precisionUnit;
     line1[1] += dxy1;
     _Rect line1Bounds;
@@ -320,6 +437,7 @@ static bool intersectEnd(const Cubic& cubic1, bool start, const Cubic& cubic2, c
     _Line line2;
     line2[0] = line2[1] = line1[0];
     _Point dxy2 = line2[0] - cubic1[start ? 3 : 0];
+    SkASSERT(!dxy2.approximatelyZero());
     dxy2 /= precisionUnit;
     line2[1] += dxy2;
 #if 0 // this is so close to the first bounds test it isn't worth the short circuit test
@@ -347,19 +465,19 @@ static bool intersectEnd(const Cubic& cubic1, bool start, const Cubic& cubic2, c
         tMin = SkTMin(tMin, local2.fT[0][index]);
         tMax = SkTMax(tMax, local2.fT[0][index]);
     }
-#if SK_DEBUG
+#if SK_DEBUG && COMPUTE_DELTA
     debugDepth = 0;
 #endif
     return intersect2(cubic1, start ? 0 : 1, start ? 1.0 / precisionUnit : 1 - 1.0 / precisionUnit,
             cubic2, tMin, tMax, 1, i);
 }
 
-// FIXME: add intersection of convex null on cubics' ends with the opposite cubic. The hull line
+// FIXME: add intersection of convex hull on cubics' ends with the opposite cubic. The hull line
 // segments can be constructed to be only as long as the calculated precision suggests. If the hull
 // line segments intersect the cubic, then use the intersections to construct a subdivision for
 // quadratic curve fitting.
 bool intersect2(const Cubic& c1, const Cubic& c2, Intersections& i) {
-#if SK_DEBUG
+#if SK_DEBUG && COMPUTE_DELTA
     debugDepth = 0;
 #endif
     bool result = intersect2(c1, 0, 1, c2, 0, 1, 1, i);

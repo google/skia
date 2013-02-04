@@ -12,6 +12,9 @@ public:
     Intersections()
         : fFlip(0)
         , fSwap(0)
+#if SK_DEBUG
+        , fDepth(0)
+#endif
     {
         // OPTIMIZE: don't need to be initialized in release
         bzero(fT, sizeof(fT));
@@ -52,9 +55,15 @@ public:
     // remove once curve/curve intersections are improved
     void cleanUp();
 
-    int coincidentUsed() const{
+    int coincidentUsed() const {
         return fCoincidentUsed;
     }
+    
+#if SK_DEBUG
+    int depth() const {
+        return fDepth;
+    }
+#endif
 
     void offset(int base, double start, double end) {
         for (int index = base; index < fUsed; ++index) {
@@ -105,6 +114,14 @@ public:
         return fUsed;
     }
 
+    void downDepth() {
+        SkASSERT(--fDepth >= 0);
+    }
+
+    void upDepth() {
+        SkASSERT(++fDepth < 16);
+    }
+
     double fT[2][9];
     double fCoincidentT[2][9];
     int fUsed;
@@ -112,6 +129,9 @@ public:
     int fCoincidentUsed;
     bool fFlip;
     bool fUnsortable;
+#if SK_DEBUG
+    int fDepth;
+#endif
 private:
     int fSwap;
 };

@@ -115,7 +115,9 @@ int cubicRootsReal(double A, double B, double C, double D, double s[3]) {
     if (approximately_zero(A)) {  // we're just a quadratic
         return quadraticRootsReal(B, C, D, s);
     }
-    if (approximately_zero(D)) { // 0 is one root
+    if (approximately_zero_when_compared_to(D, A)
+            && approximately_zero_when_compared_to(D, B)
+            && approximately_zero_when_compared_to(D, C)) { // 0 is one root
         int num = quadraticRootsReal(A, B, C, s);
         for (int i = 0; i < num; ++i) {
             if (approximately_zero(s[i])) {
@@ -230,7 +232,6 @@ void dxdy_at_t(const Cubic& cubic, double t, _Point& dxdy) {
     dxdy.x = derivativeAtT(&cubic[0].x, t);
     dxdy.y = derivativeAtT(&cubic[0].y, t);
 }
-
 
 int find_cubic_inflections(const Cubic& src, double tValues[])
 {

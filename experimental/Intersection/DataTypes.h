@@ -55,6 +55,10 @@ inline bool approximately_zero_inverse(double x) {
     return fabs(x) > FLT_EPSILON_INVERSE;
 }
 
+inline bool approximately_zero_when_compared_to(double x, double y) {
+    return fabs(x / y) < FLT_EPSILON;
+}
+
 // Use this for comparing Ts in the range of 0 to 1. For general numbers (larger and smaller) use
 // AlmostEqualUlps instead.
 inline bool approximately_equal(double x, double y) {
@@ -195,9 +199,18 @@ struct _Point {
         return AlmostEqualUlps((float) x, (float) a.x)
                 && AlmostEqualUlps((float) y, (float) a.y);
     }
+    
+    bool approximatelyZero() const {
+        return approximately_zero(x) && approximately_zero(y);
+    }
 
     double cross(const _Point& a) const {
         return x * a.y - y * a.x;
+    }
+
+    double distance(const _Point& a) const {
+        _Point temp = *this - a;
+        return temp.length();
     }
 
     double dot(const _Point& a) const {

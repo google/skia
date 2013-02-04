@@ -13,9 +13,10 @@ void cubecode_test(int test);
 
 void Intersection_Tests() {
     int testsRun = 0;
-
-    SimplifyNew_Test();
+    
+    CubicIntersection_IntersectionFinder();
     CubicIntersection_OneOffTest();
+    SimplifyNew_Test();
     ShapeOps4x4CubicsThreaded_Test(testsRun);
     CubicToQuadratics_Test();
     QuadraticIntersection_Test();
