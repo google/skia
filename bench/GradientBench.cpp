@@ -257,33 +257,21 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-static SkBenchmark* Fact0(void* p) { return new GradientBench(p, kLinear_GradType); }
-static SkBenchmark* Fact01(void* p) { return new GradientBench(p, kLinear_GradType, SkShader::kMirror_TileMode); }
+DEF_BENCH( return new GradientBench(p, kLinear_GradType); )
+DEF_BENCH( return new GradientBench(p, kLinear_GradType, SkShader::kMirror_TileMode); )
 
 // Draw a radial gradient of radius 1/2 on a rectangle; half the lines should
 // be completely pinned, the other half should pe partially pinned
-static SkBenchmark* Fact1(void* p) { return new GradientBench(p, kRadial_GradType, SkShader::kClamp_TileMode, kRect_GeomType, 0.5f); }
+DEF_BENCH( return new GradientBench(p, kRadial_GradType, SkShader::kClamp_TileMode, kRect_GeomType, 0.5f); )
 
 // Draw a radial gradient on a circle of equal size; all the lines should
 // hit the unpinned fast path (so long as GradientBench.W == H)
-static SkBenchmark* Fact1o(void* p) { return new GradientBench(p, kRadial_GradType, SkShader::kClamp_TileMode, kOval_GeomType); }
+DEF_BENCH( return new GradientBench(p, kRadial_GradType, SkShader::kClamp_TileMode, kOval_GeomType); )
 
-static SkBenchmark* Fact11(void* p) { return new GradientBench(p, kRadial_GradType, SkShader::kMirror_TileMode); }
-static SkBenchmark* Fact2(void* p) { return new GradientBench(p, kSweep_GradType); }
-static SkBenchmark* Fact3(void* p) { return new GradientBench(p, kRadial2_GradType); }
-static SkBenchmark* Fact31(void* p) { return new GradientBench(p, kRadial2_GradType, SkShader::kMirror_TileMode); }
-static SkBenchmark* Fact5(void* p) { return new GradientBench(p, kConical_GradType); }
+DEF_BENCH( return new GradientBench(p, kRadial_GradType, SkShader::kMirror_TileMode); )
+DEF_BENCH( return new GradientBench(p, kSweep_GradType); )
+DEF_BENCH( return new GradientBench(p, kRadial2_GradType); )
+DEF_BENCH( return new GradientBench(p, kRadial2_GradType, SkShader::kMirror_TileMode); )
+DEF_BENCH( return new GradientBench(p, kConical_GradType); )
 
-static SkBenchmark* Fact4(void* p) { return new Gradient2Bench(p); }
-
-static BenchRegistry gReg0(Fact0);
-static BenchRegistry gReg01(Fact01);
-static BenchRegistry gReg1(Fact1);
-static BenchRegistry gReg1o(Fact1o);
-static BenchRegistry gReg11(Fact11);
-static BenchRegistry gReg2(Fact2);
-static BenchRegistry gReg3(Fact3);
-static BenchRegistry gReg31(Fact31);
-static BenchRegistry gReg5(Fact5);
-
-static BenchRegistry gReg4(Fact4);
+DEF_BENCH( return new Gradient2Bench(p); )
