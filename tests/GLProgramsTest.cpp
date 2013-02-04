@@ -14,6 +14,7 @@
 
 #include "gl/GrGpuGL.h"
 #include "GrBackendEffectFactory.h"
+#include "GrContextFactory.h"
 #include "effects/GrConfigConversionEffect.h"
 
 #include "SkRandom.h"
@@ -147,9 +148,14 @@ bool GrGpuGL::programUnitTest() {
     return true;
 }
 
-static void GLProgramsTest(skiatest::Reporter* reporter, GrContext* context) {
-    GrGpuGL* shadersGpu = static_cast<GrGpuGL*>(context->getGpu());
-    REPORTER_ASSERT(reporter, shadersGpu->programUnitTest());
+static void GLProgramsTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
+    for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
+        GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(type));
+        if (NULL != context) {
+            GrGpuGL* shadersGpu = static_cast<GrGpuGL*>(context->getGpu());
+            REPORTER_ASSERT(reporter, shadersGpu->programUnitTest());
+        }
+    }
 }
 
 #include "TestClassDef.h"

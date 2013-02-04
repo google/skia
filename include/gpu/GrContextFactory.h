@@ -43,25 +43,43 @@ public:
 #endif
       kNull_GLContextType,
       kDebug_GLContextType,
+
+      kLastGLContextType = kDebug_GLContextType
     };
+
+    static const int kGLContextTypeCnt = kLastGLContextType + 1;
+
+    static bool IsRenderingGLContext(GLContextType type) {
+        switch (type) {
+            case kNull_GLContextType:
+            case kDebug_GLContextType:
+                return false;
+            default:
+                return true;
+        }
+    }
 
     GrContextFactory() {
     }
 
-    ~GrContextFactory() {
+    ~GrContextFactory() { this->destroyContexts(); }
+
+    void destroyContexts() {
         for (int i = 0; i < fContexts.count(); ++i) {
             fContexts[i].fGrContext->unref();
             fContexts[i].fGLContext->unref();
         }
+        fContexts.reset();
     }
 
     /**
-     * Get a GrContext initalized with a type of GL context.
+     * Get a GrContext initialized with a type of GL context. It also makes the GL context current.
      */
     GrContext* get(GLContextType type) {
 
         for (int i = 0; i < fContexts.count(); ++i) {
             if (fContexts[i].fType == type) {
+                fContexts[i].fGLContext->makeCurrent();
                 return fContexts[i].fGrContext;
             }
         }

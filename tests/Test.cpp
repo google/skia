@@ -84,33 +84,20 @@ bool Test::run() {
 ///////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
-    static SkAutoTUnref<SkNativeGLContext> gGLContext;
-    static SkAutoTUnref<GrContext> gGrContext;
+#include "GrContextFactory.h"
+GrContextFactory gGrContextFactory;
 #endif
 
-void GpuTest::DestroyContext() {
+GrContextFactory* GpuTest::GetGrContextFactory() {
 #if SK_SUPPORT_GPU
-    // preserve this order, we want gGrContext destroyed before gGLContext
-    gGrContext.reset(NULL);
-    gGLContext.reset(NULL);
+    return &gGrContextFactory;
+#else
+    return NULL;
 #endif
 }
 
-
-GrContext* GpuTest::GetContext() {
+void GpuTest::DestroyContexts() {
 #if SK_SUPPORT_GPU
-    if (NULL == gGrContext.get()) {
-        gGLContext.reset(new SkNativeGLContext());
-        if (gGLContext.get()->init(800, 600)) {
-            GrBackendContext ctx = reinterpret_cast<GrBackendContext>(gGLContext.get()->gl());
-            gGrContext.reset(GrContext::Create(kOpenGL_GrBackend, ctx));
-        }
-    }
-    if (gGLContext.get()) {
-        gGLContext.get()->makeCurrent();
-    }
-    return gGrContext.get();
-#else
-    return NULL;
+    gGrContextFactory.destroyContexts();
 #endif
 }
