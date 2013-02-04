@@ -20,6 +20,12 @@
 */
 
 /**
+ *  Marks a local variable as known to be unused (to avoid warnings).
+ *  Note that this does *not* prevent the local variable from being optimized away.
+ */
+template<typename T> inline void sk_ignore_unused_variable(const T&) { }
+
+/**
  *  SkTIsConst<T>::value is true if the type T is const.
  *  The type T is constrained not to be an array or reference type.
  */
