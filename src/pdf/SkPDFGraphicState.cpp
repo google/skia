@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #include "SkPDFFormXObject.h"
 #include "SkPDFGraphicState.h"
@@ -44,6 +42,7 @@ static const char* blend_mode_from_xfermode(SkXfermode::Mode mode) {
         case SkXfermode::kDstATop_Mode:
         case SkXfermode::kXor_Mode:
         case SkXfermode::kPlus_Mode:
+        case SkXfermode::kMultiply_Mode:
             return NULL;
     }
     return NULL;
