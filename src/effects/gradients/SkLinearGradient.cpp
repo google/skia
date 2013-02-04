@@ -133,7 +133,7 @@ void shadeSpan_linear_vertical_lerp(TileProc proc, SkFixed dx, SkFixed fx,
     unsigned fullIndex = proc(fx);
     unsigned fi = fullIndex >> SkGradientShaderBase::kCache32Shift;
     unsigned remainder = fullIndex & ((1 << SkGradientShaderBase::kCache32Shift) - 1);
-    
+
     int index0 = fi + toggle;
     int index1 = index0;
     if (fi < SkGradientShaderBase::kCache32Count - 1) {
