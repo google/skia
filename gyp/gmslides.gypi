@@ -72,6 +72,7 @@
     '../gm/shadertext2.cpp',
     '../gm/shadertext3.cpp',
     '../gm/shadows.cpp',
+    '../gm/shallowgradient.cpp',
     '../gm/simpleaaclip.cpp',
     '../gm/spritebitmap.cpp',
     '../gm/srcmode.cpp',
