@@ -8,11 +8,11 @@
 #ifndef SkColorFilterImageFilter_DEFINED
 #define SkColorFilterImageFilter_DEFINED
 
-#include "SkSingleInputImageFilter.h"
+#include "SkImageFilter.h"
 
 class SkColorFilter;
 
-class SK_API SkColorFilterImageFilter : public SkSingleInputImageFilter {
+class SK_API SkColorFilterImageFilter : public SkImageFilter {
 public:
     static SkColorFilterImageFilter* Create(SkColorFilter* cf, SkImageFilter* input = NULL);
     virtual ~SkColorFilterImageFilter();
@@ -32,7 +32,7 @@ private:
     SkColorFilterImageFilter(SkColorFilter* cf, SkImageFilter* input);
     SkColorFilter*  fColorFilter;
 
-    typedef SkSingleInputImageFilter INHERITED;
+    typedef SkImageFilter INHERITED;
 };
 
 #endif

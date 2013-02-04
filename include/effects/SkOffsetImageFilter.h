@@ -8,10 +8,10 @@
 #ifndef SkOffsetImageFilter_DEFINED
 #define SkOffsetImageFilter_DEFINED
 
-#include "SkSingleInputImageFilter.h"
+#include "SkImageFilter.h"
 #include "SkPoint.h"
 
-class SK_API SkOffsetImageFilter : public SkSingleInputImageFilter {
+class SK_API SkOffsetImageFilter : public SkImageFilter {
 public:
     SkOffsetImageFilter(SkScalar dx, SkScalar dy, SkImageFilter* input = NULL);
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkOffsetImageFilter)
@@ -27,7 +27,7 @@ protected:
 private:
     SkVector fOffset;
 
-    typedef SkSingleInputImageFilter INHERITED;
+    typedef SkImageFilter INHERITED;
 };
 
 #endif

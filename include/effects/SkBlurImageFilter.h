@@ -8,10 +8,10 @@
 #ifndef SkBlurImageFilter_DEFINED
 #define SkBlurImageFilter_DEFINED
 
-#include "SkSingleInputImageFilter.h"
+#include "SkImageFilter.h"
 #include "SkSize.h"
 
-class SK_API SkBlurImageFilter : public SkSingleInputImageFilter {
+class SK_API SkBlurImageFilter : public SkImageFilter {
 public:
     SkBlurImageFilter(SkScalar sigmaX, SkScalar sigmaY, SkImageFilter* input = NULL);
 
@@ -29,7 +29,7 @@ protected:
 
 private:
     SkSize   fSigma;
-    typedef SkSingleInputImageFilter INHERITED;
+    typedef SkImageFilter INHERITED;
 };
 
 #endif

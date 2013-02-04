@@ -8,7 +8,7 @@
 #ifndef SkBicubicImageFilter_DEFINED
 #define SkBicubicImageFilter_DEFINED
 
-#include "SkSingleInputImageFilter.h"
+#include "SkImageFilter.h"
 #include "SkScalar.h"
 #include "SkSize.h"
 #include "SkPoint.h"
@@ -18,7 +18,7 @@
     filter using the given matrix.
  */
 
-class SK_API SkBicubicImageFilter : public SkSingleInputImageFilter {
+class SK_API SkBicubicImageFilter : public SkImageFilter {
 public:
     /** Construct a (scaling-only) bicubic resampling image filter.
         @param scale        How much to scale the image.
@@ -48,7 +48,7 @@ protected:
 private:
     SkSize    fScale;
     SkScalar  fCoefficients[16];
-    typedef SkSingleInputImageFilter INHERITED;
+    typedef SkImageFilter INHERITED;
 };
 
 #endif
