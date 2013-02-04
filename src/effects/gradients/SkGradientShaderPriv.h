@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -19,6 +18,8 @@
 #include "SkTemplates.h"
 #include "SkBitmapCache.h"
 #include "SkShader.h"
+
+#define SK_IGNORE_GRADIENT_DITHER_FIX
 
 #ifndef SK_DISABLE_DITHER_32BIT_GRADIENT
     #define USE_DITHER_32BIT_GRADIENT
@@ -108,7 +109,7 @@ public:
         /// Seems like enough for visual accuracy. TODO: if pos[] deserves
         /// it, use a larger cache.
         kCache32Bits    = 8,
-        kCache32Count = (1 << kCache32Bits),
+        kCache32Count   = (1 << kCache32Bits),
         kCache32Shift   = 16 - kCache32Bits,
         kSqrt32Shift    = 8 - kCache32Bits,
 
@@ -176,7 +177,13 @@ private:
 };
 
 static inline int init_dither_toggle(int x, int y) {
+#ifdef SK_IGNORE_GRADIENT_DITHER_FIX
     return ((x ^ y) & 1) * SkGradientShaderBase::kDitherStride32;
+#else
+    x &= 1;
+    y = (y & 1) << 1;
+    return (x | y) * SkGradientShaderBase::kDitherStride32;
+#endif
 }
 
 static inline int next_dither_toggle(int toggle) {
