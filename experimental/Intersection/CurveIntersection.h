@@ -50,6 +50,7 @@ bool intersect2(const Cubic& cubic1, const Cubic& cubic2, Intersections& );
 bool intersect(const Cubic& cubic, Intersections& i); // return true if cubic self-intersects
 int intersect(const Cubic& cubic, const Quadratic& quad, Intersections& );
 int intersect(const Cubic& cubic, const _Line& line, Intersections& );
+int intersectRay(const Cubic& quad, const _Line& line, Intersections& i);
 bool intersect(const Quadratic& q1, const Quadratic& q2, Intersections& );
 int intersect(const Quadratic& quad, const _Line& line, Intersections& );
 // the following flavor uses the implicit form instead of convex hulls

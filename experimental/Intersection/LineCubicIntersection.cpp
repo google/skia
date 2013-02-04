@@ -287,3 +287,8 @@ int intersect(const Cubic& cubic, const _Line& line, Intersections& i) {
     LineCubicIntersections c(cubic, line, i);
     return c.intersect();
 }
+
+int intersectRay(const Cubic& cubic, const _Line& line, Intersections& i) {
+    LineCubicIntersections c(cubic, line, i);
+    return c.intersectRay(i.fT[0]);
+}

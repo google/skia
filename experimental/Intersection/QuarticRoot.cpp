@@ -47,7 +47,10 @@ int reducedQuarticRoots(const double t4, const double t3, const double t2, const
         }
         return cubicRootsReal(t3, t2, t1, t0, roots);
     }
-    if (approximately_zero(t0)) { // 0 is one root
+    if (approximately_zero_when_compared_to(t0, t1) // 0 is one root
+            && approximately_zero_when_compared_to(t0, t2)
+            && approximately_zero_when_compared_to(t0, t3)
+            && approximately_zero_when_compared_to(t0, t4)) {
         int num = cubicRootsReal(t4, t3, t2, t1, roots);
         for (int i = 0; i < num; ++i) {
             if (approximately_zero(roots[i])) {

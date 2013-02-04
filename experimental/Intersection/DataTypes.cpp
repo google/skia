@@ -9,17 +9,6 @@
 #include <sys/types.h>
 #include <stdlib.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void    *memcpy(void *, const void *, size_t);
-
-#ifdef __cplusplus
-}
-#endif
-
-
 #if USE_EPSILON
 const double PointEpsilon = 0.000001;
 const double SquaredEpsilon = PointEpsilon * PointEpsilon;
@@ -32,13 +21,14 @@ union Float_t
 {
     Float_t(float num = 0.0f) : f(num) {}
     // Portable extraction of components.
-    bool Negative() const { return (i >> 31) != 0; }
+    bool negative() const { return (i >> 31) != 0; }
+#if 0 // unused
     int32_t RawMantissa() const { return i & ((1 << 23) - 1); }
     int32_t RawExponent() const { return (i >> 23) & 0xFF; }
-
+#endif
     int32_t i;
     float f;
-#ifdef _DEBUG
+#if SK_DEBUG
     struct
     {   // Bitfields for exploration. Do not use in production code.
         uint32_t mantissa : 23;
@@ -54,7 +44,7 @@ bool AlmostEqualUlps(float A, float B)
     Float_t uB(B);
 
     // Different signs means they do not match.
-    if (uA.Negative() != uB.Negative())
+    if (uA.negative() != uB.negative())
     {
         // Check for equality to make sure +0==-0
         return A == B;
