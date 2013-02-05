@@ -40,6 +40,128 @@ static bool is_simple(const SkPaint& p) {
            NULL == p.getImageFilter();
 }
 
+// Check for:
+//    SAVE_LAYER
+//        DRAW_BITMAP_RECT_TO_RECT
+//    RESTORE
+// where the saveLayer's color can be moved into the drawBitmapRect
+static bool check_0(const SkTDArray<SkDrawCommand*>& commands, int curCommand) {
+    if (SAVE_LAYER != commands[curCommand]->getType() ||
+        commands.count() <= curCommand+2 ||
+        DRAW_BITMAP_RECT_TO_RECT != commands[curCommand+1]->getType() ||
+        RESTORE != commands[curCommand+2]->getType())
+        return false;
+
+    SaveLayer* saveLayer = (SaveLayer*) commands[curCommand];
+    DrawBitmapRect* dbmr = (DrawBitmapRect*) commands[curCommand+1];
+
+    const SkPaint* saveLayerPaint = saveLayer->paint();
+    SkPaint* dbmrPaint = dbmr->paint();
+
+    return NULL == saveLayerPaint ||
+           NULL == dbmrPaint ||
+           (is_simple(*saveLayerPaint) &&
+            (SkColorGetR(saveLayerPaint->getColor()) == SkColorGetR(dbmrPaint->getColor())) &&
+            (SkColorGetG(saveLayerPaint->getColor()) == SkColorGetG(dbmrPaint->getColor())) &&
+            (SkColorGetB(saveLayerPaint->getColor()) == SkColorGetB(dbmrPaint->getColor())));
+}
+
+// Fold the saveLayer's alpha into the drawBitmapRect and remove the saveLayer
+// and restore
+static void apply_0(const SkTDArray<SkDrawCommand*>& commands, int curCommand) {
+    SaveLayer* saveLayer = (SaveLayer*) commands[curCommand];
+    DrawBitmapRect* dbmr = (DrawBitmapRect*) commands[curCommand+1];
+    Restore* restore = (Restore*) commands[curCommand+2];
+
+    const SkPaint* saveLayerPaint = saveLayer->paint();
+    SkPaint* dbmrPaint = dbmr->paint();
+
+    if (NULL == saveLayerPaint) {
+        saveLayer->setVisible(false);
+        restore->setVisible(false);
+    } else if (NULL == dbmrPaint) {
+        saveLayer->setVisible(false);
+        dbmr->setPaint(*saveLayerPaint);
+        restore->setVisible(false);
+    } else {
+        saveLayer->setVisible(false);
+        SkColor newColor = SkColorSetA(dbmrPaint->getColor(),
+                                       SkColorGetA(saveLayerPaint->getColor()));
+        dbmrPaint->setColor(newColor);
+        restore->setVisible(false);
+    }
+}
+
+// Check for:
+//    SAVE_LAYER
+//        SAVE
+//            CLIP_RECT
+//            DRAW_BITMAP_RECT_TO_RECT
+//        RESTORE
+//    RESTORE
+// where the saveLayer's color can be moved into the drawBitmapRect
+static bool check_1(const SkTDArray<SkDrawCommand*>& commands, int curCommand) {
+    if (SAVE_LAYER != commands[curCommand]->getType() ||
+        commands.count() <= curCommand+5 ||
+        SAVE != commands[curCommand+1]->getType() ||
+        CLIP_RECT != commands[curCommand+2]->getType() ||
+        DRAW_BITMAP_RECT_TO_RECT != commands[curCommand+3]->getType() ||
+        RESTORE != commands[curCommand+4]->getType() ||
+        RESTORE != commands[curCommand+5]->getType())
+        return false;
+
+    SaveLayer* saveLayer = (SaveLayer*) commands[curCommand];
+    DrawBitmapRect* dbmr = (DrawBitmapRect*) commands[curCommand+3];
+
+    const SkPaint* saveLayerPaint = saveLayer->paint();
+    SkPaint* dbmrPaint = dbmr->paint();
+
+    return NULL == saveLayerPaint ||
+           NULL == dbmrPaint ||
+           (is_simple(*saveLayerPaint) &&
+            (SkColorGetR(saveLayerPaint->getColor()) == SkColorGetR(dbmrPaint->getColor())) &&
+            (SkColorGetG(saveLayerPaint->getColor()) == SkColorGetG(dbmrPaint->getColor())) &&
+            (SkColorGetB(saveLayerPaint->getColor()) == SkColorGetB(dbmrPaint->getColor())));
+}
+
+// Fold the saveLayer's alpha into the drawBitmapRect and remove the saveLayer
+// and restore
+static void apply_1(const SkTDArray<SkDrawCommand*>& commands, int curCommand) {
+    SaveLayer* saveLayer = (SaveLayer*) commands[curCommand];
+    DrawBitmapRect* dbmr = (DrawBitmapRect*) commands[curCommand+3];
+    Restore* restore = (Restore*) commands[curCommand+5];
+
+    const SkPaint* saveLayerPaint = saveLayer->paint();
+    SkPaint* dbmrPaint = dbmr->paint();
+
+    if (NULL == saveLayerPaint) {
+        saveLayer->setVisible(false);
+        restore->setVisible(false);
+    } else if (NULL == dbmrPaint) {
+        saveLayer->setVisible(false);
+        dbmr->setPaint(*saveLayerPaint);
+        restore->setVisible(false);
+    } else {
+        saveLayer->setVisible(false);
+        SkColor newColor = SkColorSetA(dbmrPaint->getColor(),
+                                       SkColorGetA(saveLayerPaint->getColor()));
+        dbmrPaint->setColor(newColor);
+        restore->setVisible(false);
+    }
+}
+
+typedef bool (*PFCheck)(const SkTDArray<SkDrawCommand*>& commands, int curCommand);
+typedef void (*PFApply)(const SkTDArray<SkDrawCommand*>& commands, int curCommand);
+
+struct OptTableEntry {
+    PFCheck fCheck;
+    PFApply fApply;
+    int fNumTimesApplied;
+} gOptTable[] = {
+    { check_0, apply_0, 0 },
+    { check_1, apply_1, 0 },
+};
+
 static int filter_picture(const SkString& inFile, const SkString& outFile) {
     SkPicture* inPicture = NULL;
 
@@ -53,44 +175,29 @@ static int filter_picture(const SkString& inFile, const SkString& outFile) {
         return -1;
     }
 
+    int localCount[SK_ARRAY_COUNT(gOptTable)];
+
+    memset(localCount, 0, sizeof(localCount));
+
     SkDebugCanvas debugCanvas(inPicture->width(), inPicture->height());
     debugCanvas.setBounds(inPicture->width(), inPicture->height());
     inPicture->draw(&debugCanvas);
 
     const SkTDArray<SkDrawCommand*>& commands = debugCanvas.getDrawCommands();
 
+    // hide the initial save and restore since replaying the commands will 
+    // re-add them
+    if (commands.count() > 0) {
+        commands[0]->setVisible(false);
+        commands[commands.count()-1]->setVisible(false);
+    }
+
     for (int i = 0; i < commands.count(); ++i) {
-        // Check for:
-        //    SAVE_LAYER
-        //      DRAW_BITMAP_RECT_TO_RECT
-        //    RESTORE
-        // where the saveLayer's color can be moved into the drawBitmapRect
-        if (SAVE_LAYER == commands[i]->getType() && commands.count() > i+2) {
-            if (DRAW_BITMAP_RECT_TO_RECT == commands[i+1]->getType() &&
-                RESTORE == commands[i+2]->getType()) {
-                SaveLayer* sl = (SaveLayer*) commands[i];
-                DrawBitmapRect* dbmr = (DrawBitmapRect*) commands[i+1];
-
-                const SkPaint* p0 = sl->paint();
-                SkPaint* p1 = dbmr->paint();
-
-                if (NULL == p0) {
-                    commands[i]->setVisible(false);
-                    commands[i+2]->setVisible(false);
-                } else if (NULL == p1) {
-                    commands[i]->setVisible(false);
-                    dbmr->setPaint(*p0);
-                    commands[i+2]->setVisible(false);
-                } else if (is_simple(*p0) &&
-                           (SkColorGetR(p0->getColor()) == SkColorGetR(p1->getColor())) &&
-                           (SkColorGetG(p0->getColor()) == SkColorGetG(p1->getColor())) &&
-                           (SkColorGetB(p0->getColor()) == SkColorGetB(p1->getColor()))) {
-                    commands[i]->setVisible(false);
-                    SkColor newColor = SkColorSetA(p1->getColor(),
-                                                   SkColorGetA(p0->getColor()));
-                    p1->setColor(newColor);
-                    commands[i+2]->setVisible(false);
-                }
+        for (size_t opt = 0; opt < SK_ARRAY_COUNT(gOptTable); ++opt) {
+            if ((*gOptTable[opt].fCheck)(commands, i)) {
+                (*gOptTable[opt].fApply)(commands, i);
+                ++gOptTable[opt].fNumTimesApplied;
+                ++localCount[opt];
             }
         }
     }
@@ -105,6 +212,20 @@ static int filter_picture(const SkString& inFile, const SkString& outFile) {
         SkFILEWStream outStream(outFile.c_str());
 
         outPicture.serialize(&outStream);
+    }
+
+    bool someOptFired = false;
+    for (size_t opt = 0; opt < SK_ARRAY_COUNT(gOptTable); ++opt) {
+        if (0 != localCount[opt]) {
+            SkDebugf("%d: %d ", opt, localCount[opt]);
+            someOptFired = true;
+        }
+    }
+
+    if (!someOptFired) {
+        SkDebugf("No opts fired\n");
+    } else {
+        SkDebugf("\n");
     }
 
     return 0;
@@ -191,6 +312,10 @@ int tool_main(int argc, char** argv) {
     } else {
         usage();
         return -1;
+    }
+
+    for (size_t opt = 0; opt < SK_ARRAY_COUNT(gOptTable); ++opt) {
+        SkDebugf("opt %d: %d\n", opt, gOptTable[opt].fNumTimesApplied);
     }
 
     SkGraphics::Term();
