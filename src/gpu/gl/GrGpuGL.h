@@ -86,8 +86,7 @@ private:
                               int width, int height,
                               GrPixelConfig,
                               void* buffer,
-                              size_t rowBytes,
-                              bool invertY) SK_OVERRIDE;
+                              size_t rowBytes) SK_OVERRIDE;
 
     virtual void onWriteTexturePixels(GrTexture* texture,
                                       int left, int top, int width, int height,
@@ -322,11 +321,13 @@ private:
     } fHWAAState;
 
     struct {
-        SkMatrix    fViewMatrix;
-        SkISize     fRTSize;
+        SkMatrix            fViewMatrix;
+        SkISize             fRTSize;
+        GrSurfaceOrigin     fLastOrigin;
         void invalidate() {
             fViewMatrix = SkMatrix::InvalidMatrix();
             fRTSize.fWidth = -1; // just make the first value compared illegal.
+            fLastOrigin = (GrSurfaceOrigin) -1;
         }
     } fHWPathMatrixState;
 
