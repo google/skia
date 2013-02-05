@@ -295,6 +295,7 @@ public:
             desc.fWidth = SkScalarRound(win->width());
             desc.fHeight = SkScalarRound(win->height());
             desc.fConfig = kSkia8888_PM_GrPixelConfig;
+            desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
             GR_GL_GetIntegerv(fCurIntf, GR_GL_SAMPLES, &desc.fSampleCnt);
             GR_GL_GetIntegerv(fCurIntf, GR_GL_STENCIL_BITS, &desc.fStencilBits);
             GrGLint buffer;

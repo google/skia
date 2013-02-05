@@ -303,7 +303,7 @@ void ReadPixelsTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
         SkIRect::MakeLTRB(3 * DEV_W / 4, -10, DEV_W + 10, DEV_H + 10),
     };
 
-    for (int dtype = 0; dtype < 2; ++dtype) {
+    for (int dtype = 0; dtype < 3; ++dtype) {
         int glCtxTypeCnt = 1;
 #if SK_SUPPORT_GPU
         if (0 != dtype)  {
@@ -325,7 +325,16 @@ void ReadPixelsTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
                 if (NULL == context) {
                     continue;
                 }
-                device.reset(new SkGpuDevice(context, SkBitmap::kARGB_8888_Config, DEV_W, DEV_H));
+                GrTextureDesc desc;
+                desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
+                desc.fWidth = DEV_W;
+                desc.fHeight = DEV_H;
+                desc.fConfig = kSkia8888_PM_GrPixelConfig;
+                desc.fOrigin = 1 == dtype ? kBottomLeft_GrSurfaceOrigin
+                                          : kTopLeft_GrSurfaceOrigin;
+                GrAutoScratchTexture ast(context, desc, GrContext::kExact_ScratchTexMatch);
+                SkAutoTUnref<GrTexture> tex(ast.detach());
+                device.reset(new SkGpuDevice(context, tex));
 #else
                 continue;
 #endif

@@ -260,6 +260,7 @@ void GrGLShaderBuilder::addVarying(GrSLType type,
 }
 
 const char* GrGLShaderBuilder::fragmentPosition() {
+#if 1
     if (fContext.caps().fragCoordConventionsSupport()) {
         if (!fSetupFragPosition) {
             fFSHeader.append("#extension GL_ARB_fragment_coord_conventions: require\n");
@@ -294,6 +295,18 @@ const char* GrGLShaderBuilder::fragmentPosition() {
         GrAssert(GrGLUniformManager::kInvalidUniformHandle != fRTHeightUniform);
         return kCoordName;
     }
+#else
+    // This is the path we'll need to use once we have support for TopLeft
+    // render targets.
+    if (!fSetupFragPosition) {
+        fFSInputs.push_back().set(kVec4f_GrSLType,
+                                  GrGLShaderVar::kIn_TypeModifier,
+                                  "gl_FragCoord",
+                                  GrGLShaderVar::kDefault_Precision);
+        fSetupFragPosition = true;
+    }
+    return "gl_FragCoord";
+#endif
 }
 
 
