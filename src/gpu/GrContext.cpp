@@ -780,7 +780,7 @@ void GrContext::drawRect(const GrPaint& paint,
                 GrPrintf("Failed to create static rect vb.\n");
                 return;
             }
-            target->setVertexSourceToBuffer(0, sqVB);
+            target->setVertexSourceToBuffer(sqVB);
             GrDrawState* drawState = target->drawState();
             SkMatrix m;
             m.setAll(rect.width(),    0,             rect.fLeft,
@@ -846,7 +846,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
         GrPrintf("Failed to create static rect vb.\n");
         return;
     }
-    target->setVertexSourceToBuffer(0, sqVB);
+    target->setVertexSourceToBuffer(sqVB);
     target->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
 #else
     GrDrawState::AutoStageDisable atr(fDrawState);
