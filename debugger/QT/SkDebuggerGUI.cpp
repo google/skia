@@ -579,7 +579,10 @@ void SkDebuggerGUI::saveToFile(const SkString& filename) {
 void SkDebuggerGUI::loadFile(QListWidgetItem *item) {
     if (fDirectoryWidgetActive) {
         fFileName = fPath.toAscii().data();
-        fFileName.append("/");
+        // don't add a '/' to files in the local directory
+        if (fFileName.size() > 0) {
+            fFileName.append("/");
+        }
         fFileName.append(item->text().toAscii().data());
         loadPicture(fFileName);
     }
