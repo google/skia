@@ -19,8 +19,6 @@
 #include "SkBitmapCache.h"
 #include "SkShader.h"
 
-#define SK_IGNORE_GRADIENT_DITHER_FIX
-
 static inline void sk_memset32_dither(uint32_t dst[], uint32_t v0, uint32_t v1,
                                int count) {
     if (count > 0) {
