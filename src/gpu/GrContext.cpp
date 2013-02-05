@@ -1426,7 +1426,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
         SkCanvas::Config8888 srcC8888 = SkCanvas::kNative_Premul_Config8888;
         SkCanvas::Config8888 dstC8888 = SkCanvas::kNative_Premul_Config8888;
 
-        bool c8888IsValid = grconfig_to_config8888(config, false, &srcC8888);
+        SkDEBUGCODE(bool c8888IsValid =) grconfig_to_config8888(config, false, &srcC8888);
         grconfig_to_config8888(config, unpremul, &dstC8888);
 
         if (swapRAndB) {
