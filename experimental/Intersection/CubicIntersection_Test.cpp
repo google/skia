@@ -458,6 +458,6 @@ void CubicIntersection_IntersectionFinder() {
 void CubicIntersection_CoincidentTest() {
     Cubic cubic1 = {{0, 1}, {0, 2}, {1, 0}, {1, 0}};
     Cubic cubic2 = {{0, 1}, {0, 2}, {1, 0}, {6, 1}};
-    
+
 }
 #endif
