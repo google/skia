@@ -25,13 +25,12 @@ public:
     enum { kUnresolvableFBOID = 0 };
 
     struct Desc {
-        GrGLuint         fRTFBOID;
-        GrGLuint         fTexFBOID;
-        GrGLuint         fMSColorRenderbufferID;
-        bool             fIsWrapped;
-        GrPixelConfig    fConfig;
-        int              fSampleCnt;
-        GrSurfaceOrigin  fOrigin;
+        GrGLuint      fRTFBOID;
+        GrGLuint      fTexFBOID;
+        GrGLuint      fMSColorRenderbufferID;
+        bool          fIsWrapped;
+        GrPixelConfig fConfig;
+        int           fSampleCnt;
     };
 
     // creates a GrGLRenderTarget associated with a texture

@@ -92,19 +92,13 @@ void GrGpuGL::flushViewMatrix(DrawType type) {
     const SkMatrix& vm = this->getDrawState().getViewMatrix();
 
     if (kStencilPath_DrawType == type) {
-        if (fHWPathMatrixState.fLastOrigin != rt->origin() ||
-            fHWPathMatrixState.fViewMatrix != vm ||
+        if (fHWPathMatrixState.fViewMatrix != vm ||
             fHWPathMatrixState.fRTSize != viewportSize) {
             // rescale the coords from skia's "device" coords to GL's normalized coords,
-            // and perform a y-flip if required.
+            // and perform a y-flip.
             SkMatrix m;
-            if (kBottomLeft_GrSurfaceOrigin == rt->origin()) {
-                m.setScale(SkIntToScalar(2) / rt->width(), SkIntToScalar(-2) / rt->height());
-                m.postTranslate(-SK_Scalar1, SK_Scalar1);
-            } else {
-                m.setScale(SkIntToScalar(2) / rt->width(), SkIntToScalar(2) / rt->height());
-                m.postTranslate(-SK_Scalar1, -SK_Scalar1);
-            }
+            m.setScale(SkIntToScalar(2) / rt->width(), SkIntToScalar(-2) / rt->height());
+            m.postTranslate(-SK_Scalar1, SK_Scalar1);
             m.preConcat(vm);
 
             // GL wants a column-major 4x4.
@@ -134,23 +128,14 @@ void GrGpuGL::flushViewMatrix(DrawType type) {
             GL_CALL(LoadMatrixf(mv));
             fHWPathMatrixState.fViewMatrix = vm;
             fHWPathMatrixState.fRTSize = viewportSize;
-            fHWPathMatrixState.fLastOrigin = rt->origin();
         }
-    } else if (fCurrentProgram->fOrigin != rt->origin() ||
-               !fCurrentProgram->fViewMatrix.cheapEqualTo(vm) ||
+    } else if (!fCurrentProgram->fViewMatrix.cheapEqualTo(vm) ||
                fCurrentProgram->fViewportSize != viewportSize) {
         SkMatrix m;
-        if (kBottomLeft_GrSurfaceOrigin == rt->origin()) {
-            m.setAll(
-                SkIntToScalar(2) / viewportSize.fWidth, 0, -SK_Scalar1,
-                0,-SkIntToScalar(2) / viewportSize.fHeight, SK_Scalar1,
+        m.setAll(
+            SkIntToScalar(2) / viewportSize.fWidth, 0, -SK_Scalar1,
+            0,-SkIntToScalar(2) / viewportSize.fHeight, SK_Scalar1,
             0, 0, SkMatrix::I()[8]);
-        } else {
-            m.setAll(
-                SkIntToScalar(2) / viewportSize.fWidth, 0, -SK_Scalar1,
-                0, SkIntToScalar(2) / viewportSize.fHeight,-SK_Scalar1,
-            0, 0, SkMatrix::I()[8]);
-        }
         m.setConcat(m, vm);
 
         // ES doesn't allow you to pass true to the transpose param,
@@ -171,7 +156,6 @@ void GrGpuGL::flushViewMatrix(DrawType type) {
                                             mt);
         fCurrentProgram->fViewMatrix = vm;
         fCurrentProgram->fViewportSize = viewportSize;
-        fCurrentProgram->fOrigin = rt->origin();
     }
 }
 

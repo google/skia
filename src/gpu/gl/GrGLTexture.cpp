@@ -28,6 +28,7 @@ void GrGLTexture::init(GrGpuGL* gpu,
                                       textureDesc.fIsWrapped));
 
     if (NULL != rtDesc) {
+        GrAssert(kBottomLeft_GrSurfaceOrigin == textureDesc.fOrigin);
         GrGLIRect vp;
         vp.fLeft   = 0;
         vp.fWidth  = textureDesc.fWidth;
@@ -41,14 +42,14 @@ void GrGLTexture::init(GrGpuGL* gpu,
 
 GrGLTexture::GrGLTexture(GrGpuGL* gpu,
                          const Desc& textureDesc)
-    : INHERITED(gpu, textureDesc.fIsWrapped, textureDesc) {
+    : INHERITED(gpu, textureDesc.fIsWrapped, textureDesc, textureDesc.fOrigin) {
     this->init(gpu, textureDesc, NULL);
 }
 
 GrGLTexture::GrGLTexture(GrGpuGL* gpu,
                          const Desc& textureDesc,
                          const GrGLRenderTarget::Desc& rtDesc)
-    : INHERITED(gpu, textureDesc.fIsWrapped, textureDesc) {
+    : INHERITED(gpu, textureDesc.fIsWrapped, textureDesc, textureDesc.fOrigin) {
     this->init(gpu, textureDesc, &rtDesc);
 }
 

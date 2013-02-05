@@ -165,16 +165,14 @@ GrResourceKey GrTexture::ComputeScratchKey(const GrTextureDesc& desc) {
     GrCacheID::Key idKey;
     // Instead of a client-provided key of the texture contents we create a key from the
     // descriptor.
-    GR_STATIC_ASSERT(sizeof(idKey) >= 16);
+    GR_STATIC_ASSERT(sizeof(idKey) >= 12);
     GrAssert(desc.fHeight < (1 << 16));
     GrAssert(desc.fWidth < (1 << 16));
     idKey.fData32[0] = (desc.fWidth) | (desc.fHeight << 16);
     idKey.fData32[1] = desc.fConfig | desc.fSampleCnt << 16;
     idKey.fData32[2] = desc.fFlags;
-    idKey.fData32[3] = desc.fOrigin;    // Only needs 2 bits actually
-    static const int kPadSize = sizeof(idKey) - 16;
-    GR_STATIC_ASSERT(kPadSize >= 0);
-    memset(idKey.fData8 + 16, 0, kPadSize);
+    static const int kPadSize = sizeof(idKey) - 12;
+    memset(idKey.fData8 + 12, 0, kPadSize);
 
     GrCacheID cacheID(GrResourceKey::ScratchDomain(), idKey);
     return GrResourceKey(cacheID, texture_resource_type(), 0);

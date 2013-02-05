@@ -234,7 +234,8 @@ public:
      */
     bool readPixels(GrRenderTarget* renderTarget,
                     int left, int top, int width, int height,
-                    GrPixelConfig config, void* buffer, size_t rowBytes);
+                    GrPixelConfig config, void* buffer, size_t rowBytes,
+                    bool invertY);
 
     /**
      * Updates the pixels in a rectangle of a texture.
@@ -472,7 +473,8 @@ private:
                               int left, int top, int width, int height,
                               GrPixelConfig,
                               void* buffer,
-                              size_t rowBytes) = 0;
+                              size_t rowBytes,
+                              bool invertY) = 0;
 
     // overridden by backend-specific derived class to perform the texture update
     virtual void onWriteTexturePixels(GrTexture* texture,

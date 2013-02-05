@@ -140,8 +140,8 @@ protected:
                                    // base class cons sets to NULL
                                    // subclass cons can create and set
 
-    GrTexture(GrGpu* gpu, bool isWrapped, const GrTextureDesc& desc)
-    : INHERITED(gpu, isWrapped, desc)
+    GrTexture(GrGpu* gpu, bool isWrapped, const GrTextureDesc& desc, GrSurfaceOrigin origin)
+    : INHERITED(gpu, isWrapped, desc, origin)
     , fRenderTarget(NULL) {
 
         // only make sense if alloc size is pow2

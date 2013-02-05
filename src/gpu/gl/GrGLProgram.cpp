@@ -64,7 +64,6 @@ GrGLProgram::GrGLProgram(const GrGLContextInfo& gl,
 
     fViewMatrix = SkMatrix::InvalidMatrix();
     fViewportSize.set(-1, -1);
-    fOrigin = (GrSurfaceOrigin) -1;
     fColor = GrColor_ILLEGAL;
     fColorFilterColor = GrColor_ILLEGAL;
     fRTHeight = -1;
