@@ -2531,14 +2531,23 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
             savedLocalM = shader->getLocalMatrix();
         }
 
+        // setContext has already been called and verified to return true
+        // by the constructor of SkAutoBlitterChoose
+        bool prevContextSuccess = true;
         while (vertProc(&state)) {
             if (NULL != textures) {
                 if (texture_to_matrix(state, vertices, textures, &tempM)) {
                     tempM.postConcat(savedLocalM);
                     shader->setLocalMatrix(tempM);
-                    // need to recal setContext since we changed the local matrix
-                    shader->endContext();
-                    if (!shader->setContext(*fBitmap, p, *fMatrix)) {
+                    // Need to recall setContext since we changed the local matrix.
+                    // However, we also need to balance the calls this with a
+                    // call to endContext which requires tracking the result of
+                    // the previous call to setContext.
+                    if (prevContextSuccess) {
+                        shader->endContext();
+                    }
+                    prevContextSuccess = shader->setContext(*fBitmap, p, *fMatrix);
+                    if (!prevContextSuccess) {
                         continue;
                     }
                 }
@@ -2555,9 +2564,17 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
             };
             SkScan::FillTriangle(tmp, *fRC, blitter.get());
         }
+
         // now restore the shader's original local matrix
         if (NULL != shader) {
             shader->setLocalMatrix(savedLocalM);
+        }
+
+        // If the final call to setContext fails we must make it suceed so that the
+        // call to endContext in the destructor for SkAutoBlitterChoose is balanced.
+        if (!prevContextSuccess) {
+            prevContextSuccess = shader->setContext(*fBitmap, paint, SkMatrix::I());
+            SkASSERT(prevContextSuccess);
         }
     } else {
         // no colors[] and no texture
