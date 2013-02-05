@@ -38,20 +38,15 @@ struct GrGLIRect {
 
     // sometimes we have a GrIRect from the client that we
     // want to simultaneously make relative to GL's viewport
-    // and (optionally) convert from top-down to bottom-up.
+    // and convert from top-down to bottom-up.
     void setRelativeTo(const GrGLIRect& glRect,
                        int leftOffset,
                        int topOffset,
                        int width,
-                       int height,
-                       GrSurfaceOrigin origin) {
+                       int height) {
         fLeft = glRect.fLeft + leftOffset;
         fWidth = width;
-        if (kBottomLeft_GrSurfaceOrigin == origin) {
-            fBottom = glRect.fBottom + (glRect.fHeight - topOffset - height);
-        } else {
-            fBottom = glRect.fBottom + topOffset;
-        }
+        fBottom = glRect.fBottom + (glRect.fHeight - topOffset - height);
         fHeight = height;
 
         GrAssert(fLeft >= 0);

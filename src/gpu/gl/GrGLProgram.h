@@ -199,11 +199,10 @@ private:
     GrGLuint                    fGShaderID;
     GrGLuint                    fFShaderID;
     GrGLuint                    fProgramID;
-    // The matrix sent to GL is determined by the client's matrix,
-    // the size of the viewport, and the origin of the render target.
+    // The matrix sent to GL is determined by both the client's matrix and
+    // the size of the viewport.
     SkMatrix                    fViewMatrix;
     SkISize                     fViewportSize;
-    GrSurfaceOrigin             fOrigin;
 
     // these reflect the current values of uniforms (GL uniform values travel with program)
     GrColor                     fColor;

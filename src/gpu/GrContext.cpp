@@ -1328,6 +1328,10 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
 
     bool unpremul = SkToBool(kUnpremul_PixelOpsFlag & flags);
 
+    // flipY will get set to false when it is handled below using a scratch. However, in that case
+    // we still want to do the read upside down.
+    bool readUpsideDown = flipY;
+
     if (unpremul && kRGBA_8888_GrPixelConfig != config && kBGRA_8888_GrPixelConfig != config) {
         // The unpremul flag is only allowed for these two configs.
         return false;
@@ -1355,7 +1359,6 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
         desc.fWidth = width;
         desc.fHeight = height;
         desc.fConfig = readConfig;
-        desc.fOrigin = kTopLeft_GrSurfaceOrigin;
 
         // When a full readback is faster than a partial we could always make the scratch exactly
         // match the passed rect. However, if we see many different size rectangles we will trash
@@ -1374,7 +1377,13 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
         if (texture) {
             // compute a matrix to perform the draw
             SkMatrix textureMatrix;
-            textureMatrix.setTranslate(SK_Scalar1 *left, SK_Scalar1 *top);
+            if (flipY) {
+                textureMatrix.setTranslate(SK_Scalar1 * left,
+                                    SK_Scalar1 * (top + height));
+                textureMatrix.set(SkMatrix::kMScaleY, -SK_Scalar1);
+            } else {
+                textureMatrix.setTranslate(SK_Scalar1 *left, SK_Scalar1 *top);
+            }
             textureMatrix.postIDiv(src->width(), src->height());
 
             SkAutoTUnref<const GrEffectRef> effect;
@@ -1395,6 +1404,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
                                                     textureMatrix));
                 }
                 swapRAndB = false; // we will handle the swap in the draw.
+                flipY = false; // we already incorporated the y flip in the matrix
 
                 GrDrawTarget::AutoStateRestore asr(fGpu, GrDrawTarget::kReset_ASRInit);
                 GrDrawState* drawState = fGpu->drawState();
@@ -1413,11 +1423,11 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
     }
     if (!fGpu->readPixels(target,
                           left, top, width, height,
-                          readConfig, buffer, rowBytes)) {
+                          readConfig, buffer, rowBytes, readUpsideDown)) {
         return false;
     }
     // Perform any conversions we weren't able to perform using a scratch texture.
-    if (unpremul || swapRAndB) {
+    if (unpremul || swapRAndB || flipY) {
         // These are initialized to suppress a warning
         SkCanvas::Config8888 srcC8888 = SkCanvas::kNative_Premul_Config8888;
         SkCanvas::Config8888 dstC8888 = SkCanvas::kNative_Premul_Config8888;
@@ -1429,11 +1439,47 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
             GrAssert(c8888IsValid); // we should only do r/b swap on 8888 configs
             srcC8888 = swap_config8888_red_and_blue(srcC8888);
         }
-        GrAssert(c8888IsValid);
-        uint32_t* b32 = reinterpret_cast<uint32_t*>(buffer);
-        SkConvertConfig8888Pixels(b32, rowBytes, dstC8888,
-                                  b32, rowBytes, srcC8888,
-                                  width, height);
+        if (flipY) {
+            size_t tightRB = width * GrBytesPerPixel(config);
+            if (0 == rowBytes) {
+                rowBytes = tightRB;
+            }
+            SkAutoSTMalloc<256, uint8_t> tempRow(tightRB);
+            intptr_t top = reinterpret_cast<intptr_t>(buffer);
+            intptr_t bot = top + (height - 1) * rowBytes;
+            while (top < bot) {
+                uint32_t* t = reinterpret_cast<uint32_t*>(top);
+                uint32_t* b = reinterpret_cast<uint32_t*>(bot);
+                uint32_t* temp = reinterpret_cast<uint32_t*>(tempRow.get());
+                memcpy(temp, t, tightRB);
+                if (c8888IsValid) {
+                    SkConvertConfig8888Pixels(t, tightRB, dstC8888,
+                                              b, tightRB, srcC8888,
+                                              width, 1);
+                    SkConvertConfig8888Pixels(b, tightRB, dstC8888,
+                                              temp, tightRB, srcC8888,
+                                              width, 1);
+                } else {
+                    memcpy(t, b, tightRB);
+                    memcpy(b, temp, tightRB);
+                }
+                top += rowBytes;
+                bot -= rowBytes;
+            }
+            // The above loop does nothing on the middle row when height is odd.
+            if (top == bot && c8888IsValid && dstC8888 != srcC8888) {
+                uint32_t* mid = reinterpret_cast<uint32_t*>(top);
+                SkConvertConfig8888Pixels(mid, tightRB, dstC8888, mid, tightRB, srcC8888, width, 1);
+            }
+        } else {
+            // if we aren't flipping Y then we have no reason to be here other than doing
+            // conversions for 8888 (r/b swap or upm).
+            GrAssert(c8888IsValid);
+            uint32_t* b32 = reinterpret_cast<uint32_t*>(buffer);
+            SkConvertConfig8888Pixels(b32, rowBytes, dstC8888,
+                                      b32, rowBytes, srcC8888,
+                                      width, height);
+        }
     }
     return true;
 }
