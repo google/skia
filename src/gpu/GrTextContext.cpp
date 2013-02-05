@@ -212,11 +212,13 @@ HAS_ATLAS:
         if (flush) {
             this->flushGlyphs();
             fContext->flush();
+            // flushGlyphs() will reset fDrawTarget to NULL.
+            fDrawTarget = fContext->getTextTarget(fPaint);
+            fDrawTarget->drawState()->setVertexLayout(fVertexLayout);
         }
         fMaxVertices = kDefaultRequestedVerts;
         // ignore return, no point in flushing again.
-        fDrawTarget->geometryHints(&fMaxVertices,
-                                   NULL);
+        fDrawTarget->geometryHints(&fMaxVertices, NULL);
 
         int maxQuadVertices = 4 * fContext->getQuadIndexBuffer()->maxQuads();
         if (fMaxVertices < kMinRequestedVerts) {
