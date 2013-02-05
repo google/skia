@@ -111,7 +111,7 @@ bool GrGpuGL::programUnitTest(int maxStages) {
 
         GrEffectStage stages[GrDrawState::kNumStages];
 
-        for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+        for (int s = 0; s < maxStages; ++s) {
             // enable the stage?
             if (random_bool(&random)) {
                 // use separate tex coords?
