@@ -8,10 +8,15 @@
 #include "GrTypes.h"
 #include "SkThread.h"       // for sk_atomic_inc
 
-static GrCacheID::Key kAssertKey;
-GR_STATIC_ASSERT(sizeof(kAssertKey.fData8)  == sizeof(kAssertKey.fData32));
-GR_STATIC_ASSERT(sizeof(kAssertKey.fData8) == sizeof(kAssertKey.fData64));
-GR_STATIC_ASSERT(sizeof(kAssertKey.fData8) == sizeof(kAssertKey));
+// This used to be a global scope, but we got a warning about unused variable
+// so we moved it into here. We just want it to compile, so we can test the
+// static asserts.
+static inline void dummy_function_to_avoid_unused_var_warning() {
+    GrCacheID::Key kAssertKey;
+    GR_STATIC_ASSERT(sizeof(kAssertKey.fData8) == sizeof(kAssertKey.fData32));
+    GR_STATIC_ASSERT(sizeof(kAssertKey.fData8) == sizeof(kAssertKey.fData64));
+    GR_STATIC_ASSERT(sizeof(kAssertKey.fData8) == sizeof(kAssertKey));
+}
 
 GrCacheID::Domain GrCacheID::GenerateDomain() {
     static int32_t gNextDomain = kInvalid_Domain + 1;
