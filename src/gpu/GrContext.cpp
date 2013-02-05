@@ -310,7 +310,8 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
         drawState->createTextureEffect(0, clampedTexture, SkMatrix::I(), params);
 
         static const GrVertexLayout layout = GrDrawState::StageTexCoordVertexLayoutBit(0,0);
-        GrDrawTarget::AutoReleaseGeometry arg(fGpu, layout, 4, 0);
+        drawState->setVertexLayout(layout);
+        GrDrawTarget::AutoReleaseGeometry arg(fGpu, 4, 0);
 
         if (arg.succeeded()) {
             GrPoint* verts = (GrPoint*) arg.vertices();
@@ -738,7 +739,8 @@ void GrContext::drawRect(const GrPaint& paint,
         // unitSquareVertexBuffer()
 
         static const int worstCaseVertCount = 10;
-        GrDrawTarget::AutoReleaseGeometry geo(target, 0, worstCaseVertCount, 0);
+        target->drawState()->setVertexLayout(GrDrawState::kDefault_VertexLayout);
+        GrDrawTarget::AutoReleaseGeometry geo(target, worstCaseVertCount, 0);
 
         if (!geo.succeeded()) {
             GrPrintf("Failed to get space for vertices!\n");
@@ -880,10 +882,11 @@ void GrContext::drawVertices(const GrPaint& paint,
     if (NULL != colors) {
         layout |= GrDrawState::kColor_VertexLayoutBit;
     }
-    int vertexSize = GrDrawState::VertexSize(layout);
+    target->drawState()->setVertexLayout(layout);
 
+    int vertexSize = target->getDrawState().getVertexSize();
     if (sizeof(GrPoint) != vertexSize) {
-        if (!geo.set(target, layout, vertexCount, 0)) {
+        if (!geo.set(target, vertexCount, 0)) {
             GrPrintf("Failed to get space for vertices!\n");
             return;
         }
@@ -908,7 +911,7 @@ void GrContext::drawVertices(const GrPaint& paint,
             curVertex = (void*)((intptr_t)curVertex + vertexSize);
         }
     } else {
-        target->setVertexSourceToArray(layout, positions, vertexCount);
+        target->setVertexSourceToArray(positions, vertexCount);
     }
 
     // we don't currently apply offscreen AA to this path. Need improved
@@ -1006,9 +1009,10 @@ void GrContext::internalDrawOval(const GrPaint& paint,
     }
 
     GrVertexLayout layout = GrDrawState::kEdge_VertexLayoutBit;
-    GrAssert(sizeof(CircleVertex) == GrDrawState::VertexSize(layout));
+    drawState->setVertexLayout(layout);
+    GrAssert(sizeof(CircleVertex) == drawState->getVertexSize());
 
-    GrDrawTarget::AutoReleaseGeometry geo(target, layout, 4, 0);
+    GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
     if (!geo.succeeded()) {
         GrPrintf("Failed to get space for vertices!\n");
         return;

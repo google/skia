@@ -84,6 +84,7 @@ public:
         fRenderTarget.reset(NULL);
 
         fCommon.fColor = 0xffffffff;
+        fCommon.fVertexLayout = kDefault_VertexLayout;
         fCommon.fViewMatrix.reset();
         fCommon.fSrcBlend = kOne_GrBlendCoeff;
         fCommon.fDstBlend = kZero_GrBlendCoeff;
@@ -107,7 +108,7 @@ public:
     void setFromPaint(const GrPaint& paint);
 
     ///////////////////////////////////////////////////////////////////////////
-    /// @name Vertex Format
+    /// @name Vertex Layout
     ////
 
     /**
@@ -178,6 +179,21 @@ public:
     };
     // make sure we haven't exceeded the number of bits in GrVertexLayout.
     GR_STATIC_ASSERT(kHighVertexLayoutBit < ((uint64_t)1 << 8*sizeof(GrVertexLayout)));
+
+    enum VertexLayout {
+        kDefault_VertexLayout = 0
+    };
+
+    /**
+     *  Sets vertex layout for next draw.
+     *
+     *  @param layout    the vertex layout to set.
+     */
+    void setVertexLayout(GrVertexLayout layout) { fCommon.fVertexLayout = layout; }
+
+    GrVertexLayout getVertexLayout() const { return fCommon.fVertexLayout; }
+    size_t getVertexSize() const { return VertexSize(fCommon.fVertexLayout); }
+
 
     ////////////////////////////////////////////////////////////////////////////
     // Helpers for picking apart vertex layouts
@@ -1161,6 +1177,7 @@ private:
     struct CommonState {
         // These fields are roughly sorted by decreasing likelihood of being different in op==
         GrColor                         fColor;
+        GrVertexLayout                  fVertexLayout;
         SkMatrix                        fViewMatrix;
         GrBlendCoeff                    fSrcBlend;
         GrBlendCoeff                    fDstBlend;
@@ -1175,6 +1192,7 @@ private:
         DrawFace                        fDrawFace;
         bool operator== (const CommonState& other) const {
             return fColor == other.fColor &&
+                   fVertexLayout == other.fVertexLayout &&
                    fViewMatrix.cheapEqualTo(other.fViewMatrix) &&
                    fSrcBlend == other.fSrcBlend &&
                    fDstBlend == other.fDstBlend &&

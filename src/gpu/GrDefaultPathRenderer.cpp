@@ -233,8 +233,8 @@ bool GrDefaultPathRenderer::createGeom(const SkPath& path,
         }
     }
 
-
-    if (!arg->set(target, layout, maxPts, maxIdxs)) {
+    target->drawState()->setVertexLayout(layout);
+    if (!arg->set(target, maxPts, maxIdxs)) {
         return false;
     }
 
@@ -476,7 +476,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
             } else {
                 bounds = path.getBounds();
             }
-            GrDrawTarget::AutoGeometryPush agp(target);
+            GrDrawTarget::AutoGeometryAndStatePush agasp(target, GrDrawTarget::kPreserve_ASRInit);
             target->drawSimpleRect(bounds, NULL);
         } else {
             if (passCount > 1) {

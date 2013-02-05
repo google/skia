@@ -82,8 +82,7 @@ public:
     void setAutoFlushTarget(GrDrawTarget* target);
 
     // overrides from GrDrawTarget
-    virtual bool geometryHints(size_t vertexSize,
-                               int* vertexCount,
+    virtual bool geometryHints(int* vertexCount,
                                int* indexCount) const SK_OVERRIDE;
     virtual void clear(const GrIRect* rect,
                        GrColor color,
@@ -108,7 +107,6 @@ private:
     class DrawRecord : public DrawInfo {
     public:
         DrawRecord(const DrawInfo& info) : DrawInfo(info) {}
-        GrVertexLayout          fVertexLayout;
         const GrVertexBuffer*   fVertexBuffer;
         const GrIndexBuffer*    fIndexBuffer;
     };
@@ -148,8 +146,7 @@ private:
     virtual void releaseIndexArray() SK_OVERRIDE;
     virtual void geometrySourceWillPush() SK_OVERRIDE;
     virtual void geometrySourceWillPop(const GeometrySrcState& restoredState) SK_OVERRIDE;
-    virtual void willReserveVertexAndIndexSpace(size_t vertexSize,
-                                                int vertexCount,
+    virtual void willReserveVertexAndIndexSpace(int vertexCount,
                                                 int indexCount) SK_OVERRIDE;
     bool quickInsideClip(const SkRect& devBounds);
 

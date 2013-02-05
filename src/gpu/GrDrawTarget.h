@@ -211,6 +211,8 @@ public:
      *    GrDrawTarget subclass. For deferred subclasses the caller has to
      *    guarantee that the data is still available in the buffers at playback.
      *    (TODO: Make this more automatic as we have done for read/write pixels)
+     *
+     * The size of each vertex is determined by querying the current GrDrawState.
      */
 
     /**
@@ -232,17 +234,15 @@ public:
      * popGeomtrySource is called. At that point logically a snapshot of the
      * data is made and the pointers are invalid.
      *
-     * @param vertexLayout the format of vertices (ignored if vertexCount == 0).
      * @param vertexCount  the number of vertices to reserve space for. Can be
-     *                     0.
+     *                     0. Vertex size is queried from the current GrDrawState.
      * @param indexCount   the number of indices to reserve space for. Can be 0.
      * @param vertices     will point to reserved vertex space if vertexCount is
      *                     non-zero. Illegal to pass NULL if vertexCount > 0.
      * @param indices      will point to reserved index space if indexCount is
      *                     non-zero. Illegal to pass NULL if indexCount > 0.
      */
-     bool reserveVertexAndIndexSpace(GrVertexLayout vertexLayout,
-                                     int vertexCount,
+     bool reserveVertexAndIndexSpace(int vertexCount,
                                      int indexCount,
                                      void** vertices,
                                      void** indices);
@@ -255,9 +255,9 @@ public:
      * Also may hint whether the draw target should be flushed first. This is
      * useful for deferred targets.
      *
-     * @param vertexSize   size of vertices caller would like to reserve
      * @param vertexCount  in: hint about how many vertices the caller would
-     *                     like to allocate.
+     *                     like to allocate. Vertex size is queried from the
+     *                     current GrDrawState.
      *                     out: a hint about the number of vertices that can be
      *                     allocated cheaply. Negative means no hint.
      *                     Ignored if NULL.
@@ -269,27 +269,24 @@ public:
      *
      * @return  true if target should be flushed based on the input values.
      */
-    virtual bool geometryHints(size_t vertexSize,
-                               int* vertexCount,
+    virtual bool geometryHints(int* vertexCount,
                                int* indexCount) const;
 
     /**
      * Sets source of vertex data for the next draw. Array must contain
      * the vertex data when this is called.
      *
-     * @param array         cpu array containing vertex data.
-     * @param size          size of the vertex data.
-     * @param vertexCount   the number of vertices in the array.
+     * @param vertexArray   cpu array containing vertex data.
+     * @param vertexCount   the number of vertices in the array. Vertex size is 
+     *                      queried from the current GrDrawState.
      */
-    void setVertexSourceToArray(GrVertexLayout vertexLayout,
-                                const void* vertexArray,
-                                int vertexCount);
+    void setVertexSourceToArray(const void* vertexArray, int vertexCount);
 
     /**
      * Sets source of index data for the next indexed draw. Array must contain
      * the indices when this is called.
      *
-     * @param array         cpu array containing index data.
+     * @param indexArray    cpu array containing index data.
      * @param indexCount    the number of indices in the array.
      */
     void setIndexSourceToArray(const void* indexArray, int indexCount);
@@ -299,11 +296,10 @@ public:
      * in the buffer until drawIndexed, drawNonIndexed, or drawIndexedInstances.
      *
      * @param buffer        vertex buffer containing vertex data. Must be
-     *                      unlocked before draw call.
-     * @param vertexLayout  layout of the vertex data in the buffer.
+     *                      unlocked before draw call. Vertex size is queried 
+     *                      from current GrDrawState.
      */
-    void setVertexSourceToBuffer(GrVertexLayout vertexLayout,
-                                 const GrVertexBuffer* buffer);
+    void setVertexSourceToBuffer(const GrVertexBuffer* buffer);
 
     /**
      * Sets source of index data for the next indexed draw. Data does not have
@@ -557,13 +553,11 @@ public:
     class AutoReleaseGeometry : ::GrNoncopyable {
     public:
         AutoReleaseGeometry(GrDrawTarget*  target,
-                            GrVertexLayout vertexLayout,
                             int            vertexCount,
                             int            indexCount);
         AutoReleaseGeometry();
         ~AutoReleaseGeometry();
         bool set(GrDrawTarget*  target,
-                 GrVertexLayout vertexLayout,
                  int            vertexCount,
                  int            indexCount);
         bool succeeded() const { return NULL != fTarget; }
@@ -604,18 +598,20 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////
 
-    class AutoGeometryPush : ::GrNoncopyable {
+    class AutoGeometryAndStatePush : ::GrNoncopyable {
     public:
-        AutoGeometryPush(GrDrawTarget* target) {
+        AutoGeometryAndStatePush(GrDrawTarget* target, ASRInit init) 
+            : fState(target, init) {
             GrAssert(NULL != target);
             fTarget = target;
             target->pushGeometrySource();
         }
-        ~AutoGeometryPush() {
+        ~AutoGeometryAndStatePush() {
             fTarget->popGeometrySource();
         }
     private:
-        GrDrawTarget* fTarget;
+        GrDrawTarget*    fTarget;
+        AutoStateRestore fState;
     };
 
 protected:
@@ -692,7 +688,7 @@ protected:
             int                     fIndexCount;
         };
 
-        GrVertexLayout          fVertexLayout;
+        size_t                  fVertexSize;
     };
 
     int indexCountInCurrentSource() const {
@@ -725,11 +721,11 @@ protected:
 
     // accessors for derived classes
     const GeometrySrcState& getGeomSrc() const { return fGeoSrcStateStack.back(); }
-    // it is preferable to call this rather than getGeomSrc()->fVertexLayout because of the assert.
-    GrVertexLayout getVertexLayout() const {
+    // it is preferable to call this rather than getGeomSrc()->fVertexSize because of the assert.
+    size_t getVertexSize() const {
         // the vertex layout is only valid if a vertex source has been specified.
         GrAssert(this->getGeomSrc().fVertexSrc != kNone_GeometrySrcType);
-        return this->getGeomSrc().fVertexLayout;
+        return this->getGeomSrc().fVertexSize;
     }
 
     Caps fCaps;
@@ -794,7 +790,7 @@ protected:
 private:
     // A subclass can optionally overload this function to be notified before
     // vertex and index space is reserved.
-    virtual void willReserveVertexAndIndexSpace(size_t vertexSize, int vertexCount, int indexCount) {}
+    virtual void willReserveVertexAndIndexSpace(int vertexCount, int indexCount) {}
 
     // implemented by subclass to allocate space for reserved geom
     virtual bool onReserveVertexSpace(size_t vertexSize, int vertexCount, void** vertices) = 0;
@@ -816,7 +812,7 @@ private:
     virtual void onStencilPath(const GrPath*, const SkStrokeRec& stroke, SkPath::FillType fill) = 0;
 
     // helpers for reserving vertex and index space.
-    bool reserveVertexSpace(GrVertexLayout vertexLayout,
+    bool reserveVertexSpace(size_t vertexSize,
                             int vertexCount,
                             void** vertices);
     bool reserveIndexSpace(int indexCount, void** indices);

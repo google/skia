@@ -481,7 +481,8 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
         return false;
     }
 
-    GrDrawTarget::AutoReleaseGeometry arg(target, layout, vCount, iCount);
+    drawState->setVertexLayout(layout);
+    GrDrawTarget::AutoReleaseGeometry arg(target, vCount, iCount);
     if (!arg.succeeded()) {
         return false;
     }
