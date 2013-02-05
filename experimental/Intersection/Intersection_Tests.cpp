@@ -13,7 +13,7 @@ void cubecode_test(int test);
 
 void Intersection_Tests() {
     int testsRun = 0;
-    
+
     CubicIntersection_IntersectionFinder();
     CubicIntersection_OneOffTest();
     SimplifyNew_Test();

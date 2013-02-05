@@ -68,7 +68,7 @@ public:
         fJoin = j;
         fProc = proc;
         fName.printf("draw_stroke_%s_%s", proc(NULL, 0), gJoinName[j]);
-        
+
         SkRect r = { 20, 20, 40, 40 };
         SkScalar rad = 4;
         fRec.fRRect.setRectXY(r, rad, rad);

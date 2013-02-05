@@ -312,7 +312,7 @@ static void doIntersect(const Cubic& cubic1, double t1s, double t1m, double t1e,
                 }
                 Intersections xlocals;
                 intersectWithOrder(s1a, o1a, s2a, o2a, xlocals);
-            } 
+            }
         #endif
             intersectWithOrder(s1a, o1a, s2a, o2a, locals);
             for (int tIdx = 0; tIdx < locals.used(); ++tIdx) {
@@ -325,7 +325,7 @@ static void doIntersect(const Cubic& cubic1, double t1s, double t1m, double t1e,
         #if 0 && SK_DEBUG
                 SkDebugf("to1=%1.9g p1=(%1.9g,%1.9g) to2=%1.9g p2=(%1.9g,%1.9g) d=%1.9g\n",
                     to1, p1.x, p1.y, to2, p2.x, p2.y, p1.distance(p2));
-                    
+
         #endif
                 if (p1.approximatelyEqual(p2)) {
                     i.insert(i.swapped() ? to2 : to1, i.swapped() ? to1 : to2);
@@ -373,7 +373,7 @@ static bool intersect2(const Cubic& cubic1, double t1s, double t1e, const Cubic&
             int o2 = quadPart(cubic2, t2Start, t2, s2);
             Intersections locals;
             intersectWithOrder(s1, o1, s2, o2, locals);
-            
+
             for (int tIdx = 0; tIdx < locals.used(); ++tIdx) {
                 double to1 = t1Start + (t1 - t1Start) * locals.fT[0][tIdx];
                 double to2 = t2Start + (t2 - t2Start) * locals.fT[1][tIdx];

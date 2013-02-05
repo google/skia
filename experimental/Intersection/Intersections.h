@@ -58,7 +58,7 @@ public:
     int coincidentUsed() const {
         return fCoincidentUsed;
     }
-    
+
 #if SK_DEBUG
     int depth() const {
         return fDepth;

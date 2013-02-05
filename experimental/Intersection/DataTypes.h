@@ -199,7 +199,7 @@ struct _Point {
         return AlmostEqualUlps((float) x, (float) a.x)
                 && AlmostEqualUlps((float) y, (float) a.y);
     }
-    
+
     bool approximatelyZero() const {
         return approximately_zero(x) && approximately_zero(y);
     }
