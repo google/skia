@@ -514,9 +514,10 @@ bool GrAAHairLinePathRenderer::createGeom(
     *lineCnt = lines.count() / 2;
     int vertCnt = kVertsPerLineSeg * *lineCnt + kVertsPerQuad * *quadCnt;
 
-    GrAssert(sizeof(Vertex) == GrDrawState::VertexSize(layout));
+    target->drawState()->setVertexLayout(layout);
+    GrAssert(sizeof(Vertex) == target->getDrawState().getVertexSize());
 
-    if (!arg->set(target, layout, vertCnt, 0)) {
+    if (!arg->set(target, vertCnt, 0)) {
         return false;
     }
 

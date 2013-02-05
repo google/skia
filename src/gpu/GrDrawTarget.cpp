@@ -136,7 +136,7 @@ void GrDrawTarget::setDrawState(GrDrawState*  drawState) {
     }
 }
 
-bool GrDrawTarget::reserveVertexSpace(GrVertexLayout vertexLayout,
+bool GrDrawTarget::reserveVertexSpace(size_t vertexSize,
                                       int vertexCount,
                                       void** vertices) {
     GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
@@ -146,14 +146,14 @@ bool GrDrawTarget::reserveVertexSpace(GrVertexLayout vertexLayout,
         this->releasePreviousVertexSource();
         geoSrc.fVertexSrc = kNone_GeometrySrcType;
 
-        acquired = this->onReserveVertexSpace(GrDrawState::VertexSize(vertexLayout),
+        acquired = this->onReserveVertexSpace(vertexSize,
                                               vertexCount,
                                               vertices);
     }
     if (acquired) {
         geoSrc.fVertexSrc = kReserved_GeometrySrcType;
         geoSrc.fVertexCount = vertexCount;
-        geoSrc.fVertexLayout = vertexLayout;
+        geoSrc.fVertexSize = vertexSize;
     } else if (NULL != vertices) {
         *vertices = NULL;
     }
@@ -181,14 +181,14 @@ bool GrDrawTarget::reserveIndexSpace(int indexCount,
 
 }
 
-bool GrDrawTarget::reserveVertexAndIndexSpace(GrVertexLayout vertexLayout,
-                                              int vertexCount,
+bool GrDrawTarget::reserveVertexAndIndexSpace(int vertexCount,
                                               int indexCount,
                                               void** vertices,
                                               void** indices) {
-    this->willReserveVertexAndIndexSpace(GrDrawState::VertexSize(vertexLayout), vertexCount, indexCount);
+    size_t vertexSize = this->drawState()->getVertexSize();
+    this->willReserveVertexAndIndexSpace(vertexCount, indexCount);
     if (vertexCount) {
-        if (!this->reserveVertexSpace(vertexLayout, vertexCount, vertices)) {
+        if (!this->reserveVertexSpace(vertexSize, vertexCount, vertices)) {
             if (indexCount) {
                 this->resetIndexSource();
             }
@@ -206,8 +206,7 @@ bool GrDrawTarget::reserveVertexAndIndexSpace(GrVertexLayout vertexLayout,
     return true;
 }
 
-bool GrDrawTarget::geometryHints(size_t vertexSize,
-                                 int32_t* vertexCount,
+bool GrDrawTarget::geometryHints(int32_t* vertexCount,
                                  int32_t* indexCount) const {
     if (NULL != vertexCount) {
         *vertexCount = -1;
@@ -264,13 +263,12 @@ void GrDrawTarget::releasePreviousIndexSource() {
     }
 }
 
-void GrDrawTarget::setVertexSourceToArray(GrVertexLayout vertexLayout,
-                                          const void* vertexArray,
+void GrDrawTarget::setVertexSourceToArray(const void* vertexArray,
                                           int vertexCount) {
     this->releasePreviousVertexSource();
     GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
     geoSrc.fVertexSrc = kArray_GeometrySrcType;
-    geoSrc.fVertexLayout = vertexLayout;
+    geoSrc.fVertexSize = this->drawState()->getVertexSize();
     geoSrc.fVertexCount = vertexCount;
     this->onSetVertexSourceToArray(vertexArray, vertexCount);
 }
@@ -284,14 +282,13 @@ void GrDrawTarget::setIndexSourceToArray(const void* indexArray,
     this->onSetIndexSourceToArray(indexArray, indexCount);
 }
 
-void GrDrawTarget::setVertexSourceToBuffer(GrVertexLayout vertexLayout,
-                                           const GrVertexBuffer* buffer) {
+void GrDrawTarget::setVertexSourceToBuffer(const GrVertexBuffer* buffer) {
     this->releasePreviousVertexSource();
     GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
     geoSrc.fVertexSrc    = kBuffer_GeometrySrcType;
     geoSrc.fVertexBuffer = buffer;
     buffer->ref();
-    geoSrc.fVertexLayout = vertexLayout;
+    geoSrc.fVertexSize = this->drawState()->getVertexSize();
 }
 
 void GrDrawTarget::setIndexSourceToBuffer(const GrIndexBuffer* buffer) {
@@ -355,7 +352,7 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
             maxValidVertex = geoSrc.fVertexCount;
             break;
         case kBuffer_GeometrySrcType:
-            maxValidVertex = geoSrc.fVertexBuffer->sizeInBytes() / GrDrawState::VertexSize(geoSrc.fVertexLayout);
+            maxValidVertex = geoSrc.fVertexBuffer->sizeInBytes() / geoSrc.fVertexSize;
             break;
     }
     if (maxVertex > maxValidVertex) {
@@ -490,14 +487,14 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
                            GrBlendCoeff* srcCoeff,
                            GrBlendCoeff* dstCoeff) const {
 
+    const GrDrawState& drawState = this->getDrawState();
+
     GrVertexLayout layout;
     if (kNone_GeometrySrcType == this->getGeomSrc().fVertexSrc) {
         layout = default_blend_opts_vertex_layout();
     } else {
-        layout = this->getVertexLayout();
+        layout = drawState.getVertexLayout();
     }
-
-    const GrDrawState& drawState = this->getDrawState();
 
     GrBlendCoeff bogusSrcCoeff, bogusDstCoeff;
     if (NULL == srcCoeff) {
@@ -691,7 +688,8 @@ void GrDrawTarget::drawRect(const GrRect& rect,
         avmr.set(this->drawState(), *matrix, explicitCoordMask);
     }
 
-    AutoReleaseGeometry geo(this, layout, 4, 0);
+    this->drawState()->setVertexLayout(layout);
+    AutoReleaseGeometry geo(this, 4, 0);
     if (!geo.succeeded()) {
         GrPrintf("Failed to get space for vertices!\n");
         return;
@@ -763,11 +761,10 @@ void GrDrawTarget::AutoStateRestore::set(GrDrawTarget* target, ASRInit init) {
 
 GrDrawTarget::AutoReleaseGeometry::AutoReleaseGeometry(
                                          GrDrawTarget*  target,
-                                         GrVertexLayout vertexLayout,
                                          int vertexCount,
                                          int indexCount) {
     fTarget = NULL;
-    this->set(target, vertexLayout, vertexCount, indexCount);
+    this->set(target, vertexCount, indexCount);
 }
 
 GrDrawTarget::AutoReleaseGeometry::AutoReleaseGeometry() {
@@ -779,7 +776,6 @@ GrDrawTarget::AutoReleaseGeometry::~AutoReleaseGeometry() {
 }
 
 bool GrDrawTarget::AutoReleaseGeometry::set(GrDrawTarget*  target,
-                                            GrVertexLayout vertexLayout,
                                             int vertexCount,
                                             int indexCount) {
     this->reset();
@@ -787,8 +783,7 @@ bool GrDrawTarget::AutoReleaseGeometry::set(GrDrawTarget*  target,
     bool success = true;
     if (NULL != fTarget) {
         fTarget = target;
-        success = target->reserveVertexAndIndexSpace(vertexLayout,
-                                                     vertexCount,
+        success = target->reserveVertexAndIndexSpace(vertexCount,
                                                      indexCount,
                                                      &fVertices,
                                                      &fIndices);

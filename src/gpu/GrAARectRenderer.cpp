@@ -126,10 +126,9 @@ void GrAARectRenderer::fillAARect(GrGpu* gpu,
                                   const GrRect& devRect,
                                   bool useVertexCoverage) {
     GrVertexLayout layout = aa_rect_layout(useVertexCoverage);
+    target->drawState()->setVertexLayout(layout);
 
-    size_t vsize = GrDrawState::VertexSize(layout);
-
-    GrDrawTarget::AutoReleaseGeometry geo(target, layout, 8, 0);
+    GrDrawTarget::AutoReleaseGeometry geo(target, 8, 0);
     if (!geo.succeeded()) {
         GrPrintf("Failed to get space for vertices!\n");
         return;
@@ -142,6 +141,7 @@ void GrAARectRenderer::fillAARect(GrGpu* gpu,
     }
 
     intptr_t verts = reinterpret_cast<intptr_t>(geo.vertices());
+    size_t vsize = target->getDrawState().getVertexSize();
 
     GrPoint* fan0Pos = reinterpret_cast<GrPoint*>(verts);
     GrPoint* fan1Pos = reinterpret_cast<GrPoint*>(verts + 4 * vsize);
@@ -196,9 +196,9 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
         return;
     }
     GrVertexLayout layout = aa_rect_layout(useVertexCoverage);
-    size_t vsize = GrDrawState::VertexSize(layout);
+    target->drawState()->setVertexLayout(layout);
 
-    GrDrawTarget::AutoReleaseGeometry geo(target, layout, 16, 0);
+    GrDrawTarget::AutoReleaseGeometry geo(target, 16, 0);
     if (!geo.succeeded()) {
         GrPrintf("Failed to get space for vertices!\n");
         return;
@@ -210,6 +210,7 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
     }
 
     intptr_t verts = reinterpret_cast<intptr_t>(geo.vertices());
+    size_t vsize = target->getDrawState().getVertexSize();
 
     // We create vertices for four nested rectangles. There are two ramps from 0 to full
     // coverage, one on the exterior of the stroke and the other on the interior.

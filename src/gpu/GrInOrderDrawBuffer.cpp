@@ -86,7 +86,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
     // dual-source blending isn't available. This comes into play when there is coverage. If colors
     // were a stage it could take a hint that every vertex's color will be opaque.
     if (this->getCaps().dualSourceBlendingSupport() ||
-        this->getDrawState().hasSolidCoverage(this->getGeomSrc().fVertexLayout)) {
+        this->getDrawState().hasSolidCoverage(this->getDrawState().getVertexLayout())) {
         layout |= GrDrawState::kColor_VertexLayoutBit;;
         // We set the draw state's color to white here. This is done so that any batching performed
         // in our subclass's onDraw() won't get a false from GrDrawState::op== due to a color
@@ -107,7 +107,8 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         }
     }
 
-    AutoReleaseGeometry geo(this, layout, 4, 0);
+    this->drawState()->setVertexLayout(layout);
+    AutoReleaseGeometry geo(this, 4, 0);
     if (!geo.succeeded()) {
         GrPrintf("Failed to get space for vertices!\n");
         return;
@@ -215,6 +216,7 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const DrawInfo& info) {
     GrAssert(info.isInstanced());
 
     const GeometrySrcState& geomSrc = this->getGeomSrc();
+    const GrDrawState& drawState = this->getDrawState();
 
     // we only attempt to concat the case when reserved verts are used with a client-specified index
     // buffer. To make this work with client-specified VBs we'd need to know if the VB was updated
@@ -237,8 +239,7 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const DrawInfo& info) {
         draw->verticesPerInstance() != info.verticesPerInstance() ||
         draw->indicesPerInstance() != info.indicesPerInstance() ||
         draw->fVertexBuffer != vertexBuffer ||
-        draw->fIndexBuffer != geomSrc.fIndexBuffer ||
-        draw->fVertexLayout != geomSrc.fVertexLayout) {
+        draw->fIndexBuffer != geomSrc.fIndexBuffer) {
         return 0;
     }
     // info does not yet account for the offset from the start of the pool's VB while the previous
@@ -256,8 +257,8 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const DrawInfo& info) {
     instancesToConcat = GrMin(instancesToConcat, info.instanceCount());
 
     // update the amount of reserved vertex data actually referenced in draws
-    size_t vertexBytes = instancesToConcat * info.verticesPerInstance() *
-                         GrDrawState::VertexSize(draw->fVertexLayout);
+    size_t vertexBytes = instancesToConcat * info.verticesPerInstance() * 
+                         drawState.getVertexSize();
     poolState.fUsedPoolVertexBytes = GrMax(poolState.fUsedPoolVertexBytes, vertexBytes);
 
     draw->adjustInstanceCount(instancesToConcat);
@@ -285,9 +286,10 @@ private:
 void GrInOrderDrawBuffer::onDraw(const DrawInfo& info) {
 
     GeometryPoolState& poolState = fGeoPoolStateStack.back();
+    const GrDrawState& drawState = this->getDrawState();
     AutoClipReenable acr;
 
-    if (this->getDrawState().isClipState() &&
+    if (drawState.isClipState() &&
         NULL != info.getDevBounds() &&
         this->quickInsideClip(*info.getDevBounds())) {
         acr.set(this->drawState());
@@ -312,7 +314,6 @@ void GrInOrderDrawBuffer::onDraw(const DrawInfo& info) {
     } else {
         draw = this->recordDraw(info);
     }
-    draw->fVertexLayout = this->getVertexLayout();
 
     switch (this->getGeomSrc().fVertexSrc) {
         case kBuffer_GeometrySrcType:
@@ -320,8 +321,8 @@ void GrInOrderDrawBuffer::onDraw(const DrawInfo& info) {
             break;
         case kReserved_GeometrySrcType: // fallthrough
         case kArray_GeometrySrcType: {
-            size_t vertexBytes = (info.vertexCount() + info.startVertex()) *
-                                 GrDrawState::VertexSize(draw->fVertexLayout);
+            size_t vertexBytes = (info.vertexCount() + info.startVertex()) * 
+                                 drawState.getVertexSize();
             poolState.fUsedPoolVertexBytes = GrMax(poolState.fUsedPoolVertexBytes, vertexBytes);
             draw->fVertexBuffer = poolState.fPoolVertexBuffer;
             draw->adjustStartVertex(poolState.fPoolStartVertex);
@@ -431,7 +432,7 @@ bool GrInOrderDrawBuffer::flushTo(GrDrawTarget* target) {
     fIndexPool.unlock();
 
     GrDrawTarget::AutoClipRestore acr(target);
-    AutoGeometryPush agp(target);
+    AutoGeometryAndStatePush agasp(target, kPreserve_ASRInit);
 
     GrDrawState playbackState;
     GrDrawState* prevDrawState = target->drawState();
@@ -451,7 +452,7 @@ bool GrInOrderDrawBuffer::flushTo(GrDrawTarget* target) {
         switch (fCmds[c]) {
             case kDraw_Cmd: {
                 const DrawRecord& draw = fDraws[currDraw];
-                target->setVertexSourceToBuffer(draw.fVertexLayout, draw.fVertexBuffer);
+                target->setVertexSourceToBuffer(draw.fVertexBuffer);
                 if (draw.isIndexed()) {
                     target->setIndexSourceToBuffer(draw.fIndexBuffer);
                 }
@@ -502,7 +503,6 @@ void GrInOrderDrawBuffer::setAutoFlushTarget(GrDrawTarget* target) {
 }
 
 void GrInOrderDrawBuffer::willReserveVertexAndIndexSpace(
-                                size_t vertexSize,
                                 int vertexCount,
                                 int indexCount) {
     if (NULL != fAutoFlushTarget) {
@@ -534,15 +534,14 @@ void GrInOrderDrawBuffer::willReserveVertexAndIndexSpace(
             !unreleasedVertexSpace &&
             !unreleasedIndexSpace &&
             !targetHasReservedGeom &&
-            this->geometryHints(vertexSize, &vcount, &icount)) {
+            this->geometryHints(&vcount, &icount)) {
 
             this->flushTo(fAutoFlushTarget);
         }
     }
 }
 
-bool GrInOrderDrawBuffer::geometryHints(size_t vertexSize,
-                                        int* vertexCount,
+bool GrInOrderDrawBuffer::geometryHints(int* vertexCount,
                                         int* indexCount) const {
     // we will recommend a flush if the data could fit in a single
     // preallocated buffer but none are left and it can't fit
@@ -559,6 +558,7 @@ bool GrInOrderDrawBuffer::geometryHints(size_t vertexSize,
         *indexCount = currIndices;
     }
     if (NULL != vertexCount) {
+        size_t vertexSize = this->getDrawState().getVertexSize();
         int32_t currVertices = fVertexPool.currentBufferVertices(vertexSize);
         if (*vertexCount > currVertices &&
             (!fVertexPool.preallocatedBuffersRemaining() &&
@@ -611,8 +611,7 @@ void GrInOrderDrawBuffer::releaseReservedVertexSpace() {
     // provided by the vertex buffer pool. At each draw we tracked the largest
     // offset into the pool's pointer that was referenced. Now we return to the
     // pool any portion at the tail of the allocation that no draw referenced.
-    size_t reservedVertexBytes = GrDrawState::VertexSize(geoSrc.fVertexLayout) *
-                                 geoSrc.fVertexCount;
+    size_t reservedVertexBytes = geoSrc.fVertexSize * geoSrc.fVertexCount;
     fVertexPool.putBack(reservedVertexBytes -
                         poolState.fUsedPoolVertexBytes);
     poolState.fUsedPoolVertexBytes = 0;
@@ -646,7 +645,7 @@ void GrInOrderDrawBuffer::onSetVertexSourceToArray(const void* vertexArray,
 #if GR_DEBUG
     bool success =
 #endif
-    fVertexPool.appendVertices(GrDrawState::VertexSize(this->getVertexLayout()),
+    fVertexPool.appendVertices(this->getVertexSize(),
                                vertexCount,
                                vertexArray,
                                &poolState.fPoolVertexBuffer,
@@ -702,9 +701,7 @@ void GrInOrderDrawBuffer::geometrySourceWillPop(
     // pool.
     if (kReserved_GeometrySrcType == restoredState.fVertexSrc ||
         kArray_GeometrySrcType == restoredState.fVertexSrc) {
-        poolState.fUsedPoolVertexBytes =
-            GrDrawState::VertexSize(restoredState.fVertexLayout) *
-            restoredState.fVertexCount;
+        poolState.fUsedPoolVertexBytes = restoredState.fVertexSize * restoredState.fVertexCount;
     }
     if (kReserved_GeometrySrcType == restoredState.fIndexSrc ||
         kArray_GeometrySrcType == restoredState.fIndexSrc) {

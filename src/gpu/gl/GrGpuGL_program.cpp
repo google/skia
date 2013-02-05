@@ -181,7 +181,7 @@ void GrGpuGL::flushColor(GrColor color) {
     const ProgramDesc& desc = fCurrentProgram->getDesc();
     const GrDrawState& drawState = this->getDrawState();
 
-    if (this->getVertexLayout() & GrDrawState::kColor_VertexLayoutBit) {
+    if (drawState.getVertexLayout() & GrDrawState::kColor_VertexLayoutBit) {
         // color will be specified per-vertex as an attribute
         // invalidate the const vertex attrib color
         fHWConstAttribColor = GrColor_ILLEGAL;
@@ -230,7 +230,7 @@ void GrGpuGL::flushCoverage(GrColor coverage) {
     // const GrDrawState& drawState = this->getDrawState();
 
 
-    if (this->getVertexLayout() & GrDrawState::kCoverage_VertexLayoutBit) {
+    if (this->getDrawState().getVertexLayout() & GrDrawState::kCoverage_VertexLayoutBit) {
         // coverage will be specified per-vertex as an attribute
         // invalidate the const vertex attrib coverage
         fHWConstAttribCoverage = GrColor_ILLEGAL;
@@ -363,7 +363,7 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, int* startIndexOffset) {
     int newTexCoordOffsets[GrDrawState::kMaxTexCoords];
     int newEdgeOffset;
 
-    GrVertexLayout currLayout = this->getVertexLayout();
+    GrVertexLayout currLayout = this->getDrawState().getVertexLayout();
 
     GrGLsizei newStride = GrDrawState::VertexSizeAndOffsetsByIdx(currLayout,
                                                                  newTexCoordOffsets,
@@ -502,7 +502,7 @@ void GrGpuGL::buildProgram(bool isPoints,
     // to a canonical value to avoid duplicate programs with different keys.
 
     // Must initialize all fields or cache will have false negatives!
-    desc->fVertexLayout = this->getVertexLayout();
+    desc->fVertexLayout = this->getDrawState().getVertexLayout();
 
     desc->fEmitsPointSize = isPoints;
 
