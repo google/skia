@@ -828,10 +828,6 @@ void SkBitmap::eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const {
 
 #define SUB_OFFSET_FAILURE  ((size_t)-1)
 
-// Declare these non-static so they can be tested by GpuBitmapCopyTest.
-size_t getSubOffset(const SkBitmap& bm, int x, int y);
-bool getUpperLeftFromOffset(const SkBitmap& bm, int* x, int* y);
-
 /**
  *  Based on the Config and rowBytes() of bm, return the offset into an SkPixelRef of the pixel at
  *  (x, y).
@@ -839,7 +835,7 @@ bool getUpperLeftFromOffset(const SkBitmap& bm, int* x, int* y);
  *  Also note that (x, y) may be outside the range of (0 - width(), 0 - height()), so long as it is
  *  within the bounds of the SkPixelRef being used.
  */
-size_t getSubOffset(const SkBitmap& bm, int x, int y) {
+static size_t getSubOffset(const SkBitmap& bm, int x, int y) {
     switch (bm.getConfig()) {
         case SkBitmap::kA8_Config:
         case SkBitmap:: kIndex8_Config:
@@ -868,7 +864,7 @@ size_t getSubOffset(const SkBitmap& bm, int x, int y) {
  *  upper left corner of bm relative to its SkPixelRef.
  *  x and y must be non-NULL.
  */
-bool getUpperLeftFromOffset(const SkBitmap& bm, int* x, int* y) {
+static bool getUpperLeftFromOffset(const SkBitmap& bm, int* x, int* y) {
     SkASSERT(x != NULL && y != NULL);
     const size_t offset = bm.pixelRefOffset();
     if (0 == offset) {

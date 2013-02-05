@@ -33,19 +33,6 @@ struct Pair {
     const char*         fValid;
 };
 
-extern bool getUpperLeftFromOffset(const SkBitmap& bm, int* x, int* y);
-extern size_t getSubOffset(const SkBitmap& bm, int x, int y);
-
-/**
- *  Tests that getUpperLeftFromOffset and getSubOffset agree with each other.
- */
-static void TestSubsetHelpers(skiatest::Reporter* reporter, const SkBitmap& bitmap){
-    int x, y;
-    bool upperLeft = getUpperLeftFromOffset(bitmap, &x, &y);
-    REPORTER_ASSERT(reporter, upperLeft);
-    REPORTER_ASSERT(reporter, getSubOffset(bitmap, x, y) == bitmap.pixelRefOffset());
-}
-
 /**
  *  Check to ensure that copying a GPU-backed SkBitmap behaved as expected.
  *  @param reporter Used to report failures.
@@ -54,12 +41,10 @@ static void TestSubsetHelpers(skiatest::Reporter* reporter, const SkBitmap& bitm
  *  @param src A GPU-backed SkBitmap that had copyTo or deepCopyTo called on it.
  *  @param dst SkBitmap that was copied to.
  *  @param deepCopy True if deepCopyTo was used; false if copyTo was used.
- *  @param subset Portion of src's SkPixelRef that src represents. dst should represent the same
- *      portion after the copy. Pass NULL for all pixels.
  */
 static void TestIndividualCopy(skiatest::Reporter* reporter, const SkBitmap::Config desiredConfig,
                                const bool success, const SkBitmap& src, const SkBitmap& dst,
-                               const bool deepCopy = true, const SkIRect* subset = NULL) {
+                               const bool deepCopy = true) {
     if (success) {
         REPORTER_ASSERT(reporter, src.width() == dst.width());
         REPORTER_ASSERT(reporter, src.height() == dst.height());
@@ -78,11 +63,11 @@ static void TestIndividualCopy(skiatest::Reporter* reporter, const SkBitmap::Con
             SkBitmap srcReadBack, dstReadBack;
             {
                 SkASSERT(src.getTexture() != NULL);
-                bool readBack = src.pixelRef()->readPixels(&srcReadBack, subset);
+                bool readBack = src.pixelRef()->readPixels(&srcReadBack);
                 REPORTER_ASSERT(reporter, readBack);
             }
             if (dst.getTexture() != NULL) {
-                bool readBack = dst.pixelRef()->readPixels(&dstReadBack, subset);
+                bool readBack = dst.pixelRef()->readPixels(&dstReadBack);
                 REPORTER_ASSERT(reporter, readBack);
             } else {
                 // If dst is not a texture, do a copy instead, to the same config as srcReadBack.
@@ -101,11 +86,6 @@ static void TestIndividualCopy(skiatest::Reporter* reporter, const SkBitmap::Con
             REPORTER_ASSERT(reporter, !memcmp(srcP, dstP, srcReadBack.getSize()));
         } else {
             REPORTER_ASSERT(reporter, src.getGenerationID() != dst.getGenerationID());
-        }
-
-        // If the copy used a subset, test the pixel offset calculation functions.
-        if (subset != NULL) {
-            TestSubsetHelpers(reporter, dst);
         }
     } else {
         // dst should be unchanged from its initial state
@@ -170,9 +150,6 @@ static void TestGpuBitmapCopy(skiatest::Reporter* reporter, GrContextFactory* fa
             // Extract a subset. If this succeeds we will test copying the subset.
             SkBitmap subset;
             const bool extracted = src.extractSubset(&subset, subsetRect);
-            if (extracted) {
-                TestSubsetHelpers(reporter, subset);
-            }
 
             for (size_t j = 0; j < SK_ARRAY_COUNT(gPairs); j++) {
                 dst.reset();
@@ -204,16 +181,16 @@ static void TestGpuBitmapCopy(skiatest::Reporter* reporter, GrContextFactory* fa
                     success = subset.copyTo(&subsetCopy, gPairs[j].fConfig);
                     REPORTER_ASSERT(reporter, success == expected);
                     REPORTER_ASSERT(reporter, success == canSucceed);
-                    TestIndividualCopy(reporter, gPairs[j].fConfig, success, subset, subsetCopy, false,
-                                       &subsetRect);
+                    TestIndividualCopy(reporter, gPairs[j].fConfig, success, subset, subsetCopy,
+                                       false);
 
                     // Reset the bitmap so that a failed copyTo will leave it in the expected state.
                     subsetCopy.reset();
                     success = subset.deepCopyTo(&subsetCopy, gPairs[j].fConfig);
                     REPORTER_ASSERT(reporter, success == expected);
                     REPORTER_ASSERT(reporter, success == canSucceed);
-                    TestIndividualCopy(reporter, gPairs[j].fConfig, success, subset, subsetCopy, true,
-                                       &subsetRect);
+                    TestIndividualCopy(reporter, gPairs[j].fConfig, success, subset, subsetCopy,
+                                       true);
                 }
             } // for (size_t j = ...
         } // for (size_t i = ...
