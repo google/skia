@@ -26,7 +26,7 @@ ALL_BUILDERS = 'all'
 # Contact information for the build master.
 # TODO(borenet): Share this information from a single location. Filed bug:
 # http://code.google.com/p/skia/issues/detail?id=1081
-SKIA_BUILD_MASTER_HOST = '70.32.156.51'
+SKIA_BUILD_MASTER_HOST = '70.32.156.53'
 SKIA_BUILD_MASTER_PORT = '10117'
 
 # All try builders have this suffix.
