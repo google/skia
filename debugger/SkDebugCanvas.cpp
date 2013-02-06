@@ -93,7 +93,7 @@ int SkDebugCanvas::getCommandAtPoint(int x, int y, int index) {
     return layer;
 }
 
-SkPMColor OverdrawXferModeProc(SkPMColor src, SkPMColor dst) {
+static SkPMColor OverdrawXferModeProc(SkPMColor src, SkPMColor dst) {
     // This table encodes the color progression of the overdraw visualization
     static const SkPMColor gTable[] = {
         SkPackARGB32(0x00, 0x00, 0x00, 0x00),
