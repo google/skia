@@ -345,19 +345,44 @@ void GrGpuGL::fillInConfigRenderableTable() {
     }
 }
 
-GrPixelConfig GrGpuGL::preferredReadPixelsConfig(GrPixelConfig config) const {
-    if (GR_GL_RGBA_8888_PIXEL_OPS_SLOW && GrPixelConfigIsRGBA8888(config)) {
-        return GrPixelConfigSwapRAndB(config);
+namespace {
+GrPixelConfig preferred_pixel_ops_config(GrPixelConfig config) {
+    if (GR_GL_RGBA_8888_PIXEL_OPS_SLOW && kRGBA_8888_GrPixelConfig == config) {
+        return kBGRA_8888_GrPixelConfig;
     } else {
         return config;
     }
 }
+}
+
+GrPixelConfig GrGpuGL::preferredReadPixelsConfig(GrPixelConfig config) const {
+    return preferred_pixel_ops_config(config);
+}
 
 GrPixelConfig GrGpuGL::preferredWritePixelsConfig(GrPixelConfig config) const {
-    if (GR_GL_RGBA_8888_PIXEL_OPS_SLOW && GrPixelConfigIsRGBA8888(config)) {
-        return GrPixelConfigSwapRAndB(config);
+    return preferred_pixel_ops_config(config);
+}
+
+bool GrGpuGL::canWriteTexturePixels(const GrTexture* texture, GrPixelConfig srcConfig) const {
+    if (kIndex_8_GrPixelConfig == srcConfig || kIndex_8_GrPixelConfig == texture->config()) {
+        return false;
+    }
+    if (srcConfig != texture->config() && kES2_GrGLBinding == this->glBinding()) {
+        // In general ES2 requires the internal format of the texture and the format of the src
+        // pixels to match. However, It may or may not be possible to upload BGRA data to a RGBA
+        // texture. It depends upon which extension added BGRA. The Apple extension allows it
+        // (BGRA's internal format is RGBA) while the EXT extension does not (BGRA is its own
+        // internal format).
+        if (this->glCaps().bgraFormatSupport() &&
+            !this->glCaps().bgraIsInternalFormat() &&
+            kBGRA_8888_GrPixelConfig == srcConfig &&
+            kRGBA_8888_GrPixelConfig == texture->config()) {
+            return true;
+        } else {
+            return false;
+        }
     } else {
-        return config;
+        return true;
     }
 }
 
@@ -597,12 +622,12 @@ GrRenderTarget* GrGpuGL::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrGpuGL::onWriteTexturePixels(GrTexture* texture,
+bool GrGpuGL::onWriteTexturePixels(GrTexture* texture,
                                    int left, int top, int width, int height,
                                    GrPixelConfig config, const void* buffer,
                                    size_t rowBytes) {
     if (NULL == buffer) {
-        return;
+        return false;
     }
     GrGLTexture* glTex = static_cast<GrGLTexture*>(texture);
 
@@ -617,9 +642,9 @@ void GrGpuGL::onWriteTexturePixels(GrTexture* texture,
     desc.fTextureID = glTex->textureID();
     desc.fOrigin = glTex->origin();
 
-    this->uploadTexData(desc, false,
-                        left, top, width, height,
-                        config, buffer, rowBytes);
+    return this->uploadTexData(desc, false,
+                               left, top, width, height,
+                               config, buffer, rowBytes);
 }
 
 namespace {

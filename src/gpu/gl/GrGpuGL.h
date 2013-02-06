@@ -42,10 +42,9 @@ public:
     bool programUnitTest(int maxStages);
 
     // GrGpu overrides
-    virtual GrPixelConfig preferredReadPixelsConfig(GrPixelConfig config)
-                                                            const SK_OVERRIDE;
-    virtual GrPixelConfig preferredWritePixelsConfig(GrPixelConfig config)
-                                                            const SK_OVERRIDE;
+    virtual GrPixelConfig preferredReadPixelsConfig(GrPixelConfig config) const SK_OVERRIDE;
+    virtual GrPixelConfig preferredWritePixelsConfig(GrPixelConfig config) const SK_OVERRIDE;
+    virtual bool canWriteTexturePixels(const GrTexture*, GrPixelConfig srcConfig) const SK_OVERRIDE;
     virtual bool readPixelsWillPayForYFlip(
                                     GrRenderTarget* renderTarget,
                                     int left, int top,
@@ -88,7 +87,7 @@ private:
                               void* buffer,
                               size_t rowBytes) SK_OVERRIDE;
 
-    virtual void onWriteTexturePixels(GrTexture* texture,
+    virtual bool onWriteTexturePixels(GrTexture* texture,
                                       int left, int top, int width, int height,
                                       GrPixelConfig config, const void* buffer,
                                       size_t rowBytes) SK_OVERRIDE;

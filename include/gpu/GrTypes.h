@@ -310,30 +310,8 @@ enum GrPixelConfig {
 // This alias is deprecated and will be removed.
 static const GrPixelConfig kSkia8888_PM_GrPixelConfig = kSkia8888_GrPixelConfig;
 
-// Returns true if the pixel config has 8bit r,g,b,a components in that byte
-// order
-static inline bool GrPixelConfigIsRGBA8888(GrPixelConfig config) {
-    switch (config) {
-        case kRGBA_8888_GrPixelConfig:
-            return true;
-        default:
-            return false;
-    }
-}
-
-// Returns true if the pixel config has 8bit b,g,r,a components in that byte
-// order
-static inline bool GrPixelConfigIsBGRA8888(GrPixelConfig config) {
-    switch (config) {
-        case kBGRA_8888_GrPixelConfig:
-            return true;
-        default:
-            return false;
-    }
-}
-
 // Returns true if the pixel config is 32 bits per pixel
-static inline bool GrPixelConfigIs32Bit(GrPixelConfig config) {
+static inline bool GrPixelConfigIs8888(GrPixelConfig config) {
     switch (config) {
         case kRGBA_8888_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
