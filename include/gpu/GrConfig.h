@@ -330,15 +330,6 @@ inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
 #endif
 
 /**
- *  GR_STATIC_RECT_VB controls whether rects are drawn by issuing a vertex
- *  for each corner or using a static vb that is positioned by modifying the
- *  view / texture matrix.
- */
-#if !defined(GR_STATIC_RECT_VB)
-    #define GR_STATIC_RECT_VB 0
-#endif
-
-/**
  *  GR_DISABLE_DRAW_BUFFERING prevents GrContext from queueing draws in a
  *  GrInOrderDrawBuffer.
  */
