@@ -28,14 +28,6 @@
 //#define GR_DUMP_TEXTURE_UPLOAD    1
 
 /*
- * When drawing rects this causes Ganesh to use a vertex buffer containing
- * a unit square that is positioned by a matrix. Enable on systems where
- * emitting per-rect-draw verts is more expensive than constant/matrix
- * updates. Defaults to 0.
- */
-//#define GR_STATIC_RECT_VB 1
-
-/*
  * This causes the GrContext to execute all draws immediately in the 3D API
  * rather than internally queuing draws.
  */
