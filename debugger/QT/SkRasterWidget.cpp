@@ -27,6 +27,7 @@ SkRasterWidget::~SkRasterWidget() {
 void SkRasterWidget::resizeEvent(QResizeEvent* event) {
     fBitmap.setConfig(SkBitmap::kARGB_8888_Config, event->size().width(), event->size().height());
     fBitmap.allocPixels();
+    fBitmap.eraseColor(SK_ColorTRANSPARENT);
     SkSafeUnref(fCanvas);
     SkSafeUnref(fDevice);
     fDevice = new SkDevice(fBitmap);

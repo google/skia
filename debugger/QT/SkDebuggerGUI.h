@@ -134,6 +134,11 @@ private slots:
     void actionRasterWidget(bool isToggled);
 
     /**
+        Toggles the the overdraw visualization on and off
+     */
+    void actionOverdrawVizWidget(bool isToggled);
+
+    /**
         Rewinds from the current step back to the start of the commands.
      */
     void actionRewind();

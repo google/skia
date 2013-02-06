@@ -19,9 +19,14 @@
 class SkDebugCanvas : public SkCanvas {
 public:
     SkDebugCanvas(int width, int height);
-    ~SkDebugCanvas();
+    virtual ~SkDebugCanvas();
 
     void toggleFilter(bool toggle);
+
+    /**
+     * Enable or disable overdraw visualization
+     */
+    void setOverdrawViz(bool overdrawViz) { fOverdrawViz = overdrawViz; }
 
     /**
         Executes all draw calls to the canvas.
@@ -213,6 +218,8 @@ private:
     SkMatrix fUserMatrix;
     SkMatrix fMatrix;
     SkIRect fClip;
+    bool fOverdrawViz;
+    SkDrawFilter* fOverdrawFilter;
 
     /**
         Number of unmatched save() calls at any point during a draw.
