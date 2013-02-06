@@ -100,6 +100,7 @@
         '../tests/TestSize.cpp',
         '../tests/TileGridTest.cpp',
         '../tests/TLSTest.cpp',
+        '../tests/TSetTest.cpp',
         '../tests/ToUnicode.cpp',
         '../tests/UnicodeTest.cpp',
         '../tests/UtilsTest.cpp',
