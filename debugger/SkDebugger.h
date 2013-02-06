@@ -99,6 +99,13 @@ public:
         return fIndex;
     }
 
+    void setOverdrawViz(bool overDrawViz) {
+        if (NULL != fDebugCanvas) {
+            fDebugCanvas->setOverdrawViz(overDrawViz);
+        }
+    }
+
+
 private:
     SkDebugCanvas* fDebugCanvas;
     SkPicture* fPicture;

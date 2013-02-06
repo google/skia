@@ -7,9 +7,12 @@
  */
 
 
+#include "SkColorPriv.h"
 #include "SkDebugCanvas.h"
 #include "SkDrawCommand.h"
+#include "SkDrawFilter.h"
 #include "SkDevice.h"
+#include "SkXfermode.h"
 
 #ifdef SK_BUILD_FOR_WIN
     // iostream includes xlocale which generates warning 4530 because we're compiling without
@@ -30,7 +33,9 @@ static SkBitmap make_noconfig_bm(int width, int height) {
 
 SkDebugCanvas::SkDebugCanvas(int width, int height)
         : INHERITED(make_noconfig_bm(width, height))
-        , fOutstandingSaveCount(0) {
+        , fOutstandingSaveCount(0)
+        , fOverdrawViz(false)
+        , fOverdrawFilter(NULL) {
     // TODO(chudy): Free up memory from all draw commands in destructor.
     fWidth = width;
     fHeight = height;
@@ -43,6 +48,7 @@ SkDebugCanvas::SkDebugCanvas(int width, int height)
 
 SkDebugCanvas::~SkDebugCanvas() {
     fCommandVector.deleteAll();
+    SkSafeUnref(fOverdrawFilter);
 }
 
 void SkDebugCanvas::addDrawCommand(SkDrawCommand* command) {
@@ -87,6 +93,55 @@ int SkDebugCanvas::getCommandAtPoint(int x, int y, int index) {
     return layer;
 }
 
+SkPMColor OverdrawXferModeProc(SkPMColor src, SkPMColor dst) {
+    // This table encodes the color progression of the overdraw visualization
+    static const SkPMColor gTable[] = {
+        SkPackARGB32(0x00, 0x00, 0x00, 0x00),
+        SkPackARGB32(0xFF, 128, 158, 255),
+        SkPackARGB32(0xFF, 170, 185, 212),
+        SkPackARGB32(0xFF, 213, 195, 170),
+        SkPackARGB32(0xFF, 255, 192, 127),
+        SkPackARGB32(0xFF, 255, 185, 85),
+        SkPackARGB32(0xFF, 255, 165, 42),
+        SkPackARGB32(0xFF, 255, 135, 0),
+        SkPackARGB32(0xFF, 255,  95, 0),
+        SkPackARGB32(0xFF, 255,  50, 0),
+        SkPackARGB32(0xFF, 255,  0, 0)
+    };
+
+    for (int i = 0; i < SK_ARRAY_COUNT(gTable)-1; ++i) {
+        if (gTable[i] == dst) {
+            return gTable[i+1];
+        }
+    }
+
+    return gTable[SK_ARRAY_COUNT(gTable)-1];
+}
+
+// The OverdrawFilter modifies every paint to use an SkProcXfermode which
+// in turn invokes OverdrawXferModeProc
+class OverdrawFilter : public SkDrawFilter {
+public:
+    OverdrawFilter() {
+        fXferMode = new SkProcXfermode(OverdrawXferModeProc);
+    }
+
+    virtual ~OverdrawFilter() {
+        delete fXferMode;
+    }
+
+    virtual bool filter(SkPaint* p, Type) SK_OVERRIDE {
+        p->setXfermode(fXferMode);
+        return true;
+    }
+
+protected:
+    SkXfermode* fXferMode;
+
+private:
+    typedef SkDrawFilter INHERITED;
+};
+
 void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
     SkASSERT(!fCommandVector.isEmpty());
     SkASSERT(index < fCommandVector.count());
@@ -109,6 +164,22 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
         canvas->clipRect(rect, SkRegion::kReplace_Op );
         applyUserTransform(canvas);
         fOutstandingSaveCount = 0;
+
+        // The setting of the draw filter has to go here (rather than in
+        // SkRasterWidget) due to the canvas restores this class performs.
+        // Since the draw filter is stored in the layer stack if we
+        // call setDrawFilter on anything but the root layer odd things happen
+        if (fOverdrawViz) {
+            if (NULL == fOverdrawFilter) {
+                fOverdrawFilter = new OverdrawFilter;
+            }
+
+            if (fOverdrawFilter != canvas->getDrawFilter()) {
+                canvas->setDrawFilter(fOverdrawFilter);
+            }
+        } else {
+            canvas->setDrawFilter(NULL);
+        }
     }
 
     for (; i <= index; i++) {

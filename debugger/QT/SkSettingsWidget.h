@@ -47,6 +47,10 @@ public:
         return &fRasterCheckBox;
     }
 
+    QCheckBox* getOverdrawVizCheckBox() {
+        return &fOverdrawVizCheckBox;
+    }
+
 private slots:
     void updateCommand(int newCommand);
     void updateHit(int newHit);
@@ -86,6 +90,10 @@ private:
     QHBoxLayout fRasterLayout;
     QLabel fRasterLabel;
     QCheckBox fRasterCheckBox;
+
+    QHBoxLayout fOverdrawVizLayout;
+    QLabel fOverdrawVizLabel;
+    QCheckBox fOverdrawVizCheckBox;
 
     QHBoxLayout fGLLayout;
     QLabel fGLLabel;

@@ -59,6 +59,10 @@ SkSettingsWidget::SkSettingsWidget() : QWidget()
 
     fRasterCheckBox.setChecked(true);
 
+    fOverdrawVizLabel.setText("     Overdraw Viz: ");
+    fOverdrawVizLabel.setMinimumWidth(178);
+    fOverdrawVizLabel.setMaximumWidth(178);
+
     fGLLabel.setText("OpenGL: ");
     fGLLabel.setMinimumWidth(178);
     fGLLabel.setMaximumWidth(178);
@@ -66,12 +70,16 @@ SkSettingsWidget::SkSettingsWidget() : QWidget()
     fRasterLayout.addWidget(&fRasterLabel);
     fRasterLayout.addWidget(&fRasterCheckBox);
 
+    fOverdrawVizLayout.addWidget(&fOverdrawVizLabel);
+    fOverdrawVizLayout.addWidget(&fOverdrawVizCheckBox);
+
     fGLLayout.addWidget(&fGLLabel);
     fGLLayout.addWidget(&fGLCheckBox);
 
     fCanvasLayout.setSpacing(6);
     fCanvasLayout.setContentsMargins(11,11,11,11);
     fCanvasLayout.addLayout(&fRasterLayout);
+    fCanvasLayout.addLayout(&fOverdrawVizLayout);
     fCanvasLayout.addLayout(&fGLLayout);
 
     // Command Toggle
