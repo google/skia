@@ -531,8 +531,11 @@ public:
      * @param rowBytes      number of bytes between consecutive rows. Zero means rows are tightly
      *                      packed.
      * @param pixelOpsFlags see PixelOpsFlags enum above.
+     *
+     * @return true if the write succeeded, false if not. The write can fail because of an
+     *         unsupported combination of target and pixel configs.
      */
-    void writeRenderTargetPixels(GrRenderTarget* target,
+    bool writeRenderTargetPixels(GrRenderTarget* target,
                                  int left, int top, int width, int height,
                                  GrPixelConfig config, const void* buffer,
                                  size_t rowBytes = 0,
@@ -572,8 +575,10 @@ public:
      * @param rowBytes      number of bytes between consecutive rows. Zero
      *                      means rows are tightly packed.
      * @param pixelOpsFlags see PixelOpsFlags enum above.
+     * @return true if the write succeeded, false if not. The write can fail because of an
+     *         unsupported combination of texture and pixel configs.
      */
-    void writeTexturePixels(GrTexture* texture,
+    bool writeTexturePixels(GrTexture* texture,
                             int left, int top, int width, int height,
                             GrPixelConfig config, const void* buffer,
                             size_t rowBytes,

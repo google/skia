@@ -237,13 +237,13 @@ bool GrGpu::readPixels(GrRenderTarget* target,
                               config, buffer, rowBytes);
 }
 
-void GrGpu::writeTexturePixels(GrTexture* texture,
+bool GrGpu::writeTexturePixels(GrTexture* texture,
                                int left, int top, int width, int height,
                                GrPixelConfig config, const void* buffer,
                                size_t rowBytes) {
     this->handleDirtyContext();
-    this->onWriteTexturePixels(texture, left, top, width, height,
-                               config, buffer, rowBytes);
+    return this->onWriteTexturePixels(texture, left, top, width, height,
+                                      config, buffer, rowBytes);
 }
 
 void GrGpu::resolveRenderTarget(GrRenderTarget* target) {

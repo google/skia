@@ -425,11 +425,6 @@ void WritePixelsTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
             if (isGPUDevice) {
                 GrContextFactory::GLContextType type =
                     static_cast<GrContextFactory::GLContextType>(glCtxType);
-#if SK_ANGLE // This test breaks ANGLE with GL errors in texsubimage2D. Disable until debugged.
-                if (type == GrContextFactory::kANGLE_GLContextType) {
-                    continue;
-                }
-#endif
                 if (!GrContextFactory::IsRenderingGLContext(type)) {
                     continue;
                 }

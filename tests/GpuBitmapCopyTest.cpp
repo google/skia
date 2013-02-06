@@ -107,11 +107,6 @@ static void TestGpuBitmapCopy(skiatest::Reporter* reporter, GrContextFactory* fa
         if (!GrContextFactory::IsRenderingGLContext(glType)) {
             continue;
         }
-#if SK_ANGLE // This test breaks ANGLE: memcmps fail and readpixels return value is false.
-        if (type == GrContextFactory::kANGLE_GLContextType) {
-            continue;
-        }
-#endif
 
         GrContext* grContext = factory->get(glType);
         if (NULL == grContext) {
