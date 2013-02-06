@@ -15,8 +15,7 @@ def Config(**kwargs):
 
 def TileArgs(tile_x, tile_y):
   return {'mode': ['tile', str(tile_x), str(tile_y)],
-          # TODO(borenet): Turn this back on once the parser is working.
-          #'timeIndividualTiles': True
+          'timeIndividualTiles': True,
           }
 
 
