@@ -125,8 +125,10 @@ public:
     }
 
     SkMatrix44& operator=(const SkMatrix44& src) {
-        memcpy(fMat, src.fMat, sizeof(fMat));
-        fTypeMask = src.fTypeMask;
+        if (&src != this) {
+            memcpy(fMat, src.fMat, sizeof(fMat));
+            fTypeMask = src.fTypeMask;
+        }
         return *this;
     }
 
