@@ -116,8 +116,8 @@ def parse(settings, lines, representation=None):
     settings_re = 'skia bench:((?:\s+' + setting_re + ')*)'
     bench_re = 'running bench (?:\[\d+ \d+\] )?\s*(\S+)'
     time_re = '(?:(\w*)msecs = )?\s*((?:\d+\.\d+)(?:,\d+\.\d+)*)'
-    # non-per-tile benches have configs that don't end with ']'
-    config_re = '(\S+[^\]]): ((?:' + time_re + '\s+)+)'
+    # non-per-tile benches have configs that don't end with ']' or '>'
+    config_re = '(\S+[^\]>]): ((?:' + time_re + '\s+)+)'
     # per-tile bench lines are in the following format. Note that there are
     # non-averaged bench numbers in separate lines, which we ignore now due to
     # their inaccuracy.
