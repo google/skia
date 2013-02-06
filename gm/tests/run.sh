@@ -85,8 +85,8 @@ function gm_test {
   compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
 }
 
-# Create input dir (at path $1) with images that match or mismatch
-# as appropriate.
+# Create input dir (at path $1) with expectations (both image and json)
+# that gm will match or mismatch as appropriate.
 #
 # We used to check these files into SVN, but then we needed to rebasline them
 # when our drawing changed at all... so, as proposed in
@@ -98,29 +98,42 @@ function create_inputs_dir {
     exit 1
   fi
   INPUTS_DIR="$1"
-  mkdir -p $INPUTS_DIR
+  IMAGES_DIR=$INPUTS_DIR/images
+  JSON_DIR=$INPUTS_DIR/json
+  mkdir -p $IMAGES_DIR $JSON_DIR
 
-  mkdir -p $INPUTS_DIR/identical-bytes
+  mkdir -p $IMAGES_DIR/identical-bytes
+  # Run GM to write out the images actually generated.
   $GM_BINARY --hierarchy --match dashing2 $CONFIGS \
-    -w $INPUTS_DIR/identical-bytes
-
-  mkdir -p $INPUTS_DIR/identical-pixels
+    -w $IMAGES_DIR/identical-bytes
+  # Run GM again to read in those images and write them out as a JSON summary.
   $GM_BINARY --hierarchy --match dashing2 $CONFIGS \
-    -w $INPUTS_DIR/identical-pixels
-  echo "more bytes that do not change the image pixels" \
-    >> $INPUTS_DIR/identical-pixels/8888/dashing2.png
-  echo "more bytes that do not change the image pixels" \
-    >> $INPUTS_DIR/identical-pixels/565/dashing2.png
+    -r $IMAGES_DIR/identical-bytes \
+    --writeJsonSummary $JSON_DIR/identical-bytes.json
 
-  mkdir -p $INPUTS_DIR/different-pixels
+  mkdir -p $IMAGES_DIR/identical-pixels
+  $GM_BINARY --hierarchy --match dashing2 $CONFIGS \
+    -w $IMAGES_DIR/identical-pixels
+  echo "more bytes that do not change the image pixels" \
+    >> $IMAGES_DIR/identical-pixels/8888/dashing2.png
+  echo "more bytes that do not change the image pixels" \
+    >> $IMAGES_DIR/identical-pixels/565/dashing2.png
+  $GM_BINARY --hierarchy --match dashing2 $CONFIGS \
+    -r $IMAGES_DIR/identical-pixels \
+    --writeJsonSummary $JSON_DIR/identical-pixels.json
+
+  mkdir -p $IMAGES_DIR/different-pixels
   $GM_BINARY --hierarchy --match dashing3 $CONFIGS \
-    -w $INPUTS_DIR/different-pixels
-  mv $INPUTS_DIR/different-pixels/8888/dashing3.png \
-    $INPUTS_DIR/different-pixels/8888/dashing2.png
-  mv $INPUTS_DIR/different-pixels/565/dashing3.png \
-    $INPUTS_DIR/different-pixels/565/dashing2.png
+    -w $IMAGES_DIR/different-pixels
+  mv $IMAGES_DIR/different-pixels/8888/dashing3.png \
+    $IMAGES_DIR/different-pixels/8888/dashing2.png
+  mv $IMAGES_DIR/different-pixels/565/dashing3.png \
+    $IMAGES_DIR/different-pixels/565/dashing2.png
+  $GM_BINARY --hierarchy --match dashing2 $CONFIGS \
+    -r $IMAGES_DIR/different-pixels \
+    --writeJsonSummary $JSON_DIR/different-pixels.json
 
-  mkdir -p $INPUTS_DIR/empty-dir
+  mkdir -p $IMAGES_DIR/empty-dir
 }
 
 GM_TESTDIR=gm/tests
@@ -131,16 +144,16 @@ GM_TEMPFILES=$GM_TESTDIR/tempfiles
 create_inputs_dir $GM_INPUTS
 
 # Compare generated image against an input image file with identical bytes.
-gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/identical-bytes" "$GM_OUTPUTS/compared-against-identical-bytes"
+gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/images/identical-bytes" "$GM_OUTPUTS/compared-against-identical-bytes-images"
 
 # Compare generated image against an input image file with identical pixels but different PNG encoding.
-gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/identical-pixels" "$GM_OUTPUTS/compared-against-identical-pixels"
+gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/images/identical-pixels" "$GM_OUTPUTS/compared-against-identical-pixels-images"
 
 # Compare generated image against an input image file with different pixels.
-gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/different-pixels" "$GM_OUTPUTS/compared-against-different-pixels"
+gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/images/different-pixels" "$GM_OUTPUTS/compared-against-different-pixels-images"
 
 # Compare generated image against an empty "expected image" dir.
-gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/empty-dir" "$GM_OUTPUTS/compared-against-empty-dir"
+gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/images/empty-dir" "$GM_OUTPUTS/compared-against-empty-dir"
 
 # If run without "-r", the JSON's "actual-results" section should contain
 # actual checksums marked as "failure-ignored", but the "expected-results"

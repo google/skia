@@ -1,1 +1,0 @@
-out/Debug/gm --hierarchy --match dashing2 --config 8888 --config 565 -r gm/tests/inputs/identical-pixels --writeJsonSummary gm/tests/outputs/compared-against-identical-pixels/output-actual/json-summary.txt
