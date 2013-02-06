@@ -139,7 +139,7 @@ void PictureRenderer::end() {
 
 int PictureRenderer::getViewWidth() {
     SkASSERT(fPicture != NULL);
-    int width = fPicture->width();
+    int width = fPicture->width() * fScaleFactor;
     if (fViewport.width() > 0) {
         width = SkMin32(width, fViewport.width());
     }
@@ -148,7 +148,7 @@ int PictureRenderer::getViewWidth() {
 
 int PictureRenderer::getViewHeight() {
     SkASSERT(fPicture != NULL);
-    int height = fPicture->height();
+    int height = fPicture->height() * fScaleFactor;
     if (fViewport.height() > 0) {
         height = SkMin32(height, fViewport.height());
     }
