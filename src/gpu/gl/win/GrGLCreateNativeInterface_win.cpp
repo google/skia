@@ -50,7 +50,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
     }
     GrGLGetStringProc glGetString =
         (GrGLGetStringProc) GetProcAddress(alu.get(), "glGetString");
-    
+
     if (NULL != wglGetCurrentContext()) {
         const char* versionString = (const char*) glGetString(GR_GL_VERSION);
         const char* extString = (const char*) glGetString(GR_GL_EXTENSIONS);
