@@ -257,7 +257,7 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const DrawInfo& info) {
     instancesToConcat = GrMin(instancesToConcat, info.instanceCount());
 
     // update the amount of reserved vertex data actually referenced in draws
-    size_t vertexBytes = instancesToConcat * info.verticesPerInstance() * 
+    size_t vertexBytes = instancesToConcat * info.verticesPerInstance() *
                          drawState.getVertexSize();
     poolState.fUsedPoolVertexBytes = GrMax(poolState.fUsedPoolVertexBytes, vertexBytes);
 
@@ -321,7 +321,7 @@ void GrInOrderDrawBuffer::onDraw(const DrawInfo& info) {
             break;
         case kReserved_GeometrySrcType: // fallthrough
         case kArray_GeometrySrcType: {
-            size_t vertexBytes = (info.vertexCount() + info.startVertex()) * 
+            size_t vertexBytes = (info.vertexCount() + info.startVertex()) *
                                  drawState.getVertexSize();
             poolState.fUsedPoolVertexBytes = GrMax(poolState.fUsedPoolVertexBytes, vertexBytes);
             draw->fVertexBuffer = poolState.fPoolVertexBuffer;

@@ -185,7 +185,7 @@ static int filter_picture(const SkString& inFile, const SkString& outFile) {
 
     const SkTDArray<SkDrawCommand*>& commands = debugCanvas.getDrawCommands();
 
-    // hide the initial save and restore since replaying the commands will 
+    // hide the initial save and restore since replaying the commands will
     // re-add them
     if (commands.count() > 0) {
         commands[0]->setVisible(false);

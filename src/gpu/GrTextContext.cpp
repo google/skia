@@ -208,7 +208,7 @@ HAS_ATLAS:
         if (NULL != fDrawTarget) {
             fDrawTarget->drawState()->setVertexLayout(fVertexLayout);
             flush = fDrawTarget->geometryHints(&fMaxVertices, NULL);
-        }    
+        }
         if (flush) {
             this->flushGlyphs();
             fContext->flush();

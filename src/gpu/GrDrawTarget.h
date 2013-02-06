@@ -277,7 +277,7 @@ public:
      * the vertex data when this is called.
      *
      * @param vertexArray   cpu array containing vertex data.
-     * @param vertexCount   the number of vertices in the array. Vertex size is 
+     * @param vertexCount   the number of vertices in the array. Vertex size is
      *                      queried from the current GrDrawState.
      */
     void setVertexSourceToArray(const void* vertexArray, int vertexCount);
@@ -296,7 +296,7 @@ public:
      * in the buffer until drawIndexed, drawNonIndexed, or drawIndexedInstances.
      *
      * @param buffer        vertex buffer containing vertex data. Must be
-     *                      unlocked before draw call. Vertex size is queried 
+     *                      unlocked before draw call. Vertex size is queried
      *                      from current GrDrawState.
      */
     void setVertexSourceToBuffer(const GrVertexBuffer* buffer);
@@ -600,7 +600,7 @@ public:
 
     class AutoGeometryAndStatePush : ::GrNoncopyable {
     public:
-        AutoGeometryAndStatePush(GrDrawTarget* target, ASRInit init) 
+        AutoGeometryAndStatePush(GrDrawTarget* target, ASRInit init)
             : fState(target, init) {
             GrAssert(NULL != target);
             fTarget = target;
