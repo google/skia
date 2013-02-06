@@ -40,10 +40,10 @@ BENCH_LB = 0.85
 # performance tunings.
 BENCH_ALLOWED_NOISE = 10
 
-# List of platforms to track.
-PLATFORMS = ['Mac_Float_Bench_32',
+# List of platforms to track. Feel free to change it to meet your needs.
+PLATFORMS = [#'Mac_Float_Bench_32',
              'Nexus10_4-1_Float_Bench_32',
-             'Shuttle_Ubuntu12_ATI5770_Float_Bench_32',
+             #'Shuttle_Ubuntu12_ATI5770_Float_Bench_32',
             ]
 
 # Filter for configs of no interest. They are old config names replaced by more
@@ -93,7 +93,8 @@ def OutputSkpBenchExpectations(rev_min, rev_max, representation_alg):
   uri = boto.storage_uri(URI_BUCKET, GOOGLE_STORAGE_URI_SCHEME)
   for obj in uri.get_bucket():
     # Filters out non-skp-bench files.
-    if (not obj.name.startswith('perfdata/Skia_') or
+    if ((not obj.name.startswith('perfdata/Skia_') and
+         not obj.name.startswith('playback/perfdata/Skia_')) or
         obj.name.find('_data_skp_') < 0):
       continue
     # Ignores uninterested platforms.
@@ -101,21 +102,18 @@ def OutputSkpBenchExpectations(rev_min, rev_max, representation_alg):
     if platform not in PLATFORMS:
       continue
     # Filters by revision.
+    to_filter = True
     for rev in range(rev_min, rev_max + 1):
-      if '_r%s_' % rev not in obj.name:
-        continue
-
+      if '_r%s_' % rev in obj.name:
+        to_filter = False
+        break
+    if to_filter:
+      continue
     contents = cStringIO.StringIO()
     obj.get_file(contents)
     for point in bench_util.parse('', contents.getvalue().split('\n'),
                                   representation_alg):
       if point.config in CONFIGS_TO_FILTER:
-        continue
-      # TODO(bensong): the filtering below is only needed during skp generation
-      # system transitioning. Change it once the new system (bench name starts
-      # with http) is stable for the switch-over, and delete it once we
-      # deprecate the old ones.
-      if point.bench.startswith('http'):
         continue
 
       key = '%s_%s_%s,%s-%s' % (point.bench, point.config, point.time_type,
