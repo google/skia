@@ -109,7 +109,7 @@ SkPMColor OverdrawXferModeProc(SkPMColor src, SkPMColor dst) {
         SkPackARGB32(0xFF, 255,  0, 0)
     };
 
-    for (int i = 0; i < SK_ARRAY_COUNT(gTable)-1; ++i) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gTable)-1; ++i) {
         if (gTable[i] == dst) {
             return gTable[i+1];
         }
