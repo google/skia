@@ -103,7 +103,6 @@ static void SCALE_NOFILTER_NAME(const SkBitmapProcState& s,
 
         /* now build fx/fx+dx/fx+2dx/fx+3dx */
         SkFixed fx1, fx2, fx3;
-        int32x2_t lower, upper;
         int32x4_t lbase, hbase;
         int16_t *dst16 = (int16_t *)xy;
 
@@ -179,7 +178,7 @@ static void AFFINE_NOFILTER_NAME(const SkBitmapProcState& s,
     int maxX = s.fBitmap->width() - 1;
     int maxY = s.fBitmap->height() - 1;
 
-#if 1
+#if 0
     int ocount = count;
     uint32_t *oxy = xy;
     SkFixed bfx = fx, bfy=fy, bdx=dx, bdy=dy;
@@ -199,7 +198,6 @@ static void AFFINE_NOFILTER_NAME(const SkBitmapProcState& s,
         SkFixed dy4 = dy*4;
 
         /* now build fx/fx+dx/fx+2dx/fx+3dx */
-        int32x2_t lower, upper;
         int32x4_t xbase, ybase;
         int16_t *dst16 = (int16_t *)xy;
 

@@ -362,7 +362,7 @@ private:
 
     // marks fTopBot[] as unrecorded
     void setTopBotUnwritten() {
-        this->fTopBot[0] = this->fTopBot[1] = SK_ScalarNaN; // initial to sentinel values
+        this->fTopBot[0] = SK_ScalarNaN; // initial to sentinel values
     }
 
     // From here down is the data we look at in the search/sort. We always begin

@@ -61,6 +61,12 @@
             },
           },
         }],
+        [ 'skia_os == "android"', {
+          'cflags!': [
+            '-Wall',
+            '-Werror',
+          ],
+        }],
       ],
     },
   ],

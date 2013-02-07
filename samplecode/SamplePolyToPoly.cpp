@@ -27,9 +27,8 @@ public:
                               { 2*SK_Scalar1, 0 },
                               { 0, 2*SK_Scalar1 } };
             SkMatrix m1, m2;
-            bool success;
 
-            success = m1.setPolyToPoly(src, dst, 3);
+            (void) m1.setPolyToPoly(src, dst, 3);
 
             m2.reset();
             m2.set(SkMatrix::kMScaleX, dst[1].fX - dst[0].fX);
@@ -49,7 +48,7 @@ public:
                 SkFloatToScalar(158), SkFloatToScalar(604.5f), SkFloatToScalar(158), SkFloatToScalar(-177.5f)
             };
 
-            success = m2.setPolyToPoly((const SkPoint*)src1, (SkPoint*)dst1, 4);
+            (void) m2.setPolyToPoly((const SkPoint*)src1, (SkPoint*)dst1, 4);
 
             {
                 const SkPoint src[] = {

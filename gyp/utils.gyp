@@ -199,7 +199,7 @@
         }],
         [ 'skia_os == "android"', {
           'sources': [
-            '../src/utils/android/ashmem.c',
+            '../src/utils/android/ashmem.cpp',
           ],
         }],
       ],
@@ -241,6 +241,12 @@
               'WarnAsError': 'false',
             },
           },
+        }],
+        [ 'skia_os == "android"', {
+          'cflags!': [
+            '-Wall',
+            '-Werror',
+          ],
         }],
       ],
     },

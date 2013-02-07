@@ -311,8 +311,10 @@
           '-llog',
         ],
         'cflags': [
+          '-Wall',
           '-fno-exceptions',
           '-fno-rtti',
+          '-fstrict-aliasing',
           '-fuse-ld=gold',
         ],
         'conditions': [

@@ -82,7 +82,6 @@ void startElementHandler(void *data, const char *tag, const char **atts) {
         // The Family tag has an optional "order" attribute with an integer value >= 0
         // If this attribute does not exist, the default value is -1
         for (int i = 0; atts[i] != NULL; i += 2) {
-            const char* attribute = atts[i];
             const char* valueString = atts[i+1];
             int value;
             int len = sscanf(valueString, "%d", &value);
