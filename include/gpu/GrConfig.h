@@ -325,10 +325,6 @@ inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
     #define GR_TEXT_SCALAR_TYPE_IS_FIXED   0
 #endif
 
-#ifndef GR_DUMP_TEXTURE_UPLOAD
-    #define GR_DUMP_TEXTURE_UPLOAD  0
-#endif
-
 /**
  *  GR_DISABLE_DRAW_BUFFERING prevents GrContext from queueing draws in a
  *  GrInOrderDrawBuffer.

@@ -214,11 +214,6 @@ void GrResourceCache::addResource(const GrResourceKey& key,
     this->attachToHead(entry);
     fCache.insert(key, entry);
 
-#if GR_DUMP_TEXTURE_UPLOAD
-    GrPrintf("--- add resource to cache %p, count=%d bytes= %d %d\n",
-             entry, fEntryCount, resource->sizeInBytes(), fEntryBytes);
-#endif
-
     if (ownershipFlags & kHide_OwnershipFlag) {
         this->makeExclusive(entry);
     }
@@ -315,14 +310,6 @@ void GrResourceCache::purgeAsNeeded() {
 
                     // remove from our llist
                     this->internalDetach(entry);
-
-        #if GR_DUMP_TEXTURE_UPLOAD
-                    GrPrintf("--- ~resource from cache %p [%d %d]\n",
-                             entry->resource(),
-                             entry->resource()->width(),
-                             entry->resource()->height());
-        #endif
-
                     delete entry;
                 }
                 entry = prev;

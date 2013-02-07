@@ -22,12 +22,6 @@
 #endif
 
 /*
- * To diagnose texture cache performance, define this to 1 if you want to see
- * a log statement everytime we upload an image to create a texture.
- */
-//#define GR_DUMP_TEXTURE_UPLOAD    1
-
-/*
  * This causes the GrContext to execute all draws immediately in the 3D API
  * rather than internally queuing draws.
  */
