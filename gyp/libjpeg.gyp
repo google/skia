@@ -89,6 +89,8 @@
             ['OS=="android"', {
               'cflags!': [
                '-fno-rtti', # supresses warnings about invalid option of non-C++ code
+               '-Wall',
+               '-Werror',
               ],
             }],
           ],

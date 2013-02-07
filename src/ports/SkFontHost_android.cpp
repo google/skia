@@ -451,6 +451,7 @@ static SkTypeface* gDefaultNormal;
 static char** gDefaultNames = NULL;
 static uint32_t *gFallbackFonts;
 
+#if SK_DEBUG_FONTS
 static void dump_globals() {
     SkDebugf("gDefaultNormal=%p id=%u refCnt=%d", gDefaultNormal,
              gDefaultNormal ? gDefaultNormal->uniqueID() : 0,
@@ -506,6 +507,7 @@ static void dump_globals() {
     }
 
 }
+#endif
 
 
 /*  Load info from a configuration file that populates the system/fallback font structures
@@ -519,10 +521,8 @@ static void load_font_info() {
     }
 
     SkTDArray<FontInitRec> fontInfo;
-    bool firstInFamily = false;
     for (int i = 0; i < fontFamilies.count(); ++i) {
         FontFamily *family = fontFamilies[i];
-        firstInFamily = true;
         for (int j = 0; j < family->fFileNames.count(); ++j) {
             FontInitRec fontInfoRecord;
             fontInfoRecord.fFileName = family->fFileNames[j];
@@ -672,7 +672,9 @@ static void init_system_fonts() {
     // now terminate our fallback list with the sentinel value
     gFallbackFonts[fallbackCount] = 0;
 
-//    SkDEBUGCODE(dump_globals());
+#if SK_DEBUG_FONTS
+    SkDEBUGCODE(dump_globals());
+#endif
 }
 
 static size_t find_uniqueID(const char* filename) {

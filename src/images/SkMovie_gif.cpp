@@ -188,9 +188,6 @@ static void blitNormal(SkBitmap* bm, const SavedImage* frame, const ColorMapObje
         copyHeight = height - frame->ImageDesc.Top;
     }
 
-    int srcPad, dstPad;
-    dstPad = width - copyWidth;
-    srcPad = frame->ImageDesc.Width - copyWidth;
     for (; copyHeight > 0; copyHeight--) {
         copyLine(dst, src, cmap, transparent, copyWidth);
         src += frame->ImageDesc.Width;

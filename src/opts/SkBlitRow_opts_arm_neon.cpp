@@ -24,7 +24,7 @@ void S32A_D565_Opaque_neon(uint16_t* SK_RESTRICT dst,
     SkASSERT(255 == alpha);
 
     if (count >= 8) {
-        uint16_t* SK_RESTRICT keep_dst;
+        uint16_t* SK_RESTRICT keep_dst = 0;
 
         asm volatile (
                       "ands       ip, %[count], #7            \n\t"
@@ -104,7 +104,7 @@ void S32A_D565_Opaque_neon(uint16_t* SK_RESTRICT dst,
     }
     else
     {   // handle count < 8
-        uint16_t* SK_RESTRICT keep_dst;
+        uint16_t* SK_RESTRICT keep_dst = 0;
 
         asm volatile (
                       "vmov.u8    d31, #1<<7                  \n\t"
@@ -889,8 +889,8 @@ void S32_D565_Opaque_Dither_neon(uint16_t* SK_RESTRICT dst,
     d = vld1_u8(dstart);
 
     while (count >= UNROLL) {
-        uint8x8_t sr, sg, sb, sa;
-        uint16x8_t dr, dg, db, da;
+        uint8x8_t sr, sg, sb;
+        uint16x8_t dr, dg, db;
         uint16x8_t dst8;
 
         /* source is in ABGR ordering (R == lsb) */
@@ -904,7 +904,7 @@ void S32_D565_Opaque_Dither_neon(uint16_t* SK_RESTRICT dst,
             : "=w" (d0), "=w" (d1), "=w" (d2), "=w" (d3)
             : "r" (src)
                     );
-            sr = d0; sg = d1; sb = d2; sa = d3;
+            sr = d0; sg = d1; sb = d2;
         }
         /* XXX: if we want to prefetch, hide it in the above asm()
          * using the gcc __builtin_prefetch(), the prefetch will

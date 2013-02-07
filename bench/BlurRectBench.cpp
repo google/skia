@@ -19,12 +19,21 @@
 #define REALBIG SkFloatToScalar(30.5f)
 
 class BlurRectBench: public SkBenchmark {
+    int         fLoopCount;
     SkScalar    fRadius;
     SkString    fName;
 
 public:
     BlurRectBench(void *param, SkScalar rad) : INHERITED(param) {
         fRadius = rad;
+
+        if (fRadius > SkIntToScalar(25)) {
+            fLoopCount = 100;
+        } else if (fRadius > SkIntToScalar(5)) {
+            fLoopCount = 1000;
+        } else {
+            fLoopCount = 10000;
+        }
     }
 
 protected:
@@ -49,19 +58,9 @@ protected:
         SkScalar pad = fRadius*3/2 + SK_Scalar1;
         SkRect r = SkRect::MakeWH(2 * pad + SK_Scalar1, 2 * pad + SK_Scalar1);
 
-        int loop_count;
-
-        if (fRadius > SkIntToScalar(25)) {
-          loop_count = 100;
-        } else if (fRadius > SkIntToScalar(5)) {
-          loop_count = 1000;
-        } else {
-          loop_count = 10000;
-        }
-
         preBenchSetup(r);
 
-        for (int i = 0; i < SkBENCHLOOP(loop_count); i++) {
+        for (int i = 0; i < SkBENCHLOOP(fLoopCount); i++) {
             makeBlurryRect(r);
         }
     }

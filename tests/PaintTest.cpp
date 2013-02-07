@@ -29,8 +29,8 @@ static void test_copy(skiatest::Reporter* reporter) {
 
 #ifdef SK_BUILD_FOR_ANDROID
     // the copy constructor should preserve the Generation ID
-    int32_t paintGenID = paint.getGenerationID();
-    int32_t copiedPaintGenID = copiedPaint.getGenerationID();
+    uint32_t paintGenID = paint.getGenerationID();
+    uint32_t copiedPaintGenID = copiedPaint.getGenerationID();
     REPORTER_ASSERT(reporter, paintGenID == copiedPaintGenID);
     REPORTER_ASSERT(reporter, !memcmp(&paint, &copiedPaint, sizeof(paint)));
 #endif
