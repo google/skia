@@ -338,16 +338,6 @@ inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
 #endif
 
 /**
- *  GR_AGGRESSIVE_SHADER_OPTS controls how aggressively shaders are optimized
- *  for special cases. On systems where program changes are expensive this
- *  may not be advantageous. Consecutive draws may no longer use the same
- *  program.
- */
-#if !defined(GR_AGGRESSIVE_SHADER_OPTS)
-    #define GR_AGGRESSIVE_SHADER_OPTS 1
-#endif
-
-/**
  * GR_GEOM_BUFFER_LOCK_THRESHOLD gives a threshold (in bytes) for when Gr should
  * lock a GrGeometryBuffer to update its contents. It will use lock() if the
  * size of the updated region is greater than the threshold. Otherwise it will

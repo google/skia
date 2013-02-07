@@ -529,9 +529,9 @@ void GrGpuGL::buildProgram(bool isPoints,
     bool colorIsTransBlack = SkToBool(blendOpts & kEmitTransBlack_BlendOptFlag);
     bool colorIsSolidWhite = (blendOpts & kEmitCoverage_BlendOptFlag) ||
                              (!requiresAttributeColors && 0xffffffff == drawState.getColor());
-    if (GR_AGGRESSIVE_SHADER_OPTS && colorIsTransBlack) {
+    if (colorIsTransBlack) {
         desc->fColorInput = ProgramDesc::kTransBlack_ColorInput;
-    } else if (GR_AGGRESSIVE_SHADER_OPTS && colorIsSolidWhite) {
+    } else if (colorIsSolidWhite) {
         desc->fColorInput = ProgramDesc::kSolidWhite_ColorInput;
     } else if (GR_GL_NO_CONSTANT_ATTRIBUTES && !requiresAttributeColors) {
         desc->fColorInput = ProgramDesc::kUniform_ColorInput;

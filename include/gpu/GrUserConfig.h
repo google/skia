@@ -34,12 +34,6 @@
 //#define GR_DISABLE_DRAW_BUFFERING 1
 
 /*
- * This causes more aggressive shader optimization. May hurt performance if
- * switching shaders is expensive.
- */
-//#define GR_AGGRESSIVE_SHADER_OPTS 1
-
-/*
  * This gives a threshold in bytes of when to lock a GrGeometryBuffer vs using
  * updateData. (Note the depending on the underlying 3D API the update functions
  * may always be implemented using a lock)
