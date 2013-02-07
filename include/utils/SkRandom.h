@@ -197,7 +197,7 @@ public:
      */
     float nextF() {
         unsigned int floatint = 0x3f800000 | (this->nextU() >> 9);
-        float f = *SkTCast<float*>(&floatint) - 1.0f;
+        float f = SkBits2Float(floatint) - 1.0f;
         return f;
     }
 
