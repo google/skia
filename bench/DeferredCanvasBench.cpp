@@ -63,6 +63,8 @@ public:
     virtual void flushedDrawCommands() SK_OVERRIDE {fDummy = !fDummy;}
 private:
     bool fDummy;
+
+    typedef SkDeferredCanvas::NotificationClient INHERITED;
 };
 
 // Test that records very simple draw operations.

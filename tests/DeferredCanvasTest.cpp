@@ -260,6 +260,9 @@ public:
     int fStorageAllocatedChangedCount;
     int fFlushedDrawCommandsCount;
     int fSkippedPendingDrawCommandsCount;
+
+private:
+    typedef SkDeferredCanvas::NotificationClient INHERITED;
 };
 
 static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {

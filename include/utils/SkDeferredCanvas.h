@@ -192,6 +192,8 @@ public:
 public:
     class NotificationClient {
     public:
+        virtual ~NotificationClient() {}
+
         /**
          *  Called before executing one or several draw commands, which means
          *  once per flush when deferred rendering is enabled.
@@ -218,9 +220,6 @@ public:
          *  or completely overwritten by the command currently being recorded.
          */
         virtual void skippedPendingDrawCommands() {}
-
-    private:
-        typedef SkRefCnt INHERITED;
     };
 
 protected:
