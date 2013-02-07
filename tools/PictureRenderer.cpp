@@ -12,6 +12,7 @@
 #include "SkDevice.h"
 #include "SkGPipe.h"
 #if SK_SUPPORT_GPU
+#include "gl/GrGLDefines.h"
 #include "SkGpuDevice.h"
 #endif
 #include "SkGraphics.h"

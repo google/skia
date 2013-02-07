@@ -144,6 +144,15 @@
         'images.gyp:images',
         'tools.gyp:picture_utils',
       ],
+      'conditions': [
+        ['skia_gpu == 1',
+          {
+            'include_dirs' : [
+              '../src/gpu',
+            ],
+          },
+        ],
+      ],
       'export_dependent_settings': [
         'images.gyp:images',
       ],

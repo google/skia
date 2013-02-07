@@ -11,6 +11,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "gl/GrGLDefines.h"
 #include "GrRenderTarget.h"
 #if SK_ANGLE
 #include "gl/SkANGLEGLContext.h"

@@ -96,7 +96,7 @@ void PictureBenchmark::run(SkPicture* pict) {
         while (tiledRenderer->nextTile(x, y)) {
             // There are two timers, which will behave slightly differently:
             // 1) longRunningTimer, along with perTileTimerData, will time how long it takes to draw
-            // one tile fRepeats times, and take the average. As such, it will not respect the
+            // one tile fRepeats times, and take the average. As such, it will not respect thea
             // logPerIter or printMin options, since it does not know the time per iteration. It
             // will also be unable to call flush() for each tile.
             // The goal of this timer is to make up for a system timer that is not precise enough to
@@ -104,10 +104,10 @@ void PictureBenchmark::run(SkPicture* pict) {
             //
             // 2) perTileTimer, along with perTileTimerData, will record each run separately, and
             // then take the average. As such, it supports logPerIter and printMin options.
-            SkAutoTDelete<BenchTimer> longRunningTimer(this->setupTimer(false));
+            SkAutoTDelete<BenchTimer> longRunningTimer(this->setupTimer());
             TimerData longRunningTimerData(tiledRenderer->getPerIterTimeFormat(),
                                            tiledRenderer->getNormalTimeFormat());
-            SkAutoTDelete<BenchTimer> perTileTimer(this->setupTimer(false));
+            SkAutoTDelete<BenchTimer> perTileTimer(this->setupTimer());
             TimerData perTileTimerData(tiledRenderer->getPerIterTimeFormat(),
                                        tiledRenderer->getNormalTimeFormat());
             longRunningTimer->start();

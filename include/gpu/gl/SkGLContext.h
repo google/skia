@@ -61,9 +61,14 @@ private:
 };
 
 /**
- * Helper macro for using the GL context through the GrGLInterface. Example:
+ * Helper macros for using the GL context through the GrGLInterface. Example:
  * SK_GL(glCtx, GenTextures(1, &texID));
  */
-#define SK_GL(ctx, X) (ctx).gl()->f ## X
+#define SK_GL(ctx, X) (ctx).gl()->f ## X;    \
+                      SkASSERT(GR_GL_NO_ERROR == (ctx).gl()->fGetError())
+#define SK_GL_RET(ctx, RET, X) (RET) = (ctx).gl()->f ## X;    \
+                  SkASSERT(GR_GL_NO_ERROR == (ctx).gl()->fGetError())
+#define SK_GL_NOERRCHECK(ctx, X) (ctx).gl()->f ## X
+#define SK_GL_RET_NOERRCHECK(ctx, RET, X) (RET) = (ctx).gl()->f ## X
 
 #endif
