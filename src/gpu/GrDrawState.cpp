@@ -6,8 +6,6 @@
  */
 
 #include "GrDrawState.h"
-
-#include "GrGpuVertex.h"
 #include "GrPaint.h"
 
 void GrDrawState::setFromPaint(const GrPaint& paint) {
@@ -149,15 +147,13 @@ int num_tex_coords(GrVertexLayout layout) {
 
 } //unnamed namespace
 
+static const size_t kVec2Size = sizeof(GrPoint);
+
 size_t GrDrawState::VertexSize(GrVertexLayout vertexLayout) {
     GrAssert(check_layout(vertexLayout));
 
-    size_t vecSize = (vertexLayout & kTextFormat_VertexLayoutBit) ?
-                        sizeof(GrGpuTextVertex) :
-                        sizeof(GrPoint);
-
-    size_t size = vecSize; // position
-    size += num_tex_coords(vertexLayout) * vecSize;
+    size_t size = kVec2Size; // position
+    size += num_tex_coords(vertexLayout) * kVec2Size;
     if (vertexLayout & kColor_VertexLayoutBit) {
         size += sizeof(GrColor);
     }
@@ -194,14 +190,11 @@ int GrDrawState::VertexStageCoordOffset(int stageIdx, GrVertexLayout vertexLayou
     int tcIdx = VertexTexCoordsForStage(stageIdx, vertexLayout);
     if (tcIdx >= 0) {
 
-        int vecSize = (vertexLayout & kTextFormat_VertexLayoutBit) ?
-                                    sizeof(GrGpuTextVertex) :
-                                    sizeof(GrPoint);
-        int offset = vecSize; // position
+        int offset = kVec2Size; // position
         // figure out how many tex coordinates are present and precede this one.
         for (int t = 0; t < tcIdx; ++t) {
             if (gTexCoordMasks[t] & vertexLayout) {
-                offset += vecSize;
+                offset += kVec2Size;
             }
         }
         return offset;
@@ -214,10 +207,7 @@ int GrDrawState::VertexColorOffset(GrVertexLayout vertexLayout) {
     GrAssert(check_layout(vertexLayout));
 
     if (vertexLayout & kColor_VertexLayoutBit) {
-        int vecSize = (vertexLayout & kTextFormat_VertexLayoutBit) ?
-                                    sizeof(GrGpuTextVertex) :
-                                    sizeof(GrPoint);
-        return vecSize * (num_tex_coords(vertexLayout) + 1); //+1 for pos
+        return kVec2Size * (num_tex_coords(vertexLayout) + 1); //+1 for pos
     }
     return -1;
 }
@@ -226,11 +216,7 @@ int GrDrawState::VertexCoverageOffset(GrVertexLayout vertexLayout) {
     GrAssert(check_layout(vertexLayout));
 
     if (vertexLayout & kCoverage_VertexLayoutBit) {
-        int vecSize = (vertexLayout & kTextFormat_VertexLayoutBit) ?
-                                    sizeof(GrGpuTextVertex) :
-                                    sizeof(GrPoint);
-
-        int offset = vecSize * (num_tex_coords(vertexLayout) + 1);
+        int offset =  kVec2Size * (num_tex_coords(vertexLayout) + 1);
         if (vertexLayout & kColor_VertexLayoutBit) {
             offset += sizeof(GrColor);
         }
@@ -244,10 +230,7 @@ int GrDrawState::VertexEdgeOffset(GrVertexLayout vertexLayout) {
 
     // edge pts are after the pos, tex coords, and color
     if (vertexLayout & kEdge_VertexLayoutBit) {
-        int vecSize = (vertexLayout & kTextFormat_VertexLayoutBit) ?
-                                    sizeof(GrGpuTextVertex) :
-                                    sizeof(GrPoint);
-        int offset = vecSize * (num_tex_coords(vertexLayout) + 1); //+1 for pos
+        int offset = kVec2Size * (num_tex_coords(vertexLayout) + 1); //+1 for pos
         if (vertexLayout & kColor_VertexLayoutBit) {
             offset += sizeof(GrColor);
         }
@@ -267,17 +250,14 @@ int GrDrawState::VertexSizeAndOffsetsByIdx(
         int* edgeOffset) {
     GrAssert(check_layout(vertexLayout));
 
-    int vecSize = (vertexLayout & kTextFormat_VertexLayoutBit) ?
-                                                    sizeof(GrGpuTextVertex) :
-                                                    sizeof(GrPoint);
-    int size = vecSize; // position
+    int size = kVec2Size; // position
 
     for (int t = 0; t < kMaxTexCoords; ++t) {
         if (gTexCoordMasks[t] & vertexLayout) {
             if (NULL != texCoordOffsetsByIdx) {
                 texCoordOffsetsByIdx[t] = size;
             }
-            size += vecSize;
+            size += kVec2Size;
         } else {
             if (NULL != texCoordOffsetsByIdx) {
                 texCoordOffsetsByIdx[t] = -1;

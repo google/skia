@@ -74,7 +74,6 @@
       '<(skia_src_path)/gpu/GrGpu.cpp',
       '<(skia_src_path)/gpu/GrGpu.h',
       '<(skia_src_path)/gpu/GrGpuFactory.cpp',
-      '<(skia_src_path)/gpu/GrGpuVertex.h',
       '<(skia_src_path)/gpu/GrIndexBuffer.h',
       '<(skia_src_path)/gpu/GrInOrderDrawBuffer.cpp',
       '<(skia_src_path)/gpu/GrInOrderDrawBuffer.h',
