@@ -168,16 +168,16 @@ public:
             win->attach(fBackend, fMSAASampleCount);
             
             glBindFramebuffer(GL_FRAMEBUFFER, fLayerFBO);
-            GrPlatformRenderTargetDesc desc;
+            GrBackendRenderTargetDesc desc;
             desc.fWidth = SkScalarRound(win->width());
             desc.fHeight = SkScalarRound(win->height());
-            desc.fConfig = kSkia8888_PM_GrPixelConfig;
+            desc.fConfig = kSkia8888_GrPixelConfig;
             desc.fRenderTargetHandle = fLayerFBO;
             glGetIntegerv(GL_SAMPLES, &desc.fSampleCnt);
             glGetIntegerv(GL_STENCIL_BITS, &desc.fStencilBits);
             
             SkSafeUnref(fCurRenderTarget);
-            fCurRenderTarget = fCurContext->createPlatformRenderTarget(desc);
+            fCurRenderTarget = fCurContext->wrapBackendRenderTarget(desc);
         }
 #endif
     }
