@@ -351,10 +351,6 @@ GrTexture* GrContext::createTexture(const GrTextureParams* params,
                                     size_t rowBytes) {
     SK_TRACE_EVENT0("GrContext::createTexture");
 
-#if GR_DUMP_TEXTURE_UPLOAD
-    GrPrintf("GrContext::createTexture[%d %d]\n", desc.fWidth, desc.fHeight);
-#endif
-
     GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, cacheID);
 
     GrTexture* texture;
