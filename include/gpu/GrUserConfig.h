@@ -22,12 +22,6 @@
 #endif
 
 /*
- * This causes the GrContext to execute all draws immediately in the 3D API
- * rather than internally queuing draws.
- */
-//#define GR_DISABLE_DRAW_BUFFERING 1
-
-/*
  * This gives a threshold in bytes of when to lock a GrGeometryBuffer vs using
  * updateData. (Note the depending on the underlying 3D API the update functions
  * may always be implemented using a lock)

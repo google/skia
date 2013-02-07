@@ -23,6 +23,7 @@
 #include "GrSoftwarePathRenderer.h"
 #include "GrStencilBuffer.h"
 #include "GrTextStrike.h"
+#include "SkRTConf.h"
 #include "SkStrokeRec.h"
 #include "SkTLazy.h"
 #include "SkTLS.h"
@@ -31,10 +32,12 @@
 SK_DEFINE_INST_COUNT(GrContext)
 SK_DEFINE_INST_COUNT(GrDrawState)
 
-// It can be useful to set this to kNo_BufferedDraw to test whether a bug is caused by using the
+// It can be useful to set this to false to test whether a bug is caused by using the
 // InOrderDrawBuffer, to compare performance of using/not using InOrderDrawBuffer, or to make
-// debugging easier.
-#define DEFAULT_BUFFERING (GR_DISABLE_DRAW_BUFFERING ? kNo_BufferedDraw : kYes_BufferedDraw)
+// debugging simpler.
+SK_CONF_DECLARE(bool, c_Defer, "gpu.deferContext", true, "Defers rendering in GrContext via GrInOrderDrawBuffer.");
+
+#define BUFFERED_DRAW (c_Defer ? kYes_BufferedDraw : kNo_BufferedDraw)
 
 #define MAX_BLUR_SIGMA 4.0f
 
@@ -552,7 +555,7 @@ void GrContext::setClip(const GrClipData* clipData) {
 void GrContext::clear(const GrIRect* rect,
                       const GrColor color,
                       GrRenderTarget* target) {
-    this->prepareToDraw(NULL, DEFAULT_BUFFERING)->clear(rect, color, target);
+    this->prepareToDraw(NULL, BUFFERED_DRAW)->clear(rect, color, target);
 }
 
 void GrContext::drawPaint(const GrPaint& origPaint) {
@@ -694,7 +697,7 @@ void GrContext::drawRect(const GrPaint& paint,
                          const SkMatrix* matrix) {
     SK_TRACE_EVENT0("GrContext::drawRect");
 
-    GrDrawTarget* target = this->prepareToDraw(&paint, DEFAULT_BUFFERING);
+    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
     GrDrawState::AutoStageDisable atr(fDrawState);
 
     GrRect devRect = rect;
@@ -785,7 +788,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
         return;
     }
 
-    GrDrawTarget* target = this->prepareToDraw(&paint, DEFAULT_BUFFERING);
+    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
     GrDrawState::AutoStageDisable atr(fDrawState);
 
     const GrRect* srcRects[GrDrawState::kNumStages] = {NULL};
@@ -808,7 +811,7 @@ void GrContext::drawVertices(const GrPaint& paint,
 
     GrDrawTarget::AutoReleaseGeometry geo;
 
-    GrDrawTarget* target = this->prepareToDraw(&paint, DEFAULT_BUFFERING);
+    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
     GrDrawState::AutoStageDisable atr(fDrawState);
 
     GrVertexLayout layout = 0;
@@ -928,7 +931,7 @@ void GrContext::internalDrawOval(const GrPaint& paint,
     }
 #endif
 
-    GrDrawTarget* target = this->prepareToDraw(&paint, DEFAULT_BUFFERING);
+    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
 
     GrDrawState* drawState = target->drawState();
     GrDrawState::AutoStageDisable atr(fDrawState);
@@ -1073,7 +1076,7 @@ void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path, const
     // cache. This presents a potential hazard for buffered drawing. However,
     // the writePixels that uploads to the scratch will perform a flush so we're
     // OK.
-    GrDrawTarget* target = this->prepareToDraw(&paint, DEFAULT_BUFFERING);
+    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
     GrDrawState::AutoStageDisable atr(fDrawState);
 
     bool prAA = paint.isAntiAlias() && !this->getRenderTarget()->isMultisampled();
@@ -1706,7 +1709,7 @@ void GrContext::setupDrawBuffer() {
 }
 
 GrDrawTarget* GrContext::getTextTarget(const GrPaint& paint) {
-    return prepareToDraw(&paint, DEFAULT_BUFFERING);
+    return this->prepareToDraw(&paint, BUFFERED_DRAW);
 }
 
 const GrIndexBuffer* GrContext::getQuadIndexBuffer() const {
@@ -1830,7 +1833,7 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         }
 
         this->setRenderTarget(dstTexture->asRenderTarget());
-        GrDrawTarget* target = this->prepareToDraw(NULL, DEFAULT_BUFFERING);
+        GrDrawTarget* target = this->prepareToDraw(NULL, BUFFERED_DRAW);
         convolve_gaussian(target, srcTexture, srcRect, sigmaX, radiusX,
                           Gr1DKernelEffect::kX_Direction);
         srcTexture = dstTexture;
@@ -1847,7 +1850,7 @@ GrTexture* GrContext::gaussianBlur(GrTexture* srcTexture,
         }
 
         this->setRenderTarget(dstTexture->asRenderTarget());
-        GrDrawTarget* target = this->prepareToDraw(NULL, DEFAULT_BUFFERING);
+        GrDrawTarget* target = this->prepareToDraw(NULL, BUFFERED_DRAW);
         convolve_gaussian(target, srcTexture, srcRect, sigmaY, radiusY,
                           Gr1DKernelEffect::kY_Direction);
         srcTexture = dstTexture;
