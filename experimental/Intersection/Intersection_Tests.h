@@ -27,6 +27,8 @@ void LineIntersection_Test();
 void LineParameter_Test();
 void LineQuadraticIntersection_Test();
 void MiniSimplify_Test();
+void QuadraticIntersection_OneOffTest();
+void QuadraticIntersection_PointFinder();
 void QuadLineIntersectThreaded_Test(int& );
 void QuadraticBezierClip_Test();
 void QuadraticCoincidence_Test();

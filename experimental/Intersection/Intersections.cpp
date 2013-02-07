@@ -22,32 +22,32 @@ void Intersections::addCoincident(double s1, double e1, double s2, double e2) {
         if ((s1in | e1in) & (s2in | e2in)) {
             double lesser1 = SkTMin(cs1, ce1);
             index += cs1 > ce1;
-            if (s1in < lesser1) {
-                fCoincidentT[fSwap][index] = s1in;
-            } else if (e1in < lesser1) {
-                fCoincidentT[fSwap][index] = e1in;
+            if (s1 < lesser1) {
+                fCoincidentT[fSwap][index] = s1;
+            } else if (e1 < lesser1) {
+                fCoincidentT[fSwap][index] = e1;
             }
             index ^= 1;
             double greater1 = fCoincidentT[fSwap][index];
-            if (s1in > greater1) {
-                fCoincidentT[fSwap][index] = s1in;
-            } else if (e1in > greater1) {
-                fCoincidentT[fSwap][index] = e1in;
+            if (s1 > greater1) {
+                fCoincidentT[fSwap][index] = s1;
+            } else if (e1 > greater1) {
+                fCoincidentT[fSwap][index] = e1;
             }
             index &= ~1;
             double lesser2 = SkTMin(cs2, ce2);
             index += cs2 > ce2;
-            if (s2in < lesser2) {
-                fCoincidentT[fSwap ^ 1][index] = s2in;
-            } else if (e2in < lesser2) {
-                fCoincidentT[fSwap ^ 1][index] = e2in;
+            if (s2 < lesser2) {
+                fCoincidentT[fSwap ^ 1][index] = s2;
+            } else if (e2 < lesser2) {
+                fCoincidentT[fSwap ^ 1][index] = e2;
             }
             index ^= 1;
             double greater2 = fCoincidentT[fSwap ^ 1][index];
-            if (s2in > greater2) {
-                fCoincidentT[fSwap ^ 1][index] = s2in;
-            } else if (e2in > greater2) {
-                fCoincidentT[fSwap ^ 1][index] = e2in;
+            if (s2 > greater2) {
+                fCoincidentT[fSwap ^ 1][index] = s2;
+            } else if (e2 > greater2) {
+                fCoincidentT[fSwap ^ 1][index] = e2;
             }
             return;
         }
@@ -59,6 +59,9 @@ void Intersections::addCoincident(double s1, double e1, double s2, double e2) {
     fCoincidentT[fSwap][fCoincidentUsed] = e1;
     fCoincidentT[fSwap ^ 1][fCoincidentUsed] = e2;
     ++fCoincidentUsed;
+    // FIXME: assert that no entries in normal range lie between s and e
+    remove(s1, e1);
+    remove(s2, e2);
 }
 
 void Intersections::cleanUp() {
@@ -72,6 +75,12 @@ void Intersections::cleanUp() {
 void Intersections::insert(double one, double two) {
     SkASSERT(fUsed <= 1 || fT[0][0] < fT[0][1]);
     int index;
+    for (index = 0; index < fCoincidentUsed; ++index ) {
+        if (approximately_equal(fCoincidentT[0][index], one)
+                && approximately_equal(fCoincidentT[1][index], two)) {
+            return;
+        }
+    }
     for (index = 0; index < fUsed; ++index) {
         if (approximately_equal(fT[0][index], one)
                 && approximately_equal(fT[1][index], two)) {
@@ -113,4 +122,26 @@ void Intersections::insertOne(double t, int side) {
     }
     fT[side][index] = t;
     side ? ++fUsed2 : ++fUsed;
+}
+
+void Intersections::remove(double one, double two) {
+    int index;
+    for (index = 0; index < fUsed; ++index) {
+        if (approximately_equal(fT[0][index], one)
+                && approximately_equal(fT[1][index], two)) {
+            goto foundIt;
+        }
+        if (fT[0][index] > one) {
+            return;
+        }
+    }
+    return;
+foundIt:
+    SkASSERT(fUsed > 0);
+    int remaining = fUsed - index;
+    if (remaining > 0) {
+        memmove(&fT[0][index], &fT[0][index - 1], sizeof(fT[0][0]) * remaining);
+        memmove(&fT[1][index], &fT[1][index - 1], sizeof(fT[1][0]) * remaining);
+    }
+    --fUsed;
 }

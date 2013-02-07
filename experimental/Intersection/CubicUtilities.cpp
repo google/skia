@@ -112,7 +112,9 @@ int cubicRootsReal(double A, double B, double C, double D, double s[3]) {
     bzero(str, sizeof(str));
     sprintf(str, "Solve[%1.19g x^3 + %1.19g x^2 + %1.19g x + %1.19g == 0, x]", A, B, C, D);
 #endif
-    if (approximately_zero(A)) {  // we're just a quadratic
+    if (approximately_zero_when_compared_to(A, B)
+            && approximately_zero_when_compared_to(A, C)
+            && approximately_zero_when_compared_to(A, D)) {  // we're just a quadratic
         return quadraticRootsReal(B, C, D, s);
     }
     if (approximately_zero_when_compared_to(D, A)

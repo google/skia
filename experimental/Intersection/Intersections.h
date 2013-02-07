@@ -132,6 +132,9 @@ public:
 #if SK_DEBUG
     int fDepth;
 #endif
+protected:
+    // used by addCoincident to remove ordinary intersections in range
+    void remove(double one, double two);
 private:
     int fSwap;
 };

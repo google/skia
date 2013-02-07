@@ -41,8 +41,13 @@ int reducedQuarticRoots(const double t4, const double t3, const double t2, const
     sprintf(str, "Solve[%1.19g x^4 + %1.19g x^3 + %1.19g x^2 + %1.19g x + %1.19g == 0, x]",
         t4, t3, t2, t1, t0);
 #endif
-    if (approximately_zero(t4)) {
-        if (approximately_zero(t3)) {
+    if (approximately_zero_when_compared_to(t4, t0) // 0 is one root
+            && approximately_zero_when_compared_to(t4, t1)
+            && approximately_zero_when_compared_to(t4, t2)
+            && approximately_zero_when_compared_to(t4, t3)) {
+        if (approximately_zero_when_compared_to(t3, t0)
+            && approximately_zero_when_compared_to(t3, t1)
+            && approximately_zero_when_compared_to(t3, t2)) {
             return quadraticRootsReal(t2, t1, t0, roots);
         }
         return cubicRootsReal(t3, t2, t1, t0, roots);

@@ -32,4 +32,5 @@ void sub_divide(const Cubic& src, double t1, double t2, Cubic& dst);
 void xy_at_t(const Cubic& , double t, double& x, double& y);
 
 extern const int precisionUnit;
+
 #endif

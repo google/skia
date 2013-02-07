@@ -95,9 +95,35 @@ static void oneOff(const Cubic& cubic1, const Cubic& cubic2) {
 #endif
         SkASSERT(xy1.approximatelyEqual(xy2));
     }
+    for (int pt = 0; pt < intersections2.coincidentUsed(); ++pt) {
+        double tt1 = intersections2.fCoincidentT[0][pt];
+        _Point xy1, xy2;
+        xy_at_t(cubic1, tt1, xy1.x, xy1.y);
+        int pt2 = intersections2.fFlip ? intersections2.used() - pt - 1 : pt;
+        double tt2 = intersections2.fCoincidentT[1][pt2];
+        xy_at_t(cubic2, tt2, xy2.x, xy2.y);
+#if ONE_OFF_DEBUG
+        SkDebugf("%s t1=%1.9g (%1.9g, %1.9g) (%1.9g, %1.9g) t2=%1.9g\n", __FUNCTION__,
+            tt1, xy1.x, xy1.y, xy2.x, xy2.y, tt2);
+#endif
+        SkASSERT(xy1.approximatelyEqual(xy2));
+    }
 }
 
 static const Cubic testSet[] = {
+{{0,1}, {3,4}, {1,0}, {3,0}},
+{{0,1}, {0,3}, {1,0}, {4,3}},
+
+{{0, 0}, {1, 2}, {3, 4}, {4, 4}},
+{{0, 0}, {1, 2}, {3, 4}, {4, 4}},
+{{4, 4}, {3, 4}, {1, 2}, {0, 0}},
+
+{{0,1}, {2,3}, {1,0}, {1,0}},
+{{0,1}, {0,1}, {1,0}, {3,2}},
+
+{{0,2}, {0,1}, {1,0}, {1,0}},
+{{0,1}, {0,1}, {2,0}, {1,0}},
+
 {{0, 0}, {0, 1}, {1, 1}, {1, 0}},
 {{1, 0}, {0, 0}, {0, 1}, {1, 1}},
 
@@ -374,12 +400,12 @@ void CubicIntersection_RandTest() {
 }
 
 void CubicIntersection_IntersectionFinder() {
-    Cubic cubic1 = {{0, 1}, {0, 2}, {1, 0}, {1, 0}};
-    Cubic cubic2 = {{0, 1}, {0, 2}, {1, 0}, {6, 1}};
-    double t1Seed = 0.19923954998177532;
-    double t2Seed = 0.17140596934291233;
-    double t1Step = 0.00035501449125494022;
-    double t2Step = 0.00020896171344569892;
+    Cubic cubic1 = {{0,1}, {3,4}, {1,0}, {3,0}};
+    Cubic cubic2 = {{0,1}, {0,3}, {1,0}, {4,3}};
+    double t1Seed = 0.496;
+    double t2Seed = 0.711;
+    double t1Step = 0.1;
+    double t2Step = 0.1;
     _Point t1[3], t2[3];
     bool toggle = true;
     do {
