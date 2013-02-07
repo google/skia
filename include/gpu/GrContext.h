@@ -16,8 +16,6 @@
 #include "SkMatrix.h"
 #include "GrPaint.h"
 #include "GrPathRendererChain.h"
-// not strictly needed but requires WK change in LayerTextureUpdaterCanvas to
-// remove.
 #include "GrRenderTarget.h"
 #include "GrRefCnt.h"
 #include "GrTexture.h"
@@ -841,16 +839,6 @@ public:
 #if GR_CACHE_STATS
     void printCacheStats() const;
 #endif
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Legacy names that will be kept until WebKit can be updated.
-    GrTexture* createPlatformTexture(const GrPlatformTextureDesc& desc) {
-        return this->wrapBackendTexture(desc);
-    }
-
-    GrRenderTarget* createPlatformRenderTarget(const GrPlatformRenderTargetDesc& desc) {
-        return wrapBackendRenderTarget(desc);
-    }
 
 private:
     // Used to indicate whether a draw should be performed immediately or queued in fDrawBuffer.

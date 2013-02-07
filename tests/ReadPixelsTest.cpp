@@ -329,7 +329,7 @@ void ReadPixelsTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
                 desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
                 desc.fWidth = DEV_W;
                 desc.fHeight = DEV_H;
-                desc.fConfig = kSkia8888_PM_GrPixelConfig;
+                desc.fConfig = kSkia8888_GrPixelConfig;
                 desc.fOrigin = 1 == dtype ? kBottomLeft_GrSurfaceOrigin
                                           : kTopLeft_GrSurfaceOrigin;
                 GrAutoScratchTexture ast(context, desc, GrContext::kExact_ScratchTexMatch);

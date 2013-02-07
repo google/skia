@@ -207,7 +207,7 @@ public:
         grCtx = GrContext::Create(kOpenGL_GrBackend, ctx);
         if (NULL != grCtx) {
             GrBackendRenderTargetDesc desc;
-            desc.fConfig = kSkia8888_PM_GrPixelConfig;
+            desc.fConfig = kSkia8888_GrPixelConfig;
             desc.fWidth = width;
             desc.fHeight = height;
             desc.fStencilBits = 8;

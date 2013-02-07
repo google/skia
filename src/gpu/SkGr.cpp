@@ -215,7 +215,7 @@ GrPixelConfig SkBitmapConfig2GrPixelConfig(SkBitmap::Config config) {
         case SkBitmap::kARGB_4444_Config:
             return kRGBA_4444_GrPixelConfig;
         case SkBitmap::kARGB_8888_Config:
-            return kSkia8888_PM_GrPixelConfig;
+            return kSkia8888_GrPixelConfig;
         default:
             // kNo_Config, kA1_Config missing, and kRLE_Index8_Config
             return kUnknown_GrPixelConfig;

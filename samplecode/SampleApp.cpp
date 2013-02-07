@@ -276,7 +276,7 @@ public:
                 fCurContext->setRenderTarget(fCurRenderTarget);
                 const SkBitmap& bm = win->getBitmap();
                 fCurRenderTarget->writePixels(0, 0, bm.width(), bm.height(),
-                                             kSkia8888_PM_GrPixelConfig,
+                                             kSkia8888_GrPixelConfig,
                                              bm.getPixels(),
                                              bm.rowBytes());
             }
@@ -294,7 +294,7 @@ public:
             GrBackendRenderTargetDesc desc;
             desc.fWidth = SkScalarRound(win->width());
             desc.fHeight = SkScalarRound(win->height());
-            desc.fConfig = kSkia8888_PM_GrPixelConfig;
+            desc.fConfig = kSkia8888_GrPixelConfig;
             desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
             GR_GL_GetIntegerv(fCurIntf, GR_GL_SAMPLES, &desc.fSampleCnt);
             GR_GL_GetIntegerv(fCurIntf, GR_GL_STENCIL_BITS, &desc.fStencilBits);
