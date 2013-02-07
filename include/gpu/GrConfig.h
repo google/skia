@@ -326,14 +326,6 @@ inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
 #endif
 
 /**
- *  GR_DISABLE_DRAW_BUFFERING prevents GrContext from queueing draws in a
- *  GrInOrderDrawBuffer.
- */
-#if !defined(GR_DISABLE_DRAW_BUFFERING)
-    #define GR_DISABLE_DRAW_BUFFERING 0
-#endif
-
-/**
  * GR_GEOM_BUFFER_LOCK_THRESHOLD gives a threshold (in bytes) for when Gr should
  * lock a GrGeometryBuffer to update its contents. It will use lock() if the
  * size of the updated region is greater than the threshold. Otherwise it will
