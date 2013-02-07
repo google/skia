@@ -1503,7 +1503,7 @@ int tool_main(int argc, char** argv) {
                 if (gr) {
                     // create a render target to back the device
                     GrTextureDesc desc;
-                    desc.fConfig = kSkia8888_PM_GrPixelConfig;
+                    desc.fConfig = kSkia8888_GrPixelConfig;
                     desc.fFlags = kRenderTarget_GrTextureFlagBit;
                     desc.fWidth = gm->getISize().width();
                     desc.fHeight = gm->getISize().height();

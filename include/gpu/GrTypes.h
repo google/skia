@@ -307,9 +307,6 @@ enum GrPixelConfig {
     #error "SK_*32_SHIFT values must correspond to GL_BGRA or GL_RGBA format."
 #endif
 
-// This alias is deprecated and will be removed.
-static const GrPixelConfig kSkia8888_PM_GrPixelConfig = kSkia8888_GrPixelConfig;
-
 // Returns true if the pixel config is 32 bits per pixel
 static inline bool GrPixelConfigIs8888(GrPixelConfig config) {
     switch (config) {
@@ -637,24 +634,6 @@ struct GrBackendRenderTargetDesc {
      */
     GrBackendObject                 fRenderTargetHandle;
 };
-
-///////////////////////////////////////////////////////////////////////////////
-// Legacy names that will be kept until WebKit can be updated.
-
-typedef GrBackend GrEngine;
-static const GrBackend kOpenGL_Shaders_GrEngine = kOpenGL_GrBackend;
-
-typedef GrBackendContext GrPlatform3DContext;
-
-typedef GrBackendObject GrPlatform3DObject;
-
-typedef GrBackendTextureFlags GrPlatformTextureFlags;
-static const GrBackendTextureFlags kNone_GrPlatformTextureFlag = kNone_GrBackendTextureFlag;
-static const GrBackendTextureFlags kRenderTarget_GrPlatformTextureFlag = kRenderTarget_GrBackendTextureFlag;
-
-typedef GrBackendTextureDesc GrPlatformTextureDesc;
-
-typedef GrBackendRenderTargetDesc GrPlatformRenderTargetDesc;
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -27,7 +27,7 @@ static GrTexture* createTexture(GrContext* context) {
 
     // let Skia know we will be using this texture as a render target
     desc.fFlags     = kRenderTarget_GrTextureFlagBit;
-    desc.fConfig    = kSkia8888_PM_GrPixelConfig;
+    desc.fConfig    = kSkia8888_GrPixelConfig;
     desc.fWidth     = X_SIZE;
     desc.fHeight    = Y_SIZE;
 
@@ -144,7 +144,7 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
     desc.fFlags = kRenderTarget_GrTextureFlagBit;
     desc.fWidth = X_SIZE;
     desc.fHeight = Y_SIZE;
-    desc.fConfig = kSkia8888_PM_GrPixelConfig;
+    desc.fConfig = kSkia8888_GrPixelConfig;
 
     cache.acquireMask(clip1.getTopmostGenID(), desc, bound1);
 

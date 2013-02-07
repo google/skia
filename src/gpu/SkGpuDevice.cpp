@@ -144,7 +144,7 @@ static SkBitmap::Config grConfig2skConfig(GrPixelConfig config, bool* isOpaque) 
         case kRGBA_4444_GrPixelConfig:
             *isOpaque = false;
             return SkBitmap::kARGB_4444_Config;
-        case kSkia8888_PM_GrPixelConfig:
+        case kSkia8888_GrPixelConfig:
             // we don't currently have a way of knowing whether
             // a 8888 is opaque based on the config.
             *isOpaque = false;
@@ -284,7 +284,7 @@ GrPixelConfig config8888_to_grconfig_and_flags(SkCanvas::Config8888 config8888, 
             return kSkia8888_GrPixelConfig;
         case SkCanvas::kNative_Unpremul_Config8888:
             *flags = GrContext::kUnpremul_PixelOpsFlag;
-            return kSkia8888_PM_GrPixelConfig;
+            return kSkia8888_GrPixelConfig;
         case SkCanvas::kBGRA_Premul_Config8888:
             *flags = 0;
             return kBGRA_8888_GrPixelConfig;
@@ -300,7 +300,7 @@ GrPixelConfig config8888_to_grconfig_and_flags(SkCanvas::Config8888 config8888, 
         default:
             GrCrash("Unexpected Config8888.");
             *flags = 0; // suppress warning
-            return kSkia8888_PM_GrPixelConfig;
+            return kSkia8888_GrPixelConfig;
     }
 }
 }

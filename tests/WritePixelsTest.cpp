@@ -329,7 +329,7 @@ SkDevice* createDevice(const CanvasConfig& c, GrContext* grCtx) {
             desc.fFlags = kRenderTarget_GrTextureFlagBit;
             desc.fWidth = DEV_W;
             desc.fHeight = DEV_H;
-            desc.fConfig = kSkia8888_PM_GrPixelConfig;
+            desc.fConfig = kSkia8888_GrPixelConfig;
             desc.fOrigin = kGpu_TopLeft_DevType == c.fDevType ?
                 kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
             GrAutoScratchTexture ast(grCtx, desc, GrContext::kExact_ScratchTexMatch);

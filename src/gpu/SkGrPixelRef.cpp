@@ -174,6 +174,6 @@ bool SkGrPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
     SkAutoLockPixels al(*dst);
     void* buffer = dst->getPixels();
     return fSurface->readPixels(left, top, width, height,
-                                kSkia8888_PM_GrPixelConfig,
+                                kSkia8888_GrPixelConfig,
                                 buffer, dst->rowBytes());
 }

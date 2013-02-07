@@ -49,7 +49,7 @@ bool GrGpuGL::programUnitTest(int maxStages) {
     maxStages = GrMin(maxStages, (int)GrDrawState::kNumStages);
 
     GrTextureDesc dummyDesc;
-    dummyDesc.fConfig = kSkia8888_PM_GrPixelConfig;
+    dummyDesc.fConfig = kSkia8888_GrPixelConfig;
     dummyDesc.fWidth = 34;
     dummyDesc.fHeight = 18;
     SkAutoTUnref<GrTexture> dummyTexture1(this->createTexture(dummyDesc, NULL, 0));

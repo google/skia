@@ -63,7 +63,7 @@ GrBackendRenderTargetDesc SkGLWidget::getDesc(int w, int h) {
     GrBackendRenderTargetDesc desc;
     desc.fWidth = SkScalarRound(this->width());
     desc.fHeight = SkScalarRound(this->height());
-    desc.fConfig = kSkia8888_PM_GrPixelConfig;
+    desc.fConfig = kSkia8888_GrPixelConfig;
     GR_GL_GetIntegerv(fCurIntf, GR_GL_SAMPLES, &desc.fSampleCnt);
     GR_GL_GetIntegerv(fCurIntf, GR_GL_STENCIL_BITS, &desc.fStencilBits);
     GrGLint buffer;
