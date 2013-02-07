@@ -240,7 +240,7 @@ void SkLinearGradient::shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC,
         }
 
         LinearShadeProc shadeProc = shadeSpan_linear_repeat;
-        if (SkFixedNearlyZero(dx)) {
+        if (0 == dx) {
             shadeProc = shadeSpan_linear_vertical_lerp;
         } else if (SkShader::kClamp_TileMode == fTileMode) {
             shadeProc = shadeSpan_linear_clamp;
