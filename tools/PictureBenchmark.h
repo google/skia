@@ -80,7 +80,7 @@ private:
 
     void logProgress(const char msg[]);
 
-    BenchTimer* setupTimer();
+    BenchTimer* setupTimer(bool useGLTimer = true);
 };
 
 }
