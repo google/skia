@@ -1001,7 +1001,16 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
     fFileName = fileName;
     fLoading = true;
     SkStream* stream = SkNEW_ARGS(SkFILEStream, (fileName.c_str()));
-    SkOffsetPicture* picture = SkNEW_ARGS(SkOffsetPicture, (stream, NULL, &SkImageDecoder::DecodeStream));
+
+    bool success = false;
+
+    SkOffsetPicture* picture = SkNEW_ARGS(SkOffsetPicture, (stream, &success, &SkImageDecoder::DecodeStream));
+
+    if (!success) {
+        QMessageBox::critical(this, "Error loading file", "Couldn't read file, sorry.");
+        SkSafeUnref(stream);
+        return;
+    }
 
     fCanvasWidget.resetWidgetTransform();
     fDebugger.loadPicture(picture);
