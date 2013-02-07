@@ -89,8 +89,8 @@ public:
         
         SkASSERT(NULL == fCurContext);
         if (SkOSWindow::kNone_BackEndType != fBackend) {
-            fCurContext = GrContext::Create(kOpenGL_Shaders_GrEngine,
-                                            (GrPlatform3DContext) fCurIntf);
+            fCurContext = GrContext::Create(kOpenGL_GrBackend,
+                                            (GrBackendContext) fCurIntf);
         }
         
         if ((NULL == fCurContext || NULL == fCurIntf) &&
