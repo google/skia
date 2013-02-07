@@ -34,9 +34,9 @@ PictureBenchmark::~PictureBenchmark() {
     SkSafeUnref(fRenderer);
 }
 
-BenchTimer* PictureBenchmark::setupTimer() {
+BenchTimer* PictureBenchmark::setupTimer(bool useGLTimer) {
 #if SK_SUPPORT_GPU
-    if (fRenderer != NULL && fRenderer->isUsingGpuDevice()) {
+    if (useGLTimer && fRenderer != NULL && fRenderer->isUsingGpuDevice()) {
         return SkNEW_ARGS(BenchTimer, (fRenderer->getGLContext()));
     }
 #endif
@@ -104,10 +104,10 @@ void PictureBenchmark::run(SkPicture* pict) {
             //
             // 2) perTileTimer, along with perTileTimerData, will record each run separately, and
             // then take the average. As such, it supports logPerIter and printMin options.
-            SkAutoTDelete<BenchTimer> longRunningTimer(this->setupTimer());
+            SkAutoTDelete<BenchTimer> longRunningTimer(this->setupTimer(false));
             TimerData longRunningTimerData(tiledRenderer->getPerIterTimeFormat(),
                                            tiledRenderer->getNormalTimeFormat());
-            SkAutoTDelete<BenchTimer> perTileTimer(this->setupTimer());
+            SkAutoTDelete<BenchTimer> perTileTimer(this->setupTimer(false));
             TimerData perTileTimerData(tiledRenderer->getPerIterTimeFormat(),
                                        tiledRenderer->getNormalTimeFormat());
             longRunningTimer->start();
