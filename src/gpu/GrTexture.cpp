@@ -151,6 +151,19 @@ GrResourceKey::ResourceType texture_resource_type() {
     static const GrResourceKey::ResourceType gType = GrResourceKey::GenerateResourceType();
     return gType;
 }
+
+// FIXME:  This should be refactored with the code in gl/GrGpuGL.cpp.
+GrSurfaceOrigin resolve_origin(const GrTextureDesc& desc) {
+    // By default, GrRenderTargets are GL's normal orientation so that they
+    // can be drawn to by the outside world without the client having
+    // to render upside down.
+    bool renderTarget = 0 != (desc.fFlags & kRenderTarget_GrTextureFlagBit);
+    if (kDefault_GrSurfaceOrigin == desc.fOrigin) {
+        return renderTarget ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
+    } else {
+        return desc.fOrigin;
+    }
+}
 }
 
 GrResourceKey GrTexture::ComputeKey(const GrGpu* gpu,
@@ -171,7 +184,7 @@ GrResourceKey GrTexture::ComputeScratchKey(const GrTextureDesc& desc) {
     idKey.fData32[0] = (desc.fWidth) | (desc.fHeight << 16);
     idKey.fData32[1] = desc.fConfig | desc.fSampleCnt << 16;
     idKey.fData32[2] = desc.fFlags;
-    idKey.fData32[3] = desc.fOrigin;    // Only needs 2 bits actually
+    idKey.fData32[3] = resolve_origin(desc);    // Only needs 2 bits actually
     static const int kPadSize = sizeof(idKey) - 16;
     GR_STATIC_ASSERT(kPadSize >= 0);
     memset(idKey.fData8 + 16, 0, kPadSize);
