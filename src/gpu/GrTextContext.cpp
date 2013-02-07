@@ -12,7 +12,6 @@
 #include "GrContext.h"
 #include "GrDrawTarget.h"
 #include "GrFontScaler.h"
-#include "GrGpuVertex.h"
 #include "GrIndexBuffer.h"
 #include "GrTextStrike.h"
 #include "GrTextStrike_impl.h"
@@ -94,9 +93,7 @@ GrTextContext::GrTextContext(GrContext* context, const GrPaint& paint) : fPaint(
     fVertices = NULL;
     fMaxVertices = 0;
 
-    fVertexLayout =
-        GrDrawState::kTextFormat_VertexLayoutBit |
-        GrDrawState::StageTexCoordVertexLayoutBit(kGlyphMaskStage, 0);
+    fVertexLayout =  GrDrawState::StageTexCoordVertexLayoutBit(kGlyphMaskStage, 0);
 }
 
 GrTextContext::~GrTextContext() {
@@ -108,14 +105,6 @@ GrTextContext::~GrTextContext() {
 
 void GrTextContext::flush() {
     this->flushGlyphs();
-}
-
-static inline void setRectFan(GrGpuTextVertex v[4], int l, int t, int r, int b,
-                              int stride) {
-    v[0 * stride].setI(l, t);
-    v[1 * stride].setI(l, b);
-    v[2 * stride].setI(r, b);
-    v[3 * stride].setI(r, t);
 }
 
 void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
@@ -186,7 +175,7 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
 HAS_ATLAS:
     GrAssert(glyph->fAtlas);
 
-    // now promote them to fixed
+    // now promote them to fixed (TODO: Rethink using fixed pt).
     width = SkIntToFixed(width);
     height = SkIntToFixed(height);
 
@@ -238,27 +227,15 @@ HAS_ATLAS:
     GrFixed tx = SkIntToFixed(glyph->fAtlasLocation.fX);
     GrFixed ty = SkIntToFixed(glyph->fAtlasLocation.fY);
 
-#if GR_TEXT_SCALAR_IS_USHORT
-    int x = vx >> 16;
-    int y = vy >> 16;
-    int w = width >> 16;
-    int h = height >> 16;
-
-    setRectFan(&fVertices[2*fCurrVertex], x, y, x + w, y + h, 2);
-    setRectFan(&fVertices[2*fCurrVertex+1],
-               texture->normalizeFixedX(tx),
-               texture->normalizeFixedY(ty),
-               texture->normalizeFixedX(tx + width),
-               texture->normalizeFixedY(ty + height),
-               2);
-#else
-    fVertices[2*fCurrVertex].setXRectFan(vx, vy, vx + width, vy + height,
-                                        2 * sizeof(GrGpuTextVertex));
-    fVertices[2*fCurrVertex+1].setXRectFan(texture->normalizeFixedX(tx),
-                                          texture->normalizeFixedY(ty),
-                                          texture->normalizeFixedX(tx + width),
-                                          texture->normalizeFixedY(ty + height),
-                                          2 * sizeof(GrGpuTextVertex));
-#endif
+    fVertices[2*fCurrVertex].setRectFan(SkFixedToFloat(vx),
+                                        SkFixedToFloat(vy),
+                                        SkFixedToFloat(vx + width),
+                                        SkFixedToFloat(vy + height),
+                                        2 * sizeof(SkPoint));
+    fVertices[2*fCurrVertex+1].setRectFan(SkFixedToFloat(texture->normalizeFixedX(tx)),
+                                          SkFixedToFloat(texture->normalizeFixedY(ty)),
+                                          SkFixedToFloat(texture->normalizeFixedX(tx + width)),
+                                          SkFixedToFloat(texture->normalizeFixedY(ty + height)),
+                                          2 * sizeof(SkPoint));
     fCurrVertex += 4;
 }

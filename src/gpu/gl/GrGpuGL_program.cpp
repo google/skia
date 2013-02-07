@@ -9,7 +9,6 @@
 
 #include "GrEffect.h"
 #include "GrGLEffect.h"
-#include "GrGpuVertex.h"
 
 typedef GrGLUniformManager::UniformHandle UniformHandle;
 static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidUniformHandle;
@@ -343,19 +342,6 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
     return true;
 }
 
-#if GR_TEXT_SCALAR_IS_USHORT
-    #define TEXT_COORDS_GL_TYPE          GR_GL_UNSIGNED_SHORT
-    #define TEXT_COORDS_ARE_NORMALIZED   1
-#elif GR_TEXT_SCALAR_IS_FLOAT
-    #define TEXT_COORDS_GL_TYPE          GR_GL_FLOAT
-    #define TEXT_COORDS_ARE_NORMALIZED   0
-#elif GR_TEXT_SCALAR_IS_FIXED
-    #define TEXT_COORDS_GL_TYPE          GR_GL_FIXED
-    #define TEXT_COORDS_ARE_NORMALIZED   0
-#else
-    #error "unknown GR_TEXT_SCALAR type"
-#endif
-
 void GrGpuGL::setupGeometry(const DrawInfo& info, int* startIndexOffset) {
 
     int newColorOffset;
@@ -384,16 +370,6 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, int* startIndexOffset) {
     int extraVertexOffset;
     this->setBuffers(info.isIndexed(), &extraVertexOffset, startIndexOffset);
 
-    GrGLenum scalarType;
-    bool texCoordNorm;
-    if (currLayout & GrDrawState::kTextFormat_VertexLayoutBit) {
-        scalarType = TEXT_COORDS_GL_TYPE;
-        texCoordNorm = SkToBool(TEXT_COORDS_ARE_NORMALIZED);
-    } else {
-        scalarType = GR_GL_FLOAT;
-        texCoordNorm = false;
-    }
-
     size_t vertexOffset = (info.startVertex() + extraVertexOffset) * newStride;
 
     // all the Pointers must be set if any of these are true
@@ -401,17 +377,9 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, int* startIndexOffset) {
                              vertexOffset != fHWGeometryState.fVertexOffset ||
                              newStride != oldStride;
 
-    // position and tex coord offsets change if above conditions are true
-    // or the type/normalization changed based on text vs nontext type coords.
-    bool posAndTexChange = allOffsetsChange ||
-                           (((TEXT_COORDS_GL_TYPE != GR_GL_FLOAT) || TEXT_COORDS_ARE_NORMALIZED) &&
-                                (GrDrawState::kTextFormat_VertexLayoutBit &
-                                  (fHWGeometryState.fVertexLayout ^ currLayout)));
-
-    if (posAndTexChange) {
+    if (allOffsetsChange) {
         int idx = GrGLProgram::PositionAttributeIdx();
-        GL_CALL(VertexAttribPointer(idx, 2, scalarType, false, newStride,
-                                  (GrGLvoid*)vertexOffset));
+        GL_CALL(VertexAttribPointer(idx, 2, GR_GL_FLOAT, false, newStride, (GrGLvoid*)vertexOffset));
         fHWGeometryState.fVertexOffset = vertexOffset;
     }
 
@@ -421,12 +389,9 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, int* startIndexOffset) {
             int idx = GrGLProgram::TexCoordAttributeIdx(t);
             if (oldTexCoordOffsets[t] <= 0) {
                 GL_CALL(EnableVertexAttribArray(idx));
-                GL_CALL(VertexAttribPointer(idx, 2, scalarType, texCoordNorm,
-                                          newStride, texCoordOffset));
-            } else if (posAndTexChange ||
-                       newTexCoordOffsets[t] != oldTexCoordOffsets[t]) {
-                GL_CALL(VertexAttribPointer(idx, 2, scalarType, texCoordNorm,
-                                          newStride, texCoordOffset));
+                GL_CALL(VertexAttribPointer(idx, 2, GR_GL_FLOAT, false, newStride, texCoordOffset));
+            } else if (allOffsetsChange || newTexCoordOffsets[t] != oldTexCoordOffsets[t]) {
+                GL_CALL(VertexAttribPointer(idx, 2, GR_GL_FLOAT, false, newStride, texCoordOffset));
             }
         } else if (oldTexCoordOffsets[t] > 0) {
             GL_CALL(DisableVertexAttribArray(GrGLProgram::TexCoordAttributeIdx(t)));
@@ -438,11 +403,9 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, int* startIndexOffset) {
         int idx = GrGLProgram::ColorAttributeIdx();
         if (oldColorOffset <= 0) {
             GL_CALL(EnableVertexAttribArray(idx));
-            GL_CALL(VertexAttribPointer(idx, 4, GR_GL_UNSIGNED_BYTE,
-                                      true, newStride, colorOffset));
+            GL_CALL(VertexAttribPointer(idx, 4, GR_GL_UNSIGNED_BYTE, true, newStride, colorOffset));
         } else if (allOffsetsChange || newColorOffset != oldColorOffset) {
-            GL_CALL(VertexAttribPointer(idx, 4, GR_GL_UNSIGNED_BYTE,
-                                      true, newStride, colorOffset));
+            GL_CALL(VertexAttribPointer(idx, 4, GR_GL_UNSIGNED_BYTE, true, newStride, colorOffset));
         }
     } else if (oldColorOffset > 0) {
         GL_CALL(DisableVertexAttribArray(GrGLProgram::ColorAttributeIdx()));
@@ -468,11 +431,9 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, int* startIndexOffset) {
         int idx = GrGLProgram::EdgeAttributeIdx();
         if (oldEdgeOffset <= 0) {
             GL_CALL(EnableVertexAttribArray(idx));
-            GL_CALL(VertexAttribPointer(idx, 4, scalarType,
-                                        false, newStride, edgeOffset));
+            GL_CALL(VertexAttribPointer(idx, 4, GR_GL_FLOAT, false, newStride, edgeOffset));
         } else if (allOffsetsChange || newEdgeOffset != oldEdgeOffset) {
-            GL_CALL(VertexAttribPointer(idx, 4, scalarType,
-                                        false, newStride, edgeOffset));
+            GL_CALL(VertexAttribPointer(idx, 4, GR_GL_FLOAT, false, newStride, edgeOffset));
         }
     } else if (oldEdgeOffset > 0) {
         GL_CALL(DisableVertexAttribArray(GrGLProgram::EdgeAttributeIdx()));

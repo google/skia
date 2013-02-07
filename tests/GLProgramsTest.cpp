@@ -119,10 +119,6 @@ bool GrGpuGL::programUnitTest(int maxStages) {
                     int t = random_int(&random, GrDrawState::kMaxTexCoords);
                     pdesc.fVertexLayout |= GrDrawState::StageTexCoordVertexLayoutBit(s, t);
                 }
-                // use text-formatted verts?
-                if (random_bool(&random)) {
-                    pdesc.fVertexLayout |= GrDrawState::kTextFormat_VertexLayoutBit;
-                }
 
                 GrTexture* dummyTextures[] = {dummyTexture1.get(), dummyTexture2.get()};
                 SkAutoTUnref<const GrEffectRef> effect(create_random_effect(&random,

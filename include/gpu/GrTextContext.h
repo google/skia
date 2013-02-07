@@ -15,7 +15,6 @@
 #include "GrGlyph.h"
 #include "GrPaint.h"
 
-struct GrGpuTextVertex;
 class GrContext;
 class GrTextStrike;
 class GrFontScaler;
@@ -50,8 +49,7 @@ private:
         kDefaultRequestedVerts   = kDefaultRequestedGlyphs * 4,
     };
 
-    GrGpuTextVertex*        fVertices;
-
+    SkPoint*                fVertices;
     int32_t                 fMaxVertices;
     GrTexture*              fCurrTexture;
     int                     fCurrVertex;

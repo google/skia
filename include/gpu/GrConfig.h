@@ -315,16 +315,6 @@ inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
     #endif
 #endif
 
-#if !defined(GR_TEXT_SCALAR_TYPE_IS_USHORT)
-    #define GR_TEXT_SCALAR_TYPE_IS_USHORT  0
-#endif
-#if !defined(GR_TEXT_SCALAR_TYPE_IS_FLOAT)
-    #define GR_TEXT_SCALAR_TYPE_IS_FLOAT   0
-#endif
-#if !defined(GR_TEXT_SCALAR_TYPE_IS_FIXED)
-    #define GR_TEXT_SCALAR_TYPE_IS_FIXED   0
-#endif
-
 /**
  * GR_GEOM_BUFFER_LOCK_THRESHOLD gives a threshold (in bytes) for when Gr should
  * lock a GrGeometryBuffer to update its contents. It will use lock() if the
@@ -377,15 +367,6 @@ inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
     #error "Missing a GR_BUILD define"
 #elif 1 != GR_BUILD_SUM
     #error "More than one GR_BUILD defined"
-#endif
-
-
-#if !GR_TEXT_SCALAR_IS_FLOAT && \
-    !GR_TEXT_SCALAR_IS_FIXED && \
-    !GR_TEXT_SCALAR_IS_USHORT
-    #undef  GR_TEXT_SCALAR_IS_FLOAT
-    #define GR_TEXT_SCALAR_IS_FLOAT         1
-    #pragma message GR_WARN("Text scalar type not defined, defaulting to float")
 #endif
 
 #if 0
