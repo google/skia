@@ -51,8 +51,9 @@ int intersect(const _Line& a, const _Line& b, double aRange[2], double bRange[2]
             || (numerB < 0 && denom > numerB) || (numerB > 0 && denom < numerB);
     numerA /= denom;
     numerB /= denom;
-    if (!approximately_zero(denom) || (!approximately_zero_inverse(numerA) &&
-            !approximately_zero_inverse(numerB))) {
+    if ((!approximately_zero(denom) || (!approximately_zero_inverse(numerA)
+            && !approximately_zero_inverse(numerB))) && !sk_double_isnan(numerA)
+            && !sk_double_isnan(numerB)) {
         if (mayNotOverlap) {
             return 0;
         }

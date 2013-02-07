@@ -8,7 +8,9 @@
 #include "CurveUtilities.h"
 #include "Intersection_Tests.h"
 #include "Intersections.h"
+#include "LineIntersection.h"
 #include "QuadraticIntersection_TestData.h"
+#include "QuadraticUtilities.h"
 #include "TestUtilities.h"
 
 const int firstQuadIntersectionTest = 9;
@@ -58,6 +60,20 @@ static void standardTestCases() {
 }
 
 static const Quadratic testSet[] = {
+  {{1.7465749139282332,1.9930452039527999}, {1.8320006564080331,1.859481345189089}, {1.8731035127758437,1.6344055934266613}},
+  {{1.8731035127758437,1.6344055934266613}, {1.89928170345231,1.5006405518943067}, {1.9223833226085514,1.3495796165215643}},
+  {{1.74657491,1.9930452}, {1.87407679,1.76762853}, {1.92238332,1.34957962}},
+  {{0.60797907,1.68776977}, {1.0447864,1.50810914}, {1.87464474,1.63655092}},
+  {{1.87464474,1.63655092}, {2.70450308,1.76499271}, {4,3}},
+
+{{1.2071879545809394,0.82163474041730045}, {1.1534203513372994,0.52790870069930229}, {1.0880000000000001,0.29599999999999982}}, //t=0.63155333662549329,0.80000000000000004
+{{0.33333333333333326,0.81481481481481488}, {0.63395173631977997,0.68744136726313931}, {1.205684411948591,0.81344322326274499}},
+{{0.33333333333333326,0.81481481481481488}, {0.63396444791444551,0.68743368362444768}, {1.205732763658403,0.81345617746834109}},//t=0.33333333333333331,0.63396444791444551
+{{1.205684411948591,0.81344322326274499}, {1.2057085875611198,0.81344969999329253}, {1.205732763658403,0.81345617746834109}},
+
+  {{1.20718795,0.82163474}, {1.15342035,0.527908701}, {1.088,0.296}},
+  {{1.20568441,0.813443223}, {1.20570859,0.8134497}, {1.20573276,0.813456177}},
+
   {{41.5072916,87.1234036}, {28.2747836,80.9545395}, {23.5780771,69.3344126}},
   {{72.9633878,95.6593007}, {42.7738746,88.4730382}, {31.1932785,80.2458029}},
 
@@ -133,7 +149,7 @@ static const Quadratic testSet[] = {
 
 const size_t testSetCount = sizeof(testSet) / sizeof(testSet[0]);
 
-#define ONE_OFF_DEBUG 0
+#define ONE_OFF_DEBUG 1
 
 static void oneOffTest1(size_t outer, size_t inner) {
     const Quadratic& quad1 = testSet[outer];
@@ -164,13 +180,19 @@ static void oneOffTest1(size_t outer, size_t inner) {
         }
 #if ONE_OFF_DEBUG
         SkDebugf("%s [%d][%d] t1=%1.9g (%1.9g, %1.9g) t2=%1.9g\n", __FUNCTION__,
-            outer, inner, tt1, tx1, tx2, tt2);
+            outer, inner, tt1, tx1, ty1, tt2);
 #endif
     }
 }
 
-static void oneOffTest() {
-//    oneOffTest1(0, 1);
+void QuadraticIntersection_OneOffTest() {
+    oneOffTest1(0, 3);
+    oneOffTest1(0, 4);
+    oneOffTest1(1, 3);
+    oneOffTest1(1, 4);
+}
+
+static void oneOffTests() {
     for (size_t outer = 0; outer < testSetCount - 1; ++outer) {
         for (size_t inner = outer + 1; inner < testSetCount; ++inner) {
             oneOffTest1(outer, inner);
@@ -204,7 +226,66 @@ static void coincidentTest() {
 }
 
 void QuadraticIntersection_Test() {
-    oneOffTest();
+    oneOffTests();
     coincidentTest();
     standardTestCases();
+}
+
+static int floatSign(double x) {
+    return x < 0 ? -1 : x > 0 ? 1 : 0;
+}
+
+static const Quadratic pointFinderTestSet[] = {
+                                                                                                                                //>=0.633974464         0.633974846 <=
+{{1.2071879545809394,0.82163474041730045}, {1.1534203513372994,0.52790870069930229}, {1.0880000000000001,0.29599999999999982}}, //t=0.63155333662549329,0.80000000000000004
+{{1.2071879545809394,0.82163474041730045}, {1.2065040319428038,0.81766753259119995}, {1.2058123269101506,0.81370135061854221}}, //t=0.63155333662549329,0.6339049773632347
+{{1.2058123269101506,0.81370135061854221}, {1.152376363978022,0.5244097415381026}, {1.0880000000000001,0.29599999999999982}},   //t=0.6339049773632347, 0.80000000000000004
+                                                                                                                                //>=0.633974083         0.633975227 <=
+{{0.33333333333333326,0.81481481481481488}, {0.63395173631977997,0.68744136726313931}, {1.205684411948591,0.81344322326274499}},//t=0.33333333333333331,0.63395173631977986
+{{0.33333333333333326,0.81481481481481488}, {0.63396444791444551,0.68743368362444768}, {1.205732763658403,0.81345617746834109}},//t=0.33333333333333331,0.63396444791444551
+{{1.205684411948591,0.81344322326274499}, {1.2057085875611198,0.81344969999329253}, {1.205732763658403,0.81345617746834109}},   //t=0.63395173631977986,0.63396444791444551
+{{1.205732763658403,0.81345617746834109}, {1.267928895828891,0.83008534558465619}, {1.3333333333333333,0.85185185185185175}},   //t=0.63396444791444551,0.66666666666666663
+};
+
+static void pointFinder(const Quadratic& q1, const Quadratic& q2) {
+    for (int index = 0; index < 3; ++index) {
+        double t = nearestT(q1, q2[index]);
+        _Point onQuad;
+        xy_at_t(q1, t, onQuad.x, onQuad.y);
+        SkDebugf("%s t=%1.9g (%1.9g,%1.9g) dist=%1.9g\n", __FUNCTION__, t, onQuad.x, onQuad.y,
+                onQuad.distance(q2[index]));
+        double left[3];
+        left[0] = is_left((const _Line&) q1[0], q2[index]);
+        left[1] = is_left((const _Line&) q1[1], q2[index]);
+        _Line diag = {q1[0], q1[2]};
+        left[2] = is_left(diag, q2[index]);
+        SkDebugf("%s left=(%d, %d, %d) inHull=%s\n", __FUNCTION__, floatSign(left[0]),
+                floatSign(left[1]), floatSign(left[2]),
+                point_in_hull(q1, q2[index]) ? "true" : "false");
+    }
+    SkDebugf("\n");
+}
+
+static void hullIntersect(const Quadratic& q1, const Quadratic& q2) {
+    SkDebugf("%s", __FUNCTION__);
+    double aRange[2], bRange[2];
+    for (int i1 = 0; i1 < 3; ++i1) {
+        _Line l1 = {q1[i1], q1[(i1 + 1) % 3]};
+        for (int i2 = 0; i2 < 3; ++i2) {
+            _Line l2 = {q2[i2], q2[(i2 + 1) % 3]};
+            if (intersect(l1, l2, aRange, bRange)) {
+                SkDebugf(" [%d,%d]", i1, i2);
+            }
+        }
+    }
+    SkDebugf("\n");
+}
+
+void QuadraticIntersection_PointFinder() {
+    pointFinder(pointFinderTestSet[0], pointFinderTestSet[4]);
+    pointFinder(pointFinderTestSet[4], pointFinderTestSet[0]);
+    pointFinder(pointFinderTestSet[0], pointFinderTestSet[6]);
+    pointFinder(pointFinderTestSet[6], pointFinderTestSet[0]);
+    hullIntersect(pointFinderTestSet[0], pointFinderTestSet[4]);
+    hullIntersect(pointFinderTestSet[0], pointFinderTestSet[6]);
 }

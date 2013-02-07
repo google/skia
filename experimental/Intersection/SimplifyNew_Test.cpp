@@ -3564,12 +3564,82 @@ static void cubicOp1d() {
     testShapeOp(path, pathB, kDifference_Op);
 }
 
-static void (*firstTest)() = testCubic1;
+static void cubicOp2d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,2);
+    path.cubicTo(0,1, 1,0, 1,0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,1);
+    pathB.cubicTo(0,1, 2,0, 1,0);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp3d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(2,3, 1,0, 1,0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,1);
+    pathB.cubicTo(0,1, 1,0, 3,2);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp5d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(0,2, 1,0, 2,0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,1);
+    pathB.cubicTo(0,2, 1,0, 2,0);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp6d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(0,6, 1,0, 3,0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,1);
+    pathB.cubicTo(0,3, 1,0, 6,0);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp7d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(3,4, 1,0, 3,0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,1);
+    pathB.cubicTo(0,3, 1,0, 4,3);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void (*firstTest)() = 0;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(cubicOp7d),
+    TEST(cubicOp6d),
+    TEST(cubicOp5d),
+    TEST(cubicOp3d),
+    TEST(cubicOp2d),
     TEST(cubicOp1d),
  //   TEST(testQuadratic93),    // FIXME: gets stuck in a loop because top is unsortable
     TEST(testCubic1),

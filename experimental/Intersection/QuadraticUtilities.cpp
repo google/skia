@@ -4,23 +4,54 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "CubicUtilities.h"
 #include "QuadraticUtilities.h"
-#include <math.h>
+#include "TriangleUtilities.h"
+
+// from http://blog.gludion.com/2009/08/distance-to-quadratic-bezier-curve.html
+double nearestT(const Quadratic& quad, const _Point& pt) {
+    _Point pos = quad[0] - pt;
+    // search points P of bezier curve with PM.(dP / dt) = 0
+    // a calculus leads to a 3d degree equation :
+    _Point A = quad[1] - quad[0];
+    _Point B = quad[2] - quad[1];
+    B -= A;
+    double a = B.dot(B);
+    double b = 3 * A.dot(B);
+    double c = 2 * A.dot(A) + pos.dot(B);
+    double d = pos.dot(A);
+    double ts[3];
+    int roots = cubicRootsValidT(a, b, c, d, ts);
+    double d0 = pt.distanceSquared(quad[0]);
+    double d2 = pt.distanceSquared(quad[2]);
+    double distMin = SkTMin(d0, d2);
+    int bestIndex = -1;
+    for (int index = 0; index < roots; ++index) {
+        _Point onQuad;
+        xy_at_t(quad, ts[index], onQuad.x, onQuad.y);
+        double dist = pt.distanceSquared(onQuad);
+        if (distMin > dist) {
+            distMin = dist;
+            bestIndex = index;
+        }
+    }
+    if (bestIndex >= 0) {
+        return ts[bestIndex];
+    }
+    return d0 < d2 ? 0 : 1;
+}
+
+bool point_in_hull(const Quadratic& quad, const _Point& pt) {
+    return pointInTriangle((const Triangle&) quad, pt);
+}
 
 /*
-
 Numeric Solutions (5.6) suggests to solve the quadratic by computing
-
        Q = -1/2(B + sgn(B)Sqrt(B^2 - 4 A C))
-
 and using the roots
-
       t1 = Q / A
       t2 = C / Q
-
 */
-
-
 int add_valid_ts(double s[], int realRoots, double* t) {
     int foundRoots = 0;
     for (int index = 0; index < realRoots; ++index) {

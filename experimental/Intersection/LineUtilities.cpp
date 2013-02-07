@@ -57,12 +57,12 @@ void sub_divide(const _Line& line, double t1, double t2, _Line& dst) {
 //            =0 for P2 on the line
 //            <0 for P2 right of the line
 //    See: the January 2001 Algorithm on Area of Triangles
-#if 0
-float isLeft( _Point P0, _Point P1, _Point P2 )
-{
-    return (float) ((P1.x - P0.x)*(P2.y - P0.y) - (P2.x - P0.x)*(P1.y - P0.y));
+//    return (float) ((P1.x - P0.x)*(P2.y - P0.y) - (P2.x - P0.x)*(P1.y - P0.y));
+double is_left(const _Line& line, const _Point& pt) {
+    _Point P0 = line[1] - line[0];
+    _Point P2 = pt - line[0];
+    return P0.cross(P2);
 }
-#endif
 
 double t_at(const _Line& line, const _Point& pt) {
     double dx = line[1].x - line[0].x;

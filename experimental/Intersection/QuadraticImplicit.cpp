@@ -118,33 +118,6 @@ tryNextHalfPlane:
     return false;
 }
 
-// http://www.blackpawn.com/texts/pointinpoly/default.html
-static bool pointInTriangle(const _Point& pt, const _Line* testLines[]) {
-    const _Point& A = (*testLines[0])[0];
-    const _Point& B = (*testLines[1])[0];
-    const _Point& C = (*testLines[2])[0];
-
-// Compute vectors
-    _Point v0 = C - A;
-    _Point v1 = B - A;
-    _Point v2 = pt - A;
-
-// Compute dot products
-    double dot00 = v0.dot(v0);
-    double dot01 = v0.dot(v1);
-    double dot02 = v0.dot(v2);
-    double dot11 = v1.dot(v1);
-    double dot12 = v1.dot(v2);
-
-// Compute barycentric coordinates
-    double invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
-    double u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-    double v = (dot00 * dot12 - dot01 * dot02) * invDenom;
-
-// Check if point is in triangle
-    return (u >= 0) && (v >= 0) && (u + v < 1);
-}
-
 // returns false if there's more than one intercept or the intercept doesn't match the point
 // returns true if the intercept was successfully added or if the
 // original quads need to be subdivided
@@ -221,12 +194,12 @@ static bool isLinearInner(const Quadratic& q1, double t1s, double t1e, const Qua
     }
     _Point end;
     xy_at_t(q2, t2s, end.x, end.y);
-    bool startInTriangle = pointInTriangle(end, testLines);
+    bool startInTriangle = point_in_hull(hull, end);
     if (startInTriangle) {
         tMin = t2s;
     }
     xy_at_t(q2, t2e, end.x, end.y);
-    bool endInTriangle = pointInTriangle(end, testLines);
+    bool endInTriangle = point_in_hull(hull, end);
     if (endInTriangle) {
         tMax = t2e;
     }

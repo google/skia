@@ -31,12 +31,13 @@ int gDebugMaxWindValue = SK_MaxS32;
 #define APPROXIMATE_CUBICS 1
 
 #define DEBUG_UNUSED 0 // set to expose unused functions
-#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging
+#define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging
 
 #if FORCE_RELEASE || defined SK_RELEASE
 
 const bool gRunTestsInOneThread = false;
 
+#define DEBUG_ACTIVE_OP 0
 #define DEBUG_ACTIVE_SPANS 0
 #define DEBUG_ACTIVE_SPANS_SHORT_FORM 0
 #define DEBUG_ADD_INTERSECTING_TS 0
@@ -59,6 +60,7 @@ const bool gRunTestsInOneThread = false;
 
 const bool gRunTestsInOneThread = true;
 
+#define DEBUG_ACTIVE_OP 1
 #define DEBUG_ACTIVE_SPANS 1
 #define DEBUG_ACTIVE_SPANS_SHORT_FORM 1
 #define DEBUG_ADD_INTERSECTING_TS 1
@@ -79,9 +81,11 @@ const bool gRunTestsInOneThread = true;
 
 #endif
 
-#define DEBUG_DUMP (DEBUG_ACTIVE_SPANS | DEBUG_CONCIDENT | DEBUG_SORT | DEBUG_PATH_CONSTRUCTION)
+#define DEBUG_DUMP (DEBUG_ACTIVE_OP | DEBUG_ACTIVE_SPANS | DEBUG_CONCIDENT | DEBUG_SORT | \
+        DEBUG_PATH_CONSTRUCTION)
 
 #if DEBUG_DUMP
+static const char* kShapeOpStr[] = {"diff", "sect", "union", "xor"};
 static const char* kLVerbStr[] = {"", "line", "quad", "cubic"};
 // static const char* kUVerbStr[] = {"", "Line", "Quad", "Cubic"};
 static int gContourID;
@@ -152,7 +156,7 @@ static int CubicIntersect(const SkPoint a[4], const SkPoint b[4], Intersections&
 #else
     intersect(aCubic, bCubic, intersections);
 #endif
-    return intersections.fUsed;
+    return intersections.fUsed ? intersections.fUsed : intersections.fCoincidentUsed;
 }
 
 static int HLineIntersect(const SkPoint a[2], SkScalar left, SkScalar right,
@@ -800,7 +804,7 @@ public:
             fTangent1.quadEndPoints(quad, 0, 1);
         #if 1 // FIXME: try enabling this and see if a) it's called and b) does it break anything
             if (dx() == 0 && dy() == 0) {
-                SkDebugf("*** %s quad is line\n", __FUNCTION__);
+ //               SkDebugf("*** %s quad is line\n", __FUNCTION__);
                 fTangent1.quadEndPoints(quad);
             }
         #endif
@@ -955,8 +959,8 @@ struct Bounds : public SkRect {
     bool isEmpty() {
         return fLeft > fRight || fTop > fBottom
                 || (fLeft == fRight && fTop == fBottom)
-                || isnan(fLeft) || isnan(fRight)
-                || isnan(fTop) || isnan(fBottom);
+                || sk_double_isnan(fLeft) || sk_double_isnan(fRight)
+                || sk_double_isnan(fTop) || sk_double_isnan(fBottom);
     }
 
     void setCubicBounds(const SkPoint a[4]) {
@@ -1316,6 +1320,10 @@ public:
             suTo = (oppSumWinding & xorSuMask) != 0;
         }
         bool result = gActiveEdge[op][miFrom][miTo][suFrom][suTo];
+#if DEBUG_ACTIVE_OP
+        SkDebugf("%s op=%s miFrom=%d miTo=%d suFrom=%d suTo=%d result=%d\n", __FUNCTION__,
+                kShapeOpStr[op], miFrom, miTo, suFrom, suTo, result);
+#endif
         SkASSERT(result != -1);
         return result;
     }
@@ -4175,8 +4183,8 @@ public:
             coincidence.fTs[swap][1] = ts.fT[0][1];
             coincidence.fTs[!swap][0] = ts.fT[1][0];
             coincidence.fTs[!swap][1] = ts.fT[1][1];
-        } else if (fSegments[index].verb() == SkPath::kQuad_Verb &&
-                other->fSegments[otherIndex].verb() == SkPath::kQuad_Verb) {
+        } else if (fSegments[index].verb() >= SkPath::kQuad_Verb &&
+                other->fSegments[otherIndex].verb() >= SkPath::kQuad_Verb) {
             coincidence.fTs[swap][0] = ts.fCoincidentT[0][0];
             coincidence.fTs[swap][1] = ts.fCoincidentT[0][1];
             coincidence.fTs[!swap][0] = ts.fCoincidentT[1][0];
@@ -5461,8 +5469,8 @@ static bool addIntersectTs(Contour* test, Contour* next) {
                     wt.addCoincident(wn, ts, swap);
                     continue;
                 }
-                if (wn.segmentType() == Work::kQuad_Segment
-                        && wt.segmentType() == Work::kQuad_Segment
+                if (wn.segmentType() >= Work::kQuad_Segment
+                        && wt.segmentType() >= Work::kQuad_Segment
                         && ts.coincidentUsed() == 2) {
                     wt.addCoincident(wn, ts, swap);
                     continue;

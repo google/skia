@@ -15,6 +15,8 @@ void chop_at(const Quadratic& src, QuadraticPair& dst, double t);
 double dx_at_t(const Quadratic& , double t);
 double dy_at_t(const Quadratic& , double t);
 void dxdy_at_t(const Quadratic& , double t, _Point& xy);
+double nearestT(const Quadratic& , const _Point& );
+bool point_in_hull(const Quadratic& , const _Point& );
 
 /* Parameterization form, given A*t*t + 2*B*t*(1-t) + C*(1-t)*(1-t)
  *

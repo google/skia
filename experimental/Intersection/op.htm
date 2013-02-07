@@ -3339,11 +3339,83 @@ path.addRect(4, 13, 13, 16, SkPath::kCCW_Direction);
     pathB.close();
 </div>
 
+<div id="cubicOp2d">
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,2);
+    path.cubicTo(0,1, 1,0, 1,0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,1);
+    pathB.cubicTo(0,1, 2,0, 1,0);
+    pathB.close();
+</div>
+
+<div id="cubicOp3d">
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(2,3, 1,0, 1,0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,1);
+    pathB.cubicTo(0,1, 1,0, 3,2);
+    pathB.close();
+</div>
+
+<div id="cubicOp4d">
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(0,2, 1,0, 2,0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,1);
+    pathB.cubicTo(0,2, 1,0, 2,0);
+    pathB.close();
+</div>
+
+<div id="cubicOp5d">
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(0,2, 1,0, 2,0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,1);
+    pathB.cubicTo(0,2, 1,0, 2,0);
+    pathB.close();
+</div>
+
+<div id="cubicOp6d">
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(0,6, 1,0, 3,0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,1);
+    pathB.cubicTo(0,3, 1,0, 6,0);
+    pathB.close();
+</div>
+
+<div id="cubicOp7d">
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(3,4, 1,0, 3,0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,1);
+    pathB.cubicTo(0,3, 1,0, 4,3);
+    pathB.close();
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    cubicOp7d,
+    cubicOp6d,
+    cubicOp5d,
+    cubicOp4d,
+    cubicOp3d,
+    cubicOp2d,
     cubicOp1d,
     testQuadratic93,
     testCubic1,

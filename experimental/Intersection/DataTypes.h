@@ -12,6 +12,19 @@
 
 #include "SkTypes.h"
 
+// FIXME: move these into SkTypes.h
+template <typename T> inline T SkTMax(T a, T b) {
+    if (a < b)
+        a = b;
+    return a;
+}
+
+template <typename T> inline T SkTMin(T a, T b) {
+    if (a > b)
+        a = b;
+    return a;
+}
+
 extern bool AlmostEqualUlps(float A, float B);
 inline bool AlmostEqualUlps(double A, double B) { return AlmostEqualUlps((float) A, (float) B); }
 
@@ -55,8 +68,9 @@ inline bool approximately_zero_inverse(double x) {
     return fabs(x) > FLT_EPSILON_INVERSE;
 }
 
+// FIXME: if called multiple times with the same denom, we want to pass 1/y instead
 inline bool approximately_zero_when_compared_to(double x, double y) {
-    return fabs(x / y) < FLT_EPSILON;
+    return x == 0 || fabs(x / y) < FLT_EPSILON;
 }
 
 // Use this for comparing Ts in the range of 0 to 1. For general numbers (larger and smaller) use
@@ -144,7 +158,6 @@ inline bool approximately_zero_or_more(double x) {
 }
 
 inline bool approximately_between(double a, double b, double c) {
-    SkASSERT(a <= c);
     return a <= c ? approximately_negative(a - b) && approximately_negative(b - c)
             : approximately_negative(b - a) && approximately_negative(c - b);
 }
@@ -196,8 +209,17 @@ struct _Point {
     // return approximately_equal(a.y, y) && approximately_equal(a.x, x);
     // because that will not take the magnitude of the values
     bool approximatelyEqual(const _Point& a) const {
+#if 0
         return AlmostEqualUlps((float) x, (float) a.x)
                 && AlmostEqualUlps((float) y, (float) a.y);
+#else
+        double denom = SkTMax(fabs(x), SkTMax(fabs(y), SkTMax(fabs(a.x), fabs(a.y))));
+        if (denom == 0) {
+            return true;
+        }
+        double inv = 1 / denom;
+        return approximately_equal(x * inv, a.x * inv) && approximately_equal(y * inv, a.y * inv);
+#endif
     }
 
     bool approximatelyZero() const {
@@ -211,6 +233,11 @@ struct _Point {
     double distance(const _Point& a) const {
         _Point temp = *this - a;
         return temp.length();
+    }
+
+    double distanceSquared(const _Point& a) const {
+        _Point temp = *this - a;
+        return temp.lengthSquared();
     }
 
     double dot(const _Point& a) const {
@@ -229,6 +256,7 @@ struct _Point {
 
 typedef _Point _Line[2];
 typedef _Point Quadratic[3];
+typedef _Point Triangle[3];
 typedef _Point Cubic[4];
 
 struct _Rect {
@@ -294,17 +322,9 @@ struct QuadraticPair {
     _Point pts[5];
 };
 
-// FIXME: move these into SkTypes.h
-template <typename T> inline T SkTMax(T a, T b) {
-    if (a < b)
-        a = b;
-    return a;
-}
+// FIXME: move these into SkFloatingPoint.h
+#include "SkFloatingPoint.h"
 
-template <typename T> inline T SkTMin(T a, T b) {
-    if (a > b)
-        a = b;
-    return a;
-}
+#define sk_double_isnan(a) sk_float_isnan(a)
 
 #endif // __DataTypes_h__

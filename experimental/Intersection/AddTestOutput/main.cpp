@@ -26,6 +26,8 @@ static bool replace(const char* fun, const char* dir, const char* filename, cons
     char* opInsert = strstr(opData.begin(), marker);
     if (!opInsert) {
         SkDebugf("%s missing marker in %s\n", fun, outFileStr.c_str());
+        opStreamOut.write(opData.begin(), opLen);
+        opStreamOut.flush();
         return false;
     }
     const char* opInsertEnd = opInsert + strlen(marker);
@@ -33,6 +35,8 @@ static bool replace(const char* fun, const char* dir, const char* filename, cons
         char* opInsert2 = strstr(opInsert, marker2);
         if (!opInsert2) {
             SkDebugf("%s missing marker second half in %s\n", fun, outFileStr.c_str());
+            opStreamOut.write(opData.begin(), opLen);
+            opStreamOut.flush();
             return false;
         }
         opInsertEnd = opInsert2 + strlen(marker2);
@@ -98,10 +102,10 @@ int main (int argc, char * const argv[]) {
         return 0;
     }
     const char simplifyMarker[] =
-            "#if 1 // set to 1 for multiple thread -- no debugging"
+            "#define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging"
             ;
     const char simplifyReplace[] =
-            "#if 0 // set to 1 for multiple thread -- no debugging"
+            "#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging"
             ;
     if (!replace(argv[0], dir, "Simplify.cpp", simplifyMarker, NULL, simplifyReplace,
             sizeof(simplifyReplace) - 1)) {
