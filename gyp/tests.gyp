@@ -77,6 +77,7 @@
         '../tests/PointTest.cpp',
         '../tests/PremulAlphaRoundTripTest.cpp',
         '../tests/QuickRejectTest.cpp',
+        '../tests/RandomTest.cpp',
         '../tests/Reader32Test.cpp',
         '../tests/ReadPixelsTest.cpp',
         '../tests/ReadWriteAlphaTest.cpp',
