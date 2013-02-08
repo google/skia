@@ -42,8 +42,8 @@ def find_sdk_dir():
 
 def main():
   min_sdk_version = '10.6'
-  if len(sys.argv) > 0:
-    min_sdk_version = sys.argv[0]
+  if len(sys.argv) > 1:
+    min_sdk_version = sys.argv[1]
 
   sdk_dir = find_sdk_dir()
 
@@ -53,7 +53,7 @@ def main():
           if parse_version(s) >= parse_version(min_sdk_version)]
   if not sdks:
     raise Exception('No %s+ SDK found' % min_sdk_version)
-  best_sdk = sorted(sdks, key=parse_version)[0]
+  best_sdk = min(sdks, key=parse_version)
 
   return best_sdk
 
