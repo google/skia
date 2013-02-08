@@ -29,6 +29,7 @@ void SkGLWidget::initializeGL() {
     fCurIntf = GrGLCreateNativeInterface();
     fCurContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext) fCurIntf);
     GrBackendRenderTargetDesc desc = this->getDesc(this->width(), this->height());
+    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     GrRenderTarget* curRenderTarget = fCurContext->wrapBackendRenderTarget(desc);
     fGpuDevice = new SkGpuDevice(fCurContext, curRenderTarget);
     fCanvas = new SkCanvas(fGpuDevice);
@@ -41,6 +42,7 @@ void SkGLWidget::initializeGL() {
 
 void SkGLWidget::resizeGL(int w, int h) {
     GrBackendRenderTargetDesc desc = this->getDesc(w, h);
+    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     GrRenderTarget* curRenderTarget = fCurContext->wrapBackendRenderTarget(desc);
     SkSafeUnref(fGpuDevice);
     SkSafeUnref(fCanvas);
