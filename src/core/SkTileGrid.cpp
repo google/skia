@@ -56,6 +56,9 @@ void SkTileGrid::insert(void* data, const SkIRect& bounds, bool) {
 }
 
 void SkTileGrid::search(const SkIRect& query, SkTDArray<void*>* results) {
+    // Convert the query rectangle from device coordinates to tile coordinates
+    // by rounding outwards to the nearest tile boundary so that the resulting tile
+    // region includes the query rectangle. (using truncating division to "floor")
     int tileStartX = (query.left() + fBorderPixels) / fTileWidth;
     int tileEndX = (query.right() + fTileWidth - fBorderPixels) / fTileWidth;
     int tileStartY = (query.top() + fBorderPixels) / fTileHeight;

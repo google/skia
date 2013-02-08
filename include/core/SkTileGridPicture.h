@@ -29,7 +29,9 @@ public:
      * @param borderPixels pixels of overlap between adjacent tiles. Set this
      *  value to match the border overlap that is applied to tiles by user
      *  code. Properly setting this value will help improve performance
-     *  when performing tile-aligned playbacks.
+     *  when performing tile-aligned playbacks with query regions that
+     *  match tile bounds outset by borderPixels pixels. Such outsets
+     *  are often used to prevent filtering artifacts at tile boundaries.
      */
     SkTileGridPicture(int tileWidth, int tileHeight, int width, int height, int borderPixels = 0);
     virtual SkBBoxHierarchy* createBBoxHierarchy() const SK_OVERRIDE;
