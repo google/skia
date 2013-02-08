@@ -195,6 +195,9 @@
 
     ['skia_os == "mac"',
       {
+        'variables': {
+          'mac_sdk%': '<!(python <(DEPTH)/tools/find_mac_sdk.py 10.6)',
+        },
         'defines': [
           'SK_BUILD_FOR_MAC',
         ],
@@ -228,7 +231,13 @@
         },
         'xcode_settings': {
           'GCC_SYMBOLS_PRIVATE_EXTERN': 'NO',
-          'SDKROOT': '<(skia_osx_sdkroot)',
+          'conditions': [
+            ['skia_osx_sdkroot==""', {
+              'SDKROOT': 'macosx<(mac_sdk)',  # -isysroot
+            }, {
+              'SDKROOT': '<(skia_osx_sdkroot)',  # -isysroot
+            }],
+           ],
 # trying to get this to work, but it needs clang I think...
 #          'WARNING_CFLAGS': '-Wexit-time-destructors',
           'CLANG_WARN_CXX0X_EXTENSIONS': 'NO',

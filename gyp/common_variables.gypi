@@ -87,7 +87,7 @@
       'skia_angle%': 0,
       'skia_directwrite%': 0,
       'skia_gpu%': 1,
-      'skia_osx_sdkroot%': 'macosx',
+      'skia_osx_sdkroot%': '',
       'skia_profile_enabled%': 0,
       # Note: This is currently only turned on for linux and android.
       # TODO: Turn on for Win and Mac as well.
