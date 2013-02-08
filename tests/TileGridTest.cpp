@@ -39,8 +39,9 @@ public:
 
 class TileGridTest {
 public:
-    static void verifyTileHits(skiatest::Reporter* reporter, SkIRect rect, uint32_t tileMask) {
-        SkTileGrid grid(10, 10, 2, 2, NULL);
+    static void verifyTileHits(skiatest::Reporter* reporter, SkIRect rect, uint32_t tileMask, 
+                               int borderPixels = 0) {
+        SkTileGrid grid(10, 10, 2, 2, borderPixels, NULL);
         grid.insert(NULL, rect, false);
         REPORTER_ASSERT(reporter, grid.tile(0,0).count() ==
             ((tileMask & kTopLeft_Tile)? 1 : 0));
@@ -118,6 +119,12 @@ public:
         verifyTileHits(reporter, SkIRect::MakeXYWH(0, 0, 9, 9),  kAll_Tile);
         verifyTileHits(reporter, SkIRect::MakeXYWH(10, 10, 1, 1),  kAll_Tile);
         verifyTileHits(reporter, SkIRect::MakeXYWH(11, 11, 1, 1),  kBottomRight_Tile);
+
+        // BorderPixels
+        verifyTileHits(reporter, SkIRect::MakeXYWH(0, 0, 7, 7),  kTopLeft_Tile, 1);
+        verifyTileHits(reporter, SkIRect::MakeXYWH(0, 0, 8, 8),  kAll_Tile, 1);
+        verifyTileHits(reporter, SkIRect::MakeXYWH(11, 11, 1, 1),  kAll_Tile, 1);
+        verifyTileHits(reporter, SkIRect::MakeXYWH(12, 12, 1, 1),  kBottomRight_Tile, 1);
 
         // BBoxes that overlap tiles
         verifyTileHits(reporter, SkIRect::MakeXYWH(5, 5, 10, 1),  kTopLeft_Tile | kTopRight_Tile);

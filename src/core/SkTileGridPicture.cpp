@@ -11,14 +11,17 @@
 #include "SkTileGrid.h"
 
 
-SkTileGridPicture::SkTileGridPicture(int tileWidth, int tileHeight, int width, int height) {
+SkTileGridPicture::SkTileGridPicture(int tileWidth, int tileHeight, int width, int height,
+                                     int borderPixels) {
+    SkASSERT(borderPixels >= 0);
     fTileWidth = tileWidth;
     fTileHeight = tileHeight;
     fXTileCount = (width + tileWidth - 1) / tileWidth;
     fYTileCount = (height + tileHeight - 1) / tileHeight;
+    fBorderPixels = borderPixels;
 }
 
 SkBBoxHierarchy* SkTileGridPicture::createBBoxHierarchy() const {
     return SkNEW_ARGS(SkTileGrid, (fTileWidth, fTileHeight, fXTileCount, fYTileCount,
-        SkTileGridNextDatum<SkPictureStateTree::Draw>));
+        fBorderPixels, SkTileGridNextDatum<SkPictureStateTree::Draw>));
 }
