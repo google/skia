@@ -107,13 +107,38 @@ SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
         }
         break;
 #if SK_SUPPORT_GPU
+#if SK_ANGLE
+        case kAngle_DeviceType:
+            // fall through
+#endif
         case kGPU_DeviceType: {
-            SkAutoTUnref<SkGpuDevice> device(SkNEW_ARGS(SkGpuDevice,
-                                                    (fGrContext, SkBitmap::kARGB_8888_Config,
-                                                    width, height)));
+            SkAutoTUnref<GrRenderTarget> rt;
+            bool grSuccess = false;
+            if (fGrContext) {
+                // create a render target to back the device
+                GrTextureDesc desc;
+                desc.fConfig = kSkia8888_GrPixelConfig;
+                desc.fFlags = kRenderTarget_GrTextureFlagBit;
+                desc.fWidth = width;
+                desc.fHeight = height;
+                desc.fSampleCnt = 0;
+                GrTexture* tex = fGrContext->createUncachedTexture(desc, NULL, 0);
+                if (tex) {
+                    rt.reset(tex->asRenderTarget());
+                    rt.get()->ref();
+                    tex->unref();
+                    grSuccess = NULL != rt.get();
+                }
+            }
+            if (!grSuccess) {
+                SkASSERT(0);
+                return NULL;
+            }
+
+            SkAutoTUnref<SkGpuDevice> device(SkNEW_ARGS(SkGpuDevice, (fGrContext, rt)));
             canvas = SkNEW_ARGS(SkCanvas, (device.get()));
+            break;
         }
-        break;
 #endif
         default:
             SkASSERT(0);
@@ -175,19 +200,15 @@ void PictureRenderer::buildBBoxHierarchy() {
 
 void PictureRenderer::resetState(bool callFinish) {
 #if SK_SUPPORT_GPU
-    if (this->isUsingGpuDevice()) {
-        SkGLContext* glContext = fGrContextFactory.getGLContext(
-            GrContextFactory::kNative_GLContextType);
+    SkGLContext* glContext = this->getGLContext();
+    if (NULL == glContext) {
+        SkASSERT(kBitmap_DeviceType == fDeviceType);
+        return;
+    }
 
-        SkASSERT(glContext != NULL);
-        if (NULL == glContext) {
-            return;
-        }
-
-        fGrContext->flush();
-        if (callFinish) {
-            SK_GL(*glContext, Finish());
-        }
+    fGrContext->flush();
+    if (callFinish) {
+        SK_GL(*glContext, Finish());
     }
 #endif
 }
