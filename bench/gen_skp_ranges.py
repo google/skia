@@ -98,7 +98,11 @@ def OutputSkpBenchExpectations(rev_min, rev_max, representation_alg):
         obj.name.find('_data_skp_') < 0):
       continue
     # Ignores uninterested platforms.
-    platform = obj.name.split('/')[1][5:]  # Removes "Skia_" prefix.
+    platform = obj.name.split('/')[1][5:]  # Removes "Skia_" prefix
+    if not platform.startswith('Skia_'):
+      platform = obj.name.split('/')[2][5:]  # Removes "Skia_" prefix.
+        if not platform.startswith('Skia_'):
+          continue  # Not an object with platform info.
     if platform not in PLATFORMS:
       continue
     # Filters by revision.
