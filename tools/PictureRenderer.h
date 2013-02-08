@@ -257,10 +257,10 @@ public:
         , fBBoxHierarchyType(kNone_BBoxHierarchyType)
         , fGridWidth(0)
         , fGridHeight(0)
+        , fScaleFactor(SK_Scalar1)
 #if SK_SUPPORT_GPU
         , fGrContext(NULL)
 #endif
-        , fScaleFactor(SK_Scalar1)
         {
             sk_bzero(fDrawFilters, sizeof(fDrawFilters));
             fViewport.set(0, 0);
