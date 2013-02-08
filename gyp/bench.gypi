@@ -7,6 +7,7 @@
     '../bench/SkBenchmark.cpp',
 
     '../bench/AAClipBench.cpp',
+    '../bench/BicubicBench.cpp',
     '../bench/BitmapBench.cpp',
     '../bench/BitmapRectBench.cpp',
     '../bench/BlurBench.cpp',
