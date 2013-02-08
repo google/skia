@@ -289,24 +289,6 @@ void SkGradientShaderBase::Build16bitCache(uint16_t cache[], SkColor c0, SkColor
     } while (--count != 0);
 }
 
-/*
- *  2x2 dither a fixed-point color component (8.16) down to 8, matching the
- *  semantics of how we 2x2 dither 32->16
- */
-static inline U8CPU dither_fixed_to_8(SkFixed n) {
-    n >>= 8;
-    return ((n << 1) - ((n >> 8 << 8) | (n >> 8))) >> 8;
-}
-
-/*
- *  For dithering with premultiply, we want to ceiling the alpha component,
- *  to ensure that it is always >= any color component.
- */
-static inline U8CPU dither_ceil_fixed_to_8(SkFixed n) {
-    n >>= 8;
-    return ((n << 1) - (n | (n >> 8))) >> 8;
-}
-
 void SkGradientShaderBase::Build32bitCache(SkPMColor cache[], SkColor c0, SkColor c1,
                                       int count, U8CPU paintAlpha) {
     SkASSERT(count > 1);
@@ -319,67 +301,94 @@ void SkGradientShaderBase::Build32bitCache(SkPMColor cache[], SkColor c0, SkColo
         da = SkIntToFixed(tmp - a) / (count - 1);
     }
 
-    SkFixed r = SkColorGetR(c0);
-    SkFixed g = SkColorGetG(c0);
-    SkFixed b = SkColorGetB(c0);
+    /*
+     *  r,g,b used to be SkFixed, but on gcc (4.2.1 mac and 4.6.3 goobuntu) in
+     *  release builds, we saw a compiler error where the 0xFF parameter in
+     *  SkPackARGB32() was being totally ignored whenever it was called with
+     *  a non-zero add (e.g. 0x8000).
+     *
+     *  We found two work-arounds:
+     *      1. change r,g,b to unsigned (or just one of them)
+     *      2. change SkPackARGB32 to + its (a << SK_A32_SHIFT) value instead
+     *         of using |
+     *
+     *  We chose #1 just because it was more localized.
+     *  See http://code.google.com/p/skia/issues/detail?id=1113
+     */
+    uint32_t r = SkColorGetR(c0);
+    uint32_t g = SkColorGetG(c0);
+    uint32_t b = SkColorGetB(c0);
+
     SkFixed dr = SkIntToFixed(SkColorGetR(c1) - r) / (count - 1);
     SkFixed dg = SkIntToFixed(SkColorGetG(c1) - g) / (count - 1);
     SkFixed db = SkIntToFixed(SkColorGetB(c1) - b) / (count - 1);
 
-#ifdef SK_IGNORE_GRADIENT_DITHER_FIX
-    a = SkIntToFixed(a) + 0x8000;
-    r = SkIntToFixed(r) + 0x8000;
-    g = SkIntToFixed(g) + 0x8000;
-    b = SkIntToFixed(b) + 0x8000;
-#else
-    a = SkIntToFixed(a);
-    r = SkIntToFixed(r);
-    g = SkIntToFixed(g);
-    b = SkIntToFixed(b);
-#endif
+    /*  We pre-add 1/8 to avoid having to add this to our [0] value each time
+        in the loop. Without this, the bias for each would be
+            0x2000  0xA000  0xE000  0x6000
+        With this trick, we can add 0 for the first (no-op) and just adjust the
+        others.
+     */
+    r = SkIntToFixed(r) + 0x2000;
+    g = SkIntToFixed(g) + 0x2000;
+    b = SkIntToFixed(b) + 0x2000;
 
-    do {
-#ifdef SK_IGNORE_GRADIENT_DITHER_FIX
-        cache[0] = SkPremultiplyARGBInline(a >> 16, r >> 16, g >> 16, b >> 16);
-        cache[kCache32Count] =
-            SkPremultiplyARGBInline(dither_ceil_fixed_to_8(a),
-                                    dither_fixed_to_8(r),
-                                    dither_fixed_to_8(g),
-                                    dither_fixed_to_8(b));
-#else
-        /*
-         *  Our dither-cell (spatially) is
-         *      0 2
-         *      3 1
-         *  Where
-         *      [0] -> [-1/8 ... 1/8 ) values near 0
-         *      [1] -> [ 1/8 ... 3/8 ) values near 1/4
-         *      [2] -> [ 3/8 ... 5/8 ) values near 1/2
-         *      [3] -> [ 5/8 ... 7/8 ) values near 3/4
-         */
-        cache[kCache32Count*0] = SkPremultiplyARGBInline((a + 0x2000) >> 16,
-                                                         (r + 0x2000) >> 16,
-                                                         (g + 0x2000) >> 16,
-                                                         (b + 0x2000) >> 16);
-        cache[kCache32Count*3] = SkPremultiplyARGBInline((a + 0x6000) >> 16,
-                                                         (r + 0x6000) >> 16,
-                                                         (g + 0x6000) >> 16,
-                                                         (b + 0x6000) >> 16);
-        cache[kCache32Count*1] = SkPremultiplyARGBInline((a + 0xA000) >> 16,
-                                                         (r + 0xA000) >> 16,
-                                                         (g + 0xA000) >> 16,
-                                                         (b + 0xA000) >> 16);
-        cache[kCache32Count*2] = SkPremultiplyARGBInline((a + 0xE000) >> 16,
-                                                         (r + 0xE000) >> 16,
-                                                         (g + 0xE000) >> 16,
-                                                         (b + 0xE000) >> 16);
-#endif
-        cache += 1;
-        a += da;
-        r += dr;
-        g += dg;
-        b += db;
-    } while (--count != 0);
+    /*
+     *  Our dither-cell (spatially) is
+     *      0 2
+     *      3 1
+     *  Where
+     *      [0] -> [-1/8 ... 1/8 ) values near 0
+     *      [1] -> [ 1/8 ... 3/8 ) values near 1/4
+     *      [2] -> [ 3/8 ... 5/8 ) values near 1/2
+     *      [3] -> [ 5/8 ... 7/8 ) values near 3/4
+     */
+
+    if (0xFF == a && 0 == da) {
+        do {
+            cache[kCache32Count*0] = SkPackARGB32(0xFF, (r + 0     ) >> 16,
+                                                        (g + 0     ) >> 16,
+                                                        (b + 0     ) >> 16);
+            cache[kCache32Count*1] = SkPackARGB32(0xFF, (r + 0x8000) >> 16,
+                                                        (g + 0x8000) >> 16,
+                                                        (b + 0x8000) >> 16);
+            cache[kCache32Count*2] = SkPackARGB32(0xFF, (r + 0xC000) >> 16,
+                                                        (g + 0xC000) >> 16,
+                                                        (b + 0xC000) >> 16);
+            cache[kCache32Count*3] = SkPackARGB32(0xFF, (r + 0x4000) >> 16,
+                                                        (g + 0x4000) >> 16,
+                                                        (b + 0x4000) >> 16);
+            cache += 1;
+            r += dr;
+            g += dg;
+            b += db;
+        } while (--count != 0);
+    } else {
+        a = SkIntToFixed(a) + 0x2000;
+        do {
+            cache[kCache32Count*0] = SkPremultiplyARGBInline((a + 0     ) >> 16,
+                                                             (r + 0     ) >> 16,
+                                                             (g + 0     ) >> 16,
+                                                             (b + 0     ) >> 16);
+            cache[kCache32Count*1] = SkPremultiplyARGBInline((a + 0x8000) >> 16,
+                                                             (r + 0x8000) >> 16,
+                                                             (g + 0x8000) >> 16,
+                                                             (b + 0x8000) >> 16);
+            cache[kCache32Count*2] = SkPremultiplyARGBInline((a + 0xC000) >> 16,
+                                                             (r + 0xC000) >> 16,
+                                                             (g + 0xC000) >> 16,
+                                                             (b + 0xC000) >> 16);
+            cache[kCache32Count*3] = SkPremultiplyARGBInline((a + 0x4000) >> 16,
+                                                             (r + 0x4000) >> 16,
+                                                             (g + 0x4000) >> 16,
+                                                             (b + 0x4000) >> 16);
+            cache += 1;
+            a += da;
+            r += dr;
+            g += dg;
+            b += db;
+        } while (--count != 0);
+    }
 }
 
 static inline int SkFixedToFFFF(SkFixed x) {
@@ -479,12 +488,10 @@ const SkPMColor* SkGradientShaderBase::getCache32() const {
             SkUnitMapper* map = fMapper;
             for (int i = 0; i < kCache32Count; i++) {
                 int index = map->mapUnit16((i << 8) | i) >> 8;
-                mapped[i] = linear[index];
-                mapped[i + kCache32Count] = linear[index + kCache32Count];
-#ifndef SK_IGNORE_GRADIENT_DITHER_FIX
+                mapped[i + kCache32Count*0] = linear[index + kCache32Count*0];
+                mapped[i + kCache32Count*1] = linear[index + kCache32Count*1];
                 mapped[i + kCache32Count*2] = linear[index + kCache32Count*2];
                 mapped[i + kCache32Count*3] = linear[index + kCache32Count*3];
-#endif
             }
             fCache32PixelRef->unref();
             fCache32PixelRef = newPR;

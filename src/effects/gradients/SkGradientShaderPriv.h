@@ -167,13 +167,9 @@ private:
 };
 
 static inline int init_dither_toggle(int x, int y) {
-#ifdef SK_IGNORE_GRADIENT_DITHER_FIX
-    return ((x ^ y) & 1) * SkGradientShaderBase::kDitherStride32;
-#else
     x &= 1;
     y = (y & 1) << 1;
     return (x | y) * SkGradientShaderBase::kDitherStride32;
-#endif
 }
 
 static inline int next_dither_toggle(int toggle) {
