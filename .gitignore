@@ -1,3 +1,4 @@
+*.swp
 .android_config
 .DS_Store
 .gclient*
