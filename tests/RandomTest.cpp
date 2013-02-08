@@ -10,7 +10,7 @@
 #include "SkRandom.h"
 #include "SkTSort.h"
 
-bool anderson_darling_test(double p[32]) {
+static bool anderson_darling_test(double p[32]) {
     // Min and max Anderson-Darling values allowable for k=32
     const double kADMin32 = 0.202;        // p-value of ~0.1
     const double kADMax32 = 3.89;         // p-value of ~0.99
@@ -32,7 +32,7 @@ bool anderson_darling_test(double p[32]) {
     return (kADMin32 < a2 && a2 < kADMax32);
 }
 
-bool chi_square_test(int bins[256], int e) {
+static bool chi_square_test(int bins[256], int e) {
     // Min and max chisquare values allowable
     const double kChiSqMin256 = 206.3179;        // probability of chance = 0.99 with k=256
     const double kChiSqMax256 = 311.5603;        // probability of chance = 0.01 with k=256
@@ -49,7 +49,7 @@ bool chi_square_test(int bins[256], int e) {
 
 // Approximation to the normal distribution CDF
 // From Waissi and Rossin, 1996
-double normal_cdf(double z) {
+static double normal_cdf(double z) {
     double t = ((-0.0004406*z*z* + 0.0418198)*z*z + 0.9)*z;
     t *= -1.77245385091;  // -sqrt(PI)
     double p = 1.0/(1.0 + exp(t));
@@ -57,7 +57,7 @@ double normal_cdf(double z) {
     return p;
 }
 
-void test_random_byte(skiatest::Reporter* reporter, int shift) {
+static void test_random_byte(skiatest::Reporter* reporter, int shift) {
     int bins[256];
     memset(bins, 0, sizeof(int)*256);
 
@@ -69,7 +69,7 @@ void test_random_byte(skiatest::Reporter* reporter, int shift) {
     REPORTER_ASSERT(reporter, chi_square_test(bins, 10000));
 }
 
-void test_random_float(skiatest::Reporter* reporter) {
+static void test_random_float(skiatest::Reporter* reporter) {
     int bins[256];
     memset(bins, 0, sizeof(int)*256);
 
@@ -100,7 +100,7 @@ void test_random_float(skiatest::Reporter* reporter) {
 //
 // The original test used 26 bit strings, but is somewhat slow. This version uses 16 
 // bits which is less rigorous but much faster to generate.
-double test_single_gorilla(skiatest::Reporter* reporter, int shift) {
+static double test_single_gorilla(skiatest::Reporter* reporter, int shift) {
     const int kWordWidth = 16;
     const double kMean = 24108.0;
     const double kStandardDeviation = 127.0;
@@ -150,7 +150,7 @@ double test_single_gorilla(skiatest::Reporter* reporter, int shift) {
     return p;
 }
 
-void test_gorilla(skiatest::Reporter* reporter) {
+static void test_gorilla(skiatest::Reporter* reporter) {
 
     double p[32];
     for (int bit_position = 0; bit_position < 32; ++bit_position) {
@@ -160,7 +160,7 @@ void test_gorilla(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, anderson_darling_test(p));
 }
 
-void test_range(skiatest::Reporter* reporter) {
+static void test_range(skiatest::Reporter* reporter) {
     SkMWCRandom rand;
     
     // just to make sure we don't crash in this case
@@ -187,7 +187,7 @@ static void TestRandom(skiatest::Reporter* reporter) {
 
     test_random_float(reporter);
 
-    test_gorilla(reporter);
+//    test_gorilla(reporter);
 
     test_range(reporter);
 }
