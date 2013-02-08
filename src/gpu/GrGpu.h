@@ -146,6 +146,13 @@ public:
     const GrIndexBuffer* getQuadIndexBuffer() const;
 
     /**
+     * Returns a vertex buffer with four position-only vertices [(0,0), (1,0),
+     * (1,1), (0,1)].
+     * @ return unit square vertex buffer
+     */
+    const GrVertexBuffer* getUnitSquareVertexBuffer() const;
+
+    /**
      * Resolves MSAA.
      */
     void resolveRenderTarget(GrRenderTarget* target);
@@ -527,7 +534,8 @@ private:
     // counts number of uses of vertex/index pool in the geometry stack
     int                                                                 fVertexPoolUseCnt;
     int                                                                 fIndexPoolUseCnt;
-    // this is mutable so it can be created on-demand
+    // these are mutable so they can be created on-demand
+    mutable GrVertexBuffer*                                             fUnitSquareVertexBuffer;
     mutable GrIndexBuffer*                                              fQuadIndexBuffer;
     bool                                                                fContextIsDirty;
     ResourceList                                                        fResourceList;
