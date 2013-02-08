@@ -42,8 +42,9 @@ BENCH_ALLOWED_NOISE = 10
 
 # List of platforms to track. Feel free to change it to meet your needs.
 PLATFORMS = [#'Mac_Float_Bench_32',
-             'Nexus10_4-1_Float_Bench_32',
+             #'Nexus10_4-1_Float_Bench_32',
              #'Shuttle_Ubuntu12_ATI5770_Float_Bench_32',
+             'Shuttle_Win7_Intel_Float_Bench_32',
             ]
 
 # Filter for configs of no interest. They are old config names replaced by more
