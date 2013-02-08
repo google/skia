@@ -40,6 +40,9 @@ static void usage(const char* argv0) {
 #if SK_SUPPORT_GPU
 " | gpu"
 #endif
+#if SK_ANGLE
+" | angle"
+#endif
 "]"
 , argv0);
     SkDebugf("\n\n");
@@ -110,6 +113,10 @@ static void usage(const char* argv0) {
 #if SK_SUPPORT_GPU
     SkDebugf(
 "                     gpu, Render to the GPU.\n");
+#endif
+#if SK_ANGLE
+    SkDebugf(
+"                     angle, Render using angle.\n");
 #endif
 }
 
@@ -518,6 +525,11 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 deviceType = sk_tools::PictureRenderer::kGPU_DeviceType;
             }
 #endif
+#if SK_ANGLE
+            else if (0 == strcmp(*argv, "angle")) {
+                deviceType = sk_tools::PictureRenderer::kAngle_DeviceType;
+            }
+#endif
             else {
                 SkSafeUnref(renderer);
                 SkDebugf("%s is not a valid mode for --device\n", *argv);
@@ -672,14 +684,22 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
             }
         }
         if (numThreads > 1) {
+            switch (deviceType) {
 #if SK_SUPPORT_GPU
-            if (sk_tools::PictureRenderer::kGPU_DeviceType == deviceType) {
-                tiledRenderer->unref();
-                SkDebugf("GPU not compatible with multithreaded tiling.\n");
-                usage(argv0);
-                exit(-1);
-            }
+                case sk_tools::PictureRenderer::kGPU_DeviceType:
+                    // fall through
 #endif
+#if SK_ANGLE
+                case sk_tools::PictureRenderer::kAngle_DeviceType:
+#endif
+                    tiledRenderer->unref();
+                    SkDebugf("GPU not compatible with multithreaded tiling.\n");
+                    usage(argv0);
+                    exit(-1);
+                    break;
+                default:
+                    break;
+            }
         }
         renderer = tiledRenderer;
         if (usePipe) {
@@ -713,7 +733,10 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     renderer->setGridSize(gridWidth, gridHeight);
     renderer->setViewport(viewport);
     renderer->setScaleFactor(scaleFactor);
-    renderer->setDeviceType(deviceType);
+    if (!renderer->setDeviceType(deviceType)) {
+        SkDebugf("Invalid device type.\n");
+        exit(-1);
+    }
 }
 
 int tool_main(int argc, char** argv);

@@ -45,12 +45,6 @@ public:
 
     PictureRenderer* setRenderer(PictureRenderer*);
 
-    void setDeviceType(PictureRenderer::SkDeviceTypes deviceType) {
-        if (fRenderer != NULL) {
-            fRenderer->setDeviceType(deviceType);
-        }
-    }
-
     void setLogPerIter(bool log) { fLogPerIter = log; }
 
     void setPrintMin(bool min) { fPrintMin = min; }

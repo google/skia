@@ -130,6 +130,9 @@ static void usage(const char* argv0) {
 "     [--device bitmap"
 #if SK_SUPPORT_GPU
 " | gpu"
+#if SK_ANGLE
+" | angle"
+#endif
 #endif
 "]\n"
 "     [--filter [%s]:\n            [%s]]\n"
@@ -204,6 +207,10 @@ static void usage(const char* argv0) {
 #if SK_SUPPORT_GPU
     SkDebugf(
 "                     gpu, Render to the GPU.\n");
+#if SK_ANGLE
+    SkDebugf(
+"                     angle, Render using Angle.\n");
+#endif
 #endif
     SkDebugf("\n");
     SkDebugf(
@@ -480,6 +487,11 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 deviceType = sk_tools::PictureRenderer::kGPU_DeviceType;
             }
 #endif
+#if SK_ANGLE
+            else if (0 == strcmp(*argv, "angle")) {
+                deviceType = sk_tools::PictureRenderer::kAngle_DeviceType;
+            }
+#endif
             else {
                 SkString err;
                 err.printf("%s is not a valid mode for --device\n", *argv);
@@ -701,13 +713,21 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
             }
         }
         if (numThreads > 1) {
+            switch (deviceType) {
 #if SK_SUPPORT_GPU
-            if (sk_tools::PictureRenderer::kGPU_DeviceType == deviceType) {
-                tiledRenderer->unref();
-                gLogger.logError("GPU not compatible with multithreaded tiling.\n");
-                PRINT_USAGE_AND_EXIT;
-            }
+                case sk_tools::PictureRenderer::kGPU_DeviceType:
+                    // fall through
 #endif
+#if SK_ANGLE
+                case sk_tools::PictureRenderer::kAngle_DeviceType:
+#endif
+                    tiledRenderer->unref();
+                    gLogger.logError("GPU not compatible with multithreaded tiling.\n");
+                    PRINT_USAGE_AND_EXIT;
+                    break;
+                default:
+                    break;
+            }
         }
         renderer.reset(tiledRenderer);
         if (usePipe) {
@@ -740,9 +760,12 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
     renderer->setGridSize(gridWidth, gridHeight);
     renderer->setViewport(viewport);
     renderer->setScaleFactor(scaleFactor);
+    if (!renderer->setDeviceType(deviceType)) {
+        gLogger.logError("Invalid deviceType.\n");
+        PRINT_USAGE_AND_EXIT;
+    }
     benchmark->setRenderer(renderer);
     benchmark->setRepeats(repeats);
-    benchmark->setDeviceType(deviceType);
     benchmark->setLogger(&gLogger);
     // Report current settings:
     gLogger.logProgress(commandLine);
