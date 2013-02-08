@@ -316,6 +316,15 @@ inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
 #endif
 
 /**
+ *  GR_STATIC_RECT_VB controls whether rects are drawn by issuing a vertex
+ *  for each corner or using a static vb that is positioned by modifying the
+ *  view / texture matrix.
+ */
+#if !defined(GR_STATIC_RECT_VB)
+    #define GR_STATIC_RECT_VB 1
+#endif
+
+/**
  * GR_GEOM_BUFFER_LOCK_THRESHOLD gives a threshold (in bytes) for when Gr should
  * lock a GrGeometryBuffer to update its contents. It will use lock() if the
  * size of the updated region is greater than the threshold. Otherwise it will

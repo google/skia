@@ -734,6 +734,8 @@ void GrContext::drawRect(const GrPaint& paint,
 
     if (width >= 0) {
         // TODO: consider making static vertex buffers for these cases.
+        // Hairline could be done by just adding closing vertex to
+        // unitSquareVertexBuffer()
 
         static const int worstCaseVertCount = 10;
         target->drawState()->setVertexLayout(GrDrawState::kDefault_VertexLayout);
@@ -771,7 +773,30 @@ void GrContext::drawRect(const GrPaint& paint,
 
         target->drawNonIndexed(primType, 0, vertCount);
     } else {
-        target->drawSimpleRect(rect, matrix);
+#if GR_STATIC_RECT_VB
+            const GrVertexBuffer* sqVB = fGpu->getUnitSquareVertexBuffer();
+            if (NULL == sqVB) {
+                GrPrintf("Failed to create static rect vb.\n");
+                return;
+            }
+
+            GrDrawState* drawState = target->drawState();
+            drawState->setVertexLayout(GrDrawState::kDefault_VertexLayout);
+            target->setVertexSourceToBuffer(sqVB);
+            SkMatrix m;
+            m.setAll(rect.width(),    0,             rect.fLeft,
+                        0,            rect.height(), rect.fTop,
+                        0,            0,             SkMatrix::I()[8]);
+
+            if (NULL != matrix) {
+                m.postConcat(*matrix);
+            }
+            GrDrawState::AutoViewMatrixRestore avmr(drawState, m);
+
+            target->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
+#else
+            target->drawSimpleRect(rect, matrix);
+#endif
     }
 }
 
@@ -789,6 +814,43 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     }
 
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
+
+#if GR_STATIC_RECT_VB
+    GrDrawState::AutoStageDisable atr(fDrawState);
+    GrDrawState* drawState = target->drawState();
+
+    SkMatrix m;
+
+    m.setAll(dstRect.width(), 0,                dstRect.fLeft,
+             0,               dstRect.height(), dstRect.fTop,
+             0,               0,                SkMatrix::I()[8]);
+    if (NULL != dstMatrix) {
+        m.postConcat(*dstMatrix);
+    }
+
+    // The first color stage's coords come from srcRect rather than applying a matrix to dstRect.
+    // We explicitly compute a matrix for that stage below, no need to adjust here.
+    static const uint32_t kExplicitCoordMask = 1 << GrPaint::kFirstColorStage;
+    GrDrawState::AutoViewMatrixRestore avmr(drawState, m, kExplicitCoordMask);
+
+    m.setAll(srcRect.width(), 0,                srcRect.fLeft,
+             0,               srcRect.height(), srcRect.fTop,
+             0,               0,                SkMatrix::I()[8]);
+    if (NULL != srcMatrix) {
+        m.postConcat(*srcMatrix);
+    }
+
+    drawState->preConcatStageMatrices(kExplicitCoordMask, m);
+
+    const GrVertexBuffer* sqVB = fGpu->getUnitSquareVertexBuffer();
+    if (NULL == sqVB) {
+        GrPrintf("Failed to create static rect vb.\n");
+        return;
+    }
+    drawState->setVertexLayout(GrDrawState::kDefault_VertexLayout);
+    target->setVertexSourceToBuffer(sqVB);
+    target->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
+#else
     GrDrawState::AutoStageDisable atr(fDrawState);
 
     const GrRect* srcRects[GrDrawState::kNumStages] = {NULL};
@@ -797,6 +859,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     srcMatrices[0] = srcMatrix;
 
     target->drawRect(dstRect, dstMatrix, srcRects, srcMatrices);
+#endif
 }
 
 void GrContext::drawVertices(const GrPaint& paint,
