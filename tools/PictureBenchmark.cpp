@@ -106,8 +106,8 @@ void PictureBenchmark::run(SkPicture* pict) {
             // then take the average. As such, it supports logPerIter and printMin options.
             //
             // Although "legal", having two gpu timers running at the same time
-            // seems to cause problems (i.e., INVALID_OPERATIONs) on several 
-            // platforms. To work around this, we disable the gpu timer on the 
+            // seems to cause problems (i.e., INVALID_OPERATIONs) on several
+            // platforms. To work around this, we disable the gpu timer on the
             // long running timer.
             SkAutoTDelete<BenchTimer> longRunningTimer(this->setupTimer(false));
             TimerData longRunningTimerData(tiledRenderer->getPerIterTimeFormat(),
