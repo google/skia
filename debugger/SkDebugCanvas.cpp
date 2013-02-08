@@ -33,9 +33,9 @@ static SkBitmap make_noconfig_bm(int width, int height) {
 
 SkDebugCanvas::SkDebugCanvas(int width, int height)
         : INHERITED(make_noconfig_bm(width, height))
-        , fOutstandingSaveCount(0)
         , fOverdrawViz(false)
-        , fOverdrawFilter(NULL) {
+        , fOverdrawFilter(NULL)
+        , fOutstandingSaveCount(0) {
     // TODO(chudy): Free up memory from all draw commands in destructor.
     fWidth = width;
     fHeight = height;
