@@ -20,10 +20,21 @@
  */
 class SK_API SkTileGridPicture : public SkPicture {
 public:
-    SkTileGridPicture(int tileWidth, int tileHeight, int width, int height);
+    /**
+     * Constructor
+     * @param tileWidth horizontal stride between consecutive tiles
+     * @param tileHeight vertical stride between consecutive tiles
+     * @param width recording canvas width in device pixels
+     * @param height recording canvas height in device pixels
+     * @param borderPixels pixels of overlap between adjacent tiles. Set this
+     *  value to match the border overlap that is applied to tiles by user
+     *  code. Properly setting this value will help improve performance
+     *  when performing tile-aligned playbacks.
+     */
+    SkTileGridPicture(int tileWidth, int tileHeight, int width, int height, int borderPixels = 0);
     virtual SkBBoxHierarchy* createBBoxHierarchy() const SK_OVERRIDE;
 private:
-    int fTileWidth, fTileHeight, fXTileCount, fYTileCount;
+    int fTileWidth, fTileHeight, fXTileCount, fYTileCount, fBorderPixels;
 };
 
 #endif

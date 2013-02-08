@@ -26,7 +26,7 @@ class SkTileGrid : public SkBBoxHierarchy {
 public:
     typedef void* (*SkTileGridNextDatumFunctionPtr)(SkTDArray<void*>** tileData, SkTDArray<int>& tileIndices);
 
-    SkTileGrid(int tileWidth, int tileHeight, int xTileCount, int yTileCount,
+    SkTileGrid(int tileWidth, int tileHeight, int xTileCount, int yTileCount, int borderPixels,
         SkTileGridNextDatumFunctionPtr nextDatumFunction);
 
     virtual ~SkTileGrid();
@@ -61,7 +61,7 @@ public:
 private:
     SkTDArray<void*>& tile(int x, int y);
 
-    int fTileWidth, fTileHeight, fXTileCount, fYTileCount, fTileCount;
+    int fTileWidth, fTileHeight, fXTileCount, fYTileCount, fTileCount, fBorderPixels;
     SkTDArray<void*>* fTileData;
     int fInsertionCount;
     SkIRect fGridBounds;
