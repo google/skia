@@ -65,7 +65,7 @@ static void test_random_byte(skiatest::Reporter* reporter, int shift) {
     for (int i = 0; i < 256*10000; ++i) {
         bins[(rand.nextU() >> shift) & 0xff]++;
     }
-    
+
     REPORTER_ASSERT(reporter, chi_square_test(bins, 10000));
 }
 
@@ -92,13 +92,13 @@ static void test_random_float(skiatest::Reporter* reporter) {
 
 // This is a test taken from tuftests by Marsaglia and Tsang. The idea here is that
 // we are using the random bit generated from a single shift position to generate
-// "strings" of 16 bits in length, shifting the string and adding a new bit with each 
+// "strings" of 16 bits in length, shifting the string and adding a new bit with each
 // iteration. We track the numbers generated. The ones that we don't generate will
-// have a normal distribution with mean ~24108 and standard deviation ~127. By 
+// have a normal distribution with mean ~24108 and standard deviation ~127. By
 // creating a z-score (# of deviations from the mean) for one iteration of this step
 // we can determine its probability.
 //
-// The original test used 26 bit strings, but is somewhat slow. This version uses 16 
+// The original test used 26 bit strings, but is somewhat slow. This version uses 16
 // bits which is less rigorous but much faster to generate.
 static double test_single_gorilla(skiatest::Reporter* reporter, int shift) {
     const int kWordWidth = 16;
@@ -141,12 +141,12 @@ static double test_single_gorilla(skiatest::Reporter* reporter, int shift) {
     }
 
     // convert counts to normal distribution z-score
-    double z = ((kN-total)-kMean)/kStandardDeviation;    
+    double z = ((kN-total)-kMean)/kStandardDeviation;
 
-    // compute probability from normal distibution CDF 
+    // compute probability from normal distibution CDF
     double p = normal_cdf(z);
 
-    // this test is currently failing on android, but commenting it 
+    // this test is currently failing on android, but commenting it
     // out causes more problems than it fixes due to -Werror, hence
     // the true || weirdness.
     REPORTER_ASSERT(reporter, true || (0.01 < p && p < 0.99));
@@ -159,7 +159,7 @@ static void test_gorilla(skiatest::Reporter* reporter) {
     for (int bit_position = 0; bit_position < 32; ++bit_position) {
         p[bit_position] = test_single_gorilla(reporter, bit_position);
     }
-    
+
     // this test is currently unused, but commenting it out
     // causes more problems than it fixes due to -Werror, hence
     // the true || weirdness.
@@ -168,7 +168,7 @@ static void test_gorilla(skiatest::Reporter* reporter) {
 
 static void test_range(skiatest::Reporter* reporter) {
     SkMWCRandom rand;
-    
+
     // just to make sure we don't crash in this case
     (void) rand.nextRangeU(0, 0xffffffff);
 

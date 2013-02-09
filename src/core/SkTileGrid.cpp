@@ -8,7 +8,7 @@
 
 #include "SkTileGrid.h"
 
-SkTileGrid::SkTileGrid(int tileWidth, int tileHeight, int xTileCount, int yTileCount, 
+SkTileGrid::SkTileGrid(int tileWidth, int tileHeight, int xTileCount, int yTileCount,
     int borderPixels, SkTileGridNextDatumFunctionPtr nextDatumFunction)
 {
     fTileWidth = tileWidth;
@@ -17,7 +17,7 @@ SkTileGrid::SkTileGrid(int tileWidth, int tileHeight, int xTileCount, int yTileC
     fYTileCount = yTileCount;
     // Border padding is offset by 1 as a provision for AA and
     // to cancel-out the outset applied by getClipDeviceBounds.
-    fBorderPixels = borderPixels + 1; 
+    fBorderPixels = borderPixels + 1;
     fTileCount = fXTileCount * fYTileCount;
     fInsertionCount = 0;
     fGridBounds = SkIRect::MakeXYWH(0, 0, fTileWidth * fXTileCount, fTileHeight * fYTileCount);
