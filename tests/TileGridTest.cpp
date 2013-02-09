@@ -39,7 +39,7 @@ public:
 
 class TileGridTest {
 public:
-    static void verifyTileHits(skiatest::Reporter* reporter, SkIRect rect, uint32_t tileMask, 
+    static void verifyTileHits(skiatest::Reporter* reporter, SkIRect rect, uint32_t tileMask,
                                int borderPixels = 0) {
         SkTileGrid grid(10, 10, 2, 2, borderPixels, NULL);
         grid.insert(NULL, rect, false);
