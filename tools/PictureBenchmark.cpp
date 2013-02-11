@@ -109,10 +109,10 @@ void PictureBenchmark::run(SkPicture* pict) {
             // seems to cause problems (i.e., INVALID_OPERATIONs) on several
             // platforms. To work around this, we disable the gpu timer on the
             // long running timer.
-            SkAutoTDelete<BenchTimer> longRunningTimer(this->setupTimer(false));
+            SkAutoTDelete<BenchTimer> longRunningTimer(this->setupTimer());
             TimerData longRunningTimerData(tiledRenderer->getPerIterTimeFormat(),
                                            tiledRenderer->getNormalTimeFormat());
-            SkAutoTDelete<BenchTimer> perTileTimer(this->setupTimer());
+            SkAutoTDelete<BenchTimer> perTileTimer(this->setupTimer(false));
             TimerData perTileTimerData(tiledRenderer->getPerIterTimeFormat(),
                                        tiledRenderer->getNormalTimeFormat());
             longRunningTimer->start();
@@ -137,7 +137,14 @@ void PictureBenchmark::run(SkPicture* pict) {
                                                          fShowTruncatedCpuTime,
                                                          usingGpu && fShowGpuTime);
             result.append("\n");
+
+// TODO(borenet): Turn off per-iteration tile time reporting for now.  Avoiding logging the time
+// for every iteration for each tile cuts down on data file size by a significant amount. Re-enable
+// this once we're loading the bench data directly into a data store and are no longer generating
+// SVG graphs.
+#if 0
             this->logProgress(result.c_str());
+#endif
 
             configName.append(" <averaged>");
             SkString longRunningResult = longRunningTimerData.getResult(false, false, fRepeats,
