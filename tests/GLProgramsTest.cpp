@@ -22,26 +22,66 @@
 
 namespace {
 
-// SkRandoms nextU() values have patterns in the low bits
-// So using nextU() % array_count might never take some values.
-int random_int(SkRandom* r, int count) {
-    return (int)(r->nextF() * count);
-}
-
-bool random_bool(SkRandom* r) {
-    return r->nextF() > .5f;
-}
-
-const GrEffectRef* create_random_effect(SkRandom* random,
+const GrEffectRef* create_random_effect(SkMWCRandom* random,
                                         GrContext* context,
                                         GrTexture* dummyTextures[]) {
-
+    // TODO: Make GrTestFactory use SkMWCRandom and simply pass along param random
     SkRandom sk_random;
     sk_random.setSeed(random->nextU());
     GrEffectRef* effect = GrEffectTestFactory::CreateStage(&sk_random, context, dummyTextures);
     GrAssert(effect);
     return effect;
 }
+}
+
+void GrGLProgram::Desc::setRandom(SkMWCRandom* random,
+                                  const GrGpuGL* gpu,
+                                  const GrEffectStage stages[GrDrawState::kNumStages]) {
+    fVertexLayout = 0;
+    fEmitsPointSize = random->nextBool();
+    fColorInput = random->nextULessThan(kColorInputCnt);
+    fCoverageInput = random->nextULessThan(kColorInputCnt);
+
+    fColorFilterXfermode = random->nextULessThan(SkXfermode::kCoeffModesCnt);
+
+    fFirstCoverageStage = random->nextULessThan(GrDrawState::kNumStages);
+
+    fVertexLayout |= random->nextBool() ? GrDrawState::kCoverage_VertexLayoutBit : 0;
+
+#if GR_GL_EXPERIMENTAL_GS
+    fExperimentalGS = gpu->getCaps().geometryShaderSupport() && random->nextBool();
+#endif
+
+    bool edgeAA = random->nextBool();
+    if (edgeAA) {
+        fVertexLayout |= GrDrawState::kEdge_VertexLayoutBit;
+        if (gpu->getCaps().shaderDerivativeSupport()) {
+            fVertexEdgeType = (GrDrawState::VertexEdgeType)
+                              random->nextULessThan(GrDrawState::kVertexEdgeTypeCnt);
+            fDiscardIfOutsideEdge = random->nextBool();
+        } else {
+            fVertexEdgeType = GrDrawState::kHairLine_EdgeType;
+            fDiscardIfOutsideEdge = false;
+        }
+    }
+
+    if (gpu->getCaps().dualSourceBlendingSupport()) {
+        fDualSrcOutput = random->nextULessThan(kDualSrcOutputCnt);
+    } else {
+        fDualSrcOutput = kNone_DualSrcOutput;
+    }
+
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+        if (NULL != stages[s].getEffect()) {
+            const GrBackendEffectFactory& factory = (*stages[s].getEffect())->getFactory();
+            fEffectKeys[s] = factory.glEffectKey(stages[s], gpu->glCaps());
+            // use separate tex coords?
+            if (random->nextBool()) {
+                int t = random->nextULessThan(GrDrawState::kMaxTexCoords);
+                fVertexLayout |= GrDrawState::StageTexCoordVertexLayoutBit(s, t);
+            }
+        }
+    }
 }
 
 bool GrGpuGL::programUnitTest(int maxStages) {
@@ -60,7 +100,7 @@ bool GrGpuGL::programUnitTest(int maxStages) {
 
     static const int NUM_TESTS = 512;
 
-    SkRandom random;
+    SkMWCRandom random;
     for (int t = 0; t < NUM_TESTS; ++t) {
 
 #if 0
@@ -71,67 +111,21 @@ bool GrGpuGL::programUnitTest(int maxStages) {
         }
 #endif
 
-        ProgramDesc pdesc;
-        pdesc.fVertexLayout = 0;
-        pdesc.fEmitsPointSize = random.nextF() > .5f;
-        pdesc.fColorInput = random_int(&random, ProgramDesc::kColorInputCnt);
-        pdesc.fCoverageInput = random_int(&random, ProgramDesc::kColorInputCnt);
-
-        pdesc.fColorFilterXfermode = random_int(&random, SkXfermode::kCoeffModesCnt);
-
-        pdesc.fFirstCoverageStage = random_int(&random, GrDrawState::kNumStages);
-
-        pdesc.fVertexLayout |= random_bool(&random) ?
-                                    GrDrawState::kCoverage_VertexLayoutBit :
-                                    0;
-
-#if GR_GL_EXPERIMENTAL_GS
-        pdesc.fExperimentalGS = this->getCaps().geometryShaderSupport() &&
-                                random_bool(&random);
-#endif
-
-        bool edgeAA = random_bool(&random);
-        if (edgeAA) {
-            pdesc.fVertexLayout |= GrDrawState::kEdge_VertexLayoutBit;
-            if (this->getCaps().shaderDerivativeSupport()) {
-                pdesc.fVertexEdgeType = (GrDrawState::VertexEdgeType) random_int(&random, GrDrawState::kVertexEdgeTypeCnt);
-                pdesc.fDiscardIfOutsideEdge = random.nextBool();
-            } else {
-                pdesc.fVertexEdgeType = GrDrawState::kHairLine_EdgeType;
-                pdesc.fDiscardIfOutsideEdge = false;
-            }
-        } else {
-        }
-
-        if (this->getCaps().dualSourceBlendingSupport()) {
-            pdesc.fDualSrcOutput = random_int(&random, ProgramDesc::kDualSrcOutputCnt);
-        } else {
-            pdesc.fDualSrcOutput = ProgramDesc::kNone_DualSrcOutput;
-        }
-
+        GrGLProgram::Desc pdesc;
         GrEffectStage stages[GrDrawState::kNumStages];
 
         for (int s = 0; s < maxStages; ++s) {
             // enable the stage?
-            if (random_bool(&random)) {
-                // use separate tex coords?
-                if (random_bool(&random)) {
-                    int t = random_int(&random, GrDrawState::kMaxTexCoords);
-                    pdesc.fVertexLayout |= GrDrawState::StageTexCoordVertexLayoutBit(s, t);
-                }
-
+            if (random.nextBool()) {
                 GrTexture* dummyTextures[] = {dummyTexture1.get(), dummyTexture2.get()};
                 SkAutoTUnref<const GrEffectRef> effect(create_random_effect(&random,
                                                                             getContext(),
                                                                             dummyTextures));
                 stages[s].setEffect(effect.get());
-                if (NULL != stages[s].getEffect()) {
-                    pdesc.fEffectKeys[s] =
-                        (*stages[s].getEffect())->getFactory().glEffectKey(stages[s],
-                                                                           this->glCaps());
-                }
             }
         }
+        pdesc.setRandom(&random, this, stages);
+
         const GrEffectStage* stagePtrs[GrDrawState::kNumStages];
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
             stagePtrs[s] = &stages[s];

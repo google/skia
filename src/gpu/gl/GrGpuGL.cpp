@@ -497,8 +497,7 @@ void GrGpuGL::onResetContext() {
     }
 
     fHWProgramID = 0;
-    fHWConstAttribColor = GrColor_ILLEGAL;
-    fHWConstAttribCoverage = GrColor_ILLEGAL;
+    fSharedGLProgramState.invalidate();
 }
 
 namespace {

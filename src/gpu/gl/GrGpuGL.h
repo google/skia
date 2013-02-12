@@ -55,6 +55,8 @@ public:
 
     virtual void abandonResources() SK_OVERRIDE;
 
+    const GrGLCaps& glCaps() const { return fGLContextInfo.caps(); }
+
 private:
     // GrGpu overrides
     virtual void onResetContext() SK_OVERRIDE;
@@ -107,8 +109,6 @@ private:
                                   bool insideClip) SK_OVERRIDE;
     virtual bool flushGraphicsState(DrawType) SK_OVERRIDE;
 
-    const GrGLCaps& glCaps() const { return fGLContextInfo.caps(); }
-
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
 
@@ -135,9 +135,6 @@ private:
 
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
-    // for readability of function impls
-    typedef GrGLProgram::Desc        ProgramDesc;
-
     class ProgramCache : public ::GrNoncopyable {
     public:
         ProgramCache(const GrGLContextInfo& gl);
@@ -146,7 +143,7 @@ private:
         GrGLProgram* getProgram(const GrGLProgram::Desc& desc, const GrEffectStage* stages[]);
     private:
         enum {
-            kKeySize = sizeof(ProgramDesc),
+            kKeySize = sizeof(GrGLProgram::Desc),
             // We may actually have kMaxEntries+1 shaders in the GL context because we create a new
             // shader before evicting from the cache.
             kMaxEntries = 32
@@ -184,15 +181,9 @@ private:
         const GrGLContextInfo&      fGL;
     };
 
-    // sets the color specified by GrDrawState::setColor()
-    void flushColor(GrColor color);
-
-    // sets the color specified by GrDrawState::setCoverage()
-    void flushCoverage(GrColor color);
 
     // sets the MVP matrix uniform for currently bound program
     void flushViewMatrix(DrawType type);
-
 
     // flushes dithering, color-mask, and face culling stat
     void flushMiscFixedFunctionState();
@@ -200,11 +191,6 @@ private:
     // flushes the scissor. see the note on flushBoundTextureAndParams about
     // flushing the scissor after that function is called.
     void flushScissor();
-
-    void buildProgram(bool isPoints,
-                      GrDrawState::BlendOptFlags blendOpts,
-                      GrBlendCoeff dstCoeff,
-                      ProgramDesc* desc);
 
     // Inits GrDrawTarget::Caps, subclass may enable additional caps.
     void initCaps();
@@ -266,8 +252,8 @@ private:
     ///@{
     int                         fHWActiveTextureUnitIdx;
     GrGLuint                    fHWProgramID;
-    GrColor                     fHWConstAttribColor;
-    GrColor                     fHWConstAttribCoverage;
+
+    GrGLProgram::SharedGLState  fSharedGLProgramState;
 
     enum TriState {
         kNo_TriState,

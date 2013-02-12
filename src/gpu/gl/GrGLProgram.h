@@ -22,6 +22,7 @@
 class GrBinHashKeyBuilder;
 class GrGLEffect;
 class GrGLShaderBuilder;
+class SkMWCRandom;
 
 // optionally compile the experimental GS code. Set to GR_DEBUG
 // so that debug build bots will execute the code.
@@ -40,7 +41,19 @@ class GrGLProgram : public GrRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrGLProgram)
 
-    struct Desc;
+    class Desc;
+
+    /**
+     * Builds a program descriptor from a GrDrawState. Whether the primitive type is points, the
+     * output of GrDrawState::getBlendOpts, and the caps of the GrGpuGL are also inputs.
+     */
+    static void BuildDesc(const GrDrawState&,
+                          bool isPoints,
+                          GrDrawState::BlendOptFlags,
+                          GrBlendCoeff srcCoeff,
+                          GrBlendCoeff dstCoeff,
+                          const GrGpuGL* gpu,
+                          Desc* outDesc);
 
     static GrGLProgram* Create(const GrGLContextInfo& gl,
                                const Desc& desc,
@@ -70,15 +83,34 @@ public:
     static int TexCoordAttributeIdx(int tcIdx) { return 4 + tcIdx; }
 
     /**
+     * Some GL state that is relevant to programs is not stored per-program. In particular vertex
+     * attributes are global state. This struct is read and updated by GrGLProgram::setData to
+     * allow us to avoid setting this state redundantly.
+     */
+    struct SharedGLState {
+        GrColor fConstAttribColor;
+        GrColor fConstAttribCoverage;
+
+        SharedGLState() { this->invalidate(); }
+        void invalidate() {
+            fConstAttribColor = GrColor_ILLEGAL;
+            fConstAttribCoverage = GrColor_ILLEGAL;
+        }
+    };
+
+    /**
      * This function uploads uniforms and calls each GrGLEffect's setData. It is called before a
      * draw occurs using the program after the program has already been bound. It also uses the
      * GrGpuGL object to bind the textures required by the GrGLEffects.
+     *
+     * The color and coverage params override the GrDrawState's getColor() and getCoverage() values.
      */
-    void setData(GrGpuGL*);
+    void setData(GrGpuGL*, GrColor color, GrColor coverage, SharedGLState*);
 
     // Parameters that affect code generation
     // This structs should be kept compact; it is input to an expensive hash key generator.
-    struct Desc {
+    class Desc {
+    public:
         Desc() {
             // since we use this as part of a key we can't have any uninitialized
             // padding
@@ -90,6 +122,12 @@ public:
             return reinterpret_cast<const uint32_t*>(this);
         }
 
+        // For unit testing.
+        void setRandom(SkMWCRandom*,
+                       const GrGpuGL* gpu,
+                       const GrEffectStage stages[GrDrawState::kNumStages]);
+
+    private:
         // Specifies where the initial color comes from before the stages are applied.
         enum ColorInput {
             kSolidWhite_ColorInput,
@@ -133,6 +171,8 @@ public:
         int8_t                      fFirstCoverageStage;
         SkBool8                     fEmitsPointSize;
         uint8_t                     fColorFilterXfermode;   // casts to enum SkXfermode::Mode
+
+        friend class GrGLProgram;
     };
 private:
     GrGLProgram(const GrGLContextInfo& gl,
@@ -171,6 +211,14 @@ private:
     bool compileShaders(const GrGLShaderBuilder& builder);
 
     const char* adjustInColor(const SkString& inColor) const;
+
+    // Helper for setData(). Makes GL calls to specify the initial color when there is not
+    // per-vertex colors.
+    void setColor(const GrDrawState&, GrColor color, SharedGLState*);
+
+    // Helper for setData(). Makes GL calls to specify the initial coverage when there is not
+    // per-vertex coverages.
+    void setCoverage(const GrDrawState&, GrColor coverage, SharedGLState*);
 
     typedef SkSTArray<4, UniformHandle, true> SamplerUniSArray;
 
