@@ -861,6 +861,61 @@ void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& origPath,
                           &content.entry()->fContent);
 }
 
+void SkPDFDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
+                                 const SkRect* src, const SkRect& dst,
+                                 const SkPaint& paint) {
+    SkMatrix    matrix;
+    SkRect      bitmapBounds, tmpSrc, tmpDst;
+    SkBitmap    tmpBitmap;
+
+    bitmapBounds.isetWH(bitmap.width(), bitmap.height());
+
+    // Compute matrix from the two rectangles
+    if (src) {
+        tmpSrc = *src;
+    } else {
+        tmpSrc = bitmapBounds;
+    }
+    matrix.setRectToRect(tmpSrc, dst, SkMatrix::kFill_ScaleToFit);
+
+    const SkBitmap* bitmapPtr = &bitmap;
+
+    // clip the tmpSrc to the bounds of the bitmap, and recompute dstRect if
+    // needed (if the src was clipped). No check needed if src==null.
+    if (src) {
+        if (!bitmapBounds.contains(*src)) {
+            if (!tmpSrc.intersect(bitmapBounds)) {
+                return; // nothing to draw
+            }
+            // recompute dst, based on the smaller tmpSrc
+            matrix.mapRect(&tmpDst, tmpSrc);
+        }
+
+        // since we may need to clamp to the borders of the src rect within
+        // the bitmap, we extract a subset.
+        // TODO: make sure this is handled in drawBitmap and remove from here.
+        SkIRect srcIR;
+        tmpSrc.roundOut(&srcIR);
+        if (!bitmap.extractSubset(&tmpBitmap, srcIR)) {
+            return;
+        }
+        bitmapPtr = &tmpBitmap;
+
+        // Since we did an extract, we need to adjust the matrix accordingly
+        SkScalar dx = 0, dy = 0;
+        if (srcIR.fLeft > 0) {
+            dx = SkIntToScalar(srcIR.fLeft);
+        }
+        if (srcIR.fTop > 0) {
+            dy = SkIntToScalar(srcIR.fTop);
+        }
+        if (dx || dy) {
+            matrix.preTranslate(dx, dy);
+        }
+    }
+    this->drawBitmap(draw, *bitmapPtr, NULL, matrix, paint);
+}
+
 void SkPDFDevice::drawBitmap(const SkDraw& d, const SkBitmap& bitmap,
                              const SkIRect* srcRect, const SkMatrix& matrix,
                              const SkPaint& paint) {
