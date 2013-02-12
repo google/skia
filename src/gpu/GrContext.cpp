@@ -647,7 +647,7 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
     // In a shader implementation we can give a separate coverage input
     // TODO: remove this ugliness when we drop the fixed-pipe impl
     *useVertexCoverage = false;
-    if (!target->canTweakAlphaForCoverage()) {
+    if (!target->getDrawState().canTweakAlphaForCoverage()) {
         if (disable_coverage_aa_for_blend(target)) {
 #if GR_DEBUG
             //GrPrintf("Turning off AA to correctly apply blend.\n");

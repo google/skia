@@ -145,27 +145,15 @@ public:
      *    1. The caller intends to somehow specify coverage. This can be
      *       specified either by enabling a coverage stage on the GrDrawState or
      *       via the vertex layout.
-     *    2. Other than enabling coverage stages, the current configuration of
-     *       the target's GrDrawState is as it will be at draw time.
-     *    3. If a vertex source has not yet been specified then all stages with
-     *       non-NULL textures will be referenced by the vertex layout.
+     *    2. Other than enabling coverage stages or enabling coverage in the
+     *       layout, the current configuration of the target's GrDrawState is as
+     *       it will be at draw time.
      */
     bool canApplyCoverage() const;
 
     /**
-     * Determines whether incorporating partial pixel coverage into the constant
-     * color specified by setColor or per-vertex colors will give the right
-     * blending result. If a vertex source has not yet been specified then
-     * the function assumes that all stages with non-NULL textures will be
-     * referenced by the vertex layout.
-     */
-    bool canTweakAlphaForCoverage() const;
-
-    /**
-     * Given the current draw state and hw support, will HW AA lines be used
-     * (if line primitive type is drawn)? If a vertex source has not yet been
-     * specified then  the function assumes that all stages with non-NULL
-     * textures will be referenced by the vertex layout.
+     * Given the current draw state and hw support, will HW AA lines be used (if
+     * a line primitive type is drawn)?
      */
     bool willUseHWAALines() const;
 
@@ -616,54 +604,6 @@ public:
 
 protected:
 
-    /**
-     * Optimizations for blending / coverage to be applied based on the current
-     * state.
-     * Subclasses that actually draw (as opposed to those that just buffer for
-     * playback) must implement the flags that replace the output color.
-     */
-    enum BlendOptFlags {
-        /**
-         * No optimization
-         */
-        kNone_BlendOpt = 0,
-        /**
-         * Don't draw at all
-         */
-        kSkipDraw_BlendOptFlag = 0x2,
-        /**
-         * Emit the src color, disable HW blending (replace dst with src)
-         */
-        kDisableBlend_BlendOptFlag = 0x4,
-        /**
-         * The coverage value does not have to be computed separately from
-         * alpha, the the output color can be the modulation of the two.
-         */
-        kCoverageAsAlpha_BlendOptFlag = 0x1,
-        /**
-         * Instead of emitting a src color, emit coverage in the alpha channel
-         * and r,g,b are "don't cares".
-         */
-        kEmitCoverage_BlendOptFlag = 0x10,
-        /**
-         * Emit transparent black instead of the src color, no need to compute
-         * coverage.
-         */
-        kEmitTransBlack_BlendOptFlag = 0x8,
-    };
-    GR_DECL_BITFIELD_OPS_FRIENDS(BlendOptFlags);
-
-    /**
-     * Determines what optimizations can be applied based on the blend. The coefficients may have
-     * to be tweaked in order for the optimization to work. srcCoeff and dstCoeff are optional
-     * params that receive the tweaked coefficients. Normally the function looks at the current
-     * state to see if coverage is enabled. By setting forceCoverage the caller can speculatively
-     * determine the blend optimizations that would be used if there was partial pixel coverage.
-     */
-    BlendOptFlags getBlendOpts(bool forceCoverage = false,
-                               GrBlendCoeff* srcCoeff = NULL,
-                               GrBlendCoeff* dstCoeff = NULL) const;
-
     enum GeometrySrcType {
         kNone_GeometrySrcType,     //<! src has not been specified
         kReserved_GeometrySrcType, //<! src was set using reserve*Space
@@ -836,7 +776,5 @@ private:
 
     typedef GrRefCnt INHERITED;
 };
-
-GR_MAKE_BITFIELD_OPS(GrDrawTarget::BlendOptFlags);
 
 #endif
