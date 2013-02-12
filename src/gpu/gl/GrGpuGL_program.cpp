@@ -31,7 +31,7 @@ void GrGpuGL::ProgramCache::abandon() {
     fCount = 0;
 }
 
-GrGLProgram* GrGpuGL::ProgramCache::getProgram(const ProgramDesc& desc,
+GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrGLProgram::Desc& desc,
                                                const GrEffectStage* stages[]) {
     Entry newEntry;
     newEntry.fKey.setKeyData(desc.asKey());
@@ -174,101 +174,6 @@ void GrGpuGL::flushViewMatrix(DrawType type) {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-void GrGpuGL::flushColor(GrColor color) {
-    const ProgramDesc& desc = fCurrentProgram->getDesc();
-    const GrDrawState& drawState = this->getDrawState();
-
-    if (drawState.getVertexLayout() & GrDrawState::kColor_VertexLayoutBit) {
-        // color will be specified per-vertex as an attribute
-        // invalidate the const vertex attrib color
-        fHWConstAttribColor = GrColor_ILLEGAL;
-    } else {
-        switch (desc.fColorInput) {
-            case ProgramDesc::kAttribute_ColorInput:
-                if (fHWConstAttribColor != color) {
-                    // OpenGL ES only supports the float varieties of glVertexAttrib
-                    GrGLfloat c[4];
-                    GrColorToRGBAFloat(color, c);
-                    GL_CALL(VertexAttrib4fv(GrGLProgram::ColorAttributeIdx(), c));
-                    fHWConstAttribColor = color;
-                }
-                break;
-            case ProgramDesc::kUniform_ColorInput:
-                if (fCurrentProgram->fColor != color) {
-                    // OpenGL ES doesn't support unsigned byte varieties of glUniform
-                    GrGLfloat c[4];
-                    GrColorToRGBAFloat(color, c);
-                    GrAssert(kInvalidUniformHandle !=  fCurrentProgram->fUniformHandles.fColorUni);
-                    fCurrentProgram->fUniformManager.set4fv(
-                                                        fCurrentProgram->fUniformHandles.fColorUni,
-                                                        0, 1, c);
-                    fCurrentProgram->fColor = color;
-                }
-                break;
-            case ProgramDesc::kSolidWhite_ColorInput:
-            case ProgramDesc::kTransBlack_ColorInput:
-                break;
-            default:
-                GrCrash("Unknown color type.");
-        }
-    }
-    UniformHandle filterColorUni = fCurrentProgram->fUniformHandles.fColorFilterUni;
-    if (kInvalidUniformHandle != filterColorUni &&
-        fCurrentProgram->fColorFilterColor != drawState.getColorFilterColor()) {
-        GrGLfloat c[4];
-        GrColorToRGBAFloat(drawState.getColorFilterColor(), c);
-        fCurrentProgram->fUniformManager.set4fv(filterColorUni, 0, 1, c);
-        fCurrentProgram->fColorFilterColor = drawState.getColorFilterColor();
-    }
-}
-
-void GrGpuGL::flushCoverage(GrColor coverage) {
-    const ProgramDesc& desc = fCurrentProgram->getDesc();
-    // const GrDrawState& drawState = this->getDrawState();
-
-
-    if (this->getDrawState().getVertexLayout() & GrDrawState::kCoverage_VertexLayoutBit) {
-        // coverage will be specified per-vertex as an attribute
-        // invalidate the const vertex attrib coverage
-        fHWConstAttribCoverage = GrColor_ILLEGAL;
-    } else {
-        switch (desc.fCoverageInput) {
-            case ProgramDesc::kAttribute_ColorInput:
-                if (fHWConstAttribCoverage != coverage) {
-                    // OpenGL ES only supports the float varieties of
-                    // glVertexAttrib
-                    GrGLfloat c[4];
-                    GrColorToRGBAFloat(coverage, c);
-                    GL_CALL(VertexAttrib4fv(GrGLProgram::CoverageAttributeIdx(),
-                                            c));
-                    fHWConstAttribCoverage = coverage;
-                }
-                break;
-            case ProgramDesc::kUniform_ColorInput:
-                if (fCurrentProgram->fCoverage != coverage) {
-                    // OpenGL ES doesn't support unsigned byte varieties of
-                    // glUniform
-                    GrGLfloat c[4];
-                    GrColorToRGBAFloat(coverage, c);
-                    GrAssert(kInvalidUniformHandle !=
-                             fCurrentProgram->fUniformHandles.fCoverageUni);
-                    fCurrentProgram->fUniformManager.set4fv(
-                                                    fCurrentProgram->fUniformHandles.fCoverageUni,
-                                                    0, 1, c);
-                    fCurrentProgram->fCoverage = coverage;
-                }
-                break;
-            case ProgramDesc::kSolidWhite_ColorInput:
-            case ProgramDesc::kTransBlack_ColorInput:
-                break;
-            default:
-                GrCrash("Unknown coverage type.");
-        }
-    }
-}
-
 bool GrGpuGL::flushGraphicsState(DrawType type) {
     const GrDrawState& drawState = this->getDrawState();
 
@@ -291,7 +196,13 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
             stages[i] = drawState.isStageEnabled(i) ? &drawState.getStage(i) : NULL;
         }
         GrGLProgram::Desc desc;
-        this->buildProgram(kDrawPoints_DrawType == type, blendOpts, dstCoeff, &desc);
+        GrGLProgram::BuildDesc(this->getDrawState(),
+                               kDrawPoints_DrawType == type,
+                               blendOpts,
+                               srcCoeff,
+                               dstCoeff,
+                               this,
+                               &desc);
 
         fCurrentProgram.reset(fProgramCache->getProgram(desc, stages));
         if (NULL == fCurrentProgram.get()) {
@@ -319,10 +230,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
             color = drawState.getColor();
             coverage = drawState.getCoverage();
         }
-        this->flushColor(color);
-        this->flushCoverage(coverage);
-
-        fCurrentProgram->setData(this);
+        fCurrentProgram->setData(this, color, coverage, &fSharedGLProgramState);
     }
     this->flushStencil(type);
     this->flushViewMatrix(type);
@@ -399,6 +307,7 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, int* startIndexOffset) {
     }
 
     if (newColorOffset > 0) {
+        fSharedGLProgramState.fConstAttribColor = GrColor_ILLEGAL;
         GrGLvoid* colorOffset = (int8_t*)(vertexOffset + newColorOffset);
         int idx = GrGLProgram::ColorAttributeIdx();
         if (oldColorOffset <= 0) {
@@ -412,6 +321,7 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, int* startIndexOffset) {
     }
 
     if (newCoverageOffset > 0) {
+        fSharedGLProgramState.fConstAttribColor = GrColor_ILLEGAL;
         GrGLvoid* coverageOffset = (int8_t*)(vertexOffset + newCoverageOffset);
         int idx = GrGLProgram::CoverageAttributeIdx();
         if (oldCoverageOffset <= 0) {
@@ -441,147 +351,4 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, int* startIndexOffset) {
 
     fHWGeometryState.fVertexLayout = currLayout;
     fHWGeometryState.fArrayPtrsDirty = false;
-}
-
-void GrGpuGL::buildProgram(bool isPoints,
-                           GrDrawState::BlendOptFlags blendOpts,
-                           GrBlendCoeff dstCoeff,
-                           ProgramDesc* desc) {
-    const GrDrawState& drawState = this->getDrawState();
-
-    // This should already have been caught
-    GrAssert(!(GrDrawState::kSkipDraw_BlendOptFlag & blendOpts));
-
-    bool skipCoverage = SkToBool(blendOpts & GrDrawState::kEmitTransBlack_BlendOptFlag);
-
-    bool skipColor = SkToBool(blendOpts & (GrDrawState::kEmitTransBlack_BlendOptFlag |
-                                           GrDrawState::kEmitCoverage_BlendOptFlag));
-
-    // The descriptor is used as a cache key. Thus when a field of the
-    // descriptor will not affect program generation (because of the vertex
-    // layout in use or other descriptor field settings) it should be set
-    // to a canonical value to avoid duplicate programs with different keys.
-
-    // Must initialize all fields or cache will have false negatives!
-    desc->fVertexLayout = this->getDrawState().getVertexLayout();
-
-    desc->fEmitsPointSize = isPoints;
-
-    bool requiresAttributeColors = !skipColor &&
-                                   SkToBool(desc->fVertexLayout & GrDrawState::kColor_VertexLayoutBit);
-    bool requiresAttributeCoverage = !skipCoverage &&
-                                     SkToBool(desc->fVertexLayout & GrDrawState::kCoverage_VertexLayoutBit);
-
-    // fColorInput/fCoverageInput records how colors are specified for the.
-    // program. So we strip the bits from the layout to avoid false negatives
-    // when searching for an existing program in the cache.
-    desc->fVertexLayout &= ~(GrDrawState::kColor_VertexLayoutBit | GrDrawState::kCoverage_VertexLayoutBit);
-
-    desc->fColorFilterXfermode = skipColor ?
-                                SkXfermode::kDst_Mode :
-                                drawState.getColorFilterMode();
-
-    // no reason to do edge aa or look at per-vertex coverage if coverage is
-    // ignored
-    if (skipCoverage) {
-        desc->fVertexLayout &= ~(GrDrawState::kEdge_VertexLayoutBit | GrDrawState::kCoverage_VertexLayoutBit);
-    }
-
-    bool colorIsTransBlack = SkToBool(blendOpts & GrDrawState::kEmitTransBlack_BlendOptFlag);
-    bool colorIsSolidWhite = (blendOpts & GrDrawState::kEmitCoverage_BlendOptFlag) ||
-                             (!requiresAttributeColors && 0xffffffff == drawState.getColor());
-    if (colorIsTransBlack) {
-        desc->fColorInput = ProgramDesc::kTransBlack_ColorInput;
-    } else if (colorIsSolidWhite) {
-        desc->fColorInput = ProgramDesc::kSolidWhite_ColorInput;
-    } else if (GR_GL_NO_CONSTANT_ATTRIBUTES && !requiresAttributeColors) {
-        desc->fColorInput = ProgramDesc::kUniform_ColorInput;
-    } else {
-        desc->fColorInput = ProgramDesc::kAttribute_ColorInput;
-    }
-
-    bool covIsSolidWhite = !requiresAttributeCoverage && 0xffffffff == drawState.getCoverage();
-
-    if (skipCoverage) {
-        desc->fCoverageInput = ProgramDesc::kTransBlack_ColorInput;
-    } else if (covIsSolidWhite) {
-        desc->fCoverageInput = ProgramDesc::kSolidWhite_ColorInput;
-    } else if (GR_GL_NO_CONSTANT_ATTRIBUTES && !requiresAttributeCoverage) {
-        desc->fCoverageInput = ProgramDesc::kUniform_ColorInput;
-    } else {
-        desc->fCoverageInput = ProgramDesc::kAttribute_ColorInput;
-    }
-
-    int lastEnabledStage = -1;
-
-    if (!skipCoverage && (desc->fVertexLayout &GrDrawState::kEdge_VertexLayoutBit)) {
-        desc->fVertexEdgeType = drawState.getVertexEdgeType();
-        desc->fDiscardIfOutsideEdge = drawState.getStencil().doesWrite();
-    } else {
-        // Use canonical values when edge-aa is not enabled to avoid program cache misses.
-        desc->fVertexEdgeType = GrDrawState::kHairLine_EdgeType;
-        desc->fDiscardIfOutsideEdge = false;
-    }
-
-    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-
-        bool skip = s < drawState.getFirstCoverageStage() ? skipColor : skipCoverage;
-        if (!skip && drawState.isStageEnabled(s)) {
-            lastEnabledStage = s;
-            const GrEffectRef& effect = *drawState.getStage(s).getEffect();
-            const GrBackendEffectFactory& factory = effect->getFactory();
-            desc->fEffectKeys[s] = factory.glEffectKey(drawState.getStage(s), this->glCaps());
-        } else {
-            desc->fEffectKeys[s] = 0;
-        }
-    }
-
-    desc->fDualSrcOutput = ProgramDesc::kNone_DualSrcOutput;
-
-    // Currently the experimental GS will only work with triangle prims (and it doesn't do anything
-    // other than pass through values from the VS to the FS anyway).
-#if 0 && GR_GL_EXPERIMENTAL_GS
-    desc->fExperimentalGS = this->getCaps().fGeometryShaderSupport;
-#endif
-
-    // We want to avoid generating programs with different "first cov stage" values when they would
-    // compute the same result. We set field in the desc to kNumStages when either there are no
-    // coverage stages or the distinction between coverage and color is immaterial.
-    int firstCoverageStage = GrDrawState::kNumStages;
-    desc->fFirstCoverageStage = GrDrawState::kNumStages;
-    bool hasCoverage = drawState.getFirstCoverageStage() <= lastEnabledStage;
-    if (hasCoverage) {
-        firstCoverageStage = drawState.getFirstCoverageStage();
-    }
-
-    // other coverage inputs
-    if (!hasCoverage) {
-        hasCoverage = requiresAttributeCoverage ||
-                      (desc->fVertexLayout & GrDrawState::kEdge_VertexLayoutBit);
-    }
-
-    if (hasCoverage) {
-        // color filter is applied between color/coverage computation
-        if (SkXfermode::kDst_Mode != desc->fColorFilterXfermode) {
-            desc->fFirstCoverageStage = firstCoverageStage;
-        }
-
-        if (this->getCaps().dualSourceBlendingSupport() &&
-            !(blendOpts & (GrDrawState::kEmitCoverage_BlendOptFlag |
-                           GrDrawState::kCoverageAsAlpha_BlendOptFlag))) {
-            if (kZero_GrBlendCoeff == dstCoeff) {
-                // write the coverage value to second color
-                desc->fDualSrcOutput =  ProgramDesc::kCoverage_DualSrcOutput;
-                desc->fFirstCoverageStage = firstCoverageStage;
-            } else if (kSA_GrBlendCoeff == dstCoeff) {
-                // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially covered.
-                desc->fDualSrcOutput = ProgramDesc::kCoverageISA_DualSrcOutput;
-                desc->fFirstCoverageStage = firstCoverageStage;
-            } else if (kSC_GrBlendCoeff == dstCoeff) {
-                // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially covered.
-                desc->fDualSrcOutput = ProgramDesc::kCoverageISC_DualSrcOutput;
-                desc->fFirstCoverageStage = firstCoverageStage;
-            }
-        }
-    }
 }
