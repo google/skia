@@ -281,8 +281,8 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
 
         GrBlendCoeff srcCoeff;
         GrBlendCoeff dstCoeff;
-        BlendOptFlags blendOpts = this->getBlendOpts(false, &srcCoeff, &dstCoeff);
-        if (kSkipDraw_BlendOptFlag & blendOpts) {
+        GrDrawState::BlendOptFlags blendOpts = drawState.getBlendOpts(false, &srcCoeff, &dstCoeff);
+        if (GrDrawState::kSkipDraw_BlendOptFlag & blendOpts) {
             return false;
         }
 
@@ -309,10 +309,10 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
 
         GrColor color;
         GrColor coverage;
-        if (blendOpts & kEmitTransBlack_BlendOptFlag) {
+        if (blendOpts & GrDrawState::kEmitTransBlack_BlendOptFlag) {
             color = 0;
             coverage = 0;
-        } else if (blendOpts & kEmitCoverage_BlendOptFlag) {
+        } else if (blendOpts & GrDrawState::kEmitCoverage_BlendOptFlag) {
             color = 0xffffffff;
             coverage = drawState.getCoverage();
         } else {
@@ -444,18 +444,18 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, int* startIndexOffset) {
 }
 
 void GrGpuGL::buildProgram(bool isPoints,
-                           BlendOptFlags blendOpts,
+                           GrDrawState::BlendOptFlags blendOpts,
                            GrBlendCoeff dstCoeff,
                            ProgramDesc* desc) {
     const GrDrawState& drawState = this->getDrawState();
 
     // This should already have been caught
-    GrAssert(!(kSkipDraw_BlendOptFlag & blendOpts));
+    GrAssert(!(GrDrawState::kSkipDraw_BlendOptFlag & blendOpts));
 
-    bool skipCoverage = SkToBool(blendOpts & kEmitTransBlack_BlendOptFlag);
+    bool skipCoverage = SkToBool(blendOpts & GrDrawState::kEmitTransBlack_BlendOptFlag);
 
-    bool skipColor = SkToBool(blendOpts & (kEmitTransBlack_BlendOptFlag |
-                                           kEmitCoverage_BlendOptFlag));
+    bool skipColor = SkToBool(blendOpts & (GrDrawState::kEmitTransBlack_BlendOptFlag |
+                                           GrDrawState::kEmitCoverage_BlendOptFlag));
 
     // The descriptor is used as a cache key. Thus when a field of the
     // descriptor will not affect program generation (because of the vertex
@@ -487,8 +487,8 @@ void GrGpuGL::buildProgram(bool isPoints,
         desc->fVertexLayout &= ~(GrDrawState::kEdge_VertexLayoutBit | GrDrawState::kCoverage_VertexLayoutBit);
     }
 
-    bool colorIsTransBlack = SkToBool(blendOpts & kEmitTransBlack_BlendOptFlag);
-    bool colorIsSolidWhite = (blendOpts & kEmitCoverage_BlendOptFlag) ||
+    bool colorIsTransBlack = SkToBool(blendOpts & GrDrawState::kEmitTransBlack_BlendOptFlag);
+    bool colorIsSolidWhite = (blendOpts & GrDrawState::kEmitCoverage_BlendOptFlag) ||
                              (!requiresAttributeColors && 0xffffffff == drawState.getColor());
     if (colorIsTransBlack) {
         desc->fColorInput = ProgramDesc::kTransBlack_ColorInput;
@@ -567,7 +567,8 @@ void GrGpuGL::buildProgram(bool isPoints,
         }
 
         if (this->getCaps().dualSourceBlendingSupport() &&
-            !(blendOpts & (kEmitCoverage_BlendOptFlag | kCoverageAsAlpha_BlendOptFlag))) {
+            !(blendOpts & (GrDrawState::kEmitCoverage_BlendOptFlag |
+                           GrDrawState::kCoverageAsAlpha_BlendOptFlag))) {
             if (kZero_GrBlendCoeff == dstCoeff) {
                 // write the coverage value to second color
                 desc->fDualSrcOutput =  ProgramDesc::kCoverage_DualSrcOutput;

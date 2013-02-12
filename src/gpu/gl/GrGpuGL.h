@@ -202,7 +202,7 @@ private:
     void flushScissor();
 
     void buildProgram(bool isPoints,
-                      BlendOptFlags blendOpts,
+                      GrDrawState::BlendOptFlags blendOpts,
                       GrBlendCoeff dstCoeff,
                       ProgramDesc* desc);
 

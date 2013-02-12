@@ -538,6 +538,134 @@ bool GrDrawState::hasSolidCoverage(GrVertexLayout layout) const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// Some blend modes allow folding a fractional coverage value into the color's alpha channel, while
+// others will blend incorrectly.
+bool GrDrawState::canTweakAlphaForCoverage() const {
+    /*
+     The fractional coverage is f.
+     The src and dst coeffs are Cs and Cd.
+     The dst and src colors are S and D.
+     We want the blend to compute: f*Cs*S + (f*Cd + (1-f))D. By tweaking the source color's alpha
+     we're replacing S with S'=fS. It's obvious that that first term will always be ok. The second
+     term can be rearranged as [1-(1-Cd)f]D. By substituting in the various possibilities for Cd we
+     find that only 1, ISA, and ISC produce the correct destination when applied to S' and D.
+     Also, if we're directly rendering coverage (isCoverageDrawing) then coverage is treated as
+     color by definition.
+     */
+    return kOne_GrBlendCoeff == fCommon.fDstBlend ||
+           kISA_GrBlendCoeff == fCommon.fDstBlend ||
+           kISC_GrBlendCoeff == fCommon.fDstBlend ||
+           this->isCoverageDrawing();
+}
+
+GrDrawState::BlendOptFlags GrDrawState::getBlendOpts(bool forceCoverage,
+                                                     GrBlendCoeff* srcCoeff,
+                                                     GrBlendCoeff* dstCoeff) const {
+    GrVertexLayout layout = this->getVertexLayout();
+
+    GrBlendCoeff bogusSrcCoeff, bogusDstCoeff;
+    if (NULL == srcCoeff) {
+        srcCoeff = &bogusSrcCoeff;
+    }
+    *srcCoeff = this->getSrcBlendCoeff();
+
+    if (NULL == dstCoeff) {
+        dstCoeff = &bogusDstCoeff;
+    }
+    *dstCoeff = this->getDstBlendCoeff();
+
+    if (this->isColorWriteDisabled()) {
+        *srcCoeff = kZero_GrBlendCoeff;
+        *dstCoeff = kOne_GrBlendCoeff;
+    }
+
+    bool srcAIsOne = this->srcAlphaWillBeOne(layout);
+    bool dstCoeffIsOne = kOne_GrBlendCoeff == *dstCoeff ||
+                         (kSA_GrBlendCoeff == *dstCoeff && srcAIsOne);
+    bool dstCoeffIsZero = kZero_GrBlendCoeff == *dstCoeff ||
+                         (kISA_GrBlendCoeff == *dstCoeff && srcAIsOne);
+
+    bool covIsZero = !this->isCoverageDrawing() &&
+                     !(layout & GrDrawState::kCoverage_VertexLayoutBit) &&
+                     0 == this->getCoverage();
+    // When coeffs are (0,1) there is no reason to draw at all, unless
+    // stenciling is enabled. Having color writes disabled is effectively
+    // (0,1). The same applies when coverage is known to be 0.
+    if ((kZero_GrBlendCoeff == *srcCoeff && dstCoeffIsOne) || covIsZero) {
+        if (this->getStencil().doesWrite()) {
+            return kDisableBlend_BlendOptFlag |
+                   kEmitTransBlack_BlendOptFlag;
+        } else {
+            return kSkipDraw_BlendOptFlag;
+        }
+    }
+
+    // check for coverage due to constant coverage, per-vertex coverage,
+    // edge aa or coverage stage
+    bool hasCoverage = forceCoverage ||
+                       0xffffffff != this->getCoverage() ||
+                       (layout & GrDrawState::kCoverage_VertexLayoutBit) ||
+                       (layout & GrDrawState::kEdge_VertexLayoutBit);
+    for (int s = this->getFirstCoverageStage();
+         !hasCoverage && s < GrDrawState::kNumStages;
+         ++s) {
+        if (this->isStageEnabled(s)) {
+            hasCoverage = true;
+        }
+    }
+
+    // if we don't have coverage we can check whether the dst
+    // has to read at all. If not, we'll disable blending.
+    if (!hasCoverage) {
+        if (dstCoeffIsZero) {
+            if (kOne_GrBlendCoeff == *srcCoeff) {
+                // if there is no coverage and coeffs are (1,0) then we
+                // won't need to read the dst at all, it gets replaced by src
+                return kDisableBlend_BlendOptFlag;
+            } else if (kZero_GrBlendCoeff == *srcCoeff) {
+                // if the op is "clear" then we don't need to emit a color
+                // or blend, just write transparent black into the dst.
+                *srcCoeff = kOne_GrBlendCoeff;
+                *dstCoeff = kZero_GrBlendCoeff;
+                return kDisableBlend_BlendOptFlag | kEmitTransBlack_BlendOptFlag;
+            }
+        }
+    } else if (this->isCoverageDrawing()) {
+        // we have coverage but we aren't distinguishing it from alpha by request.
+        return kCoverageAsAlpha_BlendOptFlag;
+    } else {
+        // check whether coverage can be safely rolled into alpha
+        // of if we can skip color computation and just emit coverage
+        if (this->canTweakAlphaForCoverage()) {
+            return kCoverageAsAlpha_BlendOptFlag;
+        }
+        if (dstCoeffIsZero) {
+            if (kZero_GrBlendCoeff == *srcCoeff) {
+                // the source color is not included in the blend
+                // the dst coeff is effectively zero so blend works out to:
+                // (c)(0)D + (1-c)D = (1-c)D.
+                *dstCoeff = kISA_GrBlendCoeff;
+                return  kEmitCoverage_BlendOptFlag;
+            } else if (srcAIsOne) {
+                // the dst coeff is effectively zero so blend works out to:
+                // cS + (c)(0)D + (1-c)D = cS + (1-c)D.
+                // If Sa is 1 then we can replace Sa with c
+                // and set dst coeff to 1-Sa.
+                *dstCoeff = kISA_GrBlendCoeff;
+                return  kCoverageAsAlpha_BlendOptFlag;
+            }
+        } else if (dstCoeffIsOne) {
+            // the dst coeff is effectively one so blend works out to:
+            // cS + (c)(1)D + (1-c)D = cS + D.
+            *dstCoeff = kOne_GrBlendCoeff;
+            return  kCoverageAsAlpha_BlendOptFlag;
+        }
+    }
+    return kNone_BlendOpt;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void GrDrawState::AutoViewMatrixRestore::restore() {
     if (NULL != fDrawState) {
         fDrawState->setViewMatrix(fViewMatrix);
