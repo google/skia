@@ -145,12 +145,15 @@ create_inputs_dir $GM_INPUTS
 
 # Compare generated image against an input image file with identical bytes.
 gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/images/identical-bytes" "$GM_OUTPUTS/compared-against-identical-bytes-images"
+gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/json/identical-bytes.json" "$GM_OUTPUTS/compared-against-identical-bytes-json"
 
 # Compare generated image against an input image file with identical pixels but different PNG encoding.
 gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/images/identical-pixels" "$GM_OUTPUTS/compared-against-identical-pixels-images"
+gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/json/identical-pixels.json" "$GM_OUTPUTS/compared-against-identical-pixels-json"
 
 # Compare generated image against an input image file with different pixels.
 gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/images/different-pixels" "$GM_OUTPUTS/compared-against-different-pixels-images"
+gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/json/different-pixels.json" "$GM_OUTPUTS/compared-against-different-pixels-json"
 
 # Compare generated image against an empty "expected image" dir.
 gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/images/empty-dir" "$GM_OUTPUTS/compared-against-empty-dir"
