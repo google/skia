@@ -359,7 +359,7 @@ void GrDisplacementMapEffect::getConstantColorComponents(GrColor* color,
 
 GR_DEFINE_EFFECT_TEST(GrDisplacementMapEffect);
 
-GrEffectRef* GrDisplacementMapEffect::TestCreate(SkRandom* random,
+GrEffectRef* GrDisplacementMapEffect::TestCreate(SkMWCRandom* random,
                                                  GrContext* context,
                                                  GrTexture* textures[]) {
     int texIdxDispl = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :

@@ -200,7 +200,7 @@ GrGLEffect::EffectKey GrGLMagnifierEffect::GenKey(const GrEffectStage& stage, co
 
 GR_DEFINE_EFFECT_TEST(GrMagnifierEffect);
 
-GrEffectRef* GrMagnifierEffect::TestCreate(SkRandom* random,
+GrEffectRef* GrMagnifierEffect::TestCreate(SkMWCRandom* random,
                                            GrContext* context,
                                            GrTexture** textures) {
     const int kMaxWidth = 200;

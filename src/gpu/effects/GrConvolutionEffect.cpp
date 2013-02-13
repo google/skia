@@ -178,7 +178,7 @@ bool GrConvolutionEffect::onIsEqual(const GrEffect& sBase) const {
 
 GR_DEFINE_EFFECT_TEST(GrConvolutionEffect);
 
-GrEffectRef* GrConvolutionEffect::TestCreate(SkRandom* random,
+GrEffectRef* GrConvolutionEffect::TestCreate(SkMWCRandom* random,
                                              GrContext* context,
                                              GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :

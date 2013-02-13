@@ -451,7 +451,7 @@ private:
 
 GR_DEFINE_EFFECT_TEST(GrConical2Gradient);
 
-GrEffectRef* GrConical2Gradient::TestCreate(SkRandom* random,
+GrEffectRef* GrConical2Gradient::TestCreate(SkMWCRandom* random,
                                             GrContext* context,
                                             GrTexture**) {
     SkPoint center1 = {random->nextUScalar1(), random->nextUScalar1()};
