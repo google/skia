@@ -9,7 +9,10 @@
 #ifndef SKRASTERWIDGET_H_
 #define SKRASTERWIDGET_H_
 
+#if SK_SUPPORT_GPU
 #include "SkGpuDevice.h"
+#endif
+
 #include "SkDevice.h"
 #include "SkDebugger.h"
 

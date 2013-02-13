@@ -87,7 +87,9 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     connect(&fActionClearDeletes, SIGNAL(triggered()), this, SLOT(actionClearDeletes()));
     connect(&fActionClose, SIGNAL(triggered()), this, SLOT(actionClose()));
     connect(fSettingsWidget.getVisibilityButton(), SIGNAL(toggled(bool)), this, SLOT(actionCommandFilter()));
+#if SK_SUPPORT_GPU
     connect(fSettingsWidget.getGLCheckBox(), SIGNAL(toggled(bool)), this, SLOT(actionGLWidget(bool)));
+#endif
     connect(fSettingsWidget.getRasterCheckBox(), SIGNAL(toggled(bool)), this, SLOT(actionRasterWidget(bool)));
     connect(fSettingsWidget.getOverdrawVizCheckBox(), SIGNAL(toggled(bool)), this, SLOT(actionOverdrawVizWidget(bool)));
     connect(&fActionPause, SIGNAL(toggled(bool)), this, SLOT(pauseDrawing(bool)));
@@ -487,9 +489,11 @@ void SkDebuggerGUI::actionDelete() {
     }
 }
 
+#if SK_SUPPORT_GPU
 void SkDebuggerGUI::actionGLWidget(bool isToggled) {
     fCanvasWidget.setWidgetVisibility(SkCanvasWidget::kGPU_WidgetType, !isToggled);
 }
+#endif
 
 void SkDebuggerGUI::actionInspector() {
     if (fInspectorWidget.isHidden()) {

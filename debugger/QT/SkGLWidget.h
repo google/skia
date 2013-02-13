@@ -10,12 +10,13 @@
 #ifndef SKGLWIDGET_H_
 #define SKGLWIDGET_H_
 
+#if SK_SUPPORT_GPU
+
 #include <QtOpenGL/QGLWidget>
 #include "SkDebugCanvas.h"
 #include "SkDebugger.h"
 #include "SkDevice.h"
 #include "SkGpuDevice.h"
-
 #include "GrContext.h"
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLUtil.h"
@@ -50,5 +51,7 @@ private:
     SkDebugger* fDebugger;
     GrBackendRenderTargetDesc getDesc(int w, int h);
 };
+
+#endif /* SK_SUPPORT_GPU */
 
 #endif /* SKGLWIDGET_H_ */
