@@ -155,7 +155,7 @@
           'rule_name': 'generate_moc',
           'extension': 'h',
           'outputs': [ '<(moc_gen_dir)/moc_<(RULE_INPUT_ROOT).cpp' ],
-          'action': [ '<(qt_moc)', '<(RULE_INPUT_PATH)', '-o', '<(moc_gen_dir)/moc_<(RULE_INPUT_ROOT).cpp' ],
+          'action': [ '<(qt_moc)', '-DSK_SUPPORT_GPU=<(skia_gpu)', '<(RULE_INPUT_PATH)', '-o', '<(moc_gen_dir)/moc_<(RULE_INPUT_ROOT).cpp' ],
           'message': 'Generating <(RULE_INPUT_ROOT).cpp.',
         },
       ],
