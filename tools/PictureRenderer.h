@@ -195,8 +195,8 @@ public:
         } else if (kTileGrid_BBoxHierarchyType == fBBoxHierarchyType) {
             config.append("_grid");
         }
-        switch (fDeviceType) {
 #if SK_SUPPORT_GPU
+        switch (fDeviceType) {
             case kGPU_DeviceType:
                 config.append("_gpu");
                 break;
@@ -205,11 +205,11 @@ public:
                 config.append("_angle");
                 break;
 #endif
-#endif
             default:
                 // Assume that no extra info means bitmap.
                 break;
         }
+#endif
         config.append(fDrawFiltersConfig.c_str());
         return config;
     }

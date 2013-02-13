@@ -9,6 +9,8 @@
 
 #include "SkGLWidget.h"
 
+#if SK_SUPPORT_GPU
+
 SkGLWidget::SkGLWidget(SkDebugger* debugger) : QGLWidget() {
     this->setStyleSheet("QWidget {background-color: white; border: 1px solid #cccccc;}");
     fDebugger = debugger;
@@ -74,3 +76,5 @@ GrBackendRenderTargetDesc SkGLWidget::getDesc(int w, int h) {
 
     return desc;
 }
+
+#endif

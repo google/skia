@@ -112,10 +112,12 @@ private slots:
      */
     void actionDelete();
 
+#if SK_SUPPORT_GPU
     /**
         Toggles the visibility of the GL canvas widget.
      */
     void actionGLWidget(bool isToggled);
+#endif
 
     /**
         Toggles the visibility of the inspector widget.

@@ -13,7 +13,9 @@ SkCanvasWidget::SkCanvasWidget(QWidget* parent,
         SkDebugger* debugger) : QWidget(parent)
     , fHorizontalLayout(this)
     , fRasterWidget(debugger)
+#if SK_SUPPORT_GPU
     , fGLWidget(debugger)
+#endif
 {
 
     fDebugger = debugger;
@@ -22,16 +24,22 @@ SkCanvasWidget::SkCanvasWidget(QWidget* parent,
     fHorizontalLayout.setContentsMargins(0,0,0,0);
     fRasterWidget.setSizePolicy(QSizePolicy::Expanding,
             QSizePolicy::Expanding);
+#if SK_SUPPORT_GPU
     fGLWidget.setSizePolicy(QSizePolicy::Expanding,
             QSizePolicy::Expanding);
+#endif
 
     fHorizontalLayout.addWidget(&fRasterWidget);
+#if SK_SUPPORT_GPU
     fHorizontalLayout.addWidget(&fGLWidget);
+#endif
 
     fPreviousPoint.set(0,0);
     fUserMatrix.reset();
 
+#if SK_SUPPORT_GPU
     setWidgetVisibility(kGPU_WidgetType, true);
+#endif
     connect(&fRasterWidget, SIGNAL(drawComplete()),
             this->parentWidget(), SLOT(drawComplete()));
 }
@@ -41,7 +49,9 @@ SkCanvasWidget::~SkCanvasWidget() {}
 void SkCanvasWidget::drawTo(int index) {
     fDebugger->setIndex(index);
     fRasterWidget.draw();
+#if SK_SUPPORT_GPU
     fGLWidget.draw();
+#endif
     emit commandChanged(fDebugger->index());
 }
 
@@ -111,9 +121,12 @@ void SkCanvasWidget::resetWidgetTransform() {
 void SkCanvasWidget::setWidgetVisibility(WidgetType type, bool isHidden) {
     if (type == kRaster_8888_WidgetType) {
         fRasterWidget.setHidden(isHidden);
-    } else if (type == kGPU_WidgetType) {
+    } 
+#if SK_SUPPORT_GPU
+    else if (type == kGPU_WidgetType) {
         fGLWidget.setHidden(isHidden);
     }
+#endif
 }
 
 void SkCanvasWidget::zoom(float scale, int px, int py) {
