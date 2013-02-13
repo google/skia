@@ -211,8 +211,12 @@ GrGLProgram::GrGLProgram(const GrGLContextInfo& gl,
     fFShaderID = 0;
     fProgramID = 0;
 
+    fViewMatrix = SkMatrix::InvalidMatrix();
+    fViewportSize.set(-1, -1);
+    fOrigin = (GrSurfaceOrigin) -1;
     fColor = GrColor_ILLEGAL;
     fColorFilterColor = GrColor_ILLEGAL;
+    fRTHeight = -1;
 
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         fEffects[s] = NULL;
@@ -1047,9 +1051,15 @@ void GrGLProgram::setData(GrGpuGL* gpu,
                           SharedGLState* sharedState) {
     const GrDrawState& drawState = gpu->getDrawState();
 
+    int rtHeight = drawState.getRenderTarget()->height();
+    if (GrGLUniformManager::kInvalidUniformHandle != fUniformHandles.fRTHeightUni &&
+        fRTHeight != rtHeight) {
+        fUniformManager.set1f(fUniformHandles.fRTHeightUni, SkIntToScalar(rtHeight));
+        fRTHeight = rtHeight;
+    }
+
     this->setColor(drawState, color, sharedState);
     this->setCoverage(drawState, coverage, sharedState);
-    this->setMatrixAndRenderTargetHeight(drawState);
 
     // Setup the SkXfermode::Mode-based colorfilter uniform if necessary
     if (GrGLUniformManager::kInvalidUniformHandle != fUniformHandles.fColorFilterUni &&
@@ -1145,52 +1155,5 @@ void GrGLProgram::setCoverage(const GrDrawState& drawState,
             default:
                 GrCrash("Unknown coverage type.");
         }
-    }
-}
-
-void GrGLProgram::setMatrixAndRenderTargetHeight(const GrDrawState& drawState) {
-    const GrRenderTarget* rt = drawState.getRenderTarget();
-    SkISize size;
-    size.set(rt->width(), rt->height());
-
-    // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
-    if (GrGLUniformManager::kInvalidUniformHandle != fUniformHandles.fRTHeightUni &&
-        fMatrixState.fRenderTargetSize.fHeight != size.fHeight) {
-        fUniformManager.set1f(fUniformHandles.fRTHeightUni, SkIntToScalar(size.fHeight));
-    }
-
-    if (fMatrixState.fRenderTargetOrigin != rt->origin() ||
-        !fMatrixState.fViewMatrix.cheapEqualTo(drawState.getViewMatrix()) ||
-        fMatrixState.fRenderTargetSize != size) {
-        SkMatrix m;
-        if (kBottomLeft_GrSurfaceOrigin == rt->origin()) {
-            m.setAll(
-                SkIntToScalar(2) / size.fWidth, 0, -SK_Scalar1,
-                0,-SkIntToScalar(2) / size.fHeight, SK_Scalar1,
-            0, 0, SkMatrix::I()[8]);
-        } else {
-            m.setAll(
-                SkIntToScalar(2) / size.fWidth, 0, -SK_Scalar1,
-                0, SkIntToScalar(2) / size.fHeight,-SK_Scalar1,
-            0, 0, SkMatrix::I()[8]);
-        }
-        m.setConcat(m, drawState.getViewMatrix());
-
-        // ES doesn't allow you to pass true to the transpose param so we do our own transpose.
-        GrGLfloat mt[]  = {
-            SkScalarToFloat(m[SkMatrix::kMScaleX]),
-            SkScalarToFloat(m[SkMatrix::kMSkewY]),
-            SkScalarToFloat(m[SkMatrix::kMPersp0]),
-            SkScalarToFloat(m[SkMatrix::kMSkewX]),
-            SkScalarToFloat(m[SkMatrix::kMScaleY]),
-            SkScalarToFloat(m[SkMatrix::kMPersp1]),
-            SkScalarToFloat(m[SkMatrix::kMTransX]),
-            SkScalarToFloat(m[SkMatrix::kMTransY]),
-            SkScalarToFloat(m[SkMatrix::kMPersp2])
-        };
-        fUniformManager.setMatrix3f(fUniformHandles.fViewMatrixUni, mt);
-        fMatrixState.fViewMatrix = drawState.getViewMatrix();
-        fMatrixState.fRenderTargetSize = size;
-        fMatrixState.fRenderTargetOrigin = rt->origin();
     }
 }

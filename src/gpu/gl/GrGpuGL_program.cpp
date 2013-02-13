@@ -82,68 +82,106 @@ void GrGpuGL::abandonResources(){
 
 #define GL_CALL(X) GR_GL_CALL(this->glInterface(), X)
 
-void GrGpuGL::flushPathStencilMatrix() {
-    const SkMatrix& viewMatrix = this->getDrawState().getViewMatrix();
-    const GrRenderTarget* rt = this->getDrawState().getRenderTarget();
-    SkISize size;
-    size.set(rt->width(), rt->height());
+void GrGpuGL::flushViewMatrix(DrawType type) {
+    const GrGLRenderTarget* rt = static_cast<const GrGLRenderTarget*>(this->getDrawState().getRenderTarget());
+    SkISize viewportSize;
+    const GrGLIRect& viewport = rt->getViewport();
+    viewportSize.set(viewport.fWidth, viewport.fHeight);
+
     const SkMatrix& vm = this->getDrawState().getViewMatrix();
 
-    if (fHWPathStencilMatrixState.fRenderTargetOrigin != rt->origin() ||
-        fHWPathStencilMatrixState.fViewMatrix.cheapEqualTo(viewMatrix) ||
-        fHWPathStencilMatrixState.fRenderTargetSize!= size) {
-        // rescale the coords from skia's "device" coords to GL's normalized coords,
-        // and perform a y-flip if required.
+    if (kStencilPath_DrawType == type) {
+        if (fHWPathMatrixState.fLastOrigin != rt->origin() ||
+            fHWPathMatrixState.fViewMatrix != vm ||
+            fHWPathMatrixState.fRTSize != viewportSize) {
+            // rescale the coords from skia's "device" coords to GL's normalized coords,
+            // and perform a y-flip if required.
+            SkMatrix m;
+            if (kBottomLeft_GrSurfaceOrigin == rt->origin()) {
+                m.setScale(SkIntToScalar(2) / rt->width(), SkIntToScalar(-2) / rt->height());
+                m.postTranslate(-SK_Scalar1, SK_Scalar1);
+            } else {
+                m.setScale(SkIntToScalar(2) / rt->width(), SkIntToScalar(2) / rt->height());
+                m.postTranslate(-SK_Scalar1, -SK_Scalar1);
+            }
+            m.preConcat(vm);
+
+            // GL wants a column-major 4x4.
+            GrGLfloat mv[]  = {
+                // col 0
+                SkScalarToFloat(m[SkMatrix::kMScaleX]),
+                SkScalarToFloat(m[SkMatrix::kMSkewY]),
+                0,
+                SkScalarToFloat(m[SkMatrix::kMPersp0]),
+
+                // col 1
+                SkScalarToFloat(m[SkMatrix::kMSkewX]),
+                SkScalarToFloat(m[SkMatrix::kMScaleY]),
+                0,
+                SkScalarToFloat(m[SkMatrix::kMPersp1]),
+
+                // col 2
+                0, 0, 0, 0,
+
+                // col3
+                SkScalarToFloat(m[SkMatrix::kMTransX]),
+                SkScalarToFloat(m[SkMatrix::kMTransY]),
+                0.0f,
+                SkScalarToFloat(m[SkMatrix::kMPersp2])
+            };
+            GL_CALL(MatrixMode(GR_GL_PROJECTION));
+            GL_CALL(LoadMatrixf(mv));
+            fHWPathMatrixState.fViewMatrix = vm;
+            fHWPathMatrixState.fRTSize = viewportSize;
+            fHWPathMatrixState.fLastOrigin = rt->origin();
+        }
+    } else if (fCurrentProgram->fOrigin != rt->origin() ||
+               !fCurrentProgram->fViewMatrix.cheapEqualTo(vm) ||
+               fCurrentProgram->fViewportSize != viewportSize) {
         SkMatrix m;
         if (kBottomLeft_GrSurfaceOrigin == rt->origin()) {
-            m.setScale(SkIntToScalar(2) / rt->width(), SkIntToScalar(-2) / rt->height());
-            m.postTranslate(-SK_Scalar1, SK_Scalar1);
+            m.setAll(
+                SkIntToScalar(2) / viewportSize.fWidth, 0, -SK_Scalar1,
+                0,-SkIntToScalar(2) / viewportSize.fHeight, SK_Scalar1,
+            0, 0, SkMatrix::I()[8]);
         } else {
-            m.setScale(SkIntToScalar(2) / rt->width(), SkIntToScalar(2) / rt->height());
-            m.postTranslate(-SK_Scalar1, -SK_Scalar1);
+            m.setAll(
+                SkIntToScalar(2) / viewportSize.fWidth, 0, -SK_Scalar1,
+                0, SkIntToScalar(2) / viewportSize.fHeight,-SK_Scalar1,
+            0, 0, SkMatrix::I()[8]);
         }
-        m.preConcat(vm);
+        m.setConcat(m, vm);
 
-        // GL wants a column-major 4x4.
-        GrGLfloat mv[]  = {
-            // col 0
+        // ES doesn't allow you to pass true to the transpose param,
+        // so do our own transpose
+        GrGLfloat mt[]  = {
             SkScalarToFloat(m[SkMatrix::kMScaleX]),
             SkScalarToFloat(m[SkMatrix::kMSkewY]),
-            0,
             SkScalarToFloat(m[SkMatrix::kMPersp0]),
-
-            // col 1
             SkScalarToFloat(m[SkMatrix::kMSkewX]),
             SkScalarToFloat(m[SkMatrix::kMScaleY]),
-            0,
             SkScalarToFloat(m[SkMatrix::kMPersp1]),
-
-            // col 2
-            0, 0, 0, 0,
-
-            // col3
             SkScalarToFloat(m[SkMatrix::kMTransX]),
             SkScalarToFloat(m[SkMatrix::kMTransY]),
-            0.0f,
             SkScalarToFloat(m[SkMatrix::kMPersp2])
         };
-        GL_CALL(MatrixMode(GR_GL_PROJECTION));
-        GL_CALL(LoadMatrixf(mv));
-        fHWPathStencilMatrixState.fViewMatrix = vm;
-        fHWPathStencilMatrixState.fRenderTargetSize = size;
-        fHWPathStencilMatrixState.fRenderTargetOrigin = rt->origin();
+        fCurrentProgram->fUniformManager.setMatrix3f(
+                                            fCurrentProgram->fUniformHandles.fViewMatrixUni,
+                                            mt);
+        fCurrentProgram->fViewMatrix = vm;
+        fCurrentProgram->fViewportSize = viewportSize;
+        fCurrentProgram->fOrigin = rt->origin();
     }
 }
 
 bool GrGpuGL::flushGraphicsState(DrawType type) {
     const GrDrawState& drawState = this->getDrawState();
 
-    // GrGpu::setupClipAndFlushState should have already checked this and bailed if not true.
+    // GrGpu::setupClipAndFlushState should have already checked this
+    // and bailed if not true.
     GrAssert(NULL != drawState.getRenderTarget());
 
-    if (kStencilPath_DrawType == type) {
-        this->flushPathStencilMatrix();
-    } else {
+    if (kStencilPath_DrawType != type) {
         this->flushMiscFixedFunctionState();
 
         GrBlendCoeff srcCoeff;
@@ -173,12 +211,10 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
         }
         fCurrentProgram.get()->ref();
 
-        GrGLuint programID = fCurrentProgram->programID();
-        if (fHWProgramID != programID) {
-            GL_CALL(UseProgram(programID));
-            fHWProgramID = programID;
+        if (fHWProgramID != fCurrentProgram->fProgramID) {
+            GL_CALL(UseProgram(fCurrentProgram->fProgramID));
+            fHWProgramID = fCurrentProgram->fProgramID;
         }
-
         fCurrentProgram->overrideBlend(&srcCoeff, &dstCoeff);
         this->flushBlend(kDrawLines_DrawType == type, srcCoeff, dstCoeff);
 
@@ -197,6 +233,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
         fCurrentProgram->setData(this, color, coverage, &fSharedGLProgramState);
     }
     this->flushStencil(type);
+    this->flushViewMatrix(type);
     this->flushScissor();
     this->flushAAState(type);
 
