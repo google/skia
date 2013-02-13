@@ -94,17 +94,6 @@ const static ErrorBitfield ERROR_IMAGE_MISMATCH          = 0x02;
 const static ErrorBitfield ERROR_READING_REFERENCE_IMAGE = 0x08;
 const static ErrorBitfield ERROR_WRITING_REFERENCE_IMAGE = 0x10;
 
-const static char kJsonKey_ActualResults[]   = "actual-results";
-const static char kJsonKey_ActualResults_Failed[]        = "failed";
-const static char kJsonKey_ActualResults_FailureIgnored[]= "failure-ignored";
-const static char kJsonKey_ActualResults_NoComparison[]  = "no-comparison";
-const static char kJsonKey_ActualResults_Succeeded[]     = "succeeded";
-const static char kJsonKey_ActualResults_AnyStatus_Checksum[]    = "checksum";
-
-const static char kJsonKey_ExpectedResults[] = "expected-results";
-const static char kJsonKey_ExpectedResults_Checksums[]     = "checksums";
-const static char kJsonKey_ExpectedResults_IgnoreFailure[] = "ignore-failure";
-
 using namespace skiagm;
 
 struct FailRec {
@@ -1392,10 +1381,10 @@ int tool_main(int argc, char** argv) {
                 IndividualImageExpectationsSource,
                 (readPath, notifyMissingReadReference)));
         } else {
-            fprintf(stderr, "reading expectations from JSON summary file %s ",
+            fprintf(stderr, "reading expectations from JSON summary file %s\n",
                     readPath);
-            fprintf(stderr, "BUT WE DON'T KNOW HOW TO DO THIS YET!\n");
-            return -1;
+            gmmain.fExpectationsSource.reset(SkNEW_ARGS(
+                JsonExpectationsSource, (readPath)));
         }
     }
     if (writePath) {

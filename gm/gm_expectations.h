@@ -10,9 +10,11 @@
 #include "gm.h"
 #include "SkBitmap.h"
 #include "SkBitmapChecksummer.h"
+#include "SkData.h"
 #include "SkImageDecoder.h"
 #include "SkOSFile.h"
 #include "SkRefCnt.h"
+#include "SkStream.h"
 #include "SkTArray.h"
 
 #ifdef SK_BUILD_FOR_WIN
@@ -21,10 +23,24 @@
     #pragma warning(push)
     #pragma warning(disable : 4530)
 #endif
+#include "json/reader.h"
 #include "json/value.h"
 #ifdef SK_BUILD_FOR_WIN
     #pragma warning(pop)
 #endif
+
+#define DEBUGFAIL_SEE_STDERR SkDEBUGFAIL("see stderr for message")
+
+const static char kJsonKey_ActualResults[]   = "actual-results";
+const static char kJsonKey_ActualResults_Failed[]        = "failed";
+const static char kJsonKey_ActualResults_FailureIgnored[]= "failure-ignored";
+const static char kJsonKey_ActualResults_NoComparison[]  = "no-comparison";
+const static char kJsonKey_ActualResults_Succeeded[]     = "succeeded";
+const static char kJsonKey_ActualResults_AnyStatus_Checksum[]    = "checksum";
+
+const static char kJsonKey_ExpectedResults[] = "expected-results";
+const static char kJsonKey_ExpectedResults_Checksums[]     = "checksums";
+const static char kJsonKey_ExpectedResults_IgnoreFailure[] = "ignore-failure";
 
 namespace skiagm {
 
@@ -32,6 +48,9 @@ namespace skiagm {
     typedef Json::UInt64 Checksum;
     static inline Json::Value asJsonValue(Checksum checksum) {
         return checksum;
+    }
+    static inline Checksum asChecksum(Json::Value jsonValue) {
+        return jsonValue.asUInt64();
     }
 
     static SkString make_filename(const char path[],
@@ -54,24 +73,66 @@ namespace skiagm {
     public:
         /**
          * No expectations at all.
-         *
-         * We set ignoreFailure to false by default, but it doesn't really
-         * matter... the result will always be "no-comparison" anyway.
          */
-        Expectations(bool ignoreFailure=false) {
+        Expectations(bool ignoreFailure=kDefaultIgnoreFailure) {
             fIgnoreFailure = ignoreFailure;
         }
 
         /**
          * Expect exactly one image (appropriate for the case when we
          * are comparing against a single PNG file).
-         *
-         * By default, DO NOT ignore failures.
          */
-        Expectations(const SkBitmap& bitmap, bool ignoreFailure=false) {
+        Expectations(const SkBitmap& bitmap, bool ignoreFailure=kDefaultIgnoreFailure) {
             fBitmap = bitmap;
             fIgnoreFailure = ignoreFailure;
             fAllowedChecksums.push_back() = SkBitmapChecksummer::Compute64(bitmap);
+        }
+
+        /**
+         * Create Expectations from a JSON element as found within the
+         * kJsonKey_ExpectedResults section.
+         *
+         * It's fine if the jsonElement is null or empty; in that case, we just
+         * don't have any expectations.
+         */
+        Expectations(Json::Value jsonElement) {
+            if (jsonElement.empty()) {
+                fIgnoreFailure = kDefaultIgnoreFailure;
+            } else {
+                Json::Value ignoreFailure = jsonElement[kJsonKey_ExpectedResults_IgnoreFailure];
+                if (ignoreFailure.isNull()) {
+                    fIgnoreFailure = kDefaultIgnoreFailure;
+                } else if (!ignoreFailure.isBool()) {
+                    fprintf(stderr, "found non-boolean json value for key '%s' in element '%s'\n",
+                            kJsonKey_ExpectedResults_IgnoreFailure,
+                            jsonElement.toStyledString().c_str());
+                    DEBUGFAIL_SEE_STDERR;
+                    fIgnoreFailure = kDefaultIgnoreFailure;
+                } else {
+                    fIgnoreFailure = ignoreFailure.asBool();
+                }
+
+                Json::Value allowedChecksums = jsonElement[kJsonKey_ExpectedResults_Checksums];
+                if (allowedChecksums.isNull()) {
+                    // ok, we'll just assume there aren't any expected checksums to compare against
+                } else if (!allowedChecksums.isArray()) {
+                    fprintf(stderr, "found non-array json value for key '%s' in element '%s'\n",
+                            kJsonKey_ExpectedResults_Checksums,
+                            jsonElement.toStyledString().c_str());
+                    DEBUGFAIL_SEE_STDERR;
+                } else {
+                    for (Json::ArrayIndex i=0; i<allowedChecksums.size(); i++) {
+                        Json::Value checksumElement = allowedChecksums[i];
+                        if (!checksumElement.isIntegral()) {
+                            fprintf(stderr, "found non-integer checksum in json element '%s'\n",
+                                    jsonElement.toStyledString().c_str());
+                            DEBUGFAIL_SEE_STDERR;
+                        } else {
+                            fAllowedChecksums.push_back() = asChecksum(checksumElement);
+                        }
+                    }
+                }
+            }
         }
 
         /**
@@ -126,6 +187,8 @@ namespace skiagm {
         }
 
     private:
+        const static bool kDefaultIgnoreFailure = false;
+
         SkTArray<Checksum> fAllowedChecksums;
         bool fIgnoreFailure;
         SkBitmap fBitmap;
@@ -179,6 +242,120 @@ namespace skiagm {
     private:
         const SkString fRootDir;
         const bool fNotifyOfMissingFiles;
+    };
+
+    /**
+     * Return Expectations based on JSON summary file.
+     */
+    class JsonExpectationsSource : public ExpectationsSource {
+    public:
+        /**
+         * Create an ExpectationsSource that will return Expectations based on
+         * a JSON file.
+         *
+         * jsonPath: path to JSON file to read
+         */
+        JsonExpectationsSource(const char *jsonPath) {
+            parse(jsonPath, &fJsonRoot);
+            fJsonExpectedResults = fJsonRoot[kJsonKey_ExpectedResults];
+        }
+
+        Expectations get(const char *testName) SK_OVERRIDE {
+            return Expectations(fJsonExpectedResults[testName]);
+        }
+
+    private:
+
+        /**
+         * Read as many bytes as possible (up to maxBytes) from the stream into
+         * an SkData object.
+         *
+         * If the returned SkData contains fewer than maxBytes, then EOF has been
+         * reached and no more data would be available from subsequent calls.
+         * (If EOF has already been reached, then this call will return an empty
+         * SkData object immediately.)
+         *
+         * If there are fewer than maxBytes bytes available to read from the
+         * stream, but the stream has not been closed yet, this call will block
+         * until there are enough bytes to read or the stream has been closed.
+         *
+         * It is up to the caller to call unref() on the returned SkData object
+         * once the data is no longer needed, so that the underlying buffer will
+         * be freed.  For example:
+         *
+         * {
+         *   size_t maxBytes = 256;
+         *   SkAutoDataUnref dataRef(readIntoSkData(stream, maxBytes));
+         *   if (NULL != dataRef.get()) {
+         *     size_t bytesActuallyRead = dataRef.get()->size();
+         *     // use the data...
+         *   }
+         * }
+         * // underlying buffer has been freed, thanks to auto unref
+         *
+         */
+        // TODO(epoger): Move this, into SkStream.[cpp|h] as attempted in
+        // https://codereview.appspot.com/7300071 ?
+        // And maybe readFileIntoSkData() also?
+        static SkData* readIntoSkData(SkStream &stream, size_t maxBytes) {
+            if (0 == maxBytes) {
+                return SkData::NewEmpty();
+            }
+            char* bufStart = reinterpret_cast<char *>(sk_malloc_throw(maxBytes));
+            char* bufPtr = bufStart;
+            size_t bytesRemaining = maxBytes;
+            while (bytesRemaining > 0) {
+                size_t bytesReadThisTime = stream.read(bufPtr, bytesRemaining);
+                if (0 == bytesReadThisTime) {
+                    break;
+                }
+                bytesRemaining -= bytesReadThisTime;
+                bufPtr += bytesReadThisTime;
+            }
+            return SkData::NewFromMalloc(bufStart, maxBytes - bytesRemaining);
+        }
+
+        /**
+         * Wrapper around readIntoSkData for files: reads the entire file into
+         * an SkData object.
+         */
+        static SkData* readFileIntoSkData(SkFILEStream &stream) {
+            return readIntoSkData(stream, stream.getLength());
+        }
+
+        /**
+         * Read the file contents from jsonPath and parse them into jsonRoot.
+         *
+         * Returns true if successful.
+         */
+        static bool parse(const char *jsonPath, Json::Value *jsonRoot) {
+            SkFILEStream inFile(jsonPath);
+            if (!inFile.isValid()) {
+                fprintf(stderr, "unable to read JSON file %s\n", jsonPath);
+                DEBUGFAIL_SEE_STDERR;
+                return false;
+            }
+
+            SkAutoDataUnref dataRef(readFileIntoSkData(inFile));
+            if (NULL == dataRef.get()) {
+                fprintf(stderr, "error reading JSON file %s\n", jsonPath);
+                DEBUGFAIL_SEE_STDERR;
+                return false;
+            }
+
+            const char *bytes = reinterpret_cast<const char *>(dataRef.get()->data());
+            size_t size = dataRef.get()->size();
+            Json::Reader reader;
+            if (!reader.parse(bytes, bytes+size, *jsonRoot)) {
+                fprintf(stderr, "error parsing JSON file %s\n", jsonPath);
+                DEBUGFAIL_SEE_STDERR;
+                return false;
+            }
+            return true;
+        }
+
+        Json::Value fJsonRoot;
+        Json::Value fJsonExpectedResults;
     };
 
 }
