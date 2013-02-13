@@ -74,6 +74,11 @@ public:
     const Desc& getDesc() { return fDesc; }
 
     /**
+     * Gets the GL program ID for this program.
+     */
+    GrGLuint programID() const { return fProgramID; }
+
+    /**
      * Attribute indices. These should not overlap.
      */
     static int PositionAttributeIdx() { return 0; }
@@ -95,6 +100,25 @@ public:
         void invalidate() {
             fConstAttribColor = GrColor_ILLEGAL;
             fConstAttribCoverage = GrColor_ILLEGAL;
+        }
+    };
+
+    /**
+     * The GrDrawState's view matrix along with the aspects of the render target determine the
+     * matrix sent to GL. The size of the render target affects the GL matrix because we must
+     * convert from Skia device coords to GL's normalized coords. Also the origin of the render
+     * target may require us to perform a mirror-flip.
+     */
+    struct MatrixState {
+        SkMatrix        fViewMatrix;
+        SkISize         fRenderTargetSize;
+        GrSurfaceOrigin fRenderTargetOrigin;
+
+        MatrixState() { this->invalidate(); }
+        void invalidate() {
+            fViewMatrix = SkMatrix::InvalidMatrix();
+            fRenderTargetSize.fWidth = -1; // just make the first value compared illegal.
+            fRenderTargetOrigin = (GrSurfaceOrigin) -1;
         }
     };
 
@@ -174,6 +198,7 @@ public:
 
         friend class GrGLProgram;
     };
+
 private:
     GrGLProgram(const GrGLContextInfo& gl,
                 const Desc& desc,
@@ -220,6 +245,9 @@ private:
     // per-vertex coverages.
     void setCoverage(const GrDrawState&, GrColor coverage, SharedGLState*);
 
+    // Helper for setData() that sets the view matrix and loads the render target height uniform
+    void setMatrixAndRenderTargetHeight(const GrDrawState&);
+
     typedef SkSTArray<4, UniformHandle, true> SamplerUniSArray;
 
     struct UniformHandles {
@@ -247,17 +275,12 @@ private:
     GrGLuint                    fGShaderID;
     GrGLuint                    fFShaderID;
     GrGLuint                    fProgramID;
-    // The matrix sent to GL is determined by the client's matrix,
-    // the size of the viewport, and the origin of the render target.
-    SkMatrix                    fViewMatrix;
-    SkISize                     fViewportSize;
-    GrSurfaceOrigin             fOrigin;
 
     // these reflect the current values of uniforms (GL uniform values travel with program)
+    MatrixState                 fMatrixState;
     GrColor                     fColor;
     GrColor                     fCoverage;
     GrColor                     fColorFilterColor;
-    int                         fRTHeight;
 
     GrGLEffect*                 fEffects[GrDrawState::kNumStages];
 
@@ -266,8 +289,6 @@ private:
 
     GrGLUniformManager          fUniformManager;
     UniformHandles              fUniformHandles;
-
-    friend class GrGpuGL; // TODO: remove this by adding getters and moving functionality.
 
     typedef GrRefCnt INHERITED;
 };
