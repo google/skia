@@ -24,7 +24,7 @@ enum {
 /**
  * A helper for use in GrEffect::TestCreate functions.
  */
-const SkMatrix& TestMatrix(SkRandom*);
+const SkMatrix& TestMatrix(SkMWCRandom*);
 
 }
 
@@ -37,14 +37,14 @@ class GrTexture;
 class GrEffectTestFactory : GrNoncopyable {
 public:
 
-    typedef GrEffectRef* (*CreateProc)(SkRandom*, GrContext*, GrTexture* dummyTextures[]);
+    typedef GrEffectRef* (*CreateProc)(SkMWCRandom*, GrContext*, GrTexture* dummyTextures[]);
 
     GrEffectTestFactory(CreateProc createProc) {
         fCreateProc = createProc;
         GetFactories()->push_back(this);
     }
 
-    static GrEffectRef* CreateStage(SkRandom* random,
+    static GrEffectRef* CreateStage(SkMWCRandom* random,
                                     GrContext* context,
                                     GrTexture* dummyTextures[]) {
         uint32_t idx = random->nextRangeU(0, GetFactories()->count() - 1);
@@ -62,11 +62,11 @@ private:
  */
 #define GR_DECLARE_EFFECT_TEST                                                      \
     static GrEffectTestFactory gTestFactory;                                        \
-    static GrEffectRef* TestCreate(SkRandom*, GrContext*, GrTexture* dummyTextures[2])
+    static GrEffectRef* TestCreate(SkMWCRandom*, GrContext*, GrTexture* dummyTextures[2])
 
 /** GrEffect subclasses should insert this macro in their implementation file. They must then
  *  also implement this static function:
- *      GrEffect* TestCreate(SkRandom*, GrContext*, GrTexture* dummyTextures[2]);
+ *      GrEffect* TestCreate(SkMWCRandom*, GrContext*, GrTexture* dummyTextures[2]);
  * dummyTextures[] are valid textures that can optionally be used to construct GrTextureAccesses.
  * The first texture has config kSkia8888_GrPixelConfig and the second has
  * kAlpha_8_GrPixelConfig. TestCreate functions are also free to create additional textures using
@@ -80,7 +80,7 @@ private:
 // The unit test relies on static initializers. Just declare the TestCreate function so that
 // its definitions will compile.
 #define GR_DECLARE_EFFECT_TEST \
-    static GrEffectRef* TestCreate(SkRandom*, GrContext*, GrTexture* dummyTextures[2])
+    static GrEffectRef* TestCreate(SkMWCRandom*, GrContext*, GrTexture* dummyTextures[2])
 #define GR_DEFINE_EFFECT_TEST(X)
 
 #endif // !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS

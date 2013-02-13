@@ -453,7 +453,7 @@ private:
 
 GR_DEFINE_EFFECT_TEST(GrSweepGradient);
 
-GrEffectRef* GrSweepGradient::TestCreate(SkRandom* random,
+GrEffectRef* GrSweepGradient::TestCreate(SkMWCRandom* random,
                                          GrContext* context,
                                          GrTexture**) {
     SkPoint center = {random->nextUScalar1(), random->nextUScalar1()};

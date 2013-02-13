@@ -67,7 +67,7 @@ const GrBackendEffectFactory& GrSimpleTextureEffect::getFactory() const {
 
 GR_DEFINE_EFFECT_TEST(GrSimpleTextureEffect);
 
-GrEffectRef* GrSimpleTextureEffect::TestCreate(SkRandom* random,
+GrEffectRef* GrSimpleTextureEffect::TestCreate(SkMWCRandom* random,
                                                GrContext* context,
                                                GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :

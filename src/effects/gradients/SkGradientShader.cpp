@@ -870,7 +870,7 @@ void GrGradientEffect::getConstantColorComponents(GrColor* color, uint32_t* vali
     }
 }
 
-int GrGradientEffect::RandomGradientParams(SkRandom* random,
+int GrGradientEffect::RandomGradientParams(SkMWCRandom* random,
                                            SkColor colors[],
                                            SkScalar** stops,
                                            SkShader::TileMode* tm) {

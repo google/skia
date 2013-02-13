@@ -533,7 +533,7 @@ private:
 
 GR_DEFINE_EFFECT_TEST(GrRadialGradient);
 
-GrEffectRef* GrRadialGradient::TestCreate(SkRandom* random,
+GrEffectRef* GrRadialGradient::TestCreate(SkMWCRandom* random,
                                           GrContext* context,
                                           GrTexture**) {
     SkPoint center = {random->nextUScalar1(), random->nextUScalar1()};

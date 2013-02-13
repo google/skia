@@ -20,20 +20,6 @@
 #include "SkRandom.h"
 #include "Test.h"
 
-namespace {
-
-const GrEffectRef* create_random_effect(SkMWCRandom* random,
-                                        GrContext* context,
-                                        GrTexture* dummyTextures[]) {
-    // TODO: Make GrTestFactory use SkMWCRandom and simply pass along param random
-    SkRandom sk_random;
-    sk_random.setSeed(random->nextU());
-    GrEffectRef* effect = GrEffectTestFactory::CreateStage(&sk_random, context, dummyTextures);
-    GrAssert(effect);
-    return effect;
-}
-}
-
 void GrGLProgram::Desc::setRandom(SkMWCRandom* random,
                                   const GrGpuGL* gpu,
                                   const GrEffectStage stages[GrDrawState::kNumStages]) {
@@ -118,9 +104,10 @@ bool GrGpuGL::programUnitTest(int maxStages) {
             // enable the stage?
             if (random.nextBool()) {
                 GrTexture* dummyTextures[] = {dummyTexture1.get(), dummyTexture2.get()};
-                SkAutoTUnref<const GrEffectRef> effect(create_random_effect(&random,
-                                                                            getContext(),
-                                                                            dummyTextures));
+                SkAutoTUnref<const GrEffectRef> effect(GrEffectTestFactory::CreateStage(
+                                                                                &random,
+                                                                                this->getContext(),
+                                                                                dummyTextures));
                 stages[s].setEffect(effect.get());
             }
         }
