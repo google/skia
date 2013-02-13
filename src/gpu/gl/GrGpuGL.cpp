@@ -188,7 +188,7 @@ GrGpuGL::~GrGpuGL() {
     if (0 != fHWProgramID) {
         // detach the current program so there is no confusion on OpenGL's part
         // that we want it to be deleted
-        GrAssert(fHWProgramID == fCurrentProgram->fProgramID);
+        GrAssert(fHWProgramID == fCurrentProgram->programID());
         GL_CALL(UseProgram(0));
     }
 
@@ -453,7 +453,7 @@ void GrGpuGL::onResetContext() {
 
     fHWBoundRenderTarget = NULL;
 
-    fHWPathMatrixState.invalidate();
+    fHWPathStencilMatrixState.invalidate();
     if (fCaps.pathStencilingSupport()) {
         // we don't use the model view matrix.
         GL_CALL(MatrixMode(GR_GL_MODELVIEW));
