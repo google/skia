@@ -37,6 +37,7 @@
         '../samplecode/SampleBitmapRect.cpp',
         '../samplecode/SampleBlur.cpp',
         '../samplecode/SampleCamera.cpp',
+        '../samplecode/SampleChart.cpp',
         '../samplecode/SampleCircle.cpp',
         '../samplecode/SampleClip.cpp',
         '../samplecode/SampleCode.h',
