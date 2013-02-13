@@ -181,9 +181,8 @@ private:
         const GrGLContextInfo&      fGL;
     };
 
-
-    // sets the MVP matrix uniform for currently bound program
-    void flushViewMatrix(DrawType type);
+    // sets the matrix for path stenciling (uses the GL fixed pipe matrices)
+    void flushPathStencilMatrix();
 
     // flushes dithering, color-mask, and face culling stat
     void flushMiscFixedFunctionState();
@@ -305,25 +304,17 @@ private:
         }
     } fHWAAState;
 
-    struct {
-        SkMatrix            fViewMatrix;
-        SkISize             fRTSize;
-        GrSurfaceOrigin     fLastOrigin;
-        void invalidate() {
-            fViewMatrix = SkMatrix::InvalidMatrix();
-            fRTSize.fWidth = -1; // just make the first value compared illegal.
-            fLastOrigin = (GrSurfaceOrigin) -1;
-        }
-    } fHWPathMatrixState;
 
-    GrStencilSettings       fHWStencilSettings;
-    TriState                fHWStencilTestEnabled;
+    GrGLProgram::MatrixState    fHWPathStencilMatrixState;
 
-    GrDrawState::DrawFace   fHWDrawFace;
-    TriState                fHWWriteToColor;
-    TriState                fHWDitherEnabled;
-    GrRenderTarget*         fHWBoundRenderTarget;
-    GrTexture*              fHWBoundTextures[GrDrawState::kNumStages];
+    GrStencilSettings           fHWStencilSettings;
+    TriState                    fHWStencilTestEnabled;
+
+    GrDrawState::DrawFace       fHWDrawFace;
+    TriState                    fHWWriteToColor;
+    TriState                    fHWDitherEnabled;
+    GrRenderTarget*             fHWBoundRenderTarget;
+    GrTexture*                  fHWBoundTextures[GrDrawState::kNumStages];
     ///@}
 
     // we record what stencil format worked last time to hopefully exit early
