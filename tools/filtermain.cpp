@@ -58,12 +58,19 @@ static bool check_0(const SkTDArray<SkDrawCommand*>& commands, int curCommand) {
     const SkPaint* saveLayerPaint = saveLayer->paint();
     SkPaint* dbmrPaint = dbmr->paint();
 
+    // For this optimization we only fold the saveLayer and drawBitmapRect 
+    // together if the saveLayer's draw is simple (i.e., no fancy effects) and
+    // and the only difference in the colors is that the saveLayer's can have
+    // an alpha while the drawBitmapRect's is opaque.
+    // TODO: it should be possible to fold them together even if they both
+    // have different non-255 alphas but this is low priority since we have
+    // never seen that case
+    // If either operation lacks a paint then the collapse is trivial
+    SkColor layerColor = saveLayerPaint->getColor() | 0xFF000000; // force opaque
+
     return NULL == saveLayerPaint ||
            NULL == dbmrPaint ||
-           (is_simple(*saveLayerPaint) &&
-            (SkColorGetR(saveLayerPaint->getColor()) == SkColorGetR(dbmrPaint->getColor())) &&
-            (SkColorGetG(saveLayerPaint->getColor()) == SkColorGetG(dbmrPaint->getColor())) &&
-            (SkColorGetB(saveLayerPaint->getColor()) == SkColorGetB(dbmrPaint->getColor())));
+           (is_simple(*saveLayerPaint) && dbmrPaint->getColor() == layerColor);
 }
 
 // Fold the saveLayer's alpha into the drawBitmapRect and remove the saveLayer
@@ -116,12 +123,19 @@ static bool check_1(const SkTDArray<SkDrawCommand*>& commands, int curCommand) {
     const SkPaint* saveLayerPaint = saveLayer->paint();
     SkPaint* dbmrPaint = dbmr->paint();
 
+    // For this optimization we only fold the saveLayer and drawBitmapRect 
+    // together if the saveLayer's draw is simple (i.e., no fancy effects) and
+    // and the only difference in the colors is that the saveLayer's can have
+    // an alpha while the drawBitmapRect's is opaque.
+    // TODO: it should be possible to fold them together even if they both
+    // have different non-255 alphas but this is low priority since we have
+    // never seen that case
+    // If either operation lacks a paint then the collapse is trivial
+    SkColor layerColor = saveLayerPaint->getColor() | 0xFF000000; // force opaque
+
     return NULL == saveLayerPaint ||
            NULL == dbmrPaint ||
-           (is_simple(*saveLayerPaint) &&
-            (SkColorGetR(saveLayerPaint->getColor()) == SkColorGetR(dbmrPaint->getColor())) &&
-            (SkColorGetG(saveLayerPaint->getColor()) == SkColorGetG(dbmrPaint->getColor())) &&
-            (SkColorGetB(saveLayerPaint->getColor()) == SkColorGetB(dbmrPaint->getColor())));
+           (is_simple(*saveLayerPaint) && dbmrPaint->getColor() == layerColor);
 }
 
 // Fold the saveLayer's alpha into the drawBitmapRect and remove the saveLayer
