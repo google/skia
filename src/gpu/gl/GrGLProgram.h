@@ -117,7 +117,8 @@ public:
         MatrixState() { this->invalidate(); }
         void invalidate() {
             fViewMatrix = SkMatrix::InvalidMatrix();
-            fRenderTargetSize.fWidth = -1; // just make the first value compared illegal.
+            fRenderTargetSize.fWidth = -1;
+            fRenderTargetSize.fHeight = -1;
             fRenderTargetOrigin = (GrSurfaceOrigin) -1;
         }
     };
