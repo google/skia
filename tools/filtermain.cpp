@@ -58,7 +58,7 @@ static bool check_0(const SkTDArray<SkDrawCommand*>& commands, int curCommand) {
     const SkPaint* saveLayerPaint = saveLayer->paint();
     SkPaint* dbmrPaint = dbmr->paint();
 
-    // For this optimization we only fold the saveLayer and drawBitmapRect 
+    // For this optimization we only fold the saveLayer and drawBitmapRect
     // together if the saveLayer's draw is simple (i.e., no fancy effects) and
     // and the only difference in the colors is that the saveLayer's can have
     // an alpha while the drawBitmapRect's is opaque.
@@ -123,7 +123,7 @@ static bool check_1(const SkTDArray<SkDrawCommand*>& commands, int curCommand) {
     const SkPaint* saveLayerPaint = saveLayer->paint();
     SkPaint* dbmrPaint = dbmr->paint();
 
-    // For this optimization we only fold the saveLayer and drawBitmapRect 
+    // For this optimization we only fold the saveLayer and drawBitmapRect
     // together if the saveLayer's draw is simple (i.e., no fancy effects) and
     // and the only difference in the colors is that the saveLayer's can have
     // an alpha while the drawBitmapRect's is opaque.
