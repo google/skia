@@ -2,8 +2,6 @@
 
 # Tests for our tools.
 #
-# TODO: for now, it only tests skdiff
-#
 # TODO: currently, this only passes on Linux (which is the platform that
 # the housekeeper bot runs on, e.g.
 # http://70.32.156.51:10117/builders/Skia_PerCommit_House_Keeping/builds/1415/steps/RunToolSelfTests/logs/stdio )
@@ -76,5 +74,48 @@ skdiff_test "--nodiffs --match identical-bits $SKDIFF_TESTDIR/baseDir $SKDIFF_TE
 
 # Run skdiff over just the files that have identical bits or identical pixels.
 skdiff_test "--nodiffs --match identical-bits --match identical-pixels $SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/identical-bits-or-pixels"
+
+
+# Run bench_graph_svg.py across the data from platform $1,
+# writing its output to output-actual and comparing those results against
+# output-expected.
+function benchgraph_test {
+  if [ $# != 1 ]; then
+    echo "benchgraph_test requires exactly 1 parameter, got $#"
+    exit 1
+  fi
+  PLATFORM="$1"
+
+  PLATFORM_DIR="tools/tests/benchgraphs/$PLATFORM"
+  TARBALL_DIR="$PLATFORM_DIR/tarballs"
+  RAW_BENCH_DATA_DIR="$PLATFORM_DIR/raw-bench-data"
+  ACTUAL_OUTPUT_DIR="$PLATFORM_DIR/output-actual"
+  EXPECTED_OUTPUT_DIR="$PLATFORM_DIR/output-expected"
+
+  # First, unpack raw bench data from tarballs.
+  # (The raw bench data files are large, so this saves space in our SVN repo.)
+  rm -rf $RAW_BENCH_DATA_DIR
+  mkdir -p $RAW_BENCH_DATA_DIR
+  for TARBALL in $TARBALL_DIR/*.tgz ; do
+    tar --extract --gunzip --directory $RAW_BENCH_DATA_DIR --file $TARBALL
+  done
+
+  # Now that we have the input files we need, run bench_graph_svg.py .
+  rm -rf $ACTUAL_OUTPUT_DIR
+  mkdir -p $ACTUAL_OUTPUT_DIR
+  COMMAND="python bench/bench_graph_svg.py -d $RAW_BENCH_DATA_DIR -r -150 -f -150 -x 1024 -y 768 -l Title -m 25th -o $ACTUAL_OUTPUT_DIR/graph.xhtml"
+  echo "$COMMAND" >$ACTUAL_OUTPUT_DIR/command_line
+  START_TIMESTAMP=$(date +%s)
+  $COMMAND &>$ACTUAL_OUTPUT_DIR/stdout
+  echo $? >$ACTUAL_OUTPUT_DIR/return_value
+  END_TIMESTAMP=$(date +%s)
+
+  SECONDS_RUN=$(expr $END_TIMESTAMP - $START_TIMESTAMP)
+  echo "bench_graph_svg.py for $PLATFORM took $SECONDS_RUN seconds to complete"
+
+  compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
+}
+
+benchgraph_test Skia_Shuttle_Ubuntu12_ATI5770_Float_Bench_32
 
 echo "All tests passed."
