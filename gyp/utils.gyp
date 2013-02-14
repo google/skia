@@ -35,6 +35,7 @@
         '../include/utils/SkCamera.h',
         '../include/utils/SkCubicInterval.h',
         '../include/utils/SkCullPoints.h',
+        '../include/utils/SkDebugUtils.h',
         '../include/utils/SkDeferredCanvas.h',
         '../include/utils/SkDumpCanvas.h',
         '../include/utils/SkInterpolator.h',
