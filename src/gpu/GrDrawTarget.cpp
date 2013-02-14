@@ -523,20 +523,15 @@ void GrDrawTarget::drawIndexedInstances(GrPrimitiveType type,
 
 void GrDrawTarget::drawRect(const GrRect& rect,
                             const SkMatrix* matrix,
-                            const GrRect* srcRects[],
-                            const SkMatrix* srcMatrices[]) {
+                            const GrRect* srcRect,
+                            const SkMatrix* srcMatrix,
+                            int stage) {
     GrVertexLayout layout = 0;
     uint32_t explicitCoordMask = 0;
 
-    if (NULL != srcRects) {
-        for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-            int numTC = 0;
-            if (NULL != srcRects[s]) {
-                layout |= GrDrawState::StageTexCoordVertexLayoutBit(s, numTC);
-                explicitCoordMask |= (1 << s);
-                ++numTC;
-            }
-        }
+    if (NULL != srcRect) {
+        layout |= GrDrawState::StageTexCoordVertexLayoutBit(stage);
+        explicitCoordMask = (1 << stage);
     }
 
     GrDrawState::AutoViewMatrixRestore avmr;
@@ -560,11 +555,11 @@ void GrDrawTarget::drawRect(const GrRect& rect,
             GrAssert(0 != stageOffsets[i]);
             GrPoint* coords = GrTCast<GrPoint*>(GrTCast<intptr_t>(geo.vertices()) +
                                                 stageOffsets[i]);
-            coords->setRectFan(srcRects[i]->fLeft, srcRects[i]->fTop,
-                               srcRects[i]->fRight, srcRects[i]->fBottom,
+            coords->setRectFan(srcRect->fLeft, srcRect->fTop,
+                               srcRect->fRight, srcRect->fBottom,
                                vsize);
-            if (NULL != srcMatrices && NULL != srcMatrices[i]) {
-                srcMatrices[i]->mapPointsWithStride(coords, vsize, 4);
+            if (NULL != srcMatrix) {
+                srcMatrix->mapPointsWithStride(coords, vsize, 4);
             }
         } else {
             GrAssert(0 == stageOffsets[i]);

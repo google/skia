@@ -25,19 +25,14 @@ SK_DEFINE_INST_COUNT(GrGLProgram)
 
 SK_CONF_DECLARE(bool, c_PrintShaders, "gpu.printShaders", false, "Print the source code for all shaders generated.");
 
+#define TEX_ATTR_NAME "aTexCoord"
 #define COL_ATTR_NAME "aColor"
 #define COV_ATTR_NAME "aCoverage"
 #define EDGE_ATTR_NAME "aEdge"
 
 namespace {
-inline void tex_attr_name(int coordIdx, SkString* s) {
-    *s = "aTexCoord";
-    s->appendS32(coordIdx);
-}
-
 inline const char* declared_color_output_name() { return "fsColorOut"; }
 inline const char* dual_source_output_name() { return "dualSourceOut"; }
-
 }
 
 void GrGLProgram::BuildDesc(const GrDrawState& drawState,
@@ -731,14 +726,10 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
     }
 
     // add texture coordinates that are used to the list of vertex attr decls
-    SkString texCoordAttrs[GrDrawState::kMaxTexCoords];
-    for (int t = 0; t < GrDrawState::kMaxTexCoords; ++t) {
-        if (GrDrawState::VertexUsesTexCoordIdx(t, layout)) {
-            tex_attr_name(t, texCoordAttrs + t);
-            builder.fVSAttrs.push_back().set(kVec2f_GrSLType,
-                GrGLShaderVar::kAttribute_TypeModifier,
-                texCoordAttrs[t].c_str());
-        }
+    if (GrDrawState::VertexUsesTexCoords(layout)) {
+        builder.fVSAttrs.push_back().set(kVec2f_GrSLType,
+            GrGLShaderVar::kAttribute_TypeModifier,
+            TEX_ATTR_NAME);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -757,13 +748,11 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
 
                 const char* inCoords;
                 // figure out what our input coords are
-                int tcIdx = GrDrawState::VertexTexCoordsForStage(s, layout);
-                if (tcIdx < 0) {
+                if (!GrDrawState::StageUsesTexCoords(layout, s)) {
                     inCoords = builder.positionAttribute().c_str();
                 } else {
                     // must have input tex coordinates if stage is enabled.
-                    GrAssert(texCoordAttrs[tcIdx].size());
-                    inCoords = texCoordAttrs[tcIdx].c_str();
+                    inCoords = TEX_ATTR_NAME;
                 }
 
                 builder.setCurrentStage(s);
@@ -853,15 +842,12 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
 
                     const char* inCoords;
                     // figure out what our input coords are
-                    int tcIdx =
-                        GrDrawState::VertexTexCoordsForStage(s, layout);
-                    if (tcIdx < 0) {
+                    if (!GrDrawState::StageUsesTexCoords(layout, s)) {
                         inCoords = builder.positionAttribute().c_str();
                     } else {
                         // must have input tex coordinates if stage is
                         // enabled.
-                        GrAssert(texCoordAttrs[tcIdx].size());
-                        inCoords = texCoordAttrs[tcIdx].c_str();
+                        inCoords = TEX_ATTR_NAME;
                     }
 
                     // stages don't know how to deal with a scalar input. (Maybe they should. We
@@ -945,7 +931,6 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
     }
 
     if (!this->bindOutputsAttribsAndLinkProgram(builder,
-                                                texCoordAttrs,
                                                 isColorDeclared,
                                                 dualSourceOutputWritten)) {
         return false;
@@ -959,7 +944,6 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
 }
 
 bool GrGLProgram::bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& builder,
-                                                   SkString texCoordAttrNames[],
                                                    bool bindColorOut,
                                                    bool bindDualSrcOut) {
     GL_CALL_RET(fProgramID, CreateProgram());
@@ -984,14 +968,7 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& buil
     GL_CALL(BindAttribLocation(fProgramID,
                                PositionAttributeIdx(),
                                builder.positionAttribute().c_str()));
-    for (int t = 0; t < GrDrawState::kMaxTexCoords; ++t) {
-        if (texCoordAttrNames[t].size()) {
-            GL_CALL(BindAttribLocation(fProgramID,
-                                       TexCoordAttributeIdx(t),
-                                       texCoordAttrNames[t].c_str()));
-        }
-    }
-
+    GL_CALL(BindAttribLocation(fProgramID, TexCoordAttributeIdx(), TEX_ATTR_NAME));
     GL_CALL(BindAttribLocation(fProgramID, ColorAttributeIdx(), COL_ATTR_NAME));
     GL_CALL(BindAttribLocation(fProgramID, CoverageAttributeIdx(), COV_ATTR_NAME));
     GL_CALL(BindAttribLocation(fProgramID, EdgeAttributeIdx(), EDGE_ATTR_NAME));

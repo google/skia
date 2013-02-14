@@ -89,8 +89,9 @@ public:
                        GrRenderTarget* renderTarget = NULL) SK_OVERRIDE;
     virtual void drawRect(const GrRect& rect,
                           const SkMatrix* matrix,
-                          const GrRect* srcRects[],
-                          const SkMatrix* srcMatrices[]) SK_OVERRIDE;
+                          const GrRect* srcRect,
+                          const SkMatrix* srcMatrix,
+                          int stage) SK_OVERRIDE;
 
 protected:
     virtual void clipWillBeSet(const GrClipData* newClip) SK_OVERRIDE;

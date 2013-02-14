@@ -217,26 +217,26 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, int* startIndexOffset) {
 
     int newColorOffset;
     int newCoverageOffset;
-    int newTexCoordOffsets[GrDrawState::kMaxTexCoords];
+    int newTexCoordOffset;
     int newEdgeOffset;
 
     GrVertexLayout currLayout = this->getDrawState().getVertexLayout();
 
-    GrGLsizei newStride = GrDrawState::VertexSizeAndOffsetsByIdx(currLayout,
-                                                                 newTexCoordOffsets,
-                                                                 &newColorOffset,
-                                                                 &newCoverageOffset,
-                                                                 &newEdgeOffset);
+    GrGLsizei newStride = GrDrawState::VertexSizeAndOffsets(currLayout,
+                                                            &newTexCoordOffset,
+                                                            &newColorOffset,
+                                                            &newCoverageOffset,
+                                                            &newEdgeOffset);
     int oldColorOffset;
     int oldCoverageOffset;
-    int oldTexCoordOffsets[GrDrawState::kMaxTexCoords];
+    int oldTexCoordOffset;
     int oldEdgeOffset;
 
-    GrGLsizei oldStride = GrDrawState::VertexSizeAndOffsetsByIdx(fHWGeometryState.fVertexLayout,
-                                                                 oldTexCoordOffsets,
-                                                                 &oldColorOffset,
-                                                                 &oldCoverageOffset,
-                                                                 &oldEdgeOffset);
+    GrGLsizei oldStride = GrDrawState::VertexSizeAndOffsets(fHWGeometryState.fVertexLayout,
+                                                            &oldTexCoordOffset,
+                                                            &oldColorOffset,
+                                                            &oldCoverageOffset,
+                                                            &oldEdgeOffset);
 
     int extraVertexOffset;
     this->setBuffers(info.isIndexed(), &extraVertexOffset, startIndexOffset);
@@ -254,19 +254,17 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, int* startIndexOffset) {
         fHWGeometryState.fVertexOffset = vertexOffset;
     }
 
-    for (int t = 0; t < GrDrawState::kMaxTexCoords; ++t) {
-        if (newTexCoordOffsets[t] > 0) {
-            GrGLvoid* texCoordOffset = (GrGLvoid*)(vertexOffset + newTexCoordOffsets[t]);
-            int idx = GrGLProgram::TexCoordAttributeIdx(t);
-            if (oldTexCoordOffsets[t] <= 0) {
-                GL_CALL(EnableVertexAttribArray(idx));
-                GL_CALL(VertexAttribPointer(idx, 2, GR_GL_FLOAT, false, newStride, texCoordOffset));
-            } else if (allOffsetsChange || newTexCoordOffsets[t] != oldTexCoordOffsets[t]) {
-                GL_CALL(VertexAttribPointer(idx, 2, GR_GL_FLOAT, false, newStride, texCoordOffset));
-            }
-        } else if (oldTexCoordOffsets[t] > 0) {
-            GL_CALL(DisableVertexAttribArray(GrGLProgram::TexCoordAttributeIdx(t)));
+    if (newTexCoordOffset > 0) {
+        GrGLvoid* texCoordOffset = (GrGLvoid*)(vertexOffset + newTexCoordOffset);
+        int idx = GrGLProgram::TexCoordAttributeIdx();
+        if (oldTexCoordOffset <= 0) {
+            GL_CALL(EnableVertexAttribArray(idx));
+            GL_CALL(VertexAttribPointer(idx, 2, GR_GL_FLOAT, false, newStride, texCoordOffset));
+        } else if (allOffsetsChange || newTexCoordOffset != oldTexCoordOffset) {
+            GL_CALL(VertexAttribPointer(idx, 2, GR_GL_FLOAT, false, newStride, texCoordOffset));
         }
+    } else if (oldTexCoordOffset > 0) {
+        GL_CALL(DisableVertexAttribArray(GrGLProgram::TexCoordAttributeIdx()));
     }
 
     if (newColorOffset > 0) {

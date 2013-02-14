@@ -93,7 +93,7 @@ GrTextContext::GrTextContext(GrContext* context, const GrPaint& paint) : fPaint(
     fVertices = NULL;
     fMaxVertices = 0;
 
-    fVertexLayout =  GrDrawState::StageTexCoordVertexLayoutBit(kGlyphMaskStage, 0);
+    fVertexLayout =  GrDrawState::StageTexCoordVertexLayoutBit(kGlyphMaskStage);
 }
 
 GrTextContext::~GrTextContext() {

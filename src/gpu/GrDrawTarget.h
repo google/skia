@@ -385,39 +385,40 @@ public:
      * have changed. They should be reestablished before the next drawIndexed
      * or drawNonIndexed. This cannot be called between reserving and releasing
      * geometry.
-     *
+     * 
      * A subclass may override this to perform more optimal rect rendering. Its
      * draws should be funneled through one of the public GrDrawTarget draw methods
      * (e.g. drawNonIndexed, drawIndexedInstances, ...). The base class draws a two
      * triangle fan using drawNonIndexed from reserved vertex space.
-     *
+     * 
      * @param rect      the rect to draw
      * @param matrix    optional matrix applied to rect (before viewMatrix)
-     * @param srcRects  specifies rects for stages enabled by stageEnableMask.
-     *                  if stageEnableMask bit i is 1, srcRects is not NULL,
-     *                  and srcRects[i] is not NULL, then srcRects[i] will be
-     *                  used as coordinates for stage i. Otherwise, if stage i
-     *                  is enabled then rect is used as the coordinates.
-     * @param srcMatrices   optional matrices applied to srcRects. If
-     *                      srcRect[i] is non-NULL and srcMatrices[i] is
-     *                      non-NULL then srcRect[i] will be transformed by
-     *                      srcMatrix[i]. srcMatrices can be NULL when no
-     *                      srcMatrices are desired.
+     * @param srcRects  specifies rect for explicit texture coordinates.
+     *                  if srcRect is non-NULL then that rect will be used
+     *                  as the coordinates for the given stage.
+     * @param srcMatrix   optional matrix applied to srcRect. If
+     *                    srcRect is non-NULL and srcMatrix is non-NULL 
+     *                    then srcRect will be transformed by srcMatrix. 
+     *                    srcMatrix can be NULL when no srcMatrix is desired.
+     * @param stage     the stage to be given explicit texture coordinates. 
+     *                  Ignored if srcRect is NULL.
      */
     virtual void drawRect(const GrRect& rect,
                           const SkMatrix* matrix,
-                          const GrRect* srcRects[],
-                          const SkMatrix* srcMatrices[]);
+                          const GrRect* srcRect,
+                          const SkMatrix* srcMatrix,
+                          int stage);
+
     /**
      * Helper for drawRect when the caller doesn't need separate src rects or
      * matrices.
      */
     void drawSimpleRect(const GrRect& rect, const SkMatrix* matrix = NULL) {
-        drawRect(rect, matrix, NULL, NULL);
+        drawRect(rect, matrix, NULL, NULL, 0);
     }
     void drawSimpleRect(const GrIRect& irect, const SkMatrix* matrix = NULL) {
         SkRect rect = SkRect::MakeFromIRect(irect);
-        this->drawRect(rect, matrix, NULL, NULL);
+        this->drawRect(rect, matrix, NULL, NULL, 0);
     }
 
     /**

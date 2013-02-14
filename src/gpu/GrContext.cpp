@@ -312,7 +312,7 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
         GrTextureParams params(SkShader::kClamp_TileMode, needsFiltering);
         drawState->createTextureEffect(0, clampedTexture, SkMatrix::I(), params);
 
-        static const GrVertexLayout layout = GrDrawState::StageTexCoordVertexLayoutBit(0,0);
+        static const GrVertexLayout layout = GrDrawState::StageTexCoordVertexLayoutBit(0);
         drawState->setVertexLayout(layout);
         GrDrawTarget::AutoReleaseGeometry arg(fGpu, 4, 0);
 
@@ -853,12 +853,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
 #else
     GrDrawState::AutoStageDisable atr(fDrawState);
 
-    const GrRect* srcRects[GrDrawState::kNumStages] = {NULL};
-    const SkMatrix* srcMatrices[GrDrawState::kNumStages] = {NULL};
-    srcRects[0] = &srcRect;
-    srcMatrices[0] = srcMatrix;
-
-    target->drawRect(dstRect, dstMatrix, srcRects, srcMatrices);
+    target->drawRect(dstRect, dstMatrix, &srcRect, srcMatrix, 0);
 #endif
 }
 
@@ -879,7 +874,7 @@ void GrContext::drawVertices(const GrPaint& paint,
 
     GrVertexLayout layout = 0;
     if (NULL != texCoords) {
-        layout |= GrDrawState::StageTexCoordVertexLayoutBit(0, 0);
+        layout |= GrDrawState::StageTexCoordVertexLayoutBit(0);
     }
     if (NULL != colors) {
         layout |= GrDrawState::kColor_VertexLayoutBit;
@@ -892,20 +887,20 @@ void GrContext::drawVertices(const GrPaint& paint,
             GrPrintf("Failed to get space for vertices!\n");
             return;
         }
-        int texOffsets[GrDrawState::kMaxTexCoords];
+        int texOffset;
         int colorOffset;
-        GrDrawState::VertexSizeAndOffsetsByIdx(layout,
-                                                texOffsets,
-                                                &colorOffset,
-                                                NULL,
-                                                NULL);
+        GrDrawState::VertexSizeAndOffsets(layout,
+                                          &texOffset,
+                                          &colorOffset,
+                                          NULL,
+                                          NULL);
         void* curVertex = geo.vertices();
 
         for (int i = 0; i < vertexCount; ++i) {
             *((GrPoint*)curVertex) = positions[i];
 
-            if (texOffsets[0] > 0) {
-                *(GrPoint*)((intptr_t)curVertex + texOffsets[0]) = texCoords[i];
+            if (texOffset > 0) {
+                *(GrPoint*)((intptr_t)curVertex + texOffset) = texCoords[i];
             }
             if (colorOffset > 0) {
                 *(GrColor*)((intptr_t)curVertex + colorOffset) = colors[i];
