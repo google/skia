@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Rebaseline the skdiff/*/output-expected/ subdirectories used by the skdiff
-# self-tests.
+# self-tests, and similar for benchgraphs/*/output-expected.
+#
 # Use with caution: are you sure the new results are actually correct?
 #
 # YOU MUST RE-RUN THIS UNTIL THE SELF-TESTS SUCCEED!
@@ -14,14 +15,14 @@
 
 function replace_expected_with_actual {
   # Delete all the expected output files
-  EXPECTED_FILES=$(find skdiff/*/output-expected -type f | grep -v /\.svn/)
+  EXPECTED_FILES=$(find $WHICHTOOL/*/output-expected -type f | grep -v /\.svn/)
   for EXPECTED_FILE in $EXPECTED_FILES; do
     rm $EXPECTED_FILE
   done
 
   # Copy all the actual output files into the "expected" directories,
   # creating new subdirs as we go.
-  ACTUAL_FILES=$(find skdiff/*/output-actual -type f | grep -v /\.svn/)
+  ACTUAL_FILES=$(find $WHICHTOOL/*/output-actual -type f | grep -v /\.svn/)
   for ACTUAL_FILE in $ACTUAL_FILES; do
     EXPECTED_FILE=${ACTUAL_FILE//actual/expected}
     mkdir -p $(dirname $EXPECTED_FILE)
@@ -32,23 +33,23 @@ function replace_expected_with_actual {
 function svn_add_new_files {
   # Delete all the "actual" directories, so we can svn-add any new "expected"
   # directories without adding the "actual" ones.
-  rm -rf skdiff/*/output-actual
-  FILES=$(svn stat skdiff/* | grep ^\? | awk '{print $2}')
+  rm -rf $WHICHTOOL/*/output-actual $WHICHTOOL/*/raw-bench-data
+  FILES=$(svn stat $WHICHTOOL/* | grep ^\? | awk '{print $2}')
   for FILE in $FILES; do
     svn add $FILE
   done
-  FILES=$(svn stat skdiff/*/output-expected | grep ^\? | awk '{print $2}')
+  FILES=$(svn stat $WHICHTOOL/*/output-expected | grep ^\? | awk '{print $2}')
   for FILE in $FILES; do
     svn add $FILE
   done
 }
 
 function svn_delete_old_files {
-  FILES=$(svn stat skdiff/*/output-expected | grep ^\! | awk '{print $2}')
+  FILES=$(svn stat $WHICHTOOL/*/output-expected | grep ^\! | awk '{print $2}')
   for FILE in $FILES; do
     svn rm $FILE
   done
-  FILES=$(svn stat skdiff/* | grep ^\! | awk '{print $2}')
+  FILES=$(svn stat $WHICHTOOL/* | grep ^\! | awk '{print $2}')
   for FILE in $FILES; do
     svn rm $FILE
   done
@@ -62,9 +63,16 @@ cd $(dirname $0)
 SELFTEST_RESULT=$?
 echo
 if [ "$SELFTEST_RESULT" != "0" ]; then
+  WHICHTOOL=skdiff
+  replace_expected_with_actual
+  WHICHTOOL=benchgraphs
   replace_expected_with_actual
   echo "Self-tests still failing, you should probably run this again..."
 else
+  WHICHTOOL=skdiff
+  svn_add_new_files
+  svn_delete_old_files
+  WHICHTOOL=benchgraphs
   svn_add_new_files
   svn_delete_old_files
   echo "Self-tests succeeded this time, you should be done!"
