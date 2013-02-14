@@ -121,7 +121,7 @@ void SkCanvasWidget::resetWidgetTransform() {
 void SkCanvasWidget::setWidgetVisibility(WidgetType type, bool isHidden) {
     if (type == kRaster_8888_WidgetType) {
         fRasterWidget.setHidden(isHidden);
-    } 
+    }
 #if SK_SUPPORT_GPU
     else if (type == kGPU_WidgetType) {
         fGLWidget.setHidden(isHidden);
