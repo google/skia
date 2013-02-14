@@ -157,10 +157,6 @@
         #define SK_B32_SHIFT 0
     #endif
 
-#elif defined(SK_BUILD_FOR_MAC)
-    #ifndef SK_DEBUGBREAK
-        #define SK_DEBUGBREAK(cond)     do { if (!(cond)) SK_CRASH(); } while (false)
-    #endif
 #else
     #ifdef SK_DEBUG
         #include <stdio.h>
