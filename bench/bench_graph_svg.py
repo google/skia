@@ -187,7 +187,7 @@ def redirect_stdout(output_path):
 def create_lines(revision_data_points, settings
                , bench_of_interest, config_of_interest, time_of_interest
                , time_to_ignore):
-    """Convert revision data into sorted line data.
+    """Convert revision data into a dictionary of line data.
     
     ({int:[BenchDataPoints]}, {str:str}, str?, str?, str?)
         -> {Label:[(x,y)] | [n].x <= [n+1].x}"""
@@ -890,8 +890,16 @@ def output_svg(lines, regressions, requested_width, requested_height):
         }
     }
 //]]></script>"""
+
+    # Add a new element to each item in the 'lines' list: the label in string
+    # form.  Then use that element to sort the list.
+    sorted_lines = []
     for label, line in lines.items():
-        print '<g id=%s>' % qa(label)
+        sorted_lines.append([str(label), label, line])
+    sorted_lines.sort()
+
+    for label_as_string, label, line in sorted_lines:
+        print '<g id=%s>' % qa(label_as_string)
         r = 128
         g = 128
         b = 128
