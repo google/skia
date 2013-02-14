@@ -925,6 +925,8 @@ public:
     const SkRect& doComputeFastBounds(const SkRect& orig, SkRect* storage,
                                       Style) const;
 
+    SkDEVCODE(void toString(SkString*) const;)
+
 private:
     SkTypeface*     fTypeface;
     SkScalar        fTextSize;
