@@ -11,7 +11,7 @@
 #include "SkGLContext.h"
 
 #if defined(SK_BUILD_FOR_MAC)
-    #include <AGL/agl.h>
+    #include <OpenGL/OpenGL.h>
 #elif defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_NACL)
     #include <GLES2/gl2.h>
     #include <EGL/egl.h>
@@ -38,7 +38,7 @@ public:
 
     private:
     #if defined(SK_BUILD_FOR_MAC)
-        AGLContext fOldAGLContext;
+        CGLContextObj fOldCGLContext;
     #elif defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_NACL)
         EGLContext fOldEGLContext;
         EGLDisplay fOldDisplay;
@@ -62,7 +62,7 @@ protected:
 
 private:
 #if defined(SK_BUILD_FOR_MAC)
-    AGLContext fContext;
+    CGLContextObj fContext;
 #elif defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_NACL)
     EGLContext fContext;
     EGLDisplay fDisplay;
