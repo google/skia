@@ -93,13 +93,17 @@ SkString* SkObjectParser::IRectToString(const SkIRect& rect) {
 
 SkString* SkObjectParser::MatrixToString(const SkMatrix& matrix) {
     SkString* str = new SkString("SkMatrix: ");
+#ifdef SK_DEVELOPER
     matrix.toString(str);
+#endif
     return str;
 }
 
 SkString* SkObjectParser::PaintToString(const SkPaint& paint) {
     SkString* str = new SkString;
+#ifdef SK_DEVELOPER
     paint.toString(str);
+#endif
     return str;
 }
 
