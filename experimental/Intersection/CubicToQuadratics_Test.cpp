@@ -129,6 +129,9 @@ void CubicToQuadratics_Test() {
 }
 
 static Cubic locals[] = {
+{{0, 1}, {1.9274705288631189e-19, 1.0000000000000002}, {0.0017190297609673323, 0.99828097023903239},
+ {0.0053709083094631276, 0.99505672974365911}},
+
  {{14.5975863, 41.632436}, {16.3518929, 26.2639684}, {18.5165519, 7.68775139}, {8.03767257, 89.1628526}},
  {{69.7292014, 38.6877352}, {24.7648688, 23.1501713}, {84.9283191, 90.2588441}, {80.392774, 61.3533852}},
  {{
@@ -152,20 +155,31 @@ static size_t localsCount = sizeof(locals) / sizeof(locals[0]);
 #define TEST_AVERAGE_END_POINTS 0 // must take const off to test
 extern const bool AVERAGE_END_POINTS;
 
-void CubicsToQuadratics_RandTest() {
+static void oneOff(size_t x) {
+    const Cubic& cubic = locals[x];
+    const SkPoint skcubic[4] = {{(float) cubic[0].x, (float) cubic[0].y},
+            {(float) cubic[1].x, (float) cubic[1].y}, {(float) cubic[2].x, (float) cubic[2].y},
+            {(float) cubic[3].x, (float) cubic[3].y}};
+    SkScalar skinflect[2];
+    int skin = SkFindCubicInflections(skcubic, skinflect);
+    SkDebugf("%s %d %1.9g\n", __FUNCTION__, skin, skinflect[0]);
+    SkTDArray<Quadratic> quads;
+    double precision = calcPrecision(cubic);
+    (void) cubic_to_quadratics(cubic, precision, quads);
+    SkDebugf("%s quads=%d\n", __FUNCTION__, quads.count());
+}
+
+void CubicsToQuadratics_OneOffTests() {
     for (size_t x = 0; x < localsCount; ++x) {
-        const Cubic& cubic = locals[x];
-        const SkPoint skcubic[4] = {{(float) cubic[0].x, (float) cubic[0].y},
-                {(float) cubic[1].x, (float) cubic[1].y}, {(float) cubic[2].x, (float) cubic[2].y},
-                {(float) cubic[3].x, (float) cubic[3].y}};
-        SkScalar skinflect[2];
-        int skin = SkFindCubicInflections(skcubic, skinflect);
-        SkDebugf("%s %d %1.9g\n", __FUNCTION__, skin, skinflect[0]);
-        SkTDArray<Quadratic> quads;
-        double precision = calcPrecision(cubic);
-        (void) cubic_to_quadratics(cubic, precision, quads);
-        SkDebugf("%s quads=%d\n", __FUNCTION__, quads.count());
+        oneOff(x);
     }
+}
+
+void CubicsToQuadratics_OneOffTest() {
+    oneOff(0);
+}
+
+void CubicsToQuadratics_RandTest() {
     srand(0);
     const int arrayMax = 8;
     const int sampleMax = 10;

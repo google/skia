@@ -29,10 +29,8 @@ static void standardTestCases() {
             printf("[%d] quad2 order=%d\n", (int) index, order2);
         }
         if (order1 == 3 && order2 == 3) {
-            Intersections intersections, intersections2;
-            intersect(reduce1, reduce2, intersections);
-            intersect2(reduce1, reduce2, intersections2);
-            SkASSERT(intersections.used() == intersections2.used());
+            Intersections intersections;
+            intersect2(reduce1, reduce2, intersections);
             if (intersections.intersected()) {
                 for (int pt = 0; pt < intersections.used(); ++pt) {
                     double tt1 = intersections.fT[0][pt];
@@ -49,10 +47,6 @@ static void standardTestCases() {
                         printf("%s [%d,%d] y!= t1=%g (%g,%g) t2=%g (%g,%g)\n",
                             __FUNCTION__, (int)index, pt, tt1, tx1, ty1, tt2, tx2, ty2);
                     }
-                    tt1 = intersections2.fT[0][pt];
-                    SkASSERT(approximately_equal(intersections.fT[0][pt], tt1));
-                    tt2 = intersections2.fT[1][pt];
-                    SkASSERT(approximately_equal(intersections.fT[1][pt], tt2));
                 }
             }
         }
@@ -60,6 +54,20 @@ static void standardTestCases() {
 }
 
 static const Quadratic testSet[] = {
+{{0, 0}, {0.51851851851851849, 1.0185185185185186}, {1.2592592592592591, 1.9259259259259258}},
+{{1.2592592592592593, 1.9259259259259265}, {0.51851851851851893, 1.0185185185185195}, {0, 0}},
+
+  {{1.93281168,2.58856757}, {2.38543691,2.7096125}, {2.51967352,2.34531784}},
+  {{2.51967352,2.34531784}, {2.65263731,2.00639194}, {3.1212119,1.98608967}},
+  {{2.09544533,2.51981963}, {2.33331524,2.25252128}, {2.92003302,2.39442311}},
+
+
+{{0.924337655,1.94072717}, {1.25185043,1.52836494}, {1.71793901,1.06149951}},
+{{0.940798831,1.67439357}, {1.25988251,1.39778567}, {1.71791672,1.06650313}},
+
+  {{0.924337655,1.94072717}, {1.39158994,1.32418496}, {2.14967426,0.687365435}},
+  {{0.940798831,1.67439357}, {1.48941875,1.16280321}, {2.47884711,0.60465921}},
+
   {{1.7465749139282332,1.9930452039527999}, {1.8320006564080331,1.859481345189089}, {1.8731035127758437,1.6344055934266613}},
   {{1.8731035127758437,1.6344055934266613}, {1.89928170345231,1.5006405518943067}, {1.9223833226085514,1.3495796165215643}},
   {{1.74657491,1.9930452}, {1.87407679,1.76762853}, {1.92238332,1.34957962}},
@@ -149,8 +157,6 @@ static const Quadratic testSet[] = {
 
 const size_t testSetCount = sizeof(testSet) / sizeof(testSet[0]);
 
-#define ONE_OFF_DEBUG 1
-
 static void oneOffTest1(size_t outer, size_t inner) {
     const Quadratic& quad1 = testSet[outer];
     const Quadratic& quad2 = testSet[inner];
@@ -186,10 +192,7 @@ static void oneOffTest1(size_t outer, size_t inner) {
 }
 
 void QuadraticIntersection_OneOffTest() {
-    oneOffTest1(0, 3);
-    oneOffTest1(0, 4);
-    oneOffTest1(1, 3);
-    oneOffTest1(1, 4);
+    oneOffTest1(0, 1);
 }
 
 static void oneOffTests() {
@@ -216,6 +219,7 @@ static void coincidentTest() {
         Intersections intersections2;
         intersect2(quad1, quad2, intersections2);
         SkASSERT(intersections2.coincidentUsed() == 2);
+        SkASSERT(intersections2.used() == 2);
         for (int pt = 0; pt < intersections2.coincidentUsed(); ++pt) {
             double tt1 = intersections2.fT[0][pt];
             double tt2 = intersections2.fT[1][pt];
@@ -268,12 +272,12 @@ static void pointFinder(const Quadratic& q1, const Quadratic& q2) {
 
 static void hullIntersect(const Quadratic& q1, const Quadratic& q2) {
     SkDebugf("%s", __FUNCTION__);
-    double aRange[2], bRange[2];
+    Intersections ts;
     for (int i1 = 0; i1 < 3; ++i1) {
         _Line l1 = {q1[i1], q1[(i1 + 1) % 3]};
         for (int i2 = 0; i2 < 3; ++i2) {
             _Line l2 = {q2[i2], q2[(i2 + 1) % 3]};
-            if (intersect(l1, l2, aRange, bRange)) {
+            if (intersect(l1, l2, ts)) {
                 SkDebugf(" [%d,%d]", i1, i2);
             }
         }

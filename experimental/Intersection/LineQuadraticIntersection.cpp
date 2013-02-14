@@ -135,7 +135,9 @@ int intersect() {
         double quadT = rootVals[index];
         double lineT = findLineT(quadT);
         if (pinTs(quadT, lineT)) {
-            intersections.insert(quadT, lineT);
+            _Point pt;
+            xy_at_t(line, lineT, pt.x, pt.y);
+            intersections.insert(quadT, lineT, pt);
         }
     }
     return intersections.fUsed;
@@ -156,12 +158,12 @@ int horizontalIntersect(double axisIntercept, double left, double right, bool fl
     double rootVals[2];
     int roots = horizontalIntersect(axisIntercept, rootVals);
     for (int index = 0; index < roots; ++index) {
-        double x;
+        _Point pt;
         double quadT = rootVals[index];
-        xy_at_t(quad, quadT, x, *(double*) NULL);
-        double lineT = (x - left) / (right - left);
+        xy_at_t(quad, quadT, pt.x, pt.y);
+        double lineT = (pt.x - left) / (right - left);
         if (pinTs(quadT, lineT)) {
-            intersections.insert(quadT, lineT);
+            intersections.insert(quadT, lineT, pt);
         }
     }
     if (flipped) {
@@ -185,12 +187,12 @@ int verticalIntersect(double axisIntercept, double top, double bottom, bool flip
     double rootVals[2];
     int roots = verticalIntersect(axisIntercept, rootVals);
     for (int index = 0; index < roots; ++index) {
-        double y;
+        _Point pt;
         double quadT = rootVals[index];
-        xy_at_t(quad, quadT, *(double*) NULL, y);
-        double lineT = (y - top) / (bottom - top);
+        xy_at_t(quad, quadT, pt.x, pt.y);
+        double lineT = (pt.y - top) / (bottom - top);
         if (pinTs(quadT, lineT)) {
-            intersections.insert(quadT, lineT);
+            intersections.insert(quadT, lineT, pt);
         }
     }
     if (flipped) {
@@ -207,7 +209,7 @@ void addEndPoints()
     for (int qIndex = 0; qIndex < 3; qIndex += 2) {
         for (int lIndex = 0; lIndex < 2; lIndex++) {
             if (quad[qIndex] == line[lIndex]) {
-                intersections.insert(qIndex >> 1, lIndex);
+                intersections.insert(qIndex >> 1, lIndex, line[lIndex]);
             }
         }
     }
@@ -220,10 +222,10 @@ void addHorizontalEndPoints(double left, double right, double y)
             continue;
         }
         if (quad[qIndex].x == left) {
-            intersections.insert(qIndex >> 1, 0);
+            intersections.insert(qIndex >> 1, 0, quad[qIndex]);
         }
         if (quad[qIndex].x == right) {
-            intersections.insert(qIndex >> 1, 1);
+            intersections.insert(qIndex >> 1, 1, quad[qIndex]);
         }
     }
 }
@@ -235,10 +237,10 @@ void addVerticalEndPoints(double top, double bottom, double x)
             continue;
         }
         if (quad[qIndex].y == top) {
-            intersections.insert(qIndex >> 1, 0);
+            intersections.insert(qIndex >> 1, 0, quad[qIndex]);
         }
         if (quad[qIndex].y == bottom) {
-            intersections.insert(qIndex >> 1, 1);
+            intersections.insert(qIndex >> 1, 1, quad[qIndex]);
         }
     }
 }

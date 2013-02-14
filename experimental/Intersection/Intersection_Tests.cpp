@@ -14,14 +14,17 @@ void parseSVG();
 
 void Intersection_Tests() {
     int testsRun = 0;
+    SimplifyNew_Test();
     QuadraticIntersection_OneOffTest();
+    CubicsToQuadratics_OneOffTest();
     CubicIntersection_IntersectionFinder();
     CubicIntersection_OneOffTest();
+    CubicIntersection_OneOffTests();
+    QuadraticIntersection_OneOffTest();
   #if 0
     parseSVG();
   #endif
-    SimplifyNew_Test();
-    QuadraticIntersection_PointFinder();
+//    QuadraticIntersection_PointFinder();
     ShapeOps4x4CubicsThreaded_Test(testsRun);
     CubicToQuadratics_Test();
     QuadraticIntersection_Test();
@@ -62,7 +65,7 @@ void Intersection_Tests() {
     SimplifyRectangularPaths_Test();
     SimplifyQuadralateralPaths_Test();
 
-    ActiveEdge_Test();
+  //  ActiveEdge_Test();
 
     QuadraticCoincidence_Test();
     QuadraticIntersection_Test();

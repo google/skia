@@ -10,7 +10,9 @@
 #include <float.h> // for FLT_EPSILON
 #include <math.h> // for fabs, sqrt
 
-#include "SkTypes.h"
+#include "SkPoint.h"
+
+#define ONE_OFF_DEBUG 0 
 
 // FIXME: move these into SkTypes.h
 template <typename T> inline T SkTMax(T a, T b) {
@@ -33,27 +35,33 @@ int UlpsDiff(float A, float B);
 
 // FLT_EPSILON == 1.19209290E-07 == 1 / (2 ^ 23)
 const double FLT_EPSILON_CUBED = FLT_EPSILON * FLT_EPSILON * FLT_EPSILON;
+const double FLT_EPSILON_HALF = FLT_EPSILON / 2;
 const double FLT_EPSILON_SQUARED = FLT_EPSILON * FLT_EPSILON;
 const double FLT_EPSILON_SQRT = sqrt(FLT_EPSILON);
 const double FLT_EPSILON_INVERSE = 1 / FLT_EPSILON;
 
-inline bool approximately_zero(double x) {
+#ifdef SK_DEBUG
+const double ROUGH_EPSILON = FLT_EPSILON * 16;
+#endif
 
+inline bool approximately_zero(double x) {
     return fabs(x) < FLT_EPSILON;
 }
 
 inline bool precisely_zero(double x) {
-
     return fabs(x) < DBL_EPSILON;
 }
 
 inline bool approximately_zero(float x) {
-
     return fabs(x) < FLT_EPSILON;
 }
 
 inline bool approximately_zero_cubed(double x) {
     return fabs(x) < FLT_EPSILON_CUBED;
+}
+
+inline bool approximately_zero_half(double x) {
+    return fabs(x) < FLT_EPSILON_HALF;
 }
 
 inline bool approximately_zero_squared(double x) {
@@ -95,6 +103,10 @@ inline bool approximately_equal(double x, double y) {
     }
     return fabs(x - y) < (absX > absY ? absX : absY) * FLT_EPSILON;
 #endif
+}
+
+inline bool approximately_equal_half(double x, double y) {
+    return approximately_zero_half(x - y);
 }
 
 inline bool approximately_equal_squared(double x, double y) {
@@ -168,6 +180,12 @@ inline bool between(double a, double b, double c) {
     return (a - b) * (c - b) <= 0;
 }
 
+#ifdef SK_DEBUG
+inline bool roughly_equal(double x, double y) {
+    return fabs(x - y) < ROUGH_EPSILON;
+}
+#endif
+
 struct _Point {
     double x;
     double y;
@@ -209,21 +227,31 @@ struct _Point {
     // return approximately_equal(a.y, y) && approximately_equal(a.x, x);
     // because that will not take the magnitude of the values
     bool approximatelyEqual(const _Point& a) const {
-#if 0
-        return AlmostEqualUlps((float) x, (float) a.x)
-                && AlmostEqualUlps((float) y, (float) a.y);
-#else
         double denom = SkTMax(fabs(x), SkTMax(fabs(y), SkTMax(fabs(a.x), fabs(a.y))));
         if (denom == 0) {
             return true;
         }
         double inv = 1 / denom;
         return approximately_equal(x * inv, a.x * inv) && approximately_equal(y * inv, a.y * inv);
-#endif
+    }
+    
+    bool approximatelyEqualHalf(const _Point& a) const {
+        double denom = SkTMax(fabs(x), SkTMax(fabs(y), SkTMax(fabs(a.x), fabs(a.y))));
+        if (denom == 0) {
+            return true;
+        }
+        double inv = 1 / denom;
+        return approximately_equal_half(x * inv, a.x * inv)
+                && approximately_equal_half(y * inv, a.y * inv);
     }
 
     bool approximatelyZero() const {
         return approximately_zero(x) && approximately_zero(y);
+    }
+    
+    SkPoint asSkPoint() const {
+        SkPoint pt = {SkDoubleToScalar(x), SkDoubleToScalar(y)};
+        return pt;
     }
 
     double cross(const _Point& a) const {

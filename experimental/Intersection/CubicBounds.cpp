@@ -10,15 +10,13 @@
 
 static int isBoundedByEndPoints(double a, double b, double c, double d)
 {
-    return (a <= b && a <= c && b <= d && c <= d)
-            || (a >= b && a >= c && b >= d && c >= d);
+    return between(a, b, d) && between(a, c, d);
 }
 
 double leftMostT(const Cubic& cubic, double startT, double endT) {
     double leftTs[2];
     _Point pt[2];
-    int results = findExtrema(cubic[0].x, cubic[1].x, cubic[2].x, cubic[3].x,
-            leftTs);
+    int results = findExtrema(cubic[0].x, cubic[1].x, cubic[2].x, cubic[3].x, leftTs);
     int best = -1;
     for (int index = 0; index < results; ++index) {
         if (startT > leftTs[index] || leftTs[index] > endT) {
@@ -48,12 +46,10 @@ void _Rect::setBounds(const Cubic& cubic) {
     double tValues[4];
     int roots = 0;
     if (!isBoundedByEndPoints(cubic[0].x, cubic[1].x, cubic[2].x, cubic[3].x)) {
-        roots = findExtrema(cubic[0].x, cubic[1].x, cubic[2].x,
-                cubic[3].x, tValues);
+        roots = findExtrema(cubic[0].x, cubic[1].x, cubic[2].x, cubic[3].x, tValues);
     }
     if (!isBoundedByEndPoints(cubic[0].y, cubic[1].y, cubic[2].y, cubic[3].y)) {
-        roots += findExtrema(cubic[0].y, cubic[1].y, cubic[2].y,
-                cubic[3].y, &tValues[roots]);
+        roots += findExtrema(cubic[0].y, cubic[1].y, cubic[2].y, cubic[3].y, &tValues[roots]);
     }
     for (int x = 0; x < roots; ++x) {
         _Point result;

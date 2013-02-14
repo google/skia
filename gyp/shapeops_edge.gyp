@@ -19,6 +19,7 @@
         '../experimental/Intersection/CubicBezierClip.cpp',
         '../experimental/Intersection/CubicBezierClip_Test.cpp',
         '../experimental/Intersection/CubicBounds.cpp',
+        '../experimental/Intersection/CubicConvexHull.cpp',
         '../experimental/Intersection/CubicIntersection.cpp',
         '../experimental/Intersection/CubicIntersection_Test.cpp',
         '../experimental/Intersection/CubicIntersection_TestData.cpp',

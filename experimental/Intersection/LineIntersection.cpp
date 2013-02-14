@@ -7,6 +7,7 @@
 #include "CurveIntersection.h"
 #include "Intersections.h"
 #include "LineIntersection.h"
+#include "LineUtilities.h"
 
 /* Determine the intersection point of two lines. This assumes the lines are not parallel,
    and that that the lines are infinite.
@@ -25,13 +26,21 @@ void lineIntersect(const _Line& a, const _Line& b, _Point& p) {
     p.y = (term1 * byLen - ayLen * term2) / denom;
 }
 
+static int computePoints(const _Line& a, int used, Intersections& i) {
+    i.fPt[0] = xy_at_t(a, i.fT[0][0]);
+    if ((i.fUsed = used) == 2) {
+        i.fPt[1] = xy_at_t(a, i.fT[0][1]);
+    }
+    return i.fUsed;
+}
+
 /*
    Determine the intersection point of two line segments
    Return FALSE if the lines don't intersect
    from: http://paulbourke.net/geometry/lineline2d/
  */
 
-int intersect(const _Line& a, const _Line& b, double aRange[2], double bRange[2]) {
+int intersect(const _Line& a, const _Line& b, Intersections& i) {
     double axLen = a[1].x - a[0].x;
     double ayLen = a[1].y - a[0].y;
     double bxLen = b[1].x - b[0].x;
@@ -57,13 +66,10 @@ int intersect(const _Line& a, const _Line& b, double aRange[2], double bRange[2]
         if (mayNotOverlap) {
             return 0;
         }
-        if (aRange) {
-            aRange[0] = numerA;
-        }
-        if (bRange) {
-            bRange[0] = numerB;
-        }
-        return 1;
+        i.fT[0][0] = numerA;
+        i.fT[1][0] = numerB;
+        i.fPt[0] = xy_at_t(a, numerA);
+        return computePoints(a, 1, i);
     }
    /* See if the axis intercepts match:
               ay - ax * ayLen / axLen  ==          by - bx * ayLen / axLen
@@ -84,8 +90,6 @@ int intersect(const _Line& a, const _Line& b, double aRange[2], double bRange[2]
         aPtr = &a[0].y;
         bPtr = &b[0].y;
     }
-    SkASSERT(aRange);
-    SkASSERT(bRange);
     double a0 = aPtr[0];
     double a1 = aPtr[2];
     double b0 = bPtr[0];
@@ -98,27 +102,27 @@ int intersect(const _Line& a, const _Line& b, double aRange[2], double bRange[2]
         if (!between(b0, a0, b1)) {
             return 0;
         }
-        aRange[0] = aRange[1] = 0;
+        i.fT[0][0] = i.fT[0][1] = 0;
     } else {
         double at0 = (a0 - b0) / aDenom;
         double at1 = (a0 - b1) / aDenom;
         if ((at0 < 0 && at1 < 0) || (at0 > 1 && at1 > 1)) {
             return 0;
         }
-        aRange[0] = SkTMax(SkTMin(at0, 1.0), 0.0);
-        aRange[1] = SkTMax(SkTMin(at1, 1.0), 0.0);
+        i.fT[0][0] = SkTMax(SkTMin(at0, 1.0), 0.0);
+        i.fT[0][1] = SkTMax(SkTMin(at1, 1.0), 0.0);
     }
     double bDenom = b0 - b1;
     if (approximately_zero(bDenom)) {
-        bRange[0] = bRange[1] = 0;
+        i.fT[1][0] = i.fT[1][1] = 0;
     } else {
         int bIn = aDenom * bDenom < 0;
-        bRange[bIn] = SkTMax(SkTMin((b0 - a0) / bDenom, 1.0), 0.0);
-        bRange[!bIn] = SkTMax(SkTMin((b0 - a1) / bDenom, 1.0), 0.0);
+        i.fT[1][bIn] = SkTMax(SkTMin((b0 - a0) / bDenom, 1.0), 0.0);
+        i.fT[1][!bIn] = SkTMax(SkTMin((b0 - a1) / bDenom, 1.0), 0.0);
     }
-    bool second = fabs(aRange[0] - aRange[1]) > FLT_EPSILON;
-    SkASSERT((fabs(bRange[0] - bRange[1]) <= FLT_EPSILON) ^ second);
-    return 1 + second;
+    bool second = fabs(i.fT[0][0] - i.fT[0][1]) > FLT_EPSILON;
+    SkASSERT((fabs(i.fT[1][0] - i.fT[1][1]) <= FLT_EPSILON) ^ second);
+    return computePoints(a, 1 + second, i);
 }
 
 int horizontalIntersect(const _Line& line, double y, double tRange[2]) {
@@ -219,7 +223,7 @@ int horizontalIntersect(const _Line& line, double left, double right,
                     > FLT_EPSILON;
             SkASSERT((fabs(intersections.fT[1][0] - intersections.fT[1][1])
                     <= FLT_EPSILON) ^ second);
-            return 1 + second;
+            return computePoints(line, 1 + second, intersections);
         #endif
             break;
     }
@@ -229,7 +233,7 @@ int horizontalIntersect(const _Line& line, double left, double right,
             intersections.fT[1][index] = 1 - intersections.fT[1][index];
         }
     }
-    return result;
+    return computePoints(line, result, intersections);
 }
 
 static int verticalIntersect(const _Line& line, double x, double tRange[2]) {
@@ -308,7 +312,7 @@ int verticalIntersect(const _Line& line, double top, double bottom,
                     > FLT_EPSILON;
             SkASSERT((fabs(intersections.fT[1][0] - intersections.fT[1][1])
                     <= FLT_EPSILON) ^ second);
-            return 1 + second;
+            return computePoints(line, 1 + second, intersections);
         #endif
             break;
     }
@@ -318,7 +322,7 @@ int verticalIntersect(const _Line& line, double top, double bottom,
             intersections.fT[1][index] = 1 - intersections.fT[1][index];
         }
     }
-    return result;
+    return computePoints(line, result, intersections);
 }
 
 // from http://www.bryceboe.com/wordpress/wp-content/uploads/2006/10/intersect.py

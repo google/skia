@@ -125,3 +125,9 @@ void xy_at_t(const _Line& line, double t, double& x, double& y) {
         y = one_t * line[0].y + t * line[1].y;
     }
 }
+
+_Point xy_at_t(const _Line& line, double t) {
+    double one_t = 1 - t;
+    _Point result = { one_t * line[0].x + t * line[1].x, one_t * line[0].y + t * line[1].y };
+    return result;
+}

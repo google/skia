@@ -8,6 +8,7 @@
 #include "Intersection_Tests.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkStream.h"
 
@@ -103,8 +104,17 @@ void showPath(const SkPath& path, const char* str) {
     showPathContour(iter);
 }
 
-    const int bitWidth = 64;
-    const int bitHeight = 64;
+static void showPath(const SkPath& path, const char* str, const SkMatrix& scale) {
+    SkPath scaled;
+    SkMatrix inverse;
+    bool success = scale.invert(&inverse);
+    if (!success) SkASSERT(0);
+    path.transform(inverse, &scaled);
+    showPath(scaled, str);
+}
+
+const int bitWidth = 64;
+const int bitHeight = 64;
 
 static void scaleMatrix(const SkPath& one, const SkPath& two, SkMatrix& scale) {
     SkRect larger = one.getBounds();
@@ -249,19 +259,21 @@ int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap) {
 }
 
 static void showShapeOpPath(const SkPath& one, const SkPath& two, const SkPath& a, const SkPath& b,
-        const SkPath& scaledOne, const SkPath& scaledTwo, const ShapeOp shapeOp) {
+        const SkPath& scaledOne, const SkPath& scaledTwo, const ShapeOp shapeOp, 
+        const SkMatrix& scale) {
     SkASSERT((unsigned) shapeOp < sizeof(opStrs) / sizeof(opStrs[0]));
     showPath(a, "minuend:");
     SkDebugf("op: %s\n", opStrs[shapeOp]);
     showPath(b, "subtrahend:");
-    showPath(one, "region:");
+    showPath(scaledOne, "region:", scale);
     showPath(two, "op result:");
     drawAsciiPaths(scaledOne, scaledTwo, true);
 }
 
-int comparePaths(const SkPath& one, const SkPath& scaledOne, const SkPath& two,
+static int comparePaths(const SkPath& one, const SkPath& scaledOne, const SkPath& two,
         const SkPath& scaledTwo,
-        SkBitmap& bitmap, const SkPath& a, const SkPath& b, const ShapeOp shapeOp) {
+        SkBitmap& bitmap, const SkPath& a, const SkPath& b, const ShapeOp shapeOp,
+        const SkMatrix& scale) {
     int errors2x2;
     int errors = pathsDrawTheSame(bitmap, scaledOne, scaledTwo, errors2x2);
     if (errors2x2 == 0) {
@@ -269,11 +281,11 @@ int comparePaths(const SkPath& one, const SkPath& scaledOne, const SkPath& two,
     }
     const int MAX_ERRORS = 8;
     if (errors2x2 == MAX_ERRORS || errors2x2 == MAX_ERRORS - 1) {
-        showShapeOpPath(one, two, a, b, scaledOne, scaledTwo, shapeOp);
+        showShapeOpPath(one, two, a, b, scaledOne, scaledTwo, shapeOp, scale);
     }
     if (errors2x2 > MAX_ERRORS && gComparePathsAssert) {
         SkDebugf("%s errors=%d\n", __FUNCTION__, errors);
-        showShapeOpPath(one, two, a, b, scaledOne, scaledTwo, shapeOp);
+        showShapeOpPath(one, two, a, b, scaledOne, scaledTwo, shapeOp, scale);
         SkASSERT(0);
     }
     return errors2x2 > MAX_ERRORS ? errors2x2 : 0;
@@ -390,7 +402,7 @@ bool testShapeOp(const SkPath& a, const SkPath& b, const ShapeOp shapeOp) {
     SkPath scaledOut;
     scaledOut.addPath(out, scale);
     scaledOut.setFillType(out.getFillType());
-    int result = comparePaths(pathOut, scaledPathOut, out, scaledOut, bitmap, a, b, shapeOp);
+    int result = comparePaths(pathOut, scaledPathOut, out, scaledOut, bitmap, a, b, shapeOp, scale);
     if (result && gPathStrAssert) {
         SkASSERT(0);
     }
