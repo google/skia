@@ -126,7 +126,7 @@ static double test_single_gorilla(skiatest::Reporter* reporter, int shift) {
 
         int index = value & (kNumEntries-1);
         SkASSERT(index < kNumEntries);
-        int entry_shift = (value >> (kWordWidth-5)) & 0x3f;
+        int entry_shift = (value >> (kWordWidth-5)) & 0x1f;
         entries[index] |= (0x1 << entry_shift);
     }
 
@@ -146,10 +146,7 @@ static double test_single_gorilla(skiatest::Reporter* reporter, int shift) {
     // compute probability from normal distibution CDF
     double p = normal_cdf(z);
 
-    // this test is currently failing on android, but commenting it
-    // out causes more problems than it fixes due to -Werror, hence
-    // the true || weirdness.
-    REPORTER_ASSERT(reporter, true || (0.01 < p && p < 0.99));
+    REPORTER_ASSERT(reporter, 0.01 < p && p < 0.99);
     return p;
 }
 
@@ -160,10 +157,7 @@ static void test_gorilla(skiatest::Reporter* reporter) {
         p[bit_position] = test_single_gorilla(reporter, bit_position);
     }
 
-    // this test is currently unused, but commenting it out
-    // causes more problems than it fixes due to -Werror, hence
-    // the true || weirdness.
-    REPORTER_ASSERT(reporter, true || anderson_darling_test(p));
+    REPORTER_ASSERT(reporter, anderson_darling_test(p));
 }
 
 static void test_range(skiatest::Reporter* reporter) {
