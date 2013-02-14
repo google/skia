@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "CubicUtilities.h"
+#include "Extrema.h"
 #include "QuadraticUtilities.h"
 
 const int precisionUnit = 256; // FIXME: arbitrary -- should try different values in test framework
@@ -112,7 +113,8 @@ int cubicRootsReal(double A, double B, double C, double D, double s[3]) {
     bzero(str, sizeof(str));
     sprintf(str, "Solve[%1.19g x^3 + %1.19g x^2 + %1.19g x + %1.19g == 0, x]", A, B, C, D);
 #endif
-    if (approximately_zero_when_compared_to(A, B)
+    if (approximately_zero(A)
+            && approximately_zero_when_compared_to(A, B)
             && approximately_zero_when_compared_to(A, C)
             && approximately_zero_when_compared_to(A, D)) {  // we're just a quadratic
         return quadraticRootsReal(B, C, D, s);
@@ -235,6 +237,11 @@ void dxdy_at_t(const Cubic& cubic, double t, _Point& dxdy) {
     dxdy.y = derivativeAtT(&cubic[0].y, t);
 }
 
+_Point dxdy_at_t(const Cubic& cubic, double t) {
+    _Point result = { derivativeAtT(&cubic[0].x, t), derivativeAtT(&cubic[0].y, t) };
+    return result;
+}
+
 int find_cubic_inflections(const Cubic& src, double tValues[])
 {
     double Ax = src[1].x - src[0].x;
@@ -273,7 +280,29 @@ double secondDerivativeAtT(const double* cubic, double t) {
 }
 #endif
 
-void xy_at_t(const Cubic& cubic, double t, double& x, double& y) {
+_Point top(const Cubic& cubic, double startT, double endT) {
+    Cubic sub;
+    sub_divide(cubic, startT, endT, sub);
+    _Point topPt = sub[0];
+    if (topPt.y > sub[3].y || (topPt.y == sub[3].y && topPt.x > sub[3].x)) {
+        topPt = sub[3];
+    }
+    double extremeTs[2];
+    if (!between(sub[0].y, sub[1].y, sub[3].y) && !between(sub[0].y, sub[2].y, sub[3].y)) {
+        int roots = findExtrema(sub[0].y, sub[1].y, sub[2].y, sub[3].y, extremeTs);
+        for (int index = 0; index < roots; ++index) {
+            _Point mid;
+            double t = startT + (endT - startT) * extremeTs[index];
+            xy_at_t(cubic, t, mid.x, mid.y);
+            if (topPt.y > mid.y || (topPt.y == mid.y && topPt.x > mid.x)) {
+                topPt = mid;
+            }
+        }
+    }
+    return topPt;
+}
+
+_Point xy_at_t(const Cubic& cubic, double t) {
     double one_t = 1 - t;
     double one_t2 = one_t * one_t;
     double a = one_t2 * one_t;
@@ -281,10 +310,19 @@ void xy_at_t(const Cubic& cubic, double t, double& x, double& y) {
     double t2 = t * t;
     double c = 3 * one_t * t2;
     double d = t2 * t;
+    _Point result = {a * cubic[0].x + b * cubic[1].x + c * cubic[2].x + d * cubic[3].x,
+            a * cubic[0].y + b * cubic[1].y + c * cubic[2].y + d * cubic[3].y};
+    return result;
+}
+
+
+void xy_at_t(const Cubic& cubic, double t, double& x, double& y) {
+    _Point xy = xy_at_t(cubic, t);
     if (&x) {
-        x = a * cubic[0].x + b * cubic[1].x + c * cubic[2].x + d * cubic[3].x;
+        x = xy.x;
     }
     if (&y) {
-        y = a * cubic[0].y + b * cubic[1].y + c * cubic[2].y + d * cubic[3].y;
+        y = xy.y;
     }
 }
+

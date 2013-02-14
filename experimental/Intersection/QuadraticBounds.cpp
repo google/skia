@@ -8,11 +8,6 @@
 #include "CurveUtilities.h"
 #include "Extrema.h"
 
-static int isBoundedByEndPoints(double a, double b, double c)
-{
-    return (a <= b && b <= c) || (a >= b && b >= c);
-}
-
 double leftMostT(const Quadratic& quad, double startT, double endT) {
     double leftT;
     if (findExtrema(quad[0].x, quad[1].x, quad[2].x, &leftT)
@@ -31,12 +26,11 @@ void _Rect::setBounds(const Quadratic& quad) {
     add(quad[2]);
     double tValues[2];
     int roots = 0;
-    if (!isBoundedByEndPoints(quad[0].x, quad[1].x, quad[2].x)) {
+    if (!between(quad[0].x, quad[1].x, quad[2].x)) {
         roots = findExtrema(quad[0].x, quad[1].x, quad[2].x, tValues);
     }
-    if (!isBoundedByEndPoints(quad[0].y, quad[1].y, quad[2].y)) {
-        roots += findExtrema(quad[0].y, quad[1].y, quad[2].y,
-                &tValues[roots]);
+    if (!between(quad[0].y, quad[1].y, quad[2].y)) {
+        roots += findExtrema(quad[0].y, quad[1].y, quad[2].y, &tValues[roots]);
     }
     for (int x = 0; x < roots; ++x) {
         _Point result;

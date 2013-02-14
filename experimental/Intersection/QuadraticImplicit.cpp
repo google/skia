@@ -59,7 +59,8 @@ static int findRoots(const QuadImplicitForm& i, const Quadratic& q2, double root
     return quarticRootsReal(t4, t3, t2, t1, t0, roots);
 }
 
-static void addValidRoots(const double roots[4], const int count, const int side, Intersections& i) {
+static int addValidRoots(const double roots[4], const int count, double valid[4]) {
+    int result = 0;
     int index;
     for (index = 0; index < count; ++index) {
         if (!approximately_zero_or_more(roots[index]) || !approximately_one_or_less(roots[index])) {
@@ -71,8 +72,9 @@ static void addValidRoots(const double roots[4], const int count, const int side
         } else if (approximately_greater_than_one(t)) {
             t = 1;
         }
-        i.insertOne(t, side);
+        valid[result++] = t;
     }
+    return result;
 }
 
 static bool onlyEndPtsInCommon(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
@@ -106,7 +108,7 @@ static bool onlyEndPtsInCommon(const Quadratic& q1, const Quadratic& q2, Interse
         for (int i1 = 0; i1 < 3; i1 += 2) {
             for (int i2 = 0; i2 < 3; i2 += 2) {
                 if (q1[i1] == q2[i2]) {
-                    i.insert(i1 >> 1, i2 >> 1);
+                    i.insert(i1 >> 1, i2 >> 1, q1[i1]);
                 }
             }
         }
@@ -147,10 +149,10 @@ static bool addIntercept(const Quadratic& q1, const Quadratic& q2, double tMin, 
     }
     _Point pt2;
     xy_at_t(q1, rootTs.fT[0][0], pt2.x, pt2.y);
-    if (!pt2.approximatelyEqual(mid)) {
+    if (!pt2.approximatelyEqualHalf(mid)) {
         return false;
     }
-    i.add(rootTs.fT[0][0], tMid);
+    i.insertSwap(rootTs.fT[0][0], tMid, pt2);
     return true;
 }
 
@@ -281,11 +283,11 @@ static void relaxedIsLinear(const Quadratic& q1, const Quadratic& q2, Intersecti
         Intersections firstI, secondI;
         relaxedIsLinear(pair.first(), rounder, firstI);
         for (int index = 0; index < firstI.used(); ++index) {
-            i.insert(firstI.fT[0][index] * 0.5, firstI.fT[1][index]);
+            i.insert(firstI.fT[0][index] * 0.5, firstI.fT[1][index], firstI.fPt[index]);
         }
         relaxedIsLinear(pair.second(), rounder, secondI);
         for (int index = 0; index < secondI.used(); ++index) {
-            i.insert(0.5 + secondI.fT[0][index] * 0.5, secondI.fT[1][index]);
+            i.insert(0.5 + secondI.fT[0][index] * 0.5, secondI.fT[1][index], secondI.fPt[index]);
         }
     }
     if (m2 < m1) {
@@ -358,59 +360,60 @@ bool intersect2(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
         bool useVertical = fabs(q1[0].x - q1[2].x) < fabs(q1[0].y - q1[2].y);
         double t;
         if ((t = axialIntersect(q1, q2[0], useVertical)) >= 0) {
-            i.addCoincident(t, 0);
+            i.insertCoincident(t, 0, q2[0]);
         }
         if ((t = axialIntersect(q1, q2[2], useVertical)) >= 0) {
-            i.addCoincident(t, 1);
+            i.insertCoincident(t, 1, q2[2]);
         }
         useVertical = fabs(q2[0].x - q2[2].x) < fabs(q2[0].y - q2[2].y);
         if ((t = axialIntersect(q2, q1[0], useVertical)) >= 0) {
-            i.addCoincident(0, t);
+            i.insertCoincident(0, t, q1[0]);
         }
         if ((t = axialIntersect(q2, q1[2], useVertical)) >= 0) {
-            i.addCoincident(1, t);
+            i.insertCoincident(1, t, q1[2]);
         }
-        SkASSERT(i.fCoincidentUsed <= 2);
-        return i.fCoincidentUsed > 0;
+        SkASSERT(i.coincidentUsed() <= 2);
+        return i.coincidentUsed() > 0;
     }
-    double roots1[4], roots2[4];
+    int index;
     bool useCubic = q1[0] == q2[0] || q1[0] == q2[2] || q1[2] == q2[0];
+    double roots1[4];
     int rootCount = findRoots(i2, q1, roots1, useCubic);
     // OPTIMIZATION: could short circuit here if all roots are < 0 or > 1
+    double roots1Copy[4];
+    int r1Count = addValidRoots(roots1, rootCount, roots1Copy);
+    _Point pts1[4];
+    for (index = 0; index < r1Count; ++index) {
+        xy_at_t(q1, roots1Copy[index], pts1[index].x, pts1[index].y);
+    }
+    double roots2[4];
     int rootCount2 = findRoots(i1, q2, roots2, useCubic);
-    addValidRoots(roots1, rootCount, 0, i);
-    addValidRoots(roots2, rootCount2, 1, i);
-    if (i.insertBalanced() && i.fUsed <= 1) {
-        if (i.fUsed == 1) {
-            _Point xy1, xy2;
-            xy_at_t(q1, i.fT[0][0], xy1.x, xy1.y);
-            xy_at_t(q2, i.fT[1][0], xy2.x, xy2.y);
-            if (!xy1.approximatelyEqual(xy2)) {
-                --i.fUsed;
-                --i.fUsed2;
+    double roots2Copy[4];
+    int r2Count = addValidRoots(roots2, rootCount2, roots2Copy);
+    _Point pts2[4];
+    for (index = 0; index < r2Count; ++index) {
+        xy_at_t(q2, roots2Copy[index], pts2[index].x, pts2[index].y);
+    }
+    if (r1Count == r2Count && r1Count <= 1) {
+        if (r1Count == 1) {
+            if (pts1[0].approximatelyEqualHalf(pts2[0])) {
+                i.insert(roots1Copy[0], roots2Copy[0], pts1[0]);
             }
         }
         return i.intersected();
     }
-    _Point pts[4];
     int closest[4];
     double dist[4];
-    int index, ndex2;
-    for (ndex2 = 0; ndex2 < i.fUsed2; ++ndex2) {
-        xy_at_t(q2, i.fT[1][ndex2], pts[ndex2].x, pts[ndex2].y);
-    }
     bool foundSomething = false;
-    for (index = 0; index < i.fUsed; ++index) {
-        _Point xy;
-        xy_at_t(q1, i.fT[0][index], xy.x, xy.y);
+    for (index = 0; index < r1Count; ++index) {
         dist[index] = DBL_MAX;
         closest[index] = -1;
-        for (ndex2 = 0; ndex2 < i.fUsed2; ++ndex2) {
-            if (!pts[ndex2].approximatelyEqual(xy)) {
+        for (int ndex2 = 0; ndex2 < r2Count; ++ndex2) {
+            if (!pts2[ndex2].approximatelyEqualHalf(pts1[index])) {
                 continue;
             }
-            double dx = pts[ndex2].x - xy.x;
-            double dy = pts[ndex2].y - xy.y;
+            double dx = pts2[ndex2].x - pts1[index].x;
+            double dy = pts2[ndex2].y - pts1[index].y;
             double distance = dx * dx + dy * dy;
             if (dist[index] <= distance) {
                 continue;
@@ -431,18 +434,15 @@ bool intersect2(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
             ;
         }
     }
-    if (i.fUsed && i.fUsed2 && !foundSomething) {
+    if (r1Count && r2Count && !foundSomething) {
         relaxedIsLinear(q1, q2, i);
         return i.intersected();
     }
-    double roots1Copy[4], roots2Copy[4];
-    memcpy(roots1Copy, i.fT[0], i.fUsed * sizeof(double));
-    memcpy(roots2Copy, i.fT[1], i.fUsed2 * sizeof(double));
     int used = 0;
     do {
         double lowest = DBL_MAX;
         int lowestIndex = -1;
-        for (index = 0; index < i.fUsed; ++index) {
+        for (index = 0; index < r1Count; ++index) {
             if (closest[index] < 0) {
                 continue;
             }
@@ -454,11 +454,10 @@ bool intersect2(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
         if (lowestIndex < 0) {
             break;
         }
-        i.fT[0][used] = roots1Copy[lowestIndex];
-        i.fT[1][used] = roots2Copy[closest[lowestIndex]];
+        i.insert(roots1Copy[lowestIndex], roots2Copy[closest[lowestIndex]],
+                pts1[lowestIndex]);
         closest[lowestIndex] = -1;
-    } while (++used < i.fUsed);
-    i.fUsed = i.fUsed2 = used;
+    } while (++used < r1Count);
     i.fFlip = false;
     return i.intersected();
 }

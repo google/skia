@@ -149,11 +149,23 @@ void cubic_to_quadratics(const Cubic& cubic, double precision, SkTDArray<double>
     double inflectT[2];
     int inflections = find_cubic_inflections(cubic, inflectT);
     SkASSERT(inflections <= 2);
+    CubicPair pair;
+    if (inflections == 1) {
+        chop_at(cubic, pair, inflectT[0]);
+        int orderP1 = reduceOrder(pair.first(), reduced, kReduceOrder_NoQuadraticsAllowed);
+        if (orderP1 < 2) {
+            --inflections;
+        } else {
+            int orderP2 = reduceOrder(pair.second(), reduced, kReduceOrder_NoQuadraticsAllowed);
+            if (orderP2 < 2) {
+                --inflections;
+            }
+        }
+    }
     if (inflections == 0 && addSimpleTs(cubic, precision, ts)) {
         return;
     }
     if (inflections == 1) {
-        CubicPair pair;
         chop_at(cubic, pair, inflectT[0]);
         addTs(pair.first(), precision, 0, inflectT[0], ts);
         addTs(pair.second(), precision, inflectT[0], 1, ts);

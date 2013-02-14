@@ -205,10 +205,20 @@ int reduceOrder(const Cubic& cubic, Cubic& reduction, ReduceOrder_Flags allowQua
         }
     }
     for (index = 0; index < 4; ++index) {
-        if (AlmostEqualUlps(cubic[index].x, cubic[minX].x)) {
+        double cx = cubic[index].x;
+        double cy = cubic[index].y;
+        double denom = SkTMax(fabs(cx), SkTMax(fabs(cy),
+                SkTMax(fabs(cubic[minX].x), fabs(cubic[minY].y))));
+        if (denom == 0) {
+            minXSet |= 1 << index;
+            minYSet |= 1 << index;
+            continue;
+        }
+        double inv = 1 / denom;
+        if (approximately_equal_half(cx * inv, cubic[minX].x * inv)) {
             minXSet |= 1 << index;
         }
-        if (AlmostEqualUlps(cubic[index].y, cubic[minY].y)) {
+        if (approximately_equal_half(cy * inv, cubic[minY].y * inv)) {
             minYSet |= 1 << index;
         }
     }

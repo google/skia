@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "CubicUtilities.h"
+#include "Extrema.h"
 #include "QuadraticUtilities.h"
 #include "TriangleUtilities.h"
 
@@ -43,6 +44,27 @@ double nearestT(const Quadratic& quad, const _Point& pt) {
 
 bool point_in_hull(const Quadratic& quad, const _Point& pt) {
     return pointInTriangle((const Triangle&) quad, pt);
+}
+
+_Point top(const Quadratic& quad, double startT, double endT) {
+    Quadratic sub;
+    sub_divide(quad, startT, endT, sub);
+    _Point topPt = sub[0];
+    if (topPt.y > sub[2].y || (topPt.y == sub[2].y && topPt.x > sub[2].x)) {
+        topPt = sub[2];
+    }
+    if (!between(sub[0].y, sub[1].y, sub[2].y)) {
+        double extremeT;
+        if (findExtrema(sub[0].y, sub[1].y, sub[2].y, &extremeT)) {
+            extremeT = startT + (endT - startT) * extremeT;
+            _Point test;
+            xy_at_t(quad, extremeT, test.x, test.y);
+            if (topPt.y > test.y || (topPt.y == test.y && topPt.x > test.x)) {
+                topPt = test;
+            }
+        }
+    }
+    return topPt;
 }
 
 /*
