@@ -106,7 +106,9 @@ def parse_dir(directory, default_settings, oldest_revision, newest_revision,
     
     (str, {str, str}, Number, Number) -> {int:[BenchDataPoints]}"""
     revision_data_points = {} # {revision : [BenchDataPoints]}
-    for bench_file in os.listdir(directory):
+    file_list = os.listdir(directory)
+    file_list.sort()
+    for bench_file in file_list:
         file_name_match = re.match('bench_r(\d+)_(\S+)', bench_file)
         if (file_name_match is None):
             continue
