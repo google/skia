@@ -8,27 +8,31 @@
 
 #include "SkPaint.h"
 #include "SkAnnotation.h"
+#include "SkAutoKern.h"
 #include "SkColorFilter.h"
+#include "SkData.h"
 #include "SkDeviceProperties.h"
+#include "SkFontDescriptor.h"
 #include "SkFontHost.h"
+#include "SkGlyphCache.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
 #include "SkMaskGamma.h"
+#include "SkOrderedReadBuffer.h"
+#include "SkOrderedWriteBuffer.h"
+#include "SkPaintDefaults.h"
 #include "SkPathEffect.h"
 #include "SkRasterizer.h"
-#include "SkShader.h"
 #include "SkScalar.h"
 #include "SkScalerContext.h"
+#include "SkShader.h"
+#include "SkStringUtils.h"
 #include "SkStroke.h"
 #include "SkTextFormatParams.h"
 #include "SkTextToPathIter.h"
 #include "SkTypeface.h"
 #include "SkXfermode.h"
-#include "SkAutoKern.h"
-#include "SkGlyphCache.h"
-#include "SkPaintDefaults.h"
-#include "SkOrderedReadBuffer.h"
-#include "SkOrderedWriteBuffer.h"
+
 
 // define this to get a printf for out-of-range parameter in setters
 // e.g. setTextSize(-1)
@@ -2212,6 +2216,171 @@ const SkRect& SkPaint::doComputeFastBounds(const SkRect& origSrc,
 
     return *storage;
 }
+
+#ifdef SK_DEVELOPER
+void SkPaint::toString(SkString* str) const {
+    str->append("<dl><dt>SkPaint:</dt><dd><dl>");
+
+    SkTypeface* typeface = this->getTypeface();
+    if (NULL != typeface) {
+        SkDynamicMemoryWStream ostream;
+        typeface->serialize(&ostream);
+        SkAutoTUnref<SkData> data(ostream.copyToData());
+
+        SkMemoryStream stream(data);
+        SkFontDescriptor descriptor(&stream);
+
+        str->append("<dt>Font Family Name:</dt><dd>");
+        str->append(descriptor.getFamilyName());
+        str->append("</dd><dt>Font Full Name:</dt><dd>");
+        str->append(descriptor.getFullName());
+        str->append("</dd><dt>Font PS Name:</dt><dd>");
+        str->append(descriptor.getPostscriptName());
+        str->append("</dd><dt>Font File Name:</dt><dd>");
+        str->append(descriptor.getFontFileName());
+        str->append("</dd>");
+    }
+
+    str->append("<dt>TextSize:</dt><dd>");
+    str->appendScalar(this->getTextSize());
+    str->append("</dd>");
+
+    str->append("<dt>TextScaleX:</dt><dd>");
+    str->appendScalar(this->getTextScaleX());
+    str->append("</dd>");
+
+    str->append("<dt>TextSkewX:</dt><dd>");
+    str->appendScalar(this->getTextSkewX());
+    str->append("</dd>");
+
+    SkPathEffect* pathEffect = this->getPathEffect();
+    if (NULL != pathEffect) {
+        str->append("<dt>PathEffect:</dt><dd>");
+        str->append("</dd>");
+    }
+
+    SkShader* shader = this->getShader();
+    if (NULL != shader) {
+        str->append("<dt>Shader:</dt><dd>");
+        SkDEVCODE(shader->toString(str);)
+        str->append("</dd>");
+    }
+
+    SkXfermode* xfer = this->getXfermode();
+    if (NULL != xfer) {
+        str->append("<dt>Xfermode:</dt><dd>");
+        SkDEVCODE(xfer->toString(str);)
+        str->append("</dd>");
+    }
+
+    SkMaskFilter* maskFilter = this->getMaskFilter();
+    if (NULL != maskFilter) {
+        str->append("<dt>MaskFilter:</dt><dd>");
+        str->append("</dd>");
+    }
+
+    SkColorFilter* colorFilter = this->getColorFilter();
+    if (NULL != colorFilter) {
+        str->append("<dt>ColorFilter:</dt><dd>");
+        str->append("</dd>");
+    }
+
+    SkRasterizer* rasterizer = this->getRasterizer();
+    if (NULL != rasterizer) {
+        str->append("<dt>Rasterizer:</dt><dd>");
+        str->append("</dd>");
+    }
+
+    SkDrawLooper* looper = this->getLooper();
+    if (NULL != looper) {
+        str->append("<dt>DrawLooper:</dt><dd>");
+        SkDEVCODE(looper->toString(str);)
+        str->append("</dd>");
+    }
+
+    SkImageFilter* imageFilter = this->getImageFilter();
+    if (NULL != imageFilter) {
+        str->append("<dt>ImageFilter:</dt><dd>");
+        str->append("</dd>");
+    }
+
+    SkAnnotation* annotation = this->getAnnotation();
+    if (NULL != annotation) {
+        str->append("<dt>Annotation:</dt><dd>");
+        str->append("</dd>");
+    }
+
+    str->append("<dt>Color:</dt><dd>0x");
+    SkColor color = this->getColor();
+    str->appendHex(color);
+    str->append("</dd>");
+
+    str->append("<dt>Stroke Width:</dt><dd>");
+    str->appendScalar(this->getStrokeWidth());
+    str->append("</dd>");
+
+    str->append("<dt>Stroke Miter:</dt><dd>");
+    str->appendScalar(this->getStrokeMiter());
+    str->append("</dd>");
+
+    str->append("<dt>Flags:</dt><dd>(");
+    if (this->getFlags()) {
+        bool needSeparator = false;
+        SkAddFlagToString(str, this->isAntiAlias(), "AntiAlias", &needSeparator);
+        SkAddFlagToString(str, this->isFilterBitmap(), "FilterBitmap", &needSeparator);
+        SkAddFlagToString(str, this->isDither(), "Dither", &needSeparator);
+        SkAddFlagToString(str, this->isUnderlineText(), "UnderlineText", &needSeparator);
+        SkAddFlagToString(str, this->isStrikeThruText(), "StrikeThruText", &needSeparator);
+        SkAddFlagToString(str, this->isFakeBoldText(), "FakeBoldText", &needSeparator);
+        SkAddFlagToString(str, this->isLinearText(), "LinearText", &needSeparator);
+        SkAddFlagToString(str, this->isSubpixelText(), "SubpixelText", &needSeparator);
+        SkAddFlagToString(str, this->isDevKernText(), "DevKernText", &needSeparator);
+        SkAddFlagToString(str, this->isLCDRenderText(), "LCDRenderText", &needSeparator);
+        SkAddFlagToString(str, this->isEmbeddedBitmapText(),
+                          "EmbeddedBitmapText", &needSeparator);
+        SkAddFlagToString(str, this->isAutohinted(), "Autohinted", &needSeparator);
+        SkAddFlagToString(str, this->isVerticalText(), "VerticalText", &needSeparator);
+        SkAddFlagToString(str, SkToBool(this->getFlags() & SkPaint::kGenA8FromLCD_Flag),
+                          "GenA8FromLCD", &needSeparator);
+    } else {
+        str->append("None");
+    }
+    str->append(")</dd>");
+
+    str->append("<dt>TextAlign:</dt><dd>");
+    static const char* gTextAlignStrings[SkPaint::kAlignCount] = { "Left", "Center", "Right" };
+    str->append(gTextAlignStrings[this->getTextAlign()]);
+    str->append("</dd>");
+
+    str->append("<dt>CapType:</dt><dd>");
+    static const char* gStrokeCapStrings[SkPaint::kCapCount] = { "Butt", "Round", "Square" };
+    str->append(gStrokeCapStrings[this->getStrokeCap()]);
+    str->append("</dd>");
+
+    str->append("<dt>JoinType:</dt><dd>");
+    static const char* gJoinStrings[SkPaint::kJoinCount] = { "Miter", "Round", "Bevel" };
+    str->append(gJoinStrings[this->getStrokeJoin()]);
+    str->append("</dd>");
+
+    str->append("<dt>Style:</dt><dd>");
+    static const char* gStyleStrings[SkPaint::kStyleCount] = { "Fill", "Stroke", "StrokeAndFill" };
+    str->append(gStyleStrings[this->getStyle()]);
+    str->append("</dd>");
+
+    str->append("<dt>TextEncoding:</dt><dd>");
+    static const char* gTextEncodingStrings[] = { "UTF8", "UTF16", "UTF32", "GlyphID" };
+    str->append(gTextEncodingStrings[this->getTextEncoding()]);
+    str->append("</dd>");
+
+    str->append("<dt>Hinting:</dt><dd>");
+    static const char* gHintingStrings[] = { "None", "Slight", "Normal", "Full" };
+    str->append(gHintingStrings[this->getHinting()]);
+    str->append("</dd>");
+
+    str->append("</dd></dl></dl>");
+}
+#endif
+
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -338,7 +338,7 @@ void SkLayerDrawLooper::toString(SkString* str) const {
             str->append("false ");
         }
 
-        // TODO: add "rec->fPaint.toString(str);" when SkPaint::toString is added
+        rec->fPaint.toString(str);
         rec = rec->fNext;
     }
 }

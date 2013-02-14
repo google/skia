@@ -183,7 +183,7 @@ void SkComposeShader::toString(SkString* str) const {
     str->append(" ShaderB: ");
     fShaderB->toString(str);
     str->append(" Xfermode: ");
-    // TODO: add "fMode->toString(str);" once SkXfermode::toString is added
+    fMode->toString(str);
 
     this->INHERITED::toString(str);
 
