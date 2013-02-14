@@ -57,14 +57,15 @@ void GrGLProgram::Desc::setRandom(SkMWCRandom* random,
         fDualSrcOutput = kNone_DualSrcOutput;
     }
 
+    bool useOnce = false;
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (NULL != stages[s].getEffect()) {
             const GrBackendEffectFactory& factory = (*stages[s].getEffect())->getFactory();
             fEffectKeys[s] = factory.glEffectKey(stages[s], gpu->glCaps());
             // use separate tex coords?
-            if (random->nextBool()) {
-                int t = random->nextULessThan(GrDrawState::kMaxTexCoords);
-                fVertexLayout |= GrDrawState::StageTexCoordVertexLayoutBit(s, t);
+            if (!useOnce && random->nextBool()) {
+                fVertexLayout |= GrDrawState::StageTexCoordVertexLayoutBit(s);
+                useOnce = true;
             }
         }
     }

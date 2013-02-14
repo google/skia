@@ -72,8 +72,9 @@ void get_vertex_bounds(const void* vertices,
 
 void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
                                    const SkMatrix* matrix,
-                                   const GrRect* srcRects[],
-                                   const SkMatrix* srcMatrices[]) {
+                                   const GrRect* srcRect,
+                                   const SkMatrix* srcMatrix,
+                                   int stage) {
 
     GrVertexLayout layout = 0;
     GrDrawState::AutoColorRestore acr;
@@ -96,15 +97,9 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
     }
 
     uint32_t explicitCoordMask = 0;
-    if (NULL != srcRects) {
-        for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-            int numTC = 0;
-            if (NULL != srcRects[s]) {
-                layout |= GrDrawState::StageTexCoordVertexLayoutBit(s, numTC);
-                ++numTC;
-                explicitCoordMask |= (1 << s);
-            }
-        }
+    if (NULL != srcRect) {
+        layout |= GrDrawState::StageTexCoordVertexLayoutBit(stage);
+        explicitCoordMask = (1 << stage);
     }
 
     this->drawState()->setVertexLayout(layout);
@@ -122,7 +117,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         combinedMatrix.reset();
     }
     combinedMatrix.postConcat(this->drawState()->getViewMatrix());
-    // When the caller has provided an explicit source rects for a stage then we don't want to
+    // When the caller has provided an explicit source rect for a stage then we don't want to
     // modify that stage's matrix. Otherwise if the effect is generating its source rect from
     // the vertex positions then we have to account for the view matrix change.
     GrDrawState::AutoDeviceCoordDraw adcd(this->drawState(), explicitCoordMask);
@@ -147,11 +142,11 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
             GrAssert(0 != stageOffsets[i]);
             GrPoint* coords = GrTCast<GrPoint*>(GrTCast<intptr_t>(geo.vertices()) +
                                                 stageOffsets[i]);
-            coords->setRectFan(srcRects[i]->fLeft, srcRects[i]->fTop,
-                               srcRects[i]->fRight, srcRects[i]->fBottom,
+            coords->setRectFan(srcRect->fLeft, srcRect->fTop,
+                               srcRect->fRight, srcRect->fBottom,
                                vsize);
-            if (NULL != srcMatrices && NULL != srcMatrices[i]) {
-                srcMatrices[i]->mapPointsWithStride(coords, vsize, 4);
+            if (NULL != srcMatrix) {
+                srcMatrix->mapPointsWithStride(coords, vsize, 4);
             }
         } else {
             GrAssert(0 == stageOffsets[i]);

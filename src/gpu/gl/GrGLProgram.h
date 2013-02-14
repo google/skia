@@ -85,7 +85,7 @@ public:
     static int ColorAttributeIdx() { return 1; }
     static int CoverageAttributeIdx() { return 2; }
     static int EdgeAttributeIdx() { return 3; }
-    static int TexCoordAttributeIdx(int tcIdx) { return 4 + tcIdx; }
+    static int TexCoordAttributeIdx() { return 4; }
 
     /**
      * Some GL state that is relevant to programs is not stored per-program. In particular vertex
@@ -227,7 +227,6 @@ private:
 
     // Creates a GL program ID, binds shader attributes to GL vertex attrs, and links the program
     bool bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& builder,
-                                          SkString texCoordAttrNames[GrDrawState::kMaxTexCoords],
                                           bool bindColorOut,
                                           bool bindDualSrcOut);
 
