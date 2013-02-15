@@ -17,6 +17,9 @@ cd $(dirname $0)/../..
 # TODO: make it look in Release and/or Debug
 SKDIFF_BINARY=out/Debug/skdiff
 
+# Suffixes of all the raw bench data files we want to process.
+BENCHDATA_FILE_SUFFIXES="data_skp_device_bitmap_multi_2_mode_tile_256_256_timeIndividualTiles data_skp_device_bitmap_multi_3_mode_tile_256_256_timeIndividualTiles data_skp_device_bitmap_multi_4_mode_tile_256_256_timeIndividualTiles"
+
 # Compare contents of all files within directories $1 and $2,
 # EXCEPT for any dotfiles.
 # If there are any differences, a description is written to stdout and
@@ -76,6 +79,32 @@ skdiff_test "--nodiffs --match identical-bits $SKDIFF_TESTDIR/baseDir $SKDIFF_TE
 skdiff_test "--nodiffs --match identical-bits --match identical-pixels $SKDIFF_TESTDIR/baseDir $SKDIFF_TESTDIR/comparisonDir" "$SKDIFF_TESTDIR/identical-bits-or-pixels"
 
 
+# Download a subset of the raw bench data for platform $1 at revision $2.
+# If any of those files already exist locally, we assume that they are
+# correct and up to date, and we don't download them again.
+function benchgraph_download_rawdata {
+  if [ $# != 2 ]; then
+    echo "benchgraph_download_rawdata requires exactly 2 parameters, got $#"
+    exit 1
+  fi
+  PLATFORM="$1"
+  REV="$2"
+
+  PLATFORM_DIR="tools/tests/benchgraphs/$PLATFORM"
+  RAW_BENCH_DATA_DIR="$PLATFORM_DIR/raw-bench-data"
+  mkdir -p $RAW_BENCH_DATA_DIR
+
+  for FILE_SUFFIX in $BENCHDATA_FILE_SUFFIXES; do
+    FILE=bench_r${REV}_${FILE_SUFFIX}
+    DESTFILE=$RAW_BENCH_DATA_DIR/$FILE
+    if [ ! -f $DESTFILE ];
+    then
+      URL=http://chromium-skia-gm.commondatastorage.googleapis.com/playback/perfdata/${PLATFORM}/data/${FILE}
+      curl $URL --output $DESTFILE
+    fi
+  done
+}
+
 # Run bench_graph_svg.py across the data from platform $1,
 # writing its output to output-actual and comparing those results against
 # output-expected.
@@ -87,20 +116,11 @@ function benchgraph_test {
   PLATFORM="$1"
 
   PLATFORM_DIR="tools/tests/benchgraphs/$PLATFORM"
-  TARBALL_DIR="$PLATFORM_DIR/tarballs"
   RAW_BENCH_DATA_DIR="$PLATFORM_DIR/raw-bench-data"
   ACTUAL_OUTPUT_DIR="$PLATFORM_DIR/output-actual"
   EXPECTED_OUTPUT_DIR="$PLATFORM_DIR/output-expected"
 
-  # First, unpack raw bench data from tarballs.
-  # (The raw bench data files are large, so this saves space in our SVN repo.)
-  rm -rf $RAW_BENCH_DATA_DIR
-  mkdir -p $RAW_BENCH_DATA_DIR
-  for TARBALL in $TARBALL_DIR/*.tgz ; do
-    tar --extract --gunzip --directory $RAW_BENCH_DATA_DIR --file $TARBALL
-  done
-
-  # Now that we have the input files we need, run bench_graph_svg.py .
+  # Run bench_graph_svg.py .
   rm -rf $ACTUAL_OUTPUT_DIR
   mkdir -p $ACTUAL_OUTPUT_DIR
   COMMAND="python bench/bench_graph_svg.py -d $RAW_BENCH_DATA_DIR -r -150 -f -150 -x 1024 -y 768 -l Title -m 25th -o $ACTUAL_OUTPUT_DIR/graph.xhtml"
@@ -116,6 +136,9 @@ function benchgraph_test {
   compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
 }
 
+benchgraph_download_rawdata Skia_Shuttle_Ubuntu12_ATI5770_Float_Bench_32 7671
+benchgraph_download_rawdata Skia_Shuttle_Ubuntu12_ATI5770_Float_Bench_32 7679
+benchgraph_download_rawdata Skia_Shuttle_Ubuntu12_ATI5770_Float_Bench_32 7686
 benchgraph_test Skia_Shuttle_Ubuntu12_ATI5770_Float_Bench_32
 
 echo "All tests passed."
