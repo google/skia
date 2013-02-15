@@ -66,7 +66,7 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record, bool deepCop
     record.dumpPaints();
 #endif
 
-    record.validate();
+    record.validate(record.writeStream().size(), 0);
     const SkWriter32& writer = record.writeStream();
     init();
     if (writer.size() == 0) {
@@ -629,6 +629,25 @@ void SkPicturePlayback::postDraw(size_t offset) {
 }
 #endif
 
+/*
+ * Read the next op code and chunk size from 'reader'
+ */
+static DrawType read_op_and_size(SkReader32* reader, uint32_t* size) {
+    uint32_t temp = reader->readInt();
+    uint32_t op;
+    if (((uint8_t) temp) == temp) {
+        // old skp file - no size information
+        op = temp;
+        *size = 0;
+    } else {
+        UNPACK_8_24(temp, op, *size);
+        if (MASK_24 == *size) {
+            *size = reader->readInt();
+        }
+    }
+    return (DrawType) op;
+}
+
 void SkPicturePlayback::draw(SkCanvas& canvas) {
 #ifdef ENABLE_TIME_DRAW
     SkAutoTime  at("SkPicture::draw", 50);
@@ -694,9 +713,11 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
 #ifdef SK_DEVELOPER
         size_t curOffset = reader.offset();
 #endif
-        int type = reader.readInt();
+        uint32_t size;
+        DrawType op = read_op_and_size(&reader, &size);
 #ifdef SK_DEVELOPER
-        size_t skipTo = this->preDraw(curOffset, type);
+        // TODO: once chunk sizes are in all .skps just use "curOffset + size"
+        size_t skipTo = this->preDraw(curOffset, op);
         if (0 != skipTo) {
             if (kDrawComplete == skipTo) {
                 break;
@@ -705,16 +726,16 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
             continue;
         }
 #endif
-        switch (type) {
+        switch (op) {
             case CLIP_PATH: {
                 const SkPath& path = getPath(reader);
                 uint32_t packed = reader.readInt();
-                SkRegion::Op op = ClipParams_unpackRegionOp(packed);
+                SkRegion::Op regionOp = ClipParams_unpackRegionOp(packed);
                 bool doAA = ClipParams_unpackDoAA(packed);
                 size_t offsetToRestore = reader.readInt();
                 SkASSERT(!offsetToRestore || \
                     offsetToRestore >= reader.offset());
-                if (!canvas.clipPath(path, op, doAA) && offsetToRestore) {
+                if (!canvas.clipPath(path, regionOp, doAA) && offsetToRestore) {
 #ifdef SPEW_CLIP_SKIPPING
                     skipPath.recordSkip(offsetToRestore - reader.offset());
 #endif
@@ -724,11 +745,11 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
             case CLIP_REGION: {
                 const SkRegion& region = getRegion(reader);
                 uint32_t packed = reader.readInt();
-                SkRegion::Op op = ClipParams_unpackRegionOp(packed);
+                SkRegion::Op regionOp = ClipParams_unpackRegionOp(packed);
                 size_t offsetToRestore = reader.readInt();
                 SkASSERT(!offsetToRestore || \
                     offsetToRestore >= reader.offset());
-                if (!canvas.clipRegion(region, op) && offsetToRestore) {
+                if (!canvas.clipRegion(region, regionOp) && offsetToRestore) {
 #ifdef SPEW_CLIP_SKIPPING
                     skipRegion.recordSkip(offsetToRestore - reader.offset());
 #endif
@@ -738,12 +759,12 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
             case CLIP_RECT: {
                 const SkRect& rect = reader.skipT<SkRect>();
                 uint32_t packed = reader.readInt();
-                SkRegion::Op op = ClipParams_unpackRegionOp(packed);
+                SkRegion::Op regionOp = ClipParams_unpackRegionOp(packed);
                 bool doAA = ClipParams_unpackDoAA(packed);
                 size_t offsetToRestore = reader.readInt();
                 SkASSERT(!offsetToRestore || \
                          offsetToRestore >= reader.offset());
-                if (!canvas.clipRect(rect, op, doAA) && offsetToRestore) {
+                if (!canvas.clipRect(rect, regionOp, doAA) && offsetToRestore) {
 #ifdef SPEW_CLIP_SKIPPING
                     skipRect.recordSkip(offsetToRestore - reader.offset());
 #endif
@@ -754,12 +775,12 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 SkRRect rrect;
                 reader.readRRect(&rrect);
                 uint32_t packed = reader.readInt();
-                SkRegion::Op op = ClipParams_unpackRegionOp(packed);
+                SkRegion::Op regionOp = ClipParams_unpackRegionOp(packed);
                 bool doAA = ClipParams_unpackDoAA(packed);
                 size_t offsetToRestore = reader.readInt();
                 SkASSERT(!offsetToRestore || \
                          offsetToRestore >= reader.offset());
-                if (!canvas.clipRRect(rrect, op, doAA) && offsetToRestore) {
+                if (!canvas.clipRRect(rrect, regionOp, doAA) && offsetToRestore) {
 #ifdef SPEW_CLIP_SKIPPING
                     skipRRect.recordSkip(offsetToRestore - reader.offset());
 #endif
