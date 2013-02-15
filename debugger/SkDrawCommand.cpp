@@ -55,6 +55,7 @@ const char* SkDrawCommand::GetCommandString(DrawType type) {
         case SET_MATRIX: return "Set Matrix";
         case SKEW: return "Skew";
         case TRANSLATE: return "Translate";
+        case NOOP: return "NoOp";
         default:
             SkDebugf("DrawType error 0x%08x\n", type);
             SkASSERT(0);
