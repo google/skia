@@ -63,7 +63,7 @@ public:
         fIsCoincident[0] |= bit;
         fIsCoincident[1] |= bit;
     }
-    
+
     void insertCoincidentPair(double s1, double e1, double s2, double e2,
             const _Point& startPt, const _Point& endPt);
 
@@ -74,7 +74,7 @@ public:
             return insert(one, two, pt);
         }
     }
-    
+
     bool intersected() const {
         return fUsed > 0;
     }

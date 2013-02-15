@@ -325,4 +325,3 @@ void xy_at_t(const Cubic& cubic, double t, double& x, double& y) {
         y = xy.y;
     }
 }
-

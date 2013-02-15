@@ -12,7 +12,7 @@
 
 #include "SkPoint.h"
 
-#define ONE_OFF_DEBUG 0 
+#define ONE_OFF_DEBUG 0
 
 // FIXME: move these into SkTypes.h
 template <typename T> inline T SkTMax(T a, T b) {
@@ -234,7 +234,7 @@ struct _Point {
         double inv = 1 / denom;
         return approximately_equal(x * inv, a.x * inv) && approximately_equal(y * inv, a.y * inv);
     }
-    
+
     bool approximatelyEqualHalf(const _Point& a) const {
         double denom = SkTMax(fabs(x), SkTMax(fabs(y), SkTMax(fabs(a.x), fabs(a.y))));
         if (denom == 0) {
@@ -248,7 +248,7 @@ struct _Point {
     bool approximatelyZero() const {
         return approximately_zero(x) && approximately_zero(y);
     }
-    
+
     SkPoint asSkPoint() const {
         SkPoint pt = {SkDoubleToScalar(x), SkDoubleToScalar(y)};
         return pt;

@@ -113,16 +113,16 @@ public:
     /**
      * The format of vertices is represented as a bitfield of flags.
      * Flags that indicate the layout of vertex data. Vertices always contain
-     * positions and may also contain texture coordinates, per-vertex colors, 
+     * positions and may also contain texture coordinates, per-vertex colors,
      * and per-vertex coverage. Each stage can use any texture coordinates as
-     * its input texture coordinates or it may use the positions as texture 
+     * its input texture coordinates or it may use the positions as texture
      * coordinates.
      *
      * If no texture coordinates are specified for a stage then the stage is
      * disabled.
      *
-     * The order in memory is always (position, texture coords, color, coverage) 
-     * with any unused fields omitted. 
+     * The order in memory is always (position, texture coords, color, coverage)
+     * with any unused fields omitted.
      */
 
     /**
@@ -229,7 +229,7 @@ public:
 
     /**
      * Helper function to compute the size of each vertex and the offsets of
-     * texture coordinates and color. 
+     * texture coordinates and color.
      *
      * @param vertexLayout          the layout to query
      * @param texCoordOffset        after return it is the offset of the

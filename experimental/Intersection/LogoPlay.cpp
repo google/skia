@@ -351,4 +351,3 @@ void parseSVG() {
         data += 3;
     }
 }
-

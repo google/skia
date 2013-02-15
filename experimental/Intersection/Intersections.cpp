@@ -48,7 +48,7 @@ void Intersections::insertCoincidentPair(double s1, double e1, double s2, double
         SkASSERT(iEnd2 < fUsed);
         double cs2 = fT[fSwap ^ 1][i2];
         double ce2 = fT[fSwap ^ 1][iEnd2];
-        bool s2in = between(cs2, s2, ce2) || startPt.approximatelyEqual(fPt[i2]) 
+        bool s2in = between(cs2, s2, ce2) || startPt.approximatelyEqual(fPt[i2])
                 || startPt.approximatelyEqual(fPt[iEnd2]);
         bool e2in = between(cs2, e2, ce2) || endPt.approximatelyEqual(fPt[i2])
                 || endPt.approximatelyEqual(fPt[iEnd2]);

@@ -327,7 +327,7 @@ static bool intersectEnd(const Cubic& cubic1, bool start, const Cubic& cubic2, c
             cubic2, tMin, tMax, 1, i);
 }
 
-// this flavor centers potential intersections recursively. In contrast, '2' may inadvertently 
+// this flavor centers potential intersections recursively. In contrast, '2' may inadvertently
 // chase intersections near quadratic ends, requiring odd hacks to find them.
 static bool intersect3(const Cubic& cubic1, double t1s, double t1e, const Cubic& cubic2,
         double t2s, double t2e, double precisionScale, Intersections& i) {
