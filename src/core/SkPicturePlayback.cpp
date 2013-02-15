@@ -630,7 +630,11 @@ void SkPicturePlayback::postDraw(size_t offset) {
 #endif
 
 /*
- * Read the next op code and chunk size from 'reader'
+ * Read the next op code and chunk size from 'reader'. The returned size
+ * is the entire size of the chunk (including the opcode). Thus, the 
+ * offset just prior to calling read_op_and_size + 'size' is the offset
+ * to the next chunk's op code. This also means that the size of a chunk 
+ * with no arguments (just an opcode) will be 4.
  */
 static DrawType read_op_and_size(SkReader32* reader, uint32_t* size) {
     uint32_t temp = reader->readInt();
@@ -715,6 +719,12 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
 #endif
         uint32_t size;
         DrawType op = read_op_and_size(&reader, &size);
+        if (NOOP == op) {
+            // NOOPs are to be ignored - do not propagate them any further
+            reader.setOffset(curOffset+size);
+            continue;
+        }
+
 #ifdef SK_DEVELOPER
         // TODO: once chunk sizes are in all .skps just use "curOffset + size"
         size_t skipTo = this->preDraw(curOffset, op);
