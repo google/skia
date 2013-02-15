@@ -18,7 +18,11 @@ cd $(dirname $0)/../..
 SKDIFF_BINARY=out/Debug/skdiff
 
 # Suffixes of all the raw bench data files we want to process.
-BENCHDATA_FILE_SUFFIXES="data_skp_device_bitmap_multi_2_mode_tile_256_256_timeIndividualTiles data_skp_device_bitmap_multi_3_mode_tile_256_256_timeIndividualTiles data_skp_device_bitmap_multi_4_mode_tile_256_256_timeIndividualTiles"
+BENCHDATA_FILE_SUFFIXES=\
+"data_skp_device_bitmap_multi_2_mode_tile_256_256_timeIndividualTiles "\
+"data_skp_device_bitmap_multi_3_mode_tile_256_256_timeIndividualTiles "\
+"data_skp_device_bitmap_multi_4_mode_tile_256_256_timeIndividualTiles "\
+"data_skp_device_bitmap_mode_record_bbh_rtree"
 
 # Compare contents of all files within directories $1 and $2,
 # EXCEPT for any dotfiles.
@@ -100,6 +104,7 @@ function benchgraph_download_rawdata {
     if [ ! -f $DESTFILE ];
     then
       URL=http://chromium-skia-gm.commondatastorage.googleapis.com/playback/perfdata/${PLATFORM}/data/${FILE}
+      echo Downloading $URL ...
       curl $URL --output $DESTFILE
     fi
   done
@@ -136,9 +141,14 @@ function benchgraph_test {
   compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
 }
 
-benchgraph_download_rawdata Skia_Shuttle_Ubuntu12_ATI5770_Float_Bench_32 7671
-benchgraph_download_rawdata Skia_Shuttle_Ubuntu12_ATI5770_Float_Bench_32 7679
-benchgraph_download_rawdata Skia_Shuttle_Ubuntu12_ATI5770_Float_Bench_32 7686
-benchgraph_test Skia_Shuttle_Ubuntu12_ATI5770_Float_Bench_32
+# Parse a collection of bench data leading up to
+# http://70.32.156.53:10117/builders/Skia_Shuttle_Ubuntu12_ATI5770_Float_Bench_32/builds/878/steps/GenerateWebpagePictureBenchGraphs/logs/stdio
+# (this was during the period when the bench data included a ton of per-tile,
+# per-iteration data)
+PLATFORM=Skia_Shuttle_Ubuntu12_ATI5770_Float_Bench_32
+benchgraph_download_rawdata $PLATFORM 7671
+benchgraph_download_rawdata $PLATFORM 7679
+benchgraph_download_rawdata $PLATFORM 7686
+benchgraph_test $PLATFORM
 
 echo "All tests passed."
