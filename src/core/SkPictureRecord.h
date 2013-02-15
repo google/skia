@@ -19,6 +19,15 @@
 class SkPictureStateTree;
 class SkBBoxHierarchy;
 
+// These macros help with packing and unpacking a single byte value and
+// a 3 byte value into/out of a uint32_t
+#define MASK_24 0x00FFFFFF
+#define UNPACK_8_24(combined, small, large)             \
+    small = (combined >> 24) & 0xFF;                    \
+    large = combined & MASK_24;
+#define PACK_8_24(small, large) ((small << 24) | large)
+
+
 class SkPictureRecord : public SkCanvas {
 public:
     SkPictureRecord(uint32_t recordFlags, SkDevice*);
@@ -104,14 +113,41 @@ private:
         kNoSavedLayerIndex = -1
     };
 
-    void addDraw(DrawType drawType) {
+    /*
+     * Write the 'drawType' operation and chunk size to the skp. 'size'
+     * can potentially be increased if the chunk size needs its own storage 
+     * location (i.e., it overflows 24 bits).
+     * Returns the start offset of the chunk. This is the location at which
+     * the opcode & size are stored.
+     * TODO: since we are handing the size into here we could call reserve 
+     * and then return a pointer to the memory storage. This could decrease
+     * allocation overhead but could lead to more wasted space (the tail
+     * end of blocks could go unused). Possibly add a second addDraw that
+     * operates in this manner.
+     */
+    uint32_t addDraw(DrawType drawType, uint32_t* size) {
+        uint32_t offset = fWriter.size();
+
         this->predrawNotify();
 
-#ifdef SK_DEBUG_TRACE
+    #ifdef SK_DEBUG_TRACE
         SkDebugf("add %s\n", DrawTypeToString(drawType));
-#endif
-        fWriter.writeInt(drawType);
+    #endif
+
+        SkASSERT(0 != *size);
+        SkASSERT(((uint8_t) drawType) == drawType);
+
+        if (0 != (*size & ~MASK_24) || *size == MASK_24) {
+            fWriter.writeInt(PACK_8_24(drawType, MASK_24));
+            *size += 1;
+            fWriter.writeInt(*size);
+        } else {
+            fWriter.writeInt(PACK_8_24(drawType, *size));
+        }
+
+        return offset;
     }
+
     void addInt(int value) {
         fWriter.writeInt(value);
     }
@@ -160,7 +196,7 @@ public:
 
 #ifdef SK_DEBUG_VALIDATE
 public:
-    void validate() const;
+    void validate(uint32_t initialOffset, uint32_t size) const;
 private:
     void validateBitmaps() const;
     void validateMatrices() const;
@@ -169,7 +205,9 @@ private:
     void validateRegions() const;
 #else
 public:
-    void validate() const {}
+    void validate(uint32_t initialOffset, uint32_t size) const {
+        SkASSERT(fWriter.size() == initialOffset + size);
+    }
 #endif
 
 protected:
