@@ -352,8 +352,12 @@ void SkPictureRecord::recordRestoreOffsetPlaceholder(SkRegion::Op op) {
 }
 
 bool SkPictureRecord::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
-    // id + rect + clip params + restore offset
-    uint32_t size = 1 * kUInt32Size + sizeof(rect) + 2 * kUInt32Size;
+    // id + rect + clip params
+    uint32_t size = 1 * kUInt32Size + sizeof(rect) + 1 * kUInt32Size;
+    if (!fRestoreOffsetStack.isEmpty()) {
+        // + restore offset
+        size += kUInt32Size;
+    }
     uint32_t initialOffset = this->addDraw(CLIP_RECT, &size);
     addRect(rect);
     addInt(ClipParams_pack(op, doAA));
@@ -368,8 +372,12 @@ bool SkPictureRecord::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA
         return this->SkPictureRecord::clipRect(rrect.getBounds(), op, doAA);
     }
 
-    // op + rrect + clip params + restore offset
-    uint32_t size = 1 * kUInt32Size + SkRRect::kSizeInMemory + 2 * kUInt32Size;
+    // op + rrect + clip params
+    uint32_t size = 1 * kUInt32Size + SkRRect::kSizeInMemory + 1 * kUInt32Size;
+    if (!fRestoreOffsetStack.isEmpty()) {
+        // + restore offset
+        size += kUInt32Size;
+    }
     uint32_t initialOffset = this->addDraw(CLIP_RRECT, &size);
     addRRect(rrect);
     addInt(ClipParams_pack(op, doAA));
@@ -391,8 +399,12 @@ bool SkPictureRecord::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
         return this->clipRect(r, op, doAA);
     }
 
-    // op + path index + clip params + restore offset
-    uint32_t size = 4 * kUInt32Size;
+    // op + path index + clip params
+    uint32_t size = 3 * kUInt32Size;
+    if (!fRestoreOffsetStack.isEmpty()) {
+        // + restore offset
+        size += kUInt32Size;
+    }
     uint32_t initialOffset = this->addDraw(CLIP_PATH, &size);
     addPath(path);
     addInt(ClipParams_pack(op, doAA));
@@ -408,8 +420,12 @@ bool SkPictureRecord::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
 }
 
 bool SkPictureRecord::clipRegion(const SkRegion& region, SkRegion::Op op) {
-    // op + region index + clip params + restore offset
-    uint32_t size = 4 * kUInt32Size;
+    // op + region index + clip params
+    uint32_t size = 3 * kUInt32Size;
+    if (!fRestoreOffsetStack.isEmpty()) {
+        // + restore offset
+        size += kUInt32Size;
+    }
     uint32_t initialOffset = this->addDraw(CLIP_REGION, &size); 
     addRegion(region);
     addInt(ClipParams_pack(op, false));
