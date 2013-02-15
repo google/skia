@@ -2255,7 +2255,7 @@ public:
     bool done(const Angle* angle) const {
         return done(SkMin32(angle->start(), angle->end()));
     }
-    
+
     SkPoint dxdy(int index) const {
         return (*SegmentDXDYAtT[fVerb])(fPts, fTs[index].fT);
     }

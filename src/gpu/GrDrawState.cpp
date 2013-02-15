@@ -50,10 +50,10 @@ namespace {
 
 /**
  * This function generates a mask that we like to have known at compile
- * time. When the number of stages is bumped or the way bits are defined in 
- * GrDrawState.h changes this function should be rerun to generate the new mask. 
- * (We attempted to force the compiler to generate the mask using recursive 
- * templates but always wound up with static initializers under gcc, even if 
+ * time. When the number of stages is bumped or the way bits are defined in
+ * GrDrawState.h changes this function should be rerun to generate the new mask.
+ * (We attempted to force the compiler to generate the mask using recursive
+ * templates but always wound up with static initializers under gcc, even if
  * they were just a series of immediate->memory moves.)
  *
  */
@@ -97,7 +97,7 @@ size_t GrDrawState::VertexSize(GrVertexLayout vertexLayout) {
  *
  * Order of vertex components:
  * Position
- * Tex Coord 
+ * Tex Coord
  * Color
  * Coverage
  */

@@ -33,7 +33,7 @@ void SkNativeGLContext::destroyGLContext() {
 
 const GrGLInterface* SkNativeGLContext::createGLContext() {
     SkASSERT(NULL == fContext);
-    
+
     CGLPixelFormatAttribute attributes[] = {
 #if 0
         kCGLPFAOpenGLProfile, kCGLOGLPVersion_3_2_Core,
@@ -42,22 +42,22 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
     };
     CGLPixelFormatObj pixFormat;
     GLint npix;
-    
+
     CGLChoosePixelFormat(attributes, &pixFormat, &npix);
-    
+
     if (NULL == pixFormat) {
         SkDebugf("CGLChoosePixelFormat failed.");
         return NULL;
     }
-    
+
     CGLCreateContext(pixFormat, NULL, &fContext);
     CGLReleasePixelFormat(pixFormat);
-    
+
     if (NULL == fContext) {
         SkDebugf("CGLCreateContext failed.");
         return NULL;
     }
-    
+
     CGLSetCurrentContext(fContext);
 
     const GrGLInterface* interface = GrGLCreateNativeInterface();

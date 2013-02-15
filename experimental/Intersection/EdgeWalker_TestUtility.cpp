@@ -259,7 +259,7 @@ int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap) {
 }
 
 static void showShapeOpPath(const SkPath& one, const SkPath& two, const SkPath& a, const SkPath& b,
-        const SkPath& scaledOne, const SkPath& scaledTwo, const ShapeOp shapeOp, 
+        const SkPath& scaledOne, const SkPath& scaledTwo, const ShapeOp shapeOp,
         const SkMatrix& scale) {
     SkASSERT((unsigned) shapeOp < sizeof(opStrs) / sizeof(opStrs[0]));
     showPath(a, "minuend:");

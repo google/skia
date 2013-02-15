@@ -12,7 +12,7 @@
 
 #include "SkTypes.h"
 
-// These functions dump 0, 1, and 2d arrays of data in a format that's 
+// These functions dump 0, 1, and 2d arrays of data in a format that's
 // compatible with Mathematica for quick visualization
 
 
@@ -21,7 +21,7 @@ inline void SkDebugDumpMathematica( const T val ) {
     SkDEBUGFAIL("Need to specialize SkDebugDumpMathematica for your type, sorry.");
 }
 
-template<class T> 
+template<class T>
 inline void SkDebugDumpMathematica(const char *name, const T *array, int size) {
     SkDebugf(name);
     SkDebugf(" = {");
@@ -32,7 +32,7 @@ inline void SkDebugDumpMathematica(const char *name, const T *array, int size) {
     SkDebugf("};\n");
 }
 
-template<class T> 
+template<class T>
 inline void SkDebugDumpMathematica(const char *name, const T *array, int width, int height) {
     SkDebugf(name);
     SkDebugf(" = {\n");
@@ -52,7 +52,7 @@ inline void SkDebugDumpMathematica(const char *name, const T *array, int width, 
     SkDebugf("\n};\n");
 }
 
-template<class T> 
+template<class T>
 inline void SkDebugDumpMathematica( const char *name, const T val ) {
     SkDebugf(name);
     SkDebugf(" = ");
@@ -60,32 +60,32 @@ inline void SkDebugDumpMathematica( const char *name, const T val ) {
     SkDebugf(";\n");
 }
 
-template<> 
+template<>
 inline void SkDebugDumpMathematica<uint8_t>( const uint8_t val ) {
     SkDebugf("%u", val);
 }
 
-template<> 
+template<>
 inline void SkDebugDumpMathematica<unsigned int>( const unsigned int val ) {
     SkDebugf("%u", val);
 }
 
-template<> 
+template<>
 inline void SkDebugDumpMathematica<int>( const int val ) {
     SkDebugf("%d", val);
 }
 
-template<> 
+template<>
 inline void SkDebugDumpMathematica<size_t>( const size_t val ) {
     SkDebugf("%u", val);
 }
 
-template<> 
+template<>
 void SkDebugDumpMathematica<const char *>( const char * val ) {
     SkDebugf("%s", val);
 }
 
-template<> 
+template<>
 inline void SkDebugDumpMathematica<float>( float val ) {
     SkDebugf("%f", val);
 }
