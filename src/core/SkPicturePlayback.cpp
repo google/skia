@@ -714,9 +714,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
         }
 #endif
 
-#ifdef SK_DEVELOPER
         size_t curOffset = reader.offset();
-#endif
         uint32_t size;
         DrawType op = read_op_and_size(&reader, &size);
         if (NOOP == op) {
