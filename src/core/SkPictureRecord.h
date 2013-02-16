@@ -115,11 +115,11 @@ private:
 
     /*
      * Write the 'drawType' operation and chunk size to the skp. 'size'
-     * can potentially be increased if the chunk size needs its own storage 
+     * can potentially be increased if the chunk size needs its own storage
      * location (i.e., it overflows 24 bits).
      * Returns the start offset of the chunk. This is the location at which
      * the opcode & size are stored.
-     * TODO: since we are handing the size into here we could call reserve 
+     * TODO: since we are handing the size into here we could call reserve
      * and then return a pointer to the memory storage. This could decrease
      * allocation overhead but could lead to more wasted space (the tail
      * end of blocks could go unused). Possibly add a second addDraw that

@@ -631,9 +631,9 @@ void SkPicturePlayback::postDraw(size_t offset) {
 
 /*
  * Read the next op code and chunk size from 'reader'. The returned size
- * is the entire size of the chunk (including the opcode). Thus, the 
+ * is the entire size of the chunk (including the opcode). Thus, the
  * offset just prior to calling read_op_and_size + 'size' is the offset
- * to the next chunk's op code. This also means that the size of a chunk 
+ * to the next chunk's op code. This also means that the size of a chunk
  * with no arguments (just an opcode) will be 4.
  */
 static DrawType read_op_and_size(SkReader32* reader, uint32_t* size) {

@@ -85,7 +85,7 @@ int SkPictureRecord::saveLayer(const SkRect* bounds, const SkPaint* paint,
     fRestoreOffsetStack.push(-(int32_t)fWriter.size());
 
     // op + bool for 'bounds'
-    uint32_t size = 2 * kUInt32Size; 
+    uint32_t size = 2 * kUInt32Size;
     if (NULL != bounds) {
         size += sizeof(*bounds); // + rect
     }
@@ -127,7 +127,7 @@ static DrawType peek_op_and_size(SkWriter32* writer, int32_t offset, uint32_t* s
     UNPACK_8_24(*peek, op, *size);
     if (MASK_24 == *size) {
         // size required its own slot right after the op code
-        *size = *writer->peek32(offset+kUInt32Size);    
+        *size = *writer->peek32(offset+kUInt32Size);
     }
     return (DrawType) op;
 }
@@ -462,7 +462,7 @@ bool SkPictureRecord::clipRegion(const SkRegion& region, SkRegion::Op op) {
         // + restore offset
         size += kUInt32Size;
     }
-    uint32_t initialOffset = this->addDraw(CLIP_REGION, &size); 
+    uint32_t initialOffset = this->addDraw(CLIP_REGION, &size);
     addRegion(region);
     addInt(ClipParams_pack(op, false));
     recordRestoreOffsetPlaceholder(op);
@@ -565,7 +565,7 @@ void SkPictureRecord::drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar
 void SkPictureRecord::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
                             const SkRect& dst, const SkPaint* paint) {
     // id + paint index + bitmap index + bool for 'src'
-    uint32_t size = 4 * kUInt32Size; 
+    uint32_t size = 4 * kUInt32Size;
     if (NULL != src) {
         size += sizeof(*src);   // + rect
     }
@@ -593,7 +593,7 @@ void SkPictureRecord::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& m
 void SkPictureRecord::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
                                      const SkRect& dst, const SkPaint* paint) {
     // op + paint index + bitmap id + center + dst rect
-    uint32_t size = 3 * kUInt32Size + sizeof(center) + sizeof(dst); 
+    uint32_t size = 3 * kUInt32Size + sizeof(center) + sizeof(dst);
     uint32_t initialOffset = this->addDraw(DRAW_BITMAP_NINE, &size);
     addPaintPtr(paint);
     addBitmap(bitmap);
@@ -761,7 +761,7 @@ void SkPictureRecord::drawPosTextH(const void* text, size_t byteLength,
     // + y + the actual points
     size += 1 * kUInt32Size + points * sizeof(SkScalar);
 
-    uint32_t initialOffset = this->addDraw(fast ? DRAW_POS_TEXT_H_TOP_BOTTOM : DRAW_POS_TEXT_H, 
+    uint32_t initialOffset = this->addDraw(fast ? DRAW_POS_TEXT_H_TOP_BOTTOM : DRAW_POS_TEXT_H,
                                            &size);
     const SkFlatData* flatPaintData = addPaint(paint);
     SkASSERT(flatPaintData);
@@ -855,7 +855,7 @@ void SkPictureRecord::drawVertices(VertexMode vmode, int vertexCount,
 void SkPictureRecord::drawData(const void* data, size_t length) {
     // op + length + 'length' worth of data
     uint32_t size = 2 * kUInt32Size + SkAlign4(length);
-    uint32_t initialOffset = this->addDraw(DRAW_DATA, &size); 
+    uint32_t initialOffset = this->addDraw(DRAW_DATA, &size);
     addInt(length);
     fWriter.writePad(data, length);
     validate(initialOffset, size);
