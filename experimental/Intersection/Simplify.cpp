@@ -32,7 +32,7 @@ int gDebugMaxWindValue = SK_MaxS32;
 
 #define DEBUG_UNUSED 0 // set to expose unused functions
 
-#define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging
+#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging
 
 #if FORCE_RELEASE || defined SK_RELEASE
 
@@ -52,6 +52,7 @@ const bool gRunTestsInOneThread = false;
 #define DEBUG_PATH_CONSTRUCTION 0
 #define DEBUG_SHOW_WINDING 0
 #define DEBUG_SORT 0
+#define DEBUG_SWAP_TOP 1
 #define DEBUG_UNSORTABLE 0
 #define DEBUG_WIND_BUMP 0
 #define DEBUG_WINDING 0
@@ -75,6 +76,7 @@ const bool gRunTestsInOneThread = true;
 #define DEBUG_PATH_CONSTRUCTION 1
 #define DEBUG_SHOW_WINDING 0
 #define DEBUG_SORT 1
+#define DEBUG_SWAP_TOP 1
 #define DEBUG_UNSORTABLE 1
 #define DEBUG_WIND_BUMP 0
 #define DEBUG_WINDING 1
@@ -501,7 +503,7 @@ static SkPath::Verb QuadReduceOrder(const SkPoint a[3],
         SkTDArray<SkPoint>& reducePts) {
     MAKE_CONST_QUAD(aQuad, a);
     Quadratic dst;
-    int order = reduceOrder(aQuad, dst);
+    int order = reduceOrder(aQuad, dst, kReduceOrder_TreatAsFill);
     if (order == 2) { // quad became line
         for (int index = 0; index < order; ++index) {
             SkPoint* pt = reducePts.append();
@@ -516,7 +518,7 @@ static SkPath::Verb CubicReduceOrder(const SkPoint a[4],
         SkTDArray<SkPoint>& reducePts) {
     MAKE_CONST_CUBIC(aCubic, a);
     Cubic dst;
-    int order = reduceOrder(aCubic, dst, kReduceOrder_QuadraticsAllowed);
+    int order = reduceOrder(aCubic, dst, kReduceOrder_QuadraticsAllowed, kReduceOrder_TreatAsFill);
     if (order == 2 || order == 3) { // cubic became line or quad
         for (int index = 0; index < order; ++index) {
             SkPoint* pt = reducePts.append();
@@ -887,7 +889,7 @@ public:
 #if 1
             const Span& thisSpan = (*fSpans)[index];
             const Span& nextSpan = (*fSpans)[index + step];
-            if (thisSpan.fTiny || thisSpan.fT == nextSpan.fT) {
+            if (thisSpan.fTiny || precisely_equal(thisSpan.fT, nextSpan.fT)) {
                 continue;
             }
             fUnsortable = step > 0 ? thisSpan.fUnsortableStart : nextSpan.fUnsortableEnd;
@@ -2820,9 +2822,17 @@ public:
             endIndex = angle->start();
         } while (leftSegment->fTs[SkMin32(tIndex, endIndex)].fDone);
         if (leftSegment->verb() >= SkPath::kQuad_Verb) {
-            SkScalar dyE = leftSegment->dy(endIndex);
-            SkScalar dyS = leftSegment->dy(tIndex);
-            if (dyE < 0 && dyS > 0) {
+            SkPoint dxyE = leftSegment->dxdy(endIndex);
+            SkPoint dxyS = leftSegment->dxdy(tIndex);
+            double cross = dxyE.cross(dxyS);
+        #if DEBUG_SWAP_TOP
+            SkDebugf("%s dxyE=(%1.9g,%1.9g) dxyS=(%1.9g,%1.9g) cross=%1.9g\n", __FUNCTION__,
+                    dxyE.fX, dxyE.fY, dxyS.fX, dxyS.fY, cross);
+        #endif
+            if (cross >= 1) {
+        #if DEBUG_SWAP_TOP
+                SkDebugf("%s swap\n", __FUNCTION__);
+        #endif
                 SkTSwap(tIndex, endIndex);
             }
         }
@@ -3972,6 +3982,11 @@ the same winding is shared by both.
             const Span* span = &fTs[i];
             SkDebugf(") t=%1.9g (%1.9g,%1.9g)", fTs[i].fT,
                      xAtT(span), yAtT(span));
+            int iEnd = i + 1;
+            while (fTs[iEnd].fT < 1 && approximately_equal(fTs[i].fT, fTs[iEnd].fT)) {
+                ++iEnd;
+            }
+            SkDebugf(" tEnd=%1.9g", fTs[iEnd].fT);
             const Segment* other = fTs[i].fOther;
             SkDebugf(" other=%d otherT=%1.9g otherIndex=%d windSum=",
                     other->fID, fTs[i].fOtherT, fTs[i].fOtherIndex);

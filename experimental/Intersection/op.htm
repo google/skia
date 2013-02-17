@@ -3534,11 +3534,71 @@ path.addRect(4, 13, 13, 16, SkPath::kCCW_Direction);
     pathB.close();
 </div>
 
+<div id="cubicOp15d">
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(3,6, 2,0, 2,1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,2);
+    pathB.cubicTo(1,2, 1,0, 6,3);
+    pathB.close();
+</div>
+
+<div id="cubicOp16d">
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,2);
+    path.cubicTo(0,1, 3,0, 1,0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,3);
+    pathB.cubicTo(0,1, 2,0, 1,0);
+    pathB.close();
+</div>
+
+<div id="cubicOp17d">
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,2);
+    path.cubicTo(0,2, 4,0, 2,1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,4);
+    pathB.cubicTo(1,2, 2,0, 2,0);
+    pathB.close();
+</div>
+
+<div id="cubicOp18d">
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(3,5, 2,0, 2,1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,2);
+    pathB.cubicTo(1,2, 1,0, 5,3);
+    pathB.close();
+</div>
+
+<div id="cubicOp19i">
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,2);
+    path.cubicTo(0,1, 2,1, 6,2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1,2);
+    pathB.cubicTo(2,6, 2,0, 1,0);
+    pathB.close();
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    cubicOp19i,
+    cubicOp18d,
+    cubicOp17d,
+    cubicOp16d,
+    cubicOp15d,
     cubicOp14d,
     cubicOp13d,
     cubicOp12d,

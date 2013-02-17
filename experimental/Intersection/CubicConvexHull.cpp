@@ -54,11 +54,11 @@ bool intersect(double minT1, double maxT1, double minT2, double maxT2) {
     sub_divide(cubic1, minT1, maxT1, intersections.swapped() ? larger : smaller);
     sub_divide(cubic2, minT2, maxT2, intersections.swapped() ? smaller : larger);
     Cubic smallResult;
-    if (reduceOrder(smaller, smallResult,
-            kReduceOrder_NoQuadraticsAllowed) <= 2) {
+    if (reduceOrder(smaller, smallResult, kReduceOrder_NoQuadraticsAllowed,
+            kReduceOrder_TreatAsFill) <= 2) {
         Cubic largeResult;
-        if (reduceOrder(larger, largeResult,
-                kReduceOrder_NoQuadraticsAllowed) <= 2) {
+        if (reduceOrder(larger, largeResult, kReduceOrder_NoQuadraticsAllowed,
+                kReduceOrder_TreatAsFill) <= 2) {
             const _Line& smallLine = (const _Line&) smallResult;
             const _Line& largeLine = (const _Line&) largeResult;
             Intersections lineTs;

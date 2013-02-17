@@ -34,11 +34,13 @@ inline bool AlmostEqualUlps(double A, double B) { return AlmostEqualUlps((float)
 int UlpsDiff(float A, float B);
 
 // FLT_EPSILON == 1.19209290E-07 == 1 / (2 ^ 23)
+// DBL_EPSILON == 2.22045e-16
 const double FLT_EPSILON_CUBED = FLT_EPSILON * FLT_EPSILON * FLT_EPSILON;
 const double FLT_EPSILON_HALF = FLT_EPSILON / 2;
 const double FLT_EPSILON_SQUARED = FLT_EPSILON * FLT_EPSILON;
 const double FLT_EPSILON_SQRT = sqrt(FLT_EPSILON);
 const double FLT_EPSILON_INVERSE = 1 / FLT_EPSILON;
+const double DBL_EPSILON_ERR = DBL_EPSILON * 4; // tune -- allow a few bits of error
 
 #ifdef SK_DEBUG
 const double ROUGH_EPSILON = FLT_EPSILON * 16;
@@ -49,7 +51,7 @@ inline bool approximately_zero(double x) {
 }
 
 inline bool precisely_zero(double x) {
-    return fabs(x) < DBL_EPSILON;
+    return fabs(x) < DBL_EPSILON_ERR;
 }
 
 inline bool approximately_zero(float x) {
@@ -105,6 +107,10 @@ inline bool approximately_equal(double x, double y) {
 #endif
 }
 
+inline bool precisely_equal(double x, double y) {
+    return precisely_zero(x - y);
+}
+
 inline bool approximately_equal_half(double x, double y) {
     return approximately_zero_half(x - y);
 }
@@ -134,7 +140,7 @@ inline bool approximately_greater_than_one(double x) {
 }
 
 inline bool precisely_greater_than_one(double x) {
-    return x > 1 - DBL_EPSILON;
+    return x > 1 - DBL_EPSILON_ERR;
 }
 
 inline bool approximately_less_than_zero(double x) {
@@ -142,7 +148,7 @@ inline bool approximately_less_than_zero(double x) {
 }
 
 inline bool precisely_less_than_zero(double x) {
-    return x < DBL_EPSILON;
+    return x < DBL_EPSILON_ERR;
 }
 
 inline bool approximately_negative(double x) {
@@ -150,7 +156,7 @@ inline bool approximately_negative(double x) {
 }
 
 inline bool precisely_negative(double x) {
-    return x < DBL_EPSILON;
+    return x < DBL_EPSILON_ERR;
 }
 
 inline bool approximately_one_or_less(double x) {

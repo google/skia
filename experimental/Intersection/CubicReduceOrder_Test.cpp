@@ -46,49 +46,56 @@ void CubicReduceOrder_Test() {
 
     for (index = firstPointDegeneratesTest; index < pointDegenerates_count; ++index) {
         const Cubic& cubic = pointDegenerates[index];
-        order = reduceOrder(cubic, reduce, kReduceOrder_QuadraticsAllowed);
+        order = reduceOrder(cubic, reduce, kReduceOrder_QuadraticsAllowed,
+                kReduceOrder_TreatAsFill);
         if (order != 1) {
             SkDebugf("[%d] pointDegenerates order=%d\n", (int) index, order);
         }
     }
     for (index = firstNotPointDegeneratesTest; index < notPointDegenerates_count; ++index) {
         const Cubic& cubic = notPointDegenerates[index];
-        order = reduceOrder(cubic, reduce, kReduceOrder_QuadraticsAllowed);
+        order = reduceOrder(cubic, reduce, kReduceOrder_QuadraticsAllowed,
+                kReduceOrder_TreatAsFill);
         if (order == 1) {
             SkDebugf("[%d] notPointDegenerates order=%d\n", (int) index, order);
         }
     }
     for (index = firstLinesTest; index < lines_count; ++index) {
         const Cubic& cubic = lines[index];
-        order = reduceOrder(cubic, reduce, kReduceOrder_QuadraticsAllowed);
+        order = reduceOrder(cubic, reduce, kReduceOrder_QuadraticsAllowed,
+                kReduceOrder_TreatAsFill);
         if (order != 2) {
             SkDebugf("[%d] lines order=%d\n", (int) index, order);
         }
     }
     for (index = firstNotLinesTest; index < notLines_count; ++index) {
         const Cubic& cubic = notLines[index];
-        order = reduceOrder(cubic, reduce, kReduceOrder_QuadraticsAllowed);
+        order = reduceOrder(cubic, reduce, kReduceOrder_QuadraticsAllowed,
+                kReduceOrder_TreatAsFill);
         if (order == 2) {
             SkDebugf("[%d] notLines order=%d\n", (int) index, order);
         }
     }
     for (index = firstModEpsilonTest; index < modEpsilonLines_count; ++index) {
         const Cubic& cubic = modEpsilonLines[index];
-        order = reduceOrder(cubic, reduce, kReduceOrder_QuadraticsAllowed);
+        order = reduceOrder(cubic, reduce, kReduceOrder_QuadraticsAllowed,
+                kReduceOrder_TreatAsFill);
         if (order == 2) {
             SkDebugf("[%d] line mod by epsilon order=%d\n", (int) index, order);
         }
     }
     for (index = firstLessEpsilonTest; index < lessEpsilonLines_count; ++index) {
         const Cubic& cubic = lessEpsilonLines[index];
-        order = reduceOrder(cubic, reduce, kReduceOrder_QuadraticsAllowed);
+        order = reduceOrder(cubic, reduce, kReduceOrder_QuadraticsAllowed,
+                kReduceOrder_TreatAsFill);
         if (order != 2) {
             SkDebugf("[%d] line less by epsilon/2 order=%d\n", (int) index, order);
         }
     }
     for (index = firstNegEpsilonTest; index < negEpsilonLines_count; ++index) {
         const Cubic& cubic = negEpsilonLines[index];
-        order = reduceOrder(cubic, reduce, kReduceOrder_QuadraticsAllowed);
+        order = reduceOrder(cubic, reduce, kReduceOrder_QuadraticsAllowed,
+                kReduceOrder_TreatAsFill);
         if (order != 2) {
             SkDebugf("[%d] line neg by epsilon/2 order=%d\n", (int) index, order);
         }
@@ -97,7 +104,8 @@ void CubicReduceOrder_Test() {
         const Quadratic& quad = quadraticLines[index];
         Cubic cubic;
         quad_to_cubic(quad, cubic);
-        order = reduceOrder(cubic, reduce, kReduceOrder_QuadraticsAllowed);
+        order = reduceOrder(cubic, reduce, kReduceOrder_QuadraticsAllowed,
+                kReduceOrder_TreatAsFill);
         if (order != 2) {
             SkDebugf("[%d] line quad order=%d\n", (int) index, order);
         }
@@ -106,7 +114,8 @@ void CubicReduceOrder_Test() {
         const Quadratic& quad = quadraticModEpsilonLines[index];
         Cubic cubic;
         quad_to_cubic(quad, cubic);
-        order = reduceOrder(cubic, reduce, kReduceOrder_QuadraticsAllowed);
+        order = reduceOrder(cubic, reduce, kReduceOrder_QuadraticsAllowed,
+                kReduceOrder_TreatAsFill);
         if (order != 3) {
             SkDebugf("[%d] line mod quad order=%d\n", (int) index, order);
         }
@@ -116,7 +125,8 @@ void CubicReduceOrder_Test() {
     for (index = firstComputedLinesTest; index < lines_count; ++index) {
         const Cubic& cubic = lines[index];
         bool controlsInside = controls_inside(cubic);
-        order = reduceOrder(cubic, reduce, kReduceOrder_QuadraticsAllowed);
+        order = reduceOrder(cubic, reduce, kReduceOrder_QuadraticsAllowed,
+                kReduceOrder_TreatAsFill);
         if (reduce[0].x == reduce[1].x && reduce[0].y == reduce[1].y) {
             SkDebugf("[%d] line computed ends match order=%d\n", (int) index, order);
         }

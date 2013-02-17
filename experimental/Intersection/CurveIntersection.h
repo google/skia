@@ -26,13 +26,18 @@ void tangent(const _Line& line, _Point& result);
 void tangent(const Quadratic& quad, double t, _Point& result);
 
 // main functions
-enum ReduceOrder_Flags {
+enum ReduceOrder_Quadratics {
     kReduceOrder_NoQuadraticsAllowed,
     kReduceOrder_QuadraticsAllowed
 };
-int reduceOrder(const Cubic& cubic, Cubic& reduction, ReduceOrder_Flags );
+enum ReduceOrder_Styles {
+    kReduceOrder_TreatAsStroke,
+    kReduceOrder_TreatAsFill
+};
+int reduceOrder(const Cubic& cubic, Cubic& reduction, ReduceOrder_Quadratics ,
+        ReduceOrder_Styles );
 int reduceOrder(const _Line& line, _Line& reduction);
-int reduceOrder(const Quadratic& quad, Quadratic& reduction);
+int reduceOrder(const Quadratic& quad, Quadratic& reduction, ReduceOrder_Styles );
 int horizontalIntersect(const Cubic& cubic, double y, double tRange[3]);
 int horizontalIntersect(const Cubic& cubic, double left, double right, double y,
         double tRange[3]);

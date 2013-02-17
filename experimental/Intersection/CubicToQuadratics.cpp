@@ -102,7 +102,7 @@ int cubic_to_quadratics(const Cubic& cubic, double precision, SkTDArray<Quadrati
         Quadratic q1;
         demote_cubic_to_quad(part, q1);
         Quadratic s1;
-        int o1 = reduceOrder(q1, s1);
+        int o1 = reduceOrder(q1, s1, kReduceOrder_TreatAsFill);
         if (order < o1) {
             order = o1;
         }
@@ -142,7 +142,8 @@ static void addTs(const Cubic& cubic, double precision, double start, double end
 // it would still take the prechopped cubic for reduce order and find cubic inflections
 void cubic_to_quadratics(const Cubic& cubic, double precision, SkTDArray<double>& ts) {
     Cubic reduced;
-    int order = reduceOrder(cubic, reduced, kReduceOrder_QuadraticsAllowed);
+    int order = reduceOrder(cubic, reduced, kReduceOrder_QuadraticsAllowed,
+            kReduceOrder_TreatAsFill);
     if (order < 3) {
         return;
     }
@@ -152,11 +153,13 @@ void cubic_to_quadratics(const Cubic& cubic, double precision, SkTDArray<double>
     CubicPair pair;
     if (inflections == 1) {
         chop_at(cubic, pair, inflectT[0]);
-        int orderP1 = reduceOrder(pair.first(), reduced, kReduceOrder_NoQuadraticsAllowed);
+        int orderP1 = reduceOrder(pair.first(), reduced, kReduceOrder_NoQuadraticsAllowed,
+                kReduceOrder_TreatAsFill);
         if (orderP1 < 2) {
             --inflections;
         } else {
-            int orderP2 = reduceOrder(pair.second(), reduced, kReduceOrder_NoQuadraticsAllowed);
+            int orderP2 = reduceOrder(pair.second(), reduced, kReduceOrder_NoQuadraticsAllowed,
+                    kReduceOrder_TreatAsFill);
             if (orderP2 < 2) {
                 --inflections;
             }

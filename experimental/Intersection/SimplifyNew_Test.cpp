@@ -3767,12 +3767,82 @@ static void cubicOp14d() {
     testShapeOp(path, pathB, kDifference_Op);
 }
 
-static void (*firstTest)() = 0;
+static void cubicOp15d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(3,6, 2,0, 2,1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,2);
+    pathB.cubicTo(1,2, 1,0, 6,3);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp16d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,2);
+    path.cubicTo(0,1, 3,0, 1,0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,3);
+    pathB.cubicTo(0,1, 2,0, 1,0);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp17d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,2);
+    path.cubicTo(0,2, 4,0, 2,1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,4);
+    pathB.cubicTo(1,2, 2,0, 2,0);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp18d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(3,5, 2,0, 2,1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,2);
+    pathB.cubicTo(1,2, 1,0, 5,3);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp19i() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,2);
+    path.cubicTo(0,1, 2,1, 6,2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1,2);
+    pathB.cubicTo(2,6, 2,0, 1,0);
+    pathB.close();
+    testShapeOp(path, pathB, kIntersect_Op);
+}
+
+static void (*firstTest)() = cubicOp19i;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(cubicOp19i),
+    TEST(cubicOp18d),
+    TEST(cubicOp17d),
+    TEST(cubicOp16d),
+    TEST(cubicOp15d),
     TEST(cubicOp14d),
     TEST(cubicOp13d),
     TEST(cubicOp12d),

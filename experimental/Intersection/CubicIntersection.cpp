@@ -17,6 +17,7 @@ static const double tLimits[2][2] = {{0.516980827, 0.516981209}, {0.647714088, 0
 #endif
 
 #define DEBUG_QUAD_PART 0
+#define SWAP_TOP_DEBUG 0
 
 static int quadPart(const Cubic& cubic, double tStart, double tEnd, Quadratic& simple) {
     Cubic part;
@@ -25,7 +26,7 @@ static int quadPart(const Cubic& cubic, double tStart, double tEnd, Quadratic& s
     demote_cubic_to_quad(part, quad);
     // FIXME: should reduceOrder be looser in this use case if quartic is going to blow up on an
     // extremely shallow quadratic?
-    int order = reduceOrder(quad, simple);
+    int order = reduceOrder(quad, simple, kReduceOrder_TreatAsFill);
 #if DEBUG_QUAD_PART
     SkDebugf("%s cubic=(%1.17g,%1.17g %1.17g,%1.17g %1.17g,%1.17g %1.17g,%1.17g) t=(%1.17g,%1.17g)\n",
             __FUNCTION__, cubic[0].x, cubic[0].y, cubic[1].x, cubic[1].y, cubic[2].x, cubic[2].y,
@@ -148,7 +149,9 @@ static bool doIntersect(const Cubic& cubic1, double t1s, double t1m, double t1e,
                     result = doIntersect(cubic1, p1s, to1, p1e, cubic2, p2s, to2, p2e, i);
                     if (!result && p1.approximatelyEqual(p2)) {
                         i.insertSwap(to1, to2, p1);
+        #if SWAP_TOP_DEBUG
                         SkDebugf("!!!\n");
+        #endif
                         result = true;
                     } else
                     // if both cubics curve in the same direction, the quadratic intersection
@@ -444,6 +447,25 @@ bool intersect2(const Cubic& c1, const Cubic& c2, Intersections& i) {
     return result;
 }
 
+const double CLOSE_ENOUGH = 0.001;
+    
+static bool closeStart(const Cubic& cubic, int cubicIndex, Intersections& i, _Point& pt) {
+    if (i.fT[cubicIndex][0] != 0 || i.fT[cubicIndex][1] > CLOSE_ENOUGH) {
+        return false;
+    }
+    pt = xy_at_t(cubic, (i.fT[cubicIndex][0] + i.fT[cubicIndex][1]) / 2);
+    return true;
+}
+
+static bool closeEnd(const Cubic& cubic, int cubicIndex, Intersections& i, _Point& pt) {
+    int last = i.used() - 1;
+    if (i.fT[cubicIndex][last] != 1 || i.fT[cubicIndex][last - 1] < 1 - CLOSE_ENOUGH) {
+        return false;
+    }
+    pt = xy_at_t(cubic, (i.fT[cubicIndex][last] + i.fT[cubicIndex][last - 1]) / 2);
+    return true;
+}
+
 bool intersect3(const Cubic& c1, const Cubic& c2, Intersections& i) {
     bool result = intersect3(c1, 0, 1, c2, 0, 1, 1, i);
     // FIXME: pass in cached bounds from caller
@@ -456,6 +478,21 @@ bool intersect3(const Cubic& c1, const Cubic& c2, Intersections& i) {
     result |= intersectEnd(c2, false, c1, c1Bounds, i);
     result |= intersectEnd(c2, true, c1, c1Bounds, i);
     i.swap();
+    // If an end point and a second point very close to the end is returned, the second
+    // point may have been detected because the approximate quads
+    // intersected at the end and close to it. Verify that the second point is valid.
+    if (i.used() <= 1 || i.coincidentUsed()) {
+        return result;
+    }
+    _Point pt[2];
+    if (closeStart(c1, 0, i, pt[0]) && closeStart(c2, 1, i, pt[1])
+            && pt[0].approximatelyEqual(pt[1])) {
+        i.removeOne(1);
+    }
+    if (closeEnd(c1, 0, i, pt[0]) && closeEnd(c2, 1, i, pt[1])
+            && pt[0].approximatelyEqual(pt[1])) {
+        i.removeOne(i.used() - 2);
+    }
     return result;
 }
 

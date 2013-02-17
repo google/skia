@@ -232,3 +232,13 @@ void xy_at_t(const Quadratic& quad, double t, double& x, double& y) {
         y = a * quad[0].y + b * quad[1].y + c * quad[2].y;
     }
 }
+
+_Point xy_at_t(const Quadratic& quad, double t) {
+    double one_t = 1 - t;
+    double a = one_t * one_t;
+    double b = 2 * one_t * t;
+    double c = t * t;
+    _Point result = { a * quad[0].x + b * quad[1].x + c * quad[2].x,
+            a * quad[0].y + b * quad[1].y + c * quad[2].y };
+    return result;
+}

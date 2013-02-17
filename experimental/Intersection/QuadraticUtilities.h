@@ -38,5 +38,6 @@ int quadraticRootsValidT(const double A, const double B, const double C, double 
 void sub_divide(const Quadratic& src, double t1, double t2, Quadratic& dst);
 _Point top(const Quadratic& , double startT, double endT);
 void xy_at_t(const Quadratic& , double t, double& x, double& y);
+_Point xy_at_t(const Quadratic& , double t);
 
 #endif

@@ -20,8 +20,8 @@ static void standardTestCases() {
         const Quadratic& quad1 = quadraticTests[index][0];
         const Quadratic& quad2 = quadraticTests[index][1];
         Quadratic reduce1, reduce2;
-        int order1 = reduceOrder(quad1, reduce1);
-        int order2 = reduceOrder(quad2, reduce2);
+        int order1 = reduceOrder(quad1, reduce1, kReduceOrder_TreatAsFill);
+        int order2 = reduceOrder(quad2, reduce2, kReduceOrder_TreatAsFill);
         if (order1 < 3) {
             printf("[%d] quad1 order=%d\n", (int) index, order1);
         }
@@ -54,6 +54,9 @@ static void standardTestCases() {
 }
 
 static const Quadratic testSet[] = {
+  {{1.64451042,0.0942001592}, {1.53635465,0.00152863961}, {1,0}},
+  {{1.27672209,0.15}, {1.32143477,9.25185854e-17}, {1,0}},
+
 {{0, 0}, {0.51851851851851849, 1.0185185185185186}, {1.2592592592592591, 1.9259259259259258}},
 {{1.2592592592592593, 1.9259259259259265}, {0.51851851851851893, 1.0185185185185195}, {0, 0}},
 
@@ -293,3 +296,96 @@ void QuadraticIntersection_PointFinder() {
     hullIntersect(pointFinderTestSet[0], pointFinderTestSet[4]);
     hullIntersect(pointFinderTestSet[0], pointFinderTestSet[6]);
 }
+
+void QuadraticIntersection_IntersectionFinder() {
+    const Quadratic& quad1 = testSet[0];
+    const Quadratic& quad2 = testSet[1];
+
+    double t1Seed = 0.98;
+    double t2Seed = 0.97;
+    double t1Step = 0.05;
+    double t2Step = 0.05;
+    _Point t1[3], t2[3];
+    bool toggle = true;
+    do {
+        xy_at_t(quad1, t1Seed - t1Step, t1[0].x, t1[0].y);
+        xy_at_t(quad1, t1Seed,          t1[1].x, t1[1].y);
+        xy_at_t(quad1, t1Seed + t1Step, t1[2].x, t1[2].y);
+        xy_at_t(quad2, t2Seed - t2Step, t2[0].x, t2[0].y);
+        xy_at_t(quad2, t2Seed,          t2[1].x, t2[1].y);
+        xy_at_t(quad2, t2Seed + t2Step, t2[2].x, t2[2].y);
+        double dist[3][3];
+        dist[1][1] = t1[1].distance(t2[1]);
+        int best_i = 1, best_j = 1;
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                if (i == 1 && j == 1) {
+                    continue;
+                }
+                dist[i][j] = t1[i].distance(t2[j]);
+                if (dist[best_i][best_j] > dist[i][j]) {
+                    best_i = i;
+                    best_j = j;
+                }
+            }
+        }
+        if (best_i == 0) {
+            t1Seed -= t1Step;
+        } else if (best_i == 2) {
+            t1Seed += t1Step;
+        }
+        if (best_j == 0) {
+            t2Seed -= t2Step;
+        } else if (best_j == 2) {
+            t2Seed += t2Step;
+        }
+        if (best_i == 1 && best_j == 1) {
+            if ((toggle ^= true)) {
+                t1Step /= 2;
+            } else {
+                t2Step /= 2;
+            }
+        }
+    } while (!t1[1].approximatelyEqual(t2[1]));
+    t1Step = t2Step = 0.1;
+    double t10 = t1Seed - t1Step * 2;
+    double t12 = t1Seed + t1Step * 2;
+    double t20 = t2Seed - t2Step * 2;
+    double t22 = t2Seed + t2Step * 2;
+    _Point test;
+    while (!approximately_zero(t1Step)) {
+        xy_at_t(quad1, t10, test.x, test.y);
+        t10 += t1[1].approximatelyEqual(test) ? -t1Step : t1Step;
+        t1Step /= 2;
+    }
+    t1Step = 0.1;
+    while (!approximately_zero(t1Step)) {
+        xy_at_t(quad1, t12, test.x, test.y);
+        t12 -= t1[1].approximatelyEqual(test) ? -t1Step : t1Step;
+        t1Step /= 2;
+    }
+    while (!approximately_zero(t2Step)) {
+        xy_at_t(quad2, t20, test.x, test.y);
+        t20 += t2[1].approximatelyEqual(test) ? -t2Step : t2Step;
+        t2Step /= 2;
+    }
+    t2Step = 0.1;
+    while (!approximately_zero(t2Step)) {
+        xy_at_t(quad2, t22, test.x, test.y);
+        t22 -= t2[1].approximatelyEqual(test) ? -t2Step : t2Step;
+        t2Step /= 2;
+    }
+    SkDebugf("%s t1=(%1.9g<%1.9g<%1.9g) t2=(%1.9g<%1.9g<%1.9g)\n", __FUNCTION__,
+        t10, t1Seed, t12, t20, t2Seed, t22);
+    _Point p10 = xy_at_t(quad1, t10);
+    _Point p1Seed = xy_at_t(quad1, t1Seed);
+    _Point p12 = xy_at_t(quad1, t12);
+    SkDebugf("%s p1=(%1.9g,%1.9g)<(%1.9g,%1.9g)<(%1.9g,%1.9g)\n", __FUNCTION__,
+        p10.x, p10.y, p1Seed.x, p1Seed.y, p12.x, p12.y);
+    _Point p20 = xy_at_t(quad2, t20);
+    _Point p2Seed = xy_at_t(quad2, t2Seed);
+    _Point p22 = xy_at_t(quad2, t22);
+    SkDebugf("%s p2=(%1.9g,%1.9g)<(%1.9g,%1.9g)<(%1.9g,%1.9g)\n", __FUNCTION__,
+        p20.x, p20.y, p2Seed.x, p2Seed.y, p22.x, p22.y);
+}
+

@@ -95,7 +95,7 @@ void LineQuadraticIntersection_Test() {
         const _Line& line = lineQuadTests[index].line;
         Quadratic reduce1;
         _Line reduce2;
-        int order1 = reduceOrder(quad, reduce1);
+        int order1 = reduceOrder(quad, reduce1, kReduceOrder_TreatAsFill);
         int order2 = reduceOrder(line, reduce2);
         if (order1 < 3) {
             SkDebugf("%s [%d] quad order=%d\n", __FUNCTION__, (int) index, order1);
@@ -189,7 +189,7 @@ static void* testQuadLineIntersectMain(void* data)
         int cy = state.c >> 2;
         Quadratic quad = {{ax, ay}, {bx, by}, {cx, cy}};
         Quadratic reduced;
-        int order = reduceOrder(quad, reduced);
+        int order = reduceOrder(quad, reduced, kReduceOrder_TreatAsFill);
         if (order < 3) {
             continue; // skip degenerates
         }
