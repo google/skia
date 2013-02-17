@@ -18,10 +18,15 @@ cd $(dirname $0)/../..
 SKDIFF_BINARY=out/Debug/skdiff
 
 # Suffixes of all the raw bench data files we want to process.
-BENCHDATA_FILE_SUFFIXES=\
+BENCHDATA_FILE_SUFFIXES_YES_INDIVIDUAL_TILES=\
 "data_skp_device_bitmap_multi_2_mode_tile_256_256_timeIndividualTiles "\
 "data_skp_device_bitmap_multi_3_mode_tile_256_256_timeIndividualTiles "\
 "data_skp_device_bitmap_multi_4_mode_tile_256_256_timeIndividualTiles "\
+"data_skp_device_bitmap_mode_record_bbh_rtree"
+BENCHDATA_FILE_SUFFIXES_NO_INDIVIDUAL_TILES=\
+"data_skp_device_bitmap_multi_2_mode_tile_256_256 "\
+"data_skp_device_bitmap_multi_3_mode_tile_256_256 "\
+"data_skp_device_bitmap_multi_4_mode_tile_256_256 "\
 "data_skp_device_bitmap_mode_record_bbh_rtree"
 
 # Compare contents of all files within directories $1 and $2,
@@ -84,21 +89,24 @@ skdiff_test "--nodiffs --match identical-bits --match identical-pixels $SKDIFF_T
 
 
 # Download a subset of the raw bench data for platform $1 at revision $2.
+# (For the subset, download all files matching any of the suffixes in
+# whitespace-separated list $3.)
 # If any of those files already exist locally, we assume that they are
 # correct and up to date, and we don't download them again.
 function benchgraph_download_rawdata {
-  if [ $# != 2 ]; then
-    echo "benchgraph_download_rawdata requires exactly 2 parameters, got $#"
+  if [ $# != 3 ]; then
+    echo "benchgraph_download_rawdata requires exactly 3 parameters, got $#"
     exit 1
   fi
   PLATFORM="$1"
   REV="$2"
+  FILE_SUFFIXES="$3"
 
   PLATFORM_DIR="tools/tests/benchgraphs/$PLATFORM"
   RAW_BENCH_DATA_DIR="$PLATFORM_DIR/raw-bench-data"
   mkdir -p $RAW_BENCH_DATA_DIR
 
-  for FILE_SUFFIX in $BENCHDATA_FILE_SUFFIXES; do
+  for FILE_SUFFIX in $FILE_SUFFIXES; do
     FILE=bench_r${REV}_${FILE_SUFFIX}
     DESTFILE=$RAW_BENCH_DATA_DIR/$FILE
     if [ ! -f $DESTFILE ];
@@ -146,9 +154,10 @@ function benchgraph_test {
 # (this was during the period when the bench data included a ton of per-tile,
 # per-iteration data)
 PLATFORM=Skia_Shuttle_Ubuntu12_ATI5770_Float_Bench_32
-benchgraph_download_rawdata $PLATFORM 7671
-benchgraph_download_rawdata $PLATFORM 7679
-benchgraph_download_rawdata $PLATFORM 7686
+benchgraph_download_rawdata $PLATFORM 7618 "$BENCHDATA_FILE_SUFFIXES_NO_INDIVIDUAL_TILES"
+benchgraph_download_rawdata $PLATFORM 7671 "$BENCHDATA_FILE_SUFFIXES_YES_INDIVIDUAL_TILES"
+benchgraph_download_rawdata $PLATFORM 7679 "$BENCHDATA_FILE_SUFFIXES_YES_INDIVIDUAL_TILES"
+benchgraph_download_rawdata $PLATFORM 7686 "$BENCHDATA_FILE_SUFFIXES_YES_INDIVIDUAL_TILES"
 benchgraph_test $PLATFORM
 
 echo "All tests passed."
