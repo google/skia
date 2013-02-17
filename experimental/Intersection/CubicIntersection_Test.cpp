@@ -18,8 +18,10 @@ static void standardTestCases() {
         const Cubic& cubic1 = tests[index][0];
         const Cubic& cubic2 = tests[index][1];
         Cubic reduce1, reduce2;
-        int order1 = reduceOrder(cubic1, reduce1, kReduceOrder_NoQuadraticsAllowed);
-        int order2 = reduceOrder(cubic2, reduce2, kReduceOrder_NoQuadraticsAllowed);
+        int order1 = reduceOrder(cubic1, reduce1, kReduceOrder_NoQuadraticsAllowed,
+            kReduceOrder_TreatAsFill);
+        int order2 = reduceOrder(cubic2, reduce2, kReduceOrder_NoQuadraticsAllowed,
+            kReduceOrder_TreatAsFill);
         if (order1 < 4) {
             printf("%s [%d] cubic1 order=%d\n", __FUNCTION__, (int) index, order1);
             continue;
@@ -130,6 +132,13 @@ static const Cubic testSet[] = {
 };
 
 const size_t testSetCount = sizeof(testSet) / sizeof(testSet[0]);
+
+static const Cubic newTestSet[] = {
+{{0,2},{0,1},{3,0},{1,0}},
+{{0,3},{0,1},{2,0},{1,0}},
+};
+
+const size_t newTestSetCount = sizeof(newTestSet) / sizeof(newTestSet[0]);
 
 static void oneOff(const Cubic& cubic1, const Cubic& cubic2) {
     SkTDArray<Quadratic> quads1;
@@ -293,6 +302,16 @@ static void oneOff(int outer, int inner) {
 
 void CubicIntersection_OneOffTest() {
     oneOff(12, 14);
+}
+
+static void newOneOff(int outer, int inner) {
+    const Cubic& cubic1 = newTestSet[outer];
+    const Cubic& cubic2 = newTestSet[inner];
+    oneOff3(cubic1, cubic2);
+}
+
+void CubicIntersection_NewOneOffTest() {
+    newOneOff(0, 1);
 }
 
 static void oneOffTests() {
@@ -522,11 +541,11 @@ void CubicIntersection_RandTest() {
 }
 
 void CubicIntersection_IntersectionFinder() {
-    const Cubic& cubic1 = testSet[2];
-    const Cubic& cubic2 = testSet[7];
+    const Cubic& cubic1 = newTestSet[0];
+    const Cubic& cubic2 = newTestSet[1];
 
-    double t1Seed = 0.254;
-    double t2Seed = 0.245;
+    double t1Seed = 0.99;
+    double t2Seed = 0.99;
     double t1Step = 0.01;
     double t2Step = 0.01;
     _Point t1[3], t2[3];

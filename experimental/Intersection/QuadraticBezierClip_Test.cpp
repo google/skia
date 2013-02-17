@@ -47,8 +47,8 @@ static void standardTestCases() {
         const Quadratic& quad1 = quadraticTests[index][0];
         const Quadratic& quad2 = quadraticTests[index][1];
         Quadratic reduce1, reduce2;
-        int order1 = reduceOrder(quad1, reduce1);
-        int order2 = reduceOrder(quad2, reduce2);
+        int order1 = reduceOrder(quad1, reduce1, kReduceOrder_TreatAsFill);
+        int order2 = reduceOrder(quad2, reduce2, kReduceOrder_TreatAsFill);
         if (order1 < 3) {
             SkDebugf("%s [%d] quad1 order=%d\n", __FUNCTION__, (int)index, order1);
         }

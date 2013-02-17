@@ -79,9 +79,11 @@ public:
         return fUsed > 0;
     }
 
+    void removeOne(int index);
+    
     // leaves flip, swap alone
     void reset() {
-        fUsed = /* fUsed2 = fCoincidentUsed = */ 0;
+        fUsed = 0;
         fUnsortable = false;
     }
 

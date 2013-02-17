@@ -22,7 +22,7 @@ static void oneOffTest() {
     for (size_t index = 0; index < testSetCount; ++index) {
         const Quadratic& quad = testSet[index];
         Quadratic reduce;
-        int order = reduceOrder(quad, reduce);
+        int order = reduceOrder(quad, reduce, kReduceOrder_TreatAsFill);
         SkASSERT(order == 3);
     }
 }
@@ -47,14 +47,14 @@ static void standardTestCases() {
 
     for (index = firstQuadraticLineTest; index < quadraticLines_count; ++index) {
         const Quadratic& quad = quadraticLines[index];
-        order = reduceOrder(quad, reduce);
+        order = reduceOrder(quad, reduce, kReduceOrder_TreatAsFill);
         if (order != 2) {
             printf("[%d] line quad order=%d\n", (int) index, order);
         }
     }
     for (index = firstQuadraticModLineTest; index < quadraticModEpsilonLines_count; ++index) {
         const Quadratic& quad = quadraticModEpsilonLines[index];
-        order = reduceOrder(quad, reduce);
+        order = reduceOrder(quad, reduce, kReduceOrder_TreatAsFill);
         if (order != 3) {
             printf("[%d] line mod quad order=%d\n", (int) index, order);
         }

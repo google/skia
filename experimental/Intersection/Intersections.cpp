@@ -122,16 +122,22 @@ void Intersections::remove(double one, double two, const _Point& startPt, const 
                 || startPt.approximatelyEqual(fPt[index])
                 || endPt.approximatelyEqual(fPt[index]))) {
             SkASSERT(fUsed > 0);
-            int remaining = --fUsed - index;
-            if (remaining > 0) {
-                memmove(&fPt[index], &fPt[index - 1], sizeof(fPt[0]) * remaining);
-                memmove(&fT[0][index], &fT[0][index - 1], sizeof(fT[0][0]) * remaining);
-                memmove(&fT[1][index], &fT[1][index - 1], sizeof(fT[1][0]) * remaining);
-                int coBit = fIsCoincident[0] & (1 << index);
-                fIsCoincident[0] -= ((fIsCoincident[0] >> 1) & ~((1 << index) - 1)) + coBit;
-                SkASSERT(!(coBit ^ (fIsCoincident[1] & (1 << index))));
-                fIsCoincident[1] -= ((fIsCoincident[1] >> 1) & ~((1 << index) - 1)) + coBit;
-            }
+            removeOne(index);
         }
     }
+}
+
+void Intersections::removeOne(int index) {
+    int remaining = --fUsed - index;
+    if (remaining <= 0) {
+        return;
+    }
+    memmove(&fPt[index], &fPt[index + 1], sizeof(fPt[0]) * remaining);
+    memmove(&fT[0][index], &fT[0][index + 1], sizeof(fT[0][0]) * remaining);
+    memmove(&fT[1][index], &fT[1][index + 1], sizeof(fT[1][0]) * remaining);
+    SkASSERT(fIsCoincident[0] == 0);
+    int coBit = fIsCoincident[0] & (1 << index);
+    fIsCoincident[0] -= ((fIsCoincident[0] >> 1) & ~((1 << index) - 1)) + coBit;
+    SkASSERT(!(coBit ^ (fIsCoincident[1] & (1 << index))));
+    fIsCoincident[1] -= ((fIsCoincident[1] >> 1) & ~((1 << index) - 1)) + coBit;
 }

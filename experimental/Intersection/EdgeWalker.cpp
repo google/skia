@@ -234,7 +234,7 @@ static SkPath::Verb QuadReduceOrder(SkPoint a[4]) {
     const Quadratic aQuad =  {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY},
             {a[2].fX, a[2].fY}};
     Quadratic dst;
-    int order = reduceOrder(aQuad, dst);
+    int order = reduceOrder(aQuad, dst, kReduceOrder_TreatAsFill);
     for (int index = 0; index < order; ++index) {
         a[index].fX = SkDoubleToScalar(dst[index].x);
         a[index].fY = SkDoubleToScalar(dst[index].y);
@@ -250,7 +250,7 @@ static SkPath::Verb CubicReduceOrder(SkPoint a[4]) {
     const Cubic aCubic = {{a[0].fX, a[0].fY}, {a[1].fX, a[1].fY},
             {a[2].fX, a[2].fY}, {a[3].fX, a[3].fY}};
     Cubic dst;
-    int order = reduceOrder(aCubic, dst, kReduceOrder_QuadraticsAllowed);
+    int order = reduceOrder(aCubic, dst, kReduceOrder_QuadraticsAllowed, kReduceOrder_TreatAsFill);
     for (int index = 0; index < order; ++index) {
         a[index].fX = SkDoubleToScalar(dst[index].x);
         a[index].fY = SkDoubleToScalar(dst[index].y);

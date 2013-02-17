@@ -27,7 +27,8 @@ void LineCubicIntersection_Test() {
         const _Line& line = lineCubicTests[index].line;
         Cubic reduce1;
         _Line reduce2;
-        int order1 = reduceOrder(cubic, reduce1, kReduceOrder_NoQuadraticsAllowed);
+        int order1 = reduceOrder(cubic, reduce1, kReduceOrder_NoQuadraticsAllowed,
+                kReduceOrder_TreatAsFill);
         int order2 = reduceOrder(line, reduce2);
         if (order1 < 4) {
             printf("[%d] cubic order=%d\n", (int) index, order1);

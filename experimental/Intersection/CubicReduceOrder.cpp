@@ -24,10 +24,13 @@ static int coincident_line(const Cubic& cubic, Cubic& reduction) {
     return 1;
 }
 
-static int vertical_line(const Cubic& cubic, Cubic& reduction) {
+static int vertical_line(const Cubic& cubic, ReduceOrder_Styles reduceStyle, Cubic& reduction) {
     double tValues[2];
     reduction[0] = cubic[0];
     reduction[1] = cubic[3];
+    if (reduceStyle == kReduceOrder_TreatAsFill) {
+        return 2;
+    }
     int smaller = reduction[1].y > reduction[0].y;
     int larger = smaller ^ 1;
     int roots = findExtrema(cubic[0].y, cubic[1].y, cubic[2].y, cubic[3].y, tValues);
@@ -44,10 +47,13 @@ static int vertical_line(const Cubic& cubic, Cubic& reduction) {
     return 2;
 }
 
-static int horizontal_line(const Cubic& cubic, Cubic& reduction) {
+static int horizontal_line(const Cubic& cubic, ReduceOrder_Styles reduceStyle, Cubic& reduction) {
     double tValues[2];
     reduction[0] = cubic[0];
     reduction[1] = cubic[3];
+    if (reduceStyle == kReduceOrder_TreatAsFill) {
+        return 2;
+    }
     int smaller = reduction[1].x > reduction[0].x;
     int larger = smaller ^ 1;
     int roots = findExtrema(cubic[0].x, cubic[1].x, cubic[2].x, cubic[3].x, tValues);
@@ -85,8 +91,8 @@ static int check_quadratic(const Cubic& cubic, Cubic& reduction) {
     return 3;
 }
 
-static int check_linear(const Cubic& cubic, Cubic& reduction,
-        int minX, int maxX, int minY, int maxY) {
+static int check_linear(const Cubic& cubic, ReduceOrder_Styles reduceStyle,
+        int minX, int maxX, int minY, int maxY, Cubic& reduction) {
     int startIndex = 0;
     int endIndex = 3;
     while (cubic[startIndex].approximatelyEqual(cubic[endIndex])) {
@@ -102,6 +108,9 @@ static int check_linear(const Cubic& cubic, Cubic& reduction,
     // four are colinear: return line formed by outside
     reduction[0] = cubic[0];
     reduction[1] = cubic[3];
+    if (reduceStyle == kReduceOrder_TreatAsFill) {
+        return 2;
+    }
     int sameSide1;
     int sameSide2;
     bool useX = cubic[maxX].x - cubic[minX].x >= cubic[maxY].y - cubic[minY].y;
@@ -185,7 +194,8 @@ http://kaba.hilvi.org
     // note that three points in a line doesn't simplify a cubic
 // look for approximation with single quadratic
     // save approximation with multiple quadratics for later
-int reduceOrder(const Cubic& cubic, Cubic& reduction, ReduceOrder_Flags allowQuadratics) {
+int reduceOrder(const Cubic& cubic, Cubic& reduction, ReduceOrder_Quadratics allowQuadratics,
+        ReduceOrder_Styles reduceStyle) {
     int index, minX, maxX, minY, maxY;
     int minXSet, minYSet;
     minX = maxX = minY = maxY = 0;
@@ -226,16 +236,17 @@ int reduceOrder(const Cubic& cubic, Cubic& reduction, ReduceOrder_Flags allowQua
         if (minYSet == 0xF) { // return 1 if all four are coincident
             return coincident_line(cubic, reduction);
         }
-        return vertical_line(cubic, reduction);
+        return vertical_line(cubic, reduceStyle, reduction);
     }
     if (minYSet == 0xF) { // test for horizontal line
-        return horizontal_line(cubic, reduction);
+        return horizontal_line(cubic, reduceStyle, reduction);
     }
-    int result = check_linear(cubic, reduction, minX, maxX, minY, maxY);
+    int result = check_linear(cubic, reduceStyle, minX, maxX, minY, maxY, reduction);
     if (result) {
         return result;
     }
-    if (allowQuadratics && (result = check_quadratic(cubic, reduction))) {
+    if (allowQuadratics == kReduceOrder_QuadraticsAllowed
+            && (result = check_quadratic(cubic, reduction))) {
         return result;
     }
     memcpy(reduction, cubic, sizeof(Cubic));
