@@ -172,10 +172,13 @@ def parse(settings, lines, representation=None):
 
         # add configs on this line to the bench_dic
         if current_bench:
-            _ParseAndStoreTimes(CONFIG_RE_COMPILED, False, line, current_bench,
-                                bench_dic, layout_dic, representation)
-            _ParseAndStoreTimes(TILE_RE_COMPILED, True, line, current_bench,
-                                bench_dic, layout_dic, representation)
+            if line.startswith('  tile_') :
+                _ParseAndStoreTimes(TILE_RE_COMPILED, True, line, current_bench,
+                                    bench_dic, layout_dic, representation)
+            else:
+                _ParseAndStoreTimes(CONFIG_RE_COMPILED, False, line,
+                                    current_bench,
+                                    bench_dic, layout_dic, representation)
 
     # append benches to list, use the total time as final bench value.
     for bench in bench_dic:
