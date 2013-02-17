@@ -80,7 +80,7 @@ public:
     }
 
     void removeOne(int index);
-    
+
     // leaves flip, swap alone
     void reset() {
         fUsed = 0;
