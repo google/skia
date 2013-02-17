@@ -388,4 +388,3 @@ void QuadraticIntersection_IntersectionFinder() {
     SkDebugf("%s p2=(%1.9g,%1.9g)<(%1.9g,%1.9g)<(%1.9g,%1.9g)\n", __FUNCTION__,
         p20.x, p20.y, p2Seed.x, p2Seed.y, p22.x, p22.y);
 }
-

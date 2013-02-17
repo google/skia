@@ -448,7 +448,7 @@ bool intersect2(const Cubic& c1, const Cubic& c2, Intersections& i) {
 }
 
 const double CLOSE_ENOUGH = 0.001;
-    
+
 static bool closeStart(const Cubic& cubic, int cubicIndex, Intersections& i, _Point& pt) {
     if (i.fT[cubicIndex][0] != 0 || i.fT[cubicIndex][1] > CLOSE_ENOUGH) {
         return false;
