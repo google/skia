@@ -2786,7 +2786,7 @@ public:
         // topmost tangent from y-min to first pt is closer to horizontal
         SkASSERT(!done());
         int firstT = -1;
-        SkPoint topPt = activeLeftTop(onlySortable, &firstT);
+        /* SkPoint topPt = */ activeLeftTop(onlySortable, &firstT);
         SkASSERT(firstT >= 0);
         // sort the edges to find the leftmost
         int step = 1;

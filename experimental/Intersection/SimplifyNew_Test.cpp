@@ -3832,12 +3832,26 @@ static void cubicOp19i() {
     testShapeOp(path, pathB, kIntersect_Op);
 }
 
-static void (*firstTest)() = cubicOp19i;
+static void cubicOp20d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(0,1, 6,0, 2,1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,6);
+    pathB.cubicTo(1,2, 1,0, 1,0);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void (*firstTest)() = cubicOp20d;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(cubicOp20d),
     TEST(cubicOp19i),
     TEST(cubicOp18d),
     TEST(cubicOp17d),

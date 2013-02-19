@@ -197,6 +197,16 @@ int quadraticRootsReal(const double A, const double B, const double C, double s[
 #endif
 }
 
+void toCubic(const Quadratic& quad, Cubic& cubic) {
+    cubic[0] = quad[0];
+    cubic[2] = quad[1];
+    cubic[3] = quad[2];
+    cubic[1].x = (cubic[0].x + cubic[2].x * 2) / 3;
+    cubic[1].y = (cubic[0].y + cubic[2].y * 2) / 3;
+    cubic[2].x = (cubic[3].x + cubic[2].x * 2) / 3;
+    cubic[2].y = (cubic[3].y + cubic[2].y * 2) / 3;
+}
+
 static double derivativeAtT(const double* quad, double t) {
     double a = t - 1;
     double b = 1 - 2 * t;
