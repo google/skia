@@ -48,10 +48,6 @@ void GrGLIndexBuffer::bind() const {
     GPUGL->notifyIndexBufferBind(this);
 }
 
-GrGLuint GrGLIndexBuffer::bufferID() const {
-    return fBufferID;
-}
-
 void* GrGLIndexBuffer::lock() {
     GrAssert(fBufferID);
     GrAssert(!isLocked());

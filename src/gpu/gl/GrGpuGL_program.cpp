@@ -213,103 +213,85 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
     return true;
 }
 
-void GrGpuGL::setupGeometry(const DrawInfo& info, int* startIndexOffset) {
+void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
 
-    int newColorOffset;
-    int newCoverageOffset;
-    int newTexCoordOffset;
-    int newEdgeOffset;
+    int colorOffset;
+    int coverageOffset;
+    int texCoordOffset;
+    int edgeOffset;
 
     GrVertexLayout currLayout = this->getDrawState().getVertexLayout();
 
-    GrGLsizei newStride = GrDrawState::VertexSizeAndOffsets(currLayout,
-                                                            &newTexCoordOffset,
-                                                            &newColorOffset,
-                                                            &newCoverageOffset,
-                                                            &newEdgeOffset);
-    int oldColorOffset;
-    int oldCoverageOffset;
-    int oldTexCoordOffset;
-    int oldEdgeOffset;
+    GrGLsizei stride = GrDrawState::VertexSizeAndOffsets(currLayout,
+                                                         &texCoordOffset,
+                                                         &colorOffset,
+                                                         &coverageOffset,
+                                                         &edgeOffset);
 
-    GrGLsizei oldStride = GrDrawState::VertexSizeAndOffsets(fHWGeometryState.fVertexLayout,
-                                                            &oldTexCoordOffset,
-                                                            &oldColorOffset,
-                                                            &oldCoverageOffset,
-                                                            &oldEdgeOffset);
+    size_t vertexOffset;
+    GrGLVertexBuffer* vb= this->setBuffers(info.isIndexed(), &vertexOffset, indexOffsetInBytes);
+    vertexOffset += stride * info.startVertex();
 
-    int extraVertexOffset;
-    this->setBuffers(info.isIndexed(), &extraVertexOffset, startIndexOffset);
-
-    size_t vertexOffset = (info.startVertex() + extraVertexOffset) * newStride;
-
-    // all the Pointers must be set if any of these are true
-    bool allOffsetsChange =  fHWGeometryState.fArrayPtrsDirty ||
-                             vertexOffset != fHWGeometryState.fVertexOffset ||
-                             newStride != oldStride;
-
-    if (allOffsetsChange) {
-        int idx = GrGLProgram::PositionAttributeIdx();
-        GL_CALL(VertexAttribPointer(idx, 2, GR_GL_FLOAT, false, newStride, (GrGLvoid*)vertexOffset));
-        fHWGeometryState.fVertexOffset = vertexOffset;
+    uint32_t usedAttribArraysMask = (1 << GrGLProgram::kPositionAttributeIndex);
+    fHWGeometryState.setAttribArray(this,
+                                    GrGLProgram::kPositionAttributeIndex,
+                                    vb,
+                                    2,
+                                    GR_GL_FLOAT,
+                                    false,
+                                    stride,
+                                    reinterpret_cast<GrGLvoid*>(vertexOffset));
+    if (texCoordOffset > 0) {
+        usedAttribArraysMask |= (1 << GrGLProgram::kTexCoordAttributeIndex);
+        GrGLvoid* texCoordPtr = reinterpret_cast<GrGLvoid*>(vertexOffset + texCoordOffset);
+        fHWGeometryState.setAttribArray(this,
+                                        GrGLProgram::kTexCoordAttributeIndex,
+                                        vb,
+                                        2,
+                                        GR_GL_FLOAT,
+                                        false,
+                                        stride,
+                                        texCoordPtr);
     }
 
-    if (newTexCoordOffset > 0) {
-        GrGLvoid* texCoordOffset = (GrGLvoid*)(vertexOffset + newTexCoordOffset);
-        int idx = GrGLProgram::TexCoordAttributeIdx();
-        if (oldTexCoordOffset <= 0) {
-            GL_CALL(EnableVertexAttribArray(idx));
-            GL_CALL(VertexAttribPointer(idx, 2, GR_GL_FLOAT, false, newStride, texCoordOffset));
-        } else if (allOffsetsChange || newTexCoordOffset != oldTexCoordOffset) {
-            GL_CALL(VertexAttribPointer(idx, 2, GR_GL_FLOAT, false, newStride, texCoordOffset));
-        }
-    } else if (oldTexCoordOffset > 0) {
-        GL_CALL(DisableVertexAttribArray(GrGLProgram::TexCoordAttributeIdx()));
+    if (colorOffset > 0) {
+        usedAttribArraysMask |= (1 << GrGLProgram::kColorAttributeIndex);
+        GrGLvoid* colorPtr = reinterpret_cast<GrGLvoid*>(vertexOffset + colorOffset);
+        fHWGeometryState.setAttribArray(this,
+                                        GrGLProgram::kColorAttributeIndex,
+                                        vb,
+                                        4,
+                                        GR_GL_UNSIGNED_BYTE,
+                                        true,
+                                        stride,
+                                        colorPtr);
     }
 
-    if (newColorOffset > 0) {
-        fSharedGLProgramState.fConstAttribColor = GrColor_ILLEGAL;
-        GrGLvoid* colorOffset = (int8_t*)(vertexOffset + newColorOffset);
-        int idx = GrGLProgram::ColorAttributeIdx();
-        if (oldColorOffset <= 0) {
-            GL_CALL(EnableVertexAttribArray(idx));
-            GL_CALL(VertexAttribPointer(idx, 4, GR_GL_UNSIGNED_BYTE, true, newStride, colorOffset));
-        } else if (allOffsetsChange || newColorOffset != oldColorOffset) {
-            GL_CALL(VertexAttribPointer(idx, 4, GR_GL_UNSIGNED_BYTE, true, newStride, colorOffset));
-        }
-    } else if (oldColorOffset > 0) {
-        GL_CALL(DisableVertexAttribArray(GrGLProgram::ColorAttributeIdx()));
+    if (coverageOffset > 0) {
+        usedAttribArraysMask |= (1 << GrGLProgram::kCoverageAttributeIndex);
+        GrGLvoid* coveragePtr = reinterpret_cast<GrGLvoid*>(vertexOffset + coverageOffset);
+        fHWGeometryState.setAttribArray(this,
+                                        GrGLProgram::kCoverageAttributeIndex,
+                                        vb,
+                                        4,
+                                        GR_GL_UNSIGNED_BYTE,
+                                        true,
+                                        stride,
+                                        coveragePtr);
     }
 
-    if (newCoverageOffset > 0) {
-        fSharedGLProgramState.fConstAttribColor = GrColor_ILLEGAL;
-        GrGLvoid* coverageOffset = (int8_t*)(vertexOffset + newCoverageOffset);
-        int idx = GrGLProgram::CoverageAttributeIdx();
-        if (oldCoverageOffset <= 0) {
-            GL_CALL(EnableVertexAttribArray(idx));
-            GL_CALL(VertexAttribPointer(idx, 4, GR_GL_UNSIGNED_BYTE,
-                                        true, newStride, coverageOffset));
-        } else if (allOffsetsChange || newCoverageOffset != oldCoverageOffset) {
-            GL_CALL(VertexAttribPointer(idx, 4, GR_GL_UNSIGNED_BYTE,
-                                        true, newStride, coverageOffset));
-        }
-    } else if (oldCoverageOffset > 0) {
-        GL_CALL(DisableVertexAttribArray(GrGLProgram::CoverageAttributeIdx()));
+    if (edgeOffset > 0) {
+        usedAttribArraysMask |= (1 << GrGLProgram::kEdgeAttributeIndex);
+        GrGLvoid* edgePtr = reinterpret_cast<GrGLvoid*>(vertexOffset + edgeOffset);
+        fHWGeometryState.setAttribArray(this,
+                                        GrGLProgram::kEdgeAttributeIndex,
+                                        vb,
+                                        4,
+                                        GR_GL_FLOAT,
+                                        false,
+                                        stride,
+                                        edgePtr);
     }
 
-    if (newEdgeOffset > 0) {
-        GrGLvoid* edgeOffset = (int8_t*)(vertexOffset + newEdgeOffset);
-        int idx = GrGLProgram::EdgeAttributeIdx();
-        if (oldEdgeOffset <= 0) {
-            GL_CALL(EnableVertexAttribArray(idx));
-            GL_CALL(VertexAttribPointer(idx, 4, GR_GL_FLOAT, false, newStride, edgeOffset));
-        } else if (allOffsetsChange || newEdgeOffset != oldEdgeOffset) {
-            GL_CALL(VertexAttribPointer(idx, 4, GR_GL_FLOAT, false, newStride, edgeOffset));
-        }
-    } else if (oldEdgeOffset > 0) {
-        GL_CALL(DisableVertexAttribArray(GrGLProgram::EdgeAttributeIdx()));
-    }
-
-    fHWGeometryState.fVertexLayout = currLayout;
-    fHWGeometryState.fArrayPtrsDirty = false;
+    fHWGeometryState.disableUnusedAttribArrays(this, usedAttribArraysMask);
 }

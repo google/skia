@@ -81,11 +81,13 @@ public:
     /**
      * Attribute indices. These should not overlap.
      */
-    static int PositionAttributeIdx() { return 0; }
-    static int ColorAttributeIdx() { return 1; }
-    static int CoverageAttributeIdx() { return 2; }
-    static int EdgeAttributeIdx() { return 3; }
-    static int TexCoordAttributeIdx() { return 4; }
+    enum {
+        kPositionAttributeIndex = 0,
+        kColorAttributeIndex = 1,
+        kCoverageAttributeIndex = 2,
+        kEdgeAttributeIndex = 3,
+        kTexCoordAttributeIndex = 4,
+    };
 
     /**
      * Some GL state that is relevant to programs is not stored per-program. In particular vertex
