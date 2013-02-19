@@ -1245,7 +1245,7 @@ GrVertexBuffer* GrGpuGL::onCreateVertexBuffer(uint32_t size, bool dynamic) {
         }
         static const bool kIsWrapped = false;
         GrGLVertexBuffer* vertexBuffer = SkNEW_ARGS(GrGLVertexBuffer, (this,
-                                                                       false,
+                                                                       kIsWrapped,
                                                                        id,
                                                                        size,
                                                                        dynamic));
