@@ -178,6 +178,8 @@ GrGpuGL::GrGpuGL(const GrGLContextInfo& ctxInfo) : fGLContextInfo(ctxInfo) {
 
     fProgramCache = SkNEW_ARGS(ProgramCache, (this->glContextInfo()));
 
+    fHWGeometryState.setMaxAttribArrays(this->glCaps().maxVertexAttributes());
+
     fLastSuccessfulStencilFmtIdx = 0;
     if (false) { // avoid bit rot, suppress warning
         fbo_test(this->glInterface(), 0, 0);
@@ -446,10 +448,7 @@ void GrGpuGL::onResetContext() {
     fHWStencilSettings.invalidate();
     fHWStencilTestEnabled = kUnknown_TriState;
 
-    fHWGeometryState.fIndexBuffer = NULL;
-    fHWGeometryState.fVertexBuffer = NULL;
-
-    fHWGeometryState.fArrayPtrsDirty = true;
+    fHWGeometryState.invalidate();
 
     fHWBoundRenderTarget = NULL;
 
@@ -472,28 +471,6 @@ void GrGpuGL::onResetContext() {
     }
     if (this->glCaps().packFlipYSupport()) {
         GL_CALL(PixelStorei(GR_GL_PACK_REVERSE_ROW_ORDER, GR_GL_FALSE));
-    }
-
-    fHWGeometryState.fVertexOffset = ~0U;
-
-    // Third party GL code may have left vertex attributes enabled. Some GL
-    // implementations (osmesa) may read vetex attributes that are not required
-    // by the current shader. Therefore, we have to ensure that only the
-    // attributes we require for the current draw are enabled or we may cause an
-    // invalid read.
-
-    // Disable all vertex layout bits so that next flush will assume all
-    // optional vertex attributes are disabled.
-    fHWGeometryState.fVertexLayout = 0;
-
-    // We always use the this attribute and assume it is always enabled.
-    int posAttrIdx = GrGLProgram::PositionAttributeIdx();
-    GL_CALL(EnableVertexAttribArray(posAttrIdx));
-    // Disable all other vertex attributes.
-    for  (int va = 0; va < this->glCaps().maxVertexAttributes(); ++va) {
-        if (va != posAttrIdx) {
-            GL_CALL(DisableVertexAttribArray(va));
-        }
     }
 
     fHWProgramID = 0;
@@ -1253,26 +1230,26 @@ GrVertexBuffer* GrGpuGL::onCreateVertexBuffer(uint32_t size, bool dynamic) {
     GL_CALL(GenBuffers(1, &id));
     if (id) {
         GL_CALL(BindBuffer(GR_GL_ARRAY_BUFFER, id));
-        fHWGeometryState.fArrayPtrsDirty = true;
         CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
         // make sure driver can allocate memory for this buffer
         GL_ALLOC_CALL(this->glInterface(),
                       BufferData(GR_GL_ARRAY_BUFFER,
                                  size,
                                  NULL,   // data ptr
-                                 dynamic ? GR_GL_DYNAMIC_DRAW :
-                                           GR_GL_STATIC_DRAW));
+                                 dynamic ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW));
         if (CHECK_ALLOC_ERROR(this->glInterface()) != GR_GL_NO_ERROR) {
             GL_CALL(DeleteBuffers(1, &id));
             // deleting bound buffer does implicit bind to 0
-            fHWGeometryState.fVertexBuffer = NULL;
+            fHWGeometryState.setVertexBufferID(0);
             return NULL;
         }
         static const bool kIsWrapped = false;
-        GrGLVertexBuffer* vertexBuffer = SkNEW_ARGS(GrGLVertexBuffer,
-                                                    (this, kIsWrapped, id,
-                                                     size, dynamic));
-        fHWGeometryState.fVertexBuffer = vertexBuffer;
+        GrGLVertexBuffer* vertexBuffer = SkNEW_ARGS(GrGLVertexBuffer, (this,
+                                                                       false,
+                                                                       id,
+                                                                       size,
+                                                                       dynamic));
+        fHWGeometryState.setVertexBufferID(id);
         return vertexBuffer;
     }
     return NULL;
@@ -1294,13 +1271,13 @@ GrIndexBuffer* GrGpuGL::onCreateIndexBuffer(uint32_t size, bool dynamic) {
         if (CHECK_ALLOC_ERROR(this->glInterface()) != GR_GL_NO_ERROR) {
             GL_CALL(DeleteBuffers(1, &id));
             // deleting bound buffer does implicit bind to 0
-            fHWGeometryState.fIndexBuffer = NULL;
+            fHWGeometryState.setIndexBufferID(0);
             return NULL;
         }
         static const bool kIsWrapped = false;
         GrIndexBuffer* indexBuffer = SkNEW_ARGS(GrGLIndexBuffer,
                                                 (this, kIsWrapped, id, size, dynamic));
-        fHWGeometryState.fIndexBuffer = indexBuffer;
+        fHWGeometryState.setIndexBufferID(id);
         return indexBuffer;
     }
     return NULL;
@@ -1660,16 +1637,14 @@ GrGLenum gPrimitiveType2GLMode[] = {
 #endif
 
 void GrGpuGL::onGpuDraw(const DrawInfo& info) {
-    int extraStartIndexOffset;
-    this->setupGeometry(info, &extraStartIndexOffset);
+    size_t indexOffsetInBytes;
+    this->setupGeometry(info, &indexOffsetInBytes);
 
     GrAssert((size_t)info.primitiveType() < GR_ARRAY_COUNT(gPrimitiveType2GLMode));
-    GrAssert(NULL != fHWGeometryState.fVertexBuffer);
 
     if (info.isIndexed()) {
-        GrAssert(NULL != fHWGeometryState.fIndexBuffer);
-        GrGLvoid* indices = (GrGLvoid*)(sizeof(uint16_t) * (info.startIndex() +
-                                                            extraStartIndexOffset));
+        GrGLvoid* indices =
+            reinterpret_cast<GrGLvoid*>(indexOffsetInBytes + sizeof(uint16_t) * info.startIndex());
         // info.startVertex() was accounted for by setupGeometry.
         GL_CALL(DrawElements(gPrimitiveType2GLMode[info.primitiveType()],
                              info.indexCount(),
@@ -2171,29 +2146,19 @@ void GrGpuGL::flushMiscFixedFunctionState() {
 }
 
 void GrGpuGL::notifyVertexBufferBind(const GrGLVertexBuffer* buffer) {
-    if (fHWGeometryState.fVertexBuffer != buffer) {
-        fHWGeometryState.fArrayPtrsDirty = true;
-        fHWGeometryState.fVertexBuffer = buffer;
-    }
+    fHWGeometryState.setVertexBufferID(buffer->bufferID());
 }
 
 void GrGpuGL::notifyVertexBufferDelete(const GrGLVertexBuffer* buffer) {
-    if (fHWGeometryState.fVertexBuffer == buffer) {
-        // deleting bound buffer does implied bind to 0
-        fHWGeometryState.fVertexBuffer = NULL;
-        fHWGeometryState.fArrayPtrsDirty = true;
-    }
+    fHWGeometryState.notifyVertexBufferDelete(buffer);
 }
 
 void GrGpuGL::notifyIndexBufferBind(const GrGLIndexBuffer* buffer) {
-    fHWGeometryState.fIndexBuffer = buffer;
+    fHWGeometryState.setIndexBufferID(buffer->bufferID());
 }
 
 void GrGpuGL::notifyIndexBufferDelete(const GrGLIndexBuffer* buffer) {
-    if (fHWGeometryState.fIndexBuffer == buffer) {
-        // deleting bound buffer does implied bind to 0
-        fHWGeometryState.fIndexBuffer = NULL;
-    }
+    fHWGeometryState.notifyIndexBufferDelete(buffer);
 }
 
 void GrGpuGL::notifyRenderTargetDelete(GrRenderTarget* renderTarget) {
@@ -2338,52 +2303,48 @@ void GrGpuGL::setSpareTextureUnit() {
     }
 }
 
-void GrGpuGL::setBuffers(bool indexed,
-                         int* extraVertexOffset,
-                         int* extraIndexOffset) {
+GrGLVertexBuffer* GrGpuGL::setBuffers(bool indexed,
+                                      size_t* vertexOffsetInBytes,
+                                      size_t* indexOffsetInBytes) {
 
-    GrAssert(NULL != extraVertexOffset);
+    GrAssert(NULL != vertexOffsetInBytes);
 
     const GeometryPoolState& geoPoolState = this->getGeomPoolState();
 
     GrGLVertexBuffer* vbuf;
     switch (this->getGeomSrc().fVertexSrc) {
-    case kBuffer_GeometrySrcType:
-        *extraVertexOffset = 0;
-        vbuf = (GrGLVertexBuffer*) this->getGeomSrc().fVertexBuffer;
-        break;
-    case kArray_GeometrySrcType:
-    case kReserved_GeometrySrcType:
-        this->finalizeReservedVertices();
-        *extraVertexOffset = geoPoolState.fPoolStartVertex;
-        vbuf = (GrGLVertexBuffer*) geoPoolState.fPoolVertexBuffer;
-        break;
-    default:
-        vbuf = NULL; // suppress warning
-        GrCrash("Unknown geometry src type!");
+        case kBuffer_GeometrySrcType:
+            *vertexOffsetInBytes = 0;
+            vbuf = (GrGLVertexBuffer*) this->getGeomSrc().fVertexBuffer;
+            break;
+        case kArray_GeometrySrcType:
+        case kReserved_GeometrySrcType:
+            this->finalizeReservedVertices();
+            *vertexOffsetInBytes = geoPoolState.fPoolStartVertex * this->getGeomSrc().fVertexSize;
+            vbuf = (GrGLVertexBuffer*) geoPoolState.fPoolVertexBuffer;
+            break;
+        default:
+            vbuf = NULL; // suppress warning
+            GrCrash("Unknown geometry src type!");
     }
 
     GrAssert(NULL != vbuf);
     GrAssert(!vbuf->isLocked());
-    if (fHWGeometryState.fVertexBuffer != vbuf) {
-        GL_CALL(BindBuffer(GR_GL_ARRAY_BUFFER, vbuf->bufferID()));
-        fHWGeometryState.fArrayPtrsDirty = true;
-        fHWGeometryState.fVertexBuffer = vbuf;
-    }
+    *vertexOffsetInBytes += vbuf->baseOffset();
 
     if (indexed) {
-        GrAssert(NULL != extraIndexOffset);
+        GrAssert(NULL != indexOffsetInBytes);
 
         GrGLIndexBuffer* ibuf;
         switch (this->getGeomSrc().fIndexSrc) {
         case kBuffer_GeometrySrcType:
-            *extraIndexOffset = 0;
+            *indexOffsetInBytes = 0;
             ibuf = (GrGLIndexBuffer*)this->getGeomSrc().fIndexBuffer;
             break;
         case kArray_GeometrySrcType:
         case kReserved_GeometrySrcType:
             this->finalizeReservedIndices();
-            *extraIndexOffset = geoPoolState.fPoolStartIndex;
+            *indexOffsetInBytes = geoPoolState.fPoolStartIndex * sizeof(GrGLushort);
             ibuf = (GrGLIndexBuffer*) geoPoolState.fPoolIndexBuffer;
             break;
         default:
@@ -2393,9 +2354,53 @@ void GrGpuGL::setBuffers(bool indexed,
 
         GrAssert(NULL != ibuf);
         GrAssert(!ibuf->isLocked());
-        if (fHWGeometryState.fIndexBuffer != ibuf) {
-            GL_CALL(BindBuffer(GR_GL_ELEMENT_ARRAY_BUFFER, ibuf->bufferID()));
-            fHWGeometryState.fIndexBuffer = ibuf;
+        if (!fHWGeometryState.isIndexBufferIDBound(ibuf->bufferID())) {
+            ibuf->bind();
+            fHWGeometryState.setIndexBufferID(ibuf->bufferID());
         }
+    }
+    return vbuf;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void GrGpuGL::HWGeometryState::AttribArray::set(const GrGpuGL* gpu,
+                                                HWGeometryState* geoState,
+                                                int index,
+                                                GrGLVertexBuffer* buffer,
+                                                GrGLint size,
+                                                GrGLenum type,
+                                                GrGLboolean normalized,
+                                                GrGLsizei stride,
+                                                GrGLvoid* offset) {
+    if (!fEnableIsValid || !fEnabled) {
+        GR_GL_CALL(gpu->glInterface(), EnableVertexAttribArray(index));
+        fEnableIsValid = true;
+        fEnabled = true;
+    }
+    if (!fAttribPointerIsValid ||
+        fVertexBufferID != buffer->bufferID() ||
+        fSize != size ||
+        fNormalized != normalized ||
+        fStride != stride ||
+        offset != fOffset) {
+
+        GrGLuint bufferID = buffer->bufferID();
+        if (!geoState->isVertexBufferIDBound(bufferID)) {
+            buffer->bind();
+            geoState->setVertexBufferID(bufferID);
+        }
+        GR_GL_CALL(gpu->glInterface(), VertexAttribPointer(index,
+                                                           size,
+                                                           type,
+                                                           normalized,
+                                                           stride,
+                                                           offset));
+        fAttribPointerIsValid = true;
+        fVertexBufferID = bufferID;
+        fSize = size;
+        fNormalized = normalized;
+        fStride = stride;
+        fOffset = offset;
     }
 }

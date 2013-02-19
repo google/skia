@@ -966,12 +966,12 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& buil
 
     // Bind the attrib locations to same values for all shaders
     GL_CALL(BindAttribLocation(fProgramID,
-                               PositionAttributeIdx(),
+                               kPositionAttributeIndex,
                                builder.positionAttribute().c_str()));
-    GL_CALL(BindAttribLocation(fProgramID, TexCoordAttributeIdx(), TEX_ATTR_NAME));
-    GL_CALL(BindAttribLocation(fProgramID, ColorAttributeIdx(), COL_ATTR_NAME));
-    GL_CALL(BindAttribLocation(fProgramID, CoverageAttributeIdx(), COV_ATTR_NAME));
-    GL_CALL(BindAttribLocation(fProgramID, EdgeAttributeIdx(), EDGE_ATTR_NAME));
+    GL_CALL(BindAttribLocation(fProgramID, kTexCoordAttributeIndex, TEX_ATTR_NAME));
+    GL_CALL(BindAttribLocation(fProgramID, kColorAttributeIndex, COL_ATTR_NAME));
+    GL_CALL(BindAttribLocation(fProgramID, kCoverageAttributeIndex, COV_ATTR_NAME));
+    GL_CALL(BindAttribLocation(fProgramID, kEdgeAttributeIndex, EDGE_ATTR_NAME));
 
     GL_CALL(LinkProgram(fProgramID));
 
@@ -1067,7 +1067,7 @@ void GrGLProgram::setColor(const GrDrawState& drawState,
                     // OpenGL ES only supports the float varieties of glVertexAttrib
                     GrGLfloat c[4];
                     GrColorToRGBAFloat(color, c);
-                    GL_CALL(VertexAttrib4fv(GrGLProgram::ColorAttributeIdx(), c));
+                    GL_CALL(VertexAttrib4fv(kColorAttributeIndex, c));
                     sharedState->fConstAttribColor = color;
                 }
                 break;
@@ -1101,7 +1101,7 @@ void GrGLProgram::setCoverage(const GrDrawState& drawState,
                     // OpenGL ES only supports the float varieties of  glVertexAttrib
                     GrGLfloat c[4];
                     GrColorToRGBAFloat(coverage, c);
-                    GL_CALL(VertexAttrib4fv(GrGLProgram::CoverageAttributeIdx(), c));
+                    GL_CALL(VertexAttrib4fv(kCoverageAttributeIndex, c));
                     sharedState->fConstAttribCoverage = coverage;
                 }
                 break;

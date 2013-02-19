@@ -47,10 +47,6 @@ void GrGLVertexBuffer::bind() const {
     GPUGL->notifyVertexBufferBind(this);
 }
 
-GrGLuint GrGLVertexBuffer::bufferID() const {
-    return fBufferID;
-}
-
 void* GrGLVertexBuffer::lock() {
     GrAssert(fBufferID);
     GrAssert(!isLocked());
