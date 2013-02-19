@@ -561,14 +561,14 @@ void Scale::execute(SkCanvas* canvas) {
 }
 
 SetMatrix::SetMatrix(const SkMatrix& matrix) {
-    this->fMatrix = &matrix;
+    this->fMatrix = matrix;
     this->fDrawType = SET_MATRIX;
 
     this->fInfo.push(SkObjectParser::MatrixToString(matrix));
 }
 
 void SetMatrix::execute(SkCanvas* canvas) {
-    canvas->setMatrix(*this->fMatrix);
+    canvas->setMatrix(this->fMatrix);
 }
 
 Skew::Skew(SkScalar sx, SkScalar sy) {
