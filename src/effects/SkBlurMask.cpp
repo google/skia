@@ -22,8 +22,6 @@
 
 #define UNROLL_SEPARABLE_LOOPS
 
-#define SK_DISABLE_BLUR_ROUNDING
-
 /**
  * This function performs a box blur in X, of the given radius.  If the
  * "transpose" parameter is true, it will transpose the pixels on write,
