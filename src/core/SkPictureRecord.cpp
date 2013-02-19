@@ -190,39 +190,6 @@ static bool collapseSaveClipRestore(SkWriter32* writer, int32_t offset) {
     return true;
 }
 
-// This function is just a toy example and will not be delivered with this
-// CL
-static bool noClips(SkWriter32* writer, int32_t offset) {
-
-    int32_t restoreOffset = (int32_t)writer->size();
-
-    // back up to the save block
-    while (offset > 0) {
-        offset = *writer->peek32(offset);
-    }
-
-    // now offset points to a save
-    offset = -offset;
-    uint32_t opSize;
-    DrawType op = peek_op_and_size(writer, offset, &opSize);
-    SkASSERT(SAVE == op || SAVE_LAYER == op);
-
-    // Walk forward until until we hit our restore, nuking all clips
-    // along the way
-    offset += opSize;
-    while (offset < restoreOffset) {
-        op = peek_op_and_size(writer, offset, &opSize);
-
-        if (CLIP_RECT == op || CLIP_RRECT == op) {
-            uint32_t* ptr = writer->peek32(offset);
-            *ptr = (*ptr & MASK_24) | (NOOP << 24);
-        }
-        offset += opSize;
-    }
-
-    return true;
-}
-
 void SkPictureRecord::restore() {
     // FIXME: SkDeferredCanvas needs to be refactored to respect
     // save/restore balancing so that the following test can be
@@ -239,9 +206,6 @@ void SkPictureRecord::restore() {
     if (fRestoreOffsetStack.count() == fFirstSavedLayerIndex) {
         fFirstSavedLayerIndex = kNoSavedLayerIndex;
     }
-
-    // This call will not be delivered either
-    noClips(&fWriter, fRestoreOffsetStack.top());
 
     uint32_t initialOffset, size;
     if (!collapseSaveClipRestore(&fWriter, fRestoreOffsetStack.top())) {
