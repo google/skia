@@ -11,6 +11,7 @@
 #include "IntersectionUtilities.h"
 #include "LineIntersection.h"
 #include "LineUtilities.h"
+#include "QuadraticUtilities.h"
 
 #if ONE_OFF_DEBUG
 static const double tLimits[2][2] = {{0.516980827, 0.516981209}, {0.647714088, 0.64771447}};
@@ -496,29 +497,17 @@ bool intersect3(const Cubic& c1, const Cubic& c2, Intersections& i) {
     return result;
 }
 
+// Up promote the quad to a cubic.
+// OPTIMIZATION If this is a common use case, optimize by duplicating
+// the intersect 3 loop to avoid the promotion  / demotion code
 int intersect(const Cubic& cubic, const Quadratic& quad, Intersections& i) {
-    SkTDArray<double> ts;
-    double precision = calcPrecision(cubic);
-    cubic_to_quadratics(cubic, precision, ts);
-    double tStart = 0;
-    Cubic part;
-    int tsCount = ts.count();
-    for (int idx = 0; idx <= tsCount; ++idx) {
-        double t = idx < tsCount ? ts[idx] : 1;
-        Quadratic q1;
-        sub_divide(cubic, tStart, t, part);
-        demote_cubic_to_quad(part, q1);
-        Intersections locals;
-        intersect2(q1, quad, locals);
-        for (int tIdx = 0; tIdx < locals.used(); ++tIdx) {
-            double globalT = tStart + (t - tStart) * locals.fT[0][tIdx];
-            i.insert(globalT, locals.fT[1][tIdx], locals.fPt[tIdx]);
-        }
-        tStart = t;
-    }
+    Cubic up;
+    toCubic(quad, up);
+    (void) intersect3(cubic, up, i);
     return i.used();
 }
 
+// FIXME: this needs to be recursive like intersect 3
 bool intersect(const Cubic& cubic, Intersections& i) {
     SkTDArray<double> ts;
     double precision = calcPrecision(cubic);
