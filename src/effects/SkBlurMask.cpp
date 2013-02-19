@@ -22,12 +22,51 @@
 
 #define UNROLL_SEPARABLE_LOOPS
 
+#define SK_DISABLE_BLUR_ROUNDING
+
 /**
  * This function performs a box blur in X, of the given radius.  If the
  * "transpose" parameter is true, it will transpose the pixels on write,
  * such that X and Y are swapped. Reads are always performed from contiguous
  * memory in X, for speed. The destination buffer (dst) must be at least
  * (width + leftRadius + rightRadius) * height bytes in size.
+ *
+ * This is what the inner loop looks like before unrolling, and with the two
+ * cases broken out separately (width < diameter, width >= diameter):
+ * 
+ *      if (width < diameter) {
+ *          for (int x = 0; x < width; ++x) {
+ *              sum += *right++;
+ *              *dptr = (sum * scale + half) >> 24; 
+ *              dptr += dst_x_stride;
+ *          }
+ *          for (int x = width; x < diameter; ++x) {
+ *              *dptr = (sum * scale + half) >> 24;
+ *              dptr += dst_x_stride;
+ *          }
+ *          for (int x = 0; x < width; ++x) {
+ *              *dptr = (sum * scale + half) >> 24;
+ *              sum -= *left++;
+ *              dptr += dst_x_stride;
+ *          }
+ *      } else {
+ *          for (int x = 0; x < diameter; ++x) {
+ *              sum += *right++;
+ *              *dptr = (sum * scale + half) >> 24;
+ *              dptr += dst_x_stride;
+ *          }
+ *          for (int x = diameter; x < width; ++x) {
+ *              sum += *right++;
+ *              *dptr = (sum * scale + half) >> 24;
+ *              sum -= *left++;
+ *              dptr += dst_x_stride;
+ *          }
+ *          for (int x = 0; x < diameter; ++x) {
+ *              *dptr = (sum * scale + half) >> 24;
+ *              sum -= *left++;
+ *              dptr += dst_x_stride;
+ *          }
+ *      }
  */
 static int boxBlur(const uint8_t* src, int src_y_stride, uint8_t* dst,
                    int leftRadius, int rightRadius, int width, int height,
@@ -40,8 +79,13 @@ static int boxBlur(const uint8_t* src, int src_y_stride, uint8_t* dst,
     int new_width = width + SkMax32(leftRadius, rightRadius) * 2;
     int dst_x_stride = transpose ? height : 1;
     int dst_y_stride = transpose ? 1 : new_width;
+#ifndef SK_DISABLE_BLUR_ROUNDING
+    uint32_t half = 1 << 23;
+#else
+    uint32_t half = 0;
+#endif
     for (int y = 0; y < height; ++y) {
-        int sum = 0;
+        uint32_t sum = 0;
         uint8_t* dptr = dst + y * dst_y_stride;
         const uint8_t* right = src + y * src_y_stride;
         const uint8_t* left = right;
@@ -51,7 +95,7 @@ static int boxBlur(const uint8_t* src, int src_y_stride, uint8_t* dst,
         }
 #define LEFT_BORDER_ITER \
             sum += *right++; \
-            *dptr = (sum * scale) >> 24; \
+            *dptr = (sum * scale + half) >> 24; \
             dptr += dst_x_stride;
 
         int x = 0;
@@ -80,7 +124,7 @@ static int boxBlur(const uint8_t* src, int src_y_stride, uint8_t* dst,
         }
 #undef LEFT_BORDER_ITER
 #define TRIVIAL_ITER \
-            *dptr = (sum * scale) >> 24; \
+            *dptr = (sum * scale + half) >> 24; \
             dptr += dst_x_stride;
         x = width;
 #ifdef UNROLL_SEPARABLE_LOOPS
@@ -109,7 +153,7 @@ static int boxBlur(const uint8_t* src, int src_y_stride, uint8_t* dst,
 #undef TRIVIAL_ITER
 #define CENTER_ITER \
             sum += *right++; \
-            *dptr = (sum * scale) >> 24; \
+            *dptr = (sum * scale + half) >> 24; \
             sum -= *left++; \
             dptr += dst_x_stride;
 
@@ -139,7 +183,7 @@ static int boxBlur(const uint8_t* src, int src_y_stride, uint8_t* dst,
         }
 #undef CENTER_ITER
 #define RIGHT_BORDER_ITER \
-            *dptr = (sum * scale) >> 24; \
+            *dptr = (sum * scale + half) >> 24; \
             sum -= *left++; \
             dptr += dst_x_stride;
 
@@ -184,7 +228,52 @@ static int boxBlur(const uint8_t* src, int src_y_stride, uint8_t* dst,
  * interpolates between them.  In float this would be:
  *  outer_weight * outer_sum / kernelSize +
  *  (1.0 - outer_weight) * innerSum / (kernelSize - 2)
+ * 
+ * This is what the inner loop looks like before unrolling, and with the two
+ * cases broken out separately (width < diameter, width >= diameter):
+ * 
+ *      if (width < diameter) {
+ *          for (int x = 0; x < width; x++) {
+ *              inner_sum = outer_sum;
+ *              outer_sum += *right++;
+ *              *dptr = (outer_sum * outer_scale + inner_sum * inner_scale + half) >> 24;
+ *              dptr += dst_x_stride;
+ *          }
+ *          for (int x = width; x < diameter; ++x) {
+ *              *dptr = (outer_sum * outer_scale + inner_sum * inner_scale + half) >> 24;
+ *              dptr += dst_x_stride;
+ *          }
+ *          for (int x = 0; x < width; x++) {
+ *              inner_sum = outer_sum - *left++;
+ *              *dptr = (outer_sum * outer_scale + inner_sum * inner_scale + half) >> 24;
+ *              dptr += dst_x_stride;
+ *              outer_sum = inner_sum;
+ *          }
+ *      } else {
+ *          for (int x = 0; x < diameter; x++) {
+ *              inner_sum = outer_sum;
+ *              outer_sum += *right++;
+ *              *dptr = (outer_sum * outer_scale + inner_sum * inner_scale + half) >> 24;
+ *              dptr += dst_x_stride;
+ *          }
+ *          for (int x = diameter; x < width; ++x) {
+ *              inner_sum = outer_sum - *left;
+ *              outer_sum += *right++;
+ *              *dptr = (outer_sum * outer_scale + inner_sum * inner_scale + half) >> 24;
+ *              dptr += dst_x_stride;
+ *              outer_sum -= *left++;
+ *          }
+ *          for (int x = 0; x < diameter; x++) {
+ *              inner_sum = outer_sum - *left++;
+ *              *dptr = (outer_sum * outer_scale + inner_sum * inner_scale + half) >> 24;
+ *              dptr += dst_x_stride;
+ *              outer_sum = inner_sum;
+ *          }
+ *      }
+ *  }
+ *  return new_width;
  */
+
 static int boxBlurInterp(const uint8_t* src, int src_y_stride, uint8_t* dst,
                          int radius, int width, int height,
                          bool transpose, uint8_t outer_weight)
@@ -197,11 +286,16 @@ static int boxBlurInterp(const uint8_t* src, int src_y_stride, uint8_t* dst,
     inner_weight += inner_weight >> 7;
     uint32_t outer_scale = (outer_weight << 16) / kernelSize;
     uint32_t inner_scale = (inner_weight << 16) / (kernelSize - 2);
+#ifndef SK_DISABLE_BLUR_ROUNDING
+    uint32_t half = 1 << 23;
+#else
+    uint32_t half = 0;
+#endif
     int new_width = width + diameter;
     int dst_x_stride = transpose ? height : 1;
     int dst_y_stride = transpose ? 1 : new_width;
     for (int y = 0; y < height; ++y) {
-        int outer_sum = 0, inner_sum = 0;
+        uint32_t outer_sum = 0, inner_sum = 0;
         uint8_t* dptr = dst + y * dst_y_stride;
         const uint8_t* right = src + y * src_y_stride;
         const uint8_t* left = right;
@@ -210,7 +304,7 @@ static int boxBlurInterp(const uint8_t* src, int src_y_stride, uint8_t* dst,
 #define LEFT_BORDER_ITER \
             inner_sum = outer_sum; \
             outer_sum += *right++; \
-            *dptr = (outer_sum * outer_scale + inner_sum * inner_scale) >> 24; \
+            *dptr = (outer_sum * outer_scale + inner_sum * inner_scale + half) >> 24; \
             dptr += dst_x_stride;
 
 #ifdef UNROLL_SEPARABLE_LOOPS
@@ -239,7 +333,7 @@ static int boxBlurInterp(const uint8_t* src, int src_y_stride, uint8_t* dst,
         }
 #undef LEFT_BORDER_ITER
         for (int x = width; x < diameter; ++x) {
-            *dptr = (outer_sum * outer_scale + inner_sum * inner_scale) >> 24;
+            *dptr = (outer_sum * outer_scale + inner_sum * inner_scale + half) >> 24;
             dptr += dst_x_stride;
         }
         x = diameter;
@@ -247,7 +341,7 @@ static int boxBlurInterp(const uint8_t* src, int src_y_stride, uint8_t* dst,
 #define CENTER_ITER \
             inner_sum = outer_sum - *left; \
             outer_sum += *right++; \
-            *dptr = (outer_sum * outer_scale + inner_sum * inner_scale) >> 24; \
+            *dptr = (outer_sum * outer_scale + inner_sum * inner_scale + half) >> 24; \
             dptr += dst_x_stride; \
             outer_sum -= *left++;
 
@@ -278,7 +372,7 @@ static int boxBlurInterp(const uint8_t* src, int src_y_stride, uint8_t* dst,
 
         #define RIGHT_BORDER_ITER \
             inner_sum = outer_sum - *left++; \
-            *dptr = (outer_sum * outer_scale + inner_sum * inner_scale) >> 24; \
+            *dptr = (outer_sum * outer_scale + inner_sum * inner_scale + half) >> 24; \
             dptr += dst_x_stride; \
             outer_sum = inner_sum;
 
