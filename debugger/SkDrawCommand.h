@@ -391,7 +391,7 @@ public:
     SetMatrix(const SkMatrix& matrix);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
 private:
-    const SkMatrix* fMatrix;
+    SkMatrix fMatrix;
 };
 
 class Skew : public SkDrawCommand {
