@@ -65,3 +65,22 @@ int UlpsDiff(float A, float B)
     return abs(uA.i - uB.i);
 }
 #endif
+
+#if SK_DEBUG
+void mathematica_ize(char* str, size_t bufferLen) {
+    size_t len = strlen(str);
+    bool num = false;
+    for (size_t idx = 0; idx < len; ++idx) {
+        if (num && str[idx] == 'e') {
+            if (len + 2 >= bufferLen) {
+                return;
+            }
+            memmove(&str[idx + 2], &str[idx + 1], len - idx);
+            str[idx] = '*';
+            str[idx + 1] = '^';
+            ++len;
+        }
+        num = str[idx] >= '0' && str[idx] <= '9';
+    }
+}
+#endif

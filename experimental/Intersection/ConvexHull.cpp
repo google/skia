@@ -113,10 +113,10 @@ bool convex_x_hull(const Cubic& cubic, char connectTo0[2], char connectTo3[2]) {
     int lower0Index = 1;
     int upper0Index = 1;
     for (index = 2; index < 4; ++index) {
-        if (approximately_greater(projectedY[lower0Index], projectedY[index])) {
+        if (approximately_greater_or_equal(projectedY[lower0Index], projectedY[index])) {
             lower0Index = index;
         }
-        if (approximately_lesser(projectedY[upper0Index], projectedY[index])) {
+        if (approximately_lesser_or_equal(projectedY[upper0Index], projectedY[index])) {
             upper0Index = index;
         }
     }
@@ -129,10 +129,10 @@ bool convex_x_hull(const Cubic& cubic, char connectTo0[2], char connectTo3[2]) {
     int lower3Index = 2;
     int upper3Index = 2;
     for (index = 1; index > -1; --index) {
-        if (approximately_greater(projectedY[lower3Index], projectedY[index])) {
+        if (approximately_greater_or_equal(projectedY[lower3Index], projectedY[index])) {
             lower3Index = index;
         }
-        if (approximately_lesser(projectedY[upper3Index], projectedY[index])) {
+        if (approximately_lesser_or_equal(projectedY[upper3Index], projectedY[index])) {
             upper3Index = index;
         }
     }

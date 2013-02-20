@@ -131,7 +131,7 @@ static void testOneQuartic(size_t aIndex, size_t bIndex, size_t cIndex, size_t d
     bool oneHint = approximately_zero(A + b + c + d + e);
     int rootCount = reducedQuarticRoots(A, b, c, d, e, oneHint, roots);
     if (rootCount < 0) {
-        rootCount = quarticRootsReal(A, b, c, d, e, roots);
+        rootCount = quarticRootsReal(0, A, b, c, d, e, roots);
     }
     const int expected = 1 + (B != C) + (B != D && C != D) + (B != E && C != E && D != E);
     SkASSERT(rootCount == expected);

@@ -32,7 +32,7 @@ int gDebugMaxWindValue = SK_MaxS32;
 
 #define DEBUG_UNUSED 0 // set to expose unused functions
 
-#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging
+#define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging
 
 #if FORCE_RELEASE || defined SK_RELEASE
 
@@ -51,8 +51,8 @@ const bool gRunTestsInOneThread = false;
 #define DEBUG_MARK_DONE 0
 #define DEBUG_PATH_CONSTRUCTION 0
 #define DEBUG_SHOW_WINDING 0
-#define DEBUG_SORT 0
-#define DEBUG_SWAP_TOP 1
+#define DEBUG_SORT 1
+#define DEBUG_SWAP_TOP 0
 #define DEBUG_UNSORTABLE 0
 #define DEBUG_WIND_BUMP 0
 #define DEBUG_WINDING 0
@@ -88,11 +88,14 @@ const bool gRunTestsInOneThread = true;
         DEBUG_PATH_CONSTRUCTION)
 
 #if DEBUG_DUMP
-static const char* kShapeOpStr[] = {"diff", "sect", "union", "xor"};
 static const char* kLVerbStr[] = {"", "line", "quad", "cubic"};
 // static const char* kUVerbStr[] = {"", "Line", "Quad", "Cubic"};
 static int gContourID;
 static int gSegmentID;
+#endif
+
+#if DEBUG_ACTIVE_OP
+static const char* kShapeOpStr[] = {"diff", "sect", "union", "xor"};
 #endif
 
 #ifndef DEBUG_TEST
@@ -1041,7 +1044,7 @@ static bool useInnerWinding(int outerWinding, int innerWinding) {
     int absIn = abs(innerWinding);
     bool result = absOut == absIn ? outerWinding < 0 : absOut < absIn;
     if (outerWinding * innerWinding < 0) {
-#if DEBUG_WINDING
+#if 0 && DEBUG_WINDING
         SkDebugf("%s outer=%d inner=%d result=%s\n", __FUNCTION__,
                 outerWinding, innerWinding, result ? "true" : "false");
 #endif
@@ -2822,14 +2825,24 @@ public:
             endIndex = angle->start();
         } while (leftSegment->fTs[SkMin32(tIndex, endIndex)].fDone);
         if (leftSegment->verb() >= SkPath::kQuad_Verb) {
+            bool bumpsUp = leftSegment->bumpsUp(tIndex, endIndex);
+            SkPoint xyE = leftSegment->xyAtT(endIndex);
+            SkPoint xyS = leftSegment->xyAtT(tIndex);
             SkPoint dxyE = leftSegment->dxdy(endIndex);
             SkPoint dxyS = leftSegment->dxdy(tIndex);
             double cross = dxyE.cross(dxyS);
+            bool bumpCheck = bumpsUp && xyE.fY < xyS.fY;
         #if DEBUG_SWAP_TOP
-            SkDebugf("%s dxyE=(%1.9g,%1.9g) dxyS=(%1.9g,%1.9g) cross=%1.9g\n", __FUNCTION__,
-                    dxyE.fX, dxyE.fY, dxyS.fX, dxyS.fY, cross);
+            SkDebugf("%s xyE=(%1.9g,%1.9g) xyS=(%1.9g,%1.9g)\n", __FUNCTION__,
+                    xyE.fX, xyE.fY, xyS.fX, xyS.fY);
+            SkDebugf("%s dxyE=(%1.9g,%1.9g) dxyS=(%1.9g,%1.9g) cross=%1.9g bump=%s\n", __FUNCTION__,
+                    dxyE.fX, dxyE.fY, dxyS.fX, dxyS.fY, cross, bumpCheck ? "true" : "false");
         #endif
-            if (cross >= 1) {
+            if ((cross > 0) ^ bumpCheck) {
+                leftSegment->bumpsUp(tIndex, endIndex);
+                SkDebugf("%s cross bump disagree\n", __FUNCTION__);
+            }
+            if (bumpCheck) {
         #if DEBUG_SWAP_TOP
                 SkDebugf("%s swap\n", __FUNCTION__);
         #endif
@@ -3298,6 +3311,27 @@ the same winding is shared by both.
         return &span;
     }
 
+    bool bumpsUp(int tStart, int tEnd) const {
+        SkPoint edge[4];
+        (*SegmentSubDivide[fVerb])(fPts, fTs[tStart].fT, fTs[tEnd].fT, edge);
+        switch (fVerb) {
+            case SkPath::kLine_Verb:
+                SkASSERT(0); // shouldn't call in for lines
+                return true;
+            case SkPath::kQuad_Verb:
+                return approximately_greater(edge[0].fY, edge[1].fY)
+                        && approximately_lesser(edge[1].fY, edge[2].fY);
+            case SkPath::kCubic_Verb:
+                return (approximately_greater(edge[0].fY, edge[1].fY)
+                        && approximately_lesser(edge[1].fY, edge[3].fY))
+                        || (approximately_greater(edge[0].fY, edge[2].fY)
+                        && approximately_lesser(edge[2].fY, edge[3].fY));
+            default:
+                SkASSERT(0);
+                return false;
+        }
+    }
+
     Span* verifyOneWinding(const char* funName, int tIndex) {
         Span& span = fTs[tIndex];
         if (span.fDone) {
@@ -3685,7 +3719,8 @@ the same winding is shared by both.
         int lesser = SkMin32(index, endIndex);
         int oppWinding = oppSum(lesser);
         int oppSpanWinding = oppSign(index, endIndex);
-        if (oppSpanWinding && useInnerWinding(oppWinding - oppSpanWinding, oppWinding)) {
+        if (oppSpanWinding && useInnerWinding(oppWinding - oppSpanWinding, oppWinding)
+                && oppWinding != SK_MaxS32) {
             oppWinding -= oppSpanWinding;
         }
         return oppWinding;
@@ -3707,7 +3742,7 @@ the same winding is shared by both.
         int lesser = SkMin32(index, endIndex);
         int winding = windSum(lesser);
         int spanWinding = spanSign(index, endIndex);
-        if (winding && useInnerWinding(winding - spanWinding, winding)) {
+        if (winding && useInnerWinding(winding - spanWinding, winding) && winding != SK_MaxS32) {
             winding -= spanWinding;
         }
         return winding;
@@ -4130,6 +4165,8 @@ the same winding is shared by both.
                     start, segment.xAtT(&sSpan), segment.yAtT(&sSpan), end,
                     segment.xAtT(&eSpan), segment.yAtT(&eSpan), angle.sign(),
                     mSpan.fWindValue);
+            start here; 
+            // create an inline to replace this conditional
             if (mSpan.fWindSum == SK_MinS32) {
                 SkDebugf("?");
             } else {

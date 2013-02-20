@@ -120,11 +120,19 @@ inline bool approximately_equal_squared(double x, double y) {
 }
 
 inline bool approximately_greater(double x, double y) {
-    return approximately_equal(x, y) ? false : x > y;
+    return x - FLT_EPSILON >= y;
+}
+
+inline bool approximately_greater_or_equal(double x, double y) {
+    return x + FLT_EPSILON > y;
 }
 
 inline bool approximately_lesser(double x, double y) {
-    return approximately_equal(x, y) ? false : x < y;
+    return x + FLT_EPSILON <= y;
+}
+
+inline bool approximately_lesser_or_equal(double x, double y) {
+    return x - FLT_EPSILON < y;
 }
 
 inline double approximately_pin(double x) {
@@ -285,7 +293,10 @@ struct _Point {
     double lengthSquared() const {
         return x * x + y * y;
     }
-
+    
+    double roughlyEqual(const _Point& a) const {
+        return roughly_equal(a.y, y) && roughly_equal(a.x, x);
+    }
 };
 
 typedef _Point _Line[2];
@@ -360,5 +371,9 @@ struct QuadraticPair {
 #include "SkFloatingPoint.h"
 
 #define sk_double_isnan(a) sk_float_isnan(a)
+
+#if SK_DEBUG
+void mathematica_ize(char* str, size_t bufferSize);
+#endif
 
 #endif // __DataTypes_h__

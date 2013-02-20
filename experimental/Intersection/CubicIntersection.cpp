@@ -14,7 +14,7 @@
 #include "QuadraticUtilities.h"
 
 #if ONE_OFF_DEBUG
-static const double tLimits[2][2] = {{0.516980827, 0.516981209}, {0.647714088, 0.64771447}};
+static const double tLimits[2][2] = {{0.599274754, 0.599275135}, {0.599274754, 0.599275135}};
 #endif
 
 #define DEBUG_QUAD_PART 0
@@ -358,6 +358,19 @@ static bool intersect3(const Cubic& cubic1, double t1s, double t1e, const Cubic&
             const double t2 = t2s + (t2e - t2s) * tEnd2;
             Quadratic s2;
             int o2 = quadPart(cubic2, t2Start, t2, s2);
+        #if ONE_OFF_DEBUG
+            if (tLimits[0][0] >= t1Start && tLimits[0][1] <= t1
+                    && tLimits[1][0] >= t2Start && tLimits[1][1] <= t2) {
+                Cubic cSub1, cSub2;
+                sub_divide(cubic1, t1Start, tEnd1, cSub1);
+                sub_divide(cubic2, t2Start, tEnd2, cSub2);
+                SkDebugf("t1=(%1.9g,%1.9g) t2=(%1.9g,%1.9g)\n",
+                        t1Start, t1, t2Start, t2);
+                Intersections xlocals;
+                intersectWithOrder(s1, o1, s2, o2, xlocals);
+                SkDebugf("xlocals.fUsed=%d\n", xlocals.used());
+            }
+        #endif
             Intersections locals;
             intersectWithOrder(s1, o1, s2, o2, locals);
             double coStart[2] = { -1 };

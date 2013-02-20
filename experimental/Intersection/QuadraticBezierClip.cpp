@@ -41,17 +41,17 @@ bool bezier_clip(const Quadratic& q1, const Quadratic& q2, double& minT, double&
     endLine.quadDistanceY(q2, distance2y);
 
     int flags = 0;
-    if (approximately_lesser(distance2y[0].y, top)) {
+    if (approximately_lesser_or_equal(distance2y[0].y, top)) {
         flags |= kFindTopMin;
-    } else if (approximately_greater(distance2y[0].y, bottom)) {
+    } else if (approximately_greater_or_equal(distance2y[0].y, bottom)) {
         flags |= kFindBottomMin;
     } else {
         minT = 0;
     }
 
-    if (approximately_lesser(distance2y[2].y, top)) {
+    if (approximately_lesser_or_equal(distance2y[2].y, top)) {
         flags |= kFindTopMax;
-    } else if (approximately_greater(distance2y[2].y, bottom)) {
+    } else if (approximately_greater_or_equal(distance2y[2].y, bottom)) {
         flags |= kFindBottomMax;
     } else {
         maxT = 1;
