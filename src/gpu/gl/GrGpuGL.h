@@ -58,10 +58,10 @@ public:
     const GrGLCaps& glCaps() const { return fGLContextInfo.caps(); }
 
     // Callbacks to update state tracking when related GL objects are bound or deleted
-    void notifyVertexBufferBind(const GrGLVertexBuffer* buffer);
-    void notifyVertexBufferDelete(const GrGLVertexBuffer* buffer);
-    void notifyIndexBufferBind(const GrGLIndexBuffer* buffer);
-    void notifyIndexBufferDelete(const GrGLIndexBuffer* buffer);
+    void notifyVertexBufferBind(GrGLuint id);
+    void notifyVertexBufferDelete(GrGLuint id);
+    void notifyIndexBufferBind(GrGLuint id);
+    void notifyIndexBufferDelete(GrGLuint id);
     void notifyTextureDelete(GrGLTexture* texture);
     void notifyRenderTargetDelete(GrRenderTarget* renderTarget);
 
@@ -291,8 +291,7 @@ private:
             }
         }
 
-        void notifyVertexBufferDelete(const GrGLVertexBuffer* buffer) {
-            GrGLuint id = buffer->bufferID();
+        void notifyVertexBufferDelete(GrGLuint id) {
             if (0 != id) {
                 if (this->isVertexBufferIDBound(id)) {
                     // deleting bound buffer does implied bind to 0
@@ -306,8 +305,7 @@ private:
             }
         }
 
-        void notifyIndexBufferDelete(const GrGLIndexBuffer* buffer) {
-            GrGLuint id = buffer->bufferID();
+        void notifyIndexBufferDelete(GrGLuint id) {
             if (0 != id) {
                 if (this->isIndexBufferIDBound(id)) {
                     // deleting bound buffer does implied bind to 0
