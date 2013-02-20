@@ -31,11 +31,11 @@
  *
  * This is what the inner loop looks like before unrolling, and with the two
  * cases broken out separately (width < diameter, width >= diameter):
- * 
+ *
  *      if (width < diameter) {
  *          for (int x = 0; x < width; ++x) {
  *              sum += *right++;
- *              *dptr = (sum * scale + half) >> 24; 
+ *              *dptr = (sum * scale + half) >> 24;
  *              dptr += dst_x_stride;
  *          }
  *          for (int x = width; x < diameter; ++x) {
@@ -226,10 +226,10 @@ static int boxBlur(const uint8_t* src, int src_y_stride, uint8_t* dst,
  * interpolates between them.  In float this would be:
  *  outer_weight * outer_sum / kernelSize +
  *  (1.0 - outer_weight) * innerSum / (kernelSize - 2)
- * 
+ *
  * This is what the inner loop looks like before unrolling, and with the two
  * cases broken out separately (width < diameter, width >= diameter):
- * 
+ *
  *      if (width < diameter) {
  *          for (int x = 0; x < width; x++) {
  *              inner_sum = outer_sum;
