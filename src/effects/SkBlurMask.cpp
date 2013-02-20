@@ -210,7 +210,7 @@ static int boxBlur(const uint8_t* src, int src_y_stride, uint8_t* dst,
             RIGHT_BORDER_ITER
         }
 #undef RIGHT_BORDER_ITER
-        for (int x = 0; x < leftRadius - rightRadius; x++) {
+        for (int x = 0; x < leftRadius - rightRadius; ++x) {
             *dptr = 0;
             dptr += dst_x_stride;
         }
@@ -326,7 +326,7 @@ static int boxBlurInterp(const uint8_t* src, int src_y_stride, uint8_t* dst,
         }
 #endif
 
-        for (;x < border; x++) {
+        for (;x < border; ++x) {
             LEFT_BORDER_ITER
         }
 #undef LEFT_BORDER_ITER
@@ -395,7 +395,7 @@ static int boxBlurInterp(const uint8_t* src, int src_y_stride, uint8_t* dst,
             RIGHT_BORDER_ITER
         }
 #endif
-        for (; x < border; x++) {
+        for (; x < border; ++x) {
             RIGHT_BORDER_ITER
         }
 #undef RIGHT_BORDER_ITER
@@ -519,17 +519,19 @@ static void kernel_clamped(uint8_t dst[], int rx, int ry, const uint32_t sum[],
     int prev_y = -2*ry;
     int next_y = 1;
 
-    for (int y = 0; y < dh; y++) {
+    for (int y = 0; y < dh; ++y) {
         int py = SkClampPos(prev_y) * sumStride;
         int ny = SkFastMin32(next_y, sh) * sumStride;
 
         int prev_x = -2*rx;
         int next_x = 1;
 
-        for (int x = 0; x < dw; x++) {
+        for (int x = 0; x < dw; ++x) {
             int px = SkClampPos(prev_x);
             int nx = SkFastMin32(next_x, sw);
 
+            // TODO: should we be adding 1/2 (1 << 23) to round to the
+            // nearest integer here?
             uint32_t tmp = sum[px+py] + sum[nx+ny] - sum[nx+py] - sum[px+ny];
             *dst++ = SkToU8(tmp * scale >> 24);
 
@@ -549,7 +551,7 @@ static void kernel_clamped(uint8_t dst[], int rx, int ry, const uint32_t sum[],
  *
  *  The inner loop is conceptually simple; we break it into several sections
  *  to improve performance. Here's the original version:
-        for (int x = 0; x < dw; x++) {
+        for (int x = 0; x < dw; ++x) {
             int px = SkClampPos(prev_x);
             int nx = SkFastMin32(next_x, sw);
 
@@ -585,7 +587,7 @@ static void apply_kernel(uint8_t dst[], int rx, int ry, const uint32_t sum[],
 
     SkASSERT(2*rx <= dw - 2*rx);
 
-    for (int y = 0; y < dh; y++) {
+    for (int y = 0; y < dh; ++y) {
         int py = SkClampPos(prev_y) * sumStride;
         int ny = SkFastMin32(next_y, sh) * sumStride;
 
@@ -593,7 +595,7 @@ static void apply_kernel(uint8_t dst[], int rx, int ry, const uint32_t sum[],
         int next_x = 1;
         int x = 0;
 
-        for (; x < 2*rx; x++) {
+        for (; x < 2*rx; ++x) {
             SkASSERT(prev_x <= 0);
             SkASSERT(next_x <= sw);
 
@@ -631,7 +633,7 @@ static void apply_kernel(uint8_t dst[], int rx, int ry, const uint32_t sum[],
         }
 #endif
 
-        for (; x < dw - 2*rx; x++) {
+        for (; x < dw - 2*rx; ++x) {
             SkASSERT(prev_x >= 0);
             SkASSERT(next_x <= sw);
 
@@ -642,7 +644,7 @@ static void apply_kernel(uint8_t dst[], int rx, int ry, const uint32_t sum[],
             next_x += 1;
         }
 
-        for (; x < dw; x++) {
+        for (; x < dw; ++x) {
             SkASSERT(prev_x >= 0);
             SkASSERT(next_x > sw);
 
@@ -666,17 +668,17 @@ static void apply_kernel(uint8_t dst[], int rx, int ry, const uint32_t sum[],
  * is wider than the source image.
  */
 static void kernel_interp_clamped(uint8_t dst[], int rx, int ry,
-                const uint32_t sum[], int sw, int sh, U8CPU outer_weight) {
+                const uint32_t sum[], int sw, int sh, U8CPU outerWeight) {
     SkASSERT(2*rx > sw);
 
-    int inner_weight = 255 - outer_weight;
+    int innerWeight = 255 - outerWeight;
 
     // round these guys up if they're bigger than 127
-    outer_weight += outer_weight >> 7;
-    inner_weight += inner_weight >> 7;
+    outerWeight += outerWeight >> 7;
+    innerWeight += innerWeight >> 7;
 
-    uint32_t outer_scale = (outer_weight << 16) / ((2*rx + 1)*(2*ry + 1));
-    uint32_t inner_scale = (inner_weight << 16) / ((2*rx - 1)*(2*ry - 1));
+    uint32_t outerScale = (outerWeight << 16) / ((2*rx + 1)*(2*ry + 1));
+    uint32_t innerScale = (innerWeight << 16) / ((2*rx - 1)*(2*ry - 1));
 
     int sumStride = sw + 1;
 
@@ -686,7 +688,7 @@ static void kernel_interp_clamped(uint8_t dst[], int rx, int ry,
     int prev_y = -2*ry;
     int next_y = 1;
 
-    for (int y = 0; y < dh; y++) {
+    for (int y = 0; y < dh; ++y) {
         int py = SkClampPos(prev_y) * sumStride;
         int ny = SkFastMin32(next_y, sh) * sumStride;
 
@@ -696,19 +698,19 @@ static void kernel_interp_clamped(uint8_t dst[], int rx, int ry,
         int prev_x = -2*rx;
         int next_x = 1;
 
-        for (int x = 0; x < dw; x++) {
+        for (int x = 0; x < dw; ++x) {
             int px = SkClampPos(prev_x);
             int nx = SkFastMin32(next_x, sw);
 
             int ipx = SkClampPos(prev_x + 1);
             int inx = SkClampMax(next_x - 1, sw);
 
-            uint32_t outer_sum = sum[px+py] + sum[nx+ny]
+            uint32_t outerSum = sum[px+py] + sum[nx+ny]
                                - sum[nx+py] - sum[px+ny];
-            uint32_t inner_sum = sum[ipx+ipy] + sum[inx+iny]
+            uint32_t innerSum = sum[ipx+ipy] + sum[inx+iny]
                                - sum[inx+ipy] - sum[ipx+iny];
-            *dst++ = SkToU8((outer_sum * outer_scale
-                           + inner_sum * inner_scale) >> 24);
+            *dst++ = SkToU8((outerSum * outerScale
+                           + innerSum * innerScale) >> 24);
 
             prev_x += 1;
             next_x += 1;
@@ -726,19 +728,19 @@ static void kernel_interp_clamped(uint8_t dst[], int rx, int ry,
  *
  *  The inner loop is conceptually simple; we break it into several variants
  *  to improve performance. Here's the original version:
-        for (int x = 0; x < dw; x++) {
+        for (int x = 0; x < dw; ++x) {
             int px = SkClampPos(prev_x);
             int nx = SkFastMin32(next_x, sw);
 
             int ipx = SkClampPos(prev_x + 1);
             int inx = SkClampMax(next_x - 1, sw);
 
-            uint32_t outer_sum = sum[px+py] + sum[nx+ny]
+            uint32_t outerSum = sum[px+py] + sum[nx+ny]
                                - sum[nx+py] - sum[px+ny];
-            uint32_t inner_sum = sum[ipx+ipy] + sum[inx+iny]
+            uint32_t innerSum = sum[ipx+ipy] + sum[inx+iny]
                                - sum[inx+ipy] - sum[ipx+iny];
-            *dst++ = SkToU8((outer_sum * outer_scale
-                           + inner_sum * inner_scale) >> 24);
+            *dst++ = SkToU8((outerSum * outerScale
+                           + innerSum * innerScale) >> 24);
 
             prev_x += 1;
             next_x += 1;
@@ -751,23 +753,23 @@ static void kernel_interp_clamped(uint8_t dst[], int rx, int ry,
  *  speedup.
 */
 static void apply_kernel_interp(uint8_t dst[], int rx, int ry,
-                const uint32_t sum[], int sw, int sh, U8CPU outer_weight) {
+                const uint32_t sum[], int sw, int sh, U8CPU outerWeight) {
     SkASSERT(rx > 0 && ry > 0);
-    SkASSERT(outer_weight <= 255);
+    SkASSERT(outerWeight <= 255);
 
     if (2*rx > sw) {
-        kernel_interp_clamped(dst, rx, ry, sum, sw, sh, outer_weight);
+        kernel_interp_clamped(dst, rx, ry, sum, sw, sh, outerWeight);
         return;
     }
 
-    int inner_weight = 255 - outer_weight;
+    int innerWeight = 255 - outerWeight;
 
     // round these guys up if they're bigger than 127
-    outer_weight += outer_weight >> 7;
-    inner_weight += inner_weight >> 7;
+    outerWeight += outerWeight >> 7;
+    innerWeight += innerWeight >> 7;
 
-    uint32_t outer_scale = (outer_weight << 16) / ((2*rx + 1)*(2*ry + 1));
-    uint32_t inner_scale = (inner_weight << 16) / ((2*rx - 1)*(2*ry - 1));
+    uint32_t outerScale = (outerWeight << 16) / ((2*rx + 1)*(2*ry + 1));
+    uint32_t innerScale = (innerWeight << 16) / ((2*rx - 1)*(2*ry - 1));
 
     int sumStride = sw + 1;
 
@@ -779,7 +781,7 @@ static void apply_kernel_interp(uint8_t dst[], int rx, int ry,
 
     SkASSERT(2*rx <= dw - 2*rx);
 
-    for (int y = 0; y < dh; y++) {
+    for (int y = 0; y < dh; ++y) {
         int py = SkClampPos(prev_y) * sumStride;
         int ny = SkFastMin32(next_y, sh) * sumStride;
 
@@ -790,7 +792,7 @@ static void apply_kernel_interp(uint8_t dst[], int rx, int ry,
         int next_x = 1;
         int x = 0;
 
-        for (; x < 2*rx; x++) {
+        for (; x < 2*rx; ++x) {
             SkASSERT(prev_x < 0);
             SkASSERT(next_x <= sw);
 
@@ -800,12 +802,12 @@ static void apply_kernel_interp(uint8_t dst[], int rx, int ry,
             int ipx = 0;
             int inx = next_x - 1;
 
-            uint32_t outer_sum = sum[px+py] + sum[nx+ny]
+            uint32_t outerSum = sum[px+py] + sum[nx+ny]
                                - sum[nx+py] - sum[px+ny];
-            uint32_t inner_sum = sum[ipx+ipy] + sum[inx+iny]
+            uint32_t innerSum = sum[ipx+ipy] + sum[inx+iny]
                                - sum[inx+ipy] - sum[ipx+iny];
-            *dst++ = SkToU8((outer_sum * outer_scale
-                           + inner_sum * inner_scale) >> 24);
+            *dst++ = SkToU8((outerSum * outerScale
+                           + innerSum * innerScale) >> 24);
 
             prev_x += 1;
             next_x += 1;
@@ -825,42 +827,42 @@ static void apply_kernel_interp(uint8_t dst[], int rx, int ry,
             SkASSERT(prev_x >= 0);
             SkASSERT(next_x <= sw);
 
-            uint32_t outer_sum = sum[i0++] + sum[i1++] - sum[i2++] - sum[i3++];
-            uint32_t inner_sum = sum[i4++] + sum[i5++] - sum[i6++] - sum[i7++];
-            *dst++ = SkToU8((outer_sum * outer_scale
-                           + inner_sum * inner_scale) >> 24);
-            outer_sum = sum[i0++] + sum[i1++] - sum[i2++] - sum[i3++];
-            inner_sum = sum[i4++] + sum[i5++] - sum[i6++] - sum[i7++];
-            *dst++ = SkToU8((outer_sum * outer_scale
-                           + inner_sum * inner_scale) >> 24);
-            outer_sum = sum[i0++] + sum[i1++] - sum[i2++] - sum[i3++];
-            inner_sum = sum[i4++] + sum[i5++] - sum[i6++] - sum[i7++];
-            *dst++ = SkToU8((outer_sum * outer_scale
-                           + inner_sum * inner_scale) >> 24);
-            outer_sum = sum[i0++] + sum[i1++] - sum[i2++] - sum[i3++];
-            inner_sum = sum[i4++] + sum[i5++] - sum[i6++] - sum[i7++];
-            *dst++ = SkToU8((outer_sum * outer_scale
-                           + inner_sum * inner_scale) >> 24);
+            uint32_t outerSum = sum[i0++] + sum[i1++] - sum[i2++] - sum[i3++];
+            uint32_t innerSum = sum[i4++] + sum[i5++] - sum[i6++] - sum[i7++];
+            *dst++ = SkToU8((outerSum * outerScale
+                           + innerSum * innerScale) >> 24);
+            outerSum = sum[i0++] + sum[i1++] - sum[i2++] - sum[i3++];
+            innerSum = sum[i4++] + sum[i5++] - sum[i6++] - sum[i7++];
+            *dst++ = SkToU8((outerSum * outerScale
+                           + innerSum * innerScale) >> 24);
+            outerSum = sum[i0++] + sum[i1++] - sum[i2++] - sum[i3++];
+            innerSum = sum[i4++] + sum[i5++] - sum[i6++] - sum[i7++];
+            *dst++ = SkToU8((outerSum * outerScale
+                           + innerSum * innerScale) >> 24);
+            outerSum = sum[i0++] + sum[i1++] - sum[i2++] - sum[i3++];
+            innerSum = sum[i4++] + sum[i5++] - sum[i6++] - sum[i7++];
+            *dst++ = SkToU8((outerSum * outerScale
+                           + innerSum * innerScale) >> 24);
 
             prev_x += 4;
             next_x += 4;
         }
 #endif
 
-        for (; x < dw - 2*rx; x++) {
+        for (; x < dw - 2*rx; ++x) {
             SkASSERT(prev_x >= 0);
             SkASSERT(next_x <= sw);
 
-            uint32_t outer_sum = sum[i0++] + sum[i1++] - sum[i2++] - sum[i3++];
-            uint32_t inner_sum = sum[i4++] + sum[i5++] - sum[i6++] - sum[i7++];
-            *dst++ = SkToU8((outer_sum * outer_scale
-                           + inner_sum * inner_scale) >> 24);
+            uint32_t outerSum = sum[i0++] + sum[i1++] - sum[i2++] - sum[i3++];
+            uint32_t innerSum = sum[i4++] + sum[i5++] - sum[i6++] - sum[i7++];
+            *dst++ = SkToU8((outerSum * outerScale
+                           + innerSum * innerScale) >> 24);
 
             prev_x += 1;
             next_x += 1;
         }
 
-        for (; x < dw; x++) {
+        for (; x < dw; ++x) {
             SkASSERT(prev_x >= 0);
             SkASSERT(next_x > sw);
 
@@ -870,12 +872,12 @@ static void apply_kernel_interp(uint8_t dst[], int rx, int ry,
             int ipx = prev_x + 1;
             int inx = sw;
 
-            uint32_t outer_sum = sum[px+py] + sum[nx+ny]
+            uint32_t outerSum = sum[px+py] + sum[nx+ny]
                                - sum[nx+py] - sum[px+ny];
-            uint32_t inner_sum = sum[ipx+ipy] + sum[inx+iny]
+            uint32_t innerSum = sum[ipx+ipy] + sum[inx+iny]
                                - sum[inx+ipy] - sum[ipx+iny];
-            *dst++ = SkToU8((outer_sum * outer_scale
-                           + inner_sum * inner_scale) >> 24);
+            *dst++ = SkToU8((outerSum * outerScale
+                           + innerSum * innerScale) >> 24);
 
             prev_x += 1;
             next_x += 1;
@@ -955,6 +957,7 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
                       SkScalar radius, Style style, Quality quality,
                       SkIPoint* margin, bool separable)
 {
+
     if (src.fFormat != SkMask::kA8_Format) {
         return false;
     }
@@ -963,16 +966,27 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
     if (radius < SkIntToScalar(3)) {
         quality = kLow_Quality;
     }
-
-    // highQuality: use three box blur passes as a cheap way to approximate a Gaussian blur
+    
+    // highQuality: use three box blur passes as a cheap way 
+    // to approximate a Gaussian blur
     int passCount = (kHigh_Quality == quality) ? 3 : 1;
-    SkScalar passRadius = (kHigh_Quality == quality) ? SkScalarMul( radius, kBlurRadiusFudgeFactor): radius;
+    SkScalar passRadius = (kHigh_Quality == quality) ? 
+                          SkScalarMul( radius, kBlurRadiusFudgeFactor): 
+                          radius;
+
+#ifndef SK_IGNORE_BLUR_RADIUS_CORRECTNESS
+    // multiply the given radius by sqrt(2)/2 to convert 
+    // from (2x) standard deviation to needed box width
+    const SkScalar radiusMultiplier = SkFloatToScalar(0.707f);
+    SkScalar boxWidth = SkScalarMul(passRadius, radiusMultiplier);
+    passRadius = SkScalarMul(boxWidth,SK_ScalarHalf) - SK_ScalarHalf;
+#endif
 
     int rx = SkScalarCeil(passRadius);
-    int outer_weight = 255 - SkScalarRound((SkIntToScalar(rx) - passRadius) * 255);
+    int outerWeight = 255 - SkScalarRound((SkIntToScalar(rx) - passRadius) * 255);
 
     SkASSERT(rx >= 0);
-    SkASSERT((unsigned)outer_weight <= 255);
+    SkASSERT((unsigned)outerWeight <= 255);
     if (rx <= 0) {
         return false;
     }
@@ -981,11 +995,13 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
 
     int padx = passCount * rx;
     int pady = passCount * ry;
+    
     if (margin) {
         margin->set(padx, pady);
     }
     dst->fBounds.set(src.fBounds.fLeft - padx, src.fBounds.fTop - pady,
         src.fBounds.fRight + padx, src.fBounds.fBottom + pady);
+        
     dst->fRowBytes = dst->fBounds.width();
     dst->fFormat = SkMask::kA8_Format;
     dst->fImage = NULL;
@@ -1000,7 +1016,6 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
         int             sh = src.fBounds.height();
         const uint8_t*  sp = src.fImage;
         uint8_t*        dp = SkMask::AllocImage(dstSize);
-
         SkAutoTCallVProc<uint8_t, SkMask_FreeImage> autoCall(dp);
 
         // build the blurry destination
@@ -1008,8 +1023,8 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
             SkAutoTMalloc<uint8_t>  tmpBuffer(dstSize);
             uint8_t*                tp = tmpBuffer.get();
             int w = sw, h = sh;
-
-            if (outer_weight == 255) {
+            
+            if (outerWeight == 255) {
                 int loRadius, hiRadius;
                 get_adjusted_radii(passRadius, &loRadius, &hiRadius);
                 if (kHigh_Quality == quality) {
@@ -1028,16 +1043,16 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
             } else {
                 if (kHigh_Quality == quality) {
                     // Do three X blurs, with a transpose on the final one.
-                    w = boxBlurInterp(sp, src.fRowBytes, tp, rx, w, h, false, outer_weight);
-                    w = boxBlurInterp(tp, w,             dp, rx, w, h, false, outer_weight);
-                    w = boxBlurInterp(dp, w,             tp, rx, w, h, true, outer_weight);
+                    w = boxBlurInterp(sp, src.fRowBytes, tp, rx, w, h, false, outerWeight);
+                    w = boxBlurInterp(tp, w,             dp, rx, w, h, false, outerWeight);
+                    w = boxBlurInterp(dp, w,             tp, rx, w, h, true, outerWeight);
                     // Do three Y blurs, with a transpose on the final one.
-                    h = boxBlurInterp(tp, h,             dp, ry, h, w, false, outer_weight);
-                    h = boxBlurInterp(dp, h,             tp, ry, h, w, false, outer_weight);
-                    h = boxBlurInterp(tp, h,             dp, ry, h, w, true, outer_weight);
+                    h = boxBlurInterp(tp, h,             dp, ry, h, w, false, outerWeight);
+                    h = boxBlurInterp(dp, h,             tp, ry, h, w, false, outerWeight);
+                    h = boxBlurInterp(tp, h,             dp, ry, h, w, true, outerWeight);
                 } else {
-                    w = boxBlurInterp(sp, src.fRowBytes, tp, rx, w, h, true, outer_weight);
-                    h = boxBlurInterp(tp, h,             dp, ry, h, w, true, outer_weight);
+                    w = boxBlurInterp(sp, src.fRowBytes, tp, rx, w, h, true, outerWeight);
+                    h = boxBlurInterp(tp, h,             dp, ry, h, w, true, outerWeight);
                 }
             }
         } else {
@@ -1048,10 +1063,10 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
 
             //pass1: sp is source, dp is destination
             build_sum_buffer(sumBuffer, sw, sh, sp, src.fRowBytes);
-            if (outer_weight == 255) {
+            if (outerWeight == 255) {
                 apply_kernel(dp, rx, ry, sumBuffer, sw, sh);
             } else {
-                apply_kernel_interp(dp, rx, ry, sumBuffer, sw, sh, outer_weight);
+                apply_kernel_interp(dp, rx, ry, sumBuffer, sw, sh, outerWeight);
             }
 
             if (kHigh_Quality == quality) {
@@ -1060,21 +1075,21 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
                 int tmp_sh = sh + 2 * ry;
                 SkAutoTMalloc<uint8_t>  tmpBuffer(dstSize);
                 build_sum_buffer(sumBuffer, tmp_sw, tmp_sh, dp, tmp_sw);
-                if (outer_weight == 255)
+                if (outerWeight == 255)
                     apply_kernel(tmpBuffer.get(), rx, ry, sumBuffer, tmp_sw, tmp_sh);
                 else
                     apply_kernel_interp(tmpBuffer.get(), rx, ry, sumBuffer,
-                                        tmp_sw, tmp_sh, outer_weight);
+                                        tmp_sw, tmp_sh, outerWeight);
 
                 //pass3: tmpBuffer is source, dp is destination
                 tmp_sw += 2 * rx;
                 tmp_sh += 2 * ry;
                 build_sum_buffer(sumBuffer, tmp_sw, tmp_sh, tmpBuffer.get(), tmp_sw);
-                if (outer_weight == 255)
+                if (outerWeight == 255)
                     apply_kernel(dp, rx, ry, sumBuffer, tmp_sw, tmp_sh);
                 else
                     apply_kernel_interp(dp, rx, ry, sumBuffer, tmp_sw, tmp_sh,
-                                        outer_weight);
+                                        outerWeight);
             }
         }
 
@@ -1126,26 +1141,43 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
    quadratic function:
 
    0                              x <= -1.5
-   9/8 + 3/2 x + 1/2 x^2   -1.5 < x <= 1.5
+   9/8 + 3/2 x + 1/2 x^2   -1.5 < x <= -.5
    3/4 - x^2                -.5 < x <= .5
    9/8 - 3/2 x + 1/2 x^2    0.5 < x <= 1.5
    0                        1.5 < x
+   
+   Mathematica:
+   
+   g[x_] := Piecewise [ {
+     {9/8 + 3/2 x + 1/2 x^2 ,  -1.5 < x <= -.5},
+     {3/4 - x^2             ,   -.5 < x <= .5},
+     {9/8 - 3/2 x + 1/2 x^2 ,   0.5 < x <= 1.5}
+   }, 0]
 
    To get the profile curve of the blurred step function at the rectangle
    edge, we evaluate the indefinite integral, which is piecewise cubic:
 
    0                                        x <= -1.5
-   5/8 + 9/8 x + 3/4 x^2 + 1/6 x^3   -1.5 < x <= -0.5
+   9/16 + 9/8 x + 3/4 x^2 + 1/6 x^3   -1.5 < x <= -0.5
    1/2 + 3/4 x - 1/3 x^3              -.5 < x <= .5
-   3/8 + 9/8 x - 3/4 x^2 + 1/6 x^3     .5 < x <= 1.5
+   7/16 + 9/8 x - 3/4 x^2 + 1/6 x^3     .5 < x <= 1.5
    1                                  1.5 < x
+   
+   in Mathematica code:
+   
+   gi[x_] := Piecewise[ {
+     { 0 , x <= -1.5 },
+     { 9/16 + 9/8 x + 3/4 x^2 + 1/6 x^3, -1.5 < x <= -0.5 },
+     { 1/2 + 3/4 x - 1/3 x^3          ,  -.5 < x <= .5},
+     { 7/16 + 9/8 x - 3/4 x^2 + 1/6 x^3,   .5 < x <= 1.5}
+   },1]
 */
 
-static float gaussian_integral( float x ) {
-    if ( x > 1.5f ) {
+static float gaussianIntegral(float x) {
+    if (x > 1.5f) {
         return 0.0f;
     }
-    if ( x < -1.5f ) {
+    if (x < -1.5f) {
         return 1.0f;
     }
 
@@ -1153,7 +1185,7 @@ static float gaussian_integral( float x ) {
     float x3 = x2*x;
 
     if ( x > 0.5f ) {
-        return 0.5625f - ( x3 / 6.0f - 3.0f * x2 * 0.25f + 1.125f * x);
+        return 0.5625f - (x3 / 6.0f - 3.0f * x2 * 0.25f + 1.125f * x);
     }
     if ( x > -0.5f ) {
         return 0.5f - (0.75f * x - x3 / 3.0f);
@@ -1174,19 +1206,19 @@ static float gaussian_integral( float x ) {
     memory returned in profile_out.
 */
 
-static int compute_profile( SkScalar radius, unsigned int **profile_out ) {
-    int size = SkScalarFloorToInt(radius * 3 + 1);
+static int compute_profile(SkScalar radius, unsigned int **profile_out) {
+    int size = SkScalarRoundToInt(radius * 3);
     int center = size >> 1;
 
     unsigned int *profile = SkNEW_ARRAY(unsigned int, size);
 
-    float invr = 1.0f/radius;
+    float invr = 1.f/radius;
 
     profile[0] = 255;
-    for (int x = 1 ; x < size ; x++) {
-        float scaled_x = ( center - x ) * invr;
-        float gi = gaussian_integral( scaled_x );
-        profile[x] = 255 - (uint8_t) ( 255.f * gi );
+    for (int x = 1 ; x < size ; ++x) {
+        float scaled_x = (center - x - .5) * invr;
+        float gi = gaussianIntegral(scaled_x);
+        profile[x] = 255 - (uint8_t) (255.f * gi);
     }
 
     *profile_out = profile;
@@ -1200,29 +1232,49 @@ static int compute_profile( SkScalar radius, unsigned int **profile_out ) {
 // Implementation adapted from Michael Herf's approach:
 // http://stereopsis.com/shadowrect/
 
+static inline unsigned int profile_lookup( unsigned int *profile, int loc, int blurred_width, int sharp_width ) {
+    int dx = SkAbs32(((loc << 1) + 1) - blurred_width) - sharp_width; // how far are we from the original edge?
+    int ox = dx >> 1;
+    if (ox < 0) {
+        ox = 0;
+    }
+    
+    return profile[ox];
+}
+
 bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
-                          SkScalar provided_radius, Style style, Quality quality,
+                          SkScalar provided_radius, Style style,
                           SkIPoint *margin) {
     int profile_size;
     unsigned int *profile;
 
-
     float radius = SkScalarToFloat( SkScalarMul( provided_radius, kBlurRadiusFudgeFactor ) );
+    
+#ifndef SK_IGNORE_BLUR_RADIUS_CORRECTNESS
+    float stddev = SkScalarToFloat( radius ) /2.0f;
+    radius = stddev * 1.414f;
+#endif
 
     profile_size = compute_profile( radius, &profile );
+    
     SkAutoTDeleteArray<unsigned int> ada(profile);
 
-    int pad = (int) (radius * 1.5f + 1);
+    int pad = profile_size/2;
     if (margin) {
         margin->set( pad, pad );
     }
-    dst->fBounds = SkIRect::MakeWH(SkScalarFloorToInt(src.width()), SkScalarFloorToInt(src.height()));
-    dst->fBounds.outset(pad, pad);
+    
+    int shadow_left = -pad;
+    int shadow_top = -pad;
+    int shadow_right = src.width() + pad;
+    int shadow_bottom = src.height() + pad;
+    
+    dst->fBounds.set(shadow_left, shadow_top, shadow_right, shadow_bottom);
 
     dst->fRowBytes = dst->fBounds.width();
     dst->fFormat = SkMask::kA8_Format;
     dst->fImage = NULL;
-
+    
     size_t dstSize = dst->computeImageSize();
     if (0 == dstSize) {
         return false;   // too big to allocate, abort
@@ -1235,8 +1287,8 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
 
     dst->fImage = dp;
 
-    int dst_height = dst->fBounds.height();
-    int dst_width = dst->fBounds.width();
+    int dstHeight = dst->fBounds.height();
+    int dstWidth = dst->fBounds.width();
 
     // nearest odd number less than the profile size represents the center
     // of the (2x scaled) profile
@@ -1246,28 +1298,209 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
     int h = sh - center;
 
     uint8_t *outptr = dp;
+    
+    SkAutoTMalloc<uint8_t> horizontalScanline(dstWidth);
 
-    for (int y = 0 ; y < dst_height ; y++)
-    {
-        // time to fill in a scanline of the blurry rectangle.
-        // to avoid floating point math, everything is multiplied by
-        // 2 where needed.  This keeps things nice and integer-oriented.
+    for (int x = 0 ; x < dstWidth ; ++x) {
+        if (profile_size <= sw) {
+            horizontalScanline[x] = profile_lookup(profile, x, dstWidth, w);
+        } else {
+            float span = float(sw)/radius;
+            float giX = 1.5 - (x+.5)/radius;
+            horizontalScanline[x] = (uint8_t) (255 * (gaussianIntegral(giX) - gaussianIntegral(giX + span)));
+        }
+    }
+    
+    for (int y = 0 ; y < dstHeight ; ++y) {
+        unsigned int profile_y;
+        if (profile_size <= sh) {
+            profile_y = profile_lookup(profile, y, dstHeight, h);
+        } else {
+            float span = float(sh)/radius;
+            float giY = 1.5 - (y+.5)/radius;
+            profile_y = (uint8_t) (255 * (gaussianIntegral(giY) - gaussianIntegral(giY + span)));
+        }
 
-        int dy = abs((y << 1) - dst_height) - h; // how far are we from the original edge?
-        int oy = dy >> 1;
-        if (oy < 0) oy = 0;
-
-        unsigned int profile_y = profile[oy];
-
-        for (int x = 0 ; x < (dst_width << 1) ; x += 2) {
-            int dx = abs( x - dst_width ) - w;
-            int ox = dx >> 1;
-            if (ox < 0) ox = 0;
-
-            unsigned int maskval = SkMulDiv255Round(profile[ox], profile_y);
-
+        for (int x = 0 ; x < dstWidth ; x++) {
+            unsigned int maskval = SkMulDiv255Round(horizontalScanline[x], profile_y);
             *(outptr++) = maskval;
         }
+    }
+    
+    if (style == kInner_Style) {
+        // now we allocate the "real" dst, mirror the size of src
+        size_t srcSize = src.width() * src.height();
+        if (0 == srcSize) {
+            return false;   // too big to allocate, abort
+        }
+        dst->fImage = SkMask::AllocImage(srcSize);
+        for (int y = 0 ; y < sh ; y++) {
+            uint8_t *blur_scanline = dp + (y+pad)*dstWidth + pad;
+            uint8_t *inner_scanline = dst->fImage + y*sw;
+            memcpy(inner_scanline, blur_scanline, sw);
+        }
+        SkMask::FreeImage(dp);
+
+        dst->fBounds.set(0, 0, sw, sh); // restore trimmed bounds
+        dst->fRowBytes = sw;
+        
+    } else if (style == kOuter_Style) {
+        for (int y = pad ; y < dstHeight-pad ; y++) {
+            uint8_t *dst_scanline = dp + y*dstWidth + pad;
+            memset(dst_scanline, 0, sw);
+        }
+    }
+    // normal and solid styles are the same for analytic rect blurs, so don't
+    // need to handle solid specially.
+
+    return true;
+}
+
+// The "simple" blur is a direct implementation of separable convolution with a discrete
+// gaussian kernel.  It's "ground truth" in a sense; too slow to be used, but very
+// useful for correctness comparisons.
+
+bool SkBlurMask::BlurGroundTruth(SkMask* dst, const SkMask& src, SkScalar provided_radius, 
+                            Style style, SkIPoint* margin) {
+                 
+    if (src.fFormat != SkMask::kA8_Format) {
+        return false;
+    }
+
+    float radius = SkScalarToFloat(SkScalarMul(provided_radius, kBlurRadiusFudgeFactor));
+    float stddev = SkScalarToFloat(radius) /2.0f;
+    float variance = stddev * stddev;
+
+    int windowSize = SkScalarCeil(stddev*4);
+    // round window size up to nearest odd number
+    windowSize |= 1;
+
+    SkAutoTMalloc<float> gaussWindow(windowSize);
+
+    int halfWindow = windowSize >> 1;
+ 
+    gaussWindow[halfWindow] = 1;
+    
+    float windowSum = 1;
+    for (int x = 1 ; x <= halfWindow ; ++x) {
+        float gaussian = expf(-x*x / variance);
+        gaussWindow[halfWindow + x] = gaussWindow[halfWindow-x] = gaussian;
+        windowSum += 2*gaussian;
+    }
+
+    // leave the filter un-normalized for now; we will divide by the normalization
+    // sum later;
+    
+    int pad = halfWindow;
+    if (margin) {
+        margin->set( pad, pad );
+    }
+
+    dst->fBounds = src.fBounds;
+    dst->fBounds.outset(pad, pad);
+
+    dst->fRowBytes = dst->fBounds.width();
+    dst->fFormat = SkMask::kA8_Format;
+    dst->fImage = NULL;
+
+    if (src.fImage) {
+
+        size_t dstSize = dst->computeImageSize();
+        if (0 == dstSize) {
+            return false;   // too big to allocate, abort
+        }
+    
+        int             srcWidth = src.fBounds.width();
+        int             srcHeight = src.fBounds.height();
+        int             dstWidth = dst->fBounds.width();
+        
+        const uint8_t*  srcPixels = src.fImage;
+        uint8_t*        dstPixels = SkMask::AllocImage(dstSize);
+        SkAutoTCallVProc<uint8_t, SkMask_FreeImage> autoCall(dstPixels);
+
+        // do the actual blur.  First, make a padded copy of the source.
+        // use double pad so we never have to check if we're outside anything
+        
+        int padWidth = srcWidth + 4*pad;
+        int padHeight = srcHeight;
+        int padSize = padWidth * padHeight;
+        
+        SkAutoTMalloc<uint8_t> padPixels(padSize);
+        memset(padPixels, 0, padSize);
+        
+        for (int y = 0 ; y < srcHeight; ++y) {
+            uint8_t* padptr = padPixels + y * padWidth + 2*pad;
+            const uint8_t* srcptr = srcPixels + y * srcWidth;
+            memcpy(padptr, srcptr, srcWidth);
+        }
+                
+        // blur in X, transposing the result into a temporary floating point buffer.
+        // also double-pad the intermediate result so that the second blur doesn't
+        // have to do extra conditionals.
+        
+        int tmpWidth = padHeight + 4*pad;
+        int tmpHeight = padWidth - 2*pad;
+        int tmpSize = tmpWidth * tmpHeight;
+        
+        SkAutoTMalloc<float> tmpImage(tmpSize);
+        memset(tmpImage, 0, tmpSize*sizeof(tmpImage[0]));
+
+        for (int y = 0 ; y < padHeight ; ++y) {
+            uint8_t *srcScanline = padPixels + y*padWidth;
+            for (int x = pad ; x < padWidth - pad ; ++x) {
+                float *outPixel = tmpImage + (x-pad)*tmpWidth + y + 2*pad; // transposed output
+                uint8_t *windowCenter = srcScanline + x;
+                for (int i = -pad ; i <= pad ; ++i) {
+                    *outPixel += gaussWindow[pad+i]*windowCenter[i];
+                }
+                *outPixel /= windowSum;
+            }            
+        }
+        
+        // blur in Y; now filling in the actual desired destination.  We have to do
+        // the transpose again; these transposes guarantee that we read memory in 
+        // linear order.
+        
+        for (int y = 0 ; y < tmpHeight ; ++y) {
+            float *srcScanline = tmpImage + y*tmpWidth;
+            for (int x = pad ; x < tmpWidth - pad ; ++x) {
+                float *windowCenter = srcScanline + x;
+                float finalValue = 0;
+                for (int i = -pad ; i <= pad ; ++i) {
+                    finalValue += gaussWindow[pad+i]*windowCenter[i];
+                }
+                finalValue /= windowSum;
+                uint8_t *outPixel = dstPixels + (x-pad)*dstWidth + y; // transposed output
+                int integerPixel = int(finalValue + 0.5f);
+                *outPixel = SkClampMax( SkClampPos(integerPixel), 255 );
+            }
+        }
+        
+        dst->fImage = dstPixels;
+        // if need be, alloc the "real" dst (same size as src) and copy/merge
+        // the blur into it (applying the src)
+        if (style == kInner_Style) {
+            // now we allocate the "real" dst, mirror the size of src
+            size_t srcSize = src.computeImageSize();
+            if (0 == srcSize) {
+                return false;   // too big to allocate, abort
+            }
+            dst->fImage = SkMask::AllocImage(srcSize);
+            merge_src_with_blur(dst->fImage, src.fRowBytes,
+                srcPixels, src.fRowBytes,
+                dstPixels + pad*dst->fRowBytes + pad,
+                dst->fRowBytes, srcWidth, srcHeight);
+            SkMask::FreeImage(dstPixels);
+        } else if (style != kNormal_Style) {
+            clamp_with_orig(dstPixels + pad*dst->fRowBytes + pad,
+                dst->fRowBytes, srcPixels, src.fRowBytes, srcWidth, srcHeight, style);
+        }
+        (void)autoCall.detach();
+    }
+
+    if (style == kInner_Style) {
+        dst->fBounds = src.fBounds; // restore trimmed bounds
+        dst->fRowBytes = src.fRowBytes;
     }
 
     return true;

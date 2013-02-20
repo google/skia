@@ -1,9 +1,9 @@
 /*
- * Copyright 2012 Google Inc.
- *
- * Use of this source code is governed by a BSD-style license that can be
- * found in the LICENSE file.
- */
+* Copyright 2012 Google Inc.
+*
+* Use of this source code is governed by a BSD-style license that can be
+* found in the LICENSE file.
+*/
 
 #include "gm.h"
 #include "SkBlurMaskFilter.h"
@@ -65,19 +65,18 @@ static const char* gBlurStyle2Name[] = {
 };
 
 class BlurRectGM : public skiagm::GM {
-    SkAutoTUnref<SkMaskFilter> fMaskFilter;
-    SkString  fName;
-    PaintProc fPProc;
-    SkAlpha   fAlpha;
+      SkAutoTUnref<SkMaskFilter> fMaskFilter;
+      SkString  fName;
+      PaintProc fPProc;
+      SkAlpha   fAlpha;
 public:
     BlurRectGM(const char name[], PaintProc pproc, U8CPU alpha,
                SkBlurMaskFilter::BlurStyle bs) :
         fMaskFilter(SkBlurMaskFilter::Create(STROKE_WIDTH/2, bs,
-                                       SkBlurMaskFilter::kHighQuality_BlurFlag))
-        , fName(name)
-        , fPProc(pproc)
-        , fAlpha(SkToU8(alpha))
-    {
+                    SkBlurMaskFilter::kHighQuality_BlurFlag))
+                  , fName(name)
+                  , fPProc(pproc)
+                  , fAlpha(SkToU8(alpha)) {
         fName.appendf("_%s", gBlurStyle2Name[bs]);
     }
 
@@ -131,7 +130,7 @@ private:
             canvas->translate(0, r.height() * 4/3);
         }
     }
-
+private:
     typedef GM INHERITED;
 };
 
@@ -139,17 +138,28 @@ class BlurRectCompareGM : public skiagm::GM {
     SkString  fName;
     unsigned int fRectWidth, fRectHeight;
     SkScalar fRadius;
+    SkBlurMask::Style fStyle;
 public:
-    BlurRectCompareGM(const char name[], unsigned int rectWidth, unsigned int rectHeight, float radius)
+    BlurRectCompareGM(const char name[], unsigned int rectWidth, unsigned int rectHeight, float radius, SkBlurMask::Style style)
         : fName(name)
         , fRectWidth(rectWidth)
         , fRectHeight(rectHeight)
         , fRadius(radius)
-    {}
+        , fStyle(style)
+        {}
 
-  int width() const { return fRectWidth; }
-  int height() const { return fRectHeight; }
-  SkScalar radius() const { return fRadius; }
+    int width() const { 
+        return fRectWidth; 
+    }
+    int height() const { 
+        return fRectHeight; 
+    }
+    SkScalar radius() const { 
+        return fRadius; 
+    }
+    SkBlurMask::Style style() const { 
+        return fStyle; 
+    }
 
 protected:
     virtual SkString onShortName() {
@@ -160,21 +170,34 @@ protected:
         return SkISize::Make(640, 480);
     }
 
-    virtual void makeMask(SkMask *m, const SkRect&) = 0;
+    virtual bool makeMask(SkMask *m, const SkRect&) = 0;
 
     virtual void onDraw(SkCanvas* canvas) {
-      SkRect r;
-      r.setWH(SkIntToScalar(fRectWidth), SkIntToScalar(fRectHeight));
+        SkRect r;
+        r.setWH(SkIntToScalar(fRectWidth), SkIntToScalar(fRectHeight));
 
-      SkMask mask;
+        SkISize canvas_size = canvas->getDeviceSize();
+        int center_x = (canvas_size.fWidth - r.width())/2;
+        int center_y = (canvas_size.fHeight - r.height())/2;
 
-      this->makeMask(&mask, r);
-      SkAutoMaskFreeImage amfi(mask.fImage);
+        SkMask mask;
 
-      SkBitmap bm;
-      bm.setConfig(SkBitmap::kA8_Config, mask.fBounds.width(), mask.fBounds.height());
-      bm.setPixels(mask.fImage);
-      canvas->drawBitmap(bm, 50, 50, NULL);
+        if (!this->makeMask(&mask, r)) {
+            SkPaint paint;
+            r.offset( center_x, center_y );
+            canvas->drawRect(r,paint);
+            return;
+        }
+        SkAutoMaskFreeImage amfi(mask.fImage);
+
+        SkBitmap bm;
+        bm.setConfig(SkBitmap::kA8_Config, mask.fBounds.width(), mask.fBounds.height());
+        bm.setPixels(mask.fImage);
+
+        center_x = (canvas_size.fWidth - mask.fBounds.width())/2;
+        center_y = (canvas_size.fHeight - mask.fBounds.height())/2;
+
+        canvas->drawBitmap(bm, center_x, center_y, NULL);
     }
 
     virtual uint32_t onGetFlags() const { return kSkipPipe_Flag; }
@@ -186,33 +209,94 @@ private:
 class BlurRectFastGM: public BlurRectCompareGM {
 public:
     BlurRectFastGM(const char name[], unsigned int rect_width,
-                   unsigned int rect_height, float blur_radius) :
-        BlurRectCompareGM(name, rect_width, rect_height, blur_radius) {}
+                   unsigned int rect_height, float blur_radius,
+                   SkBlurMask::Style style) :
+        INHERITED(name, rect_width, rect_height, blur_radius, style) 
+        {
+            
+        }
 protected:
-    virtual void makeMask(SkMask *m, const SkRect& r) SK_OVERRIDE {
-        SkBlurMask::BlurRect(m, r, radius(), SkBlurMask::kNormal_Style,
-                             SkBlurMask::kHigh_Quality );
+    virtual bool makeMask(SkMask *m, const SkRect& r) SK_OVERRIDE {
+        return SkBlurMask::BlurRect(m, r, this->radius(), this->style());
     }
+private:
+    typedef BlurRectCompareGM INHERITED;
 };
 
 class BlurRectSlowGM: public BlurRectCompareGM {
 public:
-  BlurRectSlowGM(const char name[], unsigned int rect_width, unsigned int rect_height, float blur_radius) :
-    BlurRectCompareGM( name, rect_width, rect_height, blur_radius ) {}
+    BlurRectSlowGM(const char name[], unsigned int rect_width, unsigned int rect_height, 
+                   float blur_radius, SkBlurMask::Style style) :
+        INHERITED(name, rect_width, rect_height, blur_radius, style) 
+        {
+            
+        }
 protected:
-    virtual void makeMask(SkMask *m, const SkRect& r) SK_OVERRIDE {
+    virtual bool makeMask(SkMask *m, const SkRect& r) SK_OVERRIDE {
         SkMask src;
         r.roundOut(&src.fBounds);
         src.fBounds.offset(-src.fBounds.fLeft, -src.fBounds.fTop);  // move to origin
         src.fFormat = SkMask::kA8_Format;
         src.fRowBytes = src.fBounds.width();
-        src.fImage = SkMask::AllocImage( src.computeTotalImageSize() );
+        src.fImage = SkMask::AllocImage(src.computeTotalImageSize());
         SkAutoMaskFreeImage amfi(src.fImage);
 
         memset(src.fImage, 0xff, src.computeTotalImageSize());
 
-        SkBlurMask::BlurSeparable(m, src, radius()/2, SkBlurMask::kNormal_Style, SkBlurMask::kHigh_Quality);
+        return SkBlurMask::BlurSeparable(m, src, this->radius(), this->style(), this->getQuality());
     }
+
+    virtual SkBlurMask::Quality getQuality() {
+        return SkBlurMask::kHigh_Quality;
+    }
+private:
+    typedef BlurRectCompareGM INHERITED;
+};
+
+class BlurRectSlowLowGM: public BlurRectSlowGM {
+public:
+    BlurRectSlowLowGM(const char name[], unsigned int rectWidth, unsigned int rectHeight, 
+                      float blurRadius, SkBlurMask::Style style) :
+        INHERITED(name, rectWidth, rectHeight, blurRadius, style) 
+        {
+            
+        }
+protected:
+    virtual SkBlurMask::Quality getQuality() SK_OVERRIDE {
+        return SkBlurMask::kLow_Quality;
+    }
+private:
+    typedef BlurRectSlowGM INHERITED;
+};
+
+class BlurRectGroundTruthGM: public BlurRectCompareGM {
+public:
+    BlurRectGroundTruthGM(const char name[], unsigned int rectWidth, unsigned int rectHeight, 
+                          float blurRadius, SkBlurMask::Style style) :
+        INHERITED(name, rectWidth, rectHeight, blurRadius, style)
+        {
+            
+        }
+protected:
+    virtual bool makeMask(SkMask *m, const SkRect& r) SK_OVERRIDE {
+        SkMask src;
+        r.roundOut(&src.fBounds);
+        src.fBounds.offset(-src.fBounds.fLeft, -src.fBounds.fTop);  // move to origin
+        src.fFormat = SkMask::kA8_Format;
+        src.fRowBytes = src.fBounds.width();
+        src.fImage = SkMask::AllocImage(src.computeTotalImageSize());
+        SkAutoMaskFreeImage amfi(src.fImage);
+
+        memset(src.fImage, 0xff, src.computeTotalImageSize());
+
+        return SkBlurMask::BlurGroundTruth(m, src, this->radius(), this->style());
+    }
+
+    virtual SkBlurMask::Quality getQuality() {
+        return SkBlurMask::kHigh_Quality;
+    }
+private:
+    typedef BlurRectCompareGM INHERITED;
 };
 
 
@@ -223,12 +307,73 @@ DEF_GM(return new BlurRectGM("blurrect", NULL, 0xFF, SkBlurMaskFilter::kSolid_Bl
 DEF_GM(return new BlurRectGM("blurrect", NULL, 0xFF, SkBlurMaskFilter::kOuter_BlurStyle);)
 DEF_GM(return new BlurRectGM("blurrect", NULL, 0xFF, SkBlurMaskFilter::kInner_BlurStyle);)
 
-DEF_GM(return new BlurRectFastGM("blurrect_fast_100_100_10", 100, 100, 10);)
-DEF_GM(return new BlurRectFastGM("blurrect_fast_100_100_2", 100, 100, 2);)
-DEF_GM(return new BlurRectFastGM("blurrect_fast_10_10_100", 10, 10, 100);)
-DEF_GM(return new BlurRectFastGM("blurrect_fast_10_100_10", 10, 100, 10);)
+// regular size rects, blurs should be small enough not to completely overlap.
 
-DEF_GM(return new BlurRectSlowGM("blurrect_slow_100_100_10", 100, 100, 10);)
-DEF_GM(return new BlurRectSlowGM("blurrect_slow_100_100_2", 100, 100, 2);)
-DEF_GM(return new BlurRectSlowGM("blurrect_slow_10_10_100", 10, 10, 100);)
-DEF_GM(return new BlurRectSlowGM("blurrect_slow_10_100_10", 10, 100, 10);)
+DEF_GM(return new BlurRectFastGM( "blurrect_25_100_2_normal_fast", 25, 100, 2,  SkBlurMask::kNormal_Style);)
+DEF_GM(return new BlurRectFastGM("blurrect_25_100_20_normal_fast", 25, 100, 20, SkBlurMask::kNormal_Style);)
+DEF_GM(return new BlurRectSlowGM( "blurrect_25_100_2_normal_slow", 25, 100, 2,  SkBlurMask::kNormal_Style);)
+DEF_GM(return new BlurRectSlowGM("blurrect_25_100_20_normal_slow", 25, 100, 20, SkBlurMask::kNormal_Style);)
+DEF_GM(return new BlurRectFastGM( "blurrect_25_100_2_inner_fast", 25, 100, 2,  SkBlurMask::kInner_Style);)
+DEF_GM(return new BlurRectFastGM("blurrect_25_100_20_inner_fast", 25, 100, 20, SkBlurMask::kInner_Style);)
+DEF_GM(return new BlurRectSlowGM( "blurrect_25_100_2_inner_slow", 25, 100, 2,  SkBlurMask::kInner_Style);)
+DEF_GM(return new BlurRectSlowGM("blurrect_25_100_20_inner_slow", 25, 100, 20, SkBlurMask::kInner_Style);)
+DEF_GM(return new BlurRectFastGM( "blurrect_25_100_2_outer_fast", 25, 100, 2,  SkBlurMask::kOuter_Style);)
+DEF_GM(return new BlurRectFastGM("blurrect_25_100_20_outer_fast", 25, 100, 20, SkBlurMask::kOuter_Style);)
+DEF_GM(return new BlurRectSlowGM( "blurrect_25_100_2_outer_slow", 25, 100, 2,  SkBlurMask::kOuter_Style);)
+DEF_GM(return new BlurRectSlowGM("blurrect_25_100_20_outer_slow", 25, 100, 20, SkBlurMask::kOuter_Style);)
+
+// skinny tall rects, blurs overlap in X but not y
+
+DEF_GM(return new BlurRectFastGM( "blurrect_5_100_2_normal_fast", 5, 100, 2 , SkBlurMask::kNormal_Style);)
+DEF_GM(return new BlurRectFastGM("blurrect_5_100_20_normal_fast", 5, 100, 20, SkBlurMask::kNormal_Style);)
+DEF_GM(return new BlurRectSlowGM( "blurrect_5_100_2_normal_slow", 5, 100, 2 , SkBlurMask::kNormal_Style);)
+DEF_GM(return new BlurRectSlowGM("blurrect_5_100_20_normal_slow", 5, 100, 20, SkBlurMask::kNormal_Style);)
+DEF_GM(return new BlurRectFastGM( "blurrect_5_100_2_inner_fast", 5, 100, 2 , SkBlurMask::kInner_Style);)
+DEF_GM(return new BlurRectFastGM("blurrect_5_100_20_inner_fast", 5, 100, 20, SkBlurMask::kInner_Style);)
+DEF_GM(return new BlurRectSlowGM( "blurrect_5_100_2_inner_slow", 5, 100, 2 , SkBlurMask::kInner_Style);)
+DEF_GM(return new BlurRectSlowGM("blurrect_5_100_20_inner_slow", 5, 100, 20, SkBlurMask::kInner_Style);)
+DEF_GM(return new BlurRectFastGM( "blurrect_5_100_2_outer_fast", 5, 100, 2 , SkBlurMask::kOuter_Style);)
+DEF_GM(return new BlurRectFastGM("blurrect_5_100_20_outer_fast", 5, 100, 20, SkBlurMask::kOuter_Style);)
+DEF_GM(return new BlurRectSlowGM( "blurrect_5_100_2_outer_slow", 5, 100, 2 , SkBlurMask::kOuter_Style);)
+DEF_GM(return new BlurRectSlowGM("blurrect_5_100_20_outer_slow", 5, 100, 20, SkBlurMask::kOuter_Style);)
+
+// tiny rects, blurs overlap in X and Y
+
+DEF_GM(return new BlurRectFastGM( "blurrect_5_5_2_normal_fast", 5, 5, 2 , SkBlurMask::kNormal_Style);)
+DEF_GM(return new BlurRectFastGM("blurrect_5_5_20_normal_fast", 5, 5, 20, SkBlurMask::kNormal_Style);)
+DEF_GM(return new BlurRectSlowGM( "blurrect_5_5_2_normal_slow", 5, 5, 2 , SkBlurMask::kNormal_Style);)
+DEF_GM(return new BlurRectSlowGM("blurrect_5_5_20_normal_slow", 5, 5, 20, SkBlurMask::kNormal_Style);)
+DEF_GM(return new BlurRectFastGM( "blurrect_5_5_2_inner_fast", 5, 5, 2 , SkBlurMask::kInner_Style);)
+DEF_GM(return new BlurRectFastGM("blurrect_5_5_20_inner_fast", 5, 5, 20, SkBlurMask::kInner_Style);)
+DEF_GM(return new BlurRectSlowGM( "blurrect_5_5_2_inner_slow", 5, 5, 2 , SkBlurMask::kInner_Style);)
+DEF_GM(return new BlurRectSlowGM("blurrect_5_5_20_inner_slow", 5, 5, 20, SkBlurMask::kInner_Style);)
+DEF_GM(return new BlurRectFastGM( "blurrect_5_5_2_outer_fast", 5, 5, 2 , SkBlurMask::kOuter_Style);)
+DEF_GM(return new BlurRectFastGM("blurrect_5_5_20_outer_fast", 5, 5, 20, SkBlurMask::kOuter_Style);)
+DEF_GM(return new BlurRectSlowGM( "blurrect_5_5_2_outer_slow", 5, 5, 2 , SkBlurMask::kOuter_Style);)
+DEF_GM(return new BlurRectSlowGM("blurrect_5_5_20_outer_slow", 5, 5, 20, SkBlurMask::kOuter_Style);)
+
+
+#if 0
+// dont' need to GM the gaussian convolution; it's slow and intended
+// as a ground truth comparison only.  Leaving these here in case we
+// ever want to turn these back on for debugging reasons.
+DEF_GM(return new BlurRectGroundTruthGM( "blurrect_25_100_1_simple", 25, 100, 1);)
+DEF_GM(return new BlurRectGroundTruthGM( "blurrect_25_100_2_simple", 25, 100, 2);)
+DEF_GM(return new BlurRectGroundTruthGM( "blurrect_25_100_3_simple", 25, 100, 3);)
+DEF_GM(return new BlurRectGroundTruthGM( "blurrect_25_100_4_simple", 25, 100, 4);)
+DEF_GM(return new BlurRectGroundTruthGM( "blurrect_25_100_5_simple", 25, 100, 5);)
+DEF_GM(return new BlurRectGroundTruthGM( "blurrect_25_100_6_simple", 25, 100, 6);)
+DEF_GM(return new BlurRectGroundTruthGM( "blurrect_25_100_7_simple", 25, 100, 7);)
+DEF_GM(return new BlurRectGroundTruthGM( "blurrect_25_100_8_simple", 25, 100, 8);)
+DEF_GM(return new BlurRectGroundTruthGM( "blurrect_25_100_9_simple", 25, 100, 9);)
+DEF_GM(return new BlurRectGroundTruthGM("blurrect_25_100_10_simple", 25, 100, 10);)
+DEF_GM(return new BlurRectGroundTruthGM("blurrect_25_100_11_simple", 25, 100, 11);)
+DEF_GM(return new BlurRectGroundTruthGM("blurrect_25_100_12_simple", 25, 100, 12);)
+DEF_GM(return new BlurRectGroundTruthGM("blurrect_25_100_13_simple", 25, 100, 13);)
+DEF_GM(return new BlurRectGroundTruthGM("blurrect_25_100_14_simple", 25, 100, 14);)
+DEF_GM(return new BlurRectGroundTruthGM("blurrect_25_100_15_simple", 25, 100, 15);)
+DEF_GM(return new BlurRectGroundTruthGM("blurrect_25_100_16_simple", 25, 100, 16);)
+DEF_GM(return new BlurRectGroundTruthGM("blurrect_25_100_17_simple", 25, 100, 17);)
+DEF_GM(return new BlurRectGroundTruthGM("blurrect_25_100_18_simple", 25, 100, 18);)
+DEF_GM(return new BlurRectGroundTruthGM("blurrect_25_100_19_simple", 25, 100, 19);)
+#endif
