@@ -1208,7 +1208,7 @@ static int compute_profile(SkScalar radius, unsigned int **profile_out) {
 
     profile[0] = 255;
     for (int x = 1 ; x < size ; ++x) {
-        float scaled_x = (center - x - .5) * invr;
+        float scaled_x = (center - x - .5f) * invr;
         float gi = gaussianIntegral(scaled_x);
         profile[x] = 255 - (uint8_t) (255.f * gi);
     }
@@ -1243,7 +1243,7 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
     float radius = SkScalarToFloat( SkScalarMul( provided_radius, kBlurRadiusFudgeFactor ) );
     
     // adjust blur radius to match interpretation from boxfilter code
-    radius = (radius + .5) *2;
+    radius = (radius + .5f) *2.f;
 
     profile_size = compute_profile( radius, &profile );
     
@@ -1256,8 +1256,8 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
     
     int shadow_left = -pad;
     int shadow_top = -pad;
-    int shadow_right = src.width() + pad;
-    int shadow_bottom = src.height() + pad;
+    int shadow_right = (int)(src.width()) + pad;
+    int shadow_bottom = (int)(src.height()) + pad;
     
     dst->fBounds.set(shadow_left, shadow_top, shadow_right, shadow_bottom);
 
@@ -1296,7 +1296,7 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
             horizontalScanline[x] = profile_lookup(profile, x, dstWidth, w);
         } else {
             float span = float(sw)/radius;
-            float giX = 1.5 - (x+.5)/radius;
+            float giX = 1.5f - (x+.5f)/radius;
             horizontalScanline[x] = (uint8_t) (255 * (gaussianIntegral(giX) - gaussianIntegral(giX + span)));
         }
     }
@@ -1307,7 +1307,7 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
             profile_y = profile_lookup(profile, y, dstHeight, h);
         } else {
             float span = float(sh)/radius;
-            float giY = 1.5 - (y+.5)/radius;
+            float giY = 1.5f - (y+.5f)/radius;
             profile_y = (uint8_t) (255 * (gaussianIntegral(giY) - gaussianIntegral(giY + span)));
         }
 
@@ -1319,7 +1319,7 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
     
     if (style == kInner_Style) {
         // now we allocate the "real" dst, mirror the size of src
-        size_t srcSize = src.width() * src.height();
+        size_t srcSize = (size_t)(src.width() * src.height());
         if (0 == srcSize) {
             return false;   // too big to allocate, abort
         }

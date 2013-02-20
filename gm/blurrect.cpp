@@ -177,14 +177,14 @@ protected:
         r.setWH(SkIntToScalar(fRectWidth), SkIntToScalar(fRectHeight));
 
         SkISize canvas_size = canvas->getDeviceSize();
-        int center_x = (canvas_size.fWidth - r.width())/2;
-        int center_y = (canvas_size.fHeight - r.height())/2;
+        int center_x = (canvas_size.fWidth - (int)(r.width()))/2;
+        int center_y = (canvas_size.fHeight - (int)(r.height()))/2;
 
         SkMask mask;
 
         if (!this->makeMask(&mask, r)) {
             SkPaint paint;
-            r.offset( center_x, center_y );
+            r.offset( SkIntToScalar(center_x), SkIntToScalar(center_y) );
             canvas->drawRect(r,paint);
             return;
         }
@@ -197,7 +197,7 @@ protected:
         center_x = (canvas_size.fWidth - mask.fBounds.width())/2;
         center_y = (canvas_size.fHeight - mask.fBounds.height())/2;
 
-        canvas->drawBitmap(bm, center_x, center_y, NULL);
+        canvas->drawBitmap(bm, SkIntToScalar(center_x), SkIntToScalar(center_y), NULL);
     }
 
     virtual uint32_t onGetFlags() const { return kSkipPipe_Flag; }
