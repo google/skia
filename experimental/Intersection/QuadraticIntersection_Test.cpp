@@ -54,6 +54,15 @@ static void standardTestCases() {
 }
 
 static const Quadratic testSet[] = {
+{{2.7279999999999998, 3.024}, {2.5600000000000005, 2.5600000000000005}, {2.1520000000000001, 1.8560000000000001}},
+{{0.66666666666666652, 1.1481481481481481}, {1.3333333333333326, 1.3333333333333335}, {2.6666666666666665, 2.1851851851851851}},
+
+  {{2.728,3.024}, {2.56,2.56}, {2.152,1.856}},
+  {{0.666666667,1.14814815}, {1.33333333,1.33333333}, {2.66666667,2.18518519}},
+
+  {{0.875,1.5}, {1.03125,1.11022302e-16}, {1,0}},
+  {{0.875,0.859375}, {1.6875,0.73046875}, {2.5,0.625}},
+
   {{1.64451042,0.0942001592}, {1.53635465,0.00152863961}, {1,0}},
   {{1.27672209,0.15}, {1.32143477,9.25185854e-17}, {1,0}},
 
@@ -196,6 +205,7 @@ static void oneOffTest1(size_t outer, size_t inner) {
 
 void QuadraticIntersection_OneOffTest() {
     oneOffTest1(0, 1);
+    oneOffTest1(2, 3);
 }
 
 static void oneOffTests() {
@@ -297,14 +307,14 @@ void QuadraticIntersection_PointFinder() {
     hullIntersect(pointFinderTestSet[0], pointFinderTestSet[6]);
 }
 
-void QuadraticIntersection_IntersectionFinder() {
-    const Quadratic& quad1 = testSet[0];
-    const Quadratic& quad2 = testSet[1];
+static void intersectionFinder(int test1, int test2) {
+    const Quadratic& quad1 = testSet[test1];
+    const Quadratic& quad2 = testSet[test2];
 
-    double t1Seed = 0.98;
-    double t2Seed = 0.97;
-    double t1Step = 0.05;
-    double t2Step = 0.05;
+    double t1Seed = 0.989;
+    double t2Seed = 0.800;
+    double t1Step = 0.01;
+    double t2Step = 0.01;
     _Point t1[3], t2[3];
     bool toggle = true;
     do {
@@ -387,4 +397,9 @@ void QuadraticIntersection_IntersectionFinder() {
     _Point p22 = xy_at_t(quad2, t22);
     SkDebugf("%s p2=(%1.9g,%1.9g)<(%1.9g,%1.9g)<(%1.9g,%1.9g)\n", __FUNCTION__,
         p20.x, p20.y, p2Seed.x, p2Seed.y, p22.x, p22.y);
+}
+
+void QuadraticIntersection_IntersectionFinder() {
+    intersectionFinder(0, 1);
+    intersectionFinder(2, 3);
 }

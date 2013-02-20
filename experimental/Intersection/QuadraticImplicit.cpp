@@ -25,7 +25,7 @@
  */
 
 static int findRoots(const QuadImplicitForm& i, const Quadratic& q2, double roots[4],
-        bool oneHint) {
+        bool oneHint, int firstCubicRoot) {
     double a, b, c;
     set_abc(&q2[0].x, a, b, c);
     double d, e, f;
@@ -56,7 +56,7 @@ static int findRoots(const QuadImplicitForm& i, const Quadratic& q2, double root
     if (rootCount >= 0) {
         return rootCount;
     }
-    return quarticRootsReal(t4, t3, t2, t1, t0, roots);
+    return quarticRootsReal(firstCubicRoot, t4, t3, t2, t1, t0, roots);
 }
 
 static int addValidRoots(const double roots[4], const int count, double valid[4]) {
@@ -334,6 +334,87 @@ static void unsortableExpanse(const Quadratic& q1, const Quadratic& q2, Intersec
 }
 #endif
 
+// each time through the loop, this computes values it had from the last loop
+// if i == j == 1, the center values are still good
+// otherwise, for i != 1 or j != 1, four of the values are still good
+// and if i == 1 ^ j == 1, an additional value is good
+static bool binarySearch(const Quadratic& quad1, const Quadratic& quad2, double& t1Seed,
+        double& t2Seed, _Point& pt) {
+    double tStep = ROUGH_EPSILON;
+    _Point t1[3], t2[3];
+    int calcMask = ~0;
+    do {
+        if (calcMask & (1 << 1)) t1[1] = xy_at_t(quad1, t1Seed);
+        if (calcMask & (1 << 4)) t2[1] = xy_at_t(quad2, t2Seed);
+        if (t1[1].approximatelyEqual(t2[1])) {
+            pt = t1[1];
+    #if ONE_OFF_DEBUG
+            SkDebugf("%s t1=%1.9g t2=%1.9g (%1.9g,%1.9g) == (%1.9g,%1.9g)\n", __FUNCTION__,
+                    t1Seed, t2Seed, t1[1].x, t1[1].y, t1[2].x, t1[2].y);
+    #endif
+            return true;
+        }
+        if (calcMask & (1 << 0)) t1[0] = xy_at_t(quad1, t1Seed - tStep);
+        if (calcMask & (1 << 2)) t1[2] = xy_at_t(quad1, t1Seed + tStep);
+        if (calcMask & (1 << 3)) t2[0] = xy_at_t(quad2, t2Seed - tStep);
+        if (calcMask & (1 << 5)) t2[2] = xy_at_t(quad2, t2Seed + tStep);
+        double dist[3][3];
+        // OPTIMIZE: using calcMask value permits skipping some distance calcuations
+        //   if prior loop's results are moved to correct slot for reuse
+        dist[1][1] = t1[1].distanceSquared(t2[1]);
+        int best_i = 1, best_j = 1;
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                if (i == 1 && j == 1) {
+                    continue;
+                }
+                dist[i][j] = t1[i].distanceSquared(t2[j]);
+                if (dist[best_i][best_j] > dist[i][j]) {
+                    best_i = i;
+                    best_j = j;
+                }
+            }
+        }
+        if (best_i == 1 && best_j == 1) {
+            tStep /= 2;
+            if (tStep < FLT_EPSILON_HALF) {
+                break;
+            }
+            calcMask = (1 << 0) | (1 << 2) | (1 << 3) | (1 << 5); 
+            continue;
+        }
+        if (best_i == 0) {
+            t1Seed -= tStep;
+            t1[2] = t1[1];
+            t1[1] = t1[0];
+            calcMask = 1 << 0;
+        } else if (best_i == 2) {
+            t1Seed += tStep;
+            t1[0] = t1[1];
+            t1[1] = t1[2];
+            calcMask = 1 << 2;
+        } else {
+            calcMask = 0;
+        }
+        if (best_j == 0) {
+            t2Seed -= tStep;
+            t2[2] = t2[1];
+            t2[1] = t2[0];
+            calcMask |= 1 << 3;
+        } else if (best_j == 2) {
+            t2Seed += tStep;
+            t2[0] = t2[1];
+            t2[1] = t2[2];
+            calcMask |= 1 << 5;
+        }
+    } while (true);
+#if ONE_OFF_DEBUG
+    SkDebugf("%s t1=%1.9g t2=%1.9g (%1.9g,%1.9g) != (%1.9g,%1.9g) %s\n", __FUNCTION__,
+        t1Seed, t2Seed, t1[1].x, t1[1].y, t1[2].x, t1[2].y);
+#endif
+    return false;
+}
+
 bool intersect2(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
     // if the quads share an end point, check to see if they overlap
 
@@ -378,7 +459,7 @@ bool intersect2(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
     int index;
     bool useCubic = q1[0] == q2[0] || q1[0] == q2[2] || q1[2] == q2[0];
     double roots1[4];
-    int rootCount = findRoots(i2, q1, roots1, useCubic);
+    int rootCount = findRoots(i2, q1, roots1, useCubic, 0);
     // OPTIMIZATION: could short circuit here if all roots are < 0 or > 1
     double roots1Copy[4];
     int r1Count = addValidRoots(roots1, rootCount, roots1Copy);
@@ -387,7 +468,7 @@ bool intersect2(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
         xy_at_t(q1, roots1Copy[index], pts1[index].x, pts1[index].y);
     }
     double roots2[4];
-    int rootCount2 = findRoots(i1, q2, roots2, useCubic);
+    int rootCount2 = findRoots(i1, q2, roots2, useCubic, 0);
     double roots2Copy[4];
     int r2Count = addValidRoots(roots2, rootCount2, roots2Copy);
     _Point pts2[4];
@@ -398,6 +479,39 @@ bool intersect2(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
         if (r1Count == 1) {
             if (pts1[0].approximatelyEqualHalf(pts2[0])) {
                 i.insert(roots1Copy[0], roots2Copy[0], pts1[0]);
+            } else if (pts1[0].roughlyEqual(pts2[0])) {
+                // experiment: see if a different cubic solution provides the correct quartic answer
+            #if 0
+                for (int cu1 = 0; cu1 < 3; ++cu1) {
+                    rootCount = findRoots(i2, q1, roots1, useCubic, cu1);
+                    r1Count = addValidRoots(roots1, rootCount, roots1Copy);
+                    if (r1Count == 0) {
+                        continue;
+                    }
+                    for (int cu2 = 0; cu2 < 3; ++cu2) {
+                        if (cu1 == 0 && cu2 == 0) {
+                            continue;
+                        }
+                        rootCount2 = findRoots(i1, q2, roots2, useCubic, cu2);
+                        r2Count = addValidRoots(roots2, rootCount2, roots2Copy);
+                        if (r2Count == 0) {
+                            continue;
+                        }
+                        SkASSERT(r1Count == 1 && r2Count == 1);
+                        SkDebugf("*** [%d,%d] (%1.9g,%1.9g) %s (%1.9g,%1.9g)\n", cu1, cu2, 
+                                pts1[0].x, pts1[0].y, pts1[0].approximatelyEqualHalf(pts2[0])
+                                ? "==" : "!=", pts2[0].x, pts2[0].y);
+                    }
+                }
+            #endif
+                // experiment: try to find intersection by chasing t
+                rootCount = findRoots(i2, q1, roots1, useCubic, 0);
+                r1Count = addValidRoots(roots1, rootCount, roots1Copy);
+                rootCount2 = findRoots(i1, q2, roots2, useCubic, 0);
+                r2Count = addValidRoots(roots2, rootCount2, roots2Copy);
+                if (binarySearch(q1, q2, roots1Copy[0], roots2Copy[0], pts1[0])) {
+                    i.insert(roots1Copy[0], roots2Copy[0], pts1[0]);
+                }
             }
         }
         return i.intersected();
