@@ -134,6 +134,8 @@
       '<(skia_src_path)/gpu/effects/GrTextureDomainEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrTextureDomainEffect.h',
 
+      '<(skia_src_path)/gpu/gl/GrGLBufferImpl.cpp',
+      '<(skia_src_path)/gpu/gl/GrGLBufferImpl.h',
       '<(skia_src_path)/gpu/gl/GrGLCaps.cpp',
       '<(skia_src_path)/gpu/gl/GrGLCaps.h',
       '<(skia_src_path)/gpu/gl/GrGLContextInfo.cpp',

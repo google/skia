@@ -5,12 +5,11 @@
  * found in the LICENSE file.
  */
 
-
-
 #ifndef GrGLVertexBuffer_DEFINED
 #define GrGLVertexBuffer_DEFINED
 
 #include "GrVertexBuffer.h"
+#include "GrGLBufferImpl.h"
 #include "gl/GrGLInterface.h"
 
 class GrGpuGL;
@@ -18,17 +17,19 @@ class GrGpuGL;
 class GrGLVertexBuffer : public GrVertexBuffer {
 
 public:
-    GrGLVertexBuffer(GrGpuGL* gpu,
-                     bool isWrapped,
-                     GrGLuint id,
-                     size_t sizeInBytes,
-                     bool dynamic);
+    typedef GrGLBufferImpl::Desc Desc;
+
+    GrGLVertexBuffer(GrGpuGL* gpu, const Desc& desc);
     virtual ~GrGLVertexBuffer() { this->release(); }
 
-    GrGLuint bufferID() const { return fBufferID; }
-    size_t baseOffset() const { return 0; }
+    GrGLuint bufferID() const { return fImpl.bufferID(); }
+    size_t baseOffset() const { return fImpl.baseOffset(); }
 
-    void bind() const;
+    void bind() const {
+        if (this->isValid()) {
+            fImpl.bind(this->getGpuGL());
+        }
+    }
 
     // overrides of GrVertexBuffer
     virtual void* lock();
@@ -43,9 +44,12 @@ protected:
     virtual void onRelease() SK_OVERRIDE;
 
 private:
+    GrGpuGL* getGpuGL() const {
+        GrAssert(this->isValid());
+        return (GrGpuGL*)(this->getGpu());
+    }
 
-    GrGLuint     fBufferID;
-    void*        fLockPtr;
+    GrGLBufferImpl fImpl;
 
     typedef GrVertexBuffer INHERITED;
 };

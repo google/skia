@@ -1226,58 +1226,58 @@ bool GrGpuGL::attachStencilBufferToRenderTarget(GrStencilBuffer* sb,
 ////////////////////////////////////////////////////////////////////////////////
 
 GrVertexBuffer* GrGpuGL::onCreateVertexBuffer(uint32_t size, bool dynamic) {
-    GrGLuint id;
-    GL_CALL(GenBuffers(1, &id));
-    if (id) {
-        GL_CALL(BindBuffer(GR_GL_ARRAY_BUFFER, id));
+    GrGLVertexBuffer::Desc desc;
+    desc.fDynamic = dynamic;
+    desc.fSizeInBytes = size;
+    desc.fIsWrapped = false;
+
+    GL_CALL(GenBuffers(1, &desc.fID));
+    if (desc.fID) {
+        GL_CALL(BindBuffer(GR_GL_ARRAY_BUFFER, desc.fID));
         CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
         // make sure driver can allocate memory for this buffer
         GL_ALLOC_CALL(this->glInterface(),
                       BufferData(GR_GL_ARRAY_BUFFER,
-                                 size,
+                                 desc.fSizeInBytes,
                                  NULL,   // data ptr
-                                 dynamic ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW));
+                                 desc.fDynamic ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW));
         if (CHECK_ALLOC_ERROR(this->glInterface()) != GR_GL_NO_ERROR) {
-            GL_CALL(DeleteBuffers(1, &id));
+            GL_CALL(DeleteBuffers(1, &desc.fID));
             // deleting bound buffer does implicit bind to 0
             fHWGeometryState.setVertexBufferID(0);
             return NULL;
         }
-        static const bool kIsWrapped = false;
-        GrGLVertexBuffer* vertexBuffer = SkNEW_ARGS(GrGLVertexBuffer, (this,
-                                                                       kIsWrapped,
-                                                                       id,
-                                                                       size,
-                                                                       dynamic));
-        fHWGeometryState.setVertexBufferID(id);
+        GrGLVertexBuffer* vertexBuffer = SkNEW_ARGS(GrGLVertexBuffer, (this, desc));
+        fHWGeometryState.setVertexBufferID(desc.fID);
         return vertexBuffer;
     }
     return NULL;
 }
 
 GrIndexBuffer* GrGpuGL::onCreateIndexBuffer(uint32_t size, bool dynamic) {
-    GrGLuint id;
-    GL_CALL(GenBuffers(1, &id));
-    if (id) {
-        GL_CALL(BindBuffer(GR_GL_ELEMENT_ARRAY_BUFFER, id));
+    GrGLIndexBuffer::Desc desc;
+    desc.fDynamic = dynamic;
+    desc.fSizeInBytes = size;
+    desc.fIsWrapped = false;
+
+    GL_CALL(GenBuffers(1, &desc.fID));
+    if (desc.fID) {
+        GL_CALL(BindBuffer(GR_GL_ELEMENT_ARRAY_BUFFER, desc.fID));
         CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
         // make sure driver can allocate memory for this buffer
         GL_ALLOC_CALL(this->glInterface(),
                       BufferData(GR_GL_ELEMENT_ARRAY_BUFFER,
-                                 size,
+                                 desc.fSizeInBytes,
                                  NULL,  // data ptr
-                                 dynamic ? GR_GL_DYNAMIC_DRAW :
-                                           GR_GL_STATIC_DRAW));
+                                 desc.fDynamic ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW));
         if (CHECK_ALLOC_ERROR(this->glInterface()) != GR_GL_NO_ERROR) {
-            GL_CALL(DeleteBuffers(1, &id));
+            GL_CALL(DeleteBuffers(1, &desc.fID));
             // deleting bound buffer does implicit bind to 0
             fHWGeometryState.setIndexBufferID(0);
             return NULL;
         }
-        static const bool kIsWrapped = false;
-        GrIndexBuffer* indexBuffer = SkNEW_ARGS(GrGLIndexBuffer,
-                                                (this, kIsWrapped, id, size, dynamic));
-        fHWGeometryState.setIndexBufferID(id);
+        GrIndexBuffer* indexBuffer = SkNEW_ARGS(GrGLIndexBuffer, (this, desc));
+        fHWGeometryState.setIndexBufferID(desc.fID);
         return indexBuffer;
     }
     return NULL;
@@ -2145,20 +2145,20 @@ void GrGpuGL::flushMiscFixedFunctionState() {
     }
 }
 
-void GrGpuGL::notifyVertexBufferBind(const GrGLVertexBuffer* buffer) {
-    fHWGeometryState.setVertexBufferID(buffer->bufferID());
+void GrGpuGL::notifyVertexBufferBind(GrGLuint id) {
+    fHWGeometryState.setVertexBufferID(id);
 }
 
-void GrGpuGL::notifyVertexBufferDelete(const GrGLVertexBuffer* buffer) {
-    fHWGeometryState.notifyVertexBufferDelete(buffer);
+void GrGpuGL::notifyVertexBufferDelete(GrGLuint id) {
+    fHWGeometryState.notifyVertexBufferDelete(id);
 }
 
-void GrGpuGL::notifyIndexBufferBind(const GrGLIndexBuffer* buffer) {
-    fHWGeometryState.setIndexBufferID(buffer->bufferID());
+void GrGpuGL::notifyIndexBufferBind(GrGLuint id) {
+    fHWGeometryState.setIndexBufferID(id);
 }
 
-void GrGpuGL::notifyIndexBufferDelete(const GrGLIndexBuffer* buffer) {
-    fHWGeometryState.notifyIndexBufferDelete(buffer);
+void GrGpuGL::notifyIndexBufferDelete(GrGLuint id) {
+    fHWGeometryState.notifyIndexBufferDelete(id);
 }
 
 void GrGpuGL::notifyRenderTargetDelete(GrRenderTarget* renderTarget) {
