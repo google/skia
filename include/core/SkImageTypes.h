@@ -16,7 +16,7 @@ enum SkColorType {
 //    kRGBA_8888_SkColorType,
 //    kBGRA_8888_SkColorType,
     kPMColor_SkColorType,
-    
+
     kLastEnum_SkColorType = kPMColor_SkColorType
 };
 
@@ -25,7 +25,7 @@ enum SkAlphaType {
     kOpaque_SkAlphaType,
 //    kUnpremul_SkAlphaType,
     kPremul_SkAlphaType,
-    
+
     kLastEnum_SkAlphaType = kPremul_SkAlphaType
 };
 
