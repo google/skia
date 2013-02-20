@@ -35,6 +35,10 @@ def TiledGPUConfig(tile_x, tile_y, **kwargs):
   return GPUConfig(**dict(TileArgs(tile_x, tile_y).items() + kwargs.items()))
 
 
+def TiledConfig(tile_x, tile_y, **kwargs):
+  return Config(**dict(TileArgs(tile_x, tile_y).items() + kwargs.items()))
+
+
 def ViewportBitmapConfig(viewport_x, viewport_y, **kwargs):
   return BitmapConfig(viewport=[str(viewport_x), str(viewport_y)], **kwargs)
 
