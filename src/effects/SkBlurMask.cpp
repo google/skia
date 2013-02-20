@@ -974,14 +974,6 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
                           SkScalarMul( radius, kBlurRadiusFudgeFactor): 
                           radius;
 
-#ifndef SK_IGNORE_BLUR_RADIUS_CORRECTNESS
-    // multiply the given radius by sqrt(2)/2 to convert 
-    // from (2x) standard deviation to needed box width
-    const SkScalar radiusMultiplier = SkFloatToScalar(0.707f);
-    SkScalar boxWidth = SkScalarMul(passRadius, radiusMultiplier);
-    passRadius = SkScalarMul(boxWidth,SK_ScalarHalf) - SK_ScalarHalf;
-#endif
-
     int rx = SkScalarCeil(passRadius);
     int outerWeight = 255 - SkScalarRound((SkIntToScalar(rx) - passRadius) * 255);
 
@@ -1250,10 +1242,8 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
 
     float radius = SkScalarToFloat( SkScalarMul( provided_radius, kBlurRadiusFudgeFactor ) );
     
-#ifndef SK_IGNORE_BLUR_RADIUS_CORRECTNESS
-    float stddev = SkScalarToFloat( radius ) /2.0f;
-    radius = stddev * 1.414f;
-#endif
+    // adjust blur radius to match interpretation from boxfilter code
+    radius = (radius + .5) *2;
 
     profile_size = compute_profile( radius, &profile );
     
