@@ -62,16 +62,17 @@ SkColorFilterImageFilter* SkColorFilterImageFilter::Create(SkColorFilter* cf,
     SkScalar colorMatrix[20], inputMatrix[20];
     SkColorFilter* inputColorFilter;
     if (input && cf->asColorMatrix(colorMatrix)
-              && (inputColorFilter = input->asColorFilter())
-              && inputColorFilter->asColorMatrix(inputMatrix)
-              && !matrix_needs_clamping(inputMatrix)) {
-        SkScalar combinedMatrix[20];
-        mult_color_matrix(inputMatrix, colorMatrix, combinedMatrix);
-        SkAutoTUnref<SkColorFilter> newCF(SkNEW_ARGS(SkColorMatrixFilter, (combinedMatrix)));
-        return SkNEW_ARGS(SkColorFilterImageFilter, (newCF, input->getInput(0)));
-    } else {
-        return SkNEW_ARGS(SkColorFilterImageFilter, (cf, input));
+              && input->asColorFilter(&inputColorFilter)
+              && (NULL != inputColorFilter)) {
+        SkAutoUnref autoUnref(inputColorFilter);
+        if (inputColorFilter->asColorMatrix(inputMatrix) && !matrix_needs_clamping(inputMatrix)) {
+            SkScalar combinedMatrix[20];
+            mult_color_matrix(inputMatrix, colorMatrix, combinedMatrix);
+            SkAutoTUnref<SkColorFilter> newCF(SkNEW_ARGS(SkColorMatrixFilter, (combinedMatrix)));
+            return SkNEW_ARGS(SkColorFilterImageFilter, (newCF, input->getInput(0)));
+        }
     }
+    return SkNEW_ARGS(SkColorFilterImageFilter, (cf, input));
 }
 
 SkColorFilterImageFilter::SkColorFilterImageFilter(SkColorFilter* cf, SkImageFilter* input) : INHERITED(input), fColorFilter(cf) {
@@ -110,6 +111,10 @@ bool SkColorFilterImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& sourc
     return true;
 }
 
-SkColorFilter* SkColorFilterImageFilter::asColorFilter() const {
-    return fColorFilter;
+bool SkColorFilterImageFilter::asColorFilter(SkColorFilter** filter) const {
+    if (filter) {
+        *filter = fColorFilter;
+        fColorFilter->ref();
+    }
+    return true;
 }

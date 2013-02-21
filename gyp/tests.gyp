@@ -88,6 +88,7 @@
         '../tests/RTreeTest.cpp',
         '../tests/SHA1Test.cpp',
         '../tests/ScalarTest.cpp',
+        '../tests/ShaderImageFilterTest.cpp',
         '../tests/ShaderOpacityTest.cpp',
         '../tests/Sk64Test.cpp',
         '../tests/skia_test.cpp',

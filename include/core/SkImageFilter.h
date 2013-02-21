@@ -16,6 +16,7 @@ class SkDevice;
 class SkMatrix;
 struct SkIPoint;
 struct SkIRect;
+class SkShader;
 class GrEffectRef;
 class GrTexture;
 
@@ -112,10 +113,12 @@ public:
     virtual bool filterImageGPU(Proxy*, const SkBitmap& src, SkBitmap* result);
 
     /**
-     *  Returns this image filter as a color filter if possible,
-     *  NULL otherwise.
+     *  Returns whether this image filter is a color filter and puts the color filter into the
+     *  "filter" parameter if it can. Does nothing otherwise.
+     *  If this function returns a non NULL *filter value, then the SkColorFilter object has been
+     *  refed within this function and the caller will need to call unref() later on.
      */
-    virtual SkColorFilter* asColorFilter() const;
+    virtual bool asColorFilter(SkColorFilter** filter) const;
 
     /**
      *  Returns the number of inputs this filter will accept (some inputs can
