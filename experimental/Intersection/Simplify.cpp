@@ -4165,7 +4165,7 @@ the same winding is shared by both.
                     start, segment.xAtT(&sSpan), segment.yAtT(&sSpan), end,
                     segment.xAtT(&eSpan), segment.yAtT(&eSpan), angle.sign(),
                     mSpan.fWindValue);
-            start here; 
+            start here;
             // create an inline to replace this conditional
             if (mSpan.fWindSum == SK_MinS32) {
                 SkDebugf("?");

@@ -117,7 +117,7 @@ protected:
 
         memset(fSrcMask.fImage, 0xff, fSrcMask.computeTotalImageSize());
     }
-    
+
     SkMask fSrcMask;
 private:
     typedef BlurRectBench INHERITED;

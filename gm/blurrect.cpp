@@ -148,17 +148,17 @@ public:
         , fStyle(style)
         {}
 
-    int width() const { 
-        return fRectWidth; 
+    int width() const {
+        return fRectWidth;
     }
-    int height() const { 
-        return fRectHeight; 
+    int height() const {
+        return fRectHeight;
     }
-    SkScalar radius() const { 
-        return fRadius; 
+    SkScalar radius() const {
+        return fRadius;
     }
-    SkBlurMask::Style style() const { 
-        return fStyle; 
+    SkBlurMask::Style style() const {
+        return fStyle;
     }
 
 protected:
@@ -211,9 +211,9 @@ public:
     BlurRectFastGM(const char name[], unsigned int rect_width,
                    unsigned int rect_height, float blur_radius,
                    SkBlurMask::Style style) :
-        INHERITED(name, rect_width, rect_height, blur_radius, style) 
+        INHERITED(name, rect_width, rect_height, blur_radius, style)
         {
-            
+
         }
 protected:
     virtual bool makeMask(SkMask *m, const SkRect& r) SK_OVERRIDE {
@@ -225,11 +225,11 @@ private:
 
 class BlurRectSlowGM: public BlurRectCompareGM {
 public:
-    BlurRectSlowGM(const char name[], unsigned int rect_width, unsigned int rect_height, 
+    BlurRectSlowGM(const char name[], unsigned int rect_width, unsigned int rect_height,
                    float blur_radius, SkBlurMask::Style style) :
-        INHERITED(name, rect_width, rect_height, blur_radius, style) 
+        INHERITED(name, rect_width, rect_height, blur_radius, style)
         {
-            
+
         }
 protected:
     virtual bool makeMask(SkMask *m, const SkRect& r) SK_OVERRIDE {
@@ -255,11 +255,11 @@ private:
 
 class BlurRectSlowLowGM: public BlurRectSlowGM {
 public:
-    BlurRectSlowLowGM(const char name[], unsigned int rectWidth, unsigned int rectHeight, 
+    BlurRectSlowLowGM(const char name[], unsigned int rectWidth, unsigned int rectHeight,
                       float blurRadius, SkBlurMask::Style style) :
-        INHERITED(name, rectWidth, rectHeight, blurRadius, style) 
+        INHERITED(name, rectWidth, rectHeight, blurRadius, style)
         {
-            
+
         }
 protected:
     virtual SkBlurMask::Quality getQuality() SK_OVERRIDE {
@@ -271,11 +271,11 @@ private:
 
 class BlurRectGroundTruthGM: public BlurRectCompareGM {
 public:
-    BlurRectGroundTruthGM(const char name[], unsigned int rectWidth, unsigned int rectHeight, 
+    BlurRectGroundTruthGM(const char name[], unsigned int rectWidth, unsigned int rectHeight,
                           float blurRadius, SkBlurMask::Style style) :
         INHERITED(name, rectWidth, rectHeight, blurRadius, style)
         {
-            
+
         }
 protected:
     virtual bool makeMask(SkMask *m, const SkRect& r) SK_OVERRIDE {

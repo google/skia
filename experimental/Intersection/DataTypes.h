@@ -293,7 +293,7 @@ struct _Point {
     double lengthSquared() const {
         return x * x + y * y;
     }
-    
+
     double roughlyEqual(const _Point& a) const {
         return roughly_equal(a.y, y) && roughly_equal(a.x, x);
     }

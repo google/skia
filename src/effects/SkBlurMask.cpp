@@ -966,12 +966,12 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
     if (radius < SkIntToScalar(3)) {
         quality = kLow_Quality;
     }
-    
-    // highQuality: use three box blur passes as a cheap way 
+
+    // highQuality: use three box blur passes as a cheap way
     // to approximate a Gaussian blur
     int passCount = (kHigh_Quality == quality) ? 3 : 1;
-    SkScalar passRadius = (kHigh_Quality == quality) ? 
-                          SkScalarMul( radius, kBlurRadiusFudgeFactor): 
+    SkScalar passRadius = (kHigh_Quality == quality) ?
+                          SkScalarMul( radius, kBlurRadiusFudgeFactor):
                           radius;
 
     int rx = SkScalarCeil(passRadius);
@@ -987,13 +987,13 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
 
     int padx = passCount * rx;
     int pady = passCount * ry;
-    
+
     if (margin) {
         margin->set(padx, pady);
     }
     dst->fBounds.set(src.fBounds.fLeft - padx, src.fBounds.fTop - pady,
         src.fBounds.fRight + padx, src.fBounds.fBottom + pady);
-        
+
     dst->fRowBytes = dst->fBounds.width();
     dst->fFormat = SkMask::kA8_Format;
     dst->fImage = NULL;
@@ -1015,7 +1015,7 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
             SkAutoTMalloc<uint8_t>  tmpBuffer(dstSize);
             uint8_t*                tp = tmpBuffer.get();
             int w = sw, h = sh;
-            
+
             if (outerWeight == 255) {
                 int loRadius, hiRadius;
                 get_adjusted_radii(passRadius, &loRadius, &hiRadius);
@@ -1137,9 +1137,9 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
    3/4 - x^2                -.5 < x <= .5
    9/8 - 3/2 x + 1/2 x^2    0.5 < x <= 1.5
    0                        1.5 < x
-   
+
    Mathematica:
-   
+
    g[x_] := Piecewise [ {
      {9/8 + 3/2 x + 1/2 x^2 ,  -1.5 < x <= -.5},
      {3/4 - x^2             ,   -.5 < x <= .5},
@@ -1154,9 +1154,9 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
    1/2 + 3/4 x - 1/3 x^3              -.5 < x <= .5
    7/16 + 9/8 x - 3/4 x^2 + 1/6 x^3     .5 < x <= 1.5
    1                                  1.5 < x
-   
+
    in Mathematica code:
-   
+
    gi[x_] := Piecewise[ {
      { 0 , x <= -1.5 },
      { 9/16 + 9/8 x + 3/4 x^2 + 1/6 x^3, -1.5 < x <= -0.5 },
@@ -1230,7 +1230,7 @@ static inline unsigned int profile_lookup( unsigned int *profile, int loc, int b
     if (ox < 0) {
         ox = 0;
     }
-    
+
     return profile[ox];
 }
 
@@ -1241,30 +1241,30 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
     unsigned int *profile;
 
     float radius = SkScalarToFloat( SkScalarMul( provided_radius, kBlurRadiusFudgeFactor ) );
-    
+
     // adjust blur radius to match interpretation from boxfilter code
     radius = (radius + .5f) *2.f;
 
     profile_size = compute_profile( radius, &profile );
-    
+
     SkAutoTDeleteArray<unsigned int> ada(profile);
 
     int pad = profile_size/2;
     if (margin) {
         margin->set( pad, pad );
     }
-    
+
     int shadow_left = -pad;
     int shadow_top = -pad;
     int shadow_right = (int)(src.width()) + pad;
     int shadow_bottom = (int)(src.height()) + pad;
-    
+
     dst->fBounds.set(shadow_left, shadow_top, shadow_right, shadow_bottom);
 
     dst->fRowBytes = dst->fBounds.width();
     dst->fFormat = SkMask::kA8_Format;
     dst->fImage = NULL;
-    
+
     size_t dstSize = dst->computeImageSize();
     if (0 == dstSize) {
         return false;   // too big to allocate, abort
@@ -1288,7 +1288,7 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
     int h = sh - center;
 
     uint8_t *outptr = dp;
-    
+
     SkAutoTMalloc<uint8_t> horizontalScanline(dstWidth);
 
     for (int x = 0 ; x < dstWidth ; ++x) {
@@ -1300,7 +1300,7 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
             horizontalScanline[x] = (uint8_t) (255 * (gaussianIntegral(giX) - gaussianIntegral(giX + span)));
         }
     }
-    
+
     for (int y = 0 ; y < dstHeight ; ++y) {
         unsigned int profile_y;
         if (profile_size <= sh) {
@@ -1316,7 +1316,7 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
             *(outptr++) = maskval;
         }
     }
-    
+
     if (style == kInner_Style) {
         // now we allocate the "real" dst, mirror the size of src
         size_t srcSize = (size_t)(src.width() * src.height());
@@ -1333,7 +1333,7 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
 
         dst->fBounds.set(0, 0, sw, sh); // restore trimmed bounds
         dst->fRowBytes = sw;
-        
+
     } else if (style == kOuter_Style) {
         for (int y = pad ; y < dstHeight-pad ; y++) {
             uint8_t *dst_scanline = dp + y*dstWidth + pad;
@@ -1350,9 +1350,9 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
 // gaussian kernel.  It's "ground truth" in a sense; too slow to be used, but very
 // useful for correctness comparisons.
 
-bool SkBlurMask::BlurGroundTruth(SkMask* dst, const SkMask& src, SkScalar provided_radius, 
+bool SkBlurMask::BlurGroundTruth(SkMask* dst, const SkMask& src, SkScalar provided_radius,
                             Style style, SkIPoint* margin) {
-                 
+
     if (src.fFormat != SkMask::kA8_Format) {
         return false;
     }
@@ -1368,9 +1368,9 @@ bool SkBlurMask::BlurGroundTruth(SkMask* dst, const SkMask& src, SkScalar provid
     SkAutoTMalloc<float> gaussWindow(windowSize);
 
     int halfWindow = windowSize >> 1;
- 
+
     gaussWindow[halfWindow] = 1;
-    
+
     float windowSum = 1;
     for (int x = 1 ; x <= halfWindow ; ++x) {
         float gaussian = expf(-x*x / variance);
@@ -1380,7 +1380,7 @@ bool SkBlurMask::BlurGroundTruth(SkMask* dst, const SkMask& src, SkScalar provid
 
     // leave the filter un-normalized for now; we will divide by the normalization
     // sum later;
-    
+
     int pad = halfWindow;
     if (margin) {
         margin->set( pad, pad );
@@ -1399,39 +1399,39 @@ bool SkBlurMask::BlurGroundTruth(SkMask* dst, const SkMask& src, SkScalar provid
         if (0 == dstSize) {
             return false;   // too big to allocate, abort
         }
-    
+
         int             srcWidth = src.fBounds.width();
         int             srcHeight = src.fBounds.height();
         int             dstWidth = dst->fBounds.width();
-        
+
         const uint8_t*  srcPixels = src.fImage;
         uint8_t*        dstPixels = SkMask::AllocImage(dstSize);
         SkAutoTCallVProc<uint8_t, SkMask_FreeImage> autoCall(dstPixels);
 
         // do the actual blur.  First, make a padded copy of the source.
         // use double pad so we never have to check if we're outside anything
-        
+
         int padWidth = srcWidth + 4*pad;
         int padHeight = srcHeight;
         int padSize = padWidth * padHeight;
-        
+
         SkAutoTMalloc<uint8_t> padPixels(padSize);
         memset(padPixels, 0, padSize);
-        
+
         for (int y = 0 ; y < srcHeight; ++y) {
             uint8_t* padptr = padPixels + y * padWidth + 2*pad;
             const uint8_t* srcptr = srcPixels + y * srcWidth;
             memcpy(padptr, srcptr, srcWidth);
         }
-                
+
         // blur in X, transposing the result into a temporary floating point buffer.
         // also double-pad the intermediate result so that the second blur doesn't
         // have to do extra conditionals.
-        
+
         int tmpWidth = padHeight + 4*pad;
         int tmpHeight = padWidth - 2*pad;
         int tmpSize = tmpWidth * tmpHeight;
-        
+
         SkAutoTMalloc<float> tmpImage(tmpSize);
         memset(tmpImage, 0, tmpSize*sizeof(tmpImage[0]));
 
@@ -1444,13 +1444,13 @@ bool SkBlurMask::BlurGroundTruth(SkMask* dst, const SkMask& src, SkScalar provid
                     *outPixel += gaussWindow[pad+i]*windowCenter[i];
                 }
                 *outPixel /= windowSum;
-            }            
+            }
         }
-        
+
         // blur in Y; now filling in the actual desired destination.  We have to do
-        // the transpose again; these transposes guarantee that we read memory in 
+        // the transpose again; these transposes guarantee that we read memory in
         // linear order.
-        
+
         for (int y = 0 ; y < tmpHeight ; ++y) {
             float *srcScanline = tmpImage + y*tmpWidth;
             for (int x = pad ; x < tmpWidth - pad ; ++x) {
@@ -1465,7 +1465,7 @@ bool SkBlurMask::BlurGroundTruth(SkMask* dst, const SkMask& src, SkScalar provid
                 *outPixel = SkClampMax( SkClampPos(integerPixel), 255 );
             }
         }
-        
+
         dst->fImage = dstPixels;
         // if need be, alloc the "real" dst (same size as src) and copy/merge
         // the blur into it (applying the src)
