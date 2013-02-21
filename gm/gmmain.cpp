@@ -1650,7 +1650,8 @@ int tool_main(int argc, char** argv) {
         if (!gmmain.fExpectationsSource.get() ||
             (ERROR_READING_REFERENCE_IMAGE & testErrors)) {
             testsMissingReferenceImages++;
-        } else if (ERROR_NONE == testErrors) {
+        }
+        if (ERROR_NONE == testErrors || ERROR_READING_REFERENCE_IMAGE == testErrors) {
             testsPassed++;
         } else {
             testsFailed++;
