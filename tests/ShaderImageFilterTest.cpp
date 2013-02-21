@@ -12,16 +12,17 @@
 #include "SkGradientShader.h"
 
 static void test_asShaderMode(skiatest::Reporter* reporter) {
-    SkRect r = SkRect::MakeWH(10, 10); // Make small 10x10 gradient
+    int w = 10, h = 10;
+    SkRect r = SkRect::MakeWH(SkIntToScalar(w), SkIntToScalar(h)); // Make small 10x10 gradient
 
     SkBitmap filterResult, shaderResult;
 
-    filterResult.setConfig(SkBitmap::kARGB_8888_Config, r.width(), r.height());
+    filterResult.setConfig(SkBitmap::kARGB_8888_Config, w, h);
     filterResult.allocPixels();
     SkCanvas canvasFilter(filterResult);
     canvasFilter.clear(0x00000000);
 
-    shaderResult.setConfig(SkBitmap::kARGB_8888_Config, r.width(), r.height());
+    shaderResult.setConfig(SkBitmap::kARGB_8888_Config, w, h);
     shaderResult.allocPixels();
     SkCanvas canvasShader(shaderResult);
     canvasShader.clear(0x00000000);
