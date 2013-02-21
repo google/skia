@@ -380,7 +380,7 @@ static bool binarySearch(const Quadratic& quad1, const Quadratic& quad2, double&
             if (tStep < FLT_EPSILON_HALF) {
                 break;
             }
-            calcMask = (1 << 0) | (1 << 2) | (1 << 3) | (1 << 5); 
+            calcMask = (1 << 0) | (1 << 2) | (1 << 3) | (1 << 5);
             continue;
         }
         if (best_i == 0) {
@@ -498,7 +498,7 @@ bool intersect2(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
                             continue;
                         }
                         SkASSERT(r1Count == 1 && r2Count == 1);
-                        SkDebugf("*** [%d,%d] (%1.9g,%1.9g) %s (%1.9g,%1.9g)\n", cu1, cu2, 
+                        SkDebugf("*** [%d,%d] (%1.9g,%1.9g) %s (%1.9g,%1.9g)\n", cu1, cu2,
                                 pts1[0].x, pts1[0].y, pts1[0].approximatelyEqualHalf(pts2[0])
                                 ? "==" : "!=", pts2[0].x, pts2[0].y);
                     }
