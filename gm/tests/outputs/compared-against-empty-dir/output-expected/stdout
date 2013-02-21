@@ -2,4 +2,4 @@ reading from gm/tests/inputs/images/empty-dir
 drawing... dashing2 [640 480]
 FAILED to read gm/tests/inputs/images/empty-dir/8888/dashing2.png
 FAILED to read gm/tests/inputs/images/empty-dir/565/dashing2.png
-Ran 1 tests: 0 passed, 0 failed, 1 missing reference images
+Ran 1 tests: 1 passed, 0 failed, 1 missing reference images
