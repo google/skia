@@ -96,6 +96,10 @@
  * GR_GL_USE_NV_PATH_RENDERING: Enable experimental support for
  * GL_NV_path_rendering. There are known issues with clipping, non-AA paths, and
  * perspective.
+ *
+ * GR_GL_MUST_USE_VBO: Indicates that all vertices and indices must be rendered
+ * from VBOs. Chromium's command buffer doesn't allow glVertexAttribArray with
+ * ARARY_BUFFER 0 bound or glDrawElements with ELEMENT_ARRAY_BUFFER 0 bound.
  */
 
 #if !defined(GR_GL_LOG_CALLS)
@@ -144,6 +148,10 @@
 
 #if !defined(GR_GL_USE_NV_PATH_RENDERING)
     #define GR_GL_USE_NV_PATH_RENDERING                 0
+#endif
+
+#if !defined(GR_GL_MUST_USE_VBO)
+    #define GR_GL_MUST_USE_VBO                          0
 #endif
 
 /**

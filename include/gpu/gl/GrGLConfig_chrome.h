@@ -34,4 +34,7 @@
 // CheckFramebufferStatus in chrome synchronizes the gpu and renderer processes.
 #define GR_GL_CHECK_FBO_STATUS_ONCE_PER_FORMAT      1
 
+// Non-VBO vertices and indices are not allowed in Chromium.
+#define GR_GL_MUST_USE_VBO                          1
+
 #endif
