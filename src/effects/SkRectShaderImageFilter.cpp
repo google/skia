@@ -47,7 +47,8 @@ bool SkRectShaderImageFilter::onFilterImage(Proxy* proxy,
                                         const SkMatrix& matrix,
                                         SkBitmap* result,
                                         SkIPoint* loc) {
-    SkAutoTUnref<SkDevice> device(proxy->createDevice(fRegion.width(), fRegion.height()));
+    SkAutoTUnref<SkDevice> device(proxy->createDevice(SkScalarCeilToInt(fRegion.width()),
+                                                      SkScalarCeilToInt(fRegion.height())));
     SkCanvas canvas(device.get());
     SkPaint paint;
     paint.setShader(fShader);
