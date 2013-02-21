@@ -122,6 +122,6 @@ bool SkImageFilter::asNewEffect(GrEffectRef**, GrTexture*) const {
     return false;
 }
 
-SkColorFilter* SkImageFilter::asColorFilter() const {
-    return NULL;
+bool SkImageFilter::asColorFilter(SkColorFilter**) const {
+    return false;
 }
