@@ -12,30 +12,30 @@
 #include "SkFlattenableBuffers.h"
 #include "SkShader.h"
 
-SkRectShaderImageFilter* SkRectShaderImageFilter::Create(SkShader* s, SkRect region) {
+SkRectShaderImageFilter* SkRectShaderImageFilter::Create(SkShader* s, const SkRect& rect) {
     SkASSERT(s);
-    return SkNEW_ARGS(SkRectShaderImageFilter, (s, region));
+    return SkNEW_ARGS(SkRectShaderImageFilter, (s, rect));
 }
 
-SkRectShaderImageFilter::SkRectShaderImageFilter(SkShader* s, SkRect region)
+SkRectShaderImageFilter::SkRectShaderImageFilter(SkShader* s, const SkRect& rect)
   : INHERITED(NULL)
   , fShader(s)
-  , fRegion(region) {
+  , fRect(rect) {
     SkASSERT(s);
-    SkSafeRef(s);
+    s->ref();
 }
 
 SkRectShaderImageFilter::SkRectShaderImageFilter(SkFlattenableReadBuffer& buffer)
   : INHERITED(buffer) {
     fShader = buffer.readFlattenableT<SkShader>();
-    buffer.readRect(&fRegion);
+    buffer.readRect(&fRect);
 }
 
 void SkRectShaderImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
     buffer.writeFlattenable(fShader);
-    buffer.writeRect(fRegion);
+    buffer.writeRect(fRect);
 }
 
 SkRectShaderImageFilter::~SkRectShaderImageFilter() {
@@ -47,12 +47,12 @@ bool SkRectShaderImageFilter::onFilterImage(Proxy* proxy,
                                         const SkMatrix& matrix,
                                         SkBitmap* result,
                                         SkIPoint* loc) {
-    SkAutoTUnref<SkDevice> device(proxy->createDevice(SkScalarCeilToInt(fRegion.width()),
-                                                      SkScalarCeilToInt(fRegion.height())));
+    SkAutoTUnref<SkDevice> device(proxy->createDevice(SkScalarCeilToInt(fRect.width()),
+                                                      SkScalarCeilToInt(fRect.height())));
     SkCanvas canvas(device.get());
     SkPaint paint;
     paint.setShader(fShader);
-    canvas.drawRect(fRegion, paint);
+    canvas.drawRect(fRect, paint);
     *result = device.get()->accessBitmap(false);
     return true;
 }
