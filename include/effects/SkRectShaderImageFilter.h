@@ -20,7 +20,7 @@ public:
      *  SkRectShaderImageFilter object returned by this function. It cannot be NULL.
      *  The region parameter is used to specify on which region the shader is applied.
      */
-    static SkRectShaderImageFilter* Create(SkShader* s, SkRect region);
+    static SkRectShaderImageFilter* Create(SkShader* s, const SkRect& rect);
     virtual ~SkRectShaderImageFilter();
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkRectShaderImageFilter)
@@ -33,9 +33,9 @@ protected:
                                SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
 
 private:
-    SkRectShaderImageFilter(SkShader* s, SkRect region);
+    SkRectShaderImageFilter(SkShader* s, const SkRect& rect);
     SkShader*  fShader;
-    SkRect     fRegion;
+    SkRect     fRect;
 
     typedef SkImageFilter INHERITED;
 };

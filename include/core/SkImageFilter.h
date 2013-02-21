@@ -114,11 +114,12 @@ public:
 
     /**
      *  Returns whether this image filter is a color filter and puts the color filter into the
-     *  "filter" parameter if it can. Does nothing otherwise.
-     *  If this function returns a non NULL *filter value, then the SkColorFilter object has been
-     *  refed within this function and the caller will need to call unref() later on.
+     *  "filterPtr" parameter if it can. Does nothing otherwise.
+     *  If this returns false, then the filterPtr is unchanged.
+     *  If this returns true, then if filterPtr is not null, it must be set to a ref'd colorfitler
+     *  (i.e. it may not be set to NULL).
      */
-    virtual bool asColorFilter(SkColorFilter** filter) const;
+    virtual bool asColorFilter(SkColorFilter** filterPtr) const;
 
     /**
      *  Returns the number of inputs this filter will accept (some inputs can
