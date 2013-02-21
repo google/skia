@@ -1231,7 +1231,7 @@ GrVertexBuffer* GrGpuGL::onCreateVertexBuffer(uint32_t size, bool dynamic) {
     desc.fSizeInBytes = size;
     desc.fIsWrapped = false;
 
-    if (false && desc.fDynamic) {
+    if (this->glCaps().useNonVBOVertexAndIndexDynamicData() && desc.fDynamic) {
         desc.fID = 0;
         GrGLVertexBuffer* vertexBuffer = SkNEW_ARGS(GrGLVertexBuffer, (this, desc));
         return vertexBuffer;
@@ -1266,7 +1266,7 @@ GrIndexBuffer* GrGpuGL::onCreateIndexBuffer(uint32_t size, bool dynamic) {
     desc.fSizeInBytes = size;
     desc.fIsWrapped = false;
 
-    if (false && desc.fDynamic) {
+    if (this->glCaps().useNonVBOVertexAndIndexDynamicData() && desc.fDynamic) {
         desc.fID = 0;
         GrIndexBuffer* indexBuffer = SkNEW_ARGS(GrGLIndexBuffer, (this, desc));
         return indexBuffer;

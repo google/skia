@@ -21,6 +21,7 @@ typedef uint32_t GrGLSLVersion;
  */
 enum GrGLVendor {
     kIntel_GrGLVendor,
+    kARM_GrGLVendor,
     kOther_GrGLVendor,
 };
 

@@ -37,6 +37,7 @@ void GrGLCaps::reset() {
     fImagingSupport = false;
     fTwoFormatLimit = false;
     fFragCoordsConventionSupport = false;
+    fUseNonVBOVertexAndIndexDynamicData = false;
 }
 
 GrGLCaps::GrGLCaps(const GrGLCaps& caps) {
@@ -67,6 +68,7 @@ GrGLCaps& GrGLCaps::operator = (const GrGLCaps& caps) {
     fImagingSupport = caps.fImagingSupport;
     fTwoFormatLimit = caps.fTwoFormatLimit;
     fFragCoordsConventionSupport = caps.fFragCoordsConventionSupport;
+    fUseNonVBOVertexAndIndexDynamicData = caps.fUseNonVBOVertexAndIndexDynamicData;
 
     return *this;
 }
@@ -165,6 +167,11 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo) {
     if (kIntel_GrGLVendor != ctxInfo.vendor()) {
         fFragCoordsConventionSupport = ctxInfo.glslGeneration() >= k150_GrGLSLGeneration ||
                                        ctxInfo.hasExtension("GL_ARB_fragment_coord_conventions");
+    }
+
+    // Perhaps we should look at the renderer string and limit to Mali GPUs.
+    if (kARM_GrGLVendor == ctxInfo.vendor() && !GR_GL_MUST_USE_VBO) {
+        fUseNonVBOVertexAndIndexDynamicData = true;
     }
 
     this->initFSAASupport(ctxInfo);
