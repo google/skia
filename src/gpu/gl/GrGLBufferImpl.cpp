@@ -10,16 +10,32 @@
 
 #define GL_CALL(GPU, X) GR_GL_CALL(GPU->glInterface(), X)
 
+#if GR_DEBUG
+#define VALIDATE() this->validate()
+#else
+#define VALIDATE() do {} while(false)
+#endif
+
 GrGLBufferImpl::GrGLBufferImpl(GrGpuGL* gpu, const Desc& desc, GrGLenum bufferType)
     : fDesc(desc)
     , fBufferType(bufferType)
     , fLockPtr(NULL) {
-    GrAssert(GR_GL_ARRAY_BUFFER == bufferType || GR_GL_ELEMENT_ARRAY_BUFFER == bufferType);
+    if (0 == desc.fID) {
+        fCPUData = sk_malloc_flags(desc.fSizeInBytes, SK_MALLOC_THROW);
+    } else {
+        fCPUData = NULL;
+    }
+    VALIDATE();
 }
 
 void GrGLBufferImpl::release(GrGpuGL* gpu) {
-    // make sure we've not been abandoned
-    if (fDesc.fID && !fDesc.fIsWrapped) {
+    // make sure we've not been abandoned or already released
+    if (NULL != fCPUData) {
+        VALIDATE();
+        sk_free(fCPUData);
+        fCPUData = NULL;
+    } else if (fDesc.fID && !fDesc.fIsWrapped) {
+        VALIDATE();
         GL_CALL(gpu, DeleteBuffers(1, &fDesc.fID));
         if (GR_GL_ARRAY_BUFFER == fBufferType) {
             gpu->notifyVertexBufferDelete(fDesc.fID);
@@ -29,14 +45,18 @@ void GrGLBufferImpl::release(GrGpuGL* gpu) {
         }
         fDesc.fID = 0;
     }
+    fLockPtr = NULL;
 }
 
 void GrGLBufferImpl::abandon() {
     fDesc.fID = 0;
     fLockPtr = NULL;
+    sk_free(fCPUData);
+    fCPUData = NULL;
 }
 
 void GrGLBufferImpl::bind(GrGpuGL* gpu) const {
+    VALIDATE();
     GL_CALL(gpu, BindBuffer(fBufferType, fDesc.fID));
     if (GR_GL_ARRAY_BUFFER == fBufferType) {
         gpu->notifyVertexBufferBind(fDesc.fID);
@@ -47,9 +67,11 @@ void GrGLBufferImpl::bind(GrGpuGL* gpu) const {
 }
 
 void* GrGLBufferImpl::lock(GrGpuGL* gpu) {
-    GrAssert(0 != fDesc.fID);
+    VALIDATE();
     GrAssert(!this->isLocked());
-    if (gpu->getCaps().bufferLockSupport()) {
+    if (0 == fDesc.fID) {
+        fLockPtr = fCPUData;
+    } else if (gpu->getCaps().bufferLockSupport()) {
         this->bind(gpu);
         // Let driver know it can discard the old data
         GL_CALL(gpu, BufferData(fBufferType,
@@ -59,34 +81,35 @@ void* GrGLBufferImpl::lock(GrGpuGL* gpu) {
         GR_GL_CALL_RET(gpu->glInterface(),
                        fLockPtr,
                        MapBuffer(fBufferType, GR_GL_WRITE_ONLY));
-        return fLockPtr;
     }
-    return NULL;
+    return fLockPtr;
 }
 
 void GrGLBufferImpl::unlock(GrGpuGL* gpu) {
-
-    GrAssert(0 != fDesc.fID);
+    VALIDATE();
     GrAssert(this->isLocked());
-    GrAssert(gpu->getCaps().bufferLockSupport());
-
-    this->bind(gpu);
-    GL_CALL(gpu, UnmapBuffer(fBufferType));
+    if (0 != fDesc.fID) {
+        GrAssert(gpu->getCaps().bufferLockSupport());
+        this->bind(gpu);
+        GL_CALL(gpu, UnmapBuffer(fBufferType));
+    }
     fLockPtr = NULL;
 }
 
 bool GrGLBufferImpl::isLocked() const {
-    GrAssert(0 != fDesc.fID);
+    VALIDATE();
     return NULL != fLockPtr;
 }
 
 bool GrGLBufferImpl::updateData(GrGpuGL* gpu, const void* src, size_t srcSizeInBytes) {
     GrAssert(!this->isLocked());
+    VALIDATE();
     if (srcSizeInBytes > fDesc.fSizeInBytes) {
         return false;
     }
     if (0 == fDesc.fID) {
-        return false;
+        memcpy(fCPUData, src, srcSizeInBytes);
+        return true;
     }
     this->bind(gpu);
     GrGLenum usage = fDesc.fDynamic ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW;
@@ -128,4 +151,11 @@ bool GrGLBufferImpl::updateData(GrGpuGL* gpu, const void* src, size_t srcSizeInB
     }
 #endif
     return true;
+}
+
+void GrGLBufferImpl::validate() const {
+    GrAssert(GR_GL_ARRAY_BUFFER == fBufferType || GR_GL_ELEMENT_ARRAY_BUFFER == fBufferType);
+    GrAssert((0 == fDesc.fID) == (NULL != fCPUData));
+    GrAssert(0 != fDesc.fID || !fDesc.fIsWrapped);
+    GrAssert(NULL == fCPUData || NULL == fLockPtr || fCPUData == fLockPtr);
 }

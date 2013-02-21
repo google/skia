@@ -24,8 +24,8 @@ public:
         return this->sizeInBytes() / (sizeof(uint16_t) * 6);
     }
 protected:
-    GrIndexBuffer(GrGpu* gpu, bool isWrapped, size_t sizeInBytes, bool dynamic)
-        : INHERITED(gpu, isWrapped, sizeInBytes, dynamic) {}
+    GrIndexBuffer(GrGpu* gpu, bool isWrapped, size_t sizeInBytes, bool dynamic, bool cpuBacked)
+        : INHERITED(gpu, isWrapped, sizeInBytes, dynamic, cpuBacked) {}
 private:
     typedef GrGeometryBuffer INHERITED;
 };
