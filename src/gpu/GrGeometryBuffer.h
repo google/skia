@@ -29,11 +29,21 @@ public:
     bool dynamic() const { return fDynamic; }
 
     /**
+     * Returns true if the buffer is a wrapper around a CPU array. If true it
+     * indicates that lock will always succeed and will be free.
+     */
+    bool isCPUBacked() const { return fCPUBacked; }
+
+    /**
      * Locks the buffer to be written by the CPU.
      *
      * The previous content of the buffer is invalidated. It is an error
      * to draw from the buffer while it is locked. It is an error to call lock
-     * on an already locked buffer.
+     * on an already locked buffer. It may fail if the backend doesn't support
+     * locking the buffer. If the buffer is CPU backed then it will always
+     * succeed and is a free operation. Must be matched by an unlock() call.
+     * Currently only one lock at a time is supported (no nesting of
+     * lock/unlock).
      *
      * @return a pointer to the data or NULL if the lock fails.
      */
@@ -65,7 +75,7 @@ public:
      * Updates the buffer data.
      *
      * The size of the buffer will be preserved. The src data will be
-     * placed at the begining of the buffer and any remaining contents will
+     * placed at the beginning of the buffer and any remaining contents will
      * be undefined.
      *
      * @return returns true if the update succeeds, false otherwise.
@@ -76,14 +86,16 @@ public:
     virtual size_t sizeInBytes() const { return fSizeInBytes; }
 
 protected:
-    GrGeometryBuffer(GrGpu* gpu, bool isWrapped, size_t sizeInBytes, bool dynamic)
+    GrGeometryBuffer(GrGpu* gpu, bool isWrapped, size_t sizeInBytes, bool dynamic, bool cpuBacked)
         : INHERITED(gpu, isWrapped)
         , fSizeInBytes(sizeInBytes)
-        , fDynamic(dynamic) {}
+        , fDynamic(dynamic)
+        , fCPUBacked(cpuBacked) {}
 
 private:
     size_t   fSizeInBytes;
     bool     fDynamic;
+    bool     fCPUBacked;
 
     typedef GrResource INHERITED;
 };

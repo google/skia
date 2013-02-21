@@ -21,7 +21,7 @@ class GrGLBufferImpl : public GrNoncopyable {
 public:
     struct Desc {
         bool        fIsWrapped;
-        GrGLuint    fID;
+        GrGLuint    fID;            // set to 0 to indicate buffer is CPU-backed and not a VBO.
         size_t      fSizeInBytes;
         bool        fDynamic;
     };
@@ -36,7 +36,7 @@ public:
     void release(GrGpuGL* gpu);
 
     GrGLuint bufferID() const { return fDesc.fID; }
-    size_t baseOffset() const { return 0; }
+    size_t baseOffset() const { return reinterpret_cast<size_t>(fCPUData); }
 
     void bind(GrGpuGL* gpu) const;
 
@@ -47,8 +47,11 @@ public:
     bool updateData(GrGpuGL* gpu, const void* src, size_t srcSizeInBytes);
 
 private:
+    void validate() const;
+
     Desc         fDesc;
     GrGLenum     fBufferType; // GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER
+    void*        fCPUData;
     void*        fLockPtr;
 
     typedef GrNoncopyable INHERITED;
