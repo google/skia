@@ -9,6 +9,8 @@
 #include "SkBitmapFactory.h"
 #include "SkCanvas.h"
 #include "SkData.h"
+#include "SkImageDecoder.h"
+#include "SkLruImageCache.h"
 #include "SkStream.h"
 
 namespace skiagm {
@@ -37,7 +39,12 @@ protected:
             void* buffer = sk_malloc_throw(length);
             stream.read(buffer, length);
             SkAutoDataUnref data(SkData::NewFromMalloc(buffer, length));
-            SkBitmapFactory::DecodeBitmap(&fBitmap, data);
+            SkBitmapFactory factory(&SkImageDecoder::DecodeMemoryToTarget);
+            // Create a cache which will boot the pixels out anytime the
+            // bitmap is unlocked.
+            SkAutoTUnref<SkLruImageCache> cache(SkNEW_ARGS(SkLruImageCache, (0)));
+            factory.setImageCache(cache);
+            factory.installPixelRef(data, &fBitmap);
         }
     }
 

@@ -7,6 +7,7 @@
 
 #include "CopyTilesRenderer.h"
 #include "SkBitmap.h"
+#include "SkBitmapFactory.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
 #include "SkGraphics.h"
@@ -35,6 +36,7 @@ static void usage(const char* argv0) {
 "     [--validate [--maxComponentDiff n]]\n"
 "     [--writeWholeImage]\n"
 "     [--clone n]\n"
+"     [--enable-deferred-image-decoding]\n"
 "     [--viewport width height][--scale sf]\n"
 "     [--device bitmap"
 #if SK_SUPPORT_GPU
@@ -83,6 +85,8 @@ static void usage(const char* argv0) {
     SkDebugf(
 "     --multi count : Set the number of threads for multi threaded drawing. Must be greater\n"
 "                     than 1. Only works with tiled rendering.\n"
+"     --enable-deferred-image-decoding : Defer decoding until drawing images. Has no effect if\n"
+"                      the provided skp does not have its images encoded.\n"
 "     --viewport width height : Set the viewport.\n"
 "     --scale sf : Scale drawing by sf.\n"
 "     --pipe: Benchmark SkGPipe rendering. Currently incompatible with \"mode\".\n");
@@ -127,6 +131,39 @@ static void make_output_filepath(SkString* path, const SkString& dir,
     path->remove(path->size() - 4, 4);
 }
 
+bool lazy_decode = false;
+
+#include "SkData.h"
+#include "SkLruImageCache.h"
+
+static SkLruImageCache gLruImageCache(1024*1024);
+
+#ifdef SK_BUILD_FOR_ANDROID
+#include "SkAshmemImageCache.h"
+#include "SkImage.h"
+
+static SkImageCache* cache_selector(const SkImage::Info& info) {
+    if (info.fWidth * info.fHeight > 32 * 1024) {
+        return SkAshmemImageCache::GetAshmemImageCache();
+    }
+    return &gLruImageCache;
+}
+
+#endif
+
+static bool lazy_decode_bitmap(const void* buffer, size_t size, SkBitmap* bitmap) {
+    void* copiedBuffer = sk_malloc_throw(size);
+    memcpy(copiedBuffer, buffer, size);
+    SkAutoDataUnref data(SkData::NewFromMalloc(copiedBuffer, size));
+    SkBitmapFactory factory(&SkImageDecoder::DecodeMemoryToTarget);
+#ifdef SK_BUILD_FOR_ANDROID
+    factory.setCacheSelector(&cache_selector);
+#else
+    factory.setImageCache(&gLruImageCache);
+#endif
+    return factory.installPixelRef(data, bitmap);
+}
+
 static bool render_picture(const SkString& inputPath, const SkString* outputDir,
                            sk_tools::PictureRenderer& renderer,
                            SkBitmap** out,
@@ -142,8 +179,12 @@ static bool render_picture(const SkString& inputPath, const SkString* outputDir,
     }
 
     bool success = false;
-    SkPicture* picture = SkNEW_ARGS(SkPicture,
-            (&inputStream, &success, &SkImageDecoder::DecodeStream));
+    SkPicture* picture;
+    if (lazy_decode) {
+        picture = SkNEW_ARGS(SkPicture, (&inputStream, &success, &lazy_decode_bitmap));
+    } else {
+        picture = SkNEW_ARGS(SkPicture, (&inputStream, &success, &SkImageDecoder::DecodeMemory));
+    }
     if (!success) {
         SkDebugf("Could not read an SkPicture from %s\n", inputPath.c_str());
         return false;
@@ -536,7 +577,8 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
                 usage(argv0);
                 exit(-1);
             }
-
+        } else if (0 == strcmp(*argv, "--enable-deferred-image-decoding")) {
+            lazy_decode = true;
         } else if ((0 == strcmp(*argv, "-h")) || (0 == strcmp(*argv, "--help"))) {
             SkSafeUnref(renderer);
             usage(argv0);

@@ -121,7 +121,7 @@ SkPicture::SkPicture() {
     fWidth = fHeight = 0;
 }
 
-SkPicture::SkPicture(const SkPicture& src) : SkRefCnt() {
+SkPicture::SkPicture(const SkPicture& src) {
     fWidth = src.fWidth;
     fHeight = src.fHeight;
     fRecord = NULL;
@@ -264,7 +264,15 @@ void SkPicture::draw(SkCanvas* surface) {
 
 #include "SkStream.h"
 
-SkPicture::SkPicture(SkStream* stream, bool* success, SkSerializationHelpers::DecodeBitmap decoder) : SkRefCnt() {
+SkPicture::SkPicture(SkStream* stream) {
+    this->initFromStream(stream, NULL, NULL);
+}
+
+SkPicture::SkPicture(SkStream* stream, bool* success, InstallPixelRefProc proc) {
+    this->initFromStream(stream, success, proc);
+}
+
+void SkPicture::initFromStream(SkStream* stream, bool* success, InstallPixelRefProc proc) {
     if (success) {
         *success = false;
     }
@@ -283,7 +291,7 @@ SkPicture::SkPicture(SkStream* stream, bool* success, SkSerializationHelpers::De
 
     if (stream->readBool()) {
         bool isValid = false;
-        fPlayback = SkNEW_ARGS(SkPicturePlayback, (stream, info, &isValid, decoder));
+        fPlayback = SkNEW_ARGS(SkPicturePlayback, (stream, info, &isValid, proc));
         if (!isValid) {
             SkDELETE(fPlayback);
             fPlayback = NULL;

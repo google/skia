@@ -10,14 +10,15 @@
       'type': 'static_library',
       'standalone_static_library': 1,
       'include_dirs': [
+        '../include/animator',
         '../include/config',
         '../include/core',
         '../include/effects',
-        '../include/animator',
+        '../include/images',
+        '../include/lazy',
+        '../include/utils',
         '../include/views',
         '../include/xml',
-        '../include/utils',
-        '../include/images',
         '../src/utils',
       ],
       'sources': [

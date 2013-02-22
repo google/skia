@@ -9,6 +9,7 @@
 #include "CopyTilesRenderer.h"
 #include "PictureBenchmark.h"
 #include "SkBenchLogger.h"
+#include "SkBitmapFactory.h"
 #include "SkCanvas.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
@@ -126,6 +127,7 @@ static void usage(const char* argv0) {
 "     [--pipe]\n"
 "     [--bbh bbhType]\n"
 "     [--multi numThreads]\n"
+"     [--enable-deferred-image-decoding]\n"
 "     [--viewport width height][--scale sf]\n"
 "     [--device bitmap"
 #if SK_SUPPORT_GPU
@@ -186,6 +188,8 @@ static void usage(const char* argv0) {
     SkDebugf(
 "     --multi numThreads : Set the number of threads for multi threaded drawing. Must be greater\n"
 "                          than 1. Only works with tiled rendering.\n"
+"     --enable-deferred-image-decoding : Defer decoding until drawing images. Has no effect if\n"
+"                      the provided skp does not have its images encoded.\n"
 "     --viewport width height : Set the viewport.\n"
 "     --scale sf : Scale drawing by sf.\n"
 "     --pipe: Benchmark SkGPipe rendering. Currently incompatible with \"mode\".\n");
@@ -227,6 +231,22 @@ static void usage(const char* argv0) {
 
 SkBenchLogger gLogger;
 
+bool lazy_decode = false;
+
+#include "SkData.h"
+#include "SkLruImageCache.h"
+
+static SkLruImageCache gLruImageCache(1024*1024);
+
+static bool lazy_decode_bitmap(const void* buffer, size_t size, SkBitmap* bitmap) {
+    void* copiedBuffer = sk_malloc_throw(size);
+    memcpy(copiedBuffer, buffer, size);
+    SkAutoDataUnref data(SkData::NewFromMalloc(copiedBuffer, size));
+    SkBitmapFactory factory(&SkImageDecoder::DecodeMemoryToTarget);
+    factory.setImageCache(&gLruImageCache);
+    return factory.installPixelRef(data, bitmap);
+}
+
 static bool run_single_benchmark(const SkString& inputPath,
                                  sk_tools::PictureBenchmark& benchmark) {
     SkFILEStream inputStream;
@@ -240,7 +260,14 @@ static bool run_single_benchmark(const SkString& inputPath,
     }
 
     bool success = false;
-    SkPicture picture(&inputStream, &success, &SkImageDecoder::DecodeStream);
+    SkPicture* picture;
+    if (lazy_decode) {
+        picture = SkNEW_ARGS(SkPicture, (&inputStream, &success, &lazy_decode_bitmap));
+    } else {
+        picture = SkNEW_ARGS(SkPicture, (&inputStream, &success, &SkImageDecoder::DecodeMemory));
+    }
+    SkAutoTDelete<SkPicture> ad(picture);
+
     if (!success) {
         SkString err;
         err.printf("Could not read an SkPicture from %s\n", inputPath.c_str());
@@ -252,11 +279,11 @@ static bool run_single_benchmark(const SkString& inputPath,
     sk_tools::get_basename(&filename, inputPath);
 
     SkString result;
-    result.printf("running bench [%i %i] %s ", picture.width(),
-                  picture.height(), filename.c_str());
+    result.printf("running bench [%i %i] %s ", picture->width(), picture->height(),
+                  filename.c_str());
     gLogger.logProgress(result);
 
-    benchmark.run(&picture);
+    benchmark.run(picture);
     return true;
 }
 
@@ -538,6 +565,8 @@ static void parse_commandline(int argc, char* const argv[], SkTArray<SkString>* 
             benchmark->setTimeIndividualTiles(true);
         } else if (0 == strcmp(*argv, "--min")) {
             benchmark->setPrintMin(true);
+        } else if (0 == strcmp(*argv, "--enable-deferred-image-decoding")) {
+            lazy_decode = true;
         } else if (0 == strcmp(*argv, "--logPerIter")) {
             ++argv;
             if (argv < stop) {

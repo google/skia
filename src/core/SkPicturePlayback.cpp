@@ -416,7 +416,7 @@ void SkPicturePlayback::serialize(SkWStream* stream,
     if (fPictureCount > 0) {
         writeTagSize(stream, PICT_PICTURE_TAG, fPictureCount);
         for (int i = 0; i < fPictureCount; i++) {
-            fPictureRefs[i]->serialize(stream);
+            fPictureRefs[i]->serialize(stream, encoder);
         }
     }
 
@@ -473,9 +473,8 @@ static uint32_t pictInfoFlagsToReadBufferFlags(uint32_t pictInfoFlags) {
     return rbMask;
 }
 
-bool SkPicturePlayback::parseStreamTag(SkStream* stream, const SkPictInfo& info,
-                                       uint32_t tag, size_t size,
-                                       SkSerializationHelpers::DecodeBitmap decoder) {
+bool SkPicturePlayback::parseStreamTag(SkStream* stream, const SkPictInfo& info, uint32_t tag,
+                                       size_t size, SkPicture::InstallPixelRefProc proc) {
     /*
      *  By the time we encounter BUFFER_SIZE_TAG, we need to have already seen
      *  its dependents: FACTORY_TAG and TYPEFACE_TAG. These two are not required
@@ -515,8 +514,23 @@ bool SkPicturePlayback::parseStreamTag(SkStream* stream, const SkPictInfo& info,
         case PICT_PICTURE_TAG: {
             fPictureCount = size;
             fPictureRefs = SkNEW_ARRAY(SkPicture*, fPictureCount);
-            for (int i = 0; i < fPictureCount; i++) {
-                fPictureRefs[i] = SkNEW_ARGS(SkPicture, (stream));
+            bool success = true;
+            int i = 0;
+            for ( ; i < fPictureCount; i++) {
+                fPictureRefs[i] = SkNEW_ARGS(SkPicture, (stream, &success, proc));
+                if (!success) {
+                    break;
+                }
+            }
+            if (!success) {
+                // Delete all of the pictures that were already created (up through i):
+                for (int j = 0; j <= i; j++) {
+                    fPictureRefs[j]->unref();
+                }
+                // Delete the array
+                SkDELETE_ARRAY(fPictureRefs);
+                fPictureCount = 0;
+                return false;
             }
         } break;
         case PICT_BUFFER_SIZE_TAG: {
@@ -528,7 +542,7 @@ bool SkPicturePlayback::parseStreamTag(SkStream* stream, const SkPictInfo& info,
 
             fFactoryPlayback->setupBuffer(buffer);
             fTFPlayback.setupBuffer(buffer);
-            buffer.setBitmapDecoder(decoder);
+            buffer.setBitmapDecoder(proc);
 
             while (!buffer.eof()) {
                 tag = buffer.readUInt();
@@ -581,8 +595,8 @@ bool SkPicturePlayback::parseBufferTag(SkOrderedReadBuffer& buffer,
     return true;    // success
 }
 
-SkPicturePlayback::SkPicturePlayback(SkStream* stream, const SkPictInfo& info,
-                                     bool* isValid, SkSerializationHelpers::DecodeBitmap decoder) {
+SkPicturePlayback::SkPicturePlayback(SkStream* stream, const SkPictInfo& info, bool* isValid,
+                                     SkPicture::InstallPixelRefProc proc) {
     this->init();
 
     *isValid = false;   // wait until we're done parsing to mark as true
@@ -593,7 +607,7 @@ SkPicturePlayback::SkPicturePlayback(SkStream* stream, const SkPictInfo& info,
         }
 
         uint32_t size = stream->readU32();
-        if (!this->parseStreamTag(stream, info, tag, size, decoder)) {
+        if (!this->parseStreamTag(stream, info, tag, size, proc)) {
             return; // we're invalid
         }
     }

@@ -15,6 +15,7 @@
       'include_dirs': [
         '../include/config',
         '../include/core',
+        '../include/lazy',
         '../include/pipe',
         '../include/ports',
         '../include/utils',
@@ -106,6 +107,7 @@
           'config',
           '../include/config',
           '../include/core',
+          '../include/lazy',
           '../include/pipe',
           'ext',
         ],

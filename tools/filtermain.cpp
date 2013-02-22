@@ -181,7 +181,7 @@ static int filter_picture(const SkString& inFile, const SkString& outFile) {
 
     SkFILEStream inStream(inFile.c_str());
     if (inStream.isValid()) {
-        inPicture = SkNEW_ARGS(SkPicture, (&inStream, NULL, &SkImageDecoder::DecodeStream));
+        inPicture = SkNEW_ARGS(SkPicture, (&inStream, NULL, &SkImageDecoder::DecodeMemory));
     }
 
     if (NULL == inPicture) {

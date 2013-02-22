@@ -14,12 +14,13 @@
       'include_dirs': [
         '../include/config',
         '../include/core',
-        '../include/views',
-        '../include/xml',
-        '../include/utils',
-        '../include/images',
         '../include/effects',
+        '../include/images',
+        '../include/lazy',
+        '../include/utils',
+        '../include/views',
         '../include/views/unix',
+        '../include/xml',
       ],
       'dependencies': [
         'angle.gyp:*',

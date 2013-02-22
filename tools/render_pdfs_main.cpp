@@ -8,6 +8,7 @@
 #include "SkCanvas.h"
 #include "SkDevice.h"
 #include "SkGraphics.h"
+#include "SkImageDecoder.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
 #include "SkStream.h"
@@ -129,7 +130,7 @@ static bool render_pdf(const SkString& inputPath, const SkString& outputDir,
 
     bool success = false;
     SkAutoTUnref<SkPicture>
-        picture(SkNEW_ARGS(SkPicture, (&inputStream, &success)));
+        picture(SkNEW_ARGS(SkPicture, (&inputStream, &success, &SkImageDecoder::DecodeMemory)));
 
     if (!success) {
         SkDebugf("Could not read an SkPicture from %s\n", inputPath.c_str());

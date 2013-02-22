@@ -48,8 +48,7 @@ class PictFileView : public SampleView {
         } else {
             SkFILEStream stream(path);
             if (stream.isValid()) {
-                pic = SkNEW_ARGS(SkPicture,
-                                 (&stream, NULL, &SkImageDecoder::DecodeStream));
+                pic = SkNEW_ARGS(SkPicture, (&stream, NULL, &SkImageDecoder::DecodeMemory));
             }
 
             if (false) { // re-record
