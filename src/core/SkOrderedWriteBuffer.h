@@ -14,7 +14,7 @@
 #include "SkRefCnt.h"
 #include "SkBitmapHeap.h"
 #include "SkPath.h"
-#include "SkSerializationHelpers.h"
+#include "SkPicture.h"
 #include "SkWriter32.h"
 
 class SkBitmap;
@@ -91,7 +91,7 @@ public:
      * Incompatible with the SkBitmapHeap. If an encoder is set fBitmapHeap will be set to NULL in
      * release and crash in debug.
      */
-    void setBitmapEncoder(SkSerializationHelpers::EncodeBitmap);
+    void setBitmapEncoder(SkPicture::EncodeBitmap);
 
 private:
     SkFactorySet* fFactorySet;
@@ -101,7 +101,7 @@ private:
     SkBitmapHeap* fBitmapHeap;
     SkRefCntSet* fTFSet;
 
-    SkSerializationHelpers::EncodeBitmap fBitmapEncoder;
+    SkPicture::EncodeBitmap fBitmapEncoder;
 
     typedef SkFlattenableWriteBuffer INHERITED;
 };

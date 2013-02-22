@@ -21,7 +21,6 @@
 #include "SkRegion.h"
 #include "SkRRect.h"
 #include "SkPictureFlat.h"
-#include "SkSerializationHelpers.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
 #include "SkThread.h"
@@ -69,7 +68,7 @@ public:
 
     void draw(SkCanvas& canvas);
 
-    void serialize(SkWStream*, SkSerializationHelpers::EncodeBitmap) const;
+    void serialize(SkWStream*, SkPicture::EncodeBitmap) const;
 
     void dumpSize() const;
 

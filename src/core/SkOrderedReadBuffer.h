@@ -15,7 +15,6 @@
 #include "SkPath.h"
 #include "SkPicture.h"
 #include "SkReader32.h"
-#include "SkSerializationHelpers.h"
 
 class SkBitmap;
 

@@ -253,7 +253,7 @@ void SkOrderedWriteBuffer::setBitmapHeap(SkBitmapHeap* bitmapHeap) {
     }
 }
 
-void SkOrderedWriteBuffer::setBitmapEncoder(SkSerializationHelpers::EncodeBitmap bitmapEncoder) {
+void SkOrderedWriteBuffer::setBitmapEncoder(SkPicture::EncodeBitmap bitmapEncoder) {
     fBitmapEncoder = bitmapEncoder;
     if (bitmapEncoder != NULL) {
         SkASSERT(NULL == fBitmapHeap);
