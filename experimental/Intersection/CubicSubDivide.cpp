@@ -83,6 +83,22 @@ void sub_divide(const Cubic& src, double t1, double t2, Cubic& dst) {
     /* cy = */ dst[2].y = (ny * 2 - my) / 18;
 }
 
+void sub_divide(const Cubic& src, const _Point& a, const _Point& d,
+        double t1, double t2, _Point dst[2]) {
+    double ex = interp_cubic_coords(&src[0].x, (t1 * 2 + t2) / 3);
+    double ey = interp_cubic_coords(&src[0].y, (t1 * 2 + t2) / 3);
+    double fx = interp_cubic_coords(&src[0].x, (t1 + t2 * 2) / 3);
+    double fy = interp_cubic_coords(&src[0].y, (t1 + t2 * 2) / 3);
+    double mx = ex * 27 - a.x * 8 - d.x;
+    double my = ey * 27 - a.y * 8 - d.y;
+    double nx = fx * 27 - a.x - d.x * 8;
+    double ny = fy * 27 - a.y - d.y * 8;
+    /* bx = */ dst[0].x = (mx * 2 - nx) / 18;
+    /* by = */ dst[0].y = (my * 2 - ny) / 18;
+    /* cx = */ dst[1].x = (nx * 2 - mx) / 18;
+    /* cy = */ dst[1].y = (ny * 2 - my) / 18;
+}
+
 /* classic one t subdivision */
 static void interp_cubic_coords(const double* src, double* dst, double t)
 {

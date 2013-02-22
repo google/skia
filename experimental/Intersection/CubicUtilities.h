@@ -30,6 +30,7 @@ _Point dxdy_at_t(const Cubic& cubic, double t);
 int find_cubic_inflections(const Cubic& src, double tValues[]);
 bool rotate(const Cubic& cubic, int zero, int index, Cubic& rotPath);
 void sub_divide(const Cubic& src, double t1, double t2, Cubic& dst);
+void sub_divide(const Cubic& , const _Point& a, const _Point& d, double t1, double t2, _Point [2]);
 _Point top(const Cubic& , double startT, double endT);
 void xy_at_t(const Cubic& , double t, double& x, double& y);
 _Point xy_at_t(const Cubic& , double t);

@@ -356,6 +356,10 @@ static bool intersect3(const Cubic& cubic1, double t1s, double t1e, const Cubic&
         for (int i2 = 0; i2 <= ts2Count; ++i2) {
             const double tEnd2 = i2 < ts2Count ? ts2[i2] : 1;
             const double t2 = t2s + (t2e - t2s) * tEnd2;
+            if (cubic1 == cubic2 && t1Start >= t2Start) {
+                t2Start = t2;
+                continue;
+            }
             Quadratic s2;
             int o2 = quadPart(cubic2, t2Start, t2, s2);
         #if ONE_OFF_DEBUG
@@ -392,10 +396,11 @@ static bool intersect3(const Cubic& cubic1, double t1s, double t1e, const Cubic&
                             i.insertCoincidentPair(coStart[0], to1, coStart[1], to2, coPoint, p1);
                             coStart[0] = -1;
                         }
-                    } else {
+                        result = true;
+                    } else if (cubic1 != cubic2 || !approximately_equal(to1, to2)) {
                         i.insert(to1, to2, p1);
+                        result = true;
                     }
-                    result = true;
                 } else {
                     double offset = precisionScale / 16; // FIME: const is arbitrary -- test & refine
                     double c1Min = SkTMax(0., to1 - offset);
@@ -520,44 +525,19 @@ int intersect(const Cubic& cubic, const Quadratic& quad, Intersections& i) {
     return i.used();
 }
 
-// FIXME: this needs to be recursive like intersect 3
-bool intersect(const Cubic& cubic, Intersections& i) {
-    SkTDArray<double> ts;
-    double precision = calcPrecision(cubic);
-    cubic_to_quadratics(cubic, precision, ts);
-    int tsCount = ts.count();
-    if (tsCount == 1) {
+/* http://www.ag.jku.at/compass/compasssample.pdf
+( Self-Intersection Problems and Approximate Implicitization by Jan B. Thomassen
+Centre of Mathematics for Applications, University of Oslo http://www.cma.uio.no janbth@math.uio.no
+SINTEF Applied Mathematics http://www.sintef.no )
+describes a method to find the self intersection of a cubic by taking the gradient of the implicit
+form dotted with the normal, and solving for the roots. My math foo is too poor to implement this.*/
+
+int intersect(const Cubic& c, Intersections& i) {
+    // check to see if x or y end points are the extrema. Are other quick rejects possible?
+    if ((between(c[0].x, c[1].x, c[3].x) && between(c[0].x, c[2].x, c[3].x))
+            || (between(c[0].y, c[1].y, c[3].y) && between(c[0].y, c[2].y, c[3].y))) {
         return false;
     }
-    double t1Start = 0;
-    Cubic part;
-    for (int idx = 0; idx < tsCount; ++idx) {
-        double t1 = ts[idx];
-        Quadratic q1;
-        sub_divide(cubic, t1Start, t1, part);
-        demote_cubic_to_quad(part, q1);
-        double t2Start = t1;
-        for (int i2 = idx + 1; i2 <= tsCount; ++i2) {
-            const double t2 = i2 < tsCount ? ts[i2] : 1;
-            Quadratic q2;
-            sub_divide(cubic, t2Start, t2, part);
-            demote_cubic_to_quad(part, q2);
-            Intersections locals;
-            intersect2(q1, q2, locals);
-            for (int tIdx = 0; tIdx < locals.used(); ++tIdx) {
-            // discard intersections at cusp? (maximum curvature)
-                double t1sect = locals.fT[0][tIdx];
-                double t2sect = locals.fT[1][tIdx];
-                if (idx + 1 == i2 && t1sect == 1 && t2sect == 0) {
-                    continue;
-                }
-                double to1 = t1Start + (t1 - t1Start) * t1sect;
-                double to2 = t2Start + (t2 - t2Start) * t2sect;
-                i.insert(to1, to2, locals.fPt[tIdx]);
-            }
-            t2Start = t2;
-        }
-        t1Start = t1;
-    }
-    return i.intersected();
+    (void) intersect3(c, c, i);
+    return i.used();
 }

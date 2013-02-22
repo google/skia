@@ -45,6 +45,37 @@ int reducedQuarticRoots(const double t4, const double t3, const double t2, const
     SkDebugf("%s\n", str);
 #endif
 #endif
+#if 0 && SK_DEBUG
+    bool t4Or = approximately_zero_when_compared_to(t4, t0) // 0 is one root
+            || approximately_zero_when_compared_to(t4, t1)
+            || approximately_zero_when_compared_to(t4, t2);
+    bool t4And = approximately_zero_when_compared_to(t4, t0) // 0 is one root
+            && approximately_zero_when_compared_to(t4, t1)
+            && approximately_zero_when_compared_to(t4, t2);
+    if (t4Or != t4And) {
+        SkDebugf("%s t4 or and\n", __FUNCTION__);
+    }
+    bool t3Or = approximately_zero_when_compared_to(t3, t0)
+            || approximately_zero_when_compared_to(t3, t1)
+            || approximately_zero_when_compared_to(t3, t2);
+    bool t3And = approximately_zero_when_compared_to(t3, t0)
+            && approximately_zero_when_compared_to(t3, t1)
+            && approximately_zero_when_compared_to(t3, t2);
+    if (t3Or != t3And) {
+        SkDebugf("%s t3 or and\n", __FUNCTION__);
+    }
+    bool t0Or = approximately_zero_when_compared_to(t0, t1) // 0 is one root
+            && approximately_zero_when_compared_to(t0, t2)
+            && approximately_zero_when_compared_to(t0, t3)
+            && approximately_zero_when_compared_to(t0, t4);
+    bool t0And = approximately_zero_when_compared_to(t0, t1) // 0 is one root
+            && approximately_zero_when_compared_to(t0, t2)
+            && approximately_zero_when_compared_to(t0, t3)
+            && approximately_zero_when_compared_to(t0, t4);
+    if (t0Or != t0And) {
+        SkDebugf("%s t0 or and\n", __FUNCTION__);
+    }
+#endif
     if (approximately_zero_when_compared_to(t4, t0) // 0 is one root
             && approximately_zero_when_compared_to(t4, t1)
             && approximately_zero_when_compared_to(t4, t2)) {
@@ -57,8 +88,8 @@ int reducedQuarticRoots(const double t4, const double t3, const double t2, const
             return cubicRootsReal(t3, t2, t1, t0, roots);
         }
     }
-    if (approximately_zero_when_compared_to(t0, t1) // 0 is one root
-            && approximately_zero_when_compared_to(t0, t2)
+    if ((approximately_zero_when_compared_to(t0, t1) || approximately_zero(t1))// 0 is one root
+      //      && approximately_zero_when_compared_to(t0, t2)
             && approximately_zero_when_compared_to(t0, t3)
             && approximately_zero_when_compared_to(t0, t4)) {
         int num = cubicRootsReal(t4, t3, t2, t1, roots);

@@ -2031,11 +2031,49 @@ quad=(1.20573276,0.813456177 1.2679289,0.830085346 1.33333333,0.851851852)
   {{0.666666667,1.14814815}, {1.33333333,1.33333333}, {2.66666667,2.18518519}},
 </div>
 
+<div id="cubicSelf1">
+        {{3.34,8.98}, {1.95,10.27}, {3.76,7.65}, {4.96,10.64}},
+
+  {{3.34,8.98}, {2.83363281,9.4265625}, {2.83796875,9.363125}},
+  {{2.83796875,9.363125}, {2.84230469,9.2996875}, {3.17875,9.1725}},
+  {{3.17875,9.1725}, {3.51519531,9.0453125}, {4.00515625,9.300625}},
+  {{4.00515625,9.300625}, {4.49511719,9.5559375}, {4.96,10.64}},
+</div>
+
+<div id="quadSelf1">
+  {{3.34,8.98}, {2.83363281,9.4265625}, {2.83796875,9.363125}},
+  {{2.83796875,9.363125}, {2.84230469,9.2996875}, {3.17875,9.1725}},
+</div>
+
+<div id="cubicOp27d">
+{{0,1}, {3,6}, {1,0}, {5,2}},
+{{0,1}, {2,5}, {1,0}, {6,3}},
+
+  {{0,1}, {1.11687388,2.858568}, {1.5151589,3.0010603}},
+  {{1.5151589,3.0010603}, {1.91344391,3.14355261}, {2.16505631,2.55782454}},
+  {{2.16505631,2.55782454}, {2.40541285,2.02193091}, {2.99836023,1.68247638}},
+  {{2.99836023,1.68247638}, {3.5913076,1.34302184}, {5,2}},
+
+  {{0,1}, {0.691228423,2.3859516}, {1.0489054,2.56156367}},
+  {{1.0489054,2.56156367}, {1.40658238,2.73717574}, {1.80814127,2.41537795}},
+  {{1.80814127,2.41537795}, {2.23475077,2.05922313}, {3.16529668,1.98358763}},
+  {{3.16529668,1.98358763}, {4.0958426,1.90795214}, {6,3}},
+</div>
+
+<div id="quadOp27d">
+  {{1.80814127,2.41537795}, {2.23475077,2.05922313}, {3.16529668,1.98358763}},
+  {{2.16505631,2.55782454}, {2.40541285,2.02193091}, {2.99836023,1.68247638}},
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    quadOp27d,
+    cubicOp27d,
+    quadSelf1,
+    cubicSelf1,
     quadOp21d,
     cubicOp21d,
     cubicOp20d,
@@ -2306,6 +2344,7 @@ var curveT = -1;
 var drawCubics = true;
 var drawQuads = true;
 var drawControlLines = true;
+var drawTangents = false;
 var xmin, xmax, ymin, ymax;
 
 function parse(test, title) {
@@ -2477,7 +2516,7 @@ function draw(test, title, scale) {
             ctx.lineTo(xoffset + curve[4] * unit, yoffset + curve[5] * unit);
             if (curve.length == 8)
                 ctx.lineTo(xoffset + curve[6] * unit, yoffset + curve[7] * unit);
-            ctx.lineTo(xoffset + curve[0] * unit, yoffset + curve[1] * unit);
+         //   ctx.lineTo(xoffset + curve[0] * unit, yoffset + curve[1] * unit);
             ctx.stroke();
         }
         if (curveT >= 0 && curveT <= 1) {
@@ -2518,7 +2557,7 @@ function draw(test, title, scale) {
             ctx.fill();
             ctx.fillStyle="black";
             ctx.fillText(num, 230, 18);
-            if (curve.length == 8) {
+            if (drawTangents && curve.length == 8) {
                 var one_t = 1 - t;
                 var a = curve[0];
                 var b = curve[2];
@@ -2592,6 +2631,10 @@ function doKeyPress(evt) {
         break;
     case 'q':
         drawQuads ^= true;
+        redraw();
+        break;
+    case 't':
+        drawTangents ^= true;
         redraw();
         break;
     case 'x':

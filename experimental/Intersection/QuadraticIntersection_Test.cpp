@@ -54,6 +54,15 @@ static void standardTestCases() {
 }
 
 static const Quadratic testSet[] = {
+  {{1.80814127,2.41537795}, {2.23475077,2.05922313}, {3.16529668,1.98358763}},
+  {{2.16505631,2.55782454}, {2.40541285,2.02193091}, {2.99836023,1.68247638}},
+
+{{3, 1.875}, {3.375, 1.54296875}, {3.375, 1.421875}},
+{{3.375, 1.421875}, {3.3749999999999996, 1.3007812499999998}, {3, 2}},
+
+  {{3.34,8.98}, {2.83363281,9.4265625}, {2.83796875,9.363125}},
+  {{2.83796875,9.363125}, {2.84230469,9.2996875}, {3.17875,9.1725}},
+
 {{2.7279999999999998, 3.024}, {2.5600000000000005, 2.5600000000000005}, {2.1520000000000001, 1.8560000000000001}},
 {{0.66666666666666652, 1.1481481481481481}, {1.3333333333333326, 1.3333333333333335}, {2.6666666666666665, 2.1851851851851851}},
 
@@ -205,7 +214,6 @@ static void oneOffTest1(size_t outer, size_t inner) {
 
 void QuadraticIntersection_OneOffTest() {
     oneOffTest1(0, 1);
-    oneOffTest1(2, 3);
 }
 
 static void oneOffTests() {
@@ -311,10 +319,10 @@ static void intersectionFinder(int test1, int test2) {
     const Quadratic& quad1 = testSet[test1];
     const Quadratic& quad2 = testSet[test2];
 
-    double t1Seed = 0.989;
-    double t2Seed = 0.800;
-    double t1Step = 0.01;
-    double t2Step = 0.01;
+    double t1Seed = 0.579;
+    double t2Seed = 0.469;
+    double t1Step = 0.1;
+    double t2Step = 0.1;
     _Point t1[3], t2[3];
     bool toggle = true;
     do {
@@ -385,6 +393,7 @@ static void intersectionFinder(int test1, int test2) {
         t22 -= t2[1].approximatelyEqual(test) ? -t2Step : t2Step;
         t2Step /= 2;
     }
+#if ONE_OFF_DEBUG
     SkDebugf("%s t1=(%1.9g<%1.9g<%1.9g) t2=(%1.9g<%1.9g<%1.9g)\n", __FUNCTION__,
         t10, t1Seed, t12, t20, t2Seed, t22);
     _Point p10 = xy_at_t(quad1, t10);
@@ -397,9 +406,9 @@ static void intersectionFinder(int test1, int test2) {
     _Point p22 = xy_at_t(quad2, t22);
     SkDebugf("%s p2=(%1.9g,%1.9g)<(%1.9g,%1.9g)<(%1.9g,%1.9g)\n", __FUNCTION__,
         p20.x, p20.y, p2Seed.x, p2Seed.y, p22.x, p22.y);
+#endif
 }
 
 void QuadraticIntersection_IntersectionFinder() {
     intersectionFinder(0, 1);
-    intersectionFinder(2, 3);
 }

@@ -54,7 +54,7 @@ bool intersect(const Cubic& cubic1, const Cubic& cubic2, Intersections& );
 bool intersect2(const Cubic& cubic1, const Cubic& cubic2, Intersections& );
 // like '2', but iterates on centers instead of possible edges
 bool intersect3(const Cubic& cubic1, const Cubic& cubic2, Intersections& );
-bool intersect(const Cubic& cubic, Intersections& i); // return true if cubic self-intersects
+int intersect(const Cubic& cubic, Intersections& i); // return true if cubic self-intersects
 int intersect(const Cubic& cubic, const Quadratic& quad, Intersections& );
 int intersect(const Cubic& cubic, const _Line& line, Intersections& );
 int intersectRay(const Cubic& quad, const _Line& line, Intersections& i);

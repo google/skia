@@ -215,6 +215,9 @@ static bool bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
 
 
 void operate(const SkPath& one, const SkPath& two, ShapeOp op, SkPath& result) {
+#if DEBUG_SORT
+    Op::gDebugSortCount = Op::gDebugSortCountDefault;
+#endif
     result.reset();
     result.setFillType(SkPath::kEvenOdd_FillType);
     // turn path into list of segments
@@ -237,6 +240,9 @@ void operate(const SkPath& one, const SkPath& two, ShapeOp op, SkPath& result) {
     do {
         Op::Contour** nextPtr = currentPtr;
         Op::Contour* current = *currentPtr++;
+        if (current->containsCubics()) {
+            addSelfIntersectTs(current);
+        }
         Op::Contour* next;
         do {
             next = *nextPtr++;
