@@ -20,9 +20,11 @@ typedef uint32_t GrGLSLVersion;
  * This list is lazily updated as required.
  */
 enum GrGLVendor {
-    kIntel_GrGLVendor,
     kARM_GrGLVendor,
-    kOther_GrGLVendor,
+    kImagination_GrGLVendor,
+    kIntel_GrGLVendor,
+
+    kOther_GrGLVendor
 };
 
 #define GR_GL_VER(major, minor) ((static_cast<int>(major) << 16) | \
