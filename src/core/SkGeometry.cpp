@@ -1255,6 +1255,7 @@ static bool quad_pt2OffCurve(const SkPoint quad[3], SkScalar x, SkScalar y, SkPo
 }
 
 #ifdef SK_SCALAR_IS_FLOAT
+
 // Due to floating point issues (i.e., 1.0f - SK_ScalarRoot2Over2 !=
 // SK_ScalarRoot2Over2 - SK_ScalarTanPIOver8) a cruder root2over2
 // approximation is required to make the quad circle points convex. The
@@ -1267,11 +1268,7 @@ static bool quad_pt2OffCurve(const SkPoint quad[3], SkScalar x, SkScalar y, SkPo
 //    Switch over to using cubics rather then quads
 //    Use a different method to create the mid-point (e.g., compute
 //             the two side points, average them, then move it out as needed
-#ifndef SK_IGNORE_CONVEX_QUAD_OPT
-    #define SK_ScalarRoot2Over2_QuadCircle    0.7072f
-#else
-    #define SK_ScalarRoot2Over2_QuadCircle    SK_ScalarRoot2Over2
-#endif
+#define SK_ScalarRoot2Over2_QuadCircle    0.7072f
 
 #else
     #define SK_ScalarRoot2Over2_QuadCircle    SK_FixedRoot2Over2
