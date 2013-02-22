@@ -10,6 +10,7 @@
       'include_dirs' : [
         '../src/core',
         '../src/effects',
+        '../src/lazy',
         '../src/pdf',
         '../src/pipe/utils',
         '../src/utils',

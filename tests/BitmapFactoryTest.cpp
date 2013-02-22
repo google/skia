@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -6,16 +5,25 @@
  * found in the LICENSE file.
  */
 
+#ifdef SK_DEBUG
+
 #include "SkBitmap.h"
 #include "SkBitmapFactory.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkData.h"
+#include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
+#include "SkLazyPixelRef.h"
+#include "SkLruImageCache.h"
 #include "SkPaint.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
 #include "Test.h"
+
+#ifdef SK_BUILD_FOR_ANDROID
+#include "SkAshmemImageCache.h"
+#endif
 
 static SkBitmap* create_bitmap() {
     SkBitmap* bm = SkNEW(SkBitmap);
@@ -44,6 +52,45 @@ static void assert_bounds_equal(skiatest::Reporter* reporter, const SkBitmap& bm
     REPORTER_ASSERT(reporter, bm1.height() == bm2.height());
 }
 
+static void test_cache(skiatest::Reporter* reporter, SkImageCache* cache, SkData* encodedData,
+                       const SkBitmap& origBitmap) {
+    SkBitmapFactory factory(&SkImageDecoder::DecodeMemoryToTarget);
+    factory.setImageCache(cache);
+    SkAutoTDelete<SkBitmap> bitmapFromFactory(SkNEW(SkBitmap));
+    bool success = factory.installPixelRef(encodedData, bitmapFromFactory.get());
+    // This assumes that if the encoder worked, the decoder should also work, so the above call
+    // should not fail.
+    REPORTER_ASSERT(reporter, success);
+    assert_bounds_equal(reporter, origBitmap, *bitmapFromFactory.get());
+
+    SkPixelRef* pixelRef = bitmapFromFactory->pixelRef();
+    REPORTER_ASSERT(reporter, pixelRef != NULL);
+    if (NULL == cache) {
+        // This assumes that installPixelRef called lockPixels.
+        REPORTER_ASSERT(reporter, bitmapFromFactory->readyToDraw());
+    } else {
+        // Lazy decoding
+        REPORTER_ASSERT(reporter, !bitmapFromFactory->readyToDraw());
+        SkLazyPixelRef* lazyRef = static_cast<SkLazyPixelRef*>(pixelRef);
+        int32_t cacheID = lazyRef->getCacheId();
+        REPORTER_ASSERT(reporter, cache->getCacheStatus(cacheID)
+                                  != SkImageCache::kPinned_CacheStatus);
+        {
+            SkAutoLockPixels alp(*bitmapFromFactory.get());
+            REPORTER_ASSERT(reporter, bitmapFromFactory->readyToDraw());
+            cacheID = lazyRef->getCacheId();
+            REPORTER_ASSERT(reporter, cache->getCacheStatus(cacheID)
+                                      == SkImageCache::kPinned_CacheStatus);
+        }
+        REPORTER_ASSERT(reporter, !bitmapFromFactory->readyToDraw());
+        REPORTER_ASSERT(reporter, cache->getCacheStatus(cacheID)
+                                  != SkImageCache::kPinned_CacheStatus);
+        bitmapFromFactory.free();
+        REPORTER_ASSERT(reporter, cache->getCacheStatus(cacheID)
+                                  == SkImageCache::kThrownAway_CacheStatus);
+    }
+}
+
 static void TestBitmapFactory(skiatest::Reporter* reporter) {
     SkAutoTDelete<SkBitmap> bitmap(create_bitmap());
     SkASSERT(bitmap.get() != NULL);
@@ -54,23 +101,15 @@ static void TestBitmapFactory(skiatest::Reporter* reporter) {
         return;
     }
 
-    SkBitmap bitmapFromFactory;
-    bool success = SkBitmapFactory::DecodeBitmap(&bitmapFromFactory, encodedBitmap);
-    // This assumes that if the encoder worked, the decoder should also work, so the above call
-    // should not fail.
-    REPORTER_ASSERT(reporter, success);
-    assert_bounds_equal(reporter, *bitmap.get(), bitmapFromFactory);
-    REPORTER_ASSERT(reporter, bitmapFromFactory.pixelRef() != NULL);
-
-    // When only requesting that the bounds be decoded, the bounds should be set properly while
-    // the pixels should be empty.
-    SkBitmap boundedBitmap;
-    success = SkBitmapFactory::DecodeBitmap(&boundedBitmap, encodedBitmap,
-                                            SkBitmapFactory::kDecodeBoundsOnly_Constraint);
-    REPORTER_ASSERT(reporter, success);
-    assert_bounds_equal(reporter, *bitmap.get(), boundedBitmap);
-    REPORTER_ASSERT(reporter, boundedBitmap.pixelRef() == NULL);
+    SkAutoTUnref<SkLruImageCache> lruCache(SkNEW_ARGS(SkLruImageCache, (1024 * 1024)));
+    test_cache(reporter, lruCache, encodedBitmap, *bitmap.get());
+    test_cache(reporter, NULL, encodedBitmap, *bitmap.get());
+#ifdef SK_BUILD_FOR_ANDROID
+    test_cache(reporter, SkAshmemImageCache::GetAshmemImageCache(), encodedBitmap, *bitmap.get());
+#endif
 }
 
 #include "TestClassDef.h"
 DEFINE_TESTCLASS("BitmapFactory", TestBitmapFactoryClass, TestBitmapFactory)
+
+#endif // SK_DEBUG

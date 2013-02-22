@@ -16,9 +16,11 @@
         '../include/config',
         '../include/core',
         '../include/images',
+        '../include/lazy',
+        # for access to SkImagePriv.h
+        '../src/image/',
       ],
       'sources': [
-        '../include/images/SkBitmapFactory.h',
         '../include/images/SkImageDecoder.h',
         '../include/images/SkImageEncoder.h',
         '../include/images/SkImageRef.h',
@@ -29,7 +31,6 @@
 
         '../src/images/bmpdecoderhelper.cpp',
         '../src/images/bmpdecoderhelper.h',
-        '../src/images/SkBitmapFactory.cpp',
         '../src/images/SkFDStream.cpp',
         '../src/images/SkImageDecoder.cpp',
         '../src/images/SkImageDecoder_Factory.cpp',
@@ -136,6 +137,7 @@
       'direct_dependent_settings': {
         'include_dirs': [
           '../include/images',
+          '../include/lazy',
         ],
       },
     },

@@ -281,6 +281,16 @@
         '<(skia_include_path)/core/SkWeakRefCnt.h',
         '<(skia_include_path)/core/SkWriter32.h',
         '<(skia_include_path)/core/SkXfermode.h',
+
+        # Lazy decoding:
+        '<(skia_include_path)/lazy/SkBitmapFactory.h',
+        '<(skia_include_path)/lazy/SkImageCache.h',
+        '<(skia_include_path)/lazy/SkLruImageCache.h',
+
+        '<(skia_src_path)/lazy/SkBitmapFactory.cpp',
+        '<(skia_src_path)/lazy/SkLazyPixelRef.h',
+        '<(skia_src_path)/lazy/SkLazyPixelRef.cpp',
+        '<(skia_src_path)/lazy/SkLruImageCache.cpp',
     ],
 }
 

@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmap.h"
 #include "SkOrderedReadBuffer.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
@@ -167,19 +168,18 @@ uint32_t SkOrderedReadBuffer::getArrayCount() {
 }
 
 void SkOrderedReadBuffer::readBitmap(SkBitmap* bitmap) {
-    size_t length = this->readUInt();
+    const size_t length = this->readUInt();
     if (length > 0) {
         // Bitmap was encoded.
-        SkMemoryStream stream(const_cast<void*>(this->skip(length)), length, false);
-        if (fBitmapDecoder != NULL && fBitmapDecoder(&stream, bitmap)) {
-            // Skip the width and height, which were written in case of failure.
-            fReader.skip(2 * sizeof(int));
+        const void* data = this->skip(length);
+        const int width = this->readInt();
+        const int height = this->readInt();
+        if (fBitmapDecoder != NULL && fBitmapDecoder(data, length, bitmap)) {
+            SkASSERT(bitmap->width() == width && bitmap->height() == height);
         } else {
             // This bitmap was encoded when written, but we are unable to decode, possibly due to
             // not having a decoder. Use a placeholder bitmap.
             SkDebugf("Could not decode bitmap. Resulting bitmap will be red.\n");
-            int width = this->readInt();
-            int height = this->readInt();
             bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
             bitmap->allocPixels();
             bitmap->eraseColor(SK_ColorRED);

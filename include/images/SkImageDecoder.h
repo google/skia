@@ -11,6 +11,8 @@
 #define SkImageDecoder_DEFINED
 
 #include "SkBitmap.h"
+#include "SkBitmapFactory.h"
+#include "SkImage.h"
 #include "SkRefCnt.h"
 
 class SkStream;
@@ -223,6 +225,34 @@ public:
         return DecodeMemory(buffer, size, bitmap, SkBitmap::kNo_Config,
                             kDecodePixels_Mode, NULL);
     }
+
+    /**
+     *  Decode memory.
+     *  @param info Output parameter. Returns info about the encoded image.
+     *  @param target Contains the address of pixel memory to decode into
+     *         (which must be large enough to hold the width in info) and
+     *         the row bytes to use. If NULL, returns info and does not
+     *         decode pixels.
+     *  @return bool Whether the function succeeded.
+     *
+     *  Sample usage:
+     *  <code>
+     *      // Determine the image's info: width/height/config
+     *      SkImage::Info info;
+     *      bool success = DecodeMemoryToTarget(src, size, &info, NULL);
+     *      if (!success) return;
+     *      // Allocate space for the result:
+     *      SkBitmapFactory::Target target;
+     *      target.fAddr = malloc/other allocation
+     *      target.fRowBytes = ...
+     *      // Now decode the actual pixels into target. &info is optional,
+     *      // and could be NULL
+     *      success = DecodeMemoryToTarget(src, size, &info, &target);
+     *  </code>
+     */
+    static bool DecodeMemoryToTarget(const void* buffer, size_t size, SkImage::Info* info,
+                                     const SkBitmapFactory::Target* target);
+
     /** Decode the image stored in the specified SkStream, and store the result
         in bitmap. Return true for success or false on failure.
 

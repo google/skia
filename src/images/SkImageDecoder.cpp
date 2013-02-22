@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -9,6 +8,7 @@
 
 #include "SkImageDecoder.h"
 #include "SkBitmap.h"
+#include "SkImagePriv.h"
 #include "SkPixelRef.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
@@ -173,6 +173,69 @@ bool SkImageDecoder::DecodeMemory(const void* buffer, size_t size, SkBitmap* bm,
     SkMemoryStream  stream(buffer, size);
     return SkImageDecoder::DecodeStream(&stream, bm, pref, mode, format);
 }
+
+class TargetAllocator : public SkBitmap::Allocator {
+
+public:
+    TargetAllocator(void* target)
+        : fTarget(target) {}
+
+    virtual bool allocPixelRef(SkBitmap* bm, SkColorTable* ct) SK_OVERRIDE {
+        // SkColorTable is not supported by Info/Target model.
+        SkASSERT(NULL == ct);
+        bm->setPixels(fTarget);
+        return true;
+    }
+
+private:
+    void* fTarget;
+};
+
+bool SkImageDecoder::DecodeMemoryToTarget(const void* buffer, size_t size,
+                                          SkImage::Info* info,
+                                          const SkBitmapFactory::Target* target) {
+    if (NULL == info) {
+        return false;
+    }
+    // FIXME: Just to get this working, implement in terms of existing
+    // ImageDecoder calls.
+    SkBitmap bm;
+    SkMemoryStream stream(buffer, size);
+    SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(&stream));
+    if (decoder.get() != NULL && decoder->decode(&stream, &bm, kDecodeBounds_Mode)) {
+        // Now set info properly
+        if (!SkBitmapToImageInfo(bm, info)) {
+            return false;
+        }
+
+        // SkBitmapToImageInfo will return false if Index8 is used. kIndex8
+        // is not supported by the Info/Target model, since kIndex8 requires
+        // an SkColorTable, which this model does not keep track of.
+        SkASSERT(bm.config() != SkBitmap::kIndex8_Config);
+
+        if (NULL == target) {
+            return true;
+        }
+
+        if (target->fRowBytes != (uint32_t) bm.rowBytes()) {
+            if (target->fRowBytes < SkImageMinRowBytes(*info)) {
+                SkASSERT(!"Desired row bytes is too small");
+                return false;
+            }
+            bm.setConfig(bm.config(), bm.width(), bm.height(), target->fRowBytes);
+        }
+
+        TargetAllocator allocator(target->fAddr);
+        decoder->setAllocator(&allocator);
+        stream.rewind();
+        bool success = decoder->decode(&stream, &bm, kDecodePixels_Mode);
+        // Remove the allocator, since it's on the stack.
+        decoder->setAllocator(NULL);
+        return success;
+    }
+    return false;
+}
+
 
 bool SkImageDecoder::DecodeStream(SkStream* stream, SkBitmap* bm,
                           SkBitmap::Config pref, Mode mode, Format* format) {

@@ -144,8 +144,7 @@ void SkDebuggerGUI::showDeletes() {
 class SkTimedPicturePlayback : public SkPicturePlayback {
 public:
     SkTimedPicturePlayback(SkStream* stream, const SkPictInfo& info, bool* isValid,
-                           SkSerializationHelpers::DecodeBitmap decoder,
-                           const SkTDArray<size_t>& offsets,
+                           SkPicture::InstallPixelRefProc proc, const SkTDArray<size_t>& offsets,
                            const SkTDArray<bool>& deletedCommands)
         : INHERITED(stream, info, isValid, decoder)
         , fOffsets(offsets)
@@ -251,9 +250,7 @@ private:
 // Wrap SkPicture to allow installation of an SkTimedPicturePlayback object
 class SkTimedPicture : public SkPicture {
 public:
-    explicit SkTimedPicture(SkStream* stream,
-                            bool* success,
-                            SkSerializationHelpers::DecodeBitmap decoder,
+    explicit SkTimedPicture(SkStream* stream, bool* success, SkPicture::InstallPixelRefProc,
                             const SkTDArray<size_t>& offsets,
                             const SkTDArray<bool>& deletedCommands) {
         if (success) {
@@ -362,7 +359,7 @@ void SkDebuggerGUI::actionProfile() {
     }
 
     bool success = false;
-    SkTimedPicture picture(&inputStream, &success, &SkImageDecoder::DecodeStream,
+    SkTimedPicture picture(&inputStream, &success, &SkImageDecoder::DecodeMemory,
                            fOffsets, fSkipCommands);
     if (!success) {
         return;
@@ -928,7 +925,7 @@ void SkDebuggerGUI::setupDirectoryWidget(const QString& path) {
 class SkOffsetPicturePlayback : public SkPicturePlayback {
 public:
     SkOffsetPicturePlayback(SkStream* stream, const SkPictInfo& info, bool* isValid,
-                            SkSerializationHelpers::DecodeBitmap decoder)
+                            SkPicture::InstallPixelRefProc proc)
         : INHERITED(stream, info, isValid, decoder) {
     }
 
@@ -949,9 +946,7 @@ private:
 // Picture to wrap an SkOffsetPicturePlayback.
 class SkOffsetPicture : public SkPicture {
 public:
-    SkOffsetPicture(SkStream* stream,
-                    bool* success,
-                    SkSerializationHelpers::DecodeBitmap decoder) {
+    SkOffsetPicture(SkStream* stream, bool* success, SkPicture::InstallPixelRefProc proc) {
         if (success) {
             *success = false;
         }
@@ -1008,7 +1003,8 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
 
     bool success = false;
 
-    SkOffsetPicture* picture = SkNEW_ARGS(SkOffsetPicture, (stream, &success, &SkImageDecoder::DecodeStream));
+    SkOffsetPicture* picture = SkNEW_ARGS(SkOffsetPicture,
+                                          (stream, &success, &SkImageDecoder::DecodeMemory));
 
     if (!success) {
         QMessageBox::critical(this, "Error loading file", "Couldn't read file, sorry.");
