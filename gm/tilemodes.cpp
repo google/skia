@@ -249,11 +249,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static skiagm::GM* MyFactory(void*) { return new TilingGM; }
-static skiagm::GMRegistry reg(MyFactory);
+DEF_GM( return new TilingGM; )
+DEF_GM( return new Tiling2GM(make_bm, "bitmap"); )
+DEF_GM( return new Tiling2GM(make_grad, "gradient"); )
 
-static skiagm::GM* MyFactory2(void*) { return new Tiling2GM(make_bm, "bitmap"); }
-static skiagm::GMRegistry reg2(MyFactory2);
-
-static skiagm::GM* MyFactory3(void*) { return new Tiling2GM(make_grad, "gradient"); }
-static skiagm::GMRegistry reg3(MyFactory3);
