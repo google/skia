@@ -435,7 +435,9 @@ static void S32_D32_constX_shaderproc(const SkBitmapProcState& s,
     SkASSERT(count > 0 && colors != NULL);
     SkASSERT(1 == s.fBitmap->width());
 
-    int iY0, iY1, iSubY;
+    int iY0;
+    int iY1   SK_INIT_TO_AVOID_WARNING;
+    int iSubY SK_INIT_TO_AVOID_WARNING;
 
     if (s.fDoFilter) {
         SkBitmapProcState::MatrixProc mproc = s.getMatrixProc();
