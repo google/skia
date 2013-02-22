@@ -1140,28 +1140,9 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
     go ahead and treat it as if it were, so that subsequent code can go fast.
  */
 static bool just_translate(const SkMatrix& matrix, const SkBitmap& bitmap) {
-#ifdef SK_IGNORE_TRANS_CLAMP_FIX
-    SkMatrix::TypeMask mask = matrix.getType();
-
-    if (mask & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask)) {
-        return false;
-    }
-    if (mask & SkMatrix::kScale_Mask) {
-        SkScalar sx = matrix[SkMatrix::kMScaleX];
-        SkScalar sy = matrix[SkMatrix::kMScaleY];
-        int w = bitmap.width();
-        int h = bitmap.height();
-        int sw = SkScalarRound(SkScalarMul(sx, SkIntToScalar(w)));
-        int sh = SkScalarRound(SkScalarMul(sy, SkIntToScalar(h)));
-        return sw == w && sh == h;
-    }
-    // if we got here, we're either kTranslate_Mask or identity
-    return true;
-#else
     unsigned bits = 0;  // TODO: find a way to allow the caller to tell us to
                         // respect filtering.
     return SkTreatAsSprite(matrix, bitmap.width(), bitmap.height(), bits);
-#endif
 }
 
 void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap,

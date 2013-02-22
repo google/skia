@@ -245,12 +245,9 @@ static bool chopMonoCubicAt(SkScalar c0, SkScalar c1, SkScalar c2, SkScalar c3,
     SkScalar minT = 0;
     SkScalar maxT = SK_Scalar1;
     SkScalar mid;
-    int i;
-#ifdef SK_IGNORE_CLIP_BUG_FIX
-    for (i = 0; i < 16; i++) {
-#else
-    for (i = 0; i < 24; i++) {
-#endif
+
+    // This is a lot of iterations. Is there a faster way?
+    for (int i = 0; i < 24; i++) {
         mid = SkScalarAve(minT, maxT);
         SkScalar delta = eval_cubic_coeff(A, B, C, D, mid);
         if (delta < 0) {

@@ -124,14 +124,6 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         bool fixupMatrix = clamp_clamp ?
         just_trans_clamp(*m, *fBitmap) : just_trans_general(*m);
         if (fixupMatrix) {
-#ifdef SK_IGNORE_TRANS_CLAMP_FIX
-            if (m != &fUnitInvMatrix) {    // can't mutate the original
-                fUnitInvMatrix = inv;
-                m = &fUnitInvMatrix;
-            }
-            fUnitInvMatrix.set(SkMatrix::kMScaleX, SK_Scalar1);
-            fUnitInvMatrix.set(SkMatrix::kMScaleY, SK_Scalar1);
-#else
             // If we can be treated just like translate, construct that inverse
             // such that we landed in the proper place. Given that m may have
             // some slight scale, we have to invert it to compute this new
@@ -145,7 +137,6 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
                 // now the following code will sniff m, and decide to take the
                 // fast case (since m is purely translate).
             }
-#endif
         }
     }
 
@@ -573,7 +564,6 @@ SkBitmapProcState::ShaderProc32 SkBitmapProcState::chooseShaderProc32() {
         return NULL;
     }
 
-#ifndef SK_IGNORE_1XN_BITMAP_OPT
     static const unsigned kMask = SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask;
 
     if (1 == fBitmap->width() && 0 == (fInvType & ~kMask)) {
@@ -582,7 +572,6 @@ SkBitmapProcState::ShaderProc32 SkBitmapProcState::chooseShaderProc32() {
         }
         return S32_D32_constX_shaderproc;
     }
-#endif
 
     if (fAlphaScale < 256) {
         return NULL;
