@@ -14,13 +14,8 @@
 #include "SkFDot6.h"
 #include "SkMath.h"
 
-#ifdef SK_IGNORE_SETLINE_FIX
-    #define SkEdge_Compute_DY(top, y0)  ((32 - (y0)) & 63)
-#else
-    // This is correct, as it favors the lower-pixel when y0 is on a 1/2 pixel
-    // boundary, returning 64 instead of the old code, which returns 0.
-    #define SkEdge_Compute_DY(top, y0)  ((top << 6) + 32 - (y0))
-#endif
+// This correctly favors the lower-pixel when y0 is on a 1/2 pixel boundary
+#define SkEdge_Compute_DY(top, y0)  ((top << 6) + 32 - (y0))
 
 struct SkEdge {
     enum Type {
