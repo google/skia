@@ -623,7 +623,7 @@ int tool_main(int argc, char** argv) {
     }
 
     SkTArray<BenchTimer*> timers(SK_ARRAY_COUNT(gConfigs));
-    for (int i = 0; i < SK_ARRAY_COUNT(gConfigs); ++i) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gConfigs); ++i) {
 #if SK_SUPPORT_GPU
         SkGLContext* ctx = NULL;
         if (kGPU_Backend == gConfigs[i].fBackend) {
@@ -839,7 +839,7 @@ int tool_main(int argc, char** argv) {
     // Destroy the GrContext before the inst tracking printing at main() exit occurs.
     gContextFactory.destroyContexts();
 #endif
-    for (int i = 0; i < SK_ARRAY_COUNT(gConfigs); ++i) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gConfigs); ++i) {
         SkDELETE(timers[i]);
     }
 
