@@ -298,11 +298,7 @@ void SkSweepGradient::shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC,
     SkMatrix::MapXYProc proc = fDstToIndexProc;
     const SkMatrix&     matrix = fDstToIndex;
     const SkPMColor* SK_RESTRICT cache = this->getCache32();
-#ifndef SK_IGNORE_GRADIENT_DITHER_FIX
     int                 toggle = init_dither_toggle(x, y);
-#else
-    int                 toggle = 0;
-#endif
     SkPoint             srcPt;
 
     if (fDstToIndexClass != kPerspective_MatrixClass) {
@@ -327,18 +323,14 @@ void SkSweepGradient::shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC,
             *dstC++ = cache[toggle + SkATan2_255(fy, fx)];
             fx += dx;
             fy += dy;
-#ifndef SK_IGNORE_GRADIENT_DITHER_FIX
             toggle = next_dither_toggle(toggle);
-#endif
         }
     } else {  // perspective case
         for (int stop = x + count; x < stop; x++) {
             proc(matrix, SkIntToScalar(x) + SK_ScalarHalf,
                          SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
             *dstC++ = cache[toggle + SkATan2_255(srcPt.fY, srcPt.fX)];
-#ifndef SK_IGNORE_GRADIENT_DITHER_FIX
             toggle = next_dither_toggle(toggle);
-#endif
         }
     }
 }
