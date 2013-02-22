@@ -249,6 +249,15 @@ struct _Point {
         return approximately_equal(x * inv, a.x * inv) && approximately_equal(y * inv, a.y * inv);
     }
 
+    bool approximatelyEqual(const SkPoint& a) const {
+        double denom = SkTMax(fabs(x), SkTMax(fabs(y), SkTMax(fabs(a.fX), fabs(a.fY))));
+        if (denom == 0) {
+            return true;
+        }
+        double inv = 1 / denom;
+        return approximately_equal(x * inv, a.fX * inv) && approximately_equal(y * inv, a.fY * inv);
+    }
+
     bool approximatelyEqualHalf(const _Point& a) const {
         double denom = SkTMax(fabs(x), SkTMax(fabs(y), SkTMax(fabs(a.x), fabs(a.y))));
         if (denom == 0) {
@@ -372,8 +381,11 @@ struct QuadraticPair {
 
 #define sk_double_isnan(a) sk_float_isnan(a)
 
+// FIXME: move these to debugging file
 #if SK_DEBUG
 void mathematica_ize(char* str, size_t bufferSize);
+bool valid_wind(int winding);
+void winding_printf(int winding);
 #endif
 
 #endif // __DataTypes_h__

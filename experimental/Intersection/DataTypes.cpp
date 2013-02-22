@@ -83,4 +83,16 @@ void mathematica_ize(char* str, size_t bufferLen) {
         num = str[idx] >= '0' && str[idx] <= '9';
     }
 }
+
+bool valid_wind(int wind) {
+    return wind > SK_MinS32 + 0xFFFF && wind < SK_MaxS32 - 0xFFFF;
+}
+
+void winding_printf(int wind) {
+    if (wind == SK_MinS32) {
+        SkDebugf("?");
+    } else {
+        SkDebugf("%d", wind);
+    }
+}
 #endif

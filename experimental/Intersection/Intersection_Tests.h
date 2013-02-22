@@ -15,6 +15,7 @@ void CubicIntersection_IntersectionFinder();
 void CubicIntersection_NewOneOffTest();
 void CubicIntersection_OneOffTest();
 void CubicIntersection_OneOffTests();
+void CubicIntersection_SelfTest();
 void CubicIntersection_Test();
 void CubicIntersection_RandTest();
 void CubicIntersection_RandTestOld();

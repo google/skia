@@ -14,12 +14,13 @@ void parseSVG();
 
 void Intersection_Tests() {
     int testsRun = 0;
-#if 0
-#endif
     QuadraticIntersection_IntersectionFinder();
     QuadraticIntersection_OneOffTest();
     CubicIntersection_IntersectionFinder();
     CubicIntersection_NewOneOffTest();
+    CubicIntersection_SelfTest();
+#if 0
+#endif
     SimplifyNew_Test();
     CubicsToQuadratics_OneOffTest();
     CubicIntersection_OneOffTest();

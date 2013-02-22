@@ -3644,34 +3644,106 @@ path.addRect(4, 13, 13, 16, SkPath::kCCW_Direction);
     pathB.close();
 </div>
 
+<div id="cubicOp25i">
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(2,4, 5,0, 3,2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,5);
+    pathB.cubicTo(2,3, 1,0, 4,2);
+    pathB.close();
+</div>
+
+<div id="cubicOp26d">
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(3,4, 4,0, 3,2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,4);
+    pathB.cubicTo(2,3, 1,0, 4,3);
+    pathB.close();
+</div>
+
+<div id="cubicOp27d">
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(3,6, 1,0, 5,2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,1);
+    pathB.cubicTo(2,5, 1,0, 6,3);
+    pathB.close();
+</div>
+
+<div id="cubicOp28u">
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(1,4, 6,0, 3,2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,6);
+    pathB.cubicTo(2,3, 1,0, 4,1);
+    pathB.close();
+</div>
+
+<div id="cubicOp29d">
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(2,5, 6,0, 4,2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,6);
+    pathB.cubicTo(2,4, 1,0, 5,2);
+    pathB.close();
+</div>
+
+<div id="cubicOp30d">
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(2,5, 6,0, 5,3);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,6);
+    pathB.cubicTo(3,5, 1,0, 5,2);
+    pathB.close();
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    cubicOp30d,
+    cubicOp29d,
+    cubicOp28u,
+    cubicOp27d,
+    cubicOp26d,
+    cubicOp25i,
     cubicOp24d,
     cubicOp23d,
-    cubicOp22d,
-    cubicOp21d,
-    cubicOp20d,
-    cubicOp19i,
     cubicOp18d,
-    cubicOp17d,
-    cubicOp16d,
     cubicOp15d,
     cubicOp14d,
     cubicOp13d,
-    cubicOp12d,
     cubicOp11d,
-    cubicOp10d,
-    cubicOp1i,
-    lineOp9d,
-    quadOp9d,
     cubicOp9d,
     cubicOp8d,
     cubicOp7d,
     cubicOp6d,
     cubicOp5d,
+    cubicOp10d,
+    cubicOp22d,
+    cubicOp21d,
+    cubicOp20d,
+    cubicOp19i,
+    cubicOp17d,
+    cubicOp16d,
+    cubicOp12d,
+    cubicOp1i,
+    lineOp9d,
+    quadOp9d,
     cubicOp4d,
     cubicOp3d,
     cubicOp2d,

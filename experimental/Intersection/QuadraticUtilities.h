@@ -36,6 +36,7 @@ inline void set_abc(const double* quad, double& a, double& b, double& c) {
 int quadraticRootsReal(double A, double B, double C, double t[2]);
 int quadraticRootsValidT(const double A, const double B, const double C, double s[2]);
 void sub_divide(const Quadratic& src, double t1, double t2, Quadratic& dst);
+_Point sub_divide(const Quadratic& src, const _Point& a, const _Point& c, double t1, double t2);
 void toCubic(const Quadratic& , Cubic& );
 _Point top(const Quadratic& , double startT, double endT);
 void xy_at_t(const Quadratic& , double t, double& x, double& y);

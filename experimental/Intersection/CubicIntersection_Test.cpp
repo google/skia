@@ -134,6 +134,9 @@ static const Cubic testSet[] = {
 const size_t testSetCount = sizeof(testSet) / sizeof(testSet[0]);
 
 static const Cubic newTestSet[] = {
+{{0,1}, {3,6}, {1,0}, {5,2}},
+{{0,1}, {2,5}, {1,0}, {6,3}},
+
 {{1,2},{5,6},{1,0},{1,0}},
 {{0,1},{0,1},{2,1},{6,5}},
 
@@ -550,8 +553,8 @@ void CubicIntersection_IntersectionFinder() {
     const Cubic& cubic1 = newTestSet[0];
     const Cubic& cubic2 = newTestSet[1];
 
-    double t1Seed = 0.599;
-    double t2Seed = 0.599;
+    double t1Seed = 0.633;
+    double t2Seed = 0.633;
     double t1Step = 0.1;
     double t2Step = 0.1;
     _Point t1[3], t2[3];
@@ -624,6 +627,7 @@ void CubicIntersection_IntersectionFinder() {
         t22 -= t2[1].approximatelyEqual(test) ? -t2Step : t2Step;
         t2Step /= 2;
     }
+#if ONE_OFF_DEBUG
     SkDebugf("%s t1=(%1.9g<%1.9g<%1.9g) t2=(%1.9g<%1.9g<%1.9g)\n", __FUNCTION__,
         t10, t1Seed, t12, t20, t2Seed, t22);
     _Point p10 = xy_at_t(cubic1, t10);
@@ -636,6 +640,7 @@ void CubicIntersection_IntersectionFinder() {
     _Point p22 = xy_at_t(cubic2, t22);
     SkDebugf("%s p2=(%1.9g,%1.9g)<(%1.9g,%1.9g)<(%1.9g,%1.9g)\n", __FUNCTION__,
         p20.x, p20.y, p2Seed.x, p2Seed.y, p22.x, p22.y);
+#endif
 }
 
 static void coincidentTest() {
@@ -643,6 +648,37 @@ static void coincidentTest() {
     Cubic cubic1 = {{0, 1}, {0, 2}, {1, 0}, {1, 0}};
     Cubic cubic2 = {{0, 1}, {0, 2}, {1, 0}, {6, 1}};
 #endif
+}
+
+void CubicIntersection_SelfTest() {
+    const Cubic selfSet[] = {
+        {{3.34,8.98}, {1.95,10.27}, {3.76,7.65}, {4.96,10.64}},
+        {{3.13,2.74}, {1.08,4.62}, {3.71,0.94}, {2.01,3.81}},
+        {{6.71,3.14}, {7.99,2.75}, {8.27,1.96}, {6.35,3.57}}, 
+        {{12.81,7.27}, {7.22,6.98}, {12.49,8.97}, {11.42,6.18}},
+    };
+    size_t selfSetCount = sizeof(selfSet) / sizeof(selfSet[0]);
+    for (size_t index = 0; index < selfSetCount; ++index) {
+        const Cubic& cubic = selfSet[index];
+    #if ONE_OFF_DEBUG
+        SkTDArray<Quadratic> quads1;
+        cubic_to_quadratics(cubic, calcPrecision(cubic), quads1);
+        for (int index = 0; index < quads1.count(); ++index) {
+            const Quadratic& q = quads1[index];
+            SkDebugf("  {{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", q[0].x, q[0].y,
+                     q[1].x, q[1].y,  q[2].x, q[2].y);
+        }
+        SkDebugf("\n");
+    #endif
+        Intersections i;
+        int result = intersect(cubic, i);
+        SkASSERT(result == 1);
+        SkASSERT(i.used() == 1);
+        SkASSERT(!approximately_equal(i.fT[0][0], i.fT[1][0]));
+        _Point pt1 = xy_at_t(cubic, i.fT[0][0]);
+        _Point pt2 = xy_at_t(cubic, i.fT[1][0]);
+        SkASSERT(pt1.approximatelyEqual(pt2));
+    }
 }
 
 void CubicIntersection_Test() {
