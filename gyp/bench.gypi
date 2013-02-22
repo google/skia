@@ -13,6 +13,7 @@
     '../bench/BlurBench.cpp',
     '../bench/BlurRectBench.cpp',
     '../bench/ChecksumBench.cpp',
+    '../bench/ChartBench.cpp',
     '../bench/ChromeBench.cpp',
     '../bench/DashBench.cpp',
     '../bench/DecodeBench.cpp',
