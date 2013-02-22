@@ -15,6 +15,8 @@
 #include "gl/GrGLDefines.h"
 #include "GrRenderTarget.h"
 #include "SkGpuDevice.h"
+#else
+class GrContext;
 #endif // SK_SUPPORT_GPU
 
 #include "SkBenchLogger.h"
@@ -28,6 +30,7 @@
 #include "SkNWayCanvas.h"
 #include "SkPicture.h"
 #include "SkString.h"
+#include "SkTArray.h"
 #include "TimerData.h"
 
 enum benchModes {
