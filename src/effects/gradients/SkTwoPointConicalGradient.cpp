@@ -129,9 +129,7 @@ static void twopoint_clamp(TwoPtRadial* rec, SkPMColor* SK_RESTRICT dstC,
             *dstC++ = cache[toggle +
                             (index >> SkGradientShaderBase::kCache32Shift)];
         }
-#ifndef SK_IGNORE_GRADIENT_DITHER_FIX
         toggle = next_dither_toggle(toggle);
-#endif
     }
 }
 
@@ -148,9 +146,7 @@ static void twopoint_repeat(TwoPtRadial* rec, SkPMColor* SK_RESTRICT dstC,
             *dstC++ = cache[toggle +
                             (index >> SkGradientShaderBase::kCache32Shift)];
         }
-#ifndef SK_IGNORE_GRADIENT_DITHER_FIX
         toggle = next_dither_toggle(toggle);
-#endif
     }
 }
 
@@ -167,9 +163,7 @@ static void twopoint_mirror(TwoPtRadial* rec, SkPMColor* SK_RESTRICT dstC,
             *dstC++ = cache[toggle +
                             (index >> SkGradientShaderBase::kCache32Shift)];
         }
-#ifndef SK_IGNORE_GRADIENT_DITHER_FIX
         toggle = next_dither_toggle(toggle);
-#endif
     }
 }
 
@@ -198,11 +192,7 @@ SkTwoPointConicalGradient::SkTwoPointConicalGradient(
 
 void SkTwoPointConicalGradient::shadeSpan(int x, int y, SkPMColor* dstCParam,
                                           int count) {
-#ifndef SK_IGNORE_GRADIENT_DITHER_FIX
     int toggle = init_dither_toggle(x, y);
-#else
-    int toggle = 0;
-#endif
 
     SkASSERT(count > 0);
 
@@ -251,9 +241,7 @@ void SkTwoPointConicalGradient::shadeSpan(int x, int y, SkPMColor* dstCParam,
 
             fRec.setup(srcPt.fX, srcPt.fY, 0, 0);
             (*shadeProc)(&fRec, dstC, cache, toggle, 1);
-#ifndef SK_IGNORE_GRADIENT_DITHER_FIX
             toggle = next_dither_toggle(toggle);
-#endif
         }
     }
 }
