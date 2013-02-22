@@ -485,7 +485,7 @@ bool SkPicturePlayback::parseStreamTag(SkStream* stream, const SkPictInfo& info,
      *  the buffer tag, because if we have, then its too-late to deal with the
      *  factories or typefaces.
      */
-    bool haveBuffer = false;
+    SkDEBUGCODE(bool haveBuffer = false;)
 
     switch (tag) {
         case PICT_READER_TAG: {
@@ -537,7 +537,7 @@ bool SkPicturePlayback::parseStreamTag(SkStream* stream, const SkPictInfo& info,
                     return false;
                 }
             }
-            haveBuffer = true;
+            SkDEBUGCODE(haveBuffer = true;)
         } break;
     }
     return true;    // success
