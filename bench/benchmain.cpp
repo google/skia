@@ -11,14 +11,9 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrContextFactory.h"
 #include "gl/GrGLDefines.h"
 #include "GrRenderTarget.h"
-#if SK_ANGLE
-#include "gl/SkANGLEGLContext.h"
-#endif // SK_ANGLE
-#include "gl/SkNativeGLContext.h"
-#include "gl/SkNullGLContext.h"
-#include "gl/SkDebugGLContext.h"
 #include "SkGpuDevice.h"
 #endif // SK_SUPPORT_GPU
 
@@ -193,78 +188,8 @@ enum Backend {
     kPDF_Backend,
 };
 
-#if SK_SUPPORT_GPU
-class GLHelper {
-public:
-    GLHelper() {
-    }
-
-    bool init(SkGLContext* glCtx, int width, int height) {
-        GrContext* grCtx;
-        if (!glCtx->init(width, height)) {
-            return false;
-        }
-        GrBackendContext ctx = reinterpret_cast<GrBackendContext>(glCtx->gl());
-        grCtx = GrContext::Create(kOpenGL_GrBackend, ctx);
-        if (NULL != grCtx) {
-            GrBackendRenderTargetDesc desc;
-            desc.fConfig = kSkia8888_GrPixelConfig;
-            desc.fWidth = width;
-            desc.fHeight = height;
-            desc.fStencilBits = 8;
-            desc.fRenderTargetHandle = glCtx->getFBOID();
-            GrRenderTarget* rt = grCtx->wrapBackendRenderTarget(desc);
-            if (NULL == rt) {
-                grCtx->unref();
-                return false;
-            }
-            glCtx->ref();
-            fGLContext.reset(glCtx);
-            fGrContext.reset(grCtx);
-            fRenderTarget.reset(rt);
-        }
-        return true;
-    }
-
-    void cleanup() {
-        fGLContext.reset(NULL);
-        fGrContext.reset(NULL);
-        fRenderTarget.reset(NULL);
-    }
-
-    bool isValid() {
-        return NULL != fGLContext.get();
-    }
-
-    SkGLContext* glContext() {
-        return fGLContext.get();
-    }
-
-    GrRenderTarget* renderTarget() {
-        return fRenderTarget.get();
-    }
-
-    GrContext* grContext() {
-        return fGrContext.get();
-    }
-private:
-    SkAutoTUnref<SkGLContext> fGLContext;
-    SkAutoTUnref<GrContext> fGrContext;
-    SkAutoTUnref<GrRenderTarget> fRenderTarget;
-};
-
-static GLHelper gRealGLHelper;
-static GLHelper gNullGLHelper;
-static GLHelper gDebugGLHelper;
-#if SK_ANGLE
-static GLHelper gANGLEGLHelper;
-#endif // SK_ANGLE
-#else  // !SK_SUPPORT_GPU
-class GLHelper;
-class SkGLContext;
-#endif // !SK_SUPPORT_GPU
 static SkDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
-                             Backend backend, GLHelper* glHelper) {
+                             Backend backend, GrContext* context) {
     SkDevice* device = NULL;
     SkBitmap bitmap;
     bitmap.setConfig(config, size.fX, size.fY);
@@ -273,13 +198,22 @@ static SkDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
         case kRaster_Backend:
             bitmap.allocPixels();
             erase(bitmap);
-            device = new SkDevice(bitmap);
+            device = SkNEW_ARGS(SkDevice, (bitmap));
             break;
 #if SK_SUPPORT_GPU
-        case kGPU_Backend:
-            device = new SkGpuDevice(glHelper->grContext(),
-                                     glHelper->renderTarget());
+        case kGPU_Backend: {
+            GrTextureDesc desc;
+            desc.fConfig = kSkia8888_GrPixelConfig;
+            desc.fFlags = kRenderTarget_GrTextureFlagBit;
+            desc.fWidth = size.fX;
+            desc.fHeight = size.fY;
+            SkAutoTUnref<GrTexture> texture(context->createUncachedTexture(desc, NULL, 0));
+            if (!texture) {
+                return NULL;
+            }
+            device = SkNEW_ARGS(SkGpuDevice, (context, texture.get()));
             break;
+        }
 #endif
         case kPDF_Backend:
         default:
@@ -288,23 +222,32 @@ static SkDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
     return device;
 }
 
+#if SK_SUPPORT_GPU
+GrContextFactory gContextFactory;
+typedef GrContextFactory::GLContextType GLContextType;
+static const GLContextType kDontCareGLCtxType = GrContextFactory::kNative_GLContextType;
+#else
+typedef int GLContextType;
+static const GLContextType kDontCareGLCtxType = 0;
+#endif
+
 static const struct {
     SkBitmap::Config    fConfig;
     const char*         fName;
     Backend             fBackend;
-    GLHelper*           fGLHelper;
+    GLContextType       fContextType;
 } gConfigs[] = {
-    { SkBitmap::kARGB_8888_Config,  "8888",     kRaster_Backend, NULL },
-    { SkBitmap::kRGB_565_Config,    "565",      kRaster_Backend, NULL },
+    { SkBitmap::kARGB_8888_Config,  "8888",     kRaster_Backend, kDontCareGLCtxType },
+    { SkBitmap::kRGB_565_Config,    "565",      kRaster_Backend, kDontCareGLCtxType },
 #if SK_SUPPORT_GPU
-    { SkBitmap::kARGB_8888_Config,  "GPU",      kGPU_Backend, &gRealGLHelper },
+    { SkBitmap::kARGB_8888_Config,  "GPU",      kGPU_Backend, GrContextFactory::kNative_GLContextType },
 #if SK_ANGLE
-    { SkBitmap::kARGB_8888_Config,  "ANGLE",    kGPU_Backend, &gANGLEGLHelper },
+    { SkBitmap::kARGB_8888_Config,  "ANGLE",    kGPU_Backend, GrContextFactory::kANGLE_GLContextType },
 #endif // SK_ANGLE
 #ifdef SK_DEBUG
-    { SkBitmap::kARGB_8888_Config,  "Debug",    kGPU_Backend, &gDebugGLHelper },
+    { SkBitmap::kARGB_8888_Config,  "Debug",    kGPU_Backend, GrContextFactory::kDebug_GLContextType },
 #endif // SK_DEBUG
-    { SkBitmap::kARGB_8888_Config,  "NULLGPU",  kGPU_Backend, &gNullGLHelper },
+    { SkBitmap::kARGB_8888_Config,  "NULLGPU",  kGPU_Backend, GrContextFactory::kNull_GLContextType },
 #endif // SK_SUPPORT_GPU
 };
 
@@ -315,23 +258,6 @@ static int findConfig(const char config[]) {
         }
     }
     return -1;
-}
-
-static void determine_gpu_context_size(SkTDict<const char*>& defineDict,
-                                       int* contextWidth,
-                                       int* contextHeight) {
-    Iter iter(&defineDict);
-    SkBenchmark* bench;
-    while ((bench = iter.next()) != NULL) {
-        SkIPoint dim = bench->getSize();
-        if (*contextWidth < dim.fX) {
-            *contextWidth = dim.fX;
-        }
-        if (*contextHeight < dim.fY) {
-            *contextHeight = dim.fY;
-        }
-        bench->unref();
-    }
 }
 
 static bool skip_name(const SkTDArray<const char*> array, const char name[]) {
@@ -429,7 +355,6 @@ int tool_main(int argc, char** argv) {
 
     SkString outDir;
     SkBitmap::Config outConfig = SkBitmap::kNo_Config;
-    GLHelper* glHelper = NULL;
     const char* configName = "";
     Backend backend = kRaster_Backend;  // for warning
     SkTDArray<int> configs;
@@ -694,26 +619,19 @@ int tool_main(int argc, char** argv) {
         logger.logProgress(str);
     }
 
-    SkGLContext* timerCtx = NULL;
-    //Don't do GL when fixed.
-#if !defined(SK_SCALAR_IS_FIXED) && SK_SUPPORT_GPU
-    int contextWidth = 1024;
-    int contextHeight = 1024;
-    determine_gpu_context_size(defineDict, &contextWidth, &contextHeight);
-    SkAutoTUnref<SkGLContext> realGLCtx(new SkNativeGLContext);
-    SkAutoTUnref<SkGLContext> nullGLCtx(new SkNullGLContext);
-    SkAutoTUnref<SkGLContext> debugGLCtx(new SkDebugGLContext);
-    gRealGLHelper.init(realGLCtx.get(), contextWidth, contextHeight);
-    gNullGLHelper.init(nullGLCtx.get(), contextWidth, contextHeight);
-    gDebugGLHelper.init(debugGLCtx.get(), contextWidth, contextHeight);
-#if SK_ANGLE
-    SkAutoTUnref<SkGLContext> angleGLCtx(new SkANGLEGLContext);
-    gANGLEGLHelper.init(angleGLCtx.get(), contextWidth, contextHeight);
-#endif // SK_ANGLE
-    timerCtx = gRealGLHelper.glContext();
-#endif // !defined(SK_SCALAR_IS_FIXED) && SK_SUPPORT_GPU
+    SkTArray<BenchTimer*> timers(SK_ARRAY_COUNT(gConfigs));
+    for (int i = 0; i < SK_ARRAY_COUNT(gConfigs); ++i) {
+#if SK_SUPPORT_GPU
+        SkGLContext* ctx = NULL;
+        if (kGPU_Backend == gConfigs[i].fBackend) {
+            ctx = gContextFactory.getGLContext(gConfigs[i].fContextType);
+        }
+        timers.push_back(SkNEW_ARGS(BenchTimer, (ctx)));
+#else
+        timers.push_back(SkNEW(BenchTimer));
+#endif
+    }
 
-    BenchTimer timer = BenchTimer(timerCtx);
     Iter iter(&defineDict);
     SkBenchmark* bench;
     while ((bench = iter.next()) != NULL) {
@@ -758,15 +676,20 @@ int tool_main(int argc, char** argv) {
             outConfig = gConfigs[configIndex].fConfig;
             configName = gConfigs[configIndex].fName;
             backend = gConfigs[configIndex].fBackend;
-            glHelper = gConfigs[configIndex].fGLHelper;
+            GrContext* context = NULL;
+            SkGLContext* glContext = NULL;
+            BenchTimer* timer = timers[configIndex];
 
 #if SK_SUPPORT_GPU
-            if (kGPU_Backend == backend &&
-                (NULL == glHelper || !glHelper->isValid())) {
-                continue;
+            if (kGPU_Backend == backend) {
+                context = gContextFactory.get(gConfigs[configIndex].fContextType);
+                if (NULL == context) {
+                    continue;
+                }
+                glContext = gContextFactory.getGLContext(gConfigs[configIndex].fContextType);
             }
 #endif
-            SkDevice* device = make_device(outConfig, dim, backend, glHelper);
+            SkDevice* device = make_device(outConfig, dim, backend, context);
             SkCanvas* canvas = NULL;
             SkPicture pictureRecordFrom;
             SkPicture pictureRecordTo;
@@ -817,9 +740,9 @@ int tool_main(int argc, char** argv) {
             // warm up caches if needed
             if (repeatDraw > 1) {
 #if SK_SUPPORT_GPU
-                if (glHelper) {
-                    // purge the GPU resources to reduce variance
-                    glHelper->grContext()->freeGpuResources();
+                // purge the GPU resources to reduce variance
+                if (NULL != context) {
+                    context->freeGpuResources();
                 }
 #endif
                 SkAutoCanvasRestore acr(canvas, true);
@@ -835,9 +758,9 @@ int tool_main(int argc, char** argv) {
                     canvas->flush();
                 }
 #if SK_SUPPORT_GPU
-                if (glHelper) {
-                    glHelper->grContext()->flush();
-                    SK_GL(*glHelper->glContext(), Finish());
+                if (NULL != context) {
+                    context->flush();
+                    SK_GL(*glContext, Finish());
                 }
 #endif
             }
@@ -848,12 +771,12 @@ int tool_main(int argc, char** argv) {
                 if ((benchMode == kRecord_benchModes
                      || benchMode == kPictureRecord_benchModes)) {
                     // This will clear the recorded commands so that they do not
-                    // acculmulate.
+                    // accumulate.
                     canvas = pictureRecordTo.beginRecording(dim.fX, dim.fY,
                         SkPicture::kUsePathBoundsForClip_RecordingFlag);
                 }
 
-                timer.start();
+                timer->start();
                 SkAutoCanvasRestore acr(canvas, true);
                 if (benchMode == kPictureRecord_benchModes) {
                     pictureRecordFrom.draw(canvas);
@@ -869,24 +792,25 @@ int tool_main(int argc, char** argv) {
 
                 // stop the truncated timer after the last canvas call but
                 // don't wait for all the GL calls to complete
-                timer.truncatedEnd();
+                timer->truncatedEnd();
 #if SK_SUPPORT_GPU
-                if (glHelper) {
-                    glHelper->grContext()->flush();
-                    SK_GL(*glHelper->glContext(), Finish());
+                if (NULL != glContext) {
+                    context->flush();
+                    SK_GL(*glContext, Finish());
                 }
 #endif
                 // stop the inclusive and gpu timers once all the GL calls
                 // have completed
-                timer.end();
+                timer->end();
 
-                timerData.appendTimes(&timer, repeatDraw - 1 == i);
+                timerData.appendTimes(timer, repeatDraw - 1 == i);
 
             }
             if (repeatDraw > 1) {
                 SkString result = timerData.getResult(logPerIter, printMin, repeatDraw, configName,
                                                       timerWall, truncatedTimerWall, timerCpu,
-                                                      truncatedTimerCpu, timerGpu && glHelper);
+                                                      truncatedTimerCpu,
+                                                      timerGpu && NULL != context);
                 logger.logProgress(result);
             }
             if (outDir.size() > 0) {
@@ -899,17 +823,22 @@ int tool_main(int argc, char** argv) {
     }
 #if SK_SUPPORT_GPU
 #if GR_CACHE_STATS
-    gRealGLHelper.grContext()->printCacheStats();
+    for (int i = 0; i <= GrContextFactory::kLastGLContextType; ++i) {
+        GrContextFactory::GLContextType ctxType = (GrContextFactory::GLContextType)i;
+        GrContext* context = gContextFactory.get(ctxType);
+        if (NULL != context) {
+            SkDebugf("Cache Stats for %s context:\n", GrContextFactory::GLContextTypeName(ctxType));
+            context->printCacheStats();
+            SkDebugf("\n");
+        }
+    }
 #endif
-
-    // need to clean up here rather than post-main to allow leak detection to work
-    gRealGLHelper.cleanup();
-    gDebugGLHelper.cleanup();
-    gNullGLHelper.cleanup();
-#if SK_ANGLE
-    gANGLEGLHelper.cleanup();
-#endif // SK_ANGLE
+    // Destroy the GrContext before the inst tracking printing at main() exit occurs.
+    gContextFactory.destroyContexts();
 #endif
+    for (int i = 0; i < SK_ARRAY_COUNT(gConfigs); ++i) {
+        SkDELETE(timers[i]);
+    }
 
     return 0;
 }

@@ -28,7 +28,7 @@
  * factory is destroyed (though the caller can always grab a ref on the returned
  * GrContext to make it outlive the factory).
  */
-class GrContextFactory  : GrNoncopyable {
+class GrContextFactory : GrNoncopyable {
 public:
     /**
      * Types of GL contexts supported.
@@ -56,6 +56,27 @@ public:
                 return false;
             default:
                 return true;
+        }
+    }
+
+    static const char* GLContextTypeName(GLContextType type) {
+        switch (type) {
+            case kNative_GLContextType:
+                return "native";
+            case kNull_GLContextType:
+                return "null";
+#if SK_ANGLE
+            case kANGLE_GLContextType:
+                return "angle";
+#endif
+#if SK_MESA
+            case kMESA_GLContextType:
+                return "mesa";
+#endif
+            case kDebug_GLContextType:
+                return "debug";
+            default:
+                GrCrash("Unknown GL Context type.");
         }
     }
 
