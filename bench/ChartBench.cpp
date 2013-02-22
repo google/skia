@@ -94,6 +94,8 @@ public:
     ChartBench(void* param, bool aa) : SkBenchmark(param) {
         fShift = 0;
         fAA = aa;
+        fSize.fWidth = -1;
+        fSize.fHeight = -1;
     }
 
 protected:
@@ -115,18 +117,17 @@ protected:
         SkScalar ySpread = SkIntToScalar(fSize.fHeight / 20);
 
         SkScalar height = SkIntToScalar(fSize.fHeight);
+        if (sizeChanged) {
+            int dataPointCount = SkMax32(fSize.fWidth / kPixelsPerTick + 1, 2);
+
+            for (int i = 0; i < kNumGraphs; ++i) {
+                SkScalar y = (kNumGraphs - i) * (height - ySpread) / (kNumGraphs + 1);
+                fData[i].reset();
+                gen_data(y, ySpread, dataPointCount, fData + i);
+            }
+        }
 
         for (int frame = 0; frame < kFramesPerRun; ++frame) {
-            if (sizeChanged) {
-                int dataPointCount = SkMax32(fSize.fWidth / kPixelsPerTick + 1, 2);
-
-                for (int i = 0; i < kNumGraphs; ++i) {
-                    SkScalar y = (kNumGraphs - i) * (height - ySpread) / (kNumGraphs + 1);
-                    fData[i].reset();
-                    gen_data(y, ySpread, dataPointCount, fData + i);
-                }
-                sizeChanged = false;
-            }
 
             canvas->clear(0xFFE0F0E0);
 
