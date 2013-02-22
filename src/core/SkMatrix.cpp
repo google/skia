@@ -888,7 +888,6 @@ bool SkMatrix::invertNonIdentity(SkMatrix* inv) const {
 
     TypeMask mask = this->getType();
 
-#ifndef SK_IGNORE_FAST_SCALEMATRIX_INVERT
     if (0 == (mask & ~(kScale_Mask | kTranslate_Mask))) {
         bool invertible = true;
         if (inv) {
@@ -925,7 +924,6 @@ bool SkMatrix::invertNonIdentity(SkMatrix* inv) const {
         }
         return invertible;
     }
-#endif
 
     int         isPersp = mask & kPerspective_Mask;
     int         shift;

@@ -230,11 +230,6 @@ private:
 
 bool SkDashPathEffect::filterPath(SkPath* dst, const SkPath& src,
                               SkStrokeRec* rec, const SkRect* cullRect) const {
-
-#ifdef SK_IGNORE_LARGE_DASH_OPT
-    cullRect = NULL;
-#endif
-
     // we do nothing if the src wants to be filled, or if our dashlength is 0
     if (rec->isFillStyle() || fInitialDashLength < 0) {
         return false;

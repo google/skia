@@ -257,17 +257,11 @@ void SkPathStroker::quad_to(const SkPoint pts[3],
     } else {
         SkVector    normalB;
 
-#ifdef SK_IGNORE_QUAD_STROKE_FIX
-        SkVector unitB;
-        SkAssertResult(set_normal_unitnormal(pts[0], pts[2], fRadius,
-                                             &normalB, &unitB));
-#else
         normalB = pts[2] - pts[0];
         normalB.rotateCCW();
         SkScalar dot = SkPoint::DotProduct(unitNormalAB, *unitNormalBC);
         SkAssertResult(normalB.setLength(SkScalarDiv(fRadius,
                                      SkScalarSqrt((SK_Scalar1 + dot)/2))));
-#endif
 
         fOuter.quadTo(  pts[1].fX + normalB.fX, pts[1].fY + normalB.fY,
                         pts[2].fX + normalBC->fX, pts[2].fY + normalBC->fY);
