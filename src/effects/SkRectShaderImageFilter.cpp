@@ -56,4 +56,3 @@ bool SkRectShaderImageFilter::onFilterImage(Proxy* proxy,
     *result = device.get()->accessBitmap(false);
     return true;
 }
-
