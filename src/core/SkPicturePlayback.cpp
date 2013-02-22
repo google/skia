@@ -409,7 +409,7 @@ void SkPicturePlayback::flattenToBuffer(SkOrderedWriteBuffer& buffer) const {
 }
 
 void SkPicturePlayback::serialize(SkWStream* stream,
-                                  SkSerializationHelpers::EncodeBitmap encoder) const {
+                                  SkPicture::EncodeBitmap encoder) const {
     writeTagSize(stream, PICT_READER_TAG, fOpData->size());
     stream->write(fOpData->bytes(), fOpData->size());
 

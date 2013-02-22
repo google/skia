@@ -12,7 +12,6 @@
 
 #include "SkBitmap.h"
 #include "SkRefCnt.h"
-#include "SkSerializationHelpers.h"
 
 class SkBBoxHierarchy;
 class SkCanvas;
@@ -161,10 +160,19 @@ public:
     int height() const { return fHeight; }
 
     /**
+     *  Function to encode an SkBitmap to an SkWStream. A function with this
+     *  signature can be passed to serialize() and SkOrderedWriteBuffer. The
+     *  function should return true if it succeeds. Otherwise it should return
+     *  false so that SkOrderedWriteBuffer can switch to another method of
+     *  storing SkBitmaps.
+     */
+    typedef bool (*EncodeBitmap)(SkWStream*, const SkBitmap&);
+
+    /**
      *  Serialize to a stream. If non NULL, encoder will be used to encode
      *  any bitmaps in the picture.
      */
-    void serialize(SkWStream*, SkSerializationHelpers::EncodeBitmap encoder = NULL) const;
+    void serialize(SkWStream*, EncodeBitmap encoder = NULL) const;
 
 #ifdef SK_BUILD_FOR_ANDROID
     /** Signals that the caller is prematurely done replaying the drawing

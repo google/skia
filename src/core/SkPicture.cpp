@@ -307,7 +307,7 @@ void SkPicture::initFromStream(SkStream* stream, bool* success, InstallPixelRefP
     }
 }
 
-void SkPicture::serialize(SkWStream* stream, SkSerializationHelpers::EncodeBitmap encoder) const {
+void SkPicture::serialize(SkWStream* stream, EncodeBitmap encoder) const {
     SkPicturePlayback* playback = fPlayback;
 
     if (NULL == playback && fRecord) {
