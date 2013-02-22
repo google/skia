@@ -146,7 +146,7 @@ public:
     SkTimedPicturePlayback(SkStream* stream, const SkPictInfo& info, bool* isValid,
                            SkPicture::InstallPixelRefProc proc, const SkTDArray<size_t>& offsets,
                            const SkTDArray<bool>& deletedCommands)
-        : INHERITED(stream, info, isValid, decoder)
+        : INHERITED(stream, info, isValid, proc)
         , fOffsets(offsets)
         , fSkipCommands(deletedCommands)
         , fTot(0.0)
@@ -250,7 +250,7 @@ private:
 // Wrap SkPicture to allow installation of an SkTimedPicturePlayback object
 class SkTimedPicture : public SkPicture {
 public:
-    explicit SkTimedPicture(SkStream* stream, bool* success, SkPicture::InstallPixelRefProc,
+    explicit SkTimedPicture(SkStream* stream, bool* success, SkPicture::InstallPixelRefProc proc,
                             const SkTDArray<size_t>& offsets,
                             const SkTDArray<bool>& deletedCommands) {
         if (success) {
@@ -272,7 +272,7 @@ public:
         if (stream->readBool()) {
             bool isValid = false;
             fPlayback = SkNEW_ARGS(SkTimedPicturePlayback,
-                                   (stream, info, &isValid, decoder, offsets, deletedCommands));
+                                   (stream, info, &isValid, proc, offsets, deletedCommands));
             if (!isValid) {
                 SkDELETE(fPlayback);
                 fPlayback = NULL;
@@ -926,7 +926,7 @@ class SkOffsetPicturePlayback : public SkPicturePlayback {
 public:
     SkOffsetPicturePlayback(SkStream* stream, const SkPictInfo& info, bool* isValid,
                             SkPicture::InstallPixelRefProc proc)
-        : INHERITED(stream, info, isValid, decoder) {
+        : INHERITED(stream, info, isValid, proc) {
     }
 
     const SkTDArray<size_t>& offsets() const { return fOffsets; }
@@ -965,7 +965,7 @@ public:
 
         if (stream->readBool()) {
             bool isValid = false;
-            fPlayback = SkNEW_ARGS(SkOffsetPicturePlayback, (stream, info, &isValid, decoder));
+            fPlayback = SkNEW_ARGS(SkOffsetPicturePlayback, (stream, info, &isValid, proc));
             if (!isValid) {
                 SkDELETE(fPlayback);
                 fPlayback = NULL;
