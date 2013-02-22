@@ -745,9 +745,7 @@ protected:
         add_corner_arc(path, r, xCorner, yCorner, 180);
         path->close();
 
-#ifndef SK_IGNORE_CONVEX_QUAD_OPT
         SkASSERT(path->isConvex());
-#endif
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
