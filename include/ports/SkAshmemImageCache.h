@@ -70,4 +70,3 @@ private:
     void removeRec(AshmemRec*);
 };
 #endif // SkAshmemImageCache_DEFINED
-
