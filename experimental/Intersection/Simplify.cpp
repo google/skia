@@ -3696,7 +3696,7 @@ the same winding is shared by both.
 #endif
         return result;
     }
-    
+
     void subDivide(int start, int end, SkPoint edge[4]) const {
         edge[0] = fTs[start].fPt;
         edge[fVerb] = fTs[end].fPt;
@@ -4401,7 +4401,7 @@ public:
         setBounds();
         fContainsIntercepts = false;
     }
-    
+
     bool containsCubics() const {
         return fContainsCubics;
     }

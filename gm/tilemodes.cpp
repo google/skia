@@ -252,4 +252,3 @@ private:
 DEF_GM( return new TilingGM; )
 DEF_GM( return new Tiling2GM(make_bm, "bitmap"); )
 DEF_GM( return new Tiling2GM(make_grad, "gradient"); )
-
