@@ -132,7 +132,7 @@ private:
 
     struct Key {
         int compare(const HashedKey& hashedKey) const {
-            return fHashedKey.compare(fHashedKey);
+            return fHashedKey.compare(hashedKey);
         }
 
         HashedKey fHashedKey;
