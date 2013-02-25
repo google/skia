@@ -5,247 +5,343 @@
  * found in the LICENSE file.
  */
 
+/* Derived from chromium's skia/ext/SkFontHost_fontconfig.cpp */
+
 #include <map>
 #include <string>
 
-#include <fontconfig/fontconfig.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
+#include "SkFontConfigInterface.h"
+#include "SkFontDescriptor.h"
 #include "SkFontHost.h"
 #include "SkStream.h"
 
-/** An extern from SkFontHost_FreeType. */
-SkTypeface::Style find_name_and_style(SkStream* stream, SkString* name);
+SK_DECLARE_STATIC_MUTEX(gFontConfigInterfaceMutex);
+static SkFontConfigInterface* gFontConfigInterface;
 
-/** This lock must be held while modifying global_fc_* globals. */
-SK_DECLARE_STATIC_MUTEX(global_fc_map_lock);
+SkFontConfigInterface* SkFontConfigInterface::RefGlobal() {
+    SkAutoMutexAcquire ac(gFontConfigInterfaceMutex);
+    
+    return SkSafeRef(gFontConfigInterface);
+}
 
-/** Map from file names to file ids. */
-static std::map<std::string, unsigned> global_fc_map;
-/** Map from file ids to file names. */
-static std::map<unsigned, std::string> global_fc_map_inverted;
-/** The next file id. */
-static unsigned global_fc_map_next_id = 0;
+SkFontConfigInterface* SkFontConfigInterface::SetGlobal(SkFontConfigInterface* fc) {
+    SkAutoMutexAcquire ac(gFontConfigInterfaceMutex);
 
-/**
- * Check to see if the filename has already been assigned a fileid and, if so, use it.
- * Otherwise, assign one. Return the resulting fileid.
- */
-static unsigned FileIdFromFilename(const char* filename) {
-    SkAutoMutexAcquire ac(global_fc_map_lock);
+    SkRefCnt_SafeAssign(gFontConfigInterface, fc);
+    return fc;
+}
 
-    std::map<std::string, unsigned>::const_iterator i = global_fc_map.find(filename);
-    if (i == global_fc_map.end()) {
-        const unsigned fileid = global_fc_map_next_id++;
-        global_fc_map[filename] = fileid;
-        global_fc_map_inverted[fileid] = filename;
-        return fileid;
-    } else {
-        return i->second;
+///////////////////////////////////////////////////////////////////////////////
+
+SK_DECLARE_STATIC_MUTEX(global_remote_font_map_lock);
+static std::map<uint32_t, std::pair<uint8_t*, size_t> >* global_remote_fonts;
+
+// Initialize the map declared above. Note that its corresponding mutex must be
+// locked before calling this function.
+static void AllocateGlobalRemoteFontsMapOnce() {
+    if (!global_remote_fonts) {
+        global_remote_fonts =
+            new std::map<uint32_t, std::pair<uint8_t*, size_t> >();
     }
 }
 
-static unsigned FileIdFromUniqueId(unsigned uniqueid) {
+static unsigned global_next_remote_font_id;
+
+// This is the maximum size of the font cache.
+static const unsigned kFontCacheMemoryBudget = 2 * 1024 * 1024;  // 2MB
+
+// UniqueIds are encoded as (filefaceid << 8) | style
+// For system fonts, filefaceid = (fileid << 4) | face_index.
+// For remote fonts, filefaceid = fileid.
+
+static unsigned UniqueIdToFileFaceId(unsigned uniqueid)
+{
     return uniqueid >> 8;
 }
 
-static SkTypeface::Style StyleFromUniqueId(unsigned uniqueid) {
+static SkTypeface::Style UniqueIdToStyle(unsigned uniqueid)
+{
     return static_cast<SkTypeface::Style>(uniqueid & 0xff);
 }
 
-static unsigned UniqueIdFromFileIdAndStyle(unsigned fileid, SkTypeface::Style style) {
+static unsigned FileFaceIdAndStyleToUniqueId(unsigned filefaceid,
+                                             SkTypeface::Style style)
+{
     SkASSERT((style & 0xff) == style);
-    return (fileid << 8) | static_cast<int>(style);
+    return (filefaceid << 8) | static_cast<int>(style);
+}
+
+static const unsigned kRemoteFontMask = 0x00800000u;
+
+static bool IsRemoteFont(unsigned filefaceid)
+{
+    return filefaceid & kRemoteFontMask;
 }
 
 class FontConfigTypeface : public SkTypeface {
 public:
-    FontConfigTypeface(Style style, uint32_t id) : SkTypeface(style, id) { }
-};
+    FontConfigTypeface(Style style, uint32_t id)
+        : SkTypeface(style, id)
+    { }
 
-/**
- * Find a matching font where @type (one of FC_*) is equal to @value. For a
- * list of types, see http://fontconfig.org/fontconfig-devel/x19.html#AEN27.
- * The variable arguments are a list of triples, just like the first three
- * arguments, and must be NULL terminated.
- *
- * For example,
- *   FontMatchString(FC_FILE, FcTypeString, "/usr/share/fonts/myfont.ttf", NULL);
- */
-static FcPattern* FontMatch(const char* type, FcType vtype, const void* value, ...) {
-    va_list ap;
-    va_start(ap, value);
-
-    FcPattern* pattern = FcPatternCreate();
-
-    for (;;) {
-        FcValue fcvalue;
-        fcvalue.type = vtype;
-        switch (vtype) {
-            case FcTypeString:
-                fcvalue.u.s = (FcChar8*) value;
-                break;
-            case FcTypeInteger:
-                fcvalue.u.i = (int)(intptr_t)value;
-                break;
-            default:
-                SkDEBUGFAIL("FontMatch unhandled type");
+    virtual ~FontConfigTypeface()
+    {
+        const uint32_t id = uniqueID();
+        if (IsRemoteFont(UniqueIdToFileFaceId(id))) {
+            SkAutoMutexAcquire ac(global_remote_font_map_lock);
+            AllocateGlobalRemoteFontsMapOnce();
+            std::map<uint32_t, std::pair<uint8_t*, size_t> >::iterator iter
+                = global_remote_fonts->find(id);
+            if (iter != global_remote_fonts->end()) {
+                sk_free(iter->second.first);  // remove the font on memory.
+                global_remote_fonts->erase(iter);
+            }
         }
-        FcPatternAdd(pattern, type, fcvalue, FcFalse);
-
-        type = va_arg(ap, const char *);
-        if (!type)
-            break;
-        // FcType is promoted to int when passed through ...
-        vtype = static_cast<FcType>(va_arg(ap, int));
-        value = va_arg(ap, const void *);
-    };
-    va_end(ap);
-
-    FcConfigSubstitute(NULL, pattern, FcMatchPattern);
-    FcDefaultSubstitute(pattern);
-
-    FcResult result;
-    FcPattern* match = FcFontMatch(NULL, pattern, &result);
-    FcPatternDestroy(pattern);
-
-    return match;
-}
+    }
+};
 
 // static
 SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
                                        const char familyName[],
                                        SkTypeface::Style style)
 {
-    const char* resolved_family_name = NULL;
-    FcPattern* face_match = NULL;
-
-    {
-        SkAutoMutexAcquire ac(global_fc_map_lock);
-        if (FcTrue != FcInit()) {
-            SkASSERT(false && "Could not initialize fontconfig.");
-        }
-    }
+    std::string resolved_family_name;
 
     if (familyFace) {
-        // Here we use the inverted global id map to find the filename from the
-        // SkTypeface object. Given the filename we can ask fontconfig for the
-        // familyname of the font.
-        SkAutoMutexAcquire ac(global_fc_map_lock);
-
-        const unsigned fileid = FileIdFromUniqueId(familyFace->uniqueID());
-        std::map<unsigned, std::string>::const_iterator i = global_fc_map_inverted.find(fileid);
-        if (i == global_fc_map_inverted.end()) {
+        // Given the fileid we can ask fontconfig for the familyname of the
+        // font.
+        const unsigned filefaceid = UniqueIdToFileFaceId(familyFace->uniqueID());
+        if (!GetFcImpl()->Match(&resolved_family_name, NULL,
+          true /* filefaceid valid */, filefaceid, "",
+          NULL, 0, NULL, NULL)) {
             return NULL;
         }
-
-        face_match = FontMatch(FC_FILE, FcTypeString, i->second.c_str(), NULL);
-        if (!face_match) {
-            return NULL;
-        }
-
-        FcChar8* family;
-        if (FcPatternGetString(face_match, FC_FAMILY, 0, &family)) {
-            FcPatternDestroy(face_match);
-            return NULL;
-        }
-        // At this point, @family is pointing into the @face_match object so we
-        // cannot release it yet.
-
-        resolved_family_name = reinterpret_cast<char*>(family);
     } else if (familyName) {
         resolved_family_name = familyName;
     }
 
-    const int bold = (style & SkTypeface::kBold) ? FC_WEIGHT_BOLD : FC_WEIGHT_NORMAL;
-    const int italic = (style & SkTypeface::kItalic) ? FC_SLANT_ITALIC : FC_SLANT_ROMAN;
-
-    FcPattern* match;
-    if (resolved_family_name) {
-        match = FontMatch(FC_FAMILY, FcTypeString, resolved_family_name,
-                          FC_WEIGHT, FcTypeInteger, bold,
-                          FC_SLANT, FcTypeInteger, italic,
-                          NULL);
-    } else {
-        match = FontMatch(FC_WEIGHT, FcTypeInteger, reinterpret_cast<void*>(bold),
-                          FC_SLANT, FcTypeInteger, italic,
-                          NULL);
-    }
-
-    if (face_match)
-        FcPatternDestroy(face_match);
-
-    if (!match)
-        return NULL;
-
-    FcChar8* filename;
-    if (FcPatternGetString(match, FC_FILE, 0, &filename) != FcResultMatch) {
-        FcPatternDestroy(match);
+    bool bold = style & SkTypeface::kBold;
+    bool italic = style & SkTypeface::kItalic;
+    unsigned filefaceid;
+    if (!GetFcImpl()->Match(NULL, &filefaceid,
+                            false, -1, /* no filefaceid */
+                            resolved_family_name, NULL, 0,
+                            &bold, &italic)) {
         return NULL;
     }
-    // Now @filename is pointing into @match
+    const SkTypeface::Style resulting_style = static_cast<SkTypeface::Style>(
+        (bold ? SkTypeface::kBold : 0) |
+        (italic ? SkTypeface::kItalic : 0));
 
-    const unsigned fileid = FileIdFromFilename(reinterpret_cast<char*>(filename));
-    const unsigned id = UniqueIdFromFileIdAndStyle(fileid, style);
-    SkTypeface* typeface = SkNEW_ARGS(FontConfigTypeface, (style, id));
-    FcPatternDestroy(match);
-
+    const unsigned id = FileFaceIdAndStyleToUniqueId(filefaceid,
+                                                     resulting_style);
+    SkTypeface* typeface = SkNEW_ARGS(FontConfigTypeface, (resulting_style, id));
     return typeface;
 }
 
 // static
-SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
-    SkDEBUGFAIL("SkFontHost::CreateTypefaceFromStream unimplemented");
-    return NULL;
-}
+SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream)
+{
+    if (!stream)
+        return NULL;
 
-// static
-SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
-    SkDEBUGFAIL("SkFontHost::CreateTypefaceFromFile unimplemented");
-    return NULL;
-}
+    const size_t length = stream->read(0, 0);
+    if (!length)
+        return NULL;
+    if (length >= 1024 * 1024 * 1024)
+        return NULL;  // don't accept too large fonts (>= 1GB) for safety.
 
-// static
-SkStream* SkFontHost::OpenStream(uint32_t id) {
-    SkAutoMutexAcquire ac(global_fc_map_lock);
-    const unsigned fileid = FileIdFromUniqueId(id);
-
-    std::map<unsigned, std::string>::const_iterator i = global_fc_map_inverted.find(fileid);
-    if (i == global_fc_map_inverted.end()) {
+    uint8_t* font = (uint8_t*)sk_malloc_throw(length);
+    if (stream->read(font, length) != length) {
+        sk_free(font);
         return NULL;
     }
 
-    return SkNEW_ARGS(SkFILEStream, (i->second.c_str()));
-}
+    SkTypeface::Style style = static_cast<SkTypeface::Style>(0);
+    unsigned id = 0;
+    {
+        SkAutoMutexAcquire ac(global_remote_font_map_lock);
+        AllocateGlobalRemoteFontsMapOnce();
+        id = FileFaceIdAndStyleToUniqueId(
+            global_next_remote_font_id | kRemoteFontMask, style);
 
-size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length, int32_t* index) {
-    SkAutoMutexAcquire ac(global_fc_map_lock);
-    const unsigned fileid = FileIdFromUniqueId(fontID);
+        if (++global_next_remote_font_id >= kRemoteFontMask)
+            global_next_remote_font_id = 0;
 
-    std::map<unsigned, std::string>::const_iterator i = global_fc_map_inverted.find(fileid);
-    if (i == global_fc_map_inverted.end()) {
-        return 0;
+        if (!global_remote_fonts->insert(
+                std::make_pair(id, std::make_pair(font, length))).second) {
+            sk_free(font);
+            return NULL;
+        }
     }
 
-    const std::string& str = i->second;
-    if (path) {
-        memcpy(path, str.c_str(), SkMin32(str.size(), length));
-    }
-    if (index) {    // TODO: check if we're in a TTC
-        *index = 0;
-    }
-    return str.size();
+    SkTypeface* typeface = SkNEW_ARGS(FontConfigTypeface, (style, id));
+    return typeface;
 }
 
-void SkFontHost::Serialize(const SkTypeface*, SkWStream*) {
-    SkDEBUGFAIL("SkFontHost::Serialize unimplemented");
-}
-
-SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
-    SkDEBUGFAIL("SkFontHost::Deserialize unimplemented");
+// static
+SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[])
+{
+    SkASSERT(!"SkFontHost::CreateTypefaceFromFile unimplemented");
     return NULL;
 }
 
-SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
+uint32_t SkFontHost::NextLogicalFont(SkFontID curr, SkFontID orig) {
     // We don't handle font fallback, WebKit does.
+    return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+// Serialize, Deserialize need to be compatible across platforms, hence the use
+// of SkFontDescriptor.
+
+void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
+    SkFontDescriptor desc(face->style());
+
+    std::string resolved_family_name;
+
+    const unsigned filefaceid = UniqueIdToFileFaceId(face->uniqueID());
+    if (GetFcImpl()->Match(&resolved_family_name, NULL,
+            true /* filefaceid valid */, filefaceid, "", NULL, 0, NULL, NULL))
+        desc.setFamilyName(resolved_family_name.c_str());
+    else
+        desc.setFamilyName("sans-serif");
+
+    // would also like other names (see SkFontDescriptor.h)
+
+    desc.serialize(stream);
+    
+    // by convention, we also write out the actual sfnt data, preceeded by
+    // a packed-length. For now we skip that, so we just write the zero.
+    stream->writePackedUInt(0);
+}
+
+SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
+    SkFontDescriptor desc(stream);
+
+    // by convention, Serialize will have also written the actual sfnt data.
+    // for now, we just want to skip it.
+    size_t size = stream->readPackedUInt();
+    stream->skip(size);
+
+    return SkFontHost::CreateTypeface(NULL, desc.getFamilyName(),
+                                      desc.getStyle());
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+class SkFileDescriptorStream : public SkStream {
+  public:
+    SkFileDescriptorStream(int fd) {
+        memory_ = NULL;
+        offset_ = 0;
+
+        // this ensures that if we fail in the constructor, we will safely
+        // ignore all subsequent calls to read() because we will always trim
+        // the requested size down to 0
+        length_ = 0;
+
+        struct stat st;
+        if (fstat(fd, &st))
+            return;
+
+        void* memory = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
+        close(fd);
+        if (memory == MAP_FAILED)
+            return;
+
+        memory_ = reinterpret_cast<uint8_t*>(memory);
+        length_ = st.st_size;
+    }
+
+    virtual ~SkFileDescriptorStream() {
+        munmap(const_cast<uint8_t*>(memory_), length_);
+    }
+
+    virtual bool rewind() OVERRIDE {
+        offset_ = 0;
+        return true;
+    }
+
+    // SkStream implementation.
+    virtual size_t read(void* buffer, size_t size) OVERRIDE {
+        if (!buffer && !size) {
+            // This is request for the length of the stream.
+            return length_;
+        }
+
+        size_t remaining = length_ - offset_;
+        if (size > remaining)
+            size = remaining;
+        if (buffer)
+            memcpy(buffer, memory_ + offset_, size);
+
+        offset_ += size;
+        return size;
+    }
+
+    virtual const void* getMemoryBase() OVERRIDE {
+        return memory_;
+    }
+
+  private:
+    const uint8_t* memory_;
+    size_t offset_, length_;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+// static
+SkStream* SkFontHost::OpenStream(uint32_t id)
+{
+    const unsigned filefaceid = UniqueIdToFileFaceId(id);
+
+    if (IsRemoteFont(filefaceid)) {
+      // remote font
+      SkAutoMutexAcquire ac(global_remote_font_map_lock);
+      AllocateGlobalRemoteFontsMapOnce();
+      std::map<uint32_t, std::pair<uint8_t*, size_t> >::const_iterator iter
+          = global_remote_fonts->find(id);
+      if (iter == global_remote_fonts->end())
+          return NULL;
+      return SkNEW_ARGS(
+          SkMemoryStream, (iter->second.first, iter->second.second));
+    }
+
+    // system font
+    const int fd = GetFcImpl()->Open(filefaceid);
+    if (fd < 0)
+        return NULL;
+
+    return SkNEW_ARGS(SkFileDescriptorStream, (fd));
+}
+
+// static
+size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
+                               int32_t* index) {
+    const unsigned filefaceid = UniqueIdToFileFaceId(fontID);
+
+    if (IsRemoteFont(filefaceid))
+        return 0;
+
+    if (index) {
+        *index = filefaceid & 0xfu;
+        // 1 is a bogus return value.
+        // We had better change the signature of this function in Skia
+        // to return bool to indicate success/failure and have another
+        // out param for fileName length.
+        if (!path)
+          return 1;
+    }
+
+    if (path)
+        SkASSERT(!"SkFontHost::GetFileName does not support the font path "
+                  "retrieval.");
+
     return 0;
 }
