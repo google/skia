@@ -7,7 +7,16 @@
  */
 #include "SkStream.h"
 
-#ifndef SK_BUILD_FOR_WIN
+#ifdef SK_BUILD_FOR_WIN
+
+// -1 means isValid() will return false
+SkFDStream::SkFDStream(int, bool) : fFD(-1), fCloseWhenDone(false) {}
+SkFDStream::~SkFDStream() {}
+bool SkFDStream::rewind() { return false; }
+size_t SkFDStream::read(void*, size_t) { return 0; }
+const char* SkFDStream::getFileName() { return NULL; }
+
+#else
 
 #include <unistd.h>
 

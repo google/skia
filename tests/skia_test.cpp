@@ -7,6 +7,7 @@
  */
 #include "SkGraphics.h"
 #include "Test.h"
+#include "SkOSFile.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
@@ -82,6 +83,28 @@ private:
     int fIndex, fTotal;
 };
 
+static const char* make_canonical_dir_path(const char* path, SkString* storage) {
+    if (path) {
+        // clean it up so it always has a trailing searator
+        size_t len = strlen(path);
+        if (0 == len) {
+            path = NULL;
+        } else if (SkPATH_SEPARATOR != path[len - 1]) {
+            // resize to len + 1, to make room for searator
+            storage->set(path, len + 1);
+            storage->writable_str()[len] = SkPATH_SEPARATOR;
+            path = storage->c_str();
+        }
+    }
+    return path;
+}
+
+static const char* gTmpDir;
+
+const char* Test::GetTmpDir() {
+    return gTmpDir;
+}
+
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
 #if SK_ENABLE_INST_COUNT
@@ -97,14 +120,31 @@ int tool_main(int argc, char** argv) {
             ++argv;
             if (argv < stop && **argv) {
                 matchStr = *argv;
+            } else {
+                SkDebugf("no following argument to --match\n");
+                return -1;
+            }
+        } else if (0 == strcmp(*argv, "--tmpDir")) {
+            ++argv;
+            if (argv < stop && **argv) {
+                gTmpDir = *argv;
+            } else {
+                SkDebugf("no following argument to --tmpDir\n");
+                return -1;
             }
         }
     }
+
+    SkString tmpDirStorage;
+    gTmpDir = make_canonical_dir_path(gTmpDir, &tmpDirStorage);
 
     {
         SkString header("Skia UnitTests:");
         if (matchStr) {
             header.appendf(" --match %s", matchStr);
+        }
+        if (gTmpDir) {
+            header.appendf(" --tmpDir %s", gTmpDir);
         }
 #ifdef SK_DEBUG
         header.append(" SK_DEBUG");

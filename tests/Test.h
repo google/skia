@@ -88,6 +88,8 @@ namespace skiatest {
         const char* getName();
         bool run(); // returns true on success
 
+        static const char* GetTmpDir();
+
     protected:
         virtual void onGetName(SkString*) = 0;
         virtual void onRun(Reporter*) = 0;
