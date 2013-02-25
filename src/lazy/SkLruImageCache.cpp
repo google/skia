@@ -62,13 +62,13 @@ SkLruImageCache::~SkLruImageCache() {
     while (pixels != NULL) {
         CachedPixels* prev = iter.prev();
         SkASSERT(!pixels->isLocked());
-#if SK_DEBUG
+#ifdef SK_DEBUG
         fRamUsed -= pixels->getLength();
 #endif
         SkDELETE(pixels);
         pixels = prev;
     }
-#if SK_DEBUG
+#ifdef SK_DEBUG
     SkASSERT(fRamUsed == 0);
 #endif
 }
