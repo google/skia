@@ -62,7 +62,7 @@ public:
     SkPicturePlayback();
     SkPicturePlayback(const SkPicturePlayback& src, SkPictCopyInfo* deepCopyInfo = NULL);
     explicit SkPicturePlayback(const SkPictureRecord& record, bool deepCopy = false);
-    SkPicturePlayback(SkStream*, const SkPictInfo&, bool* isValid, SkPicture::InstallPixelRefProc);
+    SkPicturePlayback(SkStream*, const SkPictInfo&, SkPicture::InstallPixelRefProc);
 
     virtual ~SkPicturePlayback();
 
@@ -189,9 +189,9 @@ public:
 #endif
 
 private:    // these help us with reading/writing
-    bool parseStreamTag(SkStream*, const SkPictInfo&, uint32_t tag, size_t size,
+    void parseStreamTag(SkStream*, const SkPictInfo&, uint32_t tag, size_t size,
                         SkPicture::InstallPixelRefProc);
-    bool parseBufferTag(SkOrderedReadBuffer&, uint32_t tag, size_t size);
+    void parseBufferTag(SkOrderedReadBuffer&, uint32_t tag, size_t size);
     void flattenToBuffer(SkOrderedWriteBuffer&) const;
 
 private:

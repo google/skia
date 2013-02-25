@@ -143,10 +143,10 @@ void SkDebuggerGUI::showDeletes() {
 // offsets to individual commands.
 class SkTimedPicturePlayback : public SkPicturePlayback {
 public:
-    SkTimedPicturePlayback(SkStream* stream, const SkPictInfo& info, bool* isValid,
+    SkTimedPicturePlayback(SkStream* stream, const SkPictInfo& info,
                            SkPicture::InstallPixelRefProc proc, const SkTDArray<size_t>& offsets,
                            const SkTDArray<bool>& deletedCommands)
-        : INHERITED(stream, info, isValid, proc)
+        : INHERITED(stream, info, proc)
         , fOffsets(offsets)
         , fSkipCommands(deletedCommands)
         , fTot(0.0)
@@ -270,14 +270,8 @@ public:
         }
 
         if (stream->readBool()) {
-            bool isValid = false;
             fPlayback = SkNEW_ARGS(SkTimedPicturePlayback,
-                                   (stream, info, &isValid, proc, offsets, deletedCommands));
-            if (!isValid) {
-                SkDELETE(fPlayback);
-                fPlayback = NULL;
-                return;
-            }
+                                   (stream, info, proc, offsets, deletedCommands));
         }
 
         // do this at the end, so that they will be zero if we hit an error.
@@ -924,9 +918,9 @@ void SkDebuggerGUI::setupDirectoryWidget(const QString& path) {
 // These are needed by the profiling system.
 class SkOffsetPicturePlayback : public SkPicturePlayback {
 public:
-    SkOffsetPicturePlayback(SkStream* stream, const SkPictInfo& info, bool* isValid,
+    SkOffsetPicturePlayback(SkStream* stream, const SkPictInfo& info,
                             SkPicture::InstallPixelRefProc proc)
-        : INHERITED(stream, info, isValid, proc) {
+        : INHERITED(stream, info, proc) {
     }
 
     const SkTDArray<size_t>& offsets() const { return fOffsets; }
@@ -964,13 +958,7 @@ public:
         }
 
         if (stream->readBool()) {
-            bool isValid = false;
-            fPlayback = SkNEW_ARGS(SkOffsetPicturePlayback, (stream, info, &isValid, proc));
-            if (!isValid) {
-                SkDELETE(fPlayback);
-                fPlayback = NULL;
-                return;
-            }
+            fPlayback = SkNEW_ARGS(SkOffsetPicturePlayback, (stream, info, proc));
         }
 
         // do this at the end, so that they will be zero if we hit an error.

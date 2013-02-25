@@ -290,13 +290,7 @@ void SkPicture::initFromStream(SkStream* stream, bool* success, InstallPixelRefP
     }
 
     if (stream->readBool()) {
-        bool isValid = false;
-        fPlayback = SkNEW_ARGS(SkPicturePlayback, (stream, info, &isValid, proc));
-        if (!isValid) {
-            SkDELETE(fPlayback);
-            fPlayback = NULL;
-            return;
-        }
+        fPlayback = SkNEW_ARGS(SkPicturePlayback, (stream, info, proc));
     }
 
     // do this at the end, so that they will be zero if we hit an error.
