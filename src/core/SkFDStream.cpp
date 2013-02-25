@@ -8,6 +8,8 @@
 #include "SkStream.h"
 #include <unistd.h>
 
+#ifndef SK_BUILD_FOR_WIN
+
 //#define TRACE_FDSTREAM
 
 SkFDStream::SkFDStream(int fileDesc, bool closeWhenDone)
@@ -89,3 +91,5 @@ size_t SkFDStream::read(void* buffer, size_t size) {
     }
     return 0;
 }
+
+#endif
