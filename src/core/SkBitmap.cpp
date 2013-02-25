@@ -181,7 +181,7 @@ int SkBitmap::ComputeBytesPerPixel(SkBitmap::Config config) {
     return bpp;
 }
 
-int SkBitmap::ComputeRowBytes(Config c, int width) {
+size_t SkBitmap::ComputeRowBytes(Config c, int width) {
     if (width < 0) {
         return 0;
     }
@@ -232,7 +232,7 @@ size_t SkBitmap::ComputeSize(Config c, int width, int height) {
 Sk64 SkBitmap::ComputeSafeSize64(Config config,
                                  uint32_t width,
                                  uint32_t height,
-                                 uint32_t rowBytes) {
+                                 size_t rowBytes) {
     Sk64 safeSize;
     safeSize.setZero();
     if (height > 0) {
@@ -248,7 +248,7 @@ Sk64 SkBitmap::ComputeSafeSize64(Config config,
 size_t SkBitmap::ComputeSafeSize(Config config,
                                  uint32_t width,
                                  uint32_t height,
-                                 uint32_t rowBytes) {
+                                 size_t rowBytes) {
     Sk64 safeSize = ComputeSafeSize64(config, width, height, rowBytes);
     return (safeSize.is32() ? safeSize.get32() : 0);
 }
@@ -266,10 +266,10 @@ void SkBitmap::getBounds(SkIRect* bounds) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkBitmap::setConfig(Config c, int width, int height, int rowBytes) {
+void SkBitmap::setConfig(Config c, int width, int height, size_t rowBytes) {
     this->freePixels();
 
-    if ((width | height | rowBytes) < 0) {
+    if ((width | height) < 0) {
         goto err;
     }
 
@@ -465,11 +465,11 @@ Sk64 SkBitmap::getSafeSize64() const {
 }
 
 bool SkBitmap::copyPixelsTo(void* const dst, size_t dstSize,
-                            int dstRowBytes, bool preserveDstPad) const {
+                            size_t dstRowBytes, bool preserveDstPad) const {
 
-    if (dstRowBytes == -1)
+    if (0 == dstRowBytes) {
         dstRowBytes = fRowBytes;
-    SkASSERT(dstRowBytes >= 0);
+    }
 
     if (getConfig() == kRLE_Index8_Config ||
         dstRowBytes < ComputeRowBytes(getConfig(), fWidth) ||

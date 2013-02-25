@@ -39,7 +39,7 @@ static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
     // always skip a full 256 number of entries, even if we memcpy'd fewer
     dst += kGrColorTableSize;
 
-    if (bitmap.width() == bitmap.rowBytes()) {
+    if ((unsigned)bitmap.width() == bitmap.rowBytes()) {
         memcpy(dst, bitmap.getPixels(), bitmap.getSize());
     } else {
         // need to trim off the extra bytes per row
