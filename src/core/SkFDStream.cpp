@@ -6,9 +6,10 @@
  * found in the LICENSE file.
  */
 #include "SkStream.h"
-#include <unistd.h>
 
 #ifndef SK_BUILD_FOR_WIN
+
+#include <unistd.h>
 
 //#define TRACE_FDSTREAM
 
