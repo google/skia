@@ -21,10 +21,18 @@ struct SkDraw1Glyph {
     SkBlitter* fBlitter;
     SkGlyphCache* fCache;
     SkIRect fClipBounds;
+    /** Half the sampling frequency of the rasterized glyph in x. */
+    SkFixed fHalfSampleX;
+    /** Half the sampling frequency of the rasterized glyph in y. */
+    SkFixed fHalfSampleY;
 
-    // The fixed x,y are pre-rounded, so impls just trunc them down to ints.
-    // i.e. half the sampling frequency has been added.
-    // e.g. 1/2 or 1/(2^(SkGlyph::kSubBits+1)) has already been added.
+    /** Draws one glyph.
+     *
+     *  The x and y are pre-biased, so implementations may just truncate them.
+     *  i.e. half the sampling frequency has been added.
+     *  e.g. 1/2 or 1/(2^(SkGlyph::kSubBits+1)) has already been added.
+     *  This added bias can be found in fHalfSampleX,Y.
+     */
     typedef void (*Proc)(const SkDraw1Glyph&, SkFixed x, SkFixed y, const SkGlyph&);
 
     Proc init(const SkDraw* draw, SkBlitter* blitter, SkGlyphCache* cache);

@@ -2182,13 +2182,8 @@ static void xps_draw_1_glyph(const SkDraw1Glyph& state,
     SkXPSDrawProcs* procs = static_cast<SkXPSDrawProcs*>(state.fDraw->fProcs);
 
     //Draw pre-adds half the sampling frequency for floor rounding.
-    if (state.fCache->isSubpixel()) {
-        x -= (SK_FixedHalf >> SkGlyph::kSubBits);
-        y -= (SK_FixedHalf >> SkGlyph::kSubBits);
-    } else {
-        x -= SK_FixedHalf;
-        y -= SK_FixedHalf;
-    }
+    x -= state.fHalfSampleX;
+    y -= state.fHalfSampleY;
 
     XPS_GLYPH_INDEX* xpsGlyph = procs->xpsGlyphs.append();
     uint16_t glyphID = skGlyph.getGlyphID();
