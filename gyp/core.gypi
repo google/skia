@@ -76,6 +76,7 @@
         '<(skia_src_path)/core/SkEdgeClipper.cpp',
         '<(skia_src_path)/core/SkEdge.cpp',
         '<(skia_src_path)/core/SkEdge.h',
+        '<(skia_src_path)/core/SkFDStream.cpp',
         '<(skia_src_path)/core/SkFP.h',
         '<(skia_src_path)/core/SkFilterProc.cpp',
         '<(skia_src_path)/core/SkFilterProc.h',
