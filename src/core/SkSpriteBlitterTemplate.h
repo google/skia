@@ -22,8 +22,8 @@ public:
         SkSPRITE_DST_TYPE* SK_RESTRICT dst =fDevice->SkSPRITE_DST_GETADDR(x, y);
         const SkSPRITE_SRC_TYPE* SK_RESTRICT src =
                                       fSource->SkSPRITE_SRC_GETADDR(srcX, srcY);
-        unsigned dstRB = fDevice->rowBytes();
-        unsigned srcRB = fSource->rowBytes();
+        size_t dstRB = fDevice->rowBytes();
+        size_t srcRB = fSource->rowBytes();
 
         SkDEBUGCODE((void)fDevice->SkSPRITE_DST_GETADDR(x + width - 1, y + height - 1);)
         SkDEBUGCODE((void)fSource->SkSPRITE_SRC_GETADDR(srcX + width  - 1, srcY + height - 1);)

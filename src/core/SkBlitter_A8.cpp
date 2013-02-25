@@ -180,7 +180,7 @@ void SkA8_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
 
     unsigned sa = SkAlphaMul(fSrcA, SkAlpha255To256(alpha));
     uint8_t* device = fDevice.getAddr8(x, y);
-    int      rowBytes = fDevice.rowBytes();
+    size_t   rowBytes = fDevice.rowBytes();
 
     if (sa == 0xFF) {
         for (int i = 0; i < height; i++) {

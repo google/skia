@@ -196,7 +196,7 @@ void SkARGB32_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
     }
 
     unsigned dst_scale = 255 - SkGetPackedA32(color);
-    uint32_t rowBytes = fDevice.rowBytes();
+    size_t rowBytes = fDevice.rowBytes();
     while (--height >= 0) {
         device[0] = color + SkAlphaMulQ(device[0], dst_scale);
         device = (uint32_t*)((char*)device + rowBytes);

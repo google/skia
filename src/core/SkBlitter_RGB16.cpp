@@ -211,7 +211,7 @@ void SkRGB16_Black_Blitter::blitMask(const SkMask& mask,
         const uint8_t* SK_RESTRICT alpha = mask.getAddr8(clip.fLeft, clip.fTop);
         unsigned width = clip.width();
         unsigned height = clip.height();
-        unsigned deviceRB = fDevice.rowBytes() - (width << 1);
+        size_t deviceRB = fDevice.rowBytes() - (width << 1);
         unsigned maskRB = mask.fRowBytes - width;
 
         SkASSERT((int)height > 0);
@@ -381,7 +381,7 @@ void SkRGB16_Opaque_Blitter::blitMask(const SkMask& mask,
     const uint8_t* SK_RESTRICT alpha = mask.getAddr8(clip.fLeft, clip.fTop);
     int width = clip.width();
     int height = clip.height();
-    unsigned    deviceRB = fDevice.rowBytes() - (width << 1);
+    size_t      deviceRB = fDevice.rowBytes() - (width << 1);
     unsigned    maskRB = mask.fRowBytes - width;
     uint32_t    expanded32 = fExpandedRaw16;
 
@@ -481,7 +481,7 @@ void SkRGB16_Opaque_Blitter::blitMask(const SkMask& mask,
 
 void SkRGB16_Opaque_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
     uint16_t* SK_RESTRICT device = fDevice.getAddr16(x, y);
-    unsigned    deviceRB = fDevice.rowBytes();
+    size_t    deviceRB = fDevice.rowBytes();
 
     // TODO: respect fDoDither
     unsigned scale5 = SkAlpha255To256(alpha) >> 3;
@@ -497,7 +497,7 @@ void SkRGB16_Opaque_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
 void SkRGB16_Opaque_Blitter::blitRect(int x, int y, int width, int height) {
     SkASSERT(x + width <= fDevice.width() && y + height <= fDevice.height());
     uint16_t* SK_RESTRICT device = fDevice.getAddr16(x, y);
-    unsigned    deviceRB = fDevice.rowBytes();
+    size_t      deviceRB = fDevice.rowBytes();
     uint16_t    color16 = fColor16;
 
     if (fDoDither) {
@@ -641,7 +641,7 @@ void SkRGB16_Blitter::blitMask(const SkMask& mask,
     const uint8_t* SK_RESTRICT alpha = mask.getAddr8(clip.fLeft, clip.fTop);
     int width = clip.width();
     int height = clip.height();
-    unsigned    deviceRB = fDevice.rowBytes() - (width << 1);
+    size_t      deviceRB = fDevice.rowBytes() - (width << 1);
     unsigned    maskRB = mask.fRowBytes - width;
     uint32_t    color32 = fExpandedRaw16;
 
@@ -662,7 +662,7 @@ void SkRGB16_Blitter::blitMask(const SkMask& mask,
 
 void SkRGB16_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
     uint16_t* SK_RESTRICT device = fDevice.getAddr16(x, y);
-    unsigned    deviceRB = fDevice.rowBytes();
+    size_t    deviceRB = fDevice.rowBytes();
 
     // TODO: respect fDoDither
     unsigned scale5 = SkAlpha255To256(alpha) * fScale >> (8 + 3);
@@ -678,7 +678,7 @@ void SkRGB16_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
 void SkRGB16_Blitter::blitRect(int x, int y, int width, int height) {
     SkASSERT(x + width <= fDevice.width() && y + height <= fDevice.height());
     uint16_t* SK_RESTRICT device = fDevice.getAddr16(x, y);
-    unsigned    deviceRB = fDevice.rowBytes();
+    size_t    deviceRB = fDevice.rowBytes();
     SkPMColor src32 = fSrcColor32;
 
     while (--height >= 0) {

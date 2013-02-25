@@ -57,7 +57,7 @@ private:
 
     // setup state
     char*   fDstRow; // points into bitmap's pixels
-    int     fDstRowBytes;
+    size_t  fDstRowBytes;
     int     fCurrY; // used for dithering
     int     fSrcPixelSize;  // 1, 3, 4
     RowProc fRowProc;

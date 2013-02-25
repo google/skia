@@ -92,7 +92,7 @@ void* ThreadSafePipeController::requestBlock(size_t minRequest, size_t *actual) 
         PipeBlock previousBloc(fBlock, fBytesWritten);
         fBlockList.push(previousBloc);
     }
-    int32_t blockSize = SkMax32(minRequest, kMinBlockSize);
+    int32_t blockSize = SkMax32(SkToS32(minRequest), kMinBlockSize);
     fBlock = fAllocator.allocThrow(blockSize);
     fBytesWritten = 0;
     *actual = blockSize;

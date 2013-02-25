@@ -645,7 +645,7 @@ private:
         kImageIsImmutable_Flag  = 0x04
     };
 
-    size_t      fRowBytes;
+    uint32_t    fRowBytes;
     uint32_t    fWidth;
     uint32_t    fHeight;
     uint8_t     fConfig;

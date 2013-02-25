@@ -127,8 +127,8 @@ public:
         uint32_t* SK_RESTRICT dst = fDevice->getAddr32(x, y);
         const uint32_t* SK_RESTRICT src = fSource->getAddr32(x - fLeft,
                                                              y - fTop);
-        unsigned dstRB = fDevice->rowBytes();
-        unsigned srcRB = fSource->rowBytes();
+        size_t dstRB = fDevice->rowBytes();
+        size_t srcRB = fSource->rowBytes();
         SkColorFilter* colorFilter = fColorFilter;
         SkXfermode* xfermode = fXfermode;
 
@@ -174,8 +174,8 @@ public:
         SkPMColor* SK_RESTRICT dst = fDevice->getAddr32(x, y);
         const SkPMColor16* SK_RESTRICT src = fSource->getAddr16(x - fLeft,
                                                                 y - fTop);
-        unsigned dstRB = fDevice->rowBytes();
-        unsigned srcRB = fSource->rowBytes();
+        size_t dstRB = fDevice->rowBytes();
+        size_t srcRB = fSource->rowBytes();
         SkPMColor* SK_RESTRICT buffer = fBuffer;
         SkColorFilter* colorFilter = fColorFilter;
         SkXfermode* xfermode = fXfermode;
@@ -221,8 +221,8 @@ public:
         SkPMColor* SK_RESTRICT dst = fDevice->getAddr32(x, y);
         const SkPMColor16* SK_RESTRICT src = fSource->getAddr16(x - fLeft,
                                                                 y - fTop);
-        unsigned dstRB = fDevice->rowBytes();
-        unsigned srcRB = fSource->rowBytes();
+        size_t dstRB = fDevice->rowBytes();
+        size_t srcRB = fSource->rowBytes();
 
         do {
             src_row(dst, src, width);
@@ -250,8 +250,8 @@ public:
         SkPMColor* SK_RESTRICT dst = fDevice->getAddr32(x, y);
         const SkPMColor16* SK_RESTRICT src = fSource->getAddr16(x - fLeft,
                                                                 y - fTop);
-        unsigned dstRB = fDevice->rowBytes();
-        unsigned srcRB = fSource->rowBytes();
+        size_t dstRB = fDevice->rowBytes();
+        size_t srcRB = fSource->rowBytes();
 
         do {
             srcover_row(dst, src, width);

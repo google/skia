@@ -49,7 +49,7 @@ static size_t ComputeMinRowBytesAndSize(const SkImage::Info& info, size_t* rowBy
     Sk64 safeSize;
     safeSize.setZero();
     if (info.fHeight > 0) {
-        safeSize.setMul(info.fHeight, *rowBytes);
+        safeSize.setMul(info.fHeight, SkToS32(*rowBytes));
     }
     SkASSERT(!safeSize.isNeg());
     return safeSize.is32() ? safeSize.get32() : 0;

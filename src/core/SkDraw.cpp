@@ -354,7 +354,7 @@ static void bw_pt_rect_16_hair_proc(const PtProcRec& rec,
     SkASSERT(bitmap);
 
     uint16_t* addr = bitmap->getAddr16(0, 0);
-    int rb = bitmap->rowBytes();
+    size_t    rb = bitmap->rowBytes();
 
     for (int i = 0; i < count; i++) {
         int x = SkScalarFloorToInt(devPts[i].fX);
@@ -375,7 +375,7 @@ static void bw_pt_rect_32_hair_proc(const PtProcRec& rec,
     SkASSERT(bitmap);
 
     SkPMColor* addr = bitmap->getAddr32(0, 0);
-    int rb = bitmap->rowBytes();
+    size_t     rb = bitmap->rowBytes();
 
     for (int i = 0; i < count; i++) {
         int x = SkScalarFloorToInt(devPts[i].fX);
@@ -1161,7 +1161,7 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap,
         SkMask  mask;
         mask.fBounds.set(ix, iy, ix + bitmap.width(), iy + bitmap.height());
         mask.fFormat = SkMask::kA8_Format;
-        mask.fRowBytes = bitmap.rowBytes();
+        mask.fRowBytes = SkToU32(bitmap.rowBytes());
         mask.fImage = bitmap.getAddr8(0, 0);
 
         this->drawDevMask(mask, paint);

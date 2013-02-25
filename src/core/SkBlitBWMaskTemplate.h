@@ -31,7 +31,7 @@ static void SK_BLITBWMASK_NAME(const SkBitmap& bitmap, const SkMask& srcMask, co
     int cy = clip.fTop;
     int maskLeft = srcMask.fBounds.fLeft;
     unsigned mask_rowBytes = srcMask.fRowBytes;
-    unsigned bitmap_rowBytes = bitmap.rowBytes();
+    size_t bitmap_rowBytes = bitmap.rowBytes();
     unsigned height = clip.height();
 
     SkASSERT(mask_rowBytes != 0);
