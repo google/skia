@@ -82,7 +82,7 @@ bool SkBitmap::scrollRect(const SkIRect* subset, int dx, int dy,
 
     char*       dst = (char*)this->getPixels();
     const char* src = dst;
-    int         rowBytes = this->rowBytes();    // need rowBytes to be signed
+    int         rowBytes = (int)this->rowBytes();    // need rowBytes to be signed
 
     if (dy <= 0) {
         src -= dy * rowBytes;

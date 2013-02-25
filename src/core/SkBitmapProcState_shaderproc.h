@@ -44,7 +44,7 @@ void SCALE_FILTER_NAME(const SkBitmapProcState& s, int x, int y,
         int y1 = TILEY_PROCF((fy + s.fFilterOneY), maxY);
 
         const char* SK_RESTRICT srcAddr = (const char*)s.fBitmap->getPixels();
-        unsigned rb = s.fBitmap->rowBytes();
+        size_t rb = s.fBitmap->rowBytes();
         row0 = (const SRCTYPE*)(srcAddr + y0 * rb);
         row1 = (const SRCTYPE*)(srcAddr + y1 * rb);
         // now initialize fx

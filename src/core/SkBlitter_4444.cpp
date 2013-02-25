@@ -156,7 +156,7 @@ void SkARGB4444_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
     SkPMColor16* device = fDevice.getAddr16(x, y);
     SkPMColor16  color = fPMColor16;
     SkPMColor16  other = fPMColor16Other;
-    unsigned     rb = fDevice.rowBytes();
+    size_t       rb = fDevice.rowBytes();
 
     if ((x ^ y) & 1) {
         SkTSwap<SkPMColor16>(color, other);
@@ -337,7 +337,7 @@ void SkARGB4444_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
     SkPMColor16*    device = fDevice.getAddr16(x, y);
     const uint8_t*  alpha = mask.getAddr8(x, y);
     SkPMColor16     srcColor = fPMColor16;
-    unsigned        devRB = fDevice.rowBytes() - (width << 1);
+    size_t          devRB = fDevice.rowBytes() - (width << 1);
     unsigned        maskRB = mask.fRowBytes - width;
 
     do {

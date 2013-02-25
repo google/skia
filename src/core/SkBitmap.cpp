@@ -47,7 +47,7 @@ struct SkBitmap::MipMap : SkNoncopyable {
         Sk64 size;
         size.setMul(levelCount + 1, sizeof(MipLevel));
         size.add(sizeof(MipMap));
-        size.add(pixelSize);
+        size.add(SkToS32(pixelSize));
         if (!isPos32Bits(size)) {
             return NULL;
         }
@@ -220,7 +220,7 @@ size_t SkBitmap::ComputeRowBytes(Config c, int width) {
 
 Sk64 SkBitmap::ComputeSize64(Config c, int width, int height) {
     Sk64 size;
-    size.setMul(SkBitmap::ComputeRowBytes(c, width), height);
+    size.setMul(SkToS32(SkBitmap::ComputeRowBytes(c, width)), height);
     return size;
 }
 
@@ -236,9 +236,11 @@ Sk64 SkBitmap::ComputeSafeSize64(Config config,
     Sk64 safeSize;
     safeSize.setZero();
     if (height > 0) {
-        safeSize.set(ComputeRowBytes(config, width));
+        // TODO: Handle the case where the return value from
+        // ComputeRowBytes is more than 31 bits.
+        safeSize.set(SkToS32(ComputeRowBytes(config, width)));
         Sk64 sizeAllButLastRow;
-        sizeAllButLastRow.setMul(height - 1, rowBytes);
+        sizeAllButLastRow.setMul(height - 1, SkToS32(rowBytes));
         safeSize.add(sizeAllButLastRow);
     }
     SkASSERT(!safeSize.isNeg());
@@ -283,7 +285,7 @@ void SkBitmap::setConfig(Config c, int width, int height, size_t rowBytes) {
     fConfig     = SkToU8(c);
     fWidth      = width;
     fHeight     = height;
-    fRowBytes   = rowBytes;
+    fRowBytes   = SkToU32(rowBytes);
 
     fBytesPerPixel = (uint8_t)ComputeBytesPerPixel(c);
 
@@ -496,7 +498,7 @@ bool SkBitmap::copyPixelsTo(void* const dst, size_t dstSize,
             return false;
         else {
             // Just copy what we need on each line.
-            uint32_t rowBytes = ComputeRowBytes(getConfig(), fWidth);
+            size_t rowBytes = ComputeRowBytes(getConfig(), fWidth);
             SkAutoLockPixels lock(*this);
             const uint8_t* srcP = reinterpret_cast<const uint8_t*>(getPixels());
             uint8_t* dstP = reinterpret_cast<uint8_t*>(dst);
@@ -864,7 +866,7 @@ static size_t getSubOffset(const SkBitmap& bm, int x, int y) {
  *  upper left corner of bm relative to its SkPixelRef.
  *  x and y must be non-NULL.
  */
-static bool getUpperLeftFromOffset(const SkBitmap& bm, int* x, int* y) {
+static bool getUpperLeftFromOffset(const SkBitmap& bm, int32_t* x, int32_t* y) {
     SkASSERT(x != NULL && y != NULL);
     const size_t offset = bm.pixelRefOffset();
     if (0 == offset) {
@@ -872,9 +874,9 @@ static bool getUpperLeftFromOffset(const SkBitmap& bm, int* x, int* y) {
         return true;
     }
     // Use integer division to find the correct y position.
-    *y = offset / bm.rowBytes();
+    *y = SkToS32(offset / bm.rowBytes());
     // The remainder will be the x position, after we reverse getSubOffset.
-    *x = offset % bm.rowBytes();
+    *x = SkToS32(offset % bm.rowBytes());
     switch (bm.getConfig()) {
         case SkBitmap::kA8_Config:
             // Fall through.
@@ -948,7 +950,7 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
         const RLEPixels* rle = (const RLEPixels*)this->getPixels();
         uint8_t* dst = bm.getAddr8(0, 0);
         const int width = bm.width();
-        const int rowBytes = bm.rowBytes();
+        const size_t rowBytes = bm.rowBytes();
 
         for (int y = r.fTop; y < r.fBottom; y++) {
             SkPackBits::Unpack8(dst, r.fLeft, width, rle->packedAtY(y));
@@ -1141,7 +1143,7 @@ bool SkBitmap::deepCopyTo(SkBitmap* dst, Config dstConfig) const {
             } else {
                 // Find the correct offset in the new config. This needs to be done after calling
                 // setConfig so dst's fConfig and fRowBytes have been set properly.
-                int x, y;
+                int32_t x, y;
                 if (!getUpperLeftFromOffset(*this, &x, &y)) {
                     return false;
                 }
@@ -1335,13 +1337,13 @@ void SkBitmap::buildMipMap(bool forceRebuild) {
     uint8_t*    addr = (uint8_t*)mm->pixels();
     int         width = this->width();
     int         height = this->height();
-    unsigned    rowBytes;
+    uint32_t    rowBytes;
     SkBitmap    dstBM;
 
     for (int i = 0; i < maxLevels; i++) {
         width >>= 1;
         height >>= 1;
-        rowBytes = ComputeRowBytes(config, width);
+        rowBytes = SkToU32(ComputeRowBytes(config, width));
 
         level[i].fPixels   = addr;
         level[i].fWidth    = width;
@@ -1417,7 +1419,7 @@ static bool GetBitmapAlpha(const SkBitmap& src, uint8_t* SK_RESTRICT alpha,
     SkBitmap::Config config = src.getConfig();
     int              w = src.width();
     int              h = src.height();
-    int              rb = src.rowBytes();
+    size_t           rb = src.rowBytes();
 
     SkAutoLockPixels alp(src);
     if (!src.readyToDraw()) {
@@ -1561,7 +1563,7 @@ void SkBitmap::flatten(SkFlattenableWriteBuffer& buffer) const {
     if (fPixelRef) {
         if (fPixelRef->getFactory()) {
             buffer.writeInt(SERIALIZE_PIXELTYPE_REF_DATA);
-            buffer.writeUInt(fPixelRefOffset);
+            buffer.writeUInt(SkToU32(fPixelRefOffset));
             buffer.writeFlattenable(fPixelRef);
             return;
         }

@@ -89,7 +89,7 @@ int32_t SkOrderedReadBuffer::read32() {
 
 char* SkOrderedReadBuffer::readString() {
     const char* string = fReader.readString();
-    const int32_t length = strlen(string);
+    const size_t length = strlen(string);
     char* value = (char*)sk_malloc_throw(length + 1);
     strcpy(value, string);
     return value;

@@ -58,8 +58,8 @@ public:
         uint16_t* SK_RESTRICT dst = fDevice->getAddr16(x, y);
         const uint16_t* SK_RESTRICT src = fSource->getAddr16(x - fLeft,
                                                              y - fTop);
-        unsigned dstRB = fDevice->rowBytes();
-        unsigned srcRB = fSource->rowBytes();
+        size_t dstRB = fDevice->rowBytes();
+        size_t srcRB = fSource->rowBytes();
 
         while (--height >= 0) {
             memcpy(dst, src, width << 1);
@@ -285,8 +285,8 @@ public:
         uint16_t* SK_RESTRICT dst = fDevice->getAddr16(x, y);
         const SkPMColor* SK_RESTRICT src = fSource->getAddr32(x - fLeft,
                                                               y - fTop);
-        unsigned dstRB = fDevice->rowBytes();
-        unsigned srcRB = fSource->rowBytes();
+        size_t dstRB = fDevice->rowBytes();
+        size_t srcRB = fSource->rowBytes();
         SkBlitRow::Proc proc = fProc;
         U8CPU alpha = fPaint->getAlpha();
 
