@@ -13,21 +13,23 @@
 #include "GrIndexBuffer.h"
 #include "GrPath.h"
 #include "GrRenderTarget.h"
+#include "GrTemplates.h"
 #include "GrTexture.h"
 #include "GrVertexBuffer.h"
 
-GrInOrderDrawBuffer::GrInOrderDrawBuffer(const GrGpu* gpu,
+GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrGpu* gpu,
                                          GrVertexBufferAllocPool* vertexPool,
                                          GrIndexBufferAllocPool* indexPool)
-    : fAutoFlushTarget(NULL)
+    : GrDrawTarget(gpu->getContext())
+    , fDstGpu(gpu)
     , fClipSet(true)
     , fClipProxyState(kUnknown_ClipProxyState)
     , fVertexPool(*vertexPool)
     , fIndexPool(*indexPool)
     , fFlushing(false) {
 
-    fGpu.reset(SkRef(gpu));
-    fCaps = gpu->getCaps();
+    fDstGpu->ref();
+    fCaps = fDstGpu->getCaps();
 
     GrAssert(NULL != vertexPool);
     GrAssert(NULL != indexPool);
@@ -48,7 +50,7 @@ GrInOrderDrawBuffer::~GrInOrderDrawBuffer() {
     this->reset();
     // This must be called by before the GrDrawTarget destructor
     this->releaseGeometry();
-    GrSafeUnref(fAutoFlushTarget);
+    fDstGpu->unref();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -161,7 +163,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         }
     }
 
-    this->setIndexSourceToBuffer(fGpu->getQuadIndexBuffer());
+    this->setIndexSourceToBuffer(this->getContext()->getQuadIndexBuffer());
     this->drawIndexedInstances(kTriangles_GrPrimitiveType, 1, 4, 6, &devBounds);
 }
 
@@ -411,28 +413,29 @@ void GrInOrderDrawBuffer::reset() {
     fClipSet = true;
 }
 
-bool GrInOrderDrawBuffer::flushTo(GrDrawTarget* target) {
+bool GrInOrderDrawBuffer::flush() {
     GrAssert(kReserved_GeometrySrcType != this->getGeomSrc().fVertexSrc);
     GrAssert(kReserved_GeometrySrcType != this->getGeomSrc().fIndexSrc);
-
-    GrAssert(NULL != target);
-    GrAssert(target != this); // not considered and why?
 
     int numCmds = fCmds.count();
     if (0 == numCmds) {
         return false;
     }
+    GrAssert(!fFlushing);
+
+    GrAutoTRestore<bool> flushRestore(&fFlushing);
+    fFlushing = true;
 
     fVertexPool.unlock();
     fIndexPool.unlock();
 
-    GrDrawTarget::AutoClipRestore acr(target);
-    AutoGeometryAndStatePush agasp(target, kPreserve_ASRInit);
+    GrDrawTarget::AutoClipRestore acr(fDstGpu);
+    AutoGeometryAndStatePush agasp(fDstGpu, kPreserve_ASRInit);
 
     GrDrawState playbackState;
-    GrDrawState* prevDrawState = target->drawState();
+    GrDrawState* prevDrawState = fDstGpu->drawState();
     prevDrawState->ref();
-    target->setDrawState(&playbackState);
+    fDstGpu->setDrawState(&playbackState);
 
     GrClipData clipData;
 
@@ -442,23 +445,22 @@ bool GrInOrderDrawBuffer::flushTo(GrDrawTarget* target) {
     int currDraw        = 0;
     int currStencilPath = 0;
 
-
     for (int c = 0; c < numCmds; ++c) {
         switch (fCmds[c]) {
             case kDraw_Cmd: {
                 const DrawRecord& draw = fDraws[currDraw];
-                target->setVertexSourceToBuffer(draw.fVertexBuffer);
+                fDstGpu->setVertexSourceToBuffer(draw.fVertexBuffer);
                 if (draw.isIndexed()) {
-                    target->setIndexSourceToBuffer(draw.fIndexBuffer);
+                    fDstGpu->setIndexSourceToBuffer(draw.fIndexBuffer);
                 }
-                target->executeDraw(draw);
+                fDstGpu->executeDraw(draw);
 
                 ++currDraw;
                 break;
             }
             case kStencilPath_Cmd: {
                 const StencilPath& sp = fStencilPaths[currStencilPath];
-                target->stencilPath(sp.fPath.get(), sp.fStroke, sp.fFill);
+                fDstGpu->stencilPath(sp.fPath.get(), sp.fStroke, sp.fFill);
                 ++currStencilPath;
                 break;
             }
@@ -469,13 +471,13 @@ bool GrInOrderDrawBuffer::flushTo(GrDrawTarget* target) {
             case kSetClip_Cmd:
                 clipData.fClipStack = &fClips[currClip];
                 clipData.fOrigin = fClipOrigins[currClip];
-                target->setClip(&clipData);
+                fDstGpu->setClip(&clipData);
                 ++currClip;
                 break;
             case kClear_Cmd:
-                target->clear(&fClears[currClear].fRect,
-                              fClears[currClear].fColor,
-                              fClears[currClear].fRenderTarget);
+                fDstGpu->clear(&fClears[currClear].fRect,
+                               fClears[currClear].fColor,
+                               fClears[currClear].fRenderTarget);
                 ++currClear;
                 break;
         }
@@ -487,52 +489,45 @@ bool GrInOrderDrawBuffer::flushTo(GrDrawTarget* target) {
     GrAssert(fClears.count() == currClear);
     GrAssert(fDraws.count()  == currDraw);
 
-    target->setDrawState(prevDrawState);
+    fDstGpu->setDrawState(prevDrawState);
     prevDrawState->unref();
     this->reset();
     return true;
 }
 
-void GrInOrderDrawBuffer::setAutoFlushTarget(GrDrawTarget* target) {
-    GrSafeAssign(fAutoFlushTarget, target);
-}
-
 void GrInOrderDrawBuffer::willReserveVertexAndIndexSpace(
                                 int vertexCount,
                                 int indexCount) {
-    if (NULL != fAutoFlushTarget) {
-        // We use geometryHints() to know whether to flush the draw buffer. We
-        // can't flush if we are inside an unbalanced pushGeometrySource.
-        // Moreover, flushing blows away vertex and index data that was
-        // previously reserved. So if the vertex or index data is pulled from
-        // reserved space and won't be released by this request then we can't
-        // flush.
-        bool insideGeoPush = fGeoPoolStateStack.count() > 1;
+    // We use geometryHints() to know whether to flush the draw buffer. We
+    // can't flush if we are inside an unbalanced pushGeometrySource.
+    // Moreover, flushing blows away vertex and index data that was
+    // previously reserved. So if the vertex or index data is pulled from
+    // reserved space and won't be released by this request then we can't
+    // flush.
+    bool insideGeoPush = fGeoPoolStateStack.count() > 1;
 
-        bool unreleasedVertexSpace =
-            !vertexCount &&
-            kReserved_GeometrySrcType == this->getGeomSrc().fVertexSrc;
+    bool unreleasedVertexSpace =
+        !vertexCount &&
+        kReserved_GeometrySrcType == this->getGeomSrc().fVertexSrc;
 
-        bool unreleasedIndexSpace =
-            !indexCount &&
-            kReserved_GeometrySrcType == this->getGeomSrc().fIndexSrc;
+    bool unreleasedIndexSpace =
+        !indexCount &&
+        kReserved_GeometrySrcType == this->getGeomSrc().fIndexSrc;
 
-        // we don't want to finalize any reserved geom on the target since
-        // we don't know that the client has finished writing to it.
-        bool targetHasReservedGeom =
-            fAutoFlushTarget->hasReservedVerticesOrIndices();
+    // we don't want to finalize any reserved geom on the target since
+    // we don't know that the client has finished writing to it.
+    bool targetHasReservedGeom = fDstGpu->hasReservedVerticesOrIndices();
 
-        int vcount = vertexCount;
-        int icount = indexCount;
+    int vcount = vertexCount;
+    int icount = indexCount;
 
-        if (!insideGeoPush &&
-            !unreleasedVertexSpace &&
-            !unreleasedIndexSpace &&
-            !targetHasReservedGeom &&
-            this->geometryHints(&vcount, &icount)) {
+    if (!insideGeoPush &&
+        !unreleasedVertexSpace &&
+        !unreleasedIndexSpace &&
+        !targetHasReservedGeom &&
+        this->geometryHints(&vcount, &icount)) {
 
-            this->flushTo(fAutoFlushTarget);
-        }
+        this->flush();
     }
 }
 

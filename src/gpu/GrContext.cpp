@@ -63,14 +63,14 @@ static const int DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS = 4;
 
 #define ASSERT_OWNED_RESOURCE(R) GrAssert(!(R) || (R)->getContext() == this)
 
-GrContext* GrContext::Create(GrBackend backend, GrBackendContext context) {
-    GrContext* ctx = NULL;
-    GrGpu* fGpu = GrGpu::Create(backend, context);
-    if (NULL != fGpu) {
-        ctx = SkNEW_ARGS(GrContext, (fGpu));
-        fGpu->unref();
+GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext) {
+    GrContext* context = SkNEW(GrContext);
+    if (context->init(backend, backendContext)) {
+        return context;
+    } else {
+        context->unref();
+        return NULL;
     }
-    return ctx;
 }
 
 namespace {
@@ -80,10 +80,50 @@ void* CreateThreadInstanceCount() {
 void DeleteThreadInstanceCount(void* v) {
     delete reinterpret_cast<int*>(v);
 }
-#define THREAD_INSTANCE_COUNT                                               \
-    (*reinterpret_cast<int*>(SkTLS::Get(CreateThreadInstanceCount,          \
-                                        DeleteThreadInstanceCount)))
+#define THREAD_INSTANCE_COUNT \
+    (*reinterpret_cast<int*>(SkTLS::Get(CreateThreadInstanceCount, DeleteThreadInstanceCount)))
+}
 
+GrContext::GrContext() {
+    ++THREAD_INSTANCE_COUNT;
+    fDrawState = NULL;
+    fGpu = NULL;
+    fPathRendererChain = NULL;
+    fSoftwarePathRenderer = NULL;
+    fTextureCache = NULL;
+    fFontCache = NULL;
+    fDrawBuffer = NULL;
+    fDrawBufferVBAllocPool = NULL;
+    fDrawBufferIBAllocPool = NULL;
+    fAARectRenderer = NULL;
+}
+
+bool GrContext::init(GrBackend backend, GrBackendContext backendContext) {
+    GrAssert(NULL == fGpu);
+
+    fGpu = GrGpu::Create(backend, backendContext, this);
+    if (NULL == fGpu) {
+        return false;
+    }
+
+    fDrawState = SkNEW(GrDrawState);
+    fGpu->setDrawState(fDrawState);
+
+
+    fTextureCache = SkNEW_ARGS(GrResourceCache,
+                               (MAX_TEXTURE_CACHE_COUNT,
+                                MAX_TEXTURE_CACHE_BYTES));
+    fFontCache = SkNEW_ARGS(GrFontCache, (fGpu));
+
+    fLastDrawWasBuffered = kNo_BufferedDraw;
+
+    fAARectRenderer = SkNEW(GrAARectRenderer);
+
+    fDidTestPMConversions = false;
+
+    this->setupDrawBuffer();
+
+    return true;
 }
 
 int GrContext::GetThreadInstanceCount() {
@@ -119,7 +159,7 @@ GrContext::~GrContext() {
 }
 
 void GrContext::contextLost() {
-    contextDestroyed();
+    this->contextDestroyed();
     this->setupDrawBuffer();
 }
 
@@ -1196,18 +1236,8 @@ void GrContext::flush(int flagsBitfield) {
 }
 
 void GrContext::flushDrawBuffer() {
-    if (fDrawBuffer) {
-        // With addition of the AA clip path, flushing the draw buffer can
-        // result in the generation of an AA clip mask. During this
-        // process the SW path renderer may be invoked which recusively
-        // calls this method (via internalWriteTexturePixels) creating
-        // infinite recursion
-        GrInOrderDrawBuffer* temp = fDrawBuffer;
-        fDrawBuffer = NULL;
-
-        temp->flushTo(fGpu);
-
-        fDrawBuffer = temp;
+    if (NULL != fDrawBuffer && !fDrawBuffer->isFlushing()) {
+        fDrawBuffer->flush();
     }
 }
 
@@ -1710,37 +1740,6 @@ static inline intptr_t setOrClear(intptr_t bits, int shift, intptr_t pred) {
     return bits;
 }
 
-GrContext::GrContext(GrGpu* gpu) {
-    ++THREAD_INSTANCE_COUNT;
-
-    fGpu = gpu;
-    fGpu->ref();
-    fGpu->setContext(this);
-
-    fDrawState = SkNEW(GrDrawState);
-    fGpu->setDrawState(fDrawState);
-
-    fPathRendererChain = NULL;
-    fSoftwarePathRenderer = NULL;
-
-    fTextureCache = SkNEW_ARGS(GrResourceCache,
-                               (MAX_TEXTURE_CACHE_COUNT,
-                                MAX_TEXTURE_CACHE_BYTES));
-    fFontCache = SkNEW_ARGS(GrFontCache, (fGpu));
-
-    fLastDrawWasBuffered = kNo_BufferedDraw;
-
-    fDrawBuffer = NULL;
-    fDrawBufferVBAllocPool = NULL;
-    fDrawBufferIBAllocPool = NULL;
-
-    fAARectRenderer = SkNEW(GrAARectRenderer);
-
-    fDidTestPMConversions = false;
-
-    this->setupDrawBuffer();
-}
-
 void GrContext::setupDrawBuffer() {
 
     GrAssert(NULL == fDrawBuffer);
@@ -1757,13 +1756,10 @@ void GrContext::setupDrawBuffer() {
                                    DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS));
 
     fDrawBuffer = SkNEW_ARGS(GrInOrderDrawBuffer, (fGpu,
-                                          fDrawBufferVBAllocPool,
-                                          fDrawBufferIBAllocPool));
+                                                   fDrawBufferVBAllocPool,
+                                                   fDrawBufferIBAllocPool));
 
-    if (fDrawBuffer) {
-        fDrawBuffer->setAutoFlushTarget(fGpu);
-        fDrawBuffer->setDrawState(fDrawState);
-    }
+    fDrawBuffer->setDrawState(fDrawState);
 }
 
 GrDrawTarget* GrContext::getTextTarget(const GrPaint& paint) {

@@ -47,23 +47,18 @@ public:
 
     /**
      * Create an instance of GrGpu that matches the specified backend. If the requested backend is
-     * not supported (at compile-time or run-time) this returns NULL.
+     * not supported (at compile-time or run-time) this returns NULL. The context will not be
+     * fully constructed and should not be used by GrGpu until after this function returns.
      */
-    static GrGpu* Create(GrBackend, GrBackendContext);
+    static GrGpu* Create(GrBackend, GrBackendContext, GrContext* context);
 
     ////////////////////////////////////////////////////////////////////////////
 
-    GrGpu();
+    GrGpu(GrContext* context);
     virtual ~GrGpu();
 
-    // The GrContext sets itself as the owner of this Gpu object
-    void setContext(GrContext* context) {
-        GrAssert(NULL == fContext);
-        fContext = context;
-        fClipMaskManager.setContext(context);
-    }
-    GrContext* getContext() { return fContext; }
-    const GrContext* getContext() const { return fContext; }
+    GrContext* getContext() { return this->INHERITED::getContext(); }
+    const GrContext* getContext() const { return this->INHERITED::getContext(); }
 
     /**
      * The GrGpu object normally assumes that no outsider is setting state
@@ -527,7 +522,6 @@ private:
     };
     typedef SkTInternalLList<GrResource> ResourceList;
     SkSTArray<kPreallocGeomPoolStateStackCnt, GeometryPoolState, true>  fGeomPoolStateStack;
-    GrContext*                                                          fContext; // not reffed
     ResetTimestamp                                                      fResetTimestamp;
     GrVertexBufferAllocPool*                                            fVertexPool;
     GrIndexBufferAllocPool*                                             fIndexPool;

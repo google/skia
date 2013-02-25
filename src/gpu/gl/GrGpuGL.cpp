@@ -147,7 +147,9 @@ static bool fbo_test(const GrGLInterface* gl, int w, int h) {
     return status == GR_GL_FRAMEBUFFER_COMPLETE;
 }
 
-GrGpuGL::GrGpuGL(const GrGLContextInfo& ctxInfo) : fGLContextInfo(ctxInfo) {
+GrGpuGL::GrGpuGL(const GrGLContextInfo& ctxInfo, GrContext* context)
+    : GrGpu(context)
+    , fGLContextInfo(ctxInfo) {
 
     GrAssert(ctxInfo.isInitialized());
 

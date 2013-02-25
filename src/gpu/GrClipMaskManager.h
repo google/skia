@@ -68,18 +68,11 @@ public:
         }
     }
 
-    void setContext(GrContext* context) {
-        fAACache.setContext(context);
-    }
-
     GrContext* getContext() {
         return fAACache.getContext();
     }
 
-    void setGpu(GrGpu* gpu) {
-        fGpu = gpu;
-    }
-
+    void setGpu(GrGpu* gpu);
 private:
     /**
      * Informs the helper function adjustStencilParams() about how the stencil

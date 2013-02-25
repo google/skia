@@ -82,7 +82,11 @@ void GrDrawTarget::DrawInfo::adjustStartIndex(int indexOffset) {
 #define DEBUG_INVAL_BUFFER 0xdeadcafe
 #define DEBUG_INVAL_START_IDX -1
 
-GrDrawTarget::GrDrawTarget() : fClip(NULL) {
+GrDrawTarget::GrDrawTarget(GrContext* context)
+    : fClip(NULL)
+    , fContext(context) {
+    GrAssert(NULL != context);
+
     fDrawState = &fDefaultDrawState;
     // We assume that fDrawState always owns a ref to the object it points at.
     fDefaultDrawState.ref();
