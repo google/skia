@@ -26,8 +26,8 @@ static const int INDEX_POOL_IB_COUNT = 4;
 #define DEBUG_INVAL_BUFFER    0xdeadcafe
 #define DEBUG_INVAL_START_IDX -1
 
-GrGpu::GrGpu()
-    : fContext(NULL)
+GrGpu::GrGpu(GrContext* context)
+    : GrDrawTarget(context)
     , fResetTimestamp(kExpiredTimestamp+1)
     , fVertexPool(NULL)
     , fIndexPool(NULL)

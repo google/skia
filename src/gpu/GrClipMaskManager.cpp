@@ -991,3 +991,8 @@ GrTexture* GrClipMaskManager::createSoftwareClipMask(int32_t clipStackGenID,
 void GrClipMaskManager::releaseResources() {
     fAACache.releaseResources();
 }
+
+void GrClipMaskManager::setGpu(GrGpu* gpu) {
+    fGpu = gpu;
+    fAACache.setContext(gpu->getContext());
+}

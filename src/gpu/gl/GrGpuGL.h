@@ -24,7 +24,7 @@
 
 class GrGpuGL : public GrGpu {
 public:
-    GrGpuGL(const GrGLContextInfo& ctxInfo);
+    GrGpuGL(const GrGLContextInfo& ctxInfo, GrContext* context);
     virtual ~GrGpuGL();
 
     const GrGLInterface* glInterface() const {

@@ -88,7 +88,9 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    GrDrawTarget();
+    // The context may not be fully constructed and should not be used during GrDrawTarget
+    // construction.
+    GrDrawTarget(GrContext* context);
     virtual ~GrDrawTarget();
 
     /**
@@ -648,6 +650,9 @@ protected:
         }
     }
 
+    GrContext* getContext() { return fContext; }
+    const GrContext* getContext() const { return fContext; }
+
     // allows derived class to set the caps
     CapsInternals* capsInternals() { return &fCaps.fInternals; }
 
@@ -774,6 +779,8 @@ private:
     const GrClipData*                                               fClip;
     GrDrawState*                                                    fDrawState;
     GrDrawState                                                     fDefaultDrawState;
+    // The context owns us, not vice-versa, so this ptr is not ref'ed by DrawTarget.
+    GrContext*                                                      fContext;
 
     typedef GrRefCnt INHERITED;
 };

@@ -874,7 +874,8 @@ private:
 
     SkTDArray<CleanUpData>      fCleanUpData;
 
-    GrContext(GrGpu* gpu);
+    GrContext(); // init must be called after the constructor.
+    bool init(GrBackend, GrBackendContext);
 
     void setupDrawBuffer();
 
