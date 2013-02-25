@@ -10,6 +10,11 @@
 #include "SkStream.h"
 #include "SkData.h"
 
+#ifndef SK_BUILD_FOR_WIN
+#include <unistd.h>
+#include <fcntl.h>
+#endif
+
 #define MAX_SIZE    (256 * 1024)
 
 static void random_fill(SkRandom& rand, void* buffer, size_t size) {
@@ -73,6 +78,58 @@ static void TestRStream(skiatest::Reporter* reporter) {
     test_buffer(reporter);
 }
 
+static void test_loop_stream(skiatest::Reporter* reporter, SkStream* stream,
+                             const void* src, size_t len, int repeat) {
+    SkAutoSMalloc<256> storage(len);
+    void* tmp = storage.get();
+
+    for (int i = 0; i < repeat; ++i) {
+        size_t bytes = stream->read(tmp, len);
+        REPORTER_ASSERT(reporter, bytes == len);
+        REPORTER_ASSERT(reporter, !memcmp(tmp, src, len));
+    }
+
+    // expect EOF
+    size_t bytes = stream->read(tmp, 1);
+    REPORTER_ASSERT(reporter, 0 == bytes);
+}
+
+static void test_filestreams(skiatest::Reporter* reporter, const char* tmpDir) {
+    SkString path;
+    path.printf("%s%s", tmpDir, "wstream_test");
+
+    const char s[] = "abcdefghijklmnopqrstuvwxyz";
+
+    {
+        SkFILEWStream writer(path.c_str());
+        if (!writer.isValid()) {
+            SkString msg;
+            msg.printf("Failed to create tmp file %s\n", path.c_str());
+            reporter->reportFailed(msg.c_str());
+            return;
+        }
+
+        for (int i = 0; i < 100; ++i) {
+            writer.write(s, 26);
+        }
+    }
+
+    {
+        SkFILEStream stream(path.c_str());
+        REPORTER_ASSERT(reporter, stream.isValid());
+        test_loop_stream(reporter, &stream, s, 26, 100);
+    }
+
+#ifndef SK_BUILD_FOR_WIN
+    {
+        int fd = ::open(path.c_str(), O_RDONLY);
+        SkFDStream stream(fd, true);
+        REPORTER_ASSERT(reporter, stream.isValid());
+        test_loop_stream(reporter, &stream, s, 26, 100);
+    }
+#endif
+}
+
 static void TestWStream(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream  ds;
     const char s[] = "abcdefghijklmnopqrstuvwxyz";
@@ -97,6 +154,10 @@ static void TestWStream(skiatest::Reporter* reporter) {
         data->unref();
     }
     delete[] dst;
+
+    if (skiatest::Test::GetTmpDir()) {
+        test_filestreams(reporter, skiatest::Test::GetTmpDir());
+    }
 }
 
 static void TestPackedUInt(skiatest::Reporter* reporter) {
