@@ -9,6 +9,7 @@
 #define SkFontConfigInterface_DEFINED
 
 #include "SkRefCnt.h"
+#include "SkTypeface.h"
 
 /**
  *  \class SkFontConfigInterface
