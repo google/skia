@@ -151,6 +151,8 @@
       '<(skia_src_path)/gpu/gl/GrGLIndexBuffer.h',
       '<(skia_src_path)/gpu/gl/GrGLInterface.cpp',
       '<(skia_src_path)/gpu/gl/GrGLIRect.h',
+      '<(skia_src_path)/gpu/gl/GrGLNoOpInterface.cpp',
+      '<(skia_src_path)/gpu/gl/GrGLNoOpInterface.h',
       '<(skia_src_path)/gpu/gl/GrGLPath.cpp',
       '<(skia_src_path)/gpu/gl/GrGLPath.h',
       '<(skia_src_path)/gpu/gl/GrGLProgram.cpp',
