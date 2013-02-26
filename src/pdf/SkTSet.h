@@ -71,7 +71,7 @@ public:
                 j++; // Skip one of the duplicates.
             }
         }
-        
+
         while (i < count()) {
             fArrayNew->push((*fArray)[i]);
             i++;
@@ -89,7 +89,7 @@ public:
         validate();
 #endif
         return duplicates;
-    }    
+    }
 
     /** Adds a new element into set and returns true if the element is already
      * in this set.
@@ -113,7 +113,7 @@ public:
     */
     bool isEmpty() const {
         SkASSERT(fArray);
-        return fArray->isEmpty(); 
+        return fArray->isEmpty();
     }
 
     /** Return the number of elements in the set.
@@ -130,7 +130,7 @@ public:
         return fArray->bytes();
     }
 
-    /** Return the beginning of a set iterator. 
+    /** Return the beginning of a set iterator.
      * Elements in the iterator will be sorted ascending.
      */
     const T*  begin() const {
@@ -138,7 +138,7 @@ public:
         return fArray->begin();
     }
 
-    /** Return the end of a set iterator. 
+    /** Return the end of a set iterator.
      */
     const T*  end() const {
         SkASSERT(fArray);

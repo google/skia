@@ -25,7 +25,7 @@ static SkFontConfigInterface* gFontConfigInterface;
 
 SkFontConfigInterface* SkFontConfigInterface::RefGlobal() {
     SkAutoMutexAcquire ac(gFontConfigInterfaceMutex);
-    
+
     return SkSafeRef(gFontConfigInterface);
 }
 
@@ -207,7 +207,7 @@ void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
     // would also like other names (see SkFontDescriptor.h)
 
     desc.serialize(stream);
-    
+
     // by convention, we also write out the actual sfnt data, preceeded by
     // a packed-length. For now we skip that, so we just write the zero.
     stream->writePackedUInt(0);
