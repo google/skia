@@ -20,6 +20,8 @@
 #include "SkStream.h"
 #include "SkTypeface.h"
 
+extern SkFontConfigInterface* SkCreateDirectFontConfigInterface();
+
 SK_DECLARE_STATIC_MUTEX(gFontConfigInterfaceMutex);
 static SkFontConfigInterface* gFontConfigInterface;
 
@@ -39,7 +41,14 @@ SkFontConfigInterface* SkFontConfigInterface::SetGlobal(SkFontConfigInterface* f
 ///////////////////////////////////////////////////////////////////////////////
 
 static SkFontConfigInterface* RefFCI() {
-    return SkFontConfigInterface::RefGlobal();
+    for (;;) {
+        SkFontConfigInterface* fci = SkFontConfigInterface::RefGlobal();
+        if (fci) {
+            return fci;
+        }
+        fci = SkCreateDirectFontConfigInterface();
+        SkFontConfigInterface::SetGlobal(fci)->unref();
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
