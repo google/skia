@@ -347,11 +347,8 @@ bool SkFontConfigInterfaceDirect::match(const char familyName[],
                                         SkTypeface::Style style,
 	                                unsigned* result_filefaceid,
                                         SkTypeface::Style* result_style) {
-    if (NULL == familyName) {
-        familyName = "sans-serif";
-    }
-    size_t familyLen = strlen(familyName);
-    if (familyLen > kMaxFontFamilyLength) {
+    std::string familyStr(familyName ? familyName : "");
+    if (familyStr.length() > kMaxFontFamilyLength) {
         return false;
     }
 
@@ -359,7 +356,7 @@ bool SkFontConfigInterfaceDirect::match(const char familyName[],
 
     // search our cache
     {
-	FontMatchKey key = FontMatchKey(familyName, style);
+	FontMatchKey key = FontMatchKey(familyStr, style);
         const std::map<FontMatchKey, FontMatch>::const_iterator i =
                         font_match_cache_.find(key);
         if (i != font_match_cache_.end()) {
@@ -371,7 +368,9 @@ bool SkFontConfigInterfaceDirect::match(const char familyName[],
 
     FcPattern* pattern = FcPatternCreate();
 
-    FcPatternAddString(pattern, FC_FAMILY, (FcChar8*)familyName);
+    if (familyName) {
+        FcPatternAddString(pattern, FC_FAMILY, (FcChar8*)familyName);
+    }
     FcPatternAddInteger(pattern, FC_WEIGHT,
                         (style & SkTypeface::kBold) ? FC_WEIGHT_BOLD
                                                     : FC_WEIGHT_NORMAL);
@@ -421,7 +420,7 @@ bool SkFontConfigInterfaceDirect::match(const char familyName[],
         return false;
     }
 
-    FcPattern* match = MatchFont(font_set, post_config_family, familyName);
+    FcPattern* match = MatchFont(font_set, post_config_family, familyStr);
     if (!match) {
         FcPatternDestroy(pattern);
         FcFontSetDestroy(font_set);
@@ -467,7 +466,7 @@ bool SkFontConfigInterfaceDirect::match(const char familyName[],
     FcFontSetDestroy(font_set);
 
     if (success) {
-        font_match_cache_[FontMatchKey(familyName, style)] = font_match;
+        font_match_cache_[FontMatchKey(familyStr, style)] = font_match;
         *result_filefaceid = font_match.filefaceid;
         *result_style = font_match.style;
     }
@@ -475,11 +474,15 @@ bool SkFontConfigInterfaceDirect::match(const char familyName[],
     return success;
 }
 
+#include <fontconfig/fcfreetype.h>
+
 bool SkFontConfigInterfaceDirect::getFamilyName(unsigned filefaceid,
                                                 SkString* result_family) {
     SkAutoMutexAcquire ac(mutex_);
 
+#if 0
     FcPattern* pattern = FcPatternCreate();
+    SkString filename;
 
     {
         const std::map<unsigned, std::string>::const_iterator
@@ -489,11 +492,9 @@ bool SkFontConfigInterfaceDirect::getFamilyName(unsigned filefaceid,
             return false;
         }
         int face_index = filefaceid & 0xfu;
+        filename.set(i->second.c_str());
         FcPatternAddString(pattern, FC_FILE,
             reinterpret_cast<const FcChar8*>(i->second.c_str()));
-        // face_index is added only when family is empty because it is not
-        // necessary to uniquiely identify a font if both file and
-        // family are given.
         FcPatternAddInteger(pattern, FC_INDEX, face_index);
     }
 
@@ -502,67 +503,50 @@ bool SkFontConfigInterfaceDirect::getFamilyName(unsigned filefaceid,
     FcConfigSubstitute(NULL, pattern, FcMatchPattern);
     FcDefaultSubstitute(pattern);
 
-    // Font matching:
-    // CSS often specifies a fallback list of families:
-    //    font-family: a, b, c, serif;
-    // However, fontconfig will always do its best to find *a* font when asked
-    // for something so we need a way to tell if the match which it has found is
-    // "good enough" for us. Otherwise, we can return NULL which gets piped up
-    // and lets WebKit know to try the next CSS family name. However, fontconfig
-    // configs allow substitutions (mapping "Arial -> Helvetica" etc) and we
-    // wish to support that.
-    //
-    // Thus, if a specific family is requested we set @family_requested. Then we
-    // record two strings: the family name after config processing and the
-    // family name after resolving. If the two are equal, it's a good match.
-    //
-    // So consider the case where a user has mapped Arial to Helvetica in their
-    // config.
-    //    requested family: "Arial"
-    //    post_config_family: "Helvetica"
-    //    post_match_family: "Helvetica"
-    //      -> good match
-    //
-    // and for a missing font:
-    //    requested family: "Monaco"
-    //    post_config_family: "Monaco"
-    //    post_match_family: "Times New Roman"
-    //      -> BAD match
-    //
-    // However, we special-case fallback fonts; see IsFallbackFontAllowed().
-    FcChar8* post_config_family;
-    FcPatternGetString(pattern, FC_FAMILY, 0, &post_config_family);
-SkDebugf("--- post_config_family <%s>\n", post_config_family);
     FcResult result;
     FcFontSet* font_set = FcFontSort(0, pattern, 0, 0, &result);
-    if (!font_set) {
+    if (!font_set || font_set->nfont <= 0) {
         FcPatternDestroy(pattern);
         return false;
     }
 
-    FcPattern* match = MatchFont(font_set, post_config_family, (const char*)post_config_family);
-    if (!match) {
-        FcPatternDestroy(pattern);
-        FcFontSetDestroy(font_set);
-        return false;
+    bool found = false;
+    for (int i = 0; i < font_set->nfont; ++i) {
+        FcChar8* file;
+        FcPatternGetString(font_set->fonts[i], FC_FILE, 0, &file);
+        if (filename.equals((const char*)file)) {
+            FcChar8* family;
+            FcPatternGetString(font_set->fonts[i], FC_FAMILY, 0, &family);
+            result_family->set((const char*)family);
+            found = true;
+            break;
+        }
     }
 
     FcPatternDestroy(pattern);
-
-    FontMatch font_match;
-    font_match.filefaceid = filefaceid;
-
-    bool success = GetFontProperties(match,
-                                     &font_match.family,
-                                     &font_match.style);
     FcFontSetDestroy(font_set);
-
-    if (success) {
-SkDebugf("--- font_match.family <%s>\n", font_match.family.c_str());
-        result_family->set(font_match.family.c_str());
+    return found;
+#else
+    const std::map<unsigned, std::string>::const_iterator
+        i = fileid_to_filename_.find(FileFaceIdToFileId(filefaceid));
+    if (i == fileid_to_filename_.end()) {
+        return false;
     }
 
-    return success;
+    int face_index = filefaceid & 0xfu;
+    int count;
+    FcPattern* pattern = FcFreeTypeQuery((const FcChar8*)i->second.c_str(),
+                                         face_index, NULL, &count);
+    if (!pattern || count <= 0) {
+        return false;
+    }
+
+    FcChar8* family;
+    FcPatternGetString(pattern, FC_FAMILY, 0, &family);
+
+    result_family->set((const char*)family);
+    return true;
+#endif
 }
 
 SkStream* SkFontConfigInterfaceDirect::openStream(unsigned filefaceid) {
