@@ -219,6 +219,7 @@ void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
         desc.setFamilyName("sans-serif");
     }
 
+//SkDebugf("Serialize:  <%s>\n", desc.getFamilyName());
     // would also like other names (see SkFontDescriptor.h)
 
     desc.serialize(stream);
@@ -229,15 +230,30 @@ void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
 }
 
 SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
-    SkFontDescriptor desc(stream);
+    SkFontDescriptor descriptor(stream);
+    const char* familyName = descriptor.getFamilyName();
+    const SkTypeface::Style style = descriptor.getStyle();
 
-    // by convention, Serialize will have also written the actual sfnt data.
-    // for now, we just want to skip it.
-    size_t size = stream->readPackedUInt();
-    stream->skip(size);
+    const uint32_t customFontDataLength = stream->readPackedUInt();
+    if (customFontDataLength > 0) {
+#if 0 // need to support inline data...
 
-    return SkFontHost::CreateTypeface(NULL, desc.getFamilyName(),
-                                      desc.getStyle());
+        // generate a new stream to store the custom typeface
+        SkMemoryStream* fontStream = new SkMemoryStream(customFontDataLength - 1);
+        stream->read((void*)fontStream->getMemoryBase(), customFontDataLength - 1);
+
+        SkTypeface* face = CreateTypefaceFromStream(fontStream);
+
+        fontStream->unref();
+        return face;
+#else
+        stream->skip(customFontDataLength);
+        return NULL;
+#endif
+    } else {
+//SkDebugf("Deserialize:<%s> %d\n", familyName, style);
+        return SkFontHost::CreateTypeface(NULL, familyName, style);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
