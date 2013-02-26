@@ -99,7 +99,6 @@
         '../samplecode/SampleTextureDomain.cpp',
         '../samplecode/SampleTiling.cpp',
         '../samplecode/SampleTinyBitmap.cpp',
-        '../samplecode/SampleTypeface.cpp',
         '../samplecode/SampleUnitMapper.cpp',
         '../samplecode/SampleVertices.cpp',
         '../samplecode/SampleXfermodesBlur.cpp',
