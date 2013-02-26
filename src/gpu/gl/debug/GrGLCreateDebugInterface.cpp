@@ -17,20 +17,9 @@
 #include "GrFrameBufferObj.h"
 #include "GrRenderBufferObj.h"
 #include "SkFloatingPoint.h"
+#include "../GrGLNoOpInterface.h"
 
-// the OpenGLES 2.0 spec says this must be >= 128
-static const GrGLint kDefaultMaxVertexUniformVectors = 128;
-
-// the OpenGLES 2.0 spec says this must be >=16
-static const GrGLint kDefaultMaxFragmentUniformVectors = 16;
-
-// the OpenGLES 2.0 spec says this must be >= 8
-static const GrGLint kDefaultMaxVertexAttribs = 8;
-
-// the OpenGLES 2.0 spec says this must be >= 8
-static const GrGLint kDefaultMaxVaryingVectors = 8;
-
-namespace { // suppress no previsous prototype warning
+namespace { // suppress no previous prototype warning
 
 ////////////////////////////////////////////////////////////////////////////////
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLActiveTexture(GrGLenum texture) {
@@ -81,20 +70,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindTexture(GrGLenum target,
     GrDebugGL::getInstance()->setTexture(texture);
 }
 
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLBlendColor(GrGLclampf red,
-                                               GrGLclampf green,
-                                               GrGLclampf blue,
-                                               GrGLclampf alpha) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindFragDataLocation(GrGLuint program,
-                                                         GrGLuint colorNumber,
-                                                         const GrGLchar* name) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLBlendFunc(GrGLenum sfactor,
-                                              GrGLenum dfactor) {
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLBufferData(GrGLenum target,
@@ -128,96 +103,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLBufferData(GrGLenum target,
     buffer->setUsage(usage);
 }
 
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLBufferSubData(GrGLenum target,
-                                                  GrGLintptr offset,
-                                                  GrGLsizeiptr size,
-                                                  const GrGLvoid* data) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLClear(GrGLbitfield mask) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLClearColor(GrGLclampf red,
-                                               GrGLclampf green,
-                                               GrGLclampf blue,
-                                               GrGLclampf alpha) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLClearStencil(GrGLint s) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLColorMask(GrGLboolean red,
-                                              GrGLboolean green,
-                                              GrGLboolean blue,
-                                              GrGLboolean alpha) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLCompileShader(GrGLuint shader) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLCompressedTexImage2D(GrGLenum target,
-                                                         GrGLint level,
-                                                         GrGLenum internalformat,
-                                                         GrGLsizei width,
-                                                         GrGLsizei height,
-                                                         GrGLint border,
-                                                         GrGLsizei imageSize,
-                                                         const GrGLvoid* data) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLCullFace(GrGLenum mode) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLDepthMask(GrGLboolean flag) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLDisable(GrGLenum cap) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLDisableVertexAttribArray(GrGLuint index) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLDrawArrays(GrGLenum mode,
-                                               GrGLint first,
-                                               GrGLsizei count) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLDrawBuffer(GrGLenum mode) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLDrawBuffers(GrGLsizei n,
-                                                const GrGLenum* bufs) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLDrawElements(GrGLenum mode,
-                                                 GrGLsizei count,
-                                                 GrGLenum type,
-                                                 const GrGLvoid* indices) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLEnable(GrGLenum cap) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLEnableVertexAttribArray(GrGLuint index) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLEndQuery(GrGLenum target) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLFinish() {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLFlush() {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLFrontFace(GrGLenum mode) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLLineWidth(GrGLfloat width) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLLinkProgram(GrGLuint program) {
-}
 
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLPixelStorei(GrGLenum pname,
                                                 GrGLint param) {
@@ -238,13 +123,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLPixelStorei(GrGLenum pname,
             GrAlwaysAssert(false);
             break;
     }
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLQueryCounter(GrGLuint id,
-                                                 GrGLenum target) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLReadBuffer(GrGLenum src) {
 }
 
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLReadPixels(GrGLint x,
@@ -310,192 +188,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLReadPixels(GrGLint x,
     }
 }
 
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLScissor(GrGLint x,
-                                            GrGLint y,
-                                            GrGLsizei width,
-                                            GrGLsizei height) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLShaderSource(GrGLuint shader,
-                                                 GrGLsizei count,
-#if GR_USE_NEW_GL_SHADER_SOURCE_SIGNATURE
-                                                 const char* const * str,
-#else
-                                                 const char** str,
-#endif
-                                                 const GrGLint* length) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLStencilFunc(GrGLenum func,
-                                                GrGLint ref,
-                                                GrGLuint mask) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLStencilFuncSeparate(GrGLenum face,
-                                                        GrGLenum func,
-                                                        GrGLint ref,
-                                                        GrGLuint mask) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLStencilMask(GrGLuint mask) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLStencilMaskSeparate(GrGLenum face,
-                                                        GrGLuint mask) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLStencilOp(GrGLenum fail,
-                                              GrGLenum zfail,
-                                              GrGLenum zpass) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLStencilOpSeparate(GrGLenum face,
-                                                      GrGLenum fail,
-                                                      GrGLenum zfail,
-                                                      GrGLenum zpass) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLTexImage2D(GrGLenum target,
-                                               GrGLint level,
-                                               GrGLint internalformat,
-                                               GrGLsizei width,
-                                               GrGLsizei height,
-                                               GrGLint border,
-                                               GrGLenum format,
-                                               GrGLenum type,
-                                               const GrGLvoid* pixels) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLTexParameteri(GrGLenum target,
-                                                  GrGLenum pname,
-                                                  GrGLint param) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLTexParameteriv(GrGLenum target,
-                                                   GrGLenum pname,
-                                                   const GrGLint* params) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLTexStorage2D(GrGLenum target,
-                                                 GrGLsizei levels,
-                                                 GrGLenum internalformat,
-                                                 GrGLsizei width,
-                                                 GrGLsizei height) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLTexSubImage2D(GrGLenum target,
-                                                  GrGLint level,
-                                                  GrGLint xoffset,
-                                                  GrGLint yoffset,
-                                                  GrGLsizei width,
-                                                  GrGLsizei height,
-                                                  GrGLenum format,
-                                                  GrGLenum type,
-                                                  const GrGLvoid* pixels) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniform1f(GrGLint location,
-                                              GrGLfloat v0) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniform1i(GrGLint location,
-                                              GrGLint v0) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniform1fv(GrGLint location,
-                                               GrGLsizei count,
-                                               const GrGLfloat* v) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniform1iv(GrGLint location,
-                                               GrGLsizei count,
-                                               const GrGLint* v) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniform2f(GrGLint location,
-                                              GrGLfloat v0,
-                                              GrGLfloat v1) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniform2i(GrGLint location,
-                                              GrGLint v0,
-                                              GrGLint v1) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniform2fv(GrGLint location,
-                                               GrGLsizei count,
-                                               const GrGLfloat* v) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniform2iv(GrGLint location,
-                                               GrGLsizei count,
-                                               const GrGLint* v) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniform3f(GrGLint location,
-                                              GrGLfloat v0,
-                                              GrGLfloat v1,
-                                              GrGLfloat v2) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniform3i(GrGLint location,
-                                              GrGLint v0,
-                                              GrGLint v1,
-                                              GrGLint v2) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniform3fv(GrGLint location,
-                                               GrGLsizei count,
-                                               const GrGLfloat* v) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniform3iv(GrGLint location,
-                                               GrGLsizei count,
-                                               const GrGLint* v) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniform4f(GrGLint location,
-                                              GrGLfloat v0,
-                                              GrGLfloat v1,
-                                              GrGLfloat v2,
-                                              GrGLfloat v3) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniform4i(GrGLint location,
-                                              GrGLint v0,
-                                              GrGLint v1,
-                                              GrGLint v2,
-                                              GrGLint v3) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniform4fv(GrGLint location,
-                                               GrGLsizei count,
-                                               const GrGLfloat* v) {
- }
-
- GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniform4iv(GrGLint location,
-                                                GrGLsizei count,
-                                                const GrGLint* v) {
- }
-
- GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniformMatrix2fv(GrGLint location,
-                                                      GrGLsizei count,
-                                                      GrGLboolean transpose,
-                                                      const GrGLfloat* value) {
- }
-
- GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniformMatrix3fv(GrGLint location,
-                                                      GrGLsizei count,
-                                                      GrGLboolean transpose,
-                                                      const GrGLfloat* value) {
- }
-
- GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniformMatrix4fv(GrGLint location,
-                                                      GrGLsizei count,
-                                                      GrGLboolean transpose,
-                                                      const GrGLfloat* value) {
- }
-
  GrGLvoid GR_GL_FUNCTION_TYPE debugGLUseProgram(GrGLuint programID) {
 
      // A programID of 0 is legal
@@ -504,24 +196,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniform4fv(GrGLint location,
                                      GrDebugGL::kProgram_ObjTypes);
 
      GrDebugGL::getInstance()->useProgram(program);
- }
-
- GrGLvoid GR_GL_FUNCTION_TYPE debugGLVertexAttrib4fv(GrGLuint indx,
-                                                     const GrGLfloat* values) {
- }
-
- GrGLvoid GR_GL_FUNCTION_TYPE debugGLVertexAttribPointer(GrGLuint indx,
-                                                         GrGLint size,
-                                                         GrGLenum type,
-                                                         GrGLboolean normalized,
-                                                         GrGLsizei stride,
-                                                         const GrGLvoid* ptr) {
- }
-
- GrGLvoid GR_GL_FUNCTION_TYPE debugGLViewport(GrGLint x,
-                                              GrGLint y,
-                                              GrGLsizei width,
-                                              GrGLsizei height) {
  }
 
  GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindFramebuffer(GrGLenum target,
@@ -783,58 +457,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLUniform4fv(GrGLint location,
      };
  }
 
- GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetFramebufferAttachmentParameteriv(GrGLenum target,
-                                                                         GrGLenum attachment,
-                                                                         GrGLenum pname,
-                                                                         GrGLint* params) {
- }
-
- GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetRenderbufferParameteriv(GrGLenum target,
-                                                                GrGLenum pname,
-                                                                GrGLint* params) {
- }
-
- GrGLvoid GR_GL_FUNCTION_TYPE debugGLRenderbufferStorage(GrGLenum target,
-                                                         GrGLenum internalformat,
-                                                         GrGLsizei width,
-                                                         GrGLsizei height) {
- }
-
- GrGLvoid GR_GL_FUNCTION_TYPE debugGLRenderbufferStorageMultisample(GrGLenum target,
-                                                                    GrGLsizei samples,
-                                                                    GrGLenum internalformat,
-                                                                    GrGLsizei width,
-                                                                    GrGLsizei height) {
- }
-
- GrGLvoid GR_GL_FUNCTION_TYPE debugGLBlitFramebuffer(GrGLint srcX0,
-                                                     GrGLint srcY0,
-                                                     GrGLint srcX1,
-                                                     GrGLint srcY1,
-                                                     GrGLint dstX0,
-                                                    GrGLint dstY0,
-                                                    GrGLint dstX1,
-                                                    GrGLint dstY1,
-                                                    GrGLbitfield mask,
-                                                    GrGLenum filter) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLResolveMultisampleFramebuffer() {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindFragDataLocationIndexed(GrGLuint program,
-                                                                GrGLuint colorNumber,
-                                                                GrGLuint index,
-                                                                const GrGLchar * name) {
-}
-
-GrGLenum GR_GL_FUNCTION_TYPE debugGLCheckFramebufferStatus(GrGLenum target) {
-
-    GrAlwaysAssert(GR_GL_FRAMEBUFFER == target);
-
-    return GR_GL_FRAMEBUFFER_COMPLETE;
-}
-
 GrGLuint GR_GL_FUNCTION_TYPE debugGLCreateProgram() {
 
     GrProgramObj *program = GR_CREATE(GrProgramObj,
@@ -884,14 +506,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteShader(GrGLuint shaderID) {
     }
 }
 
-// same function used for all glGen*(GLsize i, GLuint*) functions
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLGenIds(GrGLsizei n, GrGLuint* ids) {
-    static int gCurrID = 1;
-    for (int i = 0; i < n; ++i) {
-        ids[i] = ++gCurrID;
-    }
-}
-
 GrGLvoid debugGenObjs(GrDebugGL::GrObjTypes type,
                       GrGLsizei n,
                       GrGLuint* ids) {
@@ -925,12 +539,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLGenTextures(GrGLsizei n, GrGLuint* ids) {
     debugGenObjs(GrDebugGL::kTexture_ObjTypes, n, ids);
 }
 
-// same delete function for all glDelete*(GLsize i, const GLuint*) except
-// buffers
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteIds(GrGLsizei n,
-                                              const GrGLuint* ids) {
-}
-
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindBuffer(GrGLenum target,
                                                GrGLuint bufferID) {
 
@@ -940,7 +548,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindBuffer(GrGLenum target,
     GrBufferObj *buffer = GR_FIND(bufferID,
                                   GrBufferObj,
                                   GrDebugGL::kBuffer_ObjTypes);
-    // 0 is a permissable bufferID - it unbinds the current buffer
+    // 0 is a permissible bufferID - it unbinds the current buffer
 
     switch (target) {
         case GR_GL_ARRAY_BUFFER:
@@ -1090,190 +698,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetBufferParameteriv(GrGLenum target,
             break;
     }
 };
-
-GrGLenum GR_GL_FUNCTION_TYPE debugGLGetError() {
-    return GR_GL_NO_ERROR;
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetIntegerv(GrGLenum pname,
-                                                GrGLint* params) {
-    // TODO: remove from Ganesh the #defines for gets we don't use.
-    // We would like to minimize gets overall due to performance issues
-    switch (pname) {
-        case GR_GL_STENCIL_BITS:
-            *params = 8;
-            break;
-        case GR_GL_SAMPLES:
-            *params = 1;
-            break;
-        case GR_GL_FRAMEBUFFER_BINDING:
-            *params = 0;
-            break;
-        case GR_GL_VIEWPORT:
-            params[0] = 0;
-            params[1] = 0;
-            params[2] = 800;
-            params[3] = 600;
-            break;
-        case GR_GL_MAX_TEXTURE_IMAGE_UNITS:
-            *params = 8;
-            break;
-        case GR_GL_MAX_VERTEX_UNIFORM_VECTORS:
-            *params = kDefaultMaxVertexUniformVectors;
-            break;
-        case GR_GL_MAX_FRAGMENT_UNIFORM_VECTORS:
-            *params = kDefaultMaxFragmentUniformVectors;
-            break;
-        case GR_GL_MAX_FRAGMENT_UNIFORM_COMPONENTS:
-            *params = 16 * 4;
-            break;
-        case GR_GL_NUM_COMPRESSED_TEXTURE_FORMATS:
-            *params = 0;
-            break;
-        case GR_GL_COMPRESSED_TEXTURE_FORMATS:
-            break;
-        case GR_GL_MAX_TEXTURE_SIZE:
-            *params = 8192;
-            break;
-        case GR_GL_MAX_RENDERBUFFER_SIZE:
-            *params = 8192;
-            break;
-        case GR_GL_MAX_SAMPLES:
-            *params = 32;
-            break;
-        case GR_GL_MAX_VERTEX_ATTRIBS:
-            *params = kDefaultMaxVertexAttribs;
-            break;
-        case GR_GL_MAX_VARYING_VECTORS:
-            *params = kDefaultMaxVaryingVectors;
-            break;
-        default:
-            GrCrash("Unexpected pname to GetIntegerv");
-    }
-}
-// used for both the program and shader info logs
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetInfoLog(GrGLuint program,
-                                               GrGLsizei bufsize,
-                                               GrGLsizei* length,
-                                               char* infolog) {
-    if (length) {
-        *length = 0;
-    }
-    if (bufsize > 0) {
-        *infolog = 0;
-    }
-}
-
-// used for both the program and shader params
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetShaderOrProgramiv(GrGLuint program,
-                                                         GrGLenum pname,
-                                                         GrGLint* params) {
-    switch (pname) {
-        case GR_GL_LINK_STATUS:  // fallthru
-        case GR_GL_COMPILE_STATUS:
-            *params = GR_GL_TRUE;
-            break;
-        case GR_GL_INFO_LOG_LENGTH:
-            *params = 0;
-            break;
-        // we don't expect any other pnames
-        default:
-            GrCrash("Unexpected pname to GetProgramiv");
-            break;
-    }
-}
-
-namespace {
-template <typename T>
-void query_result(GrGLenum GLtarget, GrGLenum pname, T *params) {
-    switch (pname) {
-        case GR_GL_QUERY_RESULT_AVAILABLE:
-            *params = GR_GL_TRUE;
-            break;
-        case GR_GL_QUERY_RESULT:
-            *params = 0;
-            break;
-        default:
-            GrCrash("Unexpected pname passed to GetQueryObject.");
-            break;
-    }
-}
-}
-
-// Queries on the null GL just don't do anything at all. We could potentially
-// make the timers work.
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetQueryiv(GrGLenum GLtarget,
-                                               GrGLenum pname,
-                                               GrGLint *params) {
-    switch (pname) {
-        case GR_GL_CURRENT_QUERY:
-            *params = 0;
-            break;
-        case GR_GL_QUERY_COUNTER_BITS:
-            *params = 32;
-            break;
-        default:
-            GrCrash("Unexpected pname passed GetQueryiv.");
-    }
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetQueryObjecti64v(GrGLuint id,
-                                                       GrGLenum pname,
-                                                       GrGLint64 *params) {
-    query_result(id, pname, params);
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetQueryObjectiv(GrGLuint id,
-                                                     GrGLenum pname,
-                                                     GrGLint *params) {
-    query_result(id, pname, params);
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetQueryObjectui64v(GrGLuint id,
-                                                        GrGLenum pname,
-                                                        GrGLuint64 *params) {
-    query_result(id, pname, params);
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetQueryObjectuiv(GrGLuint id,
-                                                      GrGLenum pname,
-                                                      GrGLuint *params) {
-    query_result(id, pname, params);
-}
-
-const GrGLubyte* GR_GL_FUNCTION_TYPE debugGLGetString(GrGLenum name) {
-    switch (name) {
-        case GR_GL_EXTENSIONS:
-            return (const GrGLubyte*)"GL_ARB_framebuffer_object GL_ARB_blend_func_extended GL_ARB_timer_query GL_ARB_draw_buffers GL_ARB_occlusion_query GL_EXT_blend_color GL_EXT_stencil_wrap";
-        case GR_GL_VERSION:
-            return (const GrGLubyte*)"4.0 Debug GL";
-        case GR_GL_SHADING_LANGUAGE_VERSION:
-            return (const GrGLubyte*)"4.20.8 Debug GLSL";
-        case GR_GL_VENDOR:
-            return (const GrGLubyte*)"Debug Vendor";
-        case GR_GL_RENDERER:
-            return (const GrGLubyte*)"The Debug (Non-)Renderer";
-        default:
-            GrCrash("Unexpected name to GetString");
-            return NULL;
-    }
-}
-
-// we used to use this to query stuff about externally created textures,
-// now we just require clients to tell us everything about the texture.
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetTexLevelParameteriv(GrGLenum target,
-                                                           GrGLint level,
-                                                           GrGLenum pname,
-                                                           GrGLint* params) {
-    GrCrash("Should never query texture parameters.");
-}
-
-GrGLint GR_GL_FUNCTION_TYPE debugGLGetUniformLocation(GrGLuint program,
-                                                      const char* name) {
-    static int gUniLocation = 0;
-    return ++gUniLocation;
-}
-
 } // end of namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1341,102 +765,102 @@ const GrGLInterface* GrGLCreateDebugInterface() {
     interface->fBeginQuery = debugGLBeginQuery;
     interface->fBindAttribLocation = debugGLBindAttribLocation;
     interface->fBindBuffer = debugGLBindBuffer;
-    interface->fBindFragDataLocation = debugGLBindFragDataLocation;
+    interface->fBindFragDataLocation = noOpGLBindFragDataLocation;
     interface->fBindTexture = debugGLBindTexture;
-    interface->fBlendColor = debugGLBlendColor;
-    interface->fBlendFunc = debugGLBlendFunc;
+    interface->fBlendColor = noOpGLBlendColor;
+    interface->fBlendFunc = noOpGLBlendFunc;
     interface->fBufferData = debugGLBufferData;
-    interface->fBufferSubData = debugGLBufferSubData;
-    interface->fClear = debugGLClear;
-    interface->fClearColor = debugGLClearColor;
-    interface->fClearStencil = debugGLClearStencil;
-    interface->fColorMask = debugGLColorMask;
-    interface->fCompileShader = debugGLCompileShader;
-    interface->fCompressedTexImage2D = debugGLCompressedTexImage2D;
+    interface->fBufferSubData = noOpGLBufferSubData;
+    interface->fClear = noOpGLClear;
+    interface->fClearColor = noOpGLClearColor;
+    interface->fClearStencil = noOpGLClearStencil;
+    interface->fColorMask = noOpGLColorMask;
+    interface->fCompileShader = noOpGLCompileShader;
+    interface->fCompressedTexImage2D = noOpGLCompressedTexImage2D;
     interface->fCreateProgram = debugGLCreateProgram;
     interface->fCreateShader = debugGLCreateShader;
-    interface->fCullFace = debugGLCullFace;
+    interface->fCullFace = noOpGLCullFace;
     interface->fDeleteBuffers = debugGLDeleteBuffers;
     interface->fDeleteProgram = debugGLDeleteProgram;
-    interface->fDeleteQueries = debugGLDeleteIds;
+    interface->fDeleteQueries = noOpGLDeleteIds;
     interface->fDeleteShader = debugGLDeleteShader;
     interface->fDeleteTextures = debugGLDeleteTextures;
-    interface->fDepthMask = debugGLDepthMask;
-    interface->fDisable = debugGLDisable;
-    interface->fDisableVertexAttribArray = debugGLDisableVertexAttribArray;
-    interface->fDrawArrays = debugGLDrawArrays;
-    interface->fDrawBuffer = debugGLDrawBuffer;
-    interface->fDrawBuffers = debugGLDrawBuffers;
-    interface->fDrawElements = debugGLDrawElements;
-    interface->fEnable = debugGLEnable;
-    interface->fEnableVertexAttribArray = debugGLEnableVertexAttribArray;
-    interface->fEndQuery = debugGLEndQuery;
-    interface->fFinish = debugGLFinish;
-    interface->fFlush = debugGLFlush;
-    interface->fFrontFace = debugGLFrontFace;
+    interface->fDepthMask = noOpGLDepthMask;
+    interface->fDisable = noOpGLDisable;
+    interface->fDisableVertexAttribArray = noOpGLDisableVertexAttribArray;
+    interface->fDrawArrays = noOpGLDrawArrays;
+    interface->fDrawBuffer = noOpGLDrawBuffer;
+    interface->fDrawBuffers = noOpGLDrawBuffers;
+    interface->fDrawElements = noOpGLDrawElements;
+    interface->fEnable = noOpGLEnable;
+    interface->fEnableVertexAttribArray = noOpGLEnableVertexAttribArray;
+    interface->fEndQuery = noOpGLEndQuery;
+    interface->fFinish = noOpGLFinish;
+    interface->fFlush = noOpGLFlush;
+    interface->fFrontFace = noOpGLFrontFace;
     interface->fGenBuffers = debugGLGenBuffers;
-    interface->fGenQueries = debugGLGenIds;
+    interface->fGenQueries = noOpGLGenIds;
     interface->fGenTextures = debugGLGenTextures;
     interface->fGetBufferParameteriv = debugGLGetBufferParameteriv;
-    interface->fGetError = debugGLGetError;
-    interface->fGetIntegerv = debugGLGetIntegerv;
-    interface->fGetQueryObjecti64v = debugGLGetQueryObjecti64v;
-    interface->fGetQueryObjectiv = debugGLGetQueryObjectiv;
-    interface->fGetQueryObjectui64v = debugGLGetQueryObjectui64v;
-    interface->fGetQueryObjectuiv = debugGLGetQueryObjectuiv;
-    interface->fGetQueryiv = debugGLGetQueryiv;
-    interface->fGetProgramInfoLog = debugGLGetInfoLog;
-    interface->fGetProgramiv = debugGLGetShaderOrProgramiv;
-    interface->fGetShaderInfoLog = debugGLGetInfoLog;
-    interface->fGetShaderiv = debugGLGetShaderOrProgramiv;
-    interface->fGetString = debugGLGetString;
-    interface->fGetTexLevelParameteriv = debugGLGetTexLevelParameteriv;
-    interface->fGetUniformLocation = debugGLGetUniformLocation;
-    interface->fLineWidth = debugGLLineWidth;
-    interface->fLinkProgram = debugGLLinkProgram;
+    interface->fGetError = noOpGLGetError;
+    interface->fGetIntegerv = noOpGLGetIntegerv;
+    interface->fGetQueryObjecti64v = noOpGLGetQueryObjecti64v;
+    interface->fGetQueryObjectiv = noOpGLGetQueryObjectiv;
+    interface->fGetQueryObjectui64v = noOpGLGetQueryObjectui64v;
+    interface->fGetQueryObjectuiv = noOpGLGetQueryObjectuiv;
+    interface->fGetQueryiv = noOpGLGetQueryiv;
+    interface->fGetProgramInfoLog = noOpGLGetInfoLog;
+    interface->fGetProgramiv = noOpGLGetShaderOrProgramiv;
+    interface->fGetShaderInfoLog = noOpGLGetInfoLog;
+    interface->fGetShaderiv = noOpGLGetShaderOrProgramiv;
+    interface->fGetString = noOpGLGetString;
+    interface->fGetTexLevelParameteriv = noOpGLGetTexLevelParameteriv;
+    interface->fGetUniformLocation = noOpGLGetUniformLocation;
+    interface->fLineWidth = noOpGLLineWidth;
+    interface->fLinkProgram = noOpGLLinkProgram;
     interface->fPixelStorei = debugGLPixelStorei;
-    interface->fQueryCounter = debugGLQueryCounter;
-    interface->fReadBuffer = debugGLReadBuffer;
+    interface->fQueryCounter = noOpGLQueryCounter;
+    interface->fReadBuffer = noOpGLReadBuffer;
     interface->fReadPixels = debugGLReadPixels;
-    interface->fScissor = debugGLScissor;
-    interface->fShaderSource = debugGLShaderSource;
-    interface->fStencilFunc = debugGLStencilFunc;
-    interface->fStencilFuncSeparate = debugGLStencilFuncSeparate;
-    interface->fStencilMask = debugGLStencilMask;
-    interface->fStencilMaskSeparate = debugGLStencilMaskSeparate;
-    interface->fStencilOp = debugGLStencilOp;
-    interface->fStencilOpSeparate = debugGLStencilOpSeparate;
-    interface->fTexImage2D = debugGLTexImage2D;
-    interface->fTexParameteri = debugGLTexParameteri;
-    interface->fTexParameteriv = debugGLTexParameteriv;
-    interface->fTexSubImage2D = debugGLTexSubImage2D;
-    interface->fTexStorage2D = debugGLTexStorage2D;
-    interface->fUniform1f = debugGLUniform1f;
-    interface->fUniform1i = debugGLUniform1i;
-    interface->fUniform1fv = debugGLUniform1fv;
-    interface->fUniform1iv = debugGLUniform1iv;
-    interface->fUniform2f = debugGLUniform2f;
-    interface->fUniform2i = debugGLUniform2i;
-    interface->fUniform2fv = debugGLUniform2fv;
-    interface->fUniform2iv = debugGLUniform2iv;
-    interface->fUniform3f = debugGLUniform3f;
-    interface->fUniform3i = debugGLUniform3i;
-    interface->fUniform3fv = debugGLUniform3fv;
-    interface->fUniform3iv = debugGLUniform3iv;
-    interface->fUniform4f = debugGLUniform4f;
-    interface->fUniform4i = debugGLUniform4i;
-    interface->fUniform4fv = debugGLUniform4fv;
-    interface->fUniform4iv = debugGLUniform4iv;
-    interface->fUniformMatrix2fv = debugGLUniformMatrix2fv;
-    interface->fUniformMatrix3fv = debugGLUniformMatrix3fv;
-    interface->fUniformMatrix4fv = debugGLUniformMatrix4fv;
+    interface->fScissor = noOpGLScissor;
+    interface->fShaderSource = noOpGLShaderSource;
+    interface->fStencilFunc = noOpGLStencilFunc;
+    interface->fStencilFuncSeparate = noOpGLStencilFuncSeparate;
+    interface->fStencilMask = noOpGLStencilMask;
+    interface->fStencilMaskSeparate = noOpGLStencilMaskSeparate;
+    interface->fStencilOp = noOpGLStencilOp;
+    interface->fStencilOpSeparate = noOpGLStencilOpSeparate;
+    interface->fTexImage2D = noOpGLTexImage2D;
+    interface->fTexParameteri = noOpGLTexParameteri;
+    interface->fTexParameteriv = noOpGLTexParameteriv;
+    interface->fTexSubImage2D = noOpGLTexSubImage2D;
+    interface->fTexStorage2D = noOpGLTexStorage2D;
+    interface->fUniform1f = noOpGLUniform1f;
+    interface->fUniform1i = noOpGLUniform1i;
+    interface->fUniform1fv = noOpGLUniform1fv;
+    interface->fUniform1iv = noOpGLUniform1iv;
+    interface->fUniform2f = noOpGLUniform2f;
+    interface->fUniform2i = noOpGLUniform2i;
+    interface->fUniform2fv = noOpGLUniform2fv;
+    interface->fUniform2iv = noOpGLUniform2iv;
+    interface->fUniform3f = noOpGLUniform3f;
+    interface->fUniform3i = noOpGLUniform3i;
+    interface->fUniform3fv = noOpGLUniform3fv;
+    interface->fUniform3iv = noOpGLUniform3iv;
+    interface->fUniform4f = noOpGLUniform4f;
+    interface->fUniform4i = noOpGLUniform4i;
+    interface->fUniform4fv = noOpGLUniform4fv;
+    interface->fUniform4iv = noOpGLUniform4iv;
+    interface->fUniformMatrix2fv = noOpGLUniformMatrix2fv;
+    interface->fUniformMatrix3fv = noOpGLUniformMatrix3fv;
+    interface->fUniformMatrix4fv = noOpGLUniformMatrix4fv;
     interface->fUseProgram = debugGLUseProgram;
-    interface->fVertexAttrib4fv = debugGLVertexAttrib4fv;
-    interface->fVertexAttribPointer = debugGLVertexAttribPointer;
-    interface->fViewport = debugGLViewport;
+    interface->fVertexAttrib4fv = noOpGLVertexAttrib4fv;
+    interface->fVertexAttribPointer = noOpGLVertexAttribPointer;
+    interface->fViewport = noOpGLViewport;
     interface->fBindFramebuffer = debugGLBindFramebuffer;
     interface->fBindRenderbuffer = debugGLBindRenderbuffer;
-    interface->fCheckFramebufferStatus = debugGLCheckFramebufferStatus;
+    interface->fCheckFramebufferStatus = noOpGLCheckFramebufferStatus;
     interface->fDeleteFramebuffers = debugGLDeleteFramebuffers;
     interface->fDeleteRenderbuffers = debugGLDeleteRenderbuffers;
     interface->fFramebufferRenderbuffer = debugGLFramebufferRenderbuffer;
@@ -1444,18 +868,18 @@ const GrGLInterface* GrGLCreateDebugInterface() {
     interface->fGenFramebuffers = debugGLGenFramebuffers;
     interface->fGenRenderbuffers = debugGLGenRenderbuffers;
     interface->fGetFramebufferAttachmentParameteriv =
-                                    debugGLGetFramebufferAttachmentParameteriv;
-    interface->fGetRenderbufferParameteriv = debugGLGetRenderbufferParameteriv;
-    interface->fRenderbufferStorage = debugGLRenderbufferStorage;
+                                    noOpGLGetFramebufferAttachmentParameteriv;
+    interface->fGetRenderbufferParameteriv = noOpGLGetRenderbufferParameteriv;
+    interface->fRenderbufferStorage = noOpGLRenderbufferStorage;
     interface->fRenderbufferStorageMultisample =
-                                    debugGLRenderbufferStorageMultisample;
-    interface->fBlitFramebuffer = debugGLBlitFramebuffer;
+                                    noOpGLRenderbufferStorageMultisample;
+    interface->fBlitFramebuffer = noOpGLBlitFramebuffer;
     interface->fResolveMultisampleFramebuffer =
-                                    debugGLResolveMultisampleFramebuffer;
+                                    noOpGLResolveMultisampleFramebuffer;
     interface->fMapBuffer = debugGLMapBuffer;
     interface->fUnmapBuffer = debugGLUnmapBuffer;
     interface->fBindFragDataLocationIndexed =
-                                    debugGLBindFragDataLocationIndexed;
+                                    noOpGLBindFragDataLocationIndexed;
 
     return interface;
 }
