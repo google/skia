@@ -215,6 +215,7 @@ const GrGLInterface* GrGLCreateNullInterface() {
         interface->fGetShaderInfoLog = noOpGLGetInfoLog;
         interface->fGetShaderiv = noOpGLGetShaderOrProgramiv;
         interface->fGetString = noOpGLGetString;
+        interface->fGetStringi = noOpGLGetStringi;
         interface->fGetTexLevelParameteriv = noOpGLGetTexLevelParameteriv;
         interface->fGetUniformLocation = noOpGLGetUniformLocation;
         interface->fLineWidth = noOpGLLineWidth;

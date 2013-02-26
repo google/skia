@@ -36,7 +36,7 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
 
     CGLPixelFormatAttribute attributes[] = {
 #if 0
-        kCGLPFAOpenGLProfile, kCGLOGLPVersion_3_2_Core,
+        kCGLPFAOpenGLProfile, (CGLPixelFormatAttribute) kCGLOGLPVersion_3_2_Core,
 #endif
         (CGLPixelFormatAttribute)0
     };

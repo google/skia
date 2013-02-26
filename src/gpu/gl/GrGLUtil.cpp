@@ -8,7 +8,6 @@
 
 #include "GrGLUtil.h"
 
-
 void GrGLClearErr(const GrGLInterface* gl) {
     while (GR_GL_NO_ERROR != gl->fGetError()) {}
 }
@@ -149,23 +148,6 @@ GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString) {
     return 0;
 }
 
-bool GrGLHasExtensionFromString(const char* ext, const char* extensionString) {
-    int extLength = strlen(ext);
-
-    while (true) {
-        int n = strcspn(extensionString, " ");
-        if (n == extLength && 0 == strncmp(ext, extensionString, n)) {
-            return true;
-        }
-        if (0 == extensionString[n]) {
-            return false;
-        }
-        extensionString += n+1;
-    }
-
-    return false;
-}
-
 GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
     if (NULL != vendorString) {
         if (0 == strcmp(vendorString, "ARM")) {
@@ -179,12 +161,6 @@ GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
         }
     }
     return kOther_GrGLVendor;
-}
-
-bool GrGLHasExtension(const GrGLInterface* gl, const char* ext) {
-    const GrGLubyte* glstr;
-    GR_GL_CALL_RET(gl, glstr, GetString(GR_GL_EXTENSIONS));
-    return GrGLHasExtensionFromString(ext, (const char*) glstr);
 }
 
 GrGLBinding GrGLGetBindingInUse(const GrGLInterface* gl) {
