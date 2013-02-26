@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -12,9 +11,7 @@
 #include "SkTypeface.h"
 #include "SkTypes.h"
 
-namespace skiagm {
-
-const char* gFaces[] = {
+static const char* gFaces[] = {
     "Times Roman",
     "Hiragino Maru Gothic Pro",
     "Papyrus",
@@ -22,7 +19,7 @@ const char* gFaces[] = {
     "Courier New"
 };
 
-class TypefaceGM : public GM {
+class TypefaceGM : public skiagm::GM {
 public:
     TypefaceGM() {
         fFaces = new SkTypeface*[SK_ARRAY_COUNT(gFaces)];
@@ -72,12 +69,83 @@ private:
 
     SkTypeface** fFaces;
 
-    typedef GM INHERITED;
+    typedef skiagm::GM INHERITED;
 };
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new TypefaceGM; }
-static GMRegistry reg(MyFactory);
+static const struct {
+    const char* fName;
+    SkTypeface::Style   fStyle;
+} gFaceStyles[] = {
+    { "sans-serif", SkTypeface::kNormal },
+    { "sans-serif", SkTypeface::kBold },
+    { "sans-serif", SkTypeface::kItalic },
+    { "sans-serif", SkTypeface::kBoldItalic },
+    { "serif", SkTypeface::kNormal },
+    { "serif", SkTypeface::kBold },
+    { "serif", SkTypeface::kItalic },
+    { "serif", SkTypeface::kBoldItalic },
+    { "monospace", SkTypeface::kNormal },
+    { "monospace", SkTypeface::kBold },
+    { "monospace", SkTypeface::kItalic },
+    { "monospace", SkTypeface::kBoldItalic },
+};
 
-}   // skiagm
+static const int gFaceStylesCount = SK_ARRAY_COUNT(gFaceStyles);
+
+class TypefaceStylesGM : public skiagm::GM {
+    SkTypeface* fFaces[gFaceStylesCount];
+    
+public:
+    TypefaceStylesGM() {
+        for (int i = 0; i < gFaceStylesCount; i++) {
+            fFaces[i] = SkTypeface::CreateFromName(gFaceStyles[i].fName,
+                                                   gFaceStyles[i].fStyle);
+        }
+    }
+    
+    virtual ~TypefaceStylesGM() {
+        for (int i = 0; i < gFaceStylesCount; i++) {
+            SkSafeUnref(fFaces[i]);
+        }
+    }
+    
+protected:
+    virtual SkString onShortName() SK_OVERRIDE {
+        return SkString("typefacestyles");
+    }
+    
+    virtual SkISize onISize() SK_OVERRIDE {
+        return SkISize::Make(640, 480);
+    }
+        
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setTextSize(SkIntToScalar(30));
+        
+        const char* text = "Hamburgefons";
+        const size_t textLen = strlen(text);
+        
+        SkScalar x = SkIntToScalar(10);
+        SkScalar dy = paint.getFontMetrics(NULL);
+        SkScalar y = dy;
+        
+        paint.setLinearText(true);
+        for (int i = 0; i < gFaceStylesCount; i++) {
+            paint.setTypeface(fFaces[i]);
+            canvas->drawText(text, textLen, x, y, paint);
+            y += dy;
+        }
+    }
+    
+private:
+    typedef skiagm::GM INHERITED;
+};
+    
+///////////////////////////////////////////////////////////////////////////////
+
+DEF_GM( return new TypefaceGM; )
+DEF_GM( return new TypefaceStylesGM; )
+
