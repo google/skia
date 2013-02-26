@@ -62,14 +62,14 @@ static void TestTSet_advanced(skiatest::Reporter* reporter) {
 
     // Test copy constructor too.
     SkTSet<int> set1 = set0;
-    
+
     REPORTER_ASSERT(reporter, set0.count() == set1.count());
     REPORTER_ASSERT(reporter, !set1.contains(-1000));
 
     for (int i = 0; i < COUNT; i++) {
         REPORTER_ASSERT(reporter, set1.contains(f(i)));
     }
-    
+
     // Test operator= too.
     SkTSet<int> set2;
     set2 = set0;
@@ -91,10 +91,10 @@ static void TestTSet_advanced(skiatest::Reporter* reporter) {
 static void TestTSet_merge(skiatest::Reporter* reporter) {
     SkTSet<int> set;
     SkTSet<int> setOdd;
-    
+
     for (int i = 0; i < COUNT; i++) {
         REPORTER_ASSERT(reporter, set.add(2 * i));
-        REPORTER_ASSERT(reporter, setOdd.add(2 * i + 1));     
+        REPORTER_ASSERT(reporter, setOdd.add(2 * i + 1));
     }
     // mergeInto returns the number of duplicates. Expected 0.
     REPORTER_ASSERT(reporter, set.mergeInto(setOdd) == 0);
@@ -103,7 +103,7 @@ static void TestTSet_merge(skiatest::Reporter* reporter) {
     // mergeInto should now find all new numbers duplicate.
     REPORTER_ASSERT(reporter, set.mergeInto(setOdd) == setOdd.count());
     REPORTER_ASSERT(reporter, set.count() == 2 * COUNT);
-    
+
     for (int i = 0; i < 2 * COUNT; i++) {
         REPORTER_ASSERT(reporter, set.contains(i));
     }
@@ -122,4 +122,3 @@ static void TestTSet(skiatest::Reporter* reporter) {
 
 #include "TestClassDef.h"
 DEFINE_TESTCLASS("TSet", TSetTest, TestTSet)
-
