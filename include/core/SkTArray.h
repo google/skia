@@ -375,10 +375,10 @@ private:
 /**
  * Subclass of SkTArray that contains a preallocated memory block for the array.
  */
-template <int N, typename T, bool DATA_TYPE = false>
-class SkSTArray : public SkTArray<T, DATA_TYPE> {
+template <int N, typename T, bool MEM_COPY = false>
+class SkSTArray : public SkTArray<T, MEM_COPY> {
 private:
-    typedef SkTArray<T, DATA_TYPE> INHERITED;
+    typedef SkTArray<T, MEM_COPY> INHERITED;
 
 public:
     SkSTArray() : INHERITED(&fStorage) {
