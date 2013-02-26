@@ -10,9 +10,9 @@
 // http://www.blackpawn.com/texts/pointinpoly/default.html
 bool pointInTriangle(const Triangle& triangle, const _Point& pt) {
 // Compute vectors
-    _Point v0 = triangle[2] - triangle[0];
-    _Point v1 = triangle[1] - triangle[0];
-    _Point v2 = pt - triangle[0];
+    _Vector v0 = triangle[2] - triangle[0];
+    _Vector v1 = triangle[1] - triangle[0];
+    _Vector v2 = pt - triangle[0];
 
 // Compute dot products
     double dot00 = v0.dot(v0);

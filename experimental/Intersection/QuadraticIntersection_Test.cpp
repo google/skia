@@ -54,6 +54,9 @@ static void standardTestCases() {
 }
 
 static const Quadratic testSet[] = {
+  {{4.09011926,2.20971038}, {4.74608133,1.9335932}, {5.02469918,2.00694987}},
+  {{2.79472921,1.73568666}, {3.36246373,1.21251209}, {5,2}},
+
   {{1.80814127,2.41537795}, {2.23475077,2.05922313}, {3.16529668,1.98358763}},
   {{2.16505631,2.55782454}, {2.40541285,2.02193091}, {2.99836023,1.68247638}},
 
@@ -319,10 +322,10 @@ static void intersectionFinder(int test1, int test2) {
     const Quadratic& quad1 = testSet[test1];
     const Quadratic& quad2 = testSet[test2];
 
-    double t1Seed = 0.579;
-    double t2Seed = 0.469;
+    double t1Seed = 0.966;
+    double t2Seed = 0.99;
     double t1Step = 0.1;
-    double t2Step = 0.1;
+    double t2Step = 0.01;
     _Point t1[3], t2[3];
     bool toggle = true;
     do {

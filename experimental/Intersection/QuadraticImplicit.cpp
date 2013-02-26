@@ -130,12 +130,9 @@ static bool addIntercept(const Quadratic& q1, const Quadratic& q2, double tMin, 
     xy_at_t(q2, tMid, mid.x, mid.y);
     _Line line;
     line[0] = line[1] = mid;
-    _Point dxdy;
-    dxdy_at_t(q2, tMid, dxdy);
-    line[0].x -= dxdy.x;
-    line[0].y -= dxdy.y;
-    line[1].x += dxdy.x;
-    line[1].y += dxdy.y;
+    _Vector dxdy = dxdy_at_t(q2, tMid);
+    line[0] -= dxdy;
+    line[1] += dxdy;
     Intersections rootTs;
     int roots = intersect(q1, line, rootTs);
     if (roots == 0) {
@@ -186,7 +183,6 @@ static bool isLinearInner(const Quadratic& q1, double t1s, double t1e, const Qua
         return true;
     }
     double tMin, tMax;
-    _Point dxy1, dxy2;
     if (tCount == 1) {
         tMin = tMax = tsFound[0];
     } else if (tCount > 1) {
@@ -206,11 +202,12 @@ static bool isLinearInner(const Quadratic& q1, double t1s, double t1e, const Qua
         tMax = t2e;
     }
     int split = 0;
+    _Vector dxy1, dxy2;
     if (tMin != tMax || tCount > 2) {
-        dxdy_at_t(q2, tMin, dxy2);
+        dxy2 = dxdy_at_t(q2, tMin);
         for (int index = 1; index < tCount; ++index) {
             dxy1 = dxy2;
-            dxdy_at_t(q2, tsFound[index], dxy2);
+            dxy2 = dxdy_at_t(q2, tsFound[index]);
             double dot = dxy1.dot(dxy2);
             if (dot < 0) {
                 split = index - 1;
@@ -244,10 +241,8 @@ static bool isLinearInner(const Quadratic& q1, double t1s, double t1e, const Qua
 }
 
 static double flatMeasure(const Quadratic& q) {
-    _Point mid = q[1];
-    mid -= q[0];
-    _Point dxy = q[2];
-    dxy -= q[0];
+    _Vector mid = q[1] - q[0];
+    _Vector dxy = q[2] - q[0];
     double length = dxy.length(); // OPTIMIZE: get rid of sqrt
     return fabs(mid.cross(dxy) / length);
 }

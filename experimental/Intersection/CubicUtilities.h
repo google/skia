@@ -25,8 +25,8 @@ int cubicRootsReal(double A, double B, double C, double D, double s[3]);
 void demote_cubic_to_quad(const Cubic& cubic, Quadratic& quad);
 double dx_at_t(const Cubic& , double t);
 double dy_at_t(const Cubic& , double t);
-void dxdy_at_t(const Cubic& , double t, _Point& y);
-_Point dxdy_at_t(const Cubic& cubic, double t);
+//void dxdy_at_t(const Cubic& , double t, _Point& y);
+_Vector dxdy_at_t(const Cubic& cubic, double t);
 int find_cubic_inflections(const Cubic& src, double tValues[]);
 bool rotate(const Cubic& cubic, int zero, int index, Cubic& rotPath);
 void sub_divide(const Cubic& src, double t1, double t2, Cubic& dst);
@@ -35,6 +35,6 @@ _Point top(const Cubic& , double startT, double endT);
 void xy_at_t(const Cubic& , double t, double& x, double& y);
 _Point xy_at_t(const Cubic& , double t);
 
-extern const int precisionUnit;
+extern const int gPrecisionUnit;
 
 #endif

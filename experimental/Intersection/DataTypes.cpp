@@ -16,6 +16,16 @@ const double SquaredEpsilon = PointEpsilon * PointEpsilon;
 
 const int UlpsEpsilon = 16;
 
+_Vector operator-(const _Point& a, const _Point& b) {
+    _Vector v = {a.x - b.x, a.y - b.y};
+    return v;
+}
+
+_Point operator+(const _Point& a, const _Vector& b) {
+    _Point v = {a.x + b.x, a.y + b.y};
+    return v;
+}
+
 // from http://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
 union Float_t
 {
