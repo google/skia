@@ -11,11 +11,11 @@
 
 // from http://blog.gludion.com/2009/08/distance-to-quadratic-bezier-curve.html
 double nearestT(const Quadratic& quad, const _Point& pt) {
-    _Point pos = quad[0] - pt;
+    _Vector pos = quad[0] - pt;
     // search points P of bezier curve with PM.(dP / dt) = 0
     // a calculus leads to a 3d degree equation :
-    _Point A = quad[1] - quad[0];
-    _Point B = quad[2] - quad[1];
+    _Vector A = quad[1] - quad[0];
+    _Vector B = quad[2] - quad[1];
     B -= A;
     double a = B.dot(B);
     double b = 3 * A.dot(B);
@@ -222,12 +222,13 @@ double dy_at_t(const Quadratic& quad, double t) {
     return derivativeAtT(&quad[0].y, t);
 }
 
-void dxdy_at_t(const Quadratic& quad, double t, _Point& dxy) {
+_Vector dxdy_at_t(const Quadratic& quad, double t) {
     double a = t - 1;
     double b = 1 - 2 * t;
     double c = t;
-    dxy.x = a * quad[0].x + b * quad[1].x + c * quad[2].x;
-    dxy.y = a * quad[0].y + b * quad[1].y + c * quad[2].y;
+    _Vector result = { a * quad[0].x + b * quad[1].x + c * quad[2].x,
+            a * quad[0].y + b * quad[1].y + c * quad[2].y };
+    return result;
 }
 
 void xy_at_t(const Quadratic& quad, double t, double& x, double& y) {

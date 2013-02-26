@@ -168,7 +168,7 @@ static bool bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
                     Segment* next = current->findNextOp(chaseArray, nextStart, nextEnd,
                             unsortable, op, xorMask, xorOpMask);
                     if (!next) {
-                        SkASSERT(!unsortable);
+         //               SkASSERT(!unsortable);
                         if (!unsortable && simple.hasMove()
                                 && current->verb() != SkPath::kLine_Verb
                                 && !simple.isClosed()) {

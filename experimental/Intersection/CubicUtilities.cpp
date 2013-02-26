@@ -8,7 +8,7 @@
 #include "Extrema.h"
 #include "QuadraticUtilities.h"
 
-const int precisionUnit = 256; // FIXME: arbitrary -- should try different values in test framework
+const int gPrecisionUnit = 256; // FIXME: arbitrary -- should try different values in test framework
 
 // FIXME: cache keep the bounds and/or precision with the caller?
 double calcPrecision(const Cubic& cubic) {
@@ -16,7 +16,7 @@ double calcPrecision(const Cubic& cubic) {
     dRect.setBounds(cubic); // OPTIMIZATION: just use setRawBounds ?
     double width = dRect.right - dRect.left;
     double height = dRect.bottom - dRect.top;
-    return (width > height ? width : height) / precisionUnit;
+    return (width > height ? width : height) / gPrecisionUnit;
 }
 
 #if SK_DEBUG
@@ -236,13 +236,8 @@ double dy_at_t(const Cubic& cubic, double t) {
 }
 
 // OPTIMIZE? compute t^2, t(1-t), and (1-t)^2 and pass them to another version of derivative at t?
-void dxdy_at_t(const Cubic& cubic, double t, _Point& dxdy) {
-    dxdy.x = derivativeAtT(&cubic[0].x, t);
-    dxdy.y = derivativeAtT(&cubic[0].y, t);
-}
-
-_Point dxdy_at_t(const Cubic& cubic, double t) {
-    _Point result = { derivativeAtT(&cubic[0].x, t), derivativeAtT(&cubic[0].y, t) };
+_Vector dxdy_at_t(const Cubic& cubic, double t) {
+    _Vector result = { derivativeAtT(&cubic[0].x, t), derivativeAtT(&cubic[0].y, t) };
     return result;
 }
 
@@ -306,6 +301,17 @@ _Point top(const Cubic& cubic, double startT, double endT) {
     return topPt;
 }
 
+// OPTIMIZE: avoid computing the unused half
+void xy_at_t(const Cubic& cubic, double t, double& x, double& y) {
+    _Point xy = xy_at_t(cubic, t);
+    if (&x) {
+        x = xy.x;
+    }
+    if (&y) {
+        y = xy.y;
+    }
+}
+
 _Point xy_at_t(const Cubic& cubic, double t) {
     double one_t = 1 - t;
     double one_t2 = one_t * one_t;
@@ -319,13 +325,3 @@ _Point xy_at_t(const Cubic& cubic, double t) {
     return result;
 }
 
-
-void xy_at_t(const Cubic& cubic, double t, double& x, double& y) {
-    _Point xy = xy_at_t(cubic, t);
-    if (&x) {
-        x = xy.x;
-    }
-    if (&y) {
-        y = xy.y;
-    }
-}

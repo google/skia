@@ -134,6 +134,9 @@ static const Cubic testSet[] = {
 const size_t testSetCount = sizeof(testSet) / sizeof(testSet[0]);
 
 static const Cubic newTestSet[] = {
+{{0,1}, {2,5}, {6,0}, {5,3}}, 
+{{0,6}, {3,5}, {1,0}, {5,2}},
+
 {{0,1}, {3,6}, {1,0}, {5,2}},
 {{0,1}, {2,5}, {1,0}, {6,3}},
 
@@ -553,10 +556,10 @@ void CubicIntersection_IntersectionFinder() {
     const Cubic& cubic1 = newTestSet[0];
     const Cubic& cubic2 = newTestSet[1];
 
-    double t1Seed = 0.633;
-    double t2Seed = 0.633;
+    double t1Seed = 0.77;
+    double t2Seed = 0.99;
     double t1Step = 0.1;
-    double t2Step = 0.1;
+    double t2Step = 0.01;
     _Point t1[3], t2[3];
     bool toggle = true;
     do {

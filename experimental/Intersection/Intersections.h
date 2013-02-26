@@ -54,6 +54,7 @@ public:
         }
     }
 
+    // FIXME : does not respect swap
     int insert(double one, double two, const _Point& pt);
 
     // start if index == 0 : end if index == 1

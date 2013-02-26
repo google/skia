@@ -200,21 +200,20 @@ inline bool roughly_equal(double x, double y) {
 }
 #endif
 
-struct _Point {
+struct _Point;
+
+struct _Vector {
     double x;
     double y;
 
-    friend _Point operator-(const _Point& a, const _Point& b) {
-        _Point v = {a.x - b.x, a.y - b.y};
-        return v;
-    }
+    friend _Point operator+(const _Point& a, const _Vector& b);
 
-    void operator+=(const _Point& v) {
+    void operator+=(const _Vector& v) {
         x += v.x;
         y += v.y;
     }
 
-    void operator-=(const _Point& v) {
+    void operator-=(const _Vector& v) {
         x -= v.x;
         y -= v.y;
     }
@@ -227,6 +226,44 @@ struct _Point {
     void operator*=(const double s) {
         x *= s;
         y *= s;
+    }
+
+    double cross(const _Vector& a) const {
+        return x * a.y - y * a.x;
+    }
+
+    double dot(const _Vector& a) const {
+        return x * a.x + y * a.y;
+    }
+
+    double length() const {
+        return sqrt(lengthSquared());
+    }
+
+    double lengthSquared() const {
+        return x * x + y * y;
+    }
+
+    SkVector asSkVector() const {
+        SkVector v = {SkDoubleToScalar(x), SkDoubleToScalar(y)};
+        return v;
+    }
+};
+
+struct _Point {
+    double x;
+    double y;
+
+    friend _Vector operator-(const _Point& a, const _Point& b);
+
+    void operator+=(const _Vector& v) {
+        x += v.x;
+        y += v.y;
+    }
+
+    void operator-=(const _Vector& v) {
+        x -= v.x;
+        y -= v.y;
     }
 
     friend bool operator==(const _Point& a, const _Point& b) {
@@ -277,30 +314,14 @@ struct _Point {
         return pt;
     }
 
-    double cross(const _Point& a) const {
-        return x * a.y - y * a.x;
-    }
-
     double distance(const _Point& a) const {
-        _Point temp = *this - a;
+        _Vector temp = *this - a;
         return temp.length();
     }
 
     double distanceSquared(const _Point& a) const {
-        _Point temp = *this - a;
+        _Vector temp = *this - a;
         return temp.lengthSquared();
-    }
-
-    double dot(const _Point& a) const {
-        return x * a.x + y * a.y;
-    }
-
-    double length() const {
-        return sqrt(lengthSquared());
-    }
-
-    double lengthSquared() const {
-        return x * x + y * y;
     }
 
     double roughlyEqual(const _Point& a) const {

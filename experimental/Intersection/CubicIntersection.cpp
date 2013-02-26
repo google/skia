@@ -14,7 +14,7 @@
 #include "QuadraticUtilities.h"
 
 #if ONE_OFF_DEBUG
-static const double tLimits[2][2] = {{0.599274754, 0.599275135}, {0.599274754, 0.599275135}};
+static const double tLimits[2][2] = {{0.772784538, 0.77278492}, {0.999111748, 0.999112129}};
 #endif
 
 #define DEBUG_QUAD_PART 0
@@ -74,7 +74,7 @@ static double distanceFromEnd(double t) {
 static void bumpForRetry(double t1, double t2, double& s1, double& e1, double& s2, double& e2) {
     double dt1 = distanceFromEnd(t1);
     double dt2 = distanceFromEnd(t2);
-    double delta = 1.0 / precisionUnit;
+    double delta = 1.0 / gPrecisionUnit;
     if (dt1 < dt2) {
         if (t1 == dt1) {
             s1 = SkTMax(s1 - delta, 0.);
@@ -277,60 +277,6 @@ static bool intersect2(const Cubic& cubic1, double t1s, double t1e, const Cubic&
     return i.intersected();
 }
 
-static bool intersectEnd(const Cubic& cubic1, bool start, const Cubic& cubic2, const _Rect& bounds2,
-        Intersections& i) {
-    _Line line1;
-    line1[1] = cubic1[start ? 0 : 3];
-    if (line1[1].approximatelyEqual(cubic2[0]) || line1[1].approximatelyEqual(cubic2[3])) {
-        return false;
-    }
-    line1[0] = line1[1];
-    _Point dxy1 = line1[0] - cubic1[start ? 1 : 2];
-    if (dxy1.approximatelyZero()) {
-        dxy1 = line1[0] - cubic1[start ? 2 : 1];
-    }
-    dxy1 /= precisionUnit;
-    line1[1] += dxy1;
-    _Rect line1Bounds;
-    line1Bounds.setBounds(line1);
-    if (!bounds2.intersects(line1Bounds)) {
-        return false;
-    }
-    _Line line2;
-    line2[0] = line2[1] = line1[0];
-    _Point dxy2 = line2[0] - cubic1[start ? 3 : 0];
-    SkASSERT(!dxy2.approximatelyZero());
-    dxy2 /= precisionUnit;
-    line2[1] += dxy2;
-#if 0 // this is so close to the first bounds test it isn't worth the short circuit test
-    _Rect line2Bounds;
-    line2Bounds.setBounds(line2);
-    if (!bounds2.intersects(line2Bounds)) {
-        return false;
-    }
-#endif
-    Intersections local1;
-    if (!intersect(cubic2, line1, local1)) {
-        return false;
-    }
-    Intersections local2;
-    if (!intersect(cubic2, line2, local2)) {
-        return false;
-    }
-    double tMin, tMax;
-    tMin = tMax = local1.fT[0][0];
-    for (int index = 1; index < local1.fUsed; ++index) {
-        tMin = SkTMin(tMin, local1.fT[0][index]);
-        tMax = SkTMax(tMax, local1.fT[0][index]);
-    }
-    for (int index = 1; index < local2.fUsed; ++index) {
-        tMin = SkTMin(tMin, local2.fT[0][index]);
-        tMax = SkTMax(tMax, local2.fT[0][index]);
-    }
-    return intersect2(cubic1, start ? 0 : 1, start ? 1.0 / precisionUnit : 1 - 1.0 / precisionUnit,
-            cubic2, tMin, tMax, 1, i);
-}
-
 // this flavor centers potential intersections recursively. In contrast, '2' may inadvertently
 // chase intersections near quadratic ends, requiring odd hacks to find them.
 static bool intersect3(const Cubic& cubic1, double t1s, double t1e, const Cubic& cubic2,
@@ -398,7 +344,11 @@ static bool intersect3(const Cubic& cubic1, double t1s, double t1e, const Cubic&
                         }
                         result = true;
                     } else if (cubic1 != cubic2 || !approximately_equal(to1, to2)) {
-                        i.insert(to1, to2, p1);
+                        if (i.swapped()) { // FIXME: insert should respect swap
+                            i.insert(to2, to1, p1);
+                        } else {
+                            i.insert(to1, to2, p1);
+                        }
                         result = true;
                     }
                 } else {
@@ -422,8 +372,8 @@ static bool intersect3(const Cubic& cubic1, double t1s, double t1e, const Cubic&
                                     offset, i.depth());
                         }
                         // try parallel measure
-                        _Point d1 = dxdy_at_t(cubic1, to1);
-                        _Point d2 = dxdy_at_t(cubic2, to2);
+                        _Vector d1 = dxdy_at_t(cubic1, to1);
+                        _Vector d2 = dxdy_at_t(cubic2, to2);
                         double shallow = d1.cross(d2);
                     #if 1 || ONE_OFF_DEBUG // not sure this is worth debugging
                         if (!approximately_zero(shallow)) {
@@ -445,6 +395,49 @@ static bool intersect3(const Cubic& cubic1, double t1s, double t1e, const Cubic&
     }
     i.downDepth();
     return result;
+}
+
+// intersect the end of the cubic with the other. Try lines from the end to control and opposite 
+// end to determine range of t on opposite cubic.
+static bool intersectEnd(const Cubic& cubic1, bool start, const Cubic& cubic2, const _Rect& bounds2,
+        Intersections& i) {
+    _Line line;
+    int t1Index = start ? 0 : 3;
+    line[0] = cubic1[t1Index];
+    // don't bother if the two cubics are connnected
+    if (line[0].approximatelyEqual(cubic2[0]) || line[0].approximatelyEqual(cubic2[3])) {
+        return false;
+    }
+    double tMin = 1, tMax = 0;
+    for (int index = 0; index < 4; ++index) {
+        if (index == t1Index) {
+            continue;
+        }
+        _Vector dxy1 = cubic1[index] - line[0];
+        dxy1 /= gPrecisionUnit;
+        line[1] = line[0] + dxy1;
+        _Rect lineBounds;
+        lineBounds.setBounds(line);
+        if (!bounds2.intersects(lineBounds)) {
+            continue;
+        }
+        Intersections local;
+        if (!intersect(cubic2, line, local)) {
+            continue;
+        }
+        for (int index = 0; index < local.fUsed; ++index) {
+            tMin = SkTMin(tMin, local.fT[0][index]);
+            tMax = SkTMax(tMax, local.fT[0][index]);
+        }
+    }
+    if (tMin > tMax) {
+        return false;
+    }
+    double tMin1 = start ? 0 : 1 - 1.0 / gPrecisionUnit;
+    double tMax1 = start ? 1.0 / gPrecisionUnit : 1;
+    double tMin2 = SkTMax(tMin - 1.0 / gPrecisionUnit, 0.0);
+    double tMax2 = SkTMin(tMax + 1.0 / gPrecisionUnit, 1.0);
+    return intersect3(cubic1, tMin1, tMax1, cubic2, tMin2, tMax2, 1, i);
 }
 
 // FIXME: add intersection of convex hull on cubics' ends with the opposite cubic. The hull line
