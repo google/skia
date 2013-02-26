@@ -8,8 +8,8 @@
 #ifndef SkGLContext_DEFINED
 #define SkGLContext_DEFINED
 
+#include "GrGLExtensions.h"
 #include "GrGLInterface.h"
-#include "SkString.h"
 
 /**
  * Create an offscreen opengl context with an RGBA8 / 8bit stencil FBO.
@@ -34,7 +34,10 @@ public:
 
     virtual void makeCurrent() const = 0;
 
-    bool hasExtension(const char* extensionName) const;
+    bool hasExtension(const char* extensionName) const {
+        GrAssert(NULL != fGL);
+        return fExtensions.has(extensionName);
+    }
 
 protected:
     /**
@@ -51,7 +54,7 @@ protected:
     virtual void destroyGLContext() = 0;
 
 private:
-    SkString fExtensionString;
+    GrGLExtensions fExtensions;
     GrGLuint fFBO;
     GrGLuint fColorBufferID;
     GrGLuint fDepthStencilBufferID;

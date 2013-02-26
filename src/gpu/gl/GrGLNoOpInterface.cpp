@@ -6,6 +6,8 @@
  */
 
 #include "GrGLNoOpInterface.h"
+#include "SkString.h"
+#include "SkThread.h"
 
 // the OpenGLES 2.0 spec says this must be >= 128
 static const GrGLint kDefaultMaxVertexUniformVectors = 128;
@@ -18,6 +20,33 @@ static const GrGLint kDefaultMaxVertexAttribs = 8;
 
 // the OpenGLES 2.0 spec says this must be >= 8
 static const GrGLint kDefaultMaxVaryingVectors = 8;
+
+static const char* kExtensions[] = {
+    "GL_ARB_framebuffer_object",
+    "GL_ARB_blend_func_extended",
+    "GL_ARB_timer_query",
+    "GL_ARB_draw_buffers",
+    "GL_ARB_occlusion_query",
+    "GL_EXT_blend_color",
+    "GL_EXT_stencil_wrap"
+};
+
+namespace {
+const GrGLubyte* combined_extensions_string() {
+    static SkString gExtString;
+    static SkMutex gMutex;
+    gMutex.acquire();
+    if (0 == gExtString.size()) {
+        for (size_t i = 0; i < GR_ARRAY_COUNT(kExtensions) - 1; ++i) {
+            gExtString.append(kExtensions[i]);
+            gExtString.append(" ");
+        }
+        gExtString.append(kExtensions[GR_ARRAY_COUNT(kExtensions) - 1]);
+    }
+    gMutex.release();
+    return (const GrGLubyte*) gExtString.c_str();
+}
+}
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLBlendColor(GrGLclampf red,
                                               GrGLclampf green,
@@ -53,9 +82,9 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLClearStencil(GrGLint s) {
 }
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLColorMask(GrGLboolean red,
-                                              GrGLboolean green,
-                                              GrGLboolean blue,
-                                              GrGLboolean alpha) {
+                                             GrGLboolean green,
+                                             GrGLboolean blue,
+                                             GrGLboolean alpha) {
 }
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLCompileShader(GrGLuint shader) {
@@ -132,9 +161,9 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLReadBuffer(GrGLenum src) {
 }
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLScissor(GrGLint x,
-                                            GrGLint y,
-                                            GrGLsizei width,
-                                            GrGLsizei height) {
+                                           GrGLint y,
+                                           GrGLsizei width,
+                                           GrGLsizei height) {
 }
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLShaderSource(GrGLuint shader,
@@ -318,15 +347,15 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLVertexAttribPointer(GrGLuint indx,
 }
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLViewport(GrGLint x,
-                                             GrGLint y,
-                                             GrGLsizei width,
-                                             GrGLsizei height) {
+                                            GrGLint y,
+                                            GrGLsizei width,
+                                            GrGLsizei height) {
 }
 
   GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetFramebufferAttachmentParameteriv(GrGLenum target,
-                                                                        GrGLenum attachment,
-                                                                        GrGLenum pname,
-                                                                        GrGLint* params) {
+                                                                         GrGLenum attachment,
+                                                                         GrGLenum pname,
+                                                                         GrGLint* params) {
 }
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetRenderbufferParameteriv(GrGLenum target,
@@ -393,6 +422,9 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetIntegerv(GrGLenum pname, GrGLint* params) 
     // TODO: remove from Ganesh the #defines for gets we don't use.
     // We would like to minimize gets overall due to performance issues
     switch (pname) {
+        case GR_GL_CONTEXT_PROFILE_MASK:
+            *params = GR_GL_CONTEXT_COMPATIBILITY_PROFILE_BIT;
+            break;
         case GR_GL_STENCIL_BITS:
             *params = 8;
             break;
@@ -440,6 +472,9 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetIntegerv(GrGLenum pname, GrGLint* params) 
         case GR_GL_MAX_VARYING_VECTORS:
             *params = kDefaultMaxVaryingVectors;
             break;
+        case GR_GL_NUM_EXTENSIONS:
+            *params = GR_ARRAY_COUNT(kExtensions);
+            break;
         default:
             GrCrash("Unexpected pname to GetIntegerv");
    }
@@ -448,7 +483,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetIntegerv(GrGLenum pname, GrGLint* params) 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetInfoLog(GrGLuint program,
                                               GrGLsizei bufsize,
                                               GrGLsizei* length,
-                                               char* infolog) {
+                                              char* infolog) {
     if (length) {
         *length = 0;
    }
@@ -534,7 +569,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetQueryObjectuiv(GrGLuint id,
 const GrGLubyte* GR_GL_FUNCTION_TYPE noOpGLGetString(GrGLenum name) {
     switch (name) {
         case GR_GL_EXTENSIONS:
-            return (const GrGLubyte*)"GL_ARB_framebuffer_object GL_ARB_blend_func_extended GL_ARB_timer_query GL_ARB_draw_buffers GL_ARB_occlusion_query GL_EXT_blend_color GL_EXT_stencil_wrap";
+            return combined_extensions_string();
         case GR_GL_VERSION:
             return (const GrGLubyte*)"4.0 Debug GL";
         case GR_GL_SHADING_LANGUAGE_VERSION:
@@ -544,9 +579,23 @@ const GrGLubyte* GR_GL_FUNCTION_TYPE noOpGLGetString(GrGLenum name) {
         case GR_GL_RENDERER:
             return (const GrGLubyte*)"The Debug (Non-)Renderer";
         default:
-            GrCrash("Unexpected name to GetString");
+            GrCrash("Unexpected name passed to GetString");
             return NULL;
    }
+}
+
+const GrGLubyte* GR_GL_FUNCTION_TYPE noOpGLGetStringi(GrGLenum name, GrGLuint i) {
+    switch (name) {
+        case GR_GL_EXTENSIONS:
+            if (static_cast<size_t>(i) <= GR_ARRAY_COUNT(kExtensions)) {
+                return (const GrGLubyte*) kExtensions[i];
+            } else {
+                return NULL;
+            }
+        default:
+            GrCrash("Unexpected name passed to GetStringi");
+            return NULL;
+    }
 }
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetTexLevelParameteriv(GrGLenum target,
@@ -558,8 +607,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetTexLevelParameteriv(GrGLenum target,
     GrCrash("Should never query texture parameters.");
 }
 
-GrGLint GR_GL_FUNCTION_TYPE noOpGLGetUniformLocation(GrGLuint program,
-                                                     const char* name) {
+GrGLint GR_GL_FUNCTION_TYPE noOpGLGetUniformLocation(GrGLuint program, const char* name) {
     static int gUniLocation = 0;
     return ++gUniLocation;
 }

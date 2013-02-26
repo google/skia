@@ -9,6 +9,7 @@
 #ifndef GrGLContextInfo_DEFINED
 #define GrGLContextInfo_DEFINED
 
+#include "gl/GrGLExtensions.h"
 #include "gl/GrGLInterface.h"
 #include "GrGLCaps.h"
 #include "GrGLSL.h"
@@ -70,7 +71,7 @@ public:
         if (!this->isInitialized()) {
             return false;
         }
-        return GrGLHasExtensionFromString(ext, fExtensionString.c_str());
+        return fExtensions.has(ext);
     }
 
 private:
@@ -81,7 +82,7 @@ private:
     GrGLVersion          fGLVersion;
     GrGLSLGeneration     fGLSLGeneration;
     GrGLVendor           fVendor;
-    SkString             fExtensionString;
+    GrGLExtensions       fExtensions;
     GrGLCaps             fGLCaps;
 };
 

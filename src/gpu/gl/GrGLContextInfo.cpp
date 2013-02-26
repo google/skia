@@ -31,7 +31,7 @@ GrGLContextInfo& GrGLContextInfo::operator = (const GrGLContextInfo& ctx) {
     fGLVersion = ctx.fGLVersion;
     fGLSLGeneration = ctx.fGLSLGeneration;
     fVendor = ctx.fVendor;
-    fExtensionString = ctx.fExtensionString;
+    fExtensions = ctx.fExtensions;
     fGLCaps = ctx.fGLCaps;
     return *this;
 }
@@ -42,7 +42,7 @@ void GrGLContextInfo::reset() {
     fGLVersion = GR_GL_VER(0, 0);
     fGLSLGeneration = static_cast<GrGLSLGeneration>(0);
     fVendor = kOther_GrGLVendor;
-    fExtensionString = "";
+    fExtensions.reset();
     fGLCaps.reset();
 }
 
@@ -50,14 +50,13 @@ bool GrGLContextInfo::initialize(const GrGLInterface* interface) {
     this->reset();
     // We haven't validated the GrGLInterface yet, so check for GetString
     // function pointer
-    if (NULL != interface->fGetString) {
-
+    if (interface->fGetString) {
         const GrGLubyte* verUByte;
         GR_GL_CALL_RET(interface, verUByte, GetString(GR_GL_VERSION));
         const char* ver = reinterpret_cast<const char*>(verUByte);
         GrGLBinding binding = GrGLGetBindingInUseFromString(ver);
 
-        if (interface->validate(binding)) {
+        if (0 != binding && interface->validate(binding) && fExtensions.init(binding, interface)) {
 
             fInterface = interface;
             interface->ref();
@@ -69,9 +68,6 @@ bool GrGLContextInfo::initialize(const GrGLInterface* interface) {
             fGLSLGeneration = GrGetGLSLGeneration(fBindingInUse,
                                                   this->interface());
 
-            const GrGLubyte* ext;
-            GR_GL_CALL_RET(interface, ext, GetString(GR_GL_EXTENSIONS));
-            fExtensionString = reinterpret_cast<const char*>(ext);
             fVendor = GrGLGetVendor(interface);
             fGLCaps.init(*this);
             return true;

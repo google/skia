@@ -203,6 +203,7 @@ public:
     GLPtr<GrGLGetShaderInfoLogProc> fGetShaderInfoLog;
     GLPtr<GrGLGetShaderivProc> fGetShaderiv;
     GLPtr<GrGLGetStringProc> fGetString;
+    GLPtr<GrGLGetStringiProc> fGetStringi;
     GLPtr<GrGLGetTexLevelParameterivProc> fGetTexLevelParameteriv;
     GLPtr<GrGLGetUniformLocationProc> fGetUniformLocation;
     GLPtr<GrGLLineWidthProc> fLineWidth;

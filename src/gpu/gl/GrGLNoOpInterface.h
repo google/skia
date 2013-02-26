@@ -335,6 +335,8 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetQueryObjectuiv(GrGLuint id,
 
 const GrGLubyte* GR_GL_FUNCTION_TYPE noOpGLGetString(GrGLenum name);
 
+const GrGLubyte* GR_GL_FUNCTION_TYPE noOpGLGetStringi(GrGLenum name, GrGLuint i);
+
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetTexLevelParameteriv(GrGLenum target,
                                                           GrGLint level,
                                                           GrGLenum pname,

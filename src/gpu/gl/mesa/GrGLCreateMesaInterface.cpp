@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-
+#include "gl/GrGLExtensions.h"
 #include "gl/GrGLInterface.h"
 #include "../GrGLUtil.h"
 
@@ -23,9 +23,20 @@
 
 const GrGLInterface* GrGLCreateMesaInterface() {
     if (NULL != OSMesaGetCurrentContext()) {
-        GrGLGetStringProc getString = (GrGLGetStringProc) OSMesaGetProcAddress("glGetString");
+
+        GrGLGetStringProc getString =
+            (GrGLGetStringProc) OSMesaGetProcAddress("glGetString");
+        GrGLGetStringiProc glGetStringi =
+            (GrGLGetStringiProc) OSMesaGetProcAddress("glGetStringi");
+        GrGLGetIntegervProc glGetIntegerv =
+        (GrGLGetIntegervProc) OSMesaGetProcAddress("glGetIntegerv");
+
+        GrGLExtensions extensions;
+        if (!extensions.init(kDesktop_GrGLBinding, glGetString, glGetStringi, glGetIntegerv)) {
+            return NULL;
+        }
+
         const char* versionString = (const char*) getString(GL_VERSION);
-        const char* extString = (const char*) getString(GL_EXTENSIONS);
         GrGLVersion glVer = GrGLGetVersionFromString(versionString);
 
         if (glVer < GR_GL_VER(1,5)) {
@@ -44,8 +55,8 @@ const GrGLInterface* GrGLCreateMesaInterface() {
         GR_GL_GET_PROC(BlendFunc);
 
         if (glVer >= GR_GL_VER(1,4) ||
-            GrGLHasExtensionFromString("GL_ARB_imaging", extString) ||
-            GrGLHasExtensionFromString("GL_EXT_blend_color", extString)) {
+            extensions.has("GL_ARB_imaging") ||
+            extensions.has("GL_EXT_blend_color")) {
             GR_GL_GET_PROC(BlendColor);
         }
 
@@ -85,12 +96,11 @@ const GrGLInterface* GrGLCreateMesaInterface() {
         GR_GL_GET_PROC(GetIntegerv);
         GR_GL_GET_PROC(GetProgramInfoLog);
         GR_GL_GET_PROC(GetProgramiv);
-        if (glVer >= GR_GL_VER(3,3) ||
-            GrGLHasExtensionFromString("GL_ARB_timer_query", extString)) {
+        if (glVer >= GR_GL_VER(3,3) || extensions.has("GL_ARB_timer_query")) {
             GR_GL_GET_PROC(GetQueryObjecti64v);
             GR_GL_GET_PROC(GetQueryObjectui64v)
             GR_GL_GET_PROC(QueryCounter);
-        } else if (GrGLHasExtensionFromString("GL_EXT_timer_query", extString)) {
+        } else if (extensions.has("GL_EXT_timer_query")) {
             GR_GL_GET_PROC_SUFFIX(GetQueryObjecti64v, EXT);
             GR_GL_GET_PROC_SUFFIX(GetQueryObjectui64v, EXT);
         }
@@ -100,6 +110,7 @@ const GrGLInterface* GrGLCreateMesaInterface() {
         GR_GL_GET_PROC(GetShaderInfoLog);
         GR_GL_GET_PROC(GetShaderiv);
         GR_GL_GET_PROC(GetString);
+        GR_GL_GET_PROC(GetStringi);
         GR_GL_GET_PROC(GetTexLevelParameteriv);
         GR_GL_GET_PROC(GenTextures);
         GR_GL_GET_PROC(GetUniformLocation);
@@ -152,9 +163,7 @@ const GrGLInterface* GrGLCreateMesaInterface() {
 
         // First look for GL3.0 FBO or GL_ARB_framebuffer_object (same since
         // GL_ARB_framebuffer_object doesn't use ARB suffix.)
-        if (glVer >= GR_GL_VER(3,0) ||
-            GrGLHasExtensionFromString("GL_ARB_framebuffer_object",
-                                        extString)) {
+        if (glVer >= GR_GL_VER(3,0) || extensions.has("GL_ARB_framebuffer_object")) {
             GR_GL_GET_PROC(GenFramebuffers);
             GR_GL_GET_PROC(GetFramebufferAttachmentParameteriv);
             GR_GL_GET_PROC(GetRenderbufferParameteriv);
@@ -169,8 +178,7 @@ const GrGLInterface* GrGLCreateMesaInterface() {
             GR_GL_GET_PROC(BindRenderbuffer);
             GR_GL_GET_PROC(RenderbufferStorageMultisample);
             GR_GL_GET_PROC(BlitFramebuffer);
-        } else if (GrGLHasExtensionFromString("GL_EXT_framebuffer_object",
-                                              extString)) {
+        } else if (extensions.has("GL_EXT_framebuffer_object")) {
             GR_GL_GET_PROC_SUFFIX(GenFramebuffers, EXT);
             GR_GL_GET_PROC_SUFFIX(GetFramebufferAttachmentParameteriv, EXT);
             GR_GL_GET_PROC_SUFFIX(GetRenderbufferParameteriv, EXT);
@@ -183,12 +191,10 @@ const GrGLInterface* GrGLCreateMesaInterface() {
             GR_GL_GET_PROC_SUFFIX(DeleteRenderbuffers, EXT);
             GR_GL_GET_PROC_SUFFIX(FramebufferRenderbuffer, EXT);
             GR_GL_GET_PROC_SUFFIX(BindRenderbuffer, EXT);
-            if (GrGLHasExtensionFromString("GL_EXT_framebuffer_multisample",
-                                           extString)) {
+            if (extensions.has("GL_EXT_framebuffer_multisample")) {
                 GR_GL_GET_PROC_SUFFIX(RenderbufferStorageMultisample, EXT);
             }
-            if (GrGLHasExtensionFromString("GL_EXT_framebuffer_blit",
-                                           extString)) {
+            if (extensions.has("GL_EXT_framebuffer_blit")) {
                 GR_GL_GET_PROC_SUFFIX(BlitFramebuffer, EXT);
             }
         } else {

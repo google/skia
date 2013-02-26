@@ -8,7 +8,8 @@
 
 
 #include "gl/GrGLInterface.h"
-#include "../GrGLUtil.h"
+#include "gl/GrGLExtensions.h"
+#include "GrGLUtil.h"
 
 #include <OpenGL/gl.h>
 #include <OpenGL/glext.h>
@@ -31,8 +32,12 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         glInterface.reset(interface);
         const char* verStr = (const char*) glGetString(GL_VERSION);
         GrGLVersion ver = GrGLGetVersionFromString(verStr);
-        const char* extStr = (const char*) glGetString(GL_EXTENSIONS);
-
+        GrGLExtensions extensions;
+        GrGLGetStringiProc glGetStringi = (GrGLGetStringiProc) GetProcAddress("glGetStringi");
+        if (!extensions.init(kDesktop_GrGLBinding, glGetString, glGetStringi, glGetIntegerv)) {
+            glInterface.reset(NULL);
+            return NULL;
+        }
         interface->fBindingsExported = kDesktop_GrGLBinding;
         interface->fActiveTexture = glActiveTexture;
         interface->fAttachShader = glAttachShader;
@@ -51,8 +56,8 @@ const GrGLInterface* GrGLCreateNativeInterface() {
 
         if (ver >= GR_GL_VER(1,4)) {
             interface->fBlendColor = glBlendColor;
-        } else if (GrGLHasExtensionFromString("GL_ARB_imaging", extStr) ||
-                   GrGLHasExtensionFromString("GL_EXT_blend_color", extStr)) {
+        } else if (extensions.has("GL_ARB_imaging") ||
+                   extensions.has("GL_EXT_blend_color")) {
             GET_PROC(BlendColor);
         }
 
@@ -74,8 +79,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fDeleteTextures = glDeleteTextures;
         interface->fDepthMask = glDepthMask;
         interface->fDisable = glDisable;
-        interface->fDisableVertexAttribArray =
-                                            glDisableVertexAttribArray;
+        interface->fDisableVertexAttribArray = glDisableVertexAttribArray;
         interface->fDrawArrays = glDrawArrays;
         interface->fDrawBuffer = glDrawBuffer;
         interface->fDrawBuffers = glDrawBuffers;
@@ -99,6 +103,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fGetShaderInfoLog = glGetShaderInfoLog;
         interface->fGetShaderiv = glGetShaderiv;
         interface->fGetString = glGetString;
+        interface->fGetStringi = glGetStringi;
         interface->fGetTexLevelParameteriv = glGetTexLevelParameteriv;
         interface->fGenTextures = glGenTextures;
         interface->fGetUniformLocation = glGetUniformLocation;
@@ -131,10 +136,9 @@ const GrGLInterface* GrGLCreateNativeInterface() {
     #elif GL_EXT_texture_storage
         interface->fTexStorage2D = glTexStorage2DEXT;
     #else
-        if (ver >= GR_GL_VER(4,2) ||
-            GrGLHasExtensionFromString("GL_ARB_texture_storage", extStr)) {
+        if (ver >= GR_GL_VER(4,2) || extensions.has("GL_ARB_texture_storage")) {
             GET_PROC(TexStorage2D);
-        } else if (GrGLHasExtensionFromString("GL_EXT_texture_storage", extStr)) {
+        } else if (extensions.has("GL_EXT_texture_storage")) {
             GET_PROC_SUFFIX(TexStorage2D, EXT);
         }
     #endif
@@ -165,7 +169,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fVertexAttribPointer = glVertexAttribPointer;
         interface->fViewport = glViewport;
 
-        if (ver >= GR_GL_VER(3,3) || GrGLHasExtensionFromString("GL_ARB_timer_query", extStr)) {
+        if (ver >= GR_GL_VER(3,3) || extensions.has("GL_ARB_timer_query")) {
             // ARB extension doesn't use the ARB suffix on the function name
             #if GL_ARB_timer_query || GL_VERSION_3_3
                 interface->fQueryCounter = glQueryCounter;
@@ -176,7 +180,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
                 interface->fGetQueryObjecti64v = GET_PROC(GetQueryObjecti64v);
                 interface->fGetQueryObjectui64v = GET_PROC(GetQueryObjectui64v);
             #endif
-        } else if (GrGLHasExtensionFromString("GL_EXT_timer_query", extStr)) {
+        } else if (extensions.has("GL_EXT_timer_query")) {
             #if GL_EXT_timer_query
                 interface->fGetQueryObjecti64v = glGetQueryObjecti64vEXT;
                 interface->fGetQueryObjectui64v = glGetQueryObjectui64vEXT;
@@ -186,7 +190,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
             #endif
         }
 
-        if (ver >= GR_GL_VER(3,0) || GrGLHasExtensionFromString("GL_ARB_framebuffer_object", extStr)) {
+        if (ver >= GR_GL_VER(3,0) || extensions.has("GL_ARB_framebuffer_object")) {
             // ARB extension doesn't use the ARB suffix on the function names
             #if GL_VERSION_3_0 || GL_ARB_framebuffer_object
                 interface->fGenFramebuffers = glGenFramebuffers;
@@ -220,7 +224,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
                 interface->fBlitFramebuffer = GET_PROC(BlitFramebuffer);
             #endif
         } else {
-            if (GrGLHasExtensionFromString("GL_EXT_framebuffer_object", extStr)) {
+            if (extensions.has("GL_EXT_framebuffer_object")) {
                 #if GL_EXT_framebuffer_object
                     interface->fGenFramebuffers = glGenFramebuffersEXT;
                     interface->fGetFramebufferAttachmentParameteriv = glGetFramebufferAttachmentParameterivEXT;
@@ -249,14 +253,14 @@ const GrGLInterface* GrGLCreateNativeInterface() {
                     interface->fBindRenderbuffer = GET_PROC_SUFFIX(BindRenderbuffer, EXT);
                 #endif
             }
-            if (GrGLHasExtensionFromString("GL_EXT_framebuffer_multisample", extStr)) {
+            if (extensions.has("GL_EXT_framebuffer_multisample")) {
                 #if GL_EXT_framebuffer_multisample
                     interface->fRenderbufferStorageMultisample = glRenderbufferStorageMultisampleEXT;
                 #else
                     interface->fRenderbufferStorageMultisample = GET_PROC_SUFFIX(RenderbufferStorageMultisample, EXT);
                 #endif
             }
-            if (GrGLHasExtensionFromString("", extStr)) {
+            if (extensions.has("GL_EXT_framebuffer_blit")) {
                 #if GL_EXT_framebuffer_blit
                     interface->fBlitFramebuffer = glBlitFramebufferEXT;
                 #else
@@ -264,7 +268,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
                 #endif
             }
         }
-        if (ver >= GR_GL_VER(3,3) || GrGLHasExtensionFromString("GL_ARB_blend_func_extended", extStr)) {
+        if (ver >= GR_GL_VER(3,3) || extensions.has("GL_ARB_blend_func_extended")) {
             // ARB extension doesn't use the ARB suffix on the function name
             #if GL_VERSION_3_3 || GL_ARB_blend_func_extended
                 interface->fBindFragDataLocationIndexed = glBindFragDataLocationIndexed;
@@ -272,8 +276,6 @@ const GrGLInterface* GrGLCreateNativeInterface() {
                 interface->fBindFragDataLocationIndexed = GET_PROC(BindFragDataLocationIndexed);
             #endif
         }
-
-        interface->fBindingsExported = kDesktop_GrGLBinding;
     }
     glInterface.get()->ref();
     return glInterface.get();

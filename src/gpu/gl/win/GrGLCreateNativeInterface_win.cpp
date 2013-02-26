@@ -7,8 +7,9 @@
  */
 
 
+#include "gl/GrGLExtensions.h"
 #include "gl/GrGLInterface.h"
-#include "../GrGLUtil.h"
+#include "gl/GrGLUtil.h"
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
@@ -48,12 +49,26 @@ const GrGLInterface* GrGLCreateNativeInterface() {
     if (NULL == alu.get()) {
         return NULL;
     }
-    GrGLGetStringProc glGetString =
-        (GrGLGetStringProc) GetProcAddress(alu.get(), "glGetString");
 
     if (NULL != wglGetCurrentContext()) {
+
+        // These should always be present and don't require wglGetProcAddress
+        GrGLGetStringProc glGetString =
+            (GrGLGetStringProc) GetProcAddress(alu.get(), "glGetString");
+        GrGLGetIntegervProc glGetIntegerv =
+            (GrGLGetIntegervProc) GetProcAddress(alu.get(), "glGetIntegerv");
+        if (NULL == glGetString || NULL == glGetIntegerv) {
+            return NULL;
+        }
+
+        // This may or may not succeed depending on the gl version.
+        GrGLGetStringiProc glGetStringi = (GrGLGetStringiProc)  wglGetProcAddress("glGetStringi");
+
+        GrGLExtensions extensions;
+        if (!extensions.init(kDesktop_GrGLBinding, glGetString, glGetStringi, glGetIntegerv)) {
+            return NULL;
+        }
         const char* versionString = (const char*) glGetString(GR_GL_VERSION);
-        const char* extString = (const char*) glGetString(GR_GL_EXTENSIONS);
         GrGLVersion glVer = GrGLGetVersionFromString(versionString);
 
         if (glVer < GR_GL_VER(1,5)) {
@@ -68,8 +83,8 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         SET_PROC(BlendFunc)
 
         if (glVer >= GR_GL_VER(1,4) ||
-            GrGLHasExtensionFromString("GL_ARB_imaging", extString) ||
-            GrGLHasExtensionFromString("GL_EXT_blend_color", extString)) {
+            extensions.has("GL_ARB_imaging") ||
+            extensions.has("GL_EXT_blend_color")) {
             WGL_SET_PROC(BlendColor);
         }
 
@@ -107,10 +122,9 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         SET_PROC(TexImage2D)
         SET_PROC(TexParameteri)
         SET_PROC(TexParameteriv)
-        if (glVer >= GR_GL_VER(4,2) ||
-            GrGLHasExtensionFromString("GL_ARB_texture_storage", extString)) {
+        if (glVer >= GR_GL_VER(4,2) || extensions.has("GL_ARB_texture_storage")) {
             WGL_SET_PROC(TexStorage2D);
-        } else if (GrGLHasExtensionFromString("GL_EXT_texture_storage", extString)) {
+        } else if (extensions.has("GL_EXT_texture_storage")) {
             WGL_SET_PROC_SUFFIX(TexStorage2D, EXT);
         }
         SET_PROC(TexSubImage2D)
@@ -142,12 +156,11 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         WGL_SET_PROC(GetQueryiv);
         WGL_SET_PROC(GetQueryObjectiv);
         WGL_SET_PROC(GetQueryObjectuiv);
-        if (glVer > GR_GL_VER(3,3) ||
-            GrGLHasExtensionFromString("GL_ARB_timer_query", extString)) {
+        if (glVer > GR_GL_VER(3,3) || extensions.has("GL_ARB_timer_query")) {
             WGL_SET_PROC(GetQueryObjecti64v);
             WGL_SET_PROC(GetQueryObjectui64v);
             WGL_SET_PROC(QueryCounter);
-        } else if (GrGLHasExtensionFromString("GL_EXT_timer_query", extString)) {
+        } else if (extensions.has("GL_EXT_timer_query")) {
             WGL_SET_PROC_SUFFIX(GetQueryObjecti64v, EXT);
             WGL_SET_PROC_SUFFIX(GetQueryObjectui64v, EXT);
         }
@@ -155,9 +168,10 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         WGL_SET_PROC(GetProgramiv);
         WGL_SET_PROC(GetShaderInfoLog);
         WGL_SET_PROC(GetShaderiv);
+        WGL_SET_PROC(GetStringi)
         WGL_SET_PROC(GetUniformLocation);
         WGL_SET_PROC(LinkProgram);
-        if (GrGLHasExtensionFromString("GL_NV_framebuffer_multisample_coverage", extString)) {
+        if (extensions.has("GL_NV_framebuffer_multisample_coverage")) {
             WGL_SET_PROC_SUFFIX(RenderbufferStorageMultisampleCoverage, NV);
         }
         WGL_SET_PROC(ShaderSource);
@@ -190,8 +204,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
 
         // First look for GL3.0 FBO or GL_ARB_framebuffer_object (same since
         // GL_ARB_framebuffer_object doesn't use ARB suffix.)
-        if (glVer > GR_GL_VER(3,0) ||
-            GrGLHasExtensionFromString("GL_ARB_framebuffer_object", extString)) {
+        if (glVer > GR_GL_VER(3,0) || extensions.has("GL_ARB_framebuffer_object")) {
             WGL_SET_PROC(GenFramebuffers);
             WGL_SET_PROC(GetFramebufferAttachmentParameteriv);
             WGL_SET_PROC(GetRenderbufferParameteriv);
@@ -206,8 +219,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
             WGL_SET_PROC(BindRenderbuffer);
             WGL_SET_PROC(RenderbufferStorageMultisample);
             WGL_SET_PROC(BlitFramebuffer);
-        } else if (GrGLHasExtensionFromString("GL_EXT_framebuffer_object",
-                   extString)) {
+        } else if (extensions.has("GL_EXT_framebuffer_object")) {
             WGL_SET_PROC_SUFFIX(GenFramebuffers, EXT);
             WGL_SET_PROC_SUFFIX(GetFramebufferAttachmentParameteriv, EXT);
             WGL_SET_PROC_SUFFIX(GetRenderbufferParameteriv, EXT);
@@ -220,10 +232,10 @@ const GrGLInterface* GrGLCreateNativeInterface() {
             WGL_SET_PROC_SUFFIX(DeleteRenderbuffers, EXT);
             WGL_SET_PROC_SUFFIX(FramebufferRenderbuffer, EXT);
             WGL_SET_PROC_SUFFIX(BindRenderbuffer, EXT);
-            if (GrGLHasExtensionFromString("GL_EXT_framebuffer_multisample", extString)) {
+            if (extensions.has("GL_EXT_framebuffer_multisample")) {
                 WGL_SET_PROC_SUFFIX(RenderbufferStorageMultisample, EXT);
             }
-            if (GrGLHasExtensionFromString("GL_EXT_framebuffer_blit", extString)) {
+            if (extensions.has("GL_EXT_framebuffer_blit")) {
                 WGL_SET_PROC_SUFFIX(BlitFramebuffer, EXT);
             }
         } else {
@@ -234,7 +246,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         WGL_SET_PROC(MapBuffer);
         WGL_SET_PROC(UnmapBuffer);
 
-        if (GrGLHasExtensionFromString("GL_NV_path_rendering", extString)) {
+        if (extensions.has("GL_NV_path_rendering")) {
             WGL_SET_PROC_SUFFIX(PathCommands, NV);
             WGL_SET_PROC_SUFFIX(PathCoords, NV);
             WGL_SET_PROC_SUFFIX(PathSubCommands, NV);

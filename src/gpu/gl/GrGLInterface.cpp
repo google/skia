@@ -7,7 +7,8 @@
 
 
 #include "gl/GrGLInterface.h"
-#include "GrGLUtil.h"
+#include "gl/GrGLExtensions.h"
+#include "gl/GrGLUtil.h"
 
 #include <stdio.h>
 
@@ -35,6 +36,11 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
     GR_STATIC_ASSERT(kNone_GrGLBinding == 0);
 
     if (0 == (binding & fBindingsExported)) {
+        return false;
+    }
+    
+    GrGLExtensions extensions;
+    if (!extensions.init(binding, this)) {
         return false;
     }
 
@@ -131,9 +137,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
         return false;
     }
 
-    const char* ext;
     GrGLVersion glVer = GrGLGetVersion(this);
-    ext = (const char*)fGetString(GR_GL_EXTENSIONS);
 
     // Now check that baseline ES/Desktop fns not covered above are present
     // and that we have fn pointers for any advertised extensions that we will
@@ -160,15 +164,13 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
         if (glVer >= GR_GL_VER(3,0) && NULL == fBindFragDataLocation) {
             return false;
         }
-        if (glVer >= GR_GL_VER(2,0) ||
-            GrGLHasExtensionFromString("GL_ARB_draw_buffers", ext)) {
+        if (glVer >= GR_GL_VER(2,0) || extensions.has("GL_ARB_draw_buffers")) {
             if (NULL == fDrawBuffers) {
                 return false;
             }
         }
 
-        if (glVer >= GR_GL_VER(1,5) ||
-            GrGLHasExtensionFromString("GL_ARB_occlusion_query", ext)) {
+        if (glVer >= GR_GL_VER(1,5) || extensions.has("GL_ARB_occlusion_query")) {
             if (NULL == fGenQueries ||
                 NULL == fDeleteQueries ||
                 NULL == fBeginQuery ||
@@ -180,15 +182,14 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
             }
         }
         if (glVer >= GR_GL_VER(3,3) ||
-            GrGLHasExtensionFromString("GL_ARB_timer_query", ext) ||
-            GrGLHasExtensionFromString("GL_EXT_timer_query", ext)) {
+            extensions.has("GL_ARB_timer_query") ||
+            extensions.has("GL_EXT_timer_query")) {
             if (NULL == fGetQueryObjecti64v ||
                 NULL == fGetQueryObjectui64v) {
                 return false;
             }
         }
-        if (glVer >= GR_GL_VER(3,3) ||
-            GrGLHasExtensionFromString("GL_ARB_timer_query", ext)) {
+        if (glVer >= GR_GL_VER(3,3) || extensions.has("GL_ARB_timer_query")) {
             if (NULL == fQueryCounter) {
                 return false;
             }
@@ -202,7 +203,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
              NULL == fLoadMatrixf)) {
             return false;
         }
-        if (false && GrGLHasExtensionFromString("GL_NV_path_rendering", ext)) {
+        if (false && extensions.has("GL_NV_path_rendering")) {
             if (NULL == fPathCommands ||
                 NULL == fPathCoords ||
                 NULL == fPathSubCommands ||
@@ -259,8 +260,8 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
 
     // optional function on desktop before 1.3
     if (kDesktop_GrGLBinding != binding ||
-        (glVer >= GR_GL_VER(1,3) ||
-        GrGLHasExtensionFromString("GL_ARB_texture_compression", ext))) {
+        (glVer >= GR_GL_VER(1,3)) ||
+        extensions.has("GL_ARB_texture_compression")) {
         if (NULL == fCompressedTexImage2D) {
             return false;
         }
@@ -279,13 +280,13 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
     // There is a desktop ARB extension and an ES+desktop EXT extension
     if (kDesktop_GrGLBinding == binding) {
         if (glVer >= GR_GL_VER(4,2) ||
-            GrGLHasExtensionFromString("GL_ARB_texture_storage", ext) ||
-            GrGLHasExtensionFromString("GL_EXT_texture_storage", ext)) {
+            extensions.has("GL_ARB_texture_storage") ||
+            extensions.has("GL_EXT_texture_storage")) {
             if (NULL == fTexStorage2D) {
                 return false;
             }
         }
-    } else if (GrGLHasExtensionFromString("GL_EXT_texture_storage", ext)) {
+    } else if (extensions.has("GL_EXT_texture_storage")) {
         if (NULL == fTexStorage2D) {
             return false;
         }
@@ -294,29 +295,29 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
     // FBO MSAA
     if (kDesktop_GrGLBinding == binding) {
         // GL 3.0 and the ARB extension have multisample + blit
-        if (glVer >= GR_GL_VER(3,0) || GrGLHasExtensionFromString("GL_ARB_framebuffer_object", ext)) {
+        if (glVer >= GR_GL_VER(3,0) || extensions.has("GL_ARB_framebuffer_object")) {
             if (NULL == fRenderbufferStorageMultisample ||
                 NULL == fBlitFramebuffer) {
                 return false;
             }
         } else {
-            if (GrGLHasExtensionFromString("GL_EXT_framebuffer_blit", ext) &&
+            if (extensions.has("GL_EXT_framebuffer_blit") &&
                 NULL == fBlitFramebuffer) {
                 return false;
             }
-            if (GrGLHasExtensionFromString("GL_EXT_framebuffer_multisample", ext) &&
+            if (extensions.has("GL_EXT_framebuffer_multisample") &&
                 NULL == fRenderbufferStorageMultisample) {
                 return false;
             }
         }
     } else {
-        if (GrGLHasExtensionFromString("GL_CHROMIUM_framebuffer_multisample", ext)) {
+        if (extensions.has("GL_CHROMIUM_framebuffer_multisample")) {
             if (NULL == fRenderbufferStorageMultisample ||
                 NULL == fBlitFramebuffer) {
                 return false;
             }
         }
-        if (GrGLHasExtensionFromString("GL_APPLE_framebuffer_multisample", ext)) {
+        if (extensions.has("GL_APPLE_framebuffer_multisample")) {
             if (NULL == fRenderbufferStorageMultisample ||
                 NULL == fResolveMultisampleFramebuffer) {
                 return false;
@@ -327,8 +328,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
     // On ES buffer mapping is an extension. On Desktop
     // buffer mapping was part of original VBO extension
     // which we require.
-    if (kDesktop_GrGLBinding == binding ||
-        GrGLHasExtensionFromString("GL_OES_mapbuffer", ext)) {
+    if (kDesktop_GrGLBinding == binding || extensions.has("GL_OES_mapbuffer")) {
         if (NULL == fMapBuffer ||
             NULL == fUnmapBuffer) {
             return false;
@@ -337,9 +337,14 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
 
     // Dual source blending
     if (kDesktop_GrGLBinding == binding &&
-        (glVer >= GR_GL_VER(3,3) ||
-         GrGLHasExtensionFromString("GL_ARB_blend_func_extended", ext))) {
+        (glVer >= GR_GL_VER(3,3) || extensions.has("GL_ARB_blend_func_extended"))) {
         if (NULL == fBindFragDataLocationIndexed) {
+            return false;
+        }
+    }
+    
+    if (kDesktop_GrGLBinding == binding && glVer >= GR_GL_VER(3, 0)) {
+        if (NULL == fGetStringi) {
             return false;
         }
     }

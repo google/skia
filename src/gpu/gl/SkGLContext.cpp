@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 #include "gl/SkGLContext.h"
-#include "gl/GrGLUtil.h"
+#include "GrGLUtil.h"
 
 SK_DEFINE_INST_COUNT(SkGLContext)
 
@@ -29,10 +29,6 @@ SkGLContext::~SkGLContext() {
     SkSafeUnref(fGL);
 }
 
-bool SkGLContext::hasExtension(const char* extensionName) const {
-    return GrGLHasExtensionFromString(extensionName, fExtensionString.c_str());
-}
-
 bool SkGLContext::init(int width, int height) {
     if (fGL) {
         fGL->unref();
@@ -43,8 +39,13 @@ bool SkGLContext::init(int width, int height) {
     if (fGL) {
         const GrGLubyte* temp;
 
-        SK_GL_RET(*this, temp, GetString(GR_GL_EXTENSIONS));
-        fExtensionString = reinterpret_cast<const char*>(temp);
+        GrGLBinding bindingInUse = GrGLGetBindingInUse(this->gl());
+
+        if (!fGL->validate(bindingInUse) || !fExtensions.init(bindingInUse, fGL)) {
+            fGL = NULL;
+            this->destroyGLContext();
+            return false;
+        }
 
         SK_GL_RET(*this, temp, GetString(GR_GL_VERSION));
         const char* versionStr = reinterpret_cast<const char*>(temp);
@@ -55,8 +56,6 @@ bool SkGLContext::init(int width, int height) {
         do {
             SK_GL_RET(*this, error, GetError());
         } while (GR_GL_NO_ERROR != error);
-
-        GrGLBinding bindingInUse = GrGLGetBindingInUse(this->gl());
 
         SK_GL(*this, GenFramebuffers(1, &fFBO));
         SK_GL(*this, BindFramebuffer(GR_GL_FRAMEBUFFER, fFBO));
@@ -83,12 +82,11 @@ bool SkGLContext::init(int width, int height) {
         // depth stencil being available.
         bool supportsPackedDepthStencil;
         if (kES2_GrGLBinding == bindingInUse) {
-            supportsPackedDepthStencil =
-                    this->hasExtension("GL_OES_packed_depth_stencil");
+            supportsPackedDepthStencil = this->hasExtension("GL_OES_packed_depth_stencil");
         } else {
             supportsPackedDepthStencil = version >= GR_GL_VER(3,0) ||
-                    this->hasExtension("GL_EXT_packed_depth_stencil") ||
-                    this->hasExtension("GL_ARB_framebuffer_object");
+                                         this->hasExtension("GL_EXT_packed_depth_stencil") ||
+                                         this->hasExtension("GL_ARB_framebuffer_object");
         }
 
         if (supportsPackedDepthStencil) {

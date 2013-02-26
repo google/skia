@@ -38,6 +38,7 @@
       '<(skia_include_path)/gpu/GrUserConfig.h',
 
       '<(skia_include_path)/gpu/gl/GrGLConfig.h',
+      '<(skia_include_path)/gpu/gl/GrGLExtensions.h',
       '<(skia_include_path)/gpu/gl/GrGLFunctions.h',
       '<(skia_include_path)/gpu/gl/GrGLInterface.h',
 
@@ -145,6 +146,7 @@
       '<(skia_src_path)/gpu/gl/GrGLDefines.h',
       '<(skia_src_path)/gpu/gl/GrGLEffect.cpp',
       '<(skia_src_path)/gpu/gl/GrGLEffect.h',
+      '<(skia_src_path)/gpu/gl/GrGLExtensions.cpp',
       '<(skia_src_path)/gpu/gl/GrGLEffectMatrix.cpp',
       '<(skia_src_path)/gpu/gl/GrGLEffectMatrix.h',
       '<(skia_src_path)/gpu/gl/GrGLIndexBuffer.cpp',

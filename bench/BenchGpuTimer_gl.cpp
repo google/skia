@@ -15,8 +15,8 @@ BenchGpuTimer::BenchGpuTimer(const SkGLContext* glctx) {
     glctx->makeCurrent();
     fStarted = false;
     fSupported = GrGLGetVersion(glctx->gl()) > GR_GL_VER(3,3) ||
-                 GrGLHasExtension(glctx->gl(), "GL_ARB_timer_query") ||
-                 GrGLHasExtension(glctx->gl(), "GL_EXT_timer_query");
+                 glctx->hasExtension("GL_ARB_timer_query") ||
+                 glctx->hasExtension("GL_EXT_timer_query");
 
     if (fSupported) {
         SK_GL(*glctx, GenQueries(1, &fQuery));
