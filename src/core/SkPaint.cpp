@@ -842,7 +842,7 @@ static const SkGlyph& sk_getMetrics_utf32_xy(SkGlyphCache* cache,
     const int32_t* ptr = *(const int32_t**)text;
     SkUnichar uni = *--ptr;
     *text = (const char*)ptr;
-    return cache->getUnicharMetrics(uni);
+    return cache->getUnicharMetrics(uni, x, y);
 }
 
 static const SkGlyph& sk_getMetrics_glyph_00(SkGlyphCache* cache,
@@ -1689,7 +1689,7 @@ static const SkMaskGamma& cachedMaskGamma(SkScalar contrast, SkScalar paintGamma
 /**
  *  We ensure that the rec is self-consistent and efficient (where possible)
  */
-void SkScalerContext::PostMakeRec(const SkPaint& paint, SkScalerContext::Rec* rec) {
+void SkScalerContext::PostMakeRec(const SkPaint&, SkScalerContext::Rec* rec) {
     /**
      *  If we're asking for A8, we force the colorlum to be gray, since that
      *  limits the number of unique entries, and the scaler will only look at
