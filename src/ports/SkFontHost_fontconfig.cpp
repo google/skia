@@ -187,8 +187,14 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
-    SkASSERT(!"SkFontHost::CreateTypefaceFromFile unimplemented");
-    return NULL;
+    SkTypeface* face = NULL;
+    SkFILEStream* stream = SkNEW_ARGS(SkFILEStream, (path));
+
+    if (stream->isValid()) {
+        face = CreateTypefaceFromStream(stream);
+    }
+    stream->unref();
+    return face;
 }
 
 uint32_t SkFontHost::NextLogicalFont(SkFontID curr, SkFontID orig) {
