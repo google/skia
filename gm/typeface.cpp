@@ -30,7 +30,7 @@ public:
 
     virtual ~TypefaceGM() {
         for (size_t i = 0; i < SK_ARRAY_COUNT(gFaces); i++) {
-            fFaces[i]->unref();
+            SkSafeUnref(fFaces[i]);
         }
         delete [] fFaces;
     }
