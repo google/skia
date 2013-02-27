@@ -104,7 +104,7 @@ static void iter_paint(skiatest::Reporter* reporter, const SkPath& path, bool sh
 #define CX  (SkIntToScalar(DIMENSION) / 2)
 #define CY  (SkIntToScalar(DIMENSION) / 2)
 
-static void make_empty(SkPath* path) {}
+static void make_empty(SkPath*) {}
 static void make_M(SkPath* path) { path->moveTo(CX, CY); }
 static void make_MM(SkPath* path) { path->moveTo(CX, CY); path->moveTo(CX, CY); }
 static void make_MZM(SkPath* path) { path->moveTo(CX, CY); path->close(); path->moveTo(CX, CY); }

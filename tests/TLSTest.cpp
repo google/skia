@@ -59,11 +59,11 @@ static void* FakeCreateTLS() {
     return NULL;
 }
 
-static void FakeDeleteTLS(void* unused) {
+static void FakeDeleteTLS(void*) {
     sk_atomic_dec(&gCounter);
 }
 
-static void testTLSDestructor(void* unused) {
+static void testTLSDestructor(void*) {
     SkTLS::Get(FakeCreateTLS, FakeDeleteTLS);
 }
 

@@ -74,7 +74,7 @@ protected:
     virtual void onReport(const char desc[], Reporter::Result result) {
         SkDebugf("\t%s: %s\n", result2string(result), desc);
     }
-    virtual void onEnd(Test* test) {
+    virtual void onEnd(Test*) {
         if (!this->getCurrSuccess()) {
             SkDebugf("---- FAILED\n");
         }

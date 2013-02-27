@@ -279,7 +279,7 @@ static void rand_op(SkCanvas* canvas, SkRandom& rand) {
     }
 }
 
-static void test_peephole(skiatest::Reporter* reporter) {
+static void test_peephole() {
     SkRandom rand;
 
     for (int j = 0; j < 100; j++) {
@@ -424,7 +424,7 @@ static void TestPicture(skiatest::Reporter* reporter) {
 #else
     test_bad_bitmap();
 #endif
-    test_peephole(reporter);
+    test_peephole();
     test_gatherpixelrefs(reporter);
     test_bitmap_with_encoded_data(reporter);
     test_clone_empty(reporter);

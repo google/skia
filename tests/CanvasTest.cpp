@@ -430,8 +430,8 @@ static void PaintSaveLayerStep(SkCanvas* canvas,
 TEST_STEP(PaintSaveLayer, PaintSaveLayerStep);
 
 static void TwoClipOpsStep(SkCanvas* canvas,
-                           skiatest::Reporter* reporter,
-                           CanvasTestStep* testStep) {
+                           skiatest::Reporter*,
+                           CanvasTestStep*) {
     // This test exercises a functionality in SkPicture that leads to the
     // recording of restore offset placeholders.  This test will trigger an
     // assertion at playback time if the placeholders are not properly
@@ -444,8 +444,8 @@ TEST_STEP(TwoClipOps, TwoClipOpsStep);
 // exercise fix for http://code.google.com/p/skia/issues/detail?id=560
 // ('SkPathStroker::lineTo() fails for line with length SK_ScalarNearlyZero')
 static void DrawNearlyZeroLengthPathTestStep(SkCanvas* canvas,
-                                             skiatest::Reporter* reporter,
-                                             CanvasTestStep* testStep) {
+                                             skiatest::Reporter*,
+                                             CanvasTestStep*) {
     SkPaint paint;
     paint.setStrokeWidth(SkIntToScalar(1));
     paint.setStyle(SkPaint::kStroke_Style);
@@ -465,8 +465,8 @@ static void DrawNearlyZeroLengthPathTestStep(SkCanvas* canvas,
 TEST_STEP(DrawNearlyZeroLengthPath, DrawNearlyZeroLengthPathTestStep);
 
 static void DrawVerticesShaderTestStep(SkCanvas* canvas,
-                                       skiatest::Reporter* reporter,
-                                       CanvasTestStep* testStep) {
+                                       skiatest::Reporter*,
+                                       CanvasTestStep*) {
     SkPoint pts[4];
     pts[0].set(0, 0);
     pts[1].set(SkIntToScalar(kWidth), 0);
@@ -483,8 +483,8 @@ static void DrawVerticesShaderTestStep(SkCanvas* canvas,
 TEST_STEP_NO_PDF(DrawVerticesShader, DrawVerticesShaderTestStep);
 
 static void DrawPictureTestStep(SkCanvas* canvas,
-                                skiatest::Reporter* reporter,
-                                CanvasTestStep* testStep) {
+                                skiatest::Reporter*,
+                                CanvasTestStep*) {
     SkPicture* testPicture = SkNEW_ARGS(SkPicture, ());
     SkAutoUnref aup(testPicture);
     SkCanvas* testCanvas = testPicture->beginRecording(kWidth, kHeight);
@@ -553,8 +553,8 @@ static void DrawLayerTestStep(SkCanvas* canvas,
 TEST_STEP(DrawLayer, DrawLayerTestStep);
 
 static void NestedSaveRestoreWithSolidPaintTestStep(SkCanvas* canvas,
-                                      skiatest::Reporter* reporter,
-                                      CanvasTestStep* testStep) {
+                                      skiatest::Reporter*,
+                                      CanvasTestStep*) {
     // This test step challenges the TestDeferredCanvasStateConsistency
     // test cases because the opaque paint can trigger an optimization
     // that discards previously recorded commands. The challenge is to maintain
@@ -575,8 +575,8 @@ TEST_STEP(NestedSaveRestoreWithSolidPaint, \
     NestedSaveRestoreWithSolidPaintTestStep);
 
 static void NestedSaveRestoreWithFlushTestStep(SkCanvas* canvas,
-                                      skiatest::Reporter* reporter,
-                                      CanvasTestStep* testStep) {
+                                      skiatest::Reporter*,
+                                      CanvasTestStep*) {
     // This test step challenges the TestDeferredCanvasStateConsistency
     // test case because the canvas flush on a deferred canvas will
     // reset the recording session. The challenge is to maintain correct

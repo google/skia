@@ -48,7 +48,7 @@ static void test_hairclipping(skiatest::Reporter* reporter) {
     }
 }
 
-static void test_edgeclipper(skiatest::Reporter* reporter) {
+static void test_edgeclipper() {
     SkEdgeClipper clipper;
 
     const SkPoint pts[] = {
@@ -146,7 +146,7 @@ static void test_intersectline(skiatest::Reporter* reporter) {
 
 static void TestClipper(skiatest::Reporter* reporter) {
     test_intersectline(reporter);
-    test_edgeclipper(reporter);
+    test_edgeclipper();
     test_hairclipping(reporter);
 }
 

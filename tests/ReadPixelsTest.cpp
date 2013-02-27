@@ -53,7 +53,7 @@ SkPMColor getCanvasColor(int x, int y) {
     return SkPremultiplyARGBInline(a, r, g, b);
 }
 
-SkPMColor getBitmapColor(int x, int y, int w, int h) {
+SkPMColor getBitmapColor(int x, int y, int w) {
     int n = y * w + x;
 
     U8CPU b = n & 0xff;
@@ -139,7 +139,7 @@ void fillBitmap(SkBitmap* bitmap) {
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             SkPMColor* pixel = reinterpret_cast<SkPMColor*>(pixels + y * bitmap->rowBytes() + x * bitmap->bytesPerPixel());
-            *pixel = getBitmapColor(x, y, w, h);
+            *pixel = getBitmapColor(x, y, w);
         }
     }
 }
@@ -206,8 +206,8 @@ bool checkRead(skiatest::Reporter* reporter,
                     }
                 }
             } else if (checkBitmapPixels) {
-                REPORTER_ASSERT(reporter, getBitmapColor(bx, by, bw, bh) == pixel);
-                if (getBitmapColor(bx, by, bw, bh) != pixel) {
+                REPORTER_ASSERT(reporter, getBitmapColor(bx, by, bw) == pixel);
+                if (getBitmapColor(bx, by, bw) != pixel) {
                     return false;
                 }
             }

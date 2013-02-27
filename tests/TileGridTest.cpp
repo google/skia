@@ -27,7 +27,7 @@ public:
     MockCanvas(SkDevice* device) : SkCanvas(device)
     {}
 
-    virtual void drawRect(const SkRect& rect, const SkPaint& paint)
+    virtual void drawRect(const SkRect& rect, const SkPaint&)
     {
         // This capture occurs before quick reject.
         fRects.push(rect);

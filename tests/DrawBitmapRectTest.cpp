@@ -202,7 +202,7 @@ static void test_giantrepeat_crbug118018(skiatest::Reporter* reporter) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void test_nan_antihair(skiatest::Reporter* reporter) {
+static void test_nan_antihair() {
     SkBitmap bm;
     bm.setConfig(SkBitmap::kARGB_8888_Config, 20, 20);
     bm.allocPixels();
@@ -264,7 +264,7 @@ static void TestDrawBitmapRect(skiatest::Reporter* reporter) {
     // ensure that we draw nothing if srcR does not intersect the bitmap
     REPORTER_ASSERT(reporter, check_for_all_zeros(dst));
 
-    test_nan_antihair(reporter);
+    test_nan_antihair();
     test_giantrepeat_crbug118018(reporter);
 
     test_treatAsSprite(reporter);

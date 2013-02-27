@@ -66,7 +66,7 @@ static inline uint32_t compute_pointCount(SkScalar d, SkScalar tol) {
     }
 }
 
-static uint32_t quadraticPointCount_EE(const SkPoint points[], SkScalar tol) {
+static uint32_t quadraticPointCount_EE(const SkPoint points[]) {
     int distance = estimate_distance(points);
     return estimate_pointCount(distance);
 }
@@ -76,7 +76,7 @@ static uint32_t quadraticPointCount_EC(const SkPoint points[], SkScalar tol) {
     return compute_pointCount(SkIntToScalar(distance), tol);
 }
 
-static uint32_t quadraticPointCount_CE(const SkPoint points[], SkScalar tol) {
+static uint32_t quadraticPointCount_CE(const SkPoint points[]) {
     SkScalar distance = compute_distance(points);
     return estimate_pointCount(SkScalarRound(distance));
 }
@@ -122,13 +122,13 @@ static bool one_d_pe(const int* array, const unsigned int count,
         uint32_t computedCount =
             quadraticPointCount_CC(path, SkIntToScalar(1));
         uint32_t estimatedCount =
-            quadraticPointCount_EE(path, SkIntToScalar(1));
+            quadraticPointCount_EE(path);
 
         if (false) { // avoid bit rot, suppress warning
             computedCount =
                     quadraticPointCount_EC(path, SkIntToScalar(1));
             estimatedCount =
-                    quadraticPointCount_CE(path, SkIntToScalar(1));
+                    quadraticPointCount_CE(path);
         }
         // Allow estimated to be high by a factor of two, but no less than
         // the computed value.
