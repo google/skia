@@ -168,12 +168,16 @@ void SkPDFCatalog::setSubstitute(SkPDFObject* original,
     fSubstituteMap.append(1, &newMapping);
 
     // Add resource objects of substitute object to catalog.
-    SkTDArray<SkPDFObject*>* targetList = getSubstituteList(onFirstPage);
-    int existingSize = targetList->count();
-    newMapping.fSubstitute->getResources(targetList);
-    for (int i = existingSize; i < targetList->count(); ++i) {
-        addObject((*targetList)[i], onFirstPage);
+    SkTSet<SkPDFObject*>* targetSet = getSubstituteList(onFirstPage);
+    SkTSet<SkPDFObject*> newResourceObjects;
+    newMapping.fSubstitute->getResources(*targetSet, &newResourceObjects);
+    for (int i = 0; i < newResourceObjects.count(); ++i) {
+        addObject(newResourceObjects[i], onFirstPage);
     }
+    // mergeInto returns the number of duplicates.
+    // If there are duplicates, there is a bug and we mess ref counting.
+    SkDEBUGCODE(int duplicates =) targetSet->mergeInto(newResourceObjects);
+    SkASSERT(duplicates == 0);
 }
 
 SkPDFObject* SkPDFCatalog::getSubstituteObject(SkPDFObject* object) {
@@ -187,22 +191,22 @@ SkPDFObject* SkPDFCatalog::getSubstituteObject(SkPDFObject* object) {
 
 off_t SkPDFCatalog::setSubstituteResourcesOffsets(off_t fileOffset,
                                                   bool firstPage) {
-    SkTDArray<SkPDFObject*>* targetList = getSubstituteList(firstPage);
+    SkTSet<SkPDFObject*>* targetSet = getSubstituteList(firstPage);
     off_t offsetSum = fileOffset;
-    for (int i = 0; i < targetList->count(); ++i) {
-        offsetSum += setFileOffset((*targetList)[i], offsetSum);
+    for (int i = 0; i < targetSet->count(); ++i) {
+        offsetSum += setFileOffset((*targetSet)[i], offsetSum);
     }
     return offsetSum - fileOffset;
 }
 
 void SkPDFCatalog::emitSubstituteResources(SkWStream *stream, bool firstPage) {
-    SkTDArray<SkPDFObject*>* targetList = getSubstituteList(firstPage);
-    for (int i = 0; i < targetList->count(); ++i) {
-        (*targetList)[i]->emit(stream, this, true);
+    SkTSet<SkPDFObject*>* targetSet = getSubstituteList(firstPage);
+    for (int i = 0; i < targetSet->count(); ++i) {
+        (*targetSet)[i]->emit(stream, this, true);
     }
 }
 
-SkTDArray<SkPDFObject*>* SkPDFCatalog::getSubstituteList(bool firstPage) {
+SkTSet<SkPDFObject*>* SkPDFCatalog::getSubstituteList(bool firstPage) {
     return firstPage ? &fSubstituteResourcesFirstPage :
                        &fSubstituteResourcesRemaining;
 }
