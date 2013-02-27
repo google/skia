@@ -318,10 +318,11 @@ bool GrDrawState::StageUsesTexCoords(GrVertexLayout layout, int stageIdx) {
 bool GrDrawState::srcAlphaWillBeOne(GrVertexLayout layout) const {
 
     uint32_t validComponentFlags;
-    GrColor  color;
+    GrColor color;
     // Check if per-vertex or constant color may have partial alpha
     if (layout & kColor_VertexLayoutBit) {
         validComponentFlags = 0;
+        color = 0; // not strictly necessary but we get false alarms from tools about uninit.
     } else {
         validComponentFlags = GrEffect::kAll_ValidComponentFlags;
         color = this->getColor();
