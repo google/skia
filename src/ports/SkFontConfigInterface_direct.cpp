@@ -7,7 +7,6 @@
 
 /* migrated from chrome/src/skia/ext/SkFontHost_fontconfig_direct.cpp */
 
-#include <map>
 #include <string>
 #include <unistd.h>
 #include <fcntl.h>
@@ -15,7 +14,6 @@
 #include <fontconfig/fontconfig.h>
 
 #include "SkFontConfigInterface.h"
-//#include "SkUtils.h"
 #include "SkStream.h"
 
 class SkFontConfigInterfaceDirect : public SkFontConfigInterface {
@@ -23,28 +21,15 @@ public:
             SkFontConfigInterfaceDirect();
     virtual ~SkFontConfigInterfaceDirect();
 
-    virtual bool match(const char familyName[], SkTypeface::Style requested,
-                 unsigned* fileFaceID, SkTypeface::Style* outStyle) SK_OVERRIDE;
-    virtual bool getFamilyName(unsigned fileFaceID, SkString* name) SK_OVERRIDE;
-    virtual SkStream* openStream(unsigned fileFaceID) SK_OVERRIDE;
+    virtual bool matchFamilyName(const char familyName[],
+                                 SkTypeface::Style requested,
+                                 FontIdentity* outFontIdentifier,
+                                 SkString* outFamilyName,
+                                 SkTypeface::Style* outStyle) SK_OVERRIDE;
+    virtual SkStream* openStream(const FontIdentity&) SK_OVERRIDE;
 
 private:
     SkMutex mutex_;
-
-    // fileid stored in two maps below are unique per font file.
-    std::map<unsigned, std::string> fileid_to_filename_;
-    std::map<std::string, unsigned> filename_to_fileid_;
-
-    // Cache of |family,style| to |FontMatch| to minimize querying FontConfig.
-    typedef std::pair<std::string, int> FontMatchKey;
-    struct FontMatch {
-        std::string family;
-        SkTypeface::Style style;
-        unsigned filefaceid;
-    };
-    std::map<FontMatchKey, FontMatch> font_match_cache_;
-
-    unsigned next_file_id_;
 };
 
 SkFontConfigInterface* SkCreateDirectFontConfigInterface();
@@ -290,13 +275,7 @@ FcPattern* MatchFont(FcFontSet* font_set,
 }
 
 // Retrieves |is_bold|, |is_italic| and |font_family| properties from |font|.
-bool GetFontProperties(FcPattern* font,
-                       std::string* font_family,
-                       SkTypeface::Style* style) {
-    FcChar8* c_family;
-    if (FcPatternGetString(font, FC_FAMILY, 0, &c_family))
-        return false;
-
+SkTypeface::Style GetFontStyle(FcPattern* font) {
     int resulting_bold;
     if (FcPatternGetInteger(font, FC_WEIGHT, 0, &resulting_bold))
         resulting_bold = FC_WEIGHT_NORMAL;
@@ -325,46 +304,33 @@ bool GetFontProperties(FcPattern* font,
         styleBits |= SkTypeface::kItalic;
     }
 
-    *font_family = reinterpret_cast<char*>(c_family);
-    *style = (SkTypeface::Style)styleBits;
-    return true;
+    return (SkTypeface::Style)styleBits;
 }
 
 }  // anonymous namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define kMaxFontFamilyLength    1024
+#define kMaxFontFamilyLength    2048
 
-SkFontConfigInterfaceDirect::SkFontConfigInterfaceDirect() : next_file_id_(0) {
+SkFontConfigInterfaceDirect::SkFontConfigInterfaceDirect() {
     FcInit();
 }
 
 SkFontConfigInterfaceDirect::~SkFontConfigInterfaceDirect() {
 }
 
-bool SkFontConfigInterfaceDirect::match(const char familyName[],
-                                        SkTypeface::Style style,
-                                    unsigned* result_filefaceid,
-                                        SkTypeface::Style* result_style) {
+bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
+                                                  SkTypeface::Style style,
+                                                  FontIdentity* outIdentity,
+                                                  SkString* outFamilyName,
+                                                  SkTypeface::Style* outStyle) {
     std::string familyStr(familyName ? familyName : "");
     if (familyStr.length() > kMaxFontFamilyLength) {
         return false;
     }
 
     SkAutoMutexAcquire ac(mutex_);
-
-    // search our cache
-    {
-    FontMatchKey key = FontMatchKey(familyStr, style);
-        const std::map<FontMatchKey, FontMatch>::const_iterator i =
-                        font_match_cache_.find(key);
-        if (i != font_match_cache_.end()) {
-            *result_style = i->second.style;
-            *result_filefaceid = i->second.filefaceid;
-            return true;
-        }
-    }
 
     FcPattern* pattern = FcPatternCreate();
 
@@ -429,133 +395,43 @@ bool SkFontConfigInterfaceDirect::match(const char familyName[],
 
     FcPatternDestroy(pattern);
 
+    // From here out we just extract our results from 'match'
+
+    if (FcPatternGetString(match, FC_FAMILY, 0, &post_config_family) != FcResultMatch) {
+        FcFontSetDestroy(font_set);
+        return false;
+    }
+
     FcChar8* c_filename;
     if (FcPatternGetString(match, FC_FILE, 0, &c_filename) != FcResultMatch) {
         FcFontSetDestroy(font_set);
         return false;
     }
+
     int face_index;
     if (FcPatternGetInteger(match, FC_INDEX, 0, &face_index) != FcResultMatch) {
         FcFontSetDestroy(font_set);
         return false;
     }
 
-    FontMatch font_match;
-    {
-        unsigned out_fileid;
-        const std::string filename(reinterpret_cast<char*>(c_filename));
-        const std::map<std::string, unsigned>::const_iterator
-            i = filename_to_fileid_.find(filename);
-        if (i == filename_to_fileid_.end()) {
-            out_fileid = next_file_id_++;
-            filename_to_fileid_[filename] = out_fileid;
-            fileid_to_filename_[out_fileid] = filename;
-        } else {
-            out_fileid = i->second;
-        }
-        // fileid stored in filename_to_fileid_ and fileid_to_filename_ is
-        // unique only up to the font file. We have to encode face_index for
-        // the out param.
-        font_match.filefaceid =
-            FileIdAndFaceIndexToFileFaceId(out_fileid, face_index);
-    }
-
-    bool success = GetFontProperties(match,
-                                     &font_match.family,
-                                     &font_match.style);
     FcFontSetDestroy(font_set);
 
-    if (success) {
-        font_match_cache_[FontMatchKey(familyStr, style)] = font_match;
-        *result_filefaceid = font_match.filefaceid;
-        *result_style = font_match.style;
+    if (outIdentity) {
+        outIdentity->fIntPtr = face_index;
+        outIdentity->fString.set((const char*)c_filename);
     }
-
-    return success;
-}
-
-#include <fontconfig/fcfreetype.h>
-
-bool SkFontConfigInterfaceDirect::getFamilyName(unsigned filefaceid,
-                                                SkString* result_family) {
-    SkAutoMutexAcquire ac(mutex_);
-
-#if 0
-    FcPattern* pattern = FcPatternCreate();
-    SkString filename;
-
-    {
-        const std::map<unsigned, std::string>::const_iterator
-            i = fileid_to_filename_.find(FileFaceIdToFileId(filefaceid));
-        if (i == fileid_to_filename_.end()) {
-            FcPatternDestroy(pattern);
-            return false;
-        }
-        int face_index = filefaceid & 0xfu;
-        filename.set(i->second.c_str());
-        FcPatternAddString(pattern, FC_FILE,
-            reinterpret_cast<const FcChar8*>(i->second.c_str()));
-        FcPatternAddInteger(pattern, FC_INDEX, face_index);
+    if (outFamilyName) {
+        outFamilyName->set((const char*)post_config_family);
     }
-
-    FcPatternAddBool(pattern, FC_SCALABLE, FcTrue);
-
-    FcConfigSubstitute(NULL, pattern, FcMatchPattern);
-    FcDefaultSubstitute(pattern);
-
-    FcResult result;
-    FcFontSet* font_set = FcFontSort(0, pattern, 0, 0, &result);
-    if (!font_set || font_set->nfont <= 0) {
-        FcPatternDestroy(pattern);
-        return false;
+    if (outStyle) {
+        *outStyle = GetFontStyle(match);
     }
-
-    bool found = false;
-    for (int i = 0; i < font_set->nfont; ++i) {
-        FcChar8* file;
-        FcPatternGetString(font_set->fonts[i], FC_FILE, 0, &file);
-        if (filename.equals((const char*)file)) {
-            FcChar8* family;
-            FcPatternGetString(font_set->fonts[i], FC_FAMILY, 0, &family);
-            result_family->set((const char*)family);
-            found = true;
-            break;
-        }
-    }
-
-    FcPatternDestroy(pattern);
-    FcFontSetDestroy(font_set);
-    return found;
-#else
-    const std::map<unsigned, std::string>::const_iterator
-        i = fileid_to_filename_.find(FileFaceIdToFileId(filefaceid));
-    if (i == fileid_to_filename_.end()) {
-        return false;
-    }
-
-    int face_index = filefaceid & 0xfu;
-    int count;
-    FcPattern* pattern = FcFreeTypeQuery((const FcChar8*)i->second.c_str(),
-                                         face_index, NULL, &count);
-    if (!pattern || count <= 0) {
-        return false;
-    }
-
-    FcChar8* family;
-    FcPatternGetString(pattern, FC_FAMILY, 0, &family);
-
-    result_family->set((const char*)family);
     return true;
-#endif
 }
 
-SkStream* SkFontConfigInterfaceDirect::openStream(unsigned filefaceid) {
-    SkAutoMutexAcquire ac(mutex_);
-    const std::map<unsigned, std::string>::const_iterator
-        i = fileid_to_filename_.find(FileFaceIdToFileId(filefaceid));
-    if (i == fileid_to_filename_.end()) {
-        return NULL;
-    }
-    int fd = open(i->second.c_str(), O_RDONLY);
+SkStream* SkFontConfigInterfaceDirect::openStream(const FontIdentity& identity) {
+    int fd = open(identity.fString.c_str(), O_RDONLY);
     return (fd >= 0) ? SkNEW_ARGS(SkFDStream, (fd, true)) : NULL;
 }
+
+

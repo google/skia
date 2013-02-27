@@ -34,27 +34,38 @@ public:
     static SkFontConfigInterface* SetGlobal(SkFontConfigInterface*);
 
     /**
-     *  Given a familyName and style, find the best matching font and return
-     *  its fileFaceID and actual style (if outStyle is not null) and return
-     *  true. If no matching font can be found, ignore fileFaceID and outStyle
-     *  and return false.
+     *  This should be treated as private to the impl of SkFontConfigInterface.
+     *  Callers should not change or expect any particular values. It is meant
+     *  to be a union of possible storage types to aid the impl.
      */
-    virtual bool match(const char familyName[], SkTypeface::Style requested,
-                       unsigned* fileFaceID, SkTypeface::Style* outStyle) = 0;
+    struct FontIdentity {
+        intptr_t    fIntPtr;
+        SkString    fString;
+    };
 
     /**
-     *  Given a fileFaceID (returned by match), return the associated familyName
-     *  and return true. If the associated name cannot be returned, ignore the
-     *  name parameter, and return false.
+     *  Given a familyName and style, find the best match.
+     *
+     *  If a match is found, return true and set its outFontIdentifier.
+     *      If outFamilyName is not null, assign the found familyName to it
+     *          (which may differ from the requested familyName).
+     *      If outStyle is not null, assign the found style to it
+     *          (which may differ from the requested style).
+     *
+     *  If a match is not found, return false, and ignore all out parameters.
      */
-    virtual bool getFamilyName(unsigned fileFaceID, SkString* name) = 0;
+    virtual bool matchFamilyName(const char familyName[],
+                                 SkTypeface::Style requested,
+                                 FontIdentity* outFontIdentifier,
+                                 SkString* outFamilyName,
+                                 SkTypeface::Style* outStyle) = 0;
 
     /**
-     *  Given a fileFaceID (returned by match), open a stream to access its
-     *  data, which the caller while take ownership of (and will call unref()
-     *  when they're through). On failure, return NULL.
+     *  Given a FontRef, open a stream to access its data, or return null
+     *  if the FontRef's data is not available. The caller is responsible for
+     *  calling stream->unref() when it is done accessing the data.
      */
-    virtual SkStream* openStream(unsigned fileFaceID) = 0;
+    virtual SkStream* openStream(const FontIdentity&) = 0;
 };
 
 #endif
