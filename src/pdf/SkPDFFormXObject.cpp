@@ -20,16 +20,8 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
     // We don't want to keep around device because we'd have two copies
     // of content, so reference or copy everything we need (content and
     // resources).
-    device->getResources(&fResources, false);
-
-    // Fail fast if in the tree of resources a child references a parent.
-    // If there is an issue, getResources will end up consuming all memory.
-    // TODO: A better approach might be for all SkPDFObject to keep track
-    // of possible cycles.
-#ifdef SK_DEBUG
-    SkTDArray<SkPDFObject*> dummy_resourceList;
-    getResources(&dummy_resourceList);
-#endif
+    SkTSet<SkPDFObject*> emptySet;
+    device->getResources(emptySet, &fResources, false);
 
     SkAutoTUnref<SkStream> content(device->content());
     setData(content.get());
@@ -64,6 +56,10 @@ SkPDFFormXObject::~SkPDFFormXObject() {
     fResources.unrefAll();
 }
 
-void SkPDFFormXObject::getResources(SkTDArray<SkPDFObject*>* resourceList) {
-    GetResourcesHelper(&fResources, resourceList);
+void SkPDFFormXObject::getResources(
+        const SkTSet<SkPDFObject*>& knownResourceObjects,
+        SkTSet<SkPDFObject*>* newResourceObjects) {
+    GetResourcesHelper(&fResources.toArray(),
+                       knownResourceObjects,
+                       newResourceObjects);
 }
