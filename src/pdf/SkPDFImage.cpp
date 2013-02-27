@@ -287,8 +287,9 @@ SkPDFImage* SkPDFImage::addSMask(SkPDFImage* mask) {
     return mask;
 }
 
-void SkPDFImage::getResources(SkTDArray<SkPDFObject*>* resourceList) {
-    GetResourcesHelper(&fResources, resourceList);
+void SkPDFImage::getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
+                              SkTSet<SkPDFObject*>* newResourceObjects) {
+    GetResourcesHelper(&fResources, knownResourceObjects, newResourceObjects);
 }
 
 SkPDFImage::SkPDFImage(SkStream* imageData, const SkBitmap& bitmap,

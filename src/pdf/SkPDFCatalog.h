@@ -115,8 +115,8 @@ private:
 
     // TODO(arthurhsu): Make this a hash if it's a performance problem.
     SkTDArray<SubstituteMapping> fSubstituteMap;
-    SkTDArray<SkPDFObject*> fSubstituteResourcesFirstPage;
-    SkTDArray<SkPDFObject*> fSubstituteResourcesRemaining;
+    SkTSet<SkPDFObject*> fSubstituteResourcesFirstPage;
+    SkTSet<SkPDFObject*> fSubstituteResourcesRemaining;
 
     // Number of objects on the first page.
     uint32_t fFirstPageCount;
@@ -131,7 +131,7 @@ private:
 
     int assignObjNum(SkPDFObject* obj);
 
-    SkTDArray<SkPDFObject*>* getSubstituteList(bool firstPage);
+    SkTSet<SkPDFObject*>* getSubstituteList(bool firstPage);
 };
 
 #endif
