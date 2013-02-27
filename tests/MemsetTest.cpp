@@ -79,9 +79,10 @@ static void test_16(skiatest::Reporter* reporter) {
             uint16_t* base = &buffer[PAD + alignment];
             sk_memset16(base, VALUE16, count);
 
-            compare16(buffer,       0,       PAD + alignment);
-            compare16(base,         VALUE16, count);
-            compare16(base + count, 0,       TOTAL - count - PAD - alignment);
+            REPORTER_ASSERT(reporter,
+                compare16(buffer,       0,       PAD + alignment) &&
+                compare16(base,         VALUE16, count) &&
+                compare16(base + count, 0,       TOTAL - count - PAD - alignment));
         }
     }
 }
@@ -96,9 +97,10 @@ static void test_32(skiatest::Reporter* reporter) {
             uint32_t* base = &buffer[PAD + alignment];
             sk_memset32(base, VALUE32, count);
 
-            compare32(buffer,       0,       PAD + alignment);
-            compare32(base,         VALUE32, count);
-            compare32(base + count, 0,       TOTAL - count - PAD - alignment);
+            REPORTER_ASSERT(reporter,
+                compare32(buffer,       0,       PAD + alignment) &&
+                compare32(base,         VALUE32, count) &&
+                compare32(base + count, 0,       TOTAL - count - PAD - alignment));
         }
     }
 }

@@ -49,7 +49,7 @@ static void cubicToH(SkPath* path, const uint32_t raw[]) {
 
 // we're not calling this test anymore; is that for a reason?
 
-static void test_crbug131181(skiatest::Reporter*) {
+static void test_crbug131181() {
     /*
      fX = 18.8943768,
      fY = 129.121277
@@ -82,7 +82,7 @@ static void test_crbug131181(skiatest::Reporter*) {
 // This used to assert in debug builds (and crash writing bad memory in release)
 // because we overflowed an intermediate value (B coefficient) setting up our
 // stepper for the quadratic. Now we bias that value by 1/2 so we don't overflow
-static void test_crbug_140803(skiatest::Reporter* reporter) {
+static void test_crbug_140803() {
     SkBitmap bm;
     bm.setConfig(SkBitmap::kARGB_8888_Config, 2700, 30*1024);
     bm.allocPixels();
@@ -101,7 +101,7 @@ static void test_crbug_140803(skiatest::Reporter* reporter) {
 // of its bounds).
 // In the debug build, we used to assert in this case, until it was fixed.
 //
-static void test_inversepathwithclip(skiatest::Reporter* reporter) {
+static void test_inversepathwithclip() {
     SkPath path;
 
     path.moveTo(0, SkIntToScalar(20));
@@ -138,7 +138,7 @@ static void test_inversepathwithclip(skiatest::Reporter* reporter) {
     canvas.get()->drawPath(path, paint);
 }
 
-static void test_bug533(skiatest::Reporter* reporter) {
+static void test_bug533() {
 #ifdef SK_SCALAR_IS_FLOAT
     /*
         http://code.google.com/p/skia/issues/detail?id=533
@@ -157,7 +157,7 @@ static void test_bug533(skiatest::Reporter* reporter) {
 #endif
 }
 
-static void test_crbug_140642(skiatest::Reporter* reporter) {
+static void test_crbug_140642() {
     /*
      *  We used to see this construct, and due to rounding as we accumulated
      *  our length, the loop where we apply the phase would run off the end of
@@ -179,7 +179,7 @@ static void test_crbug_140642(skiatest::Reporter* reporter) {
 #endif
 }
 
-static void test_crbug_124652(skiatest::Reporter* reporter) {
+static void test_crbug_124652() {
 #ifdef SK_SCALAR_IS_FLOAT
     /*
         http://code.google.com/p/chromium/issues/detail?id=124652
@@ -192,7 +192,7 @@ static void test_crbug_124652(skiatest::Reporter* reporter) {
 #endif
 }
 
-static void test_bigcubic(skiatest::Reporter* reporter) {
+static void test_bigcubic() {
 #ifdef SK_SCALAR_IS_FLOAT
     SkPath path;
     path.moveTo(64, 3);
@@ -209,7 +209,7 @@ static void test_bigcubic(skiatest::Reporter* reporter) {
 // we used to assert if the bounds of the device (clip) was larger than 32K
 // even when the path itself was smaller. We just draw and hope in the debug
 // version to not assert.
-static void test_giantaa(skiatest::Reporter* reporter) {
+static void test_giantaa() {
     const int W = 400;
     const int H = 400;
     SkAutoTUnref<SkCanvas> canvas(new_canvas(33000, 10));
@@ -265,15 +265,15 @@ static void test_crbug_165432(skiatest::Reporter* reporter) {
 }
 
 static void TestDrawPath(skiatest::Reporter* reporter) {
-    test_giantaa(reporter);
-    test_bug533(reporter);
-    test_bigcubic(reporter);
-    test_crbug_124652(reporter);
-    test_crbug_140642(reporter);
-    test_crbug_140803(reporter);
-    test_inversepathwithclip(reporter);
+    test_giantaa();
+    test_bug533();
+    test_bigcubic();
+    test_crbug_124652();
+    test_crbug_140642();
+    test_crbug_140803();
+    test_inversepathwithclip();
     // why?
-    if (false) test_crbug131181(reporter);
+    if (false) test_crbug131181();
     test_infinite_dash(reporter);
     test_crbug_165432(reporter);
 }

@@ -8,7 +8,7 @@
 #include "Test.h"
 #include "SkPathMeasure.h"
 
-static void test_small_segment3(skiatest::Reporter* reporter) {
+static void test_small_segment3() {
 #ifdef SK_SCALAR_IS_FLOAT
     SkPath path;
     const SkPoint pts[] = {
@@ -27,7 +27,7 @@ static void test_small_segment3(skiatest::Reporter* reporter) {
 #endif
 }
 
-static void test_small_segment2(skiatest::Reporter* reporter) {
+static void test_small_segment2() {
 #ifdef SK_SCALAR_IS_FLOAT
     SkPath path;
     const SkPoint pts[] = {
@@ -45,7 +45,7 @@ static void test_small_segment2(skiatest::Reporter* reporter) {
 #endif
 }
 
-static void test_small_segment(skiatest::Reporter* reporter) {
+static void test_small_segment() {
 #ifdef SK_SCALAR_IS_FLOAT
     SkPath path;
     const SkPoint pts[] = {
@@ -203,9 +203,9 @@ static void TestPathMeasure(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, tangent.fX == -SK_Scalar1);
     REPORTER_ASSERT(reporter, tangent.fY == 0);
 
-    test_small_segment(reporter);
-    test_small_segment2(reporter);
-    test_small_segment3(reporter);
+    test_small_segment();
+    test_small_segment2();
+    test_small_segment3();
 }
 
 #include "TestClassDef.h"

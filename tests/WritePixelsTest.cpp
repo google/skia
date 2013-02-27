@@ -103,7 +103,7 @@ uint32_t packConfig8888(SkCanvas::Config8888 config8888,
     return r32;
 }
 
-uint32_t getBitmapColor(int x, int y, int w, int h, SkCanvas::Config8888 config8888) {
+uint32_t getBitmapColor(int x, int y, int w, SkCanvas::Config8888 config8888) {
     int n = y * w + x;
     U8CPU b = n & 0xff;
     U8CPU g = (n >> 8) & 0xff;
@@ -250,7 +250,7 @@ bool checkWrite(skiatest::Reporter* reporter,
             if (writeRect.contains(cx, cy)) {
                 int bx = cx - writeX;
                 int by = cy - writeY;
-                uint32_t bmpColor8888 = getBitmapColor(bx, by, bitmap.width(), bitmap.height(), config8888);
+                uint32_t bmpColor8888 = getBitmapColor(bx, by, bitmap.width(), config8888);
                 bool mul;
                 SkPMColor bmpPMColor = convertConfig8888ToPMColor(config8888, bmpColor8888, &mul);
                 bool check;
@@ -354,7 +354,7 @@ bool setupBitmap(SkBitmap* bitmap,
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             uint32_t* pixel = reinterpret_cast<uint32_t*>(pixels + y * bitmap->rowBytes() + x * 4);
-            *pixel = getBitmapColor(x, y, w, h, config8888);
+            *pixel = getBitmapColor(x, y, w, config8888);
         }
     }
     return true;

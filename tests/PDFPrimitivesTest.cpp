@@ -223,7 +223,7 @@ static void TestSubstitute(skiatest::Reporter* reporter) {
 // http://code.google.com/p/skia/issues/detail?id=1083.
 // SKP files might have invalid glyph ids. This test ensures they are ignored,
 // and there is no assert on input data in Debug mode.
-static void test_issue1083(skiatest::Reporter* reporter) {
+static void test_issue1083() {
     SkISize pageSize = SkISize::Make(100, 100);
     SkPDFDevice* dev = new SkPDFDevice(pageSize, pageSize, SkMatrix::I());
 
@@ -323,7 +323,7 @@ static void TestPDFPrimitives(skiatest::Reporter* reporter) {
 
     TestSubstitute(reporter);
 
-    test_issue1083(reporter);
+    test_issue1083();
 }
 
 #include "TestClassDef.h"

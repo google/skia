@@ -246,7 +246,7 @@ public:
     virtual void prepareForDraw() SK_OVERRIDE {
         fPrepareForDrawCount++;
     }
-    virtual void storageAllocatedForRecordingChanged(size_t size) SK_OVERRIDE {
+    virtual void storageAllocatedForRecordingChanged(size_t) SK_OVERRIDE {
         fStorageAllocatedChangedCount++;
     }
     virtual void flushedDrawCommands() SK_OVERRIDE {

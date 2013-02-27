@@ -380,7 +380,7 @@ static void test_nearly_integral(skiatest::Reporter* reporter) {
     did_dx_affect(reporter, gUnsafeX, SK_ARRAY_COUNT(gUnsafeX), true);
 }
 
-static void test_regressions(skiatest::Reporter* reporter) {
+static void test_regressions() {
     // these should not assert in the debug build
     // bug was introduced in rev. 3209
     {
@@ -400,7 +400,7 @@ static void TestAAClip(skiatest::Reporter* reporter) {
     test_irect(reporter);
     test_rgn(reporter);
     test_path_with_hole(reporter);
-    test_regressions(reporter);
+    test_regressions();
     test_nearly_integral(reporter);
 }
 
