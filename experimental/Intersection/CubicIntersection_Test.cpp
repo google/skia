@@ -134,7 +134,7 @@ static const Cubic testSet[] = {
 const size_t testSetCount = sizeof(testSet) / sizeof(testSet[0]);
 
 static const Cubic newTestSet[] = {
-{{0,1}, {2,5}, {6,0}, {5,3}}, 
+{{0,1}, {2,5}, {6,0}, {5,3}},
 {{0,6}, {3,5}, {1,0}, {5,2}},
 
 {{0,1}, {3,6}, {1,0}, {5,2}},

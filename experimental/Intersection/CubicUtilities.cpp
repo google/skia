@@ -324,4 +324,3 @@ _Point xy_at_t(const Cubic& cubic, double t) {
             a * cubic[0].y + b * cubic[1].y + c * cubic[2].y + d * cubic[3].y};
     return result;
 }
-

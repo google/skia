@@ -397,7 +397,7 @@ static bool intersect3(const Cubic& cubic1, double t1s, double t1e, const Cubic&
     return result;
 }
 
-// intersect the end of the cubic with the other. Try lines from the end to control and opposite 
+// intersect the end of the cubic with the other. Try lines from the end to control and opposite
 // end to determine range of t on opposite cubic.
 static bool intersectEnd(const Cubic& cubic1, bool start, const Cubic& cubic2, const _Rect& bounds2,
         Intersections& i) {

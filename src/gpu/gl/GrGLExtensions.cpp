@@ -50,7 +50,7 @@ bool GrGLExtensions::init(GrGLBinding binding,
             ++extensionCnt;
         }
         fStrings.push_back_n(extensionCnt);
-        
+
         int i = 0;
         while (true) {
             size_t length = strcspn(extensions, " ");

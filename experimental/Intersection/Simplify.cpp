@@ -3668,7 +3668,7 @@ the same winding is shared by both.
     void setOppXor(bool isOppXor) {
         fOppXor = isOppXor;
     }
-    
+
     void setSpanT(int index, double t) {
         Span& span = fTs[index];
         span.fT = t;

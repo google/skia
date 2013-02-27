@@ -164,25 +164,25 @@ FontEquivClass GetFontEquivClass(const char* fontname)
         { SIMHEI, "MYingHeiGB18030" },
         { SIMHEI, "MYingHeiB5HK" },
 
-	// 新細明體 
-	{ PMINGLIU, "PMingLiU"},
-	{ PMINGLIU, "\xe6\x96\xb0\xe7\xb4\xb0\xe6\x98\x8e\xe9\xab\x94" },
-	{ PMINGLIU, "MSung B5HK"},
+    // 新細明體
+    { PMINGLIU, "PMingLiU"},
+    { PMINGLIU, "\xe6\x96\xb0\xe7\xb4\xb0\xe6\x98\x8e\xe9\xab\x94" },
+    { PMINGLIU, "MSung B5HK"},
 
-	// 細明體 
-	{ MINGLIU, "MingLiU"},
-	{ MINGLIU, "\xe7\xb4\xb0\xe6\x98\x8e\xe9\xab\x94" },
-	{ MINGLIU, "MSung B5HK"},
+    // 細明體
+    { MINGLIU, "MingLiU"},
+    { MINGLIU, "\xe7\xb4\xb0\xe6\x98\x8e\xe9\xab\x94" },
+    { MINGLIU, "MSung B5HK"},
 
-	// 新細明體 
-	{ PMINGLIUHK, "PMingLiU_HKSCS"},
-	{ PMINGLIUHK, "\xe6\x96\xb0\xe7\xb4\xb0\xe6\x98\x8e\xe9\xab\x94_HKSCS" },
-	{ PMINGLIUHK, "MSung B5HK"},
+    // 新細明體
+    { PMINGLIUHK, "PMingLiU_HKSCS"},
+    { PMINGLIUHK, "\xe6\x96\xb0\xe7\xb4\xb0\xe6\x98\x8e\xe9\xab\x94_HKSCS" },
+    { PMINGLIUHK, "MSung B5HK"},
 
-	// 細明體 
-	{ MINGLIUHK, "MingLiU_HKSCS"},
-	{ MINGLIUHK, "\xe7\xb4\xb0\xe6\x98\x8e\xe9\xab\x94_HKSCS" },
-	{ MINGLIUHK, "MSung B5HK"},
+    // 細明體
+    { MINGLIUHK, "MingLiU_HKSCS"},
+    { MINGLIUHK, "\xe7\xb4\xb0\xe6\x98\x8e\xe9\xab\x94_HKSCS" },
+    { MINGLIUHK, "MSung B5HK"},
     };
 
     static const size_t kFontCount =
@@ -296,7 +296,7 @@ bool GetFontProperties(FcPattern* font,
     FcChar8* c_family;
     if (FcPatternGetString(font, FC_FAMILY, 0, &c_family))
         return false;
- 
+
     int resulting_bold;
     if (FcPatternGetInteger(font, FC_WEIGHT, 0, &resulting_bold))
         resulting_bold = FC_WEIGHT_NORMAL;
@@ -334,7 +334,7 @@ bool GetFontProperties(FcPattern* font,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define kMaxFontFamilyLength	1024
+#define kMaxFontFamilyLength    1024
 
 SkFontConfigInterfaceDirect::SkFontConfigInterfaceDirect() : next_file_id_(0) {
     FcInit();
@@ -345,7 +345,7 @@ SkFontConfigInterfaceDirect::~SkFontConfigInterfaceDirect() {
 
 bool SkFontConfigInterfaceDirect::match(const char familyName[],
                                         SkTypeface::Style style,
-	                                unsigned* result_filefaceid,
+                                    unsigned* result_filefaceid,
                                         SkTypeface::Style* result_style) {
     std::string familyStr(familyName ? familyName : "");
     if (familyStr.length() > kMaxFontFamilyLength) {
@@ -356,7 +356,7 @@ bool SkFontConfigInterfaceDirect::match(const char familyName[],
 
     // search our cache
     {
-	FontMatchKey key = FontMatchKey(familyStr, style);
+    FontMatchKey key = FontMatchKey(familyStr, style);
         const std::map<FontMatchKey, FontMatch>::const_iterator i =
                         font_match_cache_.find(key);
         if (i != font_match_cache_.end()) {
@@ -559,5 +559,3 @@ SkStream* SkFontConfigInterfaceDirect::openStream(unsigned filefaceid) {
     int fd = open(i->second.c_str(), O_RDONLY);
     return (fd >= 0) ? SkNEW_ARGS(SkFDStream, (fd, true)) : NULL;
 }
-
-
