@@ -49,8 +49,7 @@ public:
     SkPDFImage* addSMask(SkPDFImage* mask);
 
     // The SkPDFObject interface.
-    virtual void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
-                              SkTSet<SkPDFObject*>* newResourceObjects);
+    virtual void getResources(SkTDArray<SkPDFObject*>* resourceList);
 
 private:
     SkTDArray<SkPDFObject*> fResources;

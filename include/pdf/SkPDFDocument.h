@@ -21,7 +21,6 @@ class SkPDFDict;
 class SkPDFPage;
 class SkPDFObject;
 class SkWStream;
-template <typename T> class SK_API SkTSet;
 
 /** \class SkPDFDocument
 
@@ -77,8 +76,7 @@ private:
     SkTDArray<SkPDFPage*> fPages;
     SkTDArray<SkPDFDict*> fPageTree;
     SkPDFDict* fDocCatalog;
-    SkTSet<SkPDFObject*>* fFirstPageResources;
-    SkTSet<SkPDFObject*>* fOtherPageResources;
+    SkTDArray<SkPDFObject*> fPageResources;
     SkTDArray<SkPDFObject*> fSubstitutes;
     int fSecondPageFirstResourceIndex;
 
