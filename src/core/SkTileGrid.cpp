@@ -8,19 +8,20 @@
 
 #include "SkTileGrid.h"
 
-SkTileGrid::SkTileGrid(int tileWidth, int tileHeight, int xTileCount, int yTileCount,
-    int borderPixels, SkTileGridNextDatumFunctionPtr nextDatumFunction)
+SkTileGrid::SkTileGrid(int xTileCount, int yTileCount, const SkTileGridPicture::TileGridInfo& info,
+    SkTileGridNextDatumFunctionPtr nextDatumFunction)
 {
-    fTileWidth = tileWidth;
-    fTileHeight = tileHeight;
     fXTileCount = xTileCount;
     fYTileCount = yTileCount;
-    // Border padding is offset by 1 as a provision for AA and
+    fInfo = info;
+    // Margin is offset by 1 as a provision for AA and
     // to cancel-out the outset applied by getClipDeviceBounds.
-    fBorderPixels = borderPixels + 1;
+    fInfo.fMargin.fHeight++;
+    fInfo.fMargin.fWidth++;
     fTileCount = fXTileCount * fYTileCount;
     fInsertionCount = 0;
-    fGridBounds = SkIRect::MakeXYWH(0, 0, fTileWidth * fXTileCount, fTileHeight * fYTileCount);
+    fGridBounds = SkIRect::MakeXYWH(0, 0, fInfo.fTileInterval.width() * fXTileCount,
+        fInfo.fTileInterval.height() * fYTileCount);
     fNextDatumFunction = nextDatumFunction;
     fTileData = SkNEW_ARRAY(SkTDArray<void *>, fTileCount);
 }
@@ -36,16 +37,22 @@ SkTDArray<void *>& SkTileGrid::tile(int x, int y) {
 void SkTileGrid::insert(void* data, const SkIRect& bounds, bool) {
     SkASSERT(!bounds.isEmpty());
     SkIRect dilatedBounds = bounds;
-    dilatedBounds.outset(fBorderPixels, fBorderPixels);
-
+    dilatedBounds.outset(fInfo.fMargin.width(), fInfo.fMargin.height());
+    dilatedBounds.offset(fInfo.fOffset);
     if (!SkIRect::Intersects(dilatedBounds, fGridBounds)) {
         return;
     }
 
-    int minTileX = SkMax32(SkMin32(dilatedBounds.left() / fTileWidth, fXTileCount - 1), 0);
-    int maxTileX = SkMax32(SkMin32(dilatedBounds.right() / fTileWidth, fXTileCount - 1), 0);
-    int minTileY = SkMax32(SkMin32(dilatedBounds.top() / fTileHeight, fYTileCount -1), 0);
-    int maxTileY = SkMax32(SkMin32(dilatedBounds.bottom() / fTileHeight, fYTileCount -1), 0);
+    // Note: SkIRects are non-inclusive of the right() column and bottom() row,
+    // hence the "-1"s in the computations of maxTileX and maxTileY.
+    int minTileX = SkMax32(SkMin32(dilatedBounds.left() / fInfo.fTileInterval.width(), 
+        fXTileCount - 1), 0);
+    int maxTileX = SkMax32(SkMin32((dilatedBounds.right() - 1) / fInfo.fTileInterval.width(),
+        fXTileCount - 1), 0);
+    int minTileY = SkMax32(SkMin32(dilatedBounds.top() / fInfo.fTileInterval.height(),
+        fYTileCount -1), 0);
+    int maxTileY = SkMax32(SkMin32((dilatedBounds.bottom() -1) / fInfo.fTileInterval.height(),
+        fYTileCount -1), 0);
 
     for (int x = minTileX; x <= maxTileX; x++) {
         for (int y = minTileY; y <= maxTileY; y++) {
@@ -56,13 +63,18 @@ void SkTileGrid::insert(void* data, const SkIRect& bounds, bool) {
 }
 
 void SkTileGrid::search(const SkIRect& query, SkTDArray<void*>* results) {
+    SkIRect adjustedQuery = query;
+    adjustedQuery.inset(fInfo.fMargin.width(), fInfo.fMargin.height());
+    adjustedQuery.offset(fInfo.fOffset);
     // Convert the query rectangle from device coordinates to tile coordinates
     // by rounding outwards to the nearest tile boundary so that the resulting tile
     // region includes the query rectangle. (using truncating division to "floor")
-    int tileStartX = (query.left() + fBorderPixels) / fTileWidth;
-    int tileEndX = (query.right() + fTileWidth - fBorderPixels) / fTileWidth;
-    int tileStartY = (query.top() + fBorderPixels) / fTileHeight;
-    int tileEndY = (query.bottom() + fTileHeight - fBorderPixels) / fTileHeight;
+    int tileStartX = adjustedQuery.left() / fInfo.fTileInterval.width();
+    int tileEndX = (adjustedQuery.right() + fInfo.fTileInterval.width() - 1) /
+        fInfo.fTileInterval.width();
+    int tileStartY = adjustedQuery.top() / fInfo.fTileInterval.height();
+    int tileEndY = (adjustedQuery.bottom() + fInfo.fTileInterval.height() - 1) /
+        fInfo.fTileInterval.height();
     if (tileStartX >= fXTileCount || tileStartY >= fYTileCount || tileEndX <= 0 || tileEndY <= 0) {
         return; // query does not intersect the grid
     }

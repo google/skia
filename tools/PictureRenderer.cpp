@@ -42,6 +42,9 @@ enum {
 void PictureRenderer::init(SkPicture* pict) {
     SkASSERT(NULL == fPicture);
     SkASSERT(NULL == fCanvas.get());
+    fGridInfo.fMargin.setEmpty();
+    fGridInfo.fOffset.setZero();
+    fGridInfo.fTileInterval.set(1, 1);
     if (fPicture != NULL || NULL != fCanvas.get()) {
         return;
     }
@@ -800,8 +803,8 @@ SkPicture* PictureRenderer::createPicture() {
         case kRTree_BBoxHierarchyType:
             return SkNEW(RTreePicture);
         case kTileGrid_BBoxHierarchyType:
-            return SkNEW_ARGS(SkTileGridPicture, (fGridWidth, fGridHeight, fPicture->width(),
-                fPicture->height()));
+            return SkNEW_ARGS(SkTileGridPicture, (fPicture->width(),
+                fPicture->height(), fGridInfo));
     }
     SkASSERT(0); // invalid bbhType
     return NULL;

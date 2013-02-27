@@ -9,6 +9,8 @@
 #define SkTileGridPicture_DEFINED
 
 #include "SkPicture.h"
+#include "SkPoint.h"
+#include "SkSize.h"
 
 /**
  * Subclass of SkPicture that override the behavior of the
@@ -20,23 +22,35 @@
  */
 class SK_API SkTileGridPicture : public SkPicture {
 public:
+    struct TileGridInfo {
+        /** Tile placement interval */
+        SkISize  fTileInterval;
+
+        /** Pixel coverage overlap between adjacent tiles */
+        SkISize  fMargin;
+
+        /** Offset added to device-space bounding box positions to convert
+          * them to tile-grid space. This can be used to adjust the "phase"
+          * of the tile grid to match probable query rectangles that will be
+          * used to search into the tile grid. As long as the offset is smaller
+          * or equal to the margin, there is no need to extend the domain of
+          * the tile grid to prevent data loss.
+          */
+        SkIPoint fOffset; 
+    };
     /**
      * Constructor
-     * @param tileWidth horizontal stride between consecutive tiles
-     * @param tileHeight vertical stride between consecutive tiles
      * @param width recording canvas width in device pixels
      * @param height recording canvas height in device pixels
-     * @param borderPixels pixels of overlap between adjacent tiles. Set this
-     *  value to match the border overlap that is applied to tiles by user
-     *  code. Properly setting this value will help improve performance
-     *  when performing tile-aligned playbacks with query regions that
-     *  match tile bounds outset by borderPixels pixels. Such outsets
-     *  are often used to prevent filtering artifacts at tile boundaries.
+     * @param info description of the tiling layout
      */
-    SkTileGridPicture(int tileWidth, int tileHeight, int width, int height, int borderPixels = 0);
+    SkTileGridPicture(int width, int height, const TileGridInfo& info);
+    
     virtual SkBBoxHierarchy* createBBoxHierarchy() const SK_OVERRIDE;
+
 private:
-    int fTileWidth, fTileHeight, fXTileCount, fYTileCount, fBorderPixels;
+    int fXTileCount, fYTileCount;
+    TileGridInfo fInfo;
 };
 
 #endif
