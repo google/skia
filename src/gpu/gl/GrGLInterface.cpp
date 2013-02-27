@@ -38,7 +38,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
     if (0 == (binding & fBindingsExported)) {
         return false;
     }
-    
+
     GrGLExtensions extensions;
     if (!extensions.init(binding, this)) {
         return false;
@@ -342,7 +342,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
             return false;
         }
     }
-    
+
     if (kDesktop_GrGLBinding == binding && glVer >= GR_GL_VER(3, 0)) {
         if (NULL == fGetStringi) {
             return false;

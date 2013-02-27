@@ -96,7 +96,7 @@ static const int gFaceStylesCount = SK_ARRAY_COUNT(gFaceStyles);
 
 class TypefaceStylesGM : public skiagm::GM {
     SkTypeface* fFaces[gFaceStylesCount];
-    
+
 public:
     TypefaceStylesGM() {
         for (int i = 0; i < gFaceStylesCount; i++) {
@@ -104,34 +104,34 @@ public:
                                                    gFaceStyles[i].fStyle);
         }
     }
-    
+
     virtual ~TypefaceStylesGM() {
         for (int i = 0; i < gFaceStylesCount; i++) {
             SkSafeUnref(fFaces[i]);
         }
     }
-    
+
 protected:
     virtual SkString onShortName() SK_OVERRIDE {
         return SkString("typefacestyles");
     }
-    
+
     virtual SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(640, 480);
     }
-        
+
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(30));
-        
+
         const char* text = "Hamburgefons";
         const size_t textLen = strlen(text);
-        
+
         SkScalar x = SkIntToScalar(10);
         SkScalar dy = paint.getFontMetrics(NULL);
         SkScalar y = dy;
-        
+
         paint.setLinearText(true);
         for (int i = 0; i < gFaceStylesCount; i++) {
             paint.setTypeface(fFaces[i]);
@@ -139,13 +139,12 @@ protected:
             y += dy;
         }
     }
-    
+
 private:
     typedef skiagm::GM INHERITED;
 };
-    
+
 ///////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new TypefaceGM; )
 DEF_GM( return new TypefaceStylesGM; )
-

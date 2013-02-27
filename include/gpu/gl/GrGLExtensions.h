@@ -32,12 +32,12 @@ public:
               GrGLGetStringProc getString,
               GrGLGetStringiProc getStringi,
               GrGLGetIntegervProc getIntegerv);
-    
+
     /**
      * Queries whether an extension is present. This will fail if init() has not been called.
      */
     bool has(const char*) const;
-    
+
     void reset() { fStrings.reset(); }
 
 private:
