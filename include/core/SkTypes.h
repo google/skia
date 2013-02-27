@@ -276,6 +276,8 @@ static inline int Sk32ToBool(uint32_t n) {
     return (n | (0-n)) >> 31;
 }
 
+/** Generic swap function. Classes with efficient swaps should specialize this function to take
+    their fast path. This function is used by SkTSort. */
 template <typename T> inline void SkTSwap(T& a, T& b) {
     T c(a);
     a = b;

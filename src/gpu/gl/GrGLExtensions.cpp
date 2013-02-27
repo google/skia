@@ -9,6 +9,15 @@
 #include "gl/GrGLDefines.h"
 #include "gl/GrGLUtil.h"
 
+#include "SkTSearch.h"
+#include "SkTSort.h"
+
+namespace {
+inline int extension_compare(const SkString* a, const SkString* b) {
+    return strcmp(a->c_str(), b->c_str());
+}
+}
+
 bool GrGLExtensions::init(GrGLBinding binding,
                           GrGLGetStringProc getString,
                           GrGLGetStringiProc getStringi,
@@ -64,16 +73,16 @@ bool GrGLExtensions::init(GrGLBinding binding,
         }
         GrAssert(i == extensionCnt);
     }
+    SkTSearchCompareLTFunctor<SkString, extension_compare> cmp;
+    SkTQSort(&fStrings.front(), &fStrings.back(), cmp);
     return true;
 }
 
 bool GrGLExtensions::has(const char* ext) const {
-    // TODO: Sort the extensions and binary search.
-    int count = fStrings.count();
-    for (int i = 0; i < count; ++i) {
-        if (fStrings[i].equals(ext)) {
-            return true;
-        }
-    }
-    return false;
+    SkString extensionStr(ext);
+    int idx = SkTSearch<SkString, extension_compare>(&fStrings.front(),
+                                                     fStrings.count(),
+                                                     extensionStr,
+                                                     sizeof(SkString));
+    return idx >= 0;
 }

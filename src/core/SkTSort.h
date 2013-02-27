@@ -92,7 +92,8 @@ void SkTHeapSort_SiftDown(T array[], size_t root, size_t bottom, C lessThan) {
     array[root-1] = x;
 }
 
-/** Sorts the array of size count using comparator lessThan using a Heap Sort algorithm
+/** Sorts the array of size count using comparator lessThan using a Heap Sort algorithm. Be sure to
+ *  specialize SkTSwap if T has an efficient swap operation.
  *
  *  @param array the array to be sorted.
  *  @param count the number of elements in the array.
@@ -180,7 +181,8 @@ template <typename T, typename C> void SkTIntroSort(int depth, T* left, T* right
     }
 }
 
-/** Sorts the region from left to right using comparator lessThan using a Quick Sort algorithm.
+/** Sorts the region from left to right using comparator lessThan using a Quick Sort algorithm. Be
+ *  sure to specialize SkTSwap if T has an efficient swap operation.
  *
  *  @param left the beginning of the region to be sorted.
  *  @param right the end of the region to be sorted (inclusive).
@@ -204,5 +206,15 @@ template <typename T> void SkTQSort(T* left, T* right) {
 template <typename T> void SkTQSort(T** left, T** right) {
     SkTQSort(left, right, SkTPointerCompareLT<T>());
 }
+
+/** Adapts a tri-state SkTSearch comparison function to a bool less-than SkTSort functor */
+template <typename T, int (COMPARE)(const T*, const T*)>
+class SkTSearchCompareLTFunctor {
+public:
+    bool operator()(const T& a, const T& b) {
+        return COMPARE(&a, &b) < 0;
+    }
+};
+
 
 #endif
