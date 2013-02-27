@@ -78,7 +78,7 @@ static SkShader* MakeRadial(const SkPoint pts[2], const GradData& data,
 }
 
 static SkShader* MakeSweep(const SkPoint pts[2], const GradData& data,
-                           SkShader::TileMode tm, SkUnitMapper* mapper) {
+                           SkShader::TileMode, SkUnitMapper* mapper) {
     SkPoint center;
     center.set(SkScalarAve(pts[0].fX, pts[1].fX),
                SkScalarAve(pts[0].fY, pts[1].fY));

@@ -72,7 +72,7 @@ static void inset2(const SkRRect& src, SkScalar dx, SkScalar dy, SkRRect* dst) {
     dst->setRectRadii(r, radii);
 }
 
-static SkScalar prop(SkScalar radius, SkScalar delta, SkScalar newSize, SkScalar oldSize) {
+static SkScalar prop(SkScalar radius, SkScalar newSize, SkScalar oldSize) {
     return newSize * radius / oldSize;
 }
 
@@ -90,8 +90,8 @@ static void inset3(const SkRRect& src, SkScalar dx, SkScalar dy, SkRRect* dst) {
         radii[i] = src.radii((SkRRect::Corner)i);
     }
     for (int i = 0; i < 4; ++i) {
-        radii[i].fX = prop(radii[i].fX, dx, r.width(), src.rect().width());
-        radii[i].fY = prop(radii[i].fY, dy, r.height(), src.rect().height());
+        radii[i].fX = prop(radii[i].fX, r.width(), src.rect().width());
+        radii[i].fY = prop(radii[i].fY, r.height(), src.rect().height());
     }
     dst->setRectRadii(r, radii);
 }
