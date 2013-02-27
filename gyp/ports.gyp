@@ -46,15 +46,13 @@
           'link_settings': {
             'libraries': [
               '-lfreetype',
-              '-lfontconfig',
               '-ldl',
             ],
           },
           'sources': [
             '../src/ports/SkFontHost_FreeType.cpp',
             '../src/ports/SkFontHost_FreeType_common.cpp',
-            '../src/ports/SkFontHost_fontconfig.cpp',
-            '../src/ports/SkFontConfigInterface_direct.cpp',
+            '../src/ports/SkFontHost_linux.cpp',
             '../src/ports/SkThread_pthread.cpp',
           ],
         }],
