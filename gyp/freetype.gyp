@@ -3,6 +3,7 @@
     {
       'target_name': 'freetype',
       'type': 'static_library',
+      'standalone_static_library': 1,
       'sources': [
         # base components (required)
         '../third_party/externals/freetype/src/base/ftsystem.c',
