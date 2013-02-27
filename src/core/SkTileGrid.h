@@ -11,6 +11,7 @@
 
 #include "SkBBoxHierarchy.h"
 #include "SkPictureStateTree.h"
+#include "SkTileGridPicture.h" // for TileGridInfo
 
 /**
  * Subclass of SkBBoxHierarchy that stores elements in buckets that correspond
@@ -26,7 +27,7 @@ class SkTileGrid : public SkBBoxHierarchy {
 public:
     typedef void* (*SkTileGridNextDatumFunctionPtr)(SkTDArray<void*>** tileData, SkTDArray<int>& tileIndices);
 
-    SkTileGrid(int tileWidth, int tileHeight, int xTileCount, int yTileCount, int borderPixels,
+    SkTileGrid(int xTileCount, int yTileCount, const SkTileGridPicture::TileGridInfo& info,
         SkTileGridNextDatumFunctionPtr nextDatumFunction);
 
     virtual ~SkTileGrid();
@@ -61,7 +62,8 @@ public:
 private:
     SkTDArray<void*>& tile(int x, int y);
 
-    int fTileWidth, fTileHeight, fXTileCount, fYTileCount, fTileCount, fBorderPixels;
+    int fXTileCount, fYTileCount, fTileCount;
+    SkTileGridPicture::TileGridInfo fInfo;
     SkTDArray<void*>* fTileData;
     int fInsertionCount;
     SkIRect fGridBounds;

@@ -41,7 +41,11 @@ class TileGridTest {
 public:
     static void verifyTileHits(skiatest::Reporter* reporter, SkIRect rect, uint32_t tileMask,
                                int borderPixels = 0) {
-        SkTileGrid grid(10, 10, 2, 2, borderPixels, NULL);
+        SkTileGridPicture::TileGridInfo info;
+        info.fMargin.set(borderPixels, borderPixels);
+        info.fOffset.setZero();
+        info.fTileInterval.set(10 - 2 * borderPixels, 10 - 2 * borderPixels);
+        SkTileGrid grid(2, 2, info, NULL);
         grid.insert(NULL, rect, false);
         REPORTER_ASSERT(reporter, grid.tile(0,0).count() ==
             ((tileMask & kTopLeft_Tile)? 1 : 0));
@@ -55,7 +59,11 @@ public:
 
     static void TestUnalignedQuery(skiatest::Reporter* reporter) {
         // Use SkTileGridPicture to generate a SkTileGrid with a helper
-        SkTileGridPicture picture(10, 10, 20, 20);
+        SkTileGridPicture::TileGridInfo info;
+        info.fMargin.setEmpty();
+        info.fOffset.setZero();
+        info.fTileInterval.set(10, 10);
+        SkTileGridPicture picture(20, 20, info);
         SkRect rect1 = SkRect::MakeXYWH(SkIntToScalar(0), SkIntToScalar(0),
             SkIntToScalar(8), SkIntToScalar(8));
         SkRect rect2 = SkRect::MakeXYWH(SkIntToScalar(11), SkIntToScalar(11),
@@ -107,6 +115,86 @@ public:
         }
     }
 
+    static void TestOverlapOffsetQueryAlignment(skiatest::Reporter* reporter) {
+        // Use SkTileGridPicture to generate a SkTileGrid with a helper
+        SkTileGridPicture::TileGridInfo info;
+        info.fMargin.set(1, 1);
+        info.fOffset.set(-1, -1);
+        info.fTileInterval.set(8, 8);
+        SkTileGridPicture picture(20, 20, info);
+
+        // rect landing entirely in top left tile
+        SkRect rect1 = SkRect::MakeXYWH(SkIntToScalar(0), SkIntToScalar(0),
+            SkIntToScalar(1), SkIntToScalar(1));
+        // rect landing entirely in center tile
+        SkRect rect2 = SkRect::MakeXYWH(SkIntToScalar(12), SkIntToScalar(12),
+            SkIntToScalar(1), SkIntToScalar(1));
+                // rect landing entirely in bottomright tile
+        SkRect rect3 = SkRect::MakeXYWH(SkIntToScalar(19), SkIntToScalar(19),
+            SkIntToScalar(1), SkIntToScalar(1));
+        SkCanvas* canvas = picture.beginRecording(20, 20, SkPicture::kOptimizeForClippedPlayback_RecordingFlag);
+        SkPaint paint;
+        canvas->drawRect(rect1, paint);
+        canvas->drawRect(rect2, paint);
+        canvas->drawRect(rect3, paint);
+        picture.endRecording();
+
+        SkBitmap tileBitmap;
+        tileBitmap.setConfig(SkBitmap::kARGB_8888_Config, 10, 10);
+        tileBitmap.allocPixels();
+        SkBitmap moreThanATileBitmap;
+        moreThanATileBitmap.setConfig(SkBitmap::kARGB_8888_Config, 11, 11);
+        moreThanATileBitmap.allocPixels();
+        // Test parts of top-left tile
+        {
+            // The offset should cancel the top and left borders of the top left tile
+            // So a look-up at interval 0-10 should be grid aligned,
+            SkDevice device(tileBitmap);
+            MockCanvas mockCanvas(&device);
+            picture.draw(&mockCanvas);
+            REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
+            REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
+        }
+        {
+            // Encroaching border by one pixel
+            SkDevice device(moreThanATileBitmap);
+            MockCanvas mockCanvas(&device);
+            picture.draw(&mockCanvas);
+            REPORTER_ASSERT(reporter, 2 == mockCanvas.fRects.count());
+            REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
+            REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[1]);
+        }
+        {
+            // Tile stride is 8 (tileWidth - 2 * border pixels
+            // so translating by 8, should make query grid-aligned
+            // with middle tile.
+            SkDevice device(tileBitmap);
+            MockCanvas mockCanvas(&device);
+            mockCanvas.translate(SkIntToScalar(-8), SkIntToScalar(-8));
+            picture.draw(&mockCanvas);
+            REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
+            REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[0]);
+        }
+        {
+            SkDevice device(tileBitmap);
+            MockCanvas mockCanvas(&device);
+            mockCanvas.translate(SkFloatToScalar(-7.9f), SkFloatToScalar(-7.9f));
+            picture.draw(&mockCanvas);
+            REPORTER_ASSERT(reporter, 2 == mockCanvas.fRects.count());
+            REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
+            REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[1]);
+        }
+        {
+            SkDevice device(tileBitmap);
+            MockCanvas mockCanvas(&device);
+            mockCanvas.translate(SkFloatToScalar(-8.1f), SkFloatToScalar(-8.1f));
+            picture.draw(&mockCanvas);
+            REPORTER_ASSERT(reporter, 2 == mockCanvas.fRects.count());
+            REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[0]);
+            REPORTER_ASSERT(reporter, rect3 == mockCanvas.fRects[1]);
+        }
+    }
+
     static void Test(skiatest::Reporter* reporter) {
         // Out of bounds
         verifyTileHits(reporter, SkIRect::MakeXYWH(30, 0, 1, 1),  0);
@@ -115,16 +203,19 @@ public:
         verifyTileHits(reporter, SkIRect::MakeXYWH(0, -10, 1, 1),  0);
 
         // Dilation for AA consideration
-        verifyTileHits(reporter, SkIRect::MakeXYWH(0, 0, 8, 8),  kTopLeft_Tile);
-        verifyTileHits(reporter, SkIRect::MakeXYWH(0, 0, 9, 9),  kAll_Tile);
+        verifyTileHits(reporter, SkIRect::MakeXYWH(0, 0, 9, 9),  kTopLeft_Tile);
+        verifyTileHits(reporter, SkIRect::MakeXYWH(0, 0, 10, 10),  kAll_Tile);
+        verifyTileHits(reporter, SkIRect::MakeXYWH(9, 9, 1, 1),  kAll_Tile);
         verifyTileHits(reporter, SkIRect::MakeXYWH(10, 10, 1, 1),  kAll_Tile);
         verifyTileHits(reporter, SkIRect::MakeXYWH(11, 11, 1, 1),  kBottomRight_Tile);
-
+        
         // BorderPixels
-        verifyTileHits(reporter, SkIRect::MakeXYWH(0, 0, 7, 7),  kTopLeft_Tile, 1);
-        verifyTileHits(reporter, SkIRect::MakeXYWH(0, 0, 8, 8),  kAll_Tile, 1);
-        verifyTileHits(reporter, SkIRect::MakeXYWH(11, 11, 1, 1),  kAll_Tile, 1);
-        verifyTileHits(reporter, SkIRect::MakeXYWH(12, 12, 1, 1),  kBottomRight_Tile, 1);
+        verifyTileHits(reporter, SkIRect::MakeXYWH(0, 0, 6, 6),  kTopLeft_Tile, 1);
+        verifyTileHits(reporter, SkIRect::MakeXYWH(0, 0, 7, 7),  kAll_Tile, 1);
+        verifyTileHits(reporter, SkIRect::MakeXYWH(9, 9, 1, 1),  kAll_Tile, 1);
+        verifyTileHits(reporter, SkIRect::MakeXYWH(10, 10, 1, 1),  kBottomRight_Tile, 1);
+        verifyTileHits(reporter, SkIRect::MakeXYWH(17, 17, 1, 1),  kBottomRight_Tile, 1);
+        verifyTileHits(reporter, SkIRect::MakeXYWH(18, 18, 1, 1),  0, 1);
 
         // BBoxes that overlap tiles
         verifyTileHits(reporter, SkIRect::MakeXYWH(5, 5, 10, 1),  kTopLeft_Tile | kTopRight_Tile);
@@ -134,6 +225,7 @@ public:
         verifyTileHits(reporter, SkIRect::MakeXYWH(-10, -10, 40, 40),  kAll_Tile);
 
         TestUnalignedQuery(reporter);
+        TestOverlapOffsetQueryAlignment(reporter);
     }
 };
 

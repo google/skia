@@ -19,6 +19,7 @@
 #include "SkString.h"
 #include "SkTDArray.h"
 #include "SkThreadPool.h"
+#include "SkTileGridPicture.h"
 #include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
@@ -170,8 +171,7 @@ public:
     }
 
     void setGridSize(int width, int height) {
-        fGridWidth = width;
-        fGridHeight = height;
+        fGridInfo.fTileInterval.set(width, height);
     }
 
     bool isUsingBitmapDevice() {
@@ -255,8 +255,6 @@ public:
         : fPicture(NULL)
         , fDeviceType(kBitmap_DeviceType)
         , fBBoxHierarchyType(kNone_BBoxHierarchyType)
-        , fGridWidth(0)
-        , fGridHeight(0)
         , fScaleFactor(SK_Scalar1)
 #if SK_SUPPORT_GPU
         , fGrContext(NULL)
@@ -279,7 +277,7 @@ protected:
     BBoxHierarchyType      fBBoxHierarchyType;
     DrawFilterFlags        fDrawFilters[SkDrawFilter::kTypeCount];
     SkString               fDrawFiltersConfig;
-    int                    fGridWidth, fGridHeight; // used when fBBoxHierarchyType is TileGrid
+    SkTileGridPicture::TileGridInfo fGridInfo; // used when fBBoxHierarchyType is TileGrid
 
     void buildBBoxHierarchy();
 

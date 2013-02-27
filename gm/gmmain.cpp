@@ -806,7 +806,11 @@ public:
         int height = SkScalarCeilToInt(SkScalarMul(SkIntToScalar(gm->getISize().height()), scale));
 
         if (kTileGrid_BbhType == bbhType) {
-            pict = new SkTileGridPicture(16, 16, width, height);
+            SkTileGridPicture::TileGridInfo info;
+            info.fMargin.setEmpty();
+            info.fOffset.setZero();
+            info.fTileInterval.set(16, 16);
+            pict = new SkTileGridPicture(width, height, info);
         } else {
             pict = new SkPicture;
         }
