@@ -244,4 +244,10 @@ private:
 /// Creates a new string and writes into it using a printf()-style format.
 SkString SkStringPrintf(const char* format, ...);
 
+// Specialized to take advantage of SkString's fast swap path. The unspecialized function is
+// declared in SkTypes.h and called by SkTSort.
+template <> inline void SkTSwap(SkString& a, SkString& b) {
+    a.swap(b);
+}
+
 #endif
