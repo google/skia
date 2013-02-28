@@ -60,6 +60,7 @@ public:
 
     // testing
     const SkTDArray<T*>& getArray() const { return fSorted; }
+    SkTDArray<T*>& getArray() { return fSorted; }
 private:
     enum {
         kHashCount = 1 << kHashBits,

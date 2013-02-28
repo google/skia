@@ -530,7 +530,7 @@ protected:
 private:
     void unflattenIntoArray(T* array) const {
         const int count = fData.count();
-        const SkFlatData** iter = fData.begin();
+        const SkFlatData* const* iter = fData.begin();
         for (int i = 0; i < count; ++i) {
             const SkFlatData* element = iter[i];
             int index = element->index() - 1;
