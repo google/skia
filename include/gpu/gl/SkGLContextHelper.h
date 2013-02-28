@@ -1,12 +1,12 @@
 
 /*
- * Copyright 2011 Google Inc.
+ * Copyright 2013 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef SkGLContext_DEFINED
-#define SkGLContext_DEFINED
+#ifndef SkGLContextHelper_DEFINED
+#define SkGLContextHelper_DEFINED
 
 #include "GrGLExtensions.h"
 #include "GrGLInterface.h"
@@ -16,12 +16,12 @@
  * Provides a GrGLInterface struct of function pointers for the context.
  */
 
-class SkGLContext : public SkRefCnt {
+class SkGLContextHelper : public SkRefCnt {
 public:
-    SK_DECLARE_INST_COUNT(SkGLContext)
+    SK_DECLARE_INST_COUNT(SkGLContextHelper)
 
-    SkGLContext();
-    virtual ~SkGLContext();
+    SkGLContextHelper();
+    virtual ~SkGLContextHelper();
 
     /**
      * Initializes the context and makes it current.

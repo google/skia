@@ -20,7 +20,7 @@
 #include "BenchGpuTimer_gl.h"
 #endif
 
-BenchTimer::BenchTimer(SkGLContext* gl)
+BenchTimer::BenchTimer(SkGLContextHelper* gl)
         : fCpu(-1.0)
         , fWall(-1.0)
         , fTruncatedCpu(-1.0)

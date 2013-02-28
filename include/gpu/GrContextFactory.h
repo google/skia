@@ -104,7 +104,7 @@ public:
                 return fContexts[i].fGrContext;
             }
         }
-        SkAutoTUnref<SkGLContext> glCtx;
+        SkAutoTUnref<SkGLContextHelper> glCtx;
         SkAutoTUnref<GrContext> grCtx;
         switch (type) {
             case kNative_GLContextType:
@@ -150,7 +150,7 @@ public:
 
     // Returns the GLContext of the given type. If it has not been created yet,
     // NULL is returned instead.
-    SkGLContext* getGLContext(GLContextType type) {
+    SkGLContextHelper* getGLContext(GLContextType type) {
         for (int i = 0; i < fContexts.count(); ++i) {
             if (fContexts[i].fType == type) {
                 return fContexts[i].fGLContext;
@@ -163,7 +163,7 @@ public:
 private:
     struct GPUContext {
         GLContextType             fType;
-        SkGLContext*              fGLContext;
+        SkGLContextHelper*        fGLContext;
         GrContext*                fGrContext;
     };
     SkTArray<GPUContext, true> fContexts;

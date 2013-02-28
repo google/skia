@@ -8,7 +8,7 @@
 #ifndef SkNativeGLContext_DEFINED
 #define SkNativeGLContext_DEFINED
 
-#include "SkGLContext.h"
+#include "SkGLContextHelper.h"
 
 #if defined(SK_BUILD_FOR_MAC)
     #include <OpenGL/OpenGL.h>
@@ -23,7 +23,7 @@
     #include <GL/GL.h>
 #endif
 
-class SkNativeGLContext : public SkGLContext {
+class SkNativeGLContext : public SkGLContextHelper {
 public:
     SkNativeGLContext();
 

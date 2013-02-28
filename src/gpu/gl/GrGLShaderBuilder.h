@@ -217,7 +217,7 @@ private:
         kNonStageIdx = -1,
     };
 
-    const GrGLContextInfo&              fContext;
+    const GrGLContextInfo&              fCtxInfo;
     GrGLUniformManager&                 fUniformManager;
     int                                 fCurrentStageIdx;
     SkString                            fFSFunctions;

@@ -139,8 +139,8 @@
       '<(skia_src_path)/gpu/gl/GrGLBufferImpl.h',
       '<(skia_src_path)/gpu/gl/GrGLCaps.cpp',
       '<(skia_src_path)/gpu/gl/GrGLCaps.h',
-      '<(skia_src_path)/gpu/gl/GrGLContextInfo.cpp',
-      '<(skia_src_path)/gpu/gl/GrGLContextInfo.h',
+      '<(skia_src_path)/gpu/gl/GrGLContext.cpp',
+      '<(skia_src_path)/gpu/gl/GrGLContext.h',
       '<(skia_src_path)/gpu/gl/GrGLCreateNativeInterface_none.cpp',
       '<(skia_src_path)/gpu/gl/GrGLDefaultInterface_none.cpp',
       '<(skia_src_path)/gpu/gl/GrGLDefines.h',
@@ -225,7 +225,7 @@
       '<(skia_include_path)/gpu/SkGrPixelRef.h',
       '<(skia_include_path)/gpu/SkGrTexturePixelRef.h',
 
-      '<(skia_include_path)/gpu/gl/SkGLContext.h',
+      '<(skia_include_path)/gpu/gl/SkGLContextHelper.h',
 
       '<(skia_src_path)/gpu/SkGpuDevice.cpp',
       '<(skia_src_path)/gpu/SkGr.cpp',
@@ -236,7 +236,7 @@
       '<(skia_src_path)/image/SkImage_Gpu.cpp',
       '<(skia_src_path)/image/SkSurface_Gpu.cpp',
 
-      '<(skia_src_path)/gpu/gl/SkGLContext.cpp'
+      '<(skia_src_path)/gpu/gl/SkGLContextHelper.cpp'
     ],
     'skgr_native_gl_sources': [
       '<(skia_include_path)/gpu/gl/SkNativeGLContext.h',

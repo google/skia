@@ -14,7 +14,7 @@
 class BenchSysTimer;
 class BenchGpuTimer;
 
-class SkGLContext;
+class SkGLContextHelper;
 
 /**
  * SysTimers and GpuTimers are implemented orthogonally.
@@ -27,7 +27,7 @@ class SkGLContext;
  */
 class BenchTimer {
 public:
-    BenchTimer(SkGLContext* gl = NULL);
+    BenchTimer(SkGLContextHelper* gl = NULL);
     ~BenchTimer();
     void start();
     void end();

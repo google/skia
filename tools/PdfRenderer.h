@@ -22,7 +22,6 @@
 
 class SkBitmap;
 class SkCanvas;
-class SkGLContext;
 class SkPDFDevice;
 
 namespace sk_tools {

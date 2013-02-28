@@ -11,7 +11,7 @@
 
 #include "GrDrawState.h"
 #include "GrGLEffect.h"
-#include "GrGLContextInfo.h"
+#include "GrGLContext.h"
 #include "GrGLSL.h"
 #include "GrGLTexture.h"
 #include "GrGLUniformManager.h"
@@ -55,7 +55,7 @@ public:
                           const GrGpuGL* gpu,
                           Desc* outDesc);
 
-    static GrGLProgram* Create(const GrGLContextInfo& gl,
+    static GrGLProgram* Create(const GrGLContext& gl,
                                const Desc& desc,
                                const GrEffectStage* stages[]);
 
@@ -206,7 +206,7 @@ public:
     static const AttribLayout kAttribLayouts[kGrVertexAttribTypeCount];
 
 private:
-    GrGLProgram(const GrGLContextInfo& gl,
+    GrGLProgram(const GrGLContext& gl,
                 const Desc& desc,
                 const GrEffectStage* stages[]);
 
@@ -290,7 +290,7 @@ private:
     GrGLEffect*                 fEffects[GrDrawState::kNumStages];
 
     Desc                        fDesc;
-    const GrGLContextInfo&      fContextInfo;
+    const GrGLContext&          fContext;
 
     GrGLUniformManager          fUniformManager;
     UniformHandles              fUniformHandles;

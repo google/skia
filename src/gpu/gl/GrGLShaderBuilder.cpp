@@ -81,7 +81,8 @@ void append_swizzle(SkString* outAppend,
 // varying by stage, if we use 1D textures for gradients!
 //const int GrGLShaderBuilder::fCoordDims = 2;
 
-GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctx, GrGLUniformManager& uniformManager)
+GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo, 
+                                     GrGLUniformManager& uniformManager)
     : fUniforms(kVarsPerBlock)
     , fVSAttrs(kVarsPerBlock)
     , fVSOutputs(kVarsPerBlock)
@@ -90,7 +91,7 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctx, GrGLUniformMana
     , fFSInputs(kVarsPerBlock)
     , fFSOutputs(kMaxFSOutputs)
     , fUsesGS(false)
-    , fContext(ctx)
+    , fCtxInfo(ctxInfo)
     , fUniformManager(uniformManager)
     , fCurrentStageIdx(kNonStageIdx)
     , fSetupFragPosition(false)
@@ -111,7 +112,7 @@ void GrGLShaderBuilder::appendTextureLookup(SkString* out,
                  sample_function_name(varyingType),
                  this->getUniformCStr(sampler.fSamplerUniform),
                  coordName);
-    append_swizzle(out, *sampler.textureAccess(), fContext.caps());
+    append_swizzle(out, *sampler.textureAccess(), fCtxInfo.caps());
 }
 
 void GrGLShaderBuilder::appendTextureLookupAndModulate(
@@ -261,7 +262,7 @@ void GrGLShaderBuilder::addVarying(GrSLType type,
 
 const char* GrGLShaderBuilder::fragmentPosition() {
 #if 1
-    if (fContext.caps().fragCoordConventionsSupport()) {
+    if (fCtxInfo.caps().fragCoordConventionsSupport()) {
         if (!fSetupFragPosition) {
             fFSHeader.append("#extension GL_ARB_fragment_coord_conventions: require\n");
             fFSInputs.push_back().set(kVec4f_GrSLType,
@@ -327,7 +328,7 @@ void GrGLShaderBuilder::emitFunction(ShaderType shader,
     fFSFunctions.append(*outName);
     fFSFunctions.append("(");
     for (int i = 0; i < argCnt; ++i) {
-        args[i].appendDecl(fContext, &fFSFunctions);
+        args[i].appendDecl(fCtxInfo, &fFSFunctions);
         if (i < argCnt - 1) {
             fFSFunctions.append(", ");
         }
@@ -365,7 +366,7 @@ inline void append_default_precision_qualifier(GrGLShaderVar::Precision p,
 
 void GrGLShaderBuilder::appendDecls(const VarArray& vars, SkString* out) const {
     for (int i = 0; i < vars.count(); ++i) {
-        vars[i].appendDecl(fContext, out);
+        vars[i].appendDecl(fCtxInfo, out);
         out->append(";\n");
     }
 }
@@ -373,7 +374,7 @@ void GrGLShaderBuilder::appendDecls(const VarArray& vars, SkString* out) const {
 void GrGLShaderBuilder::appendUniformDecls(ShaderType stype, SkString* out) const {
     for (int i = 0; i < fUniforms.count(); ++i) {
         if (fUniforms[i].fVisibility & stype) {
-            fUniforms[i].fVariable.appendDecl(fContext, out);
+            fUniforms[i].fVariable.appendDecl(fCtxInfo, out);
             out->append(";\n");
         }
     }
@@ -406,13 +407,13 @@ void GrGLShaderBuilder::getShader(ShaderType type, SkString* shaderStr) const {
         case kFragment_ShaderType:
             *shaderStr = fHeader;
             append_default_precision_qualifier(kDefaultFragmentPrecision,
-                                               fContext.binding(),
+                                               fCtxInfo.binding(),
                                                shaderStr);
             shaderStr->append(fFSHeader);
             this->appendUniformDecls(kFragment_ShaderType, shaderStr);
             this->appendDecls(fFSInputs, shaderStr);
             // We shouldn't have declared outputs on 1.10
-            GrAssert(k110_GrGLSLGeneration != fContext.glslGeneration() || fFSOutputs.empty());
+            GrAssert(k110_GrGLSLGeneration != fCtxInfo.glslGeneration() || fFSOutputs.empty());
             this->appendDecls(fFSOutputs, shaderStr);
             shaderStr->append(fFSFunctions);
             shaderStr->append("void main() {\n");

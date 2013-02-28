@@ -8,9 +8,9 @@
 #ifndef SkNullGLContext_DEFINED
 #define SkNullGLContext_DEFINED
 
-#include "SkGLContext.h"
+#include "SkGLContextHelper.h"
 
-class SkNullGLContext : public SkGLContext {
+class SkNullGLContext : public SkGLContextHelper {
 
 public:
     SkNullGLContext() {};

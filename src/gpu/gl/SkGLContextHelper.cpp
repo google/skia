@@ -1,23 +1,23 @@
 
 /*
- * Copyright 2011 Google Inc.
+ * Copyright 2013 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gl/SkGLContext.h"
+#include "gl/SkGLContextHelper.h"
 #include "GrGLUtil.h"
 
-SK_DEFINE_INST_COUNT(SkGLContext)
+SK_DEFINE_INST_COUNT(SkGLContextHelper)
 
-SkGLContext::SkGLContext()
+SkGLContextHelper::SkGLContextHelper()
     : fFBO(0)
     , fColorBufferID(0)
     , fDepthStencilBufferID(0)
     , fGL(NULL) {
 }
 
-SkGLContext::~SkGLContext() {
+SkGLContextHelper::~SkGLContextHelper() {
 
     if (fGL) {
         // TODO: determine why DeleteFramebuffers is generating a GL error in tests
@@ -29,7 +29,7 @@ SkGLContext::~SkGLContext() {
     SkSafeUnref(fGL);
 }
 
-bool SkGLContext::init(int width, int height) {
+bool SkGLContextHelper::init(int width, int height) {
     if (fGL) {
         fGL->unref();
         this->destroyGLContext();

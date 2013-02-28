@@ -16,7 +16,7 @@ static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidU
 #define SKIP_CACHE_CHECK    true
 #define GR_UINT32_MAX   static_cast<uint32_t>(-1)
 
-GrGpuGL::ProgramCache::ProgramCache(const GrGLContextInfo& gl)
+GrGpuGL::ProgramCache::ProgramCache(const GrGLContext& gl)
     : fCount(0)
     , fCurrLRUStamp(0)
     , fGL(gl) {

@@ -13,7 +13,7 @@
 #include "GrBinHashKey.h"
 #include "GrDrawState.h"
 #include "GrGpu.h"
-#include "GrGLContextInfo.h"
+#include "GrGLContext.h"
 #include "GrGLIndexBuffer.h"
 #include "GrGLIRect.h"
 #include "GrGLProgram.h"
@@ -24,17 +24,13 @@
 
 class GrGpuGL : public GrGpu {
 public:
-    GrGpuGL(const GrGLContextInfo& ctxInfo, GrContext* context);
+    GrGpuGL(const GrGLContext& ctx, GrContext* context);
     virtual ~GrGpuGL();
 
-    const GrGLInterface* glInterface() const {
-        return fGLContextInfo.interface();
-    }
-    GrGLBinding glBinding() const { return fGLContextInfo.binding(); }
-    GrGLVersion glVersion() const { return fGLContextInfo.version(); }
-    GrGLSLGeneration glslGeneration() const {
-        return fGLContextInfo.glslGeneration();
-    }
+    const GrGLInterface* glInterface() const { return fGLContext.interface(); }
+    GrGLBinding glBinding() const { return fGLContext.info().binding(); }
+    GrGLVersion glVersion() const { return fGLContext.info().version(); }
+    GrGLSLGeneration glslGeneration() const { return fGLContext.info().glslGeneration(); }
 
     // Used by GrGLProgram to bind necessary textures for GrGLEffects.
     void bindTexture(int unitIdx, const GrTextureParams& params, GrGLTexture* texture);
@@ -55,7 +51,7 @@ public:
 
     virtual void abandonResources() SK_OVERRIDE;
 
-    const GrGLCaps& glCaps() const { return fGLContextInfo.caps(); }
+    const GrGLCaps& glCaps() const { return fGLContext.info().caps(); }
 
     // Callbacks to update state tracking when related GL objects are bound or deleted
     void notifyVertexBufferBind(GrGLuint id);
@@ -137,17 +133,15 @@ private:
     // have been accounted for).
     void flushBlend(bool isLines, GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff);
 
-    bool hasExtension(const char* ext) const {
-        return fGLContextInfo.hasExtension(ext);
-    }
+    bool hasExtension(const char* ext) const { return fGLContext.info().hasExtension(ext); }
 
-    const GrGLContextInfo& glContextInfo() const { return fGLContextInfo; }
+    const GrGLContext& glContext() const { return fGLContext; }
 
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
     class ProgramCache : public ::GrNoncopyable {
     public:
-        ProgramCache(const GrGLContextInfo& gl);
+        ProgramCache(const GrGLContext& gl);
 
         void abandon();
         GrGLProgram* getProgram(const GrGLProgram::Desc& desc, const GrEffectStage* stages[]);
@@ -188,7 +182,7 @@ private:
         Entry                       fEntries[kMaxEntries];
         int                         fCount;
         unsigned int                fCurrLRUStamp;
-        const GrGLContextInfo&      fGL;
+        const GrGLContext&          fGL;
     };
 
     // sets the matrix for path stenciling (uses the GL fixed pipe matrices)
@@ -236,7 +230,7 @@ private:
 
     void fillInConfigRenderableTable();
 
-    GrGLContextInfo fGLContextInfo;
+    GrGLContext fGLContext;
 
     // GL program-related state
     ProgramCache*               fProgramCache;

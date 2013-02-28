@@ -20,8 +20,8 @@
 
 SK_DEFINE_INST_COUNT(GrGLProgram)
 
-#define GL_CALL(X) GR_GL_CALL(fContextInfo.interface(), X)
-#define GL_CALL_RET(R, X) GR_GL_CALL_RET(fContextInfo.interface(), R, X)
+#define GL_CALL(X) GR_GL_CALL(fContext.interface(), X)
+#define GL_CALL_RET(R, X) GR_GL_CALL_RET(fContext.interface(), R, X)
 
 SK_CONF_DECLARE(bool, c_PrintShaders, "gpu.printShaders", false, "Print the source code for all shaders generated.");
 
@@ -229,7 +229,7 @@ void GrGLProgram::BuildDesc(const GrDrawState& drawState,
 #endif
 }
 
-GrGLProgram* GrGLProgram::Create(const GrGLContextInfo& gl,
+GrGLProgram* GrGLProgram::Create(const GrGLContext& gl,
                                  const Desc& desc,
                                  const GrEffectStage* stages[]) {
     GrGLProgram* program = SkNEW_ARGS(GrGLProgram, (gl, desc, stages));
@@ -240,10 +240,10 @@ GrGLProgram* GrGLProgram::Create(const GrGLContextInfo& gl,
     return program;
 }
 
-GrGLProgram::GrGLProgram(const GrGLContextInfo& gl,
+GrGLProgram::GrGLProgram(const GrGLContext& gl,
                          const Desc& desc,
                          const GrEffectStage* stages[])
-: fContextInfo(gl)
+: fContext(gl)
 , fUniformManager(gl) {
     fDesc = desc;
     fVShaderID = 0;
@@ -438,7 +438,7 @@ bool GrGLProgram::genEdgeCoverage(SkString* coverageVar,
             builder->fFSCode.appendf("\t\tedgeAlpha = (%s.x*%s.x - %s.y);\n", fsName, fsName, fsName);
             builder->fFSCode.append("\t\tedgeAlpha = clamp(0.5 - edgeAlpha / length(gF), 0.0, 1.0);\n"
                                     "\t}\n");
-            if (kES2_GrGLBinding == fContextInfo.binding()) {
+            if (kES2_GrGLBinding == fContext.info().binding()) {
                 builder->fHeader.printf("#extension GL_OES_standard_derivatives: enable\n");
             }
             break;
@@ -451,7 +451,7 @@ bool GrGLProgram::genEdgeCoverage(SkString* coverageVar,
             builder->fFSCode.appendf("\tfloat edgeAlpha = (%s.x*%s.x - %s.y);\n", fsName, fsName, fsName);
             builder->fFSCode.append("\tedgeAlpha = sqrt(edgeAlpha*edgeAlpha / dot(gF, gF));\n");
             builder->fFSCode.append("\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
-            if (kES2_GrGLBinding == fContextInfo.binding()) {
+            if (kES2_GrGLBinding == fContext.info().binding()) {
                 builder->fHeader.printf("#extension GL_OES_standard_derivatives: enable\n");
             }
             break;
@@ -548,7 +548,7 @@ void gen_attribute_coverage(GrGLShaderBuilder* segments,
 void GrGLProgram::genGeometryShader(GrGLShaderBuilder* segments) const {
 #if GR_GL_EXPERIMENTAL_GS
     if (fDesc.fExperimentalGS) {
-        GrAssert(fContextInfo.glslGeneration() >= k150_GrGLSLGeneration);
+        GrAssert(fContext.info().glslGeneration() >= k150_GrGLSLGeneration);
         segments->fGSHeader.append("layout(triangles) in;\n"
                                    "layout(triangle_strip, max_vertices = 6) out;\n");
         segments->fGSCode.append("\tfor (int i = 0; i < 3; ++i) {\n"
@@ -597,7 +597,7 @@ void print_shader(GrGLint stringCnt,
 }
 
 // Compiles a GL shader, returns shader ID or 0 if failed params have same meaning as glShaderSource
-GrGLuint compile_shader(const GrGLContextInfo& gl,
+GrGLuint compile_shader(const GrGLContext& gl,
                         GrGLenum type,
                         int stringCnt,
                         const char** strings,
@@ -638,7 +638,7 @@ GrGLuint compile_shader(const GrGLContextInfo& gl,
 }
 
 // helper version of above for when shader is already flattened into a single SkString
-GrGLuint compile_shader(const GrGLContextInfo& gl, GrGLenum type, const SkString& shader) {
+GrGLuint compile_shader(const GrGLContext& gl, GrGLenum type, const SkString& shader) {
     const GrGLchar* str = shader.c_str();
     int length = shader.size();
     return compile_shader(gl, type, 1, &str, &length);
@@ -657,7 +657,7 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
         GrPrintf("\n");
     }
 
-    if (!(fVShaderID = compile_shader(fContextInfo, GR_GL_VERTEX_SHADER, shader))) {
+    if (!(fVShaderID = compile_shader(fContext, GR_GL_VERTEX_SHADER, shader))) {
         return false;
     }
 
@@ -667,7 +667,7 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
             GrPrintf(shader.c_str());
             GrPrintf("\n");
         }
-        if (!(fGShaderID = compile_shader(fContextInfo, GR_GL_GEOMETRY_SHADER, shader))) {
+        if (!(fGShaderID = compile_shader(fContext, GR_GL_GEOMETRY_SHADER, shader))) {
             return false;
         }
     } else {
@@ -679,7 +679,7 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
         GrPrintf(shader.c_str());
         GrPrintf("\n");
     }
-    if (!(fFShaderID = compile_shader(fContextInfo, GR_GL_FRAGMENT_SHADER, shader))) {
+    if (!(fFShaderID = compile_shader(fContext, GR_GL_FRAGMENT_SHADER, shader))) {
         return false;
     }
 
@@ -689,7 +689,7 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
 bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
     GrAssert(0 == fProgramID);
 
-    GrGLShaderBuilder builder(fContextInfo, fUniformManager);
+    GrGLShaderBuilder builder(fContext.info(), fUniformManager);
     const GrAttribBindings& attribBindings = fDesc.fAttribBindings;
 
 #if GR_GL_EXPERIMENTAL_GS
@@ -738,11 +738,11 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
     // the dual source output has no canonical var name, have to
     // declare an output, which is incompatible with gl_FragColor/gl_FragData.
     bool dualSourceOutputWritten = false;
-    builder.fHeader.append(GrGetGLSLVersionDecl(fContextInfo.binding(),
-                                                fContextInfo.glslGeneration()));
+    builder.fHeader.append(GrGetGLSLVersionDecl(fContext.info().binding(),
+                                                fContext.info().glslGeneration()));
 
     GrGLShaderVar colorOutput;
-    bool isColorDeclared = GrGLSLSetupFSColorOuput(fContextInfo.glslGeneration(),
+    bool isColorDeclared = GrGLSLSetupFSColorOuput(fContext.info().glslGeneration(),
                                                    declared_color_output_name(),
                                                    &colorOutput);
     if (isColorDeclared) {

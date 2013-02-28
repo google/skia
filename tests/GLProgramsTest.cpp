@@ -138,7 +138,7 @@ bool GrGpuGL::programUnitTest(int maxStages) {
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
             stagePtrs[s] = &stages[s];
         }
-        SkAutoTUnref<GrGLProgram> program(GrGLProgram::Create(this->glContextInfo(),
+        SkAutoTUnref<GrGLProgram> program(GrGLProgram::Create(this->glContext(),
                                                               pdesc,
                                                               stagePtrs));
         if (NULL == program.get()) {
