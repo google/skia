@@ -419,8 +419,8 @@ public:
         SkPDFName* next(SkPDFObject** value);
 
     private:
-        Rec* fIter;
-        Rec* fStop;
+        const Rec* fIter;
+        const Rec* fStop;
     };
 
 private:

@@ -43,7 +43,7 @@ static void perform_font_subsetting(SkPDFCatalog* catalog,
         usage.merge(pages[i]->getFontGlyphUsage());
     }
     SkPDFGlyphSetMap::F2BIter iterator(usage);
-    SkPDFGlyphSetMap::FontGlyphSetPair* entry = iterator.next();
+    const SkPDFGlyphSetMap::FontGlyphSetPair* entry = iterator.next();
     while (entry) {
         SkPDFFont* subsetFont =
             entry->fFont->getFontSubset(entry->fGlyphSet);

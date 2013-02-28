@@ -54,8 +54,8 @@ void SkPathHeap::flatten(SkFlattenableWriteBuffer& buffer) const {
     int count = fPaths.count();
 
     buffer.writeInt(count);
-    SkPath** iter = fPaths.begin();
-    SkPath** stop = fPaths.end();
+    SkPath* const* iter = fPaths.begin();
+    SkPath* const* stop = fPaths.end();
     while (iter < stop) {
         buffer.writePath(**iter);
         iter++;
