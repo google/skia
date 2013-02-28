@@ -211,7 +211,6 @@ bool GrDefaultPathRenderer::createGeom(const SkPath& path,
         return false;
     }
 
-    GrVertexLayout layout = 0;
     bool indexed = contourCnt > 1;
 
     const bool isHairline = stroke.isHairlineStyle();
@@ -233,7 +232,7 @@ bool GrDefaultPathRenderer::createGeom(const SkPath& path,
         }
     }
 
-    target->drawState()->setVertexLayout(layout);
+    target->drawState()->setDefaultVertexAttribs();
     if (!arg->set(target, maxPts, maxIdxs)) {
         return false;
     }
