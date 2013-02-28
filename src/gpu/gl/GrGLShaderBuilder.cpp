@@ -24,12 +24,12 @@ typedef GrGLUniformManager::UniformHandle UniformHandle;
 
 namespace {
 
-inline const char* sample_function_name(GrSLType type) {
+inline const char* sample_function_name(GrSLType type, GrGLSLGeneration glslGen) {
     if (kVec2f_GrSLType == type) {
-        return "texture2D";
+        return glslGen >= k130_GrGLSLGeneration ? "texture" : "texture2D";
     } else {
         GrAssert(kVec3f_GrSLType == type);
-        return "texture2DProj";
+        return glslGen >= k130_GrGLSLGeneration ? "textureProj" : "texture2DProj";
     }
 }
 
@@ -109,7 +109,7 @@ void GrGLShaderBuilder::appendTextureLookup(SkString* out,
     GrAssert(NULL != coordName);
 
     out->appendf("%s(%s, %s)",
-                 sample_function_name(varyingType),
+                 sample_function_name(varyingType, fCtxInfo.glslGeneration()),
                  this->getUniformCStr(sampler.fSamplerUniform),
                  coordName);
     append_swizzle(out, *sampler.textureAccess(), fCtxInfo.caps());

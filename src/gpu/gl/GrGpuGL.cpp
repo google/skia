@@ -414,15 +414,17 @@ void GrGpuGL::onResetContext() {
 
     if (kDesktop_GrGLBinding == this->glBinding()) {
         // Desktop-only state that we never change
-        GL_CALL(Disable(GR_GL_POINT_SMOOTH));
-        GL_CALL(Disable(GR_GL_LINE_SMOOTH));
-        GL_CALL(Disable(GR_GL_POLYGON_SMOOTH));
-        GL_CALL(Disable(GR_GL_POLYGON_STIPPLE));
-        GL_CALL(Disable(GR_GL_COLOR_LOGIC_OP));
+        if (!this->glCaps().isCoreProfile()) {
+            GL_CALL(Disable(GR_GL_POINT_SMOOTH));
+            GL_CALL(Disable(GR_GL_LINE_SMOOTH));
+            GL_CALL(Disable(GR_GL_POLYGON_SMOOTH));
+            GL_CALL(Disable(GR_GL_POLYGON_STIPPLE));
+            GL_CALL(Disable(GR_GL_COLOR_LOGIC_OP));
+            GL_CALL(Disable(GR_GL_INDEX_LOGIC_OP));
+        }
         if (this->glCaps().imagingSupport()) {
             GL_CALL(Disable(GR_GL_COLOR_TABLE));
         }
-        GL_CALL(Disable(GR_GL_INDEX_LOGIC_OP));
         GL_CALL(Disable(GR_GL_POLYGON_OFFSET_FILL));
         // Since ES doesn't support glPointSize at all we always use the VS to
         // set the point size
