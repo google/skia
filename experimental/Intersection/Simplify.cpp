@@ -69,7 +69,7 @@ const bool gRunTestsInOneThread = true;
 #define DEBUG_ADD_INTERSECTING_TS 1
 #define DEBUG_ADD_T_PAIR 1
 #define DEBUG_ANGLE 1
-#define DEBUG_AS_C_CODE 0
+#define DEBUG_AS_C_CODE 1
 #define DEBUG_ASSEMBLE 1
 #define DEBUG_CONCIDENT 1
 #define DEBUG_CROSS 0
@@ -97,7 +97,7 @@ static int gSegmentID;
 #endif
 
 #if DEBUG_SORT
-static int gDebugSortCountDefault = 3; // SK_MaxS32;
+static int gDebugSortCountDefault = SK_MaxS32;
 static int gDebugSortCount;
 #endif
 
@@ -649,6 +649,7 @@ struct Span {
     bool fUnsortableStart; // set when start is part of an unsortable pair
     bool fUnsortableEnd; // set when end is part of an unsortable pair
     bool fTiny; // if set, span may still be considered once for edge following
+    bool fLoop; // set when a cubic loops back to this point
 };
 
 // sorting angles
@@ -862,12 +863,10 @@ public:
             Quadratic& quad = (Quadratic&)fCurvePart;
             QuadSubDivideHD(fPts, startT, endT, quad);
             fTangent1.quadEndPoints(quad, 0, 1);
-        #if 1 // FIXME: try enabling this and see if a) it's called and b) does it break anything
             if (dx() == 0 && dy() == 0) {
  //               SkDebugf("*** %s quad is line\n", __FUNCTION__);
                 fTangent1.quadEndPoints(quad);
             }
-        #endif
             fSide = -fTangent1.pointDistance(fCurvePart[2]); // not normalized -- compare sign only
             } break;
         case SkPath::kCubic_Verb: {
@@ -877,12 +876,10 @@ public:
             if (dx() == 0 && dy() == 0) {
                 fTangent1.cubicEndPoints(fCurvePart, 0, 2);
                 nextC = 3;
-        #if 1 // FIXME: try enabling this and see if a) it's called and b) does it break anything
                 if (dx() == 0 && dy() == 0) {
-                    SkDebugf("*** %s cubic is line\n", __FUNCTION__);
+ //                   SkDebugf("*** %s cubic is line\n", __FUNCTION__);
                     fTangent1.cubicEndPoints(fCurvePart, 0, 3);
                 }
-        #endif
             }
             fSide = -fTangent1.pointDistance(fCurvePart[nextC]); // compare sign only
             if (nextC == 2 && approximately_zero(fSide)) {
@@ -1686,6 +1683,7 @@ public:
         span->fWindValue = 1;
         span->fOppValue = 0;
         span->fTiny = false;
+        span->fLoop = false;
         if ((span->fDone = newT == 1)) {
             ++fDoneSpans;
         }
@@ -1880,6 +1878,13 @@ public:
             double oStart = oOutsideTs[1];
             other.addCancelOutsides(tStart, oStart, *this, endT);
         }
+    }
+    
+    int addSelfT(Segment* other, const SkPoint& pt, double& newT) {
+        int result = addT(other, pt, newT);
+        Span* span = &fTs[result];
+        span->fLoop = true;
+        return result;
     }
 
     int addUnsortableT(Segment* other, bool start, const SkPoint& pt, double& newT) {
@@ -2435,6 +2440,7 @@ public:
         bool foundDone = false;
         // iterate through the angle, and compute everyone's winding
         Segment* nextSegment;
+        int activeCount = 0;
         do {
             SkASSERT(nextIndex != firstIndex);
             if (nextIndex == angleCount) {
@@ -2446,9 +2452,16 @@ public:
             bool activeAngle = nextSegment->activeOp(xorMiMask, xorSuMask, nextAngle->start(),
                     nextAngle->end(), op, sumMiWinding, sumSuWinding,
                     maxWinding, sumWinding, oppMaxWinding, oppSumWinding);
-            if (activeAngle && (!foundAngle || foundDone)) {
-                foundAngle = nextAngle;
-                foundDone = nextSegment->done(nextAngle) && !nextSegment->tiny(nextAngle);
+            if (activeAngle) {
+                ++activeCount;
+                if (!foundAngle || (foundDone && activeCount & 1)) {
+                    if (nextSegment->tiny(nextAngle)) {
+                        unsortable = true;
+                        return NULL;
+                    }
+                    foundAngle = nextAngle;
+                    foundDone = nextSegment->done(nextAngle) && !nextSegment->tiny(nextAngle);
+                }
             }
             if (nextSegment->done()) {
                 continue;
@@ -2909,6 +2922,10 @@ public:
             SkVector dxyS = leftSegment->dxdy(tIndex);
             double cross = dxyE.cross(dxyS);
             bool bumpCheck = bumpsUp && xyE.fY < xyS.fY && dxyE.fX < 0;
+            if (xyE == xyS){
+                SkDebugf("%s ignore loops\n", __FUNCTION__);
+                cross = 0;
+            }
         #if DEBUG_SWAP_TOP
             SkDebugf("%s xyE=(%1.9g,%1.9g) xyS=(%1.9g,%1.9g)\n", __FUNCTION__,
                     xyE.fX, xyE.fY, xyS.fX, xyS.fY);
@@ -3195,7 +3212,7 @@ the same winding is shared by both.
         Segment* other = this;
         while ((other = other->nextChase(index, step, min, last))) {
             if (other->fTs[min].fWindSum != SK_MinS32) {
-                SkASSERT(other->fTs[min].fWindSum == winding);
+                SkASSERT(other->fTs[min].fWindSum == winding || other->fTs[min].fLoop);
                 return NULL;
             }
             other->markWinding(min, winding, oppWinding);
@@ -4442,6 +4459,11 @@ public:
         return fSegments[segIndex].addT(&other->fSegments[otherIndex], pt, newT);
     }
 
+    int addSelfT(int segIndex, Contour* other, int otherIndex, const SkPoint& pt, double& newT) {
+        setContainsIntercepts();
+        return fSegments[segIndex].addSelfT(&other->fSegments[otherIndex], pt, newT);
+    }
+
     int addUnsortableT(int segIndex, Contour* other, int otherIndex, bool start,
             const SkPoint& pt, double& newT) {
         return fSegments[segIndex].addUnsortableT(&other->fSegments[otherIndex], start, pt, newT);
@@ -5133,6 +5155,10 @@ public:
     int addT(const Work& other, const SkPoint& pt, double& newT) {
         return fContour->addT(fIndex, other.fContour, other.fIndex, pt, newT);
     }
+    
+    int addSelfT(const Work& other, const SkPoint& pt, double& newT) {
+        return fContour->addSelfT(fIndex, other.fContour, other.fIndex, pt, newT);
+    }
 
     int addUnsortableT(const Work& other, bool start, const SkPoint& pt, double& newT) {
         return fContour->addUnsortableT(fIndex, other.fContour, other.fIndex, start, pt, newT);
@@ -5694,7 +5720,7 @@ static void addSelfIntersectTs(Contour* test) {
         SkASSERT(ts.fT[0][0] >= 0 && ts.fT[0][0] <= 1);
         SkASSERT(ts.fT[1][0] >= 0 && ts.fT[1][0] <= 1);
         SkPoint point = ts.fPt[0].asSkPoint();
-        int testTAt = wt.addT(wt, point, ts.fT[0][0]);
+        int testTAt = wt.addSelfT(wt, point, ts.fT[0][0]);
         int nextTAt = wt.addT(wt, point, ts.fT[1][0]);
         wt.addOtherT(testTAt, ts.fT[1][0], nextTAt);
         wt.addOtherT(nextTAt, ts.fT[0][0], testTAt);
@@ -6157,7 +6183,7 @@ static bool bridgeWinding(SkTDArray<Contour*>& contourList, PathWrapper& simple)
                 simple.close();
             } else {
                 Span* last = current->markAndChaseDoneUnary(index, endIndex);
-                if (last) {
+                if (last && !last->fLoop) {
                     *chaseArray.append() = last;
                 }
             }

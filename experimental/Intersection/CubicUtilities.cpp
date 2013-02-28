@@ -113,7 +113,7 @@ int cubicRootsReal(double A, double B, double C, double D, double s[3]) {
     bzero(str, sizeof(str));
     sprintf(str, "Solve[%1.19g x^3 + %1.19g x^2 + %1.19g x + %1.19g == 0, x]", A, B, C, D);
     mathematica_ize(str, sizeof(str));
-#if ONE_OFF_DEBUG
+#if ONE_OFF_DEBUG && ONE_OFF_DEBUG_MATHEMATICA
     SkDebugf("%s\n", str);
 #endif
 #endif

@@ -134,8 +134,6 @@ static bool bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
     bool firstContour = true;
     bool unsortable = false;
     bool topUnsortable = false;
-    bool firstRetry = false;
-    bool closable = true;
     SkPoint topLeft = {SK_ScalarMin, SK_ScalarMin};
     do {
         int index, endIndex;
@@ -145,8 +143,7 @@ static bool bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
         if (!current) {
             if (topUnsortable || !done) {
                 topUnsortable = false;
-                SkASSERT(!firstRetry);
-                firstRetry = true;
+                SkASSERT(topLeft.fX != SK_ScalarMin && topLeft.fY != SK_ScalarMin);
                 topLeft.fX = topLeft.fY = SK_ScalarMin;
                 continue;
             }
@@ -155,7 +152,6 @@ static bool bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
         SkTDArray<Span*> chaseArray;
         do {
             if (current->activeOp(index, endIndex, xorMask, xorOpMask, op)) {
-                bool active = true;
                 do {
             #if DEBUG_ACTIVE_SPANS
                     if (!unsortable && current->done()) {
@@ -168,34 +164,37 @@ static bool bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
                     Segment* next = current->findNextOp(chaseArray, nextStart, nextEnd,
                             unsortable, op, xorMask, xorOpMask);
                     if (!next) {
-         //               SkASSERT(!unsortable);
                         if (!unsortable && simple.hasMove()
                                 && current->verb() != SkPath::kLine_Verb
                                 && !simple.isClosed()) {
                             current->addCurveTo(index, endIndex, simple, true);
                             SkASSERT(simple.isClosed());
                         }
-                        active = false;
                         break;
                     }
+        #if DEBUG_FLOW
+            SkDebugf("%s current id=%d from=(%1.9g,%1.9g) to=(%1.9g,%1.9g)\n", __FUNCTION__,
+                    current->debugID(), current->xyAtT(index).fX, current->xyAtT(index).fY,
+                    current->xyAtT(endIndex).fX, current->xyAtT(endIndex).fY);
+        #endif
                     current->addCurveTo(index, endIndex, simple, true);
                     current = next;
                     index = nextStart;
                     endIndex = nextEnd;
-                } while (!simple.isClosed() && ((!unsortable) || !current->done()));
-                if (active && !simple.isClosed()) {
+                } while (!simple.isClosed() && ((!unsortable)
+                        || !current->done(SkMin32(index, endIndex))));
+                if (current->activeWinding(index, endIndex) && !simple.isClosed()) {
                     SkASSERT(unsortable);
                     int min = SkMin32(index, endIndex);
                     if (!current->done(min)) {
                         current->addCurveTo(index, endIndex, simple, true);
                         current->markDoneBinary(min);
                     }
-                    closable = false;
                 }
                 simple.close();
             } else {
                 Span* last = current->markAndChaseDoneBinary(index, endIndex);
-                if (last) {
+                if (last && !last->fLoop) {
                     *chaseArray.append() = last;
                 }
             }
@@ -208,7 +207,7 @@ static bool bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
             }
         } while (true);
     } while (true);
-    return closable;
+    return simple.someAssemblyRequired();
 }
 
 } // end of Op namespace

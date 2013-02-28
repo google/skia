@@ -13,6 +13,7 @@
 #include "SkPoint.h"
 
 #define ONE_OFF_DEBUG 0
+#define ONE_OFF_DEBUG_MATHEMATICA 1
 
 // FIXME: move these into SkTypes.h
 template <typename T> inline T SkTMax(T a, T b) {
