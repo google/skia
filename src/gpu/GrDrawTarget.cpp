@@ -530,11 +530,19 @@ void GrDrawTarget::drawRect(const GrRect& rect,
                             const GrRect* srcRect,
                             const SkMatrix* srcMatrix,
                             int stage) {
-    GrVertexLayout layout = 0;
+    GrAttribBindings bindings = 0;
     uint32_t explicitCoordMask = 0;
+    // position + (optional) texture coord
+    static const GrVertexAttrib kAttribs[] = {
+        GrVertexAttrib(kVec2f_GrVertexAttribType, 0),
+        GrVertexAttrib(kVec2f_GrVertexAttribType, sizeof(GrPoint))
+    };
+    int attribCount = 1;
 
     if (NULL != srcRect) {
-        layout |= GrDrawState::StageTexCoordVertexLayoutBit(stage);
+        bindings |= GrDrawState::ExplicitTexCoordAttribBindingsBit(stage);
+        attribCount = 2;
+        this->drawState()->setAttribIndex(GrDrawState::kTexCoord_AttribIndex, 1);
         explicitCoordMask = (1 << stage);
     }
 
@@ -543,30 +551,26 @@ void GrDrawTarget::drawRect(const GrRect& rect,
         avmr.set(this->drawState(), *matrix, explicitCoordMask);
     }
 
-    this->drawState()->setVertexLayout(layout);
+    this->drawState()->setVertexAttribs(kAttribs, attribCount);
+    this->drawState()->setAttribIndex(GrDrawState::kPosition_AttribIndex, 0);
+    this->drawState()->setAttribBindings(bindings);
     AutoReleaseGeometry geo(this, 4, 0);
     if (!geo.succeeded()) {
         GrPrintf("Failed to get space for vertices!\n");
         return;
     }
 
-    int stageOffsets[GrDrawState::kNumStages];
-    int vsize = GrDrawState::VertexSizeAndOffsetsByStage(layout, stageOffsets,  NULL, NULL, NULL);
+    size_t vsize = this->drawState()->getVertexSize();
     geo.positions()->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vsize);
-
-    for (int i = 0; i < GrDrawState::kNumStages; ++i) {
-        if (explicitCoordMask & (1 << i)) {
-            GrAssert(0 != stageOffsets[i]);
-            GrPoint* coords = GrTCast<GrPoint*>(GrTCast<intptr_t>(geo.vertices()) +
-                                                stageOffsets[i]);
-            coords->setRectFan(srcRect->fLeft, srcRect->fTop,
-                               srcRect->fRight, srcRect->fBottom,
-                               vsize);
-            if (NULL != srcMatrix) {
-                srcMatrix->mapPointsWithStride(coords, vsize, 4);
-            }
-        } else {
-            GrAssert(0 == stageOffsets[i]);
+    if (NULL != srcRect) {
+        GrAssert(attribCount == 2);
+        GrPoint* coords = GrTCast<GrPoint*>(GrTCast<intptr_t>(geo.vertices()) +
+                                            kAttribs[1].fOffset);
+        coords->setRectFan(srcRect->fLeft, srcRect->fTop,
+                            srcRect->fRight, srcRect->fBottom,
+                            vsize);
+        if (NULL != srcMatrix) {
+            srcMatrix->mapPointsWithStride(coords, vsize, 4);
         }
     }
 

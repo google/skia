@@ -223,7 +223,20 @@ public:
         }
     }
 
-    /**
+    T* begin() {
+        return fItemArray;
+    }
+    const T* begin() const {
+        return fItemArray;
+    }
+    T* end() {
+        return fItemArray ? fItemArray + fCount : NULL;
+    }
+    const T* end() const {
+        return fItemArray ? fItemArray + fCount : NULL;;
+    }
+
+   /**
      * Get the i^th element.
      */
     T& operator[] (int i) {
