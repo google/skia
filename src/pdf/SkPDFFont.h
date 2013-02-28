@@ -81,8 +81,7 @@ class SkPDFFont : public SkPDFDict {
 public:
     virtual ~SkPDFFont();
 
-    virtual void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
-                              SkTSet<SkPDFObject*>* newResourceObjects);
+    virtual void getResources(SkTDArray<SkPDFObject*>* resourceList);
 
     /** Returns the typeface represented by this class. Returns NULL for the
      *  default typeface.

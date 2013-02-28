@@ -39,11 +39,10 @@ public:
     virtual ~SkPDFFormXObject();
 
     // The SkPDFObject interface.
-    virtual void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
-                              SkTSet<SkPDFObject*>* newResourceObjects);
+    virtual void getResources(SkTDArray<SkPDFObject*>* resourceList);
 
 private:
-    SkTSet<SkPDFObject*> fResources;
+    SkTDArray<SkPDFObject*> fResources;
 };
 
 #endif
