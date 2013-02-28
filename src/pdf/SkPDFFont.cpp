@@ -716,9 +716,8 @@ SkPDFFont::~SkPDFFont() {
     fResources.unrefAll();
 }
 
-void SkPDFFont::getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
-                             SkTSet<SkPDFObject*>* newResourceObjects) {
-    GetResourcesHelper(&fResources, knownResourceObjects, newResourceObjects);
+void SkPDFFont::getResources(SkTDArray<SkPDFObject*>* resourceList) {
+    GetResourcesHelper(&fResources, resourceList);
 }
 
 SkTypeface* SkPDFFont::typeface() {
