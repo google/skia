@@ -32,6 +32,7 @@ public:
 
 private:
     GrPaint         fPaint;
+    GrVertexLayout  fVertexLayout;
     GrContext*      fContext;
     GrDrawTarget*   fDrawTarget;
 

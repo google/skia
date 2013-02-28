@@ -453,6 +453,9 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     }
     const SkMatrix* vm = &adcd.getOriginalMatrix();
 
+    GrVertexLayout layout = 0;
+    layout |= GrDrawState::kEdge_VertexLayoutBit;
+
     // We use the fact that SkPath::transform path does subdivision based on
     // perspective. Otherwise, we apply the view matrix when copying to the
     // segment representation.
@@ -478,22 +481,11 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
         return false;
     }
 
-    // position + edge
-    static const GrVertexAttrib kAttribs[] = {
-        GrVertexAttrib(kVec2f_GrVertexAttribType, 0),
-        GrVertexAttrib(kVec4f_GrVertexAttribType, sizeof(GrPoint))
-    };
-    static const GrAttribBindings bindings = GrDrawState::kEdge_AttribBindingsBit;
-
-    drawState->setVertexAttribs(kAttribs, SK_ARRAY_COUNT(kAttribs));
-    drawState->setAttribIndex(GrDrawState::kPosition_AttribIndex, 0);
-    drawState->setAttribIndex(GrDrawState::kEdge_AttribIndex, 1);
-    drawState->setAttribBindings(bindings);
+    drawState->setVertexLayout(layout);
     GrDrawTarget::AutoReleaseGeometry arg(target, vCount, iCount);
     if (!arg.succeeded()) {
         return false;
     }
-    GrAssert(sizeof(QuadVertex) == drawState->getVertexSize());
     verts = reinterpret_cast<QuadVertex*>(arg.vertices());
     idxs = reinterpret_cast<uint16_t*>(arg.indices());
 

@@ -182,10 +182,6 @@ GrGpuGL::GrGpuGL(const GrGLContext& ctx, GrContext* context)
 
     fHWGeometryState.setMaxAttribArrays(this->glCaps().maxVertexAttributes());
 
-    GrAssert(this->glCaps().maxVertexAttributes() >= GrDrawState::kVertexAttribCnt);
-    GrAssert(this->glCaps().maxVertexAttributes() > GrDrawState::kColorOverrideAttribIndexValue);
-    GrAssert(this->glCaps().maxVertexAttributes() > GrDrawState::kCoverageOverrideAttribIndexValue);
-
     fLastSuccessfulStencilFmtIdx = 0;
     if (false) { // avoid bit rot, suppress warning
         fbo_test(this->glInterface(), 0, 0);

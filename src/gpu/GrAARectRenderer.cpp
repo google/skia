@@ -13,15 +13,14 @@ SK_DEFINE_INST_COUNT(GrAARectRenderer)
 
 namespace {
 
-static void aa_rect_attributes(bool useCoverage, GrAttribBindings* bindings, 
-                               GrDrawState::AttribIndex* index) {
+static GrVertexLayout aa_rect_layout(bool useCoverage) {
+    GrVertexLayout layout = 0;
     if (useCoverage) {
-        *bindings = GrDrawState::kCoverage_AttribBindingsBit;
-        *index = GrDrawState::kCoverage_AttribIndex;
+        layout |= GrDrawState::kCoverage_VertexLayoutBit;
     } else {
-        *bindings = GrDrawState::kColor_AttribBindingsBit;
-        *index = GrDrawState::kColor_AttribIndex;
+        layout |= GrDrawState::kColor_VertexLayoutBit;
     }
+    return layout;
 }
 
 static void set_inset_fan(GrPoint* pts, size_t stride,
@@ -29,12 +28,6 @@ static void set_inset_fan(GrPoint* pts, size_t stride,
     pts->setRectFan(r.fLeft + dx, r.fTop + dy,
                     r.fRight - dx, r.fBottom - dy, stride);
 }
-
-// position + color/coverage
-static const GrVertexAttrib kVertexAttribs[] = {
-    GrVertexAttrib(kVec2f_GrVertexAttribType, 0),
-    GrVertexAttrib(kVec4ub_GrVertexAttribType, sizeof(GrPoint))
-};
 
 };
 
@@ -132,15 +125,8 @@ void GrAARectRenderer::fillAARect(GrGpu* gpu,
                                   GrDrawTarget* target,
                                   const GrRect& devRect,
                                   bool useVertexCoverage) {
-    GrDrawState* drawState = target->drawState();
-
-    GrAttribBindings bindings;
-    GrDrawState::AttribIndex attribIndex;
-    aa_rect_attributes(useVertexCoverage, &bindings, &attribIndex);
-    drawState->setVertexAttribs(kVertexAttribs, SK_ARRAY_COUNT(kVertexAttribs));
-    drawState->setAttribBindings(bindings);
-    drawState->setAttribIndex(GrDrawState::kPosition_AttribIndex, 0);
-    drawState->setAttribIndex(attribIndex, 1);
+    GrVertexLayout layout = aa_rect_layout(useVertexCoverage);
+    target->drawState()->setVertexLayout(layout);
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 8, 0);
     if (!geo.succeeded()) {
@@ -155,8 +141,7 @@ void GrAARectRenderer::fillAARect(GrGpu* gpu,
     }
 
     intptr_t verts = reinterpret_cast<intptr_t>(geo.vertices());
-    size_t vsize = drawState->getVertexSize();
-    GrAssert(sizeof(GrPoint) + sizeof(GrColor) == vsize);
+    size_t vsize = target->getDrawState().getVertexSize();
 
     GrPoint* fan0Pos = reinterpret_cast<GrPoint*>(verts);
     GrPoint* fan1Pos = reinterpret_cast<GrPoint*>(verts + 4 * vsize);
@@ -192,8 +177,6 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
                                     const GrRect& devRect,
                                     const GrVec& devStrokeSize,
                                     bool useVertexCoverage) {
-    GrDrawState* drawState = target->drawState();
-
     const SkScalar& dx = devStrokeSize.fX;
     const SkScalar& dy = devStrokeSize.fY;
     const SkScalar rx = SkScalarMul(dx, SK_ScalarHalf);
@@ -212,14 +195,8 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
         this->fillAARect(gpu, target, r, useVertexCoverage);
         return;
     }
-    
-    GrAttribBindings bindings;
-    GrDrawState::AttribIndex attribIndex;
-    aa_rect_attributes(useVertexCoverage, &bindings, &attribIndex);
-    drawState->setVertexAttribs(kVertexAttribs, SK_ARRAY_COUNT(kVertexAttribs));
-    drawState->setAttribBindings(bindings);
-    drawState->setAttribIndex(GrDrawState::kPosition_AttribIndex, 0);
-    drawState->setAttribIndex(attribIndex, 1);
+    GrVertexLayout layout = aa_rect_layout(useVertexCoverage);
+    target->drawState()->setVertexLayout(layout);
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 16, 0);
     if (!geo.succeeded()) {
@@ -233,8 +210,7 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
     }
 
     intptr_t verts = reinterpret_cast<intptr_t>(geo.vertices());
-    size_t vsize = drawState->getVertexSize();
-    GrAssert(sizeof(GrPoint) + sizeof(GrColor) == vsize);
+    size_t vsize = target->getDrawState().getVertexSize();
 
     // We create vertices for four nested rectangles. There are two ramps from 0 to full
     // coverage, one on the exterior of the stroke and the other on the interior.

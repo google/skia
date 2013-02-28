@@ -111,11 +111,11 @@ bool GrStrokePathRenderer::onDrawPath(const SkPath& origPath,
 
     // Allocate vertices
     const int nbQuads     = origPath.countPoints() + 1; // Could be "-1" if path is not closed
+    GrVertexLayout layout = 0; // Just 3D points
     const int extraVerts  = isMiter || isBevel ? 1 : 0;
     const int maxVertexCount = nbQuads * (4 + extraVerts);
     const int maxIndexCount  = nbQuads * (6 + extraVerts * 3); // Each extra vert adds a triangle
-    target->drawState()->setDefaultVertexAttribs();
-    GrDrawTarget::AutoReleaseGeometry arg(target, maxVertexCount, maxIndexCount);
+    GrDrawTarget::AutoReleaseGeometry arg(target, layout, maxVertexCount, maxIndexCount);
     if (!arg.succeeded()) {
         return false;
     }
@@ -126,7 +126,7 @@ bool GrStrokePathRenderer::onDrawPath(const SkPath& origPath,
     // Transform the path into a list of triangles
     SkPath::Iter iter(origPath, false);
     SkPoint pts[4];
-    const SkScalar radius = SkScalarMul(width, 0.5f);
+    const SkScalar radius = SkScalarMul(width, 0.5);
     SkPoint *firstPt = verts, *lastPt = NULL;
     SkVector firstDir, dir;
     firstDir.set(0, 0);

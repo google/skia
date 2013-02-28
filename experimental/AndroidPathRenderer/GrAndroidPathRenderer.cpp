@@ -36,25 +36,12 @@ bool GrAndroidPathRenderer::onDrawPath(const SkPath& origPath,
     android::uirenderer::PathRenderer::ConvexPathVertices(origPath, stroke, antiAlias, NULL,
                                                           &vertices);
 
-    // set vertex attributes depending on anti-alias
-    GrDrawState* drawState = target->drawState();
-    if (antiAlias) {
-        // position + coverage
-        GrVertexAttrib attribs[] = {
-            GrVertexAttrib(kVec2f_GrVertexAttribType, 0),
-            GrVertexAttrib(kVec4ub_GrVertexAttribType, sizeof(GrPoint))
-        };
-        drawState->setVertexAttribs(attribs, SK_ARRAY_COUNT(attribs));
-        drawState->setAttribIndex(GrDrawState::kPosition_AttribIndex, 0);
-        drawState->setAttribIndex(GrDrawState::kCoverage_AttribIndex, 1);
-        drawState->setAttribBindings(GrDrawState::kCoverage_AttribBindingsBit);
-    } else {
-        drawState->setDefaultVertexAttribs();
-    }
+    // set vertex layout depending on anti-alias
+    GrVertexLayout layout = antiAlias ? GrDrawState::kCoverage_VertexLayoutBit : 0;
 
     // allocate our vert buffer
     int vertCount = vertices.getSize();
-    GrDrawTarget::AutoReleaseGeometry geo(target, vertCount, 0);
+    GrDrawTarget::AutoReleaseGeometry geo(target, layout, vertCount, 0);
     if (!geo.succeeded()) {
         GrPrintf("Failed to get space for vertices!\n");
         return false;
@@ -62,7 +49,6 @@ bool GrAndroidPathRenderer::onDrawPath(const SkPath& origPath,
 
     // copy android verts to our vertex buffer
     if (antiAlias) {
-        GrAssert(sizeof(ColorVertex) == drawState->getVertexSize());
         ColorVertex* outVert = reinterpret_cast<ColorVertex*>(geo.vertices());
         android::uirenderer::AlphaVertex* inVert =
             reinterpret_cast<android::uirenderer::AlphaVertex*>(vertices.getBuffer());
@@ -77,7 +63,7 @@ bool GrAndroidPathRenderer::onDrawPath(const SkPath& origPath,
             ++inVert;
         }
     } else {
-       size_t vsize = drawState->getVertexSize();
+       size_t vsize = GrDrawState::VertexSize(layout);
        size_t copySize = vsize*vertCount;
        memcpy(geo.vertices(), vertices.getBuffer(), copySize);
     }

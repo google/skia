@@ -23,41 +23,6 @@
 
 class GrPaint;
 
-/**
- * Types used to describe format of vertices in arrays
-  */
-enum GrVertexAttribType {
-    kFloat_GrVertexAttribType = 0,
-    kVec2f_GrVertexAttribType,
-    kVec3f_GrVertexAttribType,
-    kVec4f_GrVertexAttribType,
-    kVec4ub_GrVertexAttribType,   // vector of 4 unsigned bytes, e.g. colors
-
-    kLast_GrVertexAttribType = kVec4ub_GrVertexAttribType
-};
-static const int kGrVertexAttribTypeCount = kLast_GrVertexAttribType + 1;
-
-struct GrVertexAttrib {
-    GrVertexAttrib() {}
-    GrVertexAttrib(GrVertexAttribType type, size_t offset) :
-        fType(type), fOffset(offset) {}
-    bool operator==(const GrVertexAttrib& other) const {
-        return fType == other.fType && fOffset == other.fOffset;
-    };
-    bool operator!=(const GrVertexAttrib& other) const { return !(*this == other); }
-
-    GrVertexAttribType fType;
-    size_t             fOffset;
-};
-
-template <int N>
-class GrVertexAttribArray : public SkSTArray<N, GrVertexAttrib, true> {};
-
-/**
- * Type used to describe how attributes bind to program usage
- */
-typedef int GrAttribBindings;
-
 class GrDrawState : public GrRefCnt {
 public:
     SK_DECLARE_INST_COUNT(GrDrawState)
@@ -67,7 +32,7 @@ public:
      * GrEffect. The effect produces an output color in the fragment shader. It's inputs are the
      * output from the previous enabled stage and a position. The position is either derived from
      * the interpolated vertex positions or explicit per-vertex coords, depending upon the
-     * GrAttribBindings used to draw.
+     * GrVertexLayout used to draw.
      *
      * The stages are divided into two sets, color-computing and coverage-computing. The final color
      * stage produces the final pixel color. The coverage-computing stages function exactly as the
@@ -75,7 +40,7 @@ public:
      * coverage rather than as input to the src/dst color blend step.
      *
      * The input color to the first enabled color-stage is either the constant color or interpolated
-     * per-vertex colors, depending upon GrAttribBindings. The input to the first coverage stage is
+     * per-vertex colors, depending upon GrVertexLayout. The input to the first coverage stage is
      * either a constant coverage (usually full-coverage), interpolated per-vertex coverage, or
      * edge-AA computed coverage. (This latter is going away as soon as it can be rewritten as a
      * GrEffect).
@@ -94,7 +59,7 @@ public:
 
     GrDrawState() {
 #if GR_DEBUG
-        VertexAttributesUnitTest();
+        VertexLayoutUnitTest();
 #endif
         this->reset();
     }
@@ -117,9 +82,8 @@ public:
 
         fRenderTarget.reset(NULL);
 
-        this->setDefaultVertexAttribs();
-
         fCommon.fColor = 0xffffffff;
+        fCommon.fVertexLayout = kDefault_VertexLayout;
         fCommon.fViewMatrix.reset();
         fCommon.fSrcBlend = kOne_GrBlendCoeff;
         fCommon.fDstBlend = kZero_GrBlendCoeff;
@@ -143,50 +107,193 @@ public:
     void setFromPaint(const GrPaint& paint);
 
     ///////////////////////////////////////////////////////////////////////////
-    /// @name Vertex Attributes
+    /// @name Vertex Layout
     ////
 
-    enum {
-        kVertexAttribCnt = 6,
+    /**
+     * The format of vertices is represented as a bitfield of flags.
+     * Flags that indicate the layout of vertex data. Vertices always contain
+     * positions and may also contain texture coordinates, per-vertex colors,
+     * and per-vertex coverage. Each stage can use any texture coordinates as
+     * its input texture coordinates or it may use the positions as texture
+     * coordinates.
+     *
+     * If no texture coordinates are specified for a stage then the stage is
+     * disabled.
+     *
+     * The order in memory is always (position, texture coords, color, coverage)
+     * with any unused fields omitted.
+     */
+
+    /**
+     * Generates a bit indicating that a texture stage uses texture coordinates
+     *
+     * @param stageIdx    the stage that will use texture coordinates.
+     *
+     * @return the bit to add to a GrVertexLayout bitfield.
+     */
+    static int StageTexCoordVertexLayoutBit(int stageIdx) {
+        GrAssert(stageIdx < kNumStages);
+        return (1 << stageIdx);
+    }
+
+    static bool StageUsesTexCoords(GrVertexLayout layout, int stageIdx);
+
+private:
+    // non-stage bits start at this index.
+    static const int STAGE_BIT_CNT = kNumStages;
+public:
+
+    /**
+     * Additional Bits that can be specified in GrVertexLayout.
+     */
+    enum VertexLayoutBits {
+        /* vertices have colors (GrColor) */
+        kColor_VertexLayoutBit              = 1 << (STAGE_BIT_CNT + 0),
+        /* vertices have coverage (GrColor)
+         */
+        kCoverage_VertexLayoutBit           = 1 << (STAGE_BIT_CNT + 1),
+        /* Each vertex specificies an edge. Distance to the edge is used to
+         * compute a coverage. See GrDrawState::setVertexEdgeType().
+         */
+        kEdge_VertexLayoutBit               = 1 << (STAGE_BIT_CNT + 2),
+        // for below assert
+        kDummyVertexLayoutBit,
+        kHighVertexLayoutBit = kDummyVertexLayoutBit - 1
+    };
+    // make sure we haven't exceeded the number of bits in GrVertexLayout.
+    GR_STATIC_ASSERT(kHighVertexLayoutBit < ((uint64_t)1 << 8*sizeof(GrVertexLayout)));
+
+    enum VertexLayout {
+        kDefault_VertexLayout = 0
     };
 
-   /**
-     * The format of vertices is represented as an array of vertex attribute 
-     * pair, with each pair representing the type of the attribute and the 
-     * offset in the vertex structure (see GrVertexAttrib, above). 
-     *
-     * This will only set up the vertex geometry. To bind the attributes in
-     * the shaders, attribute indices and attribute bindings need to be set 
-     * as well.
-     */
-
     /**
-     *  Sets vertex attributes for next draw. 
+     *  Sets vertex layout for next draw.
      *
-     *  @param attribs    the array of vertex attributes to set. 
-     *  @param count      the number of attributes being set.
-     *                    limited to a count of kVertexAttribCnt. 
+     *  @param layout    the vertex layout to set.
      */
-    void setVertexAttribs(const GrVertexAttrib attribs[], int count);
+    void setVertexLayout(GrVertexLayout layout) { fCommon.fVertexLayout = layout; }
 
-    const GrVertexAttrib* getVertexAttribs() const { return fVertexAttribs.begin(); }
-    int getVertexAttribCount() const { return fVertexAttribs.count(); }
+    GrVertexLayout getVertexLayout() const { return fCommon.fVertexLayout; }
+    size_t getVertexSize() const { return VertexSize(fCommon.fVertexLayout); }
 
-    size_t getVertexSize() const;
-
-    /**
-     *  Sets default vertex attributes for next draw. 
-     *
-     *  This will also set default vertex attribute indices and bindings
-     */
-    void setDefaultVertexAttribs();
 
     ////////////////////////////////////////////////////////////////////////////
-    // Helpers for picking apart vertex attributes
+    // Helpers for picking apart vertex layouts
 
-    // helper array to let us check the expected so we know what bound attrib indices
-    // we care about
-    static const size_t kVertexAttribSizes[kGrVertexAttribTypeCount];
+    /**
+     * Helper function to compute the size of a vertex from a vertex layout
+     * @return size of a single vertex.
+     */
+    static size_t VertexSize(GrVertexLayout vertexLayout);
+
+    /**
+     * Helper function to compute the offset of texture coordinates in a vertex
+     * @return offset of texture coordinates in vertex layout or 0 if positions
+     *         are used as texture coordinates for the stage.
+     */
+    static int VertexStageCoordOffset(int stageIdx, GrVertexLayout vertexLayout);
+
+    /**
+     * Helper function to compute the offset of the color in a vertex
+     * @return offset of color in vertex layout or -1 if the
+     *         layout has no color.
+     */
+    static int VertexColorOffset(GrVertexLayout vertexLayout);
+
+    /**
+     * Helper function to compute the offset of the coverage in a vertex
+     * @return offset of coverage in vertex layout or -1 if the
+     *         layout has no coverage.
+     */
+    static int VertexCoverageOffset(GrVertexLayout vertexLayout);
+
+     /**
+      * Helper function to compute the offset of the edge pts in a vertex
+      * @return offset of edge in vertex layout or -1 if the
+      *         layout has no edge.
+      */
+     static int VertexEdgeOffset(GrVertexLayout vertexLayout);
+
+    /**
+     * Helper function to determine if vertex layout contains explicit texture
+     * coordinates.
+     *
+     * @param vertexLayout  layout to query
+     *
+     * @return true if vertex specifies texture coordinates,
+     *         false otherwise.
+     */
+    static bool VertexUsesTexCoords(GrVertexLayout vertexLayout);
+
+    /**
+     * Helper function to compute the size of each vertex and the offsets of
+     * texture coordinates and color.
+     *
+     * @param vertexLayout          the layout to query
+     * @param texCoordOffset        after return it is the offset of the
+     *                              tex coord index in the vertex or -1 if
+     *                              tex coords aren't used. (optional)
+     * @param colorOffset           after return it is the offset of the
+     *                              color field in each vertex, or -1 if
+     *                              there aren't per-vertex colors. (optional)
+     * @param coverageOffset        after return it is the offset of the
+     *                              coverage field in each vertex, or -1 if
+     *                              there aren't per-vertex coeverages.
+     *                              (optional)
+     * @param edgeOffset            after return it is the offset of the
+     *                              edge eq field in each vertex, or -1 if
+     *                              there aren't per-vertex edge equations.
+     *                              (optional)
+     * @return size of a single vertex
+     */
+    static int VertexSizeAndOffsets(GrVertexLayout vertexLayout,
+                   int *texCoordOffset,
+                   int *colorOffset,
+                   int *coverageOffset,
+                   int* edgeOffset);
+
+    /**
+     * Helper function to compute the size of each vertex and the offsets of
+     * texture coordinates and color. Determines tex coord offsets by stage
+     * rather than by index. (Each stage can be mapped to any t.c. index
+     * by StageTexCoordVertexLayoutBit.) If a stage uses positions for
+     * tex coords then that stage's offset will be 0 (positions are always at 0).
+     *
+     * @param vertexLayout              the layout to query
+     * @param texCoordOffsetsByStage    after return it is the offset of each
+     *                                  tex coord index in the vertex or -1 if
+     *                                  index isn't used. (optional)
+     * @param colorOffset               after return it is the offset of the
+     *                                  color field in each vertex, or -1 if
+     *                                  there aren't per-vertex colors.
+     *                                  (optional)
+     * @param coverageOffset            after return it is the offset of the
+     *                                  coverage field in each vertex, or -1 if
+     *                                  there aren't per-vertex coeverages.
+     *                                  (optional)
+     * @param edgeOffset                after return it is the offset of the
+     *                                  edge eq field in each vertex, or -1 if
+     *                                  there aren't per-vertex edge equations.
+     *                                  (optional)
+     * @return size of a single vertex
+     */
+    static int VertexSizeAndOffsetsByStage(GrVertexLayout vertexLayout,
+                   int texCoordOffsetsByStage[kNumStages],
+                   int* colorOffset,
+                   int* coverageOffset,
+                   int* edgeOffset);
+
+    /**
+     * Determines whether src alpha is guaranteed to be one for all src pixels
+     */
+    bool srcAlphaWillBeOne(GrVertexLayout) const;
+
+    /**
+     * Determines whether the output coverage is guaranteed to be one for all pixels hit by a draw.
+     */
+    bool hasSolidCoverage(GrVertexLayout) const;
 
     /**
      * Accessing positions, texture coords, or colors, of a vertex within an
@@ -197,7 +304,7 @@ public:
     /**
      * Gets a pointer to a GrPoint of a vertex's position or texture
      * coordinate.
-     * @param vertices      the vertex array
+     * @param vertices      the vetex array
      * @param vertexIndex   the index of the vertex in the array
      * @param vertexSize    the size of each vertex in the array
      * @param offset        the offset in bytes of the vertex component.
@@ -246,140 +353,7 @@ public:
                                        vertexIndex * vertexSize);
     }
 
-    /// @}
-
-    ///////////////////////////////////////////////////////////////////////////
-    /// @name Attribute Bindings
-    ////
-
-    /**
-     * The vertex data used by the current program is represented as a bitfield 
-     * of flags. Programs always use positions and may also use texture 
-     * coordinates, per-vertex colors, per-vertex coverage and edge data. Each 
-     * stage can use the explicit texture coordinates as its input texture 
-     * coordinates or it may use the positions as texture coordinates.
-     */
-
-    /**
-     * Generates a bit indicating that a texture stage uses texture coordinates
-     *
-     * @param stageIdx    the stage that will use texture coordinates.
-     *
-     * @return the bit to add to a GrAttribBindings bitfield.
-     */
-    static int ExplicitTexCoordAttribBindingsBit(int stageIdx) {
-        GrAssert(stageIdx < kNumStages);
-        return (1 << stageIdx);
-    }
-
-    static bool StageBindsExplicitTexCoords(GrAttribBindings bindings, int stageIdx);
-
-    /**
-     * Additional Bits that can be specified in GrAttribBindings.
-     */
-    enum AttribBindingsBits {
-        /* program uses colors (GrColor) */
-        kColor_AttribBindingsBit              = 1 << (kNumStages + 0),
-        /* program uses coverage (GrColor)
-         */
-        kCoverage_AttribBindingsBit           = 1 << (kNumStages + 1),
-        /* program uses edge data. Distance to the edge is used to
-         * compute a coverage. See GrDrawState::setVertexEdgeType().
-         */
-        kEdge_AttribBindingsBit               = 1 << (kNumStages + 2),
-        // for below assert
-        kDummyAttribBindingsBit,
-        kHighAttribBindingsBit = kDummyAttribBindingsBit - 1
-    };
-    // make sure we haven't exceeded the number of bits in GrAttribBindings.
-    GR_STATIC_ASSERT(kHighAttribBindingsBit < ((uint64_t)1 << 8*sizeof(GrAttribBindings)));
-
-    enum AttribBindings {
-        kDefault_AttribBindings = 0
-    };
-
-    /**
-     *  Sets attribute bindings for next draw.
-     *
-     *  @param bindings    the attribute bindings to set.
-     */
-    void setAttribBindings(GrAttribBindings bindings) { fCommon.fAttribBindings = bindings; }
-
-    GrAttribBindings getAttribBindings() const { return fCommon.fAttribBindings; }
-
-    ////////////////////////////////////////////////////////////////////////////
-    // Helpers for picking apart attribute bindings
-
-    /**
-     * Helper function to determine if program uses explicit texture
-     * coordinates.
-     *
-     * @param  bindings  attribute bindings to query
-     *
-     * @return true if program uses texture coordinates,
-     *         false otherwise.
-     */
-    static bool AttributesBindExplicitTexCoords(GrAttribBindings bindings);
-
-    /**
-     * Determines whether src alpha is guaranteed to be one for all src pixels
-     */
-    bool srcAlphaWillBeOne(GrAttribBindings) const;
-
-    /**
-     * Determines whether the output coverage is guaranteed to be one for all pixels hit by a draw.
-     */
-    bool hasSolidCoverage(GrAttribBindings) const;
-
-    static void VertexAttributesUnitTest();
-
-    /// @}
-
-    ///////////////////////////////////////////////////////////////////////////
-    /// @name Vertex Attribute Indices
-    ////
-
-    /**
-     * Vertex attribute indices map the data set in the vertex attribute array
-     * to the bindings specified in the attribute bindings. Each binding type
-     * has an associated index in the attribute array. This index is used to 
-     * look up the vertex attribute data from the array, and potentially as the 
-     * attribute index if we're binding attributes in GL.
-     * 
-     * Indices which do not have active attribute bindings will be ignored.
-     */
-
-    enum AttribIndex {
-        kPosition_AttribIndex = 0,
-        kColor_AttribIndex,
-        kCoverage_AttribIndex,
-        kEdge_AttribIndex,
-        kTexCoord_AttribIndex,
-
-        kLast_AttribIndex = kTexCoord_AttribIndex
-    };
-    static const int kAttribIndexCount = kLast_AttribIndex + 1;
-
-    // these are used when vertex color and coverage isn't set
-    enum {
-        kColorOverrideAttribIndexValue = GrDrawState::kVertexAttribCnt,
-        kCoverageOverrideAttribIndexValue = GrDrawState::kVertexAttribCnt+1,
-    };
-
-    ////////////////////////////////////////////////////////////////////////////
-    // Helpers to set attribute indices. These should match the index in the 
-    // current attribute index array. 
-
-    /**
-     *  Sets index for next draw. This is used to look up the offset 
-     *  from the current vertex attribute array and to bind the attributes.
-     *
-     *  @param index      the attribute index we're setting
-     *  @param value      the value of the index
-     */
-    void setAttribIndex(AttribIndex index, int value) { fAttribIndices[index] = value; }
-
-    int getAttribIndex(AttribIndex index) const       { return fAttribIndices[index]; }
+    static void VertexLayoutUnitTest();
 
     /// @}
 
@@ -1030,7 +1004,7 @@ public:
 
     /**
      * Determines the interpretation per-vertex edge data when the
-     * kEdge_AttribBindingsBit is set (see GrDrawTarget). When per-vertex edges
+     * kEdge_VertexLayoutBit is set (see GrDrawTarget). When per-vertex edges
      * are not specified the value of this setting has no effect.
      */
     void setVertexEdgeType(VertexEdgeType type) {
@@ -1185,25 +1159,13 @@ public:
         return (NULL != fStages[s].getEffect());
     }
 
+    // Most stages are usually not used, so conditionals here
+    // reduce the expected number of bytes touched by 50%.
     bool operator ==(const GrDrawState& s) const {
         if (fRenderTarget.get() != s.fRenderTarget.get() || fCommon != s.fCommon) {
             return false;
         }
-        if (fVertexAttribs.count() != s.fVertexAttribs.count()) {
-            return false;
-        }
-        for (int i = 0; i < fVertexAttribs.count(); ++i) {
-            if (fVertexAttribs[i] != s.fVertexAttribs[i]) {
-                return false;
-            }
-        }
-        for (int i = 0; i < kAttribIndexCount; ++i) {
-            if ((i == kPosition_AttribIndex || 
-                    s.fCommon.fAttribBindings & kAttribIndexMasks[i]) &&
-                fAttribIndices[i] != s.fAttribIndices[i]) {
-                return false;
-            }
-        }
+
         for (int i = 0; i < kNumStages; i++) {
             bool enabled = this->isStageEnabled(i);
             if (enabled != s.isStageEnabled(i)) {
@@ -1220,10 +1182,6 @@ public:
     GrDrawState& operator= (const GrDrawState& s) {
         this->setRenderTarget(s.fRenderTarget.get());
         fCommon = s.fCommon;
-        fVertexAttribs = s.fVertexAttribs;
-        for (int i = 0; i < kAttribIndexCount; i++) {
-            fAttribIndices[i] = s.fAttribIndices[i];
-        }
         for (int i = 0; i < kNumStages; i++) {
             if (s.isStageEnabled(i)) {
                 this->fStages[i] = s.fStages[i];
@@ -1238,7 +1196,7 @@ private:
     struct CommonState {
         // These fields are roughly sorted by decreasing likelihood of being different in op==
         GrColor                         fColor;
-        GrAttribBindings                fAttribBindings;
+        GrVertexLayout                  fVertexLayout;
         SkMatrix                        fViewMatrix;
         GrBlendCoeff                    fSrcBlend;
         GrBlendCoeff                    fDstBlend;
@@ -1253,7 +1211,7 @@ private:
         DrawFace                        fDrawFace;
         bool operator== (const CommonState& other) const {
             return fColor == other.fColor &&
-                   fAttribBindings == other.fAttribBindings &&
+                   fVertexLayout == other.fVertexLayout &&
                    fViewMatrix.cheapEqualTo(other.fViewMatrix) &&
                    fSrcBlend == other.fSrcBlend &&
                    fDstBlend == other.fDstBlend &&
@@ -1298,10 +1256,6 @@ public:
             // TODO: Here we will copy the GrRenderTarget pointer without taking a ref.
             fRenderTarget = drawState.fRenderTarget.get();
             SkSafeRef(fRenderTarget);
-            fVertexAttribs = drawState.fVertexAttribs;
-            for (int i = 0; i < kAttribIndexCount; i++) {
-                fAttribIndices[i] = drawState.fAttribIndices[i];
-            }
             // Here we ref the effects directly rather than the effect-refs. TODO: When the effect-
             // ref gets fully unref'ed it will cause the underlying effect to unref its resources
             // and recycle them to the cache (if no one else is holding a ref to the resources).
@@ -1315,10 +1269,6 @@ public:
             GrAssert(fInitialized);
             drawState->fCommon = fCommon;
             drawState->setRenderTarget(fRenderTarget);
-            drawState->fVertexAttribs = fVertexAttribs;
-            for (int i = 0; i < kAttribIndexCount; i++) {
-                drawState->fAttribIndices[i] = fAttribIndices[i];
-            }
             for (int i = 0; i < kNumStages; ++i) {
                 fStages[i].restoreTo(&drawState->fStages[i]);
             }
@@ -1327,20 +1277,6 @@ public:
         bool isEqual(const GrDrawState& state) const {
             if (fRenderTarget != state.fRenderTarget.get() || fCommon != state.fCommon) {
                 return false;
-            }
-            for (int i = 0; i < kAttribIndexCount; ++i) {
-                if ((i == kPosition_AttribIndex || 
-                     state.fCommon.fAttribBindings & kAttribIndexMasks[i]) &&
-                    fAttribIndices[i] != state.fAttribIndices[i]) {
-                    return false;
-                }
-            }
-            if (fVertexAttribs.count() != state.fVertexAttribs.count()) {
-                return false;
-            }
-            for (int i = 0; i < fVertexAttribs.count(); ++i) 
-                if (fVertexAttribs[i] != state.fVertexAttribs[i]) {
-                    return false;
             }
             for (int i = 0; i < kNumStages; ++i) {
                 if (!fStages[i].isEqual(state.fStages[i])) {
@@ -1351,25 +1287,17 @@ public:
         }
 
     private:
-        GrRenderTarget*                       fRenderTarget;
-        CommonState                           fCommon;
-        int                                   fAttribIndices[kAttribIndexCount];
-        GrVertexAttribArray<kVertexAttribCnt> fVertexAttribs;
-        GrEffectStage::DeferredStage          fStages[kNumStages];
+        GrRenderTarget*                 fRenderTarget;
+        CommonState                     fCommon;
+        GrEffectStage::DeferredStage    fStages[kNumStages];
 
         GR_DEBUGCODE(bool fInitialized;)
     };
 
 private:
-    // helper array to let us check the current bindings so we know what bound attrib indices
-    // we care about
-    static const GrAttribBindings kAttribIndexMasks[kAttribIndexCount];
-
-    SkAutoTUnref<GrRenderTarget>           fRenderTarget;
-    CommonState                            fCommon;
-    int                                    fAttribIndices[kAttribIndexCount];
-    GrVertexAttribArray<kVertexAttribCnt>  fVertexAttribs;
-    GrEffectStage                          fStages[kNumStages];
+    SkAutoTUnref<GrRenderTarget>    fRenderTarget;
+    CommonState                     fCommon;
+    GrEffectStage                   fStages[kNumStages];
 
     typedef GrRefCnt INHERITED;
 };

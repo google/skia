@@ -75,5 +75,5 @@ void gr_run_unittests() {
     test_bsearch();
     test_binHashKey();
     GrRedBlackTree<int>::UnitTest();
-    GrDrawState::VertexAttributesUnitTest();
+    GrDrawState::VertexLayoutUnitTest();
 }
