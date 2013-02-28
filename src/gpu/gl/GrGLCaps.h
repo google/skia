@@ -228,6 +228,8 @@ public:
     bool readPixelsSupported(const GrGLInterface* intf,
                              GrGLenum format,
                              GrGLenum type) const;
+    
+    bool isCoreProfile() const { return fIsCoreProfile; }
 
 private:
     /**
@@ -303,6 +305,7 @@ private:
     bool fTwoFormatLimit : 1;
     bool fFragCoordsConventionSupport : 1;
     bool fUseNonVBOVertexAndIndexDynamicData : 1;
+    bool fIsCoreProfile : 1;
 };
 
 #endif
