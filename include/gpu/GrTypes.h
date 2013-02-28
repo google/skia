@@ -195,6 +195,12 @@ typedef intptr_t GrBackendContext;
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
+ * Type used to describe format of vertices in arrays
+ * Values are defined in GrDrawTarget
+ */
+typedef int GrVertexLayout;
+
+/**
 * Geometric primitives used for drawing.
 */
 enum GrPrimitiveType {
