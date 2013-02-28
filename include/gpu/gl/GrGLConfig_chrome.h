@@ -39,6 +39,6 @@
 
 // Use updated Khronos signature for glShaderSource
 // (const char* const instead of char**).
-#define GR_USE_NEW_GL_SHADER_SOURCE_SIGNATURE       1
+#define GR_GL_USE_NEW_SHADER_SOURCE_SIGNATURE       1
 
 #endif

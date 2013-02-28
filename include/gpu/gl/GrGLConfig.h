@@ -100,6 +100,10 @@
  * GR_GL_MUST_USE_VBO: Indicates that all vertices and indices must be rendered
  * from VBOs. Chromium's command buffer doesn't allow glVertexAttribArray with
  * ARARY_BUFFER 0 bound or glDrawElements with ELEMENT_ARRAY_BUFFER 0 bound.
+ *
+ * GR_GL_USE_NEW_SHADER_SOURCE_SIGNATURE is for compatibility with the new version
+ * of the OpenGLES2.0 headers from Khronos.  glShaderSource now takes a const char * const *,
+ * instead of a const char
  */
 
 #if !defined(GR_GL_LOG_CALLS)
@@ -152,6 +156,10 @@
 
 #if !defined(GR_GL_MUST_USE_VBO)
     #define GR_GL_MUST_USE_VBO                          0
+#endif
+
+#if !defined(GR_GL_USE_NEW_SHADER_SOURCE_SIGNATURE)
+    #define GR_GL_USE_NEW_SHADER_SOURCE_SIGNATURE       0
 #endif
 
 /**

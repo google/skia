@@ -168,7 +168,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLScissor(GrGLint x,
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLShaderSource(GrGLuint shader,
                                                 GrGLsizei count,
-#if GR_USE_NEW_GL_SHADER_SOURCE_SIGNATURE
+#if GR_GL_USE_NEW_SHADER_SOURCE_SIGNATURE
                                                 const char* const * str,
 #else
                                                 const char** str,
