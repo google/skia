@@ -514,9 +514,9 @@ SkDrawable* SkApply::getTarget(SkAnimateBase* animate) {
 }
 
 bool SkApply::hasDelayedAnimator() const {
-    SkAnimateBase** animEnd = fAnimators.end();
-    for (SkAnimateBase** animPtr = fAnimators.begin(); animPtr < animEnd; animPtr++) {
-        SkAnimateBase* animator = *animPtr;
+    SkAnimateBase* const* animEnd = fAnimators.end();
+    for (SkAnimateBase* const* animPtr = fAnimators.begin(); animPtr < animEnd; animPtr++) {
+        SkAnimateBase* const animator = *animPtr;
         if (animator->fDelayed)
             return true;
     }
