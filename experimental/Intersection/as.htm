@@ -60,11 +60,177 @@ debugShowActiveSpans id=4 (3,0 1,2) t=0.5 (2,1) tEnd=0.875 other=2 otherT=0.5 ot
 debugShowActiveSpans id=4 (3,0 1,2) t=0.875 (1.25,1.75) tEnd=1 other=1 otherT=0.5 otherIndex=2 windSum=? windValue=1 oppValue=0
 </div>
 
+<div id="cubicOp35d">
+  SimplifyNew_Test [cubicOp35d]
+debugShowCubicIntersection no self intersect {{0,1}, {1,5}, {2,1}, {4,0}}
+debugShowCubicLineIntersection wtTs[0]=0 {{0,1}, {1,5}, {2,1}, {4,0}} {{0,1}} wtTs[1]=1 {{4,0}} wnTs[0]=1 {{4,0}, {0,1}} wnTs[1]=0
+debugShowCubicIntersection wtTs[0]=0.210357794 {{0,1}, {1,5}, {2,1}, {4,0}} {{0.64038179843233178,2.5646764769093426}} wtTs[1]=0.788675135 {{2.8565880156561105,0.93208711896642604}} wnTs[0]=0.223476 {{1,2}, {0,4}, {1,0}, {5,1}} wnTs[1]=0.788675135
+debugShowCubicLineIntersection wtTs[0]=0.646900486 {{0,1}, {1,5}, {2,1}, {4,0}} {{2.2114165293341985,1.6971458676664504}} wnTs[0]=0.697146 {{5,1}, {1,2}}
+debugShowCubicLineIntersection no intersect {{1,2}, {0,4}, {1,0}, {5,1}} {{4,0}, {0,1}}
+debugShowLineIntersection no intersect {{4,0}, {0,1}} {{5,1}, {1,2}}
+debugShowCubicIntersection wtTs[0]=0.002763735 {{1,2}, {0,4}, {1,0}, {5,1}} {{0.9917546455060533,2.0164451540317003}} wtTs[1]=0.461521979
+debugShowCubicLineIntersection wtTs[0]=0 {{1,2}, {0,4}, {1,0}, {5,1}} {{1,2}} wtTs[1]=0.466666667 {{1.0082962962962965,1.9979259259259259}} wtTs[2]=1 {{5,1}} wnTs[0]=1 {{5,1}, {1,2}} wnTs[1]=0.997925926 wnTs[2]=0
+debugShowActiveSpans id=1 (0,1 1,5 2,1 4,0) t=0 (0,1) tEnd=0.210357794 other=2 otherT=1 otherIndex=1 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=1 (0,1 1,5 2,1 4,0) t=0.210357794 (0.640381813,2.56467652) tEnd=0.646900486 other=3 otherT=0.223476406 otherIndex=2 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=1 (0,1 1,5 2,1 4,0) t=0.646900486 (2.21141648,1.69714582) tEnd=0.788675135 other=4 otherT=0.697145868 otherIndex=1 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=1 (0,1 1,5 2,1 4,0) t=0.788675135 (2.85658813,0.932087123) tEnd=1 other=3 otherT=0.788675135 otherIndex=5 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=2 (4,0 0,1) t=0 (4,0) tEnd=1 other=1 otherT=1 otherIndex=4 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=3 (1,2 0,4 1,0 5,1) t=0 (1,2) tEnd=0.002763735 other=4 otherT=1 otherIndex=3 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=3 (1,2 0,4 1,0 5,1) t=0.002763735 (0.991754651,2.01644516) tEnd=0.223476406 other=3 otherT=0.461521979 otherIndex=3 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=3 (1,2 0,4 1,0 5,1) t=0.223476406 (0.640381813,2.56467652) tEnd=0.461521979 other=1 otherT=0.210357794 otherIndex=1 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=3 (1,2 0,4 1,0 5,1) t=0.461521979 (0.991754651,2.01644516) tEnd=0.466666667 other=3 otherT=0.002763735 otherIndex=1 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=3 (1,2 0,4 1,0 5,1) t=0.466666667 (1.00829625,1.99792588) tEnd=0.788675135 other=4 otherT=0.997925926 otherIndex=2 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=3 (1,2 0,4 1,0 5,1) t=0.788675135 (2.85658813,0.932087123) tEnd=1 other=1 otherT=0.788675135 otherIndex=3 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=4 (5,1 1,2) t=0 (5,1) tEnd=0.697145868 other=3 otherT=1 otherIndex=6 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=4 (5,1 1,2) t=0.697145868 (2.21141648,1.69714582) tEnd=0.997925926 other=1 otherT=0.646900486 otherIndex=2 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=4 (5,1 1,2) t=0.997925926 (1.00829625,1.99792588) tEnd=1 other=3 otherT=0.466666667 otherIndex=4 windSum=? windValue=1 oppValue=0
+findTop debugShowSort contourWinding=0 oppContourWinding=0 sign=-1
+debugShowSort [0] id=2 line start=0 (4,0) end=1 (0,1) sign=-1 windValue=1 windSum=? 0->1 (max=1) done=0 tiny=0 opp=0
+debugShowSort [1] id=1 cubic start=4 (4,0) end=3 (2.85658813,0.932087123) sign=1 windValue=1 windSum=? 1->0 (max=1) done=0 tiny=0 opp=0
+markWinding id=2 (4,0 0,1) t=0 [0] (4,0) newWindSum=1 newOppSum=0 oppSum=? windSum=? windValue=1
+markWinding id=1 (0,1 1,5 2,1 4,0) t=0.788675135 [3] (2.85658813,0.932087123) newWindSum=1 newOppSum=0 oppSum=? windSum=? windValue=1
+markWinding id=2 (4,0 0,1) t=0 [0] (4,0) newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1
+markWinding id=1 (0,1 1,5 2,1 4,0) t=0 [0] (0,1) newWindSum=1 newOppSum=0 oppSum=? windSum=? windValue=1
+activeOp op=diff miFrom=1 miTo=0 suFrom=0 suTo=0 result=1
+findNextOp simple
+markDoneBinary id=2 (4,0 0,1) t=0 [0] (4,0) newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1
+bridgeOp current id=2 from=(0,1) to=(4,0)
+findNextOp debugShowSort contourWinding=0 oppContourWinding=0 sign=-1
+debugShowSort [1] id=1 cubic start=3 (2.85658813,0.932087123) end=4 (4,0) sign=-1 windValue=1 windSum=1 0->1 (max=1) done=0 tiny=0 opp=0
+debugShowSort [2] id=3 cubic start=5 (2.85658813,0.932087123) end=4 (1.00829625,1.99792588) sign=1 windValue=1 windSum=? 0->-1 (max=-1) done=0 tiny=0 opp=1
+debugShowSort [3] id=1 cubic start=3 (2.85658813,0.932087123) end=2 (2.21141648,1.69714582) sign=1 windValue=1 windSum=? 1->0 (max=1) done=0 tiny=0 opp=0
+debugShowSort [0] id=3 cubic start=5 (2.85658813,0.932087123) end=6 (5,1) sign=-1 windValue=1 windSum=? -1->0 (max=-1) done=0 tiny=0 opp=1
+findNextOp firstIndex=[1] sign=-1
+activeOp op=diff miFrom=1 miTo=1 suFrom=0 suTo=1 result=1
+markWinding id=3 (1,2 0,4 1,0 5,1) t=0.466666667 [4] (1.00829625,1.99792588) newWindSum=-1 newOppSum=1 oppSum=? windSum=? windValue=1
+findNextOp chase.append id=3
+activeOp op=diff miFrom=1 miTo=0 suFrom=1 suTo=1 result=0
+markDoneBinary id=1 (0,1 1,5 2,1 4,0) t=0.646900486 [2] (2.21141648,1.69714582) newWindSum=1 newOppSum=-1 oppSum=? windSum=? windValue=1
+findNextOp chase.append id=1
+activeOp op=diff miFrom=0 miTo=0 suFrom=1 suTo=0 result=0
+markDoneBinary id=3 (1,2 0,4 1,0 5,1) t=0.788675135 [5] (2.85658813,0.932087123) newWindSum=-1 newOppSum=0 oppSum=? windSum=? windValue=1
+markDoneBinary id=4 (5,1 1,2) t=0 [0] (5,1) newWindSum=-1 newOppSum=0 oppSum=? windSum=? windValue=1
+findNextOp chase.append id=4
+markDoneBinary id=1 (0,1 1,5 2,1 4,0) t=0.788675135 [3] (2.85658813,0.932087123) newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1
+findNextOp from:[1] to:[3] start=5 end=4
+bridgeOp current id=1 from=(4,0) to=(2.85658813,0.932087123)
+path.moveTo(0,1);
+path.lineTo(4,0);
+path.cubicTo(3.57735038,0.211324871, 3.1993587,0.556624353, 2.85658813,0.932087123);
+findNextOp debugShowSort contourWinding=-1 oppContourWinding=1 sign=-1
+debugShowSort [1] id=3 cubic start=4 (1.00829625,1.99792588) end=5 (2.85658813,0.932087123) sign=-1 windValue=1 windSum=-1 -1->0 (max=-1) done=0 tiny=0 opp=0
+debugShowSort [2] id=4 line start=2 (1.00829625,1.99792588) end=3 (1,2) sign=-1 windValue=1 windSum=? 0->1 (max=1) done=0 tiny=0 opp=0
+debugShowSort [3] id=3 cubic start=4 (1.00829625,1.99792588) end=3 (0.991754651,2.01644516) sign=1 windValue=1 windSum=? 1->0 (max=1) done=0 tiny=0 opp=0
+debugShowSort [0] id=4 line start=2 (1.00829625,1.99792588) end=1 (2.21141648,1.69714582) sign=1 windValue=1 windSum=? 0->-1 (max=-1) done=0 tiny=0 opp=0
+findNextOp firstIndex=[1] sign=-1
+activeOp op=diff miFrom=1 miTo=1 suFrom=0 suTo=1 result=1
+markWinding id=4 (5,1 1,2) t=0.997925926 [2] (1.00829625,1.99792588) newWindSum=1 newOppSum=1 oppSum=? windSum=? windValue=1
+markWinding id=3 (1,2 0,4 1,0 5,1) t=0 [0] (1,2) newWindSum=1 newOppSum=1 oppSum=? windSum=? windValue=1
+findNextOp chase.append id=3
+activeOp op=diff miFrom=1 miTo=1 suFrom=1 suTo=0 result=1
+markWinding id=3 (1,2 0,4 1,0 5,1) t=0.461521979 [3] (0.991754651,2.01644516) newWindSum=1 newOppSum=1 oppSum=? windSum=? windValue=1
+findNextOp chase.append id=3
+activeOp op=diff miFrom=1 miTo=1 suFrom=0 suTo=1 result=1
+markWinding id=4 (5,1 1,2) t=0.697145868 [1] (2.21141648,1.69714582) newWindSum=-1 newOppSum=1 oppSum=? windSum=? windValue=1
+findNextOp chase.append id=4
+markDoneBinary id=3 (1,2 0,4 1,0 5,1) t=0.466666667 [4] (1.00829625,1.99792588) newWindSum=-1 newOppSum=1 oppSum=1 windSum=-1 windValue=1
+findNextOp from:[3] to:[4] start=2 end=3
+bridgeOp current id=3 from=(2.85658813,0.932087123) to=(1.00829625,1.99792588)
+path.cubicTo(1.96246409,1.13237906, 1.35749662,1.61008465, 1.00829625,1.99792588);
+findNextOp simple
+markDoneBinary id=4 (5,1 1,2) t=0.997925926 [2] (1.00829625,1.99792588) newWindSum=1 newOppSum=1 oppSum=1 windSum=1 windValue=1
+bridgeOp current id=4 from=(1.00829625,1.99792588) to=(1,2)
+Program received signal:  “EXC_BAD_ACCESS”.
+findNextOp debugShowSort contourWinding=1 oppContourWinding=1 sign=1
+debugShowSort [1] id=3 cubic start=1 (0.991754651,2.01644516) end=0 (1,2) sign=1 windValue=1 windSum=1 1->0 (max=1) done=0 tiny=0 opp=0
+debugShowSort [2] id=3 cubic start=3 (0.991754651,2.01644516) end=2 (0.640381813,2.56467652) sign=1 windValue=1 windSum=? 0->-1 (max=-1) done=0 tiny=0 opp=0
+debugShowSort [3] id=3 cubic start=1 (0.991754651,2.01644516) end=2 (0.640381813,2.56467652) sign=-1 windValue=1 windSum=? -1->0 (max=-1) done=0 tiny=0 opp=0
+debugShowSort [0] id=3 cubic start=3 (0.991754651,2.01644516) end=4 (1.00829625,1.99792588) sign=-1 windValue=1 windSum=1 0->1 (max=1) done=0 tiny=0 opp=0
+findNextOp firstIndex=[1] sign=1
+activeOp op=diff miFrom=1 miTo=1 suFrom=0 suTo=1 result=1
+markWinding id=3 (1,2 0,4 1,0 5,1) t=0.223476406 [2] (0.640381813,2.56467652) newWindSum=-1 newOppSum=1 oppSum=? windSum=? windValue=1
+findNextOp chase.append id=3
+activeOp op=diff miFrom=1 miTo=1 suFrom=1 suTo=0 result=1
+markWinding id=3 (1,2 0,4 1,0 5,1) t=0.002763735 [1] (0.991754651,2.01644516) newWindSum=-1 newOppSum=1 oppSum=? windSum=? windValue=1
+findNextOp chase.append id=3
+activeOp op=diff miFrom=1 miTo=1 suFrom=0 suTo=1 result=1
+markDoneBinary id=3 (1,2 0,4 1,0 5,1) t=0 [0] (1,2) newWindSum=1 newOppSum=1 oppSum=1 windSum=1 windValue=1
+findNextOp from:[3] to:[3] start=3 end=2
+bridgeOp current id=3 from=(1,2) to=(0.991754651,2.01644516)
+path.lineTo(1,2);
+path.cubicTo(0.997236252,2.0055275, 0.994487822,2.01100922, 0.991754651,2.01644516);
+findNextOp debugShowSort contourWinding=-1 oppContourWinding=1 sign=-1
+debugShowSort [0] id=3 cubic start=2 (0.640381813,2.56467652) end=3 (0.991754651,2.01644516) sign=-1 windValue=1 windSum=-1 -1->0 (max=-1) done=0 tiny=0 opp=0
+debugShowSort [1] id=1 cubic start=1 (0.640381813,2.56467652) end=0 (0,1) sign=1 windValue=1 windSum=1 1->0 (max=1) done=0 tiny=0 opp=1
+debugShowSort [2] id=3 cubic start=2 (0.640381813,2.56467652) end=1 (0.991754651,2.01644516) sign=1 windValue=1 windSum=-1 0->-1 (max=-1) done=0 tiny=0 opp=0
+debugShowSort [3] id=1 cubic start=1 (0.640381813,2.56467652) end=2 (2.21141648,1.69714582) sign=-1 windValue=1 windSum=? 0->1 (max=1) done=0 tiny=0 opp=1
+findNextOp firstIndex=[0] sign=-1
+activeOp op=diff miFrom=1 miTo=0 suFrom=0 suTo=0 result=1
+activeOp op=diff miFrom=0 miTo=0 suFrom=0 suTo=1 result=0
+activeOp op=diff miFrom=0 miTo=1 suFrom=1 suTo=1 result=0
+markDoneBinary id=1 (0,1 1,5 2,1 4,0) t=0.210357794 [1] (0.640381813,2.56467652) newWindSum=1 newOppSum=-1 oppSum=? windSum=? windValue=1
+findNextOp chase.append id=1
+markDoneBinary id=3 (1,2 0,4 1,0 5,1) t=0.223476406 [2] (0.640381813,2.56467652) newWindSum=-1 newOppSum=1 oppSum=1 windSum=-1 windValue=1
+findNextOp from:[3] to:[1] start=1 end=0
+bridgeOp current id=3 from=(0.991754651,2.01644516) to=(0.640381813,2.56467652)
+path.cubicTo(0.739642859,2.30096555, 0.627014875,2.53316927, 0.640381813,2.56467652);
+findNextOp simple
+markDoneBinary id=1 (0,1 1,5 2,1 4,0) t=0 [0] (0,1) newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1
+bridgeOp current id=1 from=(0.640381813,2.56467652) to=(0,1)
+path.cubicTo(0.42071557,2.32885909, 0.2103578,1.84143114, 0,1);
+path.close();
+debugShowActiveSpans id=3 (1,2 0,4 1,0 5,1) t=0.002763735 (0.991754651,2.01644516) tEnd=0.223476406 other=3 otherT=0.461521979 otherIndex=3 windSum=-1 windValue=1 oppValue=0
+debugShowActiveSpans id=3 (1,2 0,4 1,0 5,1) t=0.461521979 (0.991754651,2.01644516) tEnd=0.466666667 other=3 otherT=0.002763735 otherIndex=1 windSum=1 windValue=1 oppValue=0
+debugShowActiveSpans id=4 (5,1 1,2) t=0.697145868 (2.21141648,1.69714582) tEnd=0.997925926 other=1 otherT=0.646900486 otherIndex=2 windSum=-1 windValue=1 oppValue=0
+activeOp op=diff miFrom=1 miTo=1 suFrom=1 suTo=0 result=1
+findNextOp debugShowSort contourWinding=0 oppContourWinding=1 sign=1
+debugShowSort [0] id=4 line start=2 (1.00829625,1.99792588) end=1 (2.21141648,1.69714582) sign=1 windValue=1 windSum=-1 0->-1 (max=-1) done=0 tiny=0 opp=0
+debugShowSort [1] id=3 cubic start=4 (1.00829625,1.99792588) end=5 (2.85658813,0.932087123) sign=-1 windValue=1 windSum=-1 -1->0 (max=-1) done=1 tiny=0 opp=0
+debugShowSort [2] id=4 line start=2 (1.00829625,1.99792588) end=3 (1,2) sign=-1 windValue=1 windSum=1 0->1 (max=1) done=1 tiny=0 opp=0
+debugShowSort [3] id=3 cubic start=4 (1.00829625,1.99792588) end=3 (0.991754651,2.01644516) sign=1 windValue=1 windSum=1 1->0 (max=1) done=0 tiny=0 opp=0
+findNextOp firstIndex=[0] sign=1
+activeOp op=diff miFrom=1 miTo=1 suFrom=1 suTo=0 result=1
+activeOp op=diff miFrom=1 miTo=1 suFrom=0 suTo=1 result=1
+activeOp op=diff miFrom=1 miTo=1 suFrom=1 suTo=0 result=1
+markDoneBinary id=4 (5,1 1,2) t=0.697145868 [1] (2.21141648,1.69714582) newWindSum=-1 newOppSum=1 oppSum=1 windSum=-1 windValue=1
+findNextOp from:[4] to:[3] start=4 end=3
+bridgeOp current id=4 from=(2.21141648,1.69714582) to=(1.00829625,1.99792588)
+findNextOp debugShowSort contourWinding=0 oppContourWinding=1 sign=-1
+debugShowSort [0] id=3 cubic start=3 (0.991754651,2.01644516) end=4 (1.00829625,1.99792588) sign=-1 windValue=1 windSum=1 0->1 (max=1) done=0 tiny=0 opp=0
+debugShowSort [1] id=3 cubic start=1 (0.991754651,2.01644516) end=0 (1,2) sign=1 windValue=1 windSum=1 1->0 (max=1) done=1 tiny=0 opp=0
+debugShowSort [2] id=3 cubic start=3 (0.991754651,2.01644516) end=2 (0.640381813,2.56467652) sign=1 windValue=1 windSum=-1 0->-1 (max=-1) done=1 tiny=0 opp=0
+debugShowSort [3] id=3 cubic start=1 (0.991754651,2.01644516) end=2 (0.640381813,2.56467652) sign=-1 windValue=1 windSum=-1 -1->0 (max=-1) done=0 tiny=0 opp=0
+findNextOp firstIndex=[0] sign=-1
+activeOp op=diff miFrom=1 miTo=1 suFrom=1 suTo=0 result=1
+activeOp op=diff miFrom=1 miTo=1 suFrom=0 suTo=1 result=1
+activeOp op=diff miFrom=1 miTo=1 suFrom=1 suTo=0 result=1
+markDoneBinary id=3 (1,2 0,4 1,0 5,1) t=0.461521979 [3] (0.991754651,2.01644516) newWindSum=1 newOppSum=1 oppSum=1 windSum=1 windValue=1
+findNextOp from:[3] to:[3] start=1 end=2
+bridgeOp current id=3 from=(1.00829625,1.99792588) to=(0.991754651,2.01644516)
+path.moveTo(2.21141648,1.69714582);
+path.lineTo(1.00829625,1.99792588);
+path.cubicTo(1.00271726,2.0041225, 0.99720329,2.01029587, 0.991754651,2.01644516);
+findNextOp debugShowSort contourWinding=0 oppContourWinding=1 sign=1
+debugShowSort [2] id=3 cubic start=2 (0.640381813,2.56467652) end=1 (0.991754651,2.01644516) sign=1 windValue=1 windSum=-1 0->-1 (max=-1) done=0 tiny=0 opp=0
+debugShowSort [3] id=1 cubic start=1 (0.640381813,2.56467652) end=2 (2.21141648,1.69714582) sign=-1 windValue=1 windSum=1 1->2 (max=2) done=1 tiny=0 opp=1
+debugShowSort [0] id=3 cubic start=2 (0.640381813,2.56467652) end=3 (0.991754651,2.01644516) sign=-1 windValue=1 windSum=-1 -1->0 (max=-1) done=1 tiny=0 opp=0
+debugShowSort [1] id=1 cubic start=1 (0.640381813,2.56467652) end=0 (0,1) sign=1 windValue=1 windSum=1 2->1 (max=2) done=1 tiny=0 opp=1
+findNextOp firstIndex=[2] sign=1
+activeOp op=diff miFrom=1 miTo=1 suFrom=1 suTo=1 result=0
+activeOp op=diff miFrom=1 miTo=1 suFrom=1 suTo=0 result=1
+activeOp op=diff miFrom=1 miTo=1 suFrom=0 suTo=0 result=0
+markDoneBinary id=3 (1,2 0,4 1,0 5,1) t=0.002763735 [1] (0.991754651,2.01644516) newWindSum=-1 newOppSum=1 oppSum=1 windSum=-1 windValue=1
+findNextOp from:[3] to:[3] start=2 end=3
+bridgeOp current id=3 from=(0.991754651,2.01644516) to=(0.640381813,2.56467652)
+path.cubicTo(0.773483634,2.45056915, 0.652775407,2.59388947, 0.640381813,2.56467652);
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    cubicOp35d,
     cubicOp31da,
     cubicOp31d,
     cubicOp28u,
@@ -140,14 +306,48 @@ var SPAN_C_VAL = 18;
 var SPAN_C_OPP = 19;
 
 var ACTIVE_LINE_SPAN = 1;
-var ACTIVE_QUAD_SPAN = 2;
-var ACTIVE_CUBIC_SPAN = 3;
-var INTERSECT_QUAD_LINE = 4;
-var INTERSECT_QUAD_LINE_2 = 5;
-var INTERSECT_QUAD_LINE_NO = 6;
-var INTERSECT_QUAD = 7;
-var INTERSECT_QUAD_2 = 8;
-var INTERSECT_QUAD_NO = 9;
+var ACTIVE_QUAD_SPAN =        ACTIVE_LINE_SPAN + 1;
+var ACTIVE_CUBIC_SPAN =       ACTIVE_QUAD_SPAN + 1;
+
+var PATH_MOVETO =             ACTIVE_CUBIC_SPAN + 1;
+var PATH_LINETO =             PATH_MOVETO + 1;
+var PATH_QUADTO =             PATH_LINETO + 1;
+var PATH_CUBICTO =            PATH_QUADTO + 1;
+var PATH_CLOSE =              PATH_CUBICTO + 1;
+
+var INTERSECT_LINE =          PATH_CLOSE + 1;
+var INTERSECT_LINE_2 =        INTERSECT_LINE + 1;
+var INTERSECT_LINE_NO =       INTERSECT_LINE_2 + 1;
+var INTERSECT_QUAD_LINE =     INTERSECT_LINE_NO + 1;
+var INTERSECT_QUAD_LINE_2 =   INTERSECT_QUAD_LINE + 1;
+var INTERSECT_QUAD_LINE_NO =  INTERSECT_QUAD_LINE_2 + 1;
+var INTERSECT_QUAD =          INTERSECT_QUAD_LINE_NO + 1;
+var INTERSECT_QUAD_2 =        INTERSECT_QUAD + 1;
+var INTERSECT_QUAD_NO =       INTERSECT_QUAD_2 + 1;
+var INTERSECT_SELF_CUBIC =    INTERSECT_QUAD_NO + 1;
+var INTERSECT_SELF_CUBIC_NO = INTERSECT_SELF_CUBIC + 1;
+var INTERSECT_CUBIC_LINE =    INTERSECT_SELF_CUBIC_NO + 1;
+var INTERSECT_CUBIC_LINE_2 =  INTERSECT_CUBIC_LINE + 1;
+var INTERSECT_CUBIC_LINE_3 =  INTERSECT_CUBIC_LINE_2 + 1;
+var INTERSECT_CUBIC_LINE_NO = INTERSECT_CUBIC_LINE_3 + 1;
+// FIXME: add cubic/quad
+var INTERSECT_CUBIC =         INTERSECT_CUBIC_LINE_NO + 1;
+var INTERSECT_CUBIC_2 =       INTERSECT_CUBIC + 1;
+var INTERSECT_CUBIC_3 =       INTERSECT_CUBIC_2 + 1;
+var INTERSECT_CUBIC_4 =       INTERSECT_CUBIC_3 + 1;
+// FIXME: add cubic 5- 9
+var INTERSECT_CUBIC_NO =      INTERSECT_CUBIC_4 + 1;
+
+var SORT_LINE =               INTERSECT_CUBIC_NO + 1;
+var SORT_QUAD =               SORT_LINE + 1;
+var SORT_CUBIC =              SORT_QUAD + 1;
+
+var REC_TYPE_UNKNOWN = -1;
+var REC_TYPE_PATH = 0;
+var REC_TYPE_SECT = 1;
+var REC_TYPE_ACTIVE = 2;
+var REC_TYPE_ADD = 3;
+var REC_TYPE_SORT = 4;
 
 function strs_to_nums(strs) {
     var result = [];
@@ -215,7 +415,9 @@ function filter_str_by(id, str, regex, array) {
         var result = strs_to_nums(strs);
         array.push(id);
         array.push(result);
+        return true;
     }
+    return false;
 }
 
 // FIXME: add cubic support
@@ -245,6 +447,150 @@ function parse_intersections(test, title) {
     }
     if (spans.length >= 1) {
         tests.push(spans);
+        testTitles.push(title);
+    }
+}
+
+function construct_regexp2(pattern) {
+    var escape = pattern.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+    escape = escape.replace(/CUBIC_VAL/g, "\\(P_VAL P_VAL P_VAL P_VAL\\)");
+    escape = escape.replace(/QUAD_VAL/g, "\\(P_VAL P_VAL P_VAL\\)");
+    escape = escape.replace(/LINE_VAL/g, "\\(P_VAL P_VAL\\)");
+    escape = escape.replace(/PT_VAL/g, "\\(P_VAL\\)");
+    escape = escape.replace(/P_VAL/g, "(\\d+\\.?\\d*),(\\d+\\.?\\d*)");
+    escape = escape.replace(/T_VAL/g, "(\\d+\\.?\\d*e?-?\\d*)");
+    escape = escape.replace(/IDX/g, "(\\d+)");
+    escape = escape.replace(/NUM/g, "(-?\\d+)");
+    escape = escape.replace(/OPT/g, "(\\?|-?\\d+)");
+    return new RegExp(escape, 'i');
+}
+
+function construct_regexp2c(pattern) {
+    var escape = pattern.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+    escape = escape.replace(/CUBIC_VAL/g, "\\{\\{P_VAL\\}, \\{P_VAL\\}, \\{P_VAL\\}, \\{P_VAL\\}\\}");
+    escape = escape.replace(/QUAD_VAL/g, "\\{\\{P_VAL\\}, \\{P_VAL\\}, \\{P_VAL\\}\\}");
+    escape = escape.replace(/LINE_VAL/g, "\\{\\{P_VAL\\}, \\{P_VAL\\}\\}");
+    escape = escape.replace(/PT_VAL/g, "\\{\\{P_VAL\\}\\}");
+    escape = escape.replace(/P_VAL/g, "(\\d+\\.?\\d*),(\\d+\\.?\\d*)");
+    escape = escape.replace(/T_VAL/g, "(\\d+\\.?\\d*e?-?\\d*)");
+    escape = escape.replace(/IDX/g, "(\\d+)");
+    escape = escape.replace(/NUM/g, "(-?\\d+)");
+    escape = escape.replace(/OPT/g, "(\\?|-?\\d+)");
+    return new RegExp(escape, 'i');
+}
+
+function match_regexp(str, lineNo, array, id, pattern) {
+    var regex = construct_regexp2(pattern);
+    if (filter_str_by(id, str, regex, array)) {
+        return true;
+    }
+    regex = construct_regexp2c(pattern);
+    return filter_str_by(id, str, regex, array);
+}
+
+function parse_all(test, title) {
+    var lines = test.match(/[^\r\n]+/g);
+    var records = []; // a rec can be the original paths, a set of intersections, a set of active spans, a sort, or a path add
+    var record = [];
+    var recType = REC_TYPE_UNKNOWN;
+    for (var lineNo in lines) {
+        var line = lines[lineNo];
+        var type = line.lastIndexOf("debugShowSort", 0) === 0 ? REC_TYPE_SORT
+                : line.lastIndexOf("debugShowActiveSpans", 0) === 0 ? REC_TYPE_ACTIVE 
+                : line.lastIndexOf("debugShow", 0) === 0 ? REC_TYPE_SECT 
+                : line.lastIndexOf("path.", 0) === 0 ? REC_TYPE_ADD
+                : line.lastIndexOf("{{", 0) === 0 ? REC_TYPE_PATH
+                : REC_TYPE_UNKNOWN;
+        if (recType != type) {
+            if (recType != REC_TYPE_UNKNOWN) {
+                records.push(recType);
+                records.push(lineNo);
+                records.push(record);
+            }
+            record = [];
+            recType = type;
+        }
+        var found = false;
+        switch (recType) {
+            case REC_TYPE_ACTIVE:
+                found = match_regexp(line, lineNo, record, ACTIVE_LINE_SPAN, "debugShowActiveSpans" +
+" id=IDX LINE_VAL t=T_VAL PT_VAL tEnd=T_VAL other=IDX otherT=T_VAL otherIndex=IDX windSum=OPT windValue=IDX oppValue=IDX"
+                ) || match_regexp(line, lineNo, record, ACTIVE_QUAD_SPAN, "debugShowActiveSpans" +
+" id=IDX QUAD_VAL t=T_VAL PT_VAL tEnd=T_VAL other=IDX otherT=T_VAL otherIndex=IDX windSum=OPT windValue=IDX oppValue=IDX"
+                ) || match_regexp(line, lineNo, record, ACTIVE_CUBIC_SPAN, "debugShowActiveSpans" +
+" id=IDX CUBIC_VAL t=T_VAL PT_VAL tEnd=T_VAL other=IDX otherT=T_VAL otherIndex=IDX windSum=OPT windValue=IDX oppValue=IDX"
+                );
+                break;
+            case REC_TYPE_ADD:
+                found = match_regexp(line, lineNo, record, PATH_MOVETO, "path.moveToPT_VAL;"
+                ) || match_regexp(line, lineNo, record, PATH_LINETO, "path.lineTo(P_VAL);"
+                ) || match_regexp(line, lineNo, record, PATH_QUADTO, "path.quadTo(P_VAL, P_VAL);"
+                ) || match_regexp(line, lineNo, record, PATH_CUBICTO, "path.cubicTo(P_VAL, P_VAL, P_VAL);"
+                ) || match_regexp(line, lineNo, record, PATH_CLOSE, "path.close();"
+                );
+                break;
+            case REC_TYPE_SECT:
+                found = match_regexp(line, lineNo, record, INTERSECT_LINE, "debugShowLineIntersection" +
+" wtTs[0]=T_VAL LINE_VAL PT_VAL wnTs[0]=T_VAL LINE_VAL"
+                ) || match_regexp(line, lineNo, record, INTERSECT_LINE_2, "debugShowLineIntersection" +
+" wtTs[0]=T_VAL LINE_VAL PT_VAL wtTs[1]=T_VAL PT_VAL wnTs[0]=T_VAL LINE_VAL wnTs[1]=T_VAL"
+                ) || match_regexp(line, lineNo, record, INTERSECT_LINE_NO, "debugShowLineIntersection" +
+" no intersect LINE_VAL LINE_VAL"
+                ) || match_regexp(line, lineNo, record, INTERSECT_QUAD_LINE, "debugShowQuadLineIntersection" +
+" wtTs[0]=T_VAL QUAD_VAL PT_VAL wnTs[0]=T_VAL LINE_VAL"
+                ) || match_regexp(line, lineNo, record, INTERSECT_QUAD_LINE_2, "debugShowQuadLineIntersection" +
+" wtTs[0]=T_VAL QUAD_VAL PT_VAL wtTs[1]=T_VAL PT_VAL wnTs[0]=T_VAL LINE_VAL wnTs[1]=T_VAL"
+                ) || match_regexp(line, lineNo, record, INTERSECT_QUAD_LINE_NO, "debugShowQuadLineIntersection" +
+" no intersect QUAD_VAL LINE_VAL"
+                ) || match_regexp(line, lineNo, record, INTERSECT_QUAD, "debugShowQuadIntersection" +
+" wtTs[0]=T_VAL QUAD_VAL PT_VAL wnTs[0]=T_VAL QUAD_VAL"
+                ) || match_regexp(line, lineNo, record, INTERSECT_QUAD_2, "debugShowQuadIntersection" +
+" wtTs[0]=T_VAL QUAD_VAL PT_VAL wtTs[1]=T_VAL wnTs[0]=T_VAL QUAD_VAL wnTs[1]=T_VAL"
+                ) || match_regexp(line, lineNo, record, INTERSECT_QUAD_NO, "debugShowQuadIntersection" +
+" no intersect QUAD_VAL QUAD_VAL"
+                ) || match_regexp(line, lineNo, record, INTERSECT_SELF_CUBIC, "debugShowCubicIntersection" +
+" wtTs[0]=T_VAL CUBIC_VAL PT_VAL wtTs[1]=T_VAL"
+                ) || match_regexp(line, lineNo, record, INTERSECT_SELF_CUBIC_NO, "debugShowCubicIntersection" +
+" no self intersect CUBIC_VAL"
+                ) || match_regexp(line, lineNo, record, INTERSECT_CUBIC_LINE, "debugShowCubicLineIntersection" +
+" wtTs[0]=T_VAL CUBIC_VAL PT_VAL wnTs[0]=T_VAL LINE_VAL"
+                ) || match_regexp(line, lineNo, record, INTERSECT_CUBIC_LINE_2, "debugShowCubicLineIntersection" +
+" wtTs[0]=T_VAL CUBIC_VAL PT_VAL wtTs[1]=T_VAL PT_VAL wnTs[0]=T_VAL LINE_VAL wnTs[1]=T_VAL"
+                ) || match_regexp(line, lineNo, record, INTERSECT_CUBIC_LINE_3, "debugShowCubicLineIntersection" +
+" wtTs[0]=T_VAL CUBIC_VAL PT_VAL wtTs[1]=T_VAL PT_VAL wtTs[2]=T_VAL PT_VAL wnTs[0]=T_VAL LINE_VAL wnTs[1]=T_VAL wnTs[2]=T_VAL"
+                ) || match_regexp(line, lineNo, record, INTERSECT_CUBIC_LINE_NO, "debugShowCubicLineIntersection" +
+" no intersect CUBIC_VAL LINE_VAL"
+                ) || match_regexp(line, lineNo, record, INTERSECT_CUBIC, "debugShowCubicIntersection" +
+" wtTs[0]=T_VAL CUBIC_VAL PT_VAL wnTs[0]=T_VAL CUBIC_VAL"
+                ) || match_regexp(line, lineNo, record, INTERSECT_CUBIC_2, "debugShowCubicIntersection" +
+" wtTs[0]=T_VAL CUBIC_VAL PT_VAL wtTs[1]=T_VAL PT_VAL wnTs[0]=T_VAL CUBIC_VAL wnTs[1]=T_VAL"
+                ) || match_regexp(line, lineNo, record, INTERSECT_CUBIC_3, "debugShowCubicIntersection" +
+" wtTs[0]=T_VAL CUBIC_VAL PT_VAL wtTs[1]=T_VAL PT_VAL wtTs[2]=T_VAL PT_VAL wnTs[0]=T_VAL CUBIC_VAL wnTs[1]=T_VAL wnTs[2]=T_VAL"
+                ) || match_regexp(line, lineNo, record, INTERSECT_CUBIC_4, "debugShowCubicIntersection" +
+" wtTs[0]=T_VAL CUBIC_VAL PT_VAL wtTs[1]=T_VAL PT_VAL wtTs[2]=T_VAL PT_VAL wtTs[3]=T_VAL PT_VAL wnTs[0]=T_VAL CUBIC_VAL wnTs[1]=T_VAL wnTs[2]=T_VAL wnTs[3]=T_VAL"
+                ) || match_regexp(line, lineNo, record, INTERSECT_CUBIC_NO, "debugShowCubicIntersection" +
+" no intersect CUBIC_VAL CUBIC_VAL"
+                );
+                break;
+            case REC_TYPE_SORT:
+                found = match_regexp(line, lineNo, record, SORT_LINE, "debugShowSort" +
+" [IDX] id=IDX line start=IDX PT_VAL end=IDX PT_VAL sign=NUM windValue=IDX windSum=OPT NUM->NUM (max=NUM) done=IDX tiny=IDX opp=IDX"
+                ) || match_regexp(line, lineNo, record, SORT_QUAD, "debugShowSort" +
+" [IDX] id=IDX quad start=IDX PT_VAL end=IDX PT_VAL sign=NUM windValue=IDX windSum=OPT NUM->NUM (max=NUM) done=IDX tiny=IDX opp=IDX"
+                ) || match_regexp(line, lineNo, record, SORT_CUBIC, "debugShowSort" +
+" [IDX] id=IDX cubic start=IDX PT_VAL end=IDX PT_VAL sign=NUM windValue=IDX windSum=OPT NUM->NUM (max=NUM) done=IDX tiny=IDX opp=IDX"
+                );
+                break;
+            case REC_TYPE_UNKNOWN:
+                found = true;
+                break;
+        }
+        if (!found) {
+            console.log(line + " [" + lineNo + "] of type " + type + " not found");
+        }
+    }
+    if (records.length >= 1) {
+        tests.push(records);
         testTitles.push(title);
     }
 }
@@ -902,6 +1248,7 @@ function start() {
     for (i = 0; i < testDivs.length; ++i) {
         var title = testDivs[i].id.toString();
         var str = testDivs[i].firstChild.data;
+        parse_all(str, title);
         parse_debugShowActiveSpans(str, title);
         parse_intersections(str, title);
     }

@@ -265,7 +265,8 @@ static void showShapeOpPath(const SkPath& one, const SkPath& two, const SkPath& 
     showPath(a, "minuend:");
     SkDebugf("op: %s\n", opStrs[shapeOp]);
     showPath(b, "subtrahend:");
-    showPath(scaledOne, "region:", scale);
+    // the region often isn't very helpful since it approximates curves with a lot of line-tos
+    if (0) showPath(scaledOne, "region:", scale);
     showPath(two, "op result:");
     drawAsciiPaths(scaledOne, scaledTwo, true);
 }

@@ -134,7 +134,10 @@ static const Cubic testSet[] = {
 const size_t testSetCount = sizeof(testSet) / sizeof(testSet[0]);
 
 static const Cubic newTestSet[] = {
-{{0,1}, {2,5}, {6,0}, {5,3}},
+{{0,1}, {3,5}, {2,1}, {3,1}},
+{{1,2}, {1,3}, {1,0}, {5,3}},
+
+{{0,1}, {2,5}, {6,0}, {5,3}}, 
 {{0,6}, {3,5}, {1,0}, {5,2}},
 
 {{0,1}, {3,6}, {1,0}, {5,2}},
@@ -152,6 +155,7 @@ static const Cubic newTestSet[] = {
 
 const size_t newTestSetCount = sizeof(newTestSet) / sizeof(newTestSet[0]);
 
+#if 0
 static void oneOff(const Cubic& cubic1, const Cubic& cubic2) {
     SkTDArray<Quadratic> quads1;
     cubic_to_quadratics(cubic1, calcPrecision(cubic1), quads1);
@@ -224,7 +228,7 @@ static void oneOff(const Cubic& cubic1, const Cubic& cubic2) {
             tt2 = intersections3.fT[1][pt2];
             xy_at_t(cubic2, tt2, xy2.x, xy2.y);
     #if ONE_OFF_DEBUG
-            SkDebugf("%s t3=%1.9g (%1.9g, %1.9g) (%1.9g, %1.9g) (%1.9g, %1.9g) t2=%1.9g\n",
+            SkDebugf("%s t1=%1.9g (%1.9g, %1.9g) (%1.9g, %1.9g) (%1.9g, %1.9g) t2=%1.9g\n",
                     __FUNCTION__, tt1, xy1.x, xy1.y, intersections3.fPt[pt1].x,
                     intersections3.fPt[pt1].y, xy2.x, xy2.y, tt2);
     #endif
@@ -233,6 +237,7 @@ static void oneOff(const Cubic& cubic1, const Cubic& cubic2) {
         }
     }
 }
+#endif
 
 static void oneOff3(const Cubic& cubic1, const Cubic& cubic2) {
     SkTDArray<Quadratic> quads1;
@@ -270,7 +275,7 @@ static void oneOff3(const Cubic& cubic1, const Cubic& cubic2) {
         tt2 = intersections3.fT[1][pt2];
         xy_at_t(cubic2, tt2, xy2.x, xy2.y);
 #if ONE_OFF_DEBUG
-        SkDebugf("%s t3=%1.9g (%1.9g, %1.9g) (%1.9g, %1.9g) (%1.9g, %1.9g) t2=%1.9g\n",
+        SkDebugf("%s t1=%1.9g (%1.9g, %1.9g) (%1.9g, %1.9g) (%1.9g, %1.9g) t2=%1.9g\n",
                 __FUNCTION__, tt1, xy1.x, xy1.y, intersections3.fPt[pt3].x,
                 intersections3.fPt[pt3].y, xy2.x, xy2.y, tt2);
 #endif
@@ -278,6 +283,7 @@ static void oneOff3(const Cubic& cubic1, const Cubic& cubic2) {
     }
 }
 
+#if 0
 static int fails[][2] = {   {0, 23}, // fails in intersect2 recursing
                             {2, 7},  // answers differ, but neither is correct ('3' is closer)
                             {3, 26}, // fails in intersect2 recursing
@@ -293,10 +299,12 @@ static int fails[][2] = {   {0, 23}, // fails in intersect2 recursing
 };
 
 static int failCount = sizeof(fails) / sizeof(fails[0]);
+#endif
 
 static void oneOff(int outer, int inner) {
     const Cubic& cubic1 = testSet[outer];
     const Cubic& cubic2 = testSet[inner];
+#if 0
     bool failing = false;
     for (int i = 0; i < failCount; ++i) {
         if ((fails[i][0] == outer && fails[i][1] == inner)
@@ -308,8 +316,9 @@ static void oneOff(int outer, int inner) {
     if (!failing) {
         oneOff(cubic1, cubic2);
     } else {
+#endif
         oneOff3(cubic1, cubic2);
-    }
+//    }
 }
 
 void CubicIntersection_OneOffTest() {
@@ -324,6 +333,7 @@ static void newOneOff(int outer, int inner) {
 
 void CubicIntersection_NewOneOffTest() {
     newOneOff(0, 1);
+    newOneOff(1, 0);
 }
 
 static void oneOffTests() {
@@ -356,7 +366,7 @@ bool intersect(double minT1, double maxT1, double minT2, double maxT2) {
     sub_divide(cubic1, minT1, maxT1, sub1);
     sub_divide(cubic2, minT2, maxT2, sub2);
     Intersections i;
-    intersect2(sub1, sub2, i);
+    intersect3(sub1, sub2, i);
     if (i.used() == 0) {
         return false;
     }
@@ -433,7 +443,7 @@ void CubicIntersection_RandTestOld() {
         if (test == -1) {
             SkDebugf("ready...\n");
         }
-        bool newIntersects = intersect2(cubic1, cubic2, i2);
+        bool newIntersects = intersect3(cubic1, cubic2, i2);
         if (!boundsIntersect && (oldIntersects || newIntersects)) {
     #if DEBUG_CRASH
             SkDebugf("%s %d unexpected intersection boundsIntersect=%d oldIntersects=%d"
@@ -484,7 +494,7 @@ void CubicIntersection_RandTestOld() {
     #if DEBUG_CRASH
             SkDebugf("%s\n", str);
     #endif
-            oneOff(cubic1, cubic2);
+            oneOff3(cubic1, cubic2);
             largestFactor = factor1;
         }
         if (factor2 < largestFactor) {
@@ -492,7 +502,7 @@ void CubicIntersection_RandTestOld() {
     #if DEBUG_CRASH
             SkDebugf("%s\n", str);
     #endif
-            oneOff(cubic1, cubic2);
+            oneOff3(cubic1, cubic2);
             largestFactor = factor2;
         }
     }
@@ -527,7 +537,7 @@ void CubicIntersection_RandTest() {
             SkDebugf("ready...\n");
         }
         Intersections intersections2;
-        bool newIntersects = intersect2(cubic1, cubic2, intersections2);
+        bool newIntersects = intersect3(cubic1, cubic2, intersections2);
         if (!boundsIntersect && newIntersects) {
     #if DEBUG_CRASH
             SkDebugf("%s %d unexpected intersection boundsIntersect=%d "
@@ -556,10 +566,10 @@ void CubicIntersection_IntersectionFinder() {
     const Cubic& cubic1 = newTestSet[0];
     const Cubic& cubic2 = newTestSet[1];
 
-    double t1Seed = 0.77;
-    double t2Seed = 0.99;
+    double t1Seed = 0.134792061;
+    double t2Seed = 0.134792094;
     double t1Step = 0.1;
-    double t2Step = 0.01;
+    double t2Step = 0.1;
     _Point t1[3], t2[3];
     bool toggle = true;
     do {

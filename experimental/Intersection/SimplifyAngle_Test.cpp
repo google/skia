@@ -230,10 +230,19 @@ static const segmentWithT oneOffTest3[] = {
     {SkPath::kMove_Verb }
 };
 
+static const segmentWithT oneOffTest4[] = {
+    {SkPath::kCubic_Verb, {{1,2}, {1,3}, {1,0}, {5,3}}, {0.134792, 0}},
+    {SkPath::kCubic_Verb, {{0,1}, {3,5}, {2,1}, {3,1}}, {0.134792094, 0}},
+    {SkPath::kCubic_Verb, {{0,1}, {3,5}, {2,1}, {3,1}}, {0.134792094, 0.551812363}},
+    {SkPath::kCubic_Verb, {{1,2}, {1,3}, {1,0}, {5,3}}, {0.134792, 0.333333333}},
+    {SkPath::kMove_Verb }
+};
+
 static const segmentWithT* oneOffTests[] = {
     oneOffTest1,
     oneOffTest2,
     oneOffTest3,
+    oneOffTest4,
 };
 
 static const size_t oneOffTestCount = sizeof(oneOffTests) / sizeof(oneOffTests[0]);
@@ -258,6 +267,49 @@ static void oneOffTest(bool testFlat) {
     }
     SkDebugf("%s finished\n", __FUNCTION__);
 }
+
+#if 0 // seems too complicated for this to be useful (didn't finish writing/debugging this)
+// this (trys to) take a pair of curves, construct segments/spans, and verify that they sort correctly
+static void oneOffTestNew() {
+    const segmentWithT* segPtr = oneOffTest4;
+    SimplifyAngleTest::Segment segOne, segTwo;
+    segOne.init(segPtr[0].pts, segPtr[0].verb, false, false);
+    segTwo.init(segPtr[1].pts, segPtr[1].verb, false, false);
+    int index = 0;
+    do {
+        int next = index + 1;
+        if (segPtr[index].verb == SkPath::kMove_Verb) {
+            break;
+        }
+        SkPoint sub[4];
+        (*SegmentSubDivide[segPtr[index].verb])(segPtr[index].pts, segPtr[index].ts[0],
+                segPtr[index].ts[1], sub);
+        if (memcmp(segPtr[index].pts, segPtr[0].pts, sizeof(SkPoint) * (segPtr[index].verb + 1) == 0) {
+            segOne.addT(&segTwo, sub[0], segPtr[index].ts[0]);
+            segOne.addT(&segTwo, sub[segPtr[index].verb], segPtr[index].ts[1]);
+        } else {
+            segTwo.addT(&segOne, sub[0], segPtr[index].ts[0]);
+            segTwo.addT(&v, sub[segPtr[index].verb], segPtr[index].ts[1]);
+        }
+    } while (true);
+    SimplifyAngleTest::Angle lesser, greater;
+    do {
+        int next = index + 1;
+        if (segPtr[next].verb == SkPath::kMove_Verb) {
+            break;
+        }
+        SkPoint one[4], two[4];
+        bool use1 = memcmp(segPtr[index].pts, segPtr[0].pts, sizeof(SkPoint) * (segPtr[index].verb + 1) == 0;
+        lesser.set(segPtr[index].pts, segPtr[index].verb, use1 ? &segOne : &segTwo, index, next, dummy);
+        use1 = memcmp(segPtr[next].pts, segPtr[0].pts, sizeof(SkPoint) * (segPtr[next].verb + 1) == 0;
+        greater.set(segPtr[next].pts, segPtr[next].verb, use1 ? &segOne : &segTwo, index, next, dummy);
+        bool result = lesser < greater;
+        SkASSERT(result);
+        index = next;
+    } while (true);
+    SkDebugf("%s finished\n", __FUNCTION__);
+}
+#endif
 
 static void (*tests[])(bool) = {
     oneOffTest,

@@ -41,7 +41,7 @@ int reducedQuarticRoots(const double t4, const double t3, const double t2, const
     sprintf(str, "Solve[%1.19g x^4 + %1.19g x^3 + %1.19g x^2 + %1.19g x + %1.19g == 0, x]",
         t4, t3, t2, t1, t0);
     mathematica_ize(str, sizeof(str));
-#if ONE_OFF_DEBUG
+#if ONE_OFF_DEBUG && ONE_OFF_DEBUG_MATHEMATICA
     SkDebugf("%s\n", str);
 #endif
 #endif

@@ -4164,6 +4164,19 @@ static void cubicOp31u() {
     testShapeOp(path, pathB, kUnion_Op);
 }
 
+static void cubicOp31x() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,2);
+    path.cubicTo(0,3, 2,1, 4,0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1,2);
+    pathB.cubicTo(0,4, 2,0, 3,0);
+    pathB.close();
+    testShapeOp(path, pathB, kXor_Op);
+}
+
 static void testCubic2() {
     SkPath path;
     path.moveTo(0,2);
@@ -4175,15 +4188,72 @@ static void testCubic2() {
     testSimplifyx(path);
 }
 
-static void (*firstTest)() = 0;
+static void cubicOp32d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(1,2, 6,0, 3,1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,6);
+    pathB.cubicTo(1,3, 1,0, 2,1);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp33i() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(1,2, 6,0, 3,1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,6);
+    pathB.cubicTo(1,3, 1,0, 2,1);
+    pathB.close();
+    testShapeOp(path, pathB, kIntersect_Op);
+}
+
+static void cubicOp34d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(3,5, 2,1, 3,1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1,2);
+    pathB.cubicTo(1,3, 1,0, 5,3);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp35d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(1,5, 2,1, 4,0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1,2);
+    pathB.cubicTo(0,4, 1,0, 5,1);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void (*firstTest)() = cubicOp35d;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
-    TEST(testCubic2),
-    TEST(cubicOp31u),
+    TEST(cubicOp35d),
+    TEST(cubicOp34d),
+    TEST(cubicOp33i),
+    TEST(cubicOp32d),
     TEST(cubicOp31d),
+    TEST(testCubic2),
+    TEST(cubicOp31x),
+    TEST(cubicOp31u),
     TEST(cubicOp30d),
     TEST(cubicOp29d),
     TEST(cubicOp28u),
@@ -4591,7 +4661,7 @@ static void (*firstSubTest)() = 0;
 
 static bool skipAll = false;
 static bool runSubTestsFirst = false;
-static bool runReverse = false;
+static bool runReverse = true;
 static void (*stopTest)() = 0;
 
 void SimplifyNew_Test() {
