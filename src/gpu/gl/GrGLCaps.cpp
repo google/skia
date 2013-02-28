@@ -7,7 +7,7 @@
 
 
 #include "GrGLCaps.h"
-#include "GrGLContextInfo.h"
+#include "GrGLContext.h"
 #include "SkTSearch.h"
 
 GrGLCaps::GrGLCaps() {
@@ -73,14 +73,13 @@ GrGLCaps& GrGLCaps::operator = (const GrGLCaps& caps) {
     return *this;
 }
 
-void GrGLCaps::init(const GrGLContextInfo& ctxInfo) {
+void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
 
     this->reset();
     if (!ctxInfo.isInitialized()) {
         return;
     }
 
-    const GrGLInterface* gli = ctxInfo.interface();
     GrGLBinding binding = ctxInfo.binding();
     GrGLVersion version = ctxInfo.version();
 
@@ -178,7 +177,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo) {
         fUseNonVBOVertexAndIndexDynamicData = true;
     }
 
-    this->initFSAASupport(ctxInfo);
+    this->initFSAASupport(ctxInfo, gli);
     this->initStencilFormats(ctxInfo);
 }
 
@@ -227,7 +226,7 @@ int coverage_mode_compare(const GrGLCaps::MSAACoverageMode* left,
 }
 }
 
-void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo) {
+void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
 
     fMSFBOType = kNone_MSFBOType;
     if (kDesktop_GrGLBinding != ctxInfo.binding()) {
@@ -253,11 +252,11 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo) {
         if (ctxInfo.hasExtension("GL_NV_framebuffer_multisample_coverage")) {
             fCoverageAAType = kNVDesktop_CoverageAAType;
             GrGLint count;
-            GR_GL_GetIntegerv(ctxInfo.interface(),
+            GR_GL_GetIntegerv(gli,
                               GR_GL_MAX_MULTISAMPLE_COVERAGE_MODES,
                               &count);
             fMSAACoverageModes.setCount(count);
-            GR_GL_GetIntegerv(ctxInfo.interface(),
+            GR_GL_GetIntegerv(gli,
                               GR_GL_MULTISAMPLE_COVERAGE_MODES,
                               (int*)&fMSAACoverageModes[0]);
             // The NV driver seems to return the modes already sorted but the
@@ -269,9 +268,7 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo) {
         }
     }
     if (kNone_MSFBOType != fMSFBOType) {
-        GR_GL_GetIntegerv(ctxInfo.interface(),
-                          GR_GL_MAX_SAMPLES,
-                          &fMaxSampleCount);
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES, &fMaxSampleCount);
     }
 }
 

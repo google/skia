@@ -625,7 +625,7 @@ int tool_main(int argc, char** argv) {
     SkTArray<BenchTimer*> timers(SK_ARRAY_COUNT(gConfigs));
     for (size_t i = 0; i < SK_ARRAY_COUNT(gConfigs); ++i) {
 #if SK_SUPPORT_GPU
-        SkGLContext* ctx = NULL;
+        SkGLContextHelper* ctx = NULL;
         if (kGPU_Backend == gConfigs[i].fBackend) {
             ctx = gContextFactory.getGLContext(gConfigs[i].fContextType);
         }
@@ -680,7 +680,7 @@ int tool_main(int argc, char** argv) {
             configName = gConfigs[configIndex].fName;
             backend = gConfigs[configIndex].fBackend;
             GrContext* context = NULL;
-            SkGLContext* glContext = NULL;
+            SkGLContextHelper* glContext = NULL;
             BenchTimer* timer = timers[configIndex];
 
 #if SK_SUPPORT_GPU

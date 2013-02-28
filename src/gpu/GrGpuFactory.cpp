@@ -34,9 +34,9 @@ GrGpu* GrGpu::Create(GrBackend backend, GrBackendContext backendContext, GrConte
 #endif
             return NULL;
         }
-        GrGLContextInfo ctxInfo(glInterface);
-        if (ctxInfo.isInitialized()) {
-            return SkNEW_ARGS(GrGpuGL, (ctxInfo, context));
+        GrGLContext ctx(glInterface);
+        if (ctx.isInitialized()) {
+            return SkNEW_ARGS(GrGpuGL, (ctx, context));
         }
     }
     return NULL;

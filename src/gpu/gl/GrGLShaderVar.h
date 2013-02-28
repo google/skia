@@ -8,7 +8,7 @@
 #ifndef GrGLShaderVar_DEFINED
 #define GrGLShaderVar_DEFINED
 
-#include "GrGLContextInfo.h"
+#include "GrGLContext.h"
 #include "GrGLSL.h"
 #include "SkString.h"
 
@@ -252,7 +252,7 @@ public:
     /**
      * Write a declaration of this variable to out.
      */
-    void appendDecl(const GrGLContextInfo& gl, SkString* out) const {
+    void appendDecl(const GrGLContextInfo& ctxInfo, SkString* out) const {
         if (kUpperLeft_Origin == fOrigin) {
             // this is the only place where we specify a layout modifier. If we use other layout
             // modifiers in the future then they should be placed in a list.
@@ -260,10 +260,10 @@ public:
         }
         if (this->getTypeModifier() != kNone_TypeModifier) {
            out->append(TypeModifierString(this->getTypeModifier(),
-                                          gl.glslGeneration()));
+                                          ctxInfo.glslGeneration()));
            out->append(" ");
         }
-        out->append(PrecisionString(fPrecision, gl.binding()));
+        out->append(PrecisionString(fPrecision, ctxInfo.binding()));
         GrSLType effectiveType = this->getType();
         if (this->isArray()) {
             if (this->isUnsizedArray()) {

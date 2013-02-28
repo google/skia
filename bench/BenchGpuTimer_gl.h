@@ -8,18 +8,18 @@
 #ifndef SkBenchGpuTimer_DEFINED
 #define SkBenchGpuTimer_DEFINED
 
-class SkGLContext;
+class SkGLContextHelper;
 
 class BenchGpuTimer {
 public:
-    BenchGpuTimer(const SkGLContext* glctx);
+    BenchGpuTimer(const SkGLContextHelper* glctx);
     ~BenchGpuTimer();
     void startGpu();
     double endGpu();
 private:
     unsigned fQuery;
     int fStarted;
-    const SkGLContext* fContext;
+    const SkGLContextHelper* fContext;
     bool fSupported;
 };
 
