@@ -96,7 +96,9 @@ private:
     const SkBitmap& getBitmap(SkReader32& reader) {
         const int index = reader.readInt();
         if (SkBitmapHeap::INVALID_SLOT == index) {
+#ifdef SK_DEBUG
             SkDebugf("An invalid bitmap was recorded!\n");
+#endif
             return fBadBitmap;
         }
         return (*fBitmaps)[index];
