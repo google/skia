@@ -947,7 +947,7 @@ void GrContext::drawVertices(const GrPaint& paint,
         drawState->setAttribIndex(GrDrawState::kColor_AttribIndex, attribs.count());
         attribs.push_back(GrVertexAttrib(kVec4ub_GrVertexAttribType, currentOffset));
         colorOffset = currentOffset;
-        currentOffset += sizeof(GrPoint);
+        currentOffset += sizeof(GrColor);
     }
 
     drawState->setVertexAttribs(attribs.begin(), attribs.count());
