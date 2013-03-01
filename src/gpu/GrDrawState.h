@@ -38,9 +38,9 @@ enum GrVertexAttribType {
 static const int kGrVertexAttribTypeCount = kLast_GrVertexAttribType + 1;
 
 struct GrVertexAttrib {
-    GrVertexAttrib() {}
-    GrVertexAttrib(GrVertexAttribType type, size_t offset) :
-        fType(type), fOffset(offset) {}
+    inline GrVertexAttrib() {}
+    inline GrVertexAttrib(GrVertexAttribType type, size_t offset) :
+                          fType(type), fOffset(offset) {}
     bool operator==(const GrVertexAttrib& other) const {
         return fType == other.fType && fOffset == other.fOffset;
     };
