@@ -214,6 +214,7 @@
       '<(skia_src_path)/gpu/gl/debug/GrProgramObj.cpp',
       '<(skia_src_path)/gpu/gl/debug/GrDebugGL.h',
       '<(skia_src_path)/gpu/gl/debug/GrDebugGL.cpp',
+      '<(skia_src_path)/gpu/gl/debug/GrVertexArrayObj.h',
     ],
     'gr_null_gl_sources': [
       '<(skia_src_path)/gpu/gl/GrGLCreateNullInterface.cpp',

@@ -349,5 +349,25 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
         }
     }
 
+    if (kDesktop_GrGLBinding == binding) {
+        if (glVer >= GR_GL_VER(3, 0) || extensions.has("GL_ARB_vertex_array_object")) {
+            if (NULL == fBindVertexArray ||
+                NULL == fDeleteVertexArrays ||
+                NULL == fGenVertexArrays) {
+                return false;
+            }
+        }
+    } else {
+#if 0 // Remove this #if once Chromium interfaces set these pointers
+        if (extensions.has("GL_OES_vertex_array_object")) {
+            if (NULL == fBindVertexArray ||
+                NULL == fDeleteVertexArrays ||
+                NULL == fGenVertexArrays) {
+                return false;
+            }
+        }
+#endif
+    }
+
     return true;
 }

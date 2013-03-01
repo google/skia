@@ -44,6 +44,8 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
         GR_GET_PROC(GrGLBindAttribLocationProc, BindAttribLocation);
         GR_GET_PROC(GrGLBindBufferProc,         BindBuffer);
         GR_GET_PROC(GrGLBindTextureProc,        BindTexture);
+        interface->fBindVertexArray =
+            (GrGLBindVertexArrayProc) eglGetProcAddress("glBindVertexArrayOES");
         GR_GET_PROC(GrGLBlendColorProc,         BlendColor);
         GR_GET_PROC(GrGLBlendFuncProc,          BlendFunc);
         GR_GET_PROC(GrGLBufferDataProc,         BufferData);
@@ -61,6 +63,8 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
         GR_GET_PROC(GrGLDeleteProgramProc,      DeleteProgram);
         GR_GET_PROC(GrGLDeleteShaderProc,       DeleteShader);
         GR_GET_PROC(GrGLDeleteTexturesProc,     DeleteTextures);
+        interface->fDeleteVertexArrays =
+            (GrGLDeleteVertexArraysProc) eglGetProcAddress("glDeleteVertexArraysOES");
         GR_GET_PROC(GrGLDepthMaskProc,          DepthMask);
         GR_GET_PROC(GrGLDisableProc,            Disable);
         GR_GET_PROC(GrGLDisableVertexAttribArrayProc, DisableVertexAttribArray);
@@ -73,6 +77,8 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
         GR_GET_PROC(GrGLFrontFaceProc,          FrontFace);
         GR_GET_PROC(GrGLGenBuffersProc,         GenBuffers);
         GR_GET_PROC(GrGLGenTexturesProc,        GenTextures);
+        interface->fGenVertexArrays =
+            (GrGLGenVertexArraysProc) eglGetProcAddress("glGenVertexArraysOES");
         GR_GET_PROC(GrGLGetBufferParameterivProc, GetBufferParameteriv);
         GR_GET_PROC(GrGLGetErrorProc,           GetError);
         GR_GET_PROC(GrGLGetIntegervProc,        GetIntegerv);
@@ -101,9 +107,7 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
 #if GL_ARB_texture_storage
         GR_GET_PROC(GrGLTexStorage2DProc,       TexStorage2D);
 #elif GL_EXT_texture_storage
-        interface->fTexStorage2D = (GrGLTexStorage2DProc)
-                                            GetProcAddress(ghANGLELib,
-                                            "glTexStorage2DEXT");
+        interface->fTexStorage2D = (GrGLTexStorage2DProc) eglGetProcAddress("glTexStorage2DEXT");
 #endif
         GR_GET_PROC(GrGLUniform1fProc,          Uniform1f);
         GR_GET_PROC(GrGLUniform1iProc,          Uniform1i);
@@ -147,8 +151,8 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
                                 GetRenderbufferParameteriv);
         GR_GET_PROC(GrGLRenderbufferStorageProc, RenderbufferStorage);
 
-        interface->fMapBuffer = (PFNGLMAPBUFFEROESPROC) eglGetProcAddress("glMapBufferOES");
-        interface->fUnmapBuffer = (PFNGLUNMAPBUFFEROESPROC) eglGetProcAddress("glUnmapBufferOES");
+        interface->fMapBuffer = (GrGLMapBufferProc) eglGetProcAddress("glMapBufferOES");
+        interface->fUnmapBuffer = (GrGLUnmapBufferProc) eglGetProcAddress("glUnmapBufferOES");
     }
     glInterface.get()->ref();
     return glInterface.get();
