@@ -300,7 +300,7 @@ static bool remove_save_layer1(SkWriter32* writer, int32_t offset,
         return true;
     } 
 
-    SkAutoTDelete<SkPaint> saveLayerPaint = paintDict->unflatten(saveLayerPaintId);
+    SkAutoTDelete<SkPaint> saveLayerPaint(paintDict->unflatten(saveLayerPaintId));
     if (NULL == saveLayerPaint.get() || !is_simple(*saveLayerPaint)) {
         return false;
     }
@@ -313,7 +313,7 @@ static bool remove_save_layer1(SkWriter32* writer, int32_t offset,
     // have different non-255 alphas
     SkColor layerColor = saveLayerPaint->getColor() | 0xFF000000; // force opaque
 
-    SkAutoTDelete<SkPaint> dbmPaint = paintDict->unflatten(dbmPaintId);
+    SkAutoTDelete<SkPaint> dbmPaint(paintDict->unflatten(dbmPaintId));
     if (NULL == dbmPaint.get() || dbmPaint->getColor() != layerColor) {
         return false;
     }
