@@ -163,7 +163,7 @@ const GrGLInterface* GrGLCreateMesaInterface() {
 
         if (glVer >= GR_GL_VER(3,0) || extensions.has("GL_ARB_vertex_array_object")) {
             // no ARB suffix for GL_ARB_vertex_array_object
-            GR_GL_GET_PROC(GenBindVertexArray);
+            GR_GL_GET_PROC(BindVertexArray);
             GR_GL_GET_PROC(DeleteVertexArrays);
             GR_GL_GET_PROC(GenVertexArrays);
         }
