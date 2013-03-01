@@ -18,7 +18,7 @@
 #include "SkString.h"
 
 /**
- * Encapsulates information about an OpenGL context including the OpenGL 
+ * Encapsulates information about an OpenGL context including the OpenGL
  * version, the GrGLBinding type of the context, and GLSL version.
  */
 class GrGLContextInfo {
@@ -32,7 +32,7 @@ public:
      * Copies a GrGLContextInfo
      */
     GrGLContextInfo& operator= (const GrGLContextInfo& ctxInfo);
-    
+
     /**
      * Initializes a GrGLContextInfo from a GrGLInterface and the currently
      * bound OpenGL context accessible by the GrGLInterface.

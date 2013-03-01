@@ -1879,7 +1879,7 @@ public:
             other.addCancelOutsides(tStart, oStart, *this, endT);
         }
     }
-    
+
     int addSelfT(Segment* other, const SkPoint& pt, double& newT) {
         int result = addT(other, pt, newT);
         Span* span = &fTs[result];
@@ -5155,7 +5155,7 @@ public:
     int addT(const Work& other, const SkPoint& pt, double& newT) {
         return fContour->addT(fIndex, other.fContour, other.fIndex, pt, newT);
     }
-    
+
     int addSelfT(const Work& other, const SkPoint& pt, double& newT) {
         return fContour->addSelfT(fIndex, other.fContour, other.fIndex, pt, newT);
     }

@@ -433,5 +433,3 @@ SkStream* SkFontConfigInterfaceDirect::openStream(const FontIdentity& identity) 
     int fd = open(identity.fString.c_str(), O_RDONLY);
     return (fd >= 0) ? SkNEW_ARGS(SkFDStream, (fd, true)) : NULL;
 }
-
-

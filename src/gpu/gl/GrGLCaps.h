@@ -228,7 +228,7 @@ public:
     bool readPixelsSupported(const GrGLInterface* intf,
                              GrGLenum format,
                              GrGLenum type) const;
-    
+
     bool isCoreProfile() const { return fIsCoreProfile; }
 
 private:
