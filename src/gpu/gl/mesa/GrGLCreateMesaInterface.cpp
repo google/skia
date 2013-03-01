@@ -24,15 +24,13 @@
 const GrGLInterface* GrGLCreateMesaInterface() {
     if (NULL != OSMesaGetCurrentContext()) {
 
-        GrGLGetStringProc getString =
-            (GrGLGetStringProc) OSMesaGetProcAddress("glGetString");
-        GrGLGetStringiProc glGetStringi =
-            (GrGLGetStringiProc) OSMesaGetProcAddress("glGetStringi");
-        GrGLGetIntegervProc glGetIntegerv =
-        (GrGLGetIntegervProc) OSMesaGetProcAddress("glGetIntegerv");
+        GrGLGetStringProc getString = (GrGLGetStringProc) OSMesaGetProcAddress("glGetString");
+        GrGLGetStringiProc getStringi = (GrGLGetStringiProc) OSMesaGetProcAddress("glGetStringi");
+        GrGLGetIntegervProc getIntegerv =
+            (GrGLGetIntegervProc) OSMesaGetProcAddress("glGetIntegerv");
 
         GrGLExtensions extensions;
-        if (!extensions.init(kDesktop_GrGLBinding, glGetString, glGetStringi, glGetIntegerv)) {
+        if (!extensions.init(kDesktop_GrGLBinding, getString, getStringi, getIntegerv)) {
             return NULL;
         }
 
