@@ -26,6 +26,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fBindAttribLocation = glBindAttribLocation;
         interface->fBindBuffer = glBindBuffer;
         interface->fBindTexture = glBindTexture;
+        interface->fBindVertexArray = glBindVertexArrayOES;
         interface->fBlendColor = glBlendColor;
         interface->fBlendFunc = glBlendFunc;
         interface->fBufferData = glBufferData;
@@ -43,6 +44,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fDeleteProgram = glDeleteProgram;
         interface->fDeleteShader = glDeleteShader;
         interface->fDeleteTextures = glDeleteTextures;
+        interface->fDeleteVertexArrays = glDeleteVertexArraysOES;
         interface->fDepthMask = glDepthMask;
         interface->fDisable = glDisable;
         interface->fDisableVertexAttribArray = glDisableVertexAttribArray;
@@ -55,6 +57,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fFrontFace = glFrontFace;
         interface->fGenBuffers = glGenBuffers;
         interface->fGenTextures = glGenTextures;
+        interface->fGenVertexArrays= glGenVertexArraysOES;
         interface->fGetBufferParameteriv = glGetBufferParameteriv;
         interface->fGetError = glGetError;
         interface->fGetIntegerv = glGetIntegerv;
