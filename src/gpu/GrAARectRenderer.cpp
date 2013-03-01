@@ -30,12 +30,6 @@ static void set_inset_fan(GrPoint* pts, size_t stride,
                     r.fRight - dx, r.fBottom - dy, stride);
 }
 
-// position + color/coverage
-static const GrVertexAttrib kVertexAttribs[] = {
-    GrVertexAttrib(kVec2f_GrVertexAttribType, 0),
-    GrVertexAttrib(kVec4ub_GrVertexAttribType, sizeof(GrPoint))
-};
-
 };
 
 void GrAARectRenderer::reset() {
@@ -134,6 +128,11 @@ void GrAARectRenderer::fillAARect(GrGpu* gpu,
                                   bool useVertexCoverage) {
     GrDrawState* drawState = target->drawState();
 
+    // position + color/coverage
+    static const GrVertexAttrib kVertexAttribs[] = {
+        GrVertexAttrib(kVec2f_GrVertexAttribType, 0),
+        GrVertexAttrib(kVec4ub_GrVertexAttribType, sizeof(GrPoint))
+    };
     GrAttribBindings bindings;
     GrDrawState::AttribIndex attribIndex;
     aa_rect_attributes(useVertexCoverage, &bindings, &attribIndex);
@@ -213,6 +212,11 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
         return;
     }
     
+    // position + color/coverage
+    static const GrVertexAttrib kVertexAttribs[] = {
+        GrVertexAttrib(kVec2f_GrVertexAttribType, 0),
+        GrVertexAttrib(kVec4ub_GrVertexAttribType, sizeof(GrPoint))
+    };
     GrAttribBindings bindings;
     GrDrawState::AttribIndex attribIndex;
     aa_rect_attributes(useVertexCoverage, &bindings, &attribIndex);
