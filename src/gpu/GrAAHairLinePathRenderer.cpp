@@ -504,8 +504,8 @@ bool GrAAHairLinePathRenderer::createGeom(
 
     // position + edge
     static const GrVertexAttrib kAttribs[] = {
-        GrVertexAttrib(kVec2f_GrVertexAttribType, 0),
-        GrVertexAttrib(kVec4f_GrVertexAttribType, sizeof(GrPoint))
+        {kVec2f_GrVertexAttribType, 0},
+        {kVec4f_GrVertexAttribType, sizeof(GrPoint)}
     };
     static const GrAttribBindings kBindings = GrDrawState::kEdge_AttribBindingsBit;
     SkMatrix viewM = drawState->getViewMatrix();

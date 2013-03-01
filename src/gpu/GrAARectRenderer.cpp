@@ -130,8 +130,8 @@ void GrAARectRenderer::fillAARect(GrGpu* gpu,
 
     // position + color/coverage
     static const GrVertexAttrib kVertexAttribs[] = {
-        GrVertexAttrib(kVec2f_GrVertexAttribType, 0),
-        GrVertexAttrib(kVec4ub_GrVertexAttribType, sizeof(GrPoint))
+        {kVec2f_GrVertexAttribType, 0},
+        {kVec4ub_GrVertexAttribType, sizeof(GrPoint)}
     };
     GrAttribBindings bindings;
     GrDrawState::AttribIndex attribIndex;
@@ -214,8 +214,8 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
     
     // position + color/coverage
     static const GrVertexAttrib kVertexAttribs[] = {
-        GrVertexAttrib(kVec2f_GrVertexAttribType, 0),
-        GrVertexAttrib(kVec4ub_GrVertexAttribType, sizeof(GrPoint))
+        {kVec2f_GrVertexAttribType, 0},
+        {kVec4ub_GrVertexAttribType, sizeof(GrPoint)}
     };
     GrAttribBindings bindings;
     GrDrawState::AttribIndex attribIndex;

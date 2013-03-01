@@ -480,8 +480,8 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
 
     // position + edge
     static const GrVertexAttrib kAttribs[] = {
-        GrVertexAttrib(kVec2f_GrVertexAttribType, 0),
-        GrVertexAttrib(kVec4f_GrVertexAttribType, sizeof(GrPoint))
+        {kVec2f_GrVertexAttribType, 0},
+        {kVec4f_GrVertexAttribType, sizeof(GrPoint)}
     };
     static const GrAttribBindings bindings = GrDrawState::kEdge_AttribBindingsBit;
 
