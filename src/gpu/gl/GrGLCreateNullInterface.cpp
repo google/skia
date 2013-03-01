@@ -20,6 +20,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLAttachShader(GrGLuint program, GrGLuint shade
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBeginQuery(GrGLenum target, GrGLuint id) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindAttribLocation(GrGLuint program, GrGLuint index, const char* name) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindTexture(GrGLenum target, GrGLuint texture) {}
+GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindVertexArray(GrGLuint id) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBufferData(GrGLenum target, GrGLsizeiptr size, const GrGLvoid* data, GrGLenum usage) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLPixelStorei(GrGLenum pname, GrGLint param) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLReadPixels(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, GrGLvoid* pixels) {}
@@ -45,7 +46,6 @@ GrGLuint GR_GL_FUNCTION_TYPE nullGLCreateShader(GrGLenum type) {
 // same delete used for shaders and programs
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLDelete(GrGLuint program) {
 }
-
 
 // In debug builds we do asserts that ensure we agree with GL about when a buffer
 // is mapped.
@@ -168,6 +168,7 @@ const GrGLInterface* GrGLCreateNullInterface() {
         interface->fBindBuffer = nullGLBindBuffer;
         interface->fBindFragDataLocation = noOpGLBindFragDataLocation;
         interface->fBindTexture = nullGLBindTexture;
+        interface->fBindVertexArray = nullGLBindVertexArray;
         interface->fBlendColor = noOpGLBlendColor;
         interface->fBlendFunc = noOpGLBlendFunc;
         interface->fBufferData = nullGLBufferData;
@@ -186,6 +187,7 @@ const GrGLInterface* GrGLCreateNullInterface() {
         interface->fDeleteQueries = noOpGLDeleteIds;
         interface->fDeleteShader = nullGLDelete;
         interface->fDeleteTextures = noOpGLDeleteIds;
+        interface->fDeleteVertexArrays = noOpGLDeleteIds;
         interface->fDepthMask = noOpGLDepthMask;
         interface->fDisable = noOpGLDisable;
         interface->fDisableVertexAttribArray = noOpGLDisableVertexAttribArray;
@@ -202,6 +204,7 @@ const GrGLInterface* GrGLCreateNullInterface() {
         interface->fGenBuffers = noOpGLGenIds;
         interface->fGenQueries = noOpGLGenIds;
         interface->fGenTextures = noOpGLGenIds;
+        interface->fGenVertexArrays = noOpGLGenIds;
         interface->fGetBufferParameteriv = nullGLGetBufferParameteriv;
         interface->fGetError = noOpGLGetError;
         interface->fGetIntegerv = noOpGLGetIntegerv;
