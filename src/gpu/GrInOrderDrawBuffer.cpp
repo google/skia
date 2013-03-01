@@ -78,9 +78,20 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
                                    const SkMatrix* srcMatrix,
                                    int stage) {
 
-    GrVertexLayout layout = 0;
+    GrAttribBindings bindings = GrDrawState::kDefault_AttribBindings;
     GrDrawState::AutoColorRestore acr;
-    GrColor color = this->drawState()->getColor();
+
+    GrDrawState* drawState = this->drawState();
+
+    GrColor color = drawState->getColor();
+    GrVertexAttribArray<3> attribs;
+    size_t currentOffset = 0;
+    int colorOffset = -1, texOffset = -1;
+
+    // set position attrib
+    drawState->setAttribIndex(GrDrawState::kPosition_AttribIndex, attribs.count());
+    attribs.push_back(GrVertexAttrib(kVec2f_GrVertexAttribType, currentOffset));
+    currentOffset += sizeof(GrPoint);
 
     // Using per-vertex colors allows batching across colors. (A lot of rects in a row differing
     // only in color is a common occurrence in tables). However, having per-vertex colors disables
@@ -89,22 +100,31 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
     // dual-source blending isn't available. This comes into play when there is coverage. If colors
     // were a stage it could take a hint that every vertex's color will be opaque.
     if (this->getCaps().dualSourceBlendingSupport() ||
-        this->getDrawState().hasSolidCoverage(this->getDrawState().getVertexLayout())) {
-        layout |= GrDrawState::kColor_VertexLayoutBit;;
+        drawState->hasSolidCoverage(drawState->getAttribBindings())) {
+        bindings |= GrDrawState::kColor_AttribBindingsBit;
+        drawState->setAttribIndex(GrDrawState::kColor_AttribIndex, attribs.count());
+        attribs.push_back(GrVertexAttrib(kVec4ub_GrVertexAttribType, currentOffset));
+        colorOffset = currentOffset;
+        currentOffset += sizeof(GrColor);
         // We set the draw state's color to white here. This is done so that any batching performed
         // in our subclass's onDraw() won't get a false from GrDrawState::op== due to a color
         // mismatch. TODO: Once vertex layout is owned by GrDrawState it should skip comparing the
         // constant color in its op== when the kColor layout bit is set and then we can remove this.
-        acr.set(this->drawState(), 0xFFFFFFFF);
+        acr.set(drawState, 0xFFFFFFFF);
     }
 
     uint32_t explicitCoordMask = 0;
     if (NULL != srcRect) {
-        layout |= GrDrawState::StageTexCoordVertexLayoutBit(stage);
+        bindings |= GrDrawState::ExplicitTexCoordAttribBindingsBit(stage);
+        drawState->setAttribIndex(GrDrawState::kTexCoord_AttribIndex, attribs.count());
+        attribs.push_back(GrVertexAttrib(kVec2f_GrVertexAttribType, currentOffset));
+        texOffset = currentOffset;
+        currentOffset += sizeof(GrPoint);
         explicitCoordMask = (1 << stage);
     }
 
-    this->drawState()->setVertexLayout(layout);
+    drawState->setVertexAttribs(attribs.begin(), attribs.count());
+    drawState->setAttribBindings(bindings);
     AutoReleaseGeometry geo(this, 4, 0);
     if (!geo.succeeded()) {
         GrPrintf("Failed to get space for vertices!\n");
@@ -118,18 +138,17 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
     } else {
         combinedMatrix.reset();
     }
-    combinedMatrix.postConcat(this->drawState()->getViewMatrix());
+    combinedMatrix.postConcat(drawState->getViewMatrix());
     // When the caller has provided an explicit source rect for a stage then we don't want to
     // modify that stage's matrix. Otherwise if the effect is generating its source rect from
     // the vertex positions then we have to account for the view matrix change.
-    GrDrawState::AutoDeviceCoordDraw adcd(this->drawState(), explicitCoordMask);
+    GrDrawState::AutoDeviceCoordDraw adcd(drawState, explicitCoordMask);
     if (!adcd.succeeded()) {
         return;
     }
 
-    int stageOffsets[GrDrawState::kNumStages], colorOffset;
-    int vsize = GrDrawState::VertexSizeAndOffsetsByStage(layout, stageOffsets,
-                                                         &colorOffset, NULL, NULL);
+    size_t vsize = drawState->getVertexSize();
+    GrAssert(vsize == currentOffset);
 
     geo.positions()->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vsize);
     combinedMatrix.mapPointsWithStride(geo.positions(), vsize, 4);
@@ -139,19 +158,15 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
     // unnecessary clipping in our onDraw().
     get_vertex_bounds(geo.vertices(), vsize, 4, &devBounds);
 
-    for (int i = 0; i < GrDrawState::kNumStages; ++i) {
-        if (explicitCoordMask & (1 << i)) {
-            GrAssert(0 != stageOffsets[i]);
-            GrPoint* coords = GrTCast<GrPoint*>(GrTCast<intptr_t>(geo.vertices()) +
-                                                stageOffsets[i]);
-            coords->setRectFan(srcRect->fLeft, srcRect->fTop,
-                               srcRect->fRight, srcRect->fBottom,
-                               vsize);
-            if (NULL != srcMatrix) {
-                srcMatrix->mapPointsWithStride(coords, vsize, 4);
-            }
-        } else {
-            GrAssert(0 == stageOffsets[i]);
+    if (texOffset >= 0) {
+        GrAssert(explicitCoordMask != 0);
+        GrPoint* coords = GrTCast<GrPoint*>(GrTCast<intptr_t>(geo.vertices()) +
+                                            texOffset);
+        coords->setRectFan(srcRect->fLeft, srcRect->fTop,
+                            srcRect->fRight, srcRect->fBottom,
+                            vsize);
+        if (NULL != srcMatrix) {
+            srcMatrix->mapPointsWithStride(coords, vsize, 4);
         }
     }
 
@@ -165,6 +180,9 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
 
     this->setIndexSourceToBuffer(this->getContext()->getQuadIndexBuffer());
     this->drawIndexedInstances(kTriangles_GrPrimitiveType, 1, 4, 6, &devBounds);
+
+    // to ensure that stashing the drawState ptr is valid
+    GrAssert(this->drawState() == drawState);
 }
 
 bool GrInOrderDrawBuffer::quickInsideClip(const SkRect& devBounds) {

@@ -495,15 +495,20 @@ bool GrAAHairLinePathRenderer::createGeom(
             int* lineCnt,
             int* quadCnt,
             GrDrawTarget::AutoReleaseGeometry* arg) {
-    const GrDrawState& drawState = target->getDrawState();
-    int rtHeight = drawState.getRenderTarget()->height();
+    GrDrawState* drawState = target->drawState();
+    int rtHeight = drawState->getRenderTarget()->height();
 
     GrIRect devClipBounds;
-    target->getClip()->getConservativeBounds(drawState.getRenderTarget(),
+    target->getClip()->getConservativeBounds(drawState->getRenderTarget(),
                                              &devClipBounds);
 
-    GrVertexLayout layout = GrDrawState::kEdge_VertexLayoutBit;
-    SkMatrix viewM = drawState.getViewMatrix();
+    // position + edge
+    static const GrVertexAttrib kAttribs[] = {
+        GrVertexAttrib(kVec2f_GrVertexAttribType, 0),
+        GrVertexAttrib(kVec4f_GrVertexAttribType, sizeof(GrPoint))
+    };
+    static const GrAttribBindings kBindings = GrDrawState::kEdge_AttribBindingsBit;
+    SkMatrix viewM = drawState->getViewMatrix();
 
     PREALLOC_PTARRAY(128) lines;
     PREALLOC_PTARRAY(128) quads;
@@ -514,7 +519,10 @@ bool GrAAHairLinePathRenderer::createGeom(
     *lineCnt = lines.count() / 2;
     int vertCnt = kVertsPerLineSeg * *lineCnt + kVertsPerQuad * *quadCnt;
 
-    target->drawState()->setVertexLayout(layout);
+    target->drawState()->setVertexAttribs(kAttribs, SK_ARRAY_COUNT(kAttribs));
+    target->drawState()->setAttribIndex(GrDrawState::kPosition_AttribIndex, 0);
+    target->drawState()->setAttribIndex(GrDrawState::kEdge_AttribIndex, 1);
+    target->drawState()->setAttribBindings(kBindings);
     GrAssert(sizeof(Vertex) == target->getDrawState().getVertexSize());
 
     if (!arg->set(target, vertCnt, 0)) {

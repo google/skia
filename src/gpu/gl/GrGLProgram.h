@@ -79,17 +79,6 @@ public:
     GrGLuint programID() const { return fProgramID; }
 
     /**
-     * Attribute indices. These should not overlap.
-     */
-    enum {
-        kPositionAttributeIndex = 0,
-        kColorAttributeIndex = 1,
-        kCoverageAttributeIndex = 2,
-        kEdgeAttributeIndex = 3,
-        kTexCoordAttributeIndex = 4,
-    };
-
-    /**
      * Some GL state that is relevant to programs is not stored per-program. In particular vertex
      * attributes are global state. This struct is read and updated by GrGLProgram::setData to
      * allow us to avoid setting this state redundantly.
@@ -182,7 +171,7 @@ public:
         bool                        fDiscardIfOutsideEdge;
 
         // stripped of bits that don't affect program generation
-        GrVertexLayout              fVertexLayout;
+        GrAttribBindings            fAttribBindings;
 
         /** Non-zero if this stage has an effect */
         GrGLEffect::EffectKey       fEffectKeys[GrDrawState::kNumStages];
@@ -199,8 +188,22 @@ public:
         SkBool8                     fEmitsPointSize;
         uint8_t                     fColorFilterXfermode;   // casts to enum SkXfermode::Mode
 
+        int8_t                      fPositionAttributeIndex;
+        int8_t                      fColorAttributeIndex;
+        int8_t                      fCoverageAttributeIndex;
+        int8_t                      fEdgeAttributeIndex;
+        int8_t                      fTexCoordAttributeIndex;
+
         friend class GrGLProgram;
     };
+
+    // Layout information for OpenGL vertex attributes
+    struct AttribLayout {
+        GrGLint     fCount;
+        GrGLenum    fType;
+        GrGLboolean fNormalized;
+    };
+    static const AttribLayout kAttribLayouts[kGrVertexAttribTypeCount];
 
 private:
     GrGLProgram(const GrGLContext& gl,

@@ -23,7 +23,7 @@
 void GrGLProgram::Desc::setRandom(SkMWCRandom* random,
                                   const GrGpuGL* gpu,
                                   const GrEffectStage stages[GrDrawState::kNumStages]) {
-    fVertexLayout = 0;
+    fAttribBindings = 0;
     fEmitsPointSize = random->nextBool();
     fColorInput = random->nextULessThan(kColorInputCnt);
     fCoverageInput = random->nextULessThan(kColorInputCnt);
@@ -32,7 +32,7 @@ void GrGLProgram::Desc::setRandom(SkMWCRandom* random,
 
     fFirstCoverageStage = random->nextULessThan(GrDrawState::kNumStages);
 
-    fVertexLayout |= random->nextBool() ? GrDrawState::kCoverage_VertexLayoutBit : 0;
+    fAttribBindings |= random->nextBool() ? GrDrawState::kCoverage_AttribBindingsBit : 0;
 
 #if GR_GL_EXPERIMENTAL_GS
     fExperimentalGS = gpu->getCaps().geometryShaderSupport() && random->nextBool();
@@ -40,7 +40,7 @@ void GrGLProgram::Desc::setRandom(SkMWCRandom* random,
 
     bool edgeAA = random->nextBool();
     if (edgeAA) {
-        fVertexLayout |= GrDrawState::kEdge_VertexLayoutBit;
+        fAttribBindings |= GrDrawState::kEdge_AttribBindingsBit;
         if (gpu->getCaps().shaderDerivativeSupport()) {
             fVertexEdgeType = (GrDrawState::VertexEdgeType)
                               random->nextULessThan(GrDrawState::kVertexEdgeTypeCnt);
@@ -64,10 +64,30 @@ void GrGLProgram::Desc::setRandom(SkMWCRandom* random,
             fEffectKeys[s] = factory.glEffectKey(stages[s], gpu->glCaps());
             // use separate tex coords?
             if (!useOnce && random->nextBool()) {
-                fVertexLayout |= GrDrawState::StageTexCoordVertexLayoutBit(s);
+                fAttribBindings |= GrDrawState::ExplicitTexCoordAttribBindingsBit(s);
                 useOnce = true;
             }
         }
+    }
+
+    int attributeIndex = 0;
+    fPositionAttributeIndex = attributeIndex;
+    ++attributeIndex;
+    if (fColorInput || (fAttribBindings & GrDrawState::kColor_AttribBindingsBit)) {
+        fColorAttributeIndex = attributeIndex;
+        ++attributeIndex;
+    }
+    if (fCoverageInput || (fAttribBindings & GrDrawState::kCoverage_AttribBindingsBit)) {
+        fCoverageAttributeIndex = attributeIndex;
+        ++attributeIndex;
+    }
+    if (fAttribBindings & GrDrawState::kEdge_AttribBindingsBit) {
+        fEdgeAttributeIndex = attributeIndex;
+        ++attributeIndex;
+    }
+    if (GrDrawState::AttributesBindExplicitTexCoords(fAttribBindings)) {
+        fTexCoordAttributeIndex = attributeIndex;
+        ++attributeIndex;
     }
 }
 
