@@ -5,20 +5,20 @@
       "no-comparison" : null,
       "succeeded" : {
          "simpleaaclip_path_565" : {
-            "checksum" : 8375148850964385904
+            "checksum" : 14145667878792355483
          },
          "simpleaaclip_path_8888" : {
-            "checksum" : 4719056555285640269
+            "checksum" : 3793109275220252029
          }
       }
    },
    "expected-results" : {
       "simpleaaclip_path_565" : {
-         "checksums" : [ 8375148850964385904 ],
+         "checksums" : [ 14145667878792355483 ],
          "ignore-failure" : false
       },
       "simpleaaclip_path_8888" : {
-         "checksums" : [ 4719056555285640269 ],
+         "checksums" : [ 3793109275220252029 ],
          "ignore-failure" : false
       }
    }
