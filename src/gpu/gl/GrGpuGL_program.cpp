@@ -215,83 +215,30 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
 
 void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
 
-    int colorOffset;
-    int coverageOffset;
-    int texCoordOffset;
-    int edgeOffset;
-
-    GrVertexLayout currLayout = this->getDrawState().getVertexLayout();
-
-    GrGLsizei stride = GrDrawState::VertexSizeAndOffsets(currLayout,
-                                                         &texCoordOffset,
-                                                         &colorOffset,
-                                                         &coverageOffset,
-                                                         &edgeOffset);
+    GrGLsizei stride = this->getDrawState().getVertexSize();
 
     size_t vertexOffset;
     GrGLVertexBuffer* vb= this->setBuffers(info.isIndexed(), &vertexOffset, indexOffsetInBytes);
     vertexOffset += stride * info.startVertex();
 
-    uint32_t usedAttribArraysMask = (1 << GrGLProgram::kPositionAttributeIndex);
-    fHWGeometryState.setAttribArray(this,
-                                    GrGLProgram::kPositionAttributeIndex,
-                                    vb,
-                                    2,
-                                    GR_GL_FLOAT,
-                                    false,
-                                    stride,
-                                    reinterpret_cast<GrGLvoid*>(vertexOffset));
-    if (texCoordOffset > 0) {
-        usedAttribArraysMask |= (1 << GrGLProgram::kTexCoordAttributeIndex);
-        GrGLvoid* texCoordPtr = reinterpret_cast<GrGLvoid*>(vertexOffset + texCoordOffset);
-        fHWGeometryState.setAttribArray(this,
-                                        GrGLProgram::kTexCoordAttributeIndex,
-                                        vb,
-                                        2,
-                                        GR_GL_FLOAT,
-                                        false,
-                                        stride,
-                                        texCoordPtr);
-    }
+    uint32_t usedAttribArraysMask = 0;
+    const GrVertexAttrib* vertexAttrib = this->getDrawState().getVertexAttribs();
+    int vertexAttribCount = this->getDrawState().getVertexAttribCount();
+    for (int vertexAttribIndex = 0; vertexAttribIndex < vertexAttribCount; 
+         ++vertexAttribIndex, ++vertexAttrib) {
 
-    if (colorOffset > 0) {
-        usedAttribArraysMask |= (1 << GrGLProgram::kColorAttributeIndex);
-        GrGLvoid* colorPtr = reinterpret_cast<GrGLvoid*>(vertexOffset + colorOffset);
+        usedAttribArraysMask |= (1 << vertexAttribIndex);
+        GrVertexAttribType attribType = vertexAttrib->fType;
         fHWGeometryState.setAttribArray(this,
-                                        GrGLProgram::kColorAttributeIndex,
+                                        vertexAttribIndex,
                                         vb,
-                                        4,
-                                        GR_GL_UNSIGNED_BYTE,
-                                        true,
+                                        GrGLProgram::kAttribLayouts[attribType].fCount,
+                                        GrGLProgram::kAttribLayouts[attribType].fType,
+                                        GrGLProgram::kAttribLayouts[attribType].fNormalized,
                                         stride,
-                                        colorPtr);
-    }
-
-    if (coverageOffset > 0) {
-        usedAttribArraysMask |= (1 << GrGLProgram::kCoverageAttributeIndex);
-        GrGLvoid* coveragePtr = reinterpret_cast<GrGLvoid*>(vertexOffset + coverageOffset);
-        fHWGeometryState.setAttribArray(this,
-                                        GrGLProgram::kCoverageAttributeIndex,
-                                        vb,
-                                        4,
-                                        GR_GL_UNSIGNED_BYTE,
-                                        true,
-                                        stride,
-                                        coveragePtr);
-    }
-
-    if (edgeOffset > 0) {
-        usedAttribArraysMask |= (1 << GrGLProgram::kEdgeAttributeIndex);
-        GrGLvoid* edgePtr = reinterpret_cast<GrGLvoid*>(vertexOffset + edgeOffset);
-        fHWGeometryState.setAttribArray(this,
-                                        GrGLProgram::kEdgeAttributeIndex,
-                                        vb,
-                                        4,
-                                        GR_GL_FLOAT,
-                                        false,
-                                        stride,
-                                        edgePtr);
-    }
+                                        reinterpret_cast<GrGLvoid*>(
+                                         vertexOffset + vertexAttrib->fOffset));
+     }
 
     fHWGeometryState.disableUnusedAttribArrays(this, usedAttribArraysMask);
 }
