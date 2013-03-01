@@ -24,6 +24,11 @@
           'gpu.gyp:skgr',
         ],
       }],
+      [ 'skia_os == "nacl"', {
+        'component_libs': [
+          'freetype.gyp:freetype',
+        ],
+      }],
     ],
   },
   'targets': [
