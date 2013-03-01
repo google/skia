@@ -42,10 +42,12 @@ SkMesaGLContext::~SkMesaGLContext() {
 void SkMesaGLContext::destroyGLContext() {
     if (fImage) {
         sk_free(fImage);
+        fImage = NULL;
     }
 
     if (fContext) {
         OSMesaDestroyContext((OSMesaContext)fContext);
+        fContext = static_cast<Context>(NULL);
     }
 }
 
