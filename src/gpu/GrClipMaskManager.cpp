@@ -397,11 +397,7 @@ bool GrClipMaskManager::getMaskTexture(int32_t clipStackGenID,
         desc.fFlags = kRenderTarget_GrTextureFlagBit;
         desc.fWidth = clipSpaceIBounds.width();
         desc.fHeight = clipSpaceIBounds.height();
-        desc.fConfig = kRGBA_8888_GrPixelConfig;
-        if (this->getContext()->isConfigRenderable(kAlpha_8_GrPixelConfig)) {
-            // We would always like A8 but it isn't supported on all platforms
-            desc.fConfig = kAlpha_8_GrPixelConfig;
-        }
+        desc.fConfig = kAlpha_8_GrPixelConfig;
 
         fAACache.acquireMask(clipStackGenID, desc, clipSpaceIBounds);
     }

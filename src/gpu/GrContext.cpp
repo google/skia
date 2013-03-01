@@ -425,11 +425,6 @@ GrTexture* GrContext::lockAndRefScratchTexture(const GrTextureDesc& inDesc, Scra
         desc.fHeight = GrMax(MIN_SIZE, GrNextPow2(desc.fHeight));
     }
 
-    // Renderable A8 targets are not universally supported (e.g., not on ANGLE)
-    GrAssert(this->isConfigRenderable(kAlpha_8_GrPixelConfig) ||
-             !(desc.fFlags & kRenderTarget_GrTextureFlagBit) ||
-             (desc.fConfig != kAlpha_8_GrPixelConfig));
-
     GrResource* resource = NULL;
     int origWidth = desc.fWidth;
     int origHeight = desc.fHeight;
@@ -1440,10 +1435,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
                 }
                 swapRAndB = false; // we will handle the swap in the draw.
 
-                // We protect the existing geometry here since it may not be
-                // clear to the caller that a draw operation (i.e., drawSimpleRect)
-                // can be invoked in this method
-                GrDrawTarget::AutoGeometryAndStatePush agasp(fGpu, GrDrawTarget::kReset_ASRInit);
+                GrDrawTarget::AutoStateRestore asr(fGpu, GrDrawTarget::kReset_ASRInit);
                 GrDrawState* drawState = fGpu->drawState();
                 GrAssert(effect);
                 drawState->setEffect(0, effect);
@@ -1630,10 +1622,7 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
         return false;
     }
 
-    // writeRenderTargetPixels can be called in the midst of drawing another
-    // object (e.g., when uploading a SW path rendering to the gpu while 
-    // drawing a rect) so preserve the current geometry.
-    GrDrawTarget::AutoGeometryAndStatePush agasp(fGpu, GrDrawTarget::kReset_ASRInit);
+    GrDrawTarget::AutoStateRestore  asr(fGpu, GrDrawTarget::kReset_ASRInit);
     GrDrawState* drawState = fGpu->drawState();
     GrAssert(effect);
     drawState->setEffect(0, effect);
