@@ -202,9 +202,16 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         WGL_SET_PROC(VertexAttribPointer);
         WGL_SET_PROC(BindFragDataLocationIndexed);
 
+        if (glVer >= GR_GL_VER(3,0) || extensions.has("GL_ARB_vertex_array_object")) {
+            // no ARB suffix for GL_ARB_vertex_array_object
+            WGL_SET_PROC(BindVertexArray);
+            WGL_SET_PROC(DeleteVertexArrays);
+            WGL_SET_PROC(GenVertexArrays);
+        }
+
         // First look for GL3.0 FBO or GL_ARB_framebuffer_object (same since
         // GL_ARB_framebuffer_object doesn't use ARB suffix.)
-        if (glVer > GR_GL_VER(3,0) || extensions.has("GL_ARB_framebuffer_object")) {
+        if (glVer >= GR_GL_VER(3,0) || extensions.has("GL_ARB_framebuffer_object")) {
             WGL_SET_PROC(GenFramebuffers);
             WGL_SET_PROC(GetFramebufferAttachmentParameteriv);
             WGL_SET_PROC(GetRenderbufferParameteriv);

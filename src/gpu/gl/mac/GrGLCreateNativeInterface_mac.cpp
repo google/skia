@@ -45,11 +45,11 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fBindAttribLocation = glBindAttribLocation;
         interface->fBindBuffer = glBindBuffer;
         if (ver >= GR_GL_VER(3,0)) {
-            #if GL_VERSION_3_0
-                interface->fBindFragDataLocation = glBindFragDataLocation;
-            #else
-                interface->fBindFragDataLocation = GET_PROC(BindFragDataLocation);
-            #endif
+#if GL_VERSION_3_0
+        interface->fBindFragDataLocation = glBindFragDataLocation;
+#else
+        GET_PROC(BindFragDataLocation);
+#endif
         }
         interface->fBindTexture = glBindTexture;
         interface->fBlendFunc = glBlendFunc;
@@ -131,17 +131,17 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fTexImage2D = (GrGLTexImage2DProc)glTexImage2D;
         interface->fTexParameteri = glTexParameteri;
         interface->fTexParameteriv = glTexParameteriv;
-    #if GL_ARB_texture_storage || GL_VERSION_4_2
+#if GL_ARB_texture_storage || GL_VERSION_4_2
         interface->fTexStorage2D = glTexStorage2D
-    #elif GL_EXT_texture_storage
+#elif GL_EXT_texture_storage
         interface->fTexStorage2D = glTexStorage2DEXT;
-    #else
+#else
         if (ver >= GR_GL_VER(4,2) || extensions.has("GL_ARB_texture_storage")) {
             GET_PROC(TexStorage2D);
         } else if (extensions.has("GL_EXT_texture_storage")) {
             GET_PROC_SUFFIX(TexStorage2D, EXT);
         }
-    #endif
+#endif
         interface->fTexSubImage2D = glTexSubImage2D;
         interface->fUniform1f = glUniform1f;
         interface->fUniform1i = glUniform1i;
@@ -169,30 +169,43 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fVertexAttribPointer = glVertexAttribPointer;
         interface->fViewport = glViewport;
 
+        if (ver >= GR_GL_VER(3,0) || extensions.has("GL_ARB_vertex_array_object")) {
+            // no ARB suffix for GL_ARB_vertex_array_object
+#if GL_ARB_vertex_array_object || GL_VERSION_3_0
+            interface->fBindVertexArray = glBindVertexArray;
+            interface->fDeleteVertexArrays = glDeleteVertexArrays;
+            interface->fGenVertexArrays = glGenVertexArrays;
+#else
+            GET_PROC(BindVertexArray);
+            GET_PROC(DeleteVertexArrays);
+            GET_PROC(GenVertexArrays);
+#endif
+        }
+
         if (ver >= GR_GL_VER(3,3) || extensions.has("GL_ARB_timer_query")) {
             // ARB extension doesn't use the ARB suffix on the function name
-            #if GL_ARB_timer_query || GL_VERSION_3_3
-                interface->fQueryCounter = glQueryCounter;
-                interface->fGetQueryObjecti64v = glGetQueryObjecti64v;
-                interface->fGetQueryObjectui64v = glGetQueryObjectui64v;
-            #else
-                interface->fQueryCounter = GET_PROC(QueryCounter);
-                interface->fGetQueryObjecti64v = GET_PROC(GetQueryObjecti64v);
-                interface->fGetQueryObjectui64v = GET_PROC(GetQueryObjectui64v);
-            #endif
+#if GL_ARB_timer_query || GL_VERSION_3_3
+            interface->fQueryCounter = glQueryCounter;
+            interface->fGetQueryObjecti64v = glGetQueryObjecti64v;
+            interface->fGetQueryObjectui64v = glGetQueryObjectui64v;
+#else
+            GET_PROC(QueryCounter);
+            GET_PROC(GetQueryObjecti64v);
+            GET_PROC(GetQueryObjectui64v);
+#endif
         } else if (extensions.has("GL_EXT_timer_query")) {
-            #if GL_EXT_timer_query
-                interface->fGetQueryObjecti64v = glGetQueryObjecti64vEXT;
-                interface->fGetQueryObjectui64v = glGetQueryObjectui64vEXT;
-            #else
-                interface->fGetQueryObjecti64v = GET_PROC_SUFFIX(GetQueryObjecti64v, EXT);
-                interface->fGetQueryObjectui64v = GET_PROC_SUFFIX(GetQueryObjectui64v, EXT);
-            #endif
+#if GL_EXT_timer_query
+            interface->fGetQueryObjecti64v = glGetQueryObjecti64vEXT;
+            interface->fGetQueryObjectui64v = glGetQueryObjectui64vEXT;
+#else
+            GET_PROC_SUFFIX(GetQueryObjecti64v, EXT);
+            GET_PROC_SUFFIX(GetQueryObjectui64v, EXT);
+#endif
         }
 
         if (ver >= GR_GL_VER(3,0) || extensions.has("GL_ARB_framebuffer_object")) {
             // ARB extension doesn't use the ARB suffix on the function names
-            #if GL_VERSION_3_0 || GL_ARB_framebuffer_object
+#if GL_VERSION_3_0 || GL_ARB_framebuffer_object
                 interface->fGenFramebuffers = glGenFramebuffers;
                 interface->fGetFramebufferAttachmentParameteriv = glGetFramebufferAttachmentParameteriv;
                 interface->fGetRenderbufferParameteriv = glGetRenderbufferParameteriv;
@@ -207,74 +220,74 @@ const GrGLInterface* GrGLCreateNativeInterface() {
                 interface->fBindRenderbuffer = glBindRenderbuffer;
                 interface->fRenderbufferStorageMultisample = glRenderbufferStorageMultisample;
                 interface->fBlitFramebuffer = glBlitFramebuffer;
-            #else
-                interface->fGenFramebuffers = GET_PROC(GenFramebuffers);
-                interface->fGetFramebufferAttachmentParameteriv = GET_PROC(GetFramebufferAttachmentParameteriv);
-                interface->fGetRenderbufferParameteriv = GET_PROC(GetRenderbufferParameteriv);
-                interface->fBindFramebuffer = GET_PROC(BindFramebuffer);
-                interface->fFramebufferTexture2D = GET_PROC(FramebufferTexture2D);
-                interface->fCheckFramebufferStatus = GET_PROC(CheckFramebufferStatus);
-                interface->fDeleteFramebuffers = GET_PROC(DeleteFramebuffers);
-                interface->fRenderbufferStorage = GET_PROC(RenderbufferStorage);
-                interface->fGenRenderbuffers = GET_PROC(GenRenderbuffers);
-                interface->fDeleteRenderbuffers = GET_PROC(DeleteRenderbuffers);
-                interface->fFramebufferRenderbuffer = GET_PROC(FramebufferRenderbuffer);
-                interface->fBindRenderbuffer = GET_PROC(BindRenderbuffer);
-                interface->fRenderbufferStorageMultisample = GET_PROC(RenderbufferStorageMultisample);
-                interface->fBlitFramebuffer = GET_PROC(BlitFramebuffer);
-            #endif
+#else
+                GET_PROC(GenFramebuffers);
+                GET_PROC(GetFramebufferAttachmentParameteriv);
+                GET_PROC(GetRenderbufferParameteriv);
+                GET_PROC(BindFramebuffer);
+                GET_PROC(FramebufferTexture2D);
+                GET_PROC(CheckFramebufferStatus);
+                GET_PROC(DeleteFramebuffers);
+                GET_PROC(RenderbufferStorage);
+                GET_PROC(GenRenderbuffers);
+                GET_PROC(DeleteRenderbuffers);
+                GET_PROC(FramebufferRenderbuffer);
+                GET_PROC(BindRenderbuffer);
+                GET_PROC(RenderbufferStorageMultisample);
+                GET_PROC(BlitFramebuffer);
+#endif
         } else {
             if (extensions.has("GL_EXT_framebuffer_object")) {
-                #if GL_EXT_framebuffer_object
-                    interface->fGenFramebuffers = glGenFramebuffersEXT;
-                    interface->fGetFramebufferAttachmentParameteriv = glGetFramebufferAttachmentParameterivEXT;
-                    interface->fGetRenderbufferParameteriv = glGetRenderbufferParameterivEXT;
-                    interface->fBindFramebuffer = glBindFramebufferEXT;
-                    interface->fFramebufferTexture2D = glFramebufferTexture2DEXT;
-                    interface->fCheckFramebufferStatus = glCheckFramebufferStatusEXT;
-                    interface->fDeleteFramebuffers = glDeleteFramebuffersEXT;
-                    interface->fRenderbufferStorage = glRenderbufferStorageEXT;
-                    interface->fGenRenderbuffers = glGenRenderbuffersEXT;
-                    interface->fDeleteRenderbuffers = glDeleteRenderbuffersEXT;
-                    interface->fFramebufferRenderbuffer = glFramebufferRenderbufferEXT;
-                    interface->fBindRenderbuffer = glBindRenderbufferEXT;
-                #else
-                    interface->fGenFramebuffers = GET_PROC_SUFFIX(GenFramebuffers, EXT);
-                    interface->fGetFramebufferAttachmentParameteriv = GET_PROC_SUFFIX(GetFramebufferAttachmentParameteriv, EXT);
-                    interface->fGetRenderbufferParameteriv = GET_PROC_SUFFIX(GetRenderbufferParameteriv, EXT);
-                    interface->fBindFramebuffer = GET_PROC_SUFFIX(BindFramebuffer, EXT);
-                    interface->fFramebufferTexture2D = GET_PROC_SUFFIX(FramebufferTexture2D, EXT);
-                    interface->fCheckFramebufferStatus = GET_PROC_SUFFIX(CheckFramebufferStatus, EXT);
-                    interface->fDeleteFramebuffers = GET_PROC_SUFFIX(DeleteFramebuffers, EXT);
-                    interface->fRenderbufferStorage = GET_PROC_SUFFIX(RenderbufferStorage, EXT);
-                    interface->fGenRenderbuffers = GET_PROC_SUFFIX(GenRenderbuffers, EXT);
-                    interface->fDeleteRenderbuffers = GET_PROC_SUFFIX(DeleteRenderbuffers, EXT);
-                    interface->fFramebufferRenderbuffer = GET_PROC_SUFFIX(FramebufferRenderbuffer, EXT);
-                    interface->fBindRenderbuffer = GET_PROC_SUFFIX(BindRenderbuffer, EXT);
-                #endif
+#if GL_EXT_framebuffer_object
+                interface->fGenFramebuffers = glGenFramebuffersEXT;
+                interface->fGetFramebufferAttachmentParameteriv = glGetFramebufferAttachmentParameterivEXT;
+                interface->fGetRenderbufferParameteriv = glGetRenderbufferParameterivEXT;
+                interface->fBindFramebuffer = glBindFramebufferEXT;
+                interface->fFramebufferTexture2D = glFramebufferTexture2DEXT;
+                interface->fCheckFramebufferStatus = glCheckFramebufferStatusEXT;
+                interface->fDeleteFramebuffers = glDeleteFramebuffersEXT;
+                interface->fRenderbufferStorage = glRenderbufferStorageEXT;
+                interface->fGenRenderbuffers = glGenRenderbuffersEXT;
+                interface->fDeleteRenderbuffers = glDeleteRenderbuffersEXT;
+                interface->fFramebufferRenderbuffer = glFramebufferRenderbufferEXT;
+                interface->fBindRenderbuffer = glBindRenderbufferEXT;
+#else
+                GET_PROC_SUFFIX(GenFramebuffers, EXT);
+                GET_PROC_SUFFIX(GetFramebufferAttachmentParameteriv, EXT);
+                GET_PROC_SUFFIX(GetRenderbufferParameteriv, EXT);
+                GET_PROC_SUFFIX(BindFramebuffer, EXT);
+                GET_PROC_SUFFIX(FramebufferTexture2D, EXT);
+                GET_PROC_SUFFIX(CheckFramebufferStatus, EXT);
+                GET_PROC_SUFFIX(DeleteFramebuffers, EXT);
+                GET_PROC_SUFFIX(RenderbufferStorage, EXT);
+                GET_PROC_SUFFIX(GenRenderbuffers, EXT);
+                GET_PROC_SUFFIX(DeleteRenderbuffers, EXT);
+                GET_PROC_SUFFIX(FramebufferRenderbuffer, EXT);
+                GET_PROC_SUFFIX(BindRenderbuffer, EXT);
+#endif
             }
             if (extensions.has("GL_EXT_framebuffer_multisample")) {
-                #if GL_EXT_framebuffer_multisample
-                    interface->fRenderbufferStorageMultisample = glRenderbufferStorageMultisampleEXT;
-                #else
-                    interface->fRenderbufferStorageMultisample = GET_PROC_SUFFIX(RenderbufferStorageMultisample, EXT);
-                #endif
+#if GL_EXT_framebuffer_multisample
+                interface->fRenderbufferStorageMultisample = glRenderbufferStorageMultisampleEXT;
+#else
+                GET_PROC_SUFFIX(RenderbufferStorageMultisample, EXT);
+#endif
             }
             if (extensions.has("GL_EXT_framebuffer_blit")) {
-                #if GL_EXT_framebuffer_blit
-                    interface->fBlitFramebuffer = glBlitFramebufferEXT;
-                #else
-                    interface->fBlitFramebuffer = GET_PROC_SUFFIX(BlitFramebuffer, EXT);
-                #endif
+#if GL_EXT_framebuffer_blit
+                interface->fBlitFramebuffer = glBlitFramebufferEXT;
+#else
+                GET_PROC_SUFFIX(BlitFramebuffer, EXT);
+#endif
             }
         }
         if (ver >= GR_GL_VER(3,3) || extensions.has("GL_ARB_blend_func_extended")) {
             // ARB extension doesn't use the ARB suffix on the function name
-            #if GL_VERSION_3_3 || GL_ARB_blend_func_extended
-                interface->fBindFragDataLocationIndexed = glBindFragDataLocationIndexed;
-            #else
-                interface->fBindFragDataLocationIndexed = GET_PROC(BindFragDataLocationIndexed);
-            #endif
+#if GL_VERSION_3_3 || GL_ARB_blend_func_extended
+            interface->fBindFragDataLocationIndexed = glBindFragDataLocationIndexed;
+#else
+            GET_PROC(BindFragDataLocationIndexed);
+#endif
         }
     }
     glInterface.get()->ref();
