@@ -189,8 +189,8 @@ HAS_ATLAS:
     if (NULL == fVertices) {
         // position + texture coord
         static const GrVertexAttrib kVertexAttribs[] = {
-            GrVertexAttrib(kVec2f_GrVertexAttribType, 0),
-            GrVertexAttrib(kVec2f_GrVertexAttribType, sizeof(GrPoint))
+            {kVec2f_GrVertexAttribType, 0},
+            {kVec2f_GrVertexAttribType, sizeof(GrPoint)}
         };
         static const GrAttribBindings kAttribBindings = GrDrawState::ExplicitTexCoordAttribBindingsBit(kGlyphMaskStage);
 

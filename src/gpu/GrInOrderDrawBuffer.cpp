@@ -90,7 +90,8 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
 
     // set position attrib
     drawState->setAttribIndex(GrDrawState::kPosition_AttribIndex, attribs.count());
-    attribs.push_back(GrVertexAttrib(kVec2f_GrVertexAttribType, currentOffset));
+    GrVertexAttrib currAttrib = {kVec2f_GrVertexAttribType, currentOffset};
+    attribs.push_back(currAttrib);
     currentOffset += sizeof(GrPoint);
 
     // Using per-vertex colors allows batching across colors. (A lot of rects in a row differing
@@ -103,7 +104,8 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         drawState->hasSolidCoverage(drawState->getAttribBindings())) {
         bindings |= GrDrawState::kColor_AttribBindingsBit;
         drawState->setAttribIndex(GrDrawState::kColor_AttribIndex, attribs.count());
-        attribs.push_back(GrVertexAttrib(kVec4ub_GrVertexAttribType, currentOffset));
+        currAttrib.set(kVec4ub_GrVertexAttribType, currentOffset);
+        attribs.push_back(currAttrib);
         colorOffset = currentOffset;
         currentOffset += sizeof(GrColor);
         // We set the draw state's color to white here. This is done so that any batching performed
@@ -117,7 +119,8 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
     if (NULL != srcRect) {
         bindings |= GrDrawState::ExplicitTexCoordAttribBindingsBit(stage);
         drawState->setAttribIndex(GrDrawState::kTexCoord_AttribIndex, attribs.count());
-        attribs.push_back(GrVertexAttrib(kVec2f_GrVertexAttribType, currentOffset));
+        currAttrib.set(kVec2f_GrVertexAttribType, currentOffset);
+        attribs.push_back(currAttrib);
         texOffset = currentOffset;
         currentOffset += sizeof(GrPoint);
         explicitCoordMask = (1 << stage);

@@ -534,8 +534,8 @@ void GrDrawTarget::drawRect(const GrRect& rect,
     uint32_t explicitCoordMask = 0;
     // position + (optional) texture coord
     static const GrVertexAttrib kAttribs[] = {
-        GrVertexAttrib(kVec2f_GrVertexAttribType, 0),
-        GrVertexAttrib(kVec2f_GrVertexAttribType, sizeof(GrPoint))
+        {kVec2f_GrVertexAttribType, 0},
+        {kVec2f_GrVertexAttribType, sizeof(GrPoint)}
     };
     int attribCount = 1;
 
