@@ -36,7 +36,7 @@ public:
           * or equal to the margin, there is no need to extend the domain of
           * the tile grid to prevent data loss.
           */
-        SkIPoint fOffset; 
+        SkIPoint fOffset;
     };
     /**
      * Constructor
@@ -45,7 +45,7 @@ public:
      * @param info description of the tiling layout
      */
     SkTileGridPicture(int width, int height, const TileGridInfo& info);
-    
+
     virtual SkBBoxHierarchy* createBBoxHierarchy() const SK_OVERRIDE;
 
 private:

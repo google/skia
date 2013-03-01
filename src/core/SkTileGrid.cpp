@@ -45,7 +45,7 @@ void SkTileGrid::insert(void* data, const SkIRect& bounds, bool) {
 
     // Note: SkIRects are non-inclusive of the right() column and bottom() row,
     // hence the "-1"s in the computations of maxTileX and maxTileY.
-    int minTileX = SkMax32(SkMin32(dilatedBounds.left() / fInfo.fTileInterval.width(), 
+    int minTileX = SkMax32(SkMin32(dilatedBounds.left() / fInfo.fTileInterval.width(),
         fXTileCount - 1), 0);
     int maxTileX = SkMax32(SkMin32((dilatedBounds.right() - 1) / fInfo.fTileInterval.width(),
         fXTileCount - 1), 0);

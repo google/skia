@@ -17,7 +17,7 @@ GrGLContextInfo& GrGLContextInfo::operator= (const GrGLContextInfo& ctxInfo) {
     fGLCaps = ctxInfo.fGLCaps;
     return *this;
 }
-    
+
 bool GrGLContextInfo::initialize(const GrGLInterface* interface) {
     this->reset();
     // We haven't validated the GrGLInterface yet, so check for GetString
@@ -44,7 +44,7 @@ bool GrGLContextInfo::initialize(const GrGLInterface* interface) {
 }
 
 bool GrGLContextInfo::isInitialized() const {
-    return kNone_GrGLBinding != fBindingInUse;    
+    return kNone_GrGLBinding != fBindingInUse;
 }
 
 void GrGLContextInfo::reset() {

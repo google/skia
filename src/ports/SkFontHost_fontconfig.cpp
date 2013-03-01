@@ -214,11 +214,11 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkStream* SkFontHost::OpenStream(uint32_t id) {
-    FontConfigTypeface* face = (FontConfigTypeface*)SkTypefaceCache::FindByID(id);    
+    FontConfigTypeface* face = (FontConfigTypeface*)SkTypefaceCache::FindByID(id);
     if (NULL == face) {
         return NULL;
     }
-    
+
     SkStream* stream = face->getLocalStream();
     if (stream) {
         stream->ref();
@@ -234,7 +234,7 @@ SkStream* SkFontHost::OpenStream(uint32_t id) {
 
 size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
                                int32_t* index) {
-    FontConfigTypeface* face = (FontConfigTypeface*)SkTypefaceCache::FindByID(fontID);    
+    FontConfigTypeface* face = (FontConfigTypeface*)SkTypefaceCache::FindByID(fontID);
     if (NULL == face || face->getLocalStream()) {
         return 0;
     }
@@ -251,5 +251,3 @@ size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
     }
     return filename.size();
 }
-
-

@@ -81,7 +81,7 @@ void append_swizzle(SkString* outAppend,
 // varying by stage, if we use 1D textures for gradients!
 //const int GrGLShaderBuilder::fCoordDims = 2;
 
-GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo, 
+GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
                                      GrGLUniformManager& uniformManager)
     : fUniforms(kVarsPerBlock)
     , fVSAttrs(kVarsPerBlock)
