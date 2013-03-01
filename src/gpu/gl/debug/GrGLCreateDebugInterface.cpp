@@ -16,7 +16,6 @@
 #include "GrTextureObj.h"
 #include "GrFrameBufferObj.h"
 #include "GrRenderBufferObj.h"
-#include "GrVertexArrayObj.h"
 #include "SkFloatingPoint.h"
 #include "../GrGLNoOpInterface.h"
 
@@ -213,7 +212,8 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLReadPixels(GrGLint x,
      GrDebugGL::getInstance()->setFrameBuffer(frameBuffer);
  }
 
- GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindRenderbuffer(GrGLenum target, GrGLuint renderBufferID) {
+ GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindRenderbuffer(GrGLenum target,
+                                                      GrGLuint renderBufferID) {
 
      GrAlwaysAssert(GR_GL_RENDERBUFFER == target);
 
@@ -225,7 +225,8 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLReadPixels(GrGLint x,
      GrDebugGL::getInstance()->setRenderBuffer(renderBuffer);
  }
 
- GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteTextures(GrGLsizei n, const GrGLuint* textures) {
+ GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteTextures(GrGLsizei n,
+                                                    const GrGLuint* textures) {
 
      // first potentially unbind the texture
      // TODO: move this into GrDebugGL as unBindTexture?
@@ -285,6 +286,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLReadPixels(GrGLint x,
      }
 
  }
+
 
  GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteFramebuffers(GrGLsizei n,
                                                         const GrGLuint *frameBuffers) {
@@ -516,55 +518,32 @@ GrGLvoid debugGenObjs(GrDebugGL::GrObjTypes type,
 }
 
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLGenBuffers(GrGLsizei n, GrGLuint* ids) {
+
     debugGenObjs(GrDebugGL::kBuffer_ObjTypes, n, ids);
 }
 
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLGenFramebuffers(GrGLsizei n,
                                                     GrGLuint* ids) {
+
     debugGenObjs(GrDebugGL::kFrameBuffer_ObjTypes, n, ids);
 }
 
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLGenRenderbuffers(GrGLsizei n,
                                                      GrGLuint* ids) {
+
     debugGenObjs(GrDebugGL::kRenderBuffer_ObjTypes, n, ids);
 }
 
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLGenTextures(GrGLsizei n, GrGLuint* ids) {
+
     debugGenObjs(GrDebugGL::kTexture_ObjTypes, n, ids);
 }
 
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLGenVertexArrays(GrGLsizei n, GrGLuint* ids) {
-    debugGenObjs(GrDebugGL::kVertexArray_ObjTypes, n, ids);
-}
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindBuffer(GrGLenum target,
+                                               GrGLuint bufferID) {
 
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteVertexArrays(GrGLsizei n, const GrGLuint* ids) {
-    for (GrGLsizei i = 0; i < n; ++i) {
-        GrVertexArrayObj* array =
-            GR_FIND(ids[i], GrVertexArrayObj, GrDebugGL::kVertexArray_ObjTypes);
-        GrAlwaysAssert(array);
-
-        // Deleting the current vertex array binds object 0
-        if (GrDebugGL::getInstance()->getVertexArray() == array) {
-            GrDebugGL::getInstance()->setVertexArray(NULL);
-        }
-
-        if (array->getRefCount()) {
-            // someone is still using this shader so we can't delete it here
-            array->setMarkedForDeletion();
-        } else {
-            array->deleteAction();
-        }
-    }
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindVertexArray(GrGLuint id) {
-    GrVertexArrayObj* array = GR_FIND(id, GrVertexArrayObj, GrDebugGL::kVertexArray_ObjTypes);
-    GrAlwaysAssert(array);
-    GrDebugGL::getInstance()->setVertexArray(array);
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindBuffer(GrGLenum target, GrGLuint bufferID) {
-    GrAlwaysAssert(GR_GL_ARRAY_BUFFER == target || GR_GL_ELEMENT_ARRAY_BUFFER == target);
+    GrAlwaysAssert(GR_GL_ARRAY_BUFFER == target ||
+                   GR_GL_ELEMENT_ARRAY_BUFFER == target);
 
     GrBufferObj *buffer = GR_FIND(bufferID,
                                   GrBufferObj,
@@ -585,7 +564,8 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindBuffer(GrGLenum target, GrGLuint bufferI
 }
 
 // deleting a bound buffer has the side effect of binding 0
-GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteBuffers(GrGLsizei n, const GrGLuint* ids) {
+GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteBuffers(GrGLsizei n,
+                                                  const GrGLuint* ids) {
     // first potentially unbind the buffers
     for (int i = 0; i < n; ++i) {
 
@@ -615,7 +595,8 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteBuffers(GrGLsizei n, const GrGLuint* i
 }
 
 // map a buffer to the caller's address space
-GrGLvoid* GR_GL_FUNCTION_TYPE debugGLMapBuffer(GrGLenum target, GrGLenum access) {
+GrGLvoid* GR_GL_FUNCTION_TYPE debugGLMapBuffer(GrGLenum target,
+                                               GrGLenum access) {
 
     GrAlwaysAssert(GR_GL_ARRAY_BUFFER == target ||
                    GR_GL_ELEMENT_ARRAY_BUFFER == target);
@@ -786,7 +767,6 @@ const GrGLInterface* GrGLCreateDebugInterface() {
     interface->fBindBuffer = debugGLBindBuffer;
     interface->fBindFragDataLocation = noOpGLBindFragDataLocation;
     interface->fBindTexture = debugGLBindTexture;
-    interface->fBindVertexArray = debugGLBindVertexArray;
     interface->fBlendColor = noOpGLBlendColor;
     interface->fBlendFunc = noOpGLBlendFunc;
     interface->fBufferData = debugGLBufferData;
@@ -805,7 +785,6 @@ const GrGLInterface* GrGLCreateDebugInterface() {
     interface->fDeleteQueries = noOpGLDeleteIds;
     interface->fDeleteShader = debugGLDeleteShader;
     interface->fDeleteTextures = debugGLDeleteTextures;
-    interface->fDeleteVertexArrays = debugGLDeleteVertexArrays;
     interface->fDepthMask = noOpGLDepthMask;
     interface->fDisable = noOpGLDisable;
     interface->fDisableVertexAttribArray = noOpGLDisableVertexAttribArray;
@@ -838,7 +817,6 @@ const GrGLInterface* GrGLCreateDebugInterface() {
     interface->fGetStringi = noOpGLGetStringi;
     interface->fGetTexLevelParameteriv = noOpGLGetTexLevelParameteriv;
     interface->fGetUniformLocation = noOpGLGetUniformLocation;
-    interface->fGenVertexArrays = debugGLGenVertexArrays;
     interface->fLineWidth = noOpGLLineWidth;
     interface->fLinkProgram = noOpGLLinkProgram;
     interface->fPixelStorei = debugGLPixelStorei;
