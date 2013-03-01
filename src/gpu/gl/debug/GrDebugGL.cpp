@@ -14,7 +14,7 @@
 #include "GrShaderObj.h"
 #include "GrProgramObj.h"
 #include "GrTextureUnitObj.h"
-#include "GrVertexArrayObj.h"
+
 
 GrDebugGL* GrDebugGL::gObj = NULL;
 int GrDebugGL::gStaticRefCount = 0;
@@ -26,7 +26,6 @@ GrDebugGL::Create GrDebugGL::gFactoryFunc[kObjTypeCount] = {
     GrShaderObj::createGrShaderObj,
     GrProgramObj::createGrProgramObj,
     GrTextureUnitObj::createGrTextureUnitObj,
-    GrVertexArrayObj::createGrVertexArrayObj,
 };
 
 
@@ -39,8 +38,7 @@ GrDebugGL::GrDebugGL()
     , fFrameBuffer(NULL)
     , fRenderBuffer(NULL)
     , fProgram(NULL)
-    , fTexture(NULL)
-    , fVertexArray(NULL)  {
+    , fTexture(NULL) {
 
     for (int i = 0; i < kDefaultMaxTextureUnits; ++i) {
 
@@ -72,7 +70,6 @@ GrDebugGL::~GrDebugGL() {
     fRenderBuffer = NULL;
     fProgram = NULL;
     fTexture = NULL;
-    fVertexArray = NULL;
 }
 
 GrFakeRefObj *GrDebugGL::findObject(GrGLuint ID, GrObjTypes type) {
@@ -108,10 +105,6 @@ void GrDebugGL::setArrayBuffer(GrBufferObj *arrayBuffer) {
         GrAlwaysAssert(!fArrayBuffer->getBound());
         fArrayBuffer->setBound();
     }
-}
-
-void GrDebugGL::setVertexArray(GrVertexArrayObj* vertexArray) {
-    SkRefCnt_SafeAssign(fVertexArray, vertexArray);
 }
 
 void GrDebugGL::setElementArrayBuffer(GrBufferObj *elementArrayBuffer) {
