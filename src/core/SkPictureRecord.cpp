@@ -554,6 +554,7 @@ void SkPictureRecord::recordRestoreOffsetPlaceholder(SkRegion::Op op) {
 bool SkPictureRecord::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
     // id + rect + clip params
     uint32_t size = 1 * kUInt32Size + sizeof(rect) + 1 * kUInt32Size;
+    // recordRestoreOffsetPlaceholder doesn't always write an offset
     if (!fRestoreOffsetStack.isEmpty()) {
         // + restore offset
         size += kUInt32Size;
@@ -574,6 +575,7 @@ bool SkPictureRecord::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA
 
     // op + rrect + clip params
     uint32_t size = 1 * kUInt32Size + SkRRect::kSizeInMemory + 1 * kUInt32Size;
+    // recordRestoreOffsetPlaceholder doesn't always write an offset
     if (!fRestoreOffsetStack.isEmpty()) {
         // + restore offset
         size += kUInt32Size;
@@ -601,6 +603,7 @@ bool SkPictureRecord::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
 
     // op + path index + clip params
     uint32_t size = 3 * kUInt32Size;
+    // recordRestoreOffsetPlaceholder doesn't always write an offset
     if (!fRestoreOffsetStack.isEmpty()) {
         // + restore offset
         size += kUInt32Size;
@@ -622,6 +625,7 @@ bool SkPictureRecord::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
 bool SkPictureRecord::clipRegion(const SkRegion& region, SkRegion::Op op) {
     // op + region index + clip params
     uint32_t size = 3 * kUInt32Size;
+    // recordRestoreOffsetPlaceholder doesn't always write an offset
     if (!fRestoreOffsetStack.isEmpty()) {
         // + restore offset
         size += kUInt32Size;
