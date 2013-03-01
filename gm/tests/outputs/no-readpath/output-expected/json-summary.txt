@@ -3,11 +3,11 @@
       "failed" : null,
       "failure-ignored" : null,
       "no-comparison" : {
-         "565/dashing2" : {
-            "checksum" : FAKE
+         "565/selftest1" : {
+            "checksum" : 9948284449770991531
          },
-         "8888/dashing2" : {
-            "checksum" : FAKE
+         "8888/selftest1" : {
+            "checksum" : 9948284449770991531
          }
       },
       "succeeded" : null

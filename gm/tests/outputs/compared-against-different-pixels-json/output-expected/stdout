@@ -1,3 +1,3 @@
 reading expectations from JSON summary file gm/tests/inputs/json/different-pixels.json
-drawing... dashing2 [640 480]
+drawing... selftest1 [300 200]
 Ran 1 tests: 0 passed, 1 failed, 0 missing reference images
