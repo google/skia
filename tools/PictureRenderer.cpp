@@ -370,10 +370,6 @@ TiledPictureRenderer::TiledPictureRenderer()
     , fTilesY(0) { }
 
 void TiledPictureRenderer::init(SkPicture* pict) {
-    fGridInfo.fMargin.setEmpty();
-    fGridInfo.fOffset.setZero();
-    fGridInfo.fTileInterval.set(1, 1);
-
     SkASSERT(pict != NULL);
     SkASSERT(0 == fTileRects.count());
     if (NULL == pict || fTileRects.count() != 0) {
