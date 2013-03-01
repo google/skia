@@ -495,6 +495,26 @@ public:
         return array;
     }
 
+    /**
+     * Unflatten the specific object at the given index
+     */
+    T* unflatten(int index) const {
+        // fData is sorted so it is necessary to search through it to find the
+        // SkFlatData with the specified index
+        // TODO: findAndReplace makes it a bit difficult but there must be 
+        // a better way to perform this mapping
+        for (int i = 0; i < fData.count(); ++i) {
+            const SkFlatData* element = fData[i];
+            if (index == element->index()) {
+                T* dst = new T;
+                this->unflatten(dst, element);
+                return dst;
+            }
+        }
+
+        return NULL;
+    }
+
     const SkFlatData* findAndReturnFlat(const T& element) {
         SkFlatData* flat = SkFlatData::Create(fController, &element, fNextIndex, fFlattenProc);
 
@@ -528,6 +548,12 @@ protected:
     void (*fUnflattenProc)(SkOrderedReadBuffer&, void*);
 
 private:
+    void unflatten(T* dst, const SkFlatData* element) const {
+        element->unflatten(dst, fUnflattenProc,
+                           fController->getBitmapHeap(),
+                           fController->getTypefacePlayback());
+    }
+
     void unflattenIntoArray(T* array) const {
         const int count = fData.count();
         const SkFlatData* const* iter = fData.begin();
@@ -535,9 +561,7 @@ private:
             const SkFlatData* element = iter[i];
             int index = element->index() - 1;
             SkASSERT((unsigned)index < (unsigned)count);
-            element->unflatten(&array[index], fUnflattenProc,
-                               fController->getBitmapHeap(),
-                               fController->getTypefacePlayback());
+            unflatten(&array[index], element);
         }
     }
 
