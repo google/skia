@@ -68,6 +68,7 @@
     '../gm/rrects.cpp',
     '../gm/samplerstress.cpp',
     '../gm/shaderbounds.cpp',
+    '../gm/selftest.cpp',
     '../gm/shadertext.cpp',
     '../gm/shadertext2.cpp',
     '../gm/shadertext3.cpp',

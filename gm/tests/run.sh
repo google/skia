@@ -5,9 +5,8 @@
 # These tests are run by the Skia_PerCommit_House_Keeping bot at every commit,
 # so make sure that they still pass when you make changes to gm!
 #
-# TODO: currently, this only passes on Linux (which is the platform that
-# the housekeeper bot runs on, e.g.
-# http://70.32.156.51:10117/builders/Skia_PerCommit_House_Keeping/builds/1417/steps/RunGmSelfTests/logs/stdio )
+# TODO: because this is written as a shell script (instead of, say, Python)
+# it only runs on Linux and Mac.
 # See https://code.google.com/p/skia/issues/detail?id=677
 # ('make tools/tests/run.sh work cross-platform')
 # Ideally, these tests should pass on all development platforms...
@@ -74,14 +73,6 @@ function gm_test {
     >$ACTUAL_OUTPUT_DIR/stdout-tmp
   mv $ACTUAL_OUTPUT_DIR/stdout-tmp $ACTUAL_OUTPUT_DIR/stdout
 
-  # Replace particular checksums in json summary with a placeholder, so
-  # we don't need to rebaseline these json files when our drawing routines
-  # change.
-  sed -e 's/"checksum" : [0-9]*/"checksum" : FAKE/g' \
-    --in-place $JSON_SUMMARY_FILE
-  sed -e 's/"checksums" : \[ [0-9]* \]/"checksums" : [ FAKE ]/g' \
-    --in-place $JSON_SUMMARY_FILE
-
   compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
 }
 
@@ -104,32 +95,32 @@ function create_inputs_dir {
 
   mkdir -p $IMAGES_DIR/identical-bytes
   # Run GM to write out the images actually generated.
-  $GM_BINARY --hierarchy --match dashing2 $CONFIGS \
+  $GM_BINARY --hierarchy --match selftest1 $CONFIGS \
     -w $IMAGES_DIR/identical-bytes
   # Run GM again to read in those images and write them out as a JSON summary.
-  $GM_BINARY --hierarchy --match dashing2 $CONFIGS \
+  $GM_BINARY --hierarchy --match selftest1 $CONFIGS \
     -r $IMAGES_DIR/identical-bytes \
     --writeJsonSummary $JSON_DIR/identical-bytes.json
 
   mkdir -p $IMAGES_DIR/identical-pixels
-  $GM_BINARY --hierarchy --match dashing2 $CONFIGS \
+  $GM_BINARY --hierarchy --match selftest1 $CONFIGS \
     -w $IMAGES_DIR/identical-pixels
   echo "more bytes that do not change the image pixels" \
-    >> $IMAGES_DIR/identical-pixels/8888/dashing2.png
+    >> $IMAGES_DIR/identical-pixels/8888/selftest1.png
   echo "more bytes that do not change the image pixels" \
-    >> $IMAGES_DIR/identical-pixels/565/dashing2.png
-  $GM_BINARY --hierarchy --match dashing2 $CONFIGS \
+    >> $IMAGES_DIR/identical-pixels/565/selftest1.png
+  $GM_BINARY --hierarchy --match selftest1 $CONFIGS \
     -r $IMAGES_DIR/identical-pixels \
     --writeJsonSummary $JSON_DIR/identical-pixels.json
 
   mkdir -p $IMAGES_DIR/different-pixels
-  $GM_BINARY --hierarchy --match dashing3 $CONFIGS \
+  $GM_BINARY --hierarchy --match selftest2 $CONFIGS \
     -w $IMAGES_DIR/different-pixels
-  mv $IMAGES_DIR/different-pixels/8888/dashing3.png \
-    $IMAGES_DIR/different-pixels/8888/dashing2.png
-  mv $IMAGES_DIR/different-pixels/565/dashing3.png \
-    $IMAGES_DIR/different-pixels/565/dashing2.png
-  $GM_BINARY --hierarchy --match dashing2 $CONFIGS \
+  mv $IMAGES_DIR/different-pixels/8888/selftest2.png \
+    $IMAGES_DIR/different-pixels/8888/selftest1.png
+  mv $IMAGES_DIR/different-pixels/565/selftest2.png \
+    $IMAGES_DIR/different-pixels/565/selftest1.png
+  $GM_BINARY --hierarchy --match selftest1 $CONFIGS \
     -r $IMAGES_DIR/different-pixels \
     --writeJsonSummary $JSON_DIR/different-pixels.json
 
@@ -144,24 +135,24 @@ GM_TEMPFILES=$GM_TESTDIR/tempfiles
 create_inputs_dir $GM_INPUTS
 
 # Compare generated image against an input image file with identical bytes.
-gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/images/identical-bytes" "$GM_OUTPUTS/compared-against-identical-bytes-images"
-gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/json/identical-bytes.json" "$GM_OUTPUTS/compared-against-identical-bytes-json"
+gm_test "--hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/identical-bytes" "$GM_OUTPUTS/compared-against-identical-bytes-images"
+gm_test "--hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/identical-bytes.json" "$GM_OUTPUTS/compared-against-identical-bytes-json"
 
 # Compare generated image against an input image file with identical pixels but different PNG encoding.
-gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/images/identical-pixels" "$GM_OUTPUTS/compared-against-identical-pixels-images"
-gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/json/identical-pixels.json" "$GM_OUTPUTS/compared-against-identical-pixels-json"
+gm_test "--hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/identical-pixels" "$GM_OUTPUTS/compared-against-identical-pixels-images"
+gm_test "--hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/identical-pixels.json" "$GM_OUTPUTS/compared-against-identical-pixels-json"
 
 # Compare generated image against an input image file with different pixels.
-gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/images/different-pixels" "$GM_OUTPUTS/compared-against-different-pixels-images"
-gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/json/different-pixels.json" "$GM_OUTPUTS/compared-against-different-pixels-json"
+gm_test "--hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/different-pixels" "$GM_OUTPUTS/compared-against-different-pixels-images"
+gm_test "--hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/different-pixels.json" "$GM_OUTPUTS/compared-against-different-pixels-json"
 
 # Compare generated image against an empty "expected image" dir.
-gm_test "--hierarchy --match dashing2 $CONFIGS -r $GM_INPUTS/images/empty-dir" "$GM_OUTPUTS/compared-against-empty-dir"
+gm_test "--hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/empty-dir" "$GM_OUTPUTS/compared-against-empty-dir"
 
 # If run without "-r", the JSON's "actual-results" section should contain
 # actual checksums marked as "failure-ignored", but the "expected-results"
 # section should be empty.
-gm_test "--hierarchy --match dashing2 $CONFIGS" "$GM_OUTPUTS/no-readpath"
+gm_test "--hierarchy --match selftest1 $CONFIGS" "$GM_OUTPUTS/no-readpath"
 
 # Run a test which generates partially transparent images, write out those
 # images, and read them back in.

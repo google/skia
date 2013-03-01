@@ -1,11 +1,11 @@
 {
    "actual-results" : {
       "failed" : {
-         "565/dashing2" : {
-            "checksum" : FAKE
+         "565/selftest1" : {
+            "checksum" : 9948284449770991531
          },
-         "8888/dashing2" : {
-            "checksum" : FAKE
+         "8888/selftest1" : {
+            "checksum" : 9948284449770991531
          }
       },
       "failure-ignored" : null,
@@ -13,12 +13,12 @@
       "succeeded" : null
    },
    "expected-results" : {
-      "565/dashing2" : {
-         "checksums" : [ FAKE ],
+      "565/selftest1" : {
+         "checksums" : [ 8143889227369140487 ],
          "ignore-failure" : false
       },
-      "8888/dashing2" : {
-         "checksums" : [ FAKE ],
+      "8888/selftest1" : {
+         "checksums" : [ 8143889227369140487 ],
          "ignore-failure" : false
       }
    }

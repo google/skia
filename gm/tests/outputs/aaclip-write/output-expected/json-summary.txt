@@ -4,10 +4,10 @@
       "failure-ignored" : null,
       "no-comparison" : {
          "simpleaaclip_path_565" : {
-            "checksum" : FAKE
+            "checksum" : 8375148850964385904
          },
          "simpleaaclip_path_8888" : {
-            "checksum" : FAKE
+            "checksum" : 4719056555285640269
          }
       },
       "succeeded" : null
