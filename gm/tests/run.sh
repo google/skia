@@ -154,20 +154,4 @@ gm_test "--hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/empty-dir" 
 # section should be empty.
 gm_test "--hierarchy --match selftest1 $CONFIGS" "$GM_OUTPUTS/no-readpath"
 
-# Run a test which generates partially transparent images, write out those
-# images, and read them back in.
-#
-# This test would have caught
-# http://code.google.com/p/skia/issues/detail?id=1079 ('gm generating
-# spurious pixel_error messages as of r7258').
-#
-# TODO(epoger): Disabled pending https://code.google.com/p/skia/issues/detail?id=1142
-# ('gm self-tests: aaclip checksums failing')
-#
-#IMAGEDIR=$GM_TEMPFILES/aaclip-images
-#rm -rf $IMAGEDIR
-#mkdir -p $IMAGEDIR
-#gm_test "--match simpleaaclip_path $CONFIGS -w $IMAGEDIR" "$GM_OUTPUTS/aaclip-write"
-#gm_test "--match simpleaaclip_path $CONFIGS -r $IMAGEDIR" "$GM_OUTPUTS/aaclip-readback"
-
 echo "All tests passed."
