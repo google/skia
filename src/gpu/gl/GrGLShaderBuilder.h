@@ -187,6 +187,8 @@ public:
     // TODO: Make this do all the compiling, linking, etc.
     void finished(GrGLuint programID);
 
+    const GrGLContextInfo& ctxInfo() const { return fCtxInfo; }
+
 private:
     typedef GrTAllocator<GrGLShaderVar> VarArray;
 
