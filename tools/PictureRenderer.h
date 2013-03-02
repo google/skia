@@ -260,6 +260,9 @@ public:
         , fGrContext(NULL)
 #endif
         {
+            fGridInfo.fMargin.setEmpty();
+            fGridInfo.fOffset.setZero();
+            fGridInfo.fTileInterval.set(1, 1);
             sk_bzero(fDrawFilters, sizeof(fDrawFilters));
             fViewport.set(0, 0);
         }
