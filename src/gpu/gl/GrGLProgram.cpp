@@ -196,7 +196,7 @@ void GrGLProgram::BuildDesc(const GrDrawState& drawState,
         desc->fColorAttributeIndex = drawState.getAttribIndex(GrDrawState::kColor_AttribIndex);
     } else {
         desc->fColorAttributeIndex = GrDrawState::kColorOverrideAttribIndexValue;
-    } 
+    }
     if (requiresAttributeCoverage) {
         desc->fCoverageAttributeIndex = drawState.getAttribIndex(GrDrawState::kCoverage_AttribIndex);
     } else {
@@ -1015,14 +1015,14 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& buil
                                builder.positionAttribute().c_str()));
     GL_CALL(BindAttribLocation(fProgramID, fDesc.fColorAttributeIndex, COL_ATTR_NAME));
     GL_CALL(BindAttribLocation(fProgramID, fDesc.fCoverageAttributeIndex, COV_ATTR_NAME));
- 
+
     if (fDesc.fAttribBindings & GrDrawState::kEdge_AttribBindingsBit) {
         GL_CALL(BindAttribLocation(fProgramID, fDesc.fEdgeAttributeIndex, EDGE_ATTR_NAME));
     }
     if (GrDrawState::AttributesBindExplicitTexCoords(fDesc.fAttribBindings)) {
         GL_CALL(BindAttribLocation(fProgramID, fDesc.fTexCoordAttributeIndex, TEX_ATTR_NAME));
     }
-    
+
     GL_CALL(LinkProgram(fProgramID));
 
     GrGLint linked = GR_GL_INIT_ZERO;

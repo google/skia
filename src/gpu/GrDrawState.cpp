@@ -72,7 +72,7 @@ const size_t GrDrawState::kVertexAttribSizes[kGrVertexAttribTypeCount] = {
     sizeof(float),          // kFloat_GrVertexAttribType
     2*sizeof(float),        // kVec2_GrVertexAttribType
     3*sizeof(float),        // kVec3_GrVertexAttribType
-    4*sizeof(float),        // kVec4_GrVertexAttribType 
+    4*sizeof(float),        // kVec4_GrVertexAttribType
     4*sizeof(char)          // kCVec4_GrVertexAttribType
 };
 
@@ -125,7 +125,7 @@ void GrDrawState::setDefaultVertexAttribs() {
     static const GrVertexAttrib kPositionAttrib = {kVec2f_GrVertexAttribType, 0};
     fVertexAttribs.reset();
     fVertexAttribs.push_back(kPositionAttrib);
-    
+
     fCommon.fAttribBindings = kDefault_AttribBindings;
 
     fAttribIndices[kPosition_AttribIndex] = 0;
@@ -152,7 +152,7 @@ void GrDrawState::VertexAttributesUnitTest() {
 
         GrVertexAttribArray<6> attribs;
         GrAssert(0 == vertex_size(attribs.begin(), attribs.count()));
- 
+
         GrVertexAttrib currAttrib = {kFloat_GrVertexAttribType, 0};
         attribs.push_back(currAttrib);
         GrAssert(sizeof(float) == vertex_size(attribs.begin(), attribs.count()));
@@ -170,15 +170,15 @@ void GrDrawState::VertexAttributesUnitTest() {
         GrAssert(4*sizeof(char) + 2*sizeof(float) == vertex_size(attribs.begin(), attribs.count()));
         currAttrib.set(kVec3f_GrVertexAttribType, attribs[1].fOffset + 2*sizeof(float));
         attribs.push_back(currAttrib);
-        GrAssert(4*sizeof(char) + 2*sizeof(float) + 3*sizeof(float) == 
+        GrAssert(4*sizeof(char) + 2*sizeof(float) + 3*sizeof(float) ==
                  vertex_size(attribs.begin(), attribs.count()));
         currAttrib.set(kFloat_GrVertexAttribType, attribs[2].fOffset + 3*sizeof(float));
         attribs.push_back(currAttrib);
-        GrAssert(4*sizeof(char) + 2*sizeof(float) + 3*sizeof(float) + sizeof(float) == 
+        GrAssert(4*sizeof(char) + 2*sizeof(float) + 3*sizeof(float) + sizeof(float) ==
                  vertex_size(attribs.begin(), attribs.count()));
         currAttrib.set(kVec4f_GrVertexAttribType, attribs[3].fOffset + sizeof(float));
         attribs.push_back(currAttrib);
-        GrAssert(4*sizeof(char) + 2*sizeof(float) + 3*sizeof(float) + sizeof(float) + 4*sizeof(float) == 
+        GrAssert(4*sizeof(char) + 2*sizeof(float) + 3*sizeof(float) + sizeof(float) + 4*sizeof(float) ==
                  vertex_size(attribs.begin(), attribs.count()));
 
         GrAttribBindings tcMask = 0;
