@@ -13,7 +13,7 @@ SK_DEFINE_INST_COUNT(GrAARectRenderer)
 
 namespace {
 
-static void aa_rect_attributes(bool useCoverage, GrAttribBindings* bindings, 
+static void aa_rect_attributes(bool useCoverage, GrAttribBindings* bindings,
                                GrDrawState::AttribIndex* index) {
     if (useCoverage) {
         *bindings = GrDrawState::kCoverage_AttribBindingsBit;
@@ -211,7 +211,7 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
         this->fillAARect(gpu, target, r, useVertexCoverage);
         return;
     }
-    
+
     // position + color/coverage
     static const GrVertexAttrib kVertexAttribs[] = {
         {kVec2f_GrVertexAttribType, 0},

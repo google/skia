@@ -501,7 +501,7 @@ public:
     T* unflatten(int index) const {
         // fData is sorted so it is necessary to search through it to find the
         // SkFlatData with the specified index
-        // TODO: findAndReplace makes it a bit difficult but there must be 
+        // TODO: findAndReplace makes it a bit difficult but there must be
         // a better way to perform this mapping
         for (int i = 0; i < fData.count(); ++i) {
             const SkFlatData* element = fData[i];

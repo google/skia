@@ -67,7 +67,7 @@ SkPictureRecord::~SkPictureRecord() {
 // this method)
 static inline uint32_t getPaintOffset(DrawType op, uint32_t opSize) {
     // These offsets are where the paint would be if the op size doesn't overflow
-    static const uint8_t gPaintOffsets[LAST_DRAWTYPE_ENUM + 1] = {	  
+    static const uint8_t gPaintOffsets[LAST_DRAWTYPE_ENUM + 1] = {
         0,  // UNUSED - no paint
         0,  // CLIP_PATH - no paint
         0,  // CLIP_REGION - no paint
@@ -99,13 +99,13 @@ static inline uint32_t getPaintOffset(DrawType op, uint32_t opSize) {
         0,  // RESTORE - no paint
         0,  // ROTATE - no paint
         0,  // SAVE - no paint
-        0,  // SAVE_LAYER - see below - this paint's location varies 
+        0,  // SAVE_LAYER - see below - this paint's location varies
         0,  // SCALE - no paint
         0,  // SET_MATRIX - no paint
         0,  // SKEW - no paint
         0,  // TRANSLATE - no paint
         0,  // NOOP - no paint
-    };	
+    };
 
     SkASSERT(sizeof(gPaintOffsets) == LAST_DRAWTYPE_ENUM + 1);
     SkASSERT((unsigned)op <= (unsigned)LAST_DRAWTYPE_ENUM);
@@ -215,7 +215,7 @@ static DrawType peek_op_and_size(SkWriter32* writer, int32_t offset, uint32_t* s
 
 // Is the supplied paint simply a color?
 static bool is_simple(const SkPaint& p) {
-    intptr_t orAccum = (intptr_t)p.getPathEffect()  | 
+    intptr_t orAccum = (intptr_t)p.getPathEffect()  |
                        (intptr_t)p.getShader()      |
                        (intptr_t)p.getXfermode()    |
                        (intptr_t)p.getMaskFilter()  |
@@ -227,14 +227,14 @@ static bool is_simple(const SkPaint& p) {
 }
 
 /*
- * Restore has just been called (but not recorded), look back at the 
+ * Restore has just been called (but not recorded), look back at the
  * matching save* and see if we are in the configuration:
  *   SAVE_LAYER
  *       DRAW_BITMAP|DRAW_BITMAP_MATRIX|DRAW_BITMAP_NINE|DRAW_BITMAP_RECT_TO_RECT
  *   RESTORE
  * where the saveLayer's color can be moved into the drawBitmap*'s paint
  */
-static bool remove_save_layer1(SkWriter32* writer, int32_t offset, 
+static bool remove_save_layer1(SkWriter32* writer, int32_t offset,
                                SkPaintDictionary* paintDict) {
 
     int32_t restoreOffset = (int32_t)writer->size();
@@ -292,8 +292,8 @@ static bool remove_save_layer1(SkWriter32* writer, int32_t offset,
         uint32_t* ptr = writer->peek32(saveLayerOffset);
         *ptr = (*ptr & MASK_24) | (NOOP << 24);
         return true;
-    } 
-    
+    }
+
     if (0 == dbmPaintId) {
         // In this case just make the DBM* use the saveLayer's paint, kill the saveLayer
         // and signal the caller (by returning true) to not add the RESTORE op
@@ -303,7 +303,7 @@ static bool remove_save_layer1(SkWriter32* writer, int32_t offset,
         SkASSERT(0 == *ptr);
         *ptr = saveLayerPaintId;
         return true;
-    } 
+    }
 
     SkAutoTDelete<SkPaint> saveLayerPaint(paintDict->unflatten(saveLayerPaintId));
     if (NULL == saveLayerPaint.get() || !is_simple(*saveLayerPaint)) {
@@ -322,7 +322,7 @@ static bool remove_save_layer1(SkWriter32* writer, int32_t offset,
     if (NULL == dbmPaint.get() || dbmPaint->getColor() != layerColor) {
         return false;
     }
-    
+
     SkColor newColor = SkColorSetA(dbmPaint->getColor(),
                                    SkColorGetA(saveLayerPaint->getColor()));
     dbmPaint->setColor(newColor);

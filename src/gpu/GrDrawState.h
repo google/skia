@@ -38,7 +38,7 @@ enum GrVertexAttribType {
 static const int kGrVertexAttribTypeCount = kLast_GrVertexAttribType + 1;
 
 struct GrVertexAttrib {
-    inline void set(GrVertexAttribType type, size_t offset) { 
+    inline void set(GrVertexAttribType type, size_t offset) {
         fType = type; fOffset = offset;
     }
     bool operator==(const GrVertexAttrib& other) const {
@@ -151,21 +151,21 @@ public:
     };
 
    /**
-     * The format of vertices is represented as an array of vertex attribute 
-     * pair, with each pair representing the type of the attribute and the 
-     * offset in the vertex structure (see GrVertexAttrib, above). 
+     * The format of vertices is represented as an array of vertex attribute
+     * pair, with each pair representing the type of the attribute and the
+     * offset in the vertex structure (see GrVertexAttrib, above).
      *
      * This will only set up the vertex geometry. To bind the attributes in
-     * the shaders, attribute indices and attribute bindings need to be set 
+     * the shaders, attribute indices and attribute bindings need to be set
      * as well.
      */
 
     /**
-     *  Sets vertex attributes for next draw. 
+     *  Sets vertex attributes for next draw.
      *
-     *  @param attribs    the array of vertex attributes to set. 
+     *  @param attribs    the array of vertex attributes to set.
      *  @param count      the number of attributes being set.
-     *                    limited to a count of kVertexAttribCnt. 
+     *                    limited to a count of kVertexAttribCnt.
      */
     void setVertexAttribs(const GrVertexAttrib attribs[], int count);
 
@@ -175,7 +175,7 @@ public:
     size_t getVertexSize() const;
 
     /**
-     *  Sets default vertex attributes for next draw. 
+     *  Sets default vertex attributes for next draw.
      *
      *  This will also set default vertex attribute indices and bindings
      */
@@ -253,10 +253,10 @@ public:
     ////
 
     /**
-     * The vertex data used by the current program is represented as a bitfield 
-     * of flags. Programs always use positions and may also use texture 
-     * coordinates, per-vertex colors, per-vertex coverage and edge data. Each 
-     * stage can use the explicit texture coordinates as its input texture 
+     * The vertex data used by the current program is represented as a bitfield
+     * of flags. Programs always use positions and may also use texture
+     * coordinates, per-vertex colors, per-vertex coverage and edge data. Each
+     * stage can use the explicit texture coordinates as its input texture
      * coordinates or it may use the positions as texture coordinates.
      */
 
@@ -342,10 +342,10 @@ public:
     /**
      * Vertex attribute indices map the data set in the vertex attribute array
      * to the bindings specified in the attribute bindings. Each binding type
-     * has an associated index in the attribute array. This index is used to 
-     * look up the vertex attribute data from the array, and potentially as the 
+     * has an associated index in the attribute array. This index is used to
+     * look up the vertex attribute data from the array, and potentially as the
      * attribute index if we're binding attributes in GL.
-     * 
+     *
      * Indices which do not have active attribute bindings will be ignored.
      */
 
@@ -367,11 +367,11 @@ public:
     };
 
     ////////////////////////////////////////////////////////////////////////////
-    // Helpers to set attribute indices. These should match the index in the 
-    // current attribute index array. 
+    // Helpers to set attribute indices. These should match the index in the
+    // current attribute index array.
 
     /**
-     *  Sets index for next draw. This is used to look up the offset 
+     *  Sets index for next draw. This is used to look up the offset
      *  from the current vertex attribute array and to bind the attributes.
      *
      *  @param index      the attribute index we're setting
@@ -1198,7 +1198,7 @@ public:
             }
         }
         for (int i = 0; i < kAttribIndexCount; ++i) {
-            if ((i == kPosition_AttribIndex || 
+            if ((i == kPosition_AttribIndex ||
                     s.fCommon.fAttribBindings & kAttribIndexMasks[i]) &&
                 fAttribIndices[i] != s.fAttribIndices[i]) {
                 return false;
@@ -1329,7 +1329,7 @@ public:
                 return false;
             }
             for (int i = 0; i < kAttribIndexCount; ++i) {
-                if ((i == kPosition_AttribIndex || 
+                if ((i == kPosition_AttribIndex ||
                      state.fCommon.fAttribBindings & kAttribIndexMasks[i]) &&
                     fAttribIndices[i] != state.fAttribIndices[i]) {
                     return false;
@@ -1338,7 +1338,7 @@ public:
             if (fVertexAttribs.count() != state.fVertexAttribs.count()) {
                 return false;
             }
-            for (int i = 0; i < fVertexAttribs.count(); ++i) 
+            for (int i = 0; i < fVertexAttribs.count(); ++i)
                 if (fVertexAttribs[i] != state.fVertexAttribs[i]) {
                     return false;
             }

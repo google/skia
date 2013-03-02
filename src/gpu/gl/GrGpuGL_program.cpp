@@ -224,7 +224,7 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
     uint32_t usedAttribArraysMask = 0;
     const GrVertexAttrib* vertexAttrib = this->getDrawState().getVertexAttribs();
     int vertexAttribCount = this->getDrawState().getVertexAttribCount();
-    for (int vertexAttribIndex = 0; vertexAttribIndex < vertexAttribCount; 
+    for (int vertexAttribIndex = 0; vertexAttribIndex < vertexAttribCount;
          ++vertexAttribIndex, ++vertexAttrib) {
 
         usedAttribArraysMask |= (1 << vertexAttribIndex);
