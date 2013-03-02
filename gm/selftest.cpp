@@ -41,8 +41,14 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static skiagm::GM* F1(void*) { return new SelfTestGM("selftest1", SK_ColorGREEN); }
-static skiagm::GM* F2(void*) { return new SelfTestGM("selftest2", SK_ColorBLUE); }
+// We use translucent colors to make sure we are properly handling cases like
+// those which caused https://code.google.com/p/skia/issues/detail?id=1079
+// ('gm generating spurious pixel_error messages as of r7258')
+static SkColor kTranslucentGreen = 0x7700EE00;
+static SkColor kTranslucentBlue  = 0x770000DD;
+
+static skiagm::GM* F1(void*) { return new SelfTestGM("selftest1", kTranslucentGreen); }
+static skiagm::GM* F2(void*) { return new SelfTestGM("selftest2", kTranslucentBlue); }
 
 static skiagm::GMRegistry gR1(F1);
 static skiagm::GMRegistry gR2(F2);
