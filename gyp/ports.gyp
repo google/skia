@@ -90,7 +90,7 @@
             '../third_party/freetype/include/**',
           ],
           'sources': [
-            '../src/ports/SkFontHost_mac_coretext.cpp',
+            '../src/ports/SkFontHost_mac.cpp',
             '../src/utils/mac/SkStream_mac.cpp',
 #            '../src/ports/SkFontHost_FreeType.cpp',
 #            '../src/ports/SkFontHost_FreeType_common.cpp',
@@ -107,7 +107,7 @@
             '../include/utils/mac',
           ],
           'sources': [
-            '../src/ports/SkFontHost_mac_coretext.cpp',
+            '../src/ports/SkFontHost_mac.cpp',
             '../src/utils/mac/SkStream_mac.cpp',
             '../src/ports/SkThread_pthread.cpp',
           ],
