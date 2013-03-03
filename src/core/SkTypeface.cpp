@@ -151,4 +151,3 @@ void SkTypeface::onFilterRec(SkScalerContextRec*) const {}
 void SkTypeface::onGetFontDescriptor(SkFontDescriptor* desc) const {
     desc->setStyle(this->style());
 }
-

@@ -72,9 +72,9 @@ void GrGLTextureDomainEffect::emitCode(GrGLShaderBuilder* builder,
         GrAssert(GrTextureDomainEffect::kDecal_WrapMode == effect.wrapMode());
 
         if (kImagination_GrGLVendor == builder->ctxInfo().vendor()) {
-            // On the NexusS and GalaxyNexus, the other path (with the 'any' 
-            // call) causes the compilation error "Calls to any function that 
-            // may require a gradient calculation inside a conditional block 
+            // On the NexusS and GalaxyNexus, the other path (with the 'any'
+            // call) causes the compilation error "Calls to any function that
+            // may require a gradient calculation inside a conditional block
             // may return undefined results". This appears to be an issue with
             // the 'any' call since even the simple "result=black; if (any())
             // result=white;" code fails to compile.
@@ -83,9 +83,9 @@ void GrGLTextureDomainEffect::emitCode(GrGLShaderBuilder* builder,
             builder->appendTextureLookupAndModulate(&builder->fFSCode, inputColor, samplers[0], coords);
             builder->fFSCode.appendf(";\n");
 
-            builder->fFSCode.appendf("\tfloat x = abs(2.0*(%s.x - %s.x)/(%s.z - %s.x) - 1.0);\n", 
+            builder->fFSCode.appendf("\tfloat x = abs(2.0*(%s.x - %s.x)/(%s.z - %s.x) - 1.0);\n",
                                      coords, domain, domain, domain);
-            builder->fFSCode.appendf("\tfloat y = abs(2.0*(%s.y - %s.y)/(%s.w - %s.y) - 1.0);\n", 
+            builder->fFSCode.appendf("\tfloat y = abs(2.0*(%s.y - %s.y)/(%s.w - %s.y) - 1.0);\n",
                                      coords, domain, domain, domain);
             builder->fFSCode.appendf("\tfloat blend = step(1.0, max(x, y));\n");
             builder->fFSCode.appendf("\t%s = mix(inside, outside, blend);\n", outputColor);

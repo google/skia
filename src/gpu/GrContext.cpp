@@ -1669,7 +1669,7 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
     }
 
     // writeRenderTargetPixels can be called in the midst of drawing another
-    // object (e.g., when uploading a SW path rendering to the gpu while 
+    // object (e.g., when uploading a SW path rendering to the gpu while
     // drawing a rect) so preserve the current geometry.
     GrDrawTarget::AutoGeometryAndStatePush agasp(fGpu, GrDrawTarget::kReset_ASRInit);
     GrDrawState* drawState = fGpu->drawState();
