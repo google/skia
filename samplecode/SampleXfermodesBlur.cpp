@@ -31,11 +31,6 @@
 #include "SkImageDecoder.h"
 #include "SkBlurMaskFilter.h"
 
-#ifdef SK_BUILD_FOR_MAC
-#import <ApplicationServices/ApplicationServices.h>
-SkTypeface* SkCreateTypefaceFromCTFont(CTFontRef fontRef);
-#endif
-
 static void setNamedTypeface(SkPaint* paint, const char name[]) {
     SkTypeface* face = SkTypeface::CreateFromName(name, SkTypeface::kNormal);
     paint->setTypeface(face);
@@ -73,26 +68,6 @@ class XfermodesBlurView : public SampleView {
         r.set(ww/3, hh/3, ww*19/20, hh*19/20);
         r.offset(x, y);
         canvas->drawRect(r, p);
-
-#ifdef SK_BUILD_FOR_MAC
-        static const char* gNames[] = { "Arial", "Times", "Courier", "Lucida" };
-        for (size_t j = 0; j < SK_ARRAY_COUNT(gNames); ++j) {
-            CFStringRef name = CFStringCreateWithCString(NULL, gNames[j], kCFStringEncodingUTF8);
-            CTFontRef font = CTFontCreateWithName(name, 0, NULL);
-            SkTypeface* face = SkCreateTypefaceFromCTFont(font);
-            SkDebugf("%s ct:%p face:%p ats:%p\n", gNames[j], font, face, CTFontGetPlatformFont(font, NULL));
-            for (int i = 9; i <= 24; ++i) {
-                CTFontRef newFont = CTFontCreateCopyWithAttributes(font, i, NULL, NULL);
-                SkTypeface* newFace = SkCreateTypefaceFromCTFont(newFont);
-                SkDebugf("size:%d ct:%p face:%p ats:%p\n", i, newFont, newFace, CTFontGetPlatformFont(newFont, NULL));
-                newFace->unref();
-                CFRelease(newFont);
-            }
-            face->unref();
-            CFRelease(font);
-            CFRelease(name);
-        }
-#endif
     }
 
 public:
