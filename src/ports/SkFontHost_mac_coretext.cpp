@@ -1751,7 +1751,7 @@ int SkFontHost::GetTableTags(SkFontID fontID, SkFontTableTag tags[]) {
 // DEPRECATED
 size_t SkFontHost::GetTableSize(SkFontID fontID, SkFontTableTag tag) {
     SkTypeface* face = SkTypefaceCache::FindByID(fontID);
-    return face ? face->onGetTableData(tag, 0, ~0, NULL) : 0;
+    return face ? face->onGetTableData(tag, 0, ~0U, NULL) : 0;
 }
 
 // DEPRECATED
