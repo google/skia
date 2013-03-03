@@ -407,12 +407,21 @@ public:
 
     SkString fName;
     AutoCFRelease<CTFontRef> fFontRef;
-};
 
-static CTFontRef typeface_to_fontref(const SkTypeface* face) {
-    const SkTypeface_Mac* macface = reinterpret_cast<const SkTypeface_Mac*>(face);
-    return macface->fFontRef;
-}
+protected:
+    friend class SkFontHost;    // to access our protected members for deprecated methods
+
+    virtual int onGetUPEM() const SK_OVERRIDE;
+    virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
+    virtual size_t onGetTableData(SkFontTableTag, size_t offset,
+                                  size_t length, void* data) const SK_OVERRIDE;
+    virtual SkScalerContext* onCreateScalerContext(const SkDescriptor*) const SK_OVERRIDE;
+    virtual void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE;
+    virtual void onGetFontDescriptor(SkFontDescriptor*) const SK_OVERRIDE;
+
+private:
+    typedef SkTypeface INHERITED;
+};
 
 static SkTypeface* NewFromFontRef(CTFontRef fontRef, const char name[]) {
     SkASSERT(fontRef);
@@ -1683,21 +1692,9 @@ size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length, int3
 
 #include "SkStream.h"
 
-// we take ownership of the ref
-static const char* get_str(CFStringRef ref, SkString* str) {
-    CFStringToSkString(ref, str);
-    CFSafeRelease(ref);
-    return str->c_str();
-}
-
 void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
-    CTFontRef ctFont = typeface_to_fontref(face);
-    SkFontDescriptor desc(face->style());
-    SkString tmpStr;
-
-    desc.setFamilyName(get_str(CTFontCopyFamilyName(ctFont), &tmpStr));
-    desc.setFullName(get_str(CTFontCopyFullName(ctFont), &tmpStr));
-    desc.setPostscriptName(get_str(CTFontCopyPostScriptName(ctFont), &tmpStr));
+    SkFontDescriptor desc;
+    face->onGetFontDescriptor(&desc);
 
     desc.serialize(stream);
 
@@ -1719,10 +1716,12 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// DEPRECATED
 SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {
     return new SkScalerContext_Mac(desc);
 }
 
+// DEPRECATED
 SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
     SkFontID nextFontID = 0;
     SkTypeface* face = GetDefaultFace();
@@ -1732,14 +1731,105 @@ SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
     return nextFontID;
 }
 
-void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface*) {
+// DEPRECATED
+void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface* face) {
+    face->onFilterRec(rec);
+}
+
+// DEPRECATED
+int SkFontHost::CountTables(SkFontID fontID) {
+    SkTypeface* face = SkTypefaceCache::FindByID(fontID);
+    return face ? face->onGetTableTags(NULL) : 0;
+}
+
+// DEPRECATED
+int SkFontHost::GetTableTags(SkFontID fontID, SkFontTableTag tags[]) {
+    SkTypeface* face = SkTypefaceCache::FindByID(fontID);
+    return face ? face->onGetTableTags(tags) : 0;
+}
+
+// DEPRECATED
+size_t SkFontHost::GetTableSize(SkFontID fontID, SkFontTableTag tag) {
+    SkTypeface* face = SkTypefaceCache::FindByID(fontID);
+    return face ? face->onGetTableData(tag, 0, 0, NULL) : 0;
+}
+
+// DEPRECATED
+size_t SkFontHost::GetTableData(SkFontID fontID, SkFontTableTag tag,
+                                size_t offset, size_t length, void* dst) {
+    SkTypeface* face = SkTypefaceCache::FindByID(fontID);
+    return face ? face->onGetTableData(tag, offset, length, dst) : 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+int SkTypeface_Mac::onGetUPEM() const {
+    AutoCFRelease<CGFontRef> cgFont(CTFontCopyGraphicsFont(fFontRef, NULL));
+    return CGFontGetUnitsPerEm(cgFont);
+}
+
+// If, as is the case with web fonts, the CTFont data isn't available,
+// the CGFont data may work. While the CGFont may always provide the
+// right result, leave the CTFont code path to minimize disruption.
+static CFDataRef copyTableFromFont(CTFontRef ctFont, SkFontTableTag tag) {
+    CFDataRef data = CTFontCopyTable(ctFont, (CTFontTableTag) tag,
+                                     kCTFontTableOptionNoOptions);
+    if (NULL == data) {
+        AutoCFRelease<CGFontRef> cgFont(CTFontCopyGraphicsFont(ctFont, NULL));
+        data = CGFontCopyTableForTag(cgFont, tag);
+    }
+    return data;
+}
+
+int SkTypeface_Mac::onGetTableTags(SkFontTableTag tags[]) const {
+    AutoCFRelease<CFArrayRef> cfArray(CTFontCopyAvailableTables(fFontRef,
+                                                kCTFontTableOptionNoOptions));
+    if (NULL == cfArray) {
+        return 0;
+    }
+    int count = CFArrayGetCount(cfArray);
+    if (tags) {
+        for (int i = 0; i < count; ++i) {
+            uintptr_t fontTag = reinterpret_cast<uintptr_t>(CFArrayGetValueAtIndex(cfArray, i));
+            tags[i] = static_cast<SkFontTableTag>(fontTag);
+        }
+    }
+    return count;
+}
+
+size_t SkTypeface_Mac::onGetTableData(SkFontTableTag tag, size_t offset,
+                                      size_t length, void* dstData) const {
+    AutoCFRelease<CFDataRef> srcData(copyTableFromFont(fFontRef, tag));
+    if (NULL == srcData) {
+        return 0;
+    }
+
+    size_t srcSize = CFDataGetLength(srcData);
+    if (offset >= srcSize) {
+        return 0;
+    }
+    if (length > srcSize - offset) {
+        length = srcSize - offset;
+    }
+    if (dstData) {
+        memcpy(dstData, CFDataGetBytePtr(srcData) + offset, length);
+    }
+    return length;
+}
+
+SkScalerContext* SkTypeface_Mac::onCreateScalerContext(const SkDescriptor* desc) const {
+    return new SkScalerContext_Mac(desc);
+}
+
+void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
     unsigned flagsWeDontSupport = SkScalerContext::kDevKernText_Flag |
                                   SkScalerContext::kAutohinting_Flag;
-
+    
     rec->fFlags &= ~flagsWeDontSupport;
-
+    
     bool lcdSupport = supports_LCD();
-
+    
     // Only two levels of hinting are supported.
     // kNo_Hinting means avoid CoreGraphics outline dilation.
     // kNormal_Hinting means CoreGraphics outline dilation is allowed.
@@ -1751,18 +1841,18 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface*) {
         hinting = SkPaint::kNormal_Hinting;
     }
     rec->setHinting(hinting);
-
+    
     // FIXME: lcd smoothed un-hinted rasterization unsupported.
     // Tracked by http://code.google.com/p/skia/issues/detail?id=915 .
     // There is no current means to honor a request for unhinted lcd,
     // so arbitrarilly ignore the hinting request and honor lcd.
-
+    
     // Hinting and smoothing should be orthogonal, but currently they are not.
     // CoreGraphics has no API to influence hinting. However, its lcd smoothed
     // output is drawn from auto-dilated outlines (the amount of which is
     // determined by AppleFontSmoothing). Its regular anti-aliased output is
     // drawn from un-dilated outlines.
-
+    
     // The behavior of Skia is as follows:
     // [AA][no-hint]: generate AA using CoreGraphic's AA output.
     // [AA][yes-hint]: use CoreGraphic's LCD output and reduce it to a single
@@ -1770,7 +1860,7 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface*) {
     // [LCD][no-hint]: curently unable to honor, and must pick which to respect.
     // Currenly side with LCD, effectively ignoring the hinting setting.
     // [LCD][yes-hint]: generate LCD using CoreGraphic's LCD output.
-
+    
     if (isLCDFormat(rec->fMaskFormat)) {
         if (lcdSupport) {
             //CoreGraphics creates 555 masks for smoothed text anyway.
@@ -1780,7 +1870,7 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface*) {
             rec->fMaskFormat = SkMask::kA8_Format;
         }
     }
-
+    
     // Unhinted A8 masks (those not derived from LCD masks) must respect SK_GAMMA_APPLY_TO_A8.
     // All other masks can use regular gamma.
     if (SkMask::kA8_Format == rec->fMaskFormat && SkPaint::kNo_Hinting == hinting) {
@@ -1793,76 +1883,19 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface*) {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////
-
-int SkFontHost::CountTables(SkFontID fontID) {
-    CTFontRef ctFont = GetFontRefFromFontID(fontID);
-    AutoCFRelease<CFArrayRef> cfArray(CTFontCopyAvailableTables(ctFont,
-                                                                kCTFontTableOptionNoOptions));
-    if (NULL == cfArray) {
-        return 0;
-    }
-    return CFArrayGetCount(cfArray);
+// we take ownership of the ref
+static const char* get_str(CFStringRef ref, SkString* str) {
+    CFStringToSkString(ref, str);
+    CFSafeRelease(ref);
+    return str->c_str();
 }
 
-int SkFontHost::GetTableTags(SkFontID fontID, SkFontTableTag tags[]) {
-    CTFontRef ctFont = GetFontRefFromFontID(fontID);
-    AutoCFRelease<CFArrayRef> cfArray(CTFontCopyAvailableTables(ctFont,
-                                                                kCTFontTableOptionNoOptions));
-    if (NULL == cfArray) {
-        return 0;
-    }
-
-    int count = CFArrayGetCount(cfArray);
-    if (tags) {
-        for (int i = 0; i < count; ++i) {
-            uintptr_t fontTag = reinterpret_cast<uintptr_t>(CFArrayGetValueAtIndex(cfArray, i));
-            tags[i] = static_cast<SkFontTableTag>(fontTag);
-        }
-    }
-    return count;
+void SkTypeface_Mac::onGetFontDescriptor(SkFontDescriptor* desc) const {
+    this->INHERITED::onGetFontDescriptor(desc);
+    SkString tmpStr;
+    
+    desc->setFamilyName(get_str(CTFontCopyFamilyName(fFontRef), &tmpStr));
+    desc->setFullName(get_str(CTFontCopyFullName(fFontRef), &tmpStr));
+    desc->setPostscriptName(get_str(CTFontCopyPostScriptName(fFontRef), &tmpStr));
 }
 
-// If, as is the case with web fonts, the CTFont data isn't available,
-// the CGFont data may work. While the CGFont may always provide the
-// right result, leave the CTFont code path to minimize disruption.
-static CFDataRef copyTableFromFont(CTFontRef ctFont, SkFontTableTag tag) {
-    CFDataRef data = CTFontCopyTable(ctFont, (CTFontTableTag) tag, kCTFontTableOptionNoOptions);
-    if (NULL == data) {
-        AutoCFRelease<CGFontRef> cgFont(CTFontCopyGraphicsFont(ctFont, NULL));
-        data = CGFontCopyTableForTag(cgFont, tag);
-    }
-    return data;
-}
-
-size_t SkFontHost::GetTableSize(SkFontID fontID, SkFontTableTag tag) {
-    CTFontRef ctFont = GetFontRefFromFontID(fontID);
-    AutoCFRelease<CFDataRef> srcData(copyTableFromFont(ctFont, tag));
-    if (NULL == srcData) {
-        return 0;
-    }
-    return CFDataGetLength(srcData);
-}
-
-size_t SkFontHost::GetTableData(SkFontID fontID, SkFontTableTag tag,
-                                size_t offset, size_t length, void* dst) {
-    CTFontRef ctFont = GetFontRefFromFontID(fontID);
-    AutoCFRelease<CFDataRef> srcData(copyTableFromFont(ctFont, tag));
-    if (NULL == srcData) {
-        return 0;
-    }
-
-    size_t srcSize = CFDataGetLength(srcData);
-    if (offset >= srcSize) {
-        return 0;
-    }
-
-    if ((offset + length) > srcSize) {
-        length = srcSize - offset;
-    }
-
-    if (dst) {
-        memcpy(dst, CFDataGetBytePtr(srcData) + offset, length);
-    }
-    return length;
-}

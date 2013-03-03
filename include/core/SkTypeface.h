@@ -13,6 +13,10 @@
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkWeakRefCnt.h"
 
+class SkDescriptor;
+class SkFontDescriptor;
+class SkScalerContext;
+struct SkScalerContextRec;
 class SkStream;
 class SkAdvancedTypefaceMetrics;
 class SkWStream;
@@ -184,7 +188,7 @@ public:
     int getUnitsPerEm() const;
 
 protected:
-    /** uniqueID must be unique (please!) and non-zero
+    /** uniqueID must be unique and non-zero
     */
     SkTypeface(Style style, SkFontID uniqueID, bool isFixedWidth = false);
     virtual ~SkTypeface();
@@ -192,10 +196,21 @@ protected:
     friend class SkScalerContext;
     static SkTypeface* GetDefaultTypeface();
 
+    virtual int onGetUPEM() const;
+    virtual int onGetTableTags(SkFontTableTag tags[]) const;
+    virtual size_t onGetTableData(SkFontTableTag, size_t offset,
+                                  size_t length, void* data) const;
+    virtual SkScalerContext* onCreateScalerContext(const SkDescriptor*) const;
+    virtual void onFilterRec(SkScalerContextRec*) const;
+    virtual void onGetFontDescriptor(SkFontDescriptor*) const;
+
 private:
     SkFontID    fUniqueID;
     Style       fStyle;
     bool        fIsFixedWidth;
+
+    // just so deprecated fonthost can call protected methods
+    friend class SkFontHost;
 
     typedef SkWeakRefCnt INHERITED;
 };

@@ -134,3 +134,21 @@ int SkTypeface::getUnitsPerEm() const {
 #endif
     return upem;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkFontDescriptor.h"
+
+int SkTypeface::onGetUPEM() const { return 0; }
+int SkTypeface::onGetTableTags(SkFontTableTag tags[]) const { return 0; }
+size_t SkTypeface::onGetTableData(SkFontTableTag, size_t offset,
+                                  size_t length, void* data) const { return 0; }
+SkScalerContext* SkTypeface::onCreateScalerContext(const SkDescriptor*) const {
+    return NULL;
+}
+void SkTypeface::onFilterRec(SkScalerContextRec*) const {}
+void SkTypeface::onGetFontDescriptor(SkFontDescriptor* desc) const {
+    desc->setStyle(this->style());
+}
+
