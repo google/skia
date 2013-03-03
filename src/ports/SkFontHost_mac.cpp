@@ -1825,11 +1825,11 @@ SkScalerContext* SkTypeface_Mac::onCreateScalerContext(const SkDescriptor* desc)
 void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
     unsigned flagsWeDontSupport = SkScalerContext::kDevKernText_Flag |
                                   SkScalerContext::kAutohinting_Flag;
-    
+
     rec->fFlags &= ~flagsWeDontSupport;
-    
+
     bool lcdSupport = supports_LCD();
-    
+
     // Only two levels of hinting are supported.
     // kNo_Hinting means avoid CoreGraphics outline dilation.
     // kNormal_Hinting means CoreGraphics outline dilation is allowed.
@@ -1841,18 +1841,18 @@ void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
         hinting = SkPaint::kNormal_Hinting;
     }
     rec->setHinting(hinting);
-    
+
     // FIXME: lcd smoothed un-hinted rasterization unsupported.
     // Tracked by http://code.google.com/p/skia/issues/detail?id=915 .
     // There is no current means to honor a request for unhinted lcd,
     // so arbitrarilly ignore the hinting request and honor lcd.
-    
+
     // Hinting and smoothing should be orthogonal, but currently they are not.
     // CoreGraphics has no API to influence hinting. However, its lcd smoothed
     // output is drawn from auto-dilated outlines (the amount of which is
     // determined by AppleFontSmoothing). Its regular anti-aliased output is
     // drawn from un-dilated outlines.
-    
+
     // The behavior of Skia is as follows:
     // [AA][no-hint]: generate AA using CoreGraphic's AA output.
     // [AA][yes-hint]: use CoreGraphic's LCD output and reduce it to a single
@@ -1860,7 +1860,7 @@ void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
     // [LCD][no-hint]: curently unable to honor, and must pick which to respect.
     // Currenly side with LCD, effectively ignoring the hinting setting.
     // [LCD][yes-hint]: generate LCD using CoreGraphic's LCD output.
-    
+
     if (isLCDFormat(rec->fMaskFormat)) {
         if (lcdSupport) {
             //CoreGraphics creates 555 masks for smoothed text anyway.
@@ -1870,7 +1870,7 @@ void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
             rec->fMaskFormat = SkMask::kA8_Format;
         }
     }
-    
+
     // Unhinted A8 masks (those not derived from LCD masks) must respect SK_GAMMA_APPLY_TO_A8.
     // All other masks can use regular gamma.
     if (SkMask::kA8_Format == rec->fMaskFormat && SkPaint::kNo_Hinting == hinting) {
@@ -1893,9 +1893,8 @@ static const char* get_str(CFStringRef ref, SkString* str) {
 void SkTypeface_Mac::onGetFontDescriptor(SkFontDescriptor* desc) const {
     this->INHERITED::onGetFontDescriptor(desc);
     SkString tmpStr;
-    
+
     desc->setFamilyName(get_str(CTFontCopyFamilyName(fFontRef), &tmpStr));
     desc->setFullName(get_str(CTFontCopyFullName(fFontRef), &tmpStr));
     desc->setPostscriptName(get_str(CTFontCopyPostScriptName(fFontRef), &tmpStr));
 }
-
