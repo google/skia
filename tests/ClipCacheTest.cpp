@@ -61,8 +61,11 @@ static void test_clip_bounds(skiatest::Reporter* reporter, GrContext* context) {
     GrAutoUnref au(texture);
 
     SkIRect intScreen = SkIRect::MakeWH(kXSize, kYSize);
-    SkRect screen = SkRect::MakeWH(SkIntToScalar(kXSize),
-                                   SkIntToScalar(kYSize));
+    SkRect screen;
+    
+    screen = SkRect::MakeWH(SkIntToScalar(kXSize),
+                            SkIntToScalar(kYSize));
+
     SkRect clipRect(screen);
     clipRect.outset(10, 10);
 
