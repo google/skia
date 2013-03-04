@@ -392,7 +392,7 @@ void SkRGB16_Opaque_Blitter::blitMask(const SkMask& mask,
         if (w >= UNROLL) {
             uint32x4_t color;        /* can use same one */
             uint32x4_t dev_lo, dev_hi;
-            uint32x4_t t1, t2;
+            uint32x4_t t1;
             uint32x4_t wn1, wn2;
             uint16x4_t odev_lo, odev_hi;
             uint16x4_t alpha_lo, alpha_hi;
