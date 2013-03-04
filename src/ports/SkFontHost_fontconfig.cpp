@@ -41,8 +41,8 @@ static SkFontConfigInterface* RefFCI() {
         if (fci) {
             return fci;
         }
-        fci = SkCreateDirectFontConfigInterface();
-        SkFontConfigInterface::SetGlobal(fci)->unref();
+        fci = SkFontConfigInterface::GetSingletonDirectInterface();
+        SkFontConfigInterface::SetGlobal(fci);
     }
 }
 

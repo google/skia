@@ -32,9 +32,12 @@ private:
     SkMutex mutex_;
 };
 
-SkFontConfigInterface* SkCreateDirectFontConfigInterface();
-SkFontConfigInterface* SkCreateDirectFontConfigInterface() {
-    return SkNEW(SkFontConfigInterfaceDirect);
+SkFontConfigInterface* SkFontConfigInterface::GetSingletonDirectInterface() {
+    static SkFontConfigInterface* gDirect;
+    if (NULL == gDirect) {
+        gDirect = new SkFontConfigInterfaceDirect;
+    }
+    return gDirect;
 }
 
 namespace {

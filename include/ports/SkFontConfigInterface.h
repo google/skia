@@ -66,6 +66,12 @@ public:
      *  calling stream->unref() when it is done accessing the data.
      */
     virtual SkStream* openStream(const FontIdentity&) = 0;
+
+    /**
+     *  Return a singleton instance of a direct subclass that calls into
+     *  libfontconfig. This does not affect the refcnt of the returned instance.
+     */
+    static SkFontConfigInterface* GetSingletonDirectInterface();
 };
 
 #endif
