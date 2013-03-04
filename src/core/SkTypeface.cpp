@@ -67,6 +67,10 @@ SkTypeface* SkTypeface::CreateFromName(const char name[], Style style) {
 }
 
 SkTypeface* SkTypeface::CreateFromTypeface(const SkTypeface* family, Style s) {
+    if (family && family->style() == s) {
+        family->ref();
+        return const_cast<SkTypeface*>(family);
+    }
     return SkFontHost::CreateTypeface(family, NULL, s);
 }
 
