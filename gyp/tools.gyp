@@ -66,6 +66,8 @@
       'type': 'executable',
       'sources': [
         '../tools/skhello.cpp',
+        '../tools/SkFlags.h',
+        '../tools/SkFlags.cpp',
       ],
       'dependencies': [
         'skia_base_libs.gyp:skia_base_libs',
