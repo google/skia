@@ -8,6 +8,7 @@
 #ifndef PictureRenderer_DEFINED
 #define PictureRenderer_DEFINED
 
+#include "SkCanvas.h"
 #include "SkCountdown.h"
 #include "SkDrawFilter.h"
 #include "SkMath.h"
@@ -421,6 +422,8 @@ public:
 
     virtual TiledPictureRenderer* getTiledRenderer() SK_OVERRIDE { return this; }
 
+    virtual bool supportsTimingIndividualTiles() { return true; }
+
     /**
      * Report the number of tiles in the x and y directions. Must not be called before init.
      * @param x Output parameter identifying the number of tiles in the x direction.
@@ -492,6 +495,8 @@ public:
     virtual bool render(const SkString* path, SkBitmap** out = NULL) SK_OVERRIDE;
 
     virtual void end() SK_OVERRIDE;
+
+    virtual bool supportsTimingIndividualTiles() SK_OVERRIDE { return false; }
 
 private:
     virtual SkString getConfigNameInternal() SK_OVERRIDE;

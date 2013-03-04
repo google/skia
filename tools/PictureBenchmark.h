@@ -39,7 +39,7 @@ public:
      * drawn fRepeats times. Requires the PictureRenderer set by setRenderer to be a
      * TiledPictureRenderer.
      */
-    void setTimeIndividualTiles(bool indiv) { fTimeIndividualTiles = true; }
+    void setTimeIndividualTiles(bool indiv) { fTimeIndividualTiles = indiv; }
 
     bool timeIndividualTiles() { return fTimeIndividualTiles; }
 

@@ -278,7 +278,7 @@ static bool skip_name(const SkTDArray<const char*> array, const char name[]) {
 }
 
 static void help() {
-    SkDebugf("Usage: bench [-o outDir] [--repeat nr] [--logPerIter 1|0] "
+    SkDebugf("Usage: bench [-o outDir] [--repeat nr] [--logPerIter] "
                           "[--timers [wcgWC]*] [--rotate]\n"
              "    [--scale] [--clip] [--min] [--forceAA 1|0] [--forceFilter 1|0]\n"
              "    [--forceDither 1|0] [--forceBlend 1|0] [--strokeWidth width]\n"
@@ -288,7 +288,7 @@ static void help() {
     SkDebugf("\n\n");
     SkDebugf("    -o outDir : Image of each bench will be put in outDir.\n");
     SkDebugf("    --repeat nr : Each bench repeats for nr times.\n");
-    SkDebugf("    --logPerIter 1|0 : "
+    SkDebugf("    --logPerIter : "
              "Log each repeat timer instead of mean, default is disabled.\n");
     SkDebugf("    --timers [wcgWC]* : "
              "Display wall, cpu, gpu, truncated wall or truncated cpu time for each bench.\n");
@@ -388,11 +388,7 @@ int tool_main(int argc, char** argv) {
                 return -1;
             }
         } else if (strcmp(*argv, "--logPerIter") == 0) {
-            if (!parse_bool_arg(++argv, stop, &logPerIter)) {
-                logger.logError("missing arg for --logPerIter\n");
-                help();
-                return -1;
-            }
+            logPerIter = true;
         } else if (strcmp(*argv, "--timers") == 0) {
             argv++;
             if (argv < stop) {
