@@ -1808,7 +1808,7 @@ SkScalar SkMatrix::getMaxStretch() const {
     SkScalar largerRoot;
     SkScalar bSqd = SkScalarMul(b,b);
     // if upper left 2x2 is orthogonal save some math
-    if (bSqd <= SK_ScalarNearlyZero) {
+    if (bSqd <= SK_ScalarNearlyZero*SK_ScalarNearlyZero) {
         largerRoot = SkMaxScalar(a, c);
     } else {
         SkScalar aminusc = a - c;

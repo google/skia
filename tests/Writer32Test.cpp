@@ -134,7 +134,7 @@ static void testWritePad(skiatest::Reporter* reporter, SkWriter32* writer) {
 
     SkAutoMalloc originalData(dataSize);
     {
-        SkRandom rand(0);
+        SkMWCRandom rand(0);
         uint32_t* ptr = static_cast<uint32_t*>(originalData.get());
         uint32_t* stop = ptr + (dataSize>>2);
         while (ptr < stop) {

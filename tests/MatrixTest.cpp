@@ -168,7 +168,7 @@ static void test_matrix_max_stretch(skiatest::Reporter* reporter) {
         bool invertable = mats[i].invert(&mats[i + SK_ARRAY_COUNT(baseMats)]);
         REPORTER_ASSERT(reporter, invertable);
     }
-    SkRandom rand;
+    SkMWCRandom rand;
     for (int m = 0; m < 1000; ++m) {
         SkMatrix mat;
         mat.reset();

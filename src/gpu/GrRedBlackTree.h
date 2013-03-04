@@ -950,7 +950,7 @@ void GrRedBlackTree<T,C>::UnitTest() {
     GrRedBlackTree<int> tree;
     typedef GrRedBlackTree<int>::Iter iter;
 
-    SkRandom r;
+    SkMWCRandom r;
 
     int count[100] = {0};
     // add 10K ints

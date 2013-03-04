@@ -75,7 +75,7 @@ static void TestSk64(skiatest::Reporter* reporter) {
 
     // Now test add/sub
 
-    SkRandom    rand;
+    SkMWCRandom    rand;
     int         i;
 
     for (i = 0; i < 1000; i++)

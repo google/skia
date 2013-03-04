@@ -124,7 +124,7 @@ static void TestTInternalLList(skiatest::Reporter* reporter) {
 static void TestTLList(skiatest::Reporter* reporter) {
     typedef SkTLList<ListElement> ElList;
     typedef ElList::Iter Iter;
-    SkRandom random;
+    SkMWCRandom random;
 
     for (int i = 1; i <= 16; i *= 2) {
 

@@ -35,7 +35,7 @@ template <typename T> T* reincarnate(T* obj) {
 #define ILLEGAL_MODE    ((SkXfermode::Mode)-1)
 
 static void test_asColorMode(skiatest::Reporter* reporter) {
-    SkRandom rand;
+    SkMWCRandom rand;
 
     for (int mode = 0; mode <= SkXfermode::kLastMode; mode++) {
         SkColor color = rand.nextU();

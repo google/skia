@@ -173,7 +173,7 @@ static void check_length(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, len > 0.999f && len < 1.001f);
 }
 
-static float nextFloat(SkRandom& rand) {
+static float nextFloat(SkMWCRandom& rand) {
     SkFloatIntUnion data;
     data.fSignBitInt = rand.nextU();
     return data.fFloat;
@@ -247,7 +247,7 @@ static void test_int2float(skiatest::Reporter* reporter, int ival) {
 }
 
 static void unittest_fastfloat(skiatest::Reporter* reporter) {
-    SkRandom rand;
+    SkMWCRandom rand;
     size_t i;
 
     static const float gFloats[] = {
@@ -368,7 +368,7 @@ static void test_copysign(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, sk_float_copysign(x, y) == expected);
     }
 
-    SkRandom rand;
+    SkMWCRandom rand;
     for (int j = 0; j < 1000; j++) {
         int ix = rand.nextS();
         REPORTER_ASSERT(reporter, SkCopySign32(ix, ix) == ix);
@@ -387,7 +387,7 @@ static void test_copysign(skiatest::Reporter* reporter) {
 static void TestMath(skiatest::Reporter* reporter) {
     int         i;
     int32_t     x;
-    SkRandom    rand;
+    SkMWCRandom    rand;
 
     // these should assert
 #if 0

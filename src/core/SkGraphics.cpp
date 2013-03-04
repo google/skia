@@ -19,7 +19,6 @@
 #include "SkPath.h"
 #include "SkPathEffect.h"
 #include "SkPixelRef.h"
-#include "SkRandom.h"
 #include "SkRefCnt.h"
 #include "SkRTConf.h"
 #include "SkScalerContext.h"
