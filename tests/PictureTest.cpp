@@ -73,7 +73,7 @@ static SkPicture* record_bitmaps(const SkBitmap bm[], const SkPoint pos[],
     return pic;
 }
 
-static void rand_rect(SkRect* rect, SkRandom& rand, SkScalar W, SkScalar H) {
+static void rand_rect(SkRect* rect, SkMWCRandom& rand, SkScalar W, SkScalar H) {
     rect->fLeft   = rand.nextRangeScalar(-W, 2*W);
     rect->fTop    = rand.nextRangeScalar(-H, 2*H);
     rect->fRight  = rect->fLeft + rand.nextRangeScalar(0, W);
@@ -176,7 +176,7 @@ static void test_gatherpixelrefs(skiatest::Reporter* reporter) {
         drawbitmap_proc, drawbitmaprect_proc, drawshader_proc
     };
 
-    SkRandom rand;
+    SkMWCRandom rand;
     for (size_t k = 0; k < SK_ARRAY_COUNT(procs); ++k) {
         SkAutoTUnref<SkPicture> pic(record_bitmaps(bm, pos, N, procs[k]));
 
@@ -259,7 +259,7 @@ static void test_serializing_empty_picture() {
 }
 #endif
 
-static void rand_op(SkCanvas* canvas, SkRandom& rand) {
+static void rand_op(SkCanvas* canvas, SkMWCRandom& rand) {
     SkPaint paint;
     SkRect rect = SkRect::MakeWH(50, 50);
 
@@ -280,10 +280,10 @@ static void rand_op(SkCanvas* canvas, SkRandom& rand) {
 }
 
 static void test_peephole() {
-    SkRandom rand;
+    SkMWCRandom rand;
 
     for (int j = 0; j < 100; j++) {
-        SkRandom rand2(rand.getSeed()); // remember the seed
+        SkMWCRandom rand2(rand); // remember the seed
 
         SkPicture picture;
         SkCanvas* canvas = picture.beginRecording(100, 100);
@@ -292,6 +292,8 @@ static void test_peephole() {
             rand_op(canvas, rand);
         }
         picture.endRecording();
+
+        rand = rand2;
     }
 
     {

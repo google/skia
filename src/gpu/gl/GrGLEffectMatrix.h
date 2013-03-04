@@ -12,7 +12,6 @@
 #include "SkMatrix.h"
 
 class GrTexture;
-class SkRandom;
 
 /**
  * This is a helper to implement a texture matrix in a GrGLEffect.

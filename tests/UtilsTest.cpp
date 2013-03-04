@@ -54,7 +54,7 @@ static void test_autounref(skiatest::Reporter* reporter) {
 
 static void test_search(skiatest::Reporter* reporter) {
     int         i, array[kSEARCH_COUNT];
-    SkRandom    rand;
+    SkMWCRandom    rand;
 
     for (i = 0; i < kSEARCH_COUNT; i++) {
         array[i] = rand.nextS();

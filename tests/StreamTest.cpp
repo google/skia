@@ -17,7 +17,7 @@
 
 #define MAX_SIZE    (256 * 1024)
 
-static void random_fill(SkRandom& rand, void* buffer, size_t size) {
+static void random_fill(SkMWCRandom& rand, void* buffer, size_t size) {
     char* p = (char*)buffer;
     char* stop = p + size;
     while (p < stop) {
@@ -26,7 +26,7 @@ static void random_fill(SkRandom& rand, void* buffer, size_t size) {
 }
 
 static void test_buffer(skiatest::Reporter* reporter) {
-    SkRandom rand;
+    SkMWCRandom rand;
     SkAutoMalloc am(MAX_SIZE * 2);
     char* storage = (char*)am.get();
     char* storage2 = storage + MAX_SIZE;
@@ -62,7 +62,7 @@ static void TestRStream(skiatest::Reporter* reporter) {
     static const char s[] =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     char            copy[sizeof(s)];
-    SkRandom        rand;
+    SkMWCRandom        rand;
 
     for (int i = 0; i < 65; i++) {
         char*           copyPtr = copy;

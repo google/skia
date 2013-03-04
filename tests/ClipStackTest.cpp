@@ -820,7 +820,7 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         add_oval,
     };
 
-    SkRandom r;
+    SkMWCRandom r;
 
     for (int i = 0; i < kNumTests; ++i) {
         // Randomly generate a clip stack.
@@ -864,7 +864,7 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         ElementList reducedClips;
 
         GrReducedClip::InitialState initial;
-        SkIRect tBounds;
+        SkIRect tBounds(inflatedIBounds);
         SkIRect* tightBounds = r.nextBool() ? &tBounds : NULL;
         GrReducedClip::ReduceClipStack(stack,
                                        inflatedIBounds,
