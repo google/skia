@@ -396,7 +396,37 @@ HGLRC create_gl(HWND hwnd, int msaaSampleCount) {
         SkASSERT(TRUE == set);
     }
 
-    HGLRC glrc = wglCreateContext(dc);
+    HGLRC glrc = NULL;
+#if 0 // Change to 1 to attempt to create a core profile GL context of version 4.3 or lower
+    if (extensions.hasExtension(dc, "WGL_ARB_create_context")) {
+        static const GLint kCoreGLVersions[] = {
+            4, 3,
+            4, 2,
+            4, 1,
+            4, 0,
+            3, 3,
+            3, 2,
+        };
+        GLint coreProfileAttribs[] = {
+            SK_WGL_CONTEXT_MAJOR_VERSION, -1,
+            SK_WGL_CONTEXT_MINOR_VERSION, -1,
+            SK_WGL_CONTEXT_PROFILE_MASK,  SK_WGL_CONTEXT_CORE_PROFILE_BIT,
+            0,
+        };
+        for (int v = 0; v < SK_ARRAY_COUNT(kCoreGLVersions) / 2; ++v) {
+            coreProfileAttribs[1] = kCoreGLVersions[2 * v];
+            coreProfileAttribs[3] = kCoreGLVersions[2 * v + 1];
+            glrc = extensions.createContextAttribs(dc, NULL, coreProfileAttribs);
+            if (NULL != glrc) {
+                break;
+            }
+        }
+    }
+#endif
+
+    if (NULL == glrc) {
+        glrc = wglCreateContext(dc);
+    }
     SkASSERT(glrc);
 
     wglMakeCurrent(prevDC, prevGLRC);
