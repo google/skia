@@ -145,7 +145,7 @@ void SkRTConfRegistry::registerConf(SkRTConfBase *conf) {
     }
 }
 
-template <typename T> T doParse(const char *s, bool *success ) {
+template <typename T> T doParse(const char *, bool *success ) {
     SkDebugf("WARNING: Invoked non-specialized doParse function...\n");
     if (success) {
         *success = false;
@@ -177,18 +177,30 @@ template<> const char * doParse<const char *>(const char * s, bool *success) {
 }
 
 template<> int doParse<int>(const char * s, bool *success) {
+    if (success) {
+        *success = true;
+    }
     return atoi(s);
 }
 
 template<> unsigned int doParse<unsigned int>(const char * s, bool *success) {
+    if (success) {
+        *success = true;
+    }
     return (unsigned int) atoi(s);
 }
 
 template<> float doParse<float>(const char * s, bool *success) {
+    if (success) {
+        *success = true;
+    }
     return (float) atof(s);
 }
 
 template<> double doParse<double>(const char * s, bool *success) {
+    if (success) {
+        *success = true;
+    }
     return atof(s);
 }
 
