@@ -128,8 +128,12 @@
       'sources': [
         '../tools/PictureRenderer.h',
         '../tools/PictureRenderer.cpp',
+        '../tools/PictureRenderingFlags.h',
+        '../tools/PictureRenderingFlags.cpp',
         '../tools/CopyTilesRenderer.h',
         '../tools/CopyTilesRenderer.cpp',
+        '../tools/SkFlags.h',
+        '../tools/SkFlags.cpp',
         '../src/pipe/utils/SamplePipeControllers.h',
         '../src/pipe/utils/SamplePipeControllers.cpp',
       ],

@@ -79,8 +79,8 @@ void PictureBenchmark::run(SkPicture* pict) {
 
     if (fTimeIndividualTiles) {
         TiledPictureRenderer* tiledRenderer = fRenderer->getTiledRenderer();
-        SkASSERT(tiledRenderer);
-        if (NULL == tiledRenderer) {
+        SkASSERT(tiledRenderer && tiledRenderer->supportsTimingIndividualTiles());
+        if (NULL == tiledRenderer || !tiledRenderer->supportsTimingIndividualTiles()) {
             return;
         }
         int xTiles, yTiles;

@@ -20,11 +20,11 @@ def TileArgs(tile_x, tile_y):
 
 
 def BitmapConfig(**kwargs):
-  return Config(device='bitmap', **kwargs)
+  return Config(config='8888', **kwargs)
 
 
 def GPUConfig(**kwargs):
-  return Config(device='gpu', **kwargs)
+  return Config(config='gpu', **kwargs)
 
 
 def TiledBitmapConfig(tile_x, tile_y, **kwargs):

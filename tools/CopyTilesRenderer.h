@@ -31,6 +31,8 @@ namespace sk_tools {
          */
         virtual bool render(const SkString* path, SkBitmap** out) SK_OVERRIDE;
 
+        virtual bool supportsTimingIndividualTiles() SK_OVERRIDE { return false; }
+
     private:
         int fXTilesPerLargeTile;
         int fYTilesPerLargeTile;
