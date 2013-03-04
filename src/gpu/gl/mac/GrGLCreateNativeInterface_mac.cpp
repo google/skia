@@ -9,7 +9,7 @@
 
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLExtensions.h"
-#include "GrGLUtil.h"
+#include "../GrGLUtil.h"
 
 #include <OpenGL/gl.h>
 #include <OpenGL/glext.h>
