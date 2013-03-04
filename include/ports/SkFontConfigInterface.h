@@ -17,7 +17,7 @@
  *  Provides SkFontHost clients with access to fontconfig services. They will
  *  access the global instance found in RefGlobal().
  */
-class SkFontConfigInterface : public SkRefCnt {
+class SK_API SkFontConfigInterface : public SkRefCnt {
 public:
     /**
      *  Returns the global SkFontConfigInterface instance, and if it is not
