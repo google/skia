@@ -1071,6 +1071,9 @@ SkScalar SkPaint::measureText(const void* textData, size_t length,
                 bounds->fBottom = SkScalarMul(bounds->fBottom, scale);
             }
         }
+    } else if (bounds) {
+        // ensure that even if we don't measure_text we still update the bounds
+        bounds->setEmpty();
     }
     return width;
 }
