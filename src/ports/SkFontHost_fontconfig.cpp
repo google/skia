@@ -120,12 +120,6 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
         return NULL;
     }
 
-#if 1   // HACK, remove me when we can rebaseline skia's gms
-    if (NULL == familyName) {
-        familyName = "Arial";
-    }
-#endif
-
     if (familyFace) {
         FontConfigTypeface* fct = (FontConfigTypeface*)familyFace;
         familyName = fct->getFamilyName();
