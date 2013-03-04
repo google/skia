@@ -42,7 +42,7 @@ protected:
             SkBitmapFactory factory(&SkImageDecoder::DecodeMemoryToTarget);
             // Create a cache which will boot the pixels out anytime the
             // bitmap is unlocked.
-            SkAutoTUnref<SkLruImageCache> cache(SkNEW_ARGS(SkLruImageCache, (0)));
+            SkAutoTUnref<SkLruImageCache> cache(SkNEW_ARGS(SkLruImageCache, (1)));
             factory.setImageCache(cache);
             factory.installPixelRef(data, &fBitmap);
         }

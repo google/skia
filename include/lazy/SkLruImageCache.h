@@ -28,7 +28,21 @@ public:
     CacheStatus getCacheStatus(intptr_t ID) const SK_OVERRIDE;
 #endif
 
-    void setBudget(size_t newBudget);
+    /**
+     *  Set the byte limit on cached pixels. If more bytes are used than this, the cache will free
+     *  unpinned memory until under the new limit or until all unpinned memory is freed. This will
+     *  never free pinned memory, so the cache can potentially remain over the limit. The limit is
+     *  enforced each time memory is allocated or released.
+     *  0 is a special flag for an infinite budget.
+     *  @return size_t The previous limit.
+     */
+    size_t setImageCacheLimit(size_t newLimit);
+
+    /**
+     *  Return the number of bytes of memory currently in use by the cache. Can include memory that
+     *  is no longer pinned, but has not been freed.
+     */
+    size_t getImageCacheUsed() const { return fRamUsed; }
 
     virtual void* allocAndPinCache(size_t bytes, intptr_t* ID) SK_OVERRIDE;
     virtual void* pinCache(intptr_t ID) SK_OVERRIDE;
