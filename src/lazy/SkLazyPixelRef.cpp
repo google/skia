@@ -88,6 +88,8 @@ void* SkLazyPixelRef::onLockPixels(SkColorTable**) {
     // FIXME: As an optimization, only do this part once.
     fErrorInDecoding = !fDecodeProc(fData->data(), fData->size(), &info, NULL);
     if (fErrorInDecoding) {
+        // In case a previous call to allocAndPinCache succeeded.
+        fImageCache->throwAwayCache(fCacheId);
         fCacheId = SkImageCache::UNINITIALIZED_ID;
         return NULL;
     }

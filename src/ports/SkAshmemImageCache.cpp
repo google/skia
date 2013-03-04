@@ -41,10 +41,25 @@ static size_t roundToPageSize(size_t size) {
 }
 
 void* SkAshmemImageCache::allocAndPinCache(size_t bytes, intptr_t* ID) {
-    AshmemRec rec;
-    rec.fSize = roundToPageSize(bytes);
+    SkASSERT(ID != NULL);
 
     SkAutoMutexAcquire ac(&gAshmemMutex);
+
+    if (*ID != SkImageCache::UNINITIALIZED_ID) {
+        // This rec was previously allocated, but pinCache subsequently
+        // failed.
+        AshmemRec* pRec = reinterpret_cast<AshmemRec*>(*ID);
+        SkASSERT(roundToPageSize(bytes) == pRec->fSize);
+        SkASSERT(pRec->fFD != -1);
+        (void) ashmem_pin_region(pRec->fFD, 0, 0);
+#ifdef SK_DEBUG
+        pRec->fPinned = true;
+#endif
+        return pRec->fAddr;
+    }
+
+    AshmemRec rec;
+    rec.fSize = roundToPageSize(bytes);
 
     rec.fFD = ashmem_create_region(NULL, rec.fSize);
     if (-1 == rec.fFD) {
@@ -70,7 +85,6 @@ void* SkAshmemImageCache::allocAndPinCache(size_t bytes, intptr_t* ID) {
     // In release mode, we do not keep a pointer to this object. It will be destroyed
     // either when pinCache returns NULL or when throwAwayCache is called.
     AshmemRec* pRec = SkNEW_ARGS(AshmemRec, (rec));
-    SkASSERT(ID != NULL);
     *ID = reinterpret_cast<intptr_t>(pRec);
 #ifdef SK_DEBUG
     this->appendRec(pRec);
@@ -89,8 +103,6 @@ void* SkAshmemImageCache::pinCache(intptr_t ID) {
 #endif
         return rec->fAddr;
     }
-    // Purged. Remove the associated AshmemRec:
-    this->removeRec(rec);
     ashmem_unpin_region(fd, 0, 0);
     return NULL;
 }
@@ -107,16 +119,10 @@ void SkAshmemImageCache::releaseCache(intptr_t ID) {
 void SkAshmemImageCache::throwAwayCache(intptr_t ID) {
     SkAutoMutexAcquire ac(&gAshmemMutex);
     AshmemRec* rec = reinterpret_cast<AshmemRec*>(ID);
-#ifdef SK_DEBUG
-    SkASSERT(!rec->fPinned);
-#endif
-    this->removeRec(rec);
-}
-
-void SkAshmemImageCache::removeRec(SkAshmemImageCache::AshmemRec* rec) {
     munmap(rec->fAddr, rec->fSize);
     close(rec->fFD);
 #ifdef SK_DEBUG
+    SkASSERT(!rec->fPinned);
     int index = this->findRec(rec);
     SkASSERT(index >= 0);
     fRecs.remove(index);

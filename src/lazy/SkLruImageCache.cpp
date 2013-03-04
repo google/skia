@@ -133,7 +133,6 @@ void SkLruImageCache::releaseCache(intptr_t ID) {
 }
 
 void SkLruImageCache::throwAwayCache(intptr_t ID) {
-    SkASSERT(ID != SkImageCache::UNINITIALIZED_ID);
     SkAutoMutexAcquire ac(&fMutex);
     CachedPixels* pixels = this->findByID(ID);
     if (pixels != NULL) {
@@ -156,6 +155,9 @@ void SkLruImageCache::removePixels(CachedPixels* pixels) {
 
 CachedPixels* SkLruImageCache::findByID(intptr_t ID) const {
     // Mutex is already locked.
+    if (SkImageCache::UNINITIALIZED_ID == ID) {
+        return NULL;
+    }
     Iter iter;
     // Start from the head, most recently used.
     CachedPixels* pixels = iter.init(fLRU, Iter::kHead_IterStart);
