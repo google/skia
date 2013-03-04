@@ -52,6 +52,7 @@ static void color_gradproc(skiatest::Reporter* reporter, const GradRec& rec) {
     REPORTER_ASSERT(reporter, SkShader::kColor_GradientType == s->asAGradient(NULL));
 
     SkShader::GradientInfo info;
+    info.fColors = NULL;
     info.fColorCount = 0;
     s->asAGradient(&info);
     REPORTER_ASSERT(reporter, 1 == info.fColorCount);

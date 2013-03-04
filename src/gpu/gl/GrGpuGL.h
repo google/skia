@@ -10,6 +10,7 @@
 #ifndef GrGpuGL_DEFINED
 #define GrGpuGL_DEFINED
 
+
 #include "GrBinHashKey.h"
 #include "GrDrawState.h"
 #include "GrGpu.h"
@@ -292,7 +293,7 @@ private:
                     this->setVertexBufferID(0);
                 }
                 for (int i = 0; i < fAttribArrayCount; ++i) {
-                    if (fAttribArrays[i].vertexBufferID() == id) {
+                    if (fAttribArrays[i].isVertexBufferIDBound(id)) {
                         fAttribArrays[i].invalidate();
                     }
                 }
@@ -379,7 +380,9 @@ private:
                 fAttribPointerIsValid = false;
             }
 
-            GrGLuint vertexBufferID() const { return fVertexBufferID; }
+            bool isVertexBufferIDBound(GrGLuint id) const {
+                return fAttribPointerIsValid && id == fVertexBufferID;
+            }
         private:
             bool        fEnableIsValid;
             bool        fAttribPointerIsValid;

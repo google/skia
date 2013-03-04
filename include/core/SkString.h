@@ -51,7 +51,7 @@ static bool SkStrContains(const char string[], const char subchar) {
 
 static inline char *SkStrDup(const char string[]) {
     char *ret = (char *) sk_malloc_throw(strlen(string)+1);
-    memcpy(ret,string,strlen(string));
+    memcpy(ret,string,strlen(string)+1);
     return ret;
 }
 

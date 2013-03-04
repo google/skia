@@ -202,8 +202,12 @@ void GrGLProgram::BuildDesc(const GrDrawState& drawState,
     } else {
         desc->fCoverageAttributeIndex = GrDrawState::kCoverageOverrideAttribIndexValue;
     }
-    desc->fEdgeAttributeIndex     = drawState.getAttribIndex(GrDrawState::kEdge_AttribIndex);
-    desc->fTexCoordAttributeIndex = drawState.getAttribIndex(GrDrawState::kTexCoord_AttribIndex);
+    if (desc->fAttribBindings & GrDrawState::kEdge_AttribBindingsBit) {
+        desc->fEdgeAttributeIndex = drawState.getAttribIndex(GrDrawState::kEdge_AttribIndex);
+    }
+    if (GrDrawState::AttributesBindExplicitTexCoords(desc->fAttribBindings)) {
+        desc->fTexCoordAttributeIndex = drawState.getAttribIndex(GrDrawState::kTexCoord_AttribIndex);
+    }
 
 #if GR_DEBUG
     // verify valid vertex attribute state
