@@ -12,6 +12,13 @@
 #include "SkImageCache.h"
 #include "SkImagePriv.h"
 
+#if LAZY_CACHE_STATS
+#include "SkThread.h"
+
+int32_t SkLazyPixelRef::gCacheHits;
+int32_t SkLazyPixelRef::gCacheMisses;
+#endif
+
 SkLazyPixelRef::SkLazyPixelRef(SkData* data, SkBitmapFactory::DecodeProc proc, SkImageCache* cache)
     // Pass NULL for the Mutex so that the default (ring buffer) will be used.
     : INHERITED(NULL)
@@ -61,33 +68,44 @@ void* SkLazyPixelRef::onLockPixels(SkColorTable**) {
     }
     SkBitmapFactory::Target target;
     // Check to see if the pixels still exist in the cache.
-    target.fAddr = SkImageCache::UNINITIALIZED_ID == fCacheId ?
-                   NULL : fImageCache->pinCache(fCacheId);
-    if (NULL == target.fAddr) {
-        SkImage::Info info;
-        SkASSERT(fData != NULL && fData->size() > 0);
-        // FIXME: As an optimization, only do this part once.
-        fErrorInDecoding = !fDecodeProc(fData->data(), fData->size(), &info, NULL);
-        if (fErrorInDecoding) {
-            fCacheId = SkImageCache::UNINITIALIZED_ID;
-            return NULL;
+    if (SkImageCache::UNINITIALIZED_ID == fCacheId) {
+        target.fAddr = NULL;
+    } else {
+        target.fAddr = fImageCache->pinCache(fCacheId);
+        if (NULL != target.fAddr) {
+#if LAZY_CACHE_STATS
+            sk_atomic_inc(&gCacheHits);
+#endif
+            return target.fAddr;
         }
-        // Allocate the memory.
-        size_t bytes = ComputeMinRowBytesAndSize(info, &target.fRowBytes);
+#if LAZY_CACHE_STATS
+        sk_atomic_inc(&gCacheMisses);
+#endif
+    }
+    SkASSERT(NULL == target.fAddr);
+    SkImage::Info info;
+    SkASSERT(fData != NULL && fData->size() > 0);
+    // FIXME: As an optimization, only do this part once.
+    fErrorInDecoding = !fDecodeProc(fData->data(), fData->size(), &info, NULL);
+    if (fErrorInDecoding) {
+        fCacheId = SkImageCache::UNINITIALIZED_ID;
+        return NULL;
+    }
+    // Allocate the memory.
+    size_t bytes = ComputeMinRowBytesAndSize(info, &target.fRowBytes);
 
-        target.fAddr = fImageCache->allocAndPinCache(bytes, &fCacheId);
-        if (NULL == target.fAddr) {
-            // Space could not be allocated.
-            fCacheId = SkImageCache::UNINITIALIZED_ID;
-            return NULL;
-        }
-        SkASSERT(SkImageCache::UNINITIALIZED_ID != fCacheId);
-        fErrorInDecoding = !fDecodeProc(fData->data(), fData->size(), &info, &target);
-        if (fErrorInDecoding) {
-            fImageCache->throwAwayCache(fCacheId);
-            fCacheId = SkImageCache::UNINITIALIZED_ID;
-            return NULL;
-        }
+    target.fAddr = fImageCache->allocAndPinCache(bytes, &fCacheId);
+    if (NULL == target.fAddr) {
+        // Space could not be allocated.
+        fCacheId = SkImageCache::UNINITIALIZED_ID;
+        return NULL;
+    }
+    SkASSERT(SkImageCache::UNINITIALIZED_ID != fCacheId);
+    fErrorInDecoding = !fDecodeProc(fData->data(), fData->size(), &info, &target);
+    if (fErrorInDecoding) {
+        fImageCache->throwAwayCache(fCacheId);
+        fCacheId = SkImageCache::UNINITIALIZED_ID;
+        return NULL;
     }
     return target.fAddr;
 }

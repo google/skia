@@ -113,6 +113,7 @@
       ],
       'include_dirs': [
         '../bench',
+        '../src/lazy/',
       ],
       'dependencies': [
         'skia_base_libs.gyp:skia_base_libs',
