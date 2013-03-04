@@ -26,6 +26,7 @@
 SkBenchLogger gLogger;
 
 // Flags used by this file, in alphabetical order.
+DEFINE_bool(countRAM, false, "Count the RAM used for bitmap pixels in each skp file");
 DECLARE_bool(deferImageDecoding);
 DEFINE_string(filter, "",
         "type:flag : Enable canvas filtering to disable a paint flag, "
@@ -173,6 +174,13 @@ static bool run_single_benchmark(const SkString& inputPath,
         return false;
     }
 
+    // Since the old picture has been deleted, all pixels should be cleared.
+    SkASSERT(gLruImageCache.getImageCacheUsed() == 0);
+    if (FLAGS_countRAM) {
+        // Set the limit to zero, so all pixels will be kept
+        gLruImageCache.setImageCacheLimit(0);
+    }
+
     bool success = false;
     SkPicture* picture;
     if (FLAGS_deferImageDecoding) {
@@ -204,11 +212,29 @@ static bool run_single_benchmark(const SkString& inputPath,
         int32_t cacheHits = SkLazyPixelRef::GetCacheHits();
         int32_t cacheMisses = SkLazyPixelRef::GetCacheMisses();
         SkLazyPixelRef::ResetCacheStats();
-        SkDebugf("Cache hit rate: %f\n", (double) cacheHits / (cacheHits + cacheMisses));
+        SkString hitString;
+        hitString.printf("Cache hit rate: %f\n", (double) cacheHits / (cacheHits + cacheMisses));
+        gLogger.logProgress(hitString);
         gTotalCacheHits += cacheHits;
         gTotalCacheMisses += cacheMisses;
     }
 #endif
+    if (FLAGS_countRAM) {
+        SkString ramCount("RAM used for bitmaps: ");
+        size_t bytes = gLruImageCache.getImageCacheUsed();
+        if (bytes > 1024) {
+            size_t kb = bytes / 1024;
+            if (kb > 1024) {
+                size_t mb = kb / 1024;
+                ramCount.appendf("%zi MB\n", mb);
+            } else {
+                ramCount.appendf("%zi KB\n", kb);
+            }
+        } else {
+            ramCount.appendf("%zi bytes\n", bytes);
+        }
+        gLogger.logProgress(ramCount);
+    }
 
     return true;
 }
