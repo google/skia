@@ -8,6 +8,7 @@
 #include "SkFontConfigInterface.h"
 #include "SkFontDescriptor.h"
 #include "SkFontHost.h"
+#include "SkFontStream.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
 #include "SkTypefaceCache.h"
@@ -80,6 +81,17 @@ public:
     bool isFamilyName(const char* name) const {
         return fFamilyName.equals(name);
     }
+
+protected:
+    friend class SkFontHost;    // hack until we can make public versions
+
+    virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
+    virtual size_t onGetTableData(SkFontTableTag, size_t offset,
+                                  size_t length, void* data) const SK_OVERRIDE;
+    virtual void onGetFontDescriptor(SkFontDescriptor*) const SK_OVERRIDE;
+
+private:
+    typedef SkTypeface INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -169,6 +181,34 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
     return face;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+// DEPRECATED
+int SkFontHost::CountTables(SkFontID fontID) {
+    SkTypeface* face = SkTypefaceCache::FindByID(fontID);
+    return face ? face->onGetTableTags(NULL) : 0;
+}
+
+// DEPRECATED
+int SkFontHost::GetTableTags(SkFontID fontID, SkFontTableTag tags[]) {
+    SkTypeface* face = SkTypefaceCache::FindByID(fontID);
+    return face ? face->onGetTableTags(tags) : 0;
+}
+
+// DEPRECATED
+size_t SkFontHost::GetTableSize(SkFontID fontID, SkFontTableTag tag) {
+    SkTypeface* face = SkTypefaceCache::FindByID(fontID);
+    return face ? face->onGetTableData(tag, 0, ~0U, NULL) : 0;
+}
+
+// DEPRECATED
+size_t SkFontHost::GetTableData(SkFontID fontID, SkFontTableTag tag,
+                                size_t offset, size_t length, void* dst) {
+    SkTypeface* face = SkTypefaceCache::FindByID(fontID);
+    return face ? face->onGetTableData(tag, offset, length, dst) : 0;
+}
+
+// DEPRECATED
 uint32_t SkFontHost::NextLogicalFont(SkFontID curr, SkFontID orig) {
     // We don't handle font fallback.
     return 0;
@@ -181,9 +221,9 @@ uint32_t SkFontHost::NextLogicalFont(SkFontID curr, SkFontID orig) {
 
 void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
     FontConfigTypeface* fct = (FontConfigTypeface*)face;
-    SkFontDescriptor desc(face->style());
 
-    desc.setFamilyName(fct->getFamilyName());
+    SkFontDescriptor desc;
+    fct->onGetFontDescriptor(&desc);
     desc.serialize(stream);
 
     // by convention, we also write out the actual sfnt data, preceeded by
@@ -213,12 +253,7 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkStream* SkFontHost::OpenStream(uint32_t id) {
-    FontConfigTypeface* face = (FontConfigTypeface*)SkTypefaceCache::FindByID(id);
-    if (NULL == face) {
-        return NULL;
-    }
-
+static SkStream* open_stream(const FontConfigTypeface* face) {
     SkStream* stream = face->getLocalStream();
     if (stream) {
         stream->ref();
@@ -230,6 +265,14 @@ SkStream* SkFontHost::OpenStream(uint32_t id) {
         stream = fci->openStream(face->getIdentity());
     }
     return stream;
+}
+
+SkStream* SkFontHost::OpenStream(uint32_t id) {
+    FontConfigTypeface* face = (FontConfigTypeface*)SkTypefaceCache::FindByID(id);
+    if (NULL == face) {
+        return NULL;
+    }
+    return open_stream(face);
 }
 
 size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
@@ -251,3 +294,25 @@ size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
     }
     return filename.size();
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+int FontConfigTypeface::onGetTableTags(SkFontTableTag tags[]) const {
+    SkAutoTUnref<SkStream> stream(open_stream(this));
+    return stream.get() ? SkFontStream::GetTableTags(stream, tags) : 0;
+}
+
+size_t FontConfigTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
+                                  size_t length, void* data) const {
+    SkAutoTUnref<SkStream> stream(open_stream(this));
+    return stream.get() ?
+               SkFontStream::GetTableData(stream, tag, offset, length, data) :
+               0;
+}
+
+void FontConfigTypeface::onGetFontDescriptor(SkFontDescriptor* desc) const {
+    desc->setStyle(this->style());
+    desc->setFamilyName(this->getFamilyName());
+}
+
+

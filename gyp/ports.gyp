@@ -57,6 +57,9 @@
             '../src/ports/SkFontConfigInterface_direct.cpp',
             '../src/ports/SkThread_pthread.cpp',
           ],
+          'sources!': [
+            '../src/ports/SkFontHost_tables.cpp',
+          ],
         }],
         [ 'skia_os == "nacl"', {
           'dependencies': [
