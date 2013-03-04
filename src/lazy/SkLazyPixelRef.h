@@ -17,6 +17,12 @@ class SkColorTable;
 class SkData;
 class SkImageCache;
 
+#ifdef SK_DEBUG
+    #define LAZY_CACHE_STATS 1
+#elif !defined(LAZY_CACHE_STATS)
+    #define LAZY_CACHE_STATS 0
+#endif
+
 /**
  *  PixelRef which defers decoding until SkBitmap::lockPixels() is called.
  */
@@ -38,6 +44,12 @@ public:
     intptr_t getCacheId() const { return fCacheId; }
 #endif
 
+#if LAZY_CACHE_STATS
+    static int32_t GetCacheHits() { return gCacheHits; }
+    static int32_t GetCacheMisses() { return gCacheMisses; }
+    static void ResetCacheStats() { gCacheHits = gCacheMisses = 0; }
+#endif
+
     // No need to flatten this object. When flattening an SkBitmap, SkOrderedWriteBuffer will check
     // the encoded data and write that instead.
     // Future implementations of SkFlattenableWriteBuffer will need to special case for
@@ -56,6 +68,11 @@ private:
     SkBitmapFactory::DecodeProc fDecodeProc;
     SkImageCache*               fImageCache;
     intptr_t                    fCacheId;
+
+#if LAZY_CACHE_STATS
+    static int32_t              gCacheHits;
+    static int32_t              gCacheMisses;
+#endif
 
     typedef SkPixelRef INHERITED;
 };

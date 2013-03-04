@@ -44,6 +44,9 @@ DEFINE_bool(timeIndividualTiles, false, "Report times for drawing individual til
             "times for drawing the whole page. Requires tiled rendering.");
 DEFINE_string(timers, "", "[wcgWC]*: Display wall, cpu, gpu, truncated wall or truncated cpu time"
               " for each picture.");
+DEFINE_bool(trackDeferredCaching, false, "Only meaningful with --deferImageDecoding and "
+            "LAZY_CACHE_STATS set to true. Report percentage of cache hits when using deferred "
+            "image decoding.");
 
 static char const * const gFilterTypes[] = {
     "paint",
@@ -140,6 +143,7 @@ static SkString filterFlagsUsage() {
 
 #include "SkData.h"
 #include "SkLruImageCache.h"
+#include "SkLazyPixelRef.h"
 
 static SkLruImageCache gLruImageCache(1024*1024);
 
@@ -151,6 +155,11 @@ static bool lazy_decode_bitmap(const void* buffer, size_t size, SkBitmap* bitmap
     factory.setImageCache(&gLruImageCache);
     return factory.installPixelRef(data, bitmap);
 }
+
+#if LAZY_CACHE_STATS
+static int32_t gTotalCacheHits;
+static int32_t gTotalCacheMisses;
+#endif
 
 static bool run_single_benchmark(const SkString& inputPath,
                                  sk_tools::PictureBenchmark& benchmark) {
@@ -189,6 +198,18 @@ static bool run_single_benchmark(const SkString& inputPath,
     gLogger.logProgress(result);
 
     benchmark.run(picture);
+
+#if LAZY_CACHE_STATS
+    if (FLAGS_trackDeferredCaching) {
+        int32_t cacheHits = SkLazyPixelRef::GetCacheHits();
+        int32_t cacheMisses = SkLazyPixelRef::GetCacheMisses();
+        SkLazyPixelRef::ResetCacheStats();
+        SkDebugf("Cache hit rate: %f\n", (double) cacheHits / (cacheHits + cacheMisses));
+        gTotalCacheHits += cacheHits;
+        gTotalCacheMisses += cacheMisses;
+    }
+#endif
+
     return true;
 }
 
@@ -200,12 +221,12 @@ static void setup_benchmark(sk_tools::PictureBenchmark* benchmark) {
         const char* filters = FLAGS_filter[0];
         const char* colon = strchr(filters, ':');
         if (colon) {
-            int type = -1;
+            int32_t type = -1;
             size_t typeLen = colon - filters;
             for (size_t tIndex = 0; tIndex < kFilterTypesCount; ++tIndex) {
                 if (typeLen == strlen(gFilterTypes[tIndex])
                         && !strncmp(filters, gFilterTypes[tIndex], typeLen)) {
-                    type = tIndex;
+                    type = SkToS32(tIndex);
                     break;
                 }
             }
@@ -396,6 +417,12 @@ int tool_main(int argc, char** argv) {
         gLogger.logError(err);
         return 1;
     }
+#if LAZY_CACHE_STATS
+    if (FLAGS_trackDeferredCaching) {
+        SkDebugf("Total cache hit rate: %f\n",
+                 (double) gTotalCacheHits / (gTotalCacheHits + gTotalCacheMisses));
+    }
+#endif
     return 0;
 }
 
