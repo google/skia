@@ -244,7 +244,7 @@ extern "C" {
         return count;
     }
 
-    static void sk_stream_close( FT_Stream stream) {}
+    static void sk_stream_close(FT_Stream) {}
 }
 
 SkFaceRec::SkFaceRec(SkStream* strm, uint32_t fontID)
@@ -1181,7 +1181,7 @@ void SkScalerContext_FreeType::generatePath(const SkGlyph& glyph,
         return;
     }
 
-    generateGlyphPath(fFace, glyph, path);
+    generateGlyphPath(fFace, path);
 
     // The path's origin from FreeType is always the horizontal layout origin.
     // Offset the path so that it is relative to the vertical origin if needed.

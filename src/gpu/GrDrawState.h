@@ -423,7 +423,7 @@ public:
      */
     class AutoColorRestore : public ::GrNoncopyable {
     public:
-        AutoColorRestore() : fDrawState(NULL) {}
+        AutoColorRestore() : fDrawState(NULL), fOldColor(0) {}
 
         AutoColorRestore(GrDrawState* drawState, GrColor color) {
             fDrawState = NULL;
