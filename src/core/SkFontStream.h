@@ -14,7 +14,16 @@ class SkStream;
 
 class SkFontStream {
 public:
+    /**
+     *  Note: the stream is rewound initially, but is returned at an arbitrary
+     *  read offset.
+     */
     static int GetTableTags(SkStream*, SkFontTableTag tags[]);
+
+    /**
+     *  Note: the stream is rewound initially, but is returned at an arbitrary
+     *  read offset.
+     */
     static size_t GetTableData(SkStream*, SkFontTableTag tag,
                                size_t offset, size_t length, void* data);
 };
