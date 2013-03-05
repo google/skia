@@ -15,7 +15,6 @@
 #include "SkRefCnt.h"
 
 class SkBitmap;
-class SkPaint;
 class SkPDFCatalog;
 struct SkIRect;
 
@@ -37,8 +36,7 @@ public:
      *           the given parameters.
      */
     static SkPDFImage* CreateImage(const SkBitmap& bitmap,
-                                   const SkIRect& srcRect,
-                                   const SkPaint& paint);
+                                   const SkIRect& srcRect);
 
     virtual ~SkPDFImage();
 
@@ -64,7 +62,7 @@ private:
      *  @param paint      Used to calculate alpha, masks, etc.
      */
     SkPDFImage(SkStream* imageData, const SkBitmap& bitmap,
-               const SkIRect& srcRect, bool alpha, const SkPaint& paint);
+               const SkIRect& srcRect, bool alpha);
 };
 
 #endif

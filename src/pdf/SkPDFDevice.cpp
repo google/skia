@@ -1709,7 +1709,7 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& matrix,
         return;
     }
 
-    SkPDFImage* image = SkPDFImage::CreateImage(bitmap, subset, paint);
+    SkPDFImage* image = SkPDFImage::CreateImage(bitmap, subset);
     if (!image) {
         return;
     }

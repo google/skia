@@ -133,7 +133,7 @@ public:
 protected:
     // Common constructor to handle common members.
     SkPDFFont(SkAdvancedTypefaceMetrics* fontInfo, SkTypeface* typeface,
-              uint16_t glyphID, bool descendantFont);
+              SkPDFDict* relatedFontDescriptor);
 
     // Accessors for subclass.
     SkAdvancedTypefaceMetrics* fontInfo();
@@ -164,7 +164,7 @@ protected:
     // Create instances of derived types based on fontInfo.
     static SkPDFFont* Create(SkAdvancedTypefaceMetrics* fontInfo,
                              SkTypeface* typeface, uint16_t glyphID,
-                             SkPDFDict* fontDescriptor);
+                             SkPDFDict* relatedFontDescriptor);
 
     static bool Find(uint32_t fontID, uint16_t glyphID, int* index);
 
