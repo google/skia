@@ -120,7 +120,7 @@ struct SkFILE;
 /** A stream that reads from a FILE*, which is opened in the constructor and
     closed in the destructor
  */
-class SkFILEStream : public SkStream {
+class SK_API SkFILEStream : public SkStream {
 public:
     SK_DECLARE_INST_COUNT(SkFILEStream)
 
@@ -151,7 +151,7 @@ private:
 
 /** A stream that reads from a file descriptor
  */
-class SkFDStream : public SkStream {
+class SK_API SkFDStream : public SkStream {
 public:
     SK_DECLARE_INST_COUNT(SkFDStream)
 
@@ -177,7 +177,7 @@ private:
     typedef SkStream INHERITED;
 };
 
-class SkMemoryStream : public SkStream {
+class SK_API SkMemoryStream : public SkStream {
 public:
     SK_DECLARE_INST_COUNT(SkMemoryStream)
 
@@ -242,7 +242,7 @@ private:
     The caller can provide the buffer, or ask SkBufferStream to allocated/free
     it automatically.
 */
-class SkBufferStream : public SkStream {
+class SK_API SkBufferStream : public SkStream {
 public:
     SK_DECLARE_INST_COUNT(SkBufferStream)
 
@@ -364,7 +364,7 @@ private:
 };
 
 
-class SkDebugWStream : public SkWStream {
+class SK_API SkDebugWStream : public SkWStream {
 public:
     SK_DECLARE_INST_COUNT(SkDebugWStream)
 
@@ -380,3 +380,4 @@ private:
 typedef SkFILEStream SkURLStream;
 
 #endif
+
