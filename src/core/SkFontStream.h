@@ -15,16 +15,29 @@ class SkStream;
 class SkFontStream {
 public:
     /**
+     *  Return the number of shared 'fonts' inside a TTC sfnt, or return 0
+     *  if the stream is a normal sfnt (not a TTC).
+     *
      *  Note: the stream is rewound initially, but is returned at an arbitrary
      *  read offset.
      */
-    static int GetTableTags(SkStream*, SkFontTableTag tags[]);
+    static int CountTTCEntries(SkStream*);
 
     /**
+     *  @param ttcIndex 0 for normal sfnts, or the index within a TTC sfnt.
+     *
      *  Note: the stream is rewound initially, but is returned at an arbitrary
      *  read offset.
      */
-    static size_t GetTableData(SkStream*, SkFontTableTag tag,
+    static int GetTableTags(SkStream*, int ttcIndex, SkFontTableTag tags[]);
+
+    /**
+     *  @param ttcIndex 0 for normal sfnts, or the index within a TTC sfnt.
+     *
+     *  Note: the stream is rewound initially, but is returned at an arbitrary
+     *  read offset.
+     */
+    static size_t GetTableData(SkStream*, int ttcIndex, SkFontTableTag tag,
                                size_t offset, size_t length, void* data);
 };
 
