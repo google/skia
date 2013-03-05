@@ -14,7 +14,9 @@
 static const char* blend_mode_from_xfermode(SkXfermode::Mode mode) {
     switch (mode) {
         case SkXfermode::kSrcOver_Mode:    return "Normal";
-        case SkXfermode::kModulate_Mode:   return "Multiply";
+        // kModulate is not really like multipy but similar most of the time.
+        case SkXfermode::kModulate_Mode: 
+        case SkXfermode::kMultiply_Mode:   return "Multiply";
         case SkXfermode::kScreen_Mode:     return "Screen";
         case SkXfermode::kOverlay_Mode:    return "Overlay";
         case SkXfermode::kDarken_Mode:     return "Darken";
@@ -25,6 +27,10 @@ static const char* blend_mode_from_xfermode(SkXfermode::Mode mode) {
         case SkXfermode::kSoftLight_Mode:  return "SoftLight";
         case SkXfermode::kDifference_Mode: return "Difference";
         case SkXfermode::kExclusion_Mode:  return "Exclusion";
+        case SkXfermode::kHue_Mode:        return "Hue";
+        case SkXfermode::kSaturation_Mode: return "Saturation";
+        case SkXfermode::kColor_Mode:      return "Color";
+        case SkXfermode::kLuminosity_Mode: return "Luminosity";
 
         // These are handled in SkPDFDevice::setUpContentEntry.
         case SkXfermode::kClear_Mode:
@@ -42,7 +48,6 @@ static const char* blend_mode_from_xfermode(SkXfermode::Mode mode) {
         case SkXfermode::kDstATop_Mode:
         case SkXfermode::kXor_Mode:
         case SkXfermode::kPlus_Mode:
-        case SkXfermode::kMultiply_Mode:
             return NULL;
     }
     return NULL;

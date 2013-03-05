@@ -99,15 +99,14 @@ public:
         kSrcATop_Mode,  //!< [Da, Sc * Da + (1 - Sa) * Dc]
         kDstATop_Mode,  //!< [Sa, Sa * Dc + Sc * (1 - Da)]
         kXor_Mode,      //!< [Sa + Da - 2 * Sa * Da, Sc * (1 - Da) + (1 - Sa) * Dc]
-
-        // all remaining modes are defined in the SVG Compositing standard
-        // http://www.w3.org/TR/2009/WD-SVGCompositing-20090430/
-        kPlus_Mode,
+        kPlus_Mode,     //!< [Sa + Da, Sc + Dc]
         kModulate_Mode, // multiplies all components (= alpha and color)
 
         // all above modes can be expressed as pair of src/dst Coeffs
         kCoeffModesCnt,
 
+        // Following blend modes are defined in the CSS Compositing standard: 
+        // https://dvcs.w3.org/hg/FXTF/rawfile/tip/compositing/index.html#blending
         kScreen_Mode = kCoeffModesCnt,
         kOverlay_Mode,
         kDarken_Mode,
@@ -120,7 +119,12 @@ public:
         kExclusion_Mode,
         kMultiply_Mode,
 
-        kLastMode = kMultiply_Mode
+        kHue_Mode,
+        kSaturation_Mode,
+        kColor_Mode,
+        kLuminosity_Mode,
+
+        kLastMode = kLuminosity_Mode
     };
 
     /**
