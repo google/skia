@@ -323,119 +323,11 @@ void SkEvent::SignalQueueTimer(SkMSec delay)
 }
 
 #if SK_SUPPORT_GPU
-HGLRC create_gl(HWND hwnd, int msaaSampleCount) {
-
-    HDC dc = GetDC(hwnd);
-
-    SkWGLExtensions extensions;
-    if (!extensions.hasExtension(dc, "WGL_ARB_pixel_format")) {
-        return NULL;
-    }
-
-    HDC prevDC = wglGetCurrentDC();
-    HGLRC prevGLRC = wglGetCurrentContext();
-    PIXELFORMATDESCRIPTOR pfd;
-
-    int format = 0;
-
-    static const GLint iAttrs[] = {
-        SK_WGL_DRAW_TO_WINDOW, TRUE,
-        SK_WGL_DOUBLE_BUFFER, TRUE,
-        SK_WGL_ACCELERATION, SK_WGL_FULL_ACCELERATION,
-        SK_WGL_SUPPORT_OPENGL, TRUE,
-        SK_WGL_COLOR_BITS, 24,
-        SK_WGL_ALPHA_BITS, 8,
-        SK_WGL_STENCIL_BITS, 8,
-        0, 0
-    };
-
-    GLfloat fAttrs[] = {0, 0};
-
-    if (msaaSampleCount > 0 &&
-        extensions.hasExtension(dc, "WGL_ARB_multisample")) {
-        static const int kIAttrsCount = SK_ARRAY_COUNT(iAttrs);
-        GLint msaaIAttrs[kIAttrsCount + 6];
-        memcpy(msaaIAttrs, iAttrs, sizeof(GLint) * kIAttrsCount);
-        SkASSERT(0 == msaaIAttrs[kIAttrsCount - 2] &&
-                 0 == msaaIAttrs[kIAttrsCount - 1]);
-        msaaIAttrs[kIAttrsCount - 2] = SK_WGL_SAMPLE_BUFFERS;
-        msaaIAttrs[kIAttrsCount - 1] = TRUE;
-        msaaIAttrs[kIAttrsCount + 0] = SK_WGL_SAMPLES;
-        msaaIAttrs[kIAttrsCount + 1] = msaaSampleCount;
-        if (extensions.hasExtension(dc, "WGL_NV_multisample_coverage")) {
-            msaaIAttrs[kIAttrsCount + 2] = SK_WGL_COLOR_SAMPLES;
-            // We want the fewest number of color samples possible.
-            // Passing 0 gives only the formats where all samples are color
-            // samples.
-            msaaIAttrs[kIAttrsCount + 3] = 1;
-            msaaIAttrs[kIAttrsCount + 4] = 0;
-            msaaIAttrs[kIAttrsCount + 5] = 0;
-        } else {
-            msaaIAttrs[kIAttrsCount + 2] = 0;
-            msaaIAttrs[kIAttrsCount + 3] = 0;
-        }
-        GLuint num;
-        int formats[64];
-        extensions.choosePixelFormat(dc, msaaIAttrs, fAttrs, 64, formats, &num);
-        num = min(num,64);
-        int formatToTry = extensions.selectFormat(formats,
-                                                  num,
-                                                  dc,
-                                                  msaaSampleCount);
-        DescribePixelFormat(dc, formatToTry, sizeof(pfd), &pfd);
-        if (SetPixelFormat(dc, formatToTry, &pfd)) {
-            format = formatToTry;
-        }
-    }
-
-    if (0 == format) {
-        GLuint num;
-        extensions.choosePixelFormat(dc, iAttrs, fAttrs, 1, &format, &num);
-        DescribePixelFormat(dc, format, sizeof(pfd), &pfd);
-        BOOL set = SetPixelFormat(dc, format, &pfd);
-        SkASSERT(TRUE == set);
-    }
-
-    HGLRC glrc = NULL;
-#if 0 // Change to 1 to attempt to create a core profile GL context of version 4.3 or lower
-    if (extensions.hasExtension(dc, "WGL_ARB_create_context")) {
-        static const GLint kCoreGLVersions[] = {
-            4, 3,
-            4, 2,
-            4, 1,
-            4, 0,
-            3, 3,
-            3, 2,
-        };
-        GLint coreProfileAttribs[] = {
-            SK_WGL_CONTEXT_MAJOR_VERSION, -1,
-            SK_WGL_CONTEXT_MINOR_VERSION, -1,
-            SK_WGL_CONTEXT_PROFILE_MASK,  SK_WGL_CONTEXT_CORE_PROFILE_BIT,
-            0,
-        };
-        for (int v = 0; v < SK_ARRAY_COUNT(kCoreGLVersions) / 2; ++v) {
-            coreProfileAttribs[1] = kCoreGLVersions[2 * v];
-            coreProfileAttribs[3] = kCoreGLVersions[2 * v + 1];
-            glrc = extensions.createContextAttribs(dc, NULL, coreProfileAttribs);
-            if (NULL != glrc) {
-                break;
-            }
-        }
-    }
-#endif
-
-    if (NULL == glrc) {
-        glrc = wglCreateContext(dc);
-    }
-    SkASSERT(glrc);
-
-    wglMakeCurrent(prevDC, prevGLRC);
-    return glrc;
-}
 
 bool SkOSWindow::attachGL(int msaaSampleCount) {
+    HDC dc = GetDC((HWND)fHWND);
     if (NULL == fHGLRC) {
-        fHGLRC = create_gl((HWND)fHWND, msaaSampleCount);
+        fHGLRC = SkCreateWGLContext(dc, msaaSampleCount, false);
         if (NULL == fHGLRC) {
             return false;
         }
@@ -444,7 +336,7 @@ bool SkOSWindow::attachGL(int msaaSampleCount) {
         glStencilMask(0xffffffff);
         glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     }
-    if (wglMakeCurrent(GetDC((HWND)fHWND), (HGLRC)fHGLRC)) {
+    if (wglMakeCurrent(dc, (HGLRC)fHGLRC)) {
         glViewport(0, 0, SkScalarRound(this->width()),
                    SkScalarRound(this->height()));
         return true;
