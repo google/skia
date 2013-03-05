@@ -308,5 +308,3 @@ void FontConfigTypeface::onGetFontDescriptor(SkFontDescriptor* desc) const {
     desc->setStyle(this->style());
     desc->setFamilyName(this->getFamilyName());
 }
-
-

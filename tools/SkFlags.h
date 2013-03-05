@@ -175,7 +175,7 @@ public:
                                  const char* defaultValue, const char* helpString) {
         SkFlagInfo* info = SkNEW_ARGS(SkFlagInfo, (name, kString_FlagType, helpString));
         info->fDefaultString.set(defaultValue);
-        
+
         info->fStrings = pStrings;
         info->fStrings->reset();
         // If default is "", leave the array empty.

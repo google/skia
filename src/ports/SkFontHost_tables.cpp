@@ -50,5 +50,3 @@ size_t SkFontHost::GetTableData(SkFontID fontID, SkFontTableTag tag,
     SkAutoUnref au(stream);
     return SkFontStream::GetTableData(stream, tag, offset, length, data);
 }
-
-
