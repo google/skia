@@ -324,7 +324,7 @@ void SkEvent::SignalQueueTimer(SkMSec delay)
 
 #if SK_SUPPORT_GPU
 
-bool SkOSWindow::attachGL(int msaaSampleCount) {
+bool SkOSWindow::attachGL(int msaaSampleCount, AttachmentInfo* info) {
     HDC dc = GetDC((HWND)fHWND);
     if (NULL == fHGLRC) {
         fHGLRC = SkCreateWGLContext(dc, msaaSampleCount, false);
@@ -337,8 +337,27 @@ bool SkOSWindow::attachGL(int msaaSampleCount) {
         glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     }
     if (wglMakeCurrent(dc, (HGLRC)fHGLRC)) {
-        glViewport(0, 0, SkScalarRound(this->width()),
-                   SkScalarRound(this->height()));
+        // use DescribePixelFormat to get the stencil bit depth.
+        int pixelFormat = GetPixelFormat(dc);
+        PIXELFORMATDESCRIPTOR pfd;
+        DescribePixelFormat(dc, pixelFormat, sizeof(pfd), &pfd);
+        info->fStencilBits = pfd.cStencilBits;
+
+        // Get sample count if the MSAA WGL extension is present
+        SkWGLExtensions extensions;
+        if (extensions.hasExtension(dc, "WGL_ARB_multisample")) {
+            static const int kSampleCountAttr = SK_WGL_SAMPLES;
+            extensions.getPixelFormatAttribiv(dc,
+                                              pixelFormat,
+                                              0,
+                                              1,
+                                              &kSampleCountAttr,
+                                              &info->fSampleCount);
+        } else {
+            info->fSampleCount = 0;
+        }
+
+        glViewport(0, 0, SkScalarRound(this->width()), SkScalarRound(this->height()));
         return true;
     }
     return false;
@@ -360,7 +379,8 @@ bool create_ANGLE(EGLNativeWindowType hWnd,
                   int msaaSampleCount,
                   EGLDisplay* eglDisplay,
                   EGLContext* eglContext,
-                  EGLSurface* eglSurface) {
+                  EGLSurface* eglSurface,
+                  EGLConfig* eglConfig) {
     static const EGLint contextAttribs[] = {
         EGL_CONTEXT_CLIENT_VERSION, 2,
         EGL_NONE, EGL_NONE
@@ -395,7 +415,6 @@ bool create_ANGLE(EGLNativeWindowType hWnd,
     }
 
     // Choose config
-    EGLConfig config;
     bool foundConfig = false;
     if (msaaSampleCount) {
         static const int kConfigAttribListCnt =
@@ -410,21 +429,19 @@ bool create_ANGLE(EGLNativeWindowType hWnd,
         msaaConfigAttribList[kConfigAttribListCnt + 1] = EGL_SAMPLES;
         msaaConfigAttribList[kConfigAttribListCnt + 2] = msaaSampleCount;
         msaaConfigAttribList[kConfigAttribListCnt + 3] = EGL_NONE;
-        if (eglChooseConfig(display, configAttribList,
-                                   &config, 1, &numConfigs)) {
+        if (eglChooseConfig(display, configAttribList, eglConfig, 1, &numConfigs)) {
             SkASSERT(numConfigs > 0);
             foundConfig = true;
         }
     }
     if (!foundConfig) {
-        if (!eglChooseConfig(display, configAttribList,
-                                    &config, 1, &numConfigs)) {
+        if (!eglChooseConfig(display, configAttribList, eglConfig, 1, &numConfigs)) {
            return false;
         }
     }
 
     // Create a surface
-    EGLSurface surface = eglCreateWindowSurface(display, config,
+    EGLSurface surface = eglCreateWindowSurface(display, *eglConfig,
                                                 (EGLNativeWindowType)hWnd,
                                                 surfaceAttribList);
     if (surface == EGL_NO_SURFACE) {
@@ -432,7 +449,7 @@ bool create_ANGLE(EGLNativeWindowType hWnd,
     }
 
     // Create a GL context
-    EGLContext context = eglCreateContext(display, config,
+    EGLContext context = eglCreateContext(display, *eglConfig,
                                           EGL_NO_CONTEXT,
                                           contextAttribs );
     if (context == EGL_NO_CONTEXT ) {
@@ -450,13 +467,14 @@ bool create_ANGLE(EGLNativeWindowType hWnd,
     return true;
 }
 
-bool SkOSWindow::attachANGLE(int msaaSampleCount) {
+bool SkOSWindow::attachANGLE(int msaaSampleCount, AttachmentInfo* info) {
     if (EGL_NO_DISPLAY == fDisplay) {
         bool bResult = create_ANGLE((HWND)fHWND,
                                     msaaSampleCount,
                                     &fDisplay,
                                     &fContext,
-                                    &fSurface);
+                                    &fSurface,
+                                    &fConfig);
         if (false == bResult) {
             return false;
         }
@@ -470,6 +488,9 @@ bool SkOSWindow::attachANGLE(int msaaSampleCount) {
         }
     }
     if (eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
+        eglGetConfigAttrib(fDisplay, fConfig, EGL_STENCIL_SIZE, &info->fStencilBits);
+        eglGetConfigAttrib(fDisplay, fConfig, EGL_SAMPLES, &info->fSampleCount);
+
         SkAutoTUnref<const GrGLInterface> intf(GrGLCreateANGLEInterface());
 
         if (intf ) {
@@ -507,7 +528,7 @@ void SkOSWindow::presentANGLE() {
 #endif // SK_SUPPORT_GPU
 
 // return true on success
-bool SkOSWindow::attach(SkBackEndTypes attachType, int msaaSampleCount) {
+bool SkOSWindow::attach(SkBackEndTypes attachType, int msaaSampleCount, AttachmentInfo* info) {
 
     // attach doubles as "windowResize" so we need to allo
     // already bound states to pass through again
@@ -521,11 +542,11 @@ bool SkOSWindow::attach(SkBackEndTypes attachType, int msaaSampleCount) {
         break;
 #if SK_SUPPORT_GPU
     case kNativeGL_BackEndType:
-        result = attachGL(msaaSampleCount);
+        result = attachGL(msaaSampleCount, info);
         break;
 #if SK_ANGLE
     case kANGLE_BackEndType:
-        result = attachANGLE(msaaSampleCount);
+        result = attachANGLE(msaaSampleCount, info);
         break;
 #endif // SK_ANGLE
 #endif // SK_SUPPORT_GPU

@@ -93,6 +93,12 @@
     return false;
 }
 
+- (void)getAttachmentInfo:(SkOSWindow::AttachmentInfo*)info {
+    // we don't have a GL context.
+    info->fSampleCount = 0;
+    info->fStencilBits = 0;
+}
+
 #include "SkOSMenu.h"
 - (void)onAddMenu:(const SkOSMenu*)menu {
     [self.fOptionsDelegate view:self didAddMenu:menu];

@@ -291,7 +291,6 @@ CGLContextObj createGLContext(int msaaSampleCount) {
     if (!npix) {
         CGLChoosePixelFormat(attributes, &format, &npix);
     }
-    
     CGLContextObj ctx;
     CGLCreateContext(format, NULL, &ctx);
     CGLDestroyPixelFormat(format);
@@ -314,7 +313,8 @@ CGLContextObj createGLContext(int msaaSampleCount) {
     }
 }
 - (bool)attach:(SkOSWindow::SkBackEndTypes)attachType
-        withMSAASampleCount:(int) sampleCount {
+        withMSAASampleCount:(int) sampleCount
+        andGetInfo:(SkOSWindow::AttachmentInfo*) info {
     if (nil == fGLContext) {
         CGLContextObj ctx = createGLContext(sampleCount);
         fGLContext = [[NSOpenGLContext alloc] initWithCGLContextObj:ctx];
@@ -324,9 +324,11 @@ CGLContextObj createGLContext(int msaaSampleCount) {
         }
         [fGLContext setView:self];
     }
-    
+
     [fGLContext makeCurrentContext];
-    
+    CGLPixelFormatObj format = CGLGetPixelFormat((CGLContextObj)[fGLContext CGLContextObj]);
+    CGLDescribePixelFormat(format, 0, kCGLPFASamples, &info->fSampleCount);
+    CGLDescribePixelFormat(format, 0, kCGLPFAStencilSize, &info->fStencilBits);
     glViewport(0, 0, (int) self.bounds.size.width, (int) self.bounds.size.width);
     glClearColor(0, 0, 0, 0);
     glClearStencil(0);
