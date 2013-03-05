@@ -14,7 +14,8 @@
 #include "QuadraticUtilities.h"
 
 #if ONE_OFF_DEBUG
-static const double tLimits[2][2] = {{0.134, 0.145}, {0.134, 0.136}};
+static const double tLimits1[2][2] = {{0.86731567, 0.867316052}, {0.912837526, 0.912837908}};
+static const double tLimits2[2][2] = {{0.83051487, 0.830515252}, {0.860977985, 0.860978367}};
 #endif
 
 #define DEBUG_QUAD_PART 0
@@ -98,16 +99,17 @@ static bool intersect3(const Cubic& cubic1, double t1s, double t1e, const Cubic&
             Quadratic s2;
             int o2 = quadPart(cubic2, t2Start, t2, s2);
         #if ONE_OFF_DEBUG
-            if (tLimits[0][0] >= t1Start && tLimits[0][1] <= t1
-                    && tLimits[1][0] >= t2Start && tLimits[1][1] <= t2) {
+            char tab[] = "                  ";
+            if (tLimits1[0][0] >= t1Start && tLimits1[0][1] <= t1
+                    && tLimits1[1][0] >= t2Start && tLimits1[1][1] <= t2) {
                 Cubic cSub1, cSub2;
                 sub_divide(cubic1, t1Start, tEnd1, cSub1);
                 sub_divide(cubic2, t2Start, tEnd2, cSub2);
-                SkDebugf("t1=(%1.9g,%1.9g) t2=(%1.9g,%1.9g)\n",
+                SkDebugf("%.*s %s t1=(%1.9g,%1.9g) t2=(%1.9g,%1.9g)", i.depth()*2, tab, __FUNCTION__,
                         t1Start, t1, t2Start, t2);
                 Intersections xlocals;
                 intersectWithOrder(s1, o1, s2, o2, xlocals);
-                SkDebugf("xlocals.fUsed=%d\n", xlocals.used());
+                SkDebugf(" xlocals.fUsed=%d\n", xlocals.used());
             }
         #endif
             Intersections locals;
@@ -143,6 +145,103 @@ static bool intersect3(const Cubic& cubic1, double t1s, double t1e, const Cubic&
                     }
                 } else {
                     double offset = precisionScale / 16; // FIME: const is arbitrary -- test & refine
+#if 1
+                    double c1Bottom = tIdx == 0 ? 0 :
+                            (t1Start + (t1 - t1Start) * locals.fT[0][tIdx - 1] + to1) / 2;
+                    double c1Min = SkTMax(c1Bottom, to1 - offset);
+                    double c1Top = tIdx == tCount - 1 ? 1 :
+                            (t1Start + (t1 - t1Start) * locals.fT[0][tIdx + 1] + to1) / 2;
+                    double c1Max = SkTMin(c1Top, to1 + offset);
+                    double c2Min = SkTMax(0., to2 - offset);
+                    double c2Max = SkTMin(1., to2 + offset);
+                #if ONE_OFF_DEBUG
+                    SkDebugf("%.*s %s 1 contains1=%d/%d contains2=%d/%d\n", i.depth()*2, tab, __FUNCTION__,
+                            c1Min <= tLimits1[0][1] && tLimits1[0][0] <= c1Max
+                         && c2Min <= tLimits1[1][1] && tLimits1[1][0] <= c2Max,
+                            to1 - offset <= tLimits1[0][1] && tLimits1[0][0] <= to1 + offset
+                         && to2 - offset <= tLimits1[1][1] && tLimits1[1][0] <= to2 + offset,
+                            c1Min <= tLimits2[0][1] && tLimits2[0][0] <= c1Max
+                         && c2Min <= tLimits2[1][1] && tLimits2[1][0] <= c2Max,
+                            to1 - offset <= tLimits2[0][1] && tLimits2[0][0] <= to1 + offset
+                         && to2 - offset <= tLimits2[1][1] && tLimits2[1][0] <= to2 + offset);
+                    SkDebugf("%.*s %s 1 c1Bottom=%1.9g c1Top=%1.9g c2Bottom=%1.9g c2Top=%1.9g"
+                            " 1-o=%1.9g 1+o=%1.9g 2-o=%1.9g 2+o=%1.9g offset=%1.9g\n",
+                            i.depth()*2, tab, __FUNCTION__, c1Bottom, c1Top, 0., 1., 
+                            to1 - offset, to1 + offset, to2 - offset, to2 + offset, offset);
+                    SkDebugf("%.*s %s 1 to1=%1.9g to2=%1.9g c1Min=%1.9g c1Max=%1.9g c2Min=%1.9g"
+                            " c2Max=%1.9g\n", i.depth()*2, tab, __FUNCTION__, to1, to2, c1Min, c1Max, c2Min, c2Max);
+                #endif
+                    intersect3(cubic1, c1Min, c1Max, cubic2, c2Min, c2Max, offset, i);
+                #if ONE_OFF_DEBUG
+                    SkDebugf("%.*s %s 1 i.used=%d t=%1.9g\n", i.depth()*2, tab, __FUNCTION__, i.used(),
+                            i.used() > 0 ? i.fT[0][i.used() - 1] : -1);
+                #endif
+                    if (tCount > 1) {
+                        c1Min = SkTMax(0., to1 - offset);
+                        c1Max = SkTMin(1., to1 + offset);
+                        double c2Bottom = tIdx == 0 ? to2 :
+                                (t2Start + (t2 - t2Start) * locals.fT[1][tIdx - 1] + to2) / 2;
+                        double c2Top = tIdx == tCount - 1 ? to2 :
+                                (t2Start + (t2 - t2Start) * locals.fT[1][tIdx + 1] + to2) / 2;
+                        if (c2Bottom > c2Top) {
+                            SkTSwap(c2Bottom, c2Top);
+                        }
+                        if (c2Bottom == to2) {
+                            c2Bottom = 0;
+                        }
+                        if (c2Top == to2) {
+                            c2Top = 1;
+                        }
+                        c2Min = SkTMax(c2Bottom, to2 - offset);
+                        c2Max = SkTMin(c2Top, to2 + offset);
+                    #if ONE_OFF_DEBUG
+                        SkDebugf("%.*s %s 2 contains1=%d/%d contains2=%d/%d\n", i.depth()*2, tab, __FUNCTION__,
+                            c1Min <= tLimits1[0][1] && tLimits1[0][0] <= c1Max
+                         && c2Min <= tLimits1[1][1] && tLimits1[1][0] <= c2Max,
+                            to1 - offset <= tLimits1[0][1] && tLimits1[0][0] <= to1 + offset
+                         && to2 - offset <= tLimits1[1][1] && tLimits1[1][0] <= to2 + offset,
+                            c1Min <= tLimits2[0][1] && tLimits2[0][0] <= c1Max
+                         && c2Min <= tLimits2[1][1] && tLimits2[1][0] <= c2Max,
+                            to1 - offset <= tLimits2[0][1] && tLimits2[0][0] <= to1 + offset
+                         && to2 - offset <= tLimits2[1][1] && tLimits2[1][0] <= to2 + offset);
+                        SkDebugf("%.*s %s 2 c1Bottom=%1.9g c1Top=%1.9g c2Bottom=%1.9g c2Top=%1.9g"
+                                " 1-o=%1.9g 1+o=%1.9g 2-o=%1.9g 2+o=%1.9g offset=%1.9g\n",
+                                i.depth()*2, tab, __FUNCTION__, 0., 1., c2Bottom, c2Top, 
+                                to1 - offset, to1 + offset, to2 - offset, to2 + offset, offset);
+                        SkDebugf("%.*s %s 2 to1=%1.9g to2=%1.9g c1Min=%1.9g c1Max=%1.9g c2Min=%1.9g"
+                                " c2Max=%1.9g\n", i.depth()*2, tab, __FUNCTION__, to1, to2, c1Min, c1Max, c2Min, c2Max);
+                    #endif
+                        intersect3(cubic1, c1Min, c1Max, cubic2, c2Min, c2Max, offset, i);
+                #if ONE_OFF_DEBUG
+                    SkDebugf("%.*s %s 2 i.used=%d t=%1.9g\n", i.depth()*2, tab, __FUNCTION__, i.used(),
+                            i.used() > 0 ? i.fT[0][i.used() - 1] : -1);
+                #endif
+                        c1Min = SkTMax(c1Bottom, to1 - offset);
+                        c1Max = SkTMin(c1Top, to1 + offset);
+                    #if ONE_OFF_DEBUG
+                        SkDebugf("%.*s %s 3 contains1=%d/%d contains2=%d/%d\n", i.depth()*2, tab, __FUNCTION__,
+                            c1Min <= tLimits1[0][1] && tLimits1[0][0] <= c1Max
+                         && c2Min <= tLimits1[1][1] && tLimits1[1][0] <= c2Max,
+                            to1 - offset <= tLimits1[0][1] && tLimits1[0][0] <= to1 + offset
+                         && to2 - offset <= tLimits1[1][1] && tLimits1[1][0] <= to2 + offset,
+                            c1Min <= tLimits2[0][1] && tLimits2[0][0] <= c1Max
+                         && c2Min <= tLimits2[1][1] && tLimits2[1][0] <= c2Max,
+                            to1 - offset <= tLimits2[0][1] && tLimits2[0][0] <= to1 + offset
+                         && to2 - offset <= tLimits2[1][1] && tLimits2[1][0] <= to2 + offset);
+                        SkDebugf("%.*s %s 3 c1Bottom=%1.9g c1Top=%1.9g c2Bottom=%1.9g c2Top=%1.9g"
+                                " 1-o=%1.9g 1+o=%1.9g 2-o=%1.9g 2+o=%1.9g offset=%1.9g\n",
+                                i.depth()*2, tab, __FUNCTION__, 0., 1., c2Bottom, c2Top, 
+                                to1 - offset, to1 + offset, to2 - offset, to2 + offset, offset);
+                        SkDebugf("%.*s %s 3 to1=%1.9g to2=%1.9g c1Min=%1.9g c1Max=%1.9g c2Min=%1.9g"
+                                " c2Max=%1.9g\n", i.depth()*2, tab, __FUNCTION__, to1, to2, c1Min, c1Max, c2Min, c2Max);
+                    #endif
+                        intersect3(cubic1, c1Min, c1Max, cubic2, c2Min, c2Max, offset, i);
+                #if ONE_OFF_DEBUG
+                    SkDebugf("%.*s %s 3 i.used=%d t=%1.9g\n", i.depth()*2, tab, __FUNCTION__, i.used(),
+                            i.used() > 0 ? i.fT[0][i.used() - 1] : -1);
+                #endif
+                    }
+#else                    
                     double c1Bottom = tIdx == 0 ? 0 :
                             (t1Start + (t1 - t1Start) * locals.fT[0][tIdx - 1] + to1) / 2;
                     double c1Min = SkTMax(c1Bottom, to1 - offset);
@@ -164,6 +263,24 @@ static bool intersect3(const Cubic& cubic1, double t1s, double t1e, const Cubic&
                     }
                     double c2Min = SkTMax(c2Bottom, to2 - offset);
                     double c2Max = SkTMin(c2Top, to2 + offset);
+                #if ONE_OFF_DEBUG
+                    SkDebugf("%s contains1=%d/%d contains2=%d/%d\n", __FUNCTION__,
+                            c1Min <= 0.210357794 && 0.210357794 <= c1Max
+                         && c2Min <= 0.223476406 && 0.223476406 <= c2Max,
+                            to1 - offset <= 0.210357794 && 0.210357794 <= to1 + offset
+                         && to2 - offset <= 0.223476406 && 0.223476406 <= to2 + offset,
+                            c1Min <= 0.211324707 && 0.211324707 <= c1Max
+                         && c2Min <= 0.211327209 && 0.211327209 <= c2Max,
+                            to1 - offset <= 0.211324707 && 0.211324707 <= to1 + offset
+                         && to2 - offset <= 0.211327209 && 0.211327209 <= to2 + offset);
+                    SkDebugf("%s c1Bottom=%1.9g c1Top=%1.9g c2Bottom=%1.9g c2Top=%1.9g"
+                            " 1-o=%1.9g 1+o=%1.9g 2-o=%1.9g 2+o=%1.9g offset=%1.9g\n",
+                            __FUNCTION__, c1Bottom, c1Top, c2Bottom, c2Top, 
+                            to1 - offset, to1 + offset, to2 - offset, to2 + offset, offset);
+                    SkDebugf("%s to1=%1.9g to2=%1.9g c1Min=%1.9g c1Max=%1.9g c2Min=%1.9g"
+                            " c2Max=%1.9g\n", __FUNCTION__, to1, to2, c1Min, c1Max, c2Min, c2Max);
+                #endif
+#endif
                     intersect3(cubic1, c1Min, c1Max, cubic2, c2Min, c2Max, offset, i);
                     // TODO: if no intersection is found, either quadratics intersected where
                     // cubics did not, or the intersection was missed. In the former case, expect

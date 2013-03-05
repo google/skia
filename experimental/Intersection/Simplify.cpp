@@ -29,10 +29,9 @@ int gDebugMaxWindValue = SK_MaxS32;
 #define TRY_ROTATE 1
 #define ONE_PASS_COINCIDENCE_CHECK 0
 #define APPROXIMATE_CUBICS 1
+#define COMPACT_DEBUG_SORT 0
 
 #define DEBUG_UNUSED 0 // set to expose unused functions
-
-#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging
 
 #if FORCE_RELEASE || defined SK_RELEASE
 
@@ -88,6 +87,24 @@ const bool gRunTestsInOneThread = true;
 
 #define DEBUG_DUMP (DEBUG_ACTIVE_OP | DEBUG_ACTIVE_SPANS | DEBUG_CONCIDENT | DEBUG_SORT | \
         DEBUG_PATH_CONSTRUCTION)
+
+#if DEBUG_AS_C_CODE
+#define CUBIC_DEBUG_STR "{{%1.17g,%1.17g}, {%1.17g,%1.17g}, {%1.17g,%1.17g}, {%1.17g,%1.17g}}"
+#define QUAD_DEBUG_STR  "{{%1.17g,%1.17g}, {%1.17g,%1.17g}, {%1.17g,%1.17g}}"
+#define LINE_DEBUG_STR  "{{%1.17g,%1.17g}, {%1.17g,%1.17g}}"
+#define PT_DEBUG_STR "{{%1.17g,%1.17g}}"
+#else
+#define CUBIC_DEBUG_STR "(%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)"
+#define QUAD_DEBUG_STR  "(%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)"
+#define LINE_DEBUG_STR  "(%1.9g,%1.9g %1.9g,%1.9g)"
+#define PT_DEBUG_STR "(%1.9g,%1.9g)"
+#endif
+#define T_DEBUG_STR(t, n) #t "[" #n "]=%1.9g"
+#define TX_DEBUG_STR(t) #t "[%d]=%1.9g"
+#define CUBIC_DEBUG_DATA(c) c[0].fX, c[0].fY, c[1].fX, c[1].fY, c[2].fX, c[2].fY, c[3].fX, c[3].fY
+#define QUAD_DEBUG_DATA(q)  q[0].fX, q[0].fY, q[1].fX, q[1].fY, q[2].fX, q[2].fY
+#define LINE_DEBUG_DATA(l)  l[0].fX, l[0].fY, l[1].fX, l[1].fY
+#define PT_DEBUG_DATA(i, n) i.fPt[n].x, i.fPt[n].y
 
 #if DEBUG_DUMP
 static const char* kLVerbStr[] = {"", "line", "quad", "cubic"};
@@ -4200,8 +4217,9 @@ the same winding is shared by both.
         }
         SkASSERT(&span == &span.fOther->fTs[span.fOtherIndex].fOther->
                 fTs[span.fOther->fTs[span.fOtherIndex].fOtherIndex]);
-        SkDebugf(") t=%1.9g [%d] (%1.9g,%1.9g) newWindSum=%d windSum=",
-                span.fT, span.fOther->fTs[span.fOtherIndex].fOtherIndex, pt.fX, pt.fY, winding);
+        SkDebugf(") t=%1.9g [%d] (%1.9g,%1.9g) tEnd=%1.9g newWindSum=%d windSum=",
+                span.fT, span.fOther->fTs[span.fOtherIndex].fOtherIndex, pt.fX, pt.fY, 
+                (&span)[1].fT, winding);
         if (span.fWindSum == SK_MinS32) {
             SkDebugf("?");
         } else {
@@ -4219,9 +4237,9 @@ the same winding is shared by both.
         }
         SkASSERT(&span == &span.fOther->fTs[span.fOtherIndex].fOther->
                 fTs[span.fOther->fTs[span.fOtherIndex].fOtherIndex]);
-        SkDebugf(") t=%1.9g [%d] (%1.9g,%1.9g) newWindSum=%d newOppSum=%d oppSum=",
+        SkDebugf(") t=%1.9g [%d] (%1.9g,%1.9g) tEnd=%1.9g newWindSum=%d newOppSum=%d oppSum=",
                 span.fT, span.fOther->fTs[span.fOtherIndex].fOtherIndex, pt.fX, pt.fY,
-                winding, oppWinding);
+                (&span)[1].fT, winding, oppWinding);
         if (span.fOppSum == SK_MinS32) {
             SkDebugf("?");
         } else {
@@ -4286,13 +4304,28 @@ the same winding is shared by both.
                     }
                 }
             }
-            SkDebugf("%s [%d] %sid=%d %s start=%d (%1.9g,%,1.9g) end=%d (%1.9g,%,1.9g)"
-                    " sign=%d windValue=%d windSum=",
-                    __FUNCTION__, index, angle.unsortable() ? "*** UNSORTABLE *** " : "",
+            SkDebugf("%s [%d] %s", __FUNCTION__, index, 
+                    angle.unsortable() ? "*** UNSORTABLE *** " : "");
+        #if COMPACT_DEBUG_SORT
+            SkDebugf("id=%d %s start=%d (%1.9g,%,1.9g) end=%d (%1.9g,%,1.9g)",
                     segment.fID, kLVerbStr[segment.fVerb],
                     start, segment.xAtT(&sSpan), segment.yAtT(&sSpan), end,
-                    segment.xAtT(&eSpan), segment.yAtT(&eSpan), angle.sign(),
-                    mSpan.fWindValue);
+                    segment.xAtT(&eSpan), segment.yAtT(&eSpan));
+        #else
+            switch (segment.fVerb) {
+                case SkPath::kLine_Verb:
+                    SkDebugf(LINE_DEBUG_STR, LINE_DEBUG_DATA(segment.fPts));
+                    break;
+                case SkPath::kQuad_Verb:
+                    SkDebugf(QUAD_DEBUG_STR, QUAD_DEBUG_DATA(segment.fPts));
+                    break;
+                case SkPath::kCubic_Verb:
+                    SkDebugf(CUBIC_DEBUG_STR, CUBIC_DEBUG_DATA(segment.fPts));
+                    break;
+            }
+            SkDebugf(" tStart=%1.9g tEnd=%1.9g", sSpan.fT, eSpan.fT);
+        #endif
+            SkDebugf(" sign=%d windValue=%d windSum=", angle.sign(), mSpan.fWindValue);
             winding_printf(mSpan.fWindSum);
             int last, wind;
             if (opp) {
@@ -5280,24 +5313,6 @@ protected:
 
 #if DEBUG_ADD_INTERSECTING_TS
 
-#if DEBUG_AS_C_CODE
-#define CUBIC_DEBUG_STR "{{%1.17g,%1.17g}, {%1.17g,%1.17g}, {%1.17g,%1.17g}, {%1.17g,%1.17g}}"
-#define QUAD_DEBUG_STR  "{{%1.17g,%1.17g}, {%1.17g,%1.17g}, {%1.17g,%1.17g}}"
-#define LINE_DEBUG_STR  "{{%1.17g,%1.17g}, {%1.17g,%1.17g}}"
-#define PT_DEBUG_STR "{{%1.17g,%1.17g}}"
-#else
-#define CUBIC_DEBUG_STR "(%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)"
-#define QUAD_DEBUG_STR  "(%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)"
-#define LINE_DEBUG_STR  "(%1.9g,%1.9g %1.9g,%1.9g)"
-#define PT_DEBUG_STR "(%1.9g,%1.9g)"
-#endif
-#define T_DEBUG_STR(t, n) #t "[" #n "]=%1.9g"
-#define TX_DEBUG_STR(t) #t "[%d]=%1.9g"
-#define CUBIC_DEBUG_DATA(c) c[0].fX, c[0].fY, c[1].fX, c[1].fY, c[2].fX, c[2].fY, c[3].fX, c[3].fY
-#define QUAD_DEBUG_DATA(q)  q[0].fX, q[0].fY, q[1].fX, q[1].fY, q[2].fX, q[2].fY
-#define LINE_DEBUG_DATA(l)  l[0].fX, l[0].fY, l[1].fX, l[1].fY
-#define PT_DEBUG_DATA(i, n) i.fPt[n].x, i.fPt[n].y
-
 static void debugShowLineIntersection(int pts, const Work& wt, const Work& wn,
         const Intersections& i) {
     SkASSERT(i.used() == pts);
@@ -5430,16 +5445,6 @@ static void debugShowCubicIntersection(int pts, const Work& wt, const Intersecti
     SkDebugf(" " T_DEBUG_STR(wtTs, 1), i.fT[1][0]);
     SkDebugf("\n");
 }
-
-#undef CUBIC_DEBUG_STR
-#undef QUAD_DEBUG_STR
-#undef LINE_DEBUG_STR
-#undef PT_DEBUG_STR
-#undef T_DEBUG_STR
-#undef CUBIC_DEBUG_DATA
-#undef QUAD_DEBUG_DATA
-#undef LINE_DEBUG_DATA
-#undef PT_DEBUG_DATA
 
 #else
 static void debugShowLineIntersection(int , const Work& , const Work& , const Intersections& ) {
