@@ -43,4 +43,6 @@ struct FPSState;
 
 - (void)setSkTitle:(const char*)title;
 - (void)postInvalWithRect:(const SkIRect*)rectOrNil;
+- (void)getAttachmentInfo:(SkOSWindow::AttachmentInfo*)info;
+
 @end

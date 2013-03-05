@@ -11,8 +11,8 @@
 #import <OpenGLES/ES2/glext.h>
 #import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIKit.h>
-#include "SkWindow.h"
-class SkOSWindow;
+#include "SkOSWindow_ios.h"
+
 class SkEvent;
 @class SkUIView;
 
@@ -43,4 +43,6 @@ class SkEvent;
 - (void)onUpdateMenu:(SkOSMenu*)menu;
 - (void)postInvalWithRect:(const SkIRect*)rectOrNil;
 - (BOOL)onHandleEvent:(const SkEvent&)event;
+- (void)getAttachmentInfo:(SkOSWindow::AttachmentInfo*)info;
+
 @end
