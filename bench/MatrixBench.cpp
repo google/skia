@@ -28,7 +28,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas*) {
         int n = SkBENCHLOOP(N * this->mulLoopCount());
         for (int i = 0; i < n; i++) {
             this->performTest();

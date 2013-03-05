@@ -46,7 +46,7 @@ protected:
         return "grmemorypool_stack";
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas*) {
         SkRandom r;
         enum {
             kMaxObjects = 4 * (1 << 10),
@@ -102,7 +102,7 @@ protected:
         return "grmemorypool_random";
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas*) {
         SkRandom r;
         enum {
             kMaxObjects = 4 * (1 << 10),
@@ -140,7 +140,7 @@ protected:
         return "grmemorypool_queue";
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas*) {
         SkRandom r;
         A* objects[M];
         for (int i = 0; i < N; i++) {

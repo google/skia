@@ -102,7 +102,7 @@ private:
 
 class RectDashBench : public DashBench {
 public:
-    RectDashBench(void* param, const SkScalar intervals[], int count, int width, bool doClip = false)
+    RectDashBench(void* param, const SkScalar intervals[], int count, int width)
     : INHERITED(param, intervals, count, width) {
         fName.append("_rect");
     }
@@ -201,7 +201,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
         SkPath dst;
         for (int i = 0; i < N; ++i) {
             SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);

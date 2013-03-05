@@ -51,7 +51,7 @@ public:
 protected:
     virtual const char* onGetName() { return fName.c_str(); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas*) {
         Proc proc = fProc;
 
         for (int i = 0; i < N; ++i) {

@@ -45,7 +45,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas*) {
         int n = SkBENCHLOOP(kLoop * this->mulLoopCount());
         for (int i = 0; i < n; i++) {
             this->performTest(fDst, fSrc, kBuffer);
@@ -271,7 +271,7 @@ public:
     }
 
 protected:
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas*) {
         IsFiniteProc proc = fProc;
         const float* data = fData;
         // do this so the compiler won't throw away the function call
@@ -339,7 +339,7 @@ public:
     virtual void process(float) {}
 
 protected:
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas*) {
         SkRandom rand;
         float accum = 0;
         const float* data = fData;

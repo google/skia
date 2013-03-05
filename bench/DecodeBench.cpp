@@ -40,7 +40,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas*) {
         if (fFilename) {
             for (int i = 0; i < N; i++) {
                 SkBitmap bm;

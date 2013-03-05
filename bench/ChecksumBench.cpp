@@ -51,7 +51,7 @@ protected:
         }
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas*) {
         switch (fType) {
             case kChecksum_ChecksumType: {
                 for (int i = 0; i < N; i++) {

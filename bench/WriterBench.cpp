@@ -21,7 +21,7 @@ protected:
         return "writer";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
         static const char gStr[] = "abcdefghimjklmnopqrstuvwxyz";
         static const size_t gLen = strlen(gStr);
         SkWriter32 writer(256 * 4);

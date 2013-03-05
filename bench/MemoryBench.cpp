@@ -31,7 +31,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
         size_t inc = fMinSize >> 4;
         SkASSERT(inc > 0);
         size_t total = fMinSize * 64;
