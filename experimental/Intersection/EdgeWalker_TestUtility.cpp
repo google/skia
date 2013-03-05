@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+ 
+#include "DataTypes.h"
 #include "EdgeWalker_Test.h"
 #include "Intersection_Tests.h"
 #include "SkBitmap.h"
@@ -84,6 +86,10 @@ static void showPathContour(SkPath::Iter& iter) {
 
 void showPath(const SkPath& path, const char* str) {
     SkDebugf("%s\n", !str ? "original:" : str);
+    showPath(path);
+}
+
+void showPath(const SkPath& path) {
     SkPath::Iter iter(path, true);
     int rectCount = path.isRectContours() ? path.rectContours(NULL, NULL) : 0;
     if (rectCount > 0) {
@@ -102,6 +108,53 @@ void showPath(const SkPath& path, const char* str) {
     }
     iter.setPath(path, true);
     showPathContour(iter);
+}
+
+void showPathData(const SkPath& path) {
+    SkPath::Iter iter(path, true);
+    uint8_t verb;
+    SkPoint pts[4];
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+        switch (verb) {
+            case SkPath::kMove_Verb:
+                continue;
+            case SkPath::kLine_Verb:
+                SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY);
+                break;
+            case SkPath::kQuad_Verb:
+                SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n",
+                    pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
+                break;
+            case SkPath::kCubic_Verb:
+                SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n",
+                    pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY, pts[3].fX, pts[3].fY);
+                break;
+            case SkPath::kClose_Verb:
+                break;
+            default:
+                SkDEBUGFAIL("bad verb");
+                return;
+        }
+    }
+}
+
+void showOp(const ShapeOp op) {
+    switch (op) {
+        case kDifference_Op:
+            SkDebugf("op difference\n");
+            break;
+        case kIntersect_Op:
+            SkDebugf("op intersect\n");
+            break;
+        case kUnion_Op:
+            SkDebugf("op union\n");
+            break;
+        case kXor_Op:
+            SkDebugf("op xor\n");
+            break;
+        default:
+            SkASSERT(0);
+    }
 }
 
 static void showPath(const SkPath& path, const char* str, const SkMatrix& scale) {
@@ -377,6 +430,11 @@ bool testSimplifyx(const SkPath& path) {
 }
 
 bool testShapeOp(const SkPath& a, const SkPath& b, const ShapeOp shapeOp) {
+#if FORCE_RELEASE == 0
+    showPathData(a);
+    showOp(shapeOp);
+    showPathData(b);
+#endif
     SkPath out;
     operate(a, b, shapeOp, out);
     SkPath pathOut, scaledPathOut;

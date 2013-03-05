@@ -11,6 +11,8 @@
 #include "Intersections.h"
 #include "TestUtilities.h"
 
+#define SHOW_ORIGINAL 1
+
 const int firstCubicIntersectionTest = 9;
 
 static void standardTestCases() {
@@ -134,6 +136,12 @@ static const Cubic testSet[] = {
 const size_t testSetCount = sizeof(testSet) / sizeof(testSet[0]);
 
 static const Cubic newTestSet[] = {
+{{0,2}, {1,5}, {1,0}, {6,1}},
+{{0,1}, {1,6}, {2,0}, {5,1}},
+
+{{0,1}, {1,5}, {2,1}, {4,0}},
+{{1,2}, {0,4}, {1,0}, {5,1}},
+
 {{0,1}, {3,5}, {2,1}, {3,1}},
 {{1,2}, {1,3}, {1,0}, {5,3}},
 
@@ -159,6 +167,15 @@ const size_t newTestSetCount = sizeof(newTestSet) / sizeof(newTestSet[0]);
 static void oneOff(const Cubic& cubic1, const Cubic& cubic2) {
     SkTDArray<Quadratic> quads1;
     cubic_to_quadratics(cubic1, calcPrecision(cubic1), quads1);
+#if SHOW_ORIGINAL
+    SkDebugf("computed quadratics given\n");
+    SkDebugf("  {{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}}, {%1.9g,%1.9g}},\n",
+        cubic1[0].x, cubic1[0].y, cubic1[1].x, cubic1[1].y,
+        cubic1[2].x, cubic1[2].y, cubic1[3].x, cubic1[3].y));
+    SkDebugf("  {{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}}, {%1.9g,%1.9g}},\n",
+        cubic2[0].x, cubic2[0].y, cubic2[1].x, cubic2[1].y,
+        cubic2[2].x, cubic2[2].y, cubic2[3].x, cubic2[3].y));
+#endif
 #if ONE_OFF_DEBUG
     for (int index = 0; index < quads1.count(); ++index) {
         const Quadratic& q = quads1[index];
@@ -333,7 +350,6 @@ static void newOneOff(int outer, int inner) {
 
 void CubicIntersection_NewOneOffTest() {
     newOneOff(0, 1);
-    newOneOff(1, 0);
 }
 
 static void oneOffTests() {
@@ -562,14 +578,10 @@ void CubicIntersection_RandTest() {
     }
 }
 
-void CubicIntersection_IntersectionFinder() {
-    const Cubic& cubic1 = newTestSet[0];
-    const Cubic& cubic2 = newTestSet[1];
-
-    double t1Seed = 0.134792061;
-    double t2Seed = 0.134792094;
-    double t1Step = 0.1;
-    double t2Step = 0.1;
+static void intersectionFinder(int index0, int index1, double t1Seed, double t2Seed,
+        double t1Step, double t2Step) {
+    const Cubic& cubic1 = newTestSet[index0];
+    const Cubic& cubic2 = newTestSet[index1];
     _Point t1[3], t2[3];
     bool toggle = true;
     do {
@@ -654,6 +666,16 @@ void CubicIntersection_IntersectionFinder() {
     SkDebugf("%s p2=(%1.9g,%1.9g)<(%1.9g,%1.9g)<(%1.9g,%1.9g)\n", __FUNCTION__,
         p20.x, p20.y, p2Seed.x, p2Seed.y, p22.x, p22.y);
 #endif
+}
+
+void CubicIntersection_IntersectionFinder() {
+
+    double t1Seed = 0.867315861;
+    double t2Seed = 0.912837717;
+    double t1Step = 0.01;
+    double t2Step = 0.01;
+    intersectionFinder(0, 1, t1Seed, t2Seed, t1Step, t2Step);
+    intersectionFinder(0, 1, 0.830515061, 0.860978176, t1Step, t2Step);
 }
 
 static void coincidentTest() {

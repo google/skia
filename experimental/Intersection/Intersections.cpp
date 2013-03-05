@@ -93,7 +93,8 @@ int Intersections::insert(double one, double two, const _Point& pt) {
     SkASSERT(fUsed <= 1 || fT[0][0] < fT[0][1]);
     int index;
     for (index = 0; index < fUsed; ++index) {
-        if (approximately_equal(fT[0][index], one) || pt.approximatelyEqual(fPt[index])) {
+        double midT = (fT[0][index] + one) / 2;
+        if (approximately_equal(midT, one) || pt.approximatelyEqual(fPt[index])) {
             return -1;
         }
         if (fT[0][index] > one) {

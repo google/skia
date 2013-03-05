@@ -101,14 +101,14 @@ int main (int argc, char * const argv[]) {
             inLen - (insert - inData.begin()) - 2)) {
         return 0;
     }
-    const char simplifyMarker[] =
+    const char forceReleaseMarker[] =
             "#define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging"
             ;
-    const char simplifyReplace[] =
+    const char forceReleaseReplace[] =
             "#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging"
             ;
-    if (!replace(argv[0], dir, "Simplify.cpp", simplifyMarker, NULL, simplifyReplace,
-            sizeof(simplifyReplace) - 1)) {
+    if (!replace(argv[0], dir, "DataTypes.cpp", forceReleaseMarker, NULL, forceReleaseReplace,
+            sizeof(forceReleaseReplace) - 1)) {
         return 0;
     }
     return 0;
