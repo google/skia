@@ -358,7 +358,6 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
             }
         }
     } else {
-#if 0 // Remove this #if once Chromium interfaces set these pointers
         if (extensions.has("GL_OES_vertex_array_object")) {
             if (NULL == fBindVertexArray ||
                 NULL == fDeleteVertexArrays ||
@@ -366,7 +365,6 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
                 return false;
             }
         }
-#endif
     }
 
     return true;

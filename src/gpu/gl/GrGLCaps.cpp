@@ -37,6 +37,7 @@ void GrGLCaps::reset() {
     fImagingSupport = false;
     fTwoFormatLimit = false;
     fFragCoordsConventionSupport = false;
+    fVertexArrayObjectSupport = false;
     fUseNonVBOVertexAndIndexDynamicData = false;
     fIsCoreProfile = false;
 }
@@ -69,6 +70,7 @@ GrGLCaps& GrGLCaps::operator = (const GrGLCaps& caps) {
     fImagingSupport = caps.fImagingSupport;
     fTwoFormatLimit = caps.fTwoFormatLimit;
     fFragCoordsConventionSupport = caps.fFragCoordsConventionSupport;
+    fVertexArrayObjectSupport = caps.fVertexArrayObjectSupport;
     fUseNonVBOVertexAndIndexDynamicData = caps.fUseNonVBOVertexAndIndexDynamicData;
     fIsCoreProfile = caps.fIsCoreProfile;
 
@@ -183,6 +185,13 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         GrGLint profileMask;
         GR_GL_GetIntegerv(gli, GR_GL_CONTEXT_PROFILE_MASK, &profileMask);
         fIsCoreProfile = SkToBool(profileMask & GR_GL_CONTEXT_CORE_PROFILE_BIT);
+    }
+
+    if (kDesktop_GrGLBinding == binding) {
+        fVertexArrayObjectSupport = version >= GR_GL_VER(3, 0) ||
+                                    ctxInfo.hasExtension("GL_ARB_vertex_array_object");
+    } else {
+        fVertexArrayObjectSupport = ctxInfo.hasExtension("GL_OES_vertex_array_object");
     }
 
     this->initFSAASupport(ctxInfo, gli);

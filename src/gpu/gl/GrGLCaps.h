@@ -219,12 +219,15 @@ public:
     /// Is GL_ARB_fragment_coord_conventions supported?
     bool fragCoordConventionsSupport() const { return fFragCoordsConventionSupport; }
 
-    // Use indices or vertices in CPU arrays rather than VBOs for dynamic content.
+    /// Is there support for Vertex Array Objects?
+    bool vertexArrayObjectSupport() const { return fVertexArrayObjectSupport; }
+
+    /// Use indices or vertices in CPU arrays rather than VBOs for dynamic content.
     bool useNonVBOVertexAndIndexDynamicData() const {
         return fUseNonVBOVertexAndIndexDynamicData;
     }
 
-    // Does ReadPixels support the provided format/type combo?
+    /// Does ReadPixels support the provided format/type combo?
     bool readPixelsSupported(const GrGLInterface* intf,
                              GrGLenum format,
                              GrGLenum type) const;
@@ -304,6 +307,7 @@ private:
     bool fImagingSupport  : 1;
     bool fTwoFormatLimit : 1;
     bool fFragCoordsConventionSupport : 1;
+    bool fVertexArrayObjectSupport : 1;
     bool fUseNonVBOVertexAndIndexDynamicData : 1;
     bool fIsCoreProfile : 1;
 };
