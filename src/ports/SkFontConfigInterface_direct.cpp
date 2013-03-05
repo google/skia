@@ -196,17 +196,6 @@ bool IsMetricCompatibleReplacement(const char* font_a, const char* font_b)
     return class_a != OTHER && class_a == class_b;
 }
 
-inline unsigned FileFaceIdToFileId(unsigned filefaceid)
-{
-  return filefaceid >> 4;
-}
-
-inline unsigned FileIdAndFaceIndexToFileFaceId(unsigned fileid, int face_index)
-{
-  SkASSERT((face_index & 0xfu) == face_index);
-  return (fileid << 4) | face_index;
-}
-
 // Normally we only return exactly the font asked for. In last-resort
 // cases, the request either doesn't specify a font or is one of the
 // basic font names like "Sans", "Serif" or "Monospace". This function

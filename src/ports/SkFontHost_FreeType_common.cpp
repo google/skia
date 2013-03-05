@@ -293,7 +293,6 @@ static int cubic_proc(const FT_Vector* pt0, const FT_Vector* pt1,
 }
 
 void SkScalerContext_FreeType_Base::generateGlyphPath(FT_Face face,
-                                                      const SkGlyph& glyph,
                                                       SkPath* path)
 {
     if (fRec.fFlags & SkScalerContext::kEmbolden_Flag) {
