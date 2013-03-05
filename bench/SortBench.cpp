@@ -120,7 +120,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas*) {
         int n = SkBENCHLOOP(200);
         for (int i = 0; i < n; i++) {
             memcpy(fSorted, fUnsorted, fCount * sizeof(int));

@@ -21,7 +21,7 @@ protected:
         return "mutex";
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas*) {
         for (int i = 0; i < N; i++) {
             SK_DECLARE_STATIC_MUTEX(mu);
             for (int j = 0; j < M; j++) {

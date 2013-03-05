@@ -49,7 +49,7 @@ protected:
         fName = name;
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas*) {
         SkPaint paint;
         this->setupPaint(&paint);
 
@@ -137,7 +137,7 @@ public:
 
 protected:
 
-    virtual void makeBlurryRect(const SkRect& r) SK_OVERRIDE {
+    virtual void makeBlurryRect(const SkRect&) SK_OVERRIDE {
         SkMask mask;
         mask.fImage = NULL;
         SkBlurMask::BlurSeparable(&mask, fSrcMask, this->radius(),
@@ -163,7 +163,7 @@ public:
 
 protected:
 
-    virtual void makeBlurryRect(const SkRect& r) SK_OVERRIDE {
+    virtual void makeBlurryRect(const SkRect&) SK_OVERRIDE {
         SkMask mask;
         mask.fImage = NULL;
         SkBlurMask::BlurGroundTruth(&mask, fSrcMask, this->radius(),
