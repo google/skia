@@ -579,6 +579,9 @@ static int get_subset_font_stream(const char* fontName,
         *fontStream = subsetFontStream;
         return fontSize;
     }
+#else
+    sk_ignore_unused_variable(fontName);
+    sk_ignore_unused_variable(subset);
 #endif
 
     // Fail over: just embed the whole font.
@@ -812,7 +815,7 @@ SkPDFFont* SkPDFFont::GetFontResource(SkTypeface* typeface, uint16_t glyphID) {
     return font;  // Return the reference new SkPDFFont() created.
 }
 
-SkPDFFont* SkPDFFont::getFontSubset(const SkPDFGlyphSet* usage) {
+SkPDFFont* SkPDFFont::getFontSubset(const SkPDFGlyphSet*) {
     return NULL;  // Default: no support.
 }
 
@@ -845,12 +848,13 @@ bool SkPDFFont::Find(uint32_t fontID, uint16_t glyphID, int* index) {
 }
 
 SkPDFFont::SkPDFFont(SkAdvancedTypefaceMetrics* info, SkTypeface* typeface,
-                     uint16_t glyphID, bool descendantFont)
+                     SkPDFDict* relatedFontDescriptor)
         : SkPDFDict("Font"),
           fTypeface(typeface),
           fFirstGlyphID(1),
           fLastGlyphID(info ? info->fLastGlyphID : 0),
-          fFontInfo(info) {
+          fFontInfo(info),
+          fDescriptor(relatedFontDescriptor) {
     SkSafeRef(typeface);
     SkSafeRef(info);
     if (info == NULL) {
@@ -873,8 +877,7 @@ SkPDFFont* SkPDFFont::Create(SkAdvancedTypefaceMetrics* info,
         NOT_IMPLEMENTED(true, true);
         return new SkPDFType3Font(info,
                                   typeface,
-                                  glyphID,
-                                  relatedFontDescriptor);
+                                  glyphID);
     }
     if (type == SkAdvancedTypefaceMetrics::kType1CID_Font ||
         type == SkAdvancedTypefaceMetrics::kTrueType_Font) {
@@ -892,7 +895,7 @@ SkPDFFont* SkPDFFont::Create(SkAdvancedTypefaceMetrics* info,
              type == SkAdvancedTypefaceMetrics::kOther_Font ||
              type == SkAdvancedTypefaceMetrics::kNotEmbeddable_Font);
 
-    return new SkPDFType3Font(info, typeface, glyphID, relatedFontDescriptor);
+    return new SkPDFType3Font(info, typeface, glyphID);
 }
 
 SkAdvancedTypefaceMetrics* SkPDFFont::fontInfo() {
@@ -1014,7 +1017,7 @@ void SkPDFFont::populateToUnicodeTable(const SkPDFGlyphSet* subset) {
 
 SkPDFType0Font::SkPDFType0Font(SkAdvancedTypefaceMetrics* info,
                                SkTypeface* typeface)
-        : SkPDFFont(info, typeface, 0, false) {
+        : SkPDFFont(info, typeface, NULL) {
     SkDEBUGCODE(fPopulated = false);
 }
 
@@ -1058,7 +1061,7 @@ bool SkPDFType0Font::populate(const SkPDFGlyphSet* subset) {
 
 SkPDFCIDFont::SkPDFCIDFont(SkAdvancedTypefaceMetrics* info,
                            SkTypeface* typeface, const SkPDFGlyphSet* subset)
-        : SkPDFFont(info, typeface, 0, true) {
+        : SkPDFFont(info, typeface, NULL) {
     populate(subset);
 }
 
@@ -1204,7 +1207,7 @@ SkPDFType1Font::SkPDFType1Font(SkAdvancedTypefaceMetrics* info,
                                SkTypeface* typeface,
                                uint16_t glyphID,
                                SkPDFDict* relatedFontDescriptor)
-        : SkPDFFont(info, typeface, glyphID, false) {
+        : SkPDFFont(info, typeface, relatedFontDescriptor) {
     populate(glyphID);
 }
 
@@ -1329,9 +1332,8 @@ void SkPDFType1Font::addWidthInfoFromRange(
 
 SkPDFType3Font::SkPDFType3Font(SkAdvancedTypefaceMetrics* info,
                                SkTypeface* typeface,
-                               uint16_t glyphID,
-                               SkPDFDict* relatedFontDescriptor)
-        : SkPDFFont(info, typeface, glyphID, false) {
+                               uint16_t glyphID)
+        : SkPDFFont(info, typeface, NULL) {
     populate(glyphID);
 }
 

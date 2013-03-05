@@ -114,7 +114,7 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
     if (paintStyle != SkPaint::kFill_Style) {
         fillState = kNonSingleLine_SkipFillState;
     }
-    SkPoint lastMovePt;
+    SkPoint lastMovePt = SkPoint::Make(0,0);
     SkDynamicMemoryWStream currentSegment;
     SkPoint args[4];
     SkPath::Iter iter(path, false);

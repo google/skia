@@ -12,7 +12,6 @@
 #include "SkBitmap.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
-#include "SkPaint.h"
 #include "SkPackBits.h"
 #include "SkPDFCatalog.h"
 #include "SkRect.h"
@@ -250,8 +249,7 @@ SkPDFArray* makeIndexedColorSpace(SkColorTable* table) {
 
 // static
 SkPDFImage* SkPDFImage::CreateImage(const SkBitmap& bitmap,
-                                    const SkIRect& srcRect,
-                                    const SkPaint& paint) {
+                                    const SkIRect& srcRect) {
     if (bitmap.getConfig() == SkBitmap::kNo_Config) {
         return NULL;
     }
@@ -267,11 +265,10 @@ SkPDFImage* SkPDFImage::CreateImage(const SkBitmap& bitmap,
     }
 
     SkPDFImage* image =
-        new SkPDFImage(imageData, bitmap, srcRect, false, paint);
+        new SkPDFImage(imageData, bitmap, srcRect, false);
 
     if (alphaData != NULL) {
-        image->addSMask(new SkPDFImage(alphaData, bitmap, srcRect, true,
-                                       paint))->unref();
+        image->addSMask(new SkPDFImage(alphaData, bitmap, srcRect, true))->unref();
     }
     return image;
 }
@@ -292,8 +289,7 @@ void SkPDFImage::getResources(SkTDArray<SkPDFObject*>* resourceList) {
 }
 
 SkPDFImage::SkPDFImage(SkStream* imageData, const SkBitmap& bitmap,
-                       const SkIRect& srcRect, bool doingAlpha,
-                       const SkPaint& paint) {
+                       const SkIRect& srcRect, bool doingAlpha) {
     this->setData(imageData);
     SkBitmap::Config config = bitmap.getConfig();
     bool alphaOnly = (config == SkBitmap::kA1_Config ||
