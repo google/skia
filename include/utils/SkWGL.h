@@ -106,4 +106,12 @@ private:
     CreateContextAttribsProc fCreateContextAttribs;
 };
 
+/**
+ * Helper to create an OpenGL context for a DC using WGL. Configs with a sample count >= to
+ * msaaSampleCount are preferred but if none is available then a context with a lower sample count
+ * (including non-MSAA) will be created. If preferCoreProfile is true but a core profile cannot be
+ * created then a compatible profile context will be created.
+ */
+HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, bool preferCoreProfile);
+
 #endif
