@@ -17,7 +17,8 @@ int SkFontHost::CountTables(SkFontID fontID) {
     }
 
     SkAutoUnref au(stream);
-    return SkFontStream::GetTableTags(stream, NULL);
+    int ttcIndex = 0;
+    return SkFontStream::GetTableTags(stream, ttcIndex, NULL);
 }
 
 int SkFontHost::GetTableTags(SkFontID fontID, SkFontTableTag tags[]) {
@@ -27,7 +28,8 @@ int SkFontHost::GetTableTags(SkFontID fontID, SkFontTableTag tags[]) {
     }
 
     SkAutoUnref au(stream);
-    return SkFontStream::GetTableTags(stream, tags);
+    int ttcIndex = 0;
+    return SkFontStream::GetTableTags(stream, ttcIndex, tags);
 }
 
 size_t SkFontHost::GetTableSize(SkFontID fontID, SkFontTableTag tag) {
@@ -37,7 +39,8 @@ size_t SkFontHost::GetTableSize(SkFontID fontID, SkFontTableTag tag) {
     }
 
     SkAutoUnref au(stream);
-    return SkFontStream::GetTableData(stream, tag, 0, ~0U, NULL);
+    int ttcIndex = 0;
+    return SkFontStream::GetTableData(stream, ttcIndex, tag, 0, ~0U, NULL);
 }
 
 size_t SkFontHost::GetTableData(SkFontID fontID, SkFontTableTag tag,
@@ -48,5 +51,6 @@ size_t SkFontHost::GetTableData(SkFontID fontID, SkFontTableTag tag,
     }
 
     SkAutoUnref au(stream);
-    return SkFontStream::GetTableData(stream, tag, offset, length, data);
+    int ttcIndex = 0;
+    return SkFontStream::GetTableData(stream, ttcIndex, tag, offset, length, data);
 }
