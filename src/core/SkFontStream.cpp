@@ -165,5 +165,3 @@ size_t SkFontStream::GetTableData(SkStream* stream, SkFontTableTag tag,
     }
     return 0;
 }
-
-

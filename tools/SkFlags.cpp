@@ -132,4 +132,3 @@ void SkFlags::ParseCommandLine(int argc, char** argv) {
         exit(0);
     }
 }
-

@@ -31,4 +31,3 @@ enum PictureTool {
 sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool);
 
 #endif // PICTURE_RENDERING_FLAGS
-

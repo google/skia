@@ -62,7 +62,7 @@ static void test_clip_bounds(skiatest::Reporter* reporter, GrContext* context) {
 
     SkIRect intScreen = SkIRect::MakeWH(kXSize, kYSize);
     SkRect screen;
-    
+
     screen = SkRect::MakeWH(SkIntToScalar(kXSize),
                             SkIntToScalar(kYSize));
 

@@ -308,4 +308,3 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
 
     return renderer.detach();
 }
-
