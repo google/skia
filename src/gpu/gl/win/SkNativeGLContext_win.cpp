@@ -50,6 +50,35 @@ void SkNativeGLContext::destroyGLContext() {
 const GrGLInterface* SkNativeGLContext::createGLContext() {
     HINSTANCE hInstance = (HINSTANCE)GetModuleHandle(NULL);
 
+    if (!gWC) {
+        WNDCLASS wc;
+        wc.cbClsExtra = 0;
+        wc.cbWndExtra = 0;
+        wc.hbrBackground = NULL;
+        wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+        wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+        wc.hInstance = hInstance;
+        wc.lpfnWndProc = (WNDPROC) DefWindowProc;
+        wc.lpszClassName = TEXT("Griffin");
+        wc.lpszMenuName = NULL;
+        wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+
+        gWC = RegisterClass(&wc);
+        if (!gWC) {
+            SkDebugf("Could not register window class.\n");
+            return NULL;
+        }
+    }
+
+    if (!(fWindow = CreateWindow(TEXT("Griffin"),
+                                 TEXT("The Invisible Man"),
+                                 WS_OVERLAPPEDWINDOW,
+                                 0, 0, 1, 1,
+                                 NULL, NULL,
+                                 hInstance, NULL))) {
+        SkDebugf("Could not create window.\n");
+        return NULL;
+    }
 
     if (!(fDeviceContext = GetDC(fWindow))) {
         SkDebugf("Could not get device context.\n");
