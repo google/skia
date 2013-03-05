@@ -43,7 +43,9 @@ struct SkSFNTDirEntry {
 
     On an error, return 0 for number of tables, and ignore offsetToDir
  */
-static int count_tables(SkStream* stream, size_t* offsetToDir = NULL) {
+static int count_tables(SkStream* stream, int ttcIndex, size_t* offsetToDir) {
+    SkASSERT(ttcIndex >= 0);
+
     SkSharedTTHeader shared;
     if (stream->read(&shared, sizeof(shared)) != sizeof(shared)) {
         return 0;
@@ -55,11 +57,20 @@ static int count_tables(SkStream* stream, size_t* offsetToDir = NULL) {
     // if we're really a collection, the first 4-bytes will be 'ttcf'
     uint32_t tag = SkEndian_SwapBE32(shared.fCollection.fTag);
     if (SkSetFourByteTag('t', 't', 'c', 'f') == tag) {
-        if (shared.fCollection.fNumOffsets == 0) {
+        unsigned count = SkEndian_SwapBE32(shared.fCollection.fNumOffsets);
+        if ((unsigned)ttcIndex >= count) {
             return 0;
         }
-        // this is the offset to the first local SkSFNTHeader
-        offset = SkEndian_SwapBE32(shared.fCollection.fOffset0);
+        
+        if (ttcIndex > 0) { // need to read more of the shared header
+            stream->rewind();
+            size_t amount = sizeof(shared) + ttcIndex * sizeof(uint32_t);
+            if (stream->read(&shared, amount) != amount) {
+                return 0;
+            }
+        }
+        // this is the offset to the local SkSFNTHeader
+        offset = SkEndian_SwapBE32((&shared.fCollection.fOffset0)[ttcIndex]);
         stream->rewind();
         if (stream->skip(offset) != offset) {
             return 0;
@@ -88,11 +99,11 @@ struct SfntHeader {
 
         fDir will be automatically freed when this object is destroyed
      */
-    bool init(SkStream* stream) {
+    bool init(SkStream* stream, int ttcIndex) {
         stream->rewind();
 
         size_t offsetToDir;
-        fCount = count_tables(stream, &offsetToDir);
+        fCount = count_tables(stream, ttcIndex, &offsetToDir);
         if (0 == fCount) {
             return false;
         }
@@ -113,9 +124,27 @@ struct SfntHeader {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int SkFontStream::GetTableTags(SkStream* stream, SkFontTableTag tags[]) {
+int SkFontStream::CountTTCEntries(SkStream* stream) {
+    stream->rewind();
+
+    SkSharedTTHeader shared;
+    if (stream->read(&shared, sizeof(shared)) != sizeof(shared)) {
+        return 0;
+    }
+
+    // if we're really a collection, the first 4-bytes will be 'ttcf'
+    uint32_t tag = SkEndian_SwapBE32(shared.fCollection.fTag);
+    if (SkSetFourByteTag('t', 't', 'c', 'f') == tag) {
+        return SkEndian_SwapBE32(shared.fCollection.fNumOffsets);
+    } else {
+        return 0;
+    }        
+}
+
+int SkFontStream::GetTableTags(SkStream* stream, int ttcIndex,
+                               SkFontTableTag tags[]) {
     SfntHeader  header;
-    if (!header.init(stream)) {
+    if (!header.init(stream, ttcIndex)) {
         return 0;
     }
 
@@ -127,10 +156,11 @@ int SkFontStream::GetTableTags(SkStream* stream, SkFontTableTag tags[]) {
     return header.fCount;
 }
 
-size_t SkFontStream::GetTableData(SkStream* stream, SkFontTableTag tag,
+size_t SkFontStream::GetTableData(SkStream* stream, int ttcIndex,
+                                  SkFontTableTag tag,
                                   size_t offset, size_t length, void* data) {
     SfntHeader  header;
-    if (!header.init(stream)) {
+    if (!header.init(stream, ttcIndex)) {
         return 0;
     }
 

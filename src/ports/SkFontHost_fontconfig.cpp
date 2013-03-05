@@ -247,16 +247,21 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkStream* open_stream(const FontConfigTypeface* face) {
+static SkStream* open_stream(const FontConfigTypeface* face, int* ttcIndex) {
     SkStream* stream = face->getLocalStream();
+    int index;
     if (stream) {
         stream->ref();
+        // should have been provided by CreateFromStream()
+        *ttcIndex = 0;
     } else {
         SkAutoTUnref<SkFontConfigInterface> fci(RefFCI());
         if (NULL == fci.get()) {
             return NULL;
         }
         stream = fci->openStream(face->getIdentity());
+        // ttcIndex should be returned explicitly by openStream()
+        *ttcIndex = (int)face->getIdentity().fIntPtr;
     }
     return stream;
 }
@@ -266,7 +271,10 @@ SkStream* SkFontHost::OpenStream(uint32_t id) {
     if (NULL == face) {
         return NULL;
     }
-    return open_stream(face);
+    
+    int ttcIndex;
+    // We should return ttcIndex from this call.
+    return open_stream(face, &ttcIndex);
 }
 
 size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
@@ -292,16 +300,21 @@ size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
 ///////////////////////////////////////////////////////////////////////////////
 
 int FontConfigTypeface::onGetTableTags(SkFontTableTag tags[]) const {
-    SkAutoTUnref<SkStream> stream(open_stream(this));
-    return stream.get() ? SkFontStream::GetTableTags(stream, tags) : 0;
+    int ttcIndex;
+    SkAutoTUnref<SkStream> stream(open_stream(this, &ttcIndex));
+    return stream.get()
+                ? SkFontStream::GetTableTags(stream, ttcIndex, tags)
+                : 0;
 }
 
 size_t FontConfigTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
                                   size_t length, void* data) const {
-    SkAutoTUnref<SkStream> stream(open_stream(this));
-    return stream.get() ?
-               SkFontStream::GetTableData(stream, tag, offset, length, data) :
-               0;
+    int ttcIndex;
+    SkAutoTUnref<SkStream> stream(open_stream(this, &ttcIndex));
+    return stream.get()
+                ? SkFontStream::GetTableData(stream, ttcIndex,
+                                             tag, offset, length, data)
+                : 0;
 }
 
 void FontConfigTypeface::onGetFontDescriptor(SkFontDescriptor* desc) const {
