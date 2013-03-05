@@ -89,6 +89,8 @@ struct SfntHeader {
         fDir will be automatically freed when this object is destroyed
      */
     bool init(SkStream* stream) {
+        stream->rewind();
+
         size_t offsetToDir;
         fCount = count_tables(stream, &offsetToDir);
         if (0 == fCount) {
