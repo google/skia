@@ -12,7 +12,6 @@
 
 class SkData;
 class SkDataSet;
-class SkPoint;
 class SkStream;
 class SkWStream;
 
@@ -65,18 +64,6 @@ public:
      *  Returns the canonical key whose payload is a URL
      */
     static const char* URL_Key();
-
-    /**
-     *  Returns the canonical key whose payload is the name of a destination to
-     *  be defined.
-     */
-    static const char* Define_Named_Dest_Key();
-
-    /**
-     *  Returns the canonical key whose payload is the name of a destination to
-     *  be linked to.
-     */
-    static const char* Link_Named_Dest_Key();
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -98,31 +85,5 @@ class SkCanvas;
  *  The caller is responsible for managing its ownership of the SkData.
  */
 SK_API void SkAnnotateRectWithURL(SkCanvas*, const SkRect&, SkData*);
-
-/**
- *  Experimental!
- *
- *  Annotate the canvas by associating a name with the specified point.
- *
- *  If the backend of this canvas does not support annotations, this call is
- *  safely ignored.
- *
- *  The caller is responsible for managing its ownership of the SkData.
- */
-SK_API void SkAnnotateNamedDestination(SkCanvas*, const SkPoint&, SkData*);
-
-/**
- *  Experimental!
- *
- *  Annotate the canvas by making the specified rectangle link to a named
- *  destination.
- *
- *  If the backend of this canvas does not support annotations, this call is
- *  safely ignored.
- *
- *  The caller is responsible for managing its ownership of the SkData.
- */
-SK_API void SkAnnotateLinkToDestination(SkCanvas*, const SkRect&, SkData*);
-
 
 #endif

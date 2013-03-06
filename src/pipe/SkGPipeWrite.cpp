@@ -6,7 +6,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkAnnotation.h"
 #include "SkBitmapHeap.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
@@ -48,7 +47,6 @@ static SkFlattenable* get_paintflat(const SkPaint& paint, unsigned paintFlat) {
         case kShader_PaintFlat:         return paint.getShader();
         case kImageFilter_PaintFlat:    return paint.getImageFilter();
         case kXfermode_PaintFlat:       return paint.getXfermode();
-        case kAnnotation_PaintFlat:     return paint.getAnnotation();
     }
     SkDEBUGFAIL("never gets here");
     return NULL;

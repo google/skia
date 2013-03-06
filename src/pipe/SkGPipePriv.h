@@ -25,9 +25,8 @@ enum PaintFlats {
     kShader_PaintFlat,
     kImageFilter_PaintFlat,
     kXfermode_PaintFlat,
-    kAnnotation_PaintFlat,
 
-    kLast_PaintFlat = kAnnotation_PaintFlat
+    kLast_PaintFlat = kXfermode_PaintFlat
 };
 #define kCount_PaintFlats   (kLast_PaintFlat + 1)
 

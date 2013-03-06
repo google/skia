@@ -50,7 +50,6 @@
     '../gm/image.cpp',
     '../gm/imagefiltersbase.cpp',
     '../gm/imagefiltersgraph.cpp',
-    '../gm/internal_links.cpp',
     '../gm/lcdtext.cpp',
     '../gm/linepaths.cpp',
     '../gm/matrixconvolution.cpp',
