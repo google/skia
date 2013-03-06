@@ -237,6 +237,10 @@ static bool is_simple(const SkPaint& p) {
 static bool remove_save_layer1(SkWriter32* writer, int32_t offset,
                                SkPaintDictionary* paintDict) {
 
+#ifdef SK_IGNORE_PICTURE_RECORD_SAVE_LAYER_OPT
+    return false;
+#endif
+
     int32_t restoreOffset = (int32_t)writer->size();
 
     // back up to the save block
