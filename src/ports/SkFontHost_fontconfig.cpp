@@ -260,8 +260,7 @@ static SkStream* open_stream(const FontConfigTypeface* face, int* ttcIndex) {
             return NULL;
         }
         stream = fci->openStream(face->getIdentity());
-        // ttcIndex should be returned explicitly by openStream()
-        *ttcIndex = (int)face->getIdentity().fIntPtr;
+        *ttcIndex = face->getIdentity().fTTCIndex;
     }
     return stream;
 }
@@ -288,7 +287,7 @@ size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
 
     const SkString& filename = face->getIdentity().fString;
     if (index) {
-        *index = (int32_t)face->getIdentity().fIntPtr;
+        *index = face->getIdentity().fTTCIndex;
     }
     if (path) {
         size_t len = SkMin32(length, filename.size());

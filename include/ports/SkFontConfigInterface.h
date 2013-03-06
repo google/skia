@@ -39,7 +39,16 @@ public:
      *  to be a union of possible storage types to aid the impl.
      */
     struct FontIdentity {
-        intptr_t    fIntPtr;
+        FontIdentity() : fID(0), fTTCIndex(0) {}
+
+        bool operator==(const FontIdentity& other) const {
+            return fID == other.fID &&
+                   fTTCIndex == other.fTTCIndex &&
+                   fString == other.fString;
+        }
+
+        uint32_t    fID;
+        int32_t     fTTCIndex;
         SkString    fString;
     };
 
