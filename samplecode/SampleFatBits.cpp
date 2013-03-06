@@ -51,6 +51,7 @@ public:
         fShowSkeleton = true;
         fUseGPU = false;
         fUseClip = false;
+        fRectAsOval = false;
 
         fClipRect.set(2, 2, 11, 8 );
     }
@@ -68,6 +69,8 @@ public:
 
     bool getUseGPU() const { return fUseGPU; }
     void setUseGPU(bool ug) { fUseGPU = ug; }
+
+    void toggleRectAsOval() { fRectAsOval = !fRectAsOval; }
 
     bool getUseClip() const { return fUseClip; }
     void setUseClip(bool uc) { fUseClip = uc; }
@@ -103,7 +106,7 @@ public:
     void drawRect(SkCanvas* canvas, SkPoint pts[2]);
 
 private:
-    bool fAA, fGrid, fShowSkeleton, fUseGPU, fUseClip;
+    bool fAA, fGrid, fShowSkeleton, fUseGPU, fUseClip, fRectAsOval;
     Style fStyle;
     int fW, fH, fZoom;
     SkMatrix fMatrix, fInverse;
@@ -148,7 +151,7 @@ private:
             rr.inset(-SkIntToScalar(fZoom)/2, -SkIntToScalar(fZoom)/2);
             path.addRect(rr);
         } else {
-            path.addRect(r);
+            fRectAsOval ? path.addOval(r) : path.addRect(r);
             if (fUseGPU) {
                 path.moveTo(r.fLeft, r.fTop);
                 path.lineTo(r.fRight, r.fBottom);
@@ -310,7 +313,10 @@ void FatBits::drawRect(SkCanvas* canvas, SkPoint pts[2]) {
     erase(fMinSurface);
     this->setupPaint(&paint);
     paint.setColor(FAT_PIXEL_COLOR);
-    fMinSurface->getCanvas()->drawRect(r, paint);
+    {
+        SkCanvas* c = fMinSurface->getCanvas();
+        fRectAsOval ? c->drawOval(r, paint) : c->drawRect(r, paint);
+    }
     this->copyMinToMax();
 
     SkCanvas* max = fMaxSurface->getCanvas();
@@ -366,6 +372,10 @@ protected:
                     return true;
                 case 'r':
                     fIsRect = !fIsRect;
+                    this->inval(NULL);
+                    return true;
+                case 'o':
+                    fFB.toggleRectAsOval();
                     this->inval(NULL);
                     return true;
                 case 'x':
