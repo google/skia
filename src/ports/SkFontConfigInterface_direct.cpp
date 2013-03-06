@@ -409,7 +409,7 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
     FcFontSetDestroy(font_set);
 
     if (outIdentity) {
-        outIdentity->fIntPtr = face_index;
+        outIdentity->fTTCIndex = face_index;
         outIdentity->fString.set((const char*)c_filename);
     }
     if (outFamilyName) {
