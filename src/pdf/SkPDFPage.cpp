@@ -147,7 +147,3 @@ const SkTDArray<SkPDFFont*>& SkPDFPage::getFontResources() const {
 const SkPDFGlyphSetMap& SkPDFPage::getFontGlyphUsage() const {
     return fDevice->getFontGlyphUsage();
 }
-
-void SkPDFPage::appendDestinations(SkPDFDict* dict) {
-    fDevice->appendDestinations(dict, this);
-}

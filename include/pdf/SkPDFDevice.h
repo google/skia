@@ -17,7 +17,6 @@
 #include "SkRect.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
-#include "SkTDArray.h"
 #include "SkTScopedPtr.h"
 
 class SkPDFArray;
@@ -34,7 +33,6 @@ class SkPDFStream;
 // Private classes.
 struct ContentEntry;
 struct GraphicStateEntry;
-struct NamedDestination;
 
 /** \class SkPDFDevice
 
@@ -144,12 +142,6 @@ public:
      */
     SK_API const SkTDArray<SkPDFFont*>& getFontResources() const;
 
-    /** Add our named destinations to the supplied dictionary.
-     *  @param dict  Dictionary to add destinations to.
-     *  @param page  The PDF object representing the page for this device.
-     */
-    void appendDestinations(SkPDFDict* dict, SkPDFObject* page);
-
     /** Returns a copy of the media box for this device. The caller is required
      *  to unref() this when it is finished.
      */
@@ -199,7 +191,6 @@ private:
     SkRegion fExistingClipRegion;
     SkPDFArray* fAnnotations;
     SkPDFDict* fResourceDict;
-    SkTDArray<NamedDestination*> fNamedDestinations;
 
     SkTDArray<SkPDFGraphicState*> fGraphicStateResources;
     SkTDArray<SkPDFObject*> fXObjectResources;
@@ -282,17 +273,8 @@ private:
      */
     void copyContentEntriesToData(ContentEntry* entry, SkWStream* data) const;
 
-    bool handleRectAnnotation(const SkRect& r, const SkMatrix& matrix,
-                              const SkPaint& paint);
-    bool handlePointAnnotation(const SkPoint* points, size_t count,
-                               const SkMatrix& matrix, const SkPaint& paint);
-    SkPDFDict* createLinkAnnotation(const SkRect& r, const SkMatrix& matrix);
-    void handleLinkToURL(SkData* urlData, const SkRect& r,
-                         const SkMatrix& matrix);
-    void handleLinkToNamedDest(SkData* nameData, const SkRect& r,
-                               const SkMatrix& matrix);
-    void defineNamedDestination(SkData* nameData, const SkPoint& point,
-                                const SkMatrix& matrix);
+    bool handleAnnotations(const SkRect& r, const SkMatrix& matrix,
+                           const SkPaint& paint);
 
     typedef SkDevice INHERITED;
 };

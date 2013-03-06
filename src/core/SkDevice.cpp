@@ -348,7 +348,6 @@ void SkDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
 
 void SkDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode, size_t count,
                           const SkPoint pts[], const SkPaint& paint) {
-    CHECK_FOR_NODRAW_ANNOTATION(paint);
     draw.drawPoints(mode, count, pts, paint);
 }
 

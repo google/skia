@@ -12,18 +12,6 @@
 #include "SkPDFDevice.h"
 #include "SkPDFDocument.h"
 
-/** Returns true if data (may contain null characters) contains needle (null
- *  terminated). */
-static bool ContainsString(const char* data, size_t dataSize, const char* needle) {
-    size_t nSize = strlen(needle);
-    for (size_t i = 0; i < dataSize - nSize; i++) {
-        if (strncmp(&data[i], needle, nSize) == 0) {
-            return true;
-        }
-    }
-    return false;
-}
-
 static void test_nodraw(skiatest::Reporter* reporter) {
     SkBitmap bm;
     bm.setConfig(SkBitmap::kARGB_8888_Config, 10, 10);
@@ -67,38 +55,27 @@ static void test_pdf_link_annotations(skiatest::Reporter* reporter) {
         SkAutoDataUnref out(outStream.copyToData());
         const char* rawOutput = (const char*)out->data();
 
-        REPORTER_ASSERT(reporter,
-            ContainsString(rawOutput, out->size(), "/Annots ")
-            == tests[testNum].expectAnnotations);
+        bool found = false;
+        for (size_t i = 0; i < out->size() - 8; i++) {
+            if (rawOutput[i + 0] == '/' &&
+                rawOutput[i + 1] == 'A' &&
+                rawOutput[i + 2] == 'n' &&
+                rawOutput[i + 3] == 'n' &&
+                rawOutput[i + 4] == 'o' &&
+                rawOutput[i + 5] == 't' &&
+                rawOutput[i + 6] == 's' &&
+                rawOutput[i + 7] == ' ') {
+                found = true;
+                break;
+            }
+        }
+        REPORTER_ASSERT(reporter, found == tests[testNum].expectAnnotations);
     }
-}
-
-static void test_named_destination_annotations(skiatest::Reporter* reporter) {
-    SkISize size = SkISize::Make(612, 792);
-    SkMatrix initialTransform;
-    initialTransform.reset();
-    SkPDFDevice device(size, size, initialTransform);
-    SkCanvas canvas(&device);
-
-    SkPoint p = SkPoint::Make(SkIntToScalar(72), SkIntToScalar(72));
-    SkAutoDataUnref data(SkData::NewWithCString("example"));
-    SkAnnotateNamedDestination(&canvas, p, data.get());
-
-    SkPDFDocument doc;
-    doc.appendPage(&device);
-    SkDynamicMemoryWStream outStream;
-    doc.emitPDF(&outStream);
-    SkAutoDataUnref out(outStream.copyToData());
-    const char* rawOutput = (const char*)out->data();
-
-    REPORTER_ASSERT(reporter,
-        ContainsString(rawOutput, out->size(), "/example "));
 }
 
 static void TestAnnotation(skiatest::Reporter* reporter) {
     test_nodraw(reporter);
     test_pdf_link_annotations(reporter);
-    test_named_destination_annotations(reporter);
 }
 
 #include "TestClassDef.h"
