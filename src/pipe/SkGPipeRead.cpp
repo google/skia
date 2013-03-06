@@ -53,6 +53,9 @@ static void set_paintflat(SkPaint* paint, SkFlattenable* obj, unsigned paintFlat
         case kXfermode_PaintFlat:
             paint->setXfermode((SkXfermode*)obj);
             break;
+        case kAnnotation_PaintFlat:
+            paint->setAnnotation((SkAnnotation*)obj);
+            break;
         default:
             SkDEBUGFAIL("never gets here");
     }
