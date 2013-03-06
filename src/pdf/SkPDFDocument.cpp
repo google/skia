@@ -107,17 +107,24 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
         fDocCatalog->insert("OutputIntent", intentArray.get());
         */
 
+        SkPDFDict* dests = SkNEW(SkPDFDict);  // fPageResources owns reference
+        fCatalog->addObject(dests, true /* onFirstPage */);
+        fPageResources.push(dests);
+
         bool firstPage = true;
         for (int i = 0; i < fPages.count(); i++) {
             int resourceCount = fPageResources.count();
             fPages[i]->finalizePage(fCatalog.get(), firstPage, &fPageResources);
             addResourcesToCatalog(resourceCount, firstPage, &fPageResources,
                                   fCatalog.get());
+            fPages[i]->appendDestinations(dests);
             if (i == 0) {
                 firstPage = false;
                 fSecondPageFirstResourceIndex = fPageResources.count();
             }
         }
+
+        fDocCatalog->insert("Dests", SkNEW_ARGS(SkPDFObjRef, (dests)))->unref();
 
         // Build font subsetting info before proceeding.
         perform_font_subsetting(fCatalog.get(), fPages, &fSubstitutes);
