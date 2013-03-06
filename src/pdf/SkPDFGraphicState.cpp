@@ -15,7 +15,7 @@ static const char* blend_mode_from_xfermode(SkXfermode::Mode mode) {
     switch (mode) {
         case SkXfermode::kSrcOver_Mode:    return "Normal";
         // kModulate is not really like multipy but similar most of the time.
-        case SkXfermode::kModulate_Mode: 
+        case SkXfermode::kModulate_Mode:
         case SkXfermode::kMultiply_Mode:   return "Multiply";
         case SkXfermode::kScreen_Mode:     return "Screen";
         case SkXfermode::kOverlay_Mode:    return "Overlay";

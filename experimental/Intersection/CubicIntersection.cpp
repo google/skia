@@ -166,7 +166,7 @@ static bool intersect3(const Cubic& cubic1, double t1s, double t1e, const Cubic&
                          && to2 - offset <= tLimits2[1][1] && tLimits2[1][0] <= to2 + offset);
                     SkDebugf("%.*s %s 1 c1Bottom=%1.9g c1Top=%1.9g c2Bottom=%1.9g c2Top=%1.9g"
                             " 1-o=%1.9g 1+o=%1.9g 2-o=%1.9g 2+o=%1.9g offset=%1.9g\n",
-                            i.depth()*2, tab, __FUNCTION__, c1Bottom, c1Top, 0., 1., 
+                            i.depth()*2, tab, __FUNCTION__, c1Bottom, c1Top, 0., 1.,
                             to1 - offset, to1 + offset, to2 - offset, to2 + offset, offset);
                     SkDebugf("%.*s %s 1 to1=%1.9g to2=%1.9g c1Min=%1.9g c1Max=%1.9g c2Min=%1.9g"
                             " c2Max=%1.9g\n", i.depth()*2, tab, __FUNCTION__, to1, to2, c1Min, c1Max, c2Min, c2Max);
@@ -206,7 +206,7 @@ static bool intersect3(const Cubic& cubic1, double t1s, double t1e, const Cubic&
                          && to2 - offset <= tLimits2[1][1] && tLimits2[1][0] <= to2 + offset);
                         SkDebugf("%.*s %s 2 c1Bottom=%1.9g c1Top=%1.9g c2Bottom=%1.9g c2Top=%1.9g"
                                 " 1-o=%1.9g 1+o=%1.9g 2-o=%1.9g 2+o=%1.9g offset=%1.9g\n",
-                                i.depth()*2, tab, __FUNCTION__, 0., 1., c2Bottom, c2Top, 
+                                i.depth()*2, tab, __FUNCTION__, 0., 1., c2Bottom, c2Top,
                                 to1 - offset, to1 + offset, to2 - offset, to2 + offset, offset);
                         SkDebugf("%.*s %s 2 to1=%1.9g to2=%1.9g c1Min=%1.9g c1Max=%1.9g c2Min=%1.9g"
                                 " c2Max=%1.9g\n", i.depth()*2, tab, __FUNCTION__, to1, to2, c1Min, c1Max, c2Min, c2Max);
@@ -230,7 +230,7 @@ static bool intersect3(const Cubic& cubic1, double t1s, double t1e, const Cubic&
                          && to2 - offset <= tLimits2[1][1] && tLimits2[1][0] <= to2 + offset);
                         SkDebugf("%.*s %s 3 c1Bottom=%1.9g c1Top=%1.9g c2Bottom=%1.9g c2Top=%1.9g"
                                 " 1-o=%1.9g 1+o=%1.9g 2-o=%1.9g 2+o=%1.9g offset=%1.9g\n",
-                                i.depth()*2, tab, __FUNCTION__, 0., 1., c2Bottom, c2Top, 
+                                i.depth()*2, tab, __FUNCTION__, 0., 1., c2Bottom, c2Top,
                                 to1 - offset, to1 + offset, to2 - offset, to2 + offset, offset);
                         SkDebugf("%.*s %s 3 to1=%1.9g to2=%1.9g c1Min=%1.9g c1Max=%1.9g c2Min=%1.9g"
                                 " c2Max=%1.9g\n", i.depth()*2, tab, __FUNCTION__, to1, to2, c1Min, c1Max, c2Min, c2Max);
@@ -241,7 +241,7 @@ static bool intersect3(const Cubic& cubic1, double t1s, double t1e, const Cubic&
                             i.used() > 0 ? i.fT[0][i.used() - 1] : -1);
                 #endif
                     }
-#else                    
+#else
                     double c1Bottom = tIdx == 0 ? 0 :
                             (t1Start + (t1 - t1Start) * locals.fT[0][tIdx - 1] + to1) / 2;
                     double c1Min = SkTMax(c1Bottom, to1 - offset);
@@ -275,7 +275,7 @@ static bool intersect3(const Cubic& cubic1, double t1s, double t1e, const Cubic&
                          && to2 - offset <= 0.211327209 && 0.211327209 <= to2 + offset);
                     SkDebugf("%s c1Bottom=%1.9g c1Top=%1.9g c2Bottom=%1.9g c2Top=%1.9g"
                             " 1-o=%1.9g 1+o=%1.9g 2-o=%1.9g 2+o=%1.9g offset=%1.9g\n",
-                            __FUNCTION__, c1Bottom, c1Top, c2Bottom, c2Top, 
+                            __FUNCTION__, c1Bottom, c1Top, c2Bottom, c2Top,
                             to1 - offset, to1 + offset, to2 - offset, to2 + offset, offset);
                     SkDebugf("%s to1=%1.9g to2=%1.9g c1Min=%1.9g c1Max=%1.9g c2Min=%1.9g"
                             " c2Max=%1.9g\n", __FUNCTION__, to1, to2, c1Min, c1Max, c2Min, c2Max);
