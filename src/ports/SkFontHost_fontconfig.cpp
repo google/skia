@@ -271,7 +271,7 @@ SkStream* SkFontHost::OpenStream(uint32_t id) {
     if (NULL == face) {
         return NULL;
     }
-    
+
     int ttcIndex;
     // We should return ttcIndex from this call.
     return open_stream(face, &ttcIndex);

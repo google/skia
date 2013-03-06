@@ -61,7 +61,7 @@ static int count_tables(SkStream* stream, int ttcIndex, size_t* offsetToDir) {
         if ((unsigned)ttcIndex >= count) {
             return 0;
         }
-        
+
         if (ttcIndex > 0) { // need to read more of the shared header
             stream->rewind();
             size_t amount = sizeof(shared) + ttcIndex * sizeof(uint32_t);
@@ -138,7 +138,7 @@ int SkFontStream::CountTTCEntries(SkStream* stream) {
         return SkEndian_SwapBE32(shared.fCollection.fNumOffsets);
     } else {
         return 0;
-    }        
+    }
 }
 
 int SkFontStream::GetTableTags(SkStream* stream, int ttcIndex,

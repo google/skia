@@ -380,4 +380,3 @@ private:
 typedef SkFILEStream SkURLStream;
 
 #endif
-

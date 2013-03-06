@@ -4218,7 +4218,7 @@ the same winding is shared by both.
         SkASSERT(&span == &span.fOther->fTs[span.fOtherIndex].fOther->
                 fTs[span.fOther->fTs[span.fOtherIndex].fOtherIndex]);
         SkDebugf(") t=%1.9g [%d] (%1.9g,%1.9g) tEnd=%1.9g newWindSum=%d windSum=",
-                span.fT, span.fOther->fTs[span.fOtherIndex].fOtherIndex, pt.fX, pt.fY, 
+                span.fT, span.fOther->fTs[span.fOtherIndex].fOtherIndex, pt.fX, pt.fY,
                 (&span)[1].fT, winding);
         if (span.fWindSum == SK_MinS32) {
             SkDebugf("?");
@@ -4304,7 +4304,7 @@ the same winding is shared by both.
                     }
                 }
             }
-            SkDebugf("%s [%d] %s", __FUNCTION__, index, 
+            SkDebugf("%s [%d] %s", __FUNCTION__, index,
                     angle.unsortable() ? "*** UNSORTABLE *** " : "");
         #if COMPACT_DEBUG_SORT
             SkDebugf("id=%d %s start=%d (%1.9g,%,1.9g) end=%d (%1.9g,%,1.9g)",

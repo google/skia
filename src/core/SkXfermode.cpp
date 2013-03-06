@@ -443,8 +443,8 @@ static inline int Lum(int r, int g, int b)
 
 static inline int min2(int a, int b) { return a < b ? a : b; }
 static inline int max2(int a, int b) { return a > b ? a : b; }
-#define minimum(a, b, c) min2(min2(a, b), c) 
-#define maximum(a, b, c) max2(max2(a, b), c) 
+#define minimum(a, b, c) min2(min2(a, b), c)
+#define maximum(a, b, c) max2(max2(a, b), c)
 
 static inline int Sat(int r, int g, int b) {
     return maximum(r, g, b) - minimum(r, g, b);
@@ -549,7 +549,7 @@ static SkPMColor hue_modeproc(SkPMColor src, SkPMColor dst) {
 
 // kSaturation_Mode
 // B(Cb, Cs) = SetLum(SetSat(Cb, Sat(Cs)), Lum(Cb))
-// Create a color with the saturation of the source color and the hue and luminosity of the backdrop color. 
+// Create a color with the saturation of the source color and the hue and luminosity of the backdrop color.
 static SkPMColor saturation_modeproc(SkPMColor src, SkPMColor dst) {
     int sr = SkGetPackedR32(src);
     int sg = SkGetPackedG32(src);
@@ -587,7 +587,7 @@ static SkPMColor saturation_modeproc(SkPMColor src, SkPMColor dst) {
 
 // kColor_Mode
 // B(Cb, Cs) = SetLum(Cs, Lum(Cb))
-// Create a color with the hue and saturation of the source color and the luminosity of the backdrop color. 
+// Create a color with the hue and saturation of the source color and the luminosity of the backdrop color.
 static SkPMColor color_modeproc(SkPMColor src, SkPMColor dst) {
     int sr = SkGetPackedR32(src);
     int sg = SkGetPackedG32(src);
@@ -623,7 +623,7 @@ static SkPMColor color_modeproc(SkPMColor src, SkPMColor dst) {
 
 // kLuminosity_Mode
 // B(Cb, Cs) = SetLum(Cb, Lum(Cs))
-// Create a color with the luminosity of the source color and the hue and saturation of the backdrop color. 
+// Create a color with the luminosity of the source color and the hue and saturation of the backdrop color.
 static SkPMColor luminosity_modeproc(SkPMColor src, SkPMColor dst) {
     int sr = SkGetPackedR32(src);
     int sg = SkGetPackedG32(src);
