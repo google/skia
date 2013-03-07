@@ -80,16 +80,19 @@ extern bool gSkSuppressFontCachePurgeSpew;
     #define CAN_IMAGE_PDF   0
 #endif
 
+// TODO(epoger): We created this ErrorBitfield so that we could record
+// multiple error types for the same comparison. But in practice, we
+// process its final value in switch() statements, which inherently
+// assume that only one error type will be set.
+// I think we should probably change this to be an enum, and thus
+// constrain ourselves to a single error type per comparison.
 typedef int ErrorBitfield;
-// an empty bitfield means no errors:
-const static ErrorBitfield kEmptyErrorBitfield                 = 0x00;
-// individual error types:
-const static ErrorBitfield kNoGpuContext_ErrorBitmask          = 0x01;
-const static ErrorBitfield kImageMismatch_ErrorBitmask         = 0x02;
-const static ErrorBitfield kMissingExpectations_ErrorBitmask   = 0x04;
-const static ErrorBitfield kWritingReferenceImage_ErrorBitmask = 0x08;
-// we typically ignore any errors matching this bitmask:
-const static ErrorBitfield kIgnorable_ErrorBitmask = kMissingExpectations_ErrorBitmask;
+const static ErrorBitfield ERROR_NONE                    = 0x00;
+const static ErrorBitfield ERROR_NO_GPU_CONTEXT          = 0x01;
+const static ErrorBitfield ERROR_IMAGE_MISMATCH          = 0x02;
+// const static ErrorBitfield ERROR_DIMENSION_MISMATCH      = 0x04; DEPRECATED in https://codereview.appspot.com/7064047
+const static ErrorBitfield ERROR_READING_REFERENCE_IMAGE = 0x08;
+const static ErrorBitfield ERROR_WRITING_REFERENCE_IMAGE = 0x10;
 
 using namespace skiagm;
 
@@ -251,19 +254,23 @@ public:
     // of this type.
     void RecordError(ErrorBitfield errorType, const SkString& name,
                      const char renderModeDescriptor []) {
-        // The common case: no error means nothing to record.
-        if (kEmptyErrorBitfield == errorType) {
+        bool isPixelError;
+        switch (errorType) {
+        case ERROR_NONE:
             return;
-        }
-
-        // If only certain error type(s) were reported, we know we can ignore them.
-        if (errorType == (errorType & kIgnorable_ErrorBitmask)) {
+        case ERROR_READING_REFERENCE_IMAGE:
             return;
+        case ERROR_IMAGE_MISMATCH:
+            isPixelError = true;
+            break;
+        default:
+            isPixelError = false;
+            break;
         }
 
         FailRec& rec = fFailedTests.push_back(make_name(
             name.c_str(), renderModeDescriptor));
-        rec.fIsPixelError = (errorType & kImageMismatch_ErrorBitmask);
+        rec.fIsPixelError = isPixelError;
     }
 
     // List contents of fFailedTests via SkDebug.
@@ -403,7 +410,7 @@ public:
 #if SK_SUPPORT_GPU
         else {  // GPU
             if (NULL == context) {
-                return kNoGpuContext_ErrorBitmask;
+                return ERROR_NO_GPU_CONTEXT;
             }
             SkAutoTUnref<SkDevice> device(new SkGpuDevice(context, rt));
             if (deferred) {
@@ -421,7 +428,7 @@ public:
         }
 #endif
         complete_bitmap(bitmap);
-        return kEmptyErrorBitfield;
+        return ERROR_NONE;
     }
 
     static void generate_image_from_picture(GM* gm, const ConfigData& gRec,
@@ -515,12 +522,12 @@ public:
             success = write_document(path, *document);
         }
         if (success) {
-            return kEmptyErrorBitfield;
+            return ERROR_NONE;
         } else {
             fprintf(stderr, "FAILED to write %s\n", path.c_str());
-            RecordError(kWritingReferenceImage_ErrorBitmask, name,
+            RecordError(ERROR_WRITING_REFERENCE_IMAGE, name,
                         renderModeDescriptor);
-            return kWritingReferenceImage_ErrorBitmask;
+            return ERROR_WRITING_REFERENCE_IMAGE;
         }
     }
 
@@ -580,9 +587,8 @@ public:
     }
 
     /**
-     * Compares actual checksum to expectations.  Returns
-     * kEmptyErrorBitfield if they match, or some combination of
-     * _ErrorBitmask values otherwise.
+     * Compares actual checksum to expectations.
+     * Returns ERROR_NONE if they match, or some particular error code otherwise
      *
      * If fMismatchPath has been set, and there are pixel diffs, then the
      * actual bitmap will be written out to a file within fMismatchPath.
@@ -611,11 +617,11 @@ public:
         const char* completeName = completeNameString.c_str();
 
         if (expectations.empty()) {
-            retval = kMissingExpectations_ErrorBitmask;
+            retval = ERROR_READING_REFERENCE_IMAGE;
         } else if (expectations.match(actualChecksum)) {
-            retval = kEmptyErrorBitfield;
+            retval = ERROR_NONE;
         } else {
-            retval = kImageMismatch_ErrorBitmask;
+            retval = ERROR_IMAGE_MISMATCH;
 
             // Write out the "actuals" for any mismatches, if we have
             // been directed to do so.
@@ -656,7 +662,7 @@ public:
         Json::Value actualResults;
         actualResults[kJsonKey_ActualResults_AnyStatus_Checksum] =
             asJsonValue(actualChecksum);
-        if (kEmptyErrorBitfield == result) {
+        if (ERROR_NONE == result) {
             this->fJsonActualResults_Succeeded[testName] = actualResults;
         } else {
             if (ignoreFailure) {
@@ -664,12 +670,13 @@ public:
                 // actual results against expectations in a JSON file
                 // (where we can set ignore-failure to either true or
                 // false), add test cases that exercise ignored
-                // failures (both for kMissingExpectations_ErrorBitmask
-                // and kImageMismatch_ErrorBitmask).
+                // failures (both for ERROR_READING_REFERENCE_IMAGE
+                // and ERROR_IMAGE_MISMATCH).
                 this->fJsonActualResults_FailureIgnored[testName] =
                     actualResults;
             } else {
-                if (result & kMissingExpectations_ErrorBitmask) {
+                switch(result) {
+                case ERROR_READING_REFERENCE_IMAGE:
                     // TODO: What about the case where there IS an
                     // expected image checksum, but that gm test
                     // doesn't actually run?  For now, those cases
@@ -683,9 +690,15 @@ public:
                     // is given but the test is never run).
                     this->fJsonActualResults_NoComparison[testName] =
                         actualResults;
-                }
-                if (result & kImageMismatch_ErrorBitmask) {
+                    break;
+                case ERROR_IMAGE_MISMATCH:
                     this->fJsonActualResults_Failed[testName] = actualResults;
+                    break;
+                default:
+                    fprintf(stderr, "encountered unexpected result %d\n",
+                            result);
+                    SkDEBUGFAIL("encountered unexpected result");
+                    break;
                 }
             }
         }
@@ -722,7 +735,7 @@ public:
         SkBitmap& actualBitmap, SkDynamicMemoryWStream* pdf) {
 
         SkString name = make_name(gm->shortName(), gRec.fName);
-        ErrorBitfield retval = kEmptyErrorBitfield;
+        ErrorBitfield retval = ERROR_NONE;
 
         ExpectationsSource *expectationsSource =
             this->fExpectationsSource.get();
@@ -749,7 +762,7 @@ public:
             Checksum actualChecksum =
                 SkBitmapChecksummer::Compute64(actualBitmap);
             add_actual_results_to_json_summary(name.c_str(), actualChecksum,
-                                               kMissingExpectations_ErrorBitmask,
+                                               ERROR_READING_REFERENCE_IMAGE,
                                                false);
         }
 
@@ -849,7 +862,7 @@ public:
             // Early exit if we can't generate the image.
             ErrorBitfield errors = generate_image(gm, gRec, context, rt, bitmap,
                                                   false);
-            if (kEmptyErrorBitfield != errors) {
+            if (ERROR_NONE != errors) {
                 // TODO: Add a test to exercise what the stdout and
                 // JSON look like if we get an "early error" while
                 // trying to generate the image.
@@ -882,18 +895,18 @@ public:
             // Early exit if we can't generate the image, but this is
             // expected in some cases, so don't report a test failure.
             if (!generate_image(gm, gRec, context, rt, &bitmap, true)) {
-                return kEmptyErrorBitfield;
+                return ERROR_NONE;
             }
             return compare_test_results_to_reference_bitmap(
                 gm, gRec, "-deferred", bitmap, &referenceBitmap);
         }
-        return kEmptyErrorBitfield;
+        return ERROR_NONE;
     }
 
     ErrorBitfield test_pipe_playback(GM* gm,
                                      const ConfigData& gRec,
                                      const SkBitmap& referenceBitmap) {
-        ErrorBitfield errors = kEmptyErrorBitfield;
+        ErrorBitfield errors = ERROR_NONE;
         for (size_t i = 0; i < SK_ARRAY_COUNT(gPipeWritingFlagCombos); ++i) {
             SkBitmap bitmap;
             SkISize size = gm->getISize();
@@ -910,7 +923,7 @@ public:
             string.append(gPipeWritingFlagCombos[i].name);
             errors |= compare_test_results_to_reference_bitmap(
                 gm, gRec, string.c_str(), bitmap, &referenceBitmap);
-            if (errors != kEmptyErrorBitfield) {
+            if (errors != ERROR_NONE) {
                 break;
             }
         }
@@ -919,7 +932,7 @@ public:
 
     ErrorBitfield test_tiled_pipe_playback(
       GM* gm, const ConfigData& gRec, const SkBitmap& referenceBitmap) {
-        ErrorBitfield errors = kEmptyErrorBitfield;
+        ErrorBitfield errors = ERROR_NONE;
         for (size_t i = 0; i < SK_ARRAY_COUNT(gPipeWritingFlagCombos); ++i) {
             SkBitmap bitmap;
             SkISize size = gm->getISize();
@@ -936,7 +949,7 @@ public:
             string.append(gPipeWritingFlagCombos[i].name);
             errors |= compare_test_results_to_reference_bitmap(
                 gm, gRec, string.c_str(), bitmap, &referenceBitmap);
-            if (errors != kEmptyErrorBitfield) {
+            if (errors != ERROR_NONE) {
                 break;
             }
         }
@@ -1455,7 +1468,7 @@ int tool_main(int argc, char** argv) {
         SkDebugf("%sdrawing... %s [%d %d]\n", moduloStr.c_str(), shortName,
                  size.width(), size.height());
 
-        ErrorBitfield testErrors = kEmptyErrorBitfield;
+        ErrorBitfield testErrors = ERROR_NONE;
         uint32_t gmFlags = gm->getFlags();
 
         for (int i = 0; i < configs.count(); i++) {
@@ -1475,12 +1488,12 @@ int tool_main(int argc, char** argv) {
 
             // Now we know that we want to run this test and record its
             // success or failure.
-            ErrorBitfield renderErrors = kEmptyErrorBitfield;
+            ErrorBitfield renderErrors = ERROR_NONE;
             GrRenderTarget* renderTarget = NULL;
 #if SK_SUPPORT_GPU
             SkAutoTUnref<GrRenderTarget> rt;
             AutoResetGr autogr;
-            if ((kEmptyErrorBitfield == renderErrors) &&
+            if ((ERROR_NONE == renderErrors) &&
                 kGPU_Backend == config.fBackend) {
                 GrContext* gr = grFactory->get(config.fGLContextType);
                 bool grSuccess = false;
@@ -1503,14 +1516,14 @@ int tool_main(int argc, char** argv) {
                     }
                 }
                 if (!grSuccess) {
-                    renderErrors |= kNoGpuContext_ErrorBitmask;
+                    renderErrors |= ERROR_NO_GPU_CONTEXT;
                 }
             }
 #endif
 
             SkBitmap comparisonBitmap;
 
-            if (kEmptyErrorBitfield == renderErrors) {
+            if (ERROR_NONE == renderErrors) {
                 renderErrors |= gmmain.test_drawing(gm, config, writePath,
                                                     GetGr(),
                                                     renderTarget,
@@ -1537,13 +1550,13 @@ int tool_main(int argc, char** argv) {
         // run the picture centric GM steps
         if (!(gmFlags & GM::kSkipPicture_Flag)) {
 
-            ErrorBitfield pictErrors = kEmptyErrorBitfield;
+            ErrorBitfield pictErrors = ERROR_NONE;
 
             //SkAutoTUnref<SkPicture> pict(generate_new_picture(gm));
             SkPicture* pict = gmmain.generate_new_picture(gm, kNone_BbhType, 0);
             SkAutoUnref aur(pict);
 
-            if ((kEmptyErrorBitfield == testErrors) && doReplay) {
+            if ((ERROR_NONE == testErrors) && doReplay) {
                 SkBitmap bitmap;
                 gmmain.generate_image_from_picture(gm, compareConfig, pict,
                                                    &bitmap);
@@ -1551,8 +1564,8 @@ int tool_main(int argc, char** argv) {
                     gm, compareConfig, "-replay", bitmap, &comparisonBitmap);
             }
 
-            if ((kEmptyErrorBitfield == testErrors) &&
-                (kEmptyErrorBitfield == pictErrors) &&
+            if ((ERROR_NONE == testErrors) &&
+                (ERROR_NONE == pictErrors) &&
                 doSerialize) {
                 SkPicture* repict = gmmain.stream_to_new_picture(*pict);
                 SkAutoUnref aurr(repict);
@@ -1620,15 +1633,15 @@ int tool_main(int argc, char** argv) {
         // run the pipe centric GM steps
         if (!(gmFlags & GM::kSkipPipe_Flag)) {
 
-            ErrorBitfield pipeErrors = kEmptyErrorBitfield;
+            ErrorBitfield pipeErrors = ERROR_NONE;
 
-            if ((kEmptyErrorBitfield == testErrors) && doPipe) {
+            if ((ERROR_NONE == testErrors) && doPipe) {
                 pipeErrors |= gmmain.test_pipe_playback(gm, compareConfig,
                                                         comparisonBitmap);
             }
 
-            if ((kEmptyErrorBitfield == testErrors) &&
-                (kEmptyErrorBitfield == pipeErrors) &&
+            if ((ERROR_NONE == testErrors) &&
+                (ERROR_NONE == pipeErrors) &&
                 doTiledPipe && !(gmFlags & GM::kSkipTiled_Flag)) {
                 pipeErrors |= gmmain.test_tiled_pipe_playback(gm, compareConfig,
                                                               comparisonBitmap);
@@ -1643,10 +1656,10 @@ int tool_main(int argc, char** argv) {
         // want to also tabulate other error types, we can do so.
         testsRun++;
         if (!gmmain.fExpectationsSource.get() ||
-            (kMissingExpectations_ErrorBitmask & testErrors)) {
+            (ERROR_READING_REFERENCE_IMAGE & testErrors)) {
             testsMissingReferenceImages++;
         }
-        if (testErrors == (testErrors & kIgnorable_ErrorBitmask)) {
+        if (ERROR_NONE == testErrors || ERROR_READING_REFERENCE_IMAGE == testErrors) {
             testsPassed++;
         } else {
             testsFailed++;
