@@ -414,13 +414,13 @@ public:
             }
             // The max() is to guard against 0 / 0 during unpremul when the incoming color is
             // transparent black.
-            builder->fFSCode.appendf("\tfloat nonZeroAlpha = max(%s.a, 0.00001);\n", inputColor);
-            builder->fFSCode.appendf("\t%s = %s * vec4(%s.rgb / nonZeroAlpha, nonZeroAlpha) + %s;\n",
-                                     outputColor,
-                                     builder->getUniformCStr(fMatrixHandle),
-                                     inputColor,
-                                     builder->getUniformCStr(fVectorHandle));
-            builder->fFSCode.appendf("\t%s.rgb *= %s.a;\n", outputColor, outputColor);
+            builder->fsCodeAppendf("\tfloat nonZeroAlpha = max(%s.a, 0.00001);\n", inputColor);
+            builder->fsCodeAppendf("\t%s = %s * vec4(%s.rgb / nonZeroAlpha, nonZeroAlpha) + %s;\n",
+                                   outputColor,
+                                   builder->getUniformCStr(fMatrixHandle),
+                                   inputColor,
+                                   builder->getUniformCStr(fVectorHandle));
+            builder->fsCodeAppendf("\t%s.rgb *= %s.a;\n", outputColor, outputColor);
         }
 
         virtual void setData(const GrGLUniformManager& uniManager,

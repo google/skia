@@ -65,15 +65,14 @@ void GrGLConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
                                              kVec2f_GrSLType, "ImageIncrement");
     fKernelUni = builder->addUniformArray(GrGLShaderBuilder::kFragment_ShaderType,
                                           kFloat_GrSLType, "Kernel", this->width());
-    SkString* code = &builder->fFSCode;
 
-    code->appendf("\t\t%s = vec4(0, 0, 0, 0);\n", outputColor);
+    builder->fsCodeAppendf("\t\t%s = vec4(0, 0, 0, 0);\n", outputColor);
 
     int width = this ->width();
     const GrGLShaderVar& kernel = builder->getUniformVariable(fKernelUni);
     const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
 
-    code->appendf("\t\tvec2 coord = %s - %d.0 * %s;\n", coords, fRadius, imgInc);
+    builder->fsCodeAppendf("\t\tvec2 coord = %s - %d.0 * %s;\n", coords, fRadius, imgInc);
 
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
     for (int i = 0; i < width; i++) {
@@ -81,12 +80,14 @@ void GrGLConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
         SkString kernelIndex;
         index.appendS32(i);
         kernel.appendArrayAccess(index.c_str(), &kernelIndex);
-        code->appendf("\t\t%s += ", outputColor);
-        builder->appendTextureLookup(&builder->fFSCode, samplers[0], "coord");
-        code->appendf(" * %s;\n", kernelIndex.c_str());
-        code->appendf("\t\tcoord += %s;\n", imgInc);
+        builder->fsCodeAppendf("\t\t%s += ", outputColor);
+        builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType, samplers[0], "coord");
+        builder->fsCodeAppendf(" * %s;\n", kernelIndex.c_str());
+        builder->fsCodeAppendf("\t\tcoord += %s;\n", imgInc);
     }
-    GrGLSLMulVarBy4f(&builder->fFSCode, 2, outputColor, inputColor);
+    SkString modulate;
+    GrGLSLMulVarBy4f(&modulate, 2, outputColor, inputColor);
+    builder->fsCodeAppend(modulate.c_str());
 }
 
 void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {

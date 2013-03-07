@@ -787,13 +787,15 @@ void GrGLGradientEffect::emitColorLookup(GrGLShaderBuilder* builder,
                                          const char* inputColor,
                                          const GrGLShaderBuilder::TextureSampler& sampler) {
 
-    SkString* code = &builder->fFSCode;
-    code->appendf("\tvec2 coord = vec2(%s, %s);\n",
-                  gradientTValue,
-                  builder->getUniformVariable(fFSYUni).c_str());
-    code->appendf("\t%s = ", outputColor);
-    builder->appendTextureLookupAndModulate(code, inputColor, sampler, "coord");
-    code->append(";\n");
+    builder->fsCodeAppendf("\tvec2 coord = vec2(%s, %s);\n",
+                           gradientTValue,
+                           builder->getUniformVariable(fFSYUni).c_str());
+    builder->fsCodeAppendf("\t%s = ", outputColor);
+    builder->appendTextureLookupAndModulate(GrGLShaderBuilder::kFragment_ShaderType,
+                                            inputColor,
+                                            sampler,
+                                            "coord");
+    builder->fsCodeAppend(";\n");
 }
 
 /////////////////////////////////////////////////////////////////////

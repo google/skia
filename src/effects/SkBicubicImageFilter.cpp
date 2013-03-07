@@ -226,7 +226,6 @@ void GrGLBicubicEffect::emitCode(GrGLShaderBuilder* builder,
                                            kMat44f_GrSLType, "Coefficients");
     fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                              kVec2f_GrSLType, "ImageIncrement");
-    SkString* code = &builder->fFSCode;
 
     const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
     const char* coeff = builder->getUniformCStr(fCoefficientsUni);
@@ -250,19 +249,21 @@ void GrGLBicubicEffect::emitCode(GrGLShaderBuilder* builder,
                           "\tvec4 c = coefficients * ts;\n"
                           "\treturn c.x * c0 + c.y * c1 + c.z * c2 + c.w * c3;\n",
                           &cubicBlendName);
-    code->appendf("\tvec2 coord = %s - %s * vec2(0.5, 0.5);\n", coords, imgInc);
-    code->appendf("\tvec2 f = fract(coord / %s);\n", imgInc);
+    builder->fsCodeAppendf("\tvec2 coord = %s - %s * vec2(0.5, 0.5);\n", coords, imgInc);
+    builder->fsCodeAppendf("\tvec2 f = fract(coord / %s);\n", imgInc);
     for (int y = 0; y < 4; ++y) {
         for (int x = 0; x < 4; ++x) {
             SkString coord;
             coord.printf("coord + %s * vec2(%d, %d)", imgInc, x - 1, y - 1);
-            code->appendf("\tvec4 s%d%d = ", x, y);
-            builder->appendTextureLookup(&builder->fFSCode, samplers[0], coord.c_str());
-            code->appendf(";\n");
+            builder->fsCodeAppendf("\tvec4 s%d%d = ", x, y);
+            builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType,
+                                         samplers[0],
+                                         coord.c_str());
+            builder->fsCodeAppend(";\n");
         }
-        code->appendf("\tvec4 s%d = %s(%s, f.x, s0%d, s1%d, s2%d, s3%d);\n", y, cubicBlendName.c_str(), coeff, y, y, y, y);
+        builder->fsCodeAppendf("\tvec4 s%d = %s(%s, f.x, s0%d, s1%d, s2%d, s3%d);\n", y, cubicBlendName.c_str(), coeff, y, y, y, y);
     }
-    code->appendf("\t%s = %s(%s, f.y, s0, s1, s2, s3);\n", outputColor, cubicBlendName.c_str(), coeff);
+    builder->fsCodeAppendf("\t%s = %s(%s, f.y, s0, s1, s2, s3);\n", outputColor, cubicBlendName.c_str(), coeff);
 }
 
 GrGLEffect::EffectKey GrGLBicubicEffect::GenKey(const GrEffectStage& s, const GrGLCaps&) {

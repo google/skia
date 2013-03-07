@@ -513,7 +513,6 @@ void GrGLConical2Gradient::emitCode(GrGLShaderBuilder* builder,
 
     // VS
     {
-        SkString* code = &builder->fVSCode;
         SkString p2; // distance between centers
         SkString p3; // start radius
         SkString p5; // difference in radii (r1 - r0)
@@ -525,15 +524,14 @@ void GrGLConical2Gradient::emitCode(GrGLShaderBuilder* builder,
         // part of the quadratic as a varying.
         if (kVec2f_GrSLType == coordsVaryingType) {
             // r2Var = -2 * (r2Parm[2] * varCoord.x - r2Param[3] * r2Param[5])
-            code->appendf("\t%s = -2.0 * (%s * %s.x + %s * %s);\n",
-                          fVSVaryingName, p2.c_str(),
-                          vsCoordsVarying, p3.c_str(), p5.c_str());
+            builder->vsCodeAppendf("\t%s = -2.0 * (%s * %s.x + %s * %s);\n",
+                                   fVSVaryingName, p2.c_str(),
+                                   vsCoordsVarying, p3.c_str(), p5.c_str());
         }
     }
 
     // FS
     {
-        SkString* code = &builder->fFSCode;
 
         SkString cName("c");
         SkString ac4Name("ac4");
@@ -563,92 +561,92 @@ void GrGLConical2Gradient::emitCode(GrGLShaderBuilder* builder,
             bVar = fFSVaryingName;
         } else {
             bVar = "b";
-            code->appendf("\tfloat %s = -2.0 * (%s * %s.x + %s * %s);\n",
-                          bVar.c_str(), p2.c_str(), fsCoords,
-                          p3.c_str(), p5.c_str());
+            builder->fsCodeAppendf("\tfloat %s = -2.0 * (%s * %s.x + %s * %s);\n",
+                                   bVar.c_str(), p2.c_str(), fsCoords,
+                                   p3.c_str(), p5.c_str());
         }
 
         // output will default to transparent black (we simply won't write anything
         // else to it if invalid, instead of discarding or returning prematurely)
-        code->appendf("\t%s = vec4(0.0,0.0,0.0,0.0);\n", outputColor);
+        builder->fsCodeAppendf("\t%s = vec4(0.0,0.0,0.0,0.0);\n", outputColor);
 
         // c = (x^2)+(y^2) - params[4]
-        code->appendf("\tfloat %s = dot(%s, %s) - %s;\n", cName.c_str(),
-                      fsCoords, fsCoords,
-                      p4.c_str());
+        builder->fsCodeAppendf("\tfloat %s = dot(%s, %s) - %s;\n", cName.c_str(),
+                               fsCoords, fsCoords,
+                               p4.c_str());
 
         // Non-degenerate case (quadratic)
         if (!fIsDegenerate) {
 
             // ac4 = params[0] * c
-            code->appendf("\tfloat %s = %s * %s;\n", ac4Name.c_str(), p0.c_str(),
-                          cName.c_str());
+            builder->fsCodeAppendf("\tfloat %s = %s * %s;\n", ac4Name.c_str(), p0.c_str(),
+                                   cName.c_str());
 
             // d = b^2 - ac4
-            code->appendf("\tfloat %s = %s * %s - %s;\n", dName.c_str(),
-                          bVar.c_str(), bVar.c_str(), ac4Name.c_str());
+            builder->fsCodeAppendf("\tfloat %s = %s * %s - %s;\n", dName.c_str(),
+                                   bVar.c_str(), bVar.c_str(), ac4Name.c_str());
 
             // only proceed if discriminant is >= 0
-            code->appendf("\tif (%s >= 0.0) {\n", dName.c_str());
+            builder->fsCodeAppendf("\tif (%s >= 0.0) {\n", dName.c_str());
 
             // intermediate value we'll use to compute the roots
             // q = -0.5 * (b +/- sqrt(d))
-            code->appendf("\t\tfloat %s = -0.5 * (%s + (%s < 0.0 ? -1.0 : 1.0)"
-                          " * sqrt(%s));\n", qName.c_str(), bVar.c_str(),
-                          bVar.c_str(), dName.c_str());
+            builder->fsCodeAppendf("\t\tfloat %s = -0.5 * (%s + (%s < 0.0 ? -1.0 : 1.0)"
+                                   " * sqrt(%s));\n", qName.c_str(), bVar.c_str(),
+                                   bVar.c_str(), dName.c_str());
 
             // compute both roots
             // r0 = q * params[1]
-            code->appendf("\t\tfloat %s = %s * %s;\n", r0Name.c_str(),
-                          qName.c_str(), p1.c_str());
+            builder->fsCodeAppendf("\t\tfloat %s = %s * %s;\n", r0Name.c_str(),
+                                   qName.c_str(), p1.c_str());
             // r1 = c / q
-            code->appendf("\t\tfloat %s = %s / %s;\n", r1Name.c_str(),
-                          cName.c_str(), qName.c_str());
+            builder->fsCodeAppendf("\t\tfloat %s = %s / %s;\n", r1Name.c_str(),
+                                   cName.c_str(), qName.c_str());
 
             // Note: If there are two roots that both generate radius(t) > 0, the
             // Canvas spec says to choose the larger t.
 
             // so we'll look at the larger one first:
-            code->appendf("\t\tfloat %s = max(%s, %s);\n", tName.c_str(),
-                          r0Name.c_str(), r1Name.c_str());
+            builder->fsCodeAppendf("\t\tfloat %s = max(%s, %s);\n", tName.c_str(),
+                                   r0Name.c_str(), r1Name.c_str());
 
             // if r(t) > 0, then we're done; t will be our x coordinate
-            code->appendf("\t\tif (%s * %s + %s > 0.0) {\n", tName.c_str(),
-                          p5.c_str(), p3.c_str());
+            builder->fsCodeAppendf("\t\tif (%s * %s + %s > 0.0) {\n", tName.c_str(),
+                                   p5.c_str(), p3.c_str());
 
-            code->appendf("\t\t");
+            builder->fsCodeAppend("\t\t");
             this->emitColorLookup(builder, tName.c_str(), outputColor, inputColor, samplers[0]);
 
             // otherwise, if r(t) for the larger root was <= 0, try the other root
-            code->appendf("\t\t} else {\n");
-            code->appendf("\t\t\t%s = min(%s, %s);\n", tName.c_str(),
-                          r0Name.c_str(), r1Name.c_str());
+            builder->fsCodeAppend("\t\t} else {\n");
+            builder->fsCodeAppendf("\t\t\t%s = min(%s, %s);\n", tName.c_str(),
+                                   r0Name.c_str(), r1Name.c_str());
 
             // if r(t) > 0 for the smaller root, then t will be our x coordinate
-            code->appendf("\t\t\tif (%s * %s + %s > 0.0) {\n",
-                          tName.c_str(), p5.c_str(), p3.c_str());
+            builder->fsCodeAppendf("\t\t\tif (%s * %s + %s > 0.0) {\n",
+                                   tName.c_str(), p5.c_str(), p3.c_str());
 
-            code->appendf("\t\t\t");
+            builder->fsCodeAppend("\t\t\t");
             this->emitColorLookup(builder, tName.c_str(), outputColor, inputColor, samplers[0]);
 
             // end if (r(t) > 0) for smaller root
-            code->appendf("\t\t\t}\n");
+            builder->fsCodeAppend("\t\t\t}\n");
             // end if (r(t) > 0), else, for larger root
-            code->appendf("\t\t}\n");
+            builder->fsCodeAppend("\t\t}\n");
             // end if (discriminant >= 0)
-            code->appendf("\t}\n");
+            builder->fsCodeAppend("\t}\n");
         } else {
 
             // linear case: t = -c/b
-            code->appendf("\tfloat %s = -(%s / %s);\n", tName.c_str(),
-                          cName.c_str(), bVar.c_str());
+            builder->fsCodeAppendf("\tfloat %s = -(%s / %s);\n", tName.c_str(),
+                                   cName.c_str(), bVar.c_str());
 
             // if r(t) > 0, then t will be the x coordinate
-            code->appendf("\tif (%s * %s + %s > 0.0) {\n", tName.c_str(),
-                          p5.c_str(), p3.c_str());
-            code->appendf("\t");
+            builder->fsCodeAppendf("\tif (%s * %s + %s > 0.0) {\n", tName.c_str(),
+                                   p5.c_str(), p3.c_str());
+            builder->fsCodeAppend("\t");
             this->emitColorLookup(builder, tName.c_str(), outputColor, inputColor, samplers[0]);
-            code->appendf("\t}\n");
+            builder->fsCodeAppend("\t}\n");
         }
     }
 }
