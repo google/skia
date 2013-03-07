@@ -13,10 +13,11 @@ def Config(**kwargs):
   return config
 
 
-def TileArgs(tile_x, tile_y):
-  return {'mode': ['tile', str(tile_x), str(tile_y)],
-          'timeIndividualTiles': True,
-          }
+def TileArgs(tile_x, tile_y, timeIndividualTiles=True):
+  config = {'mode': ['tile', str(tile_x), str(tile_y)]}
+  if timeIndividualTiles:
+    config['timeIndividualTiles'] = True
+  return config
 
 
 def BitmapConfig(**kwargs):
@@ -27,16 +28,18 @@ def GPUConfig(**kwargs):
   return Config(config='gpu', **kwargs)
 
 
-def TiledBitmapConfig(tile_x, tile_y, **kwargs):
-  return BitmapConfig(**dict(TileArgs(tile_x, tile_y).items() + kwargs.items()))
+def TiledBitmapConfig(tile_x, tile_y, timeIndividualTiles=True, **kwargs):
+  return BitmapConfig(**dict(TileArgs(tile_x, tile_y,
+      timeIndividualTiles=timeIndividualTiles).items() + kwargs.items()))
 
 
 def TiledGPUConfig(tile_x, tile_y, **kwargs):
   return GPUConfig(**dict(TileArgs(tile_x, tile_y).items() + kwargs.items()))
 
 
-def TiledConfig(tile_x, tile_y, **kwargs):
-  return Config(**dict(TileArgs(tile_x, tile_y).items() + kwargs.items()))
+def TiledConfig(tile_x, tile_y, timeIndividualTiles=True, **kwargs):
+  return Config(**dict(TileArgs(tile_x, tile_y,
+      timeIndividualTiles=timeIndividualTiles).items() + kwargs.items()))
 
 
 def ViewportBitmapConfig(viewport_x, viewport_y, **kwargs):
@@ -70,7 +73,8 @@ def PlaybackCreationConfig(**kwargs):
 
 
 def MultiThreadTileConfig(threads, tile_x, tile_y, **kwargs):
-  return TiledBitmapConfig(multi=str(threads), tile_x=tile_x, tile_y=tile_y,
+  return TiledBitmapConfig(tile_x=tile_x, tile_y=tile_y,
+                           timeIndividualTiles=False, multi=str(threads),
                            **kwargs)
 
 
