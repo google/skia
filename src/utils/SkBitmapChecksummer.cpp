@@ -25,8 +25,8 @@ static void write_int_to_buffer(int val, char* buf) {
 
 /*static*/ uint64_t SkBitmapChecksummer::Compute64Internal(
         const SkBitmap& bitmap, const SkBitmapTransformer& transformer) {
-    int pixelBufferSize = transformer.bytesNeededTotal();
-    int totalBufferSize = pixelBufferSize + 8; // leave room for x/y dimensions
+    size_t pixelBufferSize = transformer.bytesNeededTotal();
+    size_t totalBufferSize = pixelBufferSize + 8; // leave room for x/y dimensions
 
     SkAutoMalloc bufferManager(totalBufferSize);
     char *bufferStart = static_cast<char *>(bufferManager.get());
