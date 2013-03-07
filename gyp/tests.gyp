@@ -130,6 +130,15 @@
             '../src/gpu',
           ],
         }],
+        [ 'skia_os == "nacl"', {
+          # CityHash is not supported on NaCl because the NaCl toolchain is
+          # missing byteswap.h which is needed by CityHash.
+          # TODO(borenet): Find a way to either provide this dependency or
+          # replace it.
+          'sources!': [
+            '../tests/ChecksumTest.cpp',
+          ],
+        }],
       ],
     },
   ],

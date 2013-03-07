@@ -83,9 +83,9 @@
             '../src/core/SkMMapStream.cpp',
           ],
         }],
-        [ 'skia_os == "android"', {
+        [ 'skia_os in ("android", "nacl")', {
           'dependencies': [
-             'freetype.gyp:freetype',
+            'freetype.gyp:freetype',
           ],
         }],
         [ 'skia_os == "android" and skia_arch_type == "arm" and armv7 == 1', {

@@ -196,6 +196,15 @@
           ],
           'sources!': [
             '../src/utils/SkThreadUtils_pthread_linux.cpp',
+            '../src/utils/SkCityHash.cpp',
+            '../src/utils/SkCityHash.h',
+          ],
+          'dependencies!': [
+            # CityHash is not supported on NaCl because the NaCl toolchain is
+            # missing byteswap.h which is needed by CityHash.
+            # TODO(borenet): Find a way to either provide this dependency or
+            # replace it.
+            'cityhash',
           ],
         }],
         [ 'skia_os == "android"', {
