@@ -59,15 +59,15 @@ void GrGLTextureDomainEffect::emitCode(GrGLShaderBuilder* builder,
                                     kVec4f_GrSLType, "TexDom", &domain);
     if (GrTextureDomainEffect::kClamp_WrapMode == effect.wrapMode()) {
 
-        builder->fFSCode.appendf("\tvec2 clampCoord = clamp(%s, %s.xy, %s.zw);\n",
-                               coords, domain, domain);
+        builder->fsCodeAppendf("\tvec2 clampCoord = clamp(%s, %s.xy, %s.zw);\n",
+                                coords, domain, domain);
 
-        builder->fFSCode.appendf("\t%s = ", outputColor);
-        builder->appendTextureLookupAndModulate(&builder->fFSCode,
+        builder->fsCodeAppendf("\t%s = ", outputColor);
+        builder->appendTextureLookupAndModulate(GrGLShaderBuilder::kFragment_ShaderType,
                                                 inputColor,
                                                 samplers[0],
                                                 "clampCoord");
-        builder->fFSCode.append(";\n");
+        builder->fsCodeAppend(";\n");
     } else {
         GrAssert(GrTextureDomainEffect::kDecal_WrapMode == effect.wrapMode());
 
@@ -78,24 +78,30 @@ void GrGLTextureDomainEffect::emitCode(GrGLShaderBuilder* builder,
             // may return undefined results". This appears to be an issue with
             // the 'any' call since even the simple "result=black; if (any())
             // result=white;" code fails to compile.
-            builder->fFSCode.appendf("\tvec4 outside = vec4(0.0, 0.0, 0.0, 0.0);\n");
-            builder->fFSCode.appendf("\tvec4 inside = ");
-            builder->appendTextureLookupAndModulate(&builder->fFSCode, inputColor, samplers[0], coords);
-            builder->fFSCode.appendf(";\n");
+            builder->fsCodeAppend("\tvec4 outside = vec4(0.0, 0.0, 0.0, 0.0);\n");
+            builder->fsCodeAppend("\tvec4 inside = ");
+            builder->appendTextureLookupAndModulate(GrGLShaderBuilder::kFragment_ShaderType,
+                                                    inputColor,
+                                                    samplers[0],
+                                                    coords);
+            builder->fsCodeAppend(";\n");
 
-            builder->fFSCode.appendf("\tfloat x = abs(2.0*(%s.x - %s.x)/(%s.z - %s.x) - 1.0);\n",
-                                     coords, domain, domain, domain);
-            builder->fFSCode.appendf("\tfloat y = abs(2.0*(%s.y - %s.y)/(%s.w - %s.y) - 1.0);\n",
-                                     coords, domain, domain, domain);
-            builder->fFSCode.appendf("\tfloat blend = step(1.0, max(x, y));\n");
-            builder->fFSCode.appendf("\t%s = mix(inside, outside, blend);\n", outputColor);
+            builder->fsCodeAppendf("\tfloat x = abs(2.0*(%s.x - %s.x)/(%s.z - %s.x) - 1.0);\n",
+                                   coords, domain, domain, domain);
+            builder->fsCodeAppendf("\tfloat y = abs(2.0*(%s.y - %s.y)/(%s.w - %s.y) - 1.0);\n",
+                                   coords, domain, domain, domain);
+            builder->fsCodeAppend("\tfloat blend = step(1.0, max(x, y));\n");
+            builder->fsCodeAppendf("\t%s = mix(inside, outside, blend);\n", outputColor);
         } else {
-            builder->fFSCode.append("\tbvec4 outside;\n");
-            builder->fFSCode.appendf("\toutside.xy = lessThan(%s, %s.xy);\n", coords, domain);
-            builder->fFSCode.appendf("\toutside.zw = greaterThan(%s, %s.zw);\n", coords, domain);
-            builder->fFSCode.appendf("\t%s = any(outside) ? vec4(0.0, 0.0, 0.0, 0.0) : ", outputColor);
-            builder->appendTextureLookupAndModulate(&builder->fFSCode, inputColor, samplers[0], coords);
-            builder->fFSCode.append(";\n");
+            builder->fsCodeAppend("\tbvec4 outside;\n");
+            builder->fsCodeAppendf("\toutside.xy = lessThan(%s, %s.xy);\n", coords, domain);
+            builder->fsCodeAppendf("\toutside.zw = greaterThan(%s, %s.zw);\n", coords, domain);
+            builder->fsCodeAppendf("\t%s = any(outside) ? vec4(0.0, 0.0, 0.0, 0.0) : ", outputColor);
+            builder->appendTextureLookupAndModulate(GrGLShaderBuilder::kFragment_ShaderType,
+                                                    inputColor,
+                                                    samplers[0],
+                                                    coords);
+            builder->fsCodeAppend(";\n");
         }
     }
 }

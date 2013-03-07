@@ -27,13 +27,13 @@ public:
                           const TextureSamplerArray& samplers) SK_OVERRIDE {
         const char* coordName;
         GrSLType coordType = fEffectMatrix.emitCode(builder, key, vertexCoords, &coordName);
-        builder->fFSCode.appendf("\t%s = ", outputColor);
-        builder->appendTextureLookupAndModulate(&builder->fFSCode,
+        builder->fsCodeAppendf("\t%s = ", outputColor);
+        builder->appendTextureLookupAndModulate(GrGLShaderBuilder::kFragment_ShaderType,
                                                 inputColor,
                                                 samplers[0],
                                                 coordName,
                                                 coordType);
-        builder->fFSCode.append(";\n");
+        builder->fsCodeAppend(";\n");
     }
 
     static inline EffectKey GenKey(const GrEffectStage& stage, const GrGLCaps&) {

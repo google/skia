@@ -560,7 +560,6 @@ void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
 
     // VS
     {
-        SkString* code = &builder->fVSCode;
         SkString p2;
         SkString p3;
         builder->getUniformVariable(fVSParamUni).appendArrayAccess(2, &p2);
@@ -570,15 +569,14 @@ void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
         // part of the quadratic as a varying.
         if (kVec2f_GrSLType == coordsVaryingType) {
             // r2Var = 2 * (r2Parm[2] * varCoord.x - r2Param[3])
-            code->appendf("\t%s = 2.0 *(%s * %s.x - %s);\n",
-                          fVSVaryingName, p2.c_str(),
-                          vsCoordsVarying, p3.c_str());
+            builder->vsCodeAppendf("\t%s = 2.0 *(%s * %s.x - %s);\n",
+                                   fVSVaryingName, p2.c_str(),
+                                   vsCoordsVarying, p3.c_str());
         }
     }
 
     // FS
     {
-        SkString* code = &builder->fFSCode;
         SkString cName("c");
         SkString ac4Name("ac4");
         SkString rootName("root");
@@ -603,31 +601,31 @@ void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
             bVar = fFSVaryingName;
         } else {
             bVar = "b";
-            code->appendf("\tfloat %s = 2.0 * (%s * %s.x - %s);\n",
-                          bVar.c_str(), p2.c_str(), fsCoords, p3.c_str());
+            builder->fsCodeAppendf("\tfloat %s = 2.0 * (%s * %s.x - %s);\n",
+                                   bVar.c_str(), p2.c_str(), fsCoords, p3.c_str());
         }
 
         // c = (x^2)+(y^2) - params[4]
-        code->appendf("\tfloat %s = dot(%s, %s) - %s;\n",
-                      cName.c_str(),
-                      fsCoords,
-                      fsCoords,
-                      p4.c_str());
+        builder->fsCodeAppendf("\tfloat %s = dot(%s, %s) - %s;\n",
+                               cName.c_str(),
+                               fsCoords,
+                               fsCoords,
+                               p4.c_str());
 
         // If we aren't degenerate, emit some extra code, and accept a slightly
         // more complex coord.
         if (!fIsDegenerate) {
 
             // ac4 = 4.0 * params[0] * c
-            code->appendf("\tfloat %s = %s * 4.0 * %s;\n",
-                          ac4Name.c_str(), p0.c_str(),
-                          cName.c_str());
+            builder->fsCodeAppendf("\tfloat %s = %s * 4.0 * %s;\n",
+                                   ac4Name.c_str(), p0.c_str(),
+                                   cName.c_str());
 
             // root = sqrt(b^2-4ac)
             // (abs to avoid exception due to fp precision)
-            code->appendf("\tfloat %s = sqrt(abs(%s*%s - %s));\n",
-                          rootName.c_str(), bVar.c_str(), bVar.c_str(),
-                          ac4Name.c_str());
+            builder->fsCodeAppendf("\tfloat %s = sqrt(abs(%s*%s - %s));\n",
+                                   rootName.c_str(), bVar.c_str(), bVar.c_str(),
+                                   ac4Name.c_str());
 
             // t is: (-b + params[5] * sqrt(b^2-4ac)) * params[1]
             t.printf("(-%s + %s * %s) * %s", bVar.c_str(), p5.c_str(),

@@ -14,6 +14,8 @@
 #include "gl/GrGLSL.h"
 #include "gl/GrGLUniformManager.h"
 
+#include <stdarg.h>
+
 class GrGLContextInfo;
 
 /**
@@ -80,6 +82,34 @@ public:
 
     GrGLShaderBuilder(const GrGLContextInfo&, GrGLUniformManager&);
 
+    /**
+     * Called by GrGLEffects to add code to one of the shaders.
+     */
+    void vsCodeAppendf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
+        va_list args;
+        va_start(args, format);
+        this->codeAppendf(kVertex_ShaderType, format, args);
+        va_end(args);
+    }
+
+    void gsCodeAppendf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
+        va_list args;
+        va_start(args, format);
+        this->codeAppendf(kGeometry_ShaderType, format, args);
+        va_end(args);
+    }
+
+    void fsCodeAppendf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
+        va_list args;
+        va_start(args, format);
+        this->codeAppendf(kFragment_ShaderType, format, args);
+        va_end(args);
+    }
+
+    void vsCodeAppend(const char* str) { this->codeAppend(kVertex_ShaderType, str); }
+    void gsCodeAppend(const char* str) { this->codeAppend(kGeometry_ShaderType, str); }
+    void fsCodeAppend(const char* str) { this->codeAppend(kFragment_ShaderType, str); }
+
     /** Appends a 2D texture sample with projection if necessary. coordType must either be Vec2f or
         Vec3f. The latter is interpreted as projective texture coords. The vec length and swizzle
         order of the result depends on the GrTextureAccess associated with the TextureSampler. */
@@ -88,15 +118,23 @@ public:
                              const char* coordName,
                              GrSLType coordType = kVec2f_GrSLType) const;
 
+    /** Version of above that appends the result to the shader code rather than an SkString.
+        Currently the shader type must be kFragment */
+    void appendTextureLookup(ShaderType,
+                             const TextureSampler&,
+                             const char* coordName,
+                             GrSLType coordType = kVec2f_GrSLType);
+
+
     /** Does the work of appendTextureLookup and modulates the result by modulation. The result is
         always a vec4. modulation and the swizzle specified by TextureSampler must both be vec4 or
         float. If modulation is "" or NULL it this function acts as though appendTextureLookup were
         called. */
-    void appendTextureLookupAndModulate(SkString* out,
+    void appendTextureLookupAndModulate(ShaderType,
                                         const char* modulation,
                                         const TextureSampler&,
                                         const char* coordName,
-                                        GrSLType coordType = kVec2f_GrSLType) const;
+                                        GrSLType coordType = kVec2f_GrSLType);
 
     /** Emits a helper function outside of main(). Currently ShaderType must be
         kFragment_ShaderType. */
@@ -190,6 +228,9 @@ public:
     const GrGLContextInfo& ctxInfo() const { return fCtxInfo; }
 
 private:
+    void codeAppendf(ShaderType type, const char format[], va_list args);
+    void codeAppend(ShaderType type, const char* str);
+
     typedef GrTAllocator<GrGLShaderVar> VarArray;
 
     void appendDecls(const VarArray&, SkString*) const;
@@ -209,9 +250,6 @@ public:
     VarArray    fFSInputs;
     SkString    fGSHeader; // layout qualifiers specific to GS
     VarArray    fFSOutputs;
-    SkString    fVSCode;
-    SkString    fGSCode;
-    SkString    fFSCode;
     bool        fUsesGS;
 
 private:
@@ -224,6 +262,10 @@ private:
     int                                 fCurrentStageIdx;
     SkString                            fFSFunctions;
     SkString                            fFSHeader;
+
+    SkString                            fFSCode;
+    SkString                            fVSCode;
+    SkString                            fGSCode;
 
     bool                                fSetupFragPosition;
     GrGLUniformManager::UniformHandle   fRTHeightUniform;

@@ -246,34 +246,39 @@ void GrGLBlendEffect::emitCode(GrGLShaderBuilder* builder,
     GrSLType bgCoordsType =  fBackgroundEffectMatrix.emitCode(
         builder, key, vertexCoords, &bgCoords, NULL, "BG");
 
-    SkString* code = &builder->fFSCode;
     const char* bgColor = "bgColor";
     const char* fgColor = "fgColor";
 
-    code->appendf("\t\tvec4 %s = ", fgColor);
-    builder->appendTextureLookup(code, samplers[0], fgCoords, fgCoordsType);
-    code->append(";\n");
+    builder->fsCodeAppendf("\t\tvec4 %s = ", fgColor);
+    builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType,
+                                 samplers[0],
+                                 fgCoords,
+                                 fgCoordsType);
+    builder->fsCodeAppend(";\n");
 
-    code->appendf("\t\tvec4 %s = ", bgColor);
-    builder->appendTextureLookup(code, samplers[1], bgCoords, bgCoordsType);
-    code->append(";\n");
+    builder->fsCodeAppendf("\t\tvec4 %s = ", bgColor);
+    builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType,
+                                 samplers[1],
+                                 bgCoords,
+                                 bgCoordsType);
+    builder->fsCodeAppendf(";\n");
 
-    code->appendf("\t\t%s.a = 1.0 - (1.0 - %s.a) * (1.0 - %s.b);\n", outputColor, bgColor, fgColor);
+    builder->fsCodeAppendf("\t\t%s.a = 1.0 - (1.0 - %s.a) * (1.0 - %s.b);\n", outputColor, bgColor, fgColor);
     switch (fMode) {
       case SkBlendImageFilter::kNormal_Mode:
-        code->appendf("\t\t%s.rgb = (1.0 - %s.a) * %s.rgb + %s.rgb;\n", outputColor, fgColor, bgColor, fgColor);
+        builder->fsCodeAppendf("\t\t%s.rgb = (1.0 - %s.a) * %s.rgb + %s.rgb;\n", outputColor, fgColor, bgColor, fgColor);
         break;
       case SkBlendImageFilter::kMultiply_Mode:
-        code->appendf("\t\t%s.rgb = (1.0 - %s.a) * %s.rgb + (1.0 - %s.a) * %s.rgb + %s.rgb * %s.rgb;\n", outputColor, fgColor, bgColor, bgColor, fgColor, fgColor, bgColor);
+        builder->fsCodeAppendf("\t\t%s.rgb = (1.0 - %s.a) * %s.rgb + (1.0 - %s.a) * %s.rgb + %s.rgb * %s.rgb;\n", outputColor, fgColor, bgColor, bgColor, fgColor, fgColor, bgColor);
         break;
       case SkBlendImageFilter::kScreen_Mode:
-        code->appendf("\t\t%s.rgb = %s.rgb + %s.rgb - %s.rgb * %s.rgb;\n", outputColor, bgColor, fgColor, fgColor, bgColor);
+        builder->fsCodeAppendf("\t\t%s.rgb = %s.rgb + %s.rgb - %s.rgb * %s.rgb;\n", outputColor, bgColor, fgColor, fgColor, bgColor);
         break;
       case SkBlendImageFilter::kDarken_Mode:
-        code->appendf("\t\t%s.rgb = min((1.0 - %s.a) * %s.rgb + %s.rgb, (1.0 - %s.a) * %s.rgb + %s.rgb);\n", outputColor, fgColor, bgColor, fgColor, bgColor, fgColor, bgColor);
+        builder->fsCodeAppendf("\t\t%s.rgb = min((1.0 - %s.a) * %s.rgb + %s.rgb, (1.0 - %s.a) * %s.rgb + %s.rgb);\n", outputColor, fgColor, bgColor, fgColor, bgColor, fgColor, bgColor);
         break;
       case SkBlendImageFilter::kLighten_Mode:
-        code->appendf("\t\t%s.rgb = max((1.0 - %s.a) * %s.rgb + %s.rgb, (1.0 - %s.a) * %s.rgb + %s.rgb);\n", outputColor, fgColor, bgColor, fgColor, bgColor, fgColor, bgColor);
+        builder->fsCodeAppendf("\t\t%s.rgb = max((1.0 - %s.a) * %s.rgb + %s.rgb, (1.0 - %s.a) * %s.rgb + %s.rgb);\n", outputColor, fgColor, bgColor, fgColor, bgColor, fgColor, bgColor);
         break;
     }
 }

@@ -21,8 +21,8 @@ void SkDebugf(const char format[], ...) {
     va_list args;
     va_start(args, format);
     vsnprintf(buffer, kBufferSize, format, args);
+    vprintf(format, args);
     va_end(args);
 
     OutputDebugStringA(buffer);
-    printf(buffer);
 }

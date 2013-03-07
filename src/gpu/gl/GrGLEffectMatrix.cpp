@@ -93,20 +93,20 @@ GrSLType GrGLEffectMatrix::emitCode(GrGLShaderBuilder* builder,
     switch (fUniType) {
         case kVoid_GrSLType:
             GrAssert(kVec2f_GrSLType == varyingType);
-            builder->fVSCode.appendf("\t%s = %s;\n", vsVaryingName, vertexCoords);
+            builder->vsCodeAppendf("\t%s = %s;\n", vsVaryingName, vertexCoords);
             break;
         case kVec2f_GrSLType:
             GrAssert(kVec2f_GrSLType == varyingType);
-            builder->fVSCode.appendf("\t%s = %s + %s;\n", vsVaryingName, uniName, vertexCoords);
+            builder->vsCodeAppendf("\t%s = %s + %s;\n", vsVaryingName, uniName, vertexCoords);
             break;
         case kMat33f_GrSLType: {
             GrAssert(kVec2f_GrSLType == varyingType || kVec3f_GrSLType == varyingType);
             if (kVec2f_GrSLType == varyingType) {
-                builder->fVSCode.appendf("\t%s = (%s * vec3(%s, 1)).xy;\n",
-                                         vsVaryingName, uniName, vertexCoords);
+                builder->vsCodeAppendf("\t%s = (%s * vec3(%s, 1)).xy;\n",
+                                       vsVaryingName, uniName, vertexCoords);
             } else {
-                builder->fVSCode.appendf("\t%s = %s * vec3(%s, 1);\n",
-                                         vsVaryingName, uniName, vertexCoords);
+                builder->vsCodeAppendf("\t%s = %s * vec3(%s, 1);\n",
+                                       vsVaryingName, uniName, vertexCoords);
             }
             break;
         }
@@ -150,8 +150,8 @@ void GrGLEffectMatrix::emitCodeMakeFSCoords2D(GrGLShaderBuilder* builder,
             suffixedCoordName.append(suffix);
             coordName = suffixedCoordName.c_str();
         }
-        builder->fFSCode.appendf("\tvec2 %s = %s.xy / %s.z;",
-                                    coordName, fsVaryingName, fsVaryingName);
+        builder->fsCodeAppendf("\tvec2 %s = %s.xy / %s.z;",
+                               coordName, fsVaryingName, fsVaryingName);
         if (NULL != fsCoordName) {
             *fsCoordName = coordName;
         }

@@ -398,7 +398,8 @@ inline void blend_term_string(SkString* str, SkXfermode::Coeff coeff,
  * Adds a line to the fragment shader code which modifies the color by
  * the specified color filter.
  */
-void add_color_filter(SkString* fsCode, const char * outputVar,
+void add_color_filter(GrGLShaderBuilder* builder,
+                      const char * outputVar,
                       SkXfermode::Coeff uniformCoeff,
                       SkXfermode::Coeff colorCoeff,
                       const char* filterColor,
@@ -407,9 +408,9 @@ void add_color_filter(SkString* fsCode, const char * outputVar,
     blend_term_string(&colorStr, colorCoeff, filterColor, inColor, inColor);
     blend_term_string(&constStr, uniformCoeff, filterColor, inColor, filterColor);
 
-    fsCode->appendf("\t%s = ", outputVar);
-    GrGLSLAdd4f(fsCode, colorStr.c_str(), constStr.c_str());
-    fsCode->append(";\n");
+    SkString sum;
+    GrGLSLAdd4f(&sum, colorStr.c_str(), constStr.c_str());
+    builder->fsCodeAppendf("\t%s = %s;\n", outputVar, sum.c_str());
 }
 }
 
@@ -421,64 +422,64 @@ bool GrGLProgram::genEdgeCoverage(SkString* coverageVar,
         builder->fVSAttrs.push_back().set(kVec4f_GrSLType,
                                           GrGLShaderVar::kAttribute_TypeModifier,
                                           EDGE_ATTR_NAME);
-        builder->fVSCode.appendf("\t%s = " EDGE_ATTR_NAME ";\n", vsName);
+        builder->vsCodeAppendf("\t%s = " EDGE_ATTR_NAME ";\n", vsName);
         switch (fDesc.fVertexEdgeType) {
         case GrDrawState::kHairLine_EdgeType:
-            builder->fFSCode.appendf("\tfloat edgeAlpha = abs(dot(vec3(%s.xy,1), %s.xyz));\n", builder->fragmentPosition(), fsName);
-            builder->fFSCode.append("\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
+            builder->fsCodeAppendf("\tfloat edgeAlpha = abs(dot(vec3(%s.xy,1), %s.xyz));\n", builder->fragmentPosition(), fsName);
+            builder->fsCodeAppendf("\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
             break;
         case GrDrawState::kQuad_EdgeType:
-            builder->fFSCode.append("\tfloat edgeAlpha;\n");
+            builder->fsCodeAppendf("\tfloat edgeAlpha;\n");
             // keep the derivative instructions outside the conditional
-            builder->fFSCode.appendf("\tvec2 duvdx = dFdx(%s.xy);\n", fsName);
-            builder->fFSCode.appendf("\tvec2 duvdy = dFdy(%s.xy);\n", fsName);
-            builder->fFSCode.appendf("\tif (%s.z > 0.0 && %s.w > 0.0) {\n", fsName, fsName);
+            builder->fsCodeAppendf("\tvec2 duvdx = dFdx(%s.xy);\n", fsName);
+            builder->fsCodeAppendf("\tvec2 duvdy = dFdy(%s.xy);\n", fsName);
+            builder->fsCodeAppendf("\tif (%s.z > 0.0 && %s.w > 0.0) {\n", fsName, fsName);
             // today we know z and w are in device space. We could use derivatives
-            builder->fFSCode.appendf("\t\tedgeAlpha = min(min(%s.z, %s.w) + 0.5, 1.0);\n", fsName, fsName);
-            builder->fFSCode.append ("\t} else {\n");
-            builder->fFSCode.appendf("\t\tvec2 gF = vec2(2.0*%s.x*duvdx.x - duvdx.y,\n"
-                                     "\t\t               2.0*%s.x*duvdy.x - duvdy.y);\n",
-                                     fsName, fsName);
-            builder->fFSCode.appendf("\t\tedgeAlpha = (%s.x*%s.x - %s.y);\n", fsName, fsName, fsName);
-            builder->fFSCode.append("\t\tedgeAlpha = clamp(0.5 - edgeAlpha / length(gF), 0.0, 1.0);\n"
-                                    "\t}\n");
+            builder->fsCodeAppendf("\t\tedgeAlpha = min(min(%s.z, %s.w) + 0.5, 1.0);\n", fsName, fsName);
+            builder->fsCodeAppendf ("\t} else {\n");
+            builder->fsCodeAppendf("\t\tvec2 gF = vec2(2.0*%s.x*duvdx.x - duvdx.y,\n"
+                                   "\t\t               2.0*%s.x*duvdy.x - duvdy.y);\n",
+                                    fsName, fsName);
+            builder->fsCodeAppendf("\t\tedgeAlpha = (%s.x*%s.x - %s.y);\n", fsName, fsName, fsName);
+            builder->fsCodeAppendf("\t\tedgeAlpha = clamp(0.5 - edgeAlpha / length(gF), 0.0, 1.0);\n"
+                                   "\t}\n");
             if (kES2_GrGLBinding == fContext.info().binding()) {
-                builder->fHeader.printf("#extension GL_OES_standard_derivatives: enable\n");
+                builder->fHeader.append("#extension GL_OES_standard_derivatives: enable\n");
             }
             break;
         case GrDrawState::kHairQuad_EdgeType:
-            builder->fFSCode.appendf("\tvec2 duvdx = dFdx(%s.xy);\n", fsName);
-            builder->fFSCode.appendf("\tvec2 duvdy = dFdy(%s.xy);\n", fsName);
-            builder->fFSCode.appendf("\tvec2 gF = vec2(2.0*%s.x*duvdx.x - duvdx.y,\n"
-                                     "\t               2.0*%s.x*duvdy.x - duvdy.y);\n",
-                                     fsName, fsName);
-            builder->fFSCode.appendf("\tfloat edgeAlpha = (%s.x*%s.x - %s.y);\n", fsName, fsName, fsName);
-            builder->fFSCode.append("\tedgeAlpha = sqrt(edgeAlpha*edgeAlpha / dot(gF, gF));\n");
-            builder->fFSCode.append("\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
+            builder->fsCodeAppendf("\tvec2 duvdx = dFdx(%s.xy);\n", fsName);
+            builder->fsCodeAppendf("\tvec2 duvdy = dFdy(%s.xy);\n", fsName);
+            builder->fsCodeAppendf("\tvec2 gF = vec2(2.0*%s.x*duvdx.x - duvdx.y,\n"
+                                   "\t               2.0*%s.x*duvdy.x - duvdy.y);\n",
+                                   fsName, fsName);
+            builder->fsCodeAppendf("\tfloat edgeAlpha = (%s.x*%s.x - %s.y);\n", fsName, fsName, fsName);
+            builder->fsCodeAppend("\tedgeAlpha = sqrt(edgeAlpha*edgeAlpha / dot(gF, gF));\n");
+            builder->fsCodeAppend("\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
             if (kES2_GrGLBinding == fContext.info().binding()) {
                 builder->fHeader.printf("#extension GL_OES_standard_derivatives: enable\n");
             }
             break;
         case GrDrawState::kCircle_EdgeType:
-            builder->fFSCode.append("\tfloat edgeAlpha;\n");
-            builder->fFSCode.appendf("\tfloat d = distance(%s.xy, %s.xy);\n", builder->fragmentPosition(), fsName);
-            builder->fFSCode.appendf("\tfloat outerAlpha = smoothstep(d - 0.5, d + 0.5, %s.z);\n", fsName);
-            builder->fFSCode.appendf("\tfloat innerAlpha = %s.w == 0.0 ? 1.0 : smoothstep(%s.w - 0.5, %s.w + 0.5, d);\n", fsName, fsName, fsName);
-            builder->fFSCode.append("\tedgeAlpha = outerAlpha * innerAlpha;\n");
+            builder->fsCodeAppend("\tfloat edgeAlpha;\n");
+            builder->fsCodeAppendf("\tfloat d = distance(%s.xy, %s.xy);\n", builder->fragmentPosition(), fsName);
+            builder->fsCodeAppendf("\tfloat outerAlpha = smoothstep(d - 0.5, d + 0.5, %s.z);\n", fsName);
+            builder->fsCodeAppendf("\tfloat innerAlpha = %s.w == 0.0 ? 1.0 : smoothstep(%s.w - 0.5, %s.w + 0.5, d);\n", fsName, fsName, fsName);
+            builder->fsCodeAppend("\tedgeAlpha = outerAlpha * innerAlpha;\n");
             break;
         case GrDrawState::kEllipse_EdgeType:
-            builder->fFSCode.append("\tfloat edgeAlpha;\n");
-            builder->fFSCode.appendf("\tvec2 offset = (%s.xy - %s.xy);\n", builder->fragmentPosition(), fsName);
-            builder->fFSCode.appendf("\toffset.y *= %s.w;\n", fsName);
-            builder->fFSCode.append("\tfloat d = length(offset);\n");
-            builder->fFSCode.appendf("\tedgeAlpha = smoothstep(d - 0.5, d + 0.5, %s.z);\n", fsName);
+            builder->fsCodeAppend("\tfloat edgeAlpha;\n");
+            builder->fsCodeAppendf("\tvec2 offset = (%s.xy - %s.xy);\n", builder->fragmentPosition(), fsName);
+            builder->fsCodeAppendf("\toffset.y *= %s.w;\n", fsName);
+            builder->fsCodeAppend("\tfloat d = length(offset);\n");
+            builder->fsCodeAppendf("\tedgeAlpha = smoothstep(d - 0.5, d + 0.5, %s.z);\n", fsName);
             break;
         default:
             GrCrash("Unknown Edge Type!");
             break;
         }
         if (fDesc.fDiscardIfOutsideEdge) {
-            builder->fFSCode.appendf("\tif (edgeAlpha <= 0.0) {\n\t\tdiscard;\n\t}\n");
+            builder->fsCodeAppend("\tif (edgeAlpha <= 0.0) {\n\t\tdiscard;\n\t}\n");
         }
         *coverageVar = "edgeAlpha";
         return true;
@@ -496,7 +497,7 @@ void GrGLProgram::genInputColor(GrGLShaderBuilder* builder, SkString* inColor) {
                 COL_ATTR_NAME);
             const char *vsName, *fsName;
             builder->addVarying(kVec4f_GrSLType, "Color", &vsName, &fsName);
-            builder->fVSCode.appendf("\t%s = " COL_ATTR_NAME ";\n", vsName);
+            builder->vsCodeAppendf("\t%s = " COL_ATTR_NAME ";\n", vsName);
             *inColor = fsName;
             } break;
         case GrGLProgram::Desc::kUniform_ColorInput: {
@@ -522,8 +523,8 @@ void GrGLProgram::genUniformCoverage(GrGLShaderBuilder* builder, SkString* inOut
     fUniformHandles.fCoverageUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                                        kVec4f_GrSLType, "Coverage", &covUniName);
     if (inOutCoverage->size()) {
-        builder->fFSCode.appendf("\tvec4 uniCoverage = %s * %s;\n",
-                                  covUniName, inOutCoverage->c_str());
+        builder->fsCodeAppendf("\tvec4 uniCoverage = %s * %s;\n",
+                               covUniName, inOutCoverage->c_str());
         *inOutCoverage = "uniCoverage";
     } else {
         *inOutCoverage = covUniName;
@@ -531,17 +532,16 @@ void GrGLProgram::genUniformCoverage(GrGLShaderBuilder* builder, SkString* inOut
 }
 
 namespace {
-void gen_attribute_coverage(GrGLShaderBuilder* segments,
+void gen_attribute_coverage(GrGLShaderBuilder* builder,
                             SkString* inOutCoverage) {
-    segments->fVSAttrs.push_back().set(kVec4f_GrSLType,
-                                       GrGLShaderVar::kAttribute_TypeModifier,
-                                       COV_ATTR_NAME);
+    builder->fVSAttrs.push_back().set(kVec4f_GrSLType,
+                                      GrGLShaderVar::kAttribute_TypeModifier,
+                                      COV_ATTR_NAME);
     const char *vsName, *fsName;
-    segments->addVarying(kVec4f_GrSLType, "Coverage", &vsName, &fsName);
-    segments->fVSCode.appendf("\t%s = " COV_ATTR_NAME ";\n", vsName);
+    builder->addVarying(kVec4f_GrSLType, "Coverage", &vsName, &fsName);
+    builder->vsCodeAppendf("\t%s = " COV_ATTR_NAME ";\n", vsName);
     if (inOutCoverage->size()) {
-        segments->fFSCode.appendf("\tvec4 attrCoverage = %s * %s;\n",
-                                  fsName, inOutCoverage->c_str());
+        builder->fsCodeAppendf("\tvec4 attrCoverage = %s * %s;\n", fsName, inOutCoverage->c_str());
         *inOutCoverage = "attrCoverage";
     } else {
         *inOutCoverage = fsName;
@@ -549,27 +549,28 @@ void gen_attribute_coverage(GrGLShaderBuilder* segments,
 }
 }
 
-void GrGLProgram::genGeometryShader(GrGLShaderBuilder* segments) const {
+void GrGLProgram::genGeometryShader(GrGLShaderBuilder* builder) const {
 #if GR_GL_EXPERIMENTAL_GS
+    // TODO: The builder should add all this glue code.
     if (fDesc.fExperimentalGS) {
         GrAssert(fContext.info().glslGeneration() >= k150_GrGLSLGeneration);
-        segments->fGSHeader.append("layout(triangles) in;\n"
+        builder->fGSHeader.append("layout(triangles) in;\n"
                                    "layout(triangle_strip, max_vertices = 6) out;\n");
-        segments->fGSCode.append("\tfor (int i = 0; i < 3; ++i) {\n"
-                                 "\t\tgl_Position = gl_in[i].gl_Position;\n");
+        builder->gsCodeAppend("\tfor (int i = 0; i < 3; ++i) {\n"
+                              "\t\tgl_Position = gl_in[i].gl_Position;\n");
         if (fDesc.fEmitsPointSize) {
-            segments->fGSCode.append("\t\tgl_PointSize = 1.0;\n");
+            builder->gsCodeAppend("\t\tgl_PointSize = 1.0;\n");
         }
-        GrAssert(segments->fGSInputs.count() == segments->fGSOutputs.count());
-        int count = segments->fGSInputs.count();
+        GrAssert(builder->fGSInputs.count() == builder->fGSOutputs.count());
+        int count = builder->fGSInputs.count();
         for (int i = 0; i < count; ++i) {
-            segments->fGSCode.appendf("\t\t%s = %s[i];\n",
-                                      segments->fGSOutputs[i].getName().c_str(),
-                                      segments->fGSInputs[i].getName().c_str());
+            builder->gsCodeAppendf("\t\t%s = %s[i];\n",
+                                   builder->fGSOutputs[i].getName().c_str(),
+                                   builder->fGSInputs[i].getName().c_str());
         }
-        segments->fGSCode.append("\t\tEmitVertex();\n"
-                                 "\t}\n"
-                                 "\tEndPrimitive();\n");
+        builder->gsCodeAppend("\t\tEmitVertex();\n"
+                              "\t}\n"
+                              "\tEndPrimitive();\n");
     }
 #endif
 }
@@ -758,9 +759,9 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
                                                         kMat33f_GrSLType, "ViewM", &viewMName);
 
 
-    builder.fVSCode.appendf("\tvec3 pos3 = %s * vec3(%s, 1);\n"
-                            "\tgl_Position = vec4(pos3.xy, 0, pos3.z);\n",
-                            viewMName, builder.positionAttribute().getName().c_str());
+    builder.vsCodeAppendf("\tvec3 pos3 = %s * vec3(%s, 1);\n"
+                          "\tgl_Position = vec4(pos3.xy, 0, pos3.z);\n",
+                          viewMName, builder.positionAttribute().getName().c_str());
 
     // incoming color to current stage being processed.
     SkString inColor;
@@ -771,7 +772,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
 
     // we output point size in the GS if present
     if (fDesc.fEmitsPointSize && !builder.fUsesGS){
-        builder.fVSCode.append("\tgl_PointSize = 1.0;\n");
+        builder.vsCodeAppend("\tgl_PointSize = 1.0;\n");
     }
 
     // add texture coordinates that are used to the list of vertex attr decls
@@ -793,7 +794,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
                 // create var to hold stage result
                 outColor = "color";
                 outColor.appendS32(s);
-                builder.fFSCode.appendf("\tvec4 %s;\n", outColor.c_str());
+                builder.fsCodeAppendf("\tvec4 %s;\n", outColor.c_str());
 
                 const char* inCoords;
                 // figure out what our input coords are
@@ -840,15 +841,13 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
     bool wroteFragColorZero = false;
     if (SkXfermode::kZero_Coeff == uniformCoeff &&
         SkXfermode::kZero_Coeff == colorCoeff) {
-        builder.fFSCode.appendf("\t%s = %s;\n",
-                                colorOutput.getName().c_str(),
-                                GrGLSLZerosVecf(4));
+        builder.fsCodeAppendf("\t%s = %s;\n", colorOutput.getName().c_str(), GrGLSLZerosVecf(4));
         wroteFragColorZero = true;
     } else if (SkXfermode::kDst_Mode != fDesc.fColorFilterXfermode) {
-        builder.fFSCode.append("\tvec4 filteredColor;\n");
+        builder.fsCodeAppend("\tvec4 filteredColor;\n");
         const char* color = adjustInColor(inColor);
-        add_color_filter(&builder.fFSCode, "filteredColor", uniformCoeff,
-                       colorCoeff, colorFilterColorUniName, color);
+        add_color_filter(&builder, "filteredColor", uniformCoeff,
+                         colorCoeff, colorFilterColorUniName, color);
         inColor = "filteredColor";
     }
 
@@ -887,7 +886,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
                     // create var to hold stage output
                     outCoverage = "coverage";
                     outCoverage.appendS32(s);
-                    builder.fFSCode.appendf("\tvec4 %s;\n", outCoverage.c_str());
+                    builder.fsCodeAppendf("\tvec4 %s;\n", outCoverage.c_str());
 
                     const char* inCoords;
                     // figure out what our input coords are
@@ -902,8 +901,8 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
                     // stages don't know how to deal with a scalar input. (Maybe they should. We
                     // could pass a GrGLShaderVar)
                     if (inCoverageIsScalar) {
-                        builder.fFSCode.appendf("\tvec4 %s4 = vec4(%s);\n",
-                                                inCoverage.c_str(), inCoverage.c_str());
+                        builder.fsCodeAppendf("\tvec4 %s4 = vec4(%s);\n",
+                                              inCoverage.c_str(), inCoverage.c_str());
                         inCoverage.append("4");
                     }
                     builder.setCurrentStage(s);
@@ -939,13 +938,11 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
                 }
             }
             if (outputIsZero) {
-                builder.fFSCode.appendf("\t%s = %s;\n",
-                                        dual_source_output_name(),
-                                        GrGLSLZerosVecf(4));
+                builder.fsCodeAppendf("\t%s = %s;\n", dual_source_output_name(), GrGLSLZerosVecf(4));
             } else {
-                builder.fFSCode.appendf("\t%s =", dual_source_output_name());
-                GrGLSLModulate4f(&builder.fFSCode, coeff.c_str(), inCoverage.c_str());
-                builder.fFSCode.append(";\n");
+                SkString modulate;
+                GrGLSLModulate4f(&modulate, coeff.c_str(), inCoverage.c_str());
+                builder.fsCodeAppendf("\t%s = %s;\n", dual_source_output_name(), modulate.c_str());
             }
             dualSourceOutputWritten = true;
         }
@@ -956,13 +953,11 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
 
     if (!wroteFragColorZero) {
         if (coverageIsZero) {
-            builder.fFSCode.appendf("\t%s = %s;\n",
-                                    colorOutput.getName().c_str(),
-                                    GrGLSLZerosVecf(4));
+            builder.fsCodeAppendf("\t%s = %s;\n", colorOutput.getName().c_str(), GrGLSLZerosVecf(4));
         } else {
-            builder.fFSCode.appendf("\t%s = ", colorOutput.getName().c_str());
-            GrGLSLModulate4f(&builder.fFSCode, inColor.c_str(), inCoverage.c_str());
-            builder.fFSCode.append(";\n");
+            SkString modulate;
+            GrGLSLModulate4f(&modulate, inColor.c_str(), inCoverage.c_str());
+            builder.fsCodeAppendf("\t%s = %s;\n", colorOutput.getName().c_str(), modulate.c_str());
         }
     }
 

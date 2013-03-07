@@ -148,36 +148,36 @@ void GrGLMagnifierEffect::emitCode(GrGLShaderBuilder* builder,
         GrGLShaderBuilder::kVertex_ShaderType,
         kVec2f_GrSLType, "uInset");
 
-    SkString* code = &builder->fFSCode;
+    builder->fsCodeAppendf("\t\tvec2 coord = %s;\n", coords);
+    builder->fsCodeAppendf("\t\tvec2 zoom_coord = %s + %s / %s;\n",
+                           builder->getUniformCStr(fOffsetVar),
+                            coords,
+                           builder->getUniformCStr(fZoomVar));
 
-    code->appendf("\t\tvec2 coord = %s;\n", coords);
-    code->appendf("\t\tvec2 zoom_coord = %s + %s / %s;\n",
-                  builder->getUniformCStr(fOffsetVar),
-                  coords,
-                  builder->getUniformCStr(fZoomVar));
+    builder->fsCodeAppend("\t\tvec2 delta = min(coord, vec2(1.0, 1.0) - coord);\n");
 
-    code->appendf("\t\tvec2 delta = min(coord, vec2(1.0, 1.0) - coord);\n");
+    builder->fsCodeAppendf("\t\tdelta = delta / %s;\n", builder->getUniformCStr(fInsetVar));
 
-    code->appendf("\t\tdelta = delta / %s;\n", builder->getUniformCStr(fInsetVar));
+    builder->fsCodeAppend("\t\tfloat weight = 0.0;\n");
+    builder->fsCodeAppend("\t\tif (delta.s < 2.0 && delta.t < 2.0) {\n");
+    builder->fsCodeAppend("\t\t\tdelta = vec2(2.0, 2.0) - delta;\n");
+    builder->fsCodeAppend("\t\t\tfloat dist = length(delta);\n");
+    builder->fsCodeAppend("\t\t\tdist = max(2.0 - dist, 0.0);\n");
+    builder->fsCodeAppend("\t\t\tweight = min(dist * dist, 1.0);\n");
+    builder->fsCodeAppend("\t\t} else {\n");
+    builder->fsCodeAppend("\t\t\tvec2 delta_squared = delta * delta;\n");
+    builder->fsCodeAppend("\t\t\tweight = min(min(delta_squared.s, delta_squared.y), 1.0);\n");
+    builder->fsCodeAppend("\t\t}\n");
 
-    code->appendf("\t\tfloat weight = 0.0;\n");
-    code->appendf("\t\tif (delta.s < 2.0 && delta.t < 2.0) {\n");
-    code->appendf("\t\t\tdelta = vec2(2.0, 2.0) - delta;\n");
-    code->appendf("\t\t\tfloat dist = length(delta);\n");
-    code->appendf("\t\t\tdist = max(2.0 - dist, 0.0);\n");
-    code->appendf("\t\t\tweight = min(dist * dist, 1.0);\n");
-    code->appendf("\t\t} else {\n");
-    code->appendf("\t\t\tvec2 delta_squared = delta * delta;\n");
-    code->appendf("\t\t\tweight = min(min(delta_squared.s, delta_squared.y), 1.0);\n");
-    code->appendf("\t\t}\n");
+    builder->fsCodeAppend("\t\tvec2 mix_coord = mix(coord, zoom_coord, weight);\n");
+    builder->fsCodeAppend("\t\tvec4 output_color = ");
+    builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType, samplers[0], "mix_coord");
+    builder->fsCodeAppend(";\n");
 
-    code->appendf("\t\tvec2 mix_coord = mix(coord, zoom_coord, weight);\n");
-    code->appendf("\t\tvec4 output_color = ");
-    builder->appendTextureLookup(code, samplers[0], "mix_coord");
-    code->append(";\n");
-
-    code->appendf("\t\t%s = output_color;", outputColor);
-    GrGLSLMulVarBy4f(code, 2, outputColor, inputColor);
+    builder->fsCodeAppendf("\t\t%s = output_color;", outputColor);
+    SkString modulate;
+    GrGLSLMulVarBy4f(&modulate, 2, outputColor, inputColor);
+    builder->fsCodeAppend(modulate.c_str());
 }
 
 void GrGLMagnifierEffect::setData(const GrGLUniformManager& uman,

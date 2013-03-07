@@ -101,6 +101,42 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
     fPositionVar->set(kVec2f_GrSLType, GrGLShaderVar::kAttribute_TypeModifier, "aPosition");
 }
 
+void GrGLShaderBuilder::codeAppendf(ShaderType type, const char format[], va_list args) {
+    SkString* string;
+    switch (type) {
+        case kVertex_ShaderType:
+            string = &fVSCode;
+            break;
+        case kGeometry_ShaderType:
+            string = &fGSCode;
+            break;
+        case kFragment_ShaderType:
+            string = &fFSCode;
+            break;
+        default:
+            GrCrash("Invalid shader type");
+    }
+    string->appendf(format, args);
+}
+
+void GrGLShaderBuilder::codeAppend(ShaderType type, const char* str) {
+    SkString* string;
+    switch (type) {
+        case kVertex_ShaderType:
+            string = &fVSCode;
+            break;
+        case kGeometry_ShaderType:
+            string = &fGSCode;
+            break;
+        case kFragment_ShaderType:
+            string = &fFSCode;
+            break;
+        default:
+            GrCrash("Invalid shader type");
+    }
+    string->append(str);
+}
+
 void GrGLShaderBuilder::appendTextureLookup(SkString* out,
                                             const GrGLShaderBuilder::TextureSampler& sampler,
                                             const char* coordName,
@@ -115,16 +151,24 @@ void GrGLShaderBuilder::appendTextureLookup(SkString* out,
     append_swizzle(out, *sampler.textureAccess(), fCtxInfo.caps());
 }
 
+void GrGLShaderBuilder::appendTextureLookup(ShaderType type,
+                                            const GrGLShaderBuilder::TextureSampler& sampler,
+                                            const char* coordName,
+                                            GrSLType varyingType) {
+    GrAssert(kFragment_ShaderType == type);
+    this->appendTextureLookup(&fFSCode, sampler, coordName, varyingType);
+}
+
 void GrGLShaderBuilder::appendTextureLookupAndModulate(
-                                            SkString* out,
+                                            ShaderType type,
                                             const char* modulation,
                                             const GrGLShaderBuilder::TextureSampler& sampler,
                                             const char* coordName,
-                                            GrSLType varyingType) const {
-    GrAssert(NULL != out);
+                                            GrSLType varyingType) {
+    GrAssert(kFragment_ShaderType == type);
     SkString lookup;
     this->appendTextureLookup(&lookup, sampler, coordName, varyingType);
-    GrGLSLModulate4f(out, modulation, lookup.c_str());
+    GrGLSLModulate4f(&fFSCode, modulation, lookup.c_str());
 }
 
 GrBackendEffectFactory::EffectKey GrGLShaderBuilder::KeyForTextureAccess(
