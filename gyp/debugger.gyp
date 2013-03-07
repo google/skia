@@ -79,15 +79,12 @@
       'include_dirs' : [
         '../src/core',
         '../debugger',      # To pull SkDebugger.h
-        '../debugger/QT',   # For all the QT UI Goodies
         '../src/gpu',       # To pull gl/GrGLUtil.h
         '../src/ports',     # To pull SkFontDescriptor.h
         '../bench',
         '../tools',
-        '<@(qt_includes)',
       ],
       'sources': [
-        '../debugger/debuggermain.cpp',
         '../debugger/SkDebugCanvas.h',
         '../debugger/SkDebugCanvas.cpp',
         '../debugger/SkDebugger.cpp',
@@ -95,34 +92,6 @@
         '../debugger/SkDrawCommand.cpp',
         '../debugger/SkObjectParser.h',
         '../debugger/SkObjectParser.cpp',
-        '../debugger/QT/SkDebuggerGUI.cpp',
-        '../debugger/QT/SkDebuggerGUI.h',
-        '../debugger/QT/SkCanvasWidget.cpp',
-        '../debugger/QT/SkCanvasWidget.h',
-        '../debugger/QT/SkInspectorWidget.h',
-        '../debugger/QT/SkInspectorWidget.cpp',
-        '../debugger/QT/SkListWidget.h',
-        '../debugger/QT/SkListWidget.cpp',
-        '../debugger/QT/SkSettingsWidget.h',
-        '../debugger/QT/SkSettingsWidget.cpp',
-        '../debugger/QT/SkGLWidget.h',
-        '../debugger/QT/SkGLWidget.cpp',
-        '../debugger/QT/SkRasterWidget.h',
-        '../debugger/QT/SkRasterWidget.cpp',
-        '../debugger/QT/SkImageWidget.h',
-        '../debugger/QT/SkImageWidget.cpp',
-
-        # To update this file edit SkIcons.qrc and rerun rcc to generate cpp
-        '../debugger/QT/qrc_SkIcons.cpp',
-
-        # Generated MOC files
-        '<(moc_gen_dir)/moc_SkCanvasWidget.cpp',
-        '<(moc_gen_dir)/moc_SkDebuggerGUI.cpp',
-        '<(moc_gen_dir)/moc_SkInspectorWidget.cpp',
-        '<(moc_gen_dir)/moc_SkSettingsWidget.cpp',
-        '<(moc_gen_dir)/moc_SkRasterWidget.cpp',
-        '<(moc_gen_dir)/moc_SkImageWidget.cpp',
-        '<(moc_gen_dir)/moc_SkGLWidget.cpp',
       ],
       'dependencies': [
         'skia_base_libs.gyp:skia_base_libs',
@@ -130,36 +99,95 @@
         'effects.gyp:effects',
         'bench.gyp:bench_timer',
         'tools.gyp:picture_renderer',
-        'debugger_mocs',
       ],
-      'link_settings': {
-        'libraries': [
-          '<@(qt_libs)',
-        ],
-      },
+      'conditions': [
+        [ 'skia_os == "nacl"', {
+          'dependencies': [
+            'utils.gyp:utils', # For SkBase64.h
+          ],
+          'include_dirs': [
+            '../src/utils',
+          ],
+          'sources': [
+            '../../nacl/src/nacl_debugger.cpp',
+          ],
+        }, { # skia_os != "nacl"
+          'include_dirs': [
+            '../debugger/QT',   # For all the QT UI Goodies
+            '<@(qt_includes)',
+          ],
+          'sources': [
+            '../debugger/debuggermain.cpp',
+            '../debugger/QT/SkDebuggerGUI.cpp',
+            '../debugger/QT/SkDebuggerGUI.h',
+            '../debugger/QT/SkCanvasWidget.cpp',
+            '../debugger/QT/SkCanvasWidget.h',
+            '../debugger/QT/SkInspectorWidget.h',
+            '../debugger/QT/SkInspectorWidget.cpp',
+            '../debugger/QT/SkListWidget.h',
+            '../debugger/QT/SkListWidget.cpp',
+            '../debugger/QT/SkSettingsWidget.h',
+            '../debugger/QT/SkSettingsWidget.cpp',
+            '../debugger/QT/SkGLWidget.h',
+            '../debugger/QT/SkGLWidget.cpp',
+            '../debugger/QT/SkRasterWidget.h',
+            '../debugger/QT/SkRasterWidget.cpp',
+            '../debugger/QT/SkImageWidget.h',
+            '../debugger/QT/SkImageWidget.cpp',
+    
+            # To update this file edit SkIcons.qrc and rerun rcc to generate cpp
+            '../debugger/QT/qrc_SkIcons.cpp',
+    
+            # Generated MOC files
+            '<(moc_gen_dir)/moc_SkCanvasWidget.cpp',
+            '<(moc_gen_dir)/moc_SkDebuggerGUI.cpp',
+            '<(moc_gen_dir)/moc_SkInspectorWidget.cpp',
+            '<(moc_gen_dir)/moc_SkSettingsWidget.cpp',
+            '<(moc_gen_dir)/moc_SkRasterWidget.cpp',
+            '<(moc_gen_dir)/moc_SkImageWidget.cpp',
+            '<(moc_gen_dir)/moc_SkGLWidget.cpp',
+          ],
+          'dependencies': [
+            'debugger_qt_mocs',
+          ],
+          'link_settings': {
+            'libraries': [
+              '<@(qt_libs)',
+            ],
+          },
+        }],
+      ],
     },
-    {
-      'target_name': 'debugger_mocs',
-      'type': 'none',
-      'sources': [
-        '<(moc_src_dir)/SkCanvasWidget.h',
-        '<(moc_src_dir)/SkDebuggerGUI.h',
-        '<(moc_src_dir)/SkInspectorWidget.h',
-        '<(moc_src_dir)/SkSettingsWidget.h',
-        '<(moc_src_dir)/SkRasterWidget.h',
-        '<(moc_src_dir)/SkImageWidget.h',
-        '<(moc_src_dir)/SkGLWidget.h',
-      ],
-      'rules': [
+  ],
+  'conditions': [
+    [ 'skia_os != "nacl"', {
+      'targets': [
         {
-          'rule_name': 'generate_moc',
-          'extension': 'h',
-          'outputs': [ '<(moc_gen_dir)/moc_<(RULE_INPUT_ROOT).cpp' ],
-          'action': [ '<(qt_moc)', '-DSK_SUPPORT_GPU=<(skia_gpu)', '<(RULE_INPUT_PATH)', '-o', '<(moc_gen_dir)/moc_<(RULE_INPUT_ROOT).cpp' ],
-          'message': 'Generating <(RULE_INPUT_ROOT).cpp.',
+          'target_name': 'debugger_qt_mocs',
+          'type': 'none',
+          'sources': [
+            '<(moc_src_dir)/SkCanvasWidget.h',
+            '<(moc_src_dir)/SkDebuggerGUI.h',
+            '<(moc_src_dir)/SkInspectorWidget.h',
+            '<(moc_src_dir)/SkSettingsWidget.h',
+            '<(moc_src_dir)/SkRasterWidget.h',
+            '<(moc_src_dir)/SkImageWidget.h',
+            '<(moc_src_dir)/SkGLWidget.h',
+          ],
+          'rules': [
+            {
+              'rule_name': 'generate_moc',
+              'extension': 'h',
+              'outputs': [ '<(moc_gen_dir)/moc_<(RULE_INPUT_ROOT).cpp' ],
+              'action': [ '<(qt_moc)', '-DSK_SUPPORT_GPU=<(skia_gpu)',
+                          '<(RULE_INPUT_PATH)',
+                          '-o', '<(moc_gen_dir)/moc_<(RULE_INPUT_ROOT).cpp' ],
+              'message': 'Generating <(RULE_INPUT_ROOT).cpp.',
+            },
+          ],
         },
       ],
-    },
+    }],
   ],
 }
 

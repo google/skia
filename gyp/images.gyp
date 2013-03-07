@@ -106,6 +106,7 @@
             ],
             'libraries': [
               '-lpng',
+              '-lz',
             ],
           },
           # end libpng stuff
