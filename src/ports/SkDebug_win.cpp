@@ -19,9 +19,13 @@ static const size_t kBufferSize = 2048;
 void SkDebugf(const char format[], ...) {
     char    buffer[kBufferSize + 1];
     va_list args;
+
+    va_start(args, format);
+    vprintf(format, args);
+    va_end(args);
+
     va_start(args, format);
     vsnprintf(buffer, kBufferSize, format, args);
-    vprintf(format, args);
     va_end(args);
 
     OutputDebugStringA(buffer);
