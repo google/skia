@@ -348,7 +348,7 @@ DrawPosText::DrawPosText(const void* text, size_t byteLength, const SkPoint pos[
     this->fPaint = &paint;
     this->fDrawType = DRAW_POS_TEXT;
 
-    this->fInfo.push(SkObjectParser::TextToString(text, byteLength));
+    this->fInfo.push(SkObjectParser::TextToString(text, byteLength, paint.getTextEncoding()));
     // TODO(chudy): Test that this works.
     this->fInfo.push(SkObjectParser::PointsToString(pos, 1));
     this->fInfo.push(SkObjectParser::PaintToString(paint));
@@ -368,7 +368,7 @@ DrawPosTextH::DrawPosTextH(const void* text, size_t byteLength,
     this->fPaint = &paint;
     this->fDrawType = DRAW_POS_TEXT_H;
 
-    this->fInfo.push(SkObjectParser::TextToString(text, byteLength));
+    this->fInfo.push(SkObjectParser::TextToString(text, byteLength, paint.getTextEncoding()));
     this->fInfo.push(SkObjectParser::ScalarToString(xpos[0], "XPOS: "));
     this->fInfo.push(SkObjectParser::ScalarToString(constY, "SkScalar constY: "));
     this->fInfo.push(SkObjectParser::PaintToString(paint));
@@ -436,7 +436,7 @@ DrawTextC::DrawTextC(const void* text, size_t byteLength, SkScalar x, SkScalar y
     this->fPaint = &paint;
     this->fDrawType = DRAW_TEXT;
 
-    this->fInfo.push(SkObjectParser::TextToString(text, byteLength));
+    this->fInfo.push(SkObjectParser::TextToString(text, byteLength, paint.getTextEncoding()));
     this->fInfo.push(SkObjectParser::ScalarToString(x, "SkScalar x: "));
     this->fInfo.push(SkObjectParser::ScalarToString(y, "SkScalar y: "));
     this->fInfo.push(SkObjectParser::PaintToString(paint));
@@ -455,7 +455,7 @@ DrawTextOnPath::DrawTextOnPath(const void* text, size_t byteLength,
     this->fPaint = &paint;
     this->fDrawType = DRAW_TEXT_ON_PATH;
 
-    this->fInfo.push(SkObjectParser::TextToString(text, byteLength));
+    this->fInfo.push(SkObjectParser::TextToString(text, byteLength, paint.getTextEncoding()));
     this->fInfo.push(SkObjectParser::PathToString(path));
     if (matrix) this->fInfo.push(SkObjectParser::MatrixToString(*matrix));
     this->fInfo.push(SkObjectParser::PaintToString(paint));

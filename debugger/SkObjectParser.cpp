@@ -14,6 +14,7 @@
 #include "SkStream.h"
 #include "SkStringUtils.h"
 #include "SkTypeface.h"
+#include "SkUtils.h"
 
 /* TODO(chudy): Replace all std::strings with char */
 
@@ -318,9 +319,49 @@ SkString* SkObjectParser::ScalarToString(SkScalar x, const char* text) {
     return mScalar;
 }
 
-SkString* SkObjectParser::TextToString(const void* text, size_t byteLength) {
-    SkString* mText = new SkString(6+byteLength+1);
-    mText->append("Text: ");
-    mText->append((char*) text, byteLength);
-    return mText;
+SkString* SkObjectParser::TextToString(const void* text, size_t byteLength,
+                                       SkPaint::TextEncoding encoding) {
+
+    SkString* decodedText = new SkString();
+    switch (encoding) {
+        case SkPaint::kUTF8_TextEncoding: {
+            decodedText->append("UTF-8: ");
+            decodedText->append((const char*)text, byteLength);
+            break;
+        }
+        case SkPaint::kUTF16_TextEncoding: {
+            decodedText->append("UTF-16: ");
+            size_t sizeNeeded = SkUTF16_ToUTF8((uint16_t*)text, byteLength / 2, NULL);
+            char* utf8 = new char[sizeNeeded];
+            SkUTF16_ToUTF8((uint16_t*)text, byteLength / 2, utf8);
+            decodedText->append(utf8, sizeNeeded);
+            delete utf8;
+            break;
+        }
+        case SkPaint::kUTF32_TextEncoding: {
+            decodedText->append("UTF-32: ");
+            const SkUnichar* begin = (const SkUnichar*)text;
+            const SkUnichar* end = (const SkUnichar*)((const char*)text + byteLength);
+            for (const SkUnichar* unichar = begin; unichar < end; ++unichar) {
+                decodedText->appendUnichar(*unichar);
+            }
+            break;
+        }
+        case SkPaint::kGlyphID_TextEncoding: {
+            decodedText->append("GlyphID: ");
+            const uint16_t* begin = (const uint16_t*)text;
+            const uint16_t* end = (const uint16_t*)((const char*)text + byteLength);
+            for (const uint16_t* glyph = begin; glyph < end; ++glyph) {
+                decodedText->append("0x");
+                decodedText->appendHex(*glyph);
+                decodedText->append(" ");
+            }
+            break;
+        }
+        default:
+            decodedText->append("Unknown text encoding.");
+            break;
+    }
+
+    return decodedText;
 }

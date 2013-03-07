@@ -121,7 +121,8 @@ public:
         Returns a string representation of the char pointer passed in.
         @param text  const void* that will be cast to a char*
      */
-    static SkString* TextToString(const void* text, size_t byteLength);
+    static SkString* TextToString(const void* text, size_t byteLength,
+                                  SkPaint::TextEncoding encoding);
 };
 
 #endif
