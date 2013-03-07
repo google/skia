@@ -20,6 +20,7 @@
 #include "GrGLProgram.h"
 #include "GrGLStencilBuffer.h"
 #include "GrGLTexture.h"
+#include "GrGLVertexArray.h"
 #include "GrGLVertexBuffer.h"
 #include "../GrTHashCache.h"
 
@@ -54,11 +55,29 @@ public:
 
     const GrGLCaps& glCaps() const { return fGLContext.info().caps(); }
 
-    // Callbacks to update state tracking when related GL objects are bound or deleted
-    void notifyVertexBufferBind(GrGLuint id);
-    void notifyVertexBufferDelete(GrGLuint id);
-    void notifyIndexBufferBind(GrGLuint id);
-    void notifyIndexBufferDelete(GrGLuint id);
+    // These functions should be used to bind GL objects. They track the GL state and skip redundant
+    // bindings. Making the equivalent glBind calls directly will confuse the state tracking. 
+    void bindVertexArray(GrGLuint id) {
+        fHWGeometryState.setVertexArrayID(this, id);
+    }
+    void bindIndexBufferAndDefaultVertexArray(GrGLuint id) {
+        fHWGeometryState.setIndexBufferIDOnDefaultVertexArray(this, id);
+    }
+    void bindVertexBuffer(GrGLuint id) {
+        fHWGeometryState.setVertexBufferID(this, id);
+    }
+
+    // These callbacks update state tracking when GL objects are deleted. They are called from
+    // GrGLResource onRelease functions.
+    void notifyVertexArrayDelete(GrGLuint id) {
+        fHWGeometryState.notifyVertexArrayDelete(id);
+    }
+    void notifyVertexBufferDelete(GrGLuint id) {
+        fHWGeometryState.notifyVertexBufferDelete(id);
+    }
+    void notifyIndexBufferDelete(GrGLuint id) {
+        fHWGeometryState.notifyIndexBufferDelete(id);
+    }
     void notifyTextureDelete(GrGLTexture* texture);
     void notifyRenderTargetDelete(GrRenderTarget* renderTarget);
 
@@ -121,12 +140,6 @@ private:
     // an into the index buffer. It does not account for drawInfo.startIndex() but rather the start
     // index is relative to the returned offset.
     void setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes);
-    // binds appropriate vertex and index buffers. It also returns offsets for the vertex and index
-    // buffers. These offsets account for placement within a pool buffer or CPU-side addresses for
-    // use with buffer 0. They do not account for start values in the DrawInfo (which is not passed
-    // here). The vertex buffer that contains the vertex data is returned. It is not necessarily
-    // bound.
-    GrGLVertexBuffer* setBuffers(bool indexed, size_t* vertexOffsetInBytes, size_t* indexOffsetInBytes);
 
     // Subclasses should call this to flush the blend state.
     // The params should be the final coefficients to apply
@@ -268,134 +281,104 @@ private:
      */
     class HWGeometryState {
     public:
-        HWGeometryState() { fAttribArrayCount = 0; this->invalidate();}
+        HWGeometryState() { fVBOVertexArray = NULL; this->invalidate(); }
+        
+        ~HWGeometryState() { SkSafeUnref(fVBOVertexArray); }
 
-        void setMaxAttribArrays(int max) {
-            fAttribArrayCount = max;
-            fAttribArrays.reset(max);
-            for (int i = 0; i < fAttribArrayCount; ++i) {
-                fAttribArrays[i].invalidate();
+        void invalidate() {
+            fBoundVertexArrayIDIsValid = false;
+            fBoundVertexBufferIDIsValid = false;
+            fDefaultVertexArrayBoundIndexBufferID = false;
+            fDefaultVertexArrayBoundIndexBufferIDIsValid = false;
+            fDefaultVertexArrayAttribState.invalidate();
+        }
+
+        void notifyVertexArrayDelete(GrGLuint id) {
+            if (fBoundVertexArrayIDIsValid && fBoundVertexArrayID == id) {
+                // Does implicit bind to 0
+                fBoundVertexArrayID = 0;
             }
         }
 
-        void invalidate() {
-            fBoundVertexBufferIDIsValid = false;
-            fBoundIndexBufferIDIsValid = false;
-            for (int i = 0; i < fAttribArrayCount; ++i) {
-                fAttribArrays[i].invalidate();
+        void setVertexArrayID(GrGpuGL* gpu, GrGLuint arrayID) {
+            if (!gpu->glCaps().vertexArrayObjectSupport()) {
+                GrAssert(0 == arrayID);
+                return;
+            }
+            if (!fBoundVertexArrayIDIsValid || arrayID != fBoundVertexArrayID) {
+                GR_GL_CALL(gpu->glInterface(), BindVertexArray(arrayID));
+                fBoundVertexArrayIDIsValid = true;
+                fBoundVertexArrayID = arrayID;
             }
         }
 
         void notifyVertexBufferDelete(GrGLuint id) {
-            if (0 != id) {
-                if (this->isVertexBufferIDBound(id)) {
-                    // deleting bound buffer does implied bind to 0
-                    this->setVertexBufferID(0);
-                }
-                for (int i = 0; i < fAttribArrayCount; ++i) {
-                    if (fAttribArrays[i].isVertexBufferIDBound(id)) {
-                        fAttribArrays[i].invalidate();
-                    }
-                }
+            if (fBoundVertexBufferIDIsValid && id == fBoundVertexBufferID) {
+                fBoundVertexBufferID = 0;
             }
+            if (NULL != fVBOVertexArray) {
+                fVBOVertexArray->notifyVertexBufferDelete(id);
+            }
+            fDefaultVertexArrayAttribState.notifyVertexBufferDelete(id);
         }
 
         void notifyIndexBufferDelete(GrGLuint id) {
-            if (0 != id) {
-                if (this->isIndexBufferIDBound(id)) {
-                    // deleting bound buffer does implied bind to 0
-                    this->setIndexBufferID(0);
-                }
+            if (fDefaultVertexArrayBoundIndexBufferIDIsValid &&
+                id == fDefaultVertexArrayBoundIndexBufferID) {
+                fDefaultVertexArrayBoundIndexBufferID = 0;
+            }
+            if (NULL != fVBOVertexArray) {
+                fVBOVertexArray->notifyIndexBufferDelete(id);
             }
         }
 
-        void setVertexBufferID(GrGLuint id) {
-            fBoundVertexBufferIDIsValid = true;
-            fBoundVertexBufferID = id;
-        }
-
-        void setIndexBufferID(GrGLuint id) {
-            fBoundIndexBufferIDIsValid = true;
-            fBoundIndexBufferID = id;
-        }
-
-        bool isVertexBufferIDBound(GrGLuint id) const {
-            return fBoundVertexBufferIDIsValid && id == fBoundVertexBufferID;
-        }
-
-        bool isIndexBufferIDBound(GrGLuint id) const {
-            return fBoundIndexBufferIDIsValid && id == fBoundIndexBufferID;
-        }
-
-        void setAttribArray(const GrGpuGL* gpu,
-                            int index,
-                            GrGLVertexBuffer* vertexBuffer,
-                            GrGLint size,
-                            GrGLenum type,
-                            GrGLboolean normalized,
-                            GrGLsizei stride,
-                            GrGLvoid* offset) {
-            GrAssert(index >= 0 && index < fAttribArrayCount);
-            AttribArray* attrib = fAttribArrays.get() + index;
-            attrib->set(gpu, this, index, vertexBuffer, size, type, normalized, stride, offset);
-        }
-
-        void disableUnusedAttribArrays(const GrGpuGL* gpu,
-                                       uint32_t usedAttribIndexMask) {
-            for (int i = 0; i < fAttribArrayCount; ++i) {
-                if (!(usedAttribIndexMask & (1 << i))) {
-                    fAttribArrays[i].disable(gpu, i);
-                }
+        void setVertexBufferID(GrGpuGL* gpu, GrGLuint id) {
+            if (!fBoundVertexBufferIDIsValid || id != fBoundVertexBufferID) {
+                GR_GL_CALL(gpu->glInterface(), BindBuffer(GR_GL_ARRAY_BUFFER, id));
+                fBoundVertexBufferIDIsValid = true;
+                fBoundVertexBufferID = id;
             }
         }
+
+        /**
+         * Binds the default vertex array and binds the index buffer. This is used when binding
+         * an index buffer in order to update it.
+         */
+        void setIndexBufferIDOnDefaultVertexArray(GrGpuGL* gpu, GrGLuint id) {
+            this->setVertexArrayID(gpu, 0);
+            if (!fDefaultVertexArrayBoundIndexBufferIDIsValid ||
+                id != fDefaultVertexArrayBoundIndexBufferID) {
+                GR_GL_CALL(gpu->glInterface(), BindBuffer(GR_GL_ELEMENT_ARRAY_BUFFER, id));
+                fDefaultVertexArrayBoundIndexBufferIDIsValid = true;
+                fDefaultVertexArrayBoundIndexBufferID = id;
+            }
+        }
+
+        /**
+         * Binds the vertex array object that should be used to render from the vertex buffer.
+         * The vertex array is bound and its attrib array state object is returned. The vertex
+         * buffer is bound. The index buffer (if non-NULL) is bound to the vertex array. The
+         * returned GrGLAttribArrayState should be used to set vertex attribute arrays. 
+         */
+        GrGLAttribArrayState* bindArrayAndBuffersToDraw(GrGpuGL* gpu,
+                                                        const GrGLVertexBuffer* vbuffer,
+                                                        const GrGLIndexBuffer* ibuffer);
 
     private:
+        GrGLuint                fBoundVertexArrayID;
         GrGLuint                fBoundVertexBufferID;
-        GrGLuint                fBoundIndexBufferID;
+        bool                    fBoundVertexArrayIDIsValid;
         bool                    fBoundVertexBufferIDIsValid;
-        bool                    fBoundIndexBufferIDIsValid;
 
-        struct AttribArray {
-        public:
-            void set(const GrGpuGL* gpu,
-                     HWGeometryState* geoState,
-                     int index,
-                     GrGLVertexBuffer* vertexBuffer,
-                     GrGLint size,
-                     GrGLenum type,
-                     GrGLboolean normalized,
-                     GrGLsizei stride,
-                     GrGLvoid* offset);
+        GrGLuint                fDefaultVertexArrayBoundIndexBufferID;
+        bool                    fDefaultVertexArrayBoundIndexBufferIDIsValid;
+        // We return a non-const pointer to this from bindArrayAndBuffersToDraw when vertex array 0
+        // is bound. However, this class is internal to GrGpuGL and this object never leaks out of
+        // GrGpuGL.
+        GrGLAttribArrayState    fDefaultVertexArrayAttribState;
 
-            void disable(const GrGpuGL* gpu, int index) {
-                if (!fEnableIsValid || fEnabled) {
-                    GR_GL_CALL(gpu->glInterface(), DisableVertexAttribArray(index));
-                    fEnableIsValid = true;
-                    fEnabled = false;
-                }
-            }
-
-            void invalidate() {
-                fEnableIsValid = false;
-                fAttribPointerIsValid = false;
-            }
-
-            bool isVertexBufferIDBound(GrGLuint id) const {
-                return fAttribPointerIsValid && id == fVertexBufferID;
-            }
-        private:
-            bool        fEnableIsValid;
-            bool        fAttribPointerIsValid;
-            bool        fEnabled;
-            GrGLuint    fVertexBufferID;
-            GrGLint     fSize;
-            GrGLenum    fType;
-            GrGLboolean fNormalized;
-            GrGLsizei   fStride;
-            GrGLvoid*   fOffset;
-        };
-        SkAutoTArray<AttribArray> fAttribArrays;
-        int                       fAttribArrayCount;
+        // This is used when we're using a core profile and the vertices are in a VBO.
+        GrGLVertexArray*        fVBOVertexArray;
     } fHWGeometryState;
 
     struct {

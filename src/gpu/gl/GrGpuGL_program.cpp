@@ -217,9 +217,56 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
 
     GrGLsizei stride = this->getDrawState().getVertexSize();
 
-    size_t vertexOffset;
-    GrGLVertexBuffer* vb= this->setBuffers(info.isIndexed(), &vertexOffset, indexOffsetInBytes);
-    vertexOffset += stride * info.startVertex();
+    size_t vertexOffsetInBytes = stride * info.startVertex();
+
+    const GeometryPoolState& geoPoolState = this->getGeomPoolState();
+
+    GrGLVertexBuffer* vbuf;
+    switch (this->getGeomSrc().fVertexSrc) {
+        case kBuffer_GeometrySrcType:
+            vbuf = (GrGLVertexBuffer*) this->getGeomSrc().fVertexBuffer;
+            break;
+        case kArray_GeometrySrcType:
+        case kReserved_GeometrySrcType:
+            this->finalizeReservedVertices();
+            vertexOffsetInBytes += geoPoolState.fPoolStartVertex * this->getGeomSrc().fVertexSize;
+            vbuf = (GrGLVertexBuffer*) geoPoolState.fPoolVertexBuffer;
+            break;
+        default:
+            vbuf = NULL; // suppress warning
+            GrCrash("Unknown geometry src type!");
+    }
+
+    GrAssert(NULL != vbuf);
+    GrAssert(!vbuf->isLocked());
+    vertexOffsetInBytes += vbuf->baseOffset();
+
+    GrGLIndexBuffer* ibuf = NULL;
+    if (info.isIndexed()) {
+        GrAssert(NULL != indexOffsetInBytes);
+
+        switch (this->getGeomSrc().fIndexSrc) {
+        case kBuffer_GeometrySrcType:
+            *indexOffsetInBytes = 0;
+            ibuf = (GrGLIndexBuffer*)this->getGeomSrc().fIndexBuffer;
+            break;
+        case kArray_GeometrySrcType:
+        case kReserved_GeometrySrcType:
+            this->finalizeReservedIndices();
+            *indexOffsetInBytes = geoPoolState.fPoolStartIndex * sizeof(GrGLushort);
+            ibuf = (GrGLIndexBuffer*) geoPoolState.fPoolIndexBuffer;
+            break;
+        default:
+            ibuf = NULL; // suppress warning
+            GrCrash("Unknown geometry src type!");
+        }
+
+        GrAssert(NULL != ibuf);
+        GrAssert(!ibuf->isLocked());
+        *indexOffsetInBytes += ibuf->baseOffset();
+    }
+    GrGLAttribArrayState* attribState =
+        fHWGeometryState.bindArrayAndBuffersToDraw(this, vbuf, ibuf);
 
     uint32_t usedAttribArraysMask = 0;
     const GrVertexAttrib* vertexAttrib = this->getDrawState().getVertexAttribs();
@@ -229,16 +276,16 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
 
         usedAttribArraysMask |= (1 << vertexAttribIndex);
         GrVertexAttribType attribType = vertexAttrib->fType;
-        fHWGeometryState.setAttribArray(this,
-                                        vertexAttribIndex,
-                                        vb,
-                                        GrGLProgram::kAttribLayouts[attribType].fCount,
-                                        GrGLProgram::kAttribLayouts[attribType].fType,
-                                        GrGLProgram::kAttribLayouts[attribType].fNormalized,
-                                        stride,
-                                        reinterpret_cast<GrGLvoid*>(
-                                         vertexOffset + vertexAttrib->fOffset));
-     }
+        attribState->set(this,
+                         vertexAttribIndex,
+                         vbuf,
+                         GrGLProgram::kAttribLayouts[attribType].fCount,
+                         GrGLProgram::kAttribLayouts[attribType].fType,
+                         GrGLProgram::kAttribLayouts[attribType].fNormalized,
+                         stride,
+                         reinterpret_cast<GrGLvoid*>(
+                         vertexOffsetInBytes + vertexAttrib->fOffset));
+    }
 
-    fHWGeometryState.disableUnusedAttribArrays(this, usedAttribArraysMask);
+    attribState->disableUnusedAttribArrays(this, usedAttribArraysMask);
 }

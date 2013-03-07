@@ -175,6 +175,8 @@
       '<(skia_src_path)/gpu/gl/GrGLUniformManager.cpp',
       '<(skia_src_path)/gpu/gl/GrGLUniformManager.h',
       '<(skia_src_path)/gpu/gl/GrGLUniformHandle.h',
+      '<(skia_src_path)/gpu/gl/GrGLVertexArray.cpp',
+      '<(skia_src_path)/gpu/gl/GrGLVertexArray.h',
       '<(skia_src_path)/gpu/gl/GrGLVertexBuffer.cpp',
       '<(skia_src_path)/gpu/gl/GrGLVertexBuffer.h',
       '<(skia_src_path)/gpu/gl/GrGpuGL.cpp',

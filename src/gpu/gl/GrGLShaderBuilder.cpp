@@ -308,7 +308,9 @@ const char* GrGLShaderBuilder::fragmentPosition() {
 #if 1
     if (fCtxInfo.caps().fragCoordConventionsSupport()) {
         if (!fSetupFragPosition) {
-            fFSHeader.append("#extension GL_ARB_fragment_coord_conventions: require\n");
+            if (fCtxInfo.glslGeneration() < k150_GrGLSLGeneration) {
+                fFSHeader.append("#extension GL_ARB_fragment_coord_conventions: require\n");
+            }
             fFSInputs.push_back().set(kVec4f_GrSLType,
                                       GrGLShaderVar::kIn_TypeModifier,
                                       "gl_FragCoord",

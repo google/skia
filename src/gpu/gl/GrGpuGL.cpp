@@ -180,8 +180,6 @@ GrGpuGL::GrGpuGL(const GrGLContext& ctx, GrContext* context)
 
     fProgramCache = SkNEW_ARGS(ProgramCache, (this->glContext()));
 
-    fHWGeometryState.setMaxAttribArrays(this->glCaps().maxVertexAttributes());
-
     GrAssert(this->glCaps().maxVertexAttributes() >= GrDrawState::kVertexAttribCnt);
     GrAssert(this->glCaps().maxVertexAttributes() > GrDrawState::kColorOverrideAttribIndexValue);
     GrAssert(this->glCaps().maxVertexAttributes() > GrDrawState::kCoverageOverrideAttribIndexValue);
@@ -423,6 +421,8 @@ void GrGpuGL::onResetContext() {
             GL_CALL(Disable(GR_GL_INDEX_LOGIC_OP));
         }
         if (this->glCaps().imagingSupport()) {
+            // This produces a GL error on the windows NVIDIA driver when using a core profile but
+            // I think that is a driver bug since GL_ARB_imaging is in the extension string.
             GL_CALL(Disable(GR_GL_COLOR_TABLE));
         }
         GL_CALL(Disable(GR_GL_POLYGON_OFFSET_FILL));
@@ -1246,8 +1246,7 @@ GrVertexBuffer* GrGpuGL::onCreateVertexBuffer(uint32_t size, bool dynamic) {
     } else {
         GL_CALL(GenBuffers(1, &desc.fID));
         if (desc.fID) {
-            GL_CALL(BindBuffer(GR_GL_ARRAY_BUFFER, desc.fID));
-            fHWGeometryState.setVertexBufferID(desc.fID);
+            fHWGeometryState.setVertexBufferID(this, desc.fID);
             CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
             // make sure driver can allocate memory for this buffer
             GL_ALLOC_CALL(this->glInterface(),
@@ -1257,8 +1256,7 @@ GrVertexBuffer* GrGpuGL::onCreateVertexBuffer(uint32_t size, bool dynamic) {
                                      desc.fDynamic ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW));
             if (CHECK_ALLOC_ERROR(this->glInterface()) != GR_GL_NO_ERROR) {
                 GL_CALL(DeleteBuffers(1, &desc.fID));
-                // deleting bound buffer does implicit bind to 0
-                fHWGeometryState.setVertexBufferID(0);
+                this->notifyVertexBufferDelete(desc.fID);
                 return NULL;
             }
             GrGLVertexBuffer* vertexBuffer = SkNEW_ARGS(GrGLVertexBuffer, (this, desc));
@@ -1281,8 +1279,7 @@ GrIndexBuffer* GrGpuGL::onCreateIndexBuffer(uint32_t size, bool dynamic) {
     } else {
         GL_CALL(GenBuffers(1, &desc.fID));
         if (desc.fID) {
-            GL_CALL(BindBuffer(GR_GL_ELEMENT_ARRAY_BUFFER, desc.fID));
-            fHWGeometryState.setIndexBufferID(desc.fID);
+            fHWGeometryState.setIndexBufferIDOnDefaultVertexArray(this, desc.fID);
             CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
             // make sure driver can allocate memory for this buffer
             GL_ALLOC_CALL(this->glInterface(),
@@ -1292,8 +1289,7 @@ GrIndexBuffer* GrGpuGL::onCreateIndexBuffer(uint32_t size, bool dynamic) {
                                      desc.fDynamic ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW));
             if (CHECK_ALLOC_ERROR(this->glInterface()) != GR_GL_NO_ERROR) {
                 GL_CALL(DeleteBuffers(1, &desc.fID));
-                // deleting bound buffer does implicit bind to 0
-                fHWGeometryState.setIndexBufferID(0);
+                this->notifyIndexBufferDelete(desc.fID);
                 return NULL;
             }
             GrIndexBuffer* indexBuffer = SkNEW_ARGS(GrGLIndexBuffer, (this, desc));
@@ -2165,22 +2161,6 @@ void GrGpuGL::flushMiscFixedFunctionState() {
     }
 }
 
-void GrGpuGL::notifyVertexBufferBind(GrGLuint id) {
-    fHWGeometryState.setVertexBufferID(id);
-}
-
-void GrGpuGL::notifyVertexBufferDelete(GrGLuint id) {
-    fHWGeometryState.notifyVertexBufferDelete(id);
-}
-
-void GrGpuGL::notifyIndexBufferBind(GrGLuint id) {
-    fHWGeometryState.setIndexBufferID(id);
-}
-
-void GrGpuGL::notifyIndexBufferDelete(GrGLuint id) {
-    fHWGeometryState.notifyIndexBufferDelete(id);
-}
-
 void GrGpuGL::notifyRenderTargetDelete(GrRenderTarget* renderTarget) {
     GrAssert(NULL != renderTarget);
     if (fHWBoundRenderTarget == renderTarget) {
@@ -2323,105 +2303,35 @@ void GrGpuGL::setSpareTextureUnit() {
     }
 }
 
-GrGLVertexBuffer* GrGpuGL::setBuffers(bool indexed,
-                                      size_t* vertexOffsetInBytes,
-                                      size_t* indexOffsetInBytes) {
-
-    GrAssert(NULL != vertexOffsetInBytes);
-
-    const GeometryPoolState& geoPoolState = this->getGeomPoolState();
-
-    GrGLVertexBuffer* vbuf;
-    switch (this->getGeomSrc().fVertexSrc) {
-        case kBuffer_GeometrySrcType:
-            *vertexOffsetInBytes = 0;
-            vbuf = (GrGLVertexBuffer*) this->getGeomSrc().fVertexBuffer;
-            break;
-        case kArray_GeometrySrcType:
-        case kReserved_GeometrySrcType:
-            this->finalizeReservedVertices();
-            *vertexOffsetInBytes = geoPoolState.fPoolStartVertex * this->getGeomSrc().fVertexSize;
-            vbuf = (GrGLVertexBuffer*) geoPoolState.fPoolVertexBuffer;
-            break;
-        default:
-            vbuf = NULL; // suppress warning
-            GrCrash("Unknown geometry src type!");
-    }
-
-    GrAssert(NULL != vbuf);
-    GrAssert(!vbuf->isLocked());
-    *vertexOffsetInBytes += vbuf->baseOffset();
-
-    if (indexed) {
-        GrAssert(NULL != indexOffsetInBytes);
-
-        GrGLIndexBuffer* ibuf;
-        switch (this->getGeomSrc().fIndexSrc) {
-        case kBuffer_GeometrySrcType:
-            *indexOffsetInBytes = 0;
-            ibuf = (GrGLIndexBuffer*)this->getGeomSrc().fIndexBuffer;
-            break;
-        case kArray_GeometrySrcType:
-        case kReserved_GeometrySrcType:
-            this->finalizeReservedIndices();
-            *indexOffsetInBytes = geoPoolState.fPoolStartIndex * sizeof(GrGLushort);
-            ibuf = (GrGLIndexBuffer*) geoPoolState.fPoolIndexBuffer;
-            break;
-        default:
-            ibuf = NULL; // suppress warning
-            GrCrash("Unknown geometry src type!");
-        }
-
-        GrAssert(NULL != ibuf);
-        GrAssert(!ibuf->isLocked());
-        *indexOffsetInBytes += ibuf->baseOffset();
-        if (!fHWGeometryState.isIndexBufferIDBound(ibuf->bufferID())) {
-            ibuf->bind();
-            fHWGeometryState.setIndexBufferID(ibuf->bufferID());
-        }
-    }
-    return vbuf;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGpuGL::HWGeometryState::AttribArray::set(const GrGpuGL* gpu,
-                                                HWGeometryState* geoState,
-                                                int index,
-                                                GrGLVertexBuffer* buffer,
-                                                GrGLint size,
-                                                GrGLenum type,
-                                                GrGLboolean normalized,
-                                                GrGLsizei stride,
-                                                GrGLvoid* offset) {
-    if (!fEnableIsValid || !fEnabled) {
-        GR_GL_CALL(gpu->glInterface(), EnableVertexAttribArray(index));
-        fEnableIsValid = true;
-        fEnabled = true;
-    }
-    if (!fAttribPointerIsValid ||
-        fVertexBufferID != buffer->bufferID() ||
-        fSize != size ||
-        fNormalized != normalized ||
-        fStride != stride ||
-        offset != fOffset) {
-
-        GrGLuint bufferID = buffer->bufferID();
-        if (!geoState->isVertexBufferIDBound(bufferID)) {
-            buffer->bind();
-            geoState->setVertexBufferID(bufferID);
+GrGLAttribArrayState* GrGpuGL::HWGeometryState::bindArrayAndBuffersToDraw(
+                                                GrGpuGL* gpu,
+                                                const GrGLVertexBuffer* vbuffer,
+                                                const GrGLIndexBuffer* ibuffer) {
+    GrAssert(NULL != vbuffer);
+    GrGLAttribArrayState* attribState = &fDefaultVertexArrayAttribState;
+    // We use a vertex array if we're on a core profile and the verts are in a VBO.
+    if (gpu->glCaps().isCoreProfile() && !vbuffer->isCPUBacked()) {
+        if (NULL == fVBOVertexArray || !fVBOVertexArray->isValid()) {
+            SkSafeUnref(fVBOVertexArray);
+            GrGLuint arrayID;
+            GR_GL_CALL(gpu->glInterface(), GenVertexArrays(1, &arrayID));
+            int attrCount = gpu->glCaps().maxVertexAttributes();
+            fVBOVertexArray = SkNEW_ARGS(GrGLVertexArray, (gpu, arrayID, attrCount));
         }
-        GR_GL_CALL(gpu->glInterface(), VertexAttribPointer(index,
-                                                           size,
-                                                           type,
-                                                           normalized,
-                                                           stride,
-                                                           offset));
-        fAttribPointerIsValid = true;
-        fVertexBufferID = bufferID;
-        fSize = size;
-        fNormalized = normalized;
-        fStride = stride;
-        fOffset = offset;
+        attribState = fVBOVertexArray->bindWithIndexBuffer(ibuffer);
+    } else {
+        if (NULL != ibuffer) {
+            this->setIndexBufferIDOnDefaultVertexArray(gpu, ibuffer->bufferID());
+        } else {
+            this->setVertexArrayID(gpu, 0);
+        }
+        int attrCount = gpu->glCaps().maxVertexAttributes();
+        if (fDefaultVertexArrayAttribState.count() != attrCount) {
+            fDefaultVertexArrayAttribState.resize(attrCount);
+        }
+        attribState = &fDefaultVertexArrayAttribState;
     }
+    return attribState;
 }
