@@ -404,7 +404,7 @@ void SkDebuggerGUI::actionProfile() {
         item->setData(Qt::UserRole + 4, 100.0*temp);
     }
 
-    setupOverviewText(picture.typeTimes(), picture.totTime());
+    setupOverviewText(picture.typeTimes(), picture.totTime(), kNumRepeats);
 }
 
 void SkDebuggerGUI::actionCancel() {
@@ -1032,7 +1032,7 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
 
     setupListWidget(commands);
     setupComboBox(commands);
-    setupOverviewText(NULL, 0.0);
+    setupOverviewText(NULL, 0.0, 1);
     fInspectorWidget.setDisabled(false);
     fSettingsWidget.setDisabled(false);
     fMenuEdit.setDisabled(false);
@@ -1070,7 +1070,9 @@ void SkDebuggerGUI::setupListWidget(SkTArray<SkString>* command) {
     }
 }
 
-void SkDebuggerGUI::setupOverviewText(const SkTDArray<double>* typeTimes, double totTime) {
+void SkDebuggerGUI::setupOverviewText(const SkTDArray<double>* typeTimes, 
+                                      double totTime, 
+                                      int numRuns) {
 
     const SkTDArray<SkDrawCommand*>& commands = fDebugger.getDrawCommands();
 
@@ -1101,7 +1103,7 @@ void SkDebuggerGUI::setupOverviewText(const SkTDArray<double>* typeTimes, double
         overview.append(QString::number(counts[i]));
         if (NULL != typeTimes) {
             overview.append(" - ");
-            overview.append(QString::number((*typeTimes)[i], 'f', 1));
+            overview.append(QString::number((*typeTimes)[i]/(float)numRuns, 'f', 1));
             overview.append("ms");
             overview.append(" - ");
             double percent = 100.0*(*typeTimes)[i]/totTime;
@@ -1124,7 +1126,7 @@ void SkDebuggerGUI::setupOverviewText(const SkTDArray<double>* typeTimes, double
 
     if (totTime > 0.0) {
         overview.append("Total Time: ");
-        overview.append(QString::number(totTime, 'f', 2));
+        overview.append(QString::number(totTime/(float)numRuns, 'f', 2));
         overview.append("ms");
 #ifdef SK_DEBUG
         overview.append(" ");
