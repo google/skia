@@ -451,7 +451,7 @@ static inline int Sat(int r, int g, int b) {
 }
 
 static inline void setSaturationComponents(int* Cmin, int* Cmid, int* Cmax, int s) {
-    if(Cmax > Cmin) {
+    if(*Cmax > *Cmin) {
         *Cmid =  (((*Cmid - *Cmin) * s ) / (*Cmax - *Cmin));
         *Cmax = s;
     } else {
