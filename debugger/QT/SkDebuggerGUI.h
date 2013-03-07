@@ -323,7 +323,7 @@ private:
     /**
         Fills in the overview pane with text
      */
-    void setupOverviewText(const SkTDArray<double>* typeTimes, double totTime);
+    void setupOverviewText(const SkTDArray<double>* typeTimes, double totTime, int numRuns);
 
     /**
         Render the supplied picture several times tracking the time consumed

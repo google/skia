@@ -68,6 +68,7 @@ void SkListWidget::paint (QPainter *painter,
     float time = index.data(Qt::UserRole + 4).toFloat();
     QString drawTime;
     drawTime.setNum(time, 'f', 2);
+    drawTime += "%";
 
     /* option.rect is a struct that Qt uses as a target to draw into. Following
      * the format (x1,y1,x2,y2) x1 and y1 represent where the painter can start
