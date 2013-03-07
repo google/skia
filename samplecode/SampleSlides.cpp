@@ -717,7 +717,7 @@ protected:
         gProc[fIndex](canvas);
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
+    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) SK_OVERRIDE {
         this->init();
         fIndex = (fIndex + 1) % SK_ARRAY_COUNT(gProc);
         this->inval(NULL);

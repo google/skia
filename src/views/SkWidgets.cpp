@@ -309,7 +309,7 @@ void SkPushButtonWidget::onDraw(SkCanvas* canvas)
     }
 }
 
-SkView::Click* SkPushButtonWidget::onFindClickHandler(SkScalar x, SkScalar y)
+SkView::Click* SkPushButtonWidget::onFindClickHandler(SkScalar x, SkScalar y, unsigned modi)
 {
     this->acceptFocus();
     return new Click(this);

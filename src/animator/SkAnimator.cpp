@@ -409,9 +409,9 @@ bool SkAnimator::onEvent(const SkEvent& evt) {
 #endif
     if (evt.isType(SK_EventType_OnEnd)) {
         SkEventState eventState;
-        bool success = evt.findPtr("anim", (void**) &eventState.fDisplayable);
+        SkDEBUGCODE(bool success =) evt.findPtr("anim", (void**) &eventState.fDisplayable);
         SkASSERT(success);
-        success = evt.findS32("time", (int32_t*) &fMaker->fEnableTime);
+        SkDEBUGCODE(success =) evt.findS32("time", (int32_t*) &fMaker->fEnableTime);
         SkASSERT(success);
         fMaker->fAdjustedStart = fMaker->getAppTime() - fMaker->fEnableTime;
         fMaker->fEvents.doEvent(*fMaker, SkDisplayEvent::kOnEnd, &eventState);

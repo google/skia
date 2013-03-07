@@ -603,8 +603,6 @@ scalarCommon:
         }
         if (ch ==  '.') {
             if (fTokenLength == 0) {
-                SkDEBUGCODE(SkScriptValue2 scriptValue;)
-                SkDEBUGCODE(scriptValue.fOperand.fObject = NULL);
                 int tokenLength = token_length(++script);
                 const char* token = script;
                 script += tokenLength;
@@ -1273,6 +1271,7 @@ bool SkScriptEngine2::ValueToString(const SkScriptValue2& value, SkString* strin
 }
 
 #ifdef SK_DEBUG
+#if defined(SK_SUPPORT_UNITTEST)
 
 #define testInt(expression) { #expression, SkOperand2::kS32, expression, 0, NULL }
 #ifdef SK_SCALAR_IS_FLOAT
@@ -1475,6 +1474,7 @@ static const SkScriptNAnswer2 scriptTests[]  = {
 };
 
 #define SkScriptNAnswer_testCount    SK_ARRAY_COUNT(scriptTests)
+#endif  // SK_SUPPORT_UNITTEST
 
 void SkScriptEngine2::UnitTest() {
 #if defined(SK_SUPPORT_UNITTEST)
@@ -1506,6 +1506,7 @@ void SkScriptEngine2::UnitTest() {
                 SkASSERT(0);
         }
     }
-#endif
+#endif  // SK_SUPPORT_UNITTEST
 }
-#endif
+#endif  // SK_DEBUG
+

@@ -155,7 +155,6 @@ void SkOSWindow::post_linuxevent() {
     if (NULL == fUnixWindow.fDisplay) {
         return;
     }
-    long event_mask = NoEventMask;
     XClientMessageEvent event;
     event.type = ClientMessage;
     Atom myAtom(0);

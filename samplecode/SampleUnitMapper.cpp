@@ -141,7 +141,7 @@ protected:
         return -1;
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
+    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) SK_OVERRIDE {
         fDragIndex = hittest(x, y);
         return fDragIndex >= 0 ? new Click(this) : NULL;
     }
