@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 #include "gl/SkNativeGLContext.h"
+#include "AvailabilityMacros.h"
 
 SkNativeGLContext::AutoContextRestore::AutoContextRestore() {
     fOldCGLContext = CGLGetCurrentContext();
@@ -35,7 +36,7 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
     SkASSERT(NULL == fContext);
 
     CGLPixelFormatAttribute attributes[] = {
-#if 0
+#if MAC_OS_X_VERSION_10_7
         kCGLPFAOpenGLProfile, (CGLPixelFormatAttribute) kCGLOGLPVersion_3_2_Core,
 #endif
         (CGLPixelFormatAttribute)0

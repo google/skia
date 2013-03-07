@@ -559,7 +559,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLDeleteVertexArrays(GrGLsizei n, const GrGLui
 
 GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindVertexArray(GrGLuint id) {
     GrVertexArrayObj* array = GR_FIND(id, GrVertexArrayObj, GrDebugGL::kVertexArray_ObjTypes);
-    GrAlwaysAssert(array);
+    GrAlwaysAssert((0 == id) || NULL != array);
     GrDebugGL::getInstance()->setVertexArray(array);
 }
 

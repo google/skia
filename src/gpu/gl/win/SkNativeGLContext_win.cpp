@@ -86,7 +86,7 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
         return NULL;
     }
 
-    if (!(fGlRenderContext = SkCreateWGLContext(fDeviceContext, 0, false))) {
+    if (!(fGlRenderContext = SkCreateWGLContext(fDeviceContext, 0, true))) {
         SkDebugf("Could not create rendering context.\n");
         this->destroyGLContext();
         return NULL;

@@ -57,12 +57,11 @@ void GrGLBufferImpl::abandon() {
 
 void GrGLBufferImpl::bind(GrGpuGL* gpu) const {
     VALIDATE();
-    GL_CALL(gpu, BindBuffer(fBufferType, fDesc.fID));
     if (GR_GL_ARRAY_BUFFER == fBufferType) {
-        gpu->notifyVertexBufferBind(fDesc.fID);
+        gpu->bindVertexBuffer(fDesc.fID);
     } else {
         GrAssert(GR_GL_ELEMENT_ARRAY_BUFFER == fBufferType);
-        gpu->notifyIndexBufferBind(fDesc.fID);
+        gpu->bindIndexBufferAndDefaultVertexArray(fDesc.fID);
     }
 }
 
