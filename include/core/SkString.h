@@ -12,6 +12,8 @@
 
 #include "SkScalar.h"
 
+#include <stdarg.h>
+
 /*  Some helper functions for C strings
 */
 
