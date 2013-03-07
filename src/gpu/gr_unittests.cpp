@@ -17,6 +17,7 @@ void gr_run_unittests();
 // If we aren't inheriting these as #defines from elsewhere,
 // clang demands they be declared before we #include the template
 // that relies on them.
+#if GR_DEBUG
 static bool LT(const int& elem, int value) {
     return elem < value;
 }
@@ -39,6 +40,7 @@ static void test_bsearch() {
         }
     }
 }
+#endif
 
 // bogus empty class for GrBinHashKey
 class BogusEntry {};
@@ -72,7 +74,7 @@ static void test_binHashKey()
 
 
 void gr_run_unittests() {
-    test_bsearch();
+    GR_DEBUGCODE(test_bsearch();)
     test_binHashKey();
     GrRedBlackTree<int>::UnitTest();
     GrDrawState::VertexAttributesUnitTest();

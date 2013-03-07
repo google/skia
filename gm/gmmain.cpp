@@ -1165,7 +1165,9 @@ int tool_main(int argc, char** argv) {
     bool doRTree = true;
     bool doTileGrid = true;
     bool doVerbose = false;
+#if SK_SUPPORT_GPU
     bool disableTextureCache = false;
+#endif
     SkTDArray<size_t> configs;
     SkTDArray<size_t> excludeConfigs;
     SkTDArray<SkScalar> tileGridReplayScales;
@@ -1302,7 +1304,9 @@ int tool_main(int argc, char** argv) {
         } else if (strcmp(*argv, "--noserialize") == 0) {
             doSerialize = false;
         } else if (strcmp(*argv, "--notexturecache") == 0) {
+#if SK_SUPPORT_GPU
             disableTextureCache = true;
+#endif
         } else if (strcmp(*argv, "--tiledPipe") == 0) {
             doTiledPipe = true;
         } else if (!strcmp(*argv, "--verbose") || !strcmp(*argv, "-v")) {

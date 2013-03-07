@@ -249,7 +249,6 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
 
 static SkStream* open_stream(const FontConfigTypeface* face, int* ttcIndex) {
     SkStream* stream = face->getLocalStream();
-    int index;
     if (stream) {
         stream->ref();
         // should have been provided by CreateFromStream()

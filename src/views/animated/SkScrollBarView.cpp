@@ -122,12 +122,12 @@ void SkScrollBarView::adjust()
     int total = fTotalLength;
     int start = fStartPoint;
     int shown = fShownLength;
-    int hideBar = 0;
+//    int hideBar = 0;
 
     if (total <= 0 || shown <= 0 || shown >= total)    // no bar to show
     {
         total = 1;        // avoid divide-by-zero. should be done by skin/script
-        hideBar = 1;    // signal we don't want a thumb
+//        hideBar = 1;    // signal we don't want a thumb
     }
     else
     {

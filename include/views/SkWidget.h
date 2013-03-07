@@ -103,7 +103,7 @@ public:
 protected:
     virtual bool onEvent(const SkEvent&);
     virtual void onDraw(SkCanvas*);
-    virtual Click* onFindClickHandler(SkScalar x, SkScalar y);
+    virtual Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) SK_OVERRIDE;
     virtual bool onClick(Click* click);
 
 private:

@@ -102,7 +102,7 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
 }
 
 void GrGLShaderBuilder::codeAppendf(ShaderType type, const char format[], va_list args) {
-    SkString* string;
+    SkString* string = NULL;
     switch (type) {
         case kVertex_ShaderType:
             string = &fVSCode;
@@ -120,7 +120,7 @@ void GrGLShaderBuilder::codeAppendf(ShaderType type, const char format[], va_lis
 }
 
 void GrGLShaderBuilder::codeAppend(ShaderType type, const char* str) {
-    SkString* string;
+    SkString* string = NULL;
     switch (type) {
         case kVertex_ShaderType:
             string = &fVSCode;

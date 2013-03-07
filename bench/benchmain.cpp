@@ -676,10 +676,10 @@ int tool_main(int argc, char** argv) {
             configName = gConfigs[configIndex].fName;
             backend = gConfigs[configIndex].fBackend;
             GrContext* context = NULL;
-            SkGLContextHelper* glContext = NULL;
             BenchTimer* timer = timers[configIndex];
 
 #if SK_SUPPORT_GPU
+            SkGLContextHelper* glContext = NULL;
             if (kGPU_Backend == backend) {
                 context = gContextFactory.get(gConfigs[configIndex].fContextType);
                 if (NULL == context) {
