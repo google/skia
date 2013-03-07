@@ -3,12 +3,16 @@ Created on May 16, 2011
 
 @author: bungeman
 '''
-import sys
-import getopt
-import re
-import os
 import bench_util
+import getopt
+import httplib
+import itertools
 import json
+import os
+import re
+import sys
+import urllib
+import urllib2
 import xml.sax.saxutils
 
 # We throw out any measurement outside this range, and log a warning.
@@ -19,9 +23,23 @@ MAX_REASONABLE_TIME = 99999
 TITLE_PREAMBLE = 'Bench_Performance_for_Skia_'
 TITLE_PREAMBLE_LENGTH = len(TITLE_PREAMBLE)
 
+# Number of data points to send to appengine at once.
+DATA_POINT_BATCHSIZE = 100
+
+def grouper(n, iterable):
+    """Groups list into list of lists for a given size. See itertools doc:
+      http://docs.python.org/2/library/itertools.html#module-itertools
+    """
+    args = [iter(iterable)] * n
+    return [[n for n in t if n] for t in itertools.izip_longest(*args)]
+
+
 def usage():
     """Prints simple usage information."""
-    
+
+    print '-a <url> the url to use for adding bench values to app engine app.'
+    print '   Example: "https://skiadash.appspot.com/add_point".'
+    print '   If not set, will skip this step.'
     print '-b <bench> the bench to show.'
     print '-c <config> the config to show (GPU, 8888, 565, etc).'
     print '-d <dir> a directory containing bench_r<revision>_<scalar> files.'
@@ -191,8 +209,24 @@ def create_lines(revision_data_points, settings
                , time_to_ignore):
     """Convert revision data into a dictionary of line data.
     
-    ({int:[BenchDataPoints]}, {str:str}, str?, str?, str?)
-        -> {Label:[(x,y)] | [n].x <= [n+1].x}"""
+    Args:
+      revision_data_points: a dictionary with integer keys (revision #) and a
+          list of bench data points as values
+      settings: a dictionary of setting names to value
+      bench_of_interest: optional filter parameters: which bench type is of
+          interest. If None, process them all.
+      config_of_interest: optional filter parameters: which config type is of
+          interest. If None, process them all.
+      time_of_interest: optional filter parameters: which timer type is of
+          interest. If None, process them all.
+      time_to_ignore: optional timer type to ignore
+
+    Returns:
+      a dictionary of this form:
+          keys = Label objects
+          values = a list of (x, y) tuples sorted such that x values increase
+              monotonically
+    """
     revisions = revision_data_points.keys()
     revisions.sort()
     lines = {} # {Label:[(x,y)] | x[n] <= x[n+1]}
@@ -286,7 +320,7 @@ def main():
     
     try:
         opts, _ = getopt.getopt(sys.argv[1:]
-                                 , "b:c:d:e:f:i:l:m:o:r:s:t:x:y:"
+                                 , "a:b:c:d:e:f:i:l:m:o:r:s:t:x:y:"
                                  , "default-setting=")
     except getopt.GetoptError, err:
         print str(err) 
@@ -299,6 +333,7 @@ def main():
     time_of_interest = None
     time_to_ignore = None
     bench_expectations = {}
+    appengine_url = None  # used for adding data to appengine datastore
     rep = None  # bench representation algorithm
     revision_range = '0:'
     regression_range = '0:'
@@ -370,9 +405,47 @@ def main():
             raise Exception('Bench values out of range:\n' +
                             '\n'.join(exceptions))
 
+    def write_to_appengine(line_data_dict, url, newest_revision, bot):
+        """Writes latest bench values to appengine datastore.
+          line_data_dict: dictionary from create_lines.
+          url: the appengine url used to send bench values to write
+          newest_revision: the latest revision that this script reads
+          bot: the bot platform the bench is run on
+        """
+        data = []
+        for label in line_data_dict.iterkeys():
+            if not label.bench.endswith('.skp') or label.time_type:
+                # filter out non-picture and non-walltime benches
+                continue
+            config = label.config
+            rev, val = line_data_dict[label][-1]
+            # This assumes that newest_revision is >= the revision of the last
+            # data point we have for each line.
+            if rev != newest_revision:
+                continue
+            data.append({'master': 'Skia', 'bot': bot,
+                         'test': config + '/' + label.bench.replace('.skp', ''),
+                         'revision': rev, 'value': val, 'error': 0})
+        for curr_data in grouper(DATA_POINT_BATCHSIZE, data):
+            req = urllib2.Request(appengine_url,
+                urllib.urlencode({'data': json.dumps(curr_data)}))
+            try:
+              urllib2.urlopen(req)
+            except urllib2.HTTPError, e:
+                sys.stderr.write("HTTPError for JSON data %s: %s\n" % (
+                    data, e))
+            except urllib2.URLError, e:
+                sys.stderr.write("URLError for JSON data %s: %s\n" % (
+                    data, e))
+            except httplib.HTTPException, e:
+                sys.stderr.write("HTTPException for JSON data %s: %s\n" % (
+                    data, e))
+
     try:
         for option, value in opts:
-            if option == "-b":
+            if option == "-a":
+                appengine_url = value
+            elif option == "-b":
                 bench_of_interest = value
             elif option == "-c":
                 config_of_interest = value
@@ -421,10 +494,11 @@ def main():
     # for use in platform_and_alg to track matching benches later. If title flag
     # is not in this format, there may be no matching benches in the file
     # provided by the expectation_file flag (-e).
+    bot = title  # To store the platform as bot name
     platform_and_alg = title
     if platform_and_alg.startswith(TITLE_PREAMBLE):
-        platform_and_alg = (
-            platform_and_alg[TITLE_PREAMBLE_LENGTH:] + '-' + rep)
+        bot = platform_and_alg[TITLE_PREAMBLE_LENGTH:]
+        platform_and_alg = bot + '-' + rep
     title += ' [representation: %s]' % rep
 
     latest_revision = get_latest_revision(directory)
@@ -460,6 +534,9 @@ def main():
 
     output_xhtml(lines, oldest_revision, newest_revision, ignored_revision_data_points,
                  regressions, requested_width, requested_height, title)
+
+    if appengine_url:
+        write_to_appengine(lines, appengine_url, newest_revision, bot)
 
     check_expectations(lines, bench_expectations, newest_revision,
                        platform_and_alg)
