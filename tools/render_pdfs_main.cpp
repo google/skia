@@ -16,6 +16,10 @@
 #include "PdfRenderer.h"
 #include "picture_utils.h"
 
+#ifdef SK_USE_CDB
+#include "win_dbghelp.h"
+#endif
+
 /**
  * render_pdfs
  *
@@ -207,9 +211,8 @@ static void parse_commandline(int argc, char* const argv[],
     }
 }
 
-int tool_main(int argc, char** argv);
-int tool_main(int argc, char** argv) {
-
+int tool_main_core(int argc, char** argv);
+int tool_main_core(int argc, char** argv) {
     SkAutoGraphics ag;
     SkTArray<SkString> inputs;
 
@@ -229,6 +232,24 @@ int tool_main(int argc, char** argv) {
         SkDebugf("Failed to render %i PDFs.\n", failures);
         return 1;
     }
+
+    return 0;
+}
+
+int tool_main(int argc, char** argv);
+int tool_main(int argc, char** argv) {
+#ifdef SK_USE_CDB
+    setUpDebuggingFromArgs(argv[0]);
+    __try {
+#endif
+      return tool_main_core(argc, argv);
+#ifdef SK_USE_CDB
+    }
+    __except(GenerateDumpAndPrintCallstack(GetExceptionInformation()))
+    {
+        return -1;
+    }
+#endif
     return 0;
 }
 

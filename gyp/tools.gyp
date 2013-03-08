@@ -184,6 +184,41 @@
         'ports.gyp:ports',
         'tools.gyp:picture_utils',
       ],
+      'conditions': [
+        ['skia_win_debuggers_path and skia_os == "win"',
+          {
+            'dependencies': [
+              'tools.gyp:win_dbghelp',
+            ],
+          },
+        ],
+        # VS static libraries don't have a linker option. We must set a global
+        # project linker option, or add it to each executable.
+        ['skia_win_debuggers_path and skia_os == "win" and '
+         'skia_arch_width == 64',
+          {
+            'msvs_settings': {
+              'VCLinkerTool': {
+                'AdditionalDependencies': [
+                  '<(skia_win_debuggers_path)/x64/DbgHelp.lib',
+                ],
+              },
+            },
+          },
+        ],
+        ['skia_win_debuggers_path and skia_os == "win" and '
+         'skia_arch_width == 32',
+          {
+            'msvs_settings': {
+              'VCLinkerTool': {
+                'AdditionalDependencies': [
+                  '<(skia_win_debuggers_path)/DbgHelp.lib',
+                ],
+              },
+            },
+          },
+        ],
+      ],
     },
     {
       'target_name': 'picture_utils',
@@ -231,6 +266,17 @@
         'effects.gyp:effects',
         'images.gyp:images',
         'tools.gyp:picture_utils',
+      ],
+    },
+    {
+      'target_name': 'win_dbghelp',
+      'type': 'static_library',
+      'defines': [
+        'SK_CDB_PATH="<(skia_win_debuggers_path)"',
+      ],
+      'sources': [
+        '../tools/win_dbghelp.h',
+        '../tools/win_dbghelp.cpp',
       ],
     },
   ],

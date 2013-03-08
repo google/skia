@@ -92,6 +92,7 @@
       # Note: This is currently only turned on for linux and android.
       # TODO: Turn on for Win and Mac as well.
       'skia_warnings_as_errors%': 0,
+      'skia_win_debuggers_path%': '',
     },
 
     # Re-define all variables defined within the level-2 'variables' dict,
@@ -116,6 +117,7 @@
     'skia_warnings_as_errors%': '<(skia_warnings_as_errors)',
     'skia_static_initializers%': '<(skia_static_initializers)',
     'ios_sdk_version%': '6.0',
+    'skia_win_debuggers_path%': '<(skia_win_debuggers_path)',
 
     # These are referenced by our .gypi files that list files (e.g. core.gypi)
     #
