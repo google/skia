@@ -9,9 +9,7 @@
 #include "SkPaint.h"
 #include "SkRandom.h"
 
-namespace skiagm {
-
-class CubicPathGM : public GM {
+class CubicPathGM : public skiagm::GM {
 public:
     CubicPathGM() {}
 
@@ -20,7 +18,7 @@ protected:
         return SkString("cubicpath");
     }
 
-    SkISize onISize() { return make_isize(1240, 390); }
+    SkISize onISize() { return SkISize::Make(1240, 390); }
 
     void drawPath(SkPath& path,SkCanvas* canvas,SkColor color,
                   const SkRect& clip,SkPaint::Cap cap, SkPaint::Join join,
@@ -151,10 +149,10 @@ protected:
     }
 
 private:
-    typedef GM INHERITED;
+    typedef skiagm::GM INHERITED;
 };
 
-class CubicClosePathGM : public GM {
+class CubicClosePathGM : public skiagm::GM {
 public:
     CubicClosePathGM() {}
 
@@ -163,7 +161,7 @@ protected:
         return SkString("cubicclosepath");
     }
 
-    SkISize onISize() { return make_isize(1240, 390); }
+    SkISize onISize() { return SkISize::Make(1240, 390); }
 
     void drawPath(SkPath& path,SkCanvas* canvas,SkColor color,
                   const SkRect& clip,SkPaint::Cap cap, SkPaint::Join join,
@@ -295,15 +293,11 @@ protected:
     }
 
 private:
-    typedef GM INHERITED;
+    typedef skiagm::GM INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* CubicPathFactory(void*) { return new CubicPathGM; }
-static GMRegistry regCubicPath(CubicPathFactory);
+DEF_GM( return new CubicPathGM; )
+DEF_GM( return new CubicClosePathGM; )
 
-static GM* CubicClosePathFactory(void*) { return new CubicClosePathGM; }
-static GMRegistry regCubicClosePath(CubicClosePathFactory);
-
-}
