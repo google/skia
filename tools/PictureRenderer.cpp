@@ -42,9 +42,6 @@ enum {
 void PictureRenderer::init(SkPicture* pict) {
     SkASSERT(NULL == fPicture);
     SkASSERT(NULL == fCanvas.get());
-    fGridInfo.fMargin.setEmpty();
-    fGridInfo.fOffset.setZero();
-    fGridInfo.fTileInterval.set(1, 1);
     if (fPicture != NULL || NULL != fCanvas.get()) {
         return;
     }
