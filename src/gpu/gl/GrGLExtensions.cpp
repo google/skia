@@ -51,27 +51,20 @@ bool GrGLExtensions::init(GrGLBinding binding,
         if (NULL == extensions) {
             return false;
         }
-        // First count the extensions so that we don't cause the array to malloc multiple times.
-        int extensionCnt = 1;
-        const char* e = (const char*) extensions;
-        while (NULL != (e = strchr(e+1, ' '))) {
-            e += 1;
-            ++extensionCnt;
-        }
-        fStrings.push_back_n(extensionCnt);
-
-        int i = 0;
         while (true) {
-            size_t length = strcspn(extensions, " ");
-            GrAssert(i < extensionCnt);
-            fStrings[i].set(extensions, length);
-            ++i;
-            if ('\0' == extensions[length]) {
+            // skip over multiple spaces between extensions
+            while (' ' == *extensions) {
+                ++extensions;
+            }
+            // quit once we reach the end of the string.
+            if ('\0' == *extensions) {
                 break;
             }
-            extensions += length + 1;
+            // we found an extension
+            size_t length = strcspn(extensions, " ");
+            fStrings.push_back().set(extensions, length);
+            extensions += length;
         }
-        GrAssert(i == extensionCnt);
     }
     SkTSearchCompareLTFunctor<SkString, extension_compare> cmp;
     SkTQSort(&fStrings.front(), &fStrings.back(), cmp);
