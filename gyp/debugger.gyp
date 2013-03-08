@@ -134,10 +134,10 @@
             '../debugger/QT/SkRasterWidget.cpp',
             '../debugger/QT/SkImageWidget.h',
             '../debugger/QT/SkImageWidget.cpp',
-    
+
             # To update this file edit SkIcons.qrc and rerun rcc to generate cpp
             '../debugger/QT/qrc_SkIcons.cpp',
-    
+
             # Generated MOC files
             '<(moc_gen_dir)/moc_SkCanvasWidget.cpp',
             '<(moc_gen_dir)/moc_SkDebuggerGUI.cpp',

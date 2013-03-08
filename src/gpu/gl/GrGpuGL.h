@@ -56,7 +56,7 @@ public:
     const GrGLCaps& glCaps() const { return fGLContext.info().caps(); }
 
     // These functions should be used to bind GL objects. They track the GL state and skip redundant
-    // bindings. Making the equivalent glBind calls directly will confuse the state tracking. 
+    // bindings. Making the equivalent glBind calls directly will confuse the state tracking.
     void bindVertexArray(GrGLuint id) {
         fHWGeometryState.setVertexArrayID(this, id);
     }
@@ -282,7 +282,7 @@ private:
     class HWGeometryState {
     public:
         HWGeometryState() { fVBOVertexArray = NULL; this->invalidate(); }
-        
+
         ~HWGeometryState() { SkSafeUnref(fVBOVertexArray); }
 
         void invalidate() {
@@ -358,7 +358,7 @@ private:
          * Binds the vertex array object that should be used to render from the vertex buffer.
          * The vertex array is bound and its attrib array state object is returned. The vertex
          * buffer is bound. The index buffer (if non-NULL) is bound to the vertex array. The
-         * returned GrGLAttribArrayState should be used to set vertex attribute arrays. 
+         * returned GrGLAttribArrayState should be used to set vertex attribute arrays.
          */
         GrGLAttribArrayState* bindArrayAndBuffersToDraw(GrGpuGL* gpu,
                                                         const GrGLVertexBuffer* vbuffer,

@@ -1509,4 +1509,3 @@ void SkScriptEngine2::UnitTest() {
 #endif  // SK_SUPPORT_UNITTEST
 }
 #endif  // SK_DEBUG
-
