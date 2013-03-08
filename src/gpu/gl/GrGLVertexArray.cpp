@@ -94,7 +94,7 @@ GrGLAttribArrayState* GrGLVertexArray::bind() {
     GPUGL->bindVertexArray(fID);
     return &fAttribArrays;
 }
-    
+
 GrGLAttribArrayState* GrGLVertexArray::bindWithIndexBuffer(const GrGLIndexBuffer* buffer) {
     GrGLAttribArrayState* state = this->bind();
     if (NULL != state && NULL != buffer) {

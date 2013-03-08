@@ -47,7 +47,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
     static SkAutoTUnref<GrGLInterface> glInterface;
     if (!glInterface.get()) {
         GrGLInterface* interface = new GrGLInterface;
-        
+
         GrGLGetStringProc glGetString = (GrGLGetStringProc) GetProcAddress("glGetString");
         GrGLGetStringiProc glGetStringi = (GrGLGetStringiProc) GetProcAddress("glGetStringi");
         GrGLGetIntegervProc glGetIntegerv = (GrGLGetIntegervProc) GetProcAddress("glGetIntegerv");
@@ -61,7 +61,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
             return NULL;
         }
         interface->fBindingsExported = kDesktop_GrGLBinding;
-        
+
         GET_PROC(ActiveTexture);
         GET_PROC(AttachShader);
         GET_PROC(BeginQuery);

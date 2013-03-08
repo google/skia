@@ -1070,8 +1070,8 @@ void SkDebuggerGUI::setupListWidget(SkTArray<SkString>* command) {
     }
 }
 
-void SkDebuggerGUI::setupOverviewText(const SkTDArray<double>* typeTimes, 
-                                      double totTime, 
+void SkDebuggerGUI::setupOverviewText(const SkTDArray<double>* typeTimes,
+                                      double totTime,
                                       int numRuns) {
 
     const SkTDArray<SkDrawCommand*>& commands = fDebugger.getDrawCommands();
