@@ -185,7 +185,7 @@
         'tools.gyp:picture_utils',
       ],
       'conditions': [
-        ['skia_win_debuggers_path and skia_os == "win"',
+        ['skia_os == "disable" and skia_win_debuggers_path and skia_os == "win"',
           {
             'dependencies': [
               'tools.gyp:win_dbghelp',
@@ -195,7 +195,7 @@
         # VS static libraries don't have a linker option. We must set a global
         # project linker option, or add it to each executable.
         ['skia_win_debuggers_path and skia_os == "win" and '
-         'skia_arch_width == 64',
+         'skia_arch_width == 64 and skia_os == "disable"',
           {
             'msvs_settings': {
               'VCLinkerTool': {
@@ -207,7 +207,7 @@
           },
         ],
         ['skia_win_debuggers_path and skia_os == "win" and '
-         'skia_arch_width == 32',
+         'skia_arch_width == 32 and skia_os == "disable"',
           {
             'msvs_settings': {
               'VCLinkerTool': {
@@ -270,7 +270,7 @@
     },
   ],
   'conditions': [
-    ['skia_win_debuggers_path and skia_os == "win"',
+    ['skia_os == "disable" and skia_win_debuggers_path and skia_os == "win"',
       {
         'targets': [
           {
