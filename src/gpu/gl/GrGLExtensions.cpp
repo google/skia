@@ -48,7 +48,7 @@ bool GrGLExtensions::init(GrGLBinding binding,
         }
     } else {
         const char* extensions = (const char*) getString(GR_GL_EXTENSIONS);
-        if (NULL == extensions) {
+        if (NULL == extensions) {   
             return false;
         }
         while (true) {
@@ -66,8 +66,10 @@ bool GrGLExtensions::init(GrGLBinding binding,
             extensions += length;
         }
     }
-    SkTSearchCompareLTFunctor<SkString, extension_compare> cmp;
-    SkTQSort(&fStrings.front(), &fStrings.back(), cmp);
+    if (0 != fStrings.count()) {
+        SkTSearchCompareLTFunctor<SkString, extension_compare> cmp;
+        SkTQSort(&fStrings.front(), &fStrings.back(), cmp);
+    }
     return true;
 }
 
