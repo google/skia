@@ -268,17 +268,25 @@
         'tools.gyp:picture_utils',
       ],
     },
-    {
-      'target_name': 'win_dbghelp',
-      'type': 'static_library',
-      'defines': [
-        'SK_CDB_PATH="<(skia_win_debuggers_path)"',
-      ],
-      'sources': [
-        '../tools/win_dbghelp.h',
-        '../tools/win_dbghelp.cpp',
-      ],
-    },
+  ],
+  'conditions': [
+    ['skia_win_debuggers_path and skia_os == "win"',
+      {
+        'targets': [
+          {
+            'target_name': 'win_dbghelp',
+            'type': 'static_library',
+            'defines': [
+              'SK_CDB_PATH="<(skia_win_debuggers_path)"',
+            ],
+            'sources': [
+              '../tools/win_dbghelp.h',
+              '../tools/win_dbghelp.cpp',
+            ],
+          },
+        ],
+      },
+    ],
   ],
 }
 
