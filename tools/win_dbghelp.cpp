@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#ifdef SK_BUILD_FOR_WIN32
-
 #include "windows.h"
 #include "win_dbghelp.h"
 #include <process.h>
@@ -206,7 +204,7 @@ int GenerateDumpAndPrintCallstack(EXCEPTION_POINTERS* pExceptionPointers) {
 void setUpDebuggingFromArgs(const char* vargs0) {
     int i = strlen(vargs0);
 
-    if (i >= 4 && stricmp(vargs0 - 4, ".exe") == 0) {
+    if (i >= 4 && _stricmp(vargs0 - 4, ".exe") == 0) {
         // Ignore .exe
         i -= 4;
     }
@@ -244,4 +242,3 @@ void setUpDebuggingFromArgs(const char* vargs0) {
     setCdbPath(cdbExePath);
 }
 
-#endif  // SK_BUILD_FOR_WIN32
