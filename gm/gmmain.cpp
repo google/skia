@@ -1473,6 +1473,10 @@ int tool_main(int argc, char** argv) {
                 (SkBitmap::kRGB_565_Config == config.fConfig)) {
                 continue;
             }
+            if ((gmFlags & GM::kSkipGPU_Flag) &&
+                kGPU_Backend == config.fBackend) {
+                continue;
+            }
 
             // Now we know that we want to run this test and record its
             // success or failure.
