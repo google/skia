@@ -37,23 +37,35 @@ static void GLInterfaceValidationTest(skiatest::Reporter* reporter) {
         {GrGLCreateNullInterface, "Null"},
     };
 
+    static const int kBogusSize = 16;
+
+#if SK_ANGLE
+    SkANGLEGLContext::AutoContextRestore angleACR;
+    SkANGLEGLContext angleContext;
+    bool angleContextInit = angleContext.init(kBogusSize, kBogusSize);
+    REPORTER_ASSERT(reporter, angleContextInit);
+    if (!angleContextInit) {
+        return;
+    }
+#endif
+
     // On some platforms GrGLCreateNativeInterface will fail unless an OpenGL
     // context has been created. Also, preserve the current context that may
     // be in use by outer test harness.
-    SkNativeGLContext::AutoContextRestore nglacr;
+    SkNativeGLContext::AutoContextRestore nglACR;
     SkNativeGLContext nglctx;
-    static const int gBOGUS_SIZE = 16;
-    bool nativeContextInit = nglctx.init(gBOGUS_SIZE, gBOGUS_SIZE);
+    bool nativeContextInit = nglctx.init(kBogusSize, kBogusSize);
     REPORTER_ASSERT(reporter, nativeContextInit);
     if (!nativeContextInit) {
         return;
     }
+
 #if SK_MESA
     // We must have a current OSMesa context to initialize an OSMesa
     // GrGLInterface
-    SkMesaGLContext::AutoContextRestore mglacr;
+    SkMesaGLContext::AutoContextRestore mglACR;
     SkMesaGLContext mglctx;
-    bool mesaContextInit = mglctx.init(gBOGUS_SIZE, gBOGUS_SIZE);
+    bool mesaContextInit = mglctx.init(kBogusSize, kBogusSize);
     REPORTER_ASSERT(reporter, mesaContextInit);
     if(!mesaContextInit) {
         return;
