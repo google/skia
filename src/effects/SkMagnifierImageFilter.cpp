@@ -10,8 +10,6 @@
 #include "SkColorPriv.h"
 #include "SkFlattenableBuffers.h"
 
-#include <algorithm>
-
 ////////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
 #include "effects/GrSingleTextureEffect.h"

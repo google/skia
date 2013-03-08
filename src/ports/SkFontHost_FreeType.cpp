@@ -694,6 +694,13 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface*) {
 #ifdef SK_BUILD_FOR_ANDROID
 uint32_t SkFontHost::GetUnitsPerEm(SkFontID fontID) {
     SkAutoMutexAcquire ac(gFTMutex);
+    FT_Library libInit = NULL;
+    if (gFTCount == 0) {
+        if (!InitFreetype())
+            sk_throw();
+        libInit = gFTLibrary;
+    }
+    SkAutoTCallIProc<struct FT_LibraryRec_, FT_Done_FreeType> ftLib(libInit);
     SkFaceRec *rec = ref_ft_face(fontID);
     uint16_t unitsPerEm = 0;
 

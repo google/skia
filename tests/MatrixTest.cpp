@@ -38,7 +38,7 @@ static bool are_equal(skiatest::Reporter* reporter,
     bool equal = a == b;
     bool cheapEqual = a.cheapEqualTo(b);
     if (equal != cheapEqual) {
-#if SK_SCALAR_IS_FLOAT
+#ifdef SK_SCALAR_IS_FLOAT
         if (equal) {
             bool foundZeroSignDiff = false;
             for (int i = 0; i < 9; ++i) {
@@ -287,7 +287,7 @@ static void test_matrix_is_similarity(skiatest::Reporter* reporter) {
     mat.setPerspY(SkScalarToPersp(SK_Scalar1 / 2));
     REPORTER_ASSERT(reporter, !mat.isSimilarity());
 
-#if SK_SCALAR_IS_FLOAT
+#ifdef SK_SCALAR_IS_FLOAT
     /* We bypass the following tests for SK_SCALAR_IS_FIXED build.
      * The long discussion can be found in this issue:
      *     http://codereview.appspot.com/5999050/

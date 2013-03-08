@@ -1680,6 +1680,12 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
             dst->fConvexity = fConvexity;
         }
 
+#ifdef SK_BUILD_FOR_ANDROID
+        if (!matrix.isIdentity()) {
+            GEN_ID_PTR_INC(dst);
+        }
+#endif
+
         if (kUnknown_Direction == fDirection) {
             dst->fDirection = kUnknown_Direction;
         } else {

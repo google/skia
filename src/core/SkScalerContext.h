@@ -190,16 +190,7 @@ public:
 
     // This function must be public for SkTypeface_android.h, but should not be
     // called by other callers
-    SkFontID findTypefaceIdForChar(SkUnichar uni) {
-        SkScalerContext* ctx = this;
-        while (NULL != ctx) {
-            if (ctx->generateCharToGlyph(uni)) {
-                return ctx->fRec.fFontID;
-            }
-            ctx = ctx->getNextContext();
-        }
-        return 0;
-    }
+    SkFontID findTypefaceIdForChar(SkUnichar uni);
 #endif
 
     static inline void MakeRec(const SkPaint&, const SkDeviceProperties* deviceProperties,
@@ -244,6 +235,11 @@ private:
     // returns the right context from our link-list for this glyph. If no match
     // is found, just returns the original context (this)
     SkScalerContext* getGlyphContext(const SkGlyph& glyph);
+
+    // returns the right context from our link-list for this char. If no match
+    // is found it returns NULL. If a match is found then the glyphID param is
+    // set to the glyphID that maps to the provided char.
+    SkScalerContext* getContextFromChar(SkUnichar uni, uint16_t* glyphID);
 
     // link-list of context, to handle missing chars. null-terminated.
     SkScalerContext* fNextContext;

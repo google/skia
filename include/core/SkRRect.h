@@ -188,12 +188,14 @@ public:
 
     friend bool operator==(const SkRRect& a, const SkRRect& b) {
         return a.fRect == b.fRect &&
-               SkScalarsEqual((SkScalar*) a.fRadii, (SkScalar*) b.fRadii, 8);
+               SkScalarsEqual(a.fRadii[0].asScalars(),
+                              b.fRadii[0].asScalars(), 8);
     }
 
     friend bool operator!=(const SkRRect& a, const SkRRect& b) {
         return a.fRect != b.fRect ||
-               !SkScalarsEqual((SkScalar*) a.fRadii, (SkScalar*) b.fRadii, 8);
+               !SkScalarsEqual(a.fRadii[0].asScalars(),
+                               b.fRadii[0].asScalars(), 8);
     }
 
     /**

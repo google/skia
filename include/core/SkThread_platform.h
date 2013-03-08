@@ -61,13 +61,14 @@ static inline __attribute__((always_inline)) void sk_membar_aquire__after_atomic
 #define sk_atomic_inc(addr)         android_atomic_inc(addr)
 #define sk_atomic_add(addr, inc)    android_atomic_add(inc, addr)
 #define sk_atomic_dec(addr)         android_atomic_dec(addr)
-void sk_membar_aquire__after_atomic_dec() {
+
+static inline __attribute__((always_inline)) void sk_membar_aquire__after_atomic_dec() {
     //HACK: Android is actually using full memory barriers.
     //      Should this change, uncomment below.
     //int dummy;
     //android_atomic_aquire_store(0, &dummy);
 }
-int32_t sk_atomic_conditional_inc(int32_t* addr) {
+static inline __attribute__((always_inline)) int32_t sk_atomic_conditional_inc(int32_t* addr) {
     while (true) {
         int32_t value = *addr;
         if (value == 0) {
@@ -78,7 +79,7 @@ int32_t sk_atomic_conditional_inc(int32_t* addr) {
         }
     }
 }
-void sk_membar_aquire__after_atomic_conditional_inc() {
+static inline __attribute__((always_inline)) void sk_membar_aquire__after_atomic_conditional_inc() {
     //HACK: Android is actually using full memory barriers.
     //      Should this change, uncomment below.
     //int dummy;
