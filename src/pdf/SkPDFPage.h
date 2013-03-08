@@ -48,6 +48,11 @@ public:
     void finalizePage(SkPDFCatalog* catalog, bool firstPage,
                       SkTDArray<SkPDFObject*>* resourceObjects);
 
+    /** Add destinations for this page to the supplied dictionary.
+     *  @param dict       Dictionary to add destinations to.
+     */
+    void appendDestinations(SkPDFDict* dict);
+
     /** Determine the size of the page content and store to the catalog
      *  the offsets of all nonresource-indirect objects that make up the page
      *  content.  This must be called before emitPage(), but after finalizePage.
