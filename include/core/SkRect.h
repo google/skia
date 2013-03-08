@@ -769,6 +769,11 @@ struct SK_API SkRect {
      *  other. When this returns, left <= right && top <= bottom
      */
     void sort();
+    
+    /**
+     *  cast-safe way to treat the rect as an array of (4) SkScalars.
+     */
+    const SkScalar* asScalars() const { return &fLeft; }
 };
 
 #endif

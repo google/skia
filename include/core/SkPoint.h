@@ -504,6 +504,11 @@ struct SK_API SkPoint {
             fY = -tmp;
         }
     }
+
+    /**
+     *  cast-safe way to treat the point as an array of (2) SkScalars.
+     */
+    const SkScalar* asScalars() const { return &fX; }
 };
 
 typedef SkPoint SkVector;

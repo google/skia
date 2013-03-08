@@ -8,7 +8,19 @@
 // Unit tests for src/core/SkPoint.cpp and its header
 
 #include "SkPoint.h"
+#include "SkRect.h"
 #include "Test.h"
+
+static void test_casts(skiatest::Reporter* reporter) {
+    SkPoint p = { 0, 0 };
+    SkRect  r = { 0, 0, 0, 0 };
+
+    const SkScalar* pPtr = SkTCast<const SkScalar*>(&p);
+    const SkScalar* rPtr = SkTCast<const SkScalar*>(&r);
+
+    REPORTER_ASSERT(reporter, p.asScalars() == pPtr);
+    REPORTER_ASSERT(reporter, r.asScalars() == rPtr);
+}
 
 // Tests that SkPoint::length() and SkPoint::Length() both return
 // approximately expectedLength for this (x,y).
@@ -37,6 +49,8 @@ static void test_Normalize(skiatest::Reporter* reporter,
 }
 
 static void PointTest(skiatest::Reporter* reporter) {
+    test_casts(reporter);
+
     test_length(reporter, SkIntToScalar(3), SkIntToScalar(4), SkIntToScalar(5));
     test_length(reporter, SkFloatToScalar(0.6f), SkFloatToScalar(0.8f),
                 SK_Scalar1);
