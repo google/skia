@@ -300,4 +300,3 @@ private:
 
 DEF_GM( return new CubicPathGM; )
 DEF_GM( return new CubicClosePathGM; )
-

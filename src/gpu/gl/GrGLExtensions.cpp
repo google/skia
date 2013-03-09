@@ -48,7 +48,7 @@ bool GrGLExtensions::init(GrGLBinding binding,
         }
     } else {
         const char* extensions = (const char*) getString(GR_GL_EXTENSIONS);
-        if (NULL == extensions) {   
+        if (NULL == extensions) {
             return false;
         }
         while (true) {
