@@ -50,7 +50,7 @@ static void strncpyOrSetBlank(char* dest, const char* src, size_t len) {
 }
 
 char debug_app_name[MAX_PATH] = "";
-void setAppName(const char* app_name) { 
+void setAppName(const char* app_name) {
     strncpyOrSetBlank(debug_app_name, app_name, sizeof(debug_app_name));
 }
 
@@ -118,16 +118,16 @@ static void printCallstack(const char* filename,
            szPath, szAppName, szVersion, \
            stLocalTime.wYear, stLocalTime.wMonth, stLocalTime.wDay, \
            stLocalTime.wHour, stLocalTime.wMinute, stLocalTime.wSecond, \
-           GetCurrentProcessId(), GetCurrentThreadId()); 
+           GetCurrentProcessId(), GetCurrentThreadId());
 
 // Exception execution handler.  Exception is recognized. Transfer control to
 // the exception handler by executing the __except compound statement,
 // then continue execution after the __except block.
 int GenerateDumpAndPrintCallstack(EXCEPTION_POINTERS* pExceptionPointers) {
     BOOL bMiniDumpSuccessful;
-    char szPath[MAX_PATH]; 
-    char szFileName[MAX_PATH]; 
-    char szFileNameOutput[MAX_PATH]; 
+    char szPath[MAX_PATH];
+    char szFileName[MAX_PATH];
+    char szFileNameOutput[MAX_PATH];
     const char* szAppName = getAppName();
     const char* szVersion = getAppVersion();
     DWORD dwBufferSize = MAX_PATH;
@@ -145,7 +145,7 @@ int GenerateDumpAndPrintCallstack(EXCEPTION_POINTERS* pExceptionPointers) {
     BUILD_UNIQUE_FILENAME(szFileNameOutput, ".out", szPath, szAppName, szVersion, stLocalTime);
 
     hDumpFile = CreateFile(szFileName,
-                           GENERIC_READ|GENERIC_WRITE, 
+                           GENERIC_READ|GENERIC_WRITE,
                            FILE_SHARE_WRITE|FILE_SHARE_READ,
                            0,
                            CREATE_ALWAYS,
@@ -157,7 +157,7 @@ int GenerateDumpAndPrintCallstack(EXCEPTION_POINTERS* pExceptionPointers) {
     ExpParam.ClientPointers = TRUE;
 
     bMiniDumpSuccessful = MiniDumpWriteDump(GetCurrentProcess(),
-                                            GetCurrentProcessId(), 
+                                            GetCurrentProcessId(),
                                             hDumpFile,
                                             MiniDumpWithDataSegs,
                                             &ExpParam,
@@ -170,7 +170,7 @@ int GenerateDumpAndPrintCallstack(EXCEPTION_POINTERS* pExceptionPointers) {
     const char* cdbExePath = getCdbPath();
     if (cdbExePath && *cdbExePath != '\0') {
         printf("Cdb exe:          %s\n", cdbExePath);
-      
+
         char command[MAX_PATH * 4];
         sprintf(command, "%s -y \"%s\" -i \"%s\" -z \"%s\" -c \"%s\" -kqm >\"%s\"",
                 cdbExePath,
@@ -182,16 +182,16 @@ int GenerateDumpAndPrintCallstack(EXCEPTION_POINTERS* pExceptionPointers) {
         system(command);
 
         printf("\nThread Callstack:\n");
-        printCallstack(szFileNameOutput, 
+        printCallstack(szFileNameOutput,
                        MARKER_THREAD_CALLSTACK_START,
                        MARKER_THREAD_CALLSTACK_STOP);
 
-        printf("\nException Callstack:\n");        
+        printf("\nException Callstack:\n");
         printCallstack(szFileNameOutput,
                        MARKER_EXCEPTION_CALLSTACK_START,
                        MARKER_EXCEPTION_CALLSTACK_STOP);
     } else {
-        printf("Warning: CDB path not set up.\n");        
+        printf("Warning: CDB path not set up.\n");
     }
 
     return EXCEPTION_EXECUTE_HANDLER;
@@ -241,4 +241,3 @@ void setUpDebuggingFromArgs(const char* vargs0) {
 #endif
     setCdbPath(cdbExePath);
 }
-
