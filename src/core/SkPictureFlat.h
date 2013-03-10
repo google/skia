@@ -403,17 +403,22 @@ public:
         // set to 1 since returning a zero from find() indicates failure
         fNextIndex = 1;
         sk_bzero(fHash, sizeof(fHash));
+        // index 0 is always empty since it is used as a signal that find failed
+        fIndexedData.push(NULL);    
     }
 
     virtual ~SkFlatDictionary() {
         fController->unref();
     }
 
-    int count() const { return fData.count(); }
+    int count() const { 
+        SkASSERT(fIndexedData.count() == fSortedData.count()+1);
+        return fSortedData.count(); 
+    }
 
     const SkFlatData*  operator[](int index) const {
-        SkASSERT(index >= 0 && index < fData.count());
-        return fData[index];
+        SkASSERT(index >= 0 && index < fSortedData.count());
+        return fSortedData[index];
     }
 
     /**
@@ -421,7 +426,10 @@ public:
      * memory that was allocated for each entry.
      */
     void reset() {
-        fData.reset();
+        fSortedData.reset();
+        fIndexedData.rewind();
+        // index 0 is always empty since it is used as a signal that find failed
+        fIndexedData.push(NULL);
         fNextIndex = 1;
         sk_bzero(fHash, sizeof(fHash));
     }
@@ -437,21 +445,24 @@ public:
                                      const SkFlatData* toReplace, bool* added,
                                      bool* replaced) {
         SkASSERT(added != NULL && replaced != NULL);
-        int oldCount = fData.count();
+        int oldCount = fSortedData.count();
         const SkFlatData* flat = this->findAndReturnFlat(element);
-        *added = fData.count() == oldCount + 1;
+        *added = fSortedData.count() == oldCount + 1;
         *replaced = false;
         if (*added && toReplace != NULL) {
             // First, find the index of the one to replace
-            int indexToReplace = fData.find(toReplace);
+            int indexToReplace = fSortedData.find(toReplace);
             if (indexToReplace >= 0) {
                 // findAndReturnFlat set the index to fNextIndex and increased
                 // fNextIndex by one. Reuse the index from the one being
                 // replaced and reset fNextIndex to the proper value.
+                int oldIndex = flat->index();
                 const_cast<SkFlatData*>(flat)->setIndex(toReplace->index());
+                fIndexedData[toReplace->index()] = flat;
                 fNextIndex--;
-                // Remove from the array.
-                fData.remove(indexToReplace);
+                // Remove from the arrays.
+                fSortedData.remove(indexToReplace);
+                fIndexedData.remove(oldIndex);
                 // Remove from the hash table.
                 int oldHash = ChecksumToHashIndex(toReplace->checksum());
                 if (fHash[oldHash] == toReplace) {
@@ -460,6 +471,7 @@ public:
                 // Delete the actual object.
                 fController->unalloc((void*)toReplace);
                 *replaced = true;
+                SkASSERT(fIndexedData.count() == fSortedData.count()+1);
             }
         }
         return flat;
@@ -471,7 +483,7 @@ public:
      * added.
      *
      * To make the Compare function fast, we write a sentinel value at the end
-     * of each block. The blocks in our fData[] all have a 0 sentinel. The
+     * of each block. The blocks in our fSortedData[] all have a 0 sentinel. The
      * newly created block we're comparing against has a -1 in the sentinel.
      *
      * This trick allows Compare to always loop until failure. If it fails on
@@ -486,7 +498,7 @@ public:
      *  if there no objects (instead of an empty array).
      */
     SkTRefArray<T>* unflattenToArray() const {
-        int count = fData.count();
+        int count = fSortedData.count();
         SkTRefArray<T>* array = NULL;
         if (count > 0) {
             array = SkTRefArray<T>::Create(count);
@@ -499,20 +511,13 @@ public:
      * Unflatten the specific object at the given index
      */
     T* unflatten(int index) const {
-        // fData is sorted so it is necessary to search through it to find the
-        // SkFlatData with the specified index
-        // TODO: findAndReplace makes it a bit difficult but there must be
-        // a better way to perform this mapping
-        for (int i = 0; i < fData.count(); ++i) {
-            const SkFlatData* element = fData[i];
-            if (index == element->index()) {
-                T* dst = new T;
-                this->unflatten(dst, element);
-                return dst;
-            }
-        }
+        SkASSERT(fIndexedData.count() == fSortedData.count()+1);
+        const SkFlatData* element = fIndexedData[index];
+        SkASSERT(index == element->index());
 
-        return NULL;
+        T* dst = new T;
+        this->unflatten(dst, element);
+        return dst;
     }
 
     const SkFlatData* findAndReturnFlat(const T& element) {
@@ -525,21 +530,23 @@ public:
             return candidate;
         }
 
-        int index = SkTSearch<SkFlatData>((const SkFlatData**) fData.begin(),
-                                          fData.count(), flat, sizeof(flat),
+        int index = SkTSearch<SkFlatData>((const SkFlatData**) fSortedData.begin(),
+                                          fSortedData.count(), flat, sizeof(flat),
                                           &SkFlatData::Compare);
         if (index >= 0) {
             fController->unalloc(flat);
-            fHash[hashIndex] = fData[index];
-            return fData[index];
+            fHash[hashIndex] = fSortedData[index];
+            return fSortedData[index];
         }
 
         index = ~index;
-        *fData.insert(index) = flat;
-        SkASSERT(fData.count() == fNextIndex);
+        *fSortedData.insert(index) = flat;
+        *fIndexedData.insert(flat->index()) = flat;
+        SkASSERT(fSortedData.count() == fNextIndex);
         fNextIndex++;
         flat->setSentinelInCache();
         fHash[hashIndex] = flat;
+        SkASSERT(fIndexedData.count() == fSortedData.count()+1);
         return flat;
     }
 
@@ -555,8 +562,9 @@ private:
     }
 
     void unflattenIntoArray(T* array) const {
-        const int count = fData.count();
-        const SkFlatData* const* iter = fData.begin();
+        const int count = fSortedData.count();
+        SkASSERT(fIndexedData.count() == fSortedData.count()+1);        
+        const SkFlatData* const* iter = fSortedData.begin();
         for (int i = 0; i < count; ++i) {
             const SkFlatData* element = iter[i];
             int index = element->index() - 1;
@@ -567,7 +575,15 @@ private:
 
     SkFlatController * const     fController;
     int                          fNextIndex;
-    SkTDArray<const SkFlatData*> fData;
+
+    // SkFlatDictionary has two copies of the data one indexed by the 
+    // SkFlatData's index and the other sorted. The sorted data is used
+    // for finding and uniquification while the indexed copy is used
+    // for standard array-style lookups based on the SkFlatData's index
+    // (as in 'unflatten').
+    SkTDArray<const SkFlatData*> fIndexedData;
+    // fSortedData is sorted by checksum/size/data.
+    SkTDArray<const SkFlatData*> fSortedData;
 
     enum {
         // Determined by trying diff values on picture-recording benchmarks
