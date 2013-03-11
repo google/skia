@@ -1185,23 +1185,28 @@ static float gaussianIntegral(float x) {
     return 0.4375f + (-x3 / 6.0f - 3.0f * x2 * 0.25f - 1.125f * x);
 }
 
-/*
-    compute_profile allocates and fills in an array of floating
+// Compute the size of the array allocated for the profile.
+
+static int compute_profile_size(SkScalar radius) {
+    return SkScalarRoundToInt(radius * 3);
+    
+} 
+
+/*  compute_profile allocates and fills in an array of floating
     point values between 0 and 255 for the profile signature of
     a blurred half-plane with the given blur radius.  Since we're
     going to be doing screened multiplications (i.e., 1 - (1-x)(1-y))
     all the time, we actually fill in the profile pre-inverted
     (already done 255-x).
 
-    The function returns the size of the array allocated for the
-    profile.  It's the responsibility of the caller to delete the
+    It's the responsibility of the caller to delete the
     memory returned in profile_out.
 */
 
-static int compute_profile(SkScalar radius, unsigned int **profile_out) {
-    int size = SkScalarRoundToInt(radius * 3);
+static void compute_profile(SkScalar radius, unsigned int **profile_out) {
+    int size = compute_profile_size(radius);
+    
     int center = size >> 1;
-
     unsigned int *profile = SkNEW_ARRAY(unsigned int, size);
 
     float invr = 1.f/radius;
@@ -1214,7 +1219,6 @@ static int compute_profile(SkScalar radius, unsigned int **profile_out) {
     }
 
     *profile_out = profile;
-    return size;
 }
 
 // TODO MAYBE: Maintain a profile cache to avoid recomputing this for
@@ -1236,19 +1240,16 @@ static inline unsigned int profile_lookup( unsigned int *profile, int loc, int b
 
 bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
                           SkScalar provided_radius, Style style,
-                          SkIPoint *margin) {
+                          SkIPoint *margin, SkMask::CreateMode createMode) {
     int profile_size;
-    unsigned int *profile;
 
-    float radius = SkScalarToFloat( SkScalarMul( provided_radius, kBlurRadiusFudgeFactor ) );
+    float radius = SkScalarToFloat(SkScalarMul(provided_radius, kBlurRadiusFudgeFactor));
 
     // adjust blur radius to match interpretation from boxfilter code
-    radius = (radius + .5f) *2.f;
+    radius = (radius + .5f) * 2.f;
 
-    profile_size = compute_profile( radius, &profile );
-
-    SkAutoTDeleteArray<unsigned int> ada(profile);
-
+    profile_size = compute_profile_size(radius);
+    
     int pad = profile_size/2;
     if (margin) {
         margin->set( pad, pad );
@@ -1259,19 +1260,34 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
     int shadow_right = (int)(src.width()) + pad;
     int shadow_bottom = (int)(src.height()) + pad;
 
-    dst->fBounds.set(shadow_left, shadow_top, shadow_right, shadow_bottom);
+    dst->fBounds.set(shadow_left + src.fLeft, 
+                     shadow_top + src.fTop, 
+                     shadow_right + src.fRight, 
+                     shadow_bottom + src.fBottom);
 
     dst->fRowBytes = dst->fBounds.width();
     dst->fFormat = SkMask::kA8_Format;
     dst->fImage = NULL;
-
+    
+    int             sw = SkScalarFloorToInt(src.width());
+    int             sh = SkScalarFloorToInt(src.height());
+    
+    if (createMode == SkMask::kJustComputeBounds_CreateMode) {
+        if (style == kInner_Style) {
+            dst->fBounds.set(0, 0, sw, sh); // restore trimmed bounds
+            dst->fRowBytes = sw;
+        }
+        return true;
+    }
+    unsigned int *profile = NULL;
+    
+    compute_profile(radius, &profile);
+    SkAutoTDeleteArray<unsigned int> ada(profile);
+    
     size_t dstSize = dst->computeImageSize();
     if (0 == dstSize) {
         return false;   // too big to allocate, abort
     }
-
-    int             sw = SkScalarFloorToInt(src.width());
-    int             sh = SkScalarFloorToInt(src.height());
 
     uint8_t*        dp = SkMask::AllocImage(dstSize);
 
