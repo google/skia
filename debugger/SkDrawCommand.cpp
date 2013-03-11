@@ -394,7 +394,7 @@ void DrawRectC::execute(SkCanvas* canvas) {
 
 DrawRRect::DrawRRect(const SkRRect& rrect, const SkPaint& paint) {
     this->fRRect = rrect;
-    this->fPaint = &paint;
+    this->fPaint = paint;
     this->fDrawType = DRAW_RRECT;
 
     this->fInfo.push(SkObjectParser::RRectToString(rrect));
@@ -402,7 +402,7 @@ DrawRRect::DrawRRect(const SkRRect& rrect, const SkPaint& paint) {
 }
 
 void DrawRRect::execute(SkCanvas* canvas) {
-    canvas->drawRRect(this->fRRect, *this->fPaint);
+    canvas->drawRRect(fRRect, fPaint);
 }
 
 DrawSprite::DrawSprite(const SkBitmap& bitmap, int left, int top,

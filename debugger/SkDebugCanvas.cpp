@@ -226,6 +226,10 @@ const SkTDArray <SkDrawCommand*>& SkDebugCanvas::getDrawCommands() const {
     return fCommandVector;
 }
 
+SkTDArray <SkDrawCommand*>& SkDebugCanvas::getDrawCommands() {
+    return fCommandVector;
+}
+
 // TODO(chudy): Free command string memory.
 SkTArray<SkString>* SkDebugCanvas::getDrawCommandsAsStrings() const {
     SkTArray<SkString>* commandString = new SkTArray<SkString>(fCommandVector.count());

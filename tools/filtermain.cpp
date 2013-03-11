@@ -75,7 +75,7 @@ static bool check_0(const SkTDArray<SkDrawCommand*>& commands, int curCommand) {
 
 // Fold the saveLayer's alpha into the drawBitmapRect and remove the saveLayer
 // and restore
-static void apply_0(const SkTDArray<SkDrawCommand*>& commands, int curCommand) {
+static void apply_0(SkTDArray<SkDrawCommand*>& commands, int curCommand) {
     SaveLayer* saveLayer = (SaveLayer*) commands[curCommand];
     DrawBitmapRect* dbmr = (DrawBitmapRect*) commands[curCommand+1];
     Restore* restore = (Restore*) commands[curCommand+2];
@@ -140,7 +140,7 @@ static bool check_1(const SkTDArray<SkDrawCommand*>& commands, int curCommand) {
 
 // Fold the saveLayer's alpha into the drawBitmapRect and remove the saveLayer
 // and restore
-static void apply_1(const SkTDArray<SkDrawCommand*>& commands, int curCommand) {
+static void apply_1(SkTDArray<SkDrawCommand*>& commands, int curCommand) {
     SaveLayer* saveLayer = (SaveLayer*) commands[curCommand];
     DrawBitmapRect* dbmr = (DrawBitmapRect*) commands[curCommand+3];
     Restore* restore = (Restore*) commands[curCommand+5];
@@ -164,8 +164,124 @@ static void apply_1(const SkTDArray<SkDrawCommand*>& commands, int curCommand) {
     }
 }
 
+// Check for:
+//    SAVE
+//        CLIP_RECT
+//        DRAW_RECT
+//    RESTORE
+// where the rect is entirely within the clip and the clip is an intersect
+static bool check_2(const SkTDArray<SkDrawCommand*>& commands, int curCommand) {
+    if (SAVE != commands[curCommand]->getType() ||
+        commands.count() <= curCommand+4 ||
+        CLIP_RECT != commands[curCommand+1]->getType() ||
+        DRAW_RECT != commands[curCommand+2]->getType() ||
+        RESTORE != commands[curCommand+3]->getType())
+        return false;
+
+    ClipRect* cr = (ClipRect*) commands[curCommand+1];
+    DrawRectC* dr = (DrawRectC*) commands[curCommand+2];
+
+    if (SkRegion::kIntersect_Op != cr->op()) {
+        return false;
+    }
+
+    return cr->rect().contains(dr->rect());
+}
+
+// Remove everything but the drawRect
+static void apply_2(SkTDArray<SkDrawCommand*>& commands, int curCommand) {
+    Save* save = (Save*) commands[curCommand];
+    ClipRect* cr = (ClipRect*) commands[curCommand+1];
+    Restore* restore = (Restore*) commands[curCommand+3];
+
+    save->setVisible(false);
+    cr->setVisible(false);
+    // leave the drawRect alone
+    restore->setVisible(false);
+}
+
+// Check for:
+//    SAVE
+//        CLIP_RRECT
+//        DRAW_RECT
+//    RESTORE
+// where the rect entirely encloses the clip
+static bool check_3(const SkTDArray<SkDrawCommand*>& commands, int curCommand) {
+    if (SAVE != commands[curCommand]->getType() ||
+        commands.count() <= curCommand+4 ||
+        CLIP_RRECT != commands[curCommand+1]->getType() ||
+        DRAW_RECT != commands[curCommand+2]->getType() ||
+        RESTORE != commands[curCommand+3]->getType())
+        return false;
+
+    ClipRRect* crr = (ClipRRect*) commands[curCommand+1];
+    DrawRectC* dr  = (DrawRectC*) commands[curCommand+2];
+
+    if (SkRegion::kIntersect_Op != crr->op()) {
+        return false;
+    }
+
+    return dr->rect().contains(crr->rrect().rect());
+}
+
+// Replace everything with a drawRRect with the paint from the drawRect
+// and the AA settings from the clipRRect
+static void apply_3(SkTDArray<SkDrawCommand*>& commands, int curCommand) {
+    Save* save = (Save*) commands[curCommand];
+    ClipRRect* crr = (ClipRRect*) commands[curCommand+1];
+    DrawRectC* dr = (DrawRectC*) commands[curCommand+2];
+    Restore* restore = (Restore*) commands[curCommand+3];
+
+    save->setVisible(false);
+    crr->setVisible(false);
+    dr->setVisible(false);
+    restore->setVisible(false);
+
+    // TODO: could skip paint re-creation if the AA settings already match
+    SkPaint newPaint = *dr->paint();
+    newPaint.setAntiAlias(crr->doAA());
+    DrawRRect* drr = new DrawRRect(crr->rrect(), newPaint);
+    commands[curCommand+2] = drr;
+}
+
+// Check for:
+//    SAVE
+//        CLIP_RECT
+//        DRAW_BITMAP_RECT_TO_RECT
+//    RESTORE
+// where the rect and drawBitmapRect dst exactly match
+static bool check_4(const SkTDArray<SkDrawCommand*>& commands, int curCommand) {
+    if (SAVE != commands[curCommand]->getType() ||
+        commands.count() <= curCommand+4 ||
+        CLIP_RECT != commands[curCommand+1]->getType() ||
+        DRAW_BITMAP_RECT_TO_RECT != commands[curCommand+2]->getType() ||
+        RESTORE != commands[curCommand+3]->getType())
+        return false;
+
+    ClipRect* cr = (ClipRect*) commands[curCommand+1];
+    DrawBitmapRect* dbmr  = (DrawBitmapRect*) commands[curCommand+2];
+
+    if (SkRegion::kIntersect_Op != cr->op()) {
+        return false;
+    }
+
+    return dbmr->dstRect() == cr->rect();
+}
+
+// Remove everything but the drawBitmapRect
+static void apply_4(SkTDArray<SkDrawCommand*>& commands, int curCommand) {
+    Save* save = (Save*) commands[curCommand];
+    ClipRect* cr = (ClipRect*) commands[curCommand+1];
+    Restore* restore = (Restore*) commands[curCommand+3];
+
+    save->setVisible(false);
+    cr->setVisible(false);
+    // leave drawBitmapRect alone
+    restore->setVisible(false);
+}
+
 typedef bool (*PFCheck)(const SkTDArray<SkDrawCommand*>& commands, int curCommand);
-typedef void (*PFApply)(const SkTDArray<SkDrawCommand*>& commands, int curCommand);
+typedef void (*PFApply)(SkTDArray<SkDrawCommand*>& commands, int curCommand);
 
 struct OptTableEntry {
     PFCheck fCheck;
@@ -174,6 +290,9 @@ struct OptTableEntry {
 } gOptTable[] = {
     { check_0, apply_0, 0 },
     { check_1, apply_1, 0 },
+    { check_2, apply_2, 0 },
+    { check_3, apply_3, 0 },
+    { check_4, apply_4, 0 },
 };
 
 static int filter_picture(const SkString& inFile, const SkString& outFile) {
@@ -197,7 +316,7 @@ static int filter_picture(const SkString& inFile, const SkString& outFile) {
     debugCanvas.setBounds(inPicture->width(), inPicture->height());
     inPicture->draw(&debugCanvas);
 
-    const SkTDArray<SkDrawCommand*>& commands = debugCanvas.getDrawCommands();
+    SkTDArray<SkDrawCommand*>& commands = debugCanvas.getDrawCommands();
 
     // hide the initial save and restore since replaying the commands will
     // re-add them
