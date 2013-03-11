@@ -258,6 +258,11 @@
             '-Werror',
           ],
         }],
+        ['skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl"]', {
+          'cflags!': [
+            '-Werror',
+          ],
+        }],
       ],
     },
   ],

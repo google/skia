@@ -140,9 +140,7 @@
           },
         },
         'cflags': [
-          # TODO(tony): Enable -Werror once all the strict-aliasing problems
-          # are fixed.
-          #'-Werror',
+          '-Werror',
           '-Wall',
           '-Wextra',
           # suppressions below here were added for clang
