@@ -281,8 +281,13 @@ static void help() {
     SkDebugf("Usage: bench [-o outDir] [--repeat nr] [--logPerIter] "
                           "[--timers [wcgWC]*] [--rotate]\n"
              "    [--scale] [--clip] [--min] [--forceAA 1|0] [--forceFilter 1|0]\n"
-             "    [--forceDither 1|0] [--forceBlend 1|0] [--strokeWidth width]\n"
-             "    [--match name] [--mode normal|deferred|deferredSilent|record|picturerecord]\n"
+             "    [--forceDither 1|0] [--forceBlend 1|0]"
+#if SK_SUPPORT_GPU
+             " [--gpuCacheSize <bytes> <count>]"
+#endif
+             "\n"
+             "    [--strokeWidth width] [--match name]\n"
+             "    [--mode normal|deferred|deferredSilent|record|picturerecord]\n"
              "    [--config 8888|565|GPU|ANGLE|NULLGPU] [-Dfoo bar] [--logFile filename]\n"
              "    [-h|--help]");
     SkDebugf("\n\n");
@@ -304,6 +309,11 @@ static void help() {
              "Enable/disable dithering, default is disabled.\n");
     SkDebugf("    --forceBlend 1|0 : "
              "Enable/disable dithering, default is disabled.\n");
+#if SK_SUPPORT_GPU
+    SkDebugf("    --gpuCacheSize <bytes> <count>: "
+             "limits gpu cache to  bytes size or object count.\n");
+    SkDebugf("      -1 for either value means use the default. 0 for either disables the cache.\n");
+#endif
     SkDebugf("    --strokeWidth width : The width for path stroke.\n");
     SkDebugf("    --match name : Only run bench whose name is matched.\n");
     SkDebugf("    --mode normal|deferred|deferredSilent|record|picturerecord :\n"
@@ -350,6 +360,14 @@ int tool_main(int argc, char** argv) {
     bool doClip = false;
     bool printMin = false;
     bool hasStrokeWidth = false;
+
+#if SK_SUPPORT_GPU
+    struct {
+        size_t  fBytes;
+        int     fCount;
+    } gpuCacheSize = { -1, -1 }; // -1s mean use the default
+#endif
+
     float strokeWidth;
     SkTDArray<const char*> fMatches;
     benchModes benchMode = kNormal_benchModes;
@@ -447,6 +465,17 @@ int tool_main(int argc, char** argv) {
                 return -1;
             }
             forceAlpha = wantAlpha ? 0x80 : 0xFF;
+#if SK_SUPPORT_GPU
+        } else if (strcmp(*argv, "--gpuCacheSize") == 0) {
+            if (stop - argv > 2) {
+                gpuCacheSize.fBytes = atoi(*++argv);
+                gpuCacheSize.fCount = atoi(*++argv);
+            } else {
+                SkDebugf("missing arg for --gpuCacheSize\n");
+                help();
+                return -1;
+            }
+#endif
         } else if (strcmp(*argv, "--mode") == 0) {
             argv++;
             if (argv < stop) {
@@ -621,11 +650,25 @@ int tool_main(int argc, char** argv) {
     SkTArray<BenchTimer*> timers(SK_ARRAY_COUNT(gConfigs));
     for (size_t i = 0; i < SK_ARRAY_COUNT(gConfigs); ++i) {
 #if SK_SUPPORT_GPU
-        SkGLContextHelper* ctx = NULL;
+        SkGLContextHelper* glCtx = NULL;
         if (kGPU_Backend == gConfigs[i].fBackend) {
-            ctx = gContextFactory.getGLContext(gConfigs[i].fContextType);
+            GrContext* context = gContextFactory.get(gConfigs[i].fContextType);
+            if (NULL != context) {
+                // Set the user specified cache limits if non-default.
+                size_t bytes;
+                int count;
+                context->getTextureCacheLimits(&count, &bytes);
+                if (-1 != gpuCacheSize.fBytes) {
+                    bytes = gpuCacheSize.fBytes;
+                }
+                if (-1 != gpuCacheSize.fCount) {
+                    count = gpuCacheSize.fCount;
+                }
+                context->setTextureCacheLimits(count, bytes);
+            }
+            glCtx = gContextFactory.getGLContext(gConfigs[i].fContextType);
         }
-        timers.push_back(SkNEW_ARGS(BenchTimer, (ctx)));
+        timers.push_back(SkNEW_ARGS(BenchTimer, (glCtx)));
 #else
         timers.push_back(SkNEW(BenchTimer));
 #endif
