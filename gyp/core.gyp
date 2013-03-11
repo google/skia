@@ -29,10 +29,6 @@
       'msvs_disabled_warnings': [4244, 4267,4345, 4390, 4554, 4800],
       'conditions': [
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
-          'cflags': [
-            '-Wno-unused',
-            '-Wno-unused-function',
-          ],
           'link_settings': {
             'libraries': [
               '-lpthread',
