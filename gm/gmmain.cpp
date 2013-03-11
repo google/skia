@@ -1033,6 +1033,10 @@ static void usage(const char * argv0) {
 "        unable to read a reference image for any tests (default behavior)\n"
 "    [--exclude-config]: disable this config (may be used multiple times)\n"
 "    [--forceBWtext]: disable text anti-aliasing\n"
+#if SK_SUPPORT_GPU
+"    [--gpuCacheSize <bytes> <count>]: limits gpu cache to byte size or object count\n"
+"        -1 for either value means use the default. 0 for either disables the cache.\n"
+#endif
 "    [--help|-h]: show this help message\n"
 "    [--hierarchy|--nohierarchy]: whether to use multilevel directory structure\n"
 "        when reading/writing files; default is no\n"
@@ -1049,7 +1053,6 @@ static void usage(const char * argv0) {
 "    [--resourcePath|-i <path>]: directory that stores image resources\n"
 "    [--nortree]: Do not exercise the R-Tree variant of SkPicture\n"
 "    [--noserialize]: do not exercise SkPicture serialization & deserialization\n"
-"    [--notexturecache]: disable the gpu texture cache\n"
 "    [--tiledPipe]: Exercise tiled SkGPipe replay\n"
 "    [--notileGrid]: Do not exercise the tile grid variant of SkPicture\n"
 "    [--tileGridReplayScales <scales>]: Comma separated list of floating-point scale\n"
@@ -1166,9 +1169,7 @@ int tool_main(int argc, char** argv) {
     bool doRTree = true;
     bool doTileGrid = true;
     bool doVerbose = false;
-#if SK_SUPPORT_GPU
-    bool disableTextureCache = false;
-#endif
+
     SkTDArray<size_t> configs;
     SkTDArray<size_t> excludeConfigs;
     SkTDArray<SkScalar> tileGridReplayScales;
@@ -1177,6 +1178,13 @@ int tool_main(int argc, char** argv) {
 
     int moduloRemainder = -1;
     int moduloDivisor = -1;
+
+#if SK_SUPPORT_GPU
+    struct {
+        size_t  fBytes;
+        int     fCount;
+    } gpuCacheSize = { -1, -1 }; // -1s mean use the default
+#endif
 
     const char* const commandName = argv[0];
     char* const* stop = argv + argc;
@@ -1253,6 +1261,17 @@ int tool_main(int argc, char** argv) {
             notifyMissingReadReference = true;
         } else if (strcmp(*argv, "--forceBWtext") == 0) {
             gForceBWtext = true;
+#if SK_SUPPORT_GPU
+        } else if (strcmp(*argv, "--gpuCacheSize") == 0) {
+            if (stop - argv > 2) {
+                gpuCacheSize.fBytes = atoi(*++argv);
+                gpuCacheSize.fCount = atoi(*++argv);
+            } else {
+                SkDebugf("missing arg for --gpuCacheSize\n");
+                usage(commandName);
+                return -1;
+            }
+#endif
         } else if (strcmp(*argv, "--help") == 0 || strcmp(*argv, "-h") == 0) {
             usage(commandName);
             return -1;
@@ -1304,10 +1323,6 @@ int tool_main(int argc, char** argv) {
             doSerialize = true;
         } else if (strcmp(*argv, "--noserialize") == 0) {
             doSerialize = false;
-        } else if (strcmp(*argv, "--notexturecache") == 0) {
-#if SK_SUPPORT_GPU
-            disableTextureCache = true;
-#endif
         } else if (strcmp(*argv, "--tiledPipe") == 0) {
             doTiledPipe = true;
         } else if (!strcmp(*argv, "--verbose") || !strcmp(*argv, "-v")) {
@@ -1408,9 +1423,6 @@ int tool_main(int argc, char** argv) {
 
 #if SK_SUPPORT_GPU
     GrContextFactory* grFactory = new GrContextFactory;
-    if (disableTextureCache) {
-        skiagm::GetGr()->setTextureCacheLimits(0, 0);
-    }
 #endif
 
     int gmIndex = -1;
@@ -1506,6 +1518,17 @@ int tool_main(int argc, char** argv) {
                         renderTarget = rt.get();
                         grSuccess = NULL != renderTarget;
                     }
+                    // Set the user specified cache limits if non-default.
+                    size_t bytes;
+                    int count;
+                    gr->getTextureCacheLimits(&count, &bytes);
+                    if (-1 != gpuCacheSize.fBytes) {
+                        bytes = gpuCacheSize.fBytes;
+                    }
+                    if (-1 != gpuCacheSize.fCount) {
+                        count = gpuCacheSize.fCount;
+                    }
+                    gr->setTextureCacheLimits(count, bytes);
                 }
                 if (!grSuccess) {
                     renderErrors |= kNoGpuContext_ErrorBitmask;
