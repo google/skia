@@ -13,21 +13,37 @@ adds some validation and supports both git and svn.
 """
 
 
+from contextlib import closing
+
 import httplib
 import json
 import os
 import subprocess
 import sys
+import urllib2
+
+
+def GetGlobalVariables():
+  """ Retrieve a global variable from the global_variables.json file. """
+  global_variables_file = ('http://skia.googlecode.com/svn/buildbot/'
+                           'site_config/global_variables.json')
+  with closing(urllib2.urlopen(global_variables_file)) as f:
+    return json.load(f)
+
+
+GLOBAL_VARIABLES = GetGlobalVariables()
+
+
+def GetGlobalVariable(var_name):
+  return GLOBAL_VARIABLES[var_name]['value']
 
 
 # Alias which can be used to run a try on every builder.
 ALL_BUILDERS = 'all'
 
 # Contact information for the build master.
-# TODO(borenet): Share this information from a single location. Filed bug:
-# http://code.google.com/p/skia/issues/detail?id=1081
-SKIA_BUILD_MASTER_HOST = '70.32.156.53'
-SKIA_BUILD_MASTER_PORT = '10117'
+SKIA_BUILD_MASTER_HOST = str(GetGlobalVariable('master_host'))
+SKIA_BUILD_MASTER_PORT = str(GetGlobalVariable('external_port'))
 
 # All try builders have this suffix.
 TRYBOT_SUFFIX = '_Trybot'
