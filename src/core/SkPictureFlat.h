@@ -404,16 +404,16 @@ public:
         fNextIndex = 1;
         sk_bzero(fHash, sizeof(fHash));
         // index 0 is always empty since it is used as a signal that find failed
-        fIndexedData.push(NULL);    
+        fIndexedData.push(NULL);
     }
 
     virtual ~SkFlatDictionary() {
         fController->unref();
     }
 
-    int count() const { 
+    int count() const {
         SkASSERT(fIndexedData.count() == fSortedData.count()+1);
-        return fSortedData.count(); 
+        return fSortedData.count();
     }
 
     const SkFlatData*  operator[](int index) const {
@@ -563,7 +563,7 @@ private:
 
     void unflattenIntoArray(T* array) const {
         const int count = fSortedData.count();
-        SkASSERT(fIndexedData.count() == fSortedData.count()+1);        
+        SkASSERT(fIndexedData.count() == fSortedData.count()+1);
         const SkFlatData* const* iter = fSortedData.begin();
         for (int i = 0; i < count; ++i) {
             const SkFlatData* element = iter[i];
@@ -576,7 +576,7 @@ private:
     SkFlatController * const     fController;
     int                          fNextIndex;
 
-    // SkFlatDictionary has two copies of the data one indexed by the 
+    // SkFlatDictionary has two copies of the data one indexed by the
     // SkFlatData's index and the other sorted. The sorted data is used
     // for finding and uniquification while the indexed copy is used
     // for standard array-style lookups based on the SkFlatData's index
