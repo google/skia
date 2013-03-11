@@ -29,65 +29,6 @@
 #include <usp10.h>
 #include <objbase.h>
 
-static bool compute_bounds_outset(const LOGFONT& lf, SkIRect* outset) {
-
-    static const struct {
-        const char* fUCName;    // UTF8 encoded, ascii is upper-case
-        SkIRect     fOutset;    // these are deltas for the glyph's bounds
-    } gData[] = {
-        // http://code.google.com/p/chromium/issues/detail?id=130842
-        { "DOTUM", { 0, 0, 0, 1 } },
-        { "DOTUMCHE", { 0, 0, 0, 1 } },
-        { "\xEB\x8F\x8B\xEC\x9B\x80", { 0, 0, 0, 1 } },
-        { "\xEB\x8F\x8B\xEC\x9B\x80\xEC\xB2\xB4", { 0, 0, 0, 1 } },
-        { "MS UI GOTHIC", { 1, 0, 0, 0 } },
-    };
-
-    /**
-     *  We convert the target name into upper-case (for ascii chars) UTF8.
-     *  Our database is already stored in this fashion, and it allows us to
-     *  search it with straight memcmp, since everyone is in this canonical
-     *  form.
-     */
-
-    // temp storage is max # TCHARs * max expantion for UTF8 + null
-    char name[kMaxBytesInUTF8Sequence * LF_FACESIZE + 1];
-    int index = 0;
-    for (int i = 0; i < LF_FACESIZE; ++i) {
-        uint16_t c = lf.lfFaceName[i];
-        if (c >= 'a' && c <= 'z') {
-            c = c - 'a' + 'A';
-        }
-        size_t n = SkUTF16_ToUTF8(&c, 1, &name[index]);
-        index += n;
-        if (0 == c) {
-            break;
-        }
-    }
-
-    for (size_t j = 0; j < SK_ARRAY_COUNT(gData); ++j) {
-        if (!strcmp(gData[j].fUCName, name)) {
-            *outset = gData[j].fOutset;
-            return true;
-        }
-    }
-    return false;
-}
-
-// outset isn't really a rect, but 4 (non-negative) values to outset the
-// glyph's metrics by. For "normal" fonts, all these values should be 0.
-static void apply_outset(SkGlyph* glyph, const SkIRect& outset) {
-    SkASSERT(outset.fLeft >= 0);
-    SkASSERT(outset.fTop >= 0);
-    SkASSERT(outset.fRight >= 0);
-    SkASSERT(outset.fBottom >= 0);
-
-    glyph->fLeft -= outset.fLeft;
-    glyph->fTop -= outset.fTop;
-    glyph->fWidth += outset.fLeft + outset.fRight;
-    glyph->fHeight += outset.fTop + outset.fBottom;
-}
-
 // always packed xxRRGGBB
 typedef uint32_t SkGdiRGB;
 
@@ -557,20 +498,11 @@ private:
     HDCOffscreen fOffscreen;
     SkScalar     fScale;  // to get from canonical size to real size
     MAT2         fMat22;
-    XFORM        fXform;
     HDC          fDDC;
     HFONT        fSavefont;
     HFONT        fFont;
     SCRIPT_CACHE fSC;
     int          fGlyphCount;
-
-    /**
-     *  Some fonts need extra pixels added to avoid clipping, as the bounds
-     *  returned by getOutlineMetrics does not match what GDI draws. Since
-     *  this costs more RAM and therefore slower blits, we have a table to
-     *  only do this for known "bad" fonts.
-     */
-    SkIRect      fOutset;
 
     HFONT        fHiResFont;
     MAT2         fMat22Identity;
@@ -634,10 +566,6 @@ SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
     lf.lfQuality = compute_quality(fRec);
     fFont = CreateFontIndirect(&lf);
 
-    if (!compute_bounds_outset(lf, &fOutset)) {
-        fOutset.setEmpty();
-    }
-
     // if we're rotated, or want fractional widths, create a hires font
     fHiResFont = 0;
     if (needHiResMetrics(fRec.fPost2x2)) {
@@ -670,23 +598,27 @@ SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
     SkASSERT(!(fTM.tmPitchAndFamily & TMPF_VECTOR) ||
               (fTM.tmPitchAndFamily & (TMPF_TRUETYPE | TMPF_DEVICE)));
 
+    XFORM xform;
     if (fTM.tmPitchAndFamily & TMPF_VECTOR) {
         // Truetype or PostScript.
         // Stroked FON also gets here (TMPF_VECTOR), but we don't handle it.
         fType = SkScalerContext_Windows::kTrueType_Type;
         fScale = fRec.fTextSize / gCanonicalTextSize;
 
-        fXform.eM11 = mul2float(fScale, fRec.fPost2x2[0][0]);
-        fXform.eM12 = mul2float(fScale, fRec.fPost2x2[1][0]);
-        fXform.eM21 = mul2float(fScale, fRec.fPost2x2[0][1]);
-        fXform.eM22 = mul2float(fScale, fRec.fPost2x2[1][1]);
-        fXform.eDx = 0;
-        fXform.eDy = 0;
+        // fPost2x2 is column-major, left handed (y down).
+        // XFORM 2x2 is row-major, left handed (y down).
+        xform.eM11 = mul2float(fScale, fRec.fPost2x2[0][0]);
+        xform.eM12 = mul2float(fScale, fRec.fPost2x2[1][0]);
+        xform.eM21 = mul2float(fScale, fRec.fPost2x2[0][1]);
+        xform.eM22 = mul2float(fScale, fRec.fPost2x2[1][1]);
+        xform.eDx = 0;
+        xform.eDy = 0;
 
-        fMat22.eM11 = float2FIXED(fXform.eM11);
-        fMat22.eM12 = float2FIXED(fXform.eM12);
-        fMat22.eM21 = float2FIXED(-fXform.eM21);
-        fMat22.eM22 = float2FIXED(-fXform.eM22);
+        // MAT2 is row major, right handed (y up).
+        fMat22.eM11 = float2FIXED(xform.eM11);
+        fMat22.eM12 = float2FIXED(-xform.eM12);
+        fMat22.eM21 = float2FIXED(-xform.eM21);
+        fMat22.eM22 = float2FIXED(xform.eM22);
 
         if (needToRenderWithSkia(fRec)) {
             this->forceGenerateImageFromPath();
@@ -697,17 +629,19 @@ SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
         fType = SkScalerContext_Windows::kBitmap_Type;
         fScale = SK_Scalar1;
 
-        fXform.eM11 = 1.0f;
-        fXform.eM12 = 0.0f;
-        fXform.eM21 = 0.0f;
-        fXform.eM22 = 1.0f;
-        fXform.eDx = 0.0f;
-        fXform.eDy = 0.0f;
+        xform.eM11 = 1.0f;
+        xform.eM12 = 0.0f;
+        xform.eM21 = 0.0f;
+        xform.eM22 = 1.0f;
+        xform.eDx = 0.0f;
+        xform.eDy = 0.0f;
 
+        // fPost2x2 is column-major, left handed (y down).
+        // MAT2 is row major, right handed (y up).
         fMat22.eM11 = SkScalarToFIXED(fRec.fPost2x2[0][0]);
-        fMat22.eM12 = SkScalarToFIXED(fRec.fPost2x2[1][0]);
+        fMat22.eM12 = SkScalarToFIXED(-fRec.fPost2x2[1][0]);
         fMat22.eM21 = SkScalarToFIXED(-fRec.fPost2x2[0][1]);
-        fMat22.eM22 = SkScalarToFIXED(-fRec.fPost2x2[1][1]);
+        fMat22.eM22 = SkScalarToFIXED(fRec.fPost2x2[1][1]);
 
         lf.lfHeight = -SkScalarCeilToInt(fRec.fTextSize);
         HFONT bitmapFont = CreateFontIndirect(&lf);
@@ -722,7 +656,7 @@ SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
         }
     }
 
-    fOffscreen.init(fFont, fXform);
+    fOffscreen.init(fFont, xform);
 }
 
 SkScalerContext_Windows::~SkScalerContext_Windows() {
@@ -781,7 +715,6 @@ void SkScalerContext_Windows::generateAdvance(SkGlyph* glyph) {
 }
 
 void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
-
     SkASSERT(fDDC);
 
     if (fType == SkScalerContext_Windows::kBitmap_Type) {
@@ -799,73 +732,69 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
         glyph->fAdvanceX = SkIntToFixed(glyph->fWidth);
         glyph->fAdvanceY = 0;
 
-        //Apply matrix to values.
+        // Apply matrix to advance.
         glyph->fAdvanceY = SkFixedMul(SkFIXEDToFixed(fMat22.eM21), glyph->fAdvanceX);
         glyph->fAdvanceX = SkFixedMul(SkFIXEDToFixed(fMat22.eM11), glyph->fAdvanceX);
 
-        apply_outset(glyph, fOutset);
         return;
     }
+
+    UINT glyphId = glyph->getGlyphID(0);
 
     GLYPHMETRICS gm;
     sk_bzero(&gm, sizeof(gm));
 
+    DWORD status = GetGlyphOutlineW(fDDC, glyphId, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, NULL, &fMat22);
+    if (GDI_ERROR == status) {
+        ensure_typeface_accessible(fRec.fFontID);
+        status = GetGlyphOutlineW(fDDC, glyphId, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, NULL, &fMat22);
+        if (GDI_ERROR == status) {
+            glyph->zeroMetrics();
+            return;
+        }
+    }
+
+    bool empty = false;
+    // The black box is either the embedded bitmap size or the outline extent.
+    // It is 1x1 if nothing is to be drawn, but will also be 1x1 if something very small
+    // is to be drawn, like a '.'. We need to outset '.' but do not wish to outset ' '.
+    if (1 == gm.gmBlackBoxX && 1 == gm.gmBlackBoxY) {
+        // If GetGlyphOutline with GGO_NATIVE returns 0, we know there was no outline.
+        DWORD bufferSize = GetGlyphOutlineW(fDDC, glyphId, GGO_NATIVE | GGO_GLYPH_INDEX, &gm, 0, NULL, &fMat22);
+        empty = (0 == bufferSize);
+    }
+
+    glyph->fTop = SkToS16(-gm.gmptGlyphOrigin.y);
+    glyph->fLeft = SkToS16(gm.gmptGlyphOrigin.x);
+    if (empty) {
+        glyph->fWidth = 0;
+        glyph->fHeight = 0;
+    } else {
+        // Outset, since the image may bleed out of the black box.
+        // For embedded bitmaps the black box should be exact.
+        // For outlines we need to outset by 1 in all directions for bleed.
+        // For ClearType we need to outset by 2 for bleed.
+        glyph->fWidth = gm.gmBlackBoxX + 4;
+        glyph->fHeight = gm.gmBlackBoxY + 4;
+        glyph->fTop -= 2;
+        glyph->fLeft -= 2;
+    }
+    glyph->fAdvanceX = SkIntToFixed(gm.gmCellIncX);
+    glyph->fAdvanceY = SkIntToFixed(gm.gmCellIncY);
     glyph->fRsbDelta = 0;
     glyph->fLsbDelta = 0;
 
-    // Note: need to use GGO_GRAY8_BITMAP instead of GGO_METRICS because GGO_METRICS returns a smaller
-    // BlackBlox; we need the bigger one in case we need the image.  fAdvance is the same.
-    uint32_t ret = GetGlyphOutlineW(fDDC, glyph->getGlyphID(0), GGO_GRAY8_BITMAP | GGO_GLYPH_INDEX, &gm, 0, NULL, &fMat22);
-    if (GDI_ERROR == ret) {
-        ensure_typeface_accessible(fRec.fFontID);
-        ret = GetGlyphOutlineW(fDDC, glyph->getGlyphID(0), GGO_GRAY8_BITMAP | GGO_GLYPH_INDEX, &gm, 0, NULL, &fMat22);
-    }
-
-    if (GDI_ERROR != ret) {
-        if (ret == 0) {
-            // for white space, ret is zero and gmBlackBoxX, gmBlackBoxY are 1 incorrectly!
-            gm.gmBlackBoxX = gm.gmBlackBoxY = 0;
+    if (fHiResFont) {
+        SelectObject(fDDC, fHiResFont);
+        sk_bzero(&gm, sizeof(gm));
+        status = GetGlyphOutlineW(fDDC, glyphId, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, NULL, &fMat22Identity);
+        if (GDI_ERROR != status) {
+            SkPoint advance;
+            fHiResMatrix.mapXY(SkIntToScalar(gm.gmCellIncX), SkIntToScalar(gm.gmCellIncY), &advance);
+            glyph->fAdvanceX = SkScalarToFixed(advance.fX);
+            glyph->fAdvanceY = SkScalarToFixed(advance.fY);
         }
-        glyph->fWidth   = gm.gmBlackBoxX;
-        glyph->fHeight  = gm.gmBlackBoxY;
-        glyph->fTop     = SkToS16(gm.gmptGlyphOrigin.y - gm.gmBlackBoxY);
-        glyph->fLeft    = SkToS16(gm.gmptGlyphOrigin.x);
-        glyph->fAdvanceX = SkIntToFixed(gm.gmCellIncX);
-        glyph->fAdvanceY = -SkIntToFixed(gm.gmCellIncY);
-
-        // we outset in all dimensions, since the image may bleed outside
-        // of the computed bounds returned by GetGlyphOutline.
-        // This was deduced by trial and error for small text (e.g. 8pt), so there
-        // maybe a more precise way to make this adjustment...
-        //
-        // This test shows us clipping the tops of some of the CJK fonts unless we
-        // increase the top of the box by 2, hence the height by 4. This seems to
-        // correspond to an embedded bitmap font, but not sure.
-        //     LayoutTests/fast/text/backslash-to-yen-sign-euc.html
-        //
-        if (glyph->fWidth) {    // don't outset an empty glyph
-            glyph->fWidth += 4;
-            glyph->fHeight += 4;
-            glyph->fTop -= 2;
-            glyph->fLeft -= 2;
-
-            apply_outset(glyph, fOutset);
-        }
-
-        if (fHiResFont) {
-            SelectObject(fDDC, fHiResFont);
-            sk_bzero(&gm, sizeof(gm));
-            ret = GetGlyphOutlineW(fDDC, glyph->getGlyphID(0), GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, NULL, &fMat22Identity);
-            if (GDI_ERROR != ret) {
-                SkPoint advance;
-                fHiResMatrix.mapXY(SkIntToScalar(gm.gmCellIncX), SkIntToScalar(gm.gmCellIncY), &advance);
-                glyph->fAdvanceX = SkScalarToFixed(advance.fX);
-                glyph->fAdvanceY = SkScalarToFixed(advance.fY);
-            }
-            SelectObject(fDDC, fFont);
-        }
-    } else {
-        glyph->zeroMetrics();
+        SelectObject(fDDC, fFont);
     }
 }
 
@@ -1228,73 +1157,70 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
 
 void SkScalerContext_Windows::generatePath(const SkGlyph& glyph, SkPath* path) {
 
-    SkAutoMutexAcquire  ac(gFTMutex);
+    SkAutoMutexAcquire ac(gFTMutex);
 
     SkASSERT(&glyph && path);
     SkASSERT(fDDC);
 
     path->reset();
 
-#if 0
-    char buf[1024];
-    sprintf(buf, "generatePath: id:%d, w=%d, h=%d, font:%s,fh:%d\n", glyph.fID, glyph.fWidth, glyph.fHeight, lf.lfFaceName, lf.lfHeight);
-    OutputDebugString(buf);
-#endif
-
     GLYPHMETRICS gm;
     uint32_t total_size = GetGlyphOutlineW(fDDC, glyph.fID, GGO_NATIVE | GGO_GLYPH_INDEX, &gm, BUFFERSIZE, glyphbuf, &fMat22);
     if (GDI_ERROR == total_size) {
         ensure_typeface_accessible(fRec.fFontID);
         total_size = GetGlyphOutlineW(fDDC, glyph.fID, GGO_NATIVE | GGO_GLYPH_INDEX, &gm, BUFFERSIZE, glyphbuf, &fMat22);
-    }
-
-    if (GDI_ERROR != total_size) {
-
-        const uint8_t* cur_glyph = glyphbuf;
-        const uint8_t* end_glyph = glyphbuf + total_size;
-
-        while(cur_glyph < end_glyph) {
-            const TTPOLYGONHEADER* th = (TTPOLYGONHEADER*)cur_glyph;
-
-            const uint8_t* end_poly = cur_glyph + th->cb;
-            const uint8_t* cur_poly = cur_glyph + sizeof(TTPOLYGONHEADER);
-
-            path->moveTo(SkFixedToScalar(*(SkFixed*)(&th->pfxStart.x)), SkFixedToScalar(*(SkFixed*)(&th->pfxStart.y)));
-
-            while(cur_poly < end_poly) {
-                const TTPOLYCURVE* pc = (const TTPOLYCURVE*)cur_poly;
-
-                if (pc->wType == TT_PRIM_LINE) {
-                    for (uint16_t i = 0; i < pc->cpfx; i++) {
-                        path->lineTo(SkFixedToScalar(*(SkFixed*)(&pc->apfx[i].x)), SkFixedToScalar(*(SkFixed*)(&pc->apfx[i].y)));
-                    }
-                }
-
-                if (pc->wType == TT_PRIM_QSPLINE) {
-                    for (uint16_t u = 0; u < pc->cpfx - 1; u++) { // Walk through points in spline
-                        POINTFX pnt_b = pc->apfx[u];    // B is always the current point
-                        POINTFX pnt_c = pc->apfx[u+1];
-
-                        if (u < pc->cpfx - 2) {          // If not on last spline, compute C
-                            pnt_c.x = SkFixedToFIXED(SkFixedAve(*(SkFixed*)(&pnt_b.x), *(SkFixed*)(&pnt_c.x)));
-                            pnt_c.y = SkFixedToFIXED(SkFixedAve(*(SkFixed*)(&pnt_b.y), *(SkFixed*)(&pnt_c.y)));
-                        }
-
-                        path->quadTo(SkFixedToScalar(*(SkFixed*)(&pnt_b.x)), SkFixedToScalar(*(SkFixed*)(&pnt_b.y)), SkFixedToScalar(*(SkFixed*)(&pnt_c.x)), SkFixedToScalar(*(SkFixed*)(&pnt_c.y)));
-                    }
-                }
-                cur_poly += sizeof(uint16_t) * 2 + sizeof(POINTFX) * pc->cpfx;
-            }
-            cur_glyph += th->cb;
-            path->close();
+        if (GDI_ERROR == total_size) {
+            SkASSERT(false);
+            return;
         }
     }
-    else {
-        SkASSERT(false);
+
+    const uint8_t* cur_glyph = glyphbuf;
+    const uint8_t* end_glyph = glyphbuf + total_size;
+
+    while (cur_glyph < end_glyph) {
+        const TTPOLYGONHEADER* th = (TTPOLYGONHEADER*)cur_glyph;
+
+        const uint8_t* end_poly = cur_glyph + th->cb;
+        const uint8_t* cur_poly = cur_glyph + sizeof(TTPOLYGONHEADER);
+
+        path->moveTo(SkFixedToScalar( SkFIXEDToFixed(th->pfxStart.x)),
+                     SkFixedToScalar(-SkFIXEDToFixed(th->pfxStart.y)));
+
+        while (cur_poly < end_poly) {
+            const TTPOLYCURVE* pc = (const TTPOLYCURVE*)cur_poly;
+
+            if (pc->wType == TT_PRIM_LINE) {
+                for (uint16_t i = 0; i < pc->cpfx; i++) {
+                    path->lineTo(SkFixedToScalar( SkFIXEDToFixed(pc->apfx[i].x)),
+                                 SkFixedToScalar(-SkFIXEDToFixed(pc->apfx[i].y)));
+                }
+            }
+
+            if (pc->wType == TT_PRIM_QSPLINE) {
+                for (uint16_t u = 0; u < pc->cpfx - 1; u++) { // Walk through points in spline
+                    POINTFX pnt_b = pc->apfx[u];    // B is always the current point
+                    POINTFX pnt_c = pc->apfx[u+1];
+
+                    if (u < pc->cpfx - 2) {          // If not on last spline, compute C
+                        pnt_c.x = SkFixedToFIXED(SkFixedAve(SkFIXEDToFixed(pnt_b.x),
+                                                            SkFIXEDToFixed(pnt_c.x)));
+                        pnt_c.y = SkFixedToFIXED(SkFixedAve(SkFIXEDToFixed(pnt_b.y),
+                                                            SkFIXEDToFixed(pnt_c.y)));
+                    }
+
+                    path->quadTo(SkFixedToScalar( SkFIXEDToFixed(pnt_b.x)),
+                                 SkFixedToScalar(-SkFIXEDToFixed(pnt_b.y)),
+                                 SkFixedToScalar( SkFIXEDToFixed(pnt_c.x)),
+                                 SkFixedToScalar(-SkFIXEDToFixed(pnt_c.y)));
+                }
+            }
+            // Advance past this TTPOLYCURVE.
+            cur_poly += sizeof(WORD) * 2 + sizeof(POINTFX) * pc->cpfx;
+        }
+        cur_glyph += th->cb;
+        path->close();
     }
-    //char buf[1024];
-    //sprintf(buf, "generatePath: count:%d\n", count);
-    //OutputDebugString(buf);
 }
 
 static void logfont_for_name(const char* familyName, LOGFONT& lf) {
