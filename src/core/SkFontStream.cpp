@@ -120,13 +120,13 @@ struct SfntHeader {
         }
 
         stream->rewind();
-        if (stream->skip(offsetToDir) != offsetToDir) {
+        if (!skip(stream, offsetToDir)) {
             return false;
         }
 
         size_t size = fCount * sizeof(SkSFNTDirEntry);
         fDir = reinterpret_cast<SkSFNTDirEntry*>(sk_malloc_throw(size));
-        return stream->read(fDir, size) == size;
+        return read(stream, fDir, size);
     }
 
     int             fCount;
@@ -139,7 +139,7 @@ int SkFontStream::CountTTCEntries(SkStream* stream) {
     stream->rewind();
 
     SkSharedTTHeader shared;
-    if (stream->read(&shared, sizeof(shared)) != sizeof(shared)) {
+    if (!read(stream, &shared, sizeof(shared))) {
         return 0;
     }
 
@@ -148,7 +148,7 @@ int SkFontStream::CountTTCEntries(SkStream* stream) {
     if (SkSetFourByteTag('t', 't', 'c', 'f') == tag) {
         return SkEndian_SwapBE32(shared.fCollection.fNumOffsets);
     } else {
-        return 0;
+        return 1;   // normal 'sfnt' has 1 dir entry
     }
 }
 
@@ -196,10 +196,10 @@ size_t SkFontStream::GetTableData(SkStream* stream, int ttcIndex,
                 // skip the stream to the part of the table we want to copy from
                 stream->rewind();
                 size_t bytesToSkip = realOffset + offset;
-                if (stream->skip(bytesToSkip) != bytesToSkip) {
+                if (skip(stream, bytesToSkip)) {
                     return 0;
                 }
-                if (stream->read(data, length) != length) {
+                if (!read(stream, data, length)) {
                     return 0;
                 }
             }

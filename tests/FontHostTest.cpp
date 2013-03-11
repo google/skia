@@ -7,10 +7,13 @@
 
 #include "Test.h"
 #include "SkPaint.h"
+#include "SkFontStream.h"
+#include "SkStream.h"
 #include "SkTypeface.h"
 #include "SkEndian.h"
 
 //#define DUMP_TABLES
+//#define DUMP_TTC_TABLES
 
 #define kFontTableTag_head          SkSetFourByteTag('h', 'e', 'a', 'd')
 #define kFontTableTag_hhea          SkSetFourByteTag('h', 'h', 'e', 'a')
@@ -37,6 +40,52 @@ static void test_unitsPerEm(skiatest::Reporter* reporter, SkTypeface* face) {
         // unitsPerEm is at offset 18 into the 'head' table.
         int upem2 = SkEndian_SwapBE16(*(uint16_t*)&ptr[18]);
         REPORTER_ASSERT(reporter, upem2 == upem);
+    }
+}
+
+static void test_fontstream(skiatest::Reporter* reporter,
+                            SkStream* stream, int ttcIndex) {
+    int n = SkFontStream::GetTableTags(stream, ttcIndex, NULL);
+    SkAutoTArray<SkFontTableTag> array(n);
+    
+    int n2 = SkFontStream::GetTableTags(stream, ttcIndex, array.get());
+    REPORTER_ASSERT(reporter, n == n2);
+    
+    for (int i = 0; i < n; ++i) {
+#ifdef DUMP_TTC_TABLES
+        SkString str;
+        SkFontTableTag t = array[i];
+        str.appendUnichar((t >> 24) & 0xFF);
+        str.appendUnichar((t >> 16) & 0xFF);
+        str.appendUnichar((t >>  8) & 0xFF);
+        str.appendUnichar((t >>  0) & 0xFF);
+        SkDebugf("[%d:%d] '%s'\n", ttcIndex, i, str.c_str());
+#endif
+        size_t size = SkFontStream::GetTableSize(stream, ttcIndex, array[i]);
+        for (size_t j = 0; j < SK_ARRAY_COUNT(gKnownTableSizes); ++j) {
+            if (gKnownTableSizes[j].fTag == array[i]) {
+                REPORTER_ASSERT(reporter, gKnownTableSizes[j].fSize == size);
+            }
+        }        
+    }
+}
+
+static void test_fontstream(skiatest::Reporter* reporter, SkStream* stream) {
+    int count = SkFontStream::CountTTCEntries(stream);
+#ifdef DUMP_TTC_TABLES
+    SkDebugf("CountTTCEntries %d\n", count);
+#endif
+    for (int i = 0; i < count; ++i) {
+        test_fontstream(reporter, stream, i);
+    }
+}
+
+static void test_fontstream(skiatest::Reporter* reporter) {
+    // TODO: replace when we get a tools/resources/fonts/test.ttc
+    const char* name = "/AmericanTypewriter.ttc";
+    SkFILEStream stream(name);
+    if (stream.isValid()) {
+        test_fontstream(reporter, &stream);
     }
 }
 
@@ -177,6 +226,7 @@ static void test_advances(skiatest::Reporter* reporter) {
 
 static void TestFontHost(skiatest::Reporter* reporter) {
     test_tables(reporter);
+    test_fontstream(reporter);
     test_advances(reporter);
 }
 

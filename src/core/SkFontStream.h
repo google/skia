@@ -15,8 +15,9 @@ class SkStream;
 class SkFontStream {
 public:
     /**
-     *  Return the number of shared 'fonts' inside a TTC sfnt, or return 0
-     *  if the stream is a normal sfnt (not a TTC).
+     *  Return the number of shared directories inside a TTC sfnt, or return 1
+     *  if the stream is a normal sfnt (ttf). If there is an error or
+     *  no directory is found, return 0.
      *
      *  Note: the stream is rewound initially, but is returned at an arbitrary
      *  read offset.
@@ -39,6 +40,10 @@ public:
      */
     static size_t GetTableData(SkStream*, int ttcIndex, SkFontTableTag tag,
                                size_t offset, size_t length, void* data);
+
+    static size_t GetTableSize(SkStream* stream, int ttcIndex, SkFontTableTag tag) {
+        return GetTableData(stream, ttcIndex, tag, 0, ~0U, NULL);
+    }
 };
 
 #endif
