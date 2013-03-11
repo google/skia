@@ -177,13 +177,11 @@ static bool rect_exceeds(const SkRect& r, SkScalar v) {
            r.width() > v || r.height() > v;
 }
 
-SK_CONF_DECLARE( bool, c_analyticBlurNinepatch, "mask.filter.analyticNinePatch", 
 #ifdef SK_IGNORE_FAST_RECT_BLUR
-                 false, 
+SK_CONF_DECLARE( bool, c_analyticBlurNinepatch, "mask.filter.analyticNinePatch", false, "Use the faster analytic blur approach for ninepatch rects" );
 #else
-                 true,
+SK_CONF_DECLARE( bool, c_analyticBlurNinepatch, "mask.filter.analyticNinePatch", true, "Use the faster analytic blur approach for ninepatch rects" );
 #endif
-                 "Use the faster analytic blur approach for ninepatch rects" );
 
 SkMaskFilter::FilterReturn
 SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
