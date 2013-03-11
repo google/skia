@@ -36,6 +36,14 @@ struct SkSFNTDirEntry {
     uint32_t    fLength;
 };
 
+static bool read(SkStream* stream, void* buffer, size_t amount) {
+    return stream->read(buffer, amount) == amount;
+}
+
+static bool skip(SkStream* stream, size_t amount) {
+    return stream->skip(amount) == amount;
+}
+
 /** Return the number of tables, or if this is a TTC (collection), return the
     number of tables in the first element of the collection. In either case,
     if offsetToDir is not-null, set it to the offset to the beginning of the
@@ -46,8 +54,10 @@ struct SkSFNTDirEntry {
 static int count_tables(SkStream* stream, int ttcIndex, size_t* offsetToDir) {
     SkASSERT(ttcIndex >= 0);
 
-    SkSharedTTHeader shared;
-    if (stream->read(&shared, sizeof(shared)) != sizeof(shared)) {
+    SkAutoSMalloc<1024> storage(sizeof(SkSharedTTHeader));
+    SkSharedTTHeader* header = (SkSharedTTHeader*)storage.get();
+
+    if (!read(stream, header, sizeof(SkSharedTTHeader))) {
         return 0;
     }
 
@@ -55,27 +65,28 @@ static int count_tables(SkStream* stream, int ttcIndex, size_t* offsetToDir) {
     size_t offset = 0;
 
     // if we're really a collection, the first 4-bytes will be 'ttcf'
-    uint32_t tag = SkEndian_SwapBE32(shared.fCollection.fTag);
+    uint32_t tag = SkEndian_SwapBE32(header->fCollection.fTag);
     if (SkSetFourByteTag('t', 't', 'c', 'f') == tag) {
-        unsigned count = SkEndian_SwapBE32(shared.fCollection.fNumOffsets);
+        unsigned count = SkEndian_SwapBE32(header->fCollection.fNumOffsets);
         if ((unsigned)ttcIndex >= count) {
             return 0;
         }
 
         if (ttcIndex > 0) { // need to read more of the shared header
             stream->rewind();
-            size_t amount = sizeof(shared) + ttcIndex * sizeof(uint32_t);
-            if (stream->read(&shared, amount) != amount) {
+            size_t amount = sizeof(SkSharedTTHeader) + ttcIndex * sizeof(uint32_t);
+            header = (SkSharedTTHeader*)storage.reset(amount);
+            if (!read(stream, header, amount)) {
                 return 0;
             }
         }
         // this is the offset to the local SkSFNTHeader
-        offset = SkEndian_SwapBE32((&shared.fCollection.fOffset0)[ttcIndex]);
+        offset = SkEndian_SwapBE32((&header->fCollection.fOffset0)[ttcIndex]);
         stream->rewind();
-        if (stream->skip(offset) != offset) {
+        if (!skip(stream, offset)) {
             return 0;
         }
-        if (stream->read(&shared, sizeof(shared)) != sizeof(shared)) {
+        if (!read(stream, header, sizeof(SkSFNTHeader))) {
             return 0;
         }
     }
@@ -84,7 +95,7 @@ static int count_tables(SkStream* stream, int ttcIndex, size_t* offsetToDir) {
         // add the size of the header, so we will point to the DirEntries
         *offsetToDir = offset + sizeof(SkSFNTHeader);
     }
-    return SkEndian_SwapBE16(shared.fSingle.fNumTables);
+    return SkEndian_SwapBE16(header->fSingle.fNumTables);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
