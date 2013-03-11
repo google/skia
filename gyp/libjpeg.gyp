@@ -93,6 +93,11 @@
                '-Werror',
               ],
             }],
+            ['OS in ["linux", "freebsd", "openbsd", "solaris", "nacl"]', {
+              'cflags!': [
+               '-Werror',
+              ],
+            }],
           ],
         },
       ],
