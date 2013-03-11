@@ -1242,7 +1242,7 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
                           SkScalar provided_radius, Style style,
                           SkIPoint *margin, SkMask::CreateMode createMode) {
     int profile_size;
-
+    
     float radius = SkScalarToFloat(SkScalarMul(provided_radius, kBlurRadiusFudgeFactor));
 
     // adjust blur radius to match interpretation from boxfilter code
@@ -1356,6 +1356,11 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
             uint8_t *dst_scanline = dp + y*dstWidth + pad;
             memset(dst_scanline, 0, sw);
         }
+    } else if (style == kSolid_Style) {
+        for (int y = pad ; y < dstHeight-pad ; y++) {
+            uint8_t *dst_scanline = dp + y*dstWidth + pad;
+            memset(dst_scanline, 0xff, sw);
+        }        
     }
     // normal and solid styles are the same for analytic rect blurs, so don't
     // need to handle solid specially.
