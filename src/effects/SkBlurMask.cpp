@@ -1255,15 +1255,10 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
         margin->set( pad, pad );
     }
 
-    int shadow_left = -pad;
-    int shadow_top = -pad;
-    int shadow_right = (int)(src.width()) + pad;
-    int shadow_bottom = (int)(src.height()) + pad;
-
-    dst->fBounds.set(SkScalarRoundToInt(shadow_left + src.fLeft), 
-                     SkScalarRoundToInt(shadow_top + src.fTop), 
-                     SkScalarRoundToInt(shadow_right + src.fRight), 
-                     SkScalarRoundToInt(shadow_bottom + src.fBottom));
+    dst->fBounds.set(SkScalarRoundToInt(src.fLeft - pad), 
+                     SkScalarRoundToInt(src.fTop - pad), 
+                     SkScalarRoundToInt(src.fRight + pad), 
+                     SkScalarRoundToInt(src.fBottom + pad));
 
     dst->fRowBytes = dst->fBounds.width();
     dst->fFormat = SkMask::kA8_Format;
@@ -1274,7 +1269,10 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
     
     if (createMode == SkMask::kJustComputeBounds_CreateMode) {
         if (style == kInner_Style) {
-            dst->fBounds.set(0, 0, sw, sh); // restore trimmed bounds
+            dst->fBounds.set(SkScalarRoundToInt(src.fLeft), 
+                             SkScalarRoundToInt(src.fTop), 
+                             SkScalarRoundToInt(src.fRight), 
+                             SkScalarRoundToInt(src.fBottom)); // restore trimmed bounds
             dst->fRowBytes = sw;
         }
         return true;
@@ -1347,7 +1345,10 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
         }
         SkMask::FreeImage(dp);
 
-        dst->fBounds.set(0, 0, sw, sh); // restore trimmed bounds
+        dst->fBounds.set(SkScalarRoundToInt(src.fLeft), 
+                         SkScalarRoundToInt(src.fTop), 
+                         SkScalarRoundToInt(src.fRight), 
+                         SkScalarRoundToInt(src.fBottom)); // restore trimmed bounds
         dst->fRowBytes = sw;
 
     } else if (style == kOuter_Style) {
