@@ -137,7 +137,7 @@ void GrConfigConversionEffect::getConstantColorComponents(GrColor* color,
 GR_DEFINE_EFFECT_TEST(GrConfigConversionEffect);
 
 GrEffectRef* GrConfigConversionEffect::TestCreate(SkMWCRandom* random,
-                                                  GrContext* context,
+                                                  GrContext*,
                                                   GrTexture* textures[]) {
     PMConversion pmConv = static_cast<PMConversion>(random->nextULessThan(kPMConversionCnt));
     bool swapRB;

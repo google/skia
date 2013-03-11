@@ -86,7 +86,7 @@ void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
 // Copy the contents of the SkGpuDevice into a new texture and give that
 // texture to the SkImage. Note that this flushes the SkGpuDevice but
 // doesn't force an OpenGL flush.
-void SkSurface_Gpu::onCopyOnWrite(SkImage* image, SkCanvas* canvas) {
+void SkSurface_Gpu::onCopyOnWrite(SkImage* image, SkCanvas*) {
     GrRenderTarget* rt = (GrRenderTarget*) fDevice->accessRenderTarget();
 
     // are we sharing our render target with the image?

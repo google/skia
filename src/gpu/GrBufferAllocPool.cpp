@@ -16,7 +16,7 @@
 #if GR_DEBUG
     #define VALIDATE validate
 #else
-    static void VALIDATE(bool x = false) {}
+    static void VALIDATE(bool = false) {}
 #endif
 
 // page size

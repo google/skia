@@ -464,7 +464,7 @@ GrEffectRef* GrSweepGradient::TestCreate(SkMWCRandom* random,
 /////////////////////////////////////////////////////////////////////
 
 void GrGLSweepGradient::emitCode(GrGLShaderBuilder* builder,
-                                 const GrEffectStage& stage,
+                                 const GrEffectStage&,
                                  EffectKey key,
                                  const char* vertexCoords,
                                  const char* outputColor,

@@ -1173,7 +1173,7 @@ static const SkRegion::RunType* skip_intervals_slow(const SkRegion::RunType runs
     return runs;
 }
 
-static void compute_bounds(const SkRegion::RunType runs[], int count,
+static void compute_bounds(const SkRegion::RunType runs[],
                            SkIRect* bounds, int* ySpanCountPtr,
                            int* intervalCountPtr) {
     assert_sentinel(runs[0], false);    // top
@@ -1239,7 +1239,7 @@ void SkRegion::validate() const {
             {
                 SkIRect bounds;
                 int ySpanCount, intervalCount;
-                compute_bounds(run, stop - run, &bounds, &ySpanCount, &intervalCount);
+                compute_bounds(run, &bounds, &ySpanCount, &intervalCount);
 
                 SkASSERT(bounds == fBounds);
                 SkASSERT(ySpanCount > 0);

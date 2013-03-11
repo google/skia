@@ -554,7 +554,7 @@ GrEffectRef* GrRadialGradient::TestCreate(SkMWCRandom* random,
 /////////////////////////////////////////////////////////////////////
 
 void GrGLRadialGradient::emitCode(GrGLShaderBuilder* builder,
-                                  const GrEffectStage& stage,
+                                  const GrEffectStage&,
                                   EffectKey key,
                                   const char* vertexCoords,
                                   const char* outputColor,

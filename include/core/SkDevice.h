@@ -175,7 +175,7 @@ public:
      * and SkCanvas' SkDevice & SkBitmap -taking ctors). It allows the
      * devices to prepare for drawing (e.g., locking their pixels, etc.)
      */
-    virtual void onAttachToCanvas(SkCanvas* canvas) {
+    virtual void onAttachToCanvas(SkCanvas*) {
         SkASSERT(!fAttachedToCanvas);
         this->lockPixels();
 #ifdef SK_DEBUG
