@@ -363,7 +363,7 @@ int tool_main(int argc, char** argv) {
 
 #if SK_SUPPORT_GPU
     struct {
-        size_t  fBytes;
+        int     fBytes;
         int     fCount;
     } gpuCacheSize = { -1, -1 }; // -1s mean use the default
 #endif
@@ -659,7 +659,7 @@ int tool_main(int argc, char** argv) {
                 int count;
                 context->getTextureCacheLimits(&count, &bytes);
                 if (-1 != gpuCacheSize.fBytes) {
-                    bytes = gpuCacheSize.fBytes;
+                    bytes = static_cast<size_t>(gpuCacheSize.fBytes);
                 }
                 if (-1 != gpuCacheSize.fCount) {
                     count = gpuCacheSize.fCount;
