@@ -74,7 +74,7 @@ void SkBlurDrawLooper::flatten(SkFlattenableWriteBuffer& buffer) const {
     buffer.writeUInt(fBlurFlags);
 }
 
-void SkBlurDrawLooper::init(SkCanvas* canvas) {
+void SkBlurDrawLooper::init(SkCanvas*) {
     fState = kBeforeEdge;
 }
 

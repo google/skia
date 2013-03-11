@@ -55,7 +55,7 @@ extern bool gPrintInstCount;
             sk_atomic_inc(&gInstanceCount);                                 \
         }                                                                   \
                                                                             \
-        SkInstanceCountHelper(const SkInstanceCountHelper& other) {         \
+        SkInstanceCountHelper(const SkInstanceCountHelper&) {               \
             sk_atomic_inc(&gInstanceCount);                                 \
         }                                                                   \
                                                                             \

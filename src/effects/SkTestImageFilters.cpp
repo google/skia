@@ -69,7 +69,7 @@ SkComposeImageFilter::SkComposeImageFilter(SkFlattenableReadBuffer& buffer) : IN
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkDownSampleImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
-                                            const SkMatrix& matrix,
+                                            const SkMatrix&,
                                             SkBitmap* result, SkIPoint*) {
     SkScalar scale = fScale;
     if (scale > SK_Scalar1 || scale <= 0) {

@@ -420,7 +420,7 @@ void GrMorphologyEffect::getConstantColorComponents(GrColor* color, uint32_t* va
 GR_DEFINE_EFFECT_TEST(GrMorphologyEffect);
 
 GrEffectRef* GrMorphologyEffect::TestCreate(SkMWCRandom* random,
-                                            GrContext* context,
+                                            GrContext*,
                                             GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :
                                       GrEffectUnitTest::kAlphaTextureIdx;

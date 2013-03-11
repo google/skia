@@ -9,6 +9,6 @@
 #include "SkTypeface.h"
 
 //static
-void SkFontHost::EnsureTypefaceAccessible(const SkTypeface& typeface) {
+void SkFontHost::EnsureTypefaceAccessible(const SkTypeface&) {
     //No sandbox, nothing to do.
 }
