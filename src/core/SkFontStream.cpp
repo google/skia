@@ -196,7 +196,7 @@ size_t SkFontStream::GetTableData(SkStream* stream, int ttcIndex,
                 // skip the stream to the part of the table we want to copy from
                 stream->rewind();
                 size_t bytesToSkip = realOffset + offset;
-                if (skip(stream, bytesToSkip)) {
+                if (!skip(stream, bytesToSkip)) {
                     return 0;
                 }
                 if (!read(stream, data, length)) {
