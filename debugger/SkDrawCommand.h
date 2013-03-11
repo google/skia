@@ -92,6 +92,11 @@ class ClipRect : public SkDrawCommand {
 public:
     ClipRect(const SkRect& rect, SkRegion::Op op, bool doAA);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+
+    const SkRect& rect() const { return *fRect; }
+    SkRegion::Op op() const { return fOp; }
+    bool doAA() const { return fDoAA; }
+
 private:
     const SkRect* fRect;
     SkRegion::Op fOp;
@@ -102,6 +107,11 @@ class ClipRRect : public SkDrawCommand {
 public:
     ClipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+
+    const SkRRect& rrect() const { return fRRect; }
+    SkRegion::Op op() const { return fOp; }
+    bool doAA() const { return fDoAA; }
+
 private:
     SkRRect fRRect;
     SkRegion::Op fOp;
@@ -172,6 +182,8 @@ public:
     SkPaint* paint() { return fPaintPtr; }
 
     void setPaint(const SkPaint& paint) { fPaint = paint; fPaintPtr = &fPaint; }
+
+    const SkRect& dstRect() { return *fDst; }
 
 private:
     const SkRect* fSrc;
@@ -298,6 +310,9 @@ class DrawRectC : public SkDrawCommand {
 public:
     DrawRectC(const SkRect& rect, const SkPaint& paint);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+
+    const SkRect& rect() const { return *fRect; }
+    const SkPaint* paint() const { return fPaint; }
 private:
     const SkRect* fRect;
     const SkPaint* fPaint;
@@ -309,7 +324,7 @@ public:
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
 private:
     SkRRect fRRect;
-    const SkPaint* fPaint;
+    SkPaint fPaint;
 };
 
 class DrawSprite : public SkDrawCommand {
