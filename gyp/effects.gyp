@@ -23,9 +23,6 @@
       'sources': [
         'effects.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
       ],
-      'defines': [
-        'SK_IGNORE_FAST_RECT_BLUR=1',
-      ],
       'conditions': [
         ['skia_gpu == 1', {
           'include_dirs': [
