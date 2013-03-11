@@ -1260,10 +1260,10 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
     int shadow_right = (int)(src.width()) + pad;
     int shadow_bottom = (int)(src.height()) + pad;
 
-    dst->fBounds.set(shadow_left + src.fLeft, 
-                     shadow_top + src.fTop, 
-                     shadow_right + src.fRight, 
-                     shadow_bottom + src.fBottom);
+    dst->fBounds.set(SkScalarRoundToInt(shadow_left + src.fLeft), 
+                     SkScalarRoundToInt(shadow_top + src.fTop), 
+                     SkScalarRoundToInt(shadow_right + src.fRight), 
+                     SkScalarRoundToInt(shadow_bottom + src.fBottom));
 
     dst->fRowBytes = dst->fBounds.width();
     dst->fFormat = SkMask::kA8_Format;
