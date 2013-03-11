@@ -1233,7 +1233,6 @@ void SkRegion::validate() const {
             SkASSERT(fRunHead->fRunCount > kRectRegionRuns);
 
             const RunType* run = fRunHead->readonly_runs();
-            const RunType* stop = run + fRunHead->fRunCount;
 
             // check that our bounds match our runs
             {
