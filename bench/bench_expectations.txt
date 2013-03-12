@@ -28,9 +28,6 @@ desk_amazon.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,6.050,-4.85
 desk_amazon.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,24.460,10.791,36.906
 desk_amazon.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,24.960,11.216,37.456
 desk_amazon.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,5.010,-5.742,15.511
-desk_amazon.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,6.380,-4.577,17.018
-desk_amazon.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,6.740,-4.271,17.414
-desk_amazon.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,6.510,-4.466,17.161
 desk_amazon.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.750,-5.963,15.225
 desk_amazon.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.730,-5.980,15.203
 desk_baidu.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,2.010,-8.292,12.211
@@ -45,9 +42,6 @@ desk_baidu.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,3.490,-7.034
 desk_baidu.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,14.290,2.146,25.719
 desk_baidu.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,14.040,1.934,25.444
 desk_baidu.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,2.220,-8.113,12.442
-desk_baidu.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.070,-6.541,14.477
-desk_baidu.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.690,-6.013,15.159
-desk_baidu.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.130,-6.490,14.543
 desk_baidu.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,2.080,-8.232,12.288
 desk_baidu.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,2.380,-7.977,12.618
 desk_blogger.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,14.740,2.529,26.214
@@ -62,9 +56,6 @@ desk_blogger.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,25.090,11.
 desk_blogger.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,80.070,58.060,98.077
 desk_blogger.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,80.340,58.289,98.374
 desk_blogger.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,18.980,6.133,30.878
-desk_blogger.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,26.190,12.261,38.809
-desk_blogger.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,26.800,12.780,39.480
-desk_blogger.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,26.470,12.499,39.117
 desk_blogger.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,18.610,5.818,30.471
 desk_blogger.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,17.470,4.849,29.217
 desk_booking.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,43.010,26.558,57.311
@@ -79,9 +70,6 @@ desk_booking.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,19.220,6.3
 desk_booking.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,75.100,53.835,92.610
 desk_booking.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,74.880,53.648,92.368
 desk_booking.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,13.700,1.645,25.070
-desk_booking.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,19.770,6.805,31.747
-desk_booking.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,20.700,7.595,32.770
-desk_booking.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,20.240,7.204,32.264
 desk_booking.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,12.540,0.659,23.794
 desk_booking.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,14.480,2.308,25.928
 desk_br337.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,7.120,-3.948,17.832
@@ -96,9 +84,6 @@ desk_br337.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,15.600,3.260
 desk_br337.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,67.080,47.018,83.788
 desk_br337.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,67.080,47.018,83.788
 desk_br337.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,8.920,-2.418,19.812
-desk_br337.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,16.040,3.634,27.644
-desk_br337.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,16.520,4.042,28.172
-desk_br337.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,16.190,3.761,27.809
 desk_br337.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,8.330,-2.920,19.163
 desk_br337.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,9.170,-2.206,20.087
 desk_chalkboard.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,37.380,21.773,51.118
@@ -113,9 +98,6 @@ desk_chalkboard.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,53.910,
 desk_chalkboard.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,397.300,327.705,447.030
 desk_chalkboard.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,390.780,322.163,439.858
 desk_chalkboard.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,54.400,36.240,69.840
-desk_chalkboard.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,54.090,35.977,69.499
-desk_chalkboard.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,54.270,36.130,69.697
-desk_chalkboard.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,54.400,36.240,69.840
 desk_chalkboard.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,53.170,35.195,68.487
 desk_chalkboard.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,42.760,26.346,57.036
 desk_css3gradients.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,9.630,-1.814,20.593
@@ -130,9 +112,6 @@ desk_css3gradients.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,13.4
 desk_css3gradients.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,43.860,27.281,58.246
 desk_css3gradients.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,42.120,25.802,56.332
 desk_css3gradients.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,11.450,-0.268,22.595
-desk_css3gradients.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,14.570,2.385,26.027
-desk_css3gradients.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,15.290,2.997,26.819
-desk_css3gradients.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,14.580,2.393,26.038
 desk_css3gradients.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,10.820,-0.803,21.902
 desk_css3gradients.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,11.030,-0.625,22.133
 desk_ebay.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,41.350,25.148,55.485
@@ -147,9 +126,6 @@ desk_ebay.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,24.430,10.765
 desk_ebay.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,78.850,57.023,96.735
 desk_ebay.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,78.780,56.963,96.658
 desk_ebay.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,19.770,6.805,31.747
-desk_ebay.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,24.770,11.054,37.247
-desk_ebay.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,25.360,11.556,37.896
-desk_ebay.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,24.860,11.131,37.346
 desk_ebay.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,18.810,5.989,30.691
 desk_ebay.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,19.370,6.464,31.307
 desk_espn.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,21.480,8.258,33.628
@@ -164,9 +140,6 @@ desk_espn.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,11.900,0.115,
 desk_espn.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,31.150,16.478,44.265
 desk_espn.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,31.200,16.520,44.320
 desk_espn.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,10.400,-1.160,21.440
-desk_espn.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,12.110,0.293,23.321
-desk_espn.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,12.400,0.540,23.640
-desk_espn.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,12.110,0.293,23.321
 desk_espn.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,10.020,-1.483,21.022
 desk_espn.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,10.220,-1.313,21.242
 desk_facebook.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,18.730,5.921,30.603
@@ -181,9 +154,6 @@ desk_facebook.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,46.500,29
 desk_facebook.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,154.260,121.121,179.686
 desk_facebook.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,154.440,121.274,179.884
 desk_facebook.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,20.970,7.824,33.067
-desk_facebook.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,47.310,30.213,62.041
-desk_facebook.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,48.030,30.825,62.833
-desk_facebook.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,47.710,30.553,62.481
 desk_facebook.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,18.260,5.521,30.086
 desk_facebook.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,25.110,11.343,37.621
 desk_gmailthread.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,2.210,-8.122,12.431
@@ -198,9 +168,6 @@ desk_gmailthread.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,3.510,
 desk_gmailthread.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,27.690,13.536,40.459
 desk_gmailthread.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,27.300,13.205,40.030
 desk_gmailthread.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,2.810,-7.611,13.091
-desk_gmailthread.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,3.820,-6.753,14.202
-desk_gmailthread.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.030,-6.575,14.433
-desk_gmailthread.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,3.940,-6.651,14.334
 desk_gmailthread.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,2.490,-7.883,12.739
 desk_gmailthread.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,2.730,-7.679,13.003
 desk_googleplus.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,34.510,19.333,47.961
@@ -215,9 +182,6 @@ desk_googleplus.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,46.850,
 desk_googleplus.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,254.030,205.926,289.433
 desk_googleplus.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,224.640,180.944,257.104
 desk_googleplus.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,33.130,18.161,46.443
-desk_googleplus.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,47.340,30.239,62.074
-desk_googleplus.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,48.070,30.860,62.877
-desk_googleplus.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,47.760,30.596,62.536
 desk_googleplus.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,30.870,16.240,43.957
 desk_googleplus.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,40.000,24.000,54.000
 desk_googlespreadsheet.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,3.840,-6.736,14.224
@@ -232,9 +196,6 @@ desk_googlespreadsheet.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,
 desk_googlespreadsheet.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,27.000,12.950,39.700
 desk_googlespreadsheet.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,26.520,12.542,39.172
 desk_googlespreadsheet.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.730,-5.980,15.203
-desk_googlespreadsheet.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,5.350,-5.452,15.885
-desk_googlespreadsheet.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,5.260,-5.529,15.786
-desk_googlespreadsheet.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,5.370,-5.435,15.907
 desk_googlespreadsheet.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.290,-6.354,14.719
 desk_googlespreadsheet.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.200,-6.430,14.620
 desk_googlespreadsheetdashed.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,7.450,-3.668,18.195
@@ -249,9 +210,6 @@ desk_googlespreadsheetdashed.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32
 desk_googlespreadsheetdashed.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,95.640,71.294,115.204
 desk_googlespreadsheetdashed.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,95.160,70.886,114.676
 desk_googlespreadsheetdashed.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,10.150,-1.373,21.165
-desk_googlespreadsheetdashed.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,14.410,2.248,25.851
-desk_googlespreadsheetdashed.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,14.980,2.733,26.478
-desk_googlespreadsheetdashed.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,15.350,3.047,26.885
 desk_googlespreadsheetdashed.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,8.270,-2.970,19.097
 desk_googlespreadsheetdashed.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,9.680,-1.772,20.648
 desk_gws.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,2.590,-7.799,12.849
@@ -266,9 +224,6 @@ desk_gws.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.090,-6.524,1
 desk_gws.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,19.170,6.294,31.087
 desk_gws.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,19.500,6.575,31.450
 desk_gws.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,3.180,-7.297,13.498
-desk_gws.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.650,-6.048,15.115
-desk_gws.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.950,-5.792,15.445
-desk_gws.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.770,-5.946,15.247
 desk_gws.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,2.810,-7.612,13.091
 desk_gws.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,3.060,-7.399,13.366
 desk_linkedin.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,5.130,-5.640,15.643
@@ -283,9 +238,6 @@ desk_linkedin.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,7.030,-4.
 desk_linkedin.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,36.770,21.254,50.447
 desk_linkedin.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,34.320,19.172,47.752
 desk_linkedin.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,5.730,-5.130,16.303
-desk_linkedin.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,7.780,-3.387,18.558
-desk_linkedin.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,8.180,-3.047,18.998
-desk_linkedin.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,7.950,-3.243,18.745
 desk_linkedin.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,5.140,-5.631,15.654
 desk_linkedin.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,5.880,-5.002,16.468
 desk_pinterest.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,14.400,2.240,25.840
@@ -300,9 +252,6 @@ desk_pinterest.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,24.360,1
 desk_pinterest.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,143.720,112.162,168.092
 desk_pinterest.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,140.400,109.340,164.440
 desk_pinterest.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,15.380,3.073,26.918
-desk_pinterest.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,24.850,11.122,37.335
-desk_pinterest.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,25.280,11.488,37.808
-desk_pinterest.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,25.020,11.267,37.522
 desk_pinterest.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,13.880,1.798,25.268
 desk_pinterest.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,16.130,3.711,27.743
 desk_pokemonwiki.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,105.760,79.896,126.336
@@ -317,9 +266,6 @@ desk_pokemonwiki.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,466.26
 desk_pokemonwiki.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,693.590,579.551,772.949
 desk_pokemonwiki.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,691.860,578.081,771.046
 desk_pokemonwiki.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,66.140,46.219,82.754
-desk_pokemonwiki.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,469.420,389.007,526.362
-desk_pokemonwiki.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,493.130,409.160,552.443
-desk_pokemonwiki.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,503.650,418.102,564.015
 desk_pokemonwiki.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,54.140,36.019,69.554
 desk_pokemonwiki.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,175.290,138.997,202.819
 desk_sfgate.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,36.810,21.289,50.491
@@ -334,9 +280,6 @@ desk_sfgate.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,17.430,4.81
 desk_sfgate.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,66.050,46.143,82.655
 desk_sfgate.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,63.960,44.366,80.356
 desk_sfgate.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,12.600,0.710,23.860
-desk_sfgate.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,18.380,5.623,30.218
-desk_sfgate.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,18.960,6.116,30.856
-desk_sfgate.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,18.400,5.640,30.240
 desk_sfgate.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,11.800,0.030,22.980
 desk_sfgate.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,12.810,0.889,24.091
 desk_techcrunch.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,43.290,26.797,57.619
@@ -351,9 +294,6 @@ desk_techcrunch.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,32.570,
 desk_techcrunch.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,92.960,69.016,112.256
 desk_techcrunch.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,91.260,67.571,110.386
 desk_techcrunch.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,25.560,11.726,38.116
-desk_techcrunch.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,34.100,18.985,47.510
-desk_techcrunch.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,34.600,19.410,48.060
-desk_techcrunch.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,33.960,18.866,47.356
 desk_techcrunch.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,24.920,11.182,37.412
 desk_techcrunch.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,26.080,12.168,38.688
 desk_twitter.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,25.190,11.412,37.709
@@ -368,9 +308,6 @@ desk_twitter.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,45.380,28.
 desk_twitter.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,173.540,137.509,200.894
 desk_twitter.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,174.720,138.512,202.192
 desk_twitter.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,27.580,13.443,40.338
-desk_twitter.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,46.400,29.440,61.040
-desk_twitter.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,49.030,31.676,63.933
-desk_twitter.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,47.250,30.163,61.975
 desk_twitter.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,26.180,12.253,38.798
 desk_twitter.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,30.220,15.687,43.242
 desk_weather.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,19.470,6.549,31.417
@@ -385,9 +322,6 @@ desk_weather.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,9.600,-1.8
 desk_weather.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,34.820,19.597,48.302
 desk_weather.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,34.320,19.172,47.752
 desk_weather.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,8.250,-2.987,19.075
-desk_weather.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,9.980,-1.517,20.978
-desk_weather.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,10.050,-1.457,21.055
-desk_weather.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,9.780,-1.687,20.758
 desk_weather.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,7.880,-3.302,18.668
 desk_weather.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,8.560,-2.724,19.416
 desk_wordpress.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,52.720,34.812,67.992
@@ -402,9 +336,6 @@ desk_wordpress.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,68.470,4
 desk_wordpress.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,192.380,153.523,221.618
 desk_wordpress.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,190.320,151.772,219.352
 desk_wordpress.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,24.710,11.003,37.181
-desk_wordpress.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,68.810,48.489,85.691
-desk_wordpress.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,69.780,49.313,86.758
-desk_wordpress.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,70.650,50.052,87.715
 desk_wordpress.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,22.820,9.397,35.102
 desk_wordpress.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,33.970,18.875,47.367
 desk_wowwiki.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,120.530,92.451,142.583
@@ -419,9 +350,6 @@ desk_wowwiki.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,147.920,11
 desk_wowwiki.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,307.020,250.967,347.722
 desk_wowwiki.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,307.320,251.222,348.052
 desk_wowwiki.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,68.080,47.868,84.888
-desk_wowwiki.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,147.780,115.613,172.558
-desk_wowwiki.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,151.700,118.945,176.870
-desk_wowwiki.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,149.070,116.710,173.977
 desk_wowwiki.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,64.750,45.038,81.225
 desk_wowwiki.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,89.030,65.675,107.933
 desk_yahooanswers.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,19.000,6.150,30.900
@@ -436,9 +364,6 @@ desk_yahooanswers.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,9.460
 desk_yahooanswers.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,46.020,29.117,60.622
 desk_yahooanswers.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,45.240,28.454,59.764
 desk_yahooanswers.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,7.470,-3.650,18.217
-desk_yahooanswers.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,9.720,-1.738,20.692
-desk_yahooanswers.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,10.190,-1.339,21.209
-desk_yahooanswers.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,9.940,-1.551,20.934
 desk_yahooanswers.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,7.030,-4.024,17.733
 desk_yahooanswers.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,7.210,-3.872,17.931
 desk_yahoogames.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,33.860,18.781,47.246
@@ -453,9 +378,6 @@ desk_yahoogames.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,84.480,
 desk_yahoogames.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,227.470,183.349,260.217
 desk_yahoogames.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,223.080,179.618,255.388
 desk_yahoogames.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,35.670,20.320,49.237
-desk_yahoogames.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,85.730,62.871,104.303
-desk_yahoogames.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,89.750,66.287,108.725
-desk_yahoogames.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,86.340,63.389,104.974
 desk_yahoogames.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,32.340,17.489,45.574
 desk_yahoogames.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,47.430,30.315,62.173
 desk_yahoonews.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,25.490,11.666,38.039
@@ -470,9 +392,6 @@ desk_yahoonews.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,16.350,3
 desk_yahoonews.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,79.220,57.337,97.142
 desk_yahoonews.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,78.780,56.963,96.658
 desk_yahoonews.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,13.370,1.364,24.707
-desk_yahoonews.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,16.640,4.144,28.304
-desk_yahoonews.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,17.450,4.832,29.195
-desk_yahoonews.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,17.120,4.552,28.832
 desk_yahoonews.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,12.480,0.608,23.728
 desk_yahoonews.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,12.330,0.480,23.563
 desk_yahoosports.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,39.740,23.779,53.714
@@ -487,9 +406,6 @@ desk_yahoosports.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,24.680
 desk_yahoosports.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,76.830,55.306,94.513
 desk_yahoosports.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,77.220,55.637,94.942
 desk_yahoosports.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,21.160,7.986,33.276
-desk_yahoosports.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,24.990,11.241,37.489
-desk_yahoosports.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,25.730,11.871,38.303
-desk_yahoosports.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,25.290,11.496,37.819
 desk_yahoosports.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,20.320,7.272,32.352
 desk_yahoosports.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,21.050,7.893,33.155
 desk_youtube.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,5.820,-5.053,16.402
@@ -504,9 +420,6 @@ desk_youtube.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,11.500,-0.
 desk_youtube.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,53.300,35.305,68.630
 desk_youtube.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,53.820,35.747,69.202
 desk_youtube.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,6.990,-4.059,17.689
-desk_youtube.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,11.300,-0.395,22.430
-desk_youtube.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,11.770,0.005,22.947
-desk_youtube.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,11.600,-0.140,22.760
 desk_youtube.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,6.020,-4.883,16.622
 desk_youtube.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,7.250,-3.837,17.975
 mobi_wikipedia.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,17.280,4.688,29.008
@@ -521,9 +434,6 @@ mobi_wikipedia.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,26.630,1
 mobi_wikipedia.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,82.080,59.768,100.288
 mobi_wikipedia.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,80.340,58.289,98.374
 mobi_wikipedia.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,19.600,6.660,31.560
-mobi_wikipedia.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,27.010,12.959,39.711
-mobi_wikipedia.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,30.400,15.840,43.440
-mobi_wikipedia.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,27.420,13.307,40.162
 mobi_wikipedia.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,17.850,5.173,29.635
 mobi_wikipedia.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,19.980,6.983,31.978
 tabl_androidpolice.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,15.440,3.124,26.984
@@ -538,9 +448,6 @@ tabl_androidpolice.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,21.1
 tabl_androidpolice.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,144.260,112.621,168.686
 tabl_androidpolice.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,137.280,106.688,161.008
 tabl_androidpolice.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,18.100,5.385,29.910
-tabl_androidpolice.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,21.790,8.521,33.969
-tabl_androidpolice.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,22.180,8.853,34.398
-tabl_androidpolice.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,22.050,8.742,34.255
 tabl_androidpolice.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,17.540,4.909,29.294
 tabl_androidpolice.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,17.020,4.467,28.722
 tabl_cnet.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,58.920,40.082,74.812
@@ -555,9 +462,6 @@ tabl_cnet.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,25.720,11.862
 tabl_cnet.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,131.580,101.843,154.738
 tabl_cnet.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,126.360,97.406,148.996
 tabl_cnet.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,20.750,7.638,32.825
-tabl_cnet.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,26.040,12.134,38.644
-tabl_cnet.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,27.280,13.188,40.008
-tabl_cnet.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,26.630,12.635,39.293
 tabl_cnet.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,19.120,6.252,31.032
 tabl_cnet.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,19.630,6.685,31.593
 tabl_cnn.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,55.950,37.558,71.545
@@ -572,9 +476,6 @@ tabl_cnn.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,44.280,27.638,
 tabl_cnn.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,145.690,113.836,170.259
 tabl_cnn.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,145.860,113.981,170.446
 tabl_cnn.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,26.130,12.211,38.743
-tabl_cnn.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,44.550,27.868,59.005
-tabl_cnn.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,46.610,29.619,61.271
-tabl_cnn.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,45.800,28.930,60.380
 tabl_cnn.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,24.990,11.241,37.489
 tabl_cnn.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,29.130,14.760,42.043
 tabl_culturalsolutions.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,64.960,45.216,81.456
@@ -589,9 +490,6 @@ tabl_culturalsolutions.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,
 tabl_culturalsolutions.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,100.590,75.501,120.649
 tabl_culturalsolutions.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,100.620,75.527,120.682
 tabl_culturalsolutions.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,29.930,15.440,42.923
-tabl_culturalsolutions.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,35.680,20.328,49.248
-tabl_culturalsolutions.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,36.680,21.178,50.348
-tabl_culturalsolutions.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,36.800,21.280,50.480
 tabl_culturalsolutions.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,29.350,14.947,42.285
 tabl_culturalsolutions.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,28.970,14.625,41.867
 tabl_cuteoverload.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,44.200,27.570,58.620
@@ -606,9 +504,6 @@ tabl_cuteoverload.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,64.49
 tabl_cuteoverload.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,176.890,140.357,204.579
 tabl_cuteoverload.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,177.060,140.501,204.766
 tabl_cuteoverload.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,35.730,20.371,49.303
-tabl_cuteoverload.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,64.780,45.063,81.258
-tabl_cuteoverload.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,66.750,46.738,83.425
-tabl_cuteoverload.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,68.700,48.395,85.570
 tabl_cuteoverload.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,34.660,19.461,48.126
 tabl_cuteoverload.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,39.550,23.618,53.505
 tabl_deviantart.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.140,-6.481,14.554
@@ -623,9 +518,6 @@ tabl_deviantart.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,5.720,-
 tabl_deviantart.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,24.010,10.409,36.411
 tabl_deviantart.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,24.180,10.553,36.598
 tabl_deviantart.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.400,-6.260,14.840
-tabl_deviantart.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,5.810,-5.062,16.391
-tabl_deviantart.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,5.990,-4.909,16.589
-tabl_deviantart.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,5.970,-4.926,16.567
 tabl_deviantart.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.060,-6.549,14.466
 tabl_deviantart.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.360,-6.294,14.796
 tabl_digg.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,19.620,6.677,31.582
@@ -640,9 +532,6 @@ tabl_digg.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,26.670,12.669
 tabl_digg.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,118.260,90.521,140.086
 tabl_digg.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,114.660,87.461,136.126
 tabl_digg.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,21.670,8.419,33.837
-tabl_digg.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,28.970,14.624,41.867
-tabl_digg.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,28.510,14.233,41.361
-tabl_digg.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,28.340,14.089,41.174
 tabl_digg.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,20.470,7.399,32.517
 tabl_digg.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,21.760,8.496,33.936
 tabl_engadget.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,115.060,87.801,136.566
@@ -657,9 +546,6 @@ tabl_engadget.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,52.170,34
 tabl_engadget.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,170.730,135.121,197.803
 tabl_engadget.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,170.820,135.197,197.902
 tabl_engadget.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,40.170,24.145,54.187
-tabl_engadget.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,54.910,36.674,70.401
-tabl_engadget.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,54.470,36.300,69.917
-tabl_engadget.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,55.980,37.583,71.578
 tabl_engadget.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,37.910,22.224,51.701
 tabl_engadget.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,38.930,23.090,52.823
 tabl_frantzen.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,7.760,-3.404,18.536
@@ -674,9 +560,6 @@ tabl_frantzen.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,9.010,-2.
 tabl_frantzen.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,48.810,31.489,63.691
 tabl_frantzen.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,48.360,31.106,63.196
 tabl_frantzen.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,8.030,-3.174,18.833
-tabl_frantzen.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,9.050,-2.308,19.955
-tabl_frantzen.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,10.170,-1.356,21.187
-tabl_frantzen.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,9.960,-1.534,20.956
 tabl_frantzen.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,7.930,-3.259,18.723
 tabl_frantzen.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,6.220,-4.713,16.842
 tabl_gamedeksiam.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,14.580,2.393,26.038
@@ -691,9 +574,6 @@ tabl_gamedeksiam.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,20.390
 tabl_gamedeksiam.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,108.620,82.327,129.482
 tabl_gamedeksiam.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,107.640,81.494,128.404
 tabl_gamedeksiam.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,18.350,5.597,30.185
-tabl_gamedeksiam.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,23.140,9.669,35.454
-tabl_gamedeksiam.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,24.020,10.417,36.422
-tabl_gamedeksiam.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,23.750,10.187,36.125
 tabl_gamedeksiam.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,16.530,4.051,28.183
 tabl_gamedeksiam.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,16.720,4.212,28.392
 tabl_gmail.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,0.950,-9.193,11.045
@@ -708,9 +588,6 @@ tabl_gmail.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,1.230,-8.954
 tabl_gmail.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,7.430,-3.684,18.173
 tabl_gmail.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,7.020,-4.033,17.722
 tabl_gmail.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,1.110,-9.056,11.221
-tabl_gmail.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,1.510,-8.716,11.661
-tabl_gmail.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,1.550,-8.682,11.705
-tabl_gmail.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,1.470,-8.750,11.617
 tabl_gmail.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,1.100,-9.065,11.210
 tabl_gmail.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,1.060,-9.099,11.166
 tabl_googleblog.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,30.840,16.214,43.924
@@ -725,9 +602,6 @@ tabl_googleblog.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,68.400,
 tabl_googleblog.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,189.590,151.152,218.549
 tabl_googleblog.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,188.760,150.446,217.636
 tabl_googleblog.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,37.890,22.207,51.679
-tabl_googleblog.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,69.850,49.373,86.835
-tabl_googleblog.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,71.060,50.401,88.166
-tabl_googleblog.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,71.240,50.554,88.364
 tabl_googleblog.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,36.120,20.702,49.732
 tabl_googleblog.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,40.130,24.110,54.143
 tabl_googlecalendar.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,2.170,-8.156,12.387
@@ -742,9 +616,6 @@ tabl_googlecalendar.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,3.4
 tabl_googlecalendar.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,37.210,21.628,50.931
 tabl_googlecalendar.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,37.440,21.824,51.184
 tabl_googlecalendar.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,2.870,-7.561,13.157
-tabl_googlecalendar.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,3.810,-6.761,14.191
-tabl_googlecalendar.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,3.910,-6.677,14.301
-tabl_googlecalendar.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,3.850,-6.727,14.235
 tabl_googlecalendar.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,2.660,-7.739,12.926
 tabl_googlecalendar.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,2.590,-7.799,12.849
 tabl_gspro.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,3.180,-7.297,13.498
@@ -759,9 +630,6 @@ tabl_gspro.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,3.950,-6.643
 tabl_gspro.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,18.910,6.074,30.801
 tabl_gspro.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,19.500,6.575,31.450
 tabl_gspro.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,3.750,-6.813,14.125
-tabl_gspro.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.320,-6.328,14.752
-tabl_gspro.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.440,-6.226,14.884
-tabl_gspro.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.480,-6.192,14.928
 tabl_gspro.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,3.630,-6.915,13.993
 tabl_gspro.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,3.460,-7.059,13.806
 tabl_hsfi.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,74.160,53.036,91.576
@@ -776,9 +644,6 @@ tabl_hsfi.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,48.200,30.970
 tabl_hsfi.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,131.190,101.512,154.309
 tabl_hsfi.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,127.920,98.732,150.712
 tabl_hsfi.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,31.710,16.953,44.881
-tabl_hsfi.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,48.180,30.953,62.998
-tabl_hsfi.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,49.410,31.999,64.351
-tabl_hsfi.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,49.170,31.795,64.087
 tabl_hsfi.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,30.290,15.746,43.319
 tabl_hsfi.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,33.840,18.764,47.224
 tabl_mercurynews.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.930,-5.810,15.423
@@ -793,9 +658,6 @@ tabl_mercurynews.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,7.740,
 tabl_mercurynews.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,79.040,57.184,96.944
 tabl_mercurynews.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,77.220,55.637,94.942
 tabl_mercurynews.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,6.600,-4.390,17.260
-tabl_mercurynews.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,7.560,-3.574,18.316
-tabl_mercurynews.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,7.670,-3.481,18.437
-tabl_mercurynews.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,7.700,-3.455,18.470
 tabl_mercurynews.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,6.200,-4.730,16.820
 tabl_mercurynews.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,5.860,-5.019,16.446
 tabl_mlb.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,16.070,3.659,27.677
@@ -810,9 +672,6 @@ tabl_mlb.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,33.900,18.815,
 tabl_mlb.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,114.710,87.503,136.181
 tabl_mlb.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,103.740,78.179,124.114
 tabl_mlb.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,31.140,16.469,44.254
-tabl_mlb.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,34.440,19.274,47.884
-tabl_mlb.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,35.040,19.784,48.544
-tabl_mlb.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,34.460,19.291,47.906
 tabl_mlb.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,30.220,15.687,43.242
 tabl_mlb.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,19.310,6.414,31.241
 tabl_mozilla.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,253.700,205.645,289.070
@@ -827,9 +686,6 @@ tabl_mozilla.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,882.350,73
 tabl_mozilla.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,1293.780,1089.713,1433.158
 tabl_mozilla.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,1288.560,1085.276,1427.416
 tabl_mozilla.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,163.040,128.584,189.344
-tabl_mozilla.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,889.690,746.236,988.659
-tabl_mozilla.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,915.080,767.818,1016.588
-tabl_mozilla.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,1004.440,843.774,1114.884
 tabl_mozilla.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,159.060,125.201,184.966
 tabl_mozilla.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,359.630,295.686,405.593
 tabl_nofolo.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,8.790,-2.529,19.669
@@ -844,9 +700,6 @@ tabl_nofolo.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,11.960,0.16
 tabl_nofolo.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,39.870,23.889,53.857
 tabl_nofolo.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,39.000,23.150,52.900
 tabl_nofolo.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,9.970,-1.526,20.967
-tabl_nofolo.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,12.100,0.285,23.310
-tabl_nofolo.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,12.420,0.557,23.662
-tabl_nofolo.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,12.110,0.293,23.321
 tabl_nofolo.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,9.800,-1.670,20.780
 tabl_nofolo.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,9.150,-2.223,20.065
 tabl_nytimes.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,16.810,4.288,28.491
@@ -861,9 +714,6 @@ tabl_nytimes.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,13.030,1.0
 tabl_nytimes.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,38.470,22.700,52.317
 tabl_nytimes.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,38.220,22.487,52.042
 tabl_nytimes.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,10.230,-1.305,21.253
-tabl_nytimes.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,13.800,1.730,25.180
-tabl_nytimes.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,14.490,2.316,25.939
-tabl_nytimes.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,13.810,1.738,25.191
 tabl_nytimes.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,9.580,-1.857,20.538
 tabl_nytimes.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,10.260,-1.279,21.286
 tabl_onlinewsj.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,59.470,40.549,75.417
@@ -878,9 +728,6 @@ tabl_onlinewsj.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,21.880,8
 tabl_onlinewsj.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,83.120,60.652,101.432
 tabl_onlinewsj.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,81.900,59.615,100.090
 tabl_onlinewsj.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,15.930,3.540,27.523
-tabl_onlinewsj.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,22.240,8.904,34.464
-tabl_onlinewsj.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,22.740,9.329,35.014
-tabl_onlinewsj.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,22.590,9.202,34.849
 tabl_onlinewsj.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,15.060,2.801,26.566
 tabl_onlinewsj.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,16.240,3.804,27.864
 tabl_pravda.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,7.370,-3.736,18.107
@@ -895,9 +742,6 @@ tabl_pravda.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,10.330,-1.2
 tabl_pravda.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,51.380,33.673,66.518
 tabl_pravda.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,51.480,33.758,66.628
 tabl_pravda.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,8.870,-2.461,19.757
-tabl_pravda.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,11.510,-0.216,22.661
-tabl_pravda.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,11.790,0.022,22.969
-tabl_pravda.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,11.600,-0.140,22.760
 tabl_pravda.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,8.340,-2.911,19.174
 tabl_pravda.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,8.140,-3.081,18.954
 tabl_sahadan.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,21.450,8.232,33.595
@@ -912,9 +756,6 @@ tabl_sahadan.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,27.840,13.
 tabl_sahadan.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,71.300,50.605,88.430
 tabl_sahadan.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,70.980,50.333,88.078
 tabl_sahadan.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,22.530,9.151,34.783
-tabl_sahadan.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,28.480,14.208,41.328
-tabl_sahadan.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,29.350,14.947,42.285
-tabl_sahadan.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,28.440,14.174,41.284
 tabl_sahadan.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,21.610,8.369,33.771
 tabl_sahadan.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,22.910,9.473,35.201
 tabl_slashdot.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.460,-6.209,14.906
@@ -929,9 +770,6 @@ tabl_slashdot.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,6.230,-4.
 tabl_slashdot.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,22.490,9.117,34.739
 tabl_slashdot.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,22.620,9.227,34.882
 tabl_slashdot.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,5.460,-5.359,16.006
-tabl_slashdot.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,6.710,-4.297,17.381
-tabl_slashdot.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,6.870,-4.160,17.557
-tabl_slashdot.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,6.740,-4.271,17.414
 tabl_slashdot.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,5.140,-5.631,15.654
 tabl_slashdot.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,5.050,-5.707,15.555
 tabl_techmeme.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.550,-6.133,15.005
@@ -946,9 +784,6 @@ tabl_techmeme.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,8.350,-2.
 tabl_techmeme.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,33.310,18.314,46.641
 tabl_techmeme.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,33.540,18.509,46.894
 tabl_techmeme.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,5.030,-5.725,15.533
-tabl_techmeme.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,8.090,-3.123,18.899
-tabl_techmeme.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,8.540,-2.741,19.394
-tabl_techmeme.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,8.320,-2.928,19.152
 tabl_techmeme.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.730,-5.979,15.203
 tabl_techmeme.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,5.450,-5.367,15.995
 tabl_theverge.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,133.590,103.552,156.949
@@ -963,9 +798,6 @@ tabl_theverge.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,177.670,1
 tabl_theverge.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,238.850,193.023,272.735
 tabl_theverge.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,228.540,184.259,261.394
 tabl_theverge.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,167.950,132.757,194.745
-tabl_theverge.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,177.300,140.705,205.030
-tabl_theverge.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,178.180,141.453,205.998
-tabl_theverge.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,177.800,141.130,205.580
 tabl_theverge.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,165.250,130.463,191.775
 tabl_theverge.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,109.450,83.033,130.395
 tabl_transformice.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,10.950,-0.693,22.045
@@ -980,9 +812,6 @@ tabl_transformice.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,15.01
 tabl_transformice.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,51.870,34.089,67.057
 tabl_transformice.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,51.480,33.758,66.628
 tabl_transformice.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,12.660,0.761,23.926
-tabl_transformice.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,15.840,3.464,27.424
-tabl_transformice.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,16.310,3.864,27.941
-tabl_transformice.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,16.190,3.762,27.809
 tabl_transformice.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,12.540,0.659,23.794
 tabl_transformice.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,12.060,0.251,23.266
 tabl_ukwsj.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,49.880,32.398,64.868
@@ -997,9 +826,6 @@ tabl_ukwsj.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,19.650,6.703
 tabl_ukwsj.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,74.900,53.665,92.390
 tabl_ukwsj.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,74.100,52.985,91.510
 tabl_ukwsj.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,14.100,1.985,25.510
-tabl_ukwsj.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,19.970,6.975,31.967
-tabl_ukwsj.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,20.500,7.425,32.550
-tabl_ukwsj.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,20.250,7.213,32.275
 tabl_ukwsj.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,13.490,1.466,24.839
 tabl_ukwsj.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,14.760,2.546,26.236
 tabl_vnexpress.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,15.770,3.404,27.347
@@ -1014,9 +840,6 @@ tabl_vnexpress.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,18.890,6
 tabl_vnexpress.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,45.080,28.318,59.588
 tabl_vnexpress.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,46.020,29.117,60.622
 tabl_vnexpress.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,17.250,4.662,28.975
-tabl_vnexpress.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,20.180,7.153,32.198
-tabl_vnexpress.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,20.600,7.510,32.660
-tabl_vnexpress.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,20.200,7.170,32.220
 tabl_vnexpress.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,16.370,3.914,28.007
 tabl_vnexpress.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,16.270,3.829,27.897
 tabl_worldjournal.skp_copy_tiles_,Shuttle_Win7_Intel_Float_Bench_32-25th,36.570,21.084,50.227
@@ -1031,8 +854,5 @@ tabl_worldjournal.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,23.03
 tabl_worldjournal.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,124.820,96.097,147.302
 tabl_worldjournal.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,124.020,95.417,146.422
 tabl_worldjournal.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,20.820,7.697,32.902
-tabl_worldjournal.skp_tile_256x256_multi_2_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,24.070,10.459,36.477
-tabl_worldjournal.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,25.360,11.556,37.896
-tabl_worldjournal.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,24.270,10.629,36.697
 tabl_worldjournal.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,18.680,5.878,30.548
 tabl_worldjournal.skp_tile_512x512_,Shuttle_Win7_Intel_Float_Bench_32-25th,18.790,5.971,30.669
