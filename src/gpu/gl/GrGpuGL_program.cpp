@@ -19,7 +19,23 @@ static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidU
 GrGpuGL::ProgramCache::ProgramCache(const GrGLContext& gl)
     : fCount(0)
     , fCurrLRUStamp(0)
-    , fGL(gl) {
+    , fGL(gl) 
+#ifdef PROGRAM_CACHE_STATS
+    , fTotalRequests(0)
+    , fCacheMisses(0)
+#endif
+{
+}
+
+GrGpuGL::ProgramCache::~ProgramCache() {
+    // dump stats
+#ifdef PROGRAM_CACHE_STATS
+    SkDebugf("--- Program Cache ---\n");
+    SkDebugf("Total requests: %d\n", fTotalRequests);
+    SkDebugf("Cache misses: %d\n", fCacheMisses);
+    SkDebugf("Cache miss %%: %f\n", (float)fCacheMisses/(float)fTotalRequests);
+    SkDebugf("---------------------\n");
+#endif
 }
 
 void GrGpuGL::ProgramCache::abandon() {
@@ -35,9 +51,15 @@ GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrGLProgram::Desc& desc,
                                                const GrEffectStage* stages[]) {
     Entry newEntry;
     newEntry.fKey.setKeyData(desc.asKey());
+#ifdef PROGRAM_CACHE_STATS
+    ++fTotalRequests;
+#endif
 
     Entry* entry = fHashCache.find(newEntry.fKey);
     if (NULL == entry) {
+#ifdef PROGRAM_CACHE_STATS
+        ++fCacheMisses;
+#endif
         newEntry.fProgram.reset(GrGLProgram::Create(fGL, desc, stages));
         if (NULL == newEntry.fProgram.get()) {
             return NULL;
