@@ -243,11 +243,12 @@ struct CommandInfo {
  */
 static bool match(SkWriter32* writer, uint32_t offset,
                   int* pattern, CommandInfo* result, int numCommands) {
-    SkASSERT(offset <= writer->size());
+    SkASSERT(offset < writer->size());
 
     uint32_t curOffset = offset;
     uint32_t curSize = 0;
-    for (int i = 0; i < numCommands; ++i) {
+    int numMatched;
+    for (numMatched = 0; numMatched < numCommands && curOffset < writer->size(); ++numMatched) {
         DrawType op = peek_op_and_size(writer, curOffset, &curSize);
         while (NOOP == op && curOffset < writer->size()) {
             curOffset += curSize;
@@ -258,20 +259,24 @@ static bool match(SkWriter32* writer, uint32_t offset,
             return false; // ran out of byte stream
         }
 
-        if (kDRAW_BITMAP_FLAVOR == pattern[i]) {
+        if (kDRAW_BITMAP_FLAVOR == pattern[numMatched]) {
             if (DRAW_BITMAP != op && DRAW_BITMAP_MATRIX != op &&
                 DRAW_BITMAP_NINE != op && DRAW_BITMAP_RECT_TO_RECT != op) {
                 return false;
             }
-        } else if (op != pattern[i]) {
+        } else if (op != pattern[numMatched]) {
             return false;
         }
 
-        result[i].fActualOp = op;
-        result[i].fOffset = curOffset;
-        result[i].fSize = curSize;
+        result[numMatched].fActualOp = op;
+        result[numMatched].fOffset = curOffset;
+        result[numMatched].fSize = curSize;
 
         curOffset += curSize;
+    }
+
+    if (numMatched != numCommands) {
+        return false;
     }
 
     curOffset += curSize;
