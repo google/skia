@@ -107,7 +107,8 @@ public:
         }
     }
 
-    void getOverviewText(const SkTDArray<double>* typeTimes, double totTime, SkString* overview);
+    void getOverviewText(const SkTDArray<double>* typeTimes, double totTime, 
+                         SkString* overview, int numRuns);
 
 private:
     SkDebugCanvas* fDebugCanvas;

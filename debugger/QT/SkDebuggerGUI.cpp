@@ -404,7 +404,7 @@ void SkDebuggerGUI::actionProfile() {
         item->setData(Qt::UserRole + 4, 100.0*temp);
     }
 
-    setupOverviewText(picture.typeTimes(), picture.totTime());
+    setupOverviewText(picture.typeTimes(), picture.totTime(), kNumRepeats);
 }
 
 void SkDebuggerGUI::actionCancel() {
@@ -1032,7 +1032,7 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
 
     setupListWidget(commands);
     setupComboBox(commands);
-    setupOverviewText(NULL, 0.0);
+    setupOverviewText(NULL, 0.0, 1);
     fInspectorWidget.setDisabled(false);
     fSettingsWidget.setDisabled(false);
     fMenuEdit.setDisabled(false);
@@ -1070,9 +1070,11 @@ void SkDebuggerGUI::setupListWidget(SkTArray<SkString>* command) {
     }
 }
 
-void SkDebuggerGUI::setupOverviewText(const SkTDArray<double>* typeTimes, double totTime) {
+void SkDebuggerGUI::setupOverviewText(const SkTDArray<double>* typeTimes, 
+                                      double totTime,
+                                      int numRuns) {
     SkString overview;
-    fDebugger.getOverviewText(typeTimes, totTime, &overview);
+    fDebugger.getOverviewText(typeTimes, totTime, &overview, numRuns);
     fInspectorWidget.setText(overview.c_str(), SkInspectorWidget::kOverview_TabType);
 }
 
