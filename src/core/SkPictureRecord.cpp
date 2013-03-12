@@ -226,8 +226,71 @@ static bool is_simple(const SkPaint& p) {
     return 0 == orAccum;
 }
 
+// CommandInfos are fed to the 'match' method and filled in with command
+// information. 
+struct CommandInfo {
+    DrawType fActualOp;
+    uint32_t fOffset;
+    uint32_t fSize;
+};
+
 /*
- * Restore has just been called (but not recorded), look back at the
+ * Attempt to match the provided pattern of commands starting at 'offset'
+ * in the byte stream and stopping at the end of the stream. Upon success, 
+ * return true with all the pattern information filled out in the result
+ * array (i.e., actual ops, offsets and sizes).
+ * Note this method skips any NOOPs seen in the stream
+ */
+static bool match(SkWriter32* writer, uint32_t offset,
+                  int* pattern, CommandInfo* result, int numCommands) {
+    SkASSERT(offset <= writer->size());
+
+    uint32_t curOffset = offset;
+    uint32_t curSize = 0;
+    for (int i = 0; i < numCommands; ++i) {
+        DrawType op = peek_op_and_size(writer, curOffset, &curSize);
+        while (NOOP == op && curOffset < writer->size()) {
+            curOffset += curSize;
+            op = peek_op_and_size(writer, curOffset, &curSize);
+        }
+
+        if (curOffset >= writer->size()) {
+            return false; // ran out of byte stream
+        }
+
+        if (kDRAW_BITMAP_FLAVOR == pattern[i]) {
+            if (DRAW_BITMAP != op && DRAW_BITMAP_MATRIX != op &&
+                DRAW_BITMAP_NINE != op && DRAW_BITMAP_RECT_TO_RECT != op) {
+                return false;
+            }
+        } else if (op != pattern[i]) {
+            return false;
+        }
+
+        result[i].fActualOp = op;
+        result[i].fOffset = curOffset;
+        result[i].fSize = curSize;
+
+        curOffset += curSize;
+    }
+
+    curOffset += curSize;
+    if (curOffset < writer->size()) {
+        // Something else between the last command and the end of the stream
+        return false;
+    }
+
+    return true;
+}
+
+// temporarily here to make code review easier
+static bool merge_savelayer_paint_into_drawbitmp(SkWriter32* writer,
+                                                 SkPaintDictionary* paintDict,
+                                                 const CommandInfo& saveLayerInfo,
+                                                 const CommandInfo& dbmInfo);
+
+/*
+ * Restore has just been called (but not recorded), look back at the 
  * matching save* and see if we are in the configuration:
  *   SAVE_LAYER
  *       DRAW_BITMAP|DRAW_BITMAP_MATRIX|DRAW_BITMAP_NINE|DRAW_BITMAP_RECT_TO_RECT
@@ -236,74 +299,71 @@ static bool is_simple(const SkPaint& p) {
  */
 static bool remove_save_layer1(SkWriter32* writer, int32_t offset,
                                SkPaintDictionary* paintDict) {
-
-#ifdef SK_IGNORE_PICTURE_RECORD_SAVE_LAYER_OPT
-    return false;
-#endif
-
-    int32_t restoreOffset = (int32_t)writer->size();
-
     // back up to the save block
     // TODO: add a stack to track save*/restore offsets rather than searching backwards
     while (offset > 0) {
         offset = *writer->peek32(offset);
     }
 
-    // now offset points to a save
-    uint32_t saveLayerOffset = -offset;
-    uint32_t saveLayerSize;
-    DrawType op = peek_op_and_size(writer, saveLayerOffset, &saveLayerSize);
-    if (SAVE_LAYER != op) {
-        SkASSERT(SAVE == op);
-        return false;       // not a match
+    int pattern[] = { SAVE_LAYER, kDRAW_BITMAP_FLAVOR, /* RESTORE */ };
+    CommandInfo result[SK_ARRAY_COUNT(pattern)];
+
+    if (!match(writer, -offset, pattern, result, SK_ARRAY_COUNT(pattern))) {
+        return false;
     }
 
-    if (kSaveLayerWithBoundsSize == saveLayerSize) {
+    if (kSaveLayerWithBoundsSize == result[0].fSize) {
         // The saveLayer's bound can offset where the dbm is drawn
         return false;
     }
 
-    // step forward one - check if it is a DRAW_BITMAP*
-    int32_t dbmOffset = saveLayerOffset + saveLayerSize;
-    if (dbmOffset >= restoreOffset) {
-        // Just a saveLayer and a restore? Remove it.
-        writer->rewindToOffset(saveLayerOffset);
-        return true;
-    }
 
-    uint32_t dbmSize;
-    op = peek_op_and_size(writer, dbmOffset, &dbmSize);
-    if (DRAW_BITMAP != op && DRAW_BITMAP_MATRIX != op &&
-        DRAW_BITMAP_NINE != op && DRAW_BITMAP_RECT_TO_RECT != op) {
-        return false;       // not a match
-    }
+    return merge_savelayer_paint_into_drawbitmp(writer, paintDict,
+                                                result[0], result[1]);
+}
 
-    offset = dbmOffset + dbmSize;
-    if (offset < restoreOffset) {
-        return false;       // something else between the dbm* and the restore
-    }
+/*
+ * Convert the command code located at 'offset' to a NOOP. Leave the size
+ * field alone so the NOOP can be skipped later.
+ */
+static void convert_command_to_noop(SkWriter32* writer, uint32_t offset) {
+    uint32_t* ptr = writer->peek32(offset);
+    *ptr = (*ptr & MASK_24) | (NOOP << 24);
+}
 
-    uint32_t dbmPaintOffset = getPaintOffset(op, dbmSize);
-    uint32_t slPaintOffset = getPaintOffset(SAVE_LAYER, saveLayerSize);
+/*
+ * Attempt to merge the saveLayer's paint into the drawBitmap*'s paint.
+ * Return true on success; false otherwise.
+ */
+static bool merge_savelayer_paint_into_drawbitmp(SkWriter32* writer,
+                                                 SkPaintDictionary* paintDict,
+                                                 const CommandInfo& saveLayerInfo,
+                                                 const CommandInfo& dbmInfo) {
+    SkASSERT(SAVE_LAYER == saveLayerInfo.fActualOp);
+    SkASSERT(DRAW_BITMAP == dbmInfo.fActualOp || 
+             DRAW_BITMAP_MATRIX == dbmInfo.fActualOp ||
+             DRAW_BITMAP_NINE == dbmInfo.fActualOp || 
+             DRAW_BITMAP_RECT_TO_RECT == dbmInfo.fActualOp);
+
+    uint32_t dbmPaintOffset = getPaintOffset(dbmInfo.fActualOp, dbmInfo.fSize);
+    uint32_t slPaintOffset = getPaintOffset(SAVE_LAYER, saveLayerInfo.fSize);
 
     // we have a match, now we need to get the paints involved
-    int dbmPaintId = *((int32_t*)writer->peek32(dbmOffset+dbmPaintOffset));
-    int saveLayerPaintId = *((int32_t*)writer->peek32(saveLayerOffset+slPaintOffset));
+    int dbmPaintId = *((int32_t*)writer->peek32(dbmInfo.fOffset+dbmPaintOffset));
+    int saveLayerPaintId = *((int32_t*)writer->peek32(saveLayerInfo.fOffset+slPaintOffset));
 
     if (0 == saveLayerPaintId) {
         // In this case the saveLayer/restore isn't needed at all - just kill the saveLayer
         // and signal the caller (by returning true) to not add the RESTORE op
-        uint32_t* ptr = writer->peek32(saveLayerOffset);
-        *ptr = (*ptr & MASK_24) | (NOOP << 24);
+        convert_command_to_noop(writer, saveLayerInfo.fOffset);
         return true;
     }
 
     if (0 == dbmPaintId) {
         // In this case just make the DBM* use the saveLayer's paint, kill the saveLayer
         // and signal the caller (by returning true) to not add the RESTORE op
-        uint32_t* ptr = writer->peek32(saveLayerOffset);
-        *ptr = (*ptr & MASK_24) | (NOOP << 24);
-        ptr = writer->peek32(dbmOffset+dbmPaintOffset);
+        convert_command_to_noop(writer, saveLayerInfo.fOffset);
+        uint32_t* ptr = writer->peek32(dbmInfo.fOffset+dbmPaintOffset);
         SkASSERT(0 == *ptr);
         *ptr = saveLayerPaintId;
         return true;
@@ -337,13 +397,48 @@ static bool remove_save_layer1(SkWriter32* writer, int32_t offset,
     }
 
     // kill the saveLayer and alter the DBMR2R's paint to be the modified one
-    uint32_t* ptr = writer->peek32(saveLayerOffset);
-    *ptr = (*ptr & MASK_24) | (NOOP << 24);
-    ptr = writer->peek32(dbmOffset+dbmPaintOffset);
+    convert_command_to_noop(writer, saveLayerInfo.fOffset);
+    uint32_t* ptr = writer->peek32(dbmInfo.fOffset+dbmPaintOffset);
+    SkASSERT(dbmPaintId == *ptr);
     *ptr = data->index();
     return true;
 }
 
+/*
+ * Restore has just been called (but not recorded), look back at the 
+ * matching save* and see if we are in the configuration:
+ *   SAVE_LAYER
+ *      SAVE
+ *         CLIP_RECT
+ *         DRAW_BITMAP|DRAW_BITMAP_MATRIX|DRAW_BITMAP_NINE|DRAW_BITMAP_RECT_TO_RECT
+ *      RESTORE
+ *   RESTORE
+ * where the saveLayer's color can be moved into the drawBitmap*'s paint
+ */
+static bool remove_save_layer2(SkWriter32* writer, int32_t offset,
+                               SkPaintDictionary* paintDict) {
+
+    // back up to the save block
+    // TODO: add a stack to track save*/restore offsets rather than searching backwards
+    while (offset > 0) {
+        offset = *writer->peek32(offset);
+    }
+
+    int pattern[] = { SAVE_LAYER, SAVE, CLIP_RECT, kDRAW_BITMAP_FLAVOR, RESTORE, /* RESTORE */ };
+    CommandInfo result[SK_ARRAY_COUNT(pattern)];
+
+    if (!match(writer, -offset, pattern, result, SK_ARRAY_COUNT(pattern))) {
+        return false;
+    }
+
+    if (kSaveLayerWithBoundsSize == result[0].fSize) {
+        // The saveLayer's bound can offset where the dbm is drawn
+        return false;
+    }
+
+    return merge_savelayer_paint_into_drawbitmp(writer, paintDict,
+                                                result[0], result[3]);
+}
 
 /*
  *  Restore has just been called (but not recorded), so look back at the
@@ -353,7 +448,8 @@ static bool remove_save_layer1(SkWriter32* writer, int32_t offset,
  *  If so, update the writer and return true, in which case we won't even record
  *  the restore() call. If we still need the restore(), return false.
  */
-static bool collapseSaveClipRestore(SkWriter32* writer, int32_t offset) {
+static bool collapse_save_clip_restore(SkWriter32* writer, int32_t offset,
+                                       SkPaintDictionary* paintDict) {
 #ifdef TRACK_COLLAPSE_STATS
     gCollapseCalls += 1;
 #endif
@@ -399,6 +495,22 @@ static bool collapseSaveClipRestore(SkWriter32* writer, int32_t offset) {
     return true;
 }
 
+typedef bool (*PictureRecordOptProc)(SkWriter32* writer, int32_t offset,
+                                     SkPaintDictionary* paintDict);
+
+/*
+ * A list of the optimizations that are tried upon seeing a restore
+ * TODO: add a real API for such optimizations
+ *       Add the ability to fire optimizations on any op (not just RESTORE)
+ */
+static const PictureRecordOptProc gPictureRecordOpts[] = {
+    collapse_save_clip_restore,
+#ifndef SK_IGNORE_PICTURE_RECORD_SAVE_LAYER_OPT
+    remove_save_layer1,
+    remove_save_layer2,
+#endif
+};
+
 void SkPictureRecord::restore() {
     // FIXME: SkDeferredCanvas needs to be refactored to respect
     // save/restore balancing so that the following test can be
@@ -417,15 +529,21 @@ void SkPictureRecord::restore() {
     }
 
     uint32_t initialOffset, size;
-    if (!collapseSaveClipRestore(&fWriter, fRestoreOffsetStack.top()) &&
-        !remove_save_layer1(&fWriter, fRestoreOffsetStack.top(), &fPaints)) {
+    int opt;
+    for (opt = 0; opt < SK_ARRAY_COUNT(gPictureRecordOpts); ++opt) {
+        if ((*gPictureRecordOpts[opt])(&fWriter, fRestoreOffsetStack.top(), &fPaints)) {
+            // Some optimization fired so don't add the RESTORE
+            size = 0;
+            initialOffset = fWriter.size();
+            break;
+        }
+    }
+
+    if (SK_ARRAY_COUNT(gPictureRecordOpts) == opt) {
+        // No optimization fired so add the RESTORE
         fillRestoreOffsetPlaceholdersForCurrentStackLevel((uint32_t)fWriter.size());
-        // op
-        size = 1 * kUInt32Size;
+        size = 1 * kUInt32Size; // RESTORE consists solely of 1 op code
         initialOffset = this->addDraw(RESTORE, &size);
-    } else {
-        size = 0;
-        initialOffset = fWriter.size();
     }
 
     fRestoreOffsetStack.pop();
