@@ -404,7 +404,7 @@ void SkDebuggerGUI::actionProfile() {
         item->setData(Qt::UserRole + 4, 100.0*temp);
     }
 
-    setupOverviewText(picture.typeTimes(), picture.totTime(), kNumRepeats);
+    setupOverviewText(picture.typeTimes(), picture.totTime());
 }
 
 void SkDebuggerGUI::actionCancel() {
@@ -1032,7 +1032,7 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
 
     setupListWidget(commands);
     setupComboBox(commands);
-    setupOverviewText(NULL, 0.0, 1);
+    setupOverviewText(NULL, 0.0);
     fInspectorWidget.setDisabled(false);
     fSettingsWidget.setDisabled(false);
     fMenuEdit.setDisabled(false);
@@ -1070,87 +1070,10 @@ void SkDebuggerGUI::setupListWidget(SkTArray<SkString>* command) {
     }
 }
 
-void SkDebuggerGUI::setupOverviewText(const SkTDArray<double>* typeTimes,
-                                      double totTime,
-                                      int numRuns) {
-
-    const SkTDArray<SkDrawCommand*>& commands = fDebugger.getDrawCommands();
-
-    SkTDArray<int> counts;
-    counts.setCount(LAST_DRAWTYPE_ENUM+1);
-    for (int i = 0; i < LAST_DRAWTYPE_ENUM+1; ++i) {
-        counts[i] = 0;
-    }
-
-    for (int i = 0; i < commands.count(); i++) {
-        counts[commands[i]->getType()]++;
-    }
-
-    QString overview;
-    int total = 0;
-#ifdef SK_DEBUG
-    double totPercent = 0, tempSum = 0;
-#endif
-    for (int i = 0; i < LAST_DRAWTYPE_ENUM+1; ++i) {
-        if (0 == counts[i]) {
-            // if there were no commands of this type then they should've consumed no time
-            SkASSERT(NULL == typeTimes || 0.0 == (*typeTimes)[i]);
-            continue;
-        }
-
-        overview.append(SkDrawCommand::GetCommandString((DrawType) i));
-        overview.append(": ");
-        overview.append(QString::number(counts[i]));
-        if (NULL != typeTimes) {
-            overview.append(" - ");
-            overview.append(QString::number((*typeTimes)[i]/(float)numRuns, 'f', 1));
-            overview.append("ms");
-            overview.append(" - ");
-            double percent = 100.0*(*typeTimes)[i]/totTime;
-            overview.append(QString::number(percent, 'f', 1));
-            overview.append("%");
-#ifdef SK_DEBUG
-            totPercent += percent;
-            tempSum += (*typeTimes)[i];
-#endif
-        }
-        overview.append("<br/>");
-        total += counts[i];
-    }
-#ifdef SK_DEBUG
-    if (NULL != typeTimes) {
-        SkASSERT(SkScalarNearlyEqual(totPercent, 100.0));
-        SkASSERT(SkScalarNearlyEqual(tempSum, totTime));
-    }
-#endif
-
-    if (totTime > 0.0) {
-        overview.append("Total Time: ");
-        overview.append(QString::number(totTime/(float)numRuns, 'f', 2));
-        overview.append("ms");
-#ifdef SK_DEBUG
-        overview.append(" ");
-        overview.append(QString::number(totPercent));
-        overview.append("% ");
-#endif
-        overview.append("<br/>");
-    }
-
-    QString totalStr;
-    totalStr.append("Total Draw Commands: ");
-    totalStr.append(QString::number(total));
-    totalStr.append("<br/>");
-    overview.insert(0, totalStr);
-
-    overview.append("<br/>");
-    overview.append("SkPicture Width: ");
-    // NOTE(chudy): This is where we can pull out the SkPictures width.
-    overview.append(QString::number(fDebugger.pictureWidth()));
-    overview.append("px<br/>");
-    overview.append("SkPicture Height: ");
-    overview.append(QString::number(fDebugger.pictureHeight()));
-    overview.append("px");
-    fInspectorWidget.setText(overview, SkInspectorWidget::kOverview_TabType);
+void SkDebuggerGUI::setupOverviewText(const SkTDArray<double>* typeTimes, double totTime) {
+    SkString overview;
+    fDebugger.getOverviewText(typeTimes, totTime, &overview);
+    fInspectorWidget.setText(overview.c_str(), SkInspectorWidget::kOverview_TabType);
 }
 
 void SkDebuggerGUI::setupComboBox(SkTArray<SkString>* command) {
