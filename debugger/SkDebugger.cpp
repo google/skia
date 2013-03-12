@@ -7,6 +7,8 @@
  */
 
 #include "SkDebugger.h"
+#include "SkString.h"
+
 
 SkDebugger::SkDebugger() {
     // Create this some other dynamic way?
@@ -42,4 +44,84 @@ SkPicture* SkDebugger::copyPicture() {
     fDebugCanvas->draw(canvas);
     newPicture->endRecording();
     return newPicture;
+}
+
+void SkDebugger::getOverviewText(const SkTDArray<double>* typeTimes,
+                                 double totTime,
+                                 SkString* overview) {
+    const SkTDArray<SkDrawCommand*>& commands = this->getDrawCommands();
+
+    SkTDArray<int> counts;
+    counts.setCount(LAST_DRAWTYPE_ENUM+1);
+    for (int i = 0; i < LAST_DRAWTYPE_ENUM+1; ++i) {
+        counts[i] = 0;
+    }
+
+    for (int i = 0; i < commands.count(); i++) {
+        counts[commands[i]->getType()]++;
+    }
+
+    overview->reset();
+    int total = 0;
+#ifdef SK_DEBUG
+    double totPercent = 0, tempSum = 0;
+#endif
+    for (int i = 0; i < LAST_DRAWTYPE_ENUM+1; ++i) {
+        if (0 == counts[i]) {
+            // if there were no commands of this type then they should've consumed no time
+            SkASSERT(NULL == typeTimes || 0.0 == (*typeTimes)[i]);
+            continue;
+        }
+
+        overview->append(SkDrawCommand::GetCommandString((DrawType) i));
+        overview->append(": ");
+        overview->appendScalar(counts[i]);
+        if (NULL != typeTimes) {
+            overview->append(" - ");
+            overview->appendScalar((*typeTimes)[i]);
+            overview->append("ms");
+            overview->append(" - ");
+            double percent = 100.0*(*typeTimes)[i]/totTime;
+            overview->appendScalar(percent);
+            overview->append("%");
+#ifdef SK_DEBUG
+            totPercent += percent;
+            tempSum += (*typeTimes)[i];
+#endif
+        }
+        overview->append("<br/>");
+        total += counts[i];
+    }
+#ifdef SK_DEBUG
+    if (NULL != typeTimes) {
+        SkASSERT(SkScalarNearlyEqual(totPercent, 100.0));
+        SkASSERT(SkScalarNearlyEqual(tempSum, totTime));
+    }
+#endif
+
+    if (totTime > 0.0) {
+        overview->append("Total Time: ");
+        overview->appendScalar(totTime);
+        overview->append("ms");
+#ifdef SK_DEBUG
+        overview->append(" ");
+        overview->appendScalar(totPercent);
+        overview->append("% ");
+#endif
+        overview->append("<br/>");
+    }
+
+    SkString totalStr;
+    totalStr.append("Total Draw Commands: ");
+    totalStr.appendScalar(total);
+    totalStr.append("<br/>");
+    overview->insert(0, totalStr);
+
+    overview->append("<br/>");
+    overview->append("SkPicture Width: ");
+    overview->appendScalar(pictureWidth());
+    overview->append("px<br/>");
+    overview->append("SkPicture Height: ");
+    overview->appendScalar(pictureHeight());
+    overview->append("px");
 }

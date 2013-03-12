@@ -14,6 +14,8 @@
 #include "SkPicture.h"
 #include "SkTArray.h"
 
+class SkString;
+
 class SkDebugger {
 public:
     SkDebugger();
@@ -105,6 +107,7 @@ public:
         }
     }
 
+    void getOverviewText(const SkTDArray<double>* typeTimes, double totTime, SkString* overview);
 
 private:
     SkDebugCanvas* fDebugCanvas;
