@@ -15,7 +15,7 @@
 
 static bool skip_compression(SkPDFCatalog* catalog) {
     return SkToBool(catalog->getDocumentFlags() &
-                    SkPDFDocument::kNoCompression_Flags);
+                    SkPDFDocument::kFavorSpeedOverSize_Flags);
 }
 
 SkPDFStream::SkPDFStream(SkStream* stream)
