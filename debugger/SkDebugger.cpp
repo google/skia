@@ -48,7 +48,8 @@ SkPicture* SkDebugger::copyPicture() {
 
 void SkDebugger::getOverviewText(const SkTDArray<double>* typeTimes,
                                  double totTime,
-                                 SkString* overview) {
+                                 SkString* overview,
+                                 int numRuns) {
     const SkTDArray<SkDrawCommand*>& commands = this->getDrawCommands();
 
     SkTDArray<int> counts;
@@ -75,14 +76,14 @@ void SkDebugger::getOverviewText(const SkTDArray<double>* typeTimes,
 
         overview->append(SkDrawCommand::GetCommandString((DrawType) i));
         overview->append(": ");
-        overview->appendScalar(counts[i]);
+        overview->appendS32(counts[i]);
         if (NULL != typeTimes) {
             overview->append(" - ");
-            overview->appendScalar((*typeTimes)[i]);
+            overview->appendf("%.2f", (*typeTimes)[i]/(float)numRuns);
             overview->append("ms");
             overview->append(" - ");
             double percent = 100.0*(*typeTimes)[i]/totTime;
-            overview->appendScalar(percent);
+            overview->appendf("%.2f", percent);
             overview->append("%");
 #ifdef SK_DEBUG
             totPercent += percent;
@@ -94,18 +95,20 @@ void SkDebugger::getOverviewText(const SkTDArray<double>* typeTimes,
     }
 #ifdef SK_DEBUG
     if (NULL != typeTimes) {
-        SkASSERT(SkScalarNearlyEqual(totPercent, 100.0));
-        SkASSERT(SkScalarNearlyEqual(tempSum, totTime));
+        SkASSERT(SkScalarNearlyEqual(SkDoubleToScalar(totPercent), 
+                                     SkDoubleToScalar(100.0)));
+        SkASSERT(SkScalarNearlyEqual(SkDoubleToScalar(tempSum), 
+                                     SkDoubleToScalar(totTime)));
     }
 #endif
 
     if (totTime > 0.0) {
         overview->append("Total Time: ");
-        overview->appendScalar(totTime);
+        overview->appendf("%.2f", totTime/(float)numRuns);
         overview->append("ms");
 #ifdef SK_DEBUG
         overview->append(" ");
-        overview->appendScalar(totPercent);
+        overview->appendScalar(SkDoubleToScalar(totPercent));
         overview->append("% ");
 #endif
         overview->append("<br/>");
@@ -113,15 +116,15 @@ void SkDebugger::getOverviewText(const SkTDArray<double>* typeTimes,
 
     SkString totalStr;
     totalStr.append("Total Draw Commands: ");
-    totalStr.appendScalar(total);
+    totalStr.appendScalar(SkDoubleToScalar(total));
     totalStr.append("<br/>");
     overview->insert(0, totalStr);
 
     overview->append("<br/>");
     overview->append("SkPicture Width: ");
-    overview->appendScalar(pictureWidth());
+    overview->appendS32(pictureWidth());
     overview->append("px<br/>");
     overview->append("SkPicture Height: ");
-    overview->appendScalar(pictureHeight());
+    overview->appendS32(pictureHeight());
     overview->append("px");
 }
