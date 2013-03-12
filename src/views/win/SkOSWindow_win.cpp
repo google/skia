@@ -371,7 +371,9 @@ void SkOSWindow::detachGL() {
 
 void SkOSWindow::presentGL() {
     glFlush();
-    SwapBuffers(GetDC((HWND)fHWND));
+    HDC dc = GetDC((HWND)fHWND);
+    SwapBuffers(dc);
+    ReleaseDC((HWND)fHWND, dc);
 }
 
 #if SK_ANGLE
