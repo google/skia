@@ -54,7 +54,7 @@ def usage():
     print '-l <title> title to use for the output graph'
     print '-m <representation> representation of bench value.'
     print '   See _ListAlgorithm class in bench_util.py.'
-    print '-o <path> path to which to write output; writes to stdout if not specified'
+    print '-o <path> path to which to write output.'
     print '-r <revision>[:<revision>] the revisions to show.'
     print '   Negative <revision> is taken as offset from most recent revision.'
     print '-s <setting>[=<value>] a setting to show (alpha, scalar, etc).'
@@ -332,6 +332,7 @@ def main():
     bench_of_interest = None
     time_of_interest = None
     time_to_ignore = None
+    output_path = None
     bench_expectations = {}
     appengine_url = None  # used for adding data to appengine datastore
     rep = None  # bench representation algorithm
@@ -462,7 +463,8 @@ def main():
             elif option == "-m":
                 rep = value
             elif option == "-o":
-                redirect_stdout(value)
+                output_path = value
+                redirect_stdout(output_path)
             elif option == "-r":
                 revision_range = value
             elif option == "-s":
@@ -485,6 +487,9 @@ def main():
     if directory is None:
         usage()
         sys.exit(2)
+
+    if not output_path:
+        print 'Warning: No output path provided. No graphs will be written.'
 
     if time_of_interest:
         time_to_ignore = None
@@ -532,14 +537,17 @@ def main():
                                    , oldest_regression
                                    , newest_regression)
 
-    output_xhtml(lines, oldest_revision, newest_revision, ignored_revision_data_points,
-                 regressions, requested_width, requested_height, title)
+    if output_path:
+        output_xhtml(lines, oldest_revision, newest_revision,
+                     ignored_revision_data_points, regressions, requested_width,
+                     requested_height, title)
 
     if appengine_url:
         write_to_appengine(lines, appengine_url, newest_revision, bot)
 
-    check_expectations(lines, bench_expectations, newest_revision,
-                       platform_and_alg)
+    if bench_expectations:
+        check_expectations(lines, bench_expectations, newest_revision,
+                           platform_and_alg)
 
 def qa(out):
     """Stringify input and quote as an xml attribute."""
