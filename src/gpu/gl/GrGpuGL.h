@@ -24,6 +24,10 @@
 #include "GrGLVertexBuffer.h"
 #include "../GrTHashCache.h"
 
+#ifdef SK_DEBUG
+#define PROGRAM_CACHE_STATS
+#endif
+
 class GrGpuGL : public GrGpu {
 public:
     GrGpuGL(const GrGLContext& ctx, GrContext* context);
@@ -156,6 +160,7 @@ private:
     class ProgramCache : public ::GrNoncopyable {
     public:
         ProgramCache(const GrGLContext& gl);
+        ~ProgramCache();
 
         void abandon();
         GrGLProgram* getProgram(const GrGLProgram::Desc& desc, const GrEffectStage* stages[]);
@@ -197,6 +202,10 @@ private:
         int                         fCount;
         unsigned int                fCurrLRUStamp;
         const GrGLContext&          fGL;
+#ifdef PROGRAM_CACHE_STATS
+        int                         fTotalRequests;
+        int                         fCacheMisses;
+#endif
     };
 
     // sets the matrix for path stenciling (uses the GL fixed pipe matrices)
