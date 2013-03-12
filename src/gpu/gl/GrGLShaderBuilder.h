@@ -184,7 +184,11 @@ public:
         return this->getUniformVariable(u).c_str();
     }
 
-    /** Add a varying variable to the current program to pass values between vertex and fragment
+   /** Add a vertex attribute to the current program that is passed in from the vertex data.
+       Returns false if the attribute was already there, true otherwise. */
+    bool addAttribute(GrSLType type, const char* name);
+
+   /** Add a varying variable to the current program to pass values between vertex and fragment
         shaders. If the last two parameters are non-NULL, they are filled in with the name
         generated. */
     void addVarying(GrSLType type,
@@ -222,6 +226,19 @@ public:
                                 const char* vsInCoord,
                                 SkTArray<GrGLUniformManager::UniformHandle, true>* samplerHandles);
     GrGLUniformManager::UniformHandle getRTHeightUniform() const { return fRTHeightUniform; }
+
+    struct AttributePair {
+        void set(int index, const SkString& name) {
+            fIndex = index; fName = name;
+        }
+        int      fIndex;
+        SkString fName;
+    };
+    const SkSTArray<10, AttributePair, true>& getEffectAttributes() const {
+        return fEffectAttributes;
+    }
+    const SkString* getEffectAttributeName(int attributeIndex) const;
+
     // TODO: Make this do all the compiling, linking, etc.
     void finished(GrGLuint programID);
 
@@ -269,6 +286,8 @@ private:
 
     bool                                fSetupFragPosition;
     GrGLUniformManager::UniformHandle   fRTHeightUniform;
+
+    SkSTArray<10, AttributePair, true>  fEffectAttributes;
 
     GrGLShaderVar*                      fPositionVar;
 };

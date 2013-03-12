@@ -193,7 +193,8 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
     }
     enum {
         // the SW path renderer shares this stage with glyph
-        // rendering (kGlyphMaskStage in GrBatchedTextContext)
+        // rendering (kGlyphMaskStage in GrTextContext)
+        // && edge rendering (kEdgeEffectStage in GrContext)
         kPathMaskStage = GrPaint::kTotalStages,
     };
     GrAssert(!drawState->isStageEnabled(kPathMaskStage));

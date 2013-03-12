@@ -258,6 +258,22 @@ const GrGLShaderVar& GrGLShaderBuilder::getUniformVariable(UniformHandle u) cons
     return fUniforms[handle_to_index(u)].fVariable;
 }
 
+bool GrGLShaderBuilder::addAttribute(GrSLType type,
+                                     const char* name) {
+    for (int i = 0; i < fVSAttrs.count(); ++i) {
+        const GrGLShaderVar& attr = fVSAttrs[i];
+        // if attribute already added, don't add it again
+        if (attr.getName().equals(name)) {
+            GrAssert(attr.getType() == type);
+            return false;
+        }
+    }
+    fVSAttrs.push_back().set(type,
+                             GrGLShaderVar::kAttribute_TypeModifier,
+                             name);
+    return true;
+}
+
 void GrGLShaderBuilder::addVarying(GrSLType type,
                                    const char* name,
                                    const char** vsOutName,
@@ -491,6 +507,18 @@ GrGLEffect* GrGLShaderBuilder::createAndEmitGLEffect(
         samplerHandles->push_back(textureSamplers[i].fSamplerUniform);
     }
 
+    int numAttributes = stage.getVertexAttribIndexCount();
+    const int* attributeIndices = stage.getVertexAttribIndices();
+    SkSTArray<GrEffect::kMaxVertexAttribs, SkString> attributeNames;
+    for (int i = 0; i < numAttributes; ++i) {
+        SkString attributeName("aAttr");
+        attributeName.appendS32(attributeIndices[i]);
+
+        if (this->addAttribute(effect->vertexAttribType(i), attributeName.c_str())) {
+            fEffectAttributes.push_back().set(attributeIndices[i], attributeName);
+        }
+    }
+
     GrGLEffect* glEffect = effect->getFactory().createGLInstance(effect);
 
     // Enclose custom code in a block to avoid namespace conflicts
@@ -507,4 +535,17 @@ GrGLEffect* GrGLShaderBuilder::createAndEmitGLEffect(
     this->fFSCode.appendf("\t}\n");
 
     return glEffect;
+}
+
+const SkString* GrGLShaderBuilder::getEffectAttributeName(int attributeIndex) const {
+    const AttributePair* attribEnd = this->getEffectAttributes().end();
+    for (const AttributePair* attrib = this->getEffectAttributes().begin(); 
+         attrib != attribEnd;
+         ++attrib) {
+        if (attrib->fIndex == attributeIndex) {
+            return &attrib->fName;
+        }
+    }   
+
+    return NULL;
 }

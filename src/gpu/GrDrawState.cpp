@@ -133,6 +133,85 @@ void GrDrawState::setDefaultVertexAttribs() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+bool GrDrawState::validateVertexAttribs() const {
+    // color and coverage can set indices beyond the standard count
+    static const int kMaxValidAttribIndex = kVertexAttribCnt+2;
+    int attributeTypes[kMaxValidAttribIndex];
+    for (int i = 0; i < kMaxValidAttribIndex; ++i) {
+        attributeTypes[i] = -1;
+    }
+
+    // sentinel to make sure effects don't try to use built-in attributes
+    static const int kBuiltInAttributeType = 10000; 
+
+    // check our built-in indices
+    if (fAttribIndices[kPosition_AttribIndex] >= kVertexAttribCnt) {
+        return false;
+    }
+    attributeTypes[fAttribIndices[kPosition_AttribIndex]] = kBuiltInAttributeType;
+    for (int j = kColor_AttribIndex; j <= kCoverage_AttribIndex; ++j) {
+        if (fCommon.fAttribBindings & kAttribIndexMasks[j]) {
+            int attributeIndex = fAttribIndices[j];
+            if (attributeIndex >= kMaxValidAttribIndex) {
+                return false;
+            }
+            // they should not be shared at all
+            if (attributeTypes[attributeIndex] != -1) {
+                return false;
+            }
+            attributeTypes[attributeIndex] = kBuiltInAttributeType;
+        }
+    }
+    for (int j = kEdge_AttribIndex; j < kAttribIndexCount; ++j) {
+        if (fCommon.fAttribBindings & kAttribIndexMasks[j]) {
+            int attributeIndex = fAttribIndices[j];
+            if (attributeIndex >= kVertexAttribCnt) {
+                return false;
+            }
+            // they should not be shared at all
+            if (attributeTypes[attributeIndex] != -1) {
+                return false;
+            }
+            attributeTypes[attributeIndex] = kBuiltInAttributeType;
+        }
+    }
+
+    // now those set by effects
+    for (int s = 0; s < kNumStages; ++s) { 
+        const GrEffectStage& stage = fStages[s];
+        const GrEffectRef* effect = stage.getEffect();
+        if (effect == NULL) {
+            continue;
+        }
+
+        // make sure that the count in the stage and the effect matches
+        int numAttributes = stage.getVertexAttribIndexCount();
+        if (numAttributes != effect->get()->numVertexAttribs()) {
+            return false;
+        }
+
+        // make sure that any shared indices have the same type
+        const int* attributeIndices = stage.getVertexAttribIndices();
+        for (int i = 0; i < numAttributes; ++i) {
+            int attributeIndex = attributeIndices[i];
+            if (attributeIndex >= kVertexAttribCnt) {
+                return false;
+            }
+
+            GrSLType attributeType = effect->get()->vertexAttribType(i);
+            if (attributeTypes[attributeIndex] != -1 && 
+                attributeTypes[attributeIndex] != attributeType) {
+                return false;
+            }
+            attributeTypes[attributeIndex] = attributeType;
+        }
+    }
+
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 bool GrDrawState::AttributesBindExplicitTexCoords(GrAttribBindings attribBindings) {
     return SkToBool(kTexCoord_AttribBindingsMask & attribBindings);
 }

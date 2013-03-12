@@ -181,6 +181,8 @@ public:
      */
     void setDefaultVertexAttribs();
 
+    bool validateVertexAttribs() const;
+
     ////////////////////////////////////////////////////////////////////////////
     // Helpers for picking apart vertex attributes
 
@@ -332,7 +334,7 @@ public:
     bool hasSolidCoverage(GrAttribBindings) const;
 
     static void VertexAttributesUnitTest();
-
+   
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////
@@ -483,8 +485,9 @@ public:
     /// @name Effect Stages
     ////
 
-    const GrEffectRef* setEffect(int stageIdx, const GrEffectRef* effect) {
-        fStages[stageIdx].setEffect(effect);
+    const GrEffectRef* setEffect(int stageIdx, const GrEffectRef* effect, 
+                                 const int* indices = NULL) {
+        fStages[stageIdx].setEffect(effect, indices);
         return effect;
     }
 
@@ -514,7 +517,9 @@ public:
         return true;
     }
 
-    void disableStage(int stageIdx) { this->setEffect(stageIdx, NULL); }
+    void disableStage(int stageIdx) { 
+        this->setEffect(stageIdx, NULL, NULL); 
+    }
 
     /**
      * Release all the GrEffects referred to by this draw state.
@@ -1021,9 +1026,6 @@ public:
         /* Circle specified as center_x, center_y, outer_radius, inner_radius
            all in window space (y-down). */
         kCircle_EdgeType,
-        /* Axis-aligned ellipse specified as center_x, center_y, x_radius, x_radius/y_radius
-           all in window space (y-down). */
-        kEllipse_EdgeType,
 
         kVertexEdgeTypeCnt
     };
@@ -1189,13 +1191,8 @@ public:
         if (fRenderTarget.get() != s.fRenderTarget.get() || fCommon != s.fCommon) {
             return false;
         }
-        if (fVertexAttribs.count() != s.fVertexAttribs.count()) {
+        if (fVertexAttribs != s.fVertexAttribs) {
             return false;
-        }
-        for (int i = 0; i < fVertexAttribs.count(); ++i) {
-            if (fVertexAttribs[i] != s.fVertexAttribs[i]) {
-                return false;
-            }
         }
         for (int i = 0; i < kAttribIndexCount; ++i) {
             if ((i == kPosition_AttribIndex ||
@@ -1335,12 +1332,8 @@ public:
                     return false;
                 }
             }
-            if (fVertexAttribs.count() != state.fVertexAttribs.count()) {
+            if (fVertexAttribs != state.fVertexAttribs) {
                 return false;
-            }
-            for (int i = 0; i < fVertexAttribs.count(); ++i)
-                if (fVertexAttribs[i] != state.fVertexAttribs[i]) {
-                    return false;
             }
             for (int i = 0; i < kNumStages; ++i) {
                 if (!fStages[i].isEqual(state.fStages[i])) {

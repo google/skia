@@ -392,6 +392,8 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
             }
         }
     }
+
+    GrAssert(drawState.validateVertexAttribs());
 #endif
     if (NULL == drawState.getRenderTarget()) {
         return false;

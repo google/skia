@@ -31,3 +31,18 @@ GrGLEffect::EffectKey GrGLEffect::GenTextureKey(const GrEffectRef* effect,
     }
     return key;
 }
+
+GrGLEffect::EffectKey GrGLEffect::GenAttribKey(const GrEffectStage& stage) {
+    EffectKey key = 0;
+
+    int numAttributes = stage.getVertexAttribIndexCount();
+    GrAssert(numAttributes <= 2);
+    const int* attributeIndices = stage.getVertexAttribIndices();
+    for (int index = 0; index < numAttributes; ++index) {
+        EffectKey value = attributeIndices[index] << 2*index;
+        GrAssert(0 == (value & key)); // keys for each attribute ought not to overlap
+        key |= value;
+    }
+
+    return key;
+}

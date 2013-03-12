@@ -9,6 +9,7 @@
 #define GrGLSL_DEFINED
 
 #include "gl/GrGLInterface.h"
+#include "GrTypesPriv.h"
 
 class GrGLShaderVar;
 class SkString;
@@ -32,22 +33,6 @@ enum GrGLSLGeneration {
      * Desktop GLSL 1.50
      */
     k150_GrGLSLGeneration,
-};
-
-/**
- * Types of shader-language-specific boxed variables we can create.
- * (Currently only GrGLShaderVars, but should be applicable to other shader
- * languages.)
- */
-enum GrSLType {
-    kVoid_GrSLType,
-    kFloat_GrSLType,
-    kVec2f_GrSLType,
-    kVec3f_GrSLType,
-    kVec4f_GrSLType,
-    kMat33f_GrSLType,
-    kMat44f_GrSLType,
-    kSampler2D_GrSLType
 };
 
 enum GrSLConstantVec {

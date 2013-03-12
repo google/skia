@@ -121,6 +121,8 @@ bool GrGpuGL::programUnitTest(int maxStages) {
         GrGLProgram::Desc pdesc;
         GrEffectStage stages[GrDrawState::kNumStages];
 
+        int currAttribIndex = GrDrawState::kAttribIndexCount;
+        int attribIndices[2];
         for (int s = 0; s < maxStages; ++s) {
             // enable the stage?
             if (random.nextBool()) {
@@ -129,7 +131,10 @@ bool GrGpuGL::programUnitTest(int maxStages) {
                                                                                 &random,
                                                                                 this->getContext(),
                                                                                 dummyTextures));
-                stages[s].setEffect(effect.get());
+                for (int i = 0; i < effect.get()->get()->numVertexAttribs(); ++i) {
+                    attribIndices[i] = currAttribIndex++;
+                }
+                stages[s].setEffect(effect.get(), attribIndices);
             }
         }
         pdesc.setRandom(&random, this, stages);
