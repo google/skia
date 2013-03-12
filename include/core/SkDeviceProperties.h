@@ -10,8 +10,8 @@
     #define SK_GAMMA_EXPONENT (0.0f)
 #endif
 
-//TODO: get everyone to stop using SkFontHost::SetSubpixel* and remove this import.
-#include "SkFontHost.h"
+//TODO: get everyone to stop using SkFontLCDConfig::SetSubpixel* and remove this import.
+#include "SkFontLCDConfig.h"
 
 struct SkDeviceProperties {
     struct Geometry {
@@ -60,25 +60,25 @@ struct SkDeviceProperties {
         }
 
     private:
-        //TODO: get everyone to stop using SkFontHost::SetSubpixel* and replace these calls with constants.
-        static Orientation fromOldOrientation(SkFontHost::LCDOrientation orientation) {
+        //TODO: get everyone to stop using SkFontLCDConfig::SetSubpixel* and replace these calls with constants.
+        static Orientation fromOldOrientation(SkFontLCDConfig::LCDOrientation orientation) {
             switch (orientation) {
-            case SkFontHost::kHorizontal_LCDOrientation: return kHorizontal_Orientation;
-            case SkFontHost::kVertical_LCDOrientation: return kVertical_Orientation;
+            case SkFontLCDConfig::kHorizontal_LCDOrientation: return kHorizontal_Orientation;
+            case SkFontLCDConfig::kVertical_LCDOrientation: return kVertical_Orientation;
             default: return kUnknown_Orientation;
             }
         }
-        static Layout fromOldLayout(SkFontHost::LCDOrder order) {
+        static Layout fromOldLayout(SkFontLCDConfig::LCDOrder order) {
             switch (order) {
-            case SkFontHost::kRGB_LCDOrder: return kRGB_Layout;
-            case SkFontHost::kBGR_LCDOrder: return kBGR_Layout;
+            case SkFontLCDConfig::kRGB_LCDOrder: return kRGB_Layout;
+            case SkFontLCDConfig::kBGR_LCDOrder: return kBGR_Layout;
             default: return kUnknown_Layout;
             }
         }
     public:
         static Geometry MakeDefault() {
-            Orientation orientation = fromOldOrientation(SkFontHost::GetSubpixelOrientation()); //kHorizontal_Orientation
-            Layout layout = fromOldLayout(SkFontHost::GetSubpixelOrder()); //kRGB_Layout
+            Orientation orientation = fromOldOrientation(SkFontLCDConfig::GetSubpixelOrientation()); //kHorizontal_Orientation
+            Layout layout = fromOldLayout(SkFontLCDConfig::GetSubpixelOrder()); //kRGB_Layout
             Geometry ret = { SkToU8(orientation | layout) };
             return ret;
         }

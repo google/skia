@@ -42,7 +42,7 @@ static SkFontConfigInterface* RefFCI() {
             return fci;
         }
         fci = SkFontConfigInterface::GetSingletonDirectInterface();
-        SkFontConfigInterface::SetGlobal(fci);
+        SkFontConfigInterface::SetGlobal(fci)->unref();
     }
 }
 
@@ -128,6 +128,7 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
     FindRec rec(familyName, style);
     SkTypeface* face = SkTypefaceCache::FindByProcAndRef(find_proc, &rec);
     if (face) {
+        SkDebugf("found cached face <%s> <%s> %p [%d]\n", familyName, ((FontConfigTypeface*)face)->getFamilyName(), face, face->getRefCnt());
         return face;
     }
 
@@ -142,6 +143,7 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
 
     face = SkNEW_ARGS(FontConfigTypeface, (outStyle, indentity, outFamilyName));
     SkTypefaceCache::Add(face, style);
+    SkDebugf("add face <%s> <%s> %p [%d]\n", familyName, outFamilyName.c_str(), face, face->getRefCnt());
     return face;
 }
 

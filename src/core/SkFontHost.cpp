@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2009 The Android Open Source Project
  *
@@ -6,32 +5,46 @@
  * found in the LICENSE file.
  */
 
+#include "SkFontLCDConfig.h"
 
-#include "SkFontHost.h"
+static SkFontLCDConfig::LCDOrientation gLCDOrientation = SkFontLCDConfig::kHorizontal_LCDOrientation;
+static SkFontLCDConfig::LCDOrder gLCDOrder = SkFontLCDConfig::kRGB_LCDOrder;
 
-static SkFontHost::LCDOrientation gLCDOrientation = SkFontHost::kHorizontal_LCDOrientation;
-static SkFontHost::LCDOrder gLCDOrder = SkFontHost::kRGB_LCDOrder;
-
-// static
-SkFontHost::LCDOrientation SkFontHost::GetSubpixelOrientation()
-{
+SkFontLCDConfig::LCDOrientation SkFontLCDConfig::GetSubpixelOrientation() {
     return gLCDOrientation;
 }
 
-// static
-void SkFontHost::SetSubpixelOrientation(LCDOrientation orientation)
-{
+void SkFontLCDConfig::SetSubpixelOrientation(LCDOrientation orientation) {
     gLCDOrientation = orientation;
 }
 
-// static
-SkFontHost::LCDOrder SkFontHost::GetSubpixelOrder()
-{
+SkFontLCDConfig::LCDOrder SkFontLCDConfig::GetSubpixelOrder() {
     return gLCDOrder;
 }
 
-// static
-void SkFontHost::SetSubpixelOrder(LCDOrder order)
-{
+void SkFontLCDConfig::SetSubpixelOrder(LCDOrder order) {
     gLCDOrder = order;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// Legacy wrappers : remove from SkFontHost when webkit switches to new API
+
+#include "SkFontHost.h"
+
+SkFontHost::LCDOrientation SkFontHost::GetSubpixelOrientation() {
+    return (SkFontHost::LCDOrientation)SkFontLCDConfig::GetSubpixelOrientation();
+}
+
+void SkFontHost::SetSubpixelOrientation(LCDOrientation orientation) {
+    SkFontLCDConfig::SetSubpixelOrientation((SkFontLCDConfig::LCDOrientation)orientation);
+}
+
+SkFontHost::LCDOrder SkFontHost::GetSubpixelOrder() {
+    return (SkFontHost::LCDOrder)SkFontLCDConfig::GetSubpixelOrder();
+}
+
+void SkFontHost::SetSubpixelOrder(LCDOrder order) {
+    SkFontLCDConfig::SetSubpixelOrder((SkFontLCDConfig::LCDOrder)order);
+}
+
+
