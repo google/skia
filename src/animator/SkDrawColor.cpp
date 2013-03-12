@@ -133,7 +133,7 @@ bool SkDrawColor::add() {
     return false;
 }
 
-SkDisplayable* SkDrawColor::deepCopy(SkAnimateMaker* maker) {
+SkDisplayable* SkDrawColor::deepCopy(SkAnimateMaker*) {
     SkDrawColor* copy = new SkDrawColor();
     copy->color = color;
     copy->fHue = fHue;
@@ -206,7 +206,7 @@ bool SkDrawColor::getProperty(int index, SkScriptValue* value) const {
     return true;
 }
 
-void SkDrawColor::onEndElement(SkAnimateMaker& maker){
+void SkDrawColor::onEndElement(SkAnimateMaker&) {
     fDirty = true;
 }
 

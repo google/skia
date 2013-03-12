@@ -348,12 +348,12 @@ bool SkWindow::onHandleChar(SkUnichar)
     return false;
 }
 
-bool SkWindow::onHandleKey(SkKey key)
+bool SkWindow::onHandleKey(SkKey)
 {
     return false;
 }
 
-bool SkWindow::onHandleKeyUp(SkKey key)
+bool SkWindow::onHandleKeyUp(SkKey)
 {
     return false;
 }

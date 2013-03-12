@@ -415,7 +415,7 @@ const char kDrawCornerPathEffectName[]  = "pathEffect:corner";
 
 class SkExtraPathEffects : public SkExtras {
 public:
-    SkExtraPathEffects(SkAnimator* animator) :
+    SkExtraPathEffects() :
             skDrawShape1DPathEffectType(SkType_Unknown),
             skDrawShape2DPathEffectType(SkType_Unknown),
             skDrawComposePathEffectType(SkType_Unknown),
@@ -504,9 +504,8 @@ private:
     SkDisplayTypes skDrawCornerPathEffectType;
 };
 
-
 void InitializeSkExtraPathEffects(SkAnimator* animator) {
-    animator->addExtras(new SkExtraPathEffects(animator));
+    animator->addExtras(new SkExtraPathEffects());
 }
 
 ////////////////

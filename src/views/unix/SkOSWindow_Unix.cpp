@@ -32,7 +32,7 @@ const int HEIGHT = 500;
 const long EVENT_MASK = StructureNotifyMask|ButtonPressMask|ButtonReleaseMask
         |ExposureMask|PointerMotionMask|KeyPressMask|KeyReleaseMask;
 
-SkOSWindow::SkOSWindow(void* unused)
+SkOSWindow::SkOSWindow(void*)
     : fVi(NULL)
     , fMSAASampleCount(0) {
     fUnixWindow.fDisplay = NULL;
@@ -380,10 +380,10 @@ bool SkOSWindow::onHandleChar(SkUnichar) {
     return false;
 }
 
-bool SkOSWindow::onHandleKey(SkKey key) {
+bool SkOSWindow::onHandleKey(SkKey) {
     return false;
 }
 
-bool SkOSWindow::onHandleKeyUp(SkKey key) {
+bool SkOSWindow::onHandleKeyUp(SkKey) {
     return false;
 }

@@ -260,7 +260,7 @@ protected:
         return this->INHERITED::onClick(click);
     }
 
-    virtual bool handleKey(SkKey key) {
+    virtual bool handleKey(SkKey) {
         this->inval(NULL);
         return true;
     }
