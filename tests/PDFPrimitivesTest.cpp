@@ -51,7 +51,7 @@ static void CheckObjectOutput(skiatest::Reporter* reporter, SkPDFObject* obj,
                               bool indirect, bool compression) {
     SkPDFDocument::Flags docFlags = (SkPDFDocument::Flags) 0;
     if (!compression) {
-        docFlags = SkTBitOr(docFlags, SkPDFDocument::kNoCompression_Flags);
+        docFlags = SkTBitOr(docFlags, SkPDFDocument::kFavorSpeedOverSize_Flags);
     }
     SkPDFCatalog catalog(docFlags);
     size_t directSize = obj->getOutputSize(&catalog, false);
