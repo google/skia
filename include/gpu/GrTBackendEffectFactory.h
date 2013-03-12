@@ -35,14 +35,19 @@ public:
         GrAssert(kIllegalEffectClassID != fEffectClassID);
         EffectKey effectKey = GLEffect::GenKey(stage, caps);
         EffectKey textureKey = GLEffect::GenTextureKey(stage.getEffect(), caps);
+        EffectKey attribKey = GLEffect::GenAttribKey(stage);
 #if GR_DEBUG
         static const EffectKey kIllegalIDMask = (uint16_t) (~((1U << kEffectKeyBits) - 1));
         GrAssert(!(kIllegalIDMask & effectKey));
 
         static const EffectKey kIllegalTextureKeyMask = (uint16_t) (~((1U << kTextureKeyBits) - 1));
         GrAssert(!(kIllegalTextureKeyMask & textureKey));
+
+        static const EffectKey kIllegalAttribKeyMask = (uint16_t) (~((1U << kAttribKeyBits) - 1));
+        GrAssert(!(kIllegalAttribKeyMask & textureKey));
 #endif
-        return fEffectClassID | (textureKey << kEffectKeyBits) | effectKey;
+        return fEffectClassID | (attribKey << (kEffectKeyBits+kTextureKeyBits)) | 
+               (textureKey << kEffectKeyBits) | effectKey;
     }
 
     /** Returns a new instance of the appropriate *GL* implementation class

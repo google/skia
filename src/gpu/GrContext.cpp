@@ -12,6 +12,7 @@
 #include "effects/GrConvolutionEffect.h"
 #include "effects/GrSingleTextureEffect.h"
 #include "effects/GrConfigConversionEffect.h"
+#include "effects/GrEllipseEdgeEffect.h"
 
 #include "GrBufferAllocPool.h"
 #include "GrGpu.h"
@@ -1072,12 +1073,8 @@ void GrContext::internalDrawOval(const GrPaint& paint,
         {kVec2f_GrVertexAttribType, 0},
         {kVec4f_GrVertexAttribType, sizeof(GrPoint)}
     };
-    static const GrAttribBindings kAttributeBindings = GrDrawState::kEdge_AttribBindingsBit;
-
     drawState->setVertexAttribs(kVertexAttribs, SK_ARRAY_COUNT(kVertexAttribs));
     drawState->setAttribIndex(GrDrawState::kPosition_AttribIndex, 0);
-    drawState->setAttribIndex(GrDrawState::kEdge_AttribIndex, 1);
-    drawState->setAttribBindings(kAttributeBindings);
     GrAssert(sizeof(CircleVertex) == drawState->getVertexSize());
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
@@ -1097,7 +1094,9 @@ void GrContext::internalDrawOval(const GrPaint& paint,
     SkScalar B;
 
     if (isCircle) {
+        drawState->setAttribBindings(GrDrawState::kEdge_AttribBindingsBit);
         drawState->setVertexEdgeType(GrDrawState::kCircle_EdgeType);
+        drawState->setAttribIndex(GrDrawState::kEdge_AttribIndex, 1);
 
         xRadius = vm.mapRadius(xRadius);
 
@@ -1129,7 +1128,17 @@ void GrContext::internalDrawOval(const GrPaint& paint,
         T = -outerRadius;
         B = +outerRadius;
     } else {  // is axis-aligned ellipse
-        drawState->setVertexEdgeType(GrDrawState::kEllipse_EdgeType);
+        drawState->setAttribBindings(GrDrawState::kDefault_AttribBindings);
+
+        enum {
+            // the edge effects share this stage with glyph rendering 
+            // (kGlyphMaskStage in GrTextContext) && SW path rendering 
+            // (kPathMaskStage in GrSWMaskHelper)
+            kEdgeEffectStage = GrPaint::kTotalStages,
+        };
+        GrEffectRef* effect = GrEllipseEdgeEffect::Create();
+        static const int kEdgeAttrIndex = 1;
+        drawState->setEffect(kEdgeEffectStage, effect, &kEdgeAttrIndex)->unref();
 
         SkRect xformedRect;
         vm.mapRect(&xformedRect, oval);

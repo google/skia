@@ -419,9 +419,7 @@ bool GrGLProgram::genEdgeCoverage(SkString* coverageVar,
     if (fDesc.fAttribBindings & GrDrawState::kEdge_AttribBindingsBit) {
         const char *vsName, *fsName;
         builder->addVarying(kVec4f_GrSLType, "Edge", &vsName, &fsName);
-        builder->fVSAttrs.push_back().set(kVec4f_GrSLType,
-                                          GrGLShaderVar::kAttribute_TypeModifier,
-                                          EDGE_ATTR_NAME);
+        builder->addAttribute(kVec4f_GrSLType, EDGE_ATTR_NAME);
         builder->vsCodeAppendf("\t%s = " EDGE_ATTR_NAME ";\n", vsName);
         switch (fDesc.fVertexEdgeType) {
         case GrDrawState::kHairLine_EdgeType:
@@ -467,13 +465,6 @@ bool GrGLProgram::genEdgeCoverage(SkString* coverageVar,
             builder->fsCodeAppendf("\tfloat innerAlpha = %s.w == 0.0 ? 1.0 : smoothstep(%s.w - 0.5, %s.w + 0.5, d);\n", fsName, fsName, fsName);
             builder->fsCodeAppend("\tedgeAlpha = outerAlpha * innerAlpha;\n");
             break;
-        case GrDrawState::kEllipse_EdgeType:
-            builder->fsCodeAppend("\tfloat edgeAlpha;\n");
-            builder->fsCodeAppendf("\tvec2 offset = (%s.xy - %s.xy);\n", builder->fragmentPosition(), fsName);
-            builder->fsCodeAppendf("\toffset.y *= %s.w;\n", fsName);
-            builder->fsCodeAppend("\tfloat d = length(offset);\n");
-            builder->fsCodeAppendf("\tedgeAlpha = smoothstep(d - 0.5, d + 0.5, %s.z);\n", fsName);
-            break;
         default:
             GrCrash("Unknown Edge Type!");
             break;
@@ -492,9 +483,7 @@ bool GrGLProgram::genEdgeCoverage(SkString* coverageVar,
 void GrGLProgram::genInputColor(GrGLShaderBuilder* builder, SkString* inColor) {
     switch (fDesc.fColorInput) {
         case GrGLProgram::Desc::kAttribute_ColorInput: {
-            builder->fVSAttrs.push_back().set(kVec4f_GrSLType,
-                GrGLShaderVar::kAttribute_TypeModifier,
-                COL_ATTR_NAME);
+            builder->addAttribute(kVec4f_GrSLType, COL_ATTR_NAME);
             const char *vsName, *fsName;
             builder->addVarying(kVec4f_GrSLType, "Color", &vsName, &fsName);
             builder->vsCodeAppendf("\t%s = " COL_ATTR_NAME ";\n", vsName);
@@ -534,9 +523,7 @@ void GrGLProgram::genUniformCoverage(GrGLShaderBuilder* builder, SkString* inOut
 namespace {
 void gen_attribute_coverage(GrGLShaderBuilder* builder,
                             SkString* inOutCoverage) {
-    builder->fVSAttrs.push_back().set(kVec4f_GrSLType,
-                                      GrGLShaderVar::kAttribute_TypeModifier,
-                                      COV_ATTR_NAME);
+    builder->addAttribute(kVec4f_GrSLType, COV_ATTR_NAME);
     const char *vsName, *fsName;
     builder->addVarying(kVec4f_GrSLType, "Coverage", &vsName, &fsName);
     builder->vsCodeAppendf("\t%s = " COV_ATTR_NAME ";\n", vsName);
@@ -777,9 +764,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
 
     // add texture coordinates that are used to the list of vertex attr decls
     if (GrDrawState::AttributesBindExplicitTexCoords(attribBindings)) {
-        builder.fVSAttrs.push_back().set(kVec2f_GrSLType,
-            GrGLShaderVar::kAttribute_TypeModifier,
-            TEX_ATTR_NAME);
+        builder.addAttribute(kVec2f_GrSLType, TEX_ATTR_NAME);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -917,6 +902,11 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
                     inCoverage = outCoverage;
                 }
             }
+
+            // discard if coverage is zero
+            if (fDesc.fDiscardIfOutsideEdge && !outCoverage.isEmpty()) {
+                builder.fsCodeAppendf("\tif (all(lessThanEqual(%s, vec4(0.0)))) {\n\t\tdiscard;\n\t}\n", outCoverage.c_str());
+            }
         }
 
         if (Desc::kNone_DualSrcOutput != fDesc.fDualSrcOutput) {
@@ -1020,6 +1010,13 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& buil
     }
     if (GrDrawState::AttributesBindExplicitTexCoords(fDesc.fAttribBindings)) {
         GL_CALL(BindAttribLocation(fProgramID, fDesc.fTexCoordAttributeIndex, TEX_ATTR_NAME));
+    }
+
+    const GrGLShaderBuilder::AttributePair* attribEnd = builder.getEffectAttributes().end();
+    for (const GrGLShaderBuilder::AttributePair* attrib = builder.getEffectAttributes().begin(); 
+         attrib != attribEnd;
+         ++attrib) {
+         GL_CALL(BindAttribLocation(fProgramID, attrib->fIndex, attrib->fName.c_str()));
     }
 
     GL_CALL(LinkProgram(fProgramID));

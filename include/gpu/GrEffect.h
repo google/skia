@@ -14,6 +14,7 @@
 #include "GrRefCnt.h"
 #include "GrTexture.h"
 #include "GrTextureAccess.h"
+#include "GrTypesPriv.h"
 
 class GrBackendEffectFactory;
 class GrContext;
@@ -136,6 +137,14 @@ public:
     /** Shortcut for textureAccess(index).texture(); */
     GrTexture* texture(int index) const { return this->textureAccess(index).getTexture(); }
 
+
+    int numVertexAttribs() const { return fVertexAttribTypes.count(); }
+
+    GrSLType vertexAttribType(int index) const { return fVertexAttribTypes[index]; }
+
+    static const int kMaxVertexAttribs = 2;
+
+
     /** Useful for effects that want to insert a texture matrix that is implied by the texture
         dimensions */
     static inline SkMatrix MakeDivByTextureWHMatrix(const GrTexture* texture) {
@@ -168,11 +177,18 @@ public:
 
 protected:
     /**
-     * Subclasses call this from their constructor to register GrTextureAcceses. The effect subclass
-     * manages the lifetime of the accesses (this function only stores a pointer). This must only be
-     * called from the constructor because GrEffects are supposed to be immutable.
+     * Subclasses call this from their constructor to register GrTextureAccesses. The effect 
+     * subclass manages the lifetime of the accesses (this function only stores a pointer). This 
+     * must only be called from the constructor because GrEffects are immutable.
      */
     void addTextureAccess(const GrTextureAccess* textureAccess);
+
+    /**
+     * Subclasses call this from their constructor to register vertex attributes (at most 
+     * kMaxVertexAttribs). This must only be called from the constructor because GrEffects are 
+     * immutable.
+     */
+    void addVertexAttrib(GrSLType type);
 
     GrEffect() : fEffectRef(NULL) {};
 
@@ -246,8 +262,9 @@ private:
                                 // from deferred state, to call isEqual on naked GrEffects, and
                                 // to inc/dec deferred ref counts.
 
-    SkSTArray<4, const GrTextureAccess*, true>  fTextureAccesses;
-    GrEffectRef*                                fEffectRef;
+    SkSTArray<4, const GrTextureAccess*, true>   fTextureAccesses;
+    SkSTArray<kMaxVertexAttribs, GrSLType, true> fVertexAttribTypes;
+    GrEffectRef*                                 fEffectRef;
 
     typedef GrRefCnt INHERITED;
 };

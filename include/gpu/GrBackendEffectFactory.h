@@ -40,7 +40,8 @@ public:
          * GrGLEffects' control. So there is a dedicated part of the key which is combined
          * automatically with the bits produced by GrGLEffect::GenKey().
          */
-        kTextureKeyBits = 6
+        kTextureKeyBits = 6,
+        kAttribKeyBits = 4
     };
 
     virtual EffectKey glEffectKey(const GrEffectStage&, const GrGLCaps&) const = 0;

@@ -87,6 +87,7 @@ public:
     const char* name() const { return fFactory.name(); }
 
     static EffectKey GenTextureKey(const GrEffectRef*, const GrGLCaps&);
+    static EffectKey GenAttribKey(const GrEffectStage& stage);
 
    /**
     * GrGLEffect subclasses get passed a GrEffectStage in their emitCode and setData functions.

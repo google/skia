@@ -280,6 +280,23 @@ public:
         return fItemArray[fCount - i - 1];
     }
 
+    bool operator==(const SkTArray<T, MEM_COPY>& right) const {
+        int leftCount = this->count();
+        if (leftCount != right.count()) {
+            return false;
+        }
+        for (int index = 0; index < leftCount; ++index) {
+            if (fItemArray[index] != right.fItemArray[index]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool operator!=(const SkTArray<T, MEM_COPY>& right) const {
+        return !(*this == right);
+    }
+
 protected:
     /**
      * Creates an empty array that will use the passed storage block until it
