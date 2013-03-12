@@ -303,13 +303,23 @@ DRAW_LINE:
     SkAssertResult(set_normal_unitnormal(cd, fRadius, normalCD, unitNormalCD));
     bool degenerateBC = !set_normal_unitnormal(pts[1], pts[2], fRadius,
                                                &normalBC, &unitNormalBC);
-
+#ifndef SK_IGNORE_CUBIC_STROKE_FIX
+    if (subDivide <= 0) {
+        if (degenerateBC) {
+            goto DRAW_LINE;
+        } else {
+            goto DRAW_CUBIC;
+        }
+    }
+#endif
     if (degenerateBC || normals_too_curvy(unitNormalAB, unitNormalBC) ||
              normals_too_curvy(unitNormalBC, *unitNormalCD)) {
+#ifdef SK_IGNORE_CUBIC_STROKE_FIX
         // subdivide if we can
         if (--subDivide < 0) {
             goto DRAW_LINE;
         }
+#endif
         SkPoint     tmp[7];
         SkVector    norm, unit, dummy, unitDummy;
 
@@ -320,6 +330,9 @@ DRAW_LINE:
         // normals for CD
         this->cubic_to(&tmp[3], norm, unit, &dummy, &unitDummy, subDivide);
     } else {
+#ifndef SK_IGNORE_CUBIC_STROKE_FIX
+    DRAW_CUBIC:
+#endif
         SkVector    normalB, normalC;
 
         // need normals to inset/outset the off-curve pts B and C
