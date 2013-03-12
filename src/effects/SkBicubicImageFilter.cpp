@@ -66,11 +66,14 @@ inline SkPMColor cubicBlend(const SkScalar c[16], SkScalar t, SkPMColor c0, SkPM
     cc[1] = c[4]  + SkScalarMul(c[5], t) + SkScalarMul(c[6], t2) + SkScalarMul(c[7], t3);
     cc[2] = c[8]  + SkScalarMul(c[9], t) + SkScalarMul(c[10], t2) + SkScalarMul(c[11], t3);
     cc[3] = c[12] + SkScalarMul(c[13], t) + SkScalarMul(c[14], t2) + SkScalarMul(c[15], t3);
-    SkScalar a = SkScalarMul(cc[0], SkGetPackedA32(c0)) + SkScalarMul(cc[1], SkGetPackedA32(c1)) + SkScalarMul(cc[2], SkGetPackedA32(c2)) + SkScalarMul(cc[3], SkGetPackedA32(c3));
+    SkScalar a = SkScalarClampMax(SkScalarMul(cc[0], SkGetPackedA32(c0)) + SkScalarMul(cc[1], SkGetPackedA32(c1)) + SkScalarMul(cc[2], SkGetPackedA32(c2)) + SkScalarMul(cc[3], SkGetPackedA32(c3)), 255);
     SkScalar r = SkScalarMul(cc[0], SkGetPackedR32(c0)) + SkScalarMul(cc[1], SkGetPackedR32(c1)) + SkScalarMul(cc[2], SkGetPackedR32(c2)) + SkScalarMul(cc[3], SkGetPackedR32(c3));
     SkScalar g = SkScalarMul(cc[0], SkGetPackedG32(c0)) + SkScalarMul(cc[1], SkGetPackedG32(c1)) + SkScalarMul(cc[2], SkGetPackedG32(c2)) + SkScalarMul(cc[3], SkGetPackedG32(c3));
     SkScalar b = SkScalarMul(cc[0], SkGetPackedB32(c0)) + SkScalarMul(cc[1], SkGetPackedB32(c1)) + SkScalarMul(cc[2], SkGetPackedB32(c2)) + SkScalarMul(cc[3], SkGetPackedB32(c3));
-    return SkPackARGB32(SkScalarRoundToInt(SkScalarClampMax(a, 255)), SkScalarRoundToInt(SkScalarClampMax(r, 255)), SkScalarRoundToInt(SkScalarClampMax(g, 255)), SkScalarRoundToInt(SkScalarClampMax(b, 255)));
+    return SkPackARGB32(SkScalarRoundToInt(a), 
+                        SkScalarRoundToInt(SkScalarClampMax(r, a)), 
+                        SkScalarRoundToInt(SkScalarClampMax(g, a)), 
+                        SkScalarRoundToInt(SkScalarClampMax(b, a)));
 }
 
 bool SkBicubicImageFilter::onFilterImage(Proxy* proxy,
