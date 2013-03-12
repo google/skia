@@ -163,7 +163,7 @@ static bool render_picture(const SkString& inputPath, const SkString* outputDir,
         success = render_picture(inputPath, NULL, referenceRenderer,
                                  &referenceBitmap);
 
-        if (!success || !referenceBitmap) {
+        if (!success || NULL == referenceBitmap || NULL == referenceBitmap->getPixels()) {
             SkDebugf("Failed to draw the reference picture.\n");
             SkDELETE(bitmap);
             SkDELETE(referenceBitmap);
