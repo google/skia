@@ -349,8 +349,8 @@ static bool merge_savelayer_paint_into_drawbitmp(SkWriter32* writer,
     uint32_t slPaintOffset = getPaintOffset(SAVE_LAYER, saveLayerInfo.fSize);
 
     // we have a match, now we need to get the paints involved
-    int dbmPaintId = *((int32_t*)writer->peek32(dbmInfo.fOffset+dbmPaintOffset));
-    int saveLayerPaintId = *((int32_t*)writer->peek32(saveLayerInfo.fOffset+slPaintOffset));
+    uint32_t dbmPaintId = *writer->peek32(dbmInfo.fOffset+dbmPaintOffset);
+    uint32_t saveLayerPaintId = *writer->peek32(saveLayerInfo.fOffset+slPaintOffset);
 
     if (0 == saveLayerPaintId) {
         // In this case the saveLayer/restore isn't needed at all - just kill the saveLayer
