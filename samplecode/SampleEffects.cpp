@@ -18,7 +18,7 @@
 //#define COLOR 0xFFFF8844
 #define COLOR 0xFF888888
 
-static void paint_proc0(SkPaint* paint) {
+static void paint_proc0(SkPaint*) {
 }
 
 static void paint_proc1(SkPaint* paint) {

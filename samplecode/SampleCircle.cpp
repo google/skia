@@ -15,7 +15,7 @@
 // fractional, and the impl computes the center and radii, and uses them to
 // reconstruct the edges of the circle.
 // see bug# 1504910
-static void test_circlebounds(SkCanvas* canvas) {
+static void test_circlebounds(SkCanvas*) {
 #ifdef SK_SCALAR_IS_FLOAT
     SkRect r = { 1.39999998f, 1, 21.3999996f, 21 };
     SkPath p;

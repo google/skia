@@ -85,7 +85,7 @@ void SkDrawBitmap::dump(SkAnimateMaker* maker) {
 }
 #endif
 
-void SkDrawBitmap::onEndElement(SkAnimateMaker& maker) {
+void SkDrawBitmap::onEndElement(SkAnimateMaker&) {
     SkASSERT(format != (SkBitmap::Config) -1);
     SkASSERT(width != -1);
     SkASSERT(height != -1);

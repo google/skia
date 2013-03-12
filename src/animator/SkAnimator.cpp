@@ -223,8 +223,8 @@ SkFieldType SkAnimator::getFieldType(const char* id, const char* fieldID) {
     return getFieldType(field);
 }
 
- static bool getArrayCommon(const SkDisplayable* ae, const SkMemberInfo* ai,
-     int index, SkOperand* operand, SkDisplayTypes type) {
+static bool getArrayCommon(const SkDisplayable* ae, const SkMemberInfo* ai,
+                           int index, SkOperand* operand) {
     const SkDisplayable* element = (const SkDisplayable*) ae;
     const SkMemberInfo* info = (const SkMemberInfo*) ai;
     SkASSERT(info->fType == SkType_Array);
@@ -234,7 +234,7 @@ SkFieldType SkAnimator::getFieldType(const char* id, const char* fieldID) {
 int32_t SkAnimator::getArrayInt(const SkDisplayable* ae,
         const SkMemberInfo* ai, int index) {
     SkOperand operand;
-    bool result = getArrayCommon(ae, ai, index, &operand, SkType_Int);
+    bool result = getArrayCommon(ae, ai, index, &operand);
     return result ? operand.fS32 : SK_NaN32;
 }
 
@@ -251,7 +251,7 @@ int32_t SkAnimator::getArrayInt(const char* id, const char* fieldID, int index) 
 SkScalar SkAnimator::getArrayScalar(const SkDisplayable* ae,
         const SkMemberInfo* ai, int index) {
     SkOperand operand;
-    bool result = getArrayCommon(ae, ai, index, &operand, SkType_Float);
+    bool result = getArrayCommon(ae, ai, index, &operand);
     return result ? operand.fScalar : SK_ScalarNaN;
 }
 
@@ -268,7 +268,7 @@ SkScalar SkAnimator::getArrayScalar(const char* id, const char* fieldID, int ind
 const char* SkAnimator::getArrayString(const SkDisplayable* ae,
         const SkMemberInfo* ai, int index) {
     SkOperand operand;
-    bool result = getArrayCommon(ae, ai, index, &operand, SkType_String);
+    bool result = getArrayCommon(ae, ai, index, &operand);
     return result ? operand.fString->c_str() : NULL;
 }
 
@@ -674,8 +674,8 @@ bool SkAnimator::NoLeaks() {
 #endif
 
 
-void SkAnimator::Init(bool runUnitTests) {
 #ifdef SK_SUPPORT_UNITTEST
+void SkAnimator::Init(bool runUnitTests) {
     if (runUnitTests == false)
         return;
     static const struct {
@@ -695,8 +695,10 @@ void SkAnimator::Init(bool runUnitTests) {
         gUnitTests[i].fUnitTest();
         SkDebugf("SkAnimator: End UnitTest for %s\n", gUnitTests[i].fTypeName);
     }
-#endif
 }
+#else
+void SkAnimator::Init(bool) {}
+#endif
 
 void SkAnimator::Term() {
 }
