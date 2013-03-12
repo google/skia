@@ -23,7 +23,7 @@ public:
     virtual SkMask::Format getFormat() const SK_OVERRIDE;
     virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
                             SkIPoint* margin) const SK_OVERRIDE;
-    
+
     virtual BlurType asABlur(BlurInfo*) const SK_OVERRIDE;
     virtual void computeFastBounds(const SkRect&, SkRect*) const SK_OVERRIDE;
 
@@ -33,8 +33,8 @@ protected:
     virtual FilterReturn filterRectsToNine(const SkRect[], int count, const SkMatrix&,
                                            const SkIRect& clipBounds,
                                            NinePatch*) const SK_OVERRIDE;
-                                           
-    bool filterRectMask(SkMask* dstM, const SkRect& r, const SkMatrix& matrix, 
+
+    bool filterRectMask(SkMask* dstM, const SkRect& r, const SkMatrix& matrix,
                         SkIPoint* margin, SkMask::CreateMode createMode) const;
 
 private:
@@ -128,7 +128,7 @@ bool SkBlurMaskFilterImpl::filterRectMask(SkMask* dst, const SkRect& r,
     // a request like 10,000)
     static const SkScalar MAX_RADIUS = SkIntToScalar(128);
     radius = SkMinScalar(radius, MAX_RADIUS);
-    
+
     return SkBlurMask::BlurRect(dst, r, radius, (SkBlurMask::Style)fBlurStyle,
                                 margin, createMode);
 }
@@ -210,17 +210,17 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
     srcM.fImage = NULL;
     srcM.fFormat = SkMask::kA8_Format;
     srcM.fRowBytes = 0;
-    
+
     bool filterResult = false;
     if (count == 1 && c_analyticBlurNinepatch) {
         // special case for fast rect blur
         // don't actually do the blur the first time, just compute the correct size
-        filterResult = this->filterRectMask(&dstM, rects[0], matrix, &margin, 
+        filterResult = this->filterRectMask(&dstM, rects[0], matrix, &margin,
                                             SkMask::kJustComputeBounds_CreateMode);
     } else {
         filterResult = this->filterMask(&dstM, srcM, matrix, &margin);
     }
-    
+
     if (!filterResult) {
         return kFalse_FilterReturn;
     }
@@ -290,7 +290,7 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
             return kFalse_FilterReturn;
         }
     } else {
-        if (!this->filterRectMask(&patch->fMask, smallR[0], matrix, &margin, 
+        if (!this->filterRectMask(&patch->fMask, smallR[0], matrix, &margin,
                                   SkMask::kComputeBoundsAndRenderImage_CreateMode)) {
             return kFalse_FilterReturn;
         }

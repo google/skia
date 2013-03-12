@@ -91,7 +91,7 @@ public:
         Returns the vector of draw commands
      */
     const SkTDArray<SkDrawCommand*>& getDrawCommands() const;
-    
+
     /**
         Returns the vector of draw commands. Do not use this entry
         point - it is going away!

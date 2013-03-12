@@ -1189,8 +1189,8 @@ static float gaussianIntegral(float x) {
 
 static int compute_profile_size(SkScalar radius) {
     return SkScalarRoundToInt(radius * 3);
-    
-} 
+
+}
 
 /*  compute_profile allocates and fills in an array of floating
     point values between 0 and 255 for the profile signature of
@@ -1205,7 +1205,7 @@ static int compute_profile_size(SkScalar radius) {
 
 static void compute_profile(SkScalar radius, unsigned int **profile_out) {
     int size = compute_profile_size(radius);
-    
+
     int center = size >> 1;
     unsigned int *profile = SkNEW_ARRAY(unsigned int, size);
 
@@ -1242,46 +1242,46 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
                           SkScalar provided_radius, Style style,
                           SkIPoint *margin, SkMask::CreateMode createMode) {
     int profile_size;
-    
+
     float radius = SkScalarToFloat(SkScalarMul(provided_radius, kBlurRadiusFudgeFactor));
 
     // adjust blur radius to match interpretation from boxfilter code
     radius = (radius + .5f) * 2.f;
 
     profile_size = compute_profile_size(radius);
-    
+
     int pad = profile_size/2;
     if (margin) {
         margin->set( pad, pad );
     }
 
-    dst->fBounds.set(SkScalarRoundToInt(src.fLeft - pad), 
-                     SkScalarRoundToInt(src.fTop - pad), 
-                     SkScalarRoundToInt(src.fRight + pad), 
+    dst->fBounds.set(SkScalarRoundToInt(src.fLeft - pad),
+                     SkScalarRoundToInt(src.fTop - pad),
+                     SkScalarRoundToInt(src.fRight + pad),
                      SkScalarRoundToInt(src.fBottom + pad));
 
     dst->fRowBytes = dst->fBounds.width();
     dst->fFormat = SkMask::kA8_Format;
     dst->fImage = NULL;
-    
+
     int             sw = SkScalarFloorToInt(src.width());
     int             sh = SkScalarFloorToInt(src.height());
-    
+
     if (createMode == SkMask::kJustComputeBounds_CreateMode) {
         if (style == kInner_Style) {
-            dst->fBounds.set(SkScalarRoundToInt(src.fLeft), 
-                             SkScalarRoundToInt(src.fTop), 
-                             SkScalarRoundToInt(src.fRight), 
+            dst->fBounds.set(SkScalarRoundToInt(src.fLeft),
+                             SkScalarRoundToInt(src.fTop),
+                             SkScalarRoundToInt(src.fRight),
                              SkScalarRoundToInt(src.fBottom)); // restore trimmed bounds
             dst->fRowBytes = sw;
         }
         return true;
     }
     unsigned int *profile = NULL;
-    
+
     compute_profile(radius, &profile);
     SkAutoTDeleteArray<unsigned int> ada(profile);
-    
+
     size_t dstSize = dst->computeImageSize();
     if (0 == dstSize) {
         return false;   // too big to allocate, abort
@@ -1345,9 +1345,9 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
         }
         SkMask::FreeImage(dp);
 
-        dst->fBounds.set(SkScalarRoundToInt(src.fLeft), 
-                         SkScalarRoundToInt(src.fTop), 
-                         SkScalarRoundToInt(src.fRight), 
+        dst->fBounds.set(SkScalarRoundToInt(src.fLeft),
+                         SkScalarRoundToInt(src.fTop),
+                         SkScalarRoundToInt(src.fRight),
                          SkScalarRoundToInt(src.fBottom)); // restore trimmed bounds
         dst->fRowBytes = sw;
 
@@ -1360,7 +1360,7 @@ bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
         for (int y = pad ; y < dstHeight-pad ; y++) {
             uint8_t *dst_scanline = dp + y*dstWidth + pad;
             memset(dst_scanline, 0xff, sw);
-        }        
+        }
     }
     // normal and solid styles are the same for analytic rect blurs, so don't
     // need to handle solid specially.

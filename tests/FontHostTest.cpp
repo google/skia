@@ -47,10 +47,10 @@ static void test_fontstream(skiatest::Reporter* reporter,
                             SkStream* stream, int ttcIndex) {
     int n = SkFontStream::GetTableTags(stream, ttcIndex, NULL);
     SkAutoTArray<SkFontTableTag> array(n);
-    
+
     int n2 = SkFontStream::GetTableTags(stream, ttcIndex, array.get());
     REPORTER_ASSERT(reporter, n == n2);
-    
+
     for (int i = 0; i < n; ++i) {
 #ifdef DUMP_TTC_TABLES
         SkString str;
@@ -66,7 +66,7 @@ static void test_fontstream(skiatest::Reporter* reporter,
             if (gKnownTableSizes[j].fTag == array[i]) {
                 REPORTER_ASSERT(reporter, gKnownTableSizes[j].fSize == size);
             }
-        }        
+        }
     }
 }
 
