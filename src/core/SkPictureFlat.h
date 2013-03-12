@@ -66,6 +66,9 @@ enum DrawType {
     LAST_DRAWTYPE_ENUM = NOOP
 };
 
+// In the 'match' method, this constant will match any flavor of DRAW_BITMAP*
+static const int kDRAW_BITMAP_FLAVOR = LAST_DRAWTYPE_ENUM+1;
+
 enum DrawVertexFlags {
     DRAW_VERTICES_HAS_TEXS    = 0x01,
     DRAW_VERTICES_HAS_COLORS  = 0x02,
