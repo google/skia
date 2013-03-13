@@ -41,7 +41,7 @@ public:
          * automatically with the bits produced by GrGLEffect::GenKey().
          */
         kTextureKeyBits = 6,
-        kAttribKeyBits = 4
+        kAttribKeyBits = 6
     };
 
     virtual EffectKey glEffectKey(const GrEffectStage&, const GrGLCaps&) const = 0;
