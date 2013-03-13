@@ -885,7 +885,7 @@ size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
 }
 
 SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
-#ifdef SK_BUILD_FOR_ANDROID_NDK
+#if defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
     // Skia does not support font fallback for ndk applications in order to
     // enable clients such as WebKit to customize their font selection.
     // Clients can use GetFallbackFamilyNameForChar() to get the fallback

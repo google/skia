@@ -12,7 +12,7 @@
 
 #if defined(SK_BUILD_FOR_ANDROID)
 
-#if defined(SK_BUILD_FOR_ANDROID_NDK)
+#if !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
 
 #include <stdint.h>
 
@@ -51,7 +51,7 @@ static inline __attribute__((always_inline)) int32_t sk_atomic_conditional_inc(i
 }
 static inline __attribute__((always_inline)) void sk_membar_aquire__after_atomic_conditional_inc() { }
 
-#else // !SK_BUILD_FOR_ANDROID_NDK
+#else // SK_BUILD_FOR_ANDROID_FRAMEWORK
 
 /* The platform atomics operations are slightly more efficient than the
  * GCC built-ins, so use them.
@@ -86,7 +86,7 @@ static inline __attribute__((always_inline)) void sk_membar_aquire__after_atomic
     //android_atomic_aquire_store(0, &dummy);
 }
 
-#endif // !SK_BUILD_FOR_ANDROID_NDK
+#endif // SK_BUILD_FOR_ANDROID_FRAMEWORK
 
 #else  // !SK_BUILD_FOR_ANDROID
 

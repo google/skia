@@ -300,7 +300,6 @@
       {
         'defines': [
           'SK_BUILD_FOR_ANDROID',
-          'SK_BUILD_FOR_ANDROID_NDK',
         ],
         'configurations': {
           'Debug': {
