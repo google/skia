@@ -60,7 +60,7 @@ function gm_test {
   mkdir -p $ACTUAL_OUTPUT_DIR
   COMMAND="$GM_BINARY $GM_ARGS --writeJsonSummary $JSON_SUMMARY_FILE"
   echo "$COMMAND" >$ACTUAL_OUTPUT_DIR/command_line
-  $COMMAND &>$ACTUAL_OUTPUT_DIR/stdout
+  $COMMAND >$ACTUAL_OUTPUT_DIR/stdout 2>$ACTUAL_OUTPUT_DIR/stderr
   echo $? >$ACTUAL_OUTPUT_DIR/return_value
 
   # Only compare selected lines in the stdout, to ignore any spurious lines
@@ -68,10 +68,10 @@ function gm_test {
   #
   # TODO(epoger): This is still hacky... we need to rewrite this script in
   # Python soon, and make stuff like this more maintainable.
-  grep --regexp=^reading --regexp=^writing --regexp=^drawing \
-    --regexp=^FAILED --regexp=^Ran $ACTUAL_OUTPUT_DIR/stdout \
-    >$ACTUAL_OUTPUT_DIR/stdout-tmp
+  grep ^GM: $ACTUAL_OUTPUT_DIR/stdout >$ACTUAL_OUTPUT_DIR/stdout-tmp
   mv $ACTUAL_OUTPUT_DIR/stdout-tmp $ACTUAL_OUTPUT_DIR/stdout
+  grep ^GM: $ACTUAL_OUTPUT_DIR/stderr >$ACTUAL_OUTPUT_DIR/stderr-tmp
+  mv $ACTUAL_OUTPUT_DIR/stderr-tmp $ACTUAL_OUTPUT_DIR/stderr
 
   compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
 }
