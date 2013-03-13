@@ -31,6 +31,11 @@
 #include SK_SFNTLY_SUBSETTER
 #endif
 
+// PDF's notion of symbolic vs non-symbolic is related to the character set, not
+// symbols vs. characters.  Rarely is a font the right character set to call it
+// non-symbolic, so always call it symbolic.  (PDF 1.4 spec, section 5.7.1)
+static const int kPdfSymbolic = 4;
+
 namespace {
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -945,7 +950,7 @@ bool SkPDFFont::addCommonFontDescriptorEntries(int16_t defaultWidth) {
     const uint16_t emSize = fFontInfo->fEmSize;
 
     fDescriptor->insertName("FontName", fFontInfo->fFontName);
-    fDescriptor->insertInt("Flags", fFontInfo->fStyle);
+    fDescriptor->insertInt("Flags", fFontInfo->fStyle | kPdfSymbolic);
     fDescriptor->insertScalar("Ascent",
             scaleFromFontUnits(fFontInfo->fAscent, emSize));
     fDescriptor->insertScalar("Descent",

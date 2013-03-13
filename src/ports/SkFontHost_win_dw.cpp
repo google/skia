@@ -1488,8 +1488,6 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     if (os2Table->version.v0.fsSelection.field.Italic) {
         info->fStyle |= SkAdvancedTypefaceMetrics::kItalic_Style;
     }
-    //Symbolic (uses more than base latin).
-    info->fStyle |= SkAdvancedTypefaceMetrics::kSymbolic_Style;
     //Script
     if (SkPanose::FamilyType::Script == os2Table->version.v0.panose.bFamilyType.value) {
         info->fStyle |= SkAdvancedTypefaceMetrics::kScript_Style;

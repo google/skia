@@ -499,9 +499,6 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         info->fStyle |= SkAdvancedTypefaceMetrics::kFixedPitch_Style;
     if (face->style_flags & FT_STYLE_FLAG_ITALIC)
         info->fStyle |= SkAdvancedTypefaceMetrics::kItalic_Style;
-    // We should set either Symbolic or Nonsymbolic; Nonsymbolic if the font's
-    // character set is a subset of 'Adobe standard Latin.'
-    info->fStyle |= SkAdvancedTypefaceMetrics::kSymbolic_Style;
 
     PS_FontInfoRec ps_info;
     TT_Postscript* tt_info;

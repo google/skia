@@ -52,9 +52,7 @@ public:
     enum StyleFlags {
         kFixedPitch_Style  = 0x00001,
         kSerif_Style       = 0x00002,
-        kSymbolic_Style    = 0x00004,
         kScript_Style      = 0x00008,
-        kNonsymbolic_Style = 0x00020,
         kItalic_Style      = 0x00040,
         kAllCaps_Style     = 0x10000,
         kSmallCaps_Style   = 0x20000,

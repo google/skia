@@ -1406,8 +1406,6 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     if (otm.otmTextMetrics.tmItalic) {
         info->fStyle |= SkAdvancedTypefaceMetrics::kItalic_Style;
     }
-    // Setting symbolic style by default for now.
-    info->fStyle |= SkAdvancedTypefaceMetrics::kSymbolic_Style;
     if (otm.otmTextMetrics.tmPitchAndFamily & FF_ROMAN) {
         info->fStyle |= SkAdvancedTypefaceMetrics::kSerif_Style;
     } else if (otm.otmTextMetrics.tmPitchAndFamily & FF_SCRIPT) {
