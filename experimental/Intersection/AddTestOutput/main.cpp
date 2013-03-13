@@ -107,7 +107,7 @@ int main (int argc, char * const argv[]) {
     const char forceReleaseReplace[] =
             "#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging"
             ;
-    if (!replace(argv[0], dir, "DataTypes.cpp", forceReleaseMarker, NULL, forceReleaseReplace,
+    if (!replace(argv[0], dir, "DataTypes.h", forceReleaseMarker, NULL, forceReleaseReplace,
             sizeof(forceReleaseReplace) - 1)) {
         return 0;
     }

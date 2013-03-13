@@ -15,6 +15,10 @@
 // not included, square, tall, wide (2 bits)
 // cw or ccw (1 bit)
 
+int failSet[][8] = {
+    { 0, 1, 0, 6,   2, 3, 1, 4 }
+};
+
 static void* testShapeOps4x4CubicsMain(void* data)
 {
     SkASSERT(data);
@@ -28,6 +32,14 @@ static void* testShapeOps4x4CubicsMain(void* data)
         for (int d = c + 1 ; d < 7; ++d)           {
         for (int e = SkPath::kWinding_FillType ; e <= SkPath::kEvenOdd_FillType; ++e) {
         for (int f = SkPath::kWinding_FillType ; f <= SkPath::kEvenOdd_FillType; ++f)   {
+        
+#if 0
+  if (state.a == fail[0] && state.b == fail[1] && state.c == fail[2] && state.d == fail[3]
+        && a == fail[4] && b == fail[5] && c == fail[6] && d == fail[7]) {
+            SkDebugf("skip failing case\n");
+    }
+    // skip this troublesome cubic pair
+#endif
             SkPath pathA, pathB;
             char* str = pathStr;
             pathA.setFillType((SkPath::FillType) e);

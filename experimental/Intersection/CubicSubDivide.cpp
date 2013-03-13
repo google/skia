@@ -65,6 +65,13 @@ static double interp_cubic_coords(const double* src, double t)
 }
 
 void sub_divide(const Cubic& src, double t1, double t2, Cubic& dst) {
+    if (t1 == 0 && t2 == 1) {
+        dst[0] = src[0];
+        dst[1] = src[1];
+        dst[2] = src[2];
+        dst[3] = src[3];
+        return;   
+    }
     double ax = dst[0].x = interp_cubic_coords(&src[0].x, t1);
     double ay = dst[0].y = interp_cubic_coords(&src[0].y, t1);
     double ex = interp_cubic_coords(&src[0].x, (t1*2+t2)/3);

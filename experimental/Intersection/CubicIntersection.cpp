@@ -12,10 +12,11 @@
 #include "LineIntersection.h"
 #include "LineUtilities.h"
 #include "QuadraticUtilities.h"
+#include "TSearch.h"
 
 #if ONE_OFF_DEBUG
-static const double tLimits1[2][2] = {{0.86731567, 0.867316052}, {0.912837526, 0.912837908}};
-static const double tLimits2[2][2] = {{0.83051487, 0.830515252}, {0.860977985, 0.860978367}};
+static const double tLimits1[2][2] = {{0.328432751, 0.328433132}, {0.556114578, 0.55611496}};
+static const double tLimits2[2][2] = {{-0.83051487, -0.830515252}, {-0.860977985, -0.860978367}};
 #endif
 
 #define DEBUG_QUAD_PART 0
@@ -77,6 +78,7 @@ static bool intersect3(const Cubic& cubic1, double t1s, double t1e, const Cubic&
     sub_divide(cubic1, t1s, t1e, c1);
     sub_divide(cubic2, t2s, t2e, c2);
     SkTDArray<double> ts1;
+    // OPTIMIZE: if c1 == c2, call once (happens when detecting self-intersection)
     cubic_to_quadratics(c1, calcPrecision(c1) * precisionScale, ts1);
     SkTDArray<double> ts2;
     cubic_to_quadratics(c2, calcPrecision(c2) * precisionScale, ts2);
@@ -103,8 +105,8 @@ static bool intersect3(const Cubic& cubic1, double t1s, double t1e, const Cubic&
             if (tLimits1[0][0] >= t1Start && tLimits1[0][1] <= t1
                     && tLimits1[1][0] >= t2Start && tLimits1[1][1] <= t2) {
                 Cubic cSub1, cSub2;
-                sub_divide(cubic1, t1Start, tEnd1, cSub1);
-                sub_divide(cubic2, t2Start, tEnd2, cSub2);
+                sub_divide(cubic1, t1Start, t1, cSub1);
+                sub_divide(cubic2, t2Start, t2, cSub2);
                 SkDebugf("%.*s %s t1=(%1.9g,%1.9g) t2=(%1.9g,%1.9g)", i.depth()*2, tab, __FUNCTION__,
                         t1Start, t1, t2Start, t2);
                 Intersections xlocals;
@@ -121,9 +123,8 @@ static bool intersect3(const Cubic& cubic1, double t1s, double t1e, const Cubic&
                 double to1 = t1Start + (t1 - t1Start) * locals.fT[0][tIdx];
                 double to2 = t2Start + (t2 - t2Start) * locals.fT[1][tIdx];
     // if the computed t is not sufficiently precise, iterate
-                _Point p1, p2;
-                xy_at_t(cubic1, to1, p1.x, p1.y);
-                xy_at_t(cubic2, to2, p2.x, p2.y);
+                _Point p1 = xy_at_t(cubic1, to1);
+                _Point p2 = xy_at_t(cubic2, to2);
                 if (p1.approximatelyEqual(p2)) {
                     if (locals.fIsCoincident[0] & 1 << tIdx) {
                         if (coStart[0] < 0) {
@@ -297,18 +298,29 @@ static bool intersect3(const Cubic& cubic1, double t1s, double t1e, const Cubic&
     return result;
 }
 
+#if 0
+#define LINE_FRACTION (1.0 / gPrecisionUnit)
+#else
+#define LINE_FRACTION 0.1
+#endif
+
 // intersect the end of the cubic with the other. Try lines from the end to control and opposite
 // end to determine range of t on opposite cubic.
 static bool intersectEnd(const Cubic& cubic1, bool start, const Cubic& cubic2, const _Rect& bounds2,
         Intersections& i) {
+ //   bool selfIntersect = cubic1 == cubic2;
     _Line line;
     int t1Index = start ? 0 : 3;
     line[0] = cubic1[t1Index];
     // don't bother if the two cubics are connnected
-    if (line[0].approximatelyEqual(cubic2[0]) || line[0].approximatelyEqual(cubic2[3])) {
+#if 0
+    if (!selfIntersect && (line[0].approximatelyEqual(cubic2[0])
+            || line[0].approximatelyEqual(cubic2[3]))) {
         return false;
     }
-    double tMin = 1, tMax = 0;
+#endif
+    bool result = false;
+    SkTDArray<double> tVals; // OPTIMIZE: replace with hard-sized array
     for (int index = 0; index < 4; ++index) {
         if (index == t1Index) {
             continue;
@@ -325,19 +337,48 @@ static bool intersectEnd(const Cubic& cubic1, bool start, const Cubic& cubic2, c
         if (!intersect(cubic2, line, local)) {
             continue;
         }
-        for (int index = 0; index < local.fUsed; ++index) {
-            tMin = SkTMin(tMin, local.fT[0][index]);
-            tMax = SkTMax(tMax, local.fT[0][index]);
+        for (int idx2 = 0; idx2 < local.used(); ++idx2) {
+            double foundT = local.fT[0][idx2];
+            if (approximately_less_than_zero(foundT)
+                    || approximately_greater_than_one(foundT)) {
+                continue;
+            }
+            if (local.fPt[idx2].approximatelyEqual(line[0])) {
+                if (i.swapped()) { // FIXME: insert should respect swap
+                    i.insert(foundT, start ? 0 : 1, line[0]);
+                } else {
+                    i.insert(start ? 0 : 1, foundT, line[0]);
+                }
+                result = true;
+            } else {
+                *tVals.append() = local.fT[0][idx2];
+            }
         }
     }
-    if (tMin > tMax) {
-        return false;
+    if (tVals.count() == 0) {
+        return result;
     }
-    double tMin1 = start ? 0 : 1 - 1.0 / gPrecisionUnit;
-    double tMax1 = start ? 1.0 / gPrecisionUnit : 1;
-    double tMin2 = SkTMax(tMin - 1.0 / gPrecisionUnit, 0.0);
-    double tMax2 = SkTMin(tMax + 1.0 / gPrecisionUnit, 1.0);
-    return intersect3(cubic1, tMin1, tMax1, cubic2, tMin2, tMax2, 1, i);
+    QSort<double>(tVals.begin(), tVals.end() - 1);
+    double tMin1 = start ? 0 : 1 - LINE_FRACTION;
+    double tMax1 = start ? LINE_FRACTION : 1;
+    int tIdx = 0;
+    do {
+        int tLast = tIdx;
+        while (tLast + 1 < tVals.count() && roughly_equal(tVals[tLast + 1], tVals[tIdx])) {
+            ++tLast;
+        }
+        double tMin2 = SkTMax(tVals[tIdx] - LINE_FRACTION, 0.0);
+        double tMax2 = SkTMin(tVals[tLast] + LINE_FRACTION, 1.0);
+        int lastUsed = i.used();
+        result |= intersect3(cubic1, tMin1, tMax1, cubic2, tMin2, tMax2, 1, i);
+        if (lastUsed == i.used()) {
+            tMin2 = SkTMax(tVals[tIdx] - (1.0 / gPrecisionUnit), 0.0);
+            tMax2 = SkTMin(tVals[tLast] + (1.0 / gPrecisionUnit), 1.0);
+            result |= intersect3(cubic1, tMin1, tMax1, cubic2, tMin2, tMax2, 1, i);
+        }
+        tIdx = tLast + 1;
+    } while (tIdx < tVals.count());
+    return result;
 }
 
 const double CLOSE_ENOUGH = 0.001;
@@ -367,10 +408,13 @@ bool intersect3(const Cubic& c1, const Cubic& c2, Intersections& i) {
     c2Bounds.setBounds(c2);
     result |= intersectEnd(c1, false, c2, c2Bounds, i);
     result |= intersectEnd(c1, true, c2, c2Bounds, i);
-    i.swap();
-    result |= intersectEnd(c2, false, c1, c1Bounds, i);
-    result |= intersectEnd(c2, true, c1, c1Bounds, i);
-    i.swap();
+    bool selfIntersect = c1 == c2;
+    if (!selfIntersect) {
+        i.swap();
+        result |= intersectEnd(c2, false, c1, c1Bounds, i);
+        result |= intersectEnd(c2, true, c1, c1Bounds, i);
+        i.swap();
+    }
     // If an end point and a second point very close to the end is returned, the second
     // point may have been detected because the approximate quads
     // intersected at the end and close to it. Verify that the second point is valid.
@@ -408,10 +452,15 @@ form dotted with the normal, and solving for the roots. My math foo is too poor 
 
 int intersect(const Cubic& c, Intersections& i) {
     // check to see if x or y end points are the extrema. Are other quick rejects possible?
-    if ((between(c[0].x, c[1].x, c[3].x) && between(c[0].x, c[2].x, c[3].x))
-            || (between(c[0].y, c[1].y, c[3].y) && between(c[0].y, c[2].y, c[3].y))) {
+    if (ends_are_extrema_in_x_or_y(c)) {
         return false;
     }
     (void) intersect3(c, c, i);
+    if (i.used() > 0) {
+        SkASSERT(i.used() == 1);
+        if (i.fT[0][0] > i.fT[1][0]) {
+            SkTSwap(i.fT[0][0], i.fT[1][0]);
+        }
+    }
     return i.used();
 }

@@ -54,6 +54,18 @@ static void standardTestCases() {
 }
 
 static const Quadratic testSet[] = {
+{{3.0774019473063863, 3.35198509346713}, {3.0757503498668397, 3.327320623945933}, {3.0744102085015879, 3.3025879417907196}},
+{{3.053913680774329, 3.3310471586283938}, {3.0758730889691694, 3.3273466070370152}, {3.0975671980059394, 3.3235031316554351}},
+
+  {{3.39068129,4.44939202}, {3.03659239,3.81843234}, {3.06844529,3.02100922}},
+  {{2.10714698,3.44196686}, {3.12180288,3.38575704}, {3.75968569,3.1281838}},
+
+  {{2.74792918,4.77711896}, {2.82236867,4.23882547}, {2.82848144,3.63729341}},
+  {{2.62772567,3.64823958}, {3.46652495,3.64258364}, {4.1425079,3.48623815}},
+
+  {{1.34375,2.03125}, {2.2734375,2.6640625}, {3.25,3.25}},
+  {{3.96875,4.65625}, {3.3359375,3.7265625}, {2.75,2.75}},
+
   {{0,1}, {0.324417544,2.27953848}, {0.664376547,2.58940267}},
   {{1,2}, {0.62109375,2.70703125}, {0.640625,2.546875}},
 
@@ -223,6 +235,7 @@ static void oneOffTest1(size_t outer, size_t inner) {
 
 void QuadraticIntersection_OneOffTest() {
     oneOffTest1(0, 1);
+    oneOffTest1(1, 0);
 }
 
 static void oneOffTests() {
@@ -251,8 +264,8 @@ static void coincidentTest() {
         SkASSERT(intersections2.coincidentUsed() == 2);
         SkASSERT(intersections2.used() == 2);
         for (int pt = 0; pt < intersections2.coincidentUsed(); ++pt) {
-            double tt1 = intersections2.fT[0][pt];
-            double tt2 = intersections2.fT[1][pt];
+            SkDEBUGCODE(double tt1 = intersections2.fT[0][pt]);
+            SkDEBUGCODE(double tt2 = intersections2.fT[1][pt]);
             SkASSERT(approximately_equal(1, tt1) || approximately_zero(tt1));
             SkASSERT(approximately_equal(1, tt2) || approximately_zero(tt2));
         }
@@ -328,10 +341,10 @@ static void intersectionFinder(int test1, int test2) {
     const Quadratic& quad1 = testSet[test1];
     const Quadratic& quad2 = testSet[test2];
 
-    double t1Seed = 0.966;
-    double t2Seed = 0.99;
+    double t1Seed = 0.5;
+    double t2Seed = 0.8;
     double t1Step = 0.1;
-    double t2Step = 0.01;
+    double t2Step = 0.1;
     _Point t1[3], t2[3];
     bool toggle = true;
     do {

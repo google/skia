@@ -93,10 +93,24 @@ int Intersections::insert(double one, double two, const _Point& pt) {
     SkASSERT(fUsed <= 1 || fT[0][0] < fT[0][1]);
     int index;
     for (index = 0; index < fUsed; ++index) {
-        double midT = (fT[0][index] + one) / 2;
-        if (approximately_equal(midT, one) || pt.approximatelyEqual(fPt[index])) {
+        double oldOne = fT[0][index];
+        double oldTwo = fT[1][index];
+        if (roughly_equal(oldOne, one) && roughly_equal(oldTwo, two)) {
+            if ((precisely_zero(one) && !precisely_zero(oldOne))
+                    || (precisely_equal(one, 1) && !precisely_equal(oldOne, 1))
+                    || (precisely_zero(two) && !precisely_zero(oldTwo))
+                    || (precisely_equal(two, 1) && !precisely_equal(oldTwo, 1))) {
+                fT[0][index] = one;
+                fT[1][index] = two;
+                fPt[index] = pt;
+            }
             return -1;
         }
+    #if ONE_OFF_DEBUG
+        if (pt.roughlyEqual(fPt[index])) {
+            SkDebugf("%s t=%1.9g pts roughly equal\n", __FUNCTION__, one);
+        }
+    #endif
         if (fT[0][index] > one) {
             break;
         }

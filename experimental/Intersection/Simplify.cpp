@@ -64,7 +64,7 @@ const bool gRunTestsInOneThread = true;
 
 #define DEBUG_ACTIVE_OP 1
 #define DEBUG_ACTIVE_SPANS 1
-#define DEBUG_ACTIVE_SPANS_SHORT_FORM 1
+#define DEBUG_ACTIVE_SPANS_SHORT_FORM 0
 #define DEBUG_ADD_INTERSECTING_TS 1
 #define DEBUG_ADD_T_PAIR 1
 #define DEBUG_ANGLE 1
@@ -113,7 +113,7 @@ static int gContourID;
 static int gSegmentID;
 #endif
 
-#if DEBUG_SORT
+#if DEBUG_SORT || DEBUG_SWAP_TOP
 static int gDebugSortCountDefault = SK_MaxS32;
 static int gDebugSortCount;
 #endif
@@ -881,7 +881,6 @@ public:
             QuadSubDivideHD(fPts, startT, endT, quad);
             fTangent1.quadEndPoints(quad, 0, 1);
             if (dx() == 0 && dy() == 0) {
- //               SkDebugf("*** %s quad is line\n", __FUNCTION__);
                 fTangent1.quadEndPoints(quad);
             }
             fSide = -fTangent1.pointDistance(fCurvePart[2]); // not normalized -- compare sign only
@@ -894,7 +893,6 @@ public:
                 fTangent1.cubicEndPoints(fCurvePart, 0, 2);
                 nextC = 3;
                 if (dx() == 0 && dy() == 0) {
- //                   SkDebugf("*** %s cubic is line\n", __FUNCTION__);
                     fTangent1.cubicEndPoints(fCurvePart, 0, 3);
                 }
             }
@@ -1036,13 +1034,18 @@ struct Bounds : public SkRect {
                 || sk_double_isnan(fLeft) || sk_double_isnan(fRight)
                 || sk_double_isnan(fTop) || sk_double_isnan(fBottom);
     }
-
+    
     void setCubicBounds(const SkPoint a[4]) {
         _Rect dRect;
         MAKE_CONST_CUBIC(cubic, a);
         dRect.setBounds(cubic);
         set((float) dRect.left, (float) dRect.top, (float) dRect.right,
                 (float) dRect.bottom);
+    }
+
+    void setLineBounds(const SkPoint a[2]) {
+        setPoint(a[0]);
+        add(a[1]);
     }
 
     void setQuadBounds(const SkPoint a[3]) {
@@ -1057,6 +1060,13 @@ struct Bounds : public SkRect {
         fLeft = fRight = pt.fX;
         fTop = fBottom = pt.fY;
     }
+};
+
+static void (Bounds::*setSegmentBounds[])(const SkPoint[]) = {
+    NULL,
+    &Bounds::setLineBounds,
+    &Bounds::setQuadBounds,
+    &Bounds::setCubicBounds
 };
 
 // OPTIMIZATION: does the following also work, and is it any faster?
@@ -2914,51 +2924,57 @@ public:
         buildAngles(firstT, angles, true);
         SkTDArray<Angle*> sorted;
         bool sortable = SortAngles(angles, sorted);
-    #if DEBUG_SORT
-        sorted[0]->segment()->debugShowSort(__FUNCTION__, sorted, 0, 0, 0);
+        int first = SK_MaxS32;
+        SkScalar top = SK_ScalarMax;
+        int count = sorted.count();
+        for (int index = 0; index < count; ++index) {
+            const Angle* angle = sorted[index];
+            Segment* next = angle->segment();
+            Bounds bounds;
+            next->subDivideBounds(angle->end(), angle->start(), bounds);
+            if (approximately_greater(top, bounds.fTop)) {
+                top = bounds.fTop;
+                first = index;
+            }
+        }
+        SkASSERT(first < SK_MaxS32);
+    #if DEBUG_SORT // || DEBUG_SWAP_TOP
+        sorted[first]->segment()->debugShowSort(__FUNCTION__, sorted, first, 0, 0);
     #endif
         if (onlySortable && !sortable) {
             unsortable = true;
             return NULL;
         }
         // skip edges that have already been processed
-        firstT = -1;
+        firstT = first - 1;
         Segment* leftSegment;
         do {
-            const Angle* angle = sorted[++firstT];
+            if (++firstT == count) {
+                firstT = 0;
+            }
+            const Angle* angle = sorted[firstT];
             SkASSERT(!onlySortable || !angle->unsortable());
             leftSegment = angle->segment();
             tIndex = angle->end();
             endIndex = angle->start();
         } while (leftSegment->fTs[SkMin32(tIndex, endIndex)].fDone);
         if (leftSegment->verb() >= SkPath::kQuad_Verb) {
-            bool bumpsUp = leftSegment->bumpsUp(tIndex, endIndex);
-            SkPoint xyE = leftSegment->xyAtT(endIndex);
-            SkPoint xyS = leftSegment->xyAtT(tIndex);
-            SkVector dxyE = leftSegment->dxdy(endIndex);
-            SkVector dxyS = leftSegment->dxdy(tIndex);
-            double cross = dxyE.cross(dxyS);
-            bool bumpCheck = bumpsUp && xyE.fY < xyS.fY && dxyE.fX < 0;
-            if (xyE == xyS){
-                SkDebugf("%s ignore loops\n", __FUNCTION__);
-                cross = 0;
-            }
+            if (!leftSegment->clockwise(tIndex, endIndex)) {
+                bool swap = leftSegment->verb() == SkPath::kQuad_Verb
+                        || (!leftSegment->monotonic_in_y(tIndex, endIndex)
+                        && !leftSegment->serpentine(tIndex, endIndex));
         #if DEBUG_SWAP_TOP
-            SkDebugf("%s xyE=(%1.9g,%1.9g) xyS=(%1.9g,%1.9g)\n", __FUNCTION__,
-                    xyE.fX, xyE.fY, xyS.fX, xyS.fY);
-            SkDebugf("%s dxyE=(%1.9g,%1.9g) dxyS=(%1.9g,%1.9g) cross=%1.9g bumpsUp=%s\n",
-                    __FUNCTION__,
-                    dxyE.fX, dxyE.fY, dxyS.fX, dxyS.fY, cross, bumpsUp ? "true" : "false");
-            if ((cross > 0) ^ bumpCheck) {
-                leftSegment->bumpsUp(tIndex, endIndex);
-                SkDebugf("%s cross bump disagree\n", __FUNCTION__);
-            }
+                SkDebugf("%s swap=%d serpentine=%d controls_contained_by_ends=%d\n", __FUNCTION__,
+                        swap,
+                        leftSegment->serpentine(tIndex, endIndex),
+                        leftSegment->controls_contained_by_ends(tIndex, endIndex),
+                        leftSegment->monotonic_in_y(tIndex, endIndex));
         #endif
-            if (cross > 0 || bumpCheck) {
-        #if DEBUG_SWAP_TOP
-                SkDebugf("%s swap\n", __FUNCTION__);
-        #endif
-                SkTSwap(tIndex, endIndex);
+                if (swap) {
+        // FIXME: I doubt it makes sense to (necessarily) swap if the edge was not the first
+        // sorted but merely the first not already processed (i.e., not done)
+                    SkTSwap(tIndex, endIndex);
+                }
             }
         }
         SkASSERT(!leftSegment->fTs[SkMin32(tIndex, endIndex)].fTiny);
@@ -2967,7 +2983,7 @@ public:
 
     // FIXME: not crazy about this
     // when the intersections are performed, the other index is into an
-    // incomplete array. as the array grows, the indices become incorrect
+    // incomplete array. As the array grows, the indices become incorrect
     // while the following fixes the indices up again, it isn't smart about
     // skipping segments whose indices are already correct
     // assuming we leave the code that wrote the index in the first place
@@ -2980,7 +2996,7 @@ public:
             int oCount = other->fTs.count();
             for (int o = 0; o < oCount; ++o) {
                 Span& oSpan = other->fTs[o];
-                if (oT == oSpan.fT && this == oSpan.fOther) {
+                if (oT == oSpan.fT && this == oSpan.fOther && oSpan.fOtherT == iSpan.fT) {
                     iSpan.fOtherIndex = o;
                     break;
                 }
@@ -3423,25 +3439,59 @@ the same winding is shared by both.
         return &span;
     }
 
-    bool bumpsUp(int tStart, int tEnd) const {
+    bool controls_contained_by_ends(int tStart, int tEnd) const {
+        if (fVerb != SkPath::kCubic_Verb) {
+            return false;
+        }
+        MAKE_CONST_CUBIC(aCubic, fPts);
+        Cubic dst;
+        sub_divide(aCubic, fTs[tStart].fT, fTs[tEnd].fT, dst);
+        return ::controls_contained_by_ends(dst);
+    }
+
+    // from http://stackoverflow.com/questions/1165647/how-to-determine-if-a-list-of-polygon-points-are-in-clockwise-order
+    bool clockwise(int tStart, int tEnd) const {
+        SkASSERT(fVerb != SkPath::kLine_Verb);
         SkPoint edge[4];
         subDivide(tStart, tEnd, edge);
-        switch (fVerb) {
-            case SkPath::kLine_Verb:
-                SkASSERT(0); // shouldn't call in for lines
-                return true;
-            case SkPath::kQuad_Verb:
-                return approximately_greater(edge[0].fY, edge[1].fY)
-                        && approximately_lesser(edge[1].fY, edge[2].fY);
-            case SkPath::kCubic_Verb:
-                return (approximately_greater(edge[0].fY, edge[1].fY)
-                        && approximately_lesser(edge[1].fY, edge[3].fY))
-                        || (approximately_greater(edge[0].fY, edge[2].fY)
-                        && approximately_lesser(edge[2].fY, edge[3].fY));
-            default:
-                SkASSERT(0);
-                return false;
+        double sum = (edge[0].fX - edge[fVerb].fX) * (edge[0].fY + edge[fVerb].fY);
+        if (fVerb == SkPath::kCubic_Verb) {
+            SkScalar lesser = SkTMin(edge[0].fY, edge[3].fY);
+            if (edge[1].fY < lesser && edge[2].fY < lesser) {
+                _Line tangent1 = { {edge[0].fX, edge[0].fY}, {edge[1].fX, edge[1].fY} };
+                _Line tangent2 = { {edge[2].fX, edge[2].fY}, {edge[3].fX, edge[3].fY} };
+                if (testIntersect(tangent1, tangent2)) {
+                    SkPoint topPt = CubicTop(fPts, fTs[tStart].fT, fTs[tEnd].fT);
+                    sum += (topPt.fX - edge[0].fX) * (topPt.fY + edge[0].fY);
+                    sum += (edge[3].fX - topPt.fX) * (edge[3].fY + topPt.fY);
+                    return sum <= 0;
+                }
+            }
         }
+        for (int idx = 0; idx < fVerb; ++idx){
+            sum += (edge[idx + 1].fX - edge[idx].fX) * (edge[idx + 1].fY + edge[idx].fY);
+        }
+        return sum <= 0;
+    }
+    
+    bool monotonic_in_y(int tStart, int tEnd) const {
+        if (fVerb != SkPath::kCubic_Verb) {
+            return false;
+        }
+        MAKE_CONST_CUBIC(aCubic, fPts);
+        Cubic dst;
+        sub_divide(aCubic, fTs[tStart].fT, fTs[tEnd].fT, dst);
+        return ::monotonic_in_y(dst);
+    }
+
+    bool serpentine(int tStart, int tEnd) const {
+        if (fVerb != SkPath::kCubic_Verb) {
+            return false;
+        }
+        MAKE_CONST_CUBIC(aCubic, fPts);
+        Cubic dst;
+        sub_divide(aCubic, fTs[tStart].fT, fTs[tEnd].fT, dst);
+        return ::serpentine(dst);
     }
 
     Span* verifyOneWinding(const char* funName, int tIndex) {
@@ -3477,15 +3527,13 @@ the same winding is shared by both.
         Span* span = &fTs[start];
         if (start < end) {
 #if DEBUG_UNSORTABLE
-            SkDebugf("%s start id=%d [%d] (%1.9g,%1.9g)\n", __FUNCTION__, fID, start,
-                    xAtT(start), yAtT(start));
+            debugShowNewWinding(__FUNCTION__, *span, 0);
 #endif
             span->fUnsortableStart = true;
         } else {
             --span;
 #if DEBUG_UNSORTABLE
-            SkDebugf("%s end id=%d [%d] (%1.9g,%1.9g) next:(%1.9g,%1.9g)\n", __FUNCTION__, fID,
-                start - 1, xAtT(start - 1), yAtT(start - 1), xAtT(start), yAtT(start));
+            debugShowNewWinding(__FUNCTION__, *span, 0);
 #endif
             span->fUnsortableEnd = true;
         }
@@ -3798,6 +3846,12 @@ the same winding is shared by both.
                 edge[2] = sub[1].asSkPoint();
             }
         }
+    }
+    
+    void subDivideBounds(int start, int end, Bounds& bounds) const {
+        SkPoint edge[4];
+        subDivide(start, end, edge);
+        (bounds.*setSegmentBounds[fVerb])(edge);
     }
 
     // OPTIMIZATION: mark as debugging only if used solely by tests
@@ -4207,7 +4261,7 @@ the same winding is shared by both.
     }
 #endif
 
-#if DEBUG_MARK_DONE
+#if DEBUG_MARK_DONE || DEBUG_UNSORTABLE
     void debugShowNewWinding(const char* fun, const Span& span, int winding) {
         const SkPoint& pt = xyAtT(&span);
         SkDebugf("%s id=%d", fun, fID);
@@ -4255,7 +4309,7 @@ the same winding is shared by both.
     }
 #endif
 
-#if DEBUG_SORT
+#if DEBUG_SORT || DEBUG_SWAP_TOP
     void debugShowSort(const char* fun, const SkTDArray<Angle*>& angles, int first,
             const int contourWinding, const int oppContourWinding) const {
         if (--gDebugSortCount < 0) {
@@ -6491,7 +6545,7 @@ static void assemble(const PathWrapper& path, PathWrapper& simple) {
 }
 
 void simplifyx(const SkPath& path, SkPath& result) {
-#if DEBUG_SORT
+#if DEBUG_SORT || DEBUG_SWAP_TOP
     gDebugSortCount = gDebugSortCountDefault;
 #endif
     // returns 1 for evenodd, -1 for winding, regardless of inverse-ness

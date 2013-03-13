@@ -6,6 +6,7 @@
  */
 #include "CubicUtilities.h"
 #include "Extrema.h"
+#include "LineUtilities.h"
 #include "QuadraticUtilities.h"
 
 const int gPrecisionUnit = 256; // FIXME: arbitrary -- should try different values in test framework
@@ -27,6 +28,13 @@ double calcPrecision(const Cubic& cubic, double t, double scale) {
 }
 #endif
 
+bool clockwise(const Cubic& c) {
+    double sum = (c[0].x - c[3].x) * (c[0].y + c[3].y);
+    for (int idx = 0; idx < 3; ++idx){
+        sum += (c[idx + 1].x - c[idx].x) * (c[idx + 1].y + c[idx].y);
+    }
+    return sum <= 0;
+}
 
 void coefficients(const double* cubic, double& A, double& B, double& C, double& D) {
     A = cubic[6]; // d
@@ -36,6 +44,59 @@ void coefficients(const double* cubic, double& A, double& B, double& C, double& 
     A -= D - C + B;     // A =   -a + 3*b - 3*c + d
     B += 3 * D - 2 * C; // B =  3*a - 6*b + 3*c
     C -= 3 * D;         // C = -3*a + 3*b
+}
+
+bool controls_contained_by_ends(const Cubic& c) {
+    _Vector startTan = c[1] - c[0];
+    if (startTan.x == 0 && startTan.y == 0) {
+        startTan = c[2] - c[0];
+    }
+    _Vector endTan = c[2] - c[3];
+    if (endTan.x == 0 && endTan.y == 0) {
+        endTan = c[1] - c[3];
+    }
+    if (startTan.dot(endTan) >= 0) {
+        return false;
+    }
+    _Line startEdge = {c[0], c[0]};
+    startEdge[1].x -= startTan.y;
+    startEdge[1].y += startTan.x;
+    _Line endEdge = {c[3], c[3]};
+    endEdge[1].x -= endTan.y;
+    endEdge[1].y += endTan.x;
+    double leftStart1 = is_left(startEdge, c[1]);
+    if (leftStart1 * is_left(startEdge, c[2]) < 0) {
+        return false;
+    }
+    double leftEnd1 = is_left(endEdge, c[1]);
+    if (leftEnd1 * is_left(endEdge, c[2]) < 0) {
+        return false;
+    }
+    return leftStart1 * leftEnd1 >= 0;
+}
+
+bool ends_are_extrema_in_x_or_y(const Cubic& c) {
+    return (between(c[0].x, c[1].x, c[3].x) && between(c[0].x, c[2].x, c[3].x))
+            || (between(c[0].y, c[1].y, c[3].y) && between(c[0].y, c[2].y, c[3].y));
+}
+
+bool monotonic_in_y(const Cubic& c) {
+    return between(c[0].y, c[1].y, c[3].y) && between(c[0].y, c[2].y, c[3].y);
+}
+
+bool serpentine(const Cubic& c) {
+    if (!controls_contained_by_ends(c)) {
+        return false;
+    }
+    double wiggle = (c[0].x - c[2].x) * (c[0].y + c[2].y);
+    for (int idx = 0; idx < 2; ++idx){
+        wiggle += (c[idx + 1].x - c[idx].x) * (c[idx + 1].y + c[idx].y);
+    }
+    double waggle = (c[1].x - c[3].x) * (c[1].y + c[3].y);
+    for (int idx = 1; idx < 3; ++idx){
+        waggle += (c[idx + 1].x - c[idx].x) * (c[idx + 1].y + c[idx].y);
+    }
+    return wiggle * waggle < 0;
 }
 
 // cubic roots
@@ -241,6 +302,7 @@ _Vector dxdy_at_t(const Cubic& cubic, double t) {
     return result;
 }
 
+// OPTIMIZE? share code with formulate_F1DotF2
 int find_cubic_inflections(const Cubic& src, double tValues[])
 {
     double Ax = src[1].x - src[0].x;
@@ -249,8 +311,44 @@ int find_cubic_inflections(const Cubic& src, double tValues[])
     double By = src[2].y - 2 * src[1].y + src[0].y;
     double Cx = src[3].x + 3 * (src[1].x - src[2].x) - src[0].x;
     double Cy = src[3].y + 3 * (src[1].y - src[2].y) - src[0].y;
-    return quadraticRootsValidT(Bx * Cy - By * Cx, (Ax * Cy - Ay * Cx), Ax * By - Ay * Bx, tValues);
+    return quadraticRootsValidT(Bx * Cy - By * Cx, Ax * Cy - Ay * Cx, Ax * By - Ay * Bx, tValues);
 }
+
+static void formulate_F1DotF2(const double src[], double coeff[4])
+{
+    double a = src[2] - src[0];
+    double b = src[4] - 2 * src[2] + src[0];
+    double c = src[6] + 3 * (src[2] - src[4]) - src[0];
+    coeff[0] = c * c;
+    coeff[1] = 3 * b * c;
+    coeff[2] = 2 * b * b + c * a;
+    coeff[3] = a * b;
+}
+
+/*  from SkGeometry.cpp
+    Looking for F' dot F'' == 0
+
+    A = b - a
+    B = c - 2b + a
+    C = d - 3c + 3b - a
+
+    F' = 3Ct^2 + 6Bt + 3A
+    F'' = 6Ct + 6B
+
+    F' dot F'' -> CCt^3 + 3BCt^2 + (2BB + CA)t + AB
+*/
+int find_cubic_max_curvature(const Cubic& src, double tValues[])
+{
+    double coeffX[4], coeffY[4];
+    int i;
+    formulate_F1DotF2(&src[0].x, coeffX);
+    formulate_F1DotF2(&src[0].y, coeffY);
+    for (i = 0; i < 4; i++) {
+        coeffX[i] = coeffX[i] + coeffY[i];
+    }
+    return cubicRootsValidT(coeffX[0], coeffX[1], coeffX[2], coeffX[3], tValues);
+}
+
 
 bool rotate(const Cubic& cubic, int zero, int index, Cubic& rotPath) {
     double dy = cubic[index].y - cubic[zero].y;
@@ -287,7 +385,7 @@ _Point top(const Cubic& cubic, double startT, double endT) {
         topPt = sub[3];
     }
     double extremeTs[2];
-    if (!between(sub[0].y, sub[1].y, sub[3].y) && !between(sub[0].y, sub[2].y, sub[3].y)) {
+    if (!monotonic_in_y(sub)) {
         int roots = findExtrema(sub[0].y, sub[1].y, sub[2].y, sub[3].y, extremeTs);
         for (int index = 0; index < roots; ++index) {
             _Point mid;
