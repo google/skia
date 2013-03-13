@@ -214,7 +214,7 @@ static bool bridgeOp(SkTDArray<Contour*>& contourList, const ShapeOp op,
 
 
 void operate(const SkPath& one, const SkPath& two, ShapeOp op, SkPath& result) {
-#if DEBUG_SORT
+#if DEBUG_SORT || DEBUG_SWAP_TOP
     Op::gDebugSortCount = Op::gDebugSortCountDefault;
 #endif
     result.reset();
@@ -269,4 +269,11 @@ void operate(const SkPath& one, const SkPath& two, ShapeOp op, SkPath& result) {
     // construct closed contours
     Op::PathWrapper wrapper(result);
     bridgeOp(contourList, op, xorMask, xorOpMask, wrapper);
+    { // if some edges could not be resolved, assemble remaining fragments
+        SkPath temp;
+        temp.setFillType(SkPath::kEvenOdd_FillType);
+        Op::PathWrapper assembled(temp);
+        assemble(wrapper, assembled);
+        result = *assembled.nativePath();
+    }
 }

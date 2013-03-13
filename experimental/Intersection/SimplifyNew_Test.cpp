@@ -4253,12 +4253,369 @@ static void cubicOp36u() {
     testShapeOp(path, pathB, kUnion_Op);
 }
 
-static void (*firstTest)() = cubicOp36u;
+static void cubicOp37d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(2,6, 6,1, 4,3);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1,6);
+    pathB.cubicTo(3,4, 1,0, 6,2);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+#if 1
+// this fails to detect a cubic/cubic intersection
+// the slight overlap is missed when the cubics are approximated by quadratics
+// and the subsequent line/cubic intersection also (correctly) misses the intersection
+// if the line/cubic was a matching line/approx.quadratic then the missing intersection
+// could have been detected
+static void cubicOp38d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(0,6, 3,2, 4,1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(2,3);
+    pathB.cubicTo(1,4, 1,0, 6,0);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+#endif
+
+static void cubicOp39d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(2,3, 5,1, 4,3);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1,5);
+    pathB.cubicTo(3,4, 1,0, 3,2);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp40d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(1,5, 3,2, 4,2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(2,3);
+    pathB.cubicTo(2,4, 1,0, 5,1);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp41i() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(2,6, 4,3, 6,4);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(3,4);
+    pathB.cubicTo(4,6, 1,0, 6,2);
+    pathB.close();
+    testShapeOp(path, pathB, kIntersect_Op);
+}
+
+static void cubicOp42d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(1,2, 6,5, 5,4);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(5,6);
+    pathB.cubicTo(4,5, 1,0, 2,1);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp43d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,2);
+    path.cubicTo(1,2, 4,0, 3,1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,4);
+    pathB.cubicTo(1,3, 2,0, 2,1);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp44d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,2);
+    path.cubicTo(3,6, 4,0, 3,2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,4);
+    pathB.cubicTo(2,3, 2,0, 6,3);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp45d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,2);
+    path.cubicTo(2,4, 4,0, 3,2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,4);
+    pathB.cubicTo(2,3, 2,0, 4,2);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp46d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,2);
+    path.cubicTo(3,5, 5,0, 4,2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,5);
+    pathB.cubicTo(2,4, 2,0, 5,3);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp47d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(1,6, 6,2, 5,4);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(2,6);
+    pathB.cubicTo(4,5, 1,0, 6,1);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp48d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,2);
+    path.cubicTo(2,3, 5,1, 3,2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1,5);
+    pathB.cubicTo(2,3, 2,0, 3,2);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp49d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,2);
+    path.cubicTo(1,5, 3,2, 4,1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(2,3);
+    pathB.cubicTo(1,4, 2,0, 5,1);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp50d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,3);
+    path.cubicTo(1,6, 5,0, 5,1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,5);
+    pathB.cubicTo(1,5, 3,0, 6,1);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp51d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,3);
+    path.cubicTo(1,2, 4,1, 6,0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1,4);
+    pathB.cubicTo(0,6, 3,0, 2,1);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp52d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,2);
+    path.cubicTo(1,2, 5,4, 4,3);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(4,5);
+    pathB.cubicTo(3,4, 2,0, 2,1);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp53d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,3);
+    path.cubicTo(1,2, 5,3, 2,1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(3,5);
+    pathB.cubicTo(1,2, 3,0, 2,1);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp54d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,4);
+    path.cubicTo(1,3, 5,4, 4,2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(4,5);
+    pathB.cubicTo(2,4, 4,0, 3,1);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp55d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,5);
+    path.cubicTo(1,3, 3,2, 5,0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(2,3);
+    pathB.cubicTo(0,5, 5,0, 3,1);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp56d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(2,6, 5,0, 2,1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,5);
+    pathB.cubicTo(1,2, 1,0, 6,2);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp57d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,5);
+    path.cubicTo(0,5, 5,4, 6,4);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(4,5);
+    pathB.cubicTo(4,6, 5,0, 5,0);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp58d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,5);
+    path.cubicTo(3,4, 6,5, 5,3);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(5,6);
+    pathB.cubicTo(3,5, 5,0, 4,3);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp59d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(5,6, 4,0, 4,1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,4);
+    pathB.cubicTo(1,4, 1,0, 6,5);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp60d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,2);
+    path.cubicTo(4,6, 6,0, 5,2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(0,6);
+    pathB.cubicTo(2,5, 2,0, 6,4);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp61d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(1,2);
+    path.cubicTo(0,5, 3,2, 6,1);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(2,3);
+    pathB.cubicTo(1,6, 2,1, 5,0);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void (*firstTest)() = cubicOp61d;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(cubicOp61d),
+    TEST(cubicOp60d),
+    TEST(cubicOp59d),
+    TEST(cubicOp58d),
+    TEST(cubicOp57d),
+    TEST(cubicOp56d),
+    TEST(cubicOp55d),
+    TEST(cubicOp54d),
+    TEST(cubicOp53d),
+    TEST(cubicOp52d),
+    TEST(cubicOp51d),
+    TEST(cubicOp50d),
+    TEST(cubicOp49d),
+    TEST(cubicOp48d),
+    TEST(cubicOp47d),
+    TEST(cubicOp46d),
+    TEST(cubicOp45d),
+    TEST(cubicOp44d),
+    TEST(cubicOp43d),
+    TEST(cubicOp42d),
+    TEST(cubicOp41i),
+    TEST(cubicOp40d),
+    TEST(cubicOp39d),
+    TEST(cubicOp38d),
+    TEST(cubicOp37d),
     TEST(cubicOp36u),
     TEST(cubicOp35d),
     TEST(cubicOp34d),
@@ -4655,18 +5012,21 @@ static struct {
     void (*fun)();
     const char* str;
 } subTests[] = {
+    TEST(cubicOp43d),
+    TEST(quadOp9d),
+    TEST(cubicOp9d),
+    TEST(cubicOp1i),
+    TEST(cubicOp10d),
+    TEST(cubicOp11d),
+    TEST(cubicOp15d),
+    TEST(cubicOp18d),
+    TEST(cubicOp22d),
     TEST(cubicOp23d),
     TEST(cubicOp24d),
-    TEST(cubicOp18d),
-    TEST(cubicOp15d),
-    TEST(cubicOp14d),
-    TEST(cubicOp13d),
-    TEST(cubicOp11d),
-    TEST(cubicOp9d),
-    TEST(cubicOp8d),
-    TEST(cubicOp7d),
-    TEST(cubicOp6d),
-    TEST(cubicOp5d),
+    TEST(cubicOp28u),
+    TEST(cubicOp33i),
+    TEST(cubicOp36u),
+    TEST(cubicOp40d),
 };
 
 static const size_t subTestCount = sizeof(subTests) / sizeof(subTests[0]);
@@ -4685,8 +5045,8 @@ void SimplifyNew_Test() {
 #ifdef SK_DEBUG
     gDebugMaxWindSum = 4;
     gDebugMaxWindValue = 4;
-    size_t index;
 #endif
+    size_t index;
     if (runSubTestsFirst && firstSubTest) {
         index = subTestCount - 1;
         while (index > 0 && subTests[index].fun != firstSubTest) {
@@ -4707,6 +5067,9 @@ void SimplifyNew_Test() {
         while (index > 0 && tests[index].fun != firstTest) {
             --index;
         }
+    #if FORCE_RELEASE == 0
+        SkDebugf("<div id=\"%s\">\n", tests[index].str);
+    #endif
         SkDebugf("  %s [%s]\n", __FUNCTION__, tests[index].str);
         (*tests[index].fun)();
     }

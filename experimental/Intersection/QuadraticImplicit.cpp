@@ -188,7 +188,7 @@ static bool isLinearInner(const Quadratic& q1, double t1s, double t1e, const Qua
     } else if (tCount > 1) {
         QSort<double>(tsFound.begin(), tsFound.end() - 1);
         tMin = tsFound[0];
-        tMax = tsFound[1];
+        tMax = tsFound[tsFound.count() - 1];
     }
     _Point end;
     xy_at_t(q2, t2s, end.x, end.y);
@@ -474,7 +474,7 @@ bool intersect2(const Quadratic& q1, const Quadratic& q2, Intersections& i) {
         if (r1Count == 1) {
             if (pts1[0].approximatelyEqualHalf(pts2[0])) {
                 i.insert(roots1Copy[0], roots2Copy[0], pts1[0]);
-            } else if (pts1[0].roughlyEqual(pts2[0])) {
+            } else if (pts1[0].moreRoughlyEqual(pts2[0])) {
                 // experiment: see if a different cubic solution provides the correct quartic answer
             #if 0
                 for (int cu1 = 0; cu1 < 3; ++cu1) {

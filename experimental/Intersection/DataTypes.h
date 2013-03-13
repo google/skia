@@ -12,7 +12,7 @@
 
 #include "SkPoint.h"
 
-#define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging
+#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging
 #define ONE_OFF_DEBUG 0
 #define ONE_OFF_DEBUG_MATHEMATICA 0
 
@@ -43,10 +43,8 @@ const double FLT_EPSILON_SQUARED = FLT_EPSILON * FLT_EPSILON;
 const double FLT_EPSILON_SQRT = sqrt(FLT_EPSILON);
 const double FLT_EPSILON_INVERSE = 1 / FLT_EPSILON;
 const double DBL_EPSILON_ERR = DBL_EPSILON * 4; // tune -- allow a few bits of error
-
-#ifdef SK_DEBUG
-const double ROUGH_EPSILON = FLT_EPSILON * 16;
-#endif
+const double ROUGH_EPSILON = FLT_EPSILON * 32;
+const double MORE_ROUGH_EPSILON = FLT_EPSILON * 256;
 
 inline bool approximately_zero(double x) {
     return fabs(x) < FLT_EPSILON;
@@ -196,11 +194,13 @@ inline bool between(double a, double b, double c) {
     return (a - b) * (c - b) <= 0;
 }
 
-#ifdef SK_DEBUG
+inline bool more_roughly_equal(double x, double y) {
+    return fabs(x - y) < MORE_ROUGH_EPSILON;
+}
+
 inline bool roughly_equal(double x, double y) {
     return fabs(x - y) < ROUGH_EPSILON;
 }
-#endif
 
 struct _Point;
 
@@ -324,6 +324,10 @@ struct _Point {
     double distanceSquared(const _Point& a) const {
         _Vector temp = *this - a;
         return temp.lengthSquared();
+    }
+
+    double moreRoughlyEqual(const _Point& a) const {
+        return more_roughly_equal(a.y, y) && more_roughly_equal(a.x, x);
     }
 
     double roughlyEqual(const _Point& a) const {

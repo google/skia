@@ -229,21 +229,21 @@ void flip() {
     }
 }
 
-bool pinTs(double& cubicT, double& lineT) {
+static bool pinTs(double& cubicT, double& lineT) {
     if (!approximately_one_or_less(lineT)) {
         return false;
     }
     if (!approximately_zero_or_more(lineT)) {
         return false;
     }
-    if (cubicT < 0) {
+    if (precisely_less_than_zero(cubicT)) {
         cubicT = 0;
-    } else if (cubicT > 1) {
+    } else if (precisely_greater_than_one(cubicT)) {
         cubicT = 1;
     }
-    if (lineT < 0) {
+    if (precisely_less_than_zero(lineT)) {
         lineT = 0;
-    } else if (lineT > 1) {
+    } else if (precisely_greater_than_one(lineT)) {
         lineT = 1;
     }
     return true;

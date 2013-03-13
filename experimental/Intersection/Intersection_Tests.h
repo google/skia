@@ -25,6 +25,7 @@ void CubicsToQuadratics_OneOffTest();
 void CubicsToQuadratics_OneOffTests();
 void CubicsToQuadratics_RandTest();
 void CubicToQuadratics_Test();
+void CubicUtilities_Test();
 void Inline_Tests();
 void Intersection_Tests();
 void LineCubicIntersection_Test();

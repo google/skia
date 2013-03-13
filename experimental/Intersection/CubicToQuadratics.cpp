@@ -48,6 +48,7 @@ http://www.caffeineowl.com/graphics/2d/vectorial/cubic2quad01.html
 #include "CubicUtilities.h"
 #include "CurveIntersection.h"
 #include "LineIntersection.h"
+#include "TSearch.h"
 
 const bool AVERAGE_END_POINTS = true; // results in better fitting curves
 
@@ -147,9 +148,34 @@ void cubic_to_quadratics(const Cubic& cubic, double precision, SkTDArray<double>
     if (order < 3) {
         return;
     }
-    double inflectT[2];
+    double inflectT[5];
     int inflections = find_cubic_inflections(cubic, inflectT);
     SkASSERT(inflections <= 2);
+    if (!ends_are_extrema_in_x_or_y(cubic)) {
+        inflections += find_cubic_max_curvature(cubic, &inflectT[inflections]);
+        SkASSERT(inflections <= 5);
+    }
+    QSort<double>(inflectT, &inflectT[inflections - 1]);
+    // OPTIMIZATION: is this filtering common enough that it needs to be pulled out into its
+    // own subroutine?
+    while (inflections && approximately_less_than_zero(inflectT[0])) {
+        memcpy(inflectT, &inflectT[1], sizeof(inflectT[0]) * --inflections);
+    }
+    int start = 0;
+    do {
+        int next = start + 1;
+        if (next >= inflections) {
+            break;
+        }
+        if (!approximately_equal(inflectT[start], inflectT[next])) {
+            ++start;
+            continue;
+        }
+        memcpy(&inflectT[start], &inflectT[next], sizeof(inflectT[0]) * (--inflections - start));
+    } while (true);
+    while (inflections && approximately_greater_than_one(inflectT[inflections - 1])) {
+        --inflections;
+    }
     CubicPair pair;
     if (inflections == 1) {
         chop_at(cubic, pair, inflectT[0]);
@@ -174,17 +200,17 @@ void cubic_to_quadratics(const Cubic& cubic, double precision, SkTDArray<double>
         addTs(pair.second(), precision, inflectT[0], 1, ts);
         return;
     }
-    if (inflections == 2) {
-        if (inflectT[0] > inflectT[1]) {
-            SkTSwap(inflectT[0], inflectT[1]);
-        }
+    if (inflections > 1) {
         Cubic part;
         sub_divide(cubic, 0, inflectT[0], part);
         addTs(part, precision, 0, inflectT[0], ts);
-        sub_divide(cubic, inflectT[0], inflectT[1], part);
-        addTs(part, precision, inflectT[0], inflectT[1], ts);
-        sub_divide(cubic, inflectT[1], 1, part);
-        addTs(part, precision, inflectT[1], 1, ts);
+        int last = inflections - 1;
+        for (int idx = 0; idx < last; ++idx) {
+            sub_divide(cubic, inflectT[idx], inflectT[idx + 1], part);
+            addTs(part, precision, inflectT[idx], inflectT[idx + 1], ts);
+        }
+        sub_divide(cubic, inflectT[last], 1, part);
+        addTs(part, precision, inflectT[last], 1, ts);
         return;
     }
     addTs(cubic, precision, 0, 1, ts);

@@ -1,12 +1,9 @@
 /*
- *  SkAntiEdge.h
- *  core
+ * Copyright 2011 Google Inc.
  *
- *  Created by Cary Clark on 5/6/11.
- *  Copyright 2011 __MyCompanyName__. All rights reserved.
- *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
  */
-
 #ifndef SkAntiEdge_DEFINED
 #define SkAntiEdge_DEFINED
 

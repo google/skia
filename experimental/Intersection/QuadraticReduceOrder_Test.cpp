@@ -22,8 +22,8 @@ static void oneOffTest() {
     for (size_t index = 0; index < testSetCount; ++index) {
         const Quadratic& quad = testSet[index];
         Quadratic reduce;
-        int order = reduceOrder(quad, reduce, kReduceOrder_TreatAsFill);
-        SkASSERT(order == 3);
+        SkDEBUGCODE(int result = ) reduceOrder(quad, reduce, kReduceOrder_TreatAsFill);
+        SkASSERT(result == 3);
     }
 }
 
