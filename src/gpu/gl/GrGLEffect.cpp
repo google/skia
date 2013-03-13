@@ -39,7 +39,7 @@ GrGLEffect::EffectKey GrGLEffect::GenAttribKey(const GrEffectStage& stage) {
     GrAssert(numAttributes <= 2);
     const int* attributeIndices = stage.getVertexAttribIndices();
     for (int index = 0; index < numAttributes; ++index) {
-        EffectKey value = attributeIndices[index] << 2*index;
+        EffectKey value = attributeIndices[index] << 3*index;
         GrAssert(0 == (value & key)); // keys for each attribute ought not to overlap
         key |= value;
     }
