@@ -148,6 +148,7 @@ class AutoRestoreBbhType {
 public:
     AutoRestoreBbhType() {
         fRenderer = NULL;
+        fSavedBbhType = sk_tools::PictureRenderer::kNone_BBoxHierarchyType;
     }
 
     void set(sk_tools::PictureRenderer* renderer,
