@@ -1520,9 +1520,6 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         info->fStyle |= SkAdvancedTypefaceMetrics::kItalic_Style;
     }
     CTFontStylisticClass stylisticClass = symbolicTraits & kCTFontClassMaskTrait;
-    if (stylisticClass & kCTFontSymbolicClass) {
-        info->fStyle |= SkAdvancedTypefaceMetrics::kSymbolic_Style;
-    }
     if (stylisticClass >= kCTFontOldStyleSerifsClass && stylisticClass <= kCTFontSlabSerifsClass) {
         info->fStyle |= SkAdvancedTypefaceMetrics::kSerif_Style;
     } else if (stylisticClass & kCTFontScriptsClass) {
