@@ -1,5 +1,3 @@
-reading from gm/tests/inputs/images/empty-dir
-drawing... selftest1 [300 200]
-FAILED to read gm/tests/inputs/images/empty-dir/8888/selftest1.png
-FAILED to read gm/tests/inputs/images/empty-dir/565/selftest1.png
-Ran 1 tests: 1 passed, 0 failed, 1 missing reference images
+GM: reading from gm/tests/inputs/images/empty-dir
+GM: drawing... selftest1 [300 200]
+GM: Ran 1 tests: 1 passed, 0 failed, 1 missing reference images

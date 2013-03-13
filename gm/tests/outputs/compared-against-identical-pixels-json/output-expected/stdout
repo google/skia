@@ -1,3 +1,3 @@
-reading expectations from JSON summary file gm/tests/inputs/json/identical-pixels.json
-drawing... selftest1 [300 200]
-Ran 1 tests: 1 passed, 0 failed, 0 missing reference images
+GM: reading expectations from JSON summary file gm/tests/inputs/json/identical-pixels.json
+GM: drawing... selftest1 [300 200]
+GM: Ran 1 tests: 1 passed, 0 failed, 0 missing reference images

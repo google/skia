@@ -7,6 +7,7 @@
 #ifndef gm_expectations_DEFINED
 #define gm_expectations_DEFINED
 
+#include <stdarg.h>
 #include "gm.h"
 #include "SkBitmap.h"
 #include "SkBitmapChecksummer.h"
@@ -51,6 +52,14 @@ namespace skiagm {
     }
     static inline Checksum asChecksum(Json::Value jsonValue) {
         return jsonValue.asUInt64();
+    }
+
+    static void gm_fprintf(FILE *stream, const char format[], ...) {
+        va_list args;
+        va_start(args, format);
+        fprintf(stream, "GM: ");
+        vfprintf(stream, format, args);
+        va_end(args);
     }
 
     static SkString make_filename(const char path[],
@@ -103,9 +112,10 @@ namespace skiagm {
                 if (ignoreFailure.isNull()) {
                     fIgnoreFailure = kDefaultIgnoreFailure;
                 } else if (!ignoreFailure.isBool()) {
-                    fprintf(stderr, "found non-boolean json value for key '%s' in element '%s'\n",
-                            kJsonKey_ExpectedResults_IgnoreFailure,
-                            jsonElement.toStyledString().c_str());
+                    gm_fprintf(stderr, "found non-boolean json value"
+                               " for key '%s' in element '%s'\n",
+                               kJsonKey_ExpectedResults_IgnoreFailure,
+                               jsonElement.toStyledString().c_str());
                     DEBUGFAIL_SEE_STDERR;
                     fIgnoreFailure = kDefaultIgnoreFailure;
                 } else {
@@ -116,16 +126,18 @@ namespace skiagm {
                 if (allowedChecksums.isNull()) {
                     // ok, we'll just assume there aren't any expected checksums to compare against
                 } else if (!allowedChecksums.isArray()) {
-                    fprintf(stderr, "found non-array json value for key '%s' in element '%s'\n",
-                            kJsonKey_ExpectedResults_Checksums,
-                            jsonElement.toStyledString().c_str());
+                    gm_fprintf(stderr, "found non-array json value"
+                               " for key '%s' in element '%s'\n",
+                               kJsonKey_ExpectedResults_Checksums,
+                               jsonElement.toStyledString().c_str());
                     DEBUGFAIL_SEE_STDERR;
                 } else {
                     for (Json::ArrayIndex i=0; i<allowedChecksums.size(); i++) {
                         Json::Value checksumElement = allowedChecksums[i];
                         if (!checksumElement.isIntegral()) {
-                            fprintf(stderr, "found non-integer checksum in json element '%s'\n",
-                                    jsonElement.toStyledString().c_str());
+                            gm_fprintf(stderr, "found non-integer checksum"
+                                       " in json element '%s'\n",
+                                       jsonElement.toStyledString().c_str());
                             DEBUGFAIL_SEE_STDERR;
                         } else {
                             fAllowedChecksums.push_back() = asChecksum(checksumElement);
@@ -233,7 +245,7 @@ namespace skiagm {
                 return Expectations(referenceBitmap);
             } else {
                 if (fNotifyOfMissingFiles) {
-                    fprintf(stderr, "FAILED to read %s\n", path.c_str());
+                    gm_fprintf(stderr, "FAILED to read %s\n", path.c_str());
                 }
                 return Expectations();
             }
@@ -331,14 +343,14 @@ namespace skiagm {
         static bool parse(const char *jsonPath, Json::Value *jsonRoot) {
             SkFILEStream inFile(jsonPath);
             if (!inFile.isValid()) {
-                fprintf(stderr, "unable to read JSON file %s\n", jsonPath);
+                gm_fprintf(stderr, "unable to read JSON file %s\n", jsonPath);
                 DEBUGFAIL_SEE_STDERR;
                 return false;
             }
 
             SkAutoDataUnref dataRef(readFileIntoSkData(inFile));
             if (NULL == dataRef.get()) {
-                fprintf(stderr, "error reading JSON file %s\n", jsonPath);
+                gm_fprintf(stderr, "error reading JSON file %s\n", jsonPath);
                 DEBUGFAIL_SEE_STDERR;
                 return false;
             }
@@ -347,7 +359,7 @@ namespace skiagm {
             size_t size = dataRef.get()->size();
             Json::Reader reader;
             if (!reader.parse(bytes, bytes+size, *jsonRoot)) {
-                fprintf(stderr, "error parsing JSON file %s\n", jsonPath);
+                gm_fprintf(stderr, "error parsing JSON file %s\n", jsonPath);
                 DEBUGFAIL_SEE_STDERR;
                 return false;
             }
