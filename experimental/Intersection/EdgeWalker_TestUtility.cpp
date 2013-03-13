@@ -370,7 +370,7 @@ void comparePathsTiny(const SkPath& one, const SkPath& two) {
     for (int y = 0; y < bitHeight; ++y) {
         uint8_t* addr1 = bits.getAddr1(0, y);
         uint8_t* addr2 = bits.getAddr1(bitWidth, y);
-        for (int x = 0; x < bits.rowBytes(); ++x) {
+        for (unsigned x = 0; x < bits.rowBytes(); ++x) {
             SkASSERT(addr1[x] == addr2[x]);
         }
     }

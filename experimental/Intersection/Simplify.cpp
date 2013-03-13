@@ -2107,7 +2107,7 @@ public:
     }
 
     void buildAnglesInner(int index, SkTDArray<Angle>& angles) const {
-        Span* span = &fTs[index];
+        const Span* span = &fTs[index];
         Segment* other = span->fOther;
     // if there is only one live crossing, and no coincidence, continue
     // in the same direction
@@ -3644,7 +3644,7 @@ the same winding is shared by both.
         return true;
     }
 
-    Segment* nextChase(int& index, const int step, int& min, Span*& last) const {
+    Segment* nextChase(int& index, const int step, int& min, Span*& last) {
         int end = nextExactSpan(index, step);
         SkASSERT(end >= 0);
         if (multipleSpans(end)) {
@@ -4376,6 +4376,8 @@ the same winding is shared by both.
                 case SkPath::kCubic_Verb:
                     SkDebugf(CUBIC_DEBUG_STR, CUBIC_DEBUG_DATA(segment.fPts));
                     break;
+                default:
+                    SkASSERT(0);
             }
             SkDebugf(" tStart=%1.9g tEnd=%1.9g", sSpan.fT, eSpan.fT);
         #endif
