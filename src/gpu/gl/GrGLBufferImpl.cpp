@@ -16,6 +16,10 @@
 #define VALIDATE() do {} while(false)
 #endif
 
+// GL_STREAM_DRAW triggers an optimization in Chromium's GPU process where a client's vertex buffer
+// objects are implemented as client-side-arrays on tile-deferred architectures.
+#define DYNAMIC_USAGE_PARAM GR_GL_STREAM_DRAW
+
 GrGLBufferImpl::GrGLBufferImpl(GrGpuGL* gpu, const Desc& desc, GrGLenum bufferType)
     : fDesc(desc)
     , fBufferType(bufferType)
@@ -76,7 +80,7 @@ void* GrGLBufferImpl::lock(GrGpuGL* gpu) {
         GL_CALL(gpu, BufferData(fBufferType,
                                 fDesc.fSizeInBytes,
                                 NULL,
-                                fDesc.fDynamic ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW));
+                                fDesc.fDynamic ? DYNAMIC_USAGE_PARAM : GR_GL_STATIC_DRAW));
         GR_GL_CALL_RET(gpu->glInterface(),
                        fLockPtr,
                        MapBuffer(fBufferType, GR_GL_WRITE_ONLY));
@@ -111,7 +115,7 @@ bool GrGLBufferImpl::updateData(GrGpuGL* gpu, const void* src, size_t srcSizeInB
         return true;
     }
     this->bind(gpu);
-    GrGLenum usage = fDesc.fDynamic ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW;
+    GrGLenum usage = fDesc.fDynamic ? DYNAMIC_USAGE_PARAM : GR_GL_STATIC_DRAW;
 
 #if GR_GL_USE_BUFFER_DATA_NULL_HINT
     if (fDesc.fSizeInBytes == srcSizeInBytes) {
