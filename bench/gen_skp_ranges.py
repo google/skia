@@ -33,7 +33,7 @@ from oauth2_plugin import oauth2_plugin
 
 # Ratios for calculating suggested picture bench upper and lower bounds.
 BENCH_UB = 1.1  # Allow for 10% room for normal variance on the up side.
-BENCH_LB = 0.85
+BENCH_LB = 0.9
 
 # Further allow for a fixed amount of noise. This is especially useful for
 # benches of smaller absolute value. Keeping this value small will not affect
@@ -41,9 +41,9 @@ BENCH_LB = 0.85
 BENCH_ALLOWED_NOISE = 10
 
 # List of platforms to track. Feel free to change it to meet your needs.
-PLATFORMS = [#'Mac_Float_Bench_32',
-             #'Nexus10_4-1_Float_Bench_32',
-             #'Shuttle_Ubuntu12_ATI5770_Float_Bench_32',
+PLATFORMS = ['MacMini_10_8_Float_Bench_32',
+             'Nexus7_4-1_Float_Bench_32',
+             'Shuttle_Ubuntu12_ATI5770_Float_Bench_32',
              'Shuttle_Win7_Intel_Float_Bench_32',
             ]
 
