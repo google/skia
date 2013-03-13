@@ -24,7 +24,7 @@ TITLE_PREAMBLE = 'Bench_Performance_for_Skia_'
 TITLE_PREAMBLE_LENGTH = len(TITLE_PREAMBLE)
 
 # Number of data points to send to appengine at once.
-DATA_POINT_BATCHSIZE = 100
+DATA_POINT_BATCHSIZE = 25
 
 def grouper(n, iterable):
     """Groups list into list of lists for a given size. See itertools doc:
