@@ -35,7 +35,8 @@ DEFINE_string(w, "", "Directory to write the rendered images.");
 DEFINE_bool(writeWholeImage, false, "In tile mode, write the entire rendered image to a "
             "file, instead of an image for each tile.");
 DEFINE_bool(validate, false, "Verify that the rendered image contains the same pixels as "
-            "the picture rendered in simple mode.");
+            "the picture rendered in simple mode. When used in conjunction with --bbh, results "
+            "are validated against the picture rendered in the same mode, but without the bbh.");
 
 static void make_output_filepath(SkString* path, const SkString& dir,
                                  const SkString& name) {
@@ -142,6 +143,32 @@ static int MaxByteDiff(uint32_t v1, uint32_t v2) {
                    SkMax32(abs(getByte(v1, 2) - getByte(v2, 2)), abs(getByte(v1, 3) - getByte(v2, 3))));
 }
 
+namespace {
+class AutoRestoreBbhType {
+public:
+    AutoRestoreBbhType() {
+        fRenderer = NULL;
+    }
+
+    void set(sk_tools::PictureRenderer* renderer,
+             sk_tools::PictureRenderer::BBoxHierarchyType bbhType) {
+        fRenderer = renderer;
+        fSavedBbhType = renderer->getBBoxHierarchyType();
+        renderer->setBBoxHierarchyType(bbhType);
+    }
+
+    ~AutoRestoreBbhType() {
+        if (NULL != fRenderer) {
+            fRenderer->setBBoxHierarchyType(fSavedBbhType);
+        }
+    }
+
+private:
+    sk_tools::PictureRenderer* fRenderer;
+    sk_tools::PictureRenderer::BBoxHierarchyType fSavedBbhType;
+};
+}
+
 static bool render_picture(const SkString& inputPath, const SkString* outputDir,
                            sk_tools::PictureRenderer& renderer) {
     int diffs[256] = {0};
@@ -159,8 +186,21 @@ static bool render_picture(const SkString& inputPath, const SkString* outputDir,
 
     if (FLAGS_validate) {
         SkBitmap* referenceBitmap = NULL;
-        sk_tools::SimplePictureRenderer referenceRenderer;
-        success = render_picture(inputPath, NULL, referenceRenderer,
+        sk_tools::PictureRenderer* referenceRenderer;
+        // If the renderer uses a BBoxHierarchy, then the reference renderer
+        // will be the same renderer, without the bbh. 
+        AutoRestoreBbhType arbbh;
+        if (sk_tools::PictureRenderer::kNone_BBoxHierarchyType !=
+            renderer.getBBoxHierarchyType()) {
+            referenceRenderer = &renderer;
+            referenceRenderer->ref();  // to match auto unref below
+            arbbh.set(referenceRenderer, sk_tools::PictureRenderer::kNone_BBoxHierarchyType);
+        } else {
+            referenceRenderer = SkNEW(sk_tools::SimplePictureRenderer);
+        }
+        SkAutoTUnref<sk_tools::PictureRenderer> aurReferenceRenderer(referenceRenderer);
+
+        success = render_picture(inputPath, NULL, *referenceRenderer,
                                  &referenceBitmap);
 
         if (!success || NULL == referenceBitmap || NULL == referenceBitmap->getPixels()) {

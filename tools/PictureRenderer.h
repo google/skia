@@ -171,6 +171,8 @@ public:
         fBBoxHierarchyType = bbhType;
     }
 
+    BBoxHierarchyType getBBoxHierarchyType() { return fBBoxHierarchyType; }
+
     void setGridSize(int width, int height) {
         fGridInfo.fTileInterval.set(width, height);
     }
