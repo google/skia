@@ -128,7 +128,7 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
     FindRec rec(familyName, style);
     SkTypeface* face = SkTypefaceCache::FindByProcAndRef(find_proc, &rec);
     if (face) {
-        SkDebugf("found cached face <%s> <%s> %p [%d]\n", familyName, ((FontConfigTypeface*)face)->getFamilyName(), face, face->getRefCnt());
+//        SkDebugf("found cached face <%s> <%s> %p [%d]\n", familyName, ((FontConfigTypeface*)face)->getFamilyName(), face, face->getRefCnt());
         return face;
     }
 
@@ -143,7 +143,7 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
 
     face = SkNEW_ARGS(FontConfigTypeface, (outStyle, indentity, outFamilyName));
     SkTypefaceCache::Add(face, style);
-    SkDebugf("add face <%s> <%s> %p [%d]\n", familyName, outFamilyName.c_str(), face, face->getRefCnt());
+//    SkDebugf("add face <%s> <%s> %p [%d]\n", familyName, outFamilyName.c_str(), face, face->getRefCnt());
     return face;
 }
 
