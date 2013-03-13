@@ -1070,7 +1070,7 @@ void SkDebuggerGUI::setupListWidget(SkTArray<SkString>* command) {
     }
 }
 
-void SkDebuggerGUI::setupOverviewText(const SkTDArray<double>* typeTimes, 
+void SkDebuggerGUI::setupOverviewText(const SkTDArray<double>* typeTimes,
                                       double totTime,
                                       int numRuns) {
     SkString overview;

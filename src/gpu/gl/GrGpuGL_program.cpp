@@ -19,7 +19,7 @@ static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidU
 GrGpuGL::ProgramCache::ProgramCache(const GrGLContext& gl)
     : fCount(0)
     , fCurrLRUStamp(0)
-    , fGL(gl) 
+    , fGL(gl)
 #ifdef PROGRAM_CACHE_STATS
     , fTotalRequests(0)
     , fCacheMisses(0)

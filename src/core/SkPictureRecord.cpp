@@ -227,7 +227,7 @@ static bool is_simple(const SkPaint& p) {
 }
 
 // CommandInfos are fed to the 'match' method and filled in with command
-// information. 
+// information.
 struct CommandInfo {
     DrawType fActualOp;
     uint32_t fOffset;
@@ -236,7 +236,7 @@ struct CommandInfo {
 
 /*
  * Attempt to match the provided pattern of commands starting at 'offset'
- * in the byte stream and stopping at the end of the stream. Upon success, 
+ * in the byte stream and stopping at the end of the stream. Upon success,
  * return true with all the pattern information filled out in the result
  * array (i.e., actual ops, offsets and sizes).
  * Note this method skips any NOOPs seen in the stream
@@ -295,7 +295,7 @@ static bool merge_savelayer_paint_into_drawbitmp(SkWriter32* writer,
                                                  const CommandInfo& dbmInfo);
 
 /*
- * Restore has just been called (but not recorded), look back at the 
+ * Restore has just been called (but not recorded), look back at the
  * matching save* and see if we are in the configuration:
  *   SAVE_LAYER
  *       DRAW_BITMAP|DRAW_BITMAP_MATRIX|DRAW_BITMAP_NINE|DRAW_BITMAP_RECT_TO_RECT
@@ -345,9 +345,9 @@ static bool merge_savelayer_paint_into_drawbitmp(SkWriter32* writer,
                                                  const CommandInfo& saveLayerInfo,
                                                  const CommandInfo& dbmInfo) {
     SkASSERT(SAVE_LAYER == saveLayerInfo.fActualOp);
-    SkASSERT(DRAW_BITMAP == dbmInfo.fActualOp || 
+    SkASSERT(DRAW_BITMAP == dbmInfo.fActualOp ||
              DRAW_BITMAP_MATRIX == dbmInfo.fActualOp ||
-             DRAW_BITMAP_NINE == dbmInfo.fActualOp || 
+             DRAW_BITMAP_NINE == dbmInfo.fActualOp ||
              DRAW_BITMAP_RECT_TO_RECT == dbmInfo.fActualOp);
 
     uint32_t dbmPaintOffset = getPaintOffset(dbmInfo.fActualOp, dbmInfo.fSize);
@@ -410,7 +410,7 @@ static bool merge_savelayer_paint_into_drawbitmp(SkWriter32* writer,
 }
 
 /*
- * Restore has just been called (but not recorded), look back at the 
+ * Restore has just been called (but not recorded), look back at the
  * matching save* and see if we are in the configuration:
  *   SAVE_LAYER
  *      SAVE

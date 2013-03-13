@@ -95,9 +95,9 @@ void SkDebugger::getOverviewText(const SkTDArray<double>* typeTimes,
     }
 #ifdef SK_DEBUG
     if (NULL != typeTimes) {
-        SkASSERT(SkScalarNearlyEqual(SkDoubleToScalar(totPercent), 
+        SkASSERT(SkScalarNearlyEqual(SkDoubleToScalar(totPercent),
                                      SkDoubleToScalar(100.0)));
-        SkASSERT(SkScalarNearlyEqual(SkDoubleToScalar(tempSum), 
+        SkASSERT(SkScalarNearlyEqual(SkDoubleToScalar(tempSum),
                                      SkDoubleToScalar(totTime)));
     }
 #endif

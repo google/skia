@@ -539,13 +539,13 @@ GrGLEffect* GrGLShaderBuilder::createAndEmitGLEffect(
 
 const SkString* GrGLShaderBuilder::getEffectAttributeName(int attributeIndex) const {
     const AttributePair* attribEnd = this->getEffectAttributes().end();
-    for (const AttributePair* attrib = this->getEffectAttributes().begin(); 
+    for (const AttributePair* attrib = this->getEffectAttributes().begin();
          attrib != attribEnd;
          ++attrib) {
         if (attrib->fIndex == attributeIndex) {
             return &attrib->fName;
         }
-    }   
+    }
 
     return NULL;
 }

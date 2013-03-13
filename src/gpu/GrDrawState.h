@@ -334,7 +334,7 @@ public:
     bool hasSolidCoverage(GrAttribBindings) const;
 
     static void VertexAttributesUnitTest();
-   
+
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////
@@ -485,7 +485,7 @@ public:
     /// @name Effect Stages
     ////
 
-    const GrEffectRef* setEffect(int stageIdx, const GrEffectRef* effect, 
+    const GrEffectRef* setEffect(int stageIdx, const GrEffectRef* effect,
                                  const int* indices = NULL) {
         fStages[stageIdx].setEffect(effect, indices);
         return effect;
@@ -517,8 +517,8 @@ public:
         return true;
     }
 
-    void disableStage(int stageIdx) { 
-        this->setEffect(stageIdx, NULL, NULL); 
+    void disableStage(int stageIdx) {
+        this->setEffect(stageIdx, NULL, NULL);
     }
 
     /**

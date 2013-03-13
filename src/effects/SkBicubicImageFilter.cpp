@@ -70,9 +70,9 @@ inline SkPMColor cubicBlend(const SkScalar c[16], SkScalar t, SkPMColor c0, SkPM
     SkScalar r = SkScalarMul(cc[0], SkGetPackedR32(c0)) + SkScalarMul(cc[1], SkGetPackedR32(c1)) + SkScalarMul(cc[2], SkGetPackedR32(c2)) + SkScalarMul(cc[3], SkGetPackedR32(c3));
     SkScalar g = SkScalarMul(cc[0], SkGetPackedG32(c0)) + SkScalarMul(cc[1], SkGetPackedG32(c1)) + SkScalarMul(cc[2], SkGetPackedG32(c2)) + SkScalarMul(cc[3], SkGetPackedG32(c3));
     SkScalar b = SkScalarMul(cc[0], SkGetPackedB32(c0)) + SkScalarMul(cc[1], SkGetPackedB32(c1)) + SkScalarMul(cc[2], SkGetPackedB32(c2)) + SkScalarMul(cc[3], SkGetPackedB32(c3));
-    return SkPackARGB32(SkScalarRoundToInt(a), 
-                        SkScalarRoundToInt(SkScalarClampMax(r, a)), 
-                        SkScalarRoundToInt(SkScalarClampMax(g, a)), 
+    return SkPackARGB32(SkScalarRoundToInt(a),
+                        SkScalarRoundToInt(SkScalarClampMax(r, a)),
+                        SkScalarRoundToInt(SkScalarClampMax(g, a)),
                         SkScalarRoundToInt(SkScalarClampMax(b, a)));
 }
 

@@ -136,7 +136,7 @@
       '<(skia_src_path)/gpu/effects/GrTextureDomainEffect.h',
       '<(skia_src_path)/gpu/effects/GrTextureStripAtlas.cpp',
       '<(skia_src_path)/gpu/effects/GrTextureStripAtlas.h',
-      
+
       '<(skia_src_path)/gpu/gl/GrGLBufferImpl.cpp',
       '<(skia_src_path)/gpu/gl/GrGLBufferImpl.h',
       '<(skia_src_path)/gpu/gl/GrGLCaps.cpp',

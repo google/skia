@@ -142,7 +142,7 @@ bool GrDrawState::validateVertexAttribs() const {
     }
 
     // sentinel to make sure effects don't try to use built-in attributes
-    static const int kBuiltInAttributeType = 10000; 
+    static const int kBuiltInAttributeType = 10000;
 
     // check our built-in indices
     if (fAttribIndices[kPosition_AttribIndex] >= kVertexAttribCnt) {
@@ -177,7 +177,7 @@ bool GrDrawState::validateVertexAttribs() const {
     }
 
     // now those set by effects
-    for (int s = 0; s < kNumStages; ++s) { 
+    for (int s = 0; s < kNumStages; ++s) {
         const GrEffectStage& stage = fStages[s];
         const GrEffectRef* effect = stage.getEffect();
         if (effect == NULL) {
@@ -199,7 +199,7 @@ bool GrDrawState::validateVertexAttribs() const {
             }
 
             GrSLType attributeType = effect->get()->vertexAttribType(i);
-            if (attributeTypes[attributeIndex] != -1 && 
+            if (attributeTypes[attributeIndex] != -1 &&
                 attributeTypes[attributeIndex] != attributeType) {
                 return false;
             }

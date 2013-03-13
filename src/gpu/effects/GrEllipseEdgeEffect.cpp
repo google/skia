@@ -30,12 +30,12 @@ public:
 
         const SkString* attrName = builder->getEffectAttributeName(stage.getVertexAttribIndices()[0]);
         builder->vsCodeAppendf("\t%s = %s;\n", vsName, attrName->c_str());
-        
+
         builder->fsCodeAppend("\tfloat edgeAlpha;\n");
         // translate to origin
         builder->fsCodeAppendf("\tvec2 offset = (%s.xy - %s.xy);\n", builder->fragmentPosition(), fsName);
         // scale y by xRadius/yRadius
-        builder->fsCodeAppendf("\toffset.y *= %s.w;\n", fsName);  
+        builder->fsCodeAppendf("\toffset.y *= %s.w;\n", fsName);
         builder->fsCodeAppend("\tfloat d = length(offset);\n");
         // compare length against xRadius
         builder->fsCodeAppendf("\tedgeAlpha = smoothstep(d - 0.5, d + 0.5, %s.z);\n", fsName);
