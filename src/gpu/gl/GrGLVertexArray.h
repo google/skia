@@ -62,7 +62,8 @@ public:
     void notifyVertexBufferDelete(GrGLuint id) {
         int count = fAttribArrayStates.count();
         for (int i = 0; i < count; ++i) {
-            if (id == fAttribArrayStates[i].fVertexBufferID) {
+            if (fAttribArrayStates[i].fAttribPointerIsValid &&
+                id == fAttribArrayStates[i].fVertexBufferID) {
                 fAttribArrayStates[i].invalidate();
             }
         }
