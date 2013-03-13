@@ -46,7 +46,7 @@ public:
         static const EffectKey kIllegalAttribKeyMask = (uint16_t) (~((1U << kAttribKeyBits) - 1));
         GrAssert(!(kIllegalAttribKeyMask & textureKey));
 #endif
-        return fEffectClassID | (attribKey << (kEffectKeyBits+kTextureKeyBits)) | 
+        return fEffectClassID | (attribKey << (kEffectKeyBits+kTextureKeyBits)) |
                (textureKey << kEffectKeyBits) | effectKey;
     }
 

@@ -1131,8 +1131,8 @@ void GrContext::internalDrawOval(const GrPaint& paint,
         drawState->setAttribBindings(GrDrawState::kDefault_AttribBindings);
 
         enum {
-            // the edge effects share this stage with glyph rendering 
-            // (kGlyphMaskStage in GrTextContext) && SW path rendering 
+            // the edge effects share this stage with glyph rendering
+            // (kGlyphMaskStage in GrTextContext) && SW path rendering
             // (kPathMaskStage in GrSWMaskHelper)
             kEdgeEffectStage = GrPaint::kTotalStages,
         };

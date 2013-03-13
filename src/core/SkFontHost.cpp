@@ -46,5 +46,3 @@ SkFontHost::LCDOrder SkFontHost::GetSubpixelOrder() {
 void SkFontHost::SetSubpixelOrder(LCDOrder order) {
     SkFontLCDConfig::SetSubpixelOrder((SkFontLCDConfig::LCDOrder)order);
 }
-
-

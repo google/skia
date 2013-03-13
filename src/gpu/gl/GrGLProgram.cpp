@@ -1013,7 +1013,7 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& buil
     }
 
     const GrGLShaderBuilder::AttributePair* attribEnd = builder.getEffectAttributes().end();
-    for (const GrGLShaderBuilder::AttributePair* attrib = builder.getEffectAttributes().begin(); 
+    for (const GrGLShaderBuilder::AttributePair* attrib = builder.getEffectAttributes().begin();
          attrib != attribEnd;
          ++attrib) {
          GL_CALL(BindAttribLocation(fProgramID, attrib->fIndex, attrib->fName.c_str()));

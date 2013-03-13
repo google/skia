@@ -145,8 +145,8 @@ public:
                 return false;
             }
 
-            if (!(*stage.getEffect())->isEqual(*fEffect)) {	
-                return false;	
+            if (!(*stage.getEffect())->isEqual(*fEffect)) {
+                return false;
             }
 
             return fCoordChangeMatrix == stage.fCoordChangeMatrix;

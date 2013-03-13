@@ -177,15 +177,15 @@ public:
 
 protected:
     /**
-     * Subclasses call this from their constructor to register GrTextureAccesses. The effect 
-     * subclass manages the lifetime of the accesses (this function only stores a pointer). This 
+     * Subclasses call this from their constructor to register GrTextureAccesses. The effect
+     * subclass manages the lifetime of the accesses (this function only stores a pointer). This
      * must only be called from the constructor because GrEffects are immutable.
      */
     void addTextureAccess(const GrTextureAccess* textureAccess);
 
     /**
-     * Subclasses call this from their constructor to register vertex attributes (at most 
-     * kMaxVertexAttribs). This must only be called from the constructor because GrEffects are 
+     * Subclasses call this from their constructor to register vertex attributes (at most
+     * kMaxVertexAttribs). This must only be called from the constructor because GrEffects are
      * immutable.
      */
     void addVertexAttrib(GrSLType type);

@@ -19,8 +19,8 @@
 #include "SkStrokeRec.h"
 
 enum {
-    // glyph rendering shares this stage with edge rendering 
-    // (kEdgeEffectStage in GrContext) && SW path rendering 
+    // glyph rendering shares this stage with edge rendering
+    // (kEdgeEffectStage in GrContext) && SW path rendering
     // (kPathMaskStage in GrSWMaskHelper)
     kGlyphMaskStage = GrPaint::kTotalStages,
 };
