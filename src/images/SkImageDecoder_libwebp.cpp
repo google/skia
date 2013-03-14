@@ -560,7 +560,7 @@ bool SkWEBPImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bm,
                         pic.width, colors);
     }
 
-    bool ok = (bool) WebPPictureImportRGB(&pic, rgb, rgbStride);
+    bool ok = SkToBool(WebPPictureImportRGB(&pic, rgb, rgbStride));
     delete[] rgb;
 
     ok = ok && WebPEncode(&webp_config, &pic);
