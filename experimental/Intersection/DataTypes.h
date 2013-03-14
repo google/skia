@@ -12,7 +12,7 @@
 
 #include "SkPoint.h"
 
-#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging
+#define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging
 #define ONE_OFF_DEBUG 0
 #define ONE_OFF_DEBUG_MATHEMATICA 0
 
@@ -43,7 +43,7 @@ const double FLT_EPSILON_SQUARED = FLT_EPSILON * FLT_EPSILON;
 const double FLT_EPSILON_SQRT = sqrt(FLT_EPSILON);
 const double FLT_EPSILON_INVERSE = 1 / FLT_EPSILON;
 const double DBL_EPSILON_ERR = DBL_EPSILON * 4; // tune -- allow a few bits of error
-const double ROUGH_EPSILON = FLT_EPSILON * 32;
+const double ROUGH_EPSILON = FLT_EPSILON * 64;
 const double MORE_ROUGH_EPSILON = FLT_EPSILON * 256;
 
 inline bool approximately_zero(double x) {

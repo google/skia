@@ -90,7 +90,7 @@ void Intersections::insertCoincidentPair(double s1, double e1, double s2, double
 }
 
 int Intersections::insert(double one, double two, const _Point& pt) {
-    SkASSERT(fUsed <= 1 || fT[0][0] < fT[0][1]);
+    SkASSERT(fUsed <= 1 || fT[0][0] <= fT[0][1]);
     int index;
     for (index = 0; index < fUsed; ++index) {
         double oldOne = fT[0][index];

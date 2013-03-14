@@ -136,6 +136,9 @@ static const Cubic testSet[] = {
 const size_t testSetCount = sizeof(testSet) / sizeof(testSet[0]);
 
 static const Cubic newTestSet[] = {
+{{1,3}, {5,6}, {5,3}, {5,4}},
+{{3,5}, {4,5}, {3,1}, {6,5}},
+
 {{0,5}, {0,5}, {5,4}, {6,4}},
 {{4,5}, {4,6}, {5,0}, {5,0}},
 
@@ -703,12 +706,13 @@ static void intersectionFinder(int index0, int index1, double t1Seed, double t2S
 
 void CubicIntersection_IntersectionFinder() {
 
-    double t1Seed = 0.5;
-    double t2Seed = 0.3;
-    double t1Step = 0.1;
-    double t2Step = 0.1;
- if (false)  intersectionFinder(0, 1, t1Seed, t2Seed, t1Step, t2Step);
-    intersectionFinder(1, 0, .3, .5, t1Step, t2Step);
+ //   double t1Seed = 0.87;
+ //   double t2Seed = 0.87;
+    double t1Step = 0.000001;
+    double t2Step = 0.000001;
+    intersectionFinder(0, 1, 0.855895664, 0.864850875, t1Step, t2Step);
+    intersectionFinder(0, 1, 0.865207906, 0.865207887, t1Step, t2Step);
+    intersectionFinder(0, 1, 0.865213351, 0.865208087, t1Step, t2Step);
 }
 
 static void coincidentTest() {
