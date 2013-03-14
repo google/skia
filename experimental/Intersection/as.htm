@@ -3447,11 +3447,177 @@ debugShowActiveSpans id=3 (2,3 1,6 2,1 5,0) t=0 (2,3) tEnd=0.5 other=4 otherT=1 
 debugShowActiveSpans id=3 (2,3 1,6 2,1 5,0) t=0 (2,3) tEnd=0.5 other=1 otherT=0.5 otherIndex=1 windSum=? windValue=1 oppValue=0
 </div>
 
+<div id="cubicOp62d">
+  SimplifyNew_Test [cubicOp62d]
+{{1,3}, {5,6}, {5,3}, {5,4}},
+{{5,4}, {1,3}},
+op difference
+{{3,5}, {4,5}, {3,1}, {6,5}},
+{{6,5}, {3,5}},
+debugShowCubicIntersection no self intersect {{1,3}, {5,6}, {5,3}, {5,4}}
+debugShowCubicLineIntersection wtTs[0]=0 {{1,3}, {5,6}, {5,3}, {5,4}} {{1,3}} wtTs[1]=0.666666667 {{4.8518518518518512,3.9629629629629628}} wtTs[2]=1 {{5,4}} wnTs[0]=1 {{5,4}, {1,3}} wnTs[1]=0.037037037 wnTs[2]=0
+debugShowCubicIntersection wtTs[0]=0.278899971 {{1,3}, {5,6}, {5,3}, {5,4}} {{3.5001544800676263,4.3269091333431628}} wtTs[1]=0.855895664 {{4.9880300830066844,3.7869549154423883}} wtTs[2]=0.865207906 {{4.9902038991416013,3.7891603690182212}} wtTs[3]=0.865213351 {{4.9902050861407137,3.789162057358868}} wnTs[0]=0.2789 {{3,5}, {4,5}, {3,1}, {6,5}} wnTs[1]=0.864850875 wnTs[2]=0.865207887 wnTs[3]=0.865208087
+debugShowCubicLineIntersection wtTs[0]=0.448187637 {{3,5}, {4,5}, {3,1}, {6,5}} {{3.6795004703683416,3.6698751175920856}} wnTs[0]=0.330125 {{5,4}, {1,3}}
+debugShowCubicIntersection no self intersect {{3,5}, {4,5}, {3,1}, {6,5}}
+debugShowCubicLineIntersection wtTs[0]=0 {{3,5}, {4,5}, {3,1}, {6,5}} {{3,5}} wtTs[1]=1 {{6,5}} wnTs[0]=1 {{6,5}, {3,5}} wnTs[1]=0
+debugShowActiveSpans id=1 (1,3 5,6 5,3 5,4) t=0 (1,3) tEnd=0.278899971 other=2 otherT=1 otherIndex=3 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=1 (1,3 5,6 5,3 5,4) t=0.278899971 (3.5001545,4.32690907) tEnd=0.666666667 other=3 otherT=0.278899971 otherIndex=1 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=1 (1,3 5,6 5,3 5,4) t=0.666666667 (4.85185194,3.96296287) tEnd=0.855895664 other=2 otherT=0.037037037 otherIndex=1 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=1 (1,3 5,6 5,3 5,4) t=0.855895664 (4.98802996,3.78695488) tEnd=0.865207906 other=3 otherT=0.864850875 otherIndex=3 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=1 (1,3 5,6 5,3 5,4) t=0.865207906 (4.99020386,3.78916025) tEnd=0.865213351 other=3 otherT=0.865207887 otherIndex=4 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=1 (1,3 5,6 5,3 5,4) t=0.865213351 (4.99020529,3.78916216) tEnd=1 other=3 otherT=0.865208087 otherIndex=5 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=2 (5,4 1,3) t=0 (5,4) tEnd=0.037037037 other=1 otherT=1 otherIndex=6 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=2 (5,4 1,3) t=0.037037037 (4.85185194,3.96296287) tEnd=0.330124882 other=1 otherT=0.666666667 otherIndex=2 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=2 (5,4 1,3) t=0.330124882 (3.67950058,3.66987514) tEnd=1 other=3 otherT=0.448187637 otherIndex=2 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=3 (3,5 4,5 3,1 6,5) t=0 (3,5) tEnd=0.278899971 other=4 otherT=1 otherIndex=1 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=3 (3,5 4,5 3,1 6,5) t=0.278899971 (3.5001545,4.32690907) tEnd=0.448187637 other=1 otherT=0.278899971 otherIndex=1 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=3 (3,5 4,5 3,1 6,5) t=0.448187637 (3.67950058,3.66987514) tEnd=0.864850875 other=2 otherT=0.330124882 otherIndex=2 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=3 (3,5 4,5 3,1 6,5) t=0.864850875 (4.98802996,3.78695488) tEnd=0.865207887 other=1 otherT=0.855895664 otherIndex=3 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=3 (3,5 4,5 3,1 6,5) t=0.865207887 (4.99020386,3.78916025) tEnd=0.865208087 other=1 otherT=0.865207906 otherIndex=4 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=3 (3,5 4,5 3,1 6,5) t=0.865208087 (4.99020529,3.78916216) tEnd=1 other=1 otherT=0.865213351 otherIndex=5 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=4 (6,5 3,5) t=0 (6,5) tEnd=1 other=3 otherT=1 otherIndex=6 windSum=? windValue=1 oppValue=0
+findTop debugShowSort contourWinding=0 oppContourWinding=0 sign=-1
+debugShowSort [0] {{1,3}, {5,6}, {5,3}, {5,4}} tStart=0 tEnd=0.278899971 sign=-1 windValue=1 windSum=? 0->1 (max=1) done=0 tiny=0 opp=0
+debugShowSort [1] {{5,4}, {1,3}} tStart=1 tEnd=0.330124882 sign=1 windValue=1 windSum=? 1->0 (max=1) done=0 tiny=0 opp=0
+markWinding id=1 (1,3 5,6 5,3 5,4) t=0 [0] (1,3) tEnd=0.278899971 newWindSum=1 newOppSum=0 oppSum=? windSum=? windValue=1
+markWinding id=2 (5,4 1,3) t=0.330124882 [2] (3.67950058,3.66987514) tEnd=1 newWindSum=1 newOppSum=0 oppSum=? windSum=? windValue=1
+markWinding id=1 (1,3 5,6 5,3 5,4) t=0 [0] (1,3) tEnd=0.278899971 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1
+activeOp op=diff miFrom=1 miTo=0 suFrom=0 suTo=0 result=1
+findNextOp simple
+markDoneBinary id=1 (1,3 5,6 5,3 5,4) t=0 [0] (1,3) tEnd=0.278899971 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1
+bridgeOp current id=1 from=(3.5001545,4.32690907) to=(1,3)
+path.moveTo(3.5001545,4.32690907);
+path.cubicTo(2.92005897,4.20668888, 2.11559987,3.83669996, 1,3);
+findNextOp debugShowSort contourWinding=0 oppContourWinding=0 sign=-1
+debugShowSort [1] {{5,4}, {1,3}} tStart=0.330124882 tEnd=1 sign=-1 windValue=1 windSum=1 0->1 (max=1) done=0 tiny=0 opp=0
+debugShowSort [2] {{3,5}, {4,5}, {3,1}, {6,5}} tStart=0.448187637 tEnd=0.278899971 sign=1 windValue=1 windSum=? 0->-1 (max=-1) done=0 tiny=0 opp=1
+debugShowSort [3] {{5,4}, {1,3}} tStart=0.330124882 tEnd=0.037037037 sign=1 windValue=1 windSum=? 1->0 (max=1) done=0 tiny=0 opp=0
+debugShowSort [0] {{3,5}, {4,5}, {3,1}, {6,5}} tStart=0.448187637 tEnd=0.864850875 sign=-1 windValue=1 windSum=? -1->0 (max=-1) done=0 tiny=0 opp=1
+findNextOp firstIndex=[1] sign=-1
+activeOp op=diff miFrom=1 miTo=1 suFrom=0 suTo=1 result=1
+markWinding id=3 (3,5 4,5 3,1 6,5) t=0.278899971 [1] (3.5001545,4.32690907) tEnd=0.448187637 newWindSum=-1 newOppSum=1 oppSum=? windSum=? windValue=1
+findNextOp chase.append id=3
+activeOp op=diff miFrom=1 miTo=0 suFrom=1 suTo=1 result=0
+markDoneBinary id=2 (5,4 1,3) t=0.037037037 [1] (4.85185194,3.96296287) tEnd=0.330124882 newWindSum=1 newOppSum=-1 oppSum=? windSum=? windValue=1
+findNextOp chase.append id=2
+activeOp op=diff miFrom=0 miTo=0 suFrom=1 suTo=0 result=0
+markDoneBinary id=3 (3,5 4,5 3,1 6,5) t=0.448187637 [2] (3.67950058,3.66987514) tEnd=0.864850875 newWindSum=-1 newOppSum=0 oppSum=? windSum=? windValue=1
+findNextOp chase.append id=3
+markDoneBinary id=2 (5,4 1,3) t=0.330124882 [2] (3.67950058,3.66987514) tEnd=1 newWindSum=1 newOppSum=0 oppSum=0 windSum=1 windValue=1
+findNextOp from:[2] to:[3] start=2 end=1
+bridgeOp current id=2 from=(1,3) to=(3.67950058,3.66987514)
+findNextOp debugShowSort contourWinding=-1 oppContourWinding=1 sign=-1
+debugShowSort [0] {{3,5}, {4,5}, {3,1}, {6,5}} tStart=0.278899971 tEnd=0.448187637 sign=-1 windValue=1 windSum=-1 -1->0 (max=-1) done=0 tiny=0 opp=0
+debugShowSort [1] {{1,3}, {5,6}, {5,3}, {5,4}} tStart=0.278899971 tEnd=0 sign=1 windValue=1 windSum=1 1->0 (max=1) done=1 tiny=0 opp=1
+debugShowSort [2] {{3,5}, {4,5}, {3,1}, {6,5}} tStart=0.278899971 tEnd=0 sign=1 windValue=1 windSum=? 0->-1 (max=-1) done=0 tiny=0 opp=0
+debugShowSort [3] {{1,3}, {5,6}, {5,3}, {5,4}} tStart=0.278899971 tEnd=0.666666667 sign=-1 windValue=1 windSum=? 0->1 (max=1) done=0 tiny=0 opp=1
+findNextOp firstIndex=[0] sign=-1
+activeOp op=diff miFrom=1 miTo=0 suFrom=0 suTo=0 result=1
+activeOp op=diff miFrom=0 miTo=0 suFrom=0 suTo=1 result=0
+markDoneBinary id=3 (3,5 4,5 3,1 6,5) t=0 [0] (3,5) tEnd=0.278899971 newWindSum=-1 newOppSum=0 oppSum=? windSum=? windValue=1
+markDoneBinary id=4 (6,5 3,5) t=0 [0] (6,5) tEnd=1 newWindSum=-1 newOppSum=0 oppSum=? windSum=? windValue=1
+markDoneBinary id=3 (3,5 4,5 3,1 6,5) t=0.865208087 [5] (4.99020529,3.78916216) tEnd=1 newWindSum=-1 newOppSum=0 oppSum=? windSum=? windValue=1
+findNextOp chase.append id=3
+activeOp op=diff miFrom=0 miTo=1 suFrom=1 suTo=1 result=0
+markDoneBinary id=1 (1,3 5,6 5,3 5,4) t=0.278899971 [1] (3.5001545,4.32690907) tEnd=0.666666667 newWindSum=1 newOppSum=-1 oppSum=? windSum=? windValue=1
+findNextOp chase.append id=1
+markDoneBinary id=3 (3,5 4,5 3,1 6,5) t=0.278899971 [1] (3.5001545,4.32690907) tEnd=0.448187637 newWindSum=-1 newOppSum=1 oppSum=1 windSum=-1 windValue=1
+findNextOp from:[3] to:[1] start=1 end=0
+bridgeOp current id=3 from=(3.67950058,3.66987514) to=(3.5001545,4.32690907)
+path.lineTo(3.67950058,3.66987514);
+path.cubicTo(3.60967231,3.86879396, 3.5595932,4.10721159, 3.5001545,4.32690907);
+path.close();
+findChaseOp debugShowSort contourWinding=? oppContourWinding=? sign=-1
+debugShowSort [0] {{1,3}, {5,6}, {5,3}, {5,4}} tStart=0.666666667 tEnd=0.855895664 sign=-1 windValue=1 windSum=? ?->? (max=?) done=0 tiny=0 opp=0
+debugShowSort [1] {{5,4}, {1,3}} tStart=0.037037037 tEnd=0.330124882 sign=-1 windValue=1 windSum=1 ?->? (max=?) done=1 tiny=0 opp=0
+debugShowSort [2] {{1,3}, {5,6}, {5,3}, {5,4}} tStart=0.666666667 tEnd=0.278899971 sign=1 windValue=1 windSum=1 ?->? (max=?) done=1 tiny=0 opp=0
+debugShowSort [3] {{5,4}, {1,3}} tStart=0.037037037 tEnd=0 sign=1 windValue=1 windSum=? ?->? (max=?) done=0 tiny=0 opp=0
+findChaseOp debugShowSort contourWinding=0 oppContourWinding=-1 sign=-1
+debugShowSort [1] {{5,4}, {1,3}} tStart=0.037037037 tEnd=0.330124882 sign=-1 windValue=1 windSum=1 0->1 (max=1) done=1 tiny=0 opp=0
+debugShowSort [2] {{1,3}, {5,6}, {5,3}, {5,4}} tStart=0.666666667 tEnd=0.278899971 sign=1 windValue=1 windSum=1 1->0 (max=1) done=1 tiny=0 opp=0
+debugShowSort [3] {{5,4}, {1,3}} tStart=0.037037037 tEnd=0 sign=1 windValue=1 windSum=? 0->-1 (max=-1) done=0 tiny=0 opp=0
+debugShowSort [0] {{1,3}, {5,6}, {5,3}, {5,4}} tStart=0.666666667 tEnd=0.855895664 sign=-1 windValue=1 windSum=? -1->0 (max=-1) done=0 tiny=0 opp=0
+markWinding id=2 (5,4 1,3) t=0 [0] (5,4) tEnd=0.037037037 newWindSum=-1 newOppSum=-1 oppSum=? windSum=? windValue=1
+markWinding id=1 (1,3 5,6 5,3 5,4) t=0.865213351 [5] (4.99020529,3.78916216) tEnd=1 newWindSum=-1 newOppSum=-1 oppSum=? windSum=? windValue=1
+markWinding id=1 (1,3 5,6 5,3 5,4) t=0.666666667 [2] (4.85185194,3.96296287) tEnd=0.855895664 newWindSum=-1 newOppSum=-1 oppSum=? windSum=? windValue=1
+debugShowActiveSpans id=1 (1,3 5,6 5,3 5,4) t=0.666666667 (4.85185194,3.96296287) tEnd=0.855895664 other=2 otherT=0.037037037 otherIndex=1 windSum=-1 windValue=1 oppValue=0
+debugShowActiveSpans id=1 (1,3 5,6 5,3 5,4) t=0.855895664 (4.98802996,3.78695488) tEnd=0.865207906 other=3 otherT=0.864850875 otherIndex=3 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=1 (1,3 5,6 5,3 5,4) t=0.865207906 (4.99020386,3.78916025) tEnd=0.865213351 other=3 otherT=0.865207887 otherIndex=4 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=1 (1,3 5,6 5,3 5,4) t=0.865213351 (4.99020529,3.78916216) tEnd=1 other=3 otherT=0.865208087 otherIndex=5 windSum=-1 windValue=1 oppValue=0
+debugShowActiveSpans id=2 (5,4 1,3) t=0 (5,4) tEnd=0.037037037 other=1 otherT=1 otherIndex=6 windSum=-1 windValue=1 oppValue=0
+debugShowActiveSpans id=3 (3,5 4,5 3,1 6,5) t=0.864850875 (4.98802996,3.78695488) tEnd=0.865207887 other=1 otherT=0.855895664 otherIndex=3 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=3 (3,5 4,5 3,1 6,5) t=0.865207887 (4.99020386,3.78916025) tEnd=0.865208087 other=1 otherT=0.865207906 otherIndex=4 windSum=? windValue=1 oppValue=0
+activeOp op=diff miFrom=0 miTo=1 suFrom=1 suTo=1 result=0
+markDoneBinary id=2 (5,4 1,3) t=0 [0] (5,4) tEnd=0.037037037 newWindSum=-1 newOppSum=-1 oppSum=-1 windSum=-1 windValue=1
+markDoneBinary id=1 (1,3 5,6 5,3 5,4) t=0.865213351 [5] (4.99020529,3.78916216) tEnd=1 newWindSum=-1 newOppSum=-1 oppSum=-1 windSum=-1 windValue=1
+findChaseOp debugShowSort contourWinding=? oppContourWinding=? sign=1
+debugShowSort [0] {{1,3}, {5,6}, {5,3}, {5,4}} tStart=0.865213351 tEnd=0.865207906 sign=1 windValue=1 windSum=? ?->? (max=?) done=0 tiny=0 opp=0
+debugShowSort [1] {{3,5}, {4,5}, {3,1}, {6,5}} tStart=0.865208087 tEnd=0.865207887 sign=1 windValue=1 windSum=? ?->? (max=?) done=0 tiny=0 opp=1
+debugShowSort [2] {{1,3}, {5,6}, {5,3}, {5,4}} tStart=0.865213351 tEnd=1 sign=-1 windValue=1 windSum=-1 ?->? (max=?) done=1 tiny=0 opp=0
+debugShowSort [3] {{3,5}, {4,5}, {3,1}, {6,5}} tStart=0.865208087 tEnd=1 sign=-1 windValue=1 windSum=-1 ?->? (max=?) done=1 tiny=0 opp=1
+findChaseOp debugShowSort contourWinding=-1 oppContourWinding=-1 sign=-1
+debugShowSort [2] {{1,3}, {5,6}, {5,3}, {5,4}} tStart=0.865213351 tEnd=1 sign=-1 windValue=1 windSum=-1 -1->0 (max=-1) done=1 tiny=0 opp=0
+debugShowSort [3] {{3,5}, {4,5}, {3,1}, {6,5}} tStart=0.865208087 tEnd=1 sign=-1 windValue=1 windSum=-1 -1->0 (max=-1) done=1 tiny=0 opp=1
+debugShowSort [0] {{1,3}, {5,6}, {5,3}, {5,4}} tStart=0.865213351 tEnd=0.865207906 sign=1 windValue=1 windSum=? 0->-1 (max=-1) done=0 tiny=0 opp=0
+debugShowSort [1] {{3,5}, {4,5}, {3,1}, {6,5}} tStart=0.865208087 tEnd=0.865207887 sign=1 windValue=1 windSum=? 0->-1 (max=-1) done=0 tiny=0 opp=1
+markWinding id=1 (1,3 5,6 5,3 5,4) t=0.865207906 [4] (4.99020386,3.78916025) tEnd=0.865213351 newWindSum=-1 newOppSum=0 oppSum=? windSum=? windValue=1
+markWinding id=3 (3,5 4,5 3,1 6,5) t=0.865207887 [4] (4.99020386,3.78916025) tEnd=0.865208087 newWindSum=-1 newOppSum=-1 oppSum=? windSum=? windValue=1
+debugShowActiveSpans id=1 (1,3 5,6 5,3 5,4) t=0.666666667 (4.85185194,3.96296287) tEnd=0.855895664 other=2 otherT=0.037037037 otherIndex=1 windSum=-1 windValue=1 oppValue=0
+debugShowActiveSpans id=1 (1,3 5,6 5,3 5,4) t=0.855895664 (4.98802996,3.78695488) tEnd=0.865207906 other=3 otherT=0.864850875 otherIndex=3 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=1 (1,3 5,6 5,3 5,4) t=0.865207906 (4.99020386,3.78916025) tEnd=0.865213351 other=3 otherT=0.865207887 otherIndex=4 windSum=-1 windValue=1 oppValue=0
+debugShowActiveSpans id=3 (3,5 4,5 3,1 6,5) t=0.864850875 (4.98802996,3.78695488) tEnd=0.865207887 other=1 otherT=0.855895664 otherIndex=3 windSum=? windValue=1 oppValue=0
+debugShowActiveSpans id=3 (3,5 4,5 3,1 6,5) t=0.865207887 (4.99020386,3.78916025) tEnd=0.865208087 other=1 otherT=0.865207906 otherIndex=4 windSum=-1 windValue=1 oppValue=0
+activeOp op=diff miFrom=0 miTo=1 suFrom=0 suTo=0 result=1
+findNextOp debugShowSort contourWinding=-1 oppContourWinding=0 sign=-1
+debugShowSort [2] {{1,3}, {5,6}, {5,3}, {5,4}} tStart=0.865207906 tEnd=0.865213351 sign=-1 windValue=1 windSum=-1 -1->0 (max=-1) done=0 tiny=0 opp=0
+debugShowSort [3] {{3,5}, {4,5}, {3,1}, {6,5}} tStart=0.865207887 tEnd=0.865208087 sign=-1 windValue=1 windSum=-1 0->1 (max=1) done=0 tiny=0 opp=1
+debugShowSort [0] {{1,3}, {5,6}, {5,3}, {5,4}} tStart=0.865207906 tEnd=0.855895664 sign=1 windValue=1 windSum=? 0->-1 (max=-1) done=0 tiny=0 opp=0
+debugShowSort [1] {{3,5}, {4,5}, {3,1}, {6,5}} tStart=0.865207887 tEnd=0.864850875 sign=1 windValue=1 windSum=? 1->0 (max=1) done=0 tiny=0 opp=1
+findNextOp firstIndex=[2] sign=-1
+activeOp op=diff miFrom=0 miTo=0 suFrom=0 suTo=1 result=0
+activeOp op=diff miFrom=0 miTo=1 suFrom=1 suTo=1 result=0
+markDoneBinary id=1 (1,3 5,6 5,3 5,4) t=0.855895664 [3] (4.98802996,3.78695488) tEnd=0.865207906 newWindSum=-1 newOppSum=1 oppSum=? windSum=? windValue=1
+findNextOp chase.append id=1
+activeOp op=diff miFrom=1 miTo=1 suFrom=1 suTo=0 result=1
+markWinding id=3 (3,5 4,5 3,1 6,5) t=0.864850875 [3] (4.98802996,3.78695488) tEnd=0.865207887 newWindSum=1 newOppSum=-1 oppSum=? windSum=? windValue=1
+findNextOp chase.append id=3
+markDoneBinary id=1 (1,3 5,6 5,3 5,4) t=0.865207906 [4] (4.99020386,3.78916025) tEnd=0.865213351 newWindSum=-1 newOppSum=0 oppSum=0 windSum=-1 windValue=1
+findNextOp from:[1] to:[3] start=4 end=3
+bridgeOp current id=1 from=(4.99020529,3.78916216) to=(4.99020386,3.78916025)
+path.moveTo(4.99020529,3.78916216);
+path.cubicTo(4.99020433,3.78916144, 4.99020433,3.78916097, 4.99020386,3.78916025);
+findNextOp debugShowSort contourWinding=0 oppContourWinding=-1 sign=-1
+debugShowSort [2] {{3,5}, {4,5}, {3,1}, {6,5}} tStart=0.864850875 tEnd=0.865207887 sign=-1 windValue=1 windSum=1 0->1 (max=1) done=0 tiny=0 opp=0
+debugShowSort [3] {{1,3}, {5,6}, {5,3}, {5,4}} tStart=0.855895664 tEnd=0.865207906 sign=-1 windValue=1 windSum=-1 -1->0 (max=-1) done=1 tiny=0 opp=1
+debugShowSort [0] {{3,5}, {4,5}, {3,1}, {6,5}} tStart=0.864850875 tEnd=0.448187637 sign=1 windValue=1 windSum=-1 1->0 (max=1) done=1 tiny=0 opp=0
+debugShowSort [1] {{1,3}, {5,6}, {5,3}, {5,4}} tStart=0.855895664 tEnd=0.666666667 sign=1 windValue=1 windSum=-1 0->-1 (max=-1) done=0 tiny=0 opp=1
+findNextOp firstIndex=[2] sign=-1
+activeOp op=diff miFrom=1 miTo=0 suFrom=1 suTo=1 result=0
+activeOp op=diff miFrom=0 miTo=0 suFrom=1 suTo=0 result=0
+activeOp op=diff miFrom=0 miTo=1 suFrom=0 suTo=0 result=1
+markDoneBinary id=3 (3,5 4,5 3,1 6,5) t=0.864850875 [3] (4.98802996,3.78695488) tEnd=0.865207887 newWindSum=1 newOppSum=-1 oppSum=-1 windSum=1 windValue=1
+findNextOp from:[3] to:[1] start=3 end=2
+bridgeOp current id=3 from=(4.99020386,3.78916025) to=(4.98802996,3.78695488)
+path.cubicTo(4.98947859,3.78842425, 4.98875427,3.78768921, 4.98802996,3.78695488);
+findNextOp debugShowSort contourWinding=-1 oppContourWinding=-1 sign=-1
+debugShowSort [0] {{1,3}, {5,6}, {5,3}, {5,4}} tStart=0.666666667 tEnd=0.855895664 sign=-1 windValue=1 windSum=-1 -1->0 (max=-1) done=0 tiny=0 opp=0
+debugShowSort [1] {{5,4}, {1,3}} tStart=0.037037037 tEnd=0.330124882 sign=-1 windValue=1 windSum=1 0->1 (max=1) done=1 tiny=0 opp=0
+debugShowSort [2] {{1,3}, {5,6}, {5,3}, {5,4}} tStart=0.666666667 tEnd=0.278899971 sign=1 windValue=1 windSum=1 1->0 (max=1) done=1 tiny=0 opp=0
+debugShowSort [3] {{5,4}, {1,3}} tStart=0.037037037 tEnd=0 sign=1 windValue=1 windSum=-1 0->-1 (max=-1) done=1 tiny=0 opp=0
+findNextOp firstIndex=[0] sign=-1
+activeOp op=diff miFrom=0 miTo=1 suFrom=1 suTo=1 result=0
+activeOp op=diff miFrom=1 miTo=0 suFrom=1 suTo=1 result=0
+activeOp op=diff miFrom=0 miTo=1 suFrom=1 suTo=1 result=0
+markDoneBinary id=1 (1,3 5,6 5,3 5,4) t=0.666666667 [2] (4.85185194,3.96296287) tEnd=0.855895664 newWindSum=-1 newOppSum=-1 oppSum=-1 windSum=-1 windValue=1
+path.cubicTo(4.97231197,3.77658033, 4.93595362,3.85783577, 4.85185194,3.96296287);
+</div>
+
 </div>
 
 <script type="text/javascript">
 
 var testDivs = [
+    cubicOp62d,
     cubicOp61d,
     cubicOp58da,
     cubicOp58d,
@@ -3707,8 +3873,8 @@ function construct_regexp2(pattern) {
     escape = escape.replace(/QUAD_VAL/g, "\\(P_VAL P_VAL P_VAL\\)");
     escape = escape.replace(/LINE_VAL/g, "\\(P_VAL P_VAL\\)");
     escape = escape.replace(/PT_VAL/g, "\\(P_VAL\\)");
-    escape = escape.replace(/P_VAL/g, "(-?\\d+\\.?\\d*e?-?\\d*),(-?\\d+\\.?\\d*e?-?\\d*)");
-    escape = escape.replace(/T_VAL/g, "(-?\\d+\\.?\\d*e?-?\\d*)");
+    escape = escape.replace(/P_VAL/g, "(-?\\d+\\.?\\d*(?:e-?\\d+)?),(-?\\d+\\.?\\d*(?:e-?\\d+)?)");
+    escape = escape.replace(/T_VAL/g, "(-?\\d+\\.?\\d*(?:e-?\\d+)?)");
     escape = escape.replace(/IDX/g, "(\\d+)");
     escape = escape.replace(/NUM/g, "(-?\\d+)");
     escape = escape.replace(/OPT/g, "(\\?|-?\\d+)");
@@ -3722,8 +3888,8 @@ function construct_regexp2c(pattern) {
     escape = escape.replace(/QUAD_VAL/g, "(?:\\$\\d = )?\\{\\{P_VAL\\}, \\{P_VAL\\}, \\{P_VAL\\}\\}");
     escape = escape.replace(/LINE_VAL/g, "(?:\\$\\d = )?\\{\\{P_VAL\\}, \\{P_VAL\\}\\}");
     escape = escape.replace(/PT_VAL/g, "\\{\\{P_VAL\\}\\}");
-    escape = escape.replace(/P_VAL/g, "(?:f?[xX] = )?(-?\\d+\\.?\\d*e?-?\\d*),(?: f?[yY] = )?(-?\\d+\\.?\\d*e?-?\\d*)");
-    escape = escape.replace(/T_VAL/g, "(-?\\d+\\.?\\d*e?-?\\d*)");
+    escape = escape.replace(/P_VAL/g, "(?:f?[xX] = )?(-?\\d+\\.?\\d*(?:e-?\\d+)?),(?: f?[yY] = )?(-?\\d+\\.?\\d*(?:e-?\\d+)?)");
+    escape = escape.replace(/T_VAL/g, "(-?\\d+\\.?\\d*(?:e-?\\d+)?)");
     escape = escape.replace(/IDX/g, "(\\d+)");
     escape = escape.replace(/NUM/g, "(-?\\d+)");
     escape = escape.replace(/OPT/g, "(\\?|-?\\d+)");

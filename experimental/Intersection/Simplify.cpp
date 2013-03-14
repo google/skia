@@ -2907,7 +2907,17 @@ public:
         SkASSERT(!done());
         int firstT = -1;
         /* SkPoint topPt = */ activeLeftTop(onlySortable, &firstT);
-        SkASSERT(firstT >= 0);
+        if (firstT < 0) {
+            unsortable = true;
+            firstT = 0;
+            while (fTs[firstT].fDone) {
+                SkASSERT(firstT < fTs.count());
+                ++firstT;
+            }
+            tIndex = firstT;
+            endIndex = nextExactSpan(firstT, 1);
+            return this;
+        }
         // sort the edges to find the leftmost
         int step = 1;
         int end = nextSpan(firstT, step);

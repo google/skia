@@ -4585,12 +4585,40 @@ static void cubicOp61d() {
     testShapeOp(path, pathB, kDifference_Op);
 }
 
-static void (*firstTest)() = cubicOp61d;
+static void cubicOp62d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(1,3);
+    path.cubicTo(5,6, 5,3, 5,4);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(3,5);
+    pathB.cubicTo(4,5, 3,1, 6,5);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void cubicOp63d() {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(2,3);
+    path.cubicTo(0,4, 3,2, 5,3);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(2,3);
+    pathB.cubicTo(3,5, 3,2, 4,0);
+    pathB.close();
+    testShapeOp(path, pathB, kDifference_Op);
+}
+
+static void (*firstTest)() = cubicOp63d;
 
 static struct {
     void (*fun)();
     const char* str;
 } tests[] = {
+    TEST(cubicOp63d),
+    TEST(cubicOp62d),
     TEST(cubicOp61d),
     TEST(cubicOp60d),
     TEST(cubicOp59d),
@@ -5035,7 +5063,7 @@ static void (*firstSubTest)() = 0;
 
 static bool skipAll = false;
 static bool runSubTestsFirst = false;
-static bool runReverse = false;
+static bool runReverse = true;
 static void (*stopTest)() = 0;
 
 void SimplifyNew_Test() {

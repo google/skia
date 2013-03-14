@@ -14,9 +14,14 @@
 #include "QuadraticUtilities.h"
 #include "TSearch.h"
 
+#if 0
+#undef ONE_OFF_DEBUG
+#define ONE_OFF_DEBUG 0
+#endif
+
 #if ONE_OFF_DEBUG
-static const double tLimits1[2][2] = {{0.328432751, 0.328433132}, {0.556114578, 0.55611496}};
-static const double tLimits2[2][2] = {{-0.83051487, -0.830515252}, {-0.860977985, -0.860978367}};
+static const double tLimits1[2][2] = {{0.865205808, 0.865215212}, {0.865207696, 0.865208078}};
+static const double tLimits2[2][2] = {{-0.865211397, -0.865215212}, {-0.865207696, -0.865208078}};
 #endif
 
 #define DEBUG_QUAD_PART 0
