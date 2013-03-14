@@ -1604,6 +1604,10 @@ SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
     return stream;
 }
 
+size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length, int32_t* index) {
+    return 0;
+}
+
 SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {
     return SkNEW_ARGS(SkScalerContext_Windows, (desc));
 }
