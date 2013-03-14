@@ -7,6 +7,7 @@
       'standalone_static_library': 1,
       'dependencies': [
         'libjpeg.gyp:*',
+        'libwebp.gyp:libwebp',
         'utils.gyp:utils',
       ],
       'export_dependent_settings': [
@@ -31,13 +32,17 @@
 
         '../src/images/bmpdecoderhelper.cpp',
         '../src/images/bmpdecoderhelper.h',
+
+        '../src/images/SkBitmapRegionDecoder.cpp',
+
         '../src/images/SkImageDecoder.cpp',
         '../src/images/SkImageDecoder_Factory.cpp',
-        '../src/images/SkImageDecoder_libjpeg.cpp',
         '../src/images/SkImageDecoder_libbmp.cpp',
         '../src/images/SkImageDecoder_libgif.cpp',
         '../src/images/SkImageDecoder_libico.cpp',
+        '../src/images/SkImageDecoder_libjpeg.cpp',
         '../src/images/SkImageDecoder_libpng.cpp',
+        '../src/images/SkImageDecoder_libwebp.cpp',
         '../src/images/SkImageDecoder_wbmp.cpp',
         '../src/images/SkImageEncoder.cpp',
         '../src/images/SkImageEncoder_Factory.cpp',

@@ -17,12 +17,15 @@
 
 class SkWBMPImageDecoder : public SkImageDecoder {
 public:
-    virtual Format getFormat() const {
+    virtual Format getFormat() const SK_OVERRIDE {
         return kWBMP_Format;
     }
 
 protected:
-    virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode);
+    virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode) SK_OVERRIDE;
+
+private:
+    typedef SkImageDecoder INHERITED;
 };
 
 static bool read_byte(SkStream* stream, uint8_t* data)
@@ -107,13 +110,20 @@ bool SkWBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* decodedBitmap,
 
     int width = head.fWidth;
     int height = head.fHeight;
+    
+    if (SkImageDecoder::kDecodeBounds_Mode == mode) {
+        decodedBitmap->setConfig(SkBitmap::kIndex8_Config, width, height);
+        decodedBitmap->setIsOpaque(true);
+        return true;
+    }
 
-    // assign these directly, in case we return kDimensions_Result
+    // No Bitmap reuse supported for this format
+    if (!decodedBitmap->isNull()) {
+        return false;
+    }
+
     decodedBitmap->setConfig(SkBitmap::kIndex8_Config, width, height);
     decodedBitmap->setIsOpaque(true);
-
-    if (SkImageDecoder::kDecodeBounds_Mode == mode)
-        return true;
 
     const SkPMColor colors[] = { SK_ColorBLACK, SK_ColorWHITE };
     SkColorTable* ct = SkNEW_ARGS(SkColorTable, (colors, 2));

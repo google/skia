@@ -12,10 +12,22 @@
 #include "SkPixelRef.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
+#include "SkCanvas.h"
 
 SK_DEFINE_INST_COUNT(SkImageDecoder::Peeker)
 SK_DEFINE_INST_COUNT(SkImageDecoder::Chooser)
 SK_DEFINE_INST_COUNT(SkImageDecoderFactory)
+
+const char *SkImageDecoder::sFormatName[] = {
+    "Unknown Format",
+    "BMP",
+    "GIF",
+    "ICO",
+    "JPEG",
+    "PNG",
+    "WBMP",
+    "WEBP",
+};
 
 static SkBitmap::Config gDeviceConfig = SkBitmap::kNo_Config;
 
@@ -34,7 +46,7 @@ void SkImageDecoder::SetDeviceConfig(SkBitmap::Config config)
 SkImageDecoder::SkImageDecoder()
     : fPeeker(NULL), fChooser(NULL), fAllocator(NULL), fSampleSize(1),
       fDefaultPref(SkBitmap::kNo_Config), fDitherImage(true),
-      fUsePrefTable(false) {
+      fUsePrefTable(false),fPreferQualityOverSpeed(false) {
 }
 
 SkImageDecoder::~SkImageDecoder() {
@@ -45,6 +57,11 @@ SkImageDecoder::~SkImageDecoder() {
 
 SkImageDecoder::Format SkImageDecoder::getFormat() const {
     return kUnknown_Format;
+}
+
+const char* SkImageDecoder::getFormatName() const {
+    SkASSERT(SK_ARRAY_COUNT(sFormatName) == kLastKnownFormat);
+    return sFormatName[this->getFormat()];
 }
 
 SkImageDecoder::Peeker* SkImageDecoder::setPeeker(Peeker* peeker) {
@@ -129,21 +146,76 @@ SkBitmap::Config SkImageDecoder::getPrefConfig(SrcDepth srcDepth,
 }
 
 bool SkImageDecoder::decode(SkStream* stream, SkBitmap* bm,
-                            SkBitmap::Config pref, Mode mode) {
-    // pass a temporary bitmap, so that if we return false, we are assured of
-    // leaving the caller's bitmap untouched.
-    SkBitmap    tmp;
-
+                            SkBitmap::Config pref, Mode mode, bool reuseBitmap) {
     // we reset this to false before calling onDecode
     fShouldCancelDecode = false;
     // assign this, for use by getPrefConfig(), in case fUsePrefTable is false
     fDefaultPref = pref;
 
+    if (reuseBitmap) {
+        SkAutoLockPixels alp(*bm);
+        if (NULL != bm->getPixels()) {
+            return this->onDecode(stream, bm, mode);
+        }
+    }
+
+    // pass a temporary bitmap, so that if we return false, we are assured of
+    // leaving the caller's bitmap untouched.
+    SkBitmap    tmp;
     if (!this->onDecode(stream, &tmp, mode)) {
         return false;
     }
     bm->swap(tmp);
     return true;
+}
+
+bool SkImageDecoder::decodeRegion(SkBitmap* bm, const SkIRect& rect,
+                                  SkBitmap::Config pref) {
+    // we reset this to false before calling onDecodeRegion
+    fShouldCancelDecode = false;
+    // assign this, for use by getPrefConfig(), in case fUsePrefTable is false
+    fDefaultPref = pref;
+
+    return this->onDecodeRegion(bm, rect);
+}
+
+bool SkImageDecoder::buildTileIndex(SkStream* stream,
+                                int *width, int *height) {
+    // we reset this to false before calling onBuildTileIndex
+    fShouldCancelDecode = false;
+
+    return this->onBuildTileIndex(stream, width, height);
+}
+
+void SkImageDecoder::cropBitmap(SkBitmap *dst, SkBitmap *src, int sampleSize,
+				int dstX, int dstY, int width, int height,
+				int srcX, int srcY) {
+    int w = width / sampleSize;
+    int h = height / sampleSize;
+    // if the destination has no pixels then we must allocate them.
+    if (dst->isNull()) {
+        dst->setConfig(src->getConfig(), w, h);
+        dst->setIsOpaque(src->isOpaque());
+
+        if (!this->allocPixelRef(dst, NULL)) {
+            SkDEBUGF(("failed to allocate pixels needed to crop the bitmap"));
+            return;
+        }
+    }
+    // check to see if the destination is large enough to decode the desired
+    // region. If this assert fails we will just draw as much of the source
+    // into the destination that we can.
+    SkASSERT(dst->width() >= w && dst->height() >= h);
+
+    // Set the Src_Mode for the paint to prevent transparency issue in the
+    // dest in the event that the dest was being re-used.
+    SkPaint paint;
+    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+
+    SkCanvas canvas(*dst);
+    canvas.drawSprite(*src, (srcX - dstX) / sampleSize,
+                            (srcY - dstY) / sampleSize,
+                            &paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
