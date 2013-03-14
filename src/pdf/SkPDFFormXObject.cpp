@@ -26,10 +26,6 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
     // If there is an issue, getResources will end up consuming all memory.
     // TODO: A better approach might be for all SkPDFObject to keep track
     // of possible cycles.
-#ifdef SK_DEBUG
-    SkTDArray<SkPDFObject*> dummy_resourceList;
-    getResources(&dummy_resourceList);
-#endif
 
     SkAutoTUnref<SkStream> content(device->content());
     setData(content.get());
