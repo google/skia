@@ -49,6 +49,10 @@ SkTypeface* SkTypeface::GetDefaultTypeface() {
     return gDefaultTypeface;
 }
 
+SkTypeface* SkTypeface::RefDefault() {
+    return SkRef(GetDefaultTypeface());
+}
+
 uint32_t SkTypeface::UniqueID(const SkTypeface* face) {
     if (NULL == face) {
         face = GetDefaultTypeface();
@@ -121,6 +125,15 @@ size_t SkTypeface::getTableData(SkFontTableTag tag, size_t offset, size_t length
     return SkFontHost::GetTableData(fUniqueID, tag, offset, length, data);
 }
 
+SkStream* SkTypeface::openStream(int* ttcIndex) const {
+    if (ttcIndex) {
+        int32_t ndx = 0;
+        (void)SkFontHost::GetFileName(fUniqueID, NULL, 0, &ndx);
+        *ttcIndex = (int)ndx;
+    }
+    return SkFontHost::OpenStream(fUniqueID);
+}
+
 int SkTypeface::getUnitsPerEm() const {
     int upem = 0;
 
@@ -139,6 +152,16 @@ int SkTypeface::getUnitsPerEm() const {
     return upem;
 }
 
+// TODO: move this impl into the subclass
+SkScalerContext* SkTypeface::onCreateScalerContext(const SkDescriptor* desc) const {
+    return SkFontHost::CreateScalerContext(desc);
+}
+
+// TODO: move this impl into the subclass
+void SkTypeface::onFilterRec(SkScalerContextRec* rec) const {
+    SkFontHost::FilterRec(rec, const_cast<SkTypeface*>(this));
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -148,10 +171,6 @@ int SkTypeface::onGetUPEM() const { return 0; }
 int SkTypeface::onGetTableTags(SkFontTableTag tags[]) const { return 0; }
 size_t SkTypeface::onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const { return 0; }
-SkScalerContext* SkTypeface::onCreateScalerContext(const SkDescriptor*) const {
-    return NULL;
-}
-void SkTypeface::onFilterRec(SkScalerContextRec*) const {}
 void SkTypeface::onGetFontDescriptor(SkFontDescriptor* desc) const {
     desc->setStyle(this->style());
 }

@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #include "SkPDFDevice.h"
 
@@ -30,8 +28,7 @@
 #include "SkString.h"
 #include "SkTextFormatParams.h"
 #include "SkTemplates.h"
-#include "SkTypeface.h"
-#include "SkTypes.h"
+#include "SkTypefacePriv.h"
 
 // Utility functions
 
@@ -104,10 +101,12 @@ static void align_text(SkDrawCacheProc glyphCacheProc, const SkPaint& paint,
     *y = *y - yAdj;
 }
 
-static size_t max_glyphid_for_typeface(const SkTypeface* typeface) {
+static size_t max_glyphid_for_typeface(SkTypeface* typeface) {
+    SkAutoResolveDefaultTypeface autoResolve(typeface);
+    typeface = autoResolve.get();
+
     SkAdvancedTypefaceMetrics* metrics;
-    metrics = SkFontHost::GetAdvancedTypefaceMetrics(
-            SkTypeface::UniqueID(typeface),
+    metrics = typeface->getAdvancedTypefaceMetrics(
             SkAdvancedTypefaceMetrics::kNo_PerGlyphInfo,
             NULL, 0);
 
