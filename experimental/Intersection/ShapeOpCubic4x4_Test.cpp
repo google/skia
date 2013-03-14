@@ -32,7 +32,7 @@ static void* testShapeOps4x4CubicsMain(void* data)
         for (int d = c + 1 ; d < 7; ++d)           {
         for (int e = SkPath::kWinding_FillType ; e <= SkPath::kEvenOdd_FillType; ++e) {
         for (int f = SkPath::kWinding_FillType ; f <= SkPath::kEvenOdd_FillType; ++f)   {
-        
+
 #if 0
   if (state.a == fail[0] && state.b == fail[1] && state.c == fail[2] && state.d == fail[3]
         && a == fail[4] && b == fail[5] && c == fail[6] && d == fail[7]) {
