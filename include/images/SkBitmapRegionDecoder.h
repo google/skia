@@ -13,7 +13,7 @@
 #include "SkImageDecoder.h"
 #include "SkStream.h"
 
-class SkIRect;
+struct SkIRect;
 
 /**
  * SkBitmapRegionDecoder can be used to decode a specified rect from an image.

@@ -270,7 +270,7 @@ static bool webp_get_config_resize_crop(WebPDecoderConfig* config,
 
 bool SkWEBPImageDecoder::setDecodeConfig(SkBitmap* decodedBitmap,
                                          int width, int height) {
-    SkBitmap::Config config = this->getPrefConfig(k32Bit_SrcDepth, fHasAlpha);
+    SkBitmap::Config config = this->getPrefConfig(k32Bit_SrcDepth, SkToBool(fHasAlpha));
 
     // YUV converter supports output in RGB565, RGBA4444 and RGBA8888 formats.
     if (fHasAlpha) {
@@ -537,7 +537,7 @@ bool SkWEBPImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bm,
     }
 
     WebPConfig webp_config;
-    if (!WebPConfigPreset(&webp_config, WEBP_PRESET_DEFAULT, quality)) {
+    if (!WebPConfigPreset(&webp_config, WEBP_PRESET_DEFAULT, (float) quality)) {
         return false;
     }
 
@@ -560,7 +560,7 @@ bool SkWEBPImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bm,
                         pic.width, colors);
     }
 
-    bool ok = WebPPictureImportRGB(&pic, rgb, rgbStride);
+    bool ok = (bool) WebPPictureImportRGB(&pic, rgb, rgbStride);
     delete[] rgb;
 
     ok = ok && WebPEncode(&webp_config, &pic);
