@@ -80,3 +80,8 @@ int ashmem_get_size_region(int fd)
 {
   return ioctl(fd, ASHMEM_GET_SIZE, NULL);
 }
+
+int ashmem_purge_all_caches(int fd)
+{
+  return ioctl(fd, ASHMEM_PURGE_ALL_CACHES, NULL);
+}
