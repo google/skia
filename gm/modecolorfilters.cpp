@@ -139,8 +139,10 @@ protected:
                         SkRect rect = SkRect::MakeXYWH(x * kRectWidth, y * kRectHeight,
                                                        SkIntToScalar(kRectWidth),
                                                        SkIntToScalar(kRectHeight));
+                        canvas->saveLayer(&rect, NULL);
                         canvas->drawRect(rect, bgPaint);
                         canvas->drawRect(rect, paint);
+                        canvas->restore();
                         ++idx;
                     }
                 }
