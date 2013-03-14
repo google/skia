@@ -1655,7 +1655,7 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
         they can modify our rec up front, so we don't create duplicate cache
         entries.
      */
-    SkFontHost::FilterRec(rec, typeface);
+    typeface->onFilterRec(rec);
 
     // be sure to call PostMakeRec(rec) before you actually use it!
 }

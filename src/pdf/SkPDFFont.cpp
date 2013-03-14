@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #include <ctype.h>
 
@@ -23,7 +21,7 @@
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkStream.h"
-#include "SkTypeface.h"
+#include "SkTypefacePriv.h"
 #include "SkTypes.h"
 #include "SkUtils.h"
 
@@ -549,8 +547,8 @@ static int get_subset_font_stream(const char* fontName,
                                   const SkTypeface* typeface,
                                   const SkTDArray<uint32_t>& subset,
                                   SkPDFStream** fontStream) {
-    SkAutoTUnref<SkStream> fontData(
-            SkFontHost::OpenStream(SkTypeface::UniqueID(typeface)));
+    int ttcIndex;
+    SkAutoTUnref<SkStream> fontData(typeface->openStream(&ttcIndex));
 
     int fontSize = fontData->getLength();
 
@@ -714,7 +712,7 @@ SkPDFFont::~SkPDFFont() {
 
     SkDEBUGCODE(int indexFound;)
     SkASSERT(index == -1 ||
-             (Find(SkTypeface::UniqueID(fTypeface.get()),
+             (Find(fTypeface->uniqueID(),
                    fFirstGlyphID,
                    &indexFound) &&
              index == indexFound));
@@ -763,7 +761,11 @@ size_t SkPDFFont::glyphsToPDFFontEncoding(uint16_t* glyphIDs,
 // static
 SkPDFFont* SkPDFFont::GetFontResource(SkTypeface* typeface, uint16_t glyphID) {
     SkAutoMutexAcquire lock(CanonicalFontsMutex());
-    const uint32_t fontID = SkTypeface::UniqueID(typeface);
+
+    SkAutoResolveDefaultTypeface autoResolve(typeface);
+    typeface = autoResolve.get();
+
+    const uint32_t fontID = typeface->uniqueID();
     int relatedFontIndex;
     if (Find(fontID, glyphID, &relatedFontIndex)) {
         CanonicalFonts()[relatedFontIndex].fFont->ref();
@@ -800,7 +802,7 @@ SkPDFFont* SkPDFFont::GetFontResource(SkTypeface* typeface, uint16_t glyphID) {
                   info, SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo);
 #endif
         fontMetrics.reset(
-            SkFontHost::GetAdvancedTypefaceMetrics(fontID, info, NULL, 0));
+            typeface->getAdvancedTypefaceMetrics(info, NULL, 0));
 #if defined (SK_SFNTLY_SUBSETTER)
         if (fontMetrics.get() &&
             fontMetrics->fType != SkAdvancedTypefaceMetrics::kTrueType_Font) {
@@ -808,7 +810,7 @@ SkPDFFont* SkPDFFont::GetFontResource(SkTypeface* typeface, uint16_t glyphID) {
             info = SkTBitOr<SkAdvancedTypefaceMetrics::PerGlyphInfo>(
                       info, SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo);
             fontMetrics.reset(
-                SkFontHost::GetAdvancedTypefaceMetrics(fontID, info, NULL, 0));
+                typeface->getAdvancedTypefaceMetrics(info, NULL, 0));
         }
 #endif
     }
@@ -855,7 +857,7 @@ bool SkPDFFont::Find(uint32_t fontID, uint16_t glyphID, int* index) {
 SkPDFFont::SkPDFFont(SkAdvancedTypefaceMetrics* info, SkTypeface* typeface,
                      SkPDFDict* relatedFontDescriptor)
         : SkPDFDict("Font"),
-          fTypeface(typeface),
+          fTypeface(ref_or_default(typeface)),
           fFirstGlyphID(1),
           fLastGlyphID(info ? info->fLastGlyphID : 0),
           fFontInfo(info),
@@ -1099,8 +1101,8 @@ bool SkPDFCIDFont::addFontDescriptor(int16_t defaultWidth,
         }
         case SkAdvancedTypefaceMetrics::kCFF_Font:
         case SkAdvancedTypefaceMetrics::kType1CID_Font: {
-            SkAutoTUnref<SkStream> fontData(
-                SkFontHost::OpenStream(SkTypeface::UniqueID(typeface())));
+            int ttcIndex;
+            SkAutoTUnref<SkStream> fontData(typeface()->openStream(&ttcIndex));
             SkAutoTUnref<SkPDFStream> fontStream(
                 new SkPDFStream(fontData.get()));
             addResource(fontStream.get());
@@ -1139,11 +1141,7 @@ bool SkPDFCIDFont::populate(const SkPDFGlyphSet* subset) {
         uint32_t* glyphs = (glyphIDs.count() == 1) ? NULL : glyphIDs.begin();
         uint32_t glyphsCount = glyphs ? glyphIDs.count() : 0;
         SkAutoTUnref<SkAdvancedTypefaceMetrics> fontMetrics(
-            SkFontHost::GetAdvancedTypefaceMetrics(
-                    SkTypeface::UniqueID(typeface()),
-                    info,
-                    glyphs,
-                    glyphsCount));
+            typeface()->getAdvancedTypefaceMetrics(info, glyphs, glyphsCount));
         setFontInfo(fontMetrics.get());
         addFontDescriptor(0, &glyphIDs);
     } else {
@@ -1229,11 +1227,11 @@ bool SkPDFType1Font::addFontDescriptor(int16_t defaultWidth) {
     SkAutoTUnref<SkPDFDict> descriptor(new SkPDFDict("FontDescriptor"));
     setFontDescriptor(descriptor.get());
 
+    int ttcIndex;
     size_t header SK_INIT_TO_AVOID_WARNING;
     size_t data SK_INIT_TO_AVOID_WARNING;
     size_t trailer SK_INIT_TO_AVOID_WARNING;
-    SkAutoTUnref<SkStream> rawFontData(
-        SkFontHost::OpenStream(SkTypeface::UniqueID(typeface())));
+    SkAutoTUnref<SkStream> rawFontData(typeface()->openStream(&ttcIndex));
     SkStream* fontData = handleType1Stream(rawFontData.get(), &header, &data,
                                            &trailer);
     if (fontData == NULL) {

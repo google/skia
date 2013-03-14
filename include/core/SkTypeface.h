@@ -80,6 +80,12 @@ public:
      */
     static bool Equal(const SkTypeface* facea, const SkTypeface* faceb);
 
+    /**
+     *  Returns a ref() to the default typeface. The caller must call unref()
+     *  when they are done referencing the object. Never returns NULL.
+     */
+    static SkTypeface* RefDefault();
+
     /** Return a new reference to the typeface that most closely matches the
         requested familyName and style. Pass null as the familyName to return
         the default font for the requested style. Will never return null
@@ -187,6 +193,8 @@ public:
      */
     int getUnitsPerEm() const;
 
+    SkStream* openStream(int* ttcIndex) const;
+
 protected:
     /** uniqueID must be unique and non-zero
     */
@@ -209,6 +217,7 @@ private:
     Style       fStyle;
     bool        fIsFixedWidth;
 
+    friend class SkPaint;
     // just so deprecated fonthost can call protected methods
     friend class SkFontHost;
 
