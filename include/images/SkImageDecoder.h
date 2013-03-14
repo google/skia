@@ -13,6 +13,7 @@
 #include "SkBitmap.h"
 #include "SkBitmapFactory.h"
 #include "SkImage.h"
+#include "SkRect.h"
 #include "SkRefCnt.h"
 
 class SkStream;
@@ -25,6 +26,7 @@ class SkImageDecoder {
 public:
     virtual ~SkImageDecoder();
 
+    // Should be consistent with kFormatName
     enum Format {
         kUnknown_Format,
         kBMP_Format,
@@ -33,13 +35,18 @@ public:
         kJPEG_Format,
         kPNG_Format,
         kWBMP_Format,
+        kWEBP_Format,
 
-        kLastKnownFormat = kWBMP_Format
+        kLastKnownFormat = kWEBP_Format
     };
 
     /** Return the compressed data's format (see Format enum)
     */
     virtual Format getFormat() const;
+
+    /** Return the compressed data's format name.
+    */
+    const char* getFormatName() const;
 
     /** Returns true if the decoder should try to dither the resulting image.
         The default setting is true.
@@ -50,6 +57,20 @@ public:
         The default setting is true.
     */
     void setDitherImage(bool dither) { fDitherImage = dither; }
+
+    /** Returns true if the decoder should try to decode the
+        resulting image to a higher quality even at the expense of
+        the decoding speed.
+    */
+    bool getPreferQualityOverSpeed() const { return fPreferQualityOverSpeed; }
+
+    /** Set to true if the the decoder should try to decode the
+        resulting image to a higher quality even at the expense of
+        the decoding speed.
+    */
+    void setPreferQualityOverSpeed(bool qualityOverSpeed) {
+        fPreferQualityOverSpeed = qualityOverSpeed;
+    }
 
     /** \class Peeker
 
@@ -175,10 +196,28 @@ public:
 
         note: document use of Allocator, Peeker and Chooser
     */
-    bool decode(SkStream*, SkBitmap* bitmap, SkBitmap::Config pref, Mode);
-    bool decode(SkStream* stream, SkBitmap* bitmap, Mode mode) {
-        return this->decode(stream, bitmap, SkBitmap::kNo_Config, mode);
+    bool decode(SkStream*, SkBitmap* bitmap, SkBitmap::Config pref, Mode, bool reuseBitmap = false);
+    bool decode(SkStream* stream, SkBitmap* bitmap, Mode mode, bool reuseBitmap = false) {
+        return this->decode(stream, bitmap, SkBitmap::kNo_Config, mode, reuseBitmap);
     }
+
+    /**
+     * Given a stream, build an index for doing tile-based decode.
+     * The built index will be saved in the decoder, and the image size will
+     * be returned in width and height.
+     *
+     * Return true for success or false on failure.
+     */
+    bool buildTileIndex(SkStream*, int *width, int *height);
+
+    /**
+     * Decode a rectangle region in the image specified by rect.
+     * The method can only be called after buildTileIndex().
+     *
+     * Return true for success.
+     * Return false if the index is never built or failing in decoding.
+     */
+    bool decodeRegion(SkBitmap* bitmap, const SkIRect& rect, SkBitmap::Config pref);
 
     /** Given a stream, this will try to find an appropriate decoder object.
         If none is found, the method returns NULL.
@@ -296,6 +335,38 @@ protected:
     // must be overridden in subclasses. This guy is called by decode(...)
     virtual bool onDecode(SkStream*, SkBitmap* bitmap, Mode) = 0;
 
+    // If the decoder wants to support tiled based decoding,
+    // this method must be overridden. This guy is called by buildTileIndex(...)
+    virtual bool onBuildTileIndex(SkStream*, int *width, int *height) {
+        return false;
+    }
+
+    // If the decoder wants to support tiled based decoding,
+    // this method must be overridden. This guy is called by decodeRegion(...)
+    virtual bool onDecodeRegion(SkBitmap* bitmap, const SkIRect& rect) {
+        return false;
+    }
+
+    /*
+     * Crop a rectangle from the src Bitmap to the dest Bitmap. src and dst are
+     * both sampled by sampleSize from an original Bitmap.
+     *
+     * @param dst the destination bitmap.
+     * @param src the source bitmap that is sampled by sampleSize from the
+     *            original bitmap.
+     * @param sampleSize the sample size that src is sampled from the original bitmap.
+     * @param (dstX, dstY) the upper-left point of the dest bitmap in terms of
+     *                     the coordinate in the original bitmap.
+     * @param (width, height) the width and height of the unsampled dst.
+     * @param (srcX, srcY) the upper-left point of the src bitimap in terms of
+     *                     the coordinate in the original bitmap.
+     */
+    void cropBitmap(SkBitmap *dst, SkBitmap *src, int sampleSize,
+                    int dstX, int dstY, int width, int height,
+                    int srcX, int srcY);
+
+
+
     /** Can be queried from within onDecode, to see if the user (possibly in
         a different thread) has requested the decode to cancel. If this returns
         true, your onDecode() should stop and return false.
@@ -346,6 +417,14 @@ private:
     bool                    fDitherImage;
     bool                    fUsePrefTable;
     mutable bool            fShouldCancelDecode;
+    bool                    fPreferQualityOverSpeed;
+
+    /** Contains the image format name.
+     *  This should be consistent with Format.
+     *
+     *  The format name gives a more meaningful error message than enum.
+     */
+    static const char* sFormatName[];
 
     // illegal
     SkImageDecoder(const SkImageDecoder&);
@@ -396,5 +475,6 @@ DECLARE_DECODER_CREATOR(ICOImageDecoder);
 DECLARE_DECODER_CREATOR(JPEGImageDecoder);
 DECLARE_DECODER_CREATOR(PNGImageDecoder);
 DECLARE_DECODER_CREATOR(WBMPImageDecoder);
+DECLARE_DECODER_CREATOR(WEBPImageDecoder);
 
 #endif

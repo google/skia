@@ -18,12 +18,15 @@
 
 class SkGIFImageDecoder : public SkImageDecoder {
 public:
-    virtual Format getFormat() const {
+    virtual Format getFormat() const SK_OVERRIDE {
         return kGIF_Format;
     }
 
 protected:
-    virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode mode);
+    virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode mode) SK_OVERRIDE;
+
+private:
+    typedef SkImageDecoder INHERITED;
 };
 
 static const uint8_t gStartingIterlaceYValue[] = {
@@ -201,11 +204,18 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
                                            width, height)) {
                 return error_return(gif, *bm, "chooseFromOneChoice");
             }
+            
+            if (SkImageDecoder::kDecodeBounds_Mode == mode) {
+                bm->setConfig(SkBitmap::kIndex8_Config, width, height);
+                return true;
+            }
+
+            // No Bitmap reuse supported for this format
+            if (!bm->isNull()) {
+                return false;
+            }
 
             bm->setConfig(SkBitmap::kIndex8_Config, width, height);
-            if (SkImageDecoder::kDecodeBounds_Mode == mode)
-                return true;
-
             SavedImage* image = &gif->SavedImages[gif->ImageCount-1];
             const GifImageDesc& desc = image->ImageDesc;
 

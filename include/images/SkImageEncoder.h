@@ -17,7 +17,8 @@ class SkImageEncoder {
 public:
     enum Type {
         kJPEG_Type,
-        kPNG_Type
+        kPNG_Type,
+        kWEBP_Type
     };
     static SkImageEncoder* Create(Type);
 
@@ -80,5 +81,6 @@ protected:
 // not all of these will be available
 DECLARE_ENCODER_CREATOR(JPEGImageEncoder);
 DECLARE_ENCODER_CREATOR(PNGImageEncoder);
+DECLARE_ENCODER_CREATOR(WEBPImageEncoder);
 
 #endif
