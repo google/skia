@@ -70,7 +70,7 @@ void sub_divide(const Cubic& src, double t1, double t2, Cubic& dst) {
         dst[1] = src[1];
         dst[2] = src[2];
         dst[3] = src[3];
-        return;   
+        return;
     }
     double ax = dst[0].x = interp_cubic_coords(&src[0].x, t1);
     double ay = dst[0].y = interp_cubic_coords(&src[0].y, t1);

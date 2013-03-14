@@ -747,7 +747,7 @@ void CubicIntersection_SelfTest() {
         cubic_to_quadratics(cubic, calcPrecision(cubic), quads1);
         for (idx2 = 0; idx2 < quads1.count(); ++idx2) {
             const Quadratic& q = quads1[idx2];
-            SkDebugf("  {{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", 
+            SkDebugf("  {{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}},\n",
                     q[0].x, q[0].y,  q[1].x, q[1].y,  q[2].x, q[2].y);
         }
         SkDebugf("\n");

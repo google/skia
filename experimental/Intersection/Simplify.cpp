@@ -1034,7 +1034,7 @@ struct Bounds : public SkRect {
                 || sk_double_isnan(fLeft) || sk_double_isnan(fRight)
                 || sk_double_isnan(fTop) || sk_double_isnan(fBottom);
     }
-    
+
     void setCubicBounds(const SkPoint a[4]) {
         _Rect dRect;
         MAKE_CONST_CUBIC(cubic, a);
@@ -3473,7 +3473,7 @@ the same winding is shared by both.
         }
         return sum <= 0;
     }
-    
+
     bool monotonic_in_y(int tStart, int tEnd) const {
         if (fVerb != SkPath::kCubic_Verb) {
             return false;
@@ -3847,7 +3847,7 @@ the same winding is shared by both.
             }
         }
     }
-    
+
     void subDivideBounds(int start, int end, Bounds& bounds) const {
         SkPoint edge[4];
         subDivide(start, end, edge);

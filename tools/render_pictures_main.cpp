@@ -189,7 +189,7 @@ static bool render_picture(const SkString& inputPath, const SkString* outputDir,
         SkBitmap* referenceBitmap = NULL;
         sk_tools::PictureRenderer* referenceRenderer;
         // If the renderer uses a BBoxHierarchy, then the reference renderer
-        // will be the same renderer, without the bbh. 
+        // will be the same renderer, without the bbh.
         AutoRestoreBbhType arbbh;
         if (sk_tools::PictureRenderer::kNone_BBoxHierarchyType !=
             renderer.getBBoxHierarchyType()) {
