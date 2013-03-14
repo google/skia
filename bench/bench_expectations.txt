@@ -2486,7 +2486,7 @@ tabl_gamedeksiam.skp_tile_256x256_multi_3_threads_,Shuttle_Ubuntu12_ATI5770_Floa
 tabl_gamedeksiam.skp_tile_256x256_multi_3_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,20.190,8.171,32.209
 tabl_gamedeksiam.skp_tile_256x256_multi_4_threads_,MacMini_10_8_Float_Bench_32-25th,25.000,12.500,37.500
 tabl_gamedeksiam.skp_tile_256x256_multi_4_threads_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,14.390,2.951,25.829
-tabl_gamedeksiam.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,7.080,-3.628,17.788
+tabl_gamedeksiam.skp_tile_256x256_multi_4_threads_,Shuttle_Win7_Intel_Float_Bench_32-25th,7.080,-3.628,20.0
 tabl_gamedeksiam.skp_tile_256x256_rtree_,MacMini_10_8_Float_Bench_32-25th,29.300,16.370,42.230
 tabl_gamedeksiam.skp_tile_256x256_rtree_,Nexus7_4-1_Float_Bench_32-25th,279.280,241.352,317.208
 tabl_gamedeksiam.skp_tile_256x256_rtree_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,17.120,5.408,28.832
