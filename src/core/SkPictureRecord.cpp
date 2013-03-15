@@ -529,7 +529,9 @@ static void apply_optimization_to_bbh(PictureRecordOptType opt, SkPictureStateTr
                                       SkBBoxHierarchy* boundingHierarchy) {
     switch (opt) {
     case kCollapseSaveLayer_OptType:
-        stateTree->saveCollapsed();
+        if (NULL != stateTree) {
+            stateTree->saveCollapsed();
+        }
         break;
     case kRewind_OptType:
         if (NULL != boundingHierarchy) {
