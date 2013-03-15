@@ -901,6 +901,7 @@ public:
             SkISize size = gm->getISize();
             setup_bitmap(gRec, size, &bitmap);
             SkCanvas canvas(bitmap);
+            installFilter(&canvas);
             PipeController pipeController(&canvas);
             SkGPipeWriter writer;
             SkCanvas* pipeCanvas = writer.startRecording(
@@ -927,6 +928,7 @@ public:
             SkISize size = gm->getISize();
             setup_bitmap(gRec, size, &bitmap);
             SkCanvas canvas(bitmap);
+            installFilter(&canvas);
             TiledPipeController pipeController(bitmap);
             SkGPipeWriter writer;
             SkCanvas* pipeCanvas = writer.startRecording(
