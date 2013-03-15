@@ -12,11 +12,12 @@
         'utils.gyp:utils',
       ],
       'include_dirs': [
-        '../include/images',
         '../include/effects',
+        '../include/images',
         '../include/ports',
         '../include/xml',
         '../src/core',
+        '../src/lazy',
         '../src/utils',
       ],
       'sources': [
@@ -27,6 +28,7 @@
         '../src/ports/SkFontHost_win.cpp',
         '../src/ports/SkFontHost_win_dw.cpp',
         '../src/ports/SkGlobalInitialization_default.cpp',
+        '../src/ports/SkPurgeableMemoryBlock_none.cpp',
         '../src/ports/SkThread_win.cpp',
 
         '../src/ports/SkFontHost_tables.cpp',
@@ -96,13 +98,15 @@
           ],
           'sources': [
             '../src/ports/SkFontHost_mac.cpp',
-            '../src/utils/mac/SkStream_mac.cpp',
 #            '../src/ports/SkFontHost_FreeType.cpp',
 #            '../src/ports/SkFontHost_FreeType_common.cpp',
 #            '../src/ports/SkFontHost_freetype_mac.cpp',
+            '../src/ports/SkPurgeableMemoryBlock_mac.cpp',
             '../src/ports/SkThread_pthread.cpp',
+            '../src/utils/mac/SkStream_mac.cpp',
           ],
           'sources!': [
+            '../src/ports/SkPurgeableMemoryBlock_none.cpp',
             '../src/ports/SkFontHost_tables.cpp',
           ],
         }],
@@ -113,10 +117,12 @@
           ],
           'sources': [
             '../src/ports/SkFontHost_mac.cpp',
-            '../src/utils/mac/SkStream_mac.cpp',
+            '../src/ports/SkPurgeableMemoryBlock_mac.cpp',
             '../src/ports/SkThread_pthread.cpp',
+            '../src/utils/mac/SkStream_mac.cpp',
           ],
           'sources!': [
+            '../src/ports/SkPurgeableMemoryBlock_none.cpp',
             '../src/ports/SkFontHost_tables.cpp',
           ],
         }],
@@ -158,17 +164,16 @@
           ],
           'sources!': [
             '../src/ports/SkDebug_stdio.cpp',
+            '../src/ports/SkPurgeableMemoryBlock_none.cpp',
           ],
           'sources': [
-            '../include/ports/SkAshmemImageCache.h',
-
             '../src/ports/SkDebug_android.cpp',
             '../src/ports/SkThread_pthread.cpp',
             '../src/ports/SkFontHost_android.cpp',
             '../src/ports/SkFontHost_FreeType.cpp',
             '../src/ports/SkFontHost_FreeType_common.cpp',
+            '../src/ports/SkPurgeableMemoryBlock_android.cpp',
             '../src/ports/FontHostConfiguration_android.cpp',
-            '../src/ports/SkAshmemImageCache.cpp',
           ],
           'dependencies': [
              'freetype.gyp:freetype',
