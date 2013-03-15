@@ -103,6 +103,7 @@ public:
     void endRecording();
 
 private:
+    void handleOptimization(int opt);
     void recordRestoreOffsetPlaceholder(SkRegion::Op);
     void fillRestoreOffsetPlaceholdersForCurrentStackLevel(
         uint32_t restoreOffset);

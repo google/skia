@@ -715,23 +715,34 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
         size_t curOffset = reader.offset();
         uint32_t size;
         DrawType op = read_op_and_size(&reader, &size);
-        if (NOOP == op) {
+        size_t skipTo = 0;
+#ifdef SK_DEVELOPER
+        // TODO: once chunk sizes are in all .skps just use
+        // "curOffset + size"
+        skipTo = this->preDraw(curOffset, op);
+#endif
+        if (0 == skipTo && NOOP == op) {
             // NOOPs are to be ignored - do not propagate them any further
-            reader.setOffset(curOffset+size);
-            continue;
+            skipTo = curOffset + size;
         }
 
-#ifdef SK_DEVELOPER
-        // TODO: once chunk sizes are in all .skps just use "curOffset + size"
-        size_t skipTo = this->preDraw(curOffset, op);
         if (0 != skipTo) {
+            if (it.isValid()) {
+                // If using a bounding box hierarchy, advance the state tree
+                // iterator until at or after skipTo
+                uint32_t adjustedSkipTo;
+                do {
+                    adjustedSkipTo = it.draw();
+                } while (adjustedSkipTo < skipTo);
+                skipTo = adjustedSkipTo;
+            }
             if (kDrawComplete == skipTo) {
                 break;
             }
             reader.setOffset(skipTo);
             continue;
         }
-#endif
+
         switch (op) {
             case CLIP_PATH: {
                 const SkPath& path = getPath(reader);

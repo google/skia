@@ -55,6 +55,8 @@ public:
      */
     virtual int getCount() const SK_OVERRIDE;
 
+    virtual void rewindInserts() SK_OVERRIDE;
+
     // Used by search() and in SkTileGridHelper implementations
     enum {
         kTileFinished = -1,

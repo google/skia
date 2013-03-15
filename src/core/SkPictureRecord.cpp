@@ -502,19 +502,47 @@ static bool collapse_save_clip_restore(SkWriter32* writer, int32_t offset,
 
 typedef bool (*PictureRecordOptProc)(SkWriter32* writer, int32_t offset,
                                      SkPaintDictionary* paintDict);
+enum PictureRecordOptType {
+    kRewind_OptType,  // Optimization rewinds the command stream
+    kCollapseSaveLayer_OptType,  // Optimization eliminates a save/restore pair
+};
 
+struct PictureRecordOpt {
+    PictureRecordOptProc fProc;
+    PictureRecordOptType fType;
+};
 /*
  * A list of the optimizations that are tried upon seeing a restore
  * TODO: add a real API for such optimizations
  *       Add the ability to fire optimizations on any op (not just RESTORE)
  */
-static const PictureRecordOptProc gPictureRecordOpts[] = {
-    collapse_save_clip_restore,
-#ifndef SK_IGNORE_PICTURE_RECORD_SAVE_LAYER_OPT
-    remove_save_layer1,
-    remove_save_layer2,
-#endif
+static const PictureRecordOpt gPictureRecordOpts[] = {
+    { collapse_save_clip_restore, kRewind_OptType },
+    { remove_save_layer1,         kCollapseSaveLayer_OptType },
+    { remove_save_layer2,         kCollapseSaveLayer_OptType }
 };
+
+// This is called after an optimization has been applied to the command stream
+// in order to adjust the contents and state of the bounding box hierarchy and
+// state tree to reflect the optimization.
+static void apply_optimization_to_bbh(PictureRecordOptType opt, SkPictureStateTree* stateTree,
+                                      SkBBoxHierarchy* boundingHierarchy) {
+    switch (opt) {
+    case kCollapseSaveLayer_OptType:
+        stateTree->saveCollapsed();
+        break;
+    case kRewind_OptType:
+        if (NULL != boundingHierarchy) {
+            boundingHierarchy->rewindInserts();
+        }
+        // Note: No need to touch the state tree for this to work correctly.
+        // Unused branches do not burden the playback, and pruning the tree
+        // would be O(N^2), so it is best to leave it alone.
+        break;
+    default:
+        SkASSERT(0);
+    }
+}
 
 void SkPictureRecord::restore() {
     // FIXME: SkDeferredCanvas needs to be refactored to respect
@@ -536,10 +564,12 @@ void SkPictureRecord::restore() {
     uint32_t initialOffset, size;
     size_t opt;
     for (opt = 0; opt < SK_ARRAY_COUNT(gPictureRecordOpts); ++opt) {
-        if ((*gPictureRecordOpts[opt])(&fWriter, fRestoreOffsetStack.top(), &fPaints)) {
+        if ((*gPictureRecordOpts[opt].fProc)(&fWriter, fRestoreOffsetStack.top(), &fPaints)) {
             // Some optimization fired so don't add the RESTORE
             size = 0;
             initialOffset = fWriter.size();
+            apply_optimization_to_bbh(gPictureRecordOpts[opt].fType, 
+                                      fStateTree, fBoundingHierarchy);
             break;
         }
     }

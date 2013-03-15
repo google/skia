@@ -63,6 +63,13 @@ public:
     void appendClip(uint32_t offset);
 
     /**
+     * Call this immediately after an appendRestore call that is associated
+     * a save or saveLayer that was removed from the command stream
+     * due to a command pattern optimization in SkPicture.
+     */
+    void saveCollapsed();
+
+    /**
      * Playback helper
      */
     class Iterator {
@@ -109,6 +116,10 @@ private:
 
     SkChunkAlloc fAlloc;
     Node* fRoot;
+    // Needed by saveCollapsed() because nodes do not currently store
+    // references to their children.  If they did, we could just retrieve the
+    // last added child.
+    Node* fLastRestoredNode; 
 
     // The currently active state
     Draw fCurrentState;
