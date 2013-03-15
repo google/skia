@@ -294,6 +294,8 @@
         '<(skia_src_path)/lazy/SkLazyPixelRef.h',
         '<(skia_src_path)/lazy/SkLazyPixelRef.cpp',
         '<(skia_src_path)/lazy/SkLruImageCache.cpp',
+        '<(skia_src_path)/lazy/SkPurgeableMemoryBlock.h',
+        '<(skia_src_path)/lazy/SkPurgeableMemoryBlock_common.cpp',
     ],
 }
 
