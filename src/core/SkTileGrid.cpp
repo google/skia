@@ -121,3 +121,12 @@ void SkTileGrid::clear() {
 int SkTileGrid::getCount() const {
     return fInsertionCount;
 }
+
+void SkTileGrid::rewindInserts() {
+    SkASSERT(fClient);
+    for (int i = 0; i < fTileCount; ++i) {
+        while (!fTileData[i].isEmpty() && fClient->shouldRewind(fTileData[i].top())) {
+            fTileData[i].pop();
+        }
+    }
+}

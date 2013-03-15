@@ -8,7 +8,6 @@
 
 #include "SkBBoxHierarchyRecord.h"
 #include "SkPictureStateTree.h"
-#include "SkBBoxHierarchy.h"
 
 SkBBoxHierarchyRecord::SkBBoxHierarchyRecord(uint32_t recordFlags,
                                              SkBBoxHierarchy* h,
@@ -17,6 +16,7 @@ SkBBoxHierarchyRecord::SkBBoxHierarchyRecord(uint32_t recordFlags,
     fStateTree = SkNEW(SkPictureStateTree);
     fBoundingHierarchy = h;
     fBoundingHierarchy->ref();
+    fBoundingHierarchy->setClient(this);
 }
 
 void SkBBoxHierarchyRecord::handleBBox(const SkRect& bounds) {
@@ -102,4 +102,14 @@ bool SkBBoxHierarchyRecord::clipRRect(const SkRRect& rrect,
                                       bool doAntiAlias) {
     fStateTree->appendClip(this->writeStream().size());
     return INHERITED::clipRRect(rrect, op, doAntiAlias);
+}
+
+bool SkBBoxHierarchyRecord::shouldRewind(void* data) {
+    // SkBBoxHierarchy::rewindInserts is called by SkPicture after the
+    // SkPicture has rewound its command stream.  To match that rewind in the
+    // BBH, we rewind all draws that reference commands that were recorded
+    // past the point to which the SkPicture has rewound, which is given by
+    // writeStream().size().
+    SkPictureStateTree::Draw* draw = static_cast<SkPictureStateTree::Draw*>(data);
+    return draw->fOffset >= writeStream().size();
 }

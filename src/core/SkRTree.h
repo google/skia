@@ -87,6 +87,8 @@ public:
      */
     virtual int getCount() const { return fCount; }
 
+    virtual void rewindInserts() SK_OVERRIDE;
+
 private:
 
     struct Node;

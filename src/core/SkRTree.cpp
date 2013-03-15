@@ -434,6 +434,14 @@ int SkRTree::validateSubtree(Node* root, SkIRect bounds, bool isRoot) {
     }
 }
 
+void SkRTree::rewindInserts() {
+    SkASSERT(this->isEmpty()); // Currently only supports deferred inserts
+    while (!fDeferredInserts.isEmpty() &&
+           fClient->shouldRewind(fDeferredInserts.top().fChild.data)) {
+        fDeferredInserts.pop();
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static inline uint32_t get_area(const SkIRect& rect) {
