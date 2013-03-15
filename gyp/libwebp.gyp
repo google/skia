@@ -72,7 +72,7 @@
                 '../third_party/externals/libwebp/dsp/dec_neon.c',
               ],
               # behavior similar dsp_neon.c.neon in an Android.mk
-              'cflags!': [ 
+              'cflags!': [
                 '-mfpu=vfpv3-d16',
                 '-fno-rtti', # supresses warnings about invalid option of non-C++ code
               ],

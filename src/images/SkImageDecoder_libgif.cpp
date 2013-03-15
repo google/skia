@@ -204,7 +204,7 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
                                            width, height)) {
                 return error_return(gif, *bm, "chooseFromOneChoice");
             }
-            
+
             if (SkImageDecoder::kDecodeBounds_Mode == mode) {
                 bm->setConfig(SkBitmap::kIndex8_Config, width, height);
                 return true;

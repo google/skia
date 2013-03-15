@@ -27,7 +27,7 @@ public:
         kExtraBold_Weight   = 800,
         kBlack_Weight       = 900
     };
-    
+
     enum Width {
         kUltraCondensed_Width   = 1,
         kExtraCondensed_Width   = 2,
@@ -43,7 +43,7 @@ public:
     enum Flags {
         kItalic_Flag    = 1 << 0,
     };
-    
+
     SkFontStyle();
     SkFontStyle(int weight, int width, unsigned flags);
 
@@ -76,7 +76,7 @@ public:
      *  SkData contains an array of [const char*]
      */
     SkData* refFamilyNames();
-    
+
     /**
      *  Given a familyName, if a corresponding family is found, return
      *  the array of available styles in SkData (as [SkFontStyle]).
@@ -103,14 +103,14 @@ public:
      *  the returned object if it is not null.
      */
     SkTypeface* createFromData(SkData*, int ttcIndex = 0);
-    
+
     /**
      *  Create a typeface for the specified stream and TTC index
      *  (pass 0 for none) or NULL if the stream is not recognized. The caller
      *  must call unref() on the returned object if it is not null.
      */
     SkTypeface* createFromStream(SkStream*, int ttcIndex = 0);
-    
+
     /**
      *  Create a typeface for the specified fileName and TTC index
      *  (pass 0 for none) or NULL if the file is not found, or its contents are
@@ -118,7 +118,7 @@ public:
      *  if it is not null.
      */
     SkTypeface* createFromFile(const char path[], int ttcIndex = 0);
-    
+
 private:
     typedef SkRefCnt INHERITED;
 };
