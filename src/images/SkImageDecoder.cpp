@@ -188,8 +188,8 @@ bool SkImageDecoder::buildTileIndex(SkStream* stream,
 }
 
 void SkImageDecoder::cropBitmap(SkBitmap *dst, SkBitmap *src, int sampleSize,
-				int dstX, int dstY, int width, int height,
-				int srcX, int srcY) {
+                int dstX, int dstY, int width, int height,
+                int srcX, int srcY) {
     int w = width / sampleSize;
     int h = height / sampleSize;
     // if the destination has no pixels then we must allocate them.

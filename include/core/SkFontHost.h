@@ -52,32 +52,32 @@ public:
     /** LCDs either have their color elements arranged horizontally or
      vertically. When rendering subpixel glyphs we need to know which way
      round they are.
-     
+
      Note, if you change this after startup, you'll need to flush the glyph
      cache because it'll have the wrong type of masks cached.
-     
+
      @deprecated use SkPixelGeometry instead.
      */
     enum LCDOrientation {
         kHorizontal_LCDOrientation = 0,    //!< this is the default
         kVertical_LCDOrientation   = 1
     };
-    
+
     /** @deprecated set on Device creation. */
     static void SetSubpixelOrientation(LCDOrientation orientation);
     /** @deprecated get from Device. */
     static LCDOrientation GetSubpixelOrientation();
-    
+
     /** LCD color elements can vary in order. For subpixel text we need to know
      the order which the LCDs uses so that the color fringes are in the
      correct place.
-     
+
      Note, if you change this after startup, you'll need to flush the glyph
      cache because it'll have the wrong type of masks cached.
-     
+
      kNONE_LCDOrder means that the subpixel elements are not spatially
      separated in any usable fashion.
-     
+
      @deprecated use SkPixelGeometry instead.
      */
     enum LCDOrder {
@@ -85,13 +85,13 @@ public:
         kBGR_LCDOrder = 1,
         kNONE_LCDOrder = 2
     };
-    
+
     /** @deprecated set on Device creation. */
     static void SetSubpixelOrder(LCDOrder order);
     /** @deprecated get from Device. */
     static LCDOrder GetSubpixelOrder();
-    
-#ifdef SK_BUILD_FOR_ANDROID    
+
+#ifdef SK_BUILD_FOR_ANDROID
     /**
      * Return the number of font units per em.
      *
@@ -100,7 +100,7 @@ public:
      */
     static uint32_t GetUnitsPerEm(SkFontID fontID);
 #endif
-    
+
     /** If Skia is running in a constrained environment and the typeface
      implementation is handle based, the typeface data may become
      unavailable asynchronously. If a font host or scaler context method is
@@ -108,13 +108,13 @@ public:
      make the handle contained in the typeface useable.
      */
     static void EnsureTypefaceAccessible(const SkTypeface& typeface);
-    
+
     /**
      *  Return a subclass of SkScalarContext
      *  DEPRECATED -- will be moved to SkTypeface
      */
     static SkScalerContext* CreateScalerContext(const SkDescriptor* desc);
-    
+
     /**
      *  DEPRECATED -- will be DESTROYED
      *
@@ -134,31 +134,31 @@ public:
      */
     static SkFontID NextLogicalFont(SkFontID currFontID, SkFontID origFontID);
 
-    
+
     ///// public HACK FOR FREETYPE -- will be fixed
-    
+
     /** Return a new stream to read the font data, or null if the uniqueID does
      not match an existing typeface. .The caller must call stream->unref()
      when it is finished reading the data.
      */
     static SkStream* OpenStream(SkFontID uniqueID);
-    
+
     /** Some fonts are stored in files. If that is true for the fontID, then
      this returns the byte length of the full file path. If path is not null,
      then the full path is copied into path (allocated by the caller), up to
      length bytes. If index is not null, then it is set to the truetype
      collection index for this font, or 0 if the font is not in a collection.
-     
+
      Note: GetFileName does not assume that path is a null-terminated string,
      so when it succeeds, it only copies the bytes of the file name and
      nothing else (i.e. it copies exactly the number of bytes returned by the
      function. If the caller wants to treat path[] as a C string, it must be
      sure that it is allocated at least 1 byte larger than the returned size,
      and it must copy in the terminating 0.
-     
+
      If the fontID does not correspond to a file, then the function returns
      0, and the path and index parameters are ignored.
-     
+
      @param fontID   The font whose file name is being queried
      @param path     Either NULL, or storage for receiving up to length bytes
      of the font's file name. Allocated by the caller.
@@ -171,7 +171,7 @@ public:
      */
     static size_t GetFileName(SkFontID fontID, char path[], size_t length,
                               int32_t* index);
-    
+
     // END_HACK for freetype
 
 private:

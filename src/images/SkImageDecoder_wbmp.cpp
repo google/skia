@@ -110,7 +110,7 @@ bool SkWBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* decodedBitmap,
 
     int width = head.fWidth;
     int height = head.fHeight;
-    
+
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
         decodedBitmap->setConfig(SkBitmap::kIndex8_Config, width, height);
         decodedBitmap->setIsOpaque(true);

@@ -27,7 +27,7 @@ static inline SkTypeface* ref_or_default(SkTypeface* face) {
 class SkAutoResolveDefaultTypeface : public SkAutoTUnref<SkTypeface> {
 public:
     SkAutoResolveDefaultTypeface() : INHERITED(SkTypeface::RefDefault()) {}
-    
+
     SkAutoResolveDefaultTypeface(SkTypeface* face)
         : INHERITED(ref_or_default(face)) {}
 
