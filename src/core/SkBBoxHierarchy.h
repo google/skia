@@ -15,7 +15,7 @@
 
 /**
  * Interface for a client class that implements utility methods needed
- * by SkBBoxHierarchy that require intrinsic knowledge of the data 
+ * by SkBBoxHierarchy that require intrinsic knowledge of the data
  * object type that is stored in the bounding box hierarchy.
  */
 class SkBBoxHierarchyClient {

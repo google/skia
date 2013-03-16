@@ -14,4 +14,3 @@ SkPurgeableMemoryBlock* SkPurgeableMemoryBlock::Create(size_t size) {
     }
     return SkNEW_ARGS(SkPurgeableMemoryBlock, (size));
 }
-
