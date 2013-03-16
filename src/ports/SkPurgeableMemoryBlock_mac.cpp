@@ -102,4 +102,3 @@ void SkPurgeableMemoryBlock::unpin() {
     }
 #endif
 }
-

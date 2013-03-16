@@ -38,4 +38,3 @@ void* SkPurgeableMemoryBlock::pin(SkPurgeableMemoryBlock::PinResult*) {
 
 void SkPurgeableMemoryBlock::unpin() {
 }
-

@@ -119,7 +119,7 @@ private:
     // Needed by saveCollapsed() because nodes do not currently store
     // references to their children.  If they did, we could just retrieve the
     // last added child.
-    Node* fLastRestoredNode; 
+    Node* fLastRestoredNode;
 
     // The currently active state
     Draw fCurrentState;

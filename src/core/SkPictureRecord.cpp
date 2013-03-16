@@ -570,7 +570,7 @@ void SkPictureRecord::restore() {
             // Some optimization fired so don't add the RESTORE
             size = 0;
             initialOffset = fWriter.size();
-            apply_optimization_to_bbh(gPictureRecordOpts[opt].fType, 
+            apply_optimization_to_bbh(gPictureRecordOpts[opt].fType,
                                       fStateTree, fBoundingHierarchy);
             break;
         }
