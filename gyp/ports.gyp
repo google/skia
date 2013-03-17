@@ -167,6 +167,8 @@
             '../src/ports/SkPurgeableMemoryBlock_none.cpp',
           ],
           'sources': [
+            '../include/ports/SkAshmemImageCache.h',
+
             '../src/ports/SkDebug_android.cpp',
             '../src/ports/SkThread_pthread.cpp',
             '../src/ports/SkFontHost_android.cpp',
@@ -174,6 +176,7 @@
             '../src/ports/SkFontHost_FreeType_common.cpp',
             '../src/ports/SkPurgeableMemoryBlock_android.cpp',
             '../src/ports/FontHostConfiguration_android.cpp',
+            '../src/ports/SkAshmemImageCache.cpp',
           ],
           'dependencies': [
              'freetype.gyp:freetype',
