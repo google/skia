@@ -80,19 +80,19 @@ void Clear::execute(SkCanvas* canvas) {
 }
 
 ClipPath::ClipPath(const SkPath& path, SkRegion::Op op, bool doAA, SkBitmap& bitmap) {
-    this->fPath = &path;
-    this->fOp = op;
-    this->fDoAA = doAA;
-    this->fDrawType = CLIP_PATH;
-    this->fBitmap = bitmap;
+    fPath = path;
+    fOp = op;
+    fDoAA = doAA;
+    fDrawType = CLIP_PATH;
+    fBitmap = bitmap;
 
-    this->fInfo.push(SkObjectParser::PathToString(path));
-    this->fInfo.push(SkObjectParser::RegionOpToString(op));
-    this->fInfo.push(SkObjectParser::BoolToString(doAA));
+    fInfo.push(SkObjectParser::PathToString(path));
+    fInfo.push(SkObjectParser::RegionOpToString(op));
+    fInfo.push(SkObjectParser::BoolToString(doAA));
 }
 
 void ClipPath::execute(SkCanvas* canvas) {
-    canvas->clipPath(*this->fPath, this->fOp, this->fDoAA);
+    canvas->clipPath(fPath, fOp, fDoAA);
 }
 
 const SkBitmap* ClipPath::getBitmap() const {
@@ -227,31 +227,37 @@ const SkBitmap* DrawBitmapNine::getBitmap() const {
 }
 
 DrawBitmapRect::DrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
-        const SkRect& dst, const SkPaint* paint, SkBitmap& resizedBitmap) {
-    this->fBitmap = &bitmap;
-    this->fSrc = src;
-    this->fDst = &dst;
-    if (NULL != paint) {
-        this->fPaint = *paint;
-        this->fPaintPtr = &this->fPaint;
-    } else {
-        this->fPaintPtr = NULL;
-    }
-    this->fDrawType = DRAW_BITMAP_RECT_TO_RECT;
-    this->fResizedBitmap = resizedBitmap;
-
-    this->fInfo.push(SkObjectParser::BitmapToString(bitmap));
+                               const SkRect& dst, const SkPaint* paint, 
+                               SkBitmap& resizedBitmap) {
+    fBitmap = bitmap;
     if (NULL != src) {
-        this->fInfo.push(SkObjectParser::RectToString(*src, "Src: "));
+        fSrc = *src;
+    } else {
+        fSrc.setEmpty();
     }
-    this->fInfo.push(SkObjectParser::RectToString(dst, "Dst: "));
+    fDst = dst;
+
     if (NULL != paint) {
-        this->fInfo.push(SkObjectParser::PaintToString(*paint));
+        fPaint = *paint;
+        fPaintPtr = &fPaint;
+    } else {
+        fPaintPtr = NULL;
+    }
+    fDrawType = DRAW_BITMAP_RECT_TO_RECT;
+    fResizedBitmap = resizedBitmap;
+
+    fInfo.push(SkObjectParser::BitmapToString(bitmap));
+    if (NULL != src) {
+        fInfo.push(SkObjectParser::RectToString(*src, "Src: "));
+    }
+    fInfo.push(SkObjectParser::RectToString(dst, "Dst: "));
+    if (NULL != paint) {
+        fInfo.push(SkObjectParser::PaintToString(*paint));
     }
 }
 
 void DrawBitmapRect::execute(SkCanvas* canvas) {
-    canvas->drawBitmapRectToRect(*this->fBitmap, this->fSrc, *this->fDst, this->fPaintPtr);
+    canvas->drawBitmapRectToRect(fBitmap, this->srcRect(), fDst, fPaintPtr);
 }
 
 const SkBitmap* DrawBitmapRect::getBitmap() const {
@@ -294,17 +300,17 @@ void DrawPaint::execute(SkCanvas* canvas) {
 }
 
 DrawPath::DrawPath(const SkPath& path, const SkPaint& paint, SkBitmap& bitmap) {
-    this->fPath = &path;
-    this->fPaint = &paint;
-    this->fBitmap = bitmap;
-    this->fDrawType = DRAW_PATH;
+    fPath = path;
+    fPaint = paint;
+    fBitmap = bitmap;
+    fDrawType = DRAW_PATH;
 
-    this->fInfo.push(SkObjectParser::PathToString(path));
-    this->fInfo.push(SkObjectParser::PaintToString(paint));
+    fInfo.push(SkObjectParser::PathToString(path));
+    fInfo.push(SkObjectParser::PaintToString(paint));
 }
 
 void DrawPath::execute(SkCanvas* canvas) {
-    canvas->drawPath(*this->fPath, *this->fPaint);
+    canvas->drawPath(fPath, fPaint);
 }
 
 const SkBitmap* DrawPath::getBitmap() const {
@@ -360,36 +366,36 @@ void DrawPosText::execute(SkCanvas* canvas) {
 
 
 DrawPosTextH::DrawPosTextH(const void* text, size_t byteLength,
-        const SkScalar xpos[], SkScalar constY, const SkPaint& paint) {
-    this->fText = text;
-    this->fByteLength = byteLength;
-    this->fXpos = xpos;
-    this->fConstY = constY;
-    this->fPaint = &paint;
-    this->fDrawType = DRAW_POS_TEXT_H;
+                           const SkScalar xpos[], SkScalar constY, 
+                           const SkPaint& paint) {
+    fText = text;
+    fByteLength = byteLength;
+    fXpos = xpos;
+    fConstY = constY;
+    fPaint = paint;
+    fDrawType = DRAW_POS_TEXT_H;
 
-    this->fInfo.push(SkObjectParser::TextToString(text, byteLength, paint.getTextEncoding()));
-    this->fInfo.push(SkObjectParser::ScalarToString(xpos[0], "XPOS: "));
-    this->fInfo.push(SkObjectParser::ScalarToString(constY, "SkScalar constY: "));
-    this->fInfo.push(SkObjectParser::PaintToString(paint));
+    fInfo.push(SkObjectParser::TextToString(text, byteLength, paint.getTextEncoding()));
+    fInfo.push(SkObjectParser::ScalarToString(xpos[0], "XPOS: "));
+    fInfo.push(SkObjectParser::ScalarToString(constY, "SkScalar constY: "));
+    fInfo.push(SkObjectParser::PaintToString(paint));
 }
 
 void DrawPosTextH::execute(SkCanvas* canvas) {
-    canvas->drawPosTextH(this->fText, this->fByteLength, this->fXpos, this->fConstY,
-            *this->fPaint);
+    canvas->drawPosTextH(fText, fByteLength, fXpos, fConstY, fPaint);
 }
 
 DrawRectC::DrawRectC(const SkRect& rect, const SkPaint& paint) {
-    this->fRect = &rect;
-    this->fPaint = &paint;
-    this->fDrawType = DRAW_RECT;
+    fRect = rect;
+    fPaint = paint;
+    fDrawType = DRAW_RECT;
 
-    this->fInfo.push(SkObjectParser::RectToString(rect));
-    this->fInfo.push(SkObjectParser::PaintToString(paint));
+    fInfo.push(SkObjectParser::RectToString(rect));
+    fInfo.push(SkObjectParser::PaintToString(paint));
 }
 
 void DrawRectC::execute(SkCanvas* canvas) {
-    canvas->drawRect(*this->fRect, *this->fPaint);
+    canvas->drawRect(fRect, fPaint);
 }
 
 DrawRRect::DrawRRect(const SkRRect& rrect, const SkPaint& paint) {
