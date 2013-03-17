@@ -992,7 +992,7 @@ desk_sfgate.skp_tile_256x256_gpu_c,MacMini_10_8_Float_Bench_32-25th,58.540,42.68
 desk_sfgate.skp_tile_256x256_gpu_c,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,34.800,21.320,48.280
 desk_sfgate.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,52.260,37.034,67.486
 desk_sfgate.skp_tile_256x256_grid_,MacMini_10_8_Float_Bench_32-25th,0.850,-9.235,30.935
-desk_sfgate.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,5.440,-5.104,45.984
+desk_sfgate.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,5.440,-5.104,265.984
 desk_sfgate.skp_tile_256x256_grid_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,0.540,-9.514,15.594
 desk_sfgate.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,0.570,-9.487,15.627
 desk_sfgate.skp_tile_256x256_rtree_,MacMini_10_8_Float_Bench_32-25th,0.850,-9.235,30.935
@@ -1758,7 +1758,7 @@ tabl_culturalsolutions.skp_tile_1024x256_,MacMini_10_8_Float_Bench_32-25th,59.65
 tabl_culturalsolutions.skp_tile_1024x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,24.920,12.428,37.412
 tabl_culturalsolutions.skp_tile_1024x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,27.240,14.516,39.964
 tabl_culturalsolutions.skp_tile_1024x64_,MacMini_10_8_Float_Bench_32-25th,66.300,49.670,82.930
-tabl_culturalsolutions.skp_tile_1024x64_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,34.110,20.699,47.521
+tabl_culturalsolutions.skp_tile_1024x64_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,34.110,20.699,67.521
 tabl_culturalsolutions.skp_tile_1024x64_,Shuttle_Win7_Intel_Float_Bench_32-25th,35.520,21.968,49.072
 tabl_culturalsolutions.skp_tile_256x256_,MacMini_10_8_Float_Bench_32-25th,66.450,49.805,83.095
 tabl_culturalsolutions.skp_tile_256x256_,Nexus7_4-1_Float_Bench_32-25th,2063.820,1847.438,2680.202
