@@ -238,7 +238,7 @@ static void apply_3(SkTDArray<SkDrawCommand*>& commands, int curCommand) {
     restore->setVisible(false);
 
     // TODO: could skip paint re-creation if the AA settings already match
-    SkPaint newPaint = *dr->paint();
+    SkPaint newPaint = dr->paint();
     newPaint.setAntiAlias(crr->doAA());
     DrawRRect* drr = new DrawRRect(crr->rrect(), newPaint);
     commands[curCommand+2] = drr;
