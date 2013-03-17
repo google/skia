@@ -280,6 +280,47 @@ static void apply_4(SkTDArray<SkDrawCommand*>& commands, int curCommand) {
     restore->setVisible(false);
 }
 
+// Check for:
+//    TRANSLATE
+// where the translate is zero
+static bool check_5(const SkTDArray<SkDrawCommand*>& commands, int curCommand) {
+    if (TRANSLATE != commands[curCommand]->getType()) {
+        return false;
+    }
+
+    Translate* t = (Translate*) commands[curCommand];
+
+    return 0 == t->x() && 0 == t->y();
+}
+
+// Just remove the translate
+static void apply_5(SkTDArray<SkDrawCommand*>& commands, int curCommand) {
+    Translate* t = (Translate*) commands[curCommand];
+
+    t->setVisible(false);
+}
+
+// Check for:
+//    SCALE
+// where the scale is 1,1
+static bool check_6(const SkTDArray<SkDrawCommand*>& commands, int curCommand) {
+    if (SCALE != commands[curCommand]->getType()) {
+        return false;
+    }
+
+    Scale* s = (Scale*) commands[curCommand];
+
+    return SK_Scalar1 == s->x() && SK_Scalar1 == s->y();
+}
+
+// Just remove the scale
+static void apply_6(SkTDArray<SkDrawCommand*>& commands, int curCommand) {
+    Scale* s = (Scale*) commands[curCommand];
+
+    s->setVisible(false);
+}
+
+
 typedef bool (*PFCheck)(const SkTDArray<SkDrawCommand*>& commands, int curCommand);
 typedef void (*PFApply)(SkTDArray<SkDrawCommand*>& commands, int curCommand);
 
@@ -293,6 +334,8 @@ struct OptTableEntry {
     { check_2, apply_2, 0 },
     { check_3, apply_3, 0 },
     { check_4, apply_4, 0 },
+    { check_5, apply_5, 0 },
+    { check_6, apply_6, 0 },
 };
 
 static int filter_picture(const SkString& inFile, const SkString& outFile) {
