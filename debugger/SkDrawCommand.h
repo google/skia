@@ -408,6 +408,10 @@ class Scale : public SkDrawCommand {
 public:
     Scale(SkScalar sx, SkScalar sy);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+
+    SkScalar x() const { return fSx; }
+    SkScalar y() const { return fSy; }
+
 private:
     SkScalar fSx;
     SkScalar fSy;
@@ -434,6 +438,10 @@ class Translate : public SkDrawCommand {
 public:
     Translate(SkScalar dx, SkScalar dy);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+
+    SkScalar x() const { return fDx; }
+    SkScalar y() const { return fDy; }
+
 private:
     SkScalar fDx;
     SkScalar fDy;
