@@ -2648,7 +2648,7 @@ tabl_onlinewsj.skp_tile_256x256_,MacMini_10_8_Float_Bench_32-25th,36.850,23.165,
 tabl_onlinewsj.skp_tile_256x256_,Nexus7_4-1_Float_Bench_32-25th,280.840,242.756,318.924
 tabl_onlinewsj.skp_tile_256x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,20.430,8.387,32.473
 tabl_onlinewsj.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,21.860,9.674,34.046
-tabl_onlinewsj.skp_tile_256x256_gpu_,MacMini_10_8_Float_Bench_32-25th,104.950,84.455,125.445
+tabl_onlinewsj.skp_tile_256x256_gpu_,MacMini_10_8_Float_Bench_32-25th,104.950,84.455,155.445
 tabl_onlinewsj.skp_tile_256x256_gpu_,Nexus7_4-1_Float_Bench_32-25th,502.570,442.313,562.827
 tabl_onlinewsj.skp_tile_256x256_gpu_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,55.670,40.103,71.237
 tabl_onlinewsj.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,69.720,52.748,86.692
