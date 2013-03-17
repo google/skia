@@ -680,7 +680,7 @@ desk_googlespreadsheet.skp_tile_256x256_gpu_c,MacMini_10_8_Float_Bench_32-25th,2
 desk_googlespreadsheet.skp_tile_256x256_gpu_c,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,14.250,2.825,25.675
 desk_googlespreadsheet.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,23.400,11.060,35.740
 desk_googlespreadsheet.skp_tile_256x256_grid_,MacMini_10_8_Float_Bench_32-25th,2.750,-7.525,13.025
-desk_googlespreadsheet.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,16.860,5.174,28.546
+desk_googlespreadsheet.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,16.860,5.174,78.546
 desk_googlespreadsheet.skp_tile_256x256_grid_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,1.710,-8.461,11.881
 desk_googlespreadsheet.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,1.580,-8.578,11.738
 desk_googlespreadsheet.skp_tile_256x256_rtree_,MacMini_10_8_Float_Bench_32-25th,2.850,-7.435,13.135
@@ -736,7 +736,7 @@ desk_googlespreadsheetdashed.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25
 desk_googlespreadsheetdashed.skp_tile_256x256_grid_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,5.200,-5.320,15.720
 desk_googlespreadsheetdashed.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.200,-6.220,14.620
 desk_googlespreadsheetdashed.skp_tile_256x256_rtree_,MacMini_10_8_Float_Bench_32-25th,9.150,-1.765,20.065
-desk_googlespreadsheetdashed.skp_tile_256x256_rtree_,Nexus7_4-1_Float_Bench_32-25th,45.750,31.175,60.325
+desk_googlespreadsheetdashed.skp_tile_256x256_rtree_,Nexus7_4-1_Float_Bench_32-25th,45.750,31.175,130.325
 desk_googlespreadsheetdashed.skp_tile_256x256_rtree_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,5.360,-5.176,15.896
 desk_googlespreadsheetdashed.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,4.330,-6.103,14.763
 desk_googlespreadsheetdashed.skp_tile_512x512_,MacMini_10_8_Float_Bench_32-25th,19.400,7.460,31.340
@@ -788,7 +788,7 @@ desk_gws.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,4.020,-6.382,44.4
 desk_gws.skp_tile_256x256_grid_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,0.310,-9.721,10.341
 desk_gws.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,0.290,-9.739,10.319
 desk_gws.skp_tile_256x256_rtree_,MacMini_10_8_Float_Bench_32-25th,0.400,-9.640,10.440
-desk_gws.skp_tile_256x256_rtree_,Nexus7_4-1_Float_Bench_32-25th,3.210,-7.111,13.531
+desk_gws.skp_tile_256x256_rtree_,Nexus7_4-1_Float_Bench_32-25th,3.210,-7.111,43.531
 desk_gws.skp_tile_256x256_rtree_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,0.300,-9.730,10.330
 desk_gws.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,0.280,-9.748,10.308
 desk_gws.skp_tile_512x512_,MacMini_10_8_Float_Bench_32-25th,5.300,-5.230,15.830
@@ -996,7 +996,7 @@ desk_sfgate.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,5.440,-5.104,4
 desk_sfgate.skp_tile_256x256_grid_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,0.540,-9.514,15.594
 desk_sfgate.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,0.570,-9.487,15.627
 desk_sfgate.skp_tile_256x256_rtree_,MacMini_10_8_Float_Bench_32-25th,0.850,-9.235,30.935
-desk_sfgate.skp_tile_256x256_rtree_,Nexus7_4-1_Float_Bench_32-25th,6.540,-4.114,17.194
+desk_sfgate.skp_tile_256x256_rtree_,Nexus7_4-1_Float_Bench_32-25th,6.540,-4.114,257.194
 desk_sfgate.skp_tile_256x256_rtree_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,0.550,-9.505,10.605
 desk_sfgate.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,0.590,-9.469,15.649
 desk_sfgate.skp_tile_512x512_,MacMini_10_8_Float_Bench_32-25th,22.300,10.070,34.530
@@ -1252,7 +1252,7 @@ desk_wowwiki.skp_tile_256x256_gpu_c,MacMini_10_8_Float_Bench_32-25th,290.830,251
 desk_wowwiki.skp_tile_256x256_gpu_c,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,166.960,140.264,193.656
 desk_wowwiki.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,210.600,179.540,241.660
 desk_wowwiki.skp_tile_256x256_grid_,MacMini_10_8_Float_Bench_32-25th,26.800,14.120,139.480
-desk_wowwiki.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,133.930,110.537,157.323
+desk_wowwiki.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,133.930,110.537,1057.323
 desk_wowwiki.skp_tile_256x256_grid_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,14.260,2.834,65.686
 desk_wowwiki.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,15.870,4.283,77.457
 desk_wowwiki.skp_tile_256x256_rtree_,MacMini_10_8_Float_Bench_32-25th,27.100,14.390,139.810
@@ -1512,11 +1512,11 @@ desk_youtube.skp_tile_256x256_gpu_c,MacMini_10_8_Float_Bench_32-25th,59.830,43.8
 desk_youtube.skp_tile_256x256_gpu_c,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,36.020,22.418,49.622
 desk_youtube.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,46.800,32.120,61.480
 desk_youtube.skp_tile_256x256_grid_,MacMini_10_8_Float_Bench_32-25th,0.150,-9.865,12.165
-desk_youtube.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,4.820,-5.662,15.302
+desk_youtube.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,4.820,-5.662,150.302
 desk_youtube.skp_tile_256x256_grid_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,0.150,-9.865,15.165
 desk_youtube.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,0.150,-9.865,10.165
 desk_youtube.skp_tile_256x256_rtree_,MacMini_10_8_Float_Bench_32-25th,0.150,-9.865,10.165
-desk_youtube.skp_tile_256x256_rtree_,Nexus7_4-1_Float_Bench_32-25th,5.160,-5.356,15.676
+desk_youtube.skp_tile_256x256_rtree_,Nexus7_4-1_Float_Bench_32-25th,5.160,-5.356,150.676
 desk_youtube.skp_tile_256x256_rtree_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,0.140,-9.874,10.154
 desk_youtube.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,0.180,-9.838,10.198
 desk_youtube.skp_tile_512x512_,MacMini_10_8_Float_Bench_32-25th,14.450,3.005,25.895
@@ -1776,7 +1776,7 @@ tabl_culturalsolutions.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,51.
 tabl_culturalsolutions.skp_tile_256x256_grid_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,1.840,-8.344,35.024
 tabl_culturalsolutions.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,2.000,-8.200,42.200
 tabl_culturalsolutions.skp_tile_256x256_rtree_,MacMini_10_8_Float_Bench_32-25th,3.400,-6.940,63.740
-tabl_culturalsolutions.skp_tile_256x256_rtree_,Nexus7_4-1_Float_Bench_32-25th,189.290,160.361,258.219
+tabl_culturalsolutions.skp_tile_256x256_rtree_,Nexus7_4-1_Float_Bench_32-25th,189.290,160.361,2058.219
 tabl_culturalsolutions.skp_tile_256x256_rtree_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,1.830,-8.353,37.013
 tabl_culturalsolutions.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,1.920,-8.272,42.112
 tabl_culturalsolutions.skp_tile_512x512_,MacMini_10_8_Float_Bench_32-25th,64.700,48.230,81.170
@@ -2240,11 +2240,11 @@ tabl_googlecalendar.skp_tile_256x256_gpu_c,MacMini_10_8_Float_Bench_32-25th,66.4
 tabl_googlecalendar.skp_tile_256x256_gpu_c,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,30.920,17.828,44.012
 tabl_googlecalendar.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,35.100,21.590,48.610
 tabl_googlecalendar.skp_tile_256x256_grid_,MacMini_10_8_Float_Bench_32-25th,1.100,-9.010,11.210
-tabl_googlecalendar.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,4.750,-5.725,15.225
+tabl_googlecalendar.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,4.750,-5.725,45.225
 tabl_googlecalendar.skp_tile_256x256_grid_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,0.860,-9.226,10.946
 tabl_googlecalendar.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,0.650,-9.415,10.715
 tabl_googlecalendar.skp_tile_256x256_rtree_,MacMini_10_8_Float_Bench_32-25th,1.100,-9.010,11.210
-tabl_googlecalendar.skp_tile_256x256_rtree_,Nexus7_4-1_Float_Bench_32-25th,6.520,-4.132,17.172
+tabl_googlecalendar.skp_tile_256x256_rtree_,Nexus7_4-1_Float_Bench_32-25th,6.520,-4.132,37.172
 tabl_googlecalendar.skp_tile_256x256_rtree_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,0.820,-9.262,10.902
 tabl_googlecalendar.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,0.660,-9.406,10.726
 tabl_googlecalendar.skp_tile_512x512_,MacMini_10_8_Float_Bench_32-25th,4.500,-5.950,14.950
@@ -2344,11 +2344,11 @@ tabl_hsfi.skp_tile_256x256_gpu_c,MacMini_10_8_Float_Bench_32-25th,126.030,103.42
 tabl_hsfi.skp_tile_256x256_gpu_c,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,72.130,54.917,89.343
 tabl_hsfi.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,85.020,66.518,103.522
 tabl_hsfi.skp_tile_256x256_grid_,MacMini_10_8_Float_Bench_32-25th,4.150,-6.265,64.565
-tabl_hsfi.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,34.540,21.086,47.994
+tabl_hsfi.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,34.540,21.086,547.994
 tabl_hsfi.skp_tile_256x256_grid_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,2.370,-7.867,37.607
 tabl_hsfi.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,2.670,-7.597,42.937
 tabl_hsfi.skp_tile_256x256_rtree_,MacMini_10_8_Float_Bench_32-25th,4.150,-6.265,64.565
-tabl_hsfi.skp_tile_256x256_rtree_,Nexus7_4-1_Float_Bench_32-25th,42.110,27.899,56.321
+tabl_hsfi.skp_tile_256x256_rtree_,Nexus7_4-1_Float_Bench_32-25th,42.110,27.899,560.321
 tabl_hsfi.skp_tile_256x256_rtree_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,2.310,-7.921,37.541
 tabl_hsfi.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,2.560,-7.696,42.816
 tabl_hsfi.skp_tile_512x512_,MacMini_10_8_Float_Bench_32-25th,58.800,42.920,74.680
@@ -2660,7 +2660,7 @@ tabl_onlinewsj.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,96.020,76.4
 tabl_onlinewsj.skp_tile_256x256_grid_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,8.330,-2.503,19.163
 tabl_onlinewsj.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,9.110,-1.801,20.021
 tabl_onlinewsj.skp_tile_256x256_rtree_,MacMini_10_8_Float_Bench_32-25th,14.600,3.140,26.060
-tabl_onlinewsj.skp_tile_256x256_rtree_,Nexus7_4-1_Float_Bench_32-25th,100.830,80.747,120.913
+tabl_onlinewsj.skp_tile_256x256_rtree_,Nexus7_4-1_Float_Bench_32-25th,100.830,80.747,220.913
 tabl_onlinewsj.skp_tile_256x256_rtree_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,8.350,-2.485,19.185
 tabl_onlinewsj.skp_tile_256x256_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,9.120,-1.792,20.032
 tabl_onlinewsj.skp_tile_512x512_,MacMini_10_8_Float_Bench_32-25th,26.900,14.210,39.590
@@ -3020,7 +3020,7 @@ tabl_ukwsj.skp_tile_256x256_gpu_c,MacMini_10_8_Float_Bench_32-25th,66.320,49.688
 tabl_ukwsj.skp_tile_256x256_gpu_c,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,43.190,28.871,57.509
 tabl_ukwsj.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,60.060,44.054,76.066
 tabl_ukwsj.skp_tile_256x256_grid_,MacMini_10_8_Float_Bench_32-25th,12.750,1.475,24.025
-tabl_ukwsj.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,87.330,68.597,106.063
+tabl_ukwsj.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,87.330,68.597,196.063
 tabl_ukwsj.skp_tile_256x256_grid_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,7.330,-3.403,18.063
 tabl_ukwsj.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,8.020,-2.782,18.822
 tabl_ukwsj.skp_tile_256x256_rtree_,MacMini_10_8_Float_Bench_32-25th,12.850,1.565,24.135
