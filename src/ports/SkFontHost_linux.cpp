@@ -10,6 +10,7 @@
 #include "SkFontHost.h"
 #include "SkFontDescriptor.h"
 #include "SkDescriptor.h"
+#include "SkMMapStream.h"
 #include "SkOSFile.h"
 #include "SkPaint.h"
 #include "SkString.h"
@@ -279,8 +280,8 @@ public:
     EmptyTypeface() : INHERITED(SkTypeface::kNormal, true, NULL, false) {}
 
     // overrides
-    virtual SkStream* openStream() SK_OVERRIDE { return NULL; }
-    virtual const char* getUniqueString() SK_OVERRIDE const { return NULL; }
+    virtual SkStream* openStream() { return NULL; }
+    virtual const char* getUniqueString() const { return NULL; }
 
 private:
     typedef FamilyTypeface INHERITED;
@@ -298,12 +299,14 @@ public:
         fStream->unref();
     }
 
-    virtual SkStream* openStream() SK_OVERRIDE {
+    // overrides
+    virtual SkStream* openStream()
+    {
       // openStream returns a refed stream.
       fStream->ref();
       return fStream;
     }
-    virtual const char* getUniqueString() const SK_OVERRIDE { return NULL; }
+    virtual const char* getUniqueString() const { return NULL; }
 
 private:
     SkStream* fStream;
@@ -319,11 +322,25 @@ public:
         fPath.set(path);
     }
 
-    virtual SkStream* openStream() SK_OVERRIDE {
-        return SkStream::NewFromFile(fPath.c_str());
+    // overrides
+    virtual SkStream* openStream()
+    {
+        SkStream* stream = SkNEW_ARGS(SkMMAPStream, (fPath.c_str()));
+
+        // check for failure
+        if (stream->getLength() <= 0) {
+            SkDELETE(stream);
+            // maybe MMAP isn't supported. try FILE
+            stream = SkNEW_ARGS(SkFILEStream, (fPath.c_str()));
+            if (stream->getLength() <= 0) {
+                SkDELETE(stream);
+                stream = NULL;
+            }
+        }
+        return stream;
     }
 
-    virtual const char* getUniqueString() const SK_OVERRIDE {
+    virtual const char* getUniqueString() const {
         const char* str = strrchr(fPath.c_str(), '/');
         if (str) {
             str += 1;   // skip the '/'
@@ -342,13 +359,19 @@ private:
 
 static bool get_name_and_style(const char path[], SkString* name,
                                SkTypeface::Style* style, bool* isFixedWidth) {
-    SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
-    if (stream.get()) {
-        return find_name_and_attributes(stream, name, style, isFixedWidth);
-    } else {
-        SkDebugf("---- failed to open <%s> as a font\n", path);
-        return false;
+    SkMMAPStream stream(path);
+    if (stream.getLength() > 0) {
+        return find_name_and_attributes(&stream, name, style, isFixedWidth);
     }
+    else {
+        SkFILEStream stream(path);
+        if (stream.getLength() > 0) {
+            return find_name_and_attributes(&stream, name, style, isFixedWidth);
+        }
+    }
+
+    SkDebugf("---- failed to open <%s> as a font\n", path);
+    return false;
 }
 
 // these globals are assigned (once) by load_system_fonts()
