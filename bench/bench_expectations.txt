@@ -197,7 +197,7 @@ desk_booking.skp_simple_viewport_1280x800_rtree_,Nexus7_4-1_Float_Bench_32-25th,
 desk_booking.skp_tile_1024x256_,MacMini_10_8_Float_Bench_32-25th,24.800,12.320,47.280
 desk_booking.skp_tile_1024x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,12.180,0.962,23.398
 desk_booking.skp_tile_1024x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,13.560,2.204,24.916
-desk_booking.skp_tile_1024x64_,MacMini_10_8_Float_Bench_32-25th,40.200,26.180,54.220
+desk_booking.skp_tile_1024x64_,MacMini_10_8_Float_Bench_32-25th,40.200,26.180,64.220
 desk_booking.skp_tile_1024x64_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,20.640,8.576,32.704
 desk_booking.skp_tile_1024x64_,Shuttle_Win7_Intel_Float_Bench_32-25th,20.850,8.765,32.935
 desk_booking.skp_tile_256x256_,MacMini_10_8_Float_Bench_32-25th,36.500,22.850,50.150
@@ -523,7 +523,7 @@ desk_facebook.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,125.3
 desk_facebook.skp_tile_256x256_gpu_c,MacMini_10_8_Float_Bench_32-25th,165.500,138.950,192.050
 desk_facebook.skp_tile_256x256_gpu_c,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,98.340,78.506,118.174
 desk_facebook.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,107.640,86.876,128.404
-desk_facebook.skp_tile_256x256_grid_,MacMini_10_8_Float_Bench_32-25th,30.700,17.630,43.770
+desk_facebook.skp_tile_256x256_grid_,MacMini_10_8_Float_Bench_32-25th,30.700,17.630,53.770
 desk_facebook.skp_tile_256x256_grid_,Nexus7_4-1_Float_Bench_32-25th,375.780,328.202,423.358
 desk_facebook.skp_tile_256x256_grid_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,18.850,6.965,30.735
 desk_facebook.skp_tile_256x256_grid_,Shuttle_Win7_Intel_Float_Bench_32-25th,18.110,6.299,29.921
