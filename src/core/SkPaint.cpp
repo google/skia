@@ -2295,6 +2295,7 @@ void SkPaint::toString(SkString* str) const {
     SkMaskFilter* maskFilter = this->getMaskFilter();
     if (NULL != maskFilter) {
         str->append("<dt>MaskFilter:</dt><dd>");
+        SkDEVCODE(maskFilter->toString(str);)
         str->append("</dd>");
     }
 

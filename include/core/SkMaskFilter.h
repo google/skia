@@ -93,6 +93,8 @@ public:
      */
     virtual void computeFastBounds(const SkRect& src, SkRect* dest) const;
 
+    SkDEVCODE(virtual void toString(SkString* str) const = 0;)
+
 protected:
     // empty for now, but lets get our subclass to remember to init us for the future
     SkMaskFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}

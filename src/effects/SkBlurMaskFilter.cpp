@@ -13,6 +13,7 @@
 #include "SkBounder.h"
 #include "SkRasterClip.h"
 #include "SkRTConf.h"
+#include "SkStringUtils.h"
 
 class SkBlurMaskFilterImpl : public SkMaskFilter {
 public:
@@ -27,6 +28,7 @@ public:
     virtual BlurType asABlur(BlurInfo*) const SK_OVERRIDE;
     virtual void computeFastBounds(const SkRect&, SkRect*) const SK_OVERRIDE;
 
+    SkDEVCODE(virtual void toString(SkString* str) const SK_OVERRIDE;)
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurMaskFilterImpl)
 
 protected:
@@ -338,6 +340,35 @@ SkMaskFilter::BlurType SkBlurMaskFilterImpl::asABlur(BlurInfo* info) const {
     }
     return gBlurStyle2BlurType[fBlurStyle];
 }
+
+#ifdef SK_DEVELOPER
+void SkBlurMaskFilterImpl::toString(SkString* str) const {
+    str->append("SkBlurMaskFilterImpl: (");
+
+    str->append("radius: ");
+    str->appendScalar(fRadius);
+    str->append(" ");
+
+    static const char* gStyleName[SkBlurMaskFilter::kBlurStyleCount] = {
+        "normal", "solid", "outer", "inner"
+    };
+
+    str->appendf("style: %s ", gStyleName[fBlurStyle]);
+    str->append("flags: (");
+    if (fBlurFlags) {
+        bool needSeparator = false;
+        SkAddFlagToString(str, 
+                          SkToBool(fBlurFlags & SkBlurMaskFilter::kIgnoreTransform_BlurFlag), 
+                          "IgnoreXform", &needSeparator);
+        SkAddFlagToString(str, 
+                          SkToBool(fBlurFlags & SkBlurMaskFilter::kHighQuality_BlurFlag), 
+                          "HighQuality", &needSeparator);
+    } else {
+        str->append("None");
+    }
+    str->append("))");
+}
+#endif
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkBlurMaskFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBlurMaskFilterImpl)

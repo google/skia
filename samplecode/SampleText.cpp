@@ -48,10 +48,21 @@ public:
     //    if (c < min) c = min;
         return c;
     }
+
+#ifdef SK_DEVELOPER
+    virtual void toString(SkString* str) const SK_OVERRIDE {
+        str->append("ReduceNoise: (");
+        this->INHERITED::toString(str);
+        str->append(")");
+    }
+#endif
+
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(ReduceNoise)
 
 private:
     ReduceNoise(SkFlattenableReadBuffer& rb) : SkKernel33ProcMaskFilter(rb) {}
+
+    typedef SkKernel33ProcMaskFilter INHERITED;
 };
 
 class Darken : public SkKernel33ProcMaskFilter {
@@ -69,10 +80,21 @@ public:
         SkASSERT(f >= 0 && f <= 1);
         return (int)(f * 255);
     }
+
+#ifdef SK_DEVELOPER
+    virtual void toString(SkString* str) const SK_OVERRIDE { 
+        str->append("Darken: ("); 
+        this->INHERITED::toString(str);
+        str->append(")");
+    }
+#endif
+
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Darken)
 
 private:
     Darken(SkFlattenableReadBuffer& rb) : SkKernel33ProcMaskFilter(rb) {}
+
+    typedef SkKernel33ProcMaskFilter INHERITED;
 };
 
 static SkMaskFilter* makemf() { return new Darken(0x30); }

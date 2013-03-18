@@ -8,6 +8,7 @@
 #include "SkKernel33MaskFilter.h"
 #include "SkColorPriv.h"
 #include "SkFlattenableBuffers.h"
+#include "SkString.h"
 
 SkMask::Format SkKernel33ProcMaskFilter::getFormat() const {
     return SkMask::kA8_Format;
@@ -84,6 +85,12 @@ SkKernel33ProcMaskFilter::SkKernel33ProcMaskFilter(SkFlattenableReadBuffer& rb)
     fPercent256 = rb.readInt();
 }
 
+#ifdef SK_DEVELOPER
+void SkKernel33ProcMaskFilter::toString(SkString* str) const {
+    str->appendf("percent256: %d, ", fPercent256);
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 uint8_t SkKernel33MaskFilter::computeValue(uint8_t* const* srcRows) const {
@@ -117,3 +124,19 @@ SkKernel33MaskFilter::SkKernel33MaskFilter(SkFlattenableReadBuffer& rb)
     SkASSERT(9 == count);
     fShift = rb.readInt();
 }
+
+#ifdef SK_DEVELOPER
+void SkKernel33MaskFilter::toString(SkString* str) const {
+    str->append("SkKernel33MaskFilter: (");
+
+    str->appendf("kernel: (%d, %d, %d, %d, %d, %d, %d, %d, %d), ",
+            fKernel[0][0], fKernel[0][1], fKernel[0][2],
+            fKernel[1][0], fKernel[1][1], fKernel[1][2],
+            fKernel[2][0], fKernel[2][1], fKernel[2][2]);
+    str->appendf("shift: %d, ", fShift);
+
+    this->INHERITED::toString(str);
+
+    str->append(")");
+}
+#endif
