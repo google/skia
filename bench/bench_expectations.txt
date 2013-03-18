@@ -1806,7 +1806,7 @@ tabl_cuteoverload.skp_record_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,0.848
 tabl_cuteoverload.skp_simple_viewport_1280x800_,Nexus7_4-1_Float_Bench_32-25th,103.490,83.141,123.839
 tabl_cuteoverload.skp_simple_viewport_1280x800_gpu_,Nexus7_4-1_Float_Bench_32-25th,17.930,6.137,29.723
 tabl_cuteoverload.skp_simple_viewport_1280x800_rtree_,Nexus7_4-1_Float_Bench_32-25th,102.660,82.394,122.926
-tabl_cuteoverload.skp_tile_1024x256_,MacMini_10_8_Float_Bench_32-25th,87.400,68.660,106.140
+tabl_cuteoverload.skp_tile_1024x256_,MacMini_10_8_Float_Bench_32-25th,87.400,68.660,116.140
 tabl_cuteoverload.skp_tile_1024x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,39.090,25.181,52.999
 tabl_cuteoverload.skp_tile_1024x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,40.420,26.378,54.462
 tabl_cuteoverload.skp_tile_1024x64_,MacMini_10_8_Float_Bench_32-25th,184.750,156.275,213.225
