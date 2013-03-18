@@ -227,7 +227,7 @@ const SkBitmap* DrawBitmapNine::getBitmap() const {
 }
 
 DrawBitmapRect::DrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
-                               const SkRect& dst, const SkPaint* paint, 
+                               const SkRect& dst, const SkPaint* paint,
                                SkBitmap& resizedBitmap) {
     fBitmap = bitmap;
     if (NULL != src) {
@@ -366,7 +366,7 @@ void DrawPosText::execute(SkCanvas* canvas) {
 
 
 DrawPosTextH::DrawPosTextH(const void* text, size_t byteLength,
-                           const SkScalar xpos[], SkScalar constY, 
+                           const SkScalar xpos[], SkScalar constY,
                            const SkPaint& paint) {
     fText = text;
     fByteLength = byteLength;
