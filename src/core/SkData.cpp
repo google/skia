@@ -8,6 +8,13 @@
 #include "SkData.h"
 #include "SkFlattenableBuffers.h"
 
+#if SK_MMAP_SUPPORT
+    #include <unistd.h>
+    #include <sys/mman.h>
+    #include <fcntl.h>
+    #include <errno.h>
+#endif
+
 SK_DEFINE_INST_COUNT(SkData)
 
 SkData::SkData(const void* ptr, size_t size, ReleaseProc proc, void* context) {
@@ -119,6 +126,20 @@ SkData* SkData::NewWithCString(const char cstr[]) {
     }
     return NewWithCopy(cstr, size);
 }
+
+#if SK_MMAP_SUPPORT
+static void sk_munmap_releaseproc(const void* addr, size_t length, void*) {
+    munmap(const_cast<void*>(addr), length);
+}
+
+SkData* SkData::NewFromMMap(const void* addr, size_t length) {
+    return SkNEW_ARGS(SkData, (addr, length, sk_munmap_releaseproc, NULL));
+}
+#else
+SkData* SkData::NewFromMMap(const void* addr, size_t length) {
+    return NULL;
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -300,3 +321,4 @@ SkDataSet* SkDataSet::NewEmpty() {
     gEmptySet->ref();
     return gEmptySet;
 }
+
