@@ -16,7 +16,7 @@
 #define SK_BUILD_FOR_ADS_12
 #endif
 
-#ifndef SK_BUILD_FOR_ADS_12
+#if !defined(SK_BUILD_FOR_ADS_12) && !defined(__x86_64__)
 #define SK_SMALLER_ARRAY_TEMPLATE_EXPERIMENT 1
 #else
 #define SK_SMALLER_ARRAY_TEMPLATE_EXPERIMENT 0
@@ -135,7 +135,7 @@ private:
 };
 
 #define SkIntArray(type) SkTDS32Array<type> // holds 32 bit data types
-#define SkLongArray(type) SkTDS32Array<type>    // holds 32/64 bit data types depending on pointer size
+#define SkLongArray(type) SkTDS32Array<type>
 
 #endif // SK_SMALLER_ARRAY_TEMPLATE_EXPERIMENT
 
