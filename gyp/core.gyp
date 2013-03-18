@@ -74,10 +74,6 @@
           'include_dirs': [
             'config/win',
           ],
-          'sources!': [
-            '../include/core/SkMMapStream.h',
-            '../src/core/SkMMapStream.cpp',
-          ],
         }],
         [ 'skia_os in ("android", "nacl")', {
           'dependencies': [

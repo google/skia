@@ -17,6 +17,13 @@ class SkData;
 
 class SK_API SkStream : public SkRefCnt {
 public:
+    /**
+     *  Attempts to open the specified file, and return a stream to it (using
+     *  mmap if available). On success, the caller must call unref() on the
+     *  returned object. On failure, returns NULL.
+     */
+    static SkStream* NewFromFile(const char path[]);
+    
     SK_DECLARE_INST_COUNT(SkStream)
 
     /** Called to rewind to the beginning of the stream. If this cannot be

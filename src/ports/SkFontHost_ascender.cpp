@@ -21,8 +21,6 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-#include "SkMMapStream.h"
-
 class SkScalerContext_Ascender : public SkScalerContext {
 public:
     SkScalerContext_Ascender(const SkDescriptor* desc);
