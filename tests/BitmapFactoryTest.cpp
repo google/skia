@@ -17,17 +17,15 @@
 #include "SkLazyPixelRef.h"
 #include "SkLruImageCache.h"
 #include "SkPaint.h"
+#include "SkPurgeableImageCache.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
 #include "Test.h"
 
-#ifdef SK_BUILD_FOR_ANDROID
-#include "SkAshmemImageCache.h"
-#endif
-
 static SkBitmap* create_bitmap() {
     SkBitmap* bm = SkNEW(SkBitmap);
-    const int W = 100, H = 100;
+    // Use a large bitmap.
+    const int W = 1000, H = 1000;
     bm->setConfig(SkBitmap::kARGB_8888_Config, W, H);
     bm->allocPixels();
     bm->eraseColor(SK_ColorBLACK);
@@ -52,7 +50,53 @@ static void assert_bounds_equal(skiatest::Reporter* reporter, const SkBitmap& bm
     REPORTER_ASSERT(reporter, bm1.height() == bm2.height());
 }
 
-static void test_cache(skiatest::Reporter* reporter, SkImageCache* cache, SkData* encodedData,
+static void test_cache(skiatest::Reporter* reporter, SkImageCache* cache) {
+    // Test the cache directly:
+    cache->purgeAllUnpinnedCaches();
+    intptr_t ID = SkImageCache::UNINITIALIZED_ID;
+    const size_t size = 1000;
+    char buffer[size];
+    sk_bzero((void*) buffer, size);
+    void* memory = cache->allocAndPinCache(size, &ID);
+    if (memory != NULL) {
+        memcpy(memory, (void*)buffer, size);
+        REPORTER_ASSERT(reporter, cache->getMemoryStatus(ID) == SkImageCache::kPinned_MemoryStatus);
+        cache->releaseCache(ID);
+        REPORTER_ASSERT(reporter, cache->getMemoryStatus(ID) != SkImageCache::kPinned_MemoryStatus);
+        SkImageCache::DataStatus dataStatus;
+        memory = cache->pinCache(ID, &dataStatus);
+        if (memory != NULL) {
+            REPORTER_ASSERT(reporter, cache->getMemoryStatus(ID)
+                                      == SkImageCache::kPinned_MemoryStatus);
+            if (SkImageCache::kRetained_DataStatus == dataStatus) {
+                REPORTER_ASSERT(reporter, !memcmp(memory, (void*) buffer, size));
+            }
+            cache->releaseCache(ID);
+            REPORTER_ASSERT(reporter, cache->getMemoryStatus(ID)
+                                      != SkImageCache::kPinned_MemoryStatus);
+            cache->purgeAllUnpinnedCaches();
+            REPORTER_ASSERT(reporter, cache->getMemoryStatus(ID)
+                                      != SkImageCache::kPinned_MemoryStatus);
+            memory = cache->pinCache(ID, &dataStatus);
+            if (memory != NULL) {
+                // Since the cache was thrown away, and ID was not pinned, it should have
+                // been purged.
+                REPORTER_ASSERT(reporter, SkImageCache::kUninitialized_DataStatus == dataStatus);
+                cache->releaseCache(ID);
+                REPORTER_ASSERT(reporter, cache->getMemoryStatus(ID)
+                                          != SkImageCache::kPinned_MemoryStatus);
+                cache->throwAwayCache(ID);
+                REPORTER_ASSERT(reporter, cache->getMemoryStatus(ID)
+                                          == SkImageCache::kFreed_MemoryStatus);
+            } else {
+                REPORTER_ASSERT(reporter, cache->getMemoryStatus(ID)
+                                          == SkImageCache::kFreed_MemoryStatus);
+            }
+        }
+    }
+}
+
+static void test_factory(skiatest::Reporter* reporter, SkImageCache* cache, SkData* encodedData,
                        const SkBitmap& origBitmap) {
     SkBitmapFactory factory(&SkImageDecoder::DecodeMemoryToTarget);
     factory.setImageCache(cache);
@@ -72,41 +116,80 @@ static void test_cache(skiatest::Reporter* reporter, SkImageCache* cache, SkData
         // Lazy decoding
         REPORTER_ASSERT(reporter, !bitmapFromFactory->readyToDraw());
         SkLazyPixelRef* lazyRef = static_cast<SkLazyPixelRef*>(pixelRef);
-        int32_t cacheID = lazyRef->getCacheId();
-        REPORTER_ASSERT(reporter, cache->getCacheStatus(cacheID)
-                                  != SkImageCache::kPinned_CacheStatus);
+        intptr_t cacheID = lazyRef->getCacheId();
+        REPORTER_ASSERT(reporter, cache->getMemoryStatus(cacheID)
+                                  != SkImageCache::kPinned_MemoryStatus);
         {
             SkAutoLockPixels alp(*bitmapFromFactory.get());
             REPORTER_ASSERT(reporter, bitmapFromFactory->readyToDraw());
             cacheID = lazyRef->getCacheId();
-            REPORTER_ASSERT(reporter, cache->getCacheStatus(cacheID)
-                                      == SkImageCache::kPinned_CacheStatus);
+            REPORTER_ASSERT(reporter, cache->getMemoryStatus(cacheID)
+                                      == SkImageCache::kPinned_MemoryStatus);
         }
         REPORTER_ASSERT(reporter, !bitmapFromFactory->readyToDraw());
-        REPORTER_ASSERT(reporter, cache->getCacheStatus(cacheID)
-                                  != SkImageCache::kPinned_CacheStatus);
+        REPORTER_ASSERT(reporter, cache->getMemoryStatus(cacheID)
+                                  != SkImageCache::kPinned_MemoryStatus);
         bitmapFromFactory.free();
-        REPORTER_ASSERT(reporter, cache->getCacheStatus(cacheID)
-                                  == SkImageCache::kThrownAway_CacheStatus);
+        REPORTER_ASSERT(reporter, cache->getMemoryStatus(cacheID)
+                                  == SkImageCache::kFreed_MemoryStatus);
     }
 }
+
+class ImageCacheHolder : public SkNoncopyable {
+
+public:
+    ~ImageCacheHolder() {
+        fCaches.safeUnrefAll();
+    }
+
+    void addImageCache(SkImageCache* cache) {
+        SkSafeRef(cache);
+        *fCaches.append() = cache;
+    }
+
+    int count() const { return fCaches.count(); }
+
+    SkImageCache* getAt(int i) {
+        if (i < 0 || i > fCaches.count()) {
+            return NULL;
+        }
+        return fCaches.getAt(i);
+    }
+
+private:
+    SkTDArray<SkImageCache*> fCaches;
+};
 
 static void TestBitmapFactory(skiatest::Reporter* reporter) {
     SkAutoTDelete<SkBitmap> bitmap(create_bitmap());
     SkASSERT(bitmap.get() != NULL);
 
     SkAutoDataUnref encodedBitmap(create_data_from_bitmap(*bitmap.get()));
-    if (encodedBitmap.get() == NULL) {
-        // Encoding failed.
-        return;
-    }
+    bool encodeSucceeded = encodedBitmap.get() != NULL;
+    SkASSERT(encodeSucceeded);
+
+    ImageCacheHolder cacheHolder;
 
     SkAutoTUnref<SkLruImageCache> lruCache(SkNEW_ARGS(SkLruImageCache, (1024 * 1024)));
-    test_cache(reporter, lruCache, encodedBitmap, *bitmap.get());
-    test_cache(reporter, NULL, encodedBitmap, *bitmap.get());
-#ifdef SK_BUILD_FOR_ANDROID
-    test_cache(reporter, SkAshmemImageCache::GetAshmemImageCache(), encodedBitmap, *bitmap.get());
-#endif
+    cacheHolder.addImageCache(lruCache);
+
+    cacheHolder.addImageCache(NULL);
+
+    SkImageCache* purgeableCache = SkPurgeableImageCache::Create();
+    if (purgeableCache != NULL) {
+        cacheHolder.addImageCache(purgeableCache);
+        purgeableCache->unref();
+    }
+
+    for (int i = 0; i < cacheHolder.count(); i++) {
+        SkImageCache* cache = cacheHolder.getAt(i);
+        if (cache != NULL) {
+            test_cache(reporter, cache);
+        }
+        if (encodeSucceeded) {
+            test_factory(reporter, cache, encodedBitmap, *bitmap.get());
+        }
+    }
 }
 
 #include "TestClassDef.h"

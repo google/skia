@@ -10,16 +10,17 @@
 #include "PictureBenchmark.h"
 #include "PictureRenderingFlags.h"
 #include "SkBenchLogger.h"
-#include "SkBitmapFactory.h"
-#include "SkCanvas.h"
 #include "SkFlags.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
+#if LAZY_CACHE_STATS
+    #include "SkLazyPixelRef.h"
+#endif
+#include "SkLruImageCache.h"
 #include "SkMath.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
 #include "SkStream.h"
-#include "SkTArray.h"
 #include "picture_utils.h"
 
 
@@ -142,20 +143,9 @@ static SkString filterFlagsUsage() {
     return result;
 }
 
-#include "SkData.h"
-#include "SkLruImageCache.h"
-#include "SkLazyPixelRef.h"
-
-static SkLruImageCache gLruImageCache(1024*1024);
-
-static bool lazy_decode_bitmap(const void* buffer, size_t size, SkBitmap* bitmap) {
-    void* copiedBuffer = sk_malloc_throw(size);
-    memcpy(copiedBuffer, buffer, size);
-    SkAutoDataUnref data(SkData::NewFromMalloc(copiedBuffer, size));
-    SkBitmapFactory factory(&SkImageDecoder::DecodeMemoryToTarget);
-    factory.setImageCache(&gLruImageCache);
-    return factory.installPixelRef(data, bitmap);
-}
+// These are defined in PictureRenderingFlags.cpp
+extern SkLruImageCache gLruImageCache;
+extern bool lazy_decode_bitmap(const void* buffer, size_t size, SkBitmap* bitmap);
 
 #if LAZY_CACHE_STATS
 static int32_t gTotalCacheHits;

@@ -22,22 +22,45 @@ public:
      *  call to releaseCache and a call to throwAwayCache.
      *  @param bytes Number of bytes needed.
      *  @param ID Output parameter which must not be NULL. On success, ID will be set to a value
-     *         associated with that memory which can be used as a parameter to the other functions
-     *         in SkImageCache. On failure, ID is unchanged.
+     *      associated with that memory which can be used as a parameter to the other functions
+     *      in SkImageCache. On failure, ID is unchanged.
      *  @return Pointer to the newly allocated memory, or NULL. This memory is safe to use until
-     *          releaseCache is called with ID.
+     *      releaseCache is called with ID.
      */
     virtual void* allocAndPinCache(size_t bytes, intptr_t* ID) = 0;
 
     /**
-     *  Re-request the memory associated with ID.
-     *  @param ID Unique ID for the memory block.
-     *  @return Pointer: If non-NULL, points to the previously allocated memory, in which case
-     *          this call must be balanced with a call to releaseCache. If NULL, the memory
-     *          has been reclaimed, so allocAndPinCache must be called again with a pointer to
-     *          the same ID.
+     *  Output parameter for pinCache, stating whether the memory still contains the data it held
+     *  when releaseCache was last called for the same ID.
      */
-    virtual void* pinCache(intptr_t ID) = 0;
+    enum DataStatus {
+        /**
+         *  The data has been purged, and therefore needs to be rewritten to the returned memory.
+         */
+        kUninitialized_DataStatus,
+
+        /**
+         *  The memory still contains the data it held when releaseCache was last called with the
+         *  same ID.
+         */
+        kRetained_DataStatus,
+    };
+
+    /**
+     *  Re-request the memory associated with ID and pin it so that it will not be reclaimed until
+     *  the next call to releaseCache with the same ID.
+     *  @param ID Unique ID for the memory block.
+     *  @param status Output parameter which must not be NULL. On success (i.e. the return value is
+     *      not NULL), status will be set to one of two states representing the cached memory. If
+     *      status is set to kRetained_DataStatus, the memory contains the same data it did
+     *      before releaseCache was called with this ID. If status is set to
+     *      kUninitialized_DataStatus, the memory is still pinned, but the previous data is no
+     *      longer available. If the return value is NULL, status is unchanged.
+     *  @return Pointer: If non-NULL, points to the previously allocated memory, in which case
+     *      this call must be balanced with a call to releaseCache. If NULL, the memory
+     *      has been reclaimed, and throwAwayCache MUST NOT be called.
+     */
+    virtual void* pinCache(intptr_t ID, DataStatus* status) = 0;
 
     /**
      *  Inform the cache that it is safe to free the block of memory corresponding to ID. After
@@ -61,16 +84,42 @@ public:
     static const intptr_t UNINITIALIZED_ID = 0;
 
 #ifdef SK_DEBUG
-    enum CacheStatus {
-        kPinned_CacheStatus,
-        kUnpinned_CacheStatus,
-        kThrownAway_CacheStatus,
+    /**
+     *  Debug only status of a memory block.
+     */
+    enum MemoryStatus {
+        /**
+         *  It is safe to use the pointer returned by the most recent of allocAndPinCache(ID) or
+         *  pinCache(ID) with the same ID.
+         */
+        kPinned_MemoryStatus,
+
+        /**
+         *  The pointer returned by the most recent call to allocAndPinCache(ID) or pinCache(ID) has
+         *  since been released by releaseCache(ID). In order to reuse it, pinCache(ID) must be
+         *  called again. Note that after calling releaseCache(ID), the status of that particular
+         *  ID may not be kUnpinned_MemoryStatus, depending on the implementation, but it will not
+         *  be kPinned_MemoryStatus.
+         */
+        kUnpinned_MemoryStatus,
+
+        /**
+         *  The memory associated with ID has been thrown away. No calls should be made using the
+         *  same ID.
+         */
+        kFreed_MemoryStatus,
     };
 
     /**
-     *  Debug only function to get the status of a particular block of memory.
+     *  Debug only function to get the status of a particular block of memory. Safe to call after
+     *  throwAwayCache has been called with this ID.
      */
-    virtual CacheStatus getCacheStatus(intptr_t ID) const = 0;
+    virtual MemoryStatus getMemoryStatus(intptr_t ID) const = 0;
+
+    /**
+     *  Debug only function to clear all unpinned caches.
+     */
+    virtual void purgeAllUnpinnedCaches() = 0;
 #endif
 };
 #endif // SkImageCache_DEFINED

@@ -24,7 +24,8 @@ SkLazyPixelRef::SkLazyPixelRef(SkData* data, SkBitmapFactory::DecodeProc proc, S
     : INHERITED(NULL)
     , fDecodeProc(proc)
     , fImageCache(cache)
-    , fCacheId(SkImageCache::UNINITIALIZED_ID) {
+    , fCacheId(SkImageCache::UNINITIALIZED_ID)
+    , fRowBytes(0) {
     SkASSERT(fDecodeProc != NULL);
     if (NULL == data) {
         fData = SkData::NewEmpty();
@@ -71,37 +72,54 @@ void* SkLazyPixelRef::onLockPixels(SkColorTable**) {
     if (SkImageCache::UNINITIALIZED_ID == fCacheId) {
         target.fAddr = NULL;
     } else {
-        target.fAddr = fImageCache->pinCache(fCacheId);
-        if (NULL != target.fAddr) {
+        SkImageCache::DataStatus status;
+        target.fAddr = fImageCache->pinCache(fCacheId, &status);
+        if (target.fAddr == NULL) {
+            fCacheId = SkImageCache::UNINITIALIZED_ID;
+        } else {
+            if (SkImageCache::kRetained_DataStatus == status) {
 #if LAZY_CACHE_STATS
-            sk_atomic_inc(&gCacheHits);
+                sk_atomic_inc(&gCacheHits);
 #endif
-            return target.fAddr;
+                return target.fAddr;
+            }
+            SkASSERT(SkImageCache::kUninitialized_DataStatus == status);
         }
+        // Cache miss. Either pinCache returned NULL or it returned a memory address without the old
+        // data
 #if LAZY_CACHE_STATS
         sk_atomic_inc(&gCacheMisses);
 #endif
     }
-    SkASSERT(NULL == target.fAddr);
     SkImage::Info info;
     SkASSERT(fData != NULL && fData->size() > 0);
-    // FIXME: As an optimization, only do this part once.
-    fErrorInDecoding = !fDecodeProc(fData->data(), fData->size(), &info, NULL);
-    if (fErrorInDecoding) {
-        // In case a previous call to allocAndPinCache succeeded.
-        fImageCache->throwAwayCache(fCacheId);
-        fCacheId = SkImageCache::UNINITIALIZED_ID;
-        return NULL;
-    }
-    // Allocate the memory.
-    size_t bytes = ComputeMinRowBytesAndSize(info, &target.fRowBytes);
-
-    target.fAddr = fImageCache->allocAndPinCache(bytes, &fCacheId);
     if (NULL == target.fAddr) {
-        // Space could not be allocated.
-        fCacheId = SkImageCache::UNINITIALIZED_ID;
-        return NULL;
+        // Determine the size of the image in order to determine how much memory to allocate.
+        // FIXME: As an optimization, only do this part once.
+        fErrorInDecoding = !fDecodeProc(fData->data(), fData->size(), &info, NULL);
+        if (fErrorInDecoding) {
+            // We can only reach here if fCacheId was already set to UNINITIALIZED_ID, or if
+            // pinCache returned NULL, in which case it was reset to UNINITIALIZED_ID.
+            SkASSERT(SkImageCache::UNINITIALIZED_ID == fCacheId);
+            return NULL;
+        }
+
+        size_t bytes = ComputeMinRowBytesAndSize(info, &target.fRowBytes);
+        target.fAddr = fImageCache->allocAndPinCache(bytes, &fCacheId);
+        if (NULL == target.fAddr) {
+            // Space could not be allocated.
+            // Just like the last assert, fCacheId must be UNINITIALIZED_ID.
+            SkASSERT(SkImageCache::UNINITIALIZED_ID == fCacheId);
+            return NULL;
+        }
+    } else {
+        // pinCache returned purged memory to which target.fAddr already points. Set
+        // target.fRowBytes properly.
+        target.fRowBytes = fRowBytes;
+        // Assume that the size is correct, since it was determined by this same function
+        // previously.
     }
+    SkASSERT(target.fAddr != NULL);
     SkASSERT(SkImageCache::UNINITIALIZED_ID != fCacheId);
     fErrorInDecoding = !fDecodeProc(fData->data(), fData->size(), &info, &target);
     if (fErrorInDecoding) {
@@ -109,6 +127,8 @@ void* SkLazyPixelRef::onLockPixels(SkColorTable**) {
         fCacheId = SkImageCache::UNINITIALIZED_ID;
         return NULL;
     }
+    // Upon success, store fRowBytes so it can be used in case pinCache later returns purged memory.
+    fRowBytes = target.fRowBytes;
     return target.fAddr;
 }
 

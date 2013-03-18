@@ -67,20 +67,29 @@ public:
     bool installPixelRef(SkData*, SkBitmap*);
 
     /**
-     *  A function for selecting an SkImageCache to use based on an SkImage::Info.
+     *  An object for selecting an SkImageCache to use based on an SkImage::Info.
      */
-    typedef SkImageCache* (*CacheSelector)(const SkImage::Info&);
+    class CacheSelector : public SkRefCnt {
+
+    public:
+        /**
+         *  Return an SkImageCache to use based on the provided SkImage::Info. If the caller decides
+         *  to hang on to the result, it will call ref, so the implementation should not add a ref
+         *  as a result of this call.
+         */
+        virtual SkImageCache* selectCache(const SkImage::Info&) = 0;
+    };
 
     /**
      *  Set the function to be used to select which SkImageCache to use. Mutually exclusive with
      *  fImageCache.
      */
-    void setCacheSelector(CacheSelector);
+    void setCacheSelector(CacheSelector*);
 
 private:
-    DecodeProc    fDecodeProc;
-    SkImageCache* fImageCache;
-    CacheSelector fCacheSelector;
+    DecodeProc     fDecodeProc;
+    SkImageCache*  fImageCache;
+    CacheSelector* fCacheSelector;
 };
 
 #endif // SkBitmapFactory_DEFINED
