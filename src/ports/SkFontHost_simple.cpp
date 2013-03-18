@@ -9,6 +9,7 @@
 
 #include "SkFontHost.h"
 #include "SkDescriptor.h"
+#include "SkMMapStream.h"
 #include "SkPaint.h"
 #include "SkString.h"
 #include "SkStream.h"
@@ -311,18 +312,30 @@ public:
         fPath.set(path);
     }
 
-    virtual SkStream* openStream() SK_OVERRIDE {
-        return SkStream::NewFromFile(fPath.c_str());
-    }
+    // overrides
+    virtual SkStream* openStream() {
+        SkStream* stream = SkNEW_ARGS(SkMMAPStream, (fPath.c_str()));
 
-    virtual const char* getUniqueString() const SK_OVERRIDE {
+        // check for failure
+        if (stream->getLength() <= 0) {
+            SkDELETE(stream);
+            // maybe MMAP isn't supported. try FILE
+            stream = SkNEW_ARGS(SkFILEStream, (fPath.c_str()));
+            if (stream->getLength() <= 0) {
+                SkDELETE(stream);
+                stream = NULL;
+            }
+        }
+        return stream;
+    }
+    virtual const char* getUniqueString() const {
         const char* str = strrchr(fPath.c_str(), '/');
         if (str) {
             str += 1;   // skip the '/'
         }
         return str;
     }
-    virtual const char* getFilePath() const SK_OVERRIDE {
+    virtual const char* getFilePath() const {
         return fPath.c_str();
     }
 
@@ -340,15 +353,21 @@ static bool get_name_and_style(const char path[], SkString* name,
     SkString        fullpath;
     GetFullPathForSysFonts(&fullpath, path);
 
-    SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(fullpath.c_str()));
-    if (stream.get()) {
+    SkMMAPStream stream(fullpath.c_str());
+    if (stream.getLength() > 0) {
         return find_name_and_attributes(&stream, name, style, NULL);
-    } else {
-        if (isExpected) {
-            SkDebugf("---- failed to open <%s> as a font\n", fullpath.c_str());
-        }
-        return false;
     }
+    else {
+        SkFILEStream stream(fullpath.c_str());
+        if (stream.getLength() > 0) {
+            return find_name_and_attributes(&stream, name, style, NULL);
+        }
+    }
+
+    if (isExpected) {
+        SkDebugf("---- failed to open <%s> as a font\n", fullpath.c_str());
+    }
+    return false;
 }
 
 // used to record our notion of the pre-existing fonts
@@ -394,7 +413,7 @@ static SkTypeface* gDefaultNormal;
     fontIDs that can be used for fallback consideration, in sorted order (sorted
     meaning element[0] should be used first, then element[1], etc. When we hit
     a fontID==0 in the array, the list is done, hence our allocation size is
-    +1 the total number of possible system fonts. Also see NextLogicalTypeface().
+    +1 the total number of possible system fonts. Also see NextLogicalFont().
  */
 static uint32_t gFallbackFonts[SK_ARRAY_COUNT(gSystemFonts)+1];
 
@@ -584,7 +603,7 @@ size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
     }
 }
 
-SkTypeface* SkFontHost::NextLogicalTypeface(SkFontID currFontID, SkFontID origFontID) {
+SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
     load_system_fonts();
 
     /*  First see if fontID is already one of our fallbacks. If so, return
@@ -595,10 +614,10 @@ SkTypeface* SkFontHost::NextLogicalTypeface(SkFontID currFontID, SkFontID origFo
     const uint32_t* list = gFallbackFonts;
     for (int i = 0; list[i] != 0; i++) {
         if (list[i] == currFontID) {
-            return SkSafeRef(find_from_uniqueID(list[i+1]));
+            return list[i+1];
         }
     }
-    return SkSafeRef(list[0]);
+    return list[0];
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -617,6 +636,9 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
-    SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
-    return stream.get() ? SkFontHost::CreateTypefaceFromStream(stream) : NULL;
+    SkStream* stream = SkNEW_ARGS(SkMMAPStream, (path));
+    SkTypeface* face = SkFontHost::CreateTypefaceFromStream(stream);
+    // since we created the stream, we let go of our ref() here
+    stream->unref();
+    return face;
 }
