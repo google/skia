@@ -9,6 +9,7 @@
 
 #include "SkTableMaskFilter.h"
 #include "SkFlattenableBuffers.h"
+#include "SkString.h"
 
 SkTableMaskFilter::SkTableMaskFilter() {
     for (int i = 0; i < 256; i++) {
@@ -126,3 +127,17 @@ void SkTableMaskFilter::MakeClipTable(uint8_t table[256], uint8_t min,
     SkDebugf("\n\n");
 #endif
 }
+
+#ifdef SK_DEVELOPER
+void SkTableMaskFilter::toString(SkString* str) const {
+    str->append("SkTableMaskFilter: (");
+
+    str->append("table: ");
+    for (int i = 0; i < 255; ++i) {
+        str->appendf("%d, ", fTable[i]);
+    }
+    str->appendf("%d", fTable[255]);
+
+    str->append(")");
+}
+#endif

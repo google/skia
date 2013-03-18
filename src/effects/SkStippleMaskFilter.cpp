@@ -6,7 +6,7 @@
  */
 
 #include "SkStippleMaskFilter.h"
-
+#include "SkString.h"
 
 bool SkStippleMaskFilter::filterMask(SkMask* dst,
                                      const SkMask& src,
@@ -44,3 +44,9 @@ bool SkStippleMaskFilter::filterMask(SkMask* dst,
 
     return true;
 }
+
+#ifdef SK_DEVELOPER
+void SkStippleMaskFilter::toString(SkString* str) const {
+    str->append("SkStippleMaskFilter: ()");
+}
+#endif

@@ -27,6 +27,7 @@ public:
         return SkMask::kA8_Format;
     }
 
+    SkDEVCODE(virtual void toString(SkString* str) const SK_OVERRIDE;)
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkStippleMaskFilter);
 
 protected:

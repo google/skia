@@ -32,6 +32,7 @@ public:
     virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
                             SkIPoint* margin) const SK_OVERRIDE;
 
+    SkDEVCODE(virtual void toString(SkString* str) const SK_OVERRIDE;)
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkEmbossMaskFilter)
 
 protected:

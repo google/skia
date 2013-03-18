@@ -47,6 +47,7 @@ public:
     virtual bool filterMask(SkMask*, const SkMask&, const SkMatrix&,
                             SkIPoint*) const SK_OVERRIDE;
 
+    SkDEVCODE(virtual void toString(SkString* str) const SK_OVERRIDE;)
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTableMaskFilter)
 
 protected:
