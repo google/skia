@@ -18,6 +18,28 @@ STATUS_DELETED               = 0x02
 STATUS_MODIFIED              = 0x04
 STATUS_NOT_UNDER_SVN_CONTROL = 0x08
 
+
+if os.name == 'nt':
+  SVN = 'svn.bat'
+else:
+  SVN = 'svn'
+
+
+def Cat(svn_url):
+    """Returns the contents of the file at the given svn_url. 
+
+    @param svn_url URL of the file to read
+    """
+    proc = subprocess.Popen([SVN, 'cat', svn_url],
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT)
+    exitcode = proc.wait()
+    if not exitcode == 0:
+        raise Exception('Could not retrieve %s. Verify that the URL is valid '
+                        'and check your connection.' % svn_url)
+    return proc.communicate()[0]
+
+
 class Svn:
 
     def __init__(self, directory):
@@ -42,6 +64,17 @@ class Svn:
                             (args, self._directory, stderr))
         return stdout
 
+    def GetInfo(self):
+        """Run "svn info" and return a dictionary containing its output.
+        """
+        output = self._RunCommand([SVN, 'info'])
+        svn_info = {}
+        for line in output.split('\n'):
+          if ':' in line:
+            (key, value) = line.split(':', 1)
+            svn_info[key.strip()] = value.strip()
+        return svn_info
+
     def Checkout(self, url, path):
         """Check out a working copy from a repository.
         Returns stdout as a single string.
@@ -50,7 +83,7 @@ class Svn:
         @param path path (within self._directory) where the local copy will be
         written
         """
-        return self._RunCommand(['svn', 'checkout', url, path])
+        return self._RunCommand([SVN, 'checkout', url, path])
 
     def ListSubdirs(self, url):
         """Returns a list of all subdirectories (not files) within a given SVN
@@ -59,7 +92,7 @@ class Svn:
         @param url remote directory to list subdirectories of
         """
         subdirs = []
-        filenames = self._RunCommand(['svn', 'ls', url]).split('\n')
+        filenames = self._RunCommand([SVN, 'ls', url]).split('\n')
         for filename in filenames:
             if filename.endswith('/'):
                 subdirs.append(filename.strip('/'))
@@ -93,7 +126,7 @@ class Svn:
         if status & STATUS_NOT_UNDER_SVN_CONTROL:
             status_types_string += '\?'
         status_regex_string = '^[%s].....\s+(.+)$' % status_types_string
-        stdout = self._RunCommand(['svn', 'status'])
+        stdout = self._RunCommand([SVN, 'status'])
         status_regex = re.compile(status_regex_string, re.MULTILINE)
         files = status_regex.findall(stdout)
         return files
@@ -103,7 +136,7 @@ class Svn:
 
         @param filenames files to add to SVN control
         """
-        self._RunCommand(['svn', 'add'] + filenames)
+        self._RunCommand([SVN, 'add'] + filenames)
 
     def SetProperty(self, filenames, property_name, property_value):
         """Sets a svn property for these files.
@@ -114,7 +147,7 @@ class Svn:
         """
         if filenames:
             self._RunCommand(
-                ['svn', 'propset', property_name, property_value] + filenames)
+                [SVN, 'propset', property_name, property_value] + filenames)
 
     def SetPropertyByFilenamePattern(self, filename_pattern,
                                      property_name, property_value):
@@ -137,5 +170,5 @@ class Svn:
                version you wish to obtain
         @param dest_path destination to which to write the base content
         """
-        self._RunCommand(['svn', 'export', '--revision', 'BASE',
+        self._RunCommand([SVN, 'export', '--revision', 'BASE',
                           file_within_repo, dest_path])

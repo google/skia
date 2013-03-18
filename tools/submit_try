@@ -13,25 +13,17 @@ adds some validation and supports both git and svn.
 """
 
 
-from contextlib import closing
-
 import httplib
 import json
 import os
 import subprocess
+import svn
 import sys
-import urllib2
 
 
-def GetGlobalVariables():
-  """ Retrieve a global variable from the global_variables.json file. """
-  global_variables_file = ('http://skia.googlecode.com/svn/buildbot/'
-                           'site_config/global_variables.json')
-  with closing(urllib2.urlopen(global_variables_file)) as f:
-    return json.load(f)
-
-
-GLOBAL_VARIABLES = GetGlobalVariables()
+GLOBAL_VARIABLES = json.loads(svn.Svn.Cat('http://skia.googlecode.com/svn/'
+                                          'buildbot/site_config/'
+                                          'global_variables.json'))
 
 
 def GetGlobalVariable(var_name):
@@ -56,8 +48,8 @@ CODEREVIEW_SETTINGS = '/svn/codereview.settings'
 TRYSERVER_SVN_URL = 'TRYSERVER_SVN_URL: '
 
 # Strings used for matching svn config properties.
-URL_STR = 'URL: '
-REPO_ROOT_STR = 'Repository Root: '
+URL_STR = 'URL'
+REPO_ROOT_STR = 'Repository Root'
 
 
 def FindDepotTools():
@@ -79,20 +71,10 @@ def GetCheckoutRoot(is_svn=True):
       a git checkout.
   """
   if is_svn:
-    svn_cmd = 'svn.bat' if os.name == 'nt' else 'svn'
-    cmd = [svn_cmd, 'info']
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT)
-    if proc.wait() != 0:
-      raise Exception('Couldn\'t find checkout root!')
-    output = proc.communicate()[0].split('\n')
-    url = None
-    repo_root = None
-    for line in output:
-      if line.startswith(REPO_ROOT_STR):
-        repo_root = line[len(REPO_ROOT_STR):].rstrip()
-      elif line.startswith(URL_STR):
-        url = line[len(URL_STR):].rstrip()
+    repo = svn.Svn(os.curdir)
+    svn_info = repo.GetInfo()
+    url = svn_info.get(URL_STR, None)
+    repo_root = svn_info.get(REPO_ROOT_STR, None)
     if not url or not repo_root:
       raise Exception('Couldn\'t find checkout root!')
     if url == repo_root:
