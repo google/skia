@@ -74,16 +74,24 @@ SkLruImageCache::~SkLruImageCache() {
 }
 
 #ifdef SK_DEBUG
-SkImageCache::CacheStatus SkLruImageCache::getCacheStatus(intptr_t ID) const {
+SkImageCache::MemoryStatus SkLruImageCache::getMemoryStatus(intptr_t ID) const {
+    if (SkImageCache::UNINITIALIZED_ID == ID) {
+        return SkImageCache::kFreed_MemoryStatus;
+    }
     SkAutoMutexAcquire ac(&fMutex);
     CachedPixels* pixels = this->findByID(ID);
     if (NULL == pixels) {
-        return SkImageCache::kThrownAway_CacheStatus;
+        return SkImageCache::kFreed_MemoryStatus;
     }
     if (pixels->isLocked()) {
-        return SkImageCache::kPinned_CacheStatus;
+        return SkImageCache::kPinned_MemoryStatus;
     }
-    return SkImageCache::kUnpinned_CacheStatus;
+    return SkImageCache::kUnpinned_MemoryStatus;
+}
+
+void SkLruImageCache::purgeAllUnpinnedCaches() {
+    SkAutoMutexAcquire ac(&fMutex);
+    this->purgeTilAtOrBelow(0);
 }
 #endif
 
@@ -108,7 +116,7 @@ void* SkLruImageCache::allocAndPinCache(size_t bytes, intptr_t* ID) {
     return pixels->getData();
 }
 
-void* SkLruImageCache::pinCache(intptr_t ID) {
+void* SkLruImageCache::pinCache(intptr_t ID, SkImageCache::DataStatus* status) {
     SkASSERT(ID != SkImageCache::UNINITIALIZED_ID);
     SkAutoMutexAcquire ac(&fMutex);
     CachedPixels* pixels = this->findByID(ID);
@@ -119,6 +127,9 @@ void* SkLruImageCache::pinCache(intptr_t ID) {
         fLRU.remove(pixels);
         fLRU.addToHead(pixels);
     }
+    SkASSERT(status != NULL);
+    // This cache will never return pinned memory whose data has been overwritten.
+    *status = SkImageCache::kRetained_DataStatus;
     pixels->lock();
     return pixels->getData();
 }
@@ -133,6 +144,7 @@ void SkLruImageCache::releaseCache(intptr_t ID) {
 }
 
 void SkLruImageCache::throwAwayCache(intptr_t ID) {
+    SkASSERT(ID != SkImageCache::UNINITIALIZED_ID);
     SkAutoMutexAcquire ac(&fMutex);
     CachedPixels* pixels = this->findByID(ID);
     if (pixels != NULL) {
@@ -155,9 +167,6 @@ void SkLruImageCache::removePixels(CachedPixels* pixels) {
 
 CachedPixels* SkLruImageCache::findByID(intptr_t ID) const {
     // Mutex is already locked.
-    if (SkImageCache::UNINITIALIZED_ID == ID) {
-        return NULL;
-    }
     Iter iter;
     // Start from the head, most recently used.
     CachedPixels* pixels = iter.init(fLRU, Iter::kHead_IterStart);

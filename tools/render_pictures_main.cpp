@@ -7,8 +7,6 @@
 
 #include "CopyTilesRenderer.h"
 #include "SkBitmap.h"
-#include "SkBitmapFactory.h"
-#include "SkCanvas.h"
 #include "SkDevice.h"
 #include "SkFlags.h"
 #include "SkGraphics.h"
@@ -19,7 +17,6 @@
 #include "SkPicture.h"
 #include "SkStream.h"
 #include "SkString.h"
-#include "SkTArray.h"
 #include "PictureRenderer.h"
 #include "PictureRenderingFlags.h"
 #include "picture_utils.h"
@@ -45,36 +42,8 @@ static void make_output_filepath(SkString* path, const SkString& dir,
     path->remove(path->size() - 4, 4);
 }
 
-#include "SkData.h"
-#include "SkLruImageCache.h"
-
-static SkLruImageCache gLruImageCache(1024*1024);
-
-#ifdef SK_BUILD_FOR_ANDROID
-#include "SkAshmemImageCache.h"
-#include "SkImage.h"
-
-static SkImageCache* cache_selector(const SkImage::Info& info) {
-    if (info.fWidth * info.fHeight > 32 * 1024) {
-        return SkAshmemImageCache::GetAshmemImageCache();
-    }
-    return &gLruImageCache;
-}
-
-#endif
-
-static bool lazy_decode_bitmap(const void* buffer, size_t size, SkBitmap* bitmap) {
-    void* copiedBuffer = sk_malloc_throw(size);
-    memcpy(copiedBuffer, buffer, size);
-    SkAutoDataUnref data(SkData::NewFromMalloc(copiedBuffer, size));
-    SkBitmapFactory factory(&SkImageDecoder::DecodeMemoryToTarget);
-#ifdef SK_BUILD_FOR_ANDROID
-    factory.setCacheSelector(&cache_selector);
-#else
-    factory.setImageCache(&gLruImageCache);
-#endif
-    return factory.installPixelRef(data, bitmap);
-}
+// Defined in PictureRenderingFlags.cpp
+extern bool lazy_decode_bitmap(const void* buffer, size_t size, SkBitmap* bitmap);
 
 static bool render_picture(const SkString& inputPath, const SkString* outputDir,
                            sk_tools::PictureRenderer& renderer,

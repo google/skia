@@ -68,6 +68,7 @@ private:
     SkBitmapFactory::DecodeProc fDecodeProc;
     SkImageCache*               fImageCache;
     intptr_t                    fCacheId;
+    size_t                      fRowBytes;
 
 #if LAZY_CACHE_STATS
     static int32_t              gCacheHits;

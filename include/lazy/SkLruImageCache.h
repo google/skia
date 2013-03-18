@@ -25,7 +25,8 @@ public:
     virtual ~SkLruImageCache();
 
 #ifdef SK_DEBUG
-    CacheStatus getCacheStatus(intptr_t ID) const SK_OVERRIDE;
+    virtual MemoryStatus getMemoryStatus(intptr_t ID) const SK_OVERRIDE;
+    virtual void purgeAllUnpinnedCaches() SK_OVERRIDE;
 #endif
 
     /**
@@ -45,7 +46,7 @@ public:
     size_t getImageCacheUsed() const { return fRamUsed; }
 
     virtual void* allocAndPinCache(size_t bytes, intptr_t* ID) SK_OVERRIDE;
-    virtual void* pinCache(intptr_t ID) SK_OVERRIDE;
+    virtual void* pinCache(intptr_t ID, SkImageCache::DataStatus*) SK_OVERRIDE;
     virtual void releaseCache(intptr_t ID) SK_OVERRIDE;
     virtual void throwAwayCache(intptr_t ID) SK_OVERRIDE;
 
@@ -55,7 +56,7 @@ private:
     typedef SkTInternalLList<CachedPixels>::Iter Iter;
 
 #ifdef SK_DEBUG
-    // fMutex is mutable so that getCacheStatus can be const
+    // fMutex is mutable so that getMemoryStatus can be const
     mutable
 #endif
     SkMutex fMutex;

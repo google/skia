@@ -8,7 +8,7 @@
 #ifndef PICTURE_RENDERING_FLAGS
 #define PICTURE_RENDERING_FLAGS
 
-#include "SkString.h"
+class SkString;
 
 namespace sk_tools {
     class PictureRenderer;

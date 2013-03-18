@@ -22,17 +22,19 @@ SkBitmapFactory::SkBitmapFactory(SkBitmapFactory::DecodeProc proc)
 
 SkBitmapFactory::~SkBitmapFactory() {
     SkSafeUnref(fImageCache);
+    SkSafeUnref(fCacheSelector);
 }
 
 void SkBitmapFactory::setImageCache(SkImageCache *cache) {
     SkRefCnt_SafeAssign(fImageCache, cache);
     if (cache != NULL) {
+        SkSafeUnref(fCacheSelector);
         fCacheSelector = NULL;
     }
 }
 
-void SkBitmapFactory::setCacheSelector(CacheSelector selector) {
-    fCacheSelector = selector;
+void SkBitmapFactory::setCacheSelector(CacheSelector* selector) {
+    SkRefCnt_SafeAssign(fCacheSelector, selector);
     if (selector != NULL) {
         SkSafeUnref(fImageCache);
         fImageCache = NULL;
@@ -63,7 +65,7 @@ bool SkBitmapFactory::installPixelRef(SkData* data, SkBitmap* dst) {
     // fImageCache and fCacheSelector are mutually exclusive.
     SkASSERT(NULL == fImageCache || NULL == fCacheSelector);
 
-    SkImageCache* cache = NULL == fCacheSelector ? fImageCache : fCacheSelector(info);
+    SkImageCache* cache = NULL == fCacheSelector ? fImageCache : fCacheSelector->selectCache(info);
 
     if (cache != NULL) {
         // Now set a new LazyPixelRef on dst.

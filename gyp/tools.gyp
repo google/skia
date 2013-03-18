@@ -100,6 +100,7 @@
         'skia_base_libs.gyp:skia_base_libs',
         'tools.gyp:picture_renderer',
         'tools.gyp:picture_utils',
+        'ports.gyp:ports',
       ],
     },
     {
@@ -123,6 +124,7 @@
         'tools.gyp:picture_utils',
         'tools.gyp:picture_renderer',
         'bench.gyp:bench_timer',
+        'ports.gyp:ports',
       ],
     },
     {
