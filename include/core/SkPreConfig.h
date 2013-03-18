@@ -108,17 +108,6 @@
 
 //////////////////////////////////////////////////////////////////////
 
-#ifndef SK_MMAP_SUPPORT
-    #ifdef SK_BUILD_FOR_WIN32
-        // by default, if we're windows, we assume we don't have mmap
-        #define SK_MMAP_SUPPORT 0
-    #else
-        #define SK_MMAP_SUPPORT 1
-    #endif
-#endif
-
-//////////////////////////////////////////////////////////////////////
-
 /**
  *  SK_CPU_SSE_LEVEL
  *

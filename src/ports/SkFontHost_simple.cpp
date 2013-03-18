@@ -9,6 +9,7 @@
 
 #include "SkFontHost.h"
 #include "SkDescriptor.h"
+#include "SkMMapStream.h"
 #include "SkPaint.h"
 #include "SkString.h"
 #include "SkStream.h"
@@ -311,18 +312,30 @@ public:
         fPath.set(path);
     }
 
-    virtual SkStream* openStream() SK_OVERRIDE {
-        return SkStream::NewFromFile(fPath.c_str());
-    }
+    // overrides
+    virtual SkStream* openStream() {
+        SkStream* stream = SkNEW_ARGS(SkMMAPStream, (fPath.c_str()));
 
-    virtual const char* getUniqueString() const SK_OVERRIDE {
+        // check for failure
+        if (stream->getLength() <= 0) {
+            SkDELETE(stream);
+            // maybe MMAP isn't supported. try FILE
+            stream = SkNEW_ARGS(SkFILEStream, (fPath.c_str()));
+            if (stream->getLength() <= 0) {
+                SkDELETE(stream);
+                stream = NULL;
+            }
+        }
+        return stream;
+    }
+    virtual const char* getUniqueString() const {
         const char* str = strrchr(fPath.c_str(), '/');
         if (str) {
             str += 1;   // skip the '/'
         }
         return str;
     }
-    virtual const char* getFilePath() const SK_OVERRIDE {
+    virtual const char* getFilePath() const {
         return fPath.c_str();
     }
 
@@ -340,15 +353,21 @@ static bool get_name_and_style(const char path[], SkString* name,
     SkString        fullpath;
     GetFullPathForSysFonts(&fullpath, path);
 
-    SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
-    if (stream.get()) {
+    SkMMAPStream stream(fullpath.c_str());
+    if (stream.getLength() > 0) {
         return find_name_and_attributes(&stream, name, style, NULL);
-    } else {
-        if (isExpected) {
-            SkDebugf("---- failed to open <%s> as a font\n", fullpath.c_str());
-        }
-        return false;
     }
+    else {
+        SkFILEStream stream(fullpath.c_str());
+        if (stream.getLength() > 0) {
+            return find_name_and_attributes(&stream, name, style, NULL);
+        }
+    }
+
+    if (isExpected) {
+        SkDebugf("---- failed to open <%s> as a font\n", fullpath.c_str());
+    }
+    return false;
 }
 
 // used to record our notion of the pre-existing fonts
@@ -617,6 +636,9 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
-    SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
-    return stream.get() ? SkFontHost::CreateTypefaceFromStream(stream) : NULL;
+    SkStream* stream = SkNEW_ARGS(SkMMAPStream, (path));
+    SkTypeface* face = SkFontHost::CreateTypefaceFromStream(stream);
+    // since we created the stream, we let go of our ref() here
+    stream->unref();
+    return face;
 }
