@@ -237,7 +237,6 @@
         '<(skia_include_path)/core/SkMath.h',
         '<(skia_include_path)/core/SkMatrix.h',
         '<(skia_include_path)/core/SkMetaData.h',
-        '<(skia_include_path)/core/SkMMapStream.h',
         '<(skia_include_path)/core/SkOSFile.h',
         '<(skia_include_path)/core/SkPackBits.h',
         '<(skia_include_path)/core/SkPaint.h',
