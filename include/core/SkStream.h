@@ -23,7 +23,7 @@ public:
      *  returned object. On failure, returns NULL.
      */
     static SkStream* NewFromFile(const char path[]);
-    
+
     SK_DECLARE_INST_COUNT(SkStream)
 
     /** Called to rewind to the beginning of the stream. If this cannot be

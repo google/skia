@@ -145,7 +145,7 @@ void SkEmbossMaskFilter::toString(SkString* str) const {
     str->appendScalar(fLight.fDirection[2]);
     str->append(") ");
 
-    str->appendf("ambient: %d specular: %d ", 
+    str->appendf("ambient: %d specular: %d ",
         fLight.fAmbient, fLight.fSpecular);
 
     str->append("blurRadius: ");
