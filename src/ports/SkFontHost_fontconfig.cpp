@@ -167,14 +167,8 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
-    SkTypeface* face = NULL;
-    SkFILEStream* stream = SkNEW_ARGS(SkFILEStream, (path));
-
-    if (stream->isValid()) {
-        face = CreateTypefaceFromStream(stream);
-    }
-    stream->unref();
-    return face;
+    SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
+    return stream.get() ? CreateTypefaceFromStream(stream) : NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
