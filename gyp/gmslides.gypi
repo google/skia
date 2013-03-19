@@ -65,6 +65,7 @@
     '../gm/points.cpp',
     '../gm/poly2poly.cpp',
     '../gm/quadpaths.cpp',
+    '../gm/rects.cpp',
     '../gm/rrect.cpp',
     '../gm/rrects.cpp',
     '../gm/samplerstress.cpp',
