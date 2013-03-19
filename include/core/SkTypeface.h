@@ -194,6 +194,7 @@ public:
     int getUnitsPerEm() const;
 
     SkStream* openStream(int* ttcIndex) const;
+    SkScalerContext* createScalerContext(const SkDescriptor*) const;
 
 protected:
     /** uniqueID must be unique and non-zero
@@ -218,6 +219,7 @@ private:
     bool        fIsFixedWidth;
 
     friend class SkPaint;
+    friend class SkGlyphCache;  // GetDefaultTypeface
     // just so deprecated fonthost can call protected methods
     friend class SkFontHost;
 

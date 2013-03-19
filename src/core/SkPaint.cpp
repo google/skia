@@ -414,8 +414,9 @@ SkAnnotation* SkPaint::setAnnotation(SkAnnotation* annotation) {
 #include "SkGlyphCache.h"
 #include "SkUtils.h"
 
-static void DetachDescProc(const SkDescriptor* desc, void* context) {
-    *((SkGlyphCache**)context) = SkGlyphCache::DetachCache(desc);
+static void DetachDescProc(SkTypeface* typeface, const SkDescriptor* desc,
+                           void* context) {
+    *((SkGlyphCache**)context) = SkGlyphCache::DetachCache(typeface, desc);
 }
 
 #ifdef SK_BUILD_FOR_ANDROID
@@ -1206,8 +1207,9 @@ static bool FontMetricsCacheProc(const SkGlyphCache* cache, void* context) {
     return false;   // don't detach the cache
 }
 
-static void FontMetricsDescProc(const SkDescriptor* desc, void* context) {
-    SkGlyphCache::VisitCache(desc, FontMetricsCacheProc, context);
+static void FontMetricsDescProc(SkTypeface* typeface, const SkDescriptor* desc,
+                                void* context) {
+    SkGlyphCache::VisitCache(typeface, desc, FontMetricsCacheProc, context);
 }
 
 SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const {
@@ -1761,7 +1763,7 @@ void SkScalerContext::PostMakeRec(const SkPaint&, SkScalerContext::Rec* rec) {
  */
 void SkPaint::descriptorProc(const SkDeviceProperties* deviceProperties,
                              const SkMatrix* deviceMatrix,
-                             void (*proc)(const SkDescriptor*, void*),
+                             void (*proc)(SkTypeface*, const SkDescriptor*, void*),
                              void* context, bool ignoreGamma) const {
     SkScalerContext::Rec    rec;
 
@@ -1873,7 +1875,7 @@ void SkPaint::descriptorProc(const SkDeviceProperties* deviceProperties,
     }
 #endif
 
-    proc(desc, context);
+    proc(fTypeface, desc, context);
 }
 
 SkGlyphCache* SkPaint::detachCache(const SkDeviceProperties* deviceProperties,

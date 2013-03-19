@@ -135,7 +135,7 @@ public:
         create a new one. If the proc() returns true, detach the cache and
         return it, otherwise leave it and return NULL.
     */
-    static SkGlyphCache* VisitCache(const SkDescriptor* desc,
+    static SkGlyphCache* VisitCache(SkTypeface*, const SkDescriptor* desc,
                                     bool (*proc)(const SkGlyphCache*, void*),
                                     void* context);
 
@@ -154,8 +154,9 @@ public:
         eventually get purged, and the win is that different thread will never
         block each other while a strike is being used.
     */
-    static SkGlyphCache* DetachCache(const SkDescriptor* desc) {
-        return VisitCache(desc, DetachProc, NULL);
+    static SkGlyphCache* DetachCache(SkTypeface* typeface,
+                                     const SkDescriptor* desc) {
+        return VisitCache(typeface, desc, DetachProc, NULL);
     }
 
 #ifdef SK_DEBUG
@@ -184,7 +185,7 @@ public:
     };
 
 private:
-    SkGlyphCache(const SkDescriptor*);
+    SkGlyphCache(SkTypeface*, const SkDescriptor*);
     ~SkGlyphCache();
 
     enum MetricsType {
@@ -273,8 +274,8 @@ private:
 class SkAutoGlyphCache {
 public:
     SkAutoGlyphCache(SkGlyphCache* cache) : fCache(cache) {}
-    SkAutoGlyphCache(const SkDescriptor* desc) {
-        fCache = SkGlyphCache::DetachCache(desc);
+    SkAutoGlyphCache(SkTypeface* typeface, const SkDescriptor* desc) {
+        fCache = SkGlyphCache::DetachCache(typeface, desc);
     }
     SkAutoGlyphCache(const SkPaint& paint,
                      const SkDeviceProperties* deviceProperties,

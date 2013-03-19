@@ -770,13 +770,15 @@ protected:
 
 extern SkScalerContext* SkCreateColorScalerContext(const SkDescriptor* desc);
 
-SkScalerContext* SkScalerContext::Create(const SkDescriptor* desc) {
+SkScalerContext* SkTypeface::createScalerContext(const SkDescriptor* desc) const {
     SkScalerContext* c = NULL;  //SkCreateColorScalerContext(desc);
     if (NULL == c) {
-        c = SkFontHost::CreateScalerContext(desc);
+        c = this->onCreateScalerContext(desc);
     }
     if (NULL == c) {
         c = SkNEW_ARGS(SkScalerContext_Empty, (desc));
     }
     return c;
 }
+
+
