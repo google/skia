@@ -323,6 +323,12 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
                 return false;
             }
         }
+        if (extensions.has("GL_IMG_multisampled_render_to_texture")) {
+            if (NULL == fRenderbufferStorageMultisample ||
+                NULL == fFramebufferTexture2DMultisample) {
+                return false;
+            }
+        }
     }
 
     // On ES buffer mapping is an extension. On Desktop

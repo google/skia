@@ -124,6 +124,10 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fDeleteRenderbuffers = glDeleteRenderbuffers;
         interface->fFramebufferRenderbuffer = glFramebufferRenderbuffer;
         interface->fFramebufferTexture2D = glFramebufferTexture2D;
+#if GL_IMG_multisampled_render_to_texture
+        interface->fFramebufferTexture2DMultisample = glFramebufferTexture2DMultisampleIMG;
+        interface->fRenderbufferStorageMultisample = glRenderbufferStorageMultisampleIMG;
+#endif
         interface->fGenFramebuffers = glGenFramebuffers;
         interface->fGenRenderbuffers = glGenRenderbuffers;
         interface->fGetFramebufferAttachmentParameteriv = glGetFramebufferAttachmentParameteriv;

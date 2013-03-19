@@ -251,6 +251,8 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
            fMSFBOType = kDesktopEXT_MSFBOType;
        } else if (ctxInfo.hasExtension("GL_APPLE_framebuffer_multisample")) {
            fMSFBOType = kAppleES_MSFBOType;
+       } else if (ctxInfo.hasExtension("GL_IMG_multisampled_render_to_texture")) {
+           fMSFBOType = kImaginationES_MSFBOType;
        }
     } else {
         if ((ctxInfo.version() >= GR_GL_VER(3,0)) ||
@@ -420,11 +422,13 @@ void GrGLCaps::print() const {
     GR_STATIC_ASSERT(1 == kDesktopARB_MSFBOType);
     GR_STATIC_ASSERT(2 == kDesktopEXT_MSFBOType);
     GR_STATIC_ASSERT(3 == kAppleES_MSFBOType);
+    GR_STATIC_ASSERT(4 == kImaginationES_MSFBOType);
     static const char* gMSFBOExtStr[] = {
         "None",
         "ARB",
         "EXT",
         "Apple",
+        "IMG",
     };
     GrPrintf("MSAA Type: %s\n", gMSFBOExtStr[fMSFBOType]);
     GrPrintf("Max FS Uniform Vectors: %d\n", fMaxFragmentUniformVectors);

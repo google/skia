@@ -89,6 +89,7 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLFlushProc)();
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLFramebufferRenderbufferProc)(GrGLenum target, GrGLenum attachment, GrGLenum renderbuffertarget, GrGLuint renderbuffer);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLFramebufferTexture2DProc)(GrGLenum target, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLFramebufferTexture2DMultisampleProc)(GrGLenum target, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level, GrGLsizei samples);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLFrontFaceProc)(GrGLenum mode);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGenBuffersProc)(GrGLsizei n, GrGLuint* buffers);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGenFramebuffersProc)(GrGLsizei n, GrGLuint *framebuffers);

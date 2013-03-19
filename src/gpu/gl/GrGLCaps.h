@@ -62,6 +62,10 @@ public:
          * GL_APPLE_framebuffer_multisample ES extension
          */
         kAppleES_MSFBOType,
+        /**
+         * GL_IMG_multisampled_render_to_texture
+         */
+        kImaginationES_MSFBOType,
     };
 
     enum CoverageAAType {
