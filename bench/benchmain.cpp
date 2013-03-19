@@ -193,7 +193,7 @@ enum Backend {
 };
 
 static SkDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
-                             Backend backend, GrContext* context) {
+                             Backend backend, int sampleCount, GrContext* context) {
     SkDevice* device = NULL;
     SkBitmap bitmap;
     bitmap.setConfig(config, size.fX, size.fY);
@@ -211,6 +211,7 @@ static SkDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
             desc.fFlags = kRenderTarget_GrTextureFlagBit;
             desc.fWidth = size.fX;
             desc.fHeight = size.fY;
+            desc.fSampleCnt = sampleCount;
             SkAutoTUnref<GrTexture> texture(context->createUncachedTexture(desc, NULL, 0));
             if (!texture) {
                 return NULL;
@@ -238,21 +239,25 @@ static const GLContextType kDontCareGLCtxType = 0;
 static const struct {
     SkBitmap::Config    fConfig;
     const char*         fName;
+    int                 fSampleCnt;
     Backend             fBackend;
     GLContextType       fContextType;
+    bool                fRunByDefault;
 } gConfigs[] = {
-    { SkBitmap::kNo_Config,         "NONRENDERING",    kNonRendering_Backend, kDontCareGLCtxType },
-    { SkBitmap::kARGB_8888_Config,  "8888",            kRaster_Backend, kDontCareGLCtxType },
-    { SkBitmap::kRGB_565_Config,    "565",             kRaster_Backend, kDontCareGLCtxType },
+    { SkBitmap::kNo_Config,         "NONRENDERING", 0, kNonRendering_Backend, kDontCareGLCtxType,                      true     },
+    { SkBitmap::kARGB_8888_Config,  "8888",         0, kRaster_Backend,       kDontCareGLCtxType,                      true     },
+    { SkBitmap::kRGB_565_Config,    "565",          0, kRaster_Backend,       kDontCareGLCtxType,                      true     },
 #if SK_SUPPORT_GPU
-    { SkBitmap::kARGB_8888_Config,  "GPU",             kGPU_Backend, GrContextFactory::kNative_GLContextType },
+    { SkBitmap::kARGB_8888_Config,  "GPU",          0, kGPU_Backend,          GrContextFactory::kNative_GLContextType, true     },
+    { SkBitmap::kARGB_8888_Config,  "MSAA4",        4, kGPU_Backend,          GrContextFactory::kNative_GLContextType, false    },
+    { SkBitmap::kARGB_8888_Config,  "MSAA16",      16, kGPU_Backend,          GrContextFactory::kNative_GLContextType, false    },
 #if SK_ANGLE
-    { SkBitmap::kARGB_8888_Config,  "ANGLE",           kGPU_Backend, GrContextFactory::kANGLE_GLContextType },
+    { SkBitmap::kARGB_8888_Config,  "ANGLE",        0, kGPU_Backend,          GrContextFactory::kANGLE_GLContextType,  true     },
 #endif // SK_ANGLE
 #ifdef SK_DEBUG
-    { SkBitmap::kARGB_8888_Config,  "Debug",           kGPU_Backend, GrContextFactory::kDebug_GLContextType },
+    { SkBitmap::kARGB_8888_Config,  "Debug",        0, kGPU_Backend,          GrContextFactory::kDebug_GLContextType,  GR_DEBUG },
 #endif // SK_DEBUG
-    { SkBitmap::kARGB_8888_Config,  "NULLGPU",         kGPU_Backend, GrContextFactory::kNull_GLContextType },
+    { SkBitmap::kARGB_8888_Config,  "NULLGPU",      0, kGPU_Backend,          GrContextFactory::kNull_GLContextType,   true     },
 #endif // SK_SUPPORT_GPU
 };
 
@@ -280,6 +285,12 @@ static bool skip_name(const SkTDArray<const char*> array, const char name[]) {
 }
 
 static void help() {
+    SkString configsStr;
+    static const size_t kConfigCount = SK_ARRAY_COUNT(gConfigs);
+    for (size_t i = 0; i < kConfigCount; ++i) {
+        configsStr.appendf("%s%s", gConfigs[i].fName, ((i == kConfigCount - 1) ? "" : "|"));
+    }
+
     SkDebugf("Usage: bench [-o outDir] [--repeat nr] [--logPerIter] "
                           "[--timers [wcgWC]*] [--rotate]\n"
              "    [--scale] [--clip] [--min] [--forceAA 1|0] [--forceFilter 1|0]\n"
@@ -290,8 +301,9 @@ static void help() {
              "\n"
              "    [--strokeWidth width] [--match name]\n"
              "    [--mode normal|deferred|deferredSilent|record|picturerecord]\n"
-             "    [--config 8888|565|GPU|ANGLE|NULLGPU] [-Dfoo bar] [--logFile filename]\n"
-             "    [-h|--help]");
+             "    [--config ");
+    SkDebugf("%s]\n", configsStr.c_str());
+    SkDebugf("    [-Dfoo bar] [--logFile filename] [-h|--help]");
     SkDebugf("\n\n");
     SkDebugf("    -o outDir : Image of each bench will be put in outDir.\n");
     SkDebugf("    --repeat nr : Each bench repeats for nr times.\n");
@@ -327,12 +339,8 @@ static void help() {
              "                 picturerecord, Benchmark the time to do record from a \n"
              "                                SkPicture to a SkPicture.\n");
     SkDebugf("    --logFile filename : destination for writing log output, in addition to stdout.\n");
-    SkDebugf("    --config ");
-    static const size_t kConfigCount = SK_ARRAY_COUNT(gConfigs);
-    for (size_t i = 0; i < kConfigCount; ++i) {
-        SkDebugf("%s%s", gConfigs[i].fName, ((i == kConfigCount - 1) ? "" : "|"));
-    }
-    SkDebugf(" :  Run bench in corresponding config mode.\n");
+    SkDebugf("    --config %s:\n", configsStr.c_str());
+    SkDebugf("             Run bench in corresponding config mode.\n");
     SkDebugf("    -Dfoo bar : Add extra definition to bench.\n");
     SkDebugf("    -h|--help : Show this help message.\n");
 }
@@ -379,6 +387,7 @@ int tool_main(int argc, char** argv) {
     SkBitmap::Config outConfig = SkBitmap::kNo_Config;
     const char* configName = "";
     Backend backend = kRaster_Backend;  // for warning
+    int sampleCount = 0;
     SkTDArray<int> configs;
     bool userConfig = false;
 
@@ -588,9 +597,11 @@ int tool_main(int argc, char** argv) {
         normalTimeFormat.set("%6.4f");
     }
     if (!userConfig) {
-        // if no config is specified by user, we add them all.
+        // if no config is specified by user, add the default configs
         for (unsigned int i = 0; i < SK_ARRAY_COUNT(gConfigs); ++i) {
-            *configs.append() = i;
+            if (gConfigs[i].fRunByDefault) {
+                *configs.append() = i;
+            }
         }
     }
     if (kNormal_benchModes != benchMode) {
@@ -603,6 +614,35 @@ int tool_main(int argc, char** argv) {
             }
         }
     }
+
+#if SK_SUPPORT_GPU
+    for (int i = 0; i < configs.count(); ++i) {
+        int configIdx = configs[i];
+
+        if (kGPU_Backend == gConfigs[configIdx].fBackend && gConfigs[configIdx].fSampleCnt > 0) {
+            GrContext* context = gContextFactory.get(gConfigs[configIdx].fContextType);
+            if (NULL == context) {
+                SkString error;
+                error.printf("Error creating GrContext for config %s. Config will be skipped.\n",
+                             gConfigs[configIdx].fName);
+                logger.logError(error.c_str());
+                configs.remove(i);
+                --i;
+                continue;
+            }
+            if (gConfigs[configIdx].fSampleCnt > context->getMaxSampleCount()){
+                SkString error;
+                error.printf("Sample count (%d) for config %s is unsupported. "
+                             "Config will be skipped.\n",
+                             gConfigs[configIdx].fSampleCnt, gConfigs[configIdx].fName);
+                logger.logError(error.c_str());
+                configs.remove(i);
+                --i;
+                continue;
+            }
+        }
+    }
+#endif
 
     // report our current settings
     {
@@ -728,6 +768,7 @@ int tool_main(int argc, char** argv) {
             outConfig = gConfigs[configIndex].fConfig;
             configName = gConfigs[configIndex].fName;
             backend = gConfigs[configIndex].fBackend;
+            sampleCount = gConfigs[configIndex].fSampleCnt;
             GrContext* context = NULL;
             BenchTimer* timer = timers[configIndex];
 
@@ -747,7 +788,7 @@ int tool_main(int argc, char** argv) {
             SkPicture pictureRecordTo;
 
             if (kNonRendering_Backend != backend) {
-                device = make_device(outConfig, dim, backend, context);
+                device = make_device(outConfig, dim, backend, sampleCount, context);
 
                 switch(benchMode) {
                     case kDeferredSilent_benchModes:

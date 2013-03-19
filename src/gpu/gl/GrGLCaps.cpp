@@ -19,7 +19,6 @@ void GrGLCaps::reset() {
     fStencilFormats.reset();
     fStencilVerifiedColorConfigs.reset();
     fMSFBOType = kNone_MSFBOType;
-    fMaxSampleCount = 0;
     fCoverageAAType = kNone_CoverageAAType;
     fMaxFragmentUniformVectors = 0;
     fMaxVertexAttributes = 0;
@@ -53,7 +52,6 @@ GrGLCaps& GrGLCaps::operator = (const GrGLCaps& caps) {
     fMaxFragmentUniformVectors = caps.fMaxFragmentUniformVectors;
     fMaxVertexAttributes = caps.fMaxVertexAttributes;
     fMSFBOType = caps.fMSFBOType;
-    fMaxSampleCount = caps.fMaxSampleCount;
     fCoverageAAType = caps.fCoverageAAType;
     fMSAACoverageModes = caps.fMSAACoverageModes;
     fRGBA8RenderbufferSupport = caps.fRGBA8RenderbufferSupport;
@@ -284,13 +282,9 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                     SkCastForQSort(coverage_mode_compare));
         }
     }
-    if (kNone_MSFBOType != fMSFBOType) {
-        GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES, &fMaxSampleCount);
-    }
 }
 
-const GrGLCaps::MSAACoverageMode& GrGLCaps::getMSAACoverageMode(
-                                            int desiredSampleCount) const {
+const GrGLCaps::MSAACoverageMode& GrGLCaps::getMSAACoverageMode(int desiredSampleCount) const {
     static const MSAACoverageMode kNoneMode = {0, 0};
     if (0 == fMSAACoverageModes.count()) {
         return kNoneMode;
