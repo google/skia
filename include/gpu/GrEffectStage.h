@@ -116,7 +116,8 @@ public:
                 stage.fEffectRef->get()->incDeferredRefCounts();
                 fEffect = stage.fEffectRef->get();
                 fCoordChangeMatrix = stage.fCoordChangeMatrix;
-                fVertexAttribIndices = stage.fVertexAttribIndices;
+                fVertexAttribIndices[0] = stage.fVertexAttribIndices[0];
+                fVertexAttribIndices[1] = stage.fVertexAttribIndices[1];
             }
             SkDEBUGCODE(fInitialized = true;)
         }
@@ -127,7 +128,8 @@ public:
             if (NULL != fEffect) {
                 stage->fEffectRef = GrEffect::CreateEffectRef(fEffect);
                 stage->fCoordChangeMatrix = fCoordChangeMatrix;
-                stage->fVertexAttribIndices = fVertexAttribIndices;
+                stage->fVertexAttribIndices[0] = fVertexAttribIndices[0];
+                stage->fVertexAttribIndices[1] = fVertexAttribIndices[1];
             } else {
                 stage->fEffectRef = NULL;
             }
@@ -141,7 +143,8 @@ public:
                 return false;
             }
 
-            if (fVertexAttribIndices != stage.fVertexAttribIndices) {
+            if (fVertexAttribIndices[0] != stage.fVertexAttribIndices[0]
+                || fVertexAttribIndices[1] != stage.fVertexAttribIndices[1]) {
                 return false;
             }
 
@@ -155,7 +158,8 @@ public:
     private:
         const GrEffect*               fEffect;
         SkMatrix                      fCoordChangeMatrix;
-        SkSTArray<GrEffect::kMaxVertexAttribs, int, true> fVertexAttribIndices;
+        int                           fVertexAttribIndices[2];
+        int                           fVertexAttribCount;
         SkDEBUGCODE(bool fInitialized;)
     };
 
@@ -169,28 +173,37 @@ public:
         GrSafeSetNull(fEffectRef);
     }
 
-    const GrEffectRef* setEffect(const GrEffectRef* EffectRef, const int* attribIndices = NULL) {
+    const GrEffectRef* setEffect(const GrEffectRef* EffectRef) {
         GrAssert(0 == fSavedCoordChangeCnt);
         GrSafeAssign(fEffectRef, EffectRef);
         fCoordChangeMatrix.reset();
 
-        fVertexAttribIndices.reset();
-        int numVertexAttribs = (EffectRef == NULL) ? 0 : EffectRef->get()->numVertexAttribs();
-        GrAssert(numVertexAttribs == 0 || attribIndices != NULL);
-        fVertexAttribIndices.push_back_n(numVertexAttribs, attribIndices);
-
+        fVertexAttribIndices[0] = -1;
+        fVertexAttribIndices[1] = -1;
+        
         return EffectRef;
     }
 
+    const GrEffectRef* setEffect(const GrEffectRef* EffectRef, int attr0, int attr1 = -1) {
+        GrAssert(0 == fSavedCoordChangeCnt);
+        GrSafeAssign(fEffectRef, EffectRef);
+        fCoordChangeMatrix.reset();
+        
+        fVertexAttribIndices[0] = attr0;
+        fVertexAttribIndices[1] = attr1;
+        
+        return EffectRef;
+    }
+    
     const GrEffectRef* getEffect() const { return fEffectRef; }
 
-    const int* getVertexAttribIndices() const { return fVertexAttribIndices.begin(); }
-    int getVertexAttribIndexCount() const { return fVertexAttribIndices.count(); }
+    const int* getVertexAttribIndices() const { return fVertexAttribIndices; }
+    int getVertexAttribIndexCount() const { return fEffectRef->get()->numVertexAttribs(); }
 
 private:
     SkMatrix                fCoordChangeMatrix;
     const GrEffectRef*      fEffectRef;
-    SkSTArray<2, int, true> fVertexAttribIndices;
+    int                     fVertexAttribIndices[2];
 
     GR_DEBUGCODE(mutable int fSavedCoordChangeCnt;)
 };
