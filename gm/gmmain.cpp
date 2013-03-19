@@ -163,7 +163,6 @@ struct ConfigData {
     int                             fSampleCnt;     // GPU backend only
     ConfigFlags                     fFlags;
     const char*                     fName;
-    bool                            fRunByDefault;
 };
 
 class BWTextDrawFilter : public SkDrawFilter {
@@ -985,31 +984,33 @@ static const ConfigFlags kPDFConfigFlags = CAN_IMAGE_PDF ? kRW_ConfigFlag :
                                                            kWrite_ConfigFlag;
 
 static const ConfigData gRec[] = {
-    { SkBitmap::kARGB_8888_Config, kRaster_Backend, kDontCare_GLContextType,                  0, kRW_ConfigFlag,    "8888",         true },
+    { SkBitmap::kARGB_8888_Config, kRaster_Backend, kDontCare_GLContextType,                  0, kRW_ConfigFlag,    "8888" },
 #if 0   // stop testing this (for now at least) since we want to remove support for it (soon please!!!)
-    { SkBitmap::kARGB_4444_Config, kRaster_Backend, kDontCare_GLContextType,                  0, kRW_ConfigFlag,    "4444",         true },
+    { SkBitmap::kARGB_4444_Config, kRaster_Backend, kDontCare_GLContextType,                  0, kRW_ConfigFlag,    "4444" },
 #endif
-    { SkBitmap::kRGB_565_Config,   kRaster_Backend, kDontCare_GLContextType,                  0, kRW_ConfigFlag,    "565",          true },
-#if SK_SUPPORT_GPU
-    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNative_GLContextType,  0, kRW_ConfigFlag,    "gpu",          true },
-    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNative_GLContextType, 16, kRW_ConfigFlag,    "msaa16",       true },
-    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNative_GLContextType,  4, kRW_ConfigFlag,    "msaa4",        false},
+    { SkBitmap::kRGB_565_Config,   kRaster_Backend, kDontCare_GLContextType,                  0, kRW_ConfigFlag,    "565" },
+#if defined(SK_SCALAR_IS_FLOAT) && SK_SUPPORT_GPU
+    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNative_GLContextType,  0, kRW_ConfigFlag,    "gpu" },
+#ifndef SK_BUILD_FOR_ANDROID
+    // currently we don't want to run MSAA tests on Android
+    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNative_GLContextType, 16, kRW_ConfigFlag,    "msaa16" },
+#endif
     /* The debug context does not generate images */
-    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kDebug_GLContextType,   0, kNone_ConfigFlag,  "debug",        true },
+    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kDebug_GLContextType,   0, kNone_ConfigFlag,  "debug" },
 #if SK_ANGLE
-    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kANGLE_GLContextType,   0, kRW_ConfigFlag,    "angle",        true },
-    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kANGLE_GLContextType,  16, kRW_ConfigFlag,    "anglemsaa16",  true },
+    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kANGLE_GLContextType,   0, kRW_ConfigFlag,    "angle" },
+    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kANGLE_GLContextType,  16, kRW_ConfigFlag,    "anglemsaa16" },
 #endif // SK_ANGLE
 #ifdef SK_MESA
-    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kMESA_GLContextType,    0, kRW_ConfigFlag,    "mesa",         true },
+    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kMESA_GLContextType,    0, kRW_ConfigFlag,    "mesa" },
 #endif // SK_MESA
-#endif // SK_SUPPORT_GPU
+#endif // defined(SK_SCALAR_IS_FLOAT) && SK_SUPPORT_GPU
 #ifdef SK_SUPPORT_XPS
     /* At present we have no way of comparing XPS files (either natively or by converting to PNG). */
-    { SkBitmap::kARGB_8888_Config, kXPS_Backend,    kDontCare_GLContextType,                  0, kWrite_ConfigFlag, "xps",          true },
+    { SkBitmap::kARGB_8888_Config, kXPS_Backend,    kDontCare_GLContextType,                  0, kWrite_ConfigFlag, "xps" },
 #endif // SK_SUPPORT_XPS
 #ifdef SK_SUPPORT_PDF
-    { SkBitmap::kARGB_8888_Config, kPDF_Backend,    kDontCare_GLContextType,                  0, kPDFConfigFlags,   "pdf",          true },
+    { SkBitmap::kARGB_8888_Config, kPDF_Backend,    kDontCare_GLContextType,                  0, kPDFConfigFlags,   "pdf" },
 #endif // SK_SUPPORT_PDF
 };
 
@@ -1353,11 +1354,9 @@ int tool_main(int argc, char** argv) {
     }
 
     if (!userConfig) {
-        // if no config is specified by user, add the defaults
+        // if no config is specified by user, we add them all.
         for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
-            if (gRec[i].fRunByDefault) {
-                *configs.append() = i;
-            }
+            *configs.append() = i;
         }
     }
     // now remove any explicitly excluded configs
@@ -1369,28 +1368,6 @@ int tool_main(int argc, char** argv) {
             SkASSERT(configs.find(excludeConfigs[i]) < 0);
         }
     }
-
-#if SK_SUPPORT_GPU
-    GrContextFactory* grFactory = new GrContextFactory;
-    for (int i = 0; i < configs.count(); ++i) {
-        int index = configs[i];
-        if (kGPU_Backend == gRec[index].fBackend) {
-            GrContext* ctx = grFactory->get(gRec[index].fGLContextType);
-            if (NULL == ctx) {
-                SkDebugf("GrContext could not be created for config %s. Config will be skipped.",
-                         gRec[index].fName);
-                configs.remove(i);
-                --i;
-            }
-            if (gRec[index].fSampleCnt > ctx->getMaxSampleCount()) {
-                SkDebugf("Sample count (%d) of config %s is not supported. Config will be skipped.",
-                         gRec[index].fSampleCnt, gRec[index].fName);
-                configs.remove(i);
-                --i;
-            }
-        }
-    }
-#endif
 
     if (doVerbose) {
         SkString str;
@@ -1441,6 +1418,10 @@ int tool_main(int argc, char** argv) {
     int testsPassed = 0;
     int testsFailed = 0;
     int testsMissingReferenceImages = 0;
+
+#if SK_SUPPORT_GPU
+    GrContextFactory* grFactory = new GrContextFactory;
+#endif
 
     int gmIndex = -1;
     SkString moduloStr;
@@ -1576,7 +1557,7 @@ int tool_main(int argc, char** argv) {
 
         SkBitmap comparisonBitmap;
         const ConfigData compareConfig =
-            { SkBitmap::kARGB_8888_Config, kRaster_Backend, kDontCare_GLContextType, 0, kRW_ConfigFlag, "comparison", false };
+            { SkBitmap::kARGB_8888_Config, kRaster_Backend, kDontCare_GLContextType, 0, kRW_ConfigFlag, "comparison" };
         testErrors |= gmmain.generate_image(gm, compareConfig, NULL, NULL, &comparisonBitmap, false);
 
         // run the picture centric GM steps
