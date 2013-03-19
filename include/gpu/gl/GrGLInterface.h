@@ -184,6 +184,7 @@ public:
     GLPtr<GrGLFlushProc> fFlush;
     GLPtr<GrGLFramebufferRenderbufferProc> fFramebufferRenderbuffer;
     GLPtr<GrGLFramebufferTexture2DProc> fFramebufferTexture2D;
+    GLPtr<GrGLFramebufferTexture2DMultisampleProc> fFramebufferTexture2DMultisample;
     GLPtr<GrGLFrontFaceProc> fFrontFace;
     GLPtr<GrGLGenBuffersProc> fGenBuffers;
     GLPtr<GrGLGenFramebuffersProc> fGenFramebuffers;
