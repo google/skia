@@ -229,40 +229,36 @@ bool SkWStream::writeData(const SkData* data) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkFILEStream::SkFILEStream(const char file[]) : fName(file)
-{
+SkFILEStream::SkFILEStream(const char file[]) : fName(file) {
     fFILE = file ? sk_fopen(fName.c_str(), kRead_SkFILE_Flag) : NULL;
 }
 
-SkFILEStream::~SkFILEStream()
-{
-    if (fFILE)
+SkFILEStream::~SkFILEStream() {
+    if (fFILE) {
         sk_fclose(fFILE);
+    }
 }
 
-void SkFILEStream::setPath(const char path[])
-{
+void SkFILEStream::setPath(const char path[]) {
     fName.set(path);
-    if (fFILE)
-    {
+    if (fFILE) {
         sk_fclose(fFILE);
         fFILE = NULL;
     }
-    if (path)
+    if (path) {
         fFILE = sk_fopen(fName.c_str(), kRead_SkFILE_Flag);
+    }
 }
 
-const char* SkFILEStream::getFileName()
-{
+const char* SkFILEStream::getFileName() {
     return fName.c_str();
 }
 
-bool SkFILEStream::rewind()
-{
-    if (fFILE)
-    {
-        if (sk_frewind(fFILE))
+bool SkFILEStream::rewind() {
+    if (fFILE) {
+        if (sk_frewind(fFILE)) {
             return true;
+        }
         // we hit an error
         sk_fclose(fFILE);
         fFILE = NULL;
@@ -270,14 +266,13 @@ bool SkFILEStream::rewind()
     return false;
 }
 
-size_t SkFILEStream::read(void* buffer, size_t size)
-{
-    if (fFILE)
-    {
-        if (buffer == NULL && size == 0)    // special signature, they want the total size
+size_t SkFILEStream::read(void* buffer, size_t size) {
+    if (fFILE) {
+        if (buffer == NULL && size == 0) {  // special signature, they want the total size
             return sk_fgetsize(fFILE);
-        else
+        } else {
             return sk_fread(buffer, size, fFILE);
+        }
     }
     return 0;
 }
