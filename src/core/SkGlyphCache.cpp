@@ -13,6 +13,7 @@
 #include "SkPath.h"
 #include "SkTemplates.h"
 #include "SkTLS.h"
+#include "SkTypeface.h"
 
 //#define SPEW_PURGE_STATUS
 //#define USE_CACHE_HASH
@@ -52,12 +53,15 @@ bool gSkSuppressFontCachePurgeSpew;
 
 #define METRICS_RESERVE_COUNT  128  // so we don't grow this array a lot
 
-SkGlyphCache::SkGlyphCache(const SkDescriptor* desc)
-        : fGlyphAlloc(kMinGlphAlloc), fImageAlloc(kMinImageAlloc) {
+SkGlyphCache::SkGlyphCache(SkTypeface* typeface, const SkDescriptor* desc)
+        : fGlyphAlloc(kMinGlphAlloc)
+        , fImageAlloc(kMinImageAlloc) {
+    SkASSERT(typeface);
+
     fPrev = fNext = NULL;
 
     fDesc = desc->copy();
-    fScalerContext = SkScalerContext::Create(desc);
+    fScalerContext = typeface->createScalerContext(desc);
     fScalerContext->getFontMetrics(NULL, &fFontMetricsY);
 
     // init to 0 so that all of the pointers will be null
@@ -523,9 +527,13 @@ void SkGlyphCache::VisitAllCaches(bool (*proc)(SkGlyphCache*, void*),
     - try to acquire the mutext again
     - call a fontscaler (which might call into the cache)
 */
-SkGlyphCache* SkGlyphCache::VisitCache(const SkDescriptor* desc,
+SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
+                              const SkDescriptor* desc,
                               bool (*proc)(const SkGlyphCache*, void*),
                               void* context) {
+    if (!typeface) {
+        typeface = SkTypeface::GetDefaultTypeface();
+    }
     SkASSERT(desc);
 
     SkGlyphCache_Globals& globals = getGlobals();
@@ -558,7 +566,7 @@ SkGlyphCache* SkGlyphCache::VisitCache(const SkDescriptor* desc,
     ac.release();           // release the mutex now
     insideMutex = false;    // can't use globals anymore
 
-    cache = SkNEW_ARGS(SkGlyphCache, (desc));
+    cache = SkNEW_ARGS(SkGlyphCache, (typeface, desc));
 
 FOUND_IT:
 

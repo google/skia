@@ -197,7 +197,6 @@ public:
                                const SkMatrix*, Rec* rec);
     static inline void PostMakeRec(const SkPaint&, Rec*);
 
-    static SkScalerContext* Create(const SkDescriptor*);
     static SkMaskGamma::PreBlend GetMaskPreBlend(const Rec& rec);
 
 protected:
