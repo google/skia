@@ -134,7 +134,7 @@ bool GrGpuGL::programUnitTest(int maxStages) {
                 for (int i = 0; i < effect.get()->get()->numVertexAttribs(); ++i) {
                     attribIndices[i] = currAttribIndex++;
                 }
-                stages[s].setEffect(effect.get(), attribIndices);
+                stages[s].setEffect(effect.get(), attribIndices[0], attribIndices[1]);
             }
         }
         pdesc.setRandom(&random, this, stages);

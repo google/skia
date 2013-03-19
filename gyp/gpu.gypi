@@ -122,6 +122,8 @@
       '<(skia_src_path)/gpu/gr_unittests.cpp',
 
       '<(skia_src_path)/gpu/effects/Gr1DKernelEffect.h',
+      '<(skia_src_path)/gpu/effects/GrCircleEdgeEffect.cpp',
+      '<(skia_src_path)/gpu/effects/GrCircleEdgeEffect.h',
       '<(skia_src_path)/gpu/effects/GrConfigConversionEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrConfigConversionEffect.h',
       '<(skia_src_path)/gpu/effects/GrConvolutionEffect.cpp',

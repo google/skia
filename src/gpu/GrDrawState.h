@@ -485,9 +485,14 @@ public:
     /// @name Effect Stages
     ////
 
+    const GrEffectRef* setEffect(int stageIdx, const GrEffectRef* effect) {
+        fStages[stageIdx].setEffect(effect);
+        return effect;
+    }
+    
     const GrEffectRef* setEffect(int stageIdx, const GrEffectRef* effect,
-                                 const int* indices = NULL) {
-        fStages[stageIdx].setEffect(effect, indices);
+                                 int attr0, int attr1 = -1) {
+        fStages[stageIdx].setEffect(effect, attr0, attr1);
         return effect;
     }
 
@@ -518,7 +523,7 @@ public:
     }
 
     void disableStage(int stageIdx) {
-        this->setEffect(stageIdx, NULL, NULL);
+        this->setEffect(stageIdx, NULL);
     }
 
     /**
@@ -1023,9 +1028,6 @@ public:
         /* Same as above but for hairline quadratics. Uses unsigned distance.
            Coverage is min(0, 1-distance). */
         kHairQuad_EdgeType,
-        /* Circle specified as center_x, center_y, outer_radius, inner_radius
-           all in window space (y-down). */
-        kCircle_EdgeType,
 
         kVertexEdgeTypeCnt
     };

@@ -23,7 +23,8 @@ SK_DEFINE_INST_COUNT(GrGLProgram)
 #define GL_CALL(X) GR_GL_CALL(fContext.interface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(fContext.interface(), R, X)
 
-SK_CONF_DECLARE(bool, c_PrintShaders, "gpu.printShaders", false, "Print the source code for all shaders generated.");
+SK_CONF_DECLARE(bool, c_PrintShaders, "gpu.printShaders", false,
+                "Print the source code for all shaders generated.");
 
 #define TEX_ATTR_NAME "aTexCoord"
 #define COL_ATTR_NAME "aColor"
@@ -69,15 +70,16 @@ void GrGLProgram::BuildDesc(const GrDrawState& drawState,
 
     desc->fEmitsPointSize = isPoints;
 
-    bool requiresAttributeColors = !skipColor &&
-                                   SkToBool(desc->fAttribBindings & GrDrawState::kColor_AttribBindingsBit);
-    bool requiresAttributeCoverage = !skipCoverage &&
-                                     SkToBool(desc->fAttribBindings & GrDrawState::kCoverage_AttribBindingsBit);
+    bool requiresAttributeColors =
+        !skipColor && SkToBool(desc->fAttribBindings & GrDrawState::kColor_AttribBindingsBit);
+    bool requiresAttributeCoverage =
+        !skipCoverage && SkToBool(desc->fAttribBindings & GrDrawState::kCoverage_AttribBindingsBit);
 
     // fColorInput/fCoverageInput records how colors are specified for the program So we strip the
     // bits from the bindings to avoid false negatives when searching for an existing program in the
     // cache.
-    desc->fAttribBindings &= ~(GrDrawState::kColor_AttribBindingsBit | GrDrawState::kCoverage_AttribBindingsBit);
+    desc->fAttribBindings &=
+        ~(GrDrawState::kColor_AttribBindingsBit | GrDrawState::kCoverage_AttribBindingsBit);
 
     desc->fColorFilterXfermode = skipColor ?
                                 SkXfermode::kDst_Mode :
@@ -423,7 +425,8 @@ bool GrGLProgram::genEdgeCoverage(SkString* coverageVar,
         builder->vsCodeAppendf("\t%s = " EDGE_ATTR_NAME ";\n", vsName);
         switch (fDesc.fVertexEdgeType) {
         case GrDrawState::kHairLine_EdgeType:
-            builder->fsCodeAppendf("\tfloat edgeAlpha = abs(dot(vec3(%s.xy,1), %s.xyz));\n", builder->fragmentPosition(), fsName);
+            builder->fsCodeAppendf("\tfloat edgeAlpha = abs(dot(vec3(%s.xy,1), %s.xyz));\n",
+                                   builder->fragmentPosition(), fsName);
             builder->fsCodeAppendf("\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
             break;
         case GrDrawState::kQuad_EdgeType:
@@ -433,7 +436,8 @@ bool GrGLProgram::genEdgeCoverage(SkString* coverageVar,
             builder->fsCodeAppendf("\tvec2 duvdy = dFdy(%s.xy);\n", fsName);
             builder->fsCodeAppendf("\tif (%s.z > 0.0 && %s.w > 0.0) {\n", fsName, fsName);
             // today we know z and w are in device space. We could use derivatives
-            builder->fsCodeAppendf("\t\tedgeAlpha = min(min(%s.z, %s.w) + 0.5, 1.0);\n", fsName, fsName);
+            builder->fsCodeAppendf("\t\tedgeAlpha = min(min(%s.z, %s.w) + 0.5, 1.0);\n", fsName,
+                                   fsName);
             builder->fsCodeAppendf ("\t} else {\n");
             builder->fsCodeAppendf("\t\tvec2 gF = vec2(2.0*%s.x*duvdx.x - duvdx.y,\n"
                                    "\t\t               2.0*%s.x*duvdy.x - duvdy.y);\n",
@@ -451,19 +455,13 @@ bool GrGLProgram::genEdgeCoverage(SkString* coverageVar,
             builder->fsCodeAppendf("\tvec2 gF = vec2(2.0*%s.x*duvdx.x - duvdx.y,\n"
                                    "\t               2.0*%s.x*duvdy.x - duvdy.y);\n",
                                    fsName, fsName);
-            builder->fsCodeAppendf("\tfloat edgeAlpha = (%s.x*%s.x - %s.y);\n", fsName, fsName, fsName);
+            builder->fsCodeAppendf("\tfloat edgeAlpha = (%s.x*%s.x - %s.y);\n", fsName, fsName,
+                                   fsName);
             builder->fsCodeAppend("\tedgeAlpha = sqrt(edgeAlpha*edgeAlpha / dot(gF, gF));\n");
             builder->fsCodeAppend("\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
             if (kES2_GrGLBinding == fContext.info().binding()) {
                 builder->fHeader.printf("#extension GL_OES_standard_derivatives: enable\n");
             }
-            break;
-        case GrDrawState::kCircle_EdgeType:
-            builder->fsCodeAppend("\tfloat edgeAlpha;\n");
-            builder->fsCodeAppendf("\tfloat d = distance(%s.xy, %s.xy);\n", builder->fragmentPosition(), fsName);
-            builder->fsCodeAppendf("\tfloat outerAlpha = smoothstep(d - 0.5, d + 0.5, %s.z);\n", fsName);
-            builder->fsCodeAppendf("\tfloat innerAlpha = %s.w == 0.0 ? 1.0 : smoothstep(%s.w - 0.5, %s.w + 0.5, d);\n", fsName, fsName, fsName);
-            builder->fsCodeAppend("\tedgeAlpha = outerAlpha * innerAlpha;\n");
             break;
         default:
             GrCrash("Unknown Edge Type!");
@@ -905,7 +903,9 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
 
             // discard if coverage is zero
             if (fDesc.fDiscardIfOutsideEdge && !outCoverage.isEmpty()) {
-                builder.fsCodeAppendf("\tif (all(lessThanEqual(%s, vec4(0.0)))) {\n\t\tdiscard;\n\t}\n", outCoverage.c_str());
+                builder.fsCodeAppendf(
+                    "\tif (all(lessThanEqual(%s, vec4(0.0)))) {\n\t\tdiscard;\n\t}\n",
+                    outCoverage.c_str());
             }
         }
 

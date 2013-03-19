@@ -25,27 +25,49 @@ public:
                           const char* outputColor,
                           const char* inputColor,
                           const TextureSamplerArray& samplers) SK_OVERRIDE {
-        const char *vsName, *fsName;
-        builder->addVarying(kVec4f_GrSLType, "EllipseEdge", &vsName, &fsName);
+        const GrEllipseEdgeEffect& effect = GetEffectFromStage<GrEllipseEdgeEffect>(stage);
+        
+        const char *vsCenterName, *fsCenterName;
+        const char *vsEdgeName, *fsEdgeName;
 
-        const SkString* attrName = builder->getEffectAttributeName(stage.getVertexAttribIndices()[0]);
-        builder->vsCodeAppendf("\t%s = %s;\n", vsName, attrName->c_str());
+        builder->addVarying(kVec2f_GrSLType, "EllipseCenter", &vsCenterName, &fsCenterName);
+        const SkString* attr0Name =
+            builder->getEffectAttributeName(stage.getVertexAttribIndices()[0]);
+        builder->vsCodeAppendf("\t%s = %s;\n", vsCenterName, attr0Name->c_str());
 
-        builder->fsCodeAppend("\tfloat edgeAlpha;\n");
+        builder->addVarying(kVec4f_GrSLType, "EllipseEdge", &vsEdgeName, &fsEdgeName);
+        const SkString* attr1Name =
+            builder->getEffectAttributeName(stage.getVertexAttribIndices()[1]);
+        builder->vsCodeAppendf("\t%s = %s;\n", vsEdgeName, attr1Name->c_str());
+
         // translate to origin
-        builder->fsCodeAppendf("\tvec2 offset = (%s.xy - %s.xy);\n", builder->fragmentPosition(), fsName);
+        builder->fsCodeAppendf("\tvec2 outerOffset = (%s.xy - %s.xy);\n",
+                               builder->fragmentPosition(), fsCenterName);
+        builder->fsCodeAppend("\tvec2 innerOffset = outerOffset;\n");
         // scale y by xRadius/yRadius
-        builder->fsCodeAppendf("\toffset.y *= %s.w;\n", fsName);
-        builder->fsCodeAppend("\tfloat d = length(offset);\n");
-        // compare length against xRadius
-        builder->fsCodeAppendf("\tedgeAlpha = smoothstep(d - 0.5, d + 0.5, %s.z);\n", fsName);
+        builder->fsCodeAppendf("\touterOffset.y *= %s.y;\n", fsEdgeName);
+        builder->fsCodeAppend("\tfloat dOuter = length(outerOffset);\n");
+        // compare outer lengths against xOuterRadius
+        builder->fsCodeAppendf("\tfloat edgeAlpha = clamp(%s.x-dOuter, 0.0, 1.0);\n", fsEdgeName);
+        
+        if (effect.isStroked()) {
+            builder->fsCodeAppendf("\tinnerOffset.y *= %s.w;\n", fsEdgeName);
+            builder->fsCodeAppend("\tfloat dInner = length(innerOffset);\n");
+        
+            // compare inner lengths against xInnerRadius
+            builder->fsCodeAppendf("\tfloat innerAlpha = clamp(dInner-%s.z, 0.0, 1.0);\n", fsEdgeName);
+            builder->fsCodeAppend("\tedgeAlpha *= innerAlpha;\n");
+        }
+        
         SkString modulate;
         GrGLSLModulate4f(&modulate, inputColor, "edgeAlpha");
         builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
     }
 
     static inline EffectKey GenKey(const GrEffectStage& stage, const GrGLCaps&) {
-        return 0;
+        const GrEllipseEdgeEffect& effect = GetEffectFromStage<GrEllipseEdgeEffect>(stage);
+
+        return effect.isStroked() ? 0x1 : 0x0;
     }
 
     virtual void setData(const GrGLUniformManager& uman, const GrEffectStage& stage) SK_OVERRIDE {
@@ -57,8 +79,11 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrEllipseEdgeEffect::GrEllipseEdgeEffect() : GrEffect() {
+GrEllipseEdgeEffect::GrEllipseEdgeEffect(bool stroke) : GrEffect() {
+    this->addVertexAttrib(kVec2f_GrSLType);
     this->addVertexAttrib(kVec4f_GrSLType);
+    
+    fStroke = stroke;
 }
 
 void GrEllipseEdgeEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
@@ -76,5 +101,5 @@ GR_DEFINE_EFFECT_TEST(GrEllipseEdgeEffect);
 GrEffectRef* GrEllipseEdgeEffect::TestCreate(SkMWCRandom* random,
                                                GrContext* context,
                                                GrTexture* textures[]) {
-    return GrEllipseEdgeEffect::Create();
+    return GrEllipseEdgeEffect::Create(random->nextBool());
 }
