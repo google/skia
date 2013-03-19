@@ -1934,6 +1934,15 @@ void GrGpuGL::flushStencil(DrawType type) {
 }
 
 void GrGpuGL::flushAAState(DrawType type) {
+// At least some ATI linux drivers will render GL_LINES incorrectly when MSAA state is enabled but
+// the target is not multisampled. Single pixel wide lines are rendered thicker than 1 pixel wide.
+#if 0
+    // Replace RT_HAS_MSAA with this definition once this driver bug is no longer a relevant concern
+    #define RT_HAS_MSAA rt->isMultisampled()
+#else
+    #define RT_HAS_MSAA (rt->isMultisampled() || kDrawLines_DrawType == type)
+#endif
+
     const GrRenderTarget* rt = this->getDrawState().getRenderTarget();
     if (kDesktop_GrGLBinding == this->glBinding()) {
         // ES doesn't support toggling GL_MULTISAMPLE and doesn't have
@@ -1948,7 +1957,7 @@ void GrGpuGL::flushAAState(DrawType type) {
                     GL_CALL(Enable(GR_GL_LINE_SMOOTH));
                     fHWAAState.fSmoothLineEnabled = kYes_TriState;
                     // must disable msaa to use line smoothing
-                    if (rt->isMultisampled() &&
+                    if (RT_HAS_MSAA &&
                         kNo_TriState != fHWAAState.fMSAAEnabled) {
                         GL_CALL(Disable(GR_GL_MULTISAMPLE));
                         fHWAAState.fMSAAEnabled = kNo_TriState;
@@ -1961,7 +1970,7 @@ void GrGpuGL::flushAAState(DrawType type) {
                 }
             }
         }
-        if (!smoothLines && rt->isMultisampled()) {
+        if (!smoothLines && RT_HAS_MSAA) {
             // FIXME: GL_NV_pr doesn't seem to like MSAA disabled. The paths
             // convex hulls of each segment appear to get filled.
             bool enableMSAA = kStencilPath_DrawType == type ||
