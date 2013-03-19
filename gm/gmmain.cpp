@@ -1576,7 +1576,7 @@ int tool_main(int argc, char** argv) {
 
         SkBitmap comparisonBitmap;
         const ConfigData compareConfig =
-            { SkBitmap::kARGB_8888_Config, kRaster_Backend, kDontCare_GLContextType, 0, kRW_ConfigFlag, "comparison" };
+            { SkBitmap::kARGB_8888_Config, kRaster_Backend, kDontCare_GLContextType, 0, kRW_ConfigFlag, "comparison", false };
         testErrors |= gmmain.generate_image(gm, compareConfig, NULL, NULL, &comparisonBitmap, false);
 
         // run the picture centric GM steps
