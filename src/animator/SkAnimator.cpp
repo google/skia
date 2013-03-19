@@ -84,11 +84,13 @@ bool SkAnimator::decodeURI(const char uri[]) {
 //  SkDebugf("animator decode %s\n", uri);
 
 //    SkStream* stream = SkStream::GetURIStream(fMaker->fPrefix.c_str(), uri);
-    SkStream* stream = new SkFILEStream(uri);
-
-    SkAutoTDelete<SkStream> autoDel(stream);
-    setURIBase(uri);
-    return decodeStream(stream);
+    SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(uri));
+    if (stream.get()) {
+        this->setURIBase(uri);
+        return decodeStream(stream);
+    } else {
+        return false;
+    }
 }
 
 bool SkAnimator::doCharEvent(SkUnichar code) {

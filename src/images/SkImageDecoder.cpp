@@ -225,9 +225,9 @@ bool SkImageDecoder::DecodeFile(const char file[], SkBitmap* bm,
     SkASSERT(file);
     SkASSERT(bm);
 
-    SkFILEStream    stream(file);
-    if (stream.isValid()) {
-        if (SkImageDecoder::DecodeStream(&stream, bm, pref, mode, format)) {
+    SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(file));
+    if (stream.get()) {
+        if (SkImageDecoder::DecodeStream(stream, bm, pref, mode, format)) {
             bm->pixelRef()->setURI(file);
             return true;
         }

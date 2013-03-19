@@ -1638,13 +1638,8 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
-    SkTypeface* face = NULL;
-    SkAutoTUnref<SkFILEStream> stream(SkNEW_ARGS(SkFILEStream, (path)));
-
-    if (stream->isValid()) {
-        face = CreateTypefaceFromStream(stream);
-    }
-    return face;
+    SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
+    return stream.get() ? CreateTypefaceFromStream(stream) : NULL;
 }
 
 void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface* typeface) {
