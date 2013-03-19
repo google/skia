@@ -132,6 +132,7 @@
     #define SkScalarFloorToInt(x)       sk_float_floor2int(x)
     #define SkScalarCeilToInt(x)        sk_float_ceil2int(x)
     #define SkScalarRoundToInt(x)       sk_float_round2int(x)
+    #define SkScalarTruncToInt(x)       static_cast<int>(x)
 
     /** Returns the absolute value of the specified SkScalar
     */
@@ -248,6 +249,7 @@
     #define SkScalarFloorToInt(x)       SkFixedFloorToInt(x)
     #define SkScalarCeilToInt(x)        SkFixedCeilToInt(x)
     #define SkScalarRoundToInt(x)       SkFixedRoundToInt(x)
+    #define SkScalarTruncToInt(x)       (((x) < 0) ? SkScalarCeilToInt(x) : SkScalarFloorToInt(x))
 
     #define SkScalarAbs(x)          SkFixedAbs(x)
     #define SkScalarCopySign(x, y)  SkCopySign32(x, y)

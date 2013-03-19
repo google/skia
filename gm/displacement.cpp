@@ -86,40 +86,40 @@ protected:
         drawClippedBitmap(canvas, 0, 0, paint);
         paint.setImageFilter(SkNEW_ARGS(SkDisplacementMapEffect,
             (SkDisplacementMapEffect::kB_ChannelSelectorType,
-             SkDisplacementMapEffect::kA_ChannelSelectorType, 0.2f, displ)))->unref();
+             SkDisplacementMapEffect::kA_ChannelSelectorType, 16.0f, displ)))->unref();
         drawClippedBitmap(canvas, 100, 0, paint);
         paint.setImageFilter(SkNEW_ARGS(SkDisplacementMapEffect,
             (SkDisplacementMapEffect::kR_ChannelSelectorType,
-             SkDisplacementMapEffect::kB_ChannelSelectorType, 0.4f, displ)))->unref();
+             SkDisplacementMapEffect::kB_ChannelSelectorType, 32.0f, displ)))->unref();
         drawClippedBitmap(canvas, 200, 0, paint);
         paint.setImageFilter(SkNEW_ARGS(SkDisplacementMapEffect,
             (SkDisplacementMapEffect::kG_ChannelSelectorType,
-             SkDisplacementMapEffect::kA_ChannelSelectorType, 0.6f, displ)))->unref();
+             SkDisplacementMapEffect::kA_ChannelSelectorType, 48.0f, displ)))->unref();
         drawClippedBitmap(canvas, 300, 0, paint);
         paint.setImageFilter(SkNEW_ARGS(SkDisplacementMapEffect,
             (SkDisplacementMapEffect::kR_ChannelSelectorType,
-             SkDisplacementMapEffect::kA_ChannelSelectorType, 0.8f, displ)))->unref();
+             SkDisplacementMapEffect::kA_ChannelSelectorType, 64.0f, displ)))->unref();
         drawClippedBitmap(canvas, 400, 0, paint);
 
         paint.setImageFilter(SkNEW_ARGS(SkDisplacementMapEffect,
             (SkDisplacementMapEffect::kR_ChannelSelectorType,
-             SkDisplacementMapEffect::kG_ChannelSelectorType, 0.5f, displ)))->unref();
+             SkDisplacementMapEffect::kG_ChannelSelectorType, 40.0f, displ)))->unref();
         drawClippedBitmap(canvas, 0, 100, paint);
         paint.setImageFilter(SkNEW_ARGS(SkDisplacementMapEffect,
             (SkDisplacementMapEffect::kB_ChannelSelectorType,
-             SkDisplacementMapEffect::kA_ChannelSelectorType, 0.5f, displ)))->unref();
+             SkDisplacementMapEffect::kA_ChannelSelectorType, 40.0f, displ)))->unref();
         drawClippedBitmap(canvas, 100, 100, paint);
         paint.setImageFilter(SkNEW_ARGS(SkDisplacementMapEffect,
             (SkDisplacementMapEffect::kR_ChannelSelectorType,
-             SkDisplacementMapEffect::kB_ChannelSelectorType, 0.5f, displ)))->unref();
+             SkDisplacementMapEffect::kB_ChannelSelectorType, 40.0f, displ)))->unref();
         drawClippedBitmap(canvas, 200, 100, paint);
         paint.setImageFilter(SkNEW_ARGS(SkDisplacementMapEffect,
             (SkDisplacementMapEffect::kG_ChannelSelectorType,
-             SkDisplacementMapEffect::kA_ChannelSelectorType, 0.5f, displ)))->unref();
+             SkDisplacementMapEffect::kA_ChannelSelectorType, 40.0f, displ)))->unref();
         drawClippedBitmap(canvas, 300, 100, paint);
         paint.setImageFilter(SkNEW_ARGS(SkDisplacementMapEffect,
             (SkDisplacementMapEffect::kR_ChannelSelectorType,
-             SkDisplacementMapEffect::kA_ChannelSelectorType, 0.5f, displ)))->unref();
+             SkDisplacementMapEffect::kA_ChannelSelectorType, 40.0f, displ)))->unref();
         drawClippedBitmap(canvas, 400, 100, paint);
     }
 
