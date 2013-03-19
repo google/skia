@@ -278,17 +278,19 @@ void GrGpuGL::initCaps() {
 
     // Enable supported shader-related caps
     if (kDesktop_GrGLBinding == this->glBinding()) {
-        caps->fDualSourceBlendingSupport =
-                            this->glVersion() >= GR_GL_VER(3,3) ||
-                            this->hasExtension("GL_ARB_blend_func_extended");
+        caps->fDualSourceBlendingSupport = this->glVersion() >= GR_GL_VER(3,3) ||
+                                           this->hasExtension("GL_ARB_blend_func_extended");
         caps->fShaderDerivativeSupport = true;
         // we don't support GL_ARB_geometry_shader4, just GL 3.2+ GS
-        caps->fGeometryShaderSupport =
-                                this->glVersion() >= GR_GL_VER(3,2) &&
-                                this->glslGeneration() >= k150_GrGLSLGeneration;
+        caps->fGeometryShaderSupport = this->glVersion() >= GR_GL_VER(3,2) &&
+                                       this->glslGeneration() >= k150_GrGLSLGeneration;
     } else {
         caps->fShaderDerivativeSupport =
                             this->hasExtension("GL_OES_standard_derivatives");
+    }
+
+    if (GrGLCaps::kNone_MSFBOType != this->glCaps().msFBOType()) {
+        GR_GL_GetIntegerv(this->glInterface(), GR_GL_MAX_SAMPLES, &caps->fMaxSampleCount);
     }
 }
 
@@ -316,8 +318,7 @@ void GrGpuGL::fillInConfigRenderableTable() {
     //  color renderable: RGBA4, RGB5_A1, RGB565
     //  GL_EXT_texture_rg adds support for R8 as a color render target
     //  GL_OES_rgb8_rgba8 and/or GL_ARM_rgba8 adds support for RGBA8
-    //  GL_EXT_texture_format_BGRA8888 and/or GL_APPLE_texture_format_BGRA8888
-    //          added BGRA support
+    //  GL_EXT_texture_format_BGRA8888 and/or GL_APPLE_texture_format_BGRA8888 added BGRA support
 
     if (kDesktop_GrGLBinding == this->glBinding()) {
         // Post 3.0 we will get R8
@@ -849,8 +850,6 @@ bool renderbuffer_storage_msaa(GrGLContext& ctx,
         created = (GR_GL_NO_ERROR == CHECK_ALLOC_ERROR(ctx.interface()));
     }
     if (!created) {
-        // glRBMS will fail if requested samples is > max samples.
-        sampleCount = GrMin(sampleCount, ctx.info().caps().maxSampleCount());
         GL_ALLOC_CALL(ctx.interface(),
                       RenderbufferStorageMultisample(GR_GL_RENDERBUFFER,
                                                      sampleCount,
@@ -976,12 +975,18 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
 
     // Attempt to catch un- or wrongly initialized sample counts;
     GrAssert(desc.fSampleCnt >= 0 && desc.fSampleCnt <= 64);
+    // We fail if the MSAA was requested and is not available.
+    if (GrGLCaps::kNone_MSFBOType == this->glCaps().msFBOType() && desc.fSampleCnt) {
+        //GrPrintf("MSAA RT requested but not supported on this platform.");
+        return return_null_texture();
+    }
+    // If the sample count exceeds the max then we clamp it.
+    glTexDesc.fSampleCnt = GrMin(desc.fSampleCnt, this->getCaps().maxSampleCount());
 
     glTexDesc.fFlags  = desc.fFlags;
     glTexDesc.fWidth  = desc.fWidth;
     glTexDesc.fHeight = desc.fHeight;
     glTexDesc.fConfig = desc.fConfig;
-    glTexDesc.fSampleCnt = desc.fSampleCnt;
     glTexDesc.fIsWrapped = false;
 
     glRTDesc.fMSColorRenderbufferID = 0;
@@ -997,7 +1002,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     glTexDesc.fOrigin = resolve_origin(desc.fOrigin, renderTarget);
     glRTDesc.fOrigin = glTexDesc.fOrigin;
 
-    glRTDesc.fSampleCnt = desc.fSampleCnt;
+    glRTDesc.fSampleCnt = glTexDesc.fSampleCnt;
     if (GrGLCaps::kNone_MSFBOType == this->glCaps().msFBOType() &&
         desc.fSampleCnt) {
         //GrPrintf("MSAA RT requested but not supported on this platform.");

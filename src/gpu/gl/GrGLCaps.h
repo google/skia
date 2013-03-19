@@ -138,11 +138,6 @@ public:
     MSFBOType msFBOType() const { return fMSFBOType; }
 
     /**
-     * Reports the maximum number of samples supported.
-     */
-    int maxSampleCount() const { return fMaxSampleCount; }
-
-    /**
      * Reports the type of coverage sample AA support.
      */
     CoverageAAType coverageAAType() const { return fCoverageAAType; }
@@ -289,7 +284,6 @@ private:
     int fMaxVertexAttributes;
 
     MSFBOType fMSFBOType;
-    int fMaxSampleCount;
     CoverageAAType fCoverageAAType;
     SkTDArray<MSAACoverageMode> fMSAACoverageModes;
 

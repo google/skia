@@ -45,8 +45,10 @@ protected:
         bool fDualSourceBlendingSupport : 1;
         bool fBufferLockSupport         : 1;
         bool fPathStencilingSupport     : 1;
+
         int fMaxRenderTargetSize;
         int fMaxTextureSize;
+        int fMaxSampleCount;
     };
 
     class DrawInfo;
@@ -81,6 +83,8 @@ public:
 
         int maxRenderTargetSize() const { return fInternals.fMaxRenderTargetSize; }
         int maxTextureSize() const { return fInternals.fMaxTextureSize; }
+        // Will be 0 if MSAA is not supported
+        int maxSampleCount() const { return fInternals.fMaxSampleCount; }
     private:
         CapsInternals fInternals;
         friend class GrDrawTarget; // to set values of fInternals

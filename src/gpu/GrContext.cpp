@@ -549,6 +549,10 @@ int GrContext::getMaxRenderTargetSize() const {
     return fGpu->getCaps().maxRenderTargetSize();
 }
 
+int GrContext::getMaxSampleCount() const {
+    return fGpu->getCaps().maxSampleCount();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 GrTexture* GrContext::wrapBackendTexture(const GrBackendTextureDesc& desc) {
