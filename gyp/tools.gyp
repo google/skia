@@ -3,6 +3,8 @@
 # To build on Linux:
 #  ./gyp_skia tools.gyp && make tools
 #
+# Building on other platforms not tested yet.
+#
 {
   'includes': [
     'apptype_console.gypi',
@@ -64,11 +66,12 @@
       'type': 'executable',
       'sources': [
         '../tools/skhello.cpp',
+        '../tools/SkFlags.h',
+        '../tools/SkFlags.cpp',
       ],
       'dependencies': [
         'skia_base_libs.gyp:skia_base_libs',
         'effects.gyp:effects',
-        'flags.gyp:flags',
         'images.gyp:images',
       ],
     },
@@ -134,6 +137,8 @@
         '../tools/PictureRenderingFlags.cpp',
         '../tools/CopyTilesRenderer.h',
         '../tools/CopyTilesRenderer.cpp',
+        '../tools/SkFlags.h',
+        '../tools/SkFlags.cpp',
         '../src/pipe/utils/SamplePipeControllers.h',
         '../src/pipe/utils/SamplePipeControllers.cpp',
       ],
@@ -147,7 +152,6 @@
         'effects.gyp:effects',
         'images.gyp:images',
         'tools.gyp:picture_utils',
-        'flags.gyp:flags',
       ],
       'conditions': [
         ['skia_gpu == 1',

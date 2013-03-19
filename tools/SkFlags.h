@@ -119,17 +119,6 @@ private:
 #define DEFINE_bool(name, defaultValue, helpString)                         \
 bool FLAGS_##name;                                                          \
 static bool unused_##name = SkFlagInfo::CreateBoolFlag(TO_STRING(name),     \
-                                                       NULL,                \
-                                                       &FLAGS_##name,       \
-                                                       defaultValue,        \
-                                                       helpString)
-
-// bool 2 allows specifying a short name. No check is done to ensure that shortName
-// is actually shorter than name.
-#define DEFINE_bool2(name, shortName, defaultValue, helpString)             \
-bool FLAGS_##name;                                                          \
-static bool unused_##name = SkFlagInfo::CreateBoolFlag(TO_STRING(name),     \
-                                                       TO_STRING(shortName),\
                                                        &FLAGS_##name,       \
                                                        defaultValue,        \
                                                        helpString)
@@ -139,19 +128,8 @@ static bool unused_##name = SkFlagInfo::CreateBoolFlag(TO_STRING(name),     \
 #define DEFINE_string(name, defaultValue, helpString)                       \
 SkTDArray<const char*> FLAGS_##name;                                        \
 static bool unused_##name = SkFlagInfo::CreateStringFlag(TO_STRING(name),   \
-                                                         NULL,              \
                                                          &FLAGS_##name,     \
                                                          defaultValue,      \
-                                                         helpString)
-
-// string2 allows specifying a short name. No check is done to ensure that shortName
-// is actually shorter than name.
-#define DEFINE_string2(name, shortName, defaultValue, helpString)               \
-SkTDArray<const char*> FLAGS_##name;                                            \
-static bool unused_##name = SkFlagInfo::CreateStringFlag(TO_STRING(name),       \
-                                                         TO_STRING(shortName),  \
-                                                         &FLAGS_##name,         \
-                                                         defaultValue,          \
                                                          helpString)
 
 #define DECLARE_string(name) extern SkTDArray<const char*> FLAGS_##name;
@@ -185,20 +163,17 @@ public:
     };
 
     // Create flags of the desired type, and append to the list.
-    static bool CreateBoolFlag(const char* name, const char* shortName, bool* pBool,
+    static bool CreateBoolFlag(const char* name, bool* pBool,
                                bool defaultValue, const char* helpString) {
         SkFlagInfo* info = SkNEW_ARGS(SkFlagInfo, (name, kBool_FlagType, helpString));
-        info->fShortName.set(shortName);
         info->fBoolValue = pBool;
         *info->fBoolValue = info->fDefaultBool = defaultValue;
         return true;
     }
 
-    static bool CreateStringFlag(const char* name, const char* shortName,
-                                 SkTDArray<const char*>* pStrings,
+    static bool CreateStringFlag(const char* name, SkTDArray<const char*>* pStrings,
                                  const char* defaultValue, const char* helpString) {
         SkFlagInfo* info = SkNEW_ARGS(SkFlagInfo, (name, kString_FlagType, helpString));
-        info->fShortName.set(shortName);
         info->fDefaultString.set(defaultValue);
 
         info->fStrings = pStrings;
@@ -231,28 +206,27 @@ public:
      *  value, since a bool is specified as true or false by --name or --noname.
      */
     bool match(const char* string) {
-        if (SkStrStartsWith(string, '-') && strlen(string) > 1) {
+        if (SkStrStartsWith(string, '-')) {
             string++;
             // Allow one or two dashes
-            if (SkStrStartsWith(string, '-') && strlen(string) > 1) {
+            if (SkStrStartsWith(string, '-')) {
                 string++;
             }
             if (kBool_FlagType == fFlagType) {
                 // In this case, go ahead and set the value.
-                if (fName.equals(string) || fShortName.equals(string)) {
+                if (fName.equals(string)) {
                     *fBoolValue = true;
                     return true;
                 }
-                if (SkStrStartsWith(string, "no") && strlen(string) > 2) {
-                    string += 2;
-                    if (fName.equals(string) || fShortName.equals(string)) {
-                        *fBoolValue = false;
-                        return true;
-                    }
-                    return false;
+                SkString noname(fName);
+                noname.prepend("no");
+                if (noname.equals(string)) {
+                    *fBoolValue = false;
+                    return true;
                 }
+                return false;
             }
-            return fName.equals(string) || fShortName.equals(string);
+            return fName.equals(string);
         } else {
             // Has no dash
             return false;
@@ -353,7 +327,6 @@ private:
     }
     // Name of the flag, without initial dashes
     SkString             fName;
-    SkString             fShortName;
     FlagTypes            fFlagType;
     SkString             fHelpString;
     bool*                fBoolValue;
