@@ -152,16 +152,6 @@ int SkTypeface::getUnitsPerEm() const {
     return upem;
 }
 
-// TODO: move this impl into the subclass
-SkScalerContext* SkTypeface::onCreateScalerContext(const SkDescriptor* desc) const {
-    return SkFontHost::CreateScalerContext(desc);
-}
-
-// TODO: move this impl into the subclass
-void SkTypeface::onFilterRec(SkScalerContextRec* rec) const {
-    SkFontHost::FilterRec(rec, const_cast<SkTypeface*>(this));
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 

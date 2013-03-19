@@ -11,6 +11,8 @@
 
 #include "SkGlyph.h"
 #include "SkScalerContext.h"
+#include "SkTypeface.h"
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -26,19 +28,34 @@
 
 
 class SkScalerContext_FreeType_Base : public SkScalerContext {
-public:
+protected:
     // See http://freetype.sourceforge.net/freetype2/docs/reference/ft2-bitmap_handling.html#FT_Bitmap_Embolden
     // This value was chosen by eyeballing the result in Firefox and trying to match it.
     static const FT_Pos kBitmapEmboldenStrength = 1 << 6;
-
-    SkScalerContext_FreeType_Base(const SkDescriptor *desc)
-        : SkScalerContext(desc)
+    
+    SkScalerContext_FreeType_Base(SkTypeface* typeface, const SkDescriptor *desc)
+    : INHERITED(typeface, desc)
     {}
-
-protected:
+    
     void generateGlyphImage(FT_Face face, const SkGlyph& glyph);
     void generateGlyphPath(FT_Face face, SkPath* path);
     void emboldenOutline(FT_Face face, FT_Outline* outline);
+
+private:
+    typedef SkScalerContext INHERITED;
+};
+
+class SkTypeface_FreeType : public SkTypeface {
+protected:
+    SkTypeface_FreeType(Style style, SkFontID uniqueID, bool isFixedWidth)
+        : INHERITED(style, uniqueID, isFixedWidth) {}
+
+    virtual SkScalerContext* onCreateScalerContext(
+                                        const SkDescriptor*) const SK_OVERRIDE;
+    virtual void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE;
+
+private:
+    typedef SkTypeface INHERITED;
 };
 
 #endif // SKFONTHOST_FREETYPE_COMMON_H_

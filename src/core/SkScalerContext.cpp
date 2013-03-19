@@ -75,11 +75,11 @@ static SkFlattenable* load_flattenable(const SkDescriptor* desc, uint32_t tag) {
     return obj;
 }
 
-SkScalerContext::SkScalerContext(const SkDescriptor* desc)
+SkScalerContext::SkScalerContext(SkTypeface* typeface, const SkDescriptor* desc)
     : fRec(*static_cast<const Rec*>(desc->findEntry(kRec_SkDescriptorTag, NULL)))
 
     , fBaseGlyphCount(0)
-
+    , fTypeface(SkRef(typeface))
     , fPathEffect(static_cast<SkPathEffect*>(load_flattenable(desc, kPathEffect_SkDescriptorTag)))
     , fMaskFilter(static_cast<SkMaskFilter*>(load_flattenable(desc, kMaskFilter_SkDescriptorTag)))
     , fRasterizer(static_cast<SkRasterizer*>(load_flattenable(desc, kRasterizer_SkDescriptorTag)))
@@ -117,14 +117,16 @@ SkScalerContext::~SkScalerContext() {
     SkSafeUnref(fRasterizer);
 }
 
+// Return the context associated with the next logical typeface, or NULL if
+// there are no more entries in the fallback chain.
 static SkScalerContext* allocNextContext(const SkScalerContext::Rec& rec) {
-    // fonthost will determine the next possible font to search, based
-    // on the current font in fRec. It will return NULL if ctx is our
-    // last font that can be searched (i.e. ultimate fallback font)
-    uint32_t newFontID = SkFontHost::NextLogicalFont(rec.fFontID, rec.fOrigFontID);
-    if (0 == newFontID) {
+    SkTypeface* newFace = SkFontHost::NextLogicalTypeface(rec.fFontID, rec.fOrigFontID);
+    if (0 == newFace) {
         return NULL;
     }
+    
+    SkAutoTUnref<SkTypeface> aur(newFace);
+    uint32_t newFontID = newFace->uniqueID();
 
     SkAutoDescriptor    ad(sizeof(rec) + SkDescriptor::ComputeOverhead(1));
     SkDescriptor*       desc = ad.getDesc();
@@ -136,7 +138,7 @@ static SkScalerContext* allocNextContext(const SkScalerContext::Rec& rec) {
     newRec->fFontID = newFontID;
     desc->computeChecksum();
 
-    return SkFontHost::CreateScalerContext(desc);
+    return newFace->createScalerContext(desc);
 }
 
 /*  Return the next context, creating it if its not already created, but return
@@ -740,7 +742,8 @@ SkAxisAlignment SkComputeAxisAlignmentForHText(const SkMatrix& matrix) {
 
 class SkScalerContext_Empty : public SkScalerContext {
 public:
-    SkScalerContext_Empty(const SkDescriptor* desc) : SkScalerContext(desc) {}
+    SkScalerContext_Empty(SkTypeface* face, const SkDescriptor* desc)
+        : SkScalerContext(face, desc) {}
 
 protected:
     virtual unsigned generateGlyphCount() SK_OVERRIDE {
@@ -776,7 +779,8 @@ SkScalerContext* SkTypeface::createScalerContext(const SkDescriptor* desc) const
         c = this->onCreateScalerContext(desc);
     }
     if (NULL == c) {
-        c = SkNEW_ARGS(SkScalerContext_Empty, (desc));
+        c = SkNEW_ARGS(SkScalerContext_Empty,
+                       (const_cast<SkTypeface*>(this), desc));
     }
     return c;
 }

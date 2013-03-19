@@ -205,12 +205,13 @@ protected:
     friend class SkScalerContext;
     static SkTypeface* GetDefaultTypeface();
 
+    virtual SkScalerContext* onCreateScalerContext(const SkDescriptor*) const = 0;
+    virtual void onFilterRec(SkScalerContextRec*) const = 0;
+
     virtual int onGetUPEM() const;
     virtual int onGetTableTags(SkFontTableTag tags[]) const;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const;
-    virtual SkScalerContext* onCreateScalerContext(const SkDescriptor*) const;
-    virtual void onFilterRec(SkScalerContextRec*) const;
     virtual void onGetFontDescriptor(SkFontDescriptor*) const;
 
 private:

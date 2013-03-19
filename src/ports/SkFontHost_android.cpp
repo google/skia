@@ -6,6 +6,7 @@
  */
 
 #include "SkFontHost.h"
+#include "SkFontHost_FreeType_common.h"
 #include "SkFontDescriptor.h"
 #include "SkGraphics.h"
 #include "SkDescriptor.h"
@@ -280,11 +281,11 @@ static void remove_from_names(FamilyRec* emptyFamily) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class FamilyTypeface : public SkTypeface {
+class FamilyTypeface : public SkTypeface_FreeType {
 public:
     FamilyTypeface(Style style, bool sysFont, SkTypeface* familyMember,
                    bool isFixedWidth)
-    : SkTypeface(style, sk_atomic_inc(&gUniqueFontID) + 1, isFixedWidth) {
+    : INHERITED(style, sk_atomic_inc(&gUniqueFontID) + 1, isFixedWidth) {
         fIsSysFont = sysFont;
 
         // our caller has acquired the gFamilyHeadAndNameListMutex so this is safe
@@ -319,7 +320,7 @@ public:
 private:
     bool    fIsSysFont;
 
-    typedef SkTypeface INHERITED;
+    typedef SkTypeface_FreeType INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -866,13 +867,13 @@ size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
     }
 }
 
-SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
+SkTypeface* SkFontHost::NextLogicalTypeface(SkFontID currFontID, SkFontID origFontID) {
 #if defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
     // Skia does not support font fallback for ndk applications in order to
     // enable clients such as WebKit to customize their font selection.
     // Clients can use GetFallbackFamilyNameForChar() to get the fallback
     // font for individual characters.
-    return 0;
+    return NULL;
 #else
     SkAutoMutexAcquire  ac(gFamilyHeadAndNameListMutex);
 
@@ -898,9 +899,9 @@ SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
     for (int i = 0; list[i] != 0; i++) {
         if (list[i] == currFontID) {
             if (list[i+1] == 0)
-                return 0;
+                return NULL;
             const SkTypeface* nextTypeface = find_from_uniqueID(list[i+1]);
-            return find_typeface(nextTypeface, origTypeface->style())->uniqueID();
+            return SkRef(find_typeface(nextTypeface, origTypeface->style()));
         }
     }
 
@@ -908,7 +909,7 @@ SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
     // beginning of our list. Assuming there is at least one fallback font,
     // i.e. gFallbackFonts[0] != 0.
     const SkTypeface* firstTypeface = find_from_uniqueID(list[0]);
-    return find_typeface(firstTypeface, origTypeface->style())->uniqueID();
+    return SkRef(find_typeface(firstTypeface, origTypeface->style()));
 #endif
 }
 

@@ -159,7 +159,7 @@ static bool is_lcd_supported() {
 
 class SkScalerContext_FreeType : public SkScalerContext_FreeType_Base {
 public:
-    SkScalerContext_FreeType(const SkDescriptor* desc);
+    SkScalerContext_FreeType(SkTypeface*, const SkDescriptor* desc);
     virtual ~SkScalerContext_FreeType();
 
     bool success() const {
@@ -650,7 +650,19 @@ static bool isAxisAligned(const SkScalerContext::Rec& rec) {
             bothZero(rec.fPost2x2[0][0], rec.fPost2x2[1][1]));
 }
 
-void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface*) {
+SkScalerContext* SkTypeface_FreeType::onCreateScalerContext(
+                                               const SkDescriptor* desc) const {
+    SkScalerContext_FreeType* c = SkNEW_ARGS(SkScalerContext_FreeType,
+                                        (const_cast<SkTypeface_FreeType*>(this),
+                                         desc));
+    if (!c->success()) {
+        SkDELETE(c);
+        c = NULL;
+    }
+    return c;
+}
+
+void SkTypeface_FreeType::onFilterRec(SkScalerContextRec* rec) const {
     //BOGUS: http://code.google.com/p/chromium/issues/detail?id=121119
     //Cap the requested size as larger sizes give bogus values.
     //Remove when http://code.google.com/p/skia/issues/detail?id=554 is fixed.
@@ -710,8 +722,9 @@ uint32_t SkFontHost::GetUnitsPerEm(SkFontID fontID) {
 }
 #endif
 
-SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
-        : SkScalerContext_FreeType_Base(desc) {
+SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
+                                                   const SkDescriptor* desc)
+        : SkScalerContext_FreeType_Base(typeface, desc) {
     SkAutoMutexAcquire  ac(gFTMutex);
 
     if (gFTCount == 0) {
@@ -1299,17 +1312,6 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
 
 ////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////
-
-SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {
-    SkScalerContext_FreeType* c = SkNEW_ARGS(SkScalerContext_FreeType, (desc));
-    if (!c->success()) {
-        SkDELETE(c);
-        c = NULL;
-    }
-    return c;
-}
-
-///////////////////////////////////////////////////////////////////////////////
 
 /*  Export this so that other parts of our FonttHost port can make use of our
     ability to extract the name+style from a stream, using FreeType's api.

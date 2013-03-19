@@ -394,7 +394,7 @@ static SkTypeface* gDefaultNormal;
     fontIDs that can be used for fallback consideration, in sorted order (sorted
     meaning element[0] should be used first, then element[1], etc. When we hit
     a fontID==0 in the array, the list is done, hence our allocation size is
-    +1 the total number of possible system fonts. Also see NextLogicalFont().
+    +1 the total number of possible system fonts. Also see NextLogicalTypeface().
  */
 static uint32_t gFallbackFonts[SK_ARRAY_COUNT(gSystemFonts)+1];
 
@@ -584,7 +584,7 @@ size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
     }
 }
 
-SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
+SkTypeface* SkFontHost::NextLogicalTypeface(SkFontID currFontID, SkFontID origFontID) {
     load_system_fonts();
 
     /*  First see if fontID is already one of our fallbacks. If so, return
@@ -595,10 +595,10 @@ SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
     const uint32_t* list = gFallbackFonts;
     for (int i = 0; list[i] != 0; i++) {
         if (list[i] == currFontID) {
-            return list[i+1];
+            return SkSafeRef(find_from_uniqueID(list[i+1]));
         }
     }
-    return list[0];
+    return SkSafeRef(list[0]);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
