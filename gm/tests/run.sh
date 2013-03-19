@@ -21,7 +21,7 @@ GM_BINARY=out/Debug/gm
 
 OUTPUT_ACTUAL_SUBDIR=output-actual
 OUTPUT_EXPECTED_SUBDIR=output-expected
-CONFIGS="--config 8888 --config 565"
+CONFIGS="--config 8888 565"
 
 # Compare contents of all files within directories $1 and $2,
 # EXCEPT for any dotfiles.
@@ -58,7 +58,7 @@ function gm_test {
 
   rm -rf $ACTUAL_OUTPUT_DIR
   mkdir -p $ACTUAL_OUTPUT_DIR
-  COMMAND="$GM_BINARY $GM_ARGS --writeJsonSummary $JSON_SUMMARY_FILE"
+  COMMAND="$GM_BINARY $GM_ARGS --writeJsonSummaryPath $JSON_SUMMARY_FILE"
   echo "$COMMAND" >$ACTUAL_OUTPUT_DIR/command_line
   $COMMAND >$ACTUAL_OUTPUT_DIR/stdout 2>$ACTUAL_OUTPUT_DIR/stderr
   echo $? >$ACTUAL_OUTPUT_DIR/return_value
@@ -100,7 +100,7 @@ function create_inputs_dir {
   # Run GM again to read in those images and write them out as a JSON summary.
   $GM_BINARY --hierarchy --match selftest1 $CONFIGS \
     -r $IMAGES_DIR/identical-bytes \
-    --writeJsonSummary $JSON_DIR/identical-bytes.json
+    --writeJsonSummaryPath $JSON_DIR/identical-bytes.json
 
   mkdir -p $IMAGES_DIR/identical-pixels
   $GM_BINARY --hierarchy --match selftest1 $CONFIGS \
@@ -111,7 +111,7 @@ function create_inputs_dir {
     >> $IMAGES_DIR/identical-pixels/565/selftest1.png
   $GM_BINARY --hierarchy --match selftest1 $CONFIGS \
     -r $IMAGES_DIR/identical-pixels \
-    --writeJsonSummary $JSON_DIR/identical-pixels.json
+    --writeJsonSummaryPath $JSON_DIR/identical-pixels.json
 
   mkdir -p $IMAGES_DIR/different-pixels
   $GM_BINARY --hierarchy --match selftest2 $CONFIGS \
@@ -122,7 +122,7 @@ function create_inputs_dir {
     $IMAGES_DIR/different-pixels/565/selftest1.png
   $GM_BINARY --hierarchy --match selftest1 $CONFIGS \
     -r $IMAGES_DIR/different-pixels \
-    --writeJsonSummary $JSON_DIR/different-pixels.json
+    --writeJsonSummaryPath $JSON_DIR/different-pixels.json
 
   mkdir -p $IMAGES_DIR/empty-dir
 }
