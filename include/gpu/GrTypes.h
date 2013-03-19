@@ -291,11 +291,9 @@ enum GrPixelConfig {
 #ifndef SK_CPU_LENDIAN
     #error "Skia gpu currently assumes little endian"
 #endif
-#if 24 == SK_A32_SHIFT && 16 == SK_R32_SHIFT && \
-     8 == SK_G32_SHIFT &&  0 == SK_B32_SHIFT
+#if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
     static const GrPixelConfig kSkia8888_GrPixelConfig = kBGRA_8888_GrPixelConfig;
-#elif 24 == SK_A32_SHIFT && 16 == SK_B32_SHIFT && \
-       8 == SK_G32_SHIFT &&  0 == SK_R32_SHIFT
+#elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
     static const GrPixelConfig kSkia8888_GrPixelConfig = kRGBA_8888_GrPixelConfig;
 #else
     #error "SK_*32_SHIFT values must correspond to GL_BGRA or GL_RGBA format."
