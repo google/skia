@@ -425,8 +425,11 @@ public:
 
     virtual bool isValid() { return fResources.count() > 0; }
 
-    void getResources(SkTDArray<SkPDFObject*>* resourceList) {
-        GetResourcesHelper(&fResources, resourceList);
+    void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
+                      SkTSet<SkPDFObject*>* newResourceObjects) {
+        GetResourcesHelper(&fResources,
+                           knownResourceObjects,
+                           newResourceObjects);
     }
 
 private:
@@ -448,12 +451,15 @@ public:
 
     virtual bool isValid() { return size() > 0; }
 
-    void getResources(SkTDArray<SkPDFObject*>* resourceList) {
-        GetResourcesHelper(&fResources, resourceList);
+    void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
+                      SkTSet<SkPDFObject*>* newResourceObjects) {
+        GetResourcesHelper(&fResources.toArray(),
+                           knownResourceObjects,
+                           newResourceObjects);
     }
 
 private:
-    SkTDArray<SkPDFObject*> fResources;
+    SkTSet<SkPDFObject*> fResources;
     SkAutoTDelete<const SkPDFShader::State> fState;
 };
 
@@ -832,7 +838,7 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
     // Put the canvas into the pattern stream (fContent).
     SkAutoTUnref<SkStream> content(pattern.content());
     setData(content.get());
-    pattern.getResources(&fResources, false);
+    pattern.getResources(fResources, &fResources, false);
 
     insertName("Type", "Pattern");
     insertInt("PatternType", 1);

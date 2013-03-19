@@ -12,6 +12,7 @@
       'include_dirs': [
         '../include/config',
         '../include/core',
+        '../include/images',
         '../include/pdf',
         '../src/core', # needed to get SkGlyphCache.h and SkTextFormatParams.h
         '../src/utils', # needed to get SkBitSet.h
@@ -43,6 +44,7 @@
         '../src/pdf/SkPDFTypes.h',
         '../src/pdf/SkPDFUtils.cpp',
         '../src/pdf/SkPDFUtils.h',
+        '../src/pdf/SkTSet.h',
       ],
       # This section makes all targets that depend on this target
       # #define SK_SUPPORT_PDF and have access to the pdf header files.
