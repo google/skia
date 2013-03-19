@@ -357,11 +357,11 @@ void SkBlurMaskFilterImpl::toString(SkString* str) const {
     str->append("flags: (");
     if (fBlurFlags) {
         bool needSeparator = false;
-        SkAddFlagToString(str, 
-                          SkToBool(fBlurFlags & SkBlurMaskFilter::kIgnoreTransform_BlurFlag), 
+        SkAddFlagToString(str,
+                          SkToBool(fBlurFlags & SkBlurMaskFilter::kIgnoreTransform_BlurFlag),
                           "IgnoreXform", &needSeparator);
-        SkAddFlagToString(str, 
-                          SkToBool(fBlurFlags & SkBlurMaskFilter::kHighQuality_BlurFlag), 
+        SkAddFlagToString(str,
+                          SkToBool(fBlurFlags & SkBlurMaskFilter::kHighQuality_BlurFlag),
                           "HighQuality", &needSeparator);
     } else {
         str->append("None");

@@ -802,24 +802,24 @@ static bool mmap_filename(const char path[], void** addrPtr, size_t* sizePtr) {
     if (fd < 0) {
         return false;
     }
-    
+
     off_t offset = lseek(fd, 0, SEEK_END);    // find the file size
     if (offset == -1) {
         close(fd);
         return false;
     }
     (void)lseek(fd, 0, SEEK_SET);   // restore file offset to beginning
-    
+
     // to avoid a 64bit->32bit warning, I explicitly create a size_t size
     size_t size = static_cast<size_t>(offset);
-    
+
     void* addr = mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
     close(fd);
-    
+
     if (MAP_FAILED == addr) {
         return false;
     }
-    
+
     *addrPtr = addr;
     *sizePtr = size;
     return true;
@@ -837,7 +837,7 @@ SkStream* SkStream::NewFromFile(const char path[]) {
             return SkNEW_ARGS(SkMemoryStream, (data.get()));
         }
     }
-    
+
     // If we get here, then our attempt at using mmap failed, so try normal
     // file access.
     SkFILEStream* stream = SkNEW_ARGS(SkFILEStream, (path));
@@ -847,4 +847,3 @@ SkStream* SkStream::NewFromFile(const char path[]) {
     }
     return stream;
 }
-

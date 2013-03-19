@@ -321,4 +321,3 @@ SkDataSet* SkDataSet::NewEmpty() {
     gEmptySet->ref();
     return gEmptySet;
 }
-

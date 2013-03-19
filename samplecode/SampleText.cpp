@@ -82,8 +82,8 @@ public:
     }
 
 #ifdef SK_DEVELOPER
-    virtual void toString(SkString* str) const SK_OVERRIDE { 
-        str->append("Darken: ("); 
+    virtual void toString(SkString* str) const SK_OVERRIDE {
+        str->append("Darken: (");
         this->INHERITED::toString(str);
         str->append(")");
     }
