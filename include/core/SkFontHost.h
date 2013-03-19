@@ -110,20 +110,14 @@ public:
     static void EnsureTypefaceAccessible(const SkTypeface& typeface);
 
     /**
-     *  Return a subclass of SkScalarContext
-     *  DEPRECATED -- will be moved to SkTypeface
-     */
-    static SkScalerContext* CreateScalerContext(const SkDescriptor* desc);
-
-    /**
      *  DEPRECATED -- will be DESTROYED
      *
-     *  Given a "current" fontID, return the next logical fontID to use
+     *  Given a "current" fontID, return a ref to the next logical typeface
      *  when searching fonts for a given unicode value. Typically the caller
      *  will query a given font, and if a unicode value is not supported, they
      *  will call this, and if 0 is not returned, will search that font, and so
      *  on. This process must be finite, and when the fonthost sees a
-     *  font with no logical successor, it must return 0.
+     *  font with no logical successor, it must return NULL.
      *
      *  The original fontID is also provided. This is the initial font that was
      *  stored in the typeface of the caller. It is provided as an aid to choose
@@ -132,7 +126,7 @@ public:
      *  get the 3rd can still inspect the original, and try to match its
      *  stylistic attributes.
      */
-    static SkFontID NextLogicalFont(SkFontID currFontID, SkFontID origFontID);
+    static SkTypeface* NextLogicalTypeface(SkFontID currFontID, SkFontID origFontID);
 
 
     ///// public HACK FOR FREETYPE -- will be fixed
@@ -221,22 +215,6 @@ private:
         SkFontDescriptor.
      */
     static SkTypeface* Deserialize(SkStream*);
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    /** Given a filled-out rec, the fonthost may decide to modify it to reflect
-        what the host is actually capable of fulfilling. For example, if the
-        rec is requesting a level of hinting that, for this host, maps some
-        other level (e.g. kFull -> kNormal), it should update the rec to reflect
-        what will actually be done. This is an optimization so that the font
-        cache does not contain different recs (i.e. keys) that in reality map to
-        the same output.
-
-        A lazy (but valid) fonthost can do nothing in its FilterRec routine.
-
-        The provided typeface corresponds to the fFontID field.
-     */
-    static void FilterRec(SkScalerContextRec* rec, SkTypeface* typeface);
 
     ///////////////////////////////////////////////////////////////////////////
 

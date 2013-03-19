@@ -12,11 +12,7 @@
 #include "SkMaskGamma.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
-
-#ifdef SK_BUILD_FOR_ANDROID
-    //For SkFontID
-    #include "SkTypeface.h"
-#endif
+#include "SkTypeface.h"
 
 struct SkGlyph;
 class SkDescriptor;
@@ -149,8 +145,10 @@ public:
     };
 
 
-    SkScalerContext(const SkDescriptor* desc);
+    SkScalerContext(SkTypeface*, const SkDescriptor*);
     virtual ~SkScalerContext();
+
+    SkTypeface* getTypeface() const { return fTypeface.get(); }
 
     SkMask::Format getMaskFormat() const {
         return (SkMask::Format)fRec.fMaskFormat;
@@ -217,6 +215,10 @@ protected:
     void forceGenerateImageFromPath() { fGenerateImageFromPath = true; }
 
 private:
+    // never null
+    SkAutoTUnref<SkTypeface> fTypeface;
+    
+    // optional object, which may be null
     SkPathEffect*   fPathEffect;
     SkMaskFilter*   fMaskFilter;
     SkRasterizer*   fRasterizer;

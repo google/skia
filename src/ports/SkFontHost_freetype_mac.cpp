@@ -96,8 +96,8 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
     return NULL;
 }
 
-SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
-    return 0;
+SkTypeface* SkFontHost::NextLogicalTypeface(SkFontID currFontID, SkFontID origFontID) {
+    return NULL;
 }
 
 #include "SkTypeface_mac.h"

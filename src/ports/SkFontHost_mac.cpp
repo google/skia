@@ -610,8 +610,8 @@ struct GlyphRect {
 
 class SkScalerContext_Mac : public SkScalerContext {
 public:
-    SkScalerContext_Mac(const SkDescriptor* desc);
-    virtual ~SkScalerContext_Mac(void);
+    SkScalerContext_Mac(SkTypeface_Mac*, const SkDescriptor*);
+    virtual ~SkScalerContext_Mac();
 
 
 protected:
@@ -646,10 +646,13 @@ private:
     bool fVertical;
 
     friend class Offscreen;
+
+    typedef SkScalerContext INHERITED;
 };
 
-SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
-        : SkScalerContext(desc)
+SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
+                                         const SkDescriptor* desc)
+        : INHERITED(typeface, desc)
         , fFBoundingBoxes(NULL)
         , fFBoundingBoxesGlyphOffset(0)
         , fGeneratedFBoundingBoxes(false)
@@ -1713,23 +1716,12 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
 ///////////////////////////////////////////////////////////////////////////////
 
 // DEPRECATED
-SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {
-    return new SkScalerContext_Mac(desc);
-}
-
-// DEPRECATED
-SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
-    SkFontID nextFontID = 0;
+SkTypeface* SkFontHost::NextLogicalTypeface(SkFontID currFontID, SkFontID origFontID) {
     SkTypeface* face = GetDefaultFace();
-    if (face->uniqueID() != currFontID) {
-        nextFontID = face->uniqueID();
+    if (face->uniqueID() == currFontID) {
+        face = NULL;
     }
-    return nextFontID;
-}
-
-// DEPRECATED
-void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface* face) {
-    face->onFilterRec(rec);
+    return SkSafeRef(face);
 }
 
 // DEPRECATED
@@ -1815,7 +1807,7 @@ size_t SkTypeface_Mac::onGetTableData(SkFontTableTag tag, size_t offset,
 }
 
 SkScalerContext* SkTypeface_Mac::onCreateScalerContext(const SkDescriptor* desc) const {
-    return new SkScalerContext_Mac(desc);
+    return new SkScalerContext_Mac(const_cast<SkTypeface_Mac*>(this), desc);
 }
 
 void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {

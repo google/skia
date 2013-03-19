@@ -41,11 +41,11 @@ static bool isLCD(const SkScalerContext::Rec& rec) {
            SkMask::kLCD32_Format == rec.fMaskFormat;
 }
 
-SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
+SkTypeface* SkFontHost::NextLogicalTypeface(SkFontID currFontID, SkFontID origFontID) {
   // Zero means that we don't have any fallback fonts for this fontID.
   // This function is implemented on Android, but doesn't have much
   // meaning here.
-  return 0;
+  return NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -477,11 +477,15 @@ public:
         HRV(factory->UnregisterFontCollectionLoader(fDWriteFontCollectionLoader.get()));
         HRV(factory->UnregisterFontFileLoader(fDWriteFontFileLoader.get()));
     }
+
+protected:
+    virtual SkScalerContext* onCreateScalerContext(const SkDescriptor*) const SK_OVERRIDE;
+    virtual void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE;
 };
 
 class SkScalerContext_Windows : public SkScalerContext {
 public:
-    SkScalerContext_Windows(const SkDescriptor* desc);
+    SkScalerContext_Windows(DWriteFontTypeface*, const SkDescriptor* desc);
     virtual ~SkScalerContext_Windows();
 
 protected:
@@ -707,8 +711,10 @@ static DWriteFontTypeface* GetDWriteFontByID(SkFontID fontID) {
     return static_cast<DWriteFontTypeface*>(SkTypefaceCache::FindByID(fontID));
 }
 
-SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
-        : SkScalerContext(desc)
+SkScalerContext_Windows::SkScalerContext_Windows(DWriteFontTypeface* typeface,
+                                                 const SkDescriptor* desc)
+        : SkScalerContext(typeface, desc)
+        , fTypeface(SkRef(typeface))
         , fGlyphCount(-1) {
     SkAutoMutexAcquire ac(gFTMutex);
 
@@ -718,9 +724,6 @@ SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
     fXform.m22 = SkScalarToFloat(fRec.fPost2x2[1][1]);
     fXform.dx = 0;
     fXform.dy = 0;
-
-    fTypeface.reset(GetDWriteFontByID(fRec.fFontID));
-    fTypeface.get()->ref();
 
     fOffscreen.init(fTypeface->fDWriteFontFace.get(), fXform, SkScalarToFloat(fRec.fTextSize));
 }
@@ -1162,8 +1165,8 @@ size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length, int3
     return 0;
 }
 
-SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {
-    return SkNEW_ARGS(SkScalerContext_Windows, (desc));
+SkScalerContext* DWriteFontTypeface::onCreateScalerContext(const SkDescriptor* desc) const {
+    return SkNEW_ARGS(SkScalerContext_Windows, (const_cast<DWriteFontTypeface*>(this), desc));
 }
 
 static HRESULT get_by_family_name(const char familyName[], IDWriteFontFamily** fontFamily) {
@@ -1258,7 +1261,7 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
     return NULL;
 }
 
-void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface*) {
+void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {
     unsigned flagsWeDontSupport = SkScalerContext::kDevKernText_Flag |
                                   SkScalerContext::kAutohinting_Flag |
                                   SkScalerContext::kEmbeddedBitmapText_Flag |

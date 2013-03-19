@@ -190,6 +190,10 @@ public:
         SkFontID fontID = SkTypefaceCache::NewFontID();
         return new LogFontTypeface(style, fontID, lf);
     }
+
+protected:
+    virtual SkScalerContext* onCreateScalerContext(const SkDescriptor*) const SK_OVERRIDE;
+    virtual void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE;
 };
 
 class FontMemResourceTypeface : public LogFontTypeface {
@@ -274,11 +278,11 @@ void SkLOGFONTFromTypeface(const SkTypeface* face, LOGFONT* lf) {
     }
 }
 
-SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
+SkTypeface* SkFontHost::NextLogicalTypeface(SkFontID currFontID, SkFontID origFontID) {
   // Zero means that we don't have any fallback fonts for this fontID.
   // This function is implemented on Android, but doesn't have much
   // meaning here.
-  return 0;
+  return NULL;
 }
 
 static void ensure_typeface_accessible(SkFontID fontID) {
@@ -481,7 +485,7 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
 
 class SkScalerContext_Windows : public SkScalerContext {
 public:
-    SkScalerContext_Windows(const SkDescriptor* desc);
+    SkScalerContext_Windows(SkTypeface*, const SkDescriptor* desc);
     virtual ~SkScalerContext_Windows();
 
 protected:
@@ -549,8 +553,9 @@ static BYTE compute_quality(const SkScalerContext::Rec& rec) {
     }
 }
 
-SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
-        : SkScalerContext(desc), fDDC(0), fFont(0), fSavefont(0), fSC(0)
+SkScalerContext_Windows::SkScalerContext_Windows(SkTypeface* typeface,
+                                                 const SkDescriptor* desc)
+        : SkScalerContext(typeface, desc), fDDC(0), fFont(0), fSavefont(0), fSC(0)
         , fGlyphCount(-1) {
     SkAutoMutexAcquire  ac(gFTMutex);
 
@@ -1608,8 +1613,8 @@ size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length, int3
     return 0;
 }
 
-SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {
-    return SkNEW_ARGS(SkScalerContext_Windows, (desc));
+SkScalerContext* LogFontTypeface::onCreateScalerContext(const SkDescriptor* desc) const {
+    return SkNEW_ARGS(SkScalerContext_Windows, (const_cast<LogFontTypeface*>(this), desc));
 }
 
 /** Return the closest matching typeface given either an existing family
@@ -1642,7 +1647,7 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
     return stream.get() ? CreateTypefaceFromStream(stream) : NULL;
 }
 
-void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface* typeface) {
+void LogFontTypeface::onFilterRec(SkScalerContextRec* rec) const {
     unsigned flagsWeDontSupport = SkScalerContext::kDevKernText_Flag |
                                   SkScalerContext::kAutohinting_Flag |
                                   SkScalerContext::kEmbeddedBitmapText_Flag |
@@ -1682,8 +1687,7 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec, SkTypeface* typeface) {
     }
 #endif
 
-    LogFontTypeface* logfontTypeface = static_cast<LogFontTypeface*>(typeface);
-    if (!logfontTypeface->fCanBeLCD && isLCD(*rec)) {
+    if (!fCanBeLCD && isLCD(*rec)) {
         rec->fMaskFormat = SkMask::kA8_Format;
         rec->fFlags &= ~SkScalerContext::kGenA8FromLCD_Flag;
     }

@@ -8,6 +8,7 @@
 #include "SkFontConfigInterface.h"
 #include "SkFontDescriptor.h"
 #include "SkFontHost.h"
+#include "SkFontHost_FreeType_common.h"
 #include "SkFontStream.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
@@ -46,7 +47,7 @@ static SkFontConfigInterface* RefFCI() {
     }
 }
 
-class FontConfigTypeface : public SkTypeface {
+class FontConfigTypeface : public SkTypeface_FreeType {
     SkFontConfigInterface::FontIdentity fIdentity;
     SkString fFamilyName;
     SkStream* fLocalStream;
@@ -55,13 +56,13 @@ public:
     FontConfigTypeface(Style style,
                        const SkFontConfigInterface::FontIdentity& fi,
                        const SkString& familyName)
-            : SkTypeface(style, SkTypefaceCache::NewFontID())
+            : INHERITED(style, SkTypefaceCache::NewFontID(), false)
             , fIdentity(fi)
             , fFamilyName(familyName)
             , fLocalStream(NULL) {}
 
     FontConfigTypeface(Style style, SkStream* localStream)
-            : SkTypeface(style, SkTypefaceCache::NewFontID()) {
+            : INHERITED(style, SkTypefaceCache::NewFontID(), false) {
         // we default to empty fFamilyName and fIdentity
         fLocalStream = localStream;
         SkSafeRef(localStream);
@@ -91,7 +92,7 @@ protected:
     virtual void onGetFontDescriptor(SkFontDescriptor*) const SK_OVERRIDE;
 
 private:
-    typedef SkTypeface INHERITED;
+    typedef SkTypeface_FreeType INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -199,9 +200,9 @@ size_t SkFontHost::GetTableData(SkFontID fontID, SkFontTableTag tag,
 }
 
 // DEPRECATED
-uint32_t SkFontHost::NextLogicalFont(SkFontID curr, SkFontID orig) {
+SkTypeface* SkFontHost::NextLogicalTypeface(SkFontID curr, SkFontID orig) {
     // We don't handle font fallback.
-    return 0;
+    return NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
