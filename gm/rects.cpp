@@ -128,28 +128,28 @@ protected:
         {
             // 1x1.5 scale
             SkMatrix m;
-            m.setScale(1, 1.5);
+            m.setScale(1, 1.5f);
             fMatrices.push_back(m);
         }
 
         {
             // 1.5x1.5 scale
             SkMatrix m;
-            m.setScale(1.5, 1.5);
+            m.setScale(1.5f, 1.5f);
             fMatrices.push_back(m);
         }
 
         {
             // 1x1.5 skew
             SkMatrix m;
-            m.setSkew(1, 1.5);
+            m.setSkew(1, 1.5f);
             fMatrices.push_back(m);
         }
 
         {
             // 1.5x1.5 skew
             SkMatrix m;
-            m.setSkew(1.5, 1.5);
+            m.setSkew(1.5f, 1.5f);
             fMatrices.push_back(m);
         }
 
