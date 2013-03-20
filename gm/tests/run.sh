@@ -5,6 +5,8 @@
 # These tests are run by the Skia_PerCommit_House_Keeping bot at every commit,
 # so make sure that they still pass when you make changes to gm!
 #
+# To generate new baselines when gm behavior changes, run gm/tests/rebaseline.sh
+#
 # TODO: because this is written as a shell script (instead of, say, Python)
 # it only runs on Linux and Mac.
 # See https://code.google.com/p/skia/issues/detail?id=677
