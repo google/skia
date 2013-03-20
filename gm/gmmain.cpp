@@ -990,7 +990,7 @@ static const ConfigData gRec[] = {
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNative_GLContextType, 16, kRW_ConfigFlag,    "msaa16",       true },
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNative_GLContextType,  4, kRW_ConfigFlag,    "msaa4",        false},
     /* The debug context does not generate images */
-    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kDebug_GLContextType,   0, kNone_ConfigFlag,  "debug",        true },
+    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kDebug_GLContextType,   0, kNone_ConfigFlag,  "gpudebug",     GR_DEBUG},
 #if SK_ANGLE
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kANGLE_GLContextType,   0, kRW_ConfigFlag,    "angle",        true },
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kANGLE_GLContextType,  16, kRW_ConfigFlag,    "anglemsaa16",  true },
@@ -1009,21 +1009,31 @@ static const ConfigData gRec[] = {
 };
 
 static SkString configUsage() {
-    SkString result("Possible options for --config: [");
+    SkString result;
+    result.appendf("Space delimited list of which configs to run. Possible options: [");
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
         if (i > 0) {
-            result.appendf("|");
+            result.append("|");
         }
         result.appendf("%s", gRec[i].fName);
     }
-    result.appendf("]");
+    result.append("]\n");
+    result.appendf("The default value is: \"");
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
+        if (gRec[i].fRunByDefault) {
+            if (i > 0) {
+                result.append(" ");
+            }
+            result.appendf("%s", gRec[i].fName);
+        }
+    }
+    result.appendf("\"");
+
     return result;
 }
 
 // Alphabetized ignoring "no" prefix ("readPath", "noreplay", "resourcePath").
-DEFINE_string(config, "", "Space delimited list of which configs to run. "
-              "Possible configs listed above. If none are specified, "
-              "all will be run.");
+DEFINE_string(config, "", configUsage().c_str());
 DEFINE_bool(deferred, true, "Exercise the deferred rendering test pass.");
 DEFINE_bool(enableMissingWarning, true, "Print message to stderr (but don't fail) if "
             "unable to read a reference image for any tests.");
@@ -1151,7 +1161,7 @@ int tool_main(int argc, char** argv) {
     bool userConfig = false;
 
     SkString usage;
-    usage.printf("Run the golden master tests.\n\t%s", configUsage().c_str());
+    usage.printf("Run the golden master tests.\n");
     SkFlags::SetUsage(usage.c_str());
     SkFlags::ParseCommandLine(argc, argv);
 
