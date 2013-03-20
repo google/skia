@@ -159,7 +159,6 @@ public:
         const GrEffect*               fEffect;
         SkMatrix                      fCoordChangeMatrix;
         int                           fVertexAttribIndices[2];
-        int                           fVertexAttribCount;
         SkDEBUGCODE(bool fInitialized;)
     };
 
