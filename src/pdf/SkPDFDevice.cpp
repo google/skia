@@ -29,7 +29,6 @@
 #include "SkTextFormatParams.h"
 #include "SkTemplates.h"
 #include "SkTypefacePriv.h"
-#include "SkTSet.h"
 
 // Utility functions
 
@@ -1180,57 +1179,39 @@ SkPDFDict* SkPDFDevice::getResourceDict() {
     return fResourceDict;
 }
 
-void SkPDFDevice::getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
-                               SkTSet<SkPDFObject*>* newResourceObjects,
+void SkPDFDevice::getResources(SkTDArray<SkPDFObject*>* resourceList,
                                bool recursive) const {
-    // TODO: reserve not correct if we need to recursively explore.
-    newResourceObjects->setReserve(newResourceObjects->count() +
-                                   fGraphicStateResources.count() +
-                                   fXObjectResources.count() +
-                                   fFontResources.count() +
-                                   fShaderResources.count());
+    resourceList->setReserve(resourceList->count() +
+                             fGraphicStateResources.count() +
+                             fXObjectResources.count() +
+                             fFontResources.count() +
+                             fShaderResources.count());
     for (int i = 0; i < fGraphicStateResources.count(); i++) {
-        if (!knownResourceObjects.contains(fGraphicStateResources[i]) &&
-                !newResourceObjects->contains(fGraphicStateResources[i])) {
-            newResourceObjects->add(fGraphicStateResources[i]);
-            fGraphicStateResources[i]->ref();
-            if (recursive) {
-                fGraphicStateResources[i]->getResources(knownResourceObjects,
-                                                        newResourceObjects);
-            }
+        resourceList->push(fGraphicStateResources[i]);
+        fGraphicStateResources[i]->ref();
+        if (recursive) {
+            fGraphicStateResources[i]->getResources(resourceList);
         }
     }
     for (int i = 0; i < fXObjectResources.count(); i++) {
-        if (!knownResourceObjects.contains(fXObjectResources[i]) &&
-                !newResourceObjects->contains(fXObjectResources[i])) {
-            newResourceObjects->add(fXObjectResources[i]);
-            fXObjectResources[i]->ref();
-            if (recursive) {
-                fXObjectResources[i]->getResources(knownResourceObjects,
-                                                   newResourceObjects);
-            }
+        resourceList->push(fXObjectResources[i]);
+        fXObjectResources[i]->ref();
+        if (recursive) {
+            fXObjectResources[i]->getResources(resourceList);
         }
     }
     for (int i = 0; i < fFontResources.count(); i++) {
-        if (!knownResourceObjects.contains(fFontResources[i]) &&
-                !newResourceObjects->contains(fFontResources[i])) {
-            newResourceObjects->add(fFontResources[i]);
-            fFontResources[i]->ref();
-            if (recursive) {
-                fFontResources[i]->getResources(knownResourceObjects,
-                                                newResourceObjects);
-            }
+        resourceList->push(fFontResources[i]);
+        fFontResources[i]->ref();
+        if (recursive) {
+            fFontResources[i]->getResources(resourceList);
         }
     }
     for (int i = 0; i < fShaderResources.count(); i++) {
-        if (!knownResourceObjects.contains(fShaderResources[i]) &&
-                !newResourceObjects->contains(fShaderResources[i])) {
-            newResourceObjects->add(fShaderResources[i]);
-            fShaderResources[i]->ref();
-            if (recursive) {
-                fShaderResources[i]->getResources(knownResourceObjects,
-                                                  newResourceObjects);
-            }
+        resourceList->push(fShaderResources[i]);
+        fShaderResources[i]->ref();
+        if (recursive) {
+            fShaderResources[i]->getResources(resourceList);
         }
     }
 }

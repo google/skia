@@ -30,8 +30,7 @@ class SkPDFGraphicState : public SkPDFDict {
 public:
     virtual ~SkPDFGraphicState();
 
-    virtual void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
-                              SkTSet<SkPDFObject*>* newResourceObjects);
+    virtual void getResources(SkTDArray<SkPDFObject*>* resourceList);
 
     // Override emitObject and getOutputSize so that we can populate
     // the dictionary on demand.

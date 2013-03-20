@@ -21,10 +21,10 @@
 
 class SkPDFTestDict : public SkPDFDict {
 public:
-  virtual void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
-                            SkTSet<SkPDFObject*>* newResourceObjects) {
+    void getResources(SkTDArray<SkPDFObject*>* resourceList) {
+        resourceList->setReserve(resourceList->count() + fResources.count());
         for (int i = 0; i < fResources.count(); i++) {
-            newResourceObjects->add(fResources[i]);
+            resourceList->push(fResources[i]);
             fResources[i]->ref();
         }
     }

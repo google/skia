@@ -41,8 +41,7 @@ size_t SkPDFObject::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
     return buffer.getOffset();
 }
 
-void SkPDFObject::getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
-                               SkTSet<SkPDFObject*>* newResourceObjects) {}
+void SkPDFObject::getResources(SkTDArray<SkPDFObject*>* resourceList) {}
 
 void SkPDFObject::emitIndirectObject(SkWStream* stream, SkPDFCatalog* catalog) {
     catalog->emitObjectNumber(stream, this);
@@ -62,21 +61,14 @@ void SkPDFObject::AddResourceHelper(SkPDFObject* resource,
     resource->ref();
 }
 
-void SkPDFObject::GetResourcesHelper(
-        const SkTDArray<SkPDFObject*>* resources,
-        const SkTSet<SkPDFObject*>& knownResourceObjects,
-        SkTSet<SkPDFObject*>* newResourceObjects) {
+void SkPDFObject::GetResourcesHelper(SkTDArray<SkPDFObject*>* resources,
+                                     SkTDArray<SkPDFObject*>* result) {
     if (resources->count()) {
-        newResourceObjects->setReserve(
-            newResourceObjects->count() + resources->count());
+        result->setReserve(result->count() + resources->count());
         for (int i = 0; i < resources->count(); i++) {
-            if (!knownResourceObjects.contains((*resources)[i]) &&
-                    !newResourceObjects->contains((*resources)[i])) {
-                newResourceObjects->add((*resources)[i]);
-                (*resources)[i]->ref();
-                (*resources)[i]->getResources(knownResourceObjects,
-                                              newResourceObjects);
-            }
+            result->push((*resources)[i]);
+            (*resources)[i]->ref();
+            (*resources)[i]->getResources(result);
         }
     }
 }

@@ -14,7 +14,6 @@
 #include "SkScalar.h"
 #include "SkString.h"
 #include "SkTDArray.h"
-#include "SkTSet.h"
 #include "SkTypes.h"
 
 class SkPDFCatalog;
@@ -39,16 +38,13 @@ public:
     virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
     /** For non-primitive objects (i.e. objects defined outside this file),
-     *  this method will add to newResourceObjects any objects that this method
-     *  depends on, but not already in knownResourceObjects. This operates
-     *  recursively so if this object depends on another object and that object
-     *  depends on two more, all three objects will be added.
-     *
-     *  @param knownResourceObjects  The set of resources to be ignored.
-     *  @param newResourceObjects  The set to append dependant resources to.
+     *  this method will add to resourceList any objects that this method
+     *  depends on.  This operates recursively so if this object depends on
+     *  another object and that object depends on two more, all three objects
+     *  will be added.
+     *  @param resourceList  The list to append dependant resources to.
      */
-    virtual void getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
-                              SkTSet<SkPDFObject*>* newResourceObjects);
+    virtual void getResources(SkTDArray<SkPDFObject*>* resourceList);
 
     /** Emit this object unless the catalog has a substitute object, in which
      *  case emit that.
@@ -78,16 +74,10 @@ public:
     /** Static helper function to copy and reference the resources (and all
      *   their subresources) into a new list.
      * @param resources The resource list.
-     * @param newResourceObjects All the resource objects (recursively) used on
-     *                         the page are added to this array.  This gives
-     *                         the caller a chance to deduplicate resources
-     *                         across pages.
-     * @param knownResourceObjects  The set of resources to be ignored.
+     * @param result    The list to add to.
      */
-    static void GetResourcesHelper(
-            const SkTDArray<SkPDFObject*>* resources,
-            const SkTSet<SkPDFObject*>& knownResourceObjects,
-            SkTSet<SkPDFObject*>* newResourceObjects);
+    static void GetResourcesHelper(SkTDArray<SkPDFObject*>* resources,
+                                   SkTDArray<SkPDFObject*>* result);
 
 protected:
     /** Subclasses must implement this method to print the object to the
