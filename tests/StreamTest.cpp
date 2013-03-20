@@ -155,8 +155,8 @@ static void TestWStream(skiatest::Reporter* reporter) {
     }
     delete[] dst;
 
-    if (skiatest::Test::GetTmpDir()) {
-        test_filestreams(reporter, skiatest::Test::GetTmpDir());
+    if (!skiatest::Test::GetTmpDir().isEmpty()) {
+        test_filestreams(reporter, skiatest::Test::GetTmpDir().c_str());
     }
 }
 
