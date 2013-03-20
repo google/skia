@@ -14,7 +14,7 @@ class GrGLCircleEdgeEffect;
 
 /**
  * The output of this effect is a modulation of the input color and coverage for a circle,
- * specified as center_x, center_y, x_radius, inner radius and outer radius in window space 
+ * specified as center_x, center_y, x_radius, inner radius and outer radius in window space
  * (y-down).
  */
 
@@ -26,7 +26,7 @@ public:
                         CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(GrCircleEdgeEffect, (true)))));
         static SkAutoTUnref<GrEffectRef> gCircleFillEdgeEffectRef(
                         CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(GrCircleEdgeEffect, (false)))));
-        
+
         if (stroke) {
             gCircleStrokeEdgeEffectRef.get()->ref();
             return gCircleStrokeEdgeEffectRef;
@@ -45,7 +45,7 @@ public:
     typedef GrGLCircleEdgeEffect GLEffect;
 
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
-    
+
     inline bool isStroked() const { return fStroke; }
 
 private:
@@ -54,7 +54,7 @@ private:
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
         return true;
     }
-    
+
     bool fStroke;
 
     GR_DECLARE_EFFECT_TEST;

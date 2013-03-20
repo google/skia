@@ -25,7 +25,7 @@ public:
                         CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(GrEllipseEdgeEffect, (true)))));
         static SkAutoTUnref<GrEffectRef> gEllipseFillEdgeEffectRef(
                         CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(GrEllipseEdgeEffect, (false)))));
-        
+
         if (stroke) {
             gEllipseStrokeEdgeEffectRef.get()->ref();
             return gEllipseStrokeEdgeEffectRef;
@@ -46,7 +46,7 @@ public:
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
 
     inline bool isStroked() const { return fStroke; }
-    
+
 private:
     GrEllipseEdgeEffect(bool stroke);
 

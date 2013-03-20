@@ -489,7 +489,7 @@ public:
         fStages[stageIdx].setEffect(effect);
         return effect;
     }
-    
+
     const GrEffectRef* setEffect(int stageIdx, const GrEffectRef* effect,
                                  int attr0, int attr1 = -1) {
         fStages[stageIdx].setEffect(effect, attr0, attr1);

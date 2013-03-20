@@ -28,7 +28,7 @@ public:
                           const char* inputColor,
                           const TextureSamplerArray& samplers) SK_OVERRIDE {
         const GrCircleEdgeEffect& effect = GetEffectFromStage<GrCircleEdgeEffect>(stage);
-        
+
         const char *vsName, *fsName;
         builder->addVarying(kVec4f_GrSLType, "CircleEdge", &vsName, &fsName);
 
