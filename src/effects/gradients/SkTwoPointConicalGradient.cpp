@@ -343,20 +343,18 @@ static const UniformHandle kInvalidUniformHandle = GrGLUniformManager::kInvalidU
 class GrGLConical2Gradient : public GrGLGradientEffect {
 public:
 
-    GrGLConical2Gradient(const GrBackendEffectFactory& factory,
-                         const GrEffectRef&);
+    GrGLConical2Gradient(const GrBackendEffectFactory& factory, const GrDrawEffect&);
     virtual ~GrGLConical2Gradient() { }
 
     virtual void emitCode(GrGLShaderBuilder*,
-                          const GrEffectStage&,
+                          const GrDrawEffect&,
                           EffectKey,
-                          const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,
                           const TextureSamplerArray&) SK_OVERRIDE;
-    virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
-    static EffectKey GenKey(const GrEffectStage&, const GrGLCaps& caps);
+    static EffectKey GenKey(const GrDrawEffect&, const GrGLCaps& caps);
 
 protected:
 
@@ -476,7 +474,7 @@ GrEffectRef* GrConical2Gradient::TestCreate(SkMWCRandom* random,
 /////////////////////////////////////////////////////////////////////
 
 GrGLConical2Gradient::GrGLConical2Gradient(const GrBackendEffectFactory& factory,
-                                           const GrEffectRef& baseData)
+                                           const GrDrawEffect& drawEffect)
     : INHERITED(factory)
     , fVSParamUni(kInvalidUniformHandle)
     , fFSParamUni(kInvalidUniformHandle)
@@ -486,21 +484,20 @@ GrGLConical2Gradient::GrGLConical2Gradient(const GrBackendEffectFactory& factory
     , fCachedRadius(-SK_ScalarMax)
     , fCachedDiffRadius(-SK_ScalarMax) {
 
-    const GrConical2Gradient& data = CastEffect<GrConical2Gradient>(baseData);
+    const GrConical2Gradient& data = drawEffect.castEffect<GrConical2Gradient>();
     fIsDegenerate = data.isDegenerate();
 }
 
 void GrGLConical2Gradient::emitCode(GrGLShaderBuilder* builder,
-                                    const GrEffectStage&,
+                                    const GrDrawEffect&,
                                     EffectKey key,
-                                    const char* vertexCoords,
                                     const char* outputColor,
                                     const char* inputColor,
                                     const TextureSamplerArray& samplers) {
     const char* fsCoords;
     const char* vsCoordsVarying;
     GrSLType coordsVaryingType;
-    this->setupMatrix(builder, key, vertexCoords, &fsCoords, &vsCoordsVarying, &coordsVaryingType);
+    this->setupMatrix(builder, key, &fsCoords, &vsCoordsVarying, &coordsVaryingType);
 
     this->emitYCoordUniform(builder);
     // 2 copies of uniform array, 1 for each of vertex & fragment shader,
@@ -658,9 +655,10 @@ void GrGLConical2Gradient::emitCode(GrGLShaderBuilder* builder,
     }
 }
 
-void GrGLConical2Gradient::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
-    INHERITED::setData(uman, stage);
-    const GrConical2Gradient& data = GetEffectFromStage<GrConical2Gradient>(stage);
+void GrGLConical2Gradient::setData(const GrGLUniformManager& uman,
+                                   const GrDrawEffect& drawEffect) {
+    INHERITED::setData(uman, drawEffect);
+    const GrConical2Gradient& data = drawEffect.castEffect<GrConical2Gradient>();
     GrAssert(data.isDegenerate() == fIsDegenerate);
     SkScalar centerX1 = data.center();
     SkScalar radius0 = data.radius();
@@ -694,13 +692,14 @@ void GrGLConical2Gradient::setData(const GrGLUniformManager& uman, const GrEffec
     }
 }
 
-GrGLEffect::EffectKey GrGLConical2Gradient::GenKey(const GrEffectStage& s, const GrGLCaps&) {
+GrGLEffect::EffectKey GrGLConical2Gradient::GenKey(const GrDrawEffect& drawEffect,
+                                                   const GrGLCaps&) {
     enum {
         kIsDegenerate = 1 << kMatrixKeyBitCnt,
     };
 
-    EffectKey key = GenMatrixKey(s);
-    if (GetEffectFromStage<GrConical2Gradient>(s).isDegenerate()) {
+    EffectKey key = GenMatrixKey(drawEffect);
+    if (drawEffect.castEffect<GrConical2Gradient>().isDegenerate()) {
         key |= kIsDegenerate;
     }
     return key;

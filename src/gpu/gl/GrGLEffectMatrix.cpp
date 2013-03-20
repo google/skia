@@ -6,58 +6,67 @@
  */
 
 #include "GrGLEffectMatrix.h"
+#include "GrDrawEffect.h"
 #include "GrTexture.h"
 
 GrGLEffect::EffectKey GrGLEffectMatrix::GenKey(const SkMatrix& effectMatrix,
-                                               const SkMatrix& coordChangeMatrix,
+                                               const GrDrawEffect& drawEffect,
+                                               CoordsType coordsType,
                                                const GrTexture* texture) {
+    EffectKey key = 0;
     SkMatrix::TypeMask type0 = effectMatrix.getType();
-    SkMatrix::TypeMask type1 = coordChangeMatrix.getType();
+    SkMatrix::TypeMask type1;
+    if (GrEffect::kLocal_CoordsType == coordsType) {
+        type1 = drawEffect.getCoordChangeMatrix().getType();
+    } else {
+        if (drawEffect.programHasExplicitLocalCoords()) {
+            // We only make the key indicate that device coords are referenced when the local coords
+            // are not actually determined by positions.
+            key |= kPositionCoords_Flag;
+        }
+        type1 = SkMatrix::kIdentity_Mask;
+    }
 
-    static const int kNonTransMask = SkMatrix::kAffine_Mask |
-                                     SkMatrix::kScale_Mask  |
-                                     SkMatrix::kPerspective_Mask;
     int combinedTypes = type0 | type1;
 
     bool reverseY = (NULL != texture) && kBottomLeft_GrSurfaceOrigin == texture->origin();
 
     if (SkMatrix::kPerspective_Mask & combinedTypes) {
-        return kGeneral_Key;
-    } else if ((kNonTransMask & combinedTypes) || reverseY) {
-        return kNoPersp_Key;
-    } else if (kTrans_Key & combinedTypes) {
-        return kTrans_Key;
+        key |= kGeneral_MatrixType;
+    } else if (((SkMatrix::kAffine_Mask | SkMatrix::kScale_Mask) & combinedTypes) || reverseY) {
+        key |= kNoPersp_MatrixType;
+    } else if (SkMatrix::kTranslate_Mask & combinedTypes) {
+        key |= kTrans_MatrixType;
     } else {
-        GrAssert(effectMatrix.isIdentity() && coordChangeMatrix.isIdentity());
-        return kIdentity_Key;
+        key |= kIdentity_MatrixType;
     }
+    return key;
 }
 
 GrSLType GrGLEffectMatrix::emitCode(GrGLShaderBuilder* builder,
                                     EffectKey key,
-                                    const char* vertexCoords,
                                     const char** fsCoordName,
                                     const char** vsCoordName,
                                     const char* suffix) {
     GrSLType varyingType;
     const char* uniName;
     key &= kKeyMask;
-    switch (key) {
-        case kIdentity_Key:
+    switch (key & kMatrixTypeKeyMask) {
+        case kIdentity_MatrixType:
             fUniType = kVoid_GrSLType;
             varyingType = kVec2f_GrSLType;
             break;
-        case kTrans_Key:
+        case kTrans_MatrixType:
             fUniType = kVec2f_GrSLType;
             uniName = "StageTranslate";
             varyingType = kVec2f_GrSLType;
             break;
-        case kNoPersp_Key:
+        case kNoPersp_MatrixType:
             fUniType = kMat33f_GrSLType;
             uniName = "StageMatrix";
             varyingType = kVec2f_GrSLType;
             break;
-        case kGeneral_Key:
+        case kGeneral_MatrixType:
             fUniType = kMat33f_GrSLType;
             uniName = "StageMatrix";
             varyingType = kVec3f_GrSLType;
@@ -89,24 +98,38 @@ GrSLType GrGLEffectMatrix::emitCode(GrGLShaderBuilder* builder,
     const char* fsVaryingName;
     builder->addVarying(varyingType, varyingName, &vsVaryingName, &fsVaryingName);
 
-    // varying = matrix * vertex-coords (logically)
+    const GrGLShaderVar* coords;
+    switch (fCoordsType) {
+        case GrEffect::kLocal_CoordsType:
+            GrAssert(!(kPositionCoords_Flag & key));
+            coords = &builder->localCoordsAttribute();
+            break;
+        case GrEffect::kPosition_CoordsType:
+            GrAssert((kPositionCoords_Flag & key) || !builder->hasExplicitLocalCoords());
+            coords = &builder->positionAttribute();
+            break;
+        default:
+            GrCrash("Unexpected coords type.");
+    }
+    // varying = matrix * coords (logically)
     switch (fUniType) {
         case kVoid_GrSLType:
             GrAssert(kVec2f_GrSLType == varyingType);
-            builder->vsCodeAppendf("\t%s = %s;\n", vsVaryingName, vertexCoords);
+            builder->vsCodeAppendf("\t%s = %s;\n", vsVaryingName, coords->c_str());
             break;
         case kVec2f_GrSLType:
             GrAssert(kVec2f_GrSLType == varyingType);
-            builder->vsCodeAppendf("\t%s = %s + %s;\n", vsVaryingName, uniName, vertexCoords);
+            builder->vsCodeAppendf("\t%s = %s + %s;\n",
+                                   vsVaryingName, uniName, coords->c_str());
             break;
         case kMat33f_GrSLType: {
             GrAssert(kVec2f_GrSLType == varyingType || kVec3f_GrSLType == varyingType);
             if (kVec2f_GrSLType == varyingType) {
                 builder->vsCodeAppendf("\t%s = (%s * vec3(%s, 1)).xy;\n",
-                                       vsVaryingName, uniName, vertexCoords);
+                                       vsVaryingName, uniName, coords->c_str());
             } else {
                 builder->vsCodeAppendf("\t%s = %s * vec3(%s, 1);\n",
-                                       vsVaryingName, uniName, vertexCoords);
+                                       vsVaryingName, uniName, coords->c_str());
             }
             break;
         }
@@ -128,7 +151,6 @@ GrSLType GrGLEffectMatrix::emitCode(GrGLShaderBuilder* builder,
     */
 void GrGLEffectMatrix::emitCodeMakeFSCoords2D(GrGLShaderBuilder* builder,
                                               EffectKey key,
-                                              const char* vertexCoords,
                                               const char** fsCoordName,
                                               const char** vsVaryingName,
                                               GrSLType* vsVaryingType,
@@ -137,7 +159,6 @@ void GrGLEffectMatrix::emitCodeMakeFSCoords2D(GrGLShaderBuilder* builder,
 
     GrSLType varyingType = this->emitCode(builder,
                                           key,
-                                          vertexCoords,
                                           &fsVaryingName,
                                           vsVaryingName,
                                           suffix);
@@ -164,11 +185,14 @@ void GrGLEffectMatrix::emitCodeMakeFSCoords2D(GrGLShaderBuilder* builder,
 }
 
 void GrGLEffectMatrix::setData(const GrGLUniformManager& uniformManager,
-                              const SkMatrix& matrix,
-                              const SkMatrix& coordChangeMatrix,
-                              const GrTexture* texture) {
+                               const SkMatrix& matrix,
+                               const GrDrawEffect& drawEffect,
+                               const GrTexture* texture) {
     GrAssert((GrGLUniformManager::kInvalidUniformHandle == fUni) ==
-                (kVoid_GrSLType == fUniType));
+             (kVoid_GrSLType == fUniType));
+    const SkMatrix& coordChangeMatrix = GrEffect::kLocal_CoordsType == fCoordsType ?
+                                            drawEffect.getCoordChangeMatrix() :
+                                            SkMatrix::I();
     switch (fUniType) {
         case kVoid_GrSLType:
             GrAssert(matrix.isIdentity());
@@ -178,8 +202,8 @@ void GrGLEffectMatrix::setData(const GrGLUniformManager& uniformManager,
         case kVec2f_GrSLType: {
             GrAssert(SkMatrix::kTranslate_Mask == (matrix.getType() | coordChangeMatrix.getType()));
             GrAssert(NULL == texture || kTopLeft_GrSurfaceOrigin == texture->origin());
-            SkScalar tx = matrix[SkMatrix::kMTransX] + coordChangeMatrix[SkMatrix::kMTransX];
-            SkScalar ty = matrix[SkMatrix::kMTransY] + coordChangeMatrix[SkMatrix::kMTransY];
+            SkScalar tx = matrix[SkMatrix::kMTransX] + (coordChangeMatrix)[SkMatrix::kMTransX];
+            SkScalar ty = matrix[SkMatrix::kMTransY] + (coordChangeMatrix)[SkMatrix::kMTransY];
             if (fPrevMatrix.get(SkMatrix::kMTransX) != tx ||
                 fPrevMatrix.get(SkMatrix::kMTransY) != ty) {
                 uniformManager.set2f(fUni, tx, ty);

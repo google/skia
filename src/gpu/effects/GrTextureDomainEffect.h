@@ -38,7 +38,8 @@ public:
                                const SkMatrix&,
                                const SkRect& domain,
                                WrapMode,
-                               bool bilerp = false);
+                               bool bilerp,
+                               CoordsType = kLocal_CoordsType);
 
     virtual ~GrTextureDomainEffect();
 
@@ -75,7 +76,8 @@ private:
                           const SkMatrix&,
                           const GrRect& domain,
                           WrapMode,
-                          bool bilerp);
+                          bool bilerp,
+                          CoordsType type);
 
     virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
 

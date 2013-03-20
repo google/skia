@@ -16,21 +16,22 @@
 class GrGLConfigConversionEffect : public GrGLEffect {
 public:
     GrGLConfigConversionEffect(const GrBackendEffectFactory& factory,
-                               const GrEffectRef& s) : INHERITED (factory) {
-        const GrConfigConversionEffect& effect = CastEffect<GrConfigConversionEffect>(s);
+                               const GrDrawEffect& drawEffect)
+    : INHERITED (factory)
+    , fEffectMatrix(drawEffect.castEffect<GrConfigConversionEffect>().coordsType()) {
+        const GrConfigConversionEffect& effect = drawEffect.castEffect<GrConfigConversionEffect>();
         fSwapRedAndBlue = effect.swapsRedAndBlue();
         fPMConversion = effect.pmConversion();
     }
 
     virtual void emitCode(GrGLShaderBuilder* builder,
-                          const GrEffectStage&,
+                          const GrDrawEffect&,
                           EffectKey key,
-                          const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,
                           const TextureSamplerArray& samplers) SK_OVERRIDE {
         const char* coords;
-        GrSLType coordsType = fEffectMatrix.emitCode(builder, key, vertexCoords, &coords);
+        GrSLType coordsType = fEffectMatrix.emitCode(builder, key, &coords);
         builder->fsCodeAppendf("\t\t%s = ", outputColor);
         builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType,
                                      samplers[0],
@@ -71,23 +72,19 @@ public:
         builder->fsCodeAppend(modulate.c_str());
     }
 
-    void setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
-        const GrConfigConversionEffect& effect =
-            GetEffectFromStage<GrConfigConversionEffect>(stage);
-        fEffectMatrix.setData(uman,
-                              effect.getMatrix(),
-                              stage.getCoordChangeMatrix(),
-                              effect.texture(0));
+    void setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) {
+        const GrConfigConversionEffect& conv = drawEffect.castEffect<GrConfigConversionEffect>();
+        fEffectMatrix.setData(uman, conv.getMatrix(), drawEffect, conv.texture(0));
     }
 
-    static inline EffectKey GenKey(const GrEffectStage& s, const GrGLCaps&) {
-        const GrConfigConversionEffect& effect = GetEffectFromStage<GrConfigConversionEffect>(s);
-        EffectKey key = static_cast<EffectKey>(effect.swapsRedAndBlue()) |
-                        (effect.pmConversion() << 1);
+    static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
+        const GrConfigConversionEffect& conv = drawEffect.castEffect<GrConfigConversionEffect>();
+        EffectKey key = static_cast<EffectKey>(conv.swapsRedAndBlue()) | (conv.pmConversion() << 1);
         key <<= GrGLEffectMatrix::kKeyBits;
-        EffectKey matrixKey =  GrGLEffectMatrix::GenKey(effect.getMatrix(),
-                                                        s.getCoordChangeMatrix(),
-                                                        effect.texture(0));
+        EffectKey matrixKey =  GrGLEffectMatrix::GenKey(conv.getMatrix(),
+                                                        drawEffect,
+                                                        conv.coordsType(),
+                                                        conv.texture(0));
         GrAssert(!(matrixKey & key));
         return matrixKey | key;
     }

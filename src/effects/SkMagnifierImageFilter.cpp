@@ -92,22 +92,20 @@ typedef GrGLUniformManager::UniformHandle UniformHandle;
 
 class GrGLMagnifierEffect : public GrGLEffect {
 public:
-    GrGLMagnifierEffect(const GrBackendEffectFactory& factory, const GrEffectRef& effect);
+    GrGLMagnifierEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
     virtual void emitCode(GrGLShaderBuilder*,
-                          const GrEffectStage&,
+                          const GrDrawEffect&,
                           EffectKey,
-                          const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager& uman, const GrEffectStage& stage) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrEffectStage&, const GrGLCaps&);
+    static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
 
 private:
-
     UniformHandle       fOffsetVar;
     UniformHandle       fZoomVar;
     UniformHandle       fInsetVar;
@@ -117,22 +115,23 @@ private:
     typedef GrGLEffect INHERITED;
 };
 
-GrGLMagnifierEffect::GrGLMagnifierEffect(const GrBackendEffectFactory& factory, const GrEffectRef&)
+GrGLMagnifierEffect::GrGLMagnifierEffect(const GrBackendEffectFactory& factory,
+                                         const GrDrawEffect& drawEffect)
     : INHERITED(factory)
     , fOffsetVar(GrGLUniformManager::kInvalidUniformHandle)
     , fZoomVar(GrGLUniformManager::kInvalidUniformHandle)
-    , fInsetVar(GrGLUniformManager::kInvalidUniformHandle) {
+    , fInsetVar(GrGLUniformManager::kInvalidUniformHandle)
+    , fEffectMatrix(drawEffect.castEffect<GrMagnifierEffect>().coordsType()) {
 }
 
 void GrGLMagnifierEffect::emitCode(GrGLShaderBuilder* builder,
-                                   const GrEffectStage&,
+                                   const GrDrawEffect&,
                                    EffectKey key,
-                                   const char* vertexCoords,
                                    const char* outputColor,
                                    const char* inputColor,
                                    const TextureSamplerArray& samplers) {
     const char* coords;
-    fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, vertexCoords, &coords);
+    fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, &coords);
     fOffsetVar = builder->addUniform(
         GrGLShaderBuilder::kFragment_ShaderType |
         GrGLShaderBuilder::kVertex_ShaderType,
@@ -179,18 +178,20 @@ void GrGLMagnifierEffect::emitCode(GrGLShaderBuilder* builder,
 }
 
 void GrGLMagnifierEffect::setData(const GrGLUniformManager& uman,
-                                  const GrEffectStage& stage) {
-    const GrMagnifierEffect& zoom = GetEffectFromStage<GrMagnifierEffect>(stage);
+                                  const GrDrawEffect& drawEffect) {
+    const GrMagnifierEffect& zoom = drawEffect.castEffect<GrMagnifierEffect>();
     uman.set2f(fOffsetVar, zoom.x_offset(), zoom.y_offset());
     uman.set2f(fZoomVar, zoom.x_zoom(), zoom.y_zoom());
     uman.set2f(fInsetVar, zoom.x_inset(), zoom.y_inset());
-    fEffectMatrix.setData(uman, zoom.getMatrix(), stage.getCoordChangeMatrix(), zoom.texture(0));
+    fEffectMatrix.setData(uman, zoom.getMatrix(), drawEffect, zoom.texture(0));
 }
 
-GrGLEffect::EffectKey GrGLMagnifierEffect::GenKey(const GrEffectStage& stage, const GrGLCaps&) {
-    const GrMagnifierEffect& zoom = GetEffectFromStage<GrMagnifierEffect>(stage);
+GrGLEffect::EffectKey GrGLMagnifierEffect::GenKey(const GrDrawEffect& drawEffect,
+                                                  const GrGLCaps&) {
+    const GrMagnifierEffect& zoom = drawEffect.castEffect<GrMagnifierEffect>();
     return GrGLEffectMatrix::GenKey(zoom.getMatrix(),
-                                    stage.getCoordChangeMatrix(),
+                                    drawEffect,
+                                    zoom.coordsType(),
                                     zoom.texture(0));
 }
 

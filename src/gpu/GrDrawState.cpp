@@ -46,28 +46,6 @@ void GrDrawState::setFromPaint(const GrPaint& paint) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace {
-
-/**
- * This function generates a mask that we like to have known at compile
- * time. When the number of stages is bumped or the way bits are defined in
- * GrDrawState.h changes this function should be rerun to generate the new mask.
- * (We attempted to force the compiler to generate the mask using recursive
- * templates but always wound up with static initializers under gcc, even if
- * they were just a series of immediate->memory moves.)
- *
- */
-void gen_tex_coord_mask(GrAttribBindings* texCoordMask) {
-    *texCoordMask = 0;
-    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        *texCoordMask |= GrDrawState::ExplicitTexCoordAttribBindingsBit(s);
-    }
-}
-
-const GrAttribBindings kTexCoord_AttribBindingsMask = (1 << GrDrawState::kNumStages)-1;
-
-} //unnamed namespace
-
 const size_t GrDrawState::kVertexAttribSizes[kGrVertexAttribTypeCount] = {
     sizeof(float),          // kFloat_GrVertexAttribType
     2*sizeof(float),        // kVec2_GrVertexAttribType
@@ -106,7 +84,7 @@ const GrAttribBindings GrDrawState::kAttribIndexMasks[kAttribIndexCount] = {
     kColor_AttribBindingsBit,
     kCoverage_AttribBindingsBit,
     kEdge_AttribBindingsBit,
-    kTexCoord_AttribBindingsMask
+    kLocalCoords_AttribBindingsBit,
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -210,20 +188,8 @@ bool GrDrawState::validateVertexAttribs() const {
     return true;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-bool GrDrawState::AttributesBindExplicitTexCoords(GrAttribBindings attribBindings) {
-    return SkToBool(kTexCoord_AttribBindingsMask & attribBindings);
-}
-
-////////////////////////////////////////////////////////////////////////////////
 
 void GrDrawState::VertexAttributesUnitTest() {
-    // Ensure that our tex coord mask is correct
-    GrAttribBindings texCoordMask;
-    gen_tex_coord_mask(&texCoordMask);
-    GrAssert(texCoordMask == kTexCoord_AttribBindingsMask);
-
     // not necessarily exhaustive
     static bool run;
     if (!run) {
@@ -259,26 +225,10 @@ void GrDrawState::VertexAttributesUnitTest() {
         attribs.push_back(currAttrib);
         GrAssert(4*sizeof(char) + 2*sizeof(float) + 3*sizeof(float) + sizeof(float) + 4*sizeof(float) ==
                  vertex_size(attribs.begin(), attribs.count()));
-
-        GrAttribBindings tcMask = 0;
-        GrAssert(!AttributesBindExplicitTexCoords(0));
-        for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-            tcMask |= ExplicitTexCoordAttribBindingsBit(s);
-            GrAssert(AttributesBindExplicitTexCoords(tcMask));
-            GrAssert(StageBindsExplicitTexCoords(tcMask, s));
-            for (int s2 = s + 1; s2 < GrDrawState::kNumStages; ++s2) {
-                GrAssert(!StageBindsExplicitTexCoords(tcMask, s2));
-            }
-        }
-        GrAssert(kTexCoord_AttribBindingsMask == tcMask);
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-bool GrDrawState::StageBindsExplicitTexCoords(GrAttribBindings bindings, int stageIdx) {
-    return SkToBool(bindings & ExplicitTexCoordAttribBindingsBit(stageIdx));
-}
 
 bool GrDrawState::srcAlphaWillBeOne(GrAttribBindings bindings) const {
 
@@ -500,8 +450,7 @@ void GrDrawState::AutoViewMatrixRestore::restore() {
 }
 
 void GrDrawState::AutoViewMatrixRestore::set(GrDrawState* drawState,
-                                             const SkMatrix& preconcatMatrix,
-                                             uint32_t explicitCoordStageMask) {
+                                             const SkMatrix& preconcatMatrix) {
     this->restore();
 
     fDrawState = drawState;
@@ -513,10 +462,10 @@ void GrDrawState::AutoViewMatrixRestore::set(GrDrawState* drawState,
     fViewMatrix = drawState->getViewMatrix();
     drawState->preConcatViewMatrix(preconcatMatrix);
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        if (!(explicitCoordStageMask & (1 << s)) && drawState->isStageEnabled(s)) {
+        if (drawState->isStageEnabled(s)) {
             fRestoreMask |= (1 << s);
             fDrawState->fStages[s].saveCoordChange(&fSavedCoordChanges[s]);
-            drawState->fStages[s].preConcatCoordChange(preconcatMatrix);
+            drawState->fStages[s].localCoordChange(preconcatMatrix);
         }
     }
 }
@@ -535,8 +484,7 @@ void GrDrawState::AutoDeviceCoordDraw::restore() {
     fDrawState = NULL;
 }
 
-bool GrDrawState::AutoDeviceCoordDraw::set(GrDrawState* drawState,
-                                           uint32_t explicitCoordStageMask) {
+bool GrDrawState::AutoDeviceCoordDraw::set(GrDrawState* drawState) {
     GrAssert(NULL != drawState);
 
     this->restore();
@@ -552,7 +500,7 @@ bool GrDrawState::AutoDeviceCoordDraw::set(GrDrawState* drawState,
     bool inverted = false;
 
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        if (!(explicitCoordStageMask & (1 << s)) && drawState->isStageEnabled(s)) {
+        if (drawState->isStageEnabled(s)) {
             if (!inverted && !fViewMatrix.invert(&invVM)) {
                 // sad trombone sound
                 fDrawState = NULL;
@@ -563,7 +511,7 @@ bool GrDrawState::AutoDeviceCoordDraw::set(GrDrawState* drawState,
             fRestoreMask |= (1 << s);
             GrEffectStage* stage = drawState->fStages + s;
             stage->saveCoordChange(&fSavedCoordChanges[s]);
-            stage->preConcatCoordChange(invVM);
+            stage->localCoordChange(invVM);
         }
     }
     drawState->viewMatrix()->reset();

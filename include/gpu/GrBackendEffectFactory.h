@@ -24,16 +24,16 @@
  */
 
 class GrEffectRef;
-class GrEffectStage;
 class GrGLEffect;
 class GrGLCaps;
+class GrDrawEffect;
 
 class GrBackendEffectFactory : public GrNoncopyable {
 public:
     typedef uint32_t EffectKey;
     enum {
         kNoEffectKey = 0,
-        kEffectKeyBits = 12,
+        kEffectKeyBits = 16,
         /**
          * Some aspects of the generated code may be determined by the particular textures that are
          * associated with the effect. These manipulations are performed by GrGLShaderBuilder beyond
@@ -44,8 +44,8 @@ public:
         kAttribKeyBits = 6
     };
 
-    virtual EffectKey glEffectKey(const GrEffectStage&, const GrGLCaps&) const = 0;
-    virtual GrGLEffect* createGLInstance(const GrEffectRef&) const = 0;
+    virtual EffectKey glEffectKey(const GrDrawEffect&, const GrGLCaps&) const = 0;
+    virtual GrGLEffect* createGLInstance(const GrDrawEffect&) const = 0;
 
     bool operator ==(const GrBackendEffectFactory& b) const {
         return fEffectClassID == b.fEffectClassID;

@@ -14,7 +14,8 @@
 class GrTexture;
 
 /**
- * A base class for effects that draw a single texture with a texture matrix.
+ * A base class for effects that draw a single texture with a texture matrix. This effect has no
+ * backend implementations. One must be provided by the subclass.
  */
 class GrSingleTextureEffect : public GrEffect {
 public:
@@ -22,20 +23,29 @@ public:
 
     const SkMatrix& getMatrix() const { return fMatrix; }
 
+    /** Indicates whether the matrix operates on local coords or positions */
+    CoordsType coordsType() const { return fCoordsType; }
+
 protected:
-    GrSingleTextureEffect(GrTexture*, const SkMatrix&); /* unfiltered, clamp mode */
-    GrSingleTextureEffect(GrTexture*, const SkMatrix&, bool bilerp); /* clamp mode */
-    GrSingleTextureEffect(GrTexture*, const SkMatrix&, const GrTextureParams&);
+    /** unfiltered, clamp mode */
+    GrSingleTextureEffect(GrTexture*, const SkMatrix&, CoordsType = kLocal_CoordsType);
+    /** clamp mode */
+    GrSingleTextureEffect(GrTexture*, const SkMatrix&, bool bilerp, CoordsType = kLocal_CoordsType);
+    GrSingleTextureEffect(GrTexture*,
+                          const SkMatrix&,
+                          const GrTextureParams&,
+                          CoordsType = kLocal_CoordsType);
 
     /**
      * Helper for subclass onIsEqual() functions.
      */
-    bool hasSameTextureParamsAndMatrix(const GrSingleTextureEffect& other) const {
+    bool hasSameTextureParamsMatrixAndCoordsType(const GrSingleTextureEffect& other) const {
         const GrTextureAccess& otherAccess = other.fTextureAccess;
         // We don't have to check the accesses' swizzles because they are inferred from the texture.
         return fTextureAccess.getTexture() == otherAccess.getTexture() &&
                fTextureAccess.getParams() == otherAccess.getParams() &&
-               this->getMatrix().cheapEqualTo(other.getMatrix());
+               this->getMatrix().cheapEqualTo(other.getMatrix()) &&
+               fCoordsType == other.fCoordsType;
     }
 
     /**
@@ -55,6 +65,7 @@ protected:
 private:
     GrTextureAccess fTextureAccess;
     SkMatrix        fMatrix;
+    CoordsType      fCoordsType;
 
     typedef GrEffect INHERITED;
 };
