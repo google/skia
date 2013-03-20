@@ -28,4 +28,12 @@ SK_API SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT&);
  */
 SK_API void SkLOGFONTFromTypeface(const SkTypeface* typeface, LOGFONT* lf);
 
+/**
+  *  Set an optional callback to ensure that the data behind a LOGFONT is loaded.
+  *  This will get called if Skia tries to access the data but hits a failure.
+  *  Normally this is null, and is only required if the font data needs to be
+  *  remotely (re)loaded.
+  */
+SK_API void SkTypeface_SetEnsureLOGFONTAccessibleProc(void (*)(const LOGFONT&));
+
 #endif

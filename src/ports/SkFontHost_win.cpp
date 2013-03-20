@@ -29,6 +29,12 @@
 #include <usp10.h>
 #include <objbase.h>
 
+static void (*gEnsureLOGFONTAccessibleProc)(const LOGFONT&);
+
+void SkTypeface_SetEnsureLOGFONTAccessibleProc(void (*proc)(const LOGFONT&)) {
+    gEnsureLOGFONTAccessibleProc = proc;
+}
+
 // always packed xxRRGGBB
 typedef uint32_t SkGdiRGB;
 
