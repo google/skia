@@ -8,7 +8,6 @@
 #include "gl/GrGLShaderBuilder.h"
 #include "gl/GrGLProgram.h"
 #include "gl/GrGLUniformHandle.h"
-#include "GrDrawEffect.h"
 #include "GrTexture.h"
 
 // number of each input/output type in a single allocation block
@@ -83,8 +82,7 @@ void append_swizzle(SkString* outAppend,
 //const int GrGLShaderBuilder::fCoordDims = 2;
 
 GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
-                                     GrGLUniformManager& uniformManager,
-                                     bool explicitLocalCoords)
+                                     GrGLUniformManager& uniformManager)
     : fUniforms(kVarsPerBlock)
     , fVSAttrs(kVarsPerBlock)
     , fVSOutputs(kVarsPerBlock)
@@ -101,14 +99,6 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
 
     fPositionVar = &fVSAttrs.push_back();
     fPositionVar->set(kVec2f_GrSLType, GrGLShaderVar::kAttribute_TypeModifier, "aPosition");
-    if (explicitLocalCoords) {
-        fLocalCoordsVar = &fVSAttrs.push_back();
-        fLocalCoordsVar->set(kVec2f_GrSLType,
-                             GrGLShaderVar::kAttribute_TypeModifier,
-                             "aLocalCoords");
-    } else {
-        fLocalCoordsVar = fPositionVar;
-    }
 }
 
 void GrGLShaderBuilder::codeAppendf(ShaderType type, const char format[], va_list args) {
@@ -504,6 +494,7 @@ GrGLEffect* GrGLShaderBuilder::createAndEmitGLEffect(
                                 GrGLEffect::EffectKey key,
                                 const char* fsInColor,
                                 const char* fsOutColor,
+                                const char* vsInCoord,
                                 SkTArray<GrGLUniformManager::UniformHandle, true>* samplerHandles) {
     GrAssert(NULL != stage.getEffect());
 
@@ -515,7 +506,6 @@ GrGLEffect* GrGLShaderBuilder::createAndEmitGLEffect(
         textureSamplers[i].init(this, &effect->textureAccess(i), i);
         samplerHandles->push_back(textureSamplers[i].fSamplerUniform);
     }
-    GrDrawEffect drawEffect(stage, this->hasExplicitLocalCoords());
 
     int numAttributes = stage.getVertexAttribIndexCount();
     const int* attributeIndices = stage.getVertexAttribIndices();
@@ -529,15 +519,15 @@ GrGLEffect* GrGLShaderBuilder::createAndEmitGLEffect(
         }
     }
 
-    GrGLEffect* glEffect = effect->getFactory().createGLInstance(drawEffect);
+    GrGLEffect* glEffect = effect->getFactory().createGLInstance(effect);
 
     // Enclose custom code in a block to avoid namespace conflicts
     this->fVSCode.appendf("\t{ // %s\n", glEffect->name());
     this->fFSCode.appendf("\t{ // %s \n", glEffect->name());
-
     glEffect->emitCode(this,
-                       drawEffect,
+                       stage,
                        key,
+                       vsInCoord,
                        fsOutColor,
                        fsInColor,
                        textureSamplers);

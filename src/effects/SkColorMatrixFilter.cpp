@@ -386,17 +386,18 @@ public:
     class GLEffect : public GrGLEffect {
     public:
         // this class always generates the same code.
-        static EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&) { return 0; }
+        static EffectKey GenKey(const GrEffectStage&, const GrGLCaps&) { return 0; }
 
         GLEffect(const GrBackendEffectFactory& factory,
-                 const GrDrawEffect&)
+                 const GrEffectRef& effect)
         : INHERITED(factory)
         , fMatrixHandle(GrGLUniformManager::kInvalidUniformHandle)
         , fVectorHandle(GrGLUniformManager::kInvalidUniformHandle) {}
 
         virtual void emitCode(GrGLShaderBuilder* builder,
-                              const GrDrawEffect&,
+                              const GrEffectStage&,
                               EffectKey,
+                              const char* vertexCoords,
                               const char* outputColor,
                               const char* inputColor,
                               const TextureSamplerArray&) SK_OVERRIDE {
@@ -423,8 +424,8 @@ public:
         }
 
         virtual void setData(const GrGLUniformManager& uniManager,
-                             const GrDrawEffect& drawEffect) SK_OVERRIDE {
-            const ColorMatrixEffect& cme = drawEffect.castEffect<ColorMatrixEffect>();
+                             const GrEffectStage& stage) SK_OVERRIDE {
+            const ColorMatrixEffect& cme = GetEffectFromStage<ColorMatrixEffect>(stage);
             const float* m = cme.fMatrix.fMat;
             // The GL matrix is transposed from SkColorMatrix.
             GrGLfloat mt[]  = {

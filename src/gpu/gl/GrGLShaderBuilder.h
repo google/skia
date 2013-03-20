@@ -80,7 +80,7 @@ public:
         kFragment_ShaderType = 0x4,
     };
 
-    GrGLShaderBuilder(const GrGLContextInfo&, GrGLUniformManager&, bool explicitLocalCoords);
+    GrGLShaderBuilder(const GrGLContextInfo&, GrGLUniformManager&);
 
     /**
      * Called by GrGLEffects to add code to one of the shaders.
@@ -205,16 +205,6 @@ public:
       */
     const GrGLShaderVar& positionAttribute() const { return *fPositionVar; }
 
-    /** Returns a vertex attribute that represents the local coords in the VS. This may be the same
-        as positionAttribute() or it may not be. It depends upon whether the rendering code
-        specified explicit local coords or not in the GrDrawState. */
-    const GrGLShaderVar& localCoordsAttribute() const { return *fLocalCoordsVar; }
-
-    /**
-     * Are explicit local coordinates provided as input to the vertex shader.
-     */
-    bool hasExplicitLocalCoords() const { return (fLocalCoordsVar != fPositionVar); }
-
     /**
      * Interfaces used by GrGLProgram.
      * TODO: Hide these from the GrEffects using friend or splitting this into two related classes.
@@ -233,6 +223,7 @@ public:
                                 GrBackendEffectFactory::EffectKey key,
                                 const char* fsInColor, // NULL means no incoming color
                                 const char* fsOutColor,
+                                const char* vsInCoord,
                                 SkTArray<GrGLUniformManager::UniformHandle, true>* samplerHandles);
     GrGLUniformManager::UniformHandle getRTHeightUniform() const { return fRTHeightUniform; }
 
@@ -299,8 +290,6 @@ private:
     SkSTArray<10, AttributePair, true>  fEffectAttributes;
 
     GrGLShaderVar*                      fPositionVar;
-    GrGLShaderVar*                      fLocalCoordsVar;
-
 };
 
 #endif

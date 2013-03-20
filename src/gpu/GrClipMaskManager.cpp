@@ -40,9 +40,6 @@ void setup_drawstate_aaclip(GrGpu* gpu,
     static const int kMaskStage = GrPaint::kTotalStages+1;
 
     SkMatrix mat;
-    // We want to use device coords to compute the texture coordinates. We set our matrix to be
-    // equal to the view matrix followed by an offset to the devBound, and then a scaling matrix to
-    // normalized coords. We apply this matrix to the vertex positions rather than local coords.
     mat.setIDiv(result->width(), result->height());
     mat.preTranslate(SkIntToScalar(-devBound.fLeft),
                      SkIntToScalar(-devBound.fTop));
@@ -54,9 +51,7 @@ void setup_drawstate_aaclip(GrGpu* gpu,
                          GrTextureDomainEffect::Create(result,
                                       mat,
                                       GrTextureDomainEffect::MakeTexelDomain(result, domainTexels),
-                                      GrTextureDomainEffect::kDecal_WrapMode,
-                                      false,
-                                      GrEffect::kPosition_CoordsType))->unref();
+                                      GrTextureDomainEffect::kDecal_WrapMode))->unref();
 }
 
 bool path_needs_SW_renderer(GrContext* context,
@@ -359,8 +354,7 @@ void GrClipMaskManager::mergeMask(GrTexture* dstMask,
         GrTextureDomainEffect::Create(srcMask,
                                       sampleM,
                                       GrTextureDomainEffect::MakeTexelDomain(srcMask, srcBound),
-                                      GrTextureDomainEffect::kDecal_WrapMode,
-                                      false))->unref();
+                                      GrTextureDomainEffect::kDecal_WrapMode))->unref();
     fGpu->drawSimpleRect(SkRect::MakeFromIRect(dstBound), NULL);
 
     drawState->disableStage(0);

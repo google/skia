@@ -15,28 +15,29 @@
 
 class GrGLEllipseEdgeEffect : public GrGLEffect {
 public:
-    GrGLEllipseEdgeEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
+    GrGLEllipseEdgeEffect(const GrBackendEffectFactory& factory, const GrEffectRef&)
     : INHERITED (factory) {}
 
     virtual void emitCode(GrGLShaderBuilder* builder,
-                          const GrDrawEffect& drawEffect,
+                          const GrEffectStage& stage,
                           EffectKey key,
+                          const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,
                           const TextureSamplerArray& samplers) SK_OVERRIDE {
-        const GrEllipseEdgeEffect& ellipseEffect = drawEffect.castEffect<GrEllipseEdgeEffect>();
+        const GrEllipseEdgeEffect& effect = GetEffectFromStage<GrEllipseEdgeEffect>(stage);
 
         const char *vsCenterName, *fsCenterName;
         const char *vsEdgeName, *fsEdgeName;
 
         builder->addVarying(kVec2f_GrSLType, "EllipseCenter", &vsCenterName, &fsCenterName);
         const SkString* attr0Name =
-            builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
+            builder->getEffectAttributeName(stage.getVertexAttribIndices()[0]);
         builder->vsCodeAppendf("\t%s = %s;\n", vsCenterName, attr0Name->c_str());
 
         builder->addVarying(kVec4f_GrSLType, "EllipseEdge", &vsEdgeName, &fsEdgeName);
         const SkString* attr1Name =
-            builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[1]);
+            builder->getEffectAttributeName(stage.getVertexAttribIndices()[1]);
         builder->vsCodeAppendf("\t%s = %s;\n", vsEdgeName, attr1Name->c_str());
 
         // translate to origin
@@ -49,7 +50,7 @@ public:
         // compare outer lengths against xOuterRadius
         builder->fsCodeAppendf("\tfloat edgeAlpha = clamp(%s.x-dOuter, 0.0, 1.0);\n", fsEdgeName);
 
-        if (ellipseEffect.isStroked()) {
+        if (effect.isStroked()) {
             builder->fsCodeAppendf("\tinnerOffset.y *= %s.w;\n", fsEdgeName);
             builder->fsCodeAppend("\tfloat dInner = length(innerOffset);\n");
 
@@ -63,13 +64,13 @@ public:
         builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
     }
 
-    static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
-        const GrEllipseEdgeEffect& ellipseEffect = drawEffect.castEffect<GrEllipseEdgeEffect>();
+    static inline EffectKey GenKey(const GrEffectStage& stage, const GrGLCaps&) {
+        const GrEllipseEdgeEffect& effect = GetEffectFromStage<GrEllipseEdgeEffect>(stage);
 
-        return ellipseEffect.isStroked() ? 0x1 : 0x0;
+        return effect.isStroked() ? 0x1 : 0x0;
     }
 
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {
+    virtual void setData(const GrGLUniformManager& uman, const GrEffectStage& stage) SK_OVERRIDE {
     }
 
 private:

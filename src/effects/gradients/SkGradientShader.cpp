@@ -734,14 +734,12 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 #if SK_SUPPORT_GPU
 
 #include "effects/GrTextureStripAtlas.h"
-#include "GrTBackendEffectFactory.h"
 #include "SkGr.h"
 
 GrGLGradientEffect::GrGLGradientEffect(const GrBackendEffectFactory& factory)
     : INHERITED(factory)
     , fCachedYCoord(SK_ScalarMax)
-    , fFSYUni(GrGLUniformManager::kInvalidUniformHandle)
-    , fEffectMatrix(kCoordsType) {
+    , fFSYUni(GrGLUniformManager::kInvalidUniformHandle) {
 }
 
 GrGLGradientEffect::~GrGLGradientEffect() { }
@@ -751,11 +749,10 @@ void GrGLGradientEffect::emitYCoordUniform(GrGLShaderBuilder* builder) {
                                   kFloat_GrSLType, "GradientYCoordFS");
 }
 
-void GrGLGradientEffect::setData(const GrGLUniformManager& uman,
-                                 const GrDrawEffect& drawEffect) {
-    const GrGradientEffect& e = drawEffect.castEffect<GrGradientEffect>();
+void GrGLGradientEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
+    const GrGradientEffect& e = GetEffectFromStage<GrGradientEffect>(stage);
     const GrTexture* texture = e.texture(0);
-    fEffectMatrix.setData(uman, e.getMatrix(), drawEffect, texture);
+    fEffectMatrix.setData(uman, e.getMatrix(), stage.getCoordChangeMatrix(), texture);
 
     SkScalar yCoord = e.getYCoord();
     if (yCoord != fCachedYCoord) {
@@ -764,19 +761,21 @@ void GrGLGradientEffect::setData(const GrGLUniformManager& uman,
     }
 }
 
-GrGLEffect::EffectKey GrGLGradientEffect::GenMatrixKey(const GrDrawEffect& drawEffect) {
-    const GrGradientEffect& e = drawEffect.castEffect<GrGradientEffect>();
+GrGLEffect::EffectKey GrGLGradientEffect::GenMatrixKey(const GrEffectStage& s) {
+    const GrGradientEffect& e = GetEffectFromStage<GrGradientEffect>(s);
     const GrTexture* texture = e.texture(0);
-    return GrGLEffectMatrix::GenKey(e.getMatrix(), drawEffect, kCoordsType, texture);
+    return GrGLEffectMatrix::GenKey(e.getMatrix(), s.getCoordChangeMatrix(), texture);
 }
 
 void GrGLGradientEffect::setupMatrix(GrGLShaderBuilder* builder,
                                      EffectKey key,
+                                     const char* vertexCoords,
                                      const char** fsCoordName,
                                      const char** vsVaryingName,
                                      GrSLType* vsVaryingType) {
     fEffectMatrix.emitCodeMakeFSCoords2D(builder,
                                          key & kMatrixKeyMask,
+                                         vertexCoords,
                                          fsCoordName,
                                          vsVaryingName,
                                          vsVaryingType);

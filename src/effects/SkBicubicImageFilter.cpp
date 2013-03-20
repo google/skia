@@ -185,17 +185,18 @@ private:
 class GrGLBicubicEffect : public GrGLEffect {
 public:
     GrGLBicubicEffect(const GrBackendEffectFactory& factory,
-                      const GrDrawEffect&);
+                      const GrEffectRef& effect);
     virtual void emitCode(GrGLShaderBuilder*,
-                          const GrDrawEffect&,
+                          const GrEffectStage&,
                           EffectKey,
+                          const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
+    static inline EffectKey GenKey(const GrEffectStage&, const GrGLCaps&);
 
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
 
 private:
     typedef GrGLUniformManager::UniformHandle        UniformHandle;
@@ -209,21 +210,21 @@ private:
 };
 
 GrGLBicubicEffect::GrGLBicubicEffect(const GrBackendEffectFactory& factory,
-                                     const GrDrawEffect& drawEffect)
+                                     const GrEffectRef& effect)
     : INHERITED(factory)
     , fCoefficientsUni(GrGLUniformManager::kInvalidUniformHandle)
-    , fImageIncrementUni(GrGLUniformManager::kInvalidUniformHandle)
-    , fEffectMatrix(drawEffect.castEffect<GrBicubicEffect>().coordsType()) {
+    , fImageIncrementUni(GrGLUniformManager::kInvalidUniformHandle) {
 }
 
 void GrGLBicubicEffect::emitCode(GrGLShaderBuilder* builder,
-                                 const GrDrawEffect&,
+                                 const GrEffectStage&,
                                  EffectKey key,
+                                 const char* vertexCoords,
                                  const char* outputColor,
                                  const char* inputColor,
                                  const TextureSamplerArray& samplers) {
     const char* coords;
-    fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, &coords);
+    fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, vertexCoords, &coords);
     fCoefficientsUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                            kMat44f_GrSLType, "Coefficients");
     fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
@@ -268,18 +269,17 @@ void GrGLBicubicEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppendf("\t%s = %s(%s, f.y, s0, s1, s2, s3);\n", outputColor, cubicBlendName.c_str(), coeff);
 }
 
-GrGLEffect::EffectKey GrGLBicubicEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
-    const GrBicubicEffect& bicubic = drawEffect.castEffect<GrBicubicEffect>();
-    EffectKey matrixKey = GrGLEffectMatrix::GenKey(bicubic.getMatrix(),
-                                                   drawEffect,
-                                                   bicubic.coordsType(),
-                                                   bicubic.texture(0));
+GrGLEffect::EffectKey GrGLBicubicEffect::GenKey(const GrEffectStage& s, const GrGLCaps&) {
+    const GrBicubicEffect& m = GetEffectFromStage<GrBicubicEffect>(s);
+    EffectKey matrixKey = GrGLEffectMatrix::GenKey(m.getMatrix(),
+                                                   s.getCoordChangeMatrix(),
+                                                   m.texture(0));
     return matrixKey;
 }
 
 void GrGLBicubicEffect::setData(const GrGLUniformManager& uman,
-                                const GrDrawEffect& drawEffect) {
-    const GrBicubicEffect& effect = drawEffect.castEffect<GrBicubicEffect>();
+                                const GrEffectStage& stage) {
+    const GrBicubicEffect& effect = GetEffectFromStage<GrBicubicEffect>(stage);
     GrTexture& texture = *effect.texture(0);
     float imageIncrement[2];
     imageIncrement[0] = 1.0f / texture.width();
@@ -288,7 +288,7 @@ void GrGLBicubicEffect::setData(const GrGLUniformManager& uman,
     uman.setMatrix4f(fCoefficientsUni, effect.coefficients());
     fEffectMatrix.setData(uman,
                           effect.getMatrix(),
-                          drawEffect,
+                          stage.getCoordChangeMatrix(),
                           effect.texture(0));
 }
 

@@ -256,31 +256,33 @@ private:
 
 class GLColorTableEffect : public GrGLEffect {
 public:
-    GLColorTableEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
+    GLColorTableEffect(const GrBackendEffectFactory&, const GrEffectRef&);
 
     virtual void emitCode(GrGLShaderBuilder*,
-                          const GrDrawEffect&,
+                          const GrEffectStage&,
                           EffectKey,
+                          const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {}
+    virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE {}
 
-    static EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
+    static EffectKey GenKey(const GrEffectStage&, const GrGLCaps&);
 
 private:
 
     typedef GrGLEffect INHERITED;
 };
 
-GLColorTableEffect::GLColorTableEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
+GLColorTableEffect::GLColorTableEffect(const GrBackendEffectFactory& factory, const GrEffectRef&)
     : INHERITED(factory) {
  }
 
 void GLColorTableEffect::emitCode(GrGLShaderBuilder* builder,
-                                  const GrDrawEffect&,
+                                  const GrEffectStage&,
                                   EffectKey,
+                                  const char* vertexCoords,
                                   const char* outputColor,
                                   const char* inputColor,
                                   const TextureSamplerArray& samplers) {
@@ -321,7 +323,7 @@ void GLColorTableEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppendf("\t\t%s.rgb *= %s.a;\n", outputColor, outputColor);
 }
 
-GrGLEffect::EffectKey GLColorTableEffect::GenKey(const GrDrawEffect&, const GrGLCaps&) {
+GrGLEffect::EffectKey GLColorTableEffect::GenKey(const GrEffectStage&, const GrGLCaps&) {
     return 0;
 }
 

@@ -453,20 +453,21 @@ void SkLinearGradient::shadeSpan16(int x, int y,
 class GrGLLinearGradient : public GrGLGradientEffect {
 public:
 
-    GrGLLinearGradient(const GrBackendEffectFactory& factory, const GrDrawEffect&)
+    GrGLLinearGradient(const GrBackendEffectFactory& factory, const GrEffectRef&)
                        : INHERITED (factory) { }
 
     virtual ~GrGLLinearGradient() { }
 
     virtual void emitCode(GrGLShaderBuilder*,
-                          const GrDrawEffect&,
+                          const GrEffectStage&,
                           EffectKey,
+                          const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
-        return GenMatrixKey(drawEffect);
+    static EffectKey GenKey(const GrEffectStage& stage, const GrGLCaps&) {
+        return GenMatrixKey(stage);
     }
 
 private:
@@ -532,14 +533,15 @@ GrEffectRef* GrLinearGradient::TestCreate(SkMWCRandom* random,
 /////////////////////////////////////////////////////////////////////
 
 void GrGLLinearGradient::emitCode(GrGLShaderBuilder* builder,
-                                  const GrDrawEffect&,
+                                  const GrEffectStage& stage,
                                   EffectKey key,
+                                  const char* vertexCoords,
                                   const char* outputColor,
                                   const char* inputColor,
                                   const TextureSamplerArray& samplers) {
     this->emitYCoordUniform(builder);
     const char* coords;
-    this->setupMatrix(builder, key, &coords);
+    this->setupMatrix(builder, key, vertexCoords, &coords);
     SkString t;
     t.append(coords);
     t.append(".x");

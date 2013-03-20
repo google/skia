@@ -529,9 +529,11 @@ void GrDrawTarget::drawIndexedInstances(GrPrimitiveType type,
 
 void GrDrawTarget::drawRect(const GrRect& rect,
                             const SkMatrix* matrix,
-                            const GrRect* localRect,
-                            const SkMatrix* localMatrix) {
+                            const GrRect* srcRect,
+                            const SkMatrix* srcMatrix,
+                            int stage) {
     GrAttribBindings bindings = 0;
+    uint32_t explicitCoordMask = 0;
     // position + (optional) texture coord
     static const GrVertexAttrib kAttribs[] = {
         {kVec2f_GrVertexAttribType, 0},
@@ -539,15 +541,16 @@ void GrDrawTarget::drawRect(const GrRect& rect,
     };
     int attribCount = 1;
 
-    if (NULL != localRect) {
-        bindings |= GrDrawState::kLocalCoords_AttribBindingsBit;
+    if (NULL != srcRect) {
+        bindings |= GrDrawState::ExplicitTexCoordAttribBindingsBit(stage);
         attribCount = 2;
-        this->drawState()->setAttribIndex(GrDrawState::kLocalCoords_AttribIndex, 1);
+        this->drawState()->setAttribIndex(GrDrawState::kTexCoord_AttribIndex, 1);
+        explicitCoordMask = (1 << stage);
     }
 
     GrDrawState::AutoViewMatrixRestore avmr;
     if (NULL != matrix) {
-        avmr.set(this->drawState(), *matrix);
+        avmr.set(this->drawState(), *matrix, explicitCoordMask);
     }
 
     this->drawState()->setVertexAttribs(kAttribs, attribCount);
@@ -561,15 +564,15 @@ void GrDrawTarget::drawRect(const GrRect& rect,
 
     size_t vsize = this->drawState()->getVertexSize();
     geo.positions()->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vsize);
-    if (NULL != localRect) {
+    if (NULL != srcRect) {
         GrAssert(attribCount == 2);
         GrPoint* coords = GrTCast<GrPoint*>(GrTCast<intptr_t>(geo.vertices()) +
                                             kAttribs[1].fOffset);
-        coords->setRectFan(localRect->fLeft, localRect->fTop,
-                           localRect->fRight, localRect->fBottom,
-                           vsize);
-        if (NULL != localMatrix) {
-            localMatrix->mapPointsWithStride(coords, vsize, 4);
+        coords->setRectFan(srcRect->fLeft, srcRect->fTop,
+                            srcRect->fRight, srcRect->fBottom,
+                            vsize);
+        if (NULL != srcMatrix) {
+            srcMatrix->mapPointsWithStride(coords, vsize, 4);
         }
     }
 

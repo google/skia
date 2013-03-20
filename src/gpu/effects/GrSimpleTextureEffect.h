@@ -14,50 +14,25 @@ class GrGLSimpleTextureEffect;
 
 /**
  * The output color of this effect is a modulation of the input color and a sample from a texture.
- * It allows explicit specification of the filtering and wrap modes (GrTextureParams). It can use
- * local coords, positions, or a custom vertex attribute as input texture coords. The input coords
- * can have a matrix applied in the VS in both the local and position cases but not with a custom
- * attribute coords at this time. It will add a varying to input interpolate texture coords to the
- * FS.
+ * The coord to sample the texture is determine by a matrix. It allows explicit specification of
+ * the filtering and wrap modes (GrTextureParams).
  */
 class GrSimpleTextureEffect : public GrSingleTextureEffect {
 public:
     /* unfiltered, clamp mode */
-    static GrEffectRef* Create(GrTexture* tex,
-                               const SkMatrix& matrix,
-                               CoordsType coordsType = kLocal_CoordsType) {
-        GrAssert(kLocal_CoordsType == coordsType || kPosition_CoordsType == coordsType);
-        AutoEffectUnref effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, false, coordsType)));
+    static GrEffectRef* Create(GrTexture* tex, const SkMatrix& matrix) {
+        AutoEffectUnref effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix)));
         return CreateEffectRef(effect);
     }
 
     /* clamp mode */
-    static GrEffectRef* Create(GrTexture* tex,
-                               const SkMatrix& matrix,
-                               bool bilerp,
-                               CoordsType coordsType = kLocal_CoordsType) {
-        GrAssert(kLocal_CoordsType == coordsType || kPosition_CoordsType == coordsType);
-        AutoEffectUnref effect(
-            SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, bilerp, coordsType)));
+    static GrEffectRef* Create(GrTexture* tex, const SkMatrix& matrix, bool bilerp) {
+        AutoEffectUnref effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, bilerp)));
         return CreateEffectRef(effect);
     }
 
-    static GrEffectRef* Create(GrTexture* tex,
-                               const SkMatrix& matrix,
-                               const GrTextureParams& p,
-                               CoordsType coordsType = kLocal_CoordsType) {
-        GrAssert(kLocal_CoordsType == coordsType || kPosition_CoordsType == coordsType);
-        AutoEffectUnref effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, p, coordsType)));
-        return CreateEffectRef(effect);
-    }
-
-    /** Variant that requires the client to install a custom kVec2 vertex attribute that will be
-        the source of the coords. No matrix is allowed in this mode. */
-    static GrEffectRef* CreateWithCustomCoords(GrTexture* tex, const GrTextureParams& p) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex,
-                                                                  SkMatrix::I(),
-                                                                  p,
-                                                                  kCustom_CoordsType)));
+    static GrEffectRef* Create(GrTexture* tex, const SkMatrix& matrix, const GrTextureParams& p) {
+        AutoEffectUnref effect(SkNEW_ARGS(GrSimpleTextureEffect, (tex, matrix, p)));
         return CreateEffectRef(effect);
     }
 
@@ -72,28 +47,16 @@ public:
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
 
 private:
-    GrSimpleTextureEffect(GrTexture* texture,
-                          const SkMatrix& matrix,
-                          bool bilerp,
-                          CoordsType coordsType)
-        : GrSingleTextureEffect(texture, matrix, bilerp, coordsType) {
-        GrAssert(kLocal_CoordsType == coordsType || kPosition_CoordsType == coordsType);
-    }
-
-    GrSimpleTextureEffect(GrTexture* texture,
-                          const SkMatrix& matrix,
-                          const GrTextureParams& params,
-                          CoordsType coordsType)
-        : GrSingleTextureEffect(texture, matrix, params, coordsType) {
-        if (kCustom_CoordsType == coordsType) {
-            GrAssert(matrix.isIdentity());
-            this->addVertexAttrib(kVec2f_GrSLType);
-        }
-    }
+    GrSimpleTextureEffect(GrTexture* texture, const SkMatrix& matrix)
+        : GrSingleTextureEffect(texture, matrix) {}
+    GrSimpleTextureEffect(GrTexture* texture, const SkMatrix& matrix, bool bilerp)
+        : GrSingleTextureEffect(texture, matrix, bilerp) {}
+    GrSimpleTextureEffect(GrTexture* texture, const SkMatrix& matrix, const GrTextureParams& params)
+        : GrSingleTextureEffect(texture, matrix, params) {}
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
         const GrSimpleTextureEffect& ste = CastEffect<GrSimpleTextureEffect>(other);
-        return this->hasSameTextureParamsMatrixAndCoordsType(ste);
+        return this->hasSameTextureParamsAndMatrix(ste);
     }
 
     GR_DECLARE_EFFECT_TEST;
