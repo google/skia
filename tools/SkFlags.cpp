@@ -157,7 +157,8 @@ void SkFlags::ParseCommandLine(int argc, char** argv) {
                 flag = flag->next();
             }
             if (!flagMatched) {
-                SkDebugf("skipping unknown flag %s\n", argv[i]);
+                SkDebugf("Got unknown flag \"%s\". Exiting.\n", argv[i]);
+                exit(-1);
             }
         }
     }
