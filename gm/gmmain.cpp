@@ -23,6 +23,7 @@
 #include "SkDeferredCanvas.h"
 #include "SkDevice.h"
 #include "SkDrawFilter.h"
+#include "SkFlags.h"
 #include "SkGPipe.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
@@ -56,8 +57,6 @@ class GrContext;
 class GrRenderTarget;
 typedef int GLContextType;
 #endif
-
-static bool gForceBWtext;
 
 extern bool gSkSuppressFontCachePurgeSpew;
 
@@ -364,11 +363,7 @@ public:
         force_all_opaque(*bitmap);
     }
 
-    static void installFilter(SkCanvas* canvas) {
-        if (gForceBWtext) {
-            canvas->setDrawFilter(new BWTextDrawFilter)->unref();
-        }
-    }
+    static void installFilter(SkCanvas* canvas);
 
     static void invokeGM(GM* gm, SkCanvas* canvas, bool isPDF, bool isDeferred) {
         SkAutoCanvasRestore acr(canvas, true);
@@ -826,7 +821,7 @@ public:
         SkDynamicMemoryWStream storage;
         src.serialize(&storage);
 
-        int streamSize = storage.getOffset();
+        size_t streamSize = storage.getOffset();
         SkAutoMalloc dstStorage(streamSize);
         void* dst = dstStorage.get();
         //char* dst = new char [streamSize];
@@ -1013,63 +1008,61 @@ static const ConfigData gRec[] = {
 #endif // SK_SUPPORT_PDF
 };
 
-static void usage(const char * argv0) {
-    fprintf(stderr, "%s\n", argv0);
-    fprintf(stderr, "    [--config ");
+static SkString configUsage() {
+    SkString result("Possible options for --config: [");
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
         if (i > 0) {
-            fprintf(stderr, "|");
+            result.appendf("|");
         }
-        fprintf(stderr, "%s", gRec[i].fName);
+        result.appendf("%s", gRec[i].fName);
     }
-    fprintf(stderr, "]:\n        run these configurations\n");
-    fprintf(stderr,
-// Alphabetized ignoring "no" prefix ("readPath", "noreplay", "resourcePath").
-// It would probably be better if we allowed both yes-and-no settings for each
-// one, e.g.:
-// [--replay|--noreplay]: whether to exercise SkPicture replay; default is yes
-"    [--nodeferred]: skip the deferred rendering test pass\n"
-"    [--disable-missing-warning]: don't print a message to stderr if\n"
-"        unable to read a reference image for any tests (NOT default behavior)\n"
-"    [--enable-missing-warning]: print message to stderr (but don't fail) if\n"
-"        unable to read a reference image for any tests (default behavior)\n"
-"    [--exclude-config]: disable this config (may be used multiple times)\n"
-"    [--forceBWtext]: disable text anti-aliasing\n"
-#if SK_SUPPORT_GPU
-"    [--gpuCacheSize <bytes> <count>]: limits gpu cache to byte size or object count\n"
-"        -1 for either value means use the default. 0 for either disables the cache.\n"
-#endif
-"    [--help|-h]: show this help message\n"
-"    [--hierarchy|--nohierarchy]: whether to use multilevel directory structure\n"
-"        when reading/writing files; default is no\n"
-"    [--match <substring>]: only run tests whose name includes this substring\n"
-"    [--mismatchPath <path>]: write images for tests that failed due to\n"
-"        pixel mismatched into this directory"
-"    [--modulo <remainder> <divisor>]: only run tests for which \n"
-"        testIndex %% divisor == remainder\n"
-"    [--nopdf]: skip the pdf rendering test pass\n"
-"    [--nopipe]: Skip SkGPipe replay\n"
-"    [--readPath|-r <path>]: read reference images from this dir, and report\n"
-"        any differences between those and the newly generated ones\n"
-"    [--noreplay]: do not exercise SkPicture replay\n"
-"    [--resourcePath|-i <path>]: directory that stores image resources\n"
-"    [--nortree]: Do not exercise the R-Tree variant of SkPicture\n"
-"    [--noserialize]: do not exercise SkPicture serialization & deserialization\n"
-"    [--tiledPipe]: Exercise tiled SkGPipe replay\n"
-"    [--notileGrid]: Do not exercise the tile grid variant of SkPicture\n"
-"    [--tileGridReplayScales <scales>]: Comma separated list of floating-point scale\n"
-"        factors to be used for tileGrid playback testing. Default value: 1.0\n"
-"    [--writeJsonSummary <path>]: write a JSON-formatted result summary to this file\n"
-"    [--verbose] print diagnostics (e.g. list each config to be tested)\n"
-"    [--writePath|-w <path>]: write rendered images into this directory\n"
-"    [--writePicturePath|-wp <path>]: write .skp files into this directory\n"
-             );
+    result.appendf("]");
+    return result;
 }
+
+// Alphabetized ignoring "no" prefix ("readPath", "noreplay", "resourcePath").
+DEFINE_string(config, "", "Space delimited list of which configs to run. "
+              "Possible configs listed above. If none are specified, "
+              "all will be run.");
+DEFINE_bool(deferred, true, "Exercise the deferred rendering test pass.");
+DEFINE_bool(enableMissingWarning, true, "Print message to stderr (but don't fail) if "
+            "unable to read a reference image for any tests.");
+DEFINE_string(excludeConfig, "", "Space delimited list of configs to skip.");
+DEFINE_bool(forceBWtext, false, "Disable text anti-aliasing.");
+#if SK_SUPPORT_GPU
+DEFINE_string(gpuCacheSize, "", "<bytes> <count>: Limit the gpu cache to byte size or "
+              "object count. -1 for either value means use the default. 0 for either "
+              "disables the cache.");
+#endif
+DEFINE_bool(hierarchy, false, "Whether to use multilevel directory structure "
+            "when reading/writing files.");
+DEFINE_string(match, "",  "Only run tests whose name includes this substring/these substrings "
+              "(more than one can be supplied, separated by spaces).");
+DEFINE_string(mismatchPath, "", "Write images for tests that failed due to "
+              "pixel mismatches into this directory.");
+DEFINE_string(modulo, "", "[--modulo <remainder> <divisor>]: only run tests for which "
+              "testIndex %% divisor == remainder.");
+DEFINE_bool(pdf, true, "Exercise the pdf rendering test pass.");
+DEFINE_bool(pipe, true, "Exercise the SkGPipe replay test pass.");
+DEFINE_string2(readPath, r, "", "Read reference images from this dir, and report "
+               "any differences between those and the newly generated ones.");
+DEFINE_bool(replay, true, "Exercise the SkPicture replay test pass.");
+DEFINE_string2(resourcePath, i, "", "Directory that stores image resources.");
+DEFINE_bool(rtree, true, "Exercise the R-Tree variant of SkPicture test pass.");
+DEFINE_bool(serialize, true, "Exercise the SkPicture serialization & deserialization test pass.");
+DEFINE_bool(tiledPipe, false, "Exercise tiled SkGPipe replay.");
+DEFINE_bool(tileGrid, true, "Exercise the tile grid variant of SkPicture.");
+DEFINE_string(tileGridReplayScales, "", "Space separated list of floating-point scale "
+              "factors to be used for tileGrid playback testing. Default value: 1.0");
+DEFINE_string(writeJsonSummaryPath, "", "Write a JSON-formatted result summary to this file.");
+DEFINE_bool2(verbose, v, false, "Print diagnostics (e.g. list each config to be tested).");
+DEFINE_string2(writePath, w, "",  "Write rendered images into this directory.");
+DEFINE_string2(writePicturePath, wp, "", "Write .skp files into this directory.");
 
 static int findConfig(const char config[]) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
         if (!strcmp(config, gRec[i].fName)) {
-            return i;
+            return (int) i;
         }
     }
     return -1;
@@ -1151,205 +1144,84 @@ int tool_main(int argc, char** argv) {
     setSystemPreferences();
     GMMain gmmain;
 
-    const char* writeJsonSummaryPath = NULL;// if non-null, where we write the JSON summary
-    const char* writePath = NULL;   // if non-null, where we write the originals
-    const char* writePicturePath = NULL;    // if non-null, where we write serialized pictures
-    const char* readPath = NULL;    // if non-null, were we read from to compare
-    const char* resourcePath = NULL;// if non-null, where we read from for image resources
-
-    // if true, emit a message when we can't find a reference image to compare
-    bool notifyMissingReadReference = true;
-
-    SkTDArray<const char*> fMatches;
-
-    bool doPDF = true;
-    bool doReplay = true;
-    bool doPipe = true;
-    bool doTiledPipe = false;
-    bool doSerialize = true;
-    bool doDeferred = true;
-    bool doRTree = true;
-    bool doTileGrid = true;
-    bool doVerbose = false;
-
     SkTDArray<size_t> configs;
     SkTDArray<size_t> excludeConfigs;
     SkTDArray<SkScalar> tileGridReplayScales;
     *tileGridReplayScales.append() = SK_Scalar1; // By default only test at scale 1.0
     bool userConfig = false;
 
-    int moduloRemainder = -1;
-    int moduloDivisor = -1;
+    SkString usage;
+    usage.printf("Run the golden master tests.\n\t%s", configUsage().c_str());
+    SkFlags::SetUsage(usage.c_str());
+    SkFlags::ParseCommandLine(argc, argv);
 
 #if SK_SUPPORT_GPU
     struct {
         int     fBytes;
         int     fCount;
     } gpuCacheSize = { -1, -1 }; // -1s mean use the default
-#endif
 
-    const char* const commandName = argv[0];
-    char* const* stop = argv + argc;
-    for (++argv; argv < stop; ++argv) {
-        if (strcmp(*argv, "--config") == 0) {
-            argv++;
-            if (argv < stop) {
-                int index = findConfig(*argv);
-                if (index >= 0) {
-                    appendUnique<size_t>(&configs, index);
-                    userConfig = true;
-                } else {
-                    gm_fprintf(stderr, "unrecognized config %s\n", *argv);
-                    usage(commandName);
-                    return -1;
-                }
-            } else {
-                gm_fprintf(stderr, "missing arg for --config\n");
-                usage(commandName);
-                return -1;
-            }
-        } else if (strcmp(*argv, "--exclude-config") == 0) {
-            argv++;
-            if (argv < stop) {
-                int index = findConfig(*argv);
-                if (index >= 0) {
-                    *excludeConfigs.append() = index;
-                } else {
-                    gm_fprintf(stderr, "unrecognized exclude-config %s\n", *argv);
-                    usage(commandName);
-                    return -1;
-                }
-            } else {
-                gm_fprintf(stderr, "missing arg for --exclude-config\n");
-                usage(commandName);
-                return -1;
-            }
-        } else if (strcmp(*argv, "--nodeferred") == 0) {
-            doDeferred = false;
-        } else if (strcmp(*argv, "--disable-missing-warning") == 0) {
-            notifyMissingReadReference = false;
-        } else if (strcmp(*argv, "--mismatchPath") == 0) {
-            argv++;
-            if (argv < stop && **argv) {
-                gmmain.fMismatchPath = *argv;
-            }
-        } else if (strcmp(*argv, "--nortree") == 0) {
-            doRTree = false;
-        } else if (strcmp(*argv, "--notileGrid") == 0) {
-            doTileGrid = false;
-        } else if (strcmp(*argv, "--tileGridReplayScales") == 0) {
-            tileGridReplayScales.reset();
-            ++argv;
-            if (argv < stop) {
-                char* token = strtok(*argv, ",");
-                while (NULL != token) {
-                    double val = atof(token);
-                    if (0 < val) {
-                        *tileGridReplayScales.append() = SkDoubleToScalar(val);
-                    }
-                    token = strtok(NULL, ",");
-                }
-            }
-            if (0 == tileGridReplayScales.count()) {
-                // Should have at least one scale
-                usage(commandName);
-                return -1;
-            }
-        } else if (strcmp(*argv, "--enable-missing-warning") == 0) {
-            notifyMissingReadReference = true;
-        } else if (strcmp(*argv, "--forceBWtext") == 0) {
-            gForceBWtext = true;
-#if SK_SUPPORT_GPU
-        } else if (strcmp(*argv, "--gpuCacheSize") == 0) {
-            if (stop - argv > 2) {
-                gpuCacheSize.fBytes = atoi(*++argv);
-                gpuCacheSize.fCount = atoi(*++argv);
-            } else {
-                gm_fprintf(stderr, "missing arg for --gpuCacheSize\n");
-                usage(commandName);
-                return -1;
-            }
-#endif
-        } else if (strcmp(*argv, "--help") == 0 || strcmp(*argv, "-h") == 0) {
-            usage(commandName);
+    if (FLAGS_gpuCacheSize.count() > 0) {
+        if (FLAGS_gpuCacheSize.count() != 2) {
+            gm_fprintf(stderr, "--gpuCacheSize requires two arguments\n");
             return -1;
-        } else if (strcmp(*argv, "--hierarchy") == 0) {
-            gmmain.fUseFileHierarchy = true;
-        } else if (strcmp(*argv, "--nohierarchy") == 0) {
-            gmmain.fUseFileHierarchy = false;
-        } else if (strcmp(*argv, "--match") == 0) {
-            ++argv;
-            if (argv < stop && **argv) {
-                // just record the ptr, no need for a deep copy
-                *fMatches.append() = *argv;
-            }
-        } else if (strcmp(*argv, "--modulo") == 0) {
-            ++argv;
-            if (argv >= stop) {
-                continue;
-            }
-            moduloRemainder = atoi(*argv);
+        }
+        gpuCacheSize.fBytes = atoi(FLAGS_gpuCacheSize[0]);
+        gpuCacheSize.fCount = atoi(FLAGS_gpuCacheSize[1]);
+    }
+#endif
 
-            ++argv;
-            if (argv >= stop) {
-                continue;
-            }
-            moduloDivisor = atoi(*argv);
-            if (moduloRemainder < 0 || moduloDivisor <= 0 || moduloRemainder >= moduloDivisor) {
-                gm_fprintf(stderr, "invalid modulo values.");
-                return -1;
-            }
-        } else if (strcmp(*argv, "--nopdf") == 0) {
-            doPDF = false;
-        } else if (strcmp(*argv, "--nopipe") == 0) {
-            doPipe = false;
-        } else if ((0 == strcmp(*argv, "--readPath")) ||
-                   (0 == strcmp(*argv, "-r"))) {
-            argv++;
-            if (argv < stop && **argv) {
-                readPath = *argv;
-            }
-        } else if (strcmp(*argv, "--noreplay") == 0) {
-            doReplay = false;
-        } else if ((0 == strcmp(*argv, "--resourcePath")) ||
-                   (0 == strcmp(*argv, "-i"))) {
-            argv++;
-            if (argv < stop && **argv) {
-                resourcePath = *argv;
-            }
-        } else if (strcmp(*argv, "--serialize") == 0) {
-            doSerialize = true;
-        } else if (strcmp(*argv, "--noserialize") == 0) {
-            doSerialize = false;
-        } else if (strcmp(*argv, "--tiledPipe") == 0) {
-            doTiledPipe = true;
-        } else if (!strcmp(*argv, "--verbose") || !strcmp(*argv, "-v")) {
-            doVerbose = true;
-        } else if ((0 == strcmp(*argv, "--writePath")) ||
-            (0 == strcmp(*argv, "-w"))) {
-            argv++;
-            if (argv < stop && **argv) {
-                writePath = *argv;
-            }
-        } else if (0 == strcmp(*argv, "--writeJsonSummary")) {
-            argv++;
-            if (argv < stop && **argv) {
-                writeJsonSummaryPath = *argv;
-            }
-        } else if ((0 == strcmp(*argv, "--writePicturePath")) ||
-                   (0 == strcmp(*argv, "-wp"))) {
-            argv++;
-            if (argv < stop && **argv) {
-                writePicturePath = *argv;
-            }
+    gmmain.fUseFileHierarchy = FLAGS_hierarchy;
+    if (FLAGS_mismatchPath.count() == 1) {
+        gmmain.fMismatchPath = FLAGS_mismatchPath[0];
+    }
+
+    for (int i = 0; i < FLAGS_config.count(); i++) {
+        int index = findConfig(FLAGS_config[i]);
+        if (index >= 0) {
+            appendUnique<size_t>(&configs, index);
+            userConfig = true;
         } else {
-            usage(commandName);
+            gm_fprintf(stderr, "unrecognized config %s\n", FLAGS_config[i]);
             return -1;
         }
     }
-    if (argv != stop) {
-        usage(commandName);
-        return -1;
+
+    for (int i = 0; i < FLAGS_excludeConfig.count(); i++) {
+        int index = findConfig(FLAGS_excludeConfig[i]);
+        if (index >= 0) {
+            *excludeConfigs.append() = index;
+        } else {
+            gm_fprintf(stderr, "unrecognized excludeConfig %s\n", FLAGS_excludeConfig[i]);
+            return -1;
+        }
+    }
+
+    if (FLAGS_tileGridReplayScales.count() > 0) {
+        tileGridReplayScales.reset();
+        for (int i = 0; i < FLAGS_tileGridReplayScales.count(); i++) {
+            double val = atof(FLAGS_tileGridReplayScales[i]);
+            if (0 < val) {
+                *tileGridReplayScales.append() = SkDoubleToScalar(val);
+            }
+        }
+        if (0 == tileGridReplayScales.count()) {
+            // Should have at least one scale
+            gm_fprintf(stderr, "--tileGridReplayScales requires at least one scale.\n");
+            return -1;
+        }
+    }
+
+    int moduloRemainder = -1;
+    int moduloDivisor = -1;
+
+    if (FLAGS_modulo.count() == 2) {
+        moduloRemainder = atoi(FLAGS_modulo[0]);
+        moduloDivisor = atoi(FLAGS_modulo[1]);
+        if (moduloRemainder < 0 || moduloDivisor <= 0 || moduloRemainder >= moduloDivisor) {
+            gm_fprintf(stderr, "invalid modulo values.");
+            return -1;
+        }
     }
 
     if (!userConfig) {
@@ -1373,7 +1245,7 @@ int tool_main(int argc, char** argv) {
 #if SK_SUPPORT_GPU
     GrContextFactory* grFactory = new GrContextFactory;
     for (int i = 0; i < configs.count(); ++i) {
-        int index = configs[i];
+        size_t index = configs[i];
         if (kGPU_Backend == gRec[index].fBackend) {
             GrContext* ctx = grFactory->get(gRec[index].fGLContextType);
             if (NULL == ctx) {
@@ -1392,7 +1264,7 @@ int tool_main(int argc, char** argv) {
     }
 #endif
 
-    if (doVerbose) {
+    if (FLAGS_verbose) {
         SkString str;
         str.printf("%d configs:", configs.count());
         for (int i = 0; i < configs.count(); ++i) {
@@ -1401,9 +1273,12 @@ int tool_main(int argc, char** argv) {
         gm_fprintf(stderr, "%s\n", str.c_str());
     }
 
-    GM::SetResourcePath(resourcePath);
+    if (FLAGS_resourcePath.count() == 1) {
+        GM::SetResourcePath(FLAGS_resourcePath[0]);
+    }
 
-    if (readPath) {
+    if (FLAGS_readPath.count() == 1) {
+        const char* readPath = FLAGS_readPath[0];
         if (!sk_exists(readPath)) {
             gm_fprintf(stderr, "readPath %s does not exist!\n", readPath);
             return -1;
@@ -1412,21 +1287,21 @@ int tool_main(int argc, char** argv) {
             gm_fprintf(stdout, "reading from %s\n", readPath);
             gmmain.fExpectationsSource.reset(SkNEW_ARGS(
                 IndividualImageExpectationsSource,
-                (readPath, notifyMissingReadReference)));
+                (readPath, FLAGS_enableMissingWarning)));
         } else {
             gm_fprintf(stdout, "reading expectations from JSON summary file %s\n", readPath);
             gmmain.fExpectationsSource.reset(SkNEW_ARGS(
                 JsonExpectationsSource, (readPath)));
         }
     }
-    if (writePath) {
-        gm_fprintf(stdout, "writing to %s\n", writePath);
+    if (FLAGS_writePath.count() == 1) {
+        gm_fprintf(stderr, "writing to %s\n", FLAGS_writePath[0]);
     }
-    if (writePicturePath) {
-        gm_fprintf(stdout, "writing pictures to %s\n", writePicturePath);
+    if (FLAGS_writePicturePath.count() == 1) {
+        gm_fprintf(stderr, "writing pictures to %s\n", FLAGS_writePicturePath[0]);
     }
-    if (resourcePath) {
-        gm_fprintf(stdout, "reading resources from %s\n", resourcePath);
+    if (FLAGS_resourcePath.count() == 1) {
+        gm_fprintf(stderr, "reading resources from %s\n", FLAGS_resourcePath[0]);
     }
 
     if (moduloDivisor <= 0) {
@@ -1446,15 +1321,15 @@ int tool_main(int argc, char** argv) {
     SkString moduloStr;
 
     // If we will be writing out files, prepare subdirectories.
-    if (writePath) {
-        if (!sk_mkdir(writePath)) {
+    if (FLAGS_writePath.count() == 1) {
+        if (!sk_mkdir(FLAGS_writePath[0])) {
             return -1;
         }
         if (gmmain.fUseFileHierarchy) {
             for (int i = 0; i < configs.count(); i++) {
                 ConfigData config = gRec[configs[i]];
                 SkString subdir;
-                subdir.appendf("%s%c%s", writePath, SkPATH_SEPARATOR,
+                subdir.appendf("%s%c%s", FLAGS_writePath[0], SkPATH_SEPARATOR,
                                config.fName);
                 if (!sk_mkdir(subdir.c_str())) {
                     return -1;
@@ -1476,7 +1351,7 @@ int tool_main(int argc, char** argv) {
         }
 
         const char* shortName = gm->shortName();
-        if (skip_name(fMatches, shortName)) {
+        if (skip_name(FLAGS_match, shortName)) {
             SkDELETE(gm);
             continue;
         }
@@ -1493,7 +1368,7 @@ int tool_main(int argc, char** argv) {
 
             // Skip any tests that we don't even need to try.
             if ((kPDF_Backend == config.fBackend) &&
-                (!doPDF || (gmFlags & GM::kSkipPDF_Flag)))
+                (!FLAGS_pdf|| (gmFlags & GM::kSkipPDF_Flag)))
                 {
                     continue;
                 }
@@ -1555,6 +1430,12 @@ int tool_main(int argc, char** argv) {
 
             SkBitmap comparisonBitmap;
 
+            const char* writePath;
+            if (FLAGS_writePath.count() == 1) {
+                writePath = FLAGS_writePath[0];
+            } else {
+                writePath = NULL;
+            }
             if (kEmptyErrorBitfield == renderErrors) {
                 renderErrors |= gmmain.test_drawing(gm, config, writePath,
                                                     GetGr(),
@@ -1562,7 +1443,7 @@ int tool_main(int argc, char** argv) {
                                                     &comparisonBitmap);
             }
 
-            if (doDeferred && !renderErrors &&
+            if (FLAGS_deferred && !renderErrors &&
                 (kGPU_Backend == config.fBackend ||
                  kRaster_Backend == config.fBackend)) {
                 renderErrors |= gmmain.test_deferred_drawing(gm, config,
@@ -1588,7 +1469,7 @@ int tool_main(int argc, char** argv) {
             SkPicture* pict = gmmain.generate_new_picture(gm, kNone_BbhType, 0);
             SkAutoUnref aur(pict);
 
-            if ((kEmptyErrorBitfield == testErrors) && doReplay) {
+            if ((kEmptyErrorBitfield == testErrors) && FLAGS_replay) {
                 SkBitmap bitmap;
                 gmmain.generate_image_from_picture(gm, compareConfig, pict,
                                                    &bitmap);
@@ -1598,7 +1479,7 @@ int tool_main(int argc, char** argv) {
 
             if ((kEmptyErrorBitfield == testErrors) &&
                 (kEmptyErrorBitfield == pictErrors) &&
-                doSerialize) {
+                FLAGS_serialize) {
                 SkPicture* repict = gmmain.stream_to_new_picture(*pict);
                 SkAutoUnref aurr(repict);
 
@@ -1609,9 +1490,9 @@ int tool_main(int argc, char** argv) {
                     gm, compareConfig, "-serialize", bitmap, &comparisonBitmap);
             }
 
-            if (writePicturePath) {
+            if (FLAGS_writePicturePath.count() == 1) {
                 const char* pictureSuffix = "skp";
-                SkString path = make_filename(writePicturePath, "",
+                SkString path = make_filename(FLAGS_writePicturePath[0], "",
                                               gm->shortName(),
                                               pictureSuffix);
                 SkFILEWStream stream(path.c_str());
@@ -1625,7 +1506,7 @@ int tool_main(int argc, char** argv) {
         // different bitmap than the standard rendering.  It should
         // show up as failed in the JSON summary, and should be listed
         // in the stdout also.
-        if (!(gmFlags & GM::kSkipPicture_Flag) && doRTree) {
+        if (!(gmFlags & GM::kSkipPicture_Flag) && FLAGS_rtree) {
             SkPicture* pict = gmmain.generate_new_picture(
                 gm, kRTree_BbhType, SkPicture::kUsePathBoundsForClip_RecordingFlag);
             SkAutoUnref aur(pict);
@@ -1636,7 +1517,7 @@ int tool_main(int argc, char** argv) {
                 gm, compareConfig, "-rtree", bitmap, &comparisonBitmap);
         }
 
-        if (!(gmFlags & GM::kSkipPicture_Flag) && doTileGrid) {
+        if (!(gmFlags & GM::kSkipPicture_Flag) && FLAGS_tileGrid) {
             for(int scaleIndex = 0; scaleIndex < tileGridReplayScales.count(); ++scaleIndex) {
                 SkScalar replayScale = tileGridReplayScales[scaleIndex];
                 if ((gmFlags & GM::kSkipScaledReplay_Flag) && replayScale != 1)
@@ -1667,14 +1548,14 @@ int tool_main(int argc, char** argv) {
 
             ErrorBitfield pipeErrors = kEmptyErrorBitfield;
 
-            if ((kEmptyErrorBitfield == testErrors) && doPipe) {
+            if ((kEmptyErrorBitfield == testErrors) && FLAGS_pipe) {
                 pipeErrors |= gmmain.test_pipe_playback(gm, compareConfig,
                                                         comparisonBitmap);
             }
 
             if ((kEmptyErrorBitfield == testErrors) &&
                 (kEmptyErrorBitfield == pipeErrors) &&
-                doTiledPipe && !(gmFlags & GM::kSkipTiled_Flag)) {
+                FLAGS_tiledPipe && !(gmFlags & GM::kSkipTiled_Flag)) {
                 pipeErrors |= gmmain.test_tiled_pipe_playback(gm, compareConfig,
                                                               comparisonBitmap);
             }
@@ -1703,7 +1584,7 @@ int tool_main(int argc, char** argv) {
                testsRun, testsPassed, testsFailed, testsMissingReferenceImages);
     gmmain.ListErrors();
 
-    if (NULL != writeJsonSummaryPath) {
+    if (FLAGS_writeJsonSummaryPath.count() == 1) {
         Json::Value actualResults;
         actualResults[kJsonKey_ActualResults_Failed] =
             gmmain.fJsonActualResults_Failed;
@@ -1717,7 +1598,7 @@ int tool_main(int argc, char** argv) {
         root[kJsonKey_ActualResults] = actualResults;
         root[kJsonKey_ExpectedResults] = gmmain.fJsonExpectedResults;
         std::string jsonStdString = root.toStyledString();
-        SkFILEWStream stream(writeJsonSummaryPath);
+        SkFILEWStream stream(FLAGS_writeJsonSummaryPath[0]);
         stream.write(jsonStdString.c_str(), jsonStdString.length());
     }
 
@@ -1741,6 +1622,12 @@ int tool_main(int argc, char** argv) {
     SkGraphics::Term();
 
     return (0 == testsFailed) ? 0 : -1;
+}
+
+void GMMain::installFilter(SkCanvas* canvas) {
+    if (FLAGS_forceBWtext) {
+        canvas->setDrawFilter(SkNEW(BWTextDrawFilter))->unref();
+    }
 }
 
 #if !defined(SK_BUILD_FOR_IOS) && !defined(SK_BUILD_FOR_NACL)

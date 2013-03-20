@@ -38,8 +38,12 @@ void SkFlags::ParseCommandLine(int argc, char** argv) {
             SkDebugf("Flags:\n");
             SkFlagInfo* flag = SkFlags::gHead;
             while (flag != NULL) {
-                SkDebugf("\t--%s:\ttype: %s\tdefault: %s\n", flag->name().c_str(),
-                          flag->typeAsString().c_str(), flag->defaultValue().c_str());
+                SkDebugf("\t--%s:\ttype: %s", flag->name().c_str(),
+                          flag->typeAsString().c_str());
+                if (flag->defaultValue().size() > 0) {
+                    SkDebugf("\tdefault: %s", flag->defaultValue().c_str());
+                }
+                SkDebugf("\n");
                 const SkString& help = flag->help();
                 size_t length = help.size();
                 const char* currLine = help.c_str();
