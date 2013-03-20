@@ -260,7 +260,7 @@ private:
         return true;
     }
 
-    friend GrContext; // To access above two functions
+    friend class GrContext; // To access above two functions
 
     GrEffectStage               fColorStages[kMaxColorStages];
     GrEffectStage               fCoverageStages[kMaxCoverageStages];
