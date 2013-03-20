@@ -21,9 +21,9 @@ import svn
 import sys
 
 
-GLOBAL_VARIABLES = json.loads(svn.Svn.Cat('http://skia.googlecode.com/svn/'
-                                          'buildbot/site_config/'
-                                          'global_variables.json'))
+GLOBAL_VARIABLES = json.loads(svn.Cat('http://skia.googlecode.com/svn/'
+                                      'buildbot/site_config/'
+                                      'global_variables.json'))
 
 
 def GetGlobalVariable(var_name):
