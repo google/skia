@@ -25,7 +25,16 @@ SkImageDecoder* SkImageDecoder::Factory(SkStream* stream) {
         codec = curr->factory()(stream);
         // we rewind here, because we promise later when we call "decode", that
         // the stream will be at its beginning.
-        stream->rewind();
+        bool rewindSuceeded = stream->rewind();
+
+        // our image decoder's require that rewind is supported so we fail early
+        // if we are given a stream that does not support rewinding.
+        if (!rewindSuceeded) {
+            SkDEBUGF(("Unable to rewind the image stream."));
+            SkDELETE(codec);
+            return NULL;
+        }
+
         if (codec) {
             return codec;
         }
