@@ -74,9 +74,8 @@ void get_vertex_bounds(const void* vertices,
 
 void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
                                    const SkMatrix* matrix,
-                                   const GrRect* srcRect,
-                                   const SkMatrix* srcMatrix,
-                                   int stage) {
+                                   const GrRect* localRect,
+                                   const SkMatrix* localMatrix) {
 
     GrAttribBindings bindings = GrDrawState::kDefault_AttribBindings;
     GrDrawState::AutoColorRestore acr;
@@ -86,7 +85,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
     GrColor color = drawState->getColor();
     GrVertexAttribArray<3> attribs;
     size_t currentOffset = 0;
-    int colorOffset = -1, texOffset = -1;
+    int colorOffset = -1, localOffset = -1;
 
     // set position attrib
     drawState->setAttribIndex(GrDrawState::kPosition_AttribIndex, attribs.count());
@@ -115,15 +114,13 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         acr.set(drawState, 0xFFFFFFFF);
     }
 
-    uint32_t explicitCoordMask = 0;
-    if (NULL != srcRect) {
-        bindings |= GrDrawState::ExplicitTexCoordAttribBindingsBit(stage);
-        drawState->setAttribIndex(GrDrawState::kTexCoord_AttribIndex, attribs.count());
+    if (NULL != localRect) {
+        bindings |= GrDrawState::kLocalCoords_AttribBindingsBit;
+        drawState->setAttribIndex(GrDrawState::kLocalCoords_AttribIndex, attribs.count());
         currAttrib.set(kVec2f_GrVertexAttribType, currentOffset);
         attribs.push_back(currAttrib);
-        texOffset = currentOffset;
+        localOffset = currentOffset;
         currentOffset += sizeof(GrPoint);
-        explicitCoordMask = (1 << stage);
     }
 
     drawState->setVertexAttribs(attribs.begin(), attribs.count());
@@ -145,7 +142,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
     // When the caller has provided an explicit source rect for a stage then we don't want to
     // modify that stage's matrix. Otherwise if the effect is generating its source rect from
     // the vertex positions then we have to account for the view matrix change.
-    GrDrawState::AutoDeviceCoordDraw adcd(drawState, explicitCoordMask);
+    GrDrawState::AutoDeviceCoordDraw adcd(drawState);
     if (!adcd.succeeded()) {
         return;
     }
@@ -161,15 +158,13 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
     // unnecessary clipping in our onDraw().
     get_vertex_bounds(geo.vertices(), vsize, 4, &devBounds);
 
-    if (texOffset >= 0) {
-        GrAssert(explicitCoordMask != 0);
-        GrPoint* coords = GrTCast<GrPoint*>(GrTCast<intptr_t>(geo.vertices()) +
-                                            texOffset);
-        coords->setRectFan(srcRect->fLeft, srcRect->fTop,
-                            srcRect->fRight, srcRect->fBottom,
+    if (localOffset >= 0) {
+        GrPoint* coords = GrTCast<GrPoint*>(GrTCast<intptr_t>(geo.vertices()) + localOffset);
+        coords->setRectFan(localRect->fLeft, localRect->fTop,
+                           localRect->fRight, localRect->fBottom,
                             vsize);
-        if (NULL != srcMatrix) {
-            srcMatrix->mapPointsWithStride(coords, vsize, 4);
+        if (NULL != localMatrix) {
+            localMatrix->mapPointsWithStride(coords, vsize, 4);
         }
     }
 

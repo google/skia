@@ -360,12 +360,12 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
             {kVec2f_GrVertexAttribType, 0},
             {kVec2f_GrVertexAttribType, sizeof(GrPoint)}
         };
-        static const GrAttribBindings kAttribBindings =
-            GrDrawState::ExplicitTexCoordAttribBindingsBit(0);
+
+        static const GrAttribBindings kAttribBindings = GrDrawState::kLocalCoords_AttribBindingsBit;
         drawState->setAttribBindings(kAttribBindings);
         drawState->setVertexAttribs(kVertexAttribs, SK_ARRAY_COUNT(kVertexAttribs));
         drawState->setAttribIndex(GrDrawState::kPosition_AttribIndex, 0);
-        drawState->setAttribIndex(GrDrawState::kTexCoord_AttribIndex, 1);
+        drawState->setAttribIndex(GrDrawState::kLocalCoords_AttribIndex, 1);
         GrDrawTarget::AutoReleaseGeometry arg(fGpu, 4, 0);
 
         if (arg.succeeded()) {
@@ -852,21 +852,15 @@ void GrContext::drawRect(const GrPaint& paint,
 
 void GrContext::drawRectToRect(const GrPaint& paint,
                                const GrRect& dstRect,
-                               const GrRect& srcRect,
+                               const GrRect& localRect,
                                const SkMatrix* dstMatrix,
-                               const SkMatrix* srcMatrix) {
+                               const SkMatrix* localMatrix) {
     SK_TRACE_EVENT0("GrContext::drawRectToRect");
 
-    // srcRect refers to paint's first color stage
-    if (!paint.isColorStageEnabled(0)) {
-        drawRect(paint, dstRect, -1, dstMatrix);
-        return;
-    }
-
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
+    GrDrawState::AutoStageDisable atr(fDrawState);
 
 #if GR_STATIC_RECT_VB
-    GrDrawState::AutoStageDisable atr(fDrawState);
     GrDrawState* drawState = target->drawState();
 
     SkMatrix m;
@@ -878,19 +872,21 @@ void GrContext::drawRectToRect(const GrPaint& paint,
         m.postConcat(*dstMatrix);
     }
 
-    // The first color stage's coords come from srcRect rather than applying a matrix to dstRect.
-    // We explicitly compute a matrix for that stage below, no need to adjust here.
-    static const uint32_t kExplicitCoordMask = 1 << GrPaint::kFirstColorStage;
-    GrDrawState::AutoViewMatrixRestore avmr(drawState, m, kExplicitCoordMask);
+    // This code path plays a little fast and loose with the notion of local coords and coord
+    // change matrices in order to account for localRect and localMatrix. The unit square VB only
+    // has one set of coords. Rather than using AutoViewMatrixRestore we instead directly set concat
+    // with m and then call GrDrawState::localCoordChange() with a matrix that accounts for
+    // localRect and localMatrix. This code path is preventing some encapsulation in GrDrawState.
+    SkMatrix savedViewMatrix = drawState->getViewMatrix();
+    drawState->preConcatViewMatrix(m);
 
-    m.setAll(srcRect.width(), 0,                srcRect.fLeft,
-             0,               srcRect.height(), srcRect.fTop,
-             0,               0,                SkMatrix::I()[8]);
-    if (NULL != srcMatrix) {
-        m.postConcat(*srcMatrix);
+    m.setAll(localRect.width(), 0,                localRect.fLeft,
+             0,               localRect.height(), localRect.fTop,
+             0,               0,                  SkMatrix::I()[8]);
+    if (NULL != localMatrix) {
+        m.postConcat(*localMatrix);
     }
-
-    drawState->preConcatStageMatrices(kExplicitCoordMask, m);
+    drawState->localCoordChange(m);
 
     const GrVertexBuffer* sqVB = fGpu->getUnitSquareVertexBuffer();
     if (NULL == sqVB) {
@@ -900,10 +896,9 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     drawState->setDefaultVertexAttribs();
     target->setVertexSourceToBuffer(sqVB);
     target->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
+    drawState->setViewMatrix(savedViewMatrix);
 #else
-    GrDrawState::AutoStageDisable atr(fDrawState);
-
-    target->drawRect(dstRect, dstMatrix, &srcRect, srcMatrix, 0);
+    target->drawRect(dstRect, dstMatrix, &localRect, localMatrix);
 #endif
 }
 
@@ -937,8 +932,8 @@ void GrContext::drawVertices(const GrPaint& paint,
 
     // set up optional texture coordinate attributes
     if (NULL != texCoords) {
-        bindings |= GrDrawState::ExplicitTexCoordAttribBindingsBit(0);
-        drawState->setAttribIndex(GrDrawState::kTexCoord_AttribIndex, attribs.count());
+        bindings |= GrDrawState::kLocalCoords_AttribBindingsBit;
+        drawState->setAttribIndex(GrDrawState::kLocalCoords_AttribIndex, attribs.count());
         currAttrib.set(kVec2f_GrVertexAttribType, currentOffset);
         attribs.push_back(currAttrib);
         texOffset = currentOffset;

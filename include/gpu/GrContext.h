@@ -390,25 +390,23 @@ public:
                   const SkMatrix* matrix = NULL);
 
     /**
-     * Maps a rect of paint coordinates onto the a rect of destination
-     * coordinates. Each rect can optionally be transformed. The srcRect
+     * Maps a rect of local coordinates onto the a rect of destination
+     * coordinates. Each rect can optionally be transformed. The localRect
      * is stretched over the dstRect. The dstRect is transformed by the
-     * context's matrix and the srcRect is transformed by the paint's matrix.
-     * Additional optional matrices can be provided by parameters.
+     * context's matrix. Additional optional matrices for both rects can be
+     * provided by parameters.
      *
-     * @param paint     describes how to color pixels.
-     * @param dstRect   the destination rect to draw.
-     * @param srcRect   rect of paint coordinates to be mapped onto dstRect
-     * @param dstMatrix Optional matrix to transform dstRect. Applied before
-     *                  context's matrix.
-     * @param srcMatrix Optional matrix to transform srcRect Applied before
-     *                  paint's matrix.
+     * @param paint         describes how to color pixels.
+     * @param dstRect       the destination rect to draw.
+     * @param localRect     rect of local coordinates to be mapped onto dstRect
+     * @param dstMatrix     Optional matrix to transform dstRect. Applied before context's matrix.
+     * @param localMatrix   Optional matrix to transform localRect.
      */
     void drawRectToRect(const GrPaint& paint,
                         const GrRect& dstRect,
-                        const GrRect& srcRect,
+                        const GrRect& localRect,
                         const SkMatrix* dstMatrix = NULL,
-                        const SkMatrix* srcMatrix = NULL);
+                        const SkMatrix* localMatrix = NULL);
 
     /**
      * Draws a path.
@@ -699,7 +697,7 @@ public:
             this->restore();
 
             if (NULL != paint) {
-                if (!paint->sourceCoordChangeByInverse(context->getMatrix())) {
+                if (!paint->localCoordChangeInverse(context->getMatrix())) {
                     return false;
                 }
             }
@@ -737,7 +735,7 @@ public:
          */
         void preConcat(const SkMatrix& preConcat, GrPaint* paint = NULL) {
             if (NULL != paint) {
-                paint->sourceCoordChange(preConcat);
+                paint->localCoordChange(preConcat);
             }
             fContext->concatMatrix(preConcat);
         }

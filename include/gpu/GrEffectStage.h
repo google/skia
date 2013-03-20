@@ -58,9 +58,10 @@ public:
     /**
      * This is called when the coordinate system in which the geometry is specified will change.
      *
-     * @param matrix    The transformation from the old coord system to the new one.
+     * @param matrix    The transformation from the old coord system in which geometry is specified
+     *                  to the new one from which it will actually be drawn.
      */
-    void preConcatCoordChange(const SkMatrix& matrix) { fCoordChangeMatrix.preConcat(matrix); }
+    void localCoordChange(const SkMatrix& matrix) { fCoordChangeMatrix.preConcat(matrix); }
 
     class SavedCoordChange {
     private:
@@ -72,7 +73,7 @@ public:
 
     /**
      * This gets the current coordinate system change. It is the accumulation of
-     * preConcatCoordChange calls since the effect was installed. It is used when then caller
+     * localCoordChange calls since the effect was installed. It is used when then caller
      * wants to temporarily change the source geometry coord system, draw something, and then
      * restore the previous coord system (e.g. temporarily draw in device coords).
      */
