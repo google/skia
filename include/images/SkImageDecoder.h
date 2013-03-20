@@ -327,10 +327,6 @@ public:
     */
     static void SetDeviceConfig(SkBitmap::Config);
 
-  /** @cond UNIT_TEST */
-    SkDEBUGCODE(static void UnitTest();)
-  /** @endcond */
-
 protected:
     // must be overridden in subclasses. This guy is called by decode(...)
     virtual bool onDecode(SkStream*, SkBitmap* bitmap, Mode) = 0;
