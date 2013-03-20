@@ -274,7 +274,7 @@ public:
     GrGLGradientEffect(const GrBackendEffectFactory& factory);
     virtual ~GrGLGradientEffect();
 
-    virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
 protected:
     /**
@@ -290,7 +290,7 @@ protected:
      * Subclasses must call this. It will return a value restricted to the lower kMatrixKeyBitCnt
      * bits.
      */
-    static EffectKey GenMatrixKey(const GrEffectStage& s);
+    static EffectKey GenMatrixKey(const GrDrawEffect&);
 
     /**
      * Inserts code to implement the GrGradientEffect's matrix. This should be called before a
@@ -302,7 +302,6 @@ protected:
      */
     void setupMatrix(GrGLShaderBuilder* builder,
                      EffectKey key,
-                     const char* vertexCoords,
                      const char** fsCoordName,
                      const char** vsVaryingName = NULL,
                      GrSLType* vsVaryingType = NULL);
@@ -321,6 +320,8 @@ protected:
                          const GrGLShaderBuilder::TextureSampler&);
 
 private:
+    static const GrEffect::CoordsType kCoordsType = GrEffect::kLocal_CoordsType;
+
     SkScalar fCachedYCoord;
     GrGLUniformManager::UniformHandle fFSYUni;
     GrGLEffectMatrix fEffectMatrix;

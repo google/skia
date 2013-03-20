@@ -388,8 +388,8 @@ public:
     /**
      * Helper function for drawing rects. This does not use the current index
      * and vertex sources. After returning, the vertex and index sources may
-     * have changed. They should be reestablished before the next drawIndexed
-     * or drawNonIndexed. This cannot be called between reserving and releasing
+     * have changed. They should be reestablished before the next draw call.
+     * This cannot be called between reserving and releasing
      * geometry.
      *
      * A subclass may override this to perform more optimal rect rendering. Its
@@ -397,34 +397,29 @@ public:
      * (e.g. drawNonIndexed, drawIndexedInstances, ...). The base class draws a two
      * triangle fan using drawNonIndexed from reserved vertex space.
      *
-     * @param rect      the rect to draw
-     * @param matrix    optional matrix applied to rect (before viewMatrix)
-     * @param srcRects  specifies rect for explicit texture coordinates.
-     *                  if srcRect is non-NULL then that rect will be used
-     *                  as the coordinates for the given stage.
-     * @param srcMatrix   optional matrix applied to srcRect. If
+     * @param rect        the rect to draw
+     * @param matrix      optional matrix applied to rect (before viewMatrix)
+     * @param localRect   optional rect that specifies local coords to map onto
+     *                    rect. If NULL then rect serves as the local coords.
+     * @param localMatrix optional matrix applied to localRect. If
      *                    srcRect is non-NULL and srcMatrix is non-NULL
      *                    then srcRect will be transformed by srcMatrix.
      *                    srcMatrix can be NULL when no srcMatrix is desired.
-     * @param stage     the stage to be given explicit texture coordinates.
-     *                  Ignored if srcRect is NULL.
      */
     virtual void drawRect(const GrRect& rect,
                           const SkMatrix* matrix,
-                          const GrRect* srcRect,
-                          const SkMatrix* srcMatrix,
-                          int stage);
+                          const GrRect* localRect,
+                          const SkMatrix* localMatrix);
 
     /**
-     * Helper for drawRect when the caller doesn't need separate src rects or
-     * matrices.
+     * Helper for drawRect when the caller doesn't need separate local rects or matrices.
      */
     void drawSimpleRect(const GrRect& rect, const SkMatrix* matrix = NULL) {
-        drawRect(rect, matrix, NULL, NULL, 0);
+        drawRect(rect, matrix, NULL, NULL);
     }
     void drawSimpleRect(const GrIRect& irect, const SkMatrix* matrix = NULL) {
         SkRect rect = SkRect::MakeFromIRect(irect);
-        this->drawRect(rect, matrix, NULL, NULL, 0);
+        this->drawRect(rect, matrix, NULL, NULL);
     }
 
     /**

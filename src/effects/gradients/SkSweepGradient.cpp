@@ -391,19 +391,18 @@ class GrGLSweepGradient : public GrGLGradientEffect {
 public:
 
     GrGLSweepGradient(const GrBackendEffectFactory& factory,
-                      const GrEffectRef&) : INHERITED (factory) { }
+                      const GrDrawEffect&) : INHERITED (factory) { }
     virtual ~GrGLSweepGradient() { }
 
     virtual void emitCode(GrGLShaderBuilder*,
-                          const GrEffectStage&,
+                          const GrDrawEffect&,
                           EffectKey,
-                          const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static EffectKey GenKey(const GrEffectStage& stage, const GrGLCaps&) {
-        return GenMatrixKey(stage);
+    static EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
+        return GenMatrixKey(drawEffect);
     }
 
 private:
@@ -464,15 +463,14 @@ GrEffectRef* GrSweepGradient::TestCreate(SkMWCRandom* random,
 /////////////////////////////////////////////////////////////////////
 
 void GrGLSweepGradient::emitCode(GrGLShaderBuilder* builder,
-                                 const GrEffectStage&,
+                                 const GrDrawEffect&,
                                  EffectKey key,
-                                 const char* vertexCoords,
                                  const char* outputColor,
                                  const char* inputColor,
                                  const TextureSamplerArray& samplers) {
     this->emitYCoordUniform(builder);
     const char* coords;
-    this->setupMatrix(builder, key, vertexCoords, &coords);
+    this->setupMatrix(builder, key, &coords);
     SkString t;
     t.printf("atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5", coords, coords);
     this->emitColorLookup(builder, t.c_str(), outputColor, inputColor, samplers[0]);

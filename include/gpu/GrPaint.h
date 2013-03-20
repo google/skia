@@ -169,54 +169,6 @@ public:
 
     bool hasStage() const { return this->hasColorStage() || this->hasCoverageStage(); }
 
-    /**
-     * Called when the source coord system is changing. preConcatInverse is the inverse of the
-     * transformation from the old coord system to the new coord system. Returns false if the matrix
-     * cannot be inverted.
-     */
-    bool sourceCoordChangeByInverse(const SkMatrix& preConcatInverse) {
-        SkMatrix inv;
-        bool computed = false;
-        for (int i = 0; i < kMaxColorStages; ++i) {
-            if (this->isColorStageEnabled(i)) {
-                if (!computed && !preConcatInverse.invert(&inv)) {
-                    return false;
-                } else {
-                    computed = true;
-                }
-                fColorStages[i].preConcatCoordChange(inv);
-            }
-        }
-        for (int i = 0; i < kMaxCoverageStages; ++i) {
-            if (this->isCoverageStageEnabled(i)) {
-                if (!computed && !preConcatInverse.invert(&inv)) {
-                    return false;
-                } else {
-                    computed = true;
-                }
-                fCoverageStages[i].preConcatCoordChange(inv);
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Called when the source coord system is changing. preConcat gives the transformation from the
-     * old coord system to the new coord system.
-     */
-    void sourceCoordChange(const SkMatrix& preConcat) {
-        for (int i = 0; i < kMaxColorStages; ++i) {
-            if (this->isColorStageEnabled(i)) {
-                fColorStages[i].preConcatCoordChange(preConcat);
-            }
-        }
-        for (int i = 0; i < kMaxCoverageStages; ++i) {
-            if (this->isCoverageStageEnabled(i)) {
-                fCoverageStages[i].preConcatCoordChange(preConcat);
-            }
-        }
-    }
-
     GrPaint& operator=(const GrPaint& paint) {
         fSrcBlendCoeff = paint.fSrcBlendCoeff;
         fDstBlendCoeff = paint.fDstBlendCoeff;
@@ -264,6 +216,51 @@ public:
     };
 
 private:
+    /**
+     * Called when the source coord system from which geometry is rendered changes. It ensures that
+     * the local coordinates seen by effects remains unchanged. oldToNew gives the transformation
+     * from the previous coord system to the new coord system.
+     */
+    void localCoordChange(const SkMatrix& oldToNew) {
+        for (int i = 0; i < kMaxColorStages; ++i) {
+            if (this->isColorStageEnabled(i)) {
+                fColorStages[i].localCoordChange(oldToNew);
+            }
+        }
+        for (int i = 0; i < kMaxCoverageStages; ++i) {
+            if (this->isCoverageStageEnabled(i)) {
+                fCoverageStages[i].localCoordChange(oldToNew);
+            }
+        }
+    }
+
+    bool localCoordChangeInverse(const SkMatrix& newToOld) {
+        SkMatrix oldToNew;
+        bool computed = false;
+        for (int i = 0; i < kMaxColorStages; ++i) {
+            if (this->isColorStageEnabled(i)) {
+                if (!computed && !newToOld.invert(&oldToNew)) {
+                    return false;
+                } else {
+                    computed = true;
+                }
+                fColorStages[i].localCoordChange(oldToNew);
+            }
+        }
+        for (int i = 0; i < kMaxCoverageStages; ++i) {
+            if (this->isCoverageStageEnabled(i)) {
+                if (!computed && !newToOld.invert(&oldToNew)) {
+                    return false;
+                } else {
+                    computed = true;
+                }
+                fCoverageStages[i].localCoordChange(oldToNew);
+            }
+        }
+        return true;
+    }
+
+    friend class GrContext; // To access above two functions
 
     GrEffectStage               fColorStages[kMaxColorStages];
     GrEffectStage               fCoverageStages[kMaxCoverageStages];

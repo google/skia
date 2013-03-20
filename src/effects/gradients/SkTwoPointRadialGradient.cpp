@@ -384,19 +384,18 @@ class GrGLRadial2Gradient : public GrGLGradientEffect {
 
 public:
 
-    GrGLRadial2Gradient(const GrBackendEffectFactory& factory, const GrEffectRef&);
+    GrGLRadial2Gradient(const GrBackendEffectFactory& factory, const GrDrawEffect&);
     virtual ~GrGLRadial2Gradient() { }
 
     virtual void emitCode(GrGLShaderBuilder*,
-                          const GrEffectStage&,
+                          const GrDrawEffect&,
                           EffectKey,
-                          const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,
                           const TextureSamplerArray&) SK_OVERRIDE;
-    virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
-    static EffectKey GenKey(const GrEffectStage&, const GrGLCaps& caps);
+    static EffectKey GenKey(const GrDrawEffect&, const GrGLCaps& caps);
 
 protected:
 
@@ -516,7 +515,7 @@ GrEffectRef* GrRadial2Gradient::TestCreate(SkMWCRandom* random,
 /////////////////////////////////////////////////////////////////////
 
 GrGLRadial2Gradient::GrGLRadial2Gradient(const GrBackendEffectFactory& factory,
-                                         const GrEffectRef& baseData)
+                                         const GrDrawEffect& drawEffect)
     : INHERITED(factory)
     , fVSParamUni(kInvalidUniformHandle)
     , fFSParamUni(kInvalidUniformHandle)
@@ -526,14 +525,13 @@ GrGLRadial2Gradient::GrGLRadial2Gradient(const GrBackendEffectFactory& factory,
     , fCachedRadius(-SK_ScalarMax)
     , fCachedPosRoot(0) {
 
-    const GrRadial2Gradient& data = CastEffect<GrRadial2Gradient>(baseData);
+    const GrRadial2Gradient& data = drawEffect.castEffect<GrRadial2Gradient>();
     fIsDegenerate = data.isDegenerate();
 }
 
 void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
-                                   const GrEffectStage&,
+                                   const GrDrawEffect& drawEffect,
                                    EffectKey key,
-                                   const char* vertexCoords,
                                    const char* outputColor,
                                    const char* inputColor,
                                    const TextureSamplerArray& samplers) {
@@ -542,7 +540,7 @@ void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
     const char* fsCoords;
     const char* vsCoordsVarying;
     GrSLType coordsVaryingType;
-    this->setupMatrix(builder, key, vertexCoords, &fsCoords, &vsCoordsVarying, &coordsVaryingType);
+    this->setupMatrix(builder, key, &fsCoords, &vsCoordsVarying, &coordsVaryingType);
 
     // 2 copies of uniform array, 1 for each of vertex & fragment shader,
     // to work around Xoom bug. Doesn't seem to cause performance decrease
@@ -639,9 +637,10 @@ void GrGLRadial2Gradient::emitCode(GrGLShaderBuilder* builder,
     }
 }
 
-void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
-    INHERITED::setData(uman, stage);
-    const GrRadial2Gradient& data = GetEffectFromStage<GrRadial2Gradient>(stage);
+void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman,
+                                  const GrDrawEffect& drawEffect) {
+    INHERITED::setData(uman, drawEffect);
+    const GrRadial2Gradient& data = drawEffect.castEffect<GrRadial2Gradient>();
     GrAssert(data.isDegenerate() == fIsDegenerate);
     SkScalar centerX1 = data.center();
     SkScalar radius0 = data.radius();
@@ -673,13 +672,14 @@ void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman, const GrEffect
     }
 }
 
-GrGLEffect::EffectKey GrGLRadial2Gradient::GenKey(const GrEffectStage& s, const GrGLCaps&) {
+GrGLEffect::EffectKey GrGLRadial2Gradient::GenKey(const GrDrawEffect& drawEffect,
+                                                  const GrGLCaps&) {
     enum {
         kIsDegenerate = 1 << kMatrixKeyBitCnt,
     };
 
-    EffectKey key = GenMatrixKey(s);
-    if (GetEffectFromStage<GrRadial2Gradient>(s).isDegenerate()) {
+    EffectKey key = GenMatrixKey(drawEffect);
+    if (drawEffect.castEffect<GrRadial2Gradient>().isDegenerate()) {
         key |= kIsDegenerate;
     }
     return key;

@@ -201,22 +201,23 @@ bool SkDisplacementMapEffect::onFilterImage(Proxy* proxy,
 class GrGLDisplacementMapEffect : public GrGLEffect {
 public:
     GrGLDisplacementMapEffect(const GrBackendEffectFactory& factory,
-                              const GrEffectRef& effect);
+                              const GrDrawEffect& drawEffect);
     virtual ~GrGLDisplacementMapEffect();
 
     virtual void emitCode(GrGLShaderBuilder*,
-                          const GrEffectStage&,
+                          const GrDrawEffect&,
                           EffectKey,
-                          const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrEffectStage&, const GrGLCaps&);
+    static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
 
-    virtual void setData(const GrGLUniformManager&, const GrEffectStage&);
+    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
 private:
+    static const GrEffect::CoordsType kCoordsType = GrEffect::kLocal_CoordsType;
+
     SkDisplacementMapEffect::ChannelSelectorType fXChannelSelector;
     SkDisplacementMapEffect::ChannelSelectorType fYChannelSelector;
     GrGLEffectMatrix fDisplacementEffectMatrix;
@@ -245,7 +246,7 @@ public:
 
     virtual ~GrDisplacementMapEffect();
 
-    const GrBackendEffectFactory& getFactory() const;
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
     SkDisplacementMapEffect::ChannelSelectorType xChannelSelector() const
         { return fXChannelSelector; }
     SkDisplacementMapEffect::ChannelSelectorType yChannelSelector() const
@@ -255,9 +256,10 @@ public:
     typedef GrGLDisplacementMapEffect GLEffect;
     static const char* Name() { return "DisplacementMap"; }
 
-    void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
+    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
 private:
+    
     virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
 
     GrDisplacementMapEffect(SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
@@ -382,32 +384,33 @@ GrEffectRef* GrDisplacementMapEffect::TestCreate(SkMWCRandom* random,
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGLDisplacementMapEffect::GrGLDisplacementMapEffect(const GrBackendEffectFactory& factory,
-                                                     const GrEffectRef& effect)
+                                                     const GrDrawEffect& drawEffect)
     : INHERITED(factory)
-    , fXChannelSelector(CastEffect<GrDisplacementMapEffect>(effect).xChannelSelector())
-    , fYChannelSelector(CastEffect<GrDisplacementMapEffect>(effect).yChannelSelector()) {
+    , fXChannelSelector(drawEffect.castEffect<GrDisplacementMapEffect>().xChannelSelector())
+    , fYChannelSelector(drawEffect.castEffect<GrDisplacementMapEffect>().yChannelSelector())
+    , fDisplacementEffectMatrix(kCoordsType)
+    , fColorEffectMatrix(kCoordsType) {
 }
 
 GrGLDisplacementMapEffect::~GrGLDisplacementMapEffect() {
 }
 
 void GrGLDisplacementMapEffect::emitCode(GrGLShaderBuilder* builder,
-                               const GrEffectStage&,
-                               EffectKey key,
-                               const char* vertexCoords,
-                               const char* outputColor,
-                               const char* inputColor,
-                               const TextureSamplerArray& samplers) {
+                                         const GrDrawEffect&,
+                                         EffectKey key,
+                                         const char* outputColor,
+                                         const char* inputColor,
+                                         const TextureSamplerArray& samplers) {
     fScaleUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                     kVec2f_GrSLType, "Scale");
     const char* scaleUni = builder->getUniformCStr(fScaleUni);
 
     const char* dCoordsIn;
     GrSLType dCoordsType = fDisplacementEffectMatrix.emitCode(
-                                builder, key, vertexCoords, &dCoordsIn, NULL, "DISPL");
+                                builder, key, &dCoordsIn, NULL, "DISPL");
     const char* cCoordsIn;
     GrSLType cCoordsType = fColorEffectMatrix.emitCode(
-                                builder, key, vertexCoords, &cCoordsIn, NULL, "COLOR");
+                                builder, key, &cCoordsIn, NULL, "COLOR");
 
     const char* dColor = "dColor";
     const char* cCoords = "cCoords";
@@ -478,17 +481,19 @@ void GrGLDisplacementMapEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppend(";\n");
 }
 
-void GrGLDisplacementMapEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
-    const GrDisplacementMapEffect& displacementMap = GetEffectFromStage<GrDisplacementMapEffect>(stage);
+void GrGLDisplacementMapEffect::setData(const GrGLUniformManager& uman,
+                                        const GrDrawEffect& drawEffect) {
+    const GrDisplacementMapEffect& displacementMap =
+        drawEffect.castEffect<GrDisplacementMapEffect>();
     GrTexture* displTex = displacementMap.texture(0);
     GrTexture* colorTex = displacementMap.texture(1);
     fDisplacementEffectMatrix.setData(uman,
                                      GrEffect::MakeDivByTextureWHMatrix(displTex),
-                                     stage.getCoordChangeMatrix(),
+                                     drawEffect,
                                      displTex);
     fColorEffectMatrix.setData(uman,
                                GrEffect::MakeDivByTextureWHMatrix(colorTex),
-                               stage.getCoordChangeMatrix(),
+                               drawEffect,
                                colorTex);
 
     SkScalar scaleX = SkScalarDiv(displacementMap.scale(), SkIntToScalar(colorTex->width()));
@@ -498,20 +503,22 @@ void GrGLDisplacementMapEffect::setData(const GrGLUniformManager& uman, const Gr
                SkScalarToFloat(scaleY) : SkScalarToFloat(-scaleY));
 }
 
-GrGLEffect::EffectKey GrGLDisplacementMapEffect::GenKey(const GrEffectStage& stage,
+GrGLEffect::EffectKey GrGLDisplacementMapEffect::GenKey(const GrDrawEffect& drawEffect,
                                                         const GrGLCaps&) {
     const GrDisplacementMapEffect& displacementMap =
-        GetEffectFromStage<GrDisplacementMapEffect>(stage);
+        drawEffect.castEffect<GrDisplacementMapEffect>();
 
     GrTexture* displTex = displacementMap.texture(0);
     GrTexture* colorTex = displacementMap.texture(1);
 
     EffectKey displKey = GrGLEffectMatrix::GenKey(GrEffect::MakeDivByTextureWHMatrix(displTex),
-                                                  stage.getCoordChangeMatrix(),
+                                                  drawEffect,
+                                                  kCoordsType,
                                                   displTex);
 
     EffectKey colorKey = GrGLEffectMatrix::GenKey(GrEffect::MakeDivByTextureWHMatrix(colorTex),
-                                                  stage.getCoordChangeMatrix(),
+                                                  drawEffect,
+                                                  kCoordsType,
                                                   colorTex);
 
     colorKey <<= GrGLEffectMatrix::kKeyBits;

@@ -192,7 +192,7 @@ public:
         int8_t                      fColorAttributeIndex;
         int8_t                      fCoverageAttributeIndex;
         int8_t                      fEdgeAttributeIndex;
-        int8_t                      fTexCoordAttributeIndex;
+        int8_t                      fLocalCoordsAttributeIndex;
 
         friend class GrGLProgram;
     };

@@ -7,23 +7,32 @@
 
 #include "effects/GrSingleTextureEffect.h"
 
-GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture, const SkMatrix& m)
+GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
+                                             const SkMatrix& m,
+                                             CoordsType coordsType)
     : fTextureAccess(texture)
-    , fMatrix(m) {
-    this->addTextureAccess(&fTextureAccess);
-}
-
-GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture, const SkMatrix& m, bool bilerp)
-    : fTextureAccess(texture, bilerp)
-    , fMatrix(m) {
+    , fMatrix(m)
+    , fCoordsType(coordsType) {
     this->addTextureAccess(&fTextureAccess);
 }
 
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
                                              const SkMatrix& m,
-                                             const GrTextureParams& params)
+                                             bool bilerp,
+                                             CoordsType coordsType)
+    : fTextureAccess(texture, bilerp)
+    , fMatrix(m)
+    , fCoordsType(coordsType) {
+    this->addTextureAccess(&fTextureAccess);
+}
+
+GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
+                                             const SkMatrix& m,
+                                             const GrTextureParams& params,
+                                             CoordsType coordsType)
     : fTextureAccess(texture, params)
-    , fMatrix(m) {
+    , fMatrix(m)
+    , fCoordsType(coordsType) {
     this->addTextureAccess(&fTextureAccess);
 }
 
