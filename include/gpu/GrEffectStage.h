@@ -179,7 +179,7 @@ public:
 
         fVertexAttribIndices[0] = -1;
         fVertexAttribIndices[1] = -1;
-        
+
         return EffectRef;
     }
 
@@ -187,13 +187,13 @@ public:
         GrAssert(0 == fSavedCoordChangeCnt);
         GrSafeAssign(fEffectRef, EffectRef);
         fCoordChangeMatrix.reset();
-        
+
         fVertexAttribIndices[0] = attr0;
         fVertexAttribIndices[1] = attr1;
-        
+
         return EffectRef;
     }
-    
+
     const GrEffectRef* getEffect() const { return fEffectRef; }
 
     const int* getVertexAttribIndices() const { return fVertexAttribIndices; }

@@ -26,7 +26,7 @@ public:
                           const char* inputColor,
                           const TextureSamplerArray& samplers) SK_OVERRIDE {
         const GrEllipseEdgeEffect& effect = GetEffectFromStage<GrEllipseEdgeEffect>(stage);
-        
+
         const char *vsCenterName, *fsCenterName;
         const char *vsEdgeName, *fsEdgeName;
 
@@ -49,16 +49,16 @@ public:
         builder->fsCodeAppend("\tfloat dOuter = length(outerOffset);\n");
         // compare outer lengths against xOuterRadius
         builder->fsCodeAppendf("\tfloat edgeAlpha = clamp(%s.x-dOuter, 0.0, 1.0);\n", fsEdgeName);
-        
+
         if (effect.isStroked()) {
             builder->fsCodeAppendf("\tinnerOffset.y *= %s.w;\n", fsEdgeName);
             builder->fsCodeAppend("\tfloat dInner = length(innerOffset);\n");
-        
+
             // compare inner lengths against xInnerRadius
             builder->fsCodeAppendf("\tfloat innerAlpha = clamp(dInner-%s.z, 0.0, 1.0);\n", fsEdgeName);
             builder->fsCodeAppend("\tedgeAlpha *= innerAlpha;\n");
         }
-        
+
         SkString modulate;
         GrGLSLModulate4f(&modulate, inputColor, "edgeAlpha");
         builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
@@ -82,7 +82,7 @@ private:
 GrEllipseEdgeEffect::GrEllipseEdgeEffect(bool stroke) : GrEffect() {
     this->addVertexAttrib(kVec2f_GrSLType);
     this->addVertexAttrib(kVec4f_GrSLType);
-    
+
     fStroke = stroke;
 }
 

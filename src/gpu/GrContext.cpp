@@ -1044,7 +1044,7 @@ bool GrContext::canDrawOval(const GrPaint& paint, const GrRect& oval, bool* isCi
         return false;
     }
 
-    // we can draw circles 
+    // we can draw circles
     *isCircle = SkScalarNearlyEqual(oval.width(), oval.height())
                 && circleStaysCircle(this->getMatrix());
     // and axis-aligned ellipses only
@@ -1235,7 +1235,7 @@ void GrContext::internalDrawCircle(const GrPaint& paint,
         kEdgeEffectStage = GrPaint::kTotalStages,
     };
     drawState->setAttribBindings(GrDrawState::kDefault_AttribBindings);
-    
+
     GrEffectRef* effect = GrCircleEdgeEffect::Create(isStroked);
     static const int kCircleEdgeAttrIndex = 1;
     drawState->setEffect(kEdgeEffectStage, effect, kCircleEdgeAttrIndex)->unref();

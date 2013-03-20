@@ -32,11 +32,11 @@ protected:
     // See http://freetype.sourceforge.net/freetype2/docs/reference/ft2-bitmap_handling.html#FT_Bitmap_Embolden
     // This value was chosen by eyeballing the result in Firefox and trying to match it.
     static const FT_Pos kBitmapEmboldenStrength = 1 << 6;
-    
+
     SkScalerContext_FreeType_Base(SkTypeface* typeface, const SkDescriptor *desc)
     : INHERITED(typeface, desc)
     {}
-    
+
     void generateGlyphImage(FT_Face face, const SkGlyph& glyph);
     void generateGlyphPath(FT_Face face, SkPath* path);
     void emboldenOutline(FT_Face face, FT_Outline* outline);

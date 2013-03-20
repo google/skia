@@ -1195,7 +1195,7 @@ void SkPDFDevice::getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
             newResourceObjects->add(fGraphicStateResources[i]);
             fGraphicStateResources[i]->ref();
             if (recursive) {
-                fGraphicStateResources[i]->getResources(knownResourceObjects, 
+                fGraphicStateResources[i]->getResources(knownResourceObjects,
                                                         newResourceObjects);
             }
         }
@@ -1206,7 +1206,7 @@ void SkPDFDevice::getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
             newResourceObjects->add(fXObjectResources[i]);
             fXObjectResources[i]->ref();
             if (recursive) {
-                fXObjectResources[i]->getResources(knownResourceObjects, 
+                fXObjectResources[i]->getResources(knownResourceObjects,
                                                    newResourceObjects);
             }
         }
@@ -1217,7 +1217,7 @@ void SkPDFDevice::getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
             newResourceObjects->add(fFontResources[i]);
             fFontResources[i]->ref();
             if (recursive) {
-                fFontResources[i]->getResources(knownResourceObjects, 
+                fFontResources[i]->getResources(knownResourceObjects,
                                                 newResourceObjects);
             }
         }
@@ -1228,7 +1228,7 @@ void SkPDFDevice::getResources(const SkTSet<SkPDFObject*>& knownResourceObjects,
             newResourceObjects->add(fShaderResources[i]);
             fShaderResources[i]->ref();
             if (recursive) {
-                fShaderResources[i]->getResources(knownResourceObjects, 
+                fShaderResources[i]->getResources(knownResourceObjects,
                                                   newResourceObjects);
             }
         }

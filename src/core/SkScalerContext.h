@@ -217,7 +217,7 @@ protected:
 private:
     // never null
     SkAutoTUnref<SkTypeface> fTypeface;
-    
+
     // optional object, which may be null
     SkPathEffect*   fPathEffect;
     SkMaskFilter*   fMaskFilter;

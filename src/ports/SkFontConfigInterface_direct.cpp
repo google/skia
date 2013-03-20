@@ -424,5 +424,3 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
 SkStream* SkFontConfigInterfaceDirect::openStream(const FontIdentity& identity) {
     return SkStream::NewFromFile(identity.fString.c_str());
 }
-
-

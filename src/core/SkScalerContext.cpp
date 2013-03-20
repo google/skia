@@ -124,7 +124,7 @@ static SkScalerContext* allocNextContext(const SkScalerContext::Rec& rec) {
     if (0 == newFace) {
         return NULL;
     }
-    
+
     SkAutoTUnref<SkTypeface> aur(newFace);
     uint32_t newFontID = newFace->uniqueID();
 
@@ -784,5 +784,3 @@ SkScalerContext* SkTypeface::createScalerContext(const SkDescriptor* desc) const
     }
     return c;
 }
-
-
