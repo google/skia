@@ -63,6 +63,7 @@ enum FontEquivClass
     MINGLIU,
     PMINGLIUHK,
     MINGLIUHK,
+    CAMBRIA,
 };
 
 // Match the font name against a whilelist of fonts, returning the equivalence
@@ -152,25 +153,29 @@ FontEquivClass GetFontEquivClass(const char* fontname)
         { SIMHEI, "MYingHeiGB18030" },
         { SIMHEI, "MYingHeiB5HK" },
 
-    // 新細明體
-    { PMINGLIU, "PMingLiU"},
-    { PMINGLIU, "\xe6\x96\xb0\xe7\xb4\xb0\xe6\x98\x8e\xe9\xab\x94" },
-    { PMINGLIU, "MSung B5HK"},
+        // 新細明體
+        { PMINGLIU, "PMingLiU"},
+        { PMINGLIU, "\xe6\x96\xb0\xe7\xb4\xb0\xe6\x98\x8e\xe9\xab\x94" },
+        { PMINGLIU, "MSung B5HK"},
 
-    // 細明體
-    { MINGLIU, "MingLiU"},
-    { MINGLIU, "\xe7\xb4\xb0\xe6\x98\x8e\xe9\xab\x94" },
-    { MINGLIU, "MSung B5HK"},
+        // 細明體
+        { MINGLIU, "MingLiU"},
+        { MINGLIU, "\xe7\xb4\xb0\xe6\x98\x8e\xe9\xab\x94" },
+        { MINGLIU, "MSung B5HK"},
 
-    // 新細明體
-    { PMINGLIUHK, "PMingLiU_HKSCS"},
-    { PMINGLIUHK, "\xe6\x96\xb0\xe7\xb4\xb0\xe6\x98\x8e\xe9\xab\x94_HKSCS" },
-    { PMINGLIUHK, "MSung B5HK"},
+        // 新細明體
+        { PMINGLIUHK, "PMingLiU_HKSCS"},
+        { PMINGLIUHK, "\xe6\x96\xb0\xe7\xb4\xb0\xe6\x98\x8e\xe9\xab\x94_HKSCS" },
+        { PMINGLIUHK, "MSung B5HK"},
 
-    // 細明體
-    { MINGLIUHK, "MingLiU_HKSCS"},
-    { MINGLIUHK, "\xe7\xb4\xb0\xe6\x98\x8e\xe9\xab\x94_HKSCS" },
-    { MINGLIUHK, "MSung B5HK"},
+        // 細明體
+        { MINGLIUHK, "MingLiU_HKSCS"},
+        { MINGLIUHK, "\xe7\xb4\xb0\xe6\x98\x8e\xe9\xab\x94_HKSCS" },
+        { MINGLIUHK, "MSung B5HK"},
+
+        // Cambria
+        { CAMBRIA, "Cambria" },
+        { CAMBRIA, "Caladea" },
     };
 
     static const size_t kFontCount =
