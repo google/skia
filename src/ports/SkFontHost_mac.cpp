@@ -418,7 +418,10 @@ protected:
     virtual SkScalerContext* onCreateScalerContext(const SkDescriptor*) const SK_OVERRIDE;
     virtual void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE;
     virtual void onGetFontDescriptor(SkFontDescriptor*) const SK_OVERRIDE;
-
+    virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
+                                SkAdvancedTypefaceMetrics::PerGlyphInfo,
+                                const uint32_t*, uint32_t) const SK_OVERRIDE;
+    
 private:
     typedef SkTypeface INHERITED;
 };
@@ -657,7 +660,7 @@ SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
         , fFBoundingBoxesGlyphOffset(0)
         , fGeneratedFBoundingBoxes(false)
 {
-    CTFontRef ctFont = GetFontRefFromFontID(fRec.fFontID);
+    CTFontRef ctFont = typeface->fFontRef.get();
     CFIndex numGlyphs = CTFontGetGlyphCount(ctFont);
 
     // Get the state we need
@@ -1472,13 +1475,12 @@ static void CFStringToSkString(CFStringRef src, SkString* dst) {
     dst->resize(strlen(dst->c_str()));
 }
 
-// static
-SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
-        uint32_t fontID,
+SkAdvancedTypefaceMetrics* SkTypeface_Mac::onGetAdvancedTypefaceMetrics(
         SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
         const uint32_t* glyphIDs,
-        uint32_t glyphIDsCount) {
-    CTFontRef originalCTFont = GetFontRefFromFontID(fontID);
+        uint32_t glyphIDsCount) const {
+
+    CTFontRef originalCTFont = fFontRef.get();
     AutoCFRelease<CTFontRef> ctFont(CTFontCreateCopyWithAttributes(
             originalCTFont, CTFontGetUnitsPerEm(originalCTFont), NULL, NULL));
     SkAdvancedTypefaceMetrics* info = new SkAdvancedTypefaceMetrics;
@@ -1503,7 +1505,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     // fonts always have both glyf and loca tables. At the least, this is what
     // sfntly needs to subset the font. CTFontCopyAttribute() does not always
     // succeed in determining this directly.
-    if (!GetTableSize(fontID, 'glyf') || !GetTableSize(fontID, 'loca')) {
+    if (!this->getTableSize('glyf') || !this->getTableSize('loca')) {
         info->fType = SkAdvancedTypefaceMetrics::kOther_Font;
         info->fItalicAngle = 0;
         info->fAscent = 0;

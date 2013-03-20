@@ -27,16 +27,6 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(char const*) {
     return NULL;
 }
 
-// static
-SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
-        uint32_t fontID,
-        SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
-        const uint32_t* glyphIDs,
-        uint32_t glyphIDsCount) {
-    SkDEBUGFAIL("SkFontHost::GetAdvancedTypefaceMetrics unimplemented");
-    return NULL;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkStream* SkFontHost::OpenStream(uint32_t uniqueID) {

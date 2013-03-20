@@ -97,13 +97,10 @@ SkTypeface* SkTypeface::Deserialize(SkStream* stream) {
 }
 
 SkAdvancedTypefaceMetrics* SkTypeface::getAdvancedTypefaceMetrics(
-        SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
-        const uint32_t* glyphIDs,
-        uint32_t glyphIDsCount) const {
-    return SkFontHost::GetAdvancedTypefaceMetrics(fUniqueID,
-                                                  perGlyphInfo,
-                                                  glyphIDs,
-                                                  glyphIDsCount);
+                                SkAdvancedTypefaceMetrics::PerGlyphInfo info,
+                                const uint32_t* glyphIDs,
+                                uint32_t glyphIDsCount) const {
+    return this->onGetAdvancedTypefaceMetrics(info, glyphIDs, glyphIDsCount);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -141,7 +138,7 @@ int SkTypeface::getUnitsPerEm() const {
     upem = SkFontHost::GetUnitsPerEm(fUniqueID);
 #else
     SkAdvancedTypefaceMetrics* metrics;
-    metrics = SkFontHost::GetAdvancedTypefaceMetrics(fUniqueID,
+    metrics = this->getAdvancedTypefaceMetrics(
                                  SkAdvancedTypefaceMetrics::kNo_PerGlyphInfo,
                                  NULL, 0);
     if (metrics) {

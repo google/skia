@@ -481,6 +481,9 @@ public:
 protected:
     virtual SkScalerContext* onCreateScalerContext(const SkDescriptor*) const SK_OVERRIDE;
     virtual void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE;
+    virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
+                                SkAdvancedTypefaceMetrics::PerGlyphInfo,
+                                const uint32_t*, uint32_t) const SK_OVERRIDE;
 };
 
 class SkScalerContext_Windows : public SkScalerContext {
@@ -1397,23 +1400,19 @@ private:
     void* fLock;
 };
 
-// static
-SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
-        uint32_t fontID,
+SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
         SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
         const uint32_t* glyphIDs,
-        uint32_t glyphIDsCount) {
+        uint32_t glyphIDsCount) const {
 
     SkAdvancedTypefaceMetrics* info = NULL;
 
     HRESULT hr = S_OK;
 
-    DWriteFontTypeface* typeface = GetDWriteFontByID(fontID);
-
-    const unsigned glyphCount = typeface->fDWriteFontFace->GetGlyphCount();
+    const unsigned glyphCount = fDWriteFontFace->GetGlyphCount();
 
     DWRITE_FONT_METRICS dwfm;
-    typeface->fDWriteFontFace->GetMetrics(&dwfm);
+    fDWriteFontFace->GetMetrics(&dwfm);
 
     info = new SkAdvancedTypefaceMetrics;
     info->fEmSize = dwfm.designUnitsPerEm;
@@ -1424,8 +1423,8 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
 
     SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;
     SkTScopedComPtr<IDWriteLocalizedStrings> faceNames;
-    hr = typeface->fDWriteFontFamily->GetFamilyNames(&familyNames);
-    hr = typeface->fDWriteFont->GetFaceNames(&faceNames);
+    hr = fDWriteFontFamily->GetFamilyNames(&familyNames);
+    hr = fDWriteFont->GetFaceNames(&faceNames);
 
     UINT32 familyNameLength;
     hr = familyNames->GetStringLength(0, &familyNameLength);
@@ -1451,10 +1450,10 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     info->fFontName.set(familyName.begin(), str_len);
 
     if (perGlyphInfo & SkAdvancedTypefaceMetrics::kToUnicode_PerGlyphInfo) {
-        populate_glyph_to_unicode(typeface->fDWriteFontFace.get(), glyphCount, &(info->fGlyphToUnicode));
+        populate_glyph_to_unicode(fDWriteFontFace.get(), glyphCount, &(info->fGlyphToUnicode));
     }
 
-    DWRITE_FONT_FACE_TYPE fontType = typeface->fDWriteFontFace->GetType();
+    DWRITE_FONT_FACE_TYPE fontType = fDWriteFontFace->GetType();
     if (fontType == DWRITE_FONT_FACE_TYPE_TRUETYPE ||
         fontType == DWRITE_FONT_FACE_TYPE_TRUETYPE_COLLECTION) {
         info->fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
@@ -1469,10 +1468,10 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         return info;
     }
 
-    AutoDWriteTable<SkOTTableHead> headTable(typeface->fDWriteFontFace.get());
-    AutoDWriteTable<SkOTTablePostScript> postTable(typeface->fDWriteFontFace.get());
-    AutoDWriteTable<SkOTTableHorizontalHeader> hheaTable(typeface->fDWriteFontFace.get());
-    AutoDWriteTable<SkOTTableOS2> os2Table(typeface->fDWriteFontFace.get());
+    AutoDWriteTable<SkOTTableHead> headTable(fDWriteFontFace.get());
+    AutoDWriteTable<SkOTTablePostScript> postTable(fDWriteFontFace.get());
+    AutoDWriteTable<SkOTTableHorizontalHeader> hheaTable(fDWriteFontFace.get());
+    AutoDWriteTable<SkOTTableOS2> os2Table(fDWriteFontFace.get());
     if (!headTable.fExists || !postTable.fExists || !hheaTable.fExists || !os2Table.fExists) {
         info->fItalicAngle = 0;
         info->fAscent = dwfm.ascent;;
@@ -1546,13 +1545,13 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         if (fixedWidth) {
             appendRange(&info->fGlyphWidths, 0);
             int16_t advance;
-            getWidthAdvance(typeface->fDWriteFontFace.get(), 1, &advance);
+            getWidthAdvance(fDWriteFontFace.get(), 1, &advance);
             info->fGlyphWidths->fAdvance.append(1, &advance);
             finishRange(info->fGlyphWidths.get(), 0,
                         SkAdvancedTypefaceMetrics::WidthRange::kDefault);
         } else {
             info->fGlyphWidths.reset(
-                getAdvanceData(typeface->fDWriteFontFace.get(),
+                getAdvanceData(fDWriteFontFace.get(),
                                glyphCount,
                                glyphIDs,
                                glyphIDsCount,
