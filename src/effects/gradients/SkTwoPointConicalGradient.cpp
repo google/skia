@@ -190,6 +190,12 @@ SkTwoPointConicalGradient::SkTwoPointConicalGradient(
     this->init();
 }
 
+bool SkTwoPointConicalGradient::isOpaque() const {
+    // Because areas outside the cone are left untouched, we cannot treat the
+    // shader as opaque even if the gradient itself is opaque.
+    return false;
+}
+
 void SkTwoPointConicalGradient::shadeSpan(int x, int y, SkPMColor* dstCParam,
                                           int count) {
     int toggle = init_dither_toggle(x, y);

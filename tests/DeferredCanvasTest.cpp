@@ -10,6 +10,7 @@
 #include "SkBitmapProcShader.h"
 #include "SkDeferredCanvas.h"
 #include "SkDevice.h"
+#include "SkGradientShader.h"
 #include "SkShader.h"
 
 static const int gWidth = 2;
@@ -97,22 +98,22 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
     // trigger frames to be marked as fresh
     {
         SkPaint paint;
-        paint.setStyle( SkPaint::kFill_Style );
-        paint.setAlpha( 255 );
+        paint.setStyle(SkPaint::kFill_Style);
+        paint.setAlpha(255);
         canvas.drawRect(fullRect, paint);
         REPORTER_ASSERT(reporter, canvas.isFreshFrame());
     }
     {
         SkPaint paint;
-        paint.setStyle( SkPaint::kFill_Style );
-        paint.setAlpha( 255 );
+        paint.setStyle(SkPaint::kFill_Style);
+        paint.setAlpha(255);
         paint.setXfermodeMode(SkXfermode::kSrcIn_Mode);
         canvas.drawRect(fullRect, paint);
         REPORTER_ASSERT(reporter, !canvas.isFreshFrame());
     }
     {
         SkPaint paint;
-        paint.setStyle( SkPaint::kFill_Style );
+        paint.setStyle(SkPaint::kFill_Style);
         SkBitmap bmp;
         create(&bmp, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
         bmp.setIsOpaque(true);
@@ -127,14 +128,30 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
     // do not trigger frames to be marked as fresh
     {
         SkPaint paint;
-        paint.setStyle( SkPaint::kFill_Style );
-        paint.setAlpha( 254 );
+        paint.setStyle(SkPaint::kFill_Style);
+        paint.setAlpha(254);
         canvas.drawRect(fullRect, paint);
         REPORTER_ASSERT(reporter, !canvas.isFreshFrame());
     }
     {
         SkPaint paint;
-        paint.setStyle( SkPaint::kFill_Style );
+        paint.setStyle(SkPaint::kFill_Style);
+        // Defining a cone that partially overlaps the canvas
+        const SkPoint pt1 = SkPoint::Make(SkIntToScalar(0), SkIntToScalar(0));
+        const SkScalar r1 = SkIntToScalar(1);
+        const SkPoint pt2 = SkPoint::Make(SkIntToScalar(10), SkIntToScalar(0));
+        const SkScalar r2 = SkIntToScalar(5);
+        const SkColor colors[2] = {SK_ColorWHITE, SK_ColorWHITE};
+        const SkScalar pos[2] = {0, SK_Scalar1};
+        SkShader* shader = SkGradientShader::CreateTwoPointConical(
+            pt1, r1, pt2, r2, colors, pos, 2, SkShader::kClamp_TileMode, NULL);
+        paint.setShader(shader)->unref();
+        canvas.drawRect(fullRect, paint);
+        REPORTER_ASSERT(reporter, !canvas.isFreshFrame());
+    }
+    {
+        SkPaint paint;
+        paint.setStyle(SkPaint::kFill_Style);
         SkBitmap bmp;
         create(&bmp, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
         bmp.setIsOpaque(false);
@@ -169,8 +186,8 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
     {
         canvas.save(SkCanvas::kMatrixClip_SaveFlag);
         SkPaint paint;
-        paint.setStyle( SkPaint::kFill_Style );
-        paint.setAlpha( 255 );
+        paint.setStyle(SkPaint::kFill_Style);
+        paint.setAlpha(255);
         SkPath path;
         path.addCircle(SkIntToScalar(0), SkIntToScalar(0), SkIntToScalar(2));
         canvas.clipPath(path, SkRegion::kIntersect_Op, false);
@@ -182,8 +199,8 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
     // Verify that stroked rect does not trigger a fresh frame
     {
         SkPaint paint;
-        paint.setStyle( SkPaint::kStroke_Style );
-        paint.setAlpha( 255 );
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setAlpha(255);
         canvas.drawRect(fullRect, paint);
         REPORTER_ASSERT(reporter, !canvas.isFreshFrame());
     }
@@ -191,8 +208,8 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
     // Verify kSrcMode triggers a fresh frame even with transparent color
     {
         SkPaint paint;
-        paint.setStyle( SkPaint::kFill_Style );
-        paint.setAlpha( 100 );
+        paint.setStyle(SkPaint::kFill_Style);
+        paint.setAlpha(100);
         paint.setXfermodeMode(SkXfermode::kSrc_Mode);
         canvas.drawRect(fullRect, paint);
         REPORTER_ASSERT(reporter, canvas.isFreshFrame());
