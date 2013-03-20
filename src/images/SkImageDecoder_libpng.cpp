@@ -1086,11 +1086,6 @@ DEFINE_ENCODER_CREATOR(PNGImageEncoder);
 
 #include "SkTRegistry.h"
 
-#ifdef SK_ENABLE_LIBPNG
-    SkImageDecoder* sk_libpng_dfactory(SkStream*);
-    SkImageEncoder* sk_libpng_efactory(SkImageEncoder::Type);
-#endif
-
 SkImageDecoder* sk_libpng_dfactory(SkStream* stream) {
     char buf[PNG_BYTES_TO_CHECK];
     if (stream->read(buf, PNG_BYTES_TO_CHECK) == PNG_BYTES_TO_CHECK &&

@@ -124,9 +124,6 @@
              'android_deps.gyp:gif',
              'android_deps.gyp:png',
           ],
-          'defines': [
-            'SK_ENABLE_LIBPNG',
-          ],
         },{ #else if skia_os != android
           'sources!': [
             '../src/images/SkImageRef_ashmem.h',
