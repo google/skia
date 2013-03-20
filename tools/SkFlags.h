@@ -298,6 +298,8 @@ public:
 
     const SkString& name() const { return fName; }
 
+    const SkString& shortName() const { return fShortName; }
+
     const SkString& help() const { return fHelpString; }
 
     SkString defaultValue() const {
