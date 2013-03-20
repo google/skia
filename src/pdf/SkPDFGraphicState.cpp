@@ -64,10 +64,8 @@ SkPDFGraphicState::~SkPDFGraphicState() {
     fResources.unrefAll();
 }
 
-void SkPDFGraphicState::getResources(
-        const SkTSet<SkPDFObject*>& knownResourceObjects,
-        SkTSet<SkPDFObject*>* newResourceObjects) {
-    GetResourcesHelper(&fResources, knownResourceObjects, newResourceObjects);
+void SkPDFGraphicState::getResources(SkTDArray<SkPDFObject*>* resourceList) {
+    GetResourcesHelper(&fResources, resourceList);
 }
 
 void SkPDFGraphicState::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
