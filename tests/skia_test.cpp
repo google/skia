@@ -99,10 +99,16 @@ static const char* make_canonical_dir_path(const char* path, SkString* storage) 
     return path;
 }
 
-static const char* gTmpDir;
+static SkString gTmpDir;
 
-const char* Test::GetTmpDir() {
+const SkString& Test::GetTmpDir() {
     return gTmpDir;
+}
+
+static SkString gResourcePath;
+
+const SkString& Test::GetResourcePath() {
+    return gResourcePath;
 }
 
 int tool_main(int argc, char** argv);
@@ -127,24 +133,30 @@ int tool_main(int argc, char** argv) {
         } else if (0 == strcmp(*argv, "--tmpDir")) {
             ++argv;
             if (argv < stop && **argv) {
-                gTmpDir = *argv;
+                make_canonical_dir_path(*argv, &gTmpDir);
             } else {
                 SkDebugf("no following argument to --tmpDir\n");
                 return -1;
             }
+        } else if ((0 == strcmp(*argv, "--resourcePath")) ||
+                   (0 == strcmp(*argv, "-i"))) {
+            argv++;
+            if (argv < stop && **argv) {
+                make_canonical_dir_path(*argv, &gResourcePath);
+            }
         }
     }
-
-    SkString tmpDirStorage;
-    gTmpDir = make_canonical_dir_path(gTmpDir, &tmpDirStorage);
 
     {
         SkString header("Skia UnitTests:");
         if (matchStr) {
             header.appendf(" --match %s", matchStr);
         }
-        if (gTmpDir) {
-            header.appendf(" --tmpDir %s", gTmpDir);
+        if (!gTmpDir.isEmpty()) {
+            header.appendf(" --tmpDir %s", gTmpDir.c_str());
+        }
+        if (!gResourcePath.isEmpty()) {
+            header.appendf(" --resourcePath %s", gResourcePath.c_str());
         }
 #ifdef SK_DEBUG
         header.append(" SK_DEBUG");
