@@ -200,6 +200,9 @@ public:
 protected:
     virtual SkScalerContext* onCreateScalerContext(const SkDescriptor*) const SK_OVERRIDE;
     virtual void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE;
+    virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
+                                SkAdvancedTypefaceMetrics::PerGlyphInfo,
+                                const uint32_t*, uint32_t) const SK_OVERRIDE;
 };
 
 class FontMemResourceTypeface : public LogFontTypeface {
@@ -1347,14 +1350,11 @@ static bool getWidthAdvance(HDC hdc, int gId, int16_t* advance) {
     return true;
 }
 
-// static
-SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
-        uint32_t fontID,
+SkAdvancedTypefaceMetrics* LogFontTypeface::onGetAdvancedTypefaceMetrics(
         SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
         const uint32_t* glyphIDs,
-        uint32_t glyphIDsCount) {
-    LOGFONT lf;
-    GetLogFontByID(fontID, &lf);
+        uint32_t glyphIDsCount) const {
+    LOGFONT lf = fLogFont;
     SkAdvancedTypefaceMetrics* info = NULL;
 
     HDC hdc = CreateCompatibleDC(NULL);
@@ -1371,7 +1371,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     OUTLINETEXTMETRIC otm;
     unsigned int otmRet = GetOutlineTextMetrics(hdc, sizeof(otm), &otm);
     if (0 == otmRet) {
-        ensure_typeface_accessible(fontID);
+        ensure_typeface_accessible(this->uniqueID());
         otmRet = GetOutlineTextMetrics(hdc, sizeof(otm), &otm);
     }
     if (!otmRet || !GetTextFace(hdc, LF_FACESIZE, lf.lfFaceName)) {

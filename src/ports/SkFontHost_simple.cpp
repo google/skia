@@ -260,6 +260,14 @@ public:
     virtual const char* getUniqueString() const = 0;
     virtual const char* getFilePath() const = 0;
 
+protected:
+    virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
+                                    SkAdvancedTypefaceMetrics::PerGlyphInfo,
+                                    const uint32_t*,
+                                    uint32_t) const SK_OVERRIDE {
+        return NULL;
+    }
+    
 private:
     bool    fIsSysFont;
 
@@ -551,17 +559,6 @@ SkStream* SkFontHost::OpenStream(uint32_t fontID) {
     }
     return stream;
 }
-
-#if 0
-SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
-        uint32_t fontID,
-        SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
-        const uint32_t* glyphIDs,
-        uint32_t glyphIDsCount) {
-    SkDEBUGFAIL("SkFontHost::GetAdvancedTypefaceMetrics unimplemented");
-    return NULL;
-}
-#endif
 
 size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
                                int32_t* index) {

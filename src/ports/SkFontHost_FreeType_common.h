@@ -53,7 +53,9 @@ protected:
     virtual SkScalerContext* onCreateScalerContext(
                                         const SkDescriptor*) const SK_OVERRIDE;
     virtual void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE;
-
+    virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
+                                SkAdvancedTypefaceMetrics::PerGlyphInfo,
+                                const uint32_t*, uint32_t) const SK_OVERRIDE;
 private:
     typedef SkTypeface INHERITED;
 };
