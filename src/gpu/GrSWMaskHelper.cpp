@@ -197,29 +197,18 @@ void GrSWMaskHelper::DrawToTargetWithPathMask(GrTexture* texture,
         // && edge rendering (kEdgeEffectStage in GrContext)
         kPathMaskStage = GrPaint::kTotalStages,
     };
+    GrAssert(!drawState->isStageEnabled(kPathMaskStage));
+    drawState->createTextureEffect(kPathMaskStage, texture, SkMatrix::I());
+    SkScalar w = SkIntToScalar(rect.width());
+    SkScalar h = SkIntToScalar(rect.height());
+    GrRect maskRect = GrRect::MakeWH(w / texture->width(),
+                                     h / texture->height());
 
     GrRect dstRect = GrRect::MakeLTRB(
                             SK_Scalar1 * rect.fLeft,
                             SK_Scalar1 * rect.fTop,
                             SK_Scalar1 * rect.fRight,
                             SK_Scalar1 * rect.fBottom);
-
-    // We want to use device coords to compute the texture coordinates. We set our matrix to be
-    // equal to the view matrix followed by a translation so that the top-left of the device bounds
-    // maps to 0,0, and then a scaling matrix to normalized coords. We apply this matrix to the
-    // vertex positions rather than local coords.
-    SkMatrix maskMatrix;
-    maskMatrix.setIDiv(texture->width(), texture->height());
-    maskMatrix.preTranslate(SkIntToScalar(-rect.fLeft), SkIntToScalar(-rect.fTop));
-    maskMatrix.preConcat(drawState->getViewMatrix());
-
-    GrAssert(!drawState->isStageEnabled(kPathMaskStage));
-    drawState->setEffect(kPathMaskStage,
-                         GrSimpleTextureEffect::Create(texture,
-                                                       maskMatrix,
-                                                       false,
-                                                       GrEffect::kPosition_CoordsType))->unref();
-
-    target->drawSimpleRect(dstRect);
+    target->drawRect(dstRect, NULL, &maskRect, NULL, kPathMaskStage);
     drawState->disableStage(kPathMaskStage);
 }

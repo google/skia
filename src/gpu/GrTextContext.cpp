@@ -18,10 +18,12 @@
 #include "SkPath.h"
 #include "SkStrokeRec.h"
 
-// glyph rendering shares this stage with edge rendering (kEdgeEffectStage in GrContext) && SW path
-// rendering (kPathMaskStage in GrSWMaskHelper)
-static const int kGlyphMaskStage = GrPaint::kTotalStages;
-static const int kGlyphCoordsAttributeIndex = 1;
+enum {
+    // glyph rendering shares this stage with edge rendering
+    // (kEdgeEffectStage in GrContext) && SW path rendering
+    // (kPathMaskStage in GrSWMaskHelper)
+    kGlyphMaskStage = GrPaint::kTotalStages,
+};
 
 void GrTextContext::flushGlyphs() {
     if (NULL == fDrawTarget) {
@@ -33,11 +35,7 @@ void GrTextContext::flushGlyphs() {
         GrAssert(GrIsALIGN4(fCurrVertex));
         GrAssert(fCurrTexture);
         GrTextureParams params(SkShader::kRepeat_TileMode, false);
-
-        // This effect could be stored with one of the cache objects (atlas?)
-        drawState->setEffect(kGlyphMaskStage,
-                             GrSimpleTextureEffect::CreateWithCustomCoords(fCurrTexture, params),
-                             kGlyphCoordsAttributeIndex)->unref();
+        drawState->createTextureEffect(kGlyphMaskStage, fCurrTexture, SkMatrix::I(), params);
 
         if (!GrPixelConfigIsAlphaOnly(fCurrTexture->config())) {
             if (kOne_GrBlendCoeff != fPaint.getSrcBlendCoeff() ||
@@ -197,7 +195,7 @@ HAS_ATLAS:
             {kVec2f_GrVertexAttribType, 0},
             {kVec2f_GrVertexAttribType, sizeof(GrPoint)}
         };
-        static const GrAttribBindings kAttribBindings = 0;
+        static const GrAttribBindings kAttribBindings = GrDrawState::ExplicitTexCoordAttribBindingsBit(kGlyphMaskStage);
 
        // If we need to reserve vertices allow the draw target to suggest
         // a number of verts to reserve and whether to perform a flush.
@@ -216,6 +214,7 @@ HAS_ATLAS:
             fDrawTarget->drawState()->setVertexAttribs(kVertexAttribs, SK_ARRAY_COUNT(kVertexAttribs));
         }
         fDrawTarget->drawState()->setAttribIndex(GrDrawState::kPosition_AttribIndex, 0);
+        fDrawTarget->drawState()->setAttribIndex(GrDrawState::kTexCoord_AttribIndex, 1);
         fDrawTarget->drawState()->setAttribBindings(kAttribBindings);
         fMaxVertices = kDefaultRequestedVerts;
         // ignore return, no point in flushing again.

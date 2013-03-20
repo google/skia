@@ -9,7 +9,6 @@
 
 #include "GrAllocator.h"
 #include "GrEffect.h"
-#include "GrDrawEffect.h"
 #include "GrGLEffect.h"
 #include "GrGpuGL.h"
 #include "GrGLShaderVar.h"
@@ -27,6 +26,7 @@ SK_DEFINE_INST_COUNT(GrGLProgram)
 SK_CONF_DECLARE(bool, c_PrintShaders, "gpu.printShaders", false,
                 "Print the source code for all shaders generated.");
 
+#define TEX_ATTR_NAME "aTexCoord"
 #define COL_ATTR_NAME "aColor"
 #define COV_ATTR_NAME "aCoverage"
 #define EDGE_ATTR_NAME "aEdge"
@@ -134,10 +134,7 @@ void GrGLProgram::BuildDesc(const GrDrawState& drawState,
             lastEnabledStage = s;
             const GrEffectRef& effect = *drawState.getStage(s).getEffect();
             const GrBackendEffectFactory& factory = effect->getFactory();
-            bool explicitLocalCoords = (drawState.getAttribBindings() &
-                                        GrDrawState::kLocalCoords_AttribBindingsBit);
-            GrDrawEffect drawEffect(drawState.getStage(s), explicitLocalCoords);
-            desc->fEffectKeys[s] = factory.glEffectKey(drawEffect, gpu->glCaps());
+            desc->fEffectKeys[s] = factory.glEffectKey(drawState.getStage(s), gpu->glCaps());
         } else {
             desc->fEffectKeys[s] = 0;
         }
@@ -210,8 +207,8 @@ void GrGLProgram::BuildDesc(const GrDrawState& drawState,
     if (desc->fAttribBindings & GrDrawState::kEdge_AttribBindingsBit) {
         desc->fEdgeAttributeIndex = drawState.getAttribIndex(GrDrawState::kEdge_AttribIndex);
     }
-    if (desc->fAttribBindings & GrDrawState::kLocalCoords_AttribBindingsBit) {
-        desc->fLocalCoordsAttributeIndex = drawState.getAttribIndex(GrDrawState::kLocalCoords_AttribIndex);
+    if (GrDrawState::AttributesBindExplicitTexCoords(desc->fAttribBindings)) {
+        desc->fTexCoordAttributeIndex = drawState.getAttribIndex(GrDrawState::kTexCoord_AttribIndex);
     }
 
 #if GR_DEBUG
@@ -230,10 +227,10 @@ void GrGLProgram::BuildDesc(const GrDrawState& drawState,
     if (desc->fAttribBindings & GrDrawState::kEdge_AttribBindingsBit) {
         GrAssert(desc->fEdgeAttributeIndex < GrDrawState::kVertexAttribCnt);
         GrAssert(kAttribLayouts[vertexAttribs[desc->fEdgeAttributeIndex].fType].fCount == 4);
-    }
-    if (desc->fAttribBindings & GrDrawState::kLocalCoords_AttribBindingsBit) {
-        GrAssert(desc->fLocalCoordsAttributeIndex < GrDrawState::kVertexAttribCnt);
-        GrAssert(kAttribLayouts[vertexAttribs[desc->fLocalCoordsAttributeIndex].fType].fCount == 2);
+     }
+    if (GrDrawState::AttributesBindExplicitTexCoords(desc->fAttribBindings)) {
+        GrAssert(desc->fTexCoordAttributeIndex < GrDrawState::kVertexAttribCnt);
+        GrAssert(kAttribLayouts[vertexAttribs[desc->fTexCoordAttributeIndex].fType].fCount == 2);
     }
 #endif
 }
@@ -682,10 +679,8 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
 bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
     GrAssert(0 == fProgramID);
 
+    GrGLShaderBuilder builder(fContext.info(), fUniformManager);
     const GrAttribBindings& attribBindings = fDesc.fAttribBindings;
-    bool hasExplicitLocalCoords =
-        SkToBool(attribBindings & GrDrawState::kLocalCoords_AttribBindingsBit);
-    GrGLShaderBuilder builder(fContext.info(), fUniformManager, hasExplicitLocalCoords);
 
 #if GR_GL_EXPERIMENTAL_GS
     builder.fUsesGS = fDesc.fExperimentalGS;
@@ -765,6 +760,11 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
         builder.vsCodeAppend("\tgl_PointSize = 1.0;\n");
     }
 
+    // add texture coordinates that are used to the list of vertex attr decls
+    if (GrDrawState::AttributesBindExplicitTexCoords(attribBindings)) {
+        builder.addAttribute(kVec2f_GrSLType, TEX_ATTR_NAME);
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // compute the final color
 
@@ -779,11 +779,21 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
                 outColor.appendS32(s);
                 builder.fsCodeAppendf("\tvec4 %s;\n", outColor.c_str());
 
+                const char* inCoords;
+                // figure out what our input coords are
+                if (!GrDrawState::StageBindsExplicitTexCoords(attribBindings, s)) {
+                    inCoords = builder.positionAttribute().c_str();
+                } else {
+                    // must have input tex coordinates if stage is enabled.
+                    inCoords = TEX_ATTR_NAME;
+                }
+
                 builder.setCurrentStage(s);
                 fEffects[s] = builder.createAndEmitGLEffect(*stages[s],
                                                             fDesc.fEffectKeys[s],
                                                             inColor.size() ? inColor.c_str() : NULL,
                                                             outColor.c_str(),
+                                                            inCoords,
                                                             &fUniformHandles.fSamplerUnis[s]);
                 builder.setNonStage();
                 inColor = outColor;
@@ -861,6 +871,16 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
                     outCoverage.appendS32(s);
                     builder.fsCodeAppendf("\tvec4 %s;\n", outCoverage.c_str());
 
+                    const char* inCoords;
+                    // figure out what our input coords are
+                    if (!GrDrawState::StageBindsExplicitTexCoords(attribBindings, s)) {
+                        inCoords = builder.positionAttribute().c_str();
+                    } else {
+                        // must have input tex coordinates if stage is
+                        // enabled.
+                        inCoords = TEX_ATTR_NAME;
+                    }
+
                     // stages don't know how to deal with a scalar input. (Maybe they should. We
                     // could pass a GrGLShaderVar)
                     if (inCoverageIsScalar) {
@@ -874,6 +894,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
                                                     fDesc.fEffectKeys[s],
                                                     inCoverage.size() ? inCoverage.c_str() : NULL,
                                                     outCoverage.c_str(),
+                                                    inCoords,
                                                     &fUniformHandles.fSamplerUnis[s]);
                     builder.setNonStage();
                     inCoverage = outCoverage;
@@ -987,10 +1008,8 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& buil
     if (fDesc.fAttribBindings & GrDrawState::kEdge_AttribBindingsBit) {
         GL_CALL(BindAttribLocation(fProgramID, fDesc.fEdgeAttributeIndex, EDGE_ATTR_NAME));
     }
-    if (fDesc.fAttribBindings & GrDrawState::kLocalCoords_AttribBindingsBit) {
-        GL_CALL(BindAttribLocation(fProgramID,
-                                   fDesc.fLocalCoordsAttributeIndex,
-                                   builder.localCoordsAttribute().c_str()));
+    if (GrDrawState::AttributesBindExplicitTexCoords(fDesc.fAttribBindings)) {
+        GL_CALL(BindAttribLocation(fProgramID, fDesc.fTexCoordAttributeIndex, TEX_ATTR_NAME));
     }
 
     const GrGLShaderBuilder::AttributePair* attribEnd = builder.getEffectAttributes().end();
@@ -1069,11 +1088,7 @@ void GrGLProgram::setData(GrGpuGL* gpu,
         if (NULL != fEffects[s]) {
             const GrEffectStage& stage = drawState.getStage(s);
             GrAssert(NULL != stage.getEffect());
-
-            bool explicitLocalCoords =
-                (fDesc.fAttribBindings & GrDrawState::kLocalCoords_AttribBindingsBit);
-            GrDrawEffect drawEffect(stage, explicitLocalCoords);
-            fEffects[s]->setData(fUniformManager, drawEffect);
+            fEffects[s]->setData(fUniformManager, stage);
             int numSamplers = fUniformHandles.fSamplerUnis[s].count();
             for (int u = 0; u < numSamplers; ++u) {
                 UniformHandle handle = fUniformHandles.fSamplerUnis[s][u];

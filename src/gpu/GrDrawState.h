@@ -257,26 +257,38 @@ public:
     /**
      * The vertex data used by the current program is represented as a bitfield
      * of flags. Programs always use positions and may also use texture
-     * coordinates, per-vertex colors, per-vertex coverage and edge data. The
-     * local coords accessible by effects may either come from positions or
-     * be specified explicitly.
+     * coordinates, per-vertex colors, per-vertex coverage and edge data. Each
+     * stage can use the explicit texture coordinates as its input texture
+     * coordinates or it may use the positions as texture coordinates.
      */
+
+    /**
+     * Generates a bit indicating that a texture stage uses texture coordinates
+     *
+     * @param stageIdx    the stage that will use texture coordinates.
+     *
+     * @return the bit to add to a GrAttribBindings bitfield.
+     */
+    static int ExplicitTexCoordAttribBindingsBit(int stageIdx) {
+        GrAssert(stageIdx < kNumStages);
+        return (1 << stageIdx);
+    }
+
+    static bool StageBindsExplicitTexCoords(GrAttribBindings bindings, int stageIdx);
 
     /**
      * Additional Bits that can be specified in GrAttribBindings.
      */
     enum AttribBindingsBits {
-        /** explicit local coords are provided (instead of using pre-view-matrix positions) */
-        kLocalCoords_AttribBindingsBit        = 0x1,
         /* program uses colors (GrColor) */
-        kColor_AttribBindingsBit              = 0x2,
+        kColor_AttribBindingsBit              = 1 << (kNumStages + 0),
         /* program uses coverage (GrColor)
          */
-        kCoverage_AttribBindingsBit           = 0x4,
+        kCoverage_AttribBindingsBit           = 1 << (kNumStages + 1),
         /* program uses edge data. Distance to the edge is used to
          * compute a coverage. See GrDrawState::setVertexEdgeType().
          */
-        kEdge_AttribBindingsBit               = 0x8,
+        kEdge_AttribBindingsBit               = 1 << (kNumStages + 2),
         // for below assert
         kDummyAttribBindingsBit,
         kHighAttribBindingsBit = kDummyAttribBindingsBit - 1
@@ -299,6 +311,17 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////
     // Helpers for picking apart attribute bindings
+
+    /**
+     * Helper function to determine if program uses explicit texture
+     * coordinates.
+     *
+     * @param  bindings  attribute bindings to query
+     *
+     * @return true if program uses texture coordinates,
+     *         false otherwise.
+     */
+    static bool AttributesBindExplicitTexCoords(GrAttribBindings bindings);
 
     /**
      * Determines whether src alpha is guaranteed to be one for all src pixels
@@ -333,9 +356,9 @@ public:
         kColor_AttribIndex,
         kCoverage_AttribIndex,
         kEdge_AttribIndex,
-        kLocalCoords_AttribIndex,
+        kTexCoord_AttribIndex,
 
-        kLast_AttribIndex = kLocalCoords_AttribIndex
+        kLast_AttribIndex = kTexCoord_AttribIndex
     };
     static const int kAttribIndexCount = kLast_AttribIndex + 1;
 
@@ -387,7 +410,7 @@ public:
 
     /**
      * Add a color filter that can be represented by a color and a mode. Applied
-     * after color-computing effect stages.
+     * after color-computing texture stages.
      */
     void setColorFilter(GrColor c, SkXfermode::Mode mode) {
         fCommon.fColorFilterColor = c;
@@ -474,7 +497,7 @@ public:
     }
 
     /**
-     * Creates a GrSimpleTextureEffect that uses local coords as texture coordinates.
+     * Creates a GrSimpleTextureEffect.
      */
     void createTextureEffect(int stageIdx, GrTexture* texture, const SkMatrix& matrix) {
         GrAssert(!this->getStage(stageIdx).getEffect());
@@ -533,16 +556,42 @@ public:
     }
 
     /**
-     * Called when the source coord system is changing. This ensures that effects will see the
-     * correct local coordinates. oldToNew gives the transformation from the old coord system in
-     * which the geometry was specified to the new coordinate system from which it will be rendered.
+     * Called when the source coord system is changing. preConcat gives the transformation from the
+     * old coord system to the new coord system.
      */
-    void localCoordChange(const SkMatrix& oldToNew) {
+    void preConcatStageMatrices(const SkMatrix& preConcat) {
+        this->preConcatStageMatrices(~0U, preConcat);
+    }
+    /**
+     * Version of above that applies the update matrix selectively to stages via a mask.
+     */
+    void preConcatStageMatrices(uint32_t stageMask, const SkMatrix& preConcat) {
         for (int i = 0; i < kNumStages; ++i) {
-            if (this->isStageEnabled(i)) {
-                fStages[i].localCoordChange(oldToNew);
+            if (((1 << i) & stageMask) && this->isStageEnabled(i)) {
+                fStages[i].preConcatCoordChange(preConcat);
             }
         }
+    }
+
+    /**
+     * Called when the source coord system is changing. preConcatInverse is the inverse of the
+     * transformation from the old coord system to the new coord system. Returns false if the matrix
+     * cannot be inverted.
+     */
+    bool preConcatStageMatricesWithInverse(const SkMatrix& preConcatInverse) {
+        SkMatrix inv;
+        bool computed = false;
+        for (int i = 0; i < kNumStages; ++i) {
+            if (this->isStageEnabled(i)) {
+                if (!computed && !preConcatInverse.invert(&inv)) {
+                    return false;
+                } else {
+                    computed = true;
+                }
+                fStages[i].preConcatCoordChange(preConcatInverse);
+            }
+        }
+        return true;
     }
 
     /// @}
@@ -783,9 +832,11 @@ public:
     public:
         AutoViewMatrixRestore() : fDrawState(NULL) {}
 
-        AutoViewMatrixRestore(GrDrawState* ds, const SkMatrix& preconcatMatrix) {
+        AutoViewMatrixRestore(GrDrawState* ds,
+                              const SkMatrix& preconcatMatrix,
+                              uint32_t explicitCoordStageMask = 0) {
             fDrawState = NULL;
-            this->set(ds, preconcatMatrix);
+            this->set(ds, preconcatMatrix, explicitCoordStageMask);
         }
 
         ~AutoViewMatrixRestore() { this->restore(); }
@@ -795,7 +846,9 @@ public:
          */
         void restore();
 
-        void set(GrDrawState* drawState, const SkMatrix& preconcatMatrix);
+        void set(GrDrawState* drawState,
+                 const SkMatrix& preconcatMatrix,
+                 uint32_t explicitCoordStageMask = 0);
 
         bool isSet() const { return NULL != fDrawState; }
 
@@ -822,14 +875,15 @@ public:
          * positions, then we don't want to modify its matrix. The explicitCoordStageMask is used
          * to specify such stages.
          */
-        AutoDeviceCoordDraw(GrDrawState* drawState) {
+        AutoDeviceCoordDraw(GrDrawState* drawState,
+                            uint32_t explicitCoordStageMask = 0) {
             fDrawState = NULL;
-            this->set(drawState);
+            this->set(drawState, explicitCoordStageMask);
         }
 
         ~AutoDeviceCoordDraw() { this->restore(); }
 
-        bool set(GrDrawState* drawState);
+        bool set(GrDrawState* drawState, uint32_t explicitCoordStageMask = 0);
 
         /**
          * Returns true if this object was successfully initialized on to a GrDrawState. It may
@@ -1143,7 +1197,8 @@ public:
             return false;
         }
         for (int i = 0; i < kAttribIndexCount; ++i) {
-            if ((i == kPosition_AttribIndex || s.fCommon.fAttribBindings & (1 << i)) &&
+            if ((i == kPosition_AttribIndex ||
+                    s.fCommon.fAttribBindings & kAttribIndexMasks[i]) &&
                 fAttribIndices[i] != s.fAttribIndices[i]) {
                 return false;
             }

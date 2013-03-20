@@ -12,6 +12,7 @@
 #include "GrGLShaderBuilder.h"
 #include "GrGLShaderVar.h"
 #include "GrGLSL.h"
+#include "GrEffectStage.h"
 
 class GrGLTexture;
 
@@ -20,19 +21,12 @@ class GrGLTexture;
     include/gpu/GrEffect.h. Objects of type GrGLEffect are responsible for emitting the
     GLSL code that implements a GrEffect and for uploading uniforms at draw time. They also
     must have a function:
-        static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&)
+        static inline EffectKey GenKey(const GrEffectStage&, const GrGLCaps&)
     that is used to implement a program cache. When two GrEffects produce the same key this means
     that their GrGLEffects would emit the same GLSL code.
 
-    The GrGLEffect subclass must also have a constructor of the form:
-        EffectSubclass::EffectSubclass(const GrBackendEffectFactory&, const GrDrawEffect&)
-    The effect held by the GrDrawEffect is guaranteed to be of the type that generated the
-    GrGLEffect subclass instance.
-
     These objects are created by the factory object returned by the GrEffect::getFactory().
 */
-
-class GrDrawEffect;
 
 class GrGLEffect {
 
@@ -56,10 +50,14 @@ public:
         stages.
 
         @param builder      Interface used to emit code in the shaders.
-        @param drawEffect   A wrapper on the effect that generated this program stage.
+        @param stage        The effect stage that generated this program stage.
         @param key          The key that was computed by GenKey() from the generating GrEffect.
                             Only the bits indicated by GrBackendEffectFactory::kEffectKeyBits are
                             guaranteed to match the value produced by GenKey();
+        @param vertexCoords A vec2 in the VS that holds the position in local coords. This is either
+                            the pre-view-matrix vertex position or if explicit per-vertex texture
+                            coords are used with a stage then it is those coordinates. See
+                            GrVertexLayout.
         @param outputColor  A predefined vec4 in the FS in which the stage should place its output
                             color (or coverage).
         @param inputColor   A vec4 that holds the input color to the stage in the FS. This may be
@@ -72,8 +70,9 @@ public:
                             reads in the generated code.
         */
     virtual void emitCode(GrGLShaderBuilder* builder,
-                          const GrDrawEffect& drawEffect,
+                          const GrEffectStage& stage,
                           EffectKey key,
+                          const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,
                           const TextureSamplerArray& samplers) = 0;
@@ -82,15 +81,34 @@ public:
         key; this function reads data from a stage and uploads any uniform variables required
         by the shaders created in emitCode(). The GrEffect installed in the GrEffectStage is
         guaranteed to be of the same type that created this GrGLEffect and to have an identical
-        EffectKey as the one that created this GrGLEffect. Effects that use local coords have
-        to consider whether the GrEffectStage's coord change matrix should be used. When explicit
-        local coordinates are used it can be ignored. */
-    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&);
+        EffectKey as the one that created this GrGLEffect. */
+    virtual void setData(const GrGLUniformManager&, const GrEffectStage&);
 
     const char* name() const { return fFactory.name(); }
 
-    static EffectKey GenTextureKey(const GrDrawEffect&, const GrGLCaps&);
-    static EffectKey GenAttribKey(const GrDrawEffect& stage);
+    static EffectKey GenTextureKey(const GrEffectRef*, const GrGLCaps&);
+    static EffectKey GenAttribKey(const GrEffectStage& stage);
+
+   /**
+    * GrGLEffect subclasses get passed a GrEffectStage in their emitCode and setData functions.
+    * The GrGLEffect usually needs to cast the stage's effect to the GrEffect subclass that
+    * generated the GrGLEffect. This helper does just that.
+    */
+    template <typename T>
+    static const T& GetEffectFromStage(const GrEffectStage& effectStage) {
+        GrAssert(NULL != effectStage.getEffect());
+        return CastEffect<T>(*effectStage.getEffect());
+    }
+
+   /**
+    * Extracts the GrEffect from a GrEffectRef and down-casts to a GrEffect subclass. Usually used
+    * in a GrGLEffect subclass's constructor (which takes const GrEffectRef&).
+    */
+    template <typename T>
+    static const T& CastEffect(const GrEffectRef& effectRef) {
+        GrAssert(NULL != effectRef.get());
+        return *static_cast<const T*>(effectRef.get());
+    }
 
 protected:
     const GrBackendEffectFactory& fFactory;

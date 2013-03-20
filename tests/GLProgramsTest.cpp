@@ -15,7 +15,6 @@
 #include "gl/GrGpuGL.h"
 #include "GrBackendEffectFactory.h"
 #include "GrContextFactory.h"
-#include "GrDrawEffect.h"
 #include "effects/GrConfigConversionEffect.h"
 
 #include "SkRandom.h"
@@ -58,18 +57,16 @@ void GrGLProgram::Desc::setRandom(SkMWCRandom* random,
         fDualSrcOutput = kNone_DualSrcOutput;
     }
 
-    // use separate tex coords?
-    if (random->nextBool()) {
-        fAttribBindings |= GrDrawState::kLocalCoords_AttribBindingsBit;
-    }
-
+    bool useOnce = false;
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (NULL != stages[s].getEffect()) {
             const GrBackendEffectFactory& factory = (*stages[s].getEffect())->getFactory();
-            bool explicitLocalCoords = (fAttribBindings &
-                                        GrDrawState::kLocalCoords_AttribBindingsBit);
-            GrDrawEffect drawEffect(stages[s], explicitLocalCoords);
-            fEffectKeys[s] = factory.glEffectKey(drawEffect, gpu->glCaps());
+            fEffectKeys[s] = factory.glEffectKey(stages[s], gpu->glCaps());
+            // use separate tex coords?
+            if (!useOnce && random->nextBool()) {
+                fAttribBindings |= GrDrawState::ExplicitTexCoordAttribBindingsBit(s);
+                useOnce = true;
+            }
         }
     }
 
@@ -88,8 +85,8 @@ void GrGLProgram::Desc::setRandom(SkMWCRandom* random,
         fEdgeAttributeIndex = attributeIndex;
         ++attributeIndex;
     }
-    if (fAttribBindings & GrDrawState::kLocalCoords_AttribBindingsBit) {
-        fLocalCoordsAttributeIndex = attributeIndex;
+    if (GrDrawState::AttributesBindExplicitTexCoords(fAttribBindings)) {
+        fTexCoordAttributeIndex = attributeIndex;
         ++attributeIndex;
     }
 }

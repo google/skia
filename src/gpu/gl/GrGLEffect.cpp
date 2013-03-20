@@ -7,7 +7,6 @@
 
 #include "GrGLSL.h"
 #include "GrGLEffect.h"
-#include "GrDrawEffect.h"
 
 GrGLEffect::GrGLEffect(const GrBackendEffectFactory& factory)
     : fFactory(factory) {
@@ -18,15 +17,14 @@ GrGLEffect::~GrGLEffect() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLEffect::setData(const GrGLUniformManager&, const GrDrawEffect&) {
+void GrGLEffect::setData(const GrGLUniformManager&, const GrEffectStage&) {
 }
 
-GrGLEffect::EffectKey GrGLEffect::GenTextureKey(const GrDrawEffect& drawEffect,
+GrGLEffect::EffectKey GrGLEffect::GenTextureKey(const GrEffectRef* effect,
                                                 const GrGLCaps& caps) {
     EffectKey key = 0;
-    int numTextures = (*drawEffect.effect())->numTextures();
-    for (int index = 0; index < numTextures; ++index) {
-        const GrTextureAccess& access = (*drawEffect.effect())->textureAccess(index);
+    for (int index = 0; index < (*effect)->numTextures(); ++index) {
+        const GrTextureAccess& access = (*effect)->textureAccess(index);
         EffectKey value = GrGLShaderBuilder::KeyForTextureAccess(access, caps) << index;
         GrAssert(0 == (value & key)); // keys for each access ought not to overlap
         key |= value;
@@ -34,12 +32,12 @@ GrGLEffect::EffectKey GrGLEffect::GenTextureKey(const GrDrawEffect& drawEffect,
     return key;
 }
 
-GrGLEffect::EffectKey GrGLEffect::GenAttribKey(const GrDrawEffect& drawEffect) {
+GrGLEffect::EffectKey GrGLEffect::GenAttribKey(const GrEffectStage& stage) {
     EffectKey key = 0;
 
-    int numAttributes = drawEffect.getVertexAttribIndexCount();
+    int numAttributes = stage.getVertexAttribIndexCount();
     GrAssert(numAttributes <= 2);
-    const int* attributeIndices = drawEffect.getVertexAttribIndices();
+    const int* attributeIndices = stage.getVertexAttribIndices();
     for (int index = 0; index < numAttributes; ++index) {
         EffectKey value = attributeIndices[index] << 3*index;
         GrAssert(0 == (value & key)); // keys for each attribute ought not to overlap
