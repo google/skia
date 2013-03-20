@@ -278,19 +278,18 @@ private:
 
 class GrGLMorphologyEffect : public GrGLEffect {
 public:
-    GrGLMorphologyEffect (const GrBackendEffectFactory&, const GrEffectRef&);
+    GrGLMorphologyEffect (const GrBackendEffectFactory&, const GrDrawEffect&);
 
     virtual void emitCode(GrGLShaderBuilder*,
-                          const GrEffectStage&,
+                          const GrDrawEffect&,
                           EffectKey,
-                          const char* vertexCoords,
                           const char* outputColor,
                           const char* inputColor,
                           const TextureSamplerArray&) SK_OVERRIDE;
 
-    static inline EffectKey GenKey(const GrEffectStage&, const GrGLCaps&);
+    static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
 
-    virtual void setData(const GrGLUniformManager&, const GrEffectStage&) SK_OVERRIDE;
+    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
 private:
     int width() const { return GrMorphologyEffect::WidthFromRadius(fRadius); }
@@ -304,23 +303,23 @@ private:
 };
 
 GrGLMorphologyEffect::GrGLMorphologyEffect(const GrBackendEffectFactory& factory,
-                                           const GrEffectRef& effect)
+                                           const GrDrawEffect& drawEffect)
     : INHERITED(factory)
-    , fImageIncrementUni(GrGLUniformManager::kInvalidUniformHandle) {
-    const GrMorphologyEffect& m = CastEffect<GrMorphologyEffect>(effect);
+    , fImageIncrementUni(GrGLUniformManager::kInvalidUniformHandle)
+    , fEffectMatrix(drawEffect.castEffect<GrMorphologyEffect>().coordsType()) {
+    const GrMorphologyEffect& m = drawEffect.castEffect<GrMorphologyEffect>();
     fRadius = m.radius();
     fType = m.type();
 }
 
 void GrGLMorphologyEffect::emitCode(GrGLShaderBuilder* builder,
-                                    const GrEffectStage&,
+                                    const GrDrawEffect&,
                                     EffectKey key,
-                                    const char* vertexCoords,
                                     const char* outputColor,
                                     const char* inputColor,
                                     const TextureSamplerArray& samplers) {
     const char* coords;
-    fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, vertexCoords, &coords);
+    fEffectMatrix.emitCodeMakeFSCoords2D(builder, key, &coords);
     fImageIncrementUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                              kVec2f_GrSLType, "ImageIncrement");
 
@@ -353,19 +352,22 @@ void GrGLMorphologyEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppend(modulate.c_str());
 }
 
-GrGLEffect::EffectKey GrGLMorphologyEffect::GenKey(const GrEffectStage& s, const GrGLCaps&) {
-    const GrMorphologyEffect& m = GetEffectFromStage<GrMorphologyEffect>(s);
+GrGLEffect::EffectKey GrGLMorphologyEffect::GenKey(const GrDrawEffect& drawEffect,
+                                                   const GrGLCaps&) {
+    const GrMorphologyEffect& m = drawEffect.castEffect<GrMorphologyEffect>();
     EffectKey key = static_cast<EffectKey>(m.radius());
     key |= (m.type() << 8);
     key <<= GrGLEffectMatrix::kKeyBits;
     EffectKey matrixKey = GrGLEffectMatrix::GenKey(m.getMatrix(),
-                                                   s.getCoordChangeMatrix(),
+                                                   drawEffect,
+                                                   m.coordsType(),
                                                    m.texture(0));
     return key | matrixKey;
 }
 
-void GrGLMorphologyEffect::setData(const GrGLUniformManager& uman, const GrEffectStage& stage) {
-    const Gr1DKernelEffect& kern = GetEffectFromStage<Gr1DKernelEffect>(stage);
+void GrGLMorphologyEffect::setData(const GrGLUniformManager& uman,
+                                   const GrDrawEffect& drawEffect) {
+    const Gr1DKernelEffect& kern = drawEffect.castEffect<Gr1DKernelEffect>();
     GrTexture& texture = *kern.texture(0);
     // the code we generated was for a specific kernel radius
     GrAssert(kern.radius() == fRadius);
@@ -381,7 +383,7 @@ void GrGLMorphologyEffect::setData(const GrGLUniformManager& uman, const GrEffec
             GrCrash("Unknown filter direction.");
     }
     uman.set2fv(fImageIncrementUni, 0, 1, imageIncrement);
-    fEffectMatrix.setData(uman, kern.getMatrix(), stage.getCoordChangeMatrix(), kern.texture(0));
+    fEffectMatrix.setData(uman, kern.getMatrix(), drawEffect, kern.texture(0));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
