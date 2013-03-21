@@ -91,16 +91,6 @@ public:
     /** @deprecated get from Device. */
     static LCDOrder GetSubpixelOrder();
 
-#ifdef SK_BUILD_FOR_ANDROID
-    /**
-     * Return the number of font units per em.
-     *
-     * @param fontID the font to query.
-     * @return the number of font units per em or 0 on error.
-     */
-    static uint32_t GetUnitsPerEm(SkFontID fontID);
-#endif
-
     /** If Skia is running in a constrained environment and the typeface
      implementation is handle based, the typeface data may become
      unavailable asynchronously. If a font host or scaler context method is

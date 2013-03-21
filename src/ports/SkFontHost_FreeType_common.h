@@ -56,6 +56,8 @@ protected:
     virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
                                 SkAdvancedTypefaceMetrics::PerGlyphInfo,
                                 const uint32_t*, uint32_t) const SK_OVERRIDE;
+    virtual int onGetUPEM() const SK_OVERRIDE;
+
 private:
     typedef SkTypeface INHERITED;
 };
