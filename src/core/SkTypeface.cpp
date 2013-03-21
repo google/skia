@@ -123,12 +123,12 @@ size_t SkTypeface::getTableData(SkFontTableTag tag, size_t offset, size_t length
 }
 
 SkStream* SkTypeface::openStream(int* ttcIndex) const {
-    if (ttcIndex) {
-        int32_t ndx = 0;
-        (void)SkFontHost::GetFileName(fUniqueID, NULL, 0, &ndx);
-        *ttcIndex = (int)ndx;
+    int ttcIndexStorage;
+    if (NULL == ttcIndex) {
+        // So our subclasses don't need to check for null param
+        ttcIndex = &ttcIndexStorage;
     }
-    return SkFontHost::OpenStream(fUniqueID);
+    return this->onOpenStream(ttcIndex);
 }
 
 int SkTypeface::getUnitsPerEm() const {
@@ -153,6 +153,15 @@ int SkTypeface::onGetUPEM() const {
         metrics->unref();
     }
     return upem;
+}
+
+SkStream* SkTypeface::onOpenStream(int* ttcIndex) const {
+    if (ttcIndex) {
+        int32_t ndx = 0;
+        (void)SkFontHost::GetFileName(fUniqueID, NULL, 0, &ndx);
+        *ttcIndex = (int)ndx;
+    }
+    return SkFontHost::OpenStream(fUniqueID);
 }
 
 int SkTypeface::onGetTableTags(SkFontTableTag tags[]) const { return 0; }

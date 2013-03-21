@@ -90,6 +90,7 @@ protected:
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const SK_OVERRIDE;
     virtual void onGetFontDescriptor(SkFontDescriptor*) const SK_OVERRIDE;
+    virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
 
 private:
     typedef SkTypeface_FreeType INHERITED;
@@ -244,8 +245,8 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkStream* open_stream(const FontConfigTypeface* face, int* ttcIndex) {
-    SkStream* stream = face->getLocalStream();
+SkStream* FontConfigTypeface::onOpenStream(int* ttcIndex) const {
+    SkStream* stream = this->getLocalStream();
     if (stream) {
         // TODO: fix issue 1176.
         // As of now open_stream will return a stream and unwind it, but the
@@ -262,48 +263,28 @@ static SkStream* open_stream(const FontConfigTypeface* face, int* ttcIndex) {
         if (NULL == fci.get()) {
             return NULL;
         }
-        stream = fci->openStream(face->getIdentity());
-        *ttcIndex = face->getIdentity().fTTCIndex;
+        stream = fci->openStream(this->getIdentity());
+        *ttcIndex = this->getIdentity().fTTCIndex;
     }
     return stream;
 }
 
-SkStream* SkFontHost::OpenStream(uint32_t id) {
-    FontConfigTypeface* face = (FontConfigTypeface*)SkTypefaceCache::FindByID(id);
-    if (NULL == face) {
-        return NULL;
-    }
-
-    int ttcIndex;
-    // We should return ttcIndex from this call.
-    return open_stream(face, &ttcIndex);
+SkStream* SkFontHost::OpenStream(uint32_t) {
+    SkASSERT(!"SkFontHost::OpenStream is DEPRECATED: call SkTypeface::openStream\n");
+    return NULL;
 }
 
 size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
                                int32_t* index) {
-    FontConfigTypeface* face = (FontConfigTypeface*)SkTypefaceCache::FindByID(fontID);
-    if (NULL == face || face->getLocalStream()) {
-        return 0;
-    }
-
-    // Here we cheat, and "know" what is in the identity fields.
-
-    const SkString& filename = face->getIdentity().fString;
-    if (index) {
-        *index = face->getIdentity().fTTCIndex;
-    }
-    if (path) {
-        size_t len = SkMin32(length, filename.size());
-        memcpy(path, filename.c_str(), len);
-    }
-    return filename.size();
+    SkASSERT(!"SkFontHost::GetFileName is DEPRECATED: call SkTypeface::openStream\n");
+    return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 int FontConfigTypeface::onGetTableTags(SkFontTableTag tags[]) const {
     int ttcIndex;
-    SkAutoTUnref<SkStream> stream(open_stream(this, &ttcIndex));
+    SkAutoTUnref<SkStream> stream(this->openStream(&ttcIndex));
     return stream.get()
                 ? SkFontStream::GetTableTags(stream, ttcIndex, tags)
                 : 0;
@@ -312,7 +293,7 @@ int FontConfigTypeface::onGetTableTags(SkFontTableTag tags[]) const {
 size_t FontConfigTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
                                   size_t length, void* data) const {
     int ttcIndex;
-    SkAutoTUnref<SkStream> stream(open_stream(this, &ttcIndex));
+    SkAutoTUnref<SkStream> stream(this->openStream(&ttcIndex));
     return stream.get()
                 ? SkFontStream::GetTableData(stream, ttcIndex,
                                              tag, offset, length, data)
