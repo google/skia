@@ -106,20 +106,20 @@ SkAdvancedTypefaceMetrics* SkTypeface::getAdvancedTypefaceMetrics(
 ///////////////////////////////////////////////////////////////////////////////
 
 int SkTypeface::countTables() const {
-    return SkFontHost::CountTables(fUniqueID);
+    return this->onGetTableTags(NULL);
 }
 
 int SkTypeface::getTableTags(SkFontTableTag tags[]) const {
-    return SkFontHost::GetTableTags(fUniqueID, tags);
+    return this->onGetTableTags(tags);
 }
 
 size_t SkTypeface::getTableSize(SkFontTableTag tag) const {
-    return SkFontHost::GetTableSize(fUniqueID, tag);
+    return this->onGetTableData(tag, 0, ~0U, NULL);
 }
 
 size_t SkTypeface::getTableData(SkFontTableTag tag, size_t offset, size_t length,
                                 void* data) const {
-    return SkFontHost::GetTableData(fUniqueID, tag, offset, length, data);
+    return this->onGetTableData(tag, offset, length, data);
 }
 
 SkStream* SkTypeface::openStream(int* ttcIndex) const {
@@ -164,10 +164,25 @@ SkStream* SkTypeface::onOpenStream(int* ttcIndex) const {
     return SkFontHost::OpenStream(fUniqueID);
 }
 
-int SkTypeface::onGetTableTags(SkFontTableTag tags[]) const { return 0; }
-size_t SkTypeface::onGetTableData(SkFontTableTag, size_t offset,
-                                  size_t length, void* data) const { return 0; }
 void SkTypeface::onGetFontDescriptor(SkFontDescriptor* desc) const {
     desc->setStyle(this->style());
+}
+
+#include "SkFontStream.h"
+#include "SkStream.h"
+
+int SkTypeface::onGetTableTags(SkFontTableTag tags[]) const {
+    int ttcIndex;
+    SkAutoTUnref<SkStream> stream(this->openStream(&ttcIndex));
+    return stream.get() ? SkFontStream::GetTableTags(stream, ttcIndex, tags) : 0;
+}
+
+size_t SkTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
+                                  size_t length, void* data) const {
+    int ttcIndex;
+    SkAutoTUnref<SkStream> stream(this->openStream(&ttcIndex));
+    return stream.get()
+        ? SkFontStream::GetTableData(stream, ttcIndex, tag, offset, length, data)
+        : 0;
 }
 

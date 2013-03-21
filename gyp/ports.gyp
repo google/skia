@@ -30,7 +30,6 @@
         '../src/ports/SkPurgeableMemoryBlock_none.cpp',
         '../src/ports/SkThread_win.cpp',
 
-        '../src/ports/SkFontHost_tables.cpp',
         '../src/ports/SkMemory_malloc.cpp',
         '../src/ports/SkOSFile_stdio.cpp',
         '../src/ports/SkTime_Unix.cpp',
@@ -57,9 +56,6 @@
             '../src/ports/SkFontHost_fontconfig.cpp',
             '../src/ports/SkFontConfigInterface_direct.cpp',
             '../src/ports/SkThread_pthread.cpp',
-          ],
-          'sources!': [
-            '../src/ports/SkFontHost_tables.cpp',
           ],
         }],
         [ 'skia_os == "nacl"', {
