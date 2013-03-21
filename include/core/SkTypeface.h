@@ -212,7 +212,7 @@ protected:
                         SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
                         const uint32_t* glyphIDs,
                         uint32_t glyphIDsCount) const = 0;
-        
+
     virtual int onGetUPEM() const;
     virtual int onGetTableTags(SkFontTableTag tags[]) const;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
