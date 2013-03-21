@@ -37,8 +37,13 @@
  *
  *  which will initially be set to false, and can be set to true by using the
  *  flag "--boolean" on the commandline. "--noboolean" will set FLAGS_boolean
- *  to false. (Single dashes are also permitted for this and other flags.) The
- *  helpString will be printed if the help flag (-h or -help) is used.
+ *  to false. FLAGS_boolean can also be set using "--boolean=true" or
+ *  "--boolean true" (where "true" can be replaced by "false", "TRUE", "FALSE",
+ *  "1" or "0").
+ *
+ *  Single dashes are also permitted for this and other flags.
+ *
+ *  The helpString will be printed if the help flag (-h or -help) is used.
  *
  *  Similarly, the line
  *
@@ -227,38 +232,19 @@ public:
     }
 
     /**
-     *  Returns true if the string matches this flag. For a bool, also sets the
-     *  value, since a bool is specified as true or false by --name or --noname.
+     *  Returns true if the string matches this flag.
+     *  For a boolean flag, also sets the value, since a boolean flag can be set in a number of ways
+     *  without looking at the following string:
+     *      --name
+     *      --noname
+     *      --name=true
+     *      --name=false
+     *      --name=1
+     *      --name=0
+     *      --name=TRUE
+     *      --name=FALSE
      */
-    bool match(const char* string) {
-        if (SkStrStartsWith(string, '-') && strlen(string) > 1) {
-            string++;
-            // Allow one or two dashes
-            if (SkStrStartsWith(string, '-') && strlen(string) > 1) {
-                string++;
-            }
-            if (kBool_FlagType == fFlagType) {
-                // In this case, go ahead and set the value.
-                if (fName.equals(string) || fShortName.equals(string)) {
-                    *fBoolValue = true;
-                    return true;
-                }
-                if (SkStrStartsWith(string, "no") && strlen(string) > 2) {
-                    string += 2;
-                    if (fName.equals(string) || fShortName.equals(string)) {
-                        *fBoolValue = false;
-                        return true;
-                    }
-                    return false;
-                }
-            }
-            return fName.equals(string) || fShortName.equals(string);
-        } else {
-            // Has no dash
-            return false;
-        }
-        return false;
-    }
+    bool match(const char* string);
 
     FlagTypes getFlagType() const { return fFlagType; }
 
@@ -291,6 +277,14 @@ public:
             *fDoubleValue = value;
         } else {
             SkASSERT(!"Can only call setDouble on kDouble_FlagType");
+        }
+    }
+
+    void setBool(bool value) {
+        if (kBool_FlagType == fFlagType) {
+            *fBoolValue = value;
+        } else {
+            SkASSERT(!"Can only call setBool on kBool_FlagType");
         }
     }
 

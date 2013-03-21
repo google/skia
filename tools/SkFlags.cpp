@@ -7,6 +7,78 @@
 
 #include "SkFlags.h"
 
+static bool string_is_in(const char* target, const char* set[], size_t len) {
+    for (size_t i = 0; i < len; i++) {
+        if (0 == strcmp(target, set[i])) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ *  Check to see whether string represents a boolean value.
+ *  @param string C style string to parse.
+ *  @param result Pointer to a boolean which will be set to the value in the string, if the
+ *      string represents a boolean.
+ *  @param boolean True if the string represents a boolean, false otherwise.
+ */
+static bool parse_bool_arg(const char* string, bool* result) {
+    static const char* trueValues[] = { "1", "TRUE", "true" };
+    if (string_is_in(string, trueValues, SK_ARRAY_COUNT(trueValues))) {
+        *result = true;
+        return true;
+    }
+    static const char* falseValues[] = { "0", "FALSE", "false" };
+    if (string_is_in(string, falseValues, SK_ARRAY_COUNT(falseValues))) {
+        *result = false;
+        return true;
+    }
+    SkDebugf("Parameter \"%s\" not supported.\n", string);
+    return false;
+}
+
+bool SkFlagInfo::match(const char* string) {
+    if (SkStrStartsWith(string, '-') && strlen(string) > 1) {
+        string++;
+        // Allow one or two dashes
+        if (SkStrStartsWith(string, '-') && strlen(string) > 1) {
+            string++;
+        }
+        if (kBool_FlagType == fFlagType) {
+            // In this case, go ahead and set the value.
+            if (fName.equals(string) || fShortName.equals(string)) {
+                *fBoolValue = true;
+                return true;
+            }
+            if (SkStrStartsWith(string, "no") && strlen(string) > 2) {
+                string += 2;
+                if (fName.equals(string) || fShortName.equals(string)) {
+                    *fBoolValue = false;
+                    return true;
+                }
+                return false;
+            }
+            int equalIndex = SkStrFind(string, "=");
+            if (equalIndex > 0) {
+                // The string has an equal sign. Check to see if the string matches.
+                SkString flag(string, equalIndex);
+                if (flag.equals(fName) || flag.equals(fShortName)) {
+                    // Check to see if the remainder beyond the equal sign is true or false:
+                    string += equalIndex + 1;
+                    parse_bool_arg(string, fBoolValue);
+                    return true;
+                }
+            }
+        }
+        return fName.equals(string) || fShortName.equals(string);
+    } else {
+        // Has no dash
+        return false;
+    }
+    return false;
+}
+
 SkFlagInfo* SkFlags::gHead;
 SkString SkFlags::gUsage;
 
@@ -131,7 +203,15 @@ void SkFlags::ParseCommandLine(int argc, char** argv) {
                     flagMatched = true;
                     switch (flag->getFlagType()) {
                         case SkFlagInfo::kBool_FlagType:
-                            // Handled by match, above
+                            // Can be handled by match, above, but can also be set by the next
+                            // string.
+                            if (i+1 < argc && !SkStrStartsWith(argv[i+1], '-')) {
+                                i++;
+                                bool value;
+                                if (parse_bool_arg(argv[i], &value)) {
+                                    flag->setBool(value);
+                                }
+                            }
                             break;
                         case SkFlagInfo::kString_FlagType:
                             flag->resetStrings();
