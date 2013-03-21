@@ -950,7 +950,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
         SkASSERT(1 == info.fColorCount);
         SkColor color;
         info.fColors = &color;
-        SkShader::GradientType gradientType = shader->asAGradient(&info);
+        shader->asAGradient(&info);
         SkAlpha alpha = skPaint.getAlpha();
         HR(this->createXpsSolidColorBrush(color, alpha, brush));
         return S_OK;

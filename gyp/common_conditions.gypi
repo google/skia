@@ -28,9 +28,11 @@
         'msvs_cygwin_shell': 0,
         'msvs_settings': {
           'VCCLCompilerTool': {
-            'WarningLevel': '1',
+            'WarningLevel': '3',
+            'ProgramDataBaseFileName': '$(OutDir)\\$(ProjectName).pdb',
             'DebugInformationFormat': '3',
-            'AdditionalOptions': [ '/MP' ],
+            'ExceptionHandling': '0',
+            'AdditionalOptions': [ '/MP', ],
           },
           'VCLinkerTool': {
             'AdditionalDependencies': [
@@ -44,13 +46,10 @@
             'msvs_settings': {
               'VCCLCompilerTool': {
                 'DebugInformationFormat': '4', # editAndContiue (/ZI)
-                'ProgramDataBaseFileName': '$(OutDir)\\$(ProjectName).pdb',
                 'Optimization': '0',           # optimizeDisabled (/Od)
                 'PreprocessorDefinitions': ['_DEBUG'],
                 'RuntimeLibrary': '3',         # rtMultiThreadedDebugDLL (/MDd)
-                'ExceptionHandling': '0',
                 'RuntimeTypeInfo': 'false',      # /GR-
-                'WarningLevel': '3',             # level3 (/W3)
               },
               'VCLinkerTool': {
                 'GenerateDebugInformation': 'true', # /DEBUG
@@ -62,7 +61,6 @@
             'msvs_settings': {
               'VCCLCompilerTool': {
                 'DebugInformationFormat': '3',      # programDatabase (/Zi)
-                'ProgramDataBaseFileName': '$(OutDir)\\$(ProjectName).pdb',
                 'Optimization': '3',                # full (/Ox)
                 'WholeProgramOptimization': 'true', #/GL
                # Changing the floating point model requires rebaseling gm images
@@ -70,10 +68,8 @@
                 'FavorSizeOrSpeed': '1',            # speed (/Ot)
                 'PreprocessorDefinitions': ['NDEBUG'],
                 'RuntimeLibrary': '2',              # rtMultiThreadedDLL (/MD)
-                'ExceptionHandling': '0',
                 'EnableEnhancedInstructionSet': '2',# /arch:SSE2
                 'RuntimeTypeInfo': 'false',         # /GR-
-                'WarningLevel': '3',                # level3 (/W3)
               },
               'VCLinkerTool': {
                 'GenerateDebugInformation': 'true', # /DEBUG
@@ -115,6 +111,9 @@
                 'msvs_settings': {
                   'VCCLCompilerTool': {
                     'WarnAsError': 'true',
+                    'AdditionalOptions': [
+                      '/we4189', # initialized but unused var warning
+                    ],
                   },
                 },
               }],
