@@ -1558,7 +1558,7 @@ mobi_wikipedia.skp_tile_256x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,25
 mobi_wikipedia.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,26.250,13.625,38.875
 mobi_wikipedia.skp_tile_256x256_gpu_,MacMini_10_8_Float_Bench_32-25th,119.250,97.325,141.175
 mobi_wikipedia.skp_tile_256x256_gpu_,Nexus7_4-1_Float_Bench_32-25th,510.630,449.567,571.693
-mobi_wikipedia.skp_tile_256x256_gpu_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,68.050,51.245,84.855
+mobi_wikipedia.skp_tile_256x256_gpu_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,68.050,41.245,84.855
 mobi_wikipedia.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,61.900,45.710,78.090
 mobi_wikipedia.skp_tile_256x256_gpu_c,MacMini_10_8_Float_Bench_32-25th,77.820,60.038,95.602
 mobi_wikipedia.skp_tile_256x256_gpu_c,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,42.420,28.178,56.662
@@ -1608,11 +1608,11 @@ tabl_androidpolice.skp_tile_256x256_,MacMini_10_8_Float_Bench_32-25th,40.500,26.
 tabl_androidpolice.skp_tile_256x256_,Nexus7_4-1_Float_Bench_32-25th,311.350,270.215,352.485
 tabl_androidpolice.skp_tile_256x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,21.110,8.999,33.221
 tabl_androidpolice.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,20.950,8.855,33.045
-tabl_androidpolice.skp_tile_256x256_gpu_,MacMini_10_8_Float_Bench_32-25th,160.350,134.315,186.385
+tabl_androidpolice.skp_tile_256x256_gpu_,MacMini_10_8_Float_Bench_32-25th,160.350,134.315,226.385
 tabl_androidpolice.skp_tile_256x256_gpu_,Nexus7_4-1_Float_Bench_32-25th,853.260,757.934,948.586
 tabl_androidpolice.skp_tile_256x256_gpu_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,80.660,62.594,98.726
 tabl_androidpolice.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,108.310,87.479,129.141
-tabl_androidpolice.skp_tile_256x256_gpu_c,MacMini_10_8_Float_Bench_32-25th,103.270,82.943,123.597
+tabl_androidpolice.skp_tile_256x256_gpu_c,MacMini_10_8_Float_Bench_32-25th,103.270,82.943,173.597
 tabl_androidpolice.skp_tile_256x256_gpu_c,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,62.560,46.304,78.816
 tabl_androidpolice.skp_tile_256x256_gpu_c,Shuttle_Win7_Intel_Float_Bench_32-25th,91.260,72.134,110.386
 tabl_androidpolice.skp_tile_256x256_grid_,MacMini_10_8_Float_Bench_32-25th,32.700,19.430,45.970
@@ -2494,7 +2494,7 @@ tabl_mozilla.skp_tile_256x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,733.
 tabl_mozilla.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,879.560,781.604,977.516
 tabl_mozilla.skp_tile_256x256_gpu_,MacMini_10_8_Float_Bench_32-25th,2037.650,1823.885,2251.415
 tabl_mozilla.skp_tile_256x256_gpu_,Nexus7_4-1_Float_Bench_32-25th,13904.420,12503.978,15304.862
-tabl_mozilla.skp_tile_256x256_gpu_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,1173.510,1046.159,1300.861
+tabl_mozilla.skp_tile_256x256_gpu_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,1173.510,1016.159,1300.861
 tabl_mozilla.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,1145.910,1021.319,1270.501
 tabl_mozilla.skp_tile_256x256_gpu_c,MacMini_10_8_Float_Bench_32-25th,1779.610,1591.649,1967.571
 tabl_mozilla.skp_tile_256x256_gpu_c,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,917.730,815.957,1019.503
