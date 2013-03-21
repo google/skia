@@ -20,8 +20,8 @@ enum PictureTool {
 };
 
 /**
- *  Uses SkFlags to parse the command line, and returns a PictureRenderer
- *  reflecting the flags used. Assumes that SkFlags::ParseCommandLine has
+ *  Uses SkCommandLineFlags to parse the command line, and returns a PictureRenderer
+ *  reflecting the flags used. Assumes that SkCommandLineFlags::Parse has
  *  been called.
  *  @param error If there is an error or warning, it will be stored in error.
  *  @param tool Which tool is being used.

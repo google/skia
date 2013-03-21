@@ -12,8 +12,8 @@
 #include "picture_utils.h"
 
 #include "SkBitmapFactory.h"
+#include "SkCommandLineFlags.h"
 #include "SkData.h"
-#include "SkFlags.h"
 #include "SkImage.h"
 #include "SkImageDecoder.h"
 #include "SkLruImageCache.h"
