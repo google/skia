@@ -80,6 +80,8 @@ static bool bits_isonly(int value, int mask) {
 static void test_constructor(skiatest::Reporter* reporter) {
     // Allocate a matrix on the heap
     SkMatrix44* placeholderMatrix = new SkMatrix44();
+    SkAutoTDelete<SkMatrix44> deleteMe(placeholderMatrix);
+
     for (int row = 0; row < 4; ++row) {
         for (int col = 0; col < 4; ++col) {
             placeholderMatrix->setDouble(row, col, row * col);
