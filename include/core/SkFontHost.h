@@ -118,8 +118,7 @@ public:
      */
     static SkTypeface* NextLogicalTypeface(SkFontID currFontID, SkFontID origFontID);
 
-
-    ///// public HACK FOR FREETYPE -- will be fixed
+private:
 
     /** Return a new stream to read the font data, or null if the uniqueID does
      not match an existing typeface. .The caller must call stream->unref()
@@ -156,9 +155,6 @@ public:
     static size_t GetFileName(SkFontID fontID, char path[], size_t length,
                               int32_t* index);
 
-    // END_HACK for freetype
-
-private:
     /** Return a new, closest matching typeface given either an existing family
         (specified by a typeface in that family) or by a familyName and a
         requested style.
