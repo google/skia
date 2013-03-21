@@ -8,6 +8,7 @@
 
 
 #include "SkFontHost.h"
+#include "SkFontHost_FreeType_common.h"
 #include "SkFontDescriptor.h"
 #include "SkDescriptor.h"
 #include "SkOSFile.h"
@@ -228,7 +229,7 @@ static void remove_from_names(FamilyRec* emptyFamily) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class FamilyTypeface : public SkTypeface {
+class FamilyTypeface : public SkTypeface_FreeType {
 public:
     FamilyTypeface(Style style, bool sysFont, FamilyRec* family, bool isFixedWidth)
     : SkTypeface(style, sk_atomic_inc(&gUniqueFontID) + 1, isFixedWidth) {
