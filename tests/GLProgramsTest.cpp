@@ -134,7 +134,16 @@ bool GrGpuGL::programUnitTest(int maxStages) {
                                                                                 &random,
                                                                                 this->getContext(),
                                                                                 dummyTextures));
-                for (int i = 0; i < effect.get()->get()->numVertexAttribs(); ++i) {
+                int numAttribs = (*effect)->numVertexAttribs();
+
+                // If adding this effect would cause to exceed the max attrib count then generate a
+                // new random effect. The explanation for why this check is correct is a bit
+                // convoluted and this code will be removed soon.
+                if (currAttribIndex + numAttribs > GrDrawState::kCoverageOverrideAttribIndexValue) {
+                    --s;
+                    continue;
+                }
+                for (int i = 0; i < numAttribs; ++i) {
                     attribIndices[i] = currAttribIndex++;
                 }
                 stages[s].setEffect(effect.get(), attribIndices[0], attribIndices[1]);
