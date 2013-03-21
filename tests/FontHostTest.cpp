@@ -28,18 +28,27 @@ static const struct TagSize {
     {   kFontTableTag_maxp,         32 },
 };
 
+// Test that getUnitsPerEm() agrees with a direct lookup in the 'head' table
+// (if that table is available.
 static void test_unitsPerEm(skiatest::Reporter* reporter, SkTypeface* face) {
-    int upem = face->getUnitsPerEm();
-    if (0 == upem) return;
+    int nativeUPEM = face->getUnitsPerEm();;
 
+    int tableUPEM = -1;
     size_t size = face->getTableSize(kFontTableTag_head);
     if (size) {
         SkAutoMalloc storage(size);
         char* ptr = (char*)storage.get();
         face->getTableData(kFontTableTag_head, 0, size, ptr);
         // unitsPerEm is at offset 18 into the 'head' table.
-        int upem2 = SkEndian_SwapBE16(*(uint16_t*)&ptr[18]);
-        REPORTER_ASSERT(reporter, upem2 == upem);
+        tableUPEM = SkEndian_SwapBE16(*(uint16_t*)&ptr[18]);
+    }
+//    SkDebugf("--- typeface returned %d upem [%X]\n", nativeUPEM, face->uniqueID());
+
+    if (tableUPEM >= 0) {
+        REPORTER_ASSERT(reporter, tableUPEM == nativeUPEM);
+    } else {
+        // not sure this is a bug, but lets report it for now as info.
+        SkDebugf("--- typeface returned 0 upem [%X]\n", face->uniqueID());
     }
 }
 
