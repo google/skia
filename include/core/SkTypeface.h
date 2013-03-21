@@ -193,6 +193,12 @@ public:
      */
     int getUnitsPerEm() const;
 
+    /**
+     *  Return a stream for the contents of the font data, or NULL on failure.
+     *  If ttcIndex is not null, it is set to the TrueTypeCollection index
+     *  of this typeface within the stream, or 0 if the stream is not a
+     *  collection.
+     */
     SkStream* openStream(int* ttcIndex) const;
     SkScalerContext* createScalerContext(const SkDescriptor*) const;
 
@@ -212,8 +218,11 @@ protected:
                         SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
                         const uint32_t* glyphIDs,
                         uint32_t glyphIDsCount) const = 0;
+    // TODO: remove SkFontHost::OpenStream and make this guy pure-virtual
+    virtual SkStream* onOpenStream(int* ttcIndex) const;
 
     virtual int onGetUPEM() const;
+
     virtual int onGetTableTags(SkFontTableTag tags[]) const;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const;
