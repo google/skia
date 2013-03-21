@@ -24,7 +24,7 @@
 #include "GrGLVertexBuffer.h"
 #include "../GrTHashCache.h"
 
-#ifdef SK_DEBUG
+#ifdef SK_DEVELOPER
 #define PROGRAM_CACHE_STATS
 #endif
 
