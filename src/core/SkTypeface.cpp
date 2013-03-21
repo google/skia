@@ -132,21 +132,8 @@ SkStream* SkTypeface::openStream(int* ttcIndex) const {
 }
 
 int SkTypeface::getUnitsPerEm() const {
-    int upem = 0;
-
-#ifdef SK_BUILD_FOR_ANDROID
-    upem = SkFontHost::GetUnitsPerEm(fUniqueID);
-#else
-    SkAdvancedTypefaceMetrics* metrics;
-    metrics = this->getAdvancedTypefaceMetrics(
-                                 SkAdvancedTypefaceMetrics::kNo_PerGlyphInfo,
-                                 NULL, 0);
-    if (metrics) {
-        upem = metrics->fEmSize;
-        metrics->unref();
-    }
-#endif
-    return upem;
+    // should we try to cache this in the base-class?
+    return this->onGetUPEM();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -154,10 +141,24 @@ int SkTypeface::getUnitsPerEm() const {
 
 #include "SkFontDescriptor.h"
 
-int SkTypeface::onGetUPEM() const { return 0; }
+int SkTypeface::onGetUPEM() const {
+    int upem = 0;
+
+    SkAdvancedTypefaceMetrics* metrics;
+    metrics = this->getAdvancedTypefaceMetrics(
+                             SkAdvancedTypefaceMetrics::kNo_PerGlyphInfo,
+                             NULL, 0);
+    if (metrics) {
+        upem = metrics->fEmSize;
+        metrics->unref();
+    }
+    return upem;
+}
+
 int SkTypeface::onGetTableTags(SkFontTableTag tags[]) const { return 0; }
 size_t SkTypeface::onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const { return 0; }
 void SkTypeface::onGetFontDescriptor(SkFontDescriptor* desc) const {
     desc->setStyle(this->style());
 }
+

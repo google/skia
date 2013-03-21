@@ -698,8 +698,7 @@ void SkTypeface_FreeType::onFilterRec(SkScalerContextRec* rec) const {
 #endif
 }
 
-#ifdef SK_BUILD_FOR_ANDROID
-uint32_t SkFontHost::GetUnitsPerEm(SkFontID fontID) {
+int SkTypeface_FreeType::onGetUPEM() const {
     SkAutoMutexAcquire ac(gFTMutex);
     FT_Library libInit = NULL;
     if (gFTCount == 0) {
@@ -708,17 +707,16 @@ uint32_t SkFontHost::GetUnitsPerEm(SkFontID fontID) {
         libInit = gFTLibrary;
     }
     SkAutoTCallIProc<struct FT_LibraryRec_, FT_Done_FreeType> ftLib(libInit);
-    SkFaceRec *rec = ref_ft_face(fontID);
-    uint16_t unitsPerEm = 0;
+    SkFaceRec *rec = ref_ft_face(this->uniqueID());
+    int unitsPerEm = 0;
 
     if (rec != NULL && rec->fFace != NULL) {
         unitsPerEm = rec->fFace->units_per_EM;
         unref_ft_face(rec->fFace);
     }
 
-    return (uint32_t)unitsPerEm;
+    return unitsPerEm;
 }
-#endif
 
 SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
                                                    const SkDescriptor* desc)
