@@ -6,7 +6,7 @@
  */
 
 #include "SkCanvas.h"
-#include "SkFlags.h"
+#include "SkCommandLineFlags.h"
 #include "SkGraphics.h"
 #include "SkImageEncoder.h"
 #include "SkString.h"
@@ -16,8 +16,8 @@ DEFINE_string(t, "Hello", "The string to write.");
 
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
-    SkFlags::SetUsage("");
-    SkFlags::ParseCommandLine(argc, argv);
+    SkCommandLineFlags::SetUsage("");
+    SkCommandLineFlags::Parse(argc, argv);
 
     SkAutoGraphics ag;
     SkString path("skhello.png");

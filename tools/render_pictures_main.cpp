@@ -8,7 +8,7 @@
 #include "CopyTilesRenderer.h"
 #include "SkBitmap.h"
 #include "SkDevice.h"
-#include "SkFlags.h"
+#include "SkCommandLineFlags.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
@@ -274,8 +274,8 @@ static int process_input(const char* input, const SkString* outputDir,
 
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
-    SkFlags::SetUsage("Render .skp files.");
-    SkFlags::ParseCommandLine(argc, argv);
+    SkCommandLineFlags::SetUsage("Render .skp files.");
+    SkCommandLineFlags::Parse(argc, argv);
 
     if (FLAGS_r.isEmpty()) {
         SkDebugf(".skp files or directories are required.\n");

@@ -19,11 +19,11 @@
 #include "SkBitmap.h"
 #include "SkBitmapChecksummer.h"
 #include "SkColorPriv.h"
+#include "SkCommandLineFlags.h"
 #include "SkData.h"
 #include "SkDeferredCanvas.h"
 #include "SkDevice.h"
 #include "SkDrawFilter.h"
-#include "SkFlags.h"
 #include "SkGPipe.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
@@ -1405,8 +1405,8 @@ int tool_main(int argc, char** argv) {
 
     SkString usage;
     usage.printf("Run the golden master tests.\n");
-    SkFlags::SetUsage(usage.c_str());
-    SkFlags::ParseCommandLine(argc, argv);
+    SkCommandLineFlags::SetUsage(usage.c_str());
+    SkCommandLineFlags::Parse(argc, argv);
 
     gmmain.fUseFileHierarchy = FLAGS_hierarchy;
     if (FLAGS_mismatchPath.count() == 1) {

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkFlags.h"
+#include "SkCommandLineFlags.h"
 
 static bool string_is_in(const char* target, const char* set[], size_t len) {
     for (size_t i = 0; i < len; i++) {
@@ -79,10 +79,10 @@ bool SkFlagInfo::match(const char* string) {
     return false;
 }
 
-SkFlagInfo* SkFlags::gHead;
-SkString SkFlags::gUsage;
+SkFlagInfo* SkCommandLineFlags::gHead;
+SkString SkCommandLineFlags::gUsage;
 
-void SkFlags::SetUsage(const char* usage) {
+void SkCommandLineFlags::SetUsage(const char* usage) {
     gUsage.set(usage);
 }
 
@@ -139,11 +139,11 @@ static void print_help_for_flag(const SkFlagInfo* flag) {
     SkDebugf("\n");
 }
 
-void SkFlags::ParseCommandLine(int argc, char** argv) {
+void SkCommandLineFlags::Parse(int argc, char** argv) {
     // Only allow calling this function once.
     static bool gOnce;
     if (gOnce) {
-        SkDebugf("ParseCommandLine should only be called once at the beginning"
+        SkDebugf("Parse should only be called once at the beginning"
                  " of main!\n");
         SkASSERT(false);
         return;
@@ -168,7 +168,7 @@ void SkFlags::ParseCommandLine(int argc, char** argv) {
                 SkDebugf("%s\n%s\n", argv[0], gUsage.c_str());
             }
             SkDebugf("Flags:\n");
-            SkFlagInfo* flag = SkFlags::gHead;
+            SkFlagInfo* flag = SkCommandLineFlags::gHead;
             while (flag != NULL) {
                 // If no flags followed --help, print them all
                 bool printFlag = 0 == helpFlags.count();

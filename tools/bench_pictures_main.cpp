@@ -10,7 +10,7 @@
 #include "PictureBenchmark.h"
 #include "PictureRenderingFlags.h"
 #include "SkBenchLogger.h"
-#include "SkFlags.h"
+#include "SkCommandLineFlags.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #if LAZY_CACHE_STATS
@@ -390,8 +390,8 @@ int tool_main(int argc, char** argv) {
     usage.printf("Time drawing .skp files.\n"
                  "\tPossible arguments for --filter: [%s]\n\t\t[%s]",
                  filterTypesUsage().c_str(), filterFlagsUsage().c_str());
-    SkFlags::SetUsage(usage.c_str());
-    SkFlags::ParseCommandLine(argc, argv);
+    SkCommandLineFlags::SetUsage(usage.c_str());
+    SkCommandLineFlags::Parse(argc, argv);
 
     if (FLAGS_repeat < 1) {
         SkString error;
