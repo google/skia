@@ -202,7 +202,7 @@ void SkOSWindow::doPaint(void* ctx) {
         //       buffer before passing to SetDIBitsToDevice().
         SkASSERT(bitmap.width() * bitmap.bytesPerPixel() == bitmap.rowBytes());
         bitmap.lockPixels();
-        int iRet = SetDIBitsToDevice(hdc,
+        int ret = SetDIBitsToDevice(hdc,
             0, 0,
             bitmap.width(), bitmap.height(),
             0, 0,
@@ -210,6 +210,7 @@ void SkOSWindow::doPaint(void* ctx) {
             bitmap.getPixels(),
             &bmi,
             DIB_RGB_COLORS);
+        (void)ret; // we're ignoring potential failures for now.
         bitmap.unlockPixels();
     }
 }

@@ -331,7 +331,7 @@ HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, bool preferCoreProfile) {
         unsigned int num;
         extensions.choosePixelFormat(dc, iAttrs, fAttrs, 1, &format, &num);
         DescribePixelFormat(dc, format, sizeof(pfd), &pfd);
-        BOOL set = SetPixelFormat(dc, format, &pfd);
+        SkDEBUGCODE(BOOL set =) SetPixelFormat(dc, format, &pfd);
         SkASSERT(TRUE == set);
     }
 

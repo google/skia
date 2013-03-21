@@ -138,7 +138,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow, LPTSTR lpCmdLine)
    char* argv[4096];
    int argc = 0;
    TCHAR exename[1024], *next;
-   int exenameLen = GetModuleFileName(NULL, exename, 1024);
+   int exenameLen = GetModuleFileName(NULL, exename, SK_ARRAY_COUNT(exename));
+   // we're ignoring the possibility that the exe name exceeds the exename buffer
+   (void) exenameLen;
    argv[argc++] = tchar_to_utf8(exename);
    TCHAR* arg = _tcstok_s(lpCmdLine, _T(" "), &next);
    while (arg != NULL) {

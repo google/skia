@@ -435,7 +435,7 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
         SelectObject(fDC, fFont);
 
         COLORREF color = 0x00FFFFFF;
-        COLORREF prev = SetTextColor(fDC, color);
+        SkDEBUGCODE(COLORREF prev =) SetTextColor(fDC, color);
         SkASSERT(prev != CLR_INVALID);
     }
 
