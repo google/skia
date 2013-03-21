@@ -422,9 +422,9 @@ void GrGpuGL::onResetContext() {
             GL_CALL(Disable(GR_GL_COLOR_LOGIC_OP));
             GL_CALL(Disable(GR_GL_INDEX_LOGIC_OP));
         }
-        if (this->glCaps().imagingSupport()) {
-            // This produces a GL error on the windows NVIDIA driver when using a core profile but
-            // I think that is a driver bug since GL_ARB_imaging is in the extension string.
+        // The windows NVIDIA driver has GL_ARB_imaging in the extension string when using a core
+        // profile. This seems like a bug since the core spec removes any mention of GL_ARB_imaging.
+        if (this->glCaps().imagingSupport() && !this->glCaps().isCoreProfile()) {
             GL_CALL(Disable(GR_GL_COLOR_TABLE));
         }
         GL_CALL(Disable(GR_GL_POLYGON_OFFSET_FILL));
