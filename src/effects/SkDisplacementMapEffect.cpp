@@ -401,6 +401,8 @@ void GrGLDisplacementMapEffect::emitCode(GrGLShaderBuilder* builder,
                                          const char* outputColor,
                                          const char* inputColor,
                                          const TextureSamplerArray& samplers) {
+    sk_ignore_unused_variable(inputColor);
+
     fScaleUni = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
                                     kVec2f_GrSLType, "Scale");
     const char* scaleUni = builder->getUniformCStr(fScaleUni);
@@ -414,6 +416,7 @@ void GrGLDisplacementMapEffect::emitCode(GrGLShaderBuilder* builder,
 
     const char* dColor = "dColor";
     const char* cCoords = "cCoords";
+    const char* outOfBounds = "outOfBounds";
     const char* nearZero = "1e-6"; // Since 6.10352e−5 is the smallest half float, use
                                    // a number smaller than that to approximate 0, but
                                    // leave room for 32-bit float GPU rounding errors.
@@ -472,8 +475,9 @@ void GrGLDisplacementMapEffect::emitCode(GrGLShaderBuilder* builder,
     // FIXME : This can be achieved with a "clamp to border" texture repeat mode and
     //         a 0 border color instead of computing if cCoords is out of bounds here.
     builder->fsCodeAppendf(
-        "%s = any(greaterThan(vec4(vec2(0.0), %s), vec4(%s, vec2(1.0)))) ? vec4(0.0) : ",
-        outputColor, cCoords, cCoords);
+        "bool %s = (%s.x < 0.0) || (%s.y < 0.0) || (%s.x > 1.0) || (%s.y > 1.0);\t\t",
+        outOfBounds, cCoords, cCoords, cCoords, cCoords);
+    builder->fsCodeAppendf("%s = %s ? vec4(0.0) : ", outputColor, outOfBounds);
     builder->appendTextureLookup(GrGLShaderBuilder::kFragment_ShaderType,
                                  samplers[1],
                                  cCoords,
