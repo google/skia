@@ -75,7 +75,7 @@ static int calculateRowBytesFor8888(int w, int bitCount)
 
 bool SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode)
 {
-    size_t length = stream->read(NULL, 0);
+    size_t length = stream->getLength();
     SkAutoMalloc autoMal(length);
     unsigned char* buf = (unsigned char*)autoMal.get();
     if (stream->read((void*)buf, length) != length) {
