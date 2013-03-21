@@ -35,6 +35,14 @@ void SkTypeface_SetEnsureLOGFONTAccessibleProc(void (*proc)(const LOGFONT&)) {
     gEnsureLOGFONTAccessibleProc = proc;
 }
 
+static void call_ensure_accessible(const LOGFONT& lf) {
+    if (gEnsureLOGFONTAccessibleProc) {
+        gEnsureLOGFONTAccessibleProc(lf);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 // always packed xxRRGGBB
 typedef uint32_t SkGdiRGB;
 
@@ -168,7 +176,7 @@ public:
 
         TEXTMETRIC textMetric;
         if (0 == GetTextMetrics(deviceContext, &textMetric)) {
-            SkFontHost::EnsureTypefaceAccessible(*this);
+            call_ensure_accessible(lf);
             if (0 == GetTextMetrics(deviceContext, &textMetric)) {
                 textMetric.tmPitchAndFamily = TMPF_TRUETYPE;
             }
@@ -195,6 +203,10 @@ public:
         SkTypeface::Style style = get_style(lf);
         SkFontID fontID = SkTypefaceCache::NewFontID();
         return new LogFontTypeface(style, fontID, lf);
+    }
+
+    static void EnsureAccessible(const SkTypeface* face) {
+        call_ensure_accessible(static_cast<const LogFontTypeface*>(face)->fLogFont);
     }
 
 protected:
@@ -292,13 +304,6 @@ SkTypeface* SkFontHost::NextLogicalTypeface(SkFontID currFontID, SkFontID origFo
   // This function is implemented on Android, but doesn't have much
   // meaning here.
   return NULL;
-}
-
-static void ensure_typeface_accessible(SkFontID fontID) {
-    LogFontTypeface* face = static_cast<LogFontTypeface*>(SkTypefaceCache::FindByID(fontID));
-    if (face) {
-        SkFontHost::EnsureTypefaceAccessible(*face);
-    }
 }
 
 static void GetLogFontByID(SkFontID fontID, LOGFONT* lf) {
@@ -562,11 +567,17 @@ static BYTE compute_quality(const SkScalerContext::Rec& rec) {
     }
 }
 
-SkScalerContext_Windows::SkScalerContext_Windows(SkTypeface* typeface,
+SkScalerContext_Windows::SkScalerContext_Windows(SkTypeface* rawTypeface,
                                                  const SkDescriptor* desc)
-        : SkScalerContext(typeface, desc), fDDC(0), fFont(0), fSavefont(0), fSC(0)
+        : SkScalerContext(rawTypeface, desc)
+        , fDDC(0)
+        , fFont(0)
+        , fSavefont(0)
+        , fSC(0)
         , fGlyphCount(-1) {
     SkAutoMutexAcquire  ac(gFTMutex);
+
+    LogFontTypeface* typeface = reinterpret_cast<LogFontTypeface*>(rawTypeface);
 
     fDDC = ::CreateCompatibleDC(NULL);
     SetGraphicsMode(fDDC, GM_ADVANCED);
@@ -574,8 +585,7 @@ SkScalerContext_Windows::SkScalerContext_Windows(SkTypeface* typeface,
 
     // Scaling by the DPI is inconsistent with how Skia draws elsewhere
     //SkScalar height = -(fRec.fTextSize * GetDeviceCaps(ddc, LOGPIXELSY) / 72);
-    LOGFONT lf;
-    GetLogFontByID(fRec.fFontID, &lf);
+    LOGFONT lf = typeface->fLogFont;
     lf.lfHeight = -gCanonicalTextSize;
     lf.lfQuality = compute_quality(fRec);
     fFont = CreateFontIndirect(&lf);
@@ -597,7 +607,7 @@ SkScalerContext_Windows::SkScalerContext_Windows(SkTypeface* typeface,
     fSavefont = (HFONT)SelectObject(fDDC, fFont);
 
     if (0 == GetTextMetrics(fDDC, &fTM)) {
-        ensure_typeface_accessible(fRec.fFontID);
+        call_ensure_accessible(lf);
         if (0 == GetTextMetrics(fDDC, &fTM)) {
             fTM.tmPitchAndFamily = TMPF_TRUETYPE;
         }
@@ -664,7 +674,7 @@ SkScalerContext_Windows::SkScalerContext_Windows(SkTypeface* typeface,
         fFont = bitmapFont;
 
         if (0 == GetTextMetrics(fDDC, &fTM)) {
-            ensure_typeface_accessible(fRec.fFontID);
+            call_ensure_accessible(lf);
             //if the following fails, we'll just draw at gCanonicalTextSize.
             GetTextMetrics(fDDC, &fTM);
         }
@@ -760,7 +770,7 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
 
     DWORD status = GetGlyphOutlineW(fDDC, glyphId, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, NULL, &fMat22);
     if (GDI_ERROR == status) {
-        ensure_typeface_accessible(fRec.fFontID);
+        LogFontTypeface::EnsureAccessible(this->getTypeface());
         status = GetGlyphOutlineW(fDDC, glyphId, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, NULL, &fMat22);
         if (GDI_ERROR == status) {
             glyph->zeroMetrics();
@@ -845,7 +855,7 @@ void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPa
 
     uint32_t ret = GetOutlineTextMetrics(fDDC, sizeof(otm), &otm);
     if (GDI_ERROR == ret) {
-        ensure_typeface_accessible(fRec.fFontID);
+        LogFontTypeface::EnsureAccessible(this->getTypeface());
         ret = GetOutlineTextMetrics(fDDC, sizeof(otm), &otm);
     }
     if (sizeof(otm) != ret) {
@@ -1088,7 +1098,7 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
     size_t srcRB;
     const void* bits = fOffscreen.draw(glyph, isBW, &srcRB);
     if (NULL == bits) {
-        ensure_typeface_accessible(fRec.fFontID);
+        LogFontTypeface::EnsureAccessible(this->getTypeface());
         bits = fOffscreen.draw(glyph, isBW, &srcRB);
         if (NULL == bits) {
             sk_bzero(glyph.fImage, glyph.computeImageSize());
@@ -1181,7 +1191,7 @@ void SkScalerContext_Windows::generatePath(const SkGlyph& glyph, SkPath* path) {
     GLYPHMETRICS gm;
     uint32_t total_size = GetGlyphOutlineW(fDDC, glyph.fID, GGO_NATIVE | GGO_GLYPH_INDEX, &gm, BUFFERSIZE, glyphbuf, &fMat22);
     if (GDI_ERROR == total_size) {
-        ensure_typeface_accessible(fRec.fFontID);
+        LogFontTypeface::EnsureAccessible(this->getTypeface());
         total_size = GetGlyphOutlineW(fDDC, glyph.fID, GGO_NATIVE | GGO_GLYPH_INDEX, &gm, BUFFERSIZE, glyphbuf, &fMat22);
         if (GDI_ERROR == total_size) {
             SkASSERT(false);
@@ -1280,7 +1290,7 @@ void SkFontHost::Serialize(const SkTypeface* rawFace, SkWStream* stream) {
 
     int fontNameLen; //length of fontName in TCHARS.
     if (0 == (fontNameLen = GetTextFace(deviceContext, 0, NULL))) {
-        SkFontHost::EnsureTypefaceAccessible(*rawFace);
+        LogFontTypeface::EnsureAccessible(rawFace);
         if (0 == (fontNameLen = GetTextFace(deviceContext, 0, NULL))) {
             fontNameLen = 0;
         }
@@ -1288,7 +1298,7 @@ void SkFontHost::Serialize(const SkTypeface* rawFace, SkWStream* stream) {
 
     SkAutoSTArray<LF_FULLFACESIZE, TCHAR> fontName(fontNameLen+1);
     if (0 == GetTextFace(deviceContext, fontNameLen, fontName.get())) {
-        SkFontHost::EnsureTypefaceAccessible(*rawFace);
+        LogFontTypeface::EnsureAccessible(rawFace);
         if (0 == GetTextFace(deviceContext, fontNameLen, fontName.get())) {
             fontName[0] = 0;
         }
@@ -1371,7 +1381,7 @@ SkAdvancedTypefaceMetrics* LogFontTypeface::onGetAdvancedTypefaceMetrics(
     OUTLINETEXTMETRIC otm;
     unsigned int otmRet = GetOutlineTextMetrics(hdc, sizeof(otm), &otm);
     if (0 == otmRet) {
-        ensure_typeface_accessible(this->uniqueID());
+        call_ensure_accessible(lf);
         otmRet = GetOutlineTextMetrics(hdc, sizeof(otm), &otm);
     }
     if (!otmRet || !GetTextFace(hdc, LF_FACESIZE, lf.lfFaceName)) {
@@ -1593,7 +1603,7 @@ SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
     for (int i = 0; i < SK_ARRAY_COUNT(tables); i++) {
         size_t bufferSize = GetFontData(hdc, tables[i], 0, NULL, 0);
         if (bufferSize == GDI_ERROR) {
-            ensure_typeface_accessible(uniqueID);
+            call_ensure_accessible(lf);
             bufferSize = GetFontData(hdc, tables[i], 0, NULL, 0);
         }
         if (bufferSize != GDI_ERROR) {
