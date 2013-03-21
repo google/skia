@@ -79,9 +79,8 @@ static void test_cache(skiatest::Reporter* reporter, SkImageCache* cache) {
                                       != SkImageCache::kPinned_MemoryStatus);
             memory = cache->pinCache(ID, &dataStatus);
             if (memory != NULL) {
-                // Since the cache was thrown away, and ID was not pinned, it should have
-                // been purged.
-                REPORTER_ASSERT(reporter, SkImageCache::kUninitialized_DataStatus == dataStatus);
+                // The memory block may or may not have survived the purging (at the
+                // memory manager's whim) so we cannot check dataStatus here.
                 cache->releaseCache(ID);
                 REPORTER_ASSERT(reporter, cache->getMemoryStatus(ID)
                                           != SkImageCache::kPinned_MemoryStatus);
