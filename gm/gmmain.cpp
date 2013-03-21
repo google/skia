@@ -53,6 +53,7 @@
 #include "SkGpuDevice.h"
 typedef GrContextFactory::GLContextType GLContextType;
 #else
+class GrContextFactory;
 class GrContext;
 class GrRenderTarget;
 typedef int GLContextType;
@@ -1129,6 +1130,7 @@ private:
     GrContext* fOld;
 };
 #else
+GrContext* GetGr();
 GrContext* GetGr() { return NULL; }
 #endif
 }
@@ -1138,6 +1140,249 @@ template <typename T> void appendUnique(SkTDArray<T>* array, const T& value) {
     if (index < 0) {
         *array->append() = value;
     }
+}
+
+/**
+ * Run this test in a number of different configs (8888, 565, PDF,
+ * etc.), confirming that the resulting bitmaps match expectations
+ * (which may be different for each config).
+ *
+ * Returns all errors encountered while doing so.
+ */
+ErrorBitfield run_multiple_configs(GMMain &gmmain, GM *gm, const SkTDArray<size_t> &configs,
+                                   GrContextFactory *grFactory);
+ErrorBitfield run_multiple_configs(GMMain &gmmain, GM *gm, const SkTDArray<size_t> &configs,
+                                   GrContextFactory *grFactory) {
+    ErrorBitfield errorsForAllConfigs = kEmptyErrorBitfield;
+    uint32_t gmFlags = gm->getFlags();
+
+#if SK_SUPPORT_GPU
+    struct {
+        int     fBytes;
+        int     fCount;
+    } gpuCacheSize = { -1, -1 }; // -1s mean use the default
+
+    if (FLAGS_gpuCacheSize.count() > 0) {
+        if (FLAGS_gpuCacheSize.count() != 2) {
+            gm_fprintf(stderr, "--gpuCacheSize requires two arguments\n");
+            return -1;
+        }
+        gpuCacheSize.fBytes = atoi(FLAGS_gpuCacheSize[0]);
+        gpuCacheSize.fCount = atoi(FLAGS_gpuCacheSize[1]);
+    }
+#endif
+
+    for (int i = 0; i < configs.count(); i++) {
+        ConfigData config = gRec[configs[i]];
+
+        // Skip any tests that we don't even need to try.
+        if ((kPDF_Backend == config.fBackend) &&
+            (!FLAGS_pdf|| (gmFlags & GM::kSkipPDF_Flag))) {
+                continue;
+            }
+        if ((gmFlags & GM::kSkip565_Flag) &&
+            (kRaster_Backend == config.fBackend) &&
+            (SkBitmap::kRGB_565_Config == config.fConfig)) {
+            continue;
+        }
+        if ((gmFlags & GM::kSkipGPU_Flag) &&
+            kGPU_Backend == config.fBackend) {
+            continue;
+        }
+
+        // Now we know that we want to run this test and record its
+        // success or failure.
+        ErrorBitfield errorsForThisConfig = kEmptyErrorBitfield;
+        GrRenderTarget* renderTarget = NULL;
+#if SK_SUPPORT_GPU
+        SkAutoTUnref<GrRenderTarget> rt;
+        AutoResetGr autogr;
+        if ((kEmptyErrorBitfield == errorsForThisConfig) && (kGPU_Backend == config.fBackend)) {
+            GrContext* gr = grFactory->get(config.fGLContextType);
+            bool grSuccess = false;
+            if (gr) {
+                // create a render target to back the device
+                GrTextureDesc desc;
+                desc.fConfig = kSkia8888_GrPixelConfig;
+                desc.fFlags = kRenderTarget_GrTextureFlagBit;
+                desc.fWidth = gm->getISize().width();
+                desc.fHeight = gm->getISize().height();
+                desc.fSampleCnt = config.fSampleCnt;
+                GrTexture* tex = gr->createUncachedTexture(desc, NULL, 0);
+                if (tex) {
+                    rt.reset(tex->asRenderTarget());
+                    rt.get()->ref();
+                    tex->unref();
+                    autogr.set(gr);
+                    renderTarget = rt.get();
+                    grSuccess = NULL != renderTarget;
+                }
+                // Set the user specified cache limits if non-default.
+                size_t bytes;
+                int count;
+                gr->getTextureCacheLimits(&count, &bytes);
+                if (-1 != gpuCacheSize.fBytes) {
+                    bytes = static_cast<size_t>(gpuCacheSize.fBytes);
+                }
+                if (-1 != gpuCacheSize.fCount) {
+                    count = gpuCacheSize.fCount;
+                }
+                gr->setTextureCacheLimits(count, bytes);
+            }
+            if (!grSuccess) {
+                errorsForThisConfig |= kNoGpuContext_ErrorBitmask;
+            }
+        }
+#endif
+
+        SkBitmap comparisonBitmap;
+
+        const char* writePath;
+        if (FLAGS_writePath.count() == 1) {
+            writePath = FLAGS_writePath[0];
+        } else {
+            writePath = NULL;
+        }
+        if (kEmptyErrorBitfield == errorsForThisConfig) {
+            errorsForThisConfig |= gmmain.test_drawing(gm, config, writePath, GetGr(),
+                                                       renderTarget, &comparisonBitmap);
+        }
+
+        if (FLAGS_deferred && !errorsForThisConfig &&
+            (kGPU_Backend == config.fBackend ||
+             kRaster_Backend == config.fBackend)) {
+            errorsForThisConfig |= gmmain.test_deferred_drawing(gm, config, comparisonBitmap,
+                                                                GetGr(), renderTarget);
+        }
+
+        errorsForAllConfigs |= errorsForThisConfig;
+    }
+    return errorsForAllConfigs;
+}
+
+/**
+ * Run this test in a number of different drawing modes (pipe,
+ * deferred, tiled, etc.), confirming that the resulting bitmaps all
+ * *exactly* match comparisonBitmap.
+ *
+ * Returns all errors encountered while doing so.
+ */
+ErrorBitfield run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &compareConfig,
+                                 const SkBitmap &comparisonBitmap);
+ErrorBitfield run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &compareConfig,
+                                 const SkBitmap &comparisonBitmap) {
+    SkTDArray<SkScalar> tileGridReplayScales;
+    *tileGridReplayScales.append() = SK_Scalar1; // By default only test at scale 1.0
+    if (FLAGS_tileGridReplayScales.count() > 0) {
+        tileGridReplayScales.reset();
+        for (int i = 0; i < FLAGS_tileGridReplayScales.count(); i++) {
+            double val = atof(FLAGS_tileGridReplayScales[i]);
+            if (0 < val) {
+                *tileGridReplayScales.append() = SkDoubleToScalar(val);
+            }
+        }
+        if (0 == tileGridReplayScales.count()) {
+            // Should have at least one scale
+            gm_fprintf(stderr, "--tileGridReplayScales requires at least one scale.\n");
+            return -1;
+        }
+    }
+
+    ErrorBitfield errorsForAllModes = kEmptyErrorBitfield;
+    uint32_t gmFlags = gm->getFlags();
+
+    // run the picture centric GM steps
+    if (!(gmFlags & GM::kSkipPicture_Flag)) {
+
+        ErrorBitfield pictErrors = kEmptyErrorBitfield;
+
+        //SkAutoTUnref<SkPicture> pict(generate_new_picture(gm));
+        SkPicture* pict = gmmain.generate_new_picture(gm, kNone_BbhType, 0);
+        SkAutoUnref aur(pict);
+
+        if (FLAGS_replay) {
+            SkBitmap bitmap;
+            gmmain.generate_image_from_picture(gm, compareConfig, pict, &bitmap);
+            pictErrors |= gmmain.compare_test_results_to_reference_bitmap(
+                gm, compareConfig, "-replay", bitmap, &comparisonBitmap);
+        }
+
+        if ((kEmptyErrorBitfield == pictErrors) && FLAGS_serialize) {
+            SkPicture* repict = gmmain.stream_to_new_picture(*pict);
+            SkAutoUnref aurr(repict);
+
+            SkBitmap bitmap;
+            gmmain.generate_image_from_picture(gm, compareConfig, repict, &bitmap);
+            pictErrors |= gmmain.compare_test_results_to_reference_bitmap(
+                gm, compareConfig, "-serialize", bitmap, &comparisonBitmap);
+        }
+
+        if (FLAGS_writePicturePath.count() == 1) {
+            const char* pictureSuffix = "skp";
+            SkString path = make_filename(FLAGS_writePicturePath[0], "",
+                                          gm->shortName(), pictureSuffix);
+            SkFILEWStream stream(path.c_str());
+            pict->serialize(&stream);
+        }
+
+        errorsForAllModes |= pictErrors;
+    }
+
+    // TODO: add a test in which the RTree rendering results in a
+    // different bitmap than the standard rendering.  It should
+    // show up as failed in the JSON summary, and should be listed
+    // in the stdout also.
+    if (!(gmFlags & GM::kSkipPicture_Flag) && FLAGS_rtree) {
+        SkPicture* pict = gmmain.generate_new_picture(
+            gm, kRTree_BbhType, SkPicture::kUsePathBoundsForClip_RecordingFlag);
+        SkAutoUnref aur(pict);
+        SkBitmap bitmap;
+        gmmain.generate_image_from_picture(gm, compareConfig, pict, &bitmap);
+        errorsForAllModes |= gmmain.compare_test_results_to_reference_bitmap(
+            gm, compareConfig, "-rtree", bitmap, &comparisonBitmap);
+    }
+
+    if (!(gmFlags & GM::kSkipPicture_Flag) && FLAGS_tileGrid) {
+        for(int scaleIndex = 0; scaleIndex < tileGridReplayScales.count(); ++scaleIndex) {
+            SkScalar replayScale = tileGridReplayScales[scaleIndex];
+            if ((gmFlags & GM::kSkipScaledReplay_Flag) && replayScale != 1) {
+                continue;
+            }
+            // We record with the reciprocal scale to obtain a replay
+            // result that can be validated against comparisonBitmap.
+            SkScalar recordScale = SkScalarInvert(replayScale);
+            SkPicture* pict = gmmain.generate_new_picture(
+                gm, kTileGrid_BbhType, SkPicture::kUsePathBoundsForClip_RecordingFlag, recordScale);
+            SkAutoUnref aur(pict);
+            SkBitmap bitmap;
+            gmmain.generate_image_from_picture(gm, compareConfig, pict, &bitmap, replayScale);
+            SkString suffix("-tilegrid");
+            if (SK_Scalar1 != replayScale) {
+                suffix += "-scale-";
+                suffix.appendScalar(replayScale);
+            }
+            errorsForAllModes |= gmmain.compare_test_results_to_reference_bitmap(
+                gm, compareConfig, suffix.c_str(), bitmap, &comparisonBitmap);
+        }
+    }
+
+    // run the pipe centric GM steps
+    if (!(gmFlags & GM::kSkipPipe_Flag)) {
+
+        ErrorBitfield pipeErrors = kEmptyErrorBitfield;
+
+        if (FLAGS_pipe) {
+            pipeErrors |= gmmain.test_pipe_playback(gm, compareConfig, comparisonBitmap);
+        }
+
+        if ((kEmptyErrorBitfield == pipeErrors) &&
+            FLAGS_tiledPipe && !(gmFlags & GM::kSkipTiled_Flag)) {
+            pipeErrors |= gmmain.test_tiled_pipe_playback(gm, compareConfig, comparisonBitmap);
+        }
+
+        errorsForAllModes |= pipeErrors;
+    }
+    return errorsForAllModes;
 }
 
 int tool_main(int argc, char** argv);
@@ -1156,30 +1401,12 @@ int tool_main(int argc, char** argv) {
 
     SkTDArray<size_t> configs;
     SkTDArray<size_t> excludeConfigs;
-    SkTDArray<SkScalar> tileGridReplayScales;
-    *tileGridReplayScales.append() = SK_Scalar1; // By default only test at scale 1.0
     bool userConfig = false;
 
     SkString usage;
     usage.printf("Run the golden master tests.\n");
     SkFlags::SetUsage(usage.c_str());
     SkFlags::ParseCommandLine(argc, argv);
-
-#if SK_SUPPORT_GPU
-    struct {
-        int     fBytes;
-        int     fCount;
-    } gpuCacheSize = { -1, -1 }; // -1s mean use the default
-
-    if (FLAGS_gpuCacheSize.count() > 0) {
-        if (FLAGS_gpuCacheSize.count() != 2) {
-            gm_fprintf(stderr, "--gpuCacheSize requires two arguments\n");
-            return -1;
-        }
-        gpuCacheSize.fBytes = atoi(FLAGS_gpuCacheSize[0]);
-        gpuCacheSize.fCount = atoi(FLAGS_gpuCacheSize[1]);
-    }
-#endif
 
     gmmain.fUseFileHierarchy = FLAGS_hierarchy;
     if (FLAGS_mismatchPath.count() == 1) {
@@ -1203,21 +1430,6 @@ int tool_main(int argc, char** argv) {
             *excludeConfigs.append() = index;
         } else {
             gm_fprintf(stderr, "unrecognized excludeConfig %s\n", FLAGS_excludeConfig[i]);
-            return -1;
-        }
-    }
-
-    if (FLAGS_tileGridReplayScales.count() > 0) {
-        tileGridReplayScales.reset();
-        for (int i = 0; i < FLAGS_tileGridReplayScales.count(); i++) {
-            double val = atof(FLAGS_tileGridReplayScales[i]);
-            if (0 < val) {
-                *tileGridReplayScales.append() = SkDoubleToScalar(val);
-            }
-        }
-        if (0 == tileGridReplayScales.count()) {
-            // Should have at least one scale
-            gm_fprintf(stderr, "--tileGridReplayScales requires at least one scale.\n");
             return -1;
         }
     }
@@ -1272,6 +1484,8 @@ int tool_main(int argc, char** argv) {
             }
         }
     }
+#else
+    GrContextFactory* grFactory = NULL;
 #endif
 
     if (FLAGS_verbose) {
@@ -1371,207 +1585,16 @@ int tool_main(int argc, char** argv) {
                    size.width(), size.height());
 
         ErrorBitfield testErrors = kEmptyErrorBitfield;
-        uint32_t gmFlags = gm->getFlags();
-
-        for (int i = 0; i < configs.count(); i++) {
-            ConfigData config = gRec[configs[i]];
-
-            // Skip any tests that we don't even need to try.
-            if ((kPDF_Backend == config.fBackend) &&
-                (!FLAGS_pdf|| (gmFlags & GM::kSkipPDF_Flag)))
-                {
-                    continue;
-                }
-            if ((gmFlags & GM::kSkip565_Flag) &&
-                (kRaster_Backend == config.fBackend) &&
-                (SkBitmap::kRGB_565_Config == config.fConfig)) {
-                continue;
-            }
-            if ((gmFlags & GM::kSkipGPU_Flag) &&
-                kGPU_Backend == config.fBackend) {
-                continue;
-            }
-
-            // Now we know that we want to run this test and record its
-            // success or failure.
-            ErrorBitfield renderErrors = kEmptyErrorBitfield;
-            GrRenderTarget* renderTarget = NULL;
-#if SK_SUPPORT_GPU
-            SkAutoTUnref<GrRenderTarget> rt;
-            AutoResetGr autogr;
-            if ((kEmptyErrorBitfield == renderErrors) &&
-                kGPU_Backend == config.fBackend) {
-                GrContext* gr = grFactory->get(config.fGLContextType);
-                bool grSuccess = false;
-                if (gr) {
-                    // create a render target to back the device
-                    GrTextureDesc desc;
-                    desc.fConfig = kSkia8888_GrPixelConfig;
-                    desc.fFlags = kRenderTarget_GrTextureFlagBit;
-                    desc.fWidth = gm->getISize().width();
-                    desc.fHeight = gm->getISize().height();
-                    desc.fSampleCnt = config.fSampleCnt;
-                    GrTexture* tex = gr->createUncachedTexture(desc, NULL, 0);
-                    if (tex) {
-                        rt.reset(tex->asRenderTarget());
-                        rt.get()->ref();
-                        tex->unref();
-                        autogr.set(gr);
-                        renderTarget = rt.get();
-                        grSuccess = NULL != renderTarget;
-                    }
-                    // Set the user specified cache limits if non-default.
-                    size_t bytes;
-                    int count;
-                    gr->getTextureCacheLimits(&count, &bytes);
-                    if (-1 != gpuCacheSize.fBytes) {
-                        bytes = static_cast<size_t>(gpuCacheSize.fBytes);
-                    }
-                    if (-1 != gpuCacheSize.fCount) {
-                        count = gpuCacheSize.fCount;
-                    }
-                    gr->setTextureCacheLimits(count, bytes);
-                }
-                if (!grSuccess) {
-                    renderErrors |= kNoGpuContext_ErrorBitmask;
-                }
-            }
-#endif
-
-            SkBitmap comparisonBitmap;
-
-            const char* writePath;
-            if (FLAGS_writePath.count() == 1) {
-                writePath = FLAGS_writePath[0];
-            } else {
-                writePath = NULL;
-            }
-            if (kEmptyErrorBitfield == renderErrors) {
-                renderErrors |= gmmain.test_drawing(gm, config, writePath,
-                                                    GetGr(),
-                                                    renderTarget,
-                                                    &comparisonBitmap);
-            }
-
-            if (FLAGS_deferred && !renderErrors &&
-                (kGPU_Backend == config.fBackend ||
-                 kRaster_Backend == config.fBackend)) {
-                renderErrors |= gmmain.test_deferred_drawing(gm, config,
-                                                             comparisonBitmap,
-                                                             GetGr(),
-                                                             renderTarget);
-            }
-
-            testErrors |= renderErrors;
-        }
+        testErrors |= run_multiple_configs(gmmain, gm, configs, grFactory);
 
         SkBitmap comparisonBitmap;
         const ConfigData compareConfig =
             { SkBitmap::kARGB_8888_Config, kRaster_Backend, kDontCare_GLContextType, 0, kRW_ConfigFlag, "comparison", false };
         testErrors |= gmmain.generate_image(gm, compareConfig, NULL, NULL, &comparisonBitmap, false);
 
-        // run the picture centric GM steps
-        if (!(gmFlags & GM::kSkipPicture_Flag)) {
-
-            ErrorBitfield pictErrors = kEmptyErrorBitfield;
-
-            //SkAutoTUnref<SkPicture> pict(generate_new_picture(gm));
-            SkPicture* pict = gmmain.generate_new_picture(gm, kNone_BbhType, 0);
-            SkAutoUnref aur(pict);
-
-            if ((kEmptyErrorBitfield == testErrors) && FLAGS_replay) {
-                SkBitmap bitmap;
-                gmmain.generate_image_from_picture(gm, compareConfig, pict,
-                                                   &bitmap);
-                pictErrors |= gmmain.compare_test_results_to_reference_bitmap(
-                    gm, compareConfig, "-replay", bitmap, &comparisonBitmap);
-            }
-
-            if ((kEmptyErrorBitfield == testErrors) &&
-                (kEmptyErrorBitfield == pictErrors) &&
-                FLAGS_serialize) {
-                SkPicture* repict = gmmain.stream_to_new_picture(*pict);
-                SkAutoUnref aurr(repict);
-
-                SkBitmap bitmap;
-                gmmain.generate_image_from_picture(gm, compareConfig, repict,
-                                                   &bitmap);
-                pictErrors |= gmmain.compare_test_results_to_reference_bitmap(
-                    gm, compareConfig, "-serialize", bitmap, &comparisonBitmap);
-            }
-
-            if (FLAGS_writePicturePath.count() == 1) {
-                const char* pictureSuffix = "skp";
-                SkString path = make_filename(FLAGS_writePicturePath[0], "",
-                                              gm->shortName(),
-                                              pictureSuffix);
-                SkFILEWStream stream(path.c_str());
-                pict->serialize(&stream);
-            }
-
-            testErrors |= pictErrors;
-        }
-
-        // TODO: add a test in which the RTree rendering results in a
-        // different bitmap than the standard rendering.  It should
-        // show up as failed in the JSON summary, and should be listed
-        // in the stdout also.
-        if (!(gmFlags & GM::kSkipPicture_Flag) && FLAGS_rtree) {
-            SkPicture* pict = gmmain.generate_new_picture(
-                gm, kRTree_BbhType, SkPicture::kUsePathBoundsForClip_RecordingFlag);
-            SkAutoUnref aur(pict);
-            SkBitmap bitmap;
-            gmmain.generate_image_from_picture(gm, compareConfig, pict,
-                                               &bitmap);
-            testErrors |= gmmain.compare_test_results_to_reference_bitmap(
-                gm, compareConfig, "-rtree", bitmap, &comparisonBitmap);
-        }
-
-        if (!(gmFlags & GM::kSkipPicture_Flag) && FLAGS_tileGrid) {
-            for(int scaleIndex = 0; scaleIndex < tileGridReplayScales.count(); ++scaleIndex) {
-                SkScalar replayScale = tileGridReplayScales[scaleIndex];
-                if ((gmFlags & GM::kSkipScaledReplay_Flag) && replayScale != 1)
-                    continue;
-                // We record with the reciprocal scale to obtain a replay
-                // result that can be validated against comparisonBitmap.
-                SkScalar recordScale = SkScalarInvert(replayScale);
-                SkPicture* pict = gmmain.generate_new_picture(
-                    gm, kTileGrid_BbhType, SkPicture::kUsePathBoundsForClip_RecordingFlag,
-                    recordScale);
-                SkAutoUnref aur(pict);
-                SkBitmap bitmap;
-                gmmain.generate_image_from_picture(gm, compareConfig, pict,
-                                                   &bitmap, replayScale);
-                SkString suffix("-tilegrid");
-                if (SK_Scalar1 != replayScale) {
-                    suffix += "-scale-";
-                    suffix.appendScalar(replayScale);
-                }
-                testErrors |= gmmain.compare_test_results_to_reference_bitmap(
-                    gm, compareConfig, suffix.c_str(), bitmap,
-                    &comparisonBitmap);
-            }
-        }
-
-        // run the pipe centric GM steps
-        if (!(gmFlags & GM::kSkipPipe_Flag)) {
-
-            ErrorBitfield pipeErrors = kEmptyErrorBitfield;
-
-            if ((kEmptyErrorBitfield == testErrors) && FLAGS_pipe) {
-                pipeErrors |= gmmain.test_pipe_playback(gm, compareConfig,
-                                                        comparisonBitmap);
-            }
-
-            if ((kEmptyErrorBitfield == testErrors) &&
-                (kEmptyErrorBitfield == pipeErrors) &&
-                FLAGS_tiledPipe && !(gmFlags & GM::kSkipTiled_Flag)) {
-                pipeErrors |= gmmain.test_tiled_pipe_playback(gm, compareConfig,
-                                                              comparisonBitmap);
-            }
-
-            testErrors |= pipeErrors;
-        }
+        // TODO(epoger): only run this if gmmain.generate_image() succeeded?
+        // Otherwise, what are we comparing against?
+        testErrors |= run_multiple_modes(gmmain, gm, compareConfig, comparisonBitmap);
 
         // Update overall results.
         // We only tabulate the particular error types that we currently
