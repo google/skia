@@ -225,7 +225,7 @@ static void TestSubstitute(skiatest::Reporter* reporter) {
 // and there is no assert on input data in Debug mode.
 static void test_issue1083() {
     SkISize pageSize = SkISize::Make(100, 100);
-    SkPDFDevice* dev = new SkPDFDevice(pageSize, pageSize, SkMatrix::I());
+    SkAutoTUnref<SkPDFDevice> dev(new SkPDFDevice(pageSize, pageSize, SkMatrix::I()));
 
     SkCanvas c(dev);
     SkPaint paint;

@@ -539,9 +539,9 @@ GrEffectRef* GrMatrixConvolutionEffect::TestCreate(SkMWCRandom* random,
     int width = random->nextRangeU(1, MAX_KERNEL_SIZE);
     int height = random->nextRangeU(1, MAX_KERNEL_SIZE / width);
     SkISize kernelSize = SkISize::Make(width, height);
-    SkScalar* kernel = new SkScalar[width * height];
+    SkAutoTDeleteArray<SkScalar> kernel(new SkScalar[width * height]);
     for (int i = 0; i < width * height; i++) {
-        kernel[i] = random->nextSScalar1();
+        kernel.get()[i] = random->nextSScalar1();
     }
     SkScalar gain = random->nextSScalar1();
     SkScalar bias = random->nextSScalar1();
@@ -551,13 +551,12 @@ GrEffectRef* GrMatrixConvolutionEffect::TestCreate(SkMWCRandom* random,
     bool convolveAlpha = random->nextBool();
     return GrMatrixConvolutionEffect::Create(textures[texIdx],
                                              kernelSize,
-                                             kernel,
+                                             kernel.get(),
                                              gain,
                                              bias,
                                              target,
                                              tileMode,
                                              convolveAlpha);
-
 }
 
 bool SkMatrixConvolutionImageFilter::asNewEffect(GrEffectRef** effect,
