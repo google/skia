@@ -479,6 +479,7 @@ public:
     }
 
 protected:
+    virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
     virtual SkScalerContext* onCreateScalerContext(const SkDescriptor*) const SK_OVERRIDE;
     virtual void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE;
     virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
@@ -992,8 +993,6 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
     }
 
     //Copy the mask into the glyph.
-    int width = glyph.fWidth;
-    size_t dstRB = glyph.rowBytes();
     const uint8_t* src = (const uint8_t*)bits;
     if (isBW) {
         bilevel_to_bw(src, glyph);
@@ -1134,19 +1133,21 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
 
 SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
     DWriteFontTypeface* typeface = GetDWriteFontByID(uniqueID);
-    if (NULL == typeface) {
-        return NULL;
-    }
+    return typeface ? typeface->openStream(NULL) : NULL;
+}
+
+SkStream* DWriteFontTypeface::onOpenStream(int* ttcIndex) const {
+    *ttcIndex = 0;
 
     UINT32 numFiles;
-    HRNM(typeface->fDWriteFontFace->GetFiles(&numFiles, NULL),
+    HRNM(fDWriteFontFace->GetFiles(&numFiles, NULL),
          "Could not get number of font files.");
     if (numFiles != 1) {
         return NULL;
     }
 
     SkTScopedComPtr<IDWriteFontFile> fontFile;
-    HRNM(typeface->fDWriteFontFace->GetFiles(&numFiles, &fontFile), "Could not get font files.");
+    HRNM(fDWriteFontFace->GetFiles(&numFiles, &fontFile), "Could not get font files.");
 
     const void* fontFileKey;
     UINT32 fontFileKeySize;
@@ -1381,7 +1382,8 @@ public:
                                                     T::TAG1,
                                                     T::TAG2,
                                                     T::TAG3);
-        HRESULT hr = fontFace->TryGetFontTable(tag,
+        // TODO: need to check for failure
+        /*HRESULT hr =*/ fontFace->TryGetFontTable(tag,
             reinterpret_cast<const void **>(&fData), &fSize, &fLock, &fExists);
     }
     ~AutoDWriteTable() {
