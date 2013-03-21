@@ -412,6 +412,7 @@ protected:
     friend class SkFontHost;    // to access our protected members for deprecated methods
 
     virtual int onGetUPEM() const SK_OVERRIDE;
+    virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
     virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const SK_OVERRIDE;
@@ -485,11 +486,6 @@ static SkTypeface* NewFromName(const char familyName[], SkTypeface::Style theSty
     }
 
     return ctFont ? NewFromFontRef(ctFont, familyName) : NULL;
-}
-
-static CTFontRef GetFontRefFromFontID(SkFontID fontID) {
-    SkTypeface_Mac* face = reinterpret_cast<SkTypeface_Mac*>(SkTypefaceCache::FindByID(fontID));
-    return face ? face->fFontRef.get() : NULL;
 }
 
 static SkTypeface* GetDefaultFace() {
@@ -1587,8 +1583,8 @@ SkAdvancedTypefaceMetrics* SkTypeface_Mac::onGetAdvancedTypefaceMetrics(
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SK_SFNT_ULONG get_font_type_tag(SkFontID uniqueID) {
-    CTFontRef ctFont = GetFontRefFromFontID(uniqueID);
+static SK_SFNT_ULONG get_font_type_tag(const SkTypeface_Mac* typeface) {
+    CTFontRef ctFont = typeface->fFontRef.get();
     AutoCFRelease<CFNumberRef> fontFormatRef(
             static_cast<CFNumberRef>(CTFontCopyAttribute(ctFont, kCTFontFormatAttribute)));
     if (!fontFormatRef) {
@@ -1620,23 +1616,23 @@ static SK_SFNT_ULONG get_font_type_tag(SkFontID uniqueID) {
     }
 }
 
-SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
-    SK_SFNT_ULONG fontType = get_font_type_tag(uniqueID);
+SkStream* SkTypeface_Mac::onOpenStream(int* ttcIndex) const {
+    SK_SFNT_ULONG fontType = get_font_type_tag(this);
     if (0 == fontType) {
         return NULL;
     }
 
     // get table tags
-    int numTables = CountTables(uniqueID);
+    int numTables = this->countTables();
     SkTDArray<SkFontTableTag> tableTags;
     tableTags.setCount(numTables);
-    GetTableTags(uniqueID, tableTags.begin());
+    this->getTableTags(tableTags.begin());
 
     // calc total size for font, save sizes
     SkTDArray<size_t> tableSizes;
     size_t totalSize = sizeof(SkSFNTHeader) + sizeof(SkSFNTHeader::TableDirectoryEntry) * numTables;
     for (int tableIndex = 0; tableIndex < numTables; ++tableIndex) {
-        size_t tableSize = GetTableSize(uniqueID, tableTags[tableIndex]);
+        size_t tableSize = this->getTableSize(tableTags[tableIndex]);
         totalSize += (tableSize + 3) & ~3;
         *tableSizes.append() = tableSize;
     }
@@ -1671,7 +1667,7 @@ SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
     dataPtr += sizeof(SkSFNTHeader::TableDirectoryEntry) * numTables;
     for (int tableIndex = 0; tableIndex < numTables; ++tableIndex) {
         size_t tableSize = tableSizes[tableIndex];
-        GetTableData(uniqueID, tableTags[tableIndex], 0, tableSize, dataPtr);
+        this->getTableData(tableTags[tableIndex], 0, tableSize, dataPtr);
         entry->tag = SkEndian_SwapBE32(tableTags[tableIndex]);
         entry->checksum = SkEndian_SwapBE32(SkOTUtils::CalcTableChecksum((SK_OT_ULONG*)dataPtr,
                                                                          tableSize));
@@ -1685,7 +1681,13 @@ SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
     return stream;
 }
 
+SkStream* SkFontHost::OpenStream(SkFontID fontID) {
+    SkASSERT(!"SkFontHost::OpenStream is DEPRECATED\n");
+    return NULL;
+}
+
 size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length, int32_t* index) {
+    SkASSERT(!"SkFontHost::GetFileName is DEPRECATED\n");
     return 0;
 }
 
