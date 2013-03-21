@@ -113,7 +113,7 @@ bool SkXMLParser::parse(const char doc[], size_t len)
 
 bool SkXMLParser::parse(SkStream& input)
 {
-    size_t          len = input.read(NULL, 0);
+    size_t          len = input.getLength();
     SkAutoMalloc    am(len);
     char*           doc = (char*)am.get();
 

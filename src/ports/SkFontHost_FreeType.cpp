@@ -1333,7 +1333,7 @@ bool find_name_and_attributes(SkStream* stream, SkString* name,
         args.memory_size = stream->getLength();
     } else {
         memset(&streamRec, 0, sizeof(streamRec));
-        streamRec.size = stream->read(NULL, 0);
+        streamRec.size = stream->getLength();
         streamRec.descriptor.pointer = stream;
         streamRec.read  = sk_stream_read;
         streamRec.close = sk_stream_close;

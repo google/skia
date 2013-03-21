@@ -37,12 +37,11 @@ DEFINE_DECODER_CREATOR(BMPImageDecoder);
 static SkImageDecoder* sk_libbmp_dfactory(SkStream* stream) {
     static const char kBmpMagic[] = { 'B', 'M' };
 
-    size_t len = stream->getLength();
+
     char buffer[sizeof(kBmpMagic)];
 
-    if (len > sizeof(kBmpMagic) &&
-            stream->read(buffer, sizeof(kBmpMagic)) == sizeof(kBmpMagic) &&
-            !memcmp(buffer, kBmpMagic, sizeof(kBmpMagic))) {
+    if (stream->read(buffer, sizeof(kBmpMagic)) == sizeof(kBmpMagic) &&
+        !memcmp(buffer, kBmpMagic, sizeof(kBmpMagic))) {
         return SkNEW(SkBMPImageDecoder);
     }
     return NULL;

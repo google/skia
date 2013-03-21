@@ -152,7 +152,7 @@ bool SkXMLPullParser::onInit()
     XML_SetCharacterDataHandler(p, text_proc);
     XML_SetUserData(p, &fImpl->fData);
 
-    size_t len = fStream->read(NULL, 0);
+    size_t len = fStream->getLength();
     fImpl->fBufferLen = len;
     fImpl->fBuffer = sk_malloc_throw(len);
     fStream->rewind();
