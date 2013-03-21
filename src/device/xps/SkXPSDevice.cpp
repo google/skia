@@ -37,6 +37,7 @@
 #include "SkTDArray.h"
 #include "SkTLazy.h"
 #include "SkTScopedComPtr.h"
+#include "SkTypefacePriv.h"
 #include "SkUtils.h"
 #include "SkXPSDevice.h"
 
@@ -2013,10 +2014,10 @@ void SkXPSDevice::drawSprite(const SkDraw&, const SkBitmap& bitmap,
 
 HRESULT SkXPSDevice::CreateTypefaceUse(const SkPaint& paint,
                                        TypefaceUse** typefaceUse) {
-    const SkTypeface* typeface = paint.getTypeface();
+    SkAutoResolveDefaultTypeface typeface(paint.getTypeface());
 
     //Check cache.
-    const SkFontID typefaceID = SkTypeface::UniqueID(typeface);
+    const SkFontID typefaceID = typeface->uniqueID();
     if (!this->fTypefaces.empty()) {
         TypefaceUse* current = &this->fTypefaces.front();
         const TypefaceUse* last = &this->fTypefaces.back();
@@ -2033,7 +2034,7 @@ HRESULT SkXPSDevice::CreateTypefaceUse(const SkPaint& paint,
     XPS_FONT_EMBEDDING embedding = XPS_FONT_EMBEDDING_RESTRICTED;
 
     SkTScopedComPtr<IStream> fontStream;
-    SkStream* fontData = SkFontHost::OpenStream(typefaceID);
+    SkStream* fontData = typeface->openStream(NULL);
     HRM(SkIStream::CreateFromSkStream(fontData, true, &fontStream),
         "Could not create font stream.");
 
