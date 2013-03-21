@@ -267,7 +267,7 @@ protected:
                                     uint32_t) const SK_OVERRIDE {
         return NULL;
     }
-    
+
 private:
     bool    fIsSysFont;
 
