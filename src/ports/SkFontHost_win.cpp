@@ -210,6 +210,7 @@ public:
     }
 
 protected:
+    virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
     virtual SkScalerContext* onCreateScalerContext(const SkDescriptor*) const SK_OVERRIDE;
     virtual void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE;
     virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
@@ -1321,11 +1322,14 @@ void SkFontHost::Serialize(const SkTypeface* rawFace, SkWStream* stream) {
 
     if (face->fSerializeAsStream) {
         // store the entire font in the fontData
-        SkAutoTUnref<SkStream> fontStream(SkFontHost::OpenStream(face->uniqueID()));
-        const uint32_t length = fontStream->getLength();
-
-        stream->writePackedUInt(length);
-        stream->writeStream(fontStream, length);
+        SkAutoTUnref<SkStream> fontStream(face->openStream(NULL));
+        if (fontStream.get()) {
+            const uint32_t length = fontStream->getLength();
+            stream->writePackedUInt(length);
+            stream->writeStream(fontStream, length);
+        } else {
+            stream->writePackedUInt(0);
+        }
     } else {
         stream->writePackedUInt(0);
     }
@@ -1588,11 +1592,12 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
     return SkCreateFontMemResourceTypefaceFromLOGFONT(lf, fontReference);
 }
 
-SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
+SkStream* LogFontTypeface::onOpenStream(int* ttcIndex) const {
+    *ttcIndex = 0;
+
     const DWORD kTTCTag =
         SkEndian_SwapBE32(SkSetFourByteTag('t', 't', 'c', 'f'));
-    LOGFONT lf;
-    GetLogFontByID(uniqueID, &lf);
+    LOGFONT lf = fLogFont;
 
     HDC hdc = ::CreateCompatibleDC(NULL);
     HFONT font = CreateFontIndirect(&lf);
@@ -1625,7 +1630,13 @@ SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
     return stream;
 }
 
+SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
+    SkTypeface* typeface = SkTypefaceCache::FindByID(uniqueID);
+    return typeface ? typeface->openStream(NULL) : NULL;
+}
+
 size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length, int32_t* index) {
+    SkASSERT(!"SkFontHost::GetFileName is DEPRECATED\n");
     return 0;
 }
 
