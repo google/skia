@@ -176,31 +176,6 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
 ///////////////////////////////////////////////////////////////////////////////
 
 // DEPRECATED
-int SkFontHost::CountTables(SkFontID fontID) {
-    SkTypeface* face = SkTypefaceCache::FindByID(fontID);
-    return face ? face->onGetTableTags(NULL) : 0;
-}
-
-// DEPRECATED
-int SkFontHost::GetTableTags(SkFontID fontID, SkFontTableTag tags[]) {
-    SkTypeface* face = SkTypefaceCache::FindByID(fontID);
-    return face ? face->onGetTableTags(tags) : 0;
-}
-
-// DEPRECATED
-size_t SkFontHost::GetTableSize(SkFontID fontID, SkFontTableTag tag) {
-    SkTypeface* face = SkTypefaceCache::FindByID(fontID);
-    return face ? face->onGetTableData(tag, 0, ~0U, NULL) : 0;
-}
-
-// DEPRECATED
-size_t SkFontHost::GetTableData(SkFontID fontID, SkFontTableTag tag,
-                                size_t offset, size_t length, void* dst) {
-    SkTypeface* face = SkTypefaceCache::FindByID(fontID);
-    return face ? face->onGetTableData(tag, offset, length, dst) : 0;
-}
-
-// DEPRECATED
 SkTypeface* SkFontHost::NextLogicalTypeface(SkFontID curr, SkFontID orig) {
     // We don't handle font fallback.
     return NULL;
@@ -304,3 +279,4 @@ void FontConfigTypeface::onGetFontDescriptor(SkFontDescriptor* desc) const {
     desc->setStyle(this->style());
     desc->setFamilyName(this->getFamilyName());
 }
+
