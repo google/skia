@@ -204,25 +204,6 @@ private:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    /** Retrieve detailed typeface metrics.  Used by the PDF backend.
-        @param perGlyphInfo Indicate what glyph specific information (advances,
-                            names, etc.) should be populated.
-        @return The returned object has already been referenced.  NULL is
-                returned if the font is not found.
-        @param glyphIDs  For per-glyph info, specify subset of the font by
-                         giving glyph ids.  Each integer represents a glyph
-                         id.  Passing NULL means all glyphs in the font.
-        @param glyphIDsCount Number of elements in subsetGlyphIds. Ignored if
-                             glyphIDs is NULL.
-     */
-    static SkAdvancedTypefaceMetrics* GetAdvancedTypefaceMetrics(
-            SkFontID fontID,
-            SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
-            const uint32_t* glyphIDs,
-            uint32_t glyphIDsCount);
-
-    ///////////////////////////////////////////////////////////////////////////
-
     friend class SkTypeface;
 };
 
