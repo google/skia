@@ -395,7 +395,7 @@ void SkDebugCanvas::drawPicture(SkPicture& picture) {
 }
 
 void SkDebugCanvas::drawPoints(PointMode mode, size_t count,
-        const SkPoint pts[], const SkPaint& paint) {
+                               const SkPoint pts[], const SkPaint& paint) {
     addDrawCommand(new DrawPoints(mode, count, pts, paint));
 }
 

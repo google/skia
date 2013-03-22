@@ -95,14 +95,16 @@ public:
     ClipRect(const SkRect& rect, SkRegion::Op op, bool doAA);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
 
-    const SkRect& rect() const { return *fRect; }
+    const SkRect& rect() const { return fRect; }
     SkRegion::Op op() const { return fOp; }
     bool doAA() const { return fDoAA; }
 
 private:
-    const SkRect* fRect;
+    SkRect       fRect;
     SkRegion::Op fOp;
-    bool fDoAA;
+    bool         fDoAA;
+
+    typedef SkDrawCommand INHERITED;
 };
 
 class ClipRRect : public SkDrawCommand {
@@ -115,9 +117,11 @@ public:
     bool doAA() const { return fDoAA; }
 
 private:
-    SkRRect fRRect;
+    SkRRect      fRRect;
     SkRegion::Op fOp;
-    bool fDoAA;
+    bool         fDoAA;
+
+    typedef SkDrawCommand INHERITED;
 };
 
 class Concat : public SkDrawCommand {
@@ -214,8 +218,10 @@ public:
     DrawOval(const SkRect& oval, const SkPaint& paint);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
 private:
-    const SkRect* fOval;
-    const SkPaint* fPaint;
+    SkRect  fOval;
+    SkPaint fPaint;
+
+    typedef SkDrawCommand INHERITED;
 };
 
 class DrawPaint : public SkDrawCommand {
@@ -223,7 +229,9 @@ public:
     DrawPaint(const SkPaint& paint);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
 private:
-    const SkPaint* fPaint;
+    SkPaint fPaint;
+
+    typedef SkDrawCommand INHERITED;
 };
 
 class DrawPath : public SkDrawCommand {
@@ -251,13 +259,17 @@ private:
 class DrawPoints : public SkDrawCommand {
 public:
     DrawPoints(SkCanvas::PointMode mode, size_t count, const SkPoint pts[],
-            const SkPaint& paint);
+               const SkPaint& paint);
+    virtual ~DrawPoints() { delete [] fPts; }
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+
 private:
-    const SkPoint* fPts;
     SkCanvas::PointMode fMode;
-    size_t fCount;
-    const SkPaint* fPaint;
+    size_t              fCount;
+    SkPoint*            fPts;
+    SkPaint             fPaint;
+
+    typedef SkDrawCommand INHERITED;
 };
 
 /* TODO(chudy): DrawText is a predefined macro and was breaking something
@@ -279,19 +291,20 @@ private:
 class DrawPosText : public SkDrawCommand {
 public:
     DrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
-            const SkPaint& paint);
+                const SkPaint& paint);
+    virtual ~DrawPosText() { delete [] fPos; delete [] fText; }
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
 private:
-    const SkPoint* fPos;
-    const void* fText;
+    SkPoint* fPos;
+    char* fText;
     size_t fByteLength;
-    const SkPaint* fPaint;
+    SkPaint fPaint;
 };
 
 class DrawTextOnPath : public SkDrawCommand {
 public:
     DrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
-            const SkMatrix* matrix, const SkPaint& paint);
+                   const SkMatrix* matrix, const SkPaint& paint);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
 private:
     const SkMatrix* fMatrix;
@@ -305,10 +318,11 @@ class DrawPosTextH : public SkDrawCommand {
 public:
     DrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
                  SkScalar constY, const SkPaint& paint);
+    virtual ~DrawPosTextH() { delete [] fXpos; delete [] fText; }
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
 private:
-    const SkScalar* fXpos;
-    const void* fText;
+    SkScalar* fXpos;
+    char* fText;
     size_t fByteLength;
     SkScalar fConstY;
     SkPaint fPaint;

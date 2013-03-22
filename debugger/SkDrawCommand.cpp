@@ -113,33 +113,33 @@ void ClipRegion::execute(SkCanvas* canvas) {
 }
 
 ClipRect::ClipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
-    this->fRect = &rect;
-    this->fOp = op;
-    this->fDoAA = doAA;
-    this->fDrawType = CLIP_RECT;
+    fRect = rect;
+    fOp = op;
+    fDoAA = doAA;
+    fDrawType = CLIP_RECT;
 
-    this->fInfo.push(SkObjectParser::RectToString(rect));
-    this->fInfo.push(SkObjectParser::RegionOpToString(op));
-    this->fInfo.push(SkObjectParser::BoolToString(doAA));
+    fInfo.push(SkObjectParser::RectToString(rect));
+    fInfo.push(SkObjectParser::RegionOpToString(op));
+    fInfo.push(SkObjectParser::BoolToString(doAA));
 }
 
 void ClipRect::execute(SkCanvas* canvas) {
-    canvas->clipRect(*this->fRect, this->fOp, this->fDoAA);
+    canvas->clipRect(fRect, fOp, fDoAA);
 }
 
 ClipRRect::ClipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
-    this->fRRect = rrect;
-    this->fOp = op;
-    this->fDoAA = doAA;
-    this->fDrawType = CLIP_RRECT;
+    fRRect = rrect;
+    fOp = op;
+    fDoAA = doAA;
+    fDrawType = CLIP_RRECT;
 
-    this->fInfo.push(SkObjectParser::RRectToString(rrect));
-    this->fInfo.push(SkObjectParser::RegionOpToString(op));
-    this->fInfo.push(SkObjectParser::BoolToString(doAA));
+    fInfo.push(SkObjectParser::RRectToString(rrect));
+    fInfo.push(SkObjectParser::RegionOpToString(op));
+    fInfo.push(SkObjectParser::BoolToString(doAA));
 }
 
 void ClipRRect::execute(SkCanvas* canvas) {
-    canvas->clipRRect(this->fRRect, this->fOp, this->fDoAA);
+    canvas->clipRRect(fRRect, fOp, fDoAA);
 }
 
 Concat::Concat(const SkMatrix& matrix) {
@@ -276,27 +276,27 @@ void DrawData::execute(SkCanvas* canvas) {
 }
 
 DrawOval::DrawOval(const SkRect& oval, const SkPaint& paint) {
-    this->fOval = &oval;
-    this->fPaint = &paint;
-    this->fDrawType = DRAW_OVAL;
+    fOval = oval;
+    fPaint = paint;
+    fDrawType = DRAW_OVAL;
 
-    this->fInfo.push(SkObjectParser::RectToString(oval));
-    this->fInfo.push(SkObjectParser::PaintToString(paint));
+    fInfo.push(SkObjectParser::RectToString(oval));
+    fInfo.push(SkObjectParser::PaintToString(paint));
 }
 
 void DrawOval::execute(SkCanvas* canvas) {
-    canvas->drawOval(*this->fOval, *this->fPaint);
+    canvas->drawOval(fOval, fPaint);
 }
 
 DrawPaint::DrawPaint(const SkPaint& paint) {
-    this->fPaint = &paint;
-    this->fDrawType = DRAW_PAINT;
+    fPaint = paint;
+    fDrawType = DRAW_PAINT;
 
-    this->fInfo.push(SkObjectParser::PaintToString(paint));
+    fInfo.push(SkObjectParser::PaintToString(paint));
 }
 
 void DrawPaint::execute(SkCanvas* canvas) {
-    canvas->drawPaint(*this->fPaint);
+    canvas->drawPaint(fPaint);
 }
 
 DrawPath::DrawPath(const SkPath& path, const SkPaint& paint, SkBitmap& bitmap) {
@@ -328,49 +328,62 @@ void DrawPicture::execute(SkCanvas* canvas) {
 }
 
 DrawPoints::DrawPoints(SkCanvas::PointMode mode, size_t count,
-        const SkPoint pts[], const SkPaint& paint) {
-    this->fMode = mode;
-    this->fCount = count;
-    this->fPts = pts;
-    this->fPaint = &paint;
-    this->fDrawType = DRAW_POINTS;
+                       const SkPoint pts[], const SkPaint& paint) {
+    fMode = mode;
+    fCount = count;
+    fPts = new SkPoint[count];
+    memcpy(fPts, pts, count * sizeof(SkPoint));
+    fPaint = paint;
+    fDrawType = DRAW_POINTS;
 
-    this->fInfo.push(SkObjectParser::PointsToString(pts, count));
-    this->fInfo.push(SkObjectParser::ScalarToString(SkIntToScalar((unsigned int)count),
-                                                    "Points: "));
-    this->fInfo.push(SkObjectParser::PointModeToString(mode));
-    this->fInfo.push(SkObjectParser::PaintToString(paint));
+    fInfo.push(SkObjectParser::PointsToString(pts, count));
+    fInfo.push(SkObjectParser::ScalarToString(SkIntToScalar((unsigned int)count),
+                                              "Points: "));
+    fInfo.push(SkObjectParser::PointModeToString(mode));
+    fInfo.push(SkObjectParser::PaintToString(paint));
 }
 
 void DrawPoints::execute(SkCanvas* canvas) {
-    canvas->drawPoints(this->fMode, this->fCount, this->fPts, *this->fPaint);
+    canvas->drawPoints(fMode, fCount, fPts, fPaint);
 }
 
 DrawPosText::DrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
-        const SkPaint& paint) {
-    this->fText = text;
-    this->fByteLength = byteLength;
-    this->fPos = pos;
-    this->fPaint = &paint;
-    this->fDrawType = DRAW_POS_TEXT;
+                         const SkPaint& paint) {
+    size_t numPts = paint.countText(text, byteLength);
 
-    this->fInfo.push(SkObjectParser::TextToString(text, byteLength, paint.getTextEncoding()));
+    fText = new char[byteLength];
+    memcpy(fText, text, byteLength);
+    fByteLength = byteLength;
+
+    fPos = new SkPoint[numPts];
+    memcpy(fPos, pos, numPts * sizeof(SkPoint));
+
+    fPaint = paint;
+    fDrawType = DRAW_POS_TEXT;
+
+    fInfo.push(SkObjectParser::TextToString(text, byteLength, paint.getTextEncoding()));
     // TODO(chudy): Test that this works.
-    this->fInfo.push(SkObjectParser::PointsToString(pos, 1));
-    this->fInfo.push(SkObjectParser::PaintToString(paint));
+    fInfo.push(SkObjectParser::PointsToString(pos, 1));
+    fInfo.push(SkObjectParser::PaintToString(paint));
 }
 
 void DrawPosText::execute(SkCanvas* canvas) {
-    canvas->drawPosText(this->fText, this->fByteLength, this->fPos, *this->fPaint);
+    canvas->drawPosText(fText, fByteLength, fPos, fPaint);
 }
 
 
 DrawPosTextH::DrawPosTextH(const void* text, size_t byteLength,
                            const SkScalar xpos[], SkScalar constY,
                            const SkPaint& paint) {
-    fText = text;
+    size_t numPts = paint.countText(text, byteLength);
+
+    fText = new char[byteLength];
+    memcpy(fText, text, byteLength);
     fByteLength = byteLength;
-    fXpos = xpos;
+
+    fXpos = new SkScalar[numPts];
+    memcpy(fXpos, xpos, numPts * sizeof(SkScalar));
+
     fConstY = constY;
     fPaint = paint;
     fDrawType = DRAW_POS_TEXT_H;
