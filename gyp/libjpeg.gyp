@@ -11,6 +11,7 @@
 {
   'variables': {
     'use_system_libjpeg%': 0,
+    'skia_warnings_as_errors': 0,
   },
   'conditions': [
     ['skia_os == "android"', {
@@ -95,22 +96,10 @@
                 ],
               },
               'conditions': [
-                ['OS!="win"', {
+                [ 'skia_os != "win"', {
                   'product_name': 'jpeg',
                   'cflags': [
                    '-Wno-main', # supresses warnings about naming things "main"
-                  ],
-                }],
-                ['OS=="android"', {
-                  'cflags!': [
-                   '-fno-rtti', # supresses warnings about invalid option of non-C++ code
-                   '-Wall',
-                   '-Werror',
-                  ],
-                }],
-                ['OS in ["linux", "freebsd", "openbsd", "solaris", "nacl"]', {
-                  'cflags!': [
-                   '-Werror',
                   ],
                 }],
               ],

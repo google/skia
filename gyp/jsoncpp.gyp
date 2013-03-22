@@ -12,6 +12,9 @@
 # and https://code.google.com/p/skia/source/detail?r=7115
 
 {
+  'variables': {
+    'skia_warnings_as_errors': 0,
+  },
   'targets': [
     {
       'target_name': 'jsoncpp',
@@ -47,29 +50,9 @@
         ],
       },
       'conditions': [
-        [ 'skia_os == "mac"', {
-          'xcode_settings': {
-            'OTHER_CPLUSPLUSFLAGS!': [
-              '-Werror',
-            ]
-          },
-        }],
-        [ 'skia_os == "win"', {
-          'msvs_settings': {
-            'VCCLCompilerTool': {
-              'WarnAsError': 'false',
-            },
-          },
-        }],
         [ 'skia_os == "android"', {
           'cflags!': [
             '-Wall',
-            '-Werror',
-          ],
-        }],
-        ['skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl"]', {
-          'cflags!': [
-            '-Werror',
           ],
         }],
       ],
