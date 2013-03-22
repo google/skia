@@ -249,12 +249,6 @@ SkStream* SkFontHost::OpenStream(uint32_t) {
     return NULL;
 }
 
-size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
-                               int32_t* index) {
-    SkASSERT(!"SkFontHost::GetFileName is DEPRECATED: call SkTypeface::openStream\n");
-    return 0;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 int FontConfigTypeface::onGetTableTags(SkFontTableTag tags[]) const {

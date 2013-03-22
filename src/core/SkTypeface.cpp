@@ -156,10 +156,10 @@ int SkTypeface::onGetUPEM() const {
 }
 
 SkStream* SkTypeface::onOpenStream(int* ttcIndex) const {
+    // If this has not been overridden, then we just don't know the ttcIndex
+    // so we set it to 0
     if (ttcIndex) {
-        int32_t ndx = 0;
-        (void)SkFontHost::GetFileName(fUniqueID, NULL, 0, &ndx);
-        *ttcIndex = (int)ndx;
+        *ttcIndex = 0;
     }
     return SkFontHost::OpenStream(fUniqueID);
 }
