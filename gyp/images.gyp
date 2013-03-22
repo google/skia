@@ -26,7 +26,7 @@
         '../include/images/SkImageEncoder.h',
         '../include/images/SkImageRef.h',
         '../include/images/SkImageRef_GlobalPool.h',
-        '../include/images/SkJpegUtility.h',
+        '../src/images/SkJpegUtility.h',
         '../include/images/SkMovie.h',
         '../include/images/SkPageFlipper.h',
 
