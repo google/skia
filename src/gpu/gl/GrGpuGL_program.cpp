@@ -33,7 +33,7 @@ GrGpuGL::ProgramCache::~ProgramCache() {
     SkDebugf("--- Program Cache ---\n");
     SkDebugf("Total requests: %d\n", fTotalRequests);
     SkDebugf("Cache misses: %d\n", fCacheMisses);
-    SkDebugf("Cache miss %%: %f\n", (fTotalRequests > 0) 
+    SkDebugf("Cache miss %%: %f\n", (fTotalRequests > 0)
                                     ? (float)fCacheMisses/(float)fTotalRequests : 0.0f);
     SkDebugf("---------------------\n");
 #endif
