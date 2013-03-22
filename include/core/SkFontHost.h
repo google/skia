@@ -120,12 +120,6 @@ public:
 
 private:
 
-    /** Return a new stream to read the font data, or null if the uniqueID does
-     not match an existing typeface. .The caller must call stream->unref()
-     when it is finished reading the data.
-     */
-    static SkStream* OpenStream(SkFontID uniqueID);
-
     /** Return a new, closest matching typeface given either an existing family
         (specified by a typeface in that family) or by a familyName and a
         requested style.

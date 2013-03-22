@@ -29,13 +29,6 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(char const*) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkStream* SkFontHost::OpenStream(uint32_t uniqueID) {
-    SkDEBUGFAIL("SkFontHost::OpenStream unimplemented");
-    return NULL;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
     SkDEBUGFAIL("SkFontHost::Serialize unimplemented");
 }

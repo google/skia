@@ -1630,11 +1630,6 @@ SkStream* LogFontTypeface::onOpenStream(int* ttcIndex) const {
     return stream;
 }
 
-SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
-    SkTypeface* typeface = SkTypefaceCache::FindByID(uniqueID);
-    return typeface ? typeface->openStream(NULL) : NULL;
-}
-
 SkScalerContext* LogFontTypeface::onCreateScalerContext(const SkDescriptor* desc) const {
     return SkNEW_ARGS(SkScalerContext_Windows, (const_cast<LogFontTypeface*>(this), desc));
 }
