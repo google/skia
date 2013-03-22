@@ -52,7 +52,8 @@ private:
     GrCircleEdgeEffect(bool stroke);
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
-        return true;
+        const GrCircleEdgeEffect& cee = CastEffect<GrCircleEdgeEffect>(other);
+        return cee.fStroke == fStroke;
     }
 
     bool fStroke;
