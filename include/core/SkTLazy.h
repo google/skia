@@ -103,7 +103,7 @@ template <typename T> void* operator new(size_t, SkTLazy<T>* lazy) {
 // Skia doesn't use C++ exceptions but it may be compiled with them enabled. Having an op delete
 // to match the op new silences warnings about missing op delete when a constructor throws an
 // exception.
-template <typename T> void operator delete(void*, SkTLazy<T>) { SK_CRASH(); }
+template <typename T> void operator delete(void*, SkTLazy<T>*) { SK_CRASH(); }
 
 // Use this to construct a T inside an SkTLazy using a non-default constructor.
 #define SkNEW_IN_TLAZY(tlazy_ptr, type_name, args) (new (tlazy_ptr) type_name args)
