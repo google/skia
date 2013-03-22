@@ -76,17 +76,6 @@ SkStream* SkFontHost::OpenStream(uint32_t fontID) {
     return NULL;
 }
 
-size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
-                               int32_t* index) {
-    if (path) {
-        strncpy(path, "font", length);
-    }
-    if (index) {
-        *index = 0;
-    }
-    return 4;
-}
-
 void SkFontHost::Serialize(const SkTypeface*, SkWStream*) {
     SkDEBUGFAIL("SkFontHost::Serialize unimplemented");
 }

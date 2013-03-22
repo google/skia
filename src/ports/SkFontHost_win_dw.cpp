@@ -1165,10 +1165,6 @@ SkStream* DWriteFontTypeface::onOpenStream(int* ttcIndex) const {
     return SkNEW_ARGS(SkDWriteFontFileStream, (fontFileStream.get()));
 }
 
-size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length, int32_t* index) {
-    return 0;
-}
-
 SkScalerContext* DWriteFontTypeface::onCreateScalerContext(const SkDescriptor* desc) const {
     return SkNEW_ARGS(SkScalerContext_Windows, (const_cast<DWriteFontTypeface*>(this), desc));
 }

@@ -846,27 +846,6 @@ SkStream* SkFontHost::OpenStream(uint32_t fontID) {
     return stream;
 }
 
-size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
-                               int32_t* index) {
-    SkAutoMutexAcquire  ac(gFamilyHeadAndNameListMutex);
-
-    FamilyTypeface* tf = (FamilyTypeface*)find_from_uniqueID(fontID);
-    const char* src = tf ? tf->getFilePath() : NULL;
-
-    if (src) {
-        size_t size = strlen(src);
-        if (path) {
-            memcpy(path, src, SkMin32(size, length));
-        }
-        if (index) {
-            *index = 0; // we don't have collections (yet)
-        }
-        return size;
-    } else {
-        return 0;
-    }
-}
-
 SkTypeface* SkFontHost::NextLogicalTypeface(SkFontID currFontID, SkFontID origFontID) {
 #if defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
     // Skia does not support font fallback for ndk applications in order to

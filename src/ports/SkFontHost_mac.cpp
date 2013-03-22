@@ -1686,11 +1686,6 @@ SkStream* SkFontHost::OpenStream(SkFontID fontID) {
     return NULL;
 }
 
-size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length, int32_t* index) {
-    SkASSERT(!"SkFontHost::GetFileName is DEPRECATED\n");
-    return 0;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkStream.h"

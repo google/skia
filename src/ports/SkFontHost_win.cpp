@@ -1635,11 +1635,6 @@ SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
     return typeface ? typeface->openStream(NULL) : NULL;
 }
 
-size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length, int32_t* index) {
-    SkASSERT(!"SkFontHost::GetFileName is DEPRECATED\n");
-    return 0;
-}
-
 SkScalerContext* LogFontTypeface::onCreateScalerContext(const SkDescriptor* desc) const {
     return SkNEW_ARGS(SkScalerContext_Windows, (const_cast<LogFontTypeface*>(this), desc));
 }
