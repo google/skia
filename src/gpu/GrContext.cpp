@@ -12,13 +12,12 @@
 #include "effects/GrConvolutionEffect.h"
 #include "effects/GrSingleTextureEffect.h"
 #include "effects/GrConfigConversionEffect.h"
-#include "effects/GrCircleEdgeEffect.h"
-#include "effects/GrEllipseEdgeEffect.h"
 
 #include "GrBufferAllocPool.h"
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
 #include "GrInOrderDrawBuffer.h"
+#include "GrOvalRenderer.h"
 #include "GrPathRenderer.h"
 #include "GrPathUtils.h"
 #include "GrResourceCache.h"
@@ -99,6 +98,7 @@ GrContext::GrContext() {
     fDrawBufferVBAllocPool = NULL;
     fDrawBufferIBAllocPool = NULL;
     fAARectRenderer = NULL;
+    fOvalRenderer = NULL;
 }
 
 bool GrContext::init(GrBackend backend, GrBackendContext backendContext) {
@@ -121,6 +121,7 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext) {
     fLastDrawWasBuffered = kNo_BufferedDraw;
 
     fAARectRenderer = SkNEW(GrAARectRenderer);
+    fOvalRenderer = SkNEW(GrOvalRenderer);
 
     fDidTestPMConversions = false;
 
@@ -152,6 +153,7 @@ GrContext::~GrContext() {
     delete fDrawBufferIBAllocPool;
 
     fAARectRenderer->unref();
+    fOvalRenderer->unref();
 
     fGpu->unref();
     GrSafeUnref(fPathRendererChain);
@@ -989,295 +991,19 @@ void GrContext::drawVertices(const GrPaint& paint,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-namespace {
-
-struct CircleVertex {
-    GrPoint fPos;
-    GrPoint fCenter;
-    SkScalar fOuterRadius;
-    SkScalar fInnerRadius;
-};
-
-struct EllipseVertex {
-    GrPoint fPos;
-    GrPoint fCenter;
-    SkScalar fOuterXRadius;
-    SkScalar fOuterXYRatio;
-    SkScalar fInnerXRadius;
-    SkScalar fInnerXYRatio;
-};
-
-inline bool circleStaysCircle(const SkMatrix& m) {
-    return m.isSimilarity();
-}
-
-}
 
 void GrContext::drawOval(const GrPaint& paint,
                          const GrRect& oval,
                          const SkStrokeRec& stroke) {
 
-    bool isCircle;
-    if (!canDrawOval(paint, oval, &isCircle)) {
+    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
+    GrDrawState::AutoStageDisable atr(fDrawState);
+
+    if (!fOvalRenderer->drawOval(target, this, paint, oval, stroke)) {
         SkPath path;
         path.addOval(oval);
-        this->drawPath(paint, path, stroke);
-        return;
+        this->internalDrawPath(target, paint, path, stroke);
     }
-
-    if (isCircle) {
-        this->internalDrawCircle(paint, oval, stroke);
-    } else {
-        this->internalDrawOval(paint, oval, stroke);
-    }
-}
-
-bool GrContext::canDrawOval(const GrPaint& paint, const GrRect& oval, bool* isCircle) const {
-    GrAssert(isCircle != NULL);
-
-    if (!paint.isAntiAlias()) {
-        return false;
-    }
-
-    // we can draw circles
-    *isCircle = SkScalarNearlyEqual(oval.width(), oval.height())
-                && circleStaysCircle(this->getMatrix());
-    // and axis-aligned ellipses only
-    bool isAxisAlignedEllipse = this->getMatrix().rectStaysRect();
-
-    return *isCircle || isAxisAlignedEllipse;
-}
-
-void GrContext::internalDrawOval(const GrPaint& paint,
-                                 const GrRect& oval,
-                                 const SkStrokeRec& stroke) {
-#ifdef SK_DEBUG
-    {
-        // we should have checked for this previously
-        bool isAxisAlignedEllipse = this->getMatrix().rectStaysRect();
-        SkASSERT(paint.isAntiAlias() && isAxisAlignedEllipse);
-    }
-#endif
-    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
-
-    GrDrawState* drawState = target->drawState();
-    GrDrawState::AutoStageDisable atr(fDrawState);
-
-    const GrRenderTarget* rt = drawState->getRenderTarget();
-    if (NULL == rt) {
-        return;
-    }
-
-    const SkMatrix vm = drawState->getViewMatrix();
-
-    GrDrawState::AutoDeviceCoordDraw adcd(drawState);
-    if (!adcd.succeeded()) {
-        return;
-    }
-
-    // position + edge
-    static const GrVertexAttrib kVertexAttribs[] = {
-        {kVec2f_GrVertexAttribType, 0},
-        {kVec2f_GrVertexAttribType, sizeof(GrPoint)},
-        {kVec4f_GrVertexAttribType, 2*sizeof(GrPoint)}
-    };
-    drawState->setVertexAttribs(kVertexAttribs, SK_ARRAY_COUNT(kVertexAttribs));
-    drawState->setAttribIndex(GrDrawState::kPosition_AttribIndex, 0);
-    GrAssert(sizeof(EllipseVertex) == drawState->getVertexSize());
-
-    GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
-    if (!geo.succeeded()) {
-        GrPrintf("Failed to get space for vertices!\n");
-        return;
-    }
-
-    EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(geo.vertices());
-
-    GrPoint center = GrPoint::Make(oval.centerX(), oval.centerY());
-    vm.mapPoints(&center, 1);
-
-    SkStrokeRec::Style style = stroke.getStyle();
-    bool isStroked = (SkStrokeRec::kStroke_Style == style || SkStrokeRec::kHairline_Style == style);
-    enum {
-        // the edge effects share this stage with glyph rendering
-        // (kGlyphMaskStage in GrTextContext) && SW path rendering
-        // (kPathMaskStage in GrSWMaskHelper)
-        kEdgeEffectStage = GrPaint::kTotalStages,
-    };
-    drawState->setAttribBindings(GrDrawState::kDefault_AttribBindings);
-
-    GrEffectRef* effect = GrEllipseEdgeEffect::Create(isStroked);
-    static const int kEllipseCenterAttrIndex = 1;
-    static const int kEllipseEdgeAttrIndex = 2;
-    drawState->setEffect(kEdgeEffectStage, effect,
-                         kEllipseCenterAttrIndex, kEllipseEdgeAttrIndex)->unref();
-
-    SkRect xformedRect;
-    vm.mapRect(&xformedRect, oval);
-
-    SkScalar xRadius = SkScalarHalf(xformedRect.width());
-    SkScalar yRadius = SkScalarHalf(xformedRect.height());
-    SkScalar innerXRadius = 0.0f;
-    SkScalar innerRatio = 1.0f;
-
-    if (SkStrokeRec::kFill_Style != style) {
-        SkScalar strokeWidth = stroke.getWidth();
-
-        // do (potentially) anisotropic mapping
-        SkVector scaledStroke;
-        scaledStroke.set(strokeWidth, strokeWidth);
-        vm.mapVectors(&scaledStroke, 1);
-
-        if (SkScalarNearlyZero(scaledStroke.length())) {
-            scaledStroke.set(SK_ScalarHalf, SK_ScalarHalf);
-        } else {
-            scaledStroke.scale(0.5f);
-        }
-
-        // this is legit only if scale & translation (which should be the case at the moment)
-        if (SkStrokeRec::kStroke_Style == style || SkStrokeRec::kHairline_Style == style) {
-            SkScalar innerYRadius = SkMaxScalar(0, yRadius - scaledStroke.fY);
-            if (innerYRadius > SK_ScalarNearlyZero) {
-                innerXRadius = SkMaxScalar(0, xRadius - scaledStroke.fX);
-                innerRatio = innerXRadius/innerYRadius;
-            }
-        }
-        xRadius += scaledStroke.fX;
-        yRadius += scaledStroke.fY;
-    }
-
-    SkScalar outerRatio = SkScalarDiv(xRadius, yRadius);
-
-    for (int i = 0; i < 4; ++i) {
-        verts[i].fCenter = center;
-        verts[i].fOuterXRadius = xRadius + 0.5f;
-        verts[i].fOuterXYRatio = outerRatio;
-        verts[i].fInnerXRadius = innerXRadius - 0.5f;
-        verts[i].fInnerXYRatio = innerRatio;
-    }
-
-    SkScalar L = -xRadius;
-    SkScalar R = +xRadius;
-    SkScalar T = -yRadius;
-    SkScalar B = +yRadius;
-
-    // We've extended the outer x radius out half a pixel to antialias.
-    // Expand the drawn rect here so all the pixels will be captured.
-    L += center.fX - SK_ScalarHalf;
-    R += center.fX + SK_ScalarHalf;
-    T += center.fY - SK_ScalarHalf;
-    B += center.fY + SK_ScalarHalf;
-
-    verts[0].fPos = SkPoint::Make(L, T);
-    verts[1].fPos = SkPoint::Make(R, T);
-    verts[2].fPos = SkPoint::Make(L, B);
-    verts[3].fPos = SkPoint::Make(R, B);
-
-    target->drawNonIndexed(kTriangleStrip_GrPrimitiveType, 0, 4);
-}
-
-void GrContext::internalDrawCircle(const GrPaint& paint,
-                                   const GrRect& circle,
-                                   const SkStrokeRec& stroke) {
-
-    SkScalar radius = SkScalarHalf(circle.width());
-
-    SkScalar strokeWidth = stroke.getWidth();
-    SkStrokeRec::Style style = stroke.getStyle();
-
-    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
-
-    GrDrawState* drawState = target->drawState();
-    GrDrawState::AutoStageDisable atr(fDrawState);
-
-    const GrRenderTarget* rt = drawState->getRenderTarget();
-    if (NULL == rt) {
-        return;
-    }
-
-    const SkMatrix vm = drawState->getViewMatrix();
-
-    GrDrawState::AutoDeviceCoordDraw adcd(drawState);
-    if (!adcd.succeeded()) {
-        return;
-    }
-
-    // position + edge
-    static const GrVertexAttrib kVertexAttribs[] = {
-        {kVec2f_GrVertexAttribType, 0},
-        {kVec4f_GrVertexAttribType, sizeof(GrPoint)}
-    };
-    drawState->setVertexAttribs(kVertexAttribs, SK_ARRAY_COUNT(kVertexAttribs));
-    drawState->setAttribIndex(GrDrawState::kPosition_AttribIndex, 0);
-    GrAssert(sizeof(CircleVertex) == drawState->getVertexSize());
-
-    GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
-    if (!geo.succeeded()) {
-        GrPrintf("Failed to get space for vertices!\n");
-        return;
-    }
-
-    CircleVertex* verts = reinterpret_cast<CircleVertex*>(geo.vertices());
-
-    GrPoint center = GrPoint::Make(circle.centerX(), circle.centerY());
-    vm.mapPoints(&center, 1);
-
-    bool isStroked = (SkStrokeRec::kStroke_Style == style || SkStrokeRec::kHairline_Style == style);
-    enum {
-        // the edge effects share this stage with glyph rendering
-        // (kGlyphMaskStage in GrTextContext) && SW path rendering
-        // (kPathMaskStage in GrSWMaskHelper)
-        kEdgeEffectStage = GrPaint::kTotalStages,
-    };
-    drawState->setAttribBindings(GrDrawState::kDefault_AttribBindings);
-
-    GrEffectRef* effect = GrCircleEdgeEffect::Create(isStroked);
-    static const int kCircleEdgeAttrIndex = 1;
-    drawState->setEffect(kEdgeEffectStage, effect, kCircleEdgeAttrIndex)->unref();
-
-    radius = vm.mapRadius(radius);
-
-    SkScalar innerRadius = -2.0f;
-    SkScalar outerRadius = radius;
-    SkScalar halfWidth = 0;
-    if (style != SkStrokeRec::kFill_Style) {
-        strokeWidth = vm.mapRadius(strokeWidth);
-        if (SkScalarNearlyZero(strokeWidth)) {
-            halfWidth = SK_ScalarHalf;
-        } else {
-            halfWidth = SkScalarHalf(strokeWidth);
-        }
-
-        outerRadius += halfWidth;
-        if (isStroked) {
-            innerRadius = SkMaxScalar(0, radius - halfWidth);
-        }
-    }
-
-    for (int i = 0; i < 4; ++i) {
-        verts[i].fCenter = center;
-        verts[i].fOuterRadius = outerRadius + 0.5f;
-        verts[i].fInnerRadius = innerRadius - 0.5f;
-    }
-
-    SkScalar L = -outerRadius;
-    SkScalar R = +outerRadius;
-    SkScalar T = -outerRadius;
-    SkScalar B = +outerRadius;
-
-    // We've extended the outer radius out half a pixel to antialias.
-    // Expand the drawn rect here so all the pixels will be captured.
-    L += center.fX - SK_ScalarHalf;
-    R += center.fX + SK_ScalarHalf;
-    T += center.fY - SK_ScalarHalf;
-    B += center.fY + SK_ScalarHalf;
-
-    verts[0].fPos = SkPoint::Make(L, T);
-    verts[1].fPos = SkPoint::Make(R, T);
-    verts[2].fPos = SkPoint::Make(L, B);
-    verts[3].fPos = SkPoint::Make(R, B);
-
-    target->drawNonIndexed(kTriangleStrip_GrPrimitiveType, 0, 4);
 }
 
 void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const SkStrokeRec& stroke) {
@@ -1289,32 +1015,25 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const SkStrok
        return;
     }
 
-    SkRect ovalRect;
-    bool isOval = path.isOval(&ovalRect);
-
-    bool isCircle;
-    if (isOval && !path.isInverseFillType() && this->canDrawOval(paint, ovalRect, &isCircle)) {
-        if (isCircle) {
-            this->internalDrawCircle(paint, ovalRect, stroke);
-        } else {
-            this->internalDrawOval(paint, ovalRect, stroke);
-        }
-        return;
-    }
-
-    this->internalDrawPath(paint, path, stroke);
-}
-
-void GrContext::internalDrawPath(const GrPaint& paint, const SkPath& path,
-                                 const SkStrokeRec& stroke) {
-
-    // Note that below we may sw-rasterize the path into a scratch texture.
+    // Note that internalDrawPath may sw-rasterize the path into a scratch texture.
     // Scratch textures can be recycled after they are returned to the texture
     // cache. This presents a potential hazard for buffered drawing. However,
     // the writePixels that uploads to the scratch will perform a flush so we're
     // OK.
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW);
     GrDrawState::AutoStageDisable atr(fDrawState);
+
+    SkRect ovalRect;
+    bool isOval = path.isOval(&ovalRect);
+
+    if (!isOval || path.isInverseFillType() 
+        || !fOvalRenderer->drawOval(target, this, paint, ovalRect, stroke)) {
+        this->internalDrawPath(target, paint, path, stroke);
+    }
+}
+
+void GrContext::internalDrawPath(GrDrawTarget* target, const GrPaint& paint, const SkPath& path,
+                                 const SkStrokeRec& stroke) {
 
     bool prAA = paint.isAntiAlias() && !this->getRenderTarget()->isMultisampled();
 
