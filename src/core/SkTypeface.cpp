@@ -185,4 +185,3 @@ size_t SkTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
         ? SkFontStream::GetTableData(stream, ttcIndex, tag, offset, length, data)
         : 0;
 }
-
