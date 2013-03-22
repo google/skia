@@ -1131,11 +1131,6 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
                                           fontFileLoader.get(), streamFontCollectionLoader.get());
 }
 
-SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
-    DWriteFontTypeface* typeface = GetDWriteFontByID(uniqueID);
-    return typeface ? typeface->openStream(NULL) : NULL;
-}
-
 SkStream* DWriteFontTypeface::onOpenStream(int* ttcIndex) const {
     *ttcIndex = 0;
 

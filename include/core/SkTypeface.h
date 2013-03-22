@@ -213,13 +213,11 @@ protected:
 
     virtual SkScalerContext* onCreateScalerContext(const SkDescriptor*) const = 0;
     virtual void onFilterRec(SkScalerContextRec*) const = 0;
-
     virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
                         SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
                         const uint32_t* glyphIDs,
                         uint32_t glyphIDsCount) const = 0;
-    // TODO: remove SkFontHost::OpenStream and make this guy pure-virtual
-    virtual SkStream* onOpenStream(int* ttcIndex) const;
+    virtual SkStream* onOpenStream(int* ttcIndex) const = 0;
 
     virtual int onGetUPEM() const;
 

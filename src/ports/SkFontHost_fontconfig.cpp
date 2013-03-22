@@ -244,13 +244,6 @@ SkStream* FontConfigTypeface::onOpenStream(int* ttcIndex) const {
     return stream;
 }
 
-SkStream* SkFontHost::OpenStream(uint32_t) {
-    SkASSERT(!"SkFontHost::OpenStream is DEPRECATED: call SkTypeface::openStream\n");
-    return NULL;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 int FontConfigTypeface::onGetTableTags(SkFontTableTag tags[]) const {
     int ttcIndex;
     SkAutoTUnref<SkStream> stream(this->openStream(&ttcIndex));

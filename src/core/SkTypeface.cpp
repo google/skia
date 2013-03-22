@@ -155,15 +155,6 @@ int SkTypeface::onGetUPEM() const {
     return upem;
 }
 
-SkStream* SkTypeface::onOpenStream(int* ttcIndex) const {
-    // If this has not been overridden, then we just don't know the ttcIndex
-    // so we set it to 0
-    if (ttcIndex) {
-        *ttcIndex = 0;
-    }
-    return SkFontHost::OpenStream(fUniqueID);
-}
-
 void SkTypeface::onGetFontDescriptor(SkFontDescriptor* desc) const {
     desc->setStyle(this->style());
 }

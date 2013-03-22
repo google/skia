@@ -95,7 +95,6 @@
             '../src/ports/SkFontHost_mac.cpp',
 #            '../src/ports/SkFontHost_FreeType.cpp',
 #            '../src/ports/SkFontHost_FreeType_common.cpp',
-#            '../src/ports/SkFontHost_freetype_mac.cpp',
             '../src/ports/SkPurgeableMemoryBlock_mac.cpp',
             '../src/ports/SkThread_pthread.cpp',
             '../src/utils/mac/SkStream_mac.cpp',

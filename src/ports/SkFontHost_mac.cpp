@@ -1681,11 +1681,6 @@ SkStream* SkTypeface_Mac::onOpenStream(int* ttcIndex) const {
     return stream;
 }
 
-SkStream* SkFontHost::OpenStream(SkFontID fontID) {
-    SkASSERT(!"SkFontHost::OpenStream is DEPRECATED\n");
-    return NULL;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkStream.h"
