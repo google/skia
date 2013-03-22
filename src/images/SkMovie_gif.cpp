@@ -69,8 +69,7 @@ static SkMSec savedimage_duration(const SavedImage* image)
     {
         if (image->ExtensionBlocks[j].Function == GRAPHICS_EXT_FUNC_CODE)
         {
-            SkDEBUGCODE(int size = )image->ExtensionBlocks[j].ByteCount;
-            SkASSERT(size >= 4);
+            SkASSERT(image->ExtensionBlocks[j].ByteCount >= 4);
             const uint8_t* b = (const uint8_t*)image->ExtensionBlocks[j].Bytes;
             return ((b[2] << 8) | b[1]) * 10;
         }
