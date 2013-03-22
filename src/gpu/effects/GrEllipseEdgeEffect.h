@@ -50,8 +50,9 @@ public:
 private:
     GrEllipseEdgeEffect(bool stroke);
 
-    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE {
-        return true;
+    virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
+        const GrEllipseEdgeEffect& eee = CastEffect<GrEllipseEdgeEffect>(other);
+        return eee.fStroke == fStroke;
     }
 
     bool fStroke;

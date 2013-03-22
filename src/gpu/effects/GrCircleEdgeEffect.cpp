@@ -7,13 +7,8 @@
 
 #include "GrCircleEdgeEffect.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLEffectMatrix.h"
 #include "gl/GrGLSL.h"
-#include "gl/GrGLTexture.h"
 #include "GrTBackendEffectFactory.h"
-#include "GrTexture.h"
-
-#include "SkRTConf.h"
 
 class GrGLCircleEdgeEffect : public GrGLEffect {
 public:

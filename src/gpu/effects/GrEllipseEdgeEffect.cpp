@@ -7,11 +7,8 @@
 
 #include "GrEllipseEdgeEffect.h"
 #include "gl/GrGLEffect.h"
-#include "gl/GrGLEffectMatrix.h"
 #include "gl/GrGLSL.h"
-#include "gl/GrGLTexture.h"
 #include "GrTBackendEffectFactory.h"
-#include "GrTexture.h"
 
 class GrGLEllipseEdgeEffect : public GrGLEffect {
 public:
