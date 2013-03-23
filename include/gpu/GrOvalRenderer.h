@@ -30,7 +30,7 @@ public:
 
     ~GrOvalRenderer() {}
 
-    bool drawOval(GrDrawTarget* target, const GrContext* context, const GrPaint& paint, 
+    bool drawOval(GrDrawTarget* target, const GrContext* context, const GrPaint& paint,
                   const GrRect& oval, const SkStrokeRec& stroke);
 private:
     void drawEllipse(GrDrawTarget* target, const GrPaint& paint,

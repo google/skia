@@ -177,7 +177,7 @@ private:
 class DrawBitmapNine : public SkDrawCommand {
 public:
     DrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
-                   const SkRect& dst, const SkPaint* paint, 
+                   const SkRect& dst, const SkPaint* paint,
                    SkBitmap& resizedBitmap);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
     virtual const SkBitmap* getBitmap() const SK_OVERRIDE;

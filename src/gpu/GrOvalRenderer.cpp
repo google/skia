@@ -40,7 +40,7 @@ inline bool circle_stays_circle(const SkMatrix& m) {
 
 }
 
-bool GrOvalRenderer::drawOval(GrDrawTarget* target, const GrContext* context, const GrPaint& paint, 
+bool GrOvalRenderer::drawOval(GrDrawTarget* target, const GrContext* context, const GrPaint& paint,
                     const GrRect& oval, const SkStrokeRec& stroke)
 {
     if (!paint.isAntiAlias()) {
@@ -49,8 +49,8 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target, const GrContext* context, co
 
     const SkMatrix& vm = context->getMatrix();
 
-    // we can draw circles 
-    if (SkScalarNearlyEqual(oval.width(), oval.height()) 
+    // we can draw circles
+    if (SkScalarNearlyEqual(oval.width(), oval.height())
         && circle_stays_circle(vm)) {
         drawCircle(target, paint, oval, stroke);
 
@@ -65,7 +65,7 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target, const GrContext* context, co
     return true;
 }
 
-void GrOvalRenderer::drawCircle(GrDrawTarget* target, 
+void GrOvalRenderer::drawCircle(GrDrawTarget* target,
                                 const GrPaint& paint,
                                 const GrRect& circle,
                                 const SkStrokeRec& stroke)
@@ -109,7 +109,7 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
         kEdgeEffectStage = GrPaint::kTotalStages,
     };
     drawState->setAttribBindings(GrDrawState::kDefault_AttribBindings);
-    
+
     GrEffectRef* effect = GrCircleEdgeEffect::Create(isStroked);
     static const int kCircleEdgeAttrIndex = 1;
     drawState->setEffect(kEdgeEffectStage, effect, kCircleEdgeAttrIndex)->unref();
@@ -156,7 +156,7 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
     target->drawNonIndexed(kTriangleStrip_GrPrimitiveType, 0, 4);
 }
 
-void GrOvalRenderer::drawEllipse(GrDrawTarget* target, 
+void GrOvalRenderer::drawEllipse(GrDrawTarget* target,
                                  const GrPaint& paint,
                                  const GrRect& ellipse,
                                  const SkStrokeRec& stroke)
@@ -275,4 +275,3 @@ void GrOvalRenderer::drawEllipse(GrDrawTarget* target,
 
     target->drawNonIndexed(kTriangleStrip_GrPrimitiveType, 0, 4);
 }
-

@@ -184,8 +184,8 @@ const SkBitmap* DrawBitmap::getBitmap() const {
 }
 
 DrawBitmapMatrix::DrawBitmapMatrix(const SkBitmap& bitmap,
-                                   const SkMatrix& matrix, 
-                                   const SkPaint* paint, 
+                                   const SkMatrix& matrix,
+                                   const SkPaint* paint,
                                    SkBitmap& resizedBitmap) {
     fBitmap = bitmap;
     fMatrix = matrix;
@@ -214,7 +214,7 @@ const SkBitmap* DrawBitmapMatrix::getBitmap() const {
 }
 
 DrawBitmapNine::DrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
-                               const SkRect& dst, const SkPaint* paint, 
+                               const SkRect& dst, const SkPaint* paint,
                                SkBitmap& resizedBitmap) {
     fBitmap = bitmap;
     fCenter = center;
@@ -591,7 +591,7 @@ SaveLayer::SaveLayer(const SkRect* bounds, const SkPaint* paint,
 }
 
 void SaveLayer::execute(SkCanvas* canvas) {
-    canvas->saveLayer(fBounds.isEmpty() ? NULL : &fBounds, 
+    canvas->saveLayer(fBounds.isEmpty() ? NULL : &fBounds,
                       fPaintPtr,
                       fFlags);
 }
