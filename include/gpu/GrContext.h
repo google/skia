@@ -891,7 +891,7 @@ private:
     /// draw state is left unmodified.
     GrDrawTarget* prepareToDraw(const GrPaint*, BufferedDraw);
 
-    void internalDrawPath(GrDrawTarget* target, const GrPaint& paint, const SkPath& path, 
+    void internalDrawPath(GrDrawTarget* target, const GrPaint& paint, const SkPath& path,
                           const SkStrokeRec& stroke);
 
     GrTexture* createResizedTexture(const GrTextureDesc& desc,

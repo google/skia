@@ -1026,7 +1026,7 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const SkStrok
     SkRect ovalRect;
     bool isOval = path.isOval(&ovalRect);
 
-    if (!isOval || path.isInverseFillType() 
+    if (!isOval || path.isInverseFillType()
         || !fOvalRenderer->drawOval(target, this, paint, ovalRect, stroke)) {
         this->internalDrawPath(target, paint, path, stroke);
     }
