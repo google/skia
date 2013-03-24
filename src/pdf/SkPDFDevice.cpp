@@ -946,6 +946,12 @@ void SkPDFDevice::drawSprite(const SkDraw& d, const SkBitmap& bitmap,
 
 void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
                            SkScalar x, SkScalar y, const SkPaint& paint) {
+    NOT_IMPLEMENTED(paint.getMaskFilter() != NULL, false);
+    if (paint.getMaskFilter() != NULL) {
+        // Don't pretend we support drawing MaskFilters, it makes for artifacts
+        // making text unreadable (e.g. same text twice when using CSS shadows).
+        return;
+    }
     SkPaint textPaint = calculate_text_paint(paint);
     ScopedContentEntry content(this, d, textPaint, true);
     if (!content.entry()) {
@@ -985,6 +991,12 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
 void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
                               const SkScalar pos[], SkScalar constY,
                               int scalarsPerPos, const SkPaint& paint) {
+    NOT_IMPLEMENTED(paint.getMaskFilter() != NULL, false);
+    if (paint.getMaskFilter() != NULL) {
+        // Don't pretend we support drawing MaskFilters, it makes for artifacts
+        // making text unreadable (e.g. same text twice when using CSS shadows).
+        return;
+    }
     SkASSERT(1 == scalarsPerPos || 2 == scalarsPerPos);
     SkPaint textPaint = calculate_text_paint(paint);
     ScopedContentEntry content(this, d, textPaint, true);
