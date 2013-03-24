@@ -337,8 +337,8 @@ public:
         fStream->unref();
     }
 
-    virtual const char* getUniqueString() SK_OVERRIDE const { return NULL; }
-    virtual const char* getFilePath() SK_OVERRIDE const { return NULL; }
+    virtual const char* getUniqueString() const SK_OVERRIDE { return NULL; }
+    virtual const char* getFilePath() const SK_OVERRIDE { return NULL; }
 
 protected:
     virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
