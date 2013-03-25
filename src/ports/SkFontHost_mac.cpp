@@ -350,7 +350,7 @@ Offscreen::Offscreen() : fRGBSpace(NULL), fCG(NULL) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkTypeface::Style computeStyleBits(CTFontRef font, bool* isMonospace) {
+static SkTypeface::Style computeStyleBits(CTFontRef font, bool* isFixedPitch) {
     unsigned style = SkTypeface::kNormal;
     CTFontSymbolicTraits traits = CTFontGetSymbolicTraits(font);
 
@@ -360,8 +360,8 @@ static SkTypeface::Style computeStyleBits(CTFontRef font, bool* isMonospace) {
     if (traits & kCTFontItalicTrait) {
         style |= SkTypeface::kItalic;
     }
-    if (isMonospace) {
-        *isMonospace = (traits & kCTFontMonoSpaceTrait) != 0;
+    if (isFixedPitch) {
+        *isFixedPitch = (traits & kCTFontMonoSpaceTrait) != 0;
     }
     return (SkTypeface::Style)style;
 }
@@ -396,9 +396,9 @@ static SkFontID CTFontRef_to_SkFontID(CTFontRef fontRef) {
 
 class SkTypeface_Mac : public SkTypeface {
 public:
-    SkTypeface_Mac(SkTypeface::Style style, SkFontID fontID, bool isMonospace,
+    SkTypeface_Mac(SkTypeface::Style style, SkFontID fontID, bool isFixedPitch,
                    CTFontRef fontRef, const char name[])
-    : SkTypeface(style, fontID, isMonospace)
+    : SkTypeface(style, fontID, isFixedPitch)
     , fName(name)
     , fFontRef(fontRef) // caller has already called CFRetain for us
     {
@@ -429,11 +429,11 @@ private:
 
 static SkTypeface* NewFromFontRef(CTFontRef fontRef, const char name[]) {
     SkASSERT(fontRef);
-    bool isMonospace;
-    SkTypeface::Style style = computeStyleBits(fontRef, &isMonospace);
+    bool isFixedPitch;
+    SkTypeface::Style style = computeStyleBits(fontRef, &isFixedPitch);
     SkFontID fontID = CTFontRef_to_SkFontID(fontRef);
 
-    return new SkTypeface_Mac(style, fontID, isMonospace, fontRef, name);
+    return new SkTypeface_Mac(style, fontID, isFixedPitch, fontRef, name);
 }
 
 static SkTypeface* NewFromName(const char familyName[], SkTypeface::Style theStyle) {

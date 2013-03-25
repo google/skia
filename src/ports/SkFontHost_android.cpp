@@ -32,7 +32,7 @@ static const char* gTestFallbackConfigFile = NULL;
 static const char* gTestFontFilePrefix = NULL;
 
 bool find_name_and_attributes(SkStream* stream, SkString* name,
-                              SkTypeface::Style* style, bool* isFixedWidth);
+                              SkTypeface::Style* style, bool* isFixedPitch);
 
 static void GetFullPathForSysFonts(SkString* full, const char name[]) {
     if (gTestFontFilePrefix) {
@@ -284,8 +284,8 @@ static void remove_from_names(FamilyRec* emptyFamily) {
 class FamilyTypeface : public SkTypeface_FreeType {
 public:
     FamilyTypeface(Style style, bool sysFont, SkTypeface* familyMember,
-                   bool isFixedWidth)
-    : INHERITED(style, sk_atomic_inc(&gUniqueFontID) + 1, isFixedWidth) {
+                   bool isFixedPitch)
+    : INHERITED(style, sk_atomic_inc(&gUniqueFontID) + 1, isFixedPitch) {
         fIsSysFont = sysFont;
 
         // our caller has acquired the gFamilyHeadAndNameListMutex so this is safe
@@ -330,8 +330,8 @@ private:
 class StreamTypeface : public FamilyTypeface {
 public:
     StreamTypeface(Style style, bool sysFont, SkTypeface* familyMember,
-                   SkStream* stream, bool isFixedWidth)
-    : INHERITED(style, sysFont, familyMember, isFixedWidth) {
+                   SkStream* stream, bool isFixedPitch)
+    : INHERITED(style, sysFont, familyMember, isFixedPitch) {
         SkASSERT(stream);
         stream->ref();
         fStream = stream;
@@ -363,8 +363,8 @@ private:
 class FileTypeface : public FamilyTypeface {
 public:
     FileTypeface(Style style, bool sysFont, SkTypeface* familyMember,
-                 const char path[], bool isFixedWidth)
-    : INHERITED(style, sysFont, familyMember, isFixedWidth) {
+                 const char path[], bool isFixedPitch)
+    : INHERITED(style, sysFont, familyMember, isFixedPitch) {
         SkString fullpath;
 
         if (sysFont) {
@@ -403,13 +403,13 @@ private:
 
 static bool get_name_and_style(const char path[], SkString* name,
                                SkTypeface::Style* style,
-                               bool* isFixedWidth, bool isExpected) {
+                               bool* isFixedPitch, bool isExpected) {
     SkString        fullpath;
     GetFullPathForSysFonts(&fullpath, path);
 
     SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(fullpath.c_str()));
     if (stream.get()) {
-        return find_name_and_attributes(stream, name, style, isFixedWidth);
+        return find_name_and_attributes(stream, name, style, isFixedPitch);
     } else {
         if (isExpected) {
             SkDebugf("---- failed to open <%s> as a font", fullpath.c_str());
@@ -591,14 +591,14 @@ static void init_system_fonts() {
             firstInFamily = NULL;
         }
 
-        bool isFixedWidth;
+        bool isFixedPitch;
         SkString name;
         SkTypeface::Style style;
 
         // we expect all the fonts, except the "fallback" fonts
         bool isExpected = (rec[i].fNames != gFBNames);
         if (!get_name_and_style(rec[i].fFileName, &name, &style,
-                                &isFixedWidth, isExpected)) {
+                                &isFixedPitch, isExpected)) {
             // We need to increase gUniqueFontID here so that the unique id of
             // each font matches its index in gSystemFonts array, as expected
             // by find_uniqueID.
@@ -611,7 +611,7 @@ static void init_system_fonts() {
                                      true,  // system-font (cannot delete)
                                      firstInFamily, // what family to join
                                      rec[i].fFileName,
-                                     isFixedWidth) // filename
+                                     isFixedPitch) // filename
                                     );
 #if SK_DEBUG_FONTS
         SkDebugf("---- SkTypeface[%d] %s fontID %d",
@@ -698,11 +698,11 @@ static void reload_fallback_fonts() {
             if (family->fFileNames[j]) {
 
                 // ensure the fallback font exists before adding it to the list
-                bool isFixedWidth;
+                bool isFixedPitch;
                 SkString name;
                 SkTypeface::Style style;
                 if (!get_name_and_style(family->fFileNames[j], &name, &style,
-                                        &isFixedWidth, false)) {
+                                        &isFixedPitch, false)) {
                     continue;
                 }
 
@@ -854,15 +854,15 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
         return NULL;
     }
 
-    bool isFixedWidth;
+    bool isFixedPitch;
     SkTypeface::Style style;
 
-    if (find_name_and_attributes(stream, NULL, &style, &isFixedWidth)) {
+    if (find_name_and_attributes(stream, NULL, &style, &isFixedPitch)) {
         SkAutoMutexAcquire  ac(gFamilyHeadAndNameListMutex);
         // Make sure system fonts are loaded to comply with the assumption of
         // unique id offset by one in find_uniqueID.
         load_system_fonts();
-        return SkNEW_ARGS(StreamTypeface, (style, false, NULL, stream, isFixedWidth));
+        return SkNEW_ARGS(StreamTypeface, (style, false, NULL, stream, isFixedPitch));
     } else {
         return NULL;
     }

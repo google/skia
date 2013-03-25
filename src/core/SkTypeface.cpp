@@ -20,8 +20,8 @@ SK_DEFINE_INST_COUNT(SkTypeface)
     static int32_t gTypefaceCounter;
 #endif
 
-SkTypeface::SkTypeface(Style style, SkFontID fontID, bool isFixedWidth)
-    : fUniqueID(fontID), fStyle(style), fIsFixedWidth(isFixedWidth) {
+SkTypeface::SkTypeface(Style style, SkFontID fontID, bool isFixedPitch)
+    : fUniqueID(fontID), fStyle(style), fIsFixedPitch(isFixedPitch) {
 #ifdef TRACE_LIFECYCLE
     SkDebugf("SkTypeface: create  %p fontID %d total %d\n",
              this, fontID, ++gTypefaceCounter);
