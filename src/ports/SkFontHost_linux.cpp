@@ -261,6 +261,9 @@ public:
 
     virtual const char* getUniqueString() const = 0;
 
+protected:
+    virtual void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
+
 private:
     FamilyRec*  fFamilyRec; // we don't own this, just point to it
     bool        fIsSysFont;
@@ -457,51 +460,11 @@ static void load_system_fonts() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
-
-    SkFontDescriptor descriptor;
-    descriptor.setFamilyName(find_family_name(face));
-    descriptor.setStyle(face->style());
-    descriptor.setFontFileName(((FamilyTypeface*)face)->getUniqueString());
-
-    descriptor.serialize(stream);
-
-    const bool isCustomFont = !((FamilyTypeface*)face)->isSysFont();
-    if (isCustomFont) {
-        // store the entire font in the fontData
-        SkStream* fontStream = face->openStream(NULL);
-        const uint32_t length = fontStream->getLength();
-
-        stream->writePackedUInt(length);
-        stream->writeStream(fontStream, length);
-
-        fontStream->unref();
-    } else {
-        stream->writePackedUInt(0);
-    }
-}
-
-SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
-    load_system_fonts();
-
-    SkFontDescriptor descriptor(stream);
-    const char* familyName = descriptor.getFamilyName();
-    const SkTypeface::Style style = descriptor.getStyle();
-
-    const uint32_t customFontDataLength = stream->readPackedUInt();
-    if (customFontDataLength > 0) {
-
-        // generate a new stream to store the custom typeface
-        SkMemoryStream* fontStream = new SkMemoryStream(customFontDataLength - 1);
-        stream->read((void*)fontStream->getMemoryBase(), customFontDataLength - 1);
-
-        SkTypeface* face = CreateTypefaceFromStream(fontStream);
-
-        fontStream->unref();
-        return face;
-    }
-
-    return SkFontHost::CreateTypeface(NULL, familyName, style);
+void FamilyTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
+                                         bool* isLocalStream) const {
+    desc->setFamilyName(find_family_name(this));
+    desc->setFontFileName(this->getUniqueString());
+    *isLocalStream = !this->isSysFont();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

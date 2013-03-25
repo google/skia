@@ -89,7 +89,7 @@ protected:
     virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const SK_OVERRIDE;
-    virtual void onGetFontDescriptor(SkFontDescriptor*) const SK_OVERRIDE;
+    virtual void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
     virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
 
 private:
@@ -183,43 +183,6 @@ SkTypeface* SkFontHost::NextLogicalTypeface(SkFontID curr, SkFontID orig) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// Serialize, Deserialize need to be compatible across platforms, hence the use
-// of SkFontDescriptor.
-
-void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
-    FontConfigTypeface* fct = (FontConfigTypeface*)face;
-
-    SkFontDescriptor desc;
-    fct->onGetFontDescriptor(&desc);
-    desc.serialize(stream);
-
-    // by convention, we also write out the actual sfnt data, preceeded by
-    // a packed-length. For now we skip that, so we just write the zero.
-    stream->writePackedUInt(0);
-}
-
-SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
-    SkFontDescriptor descriptor(stream);
-    const char* familyName = descriptor.getFamilyName();
-    const SkTypeface::Style style = descriptor.getStyle();
-
-    size_t length = stream->readPackedUInt();
-    if (length > 0) {
-        void* addr = sk_malloc_flags(length, 0);
-        if (addr) {
-            SkAutoTUnref<SkStream> localStream(SkNEW_ARGS(SkMemoryStream,
-                                                        (addr, length, false)));
-            return SkFontHost::CreateTypefaceFromStream(localStream.get());
-        }
-        // failed to allocate, so just skip and create-from-name
-        stream->skip(length);
-    }
-
-    return SkFontHost::CreateTypeface(NULL, familyName, style);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 SkStream* FontConfigTypeface::onOpenStream(int* ttcIndex) const {
     SkStream* stream = this->getLocalStream();
     if (stream) {
@@ -262,7 +225,9 @@ size_t FontConfigTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
                 : 0;
 }
 
-void FontConfigTypeface::onGetFontDescriptor(SkFontDescriptor* desc) const {
-    desc->setStyle(this->style());
+void FontConfigTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
+                                             bool* isLocalStream) const {
     desc->setFamilyName(this->getFamilyName());
+    *isLocalStream = SkToBool(this->getLocalStream());
 }
+

@@ -218,13 +218,13 @@ protected:
                         const uint32_t* glyphIDs,
                         uint32_t glyphIDsCount) const = 0;
     virtual SkStream* onOpenStream(int* ttcIndex) const = 0;
+    virtual void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const = 0;
 
     virtual int onGetUPEM() const;
 
     virtual int onGetTableTags(SkFontTableTag tags[]) const;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const;
-    virtual void onGetFontDescriptor(SkFontDescriptor*) const;
 
 private:
     SkFontID    fUniqueID;
