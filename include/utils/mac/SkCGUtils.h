@@ -61,6 +61,7 @@ bool SkPDFDocumentToBitmap(SkStream* stream, SkBitmap* output);
  *  Now when the provider is finally deleted, it will delete the stream.
  */
 CGDataProviderRef SkCreateDataProviderFromStream(SkStream*);
-CGDataProviderRef SkCreateDataProviderFromStream(SkData*);
+
+CGDataProviderRef SkCreateDataProviderFromData(SkData*);
 
 #endif
