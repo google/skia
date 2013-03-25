@@ -22,21 +22,11 @@ public:
     SkTypeface* createTypeface(int index) const;
 };
 
-class SkFontFamilySet : public SkRefCnt {
-public:
-    int count() const;
-    void getName(int index, SkString* familyName) const;
-    SkFontStyleSet* refStyleSet(int index) const;
-};
-
 class SkFontMgr : public SkRefCnt {
 public:
-    /**
-     *  Return a fontfamily set, which can iterate all of the font families
-     *  available to this fontmgr. The caller is responsible for calling unref()
-     *  on the returned object. Will never return NULL.
-     */
-    SkFontFamilySet* createFamilySet();
+    int countFamilies();
+    void getFamilyName(int index, SkString* familyName);
+    SkFontStyleSet* createStyleSet(int index);
 
     /**
      *  Find the closest matching typeface to the specified familyName and style
@@ -45,6 +35,8 @@ public:
      *  no matching font is found.
      */
     SkTypeface* matchFamilyStyle(const char familyName[], const SkFontStyle&);
+
+    SkTypeface* matchFaceStyle(const SkTypeface*, const SkFontStyle&);
 
     /**
      *  Create a typeface for the specified data and TTC index (pass 0 for none)
@@ -68,7 +60,30 @@ public:
      */
     SkTypeface* createFromFile(const char path[], int ttcIndex = 0);
 
+    /**
+     *  Return a ref to the default fontmgr. The caller must call unref() on
+     *  the returned object.
+     */
+    static SkFontMgr* RefDefault();
+
+protected:
+    virtual int onCountFamilies() = 0;
+    virtual void onGetFamilyName(int index, SkString* familyName) = 0;
+    virtual SkFontStyleSet* onCreateStyleSet(int index) = 0;
+
+    virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
+                                           const SkFontStyle&) = 0;
+    virtual SkTypeface* onMatchFaceStyle(const SkTypeface*,
+                                         const SkFontStyle&) = 0;
+
+    virtual SkTypeface* onCreateFromData(SkData*, int ttcIndex) = 0;
+    virtual SkTypeface* onCreateFromStream(SkStream*, int ttcIndex) = 0;
+    virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) = 0;
+    
 private:
+    static SkFontMgr* Factory();    // implemented by porting layer
+    static SkMutex* Mutex();        // implemented by porting layer
+    
     typedef SkRefCnt INHERITED;
 };
 

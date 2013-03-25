@@ -1832,3 +1832,67 @@ void SkTypeface_Mac::onGetFontDescriptor(SkFontDescriptor* desc,
     *isLocalStream = false;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+#if 1
+#include "SkFontMgr.h"
+
+class SkFontMgr_Mac : public SkFontMgr {
+public:
+    SkFontMgr_Mac() {}
+
+protected:
+    virtual int onCountFamilies() SK_OVERRIDE {
+        return 0;
+    }
+
+    virtual void onGetFamilyName(int index, SkString* familyName) SK_OVERRIDE {
+    }
+
+    virtual SkFontStyleSet* onCreateStyleSet(int index) SK_OVERRIDE {
+        return NULL;
+    }
+    
+    virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
+                                           const SkFontStyle&) SK_OVERRIDE {
+        return NULL;
+    }
+    
+    virtual SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
+                                         const SkFontStyle&) SK_OVERRIDE {
+        return NULL;
+    }
+    
+    virtual SkTypeface* onCreateFromData(SkData* data,
+                                         int ttcIndex) SK_OVERRIDE {
+        AutoCFRelease<CGDataProviderRef> pr(SkCreateDataProviderFromData(data));
+        if (NULL == pr) {
+            return NULL;
+        }
+        return create_from_dataProvider(pr);
+    }
+
+    virtual SkTypeface* onCreateFromStream(SkStream* stream,
+                                           int ttcIndex) SK_OVERRIDE {
+        AutoCFRelease<CGDataProviderRef> pr(SkCreateDataProviderFromStream(stream));
+        if (NULL == pr) {
+            return NULL;
+        }
+        return create_from_dataProvider(pr);
+    }
+
+    virtual SkTypeface* onCreateFromFile(const char path[],
+                                         int ttcIndex) SK_OVERRIDE {
+        AutoCFRelease<CGDataProviderRef> pr(CGDataProviderCreateWithFilename(path));
+        if (NULL == pr) {
+            return NULL;
+        }
+        return create_from_dataProvider(pr);
+    }
+};
+
+SkFontMgr* SkFontMgr::Factory() {
+    return SkNEW(SkFontMgr_Mac);
+}
+#endif
