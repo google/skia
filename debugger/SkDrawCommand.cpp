@@ -283,14 +283,19 @@ const SkBitmap* DrawBitmapRect::getBitmap() const {
 }
 
 DrawData::DrawData(const void* data, size_t length) {
-    this->fData = data;
-    this->fLength = length;
-    this->fDrawType = DRAW_DATA;
-    // TODO(chudy): See if we can't display data and length.
+    fData = new char[length];
+    memcpy(fData, data, length);
+    fLength = length;
+    fDrawType = DRAW_DATA;
+
+    // TODO: add display of actual data?
+    SkString* str = new SkString;
+    str->appendf("length: %d", length);
+    fInfo.push(str);
 }
 
 void DrawData::execute(SkCanvas* canvas) {
-    canvas->drawData(this->fData, this->fLength);
+    canvas->drawData(fData, fLength);
 }
 
 DrawOval::DrawOval(const SkRect& oval, const SkPaint& paint) {
@@ -335,14 +340,14 @@ const SkBitmap* DrawPath::getBitmap() const {
     return &fBitmap;
 }
 
-DrawPicture::DrawPicture(SkPicture& picture) {
-    this->fPicture = &picture;
-    this->fDrawType = DRAW_PICTURE;
-    this->fInfo.push(SkObjectParser::CustomTextToString("To be implemented."));
+DrawPicture::DrawPicture(SkPicture& picture) :
+    fPicture(picture) {
+    fDrawType = DRAW_PICTURE;
+    fInfo.push(SkObjectParser::CustomTextToString("To be implemented."));
 }
 
 void DrawPicture::execute(SkCanvas* canvas) {
-    canvas->drawPicture(*this->fPicture);
+    canvas->drawPicture(fPicture);
 }
 
 DrawPoints::DrawPoints(SkCanvas::PointMode mode, size_t count,
@@ -430,12 +435,12 @@ void DrawRectC::execute(SkCanvas* canvas) {
 }
 
 DrawRRect::DrawRRect(const SkRRect& rrect, const SkPaint& paint) {
-    this->fRRect = rrect;
-    this->fPaint = paint;
-    this->fDrawType = DRAW_RRECT;
+    fRRect = rrect;
+    fPaint = paint;
+    fDrawType = DRAW_RRECT;
 
-    this->fInfo.push(SkObjectParser::RRectToString(rrect));
-    this->fInfo.push(SkObjectParser::PaintToString(paint));
+    fInfo.push(SkObjectParser::RRectToString(rrect));
+    fInfo.push(SkObjectParser::PaintToString(paint));
 }
 
 void DrawRRect::execute(SkCanvas* canvas) {
@@ -443,21 +448,29 @@ void DrawRRect::execute(SkCanvas* canvas) {
 }
 
 DrawSprite::DrawSprite(const SkBitmap& bitmap, int left, int top,
-        const SkPaint* paint, SkBitmap& resizedBitmap) {
-    this->fBitmap = &bitmap;
-    this->fLeft = left;
-    this->fTop = top;
-    this->fPaint = paint;
-    this->fDrawType = DRAW_SPRITE;
-    this->fResizedBitmap = resizedBitmap;
+                       const SkPaint* paint, SkBitmap& resizedBitmap) {
+    fBitmap = bitmap;
+    fLeft = left;
+    fTop = top;
+    if (NULL != paint) {
+        fPaint = *paint;
+        fPaintPtr = &fPaint;
+    } else {
+        fPaintPtr = NULL;
+    }
+    fDrawType = DRAW_SPRITE;
+    fResizedBitmap = resizedBitmap;
 
-    this->fInfo.push(SkObjectParser::BitmapToString(bitmap));
-    this->fInfo.push(SkObjectParser::IntToString(left, "Left: "));
-    this->fInfo.push(SkObjectParser::IntToString(top, "Top: "));
+    fInfo.push(SkObjectParser::BitmapToString(bitmap));
+    fInfo.push(SkObjectParser::IntToString(left, "Left: "));
+    fInfo.push(SkObjectParser::IntToString(top, "Top: "));
+    if (NULL != paint) {
+        fInfo.push(SkObjectParser::PaintToString(*paint));
+    }
 }
 
 void DrawSprite::execute(SkCanvas* canvas) {
-    canvas->drawSprite(*this->fBitmap, this->fLeft, this->fTop, this->fPaint);
+    canvas->drawSprite(fBitmap, fLeft, fTop, fPaintPtr);
 }
 
 const SkBitmap* DrawSprite::getBitmap() const {
@@ -465,65 +478,113 @@ const SkBitmap* DrawSprite::getBitmap() const {
 }
 
 DrawTextC::DrawTextC(const void* text, size_t byteLength, SkScalar x, SkScalar y,
-        const SkPaint& paint) {
-    this->fText = text;
-    this->fByteLength = byteLength;
-    this->fX = x;
-    this->fY = y;
-    this->fPaint = &paint;
-    this->fDrawType = DRAW_TEXT;
+                     const SkPaint& paint) {
+    fText = new char[byteLength];
+    memcpy(fText, text, byteLength);
+    fByteLength = byteLength;
+    fX = x;
+    fY = y;
+    fPaint = paint;
+    fDrawType = DRAW_TEXT;
 
-    this->fInfo.push(SkObjectParser::TextToString(text, byteLength, paint.getTextEncoding()));
-    this->fInfo.push(SkObjectParser::ScalarToString(x, "SkScalar x: "));
-    this->fInfo.push(SkObjectParser::ScalarToString(y, "SkScalar y: "));
-    this->fInfo.push(SkObjectParser::PaintToString(paint));
+    fInfo.push(SkObjectParser::TextToString(text, byteLength, paint.getTextEncoding()));
+    fInfo.push(SkObjectParser::ScalarToString(x, "SkScalar x: "));
+    fInfo.push(SkObjectParser::ScalarToString(y, "SkScalar y: "));
+    fInfo.push(SkObjectParser::PaintToString(paint));
 }
 
 void DrawTextC::execute(SkCanvas* canvas) {
-    canvas->drawText(this->fText, this->fByteLength, this->fX, this->fY, *this->fPaint);
+    canvas->drawText(fText, fByteLength, fX, fY, fPaint);
 }
 
 DrawTextOnPath::DrawTextOnPath(const void* text, size_t byteLength,
-        const SkPath& path, const SkMatrix* matrix, const SkPaint& paint) {
-    this->fText = text;
-    this->fByteLength = byteLength;
-    this->fPath = &path;
-    this->fMatrix = matrix;
-    this->fPaint = &paint;
-    this->fDrawType = DRAW_TEXT_ON_PATH;
+                               const SkPath& path, const SkMatrix* matrix, 
+                               const SkPaint& paint) {
+    fText = new char[byteLength];
+    memcpy(fText, text, byteLength);
+    fByteLength = byteLength;
+    fPath = path;
+    if (NULL != matrix) {
+        fMatrix = *matrix;
+    } else {
+        fMatrix.setIdentity();
+    }
+    fPaint = paint;
+    fDrawType = DRAW_TEXT_ON_PATH;
 
-    this->fInfo.push(SkObjectParser::TextToString(text, byteLength, paint.getTextEncoding()));
-    this->fInfo.push(SkObjectParser::PathToString(path));
-    if (matrix) this->fInfo.push(SkObjectParser::MatrixToString(*matrix));
-    this->fInfo.push(SkObjectParser::PaintToString(paint));
+    fInfo.push(SkObjectParser::TextToString(text, byteLength, paint.getTextEncoding()));
+    fInfo.push(SkObjectParser::PathToString(path));
+    if (NULL != matrix) {
+        fInfo.push(SkObjectParser::MatrixToString(*matrix));
+    }
+    fInfo.push(SkObjectParser::PaintToString(paint));
 }
 
 void DrawTextOnPath::execute(SkCanvas* canvas) {
-    canvas->drawTextOnPath(this->fText, this->fByteLength, *this->fPath,
-            this->fMatrix, *this->fPaint);
+    canvas->drawTextOnPath(fText, fByteLength, fPath,
+                           fMatrix.isIdentity() ? NULL : &fMatrix,
+                           fPaint);
 }
 
 DrawVertices::DrawVertices(SkCanvas::VertexMode vmode, int vertexCount,
-        const SkPoint vertices[], const SkPoint texs[], const SkColor colors[],
-        SkXfermode* xfermode, const uint16_t indices[], int indexCount,
-        const SkPaint& paint) {
-    this->fVmode = vmode;
-    this->fVertexCount = vertexCount;
-    this->fTexs = texs;
-    this->fColors = colors;
-    this->fXfermode = xfermode;
-    this->fIndices = indices;
-    this->fIndexCount = indexCount;
-    this->fPaint = &paint;
-    this->fDrawType = DRAW_VERTICES;
+                           const SkPoint vertices[], const SkPoint texs[], 
+                           const SkColor colors[], SkXfermode* xfermode, 
+                           const uint16_t indices[], int indexCount,
+                           const SkPaint& paint) {
+    fVmode = vmode;
+
+    fVertexCount = vertexCount;
+
+    fVertices = new SkPoint[vertexCount];
+    memcpy(fVertices, vertices, vertexCount * sizeof(SkPoint));
+
+    if (NULL != texs) {
+        fTexs = new SkPoint[vertexCount];
+        memcpy(fTexs, texs, vertexCount * sizeof(SkPoint));
+    } else {
+        fTexs = NULL;
+    }
+
+    if (NULL != colors) {
+        fColors = new SkColor[vertexCount];
+        memcpy(fColors, colors, vertexCount * sizeof(SkColor));
+    } else {
+        fColors = NULL;
+    }
+
+    fXfermode = xfermode;
+    if (NULL != fXfermode) {
+        fXfermode->ref();
+    }
+
+    if (indexCount > 0) {
+        fIndices = new uint16_t[indexCount];
+        memcpy(fIndices, indices, indexCount * sizeof(uint16_t));
+    } else {
+        fIndices = NULL;
+    }
+
+    fIndexCount = indexCount;
+    fPaint = paint;
+    fDrawType = DRAW_VERTICES;
+
     // TODO(chudy)
-    this->fInfo.push(SkObjectParser::CustomTextToString("To be implemented."));
+    fInfo.push(SkObjectParser::CustomTextToString("To be implemented."));
+    fInfo.push(SkObjectParser::PaintToString(paint));
+}
+
+DrawVertices::~DrawVertices() {
+    delete [] fVertices;
+    delete [] fTexs;
+    delete [] fColors;
+    SkSafeUnref(fXfermode);
+    delete [] fIndices;
 }
 
 void DrawVertices::execute(SkCanvas* canvas) {
-    canvas->drawVertices(this->fVmode, this->fVertexCount, this->fVertices,
-            this->fTexs, this->fColors, this->fXfermode, this->fIndices,
-            this->fIndexCount, *this->fPaint);
+    canvas->drawVertices(fVmode, fVertexCount, fVertices,
+                         fTexs, fColors, fXfermode, fIndices,
+                         fIndexCount, fPaint);
 }
 
 Restore::Restore() {
@@ -540,14 +601,14 @@ void Restore::trackSaveState(int* state) {
 }
 
 Rotate::Rotate(SkScalar degrees) {
-    this->fDegrees = degrees;
-    this->fDrawType = ROTATE;
+    fDegrees = degrees;
+    fDrawType = ROTATE;
 
-    this->fInfo.push(SkObjectParser::ScalarToString(degrees, "SkScalar degrees: "));
+    fInfo.push(SkObjectParser::ScalarToString(degrees, "SkScalar degrees: "));
 }
 
 void Rotate::execute(SkCanvas* canvas) {
-    canvas->rotate(this->fDegrees);
+    canvas->rotate(fDegrees);
 }
 
 Save::Save(SkCanvas::SaveFlags flags) {
@@ -601,51 +662,51 @@ void SaveLayer::trackSaveState(int* state) {
 }
 
 Scale::Scale(SkScalar sx, SkScalar sy) {
-    this->fSx = sx;
-    this->fSy = sy;
-    this->fDrawType = SCALE;
+    fSx = sx;
+    fSy = sy;
+    fDrawType = SCALE;
 
-    this->fInfo.push(SkObjectParser::ScalarToString(sx, "SkScalar sx: "));
-    this->fInfo.push(SkObjectParser::ScalarToString(sy, "SkScalar sy: "));
+    fInfo.push(SkObjectParser::ScalarToString(sx, "SkScalar sx: "));
+    fInfo.push(SkObjectParser::ScalarToString(sy, "SkScalar sy: "));
 }
 
 void Scale::execute(SkCanvas* canvas) {
-    canvas->scale(this->fSx, this->fSy);
+    canvas->scale(fSx, fSy);
 }
 
 SetMatrix::SetMatrix(const SkMatrix& matrix) {
-    this->fMatrix = matrix;
-    this->fDrawType = SET_MATRIX;
+    fMatrix = matrix;
+    fDrawType = SET_MATRIX;
 
-    this->fInfo.push(SkObjectParser::MatrixToString(matrix));
+    fInfo.push(SkObjectParser::MatrixToString(matrix));
 }
 
 void SetMatrix::execute(SkCanvas* canvas) {
-    canvas->setMatrix(this->fMatrix);
+    canvas->setMatrix(fMatrix);
 }
 
 Skew::Skew(SkScalar sx, SkScalar sy) {
-    this->fSx = sx;
-    this->fSy = sy;
-    this->fDrawType = SKEW;
+    fSx = sx;
+    fSy = sy;
+    fDrawType = SKEW;
 
-    this->fInfo.push(SkObjectParser::ScalarToString(sx, "SkScalar sx: "));
-    this->fInfo.push(SkObjectParser::ScalarToString(sy, "SkScalar sy: "));
+    fInfo.push(SkObjectParser::ScalarToString(sx, "SkScalar sx: "));
+    fInfo.push(SkObjectParser::ScalarToString(sy, "SkScalar sy: "));
 }
 
 void Skew::execute(SkCanvas* canvas) {
-    canvas->skew(this->fSx, this->fSy);
+    canvas->skew(fSx, fSy);
 }
 
 Translate::Translate(SkScalar dx, SkScalar dy) {
-    this->fDx = dx;
-    this->fDy = dy;
-    this->fDrawType = TRANSLATE;
+    fDx = dx;
+    fDy = dy;
+    fDrawType = TRANSLATE;
 
-    this->fInfo.push(SkObjectParser::ScalarToString(dx, "SkScalar dx: "));
-    this->fInfo.push(SkObjectParser::ScalarToString(dy, "SkScalar dy: "));
+    fInfo.push(SkObjectParser::ScalarToString(dx, "SkScalar dx: "));
+    fInfo.push(SkObjectParser::ScalarToString(dy, "SkScalar dy: "));
 }
 
 void Translate::execute(SkCanvas* canvas) {
-    canvas->translate(this->fDx, this->fDy);
+    canvas->translate(fDx, fDy);
 }
