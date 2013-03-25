@@ -120,6 +120,7 @@ SkScalerContext::~SkScalerContext() {
 // Return the context associated with the next logical typeface, or NULL if
 // there are no more entries in the fallback chain.
 SkScalerContext* SkScalerContext::allocNextContext() const {
+#ifdef SK_BUILD_FOR_ANDROID
     SkTypeface* newFace = SkFontHost::NextLogicalTypeface(fRec.fFontID,
                                                           fRec.fOrigFontID);
     if (0 == newFace) {
@@ -140,6 +141,9 @@ SkScalerContext* SkScalerContext::allocNextContext() const {
     desc->computeChecksum();
 
     return newFace->createScalerContext(desc);
+#else
+    return NULL;
+#endif
 }
 
 /*  Return the next context, creating it if its not already created, but return
