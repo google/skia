@@ -1310,7 +1310,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
     ability to extract the name+style from a stream, using FreeType's api.
 */
 bool find_name_and_attributes(SkStream* stream, SkString* name,
-                              SkTypeface::Style* style, bool* isFixedWidth) {
+                              SkTypeface::Style* style, bool* isFixedPitch) {
     FT_Library  library;
     if (FT_Init_FreeType(&library)) {
         return false;
@@ -1357,8 +1357,8 @@ bool find_name_and_attributes(SkStream* stream, SkString* name,
     if (style) {
         *style = (SkTypeface::Style) tempStyle;
     }
-    if (isFixedWidth) {
-        *isFixedWidth = FT_IS_FIXED_WIDTH(face);
+    if (isFixedPitch) {
+        *isFixedPitch = FT_IS_FIXED_WIDTH(face);
     }
 
     FT_Done_Face(face);

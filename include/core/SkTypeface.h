@@ -60,9 +60,10 @@ public:
     */
     bool isItalic() const { return (fStyle & kItalic) != 0; }
 
-    /** Returns true if the typeface is fixed-width
+    /** Returns true if the typeface claims to be fixed-pitch.
+     *  This is a style bit, advance widths may vary even if this returns true.
      */
-    bool isFixedWidth() const { return fIsFixedWidth; }
+    bool isFixedPitch() const { return fIsFixedPitch; }
 
     /** Return a 32bit value for this typeface, unique for the underlying font
         data. Will never return 0.
@@ -205,8 +206,11 @@ public:
 protected:
     /** uniqueID must be unique and non-zero
     */
-    SkTypeface(Style style, SkFontID uniqueID, bool isFixedWidth = false);
+    SkTypeface(Style style, SkFontID uniqueID, bool isFixedPitch = false);
     virtual ~SkTypeface();
+
+    /** Sets the fixedPitch bit. If used, must be called in the constructor. */
+    void setIsFixedPitch(bool isFixedPitch) { fIsFixedPitch = isFixedPitch; }
 
     friend class SkScalerContext;
     static SkTypeface* GetDefaultTypeface();
@@ -229,7 +233,7 @@ protected:
 private:
     SkFontID    fUniqueID;
     Style       fStyle;
-    bool        fIsFixedWidth;
+    bool        fIsFixedPitch;
 
     friend class SkPaint;
     friend class SkGlyphCache;  // GetDefaultTypeface

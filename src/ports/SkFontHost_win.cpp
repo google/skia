@@ -189,6 +189,9 @@ public:
             ::DeleteObject(font);
         }
 
+        // The fixed pitch bit is set if the font is *not* fixed pitch.
+        this->setIsFixedPitch((textMetric.tmPitchAndFamily & TMPF_FIXED_PITCH) == 0);
+
         // Used a logfont on a memory context, should never get a device font.
         // Therefore all TMPF_DEVICE will be PostScript (cubic) fonts.
         fCanBeLCD = !((textMetric.tmPitchAndFamily & TMPF_VECTOR) &&

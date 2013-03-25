@@ -47,8 +47,8 @@ private:
 
 class SkTypeface_FreeType : public SkTypeface {
 protected:
-    SkTypeface_FreeType(Style style, SkFontID uniqueID, bool isFixedWidth)
-        : INHERITED(style, uniqueID, isFixedWidth) {}
+    SkTypeface_FreeType(Style style, SkFontID uniqueID, bool isFixedPitch)
+        : INHERITED(style, uniqueID, isFixedPitch) {}
 
     virtual SkScalerContext* onCreateScalerContext(
                                         const SkDescriptor*) const SK_OVERRIDE;

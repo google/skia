@@ -26,7 +26,7 @@
 #endif
 
 bool find_name_and_attributes(SkStream* stream, SkString* name,
-                              SkTypeface::Style* style, bool* isFixedWidth);
+                              SkTypeface::Style* style, bool* isFixedPitch);
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -231,8 +231,8 @@ static void remove_from_names(FamilyRec* emptyFamily) {
 
 class FamilyTypeface : public SkTypeface_FreeType {
 public:
-    FamilyTypeface(Style style, bool sysFont, FamilyRec* family, bool isFixedWidth)
-    : INHERITED(style, sk_atomic_inc(&gUniqueFontID) + 1, isFixedWidth) {
+    FamilyTypeface(Style style, bool sysFont, FamilyRec* family, bool isFixedPitch)
+    : INHERITED(style, sk_atomic_inc(&gUniqueFontID) + 1, isFixedPitch) {
         fIsSysFont = sysFont;
 
         SkAutoMutexAcquire  ac(gFamilyMutex);
@@ -293,8 +293,8 @@ private:
 class StreamTypeface : public FamilyTypeface {
 public:
     StreamTypeface(Style style, bool sysFont, FamilyRec* family,
-                   SkStream* stream, bool isFixedWidth)
-    : INHERITED(style, sysFont, family, isFixedWidth) {
+                   SkStream* stream, bool isFixedPitch)
+    : INHERITED(style, sysFont, family, isFixedPitch) {
         stream->ref();
         fStream = stream;
     }
@@ -320,8 +320,8 @@ private:
 class FileTypeface : public FamilyTypeface {
 public:
     FileTypeface(Style style, bool sysFont, FamilyRec* family,
-                 const char path[], bool isFixedWidth)
-        : INHERITED(style, sysFont, family, isFixedWidth) {
+                 const char path[], bool isFixedPitch)
+        : INHERITED(style, sysFont, family, isFixedPitch) {
         fPath.set(path);
     }
 
@@ -349,10 +349,10 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 static bool get_name_and_style(const char path[], SkString* name,
-                               SkTypeface::Style* style, bool* isFixedWidth) {
+                               SkTypeface::Style* style, bool* isFixedPitch) {
     SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
     if (stream.get()) {
-        return find_name_and_attributes(stream, name, style, isFixedWidth);
+        return find_name_and_attributes(stream, name, style, isFixedPitch);
     } else {
         SkDebugf("---- failed to open <%s> as a font\n", path);
         return false;
@@ -372,11 +372,11 @@ static void load_directory_fonts(const SkString& directory, unsigned int* count)
         SkString filename(directory);
         filename.append(name);
 
-        bool isFixedWidth;
+        bool isFixedPitch;
         SkString realname;
         SkTypeface::Style style = SkTypeface::kNormal; // avoid uninitialized warning
 
-        if (!get_name_and_style(filename.c_str(), &realname, &style, &isFixedWidth)) {
+        if (!get_name_and_style(filename.c_str(), &realname, &style, &isFixedPitch)) {
             SkDebugf("------ can't load <%s> as a font\n", filename.c_str());
             continue;
         }
@@ -392,7 +392,7 @@ static void load_directory_fonts(const SkString& directory, unsigned int* count)
                                          true,  // system-font (cannot delete)
                                          family, // what family to join
                                          filename.c_str(),
-                                         isFixedWidth) // filename
+                                         isFixedPitch) // filename
                                         );
 
         if (NULL == family) {
@@ -508,10 +508,10 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
         return NULL;
     }
 
-    bool isFixedWidth;
+    bool isFixedPitch;
     SkTypeface::Style style;
-    if (find_name_and_attributes(stream, NULL, &style, &isFixedWidth)) {
-        return SkNEW_ARGS(StreamTypeface, (style, false, NULL, stream, isFixedWidth));
+    if (find_name_and_attributes(stream, NULL, &style, &isFixedPitch)) {
+        return SkNEW_ARGS(StreamTypeface, (style, false, NULL, stream, isFixedPitch));
     } else {
         return NULL;
     }
