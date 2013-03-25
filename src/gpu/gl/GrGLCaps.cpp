@@ -45,7 +45,7 @@ void GrGLCaps::reset() {
     fIsCoreProfile = false;
 }
 
-GrGLCaps::GrGLCaps(const GrGLCaps& caps) {
+GrGLCaps::GrGLCaps(const GrGLCaps& caps) : GrDrawTarget::Caps() {
     *this = caps;
 }
 
