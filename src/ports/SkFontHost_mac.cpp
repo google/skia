@@ -418,7 +418,7 @@ protected:
                                   size_t length, void* data) const SK_OVERRIDE;
     virtual SkScalerContext* onCreateScalerContext(const SkDescriptor*) const SK_OVERRIDE;
     virtual void onFilterRec(SkScalerContextRec*) const SK_OVERRIDE;
-    virtual void onGetFontDescriptor(SkFontDescriptor*) const SK_OVERRIDE;
+    virtual void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
     virtual SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
                                 SkAdvancedTypefaceMetrics::PerGlyphInfo,
                                 const uint32_t*, uint32_t) const SK_OVERRIDE;
@@ -1683,32 +1683,6 @@ SkStream* SkTypeface_Mac::onOpenStream(int* ttcIndex) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkStream.h"
-
-void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
-    SkFontDescriptor desc;
-    face->onGetFontDescriptor(&desc);
-
-    desc.serialize(stream);
-
-    // by convention, we also write out the actual sfnt data, preceeded by
-    // a packed-length. For now we skip that, so we just write the zero.
-    stream->writePackedUInt(0);
-}
-
-SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
-    SkFontDescriptor desc(stream);
-
-    // by convention, Serialize will have also written the actual sfnt data.
-    // for now, we just want to skip it.
-    size_t size = stream->readPackedUInt();
-    stream->skip(size);
-
-    return SkFontHost::CreateTypeface(NULL, desc.getFamilyName(), desc.getStyle());
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 // DEPRECATED
 SkTypeface* SkFontHost::NextLogicalTypeface(SkFontID currFontID, SkFontID origFontID) {
     SkTypeface* face = GetDefaultFace();
@@ -1847,11 +1821,14 @@ static const char* get_str(CFStringRef ref, SkString* str) {
     return str->c_str();
 }
 
-void SkTypeface_Mac::onGetFontDescriptor(SkFontDescriptor* desc) const {
-    this->INHERITED::onGetFontDescriptor(desc);
+void SkTypeface_Mac::onGetFontDescriptor(SkFontDescriptor* desc,
+                                         bool* isLocalStream) const {
     SkString tmpStr;
 
     desc->setFamilyName(get_str(CTFontCopyFamilyName(fFontRef), &tmpStr));
     desc->setFullName(get_str(CTFontCopyFullName(fFontRef), &tmpStr));
     desc->setPostscriptName(get_str(CTFontCopyPostScriptName(fFontRef), &tmpStr));
+    // TODO: need to add support for local-streams (here and openStream)
+    *isLocalStream = false;
 }
+
