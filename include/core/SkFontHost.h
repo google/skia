@@ -91,14 +91,6 @@ public:
     /** @deprecated get from Device. */
     static LCDOrder GetSubpixelOrder();
 
-    /** If Skia is running in a constrained environment and the typeface
-     implementation is handle based, the typeface data may become
-     unavailable asynchronously. If a font host or scaler context method is
-     unable to access font data, it may call this function as a request to
-     make the handle contained in the typeface useable.
-     */
-    static void EnsureTypefaceAccessible(const SkTypeface& typeface);
-
     /**
      *  DEPRECATED -- will be DESTROYED
      *
