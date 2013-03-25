@@ -66,6 +66,7 @@
       '<(skia_src_path)/gpu/GrDrawState.h',
       '<(skia_src_path)/gpu/GrDrawTarget.cpp',
       '<(skia_src_path)/gpu/GrDrawTarget.h',
+      '<(skia_src_path)/gpu/GrDrawTargetCaps.h',
       '<(skia_src_path)/gpu/GrEffect.cpp',
       '<(skia_src_path)/gpu/GrGeometryBuffer.cpp',
       '<(skia_src_path)/gpu/GrGeometryBuffer.h',

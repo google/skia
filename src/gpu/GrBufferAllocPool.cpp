@@ -8,10 +8,11 @@
 
 
 #include "GrBufferAllocPool.h"
+#include "GrDrawTargetCaps.h"
+#include "GrGpu.h"
+#include "GrIndexBuffer.h"
 #include "GrTypes.h"
 #include "GrVertexBuffer.h"
-#include "GrIndexBuffer.h"
-#include "GrGpu.h"
 
 #if GR_DEBUG
     #define VALIDATE validate

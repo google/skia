@@ -183,6 +183,7 @@ GR_DEFINE_EFFECT_TEST(GrConvolutionEffect);
 
 GrEffectRef* GrConvolutionEffect::TestCreate(SkMWCRandom* random,
                                              GrContext*,
+                                             const GrDrawTargetCaps&,
                                              GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :
                                       GrEffectUnitTest::kAlphaTextureIdx;

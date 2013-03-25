@@ -463,6 +463,7 @@ GR_DEFINE_EFFECT_TEST(ColorMatrixEffect);
 
 GrEffectRef* ColorMatrixEffect::TestCreate(SkMWCRandom* random,
                                            GrContext*,
+                                           const GrDrawTargetCaps&,
                                            GrTexture* dummyTextures[2]) {
     SkColorMatrix colorMatrix;
     for (size_t i = 0; i < SK_ARRAY_COUNT(colorMatrix.fMat); ++i) {

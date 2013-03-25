@@ -1080,6 +1080,7 @@ GR_DEFINE_EFFECT_TEST(GrDiffuseLightingEffect);
 
 GrEffectRef* GrDiffuseLightingEffect::TestCreate(SkMWCRandom* random,
                                                  GrContext* context,
+                                                 const GrDrawTargetCaps&,
                                                  GrTexture* textures[]) {
     SkScalar surfaceScale = random->nextSScalar1();
     SkScalar kd = random->nextUScalar1();
@@ -1296,6 +1297,7 @@ GR_DEFINE_EFFECT_TEST(GrSpecularLightingEffect);
 
 GrEffectRef* GrSpecularLightingEffect::TestCreate(SkMWCRandom* random,
                                                   GrContext* context,
+                                                  const GrDrawTargetCaps&,
                                                   GrTexture* textures[]) {
     SkScalar surfaceScale = random->nextSScalar1();
     SkScalar ks = random->nextUScalar1();

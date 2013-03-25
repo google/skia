@@ -7,18 +7,18 @@
  */
 
 #include "GrClipMaskManager.h"
-#include "effects/GrTextureDomainEffect.h"
-#include "GrGpu.h"
-#include "GrRenderTarget.h"
-#include "GrStencilBuffer.h"
-#include "GrPathRenderer.h"
-#include "GrPaint.h"
-#include "SkRasterClip.h"
-#include "SkStrokeRec.h"
 #include "GrAAConvexPathRenderer.h"
 #include "GrAAHairLinePathRenderer.h"
+#include "GrDrawTargetCaps.h"
+#include "GrGpu.h"
+#include "GrPaint.h"
+#include "GrPathRenderer.h"
+#include "GrRenderTarget.h"
+#include "GrStencilBuffer.h"
 #include "GrSWMaskHelper.h"
-
+#include "effects/GrTextureDomainEffect.h"
+#include "SkRasterClip.h"
+#include "SkStrokeRec.h"
 #include "SkTLazy.h"
 
 #define GR_AA_CLIP 1

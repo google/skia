@@ -9,6 +9,7 @@
 
 #include "GrStencilAndCoverPathRenderer.h"
 #include "GrContext.h"
+#include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
 #include "GrPath.h"
 #include "SkStrokeRec.h"

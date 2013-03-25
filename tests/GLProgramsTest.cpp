@@ -133,6 +133,7 @@ bool GrGpuGL::programUnitTest(int maxStages) {
                 SkAutoTUnref<const GrEffectRef> effect(GrEffectTestFactory::CreateStage(
                                                                                 &random,
                                                                                 this->getContext(),
+                                                                                *this->caps(),
                                                                                 dummyTextures));
                 int numAttribs = (*effect)->numVertexAttribs();
 

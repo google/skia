@@ -15,6 +15,7 @@
 
 #include "GrBufferAllocPool.h"
 #include "GrGpu.h"
+#include "GrDrawTargetCaps.h"
 #include "GrIndexBuffer.h"
 #include "GrInOrderDrawBuffer.h"
 #include "GrOvalRenderer.h"
@@ -573,7 +574,7 @@ GrRenderTarget* GrContext::wrapBackendRenderTarget(const GrBackendRenderTargetDe
 
 bool GrContext::supportsIndex8PixelConfig(const GrTextureParams* params,
                                           int width, int height) const {
-    const GrDrawTarget::Caps* caps = fGpu->caps();
+    const GrDrawTargetCaps* caps = fGpu->caps();
     if (!caps->eightBitPaletteSupport()) {
         return false;
     }
