@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkFontMgr_DEFINED
-#define SkFontMgr_DEFINED
+#ifndef SkFontStyle_DEFINED
+#define SkFontStyle_DEFINED
 
 #include "SkTypes.h"
 
