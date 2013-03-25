@@ -10,11 +10,15 @@
 #include "GrGLContext.h"
 #include "SkTSearch.h"
 
+SK_DEFINE_INST_COUNT(GrGLCaps)
+
 GrGLCaps::GrGLCaps() {
     this->reset();
 }
 
 void GrGLCaps::reset() {
+    INHERITED::reset();
+
     fVerifiedColorConfigs.reset();
     fStencilFormats.reset();
     fStencilVerifiedColorConfigs.reset();
@@ -46,6 +50,7 @@ GrGLCaps::GrGLCaps(const GrGLCaps& caps) {
 }
 
 GrGLCaps& GrGLCaps::operator = (const GrGLCaps& caps) {
+    INHERITED::operator=(caps);
     fVerifiedColorConfigs = caps.fVerifiedColorConfigs;
     fStencilFormats = caps.fStencilFormats;
     fStencilVerifiedColorConfigs = caps.fStencilVerifiedColorConfigs;
@@ -84,6 +89,10 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
 
     GrGLBinding binding = ctxInfo.binding();
     GrGLVersion version = ctxInfo.version();
+
+    /**************************************************************************
+     * Caps specific to GrGLCaps
+     **************************************************************************/
 
     if (kES2_GrGLBinding == binding) {
         GR_GL_GetIntegerv(gli, GR_GL_MAX_FRAGMENT_UNIFORM_VECTORS,
@@ -194,6 +203,89 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
 
     this->initFSAASupport(ctxInfo, gli);
     this->initStencilFormats(ctxInfo);
+
+    /**************************************************************************
+     * GrDrawTarget::Caps fields
+     **************************************************************************/
+    GrGLint maxTextureUnits;
+    // check FS and fixed-function texture unit limits
+    // we only use textures in the fragment stage currently.
+    // checks are > to make sure we have a spare unit.
+    GR_GL_GetIntegerv(gli, GR_GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
+    GrAssert(maxTextureUnits > GrDrawState::kNumStages);
+
+    GrGLint numFormats;
+    GR_GL_GetIntegerv(gli, GR_GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
+    SkAutoSTMalloc<10, GrGLint> formats(numFormats);
+    GR_GL_GetIntegerv(gli, GR_GL_COMPRESSED_TEXTURE_FORMATS, formats);
+    for (int i = 0; i < numFormats; ++i) {
+        if (formats[i] == GR_GL_PALETTE8_RGBA8) {
+            f8BitPaletteSupport = true;
+            break;
+        }
+    }
+
+    if (kDesktop_GrGLBinding == binding) {
+        // we could also look for GL_ATI_separate_stencil extension or
+        // GL_EXT_stencil_two_side but they use different function signatures
+        // than GL2.0+ (and than each other).
+        fTwoSidedStencilSupport = (ctxInfo.version() >= GR_GL_VER(2,0));
+        // supported on GL 1.4 and higher or by extension
+        fStencilWrapOpsSupport = (ctxInfo.version() >= GR_GL_VER(1,4)) ||
+                                  ctxInfo.hasExtension("GL_EXT_stencil_wrap");
+    } else {
+        // ES 2 has two sided stencil and stencil wrap
+        fTwoSidedStencilSupport = true;
+        fStencilWrapOpsSupport = true;
+    }
+
+    if (kDesktop_GrGLBinding == binding) {
+        fBufferLockSupport = true; // we require VBO support and the desktop VBO extension includes
+                                   // glMapBuffer.
+    } else {
+        fBufferLockSupport = ctxInfo.hasExtension("GL_OES_mapbuffer");
+    }
+
+    if (kDesktop_GrGLBinding == binding) {
+        if (ctxInfo.version() >= GR_GL_VER(2,0) ||
+            ctxInfo.hasExtension("GL_ARB_texture_non_power_of_two")) {
+            fNPOTTextureTileSupport = true;
+        } else {
+            fNPOTTextureTileSupport = false;
+        }
+    } else {
+        // Unextended ES2 supports NPOT textures with clamp_to_edge and non-mip filters only
+        fNPOTTextureTileSupport = ctxInfo.hasExtension("GL_OES_texture_npot");
+    }
+
+    fHWAALineSupport = (kDesktop_GrGLBinding == binding);
+
+    GR_GL_GetIntegerv(gli, GR_GL_MAX_TEXTURE_SIZE, &fMaxTextureSize);
+    GR_GL_GetIntegerv(gli, GR_GL_MAX_RENDERBUFFER_SIZE, &fMaxRenderTargetSize);
+    // Our render targets are always created with textures as the color
+    // attachment, hence this min:
+    fMaxRenderTargetSize = GrMin(fMaxTextureSize, fMaxRenderTargetSize);
+
+    fPathStencilingSupport = GR_GL_USE_NV_PATH_RENDERING &&
+                             ctxInfo.hasExtension("GL_NV_path_rendering");
+
+    // Enable supported shader-related caps
+    if (kDesktop_GrGLBinding == binding) {
+        fDualSourceBlendingSupport = ctxInfo.version() >= GR_GL_VER(3,3) ||
+                                     ctxInfo.hasExtension("GL_ARB_blend_func_extended");
+        fShaderDerivativeSupport = true;
+        // we don't support GL_ARB_geometry_shader4, just GL 3.2+ GS
+        fGeometryShaderSupport = ctxInfo.version() >= GR_GL_VER(3,2) &&
+                                 ctxInfo.glslGeneration() >= k150_GrGLSLGeneration;
+    } else {
+        fShaderDerivativeSupport = ctxInfo.hasExtension("GL_OES_standard_derivatives");
+    }
+
+    if (GrGLCaps::kImaginationES_MSFBOType == fMSFBOType) {
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES_IMG, &fMaxSampleCount);
+    } else if (GrGLCaps::kNone_MSFBOType != fMSFBOType) {
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES, &fMaxSampleCount);
+    }
 }
 
 bool GrGLCaps::readPixelsSupported(const GrGLInterface* intf,
@@ -411,6 +503,10 @@ bool GrGLCaps::isColorConfigAndStencilFormatVerified(
 }
 
 void GrGLCaps::print() const {
+
+    INHERITED::print();
+
+    GrPrintf("--- GL-Specific ---\n");
     for (int i = 0; i < fStencilFormats.count(); ++i) {
         GrPrintf("Stencil Format %d, stencil bits: %02d, total bits: %02d\n",
                  i,
@@ -432,20 +528,25 @@ void GrGLCaps::print() const {
     };
     GrPrintf("MSAA Type: %s\n", gMSFBOExtStr[fMSFBOType]);
     GrPrintf("Max FS Uniform Vectors: %d\n", fMaxFragmentUniformVectors);
-    GrPrintf("Support RGBA8 Render Buffer: %s\n",
-             (fRGBA8RenderbufferSupport ? "YES": "NO"));
-    GrPrintf("BGRA is an internal format: %s\n",
-             (fBGRAIsInternalFormat ? "YES": "NO"));
-    GrPrintf("Support texture swizzle: %s\n",
-             (fTextureSwizzleSupport ? "YES": "NO"));
-    GrPrintf("Unpack Row length support: %s\n",
-             (fUnpackRowLengthSupport ? "YES": "NO"));
-    GrPrintf("Unpack Flip Y support: %s\n",
-             (fUnpackFlipYSupport ? "YES": "NO"));
-    GrPrintf("Pack Row length support: %s\n",
-             (fPackRowLengthSupport ? "YES": "NO"));
-    GrPrintf("Pack Flip Y support: %s\n",
-             (fPackFlipYSupport ? "YES": "NO"));
+    GrPrintf("Max Vertex Attributes: %d\n", fMaxVertexAttributes);
+    GrPrintf("Support RGBA8 Render Buffer: %s\n", (fRGBA8RenderbufferSupport ? "YES": "NO"));
+    GrPrintf("BGRA support: %s\n", (fBGRAFormatSupport ? "YES": "NO"));
+    GrPrintf("BGRA is an internal format: %s\n", (fBGRAIsInternalFormat ? "YES": "NO"));
+    GrPrintf("Support texture swizzle: %s\n", (fTextureSwizzleSupport ? "YES": "NO"));
+    GrPrintf("Unpack Row length support: %s\n", (fUnpackRowLengthSupport ? "YES": "NO"));
+    GrPrintf("Unpack Flip Y support: %s\n", (fUnpackFlipYSupport ? "YES": "NO"));
+    GrPrintf("Pack Row length support: %s\n", (fPackRowLengthSupport ? "YES": "NO"));
+    GrPrintf("Pack Flip Y support: %s\n", (fPackFlipYSupport ? "YES": "NO"));
+
+    GrPrintf("Texture Usage support: %s\n", (fTextureUsageSupport ? "YES": "NO"));
+    GrPrintf("Texture Storage support: %s\n", (fTexStorageSupport ? "YES": "NO"));
+    GrPrintf("GL_R support: %s\n", (fTextureRedSupport ? "YES": "NO"));
+    GrPrintf("GL_ARB_imaging support: %s\n", (fImagingSupport ? "YES": "NO"));
     GrPrintf("Two Format Limit: %s\n", (fTwoFormatLimit ? "YES": "NO"));
-    GrPrintf("Fragment coord conventions support: %s\n", (fFragCoordsConventionSupport ? "YES": "NO"));
+    GrPrintf("Fragment coord conventions support: %s\n",
+             (fFragCoordsConventionSupport ? "YES": "NO"));
+    GrPrintf("Vertex array object support: %s\n", (fVertexArrayObjectSupport ? "YES": "NO"));
+    GrPrintf("Use non-VBO for dynamic data: %s\n",
+             (fUseNonVBOVertexAndIndexDynamicData ? "YES" : "NO"));
+    GrPrintf("Core Profile: %s\n", (fIsCoreProfile ? "YES" : "NO"));
 }

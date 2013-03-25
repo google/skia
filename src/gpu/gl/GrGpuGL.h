@@ -57,7 +57,7 @@ public:
 
     virtual void abandonResources() SK_OVERRIDE;
 
-    const GrGLCaps& glCaps() const { return fGLContext.info().caps(); }
+    const GrGLCaps& glCaps() const { return *fGLContext.info().caps(); }
 
     // These functions should be used to bind GL objects. They track the GL state and skip redundant
     // bindings. Making the equivalent glBind calls directly will confuse the state tracking.
@@ -217,9 +217,6 @@ private:
     // flushes the scissor. see the note on flushBoundTextureAndParams about
     // flushing the scissor after that function is called.
     void flushScissor();
-
-    // Inits GrDrawTarget::Caps, subclass may enable additional caps.
-    void initCaps();
 
     void initFSAASupport();
 
@@ -430,8 +427,6 @@ private:
     // we record what stencil format worked last time to hopefully exit early
     // from our loop that tries stencil formats and calls check fb status.
     int fLastSuccessfulStencilFmtIdx;
-
-    bool fPrintedCaps;
 
     typedef GrGpu INHERITED;
 };

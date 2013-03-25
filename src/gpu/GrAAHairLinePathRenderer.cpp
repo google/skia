@@ -565,7 +565,7 @@ bool GrAAHairLinePathRenderer::canDrawPath(const SkPath& path,
 
     static const uint32_t gReqDerivMask = SkPath::kCubic_SegmentMask |
                                           SkPath::kQuad_SegmentMask;
-    if (!target->getCaps().shaderDerivativeSupport() &&
+    if (!target->caps()->shaderDerivativeSupport() &&
         (gReqDerivMask & path.getSegmentMasks())) {
         return false;
     }
