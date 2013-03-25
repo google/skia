@@ -30,8 +30,9 @@ protected:
         canvas->save();
         canvas->clipRect(SkRect::MakeXYWH(SkIntToScalar(x), SkIntToScalar(y),
                          SkIntToScalar(fSize.width()), SkIntToScalar(fSize.height())));
-        SkRect r = SkRect::MakeXYWH(x, y, SkIntToScalar(fSize.width()),
-                                          SkIntToScalar(fSize.height()));
+        SkRect r = SkRect::MakeXYWH(SkIntToScalar(x), SkIntToScalar(y),
+                                    SkIntToScalar(fSize.width()),
+                                    SkIntToScalar(fSize.height()));
         canvas->drawRect(r, paint);
         canvas->restore();
     }
