@@ -230,6 +230,10 @@ private:
     void internalGetPath(const SkGlyph& glyph, SkPath* fillPath,
                          SkPath* devPath, SkMatrix* fillToDevMatrix);
 
+    // Return the context associated with the next logical typeface, or NULL if
+    // there are no more entries in the fallback chain.
+    SkScalerContext* allocNextContext() const;
+
     // return the next context, treating fNextContext as a cache of the answer
     SkScalerContext* getNextContext();
 
