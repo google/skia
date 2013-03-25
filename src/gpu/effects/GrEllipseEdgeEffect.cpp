@@ -96,6 +96,7 @@ GR_DEFINE_EFFECT_TEST(GrEllipseEdgeEffect);
 
 GrEffectRef* GrEllipseEdgeEffect::TestCreate(SkMWCRandom* random,
                                                GrContext* context,
+                                               const GrDrawTargetCaps&,
                                                GrTexture* textures[]) {
     return GrEllipseEdgeEffect::Create(random->nextBool());
 }

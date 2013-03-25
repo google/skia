@@ -368,6 +368,7 @@ GR_DEFINE_EFFECT_TEST(ColorTableEffect);
 
 GrEffectRef* ColorTableEffect::TestCreate(SkMWCRandom* random,
                                           GrContext* context,
+                                          const GrDrawTargetCaps&,
                                           GrTexture* textures[]) {
     static unsigned kAllFlags = SkTable_ColorFilter::kR_Flag | SkTable_ColorFilter::kG_Flag |
                                 SkTable_ColorFilter::kB_Flag | SkTable_ColorFilter::kA_Flag;

@@ -10,6 +10,7 @@
 
 #include "GrContext.h"
 #include "GrDrawState.h"
+#include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
 #include "GrPathUtils.h"

@@ -45,7 +45,7 @@ void GrGLCaps::reset() {
     fIsCoreProfile = false;
 }
 
-GrGLCaps::GrGLCaps(const GrGLCaps& caps) : GrDrawTarget::Caps() {
+GrGLCaps::GrGLCaps(const GrGLCaps& caps) : GrDrawTargetCaps() {
     *this = caps;
 }
 
@@ -205,14 +205,13 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     this->initStencilFormats(ctxInfo);
 
     /**************************************************************************
-     * GrDrawTarget::Caps fields
+     * GrDrawTargetCaps fields
      **************************************************************************/
     GrGLint maxTextureUnits;
     // check FS and fixed-function texture unit limits
     // we only use textures in the fragment stage currently.
     // checks are > to make sure we have a spare unit.
     GR_GL_GetIntegerv(gli, GR_GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
-    GrAssert(maxTextureUnits > GrDrawState::kNumStages);
 
     GrGLint numFormats;
     GR_GL_GetIntegerv(gli, GR_GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);

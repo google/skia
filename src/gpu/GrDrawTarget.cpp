@@ -9,6 +9,7 @@
 
 
 #include "GrDrawTarget.h"
+#include "GrDrawTargetCaps.h"
 #include "GrRenderTarget.h"
 #include "GrTexture.h"
 #include "GrVertexBuffer.h"
@@ -679,9 +680,9 @@ GrDrawTarget::AutoClipRestore::AutoClipRestore(GrDrawTarget* target, const SkIRe
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SK_DEFINE_INST_COUNT(GrDrawTarget::Caps)
+SK_DEFINE_INST_COUNT(GrDrawTargetCaps)
 
-void GrDrawTarget::Caps::reset() {
+void GrDrawTargetCaps::reset() {
     f8BitPaletteSupport = false;
     fNPOTTextureTileSupport = false;
     fTwoSidedStencilSupport = false;
@@ -689,7 +690,7 @@ void GrDrawTarget::Caps::reset() {
     fHWAALineSupport = false;
     fShaderDerivativeSupport = false;
     fGeometryShaderSupport = false;
-    fDualSourceBlendingSupport = false;
+    fDualSourceBlendingSupport = false; 
     fBufferLockSupport = false;
     fPathStencilingSupport = false;
 
@@ -698,7 +699,7 @@ void GrDrawTarget::Caps::reset() {
     fMaxSampleCount = 0;
 }
 
-GrDrawTarget::Caps& GrDrawTarget::Caps::operator=(const GrDrawTarget::Caps& other) {
+GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
     f8BitPaletteSupport = other.f8BitPaletteSupport;
     fNPOTTextureTileSupport = other.fNPOTTextureTileSupport;
     fTwoSidedStencilSupport = other.fTwoSidedStencilSupport;
@@ -717,7 +718,7 @@ GrDrawTarget::Caps& GrDrawTarget::Caps::operator=(const GrDrawTarget::Caps& othe
     return *this;
 }
 
-void GrDrawTarget::Caps::print() const {
+void GrDrawTargetCaps::print() const {
     static const char* gNY[] = {"NO", "YES"};
     GrPrintf("8 Bit Palette Support       : %s\n", gNY[f8BitPaletteSupport]);
     GrPrintf("NPOT Texture Tile Support   : %s\n", gNY[fNPOTTextureTileSupport]);

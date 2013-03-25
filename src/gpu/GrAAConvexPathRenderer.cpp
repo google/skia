@@ -10,6 +10,7 @@
 
 #include "GrContext.h"
 #include "GrDrawState.h"
+#include "GrDrawTargetCaps.h"
 #include "GrPathUtils.h"
 #include "SkString.h"
 #include "SkStrokeRec.h"

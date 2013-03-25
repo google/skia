@@ -9,6 +9,7 @@
 
 #include "GrInOrderDrawBuffer.h"
 #include "GrBufferAllocPool.h"
+#include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
 #include "GrPath.h"

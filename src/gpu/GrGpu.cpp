@@ -11,6 +11,7 @@
 
 #include "GrBufferAllocPool.h"
 #include "GrContext.h"
+#include "GrDrawTargetCaps.h"
 #include "GrIndexBuffer.h"
 #include "GrStencilBuffer.h"
 #include "GrVertexBuffer.h"

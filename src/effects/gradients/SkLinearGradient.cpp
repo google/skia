@@ -513,6 +513,7 @@ GR_DEFINE_EFFECT_TEST(GrLinearGradient);
 
 GrEffectRef* GrLinearGradient::TestCreate(SkMWCRandom* random,
                                           GrContext* context,
+                                          const GrDrawTargetCaps&,
                                           GrTexture**) {
     SkPoint points[] = {{random->nextUScalar1(), random->nextUScalar1()},
                         {random->nextUScalar1(), random->nextUScalar1()}};

@@ -11,6 +11,7 @@
 
 #include "GrContext.h"
 #include "GrDefaultPathRenderer.h"
+#include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
 
 SK_DEFINE_INST_COUNT(GrPathRendererChain)

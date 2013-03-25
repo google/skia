@@ -9,10 +9,10 @@
 #ifndef GrGLCaps_DEFINED
 #define GrGLCaps_DEFINED
 
+#include "GrDrawTargetCaps.h"
+#include "GrGLStencilBuffer.h"
 #include "SkTArray.h"
 #include "SkTDArray.h"
-#include "GrGLStencilBuffer.h"
-#include "GrDrawTarget.h"
 
 class GrGLContextInfo;
 
@@ -21,7 +21,7 @@ class GrGLContextInfo;
  * version and the extensions string. It also tracks formats that have passed
  * the FBO completeness test.
  */
-class GrGLCaps : public GrDrawTarget::Caps {
+class GrGLCaps : public GrDrawTargetCaps {
 public:
     SK_DECLARE_INST_COUNT(GrGLCaps)
 
@@ -312,7 +312,7 @@ private:
     bool fUseNonVBOVertexAndIndexDynamicData : 1;
     bool fIsCoreProfile : 1;
 
-    typedef GrDrawTarget::Caps INHERITED;
+    typedef GrDrawTargetCaps INHERITED;
 };
 
 #endif

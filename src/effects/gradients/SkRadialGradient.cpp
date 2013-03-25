@@ -534,6 +534,7 @@ GR_DEFINE_EFFECT_TEST(GrRadialGradient);
 
 GrEffectRef* GrRadialGradient::TestCreate(SkMWCRandom* random,
                                           GrContext* context,
+                                          const GrDrawTargetCaps&,
                                           GrTexture**) {
     SkPoint center = {random->nextUScalar1(), random->nextUScalar1()};
     SkScalar radius = random->nextUScalar1();

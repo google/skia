@@ -135,6 +135,7 @@ GR_DEFINE_EFFECT_TEST(GrConfigConversionEffect);
 
 GrEffectRef* GrConfigConversionEffect::TestCreate(SkMWCRandom* random,
                                                   GrContext*,
+                                                  const GrDrawTargetCaps&,
                                                   GrTexture* textures[]) {
     PMConversion pmConv = static_cast<PMConversion>(random->nextULessThan(kPMConversionCnt));
     bool swapRB;
