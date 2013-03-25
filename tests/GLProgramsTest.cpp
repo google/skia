@@ -36,13 +36,13 @@ void GrGLProgram::Desc::setRandom(SkMWCRandom* random,
     fAttribBindings |= random->nextBool() ? GrDrawState::kCoverage_AttribBindingsBit : 0;
 
 #if GR_GL_EXPERIMENTAL_GS
-    fExperimentalGS = gpu->getCaps().geometryShaderSupport() && random->nextBool();
+    fExperimentalGS = gpu->caps()->geometryShaderSupport() && random->nextBool();
 #endif
 
     bool edgeAA = random->nextBool();
     if (edgeAA) {
         fAttribBindings |= GrDrawState::kEdge_AttribBindingsBit;
-        if (gpu->getCaps().shaderDerivativeSupport()) {
+        if (gpu->caps()->shaderDerivativeSupport()) {
             fVertexEdgeType = (GrDrawState::VertexEdgeType)
                               random->nextULessThan(GrDrawState::kVertexEdgeTypeCnt);
             fDiscardIfOutsideEdge = random->nextBool();
@@ -52,7 +52,7 @@ void GrGLProgram::Desc::setRandom(SkMWCRandom* random,
         }
     }
 
-    if (gpu->getCaps().dualSourceBlendingSupport()) {
+    if (gpu->caps()->dualSourceBlendingSupport()) {
         fDualSrcOutput = random->nextULessThan(kDualSrcOutputCnt);
     } else {
         fDualSrcOutput = kNone_DualSrcOutput;

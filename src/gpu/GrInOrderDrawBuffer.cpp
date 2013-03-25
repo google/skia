@@ -29,7 +29,7 @@ GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrGpu* gpu,
     , fFlushing(false) {
 
     fDstGpu->ref();
-    fCaps = fDstGpu->getCaps();
+    fCaps.reset(SkRef(fDstGpu->caps()));
 
     GrAssert(NULL != vertexPool);
     GrAssert(NULL != indexPool);
@@ -99,7 +99,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
     // optimizations help determine whether coverage and color can be blended correctly when
     // dual-source blending isn't available. This comes into play when there is coverage. If colors
     // were a stage it could take a hint that every vertex's color will be opaque.
-    if (this->getCaps().dualSourceBlendingSupport() ||
+    if (this->caps()->dualSourceBlendingSupport() ||
         drawState->hasSolidCoverage(drawState->getAttribBindings())) {
         bindings |= GrDrawState::kColor_AttribBindingsBit;
         drawState->setAttribIndex(GrDrawState::kColor_AttribIndex, attribs.count());

@@ -153,9 +153,10 @@ GrGpuGL::GrGpuGL(const GrGLContext& ctx, GrContext* context)
 
     GrAssert(ctx.isInitialized());
 
+    fCaps.reset(SkRef(ctx.info().caps()));
+
     fillInConfigRenderableTable();
 
-    fPrintedCaps = false;
 
     GrGLClearErr(fGLContext.interface());
 
@@ -174,9 +175,8 @@ GrGpuGL::GrGpuGL(const GrGLContext& ctx, GrContext* context)
         GrPrintf("------ RENDERER %s\n", renderer);
         GrPrintf("------ VERSION %s\n",  version);
         GrPrintf("------ EXTENSIONS\n %s \n", ext);
+        ctx.info().caps()->print();
     }
-
-    this->initCaps();
 
     fProgramCache = SkNEW_ARGS(ProgramCache, (this->glContext()));
 
@@ -208,92 +208,6 @@ GrGpuGL::~GrGpuGL() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-void GrGpuGL::initCaps() {
-    GrGLint maxTextureUnits;
-    // check FS and fixed-function texture unit limits
-    // we only use textures in the fragment stage currently.
-    // checks are > to make sure we have a spare unit.
-    const GrGLInterface* gl = this->glInterface();
-    GR_GL_GetIntegerv(gl, GR_GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
-    GrAssert(maxTextureUnits > GrDrawState::kNumStages);
-
-    CapsInternals* caps = this->capsInternals();
-
-    GrGLint numFormats;
-    GR_GL_GetIntegerv(gl, GR_GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
-    SkAutoSTMalloc<10, GrGLint> formats(numFormats);
-    GR_GL_GetIntegerv(gl, GR_GL_COMPRESSED_TEXTURE_FORMATS, formats);
-    for (int i = 0; i < numFormats; ++i) {
-        if (formats[i] == GR_GL_PALETTE8_RGBA8) {
-            caps->f8BitPaletteSupport = true;
-            break;
-        }
-    }
-
-    if (kDesktop_GrGLBinding == this->glBinding()) {
-        // we could also look for GL_ATI_separate_stencil extension or
-        // GL_EXT_stencil_two_side but they use different function signatures
-        // than GL2.0+ (and than each other).
-        caps->fTwoSidedStencilSupport = (this->glVersion() >= GR_GL_VER(2,0));
-        // supported on GL 1.4 and higher or by extension
-        caps->fStencilWrapOpsSupport = (this->glVersion() >= GR_GL_VER(1,4)) ||
-                                       this->hasExtension("GL_EXT_stencil_wrap");
-    } else {
-        // ES 2 has two sided stencil and stencil wrap
-        caps->fTwoSidedStencilSupport = true;
-        caps->fStencilWrapOpsSupport = true;
-    }
-
-    if (kDesktop_GrGLBinding == this->glBinding()) {
-        caps->fBufferLockSupport = true; // we require VBO support and the desktop VBO
-                                         // extension includes glMapBuffer.
-    } else {
-        caps->fBufferLockSupport = this->hasExtension("GL_OES_mapbuffer");
-    }
-
-    if (kDesktop_GrGLBinding == this->glBinding()) {
-        if (this->glVersion() >= GR_GL_VER(2,0) ||
-            this->hasExtension("GL_ARB_texture_non_power_of_two")) {
-            caps->fNPOTTextureTileSupport = true;
-        } else {
-            caps->fNPOTTextureTileSupport = false;
-        }
-    } else {
-        // Unextended ES2 supports NPOT textures with clamp_to_edge and non-mip filters only
-        caps->fNPOTTextureTileSupport = this->hasExtension("GL_OES_texture_npot");
-    }
-
-    caps->fHWAALineSupport = (kDesktop_GrGLBinding == this->glBinding());
-
-    GR_GL_GetIntegerv(gl, GR_GL_MAX_TEXTURE_SIZE, &caps->fMaxTextureSize);
-    GR_GL_GetIntegerv(gl, GR_GL_MAX_RENDERBUFFER_SIZE, &caps->fMaxRenderTargetSize);
-    // Our render targets are always created with textures as the color
-    // attachment, hence this min:
-    caps->fMaxRenderTargetSize = GrMin(caps->fMaxTextureSize, caps->fMaxRenderTargetSize);
-
-    caps->fFSAASupport = GrGLCaps::kNone_MSFBOType != this->glCaps().msFBOType();
-    caps->fPathStencilingSupport = GR_GL_USE_NV_PATH_RENDERING &&
-                                   this->hasExtension("GL_NV_path_rendering");
-
-    // Enable supported shader-related caps
-    if (kDesktop_GrGLBinding == this->glBinding()) {
-        caps->fDualSourceBlendingSupport = this->glVersion() >= GR_GL_VER(3,3) ||
-                                           this->hasExtension("GL_ARB_blend_func_extended");
-        caps->fShaderDerivativeSupport = true;
-        // we don't support GL_ARB_geometry_shader4, just GL 3.2+ GS
-        caps->fGeometryShaderSupport = this->glVersion() >= GR_GL_VER(3,2) &&
-                                       this->glslGeneration() >= k150_GrGLSLGeneration;
-    } else {
-        caps->fShaderDerivativeSupport = this->hasExtension("GL_OES_standard_derivatives");
-    }
-
-    if (GrGLCaps::kImaginationES_MSFBOType == this->glCaps().msFBOType()) {
-        GR_GL_GetIntegerv(this->glInterface(), GR_GL_MAX_SAMPLES_IMG, &caps->fMaxSampleCount);
-    } else if (GrGLCaps::kNone_MSFBOType != this->glCaps().msFBOType()) {
-        GR_GL_GetIntegerv(this->glInterface(), GR_GL_MAX_SAMPLES, &caps->fMaxSampleCount);
-    }
-}
 
 void GrGpuGL::fillInConfigRenderableTable() {
 
@@ -399,11 +313,6 @@ bool GrGpuGL::fullReadPixelsIsFasterThanPartial() const {
 }
 
 void GrGpuGL::onResetContext() {
-    if (gPrintStartupSpew && !fPrintedCaps) {
-        fPrintedCaps = true;
-        this->getCaps().print();
-        this->glCaps().print();
-    }
 
     // we don't use the zb at all
     GL_CALL(Disable(GR_GL_DEPTH_TEST));
@@ -463,7 +372,7 @@ void GrGpuGL::onResetContext() {
     fHWBoundRenderTarget = NULL;
 
     fHWPathStencilMatrixState.invalidate();
-    if (fCaps.pathStencilingSupport()) {
+    if (this->caps()->pathStencilingSupport()) {
         // we don't use the model view matrix.
         GL_CALL(MatrixMode(GR_GL_MODELVIEW));
         GL_CALL(LoadIdentity());
@@ -511,7 +420,7 @@ GrTexture* GrGpuGL::onWrapBackendTexture(const GrBackendTextureDesc& desc) {
         return NULL;
     }
 
-    int maxSize = this->getCaps().maxTextureSize();
+    int maxSize = this->caps()->maxTextureSize();
     if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
         return NULL;
     }
@@ -836,12 +745,12 @@ bool renderbuffer_storage_msaa(GrGLContext& ctx,
                                GrGLenum format,
                                int width, int height) {
     CLEAR_ERROR_BEFORE_ALLOC(ctx.interface());
-    GrAssert(GrGLCaps::kNone_MSFBOType != ctx.info().caps().msFBOType());
+    GrAssert(GrGLCaps::kNone_MSFBOType != ctx.info().caps()->msFBOType());
     bool created = false;
     if (GrGLCaps::kNVDesktop_CoverageAAType ==
-        ctx.info().caps().coverageAAType()) {
+        ctx.info().caps()->coverageAAType()) {
         const GrGLCaps::MSAACoverageMode& mode =
-            ctx.info().caps().getMSAACoverageMode(sampleCount);
+            ctx.info().caps()->getMSAACoverageMode(sampleCount);
         GL_ALLOC_CALL(ctx.interface(),
                       RenderbufferStorageMultisampleCoverage(GR_GL_RENDERBUFFER,
                                                         mode.fCoverageSampleCnt,
@@ -924,7 +833,7 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
             if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
                 goto FAILED;
             }
-            fGLContext.info().caps().markConfigAsValidColorAttachment(desc->fConfig);
+            fGLContext.info().caps()->markConfigAsValidColorAttachment(desc->fConfig);
         }
     }
     GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, desc->fTexFBOID));
@@ -945,7 +854,7 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
         if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
             goto FAILED;
         }
-        fGLContext.info().caps().markConfigAsValidColorAttachment(desc->fConfig);
+        fGLContext.info().caps()->markConfigAsValidColorAttachment(desc->fConfig);
     }
 
     return true;
@@ -990,7 +899,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
         return return_null_texture();
     }
     // If the sample count exceeds the max then we clamp it.
-    glTexDesc.fSampleCnt = GrMin(desc.fSampleCnt, this->getCaps().maxSampleCount());
+    glTexDesc.fSampleCnt = GrMin(desc.fSampleCnt, this->caps()->maxSampleCount());
 
     glTexDesc.fFlags  = desc.fFlags;
     glTexDesc.fWidth  = desc.fWidth;
@@ -1006,8 +915,6 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
 
     bool renderTarget = 0 != (desc.fFlags & kRenderTarget_GrTextureFlagBit);
 
-    const Caps& caps = this->getCaps();
-
     glTexDesc.fOrigin = resolve_origin(desc.fOrigin, renderTarget);
     glRTDesc.fOrigin = glTexDesc.fOrigin;
 
@@ -1019,8 +926,8 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     }
 
     if (renderTarget) {
-        if (glTexDesc.fWidth > caps.maxRenderTargetSize() ||
-            glTexDesc.fHeight > caps.maxRenderTargetSize()) {
+        int maxRTSize = this->caps()->maxRenderTargetSize();
+        if (glTexDesc.fWidth > maxRTSize || glTexDesc.fHeight > maxRTSize) {
             return return_null_texture();
         }
     }
@@ -1234,7 +1141,7 @@ bool GrGpuGL::attachStencilBufferToRenderTarget(GrStencilBuffer* sb, GrRenderTar
                 }
                 return false;
             } else {
-                fGLContext.info().caps().markColorConfigAndStencilFormatAsVerified(
+                fGLContext.info().caps()->markColorConfigAndStencilFormatAsVerified(
                     rt->config(),
                     glsb->format());
             }
@@ -1312,7 +1219,7 @@ GrIndexBuffer* GrGpuGL::onCreateIndexBuffer(uint32_t size, bool dynamic) {
 }
 
 GrPath* GrGpuGL::onCreatePath(const SkPath& inPath) {
-    GrAssert(fCaps.pathStencilingSupport());
+    GrAssert(this->caps()->pathStencilingSupport());
     return SkNEW_ARGS(GrGLPath, (this, inPath));
 }
 
@@ -1735,7 +1642,7 @@ void GrGpuGL::setStencilPathSettings(const GrPath&,
 }
 
 void GrGpuGL::onGpuStencilPath(const GrPath* path, SkPath::FillType fill) {
-    GrAssert(fCaps.pathStencilingSupport());
+    GrAssert(this->caps()->pathStencilingSupport());
 
     GrGLuint id = static_cast<const GrGLPath*>(path)->pathID();
     GrDrawState* drawState = this->drawState();
@@ -1918,7 +1825,7 @@ void GrGpuGL::flushStencil(DrawType type) {
             }
         }
         if (!fStencilSettings.isDisabled()) {
-            if (this->getCaps().twoSidedStencilSupport()) {
+            if (this->caps()->twoSidedStencilSupport()) {
                 set_gl_stencil(this->glInterface(),
                                fStencilSettings,
                                GR_GL_FRONT,
@@ -2268,7 +2175,7 @@ bool GrGpuGL::configToGLFormats(GrPixelConfig config,
             *externalType = GR_GL_UNSIGNED_SHORT_4_4_4_4;
             break;
         case kIndex_8_GrPixelConfig:
-            if (this->getCaps().eightBitPaletteSupport()) {
+            if (this->caps()->eightBitPaletteSupport()) {
                 *internalFormat = GR_GL_PALETTE8_RGBA8;
                 // glCompressedTexImage doesn't take external params
                 *externalFormat = GR_GL_PALETTE8_RGBA8;

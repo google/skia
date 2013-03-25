@@ -204,7 +204,7 @@ GrIndexBuffer* GrGpu::createIndexBuffer(uint32_t size, bool dynamic) {
 }
 
 GrPath* GrGpu::createPath(const SkPath& path) {
-    GrAssert(fCaps.pathStencilingSupport());
+    GrAssert(this->caps()->pathStencilingSupport());
     this->handleDirtyContext();
     return this->onCreatePath(path);
 }

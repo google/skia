@@ -432,7 +432,7 @@ bool GrAAConvexPathRenderer::canDrawPath(const SkPath& path,
                                          const SkStrokeRec& stroke,
                                          const GrDrawTarget* target,
                                          bool antiAlias) const {
-    return (target->getCaps().shaderDerivativeSupport() && antiAlias &&
+    return (target->caps()->shaderDerivativeSupport() && antiAlias &&
             stroke.isFillStyle() && !path.isInverseFillType() && path.isConvex());
 }
 

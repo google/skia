@@ -149,7 +149,7 @@ void GrGLProgram::BuildDesc(const GrDrawState& drawState,
     // other than pass through values from the VS to the FS anyway).
 #if GR_GL_EXPERIMENTAL_GS
 #if 0
-    desc->fExperimentalGS = gpu->getCaps().geometryShaderSupport();
+    desc->fExperimentalGS = gpu->caps().geometryShaderSupport();
 #else
     desc->fExperimentalGS = false;
 #endif
@@ -177,7 +177,7 @@ void GrGLProgram::BuildDesc(const GrDrawState& drawState,
             desc->fFirstCoverageStage = firstCoverageStage;
         }
 
-        if (gpu->getCaps().dualSourceBlendingSupport() &&
+        if (gpu->caps()->dualSourceBlendingSupport() &&
             !(blendOpts & (GrDrawState::kEmitCoverage_BlendOptFlag |
                            GrDrawState::kCoverageAsAlpha_BlendOptFlag))) {
             if (kZero_GrBlendCoeff == dstCoeff) {

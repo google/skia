@@ -136,7 +136,7 @@ GrResourceKey::ResourceFlags get_texture_flags(const GrGpu* gpu,
                                                const GrTextureDesc& desc) {
     GrResourceKey::ResourceFlags flags = 0;
     bool tiled = NULL != params && params->isTiled();
-    if (tiled && !gpu->getCaps().npotTextureTileSupport()) {
+    if (tiled && !gpu->caps()->npotTextureTileSupport()) {
         if (!GrIsPow2(desc.fWidth) || !GrIsPow2(desc.fHeight)) {
             flags |= kStretchToPOT_TextureFlag;
             if (params->isBilerp()) {

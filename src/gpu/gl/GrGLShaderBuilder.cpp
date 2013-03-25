@@ -158,7 +158,7 @@ void GrGLShaderBuilder::appendTextureLookup(SkString* out,
                  sample_function_name(varyingType, fCtxInfo.glslGeneration()),
                  this->getUniformCStr(sampler.fSamplerUniform),
                  coordName);
-    append_swizzle(out, *sampler.textureAccess(), fCtxInfo.caps());
+    append_swizzle(out, *sampler.textureAccess(), *fCtxInfo.caps());
 }
 
 void GrGLShaderBuilder::appendTextureLookup(ShaderType type,
@@ -332,7 +332,7 @@ void GrGLShaderBuilder::addVarying(GrSLType type,
 
 const char* GrGLShaderBuilder::fragmentPosition() {
 #if 1
-    if (fCtxInfo.caps().fragCoordConventionsSupport()) {
+    if (fCtxInfo.caps()->fragCoordConventionsSupport()) {
         if (!fSetupFragPosition) {
             if (fCtxInfo.glslGeneration() < k150_GrGLSLGeneration) {
                 fFSHeader.append("#extension GL_ARB_fragment_coord_conventions: require\n");

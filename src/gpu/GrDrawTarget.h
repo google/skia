@@ -30,27 +30,6 @@ class SkStrokeRec;
 
 class GrDrawTarget : public GrRefCnt {
 protected:
-    /** This helper class allows GrDrawTarget subclasses to set the caps values without having to be
-        made a friend of GrDrawTarget::Caps. */
-    class CapsInternals {
-    public:
-        bool f8BitPaletteSupport        : 1;
-        bool fNPOTTextureTileSupport    : 1;
-        bool fTwoSidedStencilSupport    : 1;
-        bool fStencilWrapOpsSupport     : 1;
-        bool fHWAALineSupport           : 1;
-        bool fShaderDerivativeSupport   : 1;
-        bool fGeometryShaderSupport     : 1;
-        bool fFSAASupport               : 1;
-        bool fDualSourceBlendingSupport : 1;
-        bool fBufferLockSupport         : 1;
-        bool fPathStencilingSupport     : 1;
-
-        int fMaxRenderTargetSize;
-        int fMaxTextureSize;
-        int fMaxSampleCount;
-    };
-
     class DrawInfo;
 
 public:
@@ -59,35 +38,50 @@ public:
     /**
      * Represents the draw target capabilities.
      */
-    class Caps {
+    class Caps : public SkRefCnt {
     public:
-        Caps() { memset(this, 0, sizeof(Caps)); }
+        SK_DECLARE_INST_COUNT(Caps)
+
+        Caps() { this->reset(); }
         Caps(const Caps& c) { *this = c; }
-        Caps& operator= (const Caps& c) {
-            memcpy(this, &c, sizeof(Caps));
-            return *this;
-        }
-        void print() const;
+        Caps& operator= (const Caps& c);
 
-        bool eightBitPaletteSupport() const { return fInternals.f8BitPaletteSupport; }
-        bool npotTextureTileSupport() const { return fInternals.fNPOTTextureTileSupport; }
-        bool twoSidedStencilSupport() const { return fInternals.fTwoSidedStencilSupport; }
-        bool stencilWrapOpsSupport() const { return  fInternals.fStencilWrapOpsSupport; }
-        bool hwAALineSupport() const { return fInternals.fHWAALineSupport; }
-        bool shaderDerivativeSupport() const { return fInternals.fShaderDerivativeSupport; }
-        bool geometryShaderSupport() const { return fInternals.fGeometryShaderSupport; }
-        bool fsaaSupport() const { return fInternals.fFSAASupport; }
-        bool dualSourceBlendingSupport() const { return fInternals.fDualSourceBlendingSupport; }
-        bool bufferLockSupport() const { return fInternals.fBufferLockSupport; }
-        bool pathStencilingSupport() const { return fInternals.fPathStencilingSupport; }
+        virtual void reset();
+        virtual void print() const;
 
-        int maxRenderTargetSize() const { return fInternals.fMaxRenderTargetSize; }
-        int maxTextureSize() const { return fInternals.fMaxTextureSize; }
+        bool eightBitPaletteSupport() const { return f8BitPaletteSupport; }
+        bool npotTextureTileSupport() const { return fNPOTTextureTileSupport; }
+        bool twoSidedStencilSupport() const { return fTwoSidedStencilSupport; }
+        bool stencilWrapOpsSupport() const { return  fStencilWrapOpsSupport; }
+        bool hwAALineSupport() const { return fHWAALineSupport; }
+        bool shaderDerivativeSupport() const { return fShaderDerivativeSupport; }
+        bool geometryShaderSupport() const { return fGeometryShaderSupport; }
+        bool dualSourceBlendingSupport() const { return fDualSourceBlendingSupport; }
+        bool bufferLockSupport() const { return fBufferLockSupport; }
+        bool pathStencilingSupport() const { return fPathStencilingSupport; }
+
+        int maxRenderTargetSize() const { return fMaxRenderTargetSize; }
+        int maxTextureSize() const { return fMaxTextureSize; }
         // Will be 0 if MSAA is not supported
-        int maxSampleCount() const { return fInternals.fMaxSampleCount; }
-    private:
-        CapsInternals fInternals;
-        friend class GrDrawTarget; // to set values of fInternals
+        int maxSampleCount() const { return fMaxSampleCount; }
+    protected:
+
+        bool f8BitPaletteSupport        : 1;
+        bool fNPOTTextureTileSupport    : 1;
+        bool fTwoSidedStencilSupport    : 1;
+        bool fStencilWrapOpsSupport     : 1;
+        bool fHWAALineSupport           : 1;
+        bool fShaderDerivativeSupport   : 1;
+        bool fGeometryShaderSupport     : 1;
+        bool fDualSourceBlendingSupport : 1;
+        bool fBufferLockSupport         : 1;
+        bool fPathStencilingSupport     : 1;
+
+        int fMaxRenderTargetSize;
+        int fMaxTextureSize;
+        int fMaxSampleCount;
+
+        typedef SkRefCnt INHERITED;
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -100,7 +94,7 @@ public:
     /**
      * Gets the capabilities of the draw target.
      */
-    const Caps& getCaps() const { return fCaps; }
+    const Caps* caps() const { return fCaps.get(); }
 
     /**
      * Sets the current clip to the region specified by clip. All draws will be
@@ -652,9 +646,6 @@ protected:
     GrContext* getContext() { return fContext; }
     const GrContext* getContext() const { return fContext; }
 
-    // allows derived class to set the caps
-    CapsInternals* capsInternals() { return &fCaps.fInternals; }
-
     // A subclass may override this function if it wishes to be notified when the clip is changed.
     // The override should call INHERITED::clipWillBeSet().
     virtual void clipWillBeSet(const GrClipData* clipData);
@@ -673,7 +664,8 @@ protected:
         return this->getGeomSrc().fVertexSize;
     }
 
-    Caps fCaps;
+    // Subclass must initialize this in its constructor.
+    SkAutoTUnref<const Caps> fCaps;
 
     /**
      * Used to communicate draws to subclass's onDraw function.
