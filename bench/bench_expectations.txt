@@ -1448,7 +1448,7 @@ desk_youtube.skp_tile_256x256_,MacMini_10_8_Float_Bench_32-25th,21.300,9.170,33.
 desk_youtube.skp_tile_256x256_,Nexus7_4-1_Float_Bench_32-25th,199.990,169.991,229.989
 desk_youtube.skp_tile_256x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,11.370,0.233,22.507
 desk_youtube.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,10.650,-0.415,21.715
-desk_youtube.skp_tile_256x256_gpu_,MacMini_10_8_Float_Bench_32-25th,70.300,53.270,87.330
+desk_youtube.skp_tile_256x256_gpu_,MacMini_10_8_Float_Bench_32-25th,70.300,53.270,97.330
 desk_youtube.skp_tile_256x256_gpu_,Nexus7_4-1_Float_Bench_32-25th,256.910,221.219,292.601
 desk_youtube.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,48.200,33.380,63.020
 desk_youtube.skp_tile_256x256_gpu_c,MacMini_10_8_Float_Bench_32-25th,59.830,43.847,75.813
@@ -1498,7 +1498,7 @@ mobi_wikipedia.skp_tile_256x256_,MacMini_10_8_Float_Bench_32-25th,47.300,32.570,
 mobi_wikipedia.skp_tile_256x256_,Nexus7_4-1_Float_Bench_32-25th,312.810,271.529,354.091
 mobi_wikipedia.skp_tile_256x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,25.830,13.247,38.413
 mobi_wikipedia.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,26.250,13.625,38.875
-mobi_wikipedia.skp_tile_256x256_gpu_,MacMini_10_8_Float_Bench_32-25th,119.250,97.325,141.175
+mobi_wikipedia.skp_tile_256x256_gpu_,MacMini_10_8_Float_Bench_32-25th,119.250,97.325,151.175
 mobi_wikipedia.skp_tile_256x256_gpu_,Nexus7_4-1_Float_Bench_32-25th,510.630,449.567,571.693
 mobi_wikipedia.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,61.900,45.710,78.090
 mobi_wikipedia.skp_tile_256x256_gpu_c,MacMini_10_8_Float_Bench_32-25th,77.820,60.038,95.602
@@ -2898,7 +2898,7 @@ tabl_ukwsj.skp_tile_256x256_,MacMini_10_8_Float_Bench_32-25th,33.450,20.105,46.7
 tabl_ukwsj.skp_tile_256x256_,Nexus7_4-1_Float_Bench_32-25th,256.040,220.436,291.644
 tabl_ukwsj.skp_tile_256x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,18.790,6.911,30.669
 tabl_ukwsj.skp_tile_256x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,19.350,7.415,31.285
-tabl_ukwsj.skp_tile_256x256_gpu_,MacMini_10_8_Float_Bench_32-25th,88.200,69.380,107.020
+tabl_ukwsj.skp_tile_256x256_gpu_,MacMini_10_8_Float_Bench_32-25th,88.200,69.380,117.020
 tabl_ukwsj.skp_tile_256x256_gpu_,Nexus7_4-1_Float_Bench_32-25th,406.310,355.679,456.941
 tabl_ukwsj.skp_tile_256x256_gpu_,Shuttle_Win7_Intel_Float_Bench_32-25th,62.830,46.547,79.113
 tabl_ukwsj.skp_tile_256x256_gpu_c,MacMini_10_8_Float_Bench_32-25th,66.320,49.688,82.952
