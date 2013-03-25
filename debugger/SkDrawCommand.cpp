@@ -290,7 +290,7 @@ DrawData::DrawData(const void* data, size_t length) {
 
     // TODO: add display of actual data?
     SkString* str = new SkString;
-    str->appendf("length: %d", length);
+    str->appendf("length: %d", (int) length);
     fInfo.push(str);
 }
 

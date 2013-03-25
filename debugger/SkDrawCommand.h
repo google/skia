@@ -229,7 +229,7 @@ public:
     virtual ~DrawData() { delete [] fData; }
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
 private:
-    void*  fData;
+    char*  fData;
     size_t fLength;
 
     typedef SkDrawCommand INHERITED;
@@ -306,7 +306,7 @@ public:
     virtual ~DrawTextC() { delete [] fText; }
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
 private:
-    void*    fText;
+    char*    fText;
     size_t   fByteLength;
     SkScalar fX;
     SkScalar fY;
@@ -337,7 +337,7 @@ public:
     virtual ~DrawTextOnPath() { delete [] fText; }
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
 private:
-    void*    fText;
+    char*    fText;
     size_t   fByteLength;
     SkPath   fPath;
     SkMatrix fMatrix;
