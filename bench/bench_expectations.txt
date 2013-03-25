@@ -1488,7 +1488,7 @@ mobi_wikipedia.skp_record_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,1.992,-8
 mobi_wikipedia.skp_simple_viewport_1280x800_,Nexus7_4-1_Float_Bench_32-25th,11.840,0.656,23.024
 mobi_wikipedia.skp_simple_viewport_1280x800_gpu_,Nexus7_4-1_Float_Bench_32-25th,32.640,19.376,45.904
 mobi_wikipedia.skp_simple_viewport_1280x800_rtree_,Nexus7_4-1_Float_Bench_32-25th,11.810,0.629,22.991
-mobi_wikipedia.skp_tile_1024x256_,MacMini_10_8_Float_Bench_32-25th,33.450,20.105,46.795
+mobi_wikipedia.skp_tile_1024x256_,MacMini_10_8_Float_Bench_32-25th,33.450,20.105,56.795
 mobi_wikipedia.skp_tile_1024x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,17.140,5.426,28.854
 mobi_wikipedia.skp_tile_1024x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,18.460,6.614,30.306
 mobi_wikipedia.skp_tile_1024x64_,MacMini_10_8_Float_Bench_32-25th,42.200,27.980,56.420
