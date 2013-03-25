@@ -91,6 +91,8 @@ public:
     /** @deprecated get from Device. */
     static LCDOrder GetSubpixelOrder();
 
+private:
+    
     /**
      *  DEPRECATED -- will be DESTROYED
      *
@@ -109,8 +111,6 @@ public:
      *  stylistic attributes.
      */
     static SkTypeface* NextLogicalTypeface(SkFontID currFontID, SkFontID origFontID);
-
-private:
 
     /** Return a new, closest matching typeface given either an existing family
         (specified by a typeface in that family) or by a familyName and a
@@ -144,6 +144,7 @@ private:
 
     ///////////////////////////////////////////////////////////////////////////
 
+    friend class SkScalerContext;
     friend class SkTypeface;
 };
 
