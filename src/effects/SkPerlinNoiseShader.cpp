@@ -938,8 +938,9 @@ GrEffectRef* SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint&
         context, *fPaintingData->getNoiseBitmap(), NULL);
 
     GrEffectRef* effect = (NULL != permutationsTexture) && (NULL != noiseTexture) ?
-        GrPerlinNoiseEffect::Create(fType, fPaintingData->fBaseFrequency, fNumOctaves,
-                                    fStitchTiles, fPaintingData->fStitchDataInit,
+        GrPerlinNoiseEffect::Create(fType, fPaintingData->fBaseFrequency, 
+                                    SkIntToScalar(fNumOctaves), fStitchTiles,
+                                    fPaintingData->fStitchDataInit,
                                     permutationsTexture, noiseTexture, 
                                     this->getLocalMatrix(), paint.getAlpha()) :
         NULL;
