@@ -17,9 +17,9 @@ class SkString;
 
 class SkFontStyleSet : public SkRefCnt {
 public:
-    int count() const;
-    void getStyle(int index, SkFontStyle*) const;
-    SkTypeface* createTypeface(int index) const;
+    virtual int count() = 0;
+    virtual void getStyle(int index, SkFontStyle*, SkString* style) = 0;
+    virtual SkTypeface* createTypeface(int index) = 0;
 };
 
 class SkFontMgr : public SkRefCnt {

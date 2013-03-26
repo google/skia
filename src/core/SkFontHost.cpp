@@ -46,3 +46,65 @@ SkFontHost::LCDOrder SkFontHost::GetSubpixelOrder() {
 void SkFontHost::SetSubpixelOrder(LCDOrder order) {
     SkFontLCDConfig::SetSubpixelOrder((SkFontLCDConfig::LCDOrder)order);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkFontMgr.h"
+
+SkFontStyle::SkFontStyle() {
+    fUnion.fU32 = 0;
+    fUnion.fR.fWeight = kNormal_Weight;
+    fUnion.fR.fWidth = kNormal_Width;
+    fUnion.fR.fSlant = kUpright_Slant;
+}
+
+SkFontStyle::SkFontStyle(int weight, int width, Slant slant) {
+    fUnion.fU32 = 0;
+    fUnion.fR.fWeight = SkPin32(weight, kThin_Weight, kBlack_Weight);
+    fUnion.fR.fWidth = SkPin32(width, kUltraCondensed_Width, kUltaExpanded_Width);
+    fUnion.fR.fSlant = kUpright_Slant;
+}
+
+int SkFontMgr::countFamilies() {
+    return this->onCountFamilies();
+}
+
+void SkFontMgr::getFamilyName(int index, SkString* familyName) {
+    this->onGetFamilyName(index, familyName);
+}
+
+SkFontStyleSet* SkFontMgr::createStyleSet(int index) {
+    return this->onCreateStyleSet(index);
+}
+
+SkTypeface* SkFontMgr::matchFamilyStyle(const char familyName[],
+                                        const SkFontStyle& fs) {
+    return this->onMatchFamilyStyle(familyName, fs);
+}
+
+SkTypeface* SkFontMgr::matchFaceStyle(const SkTypeface* face, 
+                                      const SkFontStyle& fs) {
+    return this->matchFaceStyle(face, fs);
+}
+
+SkTypeface* SkFontMgr::createFromData(SkData* data, int ttcIndex) {
+    return this->onCreateFromData(data, ttcIndex);
+}
+
+SkTypeface* SkFontMgr::createFromStream(SkStream* stream, int ttcIndex) {
+    return this->onCreateFromStream(stream, ttcIndex);
+}
+
+SkTypeface* SkFontMgr::createFromFile(const char path[], int ttcIndex) {
+    return this->onCreateFromFile(path, ttcIndex);
+}
+
+SkFontMgr* SkFontMgr::RefDefault() {
+    static SkFontMgr* gFM;
+    if (NULL == gFM) {
+        gFM = SkFontMgr::Factory();
+    }
+    return SkRef(gFM);
+}
+
