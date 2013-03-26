@@ -39,17 +39,10 @@ void GrGLProgram::Desc::setRandom(SkMWCRandom* random,
     fExperimentalGS = gpu->caps()->geometryShaderSupport() && random->nextBool();
 #endif
 
-    bool edgeAA = random->nextBool();
-    if (edgeAA) {
-        fAttribBindings |= GrDrawState::kEdge_AttribBindingsBit;
-        if (gpu->caps()->shaderDerivativeSupport()) {
-            fVertexEdgeType = (GrDrawState::VertexEdgeType)
-                              random->nextULessThan(GrDrawState::kVertexEdgeTypeCnt);
-            fDiscardIfOutsideEdge = random->nextBool();
-        } else {
-            fVertexEdgeType = GrDrawState::kHairLine_EdgeType;
-            fDiscardIfOutsideEdge = false;
-        }
+    if (gpu->caps()->shaderDerivativeSupport()) {
+        fDiscardIfOutsideEdge = random->nextBool();
+    } else {
+        fDiscardIfOutsideEdge = false;
     }
 
     if (gpu->caps()->dualSourceBlendingSupport()) {
@@ -82,10 +75,6 @@ void GrGLProgram::Desc::setRandom(SkMWCRandom* random,
     }
     if (fCoverageInput || (fAttribBindings & GrDrawState::kCoverage_AttribBindingsBit)) {
         fCoverageAttributeIndex = attributeIndex;
-        ++attributeIndex;
-    }
-    if (fAttribBindings & GrDrawState::kEdge_AttribBindingsBit) {
-        fEdgeAttributeIndex = attributeIndex;
         ++attributeIndex;
     }
     if (fAttribBindings & GrDrawState::kLocalCoords_AttribBindingsBit) {

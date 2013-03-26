@@ -87,8 +87,7 @@ void GrGLProgram::BuildDesc(const GrDrawState& drawState,
 
     // no reason to do edge aa or look at per-vertex coverage if coverage is ignored
     if (skipCoverage) {
-        desc->fAttribBindings &= ~(GrDrawState::kEdge_AttribBindingsBit |
-                                   GrDrawState::kCoverage_AttribBindingsBit);
+        desc->fAttribBindings &= ~(GrDrawState::kCoverage_AttribBindingsBit);
     }
 
     bool colorIsTransBlack = SkToBool(blendOpts & GrDrawState::kEmitTransBlack_BlendOptFlag);
@@ -118,12 +117,10 @@ void GrGLProgram::BuildDesc(const GrDrawState& drawState,
 
     int lastEnabledStage = -1;
 
-    if (!skipCoverage && (desc->fAttribBindings & GrDrawState::kEdge_AttribBindingsBit)) {
-        desc->fVertexEdgeType = drawState.getVertexEdgeType();
+    if (!skipCoverage) {
         desc->fDiscardIfOutsideEdge = drawState.getStencil().doesWrite();
     } else {
         // Use canonical values when edge-aa is not enabled to avoid program cache misses.
-        desc->fVertexEdgeType = GrDrawState::kHairLine_EdgeType;
         desc->fDiscardIfOutsideEdge = false;
     }
 
@@ -167,8 +164,7 @@ void GrGLProgram::BuildDesc(const GrDrawState& drawState,
 
     // other coverage inputs
     if (!hasCoverage) {
-        hasCoverage = requiresAttributeCoverage ||
-                      (desc->fAttribBindings & GrDrawState::kEdge_AttribBindingsBit);
+        hasCoverage = requiresAttributeCoverage;
     }
 
     if (hasCoverage) {
@@ -207,9 +203,6 @@ void GrGLProgram::BuildDesc(const GrDrawState& drawState,
     } else {
         desc->fCoverageAttributeIndex = GrDrawState::kCoverageOverrideAttribIndexValue;
     }
-    if (desc->fAttribBindings & GrDrawState::kEdge_AttribBindingsBit) {
-        desc->fEdgeAttributeIndex = drawState.getAttribIndex(GrDrawState::kEdge_AttribIndex);
-    }
     if (desc->fAttribBindings & GrDrawState::kLocalCoords_AttribBindingsBit) {
         desc->fLocalCoordsAttributeIndex = drawState.getAttribIndex(GrDrawState::kLocalCoords_AttribIndex);
     }
@@ -226,10 +219,6 @@ void GrGLProgram::BuildDesc(const GrDrawState& drawState,
     if (requiresAttributeCoverage) {
         GrAssert(desc->fCoverageAttributeIndex < GrDrawState::kVertexAttribCnt);
         GrAssert(kAttribLayouts[vertexAttribs[desc->fCoverageAttributeIndex].fType].fCount == 4);
-    }
-    if (desc->fAttribBindings & GrDrawState::kEdge_AttribBindingsBit) {
-        GrAssert(desc->fEdgeAttributeIndex < GrDrawState::kVertexAttribCnt);
-        GrAssert(kAttribLayouts[vertexAttribs[desc->fEdgeAttributeIndex].fType].fCount == 4);
     }
     if (desc->fAttribBindings & GrDrawState::kLocalCoords_AttribBindingsBit) {
         GrAssert(desc->fLocalCoordsAttributeIndex < GrDrawState::kVertexAttribCnt);
@@ -417,68 +406,6 @@ void add_color_filter(GrGLShaderBuilder* builder,
     GrGLSLAdd4f(&sum, colorStr.c_str(), constStr.c_str());
     builder->fsCodeAppendf("\t%s = %s;\n", outputVar, sum.c_str());
 }
-}
-
-bool GrGLProgram::genEdgeCoverage(SkString* coverageVar,
-                                  GrGLShaderBuilder* builder) const {
-    if (fDesc.fAttribBindings & GrDrawState::kEdge_AttribBindingsBit) {
-        const char *vsName, *fsName;
-        builder->addVarying(kVec4f_GrSLType, "Edge", &vsName, &fsName);
-        builder->addAttribute(kVec4f_GrSLType, EDGE_ATTR_NAME);
-        builder->vsCodeAppendf("\t%s = " EDGE_ATTR_NAME ";\n", vsName);
-        switch (fDesc.fVertexEdgeType) {
-        case GrDrawState::kHairLine_EdgeType:
-            builder->fsCodeAppendf("\tfloat edgeAlpha = abs(dot(vec3(%s.xy,1), %s.xyz));\n",
-                                   builder->fragmentPosition(), fsName);
-            builder->fsCodeAppendf("\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
-            break;
-        case GrDrawState::kQuad_EdgeType:
-            builder->fsCodeAppendf("\tfloat edgeAlpha;\n");
-            // keep the derivative instructions outside the conditional
-            builder->fsCodeAppendf("\tvec2 duvdx = dFdx(%s.xy);\n", fsName);
-            builder->fsCodeAppendf("\tvec2 duvdy = dFdy(%s.xy);\n", fsName);
-            builder->fsCodeAppendf("\tif (%s.z > 0.0 && %s.w > 0.0) {\n", fsName, fsName);
-            // today we know z and w are in device space. We could use derivatives
-            builder->fsCodeAppendf("\t\tedgeAlpha = min(min(%s.z, %s.w) + 0.5, 1.0);\n", fsName,
-                                   fsName);
-            builder->fsCodeAppendf ("\t} else {\n");
-            builder->fsCodeAppendf("\t\tvec2 gF = vec2(2.0*%s.x*duvdx.x - duvdx.y,\n"
-                                   "\t\t               2.0*%s.x*duvdy.x - duvdy.y);\n",
-                                    fsName, fsName);
-            builder->fsCodeAppendf("\t\tedgeAlpha = (%s.x*%s.x - %s.y);\n", fsName, fsName, fsName);
-            builder->fsCodeAppendf("\t\tedgeAlpha = clamp(0.5 - edgeAlpha / length(gF), 0.0, 1.0);\n"
-                                   "\t}\n");
-            if (kES2_GrGLBinding == fContext.info().binding()) {
-                builder->fHeader.append("#extension GL_OES_standard_derivatives: enable\n");
-            }
-            break;
-        case GrDrawState::kHairQuad_EdgeType:
-            builder->fsCodeAppendf("\tvec2 duvdx = dFdx(%s.xy);\n", fsName);
-            builder->fsCodeAppendf("\tvec2 duvdy = dFdy(%s.xy);\n", fsName);
-            builder->fsCodeAppendf("\tvec2 gF = vec2(2.0*%s.x*duvdx.x - duvdx.y,\n"
-                                   "\t               2.0*%s.x*duvdy.x - duvdy.y);\n",
-                                   fsName, fsName);
-            builder->fsCodeAppendf("\tfloat edgeAlpha = (%s.x*%s.x - %s.y);\n", fsName, fsName,
-                                   fsName);
-            builder->fsCodeAppend("\tedgeAlpha = sqrt(edgeAlpha*edgeAlpha / dot(gF, gF));\n");
-            builder->fsCodeAppend("\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
-            if (kES2_GrGLBinding == fContext.info().binding()) {
-                builder->fHeader.printf("#extension GL_OES_standard_derivatives: enable\n");
-            }
-            break;
-        default:
-            GrCrash("Unknown Edge Type!");
-            break;
-        }
-        if (fDesc.fDiscardIfOutsideEdge) {
-            builder->fsCodeAppend("\tif (edgeAlpha <= 0.0) {\n\t\tdiscard;\n\t}\n");
-        }
-        *coverageVar = "edgeAlpha";
-        return true;
-    } else {
-        coverageVar->reset();
-        return false;
-    }
 }
 
 void GrGLProgram::genInputColor(GrGLShaderBuilder* builder, SkString* inColor) {
@@ -834,19 +761,15 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
     if (!wroteFragColorZero || Desc::kNone_DualSrcOutput != fDesc.fDualSrcOutput) {
 
         if (!coverageIsZero) {
-            bool inCoverageIsScalar  = this->genEdgeCoverage(&inCoverage, &builder);
-
             switch (fDesc.fCoverageInput) {
                 case Desc::kSolidWhite_ColorInput:
                     // empty string implies solid white
                     break;
                 case Desc::kAttribute_ColorInput:
                     gen_attribute_coverage(&builder, &inCoverage);
-                    inCoverageIsScalar = false;
                     break;
                 case Desc::kUniform_ColorInput:
                     this->genUniformCoverage(&builder, &inCoverage);
-                    inCoverageIsScalar = false;
                     break;
                 default:
                     GrCrash("Unexpected input coverage.");
@@ -861,13 +784,6 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
                     outCoverage.appendS32(s);
                     builder.fsCodeAppendf("\tvec4 %s;\n", outCoverage.c_str());
 
-                    // stages don't know how to deal with a scalar input. (Maybe they should. We
-                    // could pass a GrGLShaderVar)
-                    if (inCoverageIsScalar) {
-                        builder.fsCodeAppendf("\tvec4 %s4 = vec4(%s);\n",
-                                              inCoverage.c_str(), inCoverage.c_str());
-                        inCoverage.append("4");
-                    }
                     builder.setCurrentStage(s);
                     fEffects[s] = builder.createAndEmitGLEffect(
                                                     *stages[s],
@@ -984,9 +900,6 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& buil
     GL_CALL(BindAttribLocation(fProgramID, fDesc.fColorAttributeIndex, COL_ATTR_NAME));
     GL_CALL(BindAttribLocation(fProgramID, fDesc.fCoverageAttributeIndex, COV_ATTR_NAME));
 
-    if (fDesc.fAttribBindings & GrDrawState::kEdge_AttribBindingsBit) {
-        GL_CALL(BindAttribLocation(fProgramID, fDesc.fEdgeAttributeIndex, EDGE_ATTR_NAME));
-    }
     if (fDesc.fAttribBindings & GrDrawState::kLocalCoords_AttribBindingsBit) {
         GL_CALL(BindAttribLocation(fProgramID,
                                    fDesc.fLocalCoordsAttributeIndex,

@@ -16,6 +16,8 @@
 #include "SkStrokeRec.h"
 #include "SkTrace.h"
 
+#include "effects/GrEdgeEffect.h"
+
 GrAAConvexPathRenderer::GrAAConvexPathRenderer() {
 }
 
@@ -446,6 +448,8 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
     if (path->isEmpty()) {
         return true;
     }
+
+    GrDrawTarget::AutoStateRestore asr(target, GrDrawTarget::kPreserve_ASRInit);
     GrDrawState* drawState = target->drawState();
 
     GrDrawState::AutoDeviceCoordDraw adcd(drawState);
@@ -484,12 +488,21 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
         {kVec2f_GrVertexAttribType, 0},
         {kVec4f_GrVertexAttribType, sizeof(GrPoint)}
     };
-    static const GrAttribBindings bindings = GrDrawState::kEdge_AttribBindingsBit;
 
     drawState->setVertexAttribs(kAttribs, SK_ARRAY_COUNT(kAttribs));
     drawState->setAttribIndex(GrDrawState::kPosition_AttribIndex, 0);
-    drawState->setAttribIndex(GrDrawState::kEdge_AttribIndex, 1);
-    drawState->setAttribBindings(bindings);
+    drawState->setAttribBindings(GrDrawState::kDefault_AttribBindings);
+
+    enum {
+        // the edge effects share this stage with glyph rendering
+        // (kGlyphMaskStage in GrTextContext) && SW path rendering
+        // (kPathMaskStage in GrSWMaskHelper)
+        kEdgeEffectStage = GrPaint::kTotalStages,
+    };
+    static const int kEdgeAttrIndex = 1;
+    GrEffectRef* quadEffect = GrEdgeEffect::Create(GrEdgeEffect::kQuad_EdgeType);
+    drawState->setEffect(kEdgeEffectStage, quadEffect, kEdgeAttrIndex)->unref();
+
     GrDrawTarget::AutoReleaseGeometry arg(target, vCount, iCount);
     if (!arg.succeeded()) {
         return false;
@@ -500,14 +513,11 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
 
     create_vertices(segments, fanPt, verts, idxs);
 
-    GrDrawState::VertexEdgeType oldEdgeType = drawState->getVertexEdgeType();
-    drawState->setVertexEdgeType(GrDrawState::kQuad_EdgeType);
     target->drawIndexed(kTriangles_GrPrimitiveType,
                         0,        // start vertex
                         0,        // start index
                         vCount,
                         iCount);
-    drawState->setVertexEdgeType(oldEdgeType);
 
     return true;
 }

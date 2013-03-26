@@ -165,8 +165,6 @@ public:
             kDualSrcOutputCnt
         };
 
-        // TODO: remove these two members when edge-aa can be rewritten as a GrEffect.
-        GrDrawState::VertexEdgeType fVertexEdgeType;
         // should the FS discard if the edge-aa coverage is zero (to avoid stencil manipulation)
         bool                        fDiscardIfOutsideEdge;
 
@@ -191,7 +189,6 @@ public:
         int8_t                      fPositionAttributeIndex;
         int8_t                      fColorAttributeIndex;
         int8_t                      fCoverageAttributeIndex;
-        int8_t                      fEdgeAttributeIndex;
         int8_t                      fLocalCoordsAttributeIndex;
 
         friend class GrGLProgram;
@@ -224,11 +221,6 @@ private:
     typedef GrGLUniformManager::UniformHandle UniformHandle;
 
     void genUniformCoverage(GrGLShaderBuilder* segments, SkString* inOutCoverage);
-
-    // generates code to compute coverage based on edge AA. Returns true if edge coverage was
-    // inserted in which case coverageVar will be updated to refer to a scalar. Otherwise,
-    // coverageVar is set to an empty string.
-    bool genEdgeCoverage(SkString* coverageVar, GrGLShaderBuilder* builder) const;
 
     // Creates a GL program ID, binds shader attributes to GL vertex attrs, and links the program
     bool bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& builder,

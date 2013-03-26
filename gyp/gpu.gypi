@@ -131,6 +131,8 @@
       '<(skia_src_path)/gpu/effects/GrConfigConversionEffect.h',
       '<(skia_src_path)/gpu/effects/GrConvolutionEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrConvolutionEffect.h',
+      '<(skia_src_path)/gpu/effects/GrEdgeEffect.cpp',
+      '<(skia_src_path)/gpu/effects/GrEdgeEffect.h',
       '<(skia_src_path)/gpu/effects/GrEllipseEdgeEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrEllipseEdgeEffect.h',
       '<(skia_src_path)/gpu/effects/GrSimpleTextureEffect.cpp',
