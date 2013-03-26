@@ -76,9 +76,7 @@ public:
      *
      * The input color to the first enabled color-stage is either the constant color or interpolated
      * per-vertex colors, depending upon GrAttribBindings. The input to the first coverage stage is
-     * either a constant coverage (usually full-coverage), interpolated per-vertex coverage, or
-     * edge-AA computed coverage. (This latter is going away as soon as it can be rewritten as a
-     * GrEffect).
+     * either a constant coverage (usually full-coverage) or interpolated per-vertex coverage.
      *
      * See the documentation of kCoverageDrawing_StateBit for information about disabling the
      * the color / coverage distinction.
@@ -125,7 +123,6 @@ public:
         fCommon.fDstBlend = kZero_GrBlendCoeff;
         fCommon.fBlendConstant = 0x0;
         fCommon.fFlagBits = 0x0;
-        fCommon.fVertexEdgeType = kHairLine_EdgeType;
         fCommon.fStencilSettings.setDisabled();
         fCommon.fFirstCoverageStage = kNumStages;
         fCommon.fCoverage = 0xffffffff;
@@ -273,10 +270,6 @@ public:
         /* program uses coverage (GrColor)
          */
         kCoverage_AttribBindingsBit           = 0x4,
-        /* program uses edge data. Distance to the edge is used to
-         * compute a coverage. See GrDrawState::setVertexEdgeType().
-         */
-        kEdge_AttribBindingsBit               = 0x8,
         // for below assert
         kDummyAttribBindingsBit,
         kHighAttribBindingsBit = kDummyAttribBindingsBit - 1
@@ -332,7 +325,6 @@ public:
         kPosition_AttribIndex = 0,
         kColor_AttribIndex,
         kCoverage_AttribIndex,
-        kEdge_AttribIndex,
         kLocalCoords_AttribIndex,
 
         kLast_AttribIndex = kLocalCoords_AttribIndex
@@ -947,52 +939,6 @@ public:
     /// @}
 
     ///////////////////////////////////////////////////////////////////////////
-    // @name Edge AA
-    // Edge equations can be specified to perform anti-aliasing. Because the
-    // edges are specified as per-vertex data, vertices that are shared by
-    // multiple edges must be split.
-    //
-    ////
-
-    /**
-     * When specifying edges as vertex data this enum specifies what type of
-     * edges are in use. The edges are always 4 SkScalars in memory, even when
-     * the edge type requires fewer than 4.
-     *
-     * TODO: Fix the fact that HairLine and Circle edge types use y-down coords.
-     *       (either adjust in VS or use origin_upper_left in GLSL)
-     */
-    enum VertexEdgeType {
-        /* 1-pixel wide line
-           2D implicit line eq (a*x + b*y +c = 0). 4th component unused */
-        kHairLine_EdgeType,
-        /* Quadratic specified by u^2-v canonical coords (only 2
-           components used). Coverage based on signed distance with negative
-           being inside, positive outside. Edge specified in window space
-           (y-down) */
-        kQuad_EdgeType,
-        /* Same as above but for hairline quadratics. Uses unsigned distance.
-           Coverage is min(0, 1-distance). */
-        kHairQuad_EdgeType,
-
-        kVertexEdgeTypeCnt
-    };
-
-    /**
-     * Determines the interpretation per-vertex edge data when the
-     * kEdge_AttribBindingsBit is set (see GrDrawTarget). When per-vertex edges
-     * are not specified the value of this setting has no effect.
-     */
-    void setVertexEdgeType(VertexEdgeType type) {
-        GrAssert(type >=0 && type < kVertexEdgeTypeCnt);
-        fCommon.fVertexEdgeType = type;
-    }
-
-    VertexEdgeType getVertexEdgeType() const { return fCommon.fVertexEdgeType; }
-
-    /// @}
-
-    ///////////////////////////////////////////////////////////////////////////
     /// @name State Flags
     ////
 
@@ -1188,7 +1134,6 @@ private:
         GrBlendCoeff                    fDstBlend;
         GrColor                         fBlendConstant;
         uint32_t                        fFlagBits;
-        VertexEdgeType                  fVertexEdgeType;
         GrStencilSettings               fStencilSettings;
         int                             fFirstCoverageStage;
         GrColor                         fCoverage;
@@ -1203,7 +1148,6 @@ private:
                    fDstBlend == other.fDstBlend &&
                    fBlendConstant == other.fBlendConstant &&
                    fFlagBits == other.fFlagBits &&
-                   fVertexEdgeType == other.fVertexEdgeType &&
                    fStencilSettings == other.fStencilSettings &&
                    fFirstCoverageStage == other.fFirstCoverageStage &&
                    fCoverage == other.fCoverage &&
