@@ -93,7 +93,6 @@ SK_API void SkUseTestFontConfigFile(const char* mainconf, const char* fallbackco
  *  get the 3rd can still inspect the original, and try to match its
  *  stylistic attributes.
  */
-static SkTypeface* SkAndroidNextLogicalTypeface(SkFontID currFontID,
-                                                SkFontID origFontID);
+SkTypeface* SkAndroidNextLogicalTypeface(SkFontID currFontID, SkFontID origFontID);
 
 #endif
