@@ -28,7 +28,6 @@ public:
 
 private:
     SkPicture*  fPicture;
-    SkPicture*  fRecordingPicture;
 
     typedef SkSurface_Base INHERITED;
 };

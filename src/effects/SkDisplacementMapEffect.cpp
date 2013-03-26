@@ -223,8 +223,6 @@ private:
     GrGLEffectMatrix fDisplacementEffectMatrix;
     GrGLEffectMatrix fColorEffectMatrix;
     GrGLUniformManager::UniformHandle fScaleUni;
-    GrGLUniformManager::UniformHandle fYSignColor;
-    GrGLUniformManager::UniformHandle fYSignDispl;
 
     typedef GrGLEffect INHERITED;
 };

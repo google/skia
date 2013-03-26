@@ -122,7 +122,6 @@ private:
 
     GrGLint         fPackRowLength;
     GrGLint         fUnPackRowLength;
-    GrGLuint        fMaxTextureUnits;
     GrGLuint        fCurTextureUnit;
     GrBufferObj*    fArrayBuffer;
     GrBufferObj*    fElementArrayBuffer;

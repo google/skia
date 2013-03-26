@@ -395,36 +395,3 @@ size_t SkUTF16_ToUTF8(const uint16_t utf16[], int numberOf16BitValues,
     }
     return size;
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-#include <stdlib.h>
-
-#if 0
-static int round_to_K(size_t bytes) {
-    return (bytes + 512) >> 10;
-}
-#endif
-
-SkAutoMemoryUsageProbe::SkAutoMemoryUsageProbe(const char label[])
-    : fLabel(label) {
-#if 0
-    struct mallinfo mi = mallinfo();
-
-    fBytesAllocated = mi.uordblks;
-#endif
-}
-
-SkAutoMemoryUsageProbe::~SkAutoMemoryUsageProbe() {
-#if 0
-    struct mallinfo mi = mallinfo();
-
-    printf("SkAutoMemoryUsageProbe ");
-    if (fLabel) {
-        printf("<%s> ", fLabel);
-    }
-    printf("delta %dK, current total allocated %dK\n",
-            round_to_K(mi.uordblks - fBytesAllocated),
-            round_to_K(mi.uordblks));
-#endif
-}

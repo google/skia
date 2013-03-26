@@ -48,7 +48,7 @@ GrSLType GrGLEffectMatrix::emitCode(GrGLShaderBuilder* builder,
                                     const char** fsCoordName,
                                     const char** vsCoordName,
                                     const char* suffix) {
-    GrSLType varyingType;
+    GrSLType varyingType = kVoid_GrSLType;
     const char* uniName;
     key &= kKeyMask;
     switch (key & kMatrixTypeKeyMask) {
