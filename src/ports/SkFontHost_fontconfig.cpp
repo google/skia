@@ -175,14 +175,6 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// DEPRECATED
-SkTypeface* SkFontHost::NextLogicalTypeface(SkFontID curr, SkFontID orig) {
-    // We don't handle font fallback.
-    return NULL;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 SkStream* FontConfigTypeface::onOpenStream(int* ttcIndex) const {
     SkStream* stream = this->getLocalStream();
     if (stream) {

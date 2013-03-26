@@ -27,7 +27,3 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(char const*) {
     return NULL;
 }
 
-SkTypeface* SkFontHost::NextLogicalTypeface(SkFontID currFontID,
-                                            SkFontID origFontID) {
-    return NULL;
-}

@@ -304,13 +304,6 @@ void SkLOGFONTFromTypeface(const SkTypeface* face, LOGFONT* lf) {
     }
 }
 
-SkTypeface* SkFontHost::NextLogicalTypeface(SkFontID currFontID, SkFontID origFontID) {
-  // Zero means that we don't have any fallback fonts for this fontID.
-  // This function is implemented on Android, but doesn't have much
-  // meaning here.
-  return NULL;
-}
-
 static void GetLogFontByID(SkFontID fontID, LOGFONT* lf) {
     LogFontTypeface* face = static_cast<LogFontTypeface*>(SkTypefaceCache::FindByID(fontID));
     if (face) {

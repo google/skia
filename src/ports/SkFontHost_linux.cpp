@@ -496,10 +496,6 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
     return tf;
 }
 
-SkTypeface* SkFontHost::NextLogicalTypeface(SkFontID currFontID, SkFontID origFontID) {
-    return NULL;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
