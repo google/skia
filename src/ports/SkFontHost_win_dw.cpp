@@ -41,13 +41,6 @@ static bool isLCD(const SkScalerContext::Rec& rec) {
            SkMask::kLCD32_Format == rec.fMaskFormat;
 }
 
-SkTypeface* SkFontHost::NextLogicalTypeface(SkFontID currFontID, SkFontID origFontID) {
-  // Zero means that we don't have any fallback fonts for this fontID.
-  // This function is implemented on Android, but doesn't have much
-  // meaning here.
-  return NULL;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 class DWriteOffscreen {

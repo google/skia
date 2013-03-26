@@ -801,7 +801,8 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
     return tf;
 }
 
-SkTypeface* SkFontHost::NextLogicalTypeface(SkFontID currFontID, SkFontID origFontID) {
+SkTypeface* SkAndroidNextLogicalTypeface(SkFontID currFontID,
+                                         SkFontID origFontID) {
 #if defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
     // Skia does not support font fallback for ndk applications in order to
     // enable clients such as WebKit to customize their font selection.

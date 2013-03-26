@@ -92,26 +92,6 @@ public:
     static LCDOrder GetSubpixelOrder();
 
 private:
-
-    /**
-     *  DEPRECATED -- will be DESTROYED
-     *
-     *  Given a "current" fontID, return a ref to the next logical typeface
-     *  when searching fonts for a given unicode value. Typically the caller
-     *  will query a given font, and if a unicode value is not supported, they
-     *  will call this, and if 0 is not returned, will search that font, and so
-     *  on. This process must be finite, and when the fonthost sees a
-     *  font with no logical successor, it must return NULL.
-     *
-     *  The original fontID is also provided. This is the initial font that was
-     *  stored in the typeface of the caller. It is provided as an aid to choose
-     *  the best next logical font. e.g. If the original font was bold or serif,
-     *  but the 2nd in the logical chain was plain, then a subsequent call to
-     *  get the 3rd can still inspect the original, and try to match its
-     *  stylistic attributes.
-     */
-    static SkTypeface* NextLogicalTypeface(SkFontID currFontID, SkFontID origFontID);
-
     /** Return a new, closest matching typeface given either an existing family
         (specified by a typeface in that family) or by a familyName and a
         requested style.

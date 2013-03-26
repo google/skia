@@ -1682,17 +1682,6 @@ SkStream* SkTypeface_Mac::onOpenStream(int* ttcIndex) const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-// DEPRECATED
-SkTypeface* SkFontHost::NextLogicalTypeface(SkFontID currFontID, SkFontID origFontID) {
-    SkTypeface* face = GetDefaultFace();
-    if (face->uniqueID() == currFontID) {
-        face = NULL;
-    }
-    return SkSafeRef(face);
-}
-
-///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 int SkTypeface_Mac::onGetUPEM() const {

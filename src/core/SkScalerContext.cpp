@@ -22,6 +22,9 @@
 #include "SkStroke.h"
 #include "SkThread.h"
 
+#ifdef SK_BUILD_FOR_ANDROID
+    #include "SkTypeface_android.h"
+#endif
 
 #define ComputeBWRowBytes(width)        (((unsigned)(width) + 7) >> 3)
 
@@ -121,8 +124,8 @@ SkScalerContext::~SkScalerContext() {
 // there are no more entries in the fallback chain.
 SkScalerContext* SkScalerContext::allocNextContext() const {
 #ifdef SK_BUILD_FOR_ANDROID
-    SkTypeface* newFace = SkFontHost::NextLogicalTypeface(fRec.fFontID,
-                                                          fRec.fOrigFontID);
+    SkTypeface* newFace = SkAndroidNextLogicalTypeface(fRec.fFontID,
+                                                       fRec.fOrigFontID);
     if (0 == newFace) {
         return NULL;
     }
