@@ -101,10 +101,14 @@ SkTypeface* SkFontMgr::createFromFile(const char path[], int ttcIndex) {
 }
 
 SkFontMgr* SkFontMgr::RefDefault() {
+#if 1
+    return NULL;
+#else
     static SkFontMgr* gFM;
     if (NULL == gFM) {
         gFM = SkFontMgr::Factory();
     }
     return SkRef(gFM);
+#endif
 }
 
