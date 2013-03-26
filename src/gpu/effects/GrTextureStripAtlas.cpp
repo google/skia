@@ -229,7 +229,8 @@ void GrTextureStripAtlas::initLRU() {
         fRows[i].fPrev = NULL;
         this->appendLRU(fRows + i);
     }
-    GrAssert(NULL == fLRUFront->fPrev && NULL == fLRUBack->fNext);
+    GrAssert(NULL == fLRUFront || NULL == fLRUFront->fPrev);
+    GrAssert(NULL == fLRUBack || NULL == fLRUBack->fNext);
 }
 
 void GrTextureStripAtlas::appendLRU(AtlasRow* row) {
