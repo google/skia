@@ -63,7 +63,7 @@ SkFontStyle::SkFontStyle(int weight, int width, Slant slant) {
     fUnion.fU32 = 0;
     fUnion.fR.fWeight = SkPin32(weight, kThin_Weight, kBlack_Weight);
     fUnion.fR.fWidth = SkPin32(width, kUltraCondensed_Width, kUltaExpanded_Width);
-    fUnion.fR.fSlant = kUpright_Slant;
+    fUnion.fR.fSlant = SkPin32(slant, kUpright_Slant, kItalic_Slant);
 }
 
 int SkFontMgr::countFamilies() {
