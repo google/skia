@@ -39,12 +39,8 @@ void GrGLProgram::Desc::setRandom(SkMWCRandom* random,
     fExperimentalGS = gpu->caps()->geometryShaderSupport() && random->nextBool();
 #endif
 
-    if (gpu->caps()->shaderDerivativeSupport()) {
-        fDiscardIfOutsideEdge = random->nextBool();
-    } else {
-        fDiscardIfOutsideEdge = false;
-    }
-
+    fDiscardIfZeroCoverage = random->nextBool();
+    
     if (gpu->caps()->dualSourceBlendingSupport()) {
         fDualSrcOutput = random->nextULessThan(kDualSrcOutputCnt);
     } else {
