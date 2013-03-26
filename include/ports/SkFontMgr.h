@@ -79,11 +79,11 @@ protected:
     virtual SkTypeface* onCreateFromData(SkData*, int ttcIndex) = 0;
     virtual SkTypeface* onCreateFromStream(SkStream*, int ttcIndex) = 0;
     virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) = 0;
-    
+
 private:
     static SkFontMgr* Factory();    // implemented by porting layer
     static SkMutex* Mutex();        // implemented by porting layer
-    
+
     typedef SkRefCnt INHERITED;
 };
 

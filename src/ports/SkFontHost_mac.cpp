@@ -1853,17 +1853,17 @@ protected:
     virtual SkFontStyleSet* onCreateStyleSet(int index) SK_OVERRIDE {
         return NULL;
     }
-    
+
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
                                            const SkFontStyle&) SK_OVERRIDE {
         return NULL;
     }
-    
+
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
                                          const SkFontStyle&) SK_OVERRIDE {
         return NULL;
     }
-    
+
     virtual SkTypeface* onCreateFromData(SkData* data,
                                          int ttcIndex) SK_OVERRIDE {
         AutoCFRelease<CGDataProviderRef> pr(SkCreateDataProviderFromData(data));

@@ -690,7 +690,7 @@ void GrDrawTargetCaps::reset() {
     fHWAALineSupport = false;
     fShaderDerivativeSupport = false;
     fGeometryShaderSupport = false;
-    fDualSourceBlendingSupport = false; 
+    fDualSourceBlendingSupport = false;
     fBufferLockSupport = false;
     fPathStencilingSupport = false;
 

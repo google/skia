@@ -407,8 +407,8 @@ private:
 class DrawVertices : public SkDrawCommand {
 public:
     DrawVertices(SkCanvas::VertexMode vmode, int vertexCount,
-                const SkPoint vertices[], const SkPoint texs[], 
-                const SkColor colors[], SkXfermode* xfermode, 
+                const SkPoint vertices[], const SkPoint texs[],
+                const SkColor colors[], SkXfermode* xfermode,
                 const uint16_t indices[], int indexCount,
                 const SkPaint& paint);
     virtual ~DrawVertices();

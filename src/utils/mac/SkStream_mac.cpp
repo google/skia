@@ -38,14 +38,14 @@ static void release_info_proc(void* info) {
 
 CGDataProviderRef SkCreateDataProviderFromStream(SkStream* stream) {
     stream->ref();  // unref will be called when the provider is deleted
-    
+
     const void* addr = stream->getMemoryBase();
     if (addr) {
         // special-case when the stream is just a block of ram
         return CGDataProviderCreateWithData(stream, addr, stream->getLength(),
                                             unref_proc);
     }
-    
+
     CGDataProviderSequentialCallbacks rec;
     sk_bzero(&rec, sizeof(rec));
     rec.version = 0;
@@ -65,4 +65,3 @@ CGDataProviderRef SkCreateDataProviderFromData(SkData* data) {
     return CGDataProviderCreateWithData(data, data->data(), data->size(),
                                             unref_proc);
 }
-

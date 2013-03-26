@@ -498,7 +498,7 @@ void DrawTextC::execute(SkCanvas* canvas) {
 }
 
 DrawTextOnPath::DrawTextOnPath(const void* text, size_t byteLength,
-                               const SkPath& path, const SkMatrix* matrix, 
+                               const SkPath& path, const SkMatrix* matrix,
                                const SkPaint& paint) {
     fText = new char[byteLength];
     memcpy(fText, text, byteLength);
@@ -527,8 +527,8 @@ void DrawTextOnPath::execute(SkCanvas* canvas) {
 }
 
 DrawVertices::DrawVertices(SkCanvas::VertexMode vmode, int vertexCount,
-                           const SkPoint vertices[], const SkPoint texs[], 
-                           const SkColor colors[], SkXfermode* xfermode, 
+                           const SkPoint vertices[], const SkPoint texs[],
+                           const SkColor colors[], SkXfermode* xfermode,
                            const uint16_t indices[], int indexCount,
                            const SkPaint& paint) {
     fVmode = vmode;
