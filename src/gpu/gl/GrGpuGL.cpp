@@ -2236,7 +2236,8 @@ GrGLAttribArrayState* GrGpuGL::HWGeometryState::bindArrayAndBuffersToDraw(
                                                 const GrGLVertexBuffer* vbuffer,
                                                 const GrGLIndexBuffer* ibuffer) {
     GrAssert(NULL != vbuffer);
-    GrGLAttribArrayState* attribState = &fDefaultVertexArrayAttribState;
+    GrGLAttribArrayState* attribState;
+
     // We use a vertex array if we're on a core profile and the verts are in a VBO.
     if (gpu->glCaps().isCoreProfile() && !vbuffer->isCPUBacked()) {
         if (NULL == fVBOVertexArray || !fVBOVertexArray->isValid()) {
