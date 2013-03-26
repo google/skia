@@ -92,7 +92,7 @@ public:
     static LCDOrder GetSubpixelOrder();
 
 private:
-    
+
     /**
      *  DEPRECATED -- will be DESTROYED
      *
