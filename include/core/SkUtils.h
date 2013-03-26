@@ -114,20 +114,4 @@ private:
     const char* fLabel;
 };
 
-///////////////////////////////////////////////////////////////////////////////
-
-class SkAutoMemoryUsageProbe {
-public:
-    /** Record memory usage in constructor, and dump the result
-        (delta and current total) in the destructor, with the optional
-        label. NOTE: label contents are not copied, just the ptr is
-        retained, so DON'T DELETE IT.
-    */
-    SkAutoMemoryUsageProbe(const char label[]);
-    ~SkAutoMemoryUsageProbe();
-private:
-    const char* fLabel;
-    size_t      fBytesAllocated;
-};
-
 #endif
