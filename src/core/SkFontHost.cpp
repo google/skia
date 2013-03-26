@@ -85,7 +85,7 @@ SkTypeface* SkFontMgr::matchFamilyStyle(const char familyName[],
 
 SkTypeface* SkFontMgr::matchFaceStyle(const SkTypeface* face, 
                                       const SkFontStyle& fs) {
-    return this->matchFaceStyle(face, fs);
+    return this->onMatchFaceStyle(face, fs);
 }
 
 SkTypeface* SkFontMgr::createFromData(SkData* data, int ttcIndex) {
