@@ -117,13 +117,6 @@ void GrGLProgram::BuildDesc(const GrDrawState& drawState,
 
     int lastEnabledStage = -1;
 
-    if (!skipCoverage) {
-        desc->fDiscardIfOutsideEdge = drawState.getStencil().doesWrite();
-    } else {
-        // Use canonical values when edge-aa is not enabled to avoid program cache misses.
-        desc->fDiscardIfOutsideEdge = false;
-    }
-
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
 
         bool skip = s < drawState.getFirstCoverageStage() ? skipColor : skipCoverage;
@@ -152,24 +145,34 @@ void GrGLProgram::BuildDesc(const GrDrawState& drawState,
 #endif
 #endif
 
-    // We want to avoid generating programs with different "first cov stage" values when they would
-    // compute the same result. We set field in the desc to kNumStages when either there are no
-    // coverage stages or the distinction between coverage and color is immaterial.
-    int firstCoverageStage = GrDrawState::kNumStages;
+    // We leave this set to kNumStages until we discover that the coverage/color distinction is
+    // material to the generated program. We do this to avoid distinct keys that generate equivalent
+    // programs.
     desc->fFirstCoverageStage = GrDrawState::kNumStages;
-    bool hasCoverage = drawState.getFirstCoverageStage() <= lastEnabledStage;
-    if (hasCoverage) {
-        firstCoverageStage = drawState.getFirstCoverageStage();
+    // This tracks the actual first coverage stage.
+    int firstCoverageStage = GrDrawState::kNumStages;
+    desc->fDiscardIfZeroCoverage = false; // Enabled below if stenciling and there is coverage.
+    bool hasCoverage = false;
+    // If we're rendering coverage-as-color then its as though there are no coverage stages.
+    if (!drawState.isCoverageDrawing()) {
+        // We can have coverage either through a stage or coverage vertex attributes.
+        if (drawState.getFirstCoverageStage() <= lastEnabledStage) {
+            firstCoverageStage = drawState.getFirstCoverageStage();
+            hasCoverage = true;
+        } else {
+            hasCoverage = requiresAttributeCoverage;
+        }
     }
-
-    // other coverage inputs
-    if (!hasCoverage) {
-        hasCoverage = requiresAttributeCoverage;
-    }
-
+    
     if (hasCoverage) {
         // color filter is applied between color/coverage computation
         if (SkXfermode::kDst_Mode != desc->fColorFilterXfermode) {
+            desc->fFirstCoverageStage = firstCoverageStage;
+        }
+        
+        // If we're stenciling then we want to discard samples that have zero coverage
+        if (drawState.getStencil().doesWrite()) {
+            desc->fDiscardIfZeroCoverage = true;
             desc->fFirstCoverageStage = firstCoverageStage;
         }
 
@@ -797,7 +800,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
             }
 
             // discard if coverage is zero
-            if (fDesc.fDiscardIfOutsideEdge && !outCoverage.isEmpty()) {
+            if (fDesc.fDiscardIfZeroCoverage && !outCoverage.isEmpty()) {
                 builder.fsCodeAppendf(
                     "\tif (all(lessThanEqual(%s, vec4(0.0)))) {\n\t\tdiscard;\n\t}\n",
                     outCoverage.c_str());

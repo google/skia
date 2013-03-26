@@ -165,8 +165,8 @@ public:
             kDualSrcOutputCnt
         };
 
-        // should the FS discard if the edge-aa coverage is zero (to avoid stencil manipulation)
-        bool                        fDiscardIfOutsideEdge;
+        // should the FS discard if the coverage is zero (to avoid stencil manipulation)
+        bool                        fDiscardIfZeroCoverage;
 
         // stripped of bits that don't affect program generation
         GrAttribBindings            fAttribBindings;
