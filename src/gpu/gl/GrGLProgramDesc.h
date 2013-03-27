@@ -9,6 +9,7 @@
 #define GrGLProgramDesc_DEFINED
 
 #include "GrGLEffect.h"
+#include "GrDrawState.h"
 
 class GrGpuGL;
 
