@@ -222,3 +222,12 @@ void FontConfigTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
     desc->setFamilyName(this->getFamilyName());
     *isLocalStream = SkToBool(this->getLocalStream());
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkFontMgr.h"
+
+SkFontMgr* SkFontMgr::Factory() {
+    // todo
+    return NULL;
+}

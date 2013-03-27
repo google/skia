@@ -1518,3 +1518,12 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
 
     return info;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkFontMgr.h"
+
+SkFontMgr* SkFontMgr::Factory() {
+    // todo
+    return NULL;
+}

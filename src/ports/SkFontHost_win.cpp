@@ -1674,3 +1674,12 @@ void LogFontTypeface::onFilterRec(SkScalerContextRec* rec) const {
         rec->fFlags &= ~SkScalerContext::kGenA8FromLCD_Flag;
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkFontMgr.h"
+
+SkFontMgr* SkFontMgr::Factory() {
+    // todo
+    return NULL;
+}
