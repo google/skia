@@ -13,6 +13,7 @@
 
 #ifdef SK_BUILD_FOR_IOS
 #include <CoreText/CoreText.h>
+#include <CoreText/CTFontManager.h>
 #include <CoreGraphics/CoreGraphics.h>
 #include <CoreFoundation/CoreFoundation.h>
 #endif
@@ -43,6 +44,17 @@
 #include "SkFontMgr.h"
 
 class SkScalerContext_Mac;
+
+// CTFontManagerCopyAvailableFontFamilyNames() is not always available, so we
+// provide a wrapper here that will return an empty array if need be.
+static CFArrayRef SkCTFontManagerCopyAvailableFontFamilyNames() {
+#ifdef SK_BUILD_FOR_IOS
+    return CFArrayCreate(NULL, NULL, 0, NULL);
+#else
+    return CTFontManagerCopyAvailableFontFamilyNames();
+#endif
+}
+
 
 // Being templated and taking const T* prevents calling
 // CFSafeRelease(autoCFRelease) through implicit conversion.
@@ -1998,7 +2010,7 @@ class SkFontMgr_Mac : public SkFontMgr {
 
     void lazyInit() {
         if (NULL == fNames) {
-            fNames = CTFontManagerCopyAvailableFontFamilyNames();
+            fNames = SkCTFontManagerCopyAvailableFontFamilyNames();
             fCount = fNames ? CFArrayGetCount(fNames) : 0;
         }
     }
