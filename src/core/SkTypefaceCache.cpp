@@ -11,7 +11,7 @@
 #include "SkTypefaceCache.h"
 #include "SkThread.h"
 
-#define TYPEFACE_CACHE_LIMIT    128
+#define TYPEFACE_CACHE_LIMIT    1024
 
 void SkTypefaceCache::add(SkTypeface* face,
                           SkTypeface::Style requestedStyle,
