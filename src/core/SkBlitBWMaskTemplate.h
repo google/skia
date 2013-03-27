@@ -63,6 +63,7 @@ static void SK_BLITBWMASK_NAME(const SkBitmap& bitmap, const SkMask& srcMask, co
 
         int left_mask = 0xFF >> (left_edge & 7);
         int rite_mask = 0xFF << (8 - (rite_edge & 7));
+        rite_mask &= 0xFF;  // only want low-8 bits of mask
         int full_runs = (rite_edge >> 3) - ((left_edge + 7) >> 3);
 
         // check for empty right mask, so we don't read off the end (or go slower than we need to)
