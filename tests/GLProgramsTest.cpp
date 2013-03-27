@@ -40,7 +40,7 @@ void GrGLProgram::Desc::setRandom(SkMWCRandom* random,
 #endif
 
     fDiscardIfZeroCoverage = random->nextBool();
-    
+
     if (gpu->caps()->dualSourceBlendingSupport()) {
         fDualSrcOutput = random->nextULessThan(kDualSrcOutputCnt);
     } else {
