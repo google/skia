@@ -22,7 +22,6 @@
 class GrBinHashKeyBuilder;
 class GrGLEffect;
 class GrGLShaderBuilder;
-class SkMWCRandom;
 
 /**
  * This class manages a GPU program and records per-program information.
