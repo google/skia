@@ -48,7 +48,7 @@ void GrGpuGL::ProgramCache::abandon() {
     fCount = 0;
 }
 
-GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrGLProgram::Desc& desc,
+GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrGLProgramDesc& desc,
                                                const GrEffectStage* stages[]) {
     Entry newEntry;
     newEntry.fKey.setKeyData(desc.asKey());
@@ -180,8 +180,8 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
         for (int i = 0; i < GrDrawState::kNumStages; ++i) {
             stages[i] = drawState.isStageEnabled(i) ? &drawState.getStage(i) : NULL;
         }
-        GrGLProgram::Desc desc;
-        GrGLProgram::BuildDesc(this->getDrawState(),
+        GrGLProgramDesc desc;
+        GrGLProgramDesc::Build(this->getDrawState(),
                                kDrawPoints_DrawType == type,
                                blendOpts,
                                srcCoeff,
@@ -302,9 +302,9 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
         attribState->set(this,
                          vertexAttribIndex,
                          vbuf,
-                         GrGLProgram::kAttribLayouts[attribType].fCount,
-                         GrGLProgram::kAttribLayouts[attribType].fType,
-                         GrGLProgram::kAttribLayouts[attribType].fNormalized,
+                         GrGLAttribTypeToLayout(attribType).fCount,
+                         GrGLAttribTypeToLayout(attribType).fType,
+                         GrGLAttribTypeToLayout(attribType).fNormalized,
                          stride,
                          reinterpret_cast<GrGLvoid*>(
                          vertexOffsetInBytes + vertexAttrib->fOffset));
