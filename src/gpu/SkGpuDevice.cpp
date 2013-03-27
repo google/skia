@@ -484,13 +484,15 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
     SkXfermode::Coeff dm = SkXfermode::kISA_Coeff;
 
     SkXfermode* mode = skPaint.getXfermode();
-    if (mode) {
-        if (!mode->asCoeff(&sm, &dm)) {
-            //SkDEBUGCODE(SkDebugf("Unsupported xfer mode.\n");)
+    GrEffectRef* xferEffect;
+    if (SkXfermode::AsNewEffect(mode, dev->context(), &xferEffect, &sm, &dm)) {
+        // We're not ready for xfermode effects yet
+        GrAssert(NULL == xferEffect);
+    } else {
+        //SkDEBUGCODE(SkDebugf("Unsupported xfer mode.\n");)
 #if 0
-            return false;
+        return false;
 #endif
-        }
     }
     grPaint->setBlendFunc(sk_blend_to_grblend(sm), sk_blend_to_grblend(dm));
 
