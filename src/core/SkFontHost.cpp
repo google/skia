@@ -52,6 +52,37 @@ void SkFontHost::SetSubpixelOrder(LCDOrder order) {
 
 #include "SkFontMgr.h"
 
+class SkEmptyFontMgr : public SkFontMgr {
+protected:
+    virtual int onCountFamilies() SK_OVERRIDE {
+        return 0;
+    }
+    virtual void onGetFamilyName(int index, SkString* familyName) SK_OVERRIDE {
+        SkASSERT(!"onGetFamilyName called with bad index");
+    }
+    virtual SkFontStyleSet* onCreateStyleSet(int index) SK_OVERRIDE {
+        SkASSERT(!"onCreateStyleSet called with bad index");
+        return NULL;
+    }
+    virtual SkTypeface* onMatchFamilyStyle(const char[],
+                                           const SkFontStyle&) SK_OVERRIDE {
+        return NULL;
+    }
+    virtual SkTypeface* onMatchFaceStyle(const SkTypeface*,
+                                         const SkFontStyle&) SK_OVERRIDE {
+        return NULL;
+    }
+    virtual SkTypeface* onCreateFromData(SkData*, int) SK_OVERRIDE {
+        return NULL;
+    }
+    virtual SkTypeface* onCreateFromStream(SkStream*, int) SK_OVERRIDE {
+        return NULL;
+    }
+    virtual SkTypeface* onCreateFromFile(const char[], int) SK_OVERRIDE {
+        return NULL;
+    }
+};
+
 SkFontStyle::SkFontStyle() {
     fUnion.fU32 = 0;
     fUnion.fR.fWeight = kNormal_Weight;
@@ -101,13 +132,13 @@ SkTypeface* SkFontMgr::createFromFile(const char path[], int ttcIndex) {
 }
 
 SkFontMgr* SkFontMgr::RefDefault() {
-#if 1
-    return NULL;
-#else
     static SkFontMgr* gFM;
     if (NULL == gFM) {
         gFM = SkFontMgr::Factory();
+        // we never want to return NULL
+        if (NULL == gFM) {
+            gFM = SkNEW(SkEmptyFontMgr);
+        }
     }
     return SkRef(gFM);
-#endif
 }
