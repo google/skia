@@ -484,7 +484,7 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
     SkXfermode::Coeff dm = SkXfermode::kISA_Coeff;
 
     SkXfermode* mode = skPaint.getXfermode();
-    GrEffectRef* xferEffect;
+    GrEffectRef* xferEffect = NULL;
     if (SkXfermode::AsNewEffect(mode, dev->context(), &xferEffect, &sm, &dm)) {
         // We're not ready for xfermode effects yet
         GrAssert(NULL == xferEffect);
