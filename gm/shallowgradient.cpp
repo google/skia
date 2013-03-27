@@ -58,7 +58,7 @@ protected:
         SkSize size = SkSize::Make(r.width(), r.height());
 
         SkPaint paint;
-        paint.setShader(fProc(colors, colorCount, size));
+        paint.setShader(fProc(colors, colorCount, size))->unref();
         canvas->drawRect(r, paint);
     }
 
