@@ -26,4 +26,3 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(char const*) {
     SkDEBUGFAIL("SkFontHost::CreateTypefaceFromFile unimplemented");
     return NULL;
 }
-

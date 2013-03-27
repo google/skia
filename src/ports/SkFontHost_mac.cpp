@@ -429,7 +429,7 @@ public:
     {
         SkASSERT(fontRef);
     }
-    
+
     SkTypeface_Mac(const SkFontStyle& fs, SkFontID fontID, bool isFixedPitch,
                    CTFontRef fontRef, const char name[])
         : SkTypeface(fontstyle2stylebits(fs), fontID, isFixedPitch)
@@ -439,7 +439,7 @@ public:
     {
         SkASSERT(fontRef);
     }
-    
+
     SkString fName;
     AutoCFRelease<CTFontRef> fFontRef;
     SkFontStyle fFontStyle;
@@ -1918,7 +1918,7 @@ static SkFontStyle desc2fontstyle(CTFontDescriptorRef desc) {
     if (!find_dict_float(dict, kCTFontSlantTrait, &slant)) {
         slant = 0;
     }
-    
+
     return SkFontStyle(unit_weight_to_fontstyle(weight),
                        unit_width_to_fontstyle(width),
                        slant ? SkFontStyle::kItalic_Slant
@@ -1932,14 +1932,14 @@ static SkTypeface* createFromDesc(CFStringRef cfFamilyName,
     if (NULL == ctFont) {
         return NULL;
     }
-    
+
     SkString str;
     CFStringToSkString(cfFamilyName, &str);
-    
+
     bool isFixedPitch;
     (void)computeStyleBits(ctFont, &isFixedPitch);
     SkFontID fontID = CTFontRef_to_SkFontID(ctFont);
-    
+
     return new SkTypeface_Mac(desc2fontstyle(desc), fontID, isFixedPitch,
                               ctFont, str.c_str());
 }
@@ -1951,7 +1951,7 @@ public:
         , fFamilyName(familyName) {
         CFRetain(familyName);
     }
-        
+
     virtual ~SkFontStyleSet_Mac() {
         CFSafeRelease(fArray);
         CFRelease(fFamilyName);
@@ -1978,10 +1978,10 @@ public:
     virtual SkTypeface* createTypeface(int index) SK_OVERRIDE {
         SkASSERT((unsigned)index < (unsigned)CFArrayGetCount(fArray));
         CTFontDescriptorRef desc = (CTFontDescriptorRef)CFArrayGetValueAtIndex(fArray, index);
-        
+
         return createFromDesc(fFamilyName, desc);
     }
-    
+
 private:
     CFArrayRef  fArray;
     CFStringRef fFamilyName;
@@ -2035,10 +2035,10 @@ protected:
                  CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
                                            &kCFTypeDictionaryKeyCallBacks,
                                            &kCFTypeDictionaryValueCallBacks));
-        
+
         CFDictionaryAddValue(cfAttr, kCTFontFamilyNameAttribute,
                              this->stringAt(index));
-        
+
         AutoCFRelease<CTFontDescriptorRef> desc(
                                 CTFontDescriptorCreateWithAttributes(cfAttr));
         return SkNEW_ARGS(SkFontStyleSet_Mac, (this->stringAt(index), desc));

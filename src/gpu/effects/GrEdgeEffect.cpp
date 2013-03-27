@@ -52,7 +52,7 @@ public:
             builder->fsCodeAppendf("\t\t\tvec2 gF = vec2(2.0*%s.x*duvdx.x - duvdx.y,\n"
                                    "\t\t\t               2.0*%s.x*duvdy.x - duvdy.y);\n",
                                     fsName, fsName);
-            builder->fsCodeAppendf("\t\t\tedgeAlpha = (%s.x*%s.x - %s.y);\n", fsName, fsName, 
+            builder->fsCodeAppendf("\t\t\tedgeAlpha = (%s.x*%s.x - %s.y);\n", fsName, fsName,
                                    fsName);
             builder->fsCodeAppendf("\t\t\tedgeAlpha = "
                                    "clamp(0.5 - edgeAlpha / length(gF), 0.0, 1.0);\n\t\t}\n");

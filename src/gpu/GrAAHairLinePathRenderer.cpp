@@ -615,7 +615,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
 
     GrEffectRef* hairLineEffect = GrEdgeEffect::Create(GrEdgeEffect::kHairLine_EdgeType);
     GrEffectRef* hairQuadEffect = GrEdgeEffect::Create(GrEdgeEffect::kHairQuad_EdgeType);
- 
+
     target->setIndexSourceToBuffer(fLinesIndexBuffer);
     int lines = 0;
     int nBufLines = fLinesIndexBuffer->maxQuads();

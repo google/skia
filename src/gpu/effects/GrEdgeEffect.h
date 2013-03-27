@@ -13,7 +13,7 @@
 class GrGLEdgeEffect;
 
 /**
- * The output of this effect is one of three different edge types: hairlines, quads, 
+ * The output of this effect is one of three different edge types: hairlines, quads,
  * and hairline quads.
  */
 
@@ -50,7 +50,7 @@ public:
         static SkAutoTUnref<GrEffectRef> gUnref0(gEdgeEffectRef[0]);
         static SkAutoTUnref<GrEffectRef> gUnref1(gEdgeEffectRef[1]);
         static SkAutoTUnref<GrEffectRef> gUnref2(gEdgeEffectRef[2]);
-        
+
         gEdgeEffectRef[type]->ref();
         return gEdgeEffectRef[type];
     }

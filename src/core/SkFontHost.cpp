@@ -83,7 +83,7 @@ SkTypeface* SkFontMgr::matchFamilyStyle(const char familyName[],
     return this->onMatchFamilyStyle(familyName, fs);
 }
 
-SkTypeface* SkFontMgr::matchFaceStyle(const SkTypeface* face, 
+SkTypeface* SkFontMgr::matchFaceStyle(const SkTypeface* face,
                                       const SkFontStyle& fs) {
     return this->onMatchFaceStyle(face, fs);
 }
@@ -111,4 +111,3 @@ SkFontMgr* SkFontMgr::RefDefault() {
     return SkRef(gFM);
 #endif
 }
-

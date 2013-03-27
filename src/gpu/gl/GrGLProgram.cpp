@@ -163,13 +163,13 @@ void GrGLProgram::BuildDesc(const GrDrawState& drawState,
             hasCoverage = requiresAttributeCoverage;
         }
     }
-    
+
     if (hasCoverage) {
         // color filter is applied between color/coverage computation
         if (SkXfermode::kDst_Mode != desc->fColorFilterXfermode) {
             desc->fFirstCoverageStage = firstCoverageStage;
         }
-        
+
         // If we're stenciling then we want to discard samples that have zero coverage
         if (drawState.getStencil().doesWrite()) {
             desc->fDiscardIfZeroCoverage = true;
