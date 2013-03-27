@@ -680,6 +680,22 @@ bool SkXfermode::asMode(Mode* mode) const {
     return false;
 }
 
+bool SkXfermode::asNewEffect(GrContext*, GrEffectRef**, Coeff*, Coeff*) const {
+    return false;
+}
+
+bool SkXfermode::AsNewEffect(SkXfermode* xfermode,
+                             GrContext* context,
+                             GrEffectRef** effect,
+                             Coeff* src,
+                             Coeff* dst) {
+    if (NULL == xfermode) {
+        return ModeAsCoeff(kSrcOver_Mode, src, dst);
+    } else {
+        return xfermode->asNewEffect(context, effect, src, dst);
+    }
+}
+
 SkPMColor SkXfermode::xferColor(SkPMColor src, SkPMColor dst) const{
     // no-op. subclasses should override this
     return dst;
@@ -956,6 +972,10 @@ public:
             *dc = fDstCoeff;
         }
         return true;
+    }
+
+    virtual bool asNewEffect(GrContext*, GrEffectRef**, Coeff* src, Coeff* dst) const SK_OVERRIDE {
+        return this->asCoeff(src, dst);
     }
 
     SK_DEVELOPER_TO_STRING()
