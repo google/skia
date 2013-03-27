@@ -163,10 +163,10 @@ private:
         ~ProgramCache();
 
         void abandon();
-        GrGLProgram* getProgram(const GrGLProgram::Desc& desc, const GrEffectStage* stages[]);
+        GrGLProgram* getProgram(const GrGLProgramDesc& desc, const GrEffectStage* stages[]);
     private:
         enum {
-            kKeySize = sizeof(GrGLProgram::Desc),
+            kKeySize = sizeof(GrGLProgramDesc),
             // We may actually have kMaxEntries+1 shaders in the GL context because we create a new
             // shader before evicting from the cache.
             kMaxEntries = 32

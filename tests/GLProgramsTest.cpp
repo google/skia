@@ -21,9 +21,9 @@
 #include "SkRandom.h"
 #include "Test.h"
 
-void GrGLProgram::Desc::setRandom(SkMWCRandom* random,
-                                  const GrGpuGL* gpu,
-                                  const GrEffectStage stages[GrDrawState::kNumStages]) {
+void GrGLProgramDesc::setRandom(SkMWCRandom* random,
+                                const GrGpuGL* gpu,
+                                const GrEffectStage stages[GrDrawState::kNumStages]) {
     fAttribBindings = 0;
     fEmitsPointSize = random->nextBool();
     fColorInput = random->nextULessThan(kColorInputCnt);
@@ -106,7 +106,7 @@ bool GrGpuGL::programUnitTest(int maxStages) {
         }
 #endif
 
-        GrGLProgram::Desc pdesc;
+        GrGLProgramDesc pdesc;
         GrEffectStage stages[GrDrawState::kNumStages];
 
         int currAttribIndex = GrDrawState::kAttribIndexCount;

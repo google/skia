@@ -168,6 +168,7 @@
       '<(skia_src_path)/gpu/gl/GrGLPath.h',
       '<(skia_src_path)/gpu/gl/GrGLProgram.cpp',
       '<(skia_src_path)/gpu/gl/GrGLProgram.h',
+      '<(skia_src_path)/gpu/gl/GrGLProgramDesc.h',
       '<(skia_src_path)/gpu/gl/GrGLRenderTarget.cpp',
       '<(skia_src_path)/gpu/gl/GrGLRenderTarget.h',
       '<(skia_src_path)/gpu/gl/GrGLShaderBuilder.cpp',

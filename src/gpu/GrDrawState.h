@@ -16,42 +16,13 @@
 #include "GrStencil.h"
 #include "GrTemplates.h"
 #include "GrTexture.h"
+#include "GrTypesPriv.h"
 #include "effects/GrSimpleTextureEffect.h"
 
 #include "SkMatrix.h"
 #include "SkXfermode.h"
 
 class GrPaint;
-
-/**
- * Types used to describe format of vertices in arrays
-  */
-enum GrVertexAttribType {
-    kFloat_GrVertexAttribType = 0,
-    kVec2f_GrVertexAttribType,
-    kVec3f_GrVertexAttribType,
-    kVec4f_GrVertexAttribType,
-    kVec4ub_GrVertexAttribType,   // vector of 4 unsigned bytes, e.g. colors
-
-    kLast_GrVertexAttribType = kVec4ub_GrVertexAttribType
-};
-static const int kGrVertexAttribTypeCount = kLast_GrVertexAttribType + 1;
-
-struct GrVertexAttrib {
-    inline void set(GrVertexAttribType type, size_t offset) {
-        fType = type; fOffset = offset;
-    }
-    bool operator==(const GrVertexAttrib& other) const {
-        return fType == other.fType && fOffset == other.fOffset;
-    };
-    bool operator!=(const GrVertexAttrib& other) const { return !(*this == other); }
-
-    GrVertexAttribType fType;
-    size_t             fOffset;
-};
-
-template <int N>
-class GrVertexAttribArray : public SkSTArray<N, GrVertexAttrib, true> {};
 
 /**
  * Type used to describe how attributes bind to program usage
