@@ -1064,3 +1064,12 @@ void SkUseTestFontConfigFile(const char* mainconf, const char* fallbackconf,
     SkDEBUGF(("Use Test Config File Main %s, Fallback %s, Font Dir %s",
               gTestMainConfigFile, gTestFallbackConfigFile, gTestFontFilePrefix));
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkFontMgr.h"
+
+SkFontMgr* SkFontMgr::Factory() {
+    // todo
+    return NULL;
+}
