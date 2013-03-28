@@ -11,6 +11,7 @@
 #include "GrBackendEffectFactory.h"
 #include "GrColor.h"
 #include "GrEffectStage.h"
+#include "GrPaint.h"
 #include "GrRefCnt.h"
 #include "GrRenderTarget.h"
 #include "GrStencil.h"
@@ -21,8 +22,6 @@
 
 #include "SkMatrix.h"
 #include "SkXfermode.h"
-
-class GrPaint;
 
 /**
  * Type used to describe how attributes bind to program usage
@@ -53,12 +52,13 @@ public:
      * the color / coverage distinction.
      *
      * Stages 0 through GrPaint::kTotalStages-1 are reserved for stages copied from the client's
-     * GrPaint. Stages GrPaint::kTotalStages through kNumStages-2 are earmarked for use by
-     * GrTextContext and GrPathRenderer-derived classes. kNumStages-1 is earmarked for clipping
-     * by GrClipMaskManager.
+     * GrPaint. Stage GrPaint::kTotalStages is earmarked for use by GrTextContext, GrPathRenderer-
+     * derived classes, and the rect/oval helper classes. GrPaint::kTotalStages+1 is earmarked for
+     * clipping by GrClipMaskManager. TODO: replace fixed size array of stages with variable size
+     * arrays of color and coverage stages.
      */
     enum {
-        kNumStages = 5,
+        kNumStages = GrPaint::kTotalStages + 2,
     };
 
     GrDrawState() {
