@@ -462,7 +462,7 @@ void GrGLCaps::markColorConfigAndStencilFormatAsVerified(
 #if !GR_GL_CHECK_FBO_STATUS_ONCE_PER_FORMAT
     return;
 #endif
-    GrAssert((unsigned)config < kGrPixelConfigCnt);
+    GrAssert((unsigned)config < (unsigned)kGrPixelConfigCnt);
     GrAssert(fStencilFormats.count() == fStencilVerifiedColorConfigs.count());
     int count = fStencilFormats.count();
     // we expect a really small number of possible formats so linear search
@@ -485,7 +485,7 @@ bool GrGLCaps::isColorConfigAndStencilFormatVerified(
 #if !GR_GL_CHECK_FBO_STATUS_ONCE_PER_FORMAT
     return false;
 #endif
-    GrAssert((unsigned)config < kGrPixelConfigCnt);
+    GrAssert((unsigned)config < (unsigned)kGrPixelConfigCnt);
     int count = fStencilFormats.count();
     // we expect a really small number of possible formats so linear search
     // should be OK
