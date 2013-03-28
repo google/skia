@@ -40,10 +40,10 @@ inline const char* sample_function_name(GrSLType type, GrGLSLGeneration glslGen)
 inline bool swizzle_requires_alpha_remapping(const GrGLCaps& caps,
                                              const GrTextureAccess& access) {
     if (GrPixelConfigIsAlphaOnly(access.getTexture()->config())) {
-        if (caps.textureRedSupport() && (GrTextureAccess::kA_SwizzleFlag & access.swizzleMask())) {
+        if (caps.textureRedSupport() && (kA_GrColorComponentFlag & access.swizzleMask())) {
             return true;
         }
-        if (GrTextureAccess::kRGB_SwizzleMask & access.swizzleMask()) {
+        if (kRGB_GrColorComponentFlags & access.swizzleMask()) {
             return true;
         }
     }
@@ -51,14 +51,15 @@ inline bool swizzle_requires_alpha_remapping(const GrGLCaps& caps,
 }
 
 void append_swizzle(SkString* outAppend,
-                    const GrTextureAccess& access,
+                    const GrGLShaderBuilder::TextureSampler& texSampler,
                     const GrGLCaps& caps) {
-    const char* swizzle = access.getSwizzle();
+    const char* swizzle = texSampler.swizzle();
     char mangledSwizzle[5];
 
     // The swizzling occurs using texture params instead of shader-mangling if ARB_texture_swizzle
     // is available.
-    if (!caps.textureSwizzleSupport() && GrPixelConfigIsAlphaOnly(access.getTexture()->config())) {
+    if (!caps.textureSwizzleSupport() &&
+        (kA_GrColorComponentFlag == texSampler.configComponentMask())) {
         char alphaChar = caps.textureRedSupport() ? 'r' : 'a';
         int i;
         for (i = 0; '\0' != swizzle[i]; ++i) {
@@ -151,14 +152,13 @@ void GrGLShaderBuilder::appendTextureLookup(SkString* out,
                                             const GrGLShaderBuilder::TextureSampler& sampler,
                                             const char* coordName,
                                             GrSLType varyingType) const {
-    GrAssert(NULL != sampler.textureAccess());
     GrAssert(NULL != coordName);
 
     out->appendf("%s(%s, %s)",
                  sample_function_name(varyingType, fCtxInfo.glslGeneration()),
                  this->getUniformCStr(sampler.fSamplerUniform),
                  coordName);
-    append_swizzle(out, *sampler.textureAccess(), *fCtxInfo.caps());
+    append_swizzle(out, sampler, *fCtxInfo.caps());
 }
 
 void GrGLShaderBuilder::appendTextureLookup(ShaderType type,
@@ -191,17 +191,6 @@ GrBackendEffectFactory::EffectKey GrGLShaderBuilder::KeyForTextureAccess(
     if (!caps.textureSwizzleSupport() && swizzle_requires_alpha_remapping(caps, access)) {
         key = 1;
     }
-#if GR_DEBUG
-    // Assert that key is set iff the swizzle will be modified.
-    SkString origString(access.getSwizzle());
-    origString.prepend(".");
-    SkString modifiedString;
-    append_swizzle(&modifiedString, access, caps);
-    if (!modifiedString.size()) {
-        modifiedString = ".rgba";
-    }
-    GrAssert(SkToBool(key) == (modifiedString != origString));
-#endif
     return key;
 }
 

@@ -215,7 +215,7 @@ void GrBlendEffect::getConstantColorComponents(GrColor* color, uint32_t* validFl
     // communicate this.)
     if (GrPixelConfigIsOpaque(fForegroundAccess.getTexture()->config()) ||
         GrPixelConfigIsOpaque(fBackgroundAccess.getTexture()->config())) {
-        *validFlags = kA_ValidComponentFlag;
+        *validFlags = kA_GrColorComponentFlag;
         *color = GrColorPackRGBA(0, 0, 0, 0xff);
     } else {
         *validFlags = 0;

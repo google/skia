@@ -54,9 +54,9 @@ protected:
      * texture.
      */
     void updateConstantColorComponentsForModulation(GrColor* color, uint32_t* validFlags) const {
-        if ((*validFlags & kA_ValidComponentFlag) && 0xFF == GrColorUnpackA(*color) &&
+        if ((*validFlags & kA_GrColorComponentFlag) && 0xFF == GrColorUnpackA(*color) &&
             GrPixelConfigIsOpaque(this->texture(0)->config())) {
-            *validFlags = kA_ValidComponentFlag;
+            *validFlags = kA_GrColorComponentFlag;
         } else {
             *validFlags = 0;
         }

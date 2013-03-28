@@ -162,16 +162,8 @@ public:
      */
     const char* getSwizzle() const { return fSwizzle; }
 
-    enum {
-        kR_SwizzleFlag = 0x1,
-        kG_SwizzleFlag = 0x2,
-        kB_SwizzleFlag = 0x4,
-        kA_SwizzleFlag = 0x8,
-
-        kRGB_SwizzleMask = (kR_SwizzleFlag |  kG_SwizzleFlag | kB_SwizzleFlag),
-    };
-
-    /** Returns a mask indicating which components are referenced in the swizzle. */
+    /** Returns a mask indicating which components are referenced in the swizzle. The return
+        is a bitfield of GrColorComponentFlags. */
     uint32_t swizzleMask() const { return fSwizzleMask; }
 
     const GrTextureParams& getParams() const { return fParams; }

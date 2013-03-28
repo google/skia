@@ -67,4 +67,44 @@ static inline void GrColorToRGBAFloat(GrColor color, float rgba[4]) {
     rgba[3] = GrColorUnpackA(color) * ONE_OVER_255;
 }
 
+/**
+ * Flags used for bitfields of color components. They are defined so that the bit order reflects the
+ * GrColor shift order.
+ */
+enum GrColorComponentFlags {
+    kR_GrColorComponentFlag = 1 << (GrColor_SHIFT_R / 8),
+    kG_GrColorComponentFlag = 1 << (GrColor_SHIFT_G / 8),
+    kB_GrColorComponentFlag = 1 << (GrColor_SHIFT_B / 8),
+    kA_GrColorComponentFlag = 1 << (GrColor_SHIFT_A / 8),
+
+    kRGB_GrColorComponentFlags = (kR_GrColorComponentFlag | kG_GrColorComponentFlag |
+                                  kB_GrColorComponentFlag),
+
+    kRGBA_GrColorComponentFlags = (kR_GrColorComponentFlag | kG_GrColorComponentFlag |
+                                   kB_GrColorComponentFlag | kA_GrColorComponentFlag)
+};
+
+static inline uint32_t GrPixelConfigComponentMask(GrPixelConfig config) {
+    GrAssert(config >= 0 && config < kGrPixelConfigCnt);
+    static const uint32_t kFlags[] = {
+        0,                              // kUnknown_GrPixelConfig
+        kA_GrColorComponentFlag,        // kAlpha_8_GrPixelConfig
+        kRGBA_GrColorComponentFlags,    // kIndex_8_GrPixelConfig
+        kRGB_GrColorComponentFlags,     // kRGB_565_GrPixelConfig
+        kRGBA_GrColorComponentFlags,    // kRGBA_4444_GrPixelConfig
+        kRGBA_GrColorComponentFlags,    // kRGBA_8888_GrPixelConfig
+        kRGBA_GrColorComponentFlags,    // kBGRA_8888_GrPixelConfig
+    };
+    return kFlags[config];
+
+    GR_STATIC_ASSERT(0 == kUnknown_GrPixelConfig);
+    GR_STATIC_ASSERT(1 == kAlpha_8_GrPixelConfig);
+    GR_STATIC_ASSERT(2 == kIndex_8_GrPixelConfig);
+    GR_STATIC_ASSERT(3 == kRGB_565_GrPixelConfig);
+    GR_STATIC_ASSERT(4 == kRGBA_4444_GrPixelConfig);
+    GR_STATIC_ASSERT(5 == kRGBA_8888_GrPixelConfig);
+    GR_STATIC_ASSERT(6 == kBGRA_8888_GrPixelConfig);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kFlags) == kGrPixelConfigCnt);
+}
+
 #endif
