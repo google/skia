@@ -10,8 +10,8 @@
 
 //Time
 #include <time.h>
-#warning standard clocks
 
+// Beware: this timer uses standard (as opposed to high precision) clocks
 class BenchSysTimer {
 public:
     void startWall();
