@@ -36,6 +36,7 @@
     '../gm/factory.cpp',
     '../gm/filltypes.cpp',
     '../gm/filltypespersp.cpp',
+    '../gm/fontmgr.cpp',
     '../gm/fontscaler.cpp',
     '../gm/gammatext.cpp',
     '../gm/getpostextpath.cpp',
