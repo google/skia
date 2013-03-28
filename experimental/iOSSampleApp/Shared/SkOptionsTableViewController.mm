@@ -247,7 +247,7 @@
     UITextField* textField = [[UITextField alloc] 
                               initWithFrame:CGRectMake(0, 10, 150, 25)];
     textField.adjustsFontSizeToFitWidth = YES;
-    textField.textAlignment = UITextAlignmentRight;
+    textField.textAlignment = NSTextAlignmentRight;
     textField.textColor = cell.detailTextLabel.textColor;
     textField.placeholder = value;
     textField.returnKeyType = UIReturnKeyDone;
