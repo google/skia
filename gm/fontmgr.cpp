@@ -66,6 +66,12 @@ protected:
         }
     }
 
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        // fontdescriptors (and therefore serialization) don't yet understand
+        // these new styles, so skip tests that exercise that for now.
+        return kSkipPicture_Flag | kSkipPipe_Flag;
+    }
+
 private:
     typedef GM INHERITED;
 };
