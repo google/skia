@@ -167,6 +167,18 @@ static SkBitmap make_bitmap(GrContext* context, GrRenderTarget* renderTarget) {
     return bitmap;
 }
 
+SkGpuDevice* SkGpuDevice::Create(GrSurface* surface) {
+    GrAssert(NULL != surface);
+    if (NULL == surface->asRenderTarget() || NULL == surface->getContext()) {
+        return NULL;
+    }
+    if (surface->asTexture()) {
+        return SkNEW_ARGS(SkGpuDevice, (surface->getContext(), surface->asTexture()));
+    } else {
+        return SkNEW_ARGS(SkGpuDevice, (surface->getContext(), surface->asRenderTarget()));
+    }
+}
+
 SkGpuDevice::SkGpuDevice(GrContext* context, GrTexture* texture)
 : SkDevice(make_bitmap(context, texture->asRenderTarget())) {
     this->initFromRenderTarget(context, texture->asRenderTarget(), false);
