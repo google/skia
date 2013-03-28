@@ -26,7 +26,7 @@
             virtual void onGetName(SkString* name) SK_OVERRIDE { name->set(uiname); }   \
             virtual void onRun(Reporter* reporter) SK_OVERRIDE { function(reporter); }  \
         };                                                                              \
-        static TestRegistry gReg(classname::Factory);                                   \
+        static TestRegistry gReg_##classname(classname::Factory);                       \
     }
 
 #define DEFINE_GPUTESTCLASS(uiname, classname, function)                                \
@@ -40,5 +40,5 @@
                 function(reporter, GetGrContextFactory());                              \
             }                                                                           \
         };                                                                              \
-        static TestRegistry gReg(classname::Factory);                                   \
+        static TestRegistry gReg_##classname(classname::Factory);                       \
     }

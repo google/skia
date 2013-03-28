@@ -98,6 +98,7 @@
         '../tests/StreamTest.cpp',
         '../tests/StringTest.cpp',
         '../tests/StrokeTest.cpp',
+        '../tests/SurfaceTest.cpp',
         '../tests/Test.cpp',
         '../tests/Test.h',
         '../tests/TestSize.cpp',
