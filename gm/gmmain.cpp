@@ -50,7 +50,6 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
-#include "GrRenderTarget.h"
 #include "SkGpuDevice.h"
 typedef GrContextFactory::GLContextType GLContextType;
 #define DEFAULT_CACHE_VALUE -1
@@ -59,7 +58,7 @@ static int gGpuCacheSizeCount;
 #else
 class GrContextFactory;
 class GrContext;
-class GrRenderTarget;
+class GrSurface;
 typedef int GLContextType;
 #endif
 
@@ -373,8 +372,7 @@ public:
     }
 
     static ErrorCombination generate_image(GM* gm, const ConfigData& gRec,
-                                           GrContext* context,
-                                           GrRenderTarget* rt,
+                                           GrSurface* gpuTarget,
                                            SkBitmap* bitmap,
                                            bool deferred) {
         SkISize size (gm->getISize());
@@ -394,10 +392,7 @@ public:
         }
 #if SK_SUPPORT_GPU
         else {  // GPU
-            if (NULL == context) {
-                return ErrorCombination(kNoGpuContext_ErrorType);
-            }
-            SkAutoTUnref<SkDevice> device(new SkGpuDevice(context, rt));
+            SkAutoTUnref<SkDevice> device(SkGpuDevice::Create(gpuTarget));
             if (deferred) {
                 canvas.reset(new SkDeferredCanvas(device));
             } else {
@@ -826,15 +821,14 @@ public:
     ErrorCombination test_drawing(GM* gm,
                                   const ConfigData& gRec,
                                   const char writePath [],
-                                  GrContext* context,
-                                  GrRenderTarget* rt,
+                                  GrSurface* gpuTarget,
                                   SkBitmap* bitmap) {
         SkDynamicMemoryWStream document;
 
         if (gRec.fBackend == kRaster_Backend ||
             gRec.fBackend == kGPU_Backend) {
             // Early exit if we can't generate the image.
-            ErrorCombination errors = generate_image(gm, gRec, context, rt, bitmap, false);
+            ErrorCombination errors = generate_image(gm, gRec, gpuTarget, bitmap, false);
             if (!errors.isEmpty()) {
                 // TODO: Add a test to exercise what the stdout and
                 // JSON look like if we get an "early error" while
@@ -858,8 +852,7 @@ public:
     ErrorCombination test_deferred_drawing(GM* gm,
                                            const ConfigData& gRec,
                                            const SkBitmap& referenceBitmap,
-                                           GrContext* context,
-                                           GrRenderTarget* rt) {
+                                           GrSurface* gpuTarget) {
         SkDynamicMemoryWStream document;
 
         if (gRec.fBackend == kRaster_Backend ||
@@ -867,7 +860,7 @@ public:
             SkBitmap bitmap;
             // Early exit if we can't generate the image, but this is
             // expected in some cases, so don't report a test failure.
-            ErrorCombination errors = generate_image(gm, gRec, context, rt, &bitmap, true);
+            ErrorCombination errors = generate_image(gm, gRec, gpuTarget, &bitmap, true);
             // TODO(epoger): This logic is the opposite of what is
             // described above... if we succeeded in generating the
             // -deferred image, we exit early!  We should fix this
@@ -1183,9 +1176,9 @@ ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm, const SkTDArray<si
         // Now we know that we want to run this test and record its
         // success or failure.
         ErrorCombination errorsForThisConfig;
-        GrRenderTarget* renderTarget = NULL;
+        GrSurface* gpuTarget = NULL;
 #if SK_SUPPORT_GPU
-        SkAutoTUnref<GrRenderTarget> rt;
+        SkAutoTUnref<GrSurface> auGpuTarget;
         AutoResetGr autogr;
         if ((errorsForThisConfig.isEmpty()) && (kGPU_Backend == config.fBackend)) {
             GrContext* gr = grFactory->get(config.fGLContextType);
@@ -1198,26 +1191,23 @@ ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm, const SkTDArray<si
                 desc.fWidth = gm->getISize().width();
                 desc.fHeight = gm->getISize().height();
                 desc.fSampleCnt = config.fSampleCnt;
-                GrTexture* tex = gr->createUncachedTexture(desc, NULL, 0);
-                if (tex) {
-                    rt.reset(tex->asRenderTarget());
-                    rt.get()->ref();
-                    tex->unref();
+                auGpuTarget.reset(gr->createUncachedTexture(desc, NULL, 0));
+                if (NULL != auGpuTarget) {
+                    gpuTarget = auGpuTarget;
+                    grSuccess = true;
                     autogr.set(gr);
-                    renderTarget = rt.get();
-                    grSuccess = NULL != renderTarget;
+                    // Set the user specified cache limits if non-default.
+                    size_t bytes;
+                    int count;
+                    gr->getTextureCacheLimits(&count, &bytes);
+                    if (DEFAULT_CACHE_VALUE != gGpuCacheSizeBytes) {
+                        bytes = static_cast<size_t>(gGpuCacheSizeBytes);
+                    }
+                    if (DEFAULT_CACHE_VALUE != gGpuCacheSizeCount) {
+                        count = gGpuCacheSizeCount;
+                    }
+                    gr->setTextureCacheLimits(count, bytes);
                 }
-                // Set the user specified cache limits if non-default.
-                size_t bytes;
-                int count;
-                gr->getTextureCacheLimits(&count, &bytes);
-                if (DEFAULT_CACHE_VALUE != gGpuCacheSizeBytes) {
-                    bytes = static_cast<size_t>(gGpuCacheSizeBytes);
-                }
-                if (DEFAULT_CACHE_VALUE != gGpuCacheSizeCount) {
-                    count = gGpuCacheSizeCount;
-                }
-                gr->setTextureCacheLimits(count, bytes);
             }
             if (!grSuccess) {
                 errorsForThisConfig.add(kNoGpuContext_ErrorType);
@@ -1234,14 +1224,14 @@ ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm, const SkTDArray<si
             writePath = NULL;
         }
         if (errorsForThisConfig.isEmpty()) {
-            errorsForThisConfig.add(gmmain.test_drawing(gm, config, writePath, GetGr(),
-                                                        renderTarget, &comparisonBitmap));
+            errorsForThisConfig.add(gmmain.test_drawing(gm,config, writePath, gpuTarget,
+                                                        &comparisonBitmap));
         }
 
         if (FLAGS_deferred && errorsForThisConfig.isEmpty() &&
             (kGPU_Backend == config.fBackend || kRaster_Backend == config.fBackend)) {
             errorsForThisConfig.add(gmmain.test_deferred_drawing(gm, config, comparisonBitmap,
-                                                                 GetGr(), renderTarget));
+                                                                 gpuTarget));
         }
 
         errorsForAllConfigs.add(errorsForThisConfig);
@@ -1595,8 +1585,7 @@ int tool_main(int argc, char** argv) {
         SkBitmap comparisonBitmap;
         const ConfigData compareConfig =
             { SkBitmap::kARGB_8888_Config, kRaster_Backend, kDontCare_GLContextType, 0, kRW_ConfigFlag, "comparison", false };
-        testErrors.add(gmmain.generate_image(
-            gm, compareConfig, NULL, NULL, &comparisonBitmap, false));
+        testErrors.add(gmmain.generate_image(gm, compareConfig, NULL, &comparisonBitmap, false));
 
         // TODO(epoger): only run this if gmmain.generate_image() succeeded?
         // Otherwise, what are we comparing against?
