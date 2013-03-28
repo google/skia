@@ -44,7 +44,7 @@
 class GrPaint {
 public:
     enum {
-        kMaxColorStages     = 2,
+        kMaxColorStages     = 3,
         kMaxCoverageStages  = 1,
     };
 
