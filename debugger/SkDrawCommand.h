@@ -200,6 +200,8 @@ public:
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
     virtual const SkBitmap* getBitmap() const SK_OVERRIDE;
 
+    const SkBitmap& bitmap() const { return fBitmap; }
+
     // The non-const 'paint' method allows modification of this object's
     // SkPaint. For this reason the ctor and setPaint method make a local copy.
     // The 'fPaintPtr' member acts a signal that the local SkPaint is valid
@@ -211,6 +213,9 @@ public:
 
     const SkRect* srcRect() const { return fSrc.isEmpty() ? NULL : &fSrc; }
     const SkRect& dstRect() const { return fDst; }
+
+    void setSrcRect(const SkRect& src) { fSrc = src; }
+    void setDstRect(const SkRect& dst) { fDst = dst; }
 
 private:
     SkBitmap fBitmap;

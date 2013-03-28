@@ -320,6 +320,193 @@ static void apply_6(SkTDArray<SkDrawCommand*>& commands, int curCommand) {
     s->setVisible(false);
 }
 
+// Check for:
+//  SAVE
+//      CLIP_RECT
+//      SAVE_LAYER
+//          SAVE
+//              CLIP_RECT
+//              SAVE_LAYER
+//                  SAVE
+//                      CLIP_RECT
+//                      DRAWBITMAPRECTTORECT
+//                  RESTORE
+//              RESTORE
+//          RESTORE
+//      RESTORE
+//  RESTORE
+// where:
+//      all the clipRect's are BW, nested, intersections
+//      the drawBitmapRectToRect is a 1-1 copy from src to dest
+//      the last (smallest) clip rect is a subset of the drawBitmapRectToRect's dest rect
+//      all the saveLayer's paints can be rolled into the drawBitmapRectToRect's paint
+// This pattern is used by Google spreadsheet when drawing the toolbar buttons
+static bool check_7(const SkTDArray<SkDrawCommand*>& commands, int curCommand) {
+    if (SAVE != commands[curCommand]->getType() ||
+        commands.count() <= curCommand+13 ||
+        CLIP_RECT != commands[curCommand+1]->getType() ||
+        SAVE_LAYER != commands[curCommand+2]->getType() ||
+        SAVE != commands[curCommand+3]->getType() ||
+        CLIP_RECT != commands[curCommand+4]->getType() ||
+        SAVE_LAYER != commands[curCommand+5]->getType() ||
+        SAVE != commands[curCommand+6]->getType() ||
+        CLIP_RECT != commands[curCommand+7]->getType() ||
+        DRAW_BITMAP_RECT_TO_RECT != commands[curCommand+8]->getType() ||
+        RESTORE != commands[curCommand+9]->getType() ||
+        RESTORE != commands[curCommand+10]->getType() ||
+        RESTORE != commands[curCommand+11]->getType() ||
+        RESTORE != commands[curCommand+12]->getType() ||
+        RESTORE != commands[curCommand+13]->getType())
+        return false;
+
+    ClipRect* clip0 = (ClipRect*) commands[curCommand+1];
+    SaveLayer* saveLayer0 = (SaveLayer*) commands[curCommand+2];
+    ClipRect* clip1 = (ClipRect*) commands[curCommand+4];
+    SaveLayer* saveLayer1 = (SaveLayer*) commands[curCommand+5];
+    ClipRect* clip2 = (ClipRect*) commands[curCommand+7];
+    DrawBitmapRect* dbmr = (DrawBitmapRect*) commands[curCommand+8];
+
+    if (clip0->doAA() || clip1->doAA() || clip2->doAA()) {
+        return false;
+    }
+
+    if (SkRegion::kIntersect_Op != clip0->op() ||
+        SkRegion::kIntersect_Op != clip1->op() ||
+        SkRegion::kIntersect_Op != clip2->op()) {
+        return false;
+    }
+
+    if (!clip0->rect().contains(clip1->rect()) || 
+        !clip1->rect().contains(clip2->rect())) {
+        return false;
+    }
+
+    // The src->dest mapping needs to be 1-to-1
+    if (NULL == dbmr->srcRect()) {
+        if (dbmr->bitmap().width() != dbmr->dstRect().width() ||
+            dbmr->bitmap().height() != dbmr->dstRect().height()) {
+            return false;
+        }
+    } else {
+        if (dbmr->srcRect()->width() != dbmr->dstRect().width() ||
+            dbmr->srcRect()->height() != dbmr->dstRect().height()) {
+            return false;
+        }
+    }
+
+    if (!dbmr->dstRect().contains(clip2->rect())) {
+        return false;
+    }
+
+    const SkPaint* saveLayerPaint0 = saveLayer0->paint();
+    const SkPaint* saveLayerPaint1 = saveLayer1->paint();
+
+    if ((NULL != saveLayerPaint0 && !is_simple(*saveLayerPaint0)) ||
+        (NULL != saveLayerPaint1 && !is_simple(*saveLayerPaint1))) {
+        return false;
+    }
+
+    SkPaint* dbmrPaint = dbmr->paint();
+
+    if (NULL == dbmrPaint) {
+        return true;    
+    }
+    
+    if (NULL != saveLayerPaint0) {
+        SkColor layerColor0 = saveLayerPaint0->getColor() | 0xFF000000; // force opaque
+        if (dbmrPaint->getColor() != layerColor0) {
+            return false;
+        }
+    }
+
+    if (NULL != saveLayerPaint1) {
+        SkColor layerColor1 = saveLayerPaint1->getColor() | 0xFF000000; // force opaque
+        if (dbmrPaint->getColor() != layerColor1) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// Reduce to a single drawBitmapRectToRect call by folding the clipRect's into
+// the src and dst Rects and the saveLayer paints into the drawBitmapRectToRect's
+// paint.
+static void apply_7(SkTDArray<SkDrawCommand*>& commands, int curCommand) {
+    Save* save0 = (Save*) commands[curCommand];
+    ClipRect* clip0 = (ClipRect*) commands[curCommand+1];
+    SaveLayer* saveLayer0 = (SaveLayer*) commands[curCommand+2];
+    Save* save1 = (Save*) commands[curCommand+3];
+    ClipRect* clip1 = (ClipRect*) commands[curCommand+4];
+    SaveLayer* saveLayer1 = (SaveLayer*) commands[curCommand+5];
+    Save* save2 = (Save*) commands[curCommand+6];
+    ClipRect* clip2 = (ClipRect*) commands[curCommand+7];
+    DrawBitmapRect* dbmr = (DrawBitmapRect*) commands[curCommand+8];
+    Restore* restore0 = (Restore*) commands[curCommand+9];
+    Restore* restore1 = (Restore*) commands[curCommand+10];
+    Restore* restore2 = (Restore*) commands[curCommand+11];
+    Restore* restore3 = (Restore*) commands[curCommand+12];
+    Restore* restore4 = (Restore*) commands[curCommand+13];
+
+    SkScalar newSrcLeft = dbmr->srcRect()->fLeft + clip2->rect().fLeft - dbmr->dstRect().fLeft;
+    SkScalar newSrcTop = dbmr->srcRect()->fTop + clip2->rect().fTop - dbmr->dstRect().fTop;
+
+    SkRect newSrc = SkRect::MakeXYWH(newSrcLeft, newSrcTop, 
+                                     clip2->rect().width(), clip2->rect().height());
+
+    dbmr->setSrcRect(newSrc);
+    dbmr->setDstRect(clip2->rect());
+
+    SkColor color = 0xFF000000;
+    int a0, a1;
+
+    const SkPaint* saveLayerPaint0 = saveLayer0->paint();
+    if (NULL != saveLayerPaint0) {
+        color = saveLayerPaint0->getColor();
+        a0 = SkColorGetA(color);
+    } else {
+        a0 = 0xFF;
+    }
+
+    const SkPaint* saveLayerPaint1 = saveLayer1->paint();
+    if (NULL != saveLayerPaint1) {
+        color = saveLayerPaint1->getColor();
+        a1 = SkColorGetA(color);
+    } else {
+        a1 = 0xFF;
+    }
+
+    int newA = (a0 * a1) / 255;
+    SkASSERT(newA <= 0xFF);
+
+    SkPaint* dbmrPaint = dbmr->paint();
+
+    if (NULL != dbmrPaint) {
+        SkColor newColor = SkColorSetA(dbmrPaint->getColor(), newA);
+        dbmrPaint->setColor(newColor);
+    } else {
+        SkColor newColor = SkColorSetA(color, newA);
+
+        SkPaint newPaint;
+        newPaint.setColor(newColor);
+        dbmr->setPaint(newPaint);
+    }
+
+    // remove everything except the drawbitmaprect
+    save0->setVisible(false);
+    clip0->setVisible(false);
+    saveLayer0->setVisible(false);
+    save1->setVisible(false);
+    clip1->setVisible(false);
+    saveLayer1->setVisible(false);
+    save2->setVisible(false);
+    clip2->setVisible(false);
+    restore0->setVisible(false);
+    restore1->setVisible(false);
+    restore2->setVisible(false);
+    restore3->setVisible(false);
+    restore4->setVisible(false);
+}
 
 typedef bool (*PFCheck)(const SkTDArray<SkDrawCommand*>& commands, int curCommand);
 typedef void (*PFApply)(SkTDArray<SkDrawCommand*>& commands, int curCommand);
@@ -336,6 +523,7 @@ struct OptTableEntry {
     { check_4, apply_4, 0 },
     { check_5, apply_5, 0 },
     { check_6, apply_6, 0 },
+    { check_7, apply_7, 0 },
 };
 
 static int filter_picture(const SkString& inFile, const SkString& outFile) {
