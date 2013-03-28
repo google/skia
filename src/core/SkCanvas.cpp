@@ -1475,7 +1475,7 @@ SkDevice* SkCanvas::createCompatibleDevice(SkBitmap::Config config,
 
 void SkCanvas::clear(SkColor color) {
     SkDrawIter  iter(this);
-
+    this->predrawNotify();
     while (iter.next()) {
         iter.fDevice->clear(color);
     }
