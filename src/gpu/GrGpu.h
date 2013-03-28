@@ -299,7 +299,7 @@ public:
      * Can the provided configuration act as a color render target?
      */
     bool isConfigRenderable(GrPixelConfig config) const {
-        GrAssert(kGrPixelConfigCount > config);
+        GrAssert(kGrPixelConfigCnt > config);
         return fConfigRenderSupport[config];
     }
 
@@ -403,7 +403,7 @@ protected:
 
     // Derived classes need access to this so they can fill it out in their
     // constructors
-    bool    fConfigRenderSupport[kGrPixelConfigCount];
+    bool    fConfigRenderSupport[kGrPixelConfigCnt];
 
     // Helpers for setting up geometry state
     void finalizeReservedVertices();

@@ -252,7 +252,7 @@ private:
             }
         }
 
-        static const int kNumUints = (kGrPixelConfigCount  + 31) / 32;
+        static const int kNumUints = (kGrPixelConfigCnt  + 31) / 32;
         uint32_t fVerifiedColorConfigs[kNumUints];
 
         void markVerified(GrPixelConfig config) {

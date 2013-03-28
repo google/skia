@@ -866,8 +866,8 @@ bool GrGradientEffect::onIsEqual(const GrEffect& effect) const {
 }
 
 void GrGradientEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
-    if (fIsOpaque && (kA_ValidComponentFlag & *validFlags) && 0xff == GrColorUnpackA(*color)) {
-        *validFlags = kA_ValidComponentFlag;
+    if (fIsOpaque && (kA_GrColorComponentFlag & *validFlags) && 0xff == GrColorUnpackA(*color)) {
+        *validFlags = kA_GrColorComponentFlag;
     } else {
         *validFlags = 0;
     }

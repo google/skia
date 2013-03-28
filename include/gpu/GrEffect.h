@@ -87,24 +87,11 @@ public:
     virtual ~GrEffect();
 
     /**
-     * Flags for getConstantColorComponents. They are defined so that the bit order reflects the
-     * GrColor shift order.
-     */
-    enum ValidComponentFlags {
-        kR_ValidComponentFlag = 1 << (GrColor_SHIFT_R / 8),
-        kG_ValidComponentFlag = 1 << (GrColor_SHIFT_G / 8),
-        kB_ValidComponentFlag = 1 << (GrColor_SHIFT_B / 8),
-        kA_ValidComponentFlag = 1 << (GrColor_SHIFT_A / 8),
-
-        kAll_ValidComponentFlags = (kR_ValidComponentFlag | kG_ValidComponentFlag |
-                                    kB_ValidComponentFlag | kA_ValidComponentFlag)
-    };
-
-    /**
      * This function is used to perform optimizations. When called the color and validFlags params
-     * indicate whether the input components to this effect in the FS will have known values. The
-     * function updates both params to indicate known values of its output. A component of the color
-     * param only has meaning if the corresponding bit in validFlags is set.
+     * indicate whether the input components to this effect in the FS will have known values.
+     * validFlags is a bitfield of GrColorComponentFlags. The function updates both params to
+     * indicate known values of its output. A component of the color param only has meaning if the
+     * corresponding bit in validFlags is set.
      */
     virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const = 0;
 

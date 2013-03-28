@@ -348,16 +348,16 @@ void ColorTableEffect::getConstantColorComponents(GrColor* color, uint32_t* vali
     // If we kept the table in the effect then we could actually run known inputs through the
     // table.
     if (fFlags & SkTable_ColorFilter::kR_Flag) {
-        *validFlags &= ~kR_ValidComponentFlag;
+        *validFlags &= ~kR_GrColorComponentFlag;
     }
     if (fFlags & SkTable_ColorFilter::kG_Flag) {
-        *validFlags &= ~kG_ValidComponentFlag;
+        *validFlags &= ~kG_GrColorComponentFlag;
     }
     if (fFlags & SkTable_ColorFilter::kB_Flag) {
-        *validFlags &= ~kB_ValidComponentFlag;
+        *validFlags &= ~kB_GrColorComponentFlag;
     }
     if (fFlags & SkTable_ColorFilter::kA_Flag) {
-        *validFlags &= ~kA_ValidComponentFlag;
+        *validFlags &= ~kA_GrColorComponentFlag;
     }
 }
 

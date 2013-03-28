@@ -10,6 +10,7 @@
 
 #include "GrAllocator.h"
 #include "GrBackendEffectFactory.h"
+#include "GrColor.h"
 #include "GrEffect.h"
 #include "gl/GrGLSL.h"
 #include "gl/GrGLUniformManager.h"
@@ -31,31 +32,40 @@ public:
     class TextureSampler {
     public:
         TextureSampler()
-            : fTextureAccess(NULL)
-            , fSamplerUniform(GrGLUniformManager::kInvalidUniformHandle) {}
+            : fConfigComponentMask(0)
+            , fSamplerUniform(GrGLUniformManager::kInvalidUniformHandle) {
+            // we will memcpy the first 4 bytes from passed in swizzle. This ensures the string is
+            // terminated.
+            fSwizzle[4] = '\0';
+        }
 
         TextureSampler(const TextureSampler& other) { *this = other; }
 
         TextureSampler& operator= (const TextureSampler& other) {
-            GrAssert(NULL == fTextureAccess);
+            GrAssert(0 == fConfigComponentMask);
             GrAssert(GrGLUniformManager::kInvalidUniformHandle == fSamplerUniform);
 
-            fTextureAccess = other.fTextureAccess;
+            fConfigComponentMask = other.fConfigComponentMask;
             fSamplerUniform = other.fSamplerUniform;
             return *this;
         }
 
-        const GrTextureAccess* textureAccess() const { return fTextureAccess; }
+        // bitfield of GrColorComponentFlags present in the texture's config.
+        uint32_t configComponentMask() const { return fConfigComponentMask; }
+
+        const char* swizzle() const { return fSwizzle; }
 
     private:
         // The idx param is used to ensure multiple samplers within a single effect have unique
-        // uniform names.
-        void init(GrGLShaderBuilder* builder, const GrTextureAccess* access, int idx) {
-            GrAssert(NULL == fTextureAccess);
+        // uniform names. swizzle is a four char max string made up of chars 'r', 'g', 'b', and 'a'.
+        void init(GrGLShaderBuilder* builder,
+                  uint32_t configComponentMask,
+                  const char* swizzle,
+                  int idx) {
+            GrAssert(0 == fConfigComponentMask);
             GrAssert(GrGLUniformManager::kInvalidUniformHandle == fSamplerUniform);
 
             GrAssert(NULL != builder);
-            GrAssert(NULL != access);
             SkString name;
             name.printf("Sampler%d_", idx);
             fSamplerUniform = builder->addUniform(GrGLShaderBuilder::kFragment_ShaderType,
@@ -63,14 +73,23 @@ public:
                                                   name.c_str());
             GrAssert(GrGLUniformManager::kInvalidUniformHandle != fSamplerUniform);
 
-            fTextureAccess = access;
+            fConfigComponentMask = configComponentMask;
+            memcpy(fSwizzle, swizzle, 4);
         }
 
-        const GrTextureAccess*            fTextureAccess;
+        void init(GrGLShaderBuilder* builder, const GrTextureAccess* access, int idx) {
+            GrAssert(NULL != access);
+            this->init(builder,
+                       GrPixelConfigComponentMask(access->getTexture()->config()),
+                       access->getSwizzle(),
+                       idx);
+        }
+
+        uint32_t                          fConfigComponentMask;
+        char                              fSwizzle[5];
         GrGLUniformManager::UniformHandle fSamplerUniform;
 
-        friend class GrGLShaderBuilder; // to access fSamplerUniform
-        friend class GrGLProgram;       // to construct these and access fSamplerUniform.
+        friend class GrGLShaderBuilder; // to call init().
     };
 
     typedef SkTArray<TextureSampler> TextureSamplerArray;

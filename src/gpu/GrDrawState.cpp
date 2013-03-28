@@ -236,7 +236,7 @@ bool GrDrawState::srcAlphaWillBeOne(GrAttribBindings bindings) const {
         validComponentFlags = 0;
         color = 0; // not strictly necessary but we get false alarms from tools about uninit.
     } else {
-        validComponentFlags = GrEffect::kAll_ValidComponentFlags;
+        validComponentFlags = kRGBA_GrColorComponentFlags;
         color = this->getColor();
     }
 
@@ -275,7 +275,7 @@ bool GrDrawState::srcAlphaWillBeOne(GrAttribBindings bindings) const {
             }
         }
     }
-    return (GrEffect::kA_ValidComponentFlag & validComponentFlags) && 0xff == GrColorUnpackA(color);
+    return (kA_GrColorComponentFlag & validComponentFlags) && 0xff == GrColorUnpackA(color);
 }
 
 bool GrDrawState::hasSolidCoverage(GrAttribBindings bindings) const {
@@ -291,7 +291,7 @@ bool GrDrawState::hasSolidCoverage(GrAttribBindings bindings) const {
         validComponentFlags = 0;
     } else {
         coverage = fCommon.fCoverage;
-        validComponentFlags = GrEffect::kAll_ValidComponentFlags;
+        validComponentFlags = kRGBA_GrColorComponentFlags;
     }
 
     // Run through the coverage stages and see if the coverage will be all ones at the end.
@@ -301,7 +301,7 @@ bool GrDrawState::hasSolidCoverage(GrAttribBindings bindings) const {
             (*effect)->getConstantColorComponents(&coverage, &validComponentFlags);
         }
     }
-    return (GrEffect::kAll_ValidComponentFlags == validComponentFlags)  && (0xffffffff == coverage);
+    return (kRGBA_GrColorComponentFlags == validComponentFlags)  && (0xffffffff == coverage);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

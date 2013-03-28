@@ -6,7 +6,7 @@
  */
 
 #include "GrTextureAccess.h"
-
+#include "GrColor.h"
 #include "GrTexture.h"
 
 GrTextureAccess::GrTextureAccess() {
@@ -68,7 +68,7 @@ void GrTextureAccess::reset(GrTexture* texture,
     fTexture.reset(SkRef(texture));
     fParams = params;
     memcpy(fSwizzle, "rgba", 5);
-    fSwizzleMask = (kRGB_SwizzleMask | kA_SwizzleFlag);
+    fSwizzleMask = kRGBA_GrColorComponentFlags;
 }
 
 void GrTextureAccess::reset(GrTexture* texture,
@@ -78,7 +78,7 @@ void GrTextureAccess::reset(GrTexture* texture,
     fTexture.reset(SkRef(texture));
     fParams.reset(tileXAndY, bilerp);
     memcpy(fSwizzle, "rgba", 5);
-    fSwizzleMask = (kRGB_SwizzleMask | kA_SwizzleFlag);
+    fSwizzleMask = kRGBA_GrColorComponentFlags;
 }
 
 void GrTextureAccess::setSwizzle(const char* swizzle) {
@@ -88,16 +88,16 @@ void GrTextureAccess::setSwizzle(const char* swizzle) {
         fSwizzle[i] = swizzle[i];
         switch (swizzle[i]) {
             case 'r':
-                fSwizzleMask |= kR_SwizzleFlag;
+                fSwizzleMask |= kR_GrColorComponentFlag;
                 break;
             case 'g':
-                fSwizzleMask |= kG_SwizzleFlag;
+                fSwizzleMask |= kG_GrColorComponentFlag;
                 break;
             case 'b':
-                fSwizzleMask |= kB_SwizzleFlag;
+                fSwizzleMask |= kB_GrColorComponentFlag;
                 break;
             case 'a':
-                fSwizzleMask |= kA_SwizzleFlag;
+                fSwizzleMask |= kA_GrColorComponentFlag;
                 break;
             default:
                 GrCrash("Unexpected swizzle string character.");

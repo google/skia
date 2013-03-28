@@ -344,11 +344,11 @@ public:
         // The matrix is defined such the 4th row determines the output alpha. The first four
         // columns of that row multiply the input r, g, b, and a, respectively, and the last column
         // is the "translation".
-        static const ValidComponentFlags kRGBAFlags[] = {
-            kR_ValidComponentFlag,
-            kG_ValidComponentFlag,
-            kB_ValidComponentFlag,
-            kA_ValidComponentFlag
+        static const uint32_t kRGBAFlags[] = {
+            kR_GrColorComponentFlag,
+            kG_GrColorComponentFlag,
+            kB_GrColorComponentFlag,
+            kA_GrColorComponentFlag
         };
         static const int kShifts[] = {
             GrColor_SHIFT_R, GrColor_SHIFT_G, GrColor_SHIFT_B, GrColor_SHIFT_A,
@@ -373,7 +373,7 @@ public:
             }
         }
         outputA += fMatrix.fMat[kAlphaRowTranslateIdx];
-        *validFlags = kA_ValidComponentFlag;
+        *validFlags = kA_GrColorComponentFlag;
         // We pin the color to [0,1]. This would happen to the *final* color output from the frag
         // shader but currently the effect does not pin its own output. So in the case of over/
         // underflow this may deviate from the actual result. Maybe the effect should pin its
