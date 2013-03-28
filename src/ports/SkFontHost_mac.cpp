@@ -1937,8 +1937,32 @@ static SkFontStyle desc2fontstyle(CTFontDescriptorRef desc) {
                        : SkFontStyle::kUpright_Slant);
 }
 
+struct NameFontStyleRec {
+    SkString    fFamilyName;
+    SkFontStyle fFontStyle;
+};
+
+static bool nameFontStyleProc(SkTypeface* face, SkTypeface::Style,
+                              void* ctx) {
+    SkTypeface_Mac* macFace = (SkTypeface_Mac*)face;
+    const NameFontStyleRec* rec = (const NameFontStyleRec*)ctx;
+
+    return macFace->fFontStyle == rec->fFontStyle &&
+           macFace->fName == rec->fFamilyName;
+}
+
 static SkTypeface* createFromDesc(CFStringRef cfFamilyName,
                                   CTFontDescriptorRef desc) {
+    NameFontStyleRec rec;
+    CFStringToSkString(cfFamilyName, &rec.fFamilyName);
+    rec.fFontStyle = desc2fontstyle(desc);
+
+    SkTypeface* face = SkTypefaceCache::FindByProcAndRef(nameFontStyleProc,
+                                                         &rec);
+    if (face) {
+        return face;
+    }
+
     AutoCFRelease<CTFontRef> ctNamed(CTFontCreateWithName(cfFamilyName, 1, NULL));
     CTFontRef ctFont = CTFontCreateCopyWithAttributes(ctNamed, 1, NULL, desc);
     if (NULL == ctFont) {
@@ -1952,30 +1976,37 @@ static SkTypeface* createFromDesc(CFStringRef cfFamilyName,
     (void)computeStyleBits(ctFont, &isFixedPitch);
     SkFontID fontID = CTFontRef_to_SkFontID(ctFont);
 
-    return new SkTypeface_Mac(desc2fontstyle(desc), fontID, isFixedPitch,
-                              ctFont, str.c_str());
+    face = SkNEW_ARGS(SkTypeface_Mac, (rec.fFontStyle, fontID, isFixedPitch,
+                                       ctFont, str.c_str()));
+    SkTypefaceCache::Add(face, face->style());
+    return face;
 }
 
 class SkFontStyleSet_Mac : public SkFontStyleSet {
 public:
     SkFontStyleSet_Mac(CFStringRef familyName, CTFontDescriptorRef desc)
         : fArray(CTFontDescriptorCreateMatchingFontDescriptors(desc, NULL))
-        , fFamilyName(familyName) {
+        , fFamilyName(familyName)
+        , fCount(0) {
         CFRetain(familyName);
+        if (NULL == fArray) {
+            fArray = CFArrayCreate(NULL, NULL, 0, NULL);
+        }
+        fCount = CFArrayGetCount(fArray);
     }
 
     virtual ~SkFontStyleSet_Mac() {
-        CFSafeRelease(fArray);
+        CFRelease(fArray);
         CFRelease(fFamilyName);
     }
 
     virtual int count() SK_OVERRIDE {
-        return CFArrayGetCount(fArray);
+        return fCount;
     }
 
     virtual void getStyle(int index, SkFontStyle* style,
                           SkString* name) SK_OVERRIDE {
-        SkASSERT((unsigned)index < (unsigned)CFArrayGetCount(fArray));
+        SkASSERT((unsigned)index < (unsigned)fCount);
         CTFontDescriptorRef desc = (CTFontDescriptorRef)CFArrayGetValueAtIndex(fArray, index);
         if (style) {
             *style = desc2fontstyle(desc);
@@ -1997,6 +2028,7 @@ public:
 private:
     CFArrayRef  fArray;
     CFStringRef fFamilyName;
+    int         fCount;
 };
 
 class SkFontMgr_Mac : public SkFontMgr {
