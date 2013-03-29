@@ -102,7 +102,11 @@ public:
      *
      * The color and coverage params override the GrDrawState's getColor() and getCoverage() values.
      */
-    void setData(GrGpuGL*, GrColor color, GrColor coverage, SharedGLState*);
+    void setData(GrGpuGL*,
+                 GrColor color,
+                 GrColor coverage,
+                 const GrDeviceCoordTexture* dstCopy, // can be NULL
+                 SharedGLState*);
 
 private:
     GrGLProgram(const GrGLContext& gl,
@@ -154,11 +158,18 @@ private:
         UniformHandle       fColorUni;
         UniformHandle       fCoverageUni;
         UniformHandle       fColorFilterUni;
+
         // We use the render target height to provide a y-down frag coord when specifying
         // origin_upper_left is not supported.
         UniformHandle       fRTHeightUni;
+
+        // Uniforms for computing texture coords to do the dst-copy lookup
+        UniformHandle       fDstCopyTopLeftUni;
+        UniformHandle       fDstCopyScaleUni;
+        UniformHandle       fDstCopySamplerUni;
+
         // An array of sampler uniform handles for each effect.
-        SamplerUniSArray    fSamplerUnis[GrDrawState::kNumStages];
+        SamplerUniSArray    fEffectSamplerUnis[GrDrawState::kNumStages];
 
         UniformHandles() {
             fViewMatrixUni = GrGLUniformManager::kInvalidUniformHandle;
@@ -166,6 +177,9 @@ private:
             fCoverageUni = GrGLUniformManager::kInvalidUniformHandle;
             fColorFilterUni = GrGLUniformManager::kInvalidUniformHandle;
             fRTHeightUni = GrGLUniformManager::kInvalidUniformHandle;
+            fDstCopyTopLeftUni = GrGLUniformManager::kInvalidUniformHandle;
+            fDstCopyScaleUni = GrGLUniformManager::kInvalidUniformHandle;
+            fDstCopySamplerUni = GrGLUniformManager::kInvalidUniformHandle;
         }
     };
 

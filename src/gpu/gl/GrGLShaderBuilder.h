@@ -19,6 +19,7 @@
 
 class GrGLContextInfo;
 class GrEffectStage;
+class GrGLProgramDesc;
 
 /**
   Contains all the incremental state of a shader as it is being built,as well as helpers to
@@ -55,6 +56,8 @@ public:
 
         const char* swizzle() const { return fSwizzle; }
 
+        bool isInitialized() const { return 0 != fConfigComponentMask; }
+
     private:
         // The idx param is used to ensure multiple samplers within a single effect have unique
         // uniform names. swizzle is a four char max string made up of chars 'r', 'g', 'b', and 'a'.
@@ -62,7 +65,8 @@ public:
                   uint32_t configComponentMask,
                   const char* swizzle,
                   int idx) {
-            GrAssert(0 == fConfigComponentMask);
+            GrAssert(!this->isInitialized());
+            GrAssert(0 != configComponentMask);
             GrAssert(GrGLUniformManager::kInvalidUniformHandle == fSamplerUniform);
 
             GrAssert(NULL != builder);
@@ -100,7 +104,7 @@ public:
         kFragment_ShaderType = 0x4,
     };
 
-    GrGLShaderBuilder(const GrGLContextInfo&, GrGLUniformManager&, bool explicitLocalCoords);
+    GrGLShaderBuilder(const GrGLContextInfo&, GrGLUniformManager&, const GrGLProgramDesc&);
 
     /**
      * Called by GrGLEffects to add code to one of the shaders.
@@ -172,6 +176,13 @@ public:
     static GrBackendEffectFactory::EffectKey KeyForTextureAccess(const GrTextureAccess&,
                                                                  const GrGLCaps&);
 
+    typedef uint8_t DstReadKey;
+
+    /**  Returns a key for adding code to read the copy-of-dst color in service of effects that
+         require reading the dst. It must not return 0 because 0 indicates that there is no dst
+         copy read at all. */
+    static DstReadKey KeyForDstRead(const GrTexture* dstCopy, const GrGLCaps&);
+
     /** If texture swizzling is available using tex parameters then it is preferred over mangling
         the generated shader code. This potentially allows greater reuse of cached shaders. */
     static const GrGLenum* GetTexParamSwizzle(GrPixelConfig config, const GrGLCaps& caps);
@@ -230,6 +241,10 @@ public:
         specified explicit local coords or not in the GrDrawState. */
     const GrGLShaderVar& localCoordsAttribute() const { return *fLocalCoordsVar; }
 
+    /** Returns the color of the destination pixel. This may be NULL if no effect advertised
+        that it will read the destination. */
+    const char* dstColor() const;
+
     /**
      * Are explicit local coordinates provided as input to the vertex shader.
      */
@@ -254,7 +269,17 @@ public:
                                 const char* fsInColor, // NULL means no incoming color
                                 const char* fsOutColor,
                                 SkTArray<GrGLUniformManager::UniformHandle, true>* samplerHandles);
+
     GrGLUniformManager::UniformHandle getRTHeightUniform() const { return fRTHeightUniform; }
+    GrGLUniformManager::UniformHandle getDstCopyTopLeftUniform() const {
+        return fDstCopyTopLeftUniform;
+    }
+    GrGLUniformManager::UniformHandle getDstCopyScaleUniform() const {
+        return fDstCopyScaleUniform;
+    }
+    GrGLUniformManager::UniformHandle getDstCopySamplerUniform() const {
+        return fDstCopySampler.fSamplerUniform;
+    }
 
     struct AttributePair {
         void set(int index, const SkString& name) {
@@ -263,7 +288,7 @@ public:
         int      fIndex;
         SkString fName;
     };
-    const SkSTArray<10, AttributePair, true>& getEffectAttributes() const {
+    const SkTArray<AttributePair, true>& getEffectAttributes() const {
         return fEffectAttributes;
     }
     const SkString* getEffectAttributeName(int attributeIndex) const;
@@ -296,11 +321,18 @@ public:
     VarArray    fFSInputs;
     SkString    fGSHeader; // layout qualifiers specific to GS
     VarArray    fFSOutputs;
-    bool        fUsesGS;
 
 private:
     enum {
         kNonStageIdx = -1,
+    };
+
+    // Interpretation of DstReadKey when generating code
+    enum {
+        kNoDstRead_DstReadKey         = 0,
+        kYesDstRead_DstReadKeyBit     = 0x1, // Set if we do a dst-copy-read.
+        kUseAlphaConfig_DstReadKeyBit = 0x2, // Set if dst-copy config is alpha only.
+        kTopLeftOrigin_DstReadKeyBit  = 0x4, // Set if dst-copy origin is top-left.
     };
 
     const GrGLContextInfo&              fCtxInfo;
@@ -309,12 +341,18 @@ private:
     SkString                            fFSFunctions;
     SkString                            fFSHeader;
 
+    bool                                fUsesGS;
+
     SkString                            fFSCode;
     SkString                            fVSCode;
     SkString                            fGSCode;
 
     bool                                fSetupFragPosition;
+    TextureSampler                      fDstCopySampler;
+
     GrGLUniformManager::UniformHandle   fRTHeightUniform;
+    GrGLUniformManager::UniformHandle   fDstCopyTopLeftUniform;
+    GrGLUniformManager::UniformHandle   fDstCopyScaleUniform;
 
     SkSTArray<10, AttributePair, true>  fEffectAttributes;
 

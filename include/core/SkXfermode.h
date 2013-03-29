@@ -188,16 +188,24 @@ public:
         src, and dst must all be NULL or all non-NULL. If effect is non-NULL then the xfermode may
         optionally allocate an effect to return and the caller as *effect. The caller will install
         it and own a ref to it. Since the xfermode may or may not assign *effect, the caller should
-        set *effect to NULL beforehand. If the function returns true then the src and dst coeffs
-        will be applied to the draw regardless of whether an effect was returned.
+        set *effect to NULL beforehand. If the function returns true and *effect is NULL then the
+        src and dst coeffs will be applied to the draw. When *effect is non-NULL the coeffs are
+        ignored.
      */
-    virtual bool asNewEffect(GrContext*, GrEffectRef** effect, Coeff* src, Coeff* dst) const;
+    virtual bool asNewEffectOrCoeff(GrContext*,
+                                    GrEffectRef** effect,
+                                    Coeff* src,
+                                    Coeff* dst) const;
 
     /**
      *  The same as calling xfermode->asNewEffect(...), except that this also checks if the xfermode
      *  is NULL, and if so, treats it as kSrcOver_Mode.
      */
-    static bool AsNewEffect(SkXfermode*, GrContext*, GrEffectRef** effect, Coeff* src, Coeff* dst);
+    static bool AsNewEffectOrCoeff(SkXfermode*,
+                                   GrContext*,
+                                   GrEffectRef** effect,
+                                   Coeff* src,
+                                   Coeff* dst);
 
     SkDEVCODE(virtual void toString(SkString* str) const = 0;)
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()

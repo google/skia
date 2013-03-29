@@ -493,17 +493,27 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
     grPaint->setDither(skPaint.isDither());
     grPaint->setAntiAlias(skPaint.isAntiAlias());
 
-    SkXfermode::Coeff sm = SkXfermode::kOne_Coeff;
-    SkXfermode::Coeff dm = SkXfermode::kISA_Coeff;
+    SkXfermode::Coeff sm;
+    SkXfermode::Coeff dm;
 
     SkXfermode* mode = skPaint.getXfermode();
     GrEffectRef* xferEffect = NULL;
-    if (SkXfermode::AsNewEffect(mode, dev->context(), &xferEffect, &sm, &dm)) {
-        SkSafeUnref(grPaint->colorStage(kXfermodeEffectIdx)->setEffect(xferEffect));
+    if (SkXfermode::AsNewEffectOrCoeff(mode, dev->context(), &xferEffect, &sm, &dm)) {
+        if (NULL != xferEffect) {
+            grPaint->colorStage(kXfermodeEffectIdx)->setEffect(xferEffect)->unref();
+            // This may not be the right place to have this logic but we set the GPU blend to
+            // src-over so that fractional coverage will be accounted for correctly.
+            sm = SkXfermode::kOne_Coeff;
+            dm = SkXfermode::kISA_Coeff;
+        }
     } else {
         //SkDEBUGCODE(SkDebugf("Unsupported xfer mode.\n");)
 #if 0
         return false;
+#else
+        // Fall back to src-over
+        sm = SkXfermode::kOne_Coeff;
+        dm = SkXfermode::kISA_Coeff;
 #endif
     }
     grPaint->setBlendFunc(sk_blend_to_grblend(sm), sk_blend_to_grblend(dm));

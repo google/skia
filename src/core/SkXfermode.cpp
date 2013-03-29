@@ -680,19 +680,19 @@ bool SkXfermode::asMode(Mode* mode) const {
     return false;
 }
 
-bool SkXfermode::asNewEffect(GrContext*, GrEffectRef**, Coeff*, Coeff*) const {
-    return false;
+bool SkXfermode::asNewEffectOrCoeff(GrContext*, GrEffectRef**, Coeff* src, Coeff* dst) const {
+    return this->asCoeff(src, dst);
 }
 
-bool SkXfermode::AsNewEffect(SkXfermode* xfermode,
-                             GrContext* context,
-                             GrEffectRef** effect,
-                             Coeff* src,
-                             Coeff* dst) {
+bool SkXfermode::AsNewEffectOrCoeff(SkXfermode* xfermode,
+                                    GrContext* context,
+                                    GrEffectRef** effect,
+                                    Coeff* src,
+                                    Coeff* dst) {
     if (NULL == xfermode) {
         return ModeAsCoeff(kSrcOver_Mode, src, dst);
     } else {
-        return xfermode->asNewEffect(context, effect, src, dst);
+        return xfermode->asNewEffectOrCoeff(context, effect, src, dst);
     }
 }
 
@@ -940,6 +940,87 @@ void SkProcXfermode::toString(SkString* str) const {
 }
 #endif
 
+//////////////////////////////////////////////////////////////////////////////
+
+#if SK_SUPPORT_GPU
+
+#include "GrEffect.h"
+#include "GrEffectUnitTest.h"
+#include "GrTBackendEffectFactory.h"
+#include "gl/GrGLEffect.h"
+
+/**
+ * GrEffect that implements the kDarken_Mode Xfermode. It requires access to the dst pixel color
+ * in the shader. TODO: Make this work for all non-Coeff SkXfermode::Mode values.
+ */
+class DarkenEffect : public GrEffect {
+public:
+    static GrEffectRef* Create() {
+        static AutoEffectUnref gEffect(SkNEW(DarkenEffect));
+        return CreateEffectRef(gEffect);
+    }
+
+    virtual void getConstantColorComponents(GrColor* color,
+                                            uint32_t* validFlags) const SK_OVERRIDE {
+        *validFlags = 0;
+    }
+
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
+        return GrTBackendEffectFactory<DarkenEffect>::getInstance();
+    }
+
+    static const char* Name() { return "XfermodeDarken"; }
+
+    class GLEffect : public GrGLEffect {
+    public:
+        GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
+            : GrGLEffect(factory ) {
+        }
+        virtual void emitCode(GrGLShaderBuilder* builder,
+                              const GrDrawEffect& drawEffect,
+                              EffectKey key,
+                              const char* outputColor,
+                              const char* inputColor,
+                              const TextureSamplerArray& samplers) SK_OVERRIDE {
+            const char* dstColorName = builder->dstColor();
+            GrAssert(NULL != dstColorName);
+            builder->fsCodeAppendf("\t\t%s.a = 1.0 - (1.0 - %s.a) * (1.0 - %s.a);\n",
+                                   outputColor, dstColorName, inputColor);
+            builder->fsCodeAppendf("\t\t%s.rgb = min((1.0 - %s.a) * %s.rgb + %s.rgb,"
+                                                   " (1.0 - %s.a) * %s.rgb + %s.rgb);\n",
+                                   outputColor,
+                                   inputColor, dstColorName, inputColor,
+                                   dstColorName, inputColor, dstColorName);
+        }
+
+        static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&) { return 0; }
+
+        virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {}
+
+    private:
+        typedef GrGLEffect INHERITED;
+    };
+
+    GR_DECLARE_EFFECT_TEST;
+
+private:
+    DarkenEffect() { this->setWillReadDst(); }
+    virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE { return true; }
+
+    typedef GrEffect INHERITED;
+};
+
+GR_DEFINE_EFFECT_TEST(DarkenEffect);
+GrEffectRef* DarkenEffect::TestCreate(SkMWCRandom*,
+                                      GrContext*,
+                                      const GrDrawTargetCaps&,
+                                      GrTexture*[]) {
+    static AutoEffectUnref gEffect(SkNEW(DarkenEffect));
+    return CreateEffectRef(gEffect);
+}
+
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -974,9 +1055,23 @@ public:
         return true;
     }
 
-    virtual bool asNewEffect(GrContext*, GrEffectRef**, Coeff* src, Coeff* dst) const SK_OVERRIDE {
-        return this->asCoeff(src, dst);
+#if SK_SUPPORT_GPU
+    virtual bool asNewEffectOrCoeff(GrContext*,
+                                    GrEffectRef** effect,
+                                    Coeff* src,
+                                    Coeff* dst) const SK_OVERRIDE {
+        if (this->asCoeff(src, dst)) {
+            return true;
+        }
+        if (kDarken_Mode == fMode) {
+            if (NULL != effect) {
+                *effect = DarkenEffect::Create();
+            }
+            return true;
+        }
+        return false;
     }
+#endif
 
     SK_DEVELOPER_TO_STRING()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkProcCoeffXfermode)

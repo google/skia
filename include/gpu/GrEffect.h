@@ -138,13 +138,14 @@ public:
     /** Shortcut for textureAccess(index).texture(); */
     GrTexture* texture(int index) const { return this->textureAccess(index).getTexture(); }
 
+    /** Will this effect read the destination pixel value? */
+    bool willReadDst() const { return fWillReadDst; }
 
     int numVertexAttribs() const { return fVertexAttribTypes.count(); }
 
     GrSLType vertexAttribType(int index) const { return fVertexAttribTypes[index]; }
 
     static const int kMaxVertexAttribs = 2;
-
 
     /** Useful for effects that want to insert a texture matrix that is implied by the texture
         dimensions */
@@ -191,7 +192,7 @@ protected:
      */
     void addVertexAttrib(GrSLType type);
 
-    GrEffect() : fEffectRef(NULL) {};
+    GrEffect() : fWillReadDst(false), fEffectRef(NULL) {}
 
     /** This should be called by GrEffect subclass factories. See the comment on AutoEffectUnref for
         an example factory function. */
@@ -234,6 +235,13 @@ protected:
         return *static_cast<const T*>(&effectRef);
     }
 
+    /**
+     * If the effect subclass will read the destination pixel value then it must call this function
+     * from its constructor. Otherwise, when its generated backend-specific effect class attempts
+     * to generate code that reads the destination pixel it will fail.
+     */
+    void setWillReadDst() { fWillReadDst = true; }
+
 private:
     bool isEqual(const GrEffect& other) const {
         if (&this->getFactory() != &other.getFactory()) {
@@ -265,6 +273,7 @@ private:
 
     SkSTArray<4, const GrTextureAccess*, true>   fTextureAccesses;
     SkSTArray<kMaxVertexAttribs, GrSLType, true> fVertexAttribTypes;
+    bool                                         fWillReadDst;
     GrEffectRef*                                 fEffectRef;
 
     typedef GrRefCnt INHERITED;
