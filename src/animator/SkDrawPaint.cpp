@@ -224,7 +224,7 @@ void SkDrawPaint::setupPaint(SkPaint* paint) const {
     //  stroke is legacy; style setting if present overrides stroke
     if (stroke != -1)
         paint->setStyle(SkToBool(stroke) ? SkPaint::kStroke_Style : SkPaint::kFill_Style);
-    if (style != (SkPaint::Style) -1)
+    if (style != -1)
         paint->setStyle((SkPaint::Style) style);
     if (linearText != -1)
         paint->setLinearText(SkToBool(linearText));
@@ -242,15 +242,15 @@ void SkDrawPaint::setupPaint(SkPaint* paint) const {
         SkSafeUnref(paint->setShader(shader->getShader()));
     if (strikeThru != -1)
         paint->setStrikeThruText(SkToBool(strikeThru));
-    if (strokeCap != (SkPaint::Cap) -1)
+    if (strokeCap != -1)
         paint->setStrokeCap((SkPaint::Cap) strokeCap);
-    if (strokeJoin != (SkPaint::Join) -1)
+    if (strokeJoin != -1)
         paint->setStrokeJoin((SkPaint::Join) strokeJoin);
     if (SkScalarIsNaN(strokeMiter) == false)
         paint->setStrokeMiter(strokeMiter);
     if (SkScalarIsNaN(strokeWidth) == false)
         paint->setStrokeWidth(strokeWidth);
-    if (textAlign != (SkPaint::Align) -1)
+    if (textAlign != -1)
         paint->setTextAlign((SkPaint::Align) textAlign);
     if (SkScalarIsNaN(textScaleX) == false)
         paint->setTextScaleX(textScaleX);
@@ -264,6 +264,6 @@ void SkDrawPaint::setupPaint(SkPaint* paint) const {
         SkSafeUnref(paint->setTypeface(typeface->getTypeface()));
     if (underline != -1)
         paint->setUnderlineText(SkToBool(underline));
-    if (xfermode != (SkXfermode::Mode) -1)
+    if (xfermode != -1)
         paint->setXfermodeMode((SkXfermode::Mode) xfermode);
 }

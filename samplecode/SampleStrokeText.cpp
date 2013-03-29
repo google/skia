@@ -106,9 +106,8 @@ static void lettersToBitmap2(SkBitmap* dst, const char chars[],
 }
 
 class StrokeTextView : public SampleView {
-    bool fAA;
 public:
-    StrokeTextView() : fAA(false) {
+    StrokeTextView() {
         this->setBGColor(0xFFCC8844);
     }
 
