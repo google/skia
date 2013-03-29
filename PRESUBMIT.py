@@ -9,6 +9,9 @@ See http://dev.chromium.org/developers/how-tos/depottools/presubmit-scripts
 for more details about the presubmit API built into gcl.
 """
 
+import os
+import sys
+
 
 def _CheckChangeHasEol(input_api, output_api, source_file_filter=None):
   """Checks that files end with atleast one \n (LF)."""
@@ -67,7 +70,11 @@ def _CheckTreeStatus(input_api, output_api, json_url):
     connection = input_api.urllib2.urlopen(json_url)
     status = input_api.json.loads(connection.read())
     connection.close()
-    if 'caution' in status['message'].lower():
+    if ('caution' in status['message'].lower() and
+        os.isatty(sys.stdout.fileno())):
+      # Display a prompt only if we are in an interactive shell. Without this
+      # check the commit queue behaves incorrectly because it considers
+      # prompts to be failures.
       short_text = 'Tree state is: ' + status['general_state']
       long_text = status['message'] + '\n' + json_url
       tree_status_results.append(
