@@ -9,6 +9,7 @@
 #include "GrBackendEffectFactory.h"
 #include "GrDrawEffect.h"
 #include "GrEffect.h"
+#include "GrGLShaderBuilder.h"
 #include "GrGpuGL.h"
 
 void GrGLProgramDesc::Build(const GrDrawState& drawState,
@@ -17,6 +18,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
                             GrBlendCoeff srcCoeff,
                             GrBlendCoeff dstCoeff,
                             const GrGpuGL* gpu,
+                            const GrDeviceCoordTexture* dstCopy,
                             GrGLProgramDesc* desc) {
 
     // This should already have been caught
@@ -80,6 +82,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
         desc->fCoverageInput = kAttribute_ColorInput;
     }
 
+    bool readsDst = false;
     int lastEnabledStage = -1;
 
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
@@ -93,9 +96,20 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
                                         GrDrawState::kLocalCoords_AttribBindingsBit);
             GrDrawEffect drawEffect(drawState.getStage(s), explicitLocalCoords);
             desc->fEffectKeys[s] = factory.glEffectKey(drawEffect, gpu->glCaps());
+            if (effect->willReadDst()) {
+                readsDst = true;
+            }
         } else {
             desc->fEffectKeys[s] = 0;
         }
+    }
+
+    if (readsDst) {
+        GrAssert(NULL != dstCopy);
+        desc->fDstRead = GrGLShaderBuilder::KeyForDstRead(dstCopy->texture(), gpu->glCaps());
+        GrAssert(0 != desc->fDstRead);
+    } else {
+        desc->fDstRead = 0;
     }
 
     desc->fDualSrcOutput = kNone_DualSrcOutput;

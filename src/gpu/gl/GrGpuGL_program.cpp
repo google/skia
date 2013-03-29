@@ -158,7 +158,7 @@ void GrGpuGL::flushPathStencilMatrix() {
     }
 }
 
-bool GrGpuGL::flushGraphicsState(DrawType type) {
+bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstCopy) {
     const GrDrawState& drawState = this->getDrawState();
 
     // GrGpu::setupClipAndFlushState should have already checked this and bailed if not true.
@@ -187,6 +187,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
                                srcCoeff,
                                dstCoeff,
                                this,
+                               dstCopy,
                                &desc);
 
         fCurrentProgram.reset(fProgramCache->getProgram(desc, stages));
@@ -217,7 +218,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
             color = drawState.getColor();
             coverage = drawState.getCoverage();
         }
-        fCurrentProgram->setData(this, color, coverage, &fSharedGLProgramState);
+        fCurrentProgram->setData(this, color, coverage, dstCopy, &fSharedGLProgramState);
     }
     this->flushStencil(type);
     this->flushScissor();

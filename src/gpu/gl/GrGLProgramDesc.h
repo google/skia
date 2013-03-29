@@ -10,6 +10,7 @@
 
 #include "GrGLEffect.h"
 #include "GrDrawState.h"
+#include "GrGLShaderBuilder.h"
 
 class GrGpuGL;
 
@@ -18,9 +19,10 @@ class GrGpuGL;
 #define GR_GL_EXPERIMENTAL_GS GR_DEBUG
 
 
-/** This class describes a program to generate. It also serves as a program cache key. The only
-    thing GL-specific about this is the generation of GrGLEffect::EffectKeys. With some refactoring
-    it could be made backend-neutral. */
+/** This class describes a program to generate. It also serves as a program cache key. Very little
+    of this is GL-specific. There is the generation of GrGLEffect::EffectKeys and the dst-read part
+    of the key set by GrGLShaderBuilder. If the interfaces that set those portions were abstracted
+    to be API-neutral then so could this class. */
 class GrGLProgramDesc {
 public:
     GrGLProgramDesc() {
@@ -48,6 +50,7 @@ public:
                       GrBlendCoeff srcCoeff,
                       GrBlendCoeff dstCoeff,
                       const GrGpuGL* gpu,
+                      const GrDeviceCoordTexture* dstCopy,
                       GrGLProgramDesc* outDesc);
 
 private:
@@ -86,6 +89,10 @@ private:
 #if GR_GL_EXPERIMENTAL_GS
     bool                        fExperimentalGS;
 #endif
+    GrGLShaderBuilder::DstReadKey fDstRead;             // set by GrGLShaderBuilder if there
+                                                        // are effects that must read the dst.
+                                                        // Otherwise, 0.
+
     uint8_t                     fColorInput;            // casts to enum ColorInput
     uint8_t                     fCoverageInput;         // casts to enum ColorInput
     uint8_t                     fDualSrcOutput;         // casts to enum DualSrcOutput
@@ -98,8 +105,10 @@ private:
     int8_t                      fCoverageAttributeIndex;
     int8_t                      fLocalCoordsAttributeIndex;
 
-    // GrGLProgram reads the private fields to generate code.
+    // GrGLProgram and GrGLShaderBuilder read the private fields to generate code. TODO: Move all
+    // code generation to GrGLShaderBuilder (and maybe add getters rather than friending).
     friend class GrGLProgram;
+    friend class GrGLShaderBuilder;
 };
 
 #endif

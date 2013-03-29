@@ -389,7 +389,9 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
         return false;
     }
 
-    if (builder.fUsesGS) {
+    fGShaderID = 0;
+#if GR_GL_EXPERIMENTAL_GS
+    if (fDesc.fExperimentalGS) {
         builder.getShader(GrGLShaderBuilder::kGeometry_ShaderType, &shader);
         if (c_PrintShaders) {
             GrPrintf(shader.c_str());
@@ -398,9 +400,8 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
         if (!(fGShaderID = compile_shader(fContext, GR_GL_GEOMETRY_SHADER, shader))) {
             return false;
         }
-    } else {
-        fGShaderID = 0;
     }
+#endif
 
     builder.getShader(GrGLShaderBuilder::kFragment_ShaderType, &shader);
     if (c_PrintShaders) {
@@ -417,14 +418,7 @@ bool GrGLProgram::compileShaders(const GrGLShaderBuilder& builder) {
 bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
     GrAssert(0 == fProgramID);
 
-    const GrAttribBindings& attribBindings = fDesc.fAttribBindings;
-    bool hasExplicitLocalCoords =
-        SkToBool(attribBindings & GrDrawState::kLocalCoords_AttribBindingsBit);
-    GrGLShaderBuilder builder(fContext.info(), fUniformManager, hasExplicitLocalCoords);
-
-#if GR_GL_EXPERIMENTAL_GS
-    builder.fUsesGS = fDesc.fExperimentalGS;
-#endif
+    GrGLShaderBuilder builder(fContext.info(), fUniformManager, fDesc);
 
     SkXfermode::Coeff colorCoeff, uniformCoeff;
     // The rest of transfer mode color filters have not been implemented
@@ -496,7 +490,11 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
     }
 
     // we output point size in the GS if present
-    if (fDesc.fEmitsPointSize && !builder.fUsesGS){
+    if (fDesc.fEmitsPointSize
+#if GR_GL_EXPERIMENTAL_GS
+        && !fDesc.fExperimentalGS
+#endif
+        ) {
         builder.vsCodeAppend("\tgl_PointSize = 1.0;\n");
     }
 
@@ -519,7 +517,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
                                                             fDesc.fEffectKeys[s],
                                                             inColor.size() ? inColor.c_str() : NULL,
                                                             outColor.c_str(),
-                                                            &fUniformHandles.fSamplerUnis[s]);
+                                                            &fUniformHandles.fEffectSamplerUnis[s]);
                 builder.setNonStage();
                 inColor = outColor;
             }
@@ -598,7 +596,7 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
                                                     fDesc.fEffectKeys[s],
                                                     inCoverage.size() ? inCoverage.c_str() : NULL,
                                                     outCoverage.c_str(),
-                                                    &fUniformHandles.fSamplerUnis[s]);
+                                                    &fUniformHandles.fEffectSamplerUnis[s]);
                     builder.setNonStage();
                     inCoverage = outCoverage;
                 }
@@ -674,8 +672,12 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
     }
 
     builder.finished(fProgramID);
-    this->initSamplerUniforms();
     fUniformHandles.fRTHeightUni = builder.getRTHeightUniform();
+    fUniformHandles.fDstCopyTopLeftUni = builder.getDstCopyTopLeftUniform();
+    fUniformHandles.fDstCopyScaleUni = builder.getDstCopyScaleUniform();
+    fUniformHandles.fDstCopySamplerUni = builder.getDstCopySamplerUniform();
+    // This must be called after we set fDstCopySamplerUni above.
+    this->initSamplerUniforms();
 
     return true;
 }
@@ -749,13 +751,18 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& buil
 
 void GrGLProgram::initSamplerUniforms() {
     GL_CALL(UseProgram(fProgramID));
-    // We simply bind the uniforms to successive texture units beginning at 0. setData() assumes this
-    // behavior.
+    // We simply bind the uniforms to successive texture units beginning at 0. setData() assumes
+    // this behavior.
     GrGLint texUnitIdx = 0;
+    if (GrGLUniformManager::kInvalidUniformHandle != fUniformHandles.fDstCopySamplerUni) {
+        fUniformManager.setSampler(fUniformHandles.fDstCopySamplerUni, texUnitIdx);
+        ++texUnitIdx;
+    }
+
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        int numSamplers = fUniformHandles.fSamplerUnis[s].count();
+        int numSamplers = fUniformHandles.fEffectSamplerUnis[s].count();
         for (int u = 0; u < numSamplers; ++u) {
-            UniformHandle handle = fUniformHandles.fSamplerUnis[s][u];
+            UniformHandle handle = fUniformHandles.fEffectSamplerUnis[s][u];
             if (GrGLUniformManager::kInvalidUniformHandle != handle) {
                 fUniformManager.setSampler(handle, texUnitIdx);
                 ++texUnitIdx;
@@ -769,6 +776,7 @@ void GrGLProgram::initSamplerUniforms() {
 void GrGLProgram::setData(GrGpuGL* gpu,
                           GrColor color,
                           GrColor coverage,
+                          const GrDeviceCoordTexture* dstCopy,
                           SharedGLState* sharedState) {
     const GrDrawState& drawState = gpu->getDrawState();
 
@@ -786,6 +794,35 @@ void GrGLProgram::setData(GrGpuGL* gpu,
     }
 
     GrGLint texUnitIdx = 0;
+    if (NULL != dstCopy) {
+        if (GrGLUniformManager::kInvalidUniformHandle != fUniformHandles.fDstCopyTopLeftUni) {
+            GrAssert(GrGLUniformManager::kInvalidUniformHandle != fUniformHandles.fDstCopyScaleUni);
+            GrAssert(GrGLUniformManager::kInvalidUniformHandle !=
+                     fUniformHandles.fDstCopySamplerUni);
+            fUniformManager.set2f(fUniformHandles.fDstCopyTopLeftUni,
+                                  static_cast<GrGLfloat>(dstCopy->offset().fX),
+                                  static_cast<GrGLfloat>(dstCopy->offset().fY));
+            fUniformManager.set2f(fUniformHandles.fDstCopyScaleUni,
+                                  1.f / dstCopy->texture()->width(),
+                                  1.f / dstCopy->texture()->height());
+            GrGLTexture* texture = static_cast<GrGLTexture*>(dstCopy->texture());
+            static GrTextureParams kParams; // the default is clamp, nearest filtering.
+            gpu->bindTexture(texUnitIdx, kParams, texture);
+            ++texUnitIdx;
+        } else {
+            GrAssert(GrGLUniformManager::kInvalidUniformHandle ==
+                    fUniformHandles.fDstCopyScaleUni);
+            GrAssert(GrGLUniformManager::kInvalidUniformHandle ==
+                    fUniformHandles.fDstCopySamplerUni);
+        }
+    } else {
+        GrAssert(GrGLUniformManager::kInvalidUniformHandle ==
+                    fUniformHandles.fDstCopyTopLeftUni);
+        GrAssert(GrGLUniformManager::kInvalidUniformHandle ==
+                    fUniformHandles.fDstCopyScaleUni);
+        GrAssert(GrGLUniformManager::kInvalidUniformHandle ==
+                    fUniformHandles.fDstCopySamplerUni);
+    }
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (NULL != fEffects[s]) {
             const GrEffectStage& stage = drawState.getStage(s);
@@ -795,9 +832,9 @@ void GrGLProgram::setData(GrGpuGL* gpu,
                 (fDesc.fAttribBindings & GrDrawState::kLocalCoords_AttribBindingsBit);
             GrDrawEffect drawEffect(stage, explicitLocalCoords);
             fEffects[s]->setData(fUniformManager, drawEffect);
-            int numSamplers = fUniformHandles.fSamplerUnis[s].count();
+            int numSamplers = fUniformHandles.fEffectSamplerUnis[s].count();
             for (int u = 0; u < numSamplers; ++u) {
-                UniformHandle handle = fUniformHandles.fSamplerUnis[s][u];
+                UniformHandle handle = fUniformHandles.fEffectSamplerUnis[s][u];
                 if (GrGLUniformManager::kInvalidUniformHandle != handle) {
                     const GrTextureAccess& access = (*stage.getEffect())->textureAccess(u);
                     GrGLTexture* texture = static_cast<GrGLTexture*>(access.getTexture());

@@ -655,24 +655,35 @@ protected:
         }
         const SkRect* getDevBounds() const { return fDevBounds; }
 
+        // NULL if no copy of the dst is needed for the draw.
+        const GrDeviceCoordTexture* getDstCopy() const {
+            if (NULL != fDstCopy.texture()) {
+                return &fDstCopy;
+            } else {
+                return NULL;
+            }
+        }
+
     private:
         DrawInfo() { fDevBounds = NULL; }
 
         friend class GrDrawTarget;
 
-        GrPrimitiveType fPrimitiveType;
+        GrPrimitiveType         fPrimitiveType;
 
-        int             fStartVertex;
-        int             fStartIndex;
-        int             fVertexCount;
-        int             fIndexCount;
+        int                     fStartVertex;
+        int                     fStartIndex;
+        int                     fVertexCount;
+        int                     fIndexCount;
 
-        int             fInstanceCount;
-        int             fVerticesPerInstance;
-        int             fIndicesPerInstance;
+        int                     fInstanceCount;
+        int                     fVerticesPerInstance;
+        int                     fIndicesPerInstance;
 
-        SkRect          fDevBoundsStorage;
-        SkRect*         fDevBounds;
+        SkRect                  fDevBoundsStorage;
+        SkRect*                 fDevBounds;
+
+        GrDeviceCoordTexture    fDstCopy;
     };
 
 private:
@@ -713,6 +724,10 @@ private:
     // called when setting a new vert/idx source to unref prev vb/ib
     void releasePreviousVertexSource();
     void releasePreviousIndexSource();
+
+    // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
+    // but couldn't be made. Otherwise, returns true.
+    bool setupDstReadIfNecessary(DrawInfo* info);
 
     enum {
         kPreallocGeoSrcStateStackCnt = 4,

@@ -35,15 +35,26 @@ inline const char* sample_function_name(GrSLType type, GrGLSLGeneration glslGen)
 }
 
 /**
- * Do we need to either map r,g,b->a or a->r.
+ * Do we need to either map r,g,b->a or a->r. configComponentMask indicates which channels are
+ * present in the texture's config. swizzleComponentMask indicates the channels present in the
+ * shader swizzle.
  */
 inline bool swizzle_requires_alpha_remapping(const GrGLCaps& caps,
-                                             const GrTextureAccess& access) {
-    if (GrPixelConfigIsAlphaOnly(access.getTexture()->config())) {
-        if (caps.textureRedSupport() && (kA_GrColorComponentFlag & access.swizzleMask())) {
+                                             uint32_t configComponentMask,
+                                             uint32_t swizzleComponentMask) {
+    if (caps.textureSwizzleSupport()) {
+        // Any remapping is handled using texture swizzling not shader modifications.
+        return false;
+    }
+    // check if the texture is alpha-only
+    if (kA_GrColorComponentFlag == configComponentMask) {
+        if (caps.textureRedSupport() && (kA_GrColorComponentFlag & swizzleComponentMask)) {
+            // we must map the swizzle 'a's to 'r'.
             return true;
         }
-        if (kRGB_GrColorComponentFlags & access.swizzleMask()) {
+        if (kRGB_GrColorComponentFlags & swizzleComponentMask) {
+            // The 'r', 'g', and/or 'b's must be mapped to 'a' according to our semantics that
+            // alpha-only textures smear alpha across all four channels when read.
             return true;
         }
     }
@@ -76,16 +87,13 @@ void append_swizzle(SkString* outAppend,
 
 }
 
-///////////////////////////////////////////////////////////////////////////////
+static const char kDstColorName[] = "_dstColor";
 
-// Architectural assumption: always 2-d input coords.
-// Likely to become non-constant and non-static, perhaps even
-// varying by stage, if we use 1D textures for gradients!
-//const int GrGLShaderBuilder::fCoordDims = 2;
+///////////////////////////////////////////////////////////////////////////////
 
 GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
                                      GrGLUniformManager& uniformManager,
-                                     bool explicitLocalCoords)
+                                     const GrGLProgramDesc& desc)
     : fUniforms(kVarsPerBlock)
     , fVSAttrs(kVarsPerBlock)
     , fVSOutputs(kVarsPerBlock)
@@ -93,22 +101,67 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
     , fGSOutputs(kVarsPerBlock)
     , fFSInputs(kVarsPerBlock)
     , fFSOutputs(kMaxFSOutputs)
-    , fUsesGS(false)
     , fCtxInfo(ctxInfo)
     , fUniformManager(uniformManager)
     , fCurrentStageIdx(kNonStageIdx)
+#if GR_GL_EXPERIMENTAL_GS
+    , fUsesGS(desc.fExperimentalGS)
+#else
+    , fUsesGS(false)
+#endif
     , fSetupFragPosition(false)
-    , fRTHeightUniform(GrGLUniformManager::kInvalidUniformHandle) {
+    , fRTHeightUniform(GrGLUniformManager::kInvalidUniformHandle)
+    , fDstCopyTopLeftUniform (GrGLUniformManager::kInvalidUniformHandle)
+    , fDstCopyScaleUniform (GrGLUniformManager::kInvalidUniformHandle) {
 
     fPositionVar = &fVSAttrs.push_back();
     fPositionVar->set(kVec2f_GrSLType, GrGLShaderVar::kAttribute_TypeModifier, "aPosition");
-    if (explicitLocalCoords) {
+    if (desc.fAttribBindings & GrDrawState::kLocalCoords_AttribBindingsBit) {
         fLocalCoordsVar = &fVSAttrs.push_back();
         fLocalCoordsVar->set(kVec2f_GrSLType,
                              GrGLShaderVar::kAttribute_TypeModifier,
                              "aLocalCoords");
     } else {
         fLocalCoordsVar = fPositionVar;
+    }
+    if (kNoDstRead_DstReadKey != desc.fDstRead) {
+        bool topDown = SkToBool(kTopLeftOrigin_DstReadKeyBit & desc.fDstRead);
+        const char* dstCopyTopLeftName;
+        const char* dstCopyCoordScaleName;
+        uint32_t configMask;
+        if (SkToBool(kUseAlphaConfig_DstReadKeyBit & desc.fDstRead)) {
+            configMask = kA_GrColorComponentFlag;
+        } else {
+            configMask = kRGBA_GrColorComponentFlags;
+        }
+        fDstCopySampler.init(this, configMask, "rgba", 0);
+
+        fDstCopyTopLeftUniform = this->addUniform(kFragment_ShaderType,
+                                                  kVec2f_GrSLType,
+                                                  "DstCopyUpperLeft",
+                                                  &dstCopyTopLeftName);
+        fDstCopyScaleUniform     = this->addUniform(kFragment_ShaderType,
+                                                    kVec2f_GrSLType,
+                                                    "DstCopyCoordScale",
+                                                    &dstCopyCoordScaleName);
+        const char* fragPos = this->fragmentPosition();
+        this->fsCodeAppend("\t// Read color from copy of the destination.\n");
+        this->fsCodeAppendf("\tvec2 _dstTexCoord = (%s.xy - %s) * %s;\n",
+                            fragPos, dstCopyTopLeftName, dstCopyCoordScaleName);
+        if (!topDown) {
+            this->fsCodeAppend("\t_dstTexCoord.y = 1.0 - _dstTexCoord.y;\n");
+        }
+        this->fsCodeAppendf("\tvec4 %s = ", kDstColorName);
+        this->appendTextureLookup(kFragment_ShaderType, fDstCopySampler, "_dstTexCoord");
+        this->fsCodeAppend(";\n\n");
+    }
+}
+
+const char* GrGLShaderBuilder::dstColor() const {
+    if (fDstCopySampler.isInitialized()) {
+        return kDstColorName;
+    } else {
+        return NULL;
     }
 }
 
@@ -184,14 +237,26 @@ void GrGLShaderBuilder::appendTextureLookupAndModulate(
 GrBackendEffectFactory::EffectKey GrGLShaderBuilder::KeyForTextureAccess(
                                                             const GrTextureAccess& access,
                                                             const GrGLCaps& caps) {
-    GrBackendEffectFactory::EffectKey key = 0;
-
-    // Assume that swizzle support implies that we never have to modify a shader to adjust
-    // for texture format/swizzle settings.
-    if (!caps.textureSwizzleSupport() && swizzle_requires_alpha_remapping(caps, access)) {
-        key = 1;
+    uint32_t configComponentMask = GrPixelConfigComponentMask(access.getTexture()->config());
+    if (swizzle_requires_alpha_remapping(caps, configComponentMask, access.swizzleMask())) {
+        return 1;
+    } else {
+        return 0;
     }
-    return key;
+}
+
+GrGLShaderBuilder::DstReadKey GrGLShaderBuilder::KeyForDstRead(const GrTexture* dstCopy,
+                                                               const GrGLCaps& caps) {
+    uint32_t key = kYesDstRead_DstReadKeyBit;
+    if (!caps.textureSwizzleSupport() && GrPixelConfigIsAlphaOnly(dstCopy->config())) {
+        // The fact that the config is alpha-only must be considered when generating code.
+        key |= kUseAlphaConfig_DstReadKeyBit;
+    }
+    if (kTopLeft_GrSurfaceOrigin == dstCopy->origin()) {
+        key |= kTopLeftOrigin_DstReadKeyBit;
+    }
+    GrAssert(static_cast<DstReadKey>(key) == key);
+    return static_cast<DstReadKey>(key);
 }
 
 const GrGLenum* GrGLShaderBuilder::GetTexParamSwizzle(GrPixelConfig config, const GrGLCaps& caps) {

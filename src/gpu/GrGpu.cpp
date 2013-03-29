@@ -330,13 +330,13 @@ const GrVertexBuffer* GrGpu::getUnitSquareVertexBuffer() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrGpu::setupClipAndFlushState(DrawType type) {
+bool GrGpu::setupClipAndFlushState(DrawType type, const GrDeviceCoordTexture* dstCopy) {
 
     if (!fClipMaskManager.setupClipping(this->getClip())) {
         return false;
     }
 
-    if (!this->flushGraphicsState(type)) {
+    if (!this->flushGraphicsState(type, dstCopy)) {
         return false;
     }
 
@@ -374,7 +374,8 @@ void GrGpu::geometrySourceWillPop(const GeometrySrcState& restoredState) {
 
 void GrGpu::onDraw(const DrawInfo& info) {
     this->handleDirtyContext();
-    if (!this->setupClipAndFlushState(PrimTypeToDrawType(info.primitiveType()))) {
+    if (!this->setupClipAndFlushState(PrimTypeToDrawType(info.primitiveType()),
+                                      info.getDstCopy())) {
         return;
     }
     this->onGpuDraw(info);
@@ -387,7 +388,7 @@ void GrGpu::onStencilPath(const GrPath* path, const SkStrokeRec&, SkPath::FillTy
     GrAutoTRestore<GrStencilSettings> asr(this->drawState()->stencil());
 
     this->setStencilPathSettings(*path, fill, this->drawState()->stencil());
-    if (!this->setupClipAndFlushState(kStencilPath_DrawType)) {
+    if (!this->setupClipAndFlushState(kStencilPath_DrawType, NULL)) {
         return;
     }
 

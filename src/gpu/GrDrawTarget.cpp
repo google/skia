@@ -9,6 +9,7 @@
 
 
 #include "GrDrawTarget.h"
+#include "GrContext.h"
 #include "GrDrawTargetCaps.h"
 #include "GrRenderTarget.h"
 #include "GrTexture.h"
@@ -38,6 +39,9 @@ GrDrawTarget::DrawInfo& GrDrawTarget::DrawInfo::operator =(const DrawInfo& di) {
     } else {
         fDevBounds = NULL;
     }
+
+    fDstCopy = di.fDstCopy;
+
     return *this;
 }
 
@@ -402,6 +406,62 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
     return true;
 }
 
+bool GrDrawTarget::setupDstReadIfNecessary(DrawInfo* info) {
+    bool willReadDst = false;
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
+        const GrEffectRef* effect = this->drawState()->getStage(s).getEffect();
+        if (NULL != effect && (*effect)->willReadDst()) {
+            willReadDst = true;
+            break;
+        }
+    }
+    if (!willReadDst) {
+        return true;
+    }
+    GrRenderTarget* rt = this->drawState()->getRenderTarget();
+    // If the dst is not a texture then we don't currently have a way of copying the
+    // texture. TODO: make copying RT->Tex (or Surface->Surface) a GrDrawTarget operation that can
+    // be built on top of GL/D3D APIs.
+    if (NULL == rt->asTexture()) {
+        GrPrintf("Reading Dst of non-texture render target is not currently supported.\n");
+        return false;
+    }
+    // TODO: Consider bounds of draw and bounds of clip
+
+    GrDrawTarget::AutoGeometryAndStatePush agasp(this, kReset_ASRInit);
+
+    // The draw will resolve dst if it has MSAA. Two things to consider in the future:
+    // 1) to make the dst values be pre-resolve we'd need to be able to copy to MSAA
+    // texture and sample it correctly in the shader. 2) If 1 isn't available then we
+    // should just resolve and use the resolved texture directly rather than making a
+    // copy of it.
+    GrTextureDesc desc;
+    desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
+    desc.fWidth = rt->width();
+    desc.fHeight = rt->height();
+    desc.fSampleCnt = 0;
+    desc.fConfig = rt->config();
+
+    GrAutoScratchTexture ast(fContext, desc, GrContext::kApprox_ScratchTexMatch);
+
+    if (NULL == ast.texture()) {
+        GrPrintf("Failed to create temporary copy of destination texture.\n");
+        return false;
+    }
+    this->drawState()->disableState(GrDrawState::kClip_StateBit);
+    this->drawState()->setRenderTarget(ast.texture()->asRenderTarget());
+    static const int kTextureStage = 0;
+    SkMatrix matrix;
+    matrix.setIDiv(rt->width(), rt->height());
+    this->drawState()->createTextureEffect(kTextureStage, rt->asTexture(), matrix);
+    SkRect copyRect = SkRect::MakeWH(SkIntToScalar(desc.fWidth),
+                                     SkIntToScalar(desc.fHeight));
+    this->drawRect(copyRect, NULL, &copyRect, NULL);
+    info->fDstCopy.setTexture(ast.texture());
+    info->fDstCopy.setOffset(0, 0);
+    return true;
+}
+
 void GrDrawTarget::drawIndexed(GrPrimitiveType type,
                                int startVertex,
                                int startIndex,
@@ -422,6 +482,10 @@ void GrDrawTarget::drawIndexed(GrPrimitiveType type,
 
         if (NULL != devBounds) {
             info.setDevBounds(*devBounds);
+        }
+        // TODO: We should continue with incorrect blending.
+        if (!this->setupDstReadIfNecessary(&info)) {
+            return;
         }
         this->onDraw(info);
     }
@@ -445,6 +509,10 @@ void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
 
         if (NULL != devBounds) {
             info.setDevBounds(*devBounds);
+        }
+        // TODO: We should continue with incorrect blending.
+        if (!this->setupDstReadIfNecessary(&info)) {
+            return;
         }
         this->onDraw(info);
     }
@@ -507,6 +575,10 @@ void GrDrawTarget::drawIndexedInstances(GrPrimitiveType type,
     // Set the same bounds for all the draws.
     if (NULL != devBounds) {
         info.setDevBounds(*devBounds);
+    }
+    // TODO: We should continue with incorrect blending.
+    if (!this->setupDstReadIfNecessary(&info)) {
+        return;
     }
 
     while (instanceCount) {
