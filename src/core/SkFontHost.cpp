@@ -50,7 +50,44 @@ void SkFontHost::SetSubpixelOrder(LCDOrder order) {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "SkFontStyle.h"
+
+SkFontStyle::SkFontStyle() {
+    fUnion.fU32 = 0;
+    fUnion.fR.fWeight = kNormal_Weight;
+    fUnion.fR.fWidth = kNormal_Width;
+    fUnion.fR.fSlant = kUpright_Slant;
+}
+
+SkFontStyle::SkFontStyle(int weight, int width, Slant slant) {
+    fUnion.fU32 = 0;
+    fUnion.fR.fWeight = SkPin32(weight, kThin_Weight, kBlack_Weight);
+    fUnion.fR.fWidth = SkPin32(width, kUltraCondensed_Width, kUltaExpanded_Width);
+    fUnion.fR.fSlant = SkPin32(slant, kUpright_Slant, kItalic_Slant);
+}
+
 #include "SkFontMgr.h"
+
+class SkEmptyFontStyleSet : public SkFontStyleSet {
+public:
+    virtual int count() SK_OVERRIDE { return 0; }
+    virtual void getStyle(int, SkFontStyle*, SkString*) SK_OVERRIDE {
+        SkASSERT(!"SkFontStyleSet::getStyle called on empty set");
+    }
+    virtual SkTypeface* createTypeface(int index) SK_OVERRIDE {
+        SkASSERT(!"SkFontStyleSet::createTypeface called on empty set");
+        return NULL;
+    }
+    virtual SkTypeface* matchStyle(const SkFontStyle&) SK_OVERRIDE {
+        return NULL;
+    }
+};
+
+SkFontStyleSet* SkFontStyleSet::CreateEmpty() {
+    return SkNEW(SkEmptyFontStyleSet);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 class SkEmptyFontMgr : public SkFontMgr {
 protected:
@@ -64,6 +101,10 @@ protected:
         SkASSERT(!"onCreateStyleSet called with bad index");
         return NULL;
     }
+    virtual SkFontStyleSet* onMatchFamily(const char[]) SK_OVERRIDE {
+        return SkFontStyleSet::CreateEmpty();
+    }
+
     virtual SkTypeface* onMatchFamilyStyle(const char[],
                                            const SkFontStyle&) SK_OVERRIDE {
         return NULL;
@@ -83,20 +124,6 @@ protected:
     }
 };
 
-SkFontStyle::SkFontStyle() {
-    fUnion.fU32 = 0;
-    fUnion.fR.fWeight = kNormal_Weight;
-    fUnion.fR.fWidth = kNormal_Width;
-    fUnion.fR.fSlant = kUpright_Slant;
-}
-
-SkFontStyle::SkFontStyle(int weight, int width, Slant slant) {
-    fUnion.fU32 = 0;
-    fUnion.fR.fWeight = SkPin32(weight, kThin_Weight, kBlack_Weight);
-    fUnion.fR.fWidth = SkPin32(width, kUltraCondensed_Width, kUltaExpanded_Width);
-    fUnion.fR.fSlant = SkPin32(slant, kUpright_Slant, kItalic_Slant);
-}
-
 int SkFontMgr::countFamilies() {
     return this->onCountFamilies();
 }
@@ -107,6 +134,10 @@ void SkFontMgr::getFamilyName(int index, SkString* familyName) {
 
 SkFontStyleSet* SkFontMgr::createStyleSet(int index) {
     return this->onCreateStyleSet(index);
+}
+
+SkFontStyleSet* SkFontMgr::matchFamily(const char familyName[]) {
+    return this->onMatchFamily(familyName);
 }
 
 SkTypeface* SkFontMgr::matchFamilyStyle(const char familyName[],

@@ -20,6 +20,9 @@ public:
     virtual int count() = 0;
     virtual void getStyle(int index, SkFontStyle*, SkString* style) = 0;
     virtual SkTypeface* createTypeface(int index) = 0;
+    virtual SkTypeface* matchStyle(const SkFontStyle& pattern) = 0;
+
+    static SkFontStyleSet* CreateEmpty();
 };
 
 class SkFontMgr : public SkRefCnt {
@@ -27,6 +30,8 @@ public:
     int countFamilies();
     void getFamilyName(int index, SkString* familyName);
     SkFontStyleSet* createStyleSet(int index);
+
+    SkFontStyleSet* matchFamily(const char familyName[]);
 
     /**
      *  Find the closest matching typeface to the specified familyName and style
@@ -70,6 +75,8 @@ protected:
     virtual int onCountFamilies() = 0;
     virtual void onGetFamilyName(int index, SkString* familyName) = 0;
     virtual SkFontStyleSet* onCreateStyleSet(int index) = 0;
+
+    virtual SkFontStyleSet* onMatchFamily(const char familyName[]) = 0;
 
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
                                            const SkFontStyle&) = 0;
