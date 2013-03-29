@@ -23,7 +23,7 @@ SkBitSet::SkBitSet(const SkBitSet& source)
     *this = source;
 }
 
-const SkBitSet& SkBitSet::operator=(const SkBitSet& rhs) {
+SkBitSet& SkBitSet::operator=(const SkBitSet& rhs) {
     if (this == &rhs) {
         return *this;
     }
