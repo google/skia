@@ -160,7 +160,6 @@ int num_quad_subdivs(const SkPoint p[3]) {
         return -1;
     }
 
-    static const int kMaxSub = 4;
     // tolerance of triangle height in pixels
     // tuned on windows  Quadro FX 380 / Z600
     // trade off of fill vs cpu time on verts
@@ -170,6 +169,7 @@ int num_quad_subdivs(const SkPoint p[3]) {
     if (dsqd <= SkScalarMul(gSubdivTol, gSubdivTol)) {
         return 0;
     } else {
+        static const int kMaxSub = 4;
         // subdividing the quad reduces d by 4. so we want x = log4(d/tol)
         // = log4(d*d/tol*tol)/2
         // = log2(d*d/tol*tol)

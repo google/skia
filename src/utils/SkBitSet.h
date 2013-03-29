@@ -20,7 +20,7 @@ public:
     explicit SkBitSet(int numberOfBits);
     explicit SkBitSet(const SkBitSet& source);
 
-    const SkBitSet& operator=(const SkBitSet& rhs);
+    SkBitSet& operator=(const SkBitSet& rhs);
     bool operator==(const SkBitSet& rhs);
     bool operator!=(const SkBitSet& rhs);
 

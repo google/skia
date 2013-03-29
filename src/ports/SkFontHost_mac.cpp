@@ -357,7 +357,8 @@ private:
     }
 };
 
-Offscreen::Offscreen() : fRGBSpace(NULL), fCG(NULL) {
+Offscreen::Offscreen() : fRGBSpace(NULL), fCG(NULL), 
+                         fDoAA(false), fDoLCD(false) {
     fSize.set(0, 0);
 }
 
