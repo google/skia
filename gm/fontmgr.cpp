@@ -28,7 +28,7 @@ public:
 
 protected:
     virtual SkString onShortName() {
-        return SkString("fontmgr");
+        return SkString("fontmgr_iter");
     }
 
     virtual SkISize onISize() {
@@ -53,6 +53,7 @@ protected:
             (void)drawString(canvas, fname, 20, y, paint);
 
             SkScalar x = 220;
+
             SkAutoTUnref<SkFontStyleSet> set(fm->createStyleSet(i));
             for (int j = 0; j < set->count(); ++j) {
                 SkString sname;
@@ -76,6 +77,102 @@ private:
     typedef GM INHERITED;
 };
 
+class FontMgrMatchGM : public skiagm::GM {
+    SkAutoTUnref<SkFontMgr> fFM;
+
+public:
+    FontMgrMatchGM() : fFM(SkFontMgr::RefDefault()) {
+        SkGraphics::SetFontCacheLimit(16 * 1024 * 1024);
+    }
+    
+protected:
+    virtual SkString onShortName() {
+        return SkString("fontmgr_match");
+    }
+    
+    virtual SkISize onISize() {
+        return SkISize::Make(640, 1024);
+    }
+
+    void iterateFamily(SkCanvas* canvas, const SkPaint& paint,
+                       SkFontStyleSet* fset) {
+        SkPaint p(paint);
+        SkScalar y = 0;
+
+        for (int j = 0; j < fset->count(); ++j) {
+            SkString sname;
+            SkFontStyle fs;
+            fset->getStyle(j, &fs, &sname);
+
+            sname.appendf(" [%d %d]", fs.weight(), fs.width());
+
+            SkSafeUnref(p.setTypeface(fset->createTypeface(j)));
+            (void)drawString(canvas, sname, 0, y, p);
+            y += 24;
+        }
+    }
+
+    void exploreFamily(SkCanvas* canvas, const SkPaint& paint,
+                       SkFontStyleSet* fset) {
+        SkPaint p(paint);
+        SkScalar y = 0;
+
+        for (int weight = 100; weight <= 900; weight += 200) {
+            for (int width = 1; width <= 9; width += 2) {
+                SkFontStyle fs(weight, width, SkFontStyle::kUpright_Slant);
+                SkTypeface* face = fset->matchStyle(fs);
+                if (face) {
+                    SkString str;
+                    str.printf("request [%d %d]", fs.weight(), fs.width());
+                    p.setTypeface(face)->unref();
+                    (void)drawString(canvas, str, 0, y, p);
+                    y += 24;
+                }
+            }
+        }
+    }
+        
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setLCDRenderText(true);
+        paint.setSubpixelText(true);
+        paint.setTextSize(17);
+
+        static const char* gNames[] = {
+            "Helvetica Neue", "Arial"
+        };
+
+        SkFontStyleSet* fset = NULL;
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gNames); ++i) {            
+            fset = fFM->matchFamily(gNames[i]);
+            if (fset && fset->count() > 0) {
+                break;
+            }
+        }
+        
+        if (NULL == fset) {
+            return;
+        }
+        SkAutoUnref aur(fset);
+
+        canvas->translate(20, 40);
+        this->exploreFamily(canvas, paint, fset);
+        canvas->translate(150, 0);
+        this->iterateFamily(canvas, paint, fset);
+    }
+    
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        // fontdescriptors (and therefore serialization) don't yet understand
+        // these new styles, so skip tests that exercise that for now.
+        return kSkipPicture_Flag | kSkipPipe_Flag;
+    }
+    
+private:
+    typedef GM INHERITED;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return SkNEW(FontMgrGM); )
+DEF_GM( return SkNEW(FontMgrMatchGM); )

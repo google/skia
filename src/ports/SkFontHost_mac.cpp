@@ -96,6 +96,10 @@ private:
     CFRef fCFRef;
 };
 
+static CFStringRef make_CFString(const char str[]) {
+    return CFStringCreateWithCString(NULL, str, kCFStringEncodingUTF8);
+}
+
 template<typename T> class AutoCGTable : SkNoncopyable {
 public:
     AutoCGTable(CGFontRef font)
@@ -498,8 +502,7 @@ static SkTypeface* NewFromName(const char familyName[], SkTypeface::Style theSty
     }
 
     // Create the font info
-    AutoCFRelease<CFStringRef> cfFontName(
-            CFStringCreateWithCString(NULL, familyName, kCFStringEncodingUTF8));
+    AutoCFRelease<CFStringRef> cfFontName(make_CFString(familyName));
 
     AutoCFRelease<CFNumberRef> cfFontTraits(
             CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &ctFontTraits));
@@ -1913,6 +1916,18 @@ static int unit_width_to_fontstyle(float unit) {
     return sk_float_round2int(value);
 }
 
+static inline int sqr(int value) {
+    SkASSERT(SkAbs32(value) < 0x7FFF);  // check for overflow
+    return value * value;
+}
+
+// We normalize each axis (weight, width, italic) to be base-900
+static int compute_metric(const SkFontStyle& a, const SkFontStyle& b) {
+    return sqr(a.weight() - b.weight()) +
+           sqr((a.width() - b.width()) * 100) +
+           sqr((a.isItalic() != b.isItalic()) * 900);
+}
+
 static SkFontStyle desc2fontstyle(CTFontDescriptorRef desc) {
     AutoCFRelease<CFDictionaryRef> dict(
         (CFDictionaryRef)CTFontDescriptorCopyAttribute(desc,
@@ -2026,10 +2041,36 @@ public:
         return createFromDesc(fFamilyName, desc);
     }
 
+    virtual SkTypeface* matchStyle(const SkFontStyle& pattern) SK_OVERRIDE {
+        if (0 == fCount) {
+            return NULL;
+        }
+        return createFromDesc(fFamilyName, findMatchingDesc(pattern));
+    }
+
 private:
     CFArrayRef  fArray;
     CFStringRef fFamilyName;
     int         fCount;
+
+    CTFontDescriptorRef findMatchingDesc(const SkFontStyle& pattern) const {
+        int bestMetric = SK_MaxS32;
+        CTFontDescriptorRef bestDesc = NULL;
+        
+        for (int i = 0; i < fCount; ++i) {
+            CTFontDescriptorRef desc = (CTFontDescriptorRef)CFArrayGetValueAtIndex(fArray, i);
+            int metric = compute_metric(pattern, desc2fontstyle(desc));
+            if (0 == metric) {
+                return desc;
+            }
+            if (metric < bestMetric) {
+                bestMetric = metric;
+                bestDesc = desc;
+            }
+        }
+        SkASSERT(bestDesc);
+        return bestDesc;
+    }
 };
 
 class SkFontMgr_Mac : public SkFontMgr {
@@ -2048,6 +2089,19 @@ class SkFontMgr_Mac : public SkFontMgr {
         }
     }
 
+    static SkFontStyleSet* CreateSet(CFStringRef cfFamilyName) {
+        AutoCFRelease<CFMutableDictionaryRef> cfAttr(
+                 CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
+                                           &kCFTypeDictionaryKeyCallBacks,
+                                           &kCFTypeDictionaryValueCallBacks));
+        
+        CFDictionaryAddValue(cfAttr, kCTFontFamilyNameAttribute, cfFamilyName);
+        
+        AutoCFRelease<CTFontDescriptorRef> desc(
+                                CTFontDescriptorCreateWithAttributes(cfAttr));
+        return SkNEW_ARGS(SkFontStyleSet_Mac, (cfFamilyName, desc));
+    }
+    
 public:
     SkFontMgr_Mac() : fCount(0), fNames(NULL) {}
 
@@ -2075,20 +2129,14 @@ protected:
         if ((unsigned)index >= (unsigned)fCount) {
             return NULL;
         }
-
-        AutoCFRelease<CFMutableDictionaryRef> cfAttr(
-                 CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
-                                           &kCFTypeDictionaryKeyCallBacks,
-                                           &kCFTypeDictionaryValueCallBacks));
-
-        CFDictionaryAddValue(cfAttr, kCTFontFamilyNameAttribute,
-                             this->stringAt(index));
-
-        AutoCFRelease<CTFontDescriptorRef> desc(
-                                CTFontDescriptorCreateWithAttributes(cfAttr));
-        return SkNEW_ARGS(SkFontStyleSet_Mac, (this->stringAt(index), desc));
+        return CreateSet(this->stringAt(index));
     }
-
+    
+    virtual SkFontStyleSet* onMatchFamily(const char familyName[]) SK_OVERRIDE {
+        AutoCFRelease<CFStringRef> cfName(make_CFString(familyName));
+        return CreateSet(cfName);
+    }
+    
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
                                            const SkFontStyle&) SK_OVERRIDE {
         return NULL;
