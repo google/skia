@@ -38,6 +38,7 @@ public:
     // For unit testing.
     void setRandom(SkMWCRandom*,
                    const GrGpuGL* gpu,
+                   const GrTexture* dummyDstTexture,
                    const GrEffectStage stages[GrDrawState::kNumStages]);
 
     /**

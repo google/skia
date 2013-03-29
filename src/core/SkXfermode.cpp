@@ -984,13 +984,20 @@ public:
                               const TextureSamplerArray& samplers) SK_OVERRIDE {
             const char* dstColorName = builder->dstColor();
             GrAssert(NULL != dstColorName);
-            builder->fsCodeAppendf("\t\t%s.a = 1.0 - (1.0 - %s.a) * (1.0 - %s.a);\n",
-                                   outputColor, dstColorName, inputColor);
-            builder->fsCodeAppendf("\t\t%s.rgb = min((1.0 - %s.a) * %s.rgb + %s.rgb,"
-                                                   " (1.0 - %s.a) * %s.rgb + %s.rgb);\n",
-                                   outputColor,
-                                   inputColor, dstColorName, inputColor,
-                                   dstColorName, inputColor, dstColorName);
+            if (NULL == inputColor) {
+                // the input color is solid white
+                builder->fsCodeAppendf("\t\t%s.a = 1.0;\n", outputColor);
+                builder->fsCodeAppendf("\t\t%s.rgb = vec3(1.0, 1.0, 1.0) - %s.aaa + %s.rgb;\n",
+                                       outputColor, dstColorName, dstColorName);
+            } else {
+                builder->fsCodeAppendf("\t\t%s.a = 1.0 - (1.0 - %s.a) * (1.0 - %s.a);\n",
+                                       outputColor, dstColorName, inputColor);
+                builder->fsCodeAppendf("\t\t%s.rgb = min((1.0 - %s.a) * %s.rgb + %s.rgb,"
+                                                       " (1.0 - %s.a) * %s.rgb + %s.rgb);\n",
+                                       outputColor,
+                                       inputColor, dstColorName, inputColor,
+                                       dstColorName, inputColor, dstColorName);
+            }
         }
 
         static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&) { return 0; }

@@ -23,6 +23,7 @@
 
 void GrGLProgramDesc::setRandom(SkMWCRandom* random,
                                 const GrGpuGL* gpu,
+                                const GrTexture* dstTexture,
                                 const GrEffectStage stages[GrDrawState::kNumStages]) {
     fAttribBindings = 0;
     fEmitsPointSize = random->nextBool();
@@ -52,6 +53,7 @@ void GrGLProgramDesc::setRandom(SkMWCRandom* random,
         fAttribBindings |= GrDrawState::kLocalCoords_AttribBindingsBit;
     }
 
+    bool dstRead = false;
     for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (NULL != stages[s].getEffect()) {
             const GrBackendEffectFactory& factory = (*stages[s].getEffect())->getFactory();
@@ -59,7 +61,14 @@ void GrGLProgramDesc::setRandom(SkMWCRandom* random,
                                         GrDrawState::kLocalCoords_AttribBindingsBit);
             GrDrawEffect drawEffect(stages[s], explicitLocalCoords);
             fEffectKeys[s] = factory.glEffectKey(drawEffect, gpu->glCaps());
+            if ((*stages[s].getEffect())->willReadDst()) {
+                dstRead = true;
+            }
         }
+    }
+
+    if (dstRead) {
+        this->fDstRead = GrGLShaderBuilder::KeyForDstRead(dstTexture, gpu->glCaps());
     }
 
     int attributeIndex = 0;
@@ -111,10 +120,10 @@ bool GrGpuGL::programUnitTest(int maxStages) {
 
         int currAttribIndex = GrDrawState::kAttribIndexCount;
         int attribIndices[2];
+        GrTexture* dummyTextures[] = {dummyTexture1.get(), dummyTexture2.get()};
         for (int s = 0; s < maxStages; ++s) {
             // enable the stage?
             if (random.nextBool()) {
-                GrTexture* dummyTextures[] = {dummyTexture1.get(), dummyTexture2.get()};
                 SkAutoTUnref<const GrEffectRef> effect(GrEffectTestFactory::CreateStage(
                                                                                 &random,
                                                                                 this->getContext(),
@@ -135,7 +144,8 @@ bool GrGpuGL::programUnitTest(int maxStages) {
                 stages[s].setEffect(effect.get(), attribIndices[0], attribIndices[1]);
             }
         }
-        pdesc.setRandom(&random, this, stages);
+        const GrTexture* dstTexture = random.nextBool() ? dummyTextures[0] : dummyTextures[1];
+        pdesc.setRandom(&random, this, dstTexture, stages);
 
         const GrEffectStage* stagePtrs[GrDrawState::kNumStages];
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
