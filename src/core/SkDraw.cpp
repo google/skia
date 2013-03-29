@@ -782,14 +782,6 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
     }
 }
 
-static inline SkPoint* as_lefttop(SkRect* r) {
-    return (SkPoint*)(void*)r;
-}
-
-static inline SkPoint* as_rightbottom(SkRect* r) {
-    return ((SkPoint*)(void*)r) + 1;
-}
-
 static bool easy_rect_join(const SkPaint& paint, const SkMatrix& matrix,
                            SkPoint* strokeSize) {
     if (SkPaint::kMiter_Join != paint.getStrokeJoin() ||
@@ -834,11 +826,11 @@ SkDraw::RectType SkDraw::ComputeRectType(const SkPaint& paint,
 }
 
 static const SkPoint* rect_points(const SkRect& r) {
-    return (const SkPoint*)(void*)&r;
+    return SkTCast<const SkPoint*>(&r);
 }
 
 static SkPoint* rect_points(SkRect& r) {
-    return (SkPoint*)(void*)&r;
+    return SkTCast<SkPoint*>(&r);
 }
 
 void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
