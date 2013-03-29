@@ -42,7 +42,7 @@ protected:
         paint.setLCDRenderText(true);
         paint.setSubpixelText(true);
         paint.setTextSize(17);
-        
+
         SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
         int count = SkMin32(fm->countFamilies(), MAX_FAMILIES);
 
@@ -51,17 +51,17 @@ protected:
             fm->getFamilyName(i, &fname);
             paint.setTypeface(NULL);
             (void)drawString(canvas, fname, 20, y, paint);
-            
+
             SkScalar x = 220;
             SkAutoTUnref<SkFontStyleSet> set(fm->createStyleSet(i));
             for (int j = 0; j < set->count(); ++j) {
                 SkString sname;
                 SkFontStyle fs;
                 set->getStyle(j, &fs, &sname);
-                
+
                 SkSafeUnref(paint.setTypeface(set->createTypeface(j)));
                 x = drawString(canvas, sname, x, y, paint) + 20;
-            }            
+            }
             y += 24;
         }
     }
@@ -79,4 +79,3 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return SkNEW(FontMgrGM); )
-

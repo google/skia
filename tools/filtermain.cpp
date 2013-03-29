@@ -376,7 +376,7 @@ static bool check_7(const SkTDArray<SkDrawCommand*>& commands, int curCommand) {
         return false;
     }
 
-    if (!clip0->rect().contains(clip1->rect()) || 
+    if (!clip0->rect().contains(clip1->rect()) ||
         !clip1->rect().contains(clip2->rect())) {
         return false;
     }
@@ -409,9 +409,9 @@ static bool check_7(const SkTDArray<SkDrawCommand*>& commands, int curCommand) {
     SkPaint* dbmrPaint = dbmr->paint();
 
     if (NULL == dbmrPaint) {
-        return true;    
+        return true;
     }
-    
+
     if (NULL != saveLayerPaint0) {
         SkColor layerColor0 = saveLayerPaint0->getColor() | 0xFF000000; // force opaque
         if (dbmrPaint->getColor() != layerColor0) {
@@ -451,7 +451,7 @@ static void apply_7(SkTDArray<SkDrawCommand*>& commands, int curCommand) {
     SkScalar newSrcLeft = dbmr->srcRect()->fLeft + clip2->rect().fLeft - dbmr->dstRect().fLeft;
     SkScalar newSrcTop = dbmr->srcRect()->fTop + clip2->rect().fTop - dbmr->dstRect().fTop;
 
-    SkRect newSrc = SkRect::MakeXYWH(newSrcLeft, newSrcTop, 
+    SkRect newSrc = SkRect::MakeXYWH(newSrcLeft, newSrcTop,
                                      clip2->rect().width(), clip2->rect().height());
 
     dbmr->setSrcRect(newSrc);
