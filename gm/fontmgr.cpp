@@ -84,12 +84,12 @@ public:
     FontMgrMatchGM() : fFM(SkFontMgr::RefDefault()) {
         SkGraphics::SetFontCacheLimit(16 * 1024 * 1024);
     }
-    
+
 protected:
     virtual SkString onShortName() {
         return SkString("fontmgr_match");
     }
-    
+
     virtual SkISize onISize() {
         return SkISize::Make(640, 1024);
     }
@@ -131,7 +131,7 @@ protected:
             }
         }
     }
-        
+
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -144,13 +144,13 @@ protected:
         };
 
         SkFontStyleSet* fset = NULL;
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gNames); ++i) {            
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gNames); ++i) {
             fset = fFM->matchFamily(gNames[i]);
             if (fset && fset->count() > 0) {
                 break;
             }
         }
-        
+
         if (NULL == fset) {
             return;
         }
@@ -161,13 +161,13 @@ protected:
         canvas->translate(150, 0);
         this->iterateFamily(canvas, paint, fset);
     }
-    
+
     virtual uint32_t onGetFlags() const SK_OVERRIDE {
         // fontdescriptors (and therefore serialization) don't yet understand
         // these new styles, so skip tests that exercise that for now.
         return kSkipPicture_Flag | kSkipPipe_Flag;
     }
-    
+
 private:
     typedef GM INHERITED;
 };

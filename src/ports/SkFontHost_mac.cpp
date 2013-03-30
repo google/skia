@@ -361,7 +361,7 @@ private:
     }
 };
 
-Offscreen::Offscreen() : fRGBSpace(NULL), fCG(NULL), 
+Offscreen::Offscreen() : fRGBSpace(NULL), fCG(NULL),
                          fDoAA(false), fDoLCD(false) {
     fSize.set(0, 0);
 }
@@ -2056,7 +2056,7 @@ private:
     CTFontDescriptorRef findMatchingDesc(const SkFontStyle& pattern) const {
         int bestMetric = SK_MaxS32;
         CTFontDescriptorRef bestDesc = NULL;
-        
+
         for (int i = 0; i < fCount; ++i) {
             CTFontDescriptorRef desc = (CTFontDescriptorRef)CFArrayGetValueAtIndex(fArray, i);
             int metric = compute_metric(pattern, desc2fontstyle(desc));
@@ -2094,14 +2094,14 @@ class SkFontMgr_Mac : public SkFontMgr {
                  CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
                                            &kCFTypeDictionaryKeyCallBacks,
                                            &kCFTypeDictionaryValueCallBacks));
-        
+
         CFDictionaryAddValue(cfAttr, kCTFontFamilyNameAttribute, cfFamilyName);
-        
+
         AutoCFRelease<CTFontDescriptorRef> desc(
                                 CTFontDescriptorCreateWithAttributes(cfAttr));
         return SkNEW_ARGS(SkFontStyleSet_Mac, (cfFamilyName, desc));
     }
-    
+
 public:
     SkFontMgr_Mac() : fCount(0), fNames(NULL) {}
 
@@ -2131,12 +2131,12 @@ protected:
         }
         return CreateSet(this->stringAt(index));
     }
-    
+
     virtual SkFontStyleSet* onMatchFamily(const char familyName[]) SK_OVERRIDE {
         AutoCFRelease<CFStringRef> cfName(make_CFString(familyName));
         return CreateSet(cfName);
     }
-    
+
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
                                            const SkFontStyle&) SK_OVERRIDE {
         return NULL;
