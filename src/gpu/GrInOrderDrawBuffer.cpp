@@ -77,21 +77,22 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
                                    const SkMatrix* matrix,
                                    const GrRect* localRect,
                                    const SkMatrix* localMatrix) {
+
+    GrAttribBindings bindings = GrDrawState::kDefault_AttribBindings;
     GrDrawState::AutoColorRestore acr;
 
     GrDrawState* drawState = this->drawState();
 
     GrColor color = drawState->getColor();
     GrVertexAttribArray<3> attribs;
+    size_t currentOffset = 0;
+    int colorOffset = -1, localOffset = -1;
 
     // set position attrib
-    static const GrVertexAttrib kPosAttrib =
-        {kVec2f_GrVertexAttribType, 0, kPosition_GrVertexAttribBinding};
-    attribs.push_back(kPosAttrib);
-
-    size_t currentOffset = sizeof(GrPoint);
-    int colorOffset = -1;
-    int localOffset = -1;
+    drawState->setAttribIndex(GrDrawState::kPosition_AttribIndex, attribs.count());
+    GrVertexAttrib currAttrib = {kVec2f_GrVertexAttribType, currentOffset};
+    attribs.push_back(currAttrib);
+    currentOffset += sizeof(GrPoint);
 
     // Using per-vertex colors allows batching across colors. (A lot of rects in a row differing
     // only in color is a common occurrence in tables). However, having per-vertex colors disables
@@ -99,11 +100,13 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
     // optimizations help determine whether coverage and color can be blended correctly when
     // dual-source blending isn't available. This comes into play when there is coverage. If colors
     // were a stage it could take a hint that every vertex's color will be opaque.
-    if (this->caps()->dualSourceBlendingSupport() || drawState->hasSolidCoverage()) {
+    if (this->caps()->dualSourceBlendingSupport() ||
+        drawState->hasSolidCoverage(drawState->getAttribBindings())) {
+        bindings |= GrDrawState::kColor_AttribBindingsBit;
+        drawState->setAttribIndex(GrDrawState::kColor_AttribIndex, attribs.count());
+        currAttrib.set(kVec4ub_GrVertexAttribType, currentOffset);
+        attribs.push_back(currAttrib);
         colorOffset = currentOffset;
-        GrVertexAttrib colorAttrib =
-            {kVec4ub_GrVertexAttribType, colorOffset, kColor_GrVertexAttribBinding};
-        attribs.push_back(colorAttrib);
         currentOffset += sizeof(GrColor);
         // We set the draw state's color to white here. This is done so that any batching performed
         // in our subclass's onDraw() won't get a false from GrDrawState::op== due to a color
@@ -113,14 +116,16 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
     }
 
     if (NULL != localRect) {
+        bindings |= GrDrawState::kLocalCoords_AttribBindingsBit;
+        drawState->setAttribIndex(GrDrawState::kLocalCoords_AttribIndex, attribs.count());
+        currAttrib.set(kVec2f_GrVertexAttribType, currentOffset);
+        attribs.push_back(currAttrib);
         localOffset = currentOffset;
-        GrVertexAttrib localCoordAttrib =
-            {kVec2f_GrVertexAttribType, localOffset, kLocalCoord_GrVertexAttribBinding};
-        attribs.push_back(localCoordAttrib);
         currentOffset += sizeof(GrPoint);
     }
 
     drawState->setVertexAttribs(attribs.begin(), attribs.count());
+    drawState->setAttribBindings(bindings);
     AutoReleaseGeometry geo(this, 4, 0);
     if (!geo.succeeded()) {
         GrPrintf("Failed to get space for vertices!\n");

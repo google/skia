@@ -39,8 +39,7 @@ public:
     void setRandom(SkMWCRandom*,
                    const GrGpuGL* gpu,
                    const GrTexture* dummyDstTexture,
-                   const GrEffectStage stages[GrDrawState::kNumStages],
-                   int currAttribIndex);
+                   const GrEffectStage stages[GrDrawState::kNumStages]);
 
     /**
      * Builds a program descriptor from a GrDrawState. Whether the primitive type is points, the
@@ -77,34 +76,35 @@ private:
         kDualSrcOutputCnt
     };
 
+    // should the FS discard if the coverage is zero (to avoid stencil manipulation)
+    bool                        fDiscardIfZeroCoverage;
+
+    // stripped of bits that don't affect program generation
+    GrAttribBindings            fAttribBindings;
+
     /** Non-zero if this stage has an effect */
     GrGLEffect::EffectKey       fEffectKeys[GrDrawState::kNumStages];
 
-    // To enable experimental geometry shader code (not for use in	
-    // production)	 
-#if GR_GL_EXPERIMENTAL_GS	
-    bool                     fExperimentalGS;	
-#endif	
-
+    // To enable experimental geometry shader code (not for use in
+    // production)
+#if GR_GL_EXPERIMENTAL_GS
+    bool                        fExperimentalGS;
+#endif
     GrGLShaderBuilder::DstReadKey fDstRead;             // set by GrGLShaderBuilder if there
                                                         // are effects that must read the dst.
                                                         // Otherwise, 0.
 
-    // should the FS discard if the coverage is zero (to avoid stencil manipulation)
-    SkBool8                     fDiscardIfZeroCoverage;
-
     uint8_t                     fColorInput;            // casts to enum ColorInput
     uint8_t                     fCoverageInput;         // casts to enum ColorInput
     uint8_t                     fDualSrcOutput;         // casts to enum DualSrcOutput
-
     int8_t                      fFirstCoverageStage;
     SkBool8                     fEmitsPointSize;
     uint8_t                     fColorFilterXfermode;   // casts to enum SkXfermode::Mode
 
     int8_t                      fPositionAttributeIndex;
-    int8_t                      fLocalCoordAttributeIndex;
     int8_t                      fColorAttributeIndex;
     int8_t                      fCoverageAttributeIndex;
+    int8_t                      fLocalCoordsAttributeIndex;
 
     // GrGLProgram and GrGLShaderBuilder read the private fields to generate code. TODO: Move all
     // code generation to GrGLShaderBuilder (and maybe add getters rather than friending).
