@@ -705,13 +705,16 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(const GrGLShaderBuilder& buil
     GL_CALL(BindAttribLocation(fProgramID,
                                fDesc.fPositionAttributeIndex,
                                builder.positionAttribute().c_str()));
-    GL_CALL(BindAttribLocation(fProgramID, fDesc.fColorAttributeIndex, COL_ATTR_NAME));
-    GL_CALL(BindAttribLocation(fProgramID, fDesc.fCoverageAttributeIndex, COV_ATTR_NAME));
-
-    if (fDesc.fAttribBindings & GrDrawState::kLocalCoords_AttribBindingsBit) {
+    if (-1 != fDesc.fLocalCoordAttributeIndex) {
         GL_CALL(BindAttribLocation(fProgramID,
-                                   fDesc.fLocalCoordsAttributeIndex,
+                                   fDesc.fLocalCoordAttributeIndex,
                                    builder.localCoordsAttribute().c_str()));
+    }
+    if (-1 != fDesc.fColorAttributeIndex) {
+        GL_CALL(BindAttribLocation(fProgramID, fDesc.fColorAttributeIndex, COL_ATTR_NAME));
+    }
+    if (-1 != fDesc.fCoverageAttributeIndex) {
+        GL_CALL(BindAttribLocation(fProgramID, fDesc.fCoverageAttributeIndex, COV_ATTR_NAME));
     }
 
     const GrGLShaderBuilder::AttributePair* attribEnd = builder.getEffectAttributes().end();
@@ -826,8 +829,7 @@ void GrGLProgram::setData(GrGpuGL* gpu,
             const GrEffectStage& stage = drawState.getStage(s);
             GrAssert(NULL != stage.getEffect());
 
-            bool explicitLocalCoords =
-                (fDesc.fAttribBindings & GrDrawState::kLocalCoords_AttribBindingsBit);
+            bool explicitLocalCoords = -1 != fDesc.fLocalCoordAttributeIndex;
             GrDrawEffect drawEffect(stage, explicitLocalCoords);
             fEffects[s]->setData(fUniformManager, drawEffect);
             int numSamplers = fUniformHandles.fEffectSamplerUnis[s].count();
@@ -847,15 +849,18 @@ void GrGLProgram::setData(GrGpuGL* gpu,
 void GrGLProgram::setColor(const GrDrawState& drawState,
                            GrColor color,
                            SharedGLState* sharedState) {
-    if (!(drawState.getAttribBindings() & GrDrawState::kColor_AttribBindingsBit)) {
+    if (!drawState.hasColorVertexAttribute()) {
         switch (fDesc.fColorInput) {
             case GrGLProgramDesc::kAttribute_ColorInput:
-                if (sharedState->fConstAttribColor != color) {
+                GrAssert(-1 != fDesc.fColorAttributeIndex);
+                if (sharedState->fConstAttribColor != color ||
+                    sharedState->fConstAttribColorIndex != fDesc.fColorAttributeIndex) {
                     // OpenGL ES only supports the float varieties of glVertexAttrib
                     GrGLfloat c[4];
                     GrColorToRGBAFloat(color, c);
                     GL_CALL(VertexAttrib4fv(fDesc.fColorAttributeIndex, c));
                     sharedState->fConstAttribColor = color;
+                    sharedState->fConstAttribColorIndex = fDesc.fColorAttributeIndex;
                 }
                 break;
             case GrGLProgramDesc::kUniform_ColorInput:
@@ -868,28 +873,34 @@ void GrGLProgram::setColor(const GrDrawState& drawState,
                     fUniformManager.set4fv(fUniformHandles.fColorUni, 0, 1, c);
                     fColor = color;
                 }
+                sharedState->fConstAttribColorIndex = -1;
                 break;
             case GrGLProgramDesc::kSolidWhite_ColorInput:
             case GrGLProgramDesc::kTransBlack_ColorInput:
+                sharedState->fConstAttribColorIndex = -1;
                 break;
             default:
                 GrCrash("Unknown color type.");
         }
+    } else {
+        sharedState->fConstAttribColorIndex = -1;
     }
 }
 
 void GrGLProgram::setCoverage(const GrDrawState& drawState,
                               GrColor coverage,
                               SharedGLState* sharedState) {
-    if (!(drawState.getAttribBindings() & GrDrawState::kCoverage_AttribBindingsBit)) {
+    if (!drawState.hasCoverageVertexAttribute()) {
         switch (fDesc.fCoverageInput) {
             case GrGLProgramDesc::kAttribute_ColorInput:
-                if (sharedState->fConstAttribCoverage != coverage) {
+                if (sharedState->fConstAttribCoverage != coverage ||
+                    sharedState->fConstAttribCoverageIndex != fDesc.fCoverageAttributeIndex) {
                     // OpenGL ES only supports the float varieties of  glVertexAttrib
                     GrGLfloat c[4];
                     GrColorToRGBAFloat(coverage, c);
                     GL_CALL(VertexAttrib4fv(fDesc.fCoverageAttributeIndex, c));
                     sharedState->fConstAttribCoverage = coverage;
+                    sharedState->fConstAttribCoverageIndex = fDesc.fCoverageAttributeIndex;
                 }
                 break;
             case GrGLProgramDesc::kUniform_ColorInput:
@@ -902,13 +913,17 @@ void GrGLProgram::setCoverage(const GrDrawState& drawState,
                     fUniformManager.set4fv(fUniformHandles.fCoverageUni, 0, 1, c);
                     fCoverage = coverage;
                 }
+                sharedState->fConstAttribCoverageIndex = -1;
                 break;
             case GrGLProgramDesc::kSolidWhite_ColorInput:
             case GrGLProgramDesc::kTransBlack_ColorInput:
+                sharedState->fConstAttribCoverageIndex = -1;
                 break;
             default:
                 GrCrash("Unknown coverage type.");
         }
+    } else {
+        sharedState->fConstAttribCoverageIndex = -1;
     }
 }
 

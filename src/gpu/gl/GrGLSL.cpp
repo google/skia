@@ -67,15 +67,6 @@ bool GrGLSLSetupFSColorOuput(GrGLSLGeneration gen, const char* nameIfDeclared, G
     return declaredOutput;
 }
 
-GrSLType GrSLFloatVectorType (int count) {
-    GR_STATIC_ASSERT(kFloat_GrSLType == 1);
-    GR_STATIC_ASSERT(kVec2f_GrSLType == 2);
-    GR_STATIC_ASSERT(kVec3f_GrSLType == 3);
-    GR_STATIC_ASSERT(kVec4f_GrSLType == 4);
-    GrAssert(count > 0 && count <= 4);
-    return (GrSLType)(count);
-}
-
 const char* GrGLSLVectorHomogCoord(int count) {
     static const char* HOMOGS[] = {"ERROR", "", ".y", ".z", ".w"};
     GrAssert(count >= 1 && count < (int)GR_ARRAY_COUNT(HOMOGS));
