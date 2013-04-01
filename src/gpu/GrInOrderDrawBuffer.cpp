@@ -102,7 +102,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
     if (this->caps()->dualSourceBlendingSupport() || drawState->hasSolidCoverage()) {
         colorOffset = currentOffset;
         GrVertexAttrib colorAttrib =
-            {kVec4ub_GrVertexAttribType, colorOffset, kColor_GrVertexAttribBinding};
+            {kVec4ub_GrVertexAttribType, currentOffset, kColor_GrVertexAttribBinding};
         attribs.push_back(colorAttrib);
         currentOffset += sizeof(GrColor);
         // We set the draw state's color to white here. This is done so that any batching performed
@@ -115,7 +115,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
     if (NULL != localRect) {
         localOffset = currentOffset;
         GrVertexAttrib localCoordAttrib =
-            {kVec2f_GrVertexAttribType, localOffset, kLocalCoord_GrVertexAttribBinding};
+            {kVec2f_GrVertexAttribType, currentOffset, kLocalCoord_GrVertexAttribBinding};
         attribs.push_back(localCoordAttrib);
         currentOffset += sizeof(GrPoint);
     }
