@@ -180,9 +180,7 @@ GrGpuGL::GrGpuGL(const GrGLContext& ctx, GrContext* context)
 
     fProgramCache = SkNEW_ARGS(ProgramCache, (this->glContext()));
 
-    GrAssert(this->glCaps().maxVertexAttributes() >= GrDrawState::kVertexAttribCnt);
-    GrAssert(this->glCaps().maxVertexAttributes() > GrDrawState::kColorOverrideAttribIndexValue);
-    GrAssert(this->glCaps().maxVertexAttributes() > GrDrawState::kCoverageOverrideAttribIndexValue);
+    GrAssert(this->glCaps().maxVertexAttributes() >= GrDrawState::kMaxVertexAttribCnt);
 
     fLastSuccessfulStencilFmtIdx = 0;
     if (false) { // avoid bit rot, suppress warning

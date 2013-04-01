@@ -85,11 +85,10 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
 
     // position + edge
     static const GrVertexAttrib kVertexAttribs[] = {
-        {kVec2f_GrVertexAttribType, 0},
-        {kVec4f_GrVertexAttribType, sizeof(GrPoint)}
+        {kVec2f_GrVertexAttribType, 0, kPosition_GrVertexAttribBinding},
+        {kVec4f_GrVertexAttribType, sizeof(GrPoint), kEffect_GrVertexAttribBinding}
     };
     drawState->setVertexAttribs(kVertexAttribs, SK_ARRAY_COUNT(kVertexAttribs));
-    drawState->setAttribIndex(GrDrawState::kPosition_AttribIndex, 0);
     GrAssert(sizeof(CircleVertex) == drawState->getVertexSize());
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
@@ -108,7 +107,6 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
         // (kPathMaskStage in GrSWMaskHelper)
         kEdgeEffectStage = GrPaint::kTotalStages,
     };
-    drawState->setAttribBindings(GrDrawState::kDefault_AttribBindings);
 
     GrEffectRef* effect = GrCircleEdgeEffect::Create(isStroked);
     static const int kCircleEdgeAttrIndex = 1;
@@ -185,12 +183,11 @@ void GrOvalRenderer::drawEllipse(GrDrawTarget* target,
 
     // position + edge
     static const GrVertexAttrib kVertexAttribs[] = {
-        {kVec2f_GrVertexAttribType, 0},
-        {kVec2f_GrVertexAttribType, sizeof(GrPoint)},
-        {kVec4f_GrVertexAttribType, 2*sizeof(GrPoint)}
+        {kVec2f_GrVertexAttribType, 0, kPosition_GrVertexAttribBinding},
+        {kVec2f_GrVertexAttribType, sizeof(GrPoint), kEffect_GrVertexAttribBinding},
+        {kVec4f_GrVertexAttribType, 2*sizeof(GrPoint), kEffect_GrVertexAttribBinding}
     };
     drawState->setVertexAttribs(kVertexAttribs, SK_ARRAY_COUNT(kVertexAttribs));
-    drawState->setAttribIndex(GrDrawState::kPosition_AttribIndex, 0);
     GrAssert(sizeof(EllipseVertex) == drawState->getVertexSize());
 
     GrDrawTarget::AutoReleaseGeometry geo(target, 4, 0);
@@ -209,7 +206,6 @@ void GrOvalRenderer::drawEllipse(GrDrawTarget* target,
         // (kPathMaskStage in GrSWMaskHelper)
         kEdgeEffectStage = GrPaint::kTotalStages,
     };
-    drawState->setAttribBindings(GrDrawState::kDefault_AttribBindings);
 
     GrEffectRef* effect = GrEllipseEdgeEffect::Create(isStroked);
     static const int kEllipseCenterAttrIndex = 1;

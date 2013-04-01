@@ -112,6 +112,21 @@ public:
     void reset() { this->pop_back_n(fCount); }
 
     /**
+     * Resets to a copy of a C array.
+     */
+    void reset(const T* array, int count) {
+        for (int i = 0; i < fCount; ++i) {
+            fItemArray[i].~T();
+        }
+        int delta = count - fCount;
+        this->checkRealloc(delta);
+        fCount = count;
+        for (int i = 0; i < count; ++i) {
+            SkTArrayExt::copy(this, array);
+        }
+    }
+
+    /**
      * Number of elements in the array.
      */
     int count() const { return fCount; }
