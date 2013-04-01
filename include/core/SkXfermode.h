@@ -128,6 +128,11 @@ public:
 
         kLastMode = kLuminosity_Mode
     };
+    
+    /**
+     * Gets the name of the Mode as a string.
+     */
+    static const char* ModeName(Mode);
 
     /**
      *  If the xfermode is one of the modes in the Mode enum, then asMode()

@@ -1107,19 +1107,25 @@ private:
     typedef SkProcXfermode INHERITED;
 };
 
+const char* SkXfermode::ModeName(Mode mode) {
+    SkASSERT((unsigned) mode <= (unsigned)kLastMode);
+    const char* gModeStrings[] = {
+        "Clear", "Src", "Dst", "SrcOver", "DstOver", "SrcIn", "DstIn",
+        "SrcOut", "DstOut", "SrcATop", "DstATop", "Xor", "Plus",
+        "Modulate", "Screen", "Overlay", "Darken", "Lighten", "ColorDodge",
+        "ColorBurn", "HardLight", "SoftLight", "Difference", "Exclusion",
+        "Multiply", "Hue", "Saturation", "Color",  "Luminosity"
+    };
+    return gModeStrings[mode];
+    SK_COMPILE_ASSERT(SK_ARRAY_COUNT(gModeStrings) == kLastMode + 1, mode_count);
+}
+
 #ifdef SK_DEVELOPER
 void SkProcCoeffXfermode::toString(SkString* str) const {
     str->append("SkProcCoeffXfermode: ");
 
-    const char *gModeStrings[kLastMode+1] = {
-        "Clear", "Src", "Dst", "SrcOver", "DstOver", "SrcIn", "DstIn",
-        "SrcOut", "DstOut", "SrcATop", "DstATop", "Xor", "Plus",
-        "Modulate", "Screen", "Overlay", "Darken", "Lighten", "ColorDodge",
-        "ColorBurn", "HardLight", "SoftLight", "Difference", "Exclusion"
-    };
-
     str->append("mode: ");
-    str->append(gModeStrings[fMode]);
+    str->append(ModeName(fMode));
 
     static const char* gCoeffStrings[kCoeffCount] = {
         "Zero", "One", "SC", "ISC", "DC", "IDC", "SA", "ISA", "DA", "IDA"

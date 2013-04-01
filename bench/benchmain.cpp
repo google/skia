@@ -822,6 +822,7 @@ int tool_main(int argc, char** argv) {
                         SkASSERT(0);
                 }
                 device->unref();
+                canvas->clear(SK_ColorWHITE);
             }
             SkAutoUnref canvasUnref(canvas);
 
@@ -928,7 +929,6 @@ int tool_main(int argc, char** argv) {
             if (outDir.size() > 0 && kNonRendering_Backend != backend) {
                 saveFile(bench->getName(), configName, outDir.c_str(),
                          device->accessBitmap(false));
-                canvas->clear(SK_ColorWHITE);
             }
         }
         if (loggedBenchStart) {
