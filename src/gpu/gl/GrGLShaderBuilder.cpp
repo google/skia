@@ -104,7 +104,6 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
     , fCtxInfo(ctxInfo)
     , fUniformManager(uniformManager)
     , fCurrentStageIdx(kNonStageIdx)
-    , fFSFeaturesAddedMask(0)
 #if GR_GL_EXPERIMENTAL_GS
     , fUsesGS(desc.fExperimentalGS)
 #else
@@ -155,47 +154,6 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
         this->fsCodeAppendf("\tvec4 %s = ", kDstColorName);
         this->appendTextureLookup(kFragment_ShaderType, fDstCopySampler, "_dstTexCoord");
         this->fsCodeAppend(";\n\n");
-    }
-}
-
-bool GrGLShaderBuilder::enableFeature(GLSLFeature feature) {
-    switch (feature) {
-        case kStandardDerivatives_GLSLFeature:
-            if (!fCtxInfo.caps()->shaderDerivativeSupport()) {
-                return false;
-            }
-            if (kES2_GrGLBinding == fCtxInfo.binding()) {
-                this->addFSFeature(1 << kStandardDerivatives_GLSLFeature,
-                                   "GL_OES_standard_derivatives");
-            }
-            return true;
-        default:
-            GrCrash("Unexpected GLSLFeature requested.");
-            return false;
-    }
-}
-
-bool GrGLShaderBuilder::enablePrivateFeature(GLSLPrivateFeature feature) {
-    switch (feature) {
-        case kFragCoordConventions_GLSLPrivateFeature:
-            if (!fCtxInfo.caps()->fragCoordConventionsSupport()) {
-                return false;
-            }
-            if (fCtxInfo.glslGeneration() < k150_GrGLSLGeneration) {
-                this->addFSFeature(1 << kFragCoordConventions_GLSLPrivateFeature,
-                                   "GL_ARB_fragment_coord_conventions");
-            }
-            return true;
-        default:
-            GrCrash("Unexpected GLSLPrivateFeature requested.");
-            return false;
-    }
-}
-
-void GrGLShaderBuilder::addFSFeature(uint32_t featureBit, const char* extensionName) {
-    if (!(featureBit & fFSFeaturesAddedMask)) {
-        fFSHeader.appendf("#extension %s: require\n", extensionName);
-        fFSFeaturesAddedMask |= featureBit;
     }
 }
 
@@ -430,7 +388,9 @@ const char* GrGLShaderBuilder::fragmentPosition() {
 #if 1
     if (fCtxInfo.caps()->fragCoordConventionsSupport()) {
         if (!fSetupFragPosition) {
-            SkAssertResult(this->enablePrivateFeature(kFragCoordConventions_GLSLPrivateFeature));
+            if (fCtxInfo.glslGeneration() < k150_GrGLSLGeneration) {
+                fFSHeader.append("#extension GL_ARB_fragment_coord_conventions: require\n");
+            }
             fFSInputs.push_back().set(kVec4f_GrSLType,
                                       GrGLShaderVar::kIn_TypeModifier,
                                       "gl_FragCoord",
@@ -547,11 +507,9 @@ void GrGLShaderBuilder::appendUniformDecls(ShaderType stype, SkString* out) cons
 }
 
 void GrGLShaderBuilder::getShader(ShaderType type, SkString* shaderStr) const {
-    const char* version = GrGetGLSLVersionDecl(fCtxInfo.binding(), fCtxInfo.glslGeneration());
-
     switch (type) {
         case kVertex_ShaderType:
-            *shaderStr = version;
+            *shaderStr = fHeader;
             this->appendUniformDecls(kVertex_ShaderType, shaderStr);
             this->appendDecls(fVSAttrs, shaderStr);
             this->appendDecls(fVSOutputs, shaderStr);
@@ -561,7 +519,7 @@ void GrGLShaderBuilder::getShader(ShaderType type, SkString* shaderStr) const {
             break;
         case kGeometry_ShaderType:
             if (fUsesGS) {
-                *shaderStr = version;
+                *shaderStr = fHeader;
                 shaderStr->append(fGSHeader);
                 this->appendDecls(fGSInputs, shaderStr);
                 this->appendDecls(fGSOutputs, shaderStr);
@@ -573,7 +531,7 @@ void GrGLShaderBuilder::getShader(ShaderType type, SkString* shaderStr) const {
             }
             break;
         case kFragment_ShaderType:
-            *shaderStr = version;
+            *shaderStr = fHeader;
             append_default_precision_qualifier(kDefaultFragmentPrecision,
                                                fCtxInfo.binding(),
                                                shaderStr);
