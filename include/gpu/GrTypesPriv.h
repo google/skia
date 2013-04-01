@@ -133,7 +133,7 @@ static const int kGrVertexAttribBindingCnt = kLast_GrVertexAttribBinding + 1;
 static const int kGrFixedFunctionVertexAttribBindingCnt =
     kLastFixedFunction_GrVertexAttribBinding + 1;
 
-static inline const int GrFixedFunctionVertexAttribVectorCount(GrVertexAttribBinding binding) {
+static inline int GrFixedFunctionVertexAttribVectorCount(GrVertexAttribBinding binding) {
     GrAssert(binding >= 0 && binding < kGrFixedFunctionVertexAttribBindingCnt);
     static const int kVecCounts[] = { 2, 2, 4, 4 };
 

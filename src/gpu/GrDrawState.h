@@ -1031,8 +1031,6 @@ private:
         // not need to be compared in op==.
         int fFixedFunctionVertexAttribIndices[kGrFixedFunctionVertexAttribBindingCnt];
 
-        GR_STATIC_ASSERT(kGrVertexAttribBindingCnt <= 8*sizeof(uint32_t));
-
         bool operator== (const CommonState& other) const {
             bool result = fColor == other.fColor &&
                           fViewMatrix.cheapEqualTo(other.fViewMatrix) &&
