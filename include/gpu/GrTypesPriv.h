@@ -33,7 +33,7 @@ static const int kGrSLTypeCount = kLast_GrSLType + 1;
  * Gets the vector size of the SLType. Returns -1 for void, matrices, and samplers.
  */
 static inline int GrSLTypeVectorCount(GrSLType type) {
-    GrAssert(type >= 0 && type < kGrSLTypeCount);
+    GrAssert(type >= 0 && type < static_cast<GrSLType>(kGrSLTypeCount));
     static const int kCounts[] = { -1, 1, 2, 3, 4, -1, -1, -1 };
     return kCounts[type];
 
