@@ -46,23 +46,15 @@ void GrDrawState::setFromPaint(const GrPaint& paint) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const size_t GrDrawState::kVertexAttribSizes[kGrVertexAttribTypeCount] = {
-    sizeof(float),          // kFloat_GrVertexAttribType
-    2*sizeof(float),        // kVec2_GrVertexAttribType
-    3*sizeof(float),        // kVec3_GrVertexAttribType
-    4*sizeof(float),        // kVec4_GrVertexAttribType
-    4*sizeof(char)          // kCVec4_GrVertexAttribType
-};
-
 static size_t vertex_size(const GrVertexAttrib* attribs, int count) {
     // this works as long as we're 4 byte-aligned
 #if GR_DEBUG
     uint32_t overlapCheck = 0;
 #endif
-    GrAssert(count <= GrDrawState::kVertexAttribCnt);
+    GrAssert(count <= GrDrawState::kMaxVertexAttribCnt);
     size_t size = 0;
     for (int index = 0; index < count; ++index) {
-        size_t attribSize = GrDrawState::kVertexAttribSizes[attribs[index].fType];
+        size_t attribSize = GrVertexAttribTypeSize(attribs[index].fType);
         size += attribSize;
 #if GR_DEBUG
         size_t dwordCount = attribSize >> 2;
@@ -76,163 +68,102 @@ static size_t vertex_size(const GrVertexAttrib* attribs, int count) {
 }
 
 size_t GrDrawState::getVertexSize() const {
-    return vertex_size(fVertexAttribs.begin(), fVertexAttribs.count());
+    return vertex_size(fCommon.fVertexAttribs.begin(), fCommon.fVertexAttribs.count());
 }
-
-const GrAttribBindings GrDrawState::kAttribIndexMasks[kAttribIndexCount] = {
-    0,                            // position is not reflected in the bindings
-    kColor_AttribBindingsBit,
-    kCoverage_AttribBindingsBit,
-    kLocalCoords_AttribBindingsBit,
-};
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrDrawState::setVertexAttribs(const GrVertexAttrib* attribs, int count) {
-    GrAssert(count <= GrDrawState::kVertexAttribCnt);
-    fVertexAttribs.reset();
-    for (int index = 0; index < count; ++index) {
-        fVertexAttribs.push_back(attribs[index]);
+    GrAssert(count <= kMaxVertexAttribCnt);
+    fCommon.fVertexAttribs.reset(attribs, count);
+
+    // Set all the indices to -1
+    memset(fCommon.fFixedFunctionVertexAttribIndices,
+           0xff,
+           sizeof(fCommon.fFixedFunctionVertexAttribIndices));
+#if GR_DEBUG
+    uint32_t overlapCheck = 0;
+#endif
+    for (int i = 0; i < count; ++i) {
+        if (attribs[i].fBinding < kGrFixedFunctionVertexAttribBindingCnt) {
+            // The fixed function attribs can only be specified once
+            GrAssert(-1 == fCommon.fFixedFunctionVertexAttribIndices[attribs[i].fBinding]);
+            GrAssert(GrFixedFunctionVertexAttribVectorCount(attribs[i].fBinding) ==
+                     GrVertexAttribTypeVectorCount(attribs[i].fType));
+            fCommon.fFixedFunctionVertexAttribIndices[attribs[i].fBinding] = i;
+        }
+#if GR_DEBUG
+        size_t dwordCount = GrVertexAttribTypeSize(attribs[i].fType) >> 2;
+        uint32_t mask = (1 << dwordCount)-1;
+        size_t offsetShift = attribs[i].fOffset >> 2;
+        GrAssert(!(overlapCheck & (mask << offsetShift)));
+        overlapCheck |= (mask << offsetShift);
+#endif
     }
+    // Positions must be specified.
+    GrAssert(-1 != fCommon.fFixedFunctionVertexAttribIndices[kPosition_GrVertexAttribBinding]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrDrawState::setDefaultVertexAttribs() {
-    static const GrVertexAttrib kPositionAttrib = {kVec2f_GrVertexAttribType, 0};
-    fVertexAttribs.reset();
-    fVertexAttribs.push_back(kPositionAttrib);
-
-    fCommon.fAttribBindings = kDefault_AttribBindings;
-
-    fAttribIndices[kPosition_AttribIndex] = 0;
+    static const GrVertexAttrib kPositionAttrib =
+        {kVec2f_GrVertexAttribType, 0, kPosition_GrVertexAttribBinding};
+    fCommon.fVertexAttribs.reset(&kPositionAttrib, 1);
+    // set all the fixed function indices to -1 except position.
+    memset(fCommon.fFixedFunctionVertexAttribIndices,
+           0xff,
+           sizeof(fCommon.fFixedFunctionVertexAttribIndices));
+    fCommon.fFixedFunctionVertexAttribIndices[kPosition_GrVertexAttribBinding] = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 bool GrDrawState::validateVertexAttribs() const {
-    // color and coverage can set indices beyond the standard count
-    static const int kMaxValidAttribIndex = kVertexAttribCnt+2;
-    int attributeTypes[kMaxValidAttribIndex];
-    for (int i = 0; i < kMaxValidAttribIndex; ++i) {
-        attributeTypes[i] = -1;
+    // check consistency of effects and attributes
+    GrSLType slTypes[kMaxVertexAttribCnt];
+    for (int i = 0; i < kMaxVertexAttribCnt; ++i) {
+        slTypes[i] = static_cast<GrSLType>(-1);
     }
-
-    // sentinel to make sure effects don't try to use built-in attributes
-    static const int kBuiltInAttributeType = 10000;
-
-    // check our built-in indices
-    if (fAttribIndices[kPosition_AttribIndex] >= kVertexAttribCnt) {
-        return false;
-    }
-    attributeTypes[fAttribIndices[kPosition_AttribIndex]] = kBuiltInAttributeType;
-    for (int j = kColor_AttribIndex; j <= kCoverage_AttribIndex; ++j) {
-        if (fCommon.fAttribBindings & kAttribIndexMasks[j]) {
-            int attributeIndex = fAttribIndices[j];
-            if (attributeIndex >= kMaxValidAttribIndex) {
-                return false;
-            }
-            // they should not be shared at all
-            if (attributeTypes[attributeIndex] != -1) {
-                return false;
-            }
-            attributeTypes[attributeIndex] = kBuiltInAttributeType;
-        }
-    }
-    if (fCommon.fAttribBindings & kAttribIndexMasks[kLocalCoords_AttribIndex]) {
-        int attributeIndex = fAttribIndices[kLocalCoords_AttribIndex];
-        if (attributeIndex >= kVertexAttribCnt) {
-            return false;
-        }
-        // they should not be shared at all
-        if (attributeTypes[attributeIndex] != -1) {
-            return false;
-        }
-        attributeTypes[attributeIndex] = kBuiltInAttributeType;
-    }
-
-    // now those set by effects
     for (int s = 0; s < kNumStages; ++s) {
-        const GrEffectStage& stage = fStages[s];
-        const GrEffectRef* effect = stage.getEffect();
-        if (effect == NULL) {
-            continue;
-        }
+        if (this->isStageEnabled(s)) {
+            const GrEffectStage& stage = fStages[s];
+            const GrEffectRef* effect = stage.getEffect();
+            // make sure that any attribute indices have the correct binding type, that the attrib
+            // type and effect's shader lang type are compatible, and that attributes shared by
+            // multiple effects use the same shader lang type.
+            const int* attributeIndices = stage.getVertexAttribIndices();
+            int numAttributes = stage.getVertexAttribIndexCount();
+            for (int i = 0; i < numAttributes; ++i) {
+                int attribIndex = attributeIndices[i];
+                if (attribIndex >= fCommon.fVertexAttribs.count() ||
+                    kEffect_GrVertexAttribBinding != fCommon.fVertexAttribs[attribIndex].fBinding) {
+                    return false;
+                }
 
-        // make sure that the count in the stage and the effect matches
-        int numAttributes = stage.getVertexAttribIndexCount();
-        if (numAttributes != effect->get()->numVertexAttribs()) {
-            return false;
-        }
-
-        // make sure that any shared indices have the same type
-        const int* attributeIndices = stage.getVertexAttribIndices();
-        for (int i = 0; i < numAttributes; ++i) {
-            int attributeIndex = attributeIndices[i];
-            if (attributeIndex >= kVertexAttribCnt) {
-                return false;
+                GrSLType effectSLType = (*effect)->vertexAttribType(i);
+                GrVertexAttribType attribType = fCommon.fVertexAttribs[attribIndex].fType;
+                int slVecCount = GrSLTypeVectorCount(effectSLType);
+                int attribVecCount = GrVertexAttribTypeVectorCount(attribType);
+                if (slVecCount != attribVecCount ||
+                    (-1 != slTypes[attribIndex] && slTypes[attribIndex] != effectSLType)) {
+                    return false;
+                }
+                slTypes[attribIndex] = effectSLType;
             }
-
-            GrSLType attributeType = effect->get()->vertexAttribType(i);
-            if (attributeTypes[attributeIndex] != -1 &&
-                attributeTypes[attributeIndex] != attributeType) {
-                return false;
-            }
-            attributeTypes[attributeIndex] = attributeType;
         }
     }
 
     return true;
 }
 
-
-void GrDrawState::VertexAttributesUnitTest() {
-    // not necessarily exhaustive
-    static bool run;
-    if (!run) {
-        run = true;
-
-        GrVertexAttribArray<6> attribs;
-        GrAssert(0 == vertex_size(attribs.begin(), attribs.count()));
-
-        GrVertexAttrib currAttrib = {kFloat_GrVertexAttribType, 0};
-        attribs.push_back(currAttrib);
-        GrAssert(sizeof(float) == vertex_size(attribs.begin(), attribs.count()));
-        attribs[0].fType = kVec2f_GrVertexAttribType;
-        GrAssert(2*sizeof(float) == vertex_size(attribs.begin(), attribs.count()));
-        attribs[0].fType = kVec3f_GrVertexAttribType;
-        GrAssert(3*sizeof(float) == vertex_size(attribs.begin(), attribs.count()));
-        attribs[0].fType = kVec4f_GrVertexAttribType;
-        GrAssert(4*sizeof(float) == vertex_size(attribs.begin(), attribs.count()));
-        attribs[0].fType = kVec4ub_GrVertexAttribType;
-        GrAssert(4*sizeof(char) == vertex_size(attribs.begin(), attribs.count()));
-
-        currAttrib.set(kVec2f_GrVertexAttribType, attribs[0].fOffset + 4*sizeof(char));
-        attribs.push_back(currAttrib);
-        GrAssert(4*sizeof(char) + 2*sizeof(float) == vertex_size(attribs.begin(), attribs.count()));
-        currAttrib.set(kVec3f_GrVertexAttribType, attribs[1].fOffset + 2*sizeof(float));
-        attribs.push_back(currAttrib);
-        GrAssert(4*sizeof(char) + 2*sizeof(float) + 3*sizeof(float) ==
-                 vertex_size(attribs.begin(), attribs.count()));
-        currAttrib.set(kFloat_GrVertexAttribType, attribs[2].fOffset + 3*sizeof(float));
-        attribs.push_back(currAttrib);
-        GrAssert(4*sizeof(char) + 2*sizeof(float) + 3*sizeof(float) + sizeof(float) ==
-                 vertex_size(attribs.begin(), attribs.count()));
-        currAttrib.set(kVec4f_GrVertexAttribType, attribs[3].fOffset + sizeof(float));
-        attribs.push_back(currAttrib);
-        GrAssert(4*sizeof(char) + 2*sizeof(float) + 3*sizeof(float) + sizeof(float) + 4*sizeof(float) ==
-                 vertex_size(attribs.begin(), attribs.count()));
-    }
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrDrawState::srcAlphaWillBeOne(GrAttribBindings bindings) const {
-
+bool GrDrawState::srcAlphaWillBeOne() const {
     uint32_t validComponentFlags;
     GrColor color;
     // Check if per-vertex or constant color may have partial alpha
-    if (bindings & kColor_AttribBindingsBit) {
+    if (this->hasColorVertexAttribute()) {
         validComponentFlags = 0;
         color = 0; // not strictly necessary but we get false alarms from tools about uninit.
     } else {
@@ -278,7 +209,7 @@ bool GrDrawState::srcAlphaWillBeOne(GrAttribBindings bindings) const {
     return (kA_GrColorComponentFlag & validComponentFlags) && 0xff == GrColorUnpackA(color);
 }
 
-bool GrDrawState::hasSolidCoverage(GrAttribBindings bindings) const {
+bool GrDrawState::hasSolidCoverage() const {
     // If we're drawing coverage directly then coverage is effectively treated as color.
     if (this->isCoverageDrawing()) {
         return true;
@@ -287,7 +218,7 @@ bool GrDrawState::hasSolidCoverage(GrAttribBindings bindings) const {
     GrColor coverage;
     uint32_t validComponentFlags;
     // Initialize to an unknown starting coverage if per-vertex coverage is specified.
-    if (bindings & kCoverage_AttribBindingsBit) {
+    if (this->hasCoverageVertexAttribute()) {
         validComponentFlags = 0;
     } else {
         coverage = fCommon.fCoverage;
@@ -329,7 +260,6 @@ bool GrDrawState::canTweakAlphaForCoverage() const {
 GrDrawState::BlendOptFlags GrDrawState::getBlendOpts(bool forceCoverage,
                                                      GrBlendCoeff* srcCoeff,
                                                      GrBlendCoeff* dstCoeff) const {
-    GrAttribBindings bindings = this->getAttribBindings();
 
     GrBlendCoeff bogusSrcCoeff, bogusDstCoeff;
     if (NULL == srcCoeff) {
@@ -347,14 +277,14 @@ GrDrawState::BlendOptFlags GrDrawState::getBlendOpts(bool forceCoverage,
         *dstCoeff = kOne_GrBlendCoeff;
     }
 
-    bool srcAIsOne = this->srcAlphaWillBeOne(bindings);
+    bool srcAIsOne = this->srcAlphaWillBeOne();
     bool dstCoeffIsOne = kOne_GrBlendCoeff == *dstCoeff ||
                          (kSA_GrBlendCoeff == *dstCoeff && srcAIsOne);
     bool dstCoeffIsZero = kZero_GrBlendCoeff == *dstCoeff ||
                          (kISA_GrBlendCoeff == *dstCoeff && srcAIsOne);
 
     bool covIsZero = !this->isCoverageDrawing() &&
-                     !(bindings & GrDrawState::kCoverage_AttribBindingsBit) &&
+                     !this->hasCoverageVertexAttribute() &&
                      0 == this->getCoverage();
     // When coeffs are (0,1) there is no reason to draw at all, unless
     // stenciling is enabled. Having color writes disabled is effectively
@@ -371,10 +301,8 @@ GrDrawState::BlendOptFlags GrDrawState::getBlendOpts(bool forceCoverage,
     // check for coverage due to constant coverage, per-vertex coverage, or coverage stage
     bool hasCoverage = forceCoverage ||
                        0xffffffff != this->getCoverage() ||
-                       (bindings & GrDrawState::kCoverage_AttribBindingsBit);
-    for (int s = this->getFirstCoverageStage();
-         !hasCoverage && s < GrDrawState::kNumStages;
-         ++s) {
+                       this->hasCoverageVertexAttribute();
+    for (int s = this->getFirstCoverageStage(); !hasCoverage && s < GrDrawState::kNumStages; ++s) {
         if (this->isStageEnabled(s)) {
             hasCoverage = true;
         }
