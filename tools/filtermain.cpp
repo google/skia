@@ -536,12 +536,26 @@ static int filter_picture(const SkString& inFile, const SkString& outFile) {
         debugCanvas.deleteDrawCommandAt(debugCanvas.getSize()-1);
     }
 
-    for (int i = 0; i < debugCanvas.getSize(); ++i) {
-        for (size_t opt = 0; opt < SK_ARRAY_COUNT(gOptTable); ++opt) {
-            if ((*gOptTable[opt].fCheck)(&debugCanvas, i)) {
-                (*gOptTable[opt].fApply)(&debugCanvas, i);
-                ++gOptTable[opt].fNumTimesApplied;
-                ++localCount[opt];
+    bool changed = true;
+
+    while (changed) {
+        changed = false;
+        for (int i = 0; i < debugCanvas.getSize(); ++i) {
+            for (size_t opt = 0; opt < SK_ARRAY_COUNT(gOptTable); ++opt) {
+                if ((*gOptTable[opt].fCheck)(&debugCanvas, i)) {
+                    (*gOptTable[opt].fApply)(&debugCanvas, i);
+
+                    ++gOptTable[opt].fNumTimesApplied;
+                    ++localCount[opt];
+
+                    if (debugCanvas.getSize() == i) {
+                        // the optimization removed all the remaining operations
+                        break;
+                    }
+
+                    opt = 0;          // try all the opts all over again
+                    changed = true;
+                }
             }
         }
     }
