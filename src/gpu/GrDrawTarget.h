@@ -654,6 +654,15 @@ protected:
             fDevBounds = &fDevBoundsStorage;
         }
         const SkRect* getDevBounds() const { return fDevBounds; }
+        
+        bool getDevIBounds(SkIRect* bounds) const {
+            if (NULL != fDevBounds) {
+                fDevBounds->roundOut(bounds);
+                return true;
+            } else {
+                return false;
+            }
+        }
 
         // NULL if no copy of the dst is needed for the draw.
         const GrDeviceCoordTexture* getDstCopy() const {

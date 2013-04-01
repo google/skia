@@ -81,10 +81,16 @@ public:
     bool isValid() const { return NULL != fPtr; }
 
     /**
-     *  Returns either NULL, or a copy of the object that was passed to
-     *  set() or the constructor.
+     * Returns the object. This version should only be called when the caller
+     * knows that the object has been initialized.
      */
     T* get() const { SkASSERT(this->isValid()); return fPtr; }
+    
+    /**
+     * Like above but doesn't assert if object isn't initialized (in which case
+     * NULL is returned).
+     */
+    T* getMaybeNull() const { return fPtr; }
 
 private:
     friend void* operator new<T>(size_t, SkTLazy* lazy);
