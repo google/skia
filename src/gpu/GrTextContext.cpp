@@ -194,9 +194,10 @@ HAS_ATLAS:
     if (NULL == fVertices) {
         // position + texture coord
         static const GrVertexAttrib kVertexAttribs[] = {
-            {kVec2f_GrVertexAttribType, 0,               kPosition_GrVertexAttribBinding},
-            {kVec2f_GrVertexAttribType, sizeof(GrPoint), kEffect_GrVertexAttribBinding}
+            {kVec2f_GrVertexAttribType, 0},
+            {kVec2f_GrVertexAttribType, sizeof(GrPoint)}
         };
+        static const GrAttribBindings kAttribBindings = 0;
 
        // If we need to reserve vertices allow the draw target to suggest
         // a number of verts to reserve and whether to perform a flush.
@@ -214,6 +215,8 @@ HAS_ATLAS:
             fDrawTarget = fContext->getTextTarget(fPaint);
             fDrawTarget->drawState()->setVertexAttribs(kVertexAttribs, SK_ARRAY_COUNT(kVertexAttribs));
         }
+        fDrawTarget->drawState()->setAttribIndex(GrDrawState::kPosition_AttribIndex, 0);
+        fDrawTarget->drawState()->setAttribBindings(kAttribBindings);
         fMaxVertices = kDefaultRequestedVerts;
         // ignore return, no point in flushing again.
         fDrawTarget->geometryHints(&fMaxVertices, NULL);

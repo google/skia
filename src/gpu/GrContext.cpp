@@ -358,13 +358,17 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
         GrTextureParams params(SkShader::kClamp_TileMode, needsFiltering);
         drawState->createTextureEffect(0, clampedTexture, SkMatrix::I(), params);
 
-        // position + local coordinate
+        // position + texture coordinate
         static const GrVertexAttrib kVertexAttribs[] = {
-            {kVec2f_GrVertexAttribType, 0,               kPosition_GrVertexAttribBinding},
-            {kVec2f_GrVertexAttribType, sizeof(GrPoint), kLocalCoord_GrVertexAttribBinding}
+            {kVec2f_GrVertexAttribType, 0},
+            {kVec2f_GrVertexAttribType, sizeof(GrPoint)}
         };
-        drawState->setVertexAttribs(kVertexAttribs, SK_ARRAY_COUNT(kVertexAttribs));
 
+        static const GrAttribBindings kAttribBindings = GrDrawState::kLocalCoords_AttribBindingsBit;
+        drawState->setAttribBindings(kAttribBindings);
+        drawState->setVertexAttribs(kVertexAttribs, SK_ARRAY_COUNT(kVertexAttribs));
+        drawState->setAttribIndex(GrDrawState::kPosition_AttribIndex, 0);
+        drawState->setAttribIndex(GrDrawState::kLocalCoords_AttribIndex, 1);
         GrDrawTarget::AutoReleaseGeometry arg(fGpu, 4, 0);
 
         if (arg.succeeded()) {
@@ -921,16 +925,19 @@ void GrContext::drawVertices(const GrPaint& paint,
     GrVertexAttribArray<3> attribs;
     size_t currentOffset = 0;
     int colorOffset = -1, texOffset = -1;
+    GrAttribBindings bindings = GrDrawState::kDefault_AttribBindings;
 
     // set position attribute
-    GrVertexAttrib currAttrib =
-        {kVec2f_GrVertexAttribType, currentOffset, kPosition_GrVertexAttribBinding};
+    drawState->setAttribIndex(GrDrawState::kPosition_AttribIndex, attribs.count());
+    GrVertexAttrib currAttrib = {kVec2f_GrVertexAttribType, currentOffset};
     attribs.push_back(currAttrib);
     currentOffset += sizeof(GrPoint);
 
     // set up optional texture coordinate attributes
     if (NULL != texCoords) {
-        currAttrib.set(kVec2f_GrVertexAttribType, currentOffset, kLocalCoord_GrVertexAttribBinding);
+        bindings |= GrDrawState::kLocalCoords_AttribBindingsBit;
+        drawState->setAttribIndex(GrDrawState::kLocalCoords_AttribIndex, attribs.count());
+        currAttrib.set(kVec2f_GrVertexAttribType, currentOffset);
         attribs.push_back(currAttrib);
         texOffset = currentOffset;
         currentOffset += sizeof(GrPoint);
@@ -938,13 +945,16 @@ void GrContext::drawVertices(const GrPaint& paint,
 
     // set up optional color attributes
     if (NULL != colors) {
-        currAttrib.set(kVec4ub_GrVertexAttribType, currentOffset, kColor_GrVertexAttribBinding);
+        bindings |= GrDrawState::kColor_AttribBindingsBit;
+        drawState->setAttribIndex(GrDrawState::kColor_AttribIndex, attribs.count());
+        currAttrib.set(kVec4ub_GrVertexAttribType, currentOffset);
         attribs.push_back(currAttrib);
         colorOffset = currentOffset;
         currentOffset += sizeof(GrColor);
     }
 
     drawState->setVertexAttribs(attribs.begin(), attribs.count());
+    drawState->setAttribBindings(bindings);
 
     size_t vertexSize = drawState->getVertexSize();
     GrAssert(vertexSize == currentOffset);

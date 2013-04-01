@@ -507,8 +507,8 @@ bool GrAAHairLinePathRenderer::createGeom(
 
     // position + edge
     static const GrVertexAttrib kAttribs[] = {
-        {kVec2f_GrVertexAttribType, 0,                  kPosition_GrVertexAttribBinding},
-        {kVec4f_GrVertexAttribType, sizeof(GrPoint),    kEffect_GrVertexAttribBinding}
+        {kVec2f_GrVertexAttribType, 0},
+        {kVec4f_GrVertexAttribType, sizeof(GrPoint)}
     };
     SkMatrix viewM = drawState->getViewMatrix();
 
@@ -522,6 +522,8 @@ bool GrAAHairLinePathRenderer::createGeom(
     int vertCnt = kVertsPerLineSeg * *lineCnt + kVertsPerQuad * *quadCnt;
 
     target->drawState()->setVertexAttribs(kAttribs, SK_ARRAY_COUNT(kAttribs));
+    target->drawState()->setAttribIndex(GrDrawState::kPosition_AttribIndex, 0);
+    target->drawState()->setAttribBindings(GrDrawState::kDefault_AttribBindings);
     GrAssert(sizeof(Vertex) == target->getDrawState().getVertexSize());
 
     if (!arg->set(target, vertCnt, 0)) {

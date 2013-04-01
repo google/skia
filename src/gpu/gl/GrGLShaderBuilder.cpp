@@ -117,7 +117,7 @@ GrGLShaderBuilder::GrGLShaderBuilder(const GrGLContextInfo& ctxInfo,
 
     fPositionVar = &fVSAttrs.push_back();
     fPositionVar->set(kVec2f_GrSLType, GrGLShaderVar::kAttribute_TypeModifier, "aPosition");
-    if (-1 != desc.fLocalCoordAttributeIndex) {
+    if (desc.fAttribBindings & GrDrawState::kLocalCoords_AttribBindingsBit) {
         fLocalCoordsVar = &fVSAttrs.push_back();
         fLocalCoordsVar->set(kVec2f_GrSLType,
                              GrGLShaderVar::kAttribute_TypeModifier,
