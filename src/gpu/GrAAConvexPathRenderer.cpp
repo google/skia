@@ -485,13 +485,10 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
 
     // position + edge
     static const GrVertexAttrib kAttribs[] = {
-        {kVec2f_GrVertexAttribType, 0},
-        {kVec4f_GrVertexAttribType, sizeof(GrPoint)}
+        {kVec2f_GrVertexAttribType, 0,               kPosition_GrVertexAttribBinding},
+        {kVec4f_GrVertexAttribType, sizeof(GrPoint), kEffect_GrVertexAttribBinding}
     };
-
     drawState->setVertexAttribs(kAttribs, SK_ARRAY_COUNT(kAttribs));
-    drawState->setAttribIndex(GrDrawState::kPosition_AttribIndex, 0);
-    drawState->setAttribBindings(GrDrawState::kDefault_AttribBindings);
 
     enum {
         // the edge effects share this stage with glyph rendering

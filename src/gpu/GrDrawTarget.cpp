@@ -615,18 +615,15 @@ void GrDrawTarget::drawRect(const GrRect& rect,
                             const SkMatrix* matrix,
                             const GrRect* localRect,
                             const SkMatrix* localMatrix) {
-    GrAttribBindings bindings = 0;
     // position + (optional) texture coord
     static const GrVertexAttrib kAttribs[] = {
-        {kVec2f_GrVertexAttribType, 0},
-        {kVec2f_GrVertexAttribType, sizeof(GrPoint)}
+        {kVec2f_GrVertexAttribType, 0,               kPosition_GrVertexAttribBinding},
+        {kVec2f_GrVertexAttribType, sizeof(GrPoint), kLocalCoord_GrVertexAttribBinding}
     };
     int attribCount = 1;
 
     if (NULL != localRect) {
-        bindings |= GrDrawState::kLocalCoords_AttribBindingsBit;
         attribCount = 2;
-        this->drawState()->setAttribIndex(GrDrawState::kLocalCoords_AttribIndex, 1);
     }
 
     GrDrawState::AutoViewMatrixRestore avmr;
@@ -635,8 +632,6 @@ void GrDrawTarget::drawRect(const GrRect& rect,
     }
 
     this->drawState()->setVertexAttribs(kAttribs, attribCount);
-    this->drawState()->setAttribIndex(GrDrawState::kPosition_AttribIndex, 0);
-    this->drawState()->setAttribBindings(bindings);
     AutoReleaseGeometry geo(this, 4, 0);
     if (!geo.succeeded()) {
         GrPrintf("Failed to get space for vertices!\n");
