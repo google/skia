@@ -70,10 +70,23 @@ public:
     int getCommandAtPoint(int x, int y, int index);
 
     /**
+        Removes the command at the specified index
+        @param index  The index of the command to delete
+     */
+    void deleteDrawCommandAt(int index);
+
+    /**
         Returns the draw command at the given index.
         @param index  The index of the command
      */
     SkDrawCommand* getDrawCommandAt(int index);
+
+    /**
+        Sets the draw command for a given index.
+        @param index  The index to overwrite
+        @param command The new command
+     */
+    void setDrawCommandAt(int index, SkDrawCommand* command);
 
     /**
         Returns information about the command at the given index.
@@ -89,6 +102,7 @@ public:
 
     /**
         Returns the vector of draw commands
+        DEPRECATED: please use getDrawCommandAt and getSize instead
      */
     const SkTDArray<SkDrawCommand*>& getDrawCommands() const;
 

@@ -207,9 +207,21 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
     fIndex = index;
 }
 
+void SkDebugCanvas::deleteDrawCommandAt(int index) {
+    SkASSERT(index < fCommandVector.count());
+    delete fCommandVector[index];
+    fCommandVector.remove(index);
+}
+
 SkDrawCommand* SkDebugCanvas::getDrawCommandAt(int index) {
     SkASSERT(index < fCommandVector.count());
     return fCommandVector[index];
+}
+
+void SkDebugCanvas::setDrawCommandAt(int index, SkDrawCommand* command) {
+    SkASSERT(index < fCommandVector.count());
+    delete fCommandVector[index];
+    fCommandVector[index] = command;
 }
 
 SkTDArray<SkString*>* SkDebugCanvas::getCommandInfo(int index) {
