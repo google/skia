@@ -136,24 +136,21 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
         verts[i].fInnerRadius = innerRadius - 0.5f;
     }
 
-    SkScalar L = -outerRadius;
-    SkScalar R = +outerRadius;
-    SkScalar T = -outerRadius;
-    SkScalar B = +outerRadius;
-
     // We've extended the outer radius out half a pixel to antialias.
     // Expand the drawn rect here so all the pixels will be captured.
-    L += center.fX - SK_ScalarHalf;
-    R += center.fX + SK_ScalarHalf;
-    T += center.fY - SK_ScalarHalf;
-    B += center.fY + SK_ScalarHalf;
+    SkRect bounds = SkRect::MakeLTRB(
+        center.fX - outerRadius - SK_ScalarHalf,
+        center.fY - outerRadius - SK_ScalarHalf,
+        center.fX + outerRadius + SK_ScalarHalf,
+        center.fY + outerRadius + SK_ScalarHalf
+    );
 
-    verts[0].fPos = SkPoint::Make(L, T);
-    verts[1].fPos = SkPoint::Make(R, T);
-    verts[2].fPos = SkPoint::Make(L, B);
-    verts[3].fPos = SkPoint::Make(R, B);
+    verts[0].fPos = SkPoint::Make(bounds.fLeft,  bounds.fTop);
+    verts[1].fPos = SkPoint::Make(bounds.fRight, bounds.fTop);
+    verts[2].fPos = SkPoint::Make(bounds.fLeft,  bounds.fBottom);
+    verts[3].fPos = SkPoint::Make(bounds.fRight, bounds.fBottom);
 
-    target->drawNonIndexed(kTriangleStrip_GrPrimitiveType, 0, 4);
+    target->drawNonIndexed(kTriangleStrip_GrPrimitiveType, 0, 4, &bounds);
 }
 
 void GrOvalRenderer::drawEllipse(GrDrawTarget* target,

@@ -407,15 +407,7 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
 }
 
 bool GrDrawTarget::setupDstReadIfNecessary(DrawInfo* info) {
-    bool willReadDst = false;
-    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
-        const GrEffectRef* effect = this->drawState()->getStage(s).getEffect();
-        if (NULL != effect && (*effect)->willReadDst()) {
-            willReadDst = true;
-            break;
-        }
-    }
-    if (!willReadDst) {
+    if (!this->getDrawState().willEffectReadDst()) {
         return true;
     }
     GrRenderTarget* rt = this->drawState()->getRenderTarget();
@@ -426,8 +418,24 @@ bool GrDrawTarget::setupDstReadIfNecessary(DrawInfo* info) {
         GrPrintf("Reading Dst of non-texture render target is not currently supported.\n");
         return false;
     }
-    // TODO: Consider bounds of draw and bounds of clip
 
+    const GrClipData* clip = this->getClip();
+    GrIRect copyRect;
+    clip->getConservativeBounds(this->getDrawState().getRenderTarget(), &copyRect);
+    SkIRect drawIBounds;
+    if (info->getDevIBounds(&drawIBounds)) {
+        if (!copyRect.intersect(drawIBounds)) {
+#if GR_DEBUG
+            GrPrintf("Missed an early reject. Bailing on draw from setupDstReadIfNecessary.\n");
+#endif
+            return false;
+        }
+    } else {
+#if GR_DEBUG
+        //GrPrintf("No dev bounds when dst copy is made.\n");
+#endif
+    }
+    
     GrDrawTarget::AutoGeometryAndStatePush agasp(this, kReset_ASRInit);
 
     // The draw will resolve dst if it has MSAA. Two things to consider in the future:
@@ -437,8 +445,8 @@ bool GrDrawTarget::setupDstReadIfNecessary(DrawInfo* info) {
     // copy of it.
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
-    desc.fWidth = rt->width();
-    desc.fHeight = rt->height();
+    desc.fWidth = copyRect.width();
+    desc.fHeight = copyRect.height();
     desc.fSampleCnt = 0;
     desc.fConfig = rt->config();
 
@@ -454,11 +462,14 @@ bool GrDrawTarget::setupDstReadIfNecessary(DrawInfo* info) {
     SkMatrix matrix;
     matrix.setIDiv(rt->width(), rt->height());
     this->drawState()->createTextureEffect(kTextureStage, rt->asTexture(), matrix);
-    SkRect copyRect = SkRect::MakeWH(SkIntToScalar(desc.fWidth),
-                                     SkIntToScalar(desc.fHeight));
-    this->drawRect(copyRect, NULL, &copyRect, NULL);
+    
+    SkRect srcRect = SkRect::MakeFromIRect(copyRect);
+    SkRect dstRect = SkRect::MakeWH(SkIntToScalar(copyRect.width()),
+                                    SkIntToScalar(copyRect.height()));
+    this->drawRect(dstRect, NULL, &srcRect, NULL);
+    
     info->fDstCopy.setTexture(ast.texture());
-    info->fDstCopy.setOffset(0, 0);
+    info->fDstCopy.setOffset(copyRect.fLeft, copyRect.fTop);
     return true;
 }
 
@@ -645,8 +656,13 @@ void GrDrawTarget::drawRect(const GrRect& rect,
             localMatrix->mapPointsWithStride(coords, vsize, 4);
         }
     }
+    SkTLazy<SkRect> bounds;
+    if (this->getDrawState().willEffectReadDst()) {
+        bounds.init();
+        this->getDrawState().getViewMatrix().mapRect(bounds.get(), rect);
+    }
 
-    this->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
+    this->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4, bounds.getMaybeNull());
 }
 
 void GrDrawTarget::clipWillBeSet(const GrClipData* clipData) {
