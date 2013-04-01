@@ -489,6 +489,115 @@ static void apply_7(SkDebugCanvas* canvas, int curCommand) {
     canvas->deleteDrawCommandAt(curCommand);      // save
 }
 
+// Check for:
+//    SAVE
+//       CLIP_RECT
+//       DRAWBITMAPRECTTORECT
+//    RESTORE
+// where:
+//      the drawBitmapRectToRect is a 1-1 copy from src to dest
+//      the clip rect is BW and a subset of the drawBitmapRectToRect's dest rect
+static bool check_8(SkDebugCanvas* canvas, int curCommand) {
+    if (SAVE != canvas->getDrawCommandAt(curCommand)->getType() ||
+        canvas->getSize() <= curCommand+4 ||
+        CLIP_RECT != canvas->getDrawCommandAt(curCommand+1)->getType() ||
+        DRAW_BITMAP_RECT_TO_RECT != canvas->getDrawCommandAt(curCommand+2)->getType() ||
+        RESTORE != canvas->getDrawCommandAt(curCommand+3)->getType()) {
+        return false;
+    }
+
+    ClipRect* clip = (ClipRect*) canvas->getDrawCommandAt(curCommand+1);
+    DrawBitmapRect* dbmr = (DrawBitmapRect*) canvas->getDrawCommandAt(curCommand+2);
+
+    if (clip->doAA() || SkRegion::kIntersect_Op != clip->op()) {
+        return false;
+    }
+
+    // The src->dest mapping needs to be 1-to-1
+    if (NULL == dbmr->srcRect()) {
+        if (dbmr->bitmap().width() != dbmr->dstRect().width() ||
+            dbmr->bitmap().height() != dbmr->dstRect().height()) {
+            return false;
+        }
+    } else {
+        if (dbmr->srcRect()->width() != dbmr->dstRect().width() ||
+            dbmr->srcRect()->height() != dbmr->dstRect().height()) {
+            return false;
+        }
+    }
+
+    if (!dbmr->dstRect().contains(clip->rect())) {
+        return false;
+    }
+
+    return true;
+}
+
+// Fold the clipRect into the drawBitmapRectToRect's src and dest rects
+static void apply_8(SkDebugCanvas* canvas, int curCommand) {
+    ClipRect* clip = (ClipRect*) canvas->getDrawCommandAt(curCommand+1);
+    DrawBitmapRect* dbmr = (DrawBitmapRect*) canvas->getDrawCommandAt(curCommand+2);
+
+    SkScalar newSrcLeft, newSrcTop;
+
+    if (NULL != dbmr->srcRect()) {
+        newSrcLeft = dbmr->srcRect()->fLeft + clip->rect().fLeft - dbmr->dstRect().fLeft;
+        newSrcTop  = dbmr->srcRect()->fTop + clip->rect().fTop - dbmr->dstRect().fTop;
+    } else {
+        newSrcLeft = clip->rect().fLeft - dbmr->dstRect().fLeft;
+        newSrcTop  = clip->rect().fTop - dbmr->dstRect().fTop;
+    }
+
+    SkRect newSrc = SkRect::MakeXYWH(newSrcLeft, newSrcTop,
+                                     clip->rect().width(), clip->rect().height());
+
+    dbmr->setSrcRect(newSrc);
+    dbmr->setDstRect(clip->rect());
+
+    // remove everything except the drawbitmaprect
+    canvas->deleteDrawCommandAt(curCommand+3);
+    canvas->deleteDrawCommandAt(curCommand+1);
+    canvas->deleteDrawCommandAt(curCommand);
+}
+
+// Check for:
+//  SAVE
+//    CLIP_RECT
+//    DRAWBITMAPRECTTORECT
+//  RESTORE
+// where:
+//      clipRect is BW and encloses the DBMR2R's dest rect
+static bool check_9(SkDebugCanvas* canvas, int curCommand) {
+    if (SAVE != canvas->getDrawCommandAt(curCommand)->getType() ||
+        canvas->getSize() <= curCommand+4 ||
+        CLIP_RECT != canvas->getDrawCommandAt(curCommand+1)->getType() ||
+        DRAW_BITMAP_RECT_TO_RECT != canvas->getDrawCommandAt(curCommand+2)->getType() ||
+        RESTORE != canvas->getDrawCommandAt(curCommand+3)->getType()) {
+        return false;
+    }
+
+    ClipRect* clip = (ClipRect*) canvas->getDrawCommandAt(curCommand+1);
+    DrawBitmapRect* dbmr = (DrawBitmapRect*) canvas->getDrawCommandAt(curCommand+2);
+
+    if (clip->doAA() || SkRegion::kIntersect_Op != clip->op()) {
+        return false;
+    }
+
+    if (!clip->rect().contains(dbmr->dstRect())) {
+        return false;
+    }
+
+    return true;
+}
+
+// remove everything except the drawbitmaprect
+static void apply_9(SkDebugCanvas* canvas, int curCommand) {
+    canvas->deleteDrawCommandAt(curCommand+3);   // restore
+    // drawBitmapRectToRect
+    canvas->deleteDrawCommandAt(curCommand+1);   // clipRect
+    canvas->deleteDrawCommandAt(curCommand);     // save
+}
+
 typedef bool (*PFCheck)(SkDebugCanvas* canvas, int curCommand);
 typedef void (*PFApply)(SkDebugCanvas* canvas, int curCommand);
 
@@ -505,6 +614,8 @@ struct OptTableEntry {
     { check_5, apply_5, 0 },
     { check_6, apply_6, 0 },
     { check_7, apply_7, 0 },
+    { check_8, apply_8, 0 },
+    { check_9, apply_9, 0 },
 };
 
 
