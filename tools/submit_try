@@ -148,7 +148,7 @@ def ValidateArgs(argv, trybots, is_svn=True):
 """submit_try: Submit a try request.
 submit_try %s--bot <buildername> [<buildername> ...]
 
---bot               Builder on which to run the try. Required.
+-b, --bot           Builder on which to run the try. Required.
 -h, --help          Show this message.
 -r <revision#>      Revision from which to run the try.
 -l, --list_bots     List the available try builders and exit.
@@ -171,7 +171,7 @@ submit_try %s--bot <buildername> [<buildername> ...]
     elif arg == '-l' or arg == '--list_bots':
       print 'submit_try: Available builders:\n  %s' % '\n  '.join(trybots)
       sys.exit(0)
-    elif arg == '--bot':
+    elif arg == '-b' or arg == '--bot':
       if using_bots:
         Error('--bot specified multiple times.')
       if len(argv) < 1:
