@@ -9,7 +9,8 @@
 #include "GrGLShaderVar.h"
 #include "SkString.h"
 
-GrGLSLGeneration GrGetGLSLGeneration(GrGLBinding binding, const GrGLInterface* gl) {
+GrGLSLGeneration GrGetGLSLGeneration(GrGLBinding binding,
+                                   const GrGLInterface* gl) {
     GrGLSLVersion ver = GrGLGetGLSLVersion(gl);
     switch (binding) {
         case kDesktop_GrGLBinding:
@@ -33,7 +34,8 @@ GrGLSLGeneration GrGetGLSLGeneration(GrGLBinding binding, const GrGLInterface* g
     }
 }
 
-const char* GrGetGLSLVersionDecl(GrGLBinding binding, GrGLSLGeneration gen) {
+const char* GrGetGLSLVersionDecl(GrGLBinding binding,
+                                   GrGLSLGeneration gen) {
     switch (gen) {
         case k110_GrGLSLGeneration:
             if (kES2_GrGLBinding == binding) {
@@ -59,7 +61,9 @@ const char* GrGetGLSLVersionDecl(GrGLBinding binding, GrGLSLGeneration gen) {
     }
 }
 
-bool GrGLSLSetupFSColorOuput(GrGLSLGeneration gen, const char* nameIfDeclared, GrGLShaderVar* var) {
+bool GrGLSLSetupFSColorOuput(GrGLSLGeneration gen,
+                             const char* nameIfDeclared,
+                             GrGLShaderVar* var) {
     bool declaredOutput = k110_GrGLSLGeneration != gen;
     var->set(kVec4f_GrSLType,
              GrGLShaderVar::kOut_TypeModifier,

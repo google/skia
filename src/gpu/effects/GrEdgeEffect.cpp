@@ -38,7 +38,7 @@ public:
             builder->fsCodeAppendf("\t\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
             break;
         case GrEdgeEffect::kQuad_EdgeType:
-            SkAssertResult(builder->enableFeature(GrGLShaderBuilder::kStandardDerivatives_GLSLFeature));
+            GrAssert(builder->ctxInfo().caps()->shaderDerivativeSupport());
             builder->addVarying(kVec4f_GrSLType, "QuadEdge", &vsName, &fsName);
 
             // keep the derivative instructions outside the conditional
@@ -56,9 +56,12 @@ public:
                                    fsName);
             builder->fsCodeAppendf("\t\t\tedgeAlpha = "
                                    "clamp(0.5 - edgeAlpha / length(gF), 0.0, 1.0);\n\t\t}\n");
+            if (kES2_GrGLBinding == builder->ctxInfo().binding()) {
+                builder->fHeader.append("#extension GL_OES_standard_derivatives: enable\n");
+            }
             break;
         case GrEdgeEffect::kHairQuad_EdgeType:
-            SkAssertResult(builder->enableFeature(GrGLShaderBuilder::kStandardDerivatives_GLSLFeature));
+            GrAssert(builder->ctxInfo().caps()->shaderDerivativeSupport());
             builder->addVarying(kVec4f_GrSLType, "HairQuadEdge", &vsName, &fsName);
 
             builder->fsCodeAppendf("\t\tvec2 duvdx = dFdx(%s.xy);\n", fsName);
@@ -70,6 +73,9 @@ public:
                                    fsName);
             builder->fsCodeAppend("\t\tedgeAlpha = sqrt(edgeAlpha*edgeAlpha / dot(gF, gF));\n");
             builder->fsCodeAppend("\t\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
+            if (kES2_GrGLBinding == builder->ctxInfo().binding()) {
+                builder->fHeader.append("#extension GL_OES_standard_derivatives: enable\n");
+            }
             break;
         };
 

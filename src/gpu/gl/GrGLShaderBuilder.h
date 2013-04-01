@@ -107,22 +107,6 @@ public:
     GrGLShaderBuilder(const GrGLContextInfo&, GrGLUniformManager&, const GrGLProgramDesc&);
 
     /**
-     * Use of these features may require a GLSL extension to be enabled. Shaders may not compile
-     * if code is added that uses one of these features without calling enableFeature()
-     */
-    enum GLSLFeature {
-        kStandardDerivatives_GLSLFeature = 0,
-
-        kLastGLSLFeature = kStandardDerivatives_GLSLFeature
-    };
-
-    /**
-     * If the feature is supported then true is returned and any necessary #extension declarations
-     * are added to the shaders. If the feature is not supported then false will be returned.
-     */
-    bool enableFeature(GLSLFeature);
-
-    /**
      * Called by GrGLEffects to add code to one of the shaders.
      */
     void vsCodeAppendf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
@@ -329,6 +313,7 @@ private:
     // TODO: Everything below here private.
 public:
 
+    SkString    fHeader; // VS+FS, GLSL version, etc
     VarArray    fVSAttrs;
     VarArray    fVSOutputs;
     VarArray    fGSInputs;
@@ -342,18 +327,6 @@ private:
         kNonStageIdx = -1,
     };
 
-    /**
-     * Features that should only be enabled by GrGLShaderBuilder itself.
-     */
-    enum GLSLPrivateFeature {
-        kFragCoordConventions_GLSLPrivateFeature = kLastGLSLFeature + 1
-    };
-    bool enablePrivateFeature(GLSLPrivateFeature);
-
-    // If we ever have VS/GS features we can expand this to take a bitmask of ShaderType and track
-    // the enables separately for each shader.
-    void addFSFeature(uint32_t featureBit, const char* extensionName);
-
     // Interpretation of DstReadKey when generating code
     enum {
         kNoDstRead_DstReadKey         = 0,
@@ -365,7 +338,6 @@ private:
     const GrGLContextInfo&              fCtxInfo;
     GrGLUniformManager&                 fUniformManager;
     int                                 fCurrentStageIdx;
-    uint32_t                            fFSFeaturesAddedMask;
     SkString                            fFSFunctions;
     SkString                            fFSHeader;
 

@@ -462,6 +462,8 @@ bool GrGLProgram::genProgram(const GrEffectStage* stages[]) {
     // the dual source output has no canonical var name, have to
     // declare an output, which is incompatible with gl_FragColor/gl_FragData.
     bool dualSourceOutputWritten = false;
+    builder.fHeader.append(GrGetGLSLVersionDecl(fContext.info().binding(),
+                                                fContext.info().glslGeneration()));
 
     GrGLShaderVar colorOutput;
     bool isColorDeclared = GrGLSLSetupFSColorOuput(fContext.info().glslGeneration(),
