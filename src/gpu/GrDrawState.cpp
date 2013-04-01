@@ -146,7 +146,8 @@ bool GrDrawState::validateVertexAttribs() const {
                 int slVecCount = GrSLTypeVectorCount(effectSLType);
                 int attribVecCount = GrVertexAttribTypeVectorCount(attribType);
                 if (slVecCount != attribVecCount ||
-                    (-1 != slTypes[attribIndex] && slTypes[attribIndex] != effectSLType)) {
+                    (static_cast<GrSLType>(-1) != slTypes[attribIndex] && 
+                     slTypes[attribIndex] != effectSLType)) {
                     return false;
                 }
                 slTypes[attribIndex] = effectSLType;
