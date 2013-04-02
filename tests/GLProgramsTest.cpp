@@ -30,11 +30,11 @@ void GrGLProgramDesc::setRandom(SkMWCRandom* random,
 
     fPositionAttributeIndex = 0;
 
-    // if the effects have used up all off the available attributes, 
+    // if the effects have used up all off the available attributes,
     // don't try to use color or coverage attributes as input
     do {
         fColorInput = random->nextULessThan(kColorInputCnt);
-    } while (GrDrawState::kMaxVertexAttribCnt <= currAttribIndex && 
+    } while (GrDrawState::kMaxVertexAttribCnt <= currAttribIndex &&
              kAttribute_ColorInput == fColorInput);
     fColorAttributeIndex = (fColorInput == kAttribute_ColorInput) ? currAttribIndex++ : -1;
 
@@ -124,7 +124,7 @@ bool GrGpuGL::programUnitTest(int maxStages) {
                 int numAttribs = (*effect)->numVertexAttribs();
 
                 // If adding this effect would exceed the max attrib count then generate a
-                // new random effect. 
+                // new random effect.
                 if (currAttribIndex + numAttribs > GrDrawState::kMaxVertexAttribCnt) {
                     --s;
                     continue;
@@ -137,7 +137,7 @@ bool GrGpuGL::programUnitTest(int maxStages) {
         }
         const GrTexture* dstTexture = random.nextBool() ? dummyTextures[0] : dummyTextures[1];
         pdesc.setRandom(&random, this, dstTexture, stages, currAttribIndex);
- 
+
         const GrEffectStage* stagePtrs[GrDrawState::kNumStages];
         for (int s = 0; s < GrDrawState::kNumStages; ++s) {
             stagePtrs[s] = &stages[s];

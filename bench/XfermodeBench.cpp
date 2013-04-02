@@ -52,7 +52,7 @@ private:
     };
     SkAutoTUnref<SkXfermode> fXfermode;
     SkString fName;
-    
+
     typedef SkBenchmark INHERITED;
 };
 

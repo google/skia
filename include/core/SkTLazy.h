@@ -85,7 +85,7 @@ public:
      * knows that the object has been initialized.
      */
     T* get() const { SkASSERT(this->isValid()); return fPtr; }
-    
+
     /**
      * Like above but doesn't assert if object isn't initialized (in which case
      * NULL is returned).
