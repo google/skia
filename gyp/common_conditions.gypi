@@ -299,7 +299,7 @@
             'cflags': ['-g']
           },
           'Release': {
-            'cflags': ['-O3'],
+            'cflags': ['-O2'],
             'defines': [ 'NDEBUG' ],
           },
         },
