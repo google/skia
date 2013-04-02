@@ -16,7 +16,6 @@
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkRect.h"
-#include "SkAutoKern.h"
 
 class SkBounder;
 class SkClipStack;
