@@ -451,11 +451,10 @@ public:
 
     static GrEffectRef* Create() {
         // we go through this so we only have one copy of each effect
-        static GrEffectRef* gQuadEdgeEffectRef = 
-            CreateEffectRef(AutoEffectUnref(SkNEW(QuadEdgeEffect)));
-        static SkAutoTUnref<GrEffectRef> gUnref(gQuadEdgeEffectRef);
+        static SkAutoTUnref<GrEffectRef> gQuadEdgeEffectRef(
+                    CreateEffectRef(AutoEffectUnref(SkNEW(QuadEdgeEffect))));
 
-        gQuadEdgeEffectRef->ref();
+        gQuadEdgeEffectRef.get()->ref();
         return gQuadEdgeEffectRef;
     }
 
@@ -524,7 +523,7 @@ public:
     private:
         typedef GrGLEffect INHERITED;
     };
-
+    
 private:
     QuadEdgeEffect() { 
         this->addVertexAttrib(kVec4f_GrSLType); 

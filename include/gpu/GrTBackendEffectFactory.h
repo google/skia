@@ -71,7 +71,7 @@ public:
 
 protected:
     GrTBackendEffectFactory() {
-        fEffectClassID = GenID() << (kEffectKeyBits + kTextureKeyBits) ;
+        fEffectClassID = GenID() << (kAttribKeyBits + kEffectKeyBits + kTextureKeyBits) ;
     }
 };
 
