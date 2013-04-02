@@ -61,18 +61,15 @@ static bool check_0(SkDebugCanvas* canvas, int curCommand) {
     SkPaint* dbmrPaint = dbmr->paint();
 
     // For this optimization we only fold the saveLayer and drawBitmapRect
-    // together if the saveLayer's draw is simple (i.e., no fancy effects) and
-    // and the only difference in the colors is that the saveLayer's can have
-    // an alpha while the drawBitmapRect's is opaque.
-    // TODO: it should be possible to fold them together even if they both
-    // have different non-255 alphas but this is low priority since we have
-    // never seen that case
-    // If either operation lacks a paint then the collapse is trivial
+    // together if the saveLayer's draw is simple (i.e., no fancy effects)
+    // and the only difference in the colors is their alpha value
     SkColor layerColor = saveLayerPaint->getColor() | 0xFF000000; // force opaque
+    SkColor dbmrColor = dbmrPaint->getColor() | 0xFF000000;       // force opaque
 
+    // If either operation lacks a paint then the collapse is trivial
     return NULL == saveLayerPaint ||
            NULL == dbmrPaint ||
-           (is_simple(*saveLayerPaint) && dbmrPaint->getColor() == layerColor);
+           (is_simple(*saveLayerPaint) && dbmrColor == layerColor);
 }
 
 // Fold the saveLayer's alpha into the drawBitmapRect and remove the saveLayer
@@ -90,8 +87,17 @@ static void apply_0(SkDebugCanvas* canvas, int curCommand) {
             // if the DBMR doesn't have a paint just use the saveLayer's
             dbmr->setPaint(*saveLayerPaint);
         } else if (NULL != saveLayerPaint) {
-            SkColor newColor = SkColorSetA(dbmrPaint->getColor(),
-                                           SkColorGetA(saveLayerPaint->getColor()));
+            // Both paints are present so their alphas need to be combined
+            SkColor color = saveLayerPaint->getColor();
+            int a0 = SkColorGetA(color);
+
+            color = dbmrPaint->getColor();
+            int a1 = SkColorGetA(color);
+
+            int newA = SkMulDiv255Round(a0, a1);
+            SkASSERT(newA <= 0xFF);
+
+            SkColor newColor = SkColorSetA(color, newA);
             dbmrPaint->setColor(newColor);
         }
     }
@@ -457,7 +463,7 @@ static void apply_7(SkDebugCanvas* canvas, int curCommand) {
         a1 = 0xFF;
     }
 
-    int newA = (a0 * a1) / 255;
+    int newA = SkMulDiv255Round(a0, a1);
     SkASSERT(newA <= 0xFF);
 
     SkPaint* dbmrPaint = dbmr->paint();
