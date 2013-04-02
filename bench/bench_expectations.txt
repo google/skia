@@ -570,7 +570,7 @@ desk_linkedin.skp_record_rtree_,Nexus7_4-1_Float_Bench_32-25th,3.436,-6.908,13.7
 desk_linkedin.skp_record_rtree_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,0.357,-9.678,10.393
 desk_linkedin.skp_record_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,0.341,-9.693,10.375
 desk_linkedin.skp_simple_viewport_1280x800_,Nexus7_4-1_Float_Bench_32-25th,12.220,0.998,23.442
-desk_linkedin.skp_simple_viewport_1280x800_gpu_,Nexus7_4-1_Float_Bench_32-25th,132.370,109.133,155.607
+desk_linkedin.skp_simple_viewport_1280x800_gpu_,Nexus7_4-1_Float_Bench_32-25th,132.370,89.133,155.607
 desk_linkedin.skp_simple_viewport_1280x800_rtree_,Nexus7_4-1_Float_Bench_32-25th,12.110,0.899,23.321
 desk_linkedin.skp_tile_1024x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,4.830,-5.653,15.313
 desk_linkedin.skp_tile_1024x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,5.160,-5.356,15.676
@@ -2154,7 +2154,7 @@ tabl_worldjournal.skp_record_rtree_,Nexus7_4-1_Float_Bench_32-25th,18.153,6.338,
 tabl_worldjournal.skp_record_rtree_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,1.065,-9.041,11.172
 tabl_worldjournal.skp_record_rtree_,Shuttle_Win7_Intel_Float_Bench_32-25th,0.961,-9.135,11.058
 tabl_worldjournal.skp_simple_viewport_1280x800_,Nexus7_4-1_Float_Bench_32-25th,42.520,28.268,56.772
-tabl_worldjournal.skp_simple_viewport_1280x800_gpu_,Nexus7_4-1_Float_Bench_32-25th,173.740,146.366,201.114
+tabl_worldjournal.skp_simple_viewport_1280x800_gpu_,Nexus7_4-1_Float_Bench_32-25th,173.740,96.366,201.114
 tabl_worldjournal.skp_simple_viewport_1280x800_rtree_,Nexus7_4-1_Float_Bench_32-25th,42.510,28.259,56.761
 tabl_worldjournal.skp_tile_1024x256_,Shuttle_Ubuntu12_ATI5770_Float_Bench_32-25th,16.730,5.057,28.403
 tabl_worldjournal.skp_tile_1024x256_,Shuttle_Win7_Intel_Float_Bench_32-25th,16.820,5.138,28.502
