@@ -287,6 +287,19 @@
         ],
       },
     ],
+    ['skia_os == "win"',
+      {
+        'targets': [
+          {
+            'target_name': 'win_lcid',
+            'type': 'executable',
+            'sources': [
+              '../tools/win_lcid.cpp',
+            ],
+          },
+        ],
+      },
+    ],
   ],
 }
 

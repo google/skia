@@ -49,6 +49,7 @@
         '../tests/FlateTest.cpp',
         '../tests/FontHostStreamTest.cpp',
         '../tests/FontHostTest.cpp',
+        '../tests/FontNamesTest.cpp',
         '../tests/GeometryTest.cpp',
         '../tests/GLInterfaceValidation.cpp',
         '../tests/GLProgramsTest.cpp',
@@ -124,6 +125,7 @@
         'pdf.gyp:pdf',
         'tools.gyp:picture_utils',
         'utils.gyp:utils',
+        'sfnt.gyp:sfnt',
       ],
       'conditions': [
         [ 'skia_gpu == 1', {
