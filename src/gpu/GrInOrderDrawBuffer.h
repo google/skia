@@ -76,10 +76,6 @@ public:
     virtual void clear(const GrIRect* rect,
                        GrColor color,
                        GrRenderTarget* renderTarget = NULL) SK_OVERRIDE;
-    virtual void drawRect(const GrRect& rect,
-                          const SkMatrix* matrix,
-                          const GrRect* localRect,
-                          const SkMatrix* localMatrix) SK_OVERRIDE;
 
 protected:
     virtual void clipWillBeSet(const GrClipData* newClip) SK_OVERRIDE;
@@ -119,6 +115,10 @@ private:
 
     // overrides from GrDrawTarget
     virtual void onDraw(const DrawInfo&) SK_OVERRIDE;
+    virtual void onDrawRect(const GrRect& rect,
+                            const SkMatrix* matrix,
+                            const GrRect* localRect,
+                            const SkMatrix* localMatrix) SK_OVERRIDE;
     virtual void onStencilPath(const GrPath*, const SkStrokeRec& stroke, SkPath::FillType) SK_OVERRIDE;
     virtual bool onReserveVertexSpace(size_t vertexSize,
                                       int vertexCount,

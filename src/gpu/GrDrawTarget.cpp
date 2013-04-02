@@ -611,10 +611,10 @@ void GrDrawTarget::drawIndexedInstances(GrPrimitiveType type,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrDrawTarget::drawRect(const GrRect& rect,
-                            const SkMatrix* matrix,
-                            const GrRect* localRect,
-                            const SkMatrix* localMatrix) {
+void GrDrawTarget::onDrawRect(const GrRect& rect,
+                              const SkMatrix* matrix,
+                              const GrRect* localRect,
+                              const SkMatrix* localMatrix) {
     // position + (optional) texture coord
     static const GrVertexAttrib kAttribs[] = {
         {kVec2f_GrVertexAttribType, 0,               kPosition_GrVertexAttribBinding},

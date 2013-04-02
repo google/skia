@@ -178,6 +178,7 @@ void GrAARectRenderer::fillAARect(GrGpu* gpu,
     target->drawIndexedInstances(kTriangles_GrPrimitiveType, 1,
                                  kVertsPerAAFillRect,
                                  kIndicesPerAAFillRect);
+    target->resetIndexSource();
 }
 
 void GrAARectRenderer::strokeAARect(GrGpu* gpu,

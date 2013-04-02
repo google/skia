@@ -170,6 +170,27 @@ public:
     bool validateVertexAttribs() const;
 
     /**
+     * Helper to save/restore vertex attribs
+     */
+     class AutoVertexAttribRestore {
+     public:
+         AutoVertexAttribRestore(GrDrawState* drawState) {
+             GrAssert(NULL != drawState);
+             fDrawState = drawState;
+             fVertexAttribs = drawState->fCommon.fVertexAttribs;
+             fDrawState->setDefaultVertexAttribs();
+         }
+
+         ~AutoVertexAttribRestore(){
+             fDrawState->fCommon.fVertexAttribs = fVertexAttribs;
+         }
+
+     private:
+         GrDrawState*                               fDrawState;
+         GrVertexAttribArray<kMaxVertexAttribCnt>   fVertexAttribs;
+     };
+
+    /**
      * Accessing positions, local coords, or colors, of a vertex within an array is a hassle
      * involving casts and simple math. These helpers exist to keep GrDrawTarget clients' code a bit
      * nicer looking.
