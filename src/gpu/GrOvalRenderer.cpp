@@ -7,8 +7,10 @@
 
 #include "GrOvalRenderer.h"
 
-#include "effects/GrCircleEdgeEffect.h"
-#include "effects/GrEllipseEdgeEffect.h"
+#include "GrEffect.h"
+#include "gl/GrGLEffect.h"
+#include "gl/GrGLSL.h"
+#include "GrTBackendEffectFactory.h"
 
 #include "GrDrawState.h"
 #include "GrDrawTarget.h"
@@ -39,6 +41,253 @@ inline bool circle_stays_circle(const SkMatrix& m) {
 }
 
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+ * The output of this effect is a modulation of the input color and coverage for a circle,
+ * specified as center_x, center_y, x_radius, inner radius and outer radius in window space
+ * (y-down).
+ */
+
+class CircleEdgeEffect : public GrEffect {
+public:
+    static GrEffectRef* Create(bool stroke) {
+        // we go through this so we only have one copy of each effect (stroked/filled)
+        static SkAutoTUnref<GrEffectRef> gCircleStrokeEdgeEffectRef(
+                        CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(CircleEdgeEffect, (true)))));
+        static SkAutoTUnref<GrEffectRef> gCircleFillEdgeEffectRef(
+                        CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(CircleEdgeEffect, (false)))));
+
+        if (stroke) {
+            gCircleStrokeEdgeEffectRef.get()->ref();
+            return gCircleStrokeEdgeEffectRef;
+        } else {
+            gCircleFillEdgeEffectRef.get()->ref();
+            return gCircleFillEdgeEffectRef;
+        }
+    }
+
+    virtual void getConstantColorComponents(GrColor* color, 
+                                            uint32_t* validFlags) const SK_OVERRIDE {
+        *validFlags = 0;
+    }
+
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
+        return GrTBackendEffectFactory<CircleEdgeEffect>::getInstance();
+    }
+
+    virtual ~CircleEdgeEffect() {}
+
+    static const char* Name() { return "CircleEdge"; }
+
+    inline bool isStroked() const { return fStroke; }
+
+    class GLEffect : public GrGLEffect {
+    public:
+        GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
+        : INHERITED (factory) {}
+
+        virtual void emitCode(GrGLShaderBuilder* builder,
+                              const GrDrawEffect& drawEffect,
+                              EffectKey key,
+                              const char* outputColor,
+                              const char* inputColor,
+                              const TextureSamplerArray& samplers) SK_OVERRIDE {
+            const CircleEdgeEffect& circleEffect = drawEffect.castEffect<CircleEdgeEffect>();
+            const char *vsName, *fsName;
+            builder->addVarying(kVec4f_GrSLType, "CircleEdge", &vsName, &fsName);
+
+            const SkString* attrName =
+                builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
+            builder->vsCodeAppendf("\t%s = %s;\n", vsName, attrName->c_str());
+
+            builder->fsCodeAppendf("\tfloat d = distance(%s.xy, %s.xy);\n",
+                                   builder->fragmentPosition(), fsName);
+            builder->fsCodeAppendf("\tfloat edgeAlpha = clamp(%s.z - d, 0.0, 1.0);\n", fsName);
+            if (circleEffect.isStroked()) {
+                builder->fsCodeAppendf("\tfloat innerAlpha = clamp(d - %s.w, 0.0, 1.0);\n", fsName);
+                builder->fsCodeAppend("\tedgeAlpha *= innerAlpha;\n");
+            }
+            SkString modulate;
+            GrGLSLModulate4f(&modulate, inputColor, "edgeAlpha");
+            builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
+        }
+
+        static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
+            const CircleEdgeEffect& circleEffect = drawEffect.castEffect<CircleEdgeEffect>();
+
+            return circleEffect.isStroked() ? 0x1 : 0x0;
+        }
+
+        virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {}
+
+    private:
+        typedef GrGLEffect INHERITED;
+    };
+
+
+private:
+    CircleEdgeEffect(bool stroke) : GrEffect() {
+        this->addVertexAttrib(kVec4f_GrSLType);
+        fStroke = stroke;
+    }
+
+    virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
+        const CircleEdgeEffect& cee = CastEffect<CircleEdgeEffect>(other);
+        return cee.fStroke == fStroke;
+    }
+
+    bool fStroke;
+
+    GR_DECLARE_EFFECT_TEST;
+
+    typedef GrEffect INHERITED;
+};
+
+GR_DEFINE_EFFECT_TEST(CircleEdgeEffect);
+
+GrEffectRef* CircleEdgeEffect::TestCreate(SkMWCRandom* random,
+                                          GrContext* context,
+                                          const GrDrawTargetCaps&,
+                                          GrTexture* textures[]) {
+    return CircleEdgeEffect::Create(random->nextBool());
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+ * The output of this effect is a modulation of the input color and coverage for an axis-aligned
+ * ellipse, specified as center_x, center_y, x_radius, x_radius/y_radius in window space (y-down).
+ */
+
+class EllipseEdgeEffect : public GrEffect {
+public:
+    static GrEffectRef* Create(bool stroke) {
+        // we go through this so we only have one copy of each effect (stroked/filled)
+        static SkAutoTUnref<GrEffectRef> gEllipseStrokeEdgeEffectRef(
+                        CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(EllipseEdgeEffect, (true)))));
+        static SkAutoTUnref<GrEffectRef> gEllipseFillEdgeEffectRef(
+                        CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(EllipseEdgeEffect, (false)))));
+
+        if (stroke) {
+            gEllipseStrokeEdgeEffectRef.get()->ref();
+            return gEllipseStrokeEdgeEffectRef;
+        } else {
+            gEllipseFillEdgeEffectRef.get()->ref();
+            return gEllipseFillEdgeEffectRef;
+        }
+    }
+
+    virtual void getConstantColorComponents(GrColor* color, 
+                                            uint32_t* validFlags) const SK_OVERRIDE {
+        *validFlags = 0;
+    }
+
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE {
+        return GrTBackendEffectFactory<EllipseEdgeEffect>::getInstance();
+    }
+
+    virtual ~EllipseEdgeEffect() {}
+
+    static const char* Name() { return "EllipseEdge"; }
+
+    inline bool isStroked() const { return fStroke; }
+
+    class GLEffect : public GrGLEffect {
+    public:
+        GLEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&)
+        : INHERITED (factory) {}
+
+        virtual void emitCode(GrGLShaderBuilder* builder,
+                              const GrDrawEffect& drawEffect,
+                              EffectKey key,
+                              const char* outputColor,
+                              const char* inputColor,
+                              const TextureSamplerArray& samplers) SK_OVERRIDE {
+            const EllipseEdgeEffect& ellipseEffect = drawEffect.castEffect<EllipseEdgeEffect>();
+
+            const char *vsCenterName, *fsCenterName;
+            const char *vsEdgeName, *fsEdgeName;
+
+            builder->addVarying(kVec2f_GrSLType, "EllipseCenter", &vsCenterName, &fsCenterName);
+            const SkString* attr0Name =
+                builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[0]);
+            builder->vsCodeAppendf("\t%s = %s;\n", vsCenterName, attr0Name->c_str());
+
+            builder->addVarying(kVec4f_GrSLType, "EllipseEdge", &vsEdgeName, &fsEdgeName);
+            const SkString* attr1Name =
+                builder->getEffectAttributeName(drawEffect.getVertexAttribIndices()[1]);
+            builder->vsCodeAppendf("\t%s = %s;\n", vsEdgeName, attr1Name->c_str());
+
+            // translate to origin
+            builder->fsCodeAppendf("\tvec2 outerOffset = (%s.xy - %s.xy);\n",
+                                   builder->fragmentPosition(), fsCenterName);
+            builder->fsCodeAppend("\tvec2 innerOffset = outerOffset;\n");
+            // scale y by xRadius/yRadius
+            builder->fsCodeAppendf("\touterOffset.y *= %s.y;\n", fsEdgeName);
+            builder->fsCodeAppend("\tfloat dOuter = length(outerOffset);\n");
+            // compare outer lengths against xOuterRadius
+            builder->fsCodeAppendf("\tfloat edgeAlpha = clamp(%s.x-dOuter, 0.0, 1.0);\n", 
+                                   fsEdgeName);
+
+            if (ellipseEffect.isStroked()) {
+                builder->fsCodeAppendf("\tinnerOffset.y *= %s.w;\n", fsEdgeName);
+                builder->fsCodeAppend("\tfloat dInner = length(innerOffset);\n");
+
+                // compare inner lengths against xInnerRadius
+                builder->fsCodeAppendf("\tfloat innerAlpha = clamp(dInner-%s.z, 0.0, 1.0);\n", 
+                                       fsEdgeName);
+                builder->fsCodeAppend("\tedgeAlpha *= innerAlpha;\n");
+            }
+
+            SkString modulate;
+            GrGLSLModulate4f(&modulate, inputColor, "edgeAlpha");
+            builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());      
+        }
+
+        static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
+            const EllipseEdgeEffect& ellipseEffect = drawEffect.castEffect<EllipseEdgeEffect>();
+
+            return ellipseEffect.isStroked() ? 0x1 : 0x0;
+        }
+
+        virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {
+        }
+
+    private:
+        typedef GrGLEffect INHERITED;
+    };
+
+private:
+    EllipseEdgeEffect(bool stroke) : GrEffect() {
+        this->addVertexAttrib(kVec2f_GrSLType);
+        this->addVertexAttrib(kVec4f_GrSLType);
+        fStroke = stroke;
+    }
+
+    virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
+        const EllipseEdgeEffect& eee = CastEffect<EllipseEdgeEffect>(other);
+        return eee.fStroke == fStroke;
+    }
+
+    bool fStroke;
+
+    GR_DECLARE_EFFECT_TEST;
+
+    typedef GrEffect INHERITED;
+};
+
+GR_DEFINE_EFFECT_TEST(EllipseEdgeEffect);
+
+GrEffectRef* EllipseEdgeEffect::TestCreate(SkMWCRandom* random,
+                                           GrContext* context,
+                                           const GrDrawTargetCaps&,
+                                           GrTexture* textures[]) {
+    return EllipseEdgeEffect::Create(random->nextBool());
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 bool GrOvalRenderer::drawOval(GrDrawTarget* target, const GrContext* context, const GrPaint& paint,
                     const GrRect& oval, const SkStrokeRec& stroke)
@@ -108,7 +357,7 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
         kEdgeEffectStage = GrPaint::kTotalStages,
     };
 
-    GrEffectRef* effect = GrCircleEdgeEffect::Create(isStroked);
+    GrEffectRef* effect = CircleEdgeEffect::Create(isStroked);
     static const int kCircleEdgeAttrIndex = 1;
     drawState->setEffect(kEdgeEffectStage, effect, kCircleEdgeAttrIndex)->unref();
 
@@ -207,7 +456,7 @@ void GrOvalRenderer::drawEllipse(GrDrawTarget* target,
         kEdgeEffectStage = GrPaint::kTotalStages,
     };
 
-    GrEffectRef* effect = GrEllipseEdgeEffect::Create(isStroked);
+    GrEffectRef* effect = EllipseEdgeEffect::Create(isStroked);
     static const int kEllipseCenterAttrIndex = 1;
     static const int kEllipseEdgeAttrIndex = 2;
     drawState->setEffect(kEdgeEffectStage, effect,
