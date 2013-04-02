@@ -62,18 +62,18 @@ SkData* SkOTUtils::RenameFont(SkStream* fontData, const char* fontName, int font
     }
 
     // The required 'name' record types: Family, Style, Unique, Full and PostScript.
-    const SkOTTableNameRecord::NameID::Predefined::Value namesToCreate[] = {
-        SkOTTableNameRecord::NameID::Predefined::FontFamilyName,
-        SkOTTableNameRecord::NameID::Predefined::FontSubfamilyName,
-        SkOTTableNameRecord::NameID::Predefined::UniqueFontIdentifier,
-        SkOTTableNameRecord::NameID::Predefined::FullFontName,
-        SkOTTableNameRecord::NameID::Predefined::PostscriptName,
+    const SkOTTableName::Record::NameID::Predefined::Value namesToCreate[] = {
+        SkOTTableName::Record::NameID::Predefined::FontFamilyName,
+        SkOTTableName::Record::NameID::Predefined::FontSubfamilyName,
+        SkOTTableName::Record::NameID::Predefined::UniqueFontIdentifier,
+        SkOTTableName::Record::NameID::Predefined::FullFontName,
+        SkOTTableName::Record::NameID::Predefined::PostscriptName,
     };
     const int namesCount = SK_ARRAY_COUNT(namesToCreate);
 
     // Copy the data, leaving out the old name table.
     // In theory, we could also remove the DSIG table if it exists.
-    size_t nameTableLogicalSize = sizeof(SkOTTableName) + (namesCount * sizeof(SkOTTableNameRecord)) + (fontNameLen * sizeof(wchar_t));
+    size_t nameTableLogicalSize = sizeof(SkOTTableName) + (namesCount * sizeof(SkOTTableName::Record)) + (fontNameLen * sizeof(wchar_t));
     size_t nameTablePhysicalSize = (nameTableLogicalSize + 3) & ~3; // Rounded up to a multiple of 4.
 
     size_t oldNameTablePhysicalSize = (SkEndian_SwapBE32(tableEntry.logicalLength) + 3) & ~3; // Rounded up to a multiple of 4.
@@ -117,16 +117,16 @@ SkData* SkOTUtils::RenameFont(SkStream* fontData, const char* fontName, int font
 
     // Write the new 'name' table after the original font data.
     SkOTTableName* nameTable = reinterpret_cast<SkOTTableName*>(data + originalDataSize);
-    unsigned short stringOffset = sizeof(SkOTTableName) + (namesCount * sizeof(SkOTTableNameRecord));
+    unsigned short stringOffset = sizeof(SkOTTableName) + (namesCount * sizeof(SkOTTableName::Record));
     nameTable->format = SkOTTableName::format_0;
     nameTable->count = SkEndian_SwapBE16(namesCount);
     nameTable->stringOffset = SkEndian_SwapBE16(stringOffset);
 
-    SkOTTableNameRecord* nameRecords = reinterpret_cast<SkOTTableNameRecord*>(data + originalDataSize + sizeof(SkOTTableName));
+    SkOTTableName::Record* nameRecords = reinterpret_cast<SkOTTableName::Record*>(data + originalDataSize + sizeof(SkOTTableName));
     for (int i = 0; i < namesCount; ++i) {
-        nameRecords[i].platformID.value = SkOTTableNameRecord::PlatformID::Windows;
-        nameRecords[i].encodingID.windows.value = SkOTTableNameRecord::EncodingID::Windows::UnicodeBMPUCS2;
-        nameRecords[i].languageID.windows.value = SkOTTableNameRecord::LanguageID::Windows::English_UnitedStates;
+        nameRecords[i].platformID.value = SkOTTableName::Record::PlatformID::Windows;
+        nameRecords[i].encodingID.windows.value = SkOTTableName::Record::EncodingID::Windows::UnicodeBMPUCS2;
+        nameRecords[i].languageID.windows.value = SkOTTableName::Record::LanguageID::Windows::English_UnitedStates;
         nameRecords[i].nameID.predefined.value = namesToCreate[i];
         nameRecords[i].offset = SkEndian_SwapBE16(0);
         nameRecords[i].length = SkEndian_SwapBE16(fontNameLen * sizeof(wchar_t));
