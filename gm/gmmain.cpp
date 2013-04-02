@@ -413,14 +413,51 @@ public:
 
     static void generate_image_from_picture(GM* gm, const ConfigData& gRec,
                                             SkPicture* pict, SkBitmap* bitmap,
-                                            SkScalar scale = SK_Scalar1) {
+                                            SkScalar scale = SK_Scalar1,
+                                            bool tile = false) {
         SkISize size = gm->getISize();
         setup_bitmap(gRec, size, bitmap);
-        SkCanvas canvas(*bitmap);
-        installFilter(&canvas);
-        canvas.scale(scale, scale);
-        canvas.drawPicture(*pict);
-        complete_bitmap(bitmap);
+
+        if (tile) {
+            // Generate the result image by rendering to tiles and accumulating
+            // the results in 'bitmap'
+
+            // This 16x16 tiling matches the settings applied to 'pict' in 
+            // 'generate_new_picture'
+            SkISize tileSize = SkISize::Make(16, 16);
+
+            SkBitmap tileBM;
+            setup_bitmap(gRec, tileSize, &tileBM);
+            SkCanvas tileCanvas(tileBM);
+            installFilter(&tileCanvas);
+
+            SkCanvas bmpCanvas(*bitmap);
+            SkPaint bmpPaint;
+            bmpPaint.setXfermodeMode(SkXfermode::kSrc_Mode);
+
+            for (int yTile = 0; yTile < (size.height()+15)/16; ++yTile) {
+                for (int xTile = 0; xTile < (size.width()+15)/16; ++xTile) {
+                    int saveCount = tileCanvas.save();
+                    SkMatrix mat(tileCanvas.getTotalMatrix());
+                    mat.postTranslate(SkIntToScalar(-xTile*tileSize.width()), 
+                                      SkIntToScalar(-yTile*tileSize.height()));
+                    tileCanvas.setMatrix(mat);
+                    pict->draw(&tileCanvas);
+                    tileCanvas.flush();
+                    tileCanvas.restoreToCount(saveCount);
+                    bmpCanvas.drawBitmap(tileBM, 
+                                         SkIntToScalar(xTile * tileSize.width()), 
+                                         SkIntToScalar(yTile * tileSize.height()),
+                                         &bmpPaint);
+                }
+            }
+        } else {
+            SkCanvas canvas(*bitmap);
+            installFilter(&canvas);
+            canvas.scale(scale, scale);
+            canvas.drawPicture(*pict);
+            complete_bitmap(bitmap);
+        }
     }
 
     static void generate_pdf(GM* gm, SkDynamicMemoryWStream& pdf) {
@@ -1319,7 +1356,11 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
                 gm, kTileGrid_BbhType, SkPicture::kUsePathBoundsForClip_RecordingFlag, recordScale);
             SkAutoUnref aur(pict);
             SkBitmap bitmap;
-            gmmain.generate_image_from_picture(gm, compareConfig, pict, &bitmap, replayScale);
+            // We cannot yet pass 'true' to generate_image_from_picture to
+            // perform actual tiled rendering (see Issue 1198 -
+            // https://code.google.com/p/skia/issues/detail?id=1198)
+            gmmain.generate_image_from_picture(gm, compareConfig, pict, &bitmap, 
+                                               replayScale /*, true */);
             SkString suffix("-tilegrid");
             if (SK_Scalar1 != replayScale) {
                 suffix += "-scale-";
