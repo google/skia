@@ -429,8 +429,10 @@ BCP47FromLanguageID[] = {
     { 0x540a, "es-US" }, //Spanish
 };
 
+namespace {
 int BCP47FromLanguageIdCompare(const BCP47FromLanguageId* a, const BCP47FromLanguageId* b) {
     return a->languageID - b->languageID;
+}
 }
 
 template <typename D, typename S> static D* SkTAfter(S const * const ptr, size_t count = 1) {
