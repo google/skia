@@ -73,10 +73,10 @@ void get_vertex_bounds(const void* vertices,
 }
 }
 
-void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
-                                   const SkMatrix* matrix,
-                                   const GrRect* localRect,
-                                   const SkMatrix* localMatrix) {
+void GrInOrderDrawBuffer::onDrawRect(const GrRect& rect,
+                                     const SkMatrix* matrix,
+                                     const GrRect* localRect,
+                                     const SkMatrix* localMatrix) {
     GrDrawState::AutoColorRestore acr;
 
     GrDrawState* drawState = this->drawState();

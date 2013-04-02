@@ -842,6 +842,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
                             kIdxsPerQuad*n);                   // iCount
         quads += n;
     }
+    target->resetIndexSource();
 
     return true;
 }
