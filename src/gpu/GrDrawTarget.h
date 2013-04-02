@@ -654,7 +654,7 @@ protected:
             fDevBounds = &fDevBoundsStorage;
         }
         const SkRect* getDevBounds() const { return fDevBounds; }
-        
+
         bool getDevIBounds(SkIRect* bounds) const {
             if (NULL != fDevBounds) {
                 fDevBounds->roundOut(bounds);

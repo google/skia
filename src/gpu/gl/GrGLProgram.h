@@ -61,8 +61,8 @@ public:
 
     /**
      * Some GL state that is relevant to programs is not stored per-program. In particular color
-     * and coverage attributes can be global state. This struct is read and updated by 
-     * GrGLProgram::setColor and GrGLProgram::setCoverage to allow us to avoid setting this state 
+     * and coverage attributes can be global state. This struct is read and updated by
+     * GrGLProgram::setColor and GrGLProgram::setCoverage to allow us to avoid setting this state
      * redundantly.
      */
     struct SharedGLState {

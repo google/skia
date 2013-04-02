@@ -82,7 +82,7 @@ static void apply_0(SkDebugCanvas* canvas, int curCommand) {
     const SkPaint* saveLayerPaint = saveLayer->paint();
 
     // if (NULL == saveLayerPaint) the dbmr's paint doesn't need to be changed
-    if (NULL != saveLayerPaint) { 
+    if (NULL != saveLayerPaint) {
         DrawBitmapRect* dbmr = (DrawBitmapRect*) canvas->getDrawCommandAt(curCommand+1);
         SkPaint* dbmrPaint = dbmr->paint();
 

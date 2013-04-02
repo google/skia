@@ -128,7 +128,7 @@ public:
 
         kLastMode = kLuminosity_Mode
     };
-    
+
     /**
      * Gets the name of the Mode as a string.
      */

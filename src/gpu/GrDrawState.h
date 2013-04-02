@@ -423,7 +423,7 @@ public:
             }
         }
     }
-    
+
     /**
      * Checks whether any of the effects will read the dst pixel color.
      */

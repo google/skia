@@ -80,11 +80,11 @@ private:
     /** Non-zero if this stage has an effect */
     GrGLEffect::EffectKey       fEffectKeys[GrDrawState::kNumStages];
 
-    // To enable experimental geometry shader code (not for use in	
-    // production)	 
-#if GR_GL_EXPERIMENTAL_GS	
-    bool                     fExperimentalGS;	
-#endif	
+    // To enable experimental geometry shader code (not for use in
+    // production)
+#if GR_GL_EXPERIMENTAL_GS
+    bool                     fExperimentalGS;
+#endif
 
     GrGLShaderBuilder::DstReadKey fDstRead;             // set by GrGLShaderBuilder if there
                                                         // are effects that must read the dst.

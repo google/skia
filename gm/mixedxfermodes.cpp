@@ -50,7 +50,7 @@ protected:
         SkPaint layerPaint;
         layerPaint.setXfermodeMode(SkXfermode::kSrc_Mode);
         canvas->saveLayer(NULL, &layerPaint);
-        
+
         SkPaint bgPaint;
         bgPaint.setShader(fBG.get());
         canvas->drawPaint(bgPaint);
@@ -64,19 +64,19 @@ protected:
             SkScalar cy = random.nextRangeScalar(0, SkIntToScalar(size.fHeight));
             SkScalar r = random.nextRangeScalar(minR, maxR);
             SkColor color = random.nextU();
-            
+
             SkXfermode::Mode mode =
                 static_cast<SkXfermode::Mode>(random.nextULessThan(SkXfermode::kLastMode + 1));
             // FIXME: Currently testing kDarken on GPU.
             mode = SkXfermode::kDarken_Mode;
-            
+
             SkPaint p;
             p.setAntiAlias(true);
             p.setColor(color);
             p.setXfermodeMode(mode);
             canvas->drawCircle(cx, cy, r, p);
         }
-        
+
         // FIXME: Remove text draw once this GM is finished.
         SkPaint txtPaint;
         txtPaint.setTextSize(areaSqrt / 20);
