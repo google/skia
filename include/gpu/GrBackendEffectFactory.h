@@ -33,7 +33,7 @@ public:
     typedef uint32_t EffectKey;
     enum {
         kNoEffectKey = 0,
-        kEffectKeyBits = 16,
+        kEffectKeyBits = 15,
         /**
          * Some aspects of the generated code may be determined by the particular textures that are
          * associated with the effect. These manipulations are performed by GrGLShaderBuilder beyond
@@ -68,8 +68,7 @@ protected:
 
     static EffectKey GenID() {
         GR_DEBUGCODE(static const int32_t kClassIDBits = 8 * sizeof(EffectKey) -
-                                            kTextureKeyBits -
-                                    kEffectKeyBits);
+                           kTextureKeyBits - kEffectKeyBits - kAttribKeyBits);
         // fCurrEffectClassID has been initialized to kIllegalEffectClassID. The
         // atomic inc returns the old value not the incremented value. So we add
         // 1 to the returned value.

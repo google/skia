@@ -363,6 +363,7 @@ GR_DEFINE_EFFECT_TEST(GrDisplacementMapEffect);
 
 GrEffectRef* GrDisplacementMapEffect::TestCreate(SkMWCRandom* random,
                                                  GrContext*,
+                                                 const GrDrawTargetCaps&,
                                                  GrTexture* textures[]) {
     int texIdxDispl = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :
                                            GrEffectUnitTest::kAlphaTextureIdx;

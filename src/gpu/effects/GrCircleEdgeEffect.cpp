@@ -75,6 +75,7 @@ GR_DEFINE_EFFECT_TEST(GrCircleEdgeEffect);
 
 GrEffectRef* GrCircleEdgeEffect::TestCreate(SkMWCRandom* random,
                                             GrContext* context,
+                                            const GrDrawTargetCaps&,
                                             GrTexture* textures[]) {
     return GrCircleEdgeEffect::Create(random->nextBool());
 }

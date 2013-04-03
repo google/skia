@@ -9,6 +9,8 @@
 #define GrGLVertexArray_DEFINED
 
 #include "GrResource.h"
+#include "GrTypesPriv.h"
+#include "gl/GrGLDefines.h"
 #include "gl/GrGLFunctions.h"
 
 #include "SkTArray.h"
@@ -16,6 +18,30 @@
 class GrGLVertexBuffer;
 class GrGLIndexBuffer;
 class GrGpuGL;
+
+struct GrGLAttribLayout {
+    GrGLint     fCount;
+    GrGLenum    fType;
+    GrGLboolean fNormalized;
+};
+
+static inline const GrGLAttribLayout& GrGLAttribTypeToLayout(GrVertexAttribType type) {
+    GrAssert(type >= 0 && type < kGrVertexAttribTypeCount);
+    static const GrGLAttribLayout kLayouts[kGrVertexAttribTypeCount] = {
+        {1, GR_GL_FLOAT, false},         // kFloat_GrVertexAttribType
+        {2, GR_GL_FLOAT, false},         // kVec2f_GrVertexAttribType
+        {3, GR_GL_FLOAT, false},         // kVec3f_GrVertexAttribType
+        {4, GR_GL_FLOAT, false},         // kVec4f_GrVertexAttribType
+        {4, GR_GL_UNSIGNED_BYTE, true},  // kVec4ub_GrVertexAttribType
+    };
+    GR_STATIC_ASSERT(0 == kFloat_GrVertexAttribType);
+    GR_STATIC_ASSERT(1 == kVec2f_GrVertexAttribType);
+    GR_STATIC_ASSERT(2 == kVec3f_GrVertexAttribType);
+    GR_STATIC_ASSERT(3 == kVec4f_GrVertexAttribType);
+    GR_STATIC_ASSERT(4 == kVec4ub_GrVertexAttribType);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kLayouts) == kGrVertexAttribTypeCount);
+    return kLayouts[type];
+}
 
 /**
  * This sets and tracks the vertex attribute array state. It is used internally by GrGLVertexArray

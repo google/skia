@@ -74,7 +74,7 @@ void* GrGLBufferImpl::lock(GrGpuGL* gpu) {
     GrAssert(!this->isLocked());
     if (0 == fDesc.fID) {
         fLockPtr = fCPUData;
-    } else if (gpu->getCaps().bufferLockSupport()) {
+    } else if (gpu->caps()->bufferLockSupport()) {
         this->bind(gpu);
         // Let driver know it can discard the old data
         GL_CALL(gpu, BufferData(fBufferType,
@@ -92,7 +92,7 @@ void GrGLBufferImpl::unlock(GrGpuGL* gpu) {
     VALIDATE();
     GrAssert(this->isLocked());
     if (0 != fDesc.fID) {
-        GrAssert(gpu->getCaps().bufferLockSupport());
+        GrAssert(gpu->caps()->bufferLockSupport());
         this->bind(gpu);
         GL_CALL(gpu, UnmapBuffer(fBufferType));
     }

@@ -9,6 +9,7 @@
 
 #include "GrStencilAndCoverPathRenderer.h"
 #include "GrContext.h"
+#include "GrDrawTargetCaps.h"
 #include "GrGpu.h"
 #include "GrPath.h"
 #include "SkStrokeRec.h"
@@ -16,7 +17,7 @@
 GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrContext* context) {
     GrAssert(NULL != context);
     GrAssert(NULL != context->getGpu());
-    if (context->getGpu()->getCaps().pathStencilingSupport()) {
+    if (context->getGpu()->caps()->pathStencilingSupport()) {
         return SkNEW_ARGS(GrStencilAndCoverPathRenderer, (context->getGpu()));
     } else {
         return NULL;
@@ -24,7 +25,7 @@ GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrContext* context) {
 }
 
 GrStencilAndCoverPathRenderer::GrStencilAndCoverPathRenderer(GrGpu* gpu) {
-    GrAssert(gpu->getCaps().pathStencilingSupport());
+    GrAssert(gpu->caps()->pathStencilingSupport());
     fGpu = gpu;
     gpu->ref();
 }

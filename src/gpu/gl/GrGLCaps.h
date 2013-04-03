@@ -9,9 +9,10 @@
 #ifndef GrGLCaps_DEFINED
 #define GrGLCaps_DEFINED
 
+#include "GrDrawTargetCaps.h"
+#include "GrGLStencilBuffer.h"
 #include "SkTArray.h"
 #include "SkTDArray.h"
-#include "GrGLStencilBuffer.h"
 
 class GrGLContextInfo;
 
@@ -20,8 +21,10 @@ class GrGLContextInfo;
  * version and the extensions string. It also tracks formats that have passed
  * the FBO completeness test.
  */
-class GrGLCaps {
+class GrGLCaps : public GrDrawTargetCaps {
 public:
+    SK_DECLARE_INST_COUNT(GrGLCaps)
+
     typedef GrGLStencilBuffer::Format StencilFormat;
 
     /**
@@ -93,7 +96,7 @@ public:
     /**
      * Resets the caps such that nothing is supported.
      */
-    void reset();
+    virtual void reset() SK_OVERRIDE;
 
     /**
      * Initializes the GrGLCaps to the set of features supported in the current
@@ -158,7 +161,7 @@ public:
     /**
      * Prints the caps info using GrPrintf.
      */
-    void print() const;
+    virtual void print() const SK_OVERRIDE;
 
     /**
      * Gets an array of legal stencil formats. These formats are not guaranteed
@@ -249,7 +252,7 @@ private:
             }
         }
 
-        static const int kNumUints = (kGrPixelConfigCount  + 31) / 32;
+        static const int kNumUints = (kGrPixelConfigCnt  + 31) / 32;
         uint32_t fVerifiedColorConfigs[kNumUints];
 
         void markVerified(GrPixelConfig config) {
@@ -308,6 +311,8 @@ private:
     bool fVertexArrayObjectSupport : 1;
     bool fUseNonVBOVertexAndIndexDynamicData : 1;
     bool fIsCoreProfile : 1;
+
+    typedef GrDrawTargetCaps INHERITED;
 };
 
 #endif

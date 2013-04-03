@@ -284,8 +284,9 @@ enum GrPixelConfig {
      */
     kBGRA_8888_GrPixelConfig,
 
-    kGrPixelConfigCount
+    kLast_GrPixelConfig = kBGRA_8888_GrPixelConfig
 };
+static const int kGrPixelConfigCnt = kLast_GrPixelConfig + 1;
 
 // Aliases for pixel configs that match skia's byte order.
 #ifndef SK_CPU_LENDIAN

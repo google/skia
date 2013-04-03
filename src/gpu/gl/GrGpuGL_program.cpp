@@ -48,7 +48,7 @@ void GrGpuGL::ProgramCache::abandon() {
     fCount = 0;
 }
 
-GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrGLProgram::Desc& desc,
+GrGLProgram* GrGpuGL::ProgramCache::getProgram(const GrGLProgramDesc& desc,
                                                const GrEffectStage* stages[]) {
     Entry newEntry;
     newEntry.fKey.setKeyData(desc.asKey());
@@ -158,7 +158,7 @@ void GrGpuGL::flushPathStencilMatrix() {
     }
 }
 
-bool GrGpuGL::flushGraphicsState(DrawType type) {
+bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstCopy) {
     const GrDrawState& drawState = this->getDrawState();
 
     // GrGpu::setupClipAndFlushState should have already checked this and bailed if not true.
@@ -180,13 +180,14 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
         for (int i = 0; i < GrDrawState::kNumStages; ++i) {
             stages[i] = drawState.isStageEnabled(i) ? &drawState.getStage(i) : NULL;
         }
-        GrGLProgram::Desc desc;
-        GrGLProgram::BuildDesc(this->getDrawState(),
+        GrGLProgramDesc desc;
+        GrGLProgramDesc::Build(this->getDrawState(),
                                kDrawPoints_DrawType == type,
                                blendOpts,
                                srcCoeff,
                                dstCoeff,
                                this,
+                               dstCopy,
                                &desc);
 
         fCurrentProgram.reset(fProgramCache->getProgram(desc, stages));
@@ -217,7 +218,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type) {
             color = drawState.getColor();
             coverage = drawState.getCoverage();
         }
-        fCurrentProgram->setData(this, color, coverage, &fSharedGLProgramState);
+        fCurrentProgram->setData(this, color, coverage, dstCopy, &fSharedGLProgramState);
     }
     this->flushStencil(type);
     this->flushScissor();
@@ -302,9 +303,9 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
         attribState->set(this,
                          vertexAttribIndex,
                          vbuf,
-                         GrGLProgram::kAttribLayouts[attribType].fCount,
-                         GrGLProgram::kAttribLayouts[attribType].fType,
-                         GrGLProgram::kAttribLayouts[attribType].fNormalized,
+                         GrGLAttribTypeToLayout(attribType).fCount,
+                         GrGLAttribTypeToLayout(attribType).fType,
+                         GrGLAttribTypeToLayout(attribType).fNormalized,
                          stride,
                          reinterpret_cast<GrGLvoid*>(
                          vertexOffsetInBytes + vertexAttrib->fOffset));

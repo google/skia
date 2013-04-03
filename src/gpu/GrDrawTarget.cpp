@@ -9,6 +9,8 @@
 
 
 #include "GrDrawTarget.h"
+#include "GrContext.h"
+#include "GrDrawTargetCaps.h"
 #include "GrRenderTarget.h"
 #include "GrTexture.h"
 #include "GrVertexBuffer.h"
@@ -37,6 +39,9 @@ GrDrawTarget::DrawInfo& GrDrawTarget::DrawInfo::operator =(const DrawInfo& di) {
     } else {
         fDevBounds = NULL;
     }
+
+    fDstCopy = di.fDstCopy;
+
     return *this;
 }
 
@@ -401,6 +406,73 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
     return true;
 }
 
+bool GrDrawTarget::setupDstReadIfNecessary(DrawInfo* info) {
+    if (!this->getDrawState().willEffectReadDst()) {
+        return true;
+    }
+    GrRenderTarget* rt = this->drawState()->getRenderTarget();
+    // If the dst is not a texture then we don't currently have a way of copying the
+    // texture. TODO: make copying RT->Tex (or Surface->Surface) a GrDrawTarget operation that can
+    // be built on top of GL/D3D APIs.
+    if (NULL == rt->asTexture()) {
+        GrPrintf("Reading Dst of non-texture render target is not currently supported.\n");
+        return false;
+    }
+
+    const GrClipData* clip = this->getClip();
+    GrIRect copyRect;
+    clip->getConservativeBounds(this->getDrawState().getRenderTarget(), &copyRect);
+    SkIRect drawIBounds;
+    if (info->getDevIBounds(&drawIBounds)) {
+        if (!copyRect.intersect(drawIBounds)) {
+#if GR_DEBUG
+            GrPrintf("Missed an early reject. Bailing on draw from setupDstReadIfNecessary.\n");
+#endif
+            return false;
+        }
+    } else {
+#if GR_DEBUG
+        //GrPrintf("No dev bounds when dst copy is made.\n");
+#endif
+    }
+    
+    GrDrawTarget::AutoGeometryAndStatePush agasp(this, kReset_ASRInit);
+
+    // The draw will resolve dst if it has MSAA. Two things to consider in the future:
+    // 1) to make the dst values be pre-resolve we'd need to be able to copy to MSAA
+    // texture and sample it correctly in the shader. 2) If 1 isn't available then we
+    // should just resolve and use the resolved texture directly rather than making a
+    // copy of it.
+    GrTextureDesc desc;
+    desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
+    desc.fWidth = copyRect.width();
+    desc.fHeight = copyRect.height();
+    desc.fSampleCnt = 0;
+    desc.fConfig = rt->config();
+
+    GrAutoScratchTexture ast(fContext, desc, GrContext::kApprox_ScratchTexMatch);
+
+    if (NULL == ast.texture()) {
+        GrPrintf("Failed to create temporary copy of destination texture.\n");
+        return false;
+    }
+    this->drawState()->disableState(GrDrawState::kClip_StateBit);
+    this->drawState()->setRenderTarget(ast.texture()->asRenderTarget());
+    static const int kTextureStage = 0;
+    SkMatrix matrix;
+    matrix.setIDiv(rt->width(), rt->height());
+    this->drawState()->createTextureEffect(kTextureStage, rt->asTexture(), matrix);
+    
+    SkRect srcRect = SkRect::MakeFromIRect(copyRect);
+    SkRect dstRect = SkRect::MakeWH(SkIntToScalar(copyRect.width()),
+                                    SkIntToScalar(copyRect.height()));
+    this->drawRect(dstRect, NULL, &srcRect, NULL);
+    
+    info->fDstCopy.setTexture(ast.texture());
+    info->fDstCopy.setOffset(copyRect.fLeft, copyRect.fTop);
+    return true;
+}
+
 void GrDrawTarget::drawIndexed(GrPrimitiveType type,
                                int startVertex,
                                int startIndex,
@@ -421,6 +493,10 @@ void GrDrawTarget::drawIndexed(GrPrimitiveType type,
 
         if (NULL != devBounds) {
             info.setDevBounds(*devBounds);
+        }
+        // TODO: We should continue with incorrect blending.
+        if (!this->setupDstReadIfNecessary(&info)) {
+            return;
         }
         this->onDraw(info);
     }
@@ -445,6 +521,10 @@ void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
         if (NULL != devBounds) {
             info.setDevBounds(*devBounds);
         }
+        // TODO: We should continue with incorrect blending.
+        if (!this->setupDstReadIfNecessary(&info)) {
+            return;
+        }
         this->onDraw(info);
     }
 }
@@ -452,7 +532,7 @@ void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
 void GrDrawTarget::stencilPath(const GrPath* path, const SkStrokeRec& stroke, SkPath::FillType fill) {
     // TODO: extract portions of checkDraw that are relevant to path stenciling.
     GrAssert(NULL != path);
-    GrAssert(fCaps.pathStencilingSupport());
+    GrAssert(this->caps()->pathStencilingSupport());
     GrAssert(!stroke.isHairlineStyle());
     GrAssert(!SkPath::IsInverseFillType(fill));
     this->onStencilPath(path, stroke, fill);
@@ -464,7 +544,7 @@ bool GrDrawTarget::willUseHWAALines() const {
     // There is a conflict between using smooth lines and our use of premultiplied alpha. Smooth
     // lines tweak the incoming alpha value but not in a premul-alpha way. So we only use them when
     // our alpha is 0xff and tweaking the color for partial coverage is OK
-    if (!fCaps.hwAALineSupport() ||
+    if (!this->caps()->hwAALineSupport() ||
         !this->getDrawState().isHWAntialiasState()) {
         return false;
     }
@@ -476,7 +556,7 @@ bool GrDrawTarget::willUseHWAALines() const {
 bool GrDrawTarget::canApplyCoverage() const {
     // we can correctly apply coverage if a) we have dual source blending
     // or b) one of our blend optimizations applies.
-    return this->getCaps().dualSourceBlendingSupport() ||
+    return this->caps()->dualSourceBlendingSupport() ||
            GrDrawState::kNone_BlendOpt != this->getDrawState().getBlendOpts(true);
 }
 
@@ -506,6 +586,10 @@ void GrDrawTarget::drawIndexedInstances(GrPrimitiveType type,
     // Set the same bounds for all the draws.
     if (NULL != devBounds) {
         info.setDevBounds(*devBounds);
+    }
+    // TODO: We should continue with incorrect blending.
+    if (!this->setupDstReadIfNecessary(&info)) {
+        return;
     }
 
     while (instanceCount) {
@@ -572,8 +656,13 @@ void GrDrawTarget::drawRect(const GrRect& rect,
             localMatrix->mapPointsWithStride(coords, vsize, 4);
         }
     }
+    SkTLazy<SkRect> bounds;
+    if (this->getDrawState().willEffectReadDst()) {
+        bounds.init();
+        this->getDrawState().getViewMatrix().mapRect(bounds.get(), rect);
+    }
 
-    this->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4);
+    this->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4, bounds.getMaybeNull());
 }
 
 void GrDrawTarget::clipWillBeSet(const GrClipData* clipData) {
@@ -677,19 +766,59 @@ GrDrawTarget::AutoClipRestore::AutoClipRestore(GrDrawTarget* target, const SkIRe
     target->setClip(&fReplacementClip);
 }
 
-void GrDrawTarget::Caps::print() const {
+///////////////////////////////////////////////////////////////////////////////
+
+SK_DEFINE_INST_COUNT(GrDrawTargetCaps)
+
+void GrDrawTargetCaps::reset() {
+    f8BitPaletteSupport = false;
+    fNPOTTextureTileSupport = false;
+    fTwoSidedStencilSupport = false;
+    fStencilWrapOpsSupport = false;
+    fHWAALineSupport = false;
+    fShaderDerivativeSupport = false;
+    fGeometryShaderSupport = false;
+    fDualSourceBlendingSupport = false; 
+    fBufferLockSupport = false;
+    fPathStencilingSupport = false;
+
+    fMaxRenderTargetSize = 0;
+    fMaxTextureSize = 0;
+    fMaxSampleCount = 0;
+}
+
+GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
+    f8BitPaletteSupport = other.f8BitPaletteSupport;
+    fNPOTTextureTileSupport = other.fNPOTTextureTileSupport;
+    fTwoSidedStencilSupport = other.fTwoSidedStencilSupport;
+    fStencilWrapOpsSupport = other.fStencilWrapOpsSupport;
+    fHWAALineSupport = other.fHWAALineSupport;
+    fShaderDerivativeSupport = other.fShaderDerivativeSupport;
+    fGeometryShaderSupport = other.fGeometryShaderSupport;
+    fDualSourceBlendingSupport = other.fDualSourceBlendingSupport;
+    fBufferLockSupport = other.fBufferLockSupport;
+    fPathStencilingSupport = other.fPathStencilingSupport;
+
+    fMaxRenderTargetSize = other.fMaxRenderTargetSize;
+    fMaxTextureSize = other.fMaxTextureSize;
+    fMaxSampleCount = other.fMaxSampleCount;
+
+    return *this;
+}
+
+void GrDrawTargetCaps::print() const {
     static const char* gNY[] = {"NO", "YES"};
-    GrPrintf("8 Bit Palette Support       : %s\n", gNY[fInternals.f8BitPaletteSupport]);
-    GrPrintf("NPOT Texture Tile Support   : %s\n", gNY[fInternals.fNPOTTextureTileSupport]);
-    GrPrintf("Two Sided Stencil Support   : %s\n", gNY[fInternals.fTwoSidedStencilSupport]);
-    GrPrintf("Stencil Wrap Ops  Support   : %s\n", gNY[fInternals.fStencilWrapOpsSupport]);
-    GrPrintf("HW AA Lines Support         : %s\n", gNY[fInternals.fHWAALineSupport]);
-    GrPrintf("Shader Derivative Support   : %s\n", gNY[fInternals.fShaderDerivativeSupport]);
-    GrPrintf("Geometry Shader Support     : %s\n", gNY[fInternals.fGeometryShaderSupport]);
-    GrPrintf("FSAA Support                : %s\n", gNY[fInternals.fFSAASupport]);
-    GrPrintf("Dual Source Blending Support: %s\n", gNY[fInternals.fDualSourceBlendingSupport]);
-    GrPrintf("Buffer Lock Support         : %s\n", gNY[fInternals.fBufferLockSupport]);
-    GrPrintf("Path Stenciling Support     : %s\n", gNY[fInternals.fPathStencilingSupport]);
-    GrPrintf("Max Texture Size            : %d\n", fInternals.fMaxTextureSize);
-    GrPrintf("Max Render Target Size      : %d\n", fInternals.fMaxRenderTargetSize);
+    GrPrintf("8 Bit Palette Support       : %s\n", gNY[f8BitPaletteSupport]);
+    GrPrintf("NPOT Texture Tile Support   : %s\n", gNY[fNPOTTextureTileSupport]);
+    GrPrintf("Two Sided Stencil Support   : %s\n", gNY[fTwoSidedStencilSupport]);
+    GrPrintf("Stencil Wrap Ops  Support   : %s\n", gNY[fStencilWrapOpsSupport]);
+    GrPrintf("HW AA Lines Support         : %s\n", gNY[fHWAALineSupport]);
+    GrPrintf("Shader Derivative Support   : %s\n", gNY[fShaderDerivativeSupport]);
+    GrPrintf("Geometry Shader Support     : %s\n", gNY[fGeometryShaderSupport]);
+    GrPrintf("Dual Source Blending Support: %s\n", gNY[fDualSourceBlendingSupport]);
+    GrPrintf("Buffer Lock Support         : %s\n", gNY[fBufferLockSupport]);
+    GrPrintf("Path Stenciling Support     : %s\n", gNY[fPathStencilingSupport]);
+    GrPrintf("Max Texture Size            : %d\n", fMaxTextureSize);
+    GrPrintf("Max Render Target Size      : %d\n", fMaxRenderTargetSize);
+    GrPrintf("Max Sample Count            : %d\n", fMaxSampleCount);
 }

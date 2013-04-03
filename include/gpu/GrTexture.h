@@ -10,6 +10,7 @@
 #define GrTexture_DEFINED
 
 #include "GrSurface.h"
+#include "SkPoint.h"
 
 class GrRenderTarget;
 class GrResourceKey;
@@ -164,6 +165,44 @@ private:
     virtual void internal_dispose() const SK_OVERRIDE;
 
     typedef GrSurface INHERITED;
+};
+
+/**
+ * Represents a texture that is intended to be accessed in device coords with an offset.
+ */
+class GrDeviceCoordTexture {
+public:
+    GrDeviceCoordTexture() { fOffset.set(0, 0); }
+
+    GrDeviceCoordTexture(const GrDeviceCoordTexture& other) {
+        *this = other;
+    }
+
+    GrDeviceCoordTexture(GrTexture* texture, const SkIPoint& offset)
+        : fTexture(SkSafeRef(texture))
+        , fOffset(offset) {
+    }
+
+    GrDeviceCoordTexture& operator=(const GrDeviceCoordTexture& other) {
+        fTexture.reset(SkSafeRef(other.fTexture.get()));
+        fOffset = other.fOffset;
+        return *this;
+    }
+
+    const SkIPoint& offset() const { return fOffset; }
+
+    void setOffset(const SkIPoint& offset) { fOffset = offset; }
+    void setOffset(int ox, int oy) { fOffset.set(ox, oy); }
+
+    GrTexture* texture() const { return fTexture.get(); }
+
+    GrTexture* setTexture(GrTexture* texture) {
+        fTexture.reset(SkSafeRef(texture));
+        return texture;
+    }
+private:
+    SkAutoTUnref<GrTexture> fTexture;
+    SkIPoint                fOffset;
 };
 
 #endif

@@ -299,7 +299,7 @@ public:
      * Can the provided configuration act as a color render target?
      */
     bool isConfigRenderable(GrPixelConfig config) const {
-        GrAssert(kGrPixelConfigCount > config);
+        GrAssert(kGrPixelConfigCnt > config);
         return fConfigRenderSupport[config];
     }
 
@@ -366,7 +366,7 @@ protected:
     }
 
     // prepares clip flushes gpu state before a draw
-    bool setupClipAndFlushState(DrawType);
+    bool setupClipAndFlushState(DrawType, const GrDeviceCoordTexture* dstCopy);
 
     // Functions used to map clip-respecting stencil tests into normal
     // stencil funcs supported by GPUs.
@@ -403,7 +403,7 @@ protected:
 
     // Derived classes need access to this so they can fill it out in their
     // constructors
-    bool    fConfigRenderSupport[kGrPixelConfigCount];
+    bool    fConfigRenderSupport[kGrPixelConfigCnt];
 
     // Helpers for setting up geometry state
     void finalizeReservedVertices();
@@ -482,9 +482,9 @@ private:
 
     // The GrGpu typically records the clients requested state and then flushes
     // deltas from previous state at draw time. This function does the
-    // backend-specific flush of the state
+    // backend-specific flush of the state.
     // returns false if current state is unsupported.
-    virtual bool flushGraphicsState(DrawType) = 0;
+    virtual bool flushGraphicsState(DrawType, const GrDeviceCoordTexture* dstCopy) = 0;
 
     // clears the entire stencil buffer to 0
     virtual void clearStencil() = 0;

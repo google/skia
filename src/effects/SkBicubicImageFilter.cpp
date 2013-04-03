@@ -326,6 +326,7 @@ GR_DEFINE_EFFECT_TEST(GrBicubicEffect);
 
 GrEffectRef* GrBicubicEffect::TestCreate(SkMWCRandom* random,
                                          GrContext* context,
+                                         const GrDrawTargetCaps&,
                                          GrTexture* textures[]) {
     int texIdx = random->nextBool() ? GrEffectUnitTest::kSkiaPMTextureIdx :
                                       GrEffectUnitTest::kAlphaTextureIdx;

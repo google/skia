@@ -201,6 +201,7 @@ GR_DEFINE_EFFECT_TEST(GrMagnifierEffect);
 
 GrEffectRef* GrMagnifierEffect::TestCreate(SkMWCRandom* random,
                                            GrContext* context,
+                                           const GrDrawTargetCaps&,
                                            GrTexture** textures) {
     const int kMaxWidth = 200;
     const int kMaxHeight = 200;

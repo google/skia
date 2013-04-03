@@ -15,6 +15,7 @@
 
 #include "GrBufferAllocPool.h"
 #include "GrGpu.h"
+#include "GrDrawTargetCaps.h"
 #include "GrIndexBuffer.h"
 #include "GrInOrderDrawBuffer.h"
 #include "GrOvalRenderer.h"
@@ -548,15 +549,15 @@ void GrContext::setTextureCacheLimits(int maxTextures, size_t maxTextureBytes) {
 }
 
 int GrContext::getMaxTextureSize() const {
-    return fGpu->getCaps().maxTextureSize();
+    return fGpu->caps()->maxTextureSize();
 }
 
 int GrContext::getMaxRenderTargetSize() const {
-    return fGpu->getCaps().maxRenderTargetSize();
+    return fGpu->caps()->maxRenderTargetSize();
 }
 
 int GrContext::getMaxSampleCount() const {
-    return fGpu->getCaps().maxSampleCount();
+    return fGpu->caps()->maxSampleCount();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -573,8 +574,8 @@ GrRenderTarget* GrContext::wrapBackendRenderTarget(const GrBackendRenderTargetDe
 
 bool GrContext::supportsIndex8PixelConfig(const GrTextureParams* params,
                                           int width, int height) const {
-    const GrDrawTarget::Caps& caps = fGpu->getCaps();
-    if (!caps.eightBitPaletteSupport()) {
+    const GrDrawTargetCaps* caps = fGpu->caps();
+    if (!caps->eightBitPaletteSupport()) {
         return false;
     }
 
@@ -582,7 +583,7 @@ bool GrContext::supportsIndex8PixelConfig(const GrTextureParams* params,
 
     if (!isPow2) {
         bool tiled = NULL != params && params->isTiled();
-        if (tiled && !caps.npotTextureTileSupport()) {
+        if (tiled && !caps->npotTextureTileSupport()) {
             return false;
         }
     }

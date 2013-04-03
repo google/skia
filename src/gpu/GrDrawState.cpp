@@ -59,7 +59,7 @@ static size_t vertex_size(const GrVertexAttrib* attribs, int count) {
 #if GR_DEBUG
     uint32_t overlapCheck = 0;
 #endif
-    GrAssert(count <= GrDrawState::kAttribIndexCount);
+    GrAssert(count <= GrDrawState::kVertexAttribCnt);
     size_t size = 0;
     for (int index = 0; index < count; ++index) {
         size_t attribSize = GrDrawState::kVertexAttribSizes[attribs[index].fType];
@@ -83,14 +83,13 @@ const GrAttribBindings GrDrawState::kAttribIndexMasks[kAttribIndexCount] = {
     0,                            // position is not reflected in the bindings
     kColor_AttribBindingsBit,
     kCoverage_AttribBindingsBit,
-    kEdge_AttribBindingsBit,
     kLocalCoords_AttribBindingsBit,
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrDrawState::setVertexAttribs(const GrVertexAttrib* attribs, int count) {
-    GrAssert(count <= GrDrawState::kAttribIndexCount);
+    GrAssert(count <= GrDrawState::kVertexAttribCnt);
     fVertexAttribs.reset();
     for (int index = 0; index < count; ++index) {
         fVertexAttribs.push_back(attribs[index]);
@@ -140,18 +139,16 @@ bool GrDrawState::validateVertexAttribs() const {
             attributeTypes[attributeIndex] = kBuiltInAttributeType;
         }
     }
-    for (int j = kEdge_AttribIndex; j < kAttribIndexCount; ++j) {
-        if (fCommon.fAttribBindings & kAttribIndexMasks[j]) {
-            int attributeIndex = fAttribIndices[j];
-            if (attributeIndex >= kVertexAttribCnt) {
-                return false;
-            }
-            // they should not be shared at all
-            if (attributeTypes[attributeIndex] != -1) {
-                return false;
-            }
-            attributeTypes[attributeIndex] = kBuiltInAttributeType;
+    if (fCommon.fAttribBindings & kAttribIndexMasks[kLocalCoords_AttribIndex]) {
+        int attributeIndex = fAttribIndices[kLocalCoords_AttribIndex];
+        if (attributeIndex >= kVertexAttribCnt) {
+            return false;
         }
+        // they should not be shared at all
+        if (attributeTypes[attributeIndex] != -1) {
+            return false;
+        }
+        attributeTypes[attributeIndex] = kBuiltInAttributeType;
     }
 
     // now those set by effects
@@ -239,7 +236,7 @@ bool GrDrawState::srcAlphaWillBeOne(GrAttribBindings bindings) const {
         validComponentFlags = 0;
         color = 0; // not strictly necessary but we get false alarms from tools about uninit.
     } else {
-        validComponentFlags = GrEffect::kAll_ValidComponentFlags;
+        validComponentFlags = kRGBA_GrColorComponentFlags;
         color = this->getColor();
     }
 
@@ -278,7 +275,7 @@ bool GrDrawState::srcAlphaWillBeOne(GrAttribBindings bindings) const {
             }
         }
     }
-    return (GrEffect::kA_ValidComponentFlag & validComponentFlags) && 0xff == GrColorUnpackA(color);
+    return (kA_GrColorComponentFlag & validComponentFlags) && 0xff == GrColorUnpackA(color);
 }
 
 bool GrDrawState::hasSolidCoverage(GrAttribBindings bindings) const {
@@ -294,7 +291,7 @@ bool GrDrawState::hasSolidCoverage(GrAttribBindings bindings) const {
         validComponentFlags = 0;
     } else {
         coverage = fCommon.fCoverage;
-        validComponentFlags = GrEffect::kAll_ValidComponentFlags;
+        validComponentFlags = kRGBA_GrColorComponentFlags;
     }
 
     // Run through the coverage stages and see if the coverage will be all ones at the end.
@@ -304,7 +301,7 @@ bool GrDrawState::hasSolidCoverage(GrAttribBindings bindings) const {
             (*effect)->getConstantColorComponents(&coverage, &validComponentFlags);
         }
     }
-    return (GrEffect::kAll_ValidComponentFlags == validComponentFlags)  && (0xffffffff == coverage);
+    return (kRGBA_GrColorComponentFlags == validComponentFlags)  && (0xffffffff == coverage);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -371,12 +368,10 @@ GrDrawState::BlendOptFlags GrDrawState::getBlendOpts(bool forceCoverage,
         }
     }
 
-    // check for coverage due to constant coverage, per-vertex coverage,
-    // edge aa or coverage stage
+    // check for coverage due to constant coverage, per-vertex coverage, or coverage stage
     bool hasCoverage = forceCoverage ||
                        0xffffffff != this->getCoverage() ||
-                       (bindings & GrDrawState::kCoverage_AttribBindingsBit) ||
-                       (bindings & GrDrawState::kEdge_AttribBindingsBit);
+                       (bindings & GrDrawState::kCoverage_AttribBindingsBit);
     for (int s = this->getFirstCoverageStage();
          !hasCoverage && s < GrDrawState::kNumStages;
          ++s) {
