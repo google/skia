@@ -1,2 +1,11 @@
 GM: drawing... selftest1 [300 200]
-GM: Ran 1 tests: 1 passed, 0 failed, 1 missing reference images
+GM: Ran 1 GMs
+GM: ... over  2 configs ["8888", "565"]
+GM: ...  and  7 modes   ["pipe", "pipe cross-process", "pipe cross-process, shared address", "replay", "rtree", "serialize", "tilegrid"]
+GM: ... so there should be a total of 9 tests.
+GM: Ran 9 tests: NoGpuContext=0 ImageMismatch=0 MissingExpectations=2 WritingReferenceImage=0
+GM: [*] 0 NoGpuContext:
+GM: [*] 0 ImageMismatch:
+GM: [ ] 2 MissingExpectations: 8888/selftest1 565/selftest1
+GM: [*] 0 WritingReferenceImage:
+GM: (results marked with [*] will cause nonzero return value)
