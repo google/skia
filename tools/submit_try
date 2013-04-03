@@ -178,16 +178,16 @@ submit_try %s--bot <buildername> [<buildername> ...]
         Error('You must specify a builder with "--bot".')
       using_bots = []
       while argv and not argv[0].startswith('-'):
-        bot = argv.pop(0)
-        if bot == ALL_BUILDERS:
-          if using_bots:
-            Error('Cannot specify "all" with additional builder names.')
-          using_bots = trybots
-          break
-        else:
-          if not bot in trybots:
-            Error('Unrecognized builder: %s' % bot)
-          using_bots.append(bot)
+        for bot in argv.pop(0).split(','):
+          if bot == ALL_BUILDERS:
+            if using_bots:
+              Error('Cannot specify "all" with additional builder names.')
+            using_bots = trybots
+            break
+          else:
+            if not bot in trybots:
+              Error('Unrecognized builder: %s' % bot)
+            using_bots.append(bot)
     elif arg == '-r':
       if len(argv) < 1:
         Error('You must specify a revision with "-r".')
