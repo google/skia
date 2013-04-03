@@ -11,8 +11,8 @@
 
 #include "GrSurface.h"
 #include "SkPoint.h"
+#include "GrRenderTarget.h"
 
-class GrRenderTarget;
 class GrResourceKey;
 class GrTextureParams;
 
@@ -80,10 +80,10 @@ public:
      *            render target
      */
     virtual GrRenderTarget* asRenderTarget() SK_OVERRIDE {
-        return fRenderTarget;
+        return fRenderTarget.get();
     }
     virtual const GrRenderTarget* asRenderTarget() const SK_OVERRIDE {
-        return fRenderTarget;
+        return fRenderTarget.get();
     }
 
     // GrTexture
@@ -99,13 +99,6 @@ public:
         GrAssert(GrIsPow2(fDesc.fHeight));
         return y >> fShiftFixedY;
     }
-
-    /**
-     * Removes the reference on the associated GrRenderTarget held by this
-     * texture. Afterwards asRenderTarget() will return NULL. The
-     * GrRenderTarget survives the release if another ref is held on it.
-     */
-    void releaseRenderTarget();
 
     /**
      *  Return the native ID or handle to the texture, depending on the
@@ -137,9 +130,9 @@ public:
     static bool NeedsFiltering(const GrResourceKey& key);
 
 protected:
-    GrRenderTarget* fRenderTarget; // texture refs its rt representation
-                                   // base class cons sets to NULL
-                                   // subclass cons can create and set
+    // A texture refs its rt representation but not vice-versa. It is up to
+    // the subclass constructor to initialize this pointer.
+    SkAutoTUnref<GrRenderTarget> fRenderTarget;
 
     GrTexture(GrGpu* gpu, bool isWrapped, const GrTextureDesc& desc)
     : INHERITED(gpu, isWrapped, desc)

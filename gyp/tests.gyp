@@ -57,6 +57,7 @@
         '../tests/GrContextFactoryTest.cpp',
         '../tests/GradientTest.cpp',
         '../tests/GrMemoryPoolTest.cpp',
+        '../tests/GrSurfaceTest.cpp',
         '../tests/HashCacheTest.cpp',
         '../tests/InfRectTest.cpp',
         '../tests/LListTest.cpp',
