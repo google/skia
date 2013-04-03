@@ -44,7 +44,7 @@ SkImage_Gpu::SkImage_Gpu(GrTexture* texture)
     SkASSERT(NULL != fTexture);
     fTexture->ref();
     fBitmap.setConfig(SkBitmap::kARGB_8888_Config, fTexture->width(), fTexture->height());
-    fBitmap.setPixelRef(new SkGrPixelRef(fTexture))->unref();
+    fBitmap.setPixelRef(SkNEW_ARGS(SkGrPixelRef, (fTexture)))->unref();
 }
 
 SkImage_Gpu::~SkImage_Gpu() {
