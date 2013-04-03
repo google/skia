@@ -34,7 +34,6 @@
 #include "SkRefCnt.h"
 #include "SkStream.h"
 #include "SkTArray.h"
-#include "SkTDict.h"
 #include "SkTileGridPicture.h"
 #include "SamplePipeControllers.h"
 
@@ -85,6 +84,14 @@ extern bool gSkSuppressFontCachePurgeSpew;
 #endif
 
 using namespace skiagm;
+
+struct FailRec {
+    SkString    fName;
+    bool        fIsPixelError;
+
+    FailRec() : fIsPixelError(false) {}
+    FailRec(const SkString& name) : fName(name), fIsPixelError(false) {}
+};
 
 class Iter {
 public:
@@ -176,9 +183,12 @@ static PipeFlagComboData gPipeWritingFlagCombos[] = {
 
 class GMMain {
 public:
-    GMMain() : fUseFileHierarchy(false), fMismatchPath(NULL), fTestsRun(0),
-               fRenderModesEncountered(1) {
+    GMMain() {
+        // Set default values of member variables, which tool_main()
+        // may override.
+        fUseFileHierarchy = false;
         fIgnorableErrorCombination.add(kMissingExpectations_ErrorType);
+        fMismatchPath = NULL;
     }
 
     SkString make_name(const char shortName[], const char configName[]) {
@@ -232,103 +242,34 @@ public:
     }
 
     /**
-     * Add all render modes encountered thus far to the "modes" array.
+     * Records the errors encountered in fFailedTests, except for any error
+     * types we want to ignore.
      */
-    void GetRenderModesEncountered(SkTArray<SkString> &modes) {
-        SkTDict<int>::Iter iter(this->fRenderModesEncountered);
-        const char* mode;
-        while ((mode = iter.next(NULL)) != NULL) {
-            SkString modeAsString = SkString(mode);
-            // TODO(epoger): It seems a bit silly that all of these modes were
-            // recorded with a leading "-" which we have to remove here
-            // (except for mode "", which means plain old original mode).
-            // But that's how renderModeDescriptor has been passed into
-            // compare_test_results_to_reference_bitmap() historically,
-            // and changing that now may affect other parts of our code.
-            if (modeAsString.startsWith("-")) {
-                modeAsString.remove(0, 1);
-                modes.push_back(modeAsString);
-            }
-        }
-    }
-
-    /**
-     * Records the results of this test in fTestsRun and fFailedTests.
-     *
-     * We even record successes, and errors that we regard as
-     * "ignorable"; we can filter them out later.
-     */
-    void RecordTestResults(const ErrorCombination& errorCombination, const SkString& name,
-                           const char renderModeDescriptor []) {
-        // Things to do regardless of errorCombination.
-        fTestsRun++;
-        int renderModeCount = 0;
-        this->fRenderModesEncountered.find(renderModeDescriptor, &renderModeCount);
-        renderModeCount++;
-        this->fRenderModesEncountered.set(renderModeDescriptor, renderModeCount);
-
+    void RecordError(const ErrorCombination& errorCombination, const SkString& name,
+                     const char renderModeDescriptor []) {
+        // The common case: no error means nothing to record.
         if (errorCombination.isEmpty()) {
             return;
         }
 
-        // Things to do only if there is some error condition.
-        SkString fullName = make_name(name.c_str(), renderModeDescriptor);
-        for (int typeInt = 0; typeInt <= kLast_ErrorType; typeInt++) {
-            ErrorType type = static_cast<ErrorType>(typeInt);
-            if (errorCombination.includes(type)) {
-                fFailedTests[type].push_back(fullName);
-            }
+        // If only certain error type(s) were reported, we know we can ignore them.
+        if (errorCombination.minus(fIgnorableErrorCombination).isEmpty()) {
+            return;
         }
+
+        FailRec& rec = fFailedTests.push_back(make_name(name.c_str(), renderModeDescriptor));
+        rec.fIsPixelError = errorCombination.includes(kImageMismatch_ErrorType);
     }
 
-    /**
-     * Return the number of significant (non-ignorable) errors we have
-     * encountered so far.
-     */
-    int NumSignificantErrors() {
-        int significantErrors = 0;
-        for (int typeInt = 0; typeInt <= kLast_ErrorType; typeInt++) {
-            ErrorType type = static_cast<ErrorType>(typeInt);
-            if (!fIgnorableErrorCombination.includes(type)) {
-                significantErrors += fFailedTests[type].count();
-            }
-        }
-        return significantErrors;
-    }
-
-    /**
-     * List contents of fFailedTests to stdout.
-     */
+    // List contents of fFailedTests via SkDebug.
     void ListErrors() {
-        // First, print a single summary line.
-        SkString summary;
-        summary.appendf("Ran %d tests:", fTestsRun);
-        for (int typeInt = 0; typeInt <= kLast_ErrorType; typeInt++) {
-            ErrorType type = static_cast<ErrorType>(typeInt);
-            summary.appendf(" %s=%d", getErrorTypeName(type), fFailedTests[type].count());
-        }
-        gm_fprintf(stdout, "%s\n", summary.c_str());
-
-        // Now, for each failure type, list the tests that failed that way.
-        for (int typeInt = 0; typeInt <= kLast_ErrorType; typeInt++) {
-            SkString line;
-            ErrorType type = static_cast<ErrorType>(typeInt);
-            if (fIgnorableErrorCombination.includes(type)) {
-                line.append("[ ] ");
+        for (int i = 0; i < fFailedTests.count(); ++i) {
+            if (fFailedTests[i].fIsPixelError) {
+                gm_fprintf(stderr, "\t\t%s pixel_error\n", fFailedTests[i].fName.c_str());
             } else {
-                line.append("[*] ");
+                gm_fprintf(stderr, "\t\t%s\n", fFailedTests[i].fName.c_str());
             }
-
-            SkTArray<SkString> *failedTestsOfThisType = &fFailedTests[type];
-            int count = failedTestsOfThisType->count();
-            line.appendf("%d %s:", count, getErrorTypeName(type));
-            for (int i = 0; i < count; ++i) {
-                line.append(" ");
-                line.append((*failedTestsOfThisType)[i]);
-            }
-            gm_fprintf(stdout, "%s\n", line.c_str());
         }
-        gm_fprintf(stdout, "(results marked with [*] will cause nonzero return value)\n");
     }
 
     static bool write_document(const SkString& path,
@@ -601,16 +542,7 @@ public:
         } else {
             gm_fprintf(stderr, "FAILED to write %s\n", path.c_str());
             ErrorCombination errors(kWritingReferenceImage_ErrorType);
-            // TODO(epoger): Don't call RecordTestResults() here...
-            // Instead, we should make sure to call RecordTestResults
-            // exactly ONCE per test.  (Otherwise, gmmain.fTestsRun
-            // will be incremented twice for this test: once in
-            // compare_test_results_to_stored_expectations() before
-            // that method calls this one, and again here.)
-            //
-            // When we make that change, we should probably add a
-            // WritingReferenceImage test to the gm self-tests.)
-            RecordTestResults(errors, name, renderModeDescriptor);
+            RecordError(errors, name, renderModeDescriptor);
             return errors;
         }
     }
@@ -722,7 +654,7 @@ public:
                 report_bitmap_diffs(*expectedBitmapPtr, actualBitmap, completeName);
             }
         }
-        RecordTestResults(errors, baseNameString, renderModeDescriptor);
+        RecordError(errors, baseNameString, renderModeDescriptor);
 
         if (addToJsonSummary) {
             add_actual_results_to_json_summary(completeName, actualChecksum, errors,
@@ -838,7 +770,6 @@ public:
             add_actual_results_to_json_summary(name.c_str(), actualChecksum,
                                                ErrorCombination(kMissingExpectations_ErrorType),
                                                false);
-            RecordTestResults(ErrorCombination(kMissingExpectations_ErrorType), name, "");
         }
 
         // TODO: Consider moving this into compare_to_expectations(),
@@ -866,13 +797,6 @@ public:
         GM* gm, const ConfigData& gRec, const char renderModeDescriptor [],
         SkBitmap& actualBitmap, const SkBitmap* referenceBitmap) {
 
-        // TODO(epoger): This method is run to compare results across
-        // different rendering modes (as opposed to
-        // compare_test_results_to_stored_expectations(), which
-        // compares results against expectations stored on disk).  If
-        // we would like the GenerateGMs step to distinguish between
-        // those two types of mismatches, we should report image
-        // mismatches in here with a different ErrorType.
         SkASSERT(referenceBitmap);
         SkString name = make_name(gm->shortName(), gRec.fName);
         Expectations expectations(*referenceBitmap);
@@ -986,8 +910,6 @@ public:
             // ('image-surface gm test is failing in "deferred" mode,
             // and gm is not reporting the failure')
             if (errors.isEmpty()) {
-                // TODO(epoger): Report this as a new ErrorType,
-                // something like kImageGeneration_ErrorType?
                 return kEmpty_ErrorCombination;
             }
             return compare_test_results_to_reference_bitmap(
@@ -1061,10 +983,8 @@ public:
 
     const char* fMismatchPath;
 
-    // collection of tests that have failed with each ErrorType
-    SkTArray<SkString> fFailedTests[kLast_ErrorType+1];
-    int fTestsRun;
-    SkTDict<int> fRenderModesEncountered;
+    // information about all failed tests we have encountered so far
+    SkTArray<FailRec> fFailedTests;
 
     // Where to read expectations (expected image checksums, etc.) from.
     // If unset, we don't do comparisons.
@@ -1372,9 +1292,7 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
     ErrorCombination errorsForAllModes;
     uint32_t gmFlags = gm->getFlags();
 
-    // TODO(epoger): We should start recording any per-GM skipped
-    // modes (i.e. those we skipped due to gmFlags) with a new
-    // ErrorType, perhaps named kIntentionallySkipped_ErrorType.
+    // run the picture centric GM steps
     if (!(gmFlags & GM::kSkipPicture_Flag)) {
 
         ErrorCombination pictErrors;
@@ -1470,45 +1388,6 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
         errorsForAllModes.add(pipeErrors);
     }
     return errorsForAllModes;
-}
-
-/**
- * Return a list of all entries in an array of strings as a single string
- * of this form:
- * "item1", "item2", "item3"
- */
-SkString list_all(const SkTArray<SkString> &stringArray);
-SkString list_all(const SkTArray<SkString> &stringArray) {
-    SkString total;
-    for (int i = 0; i < stringArray.count(); i++) {
-        if (i > 0) {
-            total.append(", ");
-        }
-        total.append("\"");
-        total.append(stringArray[i]);
-        total.append("\"");
-    }
-    return total;
-}
-
-/**
- * Return a list of configuration names, as a single string of this form:
- * "item1", "item2", "item3"
- *
- * @param configs configurations, as a list of indices into gRec
- */
-SkString list_all_config_names(const SkTDArray<size_t> &configs);
-SkString list_all_config_names(const SkTDArray<size_t> &configs) {
-    SkString total;
-    for (int i = 0; i < configs.count(); i++) {
-        if (i > 0) {
-            total.append(", ");
-        }
-        total.append("\"");
-        total.append(gRec[configs[i]].fName);
-        total.append("\"");
-    }
-    return total;
 }
 
 int tool_main(int argc, char** argv);
@@ -1692,7 +1571,12 @@ int tool_main(int argc, char** argv) {
         moduloRemainder = -1;
     }
 
-    int gmsRun = 0;
+    // Accumulate success of all tests.
+    int testsRun = 0;
+    int testsPassed = 0;
+    int testsFailed = 0;
+    int testsMissingReferenceImages = 0;
+
     int gmIndex = -1;
     SkString moduloStr;
 
@@ -1732,44 +1616,42 @@ int tool_main(int argc, char** argv) {
             continue;
         }
 
-        gmsRun++;
         SkISize size = gm->getISize();
         gm_fprintf(stdout, "%sdrawing... %s [%d %d]\n", moduloStr.c_str(), shortName,
                    size.width(), size.height());
 
-        run_multiple_configs(gmmain, gm, configs, grFactory);
+        ErrorCombination testErrors;
+        testErrors.add(run_multiple_configs(gmmain, gm, configs, grFactory));
 
         SkBitmap comparisonBitmap;
         const ConfigData compareConfig =
             { SkBitmap::kARGB_8888_Config, kRaster_Backend, kDontCare_GLContextType, 0, kRW_ConfigFlag, "comparison", false };
-        gmmain.generate_image(gm, compareConfig, NULL, &comparisonBitmap, false);
+        testErrors.add(gmmain.generate_image(gm, compareConfig, NULL, &comparisonBitmap, false));
 
         // TODO(epoger): only run this if gmmain.generate_image() succeeded?
         // Otherwise, what are we comparing against?
-        run_multiple_modes(gmmain, gm, compareConfig, comparisonBitmap, tileGridReplayScales);
+        testErrors.add(run_multiple_modes(gmmain, gm, compareConfig, comparisonBitmap,
+                                          tileGridReplayScales));
+
+        // Update overall results.
+        // We only tabulate the particular error types that we currently
+        // care about (e.g., missing reference images). Later on, if we
+        // want to also tabulate other error types, we can do so.
+        testsRun++;
+        if (!gmmain.fExpectationsSource.get() ||
+            (testErrors.includes(kMissingExpectations_ErrorType))) {
+            testsMissingReferenceImages++;
+        }
+        if (testErrors.minus(gmmain.fIgnorableErrorCombination).isEmpty()) {
+            testsPassed++;
+        } else {
+            testsFailed++;
+        }
 
         SkDELETE(gm);
     }
-
-    SkTArray<SkString> modes;
-    gmmain.GetRenderModesEncountered(modes);
-
-    // Output summary to stdout.
-    gm_fprintf(stdout, "Ran %d GMs\n", gmsRun);
-    gm_fprintf(stdout, "... over %2d configs [%s]\n", configs.count(),
-               list_all_config_names(configs).c_str());
-    gm_fprintf(stdout, "...  and %2d modes   [%s]\n", modes.count(), list_all(modes).c_str());
-    gm_fprintf(stdout, "... so there should be a total of %d tests.\n",
-               gmsRun * (configs.count() + modes.count()));
-
-    // TODO(epoger): Ultimately, we should signal an error if the
-    // expected total number of tests (displayed above) does not match
-    // gmmain.fTestsRun.  But for now, there are cases where those
-    // numbers won't match: specifically, if some configs/modes are
-    // skipped on a per-GM basis (due to gm->getFlags() for a specific
-    // GM).  Later on, we should record tests like that using some new
-    // ErrorType, like kIntentionallySkipped_ErrorType.  Then we could
-    // signal an error if the totals didn't match up.
+    gm_fprintf(stdout, "Ran %d tests: %d passed, %d failed, %d missing reference images\n",
+               testsRun, testsPassed, testsFailed, testsMissingReferenceImages);
     gmmain.ListErrors();
 
     if (FLAGS_writeJsonSummaryPath.count() == 1) {
@@ -1809,7 +1691,7 @@ int tool_main(int argc, char** argv) {
 #endif
     SkGraphics::Term();
 
-    return (0 == gmmain.NumSignificantErrors()) ? 0 : -1;
+    return (0 == testsFailed) ? 0 : -1;
 }
 
 void GMMain::installFilter(SkCanvas* canvas) {
