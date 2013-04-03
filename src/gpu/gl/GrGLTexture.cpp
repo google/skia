@@ -34,7 +34,8 @@ void GrGLTexture::init(GrGpuGL* gpu,
         vp.fBottom = 0;
         vp.fHeight = textureDesc.fHeight;
 
-        fRenderTarget.reset(SkNEW_ARGS(GrGLRenderTarget, (gpu, *rtDesc, vp, fTexIDObj, this)));
+        fRenderTarget = SkNEW_ARGS(GrGLRenderTarget,
+                                   (gpu, *rtDesc, vp, fTexIDObj, this));
     }
 }
 
