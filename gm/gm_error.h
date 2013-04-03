@@ -9,20 +9,47 @@
  * Error codes used by gmmain.cpp.
  */
 
+#ifndef gm_error_DEFINED
+#define gm_error_DEFINED
+
+#include "gm.h"
+
 namespace skiagm {
 
     /**
      * The complete list of error types we might encounter in GM.
      */
     enum ErrorType {
-#if SK_SUPPORT_GPU
+        // Even though kNoGpuContext_ErrorType only occurs when SK_SUPPORT_GPU
+        // is turned on, we always include this type in our enum so that
+        // reports will be consistent whether SK_SUPPORT_GPU is turned on
+        // or off (as long as the number of these errors is 0).
         kNoGpuContext_ErrorType,
-#endif
+
         kImageMismatch_ErrorType,
         kMissingExpectations_ErrorType,
         kWritingReferenceImage_ErrorType,
         kLast_ErrorType = kWritingReferenceImage_ErrorType
     };
+
+    /**
+     * Returns the name of the given ErrorType.
+     */
+    static const char *getErrorTypeName(ErrorType type) {
+        switch(type) {
+        case kNoGpuContext_ErrorType:
+            return "NoGpuContext";
+        case kImageMismatch_ErrorType:
+            return "ImageMismatch";
+        case kMissingExpectations_ErrorType:
+            return "MissingExpectations";
+        case kWritingReferenceImage_ErrorType:
+            return "WritingReferenceImage";
+        }
+        // control should never reach here
+        SkDEBUGFAIL("getErrorTypeName() called with unknown type");
+        return "Unknown";
+    }
 
     /**
      * A combination of 0 or more ErrorTypes.
@@ -87,3 +114,5 @@ namespace skiagm {
     // No errors at all.
     const static ErrorCombination kEmpty_ErrorCombination;
 }
+
+#endif // ifndef gm_error_DEFINED
