@@ -501,8 +501,8 @@ void add_line(const SkPoint p[2],
  * The output of this effect is a hairline edge for quadratics.
  * Quadratic specified by 0=u^2-v canonical coords. u and v are the first
  * two components of the vertex attribute. Uses unsigned distance.
- * Coverage is min(0, 1-distance). 3rd & 4th component unused. 
- * Requires shader derivative instruction support. 
+ * Coverage is min(0, 1-distance). 3rd & 4th component unused.
+ * Requires shader derivative instruction support.
  */
 class HairQuadEdgeEffect : public GrEffect {
 public:
@@ -511,7 +511,7 @@ public:
         // we go through this so we only have one copy of each effect
         static SkAutoTUnref<GrEffectRef> gHairQuadEdgeEffectRef(
                          CreateEffectRef(AutoEffectUnref(SkNEW(HairQuadEdgeEffect))));
-        
+
         gHairQuadEdgeEffectRef.get()->ref();
         return gHairQuadEdgeEffectRef;
     }
@@ -520,7 +520,7 @@ public:
 
     static const char* Name() { return "HairQuadEdge"; }
 
-    virtual void getConstantColorComponents(GrColor* color, 
+    virtual void getConstantColorComponents(GrColor* color,
                                             uint32_t* validFlags) const SK_OVERRIDE {
         *validFlags = 0;
     }
@@ -577,8 +577,8 @@ public:
     };
 
 private:
-    HairQuadEdgeEffect() { 
-        this->addVertexAttrib(kVec4f_GrSLType); 
+    HairQuadEdgeEffect() {
+        this->addVertexAttrib(kVec4f_GrSLType);
     }
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {
@@ -602,8 +602,8 @@ GrEffectRef* HairQuadEdgeEffect::TestCreate(SkMWCRandom* random,
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- * The output of this effect is a 1-pixel wide line. 
- * Input is 2D implicit device coord line eq (a*x + b*y +c = 0). 4th component unused. 
+ * The output of this effect is a 1-pixel wide line.
+ * Input is 2D implicit device coord line eq (a*x + b*y +c = 0). 4th component unused.
  */
 class HairLineEdgeEffect : public GrEffect {
 public:
@@ -612,7 +612,7 @@ public:
         // we go through this so we only have one copy of each effect
         static SkAutoTUnref<GrEffectRef> gHairLineEdgeEffectRef(
                             CreateEffectRef(AutoEffectUnref(SkNEW(HairLineEdgeEffect))));
-        
+
         gHairLineEdgeEffectRef.get()->ref();
         return gHairLineEdgeEffectRef;
     }
@@ -621,7 +621,7 @@ public:
 
     static const char* Name() { return "HairLineEdge"; }
 
-    virtual void getConstantColorComponents(GrColor* color, 
+    virtual void getConstantColorComponents(GrColor* color,
                                             uint32_t* validFlags) const SK_OVERRIDE {
         *validFlags = 0;
     }
@@ -670,8 +670,8 @@ public:
     };
 
 private:
-    HairLineEdgeEffect() { 
-        this->addVertexAttrib(kVec4f_GrSLType); 
+    HairLineEdgeEffect() {
+        this->addVertexAttrib(kVec4f_GrSLType);
     }
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {

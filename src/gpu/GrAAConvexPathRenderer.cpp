@@ -442,8 +442,8 @@ void create_vertices(const SegmentArray&  segments,
  * distance with negative being inside, positive outside. The edge is specified in
  * window space (y-down). If either the third or fourth component of the interpolated
  * vertex coord is > 0 then the pixel is considered outside the edge. This is used to
- * attempt to trim to a portion of the infinite quad. 
- * Requires shader derivative instruction support. 
+ * attempt to trim to a portion of the infinite quad.
+ * Requires shader derivative instruction support.
  */
 
 class QuadEdgeEffect : public GrEffect {
@@ -462,7 +462,7 @@ public:
 
     static const char* Name() { return "QuadEdge"; }
 
-    virtual void getConstantColorComponents(GrColor* color, 
+    virtual void getConstantColorComponents(GrColor* color,
                                             uint32_t* validFlags) const SK_OVERRIDE {
         *validFlags = 0;
     }
@@ -523,10 +523,10 @@ public:
     private:
         typedef GrGLEffect INHERITED;
     };
-    
+
 private:
-    QuadEdgeEffect() { 
-        this->addVertexAttrib(kVec4f_GrSLType); 
+    QuadEdgeEffect() {
+        this->addVertexAttrib(kVec4f_GrSLType);
     }
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE {

@@ -68,7 +68,7 @@ public:
         }
     }
 
-    virtual void getConstantColorComponents(GrColor* color, 
+    virtual void getConstantColorComponents(GrColor* color,
                                             uint32_t* validFlags) const SK_OVERRIDE {
         *validFlags = 0;
     }
@@ -179,7 +179,7 @@ public:
         }
     }
 
-    virtual void getConstantColorComponents(GrColor* color, 
+    virtual void getConstantColorComponents(GrColor* color,
                                             uint32_t* validFlags) const SK_OVERRIDE {
         *validFlags = 0;
     }
@@ -228,7 +228,7 @@ public:
             builder->fsCodeAppendf("\touterOffset.y *= %s.y;\n", fsEdgeName);
             builder->fsCodeAppend("\tfloat dOuter = length(outerOffset);\n");
             // compare outer lengths against xOuterRadius
-            builder->fsCodeAppendf("\tfloat edgeAlpha = clamp(%s.x-dOuter, 0.0, 1.0);\n", 
+            builder->fsCodeAppendf("\tfloat edgeAlpha = clamp(%s.x-dOuter, 0.0, 1.0);\n",
                                    fsEdgeName);
 
             if (ellipseEffect.isStroked()) {
@@ -236,14 +236,14 @@ public:
                 builder->fsCodeAppend("\tfloat dInner = length(innerOffset);\n");
 
                 // compare inner lengths against xInnerRadius
-                builder->fsCodeAppendf("\tfloat innerAlpha = clamp(dInner-%s.z, 0.0, 1.0);\n", 
+                builder->fsCodeAppendf("\tfloat innerAlpha = clamp(dInner-%s.z, 0.0, 1.0);\n",
                                        fsEdgeName);
                 builder->fsCodeAppend("\tedgeAlpha *= innerAlpha;\n");
             }
 
             SkString modulate;
             GrGLSLModulate4f(&modulate, inputColor, "edgeAlpha");
-            builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());      
+            builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
         }
 
         static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {

@@ -17,7 +17,7 @@ BOOL CALLBACK MyFuncLocaleEx(LPWSTR pStr, DWORD dwFlags, LPARAM lparam) {
         wprintf(L"Error %d getting LCID\n", GetLastError());
         return (TRUE);
     }
-    
+
     if (lcid > 0x8000) {
         wprintf(L"//");
     }
