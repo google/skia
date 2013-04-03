@@ -35,12 +35,8 @@ static SkSurface* createSurface(SurfaceType surfaceType, GrContext* context) {
     case kRaster_SurfaceType:
         return SkSurface::NewRaster(imageSpec);
     case kGpu_SurfaceType:
-#if SK_SUPPORT_GPU
         SkASSERT(NULL != context);
         return SkSurface::NewRenderTarget(context, imageSpec);
-#else
-        SkASSERT(0);
-#endif
     case kPicture_SurfaceType:
         return SkSurface::NewPicture(10, 10);
     }
@@ -133,18 +129,33 @@ static void TestSurfaceCopyOnWrite(skiatest::Reporter* reporter, SurfaceType sur
         testPaint))
 }
 
-static void TestSurface(skiatest::Reporter* reporter) {
-    TestSurfaceCopyOnWrite(reporter, kRaster_SurfaceType, NULL);
-    TestSurfaceCopyOnWrite(reporter, kPicture_SurfaceType, NULL);
+static void TestSurfaceWritableAfterSnapshotRelease(skiatest::Reporter* reporter,
+                                                    SurfaceType surfaceType,
+                                                    GrContext* context) {
+    // This test succeeds by not triggering an assertion.
+    // The test verifies that the surface remains writable (usable) after
+    // acquiring and releasing a snapshot without triggering a copy on write.
+    SkSurface* surface = createSurface(surfaceType, context);
+    SkAutoTUnref<SkSurface> aur_surface(surface);
+    SkCanvas* canvas = surface->getCanvas();
+    canvas->clear(1);
+    surface->newImageShapshot()->unref();  // Create and destroy SkImage
+    canvas->clear(2);
 }
 
-static void TestSurfaceGpu(skiatest::Reporter* reporter, GrContextFactory* factory) {
+static void TestSurface(skiatest::Reporter* reporter, GrContextFactory* factory) {
+    TestSurfaceCopyOnWrite(reporter, kRaster_SurfaceType, NULL);
+    TestSurfaceCopyOnWrite(reporter, kPicture_SurfaceType, NULL);
+    TestSurfaceWritableAfterSnapshotRelease(reporter, kRaster_SurfaceType, NULL);
+    TestSurfaceWritableAfterSnapshotRelease(reporter, kPicture_SurfaceType, NULL);
 #if SK_SUPPORT_GPU
-    GrContext* context = factory->get(GrContextFactory::kNative_GLContextType);
-    TestSurfaceCopyOnWrite(reporter, kGpu_SurfaceType, context);
+    if (NULL != factory) {
+        GrContext* context = factory->get(GrContextFactory::kNative_GLContextType);
+        TestSurfaceCopyOnWrite(reporter, kGpu_SurfaceType, context);
+        TestSurfaceWritableAfterSnapshotRelease(reporter, kGpu_SurfaceType, context);
+    }
 #endif
 }
 
 #include "TestClassDef.h"
-DEFINE_TESTCLASS("Surface", SurfaceTestClass, TestSurface)
-DEFINE_GPUTESTCLASS("SurfaceGpu", SurfaceGpuTestClass, TestSurfaceGpu)
+DEFINE_GPUTESTCLASS("Surface", SurfaceTestClass, TestSurface)
