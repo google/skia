@@ -422,7 +422,7 @@ public:
             // Generate the result image by rendering to tiles and accumulating
             // the results in 'bitmap'
 
-            // This 16x16 tiling matches the settings applied to 'pict' in 
+            // This 16x16 tiling matches the settings applied to 'pict' in
             // 'generate_new_picture'
             SkISize tileSize = SkISize::Make(16, 16);
 
@@ -439,14 +439,14 @@ public:
                 for (int xTile = 0; xTile < (size.width()+15)/16; ++xTile) {
                     int saveCount = tileCanvas.save();
                     SkMatrix mat(tileCanvas.getTotalMatrix());
-                    mat.postTranslate(SkIntToScalar(-xTile*tileSize.width()), 
+                    mat.postTranslate(SkIntToScalar(-xTile*tileSize.width()),
                                       SkIntToScalar(-yTile*tileSize.height()));
                     tileCanvas.setMatrix(mat);
                     pict->draw(&tileCanvas);
                     tileCanvas.flush();
                     tileCanvas.restoreToCount(saveCount);
-                    bmpCanvas.drawBitmap(tileBM, 
-                                         SkIntToScalar(xTile * tileSize.width()), 
+                    bmpCanvas.drawBitmap(tileBM,
+                                         SkIntToScalar(xTile * tileSize.width()),
                                          SkIntToScalar(yTile * tileSize.height()),
                                          &bmpPaint);
                 }
@@ -1359,7 +1359,7 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
             // We cannot yet pass 'true' to generate_image_from_picture to
             // perform actual tiled rendering (see Issue 1198 -
             // https://code.google.com/p/skia/issues/detail?id=1198)
-            gmmain.generate_image_from_picture(gm, compareConfig, pict, &bitmap, 
+            gmmain.generate_image_from_picture(gm, compareConfig, pict, &bitmap,
                                                replayScale /*, true */);
             SkString suffix("-tilegrid");
             if (SK_Scalar1 != replayScale) {
