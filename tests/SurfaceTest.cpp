@@ -35,8 +35,12 @@ static SkSurface* createSurface(SurfaceType surfaceType, GrContext* context) {
     case kRaster_SurfaceType:
         return SkSurface::NewRaster(imageSpec);
     case kGpu_SurfaceType:
+#if SK_SUPPORT_GPU
         SkASSERT(NULL != context);
         return SkSurface::NewRenderTarget(context, imageSpec);
+#else
+        SkASSERT(0);
+#endif
     case kPicture_SurfaceType:
         return SkSurface::NewPicture(10, 10);
     }
